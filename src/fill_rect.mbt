@@ -13,21 +13,25 @@
 // limitations under the License.
 
 ///|
-pub impl @selene.Backend for CanvasBackend with render_picture(
-  self,
-  png,
-  x,
-  y,
-  width,
-  height,
-  repeat,
-) {
-  let element = @dom.HTMLImageElement::new()
-  element.set_src(png)
-  let repeat_mode = if repeat { "repeat" } else { "no-repeat" }
-  let pattern = self.context.create_pattern(@js.Union7::from0(element), repeat_mode)
-  self.context.save()
-  self.context.set_fill_style(@js.Union3::from2(pattern))
-  self.context.fill_rect(x, y, width, height)
-  self.context.restore()
+pub(all) struct FillRect {
+  size : Vec2D
+  tile_path : String
+}
+
+///|
+pub let fill_rects : Map[Entity, FillRect] = Map::new()
+
+///|
+pub fn render_fill_rect(backend : &Backend) -> Unit {
+  for e, fill_rect in fill_rects {
+    guard positions.get(e) is Some(pos) else { continue }
+    backend.draw_picture(
+      fill_rect.tile_path,
+      pos.x,
+      pos.y,
+      fill_rect.size.x,
+      fill_rect.size.y,
+      true,
+    )
+  }
 }

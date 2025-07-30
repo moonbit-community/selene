@@ -24,7 +24,7 @@ pub struct Animation {
 }
 
 ///|
-fn Animation::new(
+pub fn Animation::new(
   id : String,
   sprite_path : String,
   max_frame~ : UInt,
@@ -36,3 +36,21 @@ fn Animation::new(
   { sprite_path, id, max_frame, loop_, height, width, offset }
 }
 
+///|
+pub let animations : Map[Entity, Animation] = Map::new()
+
+///|
+pub fn render_animation(backend : &Backend) -> Unit {
+  for e, self in animations {
+    guard positions.get(e) is Some(pos) else { continue }
+    backend.draw_sprite(
+      self.sprite_path,
+      x=pos.x,
+      y=pos.y,
+      offset_x=self.offset.x,
+      offset_y=self.offset.y,
+      width=self.width,
+      height=self.height,
+    )
+  }
+}

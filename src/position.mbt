@@ -12,14 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///|
-typealias (&Backend) -> Unit as System
+pub(all) type Position Vec2D derive(Eq, Show)
 
-///|
-typealias (App) -> Unit as Plugin
-
-///|
-pub fn default_plugin(app : App) -> Unit {
-  app.systems..push(control_system)..push(move_system)
-  app.render_pipes..push(render_fill_rect)..push(render_animation)
-}
+pub let positions : Map[Entity, Position] = Map::new()

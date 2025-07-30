@@ -19,12 +19,12 @@ type Entity UInt derive(Eq, Show, Hash)
 let all_entities : @set.Set[Entity] = @set.Set::new()
 
 ///|
-let generator : Ref[UInt] = { val: 0 }
+let entity_generator : Ref[UInt] = { val: 0 }
 
 ///|
 pub fn Entity::new() -> Entity {
-  let entity = generator.val
-  generator.val += 1
+  let entity = entity_generator.val
+  entity_generator.val += 1
   all_entities.add(entity)
   entity
 }

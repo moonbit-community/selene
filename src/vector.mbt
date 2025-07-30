@@ -13,10 +13,10 @@
 // limitations under the License.
 
 ///|
-pub struct Vec2D {
+pub(all) struct Vec2D {
   x : Double
   y : Double
-} derive(Show)
+} derive(Eq, Show)
 
 ///|
 pub fn Vec2D::new(x : Double, y : Double) -> Vec2D {

@@ -25,6 +25,7 @@ const DEFAULT_FPS : UInt = 60
 pub(open) trait Backend {
   build(
     Self,
+    initialize : () -> Unit,
     game_loop : () -> Unit,
     physical_fps : UInt,
     render_loop : () -> Unit,
@@ -32,7 +33,7 @@ pub(open) trait Backend {
     canvas_height : Double,
     fps : UInt,
   ) -> Unit
-  render_picture(
+  draw_picture(
     Self,
     png : String,
     x : Double,
@@ -41,16 +42,34 @@ pub(open) trait Backend {
     height : Double,
     repeat : Bool,
   ) -> Unit
+  draw_sprite(
+    Self,
+    sprite_path : String,
+    x~ : Double,
+    y~ : Double,
+    offset_x~ : Double,
+    offset_y~ : Double,
+    width~ : Double,
+    height~ : Double,
+  ) -> Unit
+  register_key_events(
+    Self,
+    pressed_keys : Set[Code],
+    keyup_callbacks : Map[Code, Array[() -> Unit]],
+    keydown_callbacks : Map[Code, Array[() -> Unit]],
+  ) -> Unit
 }
 
 ///|
-struct App {
+pub(all) struct App {
   canvas_height : Double
   canvas_width : Double
   fps : UInt
   physical_fps : UInt
+  initializers : Array[System]
   systems : Array[System]
   render_pipes : Array[System]
+  plugins : Array[Plugin]
   backend : &Backend
 }
 
@@ -62,7 +81,9 @@ pub fn App::new(backend : &Backend) -> App {
     fps: DEFAULT_FPS,
     physical_fps: DEFAULT_FPS,
     systems: [],
+    initializers: [],
     render_pipes: [],
+    plugins: [],
     backend,
   }
 }
@@ -93,14 +114,27 @@ pub fn App::with_backend(self : App, backend : &Backend) -> App {
 }
 
 ///|
-pub fn App::add_system(self : App, system : (&Backend) -> Unit) -> App {
+pub fn App::add_plugin(self : App, plugin : Plugin) -> App {
+  let plugins = self.plugins
+  plugins.push(plugin)
+  { ..self, plugins, }
+}
+
+pub fn App::add_initializer(self : App, initializer : System) -> App {
+  let initializers = self.initializers
+  initializers.push(initializer)
+  { ..self, initializers, }
+}
+
+///|
+pub fn App::add_system(self : App, system : System) -> App {
   let systems = self.systems
   systems.push(system)
   { ..self, systems, }
 }
 
 ///|
-pub fn App::add_render_pipe(self : App, pipe : (&Backend) -> Unit) -> App {
+pub fn App::add_render_pipe(self : App, pipe : System) -> App {
   let render_pipes = self.render_pipes
   render_pipes.push(pipe)
   { ..self, render_pipes, }
@@ -108,6 +142,12 @@ pub fn App::add_render_pipe(self : App, pipe : (&Backend) -> Unit) -> App {
 
 ///|
 pub fn App::run(self : App) -> Unit {
+  fn initialize() -> Unit {
+    for initializer in self.initializers {
+      initializer(self.backend)
+    }
+  }
+
   fn game_loop() -> Unit {
     for system in self.systems {
       system(self.backend)
@@ -120,7 +160,15 @@ pub fn App::run(self : App) -> Unit {
     }
   }
 
+  for plugin in self.plugins {
+    plugin(self)
+  }
+
+  self.backend.register_key_events(
+    pressed_keys, keyup_callbacks, keydown_callbacks,
+  )
   self.backend.build(
+    initialize,
     game_loop,
     self.physical_fps,
     render_loop,

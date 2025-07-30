@@ -13,28 +13,17 @@
 // limitations under the License.
 
 ///|
-pub(all) struct FillRect {
-  pos : Vec2D
-  width : Double
-  height : Double
-  tile_path : String
-}
+pub(all) type Velocity Vec2D
 
 ///|
-let fill_rects : Map[Entity, FillRect] = Map::new()
+pub let velocities : Map[Entity, Velocity] = Map::new()
+
 
 ///|
-pub impl Component for FillRect with get(entity) {
-  fill_rects.get(entity)
-}
-
-///|
-pub impl Component for FillRect with set(entity, fill_rect) {
-  fill_rects.set(entity, fill_rect)
-}
-
-pub fn render_fill_rect(backend : &Backend) -> Unit {
-  for _e, fill_rect in fill_rects {
-    backend.render_picture(fill_rect.tile_path, fill_rect.pos.x, fill_rect.pos.y, fill_rect.width, fill_rect.height, true)
+pub fn move_system(_backend : &Backend) -> Unit {
+  for entity, velocity in velocities {
+    guard positions.get(entity) is Some(pos) else { continue }
+    let new_pos = Vec2D::new(pos.x + velocity.x, pos.y + velocity.y)
+    positions.set(entity, new_pos)
   }
 }

@@ -14,7 +14,6 @@
 
 ///|
 struct CanvasBackend {
-  canvas : @dom.HTMLCanvasElement
   context : @dom.CanvasRenderingContext2D
 }
 
@@ -26,12 +25,13 @@ pub fn CanvasBackend::new() -> CanvasBackend {
     .to_html_canvas_element()
     .unwrap()
   let context = canvas.get_context("2d").to0().unwrap()
-  { canvas, context }
+  { context, }
 }
 
 ///|
 pub impl @selene.Backend for CanvasBackend with build(
   self,
+  initialize,
   game_loop,
   physical_fps,
   render_loop,
@@ -39,30 +39,7 @@ pub impl @selene.Backend for CanvasBackend with build(
   canvas_height,
   fps,
 ) {
-  window.add_event_listener("keyup", event => {
-    let keyboardEvent = event.to_keyboard_event().unwrap()
-    let keycode = keyboardEvent.code() |> Code::from_string
-    if keycode is Some(c) {
-      pressedKeys.remove(c)
-      if keyup_callbacks.get(c) is Some(callbacks) {
-        for callback in callbacks {
-          callback()
-        }
-      }
-    }
-  })
-  window.add_event_listener("keydown", event => {
-    let keyboardEvent = event.to_keyboard_event().unwrap()
-    let keycode = keyboardEvent.code() |> Code::from_string
-    if keycode is Some(c) {
-      pressedKeys.add(c)
-      if keydown_callbacks.get(c) is Some(callbacks) {
-        for callback in callbacks {
-          callback()
-        }
-      }
-    }
-  })
+  initialize()
   schedule_with_fixed_interval(1000 / fps.to_double(), () => {
     self.context.clear_rect(0, 0, canvas_width, canvas_height)
     render_loop()

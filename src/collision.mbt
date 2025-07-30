@@ -13,13 +13,30 @@
 // limitations under the License.
 
 ///|
-typealias (&Backend) -> Unit as System
+type CollisionLayer UInt
+
+///| FIXME: Use `UInt` and bitwise operations can obtain higher performance.
+type CollisionMask Array[CollisionLayer]
 
 ///|
-typealias (App) -> Unit as Plugin
+let collision_layer_generator : Ref[UInt] = { val: 0 }
 
 ///|
-pub fn default_plugin(app : App) -> Unit {
-  app.systems..push(control_system)..push(move_system)
-  app.render_pipes..push(render_fill_rect)..push(render_animation)
+pub fn CollisionLayer::new() -> CollisionLayer {
+  let layer = collision_layer_generator.val
+  collision_layer_generator.val += 1
+  layer
+}
+
+///|
+pub fn CollisionMask::new(layers : Array[CollisionLayer]) -> CollisionMask {
+  layers
+}
+
+///|
+fn CollisionMask::contains(
+  self : CollisionMask,
+  layer : CollisionLayer,
+) -> Bool {
+  self.contains(layer)
 }
