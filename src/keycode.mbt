@@ -126,12 +126,22 @@ pub fn is_pressed(code : Code) -> Bool {
   pressed_keys.contains(code)
 }
 
+///|
 let last_pressed_keys : Set[Code] = @set.Set::new()
 
+///|
 pub fn advanced_key_system(backend : &Backend) -> Unit {
-  
+  for code in pressed_keys {
+    last_pressed_keys.add(code)
+  }
 }
 
+///|
 pub fn is_just_pressed(code : Code) -> Bool {
-  ...
+  pressed_keys.contains(code) && !last_pressed_keys.contains(code)
+}
+
+///|
+pub fn is_just_released(code : Code) -> Bool {
+  !pressed_keys.contains(code) && last_pressed_keys.contains(code)
 }
