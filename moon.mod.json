@@ -1,6 +1,9 @@
 {
   "name": "Milky2018/selene",
   "version": "0.1.0",
+  "deps": {
+    "Yoorkin/rabbit-tea": "0.10.7"
+  },
   "readme": "README.md",
   "repository": "",
   "license": "Apache-2.0",
