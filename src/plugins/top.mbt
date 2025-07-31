@@ -16,7 +16,6 @@
 pub fn default_plugin(app : @system.App) -> Unit {
   app.systems
   ..push((@collision.move_system, 50))
-  ..push((@acceleration.accelerate_system, 60))
   ..push((@system.advanced_key_system, 100))
   app.render_pipes
   ..push((@sprite.render_sprite_system, 50))

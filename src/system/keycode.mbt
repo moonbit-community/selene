@@ -131,6 +131,7 @@ let last_pressed_keys : Set[Code] = @set.Set::new()
 
 ///|
 pub fn advanced_key_system(_backend : &Backend) -> Unit {
+  last_pressed_keys.clear()
   for code in pressed_keys {
     last_pressed_keys.add(code)
   }

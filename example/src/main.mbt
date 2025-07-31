@@ -20,7 +20,8 @@ fn main {
     .add_plugin(@plugins.default_plugin)
     .add_initializer(game_start)
     // .add_system(@input.simple_input_system)
-    .add_system(@input.simple_input_system, priority=150)
+    // .add_system(@acceleration.accelerate_system, priority=60)
+    .add_system(player_state_system, priority=150)
     .add_render_pipe(@collision.quadtree_render_system)
   app.run()
 }
@@ -31,17 +32,6 @@ fn game_start(_ : &@system.Backend) -> Unit {
   add_player()
   add_rocks()
 }
-
-// fn player_double_jump() -> Unit {
-//   let picture_path = "/pixel_adventure/Main Characters/Mask Dude/Double Jump (32x32).png"
-//   let animation = @sprite.Animation::new(
-//     picture_path,
-//     max_frame=6,
-//     height=32.0,
-//     width=32.0,
-//   )
-//   @sprite.play_animation(player, animation)
-// }
 
 ///|
 fn add_background() -> Unit {
@@ -57,5 +47,3 @@ fn add_background() -> Unit {
   @sprite.sprites.set(background, background_sprite)
   @position.positions.set(background, @math.Vec2D::new(0, 0))
 }
-
-

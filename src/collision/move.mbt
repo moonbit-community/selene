@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///|
+///| Move all entities with velocity, and handle collisions.
+/// Note: 1. This system should be run after any acceleration system.
+///       2. This system will query a quadtree to find collisions.
+///       3. This system will update velocities of entities when they collide.
 pub fn move_system(_backend : &@system.Backend) -> Unit {
   quadtree.val = QuadTree::new(
     @math.Vec2D::new(0, 0),
@@ -104,9 +107,11 @@ fn move_axis(
       let dir = @math.Vec2D::new(0, 0)
       if velocity[axis] > 0 {
         new_pos[axis] = collision_box.position[axis] - object.size[axis]
+        velocity[axis] = new_pos[axis] - object.position[axis]
         dir[axis] = 1
       } else if velocity[axis] < 0 {
         new_pos[axis] = collision_box.position[axis] + collision_box.size[axis]
+        velocity[axis] = new_pos[axis] - object.position[axis]
         dir[axis] = -1
       }
       add_collision_info(entity, e, dir)
