@@ -12,3 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
+fn add_rock(pos : @math.Vec2D) -> Unit {
+  let rock_sprite = "/pixel_adventure/Terrain/Terrain (16x16).png"
+  let rock = @system.Entity::new()
+  let animation = @sprite.Animation::new(
+    rock_sprite,
+    max_frame=1,
+    height=16.0,
+    width=16.0,
+    offset=@math.Vec2D::new(208.0, 16.0),
+  )
+  let rock_sprite = @sprite.Sprite::new_animation(animation, 20)
+  @sprite.sprites.set(rock, rock_sprite)
+  @position.positions.set(rock, pos)
+  @collision.collides.set(rock, @collision.Collide::{
+    shape: Rect(width=16.0, height=16.0),
+    layer: terrain_collision_layer,
+    mask: @collision.CollisionMask::empty(),
+  })
+}
+
+///|
+fn add_rocks() -> Unit {
+  for i in 0..<16 {
+    let pos = @math.Vec2D::new(16.0 * i.to_double(), 240.0)
+    add_rock(pos)
+  }
+}

@@ -20,29 +20,16 @@ fn main {
     .add_plugin(@plugins.default_plugin)
     .add_initializer(game_start)
     // .add_system(@input.simple_input_system)
-    .add_system(@input.simple_input_system)
-    .add_system(game_loop)
-    .add_system(print_on_the_floor)
+    .add_system(@input.simple_input_system, priority=150)
     .add_render_pipe(@collision.quadtree_render_system)
   app.run()
-}
-
-///|
-fn game_loop(_ : &@system.Backend) -> Unit {
-
-}
-
-fn print_on_the_floor(_ : &@system.Backend) -> Unit {
-  let on_the_floor = @collision.is_on_the_floor(player)
-  println("Is player on the floor? \{on_the_floor}")
 }
 
 ///|
 fn game_start(_ : &@system.Backend) -> Unit {
   add_background()
   add_player()
-  add_rock(@math.Vec2D::new(96.0, 240.0))
-  add_rock(@math.Vec2D::new(112.0, 240.0))
+  add_rocks()
 }
 
 // fn player_double_jump() -> Unit {
@@ -71,46 +58,4 @@ fn add_background() -> Unit {
   @position.positions.set(background, @math.Vec2D::new(0, 0))
 }
 
-let player : @system.Entity = @system.Entity::new()
 
-///|
-fn add_player() -> Unit {
-  let maskdude = "/pixel_adventure/Main Characters/Mask Dude/Idle (32x32).png"
-  let animation = @sprite.Animation::new(
-    maskdude,
-    max_frame=11,
-    height=32.0,
-    width=32.0,
-  )
-  let player_sprite = @sprite.Sprite::new_animation(animation, 10)
-  @sprite.sprites.set(player, player_sprite)
-  @input.controls.set(player, @input.KeyInput::{  })
-  @velocity.velocities.set(player, @math.Vec2D::new(0.0, 0.0))
-  @position.positions.set(player, @math.Vec2D::new(0.0, 224.0))
-  @collision.collides.set(player, @collision.Collide::{
-    shape: Rect(width=32.0, height=32.0),
-    layer: player_collision_layer,
-    mask: player_collision_mask,
-  })
-}
-
-///|
-fn add_rock(pos : @math.Vec2D) -> Unit {
-  let rock_sprite = "/pixel_adventure/Terrain/Terrain (16x16).png"
-  let rock = @system.Entity::new()
-  let animation = @sprite.Animation::new(
-    rock_sprite,
-    max_frame=1,
-    height=16.0,
-    width=16.0,
-    offset=@math.Vec2D::new(208.0, 16.0),
-  )
-  let rock_sprite = @sprite.Sprite::new_animation(animation, 20)
-  @sprite.sprites.set(rock, rock_sprite)
-  @position.positions.set(rock, pos)
-  @collision.collides.set(rock, @collision.Collide::{
-    shape: Rect(width=16.0, height=16.0),
-    layer: terrain_collision_layer,
-    mask: @collision.CollisionMask::empty(),
-  })
-}
