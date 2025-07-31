@@ -22,6 +22,7 @@ pub struct Animation {
   height : Double
   width : Double
   offset : @math.Vec2D
+  mut transform : @math.Transform
   mut loop_ : Bool
   mut rate : Double
   mut frame : Double
@@ -37,6 +38,7 @@ pub fn play_animation(
   from_start~ : Bool = false,
   loop_~ : Bool? = None,
   rate~ : Double? = None,
+  transform~ : @math.Transform? = None,
   // backward~ : Bool = false,
 ) -> Unit {
   guard sprites.get(entity)
@@ -46,6 +48,9 @@ pub fn play_animation(
   }
   if rate is Some(rate) {
     animation.rate = rate
+  }
+  if transform is Some(transform) {
+    animation.transform = transform
   }
   if current.id == animation.id {
     if from_start {
@@ -70,6 +75,7 @@ pub fn Animation::new(
   max_frame~ : UInt,
   height~ : Double,
   width~ : Double,
+  transform~ : @math.Transform = @math.Transform::new(),
   loop_~ : Bool = false,
   rate~ : Double = 0.2,
   offset~ : @math.Vec2D = @math.Vec2D::new(0, 0),
@@ -87,6 +93,7 @@ pub fn Animation::new(
     id,
     loop_,
     rate,
+    transform,
   }
 }
 
@@ -105,6 +112,7 @@ fn render_animation(
     offset_y=animation.offset.y,
     width=animation.width,
     height=animation.height,
+    transform=animation.transform,
   )
   animation.frame += animation.rate
   if animation.frame.to_uint() >= animation.max_frame {

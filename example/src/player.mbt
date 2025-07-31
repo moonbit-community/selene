@@ -40,6 +40,14 @@ let player_fall_animation : @sprite.Animation = @sprite.Animation::new(
 )
 
 ///|
+let player_jump_animation : @sprite.Animation = @sprite.Animation::new(
+  "/pixel_adventure/Main Characters/Mask Dude/Jump (32x32).png",
+  max_frame=1,
+  height=32.0,
+  width=32.0,
+)
+
+///|
 fn add_player() -> Unit {
   let player_sprite = @sprite.Sprite::new_animation(player_idle_animation, 10)
   @sprite.sprites.set(player, player_sprite)
@@ -82,8 +90,10 @@ fn player_state_system(_ : &@system.Backend) -> Unit {
   }
   let mut new_velocity_x = velocity.x
   let mut new_velocity_y = velocity.y
+  let mut transform = @math.Transform::new()
   if @system.is_pressed(@system.ArrowLeft) {
     new_velocity_x = -RUN_V
+    transform = @math.Transform::flip_x(32.0)
   } else if @system.is_pressed(@system.ArrowRight) {
     new_velocity_x = RUN_V
   } else {
@@ -92,9 +102,9 @@ fn player_state_system(_ : &@system.Backend) -> Unit {
   match player_state.val {
     Idle => {
       if velocity.x == 0.0 {
-        @sprite.play_animation(player, player_idle_animation)
+        @sprite.play_animation(player, player_idle_animation, transform=Some(transform))
       } else {
-        @sprite.play_animation(player, player_run_animation)
+        @sprite.play_animation(player, player_run_animation, transform=Some(transform))
       }
       if @system.is_pressed(@system.ArrowUp) &&
         @collision.is_on_the_floor(player) {
@@ -106,50 +116,21 @@ fn player_state_system(_ : &@system.Backend) -> Unit {
       }
     }
     Fall => {
-      @sprite.play_animation(player, player_fall_animation)
+      @sprite.play_animation(player, player_fall_animation, transform=Some(transform))
       if @collision.is_on_the_floor(player) {
         player_state.val = PlayerState::Idle
       }
     }
-    Jump => if velocity.y > 0.0 { player_state.val = PlayerState::Fall }
+    Jump => {
+      @sprite.play_animation(player, player_jump_animation, transform=Some(transform))
+      if velocity.y > 0.0 {
+        player_state.val = PlayerState::Fall
+      }
+    }
     Die => ()
   }
-  new_velocity_y += GRAVITY // Gravity
+  new_velocity_y += GRAVITY
   @velocity.velocities[player] = @math.Vec2D::new(
     new_velocity_x, new_velocity_y,
   )
 }
-
-///|
-// fn player_state_system() -> Unit {
-// guard @velocity.velocities.get(player) is Some(velocity)
-// if player_state.val is PlayerState::Die {
-//   return
-// }
-// let mut new_velocity_x = velocity.x
-// let mut new_velocity_y = velocity.y
-// if @system.is_pressed(ArrowLeft) {
-//   new_velocity_x = -5.0
-// } else if @system.is_pressed(ArrowRight) {
-//   new_velocity_x = 5.0
-// } else {
-//   new_velocity_x = 0.0
-// }
-// match player_state.val {
-//   Idle => ...
-//   Fall => ...
-//   Jump => ...
-//   Die => ...
-// }
-// if @system.is_pressed(ArrowUp) {
-//   new_velocity_y = -5.0
-// } else if @system.is_pressed(ArrowDown) {
-//   new_velocity_y = 5.0
-// } else {
-//   new_velocity_y = 0.0
-// }
-//   @velocity.velocities.set(
-//     player,
-//     @math.Vec2D::new(new_velocity_x, new_velocity_y),
-//   )
-// }

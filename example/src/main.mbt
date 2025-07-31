@@ -39,11 +39,11 @@ fn game_start(_ : &@system.Backend) -> Unit {
 fn add_background() -> Unit {
   let background = @system.Entity::new()
   let background_sprite = @sprite.Sprite::new_picture(
-    {
-      size: @math.Vec2D::new(1024.0, 256.0),
-      tile_path: "/pixel_adventure/Background/Gray.png",
-      repeat: true,
-    },
+    @sprite.Picture::new(
+      @math.Vec2D::new(1024.0, 256.0),
+      "/pixel_adventure/Background/Gray.png",
+      repeat=true,
+    ),
     0,
   )
   @sprite.sprites.set(background, background_sprite)

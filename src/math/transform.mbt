@@ -13,36 +13,22 @@
 // limitations under the License.
 
 ///|
-pub(all) struct Picture {
-  size : @math.Vec2D
-  tile_path : String
-  transform : @math.Transform
-  repeat : Bool
+pub(all) struct Transform {
+  scale : Vec2D
+  translate : Vec2D
+  skew : Vec2D
 }
 
 ///|
-pub fn Picture::new(
-  size : @math.Vec2D,
-  tile_path : String,
-  transform~ : @math.Transform = @math.Transform::new(),
-  repeat~ : Bool = false,
-) -> Picture {
-  { size, tile_path, transform, repeat }
+pub fn Transform::new(
+  scale~ : Vec2D = Vec2D::new(1.0, 1.0),
+  translate~ : Vec2D = Vec2D::new(0.0, 0.0),
+  skew~ : Vec2D = Vec2D::new(0.0, 0.0),
+) -> Transform {
+  { scale, translate, skew }
 }
 
 ///|
-fn render_picture(
-  backend : &@system.Backend,
-  picture : Picture,
-  pos : @math.Vec2D,
-) -> Unit {
-  backend.draw_picture(
-    picture.tile_path,
-    x=pos.x,
-    y=pos.y,
-    width=picture.size.x,
-    height=picture.size.y,
-    repeat=picture.repeat,
-    transform=picture.transform
-  )
+pub fn Transform::flip_x(width : Double) -> Transform {
+  Transform::new(scale=Vec2D::new(-1.0, 1.0), translate=Vec2D::new(width, 0.0))
 }

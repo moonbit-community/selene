@@ -39,11 +39,12 @@ pub(open) trait Backend {
   draw_picture(
     Self,
     png : String,
-    x : Double,
-    y : Double,
-    width : Double,
-    height : Double,
-    repeat : Bool,
+    x~ : Double,
+    y~ : Double,
+    width~ : Double,
+    height~ : Double,
+    transform~ : @math.Transform,
+    repeat~ : Bool,
   ) -> Unit
   draw_sprite(
     Self,
@@ -54,6 +55,7 @@ pub(open) trait Backend {
     offset_y~ : Double,
     width~ : Double,
     height~ : Double,
+    transform~ : @math.Transform,
   ) -> Unit
   register_key_events(
     Self,
