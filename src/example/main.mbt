@@ -41,14 +41,14 @@ fn game_start(_ : &@system.Backend) -> Unit {
 ///|
 fn add_background() -> Unit {
   let background = @system.Entity::new()
-  let background_sprite = @sprite.Sprite::{
-    zindex: 0,
-    sprite_type: @sprite.Picture({
+  let background_sprite = @sprite.Sprite::new_picture(
+    {
       size: @math.Vec2D::new(1024.0, 256.0),
       tile_path: "/pixel_adventure/Background/Gray.png",
       repeat: true,
-    }),
-  }
+    },
+    0,
+  )
   @sprite.sprites.set(background, background_sprite)
   @position.positions.set(background, @math.Vec2D::new(0, 0))
 }
@@ -58,16 +58,12 @@ fn add_player() -> Unit {
   let player = @system.Entity::new()
   let maskdude = "/pixel_adventure/Main Characters/Mask Dude/Idle (32x32).png"
   let animation = @sprite.Animation::new(
-    "MaskDudeIdle",
     maskdude,
     max_frame=11,
     height=32.0,
     width=32.0,
   )
-  let player_sprite = @sprite.Sprite::{
-    zindex: 10,
-    sprite_type: @sprite.SpriteType::Animation(animation),
-  }
+  let player_sprite = @sprite.Sprite::new_animation(animation, 10)
   @sprite.sprites.set(player, player_sprite)
   @input.controls.set(player, @input.KeyInput::{  })
   @velocity.velocities.set(player, @math.Vec2D::new(0.0, 0.0))
@@ -84,17 +80,13 @@ fn add_rock(pos : @math.Vec2D) -> Unit {
   let rock_sprite = "pixel_adventure/Terrain/Terrain (16x16).png"
   let rock = @system.Entity::new()
   let animation = @sprite.Animation::new(
-    "Rock",
     rock_sprite,
     max_frame=1,
     height=16.0,
     width=16.0,
     offset=@math.Vec2D::new(208.0, 16.0),
   )
-  let rock_sprite = @sprite.Sprite::{
-    zindex: 20,
-    sprite_type: @sprite.SpriteType::Animation(animation),
-  }
+  let rock_sprite = @sprite.Sprite::new_animation(animation, 20)
   @sprite.sprites.set(rock, rock_sprite)
   @position.positions.set(rock, pos)
   @collision.collides.set(rock, @collision.Collide::{

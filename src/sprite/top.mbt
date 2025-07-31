@@ -22,9 +22,19 @@ pub(all) struct Sprite {
 pub let sprites : Map[@system.Entity, Sprite] = Map::new()
 
 ///|
-pub(all) enum SpriteType {
+pub enum SpriteType {
   Picture(Picture)
-  Animation(Animation)
+  Animation(Animation, mut current~ : Animation) // Default animation and current animation
+}
+
+///|
+pub fn Sprite::new_animation(animation : Animation, zindex : Int) -> Sprite {
+  { sprite_type: SpriteType::Animation(animation, current=animation), zindex }
+}
+
+///|
+pub fn Sprite::new_picture(picture : Picture, zindex : Int) -> Sprite {
+  { sprite_type: SpriteType::Picture(picture), zindex }
 }
 
 ///|
@@ -38,8 +48,11 @@ pub fn render_sprite_system(backend : &@system.Backend) -> Unit {
     match sprite.sprite_type {
       SpriteType::Picture(picture) =>
         render_picture(backend, picture, pos.inner())
-      SpriteType::Animation(animation) =>
-        render_animation(backend, animation, pos.inner())
+      SpriteType::Animation(default, current~) as anime =>
+        if render_animation(backend, current, pos.inner()) {
+          anime.current = default
+          anime.current.frame = 0
+        }
     }
   }
 }

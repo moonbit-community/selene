@@ -13,42 +13,77 @@
 // limitations under the License.
 
 ///|
+let animation_id_generator : Ref[UInt] = Ref::new(0)
+
+///|
 pub struct Animation {
   sprite_path : String
-  id : String
   max_frame : UInt
-  loop_ : Bool
   height : Double
   width : Double
   offset : @math.Vec2D
+  loop_ : Bool
+  mut frame : UInt
+  priv id : UInt
+}
+
+///|
+pub fn play_animation(
+  animation : Animation,
+  start_frame~ : UInt = 0,
+  // rate~ : Double = 1.0
+  // backward~ : Bool = false,
+) -> Unit {
+  ...
 }
 
 ///|
 pub fn Animation::new(
-  id : String,
   sprite_path : String,
   max_frame~ : UInt,
-  loop_~ : Bool = true,
   height~ : Double,
   width~ : Double,
+  loop_~ : Bool = false,
   offset~ : @math.Vec2D = @math.Vec2D::new(0, 0),
+  start_frame~ : UInt = 0,
 ) -> Animation {
-  { sprite_path, id, max_frame, loop_, height, width, offset }
+  let id = animation_id_generator.val
+  animation_id_generator.val += 1
+  {
+    sprite_path,
+    max_frame,
+    height,
+    width,
+    offset,
+    frame: start_frame,
+    id,
+    loop_,
+  }
 }
 
-///|
+///| Returns true if the animation is ending
 fn render_animation(
   backend : &@system.Backend,
   animation : Animation,
   pos : @math.Vec2D,
-) -> Unit {
+) -> Bool {
   backend.draw_sprite(
     animation.sprite_path,
     x=pos.x,
     y=pos.y,
-    offset_x=animation.offset.x,
+    offset_x=animation.offset.x + animation.width * animation.frame.to_double(),
     offset_y=animation.offset.y,
     width=animation.width,
     height=animation.height,
   )
+  animation.frame += 1
+  if animation.frame >= animation.max_frame {
+    if animation.loop_ {
+      animation.frame = 0
+      return false
+    } else {
+      return true
+    }
+  }
+  false
 }
