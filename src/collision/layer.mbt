@@ -13,10 +13,10 @@
 // limitations under the License.
 
 ///|
-type CollisionLayer UInt
+pub type CollisionLayer UInt
 
 ///| FIXME: Use `UInt` and bitwise operations can obtain higher performance.
-type CollisionMask Array[CollisionLayer]
+pub type CollisionMask Array[CollisionLayer]
 
 ///|
 let collision_layer_generator : Ref[UInt] = { val: 0 }

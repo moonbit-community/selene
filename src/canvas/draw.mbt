@@ -58,12 +58,12 @@ pub impl @system.Backend for CanvasBackend with draw_sprite(
   height~
 ) {
   self.context.save()
-  self.context.translate(x + offset_x, y + offset_y)
+  self.context.translate(x, y)
   let element = get_image_element(sprite_path)
   self.context.draw_image_with_src_and_dst_size(
     element |> @js.Value::cast_from |> @js.Value::cast,
-    0,
-    0,
+    offset_x,
+    offset_y,
     width,
     height,
     0,

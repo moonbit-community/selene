@@ -17,12 +17,3 @@ pub(all) type Velocity @math.Vec2D
 
 ///|
 pub let velocities : Map[@system.Entity, Velocity] = Map::new()
-
-///|
-pub fn move_system(_backend : &@system.Backend) -> Unit {
-  for entity, velocity in velocities {
-    guard @position.positions.get(entity) is Some(pos) else { continue }
-    let new_pos = @math.Vec2D::new(pos.x + velocity.x, pos.y + velocity.y)
-    @position.positions.set(entity, new_pos)
-  }
-}

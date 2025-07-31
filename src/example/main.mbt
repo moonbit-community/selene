@@ -26,19 +26,29 @@ fn main {
 
 ///|
 fn game_loop(_ : &@system.Backend) -> Unit {
+
 }
 
 ///|
 fn game_start(_ : &@system.Backend) -> Unit {
-  // Add a background to the game
+  add_background()
+  add_player()
+  add_rock(@math.Vec2D::new(96.0, 160.0))
+  add_rock(@math.Vec2D::new(112.0, 160.0))
+}
+
+///|
+fn add_background() -> Unit {
   let background = @system.Entity::new()
   @sprite.fill_rects.set(background, {
     size: @math.Vec2D::new(1024.0, 256.0),
     tile_path: "/pixel_adventure/Background/Gray.png",
   })
   @position.positions.set(background, @math.Vec2D::new(0, 0))
+}
 
-  // Add a player character
+///|
+fn add_player() -> Unit {
   let player = @system.Entity::new()
   let maskdude = "/pixel_adventure/Main Characters/Mask Dude/Idle (32x32).png"
   let animation = @sprite.Animation::new(
@@ -50,6 +60,22 @@ fn game_start(_ : &@system.Backend) -> Unit {
   )
   @sprite.animations.set(player, animation)
   @input.controls.set(player, @input.KeyInput::{  })
-  @move.velocities.set(player, @math.Vec2D::new(0.0, 0.0))
+  @velocity.velocities.set(player, @math.Vec2D::new(0.0, 0.0))
   @position.positions.set(player, @math.Vec2D::new(0.0, 224.0))
+}
+
+///|
+fn add_rock(pos : @math.Vec2D) -> Unit {
+  let rock_sprite = "pixel_adventure/Terrain/Terrain (16x16).png"
+  let rock = @system.Entity::new()
+  let animation = @sprite.Animation::new(
+    "Rock",
+    rock_sprite,
+    max_frame=1,
+    height=16.0,
+    width=16.0,
+    offset=@math.Vec2D::new(208.0, 16.0),
+  )
+  @sprite.animations.set(rock, animation)
+  @position.positions.set(rock, pos)
 }

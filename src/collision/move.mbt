@@ -13,40 +13,48 @@
 // limitations under the License.
 
 ///|
-pub fn move_with_collide_system(_backend : &@system.Backend) -> Unit {
+pub fn move_system(_backend : &@system.Backend) -> Unit {
   let new_quadtree = QuadTree::new(
     @math.Vec2D::new(0, 0),
     @math.Vec2D::new(GAME_WIDTH, GAME_HEIGHT),
     0,
   )
-  for e, collide in collides {
-    guard @position.positions.get(e) is Some(pos) else { continue }
-    guard @move.velocities.get(e) is Some(velocity) else { continue }
-    guard collide.shape is Rect(width~, height~)
-    let box = @math.Rect::{
-      position: pos.inner(),
-      size: @math.Vec2D::new(width, height),
+  for e, vel in @velocity.velocities {
+    if collides.get(e) is Some(collide) {
+      move_with_collide(e, collide, vel.inner(), new_quadtree)
+    } else {
+      move_without_collide(e, vel.inner())
     }
-    let (new_pos_x, collide_x) = move_axis(
-      e,
-      box,
-      velocity.inner(),
-      X,
-      collide.mask,
-    )
-    let object_x = @math.Rect::{ size: box.size, position: new_pos_x }
-    let (new_pos, collide_y) = move_axis(
-      e,
-      object_x,
-      velocity.inner(),
-      Y,
-      collide.mask,
-    )
-    let _collide = collide_x || collide_y
-    @position.positions.set(e, new_pos)
-    new_quadtree.insert(e)
   }
   quadtree.val = new_quadtree
+}
+
+///|
+fn move_without_collide(e : @system.Entity, velocity : @math.Vec2D) -> Unit {
+  guard @position.positions.get(e) is Some(pos) else { return }
+  let new_pos = @math.Vec2D::new(pos.x + velocity.x, pos.y + velocity.y)
+  @position.positions.set(e, new_pos)
+}
+
+///|
+fn move_with_collide(
+  e : @system.Entity,
+  collide : Collide,
+  velocity : @math.Vec2D,
+  quadtree : QuadTree,
+) -> Unit {
+  guard @position.positions.get(e) is Some(pos) else { return }
+  guard collide.shape is Rect(width~, height~)
+  let box = @math.Rect::{
+    position: pos.inner(),
+    size: @math.Vec2D::new(width, height),
+  }
+  let (new_pos_x, collide_x) = move_axis(e, box, velocity, X, collide.mask)
+  let object_x = @math.Rect::{ size: box.size, position: new_pos_x }
+  let (new_pos, collide_y) = move_axis(e, object_x, velocity, Y, collide.mask)
+  let _collide = collide_x || collide_y
+  @position.positions.set(e, new_pos)
+  quadtree.insert(e)
 }
 
 ///|
