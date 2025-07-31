@@ -130,7 +130,7 @@ pub fn is_pressed(code : Code) -> Bool {
 let last_pressed_keys : Set[Code] = @set.Set::new()
 
 ///|
-pub fn advanced_key_system(backend : &Backend) -> Unit {
+pub fn advanced_key_system(_backend : &Backend) -> Unit {
   for code in pressed_keys {
     last_pressed_keys.add(code)
   }

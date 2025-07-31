@@ -13,11 +13,21 @@
 // limitations under the License.
 
 ///|
-pub fn default_plugin(app : @system.App) -> Unit {
-  app.systems
-  ..push(@collision.move_with_collide_system)
-  ..push(@system.advanced_key_system)
-  app.render_pipes
-  ..push(@sprite.render_fill_rect)
-  ..push(@sprite.render_animation)
+pub(all) struct Rect {
+  position : Vec2D
+  size : Vec2D
 }
+
+///| Check if two rectangles intersect
+pub fn Rect::intersects(a : Rect, b : Rect) -> Bool {
+  a.position.x < b.position.x + b.size.x &&
+  a.position.x + a.size.x > b.position.x &&
+  a.position.y < b.position.y + b.size.y &&
+  a.position.y + a.size.y > b.position.y
+}
+
+///|
+pub fn Rect::shift(self : Rect, dir : Vec2D) -> Rect {
+  { position: self.position + dir, size: self.size }
+}
+

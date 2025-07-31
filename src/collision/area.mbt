@@ -11,13 +11,3 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-///|
-pub fn default_plugin(app : @system.App) -> Unit {
-  app.systems
-  ..push(@collision.move_with_collide_system)
-  ..push(@system.advanced_key_system)
-  app.render_pipes
-  ..push(@sprite.render_fill_rect)
-  ..push(@sprite.render_animation)
-}
