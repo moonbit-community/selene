@@ -8,6 +8,7 @@
     "Milky2018/selene/velocity",
     "Milky2018/selene/input",
     "Milky2018/selene/plugins",
-    "Milky2018/selene/position"
+    "Milky2018/selene/position",
+    "Milky2018/selene/collision"
   ]
 }

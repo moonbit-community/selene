@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///|
-pub(all) struct Collide {
-  shape : CollisionShape
-  layer : CollisionLayer
-  mask : CollisionMask
-}
 
 ///|
-pub let collides : Map[@system.Entity, Collide] = Map::new()
+let player_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
+
+///|
+let terrain_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
+
+///|
+let player_collision_mask : @collision.CollisionMask = @collision.CollisionMask::new([
+    terrain_collision_layer,
+  ],
+)

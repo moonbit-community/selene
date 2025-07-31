@@ -34,6 +34,11 @@ pub fn CollisionMask::new(layers : Array[CollisionLayer]) -> CollisionMask {
 }
 
 ///|
+pub fn CollisionMask::empty() -> CollisionMask {
+  []
+}
+
+///|
 fn CollisionMask::contains(
   self : CollisionMask,
   layer : CollisionLayer,

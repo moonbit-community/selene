@@ -19,7 +19,7 @@ pub(all) struct KeyInput {}
 pub let controls : Map[@system.Entity, KeyInput] = Map::new()
 
 ///|
-pub fn input_system(_backend : &@system.Backend) -> Unit {
+pub fn simple_input_system(_backend : &@system.Backend) -> Unit {
   for entity, _control in controls {
     guard @velocity.velocities.get(entity) is Some(velocity) else { continue }
     let mut new_velocity_x = velocity.x

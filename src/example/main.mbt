@@ -19,7 +19,7 @@ fn main {
     .with_canvas_height(256.0)
     .add_initializer(game_start)
     .add_plugin(@plugins.default_plugin)
-    .add_system(@input.input_system)
+    .add_system(@input.simple_input_system)
     .add_system(game_loop)
   app.run()
 }
@@ -33,8 +33,8 @@ fn game_loop(_ : &@system.Backend) -> Unit {
 fn game_start(_ : &@system.Backend) -> Unit {
   add_background()
   add_player()
-  add_rock(@math.Vec2D::new(96.0, 160.0))
-  add_rock(@math.Vec2D::new(112.0, 160.0))
+  add_rock(@math.Vec2D::new(96.0, 240.0))
+  add_rock(@math.Vec2D::new(112.0, 240.0))
 }
 
 ///|
@@ -62,6 +62,11 @@ fn add_player() -> Unit {
   @input.controls.set(player, @input.KeyInput::{  })
   @velocity.velocities.set(player, @math.Vec2D::new(0.0, 0.0))
   @position.positions.set(player, @math.Vec2D::new(0.0, 224.0))
+  @collision.collides.set(player, @collision.Collide::{
+    shape: Rect(width=32.0, height=32.0),
+    layer: player_collision_layer,
+    mask: player_collision_mask,
+  })
 }
 
 ///|
@@ -78,4 +83,9 @@ fn add_rock(pos : @math.Vec2D) -> Unit {
   )
   @sprite.animations.set(rock, animation)
   @position.positions.set(rock, pos)
+  @collision.collides.set(rock, @collision.Collide::{
+    shape: Rect(width=16.0, height=16.0),
+    layer: terrain_collision_layer,
+    mask: @collision.CollisionMask::empty(),
+  })
 }
