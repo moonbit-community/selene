@@ -12,17 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 pub(all) type Acceleration @math.Vec2D
 
+///|
 pub let accelerations : Map[@system.Entity, Acceleration] = Map::new()
 
+///|
 pub fn accelerate_system(_backend : &@system.Backend) -> Unit {
   for e, a in accelerations {
     guard @velocity.velocities.get(e) is Some(velocity) else { continue }
-    let new_velocity = @math.Vec2D::new(
-      velocity.x + a.x,
-      velocity.y + a.y,
-    )
+    let new_velocity = @math.Vec2D::new(velocity.x + a.x, velocity.y + a.y)
     @velocity.velocities.set(e, new_velocity)
   }
+}
+
+///|
+pub fn add_gravity(entity : @system.Entity, gravity~ : Double = 9.8) -> Unit {
+  if accelerations.get(entity) is None {
+    accelerations.set(entity, @math.Vec2D::new(0, 0))
+  }
+  let acceleration = accelerations.get(entity).unwrap()
+  acceleration.y += gravity
 }
