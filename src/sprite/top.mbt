@@ -37,26 +37,9 @@ pub fn render_sprite_system(backend : &@system.Backend) -> Unit {
     guard @position.positions.get(e) is Some(pos) else { continue }
     match sprite.sprite_type {
       SpriteType::Picture(picture) =>
-        backend.draw_picture(
-          picture.tile_path,
-          pos.x,
-          pos.y,
-          picture.size.x,
-          picture.size.y,
-          picture.repeat,
-        )
-      SpriteType::Animation(animation) => {
-        guard @position.positions.get(e) is Some(pos) else { continue }
-        backend.draw_sprite(
-          animation.sprite_path,
-          x=pos.x,
-          y=pos.y,
-          offset_x=animation.offset.x,
-          offset_y=animation.offset.y,
-          width=animation.width,
-          height=animation.height,
-        )
-      }
+        render_picture(backend, picture, pos.inner())
+      SpriteType::Animation(animation) =>
+        render_animation(backend, animation, pos.inner())
     }
   }
 }

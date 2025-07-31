@@ -16,5 +16,21 @@
 pub(all) struct Picture {
   size : @math.Vec2D
   tile_path : String
-  repeat : Bool 
+  repeat : Bool
+}
+
+///|
+fn render_picture(
+  backend : &@system.Backend,
+  picture : Picture,
+  pos : @math.Vec2D,
+) -> Unit {
+  backend.draw_picture(
+    picture.tile_path,
+    pos.x,
+    pos.y,
+    picture.size.x,
+    picture.size.y,
+    picture.repeat,
+  )
 }

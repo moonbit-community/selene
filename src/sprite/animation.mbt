@@ -35,3 +35,20 @@ pub fn Animation::new(
 ) -> Animation {
   { sprite_path, id, max_frame, loop_, height, width, offset }
 }
+
+///|
+fn render_animation(
+  backend : &@system.Backend,
+  animation : Animation,
+  pos : @math.Vec2D,
+) -> Unit {
+  backend.draw_sprite(
+    animation.sprite_path,
+    x=pos.x,
+    y=pos.y,
+    offset_x=animation.offset.x,
+    offset_y=animation.offset.y,
+    width=animation.width,
+    height=animation.height,
+  )
+}
