@@ -2,6 +2,6 @@
   "import": [
     "Yoorkin/rabbit-tea/dom",
     "rami3l/js-ffi/js",
-    "Milky2018/selene"
+    "Milky2018/selene/system"
   ]
 }

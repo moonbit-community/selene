@@ -22,45 +22,6 @@ const DEFAULT_CANVAS_WIDTH = 800.0
 const DEFAULT_FPS : UInt = 60
 
 ///|
-pub(open) trait Backend {
-  build(
-    Self,
-    initialize : () -> Unit,
-    game_loop : () -> Unit,
-    physical_fps : UInt,
-    render_loop : () -> Unit,
-    canvas_width : Double,
-    canvas_height : Double,
-    fps : UInt,
-  ) -> Unit
-  draw_picture(
-    Self,
-    png : String,
-    x : Double,
-    y : Double,
-    width : Double,
-    height : Double,
-    repeat : Bool,
-  ) -> Unit
-  draw_sprite(
-    Self,
-    sprite_path : String,
-    x~ : Double,
-    y~ : Double,
-    offset_x~ : Double,
-    offset_y~ : Double,
-    width~ : Double,
-    height~ : Double,
-  ) -> Unit
-  register_key_events(
-    Self,
-    pressed_keys : Set[Code],
-    keyup_callbacks : Map[Code, Array[() -> Unit]],
-    keydown_callbacks : Map[Code, Array[() -> Unit]],
-  ) -> Unit
-}
-
-///|
 pub(all) struct App {
   canvas_height : Double
   canvas_width : Double
@@ -120,6 +81,7 @@ pub fn App::add_plugin(self : App, plugin : Plugin) -> App {
   { ..self, plugins, }
 }
 
+///|
 pub fn App::add_initializer(self : App, initializer : System) -> App {
   let initializers = self.initializers
   initializers.push(initializer)
@@ -163,7 +125,6 @@ pub fn App::run(self : App) -> Unit {
   for plugin in self.plugins {
     plugin(self)
   }
-
   self.backend.register_key_events(
     pressed_keys, keyup_callbacks, keydown_callbacks,
   )

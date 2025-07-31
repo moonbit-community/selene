@@ -20,7 +20,7 @@ pub struct Animation {
   loop_ : Bool
   height : Double
   width : Double
-  offset : Vec2D
+  offset : @math.Vec2D
 }
 
 ///|
@@ -31,18 +31,18 @@ pub fn Animation::new(
   loop_~ : Bool = true,
   height~ : Double,
   width~ : Double,
-  offset~ : Vec2D = Vec2D::new(0, 0),
+  offset~ : @math.Vec2D = @math.Vec2D::new(0, 0),
 ) -> Animation {
   { sprite_path, id, max_frame, loop_, height, width, offset }
 }
 
 ///|
-pub let animations : Map[Entity, Animation] = Map::new()
+pub let animations : Map[@system.Entity, Animation] = Map::new()
 
 ///|
-pub fn render_animation(backend : &Backend) -> Unit {
+pub fn render_animation(backend : &@system.Backend) -> Unit {
   for e, self in animations {
-    guard positions.get(e) is Some(pos) else { continue }
+    guard @position.positions.get(e) is Some(pos) else { continue }
     backend.draw_sprite(
       self.sprite_path,
       x=pos.x,

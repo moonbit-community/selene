@@ -29,7 +29,7 @@ pub fn CanvasBackend::new() -> CanvasBackend {
 }
 
 ///|
-pub impl @selene.Backend for CanvasBackend with build(
+pub impl @system.Backend for CanvasBackend with build(
   self,
   initialize,
   game_loop,

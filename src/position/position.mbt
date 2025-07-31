@@ -12,18 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///|
-pub(all) type Velocity Vec2D
+pub(all) type Position @math.Vec2D derive(Eq, Show)
 
-///|
-pub let velocities : Map[Entity, Velocity] = Map::new()
-
-
-///|
-pub fn move_system(_backend : &Backend) -> Unit {
-  for entity, velocity in velocities {
-    guard positions.get(entity) is Some(pos) else { continue }
-    let new_pos = Vec2D::new(pos.x + velocity.x, pos.y + velocity.y)
-    positions.set(entity, new_pos)
-  }
-}
+pub let positions : Map[@system.Entity, Position] = Map::new()

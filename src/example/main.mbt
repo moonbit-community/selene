@@ -14,42 +14,42 @@
 
 ///|
 fn main {
-  let app = @selene.App::new(@canvas.CanvasBackend::new())
+  let app = @system.App::new(@canvas.CanvasBackend::new())
     .with_canvas_width(512.0)
     .with_canvas_height(256.0)
     .add_initializer(game_start)
-    .add_plugin(@selene.default_plugin)
+    .add_plugin(@plugins.default_plugin)
+    .add_system(@input.input_system)
     .add_system(game_loop)
   app.run()
 }
 
 ///|
-fn game_loop(_ : &@selene.Backend) -> Unit {
-
+fn game_loop(_ : &@system.Backend) -> Unit {
 }
 
 ///|
-fn game_start(_ : &@selene.Backend) -> Unit {
+fn game_start(_ : &@system.Backend) -> Unit {
   // Add a background to the game
-  let background = @selene.Entity::new()
-  @selene.fill_rects.set(background, {
-    size: @selene.Vec2D::new(1024.0, 256.0),
+  let background = @system.Entity::new()
+  @sprite.fill_rects.set(background, {
+    size: @math.Vec2D::new(1024.0, 256.0),
     tile_path: "/pixel_adventure/Background/Gray.png",
   })
-  @selene.positions.set(background, @selene.Vec2D::new(0, 0))
+  @position.positions.set(background, @math.Vec2D::new(0, 0))
 
   // Add a player character
-  let player = @selene.Entity::new()
+  let player = @system.Entity::new()
   let maskdude = "/pixel_adventure/Main Characters/Mask Dude/Idle (32x32).png"
-  let animation = @selene.Animation::new(
+  let animation = @sprite.Animation::new(
     "MaskDudeIdle",
     maskdude,
     max_frame=11,
     height=32.0,
     width=32.0,
   )
-  @selene.animations.set(player, animation)
-  @selene.controls.set(player, @selene.Control::{  })
-  @selene.velocities.set(player, @selene.Vec2D::new(0.0, 0.0))
-  @selene.positions.set(player, @selene.Vec2D::new(0.0, 224.0))
+  @sprite.animations.set(player, animation)
+  @input.controls.set(player, @input.KeyInput::{  })
+  @move.velocities.set(player, @math.Vec2D::new(0.0, 0.0))
+  @position.positions.set(player, @math.Vec2D::new(0.0, 224.0))
 }

@@ -13,31 +13,31 @@
 // limitations under the License.
 
 ///|
-pub(all) struct Control {}
+pub(all) struct KeyInput {}
 
 ///|
-pub let controls : Map[Entity, Control] = Map::new()
+pub let controls : Map[@system.Entity, KeyInput] = Map::new()
 
 ///|
-pub fn control_system(_backend : &Backend) -> Unit {
+pub fn input_system(_backend : &@system.Backend) -> Unit {
   for entity, _control in controls {
-    guard velocities.get(entity) is Some(velocity) else { continue }
+    guard @move.velocities.get(entity) is Some(velocity) else { continue }
     let mut new_velocity_x = velocity.x
     let mut new_velocity_y = velocity.y
-    if is_pressed(ArrowLeft) {
+    if @system.is_pressed(ArrowLeft) {
       new_velocity_x = -5.0
-    } else if is_pressed(ArrowRight) {
+    } else if @system.is_pressed(ArrowRight) {
       new_velocity_x = 5.0
     } else {
       new_velocity_x = 0.0
     }
-    if is_pressed(ArrowUp) {
+    if @system.is_pressed(ArrowUp) {
       new_velocity_y = -5.0
-    } else if is_pressed(ArrowDown) {
+    } else if @system.is_pressed(ArrowDown) {
       new_velocity_y = 5.0
     } else {
       new_velocity_y = 0.0
     }
-    velocities.set(entity, Vec2D::new(new_velocity_x, new_velocity_y))
+    @move.velocities.set(entity, @math.Vec2D::new(new_velocity_x, new_velocity_y))
   }
 }

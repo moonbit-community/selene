@@ -25,7 +25,7 @@ fn get_image_element(png : String) -> @dom.HTMLImageElement {
 }
 
 ///|
-pub impl @selene.Backend for CanvasBackend with draw_picture(
+pub impl @system.Backend for CanvasBackend with draw_picture(
   self,
   png,
   x,
@@ -47,7 +47,7 @@ pub impl @selene.Backend for CanvasBackend with draw_picture(
 }
 
 ///|
-pub impl @selene.Backend for CanvasBackend with draw_sprite(
+pub impl @system.Backend for CanvasBackend with draw_sprite(
   self,
   sprite_path,
   x~,

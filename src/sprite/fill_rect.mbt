@@ -12,6 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-pub(all) type Position Vec2D derive(Eq, Show)
+///|
+pub(all) struct FillRect {
+  size : @math.Vec2D
+  tile_path : String
+}
 
-pub let positions : Map[Entity, Position] = Map::new()
+///|
+pub let fill_rects : Map[@system.Entity, FillRect] = Map::new()
+
+///|
+pub fn render_fill_rect(backend : &@system.Backend) -> Unit {
+  for e, fill_rect in fill_rects {
+    guard @position.positions.get(e) is Some(pos) else { continue }
+    backend.draw_picture(
+      fill_rect.tile_path,
+      pos.x,
+      pos.y,
+      fill_rect.size.x,
+      fill_rect.size.y,
+      true,
+    )
+  }
+}

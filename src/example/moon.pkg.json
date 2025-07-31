@@ -2,6 +2,13 @@
   "is-main": true,
   "import": [
     "Milky2018/selene",
-    "Milky2018/selene/canvas"
+    "Milky2018/selene/canvas",
+    "Milky2018/selene/system",
+    "Milky2018/selene/math",
+    "Milky2018/selene/sprite",
+    "Milky2018/selene/move",
+    "Milky2018/selene/input",
+    "Milky2018/selene/plugins",
+    "Milky2018/selene/position"
   ]
 }
