@@ -52,23 +52,9 @@ fn move_with_collide(
     position: pos.inner(),
     size: @math.Vec2D::new(width, height),
   }
-  let new_pos_x = move_axis(
-    e,
-    box,
-    velocity,
-    X,
-    collide.mask,
-    quadtree,
-  )
+  let new_pos_x = move_axis(e, box, velocity, X, collide.mask, quadtree)
   let object_x = @math.Rect::{ size: box.size, position: new_pos_x }
-  let new_pos = move_axis(
-    e,
-    object_x,
-    velocity,
-    Y,
-    collide.mask,
-    quadtree,
-  )
+  let new_pos = move_axis(e, object_x, velocity, Y, collide.mask, quadtree)
   @position.positions.set(e, new_pos)
 }
 
@@ -123,10 +109,7 @@ fn move_axis(
         new_pos[axis] = collision_box.position[axis] + collision_box.size[axis]
         dir[axis] = -1
       }
-      collision_infos
-      .get(e)
-      .unwrap_or_default()
-      .push({ entity: e, direction: dir })
+      add_collision_info(entity, e, dir)
     }
   }
   return new_pos

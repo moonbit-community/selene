@@ -29,6 +29,17 @@ pub struct CollisionInfo {
 
 let collision_infos : Map[@system.Entity, Array[CollisionInfo]] = Map::new()
 
+fn add_collision_info(
+  entity : @system.Entity,
+  target : @system.Entity,
+  direction : @math.Vec2D,
+) -> Unit {
+  if collision_infos.get(entity) is None {
+    collision_infos.set(entity, Array::new())
+  }
+  collision_infos.get(entity).unwrap().push({ entity: target, direction })
+}
+
 pub fn get_collision_infos(entity : @system.Entity) -> Array[CollisionInfo] {
   collision_infos.get(entity).unwrap_or_default()
 }
