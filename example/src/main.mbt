@@ -19,9 +19,11 @@ fn main {
     .with_canvas_height(256.0)
     .add_plugin(@plugins.default_plugin)
     .add_initializer(game_start)
+    // .add_system(@input.simple_input_system)
     .add_system(@input.simple_input_system)
     .add_system(game_loop)
-    .add_render_pipe(@collision.quadtree_render_system, priority=0)
+    .add_system(print_on_the_floor)
+    .add_render_pipe(@collision.quadtree_render_system)
   app.run()
 }
 
@@ -30,25 +32,29 @@ fn game_loop(_ : &@system.Backend) -> Unit {
 
 }
 
+fn print_on_the_floor(_ : &@system.Backend) -> Unit {
+  let on_the_floor = @collision.is_on_the_floor(player)
+  println("Is player on the floor? \{on_the_floor}")
+}
+
 ///|
 fn game_start(_ : &@system.Backend) -> Unit {
   add_background()
   add_player()
   add_rock(@math.Vec2D::new(96.0, 240.0))
   add_rock(@math.Vec2D::new(112.0, 240.0))
-  player_double_jump()
 }
 
-fn player_double_jump() -> Unit {
-  let picture_path = "/pixel_adventure/Main Characters/Mask Dude/Double Jump (32x32).png"
-  let animation = @sprite.Animation::new(
-    picture_path,
-    max_frame=6,
-    height=32.0,
-    width=32.0,
-  )
-  @sprite.play_animation(player, animation)
-}
+// fn player_double_jump() -> Unit {
+//   let picture_path = "/pixel_adventure/Main Characters/Mask Dude/Double Jump (32x32).png"
+//   let animation = @sprite.Animation::new(
+//     picture_path,
+//     max_frame=6,
+//     height=32.0,
+//     width=32.0,
+//   )
+//   @sprite.play_animation(player, animation)
+// }
 
 ///|
 fn add_background() -> Unit {
@@ -90,7 +96,7 @@ fn add_player() -> Unit {
 
 ///|
 fn add_rock(pos : @math.Vec2D) -> Unit {
-  let rock_sprite = "pixel_adventure/Terrain/Terrain (16x16).png"
+  let rock_sprite = "/pixel_adventure/Terrain/Terrain (16x16).png"
   let rock = @system.Entity::new()
   let animation = @sprite.Animation::new(
     rock_sprite,

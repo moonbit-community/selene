@@ -16,7 +16,7 @@ pub(all) type Acceleration @math.Vec2D
 
 pub let accelerations : Map[@system.Entity, Acceleration] = Map::new()
 
-pub fn gravity_system(_backend : &@system.Backend) -> Unit {
+pub fn accelerate_system(_backend : &@system.Backend) -> Unit {
   for e, a in accelerations {
     guard @velocity.velocities.get(e) is Some(velocity) else { continue }
     let new_velocity = @math.Vec2D::new(

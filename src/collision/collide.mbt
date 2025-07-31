@@ -21,3 +21,24 @@ pub(all) struct Collide {
 
 ///|
 pub let collides : Map[@system.Entity, Collide] = Map::new()
+
+pub struct CollisionInfo {
+  entity : @system.Entity
+  direction : @math.Vec2D
+}
+
+let collision_infos : Map[@system.Entity, Array[CollisionInfo]] = Map::new()
+
+pub fn get_collision_infos(entity : @system.Entity) -> Array[CollisionInfo] {
+  collision_infos.get(entity).unwrap_or_default()
+}
+
+pub fn is_on_the_floor(entity : @system.Entity) -> Bool {
+  let infos = get_collision_infos(entity)
+  for info in infos {
+    if info.direction.y > 0 {
+      return true
+    }
+  }
+  return false
+}

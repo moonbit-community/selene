@@ -22,6 +22,7 @@ pub fn move_system(_backend : &@system.Backend) -> Unit {
   for e, _collide in collides {
     quadtree.val.insert(e)
   }
+  collision_infos.clear()
   for e, vel in @velocity.velocities {
     if collides.get(e) is Some(collide) {
       move_with_collide(e, collide, vel.inner(), quadtree.val)
@@ -51,7 +52,7 @@ fn move_with_collide(
     position: pos.inner(),
     size: @math.Vec2D::new(width, height),
   }
-  let (new_pos_x, collide_x) = move_axis(
+  let new_pos_x = move_axis(
     e,
     box,
     velocity,
@@ -60,7 +61,7 @@ fn move_with_collide(
     quadtree,
   )
   let object_x = @math.Rect::{ size: box.size, position: new_pos_x }
-  let (new_pos, collide_y) = move_axis(
+  let new_pos = move_axis(
     e,
     object_x,
     velocity,
@@ -68,7 +69,6 @@ fn move_with_collide(
     collide.mask,
     quadtree,
   )
-  let _collide = collide_x || collide_y
   @position.positions.set(e, new_pos)
 }
 
@@ -97,7 +97,7 @@ fn move_axis(
   axis : @math.Axis,
   mask : CollisionMask,
   quadtree : QuadTree,
-) -> (@math.Vec2D, Bool) {
+) -> @math.Vec2D {
   let new_pos = @math.Vec2D::new(object.position.x, object.position.y)
   new_pos[axis] = new_pos[axis] + velocity[axis]
   let velocity_axis = @math.Vec2D::new(0, 0)
@@ -115,13 +115,19 @@ fn move_axis(
       size: @math.Vec2D::new(width, height),
     }
     if @math.Rect::intersects(ray_collision, collision_box) {
+      let dir = @math.Vec2D::new(0, 0)
       if velocity[axis] > 0 {
         new_pos[axis] = collision_box.position[axis] - object.size[axis]
+        dir[axis] = 1
       } else if velocity[axis] < 0 {
         new_pos[axis] = collision_box.position[axis] + collision_box.size[axis]
+        dir[axis] = -1
       }
-      return (new_pos, true)
+      collision_infos
+      .get(e)
+      .unwrap_or_default()
+      .push({ entity: e, direction: dir })
     }
   }
-  return (new_pos, false)
+  return new_pos
 }

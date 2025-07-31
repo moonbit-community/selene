@@ -1,8 +1,10 @@
 {
-  "name": "Milky2018/selene",
+  "name": "username/selene/example",
   "version": "0.1.0",
   "deps": {
-    "Yoorkin/rabbit-tea": "0.10.7"
+    "Milky2018/selene": {
+      "path": ".."
+    }
   },
   "readme": "README.md",
   "repository": "",
@@ -10,8 +12,5 @@
   "keywords": [],
   "description": "",
   "source": "src",
-  "preferred-target": "js",
-  "exclude": [
-    "example/**"
-  ]
+  "preferred-target": "js"
 }
