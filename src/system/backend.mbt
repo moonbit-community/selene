@@ -16,6 +16,12 @@
 typealias (&Backend) -> Unit as System
 
 ///|
+typealias (&Backend) -> Unit as Initializer
+
+///|
+typealias (&Backend) -> Unit as RenderPipe
+
+///|
 typealias (App) -> Unit as Plugin
 
 ///|
@@ -54,5 +60,13 @@ pub(open) trait Backend {
     pressed_keys : Set[Code],
     keyup_callbacks : Map[Code, Array[() -> Unit]],
     keydown_callbacks : Map[Code, Array[() -> Unit]],
+  ) -> Unit
+  draw_stroke_rect(
+    Self,
+    x : Double,
+    y : Double,
+    width : Double,
+    height : Double,
+    color : String,
   ) -> Unit
 }

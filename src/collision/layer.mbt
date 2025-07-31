@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-pub type CollisionLayer UInt
+pub type CollisionLayer UInt derive(Eq)
 
 ///| FIXME: Use `UInt` and bitwise operations can obtain higher performance.
 pub type CollisionMask Array[CollisionLayer]
@@ -43,5 +43,5 @@ fn CollisionMask::contains(
   self : CollisionMask,
   layer : CollisionLayer,
 ) -> Bool {
-  self.contains(layer)
+  self.inner().contains(layer.inner())
 }

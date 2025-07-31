@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 let element_cache : Map[String, @dom.HTMLImageElement] = Map::new()
 
+///|
 fn get_image_element(png : String) -> @dom.HTMLImageElement {
   if element_cache.get(png) is Some(element) {
     return element
@@ -55,7 +57,7 @@ pub impl @system.Backend for CanvasBackend with draw_sprite(
   offset_x~,
   offset_y~,
   width~,
-  height~
+  height~,
 ) {
   self.context.save()
   self.context.translate(x, y)
@@ -71,5 +73,20 @@ pub impl @system.Backend for CanvasBackend with draw_sprite(
     width,
     height,
   )
+  self.context.restore()
+}
+
+///|
+pub impl @system.Backend for CanvasBackend with draw_stroke_rect(
+  self,
+  x,
+  y,
+  width,
+  height,
+  color,
+) {
+  self.context.save()
+  self.context.set_stroke_style(@js.Union3::from0(color))
+  self.context.stroke_rect(x, y, width, height)
   self.context.restore()
 }

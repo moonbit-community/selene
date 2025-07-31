@@ -27,9 +27,9 @@ pub(all) struct App {
   canvas_width : Double
   fps : UInt
   physical_fps : UInt
-  initializers : Array[System]
-  systems : Array[System]
-  render_pipes : Array[System]
+  initializers : Array[(Initializer, Int)]
+  systems : Array[(System, Int)]
+  render_pipes : Array[(RenderPipe, Int)]
   plugins : Array[Plugin]
   backend : &Backend
 }
@@ -82,43 +82,54 @@ pub fn App::add_plugin(self : App, plugin : Plugin) -> App {
 }
 
 ///|
-pub fn App::add_initializer(self : App, initializer : System) -> App {
+pub fn App::add_initializer(
+  self : App,
+  initializer : Initializer,
+  priority~ : Int = 0,
+) -> App {
   let initializers = self.initializers
-  initializers.push(initializer)
+  initializers.push((initializer, priority))
   { ..self, initializers, }
 }
 
 ///|
-pub fn App::add_system(self : App, system : System) -> App {
+pub fn App::add_system(self : App, system : System, priority~ : Int = 0) -> App {
   let systems = self.systems
-  systems.push(system)
+  systems.push((system, priority))
   { ..self, systems, }
 }
 
 ///|
-pub fn App::add_render_pipe(self : App, pipe : System) -> App {
+pub fn App::add_render_pipe(
+  self : App,
+  pipe : RenderPipe,
+  priority~ : Int = 0,
+) -> App {
   let render_pipes = self.render_pipes
-  render_pipes.push(pipe)
+  render_pipes.push((pipe, priority))
   { ..self, render_pipes, }
 }
 
 ///|
 pub fn App::run(self : App) -> Unit {
   fn initialize() -> Unit {
+    self.initializers.sort_by_key(fn(pair) { -pair.1 })
     for initializer in self.initializers {
-      initializer(self.backend)
+      (initializer.0)(self.backend)
     }
   }
 
   fn game_loop() -> Unit {
+    self.systems.sort_by_key(fn(pair) { -pair.1 })
     for system in self.systems {
-      system(self.backend)
+      (system.0)(self.backend)
     }
   }
 
   fn render_loop() -> Unit {
+    self.render_pipes.sort_by_key(fn(pair) { -pair.1 })
     for pipe in self.render_pipes {
-      pipe(self.backend)
+      (pipe.0)(self.backend)
     }
   }
 

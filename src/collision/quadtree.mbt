@@ -115,3 +115,21 @@ fn QuadTree::query(self : Self, area : @math.Rect) -> @set.Set[@system.Entity] {
   }
   results
 }
+
+///|
+pub fn quadtree_render_system(backend : &@system.Backend) -> Unit {
+  fn render_node(node : QuadTree) -> Unit {
+    backend.draw_stroke_rect(
+      node.position.x,
+      node.position.y,
+      node.size.x,
+      node.size.y,
+      "blue",
+    )
+    for child in node.children {
+      render_node(child)
+    }
+  }
+
+  render_node(quadtree.val)
+}
