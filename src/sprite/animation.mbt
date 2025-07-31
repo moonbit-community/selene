@@ -35,22 +35,3 @@ pub fn Animation::new(
 ) -> Animation {
   { sprite_path, id, max_frame, loop_, height, width, offset }
 }
-
-///|
-pub let animations : Map[@system.Entity, Animation] = Map::new()
-
-///|
-pub fn render_animation(backend : &@system.Backend) -> Unit {
-  for e, self in animations {
-    guard @position.positions.get(e) is Some(pos) else { continue }
-    backend.draw_sprite(
-      self.sprite_path,
-      x=pos.x,
-      y=pos.y,
-      offset_x=self.offset.x,
-      offset_y=self.offset.y,
-      width=self.width,
-      height=self.height,
-    )
-  }
-}

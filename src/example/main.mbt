@@ -41,10 +41,15 @@ fn game_start(_ : &@system.Backend) -> Unit {
 ///|
 fn add_background() -> Unit {
   let background = @system.Entity::new()
-  @sprite.fill_rects.set(background, {
-    size: @math.Vec2D::new(1024.0, 256.0),
-    tile_path: "/pixel_adventure/Background/Gray.png",
-  })
+  let background_sprite = @sprite.Sprite::{
+    zindex: 0,
+    sprite_type: @sprite.Picture({
+      size: @math.Vec2D::new(1024.0, 256.0),
+      tile_path: "/pixel_adventure/Background/Gray.png",
+      repeat: true,
+    }),
+  }
+  @sprite.sprites.set(background, background_sprite)
   @position.positions.set(background, @math.Vec2D::new(0, 0))
 }
 
@@ -59,7 +64,11 @@ fn add_player() -> Unit {
     height=32.0,
     width=32.0,
   )
-  @sprite.animations.set(player, animation)
+  let player_sprite = @sprite.Sprite::{
+    zindex: 10,
+    sprite_type: @sprite.SpriteType::Animation(animation),
+  }
+  @sprite.sprites.set(player, player_sprite)
   @input.controls.set(player, @input.KeyInput::{  })
   @velocity.velocities.set(player, @math.Vec2D::new(0.0, 0.0))
   @position.positions.set(player, @math.Vec2D::new(0.0, 224.0))
@@ -82,7 +91,11 @@ fn add_rock(pos : @math.Vec2D) -> Unit {
     width=16.0,
     offset=@math.Vec2D::new(208.0, 16.0),
   )
-  @sprite.animations.set(rock, animation)
+  let rock_sprite = @sprite.Sprite::{
+    zindex: 20,
+    sprite_type: @sprite.SpriteType::Animation(animation),
+  }
+  @sprite.sprites.set(rock, rock_sprite)
   @position.positions.set(rock, pos)
   @collision.collides.set(rock, @collision.Collide::{
     shape: Rect(width=16.0, height=16.0),
