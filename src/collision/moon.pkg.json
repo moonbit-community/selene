@@ -1,7 +1,8 @@
 {
   "import": [
     "Milky2018/selene/system",
+    "Milky2018/selene/math",
     "Milky2018/selene/move",
-    "Milky2018/selene/sprite"
+    "Milky2018/selene/position"
   ]
 }

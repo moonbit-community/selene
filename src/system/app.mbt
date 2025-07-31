@@ -13,10 +13,10 @@
 // limitations under the License.
 
 ///|
-const DEFAULT_CANVAS_HEIGHT = 600.0
+const DEFAULT_CANVAS_HEIGHT = 256.0
 
 ///|
-const DEFAULT_CANVAS_WIDTH = 800.0
+const DEFAULT_CANVAS_WIDTH = 512.0
 
 ///|
 const DEFAULT_FPS : UInt = 60

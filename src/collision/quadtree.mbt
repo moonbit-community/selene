@@ -35,33 +35,32 @@ const GAME_HEIGHT = 2048.0
 ///|
 // pub fn get_collision(@entity.Entity : @entity.Entity) -> Map[@entity.Entity, CollisionInfo] {
 //   ...
-  // state
-  // .get(@entity.Entity)
-  // .map(st => quadtree.val
-  //   .query(st.hitbox)
-  //   .iter()
-  //   .filter_map(
-  //     // The @entity.Entity could have been removed
-  //     e => if state.get(e) is Some({ hitbox, .. }) &&
-  //       e != @entity.Entity &&
-  //       hitbox.intersects(st.hitbox) is Some(vec) {
-  //       Some((e, vec))
-  //     } else {
-  //       None
-  //     },
-  //   )
-  //   |> Map::from_iter)
-  // .unwrap_or({})
+// state
+// .get(@entity.Entity)
+// .map(st => quadtree.val
+//   .query(st.hitbox)
+//   .iter()
+//   .filter_map(
+//     // The @entity.Entity could have been removed
+//     e => if state.get(e) is Some({ hitbox, .. }) &&
+//       e != @entity.Entity &&
+//       hitbox.intersects(st.hitbox) is Some(vec) {
+//       Some((e, vec))
+//     } else {
+//       None
+//     },
+//   )
+//   |> Map::from_iter)
+// .unwrap_or({})
 // }
 
-///|
 // pub struct QuadTree {
 //   position : @math.Vec2D
 //   size : @math.Vec2D
 //   children : Array[QuadTree]
 //   priv depth : Int
 //   priv bounding_box : HitBox
-//   priv entities : @set.Set[@entity.Entity]
+//   priv entities : @set.Set[@system.Entity]
 // }
 
 // ///|

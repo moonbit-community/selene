@@ -14,8 +14,21 @@
 
 ///|
 struct CanvasBackend {
+  canvas : @dom.HTMLCanvasElement
   context : @dom.CanvasRenderingContext2D
 }
+
+///|
+pub extern "js" fn set_viewport_height(
+  elem : @dom.HTMLCanvasElement,
+  height : Double,
+) -> Unit = "(x, y) => { x.height = y; }"
+
+///|
+pub extern "js" fn set_viewport_width(
+  elem : @dom.HTMLCanvasElement,
+  width : Double,
+) -> Unit = "(x, y) => { x.width = y; }"
 
 ///|
 pub fn CanvasBackend::new() -> CanvasBackend {
@@ -25,7 +38,7 @@ pub fn CanvasBackend::new() -> CanvasBackend {
     .to_html_canvas_element()
     .unwrap()
   let context = canvas.get_context("2d").to0().unwrap()
-  { context, }
+  { context, canvas }
 }
 
 ///|
@@ -40,6 +53,8 @@ pub impl @system.Backend for CanvasBackend with build(
   fps,
 ) {
   initialize()
+  set_viewport_height(self.canvas, canvas_height)
+  set_viewport_width(self.canvas, canvas_width)
   schedule_with_fixed_interval(1000 / fps.to_double(), () => {
     self.context.clear_rect(0, 0, canvas_width, canvas_height)
     render_loop()

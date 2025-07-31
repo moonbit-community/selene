@@ -15,5 +15,7 @@
 ///|
 pub fn default_plugin(app : @system.App) -> Unit {
   app.systems..push(@move.move_system)
-  app.render_pipes..push(@sprite.render_fill_rect)..push(@sprite.render_animation)
+  app.render_pipes
+  ..push(@sprite.render_fill_rect)
+  ..push(@sprite.render_animation)
 }

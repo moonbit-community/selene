@@ -1,7 +1,6 @@
 {
   "is-main": true,
   "import": [
-    "Milky2018/selene",
     "Milky2018/selene/canvas",
     "Milky2018/selene/system",
     "Milky2018/selene/math",
