@@ -17,6 +17,8 @@ fn main {
   let app = @system.App::new(@canvas.CanvasBackend::new())
     .with_canvas_width(512.0)
     .with_canvas_height(256.0)
+    .with_fps(120)
+    .with_physical_fps(120)
     .add_plugin(@plugins.default_plugin)
     .add_initializer(game_start)
     // .add_system(@input.simple_input_system)
