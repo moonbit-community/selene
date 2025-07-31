@@ -22,19 +22,42 @@ pub struct Animation {
   height : Double
   width : Double
   offset : @math.Vec2D
-  loop_ : Bool
+  mut loop_ : Bool
   mut frame : UInt
   priv id : UInt
 }
 
-///|
+///| Play a new animation; if the animation is already playing, it will 
+/// reset to the start frame; switch to the default animation when the
+/// animation ends.
 pub fn play_animation(
+  entity : @system.Entity,
   animation : Animation,
-  start_frame~ : UInt = 0,
+  from_start~ : Bool = false,
+  loop_~ : Bool? = None,
   // rate~ : Double = 1.0
   // backward~ : Bool = false,
 ) -> Unit {
-  ...
+  guard sprites.get(entity)
+    is Some({ sprite_type: Animation(default, current~) as anime, .. })
+  if loop_ is Some(loop_) {
+    animation.loop_ = loop_
+  }
+  if current.id == animation.id {
+    if from_start {
+      anime.current.frame = 0
+    }
+    return // Already playing this animation
+  }
+  if default.id == animation.id {
+    anime.current = default
+    if from_start {
+      anime.current.frame = 0
+    }
+    return // Already playing the default animation
+  }
+  anime.current = animation
+  anime.current.frame = 0
 }
 
 ///|

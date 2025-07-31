@@ -36,6 +36,18 @@ fn game_start(_ : &@system.Backend) -> Unit {
   add_player()
   add_rock(@math.Vec2D::new(96.0, 240.0))
   add_rock(@math.Vec2D::new(112.0, 240.0))
+  player_double_jump()
+}
+
+fn player_double_jump() -> Unit {
+  let picture_path = "/pixel_adventure/Main Characters/Mask Dude/Double Jump (32x32).png"
+  let animation = @sprite.Animation::new(
+    picture_path,
+    max_frame=6,
+    height=32.0,
+    width=32.0,
+  )
+  @sprite.play_animation(player, animation)
 }
 
 ///|
@@ -53,9 +65,10 @@ fn add_background() -> Unit {
   @position.positions.set(background, @math.Vec2D::new(0, 0))
 }
 
+let player : @system.Entity = @system.Entity::new()
+
 ///|
 fn add_player() -> Unit {
-  let player = @system.Entity::new()
   let maskdude = "/pixel_adventure/Main Characters/Mask Dude/Idle (32x32).png"
   let animation = @sprite.Animation::new(
     maskdude,
