@@ -23,7 +23,8 @@ pub struct Animation {
   width : Double
   offset : @math.Vec2D
   mut loop_ : Bool
-  mut frame : UInt
+  mut rate : Double
+  mut frame : Double
   priv id : UInt
 }
 
@@ -35,13 +36,16 @@ pub fn play_animation(
   animation : Animation,
   from_start~ : Bool = false,
   loop_~ : Bool? = None,
-  // rate~ : Double = 1.0
+  rate~ : Double? = None,
   // backward~ : Bool = false,
 ) -> Unit {
   guard sprites.get(entity)
     is Some({ sprite_type: Animation(default, current~) as anime, .. })
   if loop_ is Some(loop_) {
     animation.loop_ = loop_
+  }
+  if rate is Some(rate) {
+    animation.rate = rate
   }
   if current.id == animation.id {
     if from_start {
@@ -67,6 +71,7 @@ pub fn Animation::new(
   height~ : Double,
   width~ : Double,
   loop_~ : Bool = false,
+  rate~ : Double = 0.2,
   offset~ : @math.Vec2D = @math.Vec2D::new(0, 0),
   start_frame~ : UInt = 0,
 ) -> Animation {
@@ -78,9 +83,10 @@ pub fn Animation::new(
     height,
     width,
     offset,
-    frame: start_frame,
+    frame: start_frame.to_double(),
     id,
     loop_,
+    rate,
   }
 }
 
@@ -94,13 +100,14 @@ fn render_animation(
     animation.sprite_path,
     x=pos.x,
     y=pos.y,
-    offset_x=animation.offset.x + animation.width * animation.frame.to_double(),
+    offset_x=animation.offset.x +
+      animation.width * animation.frame.to_uint().to_double(),
     offset_y=animation.offset.y,
     width=animation.width,
     height=animation.height,
   )
-  animation.frame += 1
-  if animation.frame >= animation.max_frame {
+  animation.frame += animation.rate
+  if animation.frame.to_uint() >= animation.max_frame {
     if animation.loop_ {
       animation.frame = 0
       return false
