@@ -1,0 +1,7 @@
+{
+  "import": [
+    "Milky2018/selene/system",
+    "Milky2018/selene/velocity",
+    "Milky2018/selene/math"
+  ]
+}
