@@ -22,13 +22,16 @@ pub(all) struct Collide {
 ///|
 pub let collides : Map[@system.Entity, Collide] = Map::new()
 
+///|
 pub struct CollisionInfo {
   entity : @system.Entity
   direction : @math.Vec2D
 }
 
+///|
 let collision_infos : Map[@system.Entity, Array[CollisionInfo]] = Map::new()
 
+///|
 fn add_collision_info(
   entity : @system.Entity,
   target : @system.Entity,
@@ -40,10 +43,12 @@ fn add_collision_info(
   collision_infos.get(entity).unwrap().push({ entity: target, direction })
 }
 
+///|
 pub fn get_collision_infos(entity : @system.Entity) -> Array[CollisionInfo] {
   collision_infos.get(entity).unwrap_or_default()
 }
 
+///|
 pub fn is_on_the_floor(entity : @system.Entity) -> Bool {
   let infos = get_collision_infos(entity)
   for info in infos {
@@ -52,4 +57,15 @@ pub fn is_on_the_floor(entity : @system.Entity) -> Bool {
     }
   }
   return false
+}
+
+///|
+fn get_shape(entity : @system.Entity) -> CollisionShape? {
+  if collides.get(entity) is Some(collide) {
+    Some(collide.shape)
+  } else if areas.get(entity) is Some(area) {
+    Some(area.shape)
+  } else {
+    None
+  }
 }

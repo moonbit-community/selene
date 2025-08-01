@@ -19,13 +19,11 @@ const GAME_WIDTH = 2048.0
 const GAME_HEIGHT = 2048.0
 
 ///|
-pub let quadtree : Ref[QuadTree] = {
-  val: QuadTree::new(
-    @math.Vec2D::new(0, 0),
-    @math.Vec2D::new(GAME_WIDTH, GAME_HEIGHT),
-    0,
-  ),
-}
+pub let quadtree_root : QuadTree = QuadTree::new(
+  @math.Vec2D::new(0, 0),
+  @math.Vec2D::new(GAME_WIDTH, GAME_HEIGHT),
+  0,
+)
 
 ///|
 pub struct QuadTree {
@@ -57,15 +55,7 @@ fn QuadTree::new(
 const MAX_DEPTH = 5
 
 ///|
-fn QuadTree::insert(self : Self, entity : @system.Entity) -> Unit {
-  guard collides.get(entity) is Some(collide) else { return }
-  guard @position.positions.get(entity) is Some(position) else { return }
-  // Now we only support rectangulars
-  guard collide.shape is Rect(width~, height~) else { return }
-  let box = @math.Rect::{
-    position: position.inner(),
-    size: @math.Vec2D::new(width, height),
-  }
+fn QuadTree::insert(self : Self, entity : @system.Entity, box : @math.Rect) -> Unit {
   if !self.bounding_box.intersects(box) {
     return
   }
@@ -94,7 +84,24 @@ fn QuadTree::insert(self : Self, entity : @system.Entity) -> Unit {
     ..push(QuadTree::new(self.position + half_size, half_size, self.depth + 1))
   }
   for child in self.children {
-    child.insert(entity)
+    child.insert(entity, box)
+  }
+}
+
+///|
+fn QuadTree::remove(self : Self, entity : @system.Entity, box : @math.Rect) -> Unit {
+  if !self.bounding_box.intersects(box) {
+    return
+  }
+  if self.depth >= MAX_DEPTH {
+    self.entities.remove(entity)
+    return
+  }
+  for child in self.children {
+    child.remove(entity, box)
+  }
+  if self.children.iter().all(c => c.entities.is_empty()) {
+    self.children.clear()
   }
 }
 
@@ -131,5 +138,5 @@ pub fn quadtree_render_system(backend : &@system.Backend) -> Unit {
     }
   }
 
-  render_node(quadtree.val)
+  render_node(quadtree_root)
 }

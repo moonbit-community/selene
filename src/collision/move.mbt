@@ -17,18 +17,19 @@
 ///       2. This system will query a quadtree to find collisions.
 ///       3. This system will update velocities of entities when they collide.
 pub fn move_system(_backend : &@system.Backend) -> Unit {
-  quadtree.val = QuadTree::new(
-    @math.Vec2D::new(0, 0),
-    @math.Vec2D::new(GAME_WIDTH, GAME_HEIGHT),
-    0,
-  )
-  for e, _collide in collides {
-    quadtree.val.insert(e)
+  for e, collide in collides {
+    guard @position.positions.get(e) is Some(pos)
+    guard collide.shape is Rect(width~, height~)
+    let box = @math.Rect::{
+      position: pos.inner(),
+      size: @math.Vec2D::new(width, height),
+    }
+    quadtree_root.insert(e, box)
   }
   collision_infos.clear()
   for e, vel in @velocity.velocities {
     if collides.get(e) is Some(collide) {
-      move_with_collide(e, collide, vel.inner(), quadtree.val)
+      move_with_collide(e, collide, vel.inner())
     } else {
       move_without_collide(e, vel.inner())
     }
@@ -40,6 +41,19 @@ fn move_without_collide(e : @system.Entity, velocity : @math.Vec2D) -> Unit {
   guard @position.positions.get(e) is Some(pos)
   let new_pos = @math.Vec2D::new(pos.x + velocity.x, pos.y + velocity.y)
   @position.positions.set(e, new_pos)
+  if areas.get(e) is Some(area) {
+    guard area.shape is Rect(width~, height~)
+    let box = @math.Rect::{
+      position: new_pos,
+      size: @math.Vec2D::new(width, height),
+    }
+    let old_box = @math.Rect::{
+      position: pos.inner(),
+      size: @math.Vec2D::new(width, height),
+    }
+    quadtree_root.remove(e, old_box)
+    quadtree_root.insert(e, box)
+  }
 }
 
 ///|
@@ -47,7 +61,6 @@ fn move_with_collide(
   e : @system.Entity,
   collide : Collide,
   velocity : @math.Vec2D,
-  quadtree : QuadTree,
 ) -> Unit {
   guard @position.positions.get(e) is Some(pos)
   guard collide.shape is Rect(width~, height~)
@@ -55,10 +68,13 @@ fn move_with_collide(
     position: pos.inner(),
     size: @math.Vec2D::new(width, height),
   }
-  let new_pos_x = move_axis(e, box, velocity, X, collide.mask, quadtree)
+  let new_pos_x = move_axis(e, box, velocity, X, collide.mask)
   let object_x = @math.Rect::{ size: box.size, position: new_pos_x }
-  let new_pos = move_axis(e, object_x, velocity, Y, collide.mask, quadtree)
+  let new_pos = move_axis(e, object_x, velocity, Y, collide.mask)
   @position.positions.set(e, new_pos)
+  let new_box = @math.Rect::{ size: box.size, position: new_pos }
+  quadtree_root.remove(e, box)
+  quadtree_root.insert(e, new_box)
 }
 
 ///|
@@ -85,14 +101,13 @@ fn move_axis(
   velocity : @math.Vec2D,
   axis : @math.Axis,
   mask : CollisionMask,
-  quadtree : QuadTree,
 ) -> @math.Vec2D {
   let new_pos = @math.Vec2D::new(object.position.x, object.position.y)
   new_pos[axis] = new_pos[axis] + velocity[axis]
   let velocity_axis = @math.Vec2D::new(0, 0)
   velocity_axis[axis] = velocity[axis]
   let ray_collision = make_ray_collision(object, velocity_axis, axis)
-  let entities = quadtree.query(ray_collision)
+  let entities = quadtree_root.query(ray_collision)
   for e in entities {
     guard e != entity else { continue }
     guard collides.get(e) is Some(collision) else { continue }
