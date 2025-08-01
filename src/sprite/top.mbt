@@ -39,7 +39,9 @@ pub fn Sprite::new_picture(picture : Picture, zindex : Int) -> Sprite {
 
 ///|
 pub fn render_sprite_system(backend : &@system.Backend) -> Unit {
-  let sprites = sprites.to_array()
+  let sprites = sprites
+    .to_array()
+    .filter(fn(pair) { @system.all_entities.contains(pair.0) })
   sprites.sort_by_key(fn(pair) { pair.1.zindex })
   for sprite in sprites {
     let e = sprite.0
