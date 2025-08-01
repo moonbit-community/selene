@@ -1,0 +1,17 @@
+{
+  "name": "Milky2018/selene-pygame",
+  "version": "0.1.0",
+  "deps": {
+    "Kaida-Amethyst/python": "0.1.4",
+    "Milky2018/selene": {
+      "path": ".."
+    }
+  },
+  "readme": "README.md",
+  "repository": "",
+  "license": "Apache-2.0",
+  "keywords": [],
+  "description": "",
+  "source": "src",
+  "preferred-target": "native"
+}
