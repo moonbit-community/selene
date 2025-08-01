@@ -65,10 +65,18 @@ pub(open) trait Backend {
   ) -> Unit
   draw_stroke_rect(
     Self,
-    x : Double,
-    y : Double,
-    width : Double,
-    height : Double,
-    color : String,
+    x~ : Double,
+    y~ : Double,
+    width~ : Double,
+    height~ : Double,
+    color~ : String,
+  ) -> Unit
+  draw_text(
+    Self,
+    text : String,
+    x~ : Double,
+    y~ : Double,
+    font~ : String,
+    color~ : String,
   ) -> Unit
 }

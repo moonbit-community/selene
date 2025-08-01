@@ -55,7 +55,11 @@ fn QuadTree::new(
 const MAX_DEPTH = 5
 
 ///|
-fn QuadTree::insert(self : Self, entity : @system.Entity, box : @math.Rect) -> Unit {
+fn QuadTree::insert(
+  self : Self,
+  entity : @system.Entity,
+  box : @math.Rect,
+) -> Unit {
   if !self.bounding_box.intersects(box) {
     return
   }
@@ -89,7 +93,11 @@ fn QuadTree::insert(self : Self, entity : @system.Entity, box : @math.Rect) -> U
 }
 
 ///|
-fn QuadTree::remove(self : Self, entity : @system.Entity, box : @math.Rect) -> Unit {
+fn QuadTree::remove(
+  self : Self,
+  entity : @system.Entity,
+  box : @math.Rect,
+) -> Unit {
   if !self.bounding_box.intersects(box) {
     return
   }
@@ -127,11 +135,11 @@ fn QuadTree::query(self : Self, area : @math.Rect) -> @set.Set[@system.Entity] {
 pub fn quadtree_render_system(backend : &@system.Backend) -> Unit {
   fn render_node(node : QuadTree) -> Unit {
     backend.draw_stroke_rect(
-      node.position.x,
-      node.position.y,
-      node.size.x,
-      node.size.y,
-      "blue",
+      x=node.position.x,
+      y=node.position.y,
+      width=node.size.x,
+      height=node.size.y,
+      color="blue",
     )
     for child in node.children {
       render_node(child)
