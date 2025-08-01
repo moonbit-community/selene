@@ -13,23 +13,19 @@
 // limitations under the License.
 
 ///|
-type Entity UInt derive(Eq, Show, Hash)
+pub typealias () -> Unit as Event
 
 ///|
-pub let all_entities : @set.Set[Entity] = @set.Set::new()
+let deferred_events : Array[Event] = Array::new()
 
 ///|
-let entity_generator : Ref[UInt] = { val: 0 }
-
-///|
-pub fn Entity::new() -> Entity {
-  let entity = entity_generator.val
-  entity_generator.val += 1
-  all_entities.add(entity)
-  entity
+pub fn deferred_event_system(_backend : &Backend) -> Unit {
+  for event in deferred_events {
+    event()
+  }
+  deferred_events.clear()
 }
 
-///|
-pub fn Entity::destroy(e : Entity) -> Unit {
-  defer_event(fn() { all_entities.remove(e) })
+pub fn defer_event(event : Event) -> Unit {
+  deferred_events.push(event)
 }

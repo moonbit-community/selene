@@ -18,7 +18,7 @@
 ///       3. This system will update velocities of entities when they collide.
 pub fn move_system(_backend : &@system.Backend) -> Unit {
   for e in @system.all_entities {
-    guard collides.get(e) is Some(collide)
+    guard collides.get(e) is Some(collide) else { continue }
     guard @position.positions.get(e) is Some(pos)
     guard collide.shape is Rect(width~, height~)
     let box = @math.Rect::{
@@ -29,7 +29,7 @@ pub fn move_system(_backend : &@system.Backend) -> Unit {
   }
   collision_infos.clear()
   for e in @system.all_entities {
-    guard @velocity.velocities.get(e) is Some(vel)
+    guard @velocity.velocities.get(e) is Some(vel) else { continue }
     if collides.get(e) is Some(collide) {
       move_with_collide(e, collide, vel.inner())
     } else {

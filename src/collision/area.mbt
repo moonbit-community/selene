@@ -74,7 +74,7 @@ pub fn on_exit(
 ///|
 pub fn area_collide_system(_ : &@system.Backend) -> Unit {
   for e in @system.all_entities {
-    guard areas.get(e) is Some(area)
+    guard areas.get(e) is Some(area) else { continue }
     guard @position.positions.get(e) is Some(position)
     guard area.shape is Rect(width~, height~)
     let box = @math.Rect::{
