@@ -1,12 +1,10 @@
 {
-  "name": "example",
+  "name": "Milky2018/selene-canvas",
   "version": "0.1.0",
   "deps": {
+    "Yoorkin/rabbit-tea": "0.10.9",
     "Milky2018/selene": {
       "path": ".."
-    },
-    "Milky2018/selene-canvas": {
-      "path": "../selene-canvas"
     }
   },
   "readme": "README.md",
