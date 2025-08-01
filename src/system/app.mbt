@@ -136,9 +136,6 @@ pub fn App::run(self : App) -> Unit {
   for plugin in self.plugins {
     plugin(self)
   }
-  self.backend.register_key_events(
-    pressed_keys, keyup_callbacks, keydown_callbacks,
-  )
   self.backend.build(
     initialize,
     game_loop,
@@ -147,5 +144,8 @@ pub fn App::run(self : App) -> Unit {
     self.canvas_width,
     self.canvas_height,
     self.fps,
+  )
+  self.backend.register_key_events(
+    pressed_keys, keyup_callbacks, keydown_callbacks,
   )
 }
