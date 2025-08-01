@@ -25,6 +25,7 @@ pub let sprites : Map[@system.Entity, Sprite] = Map::new()
 pub enum SpriteType {
   Picture(Picture)
   Animation(Animation, mut current~ : Animation) // Default animation and current animation
+  Text(Text)
 }
 
 ///|
@@ -35,6 +36,11 @@ pub fn Sprite::new_animation(animation : Animation, zindex : Int) -> Sprite {
 ///|
 pub fn Sprite::new_picture(picture : Picture, zindex : Int) -> Sprite {
   { sprite_type: SpriteType::Picture(picture), zindex }
+}
+
+///|
+pub fn Sprite::new_text(text : Text, zindex : Int) -> Sprite {
+  { sprite_type: SpriteType::Text(text), zindex }
 }
 
 ///|
@@ -55,6 +61,7 @@ pub fn render_sprite_system(backend : &@system.Backend) -> Unit {
           anime.current = default
           anime.current.frame = 0
         }
+      SpriteType::Text(text) => render_text(backend, text, pos.inner())
     }
   }
 }
