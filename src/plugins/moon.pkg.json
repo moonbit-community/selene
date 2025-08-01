@@ -2,7 +2,6 @@
   "import": [
     "Milky2018/selene/system",
     "Milky2018/selene/sprite",
-    "Milky2018/selene/collision",
-    "Milky2018/selene/acceleration"
+    "Milky2018/selene/collision"
   ]
 }
