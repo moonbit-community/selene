@@ -25,7 +25,6 @@ fn main {
     // .add_system(@acceleration.accelerate_system, priority=60)
     .add_system(player_state_system, priority=150)
     .add_render_pipe(@collision.quadtree_render_system)
-    .add_render_pipe(show_result_pipe, priority=0)
   app.run()
 }
 
@@ -36,6 +35,7 @@ fn game_start(_ : &@system.Backend) -> Unit {
   add_rocks()
   add_abyss()
   add_flag()
+  add_result_box()
 }
 
 ///|

@@ -18,6 +18,7 @@ struct GameState {
   mut result : GameResult
   mut score : Int
   mut hp : Int
+  result_box : @sprite.Text
 }
 
 ///|
@@ -26,6 +27,7 @@ let game_state : GameState = {
   result: GameResult::Playing,
   score: 0,
   hp: 3,
+  result_box: @sprite.Text::new("", font="24px ThaleahFat"),
 }
 
 ///|
@@ -43,14 +45,9 @@ fn take_damage(damage : Int) -> Unit {
   }
 }
 
-fn show_result_pipe(backend : &@system.Backend) -> Unit {
-  match game_state.result {
-    GameResult::Win => {
-      backend.draw_text("You Win!", x=100, y=100, font="24px ThaleahFat", color="green")
-    }
-    GameResult::Lose => {
-      backend.draw_text("You Lose!", x=100, y=100, font="24px ThaleahFat", color="red")
-    }
-    GameResult::Playing =>()
-  }
+fn add_result_box() -> Unit {
+  let box = @system.Entity::new()
+  @position.positions.set(box, @math.Vec2D::new(100, 100))
+  let text = @sprite.Sprite::new_text(game_state.result_box, 100)
+  @sprite.sprites.set(box, text)
 }

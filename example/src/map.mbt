@@ -80,6 +80,8 @@ fn add_flag() -> Unit {
     if e == game_state.player {
       game_state.score += 100
       game_state.result = GameResult::Win
+      game_state.result_box.content = "You Win!"
+      game_state.result_box.color = "green"
       @system.Entity::destroy(flag)
     }
   })
