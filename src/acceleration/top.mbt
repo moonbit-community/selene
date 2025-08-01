@@ -20,7 +20,8 @@ pub let accelerations : Map[@system.Entity, Acceleration] = Map::new()
 
 ///|
 pub fn accelerate_system(_backend : &@system.Backend) -> Unit {
-  for e, a in accelerations {
+  for e in @system.all_entities {
+    guard accelerations.get(e) is Some(a) else { continue }
     guard @velocity.velocities.get(e) is Some(velocity) else { continue }
     let new_velocity = @math.Vec2D::new(velocity.x + a.x, velocity.y + a.y)
     @velocity.velocities.set(e, new_velocity)

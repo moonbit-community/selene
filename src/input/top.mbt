@@ -20,8 +20,9 @@ pub let controls : Map[@system.Entity, KeyInput] = Map::new()
 
 ///|
 pub fn simple_input_system(_backend : &@system.Backend) -> Unit {
-  for entity, _control in controls {
-    guard @velocity.velocities.get(entity) is Some(velocity) else { continue }
+  for e in @system.all_entities {
+    guard controls.get(e) is Some(_) else { continue }
+    guard @velocity.velocities.get(e) is Some(velocity) else { continue }
     let mut new_velocity_x = velocity.x
     let mut new_velocity_y = velocity.y
     if @system.is_pressed(ArrowLeft) {
@@ -38,6 +39,6 @@ pub fn simple_input_system(_backend : &@system.Backend) -> Unit {
     } else {
       new_velocity_y = 0.0
     }
-    @velocity.velocities.set(entity, @math.Vec2D::new(new_velocity_x, new_velocity_y))
+    @velocity.velocities.set(e, @math.Vec2D::new(new_velocity_x, new_velocity_y))
   }
 }

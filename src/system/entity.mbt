@@ -16,7 +16,7 @@
 type Entity UInt derive(Eq, Show, Hash)
 
 ///|
-let all_entities : @set.Set[Entity] = @set.Set::new()
+pub let all_entities : @set.Set[Entity] = @set.Set::new()
 
 ///|
 let entity_generator : Ref[UInt] = { val: 0 }

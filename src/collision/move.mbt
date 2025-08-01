@@ -17,7 +17,8 @@
 ///       2. This system will query a quadtree to find collisions.
 ///       3. This system will update velocities of entities when they collide.
 pub fn move_system(_backend : &@system.Backend) -> Unit {
-  for e, collide in collides {
+  for e in @system.all_entities {
+    guard collides.get(e) is Some(collide)
     guard @position.positions.get(e) is Some(pos)
     guard collide.shape is Rect(width~, height~)
     let box = @math.Rect::{
@@ -27,7 +28,8 @@ pub fn move_system(_backend : &@system.Backend) -> Unit {
     quadtree_root.insert(e, box)
   }
   collision_infos.clear()
-  for e, vel in @velocity.velocities {
+  for e in @system.all_entities {
+    guard @velocity.velocities.get(e) is Some(vel)
     if collides.get(e) is Some(collide) {
       move_with_collide(e, collide, vel.inner())
     } else {
