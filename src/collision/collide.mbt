@@ -58,14 +58,3 @@ pub fn is_on_the_floor(entity : @system.Entity) -> Bool {
   }
   return false
 }
-
-///|
-fn get_shape(entity : @system.Entity) -> CollisionShape? {
-  if collides.get(entity) is Some(collide) {
-    Some(collide.shape)
-  } else if areas.get(entity) is Some(area) {
-    Some(area.shape)
-  } else {
-    None
-  }
-}
