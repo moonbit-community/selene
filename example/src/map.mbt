@@ -56,3 +56,31 @@ fn add_abyss() -> Unit {
   @position.positions.set(abyss, @math.Vec2D::new(0.0, 256.0))
   area.on_enter(fn(e) { if e == game_state.player { take_damage(100) } })
 }
+
+fn add_flag() -> Unit {
+  let flag = @system.Entity::new()
+  let flag_sprite = @sprite.Sprite::new_animation(
+    @sprite.Animation::new(
+      "/pixel_adventure/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png",
+      max_frame=10,
+      height=64.0,
+      width=64.0,
+    ),
+    20,
+  )
+  @sprite.sprites.set(flag, flag_sprite)
+  @position.positions.set(flag, @math.Vec2D::new(256.0, 176.0))
+  let area = @collision.Area::new(
+    Rect(width=64.0, height=64.0),
+    non_collide_layer,
+    @collision.CollisionMask::new([player_collision_layer]),
+  )
+  @collision.areas.set(flag, area)
+  area.on_enter(fn(e) {
+    if e == game_state.player {
+      game_state.score += 100
+      game_state.result = GameResult::Win
+      println("You win!")
+    }
+  })
+}

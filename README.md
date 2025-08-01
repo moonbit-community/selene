@@ -2,6 +2,8 @@
 
 ## TODO
 
+- [x] Basic collisions 
+- [x] Areas 
 - [ ] Gamepad support 
 - [ ] Mouse/Screen Touch support 
 - [ ] Pygame backend 
@@ -9,4 +11,4 @@
 - [ ] Camera
 - [ ] Documentation
 - [ ] Convex polygon collision
-
+- [ ] Debug information

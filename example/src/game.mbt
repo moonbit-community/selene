@@ -36,7 +36,6 @@ enum GameResult {
 }
 
 fn take_damage(damage : Int) -> Unit {
-  println("Player took damage: \{damage}")
   game_state.hp -= damage
   if game_state.hp <= 0 {
     game_state.hp = 0

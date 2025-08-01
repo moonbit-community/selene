@@ -34,6 +34,7 @@ fn game_start(_ : &@system.Backend) -> Unit {
   add_player()
   add_rocks()
   add_abyss()
+  add_flag()
 }
 
 ///|

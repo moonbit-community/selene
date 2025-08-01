@@ -76,12 +76,13 @@ pub fn area_collide_system(_ : &@system.Backend) -> Unit {
   for e, area in areas {
     guard @position.positions.get(e) is Some(position)
     guard area.shape is Rect(width~, height~)
-    let new_last_contains = Set::new()
     let box = @math.Rect::{
       size: @math.Vec2D::new(width, height),
       position: position.inner(),
     }
-    let entities = quadtree.val.query(box)
+    quadtree_root.insert(e, box)
+    let new_last_contains = Set::new()
+    let entities = quadtree_root.query(box)
     for entity in entities {
       if areas.get(entity) is Some(other_area) {
         guard other_area.shape is Rect(width=other_width, height=other_height)
