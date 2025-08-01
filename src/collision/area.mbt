@@ -41,12 +41,26 @@ pub fn Area::new(
 ///|
 pub let areas : Map[@system.Entity, Area] = Map::new()
 
+pub fn Area::on_enter(
+  self : Area, 
+  callback : (@system.Entity) -> Unit,
+) -> Unit {
+  self.on_enter_callbacks.push(callback)
+}
+
+pub fn Area::on_exit(
+  self : Area, 
+  callback : (@system.Entity) -> Unit,
+) -> Unit {
+  self.on_exit_callbacks.push(callback)
+}
+
 ///|
 pub fn on_enter(
   entity : @system.Entity,
   callback : (@system.Entity) -> Unit,
 ) -> Unit {
-  areas.get(entity).unwrap().on_enter_callbacks.push(callback)
+  areas.get(entity).unwrap().on_enter(callback)
 }
 
 ///|
@@ -54,7 +68,7 @@ pub fn on_exit(
   entity : @system.Entity,
   callback : (@system.Entity) -> Unit,
 ) -> Unit {
-  areas.get(entity).unwrap().on_exit_callbacks.push(callback)
+  areas.get(entity).unwrap().on_exit(callback)
 }
 
 ///|
