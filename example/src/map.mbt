@@ -35,7 +35,7 @@ fn add_rock(pos : @math.Vec2D) -> Unit {
 
 ///|
 fn add_rocks() -> Unit {
-  for i in 0..<16 {
+  for i in 0..<24 {
     let pos = @math.Vec2D::new(16.0 * i.to_double(), 240.0)
     add_rock(pos)
   }
@@ -79,9 +79,7 @@ fn add_flag() -> Unit {
   area.on_enter(fn(e) {
     if e == game_state.player {
       game_state.score += 100
-      game_state.result = GameResult::Win
-      game_state.result_box.content = "You Win!"
-      game_state.result_box.color = "green"
+      set_game_result(GameResult::Win)
       @system.Entity::destroy(flag)
     }
   })

@@ -108,7 +108,7 @@ fn QuadTree::remove(
   for child in self.children {
     child.remove(entity, box)
   }
-  if self.children.iter().all(c => c.entities.is_empty()) {
+  if self.children.iter().all(c => c.entities.is_empty() && c.children.is_empty()) {
     self.children.clear()
   }
 }

@@ -68,9 +68,6 @@ enum PlayerState {
 } derive(Show)
 
 ///|
-let player_state : Ref[PlayerState] = { val: PlayerState::Idle }
-
-///|
 const GRAVITY = 0.5
 
 ///|
@@ -82,7 +79,7 @@ const JUMP_V = 10.0
 ///|
 fn player_state_system(_ : &@system.Backend) -> Unit {
   guard @velocity.velocities.get(game_state.player) is Some(velocity)
-  if player_state.val is PlayerState::Die {
+  if game_state.player_state is PlayerState::Die {
     return
   }
   let mut new_velocity_x = velocity.x
@@ -96,7 +93,7 @@ fn player_state_system(_ : &@system.Backend) -> Unit {
   } else {
     new_velocity_x = 0.0
   }
-  match player_state.val {
+  match game_state.player_state {
     Idle => {
       if velocity.x == 0.0 {
         @sprite.play_animation(
@@ -114,10 +111,10 @@ fn player_state_system(_ : &@system.Backend) -> Unit {
       if @system.is_pressed(@system.ArrowUp) &&
         @collision.is_on_the_floor(game_state.player) {
         new_velocity_y = -JUMP_V
-        player_state.val = PlayerState::Jump
+        game_state.player_state = PlayerState::Jump
       }
       if velocity.y > 0.0 {
-        player_state.val = PlayerState::Fall
+        game_state.player_state = PlayerState::Fall
       }
     }
     Fall => {
@@ -127,7 +124,7 @@ fn player_state_system(_ : &@system.Backend) -> Unit {
         transform=Some(transform),
       )
       if @collision.is_on_the_floor(game_state.player) {
-        player_state.val = PlayerState::Idle
+        game_state.player_state = PlayerState::Idle
       }
     }
     Jump => {
@@ -137,7 +134,7 @@ fn player_state_system(_ : &@system.Backend) -> Unit {
         transform=Some(transform),
       )
       if velocity.y > 0.0 {
-        player_state.val = PlayerState::Fall
+        game_state.player_state = PlayerState::Fall
       }
     }
     Die => ()

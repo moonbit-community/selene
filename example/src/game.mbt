@@ -15,6 +15,7 @@
 ///|
 struct GameState {
   player : @system.Entity
+  mut player_state : PlayerState
   mut result : GameResult
   mut score : Int
   mut hp : Int
@@ -24,6 +25,7 @@ struct GameState {
 ///|
 let game_state : GameState = {
   player: @system.Entity::new(),
+  player_state: PlayerState::Idle,
   result: GameResult::Playing,
   score: 0,
   hp: 3,
@@ -37,14 +39,33 @@ enum GameResult {
   Playing
 }
 
+///|
+fn set_game_result(result : GameResult) -> Unit {
+  game_state.result = result
+  match result {
+    GameResult::Win => {
+      game_state.result_box.content = "You Win!"
+      game_state.result_box.color = "green"
+    }
+    GameResult::Lose => {
+      game_state.result_box.content = "You Lose!"
+      game_state.result_box.color = "red"
+    }
+    GameResult::Playing => game_state.result_box.content = ""
+  }
+}
+
+///|
 fn take_damage(damage : Int) -> Unit {
   game_state.hp -= damage
   if game_state.hp <= 0 {
     game_state.hp = 0
-    game_state.result = GameResult::Lose
+    game_state.player_state = PlayerState::Die
+    set_game_result(GameResult::Lose)
   }
 }
 
+///|
 fn add_result_box() -> Unit {
   let box = @system.Entity::new()
   @position.positions.set(box, @math.Vec2D::new(100, 100))
