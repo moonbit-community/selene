@@ -40,3 +40,19 @@ fn add_rocks() -> Unit {
     add_rock(pos)
   }
 }
+
+///|
+let non_collide_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
+
+///|
+fn add_abyss() -> Unit {
+  let abyss = @system.Entity::new()
+  let area = @collision.Area::new(
+    Rect(width=1024.0, height=16.0),
+    non_collide_layer,
+    @collision.CollisionMask::new([player_collision_layer]),
+  )
+  @collision.areas.set(abyss, area)
+  @position.positions.set(abyss, @math.Vec2D::new(0.0, 256.0))
+  area.on_enter(fn(e) { if e == game_state.player { take_damage(100) } })
+}
