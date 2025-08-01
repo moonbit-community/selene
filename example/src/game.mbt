@@ -42,3 +42,15 @@ fn take_damage(damage : Int) -> Unit {
     game_state.result = GameResult::Lose
   }
 }
+
+fn show_result_pipe(backend : &@system.Backend) -> Unit {
+  match game_state.result {
+    GameResult::Win => {
+      backend.draw_text("You Win!", x=100, y=100, font="24px ThaleahFat", color="green")
+    }
+    GameResult::Lose => {
+      backend.draw_text("You Lose!", x=100, y=100, font="24px ThaleahFat", color="red")
+    }
+    GameResult::Playing =>()
+  }
+}
