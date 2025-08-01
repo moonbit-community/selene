@@ -1,0 +1,119 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/system"
+
+import(
+  "Milky2018/selene/math"
+  "moonbitlang/core/set"
+)
+
+// Values
+fn advanced_key_system(&Backend) -> Unit
+
+let all_entities : @set.Set[Entity]
+
+fn defer_event(() -> Unit) -> Unit
+
+fn deferred_event_system(&Backend) -> Unit
+
+fn is_just_pressed(Code) -> Bool
+
+fn is_just_released(Code) -> Bool
+
+fn is_pressed(Code) -> Bool
+
+let keydown_callbacks : Map[Code, Array[() -> Unit]]
+
+let keyup_callbacks : Map[Code, Array[() -> Unit]]
+
+fn on_keydown(Code, () -> Unit) -> Unit
+
+fn on_keyup(Code, () -> Unit) -> Unit
+
+let pressed_keys : @set.Set[Code]
+
+// Errors
+
+// Types and methods
+pub(all) struct App {
+  canvas_height : Double
+  canvas_width : Double
+  fps : UInt
+  physical_fps : UInt
+  initializers : Array[((&Backend) -> Unit, Int)]
+  systems : Array[((&Backend) -> Unit, Int)]
+  render_pipes : Array[((&Backend) -> Unit, Int)]
+  plugins : Array[(App) -> Unit]
+  backend : &Backend
+}
+fn App::add_initializer(Self, (&Backend) -> Unit, priority~ : Int = ..) -> Self
+fn App::add_plugin(Self, (Self) -> Unit) -> Self
+fn App::add_render_pipe(Self, (&Backend) -> Unit, priority~ : Int = ..) -> Self
+fn App::add_system(Self, (&Backend) -> Unit, priority~ : Int = ..) -> Self
+fn App::new(&Backend) -> Self
+fn App::run(Self) -> Unit
+fn App::with_backend(Self, &Backend) -> Self
+fn App::with_canvas_height(Self, Double) -> Self
+fn App::with_canvas_width(Self, Double) -> Self
+fn App::with_fps(Self, UInt) -> Self
+fn App::with_physical_fps(Self, UInt) -> Self
+
+pub(all) enum Code {
+  KeyA
+  KeyB
+  KeyC
+  KeyD
+  KeyE
+  KeyF
+  KeyG
+  KeyH
+  KeyI
+  KeyJ
+  KeyK
+  KeyL
+  KeyM
+  KeyN
+  KeyO
+  KeyP
+  KeyQ
+  KeyR
+  KeyS
+  KeyT
+  KeyU
+  KeyV
+  KeyW
+  KeyX
+  KeyY
+  KeyZ
+  ArrowUp
+  ArrowDown
+  ArrowLeft
+  ArrowRight
+  Space
+  Enter
+  Escape
+}
+fn Code::from_string(String) -> Self?
+impl Eq for Code
+impl Hash for Code
+impl Show for Code
+
+type Entity
+fn Entity::destroy(Self) -> Unit
+fn Entity::new() -> Self
+impl Eq for Entity
+impl Hash for Entity
+impl Show for Entity
+
+// Type aliases
+pub typealias () -> Unit as Event
+
+// Traits
+pub(open) trait Backend {
+  build(Self, () -> Unit, () -> Unit, UInt, () -> Unit, Double, Double, UInt) -> Unit
+  draw_picture(Self, String, x~ : Double, y~ : Double, width~ : Double, height~ : Double, transform~ : @math.Transform, repeat~ : Bool) -> Unit
+  draw_sprite(Self, String, x~ : Double, y~ : Double, offset_x~ : Double, offset_y~ : Double, width~ : Double, height~ : Double, transform~ : @math.Transform) -> Unit
+  register_key_events(Self, @set.Set[Code], Map[Code, Array[() -> Unit]], Map[Code, Array[() -> Unit]]) -> Unit
+  draw_stroke_rect(Self, x~ : Double, y~ : Double, width~ : Double, height~ : Double, color~ : String) -> Unit
+  draw_text(Self, String, x~ : Double, y~ : Double, font~ : String, color~ : String) -> Unit
+}
+

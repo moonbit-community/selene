@@ -22,23 +22,23 @@ pub let controls : Map[@system.Entity, KeyInput] = Map::new()
 pub fn simple_input_system(_backend : &@system.Backend) -> Unit {
   for e in @system.all_entities {
     guard controls.get(e) is Some(_) else { continue }
-    guard @velocity.velocities.get(e) is Some(velocity) else { continue }
-    let mut new_velocity_x = velocity.x
-    let mut new_velocity_y = velocity.y
-    if @system.is_pressed(ArrowLeft) {
-      new_velocity_x = -5.0
+    let new_velocity_x = if @system.is_pressed(ArrowLeft) {
+      -5.0
     } else if @system.is_pressed(ArrowRight) {
-      new_velocity_x = 5.0
+      5.0
     } else {
-      new_velocity_x = 0.0
+      0.0
     }
-    if @system.is_pressed(ArrowUp) {
-      new_velocity_y = -5.0
+    let new_velocity_y = if @system.is_pressed(ArrowUp) {
+      -5.0
     } else if @system.is_pressed(ArrowDown) {
-      new_velocity_y = 5.0
+      5.0
     } else {
-      new_velocity_y = 0.0
+      0.0
     }
-    @velocity.velocities.set(e, @math.Vec2D::new(new_velocity_x, new_velocity_y))
+    @velocity.velocities.set(
+      e,
+      @math.Vec2D::new(new_velocity_x, new_velocity_y),
+    )
   }
 }

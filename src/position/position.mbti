@@ -1,0 +1,23 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/position"
+
+import(
+  "Milky2018/selene/math"
+  "Milky2018/selene/system"
+)
+
+// Values
+let positions : Map[@system.Entity, Position]
+
+// Errors
+
+// Types and methods
+pub(all) type Position @math.Vec2D
+fn Position::inner(Self) -> @math.Vec2D
+impl Eq for Position
+impl Show for Position
+
+// Type aliases
+
+// Traits
+

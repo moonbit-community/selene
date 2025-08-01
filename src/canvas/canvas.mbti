@@ -1,0 +1,25 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/canvas"
+
+import(
+  "Milky2018/selene/system"
+  "Yoorkin/rabbit-tea/dom"
+  "moonbitlang/core/set"
+)
+
+// Values
+fn set_viewport_height(@dom.HTMLCanvasElement, Double) -> Unit
+
+fn set_viewport_width(@dom.HTMLCanvasElement, Double) -> Unit
+
+// Errors
+
+// Types and methods
+type CanvasBackend
+fn CanvasBackend::new() -> Self
+impl @system.Backend for CanvasBackend
+
+// Type aliases
+
+// Traits
+

@@ -1,0 +1,81 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/collision"
+
+import(
+  "Milky2018/selene/math"
+  "Milky2018/selene/system"
+  "moonbitlang/core/set"
+)
+
+// Values
+fn area_collide_system(&@system.Backend) -> Unit
+
+let areas : Map[@system.Entity, Area]
+
+let collides : Map[@system.Entity, Collide]
+
+fn get_collision_infos(@system.Entity) -> Array[CollisionInfo]
+
+fn is_on_the_floor(@system.Entity) -> Bool
+
+fn move_system(&@system.Backend) -> Unit
+
+fn on_enter(@system.Entity, (@system.Entity) -> Unit) -> Unit
+
+fn on_exit(@system.Entity, (@system.Entity) -> Unit) -> Unit
+
+fn quadtree_render_system(&@system.Backend) -> Unit
+
+let quadtree_root : QuadTree
+
+// Errors
+
+// Types and methods
+pub(all) struct Area {
+  shape : CollisionShape
+  layer : CollisionLayer
+  mask : CollisionMask
+  on_enter_callbacks : Array[(@system.Entity) -> Unit]
+  on_exit_callbacks : Array[(@system.Entity) -> Unit]
+  mut last_contains : @set.Set[@system.Entity]
+}
+fn Area::new(CollisionShape, CollisionLayer, CollisionMask) -> Self
+fn Area::on_enter(Self, (@system.Entity) -> Unit) -> Unit
+fn Area::on_exit(Self, (@system.Entity) -> Unit) -> Unit
+
+pub(all) struct Collide {
+  shape : CollisionShape
+  layer : CollisionLayer
+  mask : CollisionMask
+}
+
+pub struct CollisionInfo {
+  entity : @system.Entity
+  direction : @math.Vec2D
+}
+
+pub type CollisionLayer UInt
+fn CollisionLayer::inner(Self) -> UInt
+fn CollisionLayer::new() -> Self
+impl Eq for CollisionLayer
+
+pub type CollisionMask Array[CollisionLayer]
+fn CollisionMask::empty() -> Self
+fn CollisionMask::inner(Self) -> Array[CollisionLayer]
+fn CollisionMask::new(Array[CollisionLayer]) -> Self
+
+pub(all) enum CollisionShape {
+  Rect(width~ : Double, height~ : Double)
+}
+
+pub struct QuadTree {
+  position : @math.Vec2D
+  size : @math.Vec2D
+  children : Array[QuadTree]
+  // private fields
+}
+
+// Type aliases
+
+// Traits
+

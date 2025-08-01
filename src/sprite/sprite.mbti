@@ -1,0 +1,65 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/sprite"
+
+import(
+  "Milky2018/selene/math"
+  "Milky2018/selene/system"
+)
+
+// Values
+fn play_animation(@system.Entity, Animation, from_start~ : Bool = .., loop_~ : Bool? = .., rate~ : Double? = .., transform~ : @math.Transform? = ..) -> Unit
+
+fn render_sprite_system(&@system.Backend) -> Unit
+
+let sprites : Map[@system.Entity, Sprite]
+
+// Errors
+
+// Types and methods
+pub struct Animation {
+  sprite_path : String
+  max_frame : UInt
+  height : Double
+  width : Double
+  offset : @math.Vec2D
+  mut transform : @math.Transform
+  mut loop_ : Bool
+  mut rate : Double
+  mut frame : Double
+  // private fields
+}
+fn Animation::new(String, max_frame~ : UInt, height~ : Double, width~ : Double, transform~ : @math.Transform = .., loop_~ : Bool = .., rate~ : Double = .., offset~ : @math.Vec2D = .., start_frame~ : UInt = ..) -> Self
+
+pub(all) struct Picture {
+  size : @math.Vec2D
+  tile_path : String
+  transform : @math.Transform
+  repeat : Bool
+}
+fn Picture::new(@math.Vec2D, String, transform~ : @math.Transform = .., repeat~ : Bool = ..) -> Self
+
+pub(all) struct Sprite {
+  sprite_type : SpriteType
+  zindex : Int
+}
+fn Sprite::new_animation(Animation, Int) -> Self
+fn Sprite::new_picture(Picture, Int) -> Self
+fn Sprite::new_text(Text, Int) -> Self
+
+pub enum SpriteType {
+  Picture(Picture)
+  Animation(Animation, mut current~ : Animation)
+  Text(Text)
+}
+
+pub(all) struct Text {
+  mut content : String
+  mut color : String
+  mut font : String
+}
+fn Text::new(String, color~ : String = .., font~ : String = ..) -> Self
+
+// Type aliases
+
+// Traits
+

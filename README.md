@@ -1,4 +1,22 @@
-# Milky2018/selene
+# The Selene Game Engine
+
+Selene is an experimental game engine in MoonBit made as a tutorial for [MGPIC 2025](https://tianchi.aliyun.com/competition/entrance/532403).
+
+Selene is free and open-source forever under your choice of the MIT or Apache 2.0 licenses.
+
+## Installation
+
+```shell
+moon add Milky2018/selene
+```
+
+## Example
+
+Please check [example](https://github.com/Milky2018/selene/tree/main/example).
+
+## Documentations and Tutorials
+
+Please check [docs](https://github.com/Milky2018/selene/tree/main/docs).
 
 ## TODO
 
@@ -12,3 +30,4 @@
 - [ ] Documentation
 - [ ] Convex polygon collision
 - [ ] Debug information
+- [ ] Audio

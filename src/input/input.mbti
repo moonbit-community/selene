@@ -1,0 +1,22 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/input"
+
+import(
+  "Milky2018/selene/system"
+)
+
+// Values
+let controls : Map[@system.Entity, KeyInput]
+
+fn simple_input_system(&@system.Backend) -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) struct KeyInput {
+}
+
+// Type aliases
+
+// Traits
+
