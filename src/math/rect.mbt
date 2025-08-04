@@ -30,4 +30,3 @@ pub fn Rect::intersects(a : Rect, b : Rect) -> Bool {
 pub fn Rect::shift(self : Rect, dir : Vec2D) -> Rect {
   { position: self.position + dir, size: self.size }
 }
-

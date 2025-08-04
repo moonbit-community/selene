@@ -46,8 +46,6 @@ pub impl @system.Backend for CanvasBackend with build(
   self,
   initialize,
   game_loop,
-  physical_fps,
-  render_loop,
   canvas_width,
   canvas_height,
   fps,
@@ -57,10 +55,8 @@ pub impl @system.Backend for CanvasBackend with build(
   set_viewport_width(self.canvas, canvas_width)
   schedule_with_fixed_interval(1000 / fps.to_double(), () => {
     self.context.clear_rect(0, 0, canvas_width, canvas_height)
-    render_loop()
+    game_loop()
   })
-  |> ignore
-  schedule_with_fixed_interval(1000 / physical_fps.to_double(), game_loop)
   |> ignore
 }
 

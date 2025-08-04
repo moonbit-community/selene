@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 pub(all) enum Axis {
   X
   Y
@@ -28,6 +29,7 @@ pub fn Vec2D::new(x : Double, y : Double) -> Vec2D {
   { x, y }
 }
 
+///|
 pub fn Vec2D::op_get(this : Vec2D, axis : Axis) -> Double {
   match axis {
     X => this.x
@@ -35,6 +37,7 @@ pub fn Vec2D::op_get(this : Vec2D, axis : Axis) -> Double {
   }
 }
 
+///|
 pub fn Vec2D::op_set(this : Vec2D, axis : Axis, value : Double) -> Unit {
   match axis {
     X => this.x = value

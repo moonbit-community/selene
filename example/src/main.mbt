@@ -18,13 +18,12 @@ fn main {
   .with_canvas_width(512.0)
   .with_canvas_height(256.0)
   .with_fps(120)
-  .with_physical_fps(120)
   .add_plugin(@plugins.default_plugin)
   .add_initializer(game_start)
   // .add_system(@input.simple_input_system)
   // .add_system(@acceleration.accelerate_system, priority=60)
   .add_system(player_state_system, priority=150)
-  .add_render_pipe(@collision.quadtree_render_system)
+  .add_system(@collision.quadtree_render_system, priority=-10)
   .run()
 }
 

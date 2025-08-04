@@ -43,6 +43,6 @@ fn render_picture(
     width=picture.size.x,
     height=picture.size.y,
     repeat=picture.repeat,
-    transform=picture.transform
+    transform=picture.transform,
   )
 }

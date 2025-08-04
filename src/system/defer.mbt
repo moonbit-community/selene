@@ -26,6 +26,7 @@ pub fn deferred_event_system(_backend : &Backend) -> Unit {
   deferred_events.clear()
 }
 
+///|
 pub fn defer_event(event : Event) -> Unit {
   deferred_events.push(event)
 }

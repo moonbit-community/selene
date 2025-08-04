@@ -66,11 +66,33 @@
 // }
 
 ///|
-struct PygameBackend {}
+struct PygameBackend {
+  pygame : @python.PyModule
+  screen : @python.PyObject
+  clock : @python.PyObject
+}
 
 ///|
 pub fn PygameBackend::new() -> PygameBackend {
-  ...
+  guard @python.pyimport("pygame") is Some(pygame)
+  guard pygame.get_attr("init") is Some(@python.PyCallable(init_func))
+  guard (try? init_func.invoke()) is Ok(_)
+  guard pygame.get_attr("display") is Some(@python.PyModule(display))
+  guard display.get_attr("set_mode") is Some(@python.PyCallable(set_mode_func))
+  let size = @python.PyTuple::new(2)
+  size.set(0, @python.PyFloat::from(5.0))
+  size.set(1, @python.PyFloat::from(5.0))
+  let args = @python.PyTuple::new(1)
+  args.set(0, size)
+  guard (try? set_mode_func.invoke(args~)) is Ok(Some(PyClass(screen)))
+  guard pygame.get_attr("time") is Some(@python.PyModule(time))
+  guard time.get_attr("Clock") is Some(@python.PyCallable(clock))
+  guard (try? clock.invoke()) is Ok(Some(PyClass(clock)))
+  {
+    pygame,
+    screen,
+    clock,
+  }
 }
 
 ///|
@@ -78,13 +100,24 @@ pub impl @system.Backend for PygameBackend with build(
   self,
   initialize,
   game_loop,
-  physical_fps,
-  render_loop,
   canvas_width,
   canvas_height,
   fps,
 ) {
-  ...
+  let size = @python.PyTuple::new(2)
+  size.set(0, @python.PyFloat::from(canvas_width))
+  size.set(1, @python.PyFloat::from(canvas_height))
+  let args = @python.PyTuple::new(1)
+  args.set(0, size)
+  guard self.pygame.get_attr("display") is Some(@python.PyModule(display))
+  guard display.get_attr("set_mode") is Some(@python.PyCallable(set_mode_func))
+  guard (try? set_mode_func.invoke(args~)) is Ok(_)
+  initialize()
+  for {
+    game_loop()
+    guard self.clock.get_attr("tick") 
+    self.clock.tick(fps)
+  }
 }
 
 ///|

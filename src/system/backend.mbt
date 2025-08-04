@@ -19,19 +19,18 @@ typealias (&Backend) -> Unit as System
 typealias (&Backend) -> Unit as Initializer
 
 ///|
-typealias (&Backend) -> Unit as RenderPipe
-
-///|
 typealias (App) -> Unit as Plugin
 
 ///|
 pub(open) trait Backend {
+  ///| Things need to be done in `build`:
+  /// - Initialize the backend.
+  /// - Set the viewport size.
+  /// - Schedule the game loop with a fixed interval (fps).
   build(
     Self,
     initialize : () -> Unit,
     game_loop : () -> Unit,
-    physical_fps : UInt,
-    render_loop : () -> Unit,
     canvas_width : Double,
     canvas_height : Double,
     fps : UInt,

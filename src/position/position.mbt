@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 pub(all) type Position @math.Vec2D derive(Eq, Show)
 
+///|
 pub let positions : Map[@system.Entity, Position] = Map::new()
