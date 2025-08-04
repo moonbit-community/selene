@@ -58,6 +58,7 @@ pub impl @system.Backend for CanvasBackend with build(
     game_loop()
   })
   |> ignore
+  return fn() {  }
 }
 
 ///|

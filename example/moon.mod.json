@@ -5,8 +5,11 @@
     "Milky2018/selene": {
       "path": ".."
     },
-    "Milky2018/selene-canvas": {
-      "path": "../selene-canvas"
+    // "Milky2018/selene-canvas": {
+    //   "path": "../selene-canvas"
+    // }
+    "Milky2018/selene-pygame": {
+      "path": "../selene-pygame"
     }
   },
   "readme": "README.md",

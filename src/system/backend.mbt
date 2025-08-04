@@ -26,7 +26,7 @@ pub(open) trait Backend {
   ///| Things need to be done in `build`:
   /// - Initialize the backend.
   /// - Set the viewport size.
-  /// - Schedule the game loop with a fixed interval (fps).
+  /// - Return the scheduled game loop with a fixed interval (fps).
   build(
     Self,
     initialize : () -> Unit,
@@ -34,7 +34,7 @@ pub(open) trait Backend {
     canvas_width : Double,
     canvas_height : Double,
     fps : UInt,
-  ) -> Unit
+  ) -> () -> Unit
   draw_picture(
     Self,
     png : String,

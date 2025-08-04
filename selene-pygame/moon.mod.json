@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "deps": {
     "Kaida-Amethyst/python": "0.1.4",
-    "Milky2018/selene": "0.9.2"
+    "Milky2018/selene": "0.9.3"
   },
   "readme": "README.md",
   "repository": "",

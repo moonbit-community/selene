@@ -14,7 +14,7 @@
 
 ///|
 fn add_rock(pos : @math.Vec2D) -> Unit {
-  let rock_sprite = "/pixel_adventure/Terrain/Terrain (16x16).png"
+  let rock_sprite = "pixel_adventure/Terrain/Terrain (16x16).png"
   let rock = @system.Entity::new()
   let animation = @sprite.Animation::new(
     rock_sprite,
@@ -57,11 +57,12 @@ fn add_abyss() -> Unit {
   area.on_enter(fn(e) { if e == game_state.player { take_damage(100) } })
 }
 
+///|
 fn add_flag() -> Unit {
   let flag = @system.Entity::new()
   let flag_sprite = @sprite.Sprite::new_animation(
     @sprite.Animation::new(
-      "/pixel_adventure/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png",
+      "pixel_adventure/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png",
       max_frame=10,
       height=64.0,
       width=64.0,

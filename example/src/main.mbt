@@ -14,7 +14,7 @@
 
 ///|
 fn main {
-  @system.App::new(@canvas.CanvasBackend::new())
+  @system.App::new(@pygame.PygameBackend::new())
   .with_canvas_width(512.0)
   .with_canvas_height(256.0)
   .with_fps(120)
@@ -43,7 +43,7 @@ fn add_background() -> Unit {
   let background_sprite = @sprite.Sprite::new_picture(
     @sprite.Picture::new(
       @math.Vec2D::new(1024.0, 256.0),
-      "/pixel_adventure/Background/Gray.png",
+      "pixel_adventure/Background/Gray.png",
       repeat=true,
     ),
     0,
