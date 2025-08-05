@@ -1,10 +1,8 @@
 # The Selene Game Engine
 
-Selene is an experimental game engine in MoonBit made as a tutorial for [MGPIC 2025](https://tianchi.aliyun.com/competition/entrance/532403).
+Selene is an experimental game engine in MoonBit made as a tutorial for [MGPIC 2025](https://www.moonbitlang.cn/2025-mgpic).
 
 Selene is free and open-source forever under your choice of the MIT or Apache 2.0 licenses.
-
-This repository 
 
 ## Installation
 
@@ -26,7 +24,6 @@ Please check [docs](https://github.com/Milky2018/selene/tree/main/docs).
 - [x] Areas 
 - [ ] Gamepad support 
 - [ ] Mouse/Screen Touch support 
-- [ ] Pygame backend 
 - [ ] Scenes 
 - [ ] Camera
 - [ ] Documentation

@@ -1,7 +1,0 @@
-{
-  "import": [
-    "Kaida-Amethyst/python",
-    "Milky2018/selene/system",
-    "Milky2018/selene/math"
-  ]
-}

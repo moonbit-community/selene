@@ -14,7 +14,7 @@
 
 ///|
 fn main {
-  @system.App::new(@pygame.PygameBackend::new())
+  @system.App::new(@canvas.CanvasBackend::new())
   .with_canvas_width(512.0)
   .with_canvas_height(256.0)
   .with_fps(120)

@@ -1,1 +1,1 @@
-# Milky2018/selene-canvas
+# A Selene Backend with Canvas2D/JavaScript

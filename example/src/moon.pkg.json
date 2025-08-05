@@ -9,7 +9,6 @@
     "Milky2018/selene/plugins",
     "Milky2018/selene/position",
     "Milky2018/selene/collision",
-    // { "path": "Milky2018/selene-canvas", "alias": "canvas" }
-    { "path": "Milky2018/selene-pygame", "alias": "pygame" }
+    { "path": "Milky2018/selene-canvas", "alias": "canvas" }
   ]
 }
