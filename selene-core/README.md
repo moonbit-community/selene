@@ -4,6 +4,8 @@ Selene is an experimental game engine in MoonBit made as a tutorial for [MGPIC 2
 
 Selene is free and open-source forever under your choice of the MIT or Apache 2.0 licenses.
 
+This repository 
+
 ## Installation
 
 ```shell

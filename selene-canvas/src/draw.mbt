@@ -45,7 +45,14 @@ pub impl @system.Backend for CanvasBackend with draw_picture(
   )
   self.context.save()
   self.context.set_fill_style(@js.Union3::from2(pattern))
-  self.context.transform(transform.scale.x, 0, 0, transform.scale.y, transform.translate.x, transform.translate.y)
+  self.context.transform(
+    transform.scale.x,
+    0,
+    0,
+    transform.scale.y,
+    transform.translate.x,
+    transform.translate.y,
+  )
   self.context.fill_rect(x, y, width, height)
   self.context.restore()
 }
@@ -60,11 +67,18 @@ pub impl @system.Backend for CanvasBackend with draw_sprite(
   offset_y~,
   width~,
   height~,
-  transform~
+  transform~,
 ) {
   self.context.save()
   self.context.translate(x, y)
-  self.context.transform(transform.scale.x, 0, 0, transform.scale.y, transform.translate.x, transform.translate.y)
+  self.context.transform(
+    transform.scale.x,
+    0,
+    0,
+    transform.scale.y,
+    transform.translate.x,
+    transform.translate.y,
+  )
   let element = get_image_element(sprite_path)
   self.context.draw_image_with_src_and_dst_size(
     element |> @js.Value::cast_from |> @js.Value::cast,
@@ -95,6 +109,7 @@ pub impl @system.Backend for CanvasBackend with draw_stroke_rect(
   self.context.restore()
 }
 
+///|
 pub impl @system.Backend for CanvasBackend with draw_text(
   self,
   text,
