@@ -1,4 +1,4 @@
-# Selene 游戏引擎
+# Selene 游戏引擎 [English](./README.md)
 
 ## 目录结构
 
@@ -15,3 +15,11 @@
 而对于期望更专注于游戏上层逻辑的选手，基于 Selene 引擎开发游戏是一个非常友好的入门方式。
 
 关于 Selene 引擎，参考 [README](./selene-core/README.md), [docs](./docs/tutorial-zh.md), [example](./example/).
+
+## 版本兼容性
+
+从2025年8月10日开始至比赛结束，0.10.x 版本会一直保持稳定，不会引入破坏性改动。
+
+比赛结束后，本项目会继续维护，但不保证向后兼容。
+
+欢迎贡献！

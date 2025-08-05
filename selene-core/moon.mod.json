@@ -1,6 +1,6 @@
 {
   "name": "Milky2018/selene",
-  "version": "0.9.0",
+  "version": "0.9.4",
   "deps": {},
   "readme": "README.md",
   "repository": "https://github.com/Milky2018/selene.git",
@@ -10,10 +10,5 @@
   ],
   "description": "",
   "source": "src",
-  "exclude": [
-    "example",
-    "selene-canvas",
-    "selene-pygame"
-  ],
   "preferred-target": "js"
 }
