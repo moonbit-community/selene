@@ -14,5 +14,6 @@
 
 ///|
 pub(all) enum CollisionShape {
+  // TODO: support offset
   Rect(width~ : Double, height~ : Double)
 }
