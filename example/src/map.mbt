@@ -26,7 +26,9 @@ fn generate_map() -> Unit {
   let mask_dude = tilemap.get_tiles_leftcorner("MaskDude")[0]
   add_player(tile_to_vec2d(mask_dude, tilemap.tile_size))
   let flag = tilemap.get_tiles_leftcorner("Flag")[0]
-  add_flag(tile_to_vec2d(flag, tilemap.tile_size) - @math.Vec2D::new(16.0, 16.0))
+  add_flag(
+    tile_to_vec2d(flag, tilemap.tile_size) - @math.Vec2D::new(16.0, 16.0),
+  )
   let apples = tilemap.get_tiles_leftcorner("Apple")
   for apple in apples {
     add_apple(tile_to_vec2d(apple, tilemap.tile_size))
@@ -65,7 +67,7 @@ fn add_grass(pos : @math.Vec2D, sprite_id : String) -> Unit {
   @sprite.sprites.set(grass, sprite)
   @position.positions.set(grass, pos)
   @collision.collides.set(grass, @collision.Collide::{
-    shape: Rect(width=16.0, height=16.0),
+    shape: Rect(size=@math.Vec2D::new(16.0, 16.0)),
     layer: terrain_collision_layer,
     mask: @collision.CollisionMask::empty(),
   })
@@ -78,7 +80,7 @@ let non_collide_layer : @collision.CollisionLayer = @collision.CollisionLayer::n
 fn add_abyss() -> Unit {
   let abyss = @system.Entity::new()
   let area = @collision.Area::new(
-    Rect(width=1024.0, height=16.0),
+    Rect(size=@math.Vec2D::new(1024.0, 16.0)),
     non_collide_layer,
     @collision.CollisionMask::new([player_collision_layer]),
   )
@@ -102,7 +104,7 @@ fn add_flag(pos : @math.Vec2D) -> Unit {
   @sprite.sprites.set(flag, flag_sprite)
   @position.positions.set(flag, pos)
   let area = @collision.Area::new(
-    Rect(width=64.0, height=64.0),
+    Rect(size=@math.Vec2D::new(64.0, 64.0)),
     non_collide_layer,
     @collision.CollisionMask::new([player_collision_layer]),
   )
@@ -131,7 +133,7 @@ fn add_apple(pos : @math.Vec2D) -> Unit {
   @sprite.sprites.set(apple, apple_sprite)
   @position.positions.set(apple, pos)
   let area = @collision.Area::new(
-    Rect(width=32.0, height=32.0),
+    Rect(size=@math.Vec2D::new(32.0, 32.0)),
     non_collide_layer,
     @collision.CollisionMask::new([player_collision_layer]),
   )

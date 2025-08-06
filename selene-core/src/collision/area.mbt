@@ -72,7 +72,7 @@ pub fn area_collide_system(_ : &@system.Backend) -> Unit {
   for e in @system.all_entities {
     guard areas.get(e) is Some(area) else { continue }
     guard @position.positions.get(e) is Some(position)
-    guard area.shape is Rect(width~, height~)
+    guard area.shape is Rect(size={ x: width, y: height })
     let box = @math.Rect::{
       size: @math.Vec2D::new(width, height),
       position: position.inner(),
@@ -82,7 +82,7 @@ pub fn area_collide_system(_ : &@system.Backend) -> Unit {
     let entities = quadtree_root.query(box)
     for entity in entities {
       if areas.get(entity) is Some(other_area) {
-        guard other_area.shape is Rect(width=other_width, height=other_height)
+        guard other_area.shape is Rect(size={ x: other_width, y: other_height })
         guard @position.positions.get(entity) is Some(other_position)
         let other_box = @math.Rect::{
           size: @math.Vec2D::new(other_width, other_height),
@@ -91,7 +91,7 @@ pub fn area_collide_system(_ : &@system.Backend) -> Unit {
         guard box.intersects(other_box) else { continue }
         guard area.mask.contains(other_area.layer) else { continue }
       } else if collides.get(entity) is Some(other_body) {
-        guard other_body.shape is Rect(width=other_width, height=other_height)
+        guard other_body.shape is Rect(size={ x: other_width, y: other_height })
         guard @position.positions.get(entity) is Some(other_position)
         let other_box = @math.Rect::{
           size: @math.Vec2D::new(other_width, other_height),
