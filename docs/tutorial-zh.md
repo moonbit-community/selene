@@ -305,9 +305,9 @@ pub fn simple_input_system(_backend : &@system.Backend) -> Unit {
 }
 ```
 
-当我们为文本框设置 `controls` 组件时，它就被添加到了这个哈希映射中；而在 `simple_input_system` 内部，只要一个实体包含 `controls` 组件，它的速度就会根据按键状态进行更新。按键状态被保存在 `@system.pressed_keys` 集合中，你可以直接访问，也可以通过 Selene 提供的 `is_pressed, is_release` 来访问。除了方向键，Selene 也支持很多其它的按键，你可以在 [system.mbti](https://github.com/Milky2018/selene/blob/main/src/system/system.mbti) 这个文件中看到支持的按键列表。
+当我们为文本框设置 `controls` 组件时，它就被添加到了这个哈希映射中；而在 `simple_input_system` 内部，只要一个实体包含 `controls` 组件，它的速度就会根据按键状态进行更新。按键状态被保存在 `@system.pressed_keys` 集合中，你可以直接访问，也可以通过 Selene 提供的 `is_pressed, is_release` 来访问。除了方向键，Selene 也支持很多其它的按键，你可以在 [system.mbti](https://github.com/Milky2018/selene/selene-core/blob/main/src/system/system.mbti) 这个文件中看到支持的按键列表。
 
-基本上，这就是我们实现一个 System 的基本步骤：
+这就是我们实现一个 System 的基本步骤：
 
 1. 如果定义了一个新的组件，为这个组件定义一个可以把组件和 Entity 关联起来的数据结构；
 2. 在 System 中对 `@system.all_entities` 进行迭代。
