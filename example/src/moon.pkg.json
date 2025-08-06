@@ -9,6 +9,7 @@
     "Milky2018/selene/plugins",
     "Milky2018/selene/position",
     "Milky2018/selene/collision",
+    "Milky2018/selene/tilemap",
     { "path": "Milky2018/selene-canvas", "alias": "canvas" }
   ]
 }

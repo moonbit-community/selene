@@ -12,37 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+const WORLD_WIDTH : Double = 560.0
+const WORLD_HEIGHT : Double = 432.0
+
 ///|
 fn main {
   @system.App::new(@canvas.CanvasBackend::new())
-  .with_canvas_width(512.0)
-  .with_canvas_height(256.0)
+  .with_canvas_width(WORLD_WIDTH)
+  .with_canvas_height(WORLD_HEIGHT)
   .with_fps(120)
   .add_plugin(@plugins.default_plugin)
   .add_initializer(game_start)
   // .add_system(@input.simple_input_system)
   // .add_system(@acceleration.accelerate_system, priority=60)
   .add_system(player_state_system, priority=150)
-  .add_system(@collision.quadtree_render_system, priority=-10)
+  // .add_system(@collision.quadtree_render_system, priority=-10)
   .run()
 }
 
 ///|
 fn game_start(_ : &@system.Backend) -> Unit {
-  add_background()
-  add_player()
-  add_rocks()
-  add_abyss()
-  add_flag()
+  add_background(@math.Vec2D::new(WORLD_WIDTH, WORLD_HEIGHT))
+  generate_map()
+  // add_abyss()
   add_result_box()
 }
 
 ///|
-fn add_background() -> Unit {
+fn add_background(size : @math.Vec2D) -> Unit {
   let background = @system.Entity::new()
   let background_sprite = @sprite.Sprite::new_picture(
     @sprite.Picture::new(
-      @math.Vec2D::new(1024.0, 256.0),
+      size,
       "pixel_adventure/Background/Gray.png",
       repeat=true,
     ),

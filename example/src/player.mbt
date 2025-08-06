@@ -45,12 +45,12 @@ let player_jump_animation : @sprite.Animation = @sprite.Animation::new(
 )
 
 ///|
-fn add_player() -> Unit {
+fn add_player(pos : @math.Vec2D) -> Unit {
   let player_sprite = @sprite.Sprite::new_animation(player_idle_animation, 10)
   @sprite.sprites.set(game_state.player, player_sprite)
   @input.controls.set(game_state.player, @input.KeyInput::{  })
   @velocity.velocities.set(game_state.player, @math.Vec2D::new(0.0, 0.0))
-  @position.positions.set(game_state.player, @math.Vec2D::new(0.0, 208.0))
+  @position.positions.set(game_state.player, pos)
   @collision.collides.set(game_state.player, @collision.Collide::{
     shape: Rect(width=32.0, height=32.0),
     layer: player_collision_layer,
@@ -74,7 +74,7 @@ const GRAVITY = 0.5
 const RUN_V = 4.0
 
 ///|
-const JUMP_V = 10.0
+const JUMP_V = 11.5
 
 ///|
 fn player_state_system(_ : &@system.Backend) -> Unit {
@@ -84,28 +84,34 @@ fn player_state_system(_ : &@system.Backend) -> Unit {
   }
   let mut new_velocity_x = velocity.x
   let mut new_velocity_y = velocity.y
-  let mut transform = @math.Transform::new()
   if @system.is_pressed(@system.ArrowLeft) {
     new_velocity_x = -RUN_V
-    transform = @math.Transform::flip_x(32.0)
+    game_state.direction = Direction2::Left
   } else if @system.is_pressed(@system.ArrowRight) {
     new_velocity_x = RUN_V
+    game_state.direction = Direction2::Right
   } else {
     new_velocity_x = 0.0
   }
+  let transform = Some(
+    match game_state.direction {
+      Direction2::Left => @math.Transform::flip_x(32.0)
+      Direction2::Right => @math.Transform::new()
+    },
+  )
   match game_state.player_state {
     Idle => {
       if velocity.x == 0.0 {
         @sprite.play_animation(
           game_state.player,
           player_idle_animation,
-          transform=Some(transform),
+          transform~,
         )
       } else {
         @sprite.play_animation(
           game_state.player,
           player_run_animation,
-          transform=Some(transform),
+          transform~,
         )
       }
       if @system.is_pressed(@system.ArrowUp) &&
@@ -121,7 +127,7 @@ fn player_state_system(_ : &@system.Backend) -> Unit {
       @sprite.play_animation(
         game_state.player,
         player_fall_animation,
-        transform=Some(transform),
+        transform~,
       )
       if @collision.is_on_the_floor(game_state.player) {
         game_state.player_state = PlayerState::Idle
@@ -131,7 +137,7 @@ fn player_state_system(_ : &@system.Backend) -> Unit {
       @sprite.play_animation(
         game_state.player,
         player_jump_animation,
-        transform=Some(transform),
+        transform~,
       )
       if velocity.y > 0.0 {
         game_state.player_state = PlayerState::Fall
