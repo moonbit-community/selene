@@ -21,8 +21,10 @@ struct GameState {
   mut score : Int
   mut hp : Int
   result_box : @sprite.Text
+  score_box : @sprite.Text
 }
 
+///|
 enum Direction2 {
   Left
   Right
@@ -36,6 +38,11 @@ let game_state : GameState = {
   score: 0,
   hp: 3,
   result_box: @sprite.Text::new("", font="24px ThaleahFat"),
+  score_box: @sprite.Text::new(
+    "Score: 0",
+    font="20px ThaleahFat",
+    color="white",
+  ),
   direction: Direction2::Right,
 }
 
@@ -62,6 +69,11 @@ fn set_game_result(result : GameResult) -> Unit {
   }
 }
 
+fn score_up(score : Int) -> Unit {
+  game_state.score += score
+  game_state.score_box.content = "Score: " + game_state.score.to_string()
+}
+
 ///|
 fn take_damage(damage : Int) -> Unit {
   game_state.hp -= damage
@@ -75,7 +87,18 @@ fn take_damage(damage : Int) -> Unit {
 ///|
 fn add_result_box() -> Unit {
   let box = @system.Entity::new()
-  @position.positions.set(box, @math.Vec2D::new(WORLD_WIDTH / 2.0, WORLD_HEIGHT / 2.0))
+  @position.positions.set(
+    box,
+    @math.Vec2D::new(WORLD_WIDTH / 2.0 - 48, WORLD_HEIGHT / 2.0 - 32),
+  )
   let text = @sprite.Sprite::new_text(game_state.result_box, 100)
+  @sprite.sprites.set(box, text)
+}
+
+///|
+fn add_score_box() -> Unit {
+  let box = @system.Entity::new()
+  @position.positions.set(box, @math.Vec2D::new(WORLD_WIDTH / 2.0 - 48, 80))
+  let text = @sprite.Sprite::new_text(game_state.score_box, 100)
   @sprite.sprites.set(box, text)
 }

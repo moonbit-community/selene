@@ -138,7 +138,7 @@ fn add_apple(pos : @math.Vec2D) -> Unit {
   @collision.areas.set(apple, area)
   area.on_enter(fn(e) {
     if e == game_state.player {
-      game_state.score += 10
+      score_up(10)
       @system.Entity::destroy(apple)
     }
   })

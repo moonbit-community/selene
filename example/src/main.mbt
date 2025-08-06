@@ -36,6 +36,7 @@ fn game_start(_ : &@system.Backend) -> Unit {
   generate_map()
   // add_abyss()
   add_result_box()
+  add_score_box()
 }
 
 ///|
