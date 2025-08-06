@@ -95,54 +95,6 @@ pub fn Area::on_just_released(
 }
 
 ///|
-pub fn on_enter(
-  entity : @system.Entity,
-  callback : (@system.Entity) -> Unit,
-) -> Unit {
-  areas.get(entity).unwrap().on_enter(callback)
-}
-
-///|
-pub fn on_exit(
-  entity : @system.Entity,
-  callback : (@system.Entity) -> Unit,
-) -> Unit {
-  areas.get(entity).unwrap().on_exit(callback)
-}
-
-///|
-pub fn on_pressed(
-  entity : @system.Entity,
-  callback : (@system.MouseButton) -> Unit,
-) -> Unit {
-  areas.get(entity).unwrap().on_pressed(callback)
-}
-
-///|
-pub fn on_released(
-  entity : @system.Entity,
-  callback : (@system.MouseButton) -> Unit,
-) -> Unit {
-  areas.get(entity).unwrap().on_released(callback)
-}
-
-///|
-pub fn on_just_pressed(
-  entity : @system.Entity,
-  callback : (@system.MouseButton) -> Unit,
-) -> Unit {
-  areas.get(entity).unwrap().on_just_pressed(callback)
-}
-
-///|
-pub fn on_just_released(
-  entity : @system.Entity,
-  callback : (@system.MouseButton) -> Unit,
-) -> Unit {
-  areas.get(entity).unwrap().on_just_released(callback)
-}
-
-///|
 pub fn area_collide_system(_ : &@system.Backend) -> Unit {
   for e in @system.all_entities {
     guard areas.get(e) is Some(area) else { continue }

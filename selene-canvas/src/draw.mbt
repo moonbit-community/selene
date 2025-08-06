@@ -45,15 +45,16 @@ pub impl @system.Backend for CanvasBackend with draw_picture(
   )
   self.context.save()
   self.context.set_fill_style(@js.Union3::from2(pattern))
+  self.context.translate(x, y)
   self.context.transform(
     transform.scale.x,
-    0,
-    0,
+    transform.skew.x,
+    transform.skew.y,
     transform.scale.y,
     transform.translate.x,
     transform.translate.y,
   )
-  self.context.fill_rect(x, y, width, height)
+  self.context.fill_rect(0, 0, width, height)
   self.context.restore()
 }
 
@@ -73,8 +74,8 @@ pub impl @system.Backend for CanvasBackend with draw_sprite(
   self.context.translate(x, y)
   self.context.transform(
     transform.scale.x,
-    0,
-    0,
+    transform.skew.x,
+    transform.skew.y,
     transform.scale.y,
     transform.translate.x,
     transform.translate.y,
