@@ -66,10 +66,11 @@ moon new --path mygame --name mygame --user <YOURNAME>
 cd mygame
 ```
 
-添加 Selene 引擎作为依赖：
+添加 Selene 引擎和 Canvas 后端作为依赖：
 
 ```shell
 moon add Milky2018/selene@0.9.0
+moon add Milky2018/selene-canvas@0.9.0
 ```
 
 > 你也可以获取最新版，但后续流程可能有无法正常运行的情况，需要你自己调试。
@@ -80,7 +81,6 @@ moon add Milky2018/selene@0.9.0
 {
   "is-main": true,
   "import": [
-    "Milky2018/selene/canvas",
     "Milky2018/selene/system",
     "Milky2018/selene/math",
     "Milky2018/selene/sprite",
@@ -88,7 +88,8 @@ moon add Milky2018/selene@0.9.0
     "Milky2018/selene/input",
     "Milky2018/selene/plugins",
     "Milky2018/selene/position",
-    "Milky2018/selene/collision"
+    "Milky2018/selene/collision",
+    { "path": "Milky2018/selene-canvas", "alias": "canvas" }
   ]
 }
 ```
