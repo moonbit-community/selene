@@ -79,22 +79,3 @@ fn take_damage(damage : Int) -> Unit {
     set_game_result(GameResult::Lose)
   }
 }
-
-///|
-fn add_result_box() -> Unit {
-  let box = @system.Entity::new()
-  @position.positions.set(
-    box,
-    @math.Vec2D::new(WORLD_WIDTH / 2.0 - 48, WORLD_HEIGHT / 2.0 - 32),
-  )
-  let text = @sprite.Sprite::new_text(game_state.result_box, 100)
-  @sprite.sprites.set(box, text)
-}
-
-///|
-fn add_score_box() -> Unit {
-  let box = @system.Entity::new()
-  @position.positions.set(box, @math.Vec2D::new(WORLD_WIDTH / 2.0 - 48, 80))
-  let text = @sprite.Sprite::new_text(game_state.score_box, 100)
-  @sprite.sprites.set(box, text)
-}

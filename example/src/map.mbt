@@ -22,6 +22,7 @@ fn tile_to_vec2d(tile : @tilemap.Tile, tile_size : Int) -> @math.Vec2D {
 
 ///|
 fn generate_map() -> Unit {
+  add_background(@math.Vec2D::new(WORLD_WIDTH, WORLD_HEIGHT))
   let tilemap = @tilemap.TileMap::from_json(tilemap)
   let mask_dude = tilemap.get_tiles_leftcorner("MaskDude")[0]
   add_player(tile_to_vec2d(mask_dude, tilemap.tile_size))
@@ -37,6 +38,21 @@ fn generate_map() -> Unit {
   for grass in grasses {
     add_grass(tile_to_vec2d(grass, tilemap.tile_size), grass.id)
   }
+}
+
+///|
+fn add_background(size : @math.Vec2D) -> Unit {
+  let background = @system.Entity::new()
+  let background_sprite = @sprite.Sprite::new_picture(
+    @sprite.Picture::new(
+      size,
+      "pixel_adventure/Background/Gray.png",
+      repeat=true,
+    ),
+    0,
+  )
+  @sprite.sprites.set(background, background_sprite)
+  @position.positions.set(background, @math.Vec2D::new(0, 0))
 }
 
 ///|
@@ -75,19 +91,6 @@ fn add_grass(pos : @math.Vec2D, sprite_id : String) -> Unit {
 
 ///|
 let non_collide_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
-
-///|
-fn add_abyss() -> Unit {
-  let abyss = @system.Entity::new()
-  let area = @collision.Area::new(
-    Rect(size=@math.Vec2D::new(1024.0, 16.0), offset=@math.Vec2D::zero()),
-    non_collide_layer,
-    @collision.CollisionMask::new([player_collision_layer]),
-  )
-  @collision.areas.set(abyss, area)
-  @position.positions.set(abyss, @math.Vec2D::new(0.0, 256.0))
-  area.on_enter(fn(e) { if e == game_state.player { take_damage(100) } })
-}
 
 ///|
 fn add_flag(pos : @math.Vec2D) -> Unit {
