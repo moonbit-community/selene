@@ -23,10 +23,10 @@ Please check [docs](https://github.com/Milky2018/selene/tree/main/docs).
 - [x] Basic collisions 
 - [x] Areas 
 - [ ] Gamepad support 
-- [ ] Mouse/Screen Touch support 
-- [ ] Scenes 
+- [x] Mouse/Screen Touch support 
 - [ ] Camera
 - [ ] Documentation
 - [ ] Convex polygon collision
 - [ ] Debug information
-- [ ] Audio
+- [x] Audio
+- [ ] Timer

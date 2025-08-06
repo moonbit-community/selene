@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 pub(all) enum MouseButton {
   Left
   Right
@@ -21,80 +22,92 @@ pub(all) enum MouseButton {
 ///|
 pub(all) struct Mouse {
   pos : @math.Vec2D
-  mut left_button_pressed : Bool
-  mut right_button_pressed : Bool
-  mut middle_button_pressed : Bool
+  mut left_button : Bool
+  mut right_button : Bool
+  mut middle_button : Bool
 }
 
 ///|
 pub let mouse : Mouse = {
   pos: @math.Vec2D::new(0.0, 0.0),
-  left_button_pressed: false,
-  right_button_pressed: false,
-  middle_button_pressed: false,
+  left_button: false,
+  right_button: false,
+  middle_button: false,
 }
 
 ///|
 let last_mouse : Mouse = {
   pos: @math.Vec2D::new(0.0, 0.0),
-  left_button_pressed: false,
-  right_button_pressed: false,
-  middle_button_pressed: false,
+  left_button: false,
+  right_button: false,
+  middle_button: false,
+}
+
+///|
+pub let just_pressed_mouse : Mouse = {
+  pos: @math.Vec2D::new(0.0, 0.0),
+  left_button: false,
+  right_button: false,
+  middle_button: false,
+}
+
+///|
+pub let just_release_mouse : Mouse = {
+  pos: @math.Vec2D::new(0.0, 0.0),
+  left_button: false,
+  right_button: false,
+  middle_button: false,
 }
 
 ///|
 pub fn advanced_mouse_system(_backend : &Backend) -> Unit {
-  just_mouse.pos.x = mouse.pos.x - last_mouse.pos.x
-  just_mouse.pos.y = mouse.pos.y - last_mouse.pos.y
-  just_mouse.left_button_pressed = mouse.left_button_pressed &&
-    !last_mouse.left_button_pressed
-  just_mouse.right_button_pressed = mouse.right_button_pressed &&
-    !last_mouse.right_button_pressed
-  just_mouse.middle_button_pressed = mouse.middle_button_pressed &&
-    !last_mouse.middle_button_pressed
+  // Just pressed
+  just_pressed_mouse.left_button = mouse.left_button && !last_mouse.left_button
+  just_pressed_mouse.right_button = mouse.right_button && !last_mouse.right_button
+  just_pressed_mouse.middle_button = mouse.middle_button && !last_mouse.middle_button
+
+  // Just released
+  just_release_mouse.left_button = !mouse.left_button && last_mouse.left_button
+  just_release_mouse.right_button = !mouse.right_button && last_mouse.right_button
+  just_release_mouse.middle_button = !mouse.middle_button && last_mouse.middle_button
+
   last_mouse.pos.x = mouse.pos.x
   last_mouse.pos.y = mouse.pos.y
-  last_mouse.left_button_pressed = mouse.left_button_pressed
-  last_mouse.right_button_pressed = mouse.right_button_pressed
-  last_mouse.middle_button_pressed = mouse.middle_button_pressed
+  last_mouse.left_button = mouse.left_button
+  last_mouse.right_button = mouse.right_button
+  last_mouse.middle_button = mouse.middle_button
 }
 
 ///|
-pub let just_mouse : Mouse = {
-  pos: @math.Vec2D::new(0.0, 0.0),
-  left_button_pressed: false,
-  right_button_pressed: false,
-  middle_button_pressed: false,
-}
-
 pub fn is_mouse_pressed(button : MouseButton) -> Bool {
   match button {
-    MouseButton::Left => mouse.left_button_pressed
-    MouseButton::Right => mouse.right_button_pressed
-    MouseButton::Middle => mouse.middle_button_pressed
+    MouseButton::Left => mouse.left_button
+    MouseButton::Right => mouse.right_button
+    MouseButton::Middle => mouse.middle_button
   }
 }
 
+///|
 pub fn is_mouse_released(button : MouseButton) -> Bool {
   match button {
-    MouseButton::Left => !mouse.left_button_pressed
-    MouseButton::Right => !mouse.right_button_pressed
-    MouseButton::Middle => !mouse.middle_button_pressed
+    MouseButton::Left => !mouse.left_button
+    MouseButton::Right => !mouse.right_button
+    MouseButton::Middle => !mouse.middle_button
   }
 }
 
 pub fn is_mouse_just_pressed(button : MouseButton) -> Bool {
   match button {
-    MouseButton::Left => just_mouse.left_button_pressed
-    MouseButton::Right => just_mouse.right_button_pressed
-    MouseButton::Middle => just_mouse.middle_button_pressed
+    MouseButton::Left => just_pressed_mouse.left_button
+    MouseButton::Right => just_pressed_mouse.right_button
+    MouseButton::Middle => just_pressed_mouse.middle_button
   }
 }
 
 pub fn is_mouse_just_released(button : MouseButton) -> Bool {
   match button {
-    MouseButton::Left => !just_mouse.left_button_pressed
-    MouseButton::Right => !just_mouse.right_button_pressed
-    MouseButton::Middle => !just_mouse.middle_button_pressed
+    MouseButton::Left => just_release_mouse.left_button
+    MouseButton::Right => just_release_mouse.right_button
+    MouseButton::Middle => just_release_mouse.middle_button
   }
 }

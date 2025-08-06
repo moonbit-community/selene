@@ -25,18 +25,18 @@ pub impl @system.Backend for CanvasBackend with register_mouse_events(
   window.add_event_listener("mousedown", event => {
     let mouse_event = event.to_mouse_event().unwrap()
     match mouse_event.get_button() {
-      0 => mouse.left_button_pressed = true
-      1 => mouse.middle_button_pressed = true
-      2 => mouse.right_button_pressed = true
+      0 => mouse.left_button = true
+      1 => mouse.middle_button = true
+      2 => mouse.right_button = true
       _ => ()
     }
   })
   window.add_event_listener("mouseup", event => {
     let mouse_event = event.to_mouse_event().unwrap()
     match mouse_event.get_button() {
-      0 => mouse.left_button_pressed = false
-      1 => mouse.middle_button_pressed = false
-      2 => mouse.right_button_pressed = false
+      0 => mouse.left_button = false
+      1 => mouse.middle_button = false
+      2 => mouse.right_button = false
       _ => ()
     }
   })

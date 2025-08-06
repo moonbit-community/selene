@@ -56,7 +56,6 @@ fn add_player(pos : @math.Vec2D) -> Unit {
     layer: player_collision_layer,
     mask: player_collision_mask,
   })
-  // @acceleration.add_gravity(player, gravity=1.0)
 }
 
 ///|
@@ -64,7 +63,6 @@ enum PlayerState {
   Idle
   Jump
   Fall
-  Die
 } derive(Show)
 
 ///|
@@ -77,11 +75,8 @@ const RUN_V = 4.0
 const JUMP_V = 11.5
 
 ///|
-fn player_state_system(_ : &@system.Backend) -> Unit {
+fn player_state_system(backend : &@system.Backend) -> Unit {
   guard @velocity.velocities.get(game_state.player) is Some(velocity)
-  if game_state.player_state is PlayerState::Die {
-    return
-  }
   let mut new_velocity_x = velocity.x
   let mut new_velocity_y = velocity.y
   if @system.is_pressed(@system.ArrowLeft) {
@@ -118,6 +113,9 @@ fn player_state_system(_ : &@system.Backend) -> Unit {
         @collision.is_on_the_floor(game_state.player) {
         new_velocity_y = -JUMP_V
         game_state.player_state = PlayerState::Jump
+        if game_state.volume_on {
+          @audio.play_audio(backend, "sounds/jump.wav")
+        }
       }
       if velocity.y > 0.0 {
         game_state.player_state = PlayerState::Fall
@@ -143,7 +141,6 @@ fn player_state_system(_ : &@system.Backend) -> Unit {
         game_state.player_state = PlayerState::Fall
       }
     }
-    Die => ()
   }
   new_velocity_y += GRAVITY
   @velocity.velocities[game_state.player] = @math.Vec2D::new(

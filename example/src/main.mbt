@@ -28,9 +28,9 @@ fn main {
 }
 
 ///|
-fn game_start(_ : &@system.Backend) -> Unit {
-  generate_map()
+fn game_start(backend : &@system.Backend) -> Unit {
+  generate_map(backend)
   add_result_box()
   add_score_box()
-  add_restart_button()
+  add_volume_button()
 }

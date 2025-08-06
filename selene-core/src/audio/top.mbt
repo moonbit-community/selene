@@ -13,28 +13,11 @@
 // limitations under the License.
 
 ///|
-type Entity UInt derive(Eq, Show, Hash)
-
-///|
-pub let all_entities : @set.Set[Entity] = @set.Set::new()
-
-///|
-let entity_generator : Ref[UInt] = { val: 0 }
-
-///|
-pub fn Entity::new() -> Entity {
-  let entity = entity_generator.val
-  entity_generator.val += 1
-  all_entities.add(entity)
-  entity
-}
-
-///|
-pub fn Entity::destroy(e : Entity) -> Unit {
-  defer_event(fn() { all_entities.remove(e) })
-}
-
-///|
-pub fn Entity::respawn(e : Entity) -> Unit {
-  all_entities.add(e)
+pub fn play_audio(
+  backend : &@system.Backend,
+  audio_path : String,
+  volume~ : Double = 1.0,
+  loop_~ : Bool = false,
+) -> Unit {
+  backend.play_audio(audio_path, volume~, loop_~)
 }

@@ -18,9 +18,9 @@ struct GameState {
   mut player_state : PlayerState
   mut direction : Direction2
   mut score : Int
-  mut hp : Int
   result_box : @sprite.Text
   score_box : @sprite.Text
+  mut volume_on : Bool
 }
 
 ///|
@@ -34,7 +34,6 @@ let game_state : GameState = {
   player: @system.Entity::new(),
   player_state: PlayerState::Idle,
   score: 0,
-  hp: 3,
   result_box: @sprite.Text::new("", font="24px ThaleahFat"),
   score_box: @sprite.Text::new(
     "Score: 0",
@@ -42,12 +41,12 @@ let game_state : GameState = {
     color="white",
   ),
   direction: Direction2::Right,
+  volume_on: true,
 }
 
 ///|
 enum GameResult {
   Win
-  Lose
 }
 
 ///|
@@ -57,25 +56,11 @@ fn set_game_result(result : GameResult) -> Unit {
       game_state.result_box.content = "You Win!"
       game_state.result_box.color = "green"
     }
-    GameResult::Lose => {
-      game_state.result_box.content = "You Lose!"
-      game_state.result_box.color = "red"
-    }
   }
 }
 
 ///|
-fn score_up(score : Int) -> Unit {
-  game_state.score += score
+fn set_score(score : Int) -> Unit {
+  game_state.score = score
   game_state.score_box.content = "Score: " + game_state.score.to_string()
-}
-
-///|
-fn take_damage(damage : Int) -> Unit {
-  game_state.hp -= damage
-  if game_state.hp <= 0 {
-    game_state.hp = 0
-    game_state.player_state = PlayerState::Die
-    set_game_result(GameResult::Lose)
-  }
 }

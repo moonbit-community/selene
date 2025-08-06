@@ -32,15 +32,42 @@ fn add_score_box() -> Unit {
 }
 
 ///|
-fn add_restart_button() -> Unit {
+fn add_volume_button() -> Unit {
   let button = @system.Entity::new()
   @position.positions.set(button, @math.Vec2D::new(WORLD_WIDTH - 40, 18))
-  let sprite = @sprite.Sprite::new_picture(
+  let volume_on = @sprite.Sprite::new_picture(
     @sprite.Picture::new(
       @math.Vec2D::new(21, 22),
-      "pixel_adventure/Menu/Buttons/Restart.png",
+      "pixel_adventure/Menu/Buttons/Volume.png",
     ),
     100,
   )
-  @sprite.sprites.set(button, sprite)
+  let volumn_off = @sprite.Sprite::new_picture(
+    @sprite.Picture::new(
+      @math.Vec2D::new(21, 22),
+      "pixel_adventure/Menu/Buttons/VolumeOff.png",
+    ),
+    100,
+  )
+  @sprite.sprites.set(button, volume_on)
+  let area = @collision.Area::new(
+    @collision.CollisionShape::Rect(
+      size=@math.Vec2D::new(21.0, 22.0),
+      offset=@math.Vec2D::zero(),
+    ),
+    non_collide_layer,
+    @collision.CollisionMask::new([]),
+    monitoring_mouse=true,
+  )
+  area.on_just_released(fn(mouse_button) {
+    if mouse_button == Left {
+      game_state.volume_on = !game_state.volume_on
+      if game_state.volume_on {
+        @sprite.sprites.set(button, volume_on)
+      } else {
+        @sprite.sprites.set(button, volumn_off)
+      }
+    }
+  })
+  @collision.areas.set(button, area)
 }

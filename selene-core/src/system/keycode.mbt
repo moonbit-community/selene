@@ -50,6 +50,43 @@ pub(all) enum Code {
 } derive(Eq, Show, Hash)
 
 ///|
+let all_codes : @set.Set[Code] = @set.Set::from_array([
+  KeyA,
+  KeyB,
+  KeyC,
+  KeyD,
+  KeyE,
+  KeyF,
+  KeyG,
+  KeyH,
+  KeyI,
+  KeyJ,
+  KeyK,
+  KeyL,
+  KeyM,
+  KeyN,
+  KeyO,
+  KeyP,
+  KeyQ,
+  KeyR,
+  KeyS,
+  KeyT,
+  KeyU,
+  KeyV,
+  KeyW,
+  KeyX,
+  KeyY,
+  KeyZ,
+  ArrowUp,
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  Space,
+  Enter,
+  Escape,
+])
+
+///|
 pub fn Code::from_string(code : String) -> Code? {
   match code {
     "KeyA" => Some(KeyA)
@@ -108,12 +145,17 @@ let last_pressed_keys : Set[Code] = @set.Set::new()
 let just_pressed_keys : Set[Code] = @set.Set::new()
 
 ///|
+let just_release_keys : Set[Code] = @set.Set::new()
+
+///|
 pub fn advanced_key_system(_backend : &Backend) -> Unit {
   just_pressed_keys.clear()
-  for code in pressed_keys {
-    if !last_pressed_keys.contains(code) {
-      just_pressed_keys.add(code)
-    }
+  for code in pressed_keys.difference(last_pressed_keys) {
+    just_pressed_keys.add(code)
+  }
+  just_release_keys.clear()
+  for code in all_codes.difference(pressed_keys).union(last_pressed_keys) {
+    just_release_keys.add(code)
   }
   last_pressed_keys.clear()
   for code in pressed_keys {
