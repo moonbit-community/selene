@@ -52,7 +52,9 @@ pub fn TileMap::get_tiles_leftcorner(
   self : TileMap,
   layer_name : String,
 ) -> Array[Tile] {
-  let layer = self.layers.filter(fn(layer) { layer.name == layer_name }).get(0)
+  let layer = self.layers
+    .filter(fn(layer) { layer.name == layer_name })
+    .get(0)
   guard layer is Some(layer) else { return [] }
   let tiles = layer.tiles
   let all_ids = tiles.map(fn(t) { t.id })

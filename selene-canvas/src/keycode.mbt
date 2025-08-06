@@ -16,31 +16,19 @@
 pub impl @system.Backend for CanvasBackend with register_key_events(
   _self,
   pressed_keys : Set[@system.Code],
-  keyup_callbacks : Map[@system.Code, Array[() -> Unit]],
-  keydown_callbacks : Map[@system.Code, Array[() -> Unit]],
 ) {
   window.add_event_listener("keyup", event => {
-    let keyboardEvent = event.to_keyboard_event().unwrap()
-    let keycode = keyboardEvent.code() |> @system.Code::from_string
+    let keyboard_event = event.to_keyboard_event().unwrap()
+    let keycode = keyboard_event.code() |> @system.Code::from_string
     if keycode is Some(c) {
       pressed_keys.remove(c)
-      if keyup_callbacks.get(c) is Some(callbacks) {
-        for callback in callbacks {
-          callback()
-        }
-      }
     }
   })
   window.add_event_listener("keydown", event => {
-    let keyboardEvent = event.to_keyboard_event().unwrap()
-    let keycode = keyboardEvent.code() |> @system.Code::from_string
+    let keyboard_event = event.to_keyboard_event().unwrap()
+    let keycode = keyboard_event.code() |> @system.Code::from_string
     if keycode is Some(c) {
       pressed_keys.add(c)
-      if keydown_callbacks.get(c) is Some(callbacks) {
-        for callback in callbacks {
-          callback()
-        }
-      }
     }
   })
 }

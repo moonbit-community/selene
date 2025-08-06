@@ -17,7 +17,6 @@ struct GameState {
   player : @system.Entity
   mut player_state : PlayerState
   mut direction : Direction2
-  mut result : GameResult
   mut score : Int
   mut hp : Int
   result_box : @sprite.Text
@@ -34,7 +33,6 @@ enum Direction2 {
 let game_state : GameState = {
   player: @system.Entity::new(),
   player_state: PlayerState::Idle,
-  result: GameResult::Playing,
   score: 0,
   hp: 3,
   result_box: @sprite.Text::new("", font="24px ThaleahFat"),
@@ -50,12 +48,10 @@ let game_state : GameState = {
 enum GameResult {
   Win
   Lose
-  Playing
 }
 
 ///|
 fn set_game_result(result : GameResult) -> Unit {
-  game_state.result = result
   match result {
     GameResult::Win => {
       game_state.result_box.content = "You Win!"
@@ -65,10 +61,10 @@ fn set_game_result(result : GameResult) -> Unit {
       game_state.result_box.content = "You Lose!"
       game_state.result_box.color = "red"
     }
-    GameResult::Playing => game_state.result_box.content = ""
   }
 }
 
+///|
 fn score_up(score : Int) -> Unit {
   game_state.score += score
   game_state.score_box.content = "Score: " + game_state.score.to_string()
