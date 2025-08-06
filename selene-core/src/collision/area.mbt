@@ -19,7 +19,12 @@ pub(all) struct Area {
   mask : CollisionMask
   on_enter_callbacks : Array[(@system.Entity) -> Unit]
   on_exit_callbacks : Array[(@system.Entity) -> Unit]
+  on_pressed_callbacks : Array[(@system.MouseButton) -> Unit]
+  on_released_callbacks : Array[(@system.MouseButton) -> Unit]
+  on_just_pressed_callbacks : Array[(@system.MouseButton) -> Unit]
+  on_just_released_callbacks : Array[(@system.MouseButton) -> Unit]
   mut last_contains : Set[@system.Entity]
+  mut monitoring_mouse : Bool
 }
 
 ///|
@@ -27,6 +32,7 @@ pub fn Area::new(
   shape : CollisionShape,
   layer : CollisionLayer,
   mask : CollisionMask,
+  monitoring_mouse~ : Bool = false,
 ) -> Area {
   {
     shape,
@@ -35,6 +41,11 @@ pub fn Area::new(
     last_contains: Set::new(),
     on_enter_callbacks: [],
     on_exit_callbacks: [],
+    on_pressed_callbacks: [],
+    on_released_callbacks: [],
+    on_just_pressed_callbacks: [],
+    on_just_released_callbacks: [],
+    monitoring_mouse,
   }
 }
 
@@ -49,6 +60,38 @@ pub fn Area::on_enter(self : Area, callback : (@system.Entity) -> Unit) -> Unit 
 ///|
 pub fn Area::on_exit(self : Area, callback : (@system.Entity) -> Unit) -> Unit {
   self.on_exit_callbacks.push(callback)
+}
+
+///|
+pub fn Area::on_pressed(
+  self : Area,
+  callback : (@system.MouseButton) -> Unit,
+) -> Unit {
+  self.on_pressed_callbacks.push(callback)
+}
+
+///|
+pub fn Area::on_released(
+  self : Area,
+  callback : (@system.MouseButton) -> Unit,
+) -> Unit {
+  self.on_released_callbacks.push(callback)
+}
+
+///|
+pub fn Area::on_just_pressed(
+  self : Area,
+  callback : (@system.MouseButton) -> Unit,
+) -> Unit {
+  self.on_just_pressed_callbacks.push(callback)
+}
+
+///|
+pub fn Area::on_just_released(
+  self : Area,
+  callback : (@system.MouseButton) -> Unit,
+) -> Unit {
+  self.on_just_released_callbacks.push(callback)
 }
 
 ///|
@@ -68,6 +111,38 @@ pub fn on_exit(
 }
 
 ///|
+pub fn on_pressed(
+  entity : @system.Entity,
+  callback : (@system.MouseButton) -> Unit,
+) -> Unit {
+  areas.get(entity).unwrap().on_pressed(callback)
+}
+
+///|
+pub fn on_released(
+  entity : @system.Entity,
+  callback : (@system.MouseButton) -> Unit,
+) -> Unit {
+  areas.get(entity).unwrap().on_released(callback)
+}
+
+///|
+pub fn on_just_pressed(
+  entity : @system.Entity,
+  callback : (@system.MouseButton) -> Unit,
+) -> Unit {
+  areas.get(entity).unwrap().on_just_pressed(callback)
+}
+
+///|
+pub fn on_just_released(
+  entity : @system.Entity,
+  callback : (@system.MouseButton) -> Unit,
+) -> Unit {
+  areas.get(entity).unwrap().on_just_released(callback)
+}
+
+///|
 pub fn area_collide_system(_ : &@system.Backend) -> Unit {
   for e in @system.all_entities {
     guard areas.get(e) is Some(area) else { continue }
@@ -80,7 +155,7 @@ pub fn area_collide_system(_ : &@system.Backend) -> Unit {
     quadtree_root.insert(e, box)
     let new_last_contains = Set::new()
     let entities = quadtree_root.query(box)
-    for entity in entities {
+    for entity in entities.intersection(@system.all_entities) {
       if areas.get(entity) is Some(other_area) {
         guard other_area.shape
           is Rect(size={ x: other_width, y: other_height }, offset=other_offset)
@@ -119,5 +194,49 @@ pub fn area_collide_system(_ : &@system.Backend) -> Unit {
       }
     }
     area.last_contains = new_last_contains
+  }
+}
+
+///|
+pub fn area_click_system(_ : &@system.Backend) -> Unit {
+  let box = @math.Rect::{
+    size: @math.Vec2D::new(1.0, 1.0),
+    position: @system.mouse.pos,
+  }
+  let entities = quadtree_root.query(box)
+  for e in entities.intersection(@system.all_entities) {
+    guard areas.get(e) is Some(area) else { continue }
+    guard area.monitoring_mouse else { continue }
+    guard @position.positions.get(e) is Some(position)
+    guard area.shape is Rect(size={ x: width, y: height }, offset~)
+    let area_box = @math.Rect::{
+      size: @math.Vec2D::new(width, height),
+      position: position.inner() + offset,
+    }
+    if !box.intersects(area_box) {
+      continue
+    }
+    for button in [@system.MouseButton::Left, Right, Middle] {
+      if @system.is_mouse_pressed(button) {
+        for callback in area.on_pressed_callbacks {
+          callback(button)
+        }
+      }
+      if @system.is_mouse_released(button) {
+        for callback in area.on_released_callbacks {
+          callback(button)
+        }
+      }
+      if @system.is_mouse_just_pressed(button) {
+        for callback in area.on_just_pressed_callbacks {
+          callback(button)
+        }
+      }
+      if @system.is_mouse_just_released(button) {
+        for callback in area.on_just_released_callbacks {
+          callback(button)
+        }
+      }
+    }
   }
 }

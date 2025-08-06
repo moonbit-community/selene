@@ -12,6 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+pub(all) enum MouseButton {
+  Left
+  Right
+  Middle
+} derive(Eq, Show)
+
 ///|
 pub(all) struct Mouse {
   pos : @math.Vec2D
@@ -59,4 +65,36 @@ pub let just_mouse : Mouse = {
   left_button_pressed: false,
   right_button_pressed: false,
   middle_button_pressed: false,
+}
+
+pub fn is_mouse_pressed(button : MouseButton) -> Bool {
+  match button {
+    MouseButton::Left => mouse.left_button_pressed
+    MouseButton::Right => mouse.right_button_pressed
+    MouseButton::Middle => mouse.middle_button_pressed
+  }
+}
+
+pub fn is_mouse_released(button : MouseButton) -> Bool {
+  match button {
+    MouseButton::Left => !mouse.left_button_pressed
+    MouseButton::Right => !mouse.right_button_pressed
+    MouseButton::Middle => !mouse.middle_button_pressed
+  }
+}
+
+pub fn is_mouse_just_pressed(button : MouseButton) -> Bool {
+  match button {
+    MouseButton::Left => just_mouse.left_button_pressed
+    MouseButton::Right => just_mouse.right_button_pressed
+    MouseButton::Middle => just_mouse.middle_button_pressed
+  }
+}
+
+pub fn is_mouse_just_released(button : MouseButton) -> Bool {
+  match button {
+    MouseButton::Left => !just_mouse.left_button_pressed
+    MouseButton::Right => !just_mouse.right_button_pressed
+    MouseButton::Middle => !just_mouse.middle_button_pressed
+  }
 }
