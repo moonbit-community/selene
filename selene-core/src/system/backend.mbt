@@ -56,12 +56,8 @@ pub(open) trait Backend {
     height~ : Double,
     transform~ : @math.Transform,
   ) -> Unit
-  register_key_events(
-    Self,
-    pressed_keys : Set[Code],
-    keyup_callbacks : Map[Code, Array[() -> Unit]],
-    keydown_callbacks : Map[Code, Array[() -> Unit]],
-  ) -> Unit
+  register_key_events(Self, pressed_keys : Set[Code]) -> Unit
+  register_mouse_events(Self, mouse : Mouse) -> Unit
   draw_stroke_rect(
     Self,
     x~ : Double,

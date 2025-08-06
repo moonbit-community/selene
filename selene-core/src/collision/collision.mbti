@@ -65,7 +65,7 @@ fn CollisionMask::inner(Self) -> Array[CollisionLayer]
 fn CollisionMask::new(Array[CollisionLayer]) -> Self
 
 pub(all) enum CollisionShape {
-  Rect(width~ : Double, height~ : Double)
+  Rect(size~ : @math.Vec2D, offset~ : @math.Vec2D)
 }
 
 pub struct QuadTree {

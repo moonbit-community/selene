@@ -29,6 +29,7 @@ pub fn Vec2D::new(x : Double, y : Double) -> Vec2D {
   { x, y }
 }
 
+///|
 pub fn Vec2D::zero() -> Vec2D {
   Vec2D::new(0.0, 0.0)
 }

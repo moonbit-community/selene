@@ -39,6 +39,7 @@ fn Vec2D::new(Double, Double) -> Self
 fn Vec2D::normalize(Self) -> Self
 fn Vec2D::op_get(Self, Axis) -> Double
 fn Vec2D::op_set(Self, Axis, Double) -> Unit
+fn Vec2D::zero() -> Self
 impl Add for Vec2D
 impl Eq for Vec2D
 impl Mul for Vec2D

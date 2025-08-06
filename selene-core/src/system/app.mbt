@@ -116,8 +116,7 @@ pub fn App::run(self : App) -> Unit {
     self.canvas_height,
     self.fps,
   )
-  self.backend.register_key_events(
-    pressed_keys, keyup_callbacks, keydown_callbacks,
-  )
+  self.backend.register_key_events(pressed_keys)
+  self.backend.register_mouse_events(mouse)
   run_game()
 }
