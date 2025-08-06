@@ -97,7 +97,7 @@ pub fn Animation::new(
   }
 }
 
-///| Returns true if the animation is ending
+///| Returns true if the animation is ending.
 fn render_animation(
   backend : &@system.Backend,
   animation : Animation,

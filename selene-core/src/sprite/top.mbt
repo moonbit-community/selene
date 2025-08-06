@@ -28,7 +28,7 @@ pub enum SpriteType {
   Text(Text)
 }
 
-///|
+///| Make an animation sprite with default animation and zindex.
 pub fn Sprite::new_animation(animation : Animation, zindex : Int) -> Sprite {
   { sprite_type: SpriteType::Animation(animation, current=animation), zindex }
 }
