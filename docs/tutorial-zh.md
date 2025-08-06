@@ -13,7 +13,7 @@ Selene 有如下特点：
 - 模块化：几乎没有耦合性，完全可以只导入需要用到的功能
 - 高效：借助 MoonBit 本身的性能优势和 ECS 架构，运行起来非常快
 
-缺陷方面体现在目前（0.9.0版本）Selene 缺乏很多工业级引擎具备的高级功能，比如凸多边形的碰撞检测、3D 物体、音频播放等等。非常欢迎大家参与贡献。
+缺陷方面体现在目前（0.10.0版本）Selene 缺乏很多工业级引擎具备的高级功能，比如凸多边形的碰撞检测、3D 物体渲染、手柄支持等等。非常欢迎大家参与贡献。
 
 ## 运行案例
 
@@ -69,8 +69,8 @@ cd mygame
 添加 Selene 引擎和 Canvas 后端作为依赖：
 
 ```shell
-moon add Milky2018/selene@0.9.0
-moon add Milky2018/selene-canvas@0.9.0
+moon add Milky2018/selene@0.10.0
+moon add Milky2018/selene-canvas@0.10.0
 ```
 
 > 你也可以获取最新版，但后续流程可能有无法正常运行的情况，需要你自己调试。
@@ -146,26 +146,24 @@ Serving HTTP on :: port 8000 (http://[::]:8000/) ...
 
 ### 第一个系统
 
-Selene 的运行逻辑是以一个特定帧率（默认是60）循环执行一系列被称为 System 的回调函数，同时，以一个特定帧率（默认也是60）循环执行一系列被称为 RenderPipe 的回调函数。System 包含的内容是对游戏状态的更新，而 RenderPipe 负责把游戏世界里的内容绘制到屏幕上，在我们的游戏中就是绘制到 canvas 上。
+Selene 的运行逻辑是以一个特定帧率（默认是60）循环执行一系列被称为 System 的回调函数。System 包含的内容是对游戏状态的更新，或者把游戏世界中的物体渲染到屏幕上，在我们的游戏中就是绘制到 canvas 元素上。
 
-> 在类型上，System 和 RenderPipe 都是函数类型 `(&@system.Backend) -> Unit` 的别名，但最好不要将它们混用。
-
-现在，我们尝试画一个方框。我们把一个画方框的函数作为 RenderPipe 添加到 App 中即可：
+现在，我们尝试画一个方框。我们把一个画方框的函数作为 System 添加到 App 中即可：
 
 ```moonbit
 fn main {
-  @system.App::new(@canvas.CanvasBackend::new())
-  .add_render_pipe(stroke_render_pipe)
+  @system.App::new(@canvas.CanvasBackend::new()) // 选择 CanvasBackend 作为后端
+  .add_system(stroke_render_pipe)                // 添加绘制方框的系统
   .run()
 }
 
 fn stroke_render_pipe(backend : &@system.Backend) -> Unit {
-  backend.draw_stroke_rect(
-    x=100,
+  backend.draw_stroke_rect( // 调用后端的方框绘制函数
+    x=100,                  // 设置方框的坐标
     y=100,
-    width=50,
+    width=50,               // 设置方框的宽度和高度
     height=50,
-    color="blue",
+    color="blue",           // 设置方框的颜色
   )
 }
 ```
@@ -174,7 +172,7 @@ fn stroke_render_pipe(backend : &@system.Backend) -> Unit {
 
 ### 第一个实体
 
-在 `stroke_render_pipe` 中，我们使用 `Backend` 提供的 `draw_stroke_rect` 方法手动绘制了一个方框。`Backend` 提供的底层方法我们一般不需要手工调用，Selene 已经在内部提供了很多实用的 System 和 RenderPipe 来完成这一切。比如，`sprite` 包提供了一个叫做 `render_sprite_system` 的系统，它会把所有的 Sprite 绘制到相应的地方。
+在 `stroke_render_pipe` 中，我们使用 `Backend` 提供的 `draw_stroke_rect` 方法手动绘制了一个方框。`Backend` 提供的底层方法我们一般不需要手工调用，Selene 已经在内部提供了很多实用的 System 和 Initializer 来完成这一切。比如，`sprite` 包提供了一个叫做 `render_sprite_system` 的系统，它会把所有的 Sprite 绘制到相应的地方。
 
 要使用这样的功能，我们需要制作简单的 Sprite。比如，我们可以制作一个文本框，里面填充 "Hello World" 这个文本，并把它设置成黑色：
 
@@ -192,7 +190,7 @@ let text = @sprite.Sprite::new_text(@sprite.Text::new("Hello World", color="blac
 3. 把新 Entity 的位置设置为 (100, 100)；
 4. 把文本框组件设置到新的 Entity 上。
 
-Entity 就像一个引用，我们把一切属于一个实体的组件都通过 `Map[K, V]::set` 的方式关联在一起。`@position.positions` 和 `@sprite.sprites` 都是哈希映射类型的数据结构，里面存放了每个实体对应的组件。
+Entity 类似一个引用，我们把一切属于一个实体的组件都通过 `Map[K, V]::set` 的方式关联在一起。`@position.positions` 和 `@sprite.sprites` 都是哈希映射类型的数据结构，里面存放了每个实体对应的组件。
 
 > `new_text(text : Text, zindex : Int)` 的第二个参数表示这个 Sprite 的垂直高度。zindex 值更大的 Sprite 会覆盖 zindex 更小的 Sprite。
 
@@ -210,8 +208,9 @@ fn add_hello_text(_ : &@system.Backend) -> Unit {
 
 fn main {
   @system.App::new(@canvas.CanvasBackend::new())
+  // 添加一个初始化器，初始化器只会在游戏开始时执行一次
   .add_initializer(add_hello_text)
-  .add_render_pipe(@sprite.render_sprite_system)
+  .add_system(@sprite.render_sprite_system)
   .run()
 }
 ```
@@ -226,22 +225,22 @@ fn main {
 @velocity.velocities.set(box, @math.Vec2D::new(1.0, 1.0))
 ```
 
-只有这个组件是不够的，我们需要一个 System，它能够在每一帧根据每个实体的速度来更新它的位置组件。我们可以自己写一个这样的 System，不过你肯定猜到了，这么常用的 System 肯定已经被 Selene 提供了。我们把 `@collision.move_system` 加入到 App 中即可。下面是完整代码：
+只有这个组件是不够的，我们需要一个 System，它能够在每一帧根据每个实体的速度来更新它的位置组件。我们可以自己写一个这样的 System，不过你肯定猜到了，这么常用的 System 已经被 Selene 提供了。我们把 `@collision.move_system` 加入到 App 中即可。下面是完整代码：
 
 ```moonbit
 fn add_hello_text(_ : &@system.Backend) -> Unit {
   let box = @system.Entity::new()
   let text = @sprite.Sprite::new_text(@sprite.Text::new("Hello World", color="back"), 10)
-  @position.positions.set(box, @math.Vec2D::new(100, 100))
-  @sprite.sprites.set(box, text)
-  @velocity.velocities.set(box, @math.Vec2D::new(1.0, 1.0))
+  @position.positions.set(box, @math.Vec2D::new(100, 100))  // 为实体关联位置
+  @sprite.sprites.set(box, text)                            // 为实体关联文本框
+  @velocity.velocities.set(box, @math.Vec2D::new(1.0, 1.0)) // 为实体关联速度
 }
 
 fn main {
   @system.App::new(@canvas.CanvasBackend::new())
   .add_initializer(add_hello_text)
-  .add_system(@collision.move_system)
-  .add_render_pipe(@sprite.render_sprite_system)
+  .add_system(@collision.move_system) // 把控制物体移动的系统添加到 App
+  .add_system(@sprite.render_sprite_system)
   .run()
 }
 ```
@@ -250,7 +249,7 @@ fn main {
 
 ### 处理输入
 
-游戏是交互的艺术，我们希望看到游戏世界里的内容会根据我们的输入发生变化。这次我们换一种方式，在讨论怎么做之前，先把 `@input.simple_input_system` 加入到 App 中，并给文本框设置 `@input.controls` 组件：
+游戏是交互的艺术，我们希望看到游戏世界里的内容会根据我们的输入发生变化。这次我们换一种方式，在讨论怎么做之前，先看看代码。把 `@input.simple_input_system` 加入到 App 中，并给文本框设置 `@input.controls` 组件：
 
 ```moonbit
 fn add_hello_text(_ : &@system.Backend) -> Unit {
@@ -267,7 +266,7 @@ fn main {
   .add_initializer(add_hello_text)
   .add_system(@collision.move_system)
   .add_system(@input.simple_input_system)
-  .add_render_pipe(@sprite.render_sprite_system)
+  .add_system(@sprite.render_sprite_system)
   .run()
 }
 ```

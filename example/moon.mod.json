@@ -2,9 +2,7 @@
   "name": "nonpublish/example",
   "version": "0.1.0",
   "deps": {
-    "Milky2018/selene": {
-      "path": "../selene-core"
-    },
+    "Milky2018/selene": "0.10.0",
     "Milky2018/selene-canvas": {
       "path": "../selene-canvas"
     }
@@ -12,7 +10,9 @@
   "readme": "README.md",
   "repository": "",
   "license": "Apache-2.0",
-  "keywords": ["Game Engine"],
+  "keywords": [
+    "Game Engine"
+  ],
   "description": "",
   "source": "src",
   "preferred-target": "js"

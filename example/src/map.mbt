@@ -114,7 +114,7 @@ fn add_flag(pos : @math.Vec2D) -> Unit {
   @collision.areas.set(flag, area)
   area.on_enter(fn(e) {
     if e == game_state.player {
-      game_state.score += 100
+      set_score(game_state.score + 100)
       set_game_result(GameResult::Win)
       @system.Entity::destroy(flag)
     }
