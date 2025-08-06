@@ -14,5 +14,5 @@
 
 ///|
 pub(all) enum CollisionShape {
-  Rect(size~ : @math.Vec2D)
+  Rect(size~ : @math.Vec2D, offset~ : @math.Vec2D)
 }

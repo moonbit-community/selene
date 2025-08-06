@@ -29,6 +29,10 @@ pub fn Vec2D::new(x : Double, y : Double) -> Vec2D {
   { x, y }
 }
 
+pub fn Vec2D::zero() -> Vec2D {
+  Vec2D::new(0.0, 0.0)
+}
+
 ///|
 pub fn Vec2D::op_get(this : Vec2D, axis : Axis) -> Double {
   match axis {

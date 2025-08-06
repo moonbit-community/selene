@@ -20,9 +20,9 @@ pub fn move_system(_backend : &@system.Backend) -> Unit {
   for e in @system.all_entities {
     guard collides.get(e) is Some(collide) else { continue }
     guard @position.positions.get(e) is Some(pos)
-    guard collide.shape is Rect(size={ x: width, y: height })
+    guard collide.shape is Rect(size={ x: width, y: height }, offset~)
     let box = @math.Rect::{
-      position: pos.inner(),
+      position: pos.inner() + offset,
       size: @math.Vec2D::new(width, height),
     }
     quadtree_root.insert(e, box)
@@ -44,9 +44,9 @@ fn move_without_collide(e : @system.Entity, velocity : @math.Vec2D) -> Unit {
   let new_pos = @math.Vec2D::new(pos.x + velocity.x, pos.y + velocity.y)
   @position.positions.set(e, new_pos)
   if areas.get(e) is Some(area) {
-    guard area.shape is Rect(size={ x: width, y: height })
+    guard area.shape is Rect(size={ x: width, y: height }, offset~)
     let box = @math.Rect::{
-      position: new_pos,
+      position: new_pos + offset,
       size: @math.Vec2D::new(width, height),
     }
     let old_box = @math.Rect::{
@@ -65,9 +65,9 @@ fn move_with_collide(
   velocity : @math.Vec2D,
 ) -> Unit {
   guard @position.positions.get(e) is Some(pos)
-  guard collide.shape is Rect(size={ x: width, y: height })
+  guard collide.shape is Rect(size={ x: width, y: height }, offset~)
   let box = @math.Rect::{
-    position: pos.inner(),
+    position: pos.inner() + offset,
     size: @math.Vec2D::new(width, height),
   }
   let new_pos_x = move_axis(e, box, velocity, X, collide.mask)
@@ -113,12 +113,14 @@ fn move_axis(
   for e in entities {
     guard e != entity else { continue }
     guard collides.get(e) is Some(collision) else { continue }
-    guard collision.shape is Rect(size={ x: width, y: height }) else { continue }
+    guard collision.shape is Rect(size={ x: width, y: height }, offset~) else {
+      continue
+    }
     guard @position.positions.get(e) is Some(pos) else { continue }
     guard mask.contains(collision.layer) else { continue }
     let collision_box = @math.Rect::{
-      position: pos.inner(),
       size: @math.Vec2D::new(width, height),
+      position: pos.inner() + offset,
     }
     if @math.Rect::intersects(ray_collision, collision_box) {
       let dir = @math.Vec2D::new(0, 0)

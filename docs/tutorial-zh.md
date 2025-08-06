@@ -258,7 +258,7 @@ fn add_hello_text(_ : &@system.Backend) -> Unit {
   let text = @sprite.Sprite::new_text(@sprite.Text::new("Hello World", color="back"), 10)
   @position.positions.set(box, @math.Vec2D::new(100, 100))
   @sprite.sprites.set(box, text)
-  @velocity.velocities.set(box, @math.Vec2D::new(0.0, 0.0))
+  @velocity.velocities.set(box, @math.Vec2D::zero())
   @input.controls.set(box, @input.KeyInput::{})
 }
 
