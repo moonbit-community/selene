@@ -92,45 +92,29 @@ pub fn Code::from_string(code : String) -> Code? {
 pub let pressed_keys : Set[Code] = @set.Set::new()
 
 ///|
-pub let keyup_callbacks : Map[Code, Array[() -> Unit]] = {}
-
-///|
-pub let keydown_callbacks : Map[Code, Array[() -> Unit]] = {}
-
-///|
-pub fn on_keydown(code : Code, callback : () -> Unit) -> Unit {
-  let callbacks = if keydown_callbacks.get(code) is Some(callbacks) {
-    callbacks
-  } else {
-    let callbacks = []
-    keydown_callbacks[code] = callbacks
-    callbacks
-  }
-  callbacks.push(callback)
-}
-
-///|
-pub fn on_keyup(code : Code, callback : () -> Unit) -> Unit {
-  let callbacks = if keyup_callbacks.get(code) is Some(callbacks) {
-    callbacks
-  } else {
-    let callbacks = []
-    keyup_callbacks[code] = callbacks
-    callbacks
-  }
-  callbacks.push(callback)
-}
-
-///|
 pub fn is_pressed(code : Code) -> Bool {
   pressed_keys.contains(code)
+}
+
+///|
+pub fn is_released(code : Code) -> Bool {
+  !pressed_keys.contains(code)
 }
 
 ///|
 let last_pressed_keys : Set[Code] = @set.Set::new()
 
 ///|
+let just_pressed_keys : Set[Code] = @set.Set::new()
+
+///|
 pub fn advanced_key_system(_backend : &Backend) -> Unit {
+  just_pressed_keys.clear()
+  for code in pressed_keys {
+    if !last_pressed_keys.contains(code) {
+      just_pressed_keys.add(code)
+    }
+  }
   last_pressed_keys.clear()
   for code in pressed_keys {
     last_pressed_keys.add(code)
@@ -139,10 +123,10 @@ pub fn advanced_key_system(_backend : &Backend) -> Unit {
 
 ///|
 pub fn is_just_pressed(code : Code) -> Bool {
-  pressed_keys.contains(code) && !last_pressed_keys.contains(code)
+  just_pressed_keys.contains(code)
 }
 
 ///|
 pub fn is_just_released(code : Code) -> Bool {
-  !pressed_keys.contains(code) && last_pressed_keys.contains(code)
+  just_pressed_keys.contains(code)
 }

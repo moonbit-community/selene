@@ -114,7 +114,7 @@ fn player_state_system(_ : &@system.Backend) -> Unit {
           transform~,
         )
       }
-      if @system.is_pressed(@system.ArrowUp) &&
+      if @system.is_just_pressed(@system.ArrowUp) &&
         @collision.is_on_the_floor(game_state.player) {
         new_velocity_y = -JUMP_V
         game_state.player_state = PlayerState::Jump
