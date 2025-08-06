@@ -74,10 +74,5 @@ pub(open) trait Backend {
     font~ : String,
     color~ : String,
   ) -> Unit
-  play_audio(
-    Self,
-    audio_path : String,
-    volume~ : Double,
-    loop_~ : Bool,
-  ) -> Unit
+  play_audio(Self, audio_path : String, volume~ : Double, loop_~ : Bool) -> Unit
 }

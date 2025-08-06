@@ -8,6 +8,8 @@ import(
 )
 
 // Values
+fn area_click_system(&@system.Backend) -> Unit
+
 fn area_collide_system(&@system.Backend) -> Unit
 
 let areas : Map[@system.Entity, Area]
@@ -19,10 +21,6 @@ fn get_collision_infos(@system.Entity) -> Array[CollisionInfo]
 fn is_on_the_floor(@system.Entity) -> Bool
 
 fn move_system(&@system.Backend) -> Unit
-
-fn on_enter(@system.Entity, (@system.Entity) -> Unit) -> Unit
-
-fn on_exit(@system.Entity, (@system.Entity) -> Unit) -> Unit
 
 fn quadtree_render_system(&@system.Backend) -> Unit
 
@@ -37,11 +35,20 @@ pub(all) struct Area {
   mask : CollisionMask
   on_enter_callbacks : Array[(@system.Entity) -> Unit]
   on_exit_callbacks : Array[(@system.Entity) -> Unit]
+  on_pressed_callbacks : Array[(@system.MouseButton) -> Unit]
+  on_released_callbacks : Array[(@system.MouseButton) -> Unit]
+  on_just_pressed_callbacks : Array[(@system.MouseButton) -> Unit]
+  on_just_released_callbacks : Array[(@system.MouseButton) -> Unit]
   mut last_contains : @set.Set[@system.Entity]
+  mut monitoring_mouse : Bool
 }
-fn Area::new(CollisionShape, CollisionLayer, CollisionMask) -> Self
+fn Area::new(CollisionShape, CollisionLayer, CollisionMask, monitoring_mouse~ : Bool = ..) -> Self
 fn Area::on_enter(Self, (@system.Entity) -> Unit) -> Unit
 fn Area::on_exit(Self, (@system.Entity) -> Unit) -> Unit
+fn Area::on_just_pressed(Self, (@system.MouseButton) -> Unit) -> Unit
+fn Area::on_just_released(Self, (@system.MouseButton) -> Unit) -> Unit
+fn Area::on_pressed(Self, (@system.MouseButton) -> Unit) -> Unit
+fn Area::on_released(Self, (@system.MouseButton) -> Unit) -> Unit
 
 pub(all) struct Collide {
   shape : CollisionShape

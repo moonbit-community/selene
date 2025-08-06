@@ -63,14 +63,17 @@ pub let just_release_mouse : Mouse = {
 pub fn advanced_mouse_system(_backend : &Backend) -> Unit {
   // Just pressed
   just_pressed_mouse.left_button = mouse.left_button && !last_mouse.left_button
-  just_pressed_mouse.right_button = mouse.right_button && !last_mouse.right_button
-  just_pressed_mouse.middle_button = mouse.middle_button && !last_mouse.middle_button
+  just_pressed_mouse.right_button = mouse.right_button &&
+    !last_mouse.right_button
+  just_pressed_mouse.middle_button = mouse.middle_button &&
+    !last_mouse.middle_button
 
   // Just released
   just_release_mouse.left_button = !mouse.left_button && last_mouse.left_button
-  just_release_mouse.right_button = !mouse.right_button && last_mouse.right_button
-  just_release_mouse.middle_button = !mouse.middle_button && last_mouse.middle_button
-
+  just_release_mouse.right_button = !mouse.right_button &&
+    last_mouse.right_button
+  just_release_mouse.middle_button = !mouse.middle_button &&
+    last_mouse.middle_button
   last_mouse.pos.x = mouse.pos.x
   last_mouse.pos.y = mouse.pos.y
   last_mouse.left_button = mouse.left_button
@@ -96,6 +99,7 @@ pub fn is_mouse_released(button : MouseButton) -> Bool {
   }
 }
 
+///|
 pub fn is_mouse_just_pressed(button : MouseButton) -> Bool {
   match button {
     MouseButton::Left => just_pressed_mouse.left_button
@@ -104,6 +108,7 @@ pub fn is_mouse_just_pressed(button : MouseButton) -> Bool {
   }
 }
 
+///|
 pub fn is_mouse_just_released(button : MouseButton) -> Bool {
   match button {
     MouseButton::Left => just_release_mouse.left_button

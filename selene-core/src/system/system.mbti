@@ -9,6 +9,8 @@ import(
 // Values
 fn advanced_key_system(&Backend) -> Unit
 
+fn advanced_mouse_system(&Backend) -> Unit
+
 let all_entities : @set.Set[Entity]
 
 fn defer_event(() -> Unit) -> Unit
@@ -19,7 +21,21 @@ fn is_just_pressed(Code) -> Bool
 
 fn is_just_released(Code) -> Bool
 
+fn is_mouse_just_pressed(MouseButton) -> Bool
+
+fn is_mouse_just_released(MouseButton) -> Bool
+
+fn is_mouse_pressed(MouseButton) -> Bool
+
+fn is_mouse_released(MouseButton) -> Bool
+
 fn is_pressed(Code) -> Bool
+
+fn is_released(Code) -> Bool
+
+let just_pressed_mouse : Mouse
+
+let just_release_mouse : Mouse
 
 let mouse : Mouse
 
@@ -90,16 +106,25 @@ impl Show for Code
 type Entity
 fn Entity::destroy(Self) -> Unit
 fn Entity::new() -> Self
+fn Entity::respawn(Self) -> Unit
 impl Eq for Entity
 impl Hash for Entity
 impl Show for Entity
 
-pub struct Mouse {
+pub(all) struct Mouse {
   pos : @math.Vec2D
-  left_button_pressed : Bool
-  right_button_pressed : Bool
-  middle_button_pressed : Bool
+  mut left_button : Bool
+  mut right_button : Bool
+  mut middle_button : Bool
 }
+
+pub(all) enum MouseButton {
+  Left
+  Right
+  Middle
+}
+impl Eq for MouseButton
+impl Show for MouseButton
 
 // Type aliases
 pub typealias () -> Unit as Event
@@ -113,5 +138,6 @@ pub(open) trait Backend {
   register_mouse_events(Self, Mouse) -> Unit
   draw_stroke_rect(Self, x~ : Double, y~ : Double, width~ : Double, height~ : Double, color~ : String) -> Unit
   draw_text(Self, String, x~ : Double, y~ : Double, font~ : String, color~ : String) -> Unit
+  play_audio(Self, String, volume~ : Double, loop_~ : Bool) -> Unit
 }
 

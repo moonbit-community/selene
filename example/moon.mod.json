@@ -12,7 +12,7 @@
   "readme": "README.md",
   "repository": "",
   "license": "Apache-2.0",
-  "keywords": [],
+  "keywords": ["Game Engine"],
   "description": "",
   "source": "src",
   "preferred-target": "js"

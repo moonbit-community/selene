@@ -1,17 +1,14 @@
 {
   "name": "Milky2018/selene-canvas",
-  "version": "0.9.7",
+  "version": "0.10.0",
   "deps": {
     "Yoorkin/rabbit-tea": "0.10.9",
-    "Milky2018/selene": "0.9.7"
-    // "Milky2018/selene": {
-    //   "path": "../selene-core"
-    // }
+    "Milky2018/selene": "0.10.0"
   },
   "readme": "README.md",
-  "repository": "",
+  "repository": "https://github.com/Milky2018/selene.git",
   "license": "Apache-2.0",
-  "keywords": [],
+  "keywords": ["Game Engine"],
   "description": "",
   "source": "src",
   "preferred-target": "js"
