@@ -1,4 +1,4 @@
-# Selene Game Engine [中文版](./README.zh-CN.md)
+# Selene Game Engine [中文版](./README-zh.md)
 
 ## Directory Structure
 
