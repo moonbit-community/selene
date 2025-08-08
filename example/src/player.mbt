@@ -82,6 +82,9 @@ const RUN_V = 4.0
 const JUMP_V = 11.5
 
 ///|
+const MAX_FALL_V = 15.5
+
+///|
 fn player_state_system(backend : &@system.Backend) -> Unit {
   guard @velocity.velocities.get(game_state.player) is Some(velocity)
   let mut new_velocity_x = velocity.x
@@ -150,6 +153,9 @@ fn player_state_system(backend : &@system.Backend) -> Unit {
     }
   }
   new_velocity_y += GRAVITY
+  if new_velocity_y > MAX_FALL_V {
+    new_velocity_y = MAX_FALL_V
+  }
   @velocity.velocities[game_state.player] = @math.Vec2D::new(
     new_velocity_x, new_velocity_y,
   )
