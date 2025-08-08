@@ -165,6 +165,11 @@ pub fn area_click_system(_ : &@system.Backend) -> Unit {
       size: @math.Vec2D::new(width, height),
       position: position.inner() + offset,
     }
+    let box = if @camera.uis.get(e) is Some(_) {
+      box 
+    } else {
+      box.shift(@camera.camera.position)
+    }
     if !box.intersects(area_box) {
       continue
     }

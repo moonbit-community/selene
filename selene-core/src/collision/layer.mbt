@@ -13,10 +13,10 @@
 // limitations under the License.
 
 ///|
-pub type CollisionLayer UInt derive(Eq)
+pub struct CollisionLayer(UInt) derive(Eq)
 
 ///| FIXME: Use `UInt` and bitwise operations can obtain higher performance.
-pub type CollisionMask Array[CollisionLayer]
+pub struct CollisionMask(Array[CollisionLayer])
 
 ///|
 let collision_layer_generator : Ref[UInt] = { val: 0 }

@@ -44,19 +44,26 @@ pub fn camera_system(backend : &@system.Backend) -> Unit {
   if camera.limit_top is Some(top) && camera.position.y < top {
     camera.position.y = top
   }
-  if camera.limit_bottom is Some(bottom) && camera.position.y > bottom - viewport_size.y {
+  if camera.limit_bottom is Some(bottom) &&
+    camera.position.y > bottom - viewport_size.y {
     camera.position.y = bottom - viewport_size.y
   }
   if camera.limit_left is Some(left) && camera.position.x < left {
     camera.position.x = left
   }
-  if camera.limit_right is Some(right) && camera.position.x > right - viewport_size.x {
+  if camera.limit_right is Some(right) &&
+    camera.position.x > right - viewport_size.x {
     camera.position.x = right - viewport_size.x
   }
 }
 
 ///|
 pub(all) struct Ui {}
+
+///|
+pub fn Ui::new() -> Ui {
+  Ui::{  }
+}
 
 ///|
 pub let uis : Map[@system.Entity, Ui] = Map::new()
