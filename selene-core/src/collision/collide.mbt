@@ -52,7 +52,7 @@ pub fn get_collision_infos(entity : @system.Entity) -> Array[CollisionInfo] {
 pub fn is_on_the_floor(entity : @system.Entity) -> Bool {
   let infos = get_collision_infos(entity)
   for info in infos {
-    if info.direction.y > 0 {
+    if info.direction[Y] > 0 {
       return true
     }
   }

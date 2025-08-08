@@ -56,13 +56,12 @@ fn add_player(pos : @math.Vec2D) -> Unit {
   @velocity.velocities.set(game_state.player, @math.Vec2D::zero())
   @position.positions.set(game_state.player, pos)
   @collision.collides.set(game_state.player, @collision.Collide::{
-    shape: Rect(size=@math.Vec2D::new(32.0, 32.0), offset=@math.Vec2D::zero()),
+    shape: Rect(size=@math.Vec2D(32.0, 32.0), offset=@math.Vec2D::zero()),
     layer: player_collision_layer,
     mask: player_collision_mask,
   })
   @camera.camera.attached_entity = Some(game_state.player)
-  @camera.camera.offset.x = 16.0
-  @camera.camera.offset.y = 16.0
+  @camera.camera.offset = @math.Vec2D(16.0, 16.0)
 }
 
 ///|
@@ -76,7 +75,7 @@ enum PlayerState {
 const GRAVITY = 0.5
 
 ///|
-const RUN_V = 4.0
+const MAX_RUN_V = 4.0
 
 ///|
 const JUMP_V = 11.5
@@ -85,15 +84,24 @@ const JUMP_V = 11.5
 const MAX_FALL_V = 15.5
 
 ///|
+const RUN_ACC = 1.0
+
+///|
 fn player_state_system(backend : &@system.Backend) -> Unit {
   guard @velocity.velocities.get(game_state.player) is Some(velocity)
-  let mut new_velocity_x = velocity.x
-  let mut new_velocity_y = velocity.y
+  let mut new_velocity_x = velocity.inner()[X]
+  let mut new_velocity_y = velocity.inner()[Y]
   if @system.is_pressed(@system.ArrowLeft) {
-    new_velocity_x = -RUN_V
+    new_velocity_x -= RUN_ACC
+    if new_velocity_x < -MAX_RUN_V {
+      new_velocity_x = -MAX_RUN_V
+    }
     game_state.direction = Direction2::Left
   } else if @system.is_pressed(@system.ArrowRight) {
-    new_velocity_x = RUN_V
+    new_velocity_x += RUN_ACC
+    if new_velocity_x > MAX_RUN_V {
+      new_velocity_x = MAX_RUN_V
+    }
     game_state.direction = Direction2::Right
   } else {
     new_velocity_x = 0.0
@@ -106,7 +114,7 @@ fn player_state_system(backend : &@system.Backend) -> Unit {
   )
   match game_state.player_state {
     Idle => {
-      if velocity.x == 0.0 {
+      if velocity.inner()[X] == 0.0 {
         @sprite.play_animation(
           game_state.player,
           player_idle_animation,
@@ -127,7 +135,7 @@ fn player_state_system(backend : &@system.Backend) -> Unit {
           @audio.play_audio(backend, "sounds/jump.wav")
         }
       }
-      if velocity.y > 0.0 {
+      if velocity.inner()[Y] > 0.0 {
         game_state.player_state = PlayerState::Fall
       }
     }
@@ -147,7 +155,7 @@ fn player_state_system(backend : &@system.Backend) -> Unit {
         player_jump_animation,
         transform~,
       )
-      if velocity.y > 0.0 {
+      if velocity.inner()[Y] > 0.0 {
         game_state.player_state = PlayerState::Fall
       }
     }
@@ -156,7 +164,7 @@ fn player_state_system(backend : &@system.Backend) -> Unit {
   if new_velocity_y > MAX_FALL_V {
     new_velocity_y = MAX_FALL_V
   }
-  @velocity.velocities[game_state.player] = @math.Vec2D::new(
+  @velocity.velocities[game_state.player] = @math.Vec2D(
     new_velocity_x, new_velocity_y,
   )
 }

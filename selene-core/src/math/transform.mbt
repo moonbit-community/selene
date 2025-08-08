@@ -21,7 +21,7 @@ pub(all) struct Transform {
 
 ///|
 pub fn Transform::new(
-  scale~ : Vec2D = Vec2D::new(1.0, 1.0),
+  scale~ : Vec2D = Vec2D(1.0, 1.0),
   translate~ : Vec2D = Vec2D::zero(),
   skew~ : Vec2D = Vec2D::zero(),
 ) -> Transform {
@@ -30,5 +30,5 @@ pub fn Transform::new(
 
 ///|
 pub fn Transform::flip_x(width : Double) -> Transform {
-  Transform::new(scale=Vec2D::new(-1.0, 1.0), translate=Vec2D::new(width, 0.0))
+  Transform::new(scale=Vec2D(-1.0, 1.0), translate=Vec2D(width, 0.0))
 }

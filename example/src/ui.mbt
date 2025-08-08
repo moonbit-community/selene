@@ -17,7 +17,7 @@ fn add_result_box() -> Unit {
   let box = @system.Entity::new()
   @position.positions.set(
     box,
-    @math.Vec2D::new(VIEWPORT_WIDTH / 2.0 - 48, VIEWPORT_HEIGHT / 2.0 - 32),
+    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 48, VIEWPORT_HEIGHT / 2.0 - 32),
   )
   let text = @sprite.Sprite::new_text(game_state.result_box, 100)
   @camera.uis.set(box, @camera.Ui::new())
@@ -27,7 +27,7 @@ fn add_result_box() -> Unit {
 ///|
 fn add_score_box() -> Unit {
   let box = @system.Entity::new()
-  @position.positions.set(box, @math.Vec2D::new(VIEWPORT_WIDTH / 2.0 - 24, 40))
+  @position.positions.set(box, @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 24, 40))
   let text = @sprite.Sprite::new_text(game_state.score_box, 100)
   @sprite.sprites.set(box, text)
   @camera.uis.set(box, @camera.Ui::new())
@@ -36,17 +36,17 @@ fn add_score_box() -> Unit {
 ///|
 fn add_volume_button() -> Unit {
   let button = @system.Entity::new()
-  @position.positions.set(button, @math.Vec2D::new(VIEWPORT_WIDTH - 40, 18))
+  @position.positions.set(button, @math.Vec2D(VIEWPORT_WIDTH - 40, 18))
   let volume_on = @sprite.Sprite::new_picture(
     @sprite.Picture::new(
-      @math.Vec2D::new(21, 22),
+      @math.Vec2D(21, 22),
       "pixel_adventure/Menu/Buttons/Volume.png",
     ),
     100,
   )
   let volumn_off = @sprite.Sprite::new_picture(
     @sprite.Picture::new(
-      @math.Vec2D::new(21, 22),
+      @math.Vec2D(21, 22),
       "pixel_adventure/Menu/Buttons/VolumeOff.png",
     ),
     100,
@@ -54,7 +54,7 @@ fn add_volume_button() -> Unit {
   @sprite.sprites.set(button, volume_on)
   let area = @collision.Area::new(
     @collision.CollisionShape::Rect(
-      size=@math.Vec2D::new(21.0, 22.0),
+      size=@math.Vec2D(21.0, 22.0),
       offset=@math.Vec2D::zero(),
     ),
     non_collide_layer,

@@ -21,7 +21,7 @@ pub(all) enum MouseButton {
 
 ///|
 pub(all) struct Mouse {
-  pos : @math.Vec2D
+  mut pos : @math.Vec2D
   mut left_button : Bool
   mut right_button : Bool
   mut middle_button : Bool
@@ -29,7 +29,7 @@ pub(all) struct Mouse {
 
 ///|
 pub let mouse : Mouse = {
-  pos: @math.Vec2D::new(0.0, 0.0),
+  pos: @math.Vec2D(0.0, 0.0),
   left_button: false,
   right_button: false,
   middle_button: false,
@@ -37,7 +37,7 @@ pub let mouse : Mouse = {
 
 ///|
 let last_mouse : Mouse = {
-  pos: @math.Vec2D::new(0.0, 0.0),
+  pos: @math.Vec2D(0.0, 0.0),
   left_button: false,
   right_button: false,
   middle_button: false,
@@ -45,7 +45,7 @@ let last_mouse : Mouse = {
 
 ///|
 pub let just_pressed_mouse : Mouse = {
-  pos: @math.Vec2D::new(0.0, 0.0),
+  pos: @math.Vec2D(0.0, 0.0),
   left_button: false,
   right_button: false,
   middle_button: false,
@@ -53,7 +53,7 @@ pub let just_pressed_mouse : Mouse = {
 
 ///|
 pub let just_release_mouse : Mouse = {
-  pos: @math.Vec2D::new(0.0, 0.0),
+  pos: @math.Vec2D(0.0, 0.0),
   left_button: false,
   right_button: false,
   middle_button: false,
@@ -74,8 +74,7 @@ pub fn advanced_mouse_system(_backend : &Backend) -> Unit {
     last_mouse.right_button
   just_release_mouse.middle_button = !mouse.middle_button &&
     last_mouse.middle_button
-  last_mouse.pos.x = mouse.pos.x
-  last_mouse.pos.y = mouse.pos.y
+  last_mouse.pos = mouse.pos
   last_mouse.left_button = mouse.left_button
   last_mouse.right_button = mouse.right_button
   last_mouse.middle_button = mouse.middle_button

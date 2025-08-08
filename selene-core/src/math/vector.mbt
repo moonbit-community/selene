@@ -19,79 +19,71 @@ pub(all) enum Axis {
 } derive(Eq, Show)
 
 ///|
-pub(all) struct Vec2D {
-  mut x : Double
-  mut y : Double
-} derive(Eq, Show)
-
-///|
-pub fn Vec2D::new(x : Double, y : Double) -> Vec2D {
-  { x, y }
-}
+pub(all) struct Vec2D(Double,Double) derive(Eq, Show)
 
 ///|
 pub fn Vec2D::zero() -> Vec2D {
-  Vec2D::new(0.0, 0.0)
+  Vec2D(0.0, 0.0)
 }
 
 ///|
 pub fn Vec2D::op_get(this : Vec2D, axis : Axis) -> Double {
   match axis {
-    X => this.x
-    Y => this.y
+    X => this.0
+    Y => this.1
   }
 }
 
 ///|
-pub fn Vec2D::op_set(this : Vec2D, axis : Axis, value : Double) -> Unit {
+pub fn Vec2D::update(this : Vec2D, axis : Axis, value : Double) -> Vec2D {
   match axis {
-    X => this.x = value
-    Y => this.y = value
+    X => Vec2D(value, this.1)
+    Y => Vec2D(this.0, value)
   }
 }
 
 ///|
 pub impl Add for Vec2D with op_add(this, other) {
-  Vec2D::new(this.x + other.x, this.y + other.y)
+  Vec2D(this.0 + other.0, this.1 + other.1)
 }
 
 ///|
 pub impl Mul for Vec2D with op_mul(this, other) {
-  Vec2D::new(this.x * other.x, this.y * other.y)
+  Vec2D(this.0 * other.0, this.1 * other.1)
 }
 
 ///|
 pub impl Neg for Vec2D with op_neg(this) {
-  Vec2D::new(-this.x, -this.y)
+  Vec2D(-this.0, -this.1)
 }
 
 ///|
 pub impl Sub for Vec2D with op_sub(this, other) {
-  Vec2D::new(this.x - other.x, this.y - other.y)
+  Vec2D(this.0 - other.0, this.1 - other.1)
 }
 
 ///|
 pub fn Vec2D::distance(this : Vec2D) -> Double {
-  (this.x * this.x + this.y * this.y).sqrt()
+  (this.0 * this.0 + this.1 * this.1).sqrt()
 }
 
 ///|
 pub fn Vec2D::dot(this : Vec2D, other : Vec2D) -> Double {
-  this.x * other.x + this.y * other.y
+  this.0 * other.0 + this.1 * other.1
 }
 
 ///|
 pub fn Vec2D::distance_to(this : Vec2D, other : Vec2D) -> Double {
-  ((this.x - other.x) * (this.x - other.x) +
-  (this.y - other.y) * (this.y - other.y)).sqrt()
+  ((this.0 - other.0) * (this.0 - other.0) +
+  (this.1 - other.1) * (this.1 - other.1)).sqrt()
 }
 
 ///|
 pub fn Vec2D::normalize(this : Vec2D) -> Vec2D {
   let mag = this.distance()
   if mag > 0.0 {
-    Vec2D::new(this.x / mag, this.y / mag)
+    Vec2D(this.0 / mag, this.1 / mag)
   } else {
-    Vec2D::new(1.0, 0.0) // Default direction if magnitude is zero
+    Vec2D(1.0, 0.0) // Default direction if magnitude is zero
   }
 }

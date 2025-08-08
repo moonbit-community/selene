@@ -99,9 +99,9 @@ pub fn area_collide_system(_ : &@system.Backend) -> Unit {
   for e in @system.all_entities {
     guard areas.get(e) is Some(area) else { continue }
     guard @position.positions.get(e) is Some(position)
-    guard area.shape is Rect(size={ x: width, y: height }, offset~)
+    guard area.shape is Rect(size=Vec2D(width, height), offset~)
     let box = @math.Rect::{
-      size: @math.Vec2D::new(width, height),
+      size: @math.Vec2D(width, height),
       position: position.inner() + offset,
     }
     quadtree_root.insert(e, box)
@@ -110,20 +110,20 @@ pub fn area_collide_system(_ : &@system.Backend) -> Unit {
     for entity in entities.intersection(@system.all_entities) {
       if areas.get(entity) is Some(other_area) {
         guard other_area.shape
-          is Rect(size={ x: other_width, y: other_height }, offset=other_offset)
+          is Rect(size=Vec2D(other_width, other_height), offset=other_offset)
         guard @position.positions.get(entity) is Some(other_position)
         let other_box = @math.Rect::{
-          size: @math.Vec2D::new(other_width, other_height),
+          size: @math.Vec2D(other_width, other_height),
           position: other_position.inner() + other_offset,
         }
         guard box.intersects(other_box) else { continue }
         guard area.mask.contains(other_area.layer) else { continue }
       } else if collides.get(entity) is Some(other_body) {
         guard other_body.shape
-          is Rect(size={ x: other_width, y: other_height }, offset=other_offset)
+          is Rect(size=Vec2D(other_width, other_height), offset=other_offset)
         guard @position.positions.get(entity) is Some(other_position)
         let other_box = @math.Rect::{
-          size: @math.Vec2D::new(other_width, other_height),
+          size: @math.Vec2D(other_width, other_height),
           position: other_position.inner() + other_offset,
         }
         guard box.intersects(other_box) else { continue }
@@ -152,7 +152,7 @@ pub fn area_collide_system(_ : &@system.Backend) -> Unit {
 ///|
 pub fn area_click_system(_ : &@system.Backend) -> Unit {
   let box = @math.Rect::{
-    size: @math.Vec2D::new(1.0, 1.0),
+    size: @math.Vec2D(1.0, 1.0),
     position: @system.mouse.pos,
   }
   let entities = quadtree_root.query(box)
@@ -160,13 +160,13 @@ pub fn area_click_system(_ : &@system.Backend) -> Unit {
     guard areas.get(e) is Some(area) else { continue }
     guard area.monitoring_mouse else { continue }
     guard @position.positions.get(e) is Some(position)
-    guard area.shape is Rect(size={ x: width, y: height }, offset~)
+    guard area.shape is Rect(size=Vec2D(width, height), offset~)
     let area_box = @math.Rect::{
-      size: @math.Vec2D::new(width, height),
+      size: @math.Vec2D(width, height),
       position: position.inner() + offset,
     }
     let box = if @camera.uis.get(e) is Some(_) {
-      box 
+      box
     } else {
       box.shift(@camera.camera.position)
     }

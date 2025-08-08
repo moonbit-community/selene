@@ -36,8 +36,8 @@ fn render_text(
 ) -> Unit {
   backend.draw_text(
     text.content,
-    x=position.x,
-    y=position.y,
+    x=position[X],
+    y=position[Y],
     font=text.font,
     color=text.color,
   )

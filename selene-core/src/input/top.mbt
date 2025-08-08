@@ -38,7 +38,7 @@ pub fn simple_input_system(_backend : &@system.Backend) -> Unit {
     }
     @velocity.velocities.set(
       e,
-      @math.Vec2D::new(new_velocity_x, new_velocity_y),
+      @math.Vec2D(new_velocity_x, new_velocity_y),
     )
   }
 }

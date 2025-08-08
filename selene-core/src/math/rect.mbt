@@ -20,10 +20,10 @@ pub(all) struct Rect {
 
 ///| Check if two rectangles intersect
 pub fn Rect::intersects(a : Rect, b : Rect) -> Bool {
-  a.position.x < b.position.x + b.size.x &&
-  a.position.x + a.size.x > b.position.x &&
-  a.position.y < b.position.y + b.size.y &&
-  a.position.y + a.size.y > b.position.y
+  a.position[X] < b.position[X] + b.size[X] &&
+  a.position[X] + a.size[X] > b.position[X] &&
+  a.position[Y] < b.position[Y] + b.size[Y] &&
+  a.position[Y] + a.size[Y] > b.position[Y]
 }
 
 ///|

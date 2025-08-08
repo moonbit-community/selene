@@ -38,10 +38,10 @@ fn render_picture(
 ) -> Unit {
   backend.draw_picture(
     picture.tile_path,
-    x=pos.x,
-    y=pos.y,
-    width=picture.size.x,
-    height=picture.size.y,
+    x=pos[X],
+    y=pos[Y],
+    width=picture.size[X],
+    height=picture.size[Y],
     repeat=picture.repeat,
     transform=picture.transform,
   )

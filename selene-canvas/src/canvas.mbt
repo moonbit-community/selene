@@ -16,7 +16,7 @@
 struct CanvasBackend {
   canvas : @dom.HTMLCanvasElement
   context : @dom.CanvasRenderingContext2D
-  viewport_size : @math.Vec2D
+  mut viewport_size : @math.Vec2D
 }
 
 ///|
@@ -52,8 +52,7 @@ pub impl @system.Backend for CanvasBackend with build(
   fps,
 ) {
   initialize()
-  self.viewport_size.x = canvas_width
-  self.viewport_size.y = canvas_height
+  self.viewport_size = @math.Vec2D(canvas_width, canvas_height)
   set_viewport_height(self.canvas, canvas_height)
   set_viewport_width(self.canvas, canvas_width)
   schedule_with_fixed_interval(1000 / fps.to_double(), () => {
@@ -66,7 +65,7 @@ pub impl @system.Backend for CanvasBackend with build(
 
 ///|
 pub impl @system.Backend for CanvasBackend with get_canvas_size(self) {
-  @math.Vec2D::new(self.viewport_size.x, self.viewport_size.y)
+  @math.Vec2D(self.viewport_size[X], self.viewport_size[Y])
 }
 
 ///|

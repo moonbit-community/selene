@@ -14,13 +14,13 @@
 
 ///|
 pub(all) struct Camera {
-  position : @math.Vec2D
+  mut position : @math.Vec2D
   mut limit_top : Double?
   mut limit_bottom : Double?
   mut limit_left : Double?
   mut limit_right : Double?
   mut attached_entity : @system.Entity?
-  offset : @math.Vec2D
+  mut offset : @math.Vec2D
 }
 
 ///|
@@ -39,21 +39,22 @@ pub fn camera_system(backend : &@system.Backend) -> Unit {
   guard camera.attached_entity is Some(e) else { return }
   guard @position.positions.get(e) is Some(pos) else { return }
   let viewport_size = backend.get_canvas_size()
-  camera.position.x = pos.x - viewport_size.x / 2.0 + camera.offset.x
-  camera.position.y = pos.y - viewport_size.y / 2.0 + camera.offset.y
-  if camera.limit_top is Some(top) && camera.position.y < top {
-    camera.position.y = top
+  camera.position = pos.inner() -
+    viewport_size * @math.Vec2D(0.5, 0.5) +
+    camera.offset
+  if camera.limit_top is Some(top) && camera.position[Y] < top {
+    camera.position = @math.Vec2D(camera.position[X], top)
   }
   if camera.limit_bottom is Some(bottom) &&
-    camera.position.y > bottom - viewport_size.y {
-    camera.position.y = bottom - viewport_size.y
+    camera.position[Y] > bottom - viewport_size[Y] {
+    camera.position = @math.Vec2D(camera.position[X], bottom - viewport_size[Y])
   }
-  if camera.limit_left is Some(left) && camera.position.x < left {
-    camera.position.x = left
+  if camera.limit_left is Some(left) && camera.position[X] < left {
+    camera.position = @math.Vec2D(left, camera.position[Y])
   }
   if camera.limit_right is Some(right) &&
-    camera.position.x > right - viewport_size.x {
-    camera.position.x = right - viewport_size.x
+    camera.position[X] > right - viewport_size[X] {
+    camera.position = @math.Vec2D(right - viewport_size[X], camera.position[Y])
   }
 }
 

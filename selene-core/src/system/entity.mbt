@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-type Entity UInt derive(Eq, Show, Hash)
+struct Entity(UInt) derive(Eq, Show, Hash)
 
 ///|
 pub let all_entities : @set.Set[Entity] = @set.Set::new()

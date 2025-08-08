@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///|
+///| This should be the same as the WORLD_WIDTH
 const GAME_WIDTH = 2048.0
 
 ///|
@@ -20,8 +20,8 @@ const GAME_HEIGHT = 2048.0
 
 ///|
 pub let quadtree_root : QuadTree = QuadTree::new(
-  @math.Vec2D::new(0, 0),
-  @math.Vec2D::new(GAME_WIDTH, GAME_HEIGHT),
+  @math.Vec2D(0, 0),
+  @math.Vec2D(GAME_WIDTH, GAME_HEIGHT),
   0,
 )
 
@@ -68,19 +68,19 @@ fn QuadTree::insert(
     return
   }
   if self.children.is_empty() {
-    let half_size = @math.Vec2D::new(self.size.x * 0.5, self.size.y * 0.5)
+    let half_size = @math.Vec2D(self.size[X] * 0.5, self.size[Y] * 0.5)
     self.children
     ..push(QuadTree::new(self.position, half_size, self.depth + 1))
     ..push(
       QuadTree::new(
-        self.position + @math.Vec2D::new(half_size.x, 0),
+        self.position + @math.Vec2D(half_size[X], 0),
         half_size,
         self.depth + 1,
       ),
     )
     ..push(
       QuadTree::new(
-        self.position + @math.Vec2D::new(0, half_size.y),
+        self.position + @math.Vec2D(0, half_size[Y]),
         half_size,
         self.depth + 1,
       ),
@@ -137,10 +137,10 @@ fn QuadTree::query(self : Self, area : @math.Rect) -> @set.Set[@system.Entity] {
 pub fn quadtree_render_system(backend : &@system.Backend) -> Unit {
   fn render_node(node : QuadTree) -> Unit {
     backend.draw_stroke_rect(
-      x=node.position.x,
-      y=node.position.y,
-      width=node.size.x,
-      height=node.size.y,
+      x=node.position[X],
+      y=node.position[Y],
+      width=node.size[X],
+      height=node.size[Y],
       color="blue",
     )
     for child in node.children {

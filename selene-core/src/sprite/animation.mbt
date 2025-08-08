@@ -62,7 +62,7 @@ pub fn Animation::new(
   transform~ : @math.Transform = @math.Transform::new(),
   loop_~ : Bool = false,
   rate~ : Double = 0.2,
-  offset~ : @math.Vec2D = @math.Vec2D::new(0, 0),
+  offset~ : @math.Vec2D = @math.Vec2D(0, 0),
   start_frame~ : UInt = 0,
 ) -> Animation {
   {
@@ -86,11 +86,11 @@ fn render_animation(
 ) -> Unit {
   backend.draw_sprite(
     animation.sprite_path,
-    x=pos.x,
-    y=pos.y,
-    offset_x=animation.offset.x +
+    x=pos[X],
+    y=pos[Y],
+    offset_x=animation.offset[X] +
       animation.width * animation.frame.to_uint().to_double(),
-    offset_y=animation.offset.y,
+    offset_y=animation.offset[Y],
     width=animation.width,
     height=animation.height,
     transform=animation.transform,

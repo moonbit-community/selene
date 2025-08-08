@@ -179,7 +179,7 @@ fn stroke_render_pipe(backend : &@system.Backend) -> Unit {
 ```moonbit
 let box = @system.Entity::new()
 let text = @sprite.Sprite::new_text(@sprite.Text::new("Hello World", color="black"), 10)
-@position.positions.set(box, @math.Vec2D::new(100, 100))
+@position.positions.set(box, @math.Vec2D(100, 100))
 @sprite.sprites.set(box, text)
 ```
 
@@ -202,7 +202,7 @@ Entity 类似一个引用，我们把一切属于一个实体的组件都通过 
 fn add_hello_text(_ : &@system.Backend) -> Unit {
   let box = @system.Entity::new()
   let text = @sprite.Sprite::new_text(@sprite.Text::new("Hello World", color="white"), 10)
-  @position.positions.set(box, @math.Vec2D::new(100, 100))
+  @position.positions.set(box, @math.Vec2D(100, 100))
   @sprite.sprites.set(box, text)
 }
 
@@ -222,7 +222,7 @@ fn main {
 怎么让文本框动起来呢？最简单的方式是给它增加一个速度组件：
 
 ```moonbit
-@velocity.velocities.set(box, @math.Vec2D::new(1.0, 1.0))
+@velocity.velocities.set(box, @math.Vec2D(1.0, 1.0))
 ```
 
 只有这个组件是不够的，我们需要一个 System，它能够在每一帧根据每个实体的速度来更新它的位置组件。我们可以自己写一个这样的 System，不过你肯定猜到了，这么常用的 System 已经被 Selene 提供了。我们把 `@collision.move_system` 加入到 App 中即可。下面是完整代码：
@@ -231,9 +231,9 @@ fn main {
 fn add_hello_text(_ : &@system.Backend) -> Unit {
   let box = @system.Entity::new()
   let text = @sprite.Sprite::new_text(@sprite.Text::new("Hello World", color="back"), 10)
-  @position.positions.set(box, @math.Vec2D::new(100, 100))  // 为实体关联位置
+  @position.positions.set(box, @math.Vec2D(100, 100))  // 为实体关联位置
   @sprite.sprites.set(box, text)                            // 为实体关联文本框
-  @velocity.velocities.set(box, @math.Vec2D::new(1.0, 1.0)) // 为实体关联速度
+  @velocity.velocities.set(box, @math.Vec2D(1.0, 1.0)) // 为实体关联速度
 }
 
 fn main {
@@ -255,7 +255,7 @@ fn main {
 fn add_hello_text(_ : &@system.Backend) -> Unit {
   let box = @system.Entity::new()
   let text = @sprite.Sprite::new_text(@sprite.Text::new("Hello World", color="back"), 10)
-  @position.positions.set(box, @math.Vec2D::new(100, 100))
+  @position.positions.set(box, @math.Vec2D(100, 100))
   @sprite.sprites.set(box, text)
   @velocity.velocities.set(box, @math.Vec2D::zero())
   @input.controls.set(box, @input.KeyInput::{})
@@ -299,7 +299,7 @@ pub fn simple_input_system(_backend : &@system.Backend) -> Unit {
     }
     @velocity.velocities.set(
       e,
-      @math.Vec2D::new(new_velocity_x, new_velocity_y),
+      @math.Vec2D(new_velocity_x, new_velocity_y),
     )
   }
 }

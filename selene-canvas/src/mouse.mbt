@@ -19,8 +19,10 @@ pub impl @system.Backend for CanvasBackend with register_mouse_events(
 ) {
   window.add_event_listener("mousemove", event => {
     let mouse_event = event.to_mouse_event().unwrap()
-    mouse.pos.x = mouse_event.get_offset_x().to_double()
-    mouse.pos.y = mouse_event.get_offset_y().to_double()
+    mouse.pos = @math.Vec2D(
+      mouse_event.get_offset_x().to_double(),
+      mouse_event.get_offset_y().to_double(),
+    )
   })
   window.add_event_listener("mousedown", event => {
     let mouse_event = event.to_mouse_event().unwrap()

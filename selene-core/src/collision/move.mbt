@@ -20,10 +20,10 @@ pub fn move_system(_backend : &@system.Backend) -> Unit {
   for e in @system.all_entities {
     guard collides.get(e) is Some(collide) else { continue }
     guard @position.positions.get(e) is Some(pos)
-    guard collide.shape is Rect(size={ x: width, y: height }, offset~)
+    guard collide.shape is Rect(size=Vec2D(width, height), offset~)
     let box = @math.Rect::{
       position: pos.inner() + offset,
-      size: @math.Vec2D::new(width, height),
+      size: @math.Vec2D(width, height),
     }
     quadtree_root.insert(e, box)
   }
@@ -41,17 +41,20 @@ pub fn move_system(_backend : &@system.Backend) -> Unit {
 ///|
 fn move_without_collide(e : @system.Entity, velocity : @math.Vec2D) -> Unit {
   guard @position.positions.get(e) is Some(pos)
-  let new_pos = @math.Vec2D::new(pos.x + velocity.x, pos.y + velocity.y)
+  let new_pos = @math.Vec2D(
+    pos.inner()[X] + velocity[X],
+    pos.inner()[Y] + velocity[Y],
+  )
   @position.positions.set(e, new_pos)
   if areas.get(e) is Some(area) {
-    guard area.shape is Rect(size={ x: width, y: height }, offset~)
+    guard area.shape is Rect(size=Vec2D(width, height), offset~)
     let box = @math.Rect::{
       position: new_pos + offset,
-      size: @math.Vec2D::new(width, height),
+      size: @math.Vec2D(width, height),
     }
     let old_box = @math.Rect::{
       position: pos.inner(),
-      size: @math.Vec2D::new(width, height),
+      size: @math.Vec2D(width, height),
     }
     quadtree_root.remove(e, old_box)
     quadtree_root.insert(e, box)
@@ -65,16 +68,17 @@ fn move_with_collide(
   velocity : @math.Vec2D,
 ) -> Unit {
   guard @position.positions.get(e) is Some(pos)
-  guard collide.shape is Rect(size={ x: width, y: height }, offset~)
+  guard collide.shape is Rect(size=Vec2D(width, height), offset~)
   let box = @math.Rect::{
     position: pos.inner() + offset,
-    size: @math.Vec2D::new(width, height),
+    size: @math.Vec2D(width, height),
   }
-  let new_pos_x = move_axis(e, box, velocity, X, collide.mask)
-  let object_x = @math.Rect::{ size: box.size, position: new_pos_x }
-  let new_pos = move_axis(e, object_x, velocity, Y, collide.mask)
-  @position.positions.set(e, new_pos)
-  let new_box = @math.Rect::{ size: box.size, position: new_pos }
+  let new_x = move_axis(e, box, velocity, X, collide.mask)
+  let object_x = @math.Rect::{ size: box.size, position: new_x.0 }
+  let new_y = move_axis(e, object_x, new_x.1, Y, collide.mask)
+  @position.positions.set(e, new_y.0)
+  @velocity.velocities.set(e, new_y.1)
+  let new_box = @math.Rect::{ size: box.size, position: new_y.0 }
   quadtree_root.remove(e, box)
   quadtree_root.insert(e, new_box)
 }
@@ -82,59 +86,71 @@ fn move_with_collide(
 ///|
 fn make_ray_collision(
   object : @math.Rect,
-  velocity : @math.Vec2D,
+  speed : Double,
   axis : @math.Axis,
 ) -> @math.Rect {
-  let pos : @math.Vec2D = { x: object.position.x, y: object.position.y }
-  let size : @math.Vec2D = { x: object.size.x, y: object.size.y }
-  if velocity[axis] >= 0 {
-    size[axis] = size[axis] + velocity[axis]
+  let pos = @math.Vec2D(object.position[X], object.position[Y])
+  let size = @math.Vec2D(object.size[X], object.size[Y])
+  if speed >= 0 {
+    { position: pos, size: size.update(axis, size[axis] + speed) }
   } else {
-    pos[axis] = pos[axis] + velocity[axis]
-    size[axis] = size[axis] - velocity[axis]
+    {
+      position: pos.update(axis, pos[axis] + speed),
+      size: size.update(axis, size[axis] - speed),
+    }
   }
-  { position: pos, size }
 }
 
-///| Move object with velocity, returns the destination and whether collided
+///| Move object with velocity, returns the destination and updated velocity.
 fn move_axis(
   entity : @system.Entity,
   object : @math.Rect,
   velocity : @math.Vec2D,
   axis : @math.Axis,
   mask : CollisionMask,
-) -> @math.Vec2D {
-  let new_pos = @math.Vec2D::new(object.position.x, object.position.y)
-  new_pos[axis] = new_pos[axis] + velocity[axis]
-  let velocity_axis = @math.Vec2D::new(0, 0)
-  velocity_axis[axis] = velocity[axis]
-  let ray_collision = make_ray_collision(object, velocity_axis, axis)
+) -> (@math.Vec2D, @math.Vec2D) {
+  let ray_collision = make_ray_collision(object, velocity[axis], axis)
+  let mut new_pos = @math.Vec2D(object.position[X], object.position[Y])
+  new_pos = new_pos.update(axis, new_pos[axis] + velocity[axis])
+  let mut new_velocity = velocity
   let entities = quadtree_root.query(ray_collision)
   for e in entities.intersection(@system.all_entities) {
     guard e != entity else { continue }
     guard collides.get(e) is Some(collision) else { continue }
-    guard collision.shape is Rect(size={ x: width, y: height }, offset~) else {
+    guard collision.shape is Rect(size=Vec2D(width, height), offset~) else {
       continue
     }
     guard @position.positions.get(e) is Some(pos) else { continue }
     guard mask.contains(collision.layer) else { continue }
     let collision_box = @math.Rect::{
-      size: @math.Vec2D::new(width, height),
+      size: @math.Vec2D(width, height),
       position: pos.inner() + offset,
     }
     if @math.Rect::intersects(ray_collision, collision_box) {
-      let dir = @math.Vec2D::new(0, 0)
-      if velocity[axis] > 0 {
-        new_pos[axis] = collision_box.position[axis] - object.size[axis]
-        velocity[axis] = new_pos[axis] - object.position[axis]
-        dir[axis] = 1
-      } else if velocity[axis] < 0 {
-        new_pos[axis] = collision_box.position[axis] + collision_box.size[axis]
-        velocity[axis] = new_pos[axis] - object.position[axis]
-        dir[axis] = -1
+      let mut dir = @math.Vec2D(0, 0)
+      if new_velocity[axis] > 0 {
+        new_pos = new_pos.update(
+          axis,
+          collision_box.position[axis] - object.size[axis],
+        )
+        new_velocity = new_velocity.update(
+          axis,
+          new_pos[axis] - object.position[axis],
+        )
+        dir = dir.update(axis, 1.0)
+      } else if new_velocity[axis] < 0 {
+        new_pos = new_pos.update(
+          axis,
+          collision_box.position[axis] + collision_box.size[axis],
+        )
+        new_velocity = new_velocity.update(
+          axis,
+          new_pos[axis] - object.position[axis],
+        )
+        dir = dir.update(axis, -1.0)
       }
       add_collision_info(entity, e, dir)
     }
   }
-  return new_pos
+  return (new_pos, new_velocity)
 }

@@ -35,7 +35,7 @@ pub(all) struct Vec2D {
 fn Vec2D::distance(Self) -> Double
 fn Vec2D::distance_to(Self, Self) -> Double
 fn Vec2D::dot(Self, Self) -> Double
-fn Vec2D::new(Double, Double) -> Self
+fn Vec2D(Double, Double) -> Self
 fn Vec2D::normalize(Self) -> Self
 fn Vec2D::op_get(Self, Axis) -> Double
 fn Vec2D::op_set(Self, Axis, Double) -> Unit
