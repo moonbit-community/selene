@@ -56,7 +56,7 @@ fn add_player(pos : @math.Vec2D) -> Unit {
   @velocity.velocities.set(game_state.player, @math.Vec2D::zero())
   @position.positions.set(game_state.player, pos)
   @collision.collides.set(game_state.player, @collision.Collide::{
-    shape: Rect(size=@math.Vec2D(32.0, 32.0), offset=@math.Vec2D::zero()),
+    shape: Rect(size=@math.Vec2D(24.0, 32.0), offset=@math.Vec2D(4.0, 0.0)),
     layer: player_collision_layer,
     mask: player_collision_mask,
   })

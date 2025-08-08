@@ -76,7 +76,7 @@ fn move_with_collide(
   let new_x = move_axis(e, box, velocity, X, collide.mask)
   let object_x = @math.Rect::{ size: box.size, position: new_x.0 }
   let new_y = move_axis(e, object_x, new_x.1, Y, collide.mask)
-  @position.positions.set(e, new_y.0)
+  @position.positions.set(e, new_y.0 - offset)
   @velocity.velocities.set(e, new_y.1)
   let new_box = @math.Rect::{ size: box.size, position: new_y.0 }
   quadtree_root.remove(e, box)
