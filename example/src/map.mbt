@@ -22,6 +22,10 @@ fn tile_to_vec2d(tile : @tilemap.Tile, tile_size : Int) -> @math.Vec2D {
 
 ///|
 fn generate_map(backend : &@system.Backend) -> Unit {
+  @camera.camera.limit_left = Some(0.0)
+  @camera.camera.limit_right = Some(WORLD_WIDTH)
+  @camera.camera.limit_top = Some(0.0)
+  @camera.camera.limit_bottom = Some(WORLD_HEIGHT)
   add_background(@math.Vec2D::new(WORLD_WIDTH, WORLD_HEIGHT))
   let tilemap = @tilemap.TileMap::from_json(tilemap)
   let mask_dude = tilemap.get_tiles_leftcorner("MaskDude")[0]

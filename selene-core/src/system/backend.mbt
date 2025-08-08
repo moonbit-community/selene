@@ -75,4 +75,5 @@ pub(open) trait Backend {
     color~ : String,
   ) -> Unit
   play_audio(Self, audio_path : String, volume~ : Double, loop_~ : Bool) -> Unit
+  get_canvas_size(Self) -> @math.Vec2D
 }

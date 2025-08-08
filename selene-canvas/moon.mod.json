@@ -3,7 +3,10 @@
   "version": "0.10.0",
   "deps": {
     "Yoorkin/rabbit-tea": "0.10.9",
-    "Milky2018/selene": "0.10.0"
+    // "Milky2018/selene": "0.10.0"
+    "Milky2018/selene": {
+      "path": "../selene-core"
+    }
   },
   "readme": "README.md",
   "repository": "https://github.com/Milky2018/selene.git",

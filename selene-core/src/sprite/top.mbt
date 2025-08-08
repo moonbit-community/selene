@@ -53,15 +53,19 @@ pub fn render_sprite_system(backend : &@system.Backend) -> Unit {
     let e = sprite.0
     let sprite = sprite.1
     guard @position.positions.get(e) is Some(pos) else { continue }
+    let pos = if @camera.uis.get(e) is None {
+      pos.inner() - @camera.camera.position
+    } else {
+      pos.inner()
+    }
     match sprite.sprite_type {
-      SpriteType::Picture(picture) =>
-        render_picture(backend, picture, pos.inner())
+      SpriteType::Picture(picture) => render_picture(backend, picture, pos)
       SpriteType::Animation(default, current~) as anime =>
-        if render_animation(backend, current, pos.inner()) {
+        if render_animation(backend, current, pos) {
           anime.current = default
           anime.current.frame = 0
         }
-      SpriteType::Text(text) => render_text(backend, text, pos.inner())
+      SpriteType::Text(text) => render_text(backend, text, pos)
     }
   }
 }

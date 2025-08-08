@@ -24,7 +24,7 @@ Please check [docs](https://github.com/Milky2018/selene/tree/main/docs).
 - [x] Areas 
 - [ ] Gamepad support 
 - [x] Mouse/Screen Touch support 
-- [ ] Camera
+- [x] Camera
 - [ ] Documentation
 - [ ] Convex polygon collision
 - [ ] Debug information

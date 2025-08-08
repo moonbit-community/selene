@@ -11,6 +11,7 @@
     "Milky2018/selene/position",
     "Milky2018/selene/collision",
     "Milky2018/selene/tilemap",
+    "Milky2018/selene/camera",
     { "path": "Milky2018/selene-canvas", "alias": "canvas" }
   ]
 }

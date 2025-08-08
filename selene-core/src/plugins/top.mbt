@@ -22,4 +22,5 @@ pub fn default_plugin(app : @system.App) -> Unit {
   ..push((@collision.area_collide_system, 40))
   ..push((@system.deferred_event_system, -100))
   ..push((@sprite.render_sprite_system, 0))
+  ..push((@camera.camera_system, 30))
 }

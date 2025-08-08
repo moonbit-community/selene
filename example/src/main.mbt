@@ -12,14 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
+const VIEWPORT_WIDTH : Double = 480.0
+
+///|
+const VIEWPORT_HEIGHT : Double = 320.0
+
+///|
 const WORLD_WIDTH : Double = 560.0
+
+///|
 const WORLD_HEIGHT : Double = 432.0
 
 ///|
 fn main {
   @system.App::new(@canvas.CanvasBackend::new())
-  .with_canvas_width(WORLD_WIDTH)
-  .with_canvas_height(WORLD_HEIGHT)
+  .with_canvas_width(VIEWPORT_WIDTH)
+  .with_canvas_height(VIEWPORT_HEIGHT)
   .with_fps(120)
   .add_plugin(@plugins.default_plugin)
   .add_initializer(game_start)
