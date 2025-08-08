@@ -13,9 +13,6 @@
 // limitations under the License.
 
 ///|
-let animation_id_generator : Ref[UInt] = Ref::new(0)
-
-///|
 pub struct Animation {
   sprite_path : String
   max_frame : UInt
@@ -26,12 +23,10 @@ pub struct Animation {
   mut loop_ : Bool
   mut rate : Double
   mut frame : Double
-  priv id : UInt
 }
 
-///| Play a new animation; if the animation is already playing, it will 
-/// reset to the start frame; switch to the default animation when the
-/// animation ends.
+///| Play a new animation; if the animation is already playing 
+/// and `from_start` is false, the current animation will continue.
 pub fn play_animation(
   entity : @system.Entity,
   animation : Animation,
@@ -42,7 +37,7 @@ pub fn play_animation(
   // backward~ : Bool = false,
 ) -> Unit {
   guard sprites.get(entity)
-    is Some({ sprite_type: Animation(default, current~) as anime, .. })
+    is Some({ sprite_type: Animation(_current), zindex })
   if loop_ is Some(loop_) {
     animation.loop_ = loop_
   }
@@ -52,21 +47,10 @@ pub fn play_animation(
   if transform is Some(transform) {
     animation.transform = transform
   }
-  if current.id == animation.id {
-    if from_start {
-      anime.current.frame = 0
-    }
-    return // Already playing this animation
+  if from_start {
+    animation.frame = 0
   }
-  if default.id == animation.id {
-    anime.current = default
-    if from_start {
-      anime.current.frame = 0
-    }
-    return // Already playing the default animation
-  }
-  anime.current = animation
-  anime.current.frame = 0
+  sprites.set(entity, Sprite::new_animation(animation, zindex))
 }
 
 ///|
@@ -81,8 +65,6 @@ pub fn Animation::new(
   offset~ : @math.Vec2D = @math.Vec2D::new(0, 0),
   start_frame~ : UInt = 0,
 ) -> Animation {
-  let id = animation_id_generator.val
-  animation_id_generator.val += 1
   {
     sprite_path,
     max_frame,
@@ -90,7 +72,6 @@ pub fn Animation::new(
     width,
     offset,
     frame: start_frame.to_double(),
-    id,
     loop_,
     rate,
     transform,
@@ -102,7 +83,7 @@ fn render_animation(
   backend : &@system.Backend,
   animation : Animation,
   pos : @math.Vec2D,
-) -> Bool {
+) -> Unit {
   backend.draw_sprite(
     animation.sprite_path,
     x=pos.x,
@@ -118,10 +99,8 @@ fn render_animation(
   if animation.frame.to_uint() >= animation.max_frame {
     if animation.loop_ {
       animation.frame = 0
-      return false
     } else {
-      return true
+      animation.frame -= animation.rate
     }
   }
-  false
 }

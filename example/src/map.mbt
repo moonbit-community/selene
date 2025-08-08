@@ -107,6 +107,7 @@ fn add_flag(pos : @math.Vec2D) -> Unit {
       max_frame=10,
       height=64.0,
       width=64.0,
+      loop_=true,
     ),
     20,
   )
@@ -136,6 +137,7 @@ fn add_apple(backend : &@system.Backend, pos : @math.Vec2D) -> Unit {
       max_frame=17,
       height=32.0,
       width=32.0,
+      loop_=true,
     ),
     20,
   )
