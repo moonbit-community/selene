@@ -19,12 +19,6 @@ const VIEWPORT_WIDTH : Double = 480.0
 const VIEWPORT_HEIGHT : Double = 320.0
 
 ///|
-const WORLD_WIDTH : Double = 560.0
-
-///|
-const WORLD_HEIGHT : Double = 432.0
-
-///|
 fn main {
   @system.App::new(@canvas.CanvasBackend::new())
   .with_canvas_width(VIEWPORT_WIDTH)
