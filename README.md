@@ -8,7 +8,7 @@ The [selene-core](selene-core/) directory is the core of the Selene engine.
 
 The [selene-canvas](selene-canvas/) directory is the officially maintained Canvas2D API-based backend for Selene. The Selene engine must run with a backend.
 
-## For [MGPIC 2025 Global Programming Innovation Challenge](https://www.moonbitlang.cn/2025-mgpic) Participants
+## For [MGPIC 2025](https://www.moonbitlang.cn/2025-mgpic) Participants
 
 In principle, the competition only requires the output to be a static HTML5 game, with core logic written in MoonBit. The implementation details are open-ended. Contestants are encouraged to brainstorm and build everything from scratch.
 
