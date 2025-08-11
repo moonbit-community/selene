@@ -13,6 +13,11 @@
 // limitations under the License.
 
 ///|
+/// 2×3 matrix representing a transformation in 2D space. 
+/// It contains three Vec2D values: scale, translate, and skew. 
+/// 
+/// TODO: Implement transformation functions (e.g., translate, rotate, scale, x, y)
+///
 pub(all) struct Transform {
   scale : Vec2D
   translate : Vec2D

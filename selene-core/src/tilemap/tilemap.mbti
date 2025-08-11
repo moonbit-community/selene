@@ -32,7 +32,7 @@ pub struct TileMap {
 }
 fn TileMap::from_json(Json) -> Self
 fn TileMap::get_tiles(Self, String) -> Array[Tile]
-fn TileMap::get_tiles_leftcorner(Self, String) -> Array[Tile]
+fn TileMap::get_tiles_first(Self, String) -> Array[Tile]
 impl @json.FromJson for TileMap
 
 // Type aliases

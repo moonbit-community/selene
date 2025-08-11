@@ -12,8 +12,10 @@ let velocities : Map[@system.Entity, Velocity]
 // Errors
 
 // Types and methods
-pub(all) type Velocity @math.Vec2D
+pub(all) struct Velocity(@math.Vec2D)
 fn Velocity::inner(Self) -> @math.Vec2D
+impl Eq for Velocity
+impl Show for Velocity
 
 // Type aliases
 

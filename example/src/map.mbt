@@ -32,11 +32,11 @@ fn generate_map(backend : &@system.Backend) -> Unit {
   @camera.camera.limit_top = Some(0.0)
   @camera.camera.limit_bottom = Some(world_height)
   add_background(@math.Vec2D(world_width, world_height))
-  let mask_dude = tilemap.get_tiles_leftcorner("MaskDude")[0]
+  let mask_dude = tilemap.get_tiles_first("MaskDude")[0]
   add_player(tile_to_vec2d(mask_dude, tilemap.tile_size))
-  let flag = tilemap.get_tiles_leftcorner("Flag")[0]
+  let flag = tilemap.get_tiles_first("Flag")[0]
   add_flag(tile_to_vec2d(flag, tilemap.tile_size) - @math.Vec2D(16.0, 16.0))
-  let apples = tilemap.get_tiles_leftcorner("Apple")
+  let apples = tilemap.get_tiles_first("Apple")
   for apple in apples {
     add_apple(backend, tile_to_vec2d(apple, tilemap.tile_size))
   }

@@ -12,7 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///|
+///| 
+/// Usage of the camera system:
+/// Add the `camera_system` function to your app:
+/// ```notest
+/// app.add_system(@camera.camera_system)
+/// ```
+/// This system is included in the `@plugins.default_plugin`.
+/// Access the global `camera` variable to manipulate the camera position,
+/// limits, and attached entities. The camera system automatically updates the
+/// camera position based on the attached entity's position.
+///
+/// Attach an entity to the camera:
+/// ```notest
+/// camera.attached_entity = Some(PLAYER_ENTITY)
+/// ```
+/// Set camera limits:
+/// ```notest
+/// camera.limit_top = Some(0.0)
+/// camera.limit_bottom = Some(500.0)
+/// camera.limit_left = Some(0.0)
+/// camera.limit_right = Some(650.0)
+/// ```
+/// The position of the camera is the left-top corner of the viewport. So 
+/// if you want the camera to be centered on the attached entity, you can
+/// set the camera offset according to the entity's size:
+/// ```notest
+/// camera.offset = @math.Vec2D(PLAYER_SIZE[X] * 0.5, PLAYER_SIZE[Y] * 0.5)
+/// ```
 pub(all) struct Camera {
   mut position : @math.Vec2D
   mut limit_top : Double?

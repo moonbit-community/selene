@@ -128,7 +128,7 @@ fn player_state_system(backend : &@system.Backend) -> Unit {
         )
       }
       if @system.is_just_pressed(@system.ArrowUp) &&
-        @collision.is_on_the_floor(game_state.player) {
+        @collision.is_on_floor(game_state.player) {
         new_velocity_y = -JUMP_V
         game_state.player_state = PlayerState::Jump
         if game_state.volume_on {
@@ -145,7 +145,7 @@ fn player_state_system(backend : &@system.Backend) -> Unit {
         player_fall_animation,
         transform~,
       )
-      if @collision.is_on_the_floor(game_state.player) {
+      if @collision.is_on_floor(game_state.player) {
         game_state.player_state = PlayerState::Idle
       }
     }

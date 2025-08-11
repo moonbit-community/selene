@@ -12,7 +12,7 @@ let positions : Map[@system.Entity, Position]
 // Errors
 
 // Types and methods
-pub(all) type Position @math.Vec2D
+pub(all) struct Position(@math.Vec2D)
 fn Position::inner(Self) -> @math.Vec2D
 impl Eq for Position
 impl Show for Position

@@ -13,15 +13,25 @@
 // limitations under the License.
 
 ///|
+/// The `CollisionLayer` struct represents a layer that defines the collision
+/// properties of a collision object. It is used to categorize collision objects
+/// into different layers, allowing for more granular control over collision detection.
+///
 pub struct CollisionLayer(UInt) derive(Eq)
 
-///| FIXME: Use `UInt` and bitwise operations can obtain higher performance.
-pub struct CollisionMask(Array[CollisionLayer])
+///| 
+/// The `CollisionMask` struct represents a mask that defines which collision layers
+/// a collision object can interact with. It is used to filter collisions based on
+/// the layers of the objects involved in the collision.
+/// 
+pub struct CollisionMask(Array[CollisionLayer]) // FIXME: Use `UInt` and bitwise operations can obtain higher performance.
 
 ///|
 let collision_layer_generator : Ref[UInt] = { val: 0 }
 
-///|
+///| 
+/// Creates a new `CollisionLayer` with a unique identifier.
+/// 
 pub fn CollisionLayer::new() -> CollisionLayer {
   let layer = collision_layer_generator.val
   collision_layer_generator.val += 1
@@ -29,11 +39,16 @@ pub fn CollisionLayer::new() -> CollisionLayer {
 }
 
 ///|
+/// Creates a new `CollisionMask` with the specified layers 
+/// that the collision object can interact with.
+/// 
 pub fn CollisionMask::new(layers : Array[CollisionLayer]) -> CollisionMask {
   layers
 }
 
-///|
+///| 
+/// Creates an empty `CollisionMask` that does not interact with any layers.
+/// 
 pub fn CollisionMask::empty() -> CollisionMask {
   []
 }

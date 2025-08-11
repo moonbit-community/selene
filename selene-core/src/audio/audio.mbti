@@ -6,7 +6,7 @@ import(
 )
 
 // Values
-fn play_audio(&@system.Backend, String, volume~ : Double = .., loop_~ : Bool = ..) -> Unit
+fn play_audio(&@system.Backend, String, volume? : Double, loop_? : Bool) -> Unit
 
 // Errors
 

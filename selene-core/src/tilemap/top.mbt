@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///|
+///| 
+/// The `TileMap` struct represents a tile map used in the JSON format produced by 
+/// [SpriteFusion](https://www.spritefusion.com/).
+/// 
 pub struct TileMap {
   tile_size : Int
   map_width : Int
@@ -40,6 +43,16 @@ pub fn TileMap::from_json(json : Json) -> TileMap {
 }
 
 ///|
+/// Retrieves all tiles from a specified layer in the tile map.
+///
+/// Parameters:
+///
+/// * `self` : The tile map to search within.
+/// * `layer_name` : The name of the layer from which to retrieve tiles.
+///
+/// Returns an array of tiles from the specified layer, or an empty array if the
+/// layer is not found.
+///
 pub fn TileMap::get_tiles(self : TileMap, layer_name : String) -> Array[Tile] {
   self.layers
   .filter(fn(layer) { layer.name == layer_name })
@@ -48,7 +61,25 @@ pub fn TileMap::get_tiles(self : TileMap, layer_name : String) -> Array[Tile] {
 }
 
 ///|
-pub fn TileMap::get_tiles_leftcorner(
+/// Retrieves all tiles with the same ID as the first tile from a specified
+/// layer in the tile map.
+///
+/// Parameters:
+///
+/// * `self` : The tile map to search within.
+/// * `layer_name` : The name of the layer from which to retrieve tiles.
+///
+/// Returns an array of tiles that share the same ID as the first tile in the
+/// specified layer, or an empty array if the layer is not found or contains no
+/// tiles.
+///
+/// Panics if the specified layer exists but contains no tiles, as it attempts
+/// to access the first element of an empty array.
+/// 
+/// Note: Make sure the left-top corner tile is identical to the other tiles.
+/// Sprite Fusion will generate the same IDs for the same tiles in the same layer.
+///
+pub fn TileMap::get_tiles_first(
   self : TileMap,
   layer_name : String,
 ) -> Array[Tile] {

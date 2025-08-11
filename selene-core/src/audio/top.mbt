@@ -13,6 +13,26 @@
 // limitations under the License.
 
 ///|
+/// Plays an audio file through the specified backend with configurable volume
+/// and looping options.
+///
+/// Parameters:
+///
+/// * `backend` : The audio backend used to play the audio file.
+/// * `audio_path` : The file path or identifier of the audio file to play.
+/// * `volume` : The playback volume level, defaults to 1.0 (full volume).
+/// * `loop_` : Whether the audio should loop continuously, defaults to false.
+///
+/// Example:
+///
+/// ```notest
+/// // Play audio once at full volume
+/// @audio.play_audio(backend, "sound.wav")
+///
+/// // Play audio at half volume with looping
+/// @audio.play_audio(backend, "music.mp3", volume=0.5, loop_=true)
+/// ```
+///
 pub fn play_audio(
   backend : &@system.Backend,
   audio_path : String,

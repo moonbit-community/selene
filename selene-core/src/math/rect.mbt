@@ -13,12 +13,14 @@
 // limitations under the License.
 
 ///|
+/// The `Rect` struct represents a rectangle defined by its position and size.
 pub(all) struct Rect {
   position : Vec2D
   size : Vec2D
 }
 
-///| Check if two rectangles intersect
+///| 
+/// Check if two rectangles intersect
 pub fn Rect::intersects(a : Rect, b : Rect) -> Bool {
   a.position[X] < b.position[X] + b.size[X] &&
   a.position[X] + a.size[X] > b.position[X] &&
@@ -27,6 +29,7 @@ pub fn Rect::intersects(a : Rect, b : Rect) -> Bool {
 }
 
 ///|
+/// Shift the rectangle by a given vector.
 pub fn Rect::shift(self : Rect, dir : Vec2D) -> Rect {
   { position: self.position + dir, size: self.size }
 }

@@ -18,7 +18,7 @@ let collides : Map[@system.Entity, Collide]
 
 fn get_collision_infos(@system.Entity) -> Array[CollisionInfo]
 
-fn is_on_the_floor(@system.Entity) -> Bool
+fn is_on_floor(@system.Entity) -> Bool
 
 fn move_system(&@system.Backend) -> Unit
 
@@ -42,7 +42,7 @@ pub(all) struct Area {
   mut last_contains : @set.Set[@system.Entity]
   mut monitoring_mouse : Bool
 }
-fn Area::new(CollisionShape, CollisionLayer, CollisionMask, monitoring_mouse~ : Bool = ..) -> Self
+fn Area::new(CollisionShape, CollisionLayer, CollisionMask, monitoring_mouse? : Bool) -> Self
 fn Area::on_enter(Self, (@system.Entity) -> Unit) -> Unit
 fn Area::on_exit(Self, (@system.Entity) -> Unit) -> Unit
 fn Area::on_just_pressed(Self, (@system.MouseButton) -> Unit) -> Unit
@@ -61,12 +61,12 @@ pub struct CollisionInfo {
   direction : @math.Vec2D
 }
 
-pub type CollisionLayer UInt
+pub struct CollisionLayer(UInt)
 fn CollisionLayer::inner(Self) -> UInt
 fn CollisionLayer::new() -> Self
 impl Eq for CollisionLayer
 
-pub type CollisionMask Array[CollisionLayer]
+pub struct CollisionMask(Array[CollisionLayer])
 fn CollisionMask::empty() -> Self
 fn CollisionMask::inner(Self) -> Array[CollisionLayer]
 fn CollisionMask::new(Array[CollisionLayer]) -> Self

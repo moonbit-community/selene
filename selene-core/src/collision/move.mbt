@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///| Move all entities with velocity, and handle collisions.
+///|
+/// Move all entities with velocity, modify positions and handle collisions.
 /// Note: 1. This system should be run after any acceleration system.
 ///       2. This system will query a quadtree to find collisions.
 ///       3. This system will update velocities of entities when they collide.
+/// 
 pub fn move_system(_backend : &@system.Backend) -> Unit {
   for e in @system.all_entities {
     guard collides.get(e) is Some(collide) else { continue }
@@ -38,7 +40,7 @@ pub fn move_system(_backend : &@system.Backend) -> Unit {
   }
 }
 
-///|
+///| 
 fn move_without_collide(e : @system.Entity, velocity : @math.Vec2D) -> Unit {
   guard @position.positions.get(e) is Some(pos)
   let new_pos = @math.Vec2D(

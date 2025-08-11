@@ -26,19 +26,16 @@ pub(all) struct Transform {
   skew : Vec2D
 }
 fn Transform::flip_x(Double) -> Self
-fn Transform::new(scale~ : Vec2D = .., translate~ : Vec2D = .., skew~ : Vec2D = ..) -> Self
+fn Transform::new(scale? : Vec2D, translate? : Vec2D, skew? : Vec2D) -> Self
 
-pub(all) struct Vec2D {
-  mut x : Double
-  mut y : Double
-}
+pub(all) struct Vec2D(Double, Double)
+
 fn Vec2D::distance(Self) -> Double
 fn Vec2D::distance_to(Self, Self) -> Double
 fn Vec2D::dot(Self, Self) -> Double
-fn Vec2D(Double, Double) -> Self
 fn Vec2D::normalize(Self) -> Self
 fn Vec2D::op_get(Self, Axis) -> Double
-fn Vec2D::op_set(Self, Axis, Double) -> Unit
+fn Vec2D::update(Self, Axis, Double) -> Self
 fn Vec2D::zero() -> Self
 impl Add for Vec2D
 impl Eq for Vec2D

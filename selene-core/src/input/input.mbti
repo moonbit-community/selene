@@ -6,8 +6,10 @@ import(
 )
 
 // Values
+#deprecated
 let controls : Map[@system.Entity, KeyInput]
 
+#deprecated
 fn simple_input_system(&@system.Backend) -> Unit
 
 // Errors

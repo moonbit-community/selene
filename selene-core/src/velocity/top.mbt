@@ -15,5 +15,16 @@
 ///|
 pub(all) struct Velocity(@math.Vec2D) derive(Eq, Show)
 
-///|
+///| 
+/// Get the velocity of an entity.
+/// ```notest
+/// @velocity.velocities.get(entity)
+/// ```
+/// Returns `None` if the entity does not have a velocity.
+///
+/// Set the velocity of an entity.
+/// ```notest
+/// @velocity.velocities.set(entity, Velocity(@math.Vec2D(100.0, 100.0)))
+/// ```
+/// 
 pub let velocities : Map[@system.Entity, Velocity] = Map::new()

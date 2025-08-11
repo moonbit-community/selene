@@ -15,5 +15,16 @@
 ///|
 pub(all) struct Position(@math.Vec2D) derive(Eq, Show)
 
-///|
+///| 
+/// Get the position of an entity.
+/// ```notest
+/// @position.positions.get(entity)
+/// ```
+/// Returns `None` if the entity does not have a position.
+/// 
+/// Set the position of an entity.
+/// ```notest
+/// @position.positions.set(entity, Position(@math.Vec2D(100.0, 100.0)))
+/// ```
+/// 
 pub let positions : Map[@system.Entity, Position] = Map::new()

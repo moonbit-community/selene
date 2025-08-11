@@ -13,6 +13,11 @@
 // limitations under the License.
 
 ///|
+/// Default plugin for the Selene engine.
+/// Usage:
+/// ```notest
+/// app.add_plugin(@plugins.default_plugin)
+/// ```
 pub fn default_plugin(app : @system.App) -> Unit {
   app.systems
   ..push((@collision.move_system, 50))

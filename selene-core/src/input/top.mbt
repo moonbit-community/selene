@@ -13,12 +13,15 @@
 // limitations under the License.
 
 ///|
+#deprecated("Will be removed in 0.11")
 pub(all) struct KeyInput {}
 
 ///|
+#deprecated("Will be removed in 0.11")
 pub let controls : Map[@system.Entity, KeyInput] = Map::new()
 
 ///|
+#deprecated("Will be removed in 0.11")
 pub fn simple_input_system(_backend : &@system.Backend) -> Unit {
   for e in @system.all_entities {
     guard controls.get(e) is Some(_) else { continue }
