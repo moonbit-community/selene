@@ -40,6 +40,11 @@
 /// ```notest
 /// camera.offset = @math.Vec2D(PLAYER_SIZE[X] * 0.5, PLAYER_SIZE[Y] * 0.5)
 /// ```
+/// Control which axes the camera follows:
+/// ```notest
+/// camera.follow_x = false  // Disable horizontal following (for vertical-scrolling games)
+/// camera.follow_y = false  // Disable vertical following (for horizontal-scrolling games)
+/// ```
 pub(all) struct Camera {
   mut position : @math.Vec2D
   mut limit_top : Double?
@@ -48,6 +53,8 @@ pub(all) struct Camera {
   mut limit_right : Double?
   mut attached_entity : @system.Entity?
   mut offset : @math.Vec2D
+  mut follow_x : Bool
+  mut follow_y : Bool
 }
 
 ///|
@@ -59,6 +66,8 @@ pub let camera : Camera = {
   limit_right: None,
   attached_entity: None,
   offset: @math.Vec2D::zero(),
+  follow_x: true,
+  follow_y: true,
 }
 
 ///|
@@ -66,9 +75,22 @@ pub fn camera_system(backend : &@system.Backend) -> Unit {
   guard camera.attached_entity is Some(e) else { return }
   guard @position.positions.get(e) is Some(pos) else { return }
   let viewport_size = backend.get_canvas_size()
-  camera.position = pos.inner() -
+  let target_position = pos.inner() -
     viewport_size * @math.Vec2D(0.5, 0.5) +
     camera.offset
+  
+  // Apply axis constraints for following
+  let new_x = if camera.follow_x {
+    target_position[X]
+  } else {
+    camera.position[X]
+  }
+  let new_y = if camera.follow_y {
+    target_position[Y]
+  } else {
+    camera.position[Y]
+  }
+  camera.position = @math.Vec2D(new_x, new_y)
   if camera.limit_top is Some(top) && camera.position[Y] < top {
     camera.position = @math.Vec2D(camera.position[X], top)
   }
