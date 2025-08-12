@@ -24,6 +24,8 @@ pub(all) struct Camera {
   mut limit_right : Double?
   mut attached_entity : @system.Entity?
   mut offset : @math.Vec2D
+  mut follow_x : Bool
+  mut follow_y : Bool
 }
 
 pub(all) struct Ui {
