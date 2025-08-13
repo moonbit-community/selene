@@ -140,5 +140,6 @@ pub(open) trait Backend {
   draw_text(Self, String, x~ : Double, y~ : Double, font~ : String, color~ : String) -> Unit
   play_audio(Self, String, volume~ : Double, loop_~ : Bool) -> Unit
   get_canvas_size(Self) -> @math.Vec2D
+  get_fps(Self) -> Double
 }
 

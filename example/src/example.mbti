@@ -1,11 +1,13 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "username/selene/example"
+package "nonpublish/example"
 
 // Values
 
 // Errors
 
 // Types and methods
+type Direction2
+
 type GameResult
 
 type GameState
