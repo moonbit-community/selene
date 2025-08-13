@@ -6,7 +6,13 @@ import(
 )
 
 // Values
+fn debug_initializer(&@system.Backend) -> Unit
+
+fn debug_plugin(@system.App) -> Unit
+
 fn default_plugin(@system.App) -> Unit
+
+fn fps_display_system(&@system.Backend) -> Unit
 
 // Errors
 

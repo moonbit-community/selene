@@ -7,6 +7,8 @@ import(
 )
 
 // Values
+const UI_ZINDEX : Int = 100
+
 let camera : Camera
 
 fn camera_system(&@system.Backend) -> Unit

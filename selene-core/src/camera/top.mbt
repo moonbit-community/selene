@@ -78,7 +78,7 @@ pub fn camera_system(backend : &@system.Backend) -> Unit {
   let target_position = pos.inner() -
     viewport_size * @math.Vec2D(0.5, 0.5) +
     camera.offset
-  
+
   // Apply axis constraints for following
   let new_x = if camera.follow_x {
     target_position[X]
@@ -118,4 +118,5 @@ pub fn Ui::new() -> Ui {
 ///|
 pub let uis : Map[@system.Entity, Ui] = Map::new()
 
+///|
 pub const UI_ZINDEX = 100
