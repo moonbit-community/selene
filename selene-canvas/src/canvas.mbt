@@ -65,9 +65,8 @@ pub impl @system.Backend for CanvasBackend with build(
   self.viewport_size = @math.Vec2D(canvas_width, canvas_height)
   set_viewport_height(self.canvas, canvas_height)
   set_viewport_width(self.canvas, canvas_width)
-  schedule_with_fixed_interval(1000 / fps.to_double(), () => {
-    let current_time = performance_now()
-    self.update_fps(current_time)
+  schedule_with_fixed_interval(1000 / fps.to_double(), fn(time) {
+    self.update_fps(time)
     self.context.clear_rect(0, 0, canvas_width, canvas_height)
     game_loop()
   })
@@ -110,12 +109,9 @@ fn CanvasBackend::update_fps(self : CanvasBackend, current_time : Double) -> Uni
 let window : @dom.Window = @dom.window()
 
 ///|
-pub extern "js" fn performance_now() -> Double = "() => performance.now()"
-
-///|
 fn schedule_with_fixed_interval(
   interval : Double,
-  callback : () -> Unit,
+  callback : (Double) -> Unit,
 ) -> () -> Unit {
   let lastTime = { val: 0.0 }
   let lastId = { val: 0.0 }
@@ -126,7 +122,7 @@ fn schedule_with_fixed_interval(
     }
     let elapsed = time - lastTime.val
     if elapsed >= interval {
-      callback()
+      callback(time)
       lastTime.val = time
     }
     lastId.val = window.request_animation_frame(update)
