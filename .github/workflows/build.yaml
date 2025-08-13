@@ -32,7 +32,7 @@ jobs:
       - name: selene-canvas
         run: |
           cd selene-canvas
-          sed -E -i 's#("Milky2018/selene": ")[^"]+"#\1{ "path": "../selene-core" }#' moon.mod.json
+          sed -E -i '' 's#("Milky2018/selene": )"[^"]+"#\1{ "path": "../selene-core" }#' moon.mod.json
           moon update
           moon check
           moon build
