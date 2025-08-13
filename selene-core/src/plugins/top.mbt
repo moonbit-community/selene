@@ -12,36 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-priv struct FpsState {
-  mut entity : @system.Entity?
-}
-
-let fps_state : FpsState = { entity: None }
+let fps_box : @sprite.Text = @sprite.Text::new("FPS: 0", color="#ffffff", font="16px monospace")
 
 ///|
 fn debug_initializer(_backend : &@system.Backend) -> Unit {
   // Create FPS text entity
   let entity = @system.Entity::new()
   @position.positions.set(entity, @position.Position(@math.Vec2D(10.0, 25.0)))
-  let text = @sprite.Text::new("FPS: 0", color="#ffffff", font="16px monospace")
-  let sprite = @sprite.Sprite::new_text(text, 1000)
+  let sprite = @sprite.Sprite::new_text(fps_box, 1000)
   @sprite.sprites.set(entity, sprite)
   
   // Add to UI entities so it's not affected by camera movement
   @camera.uis.set(entity, @camera.Ui::new())
-  
-  fps_state.entity = Some(entity)
 }
 
 ///|
 fn fps_display_system(backend : &@system.Backend) -> Unit {
-  guard fps_state.entity is Some(entity) else { return }
-  guard @sprite.sprites.get(entity) is Some(sprite) else { return }
-  guard sprite.sprite_type is @sprite.SpriteType::Text(text) else { return }
-  
   let fps = backend.get_fps()
   let fps_text = "FPS: " + fps.to_string()
-  text.content = fps_text
+  fps_box.content = fps_text
 }
 
 ///|
