@@ -13,6 +13,14 @@
 // limitations under the License.
 
 ///|
+pub(all) enum RepeatMode {
+  RepeatX
+  RepeatY
+  NoRepeat
+  Repeat
+}
+
+///|
 typealias (&Backend) -> Unit as System
 
 ///|
@@ -21,12 +29,11 @@ typealias (&Backend) -> Unit as Initializer
 ///|
 typealias (App) -> Unit as Plugin
 
-///|
+///| Things need to be done in `build`:
+/// - Initialize the backend.
+/// - Set the viewport size.
+/// - Return the scheduled game loop with a fixed interval (fps).
 pub(open) trait Backend {
-  ///| Things need to be done in `build`:
-  /// - Initialize the backend.
-  /// - Set the viewport size.
-  /// - Return the scheduled game loop with a fixed interval (fps).
   build(
     Self,
     initialize : () -> Unit,
@@ -43,7 +50,7 @@ pub(open) trait Backend {
     width~ : Double,
     height~ : Double,
     transform~ : @math.Transform,
-    repeat~ : Bool,
+    repeat~ : RepeatMode,
   ) -> Unit
   draw_sprite(
     Self,

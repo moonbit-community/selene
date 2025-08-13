@@ -17,7 +17,7 @@ pub(all) struct Picture {
   size : @math.Vec2D
   tile_path : String
   transform : @math.Transform
-  repeat : Bool
+  repeat : @system.RepeatMode
 }
 
 ///|
@@ -25,7 +25,7 @@ pub fn Picture::new(
   size : @math.Vec2D,
   tile_path : String,
   transform~ : @math.Transform = @math.Transform::new(),
-  repeat~ : Bool = false,
+  repeat~ : @system.RepeatMode = NoRepeat,
 ) -> Picture {
   { size, tile_path, transform, repeat }
 }

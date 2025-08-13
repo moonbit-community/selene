@@ -38,7 +38,12 @@ pub impl @system.Backend for CanvasBackend with draw_picture(
   repeat~,
 ) {
   let element = get_image_element(png)
-  let repeat_mode = if repeat { "repeat" } else { "no-repeat" }
+  let repeat_mode = match repeat {
+    NoRepeat => "no-repeat"
+    RepeatY => "repeat-y"
+    RepeatX => "repeat-x"
+    Repeat => "repeat"
+  }
   let pattern = self.context.create_pattern(
     @js.Union7::from0(element),
     repeat_mode,
