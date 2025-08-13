@@ -114,21 +114,22 @@ fn schedule_with_fixed_interval(
   callback : (Double) -> Unit,
 ) -> () -> Unit {
   let lastTime = { val: 0.0 }
+  let accumulator = { val: 0.0 }
   let lastId = { val: 0.0 }
   
   fn update(time : Double) -> Unit {
     if lastTime.val == 0.0 {
       lastTime.val = time
     }
-    let elapsed = time - lastTime.val
     
-    // For 60 FPS (16.67ms interval), use requestAnimationFrame directly
-    if interval <= 16.67 {
+    let delta = time - lastTime.val
+    lastTime.val = time
+    accumulator.val = accumulator.val + delta
+    
+    // Run callback for each complete interval
+    while accumulator.val >= interval {
       callback(time)
-      lastTime.val = time
-    } else if elapsed >= interval {
-      callback(time)
-      lastTime.val = time
+      accumulator.val = accumulator.val - interval
     }
     
     lastId.val = window.request_animation_frame(update)
