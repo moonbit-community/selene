@@ -25,7 +25,7 @@ fn main {
   .with_canvas_height(VIEWPORT_HEIGHT)
   .with_fps(60)
   .add_plugin(@plugins.default_plugin)
-  .add_plugin(@plugins.debug_plugin)
+  // .add_plugin(@plugins.debug_plugin)
   .add_system(game_start, schedule=Startup)
   .add_system(player_state_system)
   .run()

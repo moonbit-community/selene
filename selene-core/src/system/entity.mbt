@@ -19,6 +19,11 @@ struct Entity(UInt) derive(Eq, Show, Hash)
 pub let all_entities : @set.Set[Entity] = @set.Set::new()
 
 ///|
+pub fn Entity::is_alive(e : Entity) -> Bool {
+  all_entities.contains(e)
+}
+
+///|
 let entity_generator : Ref[UInt] = { val: 0 }
 
 ///|
