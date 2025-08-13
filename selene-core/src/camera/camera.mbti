@@ -7,13 +7,9 @@ import(
 )
 
 // Values
-const UI_ZINDEX : Int = 100
-
 let camera : Camera
 
 fn camera_system(&@system.Backend) -> Unit
-
-let uis : Map[@system.Entity, Ui]
 
 // Errors
 
@@ -29,10 +25,6 @@ pub(all) struct Camera {
   mut follow_x : Bool
   mut follow_y : Bool
 }
-
-pub(all) struct Ui {
-}
-fn Ui::new() -> Self
 
 // Type aliases
 

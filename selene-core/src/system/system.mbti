@@ -48,14 +48,12 @@ pub(all) struct App {
   canvas_height : Double
   canvas_width : Double
   fps : UInt
-  initializers : Array[((&Backend) -> Unit, Int)]
-  systems : Array[((&Backend) -> Unit, Int)]
+  systems : Array[((&Backend) -> Unit, Schedule, String)]
   plugins : Array[(App) -> Unit]
   backend : &Backend
 }
-fn App::add_initializer(Self, (&Backend) -> Unit, priority? : Int) -> Self
 fn App::add_plugin(Self, (Self) -> Unit) -> Self
-fn App::add_system(Self, (&Backend) -> Unit, priority? : Int) -> Self
+fn App::add_system(Self, (&Backend) -> Unit, schedule? : Schedule, system_name? : String?) -> Self
 fn App::new(&Backend) -> Self
 fn App::run(Self) -> Unit
 fn App::with_backend(Self, &Backend) -> Self
@@ -103,6 +101,12 @@ impl Eq for Code
 impl Hash for Code
 impl Show for Code
 
+pub(all) struct DebugInfo {
+  system_execution_time : Map[String, Double]
+  fps : Double
+}
+impl Show for DebugInfo
+
 type Entity
 fn Entity::destroy(Self) -> Unit
 fn Entity::new() -> Self
@@ -126,13 +130,28 @@ pub(all) enum MouseButton {
 impl Eq for MouseButton
 impl Show for MouseButton
 
+pub(all) enum RepeatMode {
+  RepeatX
+  RepeatY
+  NoRepeat
+  Repeat
+}
+
+pub(all) enum Schedule {
+  Startup
+  Update
+  Render
+  UpdateFrame(UInt)
+  UpdateTime(Double)
+}
+
 // Type aliases
 pub typealias () -> Unit as Event
 
 // Traits
 pub(open) trait Backend {
-  build(Self, () -> Unit, () -> Unit, Double, Double, UInt) -> () -> Unit
-  draw_picture(Self, String, x~ : Double, y~ : Double, width~ : Double, height~ : Double, transform~ : @math.Transform, repeat~ : Bool) -> Unit
+  build(Self, Array[((&Backend) -> Unit, Schedule, String)], Double, Double, UInt) -> () -> Unit
+  draw_picture(Self, String, x~ : Double, y~ : Double, width~ : Double, height~ : Double, transform~ : @math.Transform, repeat~ : RepeatMode) -> Unit
   draw_sprite(Self, String, x~ : Double, y~ : Double, offset_x~ : Double, offset_y~ : Double, width~ : Double, height~ : Double, transform~ : @math.Transform) -> Unit
   register_key_events(Self, @set.Set[Code]) -> Unit
   register_mouse_events(Self, Mouse) -> Unit
@@ -140,6 +159,6 @@ pub(open) trait Backend {
   draw_text(Self, String, x~ : Double, y~ : Double, font~ : String, color~ : String) -> Unit
   play_audio(Self, String, volume~ : Double, loop_~ : Bool) -> Unit
   get_canvas_size(Self) -> @math.Vec2D
-  get_fps(Self) -> Double
+  get_debug_info(Self) -> DebugInfo
 }
 

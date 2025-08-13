@@ -324,7 +324,7 @@ pub fn area_click_system(_ : &@system.Backend) -> Unit {
     // to ensure the area is checked in the correct position.
     // This is necessary because UI elements are rendered in a different
     // coordinate space than the main game world.
-    let box = if @camera.uis.get(e) is Some(_) {
+    let box = if @ui.uis.get(e) is Some(_) {
       box
     } else {
       box.shift(@camera.camera.position)

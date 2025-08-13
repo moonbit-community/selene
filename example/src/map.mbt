@@ -53,7 +53,7 @@ fn add_background(size : @math.Vec2D) -> Unit {
     @sprite.Picture::new(
       size,
       "pixel_adventure/Background/Gray.png",
-      repeat=true,
+      repeat=Repeat,
     ),
     0,
   )

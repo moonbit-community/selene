@@ -3,6 +3,7 @@
     "Milky2018/selene/system",
     "Milky2018/selene/math",
     "Milky2018/selene/position",
-    "Milky2018/selene/camera"
+    "Milky2018/selene/camera",
+    "Milky2018/selene/ui"
   ]
 }

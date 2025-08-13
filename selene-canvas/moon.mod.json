@@ -1,9 +1,9 @@
 {
   "name": "Milky2018/selene-canvas",
-  "version": "0.10.2",
+  "version": "0.11.4",
   "deps": {
     "Yoorkin/rabbit-tea": "0.10.9",
-    "Milky2018/selene": "0.10.2"
+    "Milky2018/selene": "0.11.4"
   },
   "readme": "README.md",
   "repository": "https://github.com/moonbit-community/selene.git",

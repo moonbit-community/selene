@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///| This should be the same as the WORLD_WIDTH
+// FIXME: This should be the same as the WORLD_WIDTH
+///|
 const GAME_WIDTH = 2048.0
 
 ///|
 const GAME_HEIGHT = 2048.0
+
+// FIXME: quadtree should be able to rebuild
 
 ///|
 pub let quadtree_root : QuadTree = QuadTree::new(

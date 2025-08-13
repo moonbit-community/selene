@@ -13,28 +13,11 @@
 // limitations under the License.
 
 ///|
-const VIEWPORT_WIDTH : Double = 480.0
-
-///|
-const VIEWPORT_HEIGHT : Double = 320.0
-
-///|
-fn main {
-  @system.App::new(@canvas.CanvasBackend::new())
-  .with_canvas_width(VIEWPORT_WIDTH)
-  .with_canvas_height(VIEWPORT_HEIGHT)
-  .with_fps(60)
-  .add_plugin(@plugins.default_plugin)
-  // .add_plugin(@plugins.debug_plugin)
-  .add_system(game_start, schedule=Startup)
-  .add_system(player_state_system)
-  .run()
-}
-
-///|
-fn game_start(backend : &@system.Backend) -> Unit {
-  generate_map(backend)
-  add_result_box()
-  add_score_box()
-  add_volume_button()
+pub fn debug_info_display_system(backend : &@system.Backend) -> Unit {
+  let debug_info = backend.get_debug_info()
+  println("FPS: \{debug_info.fps}")
+  println("System Execution Time (ms):")
+  for system_name, time in debug_info.system_execution_time {
+    println("  \{system_name}: \{time}")
+  }
 }

@@ -13,32 +13,6 @@
 // limitations under the License.
 
 ///|
-let fps_box : @sprite.Text = @sprite.Text::new(
-  "FPS: 0",
-  color="green",
-  font="16px monospace",
-)
-
-///|
-pub fn debug_initializer(_backend : &@system.Backend) -> Unit {
-  // Create FPS text entity
-  let entity = @system.Entity::new()
-  @position.positions.set(entity, @position.Position(@math.Vec2D(10.0, 25.0)))
-  let sprite = @sprite.Sprite::new_text(fps_box, @camera.UI_ZINDEX)
-  @sprite.sprites.set(entity, sprite)
-
-  // Add to UI entities so it's not affected by camera movement
-  @camera.uis.set(entity, @camera.Ui::new())
-}
-
-///|
-pub fn fps_display_system(backend : &@system.Backend) -> Unit {
-  let fps = backend.get_fps()
-  let fps_text = "FPS: " + fps.to_string()
-  fps_box.content = fps_text
-}
-
-///|
 /// Debug plugin for development. Provides FPS display.
 /// Usage:
 /// ```notest
@@ -46,8 +20,13 @@ pub fn fps_display_system(backend : &@system.Backend) -> Unit {
 /// ```
 /// Shows FPS counter in top-left corner.
 pub fn debug_plugin(app : @system.App) -> Unit {
-  app.initializers.push((debug_initializer, 0))
-  app.systems.push((fps_display_system, 0))
+  app.systems.push(
+    (
+      @debug.debug_info_display_system,
+      UpdateTime(1.0),
+      "Debug Info Display System",
+    ),
+  )
 }
 
 ///|
@@ -58,12 +37,12 @@ pub fn debug_plugin(app : @system.App) -> Unit {
 /// ```
 pub fn default_plugin(app : @system.App) -> Unit {
   app.systems
-  ..push((@collision.move_system, 50))
-  ..push((@system.advanced_key_system, 100))
-  ..push((@system.advanced_mouse_system, 105))
-  ..push((@collision.area_click_system, 45))
-  ..push((@collision.area_collide_system, 40))
-  ..push((@system.deferred_event_system, -100))
-  ..push((@sprite.render_sprite_system, 0))
-  ..push((@camera.camera_system, 30))
+  ..push((@collision.move_system, Update, "Move System"))
+  ..push((@system.advanced_key_system, Update, "Advanced Key System"))
+  ..push((@system.advanced_mouse_system, Update, "Advanced Mouse System"))
+  ..push((@collision.area_click_system, Update, "Area Click System"))
+  ..push((@collision.area_collide_system, Update, "Area Collide System"))
+  ..push((@system.deferred_event_system, Update, "Deferred Event System"))
+  ..push((@sprite.render_sprite_system, Render, "Render Sprite System"))
+  ..push((@camera.camera_system, Update, "Camera System"))
 }

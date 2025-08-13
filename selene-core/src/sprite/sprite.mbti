@@ -33,9 +33,9 @@ pub(all) struct Picture {
   size : @math.Vec2D
   tile_path : String
   transform : @math.Transform
-  repeat : Bool
+  repeat : @system.RepeatMode
 }
-fn Picture::new(@math.Vec2D, String, transform? : @math.Transform, repeat? : Bool) -> Self
+fn Picture::new(@math.Vec2D, String, transform? : @math.Transform, repeat? : @system.RepeatMode) -> Self
 
 pub(all) struct Sprite {
   sprite_type : SpriteType

@@ -1,0 +1,43 @@
+on:
+  schedule:
+    - cron: '0 10 * * 2'
+  pull_request:
+  push:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: selene-core
+        run: |
+          cd selene-core
+          moon check
+          moon build
+      
+      - name: selene-canvas
+        run: |
+          cd selene-canvas
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            sed -E -i '' 's#("Milky2018/selene": )"[^"]+"#\1{ "path": "../selene-core" }#' moon.mod.json
+          elif [[ "$RUNNER_OS" == "Linux" ]]; then
+            sed -E -i 's#("Milky2018/selene": )"[^"]+"#\1{ "path": "../selene-core" }#' moon.mod.json
+          fi
+          moon update
+          moon check
+          moon build
+
+      - name: example
+        run: |
+          cd example
+          moon check 
+          moon build

@@ -13,24 +13,33 @@
 // limitations under the License.
 
 ///|
-typealias (&Backend) -> Unit as System
+pub(all) enum RepeatMode {
+  RepeatX
+  RepeatY
+  NoRepeat
+  Repeat
+}
 
 ///|
-typealias (&Backend) -> Unit as Initializer
+typealias (&Backend) -> Unit as System
 
 ///|
 typealias (App) -> Unit as Plugin
 
 ///|
+pub(all) struct DebugInfo {
+  system_execution_time : Map[String, Double]
+  fps : Double
+}
+
+///| Things need to be done in `build`:
+/// - Initialize the backend.
+/// - Set the viewport size.
+/// - Return the scheduled game loop with a fixed interval (fps).
 pub(open) trait Backend {
-  ///| Things need to be done in `build`:
-  /// - Initialize the backend.
-  /// - Set the viewport size.
-  /// - Return the scheduled game loop with a fixed interval (fps).
   build(
     Self,
-    initialize : () -> Unit,
-    game_loop : () -> Unit,
+    systems : Array[(System, Schedule, String)],
     canvas_width : Double,
     canvas_height : Double,
     fps : UInt,
@@ -43,7 +52,7 @@ pub(open) trait Backend {
     width~ : Double,
     height~ : Double,
     transform~ : @math.Transform,
-    repeat~ : Bool,
+    repeat~ : RepeatMode,
   ) -> Unit
   draw_sprite(
     Self,
@@ -76,5 +85,5 @@ pub(open) trait Backend {
   ) -> Unit
   play_audio(Self, audio_path : String, volume~ : Double, loop_~ : Bool) -> Unit
   get_canvas_size(Self) -> @math.Vec2D
-  get_fps(Self) -> Double
+  get_debug_info(Self) -> DebugInfo
 }

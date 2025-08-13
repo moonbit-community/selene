@@ -19,8 +19,8 @@ fn add_result_box() -> Unit {
     box,
     @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 48, VIEWPORT_HEIGHT / 2.0 - 32),
   )
-  let text = @sprite.Sprite::new_text(game_state.result_box, @camera.UI_ZINDEX)
-  @camera.uis.set(box, @camera.Ui::new())
+  let text = @sprite.Sprite::new_text(game_state.result_box, @ui.UI_ZINDEX)
+  @ui.uis.set(box, @ui.Ui::new())
   @sprite.sprites.set(box, text)
 }
 
@@ -28,9 +28,9 @@ fn add_result_box() -> Unit {
 fn add_score_box() -> Unit {
   let box = @system.Entity::new()
   @position.positions.set(box, @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 24, 40))
-  let text = @sprite.Sprite::new_text(game_state.score_box, @camera.UI_ZINDEX)
+  let text = @sprite.Sprite::new_text(game_state.score_box, @ui.UI_ZINDEX)
   @sprite.sprites.set(box, text)
-  @camera.uis.set(box, @camera.Ui::new())
+  @ui.uis.set(box, @ui.Ui::new())
 }
 
 ///|
@@ -72,5 +72,5 @@ fn add_volume_button() -> Unit {
     }
   })
   @collision.areas.set(button, area)
-  @camera.uis.set(button, @camera.Ui::new())
+  @ui.uis.set(button, @ui.Ui::new())
 }

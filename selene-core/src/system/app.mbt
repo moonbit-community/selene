@@ -26,8 +26,7 @@ pub(all) struct App {
   canvas_height : Double
   canvas_width : Double
   fps : UInt
-  initializers : Array[(Initializer, Int)]
-  systems : Array[(System, Int)]
+  systems : Array[(System, Schedule, String)]
   plugins : Array[Plugin]
   backend : &Backend
 }
@@ -39,7 +38,6 @@ pub fn App::new(backend : &Backend) -> App {
     canvas_width: DEFAULT_CANVAS_WIDTH,
     fps: DEFAULT_FPS,
     systems: [],
-    initializers: [],
     plugins: [],
     backend,
   }
@@ -73,45 +71,28 @@ pub fn App::add_plugin(self : App, plugin : Plugin) -> App {
 }
 
 ///|
-pub fn App::add_initializer(
+pub fn App::add_system(
   self : App,
-  initializer : Initializer,
-  priority~ : Int = 0,
+  system : System,
+  schedule~ : Schedule = Update,
+  system_name~ : String? = None,
 ) -> App {
-  let initializers = self.initializers
-  initializers.push((initializer, priority))
-  { ..self, initializers, }
-}
-
-///|
-pub fn App::add_system(self : App, system : System, priority~ : Int = 0) -> App {
+  let system_name = match system_name {
+    None => "unnamed_system\{self.systems.length()}"
+    Some(name) => name
+  }
   let systems = self.systems
-  systems.push((system, priority))
+  systems.push((system, schedule, system_name))
   { ..self, systems, }
 }
 
 ///|
 pub fn App::run(self : App) -> Unit {
-  fn initialize() -> Unit {
-    self.initializers.sort_by_key(fn(pair) { -pair.1 })
-    for initializer in self.initializers {
-      (initializer.0)(self.backend)
-    }
-  }
-
-  fn game_loop() -> Unit {
-    self.systems.sort_by_key(fn(pair) { -pair.1 })
-    for system in self.systems {
-      (system.0)(self.backend)
-    }
-  }
-
   for plugin in self.plugins {
     plugin(self)
   }
   let run_game = self.backend.build(
-    initialize,
-    game_loop,
+    self.systems,
     self.canvas_width,
     self.canvas_height,
     self.fps,
