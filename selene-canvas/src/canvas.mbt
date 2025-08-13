@@ -17,6 +17,9 @@ struct CanvasBackend {
   canvas : @dom.HTMLCanvasElement
   context : @dom.CanvasRenderingContext2D
   mut viewport_size : @math.Vec2D
+  frame_times : Array[Double]
+  mut last_frame_time : Double
+  mut current_fps : Double
 }
 
 ///|
@@ -39,7 +42,14 @@ pub fn CanvasBackend::new() -> CanvasBackend {
     .to_html_canvas_element()
     .unwrap()
   let context = canvas.get_context("2d").to0().unwrap()
-  { context, canvas, viewport_size: @math.Vec2D::zero() }
+  { 
+    context, 
+    canvas, 
+    viewport_size: @math.Vec2D::zero(),
+    frame_times: Array::new(),
+    last_frame_time: 0.0,
+    current_fps: 0.0
+  }
 }
 
 ///|
@@ -56,6 +66,8 @@ pub impl @system.Backend for CanvasBackend with build(
   set_viewport_height(self.canvas, canvas_height)
   set_viewport_width(self.canvas, canvas_width)
   schedule_with_fixed_interval(1000 / fps.to_double(), () => {
+    let current_time = performance_now()
+    self.update_fps(current_time)
     self.context.clear_rect(0, 0, canvas_width, canvas_height)
     game_loop()
   })
@@ -69,32 +81,48 @@ pub impl @system.Backend for CanvasBackend with get_canvas_size(self) {
 }
 
 ///|
+pub impl @system.Backend for CanvasBackend with get_fps(self) {
+  self.current_fps
+}
+
+///|
+fn CanvasBackend::update_fps(self : CanvasBackend, current_time : Double) -> Unit {
+  if self.last_frame_time > 0.0 {
+    let frame_delta = current_time - self.last_frame_time
+    self.frame_times.push(frame_delta)
+    
+    // Keep only the last 60 frame times for averaging
+    while self.frame_times.length() > 60 {
+      self.frame_times.drain(0, 1) |> ignore
+    }
+    
+    // Calculate average FPS
+    if self.frame_times.length() > 0 {
+      let total_time = self.frame_times.fold(init=0.0, fn(acc, time) { acc + time })
+      let average_frame_time = total_time / self.frame_times.length().to_double()
+      self.current_fps = 1000.0 / average_frame_time
+    }
+  }
+  self.last_frame_time = current_time
+}
+
+///|
 let window : @dom.Window = @dom.window()
 
 ///|
+pub extern "js" fn performance_now() -> Double = "() => performance.now()"
+
+///|
+pub extern "js" fn set_interval(callback : () -> Unit, delay : Double) -> Double = 
+  "(callback, delay) => setInterval(callback, delay)"
+
+pub extern "js" fn clear_interval(id : Double) -> Unit = 
+  "(id) => clearInterval(id)"
+
 fn schedule_with_fixed_interval(
   interval : Double,
   callback : () -> Unit,
 ) -> () -> Unit {
-  let lastTime = { val: 0.0 }
-  let lastId = { val: 0.0 }
-  fn update(time : Double) -> Unit {
-    if lastTime.val == 0.0 {
-      lastTime.val = time
-    }
-    let elapsed = time - lastTime.val
-    if elapsed >= interval {
-      callback()
-      lastTime.val = time
-      lastId.val = window.request_animation_frame(update)
-    } else {
-      lastId.val = window.request_animation_frame(update)
-    }
-  }
-
-  lastId.val = window.request_animation_frame(update)
-  () => if lastId.val != 0.0 {
-    // Cancel the scheduled animation frame
-    window.cancel_animation_frame(lastId.val)
-  }
+  let intervalId = set_interval(callback, interval)
+  () => clear_interval(intervalId)
 }

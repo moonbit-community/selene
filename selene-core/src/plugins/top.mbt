@@ -12,6 +12,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+struct FpsState {
+  mut entity : @system.Entity?
+}
+
+let fps_state : FpsState = { entity: None }
+
+///|
+fn debug_initializer(backend : &@system.Backend) -> Unit {
+  // Create FPS text entity
+  let entity = @system.Entity::new()
+  @position.positions.set(entity, @position.Position(@math.Vec2D(10.0, 25.0)))
+  let text = @sprite.Text::new("FPS: 0", color="#ffffff", font="16px monospace")
+  let sprite = @sprite.Sprite::new_text(text, 1000)
+  @sprite.sprites.set(entity, sprite)
+  
+  // Add to UI entities so it's not affected by camera movement
+  @camera.uis.set(entity, @camera.Ui::new())
+  
+  fps_state.entity = Some(entity)
+}
+
+///|
+fn fps_display_system(backend : &@system.Backend) -> Unit {
+  guard fps_state.entity is Some(entity) else { return }
+  guard @sprite.sprites.get(entity) is Some(sprite) else { return }
+  guard sprite.sprite_type is @sprite.SpriteType::Text(text) else { return }
+  
+  let fps = backend.get_fps()
+  let fps_text = "FPS: " + fps.to_string()
+  text.content = fps_text
+}
+
+///|
+/// Debug plugin for development. Provides FPS display.
+/// Usage:
+/// ```notest
+/// app.add_plugin(@plugins.debug_plugin)
+/// ```
+/// Shows FPS counter in top-left corner.
+pub fn debug_plugin(app : @system.App) -> Unit {
+  app.initializers.push((debug_initializer, 0))
+  app.systems.push((fps_display_system, 300))
+}
+
 ///|
 /// Default plugin for the Selene engine.
 /// Usage:

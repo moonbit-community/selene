@@ -3,6 +3,7 @@ package "Milky2018/selene/canvas"
 
 import(
   "Milky2018/selene/system"
+  "Milky2018/selene/math"
   "Yoorkin/rabbit-tea/dom"
   "moonbitlang/core/set"
 )
