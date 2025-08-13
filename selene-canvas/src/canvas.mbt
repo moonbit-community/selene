@@ -121,10 +121,16 @@ fn schedule_with_fixed_interval(
       lastTime.val = time
     }
     let elapsed = time - lastTime.val
-    if elapsed >= interval {
+    
+    // For 60 FPS (16.67ms interval), use requestAnimationFrame directly
+    if interval <= 16.67 {
+      callback(time)
+      lastTime.val = time
+    } else if elapsed >= interval {
       callback(time)
       lastTime.val = time
     }
+    
     lastId.val = window.request_animation_frame(update)
   }
 
