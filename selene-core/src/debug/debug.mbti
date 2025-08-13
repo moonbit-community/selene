@@ -1,14 +1,14 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "Milky2018/selene/plugins"
+package "Milky2018/selene/debug"
 
 import(
   "Milky2018/selene/system"
 )
 
 // Values
-fn debug_plugin(@system.App) -> Unit
+fn debug_initializer(&@system.Backend) -> Unit
 
-fn default_plugin(@system.App) -> Unit
+fn fps_display_system(&@system.Backend) -> Unit
 
 // Errors
 

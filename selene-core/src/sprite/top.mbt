@@ -53,7 +53,7 @@ pub fn render_sprite_system(backend : &@system.Backend) -> Unit {
     let e = sprite.0
     let sprite = sprite.1
     guard @position.positions.get(e) is Some(pos) else { continue }
-    let pos = if @camera.uis.get(e) is None {
+    let pos = if @ui.uis.get(e) is None {
       pos.inner() - @camera.camera.position
     } else {
       pos.inner()

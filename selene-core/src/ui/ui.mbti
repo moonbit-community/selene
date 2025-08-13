@@ -1,18 +1,21 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "Milky2018/selene/plugins"
+package "Milky2018/selene/ui"
 
 import(
   "Milky2018/selene/system"
 )
 
 // Values
-fn debug_plugin(@system.App) -> Unit
+const UI_ZINDEX : Int = 100
 
-fn default_plugin(@system.App) -> Unit
+let uis : Map[@system.Entity, Ui]
 
 // Errors
 
 // Types and methods
+pub(all) struct Ui {
+}
+fn Ui::new() -> Self
 
 // Type aliases
 
