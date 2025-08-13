@@ -24,9 +24,6 @@ pub(all) enum RepeatMode {
 typealias (&Backend) -> Unit as System
 
 ///|
-typealias (&Backend) -> Unit as Initializer
-
-///|
 typealias (App) -> Unit as Plugin
 
 ///| Things need to be done in `build`:
@@ -36,8 +33,7 @@ typealias (App) -> Unit as Plugin
 pub(open) trait Backend {
   build(
     Self,
-    initialize : () -> Unit,
-    game_loop : () -> Unit,
+    systems : Array[(System, Schedule)],
     canvas_width : Double,
     canvas_height : Double,
     fps : UInt,

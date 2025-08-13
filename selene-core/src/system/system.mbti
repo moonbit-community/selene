@@ -48,14 +48,12 @@ pub(all) struct App {
   canvas_height : Double
   canvas_width : Double
   fps : UInt
-  initializers : Array[((&Backend) -> Unit, Int)]
-  systems : Array[((&Backend) -> Unit, Int)]
+  systems : Array[((&Backend) -> Unit, Schedule)]
   plugins : Array[(App) -> Unit]
   backend : &Backend
 }
-fn App::add_initializer(Self, (&Backend) -> Unit, priority? : Int) -> Self
 fn App::add_plugin(Self, (Self) -> Unit) -> Self
-fn App::add_system(Self, (&Backend) -> Unit, priority? : Int) -> Self
+fn App::add_system(Self, (&Backend) -> Unit, schedule? : Schedule) -> Self
 fn App::new(&Backend) -> Self
 fn App::run(Self) -> Unit
 fn App::with_backend(Self, &Backend) -> Self
@@ -133,12 +131,20 @@ pub(all) enum RepeatMode {
   Repeat
 }
 
+pub(all) enum Schedule {
+  Startup
+  Update
+  Render
+  UpdateFrame(UInt)
+  UpdateTime(Double)
+}
+
 // Type aliases
 pub typealias () -> Unit as Event
 
 // Traits
 pub(open) trait Backend {
-  build(Self, () -> Unit, () -> Unit, Double, Double, UInt) -> () -> Unit
+  build(Self, Array[((&Backend) -> Unit, Schedule)], Double, Double, UInt) -> () -> Unit
   draw_picture(Self, String, x~ : Double, y~ : Double, width~ : Double, height~ : Double, transform~ : @math.Transform, repeat~ : RepeatMode) -> Unit
   draw_sprite(Self, String, x~ : Double, y~ : Double, offset_x~ : Double, offset_y~ : Double, width~ : Double, height~ : Double, transform~ : @math.Transform) -> Unit
   register_key_events(Self, @set.Set[Code]) -> Unit

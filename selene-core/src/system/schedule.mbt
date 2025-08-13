@@ -12,29 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///|
-const VIEWPORT_WIDTH : Double = 480.0
-
-///|
-const VIEWPORT_HEIGHT : Double = 320.0
-
-///|
-fn main {
-  @system.App::new(@canvas.CanvasBackend::new())
-  .with_canvas_width(VIEWPORT_WIDTH)
-  .with_canvas_height(VIEWPORT_HEIGHT)
-  .with_fps(60)
-  .add_plugin(@plugins.default_plugin)
-  .add_plugin(@plugins.debug_plugin)
-  .add_system(game_start, schedule=Startup)
-  .add_system(player_state_system)
-  .run()
+pub(all) enum Schedule {
+  Startup
+  Update
+  Render
+  UpdateFrame(UInt) // every x frames
+  UpdateTime(Double) // as interval
 }
 
-///|
-fn game_start(backend : &@system.Backend) -> Unit {
-  generate_map(backend)
-  add_result_box()
-  add_score_box()
-  add_volume_button()
-}

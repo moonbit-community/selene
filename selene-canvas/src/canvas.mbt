@@ -17,22 +17,9 @@ struct CanvasBackend {
   canvas : @dom.HTMLCanvasElement
   context : @dom.CanvasRenderingContext2D
   mut viewport_size : @math.Vec2D
-  frame_times : Array[Double]
-  mut last_frame_time : Double
+  mut frame_counter : UInt64
   mut current_fps : Double
 }
-
-///|
-pub extern "js" fn set_viewport_height(
-  elem : @dom.HTMLCanvasElement,
-  height : Double,
-) -> Unit = "(x, y) => { x.height = y; }"
-
-///|
-pub extern "js" fn set_viewport_width(
-  elem : @dom.HTMLCanvasElement,
-  width : Double,
-) -> Unit = "(x, y) => { x.width = y; }"
 
 ///|
 pub fn CanvasBackend::new() -> CanvasBackend {
@@ -46,29 +33,47 @@ pub fn CanvasBackend::new() -> CanvasBackend {
     context,
     canvas,
     viewport_size: @math.Vec2D::zero(),
-    frame_times: Array::new(),
-    last_frame_time: 0.0,
     current_fps: 0.0,
+    frame_counter: 0,
   }
 }
 
 ///|
 pub impl @system.Backend for CanvasBackend with build(
   self,
-  initialize,
-  game_loop,
+  systems,
   canvas_width,
   canvas_height,
   fps,
 ) {
-  initialize()
+  if fps > 60 {
+    println("Warning: FPS is set above 60. The browser's window only support up to 60 FPS.")
+  }
+  for system in systems {
+    if system.1 is Startup {
+      (system.0)(self)
+    }
+  }
   self.viewport_size = @math.Vec2D(canvas_width, canvas_height)
   set_viewport_height(self.canvas, canvas_height)
   set_viewport_width(self.canvas, canvas_width)
-  schedule_with_fixed_interval(1000 / fps.to_double(), fn(time) {
-    self.update_fps(time)
+  schedule_with_fixed_interval(1000 / fps.to_double(), fn(delta) {
+    self.current_fps = 1000.0 / delta
     self.context.clear_rect(0, 0, canvas_width, canvas_height)
-    game_loop()
+    for system in systems {
+      match system.1 {
+        UpdateFrame(frame_period) if self.frame_counter %
+          frame_period.to_uint64() ==
+          0 => (system.0)(self)
+        Render => (system.0)(self)
+        Update => (system.0)(self)
+        UpdateTime(period) if self.frame_counter %
+          (fps.to_double() * period).to_uint64() ==
+          0 => (system.0)(self)
+        _ => ()
+      }
+    }
+    self.frame_counter += 1
   })
   |> ignore
   return fn() {  }
@@ -82,33 +87,6 @@ pub impl @system.Backend for CanvasBackend with get_canvas_size(self) {
 ///|
 pub impl @system.Backend for CanvasBackend with get_fps(self) {
   self.current_fps
-}
-
-///|
-fn CanvasBackend::update_fps(
-  self : CanvasBackend,
-  current_time : Double,
-) -> Unit {
-  if self.last_frame_time > 0.0 {
-    let frame_delta = current_time - self.last_frame_time
-    self.frame_times.push(frame_delta)
-
-    // Keep only the last 60 frame times for averaging
-    while self.frame_times.length() > 60 {
-      self.frame_times.drain(0, 1) |> ignore
-    }
-
-    // Calculate average FPS
-    if self.frame_times.length() > 0 {
-      let total_time = self.frame_times.fold(init=0.0, fn(acc, time) {
-        acc + time
-      })
-      let average_frame_time = total_time /
-        self.frame_times.length().to_double()
-      self.current_fps = 1000.0 / average_frame_time
-    }
-  }
-  self.last_frame_time = current_time
 }
 
 ///|
@@ -132,7 +110,7 @@ fn schedule_with_fixed_interval(
 
     // Run callback for each complete interval
     while accumulator.val >= interval {
-      callback(time)
+      callback(delta)
       accumulator.val = accumulator.val - interval
     }
     lastId.val = window.request_animation_frame(update)

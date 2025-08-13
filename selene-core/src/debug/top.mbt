@@ -34,6 +34,6 @@ pub fn debug_initializer(_backend : &@system.Backend) -> Unit {
 ///|
 pub fn fps_display_system(backend : &@system.Backend) -> Unit {
   let fps = backend.get_fps()
-  let fps_text = "FPS: " + fps.to_string()
+  let fps_text = "FPS: " + fps.to_uint().to_string()
   fps_box.content = fps_text
 }
