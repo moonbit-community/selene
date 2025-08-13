@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-struct FpsState {
+priv struct FpsState {
   mut entity : @system.Entity?
 }
 
 let fps_state : FpsState = { entity: None }
 
 ///|
-fn debug_initializer(backend : &@system.Backend) -> Unit {
+fn debug_initializer(_backend : &@system.Backend) -> Unit {
   // Create FPS text entity
   let entity = @system.Entity::new()
   @position.positions.set(entity, @position.Position(@math.Vec2D(10.0, 25.0)))
