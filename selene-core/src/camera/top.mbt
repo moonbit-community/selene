@@ -117,3 +117,5 @@ pub fn Ui::new() -> Ui {
 
 ///|
 pub let uis : Map[@system.Entity, Ui] = Map::new()
+
+pub const UI_ZINDEX = 100

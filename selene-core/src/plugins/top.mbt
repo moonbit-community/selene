@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-let fps_box : @sprite.Text = @sprite.Text::new("FPS: 0", color="#ffffff", font="16px monospace")
+let fps_box : @sprite.Text = @sprite.Text::new("FPS: 0", color="green", font="16px monospace")
 
 ///|
 fn debug_initializer(_backend : &@system.Backend) -> Unit {
   // Create FPS text entity
   let entity = @system.Entity::new()
   @position.positions.set(entity, @position.Position(@math.Vec2D(10.0, 25.0)))
-  let sprite = @sprite.Sprite::new_text(fps_box, 1000)
+  let sprite = @sprite.Sprite::new_text(fps_box, @camera.UI_ZINDEX)
   @sprite.sprites.set(entity, sprite)
   
   // Add to UI entities so it's not affected by camera movement
