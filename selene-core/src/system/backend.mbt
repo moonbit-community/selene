@@ -26,6 +26,12 @@ typealias (&Backend) -> Unit as System
 ///|
 typealias (App) -> Unit as Plugin
 
+///|
+pub(all) struct DebugInfo {
+  system_execution_time : Map[String, Double]
+  fps : Double
+}
+
 ///| Things need to be done in `build`:
 /// - Initialize the backend.
 /// - Set the viewport size.
@@ -33,7 +39,7 @@ typealias (App) -> Unit as Plugin
 pub(open) trait Backend {
   build(
     Self,
-    systems : Array[(System, Schedule)],
+    systems : Array[(System, Schedule, String)],
     canvas_width : Double,
     canvas_height : Double,
     fps : UInt,
@@ -79,5 +85,5 @@ pub(open) trait Backend {
   ) -> Unit
   play_audio(Self, audio_path : String, volume~ : Double, loop_~ : Bool) -> Unit
   get_canvas_size(Self) -> @math.Vec2D
-  get_fps(Self) -> Double
+  get_debug_info(Self) -> DebugInfo
 }

@@ -20,8 +20,13 @@
 /// ```
 /// Shows FPS counter in top-left corner.
 pub fn debug_plugin(app : @system.App) -> Unit {
-  app.systems.push((@debug.debug_initializer, Startup))
-  app.systems.push((@debug.fps_display_system, UpdateTime(1.0)))
+  app.systems.push(
+    (
+      @debug.debug_info_display_system,
+      UpdateTime(1.0),
+      "Debug Info Display System",
+    ),
+  )
 }
 
 ///|
@@ -32,12 +37,12 @@ pub fn debug_plugin(app : @system.App) -> Unit {
 /// ```
 pub fn default_plugin(app : @system.App) -> Unit {
   app.systems
-  ..push((@collision.move_system, Update))
-  ..push((@system.advanced_key_system, Update))
-  ..push((@system.advanced_mouse_system, Update))
-  ..push((@collision.area_click_system, Update))
-  ..push((@collision.area_collide_system, Update))
-  ..push((@system.deferred_event_system, Update))
-  ..push((@sprite.render_sprite_system, Render))
-  ..push((@camera.camera_system, Update))
+  ..push((@collision.move_system, Update, "Move System"))
+  ..push((@system.advanced_key_system, Update, "Advanced Key System"))
+  ..push((@system.advanced_mouse_system, Update, "Advanced Mouse System"))
+  ..push((@collision.area_click_system, Update, "Area Click System"))
+  ..push((@collision.area_collide_system, Update, "Area Collide System"))
+  ..push((@system.deferred_event_system, Update, "Deferred Event System"))
+  ..push((@sprite.render_sprite_system, Render, "Render Sprite System"))
+  ..push((@camera.camera_system, Update, "Camera System"))
 }

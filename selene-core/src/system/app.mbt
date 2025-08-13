@@ -26,7 +26,7 @@ pub(all) struct App {
   canvas_height : Double
   canvas_width : Double
   fps : UInt
-  systems : Array[(System, Schedule)]
+  systems : Array[(System, Schedule, String)]
   plugins : Array[Plugin]
   backend : &Backend
 }
@@ -75,9 +75,14 @@ pub fn App::add_system(
   self : App,
   system : System,
   schedule~ : Schedule = Update,
+  system_name~ : String? = None,
 ) -> App {
+  let system_name = match system_name {
+    None => "unnamed_system\{self.systems.length()}"
+    Some(name) => name
+  }
   let systems = self.systems
-  systems.push((system, schedule))
+  systems.push((system, schedule, system_name))
   { ..self, systems, }
 }
 

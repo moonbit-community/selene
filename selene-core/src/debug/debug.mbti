@@ -6,9 +6,7 @@ import(
 )
 
 // Values
-fn debug_initializer(&@system.Backend) -> Unit
-
-fn fps_display_system(&@system.Backend) -> Unit
+fn debug_info_display_system(&@system.Backend) -> Unit
 
 // Errors
 

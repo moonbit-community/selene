@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 ///|
 pub extern "js" fn set_viewport_height(
   elem : @dom.HTMLCanvasElement,
@@ -24,3 +23,6 @@ pub extern "js" fn set_viewport_width(
   elem : @dom.HTMLCanvasElement,
   width : Double,
 ) -> Unit = "(x, y) => { x.width = y; }"
+
+///|
+pub extern "js" fn time_now() -> Double = "() => performance.now()"

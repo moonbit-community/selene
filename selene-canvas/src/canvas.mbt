@@ -19,6 +19,7 @@ struct CanvasBackend {
   mut viewport_size : @math.Vec2D
   mut frame_counter : UInt64
   mut current_fps : Double
+  execution_time : Map[String, Double]
 }
 
 ///|
@@ -35,6 +36,7 @@ pub fn CanvasBackend::new() -> CanvasBackend {
     viewport_size: @math.Vec2D::zero(),
     current_fps: 0.0,
     frame_counter: 0,
+    execution_time: {},
   }
 }
 
@@ -47,7 +49,9 @@ pub impl @system.Backend for CanvasBackend with build(
   fps,
 ) {
   if fps > 60 {
-    println("Warning: FPS is set above 60. The browser's window only support up to 60 FPS.")
+    println(
+      "Warning: FPS is set above 60. The browser's window only support up to 60 FPS.",
+    )
   }
   for system in systems {
     if system.1 is Startup {
@@ -61,15 +65,28 @@ pub impl @system.Backend for CanvasBackend with build(
     self.current_fps = 1000.0 / delta
     self.context.clear_rect(0, 0, canvas_width, canvas_height)
     for system in systems {
+      let start_time = time_now()
       match system.1 {
         UpdateFrame(frame_period) if self.frame_counter %
           frame_period.to_uint64() ==
-          0 => (system.0)(self)
-        Render => (system.0)(self)
-        Update => (system.0)(self)
+          0 => {
+          (system.0)(self)
+          self.execution_time[system.2] = time_now() - start_time
+        }
+        Render => {
+          (system.0)(self)
+          self.execution_time[system.2] = time_now() - start_time
+        }
+        Update => {
+          (system.0)(self)
+          self.execution_time[system.2] = time_now() - start_time
+        }
         UpdateTime(period) if self.frame_counter %
           (fps.to_double() * period).to_uint64() ==
-          0 => (system.0)(self)
+          0 => {
+          (system.0)(self)
+          self.execution_time[system.2] = time_now() - start_time
+        }
         _ => ()
       }
     }
@@ -85,8 +102,8 @@ pub impl @system.Backend for CanvasBackend with get_canvas_size(self) {
 }
 
 ///|
-pub impl @system.Backend for CanvasBackend with get_fps(self) {
-  self.current_fps
+pub impl @system.Backend for CanvasBackend with get_debug_info(self) {
+  { system_execution_time: self.execution_time, fps: self.current_fps }
 }
 
 ///|

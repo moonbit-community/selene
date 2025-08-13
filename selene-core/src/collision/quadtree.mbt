@@ -18,6 +18,8 @@ const GAME_WIDTH = 2048.0
 ///|
 const GAME_HEIGHT = 2048.0
 
+// FIXME: quadtree should be rebuilt each frame
+
 ///|
 pub let quadtree_root : QuadTree = QuadTree::new(
   @math.Vec2D(0, 0),

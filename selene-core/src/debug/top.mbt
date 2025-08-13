@@ -13,27 +13,11 @@
 // limitations under the License.
 
 ///|
-let fps_box : @sprite.Text = @sprite.Text::new(
-  "FPS: 0",
-  color="green",
-  font="16px monospace",
-)
-
-///|
-pub fn debug_initializer(_backend : &@system.Backend) -> Unit {
-  // Create FPS text entity
-  let entity = @system.Entity::new()
-  @position.positions.set(entity, @position.Position(@math.Vec2D(10.0, 25.0)))
-  let sprite = @sprite.Sprite::new_text(fps_box, @ui.UI_ZINDEX)
-  @sprite.sprites.set(entity, sprite)
-
-  // Add to UI entities so it's not affected by camera movement
-  @ui.uis.set(entity, @ui.Ui::new())
-}
-
-///|
-pub fn fps_display_system(backend : &@system.Backend) -> Unit {
-  let fps = backend.get_fps()
-  let fps_text = "FPS: " + fps.to_uint().to_string()
-  fps_box.content = fps_text
+pub fn debug_info_display_system(backend : &@system.Backend) -> Unit {
+  let debug_info = backend.get_debug_info()
+  println("FPS: \{debug_info.fps}")
+  println("System Execution Time (ms):")
+  for system_name, time in debug_info.system_execution_time {
+    println("  \{system_name}: \{time}")
+  }
 }
