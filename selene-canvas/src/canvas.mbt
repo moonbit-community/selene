@@ -113,16 +113,27 @@ let window : @dom.Window = @dom.window()
 pub extern "js" fn performance_now() -> Double = "() => performance.now()"
 
 ///|
-pub extern "js" fn set_interval(callback : () -> Unit, delay : Double) -> Double = 
-  "(callback, delay) => setInterval(callback, delay)"
-
-pub extern "js" fn clear_interval(id : Double) -> Unit = 
-  "(id) => clearInterval(id)"
-
 fn schedule_with_fixed_interval(
   interval : Double,
   callback : () -> Unit,
 ) -> () -> Unit {
-  let intervalId = set_interval(callback, interval)
-  () => clear_interval(intervalId)
+  let lastTime = { val: 0.0 }
+  let lastId = { val: 0.0 }
+  
+  fn update(time : Double) -> Unit {
+    if lastTime.val == 0.0 {
+      lastTime.val = time
+    }
+    let elapsed = time - lastTime.val
+    if elapsed >= interval {
+      callback()
+      lastTime.val = time
+    }
+    lastId.val = window.request_animation_frame(update)
+  }
+
+  lastId.val = window.request_animation_frame(update)
+  () => if lastId.val != 0.0 {
+    window.cancel_animation_frame(lastId.val)
+  }
 }
