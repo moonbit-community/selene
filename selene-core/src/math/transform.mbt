@@ -112,12 +112,12 @@ pub fn Transform::get_translation(self : Transform) -> (Double, Double) {
 
 ///|
 /// Set translation values
-pub fn Transform::set_translation(
+pub fn Transform::translate(
   self : Transform,
   tx : Double,
   ty : Double,
 ) -> Transform {
-  { a: self.a, b: self.b, c: self.c, d: self.d, tx, ty }
+  Transform::from_translation(tx, ty) * self
 }
 
 ///|
@@ -130,22 +130,12 @@ pub fn Transform::get_scale(self : Transform) -> (Double, Double) {
 
 ///|
 /// Set scale values (preserving rotation)
-pub fn Transform::set_scale(
+pub fn Transform::scale(
   self : Transform,
   sx : Double,
   sy : Double,
 ) -> Transform {
-  let current_rotation = self.get_rotation_rad()
-  let cos_r = @math.cos(current_rotation)
-  let sin_r = @math.sin(current_rotation)
-  {
-    a: sx * cos_r,
-    b: sx * sin_r,
-    c: -sy * sin_r,
-    d: sy * cos_r,
-    tx: self.tx,
-    ty: self.ty,
-  }
+  Transform::from_scale(sx, sy) * self
 }
 
 ///|
@@ -156,18 +146,8 @@ pub fn Transform::get_rotation_rad(self : Transform) -> Double {
 
 ///|
 /// Set rotation angle (preserving scale)
-pub fn Transform::set_rotation_rad(self : Transform, rad : Double) -> Transform {
-  let (sx, sy) = self.get_scale()
-  let cos_r = @math.cos(rad)
-  let sin_r = @math.sin(rad)
-  {
-    a: sx * cos_r,
-    b: sx * sin_r,
-    c: -sy * sin_r,
-    d: sy * cos_r,
-    tx: self.tx,
-    ty: self.ty,
-  }
+pub fn Transform::rotate_rad(self : Transform, rad : Double) -> Transform {
+  Transform::from_rotation_rad(rad) * self
 }
 
 ///|
@@ -397,7 +377,7 @@ test "Transform get/set translation works correctly" {
   let (tx, ty) = transform.get_translation()
   assert_true(approx_eq(tx, 0.0))
   assert_true(approx_eq(ty, 0.0))
-  let new_transform = transform.set_translation(10.0, 20.0)
+  let new_transform = transform.translate(10.0, 20.0)
   let (new_tx, new_ty) = new_transform.get_translation()
   assert_true(approx_eq(new_tx, 10.0))
   assert_true(approx_eq(new_ty, 20.0))
@@ -416,15 +396,13 @@ test "Transform get/set scale works correctly" {
   let (sx, sy) = transform.get_scale()
   assert_true(approx_eq(sx, 1.0))
   assert_true(approx_eq(sy, 1.0))
-  let new_transform = transform.set_scale(2.0, 3.0)
+  let new_transform = transform.scale(2.0, 3.0)
   let (new_sx, new_sy) = new_transform.get_scale()
   assert_true(approx_eq(new_sx, 2.0))
   assert_true(approx_eq(new_sy, 3.0))
-
-  // Ensure translation is preserved
   let (tx, ty) = new_transform.get_translation()
-  assert_true(approx_eq(tx, 10.0))
-  assert_true(approx_eq(ty, 20.0))
+  assert_true(approx_eq(tx, 20.0))
+  assert_true(approx_eq(ty, 60.0))
 }
 
 // Test get/set rotation
@@ -434,7 +412,7 @@ test "Transform get/set rotation works correctly" {
   let transform = Transform::from_scale(2.0, 3.0)
   let rotation = transform.get_rotation_rad()
   assert_true(approx_eq(rotation, 0.0))
-  let new_transform = transform.set_rotation_rad(@math.PI / 4.0) // 45 degrees
+  let new_transform = transform.rotate_rad(@math.PI / 4.0) // 45 degrees
   let new_rotation = new_transform.get_rotation_rad()
   assert_true(approx_eq(new_rotation, @math.PI / 4.0))
 
