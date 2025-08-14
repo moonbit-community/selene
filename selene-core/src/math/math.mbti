@@ -45,6 +45,9 @@ fn Transform::new(a? : Double, b? : Double, c? : Double, d? : Double, tx? : Doub
 fn Transform::set_rotation_rad(Self, Double) -> Self
 fn Transform::set_scale(Self, Double, Double) -> Self
 fn Transform::set_translation(Self, Double, Double) -> Self
+impl Add for Transform
+impl Mul for Transform
+impl Sub for Transform
 
 pub(all) struct Vec2D(Double, Double)
 

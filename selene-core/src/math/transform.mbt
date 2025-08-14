@@ -62,7 +62,7 @@ pub fn Transform::from_scale(sx : Double, sy : Double) -> Transform {
 ///|
 /// Create rotation transform (degrees)
 pub fn Transform::from_rotation_deg(deg : Double) -> Transform {
-  Transform::from_rotation_rad(deg * @math.pi / 180.0)
+  Transform::from_rotation_rad(deg * @math.PI / 180.0)
 }
 
 ///|
@@ -181,4 +181,36 @@ pub fn Transform::inverse(self : Transform) -> Transform? {
 /// Flip transform horizontally
 pub fn Transform::flip_x(width : Double) -> Transform {
   Transform::from_scale(-1.0, 1.0).multiply(Transform::from_translation(width, 0.0))
+}
+
+///|
+/// Add two transforms (matrix addition)
+pub impl Add for Transform with op_add(self : Transform, other : Transform) -> Transform {
+  {
+    a: self.a + other.a,
+    b: self.b + other.b,
+    c: self.c + other.c,
+    d: self.d + other.d,
+    tx: self.tx + other.tx,
+    ty: self.ty + other.ty
+  }
+}
+
+///|
+/// Subtract two transforms (matrix subtraction)
+pub impl Sub for Transform with op_sub(self : Transform, other : Transform) -> Transform {
+  {
+    a: self.a - other.a,
+    b: self.b - other.b,
+    c: self.c - other.c,
+    d: self.d - other.d,
+    tx: self.tx - other.tx,
+    ty: self.ty - other.ty
+  }
+}
+
+///|
+/// Multiply two transforms (matrix multiplication, same as compose)
+pub impl Mul for Transform with op_mul(self : Transform, other : Transform) -> Transform {
+  self.multiply(other)
 }
