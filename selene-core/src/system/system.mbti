@@ -105,10 +105,10 @@ pub(all) struct DebugInfo {
   system_execution_time : Map[String, Double]
   fps : Double
 }
-impl Show for DebugInfo
 
 type Entity
 fn Entity::destroy(Self) -> Unit
+fn Entity::is_alive(Self) -> Bool
 fn Entity::new() -> Self
 fn Entity::respawn(Self) -> Unit
 impl Eq for Entity
