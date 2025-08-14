@@ -21,12 +21,30 @@ fn Rect::intersects(Self, Self) -> Bool
 fn Rect::shift(Self, Vec2D) -> Self
 
 pub(all) struct Transform {
-  scale : Vec2D
-  translate : Vec2D
-  skew : Vec2D
+  a : Double
+  b : Double
+  c : Double
+  d : Double
+  tx : Double
+  ty : Double
 }
+fn Transform::apply_to_point(Self, Double, Double) -> (Double, Double)
 fn Transform::flip_x(Double) -> Self
-fn Transform::new(scale? : Vec2D, translate? : Vec2D, skew? : Vec2D) -> Self
+fn Transform::from_rotation_deg(Double) -> Self
+fn Transform::from_rotation_rad(Double) -> Self
+fn Transform::from_scale(Double, Double) -> Self
+fn Transform::from_skew(Double, Double) -> Self
+fn Transform::from_translation(Double, Double) -> Self
+fn Transform::get_rotation_rad(Self) -> Double
+fn Transform::get_scale(Self) -> (Double, Double)
+fn Transform::get_translation(Self) -> (Double, Double)
+fn Transform::identity() -> Self
+fn Transform::inverse(Self) -> Self?
+fn Transform::multiply(Self, Self) -> Self
+fn Transform::new(a? : Double, b? : Double, c? : Double, d? : Double, tx? : Double, ty? : Double) -> Self
+fn Transform::set_rotation_rad(Self, Double) -> Self
+fn Transform::set_scale(Self, Double, Double) -> Self
+fn Transform::set_translation(Self, Double, Double) -> Self
 
 pub(all) struct Vec2D(Double, Double)
 
