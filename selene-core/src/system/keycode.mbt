@@ -13,6 +13,30 @@
 // limitations under the License.
 
 ///|
+/// Keyboard key code representing a specific key on the keyboard.
+///
+/// Example:
+///
+/// ```notest
+/// let key_code = @system.Code::from_string("KeyA")
+/// match key_code {
+///   Some(KeyA) => println("A key pressed")
+///   Some(Space) => println("Space key pressed")
+///   Some(ArrowUp) => println("Up arrow pressed")
+///   None => println("Unknown key")
+/// }
+///
+/// // Check if a key is currently pressed
+/// if @system.is_pressed(KeyW) {
+///   println("W key is being held down")
+/// }
+///
+/// // Check if a key was just pressed this frame
+/// if @system.is_just_pressed(Space) {
+///   println("Space was just pressed")
+/// }
+/// ```
+///
 pub(all) enum Code {
   KeyA
   KeyB
@@ -87,6 +111,30 @@ let all_codes : @set.Set[Code] = @set.Set::from_array([
 ])
 
 ///|
+/// Converts a string representation of a keyboard key into its corresponding
+/// `Code` enum variant.
+///
+/// Parameters:
+///
+/// * `code` : The string representation of the keyboard key (e.g., "KeyA",
+///   "Space", "ArrowUp").
+///
+/// Returns `Some(Code)` if the string matches a valid key code, or `None` if
+/// the string is not recognized.
+///
+/// Example:
+///
+/// ```notest
+/// let key_a = @system.Code::from_string("KeyA")
+/// inspect(key_a, content="Some(KeyA)")
+///
+/// let space_key = @system.Code::from_string("Space")
+/// inspect(space_key, content="Some(Space)")
+///
+/// let invalid_key = @system.Code::from_string("InvalidKey")
+/// inspect(invalid_key, content="None")
+/// ```
+///
 pub fn Code::from_string(code : String) -> Code? {
   match code {
     "KeyA" => Some(KeyA)
@@ -148,6 +196,30 @@ let just_pressed_keys : Set[Code] = @set.Set::new()
 let just_release_keys : Set[Code] = @set.Set::new()
 
 ///|
+/// Updates the internal state for tracking key press transitions between
+/// frames.
+///
+/// Parameters:
+///
+/// * `backend` : The backend interface for handling platform-specific
+///   operations (currently unused).
+///
+/// Example:
+///
+/// ```notest
+/// // This system function is typically called automatically by the game framework
+/// // during each frame update to maintain accurate key state tracking
+/// @system.advanced_key_system(backend)
+///
+/// // After calling this system, you can use the transition detection functions:
+/// if @system.is_just_pressed(@system.KeyA) {
+///   // Handle key A being pressed this frame
+/// }
+/// if @system.is_just_released(@system.KeyB) {
+///   // Handle key B being released this frame  
+/// }
+/// ```
+///
 pub fn advanced_key_system(_backend : &Backend) -> Unit {
   just_pressed_keys.clear()
   for code in pressed_keys.difference(last_pressed_keys) {
@@ -164,11 +236,63 @@ pub fn advanced_key_system(_backend : &Backend) -> Unit {
 }
 
 ///|
+/// Checks if a keyboard key was just pressed during the current frame.
+///
+/// Parameters:
+///
+/// * `code` : The keyboard key code to check for recent press activity.
+///
+/// Returns `true` if the specified key was pressed this frame (transition from
+/// released to pressed state), `false` otherwise.
+///
+/// Example:
+///
+/// ```notest
+/// // Check if the space key was just pressed this frame
+/// if @system.is_just_pressed(@system.Space) {
+///   println("Space key was just pressed!")
+/// }
+///
+/// // Check for WASD movement keys
+/// if @system.is_just_pressed(@system.KeyW) {
+///   println("Moving forward")
+/// }
+/// if @system.is_just_pressed(@system.KeyA) {
+///   println("Moving left")
+/// }
+/// ```
+///
 pub fn is_just_pressed(code : Code) -> Bool {
   just_pressed_keys.contains(code)
 }
 
 ///|
+/// Checks if a keyboard key was just released during the current frame.
+///
+/// Parameters:
+///
+/// * `code` : The keyboard key code to check for recent release activity.
+///
+/// Returns `true` if the specified key was released this frame (transition from
+/// pressed to released state), `false` otherwise.
+///
+/// Example:
+///
+/// ```notest
+/// // Check if the space key was just released this frame
+/// if @system.is_just_released(@system.Space) {
+///   println("Space key was just released!")
+/// }
+///
+/// // Check for WASD movement keys
+/// if @system.is_just_released(@system.KeyW) {
+///   println("Stopped moving forward")
+/// }
+/// if @system.is_just_released(@system.KeyA) {
+///   println("Stopped moving left")
+/// }
+/// ```
+///
 pub fn is_just_released(code : Code) -> Bool {
   just_pressed_keys.contains(code)
 }

@@ -13,12 +13,70 @@
 // limitations under the License.
 
 ///|
+/// Unique identifier for game objects in the entity-component system.
+///
+/// Example:
+///
+/// ```notest
+/// let entity = @system.Entity::new()
+/// if entity.is_alive() {
+///   println("Entity is active")
+/// }
+/// entity.destroy()
+/// ```
+///
 struct Entity(UInt) derive(Eq, Show, Hash)
 
 ///|
+/// Global collection storing all active entities in the entity-component
+/// system.
+///
+/// This set automatically tracks entities as they are created, destroyed, and
+/// respawned. When an entity is created with `Entity::new()`, it is
+/// automatically added to this set. When an entity is destroyed with
+/// `Entity::destroy()`, it is removed from this set during the next deferred
+/// event processing cycle.
+///
+/// Example:
+///
+/// ```notest
+/// let entity1 = @system.Entity::new()
+/// let entity2 = @system.Entity::new()
+///
+/// // Check how many entities exist
+/// println("Total entities: \{@system.all_entities.size()}")
+///
+/// // Verify specific entities are tracked
+/// if @system.all_entities.contains(entity1) {
+///   println("Entity1 is active")
+/// }
+///
+/// entity1.destroy()
+/// // Note: entity1 will be removed from all_entities during the next deferred event cycle
+/// ```
+///
 pub let all_entities : @set.Set[Entity] = @set.Set::new()
 
 ///|
+/// Checks whether an entity is currently active in the entity-component system.
+///
+/// Parameters:
+///
+/// * `entity` : The entity to check for activity status.
+///
+/// Returns `true` if the entity is currently active and tracked in the system,
+/// `false` otherwise.
+///
+/// Example:
+///
+/// ```notest
+/// let entity = @system.Entity::new()
+/// inspect(entity.is_alive(), content="true")
+///
+/// entity.destroy()
+/// // Note: The entity will be marked as inactive during the next deferred event cycle
+/// ```
+///
 pub fn Entity::is_alive(e : Entity) -> Bool {
   all_entities.contains(e)
 }
@@ -35,11 +93,49 @@ pub fn Entity::new() -> Entity {
 }
 
 ///|
+/// Marks an entity for destruction, scheduling its removal from the
+/// entity-component system during the next deferred event processing cycle.
+///
+/// Parameters:
+///
+/// * `entity` : The entity to be destroyed.
+///
+/// Example:
+///
+/// ```notest
+/// let entity = @system.Entity::new()
+/// inspect(entity.is_alive(), content="true")
+///
+/// entity.destroy()
+/// // Entity will be removed from all_entities during next deferred event cycle
+/// ```
+///
 pub fn Entity::destroy(e : Entity) -> Unit {
   defer_event(fn() { all_entities.remove(e) })
 }
 
 ///|
+/// Reactivates a previously destroyed entity by adding it back to the active
+/// entities collection.
+///
+/// Parameters:
+///
+/// * `entity` : The entity to be reactivated in the entity-component system.
+///
+/// Example:
+///
+/// ```notest
+/// let entity = @system.Entity::new()
+/// inspect(entity.is_alive(), content="true")
+///
+/// entity.destroy()
+/// inspect(entity.is_alive(), content="false")
+/// // Entity is marked for removal during next deferred event cycle
+///
+/// entity.respawn()
+/// inspect(entity.is_alive(), content="true") // Entity is active again
+/// ```
+///
 pub fn Entity::respawn(e : Entity) -> Unit {
   all_entities.add(e)
 }

@@ -193,9 +193,6 @@ pub fn Animation::new(
 ///   information, current frame state, and playback settings.
 /// * `pos` : The screen position where the animation should be rendered.
 ///
-/// Panics if the animation's frame number exceeds the maximum frame count when
-/// not looping.
-///
 fn render_animation(
   backend : &@system.Backend,
   animation : Animation,

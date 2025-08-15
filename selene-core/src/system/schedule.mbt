@@ -13,6 +13,20 @@
 // limitations under the License.
 
 ///|
+/// Defines when and how often a system should be executed within the game loop.
+///
+/// Constructors:
+///
+/// * `Startup` : Executes once at application startup before the main loop
+///   begins.
+/// * `Update` : Executes every frame during the main update loop.
+/// * `Render(Int)` : Executes during the render phase with the specified
+///   priority. Lower numbers execute first.
+/// * `UpdateFrame(UInt)` : Executes every specified number of frames. For
+///   example, `UpdateFrame(60)` executes once every 60 frames.
+/// * `UpdateTime(Double)` : Executes at regular time intervals specified in
+///   seconds. For example, `UpdateTime(1.0)` executes once per second.
+///
 pub(all) enum Schedule {
   Startup
   Update
