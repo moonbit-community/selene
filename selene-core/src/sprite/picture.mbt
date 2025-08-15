@@ -13,6 +13,28 @@
 // limitations under the License.
 
 ///|
+/// 2D image or texture rendered at a specific position and size.
+///
+/// Fields:
+///
+/// * `size` : Dimensions of the picture in 2D space as width and height.
+/// * `tile_path` : File path or identifier for the image/texture resource.
+/// * `transform` : Geometric transformation applied to the picture (rotation,
+///   scale, etc.).
+/// * `repeat` : How the picture should repeat when drawn larger than its
+///   natural size.
+///
+/// Example:
+///
+/// ```notest
+/// let picture = @sprite.Picture::new(
+///   @math.Vec2D::new(100.0, 50.0),
+///   "assets/background.png",
+///   transform=@math.Transform::new(),
+///   repeat=@system.RepeatMode::NoRepeat
+/// )
+/// ```
+///
 pub(all) struct Picture {
   size : @math.Vec2D
   tile_path : String
@@ -21,6 +43,33 @@ pub(all) struct Picture {
 }
 
 ///|
+/// Creates a new `Picture` with the specified size, image path, and rendering
+/// options.
+///
+/// Parameters:
+///
+/// * `size` : The dimensions of the picture as a 2D vector representing width
+///   and height.
+/// * `tile_path` : The file path or identifier for the image/texture resource
+///   to be displayed.
+/// * `transform` : The geometric transformation to apply to the picture
+///   (rotation, scale, translation). Defaults to an identity transform.
+/// * `repeat` : How the picture should repeat when drawn larger than its
+///   natural size. Defaults to `NoRepeat`.
+///
+/// Returns a new `Picture` instance configured with the specified properties.
+///
+/// Example:
+///
+/// ```notest
+/// let picture = @sprite.Picture::new(
+///   @math.Vec2D::new(100.0, 50.0),
+///   "assets/background.png",
+///   transform=@math.Transform::new(),
+///   repeat=@system.RepeatMode::NoRepeat
+/// )
+/// ```
+///
 pub fn Picture::new(
   size : @math.Vec2D,
   tile_path : String,

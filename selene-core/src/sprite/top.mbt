@@ -13,6 +13,40 @@
 // limitations under the License.
 
 ///|
+/// Visual element that can be rendered in the game world, containing either a
+/// picture, animation, or text along with depth ordering information.
+///
+/// Fields:
+///
+/// * `sprite_type` : The visual content type (picture, animation, or text) that
+///   this sprite represents.
+/// * `zindex` : The depth layer for rendering order, where higher values are
+///   drawn on top of lower values.
+///
+/// Example:
+///
+/// ```notest
+/// // Create an animation sprite
+/// let animation = @sprite.Animation::new("player_walk.png", max_frame=4, height=32.0, width=32.0)
+/// let sprite = @sprite.Sprite::new_animation(animation, zindex=1)
+///
+/// // Create a picture sprite  
+/// let picture = @sprite.Picture::new(@math.Vec2D::new(64.0, 64.0), "background.png")
+/// let bg_sprite = @sprite.Sprite::new_picture(picture, zindex=0)
+///
+/// // Create a text sprite
+/// let text = @sprite.Text::new("Hello World!")
+/// let text_sprite = @sprite.Sprite::new_text(text, zindex=2)
+///
+/// // Access sprite properties
+/// inspect(sprite.zindex, content="1")
+/// match sprite.sprite_type {
+///   Animation(anim) => println("Animation sprite")
+///   Picture(pic) => println("Picture sprite") 
+///   Text(txt) => println("Text sprite")
+/// }
+/// ```
+///
 pub(all) struct Sprite {
   sprite_type : SpriteType
   zindex : Int
@@ -44,6 +78,15 @@ pub fn Sprite::new_text(text : Text, zindex : Int) -> Sprite {
 }
 
 ///|
+/// Renders all sprites in the game world through the provided backend, handling
+/// world-space and UI-space positioning.
+///
+/// Parameters:
+///
+/// * `backend` : The rendering backend used to draw sprites to the screen.
+///
+/// Panics if an entity has a sprite but no position component.
+///
 pub fn render_sprite_system(backend : &@system.Backend) -> Unit {
   let sprites = sprites
     .to_array()

@@ -36,3 +36,4 @@ Please check [docs](https://github.com/Milky2018/selene/tree/main/docs).
 - [ ] Visibility 
 - [ ] Transform component
 - [ ] Move-and-slide collisions
+- [ ] Input mapping

@@ -13,6 +13,15 @@
 // limitations under the License.
 
 ///|
+/// Texture repetition behavior for drawing operations.
+///
+/// Constructors:
+///
+/// * `RepeatX` - Repeat texture only along the X-axis
+/// * `RepeatY` - Repeat texture only along the Y-axis
+/// * `NoRepeat` - Do not repeat texture in any direction
+/// * `Repeat` - Repeat texture in both X and Y directions
+///
 pub(all) enum RepeatMode {
   RepeatX
   RepeatY
