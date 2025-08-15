@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-pub struct Animation {
+pub(all) struct Animation {
   sprite_path : String
   max_frame : UInt
   height : Double

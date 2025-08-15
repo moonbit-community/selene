@@ -32,14 +32,35 @@ pub extern "js" fn Audio::set_volume(self : Self, volume : Double) -> Unit = "(s
 pub extern "js" fn Audio::set_loop(self : Self, loop_ : Bool) -> Unit = "(self, loop_) => self.loop = loop_"
 
 ///|
+let audio_cache : Map[String, Audio] = Map::new()
+
+///|
+fn get_audio(path : String) -> Audio {
+  if audio_cache.get(path) is Some(audio) {
+    return audio
+  }
+  let audio = Audio::new(path)
+  audio_cache.set(path, audio)
+  audio
+}
+
+///|
 pub impl @system.Backend for CanvasBackend with play_audio(
   _self,
   audio_path : String,
   volume~ : Double,
   loop_~ : Bool,
 ) -> Unit {
-  let audio = Audio::new(audio_path)
+  let audio = get_audio(audio_path)
   audio.set_volume(volume)
   audio.set_loop(loop_)
   audio.play()
+}
+
+///|
+pub impl @system.Backend for CanvasBackend with preload_audio(
+  _self,
+  audio_path : String,
+) -> Unit {
+  get_audio(audio_path) |> ignore
 }
