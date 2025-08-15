@@ -416,3 +416,14 @@ python3 -m http.server 8000
 Use a browser to visit localhost:8000 to play.
 
 Complete game source code: [Selene Example](https://github.com/moonbit-community/selene/tree/3a27062f3f95ae505b317116be457b6bd026f4f8/example)
+
+## Next Steps
+
+Congratulations on completing your first Selene game! Through this tutorial, you've mastered the core concepts and development workflow of the game engine. Next, you can:
+
+- **Extend game functionality**: Add more levels, enemies, items, or game mechanics to your game
+- **Optimize game experience**: Improve character animations, optimize sound effects and visual feedback
+- **Contribute to the community**: Report issues, submit improvement suggestions, or contribute code on [GitHub](https://github.com/moonbit-community/selene)
+- **Create original games**: Use your acquired knowledge to develop your own game projects
+
+Selene can be used not only for making games, but also for creating any application that requires a graphical interface. Unleash your creativity and build excellent works with MoonBit and Selene!
