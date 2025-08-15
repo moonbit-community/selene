@@ -22,6 +22,34 @@ const DEFAULT_CANVAS_WIDTH = 512.0
 const DEFAULT_FPS : UInt = 60
 
 ///|
+/// Main application container that manages the game loop, systems, plugins, and
+/// rendering backend.
+///
+/// Fields:
+///
+/// * `canvas_height` : Height of the rendering canvas in pixels.
+/// * `canvas_width` : Width of the rendering canvas in pixels.
+/// * `fps` : Target frames per second for the game loop.
+/// * `systems` : Collection of systems with their execution schedules and
+///   names.
+/// * `plugins` : Collection of plugins to be applied during application
+///   startup.
+/// * `backend` : Reference to the rendering and input backend implementation.
+///
+/// Example:
+///
+/// ```notest
+/// let backend = // ... some backend implementation
+/// let app = @system.App::new(backend)
+///   .with_canvas_width(800.0)
+///   .with_canvas_height(600.0)
+///   .with_fps(60)
+///   .add_system(my_update_system)
+///   .add_plugin(my_plugin)
+///
+/// app.run()
+/// ```
+///
 pub(all) struct App {
   canvas_height : Double
   canvas_width : Double
@@ -71,6 +99,27 @@ pub fn App::add_plugin(self : App, plugin : Plugin) -> App {
 }
 
 ///|
+/// Adds a system to the application with optional scheduling and naming
+/// configuration.
+///
+/// Parameters:
+///
+/// * `self` : The application instance to modify.
+/// * `system` : The system function to be executed during the game loop.
+/// * `schedule` : The execution schedule for the system (defaults to `Update`).
+/// * `system_name` : Optional custom name for the system. If not provided,
+///   generates a name like "unnamed\_system0", "unnamed\_system1", etc.
+///
+/// Returns a new `App` instance with the system added to its collection.
+///
+/// Example:
+///
+/// ```notest
+/// let app = @system.App::new(backend)
+///   .add_system(my_update_system)
+///   .add_system(my_render_system, schedule=@system.Schedule::Render(0), system_name="main_renderer")
+/// ```
+///
 pub fn App::add_system(
   self : App,
   system : System,
