@@ -25,8 +25,10 @@ pub(all) struct Animation {
   mut frame : Double
 }
 
-///| Play a new animation; if the animation is already playing 
+///| 
+/// Play a new animation; if the animation is already playing 
 /// and `from_start` is false, the current animation will continue.
+/// 
 pub fn play_animation(
   entity : @system.Entity,
   animation : Animation,

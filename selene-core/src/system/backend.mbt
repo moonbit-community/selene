@@ -32,10 +32,12 @@ pub(all) struct DebugInfo {
   fps : Double
 }
 
-///| Things need to be done in `build`:
+///| 
+/// Things need to be done in `build`:
 /// - Initialize the backend.
 /// - Set the viewport size.
 /// - Return the scheduled game loop with a fixed interval (fps).
+/// 
 pub(open) trait Backend {
   build(
     Self,
@@ -43,6 +45,7 @@ pub(open) trait Backend {
     canvas_width : Double,
     canvas_height : Double,
     fps : UInt,
+    // image_smooth : Bool, // Pixel art games may want to disable this TODO:
   ) -> () -> Unit
   draw_picture(
     Self,
