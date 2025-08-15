@@ -13,7 +13,7 @@ Selene 有如下特点：
 - 模块化：几乎没有耦合性，完全可以只导入需要用到的功能
 - 高效：借助 MoonBit 本身的性能优势和 ECS 架构，运行起来非常快
 
-缺陷方面体现在目前（0.10.0版本）Selene 缺乏很多工业级引擎具备的高级功能，比如凸多边形的碰撞检测、3D 物体渲染、手柄支持等等。非常欢迎大家参与贡献。
+缺陷方面体现在目前（0.10.x版本）Selene 缺乏很多工业级引擎具备的高级功能，比如凸多边形的碰撞检测、3D 物体渲染、手柄支持等等。非常欢迎大家参与贡献。
 
 ## 运行案例
 
@@ -55,58 +55,337 @@ npx serve .
 
 ## 做你的第一个游戏
 
-本节将带你完成一个用方向键控制文本框的简单应用，在此过程中完整体验 Selene 引擎。
+本章将介绍如何使用 Selene 游戏引擎制作一个完整的平台跳跃游戏。通过实际开发过程，学习游戏引擎的核心功能和开发技巧。
 
-### 构建项目
+### 示例游戏展示
 
-新建一个自己的 MoonBit 项目：
+我们将要制作的游戏如下：
 
-```shell
-moon new --path mygame --name mygame --user <YOURNAME>
-cd mygame
+![](../example/screenshot.png)
+
+我们将会在接下来的流程中展示如何制作：
+
+- 绿色草地瓦片
+- 一个可控制的人物
+- 可移动的摄像机
+- 收集道具苹果
+- 分数显示框
+- 音量控制按钮
+
+玩家可以使用方向键控制人物移动和跳跃，跳跃时会播放音效。吃到苹果会增加分数。音量按钮可以控制游戏声音的开关状态。
+
+运行示例游戏的方法是进入 example 目录，使用 `moon build` 构建项目，然后用任何 Web 服务器（如 `python -m http.server 8000`）在浏览器中访问。
+
+### 项目创建与配置
+
+首先下载并安装 MoonBit CLI 工具。如果使用 VS Code，建议安装 MoonBit 插件，它会自动提示下载相关工具链。
+
+使用 `moon new` 命令创建新项目，选择可运行项目模式，设置项目名称和许可证信息。
+
+### 素材准备
+
+游戏所需的图片和音频素材都可以免费下载：[图片素材](https://pixelfrog-assets.itch.io/pixel-adventure-1)包含角色动画序列和地形元素，[音频素材](https://brackeysgames.itch.io/brackeys-platformer-bundle)包含跳跃和收集音效。将下载的素材文件夹复制到项目根目录下。
+
+### 引擎依赖安装
+
+为项目添加 Selene 引擎依赖：
+
+```bash
+moon add Milky2018/selene@0.10.3
+moon add Milky2018/selene-canvas@0.10.3
 ```
 
-添加 Selene 引擎和 Canvas 后端作为依赖：
+> 也可以获取最新版享受更多新功能，但后续流程可能有无法正常运行的情况，需要自己调试。
 
-```shell
-moon add Milky2018/selene@0.10.0
-moon add Milky2018/selene-canvas@0.10.0
-```
-
-> 你也可以获取最新版，但后续流程可能有无法正常运行的情况，需要你自己调试。
-
-接下来，可以按照你喜欢的风格调整项目结构。别忘了在 `moon.pkg.json` 中导入 Selene 的各个包：
+在 `moon.pkg.json` 中导入所需的引擎模块：
 
 ```json
 {
-  "is-main": true,
   "import": [
     "Milky2018/selene/system",
     "Milky2018/selene/math",
     "Milky2018/selene/sprite",
+    "Milky2018/selene/position",
     "Milky2018/selene/velocity",
+    "Milky2018/selene/collision",
     "Milky2018/selene/input",
     "Milky2018/selene/plugins",
-    "Milky2018/selene/position",
-    "Milky2018/selene/collision",
+    "Milky2018/selene/camera",
+    "Milky2018/selene/audio",
+    "Milky2018/selene/tilemap",
     { "path": "Milky2018/selene-canvas", "alias": "canvas" }
   ]
 }
 ```
 
-现在可以开始新建一个游戏 App 了，在 main 函数中实例化一个 App：
+Selene 项目的核心是 App 对象。需要在 `main` 函数中创建基础的游戏应用：
 
 ```moonbit
 fn main {
   @system.App::new(@canvas.CanvasBackend::new())
+  .with_canvas_width(480.0)
+  .with_canvas_height(320.0)
+  .with_fps(60)
+  .add_plugin(@plugins.default_plugin)
   .run()
 }
 ```
 
-注意到，我们使用了一个叫做 `CanvasBackend` 的后端来运行游戏。Selene 支持模块化的后端，当使用 `CanvasBackend` 后端时，我们的游戏会构架为一个描述了 Canvas2D 画布的 JavaScript 文件。现在使用 `build` 命令并指定 js 作为 MoonBit 的编译后端以构建游戏项目：
+使用了一个叫做 `CanvasBackend` 的后端来运行游戏。Selene 支持模块化的后端，当使用 `CanvasBackend` 后端时，游戏会构建为一个描述了 Canvas2D 画布的 JavaScript 文件。
+
+游戏以固定帧率（如60FPS）循环执行系统函数。每个系统负责特定功能，如渲染、实体移动或输入处理。游戏具体功能需要通过各种系统来实现。
+
+### 游戏状态管理
+
+全局游戏状态包含玩家引用、分数、音量设置等，可以使用一个全局变量来保存游戏状态：
+
+```moonbit
+struct GameState {
+  player : @system.Entity
+  mut score : Int
+  mut volume_on : Bool
+  mut player_state : PlayerState
+  score_box : @sprite.Text
+}
+
+let game_state : GameState = {
+  ...
+}
+```
+
+其中包含的各个字段会在接下来的内容中介绍。
+
+### 实体和组件
+
+游戏中的对象通过实体（Entity）和组件（Component）来表示。实体是唯一标识符，组件存储具体数据。创建玩家实体的示例：
+
+```moonbit
+let player = @system.Entity::new()
+@position.positions.set(player, @math.Vec2D::new(100.0, 100.0))
+@velocity.velocities.set(player, @math.Vec2D::zero())
+```
+
+上述代码做了如下事情：
+
+1. 生成一个新的 Entity；
+3. 把新 Entity 的位置设置为 (100, 100)；
+2. 把新 Entitiy 的速度设置为 (0, 0)；
+
+Entity 类似一个引用，一切属于一个实体的组件都通过 `Map[K, V]::set` 的方式关联在一起。`@position.positions` 和 `@sprite.sprites` 都是哈希映射类型的数据结构，里面存放了每个实体对应的组件。
+
+组件通过全局映射表进行管理，系统通过查询这些映射表来处理相关实体。例如，为实体设置速度和位置属性后，每一帧实体的位置都会根据速度进行移动。
+
+类似这种添加一个玩家实体的行为需要放在一个初始化器中：
+
+```moonbit
+app.add_initializer(add_player)
+```
+
+初始化器会在游戏开始时执行一次。
+
+### 玩家角色实现
+
+玩家角色需要多个动画状态：空闲、跑步、跳跃和下落。每个状态对应不同的精灵动画。以空闲动画为例：
+
+```moonbit
+let player_idle_animation = @sprite.Animation::new(
+  "pixel_adventure/Main Characters/Mask Dude/Idle (32x32).png",
+  loop_=true, max_frame=11, height=32.0, width=32.0
+)
+```
+
+其中 `loop_` 参数表示该动画是否会循环播放；`max_frame` 表示这张图片一共包含多少帧动画。
+
+通过调用 `@sprite.play_animation` 来为实体播放动画：
+
+```moonbit
+@sprite.play_animation(player, player_idle_animation)
+```
+
+玩家状态机根据速度和地面接触情况在不同状态间切换。可以使用一个状态机来实现状态切换和不同动画的播放：
+
+```moonbit
+enum PlayerState {
+  Idle
+  Jump
+  Fall
+} derive(Show)
+
+match player_state {
+  Idle => ...
+  Jump => ...
+  Fall => ...
+}
+```
+
+玩家还需要根据键盘输入来控制人物移动，可以使用 `@system.is_pressed` 或者 `@system.is_just_pressed` 来检测某个按键是否按下。两者的区别在于前者只要按键按下就会返回 true，而后者只会在按键刚刚按下才返回 true。可以分别使用这两个函数来控制左右移动和跳跃：
+
+```moonbit
+if @system.is_pressed(ArrowLeft) {
+  velocity_x = -5.0
+} else if @system.is_pressed(ArrowRight) {
+  velocity_x = 5.0
+} else {
+  velocity_x = 0.0
+}
+
+if @system.is_just_pressed(ArrowUp) && @collision.is_on_floor(game_state.player) {
+  velocity_y = 10.0
+}
+```
+
+其中，`@collision.is_on_floor` 用于判断角色是否站在平台上。
+
+### 障碍物和碰撞
+
+为了让玩家移动时不会穿透障碍物，需要分别为玩家和障碍物设置碰撞层和碰撞体：
+
+```moonbit
+let terrain_collision_layer = @collision.CollisionLayer::new()
+let player_collision_layer = @collision.CollisionLayer::new()
+
+@collision.collides.set(game_state.player, @collision.Collide::{
+  shape: Rect(size=@math.Vec2D::new(24.0, 32.0), offset=@math.Vec2D::zero()),
+  layer: player_collision_layer,
+  mask: @collision.CollisionMask::new([terrain_collision_layer]),
+})
+
+@collision.collides.set(grass, @collision.Collide::{
+  shape: Rect(size=@math.Vec2D::new(16.0, 16.0), offset=@math.Vec2D::zero()),
+  layer: terrain_collision_layer,
+  mask: @collision.CollisionMask::empty(),
+})
+```
+
+上述代码分为为玩家和草地设置了一个方形的碰撞体。只有当一个实体的碰撞 mask 包含另一个实体的碰撞层时，碰撞才会发生。
+
+### 瓦片地图制作
+
+直接用代码绘制完整的地图并不方便，Selene 支持使用 [Sprite Fusion](https://www.spritefusion.com/) 等外部工具设计地图，导出为 JSON 格式。
+
+Sprite Fusion 输出的 JSON 包含地图的瓦片像素大小、地图尺寸、每一层的信息。大致如下：
+
+```json
+{
+  "tileSize": 16,
+  "mapWidth": 75,
+  "mapHeight": 51,
+  "layers": [
+    {
+      "name": "Grass",
+      "tiles": [
+        { "id": "0", "x": 8, "y": 46 },
+        { "id": "1", "x": 9, "y": 46 },
+        { "id": "2", "x": 8, "y": 47 },
+        { "id": "3", "x": 9, "y": 47 },
+      ],
+      "collider": false
+    }
+    ...
+  ]
+}
+```
+
+使用 `@tilemap.TileMap::from_json` 解析地图数据并生成对应的游戏实体：
+
+```moonbit
+fn generate_map(backend : &@system.Backend) -> Unit {
+  let tilemap = @tilemap.TileMap::from_json(tilemap_data)
+  let grasses = tilemap.get_tiles("Grass")
+  for grass in grasses {
+    add_grass(tile_to_vec2d(grass, tilemap.tile_size))
+  }
+}
+```
+
+### 摄像机
+
+当游戏地图远大于画布尺寸时，为了让玩家能看到自己控制的任务，需要摄像机跟随玩家移动，并设置边界限制防止显示空白区域：
+
+```moonbit
+@camera.camera.attached_entity = Some(player)
+@camera.camera.limit_left = Some(0.0)
+@camera.camera.limit_right = Some(world_width)
+@camera.camera.limit_top = Some(0.0)
+@camera.camera.limit_bottom = Some(world_height)
+```
+
+由于玩家位置位于玩家图片的左上角，为了让摄像机更贴近玩家角色的中心，还可以设置 `offset` 属性为玩家尺寸的一半：
+
+```moonbit
+@camera.camera.offset = @math.Vec2D::new(16.0, 16.0)
+```
+
+### 区域和音频
+
+苹果和地形不同，它不会影响玩家移动和碰撞，但会在碰到玩家时触发事件：苹果消失，并且游戏分数上涨。通过为苹果实体设置区域组件来实现该功能：
+
+```moonbit
+let area = @collision.Area::new(
+  Rect(size=@math.Vec2D::new(32.0, 32.0), offset=@math.Vec2D::zero()),
+  non_collide_layer,
+  @collision.CollisionMask::new([player_collision_layer]),
+)
+@collision.areas.set(apple, area)
+area.on_enter(fn(e) {
+  if e == game_state.player {
+    set_score(game_state.score + 10)
+    if game_state.volume_on {
+      @audio.play_audio(backend, "sounds/coin.wav")
+    }
+    @system.Entity::destroy(apple)
+  }
+})
+```
+
+为区域设置一个矩形碰撞体。用 `Area::on_enter` 方法为区域添加一个回调，当有实体进入该区域时，触发分数上涨，播放音效。
+
+### 用户界面
+
+使用普通的 `Sprite` 组件和 UI 组件创建分数显示框。UI 元素使用高 z-index 值确保显示在游戏内容之上：
+
+```moonbit
+fn add_score_box() -> Unit {
+  let box = @system.Entity::new()
+  @position.positions.set(box, @math.Vec2D::new(240.0, 40.0))
+  let text = @sprite.Sprite::new_text(game_state.score_box, 100)
+  @camera.uis.set(box, @camera.Ui::new())
+  @sprite.sprites.set(box, text)
+}
+```
+
+提醒：忘记设置 UI 组件会导致该实体会随着摄像机移动而移动，而不是固定在画面的某处。
+
+音量按钮通过鼠标点击事件切换音频开关状态，通过区域组件的 `Area::on_just_released` 可以设置鼠标按键回调。在此例中，仅当鼠标左键松开时才会切换音量按钮的状态。
+
+```moonbit
+let area = @collision.Area::new(
+  @collision.CollisionShape::Rect(
+    size=@math.Vec2D::new(21.0, 22.0),
+    offset=@math.Vec2D::zero(),
+  ),
+  non_collide_layer,
+  @collision.CollisionMask::new([]),
+  monitoring_mouse=true,
+)
+area.on_just_released(fn(mouse_button) {
+  if mouse_button == Left {
+    game_state.volume_on = !game_state.volume_on
+    if game_state.volume_on {
+      @sprite.sprites.set(button, volume_on)
+    } else {
+      @sprite.sprites.set(button, volumn_off)
+    }
+  }
+})
+```
+
+### 编译&游玩
+
+构建命令：
 
 ```shell 
-moon build --target js
+moon build --target js --watch
 ```
 
 构建成功后，你会得到一个 target 目录，里面就包含了编译产物。要展示这个 canvas，我们需要一个 html。在项目根目录新建一个 `index.html` 文件，然后填充以下内容：
@@ -128,196 +407,12 @@ moon build --target js
 </html>
 ```
 
-现在，使用任何一个简易的 Web 服务器来运行这个 Web 页面。比如，使用 Python3：
+然后使用 Web 服务器运行：
 
 ```shell
-python -m http.server 8000
-# Or
 python3 -m http.server 8000
 ```
 
-你应该能在终端看到如下信息：
+使用浏览器访问 localhost:8000 即可游玩。
 
-```shell
-Serving HTTP on :: port 8000 (http://[::]:8000/) ...
-```
-
-这说明游戏服务器已经运行起来了。打开你常用的浏览器，访问 `localhost:8000` 即可游玩你的游戏。当然，现在应该只有一个纯白色的画布，我们需要向里面添加各种有趣的内容。
-
-### 第一个系统
-
-Selene 的运行逻辑是以一个特定帧率（默认是60）循环执行一系列被称为 System 的回调函数。System 包含的内容是对游戏状态的更新，或者把游戏世界中的物体渲染到屏幕上，在我们的游戏中就是绘制到 canvas 元素上。
-
-现在，我们尝试画一个方框。我们把一个画方框的函数作为 System 添加到 App 中即可：
-
-```moonbit
-fn main {
-  @system.App::new(@canvas.CanvasBackend::new()) // 选择 CanvasBackend 作为后端
-  .add_system(stroke_render_pipe)                // 添加绘制方框的系统
-  .run()
-}
-
-fn stroke_render_pipe(backend : &@system.Backend) -> Unit {
-  backend.draw_stroke_rect( // 调用后端的方框绘制函数
-    x=100,                  // 设置方框的坐标
-    y=100,
-    width=50,               // 设置方框的宽度和高度
-    height=50,
-    color="blue",           // 设置方框的颜色
-  )
-}
-```
-
-再运行游戏，我们就会在画布中看见一个蓝色的方框。
-
-### 第一个实体
-
-在 `stroke_render_pipe` 中，我们使用 `Backend` 提供的 `draw_stroke_rect` 方法手动绘制了一个方框。`Backend` 提供的底层方法我们一般不需要手工调用，Selene 已经在内部提供了很多实用的 System 和 Initializer 来完成这一切。比如，`sprite` 包提供了一个叫做 `render_sprite_system` 的系统，它会把所有的 Sprite 绘制到相应的地方。
-
-要使用这样的功能，我们需要制作简单的 Sprite。比如，我们可以制作一个文本框，里面填充 "Hello World" 这个文本，并把它设置成黑色：
-
-```moonbit
-let box = @system.Entity::new()
-let text = @sprite.Sprite::new_text(@sprite.Text::new("Hello World", color="black"), 10)
-@position.positions.set(box, @math.Vec2D(100, 100))
-@sprite.sprites.set(box, text)
-```
-
-可以看看我们做了什么：
-
-1. 生成一个新的 Entity；
-2. 生成一个新的文本框组件；
-3. 把新 Entity 的位置设置为 (100, 100)；
-4. 把文本框组件设置到新的 Entity 上。
-
-Entity 类似一个引用，我们把一切属于一个实体的组件都通过 `Map[K, V]::set` 的方式关联在一起。`@position.positions` 和 `@sprite.sprites` 都是哈希映射类型的数据结构，里面存放了每个实体对应的组件。
-
-> `new_text(text : Text, zindex : Int)` 的第二个参数表示这个 Sprite 的垂直高度。zindex 值更大的 Sprite 会覆盖 zindex 更小的 Sprite。
-
-> @math.Vec2D 表示的坐标可能和你在数学课上学习的不太一样：y 轴是向下的。
-
-那么，我们在何处生成这个文本框呢？在哪里都可以！我们推荐的方法，是把它放到 App 的 Initializers 中，这样在项目启动时只会执行一次，毕竟我们不需要每一帧都生成一个文本框：
-
-```moonbit
-fn add_hello_text(_ : &@system.Backend) -> Unit {
-  let box = @system.Entity::new()
-  let text = @sprite.Sprite::new_text(@sprite.Text::new("Hello World", color="white"), 10)
-  @position.positions.set(box, @math.Vec2D(100, 100))
-  @sprite.sprites.set(box, text)
-}
-
-fn main {
-  @system.App::new(@canvas.CanvasBackend::new())
-  // 添加一个初始化器，初始化器只会在游戏开始时执行一次
-  .add_initializer(add_hello_text)
-  .add_system(@sprite.render_sprite_system)
-  .run()
-}
-```
-
-现在，再运行一次你的游戏，就能在画布中看到这个文本框了！
-
-### 运动
-
-怎么让文本框动起来呢？最简单的方式是给它增加一个速度组件：
-
-```moonbit
-@velocity.velocities.set(box, @math.Vec2D(1.0, 1.0))
-```
-
-只有这个组件是不够的，我们需要一个 System，它能够在每一帧根据每个实体的速度来更新它的位置组件。我们可以自己写一个这样的 System，不过你肯定猜到了，这么常用的 System 已经被 Selene 提供了。我们把 `@collision.move_system` 加入到 App 中即可。下面是完整代码：
-
-```moonbit
-fn add_hello_text(_ : &@system.Backend) -> Unit {
-  let box = @system.Entity::new()
-  let text = @sprite.Sprite::new_text(@sprite.Text::new("Hello World", color="back"), 10)
-  @position.positions.set(box, @math.Vec2D(100, 100))  // 为实体关联位置
-  @sprite.sprites.set(box, text)                            // 为实体关联文本框
-  @velocity.velocities.set(box, @math.Vec2D(1.0, 1.0)) // 为实体关联速度
-}
-
-fn main {
-  @system.App::new(@canvas.CanvasBackend::new())
-  .add_initializer(add_hello_text)
-  .add_system(@collision.move_system) // 把控制物体移动的系统添加到 App
-  .add_system(@sprite.render_sprite_system)
-  .run()
-}
-```
-
-再运行游戏，现在你就可以看到文本框缓慢地向右下方移动了！
-
-### 处理输入
-
-游戏是交互的艺术，我们希望看到游戏世界里的内容会根据我们的输入发生变化。这次我们换一种方式，在讨论怎么做之前，先看看代码。把 `@input.simple_input_system` 加入到 App 中，并给文本框设置 `@input.controls` 组件：
-
-```moonbit
-fn add_hello_text(_ : &@system.Backend) -> Unit {
-  let box = @system.Entity::new()
-  let text = @sprite.Sprite::new_text(@sprite.Text::new("Hello World", color="back"), 10)
-  @position.positions.set(box, @math.Vec2D(100, 100))
-  @sprite.sprites.set(box, text)
-  @velocity.velocities.set(box, @math.Vec2D::zero())
-  @input.controls.set(box, @input.KeyInput::{})
-}
-
-fn main {
-  @system.App::new(@canvas.CanvasBackend::new())
-  .add_initializer(add_hello_text)
-  .add_system(@collision.move_system)
-  .add_system(@input.simple_input_system)
-  .add_system(@sprite.render_sprite_system)
-  .run()
-}
-```
-
-然后运行一下游戏，看看发生了什么。再按一下键盘上的方向键呢？文本框根据按键动起来了！
-
-实现这一切的幕后逻辑非常简单，让我们直接阅读 `@input.simple_input_system` 和 `@input.controls` 的源代码：
-
-```moonbit
-pub(all) struct KeyInput {}
-
-pub let controls : Map[@system.Entity, KeyInput] = Map::new()
-
-pub fn simple_input_system(_backend : &@system.Backend) -> Unit {
-  for e in @system.all_entities {
-    guard controls.get(e) is Some(_) else { continue }
-    let new_velocity_x = if @system.is_pressed(ArrowLeft) {
-      -5.0
-    } else if @system.is_pressed(ArrowRight) {
-      5.0
-    } else {
-      0.0
-    }
-    let new_velocity_y = if @system.is_pressed(ArrowUp) {
-      -5.0
-    } else if @system.is_pressed(ArrowDown) {
-      5.0
-    } else {
-      0.0
-    }
-    @velocity.velocities.set(
-      e,
-      @math.Vec2D(new_velocity_x, new_velocity_y),
-    )
-  }
-}
-```
-
-当我们为文本框设置 `controls` 组件时，它就被添加到了这个哈希映射中；而在 `simple_input_system` 内部，只要一个实体包含 `controls` 组件，它的速度就会根据按键状态进行更新。按键状态被保存在 `@system.pressed_keys` 集合中，你可以直接访问，也可以通过 Selene 提供的 `is_pressed, is_release` 来访问。除了方向键，Selene 也支持很多其它的按键，你可以在 [system.mbti](https://github.com/Milky2018/selene/selene-core/blob/main/src/system/system.mbti) 这个文件中看到支持的按键列表。
-
-这就是我们实现一个 System 的基本步骤：
-
-1. 如果定义了一个新的组件，为这个组件定义一个可以把组件和 Entity 关联起来的数据结构；
-2. 在 System 中对 `@system.all_entities` 进行迭代。
-
-> 组件的存储数据结构不一定要是一个哈希映射，只要你的 System 能访问到它就可以。
-
-> 不要轻易地通过 `for entity, component in components` 来迭代特定组件，因为这样可能会访问到已经从 `all_entities` 中被移除的 Entitiy。 
-
-`@input.simple_input_system` 是一个过于简化的输入处理系统，一般不会用在真实的游戏中。你完全可以把它从你的 App 中删去，然后自己借助 `@system.is_pressed` 实现一个输入处理系统，让文本框更灵活地移动。
-
-### 下一步
-
-相信你已经对 Selene 有了全面的认识，接下来你可以按照你的想法制作一个真正有趣的游戏，或者按照你的需求改进 Selene 引擎。另外，Selene 不仅可以用来制作游戏，也可以用来制作任何 GUI 应用。
+游戏完整源码：[Selene Example](https://github.com/moonbit-community/selene/tree/3a27062f3f95ae505b317116be457b6bd026f4f8/example)
