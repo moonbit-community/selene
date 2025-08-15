@@ -105,12 +105,10 @@ fn player_state_system(backend : &@system.Backend) -> Unit {
   } else {
     new_velocity_x = 0.0
   }
-  let transform = Some(
-    match game_state.direction {
-      Direction2::Left => @math.Transform::flip_x(32.0)
-      Direction2::Right => @math.Transform::new()
-    },
-  )
+  let transform = match game_state.direction {
+    Direction2::Left => @math.Transform::flip_x(32.0)
+    Direction2::Right => @math.Transform::new()
+  }
   match game_state.player_state {
     Idle => {
       if velocity.inner()[X] == 0.0 {

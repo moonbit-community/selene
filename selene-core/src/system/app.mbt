@@ -75,7 +75,7 @@ pub fn App::add_system(
   self : App,
   system : System,
   schedule~ : Schedule = Update,
-  system_name~ : String? = None,
+  system_name? : String,
 ) -> App {
   let system_name = match system_name {
     None => "unnamed_system\{self.systems.length()}"

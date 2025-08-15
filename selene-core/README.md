@@ -35,3 +35,4 @@ Please check [docs](https://github.com/Milky2018/selene/tree/main/docs).
 - [ ] Manual atlas (0.12)
 - [ ] Visibility 
 - [ ] Transform component
+- [ ] Move-and-slide collisions

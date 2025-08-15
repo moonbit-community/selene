@@ -31,9 +31,9 @@ pub fn play_animation(
   entity : @system.Entity,
   animation : Animation,
   from_start~ : Bool = false,
-  loop_~ : Bool? = None,
-  rate~ : Double? = None,
-  transform~ : @math.Transform? = None,
+  loop_? : Bool,
+  rate? : Double,
+  transform? : @math.Transform,
   // backward~ : Bool = false,
 ) -> Unit {
   guard sprites.get(entity)
