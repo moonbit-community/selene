@@ -130,3 +130,18 @@ pub impl @system.Backend for CanvasBackend with draw_text(
   self.context.fill_text(text, x, y)
   self.context.restore()
 }
+
+///|
+pub impl @system.Backend for CanvasBackend with draw_color_rect(
+  self,
+  x~,
+  y~,
+  width~,
+  height~,
+  color~,
+) {
+  self.context.save()
+  self.context.set_fill_style(@js.Union3::from0(color))
+  self.context.fill_rect(x, y, width, height)
+  self.context.restore()
+}

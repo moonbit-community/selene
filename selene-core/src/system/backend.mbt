@@ -83,6 +83,14 @@ pub(open) trait Backend {
     font~ : String,
     color~ : String,
   ) -> Unit
+  draw_color_rect(
+    Self,
+    x~ : Double,
+    y~ : Double,
+    width~ : Double,
+    height~ : Double,
+    color~ : String,
+  ) -> Unit
   play_audio(Self, audio_path : String, volume~ : Double, loop_~ : Bool) -> Unit
   get_canvas_size(Self) -> @math.Vec2D
   get_debug_info(Self) -> DebugInfo

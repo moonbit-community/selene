@@ -13,6 +13,7 @@
 // limitations under the License.
 
 // FIXME: This should be the same as the WORLD_WIDTH
+
 ///|
 const GAME_WIDTH = 2048.0
 

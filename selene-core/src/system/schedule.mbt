@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 pub(all) enum Schedule {
   Startup
   Update
-  Render
+  Render(Int) // priority
   UpdateFrame(UInt) // every x frames
   UpdateTime(Double) // as interval
 }
-

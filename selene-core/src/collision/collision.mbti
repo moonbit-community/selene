@@ -16,6 +16,8 @@ let areas : Map[@system.Entity, Area]
 
 let collides : Map[@system.Entity, Collide]
 
+fn debug_collide_system(&@system.Backend) -> Unit
+
 fn get_collision_infos(@system.Entity) -> Array[CollisionInfo]
 
 fn is_on_floor(@system.Entity) -> Bool

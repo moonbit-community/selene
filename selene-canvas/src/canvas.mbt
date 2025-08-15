@@ -64,6 +64,7 @@ pub impl @system.Backend for CanvasBackend with build(
   schedule_with_fixed_interval(1000 / fps.to_double(), fn(delta) {
     self.current_fps = 1000.0 / delta
     self.context.clear_rect(0, 0, canvas_width, canvas_height)
+    let renders = []
     for system in systems {
       let start_time = time_now()
       match system.1 {
@@ -73,10 +74,7 @@ pub impl @system.Backend for CanvasBackend with build(
           (system.0)(self)
           self.execution_time[system.2] = time_now() - start_time
         }
-        Render => {
-          (system.0)(self)
-          self.execution_time[system.2] = time_now() - start_time
-        }
+        Render(priority) => renders.push((system.0, priority))
         Update => {
           (system.0)(self)
           self.execution_time[system.2] = time_now() - start_time
@@ -89,6 +87,10 @@ pub impl @system.Backend for CanvasBackend with build(
         }
         _ => ()
       }
+    }
+    renders.sort_by_key(fn(system) { -system.1 })
+    for render in renders {
+      (render.0)(self)
     }
     self.frame_counter += 1
   })

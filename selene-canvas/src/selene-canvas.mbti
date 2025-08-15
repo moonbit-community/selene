@@ -12,6 +12,8 @@ fn set_viewport_height(@dom.HTMLCanvasElement, Double) -> Unit
 
 fn set_viewport_width(@dom.HTMLCanvasElement, Double) -> Unit
 
+fn time_now() -> Double
+
 // Errors
 
 // Types and methods

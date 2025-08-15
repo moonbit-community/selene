@@ -43,9 +43,9 @@ fn Transform::identity() -> Self
 fn Transform::inverse(Self) -> Self?
 fn Transform::multiply(Self, Self) -> Self
 fn Transform::new(a? : Double, b? : Double, c? : Double, d? : Double, tx? : Double, ty? : Double) -> Self
-fn Transform::set_rotation_rad(Self, Double) -> Self
-fn Transform::set_scale(Self, Double, Double) -> Self
-fn Transform::set_translation(Self, Double, Double) -> Self
+fn Transform::rotate_rad(Self, Double) -> Self
+fn Transform::scale(Self, Double, Double) -> Self
+fn Transform::translate(Self, Double, Double) -> Self
 impl Add for Transform
 impl Mul for Transform
 impl Sub for Transform

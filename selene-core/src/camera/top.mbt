@@ -106,4 +106,3 @@ pub fn camera_system(backend : &@system.Backend) -> Unit {
     camera.position = @math.Vec2D(right - viewport_size[X], camera.position[Y])
   }
 }
-

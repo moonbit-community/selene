@@ -20,11 +20,20 @@
 /// ```
 /// Shows FPS counter in top-left corner.
 pub fn debug_plugin(app : @system.App) -> Unit {
-  app.systems.push(
+  app.systems
+  ..push(
     (
       @debug.debug_info_display_system,
       UpdateTime(1.0),
       "Debug Info Display System",
+    ),
+  )
+  ..push((@collision.debug_collide_system, Render(-10), "Debug Collide System"))
+  ..push(
+    (
+      @collision.quadtree_render_system,
+      Render(-11),
+      "Debug Quadtree Render System",
     ),
   )
 }
@@ -43,6 +52,6 @@ pub fn default_plugin(app : @system.App) -> Unit {
   ..push((@collision.area_click_system, Update, "Area Click System"))
   ..push((@collision.area_collide_system, Update, "Area Collide System"))
   ..push((@system.deferred_event_system, Update, "Deferred Event System"))
-  ..push((@sprite.render_sprite_system, Render, "Render Sprite System"))
+  ..push((@sprite.render_sprite_system, Render(0), "Render Sprite System"))
   ..push((@camera.camera_system, Update, "Camera System"))
 }
