@@ -4,7 +4,7 @@ This tutorial will help you quickly experience the Selene game engine.
 
 ## Understanding Selene
 
-Selene is an experimental game engine that encourages users to unleash their creativity based on the fundamental features of programming.
+Selene is an experimental engine that encourages users to unleash creativity based on the most fundamental features of programming.
 
 Selene has the following characteristics:
 
@@ -13,7 +13,7 @@ Selene has the following characteristics:
 - Modular: Almost no coupling, you can import only the functionality you need
 - Efficient: With the performance advantages of MoonBit itself and ECS architecture, it runs very fast
 
-The shortcomings are that currently (version 0.10.0) Selene lacks many advanced features that industrial-grade engines have, such as convex polygon collision detection, 3D object rendering, gamepad support, etc. Contributions are very welcome.
+The shortcomings are that currently (version 0.10.x) Selene lacks many advanced features that industrial-grade engines have, such as convex polygon collision detection, 3D object rendering, gamepad support, etc. Contributions are very welcome.
 
 ## Running the Example
 
@@ -55,58 +55,337 @@ Next, you can try modifying some code in the source, such as adjusting the game 
 
 ## Making Your First Game
 
-This section will guide you through creating a simple application that controls a text box with arrow keys, giving you a complete experience of the Selene engine.
+This chapter will introduce how to use the Selene game engine to create a complete platform jumping game. Through the actual development process, learn the core functionality and development techniques of the game engine.
 
-### Building the Project
+### Example Game Showcase
 
-Create a new MoonBit project:
+The game we will create is as follows:
 
-```shell
-moon new --path mygame --name mygame --user <YOURNAME>
-cd mygame
+![](../example/screenshot.png)
+
+We will demonstrate how to create the following in the upcoming process:
+
+- Green grass tiles
+- A controllable character
+- A movable camera
+- Collectible apple items
+- Score display box
+- Volume control button
+
+Players can use arrow keys to control character movement and jumping, with sound effects playing during jumps. Collecting apples increases the score. The volume button can control the game's sound on/off state.
+
+To run the example game, enter the example directory, use `moon build` to build the project, then use any web server (such as `python -m http.server 8000`) to access it in a browser.
+
+### Project Creation and Configuration
+
+First download and install the MoonBit CLI tool. If using VS Code, it's recommended to install the MoonBit plugin, which will automatically prompt to download the relevant toolchain.
+
+Use the `moon new` command to create a new project, select runnable project mode, and set project name and license information.
+
+### Asset Preparation
+
+The image and audio assets needed for the game can be downloaded for free: [Image assets](https://pixelfrog-assets.itch.io/pixel-adventure-1) contain character animation sequences and terrain elements, [Audio assets](https://brackeysgames.itch.io/brackeys-platformer-bundle) contain jump and collection sound effects. Copy the downloaded asset folders to the project root directory.
+
+### Engine Dependency Installation
+
+Add Selene engine dependencies to the project:
+
+```bash
+moon add Milky2018/selene@0.10.3
+moon add Milky2018/selene-canvas@0.10.3
 ```
 
-Add the Selene engine and Canvas backend as dependencies:
+> You can also get the latest version to enjoy more new features, but the following process may not run properly and you'll need to debug it yourself.
 
-```shell
-moon add Milky2018/selene@0.10.0
-moon add Milky2018/selene-canvas@0.10.0
-```
-
-> You can also get the latest version, but the following process may not run properly and you'll need to debug it yourself.
-
-Next, you can adjust the project structure according to your preferred style. Don't forget to import Selene's various packages in `moon.pkg.json`:
+Import the required engine modules in `moon.pkg.json`:
 
 ```json
 {
-  "is-main": true,
   "import": [
     "Milky2018/selene/system",
     "Milky2018/selene/math",
     "Milky2018/selene/sprite",
+    "Milky2018/selene/position",
     "Milky2018/selene/velocity",
+    "Milky2018/selene/collision",
     "Milky2018/selene/input",
     "Milky2018/selene/plugins",
-    "Milky2018/selene/position",
-    "Milky2018/selene/collision",
+    "Milky2018/selene/camera",
+    "Milky2018/selene/audio",
+    "Milky2018/selene/tilemap",
     { "path": "Milky2018/selene-canvas", "alias": "canvas" }
   ]
 }
 ```
 
-Now you can start creating a new game App. Instantiate an App in the main function:
+The core of a Selene project is the App object. You need to create a basic game application in the `main` function:
 
 ```moonbit
 fn main {
   @system.App::new(@canvas.CanvasBackend::new())
+  .with_canvas_width(480.0)
+  .with_canvas_height(320.0)
+  .with_fps(60)
+  .add_plugin(@plugins.default_plugin)
   .run()
 }
 ```
 
-Note that we used a backend called `CanvasBackend` to run the game. Selene supports modular backends. When using the `CanvasBackend` backend, our game will be built as a JavaScript file describing a Canvas2D canvas. Now use the `build` command and specify js as MoonBit's compilation backend to build the game project:
+A backend called `CanvasBackend` is used to run the game. Selene supports modular backends. When using the `CanvasBackend` backend, the game will be built as a JavaScript file describing a Canvas2D canvas.
+
+The game cyclically executes system functions at a fixed frame rate (such as 60FPS). Each system is responsible for specific functionality, such as rendering, entity movement, or input processing. Specific game functionality needs to be implemented through various systems.
+
+### Game State Management
+
+Global game state contains player references, scores, volume settings, etc. You can use a global variable to save the game state:
+
+```moonbit
+struct GameState {
+  player : @system.Entity
+  mut score : Int
+  mut volume_on : Bool
+  mut player_state : PlayerState
+  score_box : @sprite.Text
+}
+
+let game_state : GameState = {
+  ...
+}
+```
+
+The various fields contained will be introduced in the following content.
+
+### Entities and Components
+
+Objects in the game are represented through entities (Entity) and components (Component). Entities are unique identifiers, and components store specific data. Example of creating a player entity:
+
+```moonbit
+let player = @system.Entity::new()
+@position.positions.set(player, @math.Vec2D::new(100.0, 100.0))
+@velocity.velocities.set(player, @math.Vec2D::zero())
+```
+
+The above code does the following:
+
+1. Generate a new Entity;
+3. Set the new Entity's position to (100, 100);
+2. Set the new Entity's velocity to (0, 0);
+
+Entity is like a reference, all components belonging to an entity are associated together through the `Map[K, V]::set` method. Both `@position.positions` and `@sprite.sprites` are hash map type data structures that store the corresponding components for each entity.
+
+Components are managed through global mapping tables, and systems process related entities by querying these mapping tables. For example, after setting velocity and position attributes for an entity, the entity's position will move according to velocity each frame.
+
+Such behavior of adding a player entity needs to be placed in an initializer:
+
+```moonbit
+app.add_initializer(add_player)
+```
+
+Initializers are executed once when the game starts.
+
+### Player Character Implementation
+
+The player character needs multiple animation states: idle, running, jumping, and falling. Each state corresponds to different sprite animations. Taking the idle animation as an example:
+
+```moonbit
+let player_idle_animation = @sprite.Animation::new(
+  "pixel_adventure/Main Characters/Mask Dude/Idle (32x32).png",
+  loop_=true, max_frame=11, height=32.0, width=32.0
+)
+```
+
+The `loop_` parameter indicates whether the animation will loop; `max_frame` indicates how many animation frames this image contains in total.
+
+Play animation for an entity by calling `@sprite.play_animation`:
+
+```moonbit
+@sprite.play_animation(player, player_idle_animation)
+```
+
+The player state machine switches between different states based on velocity and ground contact. You can use a state machine to implement state switching and playing different animations:
+
+```moonbit
+enum PlayerState {
+  Idle
+  Jump
+  Fall
+} derive(Show)
+
+match player_state {
+  Idle => ...
+  Jump => ...
+  Fall => ...
+}
+```
+
+Players also need to control character movement based on keyboard input. You can use `@system.is_pressed` or `@system.is_just_pressed` to detect whether a key is pressed. The difference is that the former returns true as long as the key is pressed, while the latter only returns true when the key is just pressed. You can use these two functions to control left-right movement and jumping respectively:
+
+```moonbit
+if @system.is_pressed(ArrowLeft) {
+  velocity_x = -5.0
+} else if @system.is_pressed(ArrowRight) {
+  velocity_x = 5.0
+} else {
+  velocity_x = 0.0
+}
+
+if @system.is_just_pressed(ArrowUp) && @collision.is_on_floor(game_state.player) {
+  velocity_y = 10.0
+}
+```
+
+Here, `@collision.is_on_floor` is used to determine whether the character is standing on a platform.
+
+### Obstacles and Collision
+
+To prevent players from moving through obstacles, collision layers and collision bodies need to be set for both players and obstacles:
+
+```moonbit
+let terrain_collision_layer = @collision.CollisionLayer::new()
+let player_collision_layer = @collision.CollisionLayer::new()
+
+@collision.collides.set(game_state.player, @collision.Collide::{
+  shape: Rect(size=@math.Vec2D::new(24.0, 32.0), offset=@math.Vec2D::zero()),
+  layer: player_collision_layer,
+  mask: @collision.CollisionMask::new([terrain_collision_layer]),
+})
+
+@collision.collides.set(grass, @collision.Collide::{
+  shape: Rect(size=@math.Vec2D::new(16.0, 16.0), offset=@math.Vec2D::zero()),
+  layer: terrain_collision_layer,
+  mask: @collision.CollisionMask::empty(),
+})
+```
+
+The above code sets rectangular collision bodies for the player and grass respectively. Collision only occurs when one entity's collision mask contains another entity's collision layer.
+
+### Tile Map Creation
+
+Drawing a complete map directly with code is not convenient. Selene supports using external tools like [Sprite Fusion](https://www.spritefusion.com/) to design maps and export them in JSON format.
+
+The JSON output by Sprite Fusion contains the tile pixel size of the map, map dimensions, and information for each layer. It looks roughly like this:
+
+```json
+{
+  "tileSize": 16,
+  "mapWidth": 75,
+  "mapHeight": 51,
+  "layers": [
+    {
+      "name": "Grass",
+      "tiles": [
+        { "id": "0", "x": 8, "y": 46 },
+        { "id": "1", "x": 9, "y": 46 },
+        { "id": "2", "x": 8, "y": 47 },
+        { "id": "3", "x": 9, "y": 47 },
+      ],
+      "collider": false
+    }
+    ...
+  ]
+}
+```
+
+Use `@tilemap.TileMap::from_json` to parse map data and generate corresponding game entities:
+
+```moonbit
+fn generate_map(backend : &@system.Backend) -> Unit {
+  let tilemap = @tilemap.TileMap::from_json(tilemap_data)
+  let grasses = tilemap.get_tiles("Grass")
+  for grass in grasses {
+    add_grass(tile_to_vec2d(grass, tilemap.tile_size))
+  }
+}
+```
+
+### Camera
+
+When the game map is much larger than the canvas size, to allow players to see the character they control, the camera needs to follow the player and set boundary limits to prevent displaying blank areas:
+
+```moonbit
+@camera.camera.attached_entity = Some(player)
+@camera.camera.limit_left = Some(0.0)
+@camera.camera.limit_right = Some(world_width)
+@camera.camera.limit_top = Some(0.0)
+@camera.camera.limit_bottom = Some(world_height)
+```
+
+Since the player position is at the top-left corner of the player image, to make the camera closer to the center of the player character, you can also set the `offset` property to half the player's size:
+
+```moonbit
+@camera.camera.offset = @math.Vec2D::new(16.0, 16.0)
+```
+
+### Areas and Audio
+
+Apples are different from terrain - they don't affect player movement and collision, but trigger events when touching the player: the apple disappears and the game score increases. This functionality is implemented by setting an area component for the apple entity:
+
+```moonbit
+let area = @collision.Area::new(
+  Rect(size=@math.Vec2D::new(32.0, 32.0), offset=@math.Vec2D::zero()),
+  non_collide_layer,
+  @collision.CollisionMask::new([player_collision_layer]),
+)
+@collision.areas.set(apple, area)
+area.on_enter(fn(e) {
+  if e == game_state.player {
+    set_score(game_state.score + 10)
+    if game_state.volume_on {
+      @audio.play_audio(backend, "sounds/coin.wav")
+    }
+    @system.Entity::destroy(apple)
+  }
+})
+```
+
+Set a rectangular collision body for the area. Use the `Area::on_enter` method to add a callback for the area. When an entity enters the area, it triggers score increase and plays sound effects.
+
+### User Interface
+
+Create score display boxes using regular `Sprite` components and UI components. UI elements use high z-index values to ensure they display above game content:
+
+```moonbit
+fn add_score_box() -> Unit {
+  let box = @system.Entity::new()
+  @position.positions.set(box, @math.Vec2D::new(240.0, 40.0))
+  let text = @sprite.Sprite::new_text(game_state.score_box, 100)
+  @camera.uis.set(box, @camera.Ui::new())
+  @sprite.sprites.set(box, text)
+}
+```
+
+Reminder: Forgetting to set the UI component will cause the entity to move with the camera instead of being fixed at a certain position on the screen.
+
+The volume button switches audio on/off state through mouse click events. Mouse button callbacks can be set through the area component's `Area::on_just_released`. In this example, the volume button state is only toggled when the left mouse button is released.
+
+```moonbit
+let area = @collision.Area::new(
+  @collision.CollisionShape::Rect(
+    size=@math.Vec2D::new(21.0, 22.0),
+    offset=@math.Vec2D::zero(),
+  ),
+  non_collide_layer,
+  @collision.CollisionMask::new([]),
+  monitoring_mouse=true,
+)
+area.on_just_released(fn(mouse_button) {
+  if mouse_button == Left {
+    game_state.volume_on = !game_state.volume_on
+    if game_state.volume_on {
+      @sprite.sprites.set(button, volume_on)
+    } else {
+      @sprite.sprites.set(button, volumn_off)
+    }
+  }
+})
+```
+
+### Compilation & Playing
+
+Build command:
 
 ```shell 
-moon build --target js
+moon build --target js --watch
 ```
 
 After successful building, you'll get a target directory containing the compilation artifacts. To display this canvas, we need an HTML file. Create an `index.html` file in the project root directory and fill it with the following content:
@@ -128,196 +407,23 @@ After successful building, you'll get a target directory containing the compilat
 </html>
 ```
 
-Now, use any simple web server to run this web page. For example, using Python3:
+Then use a web server to run:
 
 ```shell
-python -m http.server 8000
-# Or
 python3 -m http.server 8000
 ```
 
-You should see the following information in the terminal:
+Use a browser to visit localhost:8000 to play.
 
-```shell
-Serving HTTP on :: port 8000 (http://[::]:8000/) ...
-```
+Complete game source code: [Selene Example](https://github.com/moonbit-community/selene/tree/3a27062f3f95ae505b317116be457b6bd026f4f8/example)
 
-This indicates that the game server is running. Open your commonly used browser and visit `localhost:8000` to play your game. Of course, now there should only be a pure white canvas, and we need to add various interesting content to it.
+## Next Steps
 
-### The First System
+Congratulations on completing your first Selene game! Through this tutorial, you've mastered the core concepts and development workflow of the game engine. Next, you can:
 
-Selene's running logic is to cyclically execute a series of callback functions called Systems at a specific frame rate (default is 60). Systems contain updates to the game state, or render objects in the game world to the screen, which in our game means drawing to the canvas element.
+- **Extend game functionality**: Add more levels, enemies, items, or game mechanics to your game
+- **Optimize game experience**: Improve character animations, optimize sound effects and visual feedback
+- **Contribute to the community**: Report issues, submit improvement suggestions, or contribute code on [GitHub](https://github.com/moonbit-community/selene)
+- **Create original games**: Use your acquired knowledge to develop your own game projects
 
-Now, let's try drawing a rectangle. We add a function that draws a rectangle as a System to the App:
-
-```moonbit
-fn main {
-  @system.App::new(@canvas.CanvasBackend::new()) // Choose CanvasBackend as the backend
-  .add_system(stroke_render_pipe)                // Add the rectangle drawing system
-  .run()
-}
-
-fn stroke_render_pipe(backend : &@system.Backend) -> Unit {
-  backend.draw_stroke_rect( // Call the backend's rectangle drawing function
-    x=100,                  // Set the rectangle's coordinates
-    y=100,
-    width=50,               // Set the rectangle's width and height
-    height=50,
-    color="blue",           // Set the rectangle's color
-  )
-}
-```
-
-Run the game again, and we'll see a blue rectangle in the canvas.
-
-### The First Entity
-
-In `stroke_render_pipe`, we manually drew a rectangle using the `draw_stroke_rect` method provided by `Backend`. We generally don't need to manually call the low-level methods provided by `Backend`. Selene already provides many useful Systems and Initializers internally to accomplish this. For example, the `sprite` package provides a system called `render_sprite_system`, which will draw all Sprites to their corresponding places.
-
-To use such functionality, we need to create simple Sprites. For example, we can create a text box filled with "Hello World" text and set it to black:
-
-```moonbit
-let box = @system.Entity::new()
-let text = @sprite.Sprite::new_text(@sprite.Text::new("Hello World", color="black"), 10)
-@position.positions.set(box, @math.Vec2D(100, 100))
-@sprite.sprites.set(box, text)
-```
-
-Let's see what we did:
-
-1. Generate a new Entity;
-2. Generate a new text box component;
-3. Set the new Entity's position to (100, 100);
-4. Set the text box component to the new Entity.
-
-Entity is like a reference, we associate all components belonging to an entity through the `Map[K, V]::set` method. Both `@position.positions` and `@sprite.sprites` are hash map type data structures that store the corresponding components for each entity.
-
-> The second parameter of `new_text(text : Text, zindex : Int)` represents the vertical height of this Sprite. Sprites with larger zindex values will cover Sprites with smaller zindex values.
-
-> The coordinates represented by @math.Vec2D may be different from what you learned in math class: the y-axis is downward.
-
-So, where do we generate this text box? Anywhere! Our recommended method is to put it in the App's Initializers, so it will only be executed once when the project starts, since we don't need to generate a text box every frame:
-
-```moonbit
-fn add_hello_text(_ : &@system.Backend) -> Unit {
-  let box = @system.Entity::new()
-  let text = @sprite.Sprite::new_text(@sprite.Text::new("Hello World", color="white"), 10)
-  @position.positions.set(box, @math.Vec2D(100, 100))
-  @sprite.sprites.set(box, text)
-}
-
-fn main {
-  @system.App::new(@canvas.CanvasBackend::new())
-  // Add an initializer, initializers only execute once when the game starts
-  .add_initializer(add_hello_text)
-  .add_system(@sprite.render_sprite_system)
-  .run()
-}
-```
-
-Now, run your game again and you can see this text box in the canvas!
-
-### Movement
-
-How to make the text box move? The simplest way is to add a velocity component to it:
-
-```moonbit
-@velocity.velocities.set(box, @math.Vec2D(1.0, 1.0))
-```
-
-This component alone is not enough, we need a System that can update each entity's position component based on its velocity every frame. We could write such a System ourselves, but you probably guessed it, such a commonly used System is already provided by Selene. We just need to add `@collision.move_system` to the App. Here's the complete code:
-
-```moonbit
-fn add_hello_text(_ : &@system.Backend) -> Unit {
-  let box = @system.Entity::new()
-  let text = @sprite.Sprite::new_text(@sprite.Text::new("Hello World", color="black"), 10)
-  @position.positions.set(box, @math.Vec2D(100, 100))  // Associate position with entity
-  @sprite.sprites.set(box, text)                            // Associate text box with entity
-  @velocity.velocities.set(box, @math.Vec2D(1.0, 1.0)) // Associate velocity with entity
-}
-
-fn main {
-  @system.App::new(@canvas.CanvasBackend::new())
-  .add_initializer(add_hello_text)
-  .add_system(@collision.move_system) // Add the system that controls object movement to the App
-  .add_system(@sprite.render_sprite_system)
-  .run()
-}
-```
-
-Run the game again, and now you can see the text box slowly moving to the bottom right!
-
-### Handling Input
-
-Games are the art of interaction, we want to see the content in the game world change according to our input. This time let's change our approach. Before discussing how to do it, let's look at the code first. Add `@input.simple_input_system` to the App, and set the `@input.controls` component for the text box:
-
-```moonbit
-fn add_hello_text(_ : &@system.Backend) -> Unit {
-  let box = @system.Entity::new()
-  let text = @sprite.Sprite::new_text(@sprite.Text::new("Hello World", color="black"), 10)
-  @position.positions.set(box, @math.Vec2D(100, 100))
-  @sprite.sprites.set(box, text)
-  @velocity.velocities.set(box, @math.Vec2D::zero())
-  @input.controls.set(box, @input.KeyInput::{})
-}
-
-fn main {
-  @system.App::new(@canvas.CanvasBackend::new())
-  .add_initializer(add_hello_text)
-  .add_system(@collision.move_system)
-  .add_system(@input.simple_input_system)
-  .add_system(@sprite.render_sprite_system)
-  .run()
-}
-```
-
-Then run the game and see what happens. Try pressing the arrow keys on your keyboard! The text box moves according to the key presses!
-
-The behind-the-scenes logic to achieve all this is very simple. Let's directly read the source code of `@input.simple_input_system` and `@input.controls`:
-
-```moonbit
-pub(all) struct KeyInput {}
-
-pub let controls : Map[@system.Entity, KeyInput] = Map::new()
-
-pub fn simple_input_system(_backend : &@system.Backend) -> Unit {
-  for e in @system.all_entities {
-    guard controls.get(e) is Some(_) else { continue }
-    let new_velocity_x = if @system.is_pressed(ArrowLeft) {
-      -5.0
-    } else if @system.is_pressed(ArrowRight) {
-      5.0
-    } else {
-      0.0
-    }
-    let new_velocity_y = if @system.is_pressed(ArrowUp) {
-      -5.0
-    } else if @system.is_pressed(ArrowDown) {
-      5.0
-    } else {
-      0.0
-    }
-    @velocity.velocities.set(
-      e,
-      @math.Vec2D(new_velocity_x, new_velocity_y),
-    )
-  }
-}
-```
-
-When we set the `controls` component for the text box, it is added to this hash map; and inside `simple_input_system`, as long as an entity contains the `controls` component, its velocity will be updated according to the key state. The key state is stored in the `@system.pressed_keys` set, which you can access directly, or through Selene's provided `is_pressed, is_released`. In addition to arrow keys, Selene also supports many other keys. You can see the list of supported keys in [system.mbti](https://github.com/Milky2018/selene/selene-core/blob/main/src/system/system.mbti).
-
-These are the basic steps to implement a System:
-
-1. If you define a new component, define a data structure for this component that can associate the component with an Entity;
-2. Iterate over `@system.all_entities` in the System.
-
-> The storage data structure for components doesn't have to be a hash map, as long as your System can access it.
-
-> Don't easily iterate specific components through `for entity, component in components`, because this might access Entities that have already been removed from `all_entities`. 
-
-`@input.simple_input_system` is an overly simplified input handling system that is generally not used in real games. You can completely remove it from your App and implement your own input handling system using `@system.is_pressed` to make the text box move more flexibly.
-
-### Next Steps
-
-I believe you now have a comprehensive understanding of Selene. Next, you can create a truly interesting game according to your ideas, or improve the Selene engine according to your needs. Additionally, Selene can be used not only for making games, but also for creating any GUI application.
+Selene can be used not only for making games, but also for creating any application that requires a graphical interface. Unleash your creativity and build excellent works with MoonBit and Selene!
