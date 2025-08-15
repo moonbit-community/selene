@@ -27,7 +27,10 @@ fn get_image_element(png : String) -> @dom.HTMLImageElement {
 }
 
 ///|
-pub impl @system.Backend for CanvasBackend with preload_img(_self, path : String) -> Unit {
+pub impl @system.Backend for CanvasBackend with preload_img(
+  _self,
+  path : String,
+) -> Unit {
   get_image_element(path) |> ignore
 }
 

@@ -7,7 +7,7 @@ import(
 )
 
 // Values
-fn play_animation(@system.Entity, Animation, from_start? : Bool, loop_? : Bool?, rate? : Double?, transform? : @math.Transform?) -> Unit
+fn play_animation(@system.Entity, Animation, from_start? : Bool, loop_? : Bool, rate? : Double, transform? : @math.Transform) -> Unit
 
 fn render_sprite_system(&@system.Backend) -> Unit
 
@@ -16,7 +16,7 @@ let sprites : Map[@system.Entity, Sprite]
 // Errors
 
 // Types and methods
-pub struct Animation {
+pub(all) struct Animation {
   sprite_path : String
   max_frame : UInt
   height : Double

@@ -53,7 +53,7 @@ pub(all) struct App {
   backend : &Backend
 }
 fn App::add_plugin(Self, (Self) -> Unit) -> Self
-fn App::add_system(Self, (&Backend) -> Unit, schedule? : Schedule, system_name? : String?) -> Self
+fn App::add_system(Self, (&Backend) -> Unit, schedule? : Schedule, system_name? : String) -> Self
 fn App::new(&Backend) -> Self
 fn App::run(Self) -> Unit
 fn App::with_backend(Self, &Backend) -> Self
@@ -161,5 +161,7 @@ pub(open) trait Backend {
   play_audio(Self, String, volume~ : Double, loop_~ : Bool) -> Unit
   get_canvas_size(Self) -> @math.Vec2D
   get_debug_info(Self) -> DebugInfo
+  preload_img(Self, String) -> Unit
+  preload_audio(Self, String) -> Unit
 }
 
