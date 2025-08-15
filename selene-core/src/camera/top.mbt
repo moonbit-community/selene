@@ -45,6 +45,7 @@
 /// camera.follow_x = false  // Disable horizontal following (for vertical-scrolling games)
 /// camera.follow_y = false  // Disable vertical following (for horizontal-scrolling games)
 /// ```
+/// 
 pub(all) struct Camera {
   mut position : @math.Vec2D
   mut limit_top : Double?

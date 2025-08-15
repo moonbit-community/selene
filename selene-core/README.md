@@ -25,9 +25,13 @@ Please check [docs](https://github.com/Milky2018/selene/tree/main/docs).
 - [ ] Gamepad support 
 - [x] Mouse/Screen Touch support 
 - [x] Camera
-- [ ] Documentation
+- [x] Documentation
 - [ ] Convex polygon collision
-- [ ] Debug information
+- [x] Debug information
 - [x] Audio
 - [ ] Timer
-- [ ] Webpack
+- [ ] Webpack (selene-canvas)
+- [ ] Parent-child structure (0.12)
+- [ ] Manual atlas (0.12)
+- [ ] Visibility 
+- [ ] Transform component

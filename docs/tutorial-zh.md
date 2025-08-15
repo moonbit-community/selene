@@ -300,7 +300,7 @@ fn generate_map(backend : &@system.Backend) -> Unit {
 
 ### 摄像机
 
-当游戏地图远大于画布尺寸时，为了让玩家能看到自己控制的任务，需要摄像机跟随玩家移动，并设置边界限制防止显示空白区域：
+当游戏地图远大于画布尺寸时，为了让玩家能看到自己控制的人物，需要摄像机跟随玩家移动，并设置边界限制防止显示空白区域：
 
 ```moonbit
 @camera.camera.attached_entity = Some(player)

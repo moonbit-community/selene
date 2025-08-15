@@ -14,6 +14,7 @@
 
 ///|
 /// The `Collide` struct represents a collision object in the game world.
+/// 
 pub(all) struct Collide {
   shape : CollisionShape
   layer : CollisionLayer
@@ -25,6 +26,7 @@ pub let collides : Map[@system.Entity, Collide] = Map::new()
 
 ///|
 /// The collision info represents information about a collision event.
+/// 
 pub struct CollisionInfo {
   entity : @system.Entity
   direction : @math.Vec2D
