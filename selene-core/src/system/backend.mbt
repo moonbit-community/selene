@@ -103,6 +103,15 @@ pub(open) trait Backend {
     height~ : Double,
     color~ : String,
   ) -> Unit
+  draw_gradient_rect(
+    Self,
+    x~ : Double,
+    y~ : Double,
+    width~ : Double,
+    height~ : Double,
+    color_start~ : String,
+    color_end~ : String,
+  ) -> Unit
   play_audio(Self, audio_path : String, volume~ : Double, loop_~ : Bool) -> Unit
   get_canvas_size(Self) -> @math.Vec2D
   get_debug_info(Self) -> DebugInfo

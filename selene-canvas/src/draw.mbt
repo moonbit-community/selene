@@ -153,3 +153,27 @@ pub impl @system.Backend for CanvasBackend with draw_color_rect(
   self.context.fill_rect(x, y, width, height)
   self.context.restore()
 }
+
+///|
+pub impl @system.Backend for CanvasBackend with draw_gradient_rect(
+  self,
+  x~,
+  y~,
+  width~,
+  height~,
+  color_start~,
+  color_end~,
+) {
+  self.context.save()
+  let gradient = self.context.create_linear_gradient(
+    x,
+    y,
+    x + width,
+    y + height,
+  )
+  gradient.add_color_stop(0.0, color_start)
+  gradient.add_color_stop(1.0, color_end)
+  self.context.set_fill_style(@js.Union3::from1(gradient))
+  self.context.fill_rect(x, y, width, height)
+  self.context.restore()
+}
