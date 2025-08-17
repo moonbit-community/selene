@@ -8,6 +8,12 @@ import(
 )
 
 // Values
+fn document_add_event_listener(String, (@dom.Event) -> Unit) -> Unit
+
+fn is_pointer_locked(@dom.HTMLCanvasElement) -> Bool
+
+fn request_pointer_lock(@dom.HTMLCanvasElement) -> Unit
+
 fn set_viewport_height(@dom.HTMLCanvasElement, Double) -> Unit
 
 fn set_viewport_width(@dom.HTMLCanvasElement, Double) -> Unit

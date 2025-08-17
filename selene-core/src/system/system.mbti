@@ -25,6 +25,8 @@ fn is_mouse_just_pressed(MouseButton) -> Bool
 
 fn is_mouse_just_released(MouseButton) -> Bool
 
+fn is_mouse_locked() -> Bool
+
 fn is_mouse_pressed(MouseButton) -> Bool
 
 fn is_mouse_released(MouseButton) -> Bool
@@ -37,7 +39,13 @@ let just_pressed_mouse : Mouse
 
 let just_release_mouse : Mouse
 
+fn lock_mouse(&Backend) -> Unit
+
 let mouse : Mouse
+
+let mouse_locked : Ref[Bool]
+
+let mouse_movement : MouseMovement
 
 let pressed_keys : @set.Set[Code]
 
@@ -130,6 +138,10 @@ pub(all) enum MouseButton {
 impl Eq for MouseButton
 impl Show for MouseButton
 
+pub(all) struct MouseMovement {
+  mut movement : @math.Vec2D
+}
+
 pub(all) enum RepeatMode {
   RepeatX
   RepeatY
@@ -154,10 +166,12 @@ pub(open) trait Backend {
   draw_picture(Self, String, x~ : Double, y~ : Double, width~ : Double, height~ : Double, transform~ : @math.Transform, repeat~ : RepeatMode) -> Unit
   draw_sprite(Self, String, x~ : Double, y~ : Double, offset_x~ : Double, offset_y~ : Double, width~ : Double, height~ : Double, transform~ : @math.Transform) -> Unit
   register_key_events(Self, @set.Set[Code]) -> Unit
-  register_mouse_events(Self, Mouse) -> Unit
+  register_mouse_events(Self, Mouse, MouseMovement) -> Unit
+  lock_mouse(Self, Ref[Bool]) -> Unit
   draw_stroke_rect(Self, x~ : Double, y~ : Double, width~ : Double, height~ : Double, color~ : String) -> Unit
   draw_text(Self, String, x~ : Double, y~ : Double, font~ : String, color~ : String) -> Unit
   draw_color_rect(Self, x~ : Double, y~ : Double, width~ : Double, height~ : Double, color~ : String) -> Unit
+  draw_gradient_rect(Self, x~ : Double, y~ : Double, width~ : Double, height~ : Double, color_start~ : String, color_end~ : String) -> Unit
   play_audio(Self, String, volume~ : Double, loop_~ : Bool) -> Unit
   get_canvas_size(Self) -> @math.Vec2D
   get_debug_info(Self) -> DebugInfo

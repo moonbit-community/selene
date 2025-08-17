@@ -48,9 +48,8 @@ pub(all) struct MouseMovement {
   mut movement : @math.Vec2D
 }
 
-pub let mouse_movement : MouseMovement = {
-  movement: @math.Vec2D(0.0, 0.0),
-}
+///|
+pub let mouse_movement : MouseMovement = { movement: @math.Vec2D(0.0, 0.0) }
 
 ///|
 let last_mouse : Mouse = {

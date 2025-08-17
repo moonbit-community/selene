@@ -2,6 +2,7 @@
 package "Milky2018/selene/math"
 
 // Values
+fn normalize_angle(Double) -> Double
 
 // Errors
 
