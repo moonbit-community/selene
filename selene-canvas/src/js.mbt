@@ -26,3 +26,15 @@ pub extern "js" fn set_viewport_width(
 
 ///|
 pub extern "js" fn time_now() -> Double = "() => performance.now()"
+
+///|
+pub extern "js" fn request_pointer_lock(elem : @dom.HTMLCanvasElement) -> Unit = "(elem) => { elem.requestPointerLock(); }"
+
+///|
+pub extern "js" fn is_pointer_locked(canvas : @dom.HTMLCanvasElement) -> Bool = "(canvas) => document.pointerLockElement === canvas"
+
+///|
+pub extern "js" fn document_add_event_listener(
+  event : String,
+  callback : (@dom.Event) -> Unit,
+) -> Unit = "(event, callback) => { document.addEventListener(event, callback); }"

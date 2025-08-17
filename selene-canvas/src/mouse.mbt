@@ -14,14 +14,20 @@
 
 ///|
 pub impl @system.Backend for CanvasBackend with register_mouse_events(
-  _self,
+  self,
   mouse : @system.Mouse,
+  mouse_movement : @system.MouseMovement,
 ) {
+  self.mouse_movement.val = Some(mouse_movement)
   window.add_event_listener("mousemove", event => {
     let mouse_event = event.to_mouse_event().unwrap()
     mouse.pos = @math.Vec2D(
       mouse_event.get_offset_x().to_double(),
       mouse_event.get_offset_y().to_double(),
+    )
+    mouse_movement.movement = @math.Vec2D(
+      mouse_event.get_movement_x().to_double(),
+      mouse_event.get_movement_y().to_double(),
     )
   })
   window.add_event_listener("mousedown", event => {
@@ -41,5 +47,18 @@ pub impl @system.Backend for CanvasBackend with register_mouse_events(
       2 => mouse.right_button = false
       _ => ()
     }
+  })
+}
+
+///|
+pub impl @system.Backend for CanvasBackend with lock_mouse(
+  self,
+  locked : Ref[Bool],
+) {
+  self.canvas.add_event_listener("click", fn(_event) {
+    request_pointer_lock(self.canvas)
+  })
+  document_add_event_listener("pointerlockchange", fn(_event) {
+    locked.val = is_pointer_locked(self.canvas)
   })
 }

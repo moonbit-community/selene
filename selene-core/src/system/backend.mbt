@@ -78,7 +78,8 @@ pub(open) trait Backend {
     transform~ : @math.Transform,
   ) -> Unit
   register_key_events(Self, pressed_keys : Set[Code]) -> Unit
-  register_mouse_events(Self, mouse : Mouse) -> Unit
+  register_mouse_events(Self, mouse : Mouse, mouse_movement : MouseMovement) -> Unit
+  lock_mouse(Self, locked : Ref[Bool]) -> Unit
   draw_stroke_rect(
     Self,
     x~ : Double,

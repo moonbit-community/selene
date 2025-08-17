@@ -147,6 +147,6 @@ pub fn App::run(self : App) -> Unit {
     self.fps,
   )
   self.backend.register_key_events(pressed_keys)
-  self.backend.register_mouse_events(mouse)
+  self.backend.register_mouse_events(mouse, mouse_movement)
   run_game()
 }

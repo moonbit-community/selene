@@ -20,6 +20,7 @@ struct CanvasBackend {
   mut frame_counter : UInt64
   mut current_fps : Double
   execution_time : Map[String, Double]
+  mouse_movement : Ref[@system.MouseMovement?]
 }
 
 ///|
@@ -37,6 +38,7 @@ pub fn CanvasBackend::new() -> CanvasBackend {
     current_fps: 0.0,
     frame_counter: 0,
     execution_time: {},
+    mouse_movement: Ref::new(None),
   }
 }
 
@@ -91,6 +93,9 @@ pub impl @system.Backend for CanvasBackend with build(
     renders.sort_by_key(fn(system) { -system.1 })
     for render in renders {
       (render.0)(self)
+    }
+    if self.mouse_movement.val is Some(mouse_movement) {
+      mouse_movement.movement = @math.Vec2D(0.0, 0.0)
     }
     self.frame_counter += 1
   })

@@ -44,6 +44,15 @@ pub let mouse : Mouse = {
 }
 
 ///|
+pub(all) struct MouseMovement {
+  mut movement : @math.Vec2D
+}
+
+pub let mouse_movement : MouseMovement = {
+  movement: @math.Vec2D(0.0, 0.0),
+}
+
+///|
 let last_mouse : Mouse = {
   pos: @math.Vec2D(0.0, 0.0),
   left_button: false,
