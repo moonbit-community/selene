@@ -19,8 +19,8 @@ pub fn debug_collide_system(backend : &@system.Backend) -> Unit {
     guard @position.positions.get(e) is Some(pos)
     guard collide.shape is Rect(size=Vec2D(width, height), offset~)
     backend.draw_color_rect(
-      x=pos.inner()[X] + offset[X],
-      y=pos.inner()[Y] + offset[Y],
+      x=pos.0[X] + offset[X],
+      y=pos.0[Y] + offset[Y],
       width~,
       height~,
       color="rgba(255, 0, 0, 0.5)",
@@ -31,8 +31,8 @@ pub fn debug_collide_system(backend : &@system.Backend) -> Unit {
     guard @position.positions.get(e) is Some(pos)
     guard area.shape is Rect(size=Vec2D(width, height), offset~)
     backend.draw_color_rect(
-      x=pos.inner()[X] + offset[X],
-      y=pos.inner()[Y] + offset[Y],
+      x=pos.0[X] + offset[X],
+      y=pos.0[Y] + offset[Y],
       width~,
       height~,
       color="rgba(0, 0, 255, 0.5)",

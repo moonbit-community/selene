@@ -255,7 +255,7 @@ pub fn area_collide_system(_ : &@system.Backend) -> Unit {
     guard area.shape is Rect(size=Vec2D(width, height), offset~)
     let box = @math.Rect::{
       size: @math.Vec2D(width, height),
-      position: position.inner() + offset,
+      position: position.0 + offset,
     }
     quadtree_root.insert(e, box)
     let new_last_contains = Set::new()
@@ -267,7 +267,7 @@ pub fn area_collide_system(_ : &@system.Backend) -> Unit {
         guard @position.positions.get(entity) is Some(other_position)
         let other_box = @math.Rect::{
           size: @math.Vec2D(other_width, other_height),
-          position: other_position.inner() + other_offset,
+          position: other_position.0 + other_offset,
         }
         guard box.intersects(other_box) else { continue }
         guard area.mask.contains(other_area.layer) else { continue }
@@ -277,7 +277,7 @@ pub fn area_collide_system(_ : &@system.Backend) -> Unit {
         guard @position.positions.get(entity) is Some(other_position)
         let other_box = @math.Rect::{
           size: @math.Vec2D(other_width, other_height),
-          position: other_position.inner() + other_offset,
+          position: other_position.0 + other_offset,
         }
         guard box.intersects(other_box) else { continue }
         guard area.mask.contains(other_body.layer) else { continue }
@@ -319,7 +319,7 @@ pub fn area_click_system(backend : &@system.Backend) -> Unit {
     guard area.shape is Rect(size=Vec2D(width, height), offset~)
     let area_box = @math.Rect::{
       size: @math.Vec2D(width, height),
-      position: position.inner() + offset,
+      position: position.0 + offset,
     }
     // If the area is attached to a UI, shift the box by the camera position
     // to ensure the area is checked in the correct position.

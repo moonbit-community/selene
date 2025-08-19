@@ -97,9 +97,9 @@ pub fn render_sprite_system(backend : &@system.Backend) -> Unit {
     let sprite = sprite.1
     guard @position.positions.get(e) is Some(pos) else { continue }
     let pos = if @ui.uis.get(e) is None {
-      pos.inner() - @camera.camera.position
+      pos.0 - @camera.camera.position
     } else {
-      pos.inner()
+      pos.0
     }
     match sprite.sprite_type {
       SpriteType::Picture(picture) => render_picture(backend, picture, pos)

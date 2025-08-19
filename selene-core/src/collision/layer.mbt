@@ -58,5 +58,5 @@ fn CollisionMask::contains(
   self : CollisionMask,
   layer : CollisionLayer,
 ) -> Bool {
-  self.inner().contains(layer.inner())
+  self.0.contains(layer.0)
 }

@@ -96,8 +96,8 @@ const RUN_ACC = 1.0
 ///|
 fn player_state_system(backend : &@system.Backend) -> Unit {
   guard @velocity.velocities.get(game_state.player) is Some(velocity)
-  let mut new_velocity_x = velocity.inner()[X]
-  let mut new_velocity_y = velocity.inner()[Y]
+  let mut new_velocity_x = velocity.0[X]
+  let mut new_velocity_y = velocity.0[Y]
   if @system.is_pressed(@system.ArrowLeft) {
     new_velocity_x -= RUN_ACC
     if new_velocity_x < -MAX_RUN_V {
@@ -119,7 +119,7 @@ fn player_state_system(backend : &@system.Backend) -> Unit {
   }
   match game_state.player_state {
     Idle => {
-      if velocity.inner()[X] == 0.0 {
+      if velocity.0[X] == 0.0 {
         @sprite.play_animation(
           game_state.player,
           player_idle_animation,
@@ -140,7 +140,7 @@ fn player_state_system(backend : &@system.Backend) -> Unit {
           @audio.play_audio(backend, "sounds/jump.wav")
         }
       }
-      if velocity.inner()[Y] > 0.0 {
+      if velocity.0[Y] > 0.0 {
         game_state.player_state = PlayerState::Fall
       }
     }
@@ -160,7 +160,7 @@ fn player_state_system(backend : &@system.Backend) -> Unit {
         player_jump_animation,
         transform~,
       )
-      if velocity.inner()[Y] > 0.0 {
+      if velocity.0[Y] > 0.0 {
         game_state.player_state = PlayerState::Fall
       }
     }
