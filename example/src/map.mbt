@@ -76,11 +76,9 @@ fn add_grass(pos : @math.Vec2D, sprite_id : String) -> Unit {
     _ => panic()
   }
   let sprite = @sprite.Sprite::new_animation(
-    @sprite.Animation::new(
+    @sprite.Animation::single_frame(
       "pixel_adventure/Terrain/Terrain (16x16).png",
-      max_frame=1,
-      height=16.0,
-      width=16.0,
+      @math.Vec2D(16.0, 16.0),
       offset=src_pos,
     ),
     10,
@@ -102,12 +100,9 @@ let non_collide_layer : @collision.CollisionLayer = @collision.CollisionLayer::n
 fn add_flag(pos : @math.Vec2D) -> Unit {
   let flag = @system.Entity::new()
   let flag_sprite = @sprite.Sprite::new_animation(
-    @sprite.Animation::new(
+    @sprite.Animation::single_frame(
       "pixel_adventure/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png",
-      max_frame=10,
-      height=64.0,
-      width=64.0,
-      loop_=true,
+      @math.Vec2D(64.0, 64.0),
     ),
     20,
   )
@@ -133,10 +128,12 @@ fn add_apple(backend : &@system.Backend, pos : @math.Vec2D) -> Unit {
   let apple = @system.Entity::new()
   let apple_sprite = @sprite.Sprite::new_animation(
     @sprite.Animation::new(
-      "pixel_adventure/Items/Fruits/Apple.png",
-      max_frame=17,
-      height=32.0,
-      width=32.0,
+      @sprite.frames_from_altas(
+        "pixel_adventure/Items/Fruits/Apple.png",
+        17,
+        width=32.0,
+        height=32.0,
+      ),
       loop_=true,
     ),
     20,
