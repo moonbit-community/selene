@@ -23,6 +23,7 @@ fn main {
   @system.App::new(@canvas.CanvasBackend::new())
   .with_canvas_width(VIEWPORT_WIDTH)
   .with_canvas_height(VIEWPORT_HEIGHT)
+  .with_image_smooth(false)
   .with_fps(60)
   .add_plugin(@plugins.default_plugin)
   // .add_plugin(@plugins.debug_plugin)

@@ -54,7 +54,7 @@ pub(open) trait Backend {
     canvas_width : Double,
     canvas_height : Double,
     fps : UInt,
-    // image_smooth : Bool, // Pixel art games may want to disable this TODO:
+    image_smooth : Bool,
   ) -> () -> Unit
   draw_picture(
     Self,

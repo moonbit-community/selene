@@ -57,6 +57,7 @@ pub impl @system.Backend for CanvasBackend with draw_picture(
     repeat_mode,
   )
   self.context.save()
+  set_image_smoothing_enabled(self.context, self.image_smooth)
   self.context.set_fill_style(@js.Union3::from2(pattern))
   self.context.translate(x, y)
   self.context.transform(
@@ -84,6 +85,7 @@ pub impl @system.Backend for CanvasBackend with draw_sprite(
   transform~,
 ) {
   self.context.save()
+  set_image_smoothing_enabled(self.context, self.image_smooth)
   self.context.translate(x, y)
   self.context.transform(
     transform.a,

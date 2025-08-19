@@ -19,6 +19,7 @@ struct CanvasBackend {
   mut viewport_size : @math.Vec2D
   mut frame_counter : UInt64
   mut current_fps : Double
+  mut image_smooth : Bool
   execution_time : Map[String, Double]
   mouse_movement : Ref[@system.MouseMovement?]
 }
@@ -35,6 +36,7 @@ pub fn CanvasBackend::new() -> CanvasBackend {
     context,
     canvas,
     viewport_size: @math.Vec2D::zero(),
+    image_smooth: true,
     current_fps: 0.0,
     frame_counter: 0,
     execution_time: {},
@@ -49,6 +51,7 @@ pub impl @system.Backend for CanvasBackend with build(
   canvas_width,
   canvas_height,
   fps,
+  image_smooth,
 ) {
   if fps > 60 {
     println(
@@ -60,6 +63,7 @@ pub impl @system.Backend for CanvasBackend with build(
       (system.0)(self)
     }
   }
+  self.image_smooth = image_smooth
   self.viewport_size = @math.Vec2D(canvas_width, canvas_height)
   set_viewport_height(self.canvas, canvas_height)
   set_viewport_width(self.canvas, canvas_width)

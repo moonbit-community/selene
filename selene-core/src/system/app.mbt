@@ -53,6 +53,7 @@ const DEFAULT_FPS : UInt = 60
 pub(all) struct App {
   canvas_height : Double
   canvas_width : Double
+  image_smooth : Bool
   fps : UInt
   systems : Array[(System, Schedule, String)]
   plugins : Array[Plugin]
@@ -64,11 +65,16 @@ pub fn App::new(backend : &Backend) -> App {
   {
     canvas_height: DEFAULT_CANVAS_HEIGHT,
     canvas_width: DEFAULT_CANVAS_WIDTH,
+    image_smooth: true,
     fps: DEFAULT_FPS,
     systems: [],
     plugins: [],
     backend,
   }
+}
+
+pub fn App::with_image_smooth(self : App, image_smooth : Bool) -> App {
+  { ..self, image_smooth }
 }
 
 ///|
@@ -145,6 +151,7 @@ pub fn App::run(self : App) -> Unit {
     self.canvas_width,
     self.canvas_height,
     self.fps,
+    self.image_smooth,
   )
   self.backend.register_key_events(pressed_keys)
   self.backend.register_mouse_events(mouse, mouse_movement)
