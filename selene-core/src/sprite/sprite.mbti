@@ -18,14 +18,14 @@ let sprites : Map[@system.Entity, Sprite]
 // Errors
 
 // Types and methods
-pub(all) struct Animation {
+pub struct Animation {
   frames : Array[AnimationFrame]
-  mut transform : @math.Transform
-  mut loop_ : Bool
-  mut rate : Double
-  mut frame : Double
+  transform : @math.Transform
+  loop_ : Bool
+  rate : Double
+  id : Int
 }
-fn Animation::new(Array[AnimationFrame], loop_? : Bool, rate? : Double, transform? : @math.Transform, start_frame? : UInt) -> Self
+fn Animation::new(Array[AnimationFrame], loop_? : Bool, rate? : Double, transform? : @math.Transform) -> Self
 fn Animation::single_frame(String, @math.Vec2D, transform? : @math.Transform, offset? : @math.Vec2D) -> Self
 
 pub(all) struct AnimationFrame {
@@ -52,7 +52,7 @@ fn Sprite::new_text(Text, Int) -> Self
 
 pub enum SpriteType {
   Picture(Picture)
-  Animation(Animation)
+  Animation(Animation, mut frame~ : Double)
   Text(Text)
 }
 

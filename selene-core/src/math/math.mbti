@@ -30,6 +30,7 @@ pub(all) struct Transform {
   ty : Double
 }
 fn Transform::apply_to_point(Self, Double, Double) -> (Double, Double)
+fn Transform::clone(Self) -> Self
 fn Transform::flip_x(Double) -> Self
 fn Transform::flip_y(Double) -> Self
 fn Transform::from_rotation_deg(Double) -> Self
@@ -53,6 +54,7 @@ impl Sub for Transform
 
 pub(all) struct Vec2D(Double, Double)
 
+fn Vec2D::clone(Self) -> Self
 fn Vec2D::distance(Self) -> Double
 fn Vec2D::distance_to(Self, Self) -> Double
 fn Vec2D::dot(Self, Self) -> Double
