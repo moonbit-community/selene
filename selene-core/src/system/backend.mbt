@@ -55,6 +55,7 @@ pub(open) trait Backend {
     canvas_height : Double,
     fps : UInt,
     image_smooth : Bool,
+    zoom : Double,
   ) -> () -> Unit
   draw_picture(
     Self,
