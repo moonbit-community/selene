@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///|
-const VIEWPORT_WIDTH : Double = 480.0
+const ZOOM : Double = 2.0
 
 ///|
-const VIEWPORT_HEIGHT : Double = 320.0
+const VIEWPORT_WIDTH : Double = 480.0 * ZOOM
+
+///|
+const VIEWPORT_HEIGHT : Double = 320.0 * ZOOM
 
 ///|
 fn main {
@@ -24,6 +26,7 @@ fn main {
   .with_canvas_width(VIEWPORT_WIDTH)
   .with_canvas_height(VIEWPORT_HEIGHT)
   .with_image_smooth(false)
+  .with_zoom(ZOOM)
   .with_fps(60)
   .add_plugin(@plugins.default_plugin)
   // .add_plugin(@plugins.debug_plugin)
