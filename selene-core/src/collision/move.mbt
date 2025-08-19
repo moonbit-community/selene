@@ -43,10 +43,7 @@ pub fn move_system(_backend : &@system.Backend) -> Unit {
 ///| 
 fn move_without_collide(e : @system.Entity, velocity : @math.Vec2D) -> Unit {
   guard @position.positions.get(e) is Some(pos)
-  let new_pos = @math.Vec2D(
-    pos.0[X] + velocity[X],
-    pos.0[Y] + velocity[Y],
-  )
+  let new_pos = @math.Vec2D(pos.0[X] + velocity[X], pos.0[Y] + velocity[Y])
   @position.positions.set(e, new_pos)
   if areas.get(e) is Some(area) {
     guard area.shape is Rect(size=Vec2D(width, height), offset~)
