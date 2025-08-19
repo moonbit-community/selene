@@ -18,9 +18,14 @@ pub fn debug_collide_system(backend : &@system.Backend) -> Unit {
     guard e.is_alive() else { continue }
     guard @position.positions.get(e) is Some(pos)
     guard collide.shape is Rect(size=Vec2D(width, height), offset~)
+    let pos = if @ui.uis.get(e) is Some(_) {
+      pos.0 + offset
+    } else {
+      pos.0 + offset - @camera.camera.position
+    }
     backend.draw_color_rect(
-      x=pos.0[X] + offset[X] - @camera.camera.position[X],
-      y=pos.0[Y] + offset[Y] - @camera.camera.position[Y],
+      x=pos[X],
+      y=pos[Y],
       width~,
       height~,
       color="rgba(255, 0, 0, 0.5)",
@@ -30,9 +35,14 @@ pub fn debug_collide_system(backend : &@system.Backend) -> Unit {
     guard e.is_alive() else { continue }
     guard @position.positions.get(e) is Some(pos)
     guard area.shape is Rect(size=Vec2D(width, height), offset~)
+    let pos = if @ui.uis.get(e) is Some(_) {
+      pos.0 + offset
+    } else {
+      pos.0 + offset - @camera.camera.position
+    }
     backend.draw_color_rect(
-      x=pos.0[X] + offset[X] - @camera.camera.position[X],
-      y=pos.0[Y] + offset[Y] - @camera.camera.position[Y],
+      x=pos[X],
+      y=pos[Y],
       width~,
       height~,
       color="rgba(0, 0, 255, 0.5)",

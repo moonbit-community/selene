@@ -48,12 +48,12 @@
 /// inspect(animation.frame, content="0.0")
 /// ```
 ///
-pub(all) struct Animation {
+pub struct Animation {
   frames : Array[AnimationFrame]
-  mut transform : @math.Transform
-  mut loop_ : Bool
-  mut rate : Double
-  mut frame : Double
+  transform : @math.Transform
+  loop_ : Bool
+  rate : Double
+  id : Int
 }
 
 ///|
@@ -134,13 +134,22 @@ pub fn Animation::new(
   loop_~ : Bool = false,
   rate~ : Double = 0.2,
   transform~ : @math.Transform = @math.Transform::new(),
-  start_frame~ : UInt = 0,
 ) -> Animation {
   let max_frame = frames.length().reinterpret_as_uint()
   if max_frame == 0 {
     abort("Animation must have at least one frame")
   }
-  { frames, transform, loop_, rate, frame: start_frame.to_double() }
+  { frames, transform, loop_, rate, id: generate_animation() }
+}
+
+///|
+let animation_generator : Ref[Int] = Ref::new(0)
+
+///|
+fn generate_animation() -> Int {
+  let id = animation_generator.val
+  animation_generator.val += 1
+  id
 }
 
 ///|
@@ -150,13 +159,12 @@ pub fn Animation::single_frame(
   transform~ : @math.Transform = @math.Transform::new(),
   offset~ : @math.Vec2D = @math.Vec2D(0, 0),
 ) -> Animation {
-  {
-    frames: [{ sprite_path, size, offset }],
-    transform,
-    loop_: false,
-    rate: 0.0,
-    frame: 0.0,
-  }
+  Animation::new(
+    [{ sprite_path, size, offset }],
+    transform~,
+    loop_=false,
+    rate=0.0,
+  )
 }
 
 ///|
@@ -261,20 +269,28 @@ pub fn play_animation(
   // backward~ : Bool = false,
 ) -> Unit {
   guard sprites.get(entity)
-    is Some({ sprite_type: Animation(_current), zindex })
-  if loop_ is Some(loop_) {
-    animation.loop_ = loop_
+    is Some(
+      { sprite_type: Animation(current_anime, frame=current_frame), zindex }
+    )
+  let loop_ = loop_.unwrap_or(animation.loop_)
+  let rate = rate.unwrap_or(animation.rate)
+  let transform = transform.unwrap_or(animation.transform)
+  let frame = if !from_start && animation.id == current_anime.id {
+    current_frame
+  } else {
+    0.0
   }
-  if rate is Some(rate) {
-    animation.rate = rate
+  let new_anime = {
+    frames: animation.frames,
+    transform,
+    loop_,
+    rate,
+    id: animation.id,
   }
-  if transform is Some(transform) {
-    animation.transform = transform
-  }
-  if from_start {
-    animation.frame = 0
-  }
-  sprites.set(entity, Sprite::new_animation(animation, zindex))
+  sprites.set(entity, {
+    sprite_type: SpriteType::Animation(new_anime, frame~),
+    zindex,
+  })
 }
 
 ///|
@@ -291,9 +307,10 @@ pub fn play_animation(
 fn render_animation(
   backend : &@system.Backend,
   animation : Animation,
+  current_frame : Double,
   pos : @math.Vec2D,
-) -> Unit {
-  let frame = animation.frames[animation.frame.to_int()]
+) -> Double {
+  let frame = animation.frames[current_frame.to_int()]
   backend.draw_sprite(
     frame.sprite_path,
     x=pos[X],
@@ -304,12 +321,13 @@ fn render_animation(
     height=frame.size[Y],
     transform=animation.transform,
   )
-  animation.frame += animation.rate
-  if animation.frame.to_int() >= animation.frames.length() {
+  let mut new_frame = current_frame + animation.rate
+  if new_frame.to_int() >= animation.frames.length() {
     if animation.loop_ {
-      animation.frame = 0
+      new_frame = 0
     } else {
-      animation.frame -= animation.rate
+      new_frame -= animation.rate
     }
   }
+  new_frame
 }

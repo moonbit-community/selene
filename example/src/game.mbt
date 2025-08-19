@@ -20,14 +20,17 @@ struct GameState {
   mut score : Int
   result_box : @sprite.Text
   score_box : @sprite.Text
+  health_box : @sprite.Text
   mut volume_on : Bool
+  mut health : Int
+  mut hurt_timer : Double
 }
 
 ///|
 enum Direction2 {
   Left
   Right
-}
+} derive(Eq)
 
 ///|
 let game_state : GameState = {
@@ -40,13 +43,21 @@ let game_state : GameState = {
     font="20px ThaleahFat",
     color="white",
   ),
+  health_box: @sprite.Text::new(
+    "HP: 3",
+    font="20px ThaleahFat",
+    color="red",
+  ),
   direction: Direction2::Right,
   volume_on: true,
+  health: 3,
+  hurt_timer: 0.0,
 }
 
 ///|
 enum GameResult {
   Win
+  GameOver
 }
 
 ///|
@@ -56,6 +67,25 @@ fn set_game_result(result : GameResult) -> Unit {
       game_state.result_box.content = "You Win!"
       game_state.result_box.color = "green"
     }
+    GameResult::GameOver => {
+      game_state.result_box.content = "Game Over!"
+      game_state.result_box.color = "red"
+    }
+  }
+}
+
+///|
+fn hurt_player(backend : &@system.Backend) -> Unit {
+  if game_state.hurt_timer <= 0.0 {
+    game_state.health -= 1
+    update_health_display()
+    game_state.hurt_timer = 60.0
+    if game_state.volume_on {
+      @audio.play_audio(backend, "sounds/hurt.wav")
+    }
+    if game_state.health <= 0 {
+      set_game_result(GameResult::GameOver)
+    }
   }
 }
 
@@ -63,4 +93,9 @@ fn set_game_result(result : GameResult) -> Unit {
 fn set_score(score : Int) -> Unit {
   game_state.score = score
   game_state.score_box.content = "Score: " + game_state.score.to_string()
+}
+
+///|
+fn update_health_display() -> Unit {
+  game_state.health_box.content = "HP: " + game_state.health.to_string()
 }

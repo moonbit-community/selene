@@ -94,6 +94,21 @@ const MAX_FALL_V = 15.5
 const RUN_ACC = 1.0
 
 ///|
+fn player_collision_system(backend : &@system.Backend) -> Unit {
+  if game_state.hurt_timer > 0.0 {
+    game_state.hurt_timer -= 1.0
+  }
+  
+  let player_collisions = @collision.get_collision_infos(game_state.player)
+  for collision in player_collisions {
+    if birds.get(collision.entity) is Some(_bird) {
+      hurt_player(backend)
+      continue
+    }
+  }
+}
+
+///|
 fn player_state_system(backend : &@system.Backend) -> Unit {
   guard @velocity.velocities.get(game_state.player) is Some(velocity)
   let mut new_velocity_x = velocity.0[X]

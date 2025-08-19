@@ -39,6 +39,8 @@ fn main {
   .add_plugin(@plugins.debug_plugin)
   .add_system(game_start, schedule=Startup)
   .add_system(player_state_system)
+  .add_system(player_collision_system)
+  .add_system(bird_ai_system)
   .run()
 }
 
@@ -47,5 +49,6 @@ fn game_start(backend : &@system.Backend) -> Unit {
   generate_map(backend)
   add_result_box()
   add_score_box()
+  add_health_box()
   add_volume_button()
 }

@@ -34,6 +34,15 @@ fn add_score_box() -> Unit {
 }
 
 ///|
+fn add_health_box() -> Unit {
+  let box = @system.Entity::new()
+  @position.positions.set(box, @math.Vec2D(20, 40))
+  let text = @sprite.Sprite::new_text(game_state.health_box, @ui.UI_ZINDEX)
+  @sprite.sprites.set(box, text)
+  @ui.uis.set(box, @ui.Ui::new())
+}
+
+///|
 fn add_volume_button() -> Unit {
   let button = @system.Entity::new()
   @position.positions.set(button, @math.Vec2D(VIEWPORT_WIDTH - 40, 18))

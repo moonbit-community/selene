@@ -58,13 +58,13 @@ pub let sprites : Map[@system.Entity, Sprite] = Map::new()
 ///|
 pub enum SpriteType {
   Picture(Picture)
-  Animation(Animation)
+  Animation(Animation, mut frame~ : Double)
   Text(Text)
 }
 
 ///| Make an animation sprite with default animation and zindex.
 pub fn Sprite::new_animation(animation : Animation, zindex : Int) -> Sprite {
-  { sprite_type: SpriteType::Animation(animation), zindex }
+  { sprite_type: SpriteType::Animation(animation, frame=0), zindex }
 }
 
 ///|
@@ -103,7 +103,10 @@ pub fn render_sprite_system(backend : &@system.Backend) -> Unit {
     }
     match sprite.sprite_type {
       SpriteType::Picture(picture) => render_picture(backend, picture, pos)
-      SpriteType::Animation(anime) => render_animation(backend, anime, pos)
+      SpriteType::Animation(anime, frame~) as sprite => {
+        let new_frame = render_animation(backend, anime, frame, pos)
+        sprite.frame = new_frame
+      }
       SpriteType::Text(text) => render_text(backend, text, pos)
     }
   }

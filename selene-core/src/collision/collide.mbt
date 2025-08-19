@@ -32,10 +32,10 @@ pub struct CollisionInfo {
   direction : @math.Vec2D
 }
 
-///| 
-/// `@collision.collision_infos[ENTITY]` is an array of `CollisionInfo`
+///|
+/// `@collision.collision_infos.get(ENTITY)` is an array of `CollisionInfo`
 /// objects that represent the collisions of the entity with other entities.
-/// Do not manually modify this map, it is managed by the collision system.
+/// Do not manually modify this map; it is managed by the collision system.
 /// 
 let collision_infos : Map[@system.Entity, Array[CollisionInfo]] = Map::new()
 

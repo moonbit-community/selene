@@ -19,7 +19,17 @@ let player_collision_layer : @collision.CollisionLayer = @collision.CollisionLay
 let terrain_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
 
 ///|
+let enemy_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
+
+///|
 let player_collision_mask : @collision.CollisionMask = @collision.CollisionMask::new([
+    terrain_collision_layer,
+    enemy_collision_layer,
+  ],
+)
+
+///|
+let enemy_collision_mask : @collision.CollisionMask = @collision.CollisionMask::new([
     terrain_collision_layer,
   ],
 )
