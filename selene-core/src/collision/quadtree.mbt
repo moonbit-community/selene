@@ -140,11 +140,13 @@ fn QuadTree::query(self : Self, area : @math.Rect) -> @set.Set[@system.Entity] {
 ///|
 pub fn quadtree_render_system(backend : &@system.Backend) -> Unit {
   fn render_node(node : QuadTree) -> Unit {
+    let position = (node.position - @camera.camera.position)
+    let size = node.size
     backend.draw_stroke_rect(
-      x=node.position[X],
-      y=node.position[Y],
-      width=node.size[X],
-      height=node.size[Y],
+      x=position[X],
+      y=position[Y],
+      width=size[X],
+      height=size[Y],
       color="blue",
     )
     for child in node.children {
