@@ -29,6 +29,11 @@ pub(all) struct Transform {
 }
 
 ///|
+pub fn Transform::clone(self : Transform) -> Transform {
+  { a: self.a, b: self.b, c: self.c, d: self.d, tx: self.tx, ty: self.ty }
+}
+
+///|
 /// Create identity transform
 pub fn Transform::identity() -> Transform {
   { a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 0.0, ty: 0.0 }

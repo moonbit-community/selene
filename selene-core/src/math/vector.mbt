@@ -43,6 +43,11 @@ pub fn Vec2D::update(this : Vec2D, axis : Axis, value : Double) -> Vec2D {
 }
 
 ///|
+pub fn Vec2D::clone(self : Vec2D) -> Vec2D {
+  Vec2D(self.0, self.1)
+}
+
+///|
 pub impl Add for Vec2D with op_add(this, other) {
   Vec2D(this.0 + other.0, this.1 + other.1)
 }
