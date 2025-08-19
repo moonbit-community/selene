@@ -181,6 +181,8 @@ pub fn Animation::single_frame(
 /// * `height` : The height of each individual frame in pixels.
 /// * `offset` : The starting offset position within the sprite sheet where
 ///   frame extraction begins (default: `@math.Vec2D(0, 0)`).
+/// * `space_x` : The horizontal spacing between frames in the sprite sheet
+///   (default: `0.0`).
 ///
 /// Returns an array of `AnimationFrame` objects, each representing a single
 /// frame from the sprite atlas.
@@ -193,13 +195,14 @@ pub fn Animation::single_frame(
 ///   frame_count=8,
 ///   width=32.0,
 ///   height=32.0,
-///   offset=@math.Vec2D(16.0, 0.0)
+///   offset=@math.Vec2D(16.0, 0.0),
+///   space_x=1.0,
 /// )
 /// inspect(frames.length(), content="8")
 /// inspect(frames[0].sprite_path, content="characters/player_walk.png")
 /// inspect(frames[0].size, content="Vec2D(32.0, 32.0)")
 /// inspect(frames[0].offset, content="Vec2D(16.0, 0.0)")
-/// inspect(frames[3].offset, content="Vec2D(112.0, 0.0)")
+/// inspect(frames[3].offset, content="Vec2D(115.0, 0.0)")
 /// ```
 ///
 pub fn frames_from_altas(
@@ -208,10 +211,11 @@ pub fn frames_from_altas(
   width~ : Double,
   height~ : Double,
   offset~ : @math.Vec2D = @math.Vec2D(0, 0),
+  space_x~ : Double = 0.0,
 ) -> Array[AnimationFrame] {
   let frames = []
   for i in 0..<frame_count {
-    let x = i.to_double() * width
+    let x = offset[X] + i.to_double() * (width + space_x)
     frames.push({
       sprite_path,
       size: @math.Vec2D(width, height),
@@ -324,7 +328,7 @@ fn render_animation(
   let mut new_frame = current_frame + animation.rate
   if new_frame.to_int() >= animation.frames.length() {
     if animation.loop_ {
-      new_frame = 0
+      new_frame -= animation.frames.length().to_double()
     } else {
       new_frame -= animation.rate
     }
