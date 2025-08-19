@@ -7,6 +7,8 @@ import(
 )
 
 // Values
+fn frames_from_altas(String, Int, width~ : Double, height~ : Double, offset? : @math.Vec2D) -> Array[AnimationFrame]
+
 fn play_animation(@system.Entity, Animation, from_start? : Bool, loop_? : Bool, rate? : Double, transform? : @math.Transform) -> Unit
 
 fn render_sprite_system(&@system.Backend) -> Unit
@@ -17,17 +19,20 @@ let sprites : Map[@system.Entity, Sprite]
 
 // Types and methods
 pub(all) struct Animation {
-  sprite_path : String
-  max_frame : UInt
-  height : Double
-  width : Double
-  offset : @math.Vec2D
+  frames : Array[AnimationFrame]
   mut transform : @math.Transform
   mut loop_ : Bool
   mut rate : Double
   mut frame : Double
 }
-fn Animation::new(String, max_frame~ : UInt, height~ : Double, width~ : Double, transform? : @math.Transform, loop_? : Bool, rate? : Double, offset? : @math.Vec2D, start_frame? : UInt) -> Self
+fn Animation::new(Array[AnimationFrame], loop_? : Bool, rate? : Double, transform? : @math.Transform, start_frame? : UInt) -> Self
+fn Animation::single_frame(String, @math.Vec2D, transform? : @math.Transform, offset? : @math.Vec2D) -> Self
+
+pub(all) struct AnimationFrame {
+  sprite_path : String
+  size : @math.Vec2D
+  offset : @math.Vec2D
+}
 
 pub(all) struct Picture {
   size : @math.Vec2D

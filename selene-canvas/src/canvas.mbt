@@ -120,6 +120,7 @@ pub impl @system.Backend for CanvasBackend with get_debug_info(self) {
   { system_execution_time: self.execution_time, fps: self.current_fps }
 }
 
+///|
 pub impl @system.Backend for CanvasBackend with get_zoom(self) {
   self.zoom
 }
