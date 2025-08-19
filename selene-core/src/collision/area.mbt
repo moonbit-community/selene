@@ -305,10 +305,11 @@ pub fn area_collide_system(_ : &@system.Backend) -> Unit {
 ///|
 /// This system checks for mouse clicks within areas and executes the
 /// corresponding callbacks if the mouse is pressed or released over an area.
-pub fn area_click_system(_ : &@system.Backend) -> Unit {
+pub fn area_click_system(backend : &@system.Backend) -> Unit {
+  let zoom = backend.get_zoom()
   let box = @math.Rect::{
     size: @math.Vec2D(1.0, 1.0),
-    position: @system.mouse.pos,
+    position: @system.mouse.pos * Vec2D(1 / zoom, 1 / zoom),
   }
   let entities = quadtree_root.query(box)
   for e in entities.intersection(@system.all_entities) {

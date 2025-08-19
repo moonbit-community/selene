@@ -17,7 +17,7 @@ fn add_result_box() -> Unit {
   let box = @system.Entity::new()
   @position.positions.set(
     box,
-    @math.Vec2D((VIEWPORT_WIDTH / 2.0 - 48) / ZOOM, (VIEWPORT_HEIGHT / 2.0 - 32) / ZOOM),
+    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 48, VIEWPORT_HEIGHT / 2.0 - 32),
   )
   let text = @sprite.Sprite::new_text(game_state.result_box, @ui.UI_ZINDEX)
   @ui.uis.set(box, @ui.Ui::new())
@@ -27,7 +27,7 @@ fn add_result_box() -> Unit {
 ///|
 fn add_score_box() -> Unit {
   let box = @system.Entity::new()
-  @position.positions.set(box, @math.Vec2D((VIEWPORT_WIDTH / 2.0 - 24) / ZOOM, 40 / ZOOM))
+  @position.positions.set(box, @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 24, 40))
   let text = @sprite.Sprite::new_text(game_state.score_box, @ui.UI_ZINDEX)
   @sprite.sprites.set(box, text)
   @ui.uis.set(box, @ui.Ui::new())
@@ -36,7 +36,7 @@ fn add_score_box() -> Unit {
 ///|
 fn add_volume_button() -> Unit {
   let button = @system.Entity::new()
-  @position.positions.set(button, @math.Vec2D((VIEWPORT_WIDTH - 40) / ZOOM, 18 / ZOOM))
+  @position.positions.set(button, @math.Vec2D(VIEWPORT_WIDTH - 40, 18))
   let volume_on = @sprite.Sprite::new_picture(
     @sprite.Picture::new(
       @math.Vec2D(21, 22),

@@ -19,6 +19,7 @@ struct CanvasBackend {
   mut viewport_size : @math.Vec2D
   mut frame_counter : UInt64
   mut current_fps : Double
+  mut zoom : Double
   execution_time : Map[String, Double]
   mouse_movement : Ref[@system.MouseMovement?]
 }
@@ -39,6 +40,7 @@ pub fn CanvasBackend::new() -> CanvasBackend {
     frame_counter: 0,
     execution_time: {},
     mouse_movement: Ref::new(None),
+    zoom: 1.0,
   }
 }
 
@@ -67,6 +69,7 @@ pub impl @system.Backend for CanvasBackend with build(
   set_viewport_width(self.canvas, canvas_width)
   set_image_smoothing_enabled(self.context, image_smooth)
   self.context.scale(zoom, zoom)
+  self.zoom = zoom
   schedule_with_fixed_interval(1000 / fps.to_double(), fn(delta) {
     self.current_fps = 1000.0 / delta
     self.context.clear_rect(0, 0, canvas_width, canvas_height)
@@ -115,6 +118,10 @@ pub impl @system.Backend for CanvasBackend with get_canvas_size(self) {
 ///|
 pub impl @system.Backend for CanvasBackend with get_debug_info(self) {
   { system_execution_time: self.execution_time, fps: self.current_fps }
+}
+
+pub impl @system.Backend for CanvasBackend with get_zoom(self) {
+  self.zoom
 }
 
 ///|

@@ -12,19 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 const ZOOM : Double = 2.0
 
 ///|
-const VIEWPORT_WIDTH : Double = 480.0 * ZOOM
+const VIEWPORT_WIDTH : Double = 480.0
 
 ///|
-const VIEWPORT_HEIGHT : Double = 320.0 * ZOOM
+const VIEWPORT_HEIGHT : Double = 320.0
+
+///|
+const REAL_VIEWPORT_WIDTH : Double = VIEWPORT_WIDTH * ZOOM
+
+///|
+const REAL_VIEWPORT_HEIGHT : Double = VIEWPORT_HEIGHT * ZOOM
 
 ///|
 fn main {
   @system.App::new(@canvas.CanvasBackend::new())
-  .with_canvas_width(VIEWPORT_WIDTH)
-  .with_canvas_height(VIEWPORT_HEIGHT)
+  .with_canvas_width(REAL_VIEWPORT_WIDTH)
+  .with_canvas_height(REAL_VIEWPORT_HEIGHT)
   .with_image_smooth(false)
   .with_zoom(ZOOM)
   .with_fps(60)
