@@ -369,3 +369,12 @@ fn render_animation(
   }
   new_frame
 }
+
+///|
+pub fn is_animation_finished(entity : @system.Entity) -> Bool {
+  guard sprites.get(entity)
+    is Some({ sprite_type: Animation(anime, frame~), .. }) else {
+    true
+  }
+  frame >= anime.frames.length().to_double() - anime.rate
+}

@@ -57,6 +57,17 @@ let player_jump_animation : @sprite.Animation = @sprite.Animation::new(
 )
 
 ///|
+let player_hit_animation : @sprite.Animation = @sprite.Animation::new(
+  @sprite.frames_from_altas(
+    "pixel_adventure/Main Characters/Mask Dude/Hit (32x32).png",
+    7,
+    width=32.0,
+    height=32.0,
+  ),
+  loop_=false,
+)
+
+///|
 fn add_player(pos : @math.Vec2D) -> Unit {
   let player_sprite = @sprite.Sprite::new_animation(player_idle_animation, 10)
   @sprite.sprites.set(game_state.player, player_sprite)
@@ -76,6 +87,7 @@ enum PlayerState {
   Idle
   Jump
   Fall
+  Hit
 } derive(Show)
 
 ///|
@@ -98,10 +110,12 @@ fn player_collision_system(backend : &@system.Backend) -> Unit {
   if game_state.hurt_timer > 0.0 {
     game_state.hurt_timer -= 1.0
   }
-  
   let player_collisions = @collision.get_collision_infos(game_state.player)
   for collision in player_collisions {
-    if birds.get(collision.entity) is Some(_bird) {
+    if collision.direction[Y] > 0.0 {
+      // Attack 
+      // Hurt 
+    } else if birds.get(collision.entity) is Some(_bird) {
       hurt_player(backend)
       continue
     }
@@ -113,20 +127,22 @@ fn player_state_system(backend : &@system.Backend) -> Unit {
   guard @velocity.velocities.get(game_state.player) is Some(velocity)
   let mut new_velocity_x = velocity.0[X]
   let mut new_velocity_y = velocity.0[Y]
-  if @system.is_pressed(@system.ArrowLeft) {
-    new_velocity_x -= RUN_ACC
-    if new_velocity_x < -MAX_RUN_V {
-      new_velocity_x = -MAX_RUN_V
+  if !(game_state.player_state is Hit) {
+    if @system.is_pressed(@system.ArrowLeft) {
+      new_velocity_x -= RUN_ACC
+      if new_velocity_x < -MAX_RUN_V {
+        new_velocity_x = -MAX_RUN_V
+      }
+      game_state.direction = Direction2::Left
+    } else if @system.is_pressed(@system.ArrowRight) {
+      new_velocity_x += RUN_ACC
+      if new_velocity_x > MAX_RUN_V {
+        new_velocity_x = MAX_RUN_V
+      }
+      game_state.direction = Direction2::Right
+    } else {
+      new_velocity_x = 0.0
     }
-    game_state.direction = Direction2::Left
-  } else if @system.is_pressed(@system.ArrowRight) {
-    new_velocity_x += RUN_ACC
-    if new_velocity_x > MAX_RUN_V {
-      new_velocity_x = MAX_RUN_V
-    }
-    game_state.direction = Direction2::Right
-  } else {
-    new_velocity_x = 0.0
   }
   let transform = match game_state.direction {
     Direction2::Left => @math.Transform::flip_x(32.0)
@@ -177,6 +193,22 @@ fn player_state_system(backend : &@system.Backend) -> Unit {
       )
       if velocity.0[Y] > 0.0 {
         game_state.player_state = PlayerState::Fall
+      }
+    }
+    Hit => {
+      @sprite.play_animation(
+        game_state.player,
+        player_hit_animation,
+        transform~,
+      )
+      if @sprite.is_animation_finished(game_state.player) {
+        if @collision.is_on_floor(game_state.player) {
+          game_state.player_state = PlayerState::Idle
+        } else if velocity.0[Y] < 0.0 {
+          game_state.player_state = PlayerState::Fall
+        } else {
+          game_state.player_state = PlayerState::Jump
+        }
       }
     }
   }

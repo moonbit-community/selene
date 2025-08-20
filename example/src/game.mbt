@@ -43,11 +43,7 @@ let game_state : GameState = {
     font="20px ThaleahFat",
     color="white",
   ),
-  health_box: @sprite.Text::new(
-    "HP: 3",
-    font="20px ThaleahFat",
-    color="red",
-  ),
+  health_box: @sprite.Text::new("HP: 3", font="20px ThaleahFat", color="red"),
   direction: Direction2::Right,
   volume_on: true,
   health: 3,
@@ -75,8 +71,17 @@ fn set_game_result(result : GameResult) -> Unit {
 }
 
 ///|
+const ATTACK_V : Double = 3.0
+
+///|
 fn hurt_player(backend : &@system.Backend) -> Unit {
   if game_state.hurt_timer <= 0.0 {
+    let back_vel = match game_state.direction {
+      Left => @math.Vec2D(ATTACK_V, 0.0)
+      Right => @math.Vec2D(-ATTACK_V, 0.0)
+    }
+    @velocity.velocities[game_state.player] = back_vel
+    game_state.player_state = PlayerState::Hit
     game_state.health -= 1
     update_health_display()
     game_state.hurt_timer = 60.0
