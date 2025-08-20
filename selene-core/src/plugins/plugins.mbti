@@ -10,6 +10,8 @@ fn debug_plugin(@system.App) -> Unit
 
 fn default_plugin(@system.App) -> Unit
 
+fn physics_plugin(@system.App) -> Unit
+
 // Errors
 
 // Types and methods

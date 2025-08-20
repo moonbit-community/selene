@@ -1,0 +1,13 @@
+{
+  "is-main": true,
+  "import": [
+    "Milky2018/selene/system",
+    "Milky2018/selene/math",
+    "Milky2018/selene/position",
+    "Milky2018/selene/physics",
+    "Milky2018/selene/sprite",
+    "Milky2018/selene/ui",
+    "Milky2018/selene/plugins",
+    { "path": "Milky2018/selene-canvas", "alias": "canvas" }
+  ]
+}
