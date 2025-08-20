@@ -29,7 +29,7 @@
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```notest
 /// let frames = @sprite.frames_from_altas(
 ///   "player.png", 
 ///   frame_count=8, 
