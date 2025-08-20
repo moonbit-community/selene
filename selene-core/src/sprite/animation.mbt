@@ -274,7 +274,12 @@ pub fn play_animation(
 ) -> Unit {
   guard sprites.get(entity)
     is Some(
-      { sprite_type: Animation(current_anime, frame=current_frame), zindex }
+      {
+        sprite_type: Animation(current_anime, frame=current_frame),
+        zindex,
+        visible,
+        offset,
+      }
     )
   let loop_ = loop_.unwrap_or(animation.loop_)
   let rate = rate.unwrap_or(animation.rate)
@@ -294,6 +299,8 @@ pub fn play_animation(
   sprites.set(entity, {
     sprite_type: SpriteType::Animation(new_anime, frame~),
     zindex,
+    visible,
+    offset,
   })
 }
 

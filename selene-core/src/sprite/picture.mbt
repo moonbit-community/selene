@@ -80,6 +80,17 @@ pub fn Picture::new(
 }
 
 ///|
+/// Renders a picture sprite to the screen at the specified position using the
+/// provided backend.
+///
+/// Parameters:
+///
+/// * `backend` : The rendering backend used to draw the picture to the screen.
+/// * `picture` : The picture sprite containing the image path, size,
+///   transformation, and repeat mode information.
+/// * `pos` : The 2D position where the picture should be rendered, representing
+///   the top-left corner coordinates.
+///
 fn render_picture(
   backend : &@system.Backend,
   picture : Picture,

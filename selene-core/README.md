@@ -32,8 +32,7 @@ Please check [docs](https://github.com/Milky2018/selene/tree/main/docs).
 - [ ] Timer
 - [ ] Webpack (selene-canvas)
 - [ ] Parent-child structure (0.12)
-- [ ] Manual atlas (0.12)
+- [x] Manual atlas (0.12)
 - [ ] Visibility 
-- [ ] Transform component
 - [ ] Move-and-slide collisions
 - [ ] Input mapping
