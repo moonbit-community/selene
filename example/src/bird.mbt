@@ -24,11 +24,23 @@ let bird_fly_animation : @sprite.Animation = @sprite.Animation::new(
 )
 
 ///|
+let bird_hit_animation : @sprite.Animation = @sprite.Animation::new(
+  @sprite.frames_from_altas(
+    "pixel_adventure/Enemies/BlueBird/Hit (32x32).png",
+    5,
+    width=32.0,
+    height=32.0,
+  ),
+  loop_=false,
+)
+
+///|
 const BIRD_SPEED = 1.5
 
 ///|
 struct Bird {
   mut direction : Direction2
+  mut is_hurt : Bool
 }
 
 ///|
@@ -46,7 +58,7 @@ fn add_bird(pos : @math.Vec2D) -> Unit {
     layer: enemy_collision_layer,
     mask: enemy_collision_mask,
   })
-  birds[entity] = Bird::{ direction: Right }
+  birds[entity] = Bird::{ direction: Right, is_hurt: false }
 }
 
 ///|
@@ -54,6 +66,28 @@ fn bird_ai_system(_backend : &@system.Backend) -> Unit {
   for e, bird in birds {
     guard e.is_alive() else { continue }
     guard @velocity.velocities.get(e) is Some(_velocity)
+    if @sprite.is_animation_finished(e) {
+      e.destroy()
+      continue
+    }
+    if bird.is_hurt {
+      @velocity.velocities[e] = @math.Vec2D::zero()
+      match bird.direction {
+        Left =>
+          @sprite.play_animation(
+            e,
+            bird_hit_animation,
+            transform=@math.Transform::new(),
+          )
+        Right =>
+          @sprite.play_animation(
+            e,
+            bird_hit_animation,
+            transform=@math.Transform::flip_x(32.0),
+          )
+      }
+      continue
+    }
     let collision_infos = @collision.get_collision_infos(e)
     let hit_wall = collision_infos
       .iter()

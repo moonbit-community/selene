@@ -106,18 +106,23 @@ const MAX_FALL_V = 15.5
 const RUN_ACC = 1.0
 
 ///|
+const BUMP_V : Double = JUMP_V / 2.0
+
+///|
 fn player_collision_system(backend : &@system.Backend) -> Unit {
   if game_state.hurt_timer > 0.0 {
     game_state.hurt_timer -= 1.0
   }
   let player_collisions = @collision.get_collision_infos(game_state.player)
   for collision in player_collisions {
-    if collision.direction[Y] > 0.0 {
-      // Attack 
-      // Hurt 
-    } else if birds.get(collision.entity) is Some(_bird) {
-      hurt_player(backend)
-      continue
+    if birds.get(collision.entity) is Some(bird) {
+      if collision.direction[Y] > 0.0 {
+        bird.is_hurt = true
+        guard @velocity.velocities.get(game_state.player) is Some(velocity)
+        @velocity.velocities[game_state.player] = velocity.0.update(Y, -BUMP_V)
+      } else {
+        hurt_player(backend)
+      }
     }
   }
 }
@@ -201,6 +206,9 @@ fn player_state_system(backend : &@system.Backend) -> Unit {
         player_hit_animation,
         transform~,
       )
+      if @collision.is_on_floor(game_state.player) {
+        new_velocity_x = 0.0
+      }
       if @sprite.is_animation_finished(game_state.player) {
         if @collision.is_on_floor(game_state.player) {
           game_state.player_state = PlayerState::Idle

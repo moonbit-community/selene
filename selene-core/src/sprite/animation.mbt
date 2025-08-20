@@ -376,5 +376,8 @@ pub fn is_animation_finished(entity : @system.Entity) -> Bool {
     is Some({ sprite_type: Animation(anime, frame~), .. }) else {
     true
   }
+  if anime.loop_ {
+    return false
+  }
   frame >= anime.frames.length().to_double() - anime.rate
 }
