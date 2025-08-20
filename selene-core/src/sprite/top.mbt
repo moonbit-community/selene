@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 ///|
 /// Visual element that can be rendered to the screen with depth ordering and
 /// positioning.
@@ -60,6 +59,7 @@ pub enum SpriteType {
   Picture(Picture)
   Animation(Animation, mut frame~ : Double)
   Text(Text)
+  ColorRect(ColorRect)
 }
 
 ///| Make an animation sprite with default animation and zindex.
@@ -92,6 +92,15 @@ pub fn Sprite::new_text(
   offset~ : @math.Vec2D = @math.Vec2D::zero(),
 ) -> Sprite {
   { sprite_type: SpriteType::Text(text), zindex, offset, visible: true }
+}
+
+///|
+pub fn Sprite::new_color_rect(
+  color_rect : ColorRect,
+  zindex : Int,
+  offset~ : @math.Vec2D = @math.Vec2D::zero(),
+) -> Sprite {
+  { sprite_type: ColorRect(color_rect), zindex, offset, visible: true }
 }
 
 ///|
@@ -133,6 +142,8 @@ pub fn render_sprite_system(backend : &@system.Backend) -> Unit {
         }
         SpriteType::Text(text) =>
           render_text(backend, text, pos + sprite.offset)
+        ColorRect(color_rect) =>
+          render_color_rect(backend, color_rect, pos + sprite.offset)
       }
     }
   }

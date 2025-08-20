@@ -121,7 +121,6 @@ pub(all) struct AnimationFrame {
 ///   loop_=true,
 ///   rate=0.15,
 ///   transform=@math.Transform::new(),
-///   start_frame=2
 /// )
 /// inspect(animation.frames.length(), content="8")
 /// inspect(animation.loop_, content="true")
@@ -153,6 +152,34 @@ fn generate_animation() -> Int {
 }
 
 ///|
+/// Creates a single-frame animation from a static sprite image.
+///
+/// Parameters:
+///
+/// * `sprite_path` : The file path to the sprite image.
+/// * `size` : The width and height dimensions of the sprite in pixels.
+/// * `transform` : The transformation matrix for position, rotation, and scale
+///   (default: identity transform).
+/// * `offset` : The pixel offset within the sprite sheet where the frame is
+///   located (default: `@math.Vec2D(0, 0)`).
+///
+/// Returns a new `Animation` instance containing a single frame with looping
+/// disabled and zero playback rate.
+///
+/// Example:
+///
+/// ```notest
+/// let static_sprite = @sprite.Animation::single_frame(
+///   "ui/button.png",
+///   @math.Vec2D(100.0, 50.0),
+///   transform=@math.Transform::new(),
+///   offset=@math.Vec2D(10.0, 5.0)
+/// )
+/// inspect(static_sprite.frames.length(), content="1")
+/// inspect(static_sprite.loop_, content="false")
+/// inspect(static_sprite.rate, content="0.0")
+/// ```
+///
 pub fn Animation::single_frame(
   sprite_path : String,
   size : @math.Vec2D,

@@ -34,6 +34,12 @@ pub(all) struct AnimationFrame {
   offset : @math.Vec2D
 }
 
+pub(all) struct ColorRect {
+  size : @math.Vec2D
+  color : String
+}
+fn ColorRect::new(@math.Vec2D, String) -> Self
+
 pub(all) struct Picture {
   size : @math.Vec2D
   tile_path : String
@@ -45,15 +51,19 @@ fn Picture::new(@math.Vec2D, String, transform? : @math.Transform, repeat? : @sy
 pub(all) struct Sprite {
   sprite_type : SpriteType
   zindex : Int
+  mut visible : Bool
+  offset : @math.Vec2D
 }
-fn Sprite::new_animation(Animation, Int) -> Self
-fn Sprite::new_picture(Picture, Int) -> Self
-fn Sprite::new_text(Text, Int) -> Self
+fn Sprite::new_animation(Animation, Int, offset? : @math.Vec2D) -> Self
+fn Sprite::new_color_rect(ColorRect, Int, offset? : @math.Vec2D) -> Self
+fn Sprite::new_picture(Picture, Int, offset? : @math.Vec2D) -> Self
+fn Sprite::new_text(Text, Int, offset? : @math.Vec2D) -> Self
 
 pub enum SpriteType {
   Picture(Picture)
   Animation(Animation, mut frame~ : Double)
   Text(Text)
+  ColorRect(ColorRect)
 }
 
 pub(all) struct Text {
