@@ -100,7 +100,12 @@ pub fn Sprite::new_color_rect(
   zindex : Int,
   offset~ : @math.Vec2D = @math.Vec2D::zero(),
 ) -> Sprite {
-  { sprite_type: ColorRect(color_rect), zindex, offset, visible: true }
+  {
+    sprite_type: SpriteType::ColorRect(color_rect),
+    zindex,
+    offset,
+    visible: true,
+  }
 }
 
 ///|
@@ -142,7 +147,7 @@ pub fn render_sprite_system(backend : &@system.Backend) -> Unit {
         }
         SpriteType::Text(text) =>
           render_text(backend, text, pos + sprite.offset)
-        ColorRect(color_rect) =>
+        SpriteType::ColorRect(color_rect) =>
           render_color_rect(backend, color_rect, pos + sprite.offset)
       }
     }

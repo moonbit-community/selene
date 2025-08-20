@@ -1,0 +1,262 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/physics"
+
+import(
+  "Milky2018/selene/math"
+  "Milky2018/selene/system"
+)
+
+// Values
+fn add_physics_shape_to_entity(@system.Entity, ShapeDef) -> Unit
+
+let angular_positions : Map[@system.Entity, AngularPosition]
+
+let angular_slop : Double
+
+fn apply_force_to_entity(@system.Entity, @math.Vec2D) -> Unit
+
+fn apply_impulse_to_entity(@system.Entity, @math.Vec2D) -> Unit
+
+fn apply_torque_to_entity(@system.Entity, Double) -> Unit
+
+fn clamp(Double, Double, Double) -> Double
+
+fn create_physics_entity(@system.Entity, @math.Vec2D, BodyType, Double) -> Unit
+
+fn cross_scalar_vec(Double, @math.Vec2D) -> @math.Vec2D
+
+fn cross_vec_scalar(@math.Vec2D, Double) -> @math.Vec2D
+
+fn cross_vec_vec(@math.Vec2D, @math.Vec2D) -> Double
+
+let forces : Map[@system.Entity, Forces]
+
+fn get_physics_velocity(@system.Entity) -> @math.Vec2D?
+
+let gravity_scale : Double
+
+fn lerp(Double, Double, Double) -> Double
+
+let linear_slop : Double
+
+let max_angular_velocity : Double
+
+let max_linear_velocity : Double
+
+fn physics_integration_system(&@system.Backend) -> Unit
+
+fn physics_system(&@system.Backend) -> Unit
+
+let physics_velocities : Map[@system.Entity, PhysicsVelocity]
+
+let physics_world : Ref[PhysicsWorld]
+
+let rigid_bodies : Map[@system.Entity, RigidBody]
+
+fn set_physics_velocity(@system.Entity, @math.Vec2D) -> Unit
+
+fn sync_physics_to_velocity_system(&@system.Backend) -> Unit
+
+fn sync_velocity_to_physics_system(&@system.Backend) -> Unit
+
+// Errors
+
+// Types and methods
+pub struct AngularPosition(Double)
+fn AngularPosition::get(Self) -> Double
+fn AngularPosition::inner(Self) -> Double
+fn AngularPosition::new(Double) -> Self
+fn AngularPosition::zero() -> Self
+impl Show for AngularPosition
+
+pub struct BodyDef {
+  body_type : BodyType
+  position : @math.Vec2D
+  angle : Double
+  linear_velocity : @math.Vec2D
+  angular_velocity : Double
+  linear_damping : Double
+  angular_damping : Double
+  gravity_scale : Double
+  user_data : Int
+}
+fn BodyDef::default() -> Self
+impl Show for BodyDef
+
+pub(all) enum BodyType {
+  Static
+  Kinematic
+  Dynamic
+}
+impl Eq for BodyType
+impl Show for BodyType
+
+pub struct Forces {
+  force : @math.Vec2D
+  torque : Double
+}
+fn Forces::new(@math.Vec2D, Double) -> Self
+fn Forces::zero() -> Self
+impl Show for Forces
+
+pub struct Manifold {
+  points : Array[ManifoldPoint]
+  local_normal : @math.Vec2D
+  local_point : @math.Vec2D
+  point_count : Int
+}
+impl Show for Manifold
+
+pub struct ManifoldPoint {
+  local_point : @math.Vec2D
+  normal_impulse : Double
+  tangent_impulse : Double
+  id : Int
+}
+impl Show for ManifoldPoint
+
+pub struct MassData {
+  mass : Double
+  center : @math.Vec2D
+  inertia : Double
+}
+impl Show for MassData
+
+pub struct Mat22 {
+  ex : @math.Vec2D
+  ey : @math.Vec2D
+}
+fn Mat22::from_angle(Double) -> Self
+fn Mat22::identity() -> Self
+fn Mat22::mul_mat(Self, Self) -> Self
+fn Mat22::mul_vec(Self, @math.Vec2D) -> @math.Vec2D
+fn Mat22::new(@math.Vec2D, @math.Vec2D) -> Self
+fn Mat22::transpose(Self) -> Self
+impl Show for Mat22
+
+pub struct PhysicsBody {
+  id : Int
+  body_type : BodyType
+  mut position : @math.Vec2D
+  mut angle : Double
+  mut transform : PhysicsTransform
+  mut linear_velocity : @math.Vec2D
+  mut angular_velocity : Double
+  mut force : @math.Vec2D
+  mut torque : Double
+  mut mass : Double
+  mut inv_mass : Double
+  mut inertia : Double
+  mut inv_inertia : Double
+  linear_damping : Double
+  angular_damping : Double
+  gravity_scale : Double
+  shapes : Array[PhysicsShape]
+  user_data : Int
+  is_awake : Bool
+  is_enabled : Bool
+}
+impl Show for PhysicsBody
+
+pub struct PhysicsShape {
+  shape_type : ShapeType
+  radius : Double
+  vertices : Array[@math.Vec2D]
+  normals : Array[@math.Vec2D]
+  centroid : @math.Vec2D
+  density : Double
+  friction : Double
+  restitution : Double
+}
+impl Show for PhysicsShape
+
+pub struct PhysicsTransform {
+  p : @math.Vec2D
+  q : Rot
+}
+fn PhysicsTransform::identity() -> Self
+fn PhysicsTransform::mul_transform(Self, Self) -> Self
+fn PhysicsTransform::mul_vec(Self, @math.Vec2D) -> @math.Vec2D
+fn PhysicsTransform::new(@math.Vec2D, Rot) -> Self
+impl Show for PhysicsTransform
+
+pub struct PhysicsVelocity {
+  linear : @math.Vec2D
+  angular : Double
+}
+fn PhysicsVelocity::new(@math.Vec2D, Double) -> Self
+fn PhysicsVelocity::zero() -> Self
+impl Show for PhysicsVelocity
+
+pub struct PhysicsWorld {
+  gravity : @math.Vec2D
+  contact_hertz : Double
+  contact_damping_ratio : Double
+  max_linear_velocity : Double
+  max_angular_velocity : Double
+  bodies : Array[PhysicsBody]
+  mut body_id_counter : Int
+  mut dt : Double
+  mut sub_step_count : Int
+}
+fn PhysicsWorld::add_shape_to_body(Self, Int, ShapeDef) -> Bool
+fn PhysicsWorld::create_body(Self, BodyDef) -> Int
+fn PhysicsWorld::get_body(Self, Int) -> PhysicsBody?
+fn PhysicsWorld::new(WorldDef) -> Self
+fn PhysicsWorld::step(Self, Double, Int) -> Unit
+impl Show for PhysicsWorld
+
+pub struct RigidBody {
+  body_type : BodyType
+  mass : Double
+  inv_mass : Double
+  inertia : Double
+  inv_inertia : Double
+  linear_damping : Double
+  angular_damping : Double
+  gravity_scale : Double
+}
+fn RigidBody::new(BodyType, Double) -> Self
+impl Show for RigidBody
+
+pub struct Rot {
+  s : Double
+  c : Double
+}
+fn Rot::get_angle(Self) -> Double
+fn Rot::get_x_axis(Self) -> @math.Vec2D
+fn Rot::get_y_axis(Self) -> @math.Vec2D
+fn Rot::identity() -> Self
+fn Rot::mul_rot(Self, Self) -> Self
+fn Rot::mul_vec(Self, @math.Vec2D) -> @math.Vec2D
+fn Rot::new(Double) -> Self
+impl Show for Rot
+
+pub(all) enum ShapeDef {
+  Circle(Double, @math.Vec2D)
+  Box(Double, Double, @math.Vec2D, Double)
+  Polygon(Array[@math.Vec2D])
+}
+impl Show for ShapeDef
+
+pub(all) enum ShapeType {
+  Circle
+  Polygon
+}
+impl Eq for ShapeType
+impl Show for ShapeType
+
+pub struct WorldDef {
+  gravity : @math.Vec2D
+  contact_hertz : Double
+  contact_damping_ratio : Double
+  max_linear_velocity : Double
+  max_angular_velocity : Double
+}
+fn WorldDef::default() -> Self
+impl Show for WorldDef
+
+// Type aliases
+
+// Traits
+
