@@ -7,6 +7,8 @@ import(
 )
 
 // Values
+fn is_animation_finished(@system.Entity) -> Bool
+
 fn play_animation(@system.Entity, Animation, from_start? : Bool, loop_? : Bool?, rate? : Double?, transform? : @math.Transform?) -> Unit
 
 fn render_sprite_system(&@system.Backend) -> Unit
