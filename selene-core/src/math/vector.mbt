@@ -30,6 +30,11 @@ pub fn Vec2D::new(x : Double, y : Double) -> Vec2D {
 }
 
 ///|
+pub fn Vec2D::clone(self : Vec2D) -> Vec2D {
+  { x: self.x, y: self.y }
+}
+
+///|
 pub fn Vec2D::zero() -> Vec2D {
   Vec2D::new(0.0, 0.0)
 }

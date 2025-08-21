@@ -32,3 +32,12 @@ pub fn Transform::new(
 pub fn Transform::flip_x(width : Double) -> Transform {
   Transform::new(scale=Vec2D::new(-1.0, 1.0), translate=Vec2D::new(width, 0.0))
 }
+
+///|
+pub fn Transform::clone(self : Transform) -> Transform {
+  {
+    scale: self.scale.clone(),
+    translate: self.translate.clone(),
+    skew: self.skew.clone(),
+  }
+}
