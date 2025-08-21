@@ -1,8 +1,0 @@
-{
-  "import": [
-    "Milky2018/selene/system",
-    { "path": "Milky2018/selene/math", "alias": "smath" },
-    "Milky2018/selene/position",
-    "Milky2018/selene/velocity"
-  ]
-}
