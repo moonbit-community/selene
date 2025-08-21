@@ -68,6 +68,16 @@ pub impl Sub for Vec2D with op_sub(this, other) {
 }
 
 ///|
+pub fn Vec2D::scalar_mul(this : Vec2D, scalar : Double) -> Vec2D {
+  Vec2D(this.0 * scalar, this.1 * scalar)
+}
+
+///|
+pub fn Vec2D::scalar_div(this : Vec2D, scalar : Double) -> Vec2D {
+  Vec2D(this.0 / scalar, this.1 / scalar)
+}
+
+///|
 pub fn Vec2D::distance(this : Vec2D) -> Double {
   (this.0 * this.0 + this.1 * this.1).sqrt()
 }
