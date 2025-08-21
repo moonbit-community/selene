@@ -135,3 +135,14 @@ fn render_animation(
     }
   }
 }
+
+///|
+pub fn is_animation_finished(entity : @system.Entity) -> Bool {
+  guard sprites.get(entity) is Some({ sprite_type: Animation(anime), .. }) else {
+    true
+  }
+  if anime.loop_ {
+    return false
+  }
+  anime.frame >= anime.max_frame.to_double() - anime.rate
+}
