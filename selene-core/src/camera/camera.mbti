@@ -1,0 +1,36 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/camera"
+
+import(
+  "Milky2018/selene/math"
+  "Milky2018/selene/system"
+)
+
+// Values
+let camera : Camera
+
+fn camera_system(&@system.Backend) -> Unit
+
+let uis : Map[@system.Entity, Ui]
+
+// Errors
+
+// Types and methods
+pub(all) struct Camera {
+  position : @math.Vec2D
+  mut limit_top : Double?
+  mut limit_bottom : Double?
+  mut limit_left : Double?
+  mut limit_right : Double?
+  mut attached_entity : @system.Entity?
+  offset : @math.Vec2D
+}
+
+pub(all) struct Ui {
+}
+fn Ui::new() -> Self
+
+// Type aliases
+
+// Traits
+

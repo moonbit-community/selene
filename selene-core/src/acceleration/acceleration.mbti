@@ -11,12 +11,12 @@ fn accelerate_system(&@system.Backend) -> Unit
 
 let accelerations : Map[@system.Entity, Acceleration]
 
-fn add_gravity(@system.Entity, gravity~ : Double = ..) -> Unit
+fn add_gravity(@system.Entity, gravity? : Double) -> Unit
 
 // Errors
 
 // Types and methods
-pub(all) type Acceleration @math.Vec2D
+pub(all) struct Acceleration(@math.Vec2D)
 fn Acceleration::inner(Self) -> @math.Vec2D
 
 // Type aliases

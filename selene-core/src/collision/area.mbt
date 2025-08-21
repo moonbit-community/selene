@@ -166,7 +166,7 @@ pub fn area_click_system(_ : &@system.Backend) -> Unit {
       position: position.inner() + offset,
     }
     let box = if @camera.uis.get(e) is Some(_) {
-      box 
+      box
     } else {
       box.shift(@camera.camera.position)
     }

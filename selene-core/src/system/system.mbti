@@ -53,9 +53,9 @@ pub(all) struct App {
   plugins : Array[(App) -> Unit]
   backend : &Backend
 }
-fn App::add_initializer(Self, (&Backend) -> Unit, priority~ : Int = ..) -> Self
+fn App::add_initializer(Self, (&Backend) -> Unit, priority? : Int) -> Self
 fn App::add_plugin(Self, (Self) -> Unit) -> Self
-fn App::add_system(Self, (&Backend) -> Unit, priority~ : Int = ..) -> Self
+fn App::add_system(Self, (&Backend) -> Unit, priority? : Int) -> Self
 fn App::new(&Backend) -> Self
 fn App::run(Self) -> Unit
 fn App::with_backend(Self, &Backend) -> Self
@@ -139,5 +139,6 @@ pub(open) trait Backend {
   draw_stroke_rect(Self, x~ : Double, y~ : Double, width~ : Double, height~ : Double, color~ : String) -> Unit
   draw_text(Self, String, x~ : Double, y~ : Double, font~ : String, color~ : String) -> Unit
   play_audio(Self, String, volume~ : Double, loop_~ : Bool) -> Unit
+  get_canvas_size(Self) -> @math.Vec2D
 }
 

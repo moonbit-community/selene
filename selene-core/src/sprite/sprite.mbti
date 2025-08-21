@@ -7,7 +7,7 @@ import(
 )
 
 // Values
-fn play_animation(@system.Entity, Animation, from_start~ : Bool = .., loop_~ : Bool? = .., rate~ : Double? = .., transform~ : @math.Transform? = ..) -> Unit
+fn play_animation(@system.Entity, Animation, from_start? : Bool, loop_? : Bool?, rate? : Double?, transform? : @math.Transform?) -> Unit
 
 fn render_sprite_system(&@system.Backend) -> Unit
 
@@ -28,7 +28,7 @@ pub struct Animation {
   mut frame : Double
   // private fields
 }
-fn Animation::new(String, max_frame~ : UInt, height~ : Double, width~ : Double, transform~ : @math.Transform = .., loop_~ : Bool = .., rate~ : Double = .., offset~ : @math.Vec2D = .., start_frame~ : UInt = ..) -> Self
+fn Animation::new(String, max_frame~ : UInt, height~ : Double, width~ : Double, transform? : @math.Transform, loop_? : Bool, rate? : Double, offset? : @math.Vec2D, start_frame? : UInt) -> Self
 
 pub(all) struct Picture {
   size : @math.Vec2D
@@ -36,7 +36,7 @@ pub(all) struct Picture {
   transform : @math.Transform
   repeat : Bool
 }
-fn Picture::new(@math.Vec2D, String, transform~ : @math.Transform = .., repeat~ : Bool = ..) -> Self
+fn Picture::new(@math.Vec2D, String, transform? : @math.Transform, repeat? : Bool) -> Self
 
 pub(all) struct Sprite {
   sprite_type : SpriteType
@@ -48,7 +48,7 @@ fn Sprite::new_text(Text, Int) -> Self
 
 pub enum SpriteType {
   Picture(Picture)
-  Animation(Animation, mut current~ : Animation)
+  Animation(Animation)
   Text(Text)
 }
 
@@ -57,7 +57,7 @@ pub(all) struct Text {
   mut color : String
   mut font : String
 }
-fn Text::new(String, color~ : String = .., font~ : String = ..) -> Self
+fn Text::new(String, color? : String, font? : String) -> Self
 
 // Type aliases
 
