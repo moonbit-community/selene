@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-pub(all) type Acceleration @math.Vec2D
+pub(all) struct Acceleration(@math.Vec2D)
 
 ///|
 pub let accelerations : Map[@system.Entity, Acceleration] = Map::new()
