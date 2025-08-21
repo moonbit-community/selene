@@ -12,17 +12,44 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///|
+///| 
 pub struct Animation {
   sprite_path : String
   max_frame : UInt
   height : Double
   width : Double
   offset : @math.Vec2D
+  priv id : Int
   mut transform : @math.Transform
   mut loop_ : Bool
   mut rate : Double
   mut frame : Double
+}
+
+///|
+let animation_id_generator : Ref[Int] = Ref::new(0)
+
+///|
+fn animation_id_generate() -> Int {
+  let id = animation_id_generator.val
+  animation_id_generator.val = id + 1
+  id
+}
+
+///|
+fn Animation::clone(self : Animation) -> Animation {
+  {
+    sprite_path: self.sprite_path,
+    max_frame: self.max_frame,
+    height: self.height,
+    width: self.width,
+    offset: self.offset.clone(),
+    transform: self.transform.clone(),
+    loop_: self.loop_,
+    rate: self.rate,
+    frame: self.frame,
+    id: self.id,
+  }
 }
 
 ///| Play a new animation; if the animation is already playing 
@@ -36,8 +63,11 @@ pub fn play_animation(
   transform~ : @math.Transform? = None,
   // backward~ : Bool = false,
 ) -> Unit {
-  guard sprites.get(entity)
-    is Some({ sprite_type: Animation(_current), zindex })
+  guard sprites.get(entity) is Some({ sprite_type: Animation(current), zindex })
+  let animation = animation.clone()
+  if animation.id == current.id {
+    animation.frame = current.frame
+  }
   if loop_ is Some(loop_) {
     animation.loop_ = loop_
   }
@@ -75,6 +105,7 @@ pub fn Animation::new(
     loop_,
     rate,
     transform,
+    id: animation_id_generate(),
   }
 }
 
