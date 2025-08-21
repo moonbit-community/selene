@@ -14,7 +14,7 @@
 
 ///|
 let player_idle_animation : @sprite.Animation = @sprite.Animation::new(
-  @sprite.frames_from_altas(
+  @sprite.frames_from_atlas(
     "pixel_adventure/Main Characters/Mask Dude/Idle (32x32).png",
     11,
     width=32.0,
@@ -25,7 +25,7 @@ let player_idle_animation : @sprite.Animation = @sprite.Animation::new(
 
 ///|
 let player_run_animation : @sprite.Animation = @sprite.Animation::new(
-  @sprite.frames_from_altas(
+  @sprite.frames_from_atlas(
     "pixel_adventure/Main Characters/Mask Dude/Run (32x32).png",
     12,
     width=32.0,
@@ -36,7 +36,7 @@ let player_run_animation : @sprite.Animation = @sprite.Animation::new(
 
 ///|
 let player_fall_animation : @sprite.Animation = @sprite.Animation::new(
-  @sprite.frames_from_altas(
+  @sprite.frames_from_atlas(
     "pixel_adventure/Main Characters/Mask Dude/Fall (32x32).png",
     1,
     width=32.0,
@@ -47,7 +47,7 @@ let player_fall_animation : @sprite.Animation = @sprite.Animation::new(
 
 ///|
 let player_jump_animation : @sprite.Animation = @sprite.Animation::new(
-  @sprite.frames_from_altas(
+  @sprite.frames_from_atlas(
     "pixel_adventure/Main Characters/Mask Dude/Jump (32x32).png",
     1,
     width=32.0,
@@ -58,7 +58,7 @@ let player_jump_animation : @sprite.Animation = @sprite.Animation::new(
 
 ///|
 let player_hit_animation : @sprite.Animation = @sprite.Animation::new(
-  @sprite.frames_from_altas(
+  @sprite.frames_from_atlas(
     "pixel_adventure/Main Characters/Mask Dude/Hit (32x32).png",
     7,
     width=32.0,

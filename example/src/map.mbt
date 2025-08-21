@@ -135,7 +135,7 @@ fn add_apple(backend : &@system.Backend, pos : @math.Vec2D) -> Unit {
   let apple = @system.Entity::new()
   let apple_sprite = @sprite.Sprite::new_animation(
     @sprite.Animation::new(
-      @sprite.frames_from_altas(
+      @sprite.frames_from_atlas(
         "pixel_adventure/Items/Fruits/Apple.png",
         17,
         width=32.0,

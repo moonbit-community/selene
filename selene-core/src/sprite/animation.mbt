@@ -30,7 +30,7 @@
 /// Example:
 ///
 /// ```notest
-/// let frames = @sprite.frames_from_altas(
+/// let frames = @sprite.frames_from_atlas(
 ///   "player.png", 
 ///   frame_count=8, 
 ///   width=32.0, 
@@ -110,7 +110,7 @@ pub(all) struct AnimationFrame {
 /// Example:
 ///
 /// ```notest
-/// let frames = @sprite.frames_from_altas(
+/// let frames = @sprite.frames_from_atlas(
 ///   "player.png", 
 ///   frame_count=8, 
 ///   width=32.0, 
@@ -217,7 +217,7 @@ pub fn Animation::single_frame(
 /// Example:
 ///
 /// ```notest
-/// let frames = @sprite.frames_from_altas(
+/// let frames = @sprite.frames_from_atlas(
 ///   "characters/player_walk.png",
 ///   frame_count=8,
 ///   width=32.0,
