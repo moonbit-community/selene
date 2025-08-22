@@ -78,8 +78,8 @@ fn add_player(pos : @math.Vec2D) -> Unit {
     layer: player_collision_layer,
     mask: player_collision_mask,
   })
-  @camera.camera.attached_entity = Some(game_state.player)
-  @camera.camera.offset = @math.Vec2D(16.0, 16.0)
+  @camera.attach_entity(game_state.player)
+  @camera.set_offset(@math.Vec2D(16.0, 16.0)) // Center camera on player
 }
 
 ///|

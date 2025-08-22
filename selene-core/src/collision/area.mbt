@@ -328,7 +328,7 @@ pub fn area_click_system(backend : &@system.Backend) -> Unit {
     let box = if @ui.uis.get(e) is Some(_) {
       box
     } else {
-      box.shift(@camera.camera.position)
+      box.shift(@camera.get_position())
     }
     if !box.intersects(area_box) {
       continue

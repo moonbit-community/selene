@@ -27,10 +27,7 @@ fn generate_map(backend : &@system.Backend) -> Unit {
     tilemap.tile_size.to_double()
   let world_height = tilemap.map_height.to_double() *
     tilemap.tile_size.to_double()
-  @camera.camera.limit_left = Some(0.0)
-  @camera.camera.limit_right = Some(world_width)
-  @camera.camera.limit_top = Some(0.0)
-  @camera.camera.limit_bottom = Some(world_height)
+  @camera.set_limits(top=0.0, bottom=world_height, left=0.0, right=world_width)
   add_background(@math.Vec2D(world_width, world_height))
   println("MaskDude")
   let mask_dude = tilemap.get_tiles_first("MaskDude")[0]

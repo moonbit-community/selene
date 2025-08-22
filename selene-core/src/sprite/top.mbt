@@ -128,7 +128,7 @@ pub fn render_sprite_system(backend : &@system.Backend) -> Unit {
     let sprite = sprite.1
     guard @position.positions.get(e) is Some(pos) else { continue }
     let pos = if @ui.uis.get(e) is None {
-      pos.0 - @camera.camera.position
+      pos.0 - @camera.get_position()
     } else {
       pos.0
     }

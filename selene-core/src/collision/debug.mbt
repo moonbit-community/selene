@@ -21,7 +21,7 @@ pub fn debug_collide_system(backend : &@system.Backend) -> Unit {
     let pos = if @ui.uis.get(e) is Some(_) {
       pos.0 + offset
     } else {
-      pos.0 + offset - @camera.camera.position
+      pos.0 + offset - @camera.get_position()
     }
     backend.draw_color_rect(
       x=pos[X],
@@ -38,7 +38,7 @@ pub fn debug_collide_system(backend : &@system.Backend) -> Unit {
     let pos = if @ui.uis.get(e) is Some(_) {
       pos.0 + offset
     } else {
-      pos.0 + offset - @camera.camera.position
+      pos.0 + offset - @camera.get_position()
     }
     backend.draw_color_rect(
       x=pos[X],
