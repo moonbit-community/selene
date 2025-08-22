@@ -57,10 +57,10 @@ fn add_bird(pos : @math.Vec2D) -> Unit {
     entity,
     Rect(size=@math.Vec2D(32.0, 32.0), offset=@math.Vec2D::zero()),
   )
-  @collision.collides.set(entity, @collision.Collider::{
-    layer: enemy_collision_layer,
-    mask: enemy_collision_mask,
-  })
+  @collision.collides.set(
+    entity,
+    @collision.Collider::new(enemy_collision_layer, enemy_collision_mask),
+  )
   birds[entity] = Bird::{ direction: Right, is_hurt: false }
 }
 
@@ -75,6 +75,8 @@ fn bird_ai_system(_backend : &@system.Backend) -> Unit {
     }
     if bird.is_hurt {
       @velocity.velocities[e] = @math.Vec2D::zero()
+      guard @collision.collides.get(e) is Some(collider)
+      collider.active = false
       match bird.direction {
         Left =>
           @sprite.play_animation(

@@ -98,6 +98,7 @@ fn move_axis(
     guard shapes.get(e) is Some(shape) else { continue }
     guard shape is Rect(size=Vec2D(width, height), offset~) else { continue }
     guard @position.positions.get(e) is Some(pos) else { continue }
+    guard collision.active else { continue }
     guard mask.contains(collision.layer) else { continue }
     let collision_box = @math.Rect::{
       size: @math.Vec2D(width, height),

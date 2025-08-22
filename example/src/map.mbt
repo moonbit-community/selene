@@ -94,10 +94,13 @@ fn add_grass(pos : @math.Vec2D, sprite_id : String) -> Unit {
     grass,
     Rect(size=@math.Vec2D(16.0, 16.0), offset=@math.Vec2D::zero()),
   )
-  @collision.collides.set(grass, @collision.Collider::{
-    layer: terrain_collision_layer,
-    mask: @collision.CollisionMask::empty(),
-  })
+  @collision.collides.set(
+    grass,
+    @collision.Collider::new(
+      terrain_collision_layer,
+      @collision.CollisionMask::empty(),
+    ),
+  )
 }
 
 ///|

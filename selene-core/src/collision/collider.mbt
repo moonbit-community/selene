@@ -13,12 +13,18 @@
 // limitations under the License.
 
 ///|
-/// Collision object in the game world.
+/// Collision detector component for entities in the physics system.
+///
+/// Collider components define how entities interact with other entities in the
+/// collision detection system. Each collider has a collision layer that
+/// determines what it is, a collision mask that determines what it can collide
+/// with, and an active flag to enable or disable collision detection.
 ///
 /// Fields:
 ///
+/// * `active` : Whether collision detection is enabled for this collider.
 /// * `layer` : The collision layer this collider belongs to.
-/// * `mask` : The collision mask that determines which layers this collider can
+/// * `mask` : The collision mask defining which layers this collider can
 ///   interact with.
 ///
 /// Example:
@@ -26,14 +32,47 @@
 /// ```notest
 /// let layer = @collision.CollisionLayer::new()
 /// let mask = @collision.CollisionMask::new([layer])
-/// let collider = @collision.Collider::{ layer, mask }
-/// inspect(collider.layer, content="CollisionLayer(...)")
-/// inspect(collider.mask, content="CollisionMask(...)")
+/// let collider = @collision.Collider::new(layer, mask)
+///
+/// // Access fields
+/// inspect(collider.active, content="true")
+/// println("Layer: \{collider.layer}")
+/// println("Mask layers: \{collider.mask.inner().length()}")
+///
+/// // Modify active state
+/// collider.active = false
 /// ```
 ///
 pub(all) struct Collider {
+  mut active : Bool
   layer : CollisionLayer
   mask : CollisionMask
+}
+
+///|
+/// Creates a new collider with the specified collision layer and mask.
+///
+/// Parameters:
+///
+/// * `layer` : The collision layer this collider belongs to, determining what
+///   category of collision object this is.
+/// * `mask` : The collision mask defining which collision layers this collider
+///   can interact with.
+///
+/// Returns a new `Collider` instance with collision detection enabled by
+/// default.
+///
+/// Example:
+///
+/// ```notest
+/// let layer = @collision.CollisionLayer::new()
+/// let mask = @collision.CollisionMask::new([layer])
+/// let collider = @collision.Collider::new(layer, mask)
+/// inspect(collider.active, content="true")
+/// ```
+///
+pub fn Collider::new(layer : CollisionLayer, mask : CollisionMask) -> Collider {
+  { active: true, layer, mask }
 }
 
 ///|

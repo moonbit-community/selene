@@ -14,8 +14,9 @@
 
 ///|
 pub fn debug_collide_system(backend : &@system.Backend) -> Unit {
-  for e, _collide in collides {
+  for e, collide in collides {
     guard e.is_alive() else { continue }
+    guard collide.active else { continue }
     guard @position.positions.get(e) is Some(pos)
     guard shapes.get(e) is Some(shape)
     guard shape is Rect(size=Vec2D(width, height), offset~)
