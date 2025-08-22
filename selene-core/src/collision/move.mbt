@@ -113,7 +113,8 @@ fn move_axis(
   new_pos = new_pos.update(axis, new_pos[axis] + velocity[axis])
   let mut new_velocity = velocity
   let entities = quadtree_root.query(ray_collision)
-  for e in entities.intersection(@system.all_entities) {
+  for e in entities {
+    guard e.is_alive() else { continue }
     guard e != entity else { continue }
     guard collides.get(e) is Some(collision) else { continue }
     guard collision.shape is Rect(size=Vec2D(width, height), offset~) else {

@@ -119,9 +119,7 @@ pub fn Sprite::new_color_rect(
 /// Panics if an entity has a sprite but no position component.
 ///
 pub fn render_sprite_system(backend : &@system.Backend) -> Unit {
-  let sprites = sprites
-    .to_array()
-    .filter(fn(pair) { @system.all_entities.contains(pair.0) })
+  let sprites = sprites.to_array().filter(fn(pair) { pair.0.is_alive() })
   sprites.sort_by_key(fn(pair) { pair.1.zindex })
   for sprite in sprites {
     let e = sprite.0

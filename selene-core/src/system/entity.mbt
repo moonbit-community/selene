@@ -28,34 +28,12 @@
 struct Entity(UInt) derive(Eq, Show, Hash)
 
 ///|
-/// Global collection storing all active entities in the entity-component
-/// system.
-///
-/// This set automatically tracks entities as they are created, destroyed, and
-/// respawned. When an entity is created with `Entity::new()`, it is
-/// automatically added to this set. When an entity is destroyed with
-/// `Entity::destroy()`, it is removed from this set during the next deferred
-/// event processing cycle.
-///
-/// Example:
-///
-/// ```notest
-/// let entity1 = @system.Entity::new()
-/// let entity2 = @system.Entity::new()
-///
-/// // Check how many entities exist
-/// println("Total entities: \{@system.all_entities.size()}")
-///
-/// // Verify specific entities are tracked
-/// if @system.all_entities.contains(entity1) {
-///   println("Entity1 is active")
-/// }
-///
-/// entity1.destroy()
-/// // Note: entity1 will be removed from all_entities during the next deferred event cycle
-/// ```
-///
-pub let all_entities : @set.Set[Entity] = @set.Set::new()
+let all_entities : @set.Set[Entity] = @set.Set::new()
+
+///|
+pub fn iter_entities() -> Iter[Entity] {
+  all_entities.iter()
+}
 
 ///|
 /// Checks whether an entity is currently active in the entity-component system.

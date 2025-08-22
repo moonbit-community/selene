@@ -249,7 +249,7 @@ pub fn Area::on_just_released(
 /// This system checks for collisions between areas and entities with 
 /// a quadtree structure for efficient spatial queries.
 pub fn area_collide_system(_ : &@system.Backend) -> Unit {
-  for e in @system.all_entities {
+  for e in @system.iter_entities() {
     guard areas.get(e) is Some(area) else { continue }
     guard @position.positions.get(e) is Some(position)
     guard area.shape is Rect(size=Vec2D(width, height), offset~)
@@ -260,7 +260,8 @@ pub fn area_collide_system(_ : &@system.Backend) -> Unit {
     quadtree_root.insert(e, box)
     let new_last_contains = Set::new()
     let entities = quadtree_root.query(box)
-    for entity in entities.intersection(@system.all_entities) {
+    for entity in entities {
+      guard entity.is_alive() else { continue }
       if areas.get(entity) is Some(other_area) {
         guard other_area.shape
           is Rect(size=Vec2D(other_width, other_height), offset=other_offset)
@@ -312,7 +313,8 @@ pub fn area_click_system(backend : &@system.Backend) -> Unit {
     position: @system.mouse.pos * Vec2D(1 / zoom, 1 / zoom),
   }
   let entities = quadtree_root.query(box)
-  for e in entities.intersection(@system.all_entities) {
+  for e in entities {
+    guard e.is_alive() else { continue }
     guard areas.get(e) is Some(area) else { continue }
     guard area.monitoring_mouse else { continue }
     guard @position.positions.get(e) is Some(position)
