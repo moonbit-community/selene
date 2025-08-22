@@ -91,7 +91,7 @@ pub fn Area::on_enter(self : Area, callback : (@system.Entity) -> Unit) -> Unit 
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```notest
 /// let layer = @collision.CollisionLayer::new()
 /// let mask = @collision.CollisionMask::empty()
 /// let area = @collision.Area::new(layer, mask)

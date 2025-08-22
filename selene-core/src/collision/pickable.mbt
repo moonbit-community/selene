@@ -13,6 +13,36 @@
 // limitations under the License.
 
 ///|
+/// Component for handling mouse interactions on entities.
+///
+/// Pickable stores callback functions that are triggered when mouse events
+/// occur on an entity. It manages four types of mouse event callbacks: pressed
+/// (while held down), released (while not held down), just pressed (at the
+/// moment of pressing), and just released (at the moment of releasing).
+///
+/// Fields:
+///
+/// * `on_pressed_callbacks` : Callbacks executed while a mouse button is held
+///   down on the entity.
+/// * `on_released_callbacks` : Callbacks executed while a mouse button is not
+///   held down on the entity.
+/// * `on_just_pressed_callbacks` : Callbacks executed at the exact moment a
+///   mouse button is pressed on the entity.
+/// * `on_just_released_callbacks` : Callbacks executed at the exact moment a
+///   mouse button is released on the entity.
+///
+/// Example:
+///
+/// ```notest
+/// let pickable = Pickable::new()
+/// pickable.on_just_pressed(fn(button) { 
+///   println("Button \{button} was just pressed") 
+/// })
+/// pickable.on_pressed(fn(button) { 
+///   println("Button \{button} is being held down") 
+/// })
+/// ```
+///
 struct Pickable {
   on_pressed_callbacks : Array[(@system.MouseButton) -> Unit]
   on_released_callbacks : Array[(@system.MouseButton) -> Unit]
@@ -24,6 +54,18 @@ struct Pickable {
 pub let pickables : Map[@system.Entity, Pickable] = Map::new()
 
 ///|
+/// Creates a new `Pickable` instance with empty callback arrays.
+///
+/// Returns a new `Pickable` with all mouse event callback arrays initialized as
+/// empty arrays.
+///
+/// Example:
+///
+/// ```notest
+/// let pickable = Pickable::new()
+/// pickable.on_pressed(fn(button) { println("Mouse button pressed: \{button}") })
+/// ```
+///
 pub fn Pickable::new() -> Pickable {
   {
     on_pressed_callbacks: [],

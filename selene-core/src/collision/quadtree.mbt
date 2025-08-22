@@ -48,7 +48,12 @@ fn QuadTree::new(
 }
 
 ///|
-const MAX_DEPTH = 5
+fn QuadTree::is_smallest_size(self : QuadTree) -> Bool {
+  self.size[X] <= SMALLEST_SIZE || self.size[Y] <= SMALLEST_SIZE
+}
+
+///|
+const SMALLEST_SIZE = 64.0
 
 ///|
 fn QuadTree::insert(
@@ -59,7 +64,7 @@ fn QuadTree::insert(
   if !self.bounding_box.intersects(box) {
     return
   }
-  if self.depth >= MAX_DEPTH {
+  if self.is_smallest_size() {
     self.entities.add(entity)
     return
   }
