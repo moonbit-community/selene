@@ -130,24 +130,24 @@ pub fn render_sprite_system(backend : &@system.Backend) -> Unit {
     } else {
       pos.0
     }
-    if sprite.visible {
-      match sprite.sprite_type {
-        SpriteType::Picture(picture) =>
-          render_picture(backend, picture, pos + sprite.offset)
-        SpriteType::Animation(anime, frame~) as animation_sprite => {
-          let new_frame = render_animation(
-            backend,
-            anime,
-            frame,
-            pos + sprite.offset,
-          )
-          animation_sprite.frame = new_frame
-        }
-        SpriteType::Text(text) =>
-          render_text(backend, text, pos + sprite.offset)
-        SpriteType::ColorRect(color_rect) =>
-          render_color_rect(backend, color_rect, pos + sprite.offset)
+    match sprite.sprite_type {
+      SpriteType::Picture(picture) if sprite.visible =>
+        render_picture(backend, picture, pos + sprite.offset)
+      SpriteType::Animation(anime, frame~) as animation_sprite => {
+        let new_frame = render_animation(
+          backend,
+          anime,
+          frame,
+          pos + sprite.offset,
+          sprite.visible,
+        )
+        animation_sprite.frame = new_frame
       }
+      SpriteType::Text(text) if sprite.visible =>
+        render_text(backend, text, pos + sprite.offset)
+      SpriteType::ColorRect(color_rect) if sprite.visible =>
+        render_color_rect(backend, color_rect, pos + sprite.offset)
+      _ => ()
     }
   }
 }

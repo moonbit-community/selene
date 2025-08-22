@@ -348,18 +348,21 @@ fn render_animation(
   animation : Animation,
   current_frame : Double,
   pos : @math.Vec2D,
+  visible : Bool,
 ) -> Double {
   let frame = animation.frames[current_frame.to_int()]
-  backend.draw_sprite(
-    frame.sprite_path,
-    x=pos[X],
-    y=pos[Y],
-    offset_x=frame.offset[X],
-    offset_y=frame.offset[Y],
-    width=frame.size[X],
-    height=frame.size[Y],
-    transform=animation.transform,
-  )
+  if visible {
+    backend.draw_sprite(
+      frame.sprite_path,
+      x=pos[X],
+      y=pos[Y],
+      offset_x=frame.offset[X],
+      offset_y=frame.offset[Y],
+      width=frame.size[X],
+      height=frame.size[Y],
+      transform=animation.transform,
+    )
+  }
   let mut new_frame = current_frame + animation.rate
   if new_frame.to_int() >= animation.frames.length() {
     if animation.loop_ {
