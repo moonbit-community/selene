@@ -18,3 +18,6 @@
 pub(all) enum CollisionShape {
   Rect(size~ : @math.Vec2D, offset~ : @math.Vec2D)
 }
+
+///|
+pub let shapes : Map[@system.Entity, CollisionShape] = Map::new()

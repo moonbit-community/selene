@@ -14,19 +14,11 @@
 
 // FIXME: This should be the same as the WORLD_WIDTH
 
-///|
-const GAME_WIDTH = 2048.0
-
-///|
-const GAME_HEIGHT = 2048.0
-
 // FIXME: quadtree should be able to rebuild
 
 ///|
-pub let quadtree_root : QuadTree = QuadTree::new(
-  @math.Vec2D(0, 0),
-  @math.Vec2D(GAME_WIDTH, GAME_HEIGHT),
-  0,
+pub let quadtree_root : Ref[QuadTree] = Ref::new(
+  QuadTree::new(@math.Vec2D(0, 0), @math.Vec2D(0, 0), 0),
 )
 
 ///|
@@ -96,32 +88,9 @@ fn QuadTree::insert(
   }
 }
 
-///|
-fn QuadTree::remove(
-  self : Self,
-  entity : @system.Entity,
-  box : @math.Rect,
-) -> Unit {
-  if !self.bounding_box.intersects(box) {
-    return
-  }
-  if self.depth >= MAX_DEPTH {
-    self.entities.remove(entity)
-    return
-  }
-  for child in self.children {
-    child.remove(entity, box)
-  }
-  if self.children
-    .iter()
-    .all(c => c.entities.is_empty() && c.children.is_empty()) {
-    self.children.clear()
-  }
-}
-
 ///| 
-fn QuadTree::query(self : Self, area : @math.Rect) -> @set.Set[@system.Entity] {
-  let mut trees = @list.of([self])
+fn quadtree_query(area : @math.Rect) -> @set.Set[@system.Entity] {
+  let mut trees = @list.of([quadtree_root.val])
   let mut results = @set.Set::new()
   while trees is More(hd, tail=rest) {
     trees = rest
@@ -154,5 +123,37 @@ pub fn quadtree_render_system(backend : &@system.Backend) -> Unit {
     }
   }
 
-  render_node(quadtree_root)
+  render_node(quadtree_root.val)
+}
+
+///|
+pub fn quadtree_clear_system(_ : &@system.Backend) -> Unit {
+  let mut left_limit = 0.0
+  let mut right_limit = 0.0
+  let mut top_limit = 0.0
+  let mut bottom_limit = 0.0
+  let boxes = []
+  for e, shape in shapes {
+    guard e.is_alive() else { continue }
+    guard @ui.uis.get(e) is None else { continue }
+    guard @position.positions.get(e) is Some(position) else { continue }
+    guard shape is Rect(size=Vec2D(width, height), offset~) else { continue }
+    let box = @math.Rect::{
+      position: position.0 + offset,
+      size: @math.Vec2D(width, height),
+    }
+    boxes.push((e, box))
+    left_limit = @cmp.minimum(left_limit, box.position[X])
+    right_limit = @cmp.maximum(right_limit, box.position[X] + box.size[X])
+    top_limit = @cmp.minimum(top_limit, box.position[Y])
+    bottom_limit = @cmp.maximum(bottom_limit, box.position[Y] + box.size[Y])
+  }
+  quadtree_root.val = QuadTree::new(
+    @math.Vec2D(left_limit, top_limit),
+    @math.Vec2D(right_limit - left_limit, bottom_limit - top_limit),
+    0,
+  )
+  for box in boxes {
+    quadtree_root.val.insert(box.0, box.1)
+  }
 }

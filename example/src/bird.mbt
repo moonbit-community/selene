@@ -53,8 +53,11 @@ fn add_bird(pos : @math.Vec2D) -> Unit {
   @sprite.sprites.set(entity, bird_sprite)
   @velocity.velocities.set(entity, @math.Vec2D(BIRD_SPEED, 0.0))
   @position.positions.set(entity, pos)
-  @collision.collides.set(entity, @collision.Collide::{
-    shape: Rect(size=@math.Vec2D(32.0, 32.0), offset=@math.Vec2D::zero()),
+  @collision.shapes.set(
+    entity,
+    Rect(size=@math.Vec2D(32.0, 32.0), offset=@math.Vec2D::zero()),
+  )
+  @collision.collides.set(entity, @collision.Collider::{
     layer: enemy_collision_layer,
     mask: enemy_collision_mask,
   })

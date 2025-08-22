@@ -61,16 +61,15 @@ fn add_volume_button() -> Unit {
     100,
   )
   @sprite.sprites.set(button, volume_on)
-  let area = @collision.Area::new(
+  @collision.shapes.set(
+    button,
     @collision.CollisionShape::Rect(
       size=@math.Vec2D(21.0, 22.0),
       offset=@math.Vec2D::zero(),
     ),
-    non_collide_layer,
-    @collision.CollisionMask::new([]),
-    monitoring_mouse=true,
   )
-  area.on_just_released(fn(mouse_button) {
+  let pickable = @collision.Pickable::new()
+  pickable.on_just_released(fn(mouse_button) {
     if mouse_button == Left {
       game_state.volume_on = !game_state.volume_on
       if game_state.volume_on {
@@ -80,6 +79,6 @@ fn add_volume_button() -> Unit {
       }
     }
   })
-  @collision.areas.set(button, area)
+  @collision.pickables.set(button, pickable)
   @ui.uis.set(button, @ui.Ui::new())
 }

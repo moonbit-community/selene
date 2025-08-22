@@ -15,14 +15,13 @@
 ///|
 /// The `Collide` struct represents a collision object in the game world.
 /// 
-pub(all) struct Collide {
-  shape : CollisionShape
+pub(all) struct Collider {
   layer : CollisionLayer
   mask : CollisionMask
 }
 
 ///|
-pub let collides : Map[@system.Entity, Collide] = Map::new()
+pub let collides : Map[@system.Entity, Collider] = Map::new()
 
 ///|
 /// The collision info represents information about a collision event.

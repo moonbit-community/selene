@@ -36,7 +36,7 @@ fn main {
   .with_zoom(ZOOM)
   .with_fps(60)
   .add_plugin(@plugins.default_plugin)
-  // .add_plugin(@plugins.debug_plugin)
+  .add_plugin(@plugins.debug_plugin)
   .add_system(game_start, schedule=Startup)
   .add_system(player_state_system)
   .add_system(player_collision_system)

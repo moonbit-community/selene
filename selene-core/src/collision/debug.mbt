@@ -14,10 +14,11 @@
 
 ///|
 pub fn debug_collide_system(backend : &@system.Backend) -> Unit {
-  for e, collide in collides {
+  for e, _collide in collides {
     guard e.is_alive() else { continue }
     guard @position.positions.get(e) is Some(pos)
-    guard collide.shape is Rect(size=Vec2D(width, height), offset~)
+    guard shapes.get(e) is Some(shape)
+    guard shape is Rect(size=Vec2D(width, height), offset~)
     let pos = if @ui.uis.get(e) is Some(_) {
       pos.0 + offset
     } else {
@@ -31,10 +32,11 @@ pub fn debug_collide_system(backend : &@system.Backend) -> Unit {
       color="rgba(255, 0, 0, 0.5)",
     )
   }
-  for e, area in areas {
+  for e, _area in areas {
     guard e.is_alive() else { continue }
     guard @position.positions.get(e) is Some(pos)
-    guard area.shape is Rect(size=Vec2D(width, height), offset~)
+    guard shapes.get(e) is Some(shape) else { continue }
+    guard shape is Rect(size=Vec2D(width, height), offset~)
     let pos = if @ui.uis.get(e) is Some(_) {
       pos.0 + offset
     } else {

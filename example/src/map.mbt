@@ -90,8 +90,11 @@ fn add_grass(pos : @math.Vec2D, sprite_id : String) -> Unit {
   let grass = @system.Entity::new()
   @sprite.sprites.set(grass, sprite)
   @position.positions.set(grass, pos)
-  @collision.collides.set(grass, @collision.Collide::{
-    shape: Rect(size=@math.Vec2D(16.0, 16.0), offset=@math.Vec2D::zero()),
+  @collision.shapes.set(
+    grass,
+    Rect(size=@math.Vec2D(16.0, 16.0), offset=@math.Vec2D::zero()),
+  )
+  @collision.collides.set(grass, @collision.Collider::{
     layer: terrain_collision_layer,
     mask: @collision.CollisionMask::empty(),
   })
@@ -112,8 +115,11 @@ fn add_flag(pos : @math.Vec2D) -> Unit {
   )
   @sprite.sprites.set(flag, flag_sprite)
   @position.positions.set(flag, pos)
-  let area = @collision.Area::new(
+  @collision.shapes.set(
+    flag,
     Rect(size=@math.Vec2D(64.0, 64.0), offset=@math.Vec2D::zero()),
+  )
+  let area = @collision.Area::new(
     non_collide_layer,
     @collision.CollisionMask::new([player_collision_layer]),
   )
@@ -144,8 +150,11 @@ fn add_apple(backend : &@system.Backend, pos : @math.Vec2D) -> Unit {
   )
   @sprite.sprites.set(apple, apple_sprite)
   @position.positions.set(apple, pos)
-  let area = @collision.Area::new(
+  @collision.shapes.set(
+    apple,
     Rect(size=@math.Vec2D(32.0, 32.0), offset=@math.Vec2D::zero()),
+  )
+  let area = @collision.Area::new(
     non_collide_layer,
     @collision.CollisionMask::new([player_collision_layer]),
   )
