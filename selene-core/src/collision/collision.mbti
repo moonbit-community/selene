@@ -5,6 +5,7 @@ import(
   "Milky2018/selene/math"
   "Milky2018/selene/system"
   "Milky2018/selene/velocity"
+  "moonbitlang/core/set"
 )
 
 // Values
@@ -17,6 +18,8 @@ let collides : Map[@system.Entity, Collider]
 fn debug_collide_system(&@system.Backend) -> Unit
 
 fn get_collision_infos(@system.Entity) -> Array[CollisionInfo]
+
+fn get_contains(@system.Entity) -> @set.Set[@system.Entity]
 
 fn is_on_floor(@system.Entity) -> Bool
 
