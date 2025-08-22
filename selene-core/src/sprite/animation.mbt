@@ -24,6 +24,8 @@ pub struct Animation {
   mut loop_ : Bool
   mut rate : Double
   mut frame : Double
+  priv mut finished : Bool
+  priv mut finished_callback : (() -> Unit)?
 }
 
 ///|
@@ -49,6 +51,8 @@ fn Animation::clone(self : Animation) -> Animation {
     rate: self.rate,
     frame: self.frame,
     id: self.id,
+    finished: self.finished,
+    finished_callback: self.finished_callback,
   }
 }
 
@@ -61,12 +65,14 @@ pub fn play_animation(
   loop_~ : Bool? = None,
   rate~ : Double? = None,
   transform~ : @math.Transform? = None,
+  finished_callback? : () -> Unit,
   // backward~ : Bool = false,
 ) -> Unit {
   guard sprites.get(entity) is Some({ sprite_type: Animation(current), zindex })
   let animation = animation.clone()
   if animation.id == current.id {
     animation.frame = current.frame
+    animation.finished = current.finished
   }
   if loop_ is Some(loop_) {
     animation.loop_ = loop_
@@ -77,8 +83,12 @@ pub fn play_animation(
   if transform is Some(transform) {
     animation.transform = transform
   }
+  if finished_callback is Some(callback) {
+    animation.finished_callback = Some(callback)
+  }
   if from_start {
     animation.frame = 0
+    animation.finished = false
   }
   sprites.set(entity, Sprite::new_animation(animation, zindex))
 }
@@ -101,11 +111,13 @@ pub fn Animation::new(
     height,
     width,
     offset,
-    frame: start_frame.to_double(),
     loop_,
     rate,
     transform,
+    frame: start_frame.to_double(),
+    finished: false,
     id: animation_id_generate(),
+    finished_callback: None,
   }
 }
 
@@ -126,12 +138,19 @@ fn render_animation(
     height=animation.height,
     transform=animation.transform,
   )
+  if animation.finished {
+    return
+  }
   animation.frame += animation.rate
   if animation.frame.to_uint() >= animation.max_frame {
     if animation.loop_ {
       animation.frame = 0
     } else {
+      animation.finished = true
       animation.frame -= animation.rate
+      if animation.finished_callback is Some(callback) {
+        callback()
+      }
     }
   }
 }
@@ -141,8 +160,5 @@ pub fn is_animation_finished(entity : @system.Entity) -> Bool {
   guard sprites.get(entity) is Some({ sprite_type: Animation(anime), .. }) else {
     true
   }
-  if anime.loop_ {
-    return false
-  }
-  anime.frame >= anime.max_frame.to_double() - anime.rate
+  anime.finished
 }
