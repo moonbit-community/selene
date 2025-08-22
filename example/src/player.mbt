@@ -132,7 +132,9 @@ fn player_collision_system(backend : &@system.Backend) -> Unit {
 
 ///|
 fn player_state_system(backend : &@system.Backend) -> Unit {
-  guard @velocity.velocities.get(game_state.player) is Some(velocity)
+  let velocity = @collision.real_velocities
+    .get(game_state.player)
+    .unwrap_or(@math.Vec2D::zero())
   let mut new_velocity_x = velocity.0[X]
   let mut new_velocity_y = velocity.0[Y]
   if !(game_state.player_state is Hit) {

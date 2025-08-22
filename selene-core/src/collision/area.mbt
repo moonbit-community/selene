@@ -22,6 +22,25 @@ struct Area {
 }
 
 ///|
+/// Creates a new collision area with the specified layer and collision mask.
+///
+/// Parameters:
+///
+/// * `layer` : The collision layer that this area belongs to.
+/// * `mask` : The collision mask that determines which collision layers this
+///   area can interact with.
+///
+/// Returns a new `Area` instance with empty callback lists and no previously
+/// contained entities.
+///
+/// Example:
+///
+/// ```notest
+/// let layer = @collision.CollisionLayer::new()
+/// let mask = @collision.CollisionMask::empty()
+/// let area = @collision.Area::new(layer, mask)
+/// ```
+///
 pub fn Area::new(layer : CollisionLayer, mask : CollisionMask) -> Area {
   {
     layer,
@@ -48,11 +67,10 @@ pub let areas : Map[@system.Entity, Area] = Map::new()
 /// Example:
 ///
 /// ```notest
-/// let area = @collision.Area::new(
-///   @collision.CollisionShape::Rect(size=@math.Vec2D(10.0, 10.0)),
-///   @collision.CollisionLayer::new(),
-///   @collision.CollisionMask::empty()
-/// )
+/// let layer = @collision.CollisionLayer::new()
+/// let mask = @collision.CollisionMask::empty()
+/// let shape = @collision.CollisionShape::Rect(size=@math.Vec2D(100.0, 100.0), offset=@math.Vec2D(0.0, 0.0))
+/// let area = @collision.Area::new(shape, layer, mask)
 /// area.on_enter(fn(entity) { println("Entity \{entity} entered the area!") })
 /// @collision.areas.set(my_entity, area)
 /// ```
@@ -73,12 +91,10 @@ pub fn Area::on_enter(self : Area, callback : (@system.Entity) -> Unit) -> Unit 
 ///
 /// Example:
 ///
-/// ```notest
-/// let area = @collision.Area::new(
-///   @collision.CollisionShape::Rect(size=@math.Vec2D(10.0, 10.0)),
-///   @collision.CollisionLayer::new(),
-///   @collision.CollisionMask::empty()
-/// )
+/// ```moonbit
+/// let layer = @collision.CollisionLayer::new()
+/// let mask = @collision.CollisionMask::empty()
+/// let area = @collision.Area::new(layer, mask)
 /// area.on_exit(fn(entity) { println("Entity \{entity} exited the area!") })
 /// @collision.areas.set(my_entity, area)
 /// ```

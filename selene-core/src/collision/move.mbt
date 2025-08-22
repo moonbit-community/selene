@@ -54,8 +54,11 @@ fn move_with_collide(
   let object_x = @math.Rect::{ size: box.size, position: new_x.0 }
   let new_y = move_axis(e, object_x, new_x.1, Y, collide.mask)
   @position.positions.set(e, new_y.0 - offset)
-  @velocity.velocities.set(e, new_y.1)
+  real_velocities.set(e, new_y.1)
 }
+
+///|
+pub let real_velocities : Map[@system.Entity, @velocity.Velocity] = Map::new()
 
 ///|
 fn make_ray_collision(

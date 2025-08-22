@@ -13,8 +13,24 @@
 // limitations under the License.
 
 ///|
-/// The `Collide` struct represents a collision object in the game world.
-/// 
+/// Collision object in the game world.
+///
+/// Fields:
+///
+/// * `layer` : The collision layer this collider belongs to.
+/// * `mask` : The collision mask that determines which layers this collider can
+///   interact with.
+///
+/// Example:
+///
+/// ```notest
+/// let layer = @collision.CollisionLayer::new()
+/// let mask = @collision.CollisionMask::new([layer])
+/// let collider = @collision.Collider::{ layer, mask }
+/// inspect(collider.layer, content="CollisionLayer(...)")
+/// inspect(collider.mask, content="CollisionMask(...)")
+/// ```
+///
 pub(all) struct Collider {
   layer : CollisionLayer
   mask : CollisionMask

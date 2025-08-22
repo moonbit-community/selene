@@ -107,6 +107,21 @@ fn quadtree_query(area : @math.Rect) -> @set.Set[@system.Entity] {
 }
 
 ///|
+/// Renders the quadtree structure for debugging purposes by drawing stroke
+/// rectangles for each node.
+///
+/// Parameters:
+///
+/// * `backend` : The rendering backend used to draw the quadtree visualization.
+///
+/// Example:
+///
+/// ```notest
+/// // In a game loop or debugging context
+/// quadtree_render_system(backend)
+/// // This will draw blue stroke rectangles showing the quadtree partitioning
+/// ```
+///
 pub fn quadtree_render_system(backend : &@system.Backend) -> Unit {
   fn render_node(node : QuadTree) -> Unit {
     let position = node.position - @camera.get_position()
