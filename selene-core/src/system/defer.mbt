@@ -58,10 +58,9 @@ let deferred_events : Array[Event] = Array::new()
 /// ```
 /// 
 pub fn deferred_event_system(_backend : &Backend) -> Unit {
-  for event in deferred_events {
+  while deferred_events.pop() is Some(event) {
     event()
   }
-  deferred_events.clear()
 }
 
 ///|
