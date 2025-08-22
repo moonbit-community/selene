@@ -2,7 +2,7 @@
 
 ## Directory Structure
 
-The [example](example/) directory contains a sample game project.
+The [examples](examples/) directory contains sample game projects.
 
 The [selene-core](selene-core/) directory is the core of the Selene engine.
 
@@ -16,7 +16,7 @@ For example, participants can freely choose which Web APIs to use, write JavaScr
 
 For those who prefer to focus on high-level game logic, building games on top of the Selene engine provides a very friendly entry point.
 
-For more information about the Selene engine, see the [README](./selene-core/README.md), [docs](./docs/tutorial-zh.md), and [example](./example/).
+For more information about the Selene engine, see the [README](./selene-core/README.md), [docs](./docs/tutorial-zh.md), and [examples](./examples/).
 
 ## Version Compatibility
 

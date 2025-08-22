@@ -4,17 +4,15 @@ package "Milky2018/selene/collision"
 import(
   "Milky2018/selene/math"
   "Milky2018/selene/system"
-  "moonbitlang/core/set"
+  "Milky2018/selene/velocity"
 )
 
 // Values
-fn area_click_system(&@system.Backend) -> Unit
-
 fn area_collide_system(&@system.Backend) -> Unit
 
 let areas : Map[@system.Entity, Area]
 
-let collides : Map[@system.Entity, Collide]
+let collides : Map[@system.Entity, Collider]
 
 fn debug_collide_system(&@system.Backend) -> Unit
 
@@ -24,39 +22,34 @@ fn is_on_floor(@system.Entity) -> Bool
 
 fn move_system(&@system.Backend) -> Unit
 
+fn pickable_click_system(&@system.Backend) -> Unit
+
+let pickables : Map[@system.Entity, Pickable]
+
+fn quadtree_clear_system(&@system.Backend) -> Unit
+
 fn quadtree_render_system(&@system.Backend) -> Unit
 
-let quadtree_root : QuadTree
+let quadtree_root : Ref[QuadTree]
+
+let real_velocities : Map[@system.Entity, @velocity.Velocity]
+
+let shapes : Map[@system.Entity, CollisionShape]
 
 // Errors
 
 // Types and methods
-pub(all) struct Area {
-  shape : CollisionShape
-  layer : CollisionLayer
-  mask : CollisionMask
-  on_enter_callbacks : Array[(@system.Entity) -> Unit]
-  on_exit_callbacks : Array[(@system.Entity) -> Unit]
-  on_pressed_callbacks : Array[(@system.MouseButton) -> Unit]
-  on_released_callbacks : Array[(@system.MouseButton) -> Unit]
-  on_just_pressed_callbacks : Array[(@system.MouseButton) -> Unit]
-  on_just_released_callbacks : Array[(@system.MouseButton) -> Unit]
-  mut last_contains : @set.Set[@system.Entity]
-  mut monitoring_mouse : Bool
-}
-fn Area::new(CollisionShape, CollisionLayer, CollisionMask, monitoring_mouse? : Bool) -> Self
+type Area
+fn Area::new(CollisionLayer, CollisionMask) -> Self
 fn Area::on_enter(Self, (@system.Entity) -> Unit) -> Unit
 fn Area::on_exit(Self, (@system.Entity) -> Unit) -> Unit
-fn Area::on_just_pressed(Self, (@system.MouseButton) -> Unit) -> Unit
-fn Area::on_just_released(Self, (@system.MouseButton) -> Unit) -> Unit
-fn Area::on_pressed(Self, (@system.MouseButton) -> Unit) -> Unit
-fn Area::on_released(Self, (@system.MouseButton) -> Unit) -> Unit
 
-pub(all) struct Collide {
-  shape : CollisionShape
+pub(all) struct Collider {
+  mut active : Bool
   layer : CollisionLayer
   mask : CollisionMask
 }
+fn Collider::new(CollisionLayer, CollisionMask) -> Self
 
 pub struct CollisionInfo {
   entity : @system.Entity
@@ -76,6 +69,13 @@ fn CollisionMask::new(Array[CollisionLayer]) -> Self
 pub(all) enum CollisionShape {
   Rect(size~ : @math.Vec2D, offset~ : @math.Vec2D)
 }
+
+type Pickable
+fn Pickable::new() -> Self
+fn Pickable::on_just_pressed(Self, (@system.MouseButton) -> Unit) -> Unit
+fn Pickable::on_just_released(Self, (@system.MouseButton) -> Unit) -> Unit
+fn Pickable::on_pressed(Self, (@system.MouseButton) -> Unit) -> Unit
+fn Pickable::on_released(Self, (@system.MouseButton) -> Unit) -> Unit
 
 pub struct QuadTree {
   position : @math.Vec2D

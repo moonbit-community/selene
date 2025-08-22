@@ -7,24 +7,23 @@ import(
 )
 
 // Values
-let camera : Camera
+fn attach_entity(@system.Entity) -> Unit
 
 fn camera_system(&@system.Backend) -> Unit
+
+fn get_position() -> @math.Vec2D
+
+fn set_follow_x(Bool) -> Unit
+
+fn set_follow_y(Bool) -> Unit
+
+fn set_limits(top? : Double, bottom? : Double, left? : Double, right? : Double) -> Unit
+
+fn set_offset(@math.Vec2D) -> Unit
 
 // Errors
 
 // Types and methods
-pub(all) struct Camera {
-  mut position : @math.Vec2D
-  mut limit_top : Double?
-  mut limit_bottom : Double?
-  mut limit_left : Double?
-  mut limit_right : Double?
-  mut attached_entity : @system.Entity?
-  mut offset : @math.Vec2D
-  mut follow_x : Bool
-  mut follow_y : Bool
-}
 
 // Type aliases
 

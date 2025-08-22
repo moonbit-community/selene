@@ -12,7 +12,7 @@ moon add Milky2018/selene
 
 ## Example
 
-Please check [example](https://github.com/Milky2018/selene/tree/main/example).
+Please check [examples](https://github.com/Milky2018/selene/tree/main/examples).
 
 ## Documentations and Tutorials
 

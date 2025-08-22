@@ -7,7 +7,10 @@ import(
 )
 
 // Values
-fn frames_from_altas(String, Int, width~ : Double, height~ : Double, offset? : @math.Vec2D, space_x? : Double) -> Array[AnimationFrame]
+#alias(frames_from_altas, deprecated)
+fn frames_from_atlas(String, Int, width~ : Double, height~ : Double, offset? : @math.Vec2D, space_x? : Double) -> Array[AnimationFrame]
+
+fn is_animation_finished(@system.Entity) -> Bool
 
 fn play_animation(@system.Entity, Animation, from_start? : Bool, loop_? : Bool, rate? : Double, transform? : @math.Transform) -> Unit
 

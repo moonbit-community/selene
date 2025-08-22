@@ -36,8 +36,3 @@ jobs:
           moon check
           moon build
 
-      - name: example
-        run: |
-          cd example
-          moon check 
-          moon build

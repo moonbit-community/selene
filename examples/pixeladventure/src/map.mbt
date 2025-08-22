@@ -56,7 +56,7 @@ fn add_background(size : @math.Vec2D) -> Unit {
   let background_sprite = @sprite.Sprite::new_picture(
     @sprite.Picture::new(
       size,
-      "pixel_adventure/Background/Gray.png",
+      "assets/Background/Gray.png",
       repeat=Repeat,
     ),
     0,
@@ -81,7 +81,7 @@ fn add_grass(pos : @math.Vec2D, sprite_id : String) -> Unit {
   }
   let sprite = @sprite.Sprite::new_animation(
     @sprite.Animation::single_frame(
-      "pixel_adventure/Terrain/Terrain (16x16).png",
+      "assets/Terrain/Terrain (16x16).png",
       @math.Vec2D(16.0, 16.0),
       offset=src_pos,
     ),
@@ -111,7 +111,7 @@ fn add_flag(pos : @math.Vec2D) -> Unit {
   let flag = @system.Entity::new()
   let flag_sprite = @sprite.Sprite::new_animation(
     @sprite.Animation::single_frame(
-      "pixel_adventure/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png",
+      "assets/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png",
       @math.Vec2D(64.0, 64.0),
     ),
     20,
@@ -142,7 +142,7 @@ fn add_apple(backend : &@system.Backend, pos : @math.Vec2D) -> Unit {
   let apple_sprite = @sprite.Sprite::new_animation(
     @sprite.Animation::new(
       @sprite.frames_from_atlas(
-        "pixel_adventure/Items/Fruits/Apple.png",
+        "assets/Items/Fruits/Apple.png",
         17,
         width=32.0,
         height=32.0,

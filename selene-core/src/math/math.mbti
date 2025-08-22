@@ -62,6 +62,8 @@ fn Vec2D::dot(Self, Self) -> Double
 fn Vec2D::mul_scalar(Self, Double) -> Self
 fn Vec2D::normalize(Self) -> Self
 fn Vec2D::op_get(Self, Axis) -> Double
+fn Vec2D::scalar_div(Self, Double) -> Self
+fn Vec2D::scalar_mul(Self, Double) -> Self
 fn Vec2D::update(Self, Axis, Double) -> Self
 fn Vec2D::zero() -> Self
 impl Add for Vec2D

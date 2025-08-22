@@ -2,7 +2,7 @@
 
 ## 目录结构
 
-[example](example/) 目录包含一个示例游戏项目。
+[examples](examples/) 目录包含示例游戏项目。
 
 [selene-core](selene-core/) 是 Selene 引擎核心项目。
 
@@ -14,7 +14,7 @@
 
 而对于期望更专注于游戏上层逻辑的选手，基于 Selene 引擎开发游戏是一个非常友好的入门方式。
 
-关于 Selene 引擎，参考 [README](./selene-core/README.md), [中文教程](./docs/tutorial-zh.md), [游戏样例](./example/).
+关于 Selene 引擎，参考 [README](./selene-core/README.md), [中文教程](./docs/tutorial-zh.md), [游戏样例](./examples/).
 
 ## 版本兼容性
 

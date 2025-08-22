@@ -11,8 +11,6 @@ fn advanced_key_system(&Backend) -> Unit
 
 fn advanced_mouse_system(&Backend) -> Unit
 
-let all_entities : @set.Set[Entity]
-
 fn defer_event(() -> Unit) -> Unit
 
 fn deferred_event_system(&Backend) -> Unit
@@ -34,6 +32,8 @@ fn is_mouse_released(MouseButton) -> Bool
 fn is_pressed(Code) -> Bool
 
 fn is_released(Code) -> Bool
+
+fn iter_entities() -> Iter[Entity]
 
 let just_pressed_mouse : Mouse
 

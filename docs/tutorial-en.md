@@ -28,7 +28,7 @@ git clone https://github.com/Milky2018/selene.git
 Enter the example directory:
 
 ```shell
-cd example
+cd examples/pixeladventure
 ```
 
 Build the project using the `moon` CLI tool:
@@ -61,7 +61,7 @@ This chapter will introduce how to use the Selene game engine to create a comple
 
 The game we will create is as follows:
 
-![](../example/screenshot.png)
+![](../examples/pixeladventure/screenshot.png)
 
 We will demonstrate how to create the following in the upcoming process:
 
@@ -189,7 +189,7 @@ The player character needs multiple animation states: idle, running, jumping, an
 
 ```moonbit
 let player_idle_animation = @sprite.Animation::new(
-  "pixel_adventure/Main Characters/Mask Dude/Idle (32x32).png",
+  "assets/Main Characters/Mask Dude/Idle (32x32).png",
   loop_=true, max_frame=11, height=32.0, width=32.0
 )
 ```

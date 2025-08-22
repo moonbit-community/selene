@@ -28,7 +28,7 @@ git clone https://github.com/Milky2018/selene.git
 进入 example 目录：
 
 ```shell
-cd example
+cd examples/pixeladventure
 ```
 
 使用 `moon` CLI 工具构建项目：
@@ -61,7 +61,7 @@ npx serve .
 
 我们将要制作的游戏如下：
 
-![](../example/screenshot.png)
+![](../examples/pixeladventure/screenshot.png)
 
 我们将会在接下来的流程中展示如何制作：
 
@@ -189,7 +189,7 @@ app.add_initializer(add_player)
 
 ```moonbit
 let player_idle_animation = @sprite.Animation::new(
-  "pixel_adventure/Main Characters/Mask Dude/Idle (32x32).png",
+  "assets/Main Characters/Mask Dude/Idle (32x32).png",
   loop_=true, max_frame=11, height=32.0, width=32.0
 )
 ```

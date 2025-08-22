@@ -20,7 +20,7 @@ Selene is an experimental game engine built with MoonBit, designed to encourage 
 
 1. Read the [README](README.md) and [Selene README](selene-core/README.md) to understand the project goals
 2. Follow the [tutorial](docs/tutorial-en.md) to get familiar with the engine
-3. Explore the [example project](example/) to see Selene in action
+3. Explore the [example projects](examples/) to see Selene in action
 4. Check existing [issues](https://github.com/moonbit-community/selene/issues) for ways to contribute
 
 ## Development Setup
@@ -53,7 +53,7 @@ Selene is an experimental game engine built with MoonBit, designed to encourage 
 
 4. Run the example game:
    ```bash
-   cd ../example
+   cd ../examples/pixeladventure
    moon build --target js
    python3 -m http.server 8000
    # Visit http://localhost:8000 in your browser
@@ -74,7 +74,7 @@ selene/
 │       ├── tilemap/      # Tile map support
 │       └── ...
 ├── selene-canvas/        # Canvas2D backend implementation
-├── example/              # Complete example game
+├── examples/              # Complete example games
 ├── docs/                 # Documentation and tutorials
 └── README.md
 ```
@@ -83,7 +83,7 @@ selene/
 
 - **selene-core**: The main engine with modular ECS architecture
 - **selene-canvas**: Official Canvas2D rendering backend
-- **example**: A complete platform game demonstrating engine features
+- **examples**: A complete platform game demonstrating engine features
 
 ## How to Contribute
 
@@ -185,7 +185,7 @@ doc: update tutorial with audio system examples
 
 ### Manual Testing
 
-- Test your changes with the example project
+- Test your changes with the example projects
 - Verify functionality across different browsers
 - Check performance with complex scenes
 - Test edge cases and error conditions
