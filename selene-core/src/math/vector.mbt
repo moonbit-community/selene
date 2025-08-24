@@ -99,18 +99,6 @@ pub fn Vec2D::normalize(this : Vec2D) -> Vec2D {
   if mag > 0.0 {
     Vec2D(this.0 / mag, this.1 / mag)
   } else {
-    Vec2D(1.0, 0.0) // Default direction if magnitude is zero
+    Vec2D(0.0, 0.0) // Default direction if magnitude is zero
   }
-}
-
-///|
-/// Scalar multiplication for Vec2D
-pub fn Vec2D::mul_scalar(this : Vec2D, scalar : Double) -> Vec2D {
-  Vec2D(this.0 * scalar, this.1 * scalar)
-}
-
-///|
-/// Scalar division for Vec2D
-pub fn Vec2D::div_scalar(this : Vec2D, scalar : Double) -> Vec2D {
-  Vec2D(this.0 / scalar, this.1 / scalar)
 }

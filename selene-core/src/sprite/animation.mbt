@@ -131,7 +131,7 @@ pub(all) struct AnimationFrame {
 pub fn Animation::new(
   frames : Array[AnimationFrame],
   loop_~ : Bool = false,
-  rate~ : Double = 0.2,
+  rate~ : Double = 1.0,
   transform~ : @math.Transform = @math.Transform::new(),
 ) -> Animation {
   let max_frame = frames.length().reinterpret_as_uint()

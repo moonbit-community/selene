@@ -21,6 +21,7 @@ let player_idle_animation : @sprite.Animation = @sprite.Animation::new(
     height=32.0,
   ),
   loop_=true,
+  rate=0.2,
 )
 
 ///|
@@ -32,6 +33,7 @@ let player_run_animation : @sprite.Animation = @sprite.Animation::new(
     height=32.0,
   ),
   loop_=true,
+  rate=0.2,
 )
 
 ///|
@@ -43,6 +45,7 @@ let player_fall_animation : @sprite.Animation = @sprite.Animation::new(
     height=32.0,
   ),
   loop_=true,
+  rate=0.2,
 )
 
 ///|
@@ -54,6 +57,7 @@ let player_jump_animation : @sprite.Animation = @sprite.Animation::new(
     height=32.0,
   ),
   loop_=true,
+  rate=0.2,
 )
 
 ///|
@@ -65,11 +69,12 @@ let player_hit_animation : @sprite.Animation = @sprite.Animation::new(
     height=32.0,
   ),
   loop_=false,
+  rate=0.2,
 )
 
 ///|
 fn add_player(pos : @math.Vec2D) -> Unit {
-  let player_sprite = @sprite.Sprite::new_animation(player_idle_animation, 10)
+  let player_sprite = @sprite.Sprite::from_animation(player_idle_animation, 10)
   @sprite.sprites.set(game_state.player, player_sprite)
   @velocity.velocities.set(game_state.player, @math.Vec2D::zero())
   @position.positions.set(game_state.player, pos)
@@ -77,12 +82,16 @@ fn add_player(pos : @math.Vec2D) -> Unit {
     game_state.player,
     Rect(size=@math.Vec2D(24.0, 32.0), offset=@math.Vec2D(4.0, 0.0)),
   )
-  @collision.collides.set(
+  @collision.collision_layers.set(game_state.player, player_collision_layer)
+  @collision.colliders.set(
     game_state.player,
-    @collision.Collider::new(player_collision_layer, player_collision_mask),
+    @collision.Collider::new(
+      @collision.CollisionMask::new([
+        terrain_collision_layer, enemy_collision_layer,
+      ]),
+    ),
   )
-  @camera.attach_entity(game_state.player)
-  @camera.set_offset(@math.Vec2D(16.0, 16.0)) // Center camera on player
+  @camera.attach_entity(game_state.player, @math.Vec2D(16.0, 16.0))
 }
 
 ///|

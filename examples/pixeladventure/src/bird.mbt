@@ -21,6 +21,7 @@ let bird_fly_animation : @sprite.Animation = @sprite.Animation::new(
     height=32.0,
   ),
   loop_=true,
+  rate=0.2,
 )
 
 ///|
@@ -32,6 +33,7 @@ let bird_hit_animation : @sprite.Animation = @sprite.Animation::new(
     height=32.0,
   ),
   loop_=false,
+  rate=0.2,
 )
 
 ///|
@@ -49,7 +51,7 @@ let birds : Map[@system.Entity, Bird] = Map::new()
 ///|
 fn add_bird(pos : @math.Vec2D) -> Unit {
   let entity = @system.Entity::new()
-  let bird_sprite = @sprite.Sprite::new_animation(bird_fly_animation, 10)
+  let bird_sprite = @sprite.Sprite::from_animation(bird_fly_animation, 10)
   @sprite.sprites.set(entity, bird_sprite)
   @velocity.velocities.set(entity, @math.Vec2D(BIRD_SPEED, 0.0))
   @position.positions.set(entity, pos)
@@ -57,9 +59,12 @@ fn add_bird(pos : @math.Vec2D) -> Unit {
     entity,
     Rect(size=@math.Vec2D(32.0, 32.0), offset=@math.Vec2D::zero()),
   )
-  @collision.collides.set(
+  @collision.collision_layers.set(entity, enemy_collision_layer)
+  @collision.colliders.set(
     entity,
-    @collision.Collider::new(enemy_collision_layer, enemy_collision_mask),
+    @collision.Collider::new(
+      @collision.CollisionMask::new([terrain_collision_layer]),
+    ),
   )
   birds[entity] = Bird::{ direction: Right, is_hurt: false }
 }
@@ -75,8 +80,7 @@ fn bird_ai_system(_backend : &@system.Backend) -> Unit {
     }
     if bird.is_hurt {
       @velocity.velocities[e] = @math.Vec2D::zero()
-      guard @collision.collides.get(e) is Some(collider)
-      collider.active = false
+      @collision.collision_layers.remove(e)
       match bird.direction {
         Left =>
           @sprite.play_animation(

@@ -22,7 +22,7 @@ pub fn move_system(_backend : &@system.Backend) -> Unit {
   collision_infos.clear()
   for e, vel in @velocity.velocities {
     guard e.is_alive() else { continue }
-    if collides.get(e) is Some(collide) {
+    if colliders.get(e) is Some(collide) && collide.active {
       move_with_collide(e, collide, vel.0)
     } else {
       move_without_collide(e, vel.0)
@@ -94,12 +94,11 @@ fn move_axis(
   for e in entities {
     guard e.is_alive() else { continue }
     guard e != entity else { continue }
-    guard collides.get(e) is Some(collision) else { continue }
     guard shapes.get(e) is Some(shape) else { continue }
     guard shape is Rect(size=Vec2D(width, height), offset~) else { continue }
     guard @position.positions.get(e) is Some(pos) else { continue }
-    guard collision.active else { continue }
-    guard mask.contains(collision.layer) else { continue }
+    guard collision_layers.get(e) is Some(collision_layer) else { continue }
+    guard mask.contains(collision_layer) else { continue }
     let collision_box = @math.Rect::{
       size: @math.Vec2D(width, height),
       position: pos.0 + offset,
@@ -149,10 +148,10 @@ fn move_axis(
 
 ///|
 fn aabb_resolve(a : @math.Rect, b : @math.Rect) -> @math.Vec2D {
-  let a_center = a.position + a.size.mul_scalar(0.5)
-  let b_center = b.position + b.size.mul_scalar(0.5)
-  let a_half = a.size.mul_scalar(0.5)
-  let b_half = b.size.mul_scalar(0.5)
+  let a_center = a.position + a.size.scalar_mul(0.5)
+  let b_center = b.position + b.size.scalar_mul(0.5)
+  let a_half = a.size.scalar_mul(0.5)
+  let b_half = b.size.scalar_mul(0.5)
   let delta = b_center - a_center
   let intersect = @math.Vec2D(
     delta[X].abs() - (b_half[X] + a_half[X]),

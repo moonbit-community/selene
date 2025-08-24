@@ -63,7 +63,7 @@ pub enum SpriteType {
 }
 
 ///| Make an animation sprite with default animation and zindex.
-pub fn Sprite::new_animation(
+pub fn Sprite::from_animation(
   animation : Animation,
   zindex : Int,
   offset~ : @math.Vec2D = @math.Vec2D::zero(),
@@ -77,7 +77,7 @@ pub fn Sprite::new_animation(
 }
 
 ///|
-pub fn Sprite::new_picture(
+pub fn Sprite::from_picture(
   picture : Picture,
   zindex : Int,
   offset~ : @math.Vec2D = @math.Vec2D::zero(),
@@ -86,7 +86,7 @@ pub fn Sprite::new_picture(
 }
 
 ///|
-pub fn Sprite::new_text(
+pub fn Sprite::from_text(
   text : Text,
   zindex : Int,
   offset~ : @math.Vec2D = @math.Vec2D::zero(),
@@ -95,7 +95,7 @@ pub fn Sprite::new_text(
 }
 
 ///|
-pub fn Sprite::new_color_rect(
+pub fn Sprite::from_color_rect(
   color_rect : ColorRect,
   zindex : Int,
   offset~ : @math.Vec2D = @math.Vec2D::zero(),

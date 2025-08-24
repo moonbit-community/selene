@@ -45,7 +45,6 @@
 ///
 pub(all) struct Collider {
   mut active : Bool
-  layer : CollisionLayer
   mask : CollisionMask
 }
 
@@ -71,12 +70,12 @@ pub(all) struct Collider {
 /// inspect(collider.active, content="true")
 /// ```
 ///
-pub fn Collider::new(layer : CollisionLayer, mask : CollisionMask) -> Collider {
-  { active: true, layer, mask }
+pub fn Collider::new(mask : CollisionMask) -> Collider {
+  { active: true, mask }
 }
 
 ///|
-pub let collides : Map[@system.Entity, Collider] = Map::new()
+pub let colliders : Map[@system.Entity, Collider] = Map::new()
 
 ///|
 /// The collision info represents information about a collision event.

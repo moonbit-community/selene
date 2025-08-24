@@ -14,7 +14,7 @@
 
 ///|
 pub fn debug_collide_system(backend : &@system.Backend) -> Unit {
-  for e, collide in collides {
+  for e, collide in colliders {
     guard e.is_alive() else { continue }
     guard collide.active else { continue }
     guard @position.positions.get(e) is Some(pos)

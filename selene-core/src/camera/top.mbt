@@ -82,29 +82,27 @@ pub fn set_limits(
   camera.limit_right = right
 }
 
+
 ///|
-/// Attaches an entity to the camera for automatic following.
+/// Attaches an entity to the camera for automatic following with a specified
+/// offset.
 ///
 /// Parameters:
 ///
 /// * `entity` : The entity that the camera should follow.
+/// * `offset` : The positional offset from the entity's position where the
+///   camera should be positioned.
 ///
 /// Example:
 ///
 /// ```notest
-/// // Attach a player entity to the camera
-/// @camera.attach_entity(player_entity)
-///
-/// // Configure camera following behavior
-/// @camera.set_follow_x(true)
-/// @camera.set_follow_y(true)
-///
-/// // Set offset to center camera on entity
-/// @camera.set_offset(@math.Vec2D(16.0, 16.0))
+/// @camera.attach_entity(player_entity, @math.Vec2D(32.0, 32.0))
+/// @camera.attach_entity(enemy_entity, @math.Vec2D::zero())
 /// ```
 ///
-pub fn attach_entity(entity : @system.Entity) -> Unit {
+pub fn attach_entity(entity : @system.Entity, offset : @math.Vec2D) -> Unit {
   camera.attached_entity = Some(entity)
+  camera.offset = offset
 }
 
 ///|
@@ -157,32 +155,6 @@ pub fn set_follow_x(follow : Bool) -> Unit {
 ///
 pub fn set_follow_y(follow : Bool) -> Unit {
   camera.follow_y = follow
-}
-
-///|
-/// Sets the camera's offset relative to the attached entity.
-///
-/// Parameters:
-///
-/// * `offset` : A 2D vector representing the offset distance from the attached
-///   entity's position. This offset is applied when calculating the camera's
-///   target position during following behavior.
-///
-/// Example:
-///
-/// ```notest
-/// // Set offset to center camera on a 32x32 pixel entity
-/// @camera.set_offset(@math.Vec2D(16.0, 16.0))
-///
-/// // Set offset to position camera slightly above and to the right of entity
-/// @camera.set_offset(@math.Vec2D(10.0, -20.0))
-///
-/// // Reset offset to zero (no offset from entity position)
-/// @camera.set_offset(@math.Vec2D::zero())
-/// ```
-///
-pub fn set_offset(offset : @math.Vec2D) -> Unit {
-  camera.offset = offset
 }
 
 ///|

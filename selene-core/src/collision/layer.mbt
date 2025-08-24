@@ -24,7 +24,7 @@ pub struct CollisionLayer(UInt) derive(Eq)
 /// a collision object can interact with. It is used to filter collisions based on
 /// the layers of the objects involved in the collision.
 /// 
-pub struct CollisionMask(Array[CollisionLayer]) // FIXME: Use `UInt` and bitwise operations can obtain higher performance.
+pub struct CollisionMask(Array[CollisionLayer])
 
 ///|
 let collision_layer_generator : Ref[UInt] = { val: 0 }
@@ -37,6 +37,9 @@ pub fn CollisionLayer::new() -> CollisionLayer {
   collision_layer_generator.val += 1
   layer
 }
+
+///|
+pub let collision_layers : Map[@system.Entity, CollisionLayer] = Map::new()
 
 ///|
 /// Creates a new `CollisionMask` with the specified layers 

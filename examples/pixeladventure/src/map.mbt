@@ -29,13 +29,10 @@ fn generate_map(backend : &@system.Backend) -> Unit {
     tilemap.tile_size.to_double()
   @camera.set_limits(top=0.0, bottom=world_height, left=0.0, right=world_width)
   add_background(@math.Vec2D(world_width, world_height))
-  println("MaskDude")
   let mask_dude = tilemap.get_tiles_first("MaskDude")[0]
   add_player(tile_to_vec2d(mask_dude, tilemap.tile_size))
-  println("Flag")
   let flag = tilemap.get_tiles_first("Flag")[0]
   add_flag(tile_to_vec2d(flag, tilemap.tile_size) - @math.Vec2D(16.0, 16.0))
-  println("Apple")
   let apples = tilemap.get_tiles_first("Apple")
   for apple in apples {
     add_apple(backend, tile_to_vec2d(apple, tilemap.tile_size))
@@ -53,12 +50,8 @@ fn generate_map(backend : &@system.Backend) -> Unit {
 ///|
 fn add_background(size : @math.Vec2D) -> Unit {
   let background = @system.Entity::new()
-  let background_sprite = @sprite.Sprite::new_picture(
-    @sprite.Picture::new(
-      size,
-      "assets/Background/Gray.png",
-      repeat=Repeat,
-    ),
+  let background_sprite = @sprite.Sprite::from_picture(
+    @sprite.Picture::new(size, "assets/Background/Gray.png", repeat=Repeat),
     0,
   )
   @sprite.sprites.set(background, background_sprite)
@@ -79,7 +72,7 @@ fn add_grass(pos : @math.Vec2D, sprite_id : String) -> Unit {
     "12" => @math.Vec2D(128.0, 32.0)
     _ => panic()
   }
-  let sprite = @sprite.Sprite::new_animation(
+  let sprite = @sprite.Sprite::from_animation(
     @sprite.Animation::single_frame(
       "assets/Terrain/Terrain (16x16).png",
       @math.Vec2D(16.0, 16.0),
@@ -94,22 +87,13 @@ fn add_grass(pos : @math.Vec2D, sprite_id : String) -> Unit {
     grass,
     Rect(size=@math.Vec2D(16.0, 16.0), offset=@math.Vec2D::zero()),
   )
-  @collision.collides.set(
-    grass,
-    @collision.Collider::new(
-      terrain_collision_layer,
-      @collision.CollisionMask::empty(),
-    ),
-  )
+  @collision.collision_layers.set(grass, terrain_collision_layer)
 }
-
-///|
-let non_collide_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
 
 ///|
 fn add_flag(pos : @math.Vec2D) -> Unit {
   let flag = @system.Entity::new()
-  let flag_sprite = @sprite.Sprite::new_animation(
+  let flag_sprite = @sprite.Sprite::from_animation(
     @sprite.Animation::single_frame(
       "assets/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png",
       @math.Vec2D(64.0, 64.0),
@@ -123,7 +107,6 @@ fn add_flag(pos : @math.Vec2D) -> Unit {
     Rect(size=@math.Vec2D(64.0, 64.0), offset=@math.Vec2D::zero()),
   )
   let area = @collision.Area::new(
-    non_collide_layer,
     @collision.CollisionMask::new([player_collision_layer]),
   )
   @collision.areas.set(flag, area)
@@ -139,7 +122,7 @@ fn add_flag(pos : @math.Vec2D) -> Unit {
 ///|
 fn add_apple(backend : &@system.Backend, pos : @math.Vec2D) -> Unit {
   let apple = @system.Entity::new()
-  let apple_sprite = @sprite.Sprite::new_animation(
+  let apple_sprite = @sprite.Sprite::from_animation(
     @sprite.Animation::new(
       @sprite.frames_from_atlas(
         "assets/Items/Fruits/Apple.png",
@@ -158,7 +141,6 @@ fn add_apple(backend : &@system.Backend, pos : @math.Vec2D) -> Unit {
     Rect(size=@math.Vec2D(32.0, 32.0), offset=@math.Vec2D::zero()),
   )
   let area = @collision.Area::new(
-    non_collide_layer,
     @collision.CollisionMask::new([player_collision_layer]),
   )
   @collision.areas.set(apple, area)

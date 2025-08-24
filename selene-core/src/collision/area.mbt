@@ -14,7 +14,6 @@
 
 ///|
 struct Area {
-  layer : CollisionLayer
   mask : CollisionMask
   on_enter_callbacks : Array[(@system.Entity) -> Unit]
   on_exit_callbacks : Array[(@system.Entity) -> Unit]
@@ -41,14 +40,8 @@ struct Area {
 /// let area = @collision.Area::new(layer, mask)
 /// ```
 ///
-pub fn Area::new(layer : CollisionLayer, mask : CollisionMask) -> Area {
-  {
-    layer,
-    mask,
-    contains: Set::new(),
-    on_enter_callbacks: [],
-    on_exit_callbacks: [],
-  }
+pub fn Area::new(mask : CollisionMask) -> Area {
+  { mask, contains: Set::new(), on_enter_callbacks: [], on_exit_callbacks: [] }
 }
 
 ///|
@@ -185,29 +178,17 @@ pub fn area_collide_system(_ : &@system.Backend) -> Unit {
     let entities = quadtree_query(box)
     for entity in entities {
       guard entity.is_alive() else { continue }
-      if areas.get(entity) is Some(other_area) {
-        guard shapes.get(entity) is Some(other_shape) else { continue }
-        guard other_shape
-          is Rect(size=Vec2D(other_width, other_height), offset=other_offset)
-        guard @position.positions.get(entity) is Some(other_position)
-        let other_box = @math.Rect::{
-          size: @math.Vec2D(other_width, other_height),
-          position: other_position.0 + other_offset,
-        }
-        guard box.intersects(other_box) else { continue }
-        guard area.mask.contains(other_area.layer) else { continue }
-      } else if collides.get(entity) is Some(other_body) {
-        guard shapes.get(entity) is Some(other_shape) else { continue }
-        guard other_shape
-          is Rect(size=Vec2D(other_width, other_height), offset=other_offset)
-        guard @position.positions.get(entity) is Some(other_position)
-        let other_box = @math.Rect::{
-          size: @math.Vec2D(other_width, other_height),
-          position: other_position.0 + other_offset,
-        }
-        guard box.intersects(other_box) else { continue }
-        guard area.mask.contains(other_body.layer) else { continue }
+      guard collision_layers.get(entity) is Some(other_layer) else { continue }
+      guard shapes.get(entity) is Some(other_shape) else { continue }
+      guard other_shape
+        is Rect(size=Vec2D(other_width, other_height), offset=other_offset)
+      guard @position.positions.get(entity) is Some(other_position)
+      let other_box = @math.Rect::{
+        size: @math.Vec2D(other_width, other_height),
+        position: other_position.0 + other_offset,
       }
+      guard box.intersects(other_box) else { continue }
+      guard area.mask.contains(other_layer) else { continue }
       new_contains.add(entity)
       if area.contains.contains(entity) {
         continue
