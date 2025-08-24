@@ -1,0 +1,19 @@
+{
+  "name": "nopublish/survivors",
+  "version": "0.1.0",
+  "readme": "README.md",
+  "deps": {
+    "Milky2018/selene": {
+      "path": "../../selene-core"
+    },
+    "Milky2018/selene-canvas": {
+      "path": "../../selene-canvas"
+    }
+  },
+  "repository": "",
+  "license": "Apache-2.0",
+  "keywords": [],
+  "description": "",
+  "source": "src",
+  "preferred-target": "js"
+}

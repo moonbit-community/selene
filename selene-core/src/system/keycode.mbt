@@ -187,6 +187,56 @@ pub fn is_released(code : Code) -> Bool {
 }
 
 ///|
+/// Creates a directional vector based on the current state of four directional
+/// keys.
+///
+/// Parameters:
+///
+/// * `up` : The keyboard key code for upward movement.
+/// * `down` : The keyboard key code for downward movement.
+/// * `left` : The keyboard key code for leftward movement.
+/// * `right` : The keyboard key code for rightward movement.
+///
+/// Returns a 2D vector representing the combined directional input, where
+/// x-component ranges from -1.0 (left) to 1.0 (right) and y-component ranges
+/// from -1.0 (up) to 1.0 (down).
+///
+/// Example:
+///
+/// ```notest
+/// // Get movement vector for WASD keys
+/// let movement = @system.key_vector(@system.KeyW, @system.KeyS, @system.KeyA, @system.KeyD)
+/// println("Movement: \{movement}")
+///
+/// // Get movement vector for arrow keys
+/// let arrow_movement = @system.key_vector(@system.ArrowUp, @system.ArrowDown, @system.ArrowLeft, @system.ArrowRight)
+/// println("Arrow movement: \{arrow_movement}")
+/// ```
+///
+pub fn key_vector(
+  up : Code,
+  down : Code,
+  left : Code,
+  right : Code,
+) -> @math.Vec2D {
+  let x = if is_pressed(left) {
+    -1.0
+  } else if is_pressed(right) {
+    1.0
+  } else {
+    0.0
+  }
+  let y = if is_pressed(up) {
+    -1.0
+  } else if is_pressed(down) {
+    1.0
+  } else {
+    0.0
+  }
+  @math.Vec2D(x, y)
+}
+
+///|
 let last_pressed_keys : Set[Code] = @set.Set::new()
 
 ///|
