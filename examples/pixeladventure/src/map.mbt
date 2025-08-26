@@ -131,6 +131,7 @@ fn add_apple(backend : &@system.Backend, pos : @math.Vec2D) -> Unit {
         height=32.0,
       ),
       loop_=true,
+      rate=0.2,
     ),
     20,
   )

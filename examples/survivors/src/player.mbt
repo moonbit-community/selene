@@ -23,7 +23,11 @@ fn add_player() -> Unit {
   let entity = game_state.player_entity
   @sprite.sprites.set(
     entity,
-    @sprite.Sprite::from_animation(player_idle_right_animation, 20),
+    @sprite.Sprite::from_animation(
+      player_idle_right_animation,
+      PLAYER_ZINDEX,
+      offset=Vec2D(-PLAYER_SIZE / 2.0, -PLAYER_SIZE / 2.0),
+    ),
   )
   @position.positions.set(entity, Vec2D(MAP_WIDTH / 2.0, MAP_HEIGHT / 2.0))
   @velocity.velocities.set(entity, Vec2D(0.0, 0.0))
@@ -39,7 +43,7 @@ fn add_player() -> Unit {
     entity,
     @collision.CollisionShape::Rect(
       size=Vec2D(PLAYER_SIZE, PLAYER_SIZE),
-      offset=Vec2D(0.0, 0.0),
+      offset=Vec2D(-PLAYER_SIZE / 2.0, -PLAYER_SIZE / 2.0),
     ),
   )
 }
@@ -70,4 +74,42 @@ fn player_update_system(_ : &@system.Backend) -> Unit {
     (false, Up) => @sprite.play_animation(entity, player_run_up_animation)
     (false, Down) => @sprite.play_animation(entity, player_run_down_animation)
   }
+}
+
+///|
+const WEAPON_COOLDOWN : Double = 1.5 * FPS
+
+///|
+fn player_shooting_system(_ : &@system.Backend) -> Unit {
+  if game_state.shoot_timer > 0.0 {
+    game_state.shoot_timer -= 1.0
+  }
+  if game_state.shoot_timer <= 0 {
+    game_state.shoot_timer = WEAPON_COOLDOWN
+    guard @position.positions.get(game_state.player_entity) is Some(player_pos)
+    let nearest_enemy_pos = find_nearest_enemy_position(player_pos.0)
+    match nearest_enemy_pos {
+      Some(enemy_pos) => shoot_bullet(player_pos.0, enemy_pos)
+      None => ()
+    }
+  }
+}
+
+///|
+const SHOOTING_RANGE : Double = 192.0
+
+///|
+fn find_nearest_enemy_position(player_pos : @math.Vec2D) -> @math.Vec2D? {
+  let mut min = SHOOTING_RANGE
+  let mut res : @math.Vec2D? = None
+  for e, _enemy in enemies {
+    guard e.is_alive() else { continue }
+    guard @position.positions.get(e) is Some(enemy_pos)
+    let dist = player_pos.distance_to(enemy_pos.0)
+    if dist < min {
+      min = dist
+      res = Some(enemy_pos.0)
+    }
+  }
+  res
 }

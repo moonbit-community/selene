@@ -13,12 +13,11 @@
 // limitations under the License.
 
 ///|
-let player_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
-
-///|
-let wall_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
-
-///|
-let enemy_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
-
-let bullet_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
+fn add_score_box() -> Unit {
+  let entity = @system.Entity::new()
+  let sprite = @sprite.Sprite::from_text(game_state.score_box, UI_ZINDEX)
+  @sprite.sprites.set(entity, sprite)
+  let position = @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 40, 16.0)
+  @position.positions.set(entity, @position.Position(position))
+  @ui.uis.set(entity, @ui.Ui::new())
+}

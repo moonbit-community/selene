@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///|
-let player_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
+const GROUND_ZINDEX : Int = 0
 
-///|
-let wall_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
+const GRASS_ZINDEX : Int = 1
 
-///|
-let enemy_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
+const ENEMY_ZINDEX : Int = 2
 
-let bullet_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
+const PLAYER_ZINDEX : Int = 3 
+
+const BULLET_ZINDEX : Int = 4
+
+const UI_ZINDEX : Int = 100

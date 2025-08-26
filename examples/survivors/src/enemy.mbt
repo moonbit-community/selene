@@ -14,13 +14,11 @@
 
 ///|
 let spawners : Array[@math.Vec2D] = [
-  Vec2D(0, 0),
-  Vec2D(MAP_WIDTH - 16.0, 0),
-  Vec2D(0, MAP_HEIGHT - 16.0),
+  Vec2D(16.0, 16.0),
+  Vec2D(MAP_WIDTH - 16.0, 16.0),
+  Vec2D(16.0, MAP_HEIGHT - 16.0),
   Vec2D(MAP_WIDTH - 16.0, MAP_HEIGHT - 16.0),
 ]
-
-// let
 
 ///|
 fn spawn_enemy_system(_ : &@system.Backend) -> Unit {
@@ -29,14 +27,26 @@ fn spawn_enemy_system(_ : &@system.Backend) -> Unit {
   let pos = spawners[rand.int(limit=spawners.length())]
   @position.positions.set(enemy, pos)
   @velocity.velocities.set(enemy, @math.Vec2D::zero())
-  let sprite = @sprite.Sprite::from_animation(slime_right_animation, 10)
+  let sprite = @sprite.Sprite::from_animation(
+    slime_right_animation,
+    ENEMY_ZINDEX,
+    offset=Vec2D(-8.0, -8.0),
+  )
   @sprite.sprites.set(enemy, sprite)
+  @collision.shapes.set(
+    enemy,
+    @collision.CollisionShape::Rect(
+      size=Vec2D(16.0, 16.0),
+      offset=Vec2D(-8.0, -8.0),
+    ),
+  )
+  @collision.collision_layers.set(enemy, enemy_collision_layer)
   let enemy_state = { enemy_type: Slime, speed: 1.0, health: 1 }
-  enemy_states.set(enemy, enemy_state)
+  enemies.set(enemy, enemy_state)
 }
 
 ///|
-struct EnemyState {
+struct Enemy {
   enemy_type : EnemyType
   speed : Double
   mut health : Int
@@ -48,11 +58,11 @@ enum EnemyType {
 }
 
 ///|
-let enemy_states : Map[@system.Entity, EnemyState] = Map::new()
+let enemies : Map[@system.Entity, Enemy] = Map::new()
 
 ///|
 fn enemy_ai_system(_ : &@system.Backend) -> Unit {
-  for e, state in enemy_states {
+  for e, state in enemies {
     guard e.is_alive() else { continue }
     match state.enemy_type {
       EnemyType::Slime => {
