@@ -7,7 +7,7 @@ import(
 )
 
 // Values
-fn attach_entity(@system.Entity) -> Unit
+fn attach_entity(@system.Entity, @math.Vec2D) -> Unit
 
 fn camera_system(&@system.Backend) -> Unit
 
@@ -18,8 +18,6 @@ fn set_follow_x(Bool) -> Unit
 fn set_follow_y(Bool) -> Unit
 
 fn set_limits(top? : Double, bottom? : Double, left? : Double, right? : Double) -> Unit
-
-fn set_offset(@math.Vec2D) -> Unit
 
 // Errors
 

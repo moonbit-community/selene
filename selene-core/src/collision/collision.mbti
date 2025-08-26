@@ -13,7 +13,9 @@ fn area_collide_system(&@system.Backend) -> Unit
 
 let areas : Map[@system.Entity, Area]
 
-let collides : Map[@system.Entity, Collider]
+let colliders : Map[@system.Entity, Collider]
+
+let collision_layers : Map[@system.Entity, CollisionLayer]
 
 fn debug_collide_system(&@system.Backend) -> Unit
 
@@ -43,16 +45,15 @@ let shapes : Map[@system.Entity, CollisionShape]
 
 // Types and methods
 type Area
-fn Area::new(CollisionLayer, CollisionMask) -> Self
+fn Area::new(CollisionMask) -> Self
 fn Area::on_enter(Self, (@system.Entity) -> Unit) -> Unit
 fn Area::on_exit(Self, (@system.Entity) -> Unit) -> Unit
 
 pub(all) struct Collider {
   mut active : Bool
-  layer : CollisionLayer
   mask : CollisionMask
 }
-fn Collider::new(CollisionLayer, CollisionMask) -> Self
+fn Collider::new(CollisionMask) -> Self
 
 pub struct CollisionInfo {
   entity : @system.Entity

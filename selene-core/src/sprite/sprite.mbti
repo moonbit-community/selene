@@ -57,10 +57,10 @@ pub(all) struct Sprite {
   mut visible : Bool
   offset : @math.Vec2D
 }
-fn Sprite::new_animation(Animation, Int, offset? : @math.Vec2D) -> Self
-fn Sprite::new_color_rect(ColorRect, Int, offset? : @math.Vec2D) -> Self
-fn Sprite::new_picture(Picture, Int, offset? : @math.Vec2D) -> Self
-fn Sprite::new_text(Text, Int, offset? : @math.Vec2D) -> Self
+fn Sprite::from_animation(Animation, Int, offset? : @math.Vec2D) -> Self
+fn Sprite::from_color_rect(ColorRect, Int, offset? : @math.Vec2D) -> Self
+fn Sprite::from_picture(Picture, Int, offset? : @math.Vec2D) -> Self
+fn Sprite::from_text(Text, Int, offset? : @math.Vec2D) -> Self
 
 pub enum SpriteType {
   Picture(Picture)

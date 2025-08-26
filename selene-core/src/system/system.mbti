@@ -39,6 +39,8 @@ let just_pressed_mouse : Mouse
 
 let just_release_mouse : Mouse
 
+fn key_vector(Code, Code, Code, Code) -> @math.Vec2D
+
 fn lock_mouse(&Backend) -> Unit
 
 let mouse : Mouse
@@ -48,6 +50,10 @@ let mouse_locked : Ref[Bool]
 let mouse_movement : MouseMovement
 
 let pressed_keys : @set.Set[Code]
+
+fn timeout_with_frames(Int, () -> Unit) -> Unit
+
+fn timer_system(&Backend) -> Unit
 
 // Errors
 
