@@ -82,7 +82,6 @@ pub fn set_limits(
   camera.limit_right = right
 }
 
-
 ///|
 /// Attaches an entity to the camera for automatic following with a specified
 /// offset.

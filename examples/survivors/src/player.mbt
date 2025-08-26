@@ -18,6 +18,8 @@ const PLAYER_SIZE : Double = 16.0
 ///|
 const PLAYER_SPEED : Double = 2.5
 
+const INVINCIBLE_TIME : Double = 1.0 * FPS
+
 ///|
 fn add_player() -> Unit {
   let entity = game_state.player_entity

@@ -57,7 +57,7 @@ fn shoot_bullet(player_pos : @math.Vec2D, target_pos : @math.Vec2D) -> Unit {
       bullet_alive = false
       e.destroy()
       entity.destroy()
-      gain_score(10)
+      set_score(game_state.score + 10)
     }
   })
   @collision.areas.set(entity, area)

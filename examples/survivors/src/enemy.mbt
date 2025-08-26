@@ -43,6 +43,23 @@ fn spawn_enemy_system(_ : &@system.Backend) -> Unit {
   @collision.collision_layers.set(enemy, enemy_collision_layer)
   let enemy_state = { enemy_type: Slime, speed: 1.0, health: 1 }
   enemies.set(enemy, enemy_state)
+  let area = @collision.Area::new(
+    @collision.CollisionMask::new([player_collision_layer]),
+  )
+  @collision.areas.set(enemy, area)
+  area.on_enter(fn(e) {
+    guard e.is_alive() else { return }
+    guard e == game_state.player_entity else { return }
+    if game_state.invincible {
+      return
+    }
+    game_state.invincible = true
+    set_score(game_state.score / 2)
+    @system.timeout_with_frames(INVINCIBLE_TIME.to_int(), fn() {
+      game_state.invincible = false
+    })
+    enemy.destroy()
+  })
 }
 
 ///|

@@ -62,6 +62,7 @@ struct GameState {
   mut shoot_timer : Double
   mut score : Int
   score_box : @sprite.Text
+  mut invincible : Bool
 }
 
 ///|
@@ -78,12 +79,18 @@ let game_state : GameState = {
   player_direction: Down,
   rand: @random.Rand::new(),
   shoot_timer: 0.0,
-  score : 0,
-  score_box: @sprite.Text::new("Score: 0", color="white", font="24px ThaleahFat"),
+  score: 0,
+  score_box: @sprite.Text::new(
+    "Score: 0",
+    color="white",
+    font="24px ThaleahFat",
+  ),
+  invincible: false,
 }
 
-fn gain_score(points : Int) -> Unit {
-  game_state.score += points
+///|
+fn set_score(score : Int) -> Unit {
+  game_state.score = score
   game_state.score_box.content = "Score: " + game_state.score.to_string()
 }
 
