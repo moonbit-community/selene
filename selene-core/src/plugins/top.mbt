@@ -55,4 +55,5 @@ pub fn default_plugin(app : @system.App) -> Unit {
   ..push((@system.deferred_event_system, Update, "Deferred Event System"))
   ..push((@sprite.render_sprite_system, Render(0), "Render Sprite System"))
   ..push((@camera.camera_system, Update, "Camera System"))
+  ..push((@system.timer_system, Update, "Timer System"))
 }

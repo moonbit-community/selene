@@ -38,6 +38,7 @@ fn move_without_collide(e : @system.Entity, velocity : @math.Vec2D) -> Unit {
 }
 
 ///|
+/// FIXME: Now too many entites grouped in one place will cause jittering.
 fn move_with_collide(
   e : @system.Entity,
   collide : Collider,
