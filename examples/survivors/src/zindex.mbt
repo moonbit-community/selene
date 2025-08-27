@@ -12,14 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 const GROUND_ZINDEX : Int = 0
 
+///|
 const GRASS_ZINDEX : Int = 1
 
+///|
 const ENEMY_ZINDEX : Int = 2
 
-const PLAYER_ZINDEX : Int = 3 
+///|
+const PLAYER_ZINDEX : Int = 3
 
+///|
 const BULLET_ZINDEX : Int = 4
 
+///|
 const UI_ZINDEX : Int = 100

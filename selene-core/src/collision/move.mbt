@@ -38,7 +38,6 @@ fn move_without_collide(e : @system.Entity, velocity : @math.Vec2D) -> Unit {
 }
 
 ///|
-/// FIXME: Now too many entites grouped in one place will cause jittering.
 fn move_with_collide(
   e : @system.Entity,
   collide : Collider,
@@ -123,7 +122,10 @@ fn move_axis(
       if new_velocity[axis] > 0 {
         new_pos = new_pos.update(
           axis,
-          collision_box.position[axis] - object.size[axis],
+          @cmp.maximum(
+            collision_box.position[axis] - object.size[axis],
+            new_pos[axis],
+          ),
         )
         new_velocity = new_velocity.update(
           axis,
@@ -133,7 +135,10 @@ fn move_axis(
       } else if new_velocity[axis] < 0 {
         new_pos = new_pos.update(
           axis,
-          collision_box.position[axis] + collision_box.size[axis],
+          @cmp.minimum(
+            collision_box.position[axis] + collision_box.size[axis],
+            new_pos[axis],
+          ),
         )
         new_velocity = new_velocity.update(
           axis,
