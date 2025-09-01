@@ -39,6 +39,31 @@ pub fn CollisionLayer::new() -> CollisionLayer {
 }
 
 ///|
+/// Global registry that maps entities to their assigned collision layers.
+///
+/// This registry maintains the association between entities and their collision
+/// layers, allowing the collision system to determine which layer each entity
+/// belongs to for collision detection and filtering purposes. Entities can be
+/// assigned to different collision layers to control how they interact with
+/// other entities in the collision system.
+///
+/// Example:
+///
+/// ```notest
+/// let player_layer = @collision.CollisionLayer::new()
+/// let enemy_layer = @collision.CollisionLayer::new()
+///
+/// // Assign collision layers to entities
+/// @collision.collision_layers[player_entity] = player_layer
+/// @collision.collision_layers[enemy_entity] = enemy_layer
+///
+/// // Check which layer an entity belongs to
+/// match @collision.collision_layers.get(player_entity) {
+///   Some(layer) => println("Player is on collision layer")
+///   None => println("Player has no collision layer assigned")
+/// }
+/// ```
+///
 pub let collision_layers : Map[@system.Entity, CollisionLayer] = Map::new()
 
 ///|

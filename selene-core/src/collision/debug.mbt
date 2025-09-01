@@ -13,6 +13,23 @@
 // limitations under the License.
 
 ///|
+/// Renders debug visualization for collision system components by drawing
+/// colored rectangles over colliders and areas.
+///
+/// This system draws semi-transparent red rectangles (50% opacity) over all
+/// active colliders and semi-transparent blue rectangles (50% opacity) over all
+/// areas. The rectangles are positioned according to each entity's world
+/// position, with UI entities using screen coordinates and non-UI entities
+/// using world coordinates adjusted by the camera position.
+///
+/// Parameters:
+///
+/// * `backend` : The rendering backend used to draw the debug visualization
+///   rectangles.
+///
+/// Panics if an entity has a position component but lacks a collision shape, or
+/// if the collision shape is not a rectangle.
+///
 pub fn debug_collide_system(backend : &@system.Backend) -> Unit {
   for e, collide in colliders {
     guard e.is_alive() else { continue }

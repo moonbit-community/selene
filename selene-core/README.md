@@ -29,10 +29,10 @@ Please check [docs](https://github.com/Milky2018/selene/tree/main/docs).
 - [ ] Convex polygon collision
 - [x] Debug information
 - [x] Audio
-- [ ] Timer
+- [x] Timer
 - [ ] Webpack (selene-canvas)
-- [ ] Parent-child structure (0.12)
-- [x] Manual atlas (0.12)
-- [ ] Visibility 
-- [ ] Move-and-slide collisions
+- [ ] Parent-child structure
+- [x] Manual atlas
+- [x] Visibility 
+- [x] Move-and-slide collisions
 - [ ] Input mapping

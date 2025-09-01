@@ -75,6 +75,30 @@ pub fn Collider::new(mask : CollisionMask) -> Collider {
 }
 
 ///|
+/// Global storage for all collider components in the collision system.
+///
+/// This map stores the association between entities and their collider
+/// components. Each entity that participates in collision detection must have
+/// an entry in this map. The collision system uses this map to determine which
+/// entities can collide with each other based on their collision masks and
+/// layers.
+///
+/// Do not manually modify this map directly. Instead, use the collision
+/// system's APIs to add, remove, or modify colliders for entities. The
+/// collision detection systems automatically query this map during collision
+/// processing.
+///
+/// Example:
+///
+/// ```notest
+/// // Check if an entity has a collider
+/// let entity = @system.Entity::new()
+/// if @collision.colliders.contains(entity) {
+///   let collider = @collision.colliders.get(entity).unwrap()
+///   println("Entity has collider with active status: \{collider.active}")
+/// }
+/// ```
+///
 pub let colliders : Map[@system.Entity, Collider] = Map::new()
 
 ///|
