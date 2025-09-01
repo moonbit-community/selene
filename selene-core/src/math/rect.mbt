@@ -19,7 +19,7 @@ pub(all) struct Rect {
   size : Vec2D
 }
 
-///| 
+///|
 /// Check if two rectangles intersect
 pub fn Rect::intersects(a : Rect, b : Rect) -> Bool {
   a.position[X] < b.position[X] + b.size[X] &&

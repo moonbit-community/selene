@@ -36,8 +36,8 @@
 pub fn play_audio(
   backend : &@system.Backend,
   audio_path : String,
-  volume~ : Double = 1.0,
-  loop_~ : Bool = false,
+  volume? : Double = 1.0,
+  loop_? : Bool = false,
 ) -> Unit {
   backend.play_audio(audio_path, volume~, loop_~)
 }

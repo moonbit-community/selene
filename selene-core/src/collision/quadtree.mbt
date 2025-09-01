@@ -93,7 +93,7 @@ fn QuadTree::insert(
   }
 }
 
-///| 
+///|
 fn quadtree_query(area : @math.Rect) -> @set.Set[@system.Entity] {
   let mut trees = @list.of([quadtree_root.val])
   let mut results = @set.Set::new()

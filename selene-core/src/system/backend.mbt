@@ -41,7 +41,7 @@ pub(all) struct DebugInfo {
   fps : Double
 }
 
-///| 
+///|
 /// Things need to be done in `build`:
 /// - Initialize the backend.
 /// - Set the viewport size.

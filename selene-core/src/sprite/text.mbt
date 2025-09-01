@@ -43,8 +43,8 @@ pub(all) struct Text {
 ///|
 pub fn Text::new(
   content : String,
-  color~ : String = "white",
-  font~ : String = "16px Arial",
+  color? : String = "white",
+  font? : String = "16px Arial",
 ) -> Text {
   { content, color, font }
 }

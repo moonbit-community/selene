@@ -15,7 +15,7 @@
 ///|
 pub(all) struct Velocity(@math.Vec2D) derive(Eq, Show)
 
-///| 
+///|
 /// Get the velocity of an entity.
 /// ```notest
 /// @velocity.velocities.get(entity)

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///| 
+///|
 /// The `CollisionShape` enum represents different shapes that can be used for collision detection.
 /// It currently supports rectangular shapes defined by their size and offset.
 pub(all) enum CollisionShape {

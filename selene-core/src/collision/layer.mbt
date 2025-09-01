@@ -19,7 +19,7 @@
 ///
 pub struct CollisionLayer(UInt) derive(Eq)
 
-///| 
+///|
 /// The `CollisionMask` struct represents a mask that defines which collision layers
 /// a collision object can interact with. It is used to filter collisions based on
 /// the layers of the objects involved in the collision.
@@ -29,7 +29,7 @@ pub struct CollisionMask(Array[CollisionLayer])
 ///|
 let collision_layer_generator : Ref[UInt] = { val: 0 }
 
-///| 
+///|
 /// Creates a new `CollisionLayer` with a unique identifier.
 /// 
 pub fn CollisionLayer::new() -> CollisionLayer {
@@ -74,7 +74,7 @@ pub fn CollisionMask::new(layers : Array[CollisionLayer]) -> CollisionMask {
   layers
 }
 
-///| 
+///|
 /// Creates an empty `CollisionMask` that does not interact with any layers.
 /// 
 pub fn CollisionMask::empty() -> CollisionMask {

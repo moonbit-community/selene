@@ -15,7 +15,7 @@
 ///|
 pub(all) struct Position(@math.Vec2D) derive(Eq, Show)
 
-///| 
+///|
 /// Get the position of an entity.
 /// ```notest
 /// @position.positions.get(entity)

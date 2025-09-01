@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///| 
+///|
 /// The `TileMap` struct represents a tile map used in the JSON format produced by 
 /// [SpriteFusion](https://www.spritefusion.com/).
 /// 

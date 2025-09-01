@@ -62,11 +62,12 @@ pub enum SpriteType {
   ColorRect(ColorRect)
 }
 
-///| Make an animation sprite with default animation and zindex.
+///|
+/// Make an animation sprite with default animation and zindex.
 pub fn Sprite::from_animation(
   animation : Animation,
   zindex : Int,
-  offset~ : @math.Vec2D = @math.Vec2D::zero(),
+  offset? : @math.Vec2D = @math.Vec2D::zero(),
 ) -> Sprite {
   {
     sprite_type: SpriteType::Animation(animation, frame=0),
@@ -80,7 +81,7 @@ pub fn Sprite::from_animation(
 pub fn Sprite::from_picture(
   picture : Picture,
   zindex : Int,
-  offset~ : @math.Vec2D = @math.Vec2D::zero(),
+  offset? : @math.Vec2D = @math.Vec2D::zero(),
 ) -> Sprite {
   { sprite_type: SpriteType::Picture(picture), zindex, offset, visible: true }
 }
@@ -89,7 +90,7 @@ pub fn Sprite::from_picture(
 pub fn Sprite::from_text(
   text : Text,
   zindex : Int,
-  offset~ : @math.Vec2D = @math.Vec2D::zero(),
+  offset? : @math.Vec2D = @math.Vec2D::zero(),
 ) -> Sprite {
   { sprite_type: SpriteType::Text(text), zindex, offset, visible: true }
 }
@@ -98,7 +99,7 @@ pub fn Sprite::from_text(
 pub fn Sprite::from_color_rect(
   color_rect : ColorRect,
   zindex : Int,
-  offset~ : @math.Vec2D = @math.Vec2D::zero(),
+  offset? : @math.Vec2D = @math.Vec2D::zero(),
 ) -> Sprite {
   {
     sprite_type: SpriteType::ColorRect(color_rect),

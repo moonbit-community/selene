@@ -130,9 +130,9 @@ pub(all) struct AnimationFrame {
 ///
 pub fn Animation::new(
   frames : Array[AnimationFrame],
-  loop_~ : Bool = false,
-  rate~ : Double = 1.0,
-  transform~ : @math.Transform = @math.Transform::new(),
+  loop_? : Bool = false,
+  rate? : Double = 1.0,
+  transform? : @math.Transform = @math.Transform::new(),
 ) -> Animation {
   let max_frame = frames.length().reinterpret_as_uint()
   if max_frame == 0 {
@@ -183,8 +183,8 @@ fn generate_animation() -> Int {
 pub fn Animation::single_frame(
   sprite_path : String,
   size : @math.Vec2D,
-  transform~ : @math.Transform = @math.Transform::new(),
-  offset~ : @math.Vec2D = @math.Vec2D(0, 0),
+  transform? : @math.Transform = @math.Transform::new(),
+  offset? : @math.Vec2D = @math.Vec2D(0, 0),
 ) -> Animation {
   Animation::new(
     [{ sprite_path, size, offset }],
@@ -237,8 +237,8 @@ pub fn frames_from_atlas(
   frame_count : Int,
   width~ : Double,
   height~ : Double,
-  offset~ : @math.Vec2D = @math.Vec2D(0, 0),
-  space_x~ : Double = 0.0,
+  offset? : @math.Vec2D = @math.Vec2D(0, 0),
+  space_x? : Double = 0.0,
 ) -> Array[AnimationFrame] {
   let frames = []
   for i in 0..<frame_count {
@@ -293,7 +293,7 @@ pub fn frames_from_atlas(
 pub fn play_animation(
   entity : @system.Entity,
   animation : Animation,
-  from_start~ : Bool = false,
+  from_start? : Bool = false,
   loop_? : Bool,
   rate? : Double,
   transform? : @math.Transform,

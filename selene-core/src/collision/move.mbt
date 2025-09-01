@@ -30,7 +30,7 @@ pub fn move_system(_backend : &@system.Backend) -> Unit {
   }
 }
 
-///| 
+///|
 fn move_without_collide(e : @system.Entity, velocity : @math.Vec2D) -> Unit {
   guard @position.positions.get(e) is Some(pos)
   let new_pos = @math.Vec2D(pos.0[X] + velocity[X], pos.0[Y] + velocity[Y])
@@ -79,7 +79,8 @@ fn make_ray_collision(
   }
 }
 
-///| Move object with velocity, returns the destination and updated velocity.
+///|
+/// Move object with velocity, returns the destination and updated velocity.
 fn move_axis(
   entity : @system.Entity,
   object : @math.Rect,

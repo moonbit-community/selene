@@ -137,7 +137,7 @@ pub fn App::add_plugin(self : App, plugin : Plugin) -> App {
 pub fn App::add_system(
   self : App,
   system : System,
-  schedule~ : Schedule = Update,
+  schedule? : Schedule = Update,
   system_name? : String,
 ) -> App {
   let system_name = match system_name {

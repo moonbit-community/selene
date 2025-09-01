@@ -7,7 +7,6 @@ import(
 )
 
 // Values
-#alias(frames_from_altas, deprecated)
 fn frames_from_atlas(String, Int, width~ : Double, height~ : Double, offset? : @math.Vec2D, space_x? : Double) -> Array[AnimationFrame]
 
 fn is_animation_finished(@system.Entity) -> Bool
