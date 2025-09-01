@@ -16,7 +16,7 @@
 /// Move all entities with velocity, modify positions and handle collisions.
 /// Note: 1. This system should be run after any acceleration system.
 ///       2. This system will query a quadtree to find collisions.
-///       3. This system will update velocities of entities when they collide.
+///       3. This system will set real_velocities of entities.
 /// 
 pub fn move_system(_backend : &@system.Backend) -> Unit {
   collision_infos.clear()
@@ -35,6 +35,7 @@ fn move_without_collide(e : @system.Entity, velocity : @math.Vec2D) -> Unit {
   guard @position.positions.get(e) is Some(pos)
   let new_pos = @math.Vec2D(pos.0[X] + velocity[X], pos.0[Y] + velocity[Y])
   @position.positions.set(e, new_pos)
+  real_velocities.set(e, velocity)
 }
 
 ///|
@@ -124,7 +125,7 @@ fn move_axis(
           axis,
           @cmp.maximum(
             collision_box.position[axis] - object.size[axis],
-            new_pos[axis],
+            object.position[axis],
           ),
         )
         new_velocity = new_velocity.update(
@@ -137,7 +138,7 @@ fn move_axis(
           axis,
           @cmp.minimum(
             collision_box.position[axis] + collision_box.size[axis],
-            new_pos[axis],
+            object.position[axis],
           ),
         )
         new_velocity = new_velocity.update(

@@ -232,7 +232,6 @@ pub fn Animation::single_frame(
 /// inspect(frames[3].offset, content="Vec2D(115.0, 0.0)")
 /// ```
 ///
-#alias(frames_from_altas, deprecated="Use `frames_from_atlas` instead")
 pub fn frames_from_atlas(
   sprite_path : String,
   frame_count : Int,
