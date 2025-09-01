@@ -76,6 +76,24 @@ pub fn Pickable::new() -> Pickable {
 }
 
 ///|
+/// Registers a callback function to be executed while a mouse button is held
+/// down on the entity.
+///
+/// Parameters:
+///
+/// * `self` : The `Pickable` component to add the callback to.
+/// * `callback` : The function to execute while a mouse button is pressed,
+///   receiving the pressed mouse button as a parameter.
+///
+/// Example:
+///
+/// ```notest
+/// let pickable = Pickable::new()
+/// pickable.on_pressed(fn(button) { 
+///   println("Mouse button \{button} is being held down") 
+/// })
+/// ```
+///
 pub fn Pickable::on_pressed(
   self : Pickable,
   callback : (@system.MouseButton) -> Unit,
@@ -84,6 +102,24 @@ pub fn Pickable::on_pressed(
 }
 
 ///|
+/// Registers a callback function to be executed while a mouse button is not
+/// held down on the entity.
+///
+/// Parameters:
+///
+/// * `self` : The `Pickable` component to add the callback to.
+/// * `callback` : The function to execute while a mouse button is released,
+///   receiving the released mouse button as a parameter.
+///
+/// Example:
+///
+/// ```notest
+/// let pickable = Pickable::new()
+/// pickable.on_released(fn(button) { 
+///   println("Mouse button \{button} is not being held down") 
+/// })
+/// ```
+///
 pub fn Pickable::on_released(
   self : Pickable,
   callback : (@system.MouseButton) -> Unit,
@@ -92,6 +128,24 @@ pub fn Pickable::on_released(
 }
 
 ///|
+/// Registers a callback function to be executed at the exact moment a mouse
+/// button is pressed on the entity.
+///
+/// Parameters:
+///
+/// * `self` : The `Pickable` component to add the callback to.
+/// * `callback` : The function to execute when a mouse button is just pressed,
+///   receiving the pressed mouse button as a parameter.
+///
+/// Example:
+///
+/// ```notest
+/// let pickable = Pickable::new()
+/// pickable.on_just_pressed(fn(button) { 
+///   println("Mouse button \{button} was just pressed") 
+/// })
+/// ```
+///
 pub fn Pickable::on_just_pressed(
   self : Pickable,
   callback : (@system.MouseButton) -> Unit,
@@ -100,6 +154,24 @@ pub fn Pickable::on_just_pressed(
 }
 
 ///|
+/// Registers a callback function to be executed at the exact moment a mouse
+/// button is released on the entity.
+///
+/// Parameters:
+///
+/// * `self` : The `Pickable` component to add the callback to.
+/// * `callback` : The function to execute when a mouse button is just released,
+///   receiving the released mouse button as a parameter.
+///
+/// Example:
+///
+/// ```notest
+/// let pickable = Pickable::new()
+/// pickable.on_just_released(fn(button) { 
+///   println("Mouse button \{button} was just released") 
+/// })
+/// ```
+///
 pub fn Pickable::on_just_released(
   self : Pickable,
   callback : (@system.MouseButton) -> Unit,
@@ -108,6 +180,36 @@ pub fn Pickable::on_just_released(
 }
 
 ///|
+/// Processes mouse interactions with pickable entities in both UI and world
+/// space.
+///
+/// This system handles mouse click detection and callback execution for
+/// entities with `Pickable` components. It operates in two phases: first
+/// checking UI entities, then querying world entities through the quadtree
+/// spatial partitioning system. For each intersecting entity, it triggers the
+/// appropriate mouse event callbacks based on the current mouse button states.
+///
+/// Parameters:
+///
+/// * `backend` : The system backend providing access to zoom level and other
+///   system state.
+///
+/// Example:
+///
+/// ```notest
+/// // Create a pickable entity
+/// let entity = @system.Entity::new()
+/// let pickable = Pickable::new()
+/// pickable.on_just_pressed(fn(button) { 
+///   println("Clicked with button: \{button}") 
+/// })
+/// pickables[entity] = pickable
+///
+/// // The system will automatically detect clicks on this entity
+/// // when pickable_click_system is called each frame
+/// pickable_click_system(backend)
+/// ```
+///
 pub fn pickable_click_system(backend : &@system.Backend) -> Unit {
   let zoom = backend.get_zoom()
   let box = @math.Rect::{
