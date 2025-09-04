@@ -150,6 +150,27 @@ pub fn App::add_system(
 }
 
 ///|
+/// Starts the application by executing all registered plugins, configuring the
+/// backend, and beginning the game loop.
+///
+/// Parameters:
+///
+/// * `self` : The application instance to run.
+///
+/// Example:
+///
+/// ```notest
+/// let backend = // ... some backend implementation
+/// let app = @system.App::new(backend)
+///   .with_canvas_width(800.0)
+///   .with_canvas_height(600.0)
+///   .with_fps(60)
+///   .add_system(my_update_system)
+///   .add_plugin(my_plugin)
+///
+/// app.run()
+/// ```
+///
 pub fn App::run(self : App) -> Unit {
   for plugin in self.plugins {
     plugin(self)

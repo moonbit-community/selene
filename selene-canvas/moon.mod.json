@@ -2,7 +2,7 @@
   "name": "Milky2018/selene-canvas",
   "version": "0.13.2",
   "deps": {
-    "Yoorkin/rabbit-tea": "0.10.9",
+    "Yoorkin/rabbit-tea": "0.10.10",
     "Milky2018/selene": "0.13.2"
   },
   "readme": "README.md",
