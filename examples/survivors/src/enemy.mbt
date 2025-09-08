@@ -17,7 +17,7 @@ struct EnemyData {
   health : Int
   speed : Double
   points : Int
-  spawn_weight : Int
+  level_spawn_weights : Array[Int] // [level1, level2, level3, level4, level5]
   right_animation : @sprite.Animation
   left_animation : @sprite.Animation
 }
@@ -25,19 +25,19 @@ struct EnemyData {
 ///|
 let enemy_data : Map[EnemyType, EnemyData] = {
   let data = Map::new()
-  data.set(Slime, {
+  data.set(Creeper, {
     health: 1,
     speed: 1.0,
     points: 10,
-    spawn_weight: 40,
-    right_animation: slime_right_animation,
-    left_animation: slime_left_animation,
+    level_spawn_weights: [60, 40, 25, 15, 10], // Decreasing over levels
+    right_animation: creeper_right_animation,
+    left_animation: creeper_left_animation,
   })
   data.set(Icecream, {
     health: 2,
     speed: 1.0,
     points: 25,
-    spawn_weight: 30,
+    level_spawn_weights: [35, 40, 35, 25, 20], // Peak in early-mid levels
     right_animation: icecream_right_animation,
     left_animation: icecream_left_animation,
   })
@@ -45,7 +45,7 @@ let enemy_data : Map[EnemyType, EnemyData] = {
     health: 3,
     speed: 1.3,
     points: 50,
-    spawn_weight: 20,
+    level_spawn_weights: [5, 15, 25, 30, 25], // Increasing to mid-late levels
     right_animation: orc_right_animation,
     left_animation: orc_left_animation,
   })
@@ -53,7 +53,7 @@ let enemy_data : Map[EnemyType, EnemyData] = {
     health: 4,
     speed: 1.5,
     points: 100,
-    spawn_weight: 10,
+    level_spawn_weights: [0, 5, 15, 30, 45], // Only in later levels, increasing
     right_animation: skull_right_animation,
     left_animation: skull_left_animation,
   })
@@ -73,38 +73,40 @@ fn spawn_enemy_system(_ : &@system.Backend) -> Unit {
   if game_state.game_over {
     return
   }
-  
   let rand = game_state.rand
   let enemy = @system.Entity::new()
   let pos = spawners[rand.int(limit=spawners.length())]
   @position.positions.set(enemy, pos)
   @velocity.velocities.set(enemy, @math.Vec2D::zero())
-  
+
   // Select enemy type based on weighted random selection
   let enemy_type = select_random_enemy_type(rand)
   let data = get_enemy_data(enemy_type)
-  
+
   // Create sprite and enemy state using data structure
   let sprite = @sprite.Sprite::from_animation(
     data.right_animation,
     ENEMY_ZINDEX,
-    offset=Vec2D(-8.0, -8.0),
+    offset=Vec2D(-8.0, -12.0),
   )
-  let enemy_state = { 
-    enemy_type: enemy_type, 
-    speed: data.speed, 
-    health: data.health 
-  }
-  
+  let enemy_state = { enemy_type, speed: data.speed, health: data.health }
   @sprite.sprites.set(enemy, sprite)
   @collision.shapes.set(
     enemy,
     @collision.CollisionShape::Rect(
-      size=Vec2D(16.0, 16.0),
-      offset=Vec2D(-8.0, -8.0),
+      size=Vec2D(8.0, 8.0),
+      offset=Vec2D(-4.0, -4.0),
     ),
   )
   @collision.collision_layers.set(enemy, enemy_collision_layer)
+  @collision.colliders.set(
+    enemy,
+    @collision.Collider::new(
+      @collision.CollisionMask::new([
+        enemy_collision_layer, wall_collision_layer,
+      ]),
+    ),
+  )
   enemies.set(enemy, enemy_state)
   let area = @collision.Area::new(
     @collision.CollisionMask::new([player_collision_layer]),
@@ -121,7 +123,6 @@ fn spawn_enemy_system(_ : &@system.Backend) -> Unit {
     @system.timeout_with_frames(INVINCIBLE_TIME.to_int(), fn() {
       game_state.invincible = false
     })
-    enemy.destroy()
   })
 }
 
@@ -134,7 +135,7 @@ struct Enemy {
 
 ///|
 enum EnemyType {
-  Slime
+  Creeper
   Icecream
   Orc
   Skull
@@ -153,23 +154,28 @@ fn get_enemy_data(enemy_type : EnemyType) -> EnemyData {
 
 ///|
 fn select_random_enemy_type(rand : @random.Rand) -> EnemyType {
-  // Calculate total weight
+  let level = game_state.current_level
+  let level_index = level - 1 // Convert to 0-based index
+
+  // Calculate total weight for current level
   let mut total_weight = 0
   for _, data in enemy_data {
-    total_weight += data.spawn_weight
+    total_weight += data.level_spawn_weights[level_index]
+  }
+  if total_weight == 0 {
+    return Creeper // Fallback if no enemies have weight
   }
   let rand_val = rand.int(limit=total_weight)
-  
   let mut current_weight = 0
   for enemy_type, data in enemy_data {
-    current_weight += data.spawn_weight
+    current_weight += data.level_spawn_weights[level_index]
     if rand_val < current_weight {
       return enemy_type
     }
   }
-  
+
   // Fallback (should never reach here)
-  Slime
+  Creeper
 }
 
 ///|
@@ -177,17 +183,16 @@ fn enemy_ai_system(_ : &@system.Backend) -> Unit {
   if game_state.game_over {
     return
   }
-  
   for e, state in enemies {
     guard e.is_alive() else { continue }
-    guard @position.positions.get(game_state.player_entity) is Some(player_position)
+    guard @position.positions.get(game_state.player_entity)
+      is Some(player_position)
     guard @position.positions.get(e) is Some(position)
-    
     let data = get_enemy_data(state.enemy_type)
     let dir = player_position.0 - position.0
     let vel = dir.normalize().scalar_mul(state.speed)
     @velocity.velocities.set(e, @velocity.Velocity(vel))
-    
+
     // Use the appropriate animation based on direction
     if vel[X] >= 0.0 {
       @sprite.play_animation(e, data.right_animation)
@@ -195,4 +200,17 @@ fn enemy_ai_system(_ : &@system.Backend) -> Unit {
       @sprite.play_animation(e, data.left_animation)
     }
   }
+}
+
+///|
+fn div(a : Int, b : Int) -> Int raise Failure {
+  if b == 0 {
+    raise Failure("By zero")
+  }
+  a / b
+}
+
+///|
+test {
+  inspect(try? div(9, 0), content="Err(Failure(\"By zero\"))")
 }

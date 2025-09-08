@@ -69,6 +69,8 @@ struct GameState {
   timer_box : @sprite.Text
   game_over_box : @sprite.Text
   mut game_over_displayed : Bool
+  mut current_level : Int
+  level_box : @sprite.Text
 }
 
 ///|
@@ -92,10 +94,10 @@ let game_state : GameState = {
     font="24px ThaleahFat",
   ),
   invincible: false,
-  game_timer: 60.0,
+  game_timer: 600.0,
   game_over: false,
   timer_box: @sprite.Text::new(
-    "Time: 60",
+    "Time: 10:00",
     color="white",
     font="24px ThaleahFat",
   ),
@@ -105,6 +107,12 @@ let game_state : GameState = {
     font="32px ThaleahFat",
   ),
   game_over_displayed: false,
+  current_level: 1,
+  level_box: @sprite.Text::new(
+    "Level: 1",
+    color="yellow",
+    font="24px ThaleahFat",
+  ),
 }
 
 ///|
@@ -122,6 +130,7 @@ fn game_start(_backend : &@system.Backend) -> Unit {
   add_grass()
   add_score_box()
   add_timer_box()
+  add_level_box()
 }
 
 ///|
@@ -140,8 +149,30 @@ fn game_timer_system(_backend : &@system.Backend) -> Unit {
     game_state.game_timer = 0.0
     game_state.game_over = true
   }
-  let seconds = game_state.game_timer.to_int()
-  game_state.timer_box.content = "Time: " + seconds.to_string()
+  
+  // Calculate current level (1-5) based on remaining time
+  let elapsed_time = 600.0 - game_state.game_timer
+  let mut new_level = (elapsed_time / 120.0).to_int() + 1
+  if new_level > 5 { 
+    new_level = 5 
+  }
+  
+  // Update level if changed
+  if new_level != game_state.current_level {
+    game_state.current_level = new_level
+    game_state.level_box.content = "Level: " + game_state.current_level.to_string()
+  }
+  
+  // Format timer as MM:SS
+  let total_seconds = game_state.game_timer.to_int()
+  let minutes = total_seconds / 60
+  let seconds = total_seconds % 60
+  let seconds_str = if seconds < 10 { 
+    "0" + seconds.to_string() 
+  } else { 
+    seconds.to_string() 
+  }
+  game_state.timer_box.content = "Time: " + minutes.to_string() + ":" + seconds_str
 }
 
 ///|
@@ -163,6 +194,16 @@ fn add_game_over_box() -> Unit {
   )
   @sprite.sprites.set(entity, sprite)
   let position = @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 160, VIEWPORT_HEIGHT / 2.0)
+  @position.positions.set(entity, @position.Position(position))
+  @ui.uis.set(entity, @ui.Ui::new())
+}
+
+///|
+fn add_level_box() -> Unit {
+  let entity = @system.Entity::new()
+  let sprite = @sprite.Sprite::from_text(game_state.level_box, UI_ZINDEX)
+  @sprite.sprites.set(entity, sprite)
+  let position = @math.Vec2D(16.0, 16.0)
   @position.positions.set(entity, @position.Position(position))
   @ui.uis.set(entity, @ui.Ui::new())
 }
