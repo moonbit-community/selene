@@ -168,3 +168,33 @@ let slime_left_animation : @sprite.Animation = @sprite.Animation::new(
   loop_=true,
   transform=@math.Transform::flip_x(16),
 )
+
+///|
+let icecream_right_animation : @sprite.Animation = @sprite.Animation::new(
+  @sprite.frames_from_atlas(
+    "assets/enemy/Icecream.png",
+    4,
+    width=16,
+    height=16,
+    offset=Vec2D(0, 56),
+    space_x=0,
+  ),
+  rate=0.2,
+  loop_=true,
+  transform=@math.Transform::new(),
+)
+
+///|
+let icecream_left_animation : @sprite.Animation = @sprite.Animation::new(
+  @sprite.frames_from_atlas(
+    "assets/enemy/Icecream.png",
+    4,
+    width=16,
+    height=16,
+    offset=Vec2D(0, 56),
+    space_x=0,
+  ),
+  rate=0.2,
+  loop_=true,
+  transform=@math.Transform::flip_x(16),
+)

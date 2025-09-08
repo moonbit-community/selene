@@ -23,20 +23,20 @@ const BULLET_DURATION : Double = SHOOTING_RANGE / BULLET_SPEED
 
 ///|
 fn shoot_bullet(player_pos : @math.Vec2D, target_pos : @math.Vec2D) -> Unit {
-  let entity = @system.Entity::new()
+  let bullet_entity = @system.Entity::new()
   @sprite.sprites.set(
-    entity,
+    bullet_entity,
     @sprite.Sprite::from_color_rect(
       @sprite.ColorRect::new(Vec2D(BULLET_SIZE, BULLET_SIZE), "white"),
       BULLET_ZINDEX,
     ),
   )
-  @position.positions.set(entity, player_pos)
+  @position.positions.set(bullet_entity, player_pos)
   let vel = (target_pos - player_pos).normalize().scalar_mul(BULLET_SPEED)
-  @velocity.velocities.set(entity, vel)
-  @collision.collision_layers.set(entity, bullet_collision_layer)
+  @velocity.velocities.set(bullet_entity, vel)
+  @collision.collision_layers.set(bullet_entity, bullet_collision_layer)
   @collision.shapes.set(
-    entity,
+    bullet_entity,
     @collision.CollisionShape::Rect(
       size=@math.Vec2D(BULLET_SIZE, BULLET_SIZE),
       offset=@math.Vec2D(-BULLET_SIZE / 2.0, -BULLET_SIZE / 2.0),
@@ -46,23 +46,28 @@ fn shoot_bullet(player_pos : @math.Vec2D, target_pos : @math.Vec2D) -> Unit {
     @collision.CollisionMask::new([enemy_collision_layer, wall_collision_layer]),
   )
   let mut bullet_alive = true
-  area.on_enter(fn(e) {
-    guard enemies.get(e) is Some(enemy) else {
+  area.on_enter(fn(enemy_entity) {
+    guard enemies.get(enemy_entity) is Some(enemy) else {
       bullet_alive = false
-      entity.destroy()
+      bullet_entity.destroy()
     }
     guard bullet_alive else { return }
     enemy.health -= 1
+    bullet_entity.destroy()
     if enemy.health <= 0 {
       bullet_alive = false
-      e.destroy()
-      entity.destroy()
-      set_score(game_state.score + 10)
+      enemy_entity.destroy()
+      // Give more points for stronger enemies
+      let points = match enemy.enemy_type {
+        Slime => 10
+        Icecream => 25
+      }
+      set_score(game_state.score + points)
     }
   })
-  @collision.areas.set(entity, area)
+  @collision.areas.set(bullet_entity, area)
   @system.timeout_with_frames(BULLET_DURATION.to_int(), fn() {
     bullet_alive = false
-    entity.destroy()
+    bullet_entity.destroy()
   })
 }

@@ -18,6 +18,7 @@ const PLAYER_SIZE : Double = 16.0
 ///|
 const PLAYER_SPEED : Double = 2.5
 
+///|
 const INVINCIBLE_TIME : Double = 1.0 * FPS
 
 ///|
@@ -53,9 +54,12 @@ fn add_player() -> Unit {
 ///|
 fn player_update_system(_ : &@system.Backend) -> Unit {
   let entity = game_state.player_entity
-  let vel = @system.key_vector(KeyW, KeyS, KeyA, KeyD)
+  let mut vel = @system.key_vector(KeyW, KeyS, KeyA, KeyD)
     .normalize()
     .scalar_mul(PLAYER_SPEED)
+  if game_state.game_over {
+    vel = Vec2D(0, 0)
+  }
   @velocity.velocities.set(entity, vel)
   if vel[X] > 0.0 {
     game_state.player_direction = Right
@@ -83,6 +87,9 @@ const WEAPON_COOLDOWN : Double = 1.5 * FPS
 
 ///|
 fn player_shooting_system(_ : &@system.Backend) -> Unit {
+  if game_state.game_over {
+    return
+  }
   if game_state.shoot_timer > 0.0 {
     game_state.shoot_timer -= 1.0
   }

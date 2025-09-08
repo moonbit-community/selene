@@ -22,16 +22,40 @@ let spawners : Array[@math.Vec2D] = [
 
 ///|
 fn spawn_enemy_system(_ : &@system.Backend) -> Unit {
+  if game_state.game_over {
+    return
+  }
+  
   let rand = game_state.rand
   let enemy = @system.Entity::new()
   let pos = spawners[rand.int(limit=spawners.length())]
   @position.positions.set(enemy, pos)
   @velocity.velocities.set(enemy, @math.Vec2D::zero())
-  let sprite = @sprite.Sprite::from_animation(
-    slime_right_animation,
-    ENEMY_ZINDEX,
-    offset=Vec2D(-8.0, -8.0),
-  )
+  
+  // 30% chance to spawn Icecream, 70% chance to spawn Slime
+  let enemy_type = if rand.int(limit=10) < 3 { Icecream } else { Slime }
+  
+  let (sprite, enemy_state) = match enemy_type {
+    Slime => {
+      let sprite = @sprite.Sprite::from_animation(
+        slime_right_animation,
+        ENEMY_ZINDEX,
+        offset=Vec2D(-8.0, -8.0),
+      )
+      let state = { enemy_type: Slime, speed: 1.0, health: 1 }
+      (sprite, state)
+    }
+    Icecream => {
+      let sprite = @sprite.Sprite::from_animation(
+        icecream_right_animation,
+        ENEMY_ZINDEX,
+        offset=Vec2D(-8.0, -8.0),
+      )
+      let state = { enemy_type: Icecream, speed: 1.0, health: 2 }
+      (sprite, state)
+    }
+  }
+  
   @sprite.sprites.set(enemy, sprite)
   @collision.shapes.set(
     enemy,
@@ -41,7 +65,6 @@ fn spawn_enemy_system(_ : &@system.Backend) -> Unit {
     ),
   )
   @collision.collision_layers.set(enemy, enemy_collision_layer)
-  let enemy_state = { enemy_type: Slime, speed: 1.0, health: 1 }
   enemies.set(enemy, enemy_state)
   let area = @collision.Area::new(
     @collision.CollisionMask::new([player_collision_layer]),
@@ -72,6 +95,7 @@ struct Enemy {
 ///|
 enum EnemyType {
   Slime
+  Icecream
 }
 
 ///|
@@ -79,6 +103,10 @@ let enemies : Map[@system.Entity, Enemy] = Map::new()
 
 ///|
 fn enemy_ai_system(_ : &@system.Backend) -> Unit {
+  if game_state.game_over {
+    return
+  }
+  
   for e, state in enemies {
     guard e.is_alive() else { continue }
     match state.enemy_type {
@@ -93,6 +121,19 @@ fn enemy_ai_system(_ : &@system.Backend) -> Unit {
           @sprite.play_animation(e, slime_right_animation)
         } else {
           @sprite.play_animation(e, slime_left_animation)
+        }
+      }
+      EnemyType::Icecream => {
+        guard @position.positions.get(game_state.player_entity)
+          is Some(player_position)
+        guard @position.positions.get(e) is Some(position)
+        let dir = player_position.0 - position.0
+        let vel = dir.normalize().scalar_mul(state.speed)
+        @velocity.velocities.set(e, @velocity.Velocity(vel))
+        if vel[X] >= 0.0 {
+          @sprite.play_animation(e, icecream_right_animation)
+        } else {
+          @sprite.play_animation(e, icecream_left_animation)
         }
       }
     }
