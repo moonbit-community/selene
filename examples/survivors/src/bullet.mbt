@@ -58,11 +58,8 @@ fn shoot_bullet(player_pos : @math.Vec2D, target_pos : @math.Vec2D) -> Unit {
       bullet_alive = false
       enemy_entity.destroy()
       // Give more points for stronger enemies
-      let points = match enemy.enemy_type {
-        Slime => 10
-        Icecream => 25
-      }
-      set_score(game_state.score + points)
+      let data = get_enemy_data(enemy.enemy_type)
+      set_score(game_state.score + data.points)
     }
   })
   @collision.areas.set(bullet_entity, area)

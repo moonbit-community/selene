@@ -140,7 +140,7 @@ fn game_timer_system(_backend : &@system.Backend) -> Unit {
     game_state.game_timer = 0.0
     game_state.game_over = true
   }
-  let seconds = game_state.game_timer.ceil().to_int()
+  let seconds = game_state.game_timer.to_int()
   game_state.timer_box.content = "Time: " + seconds.to_string()
 }
 
