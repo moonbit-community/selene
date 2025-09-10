@@ -48,22 +48,22 @@ pub fn Vec2D::clone(self : Vec2D) -> Vec2D {
 }
 
 ///|
-pub impl Add for Vec2D with op_add(this, other) {
+pub impl Add for Vec2D with add(this, other) {
   Vec2D(this.0 + other.0, this.1 + other.1)
 }
 
 ///|
-pub impl Mul for Vec2D with op_mul(this, other) {
+pub impl Mul for Vec2D with mul(this, other) {
   Vec2D(this.0 * other.0, this.1 * other.1)
 }
 
 ///|
-pub impl Neg for Vec2D with op_neg(this) {
+pub impl Neg for Vec2D with neg(this) {
   Vec2D(-this.0, -this.1)
 }
 
 ///|
-pub impl Sub for Vec2D with op_sub(this, other) {
+pub impl Sub for Vec2D with sub(this, other) {
   Vec2D(this.0 - other.0, this.1 - other.1)
 }
 

@@ -188,7 +188,7 @@ pub fn Transform::flip_y(height : Double) -> Transform {
 
 ///|
 /// Add two transforms (matrix addition)
-pub impl Add for Transform with op_add(self : Transform, other : Transform) -> Transform {
+pub impl Add for Transform with add(self : Transform, other : Transform) -> Transform {
   {
     a: self.a + other.a,
     b: self.b + other.b,
@@ -201,7 +201,7 @@ pub impl Add for Transform with op_add(self : Transform, other : Transform) -> T
 
 ///|
 /// Subtract two transforms (matrix subtraction)
-pub impl Sub for Transform with op_sub(self : Transform, other : Transform) -> Transform {
+pub impl Sub for Transform with sub(self : Transform, other : Transform) -> Transform {
   {
     a: self.a - other.a,
     b: self.b - other.b,
@@ -214,7 +214,7 @@ pub impl Sub for Transform with op_sub(self : Transform, other : Transform) -> T
 
 ///|
 /// Multiply two transforms (matrix multiplication, same as compose)
-pub impl Mul for Transform with op_mul(self : Transform, other : Transform) -> Transform {
+pub impl Mul for Transform with mul(self : Transform, other : Transform) -> Transform {
   self.multiply(other)
 }
 
