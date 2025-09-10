@@ -121,7 +121,23 @@ pub fn Sprite::from_color_rect(
 ///
 pub fn render_sprite_system(backend : &@system.Backend) -> Unit {
   let sprites = sprites.to_array().filter(fn(pair) { pair.0.is_alive() })
-  sprites.sort_by_key(fn(pair) { pair.1.zindex })
+  sprites.sort_by(fn(sprite1, sprite2) {
+    if sprite1.1.zindex < sprite2.1.zindex {
+      -1
+    } else if sprite1.1.zindex > sprite2.1.zindex {
+      1
+    } else {
+      guard @position.positions.get(sprite1.0) is Some(pos1) else { return 0 }
+      guard @position.positions.get(sprite2.0) is Some(pos2) else { return 0 }
+      if pos1.0[Y] < pos2.0[Y] {
+        -1
+      } else if pos1.0[Y] > pos2.0[Y] {
+        1
+      } else {
+        0
+      }
+    }
+  })
   for sprite in sprites {
     let e = sprite.0
     let sprite = sprite.1
