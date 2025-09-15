@@ -91,8 +91,8 @@ npx serve .
 为项目添加 Selene 引擎依赖：
 
 ```bash
-moon add Milky2018/selene@0.10.3
-moon add Milky2018/selene-canvas@0.10.3
+moon add Milky2018/selene@0.10.7
+moon add Milky2018/selene-canvas@0.10.7
 ```
 
 > 也可以获取最新版享受更多新功能，但后续流程可能有无法正常运行的情况，需要自己调试。

@@ -91,8 +91,8 @@ The image and audio assets needed for the game can be downloaded for free: [Imag
 Add Selene engine dependencies to the project:
 
 ```bash
-moon add Milky2018/selene@0.10.3
-moon add Milky2018/selene-canvas@0.10.3
+moon add Milky2018/selene@0.10.7
+moon add Milky2018/selene-canvas@0.10.7
 ```
 
 > You can also get the latest version to enjoy more new features, but the following process may not run properly and you'll need to debug it yourself.
