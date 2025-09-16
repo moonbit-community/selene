@@ -69,7 +69,11 @@ struct GameState {
   timer_box : @sprite.Text
   game_over_box : @sprite.Text
   mut game_over_displayed : Bool
-  mut current_level : Int
+  mut current_wave : Int
+  wave_box : @sprite.Text
+  mut exp : Int
+  exp_box : @sprite.Text
+  mut player_level : Int
   level_box : @sprite.Text
 }
 
@@ -107,7 +111,19 @@ let game_state : GameState = {
     font="32px ThaleahFat",
   ),
   game_over_displayed: false,
-  current_level: 1,
+  current_wave: 1,
+  wave_box: @sprite.Text::new(
+    "Wave: 1",
+    color="orange",
+    font="24px ThaleahFat",
+  ),
+  exp: 0,
+  exp_box: @sprite.Text::new(
+    "EXP: 0/16",
+    color="cyan",
+    font="24px ThaleahFat",
+  ),
+  player_level: 1,
   level_box: @sprite.Text::new(
     "Level: 1",
     color="yellow",
@@ -122,6 +138,47 @@ fn set_score(score : Int) -> Unit {
 }
 
 ///|
+fn xp_required_for_level(level : Int) -> Int {
+  let base = level + 3
+  base * base
+}
+
+///|
+fn get_level_from_xp(xp : Int) -> Int {
+  let mut level = 1
+  while xp >= xp_required_for_level(level) {
+    level += 1
+  }
+  level
+}
+
+///|
+fn add_exp(exp_gained : Int) -> Unit {
+  let old_level = game_state.player_level
+  game_state.exp += exp_gained
+
+  // Calculate new player level using the XP formula
+  let new_level = get_level_from_xp(game_state.exp)
+  if new_level > old_level {
+    game_state.player_level = new_level
+    game_state.level_box.content = "Level: " + game_state.player_level.to_string()
+    // TODO: Add level-up effects here (sound, visual, stat boosts, etc.)
+  }
+
+  // Update EXP display with progress to next level
+  let current_level_xp = if game_state.player_level == 1 {
+    0
+  } else {
+    xp_required_for_level(game_state.player_level - 1)
+  }
+  let next_level_xp = xp_required_for_level(game_state.player_level)
+  let progress_xp = game_state.exp - current_level_xp
+  let needed_xp = next_level_xp - current_level_xp
+
+  game_state.exp_box.content = "EXP: " + progress_xp.to_string() + "/" + needed_xp.to_string()
+}
+
+///|
 fn game_start(_backend : &@system.Backend) -> Unit {
   @camera.set_limits(top=0.0, bottom=MAP_HEIGHT, left=0.0, right=MAP_WIDTH)
   add_player()
@@ -130,7 +187,9 @@ fn game_start(_backend : &@system.Backend) -> Unit {
   add_grass()
   add_score_box()
   add_timer_box()
+  add_wave_box()
   add_level_box()
+  add_exp_box()
 }
 
 ///|
@@ -149,28 +208,28 @@ fn game_timer_system(_backend : &@system.Backend) -> Unit {
     game_state.game_timer = 0.0
     game_state.game_over = true
   }
-  
-  // Calculate current level (1-5) based on remaining time
+
+  // Calculate current wave (1-5) based on remaining time
   let elapsed_time = 600.0 - game_state.game_timer
-  let mut new_level = (elapsed_time / 120.0).to_int() + 1
-  if new_level > 5 { 
-    new_level = 5 
+  let mut new_wave = (elapsed_time / 120.0).to_int() + 1
+  if new_wave > 5 {
+    new_wave = 5
   }
-  
-  // Update level if changed
-  if new_level != game_state.current_level {
-    game_state.current_level = new_level
-    game_state.level_box.content = "Level: " + game_state.current_level.to_string()
+
+  // Update wave if changed
+  if new_wave != game_state.current_wave {
+    game_state.current_wave = new_wave
+    game_state.wave_box.content = "Wave: " + game_state.current_wave.to_string()
   }
-  
+
   // Format timer as MM:SS
   let total_seconds = game_state.game_timer.to_int()
   let minutes = total_seconds / 60
   let seconds = total_seconds % 60
-  let seconds_str = if seconds < 10 { 
-    "0" + seconds.to_string() 
-  } else { 
-    seconds.to_string() 
+  let seconds_str = if seconds < 10 {
+    "0" + seconds.to_string()
+  } else {
+    seconds.to_string()
   }
   game_state.timer_box.content = "Time: " + minutes.to_string() + ":" + seconds_str
 }
@@ -204,6 +263,26 @@ fn add_level_box() -> Unit {
   let sprite = @sprite.Sprite::from_text(game_state.level_box, UI_ZINDEX)
   @sprite.sprites.set(entity, sprite)
   let position = @math.Vec2D(16.0, 16.0)
+  @position.positions.set(entity, @position.Position(position))
+  @ui.uis.set(entity, @ui.Ui::new())
+}
+
+///|
+fn add_wave_box() -> Unit {
+  let entity = @system.Entity::new()
+  let sprite = @sprite.Sprite::from_text(game_state.wave_box, UI_ZINDEX)
+  @sprite.sprites.set(entity, sprite)
+  let position = @math.Vec2D(16.0, 84.0)
+  @position.positions.set(entity, @position.Position(position))
+  @ui.uis.set(entity, @ui.Ui::new())
+}
+
+///|
+fn add_exp_box() -> Unit {
+  let entity = @system.Entity::new()
+  let sprite = @sprite.Sprite::from_text(game_state.exp_box, UI_ZINDEX)
+  @sprite.sprites.set(entity, sprite)
+  let position = @math.Vec2D(16.0, 50.0)
   @position.positions.set(entity, @position.Position(position))
   @ui.uis.set(entity, @ui.Ui::new())
 }

@@ -17,7 +17,7 @@ struct EnemyData {
   health : Int
   speed : Double
   points : Int
-  level_spawn_weights : Array[Int] // [level1, level2, level3, level4, level5]
+  wave_spawn_weights : Array[Int] // [wave1, wave2, wave3, wave4, wave5]
   right_animation : @sprite.Animation
   left_animation : @sprite.Animation
 }
@@ -29,7 +29,7 @@ let enemy_data : Map[EnemyType, EnemyData] = {
     health: 1,
     speed: 1.0,
     points: 10,
-    level_spawn_weights: [60, 40, 25, 15, 10], // Decreasing over levels
+    wave_spawn_weights: [60, 40, 25, 15, 10], // Decreasing over waves
     right_animation: creeper_right_animation,
     left_animation: creeper_left_animation,
   })
@@ -37,7 +37,7 @@ let enemy_data : Map[EnemyType, EnemyData] = {
     health: 2,
     speed: 1.0,
     points: 25,
-    level_spawn_weights: [35, 40, 35, 25, 20], // Peak in early-mid levels
+    wave_spawn_weights: [35, 40, 35, 25, 20], // Peak in early-mid waves
     right_animation: icecream_right_animation,
     left_animation: icecream_left_animation,
   })
@@ -45,7 +45,7 @@ let enemy_data : Map[EnemyType, EnemyData] = {
     health: 3,
     speed: 1.3,
     points: 50,
-    level_spawn_weights: [5, 15, 25, 30, 25], // Increasing to mid-late levels
+    wave_spawn_weights: [5, 15, 25, 30, 25], // Increasing to mid-late waves
     right_animation: orc_right_animation,
     left_animation: orc_left_animation,
   })
@@ -53,7 +53,7 @@ let enemy_data : Map[EnemyType, EnemyData] = {
     health: 4,
     speed: 1.5,
     points: 100,
-    level_spawn_weights: [0, 5, 15, 30, 45], // Only in later levels, increasing
+    wave_spawn_weights: [0, 5, 15, 30, 45], // Only in later waves, increasing
     right_animation: skull_right_animation,
     left_animation: skull_left_animation,
   })
@@ -154,13 +154,13 @@ fn get_enemy_data(enemy_type : EnemyType) -> EnemyData {
 
 ///|
 fn select_random_enemy_type(rand : @random.Rand) -> EnemyType {
-  let level = game_state.current_level
-  let level_index = level - 1 // Convert to 0-based index
+  let wave = game_state.current_wave
+  let wave_index = wave - 1 // Convert to 0-based index
 
-  // Calculate total weight for current level
+  // Calculate total weight for current wave
   let mut total_weight = 0
   for _, data in enemy_data {
-    total_weight += data.level_spawn_weights[level_index]
+    total_weight += data.wave_spawn_weights[wave_index]
   }
   if total_weight == 0 {
     return Creeper // Fallback if no enemies have weight
@@ -168,7 +168,7 @@ fn select_random_enemy_type(rand : @random.Rand) -> EnemyType {
   let rand_val = rand.int(limit=total_weight)
   let mut current_weight = 0
   for enemy_type, data in enemy_data {
-    current_weight += data.level_spawn_weights[level_index]
+    current_weight += data.wave_spawn_weights[wave_index]
     if rand_val < current_weight {
       return enemy_type
     }
@@ -200,17 +200,4 @@ fn enemy_ai_system(_ : &@system.Backend) -> Unit {
       @sprite.play_animation(e, data.left_animation)
     }
   }
-}
-
-///|
-fn div(a : Int, b : Int) -> Int raise Failure {
-  if b == 0 {
-    raise Failure("By zero")
-  }
-  a / b
-}
-
-///|
-test {
-  inspect(try? div(9, 0), content="Err(Failure(\"By zero\"))")
 }

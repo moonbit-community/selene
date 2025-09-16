@@ -53,13 +53,14 @@ fn add_player() -> Unit {
 
 ///|
 fn player_update_system(_ : &@system.Backend) -> Unit {
+  if game_state.game_over {
+    return
+  }
+
   let entity = game_state.player_entity
-  let mut vel = @system.key_vector(KeyW, KeyS, KeyA, KeyD)
+  let vel = @system.key_vector(KeyW, KeyS, KeyA, KeyD)
     .normalize()
     .scalar_mul(PLAYER_SPEED)
-  if game_state.game_over {
-    vel = Vec2D(0, 0)
-  }
   @velocity.velocities.set(entity, vel)
   if vel[X] > 0.0 {
     game_state.player_direction = Right

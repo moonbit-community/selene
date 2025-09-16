@@ -57,9 +57,10 @@ fn shoot_bullet(player_pos : @math.Vec2D, target_pos : @math.Vec2D) -> Unit {
     if enemy.health <= 0 {
       bullet_alive = false
       enemy_entity.destroy()
-      // Give more points for stronger enemies
+      // Give both points and EXP for killing enemies
       let data = get_enemy_data(enemy.enemy_type)
       set_score(game_state.score + data.points)
+      add_exp(data.points)
     }
   })
   @collision.areas.set(bullet_entity, area)
