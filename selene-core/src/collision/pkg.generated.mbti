@@ -9,7 +9,7 @@ import(
 )
 
 // Values
-fn area_collide_system(&@system.Backend) -> Unit
+fn area_collide_system(&@system.Backend, Double) -> Unit
 
 let areas : Map[@system.Entity, Area]
 
@@ -17,7 +17,7 @@ let colliders : Map[@system.Entity, Collider]
 
 let collision_layers : Map[@system.Entity, CollisionLayer]
 
-fn debug_collide_system(&@system.Backend) -> Unit
+fn debug_collide_system(&@system.Backend, Double) -> Unit
 
 fn get_collision_infos(@system.Entity) -> Array[CollisionInfo]
 
@@ -25,15 +25,15 @@ fn get_contains(@system.Entity) -> @set.Set[@system.Entity]
 
 fn is_on_floor(@system.Entity) -> Bool
 
-fn move_system(&@system.Backend) -> Unit
+fn move_system(&@system.Backend, Double) -> Unit
 
-fn pickable_click_system(&@system.Backend) -> Unit
+fn pickable_click_system(&@system.Backend, Double) -> Unit
 
 let pickables : Map[@system.Entity, Pickable]
 
-fn quadtree_clear_system(&@system.Backend) -> Unit
+fn quadtree_clear_system(&@system.Backend, Double) -> Unit
 
-fn quadtree_render_system(&@system.Backend) -> Unit
+fn quadtree_render_system(&@system.Backend, Double) -> Unit
 
 let quadtree_root : Ref[QuadTree]
 

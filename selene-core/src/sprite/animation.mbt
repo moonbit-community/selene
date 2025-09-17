@@ -137,7 +137,7 @@ pub fn Animation::new(
   if max_frame == 0 {
     abort("Animation must have at least one frame")
   }
-  { frames, transform, loop_, fps: fps, id: generate_animation() }
+  { frames, transform, loop_, fps, id: generate_animation() }
 }
 
 ///|

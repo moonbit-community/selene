@@ -30,7 +30,10 @@
 /// Panics if an entity has a position component but lacks a collision shape, or
 /// if the collision shape is not a rectangle.
 ///
-pub fn debug_collide_system(backend : &@system.Backend, _delta : Double) -> Unit {
+pub fn debug_collide_system(
+  backend : &@system.Backend,
+  _delta : Double,
+) -> Unit {
   for e, collide in colliders {
     guard e.is_alive() else { continue }
     guard collide.active else { continue }

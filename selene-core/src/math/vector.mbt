@@ -19,7 +19,7 @@ pub(all) enum Axis {
 } derive(Eq, Show)
 
 ///|
-pub(all) struct Vec2D(Double,Double) derive(Eq, Show)
+pub(all) struct Vec2D(Double, Double) derive(Eq, Show)
 
 ///|
 pub fn Vec2D::zero() -> Vec2D {

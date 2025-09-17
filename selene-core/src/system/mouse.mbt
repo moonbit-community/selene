@@ -75,6 +75,7 @@ pub let just_release_mouse : Mouse = {
   middle_button: false,
 }
 
+///|
 pub fn advanced_mouse_system(_backend : &Backend, _delta : Double) -> Unit {
   // Just pressed
   just_pressed_mouse.left_button = mouse.left_button && !last_mouse.left_button

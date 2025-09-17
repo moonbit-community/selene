@@ -107,7 +107,11 @@ fn quadtree_query(area : @math.Rect) -> @set.Set[@system.Entity] {
   results
 }
 
-pub fn quadtree_render_system(backend : &@system.Backend, _delta : Double) -> Unit {
+///|
+pub fn quadtree_render_system(
+  backend : &@system.Backend,
+  _delta : Double,
+) -> Unit {
   fn render_node(node : QuadTree) -> Unit {
     let position = node.position - @camera.get_position()
     let size = node.size

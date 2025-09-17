@@ -6,7 +6,7 @@ import(
 )
 
 // Values
-fn debug_info_display_system(&@system.Backend) -> Unit
+fn debug_info_display_system(&@system.Backend, Double) -> Unit
 
 // Errors
 

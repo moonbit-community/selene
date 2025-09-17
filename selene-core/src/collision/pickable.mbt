@@ -179,7 +179,11 @@ pub fn Pickable::on_just_released(
   self.on_just_released_callbacks.push(callback)
 }
 
-pub fn pickable_click_system(backend : &@system.Backend, _delta : Double) -> Unit {
+///|
+pub fn pickable_click_system(
+  backend : &@system.Backend,
+  _delta : Double,
+) -> Unit {
   let zoom = backend.get_zoom()
   let box = @math.Rect::{
     size: @math.Vec2D(1.0, 1.0),

@@ -9,7 +9,7 @@ import(
 // Values
 fn attach_entity(@system.Entity, @math.Vec2D) -> Unit
 
-fn camera_system(&@system.Backend) -> Unit
+fn camera_system(&@system.Backend, Double) -> Unit
 
 fn get_position() -> @math.Vec2D
 

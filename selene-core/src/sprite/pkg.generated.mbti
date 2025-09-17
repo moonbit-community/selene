@@ -13,7 +13,7 @@ fn is_animation_finished(@system.Entity) -> Bool
 
 fn play_animation(@system.Entity, Animation, from_start? : Bool, loop_? : Bool, rate? : Double, transform? : @math.Transform) -> Unit
 
-fn render_sprite_system(&@system.Backend) -> Unit
+fn render_sprite_system(&@system.Backend, Double) -> Unit
 
 let sprites : Map[@system.Entity, Sprite]
 
@@ -24,10 +24,10 @@ pub struct Animation {
   frames : Array[AnimationFrame]
   transform : @math.Transform
   loop_ : Bool
-  rate : Double
+  fps : Double
   id : Int
 }
-fn Animation::new(Array[AnimationFrame], loop_? : Bool, rate? : Double, transform? : @math.Transform) -> Self
+fn Animation::new(Array[AnimationFrame], loop_? : Bool, fps? : Double, transform? : @math.Transform) -> Self
 fn Animation::single_frame(String, @math.Vec2D, transform? : @math.Transform, offset? : @math.Vec2D) -> Self
 
 pub(all) struct AnimationFrame {

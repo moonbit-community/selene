@@ -13,7 +13,10 @@
 // limitations under the License.
 
 ///|
-pub fn debug_info_display_system(backend : &@system.Backend, _delta : Double) -> Unit {
+pub fn debug_info_display_system(
+  backend : &@system.Backend,
+  _delta : Double,
+) -> Unit {
   fn print_info() -> Unit {
     let debug_info = backend.get_debug_info()
     println("FPS: \{debug_info.fps}")
