@@ -21,7 +21,7 @@ let bird_fly_animation : @sprite.Animation = @sprite.Animation::new(
     height=32.0,
   ),
   loop_=true,
-  rate=0.2,
+  fps=12,
 )
 
 ///|
@@ -33,11 +33,11 @@ let bird_hit_animation : @sprite.Animation = @sprite.Animation::new(
     height=32.0,
   ),
   loop_=false,
-  rate=0.2,
+  fps=12,
 )
 
 ///|
-const BIRD_SPEED = 1.5
+const BIRD_SPEED = 90.0
 
 ///|
 struct Bird {
@@ -70,7 +70,7 @@ fn add_bird(pos : @math.Vec2D) -> Unit {
 }
 
 ///|
-fn bird_ai_system(_backend : &@system.Backend) -> Unit {
+fn bird_ai_system(_backend : &@system.Backend, _ : Double) -> Unit {
   for e, bird in birds {
     guard e.is_alive() else { continue }
     guard @velocity.velocities.get(e) is Some(_velocity)

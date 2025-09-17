@@ -13,11 +13,16 @@
 // limitations under the License.
 
 ///|
-pub fn debug_info_display_system(backend : &@system.Backend) -> Unit {
-  let debug_info = backend.get_debug_info()
-  println("FPS: \{debug_info.fps}")
-  println("System Execution Time (ms):")
-  for system_name, time in debug_info.system_execution_time {
-    println("  \{system_name}: \{time}")
+pub fn debug_info_display_system(backend : &@system.Backend, _delta : Double) -> Unit {
+  fn print_info() -> Unit {
+    let debug_info = backend.get_debug_info()
+    println("FPS: \{debug_info.fps}")
+    println("System Execution Time (ms):")
+    for system_name, time in debug_info.system_execution_time {
+      println("  \{system_name}: \{time}")
+    }
+    @system.timeout(1.0, false, print_info)
   }
+
+  print_info()
 }

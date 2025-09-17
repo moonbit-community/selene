@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// FIXME: This should be the same as the WORLD_WIDTH
-
-// FIXME: quadtree should be able to rebuild
-
 ///|
 pub let quadtree_root : Ref[QuadTree] = Ref::new(
   QuadTree::new(@math.Vec2D(0, 0), @math.Vec2D(0, 0), 0),
@@ -111,23 +107,7 @@ fn quadtree_query(area : @math.Rect) -> @set.Set[@system.Entity] {
   results
 }
 
-///|
-/// Renders the quadtree structure for debugging purposes by drawing stroke
-/// rectangles for each node.
-///
-/// Parameters:
-///
-/// * `backend` : The rendering backend used to draw the quadtree visualization.
-///
-/// Example:
-///
-/// ```notest
-/// // In a game loop or debugging context
-/// quadtree_render_system(backend)
-/// // This will draw blue stroke rectangles showing the quadtree partitioning
-/// ```
-///
-pub fn quadtree_render_system(backend : &@system.Backend) -> Unit {
+pub fn quadtree_render_system(backend : &@system.Backend, _delta : Double) -> Unit {
   fn render_node(node : QuadTree) -> Unit {
     let position = node.position - @camera.get_position()
     let size = node.size
@@ -147,7 +127,7 @@ pub fn quadtree_render_system(backend : &@system.Backend) -> Unit {
 }
 
 ///|
-pub fn quadtree_clear_system(_ : &@system.Backend) -> Unit {
+pub fn quadtree_clear_system(_ : &@system.Backend, _delta : Double) -> Unit {
   let mut left_limit = 0.0
   let mut right_limit = 0.0
   let mut top_limit = 0.0

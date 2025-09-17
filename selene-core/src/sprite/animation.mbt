@@ -22,8 +22,7 @@
 /// * `transform` : Transformation matrix for position, rotation, and scale.
 /// * `loop_` : Whether the animation should loop continuously when reaching the
 ///   end.
-/// * `rate` : Frame advancement speed, where higher values increase playback
-///   speed.
+/// * `fps` : Frame advancement speed, frames per second.
 /// * `frame` : Current frame position in the animation sequence (can be
 ///   fractional).
 ///
@@ -39,12 +38,12 @@
 /// let animation = @sprite.Animation::new(
 ///   frames,
 ///   loop_=true,
-///   rate=0.2,
+///   fps=12,
 ///   transform=@math.Transform::new()
 /// )
 /// inspect(animation.frames.length(), content="8")
 /// inspect(animation.loop_, content="true")
-/// inspect(animation.rate, content="0.2")
+/// inspect(animation.fps, content="12")
 /// inspect(animation.frame, content="0.0")
 /// ```
 ///
@@ -52,7 +51,7 @@ pub struct Animation {
   frames : Array[AnimationFrame]
   transform : @math.Transform
   loop_ : Bool
-  rate : Double
+  fps : Double
   id : Int
 }
 
@@ -131,14 +130,14 @@ pub(all) struct AnimationFrame {
 pub fn Animation::new(
   frames : Array[AnimationFrame],
   loop_? : Bool = false,
-  rate? : Double = 1.0,
+  fps? : Double = 1.0,
   transform? : @math.Transform = @math.Transform::new(),
 ) -> Animation {
   let max_frame = frames.length().reinterpret_as_uint()
   if max_frame == 0 {
     abort("Animation must have at least one frame")
   }
-  { frames, transform, loop_, rate, id: generate_animation() }
+  { frames, transform, loop_, fps: fps, id: generate_animation() }
 }
 
 ///|
@@ -190,7 +189,7 @@ pub fn Animation::single_frame(
     [{ sprite_path, size, offset }],
     transform~,
     loop_=false,
-    rate=0.0,
+    fps=0.0,
   )
 }
 
@@ -309,7 +308,7 @@ pub fn play_animation(
       }
     )
   let loop_ = loop_.unwrap_or(animation.loop_)
-  let rate = rate.unwrap_or(animation.rate)
+  let rate = rate.unwrap_or(animation.fps)
   let transform = transform.unwrap_or(animation.transform)
   let frame = if !from_start && animation.id == current_anime.id {
     current_frame
@@ -320,7 +319,7 @@ pub fn play_animation(
     frames: animation.frames,
     transform,
     loop_,
-    rate,
+    fps: rate,
     id: animation.id,
   }
   sprites.set(entity, {
@@ -348,6 +347,7 @@ fn render_animation(
   current_frame : Double,
   pos : @math.Vec2D,
   visible : Bool,
+  delta : Double,
 ) -> Double {
   let frame = animation.frames[current_frame.to_int()]
   if visible {
@@ -362,12 +362,12 @@ fn render_animation(
       transform=animation.transform,
     )
   }
-  let mut new_frame = current_frame + animation.rate
+  let mut new_frame = current_frame + animation.fps * delta
   if new_frame.to_int() >= animation.frames.length() {
     if animation.loop_ {
-      new_frame -= animation.frames.length().to_double()
+      new_frame = 0
     } else {
-      new_frame -= animation.rate
+      new_frame -= animation.frames.length().to_double() - animation.fps
     }
   }
   new_frame
@@ -382,5 +382,5 @@ pub fn is_animation_finished(entity : @system.Entity) -> Bool {
   if anime.loop_ {
     return false
   }
-  frame >= anime.frames.length().to_double() - anime.rate
+  frame >= anime.frames.length().to_double() - anime.fps
 }

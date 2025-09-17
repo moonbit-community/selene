@@ -13,23 +13,39 @@
 // limitations under the License.
 
 ///|
-priv struct FrameTimer {
-  mut rest : Int
+priv struct Timer {
+  mut rest : Double
+  pausible : Bool
   callback : () -> Unit
 }
 
 ///|
-let timers : Array[FrameTimer] = Array::new()
+let timers : Array[Timer] = Array::new()
 
 ///|
-pub fn timeout_with_frames(frames : Int, callback : () -> Unit) -> Unit {
-  timers.push({ rest: frames, callback })
+pub fn timeout(time : Double, pausible : Bool, callback : () -> Unit) -> Unit {
+  timers.push({ rest: time, pausible, callback })
 }
 
-///|
-pub fn timer_system(_backend : &Backend) -> Unit {
-  for timer in timers {
-    timer.rest -= 1
+pub fn timer_system(_backend : &Backend, delta : Double) -> Unit {
+  for timer in timers.filter(timer => timer.pausible) {
+    if timer.pausible {
+
+    }
+    timer.rest -= delta
+    if timer.rest <= 0 {
+      (timer.callback)()
+    }
+  }
+  timers.retain(fn(timer) { timer.rest > 0 })
+}
+
+pub fn realtime_timer_system(_backend : &Backend, delta : Double) -> Unit {
+  for timer in timers.filter(timer => !timer.pausible) {
+    if timer.pausible {
+
+    }
+    timer.rest -= delta
     if timer.rest <= 0 {
       (timer.callback)()
     }

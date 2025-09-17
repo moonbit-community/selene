@@ -246,31 +246,7 @@ let just_pressed_keys : Set[Code] = @set.Set::new()
 let just_release_keys : Set[Code] = @set.Set::new()
 
 ///|
-/// Updates the internal state for tracking key press transitions between
-/// frames.
-///
-/// Parameters:
-///
-/// * `backend` : The backend interface for handling platform-specific
-///   operations (currently unused).
-///
-/// Example:
-///
-/// ```notest
-/// // This system function is typically called automatically by the game framework
-/// // during each frame update to maintain accurate key state tracking
-/// @system.advanced_key_system(backend)
-///
-/// // After calling this system, you can use the transition detection functions:
-/// if @system.is_just_pressed(@system.KeyA) {
-///   // Handle key A being pressed this frame
-/// }
-/// if @system.is_just_released(@system.KeyB) {
-///   // Handle key B being released this frame  
-/// }
-/// ```
-///
-pub fn advanced_key_system(_backend : &Backend) -> Unit {
+pub fn advanced_key_system(_backend : &Backend, _delta : Double) -> Unit {
   just_pressed_keys.clear()
   for code in pressed_keys.difference(last_pressed_keys) {
     just_pressed_keys.add(code)

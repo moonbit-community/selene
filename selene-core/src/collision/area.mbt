@@ -129,42 +129,7 @@ pub fn Area::on_exit(self : Area, callback : (@system.Entity) -> Unit) -> Unit {
 }
 
 ///|
-/// Processes collision detection between area entities and other entities in
-/// the game world using spatial partitioning for efficient queries.
-///
-/// Parameters:
-///
-/// * `backend` : The system backend instance (unused in the current
-///   implementation).
-///
-/// Panics if an entity has an area component but lacks a position component, or
-/// if an entity has an area component but lacks a collision shape component.
-///
-/// Example:
-///
-/// ```notest
-/// // Set up entities with area and collide components
-/// let entity1 = @system.Entity::new()
-/// let entity2 = @system.Entity::new()
-///
-/// // Create area for entity1
-/// let layer1 = @collision.CollisionLayer::new()
-/// let mask1 = @collision.CollisionMask::new([layer1])
-/// let area1 = @collision.Area::new(layer1, mask1)
-/// area1.on_enter(fn(entity) { println("Entity entered area!") })
-/// @collision.areas.set(entity1, area1)
-///
-/// // Create collide component for entity2
-/// let layer2 = @collision.CollisionLayer::new()
-/// let mask2 = @collision.CollisionMask::new([layer2])
-/// let collide2 = @collision.Collide::{ shape: @collision.CollisionShape::Rect(size=@math.Vec2D(50.0, 50.0), offset=@math.Vec2D(0.0, 0.0)), layer: layer2, mask: mask2 }
-/// @collision.collides.set(entity2, collide2)
-///
-/// // Run the collision system
-/// @collision.area_collide_system(backend)
-/// ```
-///
-pub fn area_collide_system(_ : &@system.Backend) -> Unit {
+pub fn area_collide_system(_ : &@system.Backend, _delta : Double) -> Unit {
   for e in @system.iter_entities() {
     guard areas.get(e) is Some(area) else { continue }
     guard @position.positions.get(e) is Some(position)

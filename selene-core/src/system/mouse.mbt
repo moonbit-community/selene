@@ -75,32 +75,7 @@ pub let just_release_mouse : Mouse = {
   middle_button: false,
 }
 
-///|
-/// Updates the mouse input state tracking for the current frame.
-///
-/// This system function processes mouse button state changes by comparing the
-/// current mouse state with the previous frame's state to determine which
-/// buttons were just pressed or just released. It updates the global mouse
-/// state variables that are used by the mouse input query functions.
-///
-/// Parameters:
-///
-/// * `backend` : The backend instance (unused in this implementation).
-///
-/// Example:
-///
-/// ```notest
-/// // This function is typically called automatically by the game engine
-/// // as part of the input system update cycle
-/// advanced_mouse_system(backend)
-///
-/// // After the system runs, you can query mouse states:
-/// if is_mouse_just_pressed(MouseButton::Left) {
-///   println("Left mouse button was just pressed!")
-/// }
-/// ```
-///
-pub fn advanced_mouse_system(_backend : &Backend) -> Unit {
+pub fn advanced_mouse_system(_backend : &Backend, _delta : Double) -> Unit {
   // Just pressed
   just_pressed_mouse.left_button = mouse.left_button && !last_mouse.left_button
   just_pressed_mouse.right_button = mouse.right_button &&

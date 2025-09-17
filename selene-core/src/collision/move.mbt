@@ -18,14 +18,16 @@
 ///       2. This system will query a quadtree to find collisions.
 ///       3. This system will set real_velocities of entities.
 /// 
-pub fn move_system(_backend : &@system.Backend) -> Unit {
+pub fn move_system(_backend : &@system.Backend, delta : Double) -> Unit {
   collision_infos.clear()
   for e, vel in @velocity.velocities {
     guard e.is_alive() else { continue }
     if colliders.get(e) is Some(collide) && collide.active {
-      move_with_collide(e, collide, vel.0)
+      let new_vel = move_with_collide(e, collide, vel.0.scalar_mul(delta))
+      real_velocities.set(e, new_vel.scalar_div(delta))
     } else {
-      move_without_collide(e, vel.0)
+      move_without_collide(e, vel.0.scalar_mul(delta))
+      real_velocities.set(e, vel.0)
     }
   }
 }
@@ -35,7 +37,6 @@ fn move_without_collide(e : @system.Entity, velocity : @math.Vec2D) -> Unit {
   guard @position.positions.get(e) is Some(pos)
   let new_pos = @math.Vec2D(pos.0[X] + velocity[X], pos.0[Y] + velocity[Y])
   @position.positions.set(e, new_pos)
-  real_velocities.set(e, velocity)
 }
 
 ///|
@@ -43,7 +44,7 @@ fn move_with_collide(
   e : @system.Entity,
   collide : Collider,
   velocity : @math.Vec2D,
-) -> Unit {
+) -> @math.Vec2D {
   guard @position.positions.get(e) is Some(pos)
   guard shapes.get(e) is Some(shape)
   guard shape is Rect(size=Vec2D(width, height), offset~)
@@ -55,7 +56,7 @@ fn move_with_collide(
   let object_x = @math.Rect::{ size: box.size, position: new_x.0 }
   let new_y = move_axis(e, object_x, new_x.1, Y, collide.mask)
   @position.positions.set(e, new_y.0 - offset)
-  real_velocities.set(e, new_y.1)
+  new_y.1
 }
 
 ///|

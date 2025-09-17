@@ -45,7 +45,7 @@ fn main {
 }
 
 ///|
-fn game_start(backend : &@system.Backend) -> Unit {
+fn game_start(backend : &@system.Backend, _delta : Double) -> Unit {
   generate_map(backend)
   add_result_box()
   add_score_box()

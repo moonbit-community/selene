@@ -30,7 +30,7 @@ pub(all) enum RepeatMode {
 }
 
 ///|
-typealias (&Backend) -> Unit as System
+typealias (&Backend, Double) -> Unit as System
 
 ///|
 typealias (App) -> Unit as Plugin
@@ -120,4 +120,5 @@ pub(open) trait Backend {
   get_debug_info(Self) -> DebugInfo
   preload_img(Self, path : String) -> Unit
   preload_audio(Self, path : String) -> Unit
+  set_time_scale(Self, scale : Double) -> Unit
 }

@@ -112,17 +112,9 @@ let game_state : GameState = {
   ),
   game_over_displayed: false,
   current_wave: 1,
-  wave_box: @sprite.Text::new(
-    "Wave: 1",
-    color="orange",
-    font="24px ThaleahFat",
-  ),
+  wave_box: @sprite.Text::new("Wave: 1", color="orange", font="24px ThaleahFat"),
   exp: 0,
-  exp_box: @sprite.Text::new(
-    "EXP: 0/16",
-    color="cyan",
-    font="24px ThaleahFat",
-  ),
+  exp_box: @sprite.Text::new("EXP: 0/16", color="cyan", font="24px ThaleahFat"),
   player_level: 1,
   level_box: @sprite.Text::new(
     "Level: 1",
@@ -161,7 +153,8 @@ fn add_exp(exp_gained : Int) -> Unit {
   let new_level = get_level_from_xp(game_state.exp)
   if new_level > old_level {
     game_state.player_level = new_level
-    game_state.level_box.content = "Level: " + game_state.player_level.to_string()
+    game_state.level_box.content = "Level: " +
+      game_state.player_level.to_string()
     // TODO: Add level-up effects here (sound, visual, stat boosts, etc.)
   }
 
@@ -174,8 +167,10 @@ fn add_exp(exp_gained : Int) -> Unit {
   let next_level_xp = xp_required_for_level(game_state.player_level)
   let progress_xp = game_state.exp - current_level_xp
   let needed_xp = next_level_xp - current_level_xp
-
-  game_state.exp_box.content = "EXP: " + progress_xp.to_string() + "/" + needed_xp.to_string()
+  game_state.exp_box.content = "EXP: " +
+    progress_xp.to_string() +
+    "/" +
+    needed_xp.to_string()
 }
 
 ///|
@@ -231,7 +226,10 @@ fn game_timer_system(_backend : &@system.Backend) -> Unit {
   } else {
     seconds.to_string()
   }
-  game_state.timer_box.content = "Time: " + minutes.to_string() + ":" + seconds_str
+  game_state.timer_box.content = "Time: " +
+    minutes.to_string() +
+    ":" +
+    seconds_str
 }
 
 ///|

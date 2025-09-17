@@ -17,9 +17,9 @@ struct CanvasBackend {
   canvas : @dom.HTMLCanvasElement
   context : @dom.CanvasRenderingContext2D
   mut viewport_size : @math.Vec2D
-  mut frame_counter : UInt64
   mut current_fps : Double
   mut zoom : Double
+  mut time_scale : Double
   execution_time : Map[String, Double]
   mouse_movement : Ref[@system.MouseMovement?]
 }
@@ -37,11 +37,16 @@ pub fn CanvasBackend::new() -> CanvasBackend {
     canvas,
     viewport_size: @math.Vec2D::zero(),
     current_fps: 0.0,
-    frame_counter: 0,
+    time_scale: 1.0,
     execution_time: {},
     mouse_movement: Ref::new(None),
     zoom: 1.0,
   }
+}
+
+///|
+pub impl @system.Backend for CanvasBackend with set_time_scale(self, time_scale) {
+  self.time_scale = time_scale
 }
 
 ///|
@@ -61,7 +66,7 @@ pub impl @system.Backend for CanvasBackend with build(
   }
   for system in systems {
     if system.1 is Startup {
-      (system.0)(self)
+      (system.0)(self, 0.0)
     }
   }
   self.viewport_size = @math.Vec2D(canvas_width, canvas_height)
@@ -75,36 +80,24 @@ pub impl @system.Backend for CanvasBackend with build(
     self.context.clear_rect(0, 0, canvas_width, canvas_height)
     let renders = []
     for system in systems {
-      let start_time = time_now()
-      match system.1 {
-        UpdateFrame(frame_period) if self.frame_counter %
-          frame_period.to_uint64() ==
-          0 => {
-          (system.0)(self)
-          self.execution_time[system.2] = time_now() - start_time
-        }
-        Render(priority) => renders.push((system.0, priority))
-        Update => {
-          (system.0)(self)
-          self.execution_time[system.2] = time_now() - start_time
-        }
-        UpdateTime(period) if self.frame_counter %
-          (fps.to_double() * period).to_uint64() ==
-          0 => {
-          (system.0)(self)
-          self.execution_time[system.2] = time_now() - start_time
-        }
-        _ => ()
+      if system.1 is Render(pri) {
+        renders.push((system.0, pri))
+      }
+    }
+    for system in systems {
+      if system.1 is Update {
+        let start_time = time_now()
+        (system.0)(self, delta * self.time_scale / 1000.0)
+        self.execution_time[system.2] = time_now() - start_time
       }
     }
     renders.sort_by_key(fn(system) { -system.1 })
     for render in renders {
-      (render.0)(self)
+      (render.0)(self, delta * self.time_scale / 1000.0)
     }
     if self.mouse_movement.val is Some(mouse_movement) {
       mouse_movement.movement = @math.Vec2D(0.0, 0.0)
     }
-    self.frame_counter += 1
   })
   |> ignore
   return fn() {  }

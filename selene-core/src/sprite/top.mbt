@@ -119,7 +119,7 @@ pub fn Sprite::from_color_rect(
 ///
 /// Panics if an entity has a sprite but no position component.
 ///
-pub fn render_sprite_system(backend : &@system.Backend) -> Unit {
+pub fn render_sprite_system(backend : &@system.Backend, delta : Double) -> Unit {
   let sprites = sprites.to_array().filter(fn(pair) { pair.0.is_alive() })
   sprites.sort_by(fn(sprite1, sprite2) {
     if sprite1.1.zindex < sprite2.1.zindex {
@@ -157,6 +157,7 @@ pub fn render_sprite_system(backend : &@system.Backend) -> Unit {
           frame,
           pos + sprite.offset,
           sprite.visible,
+          delta,
         )
         animation_sprite.frame = new_frame
       }

@@ -206,7 +206,7 @@ let camera : Camera = {
 /// camera.offset = @math.Vec2D(32.0, 32.0)  // Half of entity size
 /// ```
 ///
-pub fn camera_system(backend : &@system.Backend) -> Unit {
+pub fn camera_system(backend : &@system.Backend, _delta : Double) -> Unit {
   guard camera.attached_entity is Some(e) else { return }
   guard @position.positions.get(e) is Some(pos) else { return }
   let zoom = backend.get_zoom()

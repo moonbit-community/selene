@@ -24,7 +24,7 @@ pub fn debug_plugin(app : @system.App) -> Unit {
   ..push(
     (
       @debug.debug_info_display_system,
-      UpdateTime(1.0),
+      Startup,
       "Debug Info Display System",
     ),
   )
@@ -48,12 +48,23 @@ pub fn default_plugin(app : @system.App) -> Unit {
   app.systems
   ..push((@collision.move_system, Update, "Move System"))
   ..push((@system.advanced_key_system, Update, "Advanced Key System"))
-  ..push((@system.advanced_mouse_system, Update, "Advanced Mouse System"))
-  ..push((@collision.quadtree_clear_system, Update, "Quadtree Clear System"))
-  ..push((@collision.pickable_click_system, Update, "Pickable Click System"))
+  ..push(
+    (@system.advanced_mouse_system, Update, "Advanced Mouse System"),
+  )
+  ..push(
+    (@collision.quadtree_clear_system, Update, "Quadtree Clear System"),
+  )
+  ..push(
+    (@collision.pickable_click_system, Update, "Pickable Click System"),
+  )
   ..push((@collision.area_collide_system, Update, "Area Collide System"))
-  ..push((@system.deferred_event_system, Update, "Deferred Event System"))
+  ..push(
+    (@system.deferred_event_system, Update, "Deferred Event System"),
+  )
   ..push((@sprite.render_sprite_system, Render(0), "Render Sprite System"))
   ..push((@camera.camera_system, Update, "Camera System"))
   ..push((@system.timer_system, Update, "Timer System"))
+  ..push(
+    (@system.realtime_timer_system, Update, "Realtime Timer System"),
+  )
 }

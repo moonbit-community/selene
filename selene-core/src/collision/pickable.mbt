@@ -179,38 +179,7 @@ pub fn Pickable::on_just_released(
   self.on_just_released_callbacks.push(callback)
 }
 
-///|
-/// Processes mouse interactions with pickable entities in both UI and world
-/// space.
-///
-/// This system handles mouse click detection and callback execution for
-/// entities with `Pickable` components. It operates in two phases: first
-/// checking UI entities, then querying world entities through the quadtree
-/// spatial partitioning system. For each intersecting entity, it triggers the
-/// appropriate mouse event callbacks based on the current mouse button states.
-///
-/// Parameters:
-///
-/// * `backend` : The system backend providing access to zoom level and other
-///   system state.
-///
-/// Example:
-///
-/// ```notest
-/// // Create a pickable entity
-/// let entity = @system.Entity::new()
-/// let pickable = Pickable::new()
-/// pickable.on_just_pressed(fn(button) { 
-///   println("Clicked with button: \{button}") 
-/// })
-/// pickables[entity] = pickable
-///
-/// // The system will automatically detect clicks on this entity
-/// // when pickable_click_system is called each frame
-/// pickable_click_system(backend)
-/// ```
-///
-pub fn pickable_click_system(backend : &@system.Backend) -> Unit {
+pub fn pickable_click_system(backend : &@system.Backend, _delta : Double) -> Unit {
   let zoom = backend.get_zoom()
   let box = @math.Rect::{
     size: @math.Vec2D(1.0, 1.0),

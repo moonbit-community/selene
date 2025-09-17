@@ -21,7 +21,7 @@ let player_idle_animation : @sprite.Animation = @sprite.Animation::new(
     height=32.0,
   ),
   loop_=true,
-  rate=0.2,
+  fps=12,
 )
 
 ///|
@@ -33,7 +33,7 @@ let player_run_animation : @sprite.Animation = @sprite.Animation::new(
     height=32.0,
   ),
   loop_=true,
-  rate=0.2,
+  fps=12,
 )
 
 ///|
@@ -45,7 +45,7 @@ let player_fall_animation : @sprite.Animation = @sprite.Animation::new(
     height=32.0,
   ),
   loop_=true,
-  rate=0.2,
+  fps=12,
 )
 
 ///|
@@ -57,7 +57,7 @@ let player_jump_animation : @sprite.Animation = @sprite.Animation::new(
     height=32.0,
   ),
   loop_=true,
-  rate=0.2,
+  fps=12,
 )
 
 ///|
@@ -69,7 +69,7 @@ let player_hit_animation : @sprite.Animation = @sprite.Animation::new(
     height=32.0,
   ),
   loop_=false,
-  rate=0.2,
+  fps=12,
 )
 
 ///|
@@ -103,25 +103,25 @@ enum PlayerState {
 } derive(Show)
 
 ///|
-const GRAVITY = 0.5
+const GRAVITY = 1800.0
 
 ///|
-const MAX_RUN_V = 4.0
+const MAX_RUN_V = 240.0
 
 ///|
-const JUMP_V = 11.5
+const JUMP_V = 680.0
 
 ///|
-const MAX_FALL_V = 15.5
+const MAX_FALL_V = 900.0
 
 ///|
-const RUN_ACC = 1.0
+const RUN_ACC = 3600.0
 
 ///|
 const BUMP_V : Double = JUMP_V / 2.0
 
 ///|
-fn player_collision_system(backend : &@system.Backend) -> Unit {
+fn player_collision_system(backend : &@system.Backend, _delta : Double) -> Unit {
   if game_state.hurt_timer > 0.0 {
     game_state.hurt_timer -= 1.0
   }
@@ -140,7 +140,7 @@ fn player_collision_system(backend : &@system.Backend) -> Unit {
 }
 
 ///|
-fn player_state_system(backend : &@system.Backend) -> Unit {
+fn player_state_system(backend : &@system.Backend, delta : Double) -> Unit {
   let velocity = @collision.real_velocities
     .get(game_state.player)
     .unwrap_or(@math.Vec2D::zero())
@@ -148,13 +148,13 @@ fn player_state_system(backend : &@system.Backend) -> Unit {
   let mut new_velocity_y = velocity.0[Y]
   if !(game_state.player_state is Hit) {
     if @system.is_pressed(@system.ArrowLeft) {
-      new_velocity_x -= RUN_ACC
+      new_velocity_x -= RUN_ACC * delta
       if new_velocity_x < -MAX_RUN_V {
         new_velocity_x = -MAX_RUN_V
       }
       game_state.direction = Direction2::Left
     } else if @system.is_pressed(@system.ArrowRight) {
-      new_velocity_x += RUN_ACC
+      new_velocity_x += RUN_ACC * delta
       if new_velocity_x > MAX_RUN_V {
         new_velocity_x = MAX_RUN_V
       }
@@ -182,6 +182,9 @@ fn player_state_system(backend : &@system.Backend) -> Unit {
           transform~,
         )
       }
+      if velocity.0[Y] > 0.0 {
+        game_state.player_state = PlayerState::Fall
+      }
       if @system.is_just_pressed(@system.ArrowUp) &&
         @collision.is_on_floor(game_state.player) {
         new_velocity_y = -JUMP_V
@@ -189,9 +192,6 @@ fn player_state_system(backend : &@system.Backend) -> Unit {
         if game_state.volume_on {
           @audio.play_audio(backend, "sounds/jump.wav")
         }
-      }
-      if velocity.0[Y] > 0.0 {
-        game_state.player_state = PlayerState::Fall
       }
     }
     Fall => {
@@ -234,7 +234,7 @@ fn player_state_system(backend : &@system.Backend) -> Unit {
       }
     }
   }
-  new_velocity_y += GRAVITY
+  new_velocity_y += GRAVITY * delta
   if new_velocity_y > MAX_FALL_V {
     new_velocity_y = MAX_FALL_V
   }
