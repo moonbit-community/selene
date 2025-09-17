@@ -367,7 +367,7 @@ fn render_animation(
     if animation.loop_ {
       new_frame = 0
     } else {
-      new_frame -= animation.frames.length().to_double() - animation.fps
+      new_frame = animation.frames.length().to_double() - 0.01
     }
   }
   new_frame
@@ -382,5 +382,5 @@ pub fn is_animation_finished(entity : @system.Entity) -> Bool {
   if anime.loop_ {
     return false
   }
-  frame >= anime.frames.length().to_double() - anime.fps
+  frame >= anime.frames.length().to_double() - 0.01
 }

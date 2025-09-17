@@ -71,7 +71,7 @@ fn set_game_result(result : GameResult) -> Unit {
 }
 
 ///|
-const ATTACK_V : Double = 3.0
+const ATTACK_V : Double = 180.0
 
 ///|
 fn hurt_player(backend : &@system.Backend) -> Unit {

@@ -42,7 +42,7 @@ fn move_without_collide(e : @system.Entity, velocity : @math.Vec2D) -> Unit {
 ///|
 fn move_with_collide(
   e : @system.Entity,
-  collide : Collider,
+  collider : Collider,
   velocity : @math.Vec2D,
 ) -> @math.Vec2D {
   guard @position.positions.get(e) is Some(pos)
@@ -52,12 +52,46 @@ fn move_with_collide(
     position: pos.0 + offset,
     size: @math.Vec2D(width, height),
   }
-  let new_x = move_axis(e, box, velocity, X, collide.mask)
+  let new_x = move_axis(e, box, velocity, X, collider.mask)
   let object_x = @math.Rect::{ size: box.size, position: new_x.0 }
-  let new_y = move_axis(e, object_x, new_x.1, Y, collide.mask)
+  let new_y = move_axis(e, object_x, new_x.1, Y, collider.mask)
   @position.positions.set(e, new_y.0 - offset)
   new_y.1
+
+  // let new_pos = collide_and_resolve(e, box, velocity, collider.mask)
+  // @position.positions.set(e, new_pos - offset)
+  // new_pos - pos.0
 }
+
+///|
+// fn collide_and_resolve(
+//   entity : @system.Entity,
+//   box : @math.Rect,
+//   vel : @math.Vec2D,
+//   mask : CollisionMask,
+// ) -> @math.Vec2D {
+//   let mut target_box = box.shift(vel)
+//   let entities = quadtree_query(target_box)
+//   for e in entities {
+//     guard e.is_alive() else { continue }
+//     guard e != entity else { continue }
+//     guard shapes.get(e) is Some(shape) else { continue }
+//     guard shape is Rect(size=Vec2D(width, height), offset~) else { continue }
+//     guard @position.positions.get(e) is Some(pos) else { continue }
+//     guard collision_layers.get(e) is Some(collision_layer) else { continue }
+//     guard mask.contains(collision_layer) else { continue }
+//     let collision_box = @math.Rect::{
+//       size: @math.Vec2D(width, height),
+//       position: pos.0 + offset,
+//     }
+//     if target_box.intersects(collision_box) {
+//       let movement = aabb_resolve(target_box, collision_box)
+//       target_box = target_box.shift(movement)
+//       add_collision_info(entity, e, movement)
+//     }
+//   }
+//   target_box.position
+// }
 
 ///|
 pub let real_velocities : Map[@system.Entity, @velocity.Velocity] = Map::new()
@@ -120,7 +154,7 @@ fn move_axis(
       add_collision_info(entity, e, dir)
       return (new_pos, movement)
     }
-    if @math.Rect::intersects(ray_collision, collision_box) {
+    if ray_collision.intersects(collision_box) {
       let mut dir = @math.Vec2D(0, 0)
       if new_velocity[axis] > 0 {
         new_pos = new_pos.update(
@@ -163,29 +197,47 @@ fn aabb_resolve(a : @math.Rect, b : @math.Rect) -> @math.Vec2D {
   let b_half = b.size.scalar_mul(0.5)
   let delta = b_center - a_center
   let intersect = @math.Vec2D(
-    delta[X].abs() - (b_half[X] + a_half[X]),
-    delta[Y].abs() - (b_half[Y] + a_half[Y]),
+    -delta[X].abs() + (b_half[X] + a_half[X]),
+    -delta[Y].abs() + (b_half[Y] + a_half[Y]),
   )
-  if intersect[X] > intersect[Y] {
+  if intersect[X] < intersect[Y] && intersect[X] > 0 {
     if delta[X] > 0 {
-      @math.Vec2D(intersect[X], 0.0)
-    } else {
       @math.Vec2D(-intersect[X], 0.0)
+    } else {
+      @math.Vec2D(intersect[X], 0.0)
     }
-  } else if delta[Y] > 0 {
-    @math.Vec2D(0.0, intersect[Y])
+  } else if intersect[Y] > 0 && intersect[X] > 0 {
+    if delta[Y] > 0 {
+      @math.Vec2D(0.0, -intersect[Y])
+    } else {
+      @math.Vec2D(0.0, intersect[Y])
+    }
   } else {
-    @math.Vec2D(0.0, -intersect[Y])
+    @math.Vec2D::zero()
   }
 }
 
 ///|
 test "AABB resolve" {
-  let a = @math.Rect::{ position: @math.Vec2D(0, 0), size: @math.Vec2D(32, 32) }
-  let b = @math.Rect::{
-    position: @math.Vec2D(16, 16),
-    size: @math.Vec2D(32, 32),
-  }
-  let movement = aabb_resolve(a, b)
-  inspect(movement, content="Vec2D(0, -16)")
+  inspect(
+    aabb_resolve(
+      @math.Rect::{ position: @math.Vec2D(0, 0), size: @math.Vec2D(32, 32) },
+      @math.Rect::{ position: @math.Vec2D(16, 16), size: @math.Vec2D(32, 32) },
+    ),
+    content="Vec2D(0, -16)",
+  )
+  inspect(
+    aabb_resolve(
+      @math.Rect::{ position: @math.Vec2D(32, 0), size: @math.Vec2D(32, 32) },
+      @math.Rect::{ position: @math.Vec2D(0, 0), size: @math.Vec2D(32, 32) },
+    ),
+    content="Vec2D(0, 0)",
+  )
+  inspect(
+    aabb_resolve(
+      @math.Rect::{ position: @math.Vec2D(20, 0), size: @math.Vec2D(32, 32) },
+      @math.Rect::{ position: @math.Vec2D(0, 16), size: @math.Vec2D(32, 32) },
+    ),
+    content="Vec2D(12, 0)",
+  )
 }
