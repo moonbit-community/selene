@@ -27,7 +27,7 @@ let enemy_data : Map[EnemyType, EnemyData] = {
   let data = Map::new()
   data.set(Creeper, {
     health: 1,
-    speed: 1.0,
+    speed: 60.0,
     points: 10,
     wave_spawn_weights: [60, 40, 25, 15, 10], // Decreasing over waves
     right_animation: creeper_right_animation,
@@ -35,7 +35,7 @@ let enemy_data : Map[EnemyType, EnemyData] = {
   })
   data.set(Icecream, {
     health: 2,
-    speed: 1.0,
+    speed: 60.0,
     points: 25,
     wave_spawn_weights: [35, 40, 35, 25, 20], // Peak in early-mid waves
     right_animation: icecream_right_animation,
@@ -43,7 +43,7 @@ let enemy_data : Map[EnemyType, EnemyData] = {
   })
   data.set(Orc, {
     health: 3,
-    speed: 1.3,
+    speed: 75,
     points: 50,
     wave_spawn_weights: [5, 15, 25, 30, 25], // Increasing to mid-late waves
     right_animation: orc_right_animation,
@@ -51,7 +51,7 @@ let enemy_data : Map[EnemyType, EnemyData] = {
   })
   data.set(Skull, {
     health: 4,
-    speed: 1.5,
+    speed: 90,
     points: 100,
     wave_spawn_weights: [0, 5, 15, 30, 45], // Only in later waves, increasing
     right_animation: skull_right_animation,
@@ -69,61 +69,66 @@ let spawners : Array[@math.Vec2D] = [
 ]
 
 ///|
-fn spawn_enemy_system(_ : &@system.Backend) -> Unit {
-  if game_state.game_over {
-    return
-  }
-  let rand = game_state.rand
-  let enemy = @system.Entity::new()
-  let pos = spawners[rand.int(limit=spawners.length())]
-  @position.positions.set(enemy, pos)
-  @velocity.velocities.set(enemy, @math.Vec2D::zero())
-
-  // Select enemy type based on weighted random selection
-  let enemy_type = select_random_enemy_type(rand)
-  let data = get_enemy_data(enemy_type)
-
-  // Create sprite and enemy state using data structure
-  let sprite = @sprite.Sprite::from_animation(
-    data.right_animation,
-    ENEMY_ZINDEX,
-    offset=Vec2D(-8.0, -12.0),
-  )
-  let enemy_state = { enemy_type, speed: data.speed, health: data.health }
-  @sprite.sprites.set(enemy, sprite)
-  @collision.shapes.set(
-    enemy,
-    @collision.CollisionShape::Rect(
-      size=Vec2D(8.0, 8.0),
-      offset=Vec2D(-4.0, -4.0),
-    ),
-  )
-  @collision.collision_layers.set(enemy, enemy_collision_layer)
-  @collision.colliders.set(
-    enemy,
-    @collision.Collider::new(
-      @collision.CollisionMask::new([
-        enemy_collision_layer, wall_collision_layer,
-      ]),
-    ),
-  )
-  enemies.set(enemy, enemy_state)
-  let area = @collision.Area::new(
-    @collision.CollisionMask::new([player_collision_layer]),
-  )
-  @collision.areas.set(enemy, area)
-  area.on_enter(fn(e) {
-    guard e.is_alive() else { return }
-    guard e == game_state.player_entity else { return }
-    if game_state.invincible {
+fn spawn_enemy_system(_ : &@system.Backend, _delta : Double) -> Unit {
+  fn spawn_enemy() -> Unit {
+    if game_state.game_over {
       return
     }
-    game_state.invincible = true
-    set_score(game_state.score / 2)
-    @system.timeout_with_frames(INVINCIBLE_TIME.to_int(), fn() {
-      game_state.invincible = false
+    let rand = game_state.rand
+    let enemy = @system.Entity::new()
+    let pos = spawners[rand.int(limit=spawners.length())]
+    @position.positions.set(enemy, pos)
+    @velocity.velocities.set(enemy, @math.Vec2D::zero())
+
+    // Select enemy type based on weighted random selection
+    let enemy_type = select_random_enemy_type(rand)
+    let data = get_enemy_data(enemy_type)
+
+    // Create sprite and enemy state using data structure
+    let sprite = @sprite.Sprite::from_animation(
+      data.right_animation,
+      ENEMY_ZINDEX,
+      offset=Vec2D(-8.0, -12.0),
+    )
+    let enemy_state = { enemy_type, speed: data.speed, health: data.health }
+    @sprite.sprites.set(enemy, sprite)
+    @collision.shapes.set(
+      enemy,
+      @collision.CollisionShape::Rect(
+        size=Vec2D(8.0, 8.0),
+        offset=Vec2D(-4.0, -4.0),
+      ),
+    )
+    @collision.collision_layers.set(enemy, enemy_collision_layer)
+    @collision.colliders.set(
+      enemy,
+      @collision.Collider::new(
+        @collision.CollisionMask::new([
+          enemy_collision_layer, wall_collision_layer,
+        ]),
+      ),
+    )
+    enemies.set(enemy, enemy_state)
+    let area = @collision.Area::new(
+      @collision.CollisionMask::new([player_collision_layer]),
+    )
+    @collision.areas.set(enemy, area)
+    area.on_enter(fn(e) {
+      guard e.is_alive() else { return }
+      guard e == game_state.player_entity else { return }
+      if game_state.invincible {
+        return
+      }
+      game_state.invincible = true
+      set_score(game_state.score / 2)
+      @system.timeout(INVINCIBLE_TIME, true, fn() {
+        game_state.invincible = false
+      })
     })
-  })
+    @system.timeout(1.0, true, spawn_enemy)
+  }
+
+  spawn_enemy()
 }
 
 ///|
@@ -179,7 +184,7 @@ fn select_random_enemy_type(rand : @random.Rand) -> EnemyType {
 }
 
 ///|
-fn enemy_ai_system(_ : &@system.Backend) -> Unit {
+fn enemy_ai_system(_ : &@system.Backend, _delta : Double) -> Unit {
   if game_state.game_over {
     return
   }

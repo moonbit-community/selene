@@ -47,7 +47,7 @@ fn main {
   .add_plugin(@plugins.default_plugin)
   // .add_plugin(@plugins.debug_plugin)
   .add_system(game_start, schedule=Startup)
-  .add_system(spawn_enemy_system, schedule=UpdateTime(1.0))
+  .add_system(spawn_enemy_system, schedule=Startup)
   .add_system(player_update_system)
   .add_system(player_shooting_system)
   .add_system(enemy_ai_system)
@@ -174,7 +174,7 @@ fn add_exp(exp_gained : Int) -> Unit {
 }
 
 ///|
-fn game_start(_backend : &@system.Backend) -> Unit {
+fn game_start(_backend : &@system.Backend, _delta : Double) -> Unit {
   @camera.set_limits(top=0.0, bottom=MAP_HEIGHT, left=0.0, right=MAP_WIDTH)
   add_player()
   add_border(Vec2D(MAP_WIDTH, MAP_HEIGHT))
@@ -188,7 +188,7 @@ fn game_start(_backend : &@system.Backend) -> Unit {
 }
 
 ///|
-fn game_timer_system(_backend : &@system.Backend) -> Unit {
+fn game_timer_system(_backend : &@system.Backend, delta : Double) -> Unit {
   if game_state.game_over {
     if not(game_state.game_over_displayed) {
       game_state.game_over_displayed = true
@@ -198,7 +198,7 @@ fn game_timer_system(_backend : &@system.Backend) -> Unit {
     }
     return
   }
-  game_state.game_timer -= 1.0 / FPS
+  game_state.game_timer -= delta
   if game_state.game_timer <= 0.0 {
     game_state.game_timer = 0.0
     game_state.game_over = true

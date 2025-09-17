@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-const BULLET_SPEED : Double = 5.0
+const BULLET_SPEED : Double = 300.0
 
 ///|
 const BULLET_SIZE : Double = 4.0
@@ -64,7 +64,7 @@ fn shoot_bullet(player_pos : @math.Vec2D, target_pos : @math.Vec2D) -> Unit {
     }
   })
   @collision.areas.set(bullet_entity, area)
-  @system.timeout_with_frames(BULLET_DURATION.to_int(), fn() {
+  @system.timeout(BULLET_DURATION, true, fn() {
     bullet_alive = false
     bullet_entity.destroy()
   })

@@ -16,10 +16,10 @@
 const PLAYER_SIZE : Double = 16.0
 
 ///|
-const PLAYER_SPEED : Double = 2.5
+const PLAYER_SPEED : Double = 150
 
 ///|
-const INVINCIBLE_TIME : Double = 1.0 * FPS
+const INVINCIBLE_TIME : Double = 1.0
 
 ///|
 fn add_player() -> Unit {
@@ -52,11 +52,10 @@ fn add_player() -> Unit {
 }
 
 ///|
-fn player_update_system(_ : &@system.Backend) -> Unit {
+fn player_update_system(_ : &@system.Backend, _delta : Double) -> Unit {
   if game_state.game_over {
     return
   }
-
   let entity = game_state.player_entity
   let vel = @system.key_vector(KeyW, KeyS, KeyA, KeyD)
     .normalize()
@@ -84,15 +83,15 @@ fn player_update_system(_ : &@system.Backend) -> Unit {
 }
 
 ///|
-const WEAPON_COOLDOWN : Double = 1.5 * FPS
+const WEAPON_COOLDOWN : Double = 1.5
 
 ///|
-fn player_shooting_system(_ : &@system.Backend) -> Unit {
+fn player_shooting_system(_ : &@system.Backend, delta : Double) -> Unit {
   if game_state.game_over {
     return
   }
   if game_state.shoot_timer > 0.0 {
-    game_state.shoot_timer -= 1.0
+    game_state.shoot_timer -= delta
   }
   if game_state.shoot_timer <= 0 {
     game_state.shoot_timer = WEAPON_COOLDOWN

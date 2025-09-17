@@ -22,7 +22,7 @@ let player_idle_right_animation : @sprite.Animation = @sprite.Animation::new(
     offset=Vec2D(32.0, 32.0),
     space_x=64.0,
   ),
-  rate=0.2,
+  fps=12,
   loop_=true,
 )
 
@@ -37,7 +37,7 @@ let player_idle_left_animation : @sprite.Animation = @sprite.Animation::new(
     space_x=64.0,
   ),
   loop_=true,
-  rate=0.2,
+  fps=12,
   transform=@math.Transform::flip_x(PLAYER_SIZE),
 )
 
@@ -51,7 +51,7 @@ let player_idle_up_animation : @sprite.Animation = @sprite.Animation::new(
     offset=Vec2D(32.0, 32.0 + 160.0),
     space_x=64.0,
   ),
-  rate=0.2,
+  fps=12,
   loop_=true,
 )
 
@@ -65,7 +65,7 @@ let player_idle_down_animation : @sprite.Animation = @sprite.Animation::new(
     offset=Vec2D(32.0, 32.0 + 80.0),
     space_x=64.0,
   ),
-  rate=0.2,
+  fps=12,
   loop_=true,
 )
 
@@ -79,7 +79,7 @@ let player_run_right_animation : @sprite.Animation = @sprite.Animation::new(
     offset=Vec2D(32.0, 32.0),
     space_x=64.0,
   ),
-  rate=0.2,
+  fps=12,
   loop_=true,
 )
 
@@ -93,7 +93,7 @@ let player_run_left_animation : @sprite.Animation = @sprite.Animation::new(
     offset=Vec2D(32.0, 32.0),
     space_x=64.0,
   ),
-  rate=0.2,
+  fps=12,
   loop_=true,
   transform=@math.Transform::flip_x(PLAYER_SIZE),
 )
@@ -108,7 +108,7 @@ let player_run_down_animation : @sprite.Animation = @sprite.Animation::new(
     offset=Vec2D(32.0, 32.0 + 80.0),
     space_x=64.0,
   ),
-  rate=0.2,
+  fps=12,
   loop_=true,
 )
 
@@ -122,7 +122,7 @@ let player_run_up_animation : @sprite.Animation = @sprite.Animation::new(
     offset=Vec2D(32.0, 32.0 + 160.0),
     space_x=64.0,
   ),
-  rate=0.2,
+  fps=12,
   loop_=true,
 )
 
@@ -150,7 +150,7 @@ let creeper_right_animation : @sprite.Animation = @sprite.Animation::new(
     offset=Vec2D(0, 48),
     space_x=0,
   ),
-  rate=0.2,
+  fps=12,
   loop_=true,
   transform=@math.Transform::new(),
 )
@@ -165,7 +165,7 @@ let creeper_left_animation : @sprite.Animation = @sprite.Animation::new(
     offset=Vec2D(0, 48),
     space_x=0,
   ),
-  rate=0.2,
+  fps=12,
   loop_=true,
   transform=@math.Transform::flip_x(16),
 )
@@ -180,7 +180,7 @@ let icecream_right_animation : @sprite.Animation = @sprite.Animation::new(
     offset=Vec2D(0, 48),
     space_x=0,
   ),
-  rate=0.2,
+  fps=12,
   loop_=true,
   transform=@math.Transform::new(),
 )
@@ -195,7 +195,7 @@ let icecream_left_animation : @sprite.Animation = @sprite.Animation::new(
     offset=Vec2D(0, 48),
     space_x=0,
   ),
-  rate=0.2,
+  fps=12,
   loop_=true,
   transform=@math.Transform::flip_x(16),
 )
@@ -209,7 +209,7 @@ let orc_right_animation : @sprite.Animation = @sprite.Animation::new(
     offset=Vec2D(0, 48),
     space_x=0,
   ),
-  rate=0.2,
+  fps=12,
   loop_=true,
   transform=@math.Transform::new(),
 )
@@ -223,7 +223,7 @@ let orc_left_animation : @sprite.Animation = @sprite.Animation::new(
     offset=Vec2D(0, 48),
     space_x=0,
   ),
-  rate=0.2,
+  fps=12,
   loop_=true,
   transform=@math.Transform::flip_x(16),
 )
@@ -237,7 +237,7 @@ let skull_right_animation : @sprite.Animation = @sprite.Animation::new(
     offset=Vec2D(0, 48),
     space_x=0,
   ),
-  rate=0.2,
+  fps=12,
   loop_=true,
   transform=@math.Transform::new(),
 )
@@ -251,7 +251,7 @@ let skull_left_animation : @sprite.Animation = @sprite.Animation::new(
     offset=Vec2D(0, 48),
     space_x=0,
   ),
-  rate=0.2,
+  fps=12,
   loop_=true,
   transform=@math.Transform::flip_x(16),
 )
