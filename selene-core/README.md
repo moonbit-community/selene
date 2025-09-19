@@ -22,6 +22,7 @@ Please check [docs](https://github.com/Milky2018/selene/tree/main/docs).
 
 - [x] Basic collisions 
 - [x] Areas 
+- [x] Backend as a virtual package
 - [ ] Gamepad support 
 - [x] Mouse/Screen Touch support 
 - [x] Camera
