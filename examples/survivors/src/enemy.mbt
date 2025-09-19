@@ -69,7 +69,7 @@ let spawners : Array[@math.Vec2D] = [
 ]
 
 ///|
-fn spawn_enemy_system(_ : &@system.Backend, _delta : Double) -> Unit {
+fn spawn_enemy_system(_delta : Double) -> Unit {
   fn spawn_enemy() -> Unit {
     if game_state.game_over {
       return
@@ -184,7 +184,7 @@ fn select_random_enemy_type(rand : @random.Rand) -> EnemyType {
 }
 
 ///|
-fn enemy_ai_system(_ : &@system.Backend, _delta : Double) -> Unit {
+fn enemy_ai_system(_delta : Double) -> Unit {
   if game_state.game_over {
     return
   }

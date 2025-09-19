@@ -30,10 +30,7 @@
 /// Panics if an entity has a position component but lacks a collision shape, or
 /// if the collision shape is not a rectangle.
 ///
-pub fn debug_collide_system(
-  backend : &@system.Backend,
-  _delta : Double,
-) -> Unit {
+pub fn debug_collide_system(_delta : Double) -> Unit {
   for e, collide in colliders {
     guard e.is_alive() else { continue }
     guard collide.active else { continue }
@@ -45,7 +42,7 @@ pub fn debug_collide_system(
     } else {
       pos.0 + offset - @camera.get_position()
     }
-    backend.draw_color_rect(
+    @backend.draw_color_rect(
       x=pos[X],
       y=pos[Y],
       width~,
@@ -63,7 +60,7 @@ pub fn debug_collide_system(
     } else {
       pos.0 + offset - @camera.get_position()
     }
-    backend.draw_color_rect(
+    @backend.draw_color_rect(
       x=pos[X],
       y=pos[Y],
       width~,

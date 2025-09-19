@@ -1,12 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/audio"
 
-import(
-  "Milky2018/selene/system"
-)
-
 // Values
-fn play_audio(&@system.Backend, String, volume? : Double, loop_? : Bool) -> Unit
+fn play_audio(String, volume? : Double, loop_? : Bool) -> Unit
 
 // Errors
 

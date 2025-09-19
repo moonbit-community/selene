@@ -27,24 +27,20 @@ fn get_image_element(png : String) -> @dom.HTMLImageElement {
 }
 
 ///|
-pub impl @system.Backend for CanvasBackend with preload_img(
-  _self,
-  path : String,
-) -> Unit {
+pub fn preload_img(path : String) -> Unit {
   get_image_element(path) |> ignore
 }
 
 ///|
-pub impl @system.Backend for CanvasBackend with draw_picture(
-  self,
-  png,
-  x~,
-  y~,
-  width~,
-  height~,
-  transform~,
-  repeat~,
-) {
+pub fn draw_picture(
+  png~ : String,
+  x~ : Double,
+  y~ : Double,
+  width~ : Double,
+  height~ : Double,
+  transform~ : @math.Transform,
+  repeat~ : @math.RepeatMode,
+) -> Unit {
   let element = get_image_element(png)
   let repeat_mode = match repeat {
     NoRepeat => "no-repeat"
@@ -52,14 +48,12 @@ pub impl @system.Backend for CanvasBackend with draw_picture(
     RepeatX => "repeat-x"
     Repeat => "repeat"
   }
-  let pattern = self.context.create_pattern(
-    @js.Union7::from0(element),
-    repeat_mode,
-  )
-  self.context.save()
-  self.context.set_fill_style(@js.Union3::from2(pattern))
-  self.context.translate(x, y)
-  self.context.transform(
+  let context = canvas_backend.context
+  let pattern = context.create_pattern(@js.Union7::from0(element), repeat_mode)
+  context.save()
+  context.set_fill_style(@js.Union3::from2(pattern))
+  context.translate(x, y)
+  context.transform(
     transform.a,
     transform.b,
     transform.c,
@@ -67,25 +61,25 @@ pub impl @system.Backend for CanvasBackend with draw_picture(
     transform.tx,
     transform.ty,
   )
-  self.context.fill_rect(0, 0, width, height)
-  self.context.restore()
+  context.fill_rect(0, 0, width, height)
+  context.restore()
 }
 
 ///|
-pub impl @system.Backend for CanvasBackend with draw_sprite(
-  self,
-  sprite_path,
-  x~,
-  y~,
-  offset_x~,
-  offset_y~,
-  width~,
-  height~,
-  transform~,
-) {
-  self.context.save()
-  self.context.translate(x, y)
-  self.context.transform(
+pub fn draw_sprite(
+  sprite_path~ : String,
+  x~ : Double,
+  y~ : Double,
+  offset_x~ : Double,
+  offset_y~ : Double,
+  width~ : Double,
+  height~ : Double,
+  transform~ : @math.Transform,
+) -> Unit {
+  let context = canvas_backend.context
+  context.save()
+  context.translate(x, y)
+  context.transform(
     transform.a,
     transform.b,
     transform.c,
@@ -94,7 +88,7 @@ pub impl @system.Backend for CanvasBackend with draw_sprite(
     transform.ty,
   )
   let element = get_image_element(sprite_path)
-  self.context.draw_image_with_src_and_dst_size(
+  context.draw_image_with_src_and_dst_size(
     element |> @js.Value::cast_from |> @js.Value::cast,
     offset_x,
     offset_y,
@@ -105,75 +99,70 @@ pub impl @system.Backend for CanvasBackend with draw_sprite(
     width,
     height,
   )
-  self.context.restore()
+  context.restore()
 }
 
 ///|
-pub impl @system.Backend for CanvasBackend with draw_stroke_rect(
-  self,
-  x~,
-  y~,
-  width~,
-  height~,
-  color~,
-) {
-  self.context.save()
-  self.context.set_stroke_style(@js.Union3::from0(color))
-  self.context.stroke_rect(x, y, width, height)
-  self.context.restore()
+pub fn draw_stroke_rect(
+  x~ : Double,
+  y~ : Double,
+  width~ : Double,
+  height~ : Double,
+  color~ : String,
+) -> Unit {
+  let context = canvas_backend.context
+  context.save()
+  context.set_stroke_style(@js.Union3::from0(color))
+  context.stroke_rect(x, y, width, height)
+  context.restore()
 }
 
 ///|
-pub impl @system.Backend for CanvasBackend with draw_text(
-  self,
-  text,
-  x~,
-  y~,
-  font~,
-  color~,
-) {
-  self.context.save()
-  self.context.set_font(font)
-  self.context.set_fill_style(@js.Union3::from0(color))
-  self.context.fill_text(text, x, y)
-  self.context.restore()
+pub fn draw_text(
+  text~ : String,
+  x~ : Double,
+  y~ : Double,
+  font~ : String,
+  color~ : String,
+) -> Unit {
+  let context = canvas_backend.context
+  context.save()
+  context.set_font(font)
+  context.set_fill_style(@js.Union3::from0(color))
+  context.fill_text(text, x, y)
+  context.restore()
 }
 
 ///|
-pub impl @system.Backend for CanvasBackend with draw_color_rect(
-  self,
-  x~,
-  y~,
-  width~,
-  height~,
-  color~,
-) {
-  self.context.save()
-  self.context.set_fill_style(@js.Union3::from0(color))
-  self.context.fill_rect(x, y, width, height)
-  self.context.restore()
+pub fn draw_color_rect(
+  x~ : Double,
+  y~ : Double,
+  width~ : Double,
+  height~ : Double,
+  color~ : String,
+) -> Unit {
+  let context = canvas_backend.context
+  context.save()
+  context.set_fill_style(@js.Union3::from0(color))
+  context.fill_rect(x, y, width, height)
+  context.restore()
 }
 
 ///|
-pub impl @system.Backend for CanvasBackend with draw_gradient_rect(
-  self,
-  x~,
-  y~,
-  width~,
-  height~,
-  color_start~,
-  color_end~,
-) {
-  self.context.save()
-  let gradient = self.context.create_linear_gradient(
-    x,
-    y,
-    x + width,
-    y + height,
-  )
+pub fn draw_gradient_rect(
+  x~ : Double,
+  y~ : Double,
+  width~ : Double,
+  height~ : Double,
+  color_start~ : String,
+  color_end~ : String,
+) -> Unit {
+  let context = canvas_backend.context
+  context.save()
+  let gradient = context.create_linear_gradient(x, y, x + width, y + height)
   gradient.add_color_stop(0.0, color_start)
   gradient.add_color_stop(1.0, color_end)
-  self.context.set_fill_style(@js.Union3::from1(gradient))
-  self.context.fill_rect(x, y, width, height)
-  self.context.restore()
+  context.set_fill_style(@js.Union3::from1(gradient))
+  context.fill_rect(x, y, width, height)
+  context.restore()
 }

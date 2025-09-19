@@ -129,7 +129,7 @@ pub fn Area::on_exit(self : Area, callback : (@system.Entity) -> Unit) -> Unit {
 }
 
 ///|
-pub fn area_collide_system(_ : &@system.Backend, _delta : Double) -> Unit {
+pub fn area_collide_system(_delta : Double) -> Unit {
   for e in @system.iter_entities() {
     guard areas.get(e) is Some(area) else { continue }
     guard @position.positions.get(e) is Some(position)

@@ -50,13 +50,9 @@ pub fn Text::new(
 }
 
 ///|
-fn render_text(
-  backend : &@system.Backend,
-  text : Text,
-  position : @math.Vec2D,
-) -> Unit {
-  backend.draw_text(
-    text.content,
+fn render_text(text : Text, position : @math.Vec2D) -> Unit {
+  @backend.draw_text(
+    text=text.content,
     x=position[X],
     y=position[Y],
     font=text.font,

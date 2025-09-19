@@ -13,12 +13,11 @@
 // limitations under the License.
 
 ///|
-pub impl @system.Backend for CanvasBackend with register_mouse_events(
-  self,
-  mouse : @system.Mouse,
-  mouse_movement : @system.MouseMovement,
-) {
-  self.mouse_movement.val = Some(mouse_movement)
+pub fn register_mouse_events(
+  mouse : @inputs.Mouse,
+  mouse_movement : @inputs.MouseMovement,
+) -> Unit {
+  canvas_backend.mouse_movement.val = Some(mouse_movement)
   window.add_event_listener("mousemove", event => {
     let mouse_event = event.to_mouse_event().unwrap()
     mouse.pos = @math.Vec2D(
@@ -51,14 +50,11 @@ pub impl @system.Backend for CanvasBackend with register_mouse_events(
 }
 
 ///|
-pub impl @system.Backend for CanvasBackend with lock_mouse(
-  self,
-  locked : Ref[Bool],
-) {
-  self.canvas.add_event_listener("click", fn(_event) {
-    request_pointer_lock(self.canvas)
+pub fn lock_mouse(locked : Ref[Bool]) -> Unit {
+  canvas_backend.canvas.add_event_listener("click", fn(_event) {
+    request_pointer_lock(canvas_backend.canvas)
   })
   document_add_event_listener("pointerlockchange", fn(_event) {
-    locked.val = is_pointer_locked(self.canvas)
+    locked.val = is_pointer_locked(canvas_backend.canvas)
   })
 }

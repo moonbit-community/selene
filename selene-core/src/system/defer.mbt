@@ -57,7 +57,7 @@ let deferred_events : Array[Event] = Array::new()
 /// defer_event(fn() { println("Second event") }) 
 /// ```
 /// 
-pub fn deferred_event_system(_backend : &Backend, _delta : Double) -> Unit {
+pub fn deferred_event_system(_delta : Double) -> Unit {
   while deferred_events.pop() is Some(event) {
     event()
   }

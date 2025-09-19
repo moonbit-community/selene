@@ -18,7 +18,7 @@
 ///       2. This system will query a quadtree to find collisions.
 ///       3. This system will set real_velocities of entities.
 /// 
-pub fn move_system(_backend : &@system.Backend, delta : Double) -> Unit {
+pub fn move_system(delta : Double) -> Unit {
   collision_infos.clear()
   for e, vel in @velocity.velocities {
     guard e.is_alive() else { continue }

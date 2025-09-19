@@ -13,17 +13,13 @@
 // limitations under the License.
 
 ///|
-/// Debug plugin for development. Provides FPS display.
+/// Debug plugin for development.
 /// Usage:
 /// ```notest
 /// app.add_plugin(@plugins.debug_plugin)
 /// ```
-/// Shows FPS counter in top-left corner.
 pub fn debug_plugin(app : @system.App) -> Unit {
   app.systems
-  ..push(
-    (@debug.debug_info_display_system, Startup, "Debug Info Display System"),
-  )
   ..push((@collision.debug_collide_system, Render(-10), "Debug Collide System"))
   ..push(
     (
@@ -43,8 +39,8 @@ pub fn debug_plugin(app : @system.App) -> Unit {
 pub fn default_plugin(app : @system.App) -> Unit {
   app.systems
   ..push((@collision.move_system, Update, "Move System"))
-  ..push((@system.advanced_key_system, Update, "Advanced Key System"))
-  ..push((@system.advanced_mouse_system, Update, "Advanced Mouse System"))
+  ..push((@inputs.advanced_key_system, Update, "Advanced Key System"))
+  ..push((@inputs.advanced_mouse_system, Update, "Advanced Mouse System"))
   ..push((@collision.quadtree_clear_system, Update, "Quadtree Clear System"))
   ..push((@collision.pickable_click_system, Update, "Pickable Click System"))
   ..push((@collision.area_collide_system, Update, "Area Collide System"))

@@ -342,7 +342,6 @@ pub fn play_animation(
 /// * `pos` : The screen position where the animation should be rendered.
 ///
 fn render_animation(
-  backend : &@system.Backend,
   animation : Animation,
   current_frame : Double,
   pos : @math.Vec2D,
@@ -351,8 +350,8 @@ fn render_animation(
 ) -> Double {
   let frame = animation.frames[current_frame.to_int()]
   if visible {
-    backend.draw_sprite(
-      frame.sprite_path,
+    @backend.draw_sprite(
+      sprite_path=frame.sprite_path,
       x=pos[X],
       y=pos[Y],
       offset_x=frame.offset[X],

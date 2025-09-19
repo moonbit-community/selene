@@ -31,7 +31,7 @@
 ///   @math.Vec2D::new(100.0, 50.0),
 ///   "assets/background.png",
 ///   transform=@math.Transform::new(),
-///   repeat=@system.RepeatMode::NoRepeat
+///   repeat=@math.RepeatMode::NoRepeat
 /// )
 /// ```
 ///
@@ -39,7 +39,7 @@ pub(all) struct Picture {
   size : @math.Vec2D
   tile_path : String
   transform : @math.Transform
-  repeat : @system.RepeatMode
+  repeat : @math.RepeatMode
 }
 
 ///|
@@ -66,7 +66,7 @@ pub(all) struct Picture {
 ///   @math.Vec2D::new(100.0, 50.0),
 ///   "assets/background.png",
 ///   transform=@math.Transform::new(),
-///   repeat=@system.RepeatMode::NoRepeat
+///   repeat=@math.RepeatMode::NoRepeat
 /// )
 /// ```
 ///
@@ -74,7 +74,7 @@ pub fn Picture::new(
   size : @math.Vec2D,
   tile_path : String,
   transform? : @math.Transform = @math.Transform::new(),
-  repeat? : @system.RepeatMode = NoRepeat,
+  repeat? : @math.RepeatMode = NoRepeat,
 ) -> Picture {
   { size, tile_path, transform, repeat }
 }
@@ -91,13 +91,9 @@ pub fn Picture::new(
 /// * `pos` : The 2D position where the picture should be rendered, representing
 ///   the top-left corner coordinates.
 ///
-fn render_picture(
-  backend : &@system.Backend,
-  picture : Picture,
-  pos : @math.Vec2D,
-) -> Unit {
-  backend.draw_picture(
-    picture.tile_path,
+fn render_picture(picture : Picture, pos : @math.Vec2D) -> Unit {
+  @backend.draw_picture(
+    png=picture.tile_path,
     x=pos[X],
     y=pos[Y],
     width=picture.size[X],

@@ -2,6 +2,7 @@
 package "Milky2018/selene/collision"
 
 import(
+  "Milky2018/selene/inputs"
   "Milky2018/selene/math"
   "Milky2018/selene/system"
   "Milky2018/selene/velocity"
@@ -9,7 +10,7 @@ import(
 )
 
 // Values
-fn area_collide_system(&@system.Backend, Double) -> Unit
+fn area_collide_system(Double) -> Unit
 
 let areas : Map[@system.Entity, Area]
 
@@ -17,7 +18,7 @@ let colliders : Map[@system.Entity, Collider]
 
 let collision_layers : Map[@system.Entity, CollisionLayer]
 
-fn debug_collide_system(&@system.Backend, Double) -> Unit
+fn debug_collide_system(Double) -> Unit
 
 fn get_collision_infos(@system.Entity) -> Array[CollisionInfo]
 
@@ -25,15 +26,15 @@ fn get_contains(@system.Entity) -> @set.Set[@system.Entity]
 
 fn is_on_floor(@system.Entity) -> Bool
 
-fn move_system(&@system.Backend, Double) -> Unit
+fn move_system(Double) -> Unit
 
-fn pickable_click_system(&@system.Backend, Double) -> Unit
+fn pickable_click_system(Double) -> Unit
 
 let pickables : Map[@system.Entity, Pickable]
 
-fn quadtree_clear_system(&@system.Backend, Double) -> Unit
+fn quadtree_clear_system(Double) -> Unit
 
-fn quadtree_render_system(&@system.Backend, Double) -> Unit
+fn quadtree_render_system(Double) -> Unit
 
 let quadtree_root : Ref[QuadTree]
 
@@ -76,10 +77,10 @@ pub(all) enum CollisionShape {
 
 type Pickable
 fn Pickable::new() -> Self
-fn Pickable::on_just_pressed(Self, (@system.MouseButton) -> Unit) -> Unit
-fn Pickable::on_just_released(Self, (@system.MouseButton) -> Unit) -> Unit
-fn Pickable::on_pressed(Self, (@system.MouseButton) -> Unit) -> Unit
-fn Pickable::on_released(Self, (@system.MouseButton) -> Unit) -> Unit
+fn Pickable::on_just_pressed(Self, (@inputs.MouseButton) -> Unit) -> Unit
+fn Pickable::on_just_released(Self, (@inputs.MouseButton) -> Unit) -> Unit
+fn Pickable::on_pressed(Self, (@inputs.MouseButton) -> Unit) -> Unit
+fn Pickable::on_released(Self, (@inputs.MouseButton) -> Unit) -> Unit
 
 pub struct QuadTree {
   position : @math.Vec2D

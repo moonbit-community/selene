@@ -5,6 +5,8 @@
     "Milky2018/selene/position",
     "Milky2018/selene/velocity",
     "Milky2018/selene/camera",
-    "Milky2018/selene/ui"
+    "Milky2018/selene/ui",
+    "Milky2018/selene/inputs",
+    "Milky2018/selene/backend"
   ]
 }

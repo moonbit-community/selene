@@ -52,12 +52,12 @@ fn add_player() -> Unit {
 }
 
 ///|
-fn player_update_system(_ : &@system.Backend, _delta : Double) -> Unit {
+fn player_update_system(_delta : Double) -> Unit {
   if game_state.game_over {
     return
   }
   let entity = game_state.player_entity
-  let vel = @system.key_vector(KeyW, KeyS, KeyA, KeyD)
+  let vel = @inputs.key_vector(KeyW, KeyS, KeyA, KeyD)
     .normalize()
     .scalar_mul(PLAYER_SPEED)
   @velocity.velocities.set(entity, vel)
@@ -86,7 +86,7 @@ fn player_update_system(_ : &@system.Backend, _delta : Double) -> Unit {
 const WEAPON_COOLDOWN : Double = 1.5
 
 ///|
-fn player_shooting_system(_ : &@system.Backend, delta : Double) -> Unit {
+fn player_shooting_system(delta : Double) -> Unit {
   if game_state.game_over {
     return
   }

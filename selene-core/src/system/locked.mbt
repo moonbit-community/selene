@@ -16,8 +16,8 @@
 pub let mouse_locked : Ref[Bool] = Ref::new(false)
 
 ///|
-pub fn lock_mouse(backend : &Backend) -> Unit {
-  backend.lock_mouse(mouse_locked)
+pub fn lock_mouse() -> Unit {
+  @backend.lock_mouse(mouse_locked)
 }
 
 ///|

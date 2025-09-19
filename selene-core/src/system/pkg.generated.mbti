@@ -1,61 +1,24 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/system"
 
-import(
-  "Milky2018/selene/math"
-  "moonbitlang/core/set"
-)
-
 // Values
-fn advanced_key_system(&Backend, Double) -> Unit
-
-fn advanced_mouse_system(&Backend, Double) -> Unit
-
 fn defer_event(() -> Unit) -> Unit
 
-fn deferred_event_system(&Backend, Double) -> Unit
-
-fn is_just_pressed(Code) -> Bool
-
-fn is_just_released(Code) -> Bool
-
-fn is_mouse_just_pressed(MouseButton) -> Bool
-
-fn is_mouse_just_released(MouseButton) -> Bool
+fn deferred_event_system(Double) -> Unit
 
 fn is_mouse_locked() -> Bool
 
-fn is_mouse_pressed(MouseButton) -> Bool
-
-fn is_mouse_released(MouseButton) -> Bool
-
-fn is_pressed(Code) -> Bool
-
-fn is_released(Code) -> Bool
-
 fn iter_entities() -> Iter[Entity]
 
-let just_pressed_mouse : Mouse
-
-let just_release_mouse : Mouse
-
-fn key_vector(Code, Code, Code, Code) -> @math.Vec2D
-
-fn lock_mouse(&Backend) -> Unit
-
-let mouse : Mouse
+fn lock_mouse() -> Unit
 
 let mouse_locked : Ref[Bool]
 
-let mouse_movement : MouseMovement
-
-let pressed_keys : @set.Set[Code]
-
-fn realtime_timer_system(&Backend, Double) -> Unit
+fn realtime_timer_system(Double) -> Unit
 
 fn timeout(Double, Bool, () -> Unit) -> Unit
 
-fn timer_system(&Backend, Double) -> Unit
+fn timer_system(Double) -> Unit
 
 // Errors
 
@@ -66,65 +29,18 @@ pub(all) struct App {
   zoom : Double
   image_smooth : Bool
   fps : UInt
-  systems : Array[((&Backend, Double) -> Unit, Schedule, String)]
+  systems : Array[((Double) -> Unit, Schedule, String)]
   plugins : Array[(App) -> Unit]
-  backend : &Backend
 }
 fn App::add_plugin(Self, (Self) -> Unit) -> Self
-fn App::add_system(Self, (&Backend, Double) -> Unit, schedule? : Schedule, system_name? : String) -> Self
-fn App::new(&Backend) -> Self
+fn App::add_system(Self, (Double) -> Unit, schedule? : Schedule, system_name? : String) -> Self
+fn App::new() -> Self
 fn App::run(Self) -> Unit
-fn App::with_backend(Self, &Backend) -> Self
 fn App::with_canvas_height(Self, Double) -> Self
 fn App::with_canvas_width(Self, Double) -> Self
 fn App::with_fps(Self, UInt) -> Self
 fn App::with_image_smooth(Self, Bool) -> Self
 fn App::with_zoom(Self, Double) -> Self
-
-pub(all) enum Code {
-  KeyA
-  KeyB
-  KeyC
-  KeyD
-  KeyE
-  KeyF
-  KeyG
-  KeyH
-  KeyI
-  KeyJ
-  KeyK
-  KeyL
-  KeyM
-  KeyN
-  KeyO
-  KeyP
-  KeyQ
-  KeyR
-  KeyS
-  KeyT
-  KeyU
-  KeyV
-  KeyW
-  KeyX
-  KeyY
-  KeyZ
-  ArrowUp
-  ArrowDown
-  ArrowLeft
-  ArrowRight
-  Space
-  Enter
-  Escape
-}
-fn Code::from_string(String) -> Self?
-impl Eq for Code
-impl Hash for Code
-impl Show for Code
-
-pub(all) struct DebugInfo {
-  system_execution_time : Map[String, Double]
-  fps : Double
-}
 
 type Entity
 fn Entity::destroy(Self) -> Unit
@@ -134,32 +50,6 @@ fn Entity::respawn(Self) -> Unit
 impl Eq for Entity
 impl Hash for Entity
 impl Show for Entity
-
-pub(all) struct Mouse {
-  mut pos : @math.Vec2D
-  mut left_button : Bool
-  mut right_button : Bool
-  mut middle_button : Bool
-}
-
-pub(all) enum MouseButton {
-  Left
-  Right
-  Middle
-}
-impl Eq for MouseButton
-impl Show for MouseButton
-
-pub(all) struct MouseMovement {
-  mut movement : @math.Vec2D
-}
-
-pub(all) enum RepeatMode {
-  RepeatX
-  RepeatY
-  NoRepeat
-  Repeat
-}
 
 pub(all) enum Schedule {
   Startup
@@ -171,23 +61,4 @@ pub(all) enum Schedule {
 pub typealias () -> Unit as Event
 
 // Traits
-pub(open) trait Backend {
-  build(Self, Array[((&Backend, Double) -> Unit, Schedule, String)], Double, Double, UInt, Bool, Double) -> () -> Unit
-  draw_picture(Self, String, x~ : Double, y~ : Double, width~ : Double, height~ : Double, transform~ : @math.Transform, repeat~ : RepeatMode) -> Unit
-  draw_sprite(Self, String, x~ : Double, y~ : Double, offset_x~ : Double, offset_y~ : Double, width~ : Double, height~ : Double, transform~ : @math.Transform) -> Unit
-  register_key_events(Self, @set.Set[Code]) -> Unit
-  register_mouse_events(Self, Mouse, MouseMovement) -> Unit
-  lock_mouse(Self, Ref[Bool]) -> Unit
-  draw_stroke_rect(Self, x~ : Double, y~ : Double, width~ : Double, height~ : Double, color~ : String) -> Unit
-  draw_text(Self, String, x~ : Double, y~ : Double, font~ : String, color~ : String) -> Unit
-  draw_color_rect(Self, x~ : Double, y~ : Double, width~ : Double, height~ : Double, color~ : String) -> Unit
-  draw_gradient_rect(Self, x~ : Double, y~ : Double, width~ : Double, height~ : Double, color_start~ : String, color_end~ : String) -> Unit
-  play_audio(Self, String, volume~ : Double, loop_~ : Bool) -> Unit
-  get_canvas_size(Self) -> @math.Vec2D
-  get_zoom(Self) -> Double
-  get_debug_info(Self) -> DebugInfo
-  preload_img(Self, String) -> Unit
-  preload_audio(Self, String) -> Unit
-  set_time_scale(Self, Double) -> Unit
-}
 

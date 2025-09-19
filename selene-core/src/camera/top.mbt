@@ -170,47 +170,11 @@ let camera : Camera = {
 }
 
 ///|
-/// Updates the global camera position based on the attached entity and applies
-/// movement constraints.
-///
-/// This system function should be called every frame to automatically update
-/// the camera position. It follows an attached entity (if set) while respecting
-/// the configured axis constraints and boundary limits. The camera position
-/// represents the top-left corner of the viewport.
-///
-/// Parameters:
-///
-/// * `backend` : The system backend that provides canvas size information for
-///   viewport calculations.
-///
-/// Example:
-///
-/// ```notest
-/// // Add the camera system to your game loop
-/// app.add_system(@camera.camera_system)
-///
-/// // Attach an entity for the camera to follow
-/// camera.attached_entity = Some(player_entity)
-///
-/// // Set movement limits
-/// camera.limit_top = Some(0.0)
-/// camera.limit_bottom = Some(500.0)
-/// camera.limit_left = Some(0.0)
-/// camera.limit_right = Some(650.0)
-///
-/// // Configure following behavior
-/// camera.follow_x = true
-/// camera.follow_y = true
-///
-/// // Set offset to center camera on entity
-/// camera.offset = @math.Vec2D(32.0, 32.0)  // Half of entity size
-/// ```
-///
-pub fn camera_system(backend : &@system.Backend, _delta : Double) -> Unit {
+pub fn camera_system(_delta : Double) -> Unit {
   guard camera.attached_entity is Some(e) else { return }
   guard @position.positions.get(e) is Some(pos) else { return }
-  let zoom = backend.get_zoom()
-  let viewport_size = backend.get_canvas_size() * Vec2D(1 / zoom, 1 / zoom)
+  let zoom = @backend.get_zoom()
+  let viewport_size = @backend.get_canvas_size() * Vec2D(1 / zoom, 1 / zoom)
   let target_position = pos.0 -
     viewport_size * @math.Vec2D(0.5, 0.5) +
     camera.offset

@@ -13,19 +13,7 @@
 // limitations under the License.
 
 ///|
-pub fn register_key_events(pressed_keys : Set[@inputs.Code]) -> Unit {
-  window.add_event_listener("keyup", event => {
-    let keyboard_event = event.to_keyboard_event().unwrap()
-    let keycode = keyboard_event.code() |> @inputs.Code::from_string
-    if keycode is Some(c) {
-      pressed_keys.remove(c)
-    }
-  })
-  window.add_event_listener("keydown", event => {
-    let keyboard_event = event.to_keyboard_event().unwrap()
-    let keycode = keyboard_event.code() |> @inputs.Code::from_string
-    if keycode is Some(c) {
-      pressed_keys.add(c)
-    }
-  })
-}
+typealias (Double) -> Unit as System
+
+///|
+typealias (App) -> Unit as Plugin

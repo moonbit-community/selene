@@ -119,7 +119,7 @@ pub fn Sprite::from_color_rect(
 ///
 /// Panics if an entity has a sprite but no position component.
 ///
-pub fn render_sprite_system(backend : &@system.Backend, delta : Double) -> Unit {
+pub fn render_sprite_system(delta : Double) -> Unit {
   let sprites = sprites.to_array().filter(fn(pair) { pair.0.is_alive() })
   sprites.sort_by(fn(sprite1, sprite2) {
     if sprite1.1.zindex < sprite2.1.zindex {
@@ -149,10 +149,9 @@ pub fn render_sprite_system(backend : &@system.Backend, delta : Double) -> Unit 
     }
     match sprite.sprite_type {
       SpriteType::Picture(picture) if sprite.visible =>
-        render_picture(backend, picture, pos + sprite.offset)
+        render_picture(picture, pos + sprite.offset)
       SpriteType::Animation(anime, frame~) as animation_sprite => {
         let new_frame = render_animation(
-          backend,
           anime,
           frame,
           pos + sprite.offset,
@@ -162,9 +161,9 @@ pub fn render_sprite_system(backend : &@system.Backend, delta : Double) -> Unit 
         animation_sprite.frame = new_frame
       }
       SpriteType::Text(text) if sprite.visible =>
-        render_text(backend, text, pos + sprite.offset)
+        render_text(text, pos + sprite.offset)
       SpriteType::ColorRect(color_rect) if sprite.visible =>
-        render_color_rect(backend, color_rect, pos + sprite.offset)
+        render_color_rect(color_rect, pos + sprite.offset)
       _ => ()
     }
   }

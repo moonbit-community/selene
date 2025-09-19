@@ -24,12 +24,8 @@ pub fn ColorRect::new(size : @math.Vec2D, color : String) -> ColorRect {
 }
 
 ///|
-fn render_color_rect(
-  backend : &@system.Backend,
-  color_rect : ColorRect,
-  position : @math.Vec2D,
-) -> Unit {
-  backend.draw_color_rect(
+fn render_color_rect(color_rect : ColorRect, position : @math.Vec2D) -> Unit {
+  @backend.draw_color_rect(
     x=position[X],
     y=position[Y],
     width=color_rect.size[X],

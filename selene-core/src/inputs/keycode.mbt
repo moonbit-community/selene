@@ -246,7 +246,7 @@ let just_pressed_keys : Set[Code] = @set.Set::new()
 let just_release_keys : Set[Code] = @set.Set::new()
 
 ///|
-pub fn advanced_key_system(_backend : &Backend, _delta : Double) -> Unit {
+pub fn advanced_key_system(_delta : Double) -> Unit {
   just_pressed_keys.clear()
   for code in pressed_keys.difference(last_pressed_keys) {
     just_pressed_keys.add(code)

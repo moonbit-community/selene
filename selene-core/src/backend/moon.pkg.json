@@ -1,0 +1,9 @@
+{
+  "import": [
+    "Milky2018/selene/inputs",
+    "Milky2018/selene/math"
+  ],
+  "virtual": {
+    "has-default": false
+  }
+}

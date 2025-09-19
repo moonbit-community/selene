@@ -28,7 +28,7 @@ pub fn timeout(time : Double, pausible : Bool, callback : () -> Unit) -> Unit {
 }
 
 ///|
-pub fn timer_system(_backend : &Backend, delta : Double) -> Unit {
+pub fn timer_system(delta : Double) -> Unit {
   for timer in timers.filter(timer => timer.pausible) {
     if timer.pausible {
 
@@ -42,7 +42,7 @@ pub fn timer_system(_backend : &Backend, delta : Double) -> Unit {
 }
 
 ///|
-pub fn realtime_timer_system(_backend : &Backend, delta : Double) -> Unit {
+pub fn realtime_timer_system(delta : Double) -> Unit {
   for timer in timers.filter(timer => !timer.pausible) {
     if timer.pausible {
 

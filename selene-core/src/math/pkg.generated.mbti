@@ -21,6 +21,13 @@ pub(all) struct Rect {
 fn Rect::intersects(Self, Self) -> Bool
 fn Rect::shift(Self, Vec2D) -> Self
 
+pub(all) enum RepeatMode {
+  RepeatX
+  RepeatY
+  NoRepeat
+  Repeat
+}
+
 pub(all) struct Transform {
   a : Double
   b : Double

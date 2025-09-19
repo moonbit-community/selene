@@ -44,10 +44,10 @@
 /// ```
 ///
 struct Pickable {
-  on_pressed_callbacks : Array[(@system.MouseButton) -> Unit]
-  on_released_callbacks : Array[(@system.MouseButton) -> Unit]
-  on_just_pressed_callbacks : Array[(@system.MouseButton) -> Unit]
-  on_just_released_callbacks : Array[(@system.MouseButton) -> Unit]
+  on_pressed_callbacks : Array[(@inputs.MouseButton) -> Unit]
+  on_released_callbacks : Array[(@inputs.MouseButton) -> Unit]
+  on_just_pressed_callbacks : Array[(@inputs.MouseButton) -> Unit]
+  on_just_released_callbacks : Array[(@inputs.MouseButton) -> Unit]
 }
 
 ///|
@@ -96,7 +96,7 @@ pub fn Pickable::new() -> Pickable {
 ///
 pub fn Pickable::on_pressed(
   self : Pickable,
-  callback : (@system.MouseButton) -> Unit,
+  callback : (@inputs.MouseButton) -> Unit,
 ) -> Unit {
   self.on_pressed_callbacks.push(callback)
 }
@@ -122,7 +122,7 @@ pub fn Pickable::on_pressed(
 ///
 pub fn Pickable::on_released(
   self : Pickable,
-  callback : (@system.MouseButton) -> Unit,
+  callback : (@inputs.MouseButton) -> Unit,
 ) -> Unit {
   self.on_released_callbacks.push(callback)
 }
@@ -148,7 +148,7 @@ pub fn Pickable::on_released(
 ///
 pub fn Pickable::on_just_pressed(
   self : Pickable,
-  callback : (@system.MouseButton) -> Unit,
+  callback : (@inputs.MouseButton) -> Unit,
 ) -> Unit {
   self.on_just_pressed_callbacks.push(callback)
 }
@@ -174,20 +174,17 @@ pub fn Pickable::on_just_pressed(
 ///
 pub fn Pickable::on_just_released(
   self : Pickable,
-  callback : (@system.MouseButton) -> Unit,
+  callback : (@inputs.MouseButton) -> Unit,
 ) -> Unit {
   self.on_just_released_callbacks.push(callback)
 }
 
 ///|
-pub fn pickable_click_system(
-  backend : &@system.Backend,
-  _delta : Double,
-) -> Unit {
-  let zoom = backend.get_zoom()
+pub fn pickable_click_system(_delta : Double) -> Unit {
+  let zoom = @backend.get_zoom()
   let box = @math.Rect::{
     size: @math.Vec2D(1.0, 1.0),
-    position: @system.mouse.pos * Vec2D(1 / zoom, 1 / zoom),
+    position: @inputs.mouse.pos * Vec2D(1 / zoom, 1 / zoom),
   }
   for e, _ui in @ui.uis {
     guard e.is_alive() else { continue }
@@ -202,23 +199,23 @@ pub fn pickable_click_system(
     if !box.intersects(area_box) {
       continue
     }
-    for button in [@system.MouseButton::Left, Right, Middle] {
-      if @system.is_mouse_pressed(button) {
+    for button in [@inputs.MouseButton::Left, Right, Middle] {
+      if @inputs.is_mouse_pressed(button) {
         for callback in pick.on_pressed_callbacks {
           callback(button)
         }
       }
-      if @system.is_mouse_released(button) {
+      if @inputs.is_mouse_released(button) {
         for callback in pick.on_released_callbacks {
           callback(button)
         }
       }
-      if @system.is_mouse_just_pressed(button) {
+      if @inputs.is_mouse_just_pressed(button) {
         for callback in pick.on_just_pressed_callbacks {
           callback(button)
         }
       }
-      if @system.is_mouse_just_released(button) {
+      if @inputs.is_mouse_just_released(button) {
         for callback in pick.on_just_released_callbacks {
           callback(button)
         }
@@ -239,23 +236,23 @@ pub fn pickable_click_system(
     if !box.shift(@camera.get_position()).intersects(area_box) {
       continue
     }
-    for button in [@system.MouseButton::Left, Right, Middle] {
-      if @system.is_mouse_pressed(button) {
+    for button in [@inputs.MouseButton::Left, Right, Middle] {
+      if @inputs.is_mouse_pressed(button) {
         for callback in pick.on_pressed_callbacks {
           callback(button)
         }
       }
-      if @system.is_mouse_released(button) {
+      if @inputs.is_mouse_released(button) {
         for callback in pick.on_released_callbacks {
           callback(button)
         }
       }
-      if @system.is_mouse_just_pressed(button) {
+      if @inputs.is_mouse_just_pressed(button) {
         for callback in pick.on_just_pressed_callbacks {
           callback(button)
         }
       }
-      if @system.is_mouse_just_released(button) {
+      if @inputs.is_mouse_just_released(button) {
         for callback in pick.on_just_released_callbacks {
           callback(button)
         }

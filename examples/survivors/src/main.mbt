@@ -38,7 +38,7 @@ const FPS : Double = 60
 
 ///|
 fn main {
-  @system.App::new(@canvas.CanvasBackend::new())
+  @system.App::new()
   .with_canvas_width(REAL_VIEWPORT_WIDTH)
   .with_canvas_height(REAL_VIEWPORT_HEIGHT)
   .with_image_smooth(false)
@@ -174,7 +174,7 @@ fn add_exp(exp_gained : Int) -> Unit {
 }
 
 ///|
-fn game_start(_backend : &@system.Backend, _delta : Double) -> Unit {
+fn game_start(_delta : Double) -> Unit {
   @camera.set_limits(top=0.0, bottom=MAP_HEIGHT, left=0.0, right=MAP_WIDTH)
   add_player()
   add_border(Vec2D(MAP_WIDTH, MAP_HEIGHT))
@@ -188,7 +188,7 @@ fn game_start(_backend : &@system.Backend, _delta : Double) -> Unit {
 }
 
 ///|
-fn game_timer_system(_backend : &@system.Backend, delta : Double) -> Unit {
+fn game_timer_system(delta : Double) -> Unit {
   if game_state.game_over {
     if not(game_state.game_over_displayed) {
       game_state.game_over_displayed = true

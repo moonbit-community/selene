@@ -45,9 +45,8 @@ fn get_audio(path : String) -> Audio {
 }
 
 ///|
-pub impl @system.Backend for CanvasBackend with play_audio(
-  _self,
-  audio_path : String,
+pub fn play_audio(
+  audio_path~ : String,
   volume~ : Double,
   loop_~ : Bool,
 ) -> Unit {
@@ -58,9 +57,6 @@ pub impl @system.Backend for CanvasBackend with play_audio(
 }
 
 ///|
-pub impl @system.Backend for CanvasBackend with preload_audio(
-  _self,
-  audio_path : String,
-) -> Unit {
+pub fn preload_audio(audio_path : String) -> Unit {
   get_audio(audio_path) |> ignore
 }
