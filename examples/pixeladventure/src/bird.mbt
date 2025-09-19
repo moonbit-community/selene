@@ -70,7 +70,7 @@ fn add_bird(pos : @math.Vec2D) -> Unit {
 }
 
 ///|
-fn bird_ai_system(_backend : &@system.Backend, _ : Double) -> Unit {
+fn bird_ai_system(_ : Double) -> Unit {
   for e, bird in birds {
     guard e.is_alive() else { continue }
     guard @velocity.velocities.get(e) is Some(_velocity)

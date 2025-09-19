@@ -74,7 +74,7 @@ fn set_game_result(result : GameResult) -> Unit {
 const ATTACK_V : Double = 180.0
 
 ///|
-fn hurt_player(backend : &@system.Backend) -> Unit {
+fn hurt_player() -> Unit {
   if game_state.hurt_timer <= 0.0 {
     let back_vel = match game_state.direction {
       Left => @math.Vec2D(ATTACK_V, 0.0)
@@ -86,7 +86,7 @@ fn hurt_player(backend : &@system.Backend) -> Unit {
     update_health_display()
     game_state.hurt_timer = 60.0
     if game_state.volume_on {
-      @audio.play_audio(backend, "sounds/hurt.wav")
+      @audio.play_audio("sounds/hurt.wav")
     }
     if game_state.health <= 0 {
       set_game_result(GameResult::GameOver)

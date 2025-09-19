@@ -21,7 +21,7 @@ fn tile_to_vec2d(tile : @tilemap.Tile, tile_size : Int) -> @math.Vec2D {
 }
 
 ///|
-fn generate_map(backend : &@system.Backend) -> Unit {
+fn generate_map() -> Unit {
   let tilemap = @tilemap.TileMap::from_json(tilemap)
   let world_width = tilemap.map_width.to_double() *
     tilemap.tile_size.to_double()
@@ -35,7 +35,7 @@ fn generate_map(backend : &@system.Backend) -> Unit {
   add_flag(tile_to_vec2d(flag, tilemap.tile_size) - @math.Vec2D(16.0, 16.0))
   let apples = tilemap.get_tiles_first("Apple")
   for apple in apples {
-    add_apple(backend, tile_to_vec2d(apple, tilemap.tile_size))
+    add_apple(tile_to_vec2d(apple, tilemap.tile_size))
   }
   let grasses = tilemap.get_tiles("Grass")
   for grass in grasses {
@@ -120,7 +120,7 @@ fn add_flag(pos : @math.Vec2D) -> Unit {
 }
 
 ///|
-fn add_apple(backend : &@system.Backend, pos : @math.Vec2D) -> Unit {
+fn add_apple(pos : @math.Vec2D) -> Unit {
   let apple = @system.Entity::new()
   let apple_sprite = @sprite.Sprite::from_animation(
     @sprite.Animation::new(
@@ -149,7 +149,7 @@ fn add_apple(backend : &@system.Backend, pos : @math.Vec2D) -> Unit {
     if e == game_state.player {
       set_score(game_state.score + 10)
       if game_state.volume_on {
-        @audio.play_audio(backend, "sounds/coin.wav")
+        @audio.play_audio("sounds/coin.wav")
       }
       @system.Entity::destroy(apple)
     }

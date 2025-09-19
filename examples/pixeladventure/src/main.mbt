@@ -29,7 +29,7 @@ const REAL_VIEWPORT_HEIGHT : Double = VIEWPORT_HEIGHT * ZOOM
 
 ///|
 fn main {
-  @system.App::new(@canvas.CanvasBackend::new())
+  @system.App::new()
   .with_canvas_width(REAL_VIEWPORT_WIDTH)
   .with_canvas_height(REAL_VIEWPORT_HEIGHT)
   .with_image_smooth(false)
@@ -45,8 +45,8 @@ fn main {
 }
 
 ///|
-fn game_start(backend : &@system.Backend, _delta : Double) -> Unit {
-  generate_map(backend)
+fn game_start(_delta : Double) -> Unit {
+  generate_map()
   add_result_box()
   add_score_box()
   add_health_box()
