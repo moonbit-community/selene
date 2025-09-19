@@ -29,20 +29,18 @@ const REAL_VIEWPORT_HEIGHT : Double = VIEWPORT_HEIGHT * ZOOM
 
 ///|
 fn main {
-  @system.App::new(@canvas.CanvasBackend::new())
+  @system.App::new()
   .with_canvas_width(REAL_VIEWPORT_WIDTH)
   .with_canvas_height(REAL_VIEWPORT_HEIGHT)
-  // .with_image_smooth(false)
   .with_zoom(ZOOM)
   .with_fps(60)
   .add_plugin(@plugins.default_plugin)
-  // .add_plugin(@plugins.debug_plugin)
   .add_system(game_start, schedule=Startup)
   .run()
 }
 
 ///|
-fn game_start(backend : &@system.Backend) -> Unit {
+fn game_start(_delta : Double) -> Unit {
   let e = @system.Entity::new()
   @position.positions.set(e, Vec2D(50, 50))
   @sprite.sprites.set(e, Card(A, H).to_sprite(CARD_BASE_ZINDEX + 1))

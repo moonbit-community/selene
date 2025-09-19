@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-struct Card(CardNum,CardSuit) derive(Eq, Hash)
+struct Card(CardNum, CardSuit) derive(Eq, Hash)
 
 ///|
 fn Card::to_path(self : Card) -> String {
