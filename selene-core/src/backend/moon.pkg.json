@@ -4,6 +4,6 @@
     "Milky2018/selene/math"
   ],
   "virtual": {
-    "has-default": false
+    "has-default": true
   }
 }
