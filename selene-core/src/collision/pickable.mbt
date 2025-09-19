@@ -33,7 +33,7 @@
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// let pickable = Pickable::new()
 /// pickable.on_just_pressed(fn(button) { 
 ///   println("Button \{button} was just pressed") 
@@ -51,6 +51,31 @@ struct Pickable {
 }
 
 ///|
+/// Global registry that maps entities to their `Pickable` components for mouse
+/// interaction handling.
+///
+/// This map stores the association between entities and their corresponding
+/// `Pickable` components, allowing the collision system to efficiently look up
+/// which entities can respond to mouse events. The map is automatically
+/// populated when `Pickable` components are attached to entities and is used by
+/// the `pickable_click_system` to process mouse interactions.
+///
+/// The map uses `@system.Entity` as keys to uniquely identify game objects, and
+/// `Pickable` as values to store the mouse event callback configurations for
+/// each entity.
+///
+/// Example:
+///
+/// ```moonbit
+/// // Register a pickable component for an entity
+/// let entity = @system.Entity::new()
+/// let pickable = Pickable::new()
+/// pickable.on_just_pressed(fn(button) { 
+///   println("Entity clicked with button: \{button}") 
+/// })
+/// @collision.pickables[entity] = pickable
+/// ```
+///
 pub let pickables : Map[@system.Entity, Pickable] = Map::new()
 
 ///|
@@ -61,7 +86,7 @@ pub let pickables : Map[@system.Entity, Pickable] = Map::new()
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// let pickable = Pickable::new()
 /// pickable.on_pressed(fn(button) { println("Mouse button pressed: \{button}") })
 /// ```
@@ -87,7 +112,7 @@ pub fn Pickable::new() -> Pickable {
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// let pickable = Pickable::new()
 /// pickable.on_pressed(fn(button) { 
 ///   println("Mouse button \{button} is being held down") 
@@ -113,7 +138,7 @@ pub fn Pickable::on_pressed(
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// let pickable = Pickable::new()
 /// pickable.on_released(fn(button) { 
 ///   println("Mouse button \{button} is not being held down") 
@@ -139,7 +164,7 @@ pub fn Pickable::on_released(
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// let pickable = Pickable::new()
 /// pickable.on_just_pressed(fn(button) { 
 ///   println("Mouse button \{button} was just pressed") 
@@ -165,7 +190,7 @@ pub fn Pickable::on_just_pressed(
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// let pickable = Pickable::new()
 /// pickable.on_just_released(fn(button) { 
 ///   println("Mouse button \{button} was just released") 
@@ -180,6 +205,45 @@ pub fn Pickable::on_just_released(
 }
 
 ///|
+/// Processes mouse interaction events for all pickable entities in the game
+/// world.
+///
+/// This system function is called every frame to handle mouse clicks and
+/// interactions with entities that have `Pickable` components. It checks both
+/// UI entities and world entities against the current mouse cursor position,
+/// taking into account camera position and zoom level. For each entity that
+/// intersects with the mouse cursor, it executes the appropriate callbacks
+/// based on the current mouse button states (pressed, released, just pressed,
+/// or just released).
+///
+/// The system operates in two phases:
+///
+/// 1. First, it processes UI entities from the `@ui.uis` collection without
+/// camera offset
+/// 2. Second, it queries world entities using a spatial quadtree and processes
+/// them with camera offset applied
+///
+/// Parameters:
+///
+/// * `delta` : The time elapsed since the last frame (unused in current
+///   implementation).
+///
+/// Example:
+///
+/// ```moonbit
+/// // Set up a pickable entity
+/// let entity = @system.Entity::new()
+/// let pickable = @collision.Pickable::new()
+/// pickable.on_just_pressed(fn(button) { 
+///   println("Entity clicked with \{button}")
+/// })
+/// @collision.pickables[entity] = pickable
+///
+/// // The system will automatically call this function each frame
+/// let app = @system.App::new()
+/// app.add_system(pickable_click_system).run()
+/// ```
+///
 pub fn pickable_click_system(_delta : Double) -> Unit {
   let zoom = @backend.get_zoom()
   let box = @math.Rect::{

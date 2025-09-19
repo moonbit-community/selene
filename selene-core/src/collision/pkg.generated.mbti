@@ -36,8 +36,6 @@ fn quadtree_clear_system(Double) -> Unit
 
 fn quadtree_render_system(Double) -> Unit
 
-let quadtree_root : Ref[QuadTree]
-
 let real_velocities : Map[@system.Entity, @velocity.Velocity]
 
 let shapes : Map[@system.Entity, CollisionShape]
@@ -81,13 +79,6 @@ fn Pickable::on_just_pressed(Self, (@inputs.MouseButton) -> Unit) -> Unit
 fn Pickable::on_just_released(Self, (@inputs.MouseButton) -> Unit) -> Unit
 fn Pickable::on_pressed(Self, (@inputs.MouseButton) -> Unit) -> Unit
 fn Pickable::on_released(Self, (@inputs.MouseButton) -> Unit) -> Unit
-
-pub struct QuadTree {
-  position : @math.Vec2D
-  size : @math.Vec2D
-  children : Array[QuadTree]
-  // private fields
-}
 
 // Type aliases
 

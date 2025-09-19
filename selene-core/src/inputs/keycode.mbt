@@ -17,22 +17,17 @@
 ///
 /// Example:
 ///
-/// ```notest
-/// let key_code = @system.Code::from_string("KeyA")
-/// match key_code {
-///   Some(KeyA) => println("A key pressed")
-///   Some(Space) => println("Space key pressed")
-///   Some(ArrowUp) => println("Up arrow pressed")
-///   None => println("Unknown key")
-/// }
+/// ```moonbit 
+/// let key_code = @inputs.Code::from_string("KeyA")
+/// inspect(key_code, content="Some(KeyA)")
 ///
 /// // Check if a key is currently pressed
-/// if @system.is_pressed(KeyW) {
+/// if @inputs.is_pressed(KeyW) {
 ///   println("W key is being held down")
 /// }
 ///
 /// // Check if a key was just pressed this frame
-/// if @system.is_just_pressed(Space) {
+/// if @inputs.is_just_pressed(Space) {
 ///   println("Space was just pressed")
 /// }
 /// ```
@@ -124,14 +119,14 @@ let all_codes : @set.Set[Code] = @set.Set::from_array([
 ///
 /// Example:
 ///
-/// ```notest
-/// let key_a = @system.Code::from_string("KeyA")
+/// ```moonbit
+/// let key_a = @inputs.Code::from_string("KeyA")
 /// inspect(key_a, content="Some(KeyA)")
 ///
-/// let space_key = @system.Code::from_string("Space")
+/// let space_key = @inputs.Code::from_string("Space")
 /// inspect(space_key, content="Some(Space)")
 ///
-/// let invalid_key = @system.Code::from_string("InvalidKey")
+/// let invalid_key = @inputs.Code::from_string("InvalidKey")
 /// inspect(invalid_key, content="None")
 /// ```
 ///
@@ -174,14 +169,78 @@ pub fn Code::from_string(code : String) -> Code? {
 }
 
 ///|
+/// A mutable set containing all keyboard keys that are currently being pressed.
+///
+/// This set is automatically updated by the input system to track the real-time
+/// state of keyboard input. Keys are added to this set when they are pressed
+/// down and removed when they are released. The set can be queried using
+/// functions like `is_pressed()` and `is_released()` to check the current state
+/// of specific keys.
+///
+/// Example:
+///
+/// ```moonbit
+/// // Check if a specific key is currently pressed
+/// if @inputs.pressed_keys.contains(@inputs.KeyW) {
+///   println("W key is being held down")
+/// }
+///
+/// // Get all currently pressed keys
+/// let current_keys = @inputs.pressed_keys.to_array()
+/// inspect(current_keys, content="[]")
+/// ```
+///
 pub let pressed_keys : Set[Code] = @set.Set::new()
 
 ///|
+/// Checks if a keyboard key is currently being pressed.
+///
+/// Parameters:
+///
+/// * `code` : The keyboard key code to check for press status.
+///
+/// Returns `true` if the specified key is currently being held down, `false`
+/// otherwise.
+///
+/// Example:
+///
+/// ```moonbit
+/// // Check if the W key is currently pressed
+/// if @inputs.is_pressed(@inputs.KeyW) {
+///   println("W key is being held down")
+/// }
+///
+/// // Check multiple keys
+/// if @inputs.is_pressed(@inputs.Space) {
+///   println("Space is pressed")
+/// }
+///
+/// if @inputs.is_pressed(@inputs.ArrowUp) {
+///   println("Up arrow is pressed")
+/// }
+/// ```
+///
 pub fn is_pressed(code : Code) -> Bool {
   pressed_keys.contains(code)
 }
 
 ///|
+/// Checks if a keyboard key is currently not being pressed.
+///
+/// Parameters:
+///
+/// * `code` : The keyboard key code to check for release status.
+///
+/// Returns `true` if the specified key is currently not being held down,
+/// `false` if it is being pressed.
+///
+/// Example:
+///
+/// ```moonbit
+/// // Check if the W key is currently released
+/// inspect(@inputs.is_released(KeyW), content="true")
+/// ```
+///
 pub fn is_released(code : Code) -> Bool {
   !pressed_keys.contains(code)
 }
@@ -203,14 +262,14 @@ pub fn is_released(code : Code) -> Bool {
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// // Get movement vector for WASD keys
-/// let movement = @system.key_vector(@system.KeyW, @system.KeyS, @system.KeyA, @system.KeyD)
-/// println("Movement: \{movement}")
+/// let movement = @inputs.key_vector(KeyW, KeyS, KeyA, KeyD)
+/// inspect(movement, content="Vec2D(0, 0)")
 ///
 /// // Get movement vector for arrow keys
-/// let arrow_movement = @system.key_vector(@system.ArrowUp, @system.ArrowDown, @system.ArrowLeft, @system.ArrowRight)
-/// println("Arrow movement: \{arrow_movement}")
+/// let arrow_movement = @inputs.key_vector(ArrowUp, ArrowDown, ArrowLeft, ArrowRight)
+/// inspect(arrow_movement, content="Vec2D(0, 0)")
 /// ```
 ///
 pub fn key_vector(
@@ -246,6 +305,30 @@ let just_pressed_keys : Set[Code] = @set.Set::new()
 let just_release_keys : Set[Code] = @set.Set::new()
 
 ///|
+/// Updates the keyboard input state to track which keys were just pressed or
+/// released during the current frame.
+///
+/// Parameters:
+///
+/// * `delta` : The time elapsed since the last frame update (currently unused
+///   but reserved for future timing-based features).
+///
+/// Example:
+///
+/// ```moonbit
+/// // This function is typically called once per frame by the game engine
+/// @inputs.advanced_key_system(0.016) // 60 FPS = ~16ms per frame
+///
+/// // After calling advanced_key_system, you can check for just-pressed keys
+/// if @inputs.is_just_pressed(@inputs.KeyW) {
+///   println("W was just pressed this frame")
+/// }
+///
+/// if @inputs.is_just_released(@inputs.Space) {
+///   println("Space was just released this frame")
+/// }
+/// ```
+///
 pub fn advanced_key_system(_delta : Double) -> Unit {
   just_pressed_keys.clear()
   for code in pressed_keys.difference(last_pressed_keys) {
@@ -273,18 +356,18 @@ pub fn advanced_key_system(_delta : Double) -> Unit {
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// // Check if the space key was just pressed this frame
-/// if @system.is_just_pressed(@system.Space) {
+/// if @inputs.is_just_pressed(Space) {
 ///   println("Space key was just pressed!")
 /// }
 ///
 /// // Check for WASD movement keys
-/// if @system.is_just_pressed(@system.KeyW) {
-///   println("Moving forward")
+/// if @inputs.is_just_pressed(KeyW) {
+///   println("Started moving forward")
 /// }
-/// if @system.is_just_pressed(@system.KeyA) {
-///   println("Moving left")
+/// if @inputs.is_just_pressed(KeyA) {
+///   println("Started moving left")
 /// }
 /// ```
 ///
@@ -304,17 +387,17 @@ pub fn is_just_pressed(code : Code) -> Bool {
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// // Check if the space key was just released this frame
-/// if @system.is_just_released(@system.Space) {
+/// if @inputs.is_just_released(Space) {
 ///   println("Space key was just released!")
 /// }
 ///
 /// // Check for WASD movement keys
-/// if @system.is_just_released(@system.KeyW) {
+/// if @inputs.is_just_released(KeyW) {
 ///   println("Stopped moving forward")
 /// }
-/// if @system.is_just_released(@system.KeyA) {
+/// if @inputs.is_just_released(KeyA) {
 ///   println("Stopped moving left")
 /// }
 /// ```

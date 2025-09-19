@@ -26,16 +26,15 @@ priv struct Camera {
 }
 
 ///|
-/// Returns the current position of the global camera.
+/// Retrieves the current position of the camera in the 2D coordinate system.
 ///
-/// Returns a `@math.Vec2D` representing the camera's current position
-/// coordinates.
+/// Returns the current camera position as a 2D vector.
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// let current_pos = @camera.get_position()
-/// println("Camera is at: (\{current_pos[X]}, \{current_pos[Y]})")
+/// inspect(current_pos, content="Vec2D(0, 0)")
 /// ```
 ///
 pub fn get_position() -> @math.Vec2D {
@@ -59,7 +58,7 @@ pub fn get_position() -> @math.Vec2D {
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// // Set boundaries to keep camera within a level area
 /// @camera.set_limits(top=0.0, bottom=500.0, left=0.0, right=800.0)
 ///
@@ -94,9 +93,9 @@ pub fn set_limits(
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
+/// let player_entity = @system.Entity::new()
 /// @camera.attach_entity(player_entity, @math.Vec2D(32.0, 32.0))
-/// @camera.attach_entity(enemy_entity, @math.Vec2D::zero())
 /// ```
 ///
 pub fn attach_entity(entity : @system.Entity, offset : @math.Vec2D) -> Unit {
@@ -117,7 +116,7 @@ pub fn attach_entity(entity : @system.Entity, offset : @math.Vec2D) -> Unit {
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// // Enable horizontal following
 /// @camera.set_follow_x(true)
 ///
@@ -143,7 +142,7 @@ pub fn set_follow_x(follow : Bool) -> Unit {
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// // Enable vertical following
 /// @camera.set_follow_y(true)
 ///
@@ -170,6 +169,27 @@ let camera : Camera = {
 }
 
 ///|
+/// Updates the camera position to follow an attached entity while respecting
+/// movement boundaries and axis constraints.
+///
+/// Parameters:
+///
+/// * `delta` : The time elapsed since the last frame update (currently unused
+///   but typically used for frame-rate independent updates).
+///
+/// Example:
+///
+/// ```moonbit
+/// // This function is typically called automatically by the game engine's update loop
+/// // Set up camera to follow a player entity
+/// let player = @system.Entity::new()
+/// @camera.attach_entity(player, @math.Vec2D(0.0, 0.0))
+/// @camera.set_limits(top=0.0, bottom=1000.0, left=0.0, right=1200.0)
+///
+/// // The camera system will automatically update the camera position each frame
+/// @camera.camera_system(0.016) // Called with delta time
+/// ```
+///
 pub fn camera_system(_delta : Double) -> Unit {
   guard camera.attached_entity is Some(e) else { return }
   guard @position.positions.get(e) is Some(pos) else { return }

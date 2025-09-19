@@ -13,6 +13,27 @@
 // limitations under the License.
 
 ///|
+/// Normalizes an angle to the range \[0, 2π) radians.
+///
+/// Parameters:
+///
+/// * `angle` : The angle in radians to normalize.
+///
+/// Returns the normalized angle in the range \[0, 2π) radians.
+///
+/// Example:
+///
+/// ```moonbit
+/// // Positive angle greater than 2π
+/// inspect(@math.normalize_angle(7.0), content="0.7168146928204138")
+///
+/// // Negative angle
+/// inspect(@math.normalize_angle(-1.0), content="5.283185307179586")
+///
+/// // Angle already in range
+/// inspect(@math.normalize_angle(1.5), content="1.5")
+/// ```
+///
 pub fn normalize_angle(angle : Double) -> Double {
   let two_pi = @math.PI * 2
   let angle = angle % two_pi
@@ -21,4 +42,44 @@ pub fn normalize_angle(angle : Double) -> Double {
   } else {
     angle
   }
+}
+
+///|
+test "normalize_angle" {
+  // Test positive angles greater than 2π
+  inspect(normalize_angle(7.0), content="0.7168146928204138")
+
+  // Test negative angles
+  inspect(normalize_angle(-1.0), content="5.283185307179586")
+
+  // Test angles already in range [0, 2π)
+  inspect(normalize_angle(1.5), content="1.5")
+  inspect(normalize_angle(0.0), content="0")
+
+  // Test angle exactly at 2π (should normalize to 0)
+  inspect(normalize_angle(@math.PI * 2.0), content="0")
+}
+
+///|
+test "normalize_angle/edge_cases" {
+  // Test very large positive angles
+  inspect(normalize_angle(100.0), content="5.7522203923062065")
+
+  // Test very large negative angles  
+  inspect(normalize_angle(-100.0), content="0.5309649148733797")
+
+  // Test multiple full rotations
+  inspect(normalize_angle(@math.PI * 6.0), content="0")
+  inspect(normalize_angle(@math.PI * -4.0), content="0")
+}
+
+///|
+test "normalize_angle/boundary_values" {
+  // Test just under 2π
+  let almost_two_pi = @math.PI * 2.0 - 0.001
+  inspect(normalize_angle(almost_two_pi), content="6.282185307179586")
+
+  // Test just over 0 when coming from negative
+  let small_negative = -0.001
+  inspect(normalize_angle(small_negative), content="6.282185307179586")
 }

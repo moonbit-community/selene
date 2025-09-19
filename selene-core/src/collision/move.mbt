@@ -94,6 +94,23 @@ fn move_with_collide(
 // }
 
 ///|
+/// Stores the actual velocities of entities after collision resolution.
+///
+/// This global map tracks the real velocities of entities that have been
+/// processed by the collision system. When an entity moves with collision
+/// detection enabled, its velocity may be modified due to collisions with other
+/// entities. The original velocity from the velocity component represents the
+/// intended movement, while this map stores the actual velocity that was
+/// applied after accounting for collisions and obstacles.
+///
+/// The real velocities are calculated by dividing the actual displacement by
+/// the delta time, providing the effective velocity that the entity experienced
+/// during the frame. This information is useful for other systems that need to
+/// know how entities actually moved, rather than how they intended to move.
+///
+/// The map is automatically populated by the `move_system` function during
+/// collision processing and should be considered read-only for other systems.
+///
 pub let real_velocities : Map[@system.Entity, @velocity.Velocity] = Map::new()
 
 ///|

@@ -29,18 +29,28 @@ pub(all) struct Transform {
 }
 
 ///|
+/// Creates a deep copy of the transform.
+///
+/// Parameters:
+///
+/// * `self` : The transform to clone.
+///
+/// Returns a new `Transform` instance with identical matrix values.
+///
 pub fn Transform::clone(self : Transform) -> Transform {
   { a: self.a, b: self.b, c: self.c, d: self.d, tx: self.tx, ty: self.ty }
 }
 
 ///|
 /// Create identity transform
+/// 
 pub fn Transform::identity() -> Transform {
   { a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 0.0, ty: 0.0 }
 }
 
 ///|
 /// Create transform from matrix components
+/// 
 pub fn Transform::new(
   a? : Double = 1.0,
   b? : Double = 0.0,
@@ -54,24 +64,28 @@ pub fn Transform::new(
 
 ///|
 /// Create translation transform
+/// 
 pub fn Transform::from_translation(tx : Double, ty : Double) -> Transform {
   { a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx, ty }
 }
 
 ///|
 /// Create scale transform
+/// 
 pub fn Transform::from_scale(sx : Double, sy : Double) -> Transform {
   { a: sx, b: 0.0, c: 0.0, d: sy, tx: 0.0, ty: 0.0 }
 }
 
 ///|
 /// Create rotation transform (degrees)
+/// 
 pub fn Transform::from_rotation_deg(deg : Double) -> Transform {
   Transform::from_rotation_rad(deg * @math.PI / 180.0)
 }
 
 ///|
 /// Create rotation transform (radians)
+/// 
 pub fn Transform::from_rotation_rad(rad : Double) -> Transform {
   let cos_r = @math.cos(rad)
   let sin_r = @math.sin(rad)
@@ -80,12 +94,14 @@ pub fn Transform::from_rotation_rad(rad : Double) -> Transform {
 
 ///|
 /// Create skew transform
+/// 
 pub fn Transform::from_skew(kx : Double, ky : Double) -> Transform {
   { a: 1.0, b: ky, c: kx, d: 1.0, tx: 0.0, ty: 0.0 }
 }
 
 ///|
 /// Multiply two transforms (this * other)
+/// 
 pub fn Transform::multiply(self : Transform, other : Transform) -> Transform {
   {
     a: self.a * other.a + self.c * other.b,
@@ -99,6 +115,7 @@ pub fn Transform::multiply(self : Transform, other : Transform) -> Transform {
 
 ///|
 /// Apply transform to a point
+/// 
 pub fn Transform::apply_to_point(
   self : Transform,
   x : Double,
@@ -111,12 +128,14 @@ pub fn Transform::apply_to_point(
 
 ///|
 /// Get translation values
+/// 
 pub fn Transform::get_translation(self : Transform) -> (Double, Double) {
   (self.tx, self.ty)
 }
 
 ///|
 /// Set translation values
+/// 
 pub fn Transform::translate(
   self : Transform,
   tx : Double,
@@ -127,6 +146,7 @@ pub fn Transform::translate(
 
 ///|
 /// Get scale values (ignoring rotation)
+/// 
 pub fn Transform::get_scale(self : Transform) -> (Double, Double) {
   let sx = (self.a * self.a + self.b * self.b).sqrt()
   let sy = (self.c * self.c + self.d * self.d).sqrt()
@@ -135,6 +155,7 @@ pub fn Transform::get_scale(self : Transform) -> (Double, Double) {
 
 ///|
 /// Set scale values (preserving rotation)
+/// 
 pub fn Transform::scale(
   self : Transform,
   sx : Double,
@@ -145,18 +166,21 @@ pub fn Transform::scale(
 
 ///|
 /// Get rotation angle in radians
+/// 
 pub fn Transform::get_rotation_rad(self : Transform) -> Double {
   @math.atan2(self.b, self.a)
 }
 
 ///|
 /// Set rotation angle (preserving scale)
+/// 
 pub fn Transform::rotate_rad(self : Transform, rad : Double) -> Transform {
   Transform::from_rotation_rad(rad) * self
 }
 
 ///|
 /// Calculate inverse transform
+/// 
 pub fn Transform::inverse(self : Transform) -> Transform? {
   let det = self.a * self.d - self.b * self.c
   if det.abs() < 0.0000000001 {
@@ -176,18 +200,21 @@ pub fn Transform::inverse(self : Transform) -> Transform? {
 
 ///|
 /// Flip transform horizontally
+/// 
 pub fn Transform::flip_x(width : Double) -> Transform {
   Transform::from_translation(width, 0.0) * Transform::from_scale(-1.0, 1.0)
 }
 
 ///|
 /// Flip transform vertically
+/// 
 pub fn Transform::flip_y(height : Double) -> Transform {
   Transform::from_translation(0.0, height) * Transform::from_scale(1.0, -1.0)
 }
 
 ///|
 /// Add two transforms (matrix addition)
+/// 
 pub impl Add for Transform with add(self : Transform, other : Transform) -> Transform {
   {
     a: self.a + other.a,
@@ -201,6 +228,7 @@ pub impl Add for Transform with add(self : Transform, other : Transform) -> Tran
 
 ///|
 /// Subtract two transforms (matrix subtraction)
+/// 
 pub impl Sub for Transform with sub(self : Transform, other : Transform) -> Transform {
   {
     a: self.a - other.a,
@@ -214,6 +242,7 @@ pub impl Sub for Transform with sub(self : Transform, other : Transform) -> Tran
 
 ///|
 /// Multiply two transforms (matrix multiplication, same as compose)
+/// 
 pub impl Mul for Transform with mul(self : Transform, other : Transform) -> Transform {
   self.multiply(other)
 }

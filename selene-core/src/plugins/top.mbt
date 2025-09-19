@@ -14,10 +14,14 @@
 
 ///|
 /// Debug plugin for development.
-/// Usage:
-/// ```notest
-/// app.add_plugin(@plugins.debug_plugin)
+/// 
+/// Example:
+/// 
+/// ```moonbit
+/// let app = @system.App::new()
+/// app.add_plugin(@plugins.debug_plugin).run()
 /// ```
+/// 
 pub fn debug_plugin(app : @system.App) -> Unit {
   app.systems
   ..push((@collision.debug_collide_system, Render(-10), "Debug Collide System"))
@@ -31,11 +35,21 @@ pub fn debug_plugin(app : @system.App) -> Unit {
 }
 
 ///|
-/// Default plugin for the Selene engine.
-/// Usage:
-/// ```notest
-/// app.add_plugin(@plugins.default_plugin)
+/// Configures an application with essential game engine systems in their
+/// default execution order.
+///
+/// Parameters:
+///
+/// * `app` : The application instance to configure with systems.
+///
+/// Example:
+///
+/// ```moonbit
+/// let app = @system.App::new()
+/// @plugins.default_plugin(app)
+/// app.run()
 /// ```
+///
 pub fn default_plugin(app : @system.App) -> Unit {
   app.systems
   ..push((@collision.move_system, Update, "Move System"))

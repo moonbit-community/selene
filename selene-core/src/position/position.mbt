@@ -13,18 +13,24 @@
 // limitations under the License.
 
 ///|
+/// 2D position in space.
+///
 pub(all) struct Position(@math.Vec2D) derive(Eq, Show)
 
 ///|
-/// Get the position of an entity.
-/// ```notest
-/// @position.positions.get(entity)
+/// Global mutable map that stores position components for entities in the ECS
+/// system.
+///
+/// This map associates each entity with its position in 2D space. The map is
+/// shared across the entire position system and is used to track which entities
+/// have position components and their current locations.
+///
+/// Example:
+///
+/// ```moonbit
+/// let entity = @system.Entity::new()
+/// let pos = @position.Position(@math.Vec2D(10.0, 20.0))
+/// @position.positions[entity] = pos
 /// ```
-/// Returns `None` if the entity does not have a position.
-/// 
-/// Set the position of an entity.
-/// ```notest
-/// @position.positions.set(entity, Position(@math.Vec2D(100.0, 100.0)))
-/// ```
-/// 
+///
 pub let positions : Map[@system.Entity, Position] = Map::new()

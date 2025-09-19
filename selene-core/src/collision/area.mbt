@@ -21,23 +21,22 @@ struct Area {
 }
 
 ///|
-/// Creates a new collision area with the specified layer and collision mask.
+/// Creates a new area with the specified collision mask.
 ///
 /// Parameters:
 ///
-/// * `layer` : The collision layer that this area belongs to.
 /// * `mask` : The collision mask that determines which collision layers this
-///   area can interact with.
+///   area will interact with.
 ///
-/// Returns a new `Area` instance with empty callback lists and no previously
-/// contained entities.
+/// Returns a new `Area` instance with an empty set of contained entities and no
+/// registered callbacks.
 ///
 /// Example:
 ///
-/// ```notest
-/// let layer = @collision.CollisionLayer::new()
+/// ```moonbit
 /// let mask = @collision.CollisionMask::empty()
-/// let area = @collision.Area::new(layer, mask)
+/// let area = @collision.Area::new(mask)
+/// areas[@system.Entity::new()] = area
 /// ```
 ///
 pub fn Area::new(mask : CollisionMask) -> Area {
@@ -45,6 +44,31 @@ pub fn Area::new(mask : CollisionMask) -> Area {
 }
 
 ///|
+/// Global map that stores area components for entities in the collision system.
+///
+/// This map associates entity IDs with their corresponding `Area` components,
+/// allowing the collision system to track which entities have area behavior and
+/// manage area-specific collision detection and callbacks.
+///
+/// The map is used internally by the collision system to:
+///
+/// * Store area components when they are attached to entities
+/// * Retrieve area information during collision detection
+/// * Manage area enter/exit events and callbacks
+///
+/// Example:
+///
+/// ```moonbit
+/// // Create an area and attach it to an entity
+/// let entity = @system.Entity::new()
+/// let mask = @collision.CollisionMask::empty()
+/// let area = @collision.Area::new(mask)
+/// @collision.areas.set(entity, area)
+///
+/// // Later retrieve the area
+/// guard @collision.areas.get(entity) is Some(_area)
+/// ```
+///
 pub let areas : Map[@system.Entity, Area] = Map::new()
 
 ///|
@@ -53,26 +77,23 @@ pub let areas : Map[@system.Entity, Area] = Map::new()
 ///
 /// Parameters:
 ///
-/// * `area` : The entity that has an area component whose contained entities
-///   should be retrieved.
+/// * `area` : The entity that has an area component attached to it.
 ///
 /// Returns a `Set[@system.Entity]` containing all entities currently within the
-/// area. If the specified entity does not have an area component, returns an
-/// empty set.
+/// area. If the entity does not have an area component, returns an empty set.
 ///
 /// Example:
 ///
-/// ```notest
-/// // Create an area entity
+/// ```moonbit
+/// // Create an area entity and get its contained entities
 /// let area_entity = @system.Entity::new()
-/// let layer = @collision.CollisionLayer::new()
 /// let mask = @collision.CollisionMask::empty()
-/// let area = @collision.Area::new(layer, mask)
+/// let area = @collision.Area::new(mask)
 /// @collision.areas.set(area_entity, area)
 ///
-/// // Get entities contained in the area
 /// let contained_entities = @collision.get_contains(area_entity)
-/// println("Area contains \{contained_entities.length()} entities")
+/// // contained_entities is now a Set of entities within the area
+/// ignore(contained_entities)
 /// ```
 ///
 pub fn get_contains(area : @system.Entity) -> Set[@system.Entity] {
@@ -80,7 +101,7 @@ pub fn get_contains(area : @system.Entity) -> Set[@system.Entity] {
 }
 
 ///|
-/// Registers a callback function to be executed when another entity enters this
+/// Registers a callback function to be executed when an entity enters this
 /// area.
 ///
 /// Parameters:
@@ -91,11 +112,10 @@ pub fn get_contains(area : @system.Entity) -> Set[@system.Entity] {
 ///
 /// Example:
 ///
-/// ```notest
-/// let layer = @collision.CollisionLayer::new()
+/// ```moonbit
+/// let my_entity = @system.Entity::new()
 /// let mask = @collision.CollisionMask::empty()
-/// let shape = @collision.CollisionShape::Rect(size=@math.Vec2D(100.0, 100.0), offset=@math.Vec2D(0.0, 0.0))
-/// let area = @collision.Area::new(shape, layer, mask)
+/// let area = @collision.Area::new(mask)
 /// area.on_enter(fn(entity) { println("Entity \{entity} entered the area!") })
 /// @collision.areas.set(my_entity, area)
 /// ```
@@ -105,8 +125,7 @@ pub fn Area::on_enter(self : Area, callback : (@system.Entity) -> Unit) -> Unit 
 }
 
 ///|
-/// Registers a callback function to be executed when another entity exits this
-/// area.
+/// Registers a callback function to be executed when an entity exits this area.
 ///
 /// Parameters:
 ///
@@ -116,11 +135,11 @@ pub fn Area::on_enter(self : Area, callback : (@system.Entity) -> Unit) -> Unit 
 ///
 /// Example:
 ///
-/// ```notest
-/// let layer = @collision.CollisionLayer::new()
+/// ```moonbit
+/// let my_entity = @system.Entity::new()
 /// let mask = @collision.CollisionMask::empty()
-/// let area = @collision.Area::new(layer, mask)
-/// area.on_exit(fn(entity) { println("Entity \{entity} exited the area!") })
+/// let area = @collision.Area::new(mask)
+/// area.on_exit(fn(entity) { println("Entity \{entity} left the area!") })
 /// @collision.areas.set(my_entity, area)
 /// ```
 ///
@@ -129,6 +148,33 @@ pub fn Area::on_exit(self : Area, callback : (@system.Entity) -> Unit) -> Unit {
 }
 
 ///|
+/// Processes area collision detection and triggers enter/exit callbacks for all
+/// area entities in the collision system.
+///
+/// This system iterates through all entities with area components, performs
+/// collision detection using a spatial quadtree query, and manages entity
+/// enter/exit events. For each area entity, it:
+///
+/// 1. Queries the quadtree for potential colliding entities within the area's
+/// bounding box
+/// 2. Performs precise collision detection between the area and other entities
+/// 3. Filters entities based on the area's collision mask
+/// 4. Triggers enter callbacks for newly detected entities
+/// 5. Triggers exit callbacks for entities that are no longer in the area
+/// 6. Updates the area's contained entities set
+///
+/// Parameters:
+///
+/// * `delta` : The time delta since the last frame (currently unused but
+///   typically used for time-based calculations in game systems).
+///
+/// Example:
+///
+/// ```moonbit
+/// let app = @system.App::new()
+/// app.add_system(area_collide_system).run()
+/// ```
+///
 pub fn area_collide_system(_delta : Double) -> Unit {
   for e in @system.iter_entities() {
     guard areas.get(e) is Some(area) else { continue }

@@ -13,18 +13,18 @@
 // limitations under the License.
 
 ///|
-pub let quadtree_root : Ref[QuadTree] = Ref::new(
+let quadtree_root : Ref[QuadTree] = Ref::new(
   QuadTree::new(@math.Vec2D(0, 0), @math.Vec2D(0, 0), 0),
 )
 
 ///|
-pub struct QuadTree {
+priv struct QuadTree {
   position : @math.Vec2D
   size : @math.Vec2D
   children : Array[QuadTree]
-  priv depth : Int
-  priv bounding_box : @math.Rect
-  priv entities : @set.Set[@system.Entity]
+  depth : Int
+  bounding_box : @math.Rect
+  entities : @set.Set[@system.Entity]
 }
 
 ///|
@@ -108,6 +108,14 @@ fn quadtree_query(area : @math.Rect) -> @set.Set[@system.Entity] {
 }
 
 ///|
+/// Renders the quadtree structure as blue stroke rectangles on the screen for
+/// debugging visualization.
+///
+/// Parameters:
+///
+/// * `delta` : The time delta since the last frame (unused in this
+///   implementation).
+///
 pub fn quadtree_render_system(_delta : Double) -> Unit {
   fn render_node(node : QuadTree) -> Unit {
     let position = node.position - @camera.get_position()
@@ -128,6 +136,19 @@ pub fn quadtree_render_system(_delta : Double) -> Unit {
 }
 
 ///|
+/// Rebuilds the global quadtree structure by collecting all collidable entities
+/// and reconstructing the spatial partitioning.
+///
+/// Parameters:
+///
+/// * `delta` : The time delta since the last frame (unused in this
+///   implementation).
+///
+/// Panics:
+///
+/// * If an entity has a position but no shape component.
+/// * If an entity has a shape that is not a rectangle.
+///
 pub fn quadtree_clear_system(_delta : Double) -> Unit {
   let mut left_limit = 0.0
   let mut right_limit = 0.0

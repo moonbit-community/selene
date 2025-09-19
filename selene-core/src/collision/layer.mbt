@@ -49,7 +49,9 @@ pub fn CollisionLayer::new() -> CollisionLayer {
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
+/// let player_entity = @system.Entity::new()
+/// let enemy_entity = @system.Entity::new()
 /// let player_layer = @collision.CollisionLayer::new()
 /// let enemy_layer = @collision.CollisionLayer::new()
 ///
@@ -57,11 +59,7 @@ pub fn CollisionLayer::new() -> CollisionLayer {
 /// @collision.collision_layers[player_entity] = player_layer
 /// @collision.collision_layers[enemy_entity] = enemy_layer
 ///
-/// // Check which layer an entity belongs to
-/// match @collision.collision_layers.get(player_entity) {
-///   Some(layer) => println("Player is on collision layer")
-///   None => println("Player has no collision layer assigned")
-/// }
+/// inspect(@collision.collision_layers.get(player_entity) is Some(_), content="true")
 /// ```
 ///
 pub let collision_layers : Map[@system.Entity, CollisionLayer] = Map::new()

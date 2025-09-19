@@ -13,6 +13,16 @@
 // limitations under the License.
 
 ///|
+/// Mode controlling texture repetition behavior along axes.
+///
+/// Constructors:
+///
+/// * `RepeatX` : Repeat texture horizontally only
+/// * `RepeatY` : Repeat texture vertically only
+/// * `NoRepeat` : No repetition in either direction
+/// * `Repeat` : Repeat texture in both directions
+/// ```
+///
 pub(all) enum RepeatMode {
   RepeatX
   RepeatY

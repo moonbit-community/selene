@@ -13,24 +13,27 @@
 // limitations under the License.
 
 ///|
-/// Plays an audio file through the specified backend with configurable volume
-/// and looping options.
+/// Plays an audio file with specified volume and loop settings.
 ///
 /// Parameters:
 ///
-/// * `backend` : The audio backend used to play the audio file.
-/// * `audio_path` : The file path or identifier of the audio file to play.
-/// * `volume` : The playback volume level, defaults to 1.0 (full volume).
-/// * `loop_` : Whether the audio should loop continuously, defaults to false.
+/// * `audio_path` : The file path to the audio file to be played.
+/// * `volume` : The playback volume level, ranging from 0.0 (silent) to 1.0
+///   (full volume). Defaults to 1.0.
+/// * `loop_` : Whether the audio should loop continuously after finishing.
+///   Defaults to false.
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// // Play audio once at full volume
-/// @audio.play_audio(backend, "sound.wav")
+/// @audio.play_audio("sounds/music.wav")
 ///
-/// // Play audio at half volume with looping
-/// @audio.play_audio(backend, "music.mp3", volume=0.5, loop_=true)
+/// // Play audio at half volume
+/// @audio.play_audio("sounds/effect.wav", volume=0.5)
+///
+/// // Play audio in a loop at 80% volume
+/// @audio.play_audio("sounds/background.mp3", volume=0.8, loop_=true)
 /// ```
 ///
 pub fn play_audio(

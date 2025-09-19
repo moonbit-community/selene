@@ -15,9 +15,28 @@
 ///|
 /// The `CollisionShape` enum represents different shapes that can be used for collision detection.
 /// It currently supports rectangular shapes defined by their size and offset.
+/// 
 pub(all) enum CollisionShape {
   Rect(size~ : @math.Vec2D, offset~ : @math.Vec2D)
 }
 
 ///|
+/// Stores the collision shapes for all entities in the game world.
+///
+/// This is a global registry that maps each entity to its associated collision
+/// shape. The map allows for efficient lookup and management of collision
+/// shapes during collision detection and physics calculations. Each entity can
+/// have at most one collision shape associated with it.
+///
+/// Example:
+///
+/// ```moonbit
+/// // Register a rectangular collision shape for an entity
+/// let entity = @system.Entity::new()
+/// @collision.shapes[entity] = @collision.CollisionShape::Rect(
+///   size=@math.Vec2D(50.0, 30.0),
+///   offset=@math.Vec2D(0.0, 0.0)
+/// )
+/// ```
+///
 pub let shapes : Map[@system.Entity, CollisionShape] = Map::new()
