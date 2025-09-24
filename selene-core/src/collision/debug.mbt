@@ -68,4 +68,22 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
       color="rgba(0, 0, 255, 0.5)",
     )
   }
+  for e, _pickable in pickables {
+    guard e.is_alive() else { continue }
+    guard @position.positions.get(e) is Some(pos)
+    guard shapes.get(e) is Some(shape) else { continue }
+    guard shape is Rect(size=Vec2D(width, height), offset~)
+    let pos = if @ui.uis.get(e) is Some(_) {
+      pos.0 + offset
+    } else {
+      pos.0 + offset - @camera.get_position()
+    }
+    @backend.draw_color_rect(
+      x=pos[X],
+      y=pos[Y],
+      width~,
+      height~,
+      color="rgba(0, 255, 0, 0.5)",
+    )
+  }
 }
