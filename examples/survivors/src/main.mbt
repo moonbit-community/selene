@@ -75,6 +75,9 @@ struct GameState {
   exp_box : @sprite.Text
   mut player_level : Int
   level_box : @sprite.Text
+  level_up_box : @sprite.Text
+  level_up_entity : @system.Entity
+  resume_button_entity : @system.Entity
 }
 
 ///|
@@ -121,6 +124,13 @@ let game_state : GameState = {
     color="yellow",
     font="24px ThaleahFat",
   ),
+  level_up_box: @sprite.Text::new(
+    "LEVEL UP!",
+    color="gold",
+    font="36px ThaleahFat",
+  ),
+  level_up_entity: @system.Entity::new(),
+  resume_button_entity: @system.Entity::new(),
 }
 
 ///|
@@ -130,9 +140,8 @@ fn set_score(score : Int) -> Unit {
 }
 
 ///|
-fn xp_required_for_level(level : Int) -> Int {
-  let base = level + 3
-  base * base
+fn xp_required_for_level(n : Int) -> Int {
+  n * (2 * n * n + 21 * n + 73) / 6
 }
 
 ///|
@@ -155,7 +164,8 @@ fn add_exp(exp_gained : Int) -> Unit {
     game_state.player_level = new_level
     game_state.level_box.content = "Level: " +
       game_state.player_level.to_string()
-    // TODO: Add level-up effects here (sound, visual, stat boosts, etc.)
+
+    level_up()
   }
 
   // Update EXP display with progress to next level
@@ -185,6 +195,7 @@ fn game_start(_delta : Double) -> Unit {
   add_wave_box()
   add_level_box()
   add_exp_box()
+  setup_level_up_ui()
 }
 
 ///|
@@ -230,57 +241,4 @@ fn game_timer_system(delta : Double) -> Unit {
     minutes.to_string() +
     ":" +
     seconds_str
-}
-
-///|
-fn add_timer_box() -> Unit {
-  let entity = @system.Entity::new()
-  let sprite = @sprite.Sprite::from_text(game_state.timer_box, UI_ZINDEX)
-  @sprite.sprites.set(entity, sprite)
-  let position = @math.Vec2D(VIEWPORT_WIDTH - 120, 16.0)
-  @position.positions.set(entity, @position.Position(position))
-  @ui.uis.set(entity, @ui.Ui::new())
-}
-
-///|
-fn add_game_over_box() -> Unit {
-  let entity = @system.Entity::new()
-  let sprite = @sprite.Sprite::from_text(
-    game_state.game_over_box,
-    UI_ZINDEX + 1,
-  )
-  @sprite.sprites.set(entity, sprite)
-  let position = @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 160, VIEWPORT_HEIGHT / 2.0)
-  @position.positions.set(entity, @position.Position(position))
-  @ui.uis.set(entity, @ui.Ui::new())
-}
-
-///|
-fn add_level_box() -> Unit {
-  let entity = @system.Entity::new()
-  let sprite = @sprite.Sprite::from_text(game_state.level_box, UI_ZINDEX)
-  @sprite.sprites.set(entity, sprite)
-  let position = @math.Vec2D(16.0, 16.0)
-  @position.positions.set(entity, @position.Position(position))
-  @ui.uis.set(entity, @ui.Ui::new())
-}
-
-///|
-fn add_wave_box() -> Unit {
-  let entity = @system.Entity::new()
-  let sprite = @sprite.Sprite::from_text(game_state.wave_box, UI_ZINDEX)
-  @sprite.sprites.set(entity, sprite)
-  let position = @math.Vec2D(16.0, 84.0)
-  @position.positions.set(entity, @position.Position(position))
-  @ui.uis.set(entity, @ui.Ui::new())
-}
-
-///|
-fn add_exp_box() -> Unit {
-  let entity = @system.Entity::new()
-  let sprite = @sprite.Sprite::from_text(game_state.exp_box, UI_ZINDEX)
-  @sprite.sprites.set(entity, sprite)
-  let position = @math.Vec2D(16.0, 50.0)
-  @position.positions.set(entity, @position.Position(position))
-  @ui.uis.set(entity, @ui.Ui::new())
 }

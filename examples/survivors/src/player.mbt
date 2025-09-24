@@ -52,8 +52,8 @@ fn add_player() -> Unit {
 }
 
 ///|
-fn player_update_system(_delta : Double) -> Unit {
-  if game_state.game_over {
+fn player_update_system(delta : Double) -> Unit {
+  if game_state.game_over || delta == 0 {
     return
   }
   let entity = game_state.player_entity

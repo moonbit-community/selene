@@ -10,7 +10,8 @@
     "Milky2018/selene/collision",
     "Milky2018/selene/camera",
     "Milky2018/selene/ui",
-    "Milky2018/selene/inputs"
+    "Milky2018/selene/inputs",
+    "Milky2018/selene/backend"
   ],
   "overrides": [
     "Milky2018/selene-canvas"
