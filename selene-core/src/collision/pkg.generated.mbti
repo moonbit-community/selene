@@ -60,12 +60,14 @@ pub struct CollisionInfo {
 }
 
 pub struct CollisionLayer(UInt)
+#deprecated
 fn CollisionLayer::inner(Self) -> UInt
 fn CollisionLayer::new() -> Self
 impl Eq for CollisionLayer
 
 pub struct CollisionMask(Array[CollisionLayer])
 fn CollisionMask::empty() -> Self
+#deprecated
 fn CollisionMask::inner(Self) -> Array[CollisionLayer]
 fn CollisionMask::new(Array[CollisionLayer]) -> Self
 

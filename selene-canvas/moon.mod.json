@@ -1,9 +1,9 @@
 {
   "name": "Milky2018/selene-canvas",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "deps": {
     "Yoorkin/rabbit-tea": "0.10.10",
-    "Milky2018/selene": "0.16.0"
+    "Milky2018/selene": "0.17.0"
   },
   "readme": "README.md",
   "repository": "https://github.com/moonbit-community/selene.git",
@@ -11,7 +11,7 @@
   "keywords": [
     "Game Engine"
   ],
-  "description": "",
+  "description": "Default backend for Selene game engine.",
   "source": "src",
   "preferred-target": "js"
 }

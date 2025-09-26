@@ -13,6 +13,7 @@ let velocities : Map[@system.Entity, Velocity]
 
 // Types and methods
 pub(all) struct Velocity(@math.Vec2D)
+#deprecated
 fn Velocity::inner(Self) -> @math.Vec2D
 impl Eq for Velocity
 impl Show for Velocity

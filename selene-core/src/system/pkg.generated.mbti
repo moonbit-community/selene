@@ -10,13 +10,13 @@ fn is_mouse_locked() -> Bool
 
 fn iter_entities() -> Iter[Entity]
 
-fn lock_mouse() -> Unit
+fn live_entities() -> Iter[Entity]
 
-let mouse_locked : Ref[Bool]
+fn lock_mouse() -> Unit
 
 fn realtime_timer_system(Double) -> Unit
 
-fn timeout(Double, Bool, () -> Unit) -> Unit
+fn timeout(Double, () -> Unit, pausible? : Bool) -> Unit
 
 fn timer_system(Double) -> Unit
 
