@@ -45,13 +45,14 @@ let deferred_events : Array[Event] = Array::new()
 /// 
 /// Usage:
 /// 
-/// ```notest
-/// app.add_system(@camera.deferred_event_system)
+/// ```moonbit
+/// let app = @system.App::new()
+/// app.add_system(@system.deferred_event_system).run()
 /// ```
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// // Add some events to be processed later
 /// defer_event(fn() { println("First event") })
 /// defer_event(fn() { println("Second event") }) 
@@ -65,6 +66,7 @@ pub fn deferred_event_system(_delta : Double) -> Unit {
 
 ///|
 /// Adds an event to the deferred events queue to be executed in the next frame.
+/// Make sure the `deferred_event_system` is registered.
 ///
 /// Parameters:
 ///
@@ -72,15 +74,9 @@ pub fn deferred_event_system(_delta : Double) -> Unit {
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// // Schedule a simple logging event
 /// @system.defer_event(fn() { println("This will be executed next frame") })
-///
-/// // Schedule an event that modifies game state
-/// @system.defer_event(fn() { 
-///   // Some game logic that needs to be delayed
-///   player.respawn()
-/// })
 /// ```
 ///
 pub fn defer_event(event : Event) -> Unit {

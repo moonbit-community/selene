@@ -285,7 +285,7 @@ pub fn frames_from_atlas(
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit skip
 /// let entity = @system.Entity::new()
 /// // Create an animation
 /// let frames = @sprite.frames_from_atlas(
@@ -409,7 +409,7 @@ fn render_animation(
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit skip
 /// let entity = @system.Entity::new()
 /// // Create a non-looping animation
 /// let frames = @sprite.frames_from_atlas(

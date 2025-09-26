@@ -234,6 +234,7 @@ pub let just_release_mouse : Mouse = {
 /// ```moonbit
 /// inspect(@inputs.is_mouse_just_pressed(Left), content="false") 
 /// inspect(@inputs.is_mouse_pressed(Right), content="false") 
+/// ```
 ///
 pub fn advanced_mouse_system(_delta : Double) -> Unit {
   // Just pressed
@@ -316,14 +317,8 @@ pub fn is_mouse_released(button : MouseButton) -> Bool {
 ///
 /// Example:
 ///
-/// ```notest
-/// if is_mouse_just_pressed(MouseButton::Left) {
-///   println("Left mouse button was just clicked!")
-/// }
-///
-/// if is_mouse_just_pressed(MouseButton::Right) {
-///   println("Right mouse button was just clicked!")
-/// }
+/// ```moonbit
+/// inspect(@inputs.is_mouse_just_pressed(MouseButton::Left), content="false")
 /// ```
 ///
 pub fn is_mouse_just_pressed(button : MouseButton) -> Bool {
@@ -346,14 +341,8 @@ pub fn is_mouse_just_pressed(button : MouseButton) -> Bool {
 ///
 /// Example:
 ///
-/// ```notest
-/// if is_mouse_just_released(MouseButton::Left) {
-///   println("Left mouse button was just released!")
-/// }
-///
-/// if is_mouse_just_released(MouseButton::Right) {
-///   println("Right mouse button was just released!")
-/// }
+/// ```moonbit
+/// inspect(@inputs.is_mouse_just_released(MouseButton::Left), content="false")
 /// ```
 ///
 pub fn is_mouse_just_released(button : MouseButton) -> Bool {

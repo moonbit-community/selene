@@ -29,7 +29,7 @@ pub(all) struct Position(@math.Vec2D) derive(Eq, Show)
 ///
 /// ```moonbit
 /// let entity = @system.Entity::new()
-/// let pos = @position.Position(@math.Vec2D(10.0, 20.0))
+/// let pos = @math.Vec2D(10.0, 20.0)
 /// @position.positions[entity] = pos
 /// ```
 ///

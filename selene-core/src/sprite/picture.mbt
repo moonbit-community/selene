@@ -26,13 +26,13 @@
 ///
 /// Example:
 ///
-/// ```notest
-/// let picture = @sprite.Picture::new(
-///   @math.Vec2D::new(100.0, 50.0),
+/// ```moonbit
+/// let _picture = @sprite.Picture::new(
+///   @math.Vec2D(100.0, 50.0),
 ///   "assets/background.png",
 ///   transform=@math.Transform::new(),
 ///   repeat=@math.RepeatMode::NoRepeat
-/// )
+/// ) 
 /// ```
 ///
 pub(all) struct Picture {
@@ -61,9 +61,9 @@ pub(all) struct Picture {
 ///
 /// Example:
 ///
-/// ```notest
-/// let picture = @sprite.Picture::new(
-///   @math.Vec2D::new(100.0, 50.0),
+/// ```moonbit
+/// let _picture = @sprite.Picture::new(
+///   @math.Vec2D(100.0, 50.0),
 ///   "assets/background.png",
 ///   transform=@math.Transform::new(),
 ///   repeat=@math.RepeatMode::NoRepeat

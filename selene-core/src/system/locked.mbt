@@ -13,14 +13,39 @@
 // limitations under the License.
 
 ///|
-pub let mouse_locked : Ref[Bool] = Ref::new(false)
+let mouse_locked : Ref[Bool] = Ref::new(false)
 
 ///|
+/// Locks the mouse cursor to prevent it from leaving the application window.
+///
+/// This function enables mouse lock mode, which is commonly used in
+/// first-person games, 3D applications, or other interactive software where
+/// continuous mouse movement input is needed without the cursor hitting screen
+/// boundaries. When locked, mouse movement events continue to be generated even
+/// though the cursor position remains fixed.
+///
+/// Example:
+///
+/// ```moonbit
+/// @system.lock_mouse()
+/// ```
+///
 pub fn lock_mouse() -> Unit {
   @backend.lock_mouse(mouse_locked)
 }
 
 ///|
+/// Checks whether the mouse cursor is currently locked to the application
+/// window.
+///
+/// Returns `true` if the mouse is locked, `false` otherwise.
+///
+/// Example:
+///
+/// ```moonbit
+/// inspect(@system.is_mouse_locked(), content="false")
+/// ```
+///
 pub fn is_mouse_locked() -> Bool {
   mouse_locked.val
 }

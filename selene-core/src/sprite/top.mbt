@@ -35,7 +35,7 @@
 ///
 /// // Create a picture sprite with offset
 /// let picture = @sprite.Picture::new(size, "path/to/image.png")
-/// let sprite = @sprite.Sprite::new_picture(picture, zindex=5, offset=@math.Vec2D::new(10.0, 20.0))
+/// let sprite = @sprite.Sprite::new_picture(picture, zindex=5, offset=@math.Vec2D(10.0, 20.0))
 /// inspect(sprite.zindex, content="5")
 ///
 /// // Create a text sprite

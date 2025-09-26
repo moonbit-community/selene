@@ -13,18 +13,41 @@
 // limitations under the License.
 
 ///|
+/// Velocity vector in 2D space.
+///
+/// Fields:
+///
+/// * `_` : The underlying 2D vector containing velocity components.
+///
+/// Example:
+///
+/// ```moonbit
+/// let vel : Velocity = @math.Vec2D(5.0, 3.0)
+/// inspect(vel, content="Velocity(Vec2D(5, 3))")
+/// ```
+///
 pub(all) struct Velocity(@math.Vec2D) derive(Eq, Show)
 
 ///|
-/// Get the velocity of an entity.
-/// ```notest
-/// @velocity.velocities.get(entity)
-/// ```
-/// Returns `None` if the entity does not have a velocity.
+/// Stores velocity components for all entities in the game world.
 ///
-/// Set the velocity of an entity.
-/// ```notest
-/// @velocity.velocities.set(entity, Velocity(@math.Vec2D(100.0, 100.0)))
-/// ```
+/// This is a global map that associates each entity with its velocity vector.
+/// The velocity determines how fast and in which direction an entity moves per
+/// frame. Entities without an entry in this map are considered to have zero
+/// velocity.
+///
+/// Example:
+///
+/// ```moonbit
+/// // Set velocity for an entity
+/// let entity = @system.Entity::new()
 /// 
+/// @velocity.velocities[entity] = @math.Vec2D(10.0, 5.0)
+///
+/// // Get velocity for an entity
+/// let entity_vel = @velocity.velocities.get(entity)
+/// 
+/// inspect(entity_vel, content="Some(Velocity(Vec2D(10, 5)))")
+/// ```
+///
 pub let velocities : Map[@system.Entity, Velocity] = Map::new()

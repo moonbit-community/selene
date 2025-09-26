@@ -13,15 +13,12 @@
 // limitations under the License.
 
 ///|
-/// Unique identifier for game objects in the entity-component system.
+/// Unique identifier for game objects.
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// let entity = @system.Entity::new()
-/// if entity.is_alive() {
-///   println("Entity is active")
-/// }
 /// entity.destroy()
 /// ```
 ///
@@ -31,12 +28,60 @@ struct Entity(UInt) derive(Eq, Show, Hash)
 let all_entities : @set.Set[Entity] = @set.Set::new()
 
 ///|
+/// Returns an iterator over all entities currently registered in the
+/// selene app.
+///
+/// Returns an `Iter[Entity]` that yields all entities that have been created,
+/// including both active and inactive entities.
+///
+/// Example:
+///
+/// ```moonbit
+/// let entity1 = @system.Entity::new()
+/// let entity2 = @system.Entity::new()
+///
+/// // The following line will be executed in the game loop, instead of manual calling.
+/// @system.deferred_event_system(0.0)
+/// 
+/// inspect(@system.iter_entities().count(), content="2")
+/// 
+/// entity1.destroy()
+/// entity2.destroy()
+/// ```
+///
 pub fn iter_entities() -> Iter[Entity] {
   all_entities.iter()
 }
 
 ///|
-/// Checks whether an entity is currently active in the entity-component system.
+/// Returns an iterator over all currently active entities in the
+/// selene app.
+///
+/// Returns an `Iter[Entity]` that yields only entities that are currently alive
+/// and tracked in the system.
+///
+/// Example:
+///
+/// ```moonbit
+/// let entity1 = @system.Entity::new()
+/// let entity2 = @system.Entity::new()
+/// entity1.destroy()
+/// 
+/// // The following line will be executed in the game loop, instead of manual calling.
+/// @system.deferred_event_system(0.0)
+///
+/// // Iterate over live entities (only entity2 will be included after deferred processing)
+/// inspect(@system.live_entities().count(), content="1")
+/// 
+/// entity2.destroy()
+/// ```
+///
+pub fn live_entities() -> Iter[Entity] {
+  iter_entities().filter(e => e.is_alive())
+}
+
+///|
+/// Checks whether an entity is currently active in the selene app.
 ///
 /// Parameters:
 ///
@@ -47,7 +92,7 @@ pub fn iter_entities() -> Iter[Entity] {
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// let entity = @system.Entity::new()
 /// inspect(entity.is_alive(), content="true")
 ///
@@ -63,6 +108,25 @@ pub fn Entity::is_alive(e : Entity) -> Bool {
 let entity_generator : Ref[UInt] = { val: 0 }
 
 ///|
+/// Creates a new unique entity and registers it in the selene app.
+///
+/// Returns a new `Entity` with a unique identifier that is automatically
+/// tracked in the system.
+///
+/// Example:
+///
+/// ```moonbit
+/// let entity1 = @system.Entity::new()
+/// let entity2 = @system.Entity::new()
+///
+/// // Each entity has a unique identifier
+/// inspect(entity1 == entity2, content="false")
+///
+/// // Both entities are automatically registered and alive
+/// inspect(entity1.is_alive(), content="true")
+/// inspect(entity2.is_alive(), content="true")
+/// ```
+///
 pub fn Entity::new() -> Entity {
   let entity = entity_generator.val
   entity_generator.val += 1
@@ -72,7 +136,7 @@ pub fn Entity::new() -> Entity {
 
 ///|
 /// Marks an entity for destruction, scheduling its removal from the
-/// entity-component system during the next deferred event processing cycle.
+/// selene app during the next deferred event processing cycle.
 ///
 /// Parameters:
 ///
@@ -80,12 +144,17 @@ pub fn Entity::new() -> Entity {
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// let entity = @system.Entity::new()
 /// inspect(entity.is_alive(), content="true")
 ///
 /// entity.destroy()
+/// 
+/// // The following line will be executed in the game loop, instead of manual calling.
+/// @system.deferred_event_system(0.0)
+/// 
 /// // Entity will be removed from all_entities during next deferred event cycle
+/// inspect(entity.is_alive(), content="false")
 /// ```
 ///
 pub fn Entity::destroy(e : Entity) -> Unit {
@@ -98,19 +167,27 @@ pub fn Entity::destroy(e : Entity) -> Unit {
 ///
 /// Parameters:
 ///
-/// * `entity` : The entity to be reactivated in the entity-component system.
+/// * `entity` : The entity to be reactivated in the selene app.
 ///
 /// Example:
 ///
-/// ```notest
+/// ```moonbit
 /// let entity = @system.Entity::new()
 /// inspect(entity.is_alive(), content="true")
 ///
 /// entity.destroy()
+/// 
+/// // The following line will be executed in the game loop, instead of manual calling.
+/// @system.deferred_event_system(0.0)
+/// 
 /// inspect(entity.is_alive(), content="false")
 /// // Entity is marked for removal during next deferred event cycle
 ///
 /// entity.respawn()
+/// 
+/// // The following line will be executed in the game loop, instead of manual calling.
+/// @system.deferred_event_system(0.0)
+/// 
 /// inspect(entity.is_alive(), content="true") // Entity is active again
 /// ```
 ///
