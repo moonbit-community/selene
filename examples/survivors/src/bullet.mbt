@@ -64,7 +64,7 @@ fn shoot_bullet(player_pos : @math.Vec2D, target_pos : @math.Vec2D) -> Unit {
     }
   })
   @collision.areas.set(bullet_entity, area)
-  @system.timeout(BULLET_DURATION, true, fn() {
+  @system.timeout(BULLET_DURATION, fn() {
     bullet_alive = false
     bullet_entity.destroy()
   })
