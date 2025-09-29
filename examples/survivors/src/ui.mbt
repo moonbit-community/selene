@@ -32,7 +32,7 @@ fn setup_level_up_ui() -> Unit {
   @sprite.sprites.set(game_state.level_up_entity, level_up_sprite)
   let level_up_position = @math.Vec2D(
     VIEWPORT_WIDTH / 2.0 - 80,
-    VIEWPORT_HEIGHT / 2.0 - 60,
+    VIEWPORT_HEIGHT / 2.0 - 100,
   )
   @position.positions.set(
     game_state.level_up_entity,
@@ -40,50 +40,82 @@ fn setup_level_up_ui() -> Unit {
   )
   @ui.uis.set(game_state.level_up_entity, @ui.Ui::new())
 
-  // Set up resume button entity
-  let button_text = @sprite.Text::new(
-    "RESUME",
-    color="white",
-    font="24px ThaleahFat",
-  )
-  let button_sprite = @sprite.Sprite::from_text(button_text, UI_ZINDEX + 2)
-  @sprite.sprites.set(game_state.resume_button_entity, button_sprite)
-  let button_position = @math.Vec2D(
-    VIEWPORT_WIDTH / 2.0 - 40,
-    VIEWPORT_HEIGHT / 2.0,
-  )
-  @position.positions.set(
-    game_state.resume_button_entity,
-    @position.Position(button_position),
-  )
-  @ui.uis.set(game_state.resume_button_entity, @ui.Ui::new())
+  // Set up powerup button entities
+  setup_powerup_button(game_state.powerup_button1_entity, 0)
+  setup_powerup_button(game_state.powerup_button2_entity, 1)
+  setup_powerup_button(game_state.powerup_button3_entity, 2)
+
+  // Initially destroy all entities (they'll be respawned when needed)
+  game_state.level_up_entity.destroy()
+  game_state.powerup_button1_entity.destroy()
+  game_state.powerup_button2_entity.destroy()
+  game_state.powerup_button3_entity.destroy()
+}
+
+///|
+fn setup_powerup_button(entity : @system.Entity, index : Int) -> Unit {
+  // Position buttons vertically
+  let button_y = VIEWPORT_HEIGHT / 2.0 - 40.0 + index.to_double() * 40.0
+  let button_position = @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 100, button_y)
+
+  @position.positions.set(entity, @position.Position(button_position))
+  @ui.uis.set(entity, @ui.Ui::new())
 
   // Add clickable area for the button
   @collision.shapes.set(
-    game_state.resume_button_entity,
+    entity,
     @collision.CollisionShape::Rect(
-      size=@math.Vec2D(80.0, 24.0),
-      offset=@math.Vec2D(-4.0, -16.0),
+      size=@math.Vec2D(200.0, 35.0),
+      offset=@math.Vec2D(0.0, 0.0),
     ),
   )
 
   // Create pickable component for button
   let pickable = @collision.Pickable::new()
-  pickable.on_just_pressed(fn(_button) { resume_game() })
-  @collision.pickables[game_state.resume_button_entity] = pickable
-
-  // Initially destroy both entities (they'll be respawned when needed)
-  game_state.level_up_entity.destroy()
-  game_state.resume_button_entity.destroy()
+  pickable.on_just_pressed(fn(_button) { select_powerup(index) })
+  @collision.pickables[entity] = pickable
 }
 
 ///|
 fn level_up() -> Unit {
   @backend.set_time_scale(0.0)
 
+  // Generate 3 random powerups
+  game_state.available_powerups = generate_random_powerups()
+
+  // Update button text with powerup names
+  update_powerup_button_text(game_state.powerup_button1_entity, 0)
+  update_powerup_button_text(game_state.powerup_button2_entity, 1)
+  update_powerup_button_text(game_state.powerup_button3_entity, 2)
+
   // Respawn the level-up UI entities
   game_state.level_up_entity.respawn()
-  game_state.resume_button_entity.respawn()
+  game_state.powerup_button1_entity.respawn()
+  game_state.powerup_button2_entity.respawn()
+  game_state.powerup_button3_entity.respawn()
+}
+
+///|
+fn update_powerup_button_text(entity : @system.Entity, index : Int) -> Unit {
+  if index < game_state.available_powerups.length() {
+    let powerup = game_state.available_powerups[index]
+    let button_text = @sprite.Text::new(
+      powerup.name + ": " + powerup.description,
+      color="white",
+      font="18px ThaleahFat",
+    )
+    let button_sprite = @sprite.Sprite::from_text(button_text, UI_ZINDEX + 2)
+    @sprite.sprites.set(entity, button_sprite)
+  }
+}
+
+///|
+fn select_powerup(index : Int) -> Unit {
+  if index < game_state.available_powerups.length() {
+    let powerup = game_state.available_powerups[index]
+    apply_powerup(powerup)
+  }
+  resume_game()
 }
 
 ///|
@@ -92,7 +124,9 @@ fn resume_game() -> Unit {
 
   // Hide level-up UI entities
   game_state.level_up_entity.destroy()
-  game_state.resume_button_entity.destroy()
+  game_state.powerup_button1_entity.destroy()
+  game_state.powerup_button2_entity.destroy()
+  game_state.powerup_button3_entity.destroy()
 }
 
 ///|

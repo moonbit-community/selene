@@ -19,9 +19,6 @@ const BULLET_SPEED : Double = 300.0
 const BULLET_SIZE : Double = 4.0
 
 ///|
-const BULLET_DURATION : Double = SHOOTING_RANGE / BULLET_SPEED
-
-///|
 fn shoot_bullet(player_pos : @math.Vec2D, target_pos : @math.Vec2D) -> Unit {
   let bullet_entity = @system.Entity::new()
   @sprite.sprites.set(
@@ -52,7 +49,7 @@ fn shoot_bullet(player_pos : @math.Vec2D, target_pos : @math.Vec2D) -> Unit {
       bullet_entity.destroy()
     }
     guard bullet_alive else { return }
-    enemy.health -= 1
+    enemy.health -= game_state.player_stats.attack
     bullet_entity.destroy()
     if enemy.health <= 0 {
       bullet_alive = false
@@ -64,7 +61,10 @@ fn shoot_bullet(player_pos : @math.Vec2D, target_pos : @math.Vec2D) -> Unit {
     }
   })
   @collision.areas.set(bullet_entity, area)
-  @system.timeout(BULLET_DURATION, fn() {
+
+  // Calculate bullet duration based on player's range
+  let bullet_duration = game_state.player_stats.range / BULLET_SPEED
+  @system.timeout(bullet_duration, fn() {
     bullet_alive = false
     bullet_entity.destroy()
   })

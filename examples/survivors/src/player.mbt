@@ -59,7 +59,7 @@ fn player_update_system(delta : Double) -> Unit {
   let entity = game_state.player_entity
   let vel = @inputs.key_vector(KeyW, KeyS, KeyA, KeyD)
     .normalize()
-    .scalar_mul(PLAYER_SPEED)
+    .scalar_mul(game_state.player_stats.speed)
   @velocity.velocities.set(entity, vel)
   if vel[X] > 0.0 {
     game_state.player_direction = Right
@@ -94,7 +94,7 @@ fn player_shooting_system(delta : Double) -> Unit {
     game_state.shoot_timer -= delta
   }
   if game_state.shoot_timer <= 0 {
-    game_state.shoot_timer = WEAPON_COOLDOWN
+    game_state.shoot_timer = WEAPON_COOLDOWN / game_state.player_stats.attack_speed
     guard @position.positions.get(game_state.player_entity) is Some(player_pos)
     let nearest_enemy_pos = find_nearest_enemy_position(player_pos.0)
     match nearest_enemy_pos {
@@ -109,7 +109,7 @@ const SHOOTING_RANGE : Double = 192.0
 
 ///|
 fn find_nearest_enemy_position(player_pos : @math.Vec2D) -> @math.Vec2D? {
-  let mut min = SHOOTING_RANGE
+  let mut min = game_state.player_stats.range
   let mut res : @math.Vec2D? = None
   for e, _enemy in enemies {
     guard e.is_alive() else { continue }

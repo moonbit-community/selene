@@ -77,7 +77,11 @@ struct GameState {
   level_box : @sprite.Text
   level_up_box : @sprite.Text
   level_up_entity : @system.Entity
-  resume_button_entity : @system.Entity
+  player_stats : PlayerStats
+  mut available_powerups : Array[Powerup]
+  powerup_button1_entity : @system.Entity
+  powerup_button2_entity : @system.Entity
+  powerup_button3_entity : @system.Entity
 }
 
 ///|
@@ -86,6 +90,29 @@ enum Dir4 {
   Down
   Left
   Right
+}
+
+///|
+enum PowerupType {
+  Attack
+  Range
+  Speed
+  Cooldown
+} derive(Eq)
+
+///|
+struct PlayerStats {
+  mut attack : Int
+  mut range : Double
+  mut speed : Double
+  mut attack_speed : Double
+}
+
+///|
+struct Powerup {
+  powerup_type : PowerupType
+  name : String
+  description : String
 }
 
 ///|
@@ -130,7 +157,16 @@ let game_state : GameState = {
     font="36px ThaleahFat",
   ),
   level_up_entity: @system.Entity::new(),
-  resume_button_entity: @system.Entity::new(),
+  player_stats: {
+    attack: 1,
+    range: SHOOTING_RANGE,
+    speed: PLAYER_SPEED,
+    attack_speed: 1.0,
+  },
+  available_powerups: [],
+  powerup_button1_entity: @system.Entity::new(),
+  powerup_button2_entity: @system.Entity::new(),
+  powerup_button3_entity: @system.Entity::new(),
 }
 
 ///|
@@ -181,6 +217,57 @@ fn add_exp(exp_gained : Int) -> Unit {
     progress_xp.to_string() +
     "/" +
     needed_xp.to_string()
+}
+
+///|
+fn create_powerup(powerup_type : PowerupType) -> Powerup {
+  match powerup_type {
+    Attack => {
+      powerup_type: Attack,
+      name: "Attack +1",
+      description: "Increase damage by 1",
+    }
+    Range => {
+      powerup_type: Range,
+      name: "Range +16",
+      description: "Increase shooting range",
+    }
+    Speed => {
+      powerup_type: Speed,
+      name: "Speed +15",
+      description: "Move 15% faster",
+    }
+    Cooldown => {
+      powerup_type: Cooldown,
+      name: "Cooldown -10%",
+      description: "Fire 10% faster",
+    }
+  }
+}
+
+///|
+fn generate_random_powerups() -> Array[Powerup] {
+  let all_types = [Attack, Range, Speed, Cooldown]
+  let selected = []
+
+  // Select 3 random powerups
+  for i = 0; i < 3; i = i + 1 {
+    let rand_index = game_state.rand.int(limit=all_types.length())
+    let powerup_type = all_types[rand_index]
+    selected.push(create_powerup(powerup_type))
+  }
+
+  selected
+}
+
+///|
+fn apply_powerup(powerup : Powerup) -> Unit {
+  match powerup.powerup_type {
+    Attack => game_state.player_stats.attack += 1
+    Range => game_state.player_stats.range += 16.0
+    Speed => game_state.player_stats.speed += 15.0
+    Cooldown => game_state.player_stats.attack_speed += 0.1
+  }
 }
 
 ///|
