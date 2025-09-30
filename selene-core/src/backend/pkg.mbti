@@ -101,3 +101,5 @@ fn preload_img(String) -> Unit
 fn preload_audio(String) -> Unit
 
 fn set_time_scale(Double) -> Unit
+
+fn load_font(String, String) -> Unit

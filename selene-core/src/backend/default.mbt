@@ -204,3 +204,9 @@ pub fn preload_audio(path : String) -> Unit {
 pub fn set_time_scale(scale : Double) -> Unit {
   ignore(scale)
 }
+
+///|
+pub fn load_font(font : String, path : String) -> Unit {
+  ignore(font)
+  ignore(path)
+}

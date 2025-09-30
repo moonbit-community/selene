@@ -125,3 +125,11 @@ fn schedule_with_fixed_interval(
   lastId.val = window.request_animation_frame(update)
   () => if lastId.val != 0.0 { window.cancel_animation_frame(lastId.val) }
 }
+
+pub fn load_font(
+  font : String, 
+  path : String 
+) -> Unit {
+  load_font_async(font, path)
+}
+

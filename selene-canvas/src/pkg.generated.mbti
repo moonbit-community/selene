@@ -26,6 +26,8 @@ fn get_zoom() -> Double
 
 fn initialize(startup~ : () -> Unit, render_loop~ : (Double) -> Unit, game_loop~ : (Double) -> Unit, canvas_width~ : Double, canvas_height~ : Double, fps~ : UInt, image_smooth~ : Bool, zoom~ : Double) -> () -> Unit
 
+fn load_font(String, String) -> Unit
+
 fn lock_mouse(Ref[Bool]) -> Unit
 
 fn play_audio(audio_path~ : String, volume~ : Double, loop_~ : Bool) -> Unit

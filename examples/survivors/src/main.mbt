@@ -275,6 +275,7 @@ fn get_powerup_icon(powerup_type : PowerupType) -> @sprite.Animation {
 
 ///|
 fn game_start(_delta : Double) -> Unit {
+  @backend.load_font("ThaleahFat", "assets/fonts/ThaleahFat.ttf")
   @camera.set_limits(top=0.0, bottom=MAP_HEIGHT, left=0.0, right=MAP_WIDTH)
   add_player()
   add_border(Vec2D(MAP_WIDTH, MAP_HEIGHT))
