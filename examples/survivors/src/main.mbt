@@ -82,6 +82,12 @@ struct GameState {
   powerup_button1_entity : @system.Entity
   powerup_button2_entity : @system.Entity
   powerup_button3_entity : @system.Entity
+  powerup_icon1_entity : @system.Entity
+  powerup_icon2_entity : @system.Entity
+  powerup_icon3_entity : @system.Entity
+  powerup_bg1_entity : @system.Entity
+  powerup_bg2_entity : @system.Entity
+  powerup_bg3_entity : @system.Entity
 }
 
 ///|
@@ -112,7 +118,6 @@ struct PlayerStats {
 struct Powerup {
   powerup_type : PowerupType
   name : String
-  description : String
 }
 
 ///|
@@ -167,6 +172,12 @@ let game_state : GameState = {
   powerup_button1_entity: @system.Entity::new(),
   powerup_button2_entity: @system.Entity::new(),
   powerup_button3_entity: @system.Entity::new(),
+  powerup_icon1_entity: @system.Entity::new(),
+  powerup_icon2_entity: @system.Entity::new(),
+  powerup_icon3_entity: @system.Entity::new(),
+  powerup_bg1_entity: @system.Entity::new(),
+  powerup_bg2_entity: @system.Entity::new(),
+  powerup_bg3_entity: @system.Entity::new(),
 }
 
 ///|
@@ -200,7 +211,6 @@ fn add_exp(exp_gained : Int) -> Unit {
     game_state.player_level = new_level
     game_state.level_box.content = "Level: " +
       game_state.player_level.to_string()
-
     level_up()
   }
 
@@ -222,26 +232,10 @@ fn add_exp(exp_gained : Int) -> Unit {
 ///|
 fn create_powerup(powerup_type : PowerupType) -> Powerup {
   match powerup_type {
-    Attack => {
-      powerup_type: Attack,
-      name: "Attack +1",
-      description: "Increase damage by 1",
-    }
-    Range => {
-      powerup_type: Range,
-      name: "Range +16",
-      description: "Increase shooting range",
-    }
-    Speed => {
-      powerup_type: Speed,
-      name: "Speed +15",
-      description: "Move 15% faster",
-    }
-    Cooldown => {
-      powerup_type: Cooldown,
-      name: "Cooldown -10%",
-      description: "Fire 10% faster",
-    }
+    Attack => { powerup_type: Attack, name: "Attack +1" }
+    Range => { powerup_type: Range, name: "Range +16" }
+    Speed => { powerup_type: Speed, name: "Speed +15" }
+    Cooldown => { powerup_type: Cooldown, name: "Attack Speed +10%" }
   }
 }
 
@@ -256,7 +250,6 @@ fn generate_random_powerups() -> Array[Powerup] {
     let powerup_type = all_types[rand_index]
     selected.push(create_powerup(powerup_type))
   }
-
   selected
 }
 
@@ -267,6 +260,16 @@ fn apply_powerup(powerup : Powerup) -> Unit {
     Range => game_state.player_stats.range += 16.0
     Speed => game_state.player_stats.speed += 15.0
     Cooldown => game_state.player_stats.attack_speed += 0.1
+  }
+}
+
+///|
+fn get_powerup_icon(powerup_type : PowerupType) -> @sprite.Animation {
+  match powerup_type {
+    Attack => powerup_attack_icon
+    Range => powerup_range_icon
+    Speed => powerup_speed_icon
+    Cooldown => powerup_cooldown_icon
   }
 }
 
@@ -285,7 +288,7 @@ fn game_start(_delta : Double) -> Unit {
   setup_level_up_ui()
 }
 
-///|
+///|powerup_cooldown_icon
 fn game_timer_system(delta : Double) -> Unit {
   if game_state.game_over {
     if not(game_state.game_over_displayed) {

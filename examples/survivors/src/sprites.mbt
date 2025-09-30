@@ -200,6 +200,7 @@ let icecream_left_animation : @sprite.Animation = @sprite.Animation::new(
   transform=@math.Transform::flip_x(16),
 )
 
+///|
 let orc_right_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
     "assets/enemy/Orc.png",
@@ -214,6 +215,7 @@ let orc_right_animation : @sprite.Animation = @sprite.Animation::new(
   transform=@math.Transform::new(),
 )
 
+///|
 let orc_left_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
     "assets/enemy/Orc.png",
@@ -228,6 +230,7 @@ let orc_left_animation : @sprite.Animation = @sprite.Animation::new(
   transform=@math.Transform::flip_x(16),
 )
 
+///|
 let skull_right_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
     "assets/enemy/Skull.png",
@@ -242,6 +245,7 @@ let skull_right_animation : @sprite.Animation = @sprite.Animation::new(
   transform=@math.Transform::new(),
 )
 
+///|
 let skull_left_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
     "assets/enemy/Skull.png",
@@ -254,4 +258,29 @@ let skull_left_animation : @sprite.Animation = @sprite.Animation::new(
   fps=12,
   loop_=true,
   transform=@math.Transform::flip_x(16),
+)
+
+///|
+let powerup_range_icon : @sprite.Animation = @sprite.Animation::single_frame(
+  "assets/icon/icon.png",
+  Vec2D(32, 32),
+  offset=Vec2D(32 * 6, 32 * 6),
+)
+
+let powerup_attack_icon : @sprite.Animation = @sprite.Animation::single_frame(
+  "assets/icon/icon.png",
+  Vec2D(32, 32),
+  offset=Vec2D(32 * 12, 32 * 4),
+)
+
+let powerup_speed_icon : @sprite.Animation = @sprite.Animation::single_frame(
+  "assets/icon/icon.png",
+  Vec2D(32, 32),
+  offset=Vec2D(32 * 2, 32 * 5),
+)
+
+let powerup_cooldown_icon : @sprite.Animation = @sprite.Animation::single_frame(
+  "assets/icon/icon.png",
+  Vec2D(32, 32),
+  offset=Vec2D(32 * 3, 32 * 5),
 )
