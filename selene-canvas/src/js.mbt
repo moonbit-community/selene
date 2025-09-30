@@ -41,3 +41,13 @@ extern "js" fn set_image_smoothing_enabled(
   ctx : @dom.CanvasRenderingContext2D,
   value : Bool,
 ) -> Unit = "(ctx, value) => ctx.imageSmoothingEnabled = value;"
+
+extern "js" fn set_text_align(
+  ctx : @dom.CanvasRenderingContext2D,
+  value : String, 
+) -> Unit = "(ctx, value) => ctx.textAlign = value;"
+
+extern "js" fn set_text_baseline(
+  ctx : @dom.CanvasRenderingContext2D,
+  value : String,
+) -> Unit = "(ctx, value) => ctx.textBaseline = value;"

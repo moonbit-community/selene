@@ -128,6 +128,8 @@ pub fn draw_text(
   let context = canvas_backend.context
   context.save()
   context.set_font(font)
+  set_text_align(context, "left")
+  set_text_baseline(context, "top")
   context.set_fill_style(@js.Union3::from0(color))
   context.fill_text(text, x, y)
   context.restore()

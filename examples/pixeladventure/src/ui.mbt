@@ -27,7 +27,7 @@ fn add_result_box() -> Unit {
 ///|
 fn add_score_box() -> Unit {
   let box = @system.Entity::new()
-  @position.positions.set(box, @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 24, 40))
+  @position.positions.set(box, @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 24, 16))
   let text = @sprite.Sprite::from_text(game_state.score_box, @ui.UI_ZINDEX)
   @sprite.sprites.set(box, text)
   @ui.uis.set(box, @ui.Ui::new())
@@ -36,7 +36,7 @@ fn add_score_box() -> Unit {
 ///|
 fn add_health_box() -> Unit {
   let box = @system.Entity::new()
-  @position.positions.set(box, @math.Vec2D(20, 40))
+  @position.positions.set(box, @math.Vec2D(20, 16))
   let text = @sprite.Sprite::from_text(game_state.health_box, @ui.UI_ZINDEX)
   @sprite.sprites.set(box, text)
   @ui.uis.set(box, @ui.Ui::new())

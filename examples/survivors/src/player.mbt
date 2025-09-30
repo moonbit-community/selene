@@ -105,7 +105,7 @@ fn player_shooting_system(delta : Double) -> Unit {
 }
 
 ///|
-const SHOOTING_RANGE : Double = 192.0
+const SHOOTING_RANGE : Double = 128.0
 
 ///|
 fn find_nearest_enemy_position(player_pos : @math.Vec2D) -> @math.Vec2D? {
