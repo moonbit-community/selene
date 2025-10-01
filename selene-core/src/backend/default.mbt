@@ -129,12 +129,16 @@ pub fn draw_text(
   y~ : Double,
   font~ : String,
   color~ : String,
+  align~ : @math.HAlign,
+  baseline~ : @math.VAlign,
 ) -> Unit {
   ignore(text)
   ignore(x)
   ignore(y)
   ignore(font)
   ignore(color)
+  ignore(align)
+  ignore(baseline)
 }
 
 ///|

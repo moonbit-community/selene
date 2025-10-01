@@ -70,7 +70,9 @@ fn draw_text(
   x~ : Double,
   y~ : Double,
   font~ : String,
-  color~ : String
+  color~ : String,
+  align~ : @math.HAlign,
+  baseline~ : @math.VAlign
 ) -> Unit
 
 fn draw_color_rect(

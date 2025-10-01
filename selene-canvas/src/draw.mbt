@@ -124,12 +124,24 @@ pub fn draw_text(
   y~ : Double,
   font~ : String,
   color~ : String,
+  align~ : @math.HAlign,
+  baseline~ : @math.VAlign,
 ) -> Unit {
   let context = canvas_backend.context
   context.save()
   context.set_font(font)
-  set_text_align(context, "left")
-  set_text_baseline(context, "top")
+  let align = match align {
+    Left => "left"
+    Center => "center"
+    Right => "right"
+  }
+  set_text_align(context, align)
+  let baseline = match baseline {
+    Top => "top"
+    Center => "center"
+    Bottom => "bottom"
+  }
+  set_text_baseline(context, baseline)
   context.set_fill_style(@js.Union3::from0(color))
   context.fill_text(text, x, y)
   context.restore()

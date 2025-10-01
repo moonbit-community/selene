@@ -38,6 +38,8 @@ pub(all) struct Text {
   mut content : String
   mut color : String
   mut font : String
+  mut baseline : @math.VAlign
+  mut align : @math.HAlign
 }
 
 ///|
@@ -45,8 +47,10 @@ pub fn Text::new(
   content : String,
   color? : String = "white",
   font? : String = "16px Arial",
+  baseline? : @math.VAlign = Top,
+  align? : @math.HAlign = Left,
 ) -> Text {
-  { content, color, font }
+  { content, color, font, baseline, align }
 }
 
 ///|
@@ -57,5 +61,7 @@ fn render_text(text : Text, position : @math.Vec2D) -> Unit {
     y=position[Y],
     font=text.font,
     color=text.color,
+    align=text.align,
+    baseline=text.baseline,
   )
 }

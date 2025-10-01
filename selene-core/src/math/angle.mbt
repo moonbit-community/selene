@@ -13,18 +13,18 @@
 // limitations under the License.
 
 ///|
-/// Normalizes an angle to the range \[0, 2π) radians.
+/// Normalizes an angle to the range \[0, 2PI) radians.
 ///
 /// Parameters:
 ///
 /// * `angle` : The angle in radians to normalize.
 ///
-/// Returns the normalized angle in the range \[0, 2π) radians.
+/// Returns the normalized angle in the range \[0, 2PI) radians.
 ///
 /// Example:
 ///
 /// ```moonbit
-/// // Positive angle greater than 2π
+/// // Positive angle greater than 2PI
 /// inspect(@math.normalize_angle(7.0), content="0.7168146928204138")
 ///
 /// // Negative angle
