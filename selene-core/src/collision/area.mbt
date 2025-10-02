@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///|
+///| FIXME: replace all callbacks with state access
 struct Area {
   mask : CollisionMask
   on_enter_callbacks : Array[(@system.Entity) -> Unit]

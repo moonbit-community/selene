@@ -43,6 +43,8 @@
 /// })
 /// ```
 ///
+/// FIXME: replace all callbacks with state access
+/// 
 struct Pickable {
   on_pressed_callbacks : Array[(@inputs.MouseButton) -> Unit]
   on_released_callbacks : Array[(@inputs.MouseButton) -> Unit]
