@@ -49,6 +49,11 @@ pub fn Transform::identity() -> Transform {
 }
 
 ///|
+pub impl Default for Transform with default() -> Transform {
+  Transform::identity()
+}
+
+///|
 /// Create transform from matrix components
 /// 
 pub fn Transform::new(

@@ -46,11 +46,11 @@ struct Bird {
 }
 
 ///|
-let birds : Map[@system.Entity, Bird] = Map::new()
+let birds : Map[@entity.Entity, Bird] = Map::new()
 
 ///|
 fn add_bird(pos : @math.Vec2D) -> Unit {
-  let entity = @system.Entity::new()
+  let entity = @entity.Entity::new()
   let bird_sprite = @sprite.Sprite::from_animation(bird_fly_animation, 10)
   @sprite.sprites.set(entity, bird_sprite)
   @velocity.velocities.set(entity, @math.Vec2D(BIRD_SPEED, 0.0))

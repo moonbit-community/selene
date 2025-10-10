@@ -12,16 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///|
-pub(all) struct Ui {}
-
-///|
-pub fn Ui::new() -> Ui {
-  Ui::{  }
-}
-
-///|
-pub let uis : Map[@entity.Entity, Ui] = Map::new()
-
-///|
-pub const UI_ZINDEX = 100
+// let flex_root

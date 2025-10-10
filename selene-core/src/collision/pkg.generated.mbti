@@ -2,9 +2,9 @@
 package "Milky2018/selene/collision"
 
 import(
+  "Milky2018/selene/entity"
   "Milky2018/selene/inputs"
   "Milky2018/selene/math"
-  "Milky2018/selene/system"
   "Milky2018/selene/velocity"
   "moonbitlang/core/set"
 )
@@ -12,41 +12,41 @@ import(
 // Values
 fn area_collide_system(Double) -> Unit
 
-let areas : Map[@system.Entity, Area]
+let areas : Map[@entity.Entity, Area]
 
-let colliders : Map[@system.Entity, Collider]
+let colliders : Map[@entity.Entity, Collider]
 
-let collision_layers : Map[@system.Entity, CollisionLayer]
+let collision_layers : Map[@entity.Entity, CollisionLayer]
 
 fn debug_collide_system(Double) -> Unit
 
-fn get_collision_infos(@system.Entity) -> Array[CollisionInfo]
+fn get_collision_infos(@entity.Entity) -> Array[CollisionInfo]
 
-fn get_contains(@system.Entity) -> @set.Set[@system.Entity]
+fn get_contains(@entity.Entity) -> @set.Set[@entity.Entity]
 
-fn is_on_floor(@system.Entity) -> Bool
+fn is_on_floor(@entity.Entity) -> Bool
 
 fn move_system(Double) -> Unit
 
 fn pickable_click_system(Double) -> Unit
 
-let pickables : Map[@system.Entity, Pickable]
+let pickables : Map[@entity.Entity, Pickable]
 
 fn quadtree_clear_system(Double) -> Unit
 
 fn quadtree_render_system(Double) -> Unit
 
-let real_velocities : Map[@system.Entity, @velocity.Velocity]
+let real_velocities : Map[@entity.Entity, @velocity.Velocity]
 
-let shapes : Map[@system.Entity, CollisionShape]
+let shapes : Map[@entity.Entity, CollisionShape]
 
 // Errors
 
 // Types and methods
 type Area
 fn Area::new(CollisionMask) -> Self
-fn Area::on_enter(Self, (@system.Entity) -> Unit) -> Unit
-fn Area::on_exit(Self, (@system.Entity) -> Unit) -> Unit
+fn Area::on_enter(Self, (@entity.Entity) -> Unit) -> Unit
+fn Area::on_exit(Self, (@entity.Entity) -> Unit) -> Unit
 
 pub(all) struct Collider {
   mut active : Bool
@@ -55,7 +55,7 @@ pub(all) struct Collider {
 fn Collider::new(CollisionMask) -> Self
 
 pub struct CollisionInfo {
-  entity : @system.Entity
+  entity : @entity.Entity
   direction : @math.Vec2D
 }
 

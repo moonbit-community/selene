@@ -2,13 +2,13 @@
 package "Milky2018/selene/ui"
 
 import(
-  "Milky2018/selene/system"
+  "Milky2018/selene/entity"
 )
 
 // Values
 const UI_ZINDEX : Int = 100
 
-let uis : Map[@system.Entity, Ui]
+let uis : Map[@entity.Entity, Ui]
 
 // Errors
 

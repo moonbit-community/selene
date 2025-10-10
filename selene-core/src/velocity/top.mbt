@@ -40,7 +40,7 @@ pub(all) struct Velocity(@math.Vec2D) derive(Eq, Show)
 ///
 /// ```moonbit
 /// // Set velocity for an entity
-/// let entity = @system.Entity::new()
+/// let entity = @entity.Entity::new()
 /// 
 /// @velocity.velocities[entity] = @math.Vec2D(10.0, 5.0)
 ///
@@ -50,4 +50,4 @@ pub(all) struct Velocity(@math.Vec2D) derive(Eq, Show)
 /// inspect(entity_vel, content="Some(Velocity(Vec2D(10, 5)))")
 /// ```
 ///
-pub let velocities : Map[@system.Entity, Velocity] = Map::new()
+pub let velocities : Map[@entity.Entity, Velocity] = Map::new()

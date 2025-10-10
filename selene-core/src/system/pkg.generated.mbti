@@ -8,10 +8,6 @@ fn deferred_event_system(Double) -> Unit
 
 fn is_mouse_locked() -> Bool
 
-fn iter_entities() -> Iter[Entity]
-
-fn live_entities() -> Iter[Entity]
-
 fn lock_mouse() -> Unit
 
 fn realtime_timer_system(Double) -> Unit
@@ -41,15 +37,6 @@ fn App::with_canvas_width(Self, Double) -> Self
 fn App::with_fps(Self, UInt) -> Self
 fn App::with_image_smooth(Self, Bool) -> Self
 fn App::with_zoom(Self, Double) -> Self
-
-type Entity
-fn Entity::destroy(Self) -> Unit
-fn Entity::is_alive(Self) -> Bool
-fn Entity::new() -> Self
-fn Entity::respawn(Self) -> Unit
-impl Eq for Entity
-impl Hash for Entity
-impl Show for Entity
 
 pub(all) enum Schedule {
   Startup

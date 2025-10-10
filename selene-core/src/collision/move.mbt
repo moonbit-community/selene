@@ -33,7 +33,7 @@ pub fn move_system(delta : Double) -> Unit {
 }
 
 ///|
-fn move_without_collide(e : @system.Entity, velocity : @math.Vec2D) -> Unit {
+fn move_without_collide(e : @entity.Entity, velocity : @math.Vec2D) -> Unit {
   guard @position.positions.get(e) is Some(pos)
   let new_pos = @math.Vec2D(pos.0[X] + velocity[X], pos.0[Y] + velocity[Y])
   @position.positions.set(e, new_pos)
@@ -41,7 +41,7 @@ fn move_without_collide(e : @system.Entity, velocity : @math.Vec2D) -> Unit {
 
 ///|
 fn move_with_collide(
-  e : @system.Entity,
+  e : @entity.Entity,
   collider : Collider,
   velocity : @math.Vec2D,
 ) -> @math.Vec2D {
@@ -65,7 +65,7 @@ fn move_with_collide(
 
 ///|
 // fn collide_and_resolve(
-//   entity : @system.Entity,
+//   entity : @entity.Entity,
 //   box : @math.Rect,
 //   vel : @math.Vec2D,
 //   mask : CollisionMask,
@@ -111,7 +111,7 @@ fn move_with_collide(
 /// The map is automatically populated by the `move_system` function during
 /// collision processing and should be considered read-only for other systems.
 ///
-pub let real_velocities : Map[@system.Entity, @velocity.Velocity] = Map::new()
+pub let real_velocities : Map[@entity.Entity, @velocity.Velocity] = Map::new()
 
 ///|
 fn make_ray_collision(
@@ -134,7 +134,7 @@ fn make_ray_collision(
 ///|
 /// Move object with velocity, returns the destination and updated velocity.
 fn move_axis(
-  entity : @system.Entity,
+  entity : @entity.Entity,
   object : @math.Rect,
   velocity : @math.Vec2D,
   axis : @math.Axis,

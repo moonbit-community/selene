@@ -50,8 +50,8 @@ pub fn CollisionLayer::new() -> CollisionLayer {
 /// Example:
 ///
 /// ```moonbit
-/// let player_entity = @system.Entity::new()
-/// let enemy_entity = @system.Entity::new()
+/// let player_entity = @entity.Entity::new()
+/// let enemy_entity = @entity.Entity::new()
 /// let player_layer = @collision.CollisionLayer::new()
 /// let enemy_layer = @collision.CollisionLayer::new()
 ///
@@ -62,7 +62,7 @@ pub fn CollisionLayer::new() -> CollisionLayer {
 /// inspect(@collision.collision_layers.get(player_entity) is Some(_), content="true")
 /// ```
 ///
-pub let collision_layers : Map[@system.Entity, CollisionLayer] = Map::new()
+pub let collision_layers : Map[@entity.Entity, CollisionLayer] = Map::new()
 
 ///|
 /// Creates a new `CollisionMask` with the specified layers 

@@ -62,7 +62,7 @@ struct Pickable {
 /// populated when `Pickable` components are attached to entities and is used by
 /// the `pickable_click_system` to process mouse interactions.
 ///
-/// The map uses `@system.Entity` as keys to uniquely identify game objects, and
+/// The map uses `@entity.Entity` as keys to uniquely identify game objects, and
 /// `Pickable` as values to store the mouse event callback configurations for
 /// each entity.
 ///
@@ -70,7 +70,7 @@ struct Pickable {
 ///
 /// ```moonbit
 /// // Register a pickable component for an entity
-/// let entity = @system.Entity::new()
+/// let entity = @entity.Entity::new()
 /// let pickable = Pickable::new()
 /// pickable.on_just_pressed(fn(button) { 
 ///   println("Entity clicked with button: \{button}") 
@@ -78,7 +78,7 @@ struct Pickable {
 /// @collision.pickables[entity] = pickable
 /// ```
 ///
-pub let pickables : Map[@system.Entity, Pickable] = Map::new()
+pub let pickables : Map[@entity.Entity, Pickable] = Map::new()
 
 ///|
 /// Creates a new `Pickable` instance with empty callback arrays.
@@ -234,7 +234,7 @@ pub fn Pickable::on_just_released(
 ///
 /// ```moonbit
 /// // Set up a pickable entity
-/// let entity = @system.Entity::new()
+/// let entity = @entity.Entity::new()
 /// let pickable = @collision.Pickable::new()
 /// pickable.on_just_pressed(fn(button) { 
 ///   println("Entity clicked with \{button}")

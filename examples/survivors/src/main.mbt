@@ -57,7 +57,7 @@ fn main {
 
 ///|
 struct GameState {
-  player_entity : @system.Entity
+  player_entity : @entity.Entity
   mut player_direction : Dir4
   rand : @random.Rand
   mut shoot_timer : Double
@@ -75,19 +75,8 @@ struct GameState {
   exp_box : @sprite.Text
   mut player_level : Int
   level_box : @sprite.Text
-  level_up_box : @sprite.Text
-  level_up_entity : @system.Entity
   player_stats : PlayerStats
-  mut available_powerups : Array[Powerup]
-  powerup_button1_entity : @system.Entity
-  powerup_button2_entity : @system.Entity
-  powerup_button3_entity : @system.Entity
-  powerup_icon1_entity : @system.Entity
-  powerup_icon2_entity : @system.Entity
-  powerup_icon3_entity : @system.Entity
-  powerup_bg1_entity : @system.Entity
-  powerup_bg2_entity : @system.Entity
-  powerup_bg3_entity : @system.Entity
+  level_up_panel : LevelUpPanel
 }
 
 ///|
@@ -121,8 +110,24 @@ struct Powerup {
 }
 
 ///|
+struct LevelUpPanel {
+  title_entity : @entity.Entity
+  title_text : @sprite.Text
+  button1_entity : @entity.Entity
+  button2_entity : @entity.Entity
+  button3_entity : @entity.Entity
+  icon1_entity : @entity.Entity
+  icon2_entity : @entity.Entity
+  icon3_entity : @entity.Entity
+  bg1_entity : @entity.Entity
+  bg2_entity : @entity.Entity
+  bg3_entity : @entity.Entity
+  mut available_powerups : Array[Powerup]
+}
+
+///|
 let game_state : GameState = {
-  player_entity: @system.Entity::new(),
+  player_entity: @entity.Entity::new(),
   player_direction: Down,
   rand: @random.Rand::new(),
   shoot_timer: 0.0,
@@ -156,28 +161,32 @@ let game_state : GameState = {
     color="yellow",
     font="24px ThaleahFat",
   ),
-  level_up_box: @sprite.Text::new(
-    "LEVEL UP!",
-    color="gold",
-    font="36px ThaleahFat",
-  ),
-  level_up_entity: @system.Entity::new(),
   player_stats: {
     attack: 1,
     range: SHOOTING_RANGE,
     speed: PLAYER_SPEED,
     attack_speed: 1.0,
   },
-  available_powerups: [],
-  powerup_button1_entity: @system.Entity::new(),
-  powerup_button2_entity: @system.Entity::new(),
-  powerup_button3_entity: @system.Entity::new(),
-  powerup_icon1_entity: @system.Entity::new(),
-  powerup_icon2_entity: @system.Entity::new(),
-  powerup_icon3_entity: @system.Entity::new(),
-  powerup_bg1_entity: @system.Entity::new(),
-  powerup_bg2_entity: @system.Entity::new(),
-  powerup_bg3_entity: @system.Entity::new(),
+  level_up_panel: {
+    title_entity: @entity.Entity::new(),
+    title_text: @sprite.Text::new(
+      "LEVEL UP!",
+      color="gold",
+      font="36px ThaleahFat",
+      baseline=Top,
+      align=Center,
+    ),
+    button1_entity: @entity.Entity::new(),
+    button2_entity: @entity.Entity::new(),
+    button3_entity: @entity.Entity::new(),
+    icon1_entity: @entity.Entity::new(),
+    icon2_entity: @entity.Entity::new(),
+    icon3_entity: @entity.Entity::new(),
+    bg1_entity: @entity.Entity::new(),
+    bg2_entity: @entity.Entity::new(),
+    bg3_entity: @entity.Entity::new(),
+    available_powerups: [],
+  },
 }
 
 ///|

@@ -1,21 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/inherit"
 
-import(
-  "Milky2018/selene/math"
-  "Milky2018/selene/system"
-)
-
 // Values
-fn get_children(@system.Entity) -> Array[@system.Entity]
-
-fn get_parent(@system.Entity) -> @system.Entity?
-
 fn inherit_position_system(Double) -> Unit
-
-fn set_offset(@system.Entity, @math.Vec2D) -> Unit
-
-fn spawn_child(@system.Entity, offset? : @math.Vec2D) -> @system.Entity
 
 // Errors
 

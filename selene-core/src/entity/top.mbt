@@ -18,7 +18,7 @@
 /// Example:
 ///
 /// ```moonbit
-/// let entity = @system.Entity::new()
+/// let entity = @entity.Entity::new()
 /// entity.destroy()
 /// ```
 ///
@@ -37,8 +37,8 @@ let all_entities : @set.Set[Entity] = @set.Set::new()
 /// Example:
 ///
 /// ```moonbit
-/// let entity1 = @system.Entity::new()
-/// let entity2 = @system.Entity::new()
+/// let entity1 = @entity.Entity::new()
+/// let entity2 = @entity.Entity::new()
 ///
 /// // The following line will be executed in the game loop, instead of manual calling.
 /// @system.deferred_event_system(0.0)
@@ -63,8 +63,8 @@ pub fn iter_entities() -> Iter[Entity] {
 /// Example:
 ///
 /// ```moonbit
-/// let entity1 = @system.Entity::new()
-/// let entity2 = @system.Entity::new()
+/// let entity1 = @entity.Entity::new()
+/// let entity2 = @entity.Entity::new()
 /// entity1.destroy()
 /// 
 /// // The following line will be executed in the game loop, instead of manual calling.
@@ -93,7 +93,7 @@ pub fn live_entities() -> Iter[Entity] {
 /// Example:
 ///
 /// ```moonbit
-/// let entity = @system.Entity::new()
+/// let entity = @entity.Entity::new()
 /// inspect(entity.is_alive(), content="true")
 ///
 /// entity.destroy()
@@ -116,8 +116,8 @@ let entity_generator : Ref[UInt] = { val: 0 }
 /// Example:
 ///
 /// ```moonbit
-/// let entity1 = @system.Entity::new()
-/// let entity2 = @system.Entity::new()
+/// let entity1 = @entity.Entity::new()
+/// let entity2 = @entity.Entity::new()
 ///
 /// // Each entity has a unique identifier
 /// inspect(entity1 == entity2, content="false")
@@ -145,7 +145,7 @@ pub fn Entity::new() -> Entity {
 /// Example:
 ///
 /// ```moonbit
-/// let entity = @system.Entity::new()
+/// let entity = @entity.Entity::new()
 /// inspect(entity.is_alive(), content="true")
 ///
 /// entity.destroy()
@@ -156,9 +156,16 @@ pub fn Entity::new() -> Entity {
 /// // Entity will be removed from all_entities during next deferred event cycle
 /// inspect(entity.is_alive(), content="false")
 /// ```
+/// 
+/// FIXME: document update
 ///
 pub fn Entity::destroy(e : Entity) -> Unit {
-  defer_event(fn() { all_entities.remove(e) })
+  @system.defer_event(fn() { all_entities.remove(e) })
+  if parents.get(e) is Some(p) {
+    for c in p.children {
+      c.destroy()
+    }
+  }
 }
 
 ///|
@@ -172,7 +179,7 @@ pub fn Entity::destroy(e : Entity) -> Unit {
 /// Example:
 ///
 /// ```moonbit
-/// let entity = @system.Entity::new()
+/// let entity = @entity.Entity::new()
 /// inspect(entity.is_alive(), content="true")
 ///
 /// entity.destroy()
@@ -192,5 +199,10 @@ pub fn Entity::destroy(e : Entity) -> Unit {
 /// ```
 ///
 pub fn Entity::respawn(e : Entity) -> Unit {
-  all_entities.add(e)
+  @system.defer_event(fn() { all_entities.add(e) })
+  if parents.get(e) is Some(p) {
+    for c in p.children {
+      c.respawn()
+    }
+  }
 }

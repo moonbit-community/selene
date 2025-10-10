@@ -20,7 +20,7 @@ const BULLET_SIZE : Double = 4.0
 
 ///|
 fn shoot_bullet(player_pos : @math.Vec2D, target_pos : @math.Vec2D) -> Unit {
-  let bullet_entity = @system.Entity::new()
+  let bullet_entity = @entity.Entity::new()
   @sprite.sprites.set(
     bullet_entity,
     @sprite.Sprite::from_color_rect(

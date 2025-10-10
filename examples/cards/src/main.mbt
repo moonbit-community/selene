@@ -41,7 +41,7 @@ fn main {
 
 ///|
 fn game_start(_delta : Double) -> Unit {
-  let e = @system.Entity::new()
+  let e = @entity.Entity::new()
   @position.positions.set(e, Vec2D(50, 50))
   @sprite.sprites.set(e, Card(A, H).to_sprite(CARD_BASE_ZINDEX + 1))
 }

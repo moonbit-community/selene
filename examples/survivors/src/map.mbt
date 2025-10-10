@@ -14,7 +14,7 @@
 
 ///|
 fn add_background(size : @math.Vec2D) -> Unit {
-  let background = @system.Entity::new()
+  let background = @entity.Entity::new()
   let background_sprite = @sprite.Sprite::from_picture(
     @sprite.Picture::new(size, background_picture, repeat=Repeat),
     GROUND_ZINDEX,
@@ -26,7 +26,7 @@ fn add_background(size : @math.Vec2D) -> Unit {
 ///|
 fn add_border(size : @math.Vec2D) -> Unit {
   fn add_one_border(pos : @math.Vec2D, size : @math.Vec2D) -> Unit {
-    let entity = @system.Entity::new()
+    let entity = @entity.Entity::new()
     @collision.collision_layers.set(entity, wall_collision_layer)
     let collider = @collision.Collider::new(@collision.CollisionMask::empty())
     @collision.colliders.set(entity, collider)
@@ -50,7 +50,7 @@ fn add_grass() -> Unit {
   for x in 0..<(MAP_WIDTH / 16.0).to_int() {
     for y in 0..<(MAP_HEIGHT / 16.0).to_int() {
       if rand.double() < density {
-        let grass = @system.Entity::new()
+        let grass = @entity.Entity::new()
         let sprite = @sprite.Sprite::from_animation(grass_sprite, GRASS_ZINDEX)
         @sprite.sprites.set(grass, sprite)
         @position.positions.set(

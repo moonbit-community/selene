@@ -52,7 +52,7 @@ pub(all) struct Sprite {
 }
 
 ///|
-pub let sprites : Map[@system.Entity, Sprite] = Map::new()
+pub let sprites : Map[@entity.Entity, Sprite] = Map::new()
 
 ///|
 pub enum SpriteType {

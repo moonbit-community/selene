@@ -1,0 +1,40 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/entity"
+
+import(
+  "Milky2018/selene/math"
+)
+
+// Values
+fn get_children(Entity) -> Array[Entity]
+
+fn get_offset(Entity) -> @math.Vec2D
+
+fn get_parent(Entity) -> Entity?
+
+fn get_roots() -> Array[Entity]
+
+fn iter_entities() -> Iter[Entity]
+
+fn live_entities() -> Iter[Entity]
+
+fn set_offset(Entity, @math.Vec2D) -> Unit
+
+fn spawn_child(Entity, offset? : @math.Vec2D) -> Entity
+
+// Errors
+
+// Types and methods
+type Entity
+fn Entity::destroy(Self) -> Unit
+fn Entity::is_alive(Self) -> Bool
+fn Entity::new() -> Self
+fn Entity::respawn(Self) -> Unit
+impl Eq for Entity
+impl Hash for Entity
+impl Show for Entity
+
+// Type aliases
+
+// Traits
+

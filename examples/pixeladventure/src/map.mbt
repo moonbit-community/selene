@@ -49,7 +49,7 @@ fn generate_map() -> Unit {
 
 ///|
 fn add_background(size : @math.Vec2D) -> Unit {
-  let background = @system.Entity::new()
+  let background = @entity.Entity::new()
   let background_sprite = @sprite.Sprite::from_picture(
     @sprite.Picture::new(size, "assets/Background/Gray.png", repeat=Repeat),
     0,
@@ -80,7 +80,7 @@ fn add_grass(pos : @math.Vec2D, sprite_id : String) -> Unit {
     ),
     10,
   )
-  let grass = @system.Entity::new()
+  let grass = @entity.Entity::new()
   @sprite.sprites.set(grass, sprite)
   @position.positions.set(grass, pos)
   @collision.shapes.set(
@@ -92,7 +92,7 @@ fn add_grass(pos : @math.Vec2D, sprite_id : String) -> Unit {
 
 ///|
 fn add_flag(pos : @math.Vec2D) -> Unit {
-  let flag = @system.Entity::new()
+  let flag = @entity.Entity::new()
   let flag_sprite = @sprite.Sprite::from_animation(
     @sprite.Animation::single_frame(
       "assets/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png",
@@ -114,14 +114,14 @@ fn add_flag(pos : @math.Vec2D) -> Unit {
     if e == game_state.player {
       set_score(game_state.score + 100)
       set_game_result(GameResult::Win)
-      @system.Entity::destroy(flag)
+      @entity.Entity::destroy(flag)
     }
   })
 }
 
 ///|
 fn add_apple(pos : @math.Vec2D) -> Unit {
-  let apple = @system.Entity::new()
+  let apple = @entity.Entity::new()
   let apple_sprite = @sprite.Sprite::from_animation(
     @sprite.Animation::new(
       @sprite.frames_from_atlas(
@@ -151,7 +151,7 @@ fn add_apple(pos : @math.Vec2D) -> Unit {
       if game_state.volume_on {
         @audio.play_audio("sounds/coin.wav")
       }
-      @system.Entity::destroy(apple)
+      @entity.Entity::destroy(apple)
     }
   })
 }

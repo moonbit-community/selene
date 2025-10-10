@@ -24,7 +24,7 @@ priv struct QuadTree {
   children : Array[QuadTree]
   depth : Int
   bounding_box : @math.Rect
-  entities : @set.Set[@system.Entity]
+  entities : @set.Set[@entity.Entity]
 }
 
 ///|
@@ -54,7 +54,7 @@ const SMALLEST_SIZE = 64.0
 ///|
 fn QuadTree::insert(
   self : Self,
-  entity : @system.Entity,
+  entity : @entity.Entity,
   box : @math.Rect,
 ) -> Unit {
   if !self.bounding_box.intersects(box) {
@@ -90,7 +90,7 @@ fn QuadTree::insert(
 }
 
 ///|
-fn quadtree_query(area : @math.Rect) -> @set.Set[@system.Entity] {
+fn quadtree_query(area : @math.Rect) -> @set.Set[@entity.Entity] {
   let mut trees = @list.of([quadtree_root.val])
   let mut results = @set.Set::new()
   while trees is More(hd, tail=rest) {

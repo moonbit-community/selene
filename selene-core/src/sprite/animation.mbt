@@ -286,7 +286,7 @@ pub fn frames_from_atlas(
 /// Example:
 ///
 /// ```moonbit skip
-/// let entity = @system.Entity::new()
+/// let entity = @entity.Entity::new()
 /// // Create an animation
 /// let frames = @sprite.frames_from_atlas(
 ///   "player_walk.png",
@@ -314,7 +314,7 @@ pub fn frames_from_atlas(
 /// ```
 ///
 pub fn play_animation(
-  entity : @system.Entity,
+  entity : @entity.Entity,
   animation : Animation,
   from_start? : Bool = false,
   loop_? : Bool,
@@ -410,7 +410,7 @@ fn render_animation(
 /// Example:
 ///
 /// ```moonbit skip
-/// let entity = @system.Entity::new()
+/// let entity = @entity.Entity::new()
 /// // Create a non-looping animation
 /// let frames = @sprite.frames_from_atlas(
 ///   "explosion.png",
@@ -431,7 +431,7 @@ fn render_animation(
 /// inspect(@sprite.is_animation_finished(entity)) 
 /// ```
 ///
-pub fn is_animation_finished(entity : @system.Entity) -> Bool {
+pub fn is_animation_finished(entity : @entity.Entity) -> Bool {
   guard sprites.get(entity)
     is Some({ sprite_type: Animation(anime, frame~), .. }) else {
     true

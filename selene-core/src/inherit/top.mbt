@@ -13,24 +13,23 @@
 // limitations under the License.
 
 ///|
-/// 2D position in space.
+/// Children will inherit their parent's positions (with an offset) and liveness
 ///
-pub(all) struct Position(@math.Vec2D) derive(Eq, Show)
+pub fn inherit_position_system(_delta : Double) -> Unit {
+  let roots = @entity.get_roots()
+  for p in roots {
+    adjust_children(p)
+  }
+}
 
 ///|
-/// Global mutable map that stores position components for entities in the ECS
-/// system.
-///
-/// This map associates each entity with its position in 2D space. The map is
-/// shared across the entire position system and is used to track which entities
-/// have position components and their current locations.
-///
-/// Example:
-///
-/// ```moonbit
-/// let entity = @entity.Entity::new()
-/// let pos = @math.Vec2D(10.0, 20.0)
-/// @position.positions[entity] = pos
-/// ```
-///
-pub let positions : Map[@entity.Entity, Position] = Map::new()
+fn adjust_children(entity : @entity.Entity) -> Unit {
+  for c in @entity.get_children(entity) {
+    guard @position.positions.get(entity) is Some(parent_position) else {
+      continue
+    }
+    guard @entity.get_offset(c) is offset
+    @position.positions.set(c, parent_position.0 + offset)
+    adjust_children(c)
+  }
+}

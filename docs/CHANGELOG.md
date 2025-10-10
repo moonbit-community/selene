@@ -4,7 +4,16 @@
 
 ### Added
 
+## [0.17.2] - 2025-10-10
+
+### Added 
+
+- `@backend.get_realtime_delta`
 - `@math.HAlign` and `@math.VAlign`
+
+### Fixed 
+
+- `@system.realtime_timer_system` bug fixed 
 
 ### Changed 
 

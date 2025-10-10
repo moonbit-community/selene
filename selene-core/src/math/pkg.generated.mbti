@@ -62,6 +62,7 @@ fn Transform::rotate_rad(Self, Double) -> Self
 fn Transform::scale(Self, Double, Double) -> Self
 fn Transform::translate(Self, Double, Double) -> Self
 impl Add for Transform
+impl Default for Transform
 impl Mul for Transform
 impl Sub for Transform
 
@@ -84,6 +85,7 @@ fn Vec2D::scalar_mul(Self, Double) -> Self
 fn Vec2D::update(Self, Axis, Double) -> Self
 fn Vec2D::zero() -> Self
 impl Add for Vec2D
+impl Default for Vec2D
 impl Eq for Vec2D
 impl Mul for Vec2D
 impl Neg for Vec2D

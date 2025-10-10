@@ -14,7 +14,7 @@
 
 ///|
 struct GameState {
-  player : @system.Entity
+  player : @entity.Entity
   mut player_state : PlayerState
   mut direction : Direction2
   mut score : Int
@@ -34,7 +34,7 @@ enum Direction2 {
 
 ///|
 let game_state : GameState = {
-  player: @system.Entity::new(),
+  player: @entity.Entity::new(),
   player_state: PlayerState::Idle,
   score: 0,
   result_box: @sprite.Text::new("", font="24px ThaleahFat"),

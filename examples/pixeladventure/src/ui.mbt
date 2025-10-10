@@ -14,7 +14,7 @@
 
 ///|
 fn add_result_box() -> Unit {
-  let box = @system.Entity::new()
+  let box = @entity.Entity::new()
   @position.positions.set(
     box,
     @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 48, VIEWPORT_HEIGHT / 2.0 - 32),
@@ -26,7 +26,7 @@ fn add_result_box() -> Unit {
 
 ///|
 fn add_score_box() -> Unit {
-  let box = @system.Entity::new()
+  let box = @entity.Entity::new()
   @position.positions.set(box, @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 24, 16))
   let text = @sprite.Sprite::from_text(game_state.score_box, @ui.UI_ZINDEX)
   @sprite.sprites.set(box, text)
@@ -35,7 +35,7 @@ fn add_score_box() -> Unit {
 
 ///|
 fn add_health_box() -> Unit {
-  let box = @system.Entity::new()
+  let box = @entity.Entity::new()
   @position.positions.set(box, @math.Vec2D(20, 16))
   let text = @sprite.Sprite::from_text(game_state.health_box, @ui.UI_ZINDEX)
   @sprite.sprites.set(box, text)
@@ -44,7 +44,7 @@ fn add_health_box() -> Unit {
 
 ///|
 fn add_volume_button() -> Unit {
-  let button = @system.Entity::new()
+  let button = @entity.Entity::new()
   @position.positions.set(button, @math.Vec2D(VIEWPORT_WIDTH - 40, 18))
   let volume_on = @sprite.Sprite::from_picture(
     @sprite.Picture::new(@math.Vec2D(21, 22), "assets/Menu/Buttons/Volume.png"),

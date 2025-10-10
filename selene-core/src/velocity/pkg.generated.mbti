@@ -2,12 +2,12 @@
 package "Milky2018/selene/velocity"
 
 import(
+  "Milky2018/selene/entity"
   "Milky2018/selene/math"
-  "Milky2018/selene/system"
 )
 
 // Values
-let velocities : Map[@system.Entity, Velocity]
+let velocities : Map[@entity.Entity, Velocity]
 
 // Errors
 

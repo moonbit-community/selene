@@ -52,6 +52,11 @@ pub fn Vec2D::zero() -> Vec2D {
 }
 
 ///|
+pub impl Default for Vec2D with default() -> Vec2D {
+  Vec2D::zero()
+}
+
+///|
 pub fn Vec2D::op_get(this : Vec2D, axis : Axis) -> Double {
   match axis {
     X => this.0

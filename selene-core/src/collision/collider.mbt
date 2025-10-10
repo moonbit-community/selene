@@ -81,20 +81,20 @@ pub fn Collider::new(mask : CollisionMask) -> Collider {
 ///
 /// ```moonbit
 /// // Check if an entity has a collider
-/// let entity = @system.Entity::new()
+/// let entity = @entity.Entity::new()
 /// if @collision.colliders.contains(entity) {
 ///   let collider = @collision.colliders.get(entity).unwrap()
 ///   inspect(collider.active)
 /// }
 /// ```
 ///
-pub let colliders : Map[@system.Entity, Collider] = Map::new()
+pub let colliders : Map[@entity.Entity, Collider] = Map::new()
 
 ///|
 /// The collision info represents information about a collision event.
 /// 
 pub struct CollisionInfo {
-  entity : @system.Entity
+  entity : @entity.Entity
   direction : @math.Vec2D
 }
 
@@ -103,12 +103,12 @@ pub struct CollisionInfo {
 /// objects that represent the collisions of the entity with other entities.
 /// Do not manually modify this map; it is managed by the collision system.
 /// 
-let collision_infos : Map[@system.Entity, Array[CollisionInfo]] = Map::new()
+let collision_infos : Map[@entity.Entity, Array[CollisionInfo]] = Map::new()
 
 ///|
 fn add_collision_info(
-  entity : @system.Entity,
-  target : @system.Entity,
+  entity : @entity.Entity,
+  target : @entity.Entity,
   direction : @math.Vec2D,
 ) -> Unit {
   if collision_infos.get(entity) is None {
@@ -121,7 +121,7 @@ fn add_collision_info(
 /// Get all collision infos for a specific entity.
 /// This function returns an empty array if there are no collision infos for the entity.
 ///
-pub fn get_collision_infos(entity : @system.Entity) -> Array[CollisionInfo] {
+pub fn get_collision_infos(entity : @entity.Entity) -> Array[CollisionInfo] {
   collision_infos.get(entity).unwrap_or_default()
 }
 
@@ -130,7 +130,7 @@ pub fn get_collision_infos(entity : @system.Entity) -> Array[CollisionInfo] {
 /// Returns `true` if the entity is colliding with the floor,
 /// which is defined as having a collision direction with a positive Y component.
 /// 
-pub fn is_on_floor(entity : @system.Entity) -> Bool {
+pub fn is_on_floor(entity : @entity.Entity) -> Bool {
   let infos = get_collision_infos(entity)
   for info in infos {
     if info.direction[Y] > 0 {

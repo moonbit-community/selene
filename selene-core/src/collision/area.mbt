@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///| FIXME: replace all callbacks with state access
+///|
+/// FIXME: replace all callbacks with state access
 struct Area {
   mask : CollisionMask
-  on_enter_callbacks : Array[(@system.Entity) -> Unit]
-  on_exit_callbacks : Array[(@system.Entity) -> Unit]
-  mut contains : Set[@system.Entity]
+  on_enter_callbacks : Array[(@entity.Entity) -> Unit]
+  on_exit_callbacks : Array[(@entity.Entity) -> Unit]
+  mut contains : Set[@entity.Entity]
 }
 
 ///|
@@ -36,7 +37,7 @@ struct Area {
 /// ```moonbit
 /// let mask = @collision.CollisionMask::empty()
 /// let area = @collision.Area::new(mask)
-/// areas[@system.Entity::new()] = area
+/// areas[@entity.Entity::new()] = area
 /// ```
 ///
 pub fn Area::new(mask : CollisionMask) -> Area {
@@ -60,7 +61,7 @@ pub fn Area::new(mask : CollisionMask) -> Area {
 ///
 /// ```moonbit
 /// // Create an area and attach it to an entity
-/// let entity = @system.Entity::new()
+/// let entity = @entity.Entity::new()
 /// let mask = @collision.CollisionMask::empty()
 /// let area = @collision.Area::new(mask)
 /// @collision.areas.set(entity, area)
@@ -69,7 +70,7 @@ pub fn Area::new(mask : CollisionMask) -> Area {
 /// guard @collision.areas.get(entity) is Some(_area)
 /// ```
 ///
-pub let areas : Map[@system.Entity, Area] = Map::new()
+pub let areas : Map[@entity.Entity, Area] = Map::new()
 
 ///|
 /// Retrieves the set of entities currently contained within the specified area
@@ -79,14 +80,14 @@ pub let areas : Map[@system.Entity, Area] = Map::new()
 ///
 /// * `area` : The entity that has an area component attached to it.
 ///
-/// Returns a `Set[@system.Entity]` containing all entities currently within the
+/// Returns a `Set[@entity.Entity]` containing all entities currently within the
 /// area. If the entity does not have an area component, returns an empty set.
 ///
 /// Example:
 ///
 /// ```moonbit
 /// // Create an area entity and get its contained entities
-/// let area_entity = @system.Entity::new()
+/// let area_entity = @entity.Entity::new()
 /// let mask = @collision.CollisionMask::empty()
 /// let area = @collision.Area::new(mask)
 /// @collision.areas.set(area_entity, area)
@@ -96,7 +97,7 @@ pub let areas : Map[@system.Entity, Area] = Map::new()
 /// ignore(contained_entities)
 /// ```
 ///
-pub fn get_contains(area : @system.Entity) -> Set[@system.Entity] {
+pub fn get_contains(area : @entity.Entity) -> Set[@entity.Entity] {
   areas.get(area).map_or(Set::new(), fn(area) { area.contains })
 }
 
@@ -113,14 +114,14 @@ pub fn get_contains(area : @system.Entity) -> Set[@system.Entity] {
 /// Example:
 ///
 /// ```moonbit
-/// let my_entity = @system.Entity::new()
+/// let my_entity = @entity.Entity::new()
 /// let mask = @collision.CollisionMask::empty()
 /// let area = @collision.Area::new(mask)
 /// area.on_enter(fn(entity) { println("Entity \{entity} entered the area!") })
 /// @collision.areas.set(my_entity, area)
 /// ```
 ///
-pub fn Area::on_enter(self : Area, callback : (@system.Entity) -> Unit) -> Unit {
+pub fn Area::on_enter(self : Area, callback : (@entity.Entity) -> Unit) -> Unit {
   self.on_enter_callbacks.push(callback)
 }
 
@@ -136,14 +137,14 @@ pub fn Area::on_enter(self : Area, callback : (@system.Entity) -> Unit) -> Unit 
 /// Example:
 ///
 /// ```moonbit
-/// let my_entity = @system.Entity::new()
+/// let my_entity = @entity.Entity::new()
 /// let mask = @collision.CollisionMask::empty()
 /// let area = @collision.Area::new(mask)
 /// area.on_exit(fn(entity) { println("Entity \{entity} left the area!") })
 /// @collision.areas.set(my_entity, area)
 /// ```
 ///
-pub fn Area::on_exit(self : Area, callback : (@system.Entity) -> Unit) -> Unit {
+pub fn Area::on_exit(self : Area, callback : (@entity.Entity) -> Unit) -> Unit {
   self.on_exit_callbacks.push(callback)
 }
 
@@ -176,7 +177,7 @@ pub fn Area::on_exit(self : Area, callback : (@system.Entity) -> Unit) -> Unit {
 /// ```
 ///
 pub fn area_collide_system(_delta : Double) -> Unit {
-  for e in @system.iter_entities() {
+  for e in @entity.live_entities() {
     guard areas.get(e) is Some(area) else { continue }
     guard @position.positions.get(e) is Some(position)
     guard shapes.get(e) is Some(shape) else { continue }

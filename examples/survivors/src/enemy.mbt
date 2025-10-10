@@ -75,7 +75,7 @@ fn spawn_enemy_system(_delta : Double) -> Unit {
       return
     }
     let rand = game_state.rand
-    let enemy = @system.Entity::new()
+    let enemy = @entity.Entity::new()
     let pos = spawners[rand.int(limit=spawners.length())]
     @position.positions.set(enemy, pos)
     @velocity.velocities.set(enemy, @math.Vec2D::zero())
@@ -147,7 +147,7 @@ enum EnemyType {
 } derive(Eq, Hash)
 
 ///|
-let enemies : Map[@system.Entity, Enemy] = Map::new()
+let enemies : Map[@entity.Entity, Enemy] = Map::new()
 
 ///|
 fn get_enemy_data(enemy_type : EnemyType) -> EnemyData {
