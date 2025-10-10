@@ -18,9 +18,11 @@ fn draw_sprite(sprite_path~ : String, x~ : Double, y~ : Double, offset_x~ : Doub
 
 fn draw_stroke_rect(x~ : Double, y~ : Double, width~ : Double, height~ : Double, color~ : String) -> Unit
 
-fn draw_text(text~ : String, x~ : Double, y~ : Double, font~ : String, color~ : String) -> Unit
+fn draw_text(text~ : String, x~ : Double, y~ : Double, font~ : String, color~ : String, align~ : @math.HAlign, baseline~ : @math.VAlign) -> Unit
 
 fn get_canvas_size() -> @math.Vec2D
+
+fn get_realtime_delta() -> Double
 
 fn get_zoom() -> Double
 

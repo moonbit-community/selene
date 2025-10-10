@@ -72,8 +72,10 @@ pub(all) struct Text {
   mut content : String
   mut color : String
   mut font : String
+  mut baseline : @math.VAlign
+  mut align : @math.HAlign
 }
-fn Text::new(String, color? : String, font? : String) -> Self
+fn Text::new(String, color? : String, font? : String, baseline? : @math.VAlign, align? : @math.HAlign) -> Self
 
 // Type aliases
 

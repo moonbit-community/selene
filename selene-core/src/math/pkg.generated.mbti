@@ -14,6 +14,12 @@ pub(all) enum Axis {
 impl Eq for Axis
 impl Show for Axis
 
+pub(all) enum HAlign {
+  Left
+  Center
+  Right
+}
+
 pub(all) struct Rect {
   position : Vec2D
   size : Vec2D
@@ -58,6 +64,12 @@ fn Transform::translate(Self, Double, Double) -> Self
 impl Add for Transform
 impl Mul for Transform
 impl Sub for Transform
+
+pub(all) enum VAlign {
+  Top
+  Center
+  Bottom
+}
 
 pub(all) struct Vec2D(Double, Double)
 
