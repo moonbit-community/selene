@@ -280,10 +280,7 @@ pub fn App::add_system(
   schedule? : Schedule = Update,
   system_name? : String,
 ) -> App {
-  let system_name = match system_name {
-    None => "unnamed_system\{self.systems.length()}"
-    Some(name) => name
-  }
+  let system_name = system_name.unwrap_or("unnamed_system\{self.systems.length()}")
   let systems = self.systems
   systems.push((system, schedule, system_name))
   { ..self, systems, }

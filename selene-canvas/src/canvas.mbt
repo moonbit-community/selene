@@ -49,6 +49,9 @@ pub fn set_time_scale(time_scale : Double) -> Unit {
 }
 
 ///|
+let realtime_delta : Ref[Double] = Ref::new(0.0)
+
+///|
 pub fn initialize(
   startup~ : () -> Unit,
   render_loop~ : (Double) -> Unit,
@@ -75,6 +78,7 @@ pub fn initialize(
     let delta = delta / 1000.0
     // canvas_backend.current_fps = 1.0 / delta
     canvas_backend.context.clear_rect(0, 0, canvas_width, canvas_height)
+    realtime_delta.val = delta
     render_loop(delta * canvas_backend.time_scale)
     game_loop(delta * canvas_backend.time_scale)
     if canvas_backend.mouse_movement.val is Some(mouse_movement) {
@@ -93,6 +97,11 @@ pub fn get_canvas_size() -> @math.Vec2D {
 ///|
 pub fn get_zoom() -> Double {
   canvas_backend.zoom
+}
+
+///|
+pub fn get_realtime_delta() -> Double {
+  realtime_delta.val
 }
 
 ///|
@@ -126,10 +135,7 @@ fn schedule_with_fixed_interval(
   () => if lastId.val != 0.0 { window.cancel_animation_frame(lastId.val) }
 }
 
-pub fn load_font(
-  font : String, 
-  path : String 
-) -> Unit {
+///|
+pub fn load_font(font : String, path : String) -> Unit {
   load_font_async(font, path)
 }
-

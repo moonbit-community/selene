@@ -62,9 +62,6 @@ pub fn timeout(
 ///
 pub fn timer_system(delta : Double) -> Unit {
   for timer in timers.filter(timer => timer.pausible) {
-    if timer.pausible {
-
-    }
     timer.rest -= delta
     if timer.rest <= 0 {
       (timer.callback)()
@@ -80,12 +77,10 @@ pub fn timer_system(delta : Double) -> Unit {
 ///
 /// * `delta` : The time elapsed since the last update, in seconds.
 ///
-pub fn realtime_timer_system(delta : Double) -> Unit {
+pub fn realtime_timer_system(_delta : Double) -> Unit {
   for timer in timers.filter(timer => !timer.pausible) {
-    if timer.pausible {
-
-    }
-    timer.rest -= delta
+    let realtime_delta = @backend.get_realtime_delta()
+    timer.rest -= realtime_delta
     if timer.rest <= 0 {
       (timer.callback)()
     }

@@ -98,6 +98,8 @@ fn get_canvas_size() -> @math.Vec2D
 
 fn get_zoom() -> Double
 
+fn get_realtime_delta() -> Double
+
 fn preload_img(String) -> Unit
 
 fn preload_audio(String) -> Unit

@@ -214,3 +214,8 @@ pub fn load_font(font : String, path : String) -> Unit {
   ignore(font)
   ignore(path)
 }
+
+///|
+pub fn get_realtime_delta() -> Double {
+  0.016
+}
