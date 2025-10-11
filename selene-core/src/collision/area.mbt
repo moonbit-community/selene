@@ -177,7 +177,7 @@ pub fn Area::on_exit(self : Area, callback : (@entity.Entity) -> Unit) -> Unit {
 /// ```
 ///
 pub fn area_collide_system(_delta : Double) -> Unit {
-  for e in @entity.live_entities() {
+  for e in @entity.iter_entities() {
     guard areas.get(e) is Some(area) else { continue }
     guard @position.positions.get(e) is Some(position)
     guard shapes.get(e) is Some(shape) else { continue }

@@ -43,6 +43,7 @@ pub(all) struct Transform {
   ty : Double
 }
 fn Transform::apply_to_point(Self, Double, Double) -> (Double, Double)
+fn Transform::apply_to_vec2d(Self, Vec2D) -> Vec2D
 fn Transform::clone(Self) -> Self
 fn Transform::flip_x(Double) -> Self
 fn Transform::flip_y(Double) -> Self

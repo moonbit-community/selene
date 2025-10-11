@@ -63,4 +63,6 @@ pub fn default_plugin(app : @system.App) -> Unit {
   ..push((@camera.camera_system, Update, "Camera System"))
   ..push((@system.timer_system, Update, "Timer System"))
   ..push((@system.realtime_timer_system, Update, "Realtime Timer System"))
+  ..push((@inherit.inherit_position_system, Update, "Inherit Position System"))
+  ..push((@style.style_system, Update, "Style System"))
 }

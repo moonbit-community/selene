@@ -13,24 +13,8 @@
 // limitations under the License.
 
 ///|
-/// Children will inherit their parent's positions (with an offset) and liveness
-///
-pub fn inherit_position_system(_delta : Double) -> Unit {
-  let roots = @entity.get_roots()
-  for p in roots {
-    adjust_children(p)
-  }
-}
-
-///|
-fn adjust_children(entity : @entity.Entity) -> Unit {
-  for c in entity.get_children() {
-    guard c.is_alive() else { continue }
-    guard @position.positions.get(entity) is Some(parent_position) else {
-      continue
-    }
-    let offset = c.get_offset()
-    @position.positions.set(c, parent_position.0 + offset)
-    adjust_children(c)
-  }
+pub(all) enum SizePlan {
+  Sized(@math.Vec2D)
+  FromSprite
+  FromChildren
 }

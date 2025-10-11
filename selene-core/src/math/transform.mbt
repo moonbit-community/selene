@@ -132,6 +132,12 @@ pub fn Transform::apply_to_point(
 }
 
 ///|
+pub fn Transform::apply_to_vec2d(self : Transform, vec : Vec2D) -> Vec2D {
+  let p = self.apply_to_point(vec.0, vec.1)
+  Vec2D(p.0, p.1)
+}
+
+///|
 /// Get translation values
 /// 
 pub fn Transform::get_translation(self : Transform) -> (Double, Double) {

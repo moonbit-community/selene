@@ -1,8 +1,28 @@
 # Changelog
 
-## [0.18.0] - 2025-10-01
+## [0.18.0] - 2025-10-10
 
 ### Added
+
+- Entity inheritance, including APIs:
+  - `fn get_children(Entity) -> Array[Entity]`
+  - `fn get_offset(Entity) -> @math.Vec2D`
+  - `fn get_parent(Entity) -> Entity?`
+  - `fn get_roots() -> Array[Entity]`
+  - `fn iter_entities() -> Iter[Entity]`
+  - `fn live_entities() -> Iter[Entity]`
+  - `fn set_offset(Entity, @math.Vec2D) -> Unit`
+  - `fn spawn_child(Entity, offset? : @math.Vec2D) -> Entity`
+- Positions and liveness of child entities will be affected by parent entities 
+- New experimental subpackage `@style`, including APIs to make UI elements and styles
+
+### Changed 
+
+- New subpackage `@entity`, including APIs about Entities which were placed in `@system`
+
+### Removed
+
+- `@entity.live_entities`
 
 ## [0.17.2] - 2025-10-10
 

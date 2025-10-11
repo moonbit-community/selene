@@ -34,7 +34,7 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
   for e, collide in colliders {
     guard e.is_alive() else { continue }
     guard collide.active else { continue }
-    guard @position.positions.get(e) is Some(pos)
+    guard @position.positions.get(e) is Some(pos) else { continue }
     guard shapes.get(e) is Some(shape)
     guard shape is Rect(size=Vec2D(width, height), offset~)
     let pos = if @ui.uis.get(e) is Some(_) {
@@ -52,7 +52,7 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
   }
   for e, _area in areas {
     guard e.is_alive() else { continue }
-    guard @position.positions.get(e) is Some(pos)
+    guard @position.positions.get(e) is Some(pos) else { continue }
     guard shapes.get(e) is Some(shape) else { continue }
     guard shape is Rect(size=Vec2D(width, height), offset~)
     let pos = if @ui.uis.get(e) is Some(_) {
@@ -70,7 +70,7 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
   }
   for e, _pickable in pickables {
     guard e.is_alive() else { continue }
-    guard @position.positions.get(e) is Some(pos)
+    guard @position.positions.get(e) is Some(pos) else { continue }
     guard shapes.get(e) is Some(shape) else { continue }
     guard shape is Rect(size=Vec2D(width, height), offset~)
     let pos = if @ui.uis.get(e) is Some(_) {

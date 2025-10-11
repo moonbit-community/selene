@@ -1,0 +1,35 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/style"
+
+import(
+  "Milky2018/selene/entity"
+  "Milky2018/selene/math"
+)
+
+// Values
+fn style_system(Double) -> Unit
+
+let styles : Map[@entity.Entity, Style]
+
+// Errors
+
+// Types and methods
+pub(all) enum Flex {
+  Overlap
+  Horizontal
+  Vertical
+}
+
+pub(all) enum SizePlan {
+  Sized(@math.Vec2D)
+  FromSprite
+  FromChildren
+}
+
+type Style
+fn Style::new(size_plan? : SizePlan, flex? : Flex, h_padding? : Double, v_padding? : Double) -> Self
+
+// Type aliases
+
+// Traits
+

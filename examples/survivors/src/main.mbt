@@ -111,18 +111,9 @@ struct Powerup {
 
 ///|
 struct LevelUpPanel {
-  title_entity : @entity.Entity
-  title_text : @sprite.Text
-  button1_entity : @entity.Entity
-  button2_entity : @entity.Entity
-  button3_entity : @entity.Entity
-  icon1_entity : @entity.Entity
-  icon2_entity : @entity.Entity
-  icon3_entity : @entity.Entity
-  bg1_entity : @entity.Entity
-  bg2_entity : @entity.Entity
-  bg3_entity : @entity.Entity
+  root_entity : @entity.Entity
   mut available_powerups : Array[Powerup]
+  // Child entities will be created dynamically with spawn_child
 }
 
 ///|
@@ -168,23 +159,7 @@ let game_state : GameState = {
     attack_speed: 1.0,
   },
   level_up_panel: {
-    title_entity: @entity.Entity::new(),
-    title_text: @sprite.Text::new(
-      "LEVEL UP!",
-      color="gold",
-      font="36px ThaleahFat",
-      baseline=Top,
-      align=Center,
-    ),
-    button1_entity: @entity.Entity::new(),
-    button2_entity: @entity.Entity::new(),
-    button3_entity: @entity.Entity::new(),
-    icon1_entity: @entity.Entity::new(),
-    icon2_entity: @entity.Entity::new(),
-    icon3_entity: @entity.Entity::new(),
-    bg1_entity: @entity.Entity::new(),
-    bg2_entity: @entity.Entity::new(),
-    bg3_entity: @entity.Entity::new(),
+    root_entity: @entity.Entity::new(),
     available_powerups: [],
   },
 }

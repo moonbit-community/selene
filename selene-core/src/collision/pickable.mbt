@@ -255,7 +255,7 @@ pub fn pickable_click_system(_delta : Double) -> Unit {
   for e, _ui in @ui.uis {
     guard e.is_alive() else { continue }
     guard pickables.get(e) is Some(pick) else { continue }
-    guard @position.positions.get(e) is Some(position)
+    guard @position.positions.get(e) is Some(position) else { continue }
     guard shapes.get(e) is Some(shape) else { continue }
     guard shape is Rect(size=Vec2D(width, height), offset~)
     let area_box = @math.Rect::{
@@ -292,7 +292,7 @@ pub fn pickable_click_system(_delta : Double) -> Unit {
   for e in entities {
     guard e.is_alive() else { continue }
     guard pickables.get(e) is Some(pick) else { continue }
-    guard @position.positions.get(e) is Some(position)
+    guard @position.positions.get(e) is Some(position) else { continue }
     guard shapes.get(e) is Some(shape) else { continue }
     guard shape is Rect(size=Vec2D(width, height), offset~)
     let area_box = @math.Rect::{

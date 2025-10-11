@@ -32,9 +32,9 @@ Please check [docs](https://github.com/Milky2018/selene/tree/main/docs).
 - [x] Audio
 - [x] Timer
 - [ ] Webpack (selene-canvas)
-- [ ] Parent-child structure
+- [x] Parent-child structure
 - [x] Manual atlas
 - [x] Visibility 
 - [x] Move-and-slide collisions
 - [ ] Input mapping
-- [ ] UI components 
+- [x] UI components 

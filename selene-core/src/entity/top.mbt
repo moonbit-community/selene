@@ -54,33 +54,6 @@ pub fn iter_entities() -> Iter[Entity] {
 }
 
 ///|
-/// Returns an iterator over all currently active entities in the
-/// selene app.
-///
-/// Returns an `Iter[Entity]` that yields only entities that are currently alive
-/// and tracked in the system.
-///
-/// Example:
-///
-/// ```moonbit
-/// let entity1 = @entity.Entity::new()
-/// let entity2 = @entity.Entity::new()
-/// entity1.destroy()
-/// 
-/// // The following line will be executed in the game loop, instead of manual calling.
-/// @system.deferred_event_system(0.0)
-///
-/// // Iterate over live entities (only entity2 will be included after deferred processing)
-/// inspect(@system.live_entities().count(), content="1")
-/// 
-/// entity2.destroy()
-/// ```
-///
-pub fn live_entities() -> Iter[Entity] {
-  iter_entities().filter(e => e.is_alive())
-}
-
-///|
 /// Checks whether an entity is currently active in the selene app.
 ///
 /// Parameters:

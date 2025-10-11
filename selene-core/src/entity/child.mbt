@@ -31,11 +31,11 @@ let parents : Map[Entity, Parent] = Map::new()
 let children : Map[Entity, Child] = Map::new()
 
 ///|
-pub fn spawn_child(parent : Entity, offset? : @math.Vec2D) -> Entity {
+pub fn Entity::spawn_child(parent : Entity, offset? : @math.Vec2D) -> Entity {
   let child_entity = Entity::new()
   let p = parents.get_or_init(parent, () => {
     children: [],
-    is_root: children.contains(parent),
+    is_root: !children.contains(parent),
   })
   p.children.push(child_entity)
   children.set(child_entity, { parent, offset: offset.unwrap_or_default() })
@@ -43,26 +43,31 @@ pub fn spawn_child(parent : Entity, offset? : @math.Vec2D) -> Entity {
 }
 
 ///|
-pub fn get_children(parent : Entity) -> Array[Entity] {
+pub fn Entity::get_children(parent : Entity) -> Array[Entity] {
   parents.get(parent).map_or([], p => p.children)
 }
 
 ///|
-pub fn get_parent(child : Entity) -> Entity? {
+pub fn Entity::is_child(entity : Entity) -> Bool {
+  children.contains(entity)
+}
+
+///|
+pub fn Entity::get_parent(child : Entity) -> Entity? {
   children.get(child).map(c => c.parent)
 }
 
 ///|
-pub fn set_offset(child : Entity, offset : @math.Vec2D) -> Unit {
+pub fn Entity::set_offset(child : Entity, offset : @math.Vec2D) -> Unit {
   children.get(child).unwrap().offset = offset
 }
 
 ///|
-pub fn get_roots() -> Array[Entity] {
-  parents.iter().filter(ep => ep.1.is_root).map(ep => ep.0).to_array()
+pub fn get_roots() -> Iter[Entity] {
+  parents.iter().filter(ep => ep.1.is_root).map(ep => ep.0)
 }
 
 ///|
-pub fn get_offset(entity : Entity) -> @math.Vec2D {
+pub fn Entity::get_offset(entity : Entity) -> @math.Vec2D {
   children.get(entity).unwrap().offset
 }

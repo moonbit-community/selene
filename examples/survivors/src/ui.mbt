@@ -23,154 +23,160 @@ fn add_score_box() -> Unit {
 }
 
 ///|
+/// Panel
+/// - LevelUpText
+/// - Button1
+///   - Icon1 | Text1
+/// - Button2 
+///   - Icon2 | Text2 
+/// - Button3
+///   - Icon3 | Text3
+/// 
 fn setup_level_up_ui() -> Unit {
   let panel = game_state.level_up_panel
+  let root_entity = panel.root_entity
 
-  // Set up level up text entity
-  let level_up_sprite = @sprite.Sprite::from_text(
-    panel.title_text,
-    UI_ZINDEX + 2,
-  )
-  @sprite.sprites.set(panel.title_entity, level_up_sprite)
-  let level_up_position = @math.Vec2D(
-    VIEWPORT_WIDTH / 2.0,
-    VIEWPORT_HEIGHT / 2.0 - 120,
-  )
+  // Set up main panel root entity with centered position
   @position.positions.set(
-    panel.title_entity,
-    @position.Position(level_up_position),
-  )
-  @ui.uis.set(panel.title_entity, @ui.Ui::new())
-
-  // Set up powerup button entities with backgrounds and icons
-  setup_powerup_button_with_background(
-    panel.button1_entity,
-    panel.icon1_entity,
-    panel.bg1_entity,
-    0
-  )
-  setup_powerup_button_with_background(
-    panel.button2_entity,
-    panel.icon2_entity,
-    panel.bg2_entity,
-    1
-  )
-  setup_powerup_button_with_background(
-    panel.button3_entity,
-    panel.icon3_entity,
-    panel.bg3_entity,
-    2
-  )
-
-  // Initially destroy all entities (they'll be respawned when needed)
-  panel.title_entity.destroy()
-  panel.button1_entity.destroy()
-  panel.button2_entity.destroy()
-  panel.button3_entity.destroy()
-  panel.icon1_entity.destroy()
-  panel.icon2_entity.destroy()
-  panel.icon3_entity.destroy()
-  panel.bg1_entity.destroy()
-  panel.bg2_entity.destroy()
-  panel.bg3_entity.destroy()
-}
-
-///|
-fn setup_powerup_button_with_background(
-  button_entity : @entity.Entity,
-  icon_entity : @entity.Entity,
-  bg_entity : @entity.Entity,
-  index : Int
-) -> Unit {
-  // Position buttons vertically with more spacing
-  let button_y = VIEWPORT_HEIGHT / 2.0 - 60.0 + index.to_double() * 50.0
-  let button_position = @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 40, button_y)
-
-  // Set up blue background rectangle (render first, lowest z-index)
-  let bg_sprite = @sprite.Sprite::from_color_rect(
-    @sprite.ColorRect::new(Vec2D(240.0, 35.0), "blue"),
-    UI_ZINDEX + 1,
-  )
-  @sprite.sprites.set(bg_entity, bg_sprite)
-  let bg_position = @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 120, button_y - 2.0)
-  @position.positions.set(bg_entity, @position.Position(bg_position))
-  @ui.uis.set(bg_entity, @ui.Ui::new())
-
-  // Set up text button (render on top of background)
-  @position.positions.set(button_entity, @position.Position(button_position))
-  @ui.uis.set(button_entity, @ui.Ui::new())
-
-  // Set up icon (positioned to the left of the text)
-  let icon_position = @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 120, button_y - 2.0)
-  @position.positions.set(icon_entity, @position.Position(icon_position))
-  @ui.uis.set(icon_entity, @ui.Ui::new())
-
-  // Add clickable area for the button (covers the entire blue background)
-  @collision.shapes.set(
-    button_entity,
-    @collision.CollisionShape::Rect(
-      size=@math.Vec2D(240.0, 35.0),
-      offset=@math.Vec2D(-60.0, -2.0),
+    root_entity,
+    @position.Position(
+      @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 80, VIEWPORT_HEIGHT / 2.0 - 120),
     ),
   )
+  @ui.uis.set(panel.root_entity, @ui.Ui::new())
+  @style.styles.set(
+    root_entity,
+    @style.Style::new(size_plan=FromChildren, flex=Vertical, v_padding=20.0),
+  )
+  let level_up_text_entity = root_entity.spawn_child()
 
-  // Create pickable component for button
-  let pickable = @collision.Pickable::new()
-  pickable.on_just_pressed(fn(_button) { select_powerup(index) })
-  @collision.pickables[button_entity] = pickable
+  // Set up title text sprite on the root entity
+  @sprite.sprites.set(
+    level_up_text_entity,
+    @sprite.Sprite::from_text(
+      @sprite.Text::new(
+        "LEVEL UP!",
+        color="gold",
+        font="36px ThaleahFat",
+        baseline=Top,
+        align=Left,
+      ),
+      UI_ZINDEX + 2,
+    ),
+  )
+  @style.styles.set(
+    level_up_text_entity,
+    @style.Style::new(size_plan=Sized(Vec2D(160.0, 36.0))),
+  )
+  @ui.uis.set(level_up_text_entity, @ui.Ui::new())
+
+  // Create 3 powerup buttons as children during setup
+  for i in 0..<3 {
+    // Create button entity as child
+    let button_entity = root_entity.spawn_child()
+    @ui.uis.set(button_entity, @ui.Ui::new())
+    @style.styles.set(
+      button_entity,
+      @style.Style::new(
+        size_plan=FromSprite,
+        flex=Horizontal,
+        h_padding=2.0,
+        v_padding=2.0,
+      ),
+    )
+    @sprite.sprites.set(
+      button_entity,
+      @sprite.Sprite::from_color_rect(
+        @sprite.ColorRect::new(Vec2D(160.0, 36.0), "rgba(13, 167, 170, 1)"),
+        UI_ZINDEX + 1,
+      ),
+    )
+    @collision.shapes.set(
+      button_entity,
+      @collision.CollisionShape::Rect(
+        size=@math.Vec2D(160.0, 36.0),
+        offset=@math.Vec2D::zero(),
+      ),
+    )
+    let pickable = @collision.Pickable::new()
+    pickable.on_just_pressed(fn(_button) { select_powerup(i) })
+    @collision.pickables.set(button_entity, pickable)
+
+    // Icon
+    let icon_entity = button_entity.spawn_child()
+    @ui.uis.set(icon_entity, @ui.Ui::new())
+    let default_icon = powerup_range_icon
+    let icon_sprite = @sprite.Sprite::from_animation(
+      default_icon,
+      UI_ZINDEX + 2,
+      // offset=@math.Vec2D(-16.0, -16.0),
+    )
+    @sprite.sprites.set(icon_entity, icon_sprite)
+    @style.styles.set(icon_entity, @style.Style::new())
+
+    // Text
+    let text_entity = button_entity.spawn_child()
+    @ui.uis.set(text_entity, @ui.Ui::new())
+    let default_text = @sprite.Text::new(
+      "Default",
+      color="white",
+      font="16px ThaleahFat",
+    )
+    @sprite.sprites.set(
+      text_entity,
+      @sprite.Sprite::from_text(default_text, UI_ZINDEX + 2),
+    )
+    @style.styles.set(text_entity, @style.Style::new())
+  }
+
+  // Initially destroy the root panel (all children will be destroyed too)
+  root_entity.destroy()
 }
 
 ///|
 fn level_up() -> Unit {
   @backend.set_time_scale(0.0)
-
   let panel = game_state.level_up_panel
 
   // Generate 3 random powerups
   panel.available_powerups = generate_random_powerups()
 
-  // Update button text and icons with powerup information
-  update_powerup_display(panel.button1_entity, panel.icon1_entity, 0)
-  update_powerup_display(panel.button2_entity, panel.icon2_entity, 1)
-  update_powerup_display(panel.button3_entity, panel.icon3_entity, 2)
+  // Respawn the main panel (this will respawn all children automatically)
+  panel.root_entity.respawn()
+  let button_entities = panel.root_entity.get_children()
 
-  // Respawn all level-up UI entities (backgrounds first for proper layering)
-  panel.bg1_entity.respawn()
-  panel.bg2_entity.respawn()
-  panel.bg3_entity.respawn()
-  panel.title_entity.respawn()
-  panel.button1_entity.respawn()
-  panel.button2_entity.respawn()
-  panel.button3_entity.respawn()
-  panel.icon1_entity.respawn()
-  panel.icon2_entity.respawn()
-  panel.icon3_entity.respawn()
+  // Update button text and icons with powerup information
+  for i in 0..<3 {
+    update_powerup_display(panel.available_powerups[i], button_entities[i + 1])
+  }
 }
 
 ///|
-fn update_powerup_display(text_entity : @entity.Entity, icon_entity : @entity.Entity, index : Int) -> Unit {
-  let panel = game_state.level_up_panel
-  if index < panel.available_powerups.length() {
-    let powerup = panel.available_powerups[index]
+fn update_powerup_display(
+  powerup : Powerup,
+  button_entity : @entity.Entity,
+) -> Unit {
+  let children = button_entity.get_children()
+  let icon_entity = children[0]
+  let text_entity = children[1]
 
-    // Update text
-    let button_text = @sprite.Text::new(
-      powerup.name,
-      color="white",
-      font="16px ThaleahFat",
-    )
-    let button_sprite = @sprite.Sprite::from_text(button_text, UI_ZINDEX + 2)
-    @sprite.sprites.set(text_entity, button_sprite)
+  // Update text
+  let button_text = @sprite.Text::new(
+    powerup.name,
+    color="white",
+    font="16px ThaleahFat",
+  )
+  let button_sprite = @sprite.Sprite::from_text(button_text, UI_ZINDEX + 2)
+  @sprite.sprites.set(text_entity, button_sprite)
 
-    // Update icon
-    let icon_animation = get_powerup_icon(powerup.powerup_type)
-    let icon_sprite = @sprite.Sprite::from_animation(
-      icon_animation,
-      UI_ZINDEX + 2,
-      offset=@math.Vec2D(-16.0, -16.0),
-    )
-    @sprite.sprites.set(icon_entity, icon_sprite)
-  }
+  // Update icon
+  let icon_animation = get_powerup_icon(powerup.powerup_type)
+  let icon_sprite = @sprite.Sprite::from_animation(
+    icon_animation,
+    UI_ZINDEX + 2,
+    // offset=@math.Vec2D(-16.0, -16.0),
+  )
+  @sprite.sprites.set(icon_entity, icon_sprite)
 }
 
 ///|
@@ -186,19 +192,9 @@ fn select_powerup(index : Int) -> Unit {
 ///|
 fn resume_game() -> Unit {
   @backend.set_time_scale(1.0)
-
   let panel = game_state.level_up_panel
-  // Hide all level-up UI entities
-  panel.title_entity.destroy()
-  panel.button1_entity.destroy()
-  panel.button2_entity.destroy()
-  panel.button3_entity.destroy()
-  panel.icon1_entity.destroy()
-  panel.icon2_entity.destroy()
-  panel.icon3_entity.destroy()
-  panel.bg1_entity.destroy()
-  panel.bg2_entity.destroy()
-  panel.bg3_entity.destroy()
+  // Hide only the root panel - all children will be destroyed automatically
+  panel.root_entity.destroy()
 }
 
 ///|
