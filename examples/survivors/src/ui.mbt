@@ -87,7 +87,7 @@ fn setup_level_up_ui() -> Unit {
     @sprite.sprites.set(
       button_entity,
       @sprite.Sprite::from_color_rect(
-        @sprite.ColorRect::new(Vec2D(160.0, 36.0), "rgba(13, 167, 170, 1)"),
+        @sprite.ColorRect::new(Vec2D(160.0, 36.0), "rgba(13, 167, 170, 1)", stroke_color="black"),
         UI_ZINDEX + 1,
       ),
     )

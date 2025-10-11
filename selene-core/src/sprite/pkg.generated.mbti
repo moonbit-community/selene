@@ -39,8 +39,9 @@ pub(all) struct AnimationFrame {
 pub(all) struct ColorRect {
   size : @math.Vec2D
   color : String
+  stroke_color : String?
 }
-fn ColorRect::new(@math.Vec2D, String) -> Self
+fn ColorRect::new(@math.Vec2D, String, stroke_color? : String) -> Self
 
 pub(all) struct Picture {
   size : @math.Vec2D
