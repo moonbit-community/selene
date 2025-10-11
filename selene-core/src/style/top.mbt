@@ -18,6 +18,8 @@ struct Style {
   flex : Flex
   h_padding : Double
   v_padding : Double
+  h_offset : Double
+  v_offset : Double
 }
 
 ///|
@@ -26,8 +28,10 @@ pub fn Style::new(
   flex? : Flex = Flex::Overlap,
   h_padding? : Double = 0.0,
   v_padding? : Double = 0.0,
+  h_offset? : Double = 0.0,
+  v_offset? : Double = 0.0,
 ) -> Style {
-  { size_plan, flex, h_padding, v_padding }
+  { size_plan, flex, h_padding, v_padding, h_offset, v_offset }
 }
 
 ///|
@@ -44,10 +48,10 @@ pub fn style_system(_delta : Double) -> Unit {
 ///|
 /// Return current size
 fn arrange(entity : @entity.Entity, offset : @math.Vec2D) -> @math.Vec2D {
+  guard styles.get(entity) is Some(style) else { return @math.Vec2D::zero() }
   if entity.is_child() {
-    entity.set_offset(offset)
+    entity.set_offset(offset + Vec2D(style.h_offset, style.v_offset))
   }
-  guard styles.get(entity) is Some(style) else { return offset }
   let children = entity.get_children()
   let mut cursor = @math.Vec2D(style.h_padding, style.v_padding)
   let mut max_width = 0.0

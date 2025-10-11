@@ -46,7 +46,18 @@ fn setup_level_up_ui() -> Unit {
   @ui.uis.set(panel.root_entity, @ui.Ui::new())
   @style.styles.set(
     root_entity,
-    @style.Style::new(size_plan=FromChildren, flex=Vertical, v_padding=20.0),
+    @style.Style::new(size_plan=FromSprite, flex=Vertical, v_padding=20.0),
+  )
+  @sprite.sprites.set(
+    root_entity,
+    @sprite.Sprite::from_color_rect(
+      @sprite.ColorRect::new(
+        Vec2D(160.0, 250.0),
+        "rgba(13, 170, 26, 1)",
+        stroke_color="black",
+      ),
+      UI_ZINDEX + 1,
+    ),
   )
   let level_up_text_entity = root_entity.spawn_child()
 
@@ -66,7 +77,7 @@ fn setup_level_up_ui() -> Unit {
   )
   @style.styles.set(
     level_up_text_entity,
-    @style.Style::new(size_plan=Sized(Vec2D(160.0, 36.0))),
+    @style.Style::new(size_plan=Sized(Vec2D(160.0, 36.0)), h_offset=8.0),
   )
   @ui.uis.set(level_up_text_entity, @ui.Ui::new())
 
@@ -87,8 +98,12 @@ fn setup_level_up_ui() -> Unit {
     @sprite.sprites.set(
       button_entity,
       @sprite.Sprite::from_color_rect(
-        @sprite.ColorRect::new(Vec2D(160.0, 36.0), "rgba(13, 167, 170, 1)", stroke_color="black"),
-        UI_ZINDEX + 1,
+        @sprite.ColorRect::new(
+          Vec2D(160.0, 36.0),
+          "rgba(13, 167, 170, 1)",
+          stroke_color="black",
+        ),
+        UI_ZINDEX + 2,
       ),
     )
     @collision.shapes.set(
@@ -108,7 +123,7 @@ fn setup_level_up_ui() -> Unit {
     let default_icon = powerup_range_icon
     let icon_sprite = @sprite.Sprite::from_animation(
       default_icon,
-      UI_ZINDEX + 2,
+      UI_ZINDEX + 3,
       // offset=@math.Vec2D(-16.0, -16.0),
     )
     @sprite.sprites.set(icon_entity, icon_sprite)
@@ -166,14 +181,14 @@ fn update_powerup_display(
     color="white",
     font="16px ThaleahFat",
   )
-  let button_sprite = @sprite.Sprite::from_text(button_text, UI_ZINDEX + 2)
+  let button_sprite = @sprite.Sprite::from_text(button_text, UI_ZINDEX + 3)
   @sprite.sprites.set(text_entity, button_sprite)
 
   // Update icon
   let icon_animation = get_powerup_icon(powerup.powerup_type)
   let icon_sprite = @sprite.Sprite::from_animation(
     icon_animation,
-    UI_ZINDEX + 2,
+    UI_ZINDEX + 3,
     // offset=@math.Vec2D(-16.0, -16.0),
   )
   @sprite.sprites.set(icon_entity, icon_sprite)
