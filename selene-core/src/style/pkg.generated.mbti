@@ -27,7 +27,7 @@ pub(all) enum SizePlan {
 }
 
 type Style
-fn Style::new(size_plan? : SizePlan, flex? : Flex, h_padding? : Double, v_padding? : Double) -> Self
+fn Style::new(size_plan? : SizePlan, flex? : Flex, h_padding? : Double, v_padding? : Double, h_offset? : Double, v_offset? : Double) -> Self
 
 // Type aliases
 
