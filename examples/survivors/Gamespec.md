@@ -24,14 +24,33 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
 - **Invincibility**: 1 second after taking damage
 - **Animations**: Idle and running animations for 4 directions (up, down, left, right)
 
+### Stats 
+- **Atk**: Player's attack (default 1.0)
+- **Rng**: Player's base range (default 0.0)
+- **Spd**: Player's speed (default 150.0)
+- **Def**: Player's attack speed (default 1.0)
+
 ### Combat System
-- **Automatic Shooting**: Player automatically fires at nearest enemy every 1.5 seconds
-- **Bullet Properties**:
-  - Speed: 300 units per second
-  - Size: 4x4 pixels
-  - Color: White
-  - Limited range based on bullet duration
-- **Damage**: All enemies take 1 damage per bullet hit
+- **Automatic attacking**: Player automatically uses all weapons which he has
+
+### Weapon System
+1. **Pistol** (Default weapon): 
+   - **Bullet Properties**:
+   - Speed: 300 units per second
+   - Size: 4x4 pixels
+   - Color: White
+   - Cooldown Rate: 1.5s / Def 
+   - Damage: 1.0 + Atk 
+   - Range: 128.0 + Rng 
+
+2. **Minigun** 
+   - **Bullet Properties**:
+   - Speed: 600 units per second
+   - Size: 4x4 pixels
+   - Color: White
+   - Cooldown Rate: 0.3s / Def 
+   - Damage: 0.2 + Atk * 0.5
+   - Range: 192.0 + Rng 
 
 ### Enemy System
 
@@ -81,10 +100,10 @@ XP required for level n = n * (2 * n * n + 21 * n + 73) / 6
 - **Benefits**: Choose a Powerup from 3 random powerups
 
 #### Powerups 
-- **Attack**: Player's attack + 1
-- **Range**: Player's shooting range + 16.0
-- **Speed**: Player's speed + 15.0
-- **Cooldown**: Weapons cooldown rate + 10%
+- **Attack**: Atk + 0.2
+- **Range**: Rng + 16.0
+- **Speed**: Spd + 15.0
+- **Cooldown**: Def + 0.1
 
 ### Wave System
 - **Duration**: 10 minutes total (600 seconds)

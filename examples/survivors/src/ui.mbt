@@ -14,12 +14,13 @@
 
 ///|
 fn add_score_box() -> Unit {
-  let entity = @entity.Entity::new()
-  let sprite = @sprite.Sprite::from_text(game_state.score_box, UI_ZINDEX)
-  @sprite.sprites.set(entity, sprite)
-  let position = @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 40, 16.0)
-  @position.positions.set(entity, @position.Position(position))
-  @ui.uis.set(entity, @ui.Ui::new())
+  @style.add_widget(
+    @style.screen_root,
+    sprite=zindex => @sprite.Sprite::from_text(game_state.score_box, zindex),
+    h_offset=VIEWPORT_WIDTH / 2.0 - 40,
+    v_offset=16,
+  )
+  |> ignore
 }
 
 ///|
@@ -162,53 +163,57 @@ fn resume_game() -> Unit {
 
 ///|
 fn add_wave_box() -> Unit {
-  let entity = @entity.Entity::new()
-  let sprite = @sprite.Sprite::from_text(game_state.wave_box, UI_ZINDEX)
-  @sprite.sprites.set(entity, sprite)
-  let position = @math.Vec2D(16.0, 84.0)
-  @position.positions.set(entity, @position.Position(position))
-  @ui.uis.set(entity, @ui.Ui::new())
+  @style.add_widget(
+    @style.screen_root,
+    sprite=zindex => @sprite.Sprite::from_text(game_state.wave_box, zindex),
+    h_offset=16.0,
+    v_offset=84.0,
+  )
+  |> ignore
 }
 
 ///|
 fn add_exp_box() -> Unit {
-  let entity = @entity.Entity::new()
-  let sprite = @sprite.Sprite::from_text(game_state.exp_box, UI_ZINDEX)
-  @sprite.sprites.set(entity, sprite)
-  let position = @math.Vec2D(16.0, 50.0)
-  @position.positions.set(entity, @position.Position(position))
-  @ui.uis.set(entity, @ui.Ui::new())
+  @style.add_widget(
+    @style.screen_root,
+    sprite=zindex => @sprite.Sprite::from_text(game_state.exp_box, zindex),
+    h_offset=16.0,
+    v_offset=50.0,
+  )
+  |> ignore
 }
 
 ///|
 fn add_timer_box() -> Unit {
-  let entity = @entity.Entity::new()
-  let sprite = @sprite.Sprite::from_text(game_state.timer_box, UI_ZINDEX)
-  @sprite.sprites.set(entity, sprite)
-  let position = @math.Vec2D(VIEWPORT_WIDTH - 120, 16.0)
-  @position.positions.set(entity, @position.Position(position))
-  @ui.uis.set(entity, @ui.Ui::new())
+  @style.add_widget(
+    @style.screen_root,
+    sprite=zindex => @sprite.Sprite::from_text(game_state.timer_box, zindex),
+    h_offset=VIEWPORT_WIDTH - 120,
+    v_offset=16.0,
+  )
+  |> ignore
 }
 
 ///|
+/// TODO: change to `game_over`
+/// 
 fn add_game_over_box() -> Unit {
-  let entity = @entity.Entity::new()
-  let sprite = @sprite.Sprite::from_text(
-    game_state.game_over_box,
-    UI_ZINDEX + 1,
+  @style.add_widget(
+    @style.screen_root,
+    sprite=zindex => @sprite.Sprite::from_text(game_state.game_over_box, zindex),
+    h_offset=VIEWPORT_WIDTH / 2.0 - 160,
+    v_offset=VIEWPORT_HEIGHT / 2.0,
   )
-  @sprite.sprites.set(entity, sprite)
-  let position = @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 160, VIEWPORT_HEIGHT / 2.0)
-  @position.positions.set(entity, @position.Position(position))
-  @ui.uis.set(entity, @ui.Ui::new())
+  |> ignore
 }
 
 ///|
 fn add_level_box() -> Unit {
-  let entity = @entity.Entity::new()
-  let sprite = @sprite.Sprite::from_text(game_state.level_box, UI_ZINDEX)
-  @sprite.sprites.set(entity, sprite)
-  let position = @math.Vec2D(16.0, 16.0)
-  @position.positions.set(entity, @position.Position(position))
-  @ui.uis.set(entity, @ui.Ui::new())
+  @style.add_widget(
+    @style.screen_root,
+    sprite=zindex => @sprite.Sprite::from_text(game_state.level_box, zindex),
+    h_offset=16.0,
+    v_offset=16.0,
+  )
+  |> ignore
 }

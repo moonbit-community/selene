@@ -78,7 +78,13 @@ XP required for level n = n * (2 * n * n + 21 * n + 73) / 6
 - **Pause**: Game pauses completely
 - **UI**: Shows "LEVEL UP!" text and "RESUME" button
 - **Resume**: Click button to continue 
-- **Benefits**: Currently only visual feedback (future enhancement opportunity)
+- **Benefits**: Choose a Powerup from 3 random powerups
+
+#### Powerups 
+- **Attack**: Player's attack + 1
+- **Range**: Player's shooting range + 16.0
+- **Speed**: Player's speed + 15.0
+- **Cooldown**: Weapons cooldown rate + 10%
 
 ### Wave System
 - **Duration**: 10 minutes total (600 seconds)

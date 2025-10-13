@@ -14,7 +14,7 @@
 
 ///|
 struct EnemyData {
-  health : Int
+  health : Double
   speed : Double
   points : Int
   wave_spawn_weights : Array[Int] // [wave1, wave2, wave3, wave4, wave5]
@@ -26,7 +26,7 @@ struct EnemyData {
 let enemy_data : Map[EnemyType, EnemyData] = {
   let data = Map::new()
   data.set(Creeper, {
-    health: 1,
+    health: 1.0,
     speed: 60.0,
     points: 10,
     wave_spawn_weights: [60, 40, 25, 15, 10], // Decreasing over waves
@@ -34,7 +34,7 @@ let enemy_data : Map[EnemyType, EnemyData] = {
     left_animation: creeper_left_animation,
   })
   data.set(Icecream, {
-    health: 2,
+    health: 2.0,
     speed: 60.0,
     points: 25,
     wave_spawn_weights: [35, 40, 35, 25, 20], // Peak in early-mid waves
@@ -42,7 +42,7 @@ let enemy_data : Map[EnemyType, EnemyData] = {
     left_animation: icecream_left_animation,
   })
   data.set(Orc, {
-    health: 3,
+    health: 3.0,
     speed: 75,
     points: 50,
     wave_spawn_weights: [5, 15, 25, 30, 25], // Increasing to mid-late waves
@@ -50,7 +50,7 @@ let enemy_data : Map[EnemyType, EnemyData] = {
     left_animation: orc_left_animation,
   })
   data.set(Skull, {
-    health: 4,
+    health: 4.0,
     speed: 90,
     points: 100,
     wave_spawn_weights: [0, 5, 15, 30, 45], // Only in later waves, increasing
@@ -135,7 +135,7 @@ fn spawn_enemy_system(_delta : Double) -> Unit {
 struct Enemy {
   enemy_type : EnemyType
   speed : Double
-  mut health : Int
+  mut health : Double
 }
 
 ///|

@@ -60,7 +60,6 @@ struct GameState {
   player_entity : @entity.Entity
   mut player_direction : Dir4
   rand : @random.Rand
-  mut shoot_timer : Double
   mut score : Int
   score_box : @sprite.Text
   mut invincible : Bool
@@ -97,10 +96,11 @@ enum PowerupType {
 
 ///|
 struct PlayerStats {
-  mut attack : Int
+  mut attack : Double
   mut range : Double
   mut speed : Double
   mut attack_speed : Double
+  mut unlocked_weapons : Array[WeaponType]
 }
 
 ///|
@@ -121,7 +121,6 @@ let game_state : GameState = {
   player_entity: @entity.Entity::new(),
   player_direction: Down,
   rand: @random.Rand::new(),
-  shoot_timer: 0.0,
   score: 0,
   score_box: @sprite.Text::new(
     "Score: 0",
@@ -153,10 +152,11 @@ let game_state : GameState = {
     font="24px ThaleahFat",
   ),
   player_stats: {
-    attack: 1,
-    range: SHOOTING_RANGE,
+    attack: 1.0,
+    range: 0.0,  // Base range, weapons add to this
     speed: PLAYER_SPEED,
     attack_speed: 1.0,
+    unlocked_weapons: [Pistol],  // Start with only Pistol
   },
   level_up_panel: {
     panel_entity: @style.add_widget(
@@ -209,6 +209,10 @@ fn add_exp(exp_gained : Int) -> Unit {
     game_state.player_level = new_level
     game_state.level_box.content = "Level: " +
       game_state.player_level.to_string()
+
+    // Check for weapon unlocks every 5 levels
+    check_weapon_unlocks(new_level)
+
     level_up()
   }
 
@@ -228,9 +232,18 @@ fn add_exp(exp_gained : Int) -> Unit {
 }
 
 ///|
+fn check_weapon_unlocks(level : Int) -> Unit {
+  // Unlock Minigun at level 6 (every 5 levels after level 1)
+  if level == 6 && not(game_state.player_stats.unlocked_weapons.contains(Minigun)) {
+    game_state.player_stats.unlocked_weapons = [Pistol, Minigun]
+    // TODO: Show weapon unlock notification
+  }
+}
+
+///|
 fn create_powerup(powerup_type : PowerupType) -> Powerup {
   match powerup_type {
-    Attack => { powerup_type: Attack, name: "Attack +1" }
+    Attack => { powerup_type: Attack, name: "Attack +0.2" }
     Range => { powerup_type: Range, name: "Range +16" }
     Speed => { powerup_type: Speed, name: "Speed +15" }
     Cooldown => { powerup_type: Cooldown, name: "Attack Speed +10%" }
@@ -265,7 +278,7 @@ fn generate_random_powerups() -> Array[Powerup] {
 ///|
 fn apply_powerup(powerup : Powerup) -> Unit {
   match powerup.powerup_type {
-    Attack => game_state.player_stats.attack += 1
+    Attack => game_state.player_stats.attack += 0.2
     Range => game_state.player_stats.range += 16.0
     Speed => game_state.player_stats.speed += 15.0
     Cooldown => game_state.player_stats.attack_speed += 0.1
