@@ -43,7 +43,7 @@ let all_entities : @set.Set[Entity] = @set.Set::new()
 /// // The following line will be executed in the game loop, instead of manual calling.
 /// @system.deferred_event_system(0.0)
 /// 
-/// inspect(@system.iter_entities().count(), content="2")
+/// inspect(@entity.iter_entities().count(), content="2")
 /// 
 /// entity1.destroy()
 /// entity2.destroy()

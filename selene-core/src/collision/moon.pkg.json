@@ -8,5 +8,8 @@
     "Milky2018/selene/ui",
     "Milky2018/selene/inputs",
     "Milky2018/selene/backend"
+  ],
+  "test-import": [
+    "Milky2018/selene/system"
   ]
 }
