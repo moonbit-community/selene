@@ -52,6 +52,8 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
    - Cooldown Rate: 0.3s / Def 
    - Damage: 0.2 + Atk * 0.5
    - Range: 192.0 + Rng 
+   - **Powerup**
+   - Spd - 50
 
 ### Enemy System
 

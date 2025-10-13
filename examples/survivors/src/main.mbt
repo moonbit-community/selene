@@ -242,25 +242,13 @@ fn check_weapon_unlocks(_level : Int) -> Unit {
 }
 
 ///|
-fn get_weapon_name(weapon_type : WeaponType) -> String {
-  match weapon_type {
-    Pistol => "Pistol"
-    Minigun => "Minigun"
-  }
-}
-
-///|
-fn get_weapon_icon(weapon_type : WeaponType) -> @sprite.Animation {
-  match weapon_type {
-    Pistol => weapon_pistol_icon
-    Minigun => weapon_minigun_icon
-  }
-}
-
-///|
 fn add_weapon(weapon_type : WeaponType) -> Unit {
   // Add weapon instance (allows duplicates)
   game_state.player_stats.weapon_instances.push(weapon_type)
+
+  // Apply weapon's speed modifier
+  let speed_modifier = get_weapon_speed_modifier(weapon_type)
+  game_state.player_stats.speed += speed_modifier
 }
 
 ///|
