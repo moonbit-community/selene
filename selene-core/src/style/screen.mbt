@@ -13,9 +13,21 @@
 // limitations under the License.
 
 ///|
-pub(all) enum SizePlan {
-  Sized(@math.Vec2D)
-  FromSprite
-  FromChildren
-  FromShape
+pub let screen_root : @entity.Entity = @entity.Entity::new()
+
+///|
+fn init {
+  styles.set(
+    screen_root,
+    Style::new(
+      size_plan=Sized(@backend.get_canvas_size()),
+      flex=Overlap,
+      h_padding=0.0,
+      v_padding=0.0,
+      h_offset=0.0,
+      v_offset=0.0,
+    ),
+  )
+  @position.positions.set(screen_root, @math.Vec2D::zero())
+  @ui.uis.set(screen_root, @ui.Ui::new())
 }

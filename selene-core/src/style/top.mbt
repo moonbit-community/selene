@@ -14,11 +14,11 @@
 
 ///|
 struct Style {
-  size_plan : SizePlan
-  flex : Flex
-  h_padding : Double
+  size_plan : SizePlan // The plan to calculate the size of this entity in the UI world
+  flex : Flex // The flexing direction for its child entities
+  h_padding : Double // The flexing paddings
   v_padding : Double
-  h_offset : Double
+  h_offset : Double // The offset of this entity respective to its parent
   v_offset : Double
 }
 
@@ -79,6 +79,12 @@ fn arrange(entity : @entity.Entity, offset : @math.Vec2D) -> @math.Vec2D {
     }
     Sized(s) => s
     FromChildren => Vec2D(max_width, max_height)
+    FromShape => {
+      guard @collision.shapes.get(entity) is Some(shape)
+      match shape {
+        Rect(size~, ..) => size
+      }
+    }
   }
 }
 

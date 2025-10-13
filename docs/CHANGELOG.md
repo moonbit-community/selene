@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.18.1] - 2025-10-13
+
+### Added 
+
+- Widget APIs: `@style.add_widget` and `@style.screen_root`
+
+### Changed 
+
+- Add a variant: `@style.SizePlan::FromShape`
+
 ## [0.18.0] - 2025-10-11
 
 ### Added

@@ -111,7 +111,7 @@ struct Powerup {
 
 ///|
 struct LevelUpPanel {
-  root_entity : @entity.Entity
+  panel_entity : @entity.Entity
   mut available_powerups : Array[Powerup]
   // Child entities will be created dynamically with spawn_child
 }
@@ -159,7 +159,21 @@ let game_state : GameState = {
     attack_speed: 1.0,
   },
   level_up_panel: {
-    root_entity: @entity.Entity::new(),
+    panel_entity: @style.add_widget(
+      @style.screen_root,
+      h_offset=VIEWPORT_WIDTH / 2.0 - 80,
+      v_offset=VIEWPORT_HEIGHT / 2.0 - 120,
+      flex=Vertical,
+      v_padding=20.0,
+      sprite=zindex => @sprite.Sprite::from_color_rect(
+        @sprite.ColorRect::new(
+          Vec2D(160.0, 250.0),
+          "rgba(13, 170, 26, 1)",
+          stroke_color="black",
+        ),
+        zindex,
+      ),
+    ),
     available_powerups: [],
   },
 }
@@ -273,7 +287,8 @@ fn game_start(_delta : Double) -> Unit {
   setup_level_up_ui()
 }
 
-///|powerup_cooldown_icon
+///|
+///powerup_cooldown_icon
 fn game_timer_system(delta : Double) -> Unit {
   if game_state.game_over {
     if not(game_state.game_over_displayed) {
