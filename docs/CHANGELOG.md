@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.18.2] - 2025-10-13
+
+### Added 
+
+- `@backend.get_time_scale`
+
 ## [0.18.1] - 2025-10-13
 
 ### Added 

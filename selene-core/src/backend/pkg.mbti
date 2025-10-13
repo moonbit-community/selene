@@ -106,4 +106,6 @@ fn preload_audio(String) -> Unit
 
 fn set_time_scale(Double) -> Unit
 
+fn get_time_scale() -> Double
+
 fn load_font(String, String) -> Unit

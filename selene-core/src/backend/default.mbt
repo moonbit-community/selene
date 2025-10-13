@@ -219,3 +219,8 @@ pub fn load_font(font : String, path : String) -> Unit {
 pub fn get_realtime_delta() -> Double {
   0.016
 }
+
+///|
+pub fn get_time_scale() -> Double {
+  1.0
+}

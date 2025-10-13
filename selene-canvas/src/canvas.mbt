@@ -139,3 +139,8 @@ fn schedule_with_fixed_interval(
 pub fn load_font(font : String, path : String) -> Unit {
   load_font_async(font, path)
 }
+
+///|
+pub fn get_time_scale() -> Double {
+  canvas_backend.time_scale
+}

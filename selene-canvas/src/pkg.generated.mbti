@@ -24,6 +24,8 @@ fn get_canvas_size() -> @math.Vec2D
 
 fn get_realtime_delta() -> Double
 
+fn get_time_scale() -> Double
+
 fn get_zoom() -> Double
 
 fn initialize(startup~ : () -> Unit, render_loop~ : (Double) -> Unit, game_loop~ : (Double) -> Unit, canvas_width~ : Double, canvas_height~ : Double, fps~ : UInt, image_smooth~ : Bool, zoom~ : Double) -> () -> Unit
