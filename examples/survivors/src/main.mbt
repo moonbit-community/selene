@@ -241,12 +241,23 @@ fn create_powerup(powerup_type : PowerupType) -> Powerup {
 fn generate_random_powerups() -> Array[Powerup] {
   let all_types = [Attack, Range, Speed, Cooldown]
   let selected = []
+  let available_types = []
 
-  // Select 3 random powerups
-  for i = 0; i < 3; i = i + 1 {
-    let rand_index = game_state.rand.int(limit=all_types.length())
-    let powerup_type = all_types[rand_index]
+  // Copy all types to available list
+  for powerup_type in all_types {
+    available_types.push(powerup_type)
+  }
+
+  // Select 3 unique random powerups
+  for _i = 0; _i < 3; _i = _i + 1 {
+    if available_types.length() == 0 {
+      break
+    }
+    let rand_index = game_state.rand.int(limit=available_types.length())
+    let powerup_type = available_types[rand_index]
     selected.push(create_powerup(powerup_type))
+    // Remove the selected type to avoid duplicates
+    available_types.remove(rand_index) |> ignore
   }
   selected
 }
