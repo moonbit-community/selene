@@ -32,6 +32,7 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
 
 ### Combat System
 - **Automatic attacking**: Player automatically uses all weapons which he has
+- **Weapons**: Player can have multiple weapons; and multiple of the same weapon type
 
 ### Weapon System
 1. **Pistol** (Default weapon): 
@@ -97,7 +98,9 @@ XP required for level n = n * (2 * n * n + 21 * n + 73) / 6
 - **Pause**: Game pauses completely
 - **UI**: Shows "LEVEL UP!" text and "RESUME" button
 - **Resume**: Click button to continue 
-- **Benefits**: Choose a Powerup from 3 random powerups
+- **Benefits**: 
+  - Choose a Bonus from 3 random powerups for regular level-ups
+  - Choose a Bonus from 2 random powerups and 1 random weapon for times-5 level-ups (level 5, 10, 15, etc)
 
 #### Powerups 
 - **Attack**: Atk + 0.2

@@ -83,6 +83,7 @@ fn player_update_system(delta : Double) -> Unit {
 }
 
 ///|
+
 ///|
 enum WeaponType {
   Pistol
@@ -92,70 +93,85 @@ enum WeaponType {
 ///|
 struct Weapon {
   weapon_type : WeaponType
-  cooldown_rate : Double  // Base cooldown in seconds
-  damage_formula : (Double, Double) -> Double  // (base_damage, attack) -> damage
-  range_formula : (Double, Double) -> Double   // (base_range, range_stat) -> range
+  cooldown_rate : Double // Base cooldown in seconds
+  damage_formula : (Double, Double) -> Double // (base_damage, attack) -> damage
+  range_formula : (Double, Double) -> Double // (base_range, range_stat) -> range
   bullet_speed : Double
-  mut timer : Double
 }
 
 ///|
-let weapons : Array[Weapon] = [
-  // Pistol (Default weapon)
-  {
-    weapon_type: Pistol,
-    cooldown_rate: 1.5,
-    damage_formula: fn(base, atk) { base + atk },
-    range_formula: fn(base, rng) { base + rng },
-    bullet_speed: 300.0,
-    timer: 0.0,
-  },
-  // Minigun
-  {
-    weapon_type: Minigun,
-    cooldown_rate: 0.3,
-    damage_formula: fn(base, atk) { base + atk * 0.5 },
-    range_formula: fn(base, rng) { base + rng },
-    bullet_speed: 600.0,
-    timer: 0.0,
-  },
-]
+fn get_weapon_data(weapon_type : WeaponType) -> Weapon {
+  match weapon_type {
+    Pistol =>
+      {
+        weapon_type: Pistol,
+        cooldown_rate: 1.5,
+        damage_formula: fn(base, atk) { base + atk },
+        range_formula: fn(base, rng) { base + rng },
+        bullet_speed: 300.0,
+      }
+    Minigun =>
+      {
+        weapon_type: Minigun,
+        cooldown_rate: 0.3,
+        damage_formula: fn(base, atk) { base + atk * 0.5 },
+        range_formula: fn(base, rng) { base + rng },
+        bullet_speed: 600.0,
+      }
+  }
+}
+
+///|
+// Store timers separately - one timer per weapon instance
+let weapon_timers : Array[Double] = []
 
 ///|
 fn player_shooting_system(delta : Double) -> Unit {
   if game_state.game_over {
     return
   }
-
   guard @position.positions.get(game_state.player_entity) is Some(player_pos)
+  let weapon_instances = game_state.player_stats.weapon_instances
 
-  // Update timers and fire each unlocked weapon independently
-  for weapon in weapons {
-    // Only use weapons that are unlocked
-    if not(game_state.player_stats.unlocked_weapons.contains(weapon.weapon_type)) {
-      continue
+  // Initialize timers array if needed
+  while weapon_timers.length() < weapon_instances.length() {
+    weapon_timers.push(0.0)
+  }
+
+  // Update timers and fire each weapon instance independently
+  for i in 0..<weapon_instances.length() {
+    let weapon_type = weapon_instances[i]
+    let weapon_data = get_weapon_data(weapon_type)
+    if weapon_timers[i] > 0.0 {
+      weapon_timers[i] = weapon_timers[i] - delta
     }
-
-    if weapon.timer > 0.0 {
-      weapon.timer -= delta
-    }
-
-    if weapon.timer <= 0.0 {
-      weapon.timer = weapon.cooldown_rate / game_state.player_stats.attack_speed
-
-      let weapon_range = match weapon.weapon_type {
-        Pistol => (weapon.range_formula)(128.0, game_state.player_stats.range)
-        Minigun => (weapon.range_formula)(192.0, game_state.player_stats.range)
+    if weapon_timers[i] <= 0.0 {
+      weapon_timers[i] = weapon_data.cooldown_rate /
+        game_state.player_stats.attack_speed
+      let weapon_range = match weapon_type {
+        Pistol =>
+          (weapon_data.range_formula)(128.0, game_state.player_stats.range)
+        Minigun =>
+          (weapon_data.range_formula)(192.0, game_state.player_stats.range)
       }
-
-      let nearest_enemy_pos = find_nearest_enemy_in_range(player_pos.0, weapon_range)
+      let nearest_enemy_pos = find_nearest_enemy_in_range(
+        player_pos.0,
+        weapon_range,
+      )
       match nearest_enemy_pos {
         Some(enemy_pos) => {
-          let weapon_damage = match weapon.weapon_type {
-            Pistol => (weapon.damage_formula)(1.0, game_state.player_stats.attack)
-            Minigun => (weapon.damage_formula)(0.2, game_state.player_stats.attack)
+          let weapon_damage = match weapon_type {
+            Pistol =>
+              (weapon_data.damage_formula)(1.0, game_state.player_stats.attack)
+            Minigun =>
+              (weapon_data.damage_formula)(0.2, game_state.player_stats.attack)
           }
-          shoot_weapon_bullet(player_pos.0, enemy_pos, weapon, weapon_damage)
+          shoot_weapon_bullet(
+            player_pos.0,
+            enemy_pos,
+            weapon_data,
+            weapon_damage,
+          )
         }
         None => ()
       }
@@ -164,8 +180,12 @@ fn player_shooting_system(delta : Double) -> Unit {
 }
 
 ///|
+
 ///|
-fn find_nearest_enemy_in_range(player_pos : @math.Vec2D, weapon_range : Double) -> @math.Vec2D? {
+fn find_nearest_enemy_in_range(
+  player_pos : @math.Vec2D,
+  weapon_range : Double,
+) -> @math.Vec2D? {
   let mut min = weapon_range
   let mut res : @math.Vec2D? = None
   for e, _enemy in enemies {
@@ -185,7 +205,7 @@ fn shoot_weapon_bullet(
   player_pos : @math.Vec2D,
   target_pos : @math.Vec2D,
   weapon : Weapon,
-  damage : Double
+  damage : Double,
 ) -> Unit {
   let bullet_entity = @entity.Entity::new()
   @sprite.sprites.set(
@@ -196,7 +216,9 @@ fn shoot_weapon_bullet(
     ),
   )
   @position.positions.set(bullet_entity, player_pos)
-  let vel = (target_pos - player_pos).normalize().scalar_mul(weapon.bullet_speed)
+  let vel = (target_pos - player_pos)
+    .normalize()
+    .scalar_mul(weapon.bullet_speed)
   @velocity.velocities.set(bullet_entity, vel)
   @collision.collision_layers.set(bullet_entity, bullet_collision_layer)
   @collision.shapes.set(
@@ -240,4 +262,3 @@ fn shoot_weapon_bullet(
     bullet_entity.destroy()
   })
 }
-

@@ -21,4 +21,5 @@ let wall_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer
 ///|
 let enemy_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
 
+///|
 let bullet_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()

@@ -102,53 +102,78 @@ fn level_up() -> Unit {
   @backend.set_time_scale(0.0)
   let panel = game_state.level_up_panel
 
-  // Generate 3 random powerups
-  panel.available_powerups = generate_random_powerups()
+  // Generate selections based on current level
+  panel.available_selections = generate_level_up_selections(
+    game_state.player_level,
+  )
 
   // Respawn the main panel (this will respawn all children automatically)
   panel.panel_entity.respawn()
   let button_entities = panel.panel_entity.get_children()
 
-  // Update button text and icons with powerup information
+  // Update button text and icons with selection information
   for i in 0..<3 {
-    update_powerup_display(panel.available_powerups[i], button_entities[i + 1])
+    update_selection_display(
+      panel.available_selections[i],
+      button_entities[i + 1],
+    )
   }
 }
 
 ///|
-fn update_powerup_display(
-  powerup : Powerup,
+fn update_selection_display(
+  selection : LevelUpSelection,
   button_entity : @entity.Entity,
 ) -> Unit {
   let children = button_entity.get_children()
   let icon_entity = children[0]
   let text_entity = children[1]
+  match selection {
+    PowerupSelection(powerup) => {
+      // Update text
+      let button_text = @sprite.Text::new(
+        powerup.name,
+        color="white",
+        font="16px ThaleahFat",
+      )
+      let button_sprite = @sprite.Sprite::from_text(button_text, UI_ZINDEX + 3)
+      @sprite.sprites.set(text_entity, button_sprite)
 
-  // Update text
-  let button_text = @sprite.Text::new(
-    powerup.name,
-    color="white",
-    font="16px ThaleahFat",
-  )
-  let button_sprite = @sprite.Sprite::from_text(button_text, UI_ZINDEX + 3)
-  @sprite.sprites.set(text_entity, button_sprite)
+      // Update icon
+      let icon_animation = get_powerup_icon(powerup.powerup_type)
+      let icon_sprite = @sprite.Sprite::from_animation(
+        icon_animation,
+        UI_ZINDEX + 3,
+      )
+      @sprite.sprites.set(icon_entity, icon_sprite)
+    }
+    WeaponSelection(weapon_type) => {
+      // Update text
+      let button_text = @sprite.Text::new(
+        get_weapon_name(weapon_type),
+        color="white",
+        font="16px ThaleahFat",
+      )
+      let button_sprite = @sprite.Sprite::from_text(button_text, UI_ZINDEX + 3)
+      @sprite.sprites.set(text_entity, button_sprite)
 
-  // Update icon
-  let icon_animation = get_powerup_icon(powerup.powerup_type)
-  let icon_sprite = @sprite.Sprite::from_animation(
-    icon_animation,
-    UI_ZINDEX + 3,
-    // offset=@math.Vec2D(-16.0, -16.0),
-  )
-  @sprite.sprites.set(icon_entity, icon_sprite)
+      // Update icon
+      let icon_animation = get_weapon_icon(weapon_type)
+      let icon_sprite = @sprite.Sprite::from_animation(
+        icon_animation,
+        UI_ZINDEX + 3,
+      )
+      @sprite.sprites.set(icon_entity, icon_sprite)
+    }
+  }
 }
 
 ///|
 fn select_powerup(index : Int) -> Unit {
   let panel = game_state.level_up_panel
-  if index < panel.available_powerups.length() {
-    let powerup = panel.available_powerups[index]
-    apply_powerup(powerup)
+  if index < panel.available_selections.length() {
+    let selection = panel.available_selections[index]
+    apply_selection(selection)
   }
   resume_game()
 }

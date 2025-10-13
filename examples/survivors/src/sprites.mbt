@@ -267,30 +267,35 @@ let powerup_range_icon : @sprite.Animation = @sprite.Animation::single_frame(
   offset=Vec2D(32 * 6, 32 * 6),
 )
 
+///|
 let powerup_attack_icon : @sprite.Animation = @sprite.Animation::single_frame(
   "assets/icon/icon.png",
   Vec2D(32, 32),
   offset=Vec2D(32 * 12, 32 * 4),
 )
 
+///|
 let powerup_speed_icon : @sprite.Animation = @sprite.Animation::single_frame(
   "assets/icon/icon.png",
   Vec2D(32, 32),
   offset=Vec2D(32 * 2, 32 * 5),
 )
 
+///|
 let powerup_cooldown_icon : @sprite.Animation = @sprite.Animation::single_frame(
   "assets/icon/icon.png",
   Vec2D(32, 32),
   offset=Vec2D(32 * 3, 32 * 5),
 )
 
+///|
 let weapon_pistol_icon : @sprite.Animation = @sprite.Animation::single_frame(
   "assets/icon/icon.png",
   Vec2D(32, 32),
   offset=Vec2D(32 * 8, 32 * 6),
 )
 
+///|
 let weapon_minigun_icon : @sprite.Animation = @sprite.Animation::single_frame(
   "assets/icon/icon.png",
   Vec2D(32, 32),

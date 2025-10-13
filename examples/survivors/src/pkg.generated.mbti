@@ -1,0 +1,40 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "nopublish/survivors"
+
+// Values
+
+// Errors
+
+// Types and methods
+type Dir4
+
+type Enemy
+
+type EnemyData
+
+type EnemyType
+impl Eq for EnemyType
+impl Hash for EnemyType
+
+type GameState
+
+type LevelUpPanel
+
+type LevelUpSelection
+
+type PlayerStats
+
+type Powerup
+
+type PowerupType
+impl Eq for PowerupType
+
+type Weapon
+
+type WeaponType
+impl Eq for WeaponType
+
+// Type aliases
+
+// Traits
+

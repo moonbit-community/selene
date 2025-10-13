@@ -100,7 +100,7 @@ struct PlayerStats {
   mut range : Double
   mut speed : Double
   mut attack_speed : Double
-  mut unlocked_weapons : Array[WeaponType]
+  weapon_instances : Array[WeaponType] // Can have multiple of same type
 }
 
 ///|
@@ -110,9 +110,15 @@ struct Powerup {
 }
 
 ///|
+enum LevelUpSelection {
+  PowerupSelection(Powerup)
+  WeaponSelection(WeaponType)
+}
+
+///|
 struct LevelUpPanel {
   panel_entity : @entity.Entity
-  mut available_powerups : Array[Powerup]
+  mut available_selections : Array[LevelUpSelection]
   // Child entities will be created dynamically with spawn_child
 }
 
@@ -153,10 +159,10 @@ let game_state : GameState = {
   ),
   player_stats: {
     attack: 1.0,
-    range: 0.0,  // Base range, weapons add to this
+    range: 0.0, // Base range, weapons add to this
     speed: PLAYER_SPEED,
     attack_speed: 1.0,
-    unlocked_weapons: [Pistol],  // Start with only Pistol
+    weapon_instances: [Pistol], // Start with one Pistol
   },
   level_up_panel: {
     panel_entity: @style.add_widget(
@@ -174,7 +180,7 @@ let game_state : GameState = {
         zindex,
       ),
     ),
-    available_powerups: [],
+    available_selections: [],
   },
 }
 
@@ -212,7 +218,6 @@ fn add_exp(exp_gained : Int) -> Unit {
 
     // Check for weapon unlocks every 5 levels
     check_weapon_unlocks(new_level)
-
     level_up()
   }
 
@@ -232,12 +237,30 @@ fn add_exp(exp_gained : Int) -> Unit {
 }
 
 ///|
-fn check_weapon_unlocks(level : Int) -> Unit {
-  // Unlock Minigun at level 6 (every 5 levels after level 1)
-  if level == 6 && not(game_state.player_stats.unlocked_weapons.contains(Minigun)) {
-    game_state.player_stats.unlocked_weapons = [Pistol, Minigun]
-    // TODO: Show weapon unlock notification
+fn check_weapon_unlocks(_level : Int) -> Unit {
+  // Don't unlock weapons automatically - they are now unlocked through level-up selections
+}
+
+///|
+fn get_weapon_name(weapon_type : WeaponType) -> String {
+  match weapon_type {
+    Pistol => "Pistol"
+    Minigun => "Minigun"
   }
+}
+
+///|
+fn get_weapon_icon(weapon_type : WeaponType) -> @sprite.Animation {
+  match weapon_type {
+    Pistol => weapon_pistol_icon
+    Minigun => weapon_minigun_icon
+  }
+}
+
+///|
+fn add_weapon(weapon_type : WeaponType) -> Unit {
+  // Add weapon instance (allows duplicates)
+  game_state.player_stats.weapon_instances.push(weapon_type)
 }
 
 ///|
@@ -251,7 +274,48 @@ fn create_powerup(powerup_type : PowerupType) -> Powerup {
 }
 
 ///|
-fn generate_random_powerups() -> Array[Powerup] {
+fn generate_level_up_selections(level : Int) -> Array[LevelUpSelection] {
+  // For levels 5, 10, 15, etc., offer 2 powerups + 1 weapon
+  if level % 5 == 0 {
+    return generate_mixed_selections()
+  } else {
+    return generate_powerup_selections()
+  }
+}
+
+///|
+fn generate_mixed_selections() -> Array[LevelUpSelection] {
+  let selected = []
+  let all_weapons = [Pistol, Minigun]
+
+  // Add 2 random powerups
+  let all_types = [Attack, Range, Speed, Cooldown]
+  let available_types = []
+
+  // Copy all types to available list
+  for powerup_type in all_types {
+    available_types.push(powerup_type)
+  }
+
+  // Select 2 unique random powerups
+  for _i in 0..<2 {
+    if available_types.length() == 0 {
+      break
+    }
+    let rand_index = game_state.rand.int(limit=available_types.length())
+    let powerup_type = available_types[rand_index]
+    selected.push(PowerupSelection(create_powerup(powerup_type)))
+    available_types.remove(rand_index) |> ignore
+  }
+
+  // Add 1 random weapon
+  let weapon_index = game_state.rand.int(limit=all_weapons.length())
+  selected.push(WeaponSelection(all_weapons[weapon_index]))
+  selected
+}
+
+///|
+fn generate_powerup_selections() -> Array[LevelUpSelection] {
   let all_types = [Attack, Range, Speed, Cooldown]
   let selected = []
   let available_types = []
@@ -262,13 +326,13 @@ fn generate_random_powerups() -> Array[Powerup] {
   }
 
   // Select 3 unique random powerups
-  for _i = 0; _i < 3; _i = _i + 1 {
+  for _i in 0..<3 {
     if available_types.length() == 0 {
       break
     }
     let rand_index = game_state.rand.int(limit=available_types.length())
     let powerup_type = available_types[rand_index]
-    selected.push(create_powerup(powerup_type))
+    selected.push(PowerupSelection(create_powerup(powerup_type)))
     // Remove the selected type to avoid duplicates
     available_types.remove(rand_index) |> ignore
   }
@@ -282,6 +346,14 @@ fn apply_powerup(powerup : Powerup) -> Unit {
     Range => game_state.player_stats.range += 16.0
     Speed => game_state.player_stats.speed += 15.0
     Cooldown => game_state.player_stats.attack_speed += 0.1
+  }
+}
+
+///|
+fn apply_selection(selection : LevelUpSelection) -> Unit {
+  match selection {
+    PowerupSelection(powerup) => apply_powerup(powerup)
+    WeaponSelection(weapon_type) => add_weapon(weapon_type)
   }
 }
 

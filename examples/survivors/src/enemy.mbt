@@ -121,9 +121,7 @@ fn spawn_enemy_system(_delta : Double) -> Unit {
       }
       game_state.invincible = true
       set_score(game_state.score / 2)
-      @system.timeout(INVINCIBLE_TIME, fn() {
-        game_state.invincible = false
-      })
+      @system.timeout(INVINCIBLE_TIME, fn() { game_state.invincible = false })
     })
     @system.timeout(1.0, spawn_enemy)
   }
