@@ -29,6 +29,7 @@ struct WeaponData {
   base_range : Double
   speed_modifier : Double // Speed change when this weapon is added
   attack_speed_modifier : Double // Attack speed change when this weapon is added
+  penetration : Int // Number of enemies a bullet can hit
 }
 
 ///|
@@ -44,17 +45,19 @@ fn get_weapon_data(weapon_type : WeaponType) -> WeaponData {
         base_range: 128.0,
         speed_modifier: 0.0,
         attack_speed_modifier: 0.0,
+        penetration: 1,
       }
     Minigun =>
       {
         cooldown_rate: 0.3,
-        damage_formula: fn(base, atk) { base + atk * 0.5 },
+        damage_formula: fn(base, atk) { base + atk * 0.3 },
         range_formula: fn(base, rng) { base + rng },
         bullet_speed: 600.0,
-        base_damage: 0.2,
+        base_damage: 0.5,
         base_range: 192.0,
         speed_modifier: -50.0,
         attack_speed_modifier: 0.0,
+        penetration: 1,
       }
     SniperRifle =>
       {
@@ -62,10 +65,11 @@ fn get_weapon_data(weapon_type : WeaponType) -> WeaponData {
         damage_formula: fn(base, atk) { base + atk * 4.0 },
         range_formula: fn(base, rng) { base + rng },
         bullet_speed: 900.0,
-        base_damage: 4.0,
+        base_damage: 2.0,
         base_range: 256.0,
         speed_modifier: -25.0,
         attack_speed_modifier: -0.2,
+        penetration: 4,
       }
   }
 }
@@ -186,21 +190,33 @@ fn shoot_weapon_bullet(
     @collision.CollisionMask::new([enemy_collision_layer, wall_collision_layer]),
   )
   let mut bullet_alive = true
+  let mut penetration_count = 0
   area.on_enter(fn(enemy_entity) {
     guard enemies.get(enemy_entity) is Some(enemy) else {
+      // Hit wall
       bullet_alive = false
       bullet_entity.destroy()
+      return
     }
     guard bullet_alive else { return }
+
+    // Damage enemy
     enemy.health -= damage
-    bullet_entity.destroy()
+    penetration_count += 1
+
+    // Check if enemy is killed
     if enemy.health <= 0.0 {
-      bullet_alive = false
       enemy_entity.destroy()
       // Give both points and EXP for killing enemies
       let data = get_enemy_data(enemy.enemy_type)
       set_score(game_state.score + data.points)
       add_exp(data.points)
+    }
+
+    // Check if bullet has reached penetration limit
+    if penetration_count >= weapon_data.penetration {
+      bullet_alive = false
+      bullet_entity.destroy()
     }
   })
   @collision.areas.set(bullet_entity, area)

@@ -304,7 +304,10 @@ fn spawn_enemy_system(_delta : Double) -> Unit {
             return
           }
           game_state.invincible = true
-          set_score(game_state.score / 2)
+          let penalty = 250 * game_state.current_wave
+          let new_score = (game_state.score - penalty).max(0)
+          set_score(new_score)
+          trigger_damage_effect()
           @system.timeout(INVINCIBLE_TIME, fn() {
             game_state.invincible = false
           })

@@ -25,7 +25,7 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
 - **Animations**: Idle and running animations for 4 directions (up, down, left, right)
 
 ### Stats 
-- **Atk**: Player's attack (default 1.0)
+- **Atk**: Player's attack (default 0.0)
 - **Rng**: Player's base range (default 0.0)
 - **Spd**: Player's speed (default 150.0)
 - **Def**: Player's attack speed (default 1.0)
@@ -43,6 +43,7 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
    - Cooldown Rate: 1.5s / Def 
    - Damage: 1.0 + Atk 
    - Range: 128.0 + Rng 
+   - Penetration: 1
 
 2. **Minigun** 
    - **Bullet Properties**:
@@ -50,8 +51,9 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
    - Size: 4x4 pixels
    - Color: White
    - Cooldown Rate: 0.3s / Def 
-   - Damage: 0.2 + Atk * 0.5
+   - Damage: 0.5 + Atk * 0.3
    - Range: 192.0 + Rng 
+   - Penetration: 1
    - **Powerup**
    - Spd - 50
 
@@ -61,8 +63,9 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
    - Size: 4x4 pixels
    - Color: White
    - Cooldown Rate: 3.0s / Def 
-   - Damage: 4.0 + Atk * 4.0
+   - Damage: 2.0 + Atk * 4.0
    - Range: 256.0 + Rng 
+   - Penetration: 4
    - **Powerup**
    - Spd - 25
    - Def - 0.2
@@ -147,13 +150,13 @@ XP required for level n = n * (2 * n * n + 21 * n + 73) / 6
 
 ### Wave System
 - **Duration**: 10 minutes total (600 seconds)
-- **Wave Count**: 5 waves, each lasting 2 minutes (120 seconds)
+- **Wave Count**: 10 waves, each lasting 1 minutes (60 seconds)
 - **Progression**: Enemy spawn weights change per wave
 - **Current Wave Display**: Shows wave number in UI
 
 ### Scoring System
 - **Points**: Equal to XP gained from killing enemies
-- **Penalty**: Score halved when player takes damage
+- **Penalty**: Score descreases (250 * wave number, not lower than 0) when player takes damage
 - **Final Score**: Displayed when time expires
 
 ## User Interface
@@ -198,7 +201,7 @@ XP required for level n = n * (2 * n * n + 21 * n + 73) / 6
 - **Target FPS**: 60 FPS
 - **Map Size**: 640x640 pixels
 - **Viewport**: 960x640 pixels (480x320 * 2x zoom)
-- **Entity Limits**: No hard limits, but spawns 1 enemy per second
+- **Entity Limits**: No hard limits
 
 ## Game States
 

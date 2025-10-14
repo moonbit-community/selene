@@ -52,6 +52,7 @@ fn main {
   .add_system(player_shooting_system)
   .add_system(enemy_ai_system)
   .add_system(game_timer_system)
+  .add_system(score_blink_system)
   .run()
 }
 
@@ -77,6 +78,8 @@ struct GameState {
   player_stats : PlayerStats
   level_up_panel : LevelUpPanel
   pending_level_ups : Array[Int] // Queue of pending level-ups
+  mut score_blink_timer : Double // Timer for blinking effect
+  mut score_is_red : Bool // Track current color state
 }
 
 ///|
@@ -159,7 +162,7 @@ let game_state : GameState = {
     font="24px ThaleahFat",
   ),
   player_stats: {
-    attack: 1.0,
+    attack: 0.0,
     range: 0.0, // Base range, weapons add to this
     speed: PLAYER_SPEED,
     attack_speed: 1.0,
@@ -184,6 +187,8 @@ let game_state : GameState = {
     available_selections: [],
   },
   pending_level_ups: [],
+  score_blink_timer: 0.0,
+  score_is_red: false,
 }
 
 ///|
@@ -431,4 +436,35 @@ fn game_timer_system(delta : Double) -> Unit {
     minutes.to_string() +
     ":" +
     seconds_str
+}
+
+///|
+fn score_blink_system(delta : Double) -> Unit {
+  if game_state.score_blink_timer > 0.0 {
+    game_state.score_blink_timer -= delta
+
+    // Toggle color every 0.1 seconds (100ms)
+    let blink_interval = 0.1
+    let elapsed = 1.0 - game_state.score_blink_timer
+    let should_be_red = ((elapsed / blink_interval).to_int() % 2) == 0
+
+    if should_be_red != game_state.score_is_red {
+      game_state.score_is_red = should_be_red
+      game_state.score_box.color = if should_be_red { "red" } else { "white" }
+    }
+
+    // Reset to white when timer expires
+    if game_state.score_blink_timer <= 0.0 {
+      game_state.score_blink_timer = 0.0
+      game_state.score_is_red = false
+      game_state.score_box.color = "white"
+    }
+  }
+}
+
+///|
+fn trigger_damage_effect() -> Unit {
+  game_state.score_blink_timer = 1.0
+  game_state.score_is_red = true
+  game_state.score_box.color = "red"
 }
