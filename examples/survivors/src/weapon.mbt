@@ -54,7 +54,7 @@ fn get_weapon_data(weapon_type : WeaponType) -> WeaponData {
         range_formula: fn(base, rng) { base + rng },
         bullet_speed: 600.0,
         base_damage: 0.5,
-        base_range: 192.0,
+        base_range: 128.0,
         speed_modifier: -50.0,
         attack_speed_modifier: 0.0,
         penetration: 1,
@@ -66,7 +66,7 @@ fn get_weapon_data(weapon_type : WeaponType) -> WeaponData {
         range_formula: fn(base, rng) { base + rng },
         bullet_speed: 900.0,
         base_damage: 2.0,
-        base_range: 256.0,
+        base_range: 192.0,
         speed_modifier: -25.0,
         attack_speed_modifier: -0.2,
         penetration: 4,
@@ -125,6 +125,7 @@ fn update_weapon_timers(
   attack_speed : Double,
   player_attack : Double,
   player_range : Double,
+  player_penetration : Int,
   player_pos : @math.Vec2D,
 ) -> Unit {
   // Initialize timers array if needed
@@ -150,7 +151,10 @@ fn update_weapon_timers(
           let weapon_damage = calculate_weapon_damage(
             weapon_data, player_attack,
           )
-          shoot_weapon_bullet(player_pos, enemy_pos, weapon_data, weapon_damage)
+          let total_penetration = weapon_data.penetration + player_penetration
+          shoot_weapon_bullet(
+            player_pos, enemy_pos, weapon_data, weapon_damage, total_penetration,
+          )
         }
         None => ()
       }
@@ -164,6 +168,7 @@ fn shoot_weapon_bullet(
   target_pos : @math.Vec2D,
   weapon_data : WeaponData,
   damage : Double,
+  total_penetration : Int,
 ) -> Unit {
   let bullet_entity = @entity.Entity::new()
   @sprite.sprites.set(
@@ -213,8 +218,8 @@ fn shoot_weapon_bullet(
       add_exp(data.points)
     }
 
-    // Check if bullet has reached penetration limit
-    if penetration_count >= weapon_data.penetration {
+    // Check if bullet has reached penetration limit (weapon base + player bonus)
+    if penetration_count >= total_penetration {
       bullet_alive = false
       bullet_entity.destroy()
     }

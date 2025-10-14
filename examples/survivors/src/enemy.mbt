@@ -274,7 +274,12 @@ fn spawn_enemy_system(_delta : Double) -> Unit {
           ENEMY_ZINDEX,
           offset=Vec2D(-8.0, -12.0),
         )
-        let enemy_state = { enemy_type, speed: data.speed, health: data.health }
+        let enemy_state = {
+          enemy_type,
+          speed: data.speed,
+          health: data.health,
+          shoot_timer: 0.0,
+        }
         @sprite.sprites.set(enemy, sprite)
         @collision.shapes.set(
           enemy,
@@ -326,6 +331,7 @@ struct Enemy {
   enemy_type : EnemyType
   speed : Double
   mut health : Double
+  mut shoot_timer : Double // Timer for Devil shooting
 }
 
 ///|
@@ -425,5 +431,108 @@ fn enemy_ai_system(_delta : Double) -> Unit {
     } else {
       @sprite.play_animation(e, data.left_animation)
     }
+  }
+}
+
+///|
+fn devil_shooting_system(delta : Double) -> Unit {
+  if game_state.game_over {
+    return
+  }
+  for e, state in enemies {
+    guard e.is_alive() else { continue }
+    // Only Devil enemies shoot
+    if state.enemy_type != Devil {
+      continue
+    }
+    guard @position.positions.get(e) is Some(enemy_pos)
+    guard @position.positions.get(game_state.player_entity) is Some(player_pos)
+
+    // Update shoot timer
+    if state.shoot_timer > 0.0 {
+      state.shoot_timer -= delta
+    }
+
+    // Shoot when timer expires
+    if state.shoot_timer <= 0.0 {
+      state.shoot_timer = 5.0 // Reset cooldown
+      shoot_enemy_bullet(enemy_pos.0, player_pos.0)
+    }
+  }
+}
+
+///|
+fn shoot_enemy_bullet(
+  enemy_pos : @math.Vec2D,
+  player_pos : @math.Vec2D,
+) -> Unit {
+  let bullet_entity = @entity.Entity::new()
+  @sprite.sprites.set(
+    bullet_entity,
+    @sprite.Sprite::from_color_rect(
+      @sprite.ColorRect::new(Vec2D(4.0, 4.0), "red"),
+      BULLET_ZINDEX,
+    ),
+  )
+  @position.positions.set(bullet_entity, enemy_pos)
+  let vel = (player_pos - enemy_pos).normalize().scalar_mul(120.0)
+  @velocity.velocities.set(bullet_entity, vel)
+  @collision.collision_layers.set(bullet_entity, enemybullet_collision_layer)
+  @collision.shapes.set(
+    bullet_entity,
+    @collision.CollisionShape::Rect(
+      size=@math.Vec2D(4.0, 4.0),
+      offset=@math.Vec2D(-2.0, -2.0),
+    ),
+  )
+  let area = @collision.Area::new(
+    @collision.CollisionMask::new([player_collision_layer, wall_collision_layer]),
+  )
+  let mut bullet_alive = true
+  area.on_enter(fn(hit_entity) {
+    guard bullet_alive else { return }
+
+    // Check if hit player
+    if hit_entity == game_state.player_entity {
+      if not(game_state.invincible) {
+        game_state.invincible = true
+        let penalty = 250 * game_state.current_wave
+        let new_score = (game_state.score - penalty).max(0)
+        set_score(new_score)
+        trigger_damage_effect()
+        @system.timeout(INVINCIBLE_TIME, fn() { game_state.invincible = false })
+      }
+    }
+
+    // Destroy bullet on any collision
+    bullet_alive = false
+    bullet_entity.destroy()
+  })
+  @collision.areas.set(bullet_entity, area)
+}
+
+///|
+fn check_victory_system(_delta : Double) -> Unit {
+  // Don't check if already game over
+  if game_state.game_over {
+    return
+  }
+
+  // Only check after timer has reached 0 (all 10 waves completed)
+  if game_state.game_timer > 0.0 {
+    return
+  }
+
+  // Count alive enemies
+  let mut alive_count = 0
+  for e, _state in enemies {
+    if e.is_alive() {
+      alive_count += 1
+    }
+  }
+
+  // If no enemies left, trigger victory
+  if alive_count == 0 {
+    game_state.game_over = true
   }
 }

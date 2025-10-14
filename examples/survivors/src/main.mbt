@@ -51,6 +51,8 @@ fn main {
   .add_system(player_update_system)
   .add_system(player_shooting_system)
   .add_system(enemy_ai_system)
+  .add_system(devil_shooting_system)
+  .add_system(check_victory_system)
   .add_system(game_timer_system)
   .add_system(score_blink_system)
   .run()
@@ -96,6 +98,7 @@ enum PowerupType {
   Range
   Speed
   Cooldown
+  Bandana
 } derive(Eq)
 
 ///|
@@ -104,6 +107,7 @@ struct PlayerStats {
   mut range : Double
   mut speed : Double
   mut attack_speed : Double
+  mut penetration : Int
   weapon_instances : Array[WeaponType] // Can have multiple of same type
 }
 
@@ -166,6 +170,7 @@ let game_state : GameState = {
     range: 0.0, // Base range, weapons add to this
     speed: PLAYER_SPEED,
     attack_speed: 1.0,
+    penetration: 0,
     weapon_instances: [Pistol], // Start with one Pistol
   },
   level_up_panel: {
@@ -278,6 +283,7 @@ fn create_powerup(powerup_type : PowerupType) -> Powerup {
     Range => { powerup_type: Range, name: "Range +16" }
     Speed => { powerup_type: Speed, name: "Speed +15" }
     Cooldown => { powerup_type: Cooldown, name: "Attack Speed +10%" }
+    Bandana => { powerup_type: Bandana, name: "Penetration +1" }
   }
 }
 
@@ -297,7 +303,7 @@ fn generate_mixed_selections() -> Array[LevelUpSelection] {
   let all_weapons = [Pistol, Minigun, SniperRifle]
 
   // Add 2 random powerups
-  let all_types = [Attack, Range, Speed, Cooldown]
+  let all_types = [Attack, Range, Speed, Cooldown, Bandana]
   let available_types = []
 
   // Copy all types to available list
@@ -324,7 +330,7 @@ fn generate_mixed_selections() -> Array[LevelUpSelection] {
 
 ///|
 fn generate_powerup_selections() -> Array[LevelUpSelection] {
-  let all_types = [Attack, Range, Speed, Cooldown]
+  let all_types = [Attack, Range, Speed, Cooldown, Bandana]
   let selected = []
   let available_types = []
 
@@ -354,6 +360,7 @@ fn apply_powerup(powerup : Powerup) -> Unit {
     Range => game_state.player_stats.range += 16.0
     Speed => game_state.player_stats.speed += 15.0
     Cooldown => game_state.player_stats.attack_speed += 0.1
+    Bandana => game_state.player_stats.penetration += 1
   }
 }
 
@@ -372,6 +379,7 @@ fn get_powerup_icon(powerup_type : PowerupType) -> @sprite.Animation {
     Range => powerup_range_icon
     Speed => powerup_speed_icon
     Cooldown => powerup_cooldown_icon
+    Bandana => powerup_bandana_icon
   }
 }
 
@@ -397,16 +405,19 @@ fn game_timer_system(delta : Double) -> Unit {
   if game_state.game_over {
     if not(game_state.game_over_displayed) {
       game_state.game_over_displayed = true
-      game_state.game_over_box.content = "TIME'S UP! Final Score: " +
+      game_state.game_over_box.content = "VICTORY! Final Score: " +
         game_state.score.to_string()
       add_game_over_box()
     }
     return
   }
-  game_state.game_timer -= delta
-  if game_state.game_timer <= 0.0 {
-    game_state.game_timer = 0.0
-    game_state.game_over = true
+
+  // Continue counting down timer, but don't end game when it reaches 0
+  if game_state.game_timer > 0.0 {
+    game_state.game_timer -= delta
+    if game_state.game_timer < 0.0 {
+      game_state.game_timer = 0.0
+    }
   }
 
   // Calculate current wave (1-10) based on remaining time
@@ -446,8 +457,7 @@ fn score_blink_system(delta : Double) -> Unit {
     // Toggle color every 0.1 seconds (100ms)
     let blink_interval = 0.1
     let elapsed = 1.0 - game_state.score_blink_timer
-    let should_be_red = ((elapsed / blink_interval).to_int() % 2) == 0
-
+    let should_be_red = (elapsed / blink_interval).to_int() % 2 == 0
     if should_be_red != game_state.score_is_red {
       game_state.score_is_red = should_be_red
       game_state.score_box.color = if should_be_red { "red" } else { "white" }

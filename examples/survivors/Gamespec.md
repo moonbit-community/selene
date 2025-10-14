@@ -28,19 +28,20 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
 - **Atk**: Player's attack (default 0.0)
 - **Rng**: Player's base range (default 0.0)
 - **Spd**: Player's speed (default 150.0)
-- **Def**: Player's attack speed (default 1.0)
+- **Agi**: Player's attack speed (default 1.0)
+- **Pen**: Player's extra penetration (default 0)
 
 ### Combat System
 - **Automatic attacking**: Player automatically uses all weapons which he has
 - **Weapons**: Player can have multiple weapons; and multiple of the same weapon type
 
 ### Weapon System
-1. **Pistol** (Default weapon): 
+1. **Pistol** (default weapon): 
    - **Bullet Properties**:
    - Speed: 300 units per second
    - Size: 4x4 pixels
    - Color: White
-   - Cooldown Rate: 1.5s / Def 
+   - Cooldown Rate: 1.5s / Agi 
    - Damage: 1.0 + Atk 
    - Range: 128.0 + Rng 
    - Penetration: 1
@@ -50,9 +51,9 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
    - Speed: 600 units per second
    - Size: 4x4 pixels
    - Color: White
-   - Cooldown Rate: 0.3s / Def 
+   - Cooldown Rate: 0.3s / Agi 
    - Damage: 0.5 + Atk * 0.3
-   - Range: 192.0 + Rng 
+   - Range: 128.0 + Rng 
    - Penetration: 1
    - **Powerup**
    - Spd - 50
@@ -62,13 +63,13 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
    - Speed: 900 units per second
    - Size: 4x4 pixels
    - Color: White
-   - Cooldown Rate: 3.0s / Def 
+   - Cooldown Rate: 3.0s / Agi 
    - Damage: 2.0 + Atk * 4.0
-   - Range: 256.0 + Rng 
+   - Range: 192.0 + Rng 
    - Penetration: 4
    - **Powerup**
    - Spd - 25
-   - Def - 0.2
+   - Agi - 0.2
 
 ### Enemy System
 
@@ -102,6 +103,11 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
    - Health: 8 HP
    - Speed: 90 units/second
    - Points/XP: 50
+   - **Attack**: Bullet Shooting:
+     - Speed: 120 units per second (no range limit, last until colliding with walls/player)
+     - Size: 4x4 pixels
+     - Color: Red 
+     - Cooldown Rate: 5.0s
 
 7. **Pirate**
    - Health: 500 HP
@@ -146,7 +152,8 @@ XP required for level n = n * (2 * n * n + 21 * n + 73) / 6
 - **Attack**: Atk + 0.2
 - **Range**: Rng + 16.0
 - **Speed**: Spd + 15.0
-- **Cooldown**: Def + 0.1
+- **Cooldown**: Agi + 0.1
+- **Bandana**: Pen + 1
 
 ### Wave System
 - **Duration**: 10 minutes total (600 seconds)
@@ -187,9 +194,9 @@ XP required for level n = n * (2 * n * n + 21 * n + 73) / 6
 - **Systems**: Player update, shooting, enemy AI, collision, timer
 
 ### Collision System
-- **Layers**: Player, enemy, bullet, wall, UI
+- **Layers**: Player, enemy, bullet, wall, UI, enemybullet 
 - **Detection**: Rectangle-based collision shapes
-- **Interactions**: Bullet-enemy, enemy-player, entity-wall
+- **Interactions**: Bullet-enemy, enemy-player, entity-wall, enemybullet-player
 
 ### Asset Requirements
 - **Sprites**: Character animations for all directions and states

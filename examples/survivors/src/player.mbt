@@ -94,6 +94,7 @@ fn player_shooting_system(delta : Double) -> Unit {
     game_state.player_stats.attack_speed,
     game_state.player_stats.attack,
     game_state.player_stats.range,
+    game_state.player_stats.penetration,
     player_pos.0,
   )
 }

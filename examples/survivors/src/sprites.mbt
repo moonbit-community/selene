@@ -379,6 +379,13 @@ let powerup_cooldown_icon : @sprite.Animation = @sprite.Animation::single_frame(
 )
 
 ///|
+let powerup_bandana_icon : @sprite.Animation = @sprite.Animation::single_frame(
+  "assets/icon/icon.png",
+  Vec2D(32, 32),
+  offset=Vec2D(32 * 6, 32 * 9),
+)
+
+///|
 let weapon_pistol_icon : @sprite.Animation = @sprite.Animation::single_frame(
   "assets/icon/icon.png",
   Vec2D(32, 32),
