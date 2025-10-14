@@ -82,6 +82,7 @@ struct GameState {
   pending_level_ups : Array[Int] // Queue of pending level-ups
   mut score_blink_timer : Double // Timer for blinking effect
   mut score_is_red : Bool // Track current color state
+  game_over_panel : GameOverPanel
 }
 
 ///|
@@ -93,13 +94,10 @@ enum Dir4 {
 }
 
 ///|
-enum PowerupType {
-  Attack
-  Range
-  Speed
-  Cooldown
-  Bandana
-} derive(Eq)
+enum LevelUpSelection {
+  PowerupSelection(Powerup)
+  WeaponSelection(WeaponType)
+}
 
 ///|
 struct PlayerStats {
@@ -112,22 +110,15 @@ struct PlayerStats {
 }
 
 ///|
-struct Powerup {
-  powerup_type : PowerupType
-  name : String
-}
-
-///|
-enum LevelUpSelection {
-  PowerupSelection(Powerup)
-  WeaponSelection(WeaponType)
-}
-
-///|
 struct LevelUpPanel {
   panel_entity : @entity.Entity
   mut available_selections : Array[LevelUpSelection]
   // Child entities will be created dynamically with spawn_child
+}
+
+///|
+struct GameOverPanel {
+  panel_entity : @entity.Entity
 }
 
 ///|
@@ -150,9 +141,9 @@ let game_state : GameState = {
     font="24px ThaleahFat",
   ),
   game_over_box: @sprite.Text::new(
-    "TIME'S UP! Final Score: 0",
-    color="red",
-    font="32px ThaleahFat",
+    "Final Score: 0",
+    color="white",
+    font="24px ThaleahFat",
   ),
   game_over_displayed: false,
   current_wave: 1,
@@ -194,6 +185,23 @@ let game_state : GameState = {
   pending_level_ups: [],
   score_blink_timer: 0.0,
   score_is_red: false,
+  game_over_panel: {
+    panel_entity: @style.add_widget(
+      @style.screen_root,
+      h_offset=VIEWPORT_WIDTH / 2.0 - 100,
+      v_offset=VIEWPORT_HEIGHT / 2.0 - 60,
+      flex=Vertical,
+      v_padding=20.0,
+      sprite=zindex => @sprite.Sprite::from_color_rect(
+        @sprite.ColorRect::new(
+          Vec2D(200.0, 120.0),
+          "rgba(0, 0, 0, 0.8)",
+          stroke_color="white",
+        ),
+        zindex,
+      ),
+    ),
+  },
 }
 
 ///|
@@ -277,17 +285,6 @@ fn add_weapon(weapon_type : WeaponType) -> Unit {
 }
 
 ///|
-fn create_powerup(powerup_type : PowerupType) -> Powerup {
-  match powerup_type {
-    Attack => { powerup_type: Attack, name: "Attack +0.2" }
-    Range => { powerup_type: Range, name: "Range +16" }
-    Speed => { powerup_type: Speed, name: "Speed +15" }
-    Cooldown => { powerup_type: Cooldown, name: "Attack Speed +10%" }
-    Bandana => { powerup_type: Bandana, name: "Penetration +1" }
-  }
-}
-
-///|
 fn generate_level_up_selections(level : Int) -> Array[LevelUpSelection] {
   // For levels 5, 10, 15, etc., offer 2 powerups + 1 weapon
   if level % 5 == 0 {
@@ -354,32 +351,10 @@ fn generate_powerup_selections() -> Array[LevelUpSelection] {
 }
 
 ///|
-fn apply_powerup(powerup : Powerup) -> Unit {
-  match powerup.powerup_type {
-    Attack => game_state.player_stats.attack += 0.2
-    Range => game_state.player_stats.range += 16.0
-    Speed => game_state.player_stats.speed += 15.0
-    Cooldown => game_state.player_stats.attack_speed += 0.1
-    Bandana => game_state.player_stats.penetration += 1
-  }
-}
-
-///|
 fn apply_selection(selection : LevelUpSelection) -> Unit {
   match selection {
     PowerupSelection(powerup) => apply_powerup(powerup)
     WeaponSelection(weapon_type) => add_weapon(weapon_type)
-  }
-}
-
-///|
-fn get_powerup_icon(powerup_type : PowerupType) -> @sprite.Animation {
-  match powerup_type {
-    Attack => powerup_attack_icon
-    Range => powerup_range_icon
-    Speed => powerup_speed_icon
-    Cooldown => powerup_cooldown_icon
-    Bandana => powerup_bandana_icon
   }
 }
 
@@ -397,6 +372,7 @@ fn game_start(_delta : Double) -> Unit {
   add_level_box()
   add_exp_box()
   setup_level_up_ui()
+  setup_game_over_ui()
 }
 
 ///|
@@ -405,7 +381,7 @@ fn game_timer_system(delta : Double) -> Unit {
   if game_state.game_over {
     if not(game_state.game_over_displayed) {
       game_state.game_over_displayed = true
-      game_state.game_over_box.content = "VICTORY! Final Score: " +
+      game_state.game_over_box.content = "Final Score: " +
         game_state.score.to_string()
       add_game_over_box()
     }
@@ -477,4 +453,57 @@ fn trigger_damage_effect() -> Unit {
   game_state.score_blink_timer = 1.0
   game_state.score_is_red = true
   game_state.score_box.color = "red"
+}
+
+///|
+fn restart_game() -> Unit {
+  // Destroy game over panel
+  game_state.game_over_panel.panel_entity.destroy()
+
+  // Reset game state
+  game_state.game_over = false
+  game_state.game_over_displayed = false
+  game_state.game_timer = 600.0
+  game_state.current_wave = 1
+  game_state.wave_box.content = "Wave: 1"
+  set_score(0)
+  game_state.exp = 0
+  game_state.player_level = 1
+  game_state.level_box.content = "Level: 1"
+  game_state.exp_box.content = "EXP: 0/16"
+  game_state.invincible = false
+  game_state.score_blink_timer = 0.0
+  game_state.score_is_red = false
+  game_state.score_box.color = "white"
+  game_state.pending_level_ups.clear()
+
+  // Reset player stats
+  game_state.player_stats.attack = 0.0
+  game_state.player_stats.range = 0.0
+  game_state.player_stats.speed = PLAYER_SPEED
+  game_state.player_stats.attack_speed = 1.0
+  game_state.player_stats.penetration = 0
+  game_state.player_stats.weapon_instances.clear()
+  game_state.player_stats.weapon_instances.push(Pistol)
+
+  // Reset weapon timers
+  weapon_timers.clear()
+
+  // Clear all enemies
+  for e, _state in enemies {
+    if e.is_alive() {
+      e.destroy()
+    }
+  }
+  enemies.clear()
+
+  // Reset wave state
+  reset_wave_state()
+
+  // Reset player position
+  @position.positions.set(
+    game_state.player_entity,
+    @math.Vec2D(MAP_WIDTH / 2.0, MAP_HEIGHT / 2.0),
+  )
+  @velocity.velocities.set(game_state.player_entity, @math.Vec2D::zero())
 }

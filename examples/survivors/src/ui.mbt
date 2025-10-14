@@ -222,16 +222,72 @@ fn add_timer_box() -> Unit {
 }
 
 ///|
-/// TODO: change to `game_over`
-/// 
-fn add_game_over_box() -> Unit {
+fn setup_game_over_ui() -> Unit {
+  let panel = game_state.game_over_panel.panel_entity
+
+  // Victory message text
   @style.add_widget(
-    @style.screen_root,
-    sprite=zindex => @sprite.Sprite::from_text(game_state.game_over_box, zindex),
-    h_offset=VIEWPORT_WIDTH / 2.0 - 160,
-    v_offset=VIEWPORT_HEIGHT / 2.0,
+    panel,
+    sprite=zindex => @sprite.Sprite::from_text(
+      @sprite.Text::new(
+        "VICTORY!",
+        color="gold",
+        font="32px ThaleahFat",
+        baseline=Top,
+        align=Left,
+      ),
+      zindex,
+    ),
+    h_offset=30.0,
   )
   |> ignore
+
+  // Score text
+  @style.add_widget(
+    panel,
+    sprite=zindex => @sprite.Sprite::from_text(game_state.game_over_box, zindex),
+    h_offset=8.0,
+  )
+  |> ignore
+
+  // Restart button
+  let restart_button = @style.add_widget(
+    panel,
+    sprite=zindex => @sprite.Sprite::from_color_rect(
+      @sprite.ColorRect::new(
+        Vec2D(180.0, 40.0),
+        "rgba(13, 167, 170, 1)",
+        stroke_color="white",
+      ),
+      zindex,
+    ),
+    h_offset=10.0,
+    shape=@collision.CollisionShape::Rect(
+      size=@math.Vec2D(180.0, 40.0),
+      offset=@math.Vec2D::zero(),
+    ),
+    on_just_pressed=fn(_button) { restart_game() },
+  )
+
+  // Restart button text
+  @style.add_widget(
+    restart_button,
+    sprite=zindex => @sprite.Sprite::from_text(
+      @sprite.Text::new("RESTART", color="white", font="24px ThaleahFat"),
+      zindex,
+    ),
+    h_offset=45.0,
+    v_offset=8.0,
+  )
+  |> ignore
+
+  // Initially destroy the panel
+  panel.destroy()
+}
+
+///|
+fn add_game_over_box() -> Unit {
+  game_state.game_over_panel.panel_entity.respawn()
 }
 
 ///|

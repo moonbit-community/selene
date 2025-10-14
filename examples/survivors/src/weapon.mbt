@@ -141,7 +141,12 @@ fn update_weapon_timers(
       weapon_timers[i] = weapon_timers[i] - delta
     }
     if weapon_timers[i] <= 0.0 {
-      weapon_timers[i] = weapon_data.cooldown_rate / attack_speed
+      // Prevent division by zero - if attack_speed is 0, weapon never fires
+      if attack_speed <= 0.0 {
+        weapon_timers[i] = 999999.0 // Very large number to effectively disable weapon
+      } else {
+        weapon_timers[i] = weapon_data.cooldown_rate / attack_speed
+      }
       let weapon_range = calculate_weapon_range(weapon_data, player_range)
       let nearest_enemy_pos = find_nearest_enemy_in_range(
         player_pos, weapon_range,

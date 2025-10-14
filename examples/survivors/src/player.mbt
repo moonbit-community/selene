@@ -57,9 +57,14 @@ fn player_update_system(delta : Double) -> Unit {
     return
   }
   let entity = game_state.player_entity
+  let speed = if game_state.player_stats.speed < 0.0 {
+    0.0
+  } else {
+    game_state.player_stats.speed
+  }
   let vel = @inputs.key_vector(KeyW, KeyS, KeyA, KeyD)
     .normalize()
-    .scalar_mul(game_state.player_stats.speed)
+    .scalar_mul(speed)
   @velocity.velocities.set(entity, vel)
   if vel[X] > 0.0 {
     game_state.player_direction = Right
@@ -88,13 +93,36 @@ fn player_shooting_system(delta : Double) -> Unit {
     return
   }
   guard @position.positions.get(game_state.player_entity) is Some(player_pos)
+
+  // Clamp stats to at least 0
+  let attack_speed = if game_state.player_stats.attack_speed < 0.0 {
+    0.0
+  } else {
+    game_state.player_stats.attack_speed
+  }
+  let attack = if game_state.player_stats.attack < 0.0 {
+    0.0
+  } else {
+    game_state.player_stats.attack
+  }
+  let range = if game_state.player_stats.range < 0.0 {
+    0.0
+  } else {
+    game_state.player_stats.range
+  }
+  let penetration = if game_state.player_stats.penetration < 0 {
+    0
+  } else {
+    game_state.player_stats.penetration
+  }
+
   update_weapon_timers(
     game_state.player_stats.weapon_instances,
     delta,
-    game_state.player_stats.attack_speed,
-    game_state.player_stats.attack,
-    game_state.player_stats.range,
-    game_state.player_stats.penetration,
+    attack_speed,
+    attack,
+    range,
+    penetration,
     player_pos.0,
   )
 }

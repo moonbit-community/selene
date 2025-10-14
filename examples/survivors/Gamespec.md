@@ -225,7 +225,7 @@ XP required for level n = n * (2 * n * n + 21 * n + 73) / 6
 - Enemies and bullets frozen
 
 ### Game Over State
-- Timer expired
-- Final score displayed
+- All enemies eliminated
+- Ask the player to restart
 - No further gameplay interaction
 - Game remains in this state permanently
