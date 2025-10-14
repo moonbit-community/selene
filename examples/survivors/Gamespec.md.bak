@@ -38,38 +38,40 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
 ### Weapon System
 1. **Pistol** (default weapon): 
    - **Bullet Properties**:
-   - Speed: 300 units per second
-   - Size: 4x4 pixels
-   - Color: White
-   - Cooldown Rate: 1.5s / Agi 
-   - Damage: 1.0 + Atk 
-   - Range: 128.0 + Rng 
-   - Penetration: 1
+     - Speed: 300 units per second
+     - Size: 4x4 pixels
+     - Color: White
+     - Cooldown Rate: 1.5s / Agi 
+     - Damage: 1.0 + Atk 
+     - Range: 128.0 + Rng 
+     - Penetration: 1
+   - **Powerup**
+     - Spd - 15
 
 2. **Minigun** 
    - **Bullet Properties**:
-   - Speed: 600 units per second
-   - Size: 4x4 pixels
-   - Color: White
-   - Cooldown Rate: 0.3s / Agi 
-   - Damage: 0.5 + Atk * 0.3
-   - Range: 128.0 + Rng 
-   - Penetration: 1
+     - Speed: 600 units per second
+     - Size: 4x4 pixels
+     - Color: White
+     - Cooldown Rate: 0.3s / Agi 
+     - Damage: 0.5 + Atk * 0.3
+     - Range: 128.0 + Rng 
+     - Penetration: 1
    - **Powerup**
-   - Spd - 50
+     - Spd - 50
 
 3. **Sniper Rifle** 
    - **Bullet Properties**:
-   - Speed: 900 units per second
-   - Size: 4x4 pixels
-   - Color: White
-   - Cooldown Rate: 3.0s / Agi 
-   - Damage: 2.0 + Atk * 4.0
-   - Range: 192.0 + Rng 
-   - Penetration: 4
+     - Speed: 900 units per second
+     - Size: 4x4 pixels
+     - Color: White
+     - Cooldown Rate: 3.0s / Agi 
+     - Damage: 2.0 + Atk * 4.0
+     - Range: 192.0 + Rng 
+     - Penetration: 4
    - **Powerup**
-   - Spd - 25
-   - Agi - 0.2
+     - Spd - 25
+     - Agi - 0.2
 
 ### Enemy System
 
@@ -225,7 +227,7 @@ XP required for level n = n * (2 * n * n + 21 * n + 73) / 6
 - Enemies and bullets frozen
 
 ### Game Over State
-- Timer expired
-- Final score displayed
+- All enemies eliminated
+- Ask the player to restart
 - No further gameplay interaction
 - Game remains in this state permanently

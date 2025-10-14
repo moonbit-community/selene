@@ -38,38 +38,46 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
 ### Weapon System
 1. **Pistol** (default weapon): 
    - **Bullet Properties**:
-   - Speed: 300 units per second
-   - Size: 4x4 pixels
-   - Color: White
-   - Cooldown Rate: 1.5s / Agi 
-   - Damage: 1.0 + Atk 
-   - Range: 128.0 + Rng 
-   - Penetration: 1
+     - Speed: 300 units per second
+     - Size: 4x4 pixels
+     - Color: White
+     - Cooldown Rate: 1.5s / Agi 
+     - Damage: 1.0 + Atk 
+     - Range: 128.0 + Rng 
+     - Penetration: 1
+   - **Powerup**
+     - Spd - 15
+   - **Weight**:
+     - 10.0 + level * 0.5
 
 2. **Minigun** 
    - **Bullet Properties**:
-   - Speed: 600 units per second
-   - Size: 4x4 pixels
-   - Color: White
-   - Cooldown Rate: 0.3s / Agi 
-   - Damage: 0.5 + Atk * 0.3
-   - Range: 128.0 + Rng 
-   - Penetration: 1
+     - Speed: 600 units per second
+     - Size: 4x4 pixels
+     - Color: White
+     - Cooldown Rate: 0.3s / Agi 
+     - Damage: 0.5 + Atk * 0.3
+     - Range: 128.0 + Rng 
+     - Penetration: 1
    - **Powerup**
-   - Spd - 50
+     - Spd - 50
+   - **Weight**:
+     - level * 0.5
 
-3. **Sniper Rifle** 
+1. **Sniper Rifle** 
    - **Bullet Properties**:
-   - Speed: 900 units per second
-   - Size: 4x4 pixels
-   - Color: White
-   - Cooldown Rate: 3.0s / Agi 
-   - Damage: 2.0 + Atk * 4.0
-   - Range: 192.0 + Rng 
-   - Penetration: 4
+     - Speed: 900 units per second
+     - Size: 4x4 pixels
+     - Color: White
+     - Cooldown Rate: 3.0s / Agi 
+     - Damage: 2.0 + Atk * 4.0
+     - Range: 192.0 + Rng 
+     - Penetration: 4
    - **Powerup**
-   - Spd - 25
-   - Agi - 0.2
+     - Spd - 25
+     - Agi - 0.2
+   - **Weight**:
+     - level * 0.5
 
 ### Enemy System
 
@@ -145,15 +153,20 @@ XP required for level n = n * (2 * n * n + 21 * n + 73) / 6
 - **UI**: Shows "LEVEL UP!" text and "RESUME" button
 - **Resume**: Click button to continue 
 - **Benefits**: 
-  - Choose a Bonus from 3 random powerups for regular level-ups
-  - Choose a Bonus from 2 random powerups and 1 random weapon for times-5 level-ups (level 5, 10, 15, etc)
+  - Choose a Bonus from 3 random powerups (according to weights) for regular level-ups
+  - Choose a Bonus from 2 random powerups and 1 random weapon (according to weights) for times-5 level-ups (level 5, 10, 15, etc)
 
 #### Powerups 
-- **Attack**: Atk + 0.2
-- **Range**: Rng + 16.0
-- **Speed**: Spd + 15.0
-- **Cooldown**: Agi + 0.1
-- **Bandana**: Pen + 1
+- **Attack Lv1**: Atk + 0.2, weight: 10
+- **Attack Lv2**: Atk + 0.3, weight: 1 + level * 0.2
+- **Attack Lv3**: Atk + 0.4, weight: level * 0.1
+- **Range Lv1**: Rng + 16.0, weight: 10 
+- **Range Lv2**: Rng + 32.0, weight: 5 + level * 1.0
+- **Speed Lv1**: Spd + 15.0, weight: 10
+- **Speed Lv2**: Spd + 30.0, weight: 5 + level * 0.5
+- **Cooldown Lv1**: Agi + 0.1, weight: 10
+- **Cooldown Lv2**: Agi + 0.2, weight: 1 + level * 0.2
+- **Bandana**: Pen + 1, weight: level * 0.1
 
 ### Wave System
 - **Duration**: 10 minutes total (600 seconds)

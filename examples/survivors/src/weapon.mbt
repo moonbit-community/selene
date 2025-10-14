@@ -43,7 +43,7 @@ fn get_weapon_data(weapon_type : WeaponType) -> WeaponData {
         bullet_speed: 300.0,
         base_damage: 1.0,
         base_range: 128.0,
-        speed_modifier: 0.0,
+        speed_modifier: -15.0,
         attack_speed_modifier: 0.0,
         penetration: 1,
       }
@@ -101,6 +101,15 @@ fn get_weapon_icon(weapon_type : WeaponType) -> @sprite.Animation {
     Pistol => weapon_pistol_icon
     Minigun => weapon_minigun_icon
     SniperRifle => weapon_sniperrifle_icon
+  }
+}
+
+///|
+fn get_weapon_weight(weapon_type : WeaponType, level : Int) -> Double {
+  match weapon_type {
+    Pistol => 10.0 + level.to_double() * 0.5
+    Minigun => level.to_double() * 0.5
+    SniperRifle => level.to_double() * 0.5
   }
 }
 

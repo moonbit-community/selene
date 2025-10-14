@@ -285,69 +285,145 @@ fn add_weapon(weapon_type : WeaponType) -> Unit {
 }
 
 ///|
+fn[T] weighted_random_selection(
+  items : Array[T],
+  weights : Array[Double]
+) -> T? {
+  if items.length() == 0 || items.length() != weights.length() {
+    return None
+  }
+
+  // Calculate total weight
+  let mut total_weight = 0.0
+  for weight in weights {
+    total_weight += weight
+  }
+
+  if total_weight <= 0.0 {
+    return None
+  }
+
+  // Generate random value
+  let random_value = game_state.rand.double() * total_weight
+
+  // Select item based on weight
+  let mut cumulative = 0.0
+  for i in 0..<items.length() {
+    cumulative += weights[i]
+    if random_value <= cumulative {
+      return Some(items[i])
+    }
+  }
+
+  // Fallback (should not reach here)
+  Some(items[items.length() - 1])
+}
+
+///|
 fn generate_level_up_selections(level : Int) -> Array[LevelUpSelection] {
   // For levels 5, 10, 15, etc., offer 2 powerups + 1 weapon
   if level % 5 == 0 {
-    return generate_mixed_selections()
+    return generate_mixed_selections(level)
   } else {
-    return generate_powerup_selections()
+    return generate_powerup_selections(level)
   }
 }
 
 ///|
-fn generate_mixed_selections() -> Array[LevelUpSelection] {
+fn generate_mixed_selections(level : Int) -> Array[LevelUpSelection] {
   let selected = []
-  let all_weapons = [Pistol, Minigun, SniperRifle]
 
-  // Add 2 random powerups
-  let all_types = [Attack, Range, Speed, Cooldown, Bandana]
-  let available_types = []
-
-  // Copy all types to available list
-  for powerup_type in all_types {
-    available_types.push(powerup_type)
-  }
-
-  // Select 2 unique random powerups
+  // Add 2 weighted random powerups
   for _i in 0..<2 {
-    if available_types.length() == 0 {
-      break
+    match select_weighted_powerup(level, selected) {
+      Some(powerup) => selected.push(PowerupSelection(powerup))
+      None => ()
     }
-    let rand_index = game_state.rand.int(limit=available_types.length())
-    let powerup_type = available_types[rand_index]
-    selected.push(PowerupSelection(create_powerup(powerup_type)))
-    available_types.remove(rand_index) |> ignore
   }
 
-  // Add 1 random weapon
-  let weapon_index = game_state.rand.int(limit=all_weapons.length())
-  selected.push(WeaponSelection(all_weapons[weapon_index]))
+  // Add 1 weighted random weapon
+  match select_weighted_weapon(level) {
+    Some(weapon) => selected.push(WeaponSelection(weapon))
+    None => ()
+  }
+
   selected
 }
 
 ///|
-fn generate_powerup_selections() -> Array[LevelUpSelection] {
-  let all_types = [Attack, Range, Speed, Cooldown, Bandana]
+fn generate_powerup_selections(level : Int) -> Array[LevelUpSelection] {
   let selected = []
-  let available_types = []
 
-  // Copy all types to available list
-  for powerup_type in all_types {
-    available_types.push(powerup_type)
-  }
-
-  // Select 3 unique random powerups
+  // Add 3 weighted random powerups
   for _i in 0..<3 {
-    if available_types.length() == 0 {
-      break
+    match select_weighted_powerup(level, selected) {
+      Some(powerup) => selected.push(PowerupSelection(powerup))
+      None => ()
     }
-    let rand_index = game_state.rand.int(limit=available_types.length())
-    let powerup_type = available_types[rand_index]
-    selected.push(PowerupSelection(create_powerup(powerup_type)))
-    // Remove the selected type to avoid duplicates
-    available_types.remove(rand_index) |> ignore
   }
+
   selected
+}
+
+///|
+fn select_weighted_powerup(
+  level : Int,
+  already_selected : Array[LevelUpSelection]
+) -> Powerup? {
+  let all_powerup_types = [
+    AttackLv1, AttackLv2, AttackLv3, RangeLv1, RangeLv2, SpeedLv1, SpeedLv2,
+    CooldownLv1, CooldownLv2, Bandana,
+  ]
+
+  // Filter out already selected powerup types
+  let selected_types = []
+  for selection in already_selected {
+    match selection {
+      PowerupSelection(powerup) => selected_types.push(powerup.powerup_type)
+      _ => ()
+    }
+  }
+
+  let available_types = []
+  let available_weights = []
+
+  for powerup_type in all_powerup_types {
+    // Check if not already selected
+    let mut already_has = false
+    for selected_type in selected_types {
+      if powerup_type == selected_type {
+        already_has = true
+        break
+      }
+    }
+
+    if not(already_has) {
+      let powerup = create_powerup(powerup_type)
+      let weight = (powerup.weight_formula)(level)
+      if weight > 0.0 {
+        available_types.push(powerup_type)
+        available_weights.push(weight)
+      }
+    }
+  }
+
+  // Weighted random selection
+  match weighted_random_selection(available_types, available_weights) {
+    Some(powerup_type) => Some(create_powerup(powerup_type))
+    None => None
+  }
+}
+
+///|
+fn select_weighted_weapon(level : Int) -> WeaponType? {
+  let all_weapons = [Pistol, Minigun, SniperRifle]
+  let weights = []
+
+  for weapon_type in all_weapons {
+    weights.push(get_weapon_weight(weapon_type, level))
+  }
+
+  weighted_random_selection(all_weapons, weights)
 }
 
 ///|
