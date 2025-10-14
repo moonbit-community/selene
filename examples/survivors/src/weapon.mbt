@@ -16,6 +16,7 @@
 enum WeaponType {
   Pistol
   Minigun
+  SniperRifle
 } derive(Eq)
 
 ///|
@@ -27,6 +28,7 @@ struct WeaponData {
   base_damage : Double
   base_range : Double
   speed_modifier : Double // Speed change when this weapon is added
+  attack_speed_modifier : Double // Attack speed change when this weapon is added
 }
 
 ///|
@@ -41,6 +43,7 @@ fn get_weapon_data(weapon_type : WeaponType) -> WeaponData {
         base_damage: 1.0,
         base_range: 128.0,
         speed_modifier: 0.0,
+        attack_speed_modifier: 0.0,
       }
     Minigun =>
       {
@@ -51,6 +54,18 @@ fn get_weapon_data(weapon_type : WeaponType) -> WeaponData {
         base_damage: 0.2,
         base_range: 192.0,
         speed_modifier: -50.0,
+        attack_speed_modifier: 0.0,
+      }
+    SniperRifle =>
+      {
+        cooldown_rate: 3.0,
+        damage_formula: fn(base, atk) { base + atk * 4.0 },
+        range_formula: fn(base, rng) { base + rng },
+        bullet_speed: 900.0,
+        base_damage: 4.0,
+        base_range: 256.0,
+        speed_modifier: -25.0,
+        attack_speed_modifier: -0.2,
       }
   }
 }
@@ -62,10 +77,17 @@ fn get_weapon_speed_modifier(weapon_type : WeaponType) -> Double {
 }
 
 ///|
+fn get_weapon_attack_speed_modifier(weapon_type : WeaponType) -> Double {
+  let weapon_data = get_weapon_data(weapon_type)
+  weapon_data.attack_speed_modifier
+}
+
+///|
 fn get_weapon_name(weapon_type : WeaponType) -> String {
   match weapon_type {
     Pistol => "Pistol"
     Minigun => "Minigun"
+    SniperRifle => "Sniper Rifle"
   }
 }
 
@@ -74,6 +96,7 @@ fn get_weapon_icon(weapon_type : WeaponType) -> @sprite.Animation {
   match weapon_type {
     Pistol => weapon_pistol_icon
     Minigun => weapon_minigun_icon
+    SniperRifle => weapon_sniperrifle_icon
   }
 }
 

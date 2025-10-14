@@ -76,6 +76,7 @@ struct GameState {
   level_box : @sprite.Text
   player_stats : PlayerStats
   level_up_panel : LevelUpPanel
+  pending_level_ups : Array[Int] // Queue of pending level-ups
 }
 
 ///|
@@ -182,6 +183,7 @@ let game_state : GameState = {
     ),
     available_selections: [],
   },
+  pending_level_ups: [],
 }
 
 ///|
@@ -212,13 +214,20 @@ fn add_exp(exp_gained : Int) -> Unit {
   // Calculate new player level using the XP formula
   let new_level = get_level_from_xp(game_state.exp)
   if new_level > old_level {
+    // Queue all levels from new_level down to old_level+1 (reverse order for pop())
+    let mut level = new_level
+    while level > old_level {
+      game_state.pending_level_ups.push(level)
+      level -= 1
+    }
+
+    // Update player level immediately
     game_state.player_level = new_level
     game_state.level_box.content = "Level: " +
       game_state.player_level.to_string()
 
-    // Check for weapon unlocks every 5 levels
-    check_weapon_unlocks(new_level)
-    level_up()
+    // Process the first level-up in the queue
+    process_next_level_up()
   }
 
   // Update EXP display with progress to next level
@@ -237,8 +246,10 @@ fn add_exp(exp_gained : Int) -> Unit {
 }
 
 ///|
-fn check_weapon_unlocks(_level : Int) -> Unit {
-  // Don't unlock weapons automatically - they are now unlocked through level-up selections
+fn process_next_level_up() -> Unit {
+  if game_state.pending_level_ups.pop() is Some(level) {
+    level_up(level)
+  }
 }
 
 ///|
@@ -249,6 +260,10 @@ fn add_weapon(weapon_type : WeaponType) -> Unit {
   // Apply weapon's speed modifier
   let speed_modifier = get_weapon_speed_modifier(weapon_type)
   game_state.player_stats.speed += speed_modifier
+
+  // Apply weapon's attack speed modifier
+  let attack_speed_modifier = get_weapon_attack_speed_modifier(weapon_type)
+  game_state.player_stats.attack_speed += attack_speed_modifier
 }
 
 ///|
@@ -274,7 +289,7 @@ fn generate_level_up_selections(level : Int) -> Array[LevelUpSelection] {
 ///|
 fn generate_mixed_selections() -> Array[LevelUpSelection] {
   let selected = []
-  let all_weapons = [Pistol, Minigun]
+  let all_weapons = [Pistol, Minigun, SniperRifle]
 
   // Add 2 random powerups
   let all_types = [Attack, Range, Speed, Cooldown]
@@ -389,17 +404,18 @@ fn game_timer_system(delta : Double) -> Unit {
     game_state.game_over = true
   }
 
-  // Calculate current wave (1-5) based on remaining time
+  // Calculate current wave (1-10) based on remaining time
   let elapsed_time = 600.0 - game_state.game_timer
-  let mut new_wave = (elapsed_time / 120.0).to_int() + 1
-  if new_wave > 5 {
-    new_wave = 5
+  let mut new_wave = (elapsed_time / 60.0).to_int() + 1
+  if new_wave > 10 {
+    new_wave = 10
   }
 
   // Update wave if changed
   if new_wave != game_state.current_wave {
     game_state.current_wave = new_wave
     game_state.wave_box.content = "Wave: " + game_state.current_wave.to_string()
+    reset_wave_state() // Reset spawn counters for new wave
   }
 
   // Format timer as MM:SS

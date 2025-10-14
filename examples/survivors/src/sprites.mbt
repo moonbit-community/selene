@@ -261,6 +261,96 @@ let skull_left_animation : @sprite.Animation = @sprite.Animation::new(
 )
 
 ///|
+let devil_right_animation : @sprite.Animation = @sprite.Animation::new(
+  @sprite.frames_from_atlas(
+    "assets/enemy/Devil.png",
+    4,
+    width=16,
+    height=24,
+    offset=Vec2D(0, 48),
+    space_x=0,
+  ),
+  fps=12,
+  loop_=true,
+  transform=@math.Transform::new(),
+)
+
+///|
+let devil_left_animation : @sprite.Animation = @sprite.Animation::new(
+  @sprite.frames_from_atlas(
+    "assets/enemy/Devil.png",
+    4,
+    width=16,
+    height=24,
+    offset=Vec2D(0, 48),
+    space_x=0,
+  ),
+  fps=12,
+  loop_=true,
+  transform=@math.Transform::flip_x(16),
+)
+
+///|
+let pirate_right_animation : @sprite.Animation = @sprite.Animation::new(
+  @sprite.frames_from_atlas(
+    "assets/enemy/Pirate.png",
+    4,
+    width=16,
+    height=24,
+    offset=Vec2D(0, 48),
+    space_x=0,
+  ),
+  fps=12,
+  loop_=true,
+  transform=@math.Transform::new(),
+)
+
+///|
+let pirate_left_animation : @sprite.Animation = @sprite.Animation::new(
+  @sprite.frames_from_atlas(
+    "assets/enemy/Pirate.png",
+    4,
+    width=16,
+    height=24,
+    offset=Vec2D(0, 48),
+    space_x=0,
+  ),
+  fps=12,
+  loop_=true,
+  transform=@math.Transform::flip_x(16),
+)
+
+///|
+let teleman_right_animation : @sprite.Animation = @sprite.Animation::new(
+  @sprite.frames_from_atlas(
+    "assets/enemy/Teleman.png",
+    4,
+    width=16,
+    height=24,
+    offset=Vec2D(0, 0),
+    space_x=0,
+  ),
+  fps=12,
+  loop_=true,
+  transform=@math.Transform::new(),
+)
+
+///|
+let teleman_left_animation : @sprite.Animation = @sprite.Animation::new(
+  @sprite.frames_from_atlas(
+    "assets/enemy/Teleman.png",
+    4,
+    width=16,
+    height=24,
+    offset=Vec2D(0, 0),
+    space_x=0,
+  ),
+  fps=12,
+  loop_=true,
+  transform=@math.Transform::flip_x(16),
+)
+
+///|
 let powerup_range_icon : @sprite.Animation = @sprite.Animation::single_frame(
   "assets/icon/icon.png",
   Vec2D(32, 32),
@@ -300,4 +390,11 @@ let weapon_minigun_icon : @sprite.Animation = @sprite.Animation::single_frame(
   "assets/icon/icon.png",
   Vec2D(32, 32),
   offset=Vec2D(32 * 1, 32 * 7),
+)
+
+///|
+let weapon_sniperrifle_icon : @sprite.Animation = @sprite.Animation::single_frame(
+  "assets/icon/icon.png",
+  Vec2D(32, 32),
+  offset=Vec2D(32 * 4, 32 * 7),
 )

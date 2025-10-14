@@ -98,14 +98,12 @@ fn setup_level_up_ui() -> Unit {
 }
 
 ///|
-fn level_up() -> Unit {
+fn level_up(level : Int) -> Unit {
   @backend.set_time_scale(0.0)
   let panel = game_state.level_up_panel
 
-  // Generate selections based on current level
-  panel.available_selections = generate_level_up_selections(
-    game_state.player_level,
-  )
+  // Generate selections based on the level being processed
+  panel.available_selections = generate_level_up_selections(level)
 
   // Respawn the main panel (this will respawn all children automatically)
   panel.panel_entity.respawn()
@@ -180,10 +178,14 @@ fn select_powerup(index : Int) -> Unit {
 
 ///|
 fn resume_game() -> Unit {
-  @backend.set_time_scale(1.0)
-  let panel = game_state.level_up_panel
-  // Hide only the root panel - all children will be destroyed automatically
-  panel.panel_entity.destroy()
+  game_state.level_up_panel.panel_entity.destroy()
+
+  // Check if there are more pending level-ups
+  if game_state.pending_level_ups.is_empty() {
+    @backend.set_time_scale(1.0)
+  } else {
+    process_next_level_up()
+  }
 }
 
 ///|

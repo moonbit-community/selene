@@ -17,9 +17,167 @@ struct EnemyData {
   health : Double
   speed : Double
   points : Int
-  wave_spawn_weights : Array[Int] // [wave1, wave2, wave3, wave4, wave5]
   right_animation : @sprite.Animation
   left_animation : @sprite.Animation
+}
+
+///|
+struct WaveSpawnPlan {
+  creeper_count : Int
+  icecream_count : Int
+  orc_count : Int
+  skull_count : Int
+  teleman_count : Int
+  devil_count : Int
+  pirate_count : Int
+  spawn_interval : Double // Time in seconds between spawns
+}
+
+///|
+let wave_spawn_plans : Array[WaveSpawnPlan] = [
+  // Wave 1: 60 enemies over 60s = 1.0s interval
+  {
+    creeper_count: 40,
+    icecream_count: 20,
+    orc_count: 0,
+    skull_count: 0,
+    teleman_count: 0,
+    devil_count: 0,
+    pirate_count: 0,
+    spawn_interval: 1.0,
+  },
+  // Wave 2: 60 enemies over 60s = 1.0s interval
+  {
+    creeper_count: 30,
+    icecream_count: 0,
+    orc_count: 30,
+    skull_count: 0,
+    teleman_count: 0,
+    devil_count: 0,
+    pirate_count: 0,
+    spawn_interval: 1.0,
+  },
+  // Wave 3: 120 enemies over 60s = 0.5s interval
+  {
+    creeper_count: 0,
+    icecream_count: 120,
+    orc_count: 0,
+    skull_count: 0,
+    teleman_count: 0,
+    devil_count: 0,
+    pirate_count: 0,
+    spawn_interval: 0.5,
+  },
+  // Wave 4: 120 enemies over 60s = 0.5s interval
+  {
+    creeper_count: 60,
+    icecream_count: 0,
+    orc_count: 0,
+    skull_count: 60,
+    teleman_count: 0,
+    devil_count: 0,
+    pirate_count: 0,
+    spawn_interval: 0.5,
+  },
+  // Wave 5: 180 enemies over 60s = 0.333s interval
+  {
+    creeper_count: 0,
+    icecream_count: 0,
+    orc_count: 90,
+    skull_count: 90,
+    teleman_count: 0,
+    devil_count: 0,
+    pirate_count: 0,
+    spawn_interval: 0.333,
+  },
+  // Wave 6: 60 enemies over 60s = 1.0s interval
+  {
+    creeper_count: 0,
+    icecream_count: 0,
+    orc_count: 56,
+    skull_count: 0,
+    teleman_count: 4,
+    devil_count: 0,
+    pirate_count: 0,
+    spawn_interval: 1.0,
+  },
+  // Wave 7: 120 enemies over 60s = 0.5s interval
+  {
+    creeper_count: 0,
+    icecream_count: 60,
+    orc_count: 0,
+    skull_count: 0,
+    teleman_count: 0,
+    devil_count: 60,
+    pirate_count: 0,
+    spawn_interval: 0.5,
+  },
+  // Wave 8: 120 enemies over 60s = 0.5s interval
+  {
+    creeper_count: 0,
+    icecream_count: 0,
+    orc_count: 40,
+    skull_count: 0,
+    teleman_count: 40,
+    devil_count: 40,
+    pirate_count: 0,
+    spawn_interval: 0.5,
+  },
+  // Wave 9: 120 enemies over 60s = 0.5s interval
+  {
+    creeper_count: 20,
+    icecream_count: 20,
+    orc_count: 20,
+    skull_count: 20,
+    teleman_count: 20,
+    devil_count: 20,
+    pirate_count: 0,
+    spawn_interval: 0.5,
+  },
+  // Wave 10: 60 enemies over 60s = 1.0s interval
+  {
+    creeper_count: 0,
+    icecream_count: 0,
+    orc_count: 0,
+    skull_count: 0,
+    teleman_count: 59,
+    devil_count: 0,
+    pirate_count: 1,
+    spawn_interval: 1.0,
+  },
+]
+
+///|
+struct WaveState {
+  mut creeper_spawned : Int
+  mut icecream_spawned : Int
+  mut orc_spawned : Int
+  mut skull_spawned : Int
+  mut teleman_spawned : Int
+  mut devil_spawned : Int
+  mut pirate_spawned : Int
+}
+
+///|
+let wave_state : WaveState = {
+  creeper_spawned: 0,
+  icecream_spawned: 0,
+  orc_spawned: 0,
+  skull_spawned: 0,
+  teleman_spawned: 0,
+  devil_spawned: 0,
+  pirate_spawned: 0,
+}
+
+///|
+fn reset_wave_state() -> Unit {
+  wave_state.creeper_spawned = 0
+  wave_state.icecream_spawned = 0
+  wave_state.orc_spawned = 0
+  wave_state.skull_spawned = 0
+  wave_state.teleman_spawned = 0
+  wave_state.devil_spawned = 0
+  wave_state.pirate_spawned = 0
 }
 
 ///|
@@ -29,33 +187,50 @@ let enemy_data : Map[EnemyType, EnemyData] = {
     health: 1.0,
     speed: 60.0,
     points: 10,
-    wave_spawn_weights: [60, 40, 25, 15, 10], // Decreasing over waves
     right_animation: creeper_right_animation,
     left_animation: creeper_left_animation,
   })
   data.set(Icecream, {
     health: 2.0,
-    speed: 60.0,
-    points: 25,
-    wave_spawn_weights: [35, 40, 35, 25, 20], // Peak in early-mid waves
+    speed: 90.0,
+    points: 20,
     right_animation: icecream_right_animation,
     left_animation: icecream_left_animation,
   })
   data.set(Orc, {
     health: 3.0,
     speed: 75,
-    points: 50,
-    wave_spawn_weights: [5, 15, 25, 30, 25], // Increasing to mid-late waves
+    points: 30,
     right_animation: orc_right_animation,
     left_animation: orc_left_animation,
   })
   data.set(Skull, {
-    health: 4.0,
-    speed: 90,
-    points: 100,
-    wave_spawn_weights: [0, 5, 15, 30, 45], // Only in later waves, increasing
+    health: 5.0,
+    speed: 60.0,
+    points: 40,
     right_animation: skull_right_animation,
     left_animation: skull_left_animation,
+  })
+  data.set(Teleman, {
+    health: 20.0,
+    speed: 60.0,
+    points: 80,
+    right_animation: teleman_right_animation,
+    left_animation: teleman_left_animation,
+  })
+  data.set(Devil, {
+    health: 8.0,
+    speed: 90.0,
+    points: 50,
+    right_animation: devil_right_animation,
+    left_animation: devil_left_animation,
+  })
+  data.set(Pirate, {
+    health: 500.0,
+    speed: 60.0,
+    points: 200,
+    right_animation: pirate_right_animation,
+    left_animation: pirate_left_animation,
   })
   data
 }
@@ -75,55 +250,69 @@ fn spawn_enemy_system(_delta : Double) -> Unit {
       return
     }
     let rand = game_state.rand
-    let enemy = @entity.Entity::new()
-    let pos = spawners[rand.int(limit=spawners.length())]
-    @position.positions.set(enemy, pos)
-    @velocity.velocities.set(enemy, @math.Vec2D::zero())
 
-    // Select enemy type based on weighted random selection
-    let enemy_type = select_random_enemy_type(rand)
-    let data = get_enemy_data(enemy_type)
+    // Get spawn interval for current wave
+    let wave = game_state.current_wave
+    let spawn_interval = if wave >= 1 && wave <= 10 {
+      wave_spawn_plans[wave - 1].spawn_interval
+    } else {
+      1.0 // Fallback interval
+    }
 
-    // Create sprite and enemy state using data structure
-    let sprite = @sprite.Sprite::from_animation(
-      data.right_animation,
-      ENEMY_ZINDEX,
-      offset=Vec2D(-8.0, -12.0),
-    )
-    let enemy_state = { enemy_type, speed: data.speed, health: data.health }
-    @sprite.sprites.set(enemy, sprite)
-    @collision.shapes.set(
-      enemy,
-      @collision.CollisionShape::Rect(
-        size=Vec2D(8.0, 8.0),
-        offset=Vec2D(-4.0, -4.0),
-      ),
-    )
-    @collision.collision_layers.set(enemy, enemy_collision_layer)
-    @collision.colliders.set(
-      enemy,
-      @collision.Collider::new(
-        @collision.CollisionMask::new([
-          enemy_collision_layer, wall_collision_layer,
-        ]),
-      ),
-    )
-    enemies.set(enemy, enemy_state)
-    let area = @collision.Area::new(
-      @collision.CollisionMask::new([player_collision_layer]),
-    )
-    @collision.areas.set(enemy, area)
-    area.on_enter(fn(e) {
-      guard e.is_alive() else { return }
-      guard e == game_state.player_entity else { return }
-      if game_state.invincible {
-        return
+    // Try to select an enemy type for the current wave
+    match select_enemy_type_for_wave(rand) {
+      Some(enemy_type) => {
+        let enemy = @entity.Entity::new()
+        let pos = spawners[rand.int(limit=spawners.length())]
+        @position.positions.set(enemy, pos)
+        @velocity.velocities.set(enemy, @math.Vec2D::zero())
+        let data = get_enemy_data(enemy_type)
+
+        // Create sprite and enemy state using data structure
+        let sprite = @sprite.Sprite::from_animation(
+          data.right_animation,
+          ENEMY_ZINDEX,
+          offset=Vec2D(-8.0, -12.0),
+        )
+        let enemy_state = { enemy_type, speed: data.speed, health: data.health }
+        @sprite.sprites.set(enemy, sprite)
+        @collision.shapes.set(
+          enemy,
+          @collision.CollisionShape::Rect(
+            size=Vec2D(8.0, 8.0),
+            offset=Vec2D(-4.0, -4.0),
+          ),
+        )
+        @collision.collision_layers.set(enemy, enemy_collision_layer)
+        @collision.colliders.set(
+          enemy,
+          @collision.Collider::new(
+            @collision.CollisionMask::new([
+              enemy_collision_layer, wall_collision_layer,
+            ]),
+          ),
+        )
+        enemies.set(enemy, enemy_state)
+        let area = @collision.Area::new(
+          @collision.CollisionMask::new([player_collision_layer]),
+        )
+        @collision.areas.set(enemy, area)
+        area.on_enter(fn(e) {
+          guard e.is_alive() else { return }
+          guard e == game_state.player_entity else { return }
+          if game_state.invincible {
+            return
+          }
+          game_state.invincible = true
+          set_score(game_state.score / 2)
+          @system.timeout(INVINCIBLE_TIME, fn() {
+            game_state.invincible = false
+          })
+        })
       }
-      game_state.invincible = true
-      set_score(game_state.score / 2)
-      @system.timeout(INVINCIBLE_TIME, fn() { game_state.invincible = false })
-    })
-    @system.timeout(1.0, spawn_enemy)
+      None => () // No more enemies to spawn in this wave
+    }
+    @system.timeout(spawn_interval, spawn_enemy)
   }
 
   spawn_enemy()
@@ -142,6 +331,9 @@ enum EnemyType {
   Icecream
   Orc
   Skull
+  Teleman
+  Devil
+  Pirate
 } derive(Eq, Hash)
 
 ///|
@@ -156,29 +348,57 @@ fn get_enemy_data(enemy_type : EnemyType) -> EnemyData {
 }
 
 ///|
-fn select_random_enemy_type(rand : @random.Rand) -> EnemyType {
+fn select_enemy_type_for_wave(rand : @random.Rand) -> EnemyType? {
   let wave = game_state.current_wave
-  let wave_index = wave - 1 // Convert to 0-based index
+  if wave < 1 || wave > 10 {
+    return None
+  }
+  let plan = wave_spawn_plans[wave - 1]
+  let available_types = []
 
-  // Calculate total weight for current wave
-  let mut total_weight = 0
-  for _, data in enemy_data {
-    total_weight += data.wave_spawn_weights[wave_index]
+  // Build list of available enemy types based on what hasn't been fully spawned
+  if wave_state.creeper_spawned < plan.creeper_count {
+    available_types.push(Creeper)
   }
-  if total_weight == 0 {
-    return Creeper // Fallback if no enemies have weight
+  if wave_state.icecream_spawned < plan.icecream_count {
+    available_types.push(Icecream)
   }
-  let rand_val = rand.int(limit=total_weight)
-  let mut current_weight = 0
-  for enemy_type, data in enemy_data {
-    current_weight += data.wave_spawn_weights[wave_index]
-    if rand_val < current_weight {
-      return enemy_type
-    }
+  if wave_state.orc_spawned < plan.orc_count {
+    available_types.push(Orc)
+  }
+  if wave_state.skull_spawned < plan.skull_count {
+    available_types.push(Skull)
+  }
+  if wave_state.teleman_spawned < plan.teleman_count {
+    available_types.push(Teleman)
+  }
+  if wave_state.devil_spawned < plan.devil_count {
+    available_types.push(Devil)
+  }
+  if wave_state.pirate_spawned < plan.pirate_count {
+    available_types.push(Pirate)
   }
 
-  // Fallback (should never reach here)
-  Creeper
+  // If no enemies left to spawn, return None
+  if available_types.length() == 0 {
+    return None
+  }
+
+  // Randomly select from available types
+  let index = rand.int(limit=available_types.length())
+  let enemy_type = available_types[index]
+
+  // Increment the counter for the selected type
+  match enemy_type {
+    Creeper => wave_state.creeper_spawned += 1
+    Icecream => wave_state.icecream_spawned += 1
+    Orc => wave_state.orc_spawned += 1
+    Skull => wave_state.skull_spawned += 1
+    Teleman => wave_state.teleman_spawned += 1
+    Devil => wave_state.devil_spawned += 1
+    Pirate => wave_state.pirate_spawned += 1
+  }
+  Some(enemy_type)
 }
 
 ///|

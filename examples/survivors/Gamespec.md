@@ -55,6 +55,18 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
    - **Powerup**
    - Spd - 50
 
+3. **Sniper Rifle** 
+   - **Bullet Properties**:
+   - Speed: 900 units per second
+   - Size: 4x4 pixels
+   - Color: White
+   - Cooldown Rate: 3.0s / Def 
+   - Damage: 4.0 + Atk * 4.0
+   - Range: 256.0 + Rng 
+   - **Powerup**
+   - Spd - 25
+   - Def - 0.2
+
 ### Enemy System
 
 #### Enemy Types
@@ -62,31 +74,54 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
    - Health: 1 HP
    - Speed: 60 units/second
    - Points/XP: 10
-   - Most common in early waves
 
 2. **Icecream**
    - Health: 2 HP
-   - Speed: 60 units/second
-   - Points/XP: 25
-   - Peak frequency in mid waves
+   - Speed: 90 units/second
+   - Points/XP: 20
 
 3. **Orc**
    - Health: 3 HP
    - Speed: 75 units/second
-   - Points/XP: 50
-   - Increases in later waves
+   - Points/XP: 30
 
 4. **Skull**
-   - Health: 4 HP
+   - Health: 5 HP
+   - Speed: 60 units/second
+   - Points/XP: 40
+
+5. **Teleman**
+   - Health: 20 HP
+   - Speed: 60 units/second
+   - Points/XP: 80
+
+6. **Devil**
+   - Health: 8 HP
    - Speed: 90 units/second
-   - Points/XP: 100
-   - Only appears in waves 4-5
+   - Points/XP: 50
+
+7. **Pirate**
+   - Health: 500 HP
+   - Speed: 60 units/second
+   - Points/XP: 200
 
 #### Enemy Behavior
 - **AI**: Simple pathfinding directly toward player
 - **Spawn Rate**: One enemy every second
 - **Spawn Locations**: 4 corner positions of the map
 - **Wave Progression**: Enemy type distribution changes based on current wave
+
+#### Waves (1 wave per minute)
+1. 40 Creeper, 20 Icecream 
+2. 30 Creeper, 30 Orc
+3. 120 Icecream
+4. 60 Creeper, 60 Skull
+5. 90 Orc, 90 Skull 
+6. 4 Teleman, 56 Orc 
+7. 60 Devil, 60 Icecream
+8. 40 Devil, 40 Teleman, 40 Orc 
+9. 20 Creeper, 20 Icecream, 20 Orc, 20 Skull, 20 Teleman, 20 Devil 
+10. 1 Pirate, 59 Teleman
 
 ### Level Progression System
 
