@@ -59,9 +59,10 @@ let deferred_events : Array[Event] = Array::new()
 /// ```
 /// 
 pub fn deferred_event_system(_delta : Double) -> Unit {
-  while deferred_events.pop() is Some(event) {
+  for event in deferred_events {
     event()
   }
+  deferred_events.clear()
 }
 
 ///|
