@@ -108,7 +108,7 @@ fn get_weapon_icon(weapon_type : WeaponType) -> @sprite.Animation {
 fn get_weapon_weight(weapon_type : WeaponType, level : Int) -> Double {
   match weapon_type {
     Pistol => 10.0 + level.to_double() * 0.5
-    Minigun => level.to_double() * 0.5
+    Minigun => level.to_double() * 0.2
     SniperRifle => level.to_double() * 0.5
   }
 }

@@ -128,6 +128,17 @@ fn update_selection_display(
   let text_entity = children[1]
   match selection {
     PowerupSelection(powerup) => {
+      // Update button background color to cyan for powerups
+      let button_background = @sprite.Sprite::from_color_rect(
+        @sprite.ColorRect::new(
+          Vec2D(160.0, 36.0),
+          "rgba(13, 167, 170, 1)",
+          stroke_color="black",
+        ),
+        UI_ZINDEX + 2,
+      )
+      @sprite.sprites.set(button_entity, button_background)
+
       // Update text
       let button_text = @sprite.Text::new(
         powerup.name,
@@ -146,6 +157,17 @@ fn update_selection_display(
       @sprite.sprites.set(icon_entity, icon_sprite)
     }
     WeaponSelection(weapon_type) => {
+      // Update button background color to orange for weapons
+      let button_background = @sprite.Sprite::from_color_rect(
+        @sprite.ColorRect::new(
+          Vec2D(160.0, 36.0),
+          "rgba(255, 140, 0, 1)",
+          stroke_color="black",
+        ),
+        UI_ZINDEX + 2,
+      )
+      @sprite.sprites.set(button_entity, button_background)
+
       // Update text
       let button_text = @sprite.Text::new(
         get_weapon_name(weapon_type),

@@ -47,6 +47,8 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
      - Penetration: 1
    - **Powerup**
      - Spd - 15
+   - **Weight**:
+     - 10.0 + level * 0.5
 
 2. **Minigun** 
    - **Bullet Properties**:
@@ -59,8 +61,10 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
      - Penetration: 1
    - **Powerup**
      - Spd - 50
+   - **Weight**:
+     - level * 0.2
 
-3. **Sniper Rifle** 
+1. **Sniper Rifle** 
    - **Bullet Properties**:
      - Speed: 900 units per second
      - Size: 4x4 pixels
@@ -72,6 +76,8 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
    - **Powerup**
      - Spd - 25
      - Agi - 0.2
+   - **Weight**:
+     - level * 0.5
 
 ### Enemy System
 
@@ -147,15 +153,20 @@ XP required for level n = n * (2 * n * n + 21 * n + 73) / 6
 - **UI**: Shows "LEVEL UP!" text and "RESUME" button
 - **Resume**: Click button to continue 
 - **Benefits**: 
-  - Choose a Bonus from 3 random powerups for regular level-ups
-  - Choose a Bonus from 2 random powerups and 1 random weapon for times-5 level-ups (level 5, 10, 15, etc)
+  - Choose a Bonus from 3 random powerups (according to weights) for regular level-ups
+  - Choose a Bonus from 2 random powerups and 1 random weapon (according to weights) for times-5 level-ups (level 5, 10, 15, etc)
 
 #### Powerups 
-- **Attack**: Atk + 0.2
-- **Range**: Rng + 16.0
-- **Speed**: Spd + 15.0
-- **Cooldown**: Agi + 0.1
-- **Bandana**: Pen + 1
+- **Attack Lv1**: Atk + 0.2, weight: 25
+- **Attack Lv2**: Atk + 0.3, weight: 2 + level * 0.2
+- **Attack Lv3**: Atk + 0.4, weight: 1 + level * 0.1
+- **Range Lv1**: Rng + 16.0, weight: 25 
+- **Range Lv2**: Rng + 32.0, weight: 5 + level * 0.5
+- **Speed Lv1**: Spd + 15.0, weight: 25
+- **Speed Lv2**: Spd + 30.0, weight: 5 + level * 0.5
+- **Cooldown Lv1**: Agi + 0.1, weight: 25
+- **Cooldown Lv2**: Agi + 0.2, weight: 2 + level * 0.2
+- **Bandana**: Pen + 1, weight: 1 + level * 0.1
 
 ### Wave System
 - **Duration**: 10 minutes total (600 seconds)
@@ -178,15 +189,32 @@ XP required for level n = n * (2 * n * n + 21 * n + 73) / 6
 - **Timer**: Remaining time in MM:SS format (top-right, white)
 
 ### Level-Up Screen
-- **Background**: Game paused (all movement stops)
-- **Title**: "LEVEL UP!" text (center, gold, 36px font)
-- **Button**: "RESUME" clickable button (center, white, 24px font)
-- **Interaction**: Click to resume normal gameplay
+- **Background**: Game paused (all movement stops, time_scale = 0)
+- **Panel**: Semi-transparent dark panel with vertical layout
+- **Title**: "LEVEL UP!" text (gold, 36px ThaleahFat font)
+- **Selection Buttons**: 3 clickable option buttons, each containing:
+  - **Icon**: Animated sprite representing the powerup or weapon
+  - **Text**: Name of the powerup/weapon (white, 16px ThaleahFat font)
+  - **Size**: 160x36 pixels
+  - **Color**: Cyan background (rgba(13, 167, 170, 1)) with black stroke
+  - **Layout**: Horizontal (icon on left, text on right)
+- **Options**:
+  - Regular level-ups: 3 weighted random powerups
+  - Level 5, 10, 15, etc: 2 weighted random powerups + 1 weighted random weapon
+- **Interaction**: Click any button to select that option and resume gameplay
+- **Auto-resume**: Game automatically resumes after selection
 
 ### Game Over Screen
-- **Trigger**: When timer reaches 0:00
-- **Message**: "TIME'S UP! Final Score: [score]" (center, red, 32px font)
-- **State**: Game remains paused permanently
+- **Trigger**: When all enemies are eliminated after timer reaches 0:00
+- **Panel**: Dark semi-transparent panel (200x120 pixels) with vertical layout, centered on screen
+- **Victory Message**: "VICTORY!" (gold, 32px ThaleahFat font)
+- **Score Display**: "Final Score: [score]" (white, 24px ThaleahFat font)
+- **Restart Button**:
+  - **Text**: "RESTART" (white, 24px ThaleahFat font)
+  - **Size**: 180x40 pixels
+  - **Color**: Cyan background (rgba(13, 167, 170, 1)) with white stroke
+  - **Function**: Clicking restarts the entire game from the beginning
+- **State**: Game paused until restart button is clicked
 
 ## Technical Architecture
 

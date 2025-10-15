@@ -62,7 +62,7 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
    - **Powerup**
      - Spd - 50
    - **Weight**:
-     - level * 0.5
+     - level * 0.2
 
 1. **Sniper Rifle** 
    - **Bullet Properties**:
@@ -157,16 +157,16 @@ XP required for level n = n * (2 * n * n + 21 * n + 73) / 6
   - Choose a Bonus from 2 random powerups and 1 random weapon (according to weights) for times-5 level-ups (level 5, 10, 15, etc)
 
 #### Powerups 
-- **Attack Lv1**: Atk + 0.2, weight: 10
-- **Attack Lv2**: Atk + 0.3, weight: 1 + level * 0.2
-- **Attack Lv3**: Atk + 0.4, weight: level * 0.1
-- **Range Lv1**: Rng + 16.0, weight: 10 
-- **Range Lv2**: Rng + 32.0, weight: 5 + level * 1.0
-- **Speed Lv1**: Spd + 15.0, weight: 10
+- **Attack Lv1**: Atk + 0.2, weight: 25
+- **Attack Lv2**: Atk + 0.3, weight: 2 + level * 0.2
+- **Attack Lv3**: Atk + 0.4, weight: 1 + level * 0.1
+- **Range Lv1**: Rng + 16.0, weight: 25 
+- **Range Lv2**: Rng + 32.0, weight: 5 + level * 0.5
+- **Speed Lv1**: Spd + 15.0, weight: 25
 - **Speed Lv2**: Spd + 30.0, weight: 5 + level * 0.5
-- **Cooldown Lv1**: Agi + 0.1, weight: 10
-- **Cooldown Lv2**: Agi + 0.2, weight: 1 + level * 0.2
-- **Bandana**: Pen + 1, weight: level * 0.1
+- **Cooldown Lv1**: Agi + 0.1, weight: 25
+- **Cooldown Lv2**: Agi + 0.2, weight: 2 + level * 0.2
+- **Bandana**: Pen + 1, weight: 1 + level * 0.1
 
 ### Wave System
 - **Duration**: 10 minutes total (600 seconds)
@@ -189,15 +189,35 @@ XP required for level n = n * (2 * n * n + 21 * n + 73) / 6
 - **Timer**: Remaining time in MM:SS format (top-right, white)
 
 ### Level-Up Screen
-- **Background**: Game paused (all movement stops)
-- **Title**: "LEVEL UP!" text (center, gold, 36px font)
-- **Button**: "RESUME" clickable button (center, white, 24px font)
-- **Interaction**: Click to resume normal gameplay
+- **Background**: Game paused (all movement stops, time_scale = 0)
+- **Panel**: Semi-transparent dark panel with vertical layout
+- **Title**: "LEVEL UP!" text (gold, 36px ThaleahFat font)
+- **Selection Buttons**: 3 clickable option buttons, each containing:
+  - **Icon**: Animated sprite representing the powerup or weapon
+  - **Text**: Name of the powerup/weapon (white, 16px ThaleahFat font)
+  - **Size**: 160x36 pixels
+  - **Color**: Different options have different colors
+  - **Layout**: Horizontal (icon on left, text on right)
+- **Options**:
+  - Regular level-ups: 3 weighted random powerups
+  - Level 5, 10, 15, etc: 2 weighted random powerups + 1 weighted random weapon
+  - Colors: 
+    - Powerups: Cyan background with black stroke
+    - Weapons: Orange background with black stroke
+- **Interaction**: Click any button to select that option and resume gameplay
+- **Auto-resume**: Game automatically resumes after selection
 
 ### Game Over Screen
-- **Trigger**: When timer reaches 0:00
-- **Message**: "TIME'S UP! Final Score: [score]" (center, red, 32px font)
-- **State**: Game remains paused permanently
+- **Trigger**: When all enemies are eliminated after timer reaches 0:00
+- **Panel**: Dark semi-transparent panel (200x120 pixels) with vertical layout, centered on screen
+- **Victory Message**: "VICTORY!" (gold, 32px ThaleahFat font)
+- **Score Display**: "Final Score: [score]" (white, 24px ThaleahFat font)
+- **Restart Button**:
+  - **Text**: "RESTART" (white, 24px ThaleahFat font)
+  - **Size**: 180x40 pixels
+  - **Color**: Cyan background (rgba(13, 167, 170, 1)) with white stroke
+  - **Function**: Clicking restarts the entire game from the beginning
+- **State**: Game paused until restart button is clicked
 
 ## Technical Architecture
 
