@@ -64,7 +64,7 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
    - **Weight**:
      - level * 0.2
 
-1. **Sniper Rifle** 
+3. **Sniper Rifle** 
    - **Bullet Properties**:
      - Speed: 900 units per second
      - Size: 4x4 pixels
@@ -78,6 +78,20 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
      - Agi - 0.2
    - **Weight**:
      - level * 0.5
+
+4. **Sword** 
+   - **Hixbox Properties**:
+     - Speed: 150 units per second
+     - Size: 16x16 pixels
+     - Color: White
+     - Cooldown Rate: 2.0s / Agi 
+     - Damage: 2.0 + Atk * 4.0
+     - Range: 24.0 + Rng * 0.5
+     - Penetration: 99
+   - **Powerup**
+     - Spd - 15
+   - **Weight**:
+     - 10 + level * 0.5
 
 ### Enemy System
 

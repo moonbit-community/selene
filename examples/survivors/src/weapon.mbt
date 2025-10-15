@@ -17,6 +17,7 @@ enum WeaponType {
   Pistol
   Minigun
   SniperRifle
+  Sword
 } derive(Eq)
 
 ///|
@@ -71,6 +72,18 @@ fn get_weapon_data(weapon_type : WeaponType) -> WeaponData {
         attack_speed_modifier: -0.2,
         penetration: 4,
       }
+    Sword =>
+      {
+        cooldown_rate: 2.0,
+        damage_formula: fn(base, atk) { base + atk * 4.0 },
+        range_formula: fn(base, rng) { base + rng * 0.5 },
+        bullet_speed: 150.0,
+        base_damage: 2.0,
+        base_range: 24.0,
+        speed_modifier: -15.0,
+        attack_speed_modifier: 0.0,
+        penetration: 99,
+      }
   }
 }
 
@@ -92,6 +105,7 @@ fn get_weapon_name(weapon_type : WeaponType) -> String {
     Pistol => "Pistol"
     Minigun => "Minigun"
     SniperRifle => "Sniper Rifle"
+    Sword => "Sword"
   }
 }
 
@@ -101,6 +115,7 @@ fn get_weapon_icon(weapon_type : WeaponType) -> @sprite.Animation {
     Pistol => weapon_pistol_icon
     Minigun => weapon_minigun_icon
     SniperRifle => weapon_sniperrifle_icon
+    Sword => weapon_sword_icon
   }
 }
 
@@ -110,6 +125,7 @@ fn get_weapon_weight(weapon_type : WeaponType, level : Int) -> Double {
     Pistol => 10.0 + level.to_double() * 0.5
     Minigun => level.to_double() * 0.2
     SniperRifle => level.to_double() * 0.5
+    Sword => 10.0 + level.to_double() * 0.5
   }
 }
 

@@ -64,7 +64,7 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
    - **Weight**:
      - level * 0.2
 
-1. **Sniper Rifle** 
+3. **Sniper Rifle** 
    - **Bullet Properties**:
      - Speed: 900 units per second
      - Size: 4x4 pixels
@@ -78,6 +78,20 @@ A vampire survivor-like top-down 2D survival game where the player must survive 
      - Agi - 0.2
    - **Weight**:
      - level * 0.5
+
+4. **Sword** 
+   - **Hixbox Properties**:
+     - Speed: 150 units per second
+     - Size: 16x16 pixels
+     - Color: White
+     - Cooldown Rate: 2.0s / Agi 
+     - Damage: 2.0 + Atk * 4.0
+     - Range: 24.0 + Rng * 0.5
+     - Penetration: 99
+   - **Powerup**
+     - Spd - 15
+   - **Weight**:
+     - 10 + level * 0.5
 
 ### Enemy System
 
@@ -196,11 +210,14 @@ XP required for level n = n * (2 * n * n + 21 * n + 73) / 6
   - **Icon**: Animated sprite representing the powerup or weapon
   - **Text**: Name of the powerup/weapon (white, 16px ThaleahFat font)
   - **Size**: 160x36 pixels
-  - **Color**: Cyan background (rgba(13, 167, 170, 1)) with black stroke
+  - **Color**: Different options have different colors
   - **Layout**: Horizontal (icon on left, text on right)
 - **Options**:
   - Regular level-ups: 3 weighted random powerups
   - Level 5, 10, 15, etc: 2 weighted random powerups + 1 weighted random weapon
+  - Colors: 
+    - Powerups: Cyan background with black stroke
+    - Weapons: Orange background with black stroke
 - **Interaction**: Click any button to select that option and resume gameplay
 - **Auto-resume**: Game automatically resumes after selection
 

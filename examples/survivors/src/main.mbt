@@ -416,7 +416,7 @@ fn select_weighted_powerup(
 
 ///|
 fn select_weighted_weapon(level : Int) -> WeaponType? {
-  let all_weapons = [Pistol, Minigun, SniperRifle]
+  let all_weapons = [Pistol, Minigun, SniperRifle, Sword]
   let weights = []
 
   for weapon_type in all_weapons {
