@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selene Game Collection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .game-header {
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: #1a202c;
+        }
+
+        .game-screenshot {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .game-card:hover .game-screenshot {
+            transform: scale(1.05);
+        }
+
+        .game-content {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .game-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+
+        .play-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px 50px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            text-decoration: none;
+            transition: opacity 0.3s ease, transform 0.2s ease;
+        }
+
+        .play-button:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 Selene Game Collection</h1>
+            <p class="subtitle">Choose your adventure and start playing!</p>
+        </header>
+
+        <div class="games-grid">
+            <a href="survivors/index.html" class="game-card survivors">
+                <div class="game-header">
+                    <img src="survivors/screenshot.png" alt="Survivors Game" class="game-screenshot">
+                </div>
+                <div class="game-content">
+                    <h2 class="game-title">Survivors</h2>
+                    <span class="play-button">Play Now →</span>
+                </div>
+            </a>
+
+            <a href="pixeladventure/index.html" class="game-card pixeladventure">
+                <div class="game-header">
+                    <img src="pixeladventure/screenshot.png" alt="Pixel Adventure Game" class="game-screenshot">
+                </div>
+                <div class="game-content">
+                    <h2 class="game-title">Pixel Adventure</h2>
+                    <span class="play-button">Play Now →</span>
+                </div>
+            </a>
+
+            <a href="cards/index.html" class="game-card cards">
+                <div class="game-header">
+                    <img src="cards/screenshot.png" alt="Cards Game" class="game-screenshot">
+                </div>
+                <div class="game-content">
+                    <h2 class="game-title">Cards</h2>
+                    <span class="play-button">Play Now →</span>
+                </div>
+            </a>
+        </div>
+
+        <footer>
+            <p>Built with <a href="https://github.com/moonbit-community/selene" target="_blank">Selene</a> & MoonBit</p>
+        </footer>
+    </div>
+</body>
+
+</html>

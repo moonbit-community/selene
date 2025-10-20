@@ -47,7 +47,7 @@ fn count_by_suit(hand : Array[Card]) -> Map[CardSuit, Int] {
 
 ///|
 fn is_straight(hand : Array[Card]) -> Int? {
-  if count_by_num(hand).size() < 5 {
+  if count_by_num(hand).length() < 5 {
     return None
   }
   let hand = hand.map(fn(c) { c.0.to_int() })
