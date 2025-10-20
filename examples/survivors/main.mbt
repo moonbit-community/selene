@@ -287,7 +287,7 @@ fn add_weapon(weapon_type : WeaponType) -> Unit {
 ///|
 fn[T] weighted_random_selection(
   items : Array[T],
-  weights : Array[Double]
+  weights : Array[Double],
 ) -> T? {
   if items.length() == 0 || items.length() != weights.length() {
     return None
@@ -298,7 +298,6 @@ fn[T] weighted_random_selection(
   for weight in weights {
     total_weight += weight
   }
-
   if total_weight <= 0.0 {
     return None
   }
@@ -346,7 +345,6 @@ fn generate_mixed_selections(level : Int) -> Array[LevelUpSelection] {
     Some(weapon) => selected.push(WeaponSelection(weapon))
     None => ()
   }
-
   selected
 }
 
@@ -361,18 +359,25 @@ fn generate_powerup_selections(level : Int) -> Array[LevelUpSelection] {
       None => ()
     }
   }
-
   selected
 }
 
 ///|
 fn select_weighted_powerup(
   level : Int,
-  already_selected : Array[LevelUpSelection]
+  already_selected : Array[LevelUpSelection],
 ) -> Powerup? {
   let all_powerup_types = [
-    AttackLv1, AttackLv2, AttackLv3, RangeLv1, RangeLv2, SpeedLv1, SpeedLv2,
-    CooldownLv1, CooldownLv2, Bandana,
+    AttackLv1,
+    AttackLv2,
+    AttackLv3,
+    RangeLv1,
+    RangeLv2,
+    SpeedLv1,
+    SpeedLv2,
+    CooldownLv1,
+    CooldownLv2,
+    Bandana,
   ]
 
   // Filter out already selected powerup types
@@ -383,10 +388,8 @@ fn select_weighted_powerup(
       _ => ()
     }
   }
-
   let available_types = []
   let available_weights = []
-
   for powerup_type in all_powerup_types {
     // Check if not already selected
     let mut already_has = false
@@ -396,7 +399,6 @@ fn select_weighted_powerup(
         break
       }
     }
-
     if not(already_has) {
       let powerup = create_powerup(powerup_type)
       let weight = (powerup.weight_formula)(level)
@@ -418,11 +420,9 @@ fn select_weighted_powerup(
 fn select_weighted_weapon(level : Int) -> WeaponType? {
   let all_weapons = [Pistol, Minigun, SniperRifle, Sword]
   let weights = []
-
   for weapon_type in all_weapons {
     weights.push(get_weapon_weight(weapon_type, level))
   }
-
   weighted_random_selection(all_weapons, weights)
 }
 

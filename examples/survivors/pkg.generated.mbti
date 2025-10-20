@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "nopublish/survivors"
+package "Milky2018/selene/examples/survivors"
 
 // Values
 
@@ -13,8 +13,15 @@ type Enemy
 type EnemyData
 
 type EnemyType
+fn EnemyType::equal(Self, Self) -> Bool // from trait `Eq`
+fn EnemyType::hash(Self) -> Int // from trait `Hash`
+fn EnemyType::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn EnemyType::op_equal(Self, Self) -> Bool // from trait `Eq`
 impl Eq for EnemyType
 impl Hash for EnemyType
+
+type GameOverPanel
 
 type GameState
 
@@ -27,11 +34,21 @@ type PlayerStats
 type Powerup
 
 type PowerupType
+fn PowerupType::equal(Self, Self) -> Bool // from trait `Eq`
+#deprecated
+fn PowerupType::op_equal(Self, Self) -> Bool // from trait `Eq`
 impl Eq for PowerupType
 
-type Weapon
+type WaveSpawnPlan
+
+type WaveState
+
+type WeaponData
 
 type WeaponType
+fn WeaponType::equal(Self, Self) -> Bool // from trait `Eq`
+#deprecated
+fn WeaponType::op_equal(Self, Self) -> Bool // from trait `Eq`
 impl Eq for WeaponType
 
 // Type aliases

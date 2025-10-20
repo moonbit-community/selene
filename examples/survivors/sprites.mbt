@@ -406,6 +406,7 @@ let weapon_sniperrifle_icon : @sprite.Animation = @sprite.Animation::single_fram
   offset=Vec2D(32 * 4, 32 * 7),
 )
 
+///|
 let weapon_sword_icon : @sprite.Animation = @sprite.Animation::single_frame(
   "assets/icon/icon.png",
   Vec2D(32, 32),

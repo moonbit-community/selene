@@ -36,56 +36,66 @@ struct Powerup {
 ///|
 fn create_powerup(powerup_type : PowerupType) -> Powerup {
   match powerup_type {
-    AttackLv1 => {
-      powerup_type: AttackLv1,
-      name: "Attack +0.2",
-      weight_formula: fn(_level) { 25.0 },
-    }
-    AttackLv2 => {
-      powerup_type: AttackLv2,
-      name: "Attack +0.3",
-      weight_formula: fn(level) { 2.0 + level.to_double() * 0.2 },
-    }
-    AttackLv3 => {
-      powerup_type: AttackLv3,
-      name: "Attack +0.4",
-      weight_formula: fn(level) { 1.0 + level.to_double() * 0.1 },
-    }
-    RangeLv1 => {
-      powerup_type: RangeLv1,
-      name: "Range +16",
-      weight_formula: fn(_level) { 25.0 },
-    }
-    RangeLv2 => {
-      powerup_type: RangeLv2,
-      name: "Range +32",
-      weight_formula: fn(level) { 5.0 + level.to_double() * 0.5 },
-    }
-    SpeedLv1 => {
-      powerup_type: SpeedLv1,
-      name: "Speed +15",
-      weight_formula: fn(_level) { 25.0 },
-    }
-    SpeedLv2 => {
-      powerup_type: SpeedLv2,
-      name: "Speed +30",
-      weight_formula: fn(level) { 5.0 + level.to_double() * 0.5 },
-    }
-    CooldownLv1 => {
-      powerup_type: CooldownLv1,
-      name: "Attack Speed +10%",
-      weight_formula: fn(_level) { 25.0 },
-    }
-    CooldownLv2 => {
-      powerup_type: CooldownLv2,
-      name: "Attack Speed +20%",
-      weight_formula: fn(level) { 2.0 + level.to_double() * 0.2 },
-    }
-    Bandana => {
-      powerup_type: Bandana,
-      name: "Penetration +1",
-      weight_formula: fn(level) { 1.0 + level.to_double() * 0.1 },
-    }
+    AttackLv1 =>
+      {
+        powerup_type: AttackLv1,
+        name: "Attack +0.2",
+        weight_formula: fn(_level) { 25.0 },
+      }
+    AttackLv2 =>
+      {
+        powerup_type: AttackLv2,
+        name: "Attack +0.3",
+        weight_formula: fn(level) { 2.0 + level.to_double() * 0.2 },
+      }
+    AttackLv3 =>
+      {
+        powerup_type: AttackLv3,
+        name: "Attack +0.4",
+        weight_formula: fn(level) { 1.0 + level.to_double() * 0.1 },
+      }
+    RangeLv1 =>
+      {
+        powerup_type: RangeLv1,
+        name: "Range +16",
+        weight_formula: fn(_level) { 25.0 },
+      }
+    RangeLv2 =>
+      {
+        powerup_type: RangeLv2,
+        name: "Range +32",
+        weight_formula: fn(level) { 5.0 + level.to_double() * 0.5 },
+      }
+    SpeedLv1 =>
+      {
+        powerup_type: SpeedLv1,
+        name: "Speed +15",
+        weight_formula: fn(_level) { 25.0 },
+      }
+    SpeedLv2 =>
+      {
+        powerup_type: SpeedLv2,
+        name: "Speed +30",
+        weight_formula: fn(level) { 5.0 + level.to_double() * 0.5 },
+      }
+    CooldownLv1 =>
+      {
+        powerup_type: CooldownLv1,
+        name: "Attack Speed +10%",
+        weight_formula: fn(_level) { 25.0 },
+      }
+    CooldownLv2 =>
+      {
+        powerup_type: CooldownLv2,
+        name: "Attack Speed +20%",
+        weight_formula: fn(level) { 2.0 + level.to_double() * 0.2 },
+      }
+    Bandana =>
+      {
+        powerup_type: Bandana,
+        name: "Penetration +1",
+        weight_formula: fn(level) { 1.0 + level.to_double() * 0.1 },
+      }
   }
 }
 

@@ -115,7 +115,6 @@ fn player_shooting_system(delta : Double) -> Unit {
   } else {
     game_state.player_stats.penetration
   }
-
   update_weapon_timers(
     game_state.player_stats.weapon_instances,
     delta,
