@@ -44,6 +44,7 @@ test "find_best_hand: 3 cards" {
   inspect(rank, content="HighCard(14)")
 }
 
+///|
 test "find_best_hand: 3 cards ThreeOfKind" {
   let cards = [Card(K, H), Card(K, S), Card(K, D)]
   let rank = find_best_hand(cards)
@@ -134,15 +135,29 @@ test "find_best_hand: 5 cards - Straight Flush" {
 /// Test find_best_hand with 6 cards - should find best 5-card hand
 test "find_best_hand: 6 cards - best hand is Flush" {
   // Has 5 hearts (Flush) vs Ace-King pair
-  let cards = [Card(A, H), Card(K, H), Card(Q, H), Card(J, H), Card(N9, H), Card(A, S)]
+  let cards = [
+    Card(A, H),
+    Card(K, H),
+    Card(Q, H),
+    Card(J, H),
+    Card(N9, H),
+    Card(A, S),
+  ]
   let rank = find_best_hand(cards)
-  inspect(rank, content="Flush(14)") 
+  inspect(rank, content="Flush(14)")
 }
 
 ///|
 /// Test find_best_hand with 6 cards - should find Full House over Two Pair
 test "find_best_hand: 6 cards - Full House" {
-  let cards = [Card(A, H), Card(A, S), Card(A, D), Card(K, C), Card(K, H), Card(N9, C)]
+  let cards = [
+    Card(A, H),
+    Card(A, S),
+    Card(A, D),
+    Card(K, C),
+    Card(K, H),
+    Card(N9, C),
+  ]
   let rank = find_best_hand(cards)
   inspect(rank, content="FullHouse(14, 13)")
 }
@@ -153,7 +168,15 @@ test "find_best_hand: 7 cards - best hand is Straight" {
   // Hole: A♥, K♠
   // Community: Q♦, J♣, 10♥, 9♠, 2♣
   // Best hand: A-K-Q-J-10 Straight
-  let cards = [Card(A, H), Card(K, S), Card(Q, D), Card(J, C), Card(N10, H), Card(N9, S), Card(N2, C)]
+  let cards = [
+    Card(A, H),
+    Card(K, S),
+    Card(Q, D),
+    Card(J, C),
+    Card(N10, H),
+    Card(N9, S),
+    Card(N2, C),
+  ]
   let rank = find_best_hand(cards)
   inspect(rank, content="Straight(14)")
 }
@@ -162,7 +185,15 @@ test "find_best_hand: 7 cards - best hand is Straight" {
 /// Test find_best_hand with 7 cards - should find Flush
 test "find_best_hand: 7 cards - Flush" {
   // 5 hearts total
-  let cards = [Card(A, H), Card(K, H), Card(Q, H), Card(J, H), Card(N9, H), Card(N8, S), Card(N7, C)]
+  let cards = [
+    Card(A, H),
+    Card(K, H),
+    Card(Q, H),
+    Card(J, H),
+    Card(N9, H),
+    Card(N8, S),
+    Card(N7, C),
+  ]
   let rank = find_best_hand(cards)
   inspect(rank, content="Flush(14)") // Royal Flush
 }
@@ -173,7 +204,15 @@ test "find_best_hand: 7 cards - Full House vs Flush" {
   // Hole: A♥, A♠
   // Community: A♦, K♥, K♠, Q♥, J♥
   // Has 4 hearts (almost flush) but Full House (AAA-KK) is better
-  let cards = [Card(A, H), Card(A, S), Card(A, D), Card(K, H), Card(K, S), Card(Q, H), Card(J, H)]
+  let cards = [
+    Card(A, H),
+    Card(A, S),
+    Card(A, D),
+    Card(K, H),
+    Card(K, S),
+    Card(Q, H),
+    Card(J, H),
+  ]
   let rank = find_best_hand(cards)
   // Full House base: 500 + 14*3 + 13*2 = 568
   // Flush base: 200 + 14*5 = 270
@@ -183,7 +222,15 @@ test "find_best_hand: 7 cards - Full House vs Flush" {
 ///|
 /// Test find_best_hand with 7 cards - Four of a Kind
 test "find_best_hand: 7 cards - Four of a Kind" {
-  let cards = [Card(A, H), Card(A, S), Card(A, D), Card(A, C), Card(K, H), Card(Q, S), Card(J, C)]
+  let cards = [
+    Card(A, H),
+    Card(A, S),
+    Card(A, D),
+    Card(A, C),
+    Card(K, H),
+    Card(Q, S),
+    Card(J, C),
+  ]
   let rank = find_best_hand(cards)
   inspect(rank, content="FourOfKind(14)")
 }
@@ -192,7 +239,15 @@ test "find_best_hand: 7 cards - Four of a Kind" {
 /// Test find_best_hand with 7 cards - finds best kicker for pair
 test "find_best_hand: 7 cards - One Pair with best kicker" {
   // Pair of Aces, but many kickers - should find the best 5-card combo
-  let cards = [Card(A, H), Card(A, S), Card(K, D), Card(Q, C), Card(J, H), Card(N10, S), Card(N2, C)]
+  let cards = [
+    Card(A, H),
+    Card(A, S),
+    Card(K, D),
+    Card(Q, C),
+    Card(J, H),
+    Card(N10, S),
+    Card(N2, C),
+  ]
   let rank = find_best_hand(cards)
   inspect(rank, content="Straight(14)")
 }
@@ -201,7 +256,15 @@ test "find_best_hand: 7 cards - One Pair with best kicker" {
 /// Test find_best_hand with 7 cards - Two Pair picks higher pairs
 test "find_best_hand: 7 cards - Two Pair" {
   // Has A-A, K-K, Q-Q - should pick A-A and K-K
-  let cards = [Card(A, H), Card(A, S), Card(K, D), Card(K, C), Card(Q, H), Card(Q, S), Card(N2, C)]
+  let cards = [
+    Card(A, H),
+    Card(A, S),
+    Card(K, D),
+    Card(K, C),
+    Card(Q, H),
+    Card(Q, S),
+    Card(N2, C),
+  ]
   let rank = find_best_hand(cards)
   inspect(rank, content="TwoPair(14, 13)")
 }
@@ -209,7 +272,15 @@ test "find_best_hand: 7 cards - Two Pair" {
 ///|
 /// Test find_best_hand with 7 cards - Wheel straight (A-2-3-4-5)
 test "find_best_hand: 7 cards - Wheel Straight" {
-  let cards = [Card(A, H), Card(N2, S), Card(N3, D), Card(N4, C), Card(N5, H), Card(K, S), Card(Q, C)]
+  let cards = [
+    Card(A, H),
+    Card(N2, S),
+    Card(N3, D),
+    Card(N4, C),
+    Card(N5, H),
+    Card(K, S),
+    Card(Q, C),
+  ]
   let rank = find_best_hand(cards)
   inspect(rank, content="Straight(14)")
 }

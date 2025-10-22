@@ -38,7 +38,6 @@ fn start_new_hand() -> Unit {
     update_ui()
     return
   }
-
   game_state.hand_number += 1
   game_state.phase = PreFlop
   game_state.current_bet = game_state.big_blind
@@ -56,12 +55,10 @@ fn start_new_hand() -> Unit {
   player.hole_cards.clear()
   player.current_bet = game_state.big_blind
   player.has_folded = false
-  player.is_all_in = false
 
   // Deduct big blind from player chips
   let blind_amount = game_state.big_blind.min(player.chips)
   player.chips -= blind_amount
-  game_state.pot = blind_amount
 
   // Create and shuffle deck
   game_state.deck = create_deck()
@@ -147,12 +144,7 @@ fn reset_betting_round() -> Unit {
 /// Handle showdown phase
 fn handle_showdown() -> Unit {
   let player = game_state.player
-  if player.has_folded {
-    // Player folded - lose the pot, but don't count as a turn used
-    game_state.pot = 0
-    game_state.best_hand_name = "Folded"
-    // Don't decrease turns_remaining when folding
-  } else {
+  if !player.has_folded {
     // Evaluate player's hand
     let hand = []
     for card in player.hole_cards {
@@ -165,7 +157,6 @@ fn handle_showdown() -> Unit {
     // Evaluate best 5-card hand from all 7 available cards
     if hand.length() >= 5 {
       let rank = find_best_hand(hand)
-      game_state.best_hand_name = rank.hand_rank_to_string()
 
       // Calculate payout based on hand rank
       let base_award = hand_rank_base_award(rank)
@@ -174,10 +165,6 @@ fn handle_showdown() -> Unit {
 
       // Award payout to player
       player.chips += payout
-      game_state.pot = 0
-    } else {
-      game_state.best_hand_name = "Incomplete Hand"
-      game_state.pot = 0
     }
 
     // Decrease turns remaining only if didn't fold
@@ -189,4 +176,3 @@ fn handle_showdown() -> Unit {
   // For now, just start next hand immediately
   start_new_hand()
 }
-

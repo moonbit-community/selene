@@ -33,7 +33,20 @@ fn CardSuit::op_equal(Self, Self) -> Bool // from trait `Eq`
 impl Eq for CardSuit
 impl Hash for CardSuit
 
+type GamePhase
+fn GamePhase::equal(Self, Self) -> Bool // from trait `Eq`
+#deprecated
+fn GamePhase::op_equal(Self, Self) -> Bool // from trait `Eq`
+impl Eq for GamePhase
+
+type GameState
+
 type HandRank
+fn HandRank::output(Self, &Logger) -> Unit // from trait `Show`
+fn HandRank::to_string(Self) -> String // from trait `Show`
+impl Show for HandRank
+
+type Player
 
 // Type aliases
 

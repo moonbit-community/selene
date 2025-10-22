@@ -14,20 +14,20 @@
 
 ///|
 /// Constants
-pub const VIEWPORT_WIDTH : Double = 480.0
+const VIEWPORT_WIDTH : Double = 480.0
 
 ///|
-pub const VIEWPORT_HEIGHT : Double = 320.0
+const VIEWPORT_HEIGHT : Double = 320.0
 
 ///|
-pub const SMALL_BLIND : Int = 10
+const SMALL_BLIND : Int = 10
 
 ///|
-pub const BIG_BLIND : Int = 20
+const BIG_BLIND : Int = 20
 
 ///|
 /// Game phases
-pub enum GamePhase {
+enum GamePhase {
   PreFlop
   Flop
   Turn
@@ -37,46 +37,29 @@ pub enum GamePhase {
 } derive(Eq)
 
 ///|
-/// Player actions
-pub enum PlayerAction {
-  None
-  Fold
-  Check
-  Call(Int)
-  Raise(Int)
-  AllIn
-}
-
-///|
 /// Player information
-pub struct Player {
-  entity : @entity.Entity
+struct Player {
   mut chips : Int
   hole_cards : Array[Card]
   mut current_bet : Int
   mut has_folded : Bool
-  mut is_all_in : Bool
-  name : String
   position : @math.Vec2D // Position for display
 }
 
 ///|
 /// Game state
-pub struct GameState {
+struct GameState {
   rand : @random.Rand
   mut deck : Array[Card]
   player : Player // Single player
   mut phase : GamePhase
-  mut pot : Int
   mut current_bet : Int // Current bet to match
   community_cards : Array[Card]
   mut hand_number : Int
   mut small_blind : Int
   mut big_blind : Int
-  mut last_action : PlayerAction
   mut turns_remaining : Int // 10 turns total
   starting_chips : Int // Track starting amount
-  mut best_hand_name : String // Display best hand
   mut magnification : Int // Payout multiplier, starts at 1, increases with raises
   // UI elements
   blind_text : @sprite.Text // Display current blind
@@ -97,30 +80,24 @@ pub struct GameState {
 
 ///|
 /// Global game state
-pub let game_state : GameState = {
+let game_state : GameState = {
   rand: @random.Rand::new(),
   deck: [],
   player: {
-    entity: @entity.Entity::new(),
     chips: 1000,
     hole_cards: [],
     current_bet: 0,
     has_folded: false,
-    is_all_in: false,
-    name: "You",
     position: @math.Vec2D(VIEWPORT_WIDTH / 2.0, VIEWPORT_HEIGHT - 80.0),
   },
   phase: PreFlop,
-  pot: 0,
   current_bet: 0,
   community_cards: [],
   hand_number: 0,
   small_blind: SMALL_BLIND,
   big_blind: BIG_BLIND,
-  last_action: None,
   turns_remaining: 10,
   starting_chips: 1000,
-  best_hand_name: "",
   magnification: 1,
   blind_text: @sprite.Text::new(
     "Blind: $20",

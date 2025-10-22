@@ -222,7 +222,6 @@ fn hide_action_buttons() -> Unit {
 fn on_fold_click() -> Unit {
   let human = game_state.player
   human.has_folded = true
-  game_state.last_action = Fold
   game_state.action_text.content = "You folded"
   hide_action_buttons()
   // Go straight to showdown when folding
@@ -237,16 +236,11 @@ fn on_call_click() -> Unit {
   let actual_amount = call_amount.min(human.chips)
   human.chips -= actual_amount
   human.current_bet += actual_amount
-  game_state.pot += actual_amount
   if human.chips == 0 {
-    human.is_all_in = true
-    game_state.last_action = AllIn
     game_state.action_text.content = "You went All-In!"
   } else if call_amount == 0 {
-    game_state.last_action = Check
     game_state.action_text.content = "You checked"
   } else {
-    game_state.last_action = Call(actual_amount)
     game_state.action_text.content = "You called $" + actual_amount.to_string()
   }
   hide_action_buttons()
@@ -263,15 +257,11 @@ fn on_raise_click() -> Unit {
   let raise_amount = min_raise.min(human.chips)
   human.chips -= raise_amount
   human.current_bet += raise_amount
-  game_state.pot += raise_amount
   game_state.current_bet = human.current_bet
   game_state.magnification += 1 // Increase magnification by 1
   if human.chips == 0 {
-    human.is_all_in = true
-    game_state.last_action = AllIn
     game_state.action_text.content = "You went All-In!"
   } else {
-    game_state.last_action = Raise(raise_amount)
     game_state.action_text.content = "You raised $" + raise_amount.to_string()
   }
   hide_action_buttons()
