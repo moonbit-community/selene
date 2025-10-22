@@ -16,8 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Install Moonbit
         run: |
@@ -27,6 +26,7 @@ jobs:
       - name: Build project
         run: |
           cd examples
+          moon update
           moon build
 
       - name: Deploy to GitHub Pages
