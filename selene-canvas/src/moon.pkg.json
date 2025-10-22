@@ -1,9 +1,0 @@
-{
-  "import": [
-    "Yoorkin/rabbit-tea/dom",
-    "rami3l/js-ffi/js",
-    "Milky2018/selene/math",
-    "Milky2018/selene/inputs"
-  ],
-  "implement": "Milky2018/selene/backend"
-}
