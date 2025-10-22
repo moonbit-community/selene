@@ -1,14 +1,161 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <title>Cards</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Texas Hold'em Poker Challenge - Selene Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            text-align: center;
+        }
+
+        header {
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            color: #ffd700;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+
+        .game-wrapper {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .instructions h2 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+
+        .instructions p {
+            line-height: 1.6;
+            opacity: 0.95;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            margin-left: 20px;
+            line-height: 1.8;
+            opacity: 0.95;
+        }
+
+        .back-link {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        footer {
+            margin-top: 20px;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .game-wrapper {
+                padding: 15px;
+            }
+        }
+    </style>
     <script src="../target/js/release/build/cards/cards.js" defer></script>
 </head>
 
 <body>
-    <canvas id="canvas" style="display: block; margin: 0 auto;" height="32" width="32"></canvas>
+    <div class="container">
+        <header>
+            <h1>🃏 Texas Hold'em Poker Challenge</h1>
+            <p class="subtitle">Maximize your chips over 10 hands!</p>
+        </header>
+
+        <div class="game-wrapper">
+            <canvas id="canvas" style="display: block; margin: 0 auto;" height="32" width="32"></canvas>
+        </div>
+
+        <div class="instructions">
+            <h2>How to Play</h2>
+            <p><strong>Objective:</strong> Start with $1000 and maximize your profit over exactly 10 poker hands.</p>
+            <ul>
+                <li><strong>Big Blind:</strong> $20 per hand (you pay automatically)</li>
+                <li><strong>Actions:</strong> Fold (forfeit hand), Call (continue), or Raise (increase bet & multiplier)</li>
+                <li><strong>Multiplier System:</strong> Each raise increases your payout multiplier by 1×</li>
+                <li><strong>Folding:</strong> Doesn't count as a completed hand - you can retry!</li>
+                <li><strong>Payouts:</strong> Based on poker hand rank × multiplier</li>
+            </ul>
+            <p><strong>Strategy:</strong> Balance risk vs reward. Raising increases potential payout but costs more chips!</p>
+        </div>
+
+        <a href="../index.html" class="back-link">← Back to Games</a>
+    </div>
 </body>
 
 </html>
