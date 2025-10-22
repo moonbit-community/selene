@@ -10,6 +10,12 @@ Selene is free and open-source forever under the Apache 2.0 license.
 moon add Milky2018/selene
 ```
 
+## Installation for v0.10.x (for MGPIC 2025)
+
+```shell 
+moon add Milky2018/selene@0.10.7
+```
+
 ## Example
 
 Please check [examples](https://github.com/Milky2018/selene/tree/main/examples).
@@ -40,3 +46,4 @@ Please check [docs](https://github.com/Milky2018/selene/tree/main/docs).
 - [ ] Input mapping
 - [x] UI components 
 - [ ] Multiple cameras
+- [ ] Networking
