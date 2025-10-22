@@ -1,0 +1,99 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/math"
+
+// Values
+fn normalize_angle(Double) -> Double
+
+// Errors
+
+// Types and methods
+pub(all) enum Axis {
+  X
+  Y
+}
+impl Eq for Axis
+impl Show for Axis
+
+pub(all) enum HAlign {
+  Left
+  Center
+  Right
+}
+
+pub(all) struct Rect {
+  position : Vec2D
+  size : Vec2D
+}
+fn Rect::intersects(Self, Self) -> Bool
+fn Rect::shift(Self, Vec2D) -> Self
+
+pub(all) enum RepeatMode {
+  RepeatX
+  RepeatY
+  NoRepeat
+  Repeat
+}
+
+pub(all) struct Transform {
+  a : Double
+  b : Double
+  c : Double
+  d : Double
+  tx : Double
+  ty : Double
+}
+fn Transform::apply_to_point(Self, Double, Double) -> (Double, Double)
+fn Transform::apply_to_vec2d(Self, Vec2D) -> Vec2D
+fn Transform::clone(Self) -> Self
+fn Transform::flip_x(Double) -> Self
+fn Transform::flip_y(Double) -> Self
+fn Transform::from_rotation_deg(Double) -> Self
+fn Transform::from_rotation_rad(Double) -> Self
+fn Transform::from_scale(Double, Double) -> Self
+fn Transform::from_skew(Double, Double) -> Self
+fn Transform::from_translation(Double, Double) -> Self
+fn Transform::get_rotation_rad(Self) -> Double
+fn Transform::get_scale(Self) -> (Double, Double)
+fn Transform::get_translation(Self) -> (Double, Double)
+fn Transform::identity() -> Self
+fn Transform::inverse(Self) -> Self?
+fn Transform::multiply(Self, Self) -> Self
+fn Transform::new(a? : Double, b? : Double, c? : Double, d? : Double, tx? : Double, ty? : Double) -> Self
+fn Transform::rotate_rad(Self, Double) -> Self
+fn Transform::scale(Self, Double, Double) -> Self
+fn Transform::translate(Self, Double, Double) -> Self
+impl Add for Transform
+impl Default for Transform
+impl Mul for Transform
+impl Sub for Transform
+
+pub(all) enum VAlign {
+  Top
+  Center
+  Bottom
+}
+
+pub(all) struct Vec2D(Double, Double)
+
+fn Vec2D::clone(Self) -> Self
+fn Vec2D::distance(Self) -> Double
+fn Vec2D::distance_to(Self, Self) -> Double
+fn Vec2D::dot(Self, Self) -> Double
+fn Vec2D::normalize(Self) -> Self
+fn Vec2D::op_get(Self, Axis) -> Double
+fn Vec2D::scalar_div(Self, Double) -> Self
+fn Vec2D::scalar_mul(Self, Double) -> Self
+fn Vec2D::update(Self, Axis, Double) -> Self
+fn Vec2D::zero() -> Self
+impl Add for Vec2D
+impl Default for Vec2D
+impl Eq for Vec2D
+impl Mul for Vec2D
+impl Neg for Vec2D
+impl Show for Vec2D
+impl Sub for Vec2D
+
+// Type aliases
+
+// Traits
+

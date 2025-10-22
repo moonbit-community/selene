@@ -1,0 +1,107 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/inputs"
+
+import(
+  "Milky2018/selene/math"
+  "moonbitlang/core/set"
+)
+
+// Values
+fn advanced_key_system(Double) -> Unit
+
+fn advanced_mouse_system(Double) -> Unit
+
+fn is_just_pressed(Code) -> Bool
+
+fn is_just_released(Code) -> Bool
+
+fn is_mouse_just_pressed(MouseButton) -> Bool
+
+fn is_mouse_just_released(MouseButton) -> Bool
+
+fn is_mouse_pressed(MouseButton) -> Bool
+
+fn is_mouse_released(MouseButton) -> Bool
+
+fn is_pressed(Code) -> Bool
+
+fn is_released(Code) -> Bool
+
+let just_pressed_mouse : Mouse
+
+let just_release_mouse : Mouse
+
+fn key_vector(Code, Code, Code, Code) -> @math.Vec2D
+
+let mouse : Mouse
+
+let mouse_movement : MouseMovement
+
+let pressed_keys : @set.Set[Code]
+
+// Errors
+
+// Types and methods
+pub(all) enum Code {
+  KeyA
+  KeyB
+  KeyC
+  KeyD
+  KeyE
+  KeyF
+  KeyG
+  KeyH
+  KeyI
+  KeyJ
+  KeyK
+  KeyL
+  KeyM
+  KeyN
+  KeyO
+  KeyP
+  KeyQ
+  KeyR
+  KeyS
+  KeyT
+  KeyU
+  KeyV
+  KeyW
+  KeyX
+  KeyY
+  KeyZ
+  ArrowUp
+  ArrowDown
+  ArrowLeft
+  ArrowRight
+  Space
+  Enter
+  Escape
+}
+fn Code::from_string(String) -> Self?
+impl Eq for Code
+impl Hash for Code
+impl Show for Code
+
+pub(all) struct Mouse {
+  mut pos : @math.Vec2D
+  mut left_button : Bool
+  mut right_button : Bool
+  mut middle_button : Bool
+}
+
+pub(all) enum MouseButton {
+  Left
+  Right
+  Middle
+}
+impl Eq for MouseButton
+impl Show for MouseButton
+
+pub(all) struct MouseMovement {
+  mut movement : @math.Vec2D
+}
+
+// Type aliases
+
+// Traits
+

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selene Game Engine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+        }
+
+        .lang-switcher {
+            position: absolute;
+            top: 0px;
+            right: 0;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .lang-btn.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+        }
+
+        header {
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+            letter-spacing: -2px;
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            filter: drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.3));
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            opacity: 0.95;
+            font-weight: 300;
+            margin-bottom: 15px;
+        }
+
+        .description {
+            font-size: 1.05rem;
+            opacity: 0.9;
+            line-height: 1.6;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        .description a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .main-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .button {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 18px 55px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            text-decoration: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .button.primary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .feature {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 25px;
+            border-radius: 18px;
+            backdrop-filter: blur(5px);
+        }
+
+        .feature h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0;
+        }
+
+        .feature p {
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        .links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.05rem;
+            opacity: 0.9;
+            transition: opacity 0.3s ease;
+        }
+
+        .links a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        footer {
+            margin-top: 30px;
+            opacity: 0.8;
+            font-size: 0.95rem;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .lang-content {
+            display: none;
+        }
+
+        .lang-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 3rem;
+            }
+
+            .logo {
+                font-size: 4rem;
+            }
+
+            .tagline {
+                font-size: 1.3rem;
+            }
+
+            .main-content {
+                padding: 30px 20px;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .lang-switcher {
+                position: static;
+                justify-content: center;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="lang-switcher">
+            <button class="lang-btn active" onclick="switchLang('en')">EN</button>
+            <button class="lang-btn" onclick="switchLang('zh')">中文</button>
+        </div>
+
+        <header>
+            <div class="logo">🌙</div>
+            <h1 class="lang-content active" id="en-title">Selene Game Engine</h1>
+            <h1 class="lang-content" id="zh-title">Selene 游戏引擎</h1>
+        </header>
+
+        <div class="main-content">
+            <div class="lang-content active" id="en-content">
+                <p class="description">
+                    Selene is an experimental game engine in MoonBit made as a tutorial for <a href="https://www.moonbitlang.cn/2025-mgpic">MGPIC 2025</a>. Perfect for game jams, prototyping, and learning game engine development.
+                </p>
+
+                <div class="button-group">
+                    <a href="examples/index.html" class="button primary">🎮 View Examples</a>
+                    <a href="https://github.com/moonbit-community/selene" class="button">📚 GitHub Repository</a>
+                </div>
+
+                <div class="features">
+                    <div class="feature">
+                        <h3>🚀 Fast & Lightweight</h3>
+                    </div>
+                    <div class="feature">
+                        <h3>🎨 Extensible Backend</h3>
+                    </div>
+                    <div class="feature">
+                        <h3>🔧 ECS Architecture</h3>
+                    </div>
+                    <div class="feature">
+                        <h3>🤖 AI Friendly</h3>
+                    </div>
+                </div>
+
+                <div class="links">
+                    <a href="https://mooncakes.io/docs/Milky2018/selene">📖 Online Documentation</a>
+                    <a href="https://www.bilibili.com/video/BV1BJbJzGEE6">🎓 Video Tutorial (中文)</a>
+                    <a href="https://www.moonbitlang.com" target="_blank">🌙 MoonBit Lang</a>
+                </div>
+            </div>
+
+            <div class="lang-content" id="zh-content">
+                <p class="description">
+                    Selene 是一个使用 MoonBit 编写的实验性游戏引擎，专为 <a href="https://www.moonbitlang.cn/2025-mgpic">MGPIC 2025</a> 教程而设计。非常适合 Game Jam、原型开发以及学习游戏引擎开发。
+                </p>
+
+                <div class="button-group">
+                    <a href="examples/index.html" class="button primary">🎮 查看示例</a>
+                    <a href="https://github.com/moonbit-community/selene" class="button">📚 GitHub 仓库</a>
+                </div>
+
+                <div class="features">
+                    <div class="feature">
+                        <h3>🚀 快速轻量</h3>
+                    </div>
+                    <div class="feature">
+                        <h3>🎨 可扩展后端</h3>
+                    </div>
+                    <div class="feature">
+                        <h3>🔧 ECS 架构</h3>
+                    </div>
+                    <div class="feature">
+                        <h3>🤖 AI 友好</h3>
+                    </div>
+                </div>
+
+                <div class="links">
+                    <a href="https://mooncakes.io/docs/Milky2018/selene">📖 在线文档</a>
+                    <a href="https://www.bilibili.com/video/BV1BJbJzGEE6">🎓 视频教程（中文）</a>
+                    <a href="https://www.moonbitlang.com" target="_blank">🌙 MoonBit 语言</a>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="lang-content active" id="en-footer">
+                <p>Made for <a href="https://www.moonbitlang.cn/2025-mgpic" target="_blank">MGPIC 2025</a> • Open Source • Contributions Welcome</p>
+            </div>
+            <div class="lang-content" id="zh-footer">
+                <p>为 <a href="https://www.moonbitlang.cn/2025-mgpic" target="_blank">MGPIC 2025</a> 制作 • 开源项目 • 欢迎贡献</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        function switchLang(lang) {
+            // Update buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.lang-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            if (lang === 'en') {
+                document.getElementById('en-title').classList.add('active');
+                document.getElementById('en-content').classList.add('active');
+                document.getElementById('en-footer').classList.add('active');
+            } else {
+                document.getElementById('zh-title').classList.add('active');
+                document.getElementById('zh-content').classList.add('active');
+                document.getElementById('zh-footer').classList.add('active');
+            }
+
+            // Save preference
+            localStorage.setItem('selene-lang', lang);
+        }
+
+        // Load saved language preference
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('selene-lang');
+            if (savedLang === 'zh') {
+                document.querySelectorAll('.lang-btn')[1].click();
+            }
+        });
+    </script>
+</body>
+
+</html>

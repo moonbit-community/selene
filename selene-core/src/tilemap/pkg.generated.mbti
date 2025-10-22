@@ -1,0 +1,41 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/tilemap"
+
+import(
+  "moonbitlang/core/json"
+)
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct Tile {
+  id : String
+  x : Int
+  y : Int
+}
+impl @json.FromJson for Tile
+
+pub struct TileLayer {
+  name : String
+  tiles : Array[Tile]
+  collider : Bool
+}
+impl @json.FromJson for TileLayer
+
+pub struct TileMap {
+  tile_size : Int
+  map_width : Int
+  map_height : Int
+  layers : Array[TileLayer]
+}
+fn TileMap::from_json(Json) -> Self
+fn TileMap::get_tiles(Self, String) -> Array[Tile]
+fn TileMap::get_tiles_first(Self, String) -> Array[Tile]
+impl @json.FromJson for TileMap
+
+// Type aliases
+
+// Traits
+

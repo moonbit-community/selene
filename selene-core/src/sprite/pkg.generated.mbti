@@ -1,0 +1,84 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/sprite"
+
+import(
+  "Milky2018/selene/entity"
+  "Milky2018/selene/math"
+)
+
+// Values
+fn frames_from_atlas(String, Int, width~ : Double, height~ : Double, offset? : @math.Vec2D, space_x? : Double) -> Array[AnimationFrame]
+
+fn is_animation_finished(@entity.Entity) -> Bool
+
+fn play_animation(@entity.Entity, Animation, from_start? : Bool, loop_? : Bool, rate? : Double, transform? : @math.Transform) -> Unit
+
+fn render_sprite_system(Double) -> Unit
+
+let sprites : Map[@entity.Entity, Sprite]
+
+// Errors
+
+// Types and methods
+pub struct Animation {
+  frames : Array[AnimationFrame]
+  transform : @math.Transform
+  loop_ : Bool
+  fps : Double
+  id : Int
+}
+fn Animation::new(Array[AnimationFrame], loop_? : Bool, fps? : Double, transform? : @math.Transform) -> Self
+fn Animation::single_frame(String, @math.Vec2D, transform? : @math.Transform, offset? : @math.Vec2D) -> Self
+
+pub(all) struct AnimationFrame {
+  sprite_path : String
+  size : @math.Vec2D
+  offset : @math.Vec2D
+}
+
+pub(all) struct ColorRect {
+  size : @math.Vec2D
+  color : String
+  stroke_color : String?
+}
+fn ColorRect::new(@math.Vec2D, String, stroke_color? : String) -> Self
+
+pub(all) struct Picture {
+  size : @math.Vec2D
+  tile_path : String
+  transform : @math.Transform
+  repeat : @math.RepeatMode
+}
+fn Picture::new(@math.Vec2D, String, transform? : @math.Transform, repeat? : @math.RepeatMode) -> Self
+
+pub(all) struct Sprite {
+  sprite_type : SpriteType
+  zindex : Int
+  mut visible : Bool
+  offset : @math.Vec2D
+}
+fn Sprite::from_animation(Animation, Int, offset? : @math.Vec2D) -> Self
+fn Sprite::from_color_rect(ColorRect, Int, offset? : @math.Vec2D) -> Self
+fn Sprite::from_picture(Picture, Int, offset? : @math.Vec2D) -> Self
+fn Sprite::from_text(Text, Int, offset? : @math.Vec2D) -> Self
+
+pub enum SpriteType {
+  Picture(Picture)
+  Animation(Animation, mut frame~ : Double)
+  Text(Text)
+  ColorRect(ColorRect)
+}
+
+pub(all) struct Text {
+  mut content : String
+  mut color : String
+  mut font : String
+  mut baseline : @math.VAlign
+  mut align : @math.HAlign
+}
+fn Text::new(String, color? : String, font? : String, baseline? : @math.VAlign, align? : @math.HAlign) -> Self
+
+// Type aliases
+
+// Traits
+

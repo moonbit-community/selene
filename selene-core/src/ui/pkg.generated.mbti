@@ -1,0 +1,23 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/ui"
+
+import(
+  "Milky2018/selene/entity"
+)
+
+// Values
+const UI_ZINDEX : Int = 100
+
+let uis : Map[@entity.Entity, Ui]
+
+// Errors
+
+// Types and methods
+pub(all) struct Ui {
+}
+fn Ui::new() -> Self
+
+// Type aliases
+
+// Traits
+

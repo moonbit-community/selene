@@ -1,0 +1,65 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene-canvas"
+
+import(
+  "Milky2018/selene/inputs"
+  "Milky2018/selene/math"
+  "moonbitlang/core/set"
+)
+
+// Values
+fn draw_color_rect(x~ : Double, y~ : Double, width~ : Double, height~ : Double, color~ : String) -> Unit
+
+fn draw_gradient_rect(x~ : Double, y~ : Double, width~ : Double, height~ : Double, color_start~ : String, color_end~ : String) -> Unit
+
+fn draw_picture(png~ : String, x~ : Double, y~ : Double, width~ : Double, height~ : Double, transform~ : @math.Transform, repeat~ : @math.RepeatMode) -> Unit
+
+fn draw_sprite(sprite_path~ : String, x~ : Double, y~ : Double, offset_x~ : Double, offset_y~ : Double, width~ : Double, height~ : Double, transform~ : @math.Transform) -> Unit
+
+fn draw_stroke_rect(x~ : Double, y~ : Double, width~ : Double, height~ : Double, color~ : String) -> Unit
+
+fn draw_text(text~ : String, x~ : Double, y~ : Double, font~ : String, color~ : String, align~ : @math.HAlign, baseline~ : @math.VAlign) -> Unit
+
+fn get_canvas_size() -> @math.Vec2D
+
+fn get_realtime_delta() -> Double
+
+fn get_time_scale() -> Double
+
+fn get_zoom() -> Double
+
+fn initialize(startup~ : () -> Unit, render_loop~ : (Double) -> Unit, game_loop~ : (Double) -> Unit, canvas_width~ : Double, canvas_height~ : Double, fps~ : UInt, image_smooth~ : Bool, zoom~ : Double) -> () -> Unit
+
+fn load_font(String, String) -> Unit
+
+fn lock_mouse(Ref[Bool]) -> Unit
+
+fn play_audio(audio_path~ : String, volume~ : Double, loop_~ : Bool) -> Unit
+
+fn preload_audio(String) -> Unit
+
+fn preload_img(String) -> Unit
+
+fn register_key_events(@set.Set[@inputs.Code]) -> Unit
+
+fn register_mouse_events(@inputs.Mouse, @inputs.MouseMovement) -> Unit
+
+fn set_time_scale(Double) -> Unit
+
+// Errors
+
+// Types and methods
+type Audio
+fn Audio::new(String) -> Self
+fn Audio::pause(Self) -> Unit
+fn Audio::play(Self) -> Unit
+fn Audio::set_loop(Self, Bool) -> Unit
+fn Audio::set_volume(Self, Double) -> Unit
+
+type CanvasBackend
+fn CanvasBackend::new() -> Self
+
+// Type aliases
+
+// Traits
+

@@ -1,0 +1,43 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/style"
+
+import(
+  "Milky2018/selene/collision"
+  "Milky2018/selene/entity"
+  "Milky2018/selene/inputs"
+  "Milky2018/selene/math"
+  "Milky2018/selene/sprite"
+)
+
+// Values
+fn add_widget(@entity.Entity, sprite? : (Int) -> @sprite.Sprite, on_just_pressed? : (@inputs.MouseButton) -> Unit, shape? : @collision.CollisionShape, size_plan? : SizePlan, flex? : Flex, h_padding? : Double, v_padding? : Double, h_offset? : Double, v_offset? : Double) -> @entity.Entity
+
+let screen_root : @entity.Entity
+
+fn style_system(Double) -> Unit
+
+let styles : Map[@entity.Entity, Style]
+
+// Errors
+
+// Types and methods
+pub(all) enum Flex {
+  Overlap
+  Horizontal
+  Vertical
+}
+
+pub(all) enum SizePlan {
+  Sized(@math.Vec2D)
+  FromSprite
+  FromChildren
+  FromShape
+}
+
+type Style
+fn Style::new(size_plan? : SizePlan, flex? : Flex, h_padding? : Double, v_padding? : Double, h_offset? : Double, v_offset? : Double) -> Self
+
+// Type aliases
+
+// Traits
+

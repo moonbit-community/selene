@@ -1,0 +1,6 @@
+{
+  "import": [
+    "Milky2018/selene/entity",
+    "Milky2018/selene/math"
+  ]
+}

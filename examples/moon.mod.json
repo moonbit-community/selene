@@ -1,0 +1,18 @@
+{
+  "name": "Milky2018/selene/examples",
+  "version": "0.1.0",
+  "deps": {
+    "Milky2018/selene": {
+      "path": "../selene-core"
+    },
+    "Milky2018/selene-canvas": {
+      "path": "../selene-canvas"
+    }
+  },
+  "readme": "README.md",
+  "repository": "https://github.com/moonbit-community/selene.git",
+  "license": "Apache-2.0",
+  "keywords": [],
+  "description": "",
+  "preferred-target": "js"
+}

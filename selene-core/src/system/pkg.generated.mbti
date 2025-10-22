@@ -1,0 +1,51 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/system"
+
+// Values
+fn defer_event(() -> Unit) -> Unit
+
+fn deferred_event_system(Double) -> Unit
+
+fn is_mouse_locked() -> Bool
+
+fn lock_mouse() -> Unit
+
+fn realtime_timer_system(Double) -> Unit
+
+fn timeout(Double, () -> Unit, pausible? : Bool) -> Unit
+
+fn timer_system(Double) -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) struct App {
+  canvas_height : Double
+  canvas_width : Double
+  zoom : Double
+  image_smooth : Bool
+  fps : UInt
+  systems : Array[((Double) -> Unit, Schedule, String)]
+  plugins : Array[(App) -> Unit]
+}
+fn App::add_plugin(Self, (Self) -> Unit) -> Self
+fn App::add_system(Self, (Double) -> Unit, schedule? : Schedule, system_name? : String) -> Self
+fn App::new() -> Self
+fn App::run(Self) -> Unit
+fn App::with_canvas_height(Self, Double) -> Self
+fn App::with_canvas_width(Self, Double) -> Self
+fn App::with_fps(Self, UInt) -> Self
+fn App::with_image_smooth(Self, Bool) -> Self
+fn App::with_zoom(Self, Double) -> Self
+
+pub(all) enum Schedule {
+  Startup
+  Update
+  Render(Int)
+}
+
+// Type aliases
+pub typealias () -> Unit as Event
+
+// Traits
+

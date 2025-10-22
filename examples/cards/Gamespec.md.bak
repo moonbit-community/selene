@@ -1,0 +1,174 @@
+# Texas Hold'em Poker - Single Player Challenge
+
+## Game Overview
+
+A fast-paced single-player Texas Hold'em poker challenge where you aim to maximize profit in exactly 10 poker hands.
+
+**Objective**: Earn as much money as possible in exactly 10 poker hands.
+
+**Starting Conditions**:
+- Starting chips: $1000
+- Each hand costs a big blind ($20) to start
+- 10 hands total to maximize your profit
+
+**Gameplay**:
+- Each turn is one complete poker hand (Pre-Flop → Flop → Turn → River → Showdown)
+- Make strategic decisions: Fold to get your turn back (lose blind only), Call/Check to advance to next phase, Raise to increase payout multiplier
+- Payout based on hand rank × magnification at showdown
+- After 10 completed hands, see your final profit or loss
+- Folding returns your turn (doesn't count against the 10-turn limit)
+- **Game ends early if you run out of chips** - manage your bankroll carefully!
+
+**Scoring System**:
+- **Base payout formula**: `payout = hand_rank_base_award × magnification`
+- **Magnification**: Starts at 1× for each hand, increases by 1× with each raise
+- **Hand rank base awards** (includes kicker bonuses):
+  - High Card: High card value (2-14, where Ace=14)
+  - One Pair: 15 + Pair value × 2
+  - Two Pair: 50 + (High pair × 2) + (Low pair × 2)
+  - Three of a Kind: 120 + Card value × 3
+  - Straight: 200 + (High card × 5)
+  - Flush: 300 + (High card × 5)
+  - Full House: 500 + (Three kind × 3) + (Pair × 2)
+  - Four of a Kind: 2000 + (Card value × 4)
+  - Straight Flush: 8000 + (High card × 5)
+  - Royal Flush: 20000 (fixed)
+- **Final Score** = Current Chips - Starting Chips ($1000)
+
+**Controls**:
+- **Mouse Click**: Click action buttons
+- **Fold**: Give up current hand (Pre-Flop/Flop/Turn only)
+  - Lose blind investment
+  - Turn is NOT consumed (can play again)
+  - Not available at River phase
+- **Call/Check**: Advance to next phase
+  - Match bet (Call) or check if no bet
+  - Proceeds to next phase or showdown
+  - Only available action at River phase
+- **Raise**: Raise bet and advance (Pre-Flop/Flop/Turn only)
+  - Costs $20 (the big blind amount)
+  - Increases magnification multiplier by 1×
+  - Immediately proceeds to next phase
+  - Not available at River phase
+
+## Game Phases
+
+### Pre-Flop
+- 2 hole cards dealt to player
+- Player sees only their hole cards
+- Available actions: Fold, Call/Check, Raise
+
+### Flop
+- 3 community cards revealed
+- Player can evaluate potential hands
+- Available actions: Fold, Call/Check, Raise
+
+### Turn
+- 4th community card revealed
+- Hand strength becomes clearer
+- Available actions: Fold, Call/Check, Raise
+
+### River
+- 5th and final community card revealed
+- All cards visible, hand is finalized
+- Available actions: Call/Check ONLY (no Fold or Raise)
+- Must proceed to showdown
+
+### Showdown
+- Hand evaluated automatically
+- Payout calculated: base_award × magnification
+- Chips awarded based on hand rank
+- Turn counter decremented (unless folded earlier)
+- New hand starts automatically
+
+### Game Over
+- Triggered when any of these conditions are met:
+  - **10 completed turns reached**: Normal end of game
+  - **Chips depleted to $0 or below**: Player loses (ran out of money)
+  - **Cannot afford big blind**: Insufficient chips to continue playing
+- Final profit/loss displayed
+- Shows: "Profit: +$X" or "Loss: $X"
+
+## Poker Hand Rankings (Highest to Lowest)
+
+1. **Royal Flush**: A-K-Q-J-10 of the same suit (base award: 20000)
+2. **Straight Flush**: Five consecutive cards of same suit (base award: 8000 + high card × 5)
+3. **Four of a Kind**: Four cards of same rank (base award: 2000 + card value × 4)
+4. **Full House**: Three of a kind + a pair (base award: 500 + three kind × 3 + pair × 2)
+5. **Flush**: Five cards of same suit (base award: 300 + high card × 5)
+6. **Straight**: Five consecutive cards, mixed suits (base award: 200 + high card × 5)
+   - Note: A-2-3-4-5 (wheel) is valid
+7. **Three of a Kind**: Three cards of same rank (base award: 120 + card value × 3)
+8. **Two Pair**: Two different pairs (base award: 50 + high pair × 2 + low pair × 2)
+9. **One Pair**: Two cards of same rank (base award: 15 + pair value × 2)
+10. **High Card**: No matching cards (base award: high card value)
+
+## Game Strategy Tips
+
+### When to Fold (Pre-Flop/Flop/Turn only)
+- Weak hole cards with low base award potential (e.g., no pairs, low cards)
+- After Flop if you have High Card with no draw potential
+- Saves chips AND returns your turn (can try again)
+- Remember: Folding costs $20 blind but doesn't consume a turn
+
+### When to Call/Check
+- You have a decent hand (pair or better) with positive expected value
+- Drawing to a flush or straight with potential for good payout
+- At River phase (only option besides folding earlier)
+- Minimal pot investment needed to see showdown
+
+### When to Raise (Pre-Flop/Flop/Turn only)
+- Strong hand with high base award (Flush, Full House, Four of a Kind, etc.)
+- High confidence in getting a paying hand
+- Want to maximize magnification for bigger payout
+- Each raise costs $20 and increases magnification by 1×
+- Strategic raising: Flush (King high) at 3× = 365 × 3 = $1,095 vs 1× = $365
+
+### Payout Math Strategy
+- **Base payout**: hand_rank × magnification
+- **Break-even analysis** (examples with $20 blind):
+  - One Pair (Aces) at 1×: (15 + 14 × 2) × 1 = 43 × 1 = $43 (profit $23)
+  - One Pair (Aces) at 3× (raised twice): 43 × 3 = $129 (profit $49 after $80 total cost)
+  - Three of a Kind (Queens) at 2×: (120 + 13 × 3) × 2 = 159 × 2 = $318 (profit $278!)
+  - Flush (King high) at 1×: (300 + 13 × 5) × 1 = 365 × 1 = $365 (profit $345!)
+  - Full House (Aces over Kings) at 1×: (500 + 14 × 3 + 13 × 2) × 1 = 568 × 1 = $568 (profit $548!)
+  - Four of a Kind (Jacks) at 1×: (2000 + 11 × 4) × 1 = 2044 × 1 = $2,044 (profit $2,024!)
+  - Royal Flush at 1×: 20000 × 1 = $20,000 (massive profit!)
+- **Goal**: High-value hands are extremely profitable even at 1× magnification
+- **Risk management**: Raising increases payout but costs $20 each time
+
+### Risk vs Reward
+- Each hand costs $20 (big blind) minimum
+- **Bankruptcy risk**: Running out of chips ends the game immediately - you lose!
+- Folding returns turn but loses blind investment
+- Raising costs $20 and increases magnification by 1×
+- **Critical threshold**: If chips drop below blind amount, game over
+- High Card = minimal payout (2-14 only)
+- One Pair = now profitable at 1× ($17-$43 base)
+- Two Pair = good payout ($54-$106 base)
+- Three of a Kind = very profitable ($126-$162 base)
+- Straight/Flush = highly profitable ($270-$365 base)
+- Full House/Four of a Kind = extremely profitable ($568-$2,056 base)
+- Straight Flush = huge win ($8,070-$8,140 base)
+- Royal Flush = instant massive win ($20,000 at 1×)
+- Balance conservative and aggressive play across 10 turns
+- **Chip management is critical**: Don't risk going broke before completing 10 turns
+
+## UI Elements
+
+### HUD Display
+- **Blind**: Center top, shows current blind amount
+- **Chips**: Below blind, shows remaining chips
+- **Phase**: Top left, current game phase
+- **Turns**: Top right, turns remaining counter (X/10)
+- **Hand Strength**: Center above cards, shows hand rank and magnification multiplier
+
+### Action Buttons
+- **Fold** (Red): Available at Pre-Flop, Flop, Turn
+- **Call/Check** (Green): Always available, only button at River
+- **Raise** (Blue): Available at Pre-Flop, Flop, Turn
+
+### Card Display
+- **Player's hole cards**: Bottom center, 2 cards face-up
+- **Community cards**: Table center, up to 5 cards revealed progressively
+- **Poker table**: Green felt background
