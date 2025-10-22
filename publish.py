@@ -35,12 +35,15 @@ def clean_page_dir():
 
     root_index = PAGE_DIR / "index.html"
     examples_index = PAGE_DIR / "examples" / "index.html"
+    readme = PAGE_DIR / "README.md"
 
     saved_html: dict[str, str] = {}
     if root_index.exists():
         saved_html['root'] = root_index.read_text()
     if examples_index.exists():
         saved_html['examples'] = examples_index.read_text()
+    if readme.exists():
+        saved_html['readme'] = readme.read_text()
 
     if PAGE_DIR.exists():
         print(f"Cleaning {PAGE_DIR}...")
@@ -60,6 +63,10 @@ def clean_page_dir():
         (PAGE_DIR / "examples").mkdir(parents=True, exist_ok=True)
         examples_index.write_text(saved_html['examples'])
         print(f"✓ Preserved page/examples/index.html")
+
+    if 'readme' in saved_html:
+        readme.write_text(saved_html['readme'])
+        print(f"✓ Preserved page/README.md")
 
     print(f"Cleaned {PAGE_DIR} (preserved HTML files)")
 
