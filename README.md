@@ -4,8 +4,6 @@
 
 The [examples](examples/) directory contains sample game projects.
 
-![](./examples-page.png)
-
 The [selene-core](selene-core/) directory is the core of the Selene engine.
 
 The [selene-canvas](selene-canvas/) directory is the officially maintained Canvas2D API-based backend for Selene. The Selene engine must run with a backend.

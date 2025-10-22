@@ -149,7 +149,7 @@ fn add_apple(pos : @math.Vec2D) -> Unit {
     if e == game_state.player {
       set_score(game_state.score + 10)
       if game_state.volume_on {
-        @audio.play_audio("sounds/coin.wav")
+        @audio.play_audio("assets/sounds/coin.wav")
       }
       @entity.Entity::destroy(apple)
     }

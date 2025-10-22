@@ -29,8 +29,12 @@ jobs:
           moon update
           moon build
 
+      - name: Copy example games
+        run: |
+          python3 publish.py
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
+          publish_dir: page

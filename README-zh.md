@@ -4,8 +4,6 @@
 
 [examples](examples/) 目录包含示例游戏项目。
 
-![](./examples-page.png)
-
 [selene-core](selene-core/) 是 Selene 引擎核心项目。
 
 [selene-canvas](selene-canvas/) 是官方维护的基于 Canvas2D API 的 Selene 后端。Selene 引擎必须要在一个后端运行。

@@ -190,7 +190,7 @@ fn player_state_system(delta : Double) -> Unit {
         new_velocity_y = -JUMP_V
         game_state.player_state = PlayerState::Jump
         if game_state.volume_on {
-          @audio.play_audio("sounds/jump.wav")
+          @audio.play_audio("assets/sounds/jump.wav")
         }
       }
     }
