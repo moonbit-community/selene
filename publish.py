@@ -4,6 +4,8 @@ Publish script for Selene Game Engine
 Copies all necessary files to the page directory for deployment
 """
 
+import sys
+import json
 import shutil
 from pathlib import Path
 
@@ -70,6 +72,26 @@ def clean_page_dir():
 
     print(f"Cleaned {PAGE_DIR} (preserved HTML files)")
 
+def generate_asset_manifest(assets_dir: Path):
+    """Generate assets-manifest.json for a game's assets folder"""
+    if not assets_dir.exists() or not assets_dir.is_dir():
+        return
+
+    # Find all files in assets directory
+    asset_files: list[str] = []
+    for file in sorted(assets_dir.rglob("*")):
+        if file.is_file():
+            # Get relative path from assets directory
+            rel_path = file.relative_to(assets_dir)
+            asset_files.append(str(rel_path))
+
+    # Write manifest as JSON
+    manifest_path = assets_dir / "assets-manifest.json"
+    with open(manifest_path, 'w') as f:
+        json.dump(asset_files, f, indent=2)
+
+    return len(asset_files)
+
 def copy_game_files(game_name: str):
     """Copy all files for a specific game"""
     game_src_dir = EXAMPLES_DIR / game_name
@@ -97,6 +119,11 @@ def copy_game_files(game_name: str):
         asset_count = len(list(assets_dst.rglob("*")))
         print(f"✓ Copied {game_name}/assets/ ({asset_count} files)")
 
+        # Generate asset manifest
+        manifest_count = generate_asset_manifest(assets_dst)
+        if manifest_count:
+            print(f"✓ Generated assets-manifest.json ({manifest_count} assets)")
+
     # Copy screenshot.png
     screenshot = game_src_dir / "screenshot.png"
     if screenshot.exists():
@@ -116,11 +143,20 @@ def copy_game_files(game_name: str):
 
 def main():
     """Main publish function"""
-    print("=" * 60)
-    print("Publishing Selene Game Engine to page/")
-    print("=" * 60)
+    is_clean = sys.argv[1] == "clean"
+    
+    if not is_clean:
+        print("=" * 60)
+        print("Publishing Selene Game Engine to page/")
+        print("=" * 60)
 
-    # Step 1: Detect games
+    # Step 1: Clean page directory (but preserve HTML files)
+    clean_page_dir()
+    print()
+    if is_clean:
+        return
+    
+    # Step 2: Detect games
     games = get_game_folders()
     if not games:
         print("⚠ No games found in examples directory!")
@@ -129,11 +165,14 @@ def main():
     print(f"Found {len(games)} game(s): {', '.join(games)}")
     print()
 
-    # Step 2: Clean page directory (but preserve HTML files)
-    clean_page_dir()
-    print()
+    # Step 3: Copy the preload-assets script
+    print("Copying preload-assets script...")
+    preload_assets_script = EXAMPLES_DIR / "preload-assets.js"
+    if preload_assets_script.exists():
+        shutil.copy2(preload_assets_script, PAGE_DIR / "examples" / "preload-assets.js")
+        print(f"✓ Copied preload-assets script")
 
-    # Step 3: Copy each game
+    # Step 4: Copy each game
     print("Copying game files...")
     for game in games:
         print(f"\nProcessing {game}...")
