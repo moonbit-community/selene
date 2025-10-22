@@ -13,13 +13,7 @@
 // limitations under the License.
 
 ///|
-const ZOOM : Double = 1.0
-
-///|
-const VIEWPORT_WIDTH : Double = 480.0
-
-///|
-const VIEWPORT_HEIGHT : Double = 320.0
+const ZOOM : Double = 2.0
 
 ///|
 const REAL_VIEWPORT_WIDTH : Double = VIEWPORT_WIDTH * ZOOM
@@ -35,13 +29,31 @@ fn main {
   .with_zoom(ZOOM)
   .with_fps(60)
   .add_plugin(@plugins.default_plugin)
+  // .add_plugin(@plugins.debug_plugin)
   .add_system(game_start, schedule=Startup)
+  .add_system(game_update_system)
   .run()
 }
 
 ///|
+/// Game initialization
 fn game_start(_delta : Double) -> Unit {
-  let e = @entity.Entity::new()
-  @position.positions.set(e, Vec2D(50, 50))
-  @sprite.sprites.set(e, Card(A, H).to_sprite(CARD_BASE_ZINDEX + 1))
+  // Load font
+  @backend.load_font("ThaleahFat", "assets/ThaleahFat.ttf")
+
+  // Setup UI
+  setup_ui()
+
+  // Start first hand
+  start_new_hand()
+}
+
+///|
+/// Main game update system
+fn game_update_system(_delta : Double) -> Unit {
+  match game_state.phase {
+    PreFlop | Flop | Turn | River => handle_betting_round()
+    Showdown => handle_showdown()
+    GameOver => ()
+  }
 }

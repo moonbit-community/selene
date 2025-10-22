@@ -6,7 +6,10 @@
     "Milky2018/selene/math",
     "Milky2018/selene/sprite",
     "Milky2018/selene/plugins",
-    "Milky2018/selene/position"
+    "Milky2018/selene/position",
+    "Milky2018/selene/backend",
+    "Milky2018/selene/style",
+    "Milky2018/selene/collision"
   ],
   "overrides": [
     "Milky2018/selene-canvas"

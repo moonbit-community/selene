@@ -87,26 +87,6 @@ fn CardNum::to_int(self : CardNum) -> Int {
 }
 
 ///|
-fn CardNum::from_string(s : String) -> CardNum {
-  match s {
-    "A" => A
-    "2" => N2
-    "3" => N3
-    "4" => N4
-    "5" => N5
-    "6" => N6
-    "7" => N7
-    "8" => N8
-    "9" => N9
-    "10" => N10
-    "J" => J
-    "Q" => Q
-    "K" => K
-    _ => abort("Invalid card number string")
-  }
-}
-
-///|
 enum CardSuit {
   H
   D
@@ -121,16 +101,5 @@ fn CardSuit::to_string(self : CardSuit) -> String {
     D => "D"
     C => "C"
     S => "S"
-  }
-}
-
-///|
-fn CardSuit::from_string(s : String) -> CardSuit {
-  match s {
-    "H" => H
-    "D" => D
-    "C" => C
-    "S" => S
-    _ => abort("Invalid card suit string")
   }
 }
