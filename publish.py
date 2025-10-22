@@ -143,7 +143,7 @@ def copy_game_files(game_name: str):
 
 def main():
     """Main publish function"""
-    is_clean = sys.argv[1] == "clean"
+    is_clean = len(sys.argv) > 1 and sys.argv[1] == "clean"
     
     if not is_clean:
         print("=" * 60)
