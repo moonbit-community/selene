@@ -25,6 +25,7 @@
 
         .container {
             max-width: 1200px;
+            text-align: center;
             width: 100%;
         }
 
@@ -46,6 +47,23 @@
             font-size: 1.3rem;
             opacity: 0.95;
             font-weight: 300;
+        }
+
+        .back-link {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
         }
 
         .games-grid {
@@ -193,6 +211,8 @@
                 </div>
             </a>
         </div>
+
+        <a href="../index.html" class="back-link">← Back</a>
 
         <footer>
             <p>Built with <a href="https://github.com/moonbit-community/selene" target="_blank">Selene</a> & <a
