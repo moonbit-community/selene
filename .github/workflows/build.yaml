@@ -36,3 +36,9 @@ jobs:
           moon check
           moon build
 
+
+      - name: selene-examples
+        run: |
+          cd examples 
+          moon check 
+          moon build
