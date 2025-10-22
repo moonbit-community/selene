@@ -1,0 +1,18 @@
+[
+  "enemy/Creeper.png",
+  "enemy/Devil.png",
+  "enemy/Icecream.png",
+  "enemy/Orc.png",
+  "enemy/Pirate.png",
+  "enemy/Skull.png",
+  "enemy/Teleman.png",
+  "fonts/ThaleahFat.ttf",
+  "icon/icon.png",
+  "tilesets/decor_16x16.png",
+  "tilesets/grass.png",
+  "whiteboy/death.png",
+  "whiteboy/hurt.png",
+  "whiteboy/idle.png",
+  "whiteboy/run.png",
+  "whiteboy/walk.png"
+]
