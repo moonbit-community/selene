@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.18.3] - 2025-10-27
+
+### Changed 
+
+- `@entity.Entity::get_roots` now only returns live entities 
+
 ## [0.18.2] - 2025-10-13
 
 ### Added 

@@ -77,7 +77,14 @@ pub(all) enum Code {
   Enter
   Escape
 }
+fn Code::equal(Self, Self) -> Bool // from trait `Eq`
 fn Code::from_string(String) -> Self?
+fn Code::hash(Self) -> Int // from trait `Hash`
+fn Code::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
+#deprecated
+fn Code::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn Code::output(Self, &Logger) -> Unit // from trait `Show`
+fn Code::to_string(Self) -> String // from trait `Show`
 impl Eq for Code
 impl Hash for Code
 impl Show for Code
@@ -94,6 +101,11 @@ pub(all) enum MouseButton {
   Right
   Middle
 }
+fn MouseButton::equal(Self, Self) -> Bool // from trait `Eq`
+#deprecated
+fn MouseButton::op_equal(Self, Self) -> Bool // from trait `Eq`
+fn MouseButton::output(Self, &Logger) -> Unit // from trait `Show`
+fn MouseButton::to_string(Self) -> String // from trait `Show`
 impl Eq for MouseButton
 impl Show for MouseButton
 

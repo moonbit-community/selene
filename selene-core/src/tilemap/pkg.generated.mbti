@@ -15,6 +15,7 @@ pub struct Tile {
   x : Int
   y : Int
 }
+fn Tile::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError // from trait `@json.FromJson`
 impl @json.FromJson for Tile
 
 pub struct TileLayer {
@@ -22,6 +23,7 @@ pub struct TileLayer {
   tiles : Array[Tile]
   collider : Bool
 }
+fn TileLayer::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError // from trait `@json.FromJson`
 impl @json.FromJson for TileLayer
 
 pub struct TileMap {

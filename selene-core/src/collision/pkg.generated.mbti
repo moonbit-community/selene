@@ -60,9 +60,12 @@ pub struct CollisionInfo {
 }
 
 pub struct CollisionLayer(UInt)
+fn CollisionLayer::equal(Self, Self) -> Bool // from trait `Eq`
 #deprecated
 fn CollisionLayer::inner(Self) -> UInt
 fn CollisionLayer::new() -> Self
+#deprecated
+fn CollisionLayer::op_equal(Self, Self) -> Bool // from trait `Eq`
 impl Eq for CollisionLayer
 
 pub struct CollisionMask(Array[CollisionLayer])
