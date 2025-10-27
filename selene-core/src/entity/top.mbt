@@ -25,6 +25,18 @@
 struct Entity(UInt) derive(Eq, Show, Hash)
 
 ///|
+/// Global storage for all active entities in the Selene app.
+///
+/// This set contains all entities that have been created and are currently
+/// active. Entities are automatically added when created with `Entity::new()`
+/// and removed during deferred event processing when destroyed with
+/// `Entity::destroy()`.
+///
+/// Do not manually modify this set directly. Use the entity lifecycle methods
+/// (`Entity::new()`, `Entity::destroy()`, `Entity::respawn()`) instead to
+/// ensure proper deferred event handling and consistency with parent-child
+/// relationships.
+///
 let all_entities : @set.Set[Entity] = @set.Set::new()
 
 ///|
@@ -78,6 +90,11 @@ pub fn Entity::is_alive(e : Entity) -> Bool {
 }
 
 ///|
+/// Internal counter for generating unique entity identifiers.
+///
+/// This reference is incremented each time a new entity is created to ensure
+/// every entity has a unique ID. Do not manually modify this value.
+///
 let entity_generator : Ref[UInt] = { val: 0 }
 
 ///|
@@ -91,6 +108,8 @@ let entity_generator : Ref[UInt] = { val: 0 }
 /// ```moonbit
 /// let entity1 = @entity.Entity::new()
 /// let entity2 = @entity.Entity::new()
+/// defer entity1.destroy()
+/// defer entity2.destroy()
 ///
 /// // Each entity has a unique identifier
 /// inspect(entity1 == entity2, content="false")
@@ -111,6 +130,11 @@ pub fn Entity::new() -> Entity {
 /// Marks an entity for destruction, scheduling its removal from the
 /// selene app during the next deferred event processing cycle.
 ///
+/// When an entity is destroyed, all of its child entities (if any) are also
+/// recursively destroyed, maintaining hierarchy integrity. The actual removal
+/// happens during the next `@system.deferred_event_system` execution to avoid
+/// mid-frame state corruption.
+///
 /// Parameters:
 ///
 /// * `entity` : The entity to be destroyed.
@@ -122,15 +146,13 @@ pub fn Entity::new() -> Entity {
 /// inspect(entity.is_alive(), content="true")
 ///
 /// entity.destroy()
-/// 
+///
 /// // The following line will be executed in the game loop, instead of manual calling.
 /// @system.deferred_event_system(0.0)
-/// 
+///
 /// // Entity will be removed from all_entities during next deferred event cycle
 /// inspect(entity.is_alive(), content="false")
 /// ```
-/// 
-/// FIXME: document update
 ///
 pub fn Entity::destroy(e : Entity) -> Unit {
   @system.defer_event(fn() { all_entities.remove(e) })
@@ -145,6 +167,11 @@ pub fn Entity::destroy(e : Entity) -> Unit {
 /// Reactivates a previously destroyed entity by adding it back to the active
 /// entities collection.
 ///
+/// When an entity is respawned, all of its child entities (if any) are also
+/// recursively respawned, maintaining hierarchy integrity. The actual addition
+/// happens during the next `@system.deferred_event_system` execution to maintain
+/// consistency with the deferred event pattern.
+///
 /// Parameters:
 ///
 /// * `entity` : The entity to be reactivated in the selene app.
@@ -156,18 +183,18 @@ pub fn Entity::destroy(e : Entity) -> Unit {
 /// inspect(entity.is_alive(), content="true")
 ///
 /// entity.destroy()
-/// 
+///
 /// // The following line will be executed in the game loop, instead of manual calling.
 /// @system.deferred_event_system(0.0)
-/// 
+///
 /// inspect(entity.is_alive(), content="false")
 /// // Entity is marked for removal during next deferred event cycle
 ///
 /// entity.respawn()
-/// 
+///
 /// // The following line will be executed in the game loop, instead of manual calling.
 /// @system.deferred_event_system(0.0)
-/// 
+///
 /// inspect(entity.is_alive(), content="true") // Entity is active again
 /// ```
 ///

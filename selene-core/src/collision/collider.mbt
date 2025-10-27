@@ -82,6 +82,7 @@ pub fn Collider::new(mask : CollisionMask) -> Collider {
 /// ```moonbit
 /// // Check if an entity has a collider
 /// let entity = @entity.Entity::new()
+/// defer entity.destroy()
 /// if @collision.colliders.contains(entity) {
 ///   let collider = @collision.colliders.get(entity).unwrap()
 ///   inspect(collider.active)

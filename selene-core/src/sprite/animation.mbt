@@ -287,6 +287,7 @@ pub fn frames_from_atlas(
 ///
 /// ```moonbit skip
 /// let entity = @entity.Entity::new()
+/// defer entity.destroy()
 /// // Create an animation
 /// let frames = @sprite.frames_from_atlas(
 ///   "player_walk.png",
@@ -411,6 +412,7 @@ fn render_animation(
 ///
 /// ```moonbit skip
 /// let entity = @entity.Entity::new()
+/// defer entity.destroy()
 /// // Create a non-looping animation
 /// let frames = @sprite.frames_from_atlas(
 ///   "explosion.png",

@@ -71,9 +71,10 @@ struct Pickable {
 /// ```moonbit
 /// // Register a pickable component for an entity
 /// let entity = @entity.Entity::new()
+/// defer entity.destroy()
 /// let pickable = Pickable::new()
-/// pickable.on_just_pressed(fn(button) { 
-///   println("Entity clicked with button: \{button}") 
+/// pickable.on_just_pressed(fn(button) {
+///   println("Entity clicked with button: \{button}")
 /// })
 /// @collision.pickables[entity] = pickable
 /// ```
@@ -232,11 +233,11 @@ pub fn Pickable::on_just_released(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit skip
 /// // Set up a pickable entity
 /// let entity = @entity.Entity::new()
 /// let pickable = @collision.Pickable::new()
-/// pickable.on_just_pressed(fn(button) { 
+/// pickable.on_just_pressed(fn(button) {
 ///   println("Entity clicked with \{button}")
 /// })
 /// @collision.pickables[entity] = pickable

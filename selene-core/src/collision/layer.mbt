@@ -51,7 +51,9 @@ pub fn CollisionLayer::new() -> CollisionLayer {
 ///
 /// ```moonbit
 /// let player_entity = @entity.Entity::new()
+/// defer player_entity.destroy()
 /// let enemy_entity = @entity.Entity::new()
+/// defer enemy_entity.destroy()
 /// let player_layer = @collision.CollisionLayer::new()
 /// let enemy_layer = @collision.CollisionLayer::new()
 ///

@@ -96,6 +96,8 @@ pub fn set_limits(
 /// ```moonbit
 /// let player_entity = @entity.Entity::new()
 /// @camera.attach_entity(player_entity, @math.Vec2D(32.0, 32.0))
+/// 
+/// player_entity.destroy()
 /// ```
 ///
 pub fn attach_entity(entity : @entity.Entity, offset : @math.Vec2D) -> Unit {
@@ -183,6 +185,7 @@ let camera : Camera = {
 /// // This function is typically called automatically by the game engine's update loop
 /// // Set up camera to follow a player entity
 /// let player = @entity.Entity::new()
+/// defer player.destroy()
 /// @camera.attach_entity(player, @math.Vec2D(0.0, 0.0))
 /// @camera.set_limits(top=0.0, bottom=1000.0, left=0.0, right=1200.0)
 ///

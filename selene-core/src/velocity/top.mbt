@@ -41,12 +41,13 @@ pub(all) struct Velocity(@math.Vec2D) derive(Eq, Show)
 /// ```moonbit
 /// // Set velocity for an entity
 /// let entity = @entity.Entity::new()
-/// 
+/// defer entity.destroy()
+///
 /// @velocity.velocities[entity] = @math.Vec2D(10.0, 5.0)
 ///
 /// // Get velocity for an entity
 /// let entity_vel = @velocity.velocities.get(entity)
-/// 
+///
 /// inspect(entity_vel, content="Some(Velocity(Vec2D(10, 5)))")
 /// ```
 ///

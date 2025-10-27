@@ -33,6 +33,7 @@ pub(all) enum CollisionShape {
 /// ```moonbit
 /// // Register a rectangular collision shape for an entity
 /// let entity = @entity.Entity::new()
+/// defer entity.destroy()
 /// @collision.shapes[entity] = @collision.CollisionShape::Rect(
 ///   size=@math.Vec2D(50.0, 30.0),
 ///   offset=@math.Vec2D(0.0, 0.0)
