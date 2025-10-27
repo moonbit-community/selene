@@ -7426,7 +7426,7 @@ function Milky2018$selene$entity$$Entity$set_offset(child, offset) {
 }
 function Milky2018$selene$entity$$get_roots() {
   const _bind$8 = moonbitlang$core$builtin$$Map$iter$6$(Milky2018$selene$entity$$parents);
-  return (_p) => _bind$8((_p$2) => _p$2._1.is_root ? _p(_p$2._0) : 1);
+  return (_p) => _bind$8((_p$2) => _p$2._1.is_root && Milky2018$selene$entity$$Entity$is_alive(_p$2._0) ? _p(_p$2._0) : 1);
 }
 function Milky2018$selene$camera$$camera_system(_delta) {
   const _bind$8 = Milky2018$selene$camera$$camera.attached_entity;

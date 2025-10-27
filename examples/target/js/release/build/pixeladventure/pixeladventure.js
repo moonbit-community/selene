@@ -13817,7 +13817,7 @@ function Milky2018$selene$entity$$Entity$set_offset(child, offset) {
 }
 function Milky2018$selene$entity$$get_roots() {
   const _bind$12 = moonbitlang$core$builtin$$Map$iter$6$(Milky2018$selene$entity$$parents);
-  return (_p$4517) => _bind$12((_p$4518) => _p$4518._1.is_root ? _p$4517(_p$4518._0) : 1);
+  return (_p$4517) => _bind$12((_p$4518) => _p$4518._1.is_root && Milky2018$selene$entity$$Entity$is_alive(_p$4518._0) ? _p$4517(_p$4518._0) : 1);
 }
 function Milky2018$selene$camera$$set_limits(top, bottom, left, right) {
   Milky2018$selene$camera$$camera.limit_top = top;
