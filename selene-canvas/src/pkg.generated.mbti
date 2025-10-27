@@ -12,15 +12,15 @@ fn draw_color_rect(x~ : Double, y~ : Double, width~ : Double, height~ : Double, 
 
 fn draw_gradient_rect(x~ : Double, y~ : Double, width~ : Double, height~ : Double, color_start~ : String, color_end~ : String) -> Unit
 
-fn draw_picture(png~ : String, x~ : Double, y~ : Double, width~ : Double, height~ : Double, transform~ : @math.Transform, repeat~ : @math.RepeatMode) -> Unit
+fn draw_picture(png~ : String, x~ : Double, y~ : Double, width~ : Double, height~ : Double, transform~ : @smath.Transform, repeat~ : @smath.RepeatMode) -> Unit
 
-fn draw_sprite(sprite_path~ : String, x~ : Double, y~ : Double, offset_x~ : Double, offset_y~ : Double, width~ : Double, height~ : Double, transform~ : @math.Transform) -> Unit
+fn draw_sprite(sprite_path~ : String, x~ : Double, y~ : Double, offset_x~ : Double, offset_y~ : Double, width~ : Double, height~ : Double, transform~ : @smath.Transform) -> Unit
 
 fn draw_stroke_rect(x~ : Double, y~ : Double, width~ : Double, height~ : Double, color~ : String) -> Unit
 
-fn draw_text(text~ : String, x~ : Double, y~ : Double, font~ : String, color~ : String, align~ : @math.HAlign, baseline~ : @math.VAlign) -> Unit
+fn draw_text(text~ : String, x~ : Double, y~ : Double, font~ : String, color~ : String, align~ : @smath.HAlign, baseline~ : @smath.VAlign) -> Unit
 
-fn get_canvas_size() -> @math.Vec2D
+fn get_canvas_size() -> @smath.Vec2D
 
 fn get_realtime_delta() -> Double
 

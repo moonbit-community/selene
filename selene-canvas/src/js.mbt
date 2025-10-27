@@ -62,3 +62,6 @@ extern "js" fn load_font_async(font : String, path : String) -> Unit =
   #|     document.fonts.add(loadedFont);
   #|   })
   #| }
+
+///|
+extern "js" fn begin_path(ctx : @dom.CanvasRenderingContext2D) -> Unit = "(ctx) => ctx.beginPath();"

@@ -75,6 +75,7 @@ fn arrange(entity : @entity.Entity, offset : @math.Vec2D) -> @math.Vec2D {
         Animation(anime, ..) =>
           anime.transform.apply_to_vec2d(anime.frames[0].size)
         ColorRect(rect) => rect.size
+        ColorCircle(circle) => Vec2D(circle.radius * 2, circle.radius * 2)
       }
     }
     Sized(s) => s

@@ -20,11 +20,11 @@ pub fn register_mouse_events(
   canvas_backend.mouse_movement.val = Some(mouse_movement)
   window.add_event_listener("mousemove", event => {
     let mouse_event = event.to_mouse_event().unwrap()
-    mouse.pos = @math.Vec2D(
+    mouse.pos = @smath.Vec2D(
       mouse_event.get_offset_x().to_double(),
       mouse_event.get_offset_y().to_double(),
     )
-    mouse_movement.movement = @math.Vec2D(
+    mouse_movement.movement = @smath.Vec2D(
       mouse_event.get_movement_x().to_double(),
       mouse_event.get_movement_y().to_double(),
     )

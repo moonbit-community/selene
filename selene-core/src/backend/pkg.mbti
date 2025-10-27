@@ -57,14 +57,6 @@ fn register_mouse_events(@inputs.Mouse, @inputs.MouseMovement) -> Unit
 
 fn lock_mouse(Ref[Bool]) -> Unit
 
-fn draw_stroke_rect(
-  x~ : Double,
-  y~ : Double,
-  width~ : Double,
-  height~ : Double,
-  color~ : String
-) -> Unit
-
 fn draw_text(
   text~ : String,
   x~ : Double,
@@ -80,7 +72,16 @@ fn draw_color_rect(
   y~ : Double,
   width~ : Double,
   height~ : Double,
-  color~ : String
+  color~ : String,
+  stroke_color~ : String
+) -> Unit
+
+fn draw_color_circle(
+  x~ : Double,
+  y~ : Double,
+  radius~ : Double,
+  color~ : String,
+  stroke_color~ : String
 ) -> Unit
 
 fn draw_gradient_rect(

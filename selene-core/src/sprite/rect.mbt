@@ -16,14 +16,14 @@
 pub(all) struct ColorRect {
   size : @math.Vec2D
   color : String
-  stroke_color : String?
+  stroke_color : String
 }
 
 ///|
 pub fn ColorRect::new(
   size : @math.Vec2D,
   color : String,
-  stroke_color? : String,
+  stroke_color? : String = "rgba(0, 0, 0, 0)",
 ) -> ColorRect {
   { size, color, stroke_color }
 }
@@ -36,14 +36,6 @@ fn render_color_rect(color_rect : ColorRect, position : @math.Vec2D) -> Unit {
     width=color_rect.size[X],
     height=color_rect.size[Y],
     color=color_rect.color,
+    stroke_color=color_rect.stroke_color,
   )
-  if color_rect.stroke_color is Some(stroke_color) {
-    @backend.draw_stroke_rect(
-      x=position[X],
-      y=position[Y],
-      width=color_rect.size[X],
-      height=color_rect.size[Y],
-      color=stroke_color,
-    )
-  }
 }

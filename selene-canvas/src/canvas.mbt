@@ -16,7 +16,7 @@
 struct CanvasBackend {
   canvas : @dom.HTMLCanvasElement
   context : @dom.CanvasRenderingContext2D
-  mut viewport_size : @math.Vec2D
+  mut viewport_size : @smath.Vec2D
   mut zoom : Double
   mut time_scale : Double
   mouse_movement : Ref[@inputs.MouseMovement?]
@@ -33,7 +33,7 @@ pub fn CanvasBackend::new() -> CanvasBackend {
   {
     context,
     canvas,
-    viewport_size: @math.Vec2D::zero(),
+    viewport_size: @smath.Vec2D::zero(),
     time_scale: 1.0,
     mouse_movement: Ref::new(None),
     zoom: 1.0,
@@ -67,7 +67,7 @@ pub fn initialize(
       "Warning: FPS is set above 60. The browser's window only support up to 60 FPS.",
     )
   }
-  canvas_backend.viewport_size = @math.Vec2D(canvas_width, canvas_height)
+  canvas_backend.viewport_size = @smath.Vec2D(canvas_width, canvas_height)
   set_viewport_height(canvas_backend.canvas, canvas_height)
   set_viewport_width(canvas_backend.canvas, canvas_width)
   set_image_smoothing_enabled(canvas_backend.context, image_smooth)
@@ -82,7 +82,7 @@ pub fn initialize(
     render_loop(delta * canvas_backend.time_scale)
     game_loop(delta * canvas_backend.time_scale)
     if canvas_backend.mouse_movement.val is Some(mouse_movement) {
-      mouse_movement.movement = @math.Vec2D(0.0, 0.0)
+      mouse_movement.movement = @smath.Vec2D(0.0, 0.0)
     }
   })
   |> ignore
@@ -90,7 +90,7 @@ pub fn initialize(
 }
 
 ///|
-pub fn get_canvas_size() -> @math.Vec2D {
+pub fn get_canvas_size() -> @smath.Vec2D {
   canvas_backend.viewport_size
 }
 

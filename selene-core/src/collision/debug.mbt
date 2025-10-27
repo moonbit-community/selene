@@ -48,6 +48,7 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
       width~,
       height~,
       color="rgba(255, 0, 0, 0.5)",
+      stroke_color="rgba(0, 0, 0, 0.0)",
     )
   }
   for e, _area in areas {
@@ -66,6 +67,7 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
       width~,
       height~,
       color="rgba(0, 0, 255, 0.5)",
+      stroke_color="rgba(0, 0, 0, 0.0)",
     )
   }
   for e, _pickable in pickables {
@@ -84,6 +86,7 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
       width~,
       height~,
       color="rgba(0, 255, 0, 0.5)",
+      stroke_color="rgba(0, 0, 0, 0.0)",
     )
   }
 }

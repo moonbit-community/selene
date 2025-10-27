@@ -2,7 +2,7 @@
   "import": [
     "Yoorkin/rabbit-tea/dom",
     "rami3l/js-ffi/js",
-    "Milky2018/selene/math",
+    { "path": "Milky2018/selene/math", "alias": "smath" },
     "Milky2018/selene/inputs"
   ],
   "implement": "Milky2018/selene/backend"

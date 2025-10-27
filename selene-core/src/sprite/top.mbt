@@ -60,6 +60,7 @@ pub enum SpriteType {
   Animation(Animation, mut frame~ : Double)
   Text(Text)
   ColorRect(ColorRect)
+  ColorCircle(ColorCircle)
 }
 
 ///|
@@ -78,6 +79,21 @@ pub fn Sprite::from_animation(
 }
 
 ///|
+/// Creates a sprite from a picture with specified rendering priority and
+/// position offset.
+///
+/// Parameters:
+///
+/// * `picture` : The `Picture` object containing the image data and dimensions
+///   to be rendered.
+/// * `zindex` : Rendering order priority, where higher values render on top of
+///   lower values.
+/// * `offset` : Optional position offset applied relative to the entity's
+///   position. Defaults to zero vector if not specified.
+///
+/// Returns a new `Sprite` with the picture as its visual content, initially set
+/// to visible.
+///
 pub fn Sprite::from_picture(
   picture : Picture,
   zindex : Int,
@@ -87,6 +103,29 @@ pub fn Sprite::from_picture(
 }
 
 ///|
+/// Creates a sprite from text content.
+///
+/// Parameters:
+///
+/// * `text` : The `Text` object containing the text content, styling, and
+///   formatting information.
+/// * `zindex` : Rendering order priority. Higher values render on top of lower
+///   values.
+/// * `offset` : Optional position offset relative to the entity's position.
+///   Defaults to zero vector if not specified.
+///
+/// Returns a new `Sprite` with the text as its visual content, initially
+/// visible.
+///
+/// Example:
+///
+/// ```moonbit
+/// let text = @sprite.Text::new("Hello World", color="red")
+/// let sprite = @sprite.Sprite::from_text(text, 1)
+/// inspect(sprite.zindex, content="1")
+/// inspect(sprite.visible, content="true")
+/// ```
+///
 pub fn Sprite::from_text(
   text : Text,
   zindex : Int,
@@ -96,6 +135,27 @@ pub fn Sprite::from_text(
 }
 
 ///|
+/// Creates a sprite from a color rectangle.
+///
+/// Parameters:
+///
+/// * `color_rect` : The `ColorRect` to use as the sprite content.
+/// * `zindex` : Rendering order priority. Higher values render on top of lower
+///   values.
+/// * `offset` : Optional position offset relative to the entity's position.
+///   Defaults to zero vector if not specified.
+///
+/// Returns a new `Sprite` with the color rectangle as its visual content.
+///
+/// Example:
+///
+/// ```moonbit
+/// let rect = @sprite.ColorRect::new(Vec2D(100.0, 50.0), "blue")
+/// let sprite = @sprite.Sprite::from_color_rect(rect, 3)
+/// inspect(sprite.zindex, content="3")
+/// inspect(sprite.visible, content="true")
+/// ```
+///
 pub fn Sprite::from_color_rect(
   color_rect : ColorRect,
   zindex : Int,
@@ -103,6 +163,40 @@ pub fn Sprite::from_color_rect(
 ) -> Sprite {
   {
     sprite_type: SpriteType::ColorRect(color_rect),
+    zindex,
+    offset,
+    visible: true,
+  }
+}
+
+///|
+/// Creates a sprite from a color circle.
+///
+/// Parameters:
+///
+/// * `color_circle` : The `ColorCircle` to use as the sprite content.
+/// * `zindex` : Rendering order priority. Higher values render on top.
+/// * `offset` : Optional position offset relative to the entity's position.
+///   Defaults to zero vector if not specified.
+///
+/// Returns a new `Sprite` with the color circle as its visual content.
+///
+/// Example:
+///
+/// ```moonbit
+/// let circle = @sprite.ColorCircle::new(20.0, "green")
+/// let sprite = @sprite.Sprite::from_color_circle(circle, 5)
+/// inspect(sprite.zindex, content="5")
+/// inspect(sprite.visible, content="true")
+/// ```
+///
+pub fn Sprite::from_color_circle(
+  color_circle : ColorCircle,
+  zindex : Int,
+  offset? : @math.Vec2D = @math.Vec2D::zero(),
+) -> Sprite {
+  {
+    sprite_type: SpriteType::ColorCircle(color_circle),
     zindex,
     offset,
     visible: true,
@@ -164,6 +258,8 @@ pub fn render_sprite_system(delta : Double) -> Unit {
         render_text(text, pos + sprite.offset)
       SpriteType::ColorRect(color_rect) if sprite.visible =>
         render_color_rect(color_rect, pos + sprite.offset)
+      SpriteType::ColorCircle(color_circle) if sprite.visible =>
+        render_color_circle(color_circle, pos + sprite.offset)
       _ => ()
     }
   }

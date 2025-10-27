@@ -120,12 +120,13 @@ pub fn quadtree_render_system(_delta : Double) -> Unit {
   fn render_node(node : QuadTree) -> Unit {
     let position = node.position - @camera.get_position()
     let size = node.size
-    @backend.draw_stroke_rect(
+    @backend.draw_color_rect(
       x=position[X],
       y=position[Y],
       width=size[X],
       height=size[Y],
-      color="blue",
+      color="rgba(0, 0, 0, 0.0)",
+      stroke_color="blue",
     )
     for child in node.children {
       render_node(child)

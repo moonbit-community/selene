@@ -36,10 +36,17 @@ pub(all) struct AnimationFrame {
   offset : @math.Vec2D
 }
 
+pub(all) struct ColorCircle {
+  radius : Double
+  color : String
+  stroke_color : String
+}
+fn ColorCircle::new(Double, String, stroke_color? : String) -> Self
+
 pub(all) struct ColorRect {
   size : @math.Vec2D
   color : String
-  stroke_color : String?
+  stroke_color : String
 }
 fn ColorRect::new(@math.Vec2D, String, stroke_color? : String) -> Self
 
@@ -58,6 +65,7 @@ pub(all) struct Sprite {
   offset : @math.Vec2D
 }
 fn Sprite::from_animation(Animation, Int, offset? : @math.Vec2D) -> Self
+fn Sprite::from_color_circle(ColorCircle, Int, offset? : @math.Vec2D) -> Self
 fn Sprite::from_color_rect(ColorRect, Int, offset? : @math.Vec2D) -> Self
 fn Sprite::from_picture(Picture, Int, offset? : @math.Vec2D) -> Self
 fn Sprite::from_text(Text, Int, offset? : @math.Vec2D) -> Self
@@ -67,6 +75,7 @@ pub enum SpriteType {
   Animation(Animation, mut frame~ : Double)
   Text(Text)
   ColorRect(ColorRect)
+  ColorCircle(ColorCircle)
 }
 
 pub(all) struct Text {

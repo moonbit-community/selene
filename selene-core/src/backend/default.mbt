@@ -108,21 +108,6 @@ pub fn lock_mouse(locked : Ref[Bool]) -> Unit {
 }
 
 ///|
-pub fn draw_stroke_rect(
-  x~ : Double,
-  y~ : Double,
-  width~ : Double,
-  height~ : Double,
-  color~ : String,
-) -> Unit {
-  ignore(x)
-  ignore(y)
-  ignore(width)
-  ignore(height)
-  ignore(color)
-}
-
-///|
 pub fn draw_text(
   text~ : String,
   x~ : Double,
@@ -148,12 +133,29 @@ pub fn draw_color_rect(
   width~ : Double,
   height~ : Double,
   color~ : String,
+  stroke_color~ : String,
 ) -> Unit {
   ignore(x)
   ignore(y)
   ignore(width)
   ignore(height)
   ignore(color)
+  ignore(stroke_color)
+}
+
+///|
+pub fn draw_color_circle(
+  x~ : Double,
+  y~ : Double,
+  radius~ : Double,
+  color~ : String,
+  stroke_color~ : String,
+) -> Unit {
+  ignore(x)
+  ignore(y)
+  ignore(radius)
+  ignore(color)
+  ignore(stroke_color)
 }
 
 ///|

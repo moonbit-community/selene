@@ -38,8 +38,8 @@ pub fn draw_picture(
   y~ : Double,
   width~ : Double,
   height~ : Double,
-  transform~ : @math.Transform,
-  repeat~ : @math.RepeatMode,
+  transform~ : @smath.Transform,
+  repeat~ : @smath.RepeatMode,
 ) -> Unit {
   let element = get_image_element(png)
   let repeat_mode = match repeat {
@@ -74,7 +74,7 @@ pub fn draw_sprite(
   offset_y~ : Double,
   width~ : Double,
   height~ : Double,
-  transform~ : @math.Transform,
+  transform~ : @smath.Transform,
 ) -> Unit {
   let context = canvas_backend.context
   context.save()
@@ -103,29 +103,14 @@ pub fn draw_sprite(
 }
 
 ///|
-pub fn draw_stroke_rect(
-  x~ : Double,
-  y~ : Double,
-  width~ : Double,
-  height~ : Double,
-  color~ : String,
-) -> Unit {
-  let context = canvas_backend.context
-  context.save()
-  context.set_stroke_style(@js.Union3::from0(color))
-  context.stroke_rect(x, y, width, height)
-  context.restore()
-}
-
-///|
 pub fn draw_text(
   text~ : String,
   x~ : Double,
   y~ : Double,
   font~ : String,
   color~ : String,
-  align~ : @math.HAlign,
-  baseline~ : @math.VAlign,
+  align~ : @smath.HAlign,
+  baseline~ : @smath.VAlign,
 ) -> Unit {
   let context = canvas_backend.context
   context.save()
@@ -154,11 +139,32 @@ pub fn draw_color_rect(
   width~ : Double,
   height~ : Double,
   color~ : String,
+  stroke_color~ : String,
 ) -> Unit {
   let context = canvas_backend.context
   context.save()
+  context.set_stroke_style(@js.Union3::from0(stroke_color))
+  context.stroke_rect(x, y, width, height)
   context.set_fill_style(@js.Union3::from0(color))
   context.fill_rect(x, y, width, height)
+  context.restore()
+}
+
+///|
+pub fn draw_color_circle(
+  x~ : Double,
+  y~ : Double,
+  radius~ : Double,
+  color~ : String,
+  stroke_color~ : String,
+) -> Unit {
+  let context = canvas_backend.context
+  begin_path(context)
+  context.arc(x, y, radius, 0, @math.PI * 2)
+  context.set_fill_style(@js.Union3::from0(color))
+  context.fill()
+  context.set_stroke_style(@js.Union3::from0(stroke_color))
+  context.stroke()
   context.restore()
 }
 
