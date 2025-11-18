@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-pub typealias () -> Unit as Event
+pub type Event = () -> Unit
 
 ///|
 /// Stores a collection of events that will be executed in a deferred manner

@@ -91,7 +91,7 @@ fn QuadTree::insert(
 
 ///|
 fn quadtree_query(area : @math.Rect) -> @set.Set[@entity.Entity] {
-  let mut trees = @list.of([quadtree_root.val])
+  let mut trees = @list.from_array([quadtree_root.val])
   let mut results = @set.Set::new()
   while trees is More(hd, tail=rest) {
     trees = rest

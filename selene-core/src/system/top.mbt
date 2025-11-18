@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-typealias (Double) -> Unit as System
+type System = (Double) -> Unit
 
 ///|
-typealias (App) -> Unit as Plugin
+type Plugin = (App) -> Unit
