@@ -28,24 +28,40 @@ jobs:
       - name: selene-core
         run: |
           cd selene-core
+          moon update
           moon check --deny-warn
           moon build
       
-      - name: selene-canvas
+      - name: selene-canvas on Ubuntu
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           cd selene-canvas
-          if [[ "$RUNNER_OS" == "macOS" ]]; then
-            sed -E -i '' 's#("Milky2018/selene": )"[^"]+"#\1{ "path": "../selene-core" }#' moon.mod.json
-          elif [[ "$RUNNER_OS" == "Linux" ]]; then
-            sed -E -i 's#("Milky2018/selene": )"[^"]+"#\1{ "path": "../selene-core" }#' moon.mod.json
-          fi
+          sed -E -i 's#("Milky2018/selene": )"[^"]+"#\1{ "path": "../selene-core" }#' moon.mod.json
           moon update
           moon check --deny-warn
           moon build
 
+      - name: selene-canvas on MacOS
+        if: ${{ matrix.os == 'macOS' }}
+        run: |
+          cd selene-canvas
+          sed -E -i '' 's#("Milky2018/selene": )"[^"]+"#\1{ "path": "../selene-core" }#' moon.mod.json
+          moon update
+          moon check --deny-warn
+          moon build
+
+      - name: selene-canvas on Windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          cd selene-canvas
+          (Get-Content moon.mod.json) -replace '("Milky2018/selene": )"[^"]+"', '${1}{ "path": "../selene-core" }' | Set-Content moon.mod.json
+          moon update
+          moon check --deny-warn
+          moon build
 
       - name: selene-examples
         run: |
           cd examples 
+          moon update
           moon check --deny-warn
           moon build
