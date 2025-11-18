@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.19.0] - 2025-10-27
+
+### Added 
+
+- `@sprite.ColorCircle::new` and corresponding variant `SpriteType::ColorCircle`
+- `@backend.draw_color_circle`
+
+### Changed 
+
+- `@sprite.ColorRect::new` add optional argument `stroke_color`
+- `@backend.draw_color_rect` add labeled argument `stroke_color`
+
+### Removed 
+
+- `@backend.draw_stroke_rect` now combined in `@backend.draw_color_rect`
+
 ## [0.18.3] - 2025-10-27
 
 ### Changed 

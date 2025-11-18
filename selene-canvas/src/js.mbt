@@ -65,3 +65,22 @@ extern "js" fn load_font_async(font : String, path : String) -> Unit =
 
 ///|
 extern "js" fn begin_path(ctx : @dom.CanvasRenderingContext2D) -> Unit = "(ctx) => ctx.beginPath();"
+
+///|
+pub extern "js" fn Audio::new(path : String) -> Audio = "(path) => new Audio(path)"
+
+///|
+pub extern "js" fn Audio::play(self : Self) -> Unit = "(self) => self.play()"
+
+///|
+pub extern "js" fn Audio::pause(self : Self) -> Unit = "(self) => self.pause()"
+
+///|
+pub extern "js" fn Audio::set_volume(self : Self, volume : Double) -> Unit = "(self, volume) => self.volume = volume"
+
+///|
+pub extern "js" fn Audio::set_loop(self : Self, loop_ : Bool) -> Unit = "(self, loop_) => self.loop = loop_"
+
+///|
+#external
+type Audio

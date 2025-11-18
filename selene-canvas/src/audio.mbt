@@ -13,25 +13,6 @@
 // limitations under the License.
 
 ///|
-#external
-type Audio
-
-///|
-pub extern "js" fn Audio::new(path : String) -> Audio = "(path) => new Audio(path)"
-
-///|
-pub extern "js" fn Audio::play(self : Self) -> Unit = "(self) => self.play()"
-
-///|
-pub extern "js" fn Audio::pause(self : Self) -> Unit = "(self) => self.pause()"
-
-///|
-pub extern "js" fn Audio::set_volume(self : Self, volume : Double) -> Unit = "(self, volume) => self.volume = volume"
-
-///|
-pub extern "js" fn Audio::set_loop(self : Self, loop_ : Bool) -> Unit = "(self, loop_) => self.loop = loop_"
-
-///|
 let audio_cache : Map[String, Audio] = Map::new()
 
 ///|
