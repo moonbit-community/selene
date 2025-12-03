@@ -7,17 +7,17 @@ import(
 )
 
 // Values
-fn attach_entity(@entity.Entity, @math.Vec2D) -> Unit
+pub fn attach_entity(@entity.Entity, @math.Vec2D) -> Unit
 
-fn camera_system(Double) -> Unit
+pub fn camera_system(Double) -> Unit
 
-fn get_position() -> @math.Vec2D
+pub fn get_position() -> @math.Vec2D
 
-fn set_follow_x(Bool) -> Unit
+pub fn set_follow_x(Bool) -> Unit
 
-fn set_follow_y(Bool) -> Unit
+pub fn set_follow_y(Bool) -> Unit
 
-fn set_limits(top? : Double, bottom? : Double, left? : Double, right? : Double) -> Unit
+pub fn set_limits(top? : Double, bottom? : Double, left? : Double, right? : Double) -> Unit
 
 // Errors
 

@@ -430,7 +430,7 @@ fn render_animation(
 /// @sprite.play_animation(entity, explosion_animation)
 ///
 /// // Check if the explosion animation has finished
-/// inspect(@sprite.is_animation_finished(entity)) 
+/// inspect(@sprite.is_animation_finished(entity))
 /// ```
 ///
 pub fn is_animation_finished(entity : @entity.Entity) -> Bool {

@@ -96,7 +96,7 @@ pub fn set_limits(
 /// ```moonbit
 /// let player_entity = @entity.Entity::new()
 /// @camera.attach_entity(player_entity, @math.Vec2D(32.0, 32.0))
-/// 
+///
 /// player_entity.destroy()
 /// ```
 ///

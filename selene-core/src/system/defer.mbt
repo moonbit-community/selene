@@ -55,7 +55,7 @@ let deferred_events : Array[Event] = Array::new()
 /// ```moonbit
 /// // Add some events to be processed later
 /// defer_event(fn() { println("First event") })
-/// defer_event(fn() { println("Second event") }) 
+/// defer_event(fn() { println("Second event") })
 /// ```
 /// 
 pub fn deferred_event_system(_delta : Double) -> Unit {

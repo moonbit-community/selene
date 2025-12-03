@@ -2,7 +2,7 @@
 package "Milky2018/selene/math"
 
 // Values
-fn normalize_angle(Double) -> Double
+pub fn normalize_angle(Double) -> Double
 
 // Errors
 
@@ -11,13 +11,8 @@ pub(all) enum Axis {
   X
   Y
 }
-fn Axis::equal(Self, Self) -> Bool // from trait `Eq`
-#deprecated
-fn Axis::op_equal(Self, Self) -> Bool // from trait `Eq`
-fn Axis::output(Self, &Logger) -> Unit // from trait `Show`
-fn Axis::to_string(Self) -> String // from trait `Show`
-impl Eq for Axis
-impl Show for Axis
+pub impl Eq for Axis
+pub impl Show for Axis
 
 pub(all) enum HAlign {
   Left
@@ -29,8 +24,8 @@ pub(all) struct Rect {
   position : Vec2D
   size : Vec2D
 }
-fn Rect::intersects(Self, Self) -> Bool
-fn Rect::shift(Self, Vec2D) -> Self
+pub fn Rect::intersects(Self, Self) -> Bool
+pub fn Rect::shift(Self, Vec2D) -> Self
 
 pub(all) enum RepeatMode {
   RepeatX
@@ -47,40 +42,30 @@ pub(all) struct Transform {
   tx : Double
   ty : Double
 }
-fn Transform::add(Self, Self) -> Self // from trait `Add`
-fn Transform::apply_to_point(Self, Double, Double) -> (Double, Double)
-fn Transform::apply_to_vec2d(Self, Vec2D) -> Vec2D
-fn Transform::clone(Self) -> Self
-fn Transform::default() -> Self // from trait `Default`
-fn Transform::flip_x(Double) -> Self
-fn Transform::flip_y(Double) -> Self
-fn Transform::from_rotation_deg(Double) -> Self
-fn Transform::from_rotation_rad(Double) -> Self
-fn Transform::from_scale(Double, Double) -> Self
-fn Transform::from_skew(Double, Double) -> Self
-fn Transform::from_translation(Double, Double) -> Self
-fn Transform::get_rotation_rad(Self) -> Double
-fn Transform::get_scale(Self) -> (Double, Double)
-fn Transform::get_translation(Self) -> (Double, Double)
-fn Transform::identity() -> Self
-fn Transform::inverse(Self) -> Self?
-fn Transform::mul(Self, Self) -> Self // from trait `Mul`
-fn Transform::multiply(Self, Self) -> Self
-fn Transform::new(a? : Double, b? : Double, c? : Double, d? : Double, tx? : Double, ty? : Double) -> Self
-#deprecated
-fn Transform::op_add(Self, Self) -> Self // from trait `Add`
-#deprecated
-fn Transform::op_mul(Self, Self) -> Self // from trait `Mul`
-#deprecated
-fn Transform::op_sub(Self, Self) -> Self // from trait `Sub`
-fn Transform::rotate_rad(Self, Double) -> Self
-fn Transform::scale(Self, Double, Double) -> Self
-fn Transform::sub(Self, Self) -> Self // from trait `Sub`
-fn Transform::translate(Self, Double, Double) -> Self
-impl Add for Transform
-impl Default for Transform
-impl Mul for Transform
-impl Sub for Transform
+pub fn Transform::apply_to_point(Self, Double, Double) -> (Double, Double)
+pub fn Transform::apply_to_vec2d(Self, Vec2D) -> Vec2D
+pub fn Transform::clone(Self) -> Self
+pub fn Transform::flip_x(Double) -> Self
+pub fn Transform::flip_y(Double) -> Self
+pub fn Transform::from_rotation_deg(Double) -> Self
+pub fn Transform::from_rotation_rad(Double) -> Self
+pub fn Transform::from_scale(Double, Double) -> Self
+pub fn Transform::from_skew(Double, Double) -> Self
+pub fn Transform::from_translation(Double, Double) -> Self
+pub fn Transform::get_rotation_rad(Self) -> Double
+pub fn Transform::get_scale(Self) -> (Double, Double)
+pub fn Transform::get_translation(Self) -> (Double, Double)
+pub fn Transform::identity() -> Self
+pub fn Transform::inverse(Self) -> Self?
+pub fn Transform::multiply(Self, Self) -> Self
+pub fn Transform::new(a? : Double, b? : Double, c? : Double, d? : Double, tx? : Double, ty? : Double) -> Self
+pub fn Transform::rotate_rad(Self, Double) -> Self
+pub fn Transform::scale(Self, Double, Double) -> Self
+pub fn Transform::translate(Self, Double, Double) -> Self
+pub impl Add for Transform
+pub impl Default for Transform
+pub impl Mul for Transform
+pub impl Sub for Transform
 
 pub(all) enum VAlign {
   Top
@@ -90,41 +75,24 @@ pub(all) enum VAlign {
 
 pub(all) struct Vec2D(Double, Double)
 
-fn Vec2D::add(Self, Self) -> Self // from trait `Add`
-fn Vec2D::clone(Self) -> Self
-fn Vec2D::default() -> Self // from trait `Default`
-fn Vec2D::distance(Self) -> Double
-fn Vec2D::distance_to(Self, Self) -> Double
-fn Vec2D::dot(Self, Self) -> Double
-fn Vec2D::equal(Self, Self) -> Bool // from trait `Eq`
-fn Vec2D::mul(Self, Self) -> Self // from trait `Mul`
-fn Vec2D::neg(Self) -> Self // from trait `Neg`
-fn Vec2D::normalize(Self) -> Self
-#deprecated
-fn Vec2D::op_add(Self, Self) -> Self // from trait `Add`
-#deprecated
-fn Vec2D::op_equal(Self, Self) -> Bool // from trait `Eq`
-fn Vec2D::op_get(Self, Axis) -> Double
-#deprecated
-fn Vec2D::op_mul(Self, Self) -> Self // from trait `Mul`
-#deprecated
-fn Vec2D::op_neg(Self) -> Self // from trait `Neg`
-#deprecated
-fn Vec2D::op_sub(Self, Self) -> Self // from trait `Sub`
-fn Vec2D::output(Self, &Logger) -> Unit // from trait `Show`
-fn Vec2D::scalar_div(Self, Double) -> Self
-fn Vec2D::scalar_mul(Self, Double) -> Self
-fn Vec2D::sub(Self, Self) -> Self // from trait `Sub`
-fn Vec2D::to_string(Self) -> String // from trait `Show`
-fn Vec2D::update(Self, Axis, Double) -> Self
-fn Vec2D::zero() -> Self
-impl Add for Vec2D
-impl Default for Vec2D
-impl Eq for Vec2D
-impl Mul for Vec2D
-impl Neg for Vec2D
-impl Show for Vec2D
-impl Sub for Vec2D
+
+pub fn Vec2D::clone(Self) -> Self
+pub fn Vec2D::distance(Self) -> Double
+pub fn Vec2D::distance_to(Self, Self) -> Double
+pub fn Vec2D::dot(Self, Self) -> Double
+pub fn Vec2D::normalize(Self) -> Self
+pub fn Vec2D::op_get(Self, Axis) -> Double
+pub fn Vec2D::scalar_div(Self, Double) -> Self
+pub fn Vec2D::scalar_mul(Self, Double) -> Self
+pub fn Vec2D::update(Self, Axis, Double) -> Self
+pub fn Vec2D::zero() -> Self
+pub impl Add for Vec2D
+pub impl Default for Vec2D
+pub impl Eq for Vec2D
+pub impl Mul for Vec2D
+pub impl Neg for Vec2D
+pub impl Show for Vec2D
+pub impl Sub for Vec2D
 
 // Type aliases
 
