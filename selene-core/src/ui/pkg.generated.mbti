@@ -6,16 +6,16 @@ import(
 )
 
 // Values
-const UI_ZINDEX : Int = 100
+pub const UI_ZINDEX : Int = 100
 
-let uis : Map[@entity.Entity, Ui]
+pub let uis : Map[@entity.Entity, Ui]
 
 // Errors
 
 // Types and methods
 pub(all) struct Ui {
 }
-fn Ui::new() -> Self
+pub fn Ui::new() -> Self
 
 // Type aliases
 

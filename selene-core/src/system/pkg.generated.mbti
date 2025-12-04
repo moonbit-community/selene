@@ -2,19 +2,19 @@
 package "Milky2018/selene/system"
 
 // Values
-fn defer_event(() -> Unit) -> Unit
+pub fn defer_event(() -> Unit) -> Unit
 
-fn deferred_event_system(Double) -> Unit
+pub fn deferred_event_system(Double) -> Unit
 
-fn is_mouse_locked() -> Bool
+pub fn is_mouse_locked() -> Bool
 
-fn lock_mouse() -> Unit
+pub fn lock_mouse() -> Unit
 
-fn realtime_timer_system(Double) -> Unit
+pub fn realtime_timer_system(Double) -> Unit
 
-fn timeout(Double, () -> Unit, pausible? : Bool) -> Unit
+pub fn timeout(Double, () -> Unit, pausible? : Bool) -> Unit
 
-fn timer_system(Double) -> Unit
+pub fn timer_system(Double) -> Unit
 
 // Errors
 
@@ -28,15 +28,15 @@ pub(all) struct App {
   systems : Array[((Double) -> Unit, Schedule, String)]
   plugins : Array[(App) -> Unit]
 }
-fn App::add_plugin(Self, (Self) -> Unit) -> Self
-fn App::add_system(Self, (Double) -> Unit, schedule? : Schedule, system_name? : String) -> Self
-fn App::new() -> Self
-fn App::run(Self) -> Unit
-fn App::with_canvas_height(Self, Double) -> Self
-fn App::with_canvas_width(Self, Double) -> Self
-fn App::with_fps(Self, UInt) -> Self
-fn App::with_image_smooth(Self, Bool) -> Self
-fn App::with_zoom(Self, Double) -> Self
+pub fn App::add_plugin(Self, (Self) -> Unit) -> Self
+pub fn App::add_system(Self, (Double) -> Unit, schedule? : Schedule, system_name? : String) -> Self
+pub fn App::new() -> Self
+pub fn App::run(Self) -> Unit
+pub fn App::with_canvas_height(Self, Double) -> Self
+pub fn App::with_canvas_width(Self, Double) -> Self
+pub fn App::with_fps(Self, UInt) -> Self
+pub fn App::with_image_smooth(Self, Bool) -> Self
+pub fn App::with_zoom(Self, Double) -> Self
 
 pub(all) enum Schedule {
   Startup
@@ -45,7 +45,7 @@ pub(all) enum Schedule {
 }
 
 // Type aliases
-pub typealias () -> Unit as Event
+pub type Event = () -> Unit
 
 // Traits
 

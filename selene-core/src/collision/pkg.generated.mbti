@@ -10,49 +10,49 @@ import(
 )
 
 // Values
-fn area_collide_system(Double) -> Unit
+pub fn area_collide_system(Double) -> Unit
 
-let areas : Map[@entity.Entity, Area]
+pub let areas : Map[@entity.Entity, Area]
 
-let colliders : Map[@entity.Entity, Collider]
+pub let colliders : Map[@entity.Entity, Collider]
 
-let collision_layers : Map[@entity.Entity, CollisionLayer]
+pub let collision_layers : Map[@entity.Entity, CollisionLayer]
 
-fn debug_collide_system(Double) -> Unit
+pub fn debug_collide_system(Double) -> Unit
 
-fn get_collision_infos(@entity.Entity) -> Array[CollisionInfo]
+pub fn get_collision_infos(@entity.Entity) -> Array[CollisionInfo]
 
-fn get_contains(@entity.Entity) -> @set.Set[@entity.Entity]
+pub fn get_contains(@entity.Entity) -> @set.Set[@entity.Entity]
 
-fn is_on_floor(@entity.Entity) -> Bool
+pub fn is_on_floor(@entity.Entity) -> Bool
 
-fn move_system(Double) -> Unit
+pub fn move_system(Double) -> Unit
 
-fn pickable_click_system(Double) -> Unit
+pub fn pickable_click_system(Double) -> Unit
 
-let pickables : Map[@entity.Entity, Pickable]
+pub let pickables : Map[@entity.Entity, Pickable]
 
-fn quadtree_clear_system(Double) -> Unit
+pub fn quadtree_clear_system(Double) -> Unit
 
-fn quadtree_render_system(Double) -> Unit
+pub fn quadtree_render_system(Double) -> Unit
 
-let real_velocities : Map[@entity.Entity, @velocity.Velocity]
+pub let real_velocities : Map[@entity.Entity, @velocity.Velocity]
 
-let shapes : Map[@entity.Entity, CollisionShape]
+pub let shapes : Map[@entity.Entity, CollisionShape]
 
 // Errors
 
 // Types and methods
 type Area
-fn Area::new(CollisionMask) -> Self
-fn Area::on_enter(Self, (@entity.Entity) -> Unit) -> Unit
-fn Area::on_exit(Self, (@entity.Entity) -> Unit) -> Unit
+pub fn Area::new(CollisionMask) -> Self
+pub fn Area::on_enter(Self, (@entity.Entity) -> Unit) -> Unit
+pub fn Area::on_exit(Self, (@entity.Entity) -> Unit) -> Unit
 
 pub(all) struct Collider {
   mut active : Bool
   mask : CollisionMask
 }
-fn Collider::new(CollisionMask) -> Self
+pub fn Collider::new(CollisionMask) -> Self
 
 pub struct CollisionInfo {
   entity : @entity.Entity
@@ -60,30 +60,27 @@ pub struct CollisionInfo {
 }
 
 pub struct CollisionLayer(UInt)
-fn CollisionLayer::equal(Self, Self) -> Bool // from trait `Eq`
 #deprecated
-fn CollisionLayer::inner(Self) -> UInt
-fn CollisionLayer::new() -> Self
-#deprecated
-fn CollisionLayer::op_equal(Self, Self) -> Bool // from trait `Eq`
-impl Eq for CollisionLayer
+pub fn CollisionLayer::inner(Self) -> UInt
+pub fn CollisionLayer::new() -> Self
+pub impl Eq for CollisionLayer
 
 pub struct CollisionMask(Array[CollisionLayer])
-fn CollisionMask::empty() -> Self
+pub fn CollisionMask::empty() -> Self
 #deprecated
-fn CollisionMask::inner(Self) -> Array[CollisionLayer]
-fn CollisionMask::new(Array[CollisionLayer]) -> Self
+pub fn CollisionMask::inner(Self) -> Array[CollisionLayer]
+pub fn CollisionMask::new(Array[CollisionLayer]) -> Self
 
 pub(all) enum CollisionShape {
   Rect(size~ : @math.Vec2D, offset~ : @math.Vec2D)
 }
 
 type Pickable
-fn Pickable::new() -> Self
-fn Pickable::on_just_pressed(Self, (@inputs.MouseButton) -> Unit) -> Unit
-fn Pickable::on_just_released(Self, (@inputs.MouseButton) -> Unit) -> Unit
-fn Pickable::on_pressed(Self, (@inputs.MouseButton) -> Unit) -> Unit
-fn Pickable::on_released(Self, (@inputs.MouseButton) -> Unit) -> Unit
+pub fn Pickable::new() -> Self
+pub fn Pickable::on_just_pressed(Self, (@inputs.MouseButton) -> Unit) -> Unit
+pub fn Pickable::on_just_released(Self, (@inputs.MouseButton) -> Unit) -> Unit
+pub fn Pickable::on_pressed(Self, (@inputs.MouseButton) -> Unit) -> Unit
+pub fn Pickable::on_released(Self, (@inputs.MouseButton) -> Unit) -> Unit
 
 // Type aliases
 

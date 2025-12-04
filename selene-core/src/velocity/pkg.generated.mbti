@@ -7,21 +7,16 @@ import(
 )
 
 // Values
-let velocities : Map[@entity.Entity, Velocity]
+pub let velocities : Map[@entity.Entity, Velocity]
 
 // Errors
 
 // Types and methods
 pub(all) struct Velocity(@math.Vec2D)
-fn Velocity::equal(Self, Self) -> Bool // from trait `Eq`
 #deprecated
-fn Velocity::inner(Self) -> @math.Vec2D
-#deprecated
-fn Velocity::op_equal(Self, Self) -> Bool // from trait `Eq`
-fn Velocity::output(Self, &Logger) -> Unit // from trait `Show`
-fn Velocity::to_string(Self) -> String // from trait `Show`
-impl Eq for Velocity
-impl Show for Velocity
+pub fn Velocity::inner(Self) -> @math.Vec2D
+pub impl Eq for Velocity
+pub impl Show for Velocity
 
 // Type aliases
 

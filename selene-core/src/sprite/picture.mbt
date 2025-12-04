@@ -31,8 +31,8 @@
 ///   @math.Vec2D(100.0, 50.0),
 ///   "assets/background.png",
 ///   transform=@math.Transform::new(),
-///   repeat=@math.RepeatMode::NoRepeat
-/// ) 
+///   repeat=@math.RepeatMode::NoRepeat,
+/// )
 /// ```
 ///
 pub(all) struct Picture {
@@ -66,7 +66,7 @@ pub(all) struct Picture {
 ///   @math.Vec2D(100.0, 50.0),
 ///   "assets/background.png",
 ///   transform=@math.Transform::new(),
-///   repeat=@math.RepeatMode::NoRepeat
+///   repeat=@math.RepeatMode::NoRepeat,
 /// )
 /// ```
 ///

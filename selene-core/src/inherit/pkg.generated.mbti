@@ -2,7 +2,7 @@
 package "Milky2018/selene/inherit"
 
 // Values
-fn inherit_position_system(Double) -> Unit
+pub fn inherit_position_system(Double) -> Unit
 
 // Errors
 

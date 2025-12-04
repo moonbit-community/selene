@@ -2,7 +2,7 @@
 package "Milky2018/selene/audio"
 
 // Values
-fn play_audio(String, volume? : Double, loop_? : Bool) -> Unit
+pub fn play_audio(String, volume? : Double, loop_? : Bool) -> Unit
 
 // Errors
 

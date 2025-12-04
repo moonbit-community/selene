@@ -10,13 +10,13 @@ import(
 )
 
 // Values
-fn add_widget(@entity.Entity, sprite? : (Int) -> @sprite.Sprite, on_just_pressed? : (@inputs.MouseButton) -> Unit, shape? : @collision.CollisionShape, size_plan? : SizePlan, flex? : Flex, h_padding? : Double, v_padding? : Double, h_offset? : Double, v_offset? : Double) -> @entity.Entity
+pub fn add_widget(@entity.Entity, sprite? : (Int) -> @sprite.Sprite, on_just_pressed? : (@inputs.MouseButton) -> Unit, shape? : @collision.CollisionShape, size_plan? : SizePlan, flex? : Flex, h_padding? : Double, v_padding? : Double, h_offset? : Double, v_offset? : Double) -> @entity.Entity
 
-let screen_root : @entity.Entity
+pub let screen_root : @entity.Entity
 
-fn style_system(Double) -> Unit
+pub fn style_system(Double) -> Unit
 
-let styles : Map[@entity.Entity, Style]
+pub let styles : Map[@entity.Entity, Style]
 
 // Errors
 
@@ -35,7 +35,7 @@ pub(all) enum SizePlan {
 }
 
 type Style
-fn Style::new(size_plan? : SizePlan, flex? : Flex, h_padding? : Double, v_padding? : Double, h_offset? : Double, v_offset? : Double) -> Self
+pub fn Style::new(size_plan? : SizePlan, flex? : Flex, h_padding? : Double, v_padding? : Double, h_offset? : Double, v_offset? : Double) -> Self
 
 // Type aliases
 

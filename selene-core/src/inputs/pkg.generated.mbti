@@ -7,37 +7,37 @@ import(
 )
 
 // Values
-fn advanced_key_system(Double) -> Unit
+pub fn advanced_key_system(Double) -> Unit
 
-fn advanced_mouse_system(Double) -> Unit
+pub fn advanced_mouse_system(Double) -> Unit
 
-fn is_just_pressed(Code) -> Bool
+pub fn is_just_pressed(Code) -> Bool
 
-fn is_just_released(Code) -> Bool
+pub fn is_just_released(Code) -> Bool
 
-fn is_mouse_just_pressed(MouseButton) -> Bool
+pub fn is_mouse_just_pressed(MouseButton) -> Bool
 
-fn is_mouse_just_released(MouseButton) -> Bool
+pub fn is_mouse_just_released(MouseButton) -> Bool
 
-fn is_mouse_pressed(MouseButton) -> Bool
+pub fn is_mouse_pressed(MouseButton) -> Bool
 
-fn is_mouse_released(MouseButton) -> Bool
+pub fn is_mouse_released(MouseButton) -> Bool
 
-fn is_pressed(Code) -> Bool
+pub fn is_pressed(Code) -> Bool
 
-fn is_released(Code) -> Bool
+pub fn is_released(Code) -> Bool
 
-let just_pressed_mouse : Mouse
+pub let just_pressed_mouse : Mouse
 
-let just_release_mouse : Mouse
+pub let just_release_mouse : Mouse
 
-fn key_vector(Code, Code, Code, Code) -> @math.Vec2D
+pub fn key_vector(Code, Code, Code, Code) -> @math.Vec2D
 
-let mouse : Mouse
+pub let mouse : Mouse
 
-let mouse_movement : MouseMovement
+pub let mouse_movement : MouseMovement
 
-let pressed_keys : @set.Set[Code]
+pub let pressed_keys : @set.Set[Code]
 
 // Errors
 
@@ -77,17 +77,10 @@ pub(all) enum Code {
   Enter
   Escape
 }
-fn Code::equal(Self, Self) -> Bool // from trait `Eq`
-fn Code::from_string(String) -> Self?
-fn Code::hash(Self) -> Int // from trait `Hash`
-fn Code::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
-#deprecated
-fn Code::op_equal(Self, Self) -> Bool // from trait `Eq`
-fn Code::output(Self, &Logger) -> Unit // from trait `Show`
-fn Code::to_string(Self) -> String // from trait `Show`
-impl Eq for Code
-impl Hash for Code
-impl Show for Code
+pub fn Code::from_string(String) -> Self?
+pub impl Eq for Code
+pub impl Hash for Code
+pub impl Show for Code
 
 pub(all) struct Mouse {
   mut pos : @math.Vec2D
@@ -101,13 +94,8 @@ pub(all) enum MouseButton {
   Right
   Middle
 }
-fn MouseButton::equal(Self, Self) -> Bool // from trait `Eq`
-#deprecated
-fn MouseButton::op_equal(Self, Self) -> Bool // from trait `Eq`
-fn MouseButton::output(Self, &Logger) -> Unit // from trait `Show`
-fn MouseButton::to_string(Self) -> String // from trait `Show`
-impl Eq for MouseButton
-impl Show for MouseButton
+pub impl Eq for MouseButton
+pub impl Show for MouseButton
 
 pub(all) struct MouseMovement {
   mut movement : @math.Vec2D

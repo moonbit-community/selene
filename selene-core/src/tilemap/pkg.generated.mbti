@@ -15,16 +15,14 @@ pub struct Tile {
   x : Int
   y : Int
 }
-fn Tile::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError // from trait `@json.FromJson`
-impl @json.FromJson for Tile
+pub impl @json.FromJson for Tile
 
 pub struct TileLayer {
   name : String
   tiles : Array[Tile]
   collider : Bool
 }
-fn TileLayer::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError // from trait `@json.FromJson`
-impl @json.FromJson for TileLayer
+pub impl @json.FromJson for TileLayer
 
 pub struct TileMap {
   tile_size : Int
@@ -32,10 +30,10 @@ pub struct TileMap {
   map_height : Int
   layers : Array[TileLayer]
 }
-fn TileMap::from_json(Json) -> Self
-fn TileMap::get_tiles(Self, String) -> Array[Tile]
-fn TileMap::get_tiles_first(Self, String) -> Array[Tile]
-impl @json.FromJson for TileMap
+pub fn TileMap::from_json(Json) -> Self
+pub fn TileMap::get_tiles(Self, String) -> Array[Tile]
+pub fn TileMap::get_tiles_first(Self, String) -> Array[Tile]
+pub impl @json.FromJson for TileMap
 
 // Type aliases
 

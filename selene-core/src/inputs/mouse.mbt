@@ -233,7 +233,7 @@ pub let just_release_mouse : Mouse = {
 ///
 /// ```moonbit
 /// inspect(@inputs.is_mouse_just_pressed(Left), content="false") 
-/// inspect(@inputs.is_mouse_pressed(Right), content="false") 
+/// inspect(@inputs.is_mouse_pressed(Right), content="false")
 /// ```
 ///
 pub fn advanced_mouse_system(_delta : Double) -> Unit {

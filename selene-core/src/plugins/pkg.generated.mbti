@@ -6,9 +6,9 @@ import(
 )
 
 // Values
-fn debug_plugin(@system.App) -> Unit
+pub fn debug_plugin(@system.App) -> Unit
 
-fn default_plugin(@system.App) -> Unit
+pub fn default_plugin(@system.App) -> Unit
 
 // Errors
 
