@@ -2,3 +2,6 @@
 openspec
 AGENTS.md
 CLAUDE.md
+_build/
+target
+target/
