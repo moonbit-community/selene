@@ -43,7 +43,7 @@ let all_entities : @set.Set[Entity] = @set.Set::new()
 /// Returns an iterator over all entities currently registered in the
 /// selene app.
 ///
-/// Returns an `Iter[Entity]` that yields all entities that have been created,
+/// Returns an `Iterator[Entity]` that yields all entities that have been created,
 /// including both active and inactive entities.
 ///
 /// Example:
@@ -61,8 +61,8 @@ let all_entities : @set.Set[Entity] = @set.Set::new()
 /// entity2.destroy()
 /// ```
 ///
-pub fn iter_entities() -> Iter[Entity] {
-  all_entities.iter()
+pub fn iter_entities() -> Iterator[Entity] {
+  all_entities.iterator()
 }
 
 ///|

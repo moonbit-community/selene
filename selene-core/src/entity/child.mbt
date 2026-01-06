@@ -232,7 +232,7 @@ pub fn Entity::set_offset(child : Entity, offset : @math.Vec2D) -> Unit {
 /// have never spawned children are not considered roots and will not be returned
 /// by this function.
 ///
-/// Returns an `Iter[Entity]` that yields all root parent entities.
+/// Returns an `Iterator[Entity]` that yields all root parent entities.
 ///
 /// Example:
 ///
@@ -253,8 +253,8 @@ pub fn Entity::set_offset(child : Entity, offset : @math.Vec2D) -> Unit {
 /// root2.destroy()
 /// ```
 ///
-pub fn get_roots() -> Iter[Entity] {
-  parents.iter().filter(ep => ep.1.is_root && ep.0.is_alive()).map(ep => ep.0)
+pub fn get_roots() -> Iterator[Entity] {
+  parents.iterator().filter(ep => ep.1.is_root && ep.0.is_alive()).map(ep => ep.0)
 }
 
 ///|
