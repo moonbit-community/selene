@@ -254,7 +254,10 @@ pub fn Entity::set_offset(child : Entity, offset : @math.Vec2D) -> Unit {
 /// ```
 ///
 pub fn get_roots() -> Iterator[Entity] {
-  parents.iterator().filter(ep => ep.1.is_root && ep.0.is_alive()).map(ep => ep.0)
+  parents
+  .iterator()
+  .filter(ep => ep.1.is_root && ep.0.is_alive())
+  .map(ep => ep.0)
 }
 
 ///|

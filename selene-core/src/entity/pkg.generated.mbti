@@ -6,9 +6,9 @@ import(
 )
 
 // Values
-pub fn get_roots() -> Iter[Entity]
+pub fn get_roots() -> Iterator[Entity]
 
-pub fn iter_entities() -> Iter[Entity]
+pub fn iter_entities() -> Iterator[Entity]
 
 // Errors
 

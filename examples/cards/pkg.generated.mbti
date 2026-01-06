@@ -7,44 +7,24 @@ package "Milky2018/selene/examples/cards"
 
 // Types and methods
 type Card
-fn Card::equal(Self, Self) -> Bool // from trait `Eq`
-fn Card::hash(Self) -> Int // from trait `Hash`
-fn Card::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
-#deprecated
-fn Card::op_equal(Self, Self) -> Bool // from trait `Eq`
-impl Eq for Card
-impl Hash for Card
+pub impl Eq for Card
+pub impl Hash for Card
 
 type CardNum
-fn CardNum::equal(Self, Self) -> Bool // from trait `Eq`
-fn CardNum::hash(Self) -> Int // from trait `Hash`
-fn CardNum::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
-#deprecated
-fn CardNum::op_equal(Self, Self) -> Bool // from trait `Eq`
-impl Eq for CardNum
-impl Hash for CardNum
+pub impl Eq for CardNum
+pub impl Hash for CardNum
 
 type CardSuit
-fn CardSuit::equal(Self, Self) -> Bool // from trait `Eq`
-fn CardSuit::hash(Self) -> Int // from trait `Hash`
-fn CardSuit::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
-#deprecated
-fn CardSuit::op_equal(Self, Self) -> Bool // from trait `Eq`
-impl Eq for CardSuit
-impl Hash for CardSuit
+pub impl Eq for CardSuit
+pub impl Hash for CardSuit
 
 type GamePhase
-fn GamePhase::equal(Self, Self) -> Bool // from trait `Eq`
-#deprecated
-fn GamePhase::op_equal(Self, Self) -> Bool // from trait `Eq`
-impl Eq for GamePhase
+pub impl Eq for GamePhase
 
 type GameState
 
 type HandRank
-fn HandRank::output(Self, &Logger) -> Unit // from trait `Show`
-fn HandRank::to_string(Self) -> String // from trait `Show`
-impl Show for HandRank
+pub impl Show for HandRank
 
 type Player
 

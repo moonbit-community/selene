@@ -9,19 +9,14 @@ package "Milky2018/selene/examples/pixeladventure"
 type Bird
 
 type Direction2
-fn Direction2::equal(Self, Self) -> Bool // from trait `Eq`
-#deprecated
-fn Direction2::op_equal(Self, Self) -> Bool // from trait `Eq`
-impl Eq for Direction2
+pub impl Eq for Direction2
 
 type GameResult
 
 type GameState
 
 type PlayerState
-fn PlayerState::output(Self, &Logger) -> Unit // from trait `Show`
-fn PlayerState::to_string(Self) -> String // from trait `Show`
-impl Show for PlayerState
+pub impl Show for PlayerState
 
 // Type aliases
 
