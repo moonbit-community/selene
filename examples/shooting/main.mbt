@@ -107,7 +107,8 @@ fn player_update_system(_delta : Double) -> Unit {
   let player_pos = @position.positions.get(player_entity)
   match player_pos {
     Some(pos) => {
-      let gun_base_pos = pos.0 + game_state.player_facing_direction.scalar_mul(PLAYER_SIZE)
+      let gun_base_pos = pos.0 +
+        game_state.player_facing_direction.scalar_mul(PLAYER_SIZE)
       @position.positions.set(gun_entity, gun_base_pos)
     }
     None => ()

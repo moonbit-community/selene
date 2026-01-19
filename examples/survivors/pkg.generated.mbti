@@ -13,13 +13,8 @@ type Enemy
 type EnemyData
 
 type EnemyType
-fn EnemyType::equal(Self, Self) -> Bool // from trait `Eq`
-fn EnemyType::hash(Self) -> Int // from trait `Hash`
-fn EnemyType::hash_combine(Self, Hasher) -> Unit // from trait `Hash`
-#deprecated
-fn EnemyType::op_equal(Self, Self) -> Bool // from trait `Eq`
-impl Eq for EnemyType
-impl Hash for EnemyType
+pub impl Eq for EnemyType
+pub impl Hash for EnemyType
 
 type GameOverPanel
 
@@ -34,10 +29,7 @@ type PlayerStats
 type Powerup
 
 type PowerupType
-fn PowerupType::equal(Self, Self) -> Bool // from trait `Eq`
-#deprecated
-fn PowerupType::op_equal(Self, Self) -> Bool // from trait `Eq`
-impl Eq for PowerupType
+pub impl Eq for PowerupType
 
 type WaveSpawnPlan
 
@@ -46,10 +38,7 @@ type WaveState
 type WeaponData
 
 type WeaponType
-fn WeaponType::equal(Self, Self) -> Bool // from trait `Eq`
-#deprecated
-fn WeaponType::op_equal(Self, Self) -> Bool // from trait `Eq`
-impl Eq for WeaponType
+pub impl Eq for WeaponType
 
 // Type aliases
 
