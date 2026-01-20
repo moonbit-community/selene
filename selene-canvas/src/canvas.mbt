@@ -112,9 +112,9 @@ fn schedule_with_fixed_interval(
   interval : Double,
   callback : (Double) -> Unit,
 ) -> () -> Unit {
-  let lastTime = { val: 0.0 }
-  let accumulator = { val: 0.0 }
-  let lastId = { val: 0.0 }
+  let lastTime = Ref::new(0.0)
+  let accumulator = Ref::new(0.0)
+  let lastId = Ref::new(0.0)
   fn update(time : Double) -> Unit {
     if lastTime.val == 0.0 {
       lastTime.val = time
