@@ -14,7 +14,8 @@
     "Milky2018/selene/camera",
     "Milky2018/selene/ui",
     "Milky2018/selene/inputs",
-    "Milky2018/selene/backend"
+    "Milky2018/selene/backend",
+    "moonbitlang/core/random"
   ],
   "overrides": [
     "Milky2018/selene-canvas"

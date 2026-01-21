@@ -9,7 +9,8 @@
     "Milky2018/selene/position",
     "Milky2018/selene/backend",
     "Milky2018/selene/style",
-    "Milky2018/selene/collision"
+    "Milky2018/selene/collision",
+    "moonbitlang/core/random"
   ],
   "overrides": [
     "Milky2018/selene-canvas"
