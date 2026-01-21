@@ -1,9 +1,9 @@
 {
   "name": "Milky2018/selene-canvas",
-  "version": "0.19.3",
+  "version": "0.19.4",
   "deps": {
     "Yoorkin/rabbit-tea": "0.10.11",
-    "Milky2018/selene": "0.19.3",
+    "Milky2018/selene": "0.19.4",
     "rami3l/js-ffi": "0.4.0"
   },
   "readme": "README.md",

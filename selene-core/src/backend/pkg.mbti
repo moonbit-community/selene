@@ -14,10 +14,10 @@
 
 package "Milky2018/selene/backend"
 
-import(
-  "Milky2018/selene/inputs"
+import {
+  "Milky2018/selene/inputs",
   "Milky2018/selene/math"
-)
+}
 
 fn initialize(
   startup~ : () -> Unit,

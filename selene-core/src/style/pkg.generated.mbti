@@ -1,13 +1,13 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/style"
 
-import(
-  "Milky2018/selene/collision"
-  "Milky2018/selene/entity"
-  "Milky2018/selene/inputs"
-  "Milky2018/selene/math"
-  "Milky2018/selene/sprite"
-)
+import {
+  "Milky2018/selene/collision",
+  "Milky2018/selene/entity",
+  "Milky2018/selene/inputs",
+  "Milky2018/selene/math",
+  "Milky2018/selene/sprite",
+}
 
 // Values
 pub fn add_widget(@entity.Entity, sprite? : (Int) -> @sprite.Sprite, on_just_pressed? : (@inputs.MouseButton) -> Unit, shape? : @collision.CollisionShape, size_plan? : SizePlan, flex? : Flex, h_padding? : Double, v_padding? : Double, h_offset? : Double, v_offset? : Double) -> @entity.Entity

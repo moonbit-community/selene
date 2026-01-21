@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/plugins"
 
-import(
-  "Milky2018/selene/system"
-)
+import {
+  "Milky2018/selene/system",
+}
 
 // Values
 pub fn debug_plugin(@system.App) -> Unit

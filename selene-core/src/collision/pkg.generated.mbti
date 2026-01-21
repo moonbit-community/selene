@@ -1,13 +1,13 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/collision"
 
-import(
-  "Milky2018/selene/entity"
-  "Milky2018/selene/inputs"
-  "Milky2018/selene/math"
-  "Milky2018/selene/velocity"
-  "moonbitlang/core/set"
-)
+import {
+  "Milky2018/selene/entity",
+  "Milky2018/selene/inputs",
+  "Milky2018/selene/math",
+  "Milky2018/selene/velocity",
+  "moonbitlang/core/set",
+}
 
 // Values
 pub fn area_collide_system(Double) -> Unit

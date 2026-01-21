@@ -3,7 +3,8 @@
     "Yoorkin/rabbit-tea/dom",
     "rami3l/js-ffi/js",
     { "path": "Milky2018/selene/math", "alias": "smath" },
-    "Milky2018/selene/inputs"
+    "Milky2018/selene/inputs",
+    "moonbitlang/core/math"
   ],
   "implement": "Milky2018/selene/backend"
 }

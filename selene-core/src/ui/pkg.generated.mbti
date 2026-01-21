@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/ui"
 
-import(
-  "Milky2018/selene/entity"
-)
+import {
+  "Milky2018/selene/entity",
+}
 
 // Values
 pub const UI_ZINDEX : Int = 100

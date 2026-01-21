@@ -1,10 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/inputs"
 
-import(
-  "Milky2018/selene/math"
-  "moonbitlang/core/set"
-)
+import {
+  "Milky2018/selene/math",
+  "moonbitlang/core/set",
+}
 
 // Values
 pub fn advanced_key_system(Double) -> Unit

@@ -1,10 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/sprite"
 
-import(
-  "Milky2018/selene/entity"
-  "Milky2018/selene/math"
-)
+import {
+  "Milky2018/selene/entity",
+  "Milky2018/selene/math",
+}
 
 // Values
 pub fn frames_from_atlas(String, Int, width~ : Double, height~ : Double, offset? : @math.Vec2D, space_x? : Double) -> Array[AnimationFrame]

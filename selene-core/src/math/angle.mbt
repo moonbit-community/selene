@@ -25,17 +25,17 @@
 ///
 /// ```moonbit
 /// // Positive angle greater than 2PI
-/// inspect(@math.normalize_angle(7.0), content="0.7168146928204138")
+/// inspect(@cmath.normalize_angle(7.0), content="0.7168146928204138")
 ///
 /// // Negative angle
-/// inspect(@math.normalize_angle(-1.0), content="5.283185307179586")
+/// inspect(@cmath.normalize_angle(-1.0), content="5.283185307179586")
 ///
 /// // Angle already in range
-/// inspect(@math.normalize_angle(1.5), content="1.5")
+/// inspect(@cmath.normalize_angle(1.5), content="1.5")
 /// ```
 ///
 pub fn normalize_angle(angle : Double) -> Double {
-  let two_pi = @math.PI * 2
+  let two_pi = @cmath.PI * 2
   let angle = angle % two_pi
   if angle < 0.0 {
     angle + two_pi
@@ -57,7 +57,7 @@ test "normalize_angle" {
   inspect(normalize_angle(0.0), content="0")
 
   // Test angle exactly at 2π (should normalize to 0)
-  inspect(normalize_angle(@math.PI * 2.0), content="0")
+  inspect(normalize_angle(@cmath.PI * 2.0), content="0")
 }
 
 ///|
@@ -69,14 +69,14 @@ test "normalize_angle/edge_cases" {
   inspect(normalize_angle(-100.0), content="0.5309649148733797")
 
   // Test multiple full rotations
-  inspect(normalize_angle(@math.PI * 6.0), content="0")
-  inspect(normalize_angle(@math.PI * -4.0), content="0")
+  inspect(normalize_angle(@cmath.PI * 6.0), content="0")
+  inspect(normalize_angle(@cmath.PI * -4.0), content="0")
 }
 
 ///|
 test "normalize_angle/boundary_values" {
   // Test just under 2π
-  let almost_two_pi = @math.PI * 2.0 - 0.001
+  let almost_two_pi = @cmath.PI * 2.0 - 0.001
   inspect(normalize_angle(almost_two_pi), content="6.282185307179586")
 
   // Test just over 0 when coming from negative

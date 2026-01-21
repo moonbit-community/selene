@@ -85,15 +85,15 @@ pub fn Transform::from_scale(sx : Double, sy : Double) -> Transform {
 /// Create rotation transform (degrees)
 /// 
 pub fn Transform::from_rotation_deg(deg : Double) -> Transform {
-  Transform::from_rotation_rad(deg * @math.PI / 180.0)
+  Transform::from_rotation_rad(deg * @cmath.PI / 180.0)
 }
 
 ///|
 /// Create rotation transform (radians)
 /// 
 pub fn Transform::from_rotation_rad(rad : Double) -> Transform {
-  let cos_r = @math.cos(rad)
-  let sin_r = @math.sin(rad)
+  let cos_r = @cmath.cos(rad)
+  let sin_r = @cmath.sin(rad)
   { a: cos_r, b: sin_r, c: -sin_r, d: cos_r, tx: 0.0, ty: 0.0 }
 }
 
@@ -179,7 +179,7 @@ pub fn Transform::scale(
 /// Get rotation angle in radians
 /// 
 pub fn Transform::get_rotation_rad(self : Transform) -> Double {
-  @math.atan2(self.b, self.a)
+  @cmath.atan2(self.b, self.a)
 }
 
 ///|
@@ -322,7 +322,7 @@ test "Transform::from_rotation_deg creates correct rotation matrix" {
 
 ///|
 test "Transform::from_rotation_rad creates correct rotation matrix" {
-  let rotation = Transform::from_rotation_rad(@math.PI / 2.0)
+  let rotation = Transform::from_rotation_rad(@cmath.PI / 2.0)
   // π/2 radians: cos(π/2) = 0, sin(π/2) = 1
   let expected = Transform::new(a=0.0, b=1.0, c=-1.0, d=0.0, tx=0.0, ty=0.0)
   assert_true(transform_approx_eq(rotation, expected))
@@ -457,9 +457,9 @@ test "Transform get/set rotation works correctly" {
   let transform = Transform::from_scale(2.0, 3.0)
   let rotation = transform.get_rotation_rad()
   assert_true(approx_eq(rotation, 0.0))
-  let new_transform = transform.rotate_rad(@math.PI / 4.0) // 45 degrees
+  let new_transform = transform.rotate_rad(@cmath.PI / 4.0) // 45 degrees
   let new_rotation = new_transform.get_rotation_rad()
-  assert_true(approx_eq(new_rotation, @math.PI / 4.0))
+  assert_true(approx_eq(new_rotation, @cmath.PI / 4.0))
 
   // Ensure scale is preserved (approximately)
   let (sx, sy) = new_transform.get_scale()

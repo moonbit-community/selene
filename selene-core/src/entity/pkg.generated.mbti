@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/entity"
 
-import(
-  "Milky2018/selene/math"
-)
+import {
+  "Milky2018/selene/math",
+}
 
 // Values
 pub fn get_roots() -> Iter[Entity]

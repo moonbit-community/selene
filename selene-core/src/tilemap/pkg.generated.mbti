@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/tilemap"
 
-import(
-  "moonbitlang/core/json"
-)
+import {
+  "moonbitlang/core/json",
+}
 
 // Values
 
