@@ -1,30 +1,33 @@
+function $64$Milky2018$47$selene$47$style$46$SizePlan$Sized(param0) {
+  this._0 = param0;
+}
+$64$Milky2018$47$selene$47$style$46$SizePlan$Sized.prototype.$tag = 0;
+const $64$Milky2018$47$selene$47$style$46$SizePlan$FromSprite = { $tag: 1 };
+const Option$None$0$ = { $tag: 0 };
+function Option$Some$0$(param0) {
+  this._0 = param0;
+}
+Option$Some$0$.prototype.$tag = 1;
+const Option$None$1$ = { $tag: 0 };
+function Option$Some$1$(param0) {
+  this._0 = param0;
+}
+Option$Some$1$.prototype.$tag = 1;
 const $64$Milky2018$47$selene$47$system$46$Schedule$Startup = { $tag: 0 };
 const $64$Milky2018$47$selene$47$system$46$Schedule$Update = { $tag: 1 };
 function $64$Milky2018$47$selene$47$system$46$Schedule$Render(param0) {
   this._0 = param0;
 }
 $64$Milky2018$47$selene$47$system$46$Schedule$Render.prototype.$tag = 2;
-const Option$None$0$ = { $tag: 0 };
-function Option$Some$0$(param0) {
-  this._0 = param0;
-}
-Option$Some$0$.prototype.$tag = 1;
-function $64$Milky2018$47$selene$47$style$46$SizePlan$Sized(param0) {
-  this._0 = param0;
-}
-$64$Milky2018$47$selene$47$style$46$SizePlan$Sized.prototype.$tag = 0;
-const $64$Milky2018$47$selene$47$style$46$SizePlan$FromSprite = { $tag: 1 };
-const Option$None$1$ = { $tag: 0 };
-function Option$Some$1$(param0) {
-  this._0 = param0;
-}
-Option$Some$1$.prototype.$tag = 1;
 class $PanicError extends Error {}
 function $panic() {
   throw new $PanicError();
 }
 function $bound_check(arr, index) {
   if (index < 0 || index >= arr.length) throw new Error("Index out of bounds");
+}
+function $compare_int(a, b) {
+  return (a >= b) - (a <= b);
 }
 const moonbitlang$core$builtin$$random_seed = () => {
   if (globalThis.crypto?.getRandomValues) {
@@ -101,9 +104,6 @@ const moonbitlang$core$builtin$$MyInt64$compare_u = (a, b) => {
 };
 const moonbitlang$core$builtin$$JSArray$set_length = (arr, len) => { arr.length = len; };
 const moonbitlang$core$builtin$$JSArray$pop = (arr) => arr.pop();
-function $compare_int(a, b) {
-  return (a >= b) - (a <= b);
-}
 const $64$moonbitlang$47$core$47$list$46$List$Empty$5$ = { $tag: 0 };
 function $64$moonbitlang$47$core$47$list$46$List$More$5$(param0, param1) {
   this._0 = param0;
@@ -234,118 +234,55 @@ const Milky2018$selene$inputs$$mouse_movement = { movement: { _0: 0, _1: 0 } };
 const Milky2018$selene$inputs$$last_mouse = { pos: { _0: 0, _1: 0 }, left_button: false, right_button: false, middle_button: false };
 const Milky2018$selene$inputs$$just_pressed_mouse = { pos: { _0: 0, _1: 0 }, left_button: false, right_button: false, middle_button: false };
 const Milky2018$selene$inputs$$just_release_mouse = { pos: { _0: 0, _1: 0 }, left_button: false, right_button: false, middle_button: false };
-const Milky2018$selene$inputs$$all_codes$46$42$bind$47$2565 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32];
-const Milky2018$selene$inputs$$from_string$46$constr$47$2575 = 0;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2576 = 1;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2577 = 2;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2578 = 3;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2579 = 4;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2580 = 5;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2581 = 6;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2582 = 7;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2583 = 8;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2584 = 9;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2585 = 10;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2586 = 11;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2587 = 12;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2588 = 13;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2589 = 14;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2590 = 15;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2591 = 16;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2592 = 17;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2593 = 18;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2594 = 19;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2595 = 20;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2596 = 21;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2597 = 22;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2598 = 23;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2599 = 24;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2600 = 26;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2601 = 27;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2602 = 28;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2603 = 29;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2604 = 30;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2605 = 31;
-const Milky2018$selene$inputs$$from_string$46$constr$47$2606 = 32;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2592 = 0;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2593 = 1;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2594 = 2;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2595 = 3;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2596 = 4;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2597 = 5;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2598 = 6;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2599 = 7;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2600 = 8;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2601 = 9;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2602 = 10;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2603 = 11;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2604 = 12;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2605 = 13;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2606 = 14;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2607 = 15;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2608 = 16;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2609 = 17;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2610 = 18;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2611 = 19;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2612 = 20;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2613 = 21;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2614 = 22;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2615 = 23;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2616 = 24;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2617 = 26;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2618 = 27;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2619 = 28;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2620 = 29;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2621 = 30;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2622 = 31;
+const Milky2018$selene$inputs$$from_string$46$constr$47$2623 = 32;
 const Milky2018$selene$entity$$entity_generator = { val: 0 };
 const Milky2018$selene$collision$$collision_layer_generator = { val: 0 };
-const Milky2018$selene$plugins$$default_plugin$46$constr$47$3551 = new $64$Milky2018$47$selene$47$system$46$Schedule$Render(0);
 const Milky2018$selene$examples$survivors$$weapon_timers = [];
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3554 = "white";
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3555 = "24px ThaleahFat";
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3556 = "white";
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3557 = "24px ThaleahFat";
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3558 = "white";
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3559 = "24px ThaleahFat";
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3560 = "orange";
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3561 = "24px ThaleahFat";
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3562 = "cyan";
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3563 = "24px ThaleahFat";
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3564 = "yellow";
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3565 = "24px ThaleahFat";
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3566 = 2;
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3567 = new Option$Some$0$(20);
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3568 = new Option$Some$0$(160);
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3569 = new Option$Some$0$(40);
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3570 = 2;
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3571 = new Option$Some$0$(20);
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3572 = new Option$Some$0$(140);
-const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3573 = new Option$Some$0$(100);
 const Milky2018$selene$examples$survivors$$wave_state = { creeper_spawned: 0, icecream_spawned: 0, orc_spawned: 0, skull_spawned: 0, teleman_spawned: 0, devil_spawned: 0, pirate_spawned: 0 };
-const Milky2018$selene$examples$survivors$$player_idle_right_animation$46$constr$47$3577 = true;
-const Milky2018$selene$examples$survivors$$player_idle_right_animation$46$constr$47$3578 = new Option$Some$0$(12);
-const Milky2018$selene$examples$survivors$$player_idle_up_animation$46$constr$47$3579 = true;
-const Milky2018$selene$examples$survivors$$player_idle_up_animation$46$constr$47$3580 = new Option$Some$0$(12);
-const Milky2018$selene$examples$survivors$$player_idle_down_animation$46$constr$47$3581 = true;
-const Milky2018$selene$examples$survivors$$player_idle_down_animation$46$constr$47$3582 = new Option$Some$0$(12);
-const Milky2018$selene$examples$survivors$$player_run_right_animation$46$constr$47$3583 = true;
-const Milky2018$selene$examples$survivors$$player_run_right_animation$46$constr$47$3584 = new Option$Some$0$(12);
-const Milky2018$selene$examples$survivors$$player_run_down_animation$46$constr$47$3585 = true;
-const Milky2018$selene$examples$survivors$$player_run_down_animation$46$constr$47$3586 = new Option$Some$0$(12);
-const Milky2018$selene$examples$survivors$$player_run_up_animation$46$constr$47$3587 = true;
-const Milky2018$selene$examples$survivors$$player_run_up_animation$46$constr$47$3588 = new Option$Some$0$(12);
 const Milky2018$selene$examples$survivors$$background_picture = "assets/tilesets/grass.png";
-const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3589 = { creeper_count: 40, icecream_count: 20, orc_count: 0, skull_count: 0, teleman_count: 0, devil_count: 0, pirate_count: 0, spawn_interval: 1 };
-const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3590 = { creeper_count: 30, icecream_count: 0, orc_count: 30, skull_count: 0, teleman_count: 0, devil_count: 0, pirate_count: 0, spawn_interval: 1 };
-const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3591 = { creeper_count: 0, icecream_count: 120, orc_count: 0, skull_count: 0, teleman_count: 0, devil_count: 0, pirate_count: 0, spawn_interval: 0.5 };
-const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3592 = { creeper_count: 60, icecream_count: 0, orc_count: 0, skull_count: 60, teleman_count: 0, devil_count: 0, pirate_count: 0, spawn_interval: 0.5 };
-const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3593 = { creeper_count: 0, icecream_count: 0, orc_count: 90, skull_count: 90, teleman_count: 0, devil_count: 0, pirate_count: 0, spawn_interval: 0.333 };
-const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3594 = { creeper_count: 0, icecream_count: 0, orc_count: 56, skull_count: 0, teleman_count: 4, devil_count: 0, pirate_count: 0, spawn_interval: 1 };
-const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3595 = { creeper_count: 0, icecream_count: 60, orc_count: 0, skull_count: 0, teleman_count: 0, devil_count: 60, pirate_count: 0, spawn_interval: 0.5 };
-const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3596 = { creeper_count: 0, icecream_count: 0, orc_count: 40, skull_count: 0, teleman_count: 40, devil_count: 40, pirate_count: 0, spawn_interval: 0.5 };
-const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3597 = { creeper_count: 20, icecream_count: 20, orc_count: 20, skull_count: 20, teleman_count: 20, devil_count: 20, pirate_count: 0, spawn_interval: 0.5 };
-const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3598 = { creeper_count: 0, icecream_count: 0, orc_count: 0, skull_count: 0, teleman_count: 59, devil_count: 0, pirate_count: 1, spawn_interval: 1 };
-const Milky2018$selene$examples$survivors$$wave_spawn_plans = [Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3589, Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3590, Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3591, Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3592, Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3593, Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3594, Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3595, Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3596, Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3597, Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3598];
+const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3606 = { creeper_count: 40, icecream_count: 20, orc_count: 0, skull_count: 0, teleman_count: 0, devil_count: 0, pirate_count: 0, spawn_interval: 1 };
+const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3607 = { creeper_count: 30, icecream_count: 0, orc_count: 30, skull_count: 0, teleman_count: 0, devil_count: 0, pirate_count: 0, spawn_interval: 1 };
+const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3608 = { creeper_count: 0, icecream_count: 120, orc_count: 0, skull_count: 0, teleman_count: 0, devil_count: 0, pirate_count: 0, spawn_interval: 0.5 };
+const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3609 = { creeper_count: 60, icecream_count: 0, orc_count: 0, skull_count: 60, teleman_count: 0, devil_count: 0, pirate_count: 0, spawn_interval: 0.5 };
+const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3610 = { creeper_count: 0, icecream_count: 0, orc_count: 90, skull_count: 90, teleman_count: 0, devil_count: 0, pirate_count: 0, spawn_interval: 0.333 };
+const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3611 = { creeper_count: 0, icecream_count: 0, orc_count: 56, skull_count: 0, teleman_count: 4, devil_count: 0, pirate_count: 0, spawn_interval: 1 };
+const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3612 = { creeper_count: 0, icecream_count: 60, orc_count: 0, skull_count: 0, teleman_count: 0, devil_count: 60, pirate_count: 0, spawn_interval: 0.5 };
+const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3613 = { creeper_count: 0, icecream_count: 0, orc_count: 40, skull_count: 0, teleman_count: 40, devil_count: 40, pirate_count: 0, spawn_interval: 0.5 };
+const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3614 = { creeper_count: 20, icecream_count: 20, orc_count: 20, skull_count: 20, teleman_count: 20, devil_count: 20, pirate_count: 0, spawn_interval: 0.5 };
+const Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3615 = { creeper_count: 0, icecream_count: 0, orc_count: 0, skull_count: 0, teleman_count: 59, devil_count: 0, pirate_count: 1, spawn_interval: 1 };
+const Milky2018$selene$examples$survivors$$wave_spawn_plans = [Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3606, Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3607, Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3608, Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3609, Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3610, Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3611, Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3612, Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3613, Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3614, Milky2018$selene$examples$survivors$$wave_spawn_plans$46$record$47$3615];
 const Milky2018$selene$examples$survivors$$spawners = [{ _0: 16, _1: 16 }, { _0: 624, _1: 16 }, { _0: 16, _1: 624 }, { _0: 624, _1: 624 }];
-const Milky2018$selene$examples$survivors$$update_selection_display$46$constr$47$3746 = "white";
-const Milky2018$selene$examples$survivors$$update_selection_display$46$constr$47$3747 = "16px ThaleahFat";
-const Milky2018$selene$examples$survivors$$update_selection_display$46$constr$47$3748 = "white";
-const Milky2018$selene$examples$survivors$$update_selection_display$46$constr$47$3749 = "16px ThaleahFat";
-const Milky2018$selene$examples$survivors$$add_score_box$46$constr$47$3826 = new Option$Some$0$(200);
-const Milky2018$selene$examples$survivors$$add_score_box$46$constr$47$3827 = new Option$Some$0$(16);
-const Milky2018$selene$examples$survivors$$setup_level_up_ui$46$constr$47$3854 = new Option$Some$0$(8);
-const Milky2018$selene$examples$survivors$$setup_level_up_ui$46$constr$47$3855 = "white";
-const Milky2018$selene$examples$survivors$$setup_level_up_ui$46$constr$47$3856 = "16px ThaleahFat";
-const Milky2018$selene$examples$survivors$$add_wave_box$46$constr$47$3866 = new Option$Some$0$(16);
-const Milky2018$selene$examples$survivors$$add_wave_box$46$constr$47$3867 = new Option$Some$0$(84);
-const Milky2018$selene$examples$survivors$$add_exp_box$46$constr$47$3869 = new Option$Some$0$(16);
-const Milky2018$selene$examples$survivors$$add_exp_box$46$constr$47$3870 = new Option$Some$0$(50);
-const Milky2018$selene$examples$survivors$$add_timer_box$46$constr$47$3872 = new Option$Some$0$(360);
-const Milky2018$selene$examples$survivors$$add_timer_box$46$constr$47$3873 = new Option$Some$0$(16);
-const Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3881 = new Option$Some$0$(30);
-const Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3882 = new Option$Some$0$(8);
-const Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3883 = new Option$Some$0$(10);
-const Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3884 = "white";
-const Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3885 = "24px ThaleahFat";
-const Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3886 = new Option$Some$0$(45);
-const Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3887 = new Option$Some$0$(8);
-const Milky2018$selene$examples$survivors$$add_level_box$46$constr$47$3895 = new Option$Some$0$(16);
-const Milky2018$selene$examples$survivors$$add_level_box$46$constr$47$3896 = new Option$Some$0$(16);
-const Milky2018$selene$examples$survivors$$add_background$46$constr$47$3913 = 3;
-const Milky2018$selene$examples$survivors$$game_start$46$constr$47$3979 = new Option$Some$0$(0);
-const Milky2018$selene$examples$survivors$$game_start$46$constr$47$3980 = new Option$Some$0$(640);
-const Milky2018$selene$examples$survivors$$game_start$46$constr$47$3981 = new Option$Some$0$(0);
-const Milky2018$selene$examples$survivors$$game_start$46$constr$47$3982 = new Option$Some$0$(640);
 const Milky2018$selene$position$$positions = moonbitlang$core$builtin$$Map$new$46$inner$3$(8);
 const moonbitlang$core$builtin$$seed = moonbitlang$core$builtin$$random_seed();
 const Milky2018$selene$backend$$canvas_backend = Milky2018$selene$backend$$CanvasBackend$new();
@@ -364,7 +301,27 @@ const Milky2018$selene$sprite$$sprites = moonbitlang$core$builtin$$Map$new$46$in
 const Milky2018$selene$collision$$pickables = moonbitlang$core$builtin$$Map$new$46$inner$10$(8);
 const Milky2018$selene$entity$$children = moonbitlang$core$builtin$$Map$new$46$inner$11$(8);
 const Milky2018$selene$entity$$parents = moonbitlang$core$builtin$$Map$new$46$inner$12$(8);
-const Milky2018$selene$examples$survivors$$game_state = { player_entity: Milky2018$selene$entity$$Entity$new(), player_direction: 1, rand: moonbitlang$core$random$$Rand$new(Option$None$1$), score: 0, score_box: Milky2018$selene$sprite$$Text$new("Score: 0", Milky2018$selene$examples$survivors$$game_state$46$constr$47$3554, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3555, undefined, undefined), invincible: false, game_timer: 600, game_over: false, timer_box: Milky2018$selene$sprite$$Text$new("Time: 10:00", Milky2018$selene$examples$survivors$$game_state$46$constr$47$3556, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3557, undefined, undefined), game_over_box: Milky2018$selene$sprite$$Text$new("Final Score: 0", Milky2018$selene$examples$survivors$$game_state$46$constr$47$3558, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3559, undefined, undefined), game_over_displayed: false, current_wave: 1, wave_box: Milky2018$selene$sprite$$Text$new("Wave: 1", Milky2018$selene$examples$survivors$$game_state$46$constr$47$3560, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3561, undefined, undefined), exp: 0, exp_box: Milky2018$selene$sprite$$Text$new("EXP: 0/16", Milky2018$selene$examples$survivors$$game_state$46$constr$47$3562, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3563, undefined, undefined), player_level: 1, level_box: Milky2018$selene$sprite$$Text$new("Level: 1", Milky2018$selene$examples$survivors$$game_state$46$constr$47$3564, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3565, undefined, undefined), player_stats: { attack: 0, range: 0, speed: 150, attack_speed: 1, penetration: 0, weapon_instances: [0] }, level_up_panel: { panel_entity: Milky2018$selene$style$$add_widget(Milky2018$selene$style$$screen_root, (zindex) => Milky2018$selene$sprite$$Sprite$from_color_rect(Milky2018$selene$sprite$$ColorRect$new$46$inner({ _0: 160, _1: 250 }, "rgba(13, 170, 26, 1)", "black"), zindex, undefined), undefined, undefined, undefined, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3566, Option$None$0$, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3567, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3568, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3569), available_selections: [] }, pending_level_ups: [], score_blink_timer: 0, score_is_red: false, game_over_panel: { panel_entity: Milky2018$selene$style$$add_widget(Milky2018$selene$style$$screen_root, (zindex) => Milky2018$selene$sprite$$Sprite$from_color_rect(Milky2018$selene$sprite$$ColorRect$new$46$inner({ _0: 200, _1: 120 }, "rgba(0, 0, 0, 0.8)", "white"), zindex, undefined), undefined, undefined, undefined, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3570, Option$None$0$, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3571, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3572, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3573) } };
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3571 = "white";
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3572 = "24px ThaleahFat";
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3573 = "white";
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3574 = "24px ThaleahFat";
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3575 = "white";
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3576 = "24px ThaleahFat";
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3577 = "orange";
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3578 = "24px ThaleahFat";
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3579 = "cyan";
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3580 = "24px ThaleahFat";
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3581 = "yellow";
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3582 = "24px ThaleahFat";
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3583 = 2;
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3584 = new Option$Some$0$(20);
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3585 = new Option$Some$0$(160);
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3586 = new Option$Some$0$(40);
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3587 = 2;
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3588 = new Option$Some$0$(20);
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3589 = new Option$Some$0$(140);
+const Milky2018$selene$examples$survivors$$game_state$46$constr$47$3590 = new Option$Some$0$(100);
+const Milky2018$selene$examples$survivors$$game_state = { player_entity: Milky2018$selene$entity$$Entity$new(), player_direction: 1, rand: moonbitlang$core$random$$Rand$new(Option$None$1$), score: 0, score_box: Milky2018$selene$sprite$$Text$new("Score: 0", Milky2018$selene$examples$survivors$$game_state$46$constr$47$3571, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3572, undefined, undefined), invincible: false, game_timer: 600, game_over: false, timer_box: Milky2018$selene$sprite$$Text$new("Time: 10:00", Milky2018$selene$examples$survivors$$game_state$46$constr$47$3573, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3574, undefined, undefined), game_over_box: Milky2018$selene$sprite$$Text$new("Final Score: 0", Milky2018$selene$examples$survivors$$game_state$46$constr$47$3575, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3576, undefined, undefined), game_over_displayed: false, current_wave: 1, wave_box: Milky2018$selene$sprite$$Text$new("Wave: 1", Milky2018$selene$examples$survivors$$game_state$46$constr$47$3577, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3578, undefined, undefined), exp: 0, exp_box: Milky2018$selene$sprite$$Text$new("EXP: 0/16", Milky2018$selene$examples$survivors$$game_state$46$constr$47$3579, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3580, undefined, undefined), player_level: 1, level_box: Milky2018$selene$sprite$$Text$new("Level: 1", Milky2018$selene$examples$survivors$$game_state$46$constr$47$3581, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3582, undefined, undefined), player_stats: { attack: 0, range: 0, speed: 150, attack_speed: 1, penetration: 0, weapon_instances: [0] }, level_up_panel: { panel_entity: Milky2018$selene$style$$add_widget(Milky2018$selene$style$$screen_root, (zindex) => Milky2018$selene$sprite$$Sprite$from_color_rect(Milky2018$selene$sprite$$ColorRect$new$46$inner({ _0: 160, _1: 250 }, "rgba(13, 170, 26, 1)", "black"), zindex, undefined), undefined, undefined, undefined, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3583, Option$None$0$, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3584, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3585, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3586), available_selections: [] }, pending_level_ups: [], score_blink_timer: 0, score_is_red: false, game_over_panel: { panel_entity: Milky2018$selene$style$$add_widget(Milky2018$selene$style$$screen_root, (zindex) => Milky2018$selene$sprite$$Sprite$from_color_rect(Milky2018$selene$sprite$$ColorRect$new$46$inner({ _0: 200, _1: 120 }, "rgba(0, 0, 0, 0.8)", "white"), zindex, undefined), undefined, undefined, undefined, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3587, Option$None$0$, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3588, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3589, Milky2018$selene$examples$survivors$$game_state$46$constr$47$3590) } };
 const Milky2018$selene$system$$timers = moonbitlang$core$array$$Array$new$46$inner$13$(0);
 const Milky2018$selene$system$$deferred_events = moonbitlang$core$array$$Array$new$46$inner$14$(0);
 const Milky2018$selene$examples$survivors$$enemybullet_collision_layer = Milky2018$selene$collision$$CollisionLayer$new();
@@ -397,6 +354,8 @@ moonbitlang$core$builtin$$Map$set$19$(data, 4, { health: 20, speed: 60, points: 
 moonbitlang$core$builtin$$Map$set$19$(data, 5, { health: 8, speed: 90, points: 50, right_animation: Milky2018$selene$examples$survivors$$devil_right_animation, left_animation: Milky2018$selene$examples$survivors$$devil_left_animation });
 moonbitlang$core$builtin$$Map$set$19$(data, 6, { health: 500, speed: 60, points: 200, right_animation: Milky2018$selene$examples$survivors$$pirate_right_animation, left_animation: Milky2018$selene$examples$survivors$$pirate_left_animation });
 const Milky2018$selene$examples$survivors$$enemy_data = data;
+const Milky2018$selene$examples$survivors$$add_wave_box$46$constr$47$3883 = new Option$Some$0$(16);
+const Milky2018$selene$examples$survivors$$add_wave_box$46$constr$47$3884 = new Option$Some$0$(84);
 const _bind = { _0: 0, _1: 0 };
 const _bind$2 = Option$None$0$;
 const _bind$3 = Option$None$0$;
@@ -414,26 +373,67 @@ const Milky2018$selene$examples$survivors$$weapon_minigun_icon = Milky2018$selen
 const Milky2018$selene$examples$survivors$$weapon_sniperrifle_icon = Milky2018$selene$sprite$$Animation$single_frame("assets/icon/icon.png", { _0: 32, _1: 32 }, undefined, { _0: 128, _1: 224 });
 const Milky2018$selene$examples$survivors$$weapon_pistol_icon = Milky2018$selene$sprite$$Animation$single_frame("assets/icon/icon.png", { _0: 32, _1: 32 }, undefined, { _0: 256, _1: 192 });
 const Milky2018$selene$examples$survivors$$weapon_sword_icon = Milky2018$selene$sprite$$Animation$single_frame("assets/icon/icon.png", { _0: 32, _1: 32 }, undefined, { _0: 32, _1: 192 });
+const Milky2018$selene$examples$survivors$$update_selection_display$46$constr$47$3763 = "white";
+const Milky2018$selene$examples$survivors$$update_selection_display$46$constr$47$3764 = "16px ThaleahFat";
+const Milky2018$selene$examples$survivors$$update_selection_display$46$constr$47$3765 = "white";
+const Milky2018$selene$examples$survivors$$update_selection_display$46$constr$47$3766 = "16px ThaleahFat";
+const Milky2018$selene$examples$survivors$$setup_level_up_ui$46$constr$47$3871 = new Option$Some$0$(8);
+const Milky2018$selene$examples$survivors$$setup_level_up_ui$46$constr$47$3872 = "white";
+const Milky2018$selene$examples$survivors$$setup_level_up_ui$46$constr$47$3873 = "16px ThaleahFat";
+const Milky2018$selene$examples$survivors$$add_level_box$46$constr$47$3912 = new Option$Some$0$(16);
+const Milky2018$selene$examples$survivors$$add_level_box$46$constr$47$3913 = new Option$Some$0$(16);
 const Milky2018$selene$examples$survivors$$grass_sprite = Milky2018$selene$sprite$$Animation$new(Milky2018$selene$sprite$$frames_from_atlas$46$inner("assets/tilesets/decor_16x16.png", 1, 16, 16, { _0: 0, _1: 0 }, 0), -1, Option$None$0$, undefined);
 const Milky2018$selene$collision$$colliders = moonbitlang$core$builtin$$Map$new$46$inner$20$(8);
-const Milky2018$selene$examples$survivors$$player_idle_right_animation = Milky2018$selene$sprite$$Animation$new(Milky2018$selene$sprite$$frames_from_atlas$46$inner("assets/whiteboy/idle.png", 4, 16, 16, { _0: 32, _1: 32 }, 64), Milky2018$selene$examples$survivors$$player_idle_right_animation$46$constr$47$3577, Milky2018$selene$examples$survivors$$player_idle_right_animation$46$constr$47$3578, undefined);
-const Milky2018$selene$examples$survivors$$player_run_down_animation = Milky2018$selene$sprite$$Animation$new(Milky2018$selene$sprite$$frames_from_atlas$46$inner("assets/whiteboy/run.png", 8, 16, 16, { _0: 32, _1: 112 }, 64), Milky2018$selene$examples$survivors$$player_run_down_animation$46$constr$47$3585, Milky2018$selene$examples$survivors$$player_run_down_animation$46$constr$47$3586, undefined);
-const Milky2018$selene$examples$survivors$$player_run_up_animation = Milky2018$selene$sprite$$Animation$new(Milky2018$selene$sprite$$frames_from_atlas$46$inner("assets/whiteboy/run.png", 8, 16, 16, { _0: 32, _1: 192 }, 64), Milky2018$selene$examples$survivors$$player_run_up_animation$46$constr$47$3587, Milky2018$selene$examples$survivors$$player_run_up_animation$46$constr$47$3588, undefined);
-const Milky2018$selene$examples$survivors$$player_idle_up_animation = Milky2018$selene$sprite$$Animation$new(Milky2018$selene$sprite$$frames_from_atlas$46$inner("assets/whiteboy/idle.png", 4, 16, 16, { _0: 32, _1: 192 }, 64), Milky2018$selene$examples$survivors$$player_idle_up_animation$46$constr$47$3579, Milky2018$selene$examples$survivors$$player_idle_up_animation$46$constr$47$3580, undefined);
+const Milky2018$selene$examples$survivors$$add_exp_box$46$constr$47$3886 = new Option$Some$0$(16);
+const Milky2018$selene$examples$survivors$$add_exp_box$46$constr$47$3887 = new Option$Some$0$(50);
+const Milky2018$selene$examples$survivors$$add_score_box$46$constr$47$3843 = new Option$Some$0$(200);
+const Milky2018$selene$examples$survivors$$add_score_box$46$constr$47$3844 = new Option$Some$0$(16);
+const Milky2018$selene$examples$survivors$$add_background$46$constr$47$3930 = 3;
+const Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3898 = new Option$Some$0$(30);
+const Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3899 = new Option$Some$0$(8);
+const Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3900 = new Option$Some$0$(10);
+const Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3901 = "white";
+const Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3902 = "24px ThaleahFat";
+const Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3903 = new Option$Some$0$(45);
+const Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3904 = new Option$Some$0$(8);
+const Milky2018$selene$examples$survivors$$add_timer_box$46$constr$47$3889 = new Option$Some$0$(360);
+const Milky2018$selene$examples$survivors$$add_timer_box$46$constr$47$3890 = new Option$Some$0$(16);
+const Milky2018$selene$examples$survivors$$player_idle_right_animation$46$constr$47$3594 = true;
+const Milky2018$selene$examples$survivors$$player_idle_right_animation$46$constr$47$3595 = new Option$Some$0$(12);
+const Milky2018$selene$examples$survivors$$player_idle_right_animation = Milky2018$selene$sprite$$Animation$new(Milky2018$selene$sprite$$frames_from_atlas$46$inner("assets/whiteboy/idle.png", 4, 16, 16, { _0: 32, _1: 32 }, 64), Milky2018$selene$examples$survivors$$player_idle_right_animation$46$constr$47$3594, Milky2018$selene$examples$survivors$$player_idle_right_animation$46$constr$47$3595, undefined);
+const Milky2018$selene$examples$survivors$$game_start$46$constr$47$3996 = new Option$Some$0$(0);
+const Milky2018$selene$examples$survivors$$game_start$46$constr$47$3997 = new Option$Some$0$(640);
+const Milky2018$selene$examples$survivors$$game_start$46$constr$47$3998 = new Option$Some$0$(0);
+const Milky2018$selene$examples$survivors$$game_start$46$constr$47$3999 = new Option$Some$0$(640);
+const Milky2018$selene$examples$survivors$$player_run_down_animation$46$constr$47$3602 = true;
+const Milky2018$selene$examples$survivors$$player_run_down_animation$46$constr$47$3603 = new Option$Some$0$(12);
+const Milky2018$selene$examples$survivors$$player_run_down_animation = Milky2018$selene$sprite$$Animation$new(Milky2018$selene$sprite$$frames_from_atlas$46$inner("assets/whiteboy/run.png", 8, 16, 16, { _0: 32, _1: 112 }, 64), Milky2018$selene$examples$survivors$$player_run_down_animation$46$constr$47$3602, Milky2018$selene$examples$survivors$$player_run_down_animation$46$constr$47$3603, undefined);
+const Milky2018$selene$examples$survivors$$player_run_up_animation$46$constr$47$3604 = true;
+const Milky2018$selene$examples$survivors$$player_run_up_animation$46$constr$47$3605 = new Option$Some$0$(12);
+const Milky2018$selene$examples$survivors$$player_run_up_animation = Milky2018$selene$sprite$$Animation$new(Milky2018$selene$sprite$$frames_from_atlas$46$inner("assets/whiteboy/run.png", 8, 16, 16, { _0: 32, _1: 192 }, 64), Milky2018$selene$examples$survivors$$player_run_up_animation$46$constr$47$3604, Milky2018$selene$examples$survivors$$player_run_up_animation$46$constr$47$3605, undefined);
+const Milky2018$selene$examples$survivors$$player_idle_up_animation$46$constr$47$3596 = true;
+const Milky2018$selene$examples$survivors$$player_idle_up_animation$46$constr$47$3597 = new Option$Some$0$(12);
+const Milky2018$selene$examples$survivors$$player_idle_up_animation = Milky2018$selene$sprite$$Animation$new(Milky2018$selene$sprite$$frames_from_atlas$46$inner("assets/whiteboy/idle.png", 4, 16, 16, { _0: 32, _1: 192 }, 64), Milky2018$selene$examples$survivors$$player_idle_up_animation$46$constr$47$3596, Milky2018$selene$examples$survivors$$player_idle_up_animation$46$constr$47$3597, undefined);
 const Milky2018$selene$examples$survivors$$player_idle_left_animation = Milky2018$selene$sprite$$Animation$new$46$inner(Milky2018$selene$sprite$$frames_from_atlas$46$inner("assets/whiteboy/idle.png", 4, 16, 16, { _0: 32, _1: 32 }, 64), true, 12, Milky2018$selene$math$$Transform$flip_x(16));
 const Milky2018$selene$examples$survivors$$player_run_left_animation = Milky2018$selene$sprite$$Animation$new$46$inner(Milky2018$selene$sprite$$frames_from_atlas$46$inner("assets/whiteboy/run.png", 8, 16, 16, { _0: 32, _1: 32 }, 64), true, 12, Milky2018$selene$math$$Transform$flip_x(16));
 const Milky2018$selene$inputs$$pressed_keys = moonbitlang$core$set$$Set$new$46$inner$21$(8);
-const Milky2018$selene$examples$survivors$$player_idle_down_animation = Milky2018$selene$sprite$$Animation$new(Milky2018$selene$sprite$$frames_from_atlas$46$inner("assets/whiteboy/idle.png", 4, 16, 16, { _0: 32, _1: 112 }, 64), Milky2018$selene$examples$survivors$$player_idle_down_animation$46$constr$47$3581, Milky2018$selene$examples$survivors$$player_idle_down_animation$46$constr$47$3582, undefined);
-const Milky2018$selene$examples$survivors$$player_run_right_animation = Milky2018$selene$sprite$$Animation$new(Milky2018$selene$sprite$$frames_from_atlas$46$inner("assets/whiteboy/run.png", 8, 16, 16, { _0: 32, _1: 32 }, 64), Milky2018$selene$examples$survivors$$player_run_right_animation$46$constr$47$3583, Milky2018$selene$examples$survivors$$player_run_right_animation$46$constr$47$3584, undefined);
+const Milky2018$selene$examples$survivors$$player_idle_down_animation$46$constr$47$3598 = true;
+const Milky2018$selene$examples$survivors$$player_idle_down_animation$46$constr$47$3599 = new Option$Some$0$(12);
+const Milky2018$selene$examples$survivors$$player_idle_down_animation = Milky2018$selene$sprite$$Animation$new(Milky2018$selene$sprite$$frames_from_atlas$46$inner("assets/whiteboy/idle.png", 4, 16, 16, { _0: 32, _1: 112 }, 64), Milky2018$selene$examples$survivors$$player_idle_down_animation$46$constr$47$3598, Milky2018$selene$examples$survivors$$player_idle_down_animation$46$constr$47$3599, undefined);
+const Milky2018$selene$examples$survivors$$player_run_right_animation$46$constr$47$3600 = true;
+const Milky2018$selene$examples$survivors$$player_run_right_animation$46$constr$47$3601 = new Option$Some$0$(12);
+const Milky2018$selene$examples$survivors$$player_run_right_animation = Milky2018$selene$sprite$$Animation$new(Milky2018$selene$sprite$$frames_from_atlas$46$inner("assets/whiteboy/run.png", 8, 16, 16, { _0: 32, _1: 32 }, 64), Milky2018$selene$examples$survivors$$player_run_right_animation$46$constr$47$3600, Milky2018$selene$examples$survivors$$player_run_right_animation$46$constr$47$3601, undefined);
 const Milky2018$selene$collision$$quadtree_root = moonbitlang$core$ref$$Ref$new$22$(Milky2018$selene$collision$$QuadTree$new({ _0: 0, _1: 0 }, { _0: 0, _1: 0 }, 0));
 const Milky2018$selene$collision$$real_velocities = moonbitlang$core$builtin$$Map$new$46$inner$17$(8);
 const Milky2018$selene$collision$$collision_infos = moonbitlang$core$builtin$$Map$new$46$inner$23$(8);
 const Milky2018$selene$inputs$$last_pressed_keys = moonbitlang$core$set$$Set$new$46$inner$21$(8);
-const Milky2018$selene$inputs$$all_codes = moonbitlang$core$set$$Set$from_array$21$({ buf: Milky2018$selene$inputs$$all_codes$46$42$bind$47$2565, start: 0, end: 33 });
+const Milky2018$selene$inputs$$all_codes$46$42$bind$47$2582 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32];
+const Milky2018$selene$inputs$$all_codes = moonbitlang$core$set$$Set$from_array$21$({ buf: Milky2018$selene$inputs$$all_codes$46$42$bind$47$2582, start: 0, end: 33 });
 const Milky2018$selene$inputs$$just_pressed_keys = moonbitlang$core$set$$Set$new$46$inner$21$(8);
 const Milky2018$selene$inputs$$just_release_keys = moonbitlang$core$set$$Set$new$46$inner$21$(8);
 const Milky2018$selene$backend$$element_cache = moonbitlang$core$builtin$$Map$new$46$inner$24$(8);
 const Milky2018$selene$backend$$realtime_delta = moonbitlang$core$ref$$Ref$new$25$(0);
+const Milky2018$selene$plugins$$default_plugin$46$constr$47$3568 = new $64$Milky2018$47$selene$47$system$46$Schedule$Render(0);
 const Milky2018$selene$backend$$window = Yoorkin$rabbit$45$tea$dom$$window();
 const Milky2018$selene$examples$survivors$$enemy_collision_layer = Milky2018$selene$collision$$CollisionLayer$new();
 const Milky2018$selene$examples$survivors$$bullet_collision_layer = Milky2018$selene$collision$$CollisionLayer$new();
@@ -542,14 +542,8 @@ function moonbitlang$core$builtin$$Logger$write_char$0$(self, ch) {
   const _bind$8 = self;
   _bind$8.val = `${_bind$8.val}${String.fromCodePoint(ch)}`;
 }
-function moonbitlang$core$array$$Array$at$35$(self, index) {
-  const len = self.length;
-  if (index >= 0 && index < len) {
-    $bound_check(self, index);
-    return self[index];
-  } else {
-    return $panic();
-  }
+function moonbitlang$core$uint16$$UInt16$is_trailing_surrogate(self) {
+  return moonbitlang$core$builtin$$Compare$op_ge$35$(self, 56320) && moonbitlang$core$builtin$$Compare$op_le$35$(self, 57343);
 }
 function moonbitlang$core$array$$Array$at$36$(self, index) {
   const len = self.length;
@@ -569,7 +563,7 @@ function moonbitlang$core$array$$Array$at$37$(self, index) {
     return $panic();
   }
 }
-function moonbitlang$core$array$$Array$at$25$(self, index) {
+function moonbitlang$core$array$$Array$at$38$(self, index) {
   const len = self.length;
   if (index >= 0 && index < len) {
     $bound_check(self, index);
@@ -578,7 +572,7 @@ function moonbitlang$core$array$$Array$at$25$(self, index) {
     return $panic();
   }
 }
-function moonbitlang$core$array$$Array$at$38$(self, index) {
+function moonbitlang$core$array$$Array$at$25$(self, index) {
   const len = self.length;
   if (index >= 0 && index < len) {
     $bound_check(self, index);
@@ -605,6 +599,15 @@ function moonbitlang$core$array$$Array$at$40$(self, index) {
     return $panic();
   }
 }
+function moonbitlang$core$array$$Array$at$41$(self, index) {
+  const len = self.length;
+  if (index >= 0 && index < len) {
+    $bound_check(self, index);
+    return self[index];
+  } else {
+    return $panic();
+  }
+}
 function moonbitlang$core$array$$Array$at$6$(self, index) {
   const len = self.length;
   if (index >= 0 && index < len) {
@@ -614,7 +617,7 @@ function moonbitlang$core$array$$Array$at$6$(self, index) {
     return $panic();
   }
 }
-function moonbitlang$core$array$$Array$at$41$(self, index) {
+function moonbitlang$core$array$$Array$at$42$(self, index) {
   const len = self.length;
   if (index >= 0 && index < len) {
     $bound_check(self, index);
@@ -1480,20 +1483,26 @@ function moonbitlang$core$builtin$$Hasher$combine$6$(self, value) {
 function moonbitlang$core$builtin$$Hasher$combine$21$(self, value) {
   moonbitlang$core$builtin$$Hash$hash_combine$21$(value, self);
 }
-function moonbitlang$core$builtin$$Hasher$combine$40$(self, value) {
-  moonbitlang$core$builtin$$Hash$hash_combine$40$(value, self);
+function moonbitlang$core$builtin$$Hasher$combine$41$(self, value) {
+  moonbitlang$core$builtin$$Hash$hash_combine$41$(value, self);
 }
-function moonbitlang$core$builtin$$Hasher$combine$42$(self, value) {
-  moonbitlang$core$builtin$$Hash$hash_combine$42$(value, self);
-}
-function moonbitlang$core$builtin$$Eq$not_equal$43$(x, y) {
-  return !moonbitlang$core$builtin$$Eq$equal$40$(x, y);
+function moonbitlang$core$builtin$$Hasher$combine$43$(self, value) {
+  moonbitlang$core$builtin$$Hash$hash_combine$43$(value, self);
 }
 function moonbitlang$core$builtin$$Eq$not_equal$44$(x, y) {
+  return !moonbitlang$core$builtin$$Eq$equal$41$(x, y);
+}
+function moonbitlang$core$builtin$$Eq$not_equal$45$(x, y) {
   return !(x === y);
 }
-function moonbitlang$core$builtin$$Compare$op_lt$45$(x, y) {
-  return moonbitlang$core$builtin$$Compare$compare$46$(x, y) < 0;
+function moonbitlang$core$builtin$$Compare$op_lt$46$(x, y) {
+  return moonbitlang$core$builtin$$Compare$compare$47$(x, y) < 0;
+}
+function moonbitlang$core$builtin$$Compare$op_le$35$(x, y) {
+  return $compare_int(x, y) <= 0;
+}
+function moonbitlang$core$builtin$$Compare$op_ge$35$(x, y) {
+  return $compare_int(x, y) >= 0;
 }
 function moonbitlang$core$builtin$$Hasher$avalanche(self) {
   let acc = self.acc;
@@ -1520,24 +1529,24 @@ function moonbitlang$core$builtin$$Hasher$new(seed$46$opt) {
   }
   return moonbitlang$core$builtin$$Hasher$new$46$inner(seed);
 }
-function moonbitlang$core$builtin$$Hash$hash$44$(self) {
+function moonbitlang$core$builtin$$Hash$hash$45$(self) {
   const _self = moonbitlang$core$builtin$$Hasher$new(undefined);
   moonbitlang$core$builtin$$Hasher$combine$6$(_self, self);
   return moonbitlang$core$builtin$$Hasher$finalize(_self);
 }
-function moonbitlang$core$builtin$$Hash$hash$47$(self) {
+function moonbitlang$core$builtin$$Hash$hash$48$(self) {
   const _self = moonbitlang$core$builtin$$Hasher$new(undefined);
   moonbitlang$core$builtin$$Hasher$combine$21$(_self, self);
   return moonbitlang$core$builtin$$Hasher$finalize(_self);
 }
-function moonbitlang$core$builtin$$Hash$hash$43$(self) {
+function moonbitlang$core$builtin$$Hash$hash$44$(self) {
   const _self = moonbitlang$core$builtin$$Hasher$new(undefined);
-  moonbitlang$core$builtin$$Hasher$combine$40$(_self, self);
+  moonbitlang$core$builtin$$Hasher$combine$41$(_self, self);
   return moonbitlang$core$builtin$$Hasher$finalize(_self);
 }
-function moonbitlang$core$builtin$$Hash$hash$48$(self) {
+function moonbitlang$core$builtin$$Hash$hash$49$(self) {
   const _self = moonbitlang$core$builtin$$Hasher$new(undefined);
-  moonbitlang$core$builtin$$Hasher$combine$42$(_self, self);
+  moonbitlang$core$builtin$$Hasher$combine$43$(_self, self);
   return moonbitlang$core$builtin$$Hasher$finalize(_self);
 }
 function moonbitlang$core$string$$String$sub$46$inner(self, start, end) {
@@ -1552,24 +1561,10 @@ function moonbitlang$core$string$$String$sub$46$inner(self, start, end) {
   }
   const start$2 = start < 0 ? len + start | 0 : start;
   if (start$2 >= 0 && (start$2 <= end$2 && end$2 <= len)) {
-    let _tmp;
-    if (start$2 < len) {
-      const _p = self.charCodeAt(start$2);
-      _tmp = 56320 <= _p && _p <= 57343;
-    } else {
-      _tmp = false;
-    }
-    if (_tmp) {
+    if (start$2 < len && moonbitlang$core$uint16$$UInt16$is_trailing_surrogate(self.charCodeAt(start$2))) {
       return new Result$Err$2$(Error$moonbitlang$47$core$47$builtin$46$CreatingViewError$46$InvalidIndex);
     }
-    let _tmp$2;
-    if (end$2 < len) {
-      const _p = self.charCodeAt(end$2);
-      _tmp$2 = 56320 <= _p && _p <= 57343;
-    } else {
-      _tmp$2 = false;
-    }
-    if (_tmp$2) {
+    if (end$2 < len && moonbitlang$core$uint16$$UInt16$is_trailing_surrogate(self.charCodeAt(end$2))) {
       return new Result$Err$2$(Error$moonbitlang$47$core$47$builtin$46$CreatingViewError$46$InvalidIndex);
     }
     return new Result$Ok$2$({ str: self, start: start$2, end: end$2 });
@@ -1608,25 +1603,25 @@ function moonbitlang$core$builtin$$Logger$write_substring$1$(self, value, start,
   }
   moonbitlang$core$builtin$$Logger$write_view$0$(self, _tmp);
 }
-function moonbitlang$core$builtin$$Show$to_string$49$(self) {
+function moonbitlang$core$builtin$$Show$to_string$50$(self) {
   const logger = moonbitlang$core$builtin$$StringBuilder$new$46$inner(0);
   moonbitlang$core$builtin$$Show$output$18$(self, { self: logger, method_table: $$$64$moonbitlang$47$core$47$builtin$46$StringBuilder$36$as$36$64$moonbitlang$47$core$47$builtin$46$Logger });
   return logger.val;
 }
 function moonbitlang$core$builtin$$Show$to_string$34$(self) {
   const logger = moonbitlang$core$builtin$$StringBuilder$new$46$inner(0);
-  moonbitlang$core$builtin$$Show$output$50$(self, { self: logger, method_table: $$$64$moonbitlang$47$core$47$builtin$46$StringBuilder$36$as$36$64$moonbitlang$47$core$47$builtin$46$Logger });
+  moonbitlang$core$builtin$$Show$output$51$(self, { self: logger, method_table: $$$64$moonbitlang$47$core$47$builtin$46$StringBuilder$36$as$36$64$moonbitlang$47$core$47$builtin$46$Logger });
   return logger.val;
 }
 function moonbitlang$core$int$$Int$to_string$46$inner(self, radix) {
   return moonbitlang$core$builtin$$int_to_string_js(self, radix);
 }
-function moonbitlang$core$builtin$$Show$to_string$51$(self) {
+function moonbitlang$core$builtin$$Show$to_string$52$(self) {
   return self.str.substring(self.start, self.end);
 }
 function moonbitlang$core$builtin$$Logger$write_view$0$(self, str) {
   const _bind$8 = self;
-  _bind$8.val = `${_bind$8.val}${moonbitlang$core$builtin$$Show$to_string$51$(str)}`;
+  _bind$8.val = `${_bind$8.val}${moonbitlang$core$builtin$$Show$to_string$52$(str)}`;
 }
 function moonbitlang$core$array$$Array$new$46$inner$14$(capacity) {
   return [];
@@ -1634,13 +1629,10 @@ function moonbitlang$core$array$$Array$new$46$inner$14$(capacity) {
 function moonbitlang$core$array$$Array$new$46$inner$13$(capacity) {
   return [];
 }
-function moonbitlang$core$array$$Array$new$46$inner$52$(capacity) {
+function moonbitlang$core$array$$Array$new$46$inner$53$(capacity) {
   return [];
 }
 function moonbitlang$core$array$$Array$push$30$(self, value) {
-  moonbitlang$core$builtin$$JSArray$push(self, value);
-}
-function moonbitlang$core$array$$Array$push$53$(self, value) {
   moonbitlang$core$builtin$$JSArray$push(self, value);
 }
 function moonbitlang$core$array$$Array$push$54$(self, value) {
@@ -1650,6 +1642,9 @@ function moonbitlang$core$array$$Array$push$55$(self, value) {
   moonbitlang$core$builtin$$JSArray$push(self, value);
 }
 function moonbitlang$core$array$$Array$push$56$(self, value) {
+  moonbitlang$core$builtin$$JSArray$push(self, value);
+}
+function moonbitlang$core$array$$Array$push$57$(self, value) {
   moonbitlang$core$builtin$$JSArray$push(self, value);
 }
 function moonbitlang$core$array$$Array$push$25$(self, value) {
@@ -1664,22 +1659,22 @@ function moonbitlang$core$array$$Array$push$32$(self, value) {
 function moonbitlang$core$array$$Array$push$13$(self, value) {
   moonbitlang$core$builtin$$JSArray$push(self, value);
 }
-function moonbitlang$core$array$$Array$push$37$(self, value) {
-  moonbitlang$core$builtin$$JSArray$push(self, value);
-}
-function moonbitlang$core$array$$Array$push$40$(self, value) {
-  moonbitlang$core$builtin$$JSArray$push(self, value);
-}
-function moonbitlang$core$array$$Array$push$57$(self, value) {
-  moonbitlang$core$builtin$$JSArray$push(self, value);
-}
 function moonbitlang$core$array$$Array$push$38$(self, value) {
+  moonbitlang$core$builtin$$JSArray$push(self, value);
+}
+function moonbitlang$core$array$$Array$push$41$(self, value) {
+  moonbitlang$core$builtin$$JSArray$push(self, value);
+}
+function moonbitlang$core$array$$Array$push$58$(self, value) {
+  moonbitlang$core$builtin$$JSArray$push(self, value);
+}
+function moonbitlang$core$array$$Array$push$39$(self, value) {
   moonbitlang$core$builtin$$JSArray$push(self, value);
 }
 function moonbitlang$core$array$$Array$push$6$(self, value) {
   moonbitlang$core$builtin$$JSArray$push(self, value);
 }
-function moonbitlang$core$array$$Array$push$58$(self, value) {
+function moonbitlang$core$array$$Array$push$59$(self, value) {
   moonbitlang$core$builtin$$JSArray$push(self, value);
 }
 function moonbitlang$core$array$$Array$push$14$(self, value) {
@@ -1688,13 +1683,13 @@ function moonbitlang$core$array$$Array$push$14$(self, value) {
 function moonbitlang$core$array$$Array$push$18$(self, value) {
   moonbitlang$core$builtin$$JSArray$push(self, value);
 }
-function moonbitlang$core$array$$Array$push$52$(self, value) {
+function moonbitlang$core$array$$Array$push$53$(self, value) {
   moonbitlang$core$builtin$$JSArray$push(self, value);
 }
-function moonbitlang$core$array$$Array$push$39$(self, value) {
+function moonbitlang$core$array$$Array$push$40$(self, value) {
   moonbitlang$core$builtin$$JSArray$push(self, value);
 }
-function moonbitlang$core$array$$Array$push$41$(self, value) {
+function moonbitlang$core$array$$Array$push$42$(self, value) {
   moonbitlang$core$builtin$$JSArray$push(self, value);
 }
 function moonbitlang$core$builtin$$Iter$next$21$(self) {
@@ -1702,10 +1697,6 @@ function moonbitlang$core$builtin$$Iter$next$21$(self) {
   return _func();
 }
 function moonbitlang$core$builtin$$Iter$next$6$(self) {
-  const _func = self;
-  return _func();
-}
-function moonbitlang$core$builtin$$Iter$next$59$(self) {
   const _func = self;
   return _func();
 }
@@ -1725,9 +1716,13 @@ function moonbitlang$core$builtin$$Iter$next$63$(self) {
   const _func = self;
   return _func();
 }
-function moonbitlang$core$builtin$$Iter$map$64$(self, f) {
+function moonbitlang$core$builtin$$Iter$next$64$(self) {
+  const _func = self;
+  return _func();
+}
+function moonbitlang$core$builtin$$Iter$map$65$(self, f) {
   return () => {
-    const _bind$8 = moonbitlang$core$builtin$$Iter$next$63$(self);
+    const _bind$8 = moonbitlang$core$builtin$$Iter$next$64$(self);
     if (_bind$8 === undefined) {
       return undefined;
     } else {
@@ -1740,7 +1735,7 @@ function moonbitlang$core$builtin$$Iter$map$64$(self, f) {
 function moonbitlang$core$builtin$$Show$output$18$(self, logger) {
   logger.method_table.method_0(logger.self, moonbitlang$core$int$$Int$to_string$46$inner(self, 10));
 }
-function moonbitlang$core$array$$FixedArray$makei$65$(length, value) {
+function moonbitlang$core$array$$FixedArray$makei$66$(length, value) {
   if (length <= 0) {
     return [];
   } else {
@@ -1767,15 +1762,7 @@ function moonbitlang$core$array$$ArrayView$at$22$(self, index) {
     $bound_check(_tmp, _tmp$2);
     return _tmp[_tmp$2];
   } else {
-    return moonbitlang$core$builtin$$abort$22$(`index out of bounds: the len is from 0 to ${moonbitlang$core$builtin$$Show$to_string$49$(self.end - self.start | 0)} but the index is ${moonbitlang$core$builtin$$Show$to_string$49$(index)}`, "@moonbitlang/core/builtin:arrayview.mbt:124:5-126:6");
-  }
-}
-function moonbitlang$core$option$$Option$unwrap$66$(self) {
-  if (self.$tag === 0) {
-    return $panic();
-  } else {
-    const _Some = self;
-    return _Some._0;
+    return moonbitlang$core$builtin$$abort$22$(`index out of bounds: the len is from 0 to ${moonbitlang$core$builtin$$Show$to_string$50$(self.end - self.start | 0)} but the index is ${moonbitlang$core$builtin$$Show$to_string$50$(index)}`, "@moonbitlang/core/builtin:arrayview.mbt:124:5-126:6");
   }
 }
 function moonbitlang$core$option$$Option$unwrap$67$(self) {
@@ -1810,6 +1797,14 @@ function moonbitlang$core$option$$Option$unwrap$70$(self) {
     return _Some._0;
   }
 }
+function moonbitlang$core$option$$Option$unwrap$71$(self) {
+  if (self.$tag === 0) {
+    return $panic();
+  } else {
+    const _Some = self;
+    return _Some._0;
+  }
+}
 function moonbitlang$core$option$$Option$unwrap_or$25$(self, default_) {
   if (self.$tag === 0) {
     return default_;
@@ -1818,15 +1813,15 @@ function moonbitlang$core$option$$Option$unwrap_or$25$(self, default_) {
     return _Some._0;
   }
 }
-function moonbitlang$core$option$$Option$unwrap_or_default$36$(self) {
+function moonbitlang$core$option$$Option$unwrap_or_default$37$(self) {
   if (self === undefined) {
-    return moonbitlang$core$builtin$$Default$default$36$();
+    return moonbitlang$core$builtin$$Default$default$37$();
   } else {
     const _Some = self;
     return _Some;
   }
 }
-function moonbitlang$core$option$$Option$map_or$71$(self, default_, f) {
+function moonbitlang$core$option$$Option$map_or$72$(self, default_, f) {
   if (self === undefined) {
     return default_;
   } else {
@@ -1835,7 +1830,7 @@ function moonbitlang$core$option$$Option$map_or$71$(self, default_, f) {
     return f(_x);
   }
 }
-function moonbitlang$core$option$$Option$map_or$72$(self, default_, f) {
+function moonbitlang$core$option$$Option$map_or$73$(self, default_, f) {
   if (self === undefined) {
     return default_;
   } else {
@@ -1851,7 +1846,7 @@ function moonbitlang$core$array$$MutArrayView$at$30$(self, index) {
     $bound_check(_tmp, _tmp$2);
     return _tmp[_tmp$2];
   } else {
-    return moonbitlang$core$builtin$$abort$30$(`index out of bounds: the len is from 0 to ${moonbitlang$core$builtin$$Show$to_string$49$(self.end - self.start | 0)} but the index is ${moonbitlang$core$builtin$$Show$to_string$49$(index)}`, "@moonbitlang/core/builtin:mutarrayview.mbt:97:5-99:6");
+    return moonbitlang$core$builtin$$abort$30$(`index out of bounds: the len is from 0 to ${moonbitlang$core$builtin$$Show$to_string$50$(self.end - self.start | 0)} but the index is ${moonbitlang$core$builtin$$Show$to_string$50$(index)}`, "@moonbitlang/core/builtin:mutarrayview.mbt:97:5-99:6");
   }
 }
 function moonbitlang$core$array$$MutArrayView$at$32$(self, index) {
@@ -1861,7 +1856,7 @@ function moonbitlang$core$array$$MutArrayView$at$32$(self, index) {
     $bound_check(_tmp, _tmp$2);
     return _tmp[_tmp$2];
   } else {
-    return moonbitlang$core$builtin$$abort$32$(`index out of bounds: the len is from 0 to ${moonbitlang$core$builtin$$Show$to_string$49$(self.end - self.start | 0)} but the index is ${moonbitlang$core$builtin$$Show$to_string$49$(index)}`, "@moonbitlang/core/builtin:mutarrayview.mbt:97:5-99:6");
+    return moonbitlang$core$builtin$$abort$32$(`index out of bounds: the len is from 0 to ${moonbitlang$core$builtin$$Show$to_string$50$(self.end - self.start | 0)} but the index is ${moonbitlang$core$builtin$$Show$to_string$50$(index)}`, "@moonbitlang/core/builtin:mutarrayview.mbt:97:5-99:6");
   }
 }
 function moonbitlang$core$array$$MutArrayView$set$30$(self, index, value) {
@@ -1872,7 +1867,7 @@ function moonbitlang$core$array$$MutArrayView$set$30$(self, index, value) {
     _tmp[_tmp$2] = value;
     return;
   } else {
-    moonbitlang$core$builtin$$abort$28$(`index out of bounds: the len is from 0 to ${moonbitlang$core$builtin$$Show$to_string$49$(self.end - self.start | 0)} but the index is ${moonbitlang$core$builtin$$Show$to_string$49$(index)}`, "@moonbitlang/core/builtin:mutarrayview.mbt:161:5-163:6");
+    moonbitlang$core$builtin$$abort$28$(`index out of bounds: the len is from 0 to ${moonbitlang$core$builtin$$Show$to_string$50$(self.end - self.start | 0)} but the index is ${moonbitlang$core$builtin$$Show$to_string$50$(index)}`, "@moonbitlang/core/builtin:mutarrayview.mbt:161:5-163:6");
     return;
   }
 }
@@ -1884,7 +1879,7 @@ function moonbitlang$core$array$$MutArrayView$set$32$(self, index, value) {
     _tmp[_tmp$2] = value;
     return;
   } else {
-    moonbitlang$core$builtin$$abort$28$(`index out of bounds: the len is from 0 to ${moonbitlang$core$builtin$$Show$to_string$49$(self.end - self.start | 0)} but the index is ${moonbitlang$core$builtin$$Show$to_string$49$(index)}`, "@moonbitlang/core/builtin:mutarrayview.mbt:161:5-163:6");
+    moonbitlang$core$builtin$$abort$28$(`index out of bounds: the len is from 0 to ${moonbitlang$core$builtin$$Show$to_string$50$(self.end - self.start | 0)} but the index is ${moonbitlang$core$builtin$$Show$to_string$50$(index)}`, "@moonbitlang/core/builtin:mutarrayview.mbt:161:5-163:6");
     return;
   }
 }
@@ -1899,7 +1894,13 @@ function moonbitlang$core$array$$Array$mut_view$46$inner$30$(self, start, end) {
     end$2 = _end < 0 ? len + _end | 0 : _end;
   }
   const start$2 = start < 0 ? len + start | 0 : start;
-  return start$2 >= 0 && (start$2 <= end$2 && end$2 <= len) ? { buf: self, start: start$2, end: end$2 } : moonbitlang$core$builtin$$abort$27$("View index out of bounds", "@moonbitlang/core/builtin:mutarrayview.mbt:237:5-237:38");
+  if (start$2 >= 0 && (start$2 <= end$2 && end$2 <= len)) {
+    const _bind$8 = self;
+    const _bind$9 = end$2 - start$2 | 0;
+    return { buf: _bind$8, start: start$2, end: start$2 + _bind$9 | 0 };
+  } else {
+    return moonbitlang$core$builtin$$abort$27$("View index out of bounds", "@moonbitlang/core/builtin:mutarrayview.mbt:237:5-237:38");
+  }
 }
 function moonbitlang$core$array$$Array$mut_view$46$inner$32$(self, start, end) {
   const len = self.length;
@@ -1912,7 +1913,13 @@ function moonbitlang$core$array$$Array$mut_view$46$inner$32$(self, start, end) {
     end$2 = _end < 0 ? len + _end | 0 : _end;
   }
   const start$2 = start < 0 ? len + start | 0 : start;
-  return start$2 >= 0 && (start$2 <= end$2 && end$2 <= len) ? { buf: self, start: start$2, end: end$2 } : moonbitlang$core$builtin$$abort$29$("View index out of bounds", "@moonbitlang/core/builtin:mutarrayview.mbt:237:5-237:38");
+  if (start$2 >= 0 && (start$2 <= end$2 && end$2 <= len)) {
+    const _bind$8 = self;
+    const _bind$9 = end$2 - start$2 | 0;
+    return { buf: _bind$8, start: start$2, end: start$2 + _bind$9 | 0 };
+  } else {
+    return moonbitlang$core$builtin$$abort$29$("View index out of bounds", "@moonbitlang/core/builtin:mutarrayview.mbt:237:5-237:38");
+  }
 }
 function moonbitlang$core$array$$MutArrayView$mut_view$46$inner$30$(self, start, end) {
   const len = self.end - self.start | 0;
@@ -1925,7 +1932,14 @@ function moonbitlang$core$array$$MutArrayView$mut_view$46$inner$30$(self, start,
     end$2 = _end < 0 ? len + _end | 0 : _end;
   }
   const start$2 = start < 0 ? len + start | 0 : start;
-  return start$2 >= 0 && (start$2 <= end$2 && end$2 <= len) ? { buf: self.buf, start: self.start + start$2 | 0, end: (self.start + start$2 | 0) + (end$2 - start$2 | 0) | 0 } : moonbitlang$core$builtin$$abort$27$("View index out of bounds", "@moonbitlang/core/builtin:mutarrayview.mbt:286:5-286:38");
+  if (start$2 >= 0 && (start$2 <= end$2 && end$2 <= len)) {
+    const _bind$8 = self.buf;
+    const _bind$9 = self.start + start$2 | 0;
+    const _bind$10 = end$2 - start$2 | 0;
+    return { buf: _bind$8, start: _bind$9, end: _bind$9 + _bind$10 | 0 };
+  } else {
+    return moonbitlang$core$builtin$$abort$27$("View index out of bounds", "@moonbitlang/core/builtin:mutarrayview.mbt:286:5-286:38");
+  }
 }
 function moonbitlang$core$array$$MutArrayView$mut_view$46$inner$32$(self, start, end) {
   const len = self.end - self.start | 0;
@@ -1938,7 +1952,14 @@ function moonbitlang$core$array$$MutArrayView$mut_view$46$inner$32$(self, start,
     end$2 = _end < 0 ? len + _end | 0 : _end;
   }
   const start$2 = start < 0 ? len + start | 0 : start;
-  return start$2 >= 0 && (start$2 <= end$2 && end$2 <= len) ? { buf: self.buf, start: self.start + start$2 | 0, end: (self.start + start$2 | 0) + (end$2 - start$2 | 0) | 0 } : moonbitlang$core$builtin$$abort$29$("View index out of bounds", "@moonbitlang/core/builtin:mutarrayview.mbt:286:5-286:38");
+  if (start$2 >= 0 && (start$2 <= end$2 && end$2 <= len)) {
+    const _bind$8 = self.buf;
+    const _bind$9 = self.start + start$2 | 0;
+    const _bind$10 = end$2 - start$2 | 0;
+    return { buf: _bind$8, start: _bind$9, end: _bind$9 + _bind$10 | 0 };
+  } else {
+    return moonbitlang$core$builtin$$abort$29$("View index out of bounds", "@moonbitlang/core/builtin:mutarrayview.mbt:286:5-286:38");
+  }
 }
 function moonbitlang$core$int$$Int$next_power_of_two(self) {
   if (self >= 0) {
@@ -3753,7 +3774,7 @@ function moonbitlang$core$builtin$$Map$set_with_hash$19$(self, key, value, hash)
     } else {
       const _Some = _bind$9;
       const _curr_entry = _Some;
-      if (_curr_entry.hash === hash && moonbitlang$core$builtin$$Eq$equal$40$(_curr_entry.key, key)) {
+      if (_curr_entry.hash === hash && moonbitlang$core$builtin$$Eq$equal$41$(_curr_entry.key, key)) {
         _curr_entry.value = value;
         return undefined;
       }
@@ -4420,52 +4441,52 @@ function moonbitlang$core$builtin$$Map$grow$24$(self) {
   }
 }
 function moonbitlang$core$builtin$$Map$set$5$(self, key, value) {
-  moonbitlang$core$builtin$$Map$set_with_hash$5$(self, key, value, moonbitlang$core$builtin$$Hash$hash$44$(key));
+  moonbitlang$core$builtin$$Map$set_with_hash$5$(self, key, value, moonbitlang$core$builtin$$Hash$hash$45$(key));
 }
 function moonbitlang$core$builtin$$Map$set$3$(self, key, value) {
-  moonbitlang$core$builtin$$Map$set_with_hash$3$(self, key, value, moonbitlang$core$builtin$$Hash$hash$44$(key));
+  moonbitlang$core$builtin$$Map$set_with_hash$3$(self, key, value, moonbitlang$core$builtin$$Hash$hash$45$(key));
 }
 function moonbitlang$core$builtin$$Map$set$4$(self, key, value) {
-  moonbitlang$core$builtin$$Map$set_with_hash$4$(self, key, value, moonbitlang$core$builtin$$Hash$hash$44$(key));
+  moonbitlang$core$builtin$$Map$set_with_hash$4$(self, key, value, moonbitlang$core$builtin$$Hash$hash$45$(key));
 }
 function moonbitlang$core$builtin$$Map$set$17$(self, key, value) {
-  moonbitlang$core$builtin$$Map$set_with_hash$17$(self, key, value, moonbitlang$core$builtin$$Hash$hash$44$(key));
+  moonbitlang$core$builtin$$Map$set_with_hash$17$(self, key, value, moonbitlang$core$builtin$$Hash$hash$45$(key));
 }
 function moonbitlang$core$builtin$$Map$set$9$(self, key, value) {
-  moonbitlang$core$builtin$$Map$set_with_hash$9$(self, key, value, moonbitlang$core$builtin$$Hash$hash$44$(key));
+  moonbitlang$core$builtin$$Map$set_with_hash$9$(self, key, value, moonbitlang$core$builtin$$Hash$hash$45$(key));
 }
 function moonbitlang$core$builtin$$Map$set$15$(self, key, value) {
-  moonbitlang$core$builtin$$Map$set_with_hash$15$(self, key, value, moonbitlang$core$builtin$$Hash$hash$44$(key));
+  moonbitlang$core$builtin$$Map$set_with_hash$15$(self, key, value, moonbitlang$core$builtin$$Hash$hash$45$(key));
 }
 function moonbitlang$core$builtin$$Map$set$20$(self, key, value) {
-  moonbitlang$core$builtin$$Map$set_with_hash$20$(self, key, value, moonbitlang$core$builtin$$Hash$hash$44$(key));
+  moonbitlang$core$builtin$$Map$set_with_hash$20$(self, key, value, moonbitlang$core$builtin$$Hash$hash$45$(key));
 }
 function moonbitlang$core$builtin$$Map$set$8$(self, key, value) {
-  moonbitlang$core$builtin$$Map$set_with_hash$8$(self, key, value, moonbitlang$core$builtin$$Hash$hash$44$(key));
+  moonbitlang$core$builtin$$Map$set_with_hash$8$(self, key, value, moonbitlang$core$builtin$$Hash$hash$45$(key));
 }
 function moonbitlang$core$builtin$$Map$set$7$(self, key, value) {
-  moonbitlang$core$builtin$$Map$set_with_hash$7$(self, key, value, moonbitlang$core$builtin$$Hash$hash$44$(key));
+  moonbitlang$core$builtin$$Map$set_with_hash$7$(self, key, value, moonbitlang$core$builtin$$Hash$hash$45$(key));
 }
 function moonbitlang$core$builtin$$Map$set$16$(self, key, value) {
-  moonbitlang$core$builtin$$Map$set_with_hash$16$(self, key, value, moonbitlang$core$builtin$$Hash$hash$44$(key));
+  moonbitlang$core$builtin$$Map$set_with_hash$16$(self, key, value, moonbitlang$core$builtin$$Hash$hash$45$(key));
 }
 function moonbitlang$core$builtin$$Map$set$10$(self, key, value) {
-  moonbitlang$core$builtin$$Map$set_with_hash$10$(self, key, value, moonbitlang$core$builtin$$Hash$hash$44$(key));
+  moonbitlang$core$builtin$$Map$set_with_hash$10$(self, key, value, moonbitlang$core$builtin$$Hash$hash$45$(key));
 }
 function moonbitlang$core$builtin$$Map$set$19$(self, key, value) {
-  moonbitlang$core$builtin$$Map$set_with_hash$19$(self, key, value, moonbitlang$core$builtin$$Hash$hash$43$(key));
+  moonbitlang$core$builtin$$Map$set_with_hash$19$(self, key, value, moonbitlang$core$builtin$$Hash$hash$44$(key));
 }
 function moonbitlang$core$builtin$$Map$set$11$(self, key, value) {
-  moonbitlang$core$builtin$$Map$set_with_hash$11$(self, key, value, moonbitlang$core$builtin$$Hash$hash$44$(key));
+  moonbitlang$core$builtin$$Map$set_with_hash$11$(self, key, value, moonbitlang$core$builtin$$Hash$hash$45$(key));
 }
 function moonbitlang$core$builtin$$Map$set$23$(self, key, value) {
-  moonbitlang$core$builtin$$Map$set_with_hash$23$(self, key, value, moonbitlang$core$builtin$$Hash$hash$44$(key));
+  moonbitlang$core$builtin$$Map$set_with_hash$23$(self, key, value, moonbitlang$core$builtin$$Hash$hash$45$(key));
 }
 function moonbitlang$core$builtin$$Map$set$24$(self, key, value) {
-  moonbitlang$core$builtin$$Map$set_with_hash$24$(self, key, value, moonbitlang$core$builtin$$Hash$hash$48$(key));
+  moonbitlang$core$builtin$$Map$set_with_hash$24$(self, key, value, moonbitlang$core$builtin$$Hash$hash$49$(key));
 }
 function moonbitlang$core$builtin$$Map$get$3$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$44$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$45$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4499,7 +4520,7 @@ function moonbitlang$core$builtin$$Map$get$3$(self, key) {
   }
 }
 function moonbitlang$core$builtin$$Map$get$20$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$44$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$45$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4533,7 +4554,7 @@ function moonbitlang$core$builtin$$Map$get$20$(self, key) {
   }
 }
 function moonbitlang$core$builtin$$Map$get$4$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$44$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$45$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4567,7 +4588,7 @@ function moonbitlang$core$builtin$$Map$get$4$(self, key) {
   }
 }
 function moonbitlang$core$builtin$$Map$get$10$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$44$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$45$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4601,7 +4622,7 @@ function moonbitlang$core$builtin$$Map$get$10$(self, key) {
   }
 }
 function moonbitlang$core$builtin$$Map$get$8$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$44$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$45$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4635,7 +4656,7 @@ function moonbitlang$core$builtin$$Map$get$8$(self, key) {
   }
 }
 function moonbitlang$core$builtin$$Map$get$16$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$44$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$45$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4669,7 +4690,7 @@ function moonbitlang$core$builtin$$Map$get$16$(self, key) {
   }
 }
 function moonbitlang$core$builtin$$Map$get$15$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$44$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$45$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4703,7 +4724,7 @@ function moonbitlang$core$builtin$$Map$get$15$(self, key) {
   }
 }
 function moonbitlang$core$builtin$$Map$get$9$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$44$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$45$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4737,7 +4758,7 @@ function moonbitlang$core$builtin$$Map$get$9$(self, key) {
   }
 }
 function moonbitlang$core$builtin$$Map$get$19$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$43$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$44$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4751,7 +4772,7 @@ function moonbitlang$core$builtin$$Map$get$19$(self, key) {
     } else {
       const _Some = _bind$8;
       const _entry = _Some;
-      if (_entry.hash === hash && moonbitlang$core$builtin$$Eq$equal$40$(_entry.key, key)) {
+      if (_entry.hash === hash && moonbitlang$core$builtin$$Eq$equal$41$(_entry.key, key)) {
         return _entry.value;
       }
       if (i > _entry.psl) {
@@ -4764,7 +4785,7 @@ function moonbitlang$core$builtin$$Map$get$19$(self, key) {
   }
 }
 function moonbitlang$core$builtin$$Map$get$5$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$44$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$45$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4798,7 +4819,7 @@ function moonbitlang$core$builtin$$Map$get$5$(self, key) {
   }
 }
 function moonbitlang$core$builtin$$Map$get$12$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$44$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$45$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4832,7 +4853,7 @@ function moonbitlang$core$builtin$$Map$get$12$(self, key) {
   }
 }
 function moonbitlang$core$builtin$$Map$get$7$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$44$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$45$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4866,7 +4887,7 @@ function moonbitlang$core$builtin$$Map$get$7$(self, key) {
   }
 }
 function moonbitlang$core$builtin$$Map$get$11$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$44$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$45$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4900,7 +4921,7 @@ function moonbitlang$core$builtin$$Map$get$11$(self, key) {
   }
 }
 function moonbitlang$core$builtin$$Map$get$23$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$44$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$45$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4934,7 +4955,7 @@ function moonbitlang$core$builtin$$Map$get$23$(self, key) {
   }
 }
 function moonbitlang$core$builtin$$Map$get$24$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$48$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$49$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -4961,7 +4982,7 @@ function moonbitlang$core$builtin$$Map$get$24$(self, key) {
   }
 }
 function moonbitlang$core$builtin$$Map$get_or_init$12$(self, key, default_) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$44$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$45$(key);
   let _bind$8;
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
@@ -5018,7 +5039,7 @@ function moonbitlang$core$builtin$$Map$get_or_init$12$(self, key, default_) {
   return _new_value;
 }
 function moonbitlang$core$builtin$$Map$contains$11$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$44$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$45$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -5049,28 +5070,6 @@ function moonbitlang$core$builtin$$Map$contains$11$(self, key) {
       _tmp$2 = idx + 1 & self.capacity_mask;
       continue;
     }
-  }
-}
-function moonbitlang$core$array$$FixedArray$fill$46$inner$73$(self, value, start, end) {
-  const array_length = self.length;
-  if (array_length > 0) {
-    if (start >= 0 && start < array_length) {
-      let length;
-      if (end === undefined) {
-        length = array_length - start | 0;
-      } else {
-        const _Some = end;
-        const _e = _Some;
-        length = _e >= start && _e <= array_length ? _e - start | 0 : $panic();
-      }
-      self.fill(value, start, start + length);
-      return;
-    } else {
-      $panic();
-      return;
-    }
-  } else {
-    return;
   }
 }
 function moonbitlang$core$array$$FixedArray$fill$46$inner$74$(self, value, start, end) {
@@ -5117,14 +5116,36 @@ function moonbitlang$core$array$$FixedArray$fill$46$inner$75$(self, value, start
     return;
   }
 }
+function moonbitlang$core$array$$FixedArray$fill$46$inner$76$(self, value, start, end) {
+  const array_length = self.length;
+  if (array_length > 0) {
+    if (start >= 0 && start < array_length) {
+      let length;
+      if (end === undefined) {
+        length = array_length - start | 0;
+      } else {
+        const _Some = end;
+        const _e = _Some;
+        length = _e >= start && _e <= array_length ? _e - start | 0 : $panic();
+      }
+      self.fill(value, start, start + length);
+      return;
+    } else {
+      $panic();
+      return;
+    }
+  } else {
+    return;
+  }
+}
 function moonbitlang$core$builtin$$Map$clear$23$(self) {
-  moonbitlang$core$array$$FixedArray$fill$46$inner$73$(self.entries, undefined, 0, undefined);
+  moonbitlang$core$array$$FixedArray$fill$46$inner$74$(self.entries, undefined, 0, undefined);
   self.size = 0;
   self.head = undefined;
   self.tail = -1;
 }
 function moonbitlang$core$builtin$$Map$clear$7$(self) {
-  moonbitlang$core$array$$FixedArray$fill$46$inner$75$(self.entries, undefined, 0, undefined);
+  moonbitlang$core$array$$FixedArray$fill$46$inner$76$(self.entries, undefined, 0, undefined);
   self.size = 0;
   self.head = undefined;
   self.tail = -1;
@@ -5265,10 +5286,10 @@ function moonbitlang$core$uint$$UInt$to_uint64(self) {
 function moonbitlang$core$double$$Double$convert_uint64(value) {
   return moonbitlang$core$builtin$$MyInt64$convert_to_double_u(value);
 }
-function moonbitlang$core$builtin$$Iter$filter$63$(self, f) {
+function moonbitlang$core$builtin$$Iter$filter$64$(self, f) {
   return () => {
     while (true) {
-      const _bind$8 = moonbitlang$core$builtin$$Iter$next$63$(self);
+      const _bind$8 = moonbitlang$core$builtin$$Iter$next$64$(self);
       if (_bind$8 === undefined) {
         return undefined;
       } else {
@@ -5283,16 +5304,16 @@ function moonbitlang$core$builtin$$Iter$filter$63$(self, f) {
   };
 }
 function moonbitlang$core$builtin$$Iter2$next$7$(self) {
-  return moonbitlang$core$builtin$$Iter$next$59$(self);
-}
-function moonbitlang$core$builtin$$Iter2$next$17$(self) {
   return moonbitlang$core$builtin$$Iter$next$60$(self);
 }
-function moonbitlang$core$builtin$$Iter2$next$8$(self) {
+function moonbitlang$core$builtin$$Iter2$next$17$(self) {
   return moonbitlang$core$builtin$$Iter$next$61$(self);
 }
-function moonbitlang$core$builtin$$Iter2$next$4$(self) {
+function moonbitlang$core$builtin$$Iter2$next$8$(self) {
   return moonbitlang$core$builtin$$Iter$next$62$(self);
+}
+function moonbitlang$core$builtin$$Iter2$next$4$(self) {
+  return moonbitlang$core$builtin$$Iter$next$63$(self);
 }
 function moonbitlang$core$uint64$$UInt64$to_int(self) {
   const _p = self;
@@ -5309,13 +5330,13 @@ function moonbitlang$core$builtin$$MyInt64$add_hi_lo(self, bhi, blo) {
   const hi = (_ahi + bhi | 0) + c | 0;
   return { hi: hi, lo: lo };
 }
-function moonbitlang$core$builtin$$Add$add$76$(self, other) {
+function moonbitlang$core$builtin$$Add$add$77$(self, other) {
   return moonbitlang$core$builtin$$MyInt64$add_hi_lo(self, other.hi, other.lo);
 }
-function moonbitlang$core$builtin$$Sub$sub$76$(self, other) {
+function moonbitlang$core$builtin$$Sub$sub$77$(self, other) {
   return other.lo === 0 ? { hi: self.hi - other.hi | 0, lo: self.lo } : moonbitlang$core$builtin$$MyInt64$add_hi_lo(self, ~other.hi, ~other.lo + 1 | 0);
 }
-function moonbitlang$core$builtin$$Mul$mul$76$(self, other) {
+function moonbitlang$core$builtin$$Mul$mul$77$(self, other) {
   const _ahi = self.hi;
   const _alo = self.lo;
   const _bhi = other.hi;
@@ -5420,51 +5441,51 @@ function moonbitlang$core$builtin$$MyInt64$lsr(self, shift) {
   const shift$2 = shift & 63;
   return shift$2 === 0 ? self : shift$2 < 32 ? { hi: self.hi >>> shift$2 | 0, lo: self.lo >>> shift$2 | self.hi << (32 - shift$2 | 0) } : { hi: 0, lo: self.hi >>> (shift$2 - 32 | 0) | 0 };
 }
-function moonbitlang$core$builtin$$Add$add$46$(self, other) {
-  return moonbitlang$core$builtin$$Add$add$76$(self, other);
+function moonbitlang$core$builtin$$Add$add$47$(self, other) {
+  return moonbitlang$core$builtin$$Add$add$77$(self, other);
 }
-function moonbitlang$core$builtin$$Sub$sub$46$(self, other) {
-  return moonbitlang$core$builtin$$Sub$sub$76$(self, other);
+function moonbitlang$core$builtin$$Sub$sub$47$(self, other) {
+  return moonbitlang$core$builtin$$Sub$sub$77$(self, other);
 }
-function moonbitlang$core$builtin$$Mul$mul$46$(self, other) {
-  return moonbitlang$core$builtin$$Mul$mul$76$(self, other);
+function moonbitlang$core$builtin$$Mul$mul$47$(self, other) {
+  return moonbitlang$core$builtin$$Mul$mul$77$(self, other);
 }
-function moonbitlang$core$builtin$$Mod$mod$46$(self, other) {
+function moonbitlang$core$builtin$$Mod$mod$47$(self, other) {
   return moonbitlang$core$builtin$$MyInt64$mod_u(self, other);
 }
 function moonbitlang$core$uint64$$UInt64$to_uint(self) {
   const _p = self;
   return _p.lo;
 }
-function moonbitlang$core$builtin$$Compare$compare$46$(self, other) {
+function moonbitlang$core$builtin$$Compare$compare$47$(self, other) {
   return moonbitlang$core$builtin$$MyInt64$compare_u(self, other);
 }
-function moonbitlang$core$builtin$$Eq$equal$46$(self, other) {
+function moonbitlang$core$builtin$$Eq$equal$47$(self, other) {
   const _p = self;
   const _p$2 = other;
   return _p.hi === _p$2.hi && _p.lo === _p$2.lo;
 }
-function moonbitlang$core$builtin$$BitAnd$land$46$(self, other) {
+function moonbitlang$core$builtin$$BitAnd$land$47$(self, other) {
   return moonbitlang$core$builtin$$MyInt64$land(self, other);
 }
-function moonbitlang$core$builtin$$BitOr$lor$46$(self, other) {
+function moonbitlang$core$builtin$$BitOr$lor$47$(self, other) {
   return moonbitlang$core$builtin$$MyInt64$lor(self, other);
 }
 function moonbitlang$core$uint64$$UInt64$lnot(self) {
   return moonbitlang$core$builtin$$MyInt64$lnot(self);
 }
-function moonbitlang$core$builtin$$Shl$shl$46$(self, shift) {
+function moonbitlang$core$builtin$$Shl$shl$47$(self, shift) {
   return moonbitlang$core$builtin$$MyInt64$lsl(self, shift);
 }
-function moonbitlang$core$builtin$$Shr$shr$46$(self, shift) {
+function moonbitlang$core$builtin$$Shr$shr$47$(self, shift) {
   return moonbitlang$core$builtin$$MyInt64$lsr(self, shift);
 }
 function moonbitlang$core$builtin$$Hasher$combine_string(self, value) {
-  const _end2373 = value.length;
+  const _end2395 = value.length;
   let _tmp = 0;
   while (true) {
     const i = _tmp;
-    if (i < _end2373) {
+    if (i < _end2395) {
       moonbitlang$core$builtin$$Hasher$combine_uint(self, value.charCodeAt(i));
       _tmp = i + 1 | 0;
       continue;
@@ -5473,7 +5494,7 @@ function moonbitlang$core$builtin$$Hasher$combine_string(self, value) {
     }
   }
 }
-function moonbitlang$core$builtin$$Hash$hash_combine$42$(self, hasher) {
+function moonbitlang$core$builtin$$Hash$hash_combine$43$(self, hasher) {
   moonbitlang$core$builtin$$Hasher$combine_string(hasher, self);
 }
 function moonbitlang$core$builtin$$Hash$hash_combine$31$(self, hasher) {
@@ -5484,14 +5505,14 @@ function moonbitlang$core$array$$FixedArray$blit_to$46$inner$31$(self, dst, len,
     moonbitlang$core$array$$FixedArray$unsafe_blit$31$(dst, dst_offset, self, src_offset, len);
     return;
   } else {
-    moonbitlang$core$builtin$$abort$28$(`bounds check failed: dst_offset = ${moonbitlang$core$builtin$$Show$to_string$49$(dst_offset)}, src_offset = ${moonbitlang$core$builtin$$Show$to_string$49$(src_offset)}, len = ${moonbitlang$core$builtin$$Show$to_string$49$(len)}, dst.length = ${moonbitlang$core$builtin$$Show$to_string$49$(dst.length)}, self.length = ${moonbitlang$core$builtin$$Show$to_string$49$(self.length)}`, "@moonbitlang/core/builtin:fixedarray_block.mbt:115:5-117:6");
+    moonbitlang$core$builtin$$abort$28$(`bounds check failed: dst_offset = ${moonbitlang$core$builtin$$Show$to_string$50$(dst_offset)}, src_offset = ${moonbitlang$core$builtin$$Show$to_string$50$(src_offset)}, len = ${moonbitlang$core$builtin$$Show$to_string$50$(len)}, dst.length = ${moonbitlang$core$builtin$$Show$to_string$50$(dst.length)}, self.length = ${moonbitlang$core$builtin$$Show$to_string$50$(self.length)}`, "@moonbitlang/core/builtin:fixedarray_block.mbt:115:5-117:6");
     return;
   }
 }
 function moonbitlang$core$double$$Double$to_int(self) {
   return self !== self ? 0 : self >= 2147483647 ? 2147483647 : self <= -2147483648 ? -2147483648 : self | 0;
 }
-function moonbitlang$core$builtin$$println$42$(input) {
+function moonbitlang$core$builtin$$println$43$(input) {
   console.log(input);
 }
 function moonbitlang$core$bytes$$Bytes$sub$46$inner(self, start, end) {
@@ -5505,7 +5526,12 @@ function moonbitlang$core$bytes$$Bytes$sub$46$inner(self, start, end) {
     end$2 = _end < 0 ? len + _end | 0 : _end;
   }
   const start$2 = start < 0 ? len + start | 0 : start;
-  return start$2 >= 0 && (start$2 <= end$2 && end$2 <= len) ? { bytes: self, start: start$2, end: end$2 } : moonbitlang$core$builtin$$abort$33$("Invalid index for View", "@moonbitlang/core/builtin:bytesview.mbt:162:5-162:36");
+  if (start$2 >= 0 && (start$2 <= end$2 && end$2 <= len)) {
+    const _bind$8 = end$2 - start$2 | 0;
+    return { bytes: self, start: start$2, end: start$2 + _bind$8 | 0 };
+  } else {
+    return moonbitlang$core$builtin$$abort$33$("Invalid index for View", "@moonbitlang/core/builtin:bytesview.mbt:162:5-162:36");
+  }
 }
 function moonbitlang$core$array$$Array$set$25$(self, index, value) {
   const len = self.length;
@@ -5518,7 +5544,7 @@ function moonbitlang$core$array$$Array$set$25$(self, index, value) {
     return;
   }
 }
-function moonbitlang$core$builtin$$Shr$shr$77$(self, count) {
+function moonbitlang$core$builtin$$Shr$shr$78$(self, count) {
   return (self >>> count | 0) & 255;
 }
 function moonbitlang$core$bytes$$BytesView$unsafe_extract_byte(bs, offset, len) {
@@ -5528,7 +5554,7 @@ function moonbitlang$core$bytes$$BytesView$unsafe_extract_byte(bs, offset, len) 
     const _tmp$2 = bs.start + byte_index | 0;
     $bound_check(_tmp, _tmp$2);
     const byte = _tmp[_tmp$2];
-    const _p = moonbitlang$core$builtin$$Shr$shr$77$(byte, 8 - len | 0);
+    const _p = moonbitlang$core$builtin$$Shr$shr$78$(byte, 8 - len | 0);
     return _p;
   } else {
     if (((offset & 7) + len | 0) <= 8) {
@@ -5584,7 +5610,7 @@ function moonbitlang$core$bytes$$BytesView$unsafe_extract_uint_le(bs, offset, le
     }
   }
 }
-function moonbitlang$core$builtin$$Show$output$78$(self, logger) {
+function moonbitlang$core$builtin$$Show$output$79$(self, logger) {
   const pkg = self.pkg;
   const _data = pkg.str;
   const _start = pkg.start;
@@ -5860,8 +5886,8 @@ function moonbitlang$core$builtin$$Show$output$78$(self, logger) {
   logger.method_table.method_3(logger.self, 64);
   logger.method_table.method_2(logger.self, _module_name);
 }
-function moonbitlang$core$builtin$$Show$output$50$(self, logger) {
-  moonbitlang$core$builtin$$Show$output$78$(moonbitlang$core$builtin$$SourceLocRepr$parse(self), logger);
+function moonbitlang$core$builtin$$Show$output$51$(self, logger) {
+  moonbitlang$core$builtin$$Show$output$79$(moonbitlang$core$builtin$$SourceLocRepr$parse(self), logger);
 }
 function moonbitlang$core$array$$Array$unsafe_truncate_to_length$14$(self, new_len) {
   moonbitlang$core$builtin$$JSArray$set_length(self, new_len);
@@ -5872,7 +5898,7 @@ function moonbitlang$core$array$$Array$unsafe_truncate_to_length$13$(self, new_l
 function moonbitlang$core$array$$Array$unsafe_truncate_to_length$18$(self, new_len) {
   moonbitlang$core$builtin$$JSArray$set_length(self, new_len);
 }
-function moonbitlang$core$array$$Array$unsafe_truncate_to_length$37$(self, new_len) {
+function moonbitlang$core$array$$Array$unsafe_truncate_to_length$38$(self, new_len) {
   moonbitlang$core$builtin$$JSArray$set_length(self, new_len);
 }
 function moonbitlang$core$array$$Array$unsafe_truncate_to_length$25$(self, new_len) {
@@ -6003,7 +6029,7 @@ function moonbitlang$core$builtin$$fixed_bubble_sort_by$32$(arr, cmp) {
     }
   }
 }
-function moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_2$47$1938(_env, a, b) {
+function moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_2$47$1955(_env, a, b) {
   const arr = _env._2;
   const swaps = _env._1;
   const cmp = _env._0;
@@ -6015,10 +6041,10 @@ function moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_2$47$1938(_env,
     return;
   }
 }
-function moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1939(_env, a, b, c) {
-  moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_2$47$1938(_env, a, b);
-  moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_2$47$1938(_env, b, c);
-  moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_2$47$1938(_env, a, b);
+function moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1956(_env, a, b, c) {
+  moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_2$47$1955(_env, a, b);
+  moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_2$47$1955(_env, b, c);
+  moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_2$47$1955(_env, a, b);
 }
 function moonbitlang$core$builtin$$fixed_choose_pivot_by$30$(arr, cmp) {
   const len = arr.end - arr.start | 0;
@@ -6029,11 +6055,11 @@ function moonbitlang$core$builtin$$fixed_choose_pivot_by$30$(arr, cmp) {
     const c = Math.imul(len / 4 | 0, 3) | 0;
     const _env = { _0: cmp, _1: swaps, _2: arr };
     if (len > 50) {
-      moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1939(_env, a - 1 | 0, a, a + 1 | 0);
-      moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1939(_env, b - 1 | 0, b, b + 1 | 0);
-      moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1939(_env, c - 1 | 0, c, c + 1 | 0);
+      moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1956(_env, a - 1 | 0, a, a + 1 | 0);
+      moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1956(_env, b - 1 | 0, b, b + 1 | 0);
+      moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1956(_env, c - 1 | 0, c, c + 1 | 0);
     }
-    moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1939(_env, a, b, c);
+    moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1956(_env, a, b, c);
   }
   if (swaps.val === 12) {
     moonbitlang$core$array$$MutArrayView$rev_in_place$30$(arr);
@@ -6042,7 +6068,7 @@ function moonbitlang$core$builtin$$fixed_choose_pivot_by$30$(arr, cmp) {
     return { _0: b, _1: swaps.val === 0 };
   }
 }
-function moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_2$47$1958(_env, a, b) {
+function moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_2$47$1975(_env, a, b) {
   const arr = _env._2;
   const swaps = _env._1;
   const cmp = _env._0;
@@ -6054,10 +6080,10 @@ function moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_2$47$1958(_env,
     return;
   }
 }
-function moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1959(_env, a, b, c) {
-  moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_2$47$1958(_env, a, b);
-  moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_2$47$1958(_env, b, c);
-  moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_2$47$1958(_env, a, b);
+function moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1976(_env, a, b, c) {
+  moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_2$47$1975(_env, a, b);
+  moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_2$47$1975(_env, b, c);
+  moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_2$47$1975(_env, a, b);
 }
 function moonbitlang$core$builtin$$fixed_choose_pivot_by$32$(arr, cmp) {
   const len = arr.end - arr.start | 0;
@@ -6068,11 +6094,11 @@ function moonbitlang$core$builtin$$fixed_choose_pivot_by$32$(arr, cmp) {
     const c = Math.imul(len / 4 | 0, 3) | 0;
     const _env = { _0: cmp, _1: swaps, _2: arr };
     if (len > 50) {
-      moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1959(_env, a - 1 | 0, a, a + 1 | 0);
-      moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1959(_env, b - 1 | 0, b, b + 1 | 0);
-      moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1959(_env, c - 1 | 0, c, c + 1 | 0);
+      moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1976(_env, a - 1 | 0, a, a + 1 | 0);
+      moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1976(_env, b - 1 | 0, b, b + 1 | 0);
+      moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1976(_env, c - 1 | 0, c, c + 1 | 0);
     }
-    moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1959(_env, a, b, c);
+    moonbitlang$core$builtin$$fixed_choose_pivot_by$46$sort_3$47$1976(_env, a, b, c);
   }
   if (swaps.val === 12) {
     moonbitlang$core$array$$MutArrayView$rev_in_place$32$(arr);
@@ -6431,14 +6457,14 @@ function moonbitlang$core$builtin$$fixed_quick_sort_by$32$(arr, cmp, pred, limit
     continue;
   }
 }
-function moonbitlang$core$array$$MutArrayView$sort_by_key$79$(self, map) {
+function moonbitlang$core$array$$MutArrayView$sort_by_key$80$(self, map) {
   moonbitlang$core$builtin$$fixed_quick_sort_by$30$(self, (a, b) => $compare_int(map(a), map(b)), undefined, moonbitlang$core$builtin$$fixed_get_limit(self.end - self.start | 0));
 }
 function moonbitlang$core$array$$MutArrayView$sort_by$32$(self, cmp) {
   moonbitlang$core$builtin$$fixed_quick_sort_by$32$(self, cmp, undefined, moonbitlang$core$builtin$$fixed_get_limit(self.end - self.start | 0));
 }
-function moonbitlang$core$array$$Array$sort_by_key$79$(self, map) {
-  moonbitlang$core$array$$MutArrayView$sort_by_key$79$(moonbitlang$core$array$$Array$mut_view$46$inner$30$(self, 0, undefined), map);
+function moonbitlang$core$array$$Array$sort_by_key$80$(self, map) {
+  moonbitlang$core$array$$MutArrayView$sort_by_key$80$(moonbitlang$core$array$$Array$mut_view$46$inner$30$(self, 0, undefined), map);
 }
 function moonbitlang$core$array$$Array$sort_by$32$(self, cmp) {
   moonbitlang$core$array$$MutArrayView$sort_by$32$(moonbitlang$core$array$$Array$mut_view$46$inner$32$(self, 0, undefined), cmp);
@@ -6449,13 +6475,13 @@ function moonbitlang$core$array$$Array$clear$14$(self) {
 function moonbitlang$core$array$$Array$clear$18$(self) {
   moonbitlang$core$array$$Array$unsafe_truncate_to_length$18$(self, 0);
 }
-function moonbitlang$core$array$$Array$clear$37$(self) {
-  moonbitlang$core$array$$Array$unsafe_truncate_to_length$37$(self, 0);
+function moonbitlang$core$array$$Array$clear$38$(self) {
+  moonbitlang$core$array$$Array$unsafe_truncate_to_length$38$(self, 0);
 }
 function moonbitlang$core$array$$Array$clear$25$(self) {
   moonbitlang$core$array$$Array$unsafe_truncate_to_length$25$(self, 0);
 }
-function moonbitlang$core$array$$Array$contains$80$(self, value) {
+function moonbitlang$core$array$$Array$contains$81$(self, value) {
   const _len = self.length;
   let _tmp = 0;
   while (true) {
@@ -6869,7 +6895,7 @@ function moonbitlang$core$random$internal$random_source$$chacha_block(seed, buf,
   }
 }
 function moonbitlang$core$random$internal$random_source$$ChaCha8$new(seed) {
-  const seed$2 = moonbitlang$core$array$$FixedArray$makei$65$(8, (i) => {
+  const seed$2 = moonbitlang$core$array$$FixedArray$makei$66$(8, (i) => {
     const _bind$8 = moonbitlang$core$bytes$$Bytes$sub$46$inner(seed, Math.imul(i, 4) | 0, undefined);
     return (_bind$8.end - _bind$8.start | 0) >= 4 ? moonbitlang$core$bytes$$BytesView$unsafe_extract_uint_le(_bind$8, 0, 32) : moonbitlang$core$builtin$$abort$31$("seed must be 32 bytes long", "@moonbitlang/core/random/internal/random_source:random_source_chacha.mbt:31:10-31:45");
   });
@@ -6893,7 +6919,7 @@ function moonbitlang$core$random$internal$random_source$$ChaCha8$next(self) {
   const _tmp$4 = (Math.imul(index, 2) | 0) + 1 | 0;
   $bound_check(_tmp$3, _tmp$4);
   const hi = moonbitlang$core$uint$$UInt$to_uint64(_tmp$3[_tmp$4]);
-  return moonbitlang$core$builtin$$BitOr$lor$46$(moonbitlang$core$builtin$$Shl$shl$46$(hi, 32), lo);
+  return moonbitlang$core$builtin$$BitOr$lor$47$(moonbitlang$core$builtin$$Shl$shl$47$(hi, 32), lo);
 }
 function moonbitlang$core$random$internal$random_source$$ChaCha8$refill(self) {
   self.counter = (self.counter >>> 0) + (4 >>> 0) | 0;
@@ -6934,32 +6960,32 @@ function moonbitlang$core$random$$Rand$new(generator) {
   }
 }
 function moonbitlang$core$random$$umul128(a, b) {
-  const aLo = moonbitlang$core$builtin$$BitAnd$land$46$(a, $4294967295L);
-  const aHi = moonbitlang$core$builtin$$Shr$shr$46$(a, 32);
-  const bLo = moonbitlang$core$builtin$$BitAnd$land$46$(b, $4294967295L);
-  const bHi = moonbitlang$core$builtin$$Shr$shr$46$(b, 32);
-  const x = moonbitlang$core$builtin$$Mul$mul$46$(aLo, bLo);
-  const y = moonbitlang$core$builtin$$Add$add$46$(moonbitlang$core$builtin$$Mul$mul$46$(aHi, bLo), moonbitlang$core$builtin$$Shr$shr$46$(x, 32));
-  const z = moonbitlang$core$builtin$$Add$add$46$(moonbitlang$core$builtin$$Mul$mul$46$(aLo, bHi), moonbitlang$core$builtin$$BitAnd$land$46$(y, $4294967295L));
-  const w = moonbitlang$core$builtin$$Add$add$46$(moonbitlang$core$builtin$$Add$add$46$(moonbitlang$core$builtin$$Mul$mul$46$(aHi, bHi), moonbitlang$core$builtin$$Shr$shr$46$(y, 32)), moonbitlang$core$builtin$$Shr$shr$46$(z, 32));
-  return { hi: w, lo: moonbitlang$core$builtin$$Mul$mul$46$(a, b) };
+  const aLo = moonbitlang$core$builtin$$BitAnd$land$47$(a, $4294967295L);
+  const aHi = moonbitlang$core$builtin$$Shr$shr$47$(a, 32);
+  const bLo = moonbitlang$core$builtin$$BitAnd$land$47$(b, $4294967295L);
+  const bHi = moonbitlang$core$builtin$$Shr$shr$47$(b, 32);
+  const x = moonbitlang$core$builtin$$Mul$mul$47$(aLo, bLo);
+  const y = moonbitlang$core$builtin$$Add$add$47$(moonbitlang$core$builtin$$Mul$mul$47$(aHi, bLo), moonbitlang$core$builtin$$Shr$shr$47$(x, 32));
+  const z = moonbitlang$core$builtin$$Add$add$47$(moonbitlang$core$builtin$$Mul$mul$47$(aLo, bHi), moonbitlang$core$builtin$$BitAnd$land$47$(y, $4294967295L));
+  const w = moonbitlang$core$builtin$$Add$add$47$(moonbitlang$core$builtin$$Add$add$47$(moonbitlang$core$builtin$$Mul$mul$47$(aHi, bHi), moonbitlang$core$builtin$$Shr$shr$47$(y, 32)), moonbitlang$core$builtin$$Shr$shr$47$(z, 32));
+  return { hi: w, lo: moonbitlang$core$builtin$$Mul$mul$47$(a, b) };
 }
 function moonbitlang$core$random$$Rand$uint64$46$inner(self, limit) {
-  if (moonbitlang$core$builtin$$Eq$equal$46$(limit, $0L)) {
+  if (moonbitlang$core$builtin$$Eq$equal$47$(limit, $0L)) {
     const _p = self;
     return _p.method_table.method_0(_p.self);
   } else {
-    if (moonbitlang$core$builtin$$Eq$equal$46$(moonbitlang$core$builtin$$BitAnd$land$46$(limit, moonbitlang$core$builtin$$Sub$sub$46$(limit, $1L)), $0L)) {
+    if (moonbitlang$core$builtin$$Eq$equal$47$(moonbitlang$core$builtin$$BitAnd$land$47$(limit, moonbitlang$core$builtin$$Sub$sub$47$(limit, $1L)), $0L)) {
       const _p = self;
-      return moonbitlang$core$builtin$$BitAnd$land$46$(_p.method_table.method_0(_p.self), moonbitlang$core$builtin$$Sub$sub$46$(limit, $1L));
+      return moonbitlang$core$builtin$$BitAnd$land$47$(_p.method_table.method_0(_p.self), moonbitlang$core$builtin$$Sub$sub$47$(limit, $1L));
     }
   }
   const _p = self;
   let r = moonbitlang$core$random$$umul128(_p.method_table.method_0(_p.self), limit);
-  if (moonbitlang$core$builtin$$Compare$op_lt$45$(r.lo, limit)) {
-    const thresh = moonbitlang$core$builtin$$Mod$mod$46$(moonbitlang$core$uint64$$UInt64$lnot(limit), limit);
+  if (moonbitlang$core$builtin$$Compare$op_lt$46$(r.lo, limit)) {
+    const thresh = moonbitlang$core$builtin$$Mod$mod$47$(moonbitlang$core$uint64$$UInt64$lnot(limit), limit);
     while (true) {
-      if (moonbitlang$core$builtin$$Compare$op_lt$45$(r.lo, thresh)) {
+      if (moonbitlang$core$builtin$$Compare$op_lt$46$(r.lo, thresh)) {
         const _p$2 = self;
         r = moonbitlang$core$random$$umul128(_p$2.method_table.method_0(_p$2.self), limit);
         continue;
@@ -6980,14 +7006,14 @@ function moonbitlang$core$random$$Rand$uint$46$inner(self, limit) {
 function moonbitlang$core$random$$Rand$int$46$inner(self, limit) {
   if (limit === 0) {
     const _p = self;
-    return moonbitlang$core$uint64$$UInt64$to_int(moonbitlang$core$builtin$$Shr$shr$46$(_p.method_table.method_0(_p.self), 33));
+    return moonbitlang$core$uint64$$UInt64$to_int(moonbitlang$core$builtin$$Shr$shr$47$(_p.method_table.method_0(_p.self), 33));
   } else {
     return moonbitlang$core$random$$Rand$uint$46$inner(self, limit);
   }
 }
 function moonbitlang$core$random$$Rand$double(self) {
   const _p = self;
-  return moonbitlang$core$double$$Double$convert_uint64(moonbitlang$core$builtin$$Shr$shr$46$(moonbitlang$core$builtin$$Shl$shl$46$(_p.method_table.method_0(_p.self), 11), 11)) / moonbitlang$core$double$$Double$convert_uint64(moonbitlang$core$builtin$$Shl$shl$46$($1L, 53));
+  return moonbitlang$core$double$$Double$convert_uint64(moonbitlang$core$builtin$$Shr$shr$47$(moonbitlang$core$builtin$$Shl$shl$47$(_p.method_table.method_0(_p.self), 11), 11)) / moonbitlang$core$double$$Double$convert_uint64(moonbitlang$core$builtin$$Shl$shl$47$($1L, 53));
 }
 function moonbitlang$core$set$$Set$new$46$inner$21$(capacity) {
   const capacity$2 = moonbitlang$core$int$$Int$next_power_of_two(capacity);
@@ -7289,10 +7315,10 @@ function moonbitlang$core$set$$Set$grow$21$(self) {
   }
 }
 function moonbitlang$core$set$$Set$add$6$(self, key) {
-  moonbitlang$core$set$$Set$add_with_hash$6$(self, key, moonbitlang$core$builtin$$Hash$hash$44$(key));
+  moonbitlang$core$set$$Set$add_with_hash$6$(self, key, moonbitlang$core$builtin$$Hash$hash$45$(key));
 }
 function moonbitlang$core$set$$Set$add$21$(self, key) {
-  moonbitlang$core$set$$Set$add_with_hash$21$(self, key, moonbitlang$core$builtin$$Hash$hash$47$(key));
+  moonbitlang$core$set$$Set$add_with_hash$21$(self, key, moonbitlang$core$builtin$$Hash$hash$48$(key));
 }
 function moonbitlang$core$set$$Set$from_array$21$(arr) {
   const length = arr.end - arr.start | 0;
@@ -7318,7 +7344,7 @@ function moonbitlang$core$set$$Set$from_array$21$(arr) {
   return m;
 }
 function moonbitlang$core$set$$Set$contains$6$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$44$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$45$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -7352,7 +7378,7 @@ function moonbitlang$core$set$$Set$contains$6$(self, key) {
   }
 }
 function moonbitlang$core$set$$Set$contains$21$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$47$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$48$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -7499,7 +7525,7 @@ function moonbitlang$core$set$$Set$shift_back$6$(self, idx) {
   }
 }
 function moonbitlang$core$set$$Set$remove$21$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$47$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$48$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -7529,7 +7555,7 @@ function moonbitlang$core$set$$Set$remove$21$(self, key) {
   }
 }
 function moonbitlang$core$set$$Set$remove$6$(self, key) {
-  const hash = moonbitlang$core$builtin$$Hash$hash$44$(key);
+  const hash = moonbitlang$core$builtin$$Hash$hash$45$(key);
   let _tmp = 0;
   let _tmp$2 = hash & self.capacity_mask;
   while (true) {
@@ -7566,7 +7592,7 @@ function moonbitlang$core$set$$Set$remove$6$(self, key) {
   }
 }
 function moonbitlang$core$set$$Set$clear$21$(self) {
-  moonbitlang$core$array$$FixedArray$fill$46$inner$74$(self.entries, undefined, 0, undefined);
+  moonbitlang$core$array$$FixedArray$fill$46$inner$75$(self.entries, undefined, 0, undefined);
   self.size = 0;
   self.head = undefined;
   self.tail = -1;
@@ -7694,7 +7720,7 @@ function moonbitlang$core$set$$Set$union$6$(self, other) {
   }
   return m;
 }
-function moonbitlang$core$ref$$Ref$new$81$(x) {
+function moonbitlang$core$ref$$Ref$new$82$(x) {
   return { val: x };
 }
 function moonbitlang$core$ref$$Ref$new$25$(x) {
@@ -7706,7 +7732,7 @@ function moonbitlang$core$ref$$Ref$new$22$(x) {
 function moonbitlang$core$ref$$Ref$new$18$(x) {
   return { val: x };
 }
-function moonbitlang$core$builtin$$Default$default$36$() {
+function moonbitlang$core$builtin$$Default$default$37$() {
   return { _0: 0, _1: 0 };
 }
 function Milky2018$selene$math$$Vec2D$op_get(this_, axis) {
@@ -7752,9 +7778,9 @@ function Milky2018$selene$math$$Transform$apply_to_vec2d(self, vec) {
   return { _0: p._0, _1: p._1 };
 }
 function Milky2018$selene$math$$Transform$flip_x(width) {
-  return moonbitlang$core$builtin$$Mul$mul$82$(Milky2018$selene$math$$Transform$from_translation(width, 0), Milky2018$selene$math$$Transform$from_scale(-1, 1));
+  return moonbitlang$core$builtin$$Mul$mul$83$(Milky2018$selene$math$$Transform$from_translation(width, 0), Milky2018$selene$math$$Transform$from_scale(-1, 1));
 }
-function moonbitlang$core$builtin$$Mul$mul$82$(self, other) {
+function moonbitlang$core$builtin$$Mul$mul$83$(self, other) {
   return Milky2018$selene$math$$Transform$multiply(self, other);
 }
 function Milky2018$selene$math$$Rect$intersects(a, b) {
@@ -8203,100 +8229,100 @@ function Milky2018$selene$inputs$$is_mouse_just_released(button) {
 function Milky2018$selene$inputs$$Code$from_string(code) {
   switch (code) {
     case "KeyA": {
-      return Milky2018$selene$inputs$$from_string$46$constr$47$2575;
-    }
-    case "KeyB": {
-      return Milky2018$selene$inputs$$from_string$46$constr$47$2576;
-    }
-    case "KeyC": {
-      return Milky2018$selene$inputs$$from_string$46$constr$47$2577;
-    }
-    case "KeyD": {
-      return Milky2018$selene$inputs$$from_string$46$constr$47$2578;
-    }
-    case "KeyE": {
-      return Milky2018$selene$inputs$$from_string$46$constr$47$2579;
-    }
-    case "KeyF": {
-      return Milky2018$selene$inputs$$from_string$46$constr$47$2580;
-    }
-    case "KeyG": {
-      return Milky2018$selene$inputs$$from_string$46$constr$47$2581;
-    }
-    case "KeyH": {
-      return Milky2018$selene$inputs$$from_string$46$constr$47$2582;
-    }
-    case "KeyI": {
-      return Milky2018$selene$inputs$$from_string$46$constr$47$2583;
-    }
-    case "KeyJ": {
-      return Milky2018$selene$inputs$$from_string$46$constr$47$2584;
-    }
-    case "KeyK": {
-      return Milky2018$selene$inputs$$from_string$46$constr$47$2585;
-    }
-    case "KeyL": {
-      return Milky2018$selene$inputs$$from_string$46$constr$47$2586;
-    }
-    case "KeyM": {
-      return Milky2018$selene$inputs$$from_string$46$constr$47$2587;
-    }
-    case "KeyN": {
-      return Milky2018$selene$inputs$$from_string$46$constr$47$2588;
-    }
-    case "KeyO": {
-      return Milky2018$selene$inputs$$from_string$46$constr$47$2589;
-    }
-    case "KeyP": {
-      return Milky2018$selene$inputs$$from_string$46$constr$47$2590;
-    }
-    case "KeyQ": {
-      return Milky2018$selene$inputs$$from_string$46$constr$47$2591;
-    }
-    case "KeyR": {
       return Milky2018$selene$inputs$$from_string$46$constr$47$2592;
     }
-    case "KeyS": {
+    case "KeyB": {
       return Milky2018$selene$inputs$$from_string$46$constr$47$2593;
     }
-    case "KeyT": {
+    case "KeyC": {
       return Milky2018$selene$inputs$$from_string$46$constr$47$2594;
     }
-    case "KeyU": {
+    case "KeyD": {
       return Milky2018$selene$inputs$$from_string$46$constr$47$2595;
     }
-    case "KeyV": {
+    case "KeyE": {
       return Milky2018$selene$inputs$$from_string$46$constr$47$2596;
     }
-    case "KeyW": {
+    case "KeyF": {
       return Milky2018$selene$inputs$$from_string$46$constr$47$2597;
     }
-    case "KeyX": {
+    case "KeyG": {
       return Milky2018$selene$inputs$$from_string$46$constr$47$2598;
     }
-    case "KeyY": {
+    case "KeyH": {
       return Milky2018$selene$inputs$$from_string$46$constr$47$2599;
     }
-    case "ArrowUp": {
+    case "KeyI": {
       return Milky2018$selene$inputs$$from_string$46$constr$47$2600;
     }
-    case "ArrowDown": {
+    case "KeyJ": {
       return Milky2018$selene$inputs$$from_string$46$constr$47$2601;
     }
-    case "ArrowLeft": {
+    case "KeyK": {
       return Milky2018$selene$inputs$$from_string$46$constr$47$2602;
     }
-    case "ArrowRight": {
+    case "KeyL": {
       return Milky2018$selene$inputs$$from_string$46$constr$47$2603;
     }
-    case "Space": {
+    case "KeyM": {
       return Milky2018$selene$inputs$$from_string$46$constr$47$2604;
     }
-    case "Enter": {
+    case "KeyN": {
       return Milky2018$selene$inputs$$from_string$46$constr$47$2605;
     }
-    case "Escape": {
+    case "KeyO": {
       return Milky2018$selene$inputs$$from_string$46$constr$47$2606;
+    }
+    case "KeyP": {
+      return Milky2018$selene$inputs$$from_string$46$constr$47$2607;
+    }
+    case "KeyQ": {
+      return Milky2018$selene$inputs$$from_string$46$constr$47$2608;
+    }
+    case "KeyR": {
+      return Milky2018$selene$inputs$$from_string$46$constr$47$2609;
+    }
+    case "KeyS": {
+      return Milky2018$selene$inputs$$from_string$46$constr$47$2610;
+    }
+    case "KeyT": {
+      return Milky2018$selene$inputs$$from_string$46$constr$47$2611;
+    }
+    case "KeyU": {
+      return Milky2018$selene$inputs$$from_string$46$constr$47$2612;
+    }
+    case "KeyV": {
+      return Milky2018$selene$inputs$$from_string$46$constr$47$2613;
+    }
+    case "KeyW": {
+      return Milky2018$selene$inputs$$from_string$46$constr$47$2614;
+    }
+    case "KeyX": {
+      return Milky2018$selene$inputs$$from_string$46$constr$47$2615;
+    }
+    case "KeyY": {
+      return Milky2018$selene$inputs$$from_string$46$constr$47$2616;
+    }
+    case "ArrowUp": {
+      return Milky2018$selene$inputs$$from_string$46$constr$47$2617;
+    }
+    case "ArrowDown": {
+      return Milky2018$selene$inputs$$from_string$46$constr$47$2618;
+    }
+    case "ArrowLeft": {
+      return Milky2018$selene$inputs$$from_string$46$constr$47$2619;
+    }
+    case "ArrowRight": {
+      return Milky2018$selene$inputs$$from_string$46$constr$47$2620;
+    }
+    case "Space": {
+      return Milky2018$selene$inputs$$from_string$46$constr$47$2621;
+    }
+    case "Enter": {
+      return Milky2018$selene$inputs$$from_string$46$constr$47$2622;
+    }
+    case "Escape": {
+      return Milky2018$selene$inputs$$from_string$46$constr$47$2623;
     }
     default: {
       return undefined;
@@ -8352,74 +8378,74 @@ function Milky2018$selene$inputs$$advanced_key_system(_delta) {
     }
   }
 }
-function rami3l$js$45$ffi$js$$Union3$from0$83$(value) {
+function rami3l$js$45$ffi$js$$Union3$from0$84$(value) {
   return value;
 }
-function rami3l$js$45$ffi$js$$Union3$from2$83$(value) {
+function rami3l$js$45$ffi$js$$Union3$from2$84$(value) {
   return value;
 }
-function rami3l$js$45$ffi$js$$Union5$to0$84$(self) {
-  return rami3l$js$45$ffi$js$$Cast$into$69$(self);
+function rami3l$js$45$ffi$js$$Union5$to0$85$(self) {
+  return rami3l$js$45$ffi$js$$Cast$into$70$(self);
 }
-function rami3l$js$45$ffi$js$$Union7$from0$85$(value) {
-  return rami3l$js$45$ffi$js$$Cast$from$86$(value);
+function rami3l$js$45$ffi$js$$Union7$from0$86$(value) {
+  return rami3l$js$45$ffi$js$$Cast$from$87$(value);
 }
 function rami3l$js$45$ffi$js$$Optional$undefined$25$() {
   return rami3l$js$45$ffi$js$$Value$undefined();
 }
-function rami3l$js$45$ffi$js$$Nullable$is_null$87$(self) {
+function rami3l$js$45$ffi$js$$Nullable$is_null$88$(self) {
   return rami3l$js$45$ffi$js$$Value$is_null(self);
 }
-function rami3l$js$45$ffi$js$$Nullable$unwrap$87$(self) {
-  if (rami3l$js$45$ffi$js$$Nullable$is_null$87$(self)) {
+function rami3l$js$45$ffi$js$$Nullable$unwrap$88$(self) {
+  if (rami3l$js$45$ffi$js$$Nullable$is_null$88$(self)) {
     moonbitlang$core$builtin$$abort$28$("Cannot unwrap a null value", "@rami3l/js-ffi/js:null.mbt:17:5-17:40");
   }
   return self;
 }
-function rami3l$js$45$ffi$js$$Nullable$to_option$66$(self) {
+function rami3l$js$45$ffi$js$$Nullable$to_option$67$(self) {
   return !rami3l$js$45$ffi$js$$Value$is_null(self) ? new Option$Some$6$(self) : Option$None$6$;
 }
-function rami3l$js$45$ffi$js$$Nullable$to_option$67$(self) {
+function rami3l$js$45$ffi$js$$Nullable$to_option$68$(self) {
   return !rami3l$js$45$ffi$js$$Value$is_null(self) ? new Option$Some$7$(self) : Option$None$7$;
 }
-function rami3l$js$45$ffi$js$$Nullable$to_option$68$(self) {
+function rami3l$js$45$ffi$js$$Nullable$to_option$69$(self) {
   return !rami3l$js$45$ffi$js$$Value$is_null(self) ? new Option$Some$8$(self) : Option$None$8$;
 }
-function rami3l$js$45$ffi$js$$Nullable$to_option$69$(self) {
+function rami3l$js$45$ffi$js$$Nullable$to_option$70$(self) {
   return !rami3l$js$45$ffi$js$$Value$is_null(self) ? new Option$Some$9$(self) : Option$None$9$;
 }
-function Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_button$88$(s) {
+function Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_button$89$(s) {
   return Yoorkin$rabbit$45$tea$dom$$ffi_mouse_event_button(s);
 }
-function Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_movement_x$88$(s) {
+function Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_movement_x$89$(s) {
   return Yoorkin$rabbit$45$tea$dom$$ffi_mouse_event_movement_x(s);
 }
-function Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_movement_y$88$(s) {
+function Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_movement_y$89$(s) {
   return Yoorkin$rabbit$45$tea$dom$$ffi_mouse_event_movement_y(s);
 }
-function Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_offset_x$88$(s) {
+function Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_offset_x$89$(s) {
   return Yoorkin$rabbit$45$tea$dom$$ffi_mouse_event_offset_x(s);
 }
-function Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_offset_y$88$(s) {
+function Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_offset_y$89$(s) {
   return Yoorkin$rabbit$45$tea$dom$$ffi_mouse_event_offset_y(s);
 }
-function rami3l$js$45$ffi$js$$Cast$from$86$(value) {
+function rami3l$js$45$ffi$js$$Cast$from$87$(value) {
   return value;
 }
-function Yoorkin$rabbit$45$tea$dom$$IsEventTarget$add_event_listener$89$(s, type_, callback) {
+function Yoorkin$rabbit$45$tea$dom$$IsEventTarget$add_event_listener$90$(s, type_, callback) {
   Yoorkin$rabbit$45$tea$dom$$ffi_add_event_listener(s, type_, callback);
 }
-function Yoorkin$rabbit$45$tea$dom$$IsEventTarget$to_html_canvas_element$90$(s) {
-  return rami3l$js$45$ffi$js$$Nullable$to_option$68$(Yoorkin$rabbit$45$tea$dom$$ffi_to_html_canvas_element(s));
+function Yoorkin$rabbit$45$tea$dom$$IsEventTarget$to_html_canvas_element$91$(s) {
+  return rami3l$js$45$ffi$js$$Nullable$to_option$69$(Yoorkin$rabbit$45$tea$dom$$ffi_to_html_canvas_element(s));
 }
-function Yoorkin$rabbit$45$tea$dom$$IsEvent$to_mouse_event$91$(s) {
-  return rami3l$js$45$ffi$js$$Nullable$to_option$67$(Yoorkin$rabbit$45$tea$dom$$ffi_to_mouse_event(s));
+function Yoorkin$rabbit$45$tea$dom$$IsEvent$to_mouse_event$92$(s) {
+  return rami3l$js$45$ffi$js$$Nullable$to_option$68$(Yoorkin$rabbit$45$tea$dom$$ffi_to_mouse_event(s));
 }
-function Yoorkin$rabbit$45$tea$dom$$IsEvent$to_keyboard_event$91$(s) {
-  return rami3l$js$45$ffi$js$$Nullable$to_option$66$(Yoorkin$rabbit$45$tea$dom$$ffi_to_keyboard_event(s));
+function Yoorkin$rabbit$45$tea$dom$$IsEvent$to_keyboard_event$92$(s) {
+  return rami3l$js$45$ffi$js$$Nullable$to_option$67$(Yoorkin$rabbit$45$tea$dom$$ffi_to_keyboard_event(s));
 }
-function rami3l$js$45$ffi$js$$Cast$into$69$(value) {
-  return rami3l$js$45$ffi$js$$Nullable$to_option$69$(Yoorkin$rabbit$45$tea$dom$$checked_to_canvas_rendering_context_2d(value));
+function rami3l$js$45$ffi$js$$Cast$into$70$(value) {
+  return rami3l$js$45$ffi$js$$Nullable$to_option$70$(Yoorkin$rabbit$45$tea$dom$$checked_to_canvas_rendering_context_2d(value));
 }
 function Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$fill_text(self, text, x, y, max_width$46$opt) {
   let max_width;
@@ -8432,22 +8458,22 @@ function Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$fill_text(self, tex
   Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$fill_text$46$inner(self, text, x, y, max_width);
 }
 function Milky2018$selene$backend$$CanvasBackend$new() {
-  const canvas = moonbitlang$core$option$$Option$unwrap$68$(Yoorkin$rabbit$45$tea$dom$$IsEventTarget$to_html_canvas_element$90$(rami3l$js$45$ffi$js$$Nullable$unwrap$87$(Yoorkin$rabbit$45$tea$dom$$Document$get_element_by_id(Yoorkin$rabbit$45$tea$dom$$document(), "canvas"))));
-  const context = moonbitlang$core$option$$Option$unwrap$69$(rami3l$js$45$ffi$js$$Union5$to0$84$(Yoorkin$rabbit$45$tea$dom$$HTMLCanvasElement$get_context(canvas, "2d")));
+  const canvas = moonbitlang$core$option$$Option$unwrap$69$(Yoorkin$rabbit$45$tea$dom$$IsEventTarget$to_html_canvas_element$91$(rami3l$js$45$ffi$js$$Nullable$unwrap$88$(Yoorkin$rabbit$45$tea$dom$$Document$get_element_by_id(Yoorkin$rabbit$45$tea$dom$$document(), "canvas"))));
+  const context = moonbitlang$core$option$$Option$unwrap$70$(rami3l$js$45$ffi$js$$Union5$to0$85$(Yoorkin$rabbit$45$tea$dom$$HTMLCanvasElement$get_context(canvas, "2d")));
   const _bind$8 = { _0: 0, _1: 0 };
-  const _bind$9 = moonbitlang$core$ref$$Ref$new$81$(undefined);
+  const _bind$9 = moonbitlang$core$ref$$Ref$new$82$(undefined);
   return { canvas: canvas, context: context, viewport_size: _bind$8, zoom: 1, time_scale: 1, mouse_movement: _bind$9 };
 }
 function Milky2018$selene$backend$$register_mouse_events(mouse, mouse_movement) {
   Milky2018$selene$backend$$canvas_backend.mouse_movement.val = mouse_movement;
-  Yoorkin$rabbit$45$tea$dom$$IsEventTarget$add_event_listener$89$(Milky2018$selene$backend$$window, "mousemove", (event) => {
-    const mouse_event = moonbitlang$core$option$$Option$unwrap$67$(Yoorkin$rabbit$45$tea$dom$$IsEvent$to_mouse_event$91$(event));
-    mouse.pos = { _0: Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_offset_x$88$(mouse_event) + 0, _1: Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_offset_y$88$(mouse_event) + 0 };
-    mouse_movement.movement = { _0: Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_movement_x$88$(mouse_event) + 0, _1: Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_movement_y$88$(mouse_event) + 0 };
+  Yoorkin$rabbit$45$tea$dom$$IsEventTarget$add_event_listener$90$(Milky2018$selene$backend$$window, "mousemove", (event) => {
+    const mouse_event = moonbitlang$core$option$$Option$unwrap$68$(Yoorkin$rabbit$45$tea$dom$$IsEvent$to_mouse_event$92$(event));
+    mouse.pos = { _0: Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_offset_x$89$(mouse_event) + 0, _1: Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_offset_y$89$(mouse_event) + 0 };
+    mouse_movement.movement = { _0: Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_movement_x$89$(mouse_event) + 0, _1: Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_movement_y$89$(mouse_event) + 0 };
   });
-  Yoorkin$rabbit$45$tea$dom$$IsEventTarget$add_event_listener$89$(Milky2018$selene$backend$$window, "mousedown", (event) => {
-    const mouse_event = moonbitlang$core$option$$Option$unwrap$67$(Yoorkin$rabbit$45$tea$dom$$IsEvent$to_mouse_event$91$(event));
-    const _bind$8 = Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_button$88$(mouse_event);
+  Yoorkin$rabbit$45$tea$dom$$IsEventTarget$add_event_listener$90$(Milky2018$selene$backend$$window, "mousedown", (event) => {
+    const mouse_event = moonbitlang$core$option$$Option$unwrap$68$(Yoorkin$rabbit$45$tea$dom$$IsEvent$to_mouse_event$92$(event));
+    const _bind$8 = Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_button$89$(mouse_event);
     switch (_bind$8) {
       case 0: {
         mouse.left_button = true;
@@ -8466,9 +8492,9 @@ function Milky2018$selene$backend$$register_mouse_events(mouse, mouse_movement) 
       }
     }
   });
-  Yoorkin$rabbit$45$tea$dom$$IsEventTarget$add_event_listener$89$(Milky2018$selene$backend$$window, "mouseup", (event) => {
-    const mouse_event = moonbitlang$core$option$$Option$unwrap$67$(Yoorkin$rabbit$45$tea$dom$$IsEvent$to_mouse_event$91$(event));
-    const _bind$8 = Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_button$88$(mouse_event);
+  Yoorkin$rabbit$45$tea$dom$$IsEventTarget$add_event_listener$90$(Milky2018$selene$backend$$window, "mouseup", (event) => {
+    const mouse_event = moonbitlang$core$option$$Option$unwrap$68$(Yoorkin$rabbit$45$tea$dom$$IsEvent$to_mouse_event$92$(event));
+    const _bind$8 = Yoorkin$rabbit$45$tea$dom$$IsMouseEvent$get_button$89$(mouse_event);
     switch (_bind$8) {
       case 0: {
         mouse.left_button = false;
@@ -8489,8 +8515,8 @@ function Milky2018$selene$backend$$register_mouse_events(mouse, mouse_movement) 
   });
 }
 function Milky2018$selene$backend$$register_key_events(pressed_keys) {
-  Yoorkin$rabbit$45$tea$dom$$IsEventTarget$add_event_listener$89$(Milky2018$selene$backend$$window, "keyup", (event) => {
-    const keyboard_event = moonbitlang$core$option$$Option$unwrap$66$(Yoorkin$rabbit$45$tea$dom$$IsEvent$to_keyboard_event$91$(event));
+  Yoorkin$rabbit$45$tea$dom$$IsEventTarget$add_event_listener$90$(Milky2018$selene$backend$$window, "keyup", (event) => {
+    const keyboard_event = moonbitlang$core$option$$Option$unwrap$67$(Yoorkin$rabbit$45$tea$dom$$IsEvent$to_keyboard_event$92$(event));
     const keycode = Milky2018$selene$inputs$$Code$from_string(Yoorkin$rabbit$45$tea$dom$$KeyboardEvent$code(keyboard_event));
     if (keycode === undefined) {
       return;
@@ -8501,8 +8527,8 @@ function Milky2018$selene$backend$$register_key_events(pressed_keys) {
       return;
     }
   });
-  Yoorkin$rabbit$45$tea$dom$$IsEventTarget$add_event_listener$89$(Milky2018$selene$backend$$window, "keydown", (event) => {
-    const keyboard_event = moonbitlang$core$option$$Option$unwrap$66$(Yoorkin$rabbit$45$tea$dom$$IsEvent$to_keyboard_event$91$(event));
+  Yoorkin$rabbit$45$tea$dom$$IsEventTarget$add_event_listener$90$(Milky2018$selene$backend$$window, "keydown", (event) => {
+    const keyboard_event = moonbitlang$core$option$$Option$unwrap$67$(Yoorkin$rabbit$45$tea$dom$$IsEvent$to_keyboard_event$92$(event));
     const keycode = Milky2018$selene$inputs$$Code$from_string(Yoorkin$rabbit$45$tea$dom$$KeyboardEvent$code(keyboard_event));
     if (keycode === undefined) {
       return;
@@ -8547,9 +8573,9 @@ function Milky2018$selene$backend$$draw_picture(png, x, y, width, height, transf
     }
   }
   const context = Milky2018$selene$backend$$canvas_backend.context;
-  const pattern = Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$create_pattern(context, rami3l$js$45$ffi$js$$Union7$from0$85$(element), repeat_mode);
+  const pattern = Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$create_pattern(context, rami3l$js$45$ffi$js$$Union7$from0$86$(element), repeat_mode);
   Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$save(context);
-  Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$set_fill_style(context, rami3l$js$45$ffi$js$$Union3$from2$83$(pattern));
+  Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$set_fill_style(context, rami3l$js$45$ffi$js$$Union3$from2$84$(pattern));
   Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$translate(context, x, y);
   Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$transform(context, transform.a, transform.b, transform.c, transform.d, transform.tx, transform.ty);
   Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$fill_rect(context, 0, 0, width, height);
@@ -8598,16 +8624,16 @@ function Milky2018$selene$backend$$draw_text(text, x, y, font, color, align, bas
     }
   }
   Milky2018$selene$backend$$set_text_baseline(context, baseline$2);
-  Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$set_fill_style(context, rami3l$js$45$ffi$js$$Union3$from0$83$(color));
+  Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$set_fill_style(context, rami3l$js$45$ffi$js$$Union3$from0$84$(color));
   Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$fill_text(context, text, x, y, Option$None$10$);
   Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$restore(context);
 }
 function Milky2018$selene$backend$$draw_color_rect(x, y, width, height, color, stroke_color) {
   const context = Milky2018$selene$backend$$canvas_backend.context;
   Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$save(context);
-  Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$set_stroke_style(context, rami3l$js$45$ffi$js$$Union3$from0$83$(stroke_color));
+  Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$set_stroke_style(context, rami3l$js$45$ffi$js$$Union3$from0$84$(stroke_color));
   Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$stroke_rect(context, x, y, width, height);
-  Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$set_fill_style(context, rami3l$js$45$ffi$js$$Union3$from0$83$(color));
+  Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$set_fill_style(context, rami3l$js$45$ffi$js$$Union3$from0$84$(color));
   Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$fill_rect(context, x, y, width, height);
   Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$restore(context);
 }
@@ -8615,9 +8641,9 @@ function Milky2018$selene$backend$$draw_color_circle(x, y, radius, color, stroke
   const context = Milky2018$selene$backend$$canvas_backend.context;
   Milky2018$selene$backend$$begin_path(context);
   Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$arc$46$inner(context, x, y, radius, 0, 6.28318530717958623, false);
-  Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$set_fill_style(context, rami3l$js$45$ffi$js$$Union3$from0$83$(color));
+  Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$set_fill_style(context, rami3l$js$45$ffi$js$$Union3$from0$84$(color));
   Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$fill$46$inner(context, "nonzero");
-  Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$set_stroke_style(context, rami3l$js$45$ffi$js$$Union3$from0$83$(stroke_color));
+  Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$set_stroke_style(context, rami3l$js$45$ffi$js$$Union3$from0$84$(stroke_color));
   Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$stroke(context);
   Yoorkin$rabbit$45$tea$dom$$CanvasRenderingContext2D$restore(context);
 }
@@ -8658,7 +8684,7 @@ function Milky2018$selene$backend$$schedule_with_fixed_interval(interval, callba
 }
 function Milky2018$selene$backend$$initialize(startup, render_loop, game_loop, canvas_width, canvas_height, fps, image_smooth, zoom) {
   if (fps >>> 0 > 60 >>> 0) {
-    moonbitlang$core$builtin$$println$42$("Warning: FPS is set above 60. The browser's window only support up to 60 FPS.");
+    moonbitlang$core$builtin$$println$43$("Warning: FPS is set above 60. The browser's window only support up to 60 FPS.");
   }
   Milky2018$selene$backend$$canvas_backend.viewport_size = { _0: canvas_width, _1: canvas_height };
   Milky2018$selene$backend$$set_viewport_height(Milky2018$selene$backend$$canvas_backend.canvas, canvas_height);
@@ -8846,11 +8872,11 @@ function Milky2018$selene$system$$App$with_zoom(self, zoom) {
 }
 function Milky2018$selene$system$$App$add_plugin(self, plugin) {
   const plugins = self.plugins;
-  moonbitlang$core$array$$Array$push$55$(plugins, plugin);
+  moonbitlang$core$array$$Array$push$56$(plugins, plugin);
   return { ...self, plugins: plugins };
 }
 function Milky2018$selene$system$$App$add_system$46$inner(self, system, schedule, system_name) {
-  const _p = `unnamed_system${moonbitlang$core$builtin$$Show$to_string$49$(self.systems.length)}`;
+  const _p = `unnamed_system${moonbitlang$core$builtin$$Show$to_string$50$(self.systems.length)}`;
   let system_name$2;
   if (system_name === undefined) {
     system_name$2 = _p;
@@ -8859,7 +8885,7 @@ function Milky2018$selene$system$$App$add_system$46$inner(self, system, schedule
     system_name$2 = _p$2;
   }
   const systems = self.systems;
-  moonbitlang$core$array$$Array$push$54$(systems, { _0: system, _1: schedule, _2: system_name$2 });
+  moonbitlang$core$array$$Array$push$55$(systems, { _0: system, _1: schedule, _2: system_name$2 });
   return { ...self, systems: systems };
 }
 function Milky2018$selene$system$$App$add_system(self, system, schedule$46$opt, system_name) {
@@ -8927,7 +8953,7 @@ function Milky2018$selene$system$$App$run(self) {
       break;
     }
   }
-  moonbitlang$core$array$$Array$sort_by_key$79$(renders, (system) => -system._1 | 0);
+  moonbitlang$core$array$$Array$sort_by_key$80$(renders, (system) => -system._1 | 0);
   const render_loop = (delta) => {
     const _len$3 = renders.length;
     let _tmp$3 = 0;
@@ -8954,7 +8980,7 @@ function Milky2018$selene$system$$App$run(self) {
       const system = _arr$3[_i];
       const _bind$8 = system._1;
       if (_bind$8.$tag === 1) {
-        moonbitlang$core$array$$Array$push$53$(game_loops, system._0);
+        moonbitlang$core$array$$Array$push$54$(game_loops, system._0);
       }
       _tmp$3 = _i + 1 | 0;
       continue;
@@ -9053,11 +9079,11 @@ function Milky2018$selene$entity$$Entity$spawn_child(parent, offset) {
   const child_entity = Milky2018$selene$entity$$Entity$new();
   const p = moonbitlang$core$builtin$$Map$get_or_init$12$(Milky2018$selene$entity$$parents, parent, () => ({ children: [], is_root: !moonbitlang$core$builtin$$Map$contains$11$(Milky2018$selene$entity$$children, parent) }));
   moonbitlang$core$array$$Array$push$6$(p.children, child_entity);
-  moonbitlang$core$builtin$$Map$set$11$(Milky2018$selene$entity$$children, child_entity, { parent: parent, offset: moonbitlang$core$option$$Option$unwrap_or_default$36$(offset) });
+  moonbitlang$core$builtin$$Map$set$11$(Milky2018$selene$entity$$children, child_entity, { parent: parent, offset: moonbitlang$core$option$$Option$unwrap_or_default$37$(offset) });
   return child_entity;
 }
 function Milky2018$selene$entity$$Entity$get_children(parent) {
-  return moonbitlang$core$option$$Option$map_or$71$(moonbitlang$core$builtin$$Map$get$12$(Milky2018$selene$entity$$parents, parent), [], (p) => p.children);
+  return moonbitlang$core$option$$Option$map_or$72$(moonbitlang$core$builtin$$Map$get$12$(Milky2018$selene$entity$$parents, parent), [], (p) => p.children);
 }
 function Milky2018$selene$entity$$Entity$is_child(entity) {
   return moonbitlang$core$builtin$$Map$contains$11$(Milky2018$selene$entity$$children, entity);
@@ -9074,7 +9100,7 @@ function Milky2018$selene$entity$$Entity$set_offset(child, offset) {
   _tmp.offset = offset;
 }
 function Milky2018$selene$entity$$get_roots() {
-  return moonbitlang$core$builtin$$Iter$map$64$(moonbitlang$core$builtin$$Iter$filter$63$(moonbitlang$core$builtin$$Map$iter$12$(Milky2018$selene$entity$$parents), (ep) => ep._1.is_root && Milky2018$selene$entity$$Entity$is_alive(ep._0)), (ep) => ep._0);
+  return moonbitlang$core$builtin$$Iter$map$65$(moonbitlang$core$builtin$$Iter$filter$64$(moonbitlang$core$builtin$$Map$iter$12$(Milky2018$selene$entity$$parents), (ep) => ep._1.is_root && Milky2018$selene$entity$$Entity$is_alive(ep._0)), (ep) => ep._0);
 }
 function Milky2018$selene$camera$$set_limits(top, bottom, left, right) {
   Milky2018$selene$camera$$camera.limit_top = top;
@@ -9274,7 +9300,7 @@ function Milky2018$selene$collision$$quadtree_clear_system(_delta) {
             const _bind$11 = { _0: _position._0 + _offset._0, _1: _position._1 + _offset._1 };
             const _bind$12 = { _0: _width, _1: _height };
             const box = { position: _bind$11, size: _bind$12 };
-            moonbitlang$core$array$$Array$push$56$(boxes, { _0: _e, _1: box });
+            moonbitlang$core$array$$Array$push$57$(boxes, { _0: _e, _1: box });
             const _p = left_limit;
             const _p$2 = Milky2018$selene$math$$Vec2D$op_get(_bind$11, 0);
             left_limit = _p > _p$2 ? _p$2 : _p;
@@ -9316,7 +9342,7 @@ function Milky2018$selene$collision$$Pickable$new() {
   return { on_pressed_callbacks: [], on_released_callbacks: [], on_just_pressed_callbacks: [], on_just_released_callbacks: [] };
 }
 function Milky2018$selene$collision$$Pickable$on_just_pressed(self, callback) {
-  moonbitlang$core$array$$Array$push$58$(self.on_just_pressed_callbacks, callback);
+  moonbitlang$core$array$$Array$push$59$(self.on_just_pressed_callbacks, callback);
 }
 function Milky2018$selene$collision$$pickable_click_system(_delta) {
   const zoom = Milky2018$selene$backend$$canvas_backend.zoom;
@@ -9600,9 +9626,9 @@ function Milky2018$selene$collision$$aabb_resolve(a, b) {
 function Milky2018$selene$collision$$add_collision_info(entity, target, direction) {
   const _bind$8 = moonbitlang$core$builtin$$Map$get$23$(Milky2018$selene$collision$$collision_infos, entity);
   if (_bind$8.$tag === 0) {
-    moonbitlang$core$builtin$$Map$set$23$(Milky2018$selene$collision$$collision_infos, entity, moonbitlang$core$array$$Array$new$46$inner$52$(0));
+    moonbitlang$core$builtin$$Map$set$23$(Milky2018$selene$collision$$collision_infos, entity, moonbitlang$core$array$$Array$new$46$inner$53$(0));
   }
-  moonbitlang$core$array$$Array$push$52$(moonbitlang$core$option$$Option$unwrap$70$(moonbitlang$core$builtin$$Map$get$23$(Milky2018$selene$collision$$collision_infos, entity)), { entity: target, direction: direction });
+  moonbitlang$core$array$$Array$push$53$(moonbitlang$core$option$$Option$unwrap$71$(moonbitlang$core$builtin$$Map$get$23$(Milky2018$selene$collision$$collision_infos, entity)), { entity: target, direction: direction });
 }
 function Milky2018$selene$collision$$make_ray_collision(object, speed, axis) {
   const pos = { _0: Milky2018$selene$math$$Vec2D$op_get(object.position, 0), _1: Milky2018$selene$math$$Vec2D$op_get(object.position, 1) };
@@ -9610,7 +9636,7 @@ function Milky2018$selene$collision$$make_ray_collision(object, speed, axis) {
   return speed >= 0 ? { position: pos, size: Milky2018$selene$math$$Vec2D$update(size, axis, Milky2018$selene$math$$Vec2D$op_get(size, axis) + speed) } : { position: Milky2018$selene$math$$Vec2D$update(pos, axis, Milky2018$selene$math$$Vec2D$op_get(pos, axis) + speed), size: Milky2018$selene$math$$Vec2D$update(size, axis, Milky2018$selene$math$$Vec2D$op_get(size, axis) - speed) };
 }
 function Milky2018$selene$collision$$CollisionMask$contains(self, layer) {
-  return moonbitlang$core$array$$Array$contains$80$(self, layer);
+  return moonbitlang$core$array$$Array$contains$81$(self, layer);
 }
 function Milky2018$selene$collision$$move_axis(entity, object, velocity, axis, mask) {
   const ray_collision = Milky2018$selene$collision$$make_ray_collision(object, Milky2018$selene$math$$Vec2D$op_get(velocity, axis), axis);
@@ -9627,7 +9653,7 @@ function Milky2018$selene$collision$$move_axis(entity, object, velocity, axis, m
       const _Some = _bind$8;
       const _e = _Some;
       if (Milky2018$selene$entity$$Entity$is_alive(_e)) {
-        if (moonbitlang$core$builtin$$Eq$not_equal$44$(_e, entity)) {
+        if (moonbitlang$core$builtin$$Eq$not_equal$45$(_e, entity)) {
           const _bind$9 = moonbitlang$core$builtin$$Map$get$8$(Milky2018$selene$collision$$shapes, _e);
           if (_bind$9 === undefined) {
             continue;
@@ -9800,7 +9826,7 @@ function Milky2018$selene$collision$$Area$new(mask) {
   return { mask: mask, on_enter_callbacks: _bind$9, on_exit_callbacks: _bind$10, contains: _bind$8 };
 }
 function Milky2018$selene$collision$$Area$on_enter(self, callback) {
-  moonbitlang$core$array$$Array$push$57$(self.on_enter_callbacks, callback);
+  moonbitlang$core$array$$Array$push$58$(self.on_enter_callbacks, callback);
 }
 function Milky2018$selene$collision$$area_collide_system(_delta) {
   const _it = Milky2018$selene$entity$$iter_entities();
@@ -10056,7 +10082,7 @@ function Milky2018$selene$sprite$$Sprite$from_color_rect(color_rect, zindex, off
   return Milky2018$selene$sprite$$Sprite$from_color_rect$46$inner(color_rect, zindex, offset);
 }
 function Milky2018$selene$sprite$$render_animation(animation, current_frame, pos, visible, delta) {
-  const frame = moonbitlang$core$array$$Array$at$38$(animation.frames, moonbitlang$core$double$$Double$to_int(current_frame));
+  const frame = moonbitlang$core$array$$Array$at$39$(animation.frames, moonbitlang$core$double$$Double$to_int(current_frame));
   if (visible) {
     Milky2018$selene$backend$$draw_sprite(frame.sprite_path, Milky2018$selene$math$$Vec2D$op_get(pos, 0), Milky2018$selene$math$$Vec2D$op_get(pos, 1), Milky2018$selene$math$$Vec2D$op_get(frame.offset, 0), Milky2018$selene$math$$Vec2D$op_get(frame.offset, 1), Milky2018$selene$math$$Vec2D$op_get(frame.size, 0), Milky2018$selene$math$$Vec2D$op_get(frame.size, 1), animation.transform);
   }
@@ -10321,7 +10347,7 @@ function Milky2018$selene$sprite$$frames_from_atlas$46$inner(sprite_path, frame_
     const i = _tmp;
     if (i < frame_count) {
       const x = Milky2018$selene$math$$Vec2D$op_get(offset, 0) + (i + 0) * (width + space_x);
-      moonbitlang$core$array$$Array$push$38$(frames, { sprite_path: sprite_path, size: { _0: width, _1: height }, offset: Milky2018$selene$math$$Vec2D$update(offset, 0, x) });
+      moonbitlang$core$array$$Array$push$39$(frames, { sprite_path: sprite_path, size: { _0: width, _1: height }, offset: Milky2018$selene$math$$Vec2D$update(offset, 0, x) });
       _tmp = i + 1 | 0;
       continue;
     } else {
@@ -10369,7 +10395,7 @@ function Milky2018$selene$sprite$$play_animation$46$inner(entity, animation, fro
   $panic();
 }
 function Milky2018$selene$style$$get_zindex(entity) {
-  return moonbitlang$core$option$$Option$map_or$72$(moonbitlang$core$builtin$$Map$get$9$(Milky2018$selene$sprite$$sprites, entity), 100, (s) => s.zindex);
+  return moonbitlang$core$option$$Option$map_or$73$(moonbitlang$core$builtin$$Map$get$9$(Milky2018$selene$sprite$$sprites, entity), 100, (s) => s.zindex);
 }
 function Milky2018$selene$style$$Style$new$46$inner(size_plan, flex, h_padding, v_padding, h_offset, v_offset) {
   return { size_plan: size_plan, flex: flex, h_padding: h_padding, v_padding: v_padding, h_offset: h_offset, v_offset: v_offset };
@@ -10520,7 +10546,7 @@ function Milky2018$selene$style$$arrange(entity, offset) {
             case 1: {
               const _Animation = _bind$11;
               const _anime = _Animation._0;
-              return Milky2018$selene$math$$Transform$apply_to_vec2d(_anime.transform, moonbitlang$core$array$$Array$at$38$(_anime.frames, 0).size);
+              return Milky2018$selene$math$$Transform$apply_to_vec2d(_anime.transform, moonbitlang$core$array$$Array$at$39$(_anime.frames, 0).size);
             }
             case 3: {
               const _ColorRect = _bind$11;
@@ -10576,21 +10602,21 @@ function Milky2018$selene$style$$style_system(_delta) {
 }
 function Milky2018$selene$plugins$$default_plugin(app) {
   const _self = app.systems;
-  moonbitlang$core$array$$Array$push$54$(_self, { _0: Milky2018$selene$collision$$move_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Move System" });
-  moonbitlang$core$array$$Array$push$54$(_self, { _0: Milky2018$selene$inputs$$advanced_key_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Advanced Key System" });
-  moonbitlang$core$array$$Array$push$54$(_self, { _0: Milky2018$selene$inputs$$advanced_mouse_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Advanced Mouse System" });
-  moonbitlang$core$array$$Array$push$54$(_self, { _0: Milky2018$selene$collision$$quadtree_clear_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Quadtree Clear System" });
-  moonbitlang$core$array$$Array$push$54$(_self, { _0: Milky2018$selene$collision$$pickable_click_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Pickable Click System" });
-  moonbitlang$core$array$$Array$push$54$(_self, { _0: Milky2018$selene$collision$$area_collide_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Area Collide System" });
-  moonbitlang$core$array$$Array$push$54$(_self, { _0: Milky2018$selene$system$$deferred_event_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Deferred Event System" });
-  moonbitlang$core$array$$Array$push$54$(_self, { _0: Milky2018$selene$sprite$$render_sprite_system, _1: Milky2018$selene$plugins$$default_plugin$46$constr$47$3551, _2: "Render Sprite System" });
-  moonbitlang$core$array$$Array$push$54$(_self, { _0: Milky2018$selene$camera$$camera_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Camera System" });
-  moonbitlang$core$array$$Array$push$54$(_self, { _0: Milky2018$selene$system$$timer_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Timer System" });
-  moonbitlang$core$array$$Array$push$54$(_self, { _0: Milky2018$selene$system$$realtime_timer_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Realtime Timer System" });
-  moonbitlang$core$array$$Array$push$54$(_self, { _0: Milky2018$selene$inherit$$inherit_position_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Inherit Position System" });
-  moonbitlang$core$array$$Array$push$54$(_self, { _0: Milky2018$selene$style$$style_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Style System" });
+  moonbitlang$core$array$$Array$push$55$(_self, { _0: Milky2018$selene$collision$$move_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Move System" });
+  moonbitlang$core$array$$Array$push$55$(_self, { _0: Milky2018$selene$inputs$$advanced_key_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Advanced Key System" });
+  moonbitlang$core$array$$Array$push$55$(_self, { _0: Milky2018$selene$inputs$$advanced_mouse_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Advanced Mouse System" });
+  moonbitlang$core$array$$Array$push$55$(_self, { _0: Milky2018$selene$collision$$quadtree_clear_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Quadtree Clear System" });
+  moonbitlang$core$array$$Array$push$55$(_self, { _0: Milky2018$selene$collision$$pickable_click_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Pickable Click System" });
+  moonbitlang$core$array$$Array$push$55$(_self, { _0: Milky2018$selene$collision$$area_collide_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Area Collide System" });
+  moonbitlang$core$array$$Array$push$55$(_self, { _0: Milky2018$selene$system$$deferred_event_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Deferred Event System" });
+  moonbitlang$core$array$$Array$push$55$(_self, { _0: Milky2018$selene$sprite$$render_sprite_system, _1: Milky2018$selene$plugins$$default_plugin$46$constr$47$3568, _2: "Render Sprite System" });
+  moonbitlang$core$array$$Array$push$55$(_self, { _0: Milky2018$selene$camera$$camera_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Camera System" });
+  moonbitlang$core$array$$Array$push$55$(_self, { _0: Milky2018$selene$system$$timer_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Timer System" });
+  moonbitlang$core$array$$Array$push$55$(_self, { _0: Milky2018$selene$system$$realtime_timer_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Realtime Timer System" });
+  moonbitlang$core$array$$Array$push$55$(_self, { _0: Milky2018$selene$inherit$$inherit_position_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Inherit Position System" });
+  moonbitlang$core$array$$Array$push$55$(_self, { _0: Milky2018$selene$style$$style_system, _1: $64$Milky2018$47$selene$47$system$46$Schedule$Update, _2: "Style System" });
 }
-function moonbitlang$core$builtin$$Eq$equal$40$(_x_326, _x_327) {
+function moonbitlang$core$builtin$$Eq$equal$41$(_x_326, _x_327) {
   switch (_x_326) {
     case 0: {
       if (_x_327 === 0) {
@@ -10643,7 +10669,7 @@ function moonbitlang$core$builtin$$Eq$equal$40$(_x_326, _x_327) {
     }
   }
 }
-function moonbitlang$core$builtin$$Hash$hash_combine$40$(_x_322, _x_323) {
+function moonbitlang$core$builtin$$Hash$hash_combine$41$(_x_322, _x_323) {
   switch (_x_322) {
     case 0: {
       moonbitlang$core$builtin$$Hasher$combine_int(_x_323, 0);
@@ -10675,7 +10701,7 @@ function moonbitlang$core$builtin$$Hash$hash_combine$40$(_x_322, _x_323) {
     }
   }
 }
-function moonbitlang$core$builtin$$Eq$equal$41$(_x_318, _x_319) {
+function moonbitlang$core$builtin$$Eq$equal$42$(_x_318, _x_319) {
   switch (_x_318) {
     case 0: {
       if (_x_319 === 0) {
@@ -10911,7 +10937,7 @@ function Milky2018$selene$examples$survivors$$create_powerup(powerup_type) {
     }
   }
 }
-function Milky2018$selene$examples$survivors$$weighted_random_selection$41$(items, weights) {
+function Milky2018$selene$examples$survivors$$weighted_random_selection$42$(items, weights) {
   if (items.length === 0 || items.length !== weights.length) {
     return undefined;
   }
@@ -10941,7 +10967,7 @@ function Milky2018$selene$examples$survivors$$weighted_random_selection$41$(item
     if (i < _end126) {
       cumulative = cumulative + moonbitlang$core$array$$Array$at$25$(weights, i);
       if (random_value <= cumulative) {
-        return moonbitlang$core$array$$Array$at$41$(items, i);
+        return moonbitlang$core$array$$Array$at$42$(items, i);
       }
       _tmp$2 = i + 1 | 0;
       continue;
@@ -10949,9 +10975,9 @@ function Milky2018$selene$examples$survivors$$weighted_random_selection$41$(item
       break;
     }
   }
-  return moonbitlang$core$array$$Array$at$41$(items, items.length - 1 | 0);
+  return moonbitlang$core$array$$Array$at$42$(items, items.length - 1 | 0);
 }
-function Milky2018$selene$examples$survivors$$weighted_random_selection$37$(items, weights) {
+function Milky2018$selene$examples$survivors$$weighted_random_selection$38$(items, weights) {
   if (items.length === 0 || items.length !== weights.length) {
     return undefined;
   }
@@ -10981,7 +11007,7 @@ function Milky2018$selene$examples$survivors$$weighted_random_selection$37$(item
     if (i < _end126) {
       cumulative = cumulative + moonbitlang$core$array$$Array$at$25$(weights, i);
       if (random_value <= cumulative) {
-        return moonbitlang$core$array$$Array$at$37$(items, i);
+        return moonbitlang$core$array$$Array$at$38$(items, i);
       }
       _tmp$2 = i + 1 | 0;
       continue;
@@ -10989,7 +11015,7 @@ function Milky2018$selene$examples$survivors$$weighted_random_selection$37$(item
       break;
     }
   }
-  return moonbitlang$core$array$$Array$at$37$(items, items.length - 1 | 0);
+  return moonbitlang$core$array$$Array$at$38$(items, items.length - 1 | 0);
 }
 function Milky2018$selene$examples$survivors$$select_weighted_powerup(level, already_selected) {
   const all_powerup_types = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -11003,7 +11029,7 @@ function Milky2018$selene$examples$survivors$$select_weighted_powerup(level, alr
       if (selection.$tag === 0) {
         const _PowerupSelection = selection;
         const _powerup = _PowerupSelection._0;
-        moonbitlang$core$array$$Array$push$41$(selected_types, _powerup.powerup_type);
+        moonbitlang$core$array$$Array$push$42$(selected_types, _powerup.powerup_type);
       }
       _tmp = _i + 1 | 0;
       continue;
@@ -11026,7 +11052,7 @@ function Milky2018$selene$examples$survivors$$select_weighted_powerup(level, alr
         const _i$2 = _tmp$3;
         if (_i$2 < _len$3) {
           const selected_type = selected_types[_i$2];
-          if (moonbitlang$core$builtin$$Eq$equal$41$(powerup_type, selected_type)) {
+          if (moonbitlang$core$builtin$$Eq$equal$42$(powerup_type, selected_type)) {
             already_has = true;
             break;
           }
@@ -11041,7 +11067,7 @@ function Milky2018$selene$examples$survivors$$select_weighted_powerup(level, alr
         const _func = powerup.weight_formula;
         const weight = _func(level);
         if (weight > 0) {
-          moonbitlang$core$array$$Array$push$41$(available_types, powerup_type);
+          moonbitlang$core$array$$Array$push$42$(available_types, powerup_type);
           moonbitlang$core$array$$Array$push$25$(available_weights, weight);
         }
       }
@@ -11051,7 +11077,7 @@ function Milky2018$selene$examples$survivors$$select_weighted_powerup(level, alr
       break;
     }
   }
-  const _bind$8 = Milky2018$selene$examples$survivors$$weighted_random_selection$41$(available_types, available_weights);
+  const _bind$8 = Milky2018$selene$examples$survivors$$weighted_random_selection$42$(available_types, available_weights);
   if (_bind$8 === undefined) {
     return undefined;
   } else {
@@ -11076,7 +11102,7 @@ function Milky2018$selene$examples$survivors$$select_weighted_weapon(level) {
       break;
     }
   }
-  return Milky2018$selene$examples$survivors$$weighted_random_selection$37$(all_weapons, weights);
+  return Milky2018$selene$examples$survivors$$weighted_random_selection$38$(all_weapons, weights);
 }
 function Milky2018$selene$examples$survivors$$generate_mixed_selections(level) {
   const selected = [];
@@ -11089,7 +11115,7 @@ function Milky2018$selene$examples$survivors$$generate_mixed_selections(level) {
       } else {
         const _Some = _bind$8;
         const _powerup = _Some;
-        moonbitlang$core$array$$Array$push$39$(selected, new LevelUpSelection$PowerupSelection(_powerup));
+        moonbitlang$core$array$$Array$push$40$(selected, new LevelUpSelection$PowerupSelection(_powerup));
       }
       _tmp = _i + 1 | 0;
       continue;
@@ -11102,7 +11128,7 @@ function Milky2018$selene$examples$survivors$$generate_mixed_selections(level) {
   } else {
     const _Some = _bind$8;
     const _weapon = _Some;
-    moonbitlang$core$array$$Array$push$39$(selected, new LevelUpSelection$WeaponSelection(_weapon));
+    moonbitlang$core$array$$Array$push$40$(selected, new LevelUpSelection$WeaponSelection(_weapon));
   }
   return selected;
 }
@@ -11117,7 +11143,7 @@ function Milky2018$selene$examples$survivors$$generate_powerup_selections(level)
       } else {
         const _Some = _bind$8;
         const _powerup = _Some;
-        moonbitlang$core$array$$Array$push$39$(selected, new LevelUpSelection$PowerupSelection(_powerup));
+        moonbitlang$core$array$$Array$push$40$(selected, new LevelUpSelection$PowerupSelection(_powerup));
       }
       _tmp = _i + 1 | 0;
       continue;
@@ -11185,7 +11211,7 @@ function Milky2018$selene$examples$survivors$$update_selection_display(selection
     const _powerup = _PowerupSelection._0;
     const button_background = Milky2018$selene$sprite$$Sprite$from_color_rect(Milky2018$selene$sprite$$ColorRect$new$46$inner({ _0: 160, _1: 36 }, "rgba(13, 167, 170, 1)", "black"), 102, undefined);
     moonbitlang$core$builtin$$Map$set$9$(Milky2018$selene$sprite$$sprites, button_entity, button_background);
-    const button_text = Milky2018$selene$sprite$$Text$new(_powerup.name, Milky2018$selene$examples$survivors$$update_selection_display$46$constr$47$3746, Milky2018$selene$examples$survivors$$update_selection_display$46$constr$47$3747, undefined, undefined);
+    const button_text = Milky2018$selene$sprite$$Text$new(_powerup.name, Milky2018$selene$examples$survivors$$update_selection_display$46$constr$47$3763, Milky2018$selene$examples$survivors$$update_selection_display$46$constr$47$3764, undefined, undefined);
     const button_sprite = Milky2018$selene$sprite$$Sprite$from_text(button_text, 103, undefined);
     moonbitlang$core$builtin$$Map$set$9$(Milky2018$selene$sprite$$sprites, text_entity, button_sprite);
     const icon_animation = Milky2018$selene$examples$survivors$$get_powerup_icon(_powerup.powerup_type);
@@ -11197,7 +11223,7 @@ function Milky2018$selene$examples$survivors$$update_selection_display(selection
     const _weapon_type = _WeaponSelection._0;
     const button_background = Milky2018$selene$sprite$$Sprite$from_color_rect(Milky2018$selene$sprite$$ColorRect$new$46$inner({ _0: 160, _1: 36 }, "rgba(255, 140, 0, 1)", "black"), 102, undefined);
     moonbitlang$core$builtin$$Map$set$9$(Milky2018$selene$sprite$$sprites, button_entity, button_background);
-    const button_text = Milky2018$selene$sprite$$Text$new(Milky2018$selene$examples$survivors$$get_weapon_name(_weapon_type), Milky2018$selene$examples$survivors$$update_selection_display$46$constr$47$3748, Milky2018$selene$examples$survivors$$update_selection_display$46$constr$47$3749, undefined, undefined);
+    const button_text = Milky2018$selene$sprite$$Text$new(Milky2018$selene$examples$survivors$$get_weapon_name(_weapon_type), Milky2018$selene$examples$survivors$$update_selection_display$46$constr$47$3765, Milky2018$selene$examples$survivors$$update_selection_display$46$constr$47$3766, undefined, undefined);
     const button_sprite = Milky2018$selene$sprite$$Sprite$from_text(button_text, 103, undefined);
     moonbitlang$core$builtin$$Map$set$9$(Milky2018$selene$sprite$$sprites, text_entity, button_sprite);
     const icon_animation = Milky2018$selene$examples$survivors$$get_weapon_icon(_weapon_type);
@@ -11216,7 +11242,7 @@ function Milky2018$selene$examples$survivors$$level_up(level) {
   while (true) {
     const i = _tmp;
     if (i < 3) {
-      Milky2018$selene$examples$survivors$$update_selection_display(moonbitlang$core$array$$Array$at$39$(panel.available_selections, i), moonbitlang$core$array$$Array$at$6$(button_entities, i + 1 | 0));
+      Milky2018$selene$examples$survivors$$update_selection_display(moonbitlang$core$array$$Array$at$40$(panel.available_selections, i), moonbitlang$core$array$$Array$at$6$(button_entities, i + 1 | 0));
       _tmp = i + 1 | 0;
       continue;
     } else {
@@ -11338,7 +11364,7 @@ function Milky2018$selene$examples$survivors$$update_weapon_timers(weapon_instan
   while (true) {
     const i = _tmp;
     if (i < _end278) {
-      const weapon_type = moonbitlang$core$array$$Array$at$37$(weapon_instances, i);
+      const weapon_type = moonbitlang$core$array$$Array$at$38$(weapon_instances, i);
       const weapon_data = Milky2018$selene$examples$survivors$$get_weapon_data(weapon_type);
       if (moonbitlang$core$array$$Array$at$25$(Milky2018$selene$examples$survivors$$weapon_timers, i) > 0) {
         moonbitlang$core$array$$Array$set$25$(Milky2018$selene$examples$survivors$$weapon_timers, i, moonbitlang$core$array$$Array$at$25$(Milky2018$selene$examples$survivors$$weapon_timers, i) - delta);
@@ -11368,10 +11394,10 @@ function Milky2018$selene$examples$survivors$$update_weapon_timers(weapon_instan
   }
 }
 function Milky2018$selene$examples$survivors$$add_score_box() {
-  Milky2018$selene$style$$add_widget(Milky2018$selene$style$$screen_root, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$examples$survivors$$game_state.score_box, zindex, undefined), undefined, undefined, undefined, undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$add_score_box$46$constr$47$3826, Milky2018$selene$examples$survivors$$add_score_box$46$constr$47$3827);
+  Milky2018$selene$style$$add_widget(Milky2018$selene$style$$screen_root, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$examples$survivors$$game_state.score_box, zindex, undefined), undefined, undefined, undefined, undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$add_score_box$46$constr$47$3843, Milky2018$selene$examples$survivors$$add_score_box$46$constr$47$3844);
 }
 function Milky2018$selene$examples$survivors$$add_weapon(weapon_type) {
-  moonbitlang$core$array$$Array$push$37$(Milky2018$selene$examples$survivors$$game_state.player_stats.weapon_instances, weapon_type);
+  moonbitlang$core$array$$Array$push$38$(Milky2018$selene$examples$survivors$$game_state.player_stats.weapon_instances, weapon_type);
   const speed_modifier = Milky2018$selene$examples$survivors$$get_weapon_speed_modifier(weapon_type);
   const _bind$8 = Milky2018$selene$examples$survivors$$game_state.player_stats;
   _bind$8.speed = _bind$8.speed + speed_modifier;
@@ -11461,14 +11487,14 @@ function Milky2018$selene$examples$survivors$$resume_game() {
 function Milky2018$selene$examples$survivors$$select_powerup(index) {
   const panel = Milky2018$selene$examples$survivors$$game_state.level_up_panel;
   if (index < panel.available_selections.length) {
-    const selection = moonbitlang$core$array$$Array$at$39$(panel.available_selections, index);
+    const selection = moonbitlang$core$array$$Array$at$40$(panel.available_selections, index);
     Milky2018$selene$examples$survivors$$apply_selection(selection);
   }
   Milky2018$selene$examples$survivors$$resume_game();
 }
 function Milky2018$selene$examples$survivors$$setup_level_up_ui() {
   const panel = Milky2018$selene$examples$survivors$$game_state.level_up_panel.panel_entity;
-  Milky2018$selene$style$$add_widget(panel, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$sprite$$Text$new$46$inner("LEVEL UP!", "gold", "36px ThaleahFat", 0, 0), zindex, undefined), undefined, undefined, new $64$Milky2018$47$selene$47$style$46$SizePlan$Sized({ _0: 160, _1: 36 }), undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$setup_level_up_ui$46$constr$47$3854, Option$None$0$);
+  Milky2018$selene$style$$add_widget(panel, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$sprite$$Text$new$46$inner("LEVEL UP!", "gold", "36px ThaleahFat", 0, 0), zindex, undefined), undefined, undefined, new $64$Milky2018$47$selene$47$style$46$SizePlan$Sized({ _0: 160, _1: 36 }), undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$setup_level_up_ui$46$constr$47$3871, Option$None$0$);
   let _tmp = 0;
   while (true) {
     const i = _tmp;
@@ -11477,7 +11503,7 @@ function Milky2018$selene$examples$survivors$$setup_level_up_ui() {
         Milky2018$selene$examples$survivors$$select_powerup(i);
       }, new $64$Milky2018$47$selene$47$collision$46$CollisionShape$Rect({ _0: 160, _1: 36 }, { _0: 0, _1: 0 }), $64$Milky2018$47$selene$47$style$46$SizePlan$FromSprite, 1, 2, 2, 0, 0);
       Milky2018$selene$style$$add_widget(button, (zindex) => Milky2018$selene$sprite$$Sprite$from_animation(Milky2018$selene$examples$survivors$$powerup_range_icon, zindex, undefined), undefined, undefined, undefined, undefined, Option$None$0$, Option$None$0$, Option$None$0$, Option$None$0$);
-      Milky2018$selene$style$$add_widget(button, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$sprite$$Text$new("Default", Milky2018$selene$examples$survivors$$setup_level_up_ui$46$constr$47$3855, Milky2018$selene$examples$survivors$$setup_level_up_ui$46$constr$47$3856, undefined, undefined), zindex, undefined), undefined, undefined, undefined, undefined, Option$None$0$, Option$None$0$, Option$None$0$, Option$None$0$);
+      Milky2018$selene$style$$add_widget(button, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$sprite$$Text$new("Default", Milky2018$selene$examples$survivors$$setup_level_up_ui$46$constr$47$3872, Milky2018$selene$examples$survivors$$setup_level_up_ui$46$constr$47$3873, undefined, undefined), zindex, undefined), undefined, undefined, undefined, undefined, Option$None$0$, Option$None$0$, Option$None$0$, Option$None$0$);
       _tmp = i + 1 | 0;
       continue;
     } else {
@@ -11487,13 +11513,13 @@ function Milky2018$selene$examples$survivors$$setup_level_up_ui() {
   Milky2018$selene$entity$$Entity$destroy(panel);
 }
 function Milky2018$selene$examples$survivors$$add_wave_box() {
-  Milky2018$selene$style$$add_widget(Milky2018$selene$style$$screen_root, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$examples$survivors$$game_state.wave_box, zindex, undefined), undefined, undefined, undefined, undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$add_wave_box$46$constr$47$3866, Milky2018$selene$examples$survivors$$add_wave_box$46$constr$47$3867);
+  Milky2018$selene$style$$add_widget(Milky2018$selene$style$$screen_root, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$examples$survivors$$game_state.wave_box, zindex, undefined), undefined, undefined, undefined, undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$add_wave_box$46$constr$47$3883, Milky2018$selene$examples$survivors$$add_wave_box$46$constr$47$3884);
 }
 function Milky2018$selene$examples$survivors$$add_exp_box() {
-  Milky2018$selene$style$$add_widget(Milky2018$selene$style$$screen_root, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$examples$survivors$$game_state.exp_box, zindex, undefined), undefined, undefined, undefined, undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$add_exp_box$46$constr$47$3869, Milky2018$selene$examples$survivors$$add_exp_box$46$constr$47$3870);
+  Milky2018$selene$style$$add_widget(Milky2018$selene$style$$screen_root, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$examples$survivors$$game_state.exp_box, zindex, undefined), undefined, undefined, undefined, undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$add_exp_box$46$constr$47$3886, Milky2018$selene$examples$survivors$$add_exp_box$46$constr$47$3887);
 }
 function Milky2018$selene$examples$survivors$$add_timer_box() {
-  Milky2018$selene$style$$add_widget(Milky2018$selene$style$$screen_root, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$examples$survivors$$game_state.timer_box, zindex, undefined), undefined, undefined, undefined, undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$add_timer_box$46$constr$47$3872, Milky2018$selene$examples$survivors$$add_timer_box$46$constr$47$3873);
+  Milky2018$selene$style$$add_widget(Milky2018$selene$style$$screen_root, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$examples$survivors$$game_state.timer_box, zindex, undefined), undefined, undefined, undefined, undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$add_timer_box$46$constr$47$3889, Milky2018$selene$examples$survivors$$add_timer_box$46$constr$47$3890);
 }
 function Milky2018$selene$examples$survivors$$reset_wave_state() {
   Milky2018$selene$examples$survivors$$wave_state.creeper_spawned = 0;
@@ -11526,8 +11552,8 @@ function Milky2018$selene$examples$survivors$$restart_game() {
   Milky2018$selene$examples$survivors$$game_state.player_stats.speed = 150;
   Milky2018$selene$examples$survivors$$game_state.player_stats.attack_speed = 1;
   Milky2018$selene$examples$survivors$$game_state.player_stats.penetration = 0;
-  moonbitlang$core$array$$Array$clear$37$(Milky2018$selene$examples$survivors$$game_state.player_stats.weapon_instances);
-  moonbitlang$core$array$$Array$push$37$(Milky2018$selene$examples$survivors$$game_state.player_stats.weapon_instances, 0);
+  moonbitlang$core$array$$Array$clear$38$(Milky2018$selene$examples$survivors$$game_state.player_stats.weapon_instances);
+  moonbitlang$core$array$$Array$push$38$(Milky2018$selene$examples$survivors$$game_state.player_stats.weapon_instances, 0);
   moonbitlang$core$array$$Array$clear$25$(Milky2018$selene$examples$survivors$$weapon_timers);
   const _it = moonbitlang$core$builtin$$Map$iter2$7$(Milky2018$selene$examples$survivors$$enemies);
   while (true) {
@@ -11551,19 +11577,19 @@ function Milky2018$selene$examples$survivors$$restart_game() {
 }
 function Milky2018$selene$examples$survivors$$setup_game_over_ui() {
   const panel = Milky2018$selene$examples$survivors$$game_state.game_over_panel.panel_entity;
-  Milky2018$selene$style$$add_widget(panel, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$sprite$$Text$new$46$inner("VICTORY!", "gold", "32px ThaleahFat", 0, 0), zindex, undefined), undefined, undefined, undefined, undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3881, Option$None$0$);
-  Milky2018$selene$style$$add_widget(panel, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$examples$survivors$$game_state.game_over_box, zindex, undefined), undefined, undefined, undefined, undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3882, Option$None$0$);
+  Milky2018$selene$style$$add_widget(panel, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$sprite$$Text$new$46$inner("VICTORY!", "gold", "32px ThaleahFat", 0, 0), zindex, undefined), undefined, undefined, undefined, undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3898, Option$None$0$);
+  Milky2018$selene$style$$add_widget(panel, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$examples$survivors$$game_state.game_over_box, zindex, undefined), undefined, undefined, undefined, undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3899, Option$None$0$);
   const restart_button = Milky2018$selene$style$$add_widget(panel, (zindex) => Milky2018$selene$sprite$$Sprite$from_color_rect(Milky2018$selene$sprite$$ColorRect$new$46$inner({ _0: 180, _1: 40 }, "rgba(13, 167, 170, 1)", "white"), zindex, undefined), (_button) => {
     Milky2018$selene$examples$survivors$$restart_game();
-  }, new $64$Milky2018$47$selene$47$collision$46$CollisionShape$Rect({ _0: 180, _1: 40 }, { _0: 0, _1: 0 }), undefined, undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3883, Option$None$0$);
-  Milky2018$selene$style$$add_widget(restart_button, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$sprite$$Text$new("RESTART", Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3884, Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3885, undefined, undefined), zindex, undefined), undefined, undefined, undefined, undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3886, Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3887);
+  }, new $64$Milky2018$47$selene$47$collision$46$CollisionShape$Rect({ _0: 180, _1: 40 }, { _0: 0, _1: 0 }), undefined, undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3900, Option$None$0$);
+  Milky2018$selene$style$$add_widget(restart_button, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$sprite$$Text$new("RESTART", Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3901, Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3902, undefined, undefined), zindex, undefined), undefined, undefined, undefined, undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3903, Milky2018$selene$examples$survivors$$setup_game_over_ui$46$constr$47$3904);
   Milky2018$selene$entity$$Entity$destroy(panel);
 }
 function Milky2018$selene$examples$survivors$$add_game_over_box() {
   Milky2018$selene$entity$$Entity$respawn(Milky2018$selene$examples$survivors$$game_state.game_over_panel.panel_entity);
 }
 function Milky2018$selene$examples$survivors$$add_level_box() {
-  Milky2018$selene$style$$add_widget(Milky2018$selene$style$$screen_root, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$examples$survivors$$game_state.level_box, zindex, undefined), undefined, undefined, undefined, undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$add_level_box$46$constr$47$3895, Milky2018$selene$examples$survivors$$add_level_box$46$constr$47$3896);
+  Milky2018$selene$style$$add_widget(Milky2018$selene$style$$screen_root, (zindex) => Milky2018$selene$sprite$$Sprite$from_text(Milky2018$selene$examples$survivors$$game_state.level_box, zindex, undefined), undefined, undefined, undefined, undefined, Option$None$0$, Option$None$0$, Milky2018$selene$examples$survivors$$add_level_box$46$constr$47$3912, Milky2018$selene$examples$survivors$$add_level_box$46$constr$47$3913);
 }
 function Milky2018$selene$examples$survivors$$add_player() {
   const entity = Milky2018$selene$examples$survivors$$game_state.player_entity;
@@ -11663,7 +11689,7 @@ function Milky2018$selene$examples$survivors$$player_shooting_system(delta) {
 }
 function Milky2018$selene$examples$survivors$$add_background(size) {
   const background = Milky2018$selene$entity$$Entity$new();
-  const background_sprite = Milky2018$selene$sprite$$Sprite$from_picture(Milky2018$selene$sprite$$Picture$new(size, Milky2018$selene$examples$survivors$$background_picture, undefined, Milky2018$selene$examples$survivors$$add_background$46$constr$47$3913), 0, undefined);
+  const background_sprite = Milky2018$selene$sprite$$Sprite$from_picture(Milky2018$selene$sprite$$Picture$new(size, Milky2018$selene$examples$survivors$$background_picture, undefined, Milky2018$selene$examples$survivors$$add_background$46$constr$47$3930), 0, undefined);
   moonbitlang$core$builtin$$Map$set$9$(Milky2018$selene$sprite$$sprites, background, background_sprite);
   moonbitlang$core$builtin$$Map$set$3$(Milky2018$selene$position$$positions, background, { _0: 0, _1: 0 });
 }
@@ -11800,7 +11826,7 @@ function Milky2018$selene$examples$survivors$$devil_shooting_system(delta) {
       const _e = _x._0;
       const _state = _x._1;
       if (Milky2018$selene$entity$$Entity$is_alive(_e)) {
-        if (moonbitlang$core$builtin$$Eq$not_equal$43$(_state.enemy_type, 5)) {
+        if (moonbitlang$core$builtin$$Eq$not_equal$44$(_state.enemy_type, 5)) {
           continue;
         }
         const _bind$9 = moonbitlang$core$builtin$$Map$get$3$(Milky2018$selene$position$$positions, _e);
@@ -11880,7 +11906,7 @@ function Milky2018$selene$examples$survivors$$enemy_ai_system(_delta) {
 }
 function Milky2018$selene$examples$survivors$$game_start(_delta) {
   Milky2018$selene$backend$$load_font("ThaleahFat", "assets/fonts/ThaleahFat.ttf");
-  Milky2018$selene$camera$$set_limits(Milky2018$selene$examples$survivors$$game_start$46$constr$47$3979, Milky2018$selene$examples$survivors$$game_start$46$constr$47$3980, Milky2018$selene$examples$survivors$$game_start$46$constr$47$3981, Milky2018$selene$examples$survivors$$game_start$46$constr$47$3982);
+  Milky2018$selene$camera$$set_limits(Milky2018$selene$examples$survivors$$game_start$46$constr$47$3996, Milky2018$selene$examples$survivors$$game_start$46$constr$47$3997, Milky2018$selene$examples$survivors$$game_start$46$constr$47$3998, Milky2018$selene$examples$survivors$$game_start$46$constr$47$3999);
   Milky2018$selene$examples$survivors$$add_player();
   Milky2018$selene$examples$survivors$$add_border({ _0: 640, _1: 640 });
   Milky2018$selene$examples$survivors$$add_background({ _0: 640, _1: 640 });
@@ -11951,34 +11977,34 @@ function Milky2018$selene$examples$survivors$$select_enemy_type_for_wave(rand) {
   if (wave < 1 || wave > 10) {
     return undefined;
   }
-  const plan = moonbitlang$core$array$$Array$at$35$(Milky2018$selene$examples$survivors$$wave_spawn_plans, wave - 1 | 0);
+  const plan = moonbitlang$core$array$$Array$at$36$(Milky2018$selene$examples$survivors$$wave_spawn_plans, wave - 1 | 0);
   const available_types = [];
   if (Milky2018$selene$examples$survivors$$wave_state.creeper_spawned < plan.creeper_count) {
-    moonbitlang$core$array$$Array$push$40$(available_types, 0);
+    moonbitlang$core$array$$Array$push$41$(available_types, 0);
   }
   if (Milky2018$selene$examples$survivors$$wave_state.icecream_spawned < plan.icecream_count) {
-    moonbitlang$core$array$$Array$push$40$(available_types, 1);
+    moonbitlang$core$array$$Array$push$41$(available_types, 1);
   }
   if (Milky2018$selene$examples$survivors$$wave_state.orc_spawned < plan.orc_count) {
-    moonbitlang$core$array$$Array$push$40$(available_types, 2);
+    moonbitlang$core$array$$Array$push$41$(available_types, 2);
   }
   if (Milky2018$selene$examples$survivors$$wave_state.skull_spawned < plan.skull_count) {
-    moonbitlang$core$array$$Array$push$40$(available_types, 3);
+    moonbitlang$core$array$$Array$push$41$(available_types, 3);
   }
   if (Milky2018$selene$examples$survivors$$wave_state.teleman_spawned < plan.teleman_count) {
-    moonbitlang$core$array$$Array$push$40$(available_types, 4);
+    moonbitlang$core$array$$Array$push$41$(available_types, 4);
   }
   if (Milky2018$selene$examples$survivors$$wave_state.devil_spawned < plan.devil_count) {
-    moonbitlang$core$array$$Array$push$40$(available_types, 5);
+    moonbitlang$core$array$$Array$push$41$(available_types, 5);
   }
   if (Milky2018$selene$examples$survivors$$wave_state.pirate_spawned < plan.pirate_count) {
-    moonbitlang$core$array$$Array$push$40$(available_types, 6);
+    moonbitlang$core$array$$Array$push$41$(available_types, 6);
   }
   if (available_types.length === 0) {
     return undefined;
   }
   const index = moonbitlang$core$random$$Rand$int$46$inner(rand, available_types.length);
-  const enemy_type = moonbitlang$core$array$$Array$at$40$(available_types, index);
+  const enemy_type = moonbitlang$core$array$$Array$at$41$(available_types, index);
   switch (enemy_type) {
     case 0: {
       Milky2018$selene$examples$survivors$$wave_state.creeper_spawned = Milky2018$selene$examples$survivors$$wave_state.creeper_spawned + 1 | 0;
@@ -12016,14 +12042,14 @@ function Milky2018$selene$examples$survivors$$spawn_enemy_system$46$spawn_enemy$
   }
   const rand = Milky2018$selene$examples$survivors$$game_state.rand;
   const wave = Milky2018$selene$examples$survivors$$game_state.current_wave;
-  const spawn_interval = wave >= 1 && wave <= 10 ? moonbitlang$core$array$$Array$at$35$(Milky2018$selene$examples$survivors$$wave_spawn_plans, wave - 1 | 0).spawn_interval : 1;
+  const spawn_interval = wave >= 1 && wave <= 10 ? moonbitlang$core$array$$Array$at$36$(Milky2018$selene$examples$survivors$$wave_spawn_plans, wave - 1 | 0).spawn_interval : 1;
   const _bind$8 = Milky2018$selene$examples$survivors$$select_enemy_type_for_wave(rand);
   if (_bind$8 === undefined) {
   } else {
     const _Some = _bind$8;
     const _enemy_type = _Some;
     const enemy = Milky2018$selene$entity$$Entity$new();
-    const pos = moonbitlang$core$array$$Array$at$36$(Milky2018$selene$examples$survivors$$spawners, moonbitlang$core$random$$Rand$int$46$inner(rand, Milky2018$selene$examples$survivors$$spawners.length));
+    const pos = moonbitlang$core$array$$Array$at$37$(Milky2018$selene$examples$survivors$$spawners, moonbitlang$core$random$$Rand$int$46$inner(rand, Milky2018$selene$examples$survivors$$spawners.length));
     moonbitlang$core$builtin$$Map$set$3$(Milky2018$selene$position$$positions, enemy, pos);
     moonbitlang$core$builtin$$Map$set$17$(Milky2018$selene$velocity$$velocities, enemy, { _0: 0, _1: 0 });
     const data$2 = Milky2018$selene$examples$survivors$$get_enemy_data(_enemy_type);
