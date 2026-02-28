@@ -82,7 +82,7 @@ fn QuadTree::insert(
         self.depth + 1,
       ),
     )
-    ..push(QuadTree::new(self.position + half_size, half_size, self.depth + 1))
+    .push(QuadTree::new(self.position + half_size, half_size, self.depth + 1))
   }
   for child in self.children {
     child.insert(entity, box)

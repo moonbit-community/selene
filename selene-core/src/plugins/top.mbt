@@ -25,7 +25,7 @@
 pub fn debug_plugin(app : @system.App) -> Unit {
   app.systems
   ..push((@collision.debug_collide_system, Render(-10), "Debug Collide System"))
-  ..push(
+  .push(
     (
       @collision.quadtree_render_system,
       Render(-11),
@@ -64,5 +64,5 @@ pub fn default_plugin(app : @system.App) -> Unit {
   ..push((@system.timer_system, Update, "Timer System"))
   ..push((@system.realtime_timer_system, Update, "Realtime Timer System"))
   ..push((@inherit.inherit_position_system, Update, "Inherit Position System"))
-  ..push((@style.style_system, Update, "Style System"))
+  .push((@style.style_system, Update, "Style System"))
 }
