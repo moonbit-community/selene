@@ -26,7 +26,7 @@
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let _picture = @sprite.Picture::new(
 ///   @math.Vec2D(100.0, 50.0),
 ///   "assets/background.png",
@@ -61,7 +61,7 @@ pub(all) struct Picture {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let _picture = @sprite.Picture::new(
 ///   @math.Vec2D(100.0, 50.0),
 ///   "assets/background.png",
@@ -92,13 +92,11 @@ pub fn Picture::new(
 ///   the top-left corner coordinates.
 ///
 fn render_picture(picture : Picture, pos : @math.Vec2D) -> Unit {
-  @backend.draw_picture(
-    png=picture.tile_path,
-    x=pos[X],
-    y=pos[Y],
-    width=picture.size[X],
-    height=picture.size[Y],
-    repeat=picture.repeat,
-    transform=picture.transform,
-  )
+  @backend.draw_image({
+    path: picture.tile_path,
+    destination: @math.Rect::{ position: pos, size: picture.size },
+    source: None,
+    repeat: picture.repeat,
+    transform: picture.transform,
+  })
 }

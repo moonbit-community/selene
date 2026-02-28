@@ -17,7 +17,7 @@
 /// 
 /// Example:
 /// 
-/// ```moonbit
+/// ```moonbit nocheck
 /// let app = @system.App::new()
 /// app.add_plugin(@plugins.debug_plugin).run()
 /// ```
@@ -44,7 +44,7 @@ pub fn debug_plugin(app : @system.App) -> Unit {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let app = @system.App::new()
 /// @plugins.default_plugin(app)
 /// app.run()

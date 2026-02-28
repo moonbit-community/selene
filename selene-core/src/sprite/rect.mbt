@@ -30,12 +30,9 @@ pub fn ColorRect::new(
 
 ///|
 fn render_color_rect(color_rect : ColorRect, position : @math.Vec2D) -> Unit {
-  @backend.draw_color_rect(
-    x=position[X],
-    y=position[Y],
-    width=color_rect.size[X],
-    height=color_rect.size[Y],
-    color=color_rect.color,
-    stroke_color=color_rect.stroke_color,
-  )
+  @backend.draw_rect({
+    rect: @math.Rect::{ position, size: color_rect.size },
+    fill_color: parse_color(color_rect.color),
+    stroke_color: parse_optional_color(color_rect.stroke_color),
+  })
 }

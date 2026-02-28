@@ -16,40 +16,13 @@ package "Milky2018/selene/backend"
 
 import {
   "Milky2018/selene/inputs",
-  "Milky2018/selene/math"
+  "Milky2018/selene/math",
+  "Milky2018/selene/render"
 }
 
-fn initialize(
-  startup~ : () -> Unit,
-  render_loop~ : (Double) -> Unit,
-  game_loop~ : (Double) -> Unit, 
-  canvas_width~ : Double, 
-  canvas_height~ : Double,
-  fps~ : UInt,
-  image_smooth~ : Bool,
-  zoom~ : Double
-) -> () -> Unit
+fn initialize(@render.BackendConfig) -> () -> Unit
 
-fn draw_picture(
-  png~ : String,
-  x~ : Double,
-  y~ : Double,
-  width~ : Double,
-  height~ : Double,
-  transform~ : @math.Transform,
-  repeat~ : @math.RepeatMode
-) -> Unit
-
-fn draw_sprite(
-  sprite_path~ : String,
-  x~ : Double,
-  y~ : Double,
-  offset_x~ : Double,
-  offset_y~ : Double,
-  width~ : Double,
-  height~ : Double,
-  transform~ : @math.Transform
-) -> Unit
+fn draw_image(@render.ImageDrawCommand) -> Unit
 
 fn register_key_events(Set[@inputs.Code]) -> Unit
 
@@ -57,41 +30,13 @@ fn register_mouse_events(@inputs.Mouse, @inputs.MouseMovement) -> Unit
 
 fn lock_mouse(Ref[Bool]) -> Unit
 
-fn draw_text(
-  text~ : String,
-  x~ : Double,
-  y~ : Double,
-  font~ : String,
-  color~ : String,
-  align~ : @math.HAlign,
-  baseline~ : @math.VAlign
-) -> Unit
+fn draw_text(@render.TextDrawCommand) -> Unit
 
-fn draw_color_rect(
-  x~ : Double,
-  y~ : Double,
-  width~ : Double,
-  height~ : Double,
-  color~ : String,
-  stroke_color~ : String
-) -> Unit
+fn draw_rect(@render.RectDrawCommand) -> Unit
 
-fn draw_color_circle(
-  x~ : Double,
-  y~ : Double,
-  radius~ : Double,
-  color~ : String,
-  stroke_color~ : String
-) -> Unit
+fn draw_circle(@render.CircleDrawCommand) -> Unit
 
-fn draw_gradient_rect(
-  x~ : Double,
-  y~ : Double,
-  width~ : Double,
-  height~ : Double,
-  color_start~ : String,
-  color_end~ : String
-) -> Unit
+fn draw_gradient_rect(@render.GradientRectDrawCommand) -> Unit
 
 fn play_audio(audio_path~ : String, volume~ : Double, loop_~ : Bool) -> Unit
 

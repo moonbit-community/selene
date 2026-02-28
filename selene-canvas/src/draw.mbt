@@ -32,156 +32,148 @@ pub fn preload_img(path : String) -> Unit {
 }
 
 ///|
-pub fn draw_picture(
-  png~ : String,
-  x~ : Double,
-  y~ : Double,
-  width~ : Double,
-  height~ : Double,
-  transform~ : @smath.Transform,
-  repeat~ : @smath.RepeatMode,
-) -> Unit {
-  let element = get_image_element(png)
-  let repeat_mode = match repeat {
+fn repeat_mode_to_css(repeat : @smath.RepeatMode) -> String {
+  match repeat {
     NoRepeat => "no-repeat"
     RepeatY => "repeat-y"
     RepeatX => "repeat-x"
     Repeat => "repeat"
   }
-  let context = canvas_backend.context
-  let pattern = context.create_pattern(@js.Union7::from0(element), repeat_mode)
-  context.save()
-  context.set_fill_style(@js.Union3::from2(pattern))
-  context.translate(x, y)
-  context.transform(
-    transform.a,
-    transform.b,
-    transform.c,
-    transform.d,
-    transform.tx,
-    transform.ty,
-  )
-  context.fill_rect(0, 0, width, height)
-  context.restore()
 }
 
 ///|
-pub fn draw_sprite(
-  sprite_path~ : String,
-  x~ : Double,
-  y~ : Double,
-  offset_x~ : Double,
-  offset_y~ : Double,
-  width~ : Double,
-  height~ : Double,
-  transform~ : @smath.Transform,
-) -> Unit {
-  let context = canvas_backend.context
-  context.save()
-  context.translate(x, y)
-  context.transform(
-    transform.a,
-    transform.b,
-    transform.c,
-    transform.d,
-    transform.tx,
-    transform.ty,
-  )
-  let element = get_image_element(sprite_path)
-  context.draw_image_with_src_and_dst_size(
-    element |> @js.Value::cast_from |> @js.Value::cast,
-    offset_x,
-    offset_y,
-    width,
-    height,
-    0,
-    0,
-    width,
-    height,
-  )
-  context.restore()
+fn color_to_css(color : @render.Color) -> String {
+  "rgba(\{color.r.reinterpret_as_int()}, \{color.g.reinterpret_as_int()}, \{color.b.reinterpret_as_int()}, \{color.a})"
 }
 
 ///|
-pub fn draw_text(
-  text~ : String,
-  x~ : Double,
-  y~ : Double,
-  font~ : String,
-  color~ : String,
-  align~ : @smath.HAlign,
-  baseline~ : @smath.VAlign,
-) -> Unit {
-  let context = canvas_backend.context
-  context.save()
-  context.set_font(font)
-  let align = match align {
+fn text_align_to_css(align : @smath.HAlign) -> String {
+  match align {
     Left => "left"
     Center => "center"
     Right => "right"
   }
-  set_text_align(context, align)
-  let baseline = match baseline {
+}
+
+///|
+fn text_baseline_to_css(baseline : @smath.VAlign) -> String {
+  match baseline {
     Top => "top"
     Center => "center"
     Bottom => "bottom"
   }
-  set_text_baseline(context, baseline)
-  context.set_fill_style(@js.Union3::from0(color))
-  context.fill_text(text, x, y)
+}
+
+///|
+fn text_style_to_css(style : @render.TextStyle) -> String {
+  "\{style.size}px \{style.family}"
+}
+
+///|
+pub fn draw_image(command : @render.ImageDrawCommand) -> Unit {
+  let element = get_image_element(command.path)
+  let x = command.destination.position[X]
+  let y = command.destination.position[Y]
+  let width = command.destination.size[X]
+  let height = command.destination.size[Y]
+  let context = canvas_backend.context
+  context.save()
+  context.translate(x, y)
+  let transform = command.transform
+  context.transform(
+    transform.a,
+    transform.b,
+    transform.c,
+    transform.d,
+    transform.tx,
+    transform.ty,
+  )
+  match command.source {
+    Some(source) =>
+      context.draw_image_with_src_and_dst_size(
+        element |> @js.Value::cast_from |> @js.Value::cast,
+        source.position[X],
+        source.position[Y],
+        source.size[X],
+        source.size[Y],
+        0,
+        0,
+        width,
+        height,
+      )
+    None => {
+      let pattern = context.create_pattern(
+        @js.Union7::from0(element),
+        repeat_mode_to_css(command.repeat),
+      )
+      context.set_fill_style(@js.Union3::from2(pattern))
+      context.fill_rect(0, 0, width, height)
+    }
+  }
   context.restore()
 }
 
 ///|
-pub fn draw_color_rect(
-  x~ : Double,
-  y~ : Double,
-  width~ : Double,
-  height~ : Double,
-  color~ : String,
-  stroke_color~ : String,
-) -> Unit {
+pub fn draw_text(command : @render.TextDrawCommand) -> Unit {
   let context = canvas_backend.context
   context.save()
-  context.set_stroke_style(@js.Union3::from0(stroke_color))
-  context.stroke_rect(x, y, width, height)
-  context.set_fill_style(@js.Union3::from0(color))
+  context.set_font(text_style_to_css(command.style))
+  set_text_align(context, text_align_to_css(command.style.align))
+  set_text_baseline(context, text_baseline_to_css(command.style.baseline))
+  context.set_fill_style(@js.Union3::from0(color_to_css(command.style.color)))
+  context.fill_text(command.text, command.position[X], command.position[Y])
+  context.restore()
+}
+
+///|
+pub fn draw_rect(command : @render.RectDrawCommand) -> Unit {
+  let x = command.rect.position[X]
+  let y = command.rect.position[Y]
+  let width = command.rect.size[X]
+  let height = command.rect.size[Y]
+  let context = canvas_backend.context
+  context.save()
+  if command.stroke_color is Some(stroke_color) {
+    context.set_stroke_style(@js.Union3::from0(color_to_css(stroke_color)))
+    context.stroke_rect(x, y, width, height)
+  }
+  context.set_fill_style(@js.Union3::from0(color_to_css(command.fill_color)))
   context.fill_rect(x, y, width, height)
   context.restore()
 }
 
 ///|
-pub fn draw_color_circle(
-  x~ : Double,
-  y~ : Double,
-  radius~ : Double,
-  color~ : String,
-  stroke_color~ : String,
-) -> Unit {
+pub fn draw_circle(command : @render.CircleDrawCommand) -> Unit {
   let context = canvas_backend.context
+  context.save()
   begin_path(context)
-  context.arc(x, y, radius, 0, @math.PI * 2)
-  context.set_fill_style(@js.Union3::from0(color))
+  context.arc(
+    command.center[X],
+    command.center[Y],
+    command.radius,
+    0,
+    @math.PI * 2,
+  )
+  context.set_fill_style(@js.Union3::from0(color_to_css(command.fill_color)))
   context.fill()
-  context.set_stroke_style(@js.Union3::from0(stroke_color))
-  context.stroke()
+  if command.stroke_color is Some(stroke_color) {
+    context.set_stroke_style(@js.Union3::from0(color_to_css(stroke_color)))
+    context.stroke()
+  }
   context.restore()
 }
 
 ///|
-pub fn draw_gradient_rect(
-  x~ : Double,
-  y~ : Double,
-  width~ : Double,
-  height~ : Double,
-  color_start~ : String,
-  color_end~ : String,
-) -> Unit {
+pub fn draw_gradient_rect(command : @render.GradientRectDrawCommand) -> Unit {
+  let x = command.rect.position[X]
+  let y = command.rect.position[Y]
+  let width = command.rect.size[X]
+  let height = command.rect.size[Y]
   let context = canvas_backend.context
   context.save()
   let gradient = context.create_linear_gradient(x, y, x + width, y + height)
-  gradient.add_color_stop(0.0, color_start)
-  gradient.add_color_stop(1.0, color_end)
+  gradient.add_color_stop(0.0, color_to_css(command.color_start))
+  gradient.add_color_stop(1.0, color_to_css(command.color_end))
   context.set_fill_style(@js.Union3::from1(gradient))
   context.fill_rect(x, y, width, height)
   context.restore()

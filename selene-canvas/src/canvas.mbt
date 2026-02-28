@@ -52,16 +52,15 @@ pub fn set_time_scale(time_scale : Double) -> Unit {
 let realtime_delta : Ref[Double] = Ref::new(0.0)
 
 ///|
-pub fn initialize(
-  startup~ : () -> Unit,
-  render_loop~ : (Double) -> Unit,
-  game_loop~ : (Double) -> Unit,
-  canvas_width~ : Double,
-  canvas_height~ : Double,
-  fps~ : UInt,
-  image_smooth~ : Bool,
-  zoom~ : Double,
-) -> () -> Unit {
+pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
+  let startup = config.startup
+  let render_loop = config.render_loop
+  let game_loop = config.game_loop
+  let canvas_width = config.canvas_width
+  let canvas_height = config.canvas_height
+  let fps = config.fps
+  let image_smooth = config.image_smooth
+  let zoom = config.zoom
   if fps > 60 {
     println(
       "Warning: FPS is set above 60. The browser's window only support up to 60 FPS.",

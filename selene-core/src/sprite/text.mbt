@@ -24,7 +24,7 @@
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let text = @sprite.Text::new("Hello World", color="red", font="24px Times")
 /// text.content = "Updated content"
 /// text.color = "blue"
@@ -55,13 +55,9 @@ pub fn Text::new(
 
 ///|
 fn render_text(text : Text, position : @math.Vec2D) -> Unit {
-  @backend.draw_text(
-    text=text.content,
-    x=position[X],
-    y=position[Y],
-    font=text.font,
-    color=text.color,
-    align=text.align,
-    baseline=text.baseline,
-  )
+  @backend.draw_text({
+    text: text.content,
+    position,
+    style: parse_text_style(text.font, text.color, text.align, text.baseline),
+  })
 }

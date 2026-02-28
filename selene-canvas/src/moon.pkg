@@ -1,0 +1,12 @@
+import {
+  "Yoorkin/rabbit-tea/dom",
+  "rami3l/js-ffi/js",
+  "Milky2018/selene/math" @smath,
+  "Milky2018/selene/render" @render,
+  "Milky2018/selene/inputs",
+  "moonbitlang/core/math",
+}
+
+options(
+  implement: "Milky2018/selene/backend",
+)

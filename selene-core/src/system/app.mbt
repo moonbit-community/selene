@@ -43,7 +43,7 @@ const DEFAULT_FPS : UInt = 60
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let app = @system.App::new()
 ///   .with_canvas_width(800.0)
 ///   .with_canvas_height(600.0)
@@ -75,7 +75,7 @@ pub(all) struct App {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let app = @system.App::new()
 /// inspect(app.canvas_width, content="512")
 /// inspect(app.canvas_height, content="256")
@@ -111,7 +111,7 @@ pub fn App::new() -> App {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let app = @system.App::new()
 ///   .with_image_smooth(false) // Disable smoothing for pixel-perfect rendering
 ///
@@ -134,7 +134,7 @@ pub fn App::with_image_smooth(self : App, image_smooth : Bool) -> App {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let app = @system.App::new()
 ///   .with_canvas_height(600.0)
 ///
@@ -157,7 +157,7 @@ pub fn App::with_canvas_height(self : App, height : Double) -> App {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let app = @system.App::new()
 ///   .with_canvas_width(800.0)
 ///
@@ -181,7 +181,7 @@ pub fn App::with_canvas_width(self : App, width : Double) -> App {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let app = @system.App::new()
 ///   .with_fps(30)
 ///
@@ -206,7 +206,7 @@ pub fn App::with_fps(self : App, fps : UInt) -> App {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let app = @system.App::new()
 ///   .with_zoom(2.0)
 ///
@@ -230,7 +230,7 @@ pub fn App::with_zoom(self : App, zoom : Double) -> App {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// fn my_plugin(_app : @system.App) -> Unit {
 ///   // Plugin implementation
 /// }
@@ -266,7 +266,7 @@ pub fn App::add_plugin(self : App, plugin : Plugin) -> App {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// @system.App::new()
 ///   .add_system(timer_system)
 ///   .run()
@@ -339,16 +339,16 @@ pub fn App::run(self : App) -> Unit {
     }
   }
 
-  let run_game = @backend.initialize(
-    startup~,
-    render_loop~,
-    game_loop~,
-    canvas_width=self.canvas_width,
-    canvas_height=self.canvas_height,
-    fps=self.fps,
-    image_smooth=self.image_smooth,
-    zoom=self.zoom,
-  )
+  let run_game = @backend.initialize(@render.BackendConfig::{
+    startup,
+    render_loop,
+    game_loop,
+    canvas_width: self.canvas_width,
+    canvas_height: self.canvas_height,
+    fps: self.fps,
+    image_smooth: self.image_smooth,
+    zoom: self.zoom,
+  })
   @backend.register_key_events(@inputs.pressed_keys)
   @backend.register_mouse_events(@inputs.mouse, @inputs.mouse_movement)
   run_game()

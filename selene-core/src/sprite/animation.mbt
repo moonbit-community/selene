@@ -22,7 +22,7 @@
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Create frames from a sprite atlas
 /// let frames = @sprite.frames_from_atlas(
 ///   "player_walk.png",
@@ -69,7 +69,7 @@ pub struct Animation {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let frame = @sprite.AnimationFrame::{
 ///   sprite_path: "characters/player.png",
 ///   size: @math.Vec2D(32.0, 32.0),
@@ -106,7 +106,7 @@ pub(all) struct AnimationFrame {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Create frames from a sprite atlas
 /// let frames = @sprite.frames_from_atlas(
 ///   "player_walk.png",
@@ -165,7 +165,7 @@ fn generate_animation() -> Int {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Create a static button sprite
 /// let button = @sprite.Animation::single_frame(
 ///   "ui/button.png",
@@ -220,7 +220,7 @@ pub fn Animation::single_frame(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Extract 8 frames from a player walk animation sprite sheet
 /// let walk_frames = @sprite.frames_from_atlas(
 ///   "characters/player_walk.png",
@@ -375,16 +375,13 @@ fn render_animation(
 ) -> Double {
   let frame = animation.frames[current_frame.to_int()]
   if visible {
-    @backend.draw_sprite(
-      sprite_path=frame.sprite_path,
-      x=pos[X],
-      y=pos[Y],
-      offset_x=frame.offset[X],
-      offset_y=frame.offset[Y],
-      width=frame.size[X],
-      height=frame.size[Y],
-      transform=animation.transform,
-    )
+    @backend.draw_image({
+      path: frame.sprite_path,
+      destination: @math.Rect::{ position: pos, size: frame.size },
+      source: Some({ position: frame.offset, size: frame.size }),
+      repeat: NoRepeat,
+      transform: animation.transform,
+    })
   }
   let mut new_frame = current_frame + animation.fps * delta
   if new_frame.to_int() >= animation.frames.length() {

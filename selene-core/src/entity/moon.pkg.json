@@ -1,7 +1,0 @@
-{
-  "import": [
-    "Milky2018/selene/system",
-    "Milky2018/selene/math",
-    "moonbitlang/core/set"
-  ]
-}

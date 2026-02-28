@@ -1,8 +1,0 @@
-{
-  "import": [
-    {
-      "path": "moonbitlang/core/math",
-      "alias": "cmath"
-    }
-  ]
-}

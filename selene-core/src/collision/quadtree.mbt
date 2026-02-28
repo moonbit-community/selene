@@ -18,6 +18,11 @@ let quadtree_root : Ref[QuadTree] = Ref::new(
 )
 
 ///|
+fn qt_rgba(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
+  @render.Color::{ r, g, b, a }
+}
+
+///|
 priv struct QuadTree {
   position : @math.Vec2D
   size : @math.Vec2D
@@ -120,14 +125,11 @@ pub fn quadtree_render_system(_delta : Double) -> Unit {
   fn render_node(node : QuadTree) -> Unit {
     let position = node.position - @camera.get_position()
     let size = node.size
-    @backend.draw_color_rect(
-      x=position[X],
-      y=position[Y],
-      width=size[X],
-      height=size[Y],
-      color="rgba(0, 0, 0, 0.0)",
-      stroke_color="blue",
-    )
+    @backend.draw_rect({
+      rect: @math.Rect::{ position, size },
+      fill_color: qt_rgba(0U, 0U, 0U, 0.0),
+      stroke_color: Some(qt_rgba(0U, 0U, 255U, 1.0)),
+    })
     for child in node.children {
       render_node(child)
     }

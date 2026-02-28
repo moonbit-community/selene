@@ -13,6 +13,11 @@
 // limitations under the License.
 
 ///|
+fn rgba(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
+  @render.Color::{ r, g, b, a }
+}
+
+///|
 /// Renders debug visualization for collision system components by drawing
 /// colored rectangles over colliders and areas.
 ///
@@ -42,14 +47,11 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
     } else {
       pos.0 + offset - @camera.get_position()
     }
-    @backend.draw_color_rect(
-      x=pos[X],
-      y=pos[Y],
-      width~,
-      height~,
-      color="rgba(255, 0, 0, 0.5)",
-      stroke_color="rgba(0, 0, 0, 0.0)",
-    )
+    @backend.draw_rect({
+      rect: @math.Rect::{ position: pos, size: @math.Vec2D(width, height) },
+      fill_color: rgba(255U, 0U, 0U, 0.5),
+      stroke_color: None,
+    })
   }
   for e, _area in areas {
     guard e.is_alive() else { continue }
@@ -61,14 +63,11 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
     } else {
       pos.0 + offset - @camera.get_position()
     }
-    @backend.draw_color_rect(
-      x=pos[X],
-      y=pos[Y],
-      width~,
-      height~,
-      color="rgba(0, 0, 255, 0.5)",
-      stroke_color="rgba(0, 0, 0, 0.0)",
-    )
+    @backend.draw_rect({
+      rect: @math.Rect::{ position: pos, size: @math.Vec2D(width, height) },
+      fill_color: rgba(0U, 0U, 255U, 0.5),
+      stroke_color: None,
+    })
   }
   for e, _pickable in pickables {
     guard e.is_alive() else { continue }
@@ -80,13 +79,10 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
     } else {
       pos.0 + offset - @camera.get_position()
     }
-    @backend.draw_color_rect(
-      x=pos[X],
-      y=pos[Y],
-      width~,
-      height~,
-      color="rgba(0, 255, 0, 0.5)",
-      stroke_color="rgba(0, 0, 0, 0.0)",
-    )
+    @backend.draw_rect({
+      rect: @math.Rect::{ position: pos, size: @math.Vec2D(width, height) },
+      fill_color: rgba(0U, 255U, 0U, 0.5),
+      stroke_color: None,
+    })
   }
 }

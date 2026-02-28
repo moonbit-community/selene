@@ -27,65 +27,21 @@ let default_backend : DefaultBackend = {
 }
 
 ///|
-pub fn initialize(
-  startup~ : () -> Unit,
-  render_loop~ : (Double) -> Unit,
-  game_loop~ : (Double) -> Unit,
-  canvas_width~ : Double,
-  canvas_height~ : Double,
-  fps~ : UInt,
-  image_smooth~ : Bool,
-  zoom~ : Double,
-) -> () -> Unit {
-  ignore(startup)
-  ignore(render_loop)
-  ignore(game_loop)
-  default_backend.canvas_width = canvas_width
-  default_backend.canvas_height = canvas_height
-  ignore(fps)
-  ignore(image_smooth)
-  default_backend.zoom = zoom
+pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
+  ignore(config.startup)
+  ignore(config.render_loop)
+  ignore(config.game_loop)
+  default_backend.canvas_width = config.canvas_width
+  default_backend.canvas_height = config.canvas_height
+  ignore(config.fps)
+  ignore(config.image_smooth)
+  default_backend.zoom = config.zoom
   fn() {  }
 }
 
 ///|
-pub fn draw_picture(
-  png~ : String,
-  x~ : Double,
-  y~ : Double,
-  width~ : Double,
-  height~ : Double,
-  transform~ : @math.Transform,
-  repeat~ : @math.RepeatMode,
-) -> Unit {
-  ignore(png)
-  ignore(x)
-  ignore(y)
-  ignore(width)
-  ignore(height)
-  ignore(transform)
-  ignore(repeat)
-}
-
-///|
-pub fn draw_sprite(
-  sprite_path~ : String,
-  x~ : Double,
-  y~ : Double,
-  offset_x~ : Double,
-  offset_y~ : Double,
-  width~ : Double,
-  height~ : Double,
-  transform~ : @math.Transform,
-) -> Unit {
-  ignore(sprite_path)
-  ignore(x)
-  ignore(y)
-  ignore(offset_x)
-  ignore(offset_y)
-  ignore(width)
-  ignore(height)
-  ignore(transform)
+pub fn draw_image(command : @render.ImageDrawCommand) -> Unit {
+  ignore(command)
 }
 
 ///|
@@ -108,71 +64,23 @@ pub fn lock_mouse(locked : Ref[Bool]) -> Unit {
 }
 
 ///|
-pub fn draw_text(
-  text~ : String,
-  x~ : Double,
-  y~ : Double,
-  font~ : String,
-  color~ : String,
-  align~ : @math.HAlign,
-  baseline~ : @math.VAlign,
-) -> Unit {
-  ignore(text)
-  ignore(x)
-  ignore(y)
-  ignore(font)
-  ignore(color)
-  ignore(align)
-  ignore(baseline)
+pub fn draw_text(command : @render.TextDrawCommand) -> Unit {
+  ignore(command)
 }
 
 ///|
-pub fn draw_color_rect(
-  x~ : Double,
-  y~ : Double,
-  width~ : Double,
-  height~ : Double,
-  color~ : String,
-  stroke_color~ : String,
-) -> Unit {
-  ignore(x)
-  ignore(y)
-  ignore(width)
-  ignore(height)
-  ignore(color)
-  ignore(stroke_color)
+pub fn draw_rect(command : @render.RectDrawCommand) -> Unit {
+  ignore(command)
 }
 
 ///|
-pub fn draw_color_circle(
-  x~ : Double,
-  y~ : Double,
-  radius~ : Double,
-  color~ : String,
-  stroke_color~ : String,
-) -> Unit {
-  ignore(x)
-  ignore(y)
-  ignore(radius)
-  ignore(color)
-  ignore(stroke_color)
+pub fn draw_circle(command : @render.CircleDrawCommand) -> Unit {
+  ignore(command)
 }
 
 ///|
-pub fn draw_gradient_rect(
-  x~ : Double,
-  y~ : Double,
-  width~ : Double,
-  height~ : Double,
-  color_start~ : String,
-  color_end~ : String,
-) -> Unit {
-  ignore(x)
-  ignore(y)
-  ignore(width)
-  ignore(height)
-  ignore(color_start)
-  ignore(color_end)
+pub fn draw_gradient_rect(command : @render.GradientRectDrawCommand) -> Unit {
+  ignore(command)
 }
 
 ///|

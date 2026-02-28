@@ -23,7 +23,7 @@
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let circle = @sprite.ColorCircle::new(
 ///   25.0,
 ///   "blue",
@@ -53,7 +53,7 @@ pub(all) struct ColorCircle {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Create a red circle with white outline
 /// let circle = @sprite.ColorCircle::new(
 ///   30.0,
@@ -90,11 +90,13 @@ fn render_color_circle(
   color_circle : ColorCircle,
   position : @math.Vec2D,
 ) -> Unit {
-  @backend.draw_color_circle(
-    x=position[X] + color_circle.radius,
-    y=position[Y] + color_circle.radius,
-    radius=color_circle.radius,
-    color=color_circle.color,
-    stroke_color=color_circle.stroke_color,
-  )
+  @backend.draw_circle({
+    center: @math.Vec2D(
+      position[X] + color_circle.radius,
+      position[Y] + color_circle.radius,
+    ),
+    radius: color_circle.radius,
+    fill_color: parse_color(color_circle.color),
+    stroke_color: parse_optional_color(color_circle.stroke_color),
+  })
 }

@@ -68,10 +68,9 @@ fn setup_ui() -> Unit {
   // Create hand strength display (center, above community cards)
   @style.add_widget(
     @style.screen_root,
-    sprite=zindex => @sprite.Sprite::from_text(
-      game_state.hand_strength_text,
-      zindex,
-    ),
+    sprite=zindex => {
+      @sprite.Sprite::from_text(game_state.hand_strength_text, zindex)
+    },
     h_offset=VIEWPORT_WIDTH / 2.0 - 60.0,
     v_offset=VIEWPORT_HEIGHT / 2.0 - 80.0,
   )
@@ -91,13 +90,15 @@ fn create_action_buttons() -> Unit {
   // Fold button
   let fold_button = @style.add_widget(
     @style.screen_root,
-    sprite=zindex => @sprite.Sprite::from_color_rect(
-      @sprite.ColorRect::new(
-        @math.Vec2D(button_width, button_height),
-        "#cc0000",
-      ),
-      zindex,
-    ),
+    sprite=zindex => {
+      @sprite.Sprite::from_color_rect(
+        @sprite.ColorRect::new(
+          @math.Vec2D(button_width, button_height),
+          "#cc0000",
+        ),
+        zindex,
+      )
+    },
     h_offset=VIEWPORT_WIDTH / 2.0 - 85.0 - button_width / 2.0,
     v_offset=button_y,
     shape=@collision.CollisionShape::Rect(
@@ -111,10 +112,12 @@ fn create_action_buttons() -> Unit {
   // Fold button text
   @style.add_widget(
     fold_button,
-    sprite=zindex => @sprite.Sprite::from_text(
-      @sprite.Text::new("Fold", color="white", font="16px ThaleahFat"),
-      zindex,
-    ),
+    sprite=zindex => {
+      @sprite.Sprite::from_text(
+        @sprite.Text::new("Fold", color="white", font="16px ThaleahFat"),
+        zindex,
+      )
+    },
     h_offset=button_width / 2.0 - 15.0,
     v_offset=button_height / 2.0 - 8.0,
   )
@@ -123,13 +126,15 @@ fn create_action_buttons() -> Unit {
   // Call button
   let call_button = @style.add_widget(
     @style.screen_root,
-    sprite=zindex => @sprite.Sprite::from_color_rect(
-      @sprite.ColorRect::new(
-        @math.Vec2D(button_width, button_height),
-        "#00aa00",
-      ),
-      zindex,
-    ),
+    sprite=zindex => {
+      @sprite.Sprite::from_color_rect(
+        @sprite.ColorRect::new(
+          @math.Vec2D(button_width, button_height),
+          "#00aa00",
+        ),
+        zindex,
+      )
+    },
     h_offset=VIEWPORT_WIDTH / 2.0 - button_width / 2.0,
     v_offset=button_y,
     shape=@collision.CollisionShape::Rect(
@@ -143,10 +148,9 @@ fn create_action_buttons() -> Unit {
   // Call button text
   @style.add_widget(
     call_button,
-    sprite=zindex => @sprite.Sprite::from_text(
-      game_state.call_button_text,
-      zindex,
-    ),
+    sprite=zindex => {
+      @sprite.Sprite::from_text(game_state.call_button_text, zindex)
+    },
     h_offset=button_width / 2.0 - 15.0,
     v_offset=button_height / 2.0 - 8.0,
   )
@@ -155,13 +159,15 @@ fn create_action_buttons() -> Unit {
   // Raise button
   let raise_button = @style.add_widget(
     @style.screen_root,
-    sprite=zindex => @sprite.Sprite::from_color_rect(
-      @sprite.ColorRect::new(
-        @math.Vec2D(button_width, button_height),
-        "#0066cc",
-      ),
-      zindex,
-    ),
+    sprite=zindex => {
+      @sprite.Sprite::from_color_rect(
+        @sprite.ColorRect::new(
+          @math.Vec2D(button_width, button_height),
+          "#0066cc",
+        ),
+        zindex,
+      )
+    },
     h_offset=VIEWPORT_WIDTH / 2.0 + 85.0 - button_width / 2.0,
     v_offset=button_y,
     shape=@collision.CollisionShape::Rect(
@@ -175,10 +181,12 @@ fn create_action_buttons() -> Unit {
   // Raise button text
   @style.add_widget(
     raise_button,
-    sprite=zindex => @sprite.Sprite::from_text(
-      @sprite.Text::new("Raise", color="white", font="16px ThaleahFat"),
-      zindex,
-    ),
+    sprite=zindex => {
+      @sprite.Sprite::from_text(
+        @sprite.Text::new("Raise", color="white", font="16px ThaleahFat"),
+        zindex,
+      )
+    },
     h_offset=button_width / 2.0 - 18.0,
     v_offset=button_height / 2.0 - 8.0,
   )

@@ -171,14 +171,16 @@ let game_state : GameState = {
       v_offset=VIEWPORT_HEIGHT / 2.0 - 120,
       flex=Vertical,
       v_padding=20.0,
-      sprite=zindex => @sprite.Sprite::from_color_rect(
-        @sprite.ColorRect::new(
-          Vec2D(160.0, 250.0),
-          "rgba(13, 170, 26, 1)",
-          stroke_color="black",
-        ),
-        zindex,
-      ),
+      sprite=zindex => {
+        @sprite.Sprite::from_color_rect(
+          @sprite.ColorRect::new(
+            Vec2D(160.0, 250.0),
+            "rgba(13, 170, 26, 1)",
+            stroke_color="black",
+          ),
+          zindex,
+        )
+      },
     ),
     available_selections: [],
   },
@@ -192,14 +194,16 @@ let game_state : GameState = {
       v_offset=VIEWPORT_HEIGHT / 2.0 - 60,
       flex=Vertical,
       v_padding=20.0,
-      sprite=zindex => @sprite.Sprite::from_color_rect(
-        @sprite.ColorRect::new(
-          Vec2D(200.0, 120.0),
-          "rgba(0, 0, 0, 0.8)",
-          stroke_color="white",
-        ),
-        zindex,
-      ),
+      sprite=zindex => {
+        @sprite.Sprite::from_color_rect(
+          @sprite.ColorRect::new(
+            Vec2D(200.0, 120.0),
+            "rgba(0, 0, 0, 0.8)",
+            stroke_color="white",
+          ),
+          zindex,
+        )
+      },
     ),
   },
 }

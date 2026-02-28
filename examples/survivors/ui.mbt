@@ -40,16 +40,18 @@ fn setup_level_up_ui() -> Unit {
   // Set up title text sprite on the root entity
   @style.add_widget(
     panel,
-    sprite=zindex => @sprite.Sprite::from_text(
-      @sprite.Text::new(
-        "LEVEL UP!",
-        color="gold",
-        font="36px ThaleahFat",
-        baseline=Top,
-        align=Left,
-      ),
-      zindex,
-    ),
+    sprite=zindex => {
+      @sprite.Sprite::from_text(
+        @sprite.Text::new(
+          "LEVEL UP!",
+          color="gold",
+          font="36px ThaleahFat",
+          baseline=Top,
+          align=Left,
+        ),
+        zindex,
+      )
+    },
     size_plan=Sized(Vec2D(160.0, 36.0)),
     h_offset=8.0,
   )
@@ -60,14 +62,16 @@ fn setup_level_up_ui() -> Unit {
     // Create button entity as child
     let button = @style.add_widget(
       panel,
-      sprite=zindex => @sprite.Sprite::from_color_rect(
-        @sprite.ColorRect::new(
-          Vec2D(160.0, 36.0),
-          "rgba(13, 167, 170, 1)",
-          stroke_color="black",
-        ),
-        zindex,
-      ),
+      sprite=zindex => {
+        @sprite.Sprite::from_color_rect(
+          @sprite.ColorRect::new(
+            Vec2D(160.0, 36.0),
+            "rgba(13, 167, 170, 1)",
+            stroke_color="black",
+          ),
+          zindex,
+        )
+      },
       flex=Horizontal,
       size_plan=FromSprite,
       h_padding=2.0,
@@ -80,16 +84,18 @@ fn setup_level_up_ui() -> Unit {
     )
 
     // Icon
-    @style.add_widget(button, sprite=zindex => @sprite.Sprite::from_animation(
-      powerup_range_icon, zindex,
-    ))
+    @style.add_widget(button, sprite=zindex => {
+      @sprite.Sprite::from_animation(powerup_range_icon, zindex)
+    })
     |> ignore
 
     // Text
-    @style.add_widget(button, sprite=zindex => @sprite.Sprite::from_text(
-      @sprite.Text::new("Default", color="white", font="16px ThaleahFat"),
-      zindex,
-    ))
+    @style.add_widget(button, sprite=zindex => {
+      @sprite.Sprite::from_text(
+        @sprite.Text::new("Default", color="white", font="16px ThaleahFat"),
+        zindex,
+      )
+    })
     |> ignore
   }
 
@@ -250,16 +256,18 @@ fn setup_game_over_ui() -> Unit {
   // Victory message text
   @style.add_widget(
     panel,
-    sprite=zindex => @sprite.Sprite::from_text(
-      @sprite.Text::new(
-        "VICTORY!",
-        color="gold",
-        font="32px ThaleahFat",
-        baseline=Top,
-        align=Left,
-      ),
-      zindex,
-    ),
+    sprite=zindex => {
+      @sprite.Sprite::from_text(
+        @sprite.Text::new(
+          "VICTORY!",
+          color="gold",
+          font="32px ThaleahFat",
+          baseline=Top,
+          align=Left,
+        ),
+        zindex,
+      )
+    },
     h_offset=30.0,
   )
   |> ignore
@@ -275,14 +283,16 @@ fn setup_game_over_ui() -> Unit {
   // Restart button
   let restart_button = @style.add_widget(
     panel,
-    sprite=zindex => @sprite.Sprite::from_color_rect(
-      @sprite.ColorRect::new(
-        Vec2D(180.0, 40.0),
-        "rgba(13, 167, 170, 1)",
-        stroke_color="white",
-      ),
-      zindex,
-    ),
+    sprite=zindex => {
+      @sprite.Sprite::from_color_rect(
+        @sprite.ColorRect::new(
+          Vec2D(180.0, 40.0),
+          "rgba(13, 167, 170, 1)",
+          stroke_color="white",
+        ),
+        zindex,
+      )
+    },
     h_offset=10.0,
     shape=@collision.CollisionShape::Rect(
       size=@math.Vec2D(180.0, 40.0),
@@ -294,10 +304,12 @@ fn setup_game_over_ui() -> Unit {
   // Restart button text
   @style.add_widget(
     restart_button,
-    sprite=zindex => @sprite.Sprite::from_text(
-      @sprite.Text::new("RESTART", color="white", font="24px ThaleahFat"),
-      zindex,
-    ),
+    sprite=zindex => {
+      @sprite.Sprite::from_text(
+        @sprite.Text::new("RESTART", color="white", font="24px ThaleahFat"),
+        zindex,
+      )
+    },
     h_offset=45.0,
     v_offset=8.0,
   )
