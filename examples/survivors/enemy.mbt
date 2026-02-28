@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-struct EnemyData {
+priv struct EnemyData {
   health : Double
   speed : Double
   points : Int
@@ -22,7 +22,7 @@ struct EnemyData {
 }
 
 ///|
-struct WaveSpawnPlan {
+priv struct WaveSpawnPlan {
   creeper_count : Int
   icecream_count : Int
   orc_count : Int
@@ -148,7 +148,7 @@ let wave_spawn_plans : Array[WaveSpawnPlan] = [
 ]
 
 ///|
-struct WaveState {
+priv struct WaveState {
   mut creeper_spawned : Int
   mut icecream_spawned : Int
   mut orc_spawned : Int
@@ -327,7 +327,7 @@ fn spawn_enemy_system(_delta : Double) -> Unit {
 }
 
 ///|
-struct Enemy {
+priv struct Enemy {
   enemy_type : EnemyType
   speed : Double
   mut health : Double

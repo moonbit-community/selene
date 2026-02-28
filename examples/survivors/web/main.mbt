@@ -1,0 +1,4 @@
+///|
+fn main {
+  @survivors.run()
+}

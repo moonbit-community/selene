@@ -27,7 +27,7 @@ enum PowerupType {
 } derive(Eq)
 
 ///|
-struct Powerup {
+priv struct Powerup {
   powerup_type : PowerupType
   name : String
   weight_formula : (Int) -> Double // Function that calculates weight based on level

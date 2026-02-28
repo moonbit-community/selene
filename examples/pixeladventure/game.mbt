@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-struct GameState {
+priv struct GameState {
   player : @entity.Entity
   mut player_state : PlayerState
   mut direction : Direction2
@@ -51,7 +51,7 @@ let game_state : GameState = {
 }
 
 ///|
-enum GameResult {
+priv enum GameResult {
   Win
   GameOver
 }

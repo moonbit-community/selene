@@ -28,7 +28,7 @@ const REAL_VIEWPORT_WIDTH : Double = VIEWPORT_WIDTH * ZOOM
 const REAL_VIEWPORT_HEIGHT : Double = VIEWPORT_HEIGHT * ZOOM
 
 ///|
-fn main {
+pub fn run() -> Unit {
   @system.App::new()
   .with_canvas_width(REAL_VIEWPORT_WIDTH)
   .with_canvas_height(REAL_VIEWPORT_HEIGHT)

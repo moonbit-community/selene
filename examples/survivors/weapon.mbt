@@ -21,7 +21,7 @@ enum WeaponType {
 } derive(Eq)
 
 ///|
-struct WeaponData {
+priv struct WeaponData {
   cooldown_rate : Double // Base cooldown in seconds
   damage_formula : (Double, Double) -> Double // (base_damage, attack) -> damage
   range_formula : (Double, Double) -> Double // (base_range, range_stat) -> range

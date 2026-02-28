@@ -7,6 +7,9 @@
     },
     "Milky2018/selene-canvas": {
       "path": "../selene-canvas"
+    },
+    "Milky2018/selene_raylib": {
+      "path": "../selene-raylib"
     }
   },
   "readme": "README.md",

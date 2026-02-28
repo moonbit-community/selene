@@ -24,7 +24,11 @@ pub fn move_system(delta : Double) -> Unit {
     guard e.is_alive() else { continue }
     if colliders.get(e) is Some(collide) && collide.active {
       let new_vel = move_with_collide(e, collide, vel.0.scalar_mul(delta))
-      real_velocities.set(e, new_vel.scalar_div(delta))
+      if delta.abs() < 0.000000001 {
+        real_velocities.set(e, vel.0)
+      } else {
+        real_velocities.set(e, new_vel.scalar_div(delta))
+      }
     } else {
       move_without_collide(e, vel.0.scalar_mul(delta))
       real_velocities.set(e, vel.0)

@@ -15,8 +15,3 @@ import {
   "Milky2018/selene/backend",
   "moonbitlang/core/random",
 }
-
-options(
-  "is-main": true,
-  overrides: [ "Milky2018/selene-canvas" ],
-)

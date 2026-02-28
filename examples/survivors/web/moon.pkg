@@ -1,0 +1,8 @@
+import {
+  "Milky2018/selene/examples/survivors",
+}
+
+options(
+  "is-main": true,
+  overrides: [ "Milky2018/selene-canvas" ],
+)

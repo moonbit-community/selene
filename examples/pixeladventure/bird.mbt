@@ -40,7 +40,7 @@ let bird_hit_animation : @sprite.Animation = @sprite.Animation::new(
 const BIRD_SPEED = 90.0
 
 ///|
-struct Bird {
+priv struct Bird {
   mut direction : Direction2
   mut is_hurt : Bool
 }

@@ -1,0 +1,8 @@
+import {
+  "Milky2018/selene/examples/pixeladventure",
+}
+
+options(
+  "is-main": true,
+  overrides: [ "Milky2018/selene_raylib" ],
+)

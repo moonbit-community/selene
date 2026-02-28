@@ -10,8 +10,3 @@ import {
   "Milky2018/selene/collision",
   "moonbitlang/core/random",
 }
-
-options(
-  "is-main": true,
-  overrides: [ "Milky2018/selene-canvas" ],
-)

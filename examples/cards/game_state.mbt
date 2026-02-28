@@ -38,7 +38,7 @@ enum GamePhase {
 
 ///|
 /// Player information
-struct Player {
+priv struct Player {
   mut chips : Int
   hole_cards : Array[Card]
   mut current_bet : Int
@@ -48,7 +48,7 @@ struct Player {
 
 ///|
 /// Game state
-struct GameState {
+priv struct GameState {
   rand : @random.Rand
   mut deck : Array[Card]
   player : Player // Single player

@@ -1,0 +1,4 @@
+///|
+fn main {
+  @pixeladventure.run()
+}

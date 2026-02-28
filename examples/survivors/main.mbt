@@ -37,7 +37,7 @@ const MAP_WIDTH : Double = 640.0
 const FPS : Double = 60
 
 ///|
-fn main {
+pub fn run() -> Unit {
   @system.App::new()
   .with_canvas_width(REAL_VIEWPORT_WIDTH)
   .with_canvas_height(REAL_VIEWPORT_HEIGHT)
@@ -59,7 +59,7 @@ fn main {
 }
 
 ///|
-struct GameState {
+priv struct GameState {
   player_entity : @entity.Entity
   mut player_direction : Dir4
   rand : @random.Rand
@@ -86,7 +86,7 @@ struct GameState {
 }
 
 ///|
-enum Dir4 {
+priv enum Dir4 {
   Up
   Down
   Left
@@ -94,13 +94,13 @@ enum Dir4 {
 }
 
 ///|
-enum LevelUpSelection {
+priv enum LevelUpSelection {
   PowerupSelection(Powerup)
   WeaponSelection(WeaponType)
 }
 
 ///|
-struct PlayerStats {
+priv struct PlayerStats {
   mut attack : Double
   mut range : Double
   mut speed : Double
@@ -110,14 +110,14 @@ struct PlayerStats {
 }
 
 ///|
-struct LevelUpPanel {
+priv struct LevelUpPanel {
   panel_entity : @entity.Entity
   mut available_selections : Array[LevelUpSelection]
   // Child entities will be created dynamically with spawn_child
 }
 
 ///|
-struct GameOverPanel {
+priv struct GameOverPanel {
   panel_entity : @entity.Entity
 }
 
