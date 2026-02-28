@@ -1,19 +1,14 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "Milky2018/selene/examples/pixeladventure"
+package "Milky2018/selene-examples/pixeladventure"
 
 // Values
+pub fn run() -> Unit
 
 // Errors
 
 // Types and methods
-type Bird
-
 type Direction2
 pub impl Eq for Direction2
-
-type GameResult
-
-type GameState
 
 type PlayerState
 pub impl Show for PlayerState

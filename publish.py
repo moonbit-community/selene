@@ -181,6 +181,10 @@ def copy_compiled_javascript(game_name: str, game_src_dir: Path, game_page_dir: 
 
     fallback_sources = [
         (
+            TARGET_DIR / "web" / game_name / f"{game_name}.js",
+            PAGE_DIR / "examples" / "target" / "js" / "release" / "build" / "web" / game_name / f"{game_name}.js",
+        ),
+        (
             TARGET_DIR / game_name / "web" / "web.js",
             PAGE_DIR / "examples" / "target" / "js" / "release" / "build" / game_name / "web" / "web.js",
         ),

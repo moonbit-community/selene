@@ -1,41 +1,18 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "Milky2018/selene/examples/survivors"
+package "Milky2018/selene-examples/survivors"
 
 // Values
+pub fn run() -> Unit
 
 // Errors
 
 // Types and methods
-type Dir4
-
-type Enemy
-
-type EnemyData
-
 type EnemyType
 pub impl Eq for EnemyType
 pub impl Hash for EnemyType
 
-type GameOverPanel
-
-type GameState
-
-type LevelUpPanel
-
-type LevelUpSelection
-
-type PlayerStats
-
-type Powerup
-
 type PowerupType
 pub impl Eq for PowerupType
-
-type WaveSpawnPlan
-
-type WaveState
-
-type WeaponData
 
 type WeaponType
 pub impl Eq for WeaponType

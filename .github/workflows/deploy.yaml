@@ -27,9 +27,9 @@ jobs:
         run: |
           cd examples
           moon update
-          web_packages=$(find . -mindepth 2 -maxdepth 2 -type d -name web | sort)
+          web_packages=$(find ./web -mindepth 1 -maxdepth 1 -type d | sort)
           if [ -z "$web_packages" ]; then
-            echo "No web example packages found under examples/*/web"
+            echo "No web example packages found under examples/web/*"
             exit 1
           fi
           while IFS= read -r pkg; do

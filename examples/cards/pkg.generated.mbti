@@ -1,7 +1,8 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "Milky2018/selene/examples/cards"
+package "Milky2018/selene-examples/cards"
 
 // Values
+pub fn run() -> Unit
 
 // Errors
 
@@ -21,12 +22,8 @@ pub impl Hash for CardSuit
 type GamePhase
 pub impl Eq for GamePhase
 
-type GameState
-
 type HandRank
 pub impl Show for HandRank
-
-type Player
 
 // Type aliases
 
