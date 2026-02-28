@@ -6,6 +6,7 @@ Copies all necessary files to the page directory for deployment
 
 import sys
 import json
+import re
 import shutil
 from pathlib import Path
 
@@ -14,6 +15,11 @@ ROOT_DIR = Path(__file__).parent
 PAGE_DIR = ROOT_DIR / "page"
 EXAMPLES_DIR = ROOT_DIR / "examples"
 TARGET_DIR = EXAMPLES_DIR / "target" / "js" / "release" / "build"
+
+SCRIPT_SRC_RE = re.compile(
+    r'<script[^>]+src=["\']([^"\']+\.js)["\']',
+    re.IGNORECASE,
+)
 
 def get_game_folders() -> list[str]:
     """Automatically detect game folders in examples directory"""
@@ -130,16 +136,69 @@ def copy_game_files(game_name: str):
         shutil.copy2(screenshot, game_page_dir / "screenshot.png")
         print(f"✓ Copied {game_name}/screenshot.png")
 
-    # Copy compiled JavaScript from target directory
-    js_src = TARGET_DIR / game_name / f"{game_name}.js"
+    copy_compiled_javascript(game_name, game_src_dir, game_page_dir)
+
+
+def find_game_script_src(index_html: Path) -> str | None:
+    if not index_html.exists():
+        return None
+
+    html = index_html.read_text(encoding="utf-8")
+    script_srcs = SCRIPT_SRC_RE.findall(html)
+    for script_src in script_srcs:
+        if script_src.endswith("preload-assets.js"):
+            continue
+        return script_src
+    return None
+
+
+def copy_js_with_relative_path(
+    game_name: str,
+    game_src_dir: Path,
+    game_page_dir: Path,
+    script_src: str,
+):
+    js_src = (game_src_dir / script_src).resolve()
+    js_dst = (game_page_dir / script_src).resolve()
     if js_src.exists():
-        # Create target directory structure in page
-        target_page_dir = PAGE_DIR / "examples" / "target" / "js" / "release" / "build" / game_name
-        target_page_dir.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(js_src, target_page_dir / f"{game_name}.js")
-        print(f"✓ Copied {game_name}.js to target/js/release/build/{game_name}/")
-    else:
-        print(f"⚠ Warning: {js_src} not found. Did you run 'moon build'?")
+        js_dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(js_src, js_dst)
+        print(f"✓ Copied {game_name} JS: {script_src}")
+        return True
+
+    print(
+        f"⚠ Warning: JavaScript not found for {game_name}: {js_src}. "
+        "Did you run the build step?"
+    )
+    return False
+
+
+def copy_compiled_javascript(game_name: str, game_src_dir: Path, game_page_dir: Path):
+    index_html = game_src_dir / "index.html"
+    script_src = find_game_script_src(index_html)
+    if script_src and copy_js_with_relative_path(game_name, game_src_dir, game_page_dir, script_src):
+        return
+
+    fallback_sources = [
+        (
+            TARGET_DIR / game_name / "web" / "web.js",
+            PAGE_DIR / "examples" / "target" / "js" / "release" / "build" / game_name / "web" / "web.js",
+        ),
+        (
+            TARGET_DIR / game_name / f"{game_name}.js",
+            PAGE_DIR / "examples" / "target" / "js" / "release" / "build" / game_name / f"{game_name}.js",
+        ),
+    ]
+
+    for js_src, js_dst in fallback_sources:
+        if not js_src.exists():
+            continue
+        js_dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(js_src, js_dst)
+        print(f"✓ Copied {game_name} JS from fallback: {js_src.relative_to(ROOT_DIR)}")
+        return
+
+    print(f"⚠ Warning: No compiled JavaScript found for {game_name}")
 
 def main():
     """Main publish function"""

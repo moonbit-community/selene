@@ -27,7 +27,18 @@ jobs:
         run: |
           cd examples
           moon update
-          moon build
+          web_packages=$(find . -mindepth 2 -maxdepth 2 -type d -name web | sort)
+          if [ -z "$web_packages" ]; then
+            echo "No web example packages found under examples/*/web"
+            exit 1
+          fi
+          while IFS= read -r pkg; do
+            if [ -z "$pkg" ]; then
+              continue
+            fi
+            echo "Building $pkg"
+            moon build "$pkg" --target js --target-dir target --release
+          done <<< "$web_packages"
 
       - name: Copy example games
         run: |
