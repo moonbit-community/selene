@@ -5,4 +5,5 @@ import {
 options(
   "is-main": true,
   overrides: [ "Milky2018/selene_raylib" ],
+  targets: { "main.mbt": [ "native" ] },
 )

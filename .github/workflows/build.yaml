@@ -59,21 +59,36 @@ jobs:
           moon check --deny-warn
           moon build
 
-      - name: selene-examples-web
+      - name: selene-examples
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           cd examples
           moon update
+
           web_packages=$(find ./web -mindepth 1 -maxdepth 1 -type d | sort)
           if [ -z "$web_packages" ]; then
             echo "No web example packages found under examples/web/*"
             exit 1
           fi
+
+          native_packages=$(find ./native -mindepth 1 -maxdepth 1 -type d | sort)
+          if [ -z "$native_packages" ]; then
+            echo "No native example packages found under examples/native/*"
+            exit 1
+          fi
+
           while IFS= read -r pkg; do
             if [ -z "$pkg" ]; then
               continue
             fi
-            echo "Checking $pkg"
+            echo "Checking JS target for $pkg"
             moon check "$pkg" --target js --deny-warn
-            moon build "$pkg" --target js
           done <<< "$web_packages"
+
+          while IFS= read -r pkg; do
+            if [ -z "$pkg" ]; then
+              continue
+            fi
+            echo "Checking native target for $pkg"
+            moon check "$pkg" --target native --deny-warn
+          done <<< "$native_packages"
