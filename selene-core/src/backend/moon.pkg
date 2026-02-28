@@ -4,6 +4,8 @@ import {
   "Milky2018/selene/render",
 }
 
+warnings = "-reserved_keyword"
+
 options(
   virtual: { "has-default": true },
 )
