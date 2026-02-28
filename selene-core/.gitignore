@@ -2,4 +2,3 @@ target
 _build
 .mooncakes/
 .DS_Store
-.claude
