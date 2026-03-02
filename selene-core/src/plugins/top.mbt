@@ -23,7 +23,7 @@
 /// ```
 /// 
 pub fn debug_plugin(app : @system.App) -> Unit {
-  app.systems..push(
+  app.systems.push(
     (@collision.debug_collide_system, Render(-10), "Debug Collide System"),
   )
 }
@@ -57,5 +57,6 @@ pub fn default_plugin(app : @system.App) -> Unit {
   ..push((@system.timer_system, Update, "Timer System"))
   ..push((@system.realtime_timer_system, Update, "Realtime Timer System"))
   ..push((@inherit.inherit_position_system, Update, "Inherit Position System"))
-  .push((@style.style_system, Update, "Style System"))
+  ..push((@style.style_system, Update, "Style System"))
+  .push((@a11y.a11y_sync_system, Update, "A11y Sync System"))
 }

@@ -5,5 +5,6 @@ import {
   "Milky2018/selene/camera",
   "Milky2018/selene/inputs",
   "Milky2018/selene/inherit",
+  "Milky2018/selene/a11y",
   "Milky2018/selene/style",
 }

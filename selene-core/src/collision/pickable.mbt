@@ -312,3 +312,15 @@ fn dispatch_callbacks(pick : Pickable) -> Unit {
     }
   }
 }
+
+///|
+/// Trigger `on_just_pressed` callbacks for the given entity.
+pub fn trigger_pickable_just_pressed(
+  entity : @entity.Entity,
+  button? : @inputs.MouseButton = @inputs.MouseButton::Left,
+) -> Unit {
+  guard pickables.get(entity) is Some(pick) else { return }
+  for callback in pick.on_just_pressed_callbacks {
+    callback(button)
+  }
+}
