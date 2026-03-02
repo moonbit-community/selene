@@ -63,7 +63,9 @@ fn draw_axis_aligned_textured_quad(
   }
   let src_w = src_x1 - src_x0
   let src_h = src_y1 - src_y0
-  let src_x = if sx >= 0.0 { src_x0 } else { src_x1 }
+  // DrawTexturePro expects source.x to stay at the original left edge even when
+  // source.width is negative (it applies horizontal flip internally).
+  let src_x = src_x0
   let src_y = if sy >= 0.0 { src_y0 } else { src_y1 }
   let draw_src_w = if sx >= 0.0 { src_w } else { -src_w }
   let draw_src_h = if sy >= 0.0 { src_h } else { -src_h }
