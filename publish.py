@@ -8,7 +8,9 @@ import sys
 import json
 import re
 import shutil
+import subprocess
 from pathlib import Path
+from dataclasses import dataclass
 
 # Project root directory
 ROOT_DIR = Path(__file__).parent
@@ -20,6 +22,82 @@ SCRIPT_SRC_RE = re.compile(
     r'<script[^>]+src=["\']([^"\']+\.js)["\']',
     re.IGNORECASE,
 )
+VERSION_RE = re.compile(r"^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$")
+
+INTERNAL_MODULES = {
+    "Milky2018/selene",
+    "Milky2018/selene-canvas",
+    "Milky2018/selene_raylib",
+    "Milky2018/selene-examples",
+}
+
+
+@dataclass(frozen=True)
+class ModuleConfig:
+    name: str
+    path: Path
+
+
+MODULES = [
+    ModuleConfig("selene-core", ROOT_DIR / "selene-core"),
+    ModuleConfig("selene-canvas", ROOT_DIR / "selene-canvas"),
+    ModuleConfig("selene-raylib", ROOT_DIR / "selene-raylib"),
+    ModuleConfig("examples", ROOT_DIR / "examples"),
+]
+
+PUBLISH_ORDER = ["selene-core", "selene-canvas", "selene-raylib", "examples"]
+
+
+def run_cmd(cmd: list[str], cwd: Path, *, fail_on_warning: bool = False):
+    print(f"$ (cd {cwd} && {' '.join(cmd)})")
+    proc = subprocess.run(
+        cmd,
+        cwd=cwd,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    if proc.stdout:
+        print(proc.stdout, end="" if proc.stdout.endswith("\n") else "\n")
+    if proc.stderr:
+        print(proc.stderr, end="" if proc.stderr.endswith("\n") else "\n")
+
+    if proc.returncode != 0:
+        raise RuntimeError(
+            f"Command failed with exit code {proc.returncode}: {' '.join(cmd)}"
+        )
+
+    if fail_on_warning:
+        merged = f"{proc.stdout}\n{proc.stderr}"
+        if has_warning(merged):
+            raise RuntimeError(f"Warning detected: {' '.join(cmd)}")
+
+
+def has_warning(output: str) -> bool:
+    patterns = [
+        r"(^|\s)WARN(\s|:)",
+        r"^Warning:",
+        r"warnings?,",
+        r"warnings?\.",
+        r"warnings?\)",
+    ]
+    return any(re.search(pat, output, flags=re.MULTILINE) for pat in patterns)
+
+
+def load_json(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def write_json(path: Path, data: dict):
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def module_by_name(name: str) -> ModuleConfig:
+    for module in MODULES:
+        if module.name == name:
+            return module
+    raise ValueError(f"Unknown module: {name}")
 
 def get_game_folders() -> list[str]:
     """Automatically detect game folders in examples directory"""
@@ -204,10 +282,10 @@ def copy_compiled_javascript(game_name: str, game_src_dir: Path, game_page_dir: 
 
     print(f"⚠ Warning: No compiled JavaScript found for {game_name}")
 
-def main():
-    """Main publish function"""
-    is_clean = len(sys.argv) > 1 and sys.argv[1] == "clean"
-    
+def publish_pages(argv: list[str]):
+    """Publish pages for web deployment."""
+    is_clean = len(argv) > 0 and argv[0] == "clean"
+
     if not is_clean:
         print("=" * 60)
         print("Publishing Selene Game Engine to page/")
@@ -246,6 +324,115 @@ def main():
     print("✓ Publishing complete!")
     print(f"Output directory: {PAGE_DIR.absolute()}")
     print("=" * 60)
+
+
+def run_module_quality_checks(module: ModuleConfig):
+    """Run fmt/info/check and fail on any warning."""
+    run_cmd(["moon", "fmt"], module.path, fail_on_warning=True)
+    run_cmd(["moon", "info"], module.path, fail_on_warning=True)
+
+    if module.name == "selene-core":
+        run_cmd(["moon", "check", "--target", "all", "--deny-warn"], module.path, fail_on_warning=True)
+        return
+
+    if module.name == "selene-canvas":
+        run_cmd(["moon", "check", "--target", "js", "--deny-warn"], module.path, fail_on_warning=True)
+        return
+
+    if module.name == "selene-raylib":
+        run_cmd(["moon", "check", "--target", "native", "--deny-warn"], module.path, fail_on_warning=True)
+        return
+
+    if module.name == "examples":
+        web_root = module.path / "web"
+        native_root = module.path / "native"
+        web_packages = sorted(p for p in web_root.iterdir() if p.is_dir())
+        native_packages = sorted(p for p in native_root.iterdir() if p.is_dir())
+        if not web_packages or not native_packages:
+            raise RuntimeError("examples/web/* or examples/native/* is empty")
+
+        for pkg in web_packages:
+            pkg_rel = f"./web/{pkg.name}"
+            run_cmd(
+                ["moon", "check", pkg_rel, "--target", "js", "--deny-warn"],
+                module.path,
+                fail_on_warning=True,
+            )
+
+        for pkg in native_packages:
+            pkg_rel = f"./native/{pkg.name}"
+            run_cmd(
+                ["moon", "check", pkg_rel, "--target", "native", "--deny-warn"],
+                module.path,
+                fail_on_warning=True,
+            )
+        return
+
+    raise RuntimeError(f"Unknown module for quality checks: {module.name}")
+
+
+def rewrite_module_for_release(module: ModuleConfig, version: str):
+    """Set module version and convert internal deps path refs to release versions."""
+    manifest_path = module.path / "moon.mod.json"
+    manifest = load_json(manifest_path)
+    manifest["version"] = version
+    deps = manifest.get("deps", {})
+
+    for dep_name in INTERNAL_MODULES:
+        if dep_name not in deps:
+            continue
+        dep_val = deps[dep_name]
+        if isinstance(dep_val, dict):
+            deps[dep_name] = version
+        elif isinstance(dep_val, str):
+            deps[dep_name] = version
+        else:
+            raise RuntimeError(f"Unsupported dep value for {dep_name} in {manifest_path}")
+
+    manifest["deps"] = deps
+    write_json(manifest_path, manifest)
+
+
+def run_release_pipeline(version: str):
+    print("=" * 60)
+    print(f"Preparing publish pipeline for version {version}")
+    print("=" * 60)
+    print()
+
+    print("[1/4] Running fmt/info/check on all modules...")
+    for module in MODULES:
+        print(f"\n==> Quality checks: {module.name}")
+        run_module_quality_checks(module)
+
+    print("\n[2/4] Rewriting module versions and internal deps...")
+    for module in MODULES:
+        rewrite_module_for_release(module, version)
+        print(f"✓ Updated {module.name}/moon.mod.json")
+
+    print("\n[3/4] Running moon update after manifest rewrites...")
+    for module in MODULES:
+        print(f"==> moon update: {module.name}")
+        run_cmd(["moon", "update"], module.path, fail_on_warning=True)
+
+    print("\n[4/4] Publishing modules in order...")
+    for module_name in PUBLISH_ORDER:
+        module = module_by_name(module_name)
+        print(f"==> moon publish: {module.name}")
+        run_cmd(["moon", "publish"], module.path, fail_on_warning=True)
+
+    print("\n" + "=" * 60)
+    print(f"✓ Release publish pipeline completed for {version}")
+    print("=" * 60)
+
+
+def main():
+    args = sys.argv[1:]
+    if len(args) == 1 and VERSION_RE.match(args[0]):
+        run_release_pipeline(args[0])
+        return
+
+    publish_pages(args)
+
 
 if __name__ == "__main__":
     main()
