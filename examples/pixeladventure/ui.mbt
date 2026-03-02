@@ -20,7 +20,7 @@ fn add_result_box() -> Unit {
     @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 48, VIEWPORT_HEIGHT / 2.0 - 32),
   )
   let text = @sprite.Sprite::from_text(game_state.result_box, @ui.UI_ZINDEX)
-  @ui.uis.set(box, @ui.Ui::new())
+  @ui.uis.set(box, @ui.Ui::new(space=@ui.UiSpace::Virtual))
   @sprite.sprites.set(box, text)
 }
 
@@ -30,7 +30,7 @@ fn add_score_box() -> Unit {
   @position.positions.set(box, @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 24, 16))
   let text = @sprite.Sprite::from_text(game_state.score_box, @ui.UI_ZINDEX)
   @sprite.sprites.set(box, text)
-  @ui.uis.set(box, @ui.Ui::new())
+  @ui.uis.set(box, @ui.Ui::new(space=@ui.UiSpace::Virtual))
 }
 
 ///|
@@ -39,7 +39,7 @@ fn add_health_box() -> Unit {
   @position.positions.set(box, @math.Vec2D(20, 16))
   let text = @sprite.Sprite::from_text(game_state.health_box, @ui.UI_ZINDEX)
   @sprite.sprites.set(box, text)
-  @ui.uis.set(box, @ui.Ui::new())
+  @ui.uis.set(box, @ui.Ui::new(space=@ui.UiSpace::Virtual))
 }
 
 ///|
@@ -80,5 +80,5 @@ fn add_volume_button() -> Unit {
     }
   })
   @collision.pickables.set(button, pickable)
-  @ui.uis.set(button, @ui.Ui::new())
+  @ui.uis.set(button, @ui.Ui::new(space=@ui.UiSpace::Virtual))
 }
