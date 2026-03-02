@@ -17,11 +17,12 @@ let audio_cache : Map[String, Audio] = Map::new()
 
 ///|
 fn get_audio(path : String) -> Audio {
-  if audio_cache.get(path) is Some(audio) {
+  let resolved_path = resolve_asset_path(path)
+  if audio_cache.get(resolved_path) is Some(audio) {
     return audio
   }
-  let audio = Audio::new(path)
-  audio_cache.set(path, audio)
+  let audio = Audio::new(resolved_path)
+  audio_cache.set(resolved_path, audio)
   audio
 }
 

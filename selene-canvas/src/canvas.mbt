@@ -115,7 +115,7 @@ fn schedule_with_fixed_interval(
 
 ///|
 pub fn load_font(font : String, path : String) -> Unit {
-  load_font_async(font, path)
+  load_font_async(font, resolve_asset_path(path))
 }
 
 ///|

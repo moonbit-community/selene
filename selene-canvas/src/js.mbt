@@ -64,6 +64,15 @@ extern "js" fn load_font_async(font : String, path : String) -> Unit =
   #| }
 
 ///|
+extern "js" fn resolve_asset_path(path : String) -> String =
+  #| (path) => {
+  #|   if (path.startsWith("assets/")) {
+  #|     return "/" + path;
+  #|   }
+  #|   return path;
+  #| }
+
+///|
 extern "js" fn begin_path(ctx : @dom.CanvasRenderingContext2D) -> Unit = "(ctx) => ctx.beginPath();"
 
 ///|

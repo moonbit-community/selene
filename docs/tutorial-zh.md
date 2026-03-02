@@ -184,8 +184,8 @@ pickable.on_just_released(fn(mouse_button) {
 `index.html` 中请使用 `_build` 路径，例如：
 
 ```html
-<script src="../preload-assets.js"></script>
-<script src="../_build/js/release/build/web/pixeladventure/pixeladventure.js" defer></script>
+<script src="../../preload-assets.js"></script>
+<script src="../../_build/js/release/build/web/pixeladventure/pixeladventure.js" defer></script>
 ```
 
 `target` 目前只是兼容用软链接，后续会移除，不建议在新文档和新项目中继续使用。

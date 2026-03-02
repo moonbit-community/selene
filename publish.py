@@ -127,6 +127,41 @@ def get_game_folders() -> list[str]:
 
     return sorted(games)
 
+
+def ensure_web_release_built(games: list[str]):
+    """Ensure release JS artifacts exist before publishing pages."""
+    missing: list[str] = []
+    for game in games:
+        js_path = BUILD_DIR / "web" / game / f"{game}.js"
+        if not js_path.exists():
+            missing.append(f"- {game}: {js_path.relative_to(ROOT_DIR)}")
+
+    if not missing:
+        return
+
+    details = "\n".join(missing)
+    raise RuntimeError(
+        "Missing web release build artifacts:\n"
+        f"{details}\n"
+        "Run one of:\n"
+        "  (cd examples && ./build_all.sh web)\n"
+        "  (cd examples && moon build ./web/<game> --target js --release)"
+    )
+
+
+def copy_examples_index():
+    """Copy examples/index.html to page/examples/index.html."""
+    src = EXAMPLES_DIR / "index.html"
+    dst = PAGE_DIR / "examples" / "index.html"
+    if not src.exists():
+        print("⚠ Warning: examples/index.html not found")
+        return
+
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, dst)
+    print("✓ Copied examples/index.html")
+
+
 def clean_page_dir():
     """Clean the page directory but preserve HTML files"""
     PAGE_DIR.mkdir(parents=True, exist_ok=True)
@@ -177,6 +212,8 @@ def generate_asset_manifest(assets_dir: Path):
     asset_files: list[str] = []
     for file in sorted(assets_dir.rglob("*")):
         if file.is_file():
+            if file.name == "assets-manifest.json":
+                continue
             # Get relative path from assets directory
             rel_path = file.relative_to(assets_dir)
             asset_files.append(str(rel_path))
@@ -192,7 +229,7 @@ def copy_game_files(game_name: str):
     """Copy all files for a specific game"""
     game_src_dir = EXAMPLES_DIR / game_name
     game_web_dir = WEB_EXAMPLES_DIR / game_name
-    game_page_dir = PAGE_DIR / "examples" / game_name
+    game_page_dir = PAGE_DIR / "examples" / "web" / game_name
 
     if not game_src_dir.exists() and not game_web_dir.exists():
         print(f"⚠ Warning: {game_name} not found in examples sources, skipping")
@@ -213,7 +250,7 @@ def copy_game_files(game_name: str):
     # Copy assets folder from centralized examples/assets/<game>
     assets_src = EXAMPLES_DIR / "assets" / game_name
     if assets_src.exists() and assets_src.is_dir():
-        assets_dst = game_page_dir / "assets" / game_name
+        assets_dst = PAGE_DIR / "assets" / game_name
         if assets_dst.exists():
             shutil.rmtree(assets_dst)
         shutil.copytree(assets_src, assets_dst)
@@ -228,6 +265,9 @@ def copy_game_files(game_name: str):
     # Copy screenshot.png
     screenshot = game_src_dir / "screenshot.png"
     if screenshot.exists():
+        legacy_screenshot_dir = PAGE_DIR / "examples" / game_name
+        legacy_screenshot_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(screenshot, legacy_screenshot_dir / "screenshot.png")
         shutil.copy2(screenshot, game_page_dir / "screenshot.png")
         print(f"✓ Copied {game_name}/screenshot.png")
 
@@ -343,29 +383,37 @@ def publish_pages(argv: list[str]):
         print("Publishing Selene Game Engine to page/")
         print("=" * 60)
 
-    # Step 1: Clean page directory (but preserve HTML files)
+    # Step 1: Detect games
+    games = get_game_folders()
+    if not games and not is_clean:
+        print("⚠ No games found in examples directory!")
+        return
+
+    # Step 2: Ensure web release JS is built
+    if not is_clean:
+        ensure_web_release_built(games)
+
+    # Step 3: Clean page directory (but preserve HTML files)
     clean_page_dir()
     print()
     if is_clean:
-        return
-    
-    # Step 2: Detect games
-    games = get_game_folders()
-    if not games:
-        print("⚠ No games found in examples directory!")
         return
 
     print(f"Found {len(games)} game(s): {', '.join(games)}")
     print()
 
-    # Step 3: Copy the preload-assets script
+    # Step 4: Copy examples landing page
+    print("Copying examples landing page...")
+    copy_examples_index()
+
+    # Step 5: Copy the preload-assets script
     print("Copying preload-assets script...")
     preload_assets_script = EXAMPLES_DIR / "preload-assets.js"
     if preload_assets_script.exists():
         shutil.copy2(preload_assets_script, PAGE_DIR / "examples" / "preload-assets.js")
         print(f"✓ Copied preload-assets script")
 
-    # Step 4: Copy each game
+    # Step 6: Copy each game
     print("Copying game files...")
     for game in games:
         print(f"\nProcessing {game}...")

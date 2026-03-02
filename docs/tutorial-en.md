@@ -184,8 +184,8 @@ pickable.on_just_released(fn(mouse_button) {
 Use `_build` paths in `index.html`, for example:
 
 ```html
-<script src="../preload-assets.js"></script>
-<script src="../_build/js/release/build/web/pixeladventure/pixeladventure.js" defer></script>
+<script src="../../preload-assets.js"></script>
+<script src="../../_build/js/release/build/web/pixeladventure/pixeladventure.js" defer></script>
 ```
 
 `target` is only a compatibility link and should not be used in new docs or new projects.

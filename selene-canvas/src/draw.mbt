@@ -17,12 +17,13 @@ let element_cache : Map[String, @dom.HTMLImageElement] = Map::new()
 
 ///|
 fn get_image_element(png : String) -> @dom.HTMLImageElement {
-  if element_cache.get(png) is Some(element) {
+  let resolved_png = resolve_asset_path(png)
+  if element_cache.get(resolved_png) is Some(element) {
     return element
   }
   let element = @dom.HTMLImageElement::new()
-  element.set_src(png)
-  element_cache.set(png, element)
+  element.set_src(resolved_png)
+  element_cache.set(resolved_png, element)
   return element
 }
 

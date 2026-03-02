@@ -1,1 +1,5 @@
 .DS_Store
+page/examples/_build/
+page/examples/web/
+page/examples/preload-assets.js
+page/assets/
