@@ -180,7 +180,7 @@ fn rapier_cast_rect(
     predicate(entity)
   })
   let query = index.query.with_filter(filter)
-  let options = @collision.ShapeCastOptions::new(1.0F, true)
+  let options = @collision.ShapeCastOptions::new(1.0F, false)
   let cast = query.cast_shape(
     index.bodies,
     index.colliders,
@@ -192,4 +192,30 @@ fn rapier_cast_rect(
   guard cast is Some((handle, hit))
   guard get_index_entity(index, handle) is Some(entity)
   Some((entity, hit.toi().to_double()))
+}
+
+///|
+test "shape cast allows horizontal move when only touching floor" {
+  let bodies = @rapier_full.RigidBodySet::new()
+  let colliders = @rapier_full.ColliderSet::new()
+
+  let floor = @rapier_full.ColliderBuilder::cuboid(8.0F, 8.0F)
+    .translation(@rapier_full.Vec2::new(0.0F, 40.0F))
+    .build()
+  colliders.insert(floor) |> ignore
+
+  let shape = @collision.Shape::Cuboid(12.0F, 16.0F)
+  let start = @rapier_full.Isometry2::from_translation(
+    @rapier_full.Vec2::new(0.0F, 16.0F),
+  )
+  let velocity = @rapier_full.Vec2::new(60.0F, 0.0F)
+  let query = @collision.QueryPipeline::new(
+    @collision.QueryFilter::new(),
+    bodies,
+    colliders,
+  )
+  let options = @collision.ShapeCastOptions::new(1.0F, false)
+
+  let hit = query.cast_shape(bodies, colliders, start, velocity, shape, options)
+  inspect(hit is None, content="true")
 }
