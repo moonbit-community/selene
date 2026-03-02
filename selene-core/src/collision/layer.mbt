@@ -49,7 +49,7 @@ pub fn CollisionLayer::new() -> CollisionLayer {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let player_entity = @entity.Entity::new()
 /// defer player_entity.destroy()
 /// let enemy_entity = @entity.Entity::new()

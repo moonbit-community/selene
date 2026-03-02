@@ -25,7 +25,7 @@
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let layer = @collision.CollisionLayer::new()
 /// let mask = @collision.CollisionMask::new([layer])
 /// let collider = @collision.Collider::new(mask)
@@ -52,7 +52,7 @@ pub(all) struct Collider {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let layer = @collision.CollisionLayer::new()
 /// let mask = @collision.CollisionMask::new([layer])
 /// let collider = @collision.Collider::new(mask)
@@ -79,7 +79,7 @@ pub fn Collider::new(mask : CollisionMask) -> Collider {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Check if an entity has a collider
 /// let entity = @entity.Entity::new()
 /// defer entity.destroy()

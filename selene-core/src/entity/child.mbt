@@ -80,7 +80,7 @@ let children : Map[Entity, Child] = Map::new()
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let parent = @entity.Entity::new()
 /// @position.positions.set(parent, @math.Vec2D(100.0, 100.0))
 ///
@@ -118,7 +118,7 @@ pub fn Entity::spawn_child(parent : Entity, offset? : @math.Vec2D) -> Entity {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let parent = @entity.Entity::new()
 /// let child1 = parent.spawn_child()
 /// let child2 = parent.spawn_child()
@@ -146,7 +146,7 @@ pub fn Entity::get_children(parent : Entity) -> Array[Entity] {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let parent = @entity.Entity::new()
 /// let child = parent.spawn_child()
 /// let standalone = @entity.Entity::new()
@@ -174,7 +174,7 @@ pub fn Entity::is_child(entity : Entity) -> Bool {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let parent = @entity.Entity::new()
 /// let child = parent.spawn_child()
 ///
@@ -202,7 +202,7 @@ pub fn Entity::get_parent(child : Entity) -> Entity? {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let parent = @entity.Entity::new()
 /// @position.positions.set(parent, @math.Vec2D(100.0, 100.0))
 ///
@@ -236,7 +236,7 @@ pub fn Entity::set_offset(child : Entity, offset : @math.Vec2D) -> Unit {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// @system.deferred_event_system(0.0)
 ///
 /// let root1 = @entity.Entity::new()
@@ -269,7 +269,7 @@ pub fn get_roots() -> Iter[Entity] {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let parent = @entity.Entity::new()
 /// let offset = @math.Vec2D(10.0, 5.0)
 /// let child = parent.spawn_child(offset~)

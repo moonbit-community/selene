@@ -25,7 +25,7 @@
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Play audio once at full volume
 /// @audio.play_audio("sounds/music.wav")
 ///

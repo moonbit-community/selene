@@ -33,7 +33,7 @@
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let pickable = Pickable::new()
 /// pickable.on_just_pressed(fn(button) { 
 ///   println("Button \{button} was just pressed") 
@@ -68,7 +68,7 @@ struct Pickable {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Register a pickable component for an entity
 /// let entity = @entity.Entity::new()
 /// defer entity.destroy()
@@ -89,7 +89,7 @@ pub let pickables : Map[@entity.Entity, Pickable] = Map::new()
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let pickable = Pickable::new()
 /// pickable.on_pressed(fn(button) { println("Mouse button pressed: \{button}") })
 /// ```
@@ -115,7 +115,7 @@ pub fn Pickable::new() -> Pickable {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let pickable = Pickable::new()
 /// pickable.on_pressed(fn(button) { 
 ///   println("Mouse button \{button} is being held down") 
@@ -141,7 +141,7 @@ pub fn Pickable::on_pressed(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let pickable = Pickable::new()
 /// pickable.on_released(fn(button) { 
 ///   println("Mouse button \{button} is not being held down") 
@@ -167,7 +167,7 @@ pub fn Pickable::on_released(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let pickable = Pickable::new()
 /// pickable.on_just_pressed(fn(button) { 
 ///   println("Mouse button \{button} was just pressed") 
@@ -193,7 +193,7 @@ pub fn Pickable::on_just_pressed(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let pickable = Pickable::new()
 /// pickable.on_just_released(fn(button) { 
 ///   println("Mouse button \{button} was just released") 

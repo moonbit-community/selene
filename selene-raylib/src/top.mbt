@@ -23,6 +23,7 @@ priv struct RaylibBackend {
   mut mouse_state : @inputs.Mouse?
   mut mouse_movement : @inputs.MouseMovement?
   mut lock_state : Ref[Bool]?
+  mut lock_requested : Bool
   mut cursor_locked : Bool
   textures : Map[String, @raylib.Texture]
   sounds : Map[String, @raylib.Sound]
@@ -43,6 +44,7 @@ let backend : RaylibBackend = {
   mouse_state: None,
   mouse_movement: None,
   lock_state: None,
+  lock_requested: false,
   cursor_locked: false,
   textures: Map::new(),
   sounds: Map::new(),
@@ -292,12 +294,16 @@ fn sync_mouse_events() -> Unit {
 ///|
 fn sync_mouse_lock() -> Unit {
   if backend.lock_state is Some(lock_state) {
+    // Keep requested lock state separate from runtime cursor visibility.
     if lock_state.val != backend.cursor_locked {
-      if lock_state.val {
+      backend.lock_requested = lock_state.val
+    }
+    if backend.lock_requested {
+      if !backend.cursor_locked && @raylib.is_window_focused() {
         @raylib.disable_cursor()
-      } else {
-        @raylib.enable_cursor()
       }
+    } else if backend.cursor_locked {
+      @raylib.enable_cursor()
     }
     backend.cursor_locked = @raylib.is_cursor_hidden()
     lock_state.val = backend.cursor_locked
@@ -392,11 +398,8 @@ pub fn register_mouse_events(
 ///|
 pub fn lock_mouse(locked : Ref[Bool]) -> Unit {
   backend.lock_state = Some(locked)
-  if locked.val {
-    @raylib.disable_cursor()
-  } else {
-    @raylib.enable_cursor()
-  }
+  backend.lock_requested = locked.val
+  sync_mouse_lock()
   backend.cursor_locked = @raylib.is_cursor_hidden()
   locked.val = backend.cursor_locked
 }

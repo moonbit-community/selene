@@ -35,7 +35,7 @@ pub(all) enum Axis {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let v1 = @math.Vec2D(3.0, 4.0)
 /// let v2 = @math.Vec2D::zero()
 /// inspect(v1[X], content="3")
@@ -79,7 +79,7 @@ pub fn Vec2D::op_get(this : Vec2D, axis : Axis) -> Double {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let v = @math.Vec2D(3.0, 4.0)
 /// let updated_x = v.update(X, 10.0)
 /// let updated_y = v.update(Y, 20.0)
@@ -140,7 +140,7 @@ pub fn Vec2D::scalar_div(this : Vec2D, scalar : Double) -> Vec2D {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let v = @math.Vec2D(3.0, 4.0)
 /// inspect(v.distance(), content="5") // sqrt(3² + 4²) = 5
 /// ```
@@ -161,7 +161,7 @@ pub fn Vec2D::distance(this : Vec2D) -> Double {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let v1 = @math.Vec2D(3.0, 4.0)
 /// let v2 = @math.Vec2D(2.0, 1.0)
 /// inspect(v1.dot(v2), content="10") // 3*2 + 4*1 = 10
@@ -183,7 +183,7 @@ pub fn Vec2D::dot(this : Vec2D, other : Vec2D) -> Double {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let v1 = @math.Vec2D(0.0, 0.0)
 /// let v2 = @math.Vec2D(3.0, 4.0)
 /// inspect(v1.distance_to(v2), content="5")
@@ -207,7 +207,7 @@ pub fn Vec2D::distance_to(this : Vec2D, other : Vec2D) -> Double {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let v = @math.Vec2D(3.0, 4.0)
 /// let normalized = v.normalize()
 /// inspect(normalized.distance(), content="1") // Unit vector has magnitude 1

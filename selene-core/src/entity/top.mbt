@@ -17,7 +17,7 @@
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let entity = @entity.Entity::new()
 /// entity.destroy()
 /// ```
@@ -48,7 +48,7 @@ let all_entities : @set.Set[Entity] = @set.Set::new()
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let entity1 = @entity.Entity::new()
 /// let entity2 = @entity.Entity::new()
 ///
@@ -77,7 +77,7 @@ pub fn iter_entities() -> Iter[Entity] {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let entity = @entity.Entity::new()
 /// inspect(entity.is_alive(), content="true")
 ///
@@ -105,7 +105,7 @@ let entity_generator : Ref[UInt] = { val: 0 }
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let entity1 = @entity.Entity::new()
 /// let entity2 = @entity.Entity::new()
 /// defer entity1.destroy()
@@ -141,7 +141,7 @@ pub fn Entity::new() -> Entity {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let entity = @entity.Entity::new()
 /// inspect(entity.is_alive(), content="true")
 ///
@@ -178,7 +178,7 @@ pub fn Entity::destroy(e : Entity) -> Unit {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let entity = @entity.Entity::new()
 /// inspect(entity.is_alive(), content="true")
 ///

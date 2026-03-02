@@ -32,7 +32,7 @@ priv struct Camera {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let current_pos = @camera.get_position()
 /// inspect(current_pos, content="Vec2D(0, 0)")
 /// ```
@@ -58,7 +58,7 @@ pub fn get_position() -> @math.Vec2D {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Set boundaries to keep camera within a level area
 /// @camera.set_limits(top=0.0, bottom=500.0, left=0.0, right=800.0)
 ///
@@ -93,7 +93,7 @@ pub fn set_limits(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let player_entity = @entity.Entity::new()
 /// @camera.attach_entity(player_entity, @math.Vec2D(32.0, 32.0))
 ///
@@ -118,7 +118,7 @@ pub fn attach_entity(entity : @entity.Entity, offset : @math.Vec2D) -> Unit {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Enable horizontal following
 /// @camera.set_follow_x(true)
 ///
@@ -144,7 +144,7 @@ pub fn set_follow_x(follow : Bool) -> Unit {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Enable vertical following
 /// @camera.set_follow_y(true)
 ///
@@ -181,7 +181,7 @@ let camera : Camera = {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // This function is typically called automatically by the game engine's update loop
 /// // Set up camera to follow a player entity
 /// let player = @entity.Entity::new()

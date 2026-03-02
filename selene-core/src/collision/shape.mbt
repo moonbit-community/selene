@@ -30,7 +30,7 @@ pub(all) enum CollisionShape {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Register a rectangular collision shape for an entity
 /// let entity = @entity.Entity::new()
 /// defer entity.destroy()

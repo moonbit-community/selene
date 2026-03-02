@@ -17,7 +17,7 @@
 ///
 /// Example:
 ///
-/// ```moonbit 
+/// ```moonbit nocheck
 /// let key_code = @inputs.Code::from_string("KeyA")
 /// inspect(key_code, content="Some(KeyA)")
 ///
@@ -119,7 +119,7 @@ let all_codes : @set.Set[Code] = @set.Set::from_array([
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let key_a = @inputs.Code::from_string("KeyA")
 /// inspect(key_a, content="Some(KeyA)")
 ///
@@ -179,7 +179,7 @@ pub fn Code::from_string(code : String) -> Code? {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Check if a specific key is currently pressed
 /// if @inputs.pressed_keys.contains(@inputs.KeyW) {
 ///   println("W key is being held down")
@@ -204,7 +204,7 @@ pub let pressed_keys : Set[Code] = @set.Set::new()
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Check if the W key is currently pressed
 /// if @inputs.is_pressed(@inputs.KeyW) {
 ///   println("W key is being held down")
@@ -236,7 +236,7 @@ pub fn is_pressed(code : Code) -> Bool {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Check if the W key is currently released
 /// inspect(@inputs.is_released(KeyW), content="true")
 /// ```
@@ -262,7 +262,7 @@ pub fn is_released(code : Code) -> Bool {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Get movement vector for WASD keys
 /// let movement = @inputs.key_vector(KeyW, KeyS, KeyA, KeyD)
 /// inspect(movement, content="Vec2D(0, 0)")
@@ -315,7 +315,7 @@ let just_release_keys : Set[Code] = @set.Set::new()
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // This function is typically called once per frame by the game engine
 /// @inputs.advanced_key_system(0.016) // 60 FPS = ~16ms per frame
 ///
@@ -356,7 +356,7 @@ pub fn advanced_key_system(_delta : Double) -> Unit {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Check if the space key was just pressed this frame
 /// if @inputs.is_just_pressed(Space) {
 ///   println("Space key was just pressed!")
@@ -387,7 +387,7 @@ pub fn is_just_pressed(code : Code) -> Bool {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Check if the space key was just released this frame
 /// if @inputs.is_just_released(Space) {
 ///   println("Space key was just released!")

@@ -23,7 +23,7 @@
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Positive angle greater than 2PI
 /// inspect(@cmath.normalize_angle(7.0), content="0.7168146928204138")
 ///

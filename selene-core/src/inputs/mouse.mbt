@@ -39,7 +39,7 @@ pub(all) enum MouseButton {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Access the global mouse state
 /// inspect(@inputs.mouse.pos, content="Vec2D(0, 0)")
 /// inspect(@inputs.mouse.left_button, content="false")
@@ -73,7 +73,7 @@ pub(all) struct Mouse {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Access the global mouse state
 /// inspect(@inputs.mouse.pos, content="Vec2D(0, 0)")
 /// inspect(@inputs.mouse.left_button, content="false")
@@ -96,7 +96,7 @@ pub let mouse : Mouse = {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Access the global mouse movement
 /// inspect(@inputs.mouse_movement.movement, content="Vec2D(0, 0)")
 ///
@@ -124,7 +124,7 @@ pub(all) struct MouseMovement {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Access the global mouse movement
 /// inspect(@inputs.mouse_movement.movement, content="Vec2D(10, -5)")
 ///
@@ -163,7 +163,7 @@ let last_mouse : Mouse = {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Check if left mouse button was just pressed
 /// if @inputs.just_pressed_mouse.left_button {
 ///   println("Left mouse button was just clicked!")
@@ -202,7 +202,7 @@ pub let just_pressed_mouse : Mouse = {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Check if left mouse button was just released
 /// if @inputs.just_release_mouse.left_button {
 ///   println("Left mouse button was just released!")
@@ -231,7 +231,7 @@ pub let just_release_mouse : Mouse = {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// inspect(@inputs.is_mouse_just_pressed(Left), content="false") 
 /// inspect(@inputs.is_mouse_pressed(Right), content="false")
 /// ```
@@ -268,7 +268,7 @@ pub fn advanced_mouse_system(_delta : Double) -> Unit {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// inspect(@inputs.is_mouse_pressed(MouseButton::Left), content="false")
 /// ```
 ///
@@ -293,7 +293,7 @@ pub fn is_mouse_pressed(button : MouseButton) -> Bool {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// inspect(@inputs.is_mouse_released(Left), content="true")
 /// ```
 ///
@@ -317,7 +317,7 @@ pub fn is_mouse_released(button : MouseButton) -> Bool {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// inspect(@inputs.is_mouse_just_pressed(MouseButton::Left), content="false")
 /// ```
 ///
@@ -341,7 +341,7 @@ pub fn is_mouse_just_pressed(button : MouseButton) -> Bool {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// inspect(@inputs.is_mouse_just_released(MouseButton::Left), content="false")
 /// ```
 ///

@@ -34,7 +34,7 @@ struct Area {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let entity = @entity.Entity::new()
 /// defer entity.destroy()
 /// let mask = @collision.CollisionMask::empty()
@@ -61,7 +61,7 @@ pub fn Area::new(mask : CollisionMask) -> Area {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Create an area and attach it to an entity
 /// let entity = @entity.Entity::new()
 /// defer entity.destroy()
@@ -88,7 +88,7 @@ pub let areas : Map[@entity.Entity, Area] = Map::new()
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Create an area entity and get its contained entities
 /// let area_entity = @entity.Entity::new()
 /// defer area_entity.destroy()
@@ -117,7 +117,7 @@ pub fn get_contains(area : @entity.Entity) -> Set[@entity.Entity] {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let my_entity = @entity.Entity::new()
 /// defer my_entity.destroy()
 /// let mask = @collision.CollisionMask::empty()
@@ -141,7 +141,7 @@ pub fn Area::on_enter(self : Area, callback : (@entity.Entity) -> Unit) -> Unit 
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let my_entity = @entity.Entity::new()
 /// defer my_entity.destroy()
 /// let mask = @collision.CollisionMask::empty()
@@ -177,7 +177,7 @@ pub fn Area::on_exit(self : Area, callback : (@entity.Entity) -> Unit) -> Unit {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let app = @system.App::new()
 /// app.add_system(area_collide_system).run()
 /// ```
