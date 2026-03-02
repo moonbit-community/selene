@@ -189,9 +189,15 @@ fn rapier_cast_rect(
     to_rapier_shape(rect),
     options,
   )
-  guard cast is Some((handle, hit))
-  guard get_index_entity(index, handle) is Some(entity)
-  Some((entity, hit.toi().to_double()))
+  if cast is Some((handle, hit)) {
+    if get_index_entity(index, handle) is Some(entity) {
+      Some((entity, hit.toi().to_double()))
+    } else {
+      None
+    }
+  } else {
+    None
+  }
 }
 
 ///|
@@ -217,5 +223,36 @@ test "shape cast allows horizontal move when only touching floor" {
   let options = @collision.ShapeCastOptions::new(1.0F, false)
 
   let hit = query.cast_shape(bodies, colliders, start, velocity, shape, options)
+  inspect(hit is None, content="true")
+}
+
+///|
+test "rapier_cast_rect returns None when no hit" {
+  let mover = @entity.Entity::new()
+  defer mover.destroy()
+  let blocker = @entity.Entity::new()
+  defer blocker.destroy()
+
+  @position.positions.set(mover, @math.Vec2D(0.0, 0.0))
+  @position.positions.set(blocker, @math.Vec2D(200.0, 0.0))
+  shapes.set(
+    mover,
+    Rect(size=@math.Vec2D(16.0, 16.0), offset=@math.Vec2D::zero()),
+  )
+  shapes.set(
+    blocker,
+    Rect(size=@math.Vec2D(16.0, 16.0), offset=@math.Vec2D::zero()),
+  )
+
+  let index = build_world_rapier_index()
+  let mover_rect = @math.Rect::{
+    position: @math.Vec2D(0.0, 0.0),
+    size: @math.Vec2D(16.0, 16.0),
+  }
+  let hit = rapier_cast_rect(index, mover, mover_rect, @math.Vec2D(10.0, 0.0), fn(
+    target,
+  ) {
+    target == blocker
+  })
   inspect(hit is None, content="true")
 }
