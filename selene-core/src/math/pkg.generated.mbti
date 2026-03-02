@@ -42,9 +42,16 @@ pub(all) struct Transform {
   tx : Double
   ty : Double
 }
+pub fn Transform::append(Self, Self) -> Self
+pub fn Transform::append_rotation_deg(Self, Double) -> Self
+pub fn Transform::append_rotation_rad(Self, Double) -> Self
+pub fn Transform::append_scale(Self, Double, Double) -> Self
+pub fn Transform::append_skew(Self, Double, Double) -> Self
+pub fn Transform::append_translation(Self, Double, Double) -> Self
 pub fn Transform::apply_to_point(Self, Double, Double) -> (Double, Double)
 pub fn Transform::apply_to_vec2d(Self, Vec2D) -> Vec2D
 pub fn Transform::clone(Self) -> Self
+pub fn Transform::compose(Self, Self) -> Self
 pub fn Transform::flip_x(Double) -> Self
 pub fn Transform::flip_y(Double) -> Self
 pub fn Transform::from_rotation_deg(Double) -> Self
@@ -59,13 +66,16 @@ pub fn Transform::identity() -> Self
 pub fn Transform::inverse(Self) -> Self?
 pub fn Transform::multiply(Self, Self) -> Self
 pub fn Transform::new(a? : Double, b? : Double, c? : Double, d? : Double, tx? : Double, ty? : Double) -> Self
-pub fn Transform::rotate_rad(Self, Double) -> Self
-pub fn Transform::scale(Self, Double, Double) -> Self
-pub fn Transform::translate(Self, Double, Double) -> Self
-pub impl Add for Transform
+pub fn Transform::prepend(Self, Self) -> Self
+pub fn Transform::prepend_rotation_deg(Self, Double) -> Self
+pub fn Transform::prepend_rotation_rad(Self, Double) -> Self
+pub fn Transform::prepend_scale(Self, Double, Double) -> Self
+pub fn Transform::prepend_skew(Self, Double, Double) -> Self
+pub fn Transform::prepend_translation(Self, Double, Double) -> Self
+pub fn Transform::set_translation(Self, Double, Double) -> Self
+pub fn Transform::with_translation(Self, Double, Double) -> Self
 pub impl Default for Transform
 pub impl Mul for Transform
-pub impl Sub for Transform
 
 pub(all) enum VAlign {
   Top

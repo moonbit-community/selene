@@ -23,14 +23,8 @@
 /// ```
 /// 
 pub fn debug_plugin(app : @system.App) -> Unit {
-  app.systems
-  ..push((@collision.debug_collide_system, Render(-10), "Debug Collide System"))
-  .push(
-    (
-      @collision.quadtree_render_system,
-      Render(-11),
-      "Debug Quadtree Render System",
-    ),
+  app.systems..push(
+    (@collision.debug_collide_system, Render(-10), "Debug Collide System"),
   )
 }
 
@@ -55,7 +49,6 @@ pub fn default_plugin(app : @system.App) -> Unit {
   ..push((@collision.move_system, Update, "Move System"))
   ..push((@inputs.advanced_key_system, Update, "Advanced Key System"))
   ..push((@inputs.advanced_mouse_system, Update, "Advanced Mouse System"))
-  ..push((@collision.quadtree_clear_system, Update, "Quadtree Clear System"))
   ..push((@collision.pickable_click_system, Update, "Pickable Click System"))
   ..push((@collision.area_collide_system, Update, "Area Collide System"))
   ..push((@system.deferred_event_system, Update, "Deferred Event System"))

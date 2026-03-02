@@ -119,6 +119,29 @@ pub fn Transform::multiply(self : Transform, other : Transform) -> Transform {
 }
 
 ///|
+/// Compose two transforms in left-to-right order (`self * other`).
+/// This is equivalent to `multiply`.
+pub fn Transform::compose(self : Transform, other : Transform) -> Transform {
+  self.multiply(other)
+}
+
+///|
+/// Prepend a transform (`other * self`).
+///
+/// This means `other` is applied after `self` in point space.
+pub fn Transform::prepend(self : Transform, other : Transform) -> Transform {
+  other * self
+}
+
+///|
+/// Append a transform (`self * other`).
+///
+/// This means `other` is applied before `self` in point space.
+pub fn Transform::append(self : Transform, other : Transform) -> Transform {
+  self * other
+}
+
+///|
 /// Apply transform to a point
 /// 
 pub fn Transform::apply_to_point(
@@ -145,14 +168,43 @@ pub fn Transform::get_translation(self : Transform) -> (Double, Double) {
 }
 
 ///|
-/// Set translation values
-/// 
-pub fn Transform::translate(
+/// Return a new transform with updated translation, keeping linear terms.
+pub fn Transform::with_translation(
+  self : Transform,
+  tx : Double,
+  ty : Double,
+) -> Transform {
+  { ..self, tx, ty }
+}
+
+///|
+/// Alias of `with_translation`.
+pub fn Transform::set_translation(
+  self : Transform,
+  tx : Double,
+  ty : Double,
+) -> Transform {
+  self.with_translation(tx, ty)
+}
+
+///|
+/// Prepend translation (`T * self`).
+pub fn Transform::prepend_translation(
   self : Transform,
   tx : Double,
   ty : Double,
 ) -> Transform {
   Transform::from_translation(tx, ty) * self
+}
+
+///|
+/// Append translation (`self * T`).
+pub fn Transform::append_translation(
+  self : Transform,
+  tx : Double,
+  ty : Double,
+) -> Transform {
+  self * Transform::from_translation(tx, ty)
 }
 
 ///|
@@ -165,14 +217,23 @@ pub fn Transform::get_scale(self : Transform) -> (Double, Double) {
 }
 
 ///|
-/// Set scale values (preserving rotation)
-/// 
-pub fn Transform::scale(
+/// Prepend scale (`S * self`).
+pub fn Transform::prepend_scale(
   self : Transform,
   sx : Double,
   sy : Double,
 ) -> Transform {
   Transform::from_scale(sx, sy) * self
+}
+
+///|
+/// Append scale (`self * S`).
+pub fn Transform::append_scale(
+  self : Transform,
+  sx : Double,
+  sy : Double,
+) -> Transform {
+  self * Transform::from_scale(sx, sy)
 }
 
 ///|
@@ -183,10 +244,59 @@ pub fn Transform::get_rotation_rad(self : Transform) -> Double {
 }
 
 ///|
-/// Set rotation angle (preserving scale)
-/// 
-pub fn Transform::rotate_rad(self : Transform, rad : Double) -> Transform {
+/// Prepend rotation (`R * self`).
+pub fn Transform::prepend_rotation_rad(
+  self : Transform,
+  rad : Double,
+) -> Transform {
   Transform::from_rotation_rad(rad) * self
+}
+
+///|
+/// Append rotation (`self * R`).
+pub fn Transform::append_rotation_rad(
+  self : Transform,
+  rad : Double,
+) -> Transform {
+  self * Transform::from_rotation_rad(rad)
+}
+
+///|
+/// Prepend rotation in degrees.
+pub fn Transform::prepend_rotation_deg(
+  self : Transform,
+  deg : Double,
+) -> Transform {
+  self.prepend_rotation_rad(deg * @cmath.PI / 180.0)
+}
+
+///|
+/// Append rotation in degrees.
+pub fn Transform::append_rotation_deg(
+  self : Transform,
+  deg : Double,
+) -> Transform {
+  self.append_rotation_rad(deg * @cmath.PI / 180.0)
+}
+
+///|
+/// Prepend skew (`K * self`).
+pub fn Transform::prepend_skew(
+  self : Transform,
+  kx : Double,
+  ky : Double,
+) -> Transform {
+  Transform::from_skew(kx, ky) * self
+}
+
+///|
+/// Append skew (`self * K`).
+pub fn Transform::append_skew(
+  self : Transform,
+  kx : Double,
+  ky : Double,
+) -> Transform {
+  self * Transform::from_skew(kx, ky)
 }
 
 ///|
@@ -221,34 +331,6 @@ pub fn Transform::flip_x(width : Double) -> Transform {
 /// 
 pub fn Transform::flip_y(height : Double) -> Transform {
   Transform::from_translation(0.0, height) * Transform::from_scale(1.0, -1.0)
-}
-
-///|
-/// Add two transforms (matrix addition)
-/// 
-pub impl Add for Transform with add(self : Transform, other : Transform) -> Transform {
-  {
-    a: self.a + other.a,
-    b: self.b + other.b,
-    c: self.c + other.c,
-    d: self.d + other.d,
-    tx: self.tx + other.tx,
-    ty: self.ty + other.ty,
-  }
-}
-
-///|
-/// Subtract two transforms (matrix subtraction)
-/// 
-pub impl Sub for Transform with sub(self : Transform, other : Transform) -> Transform {
-  {
-    a: self.a - other.a,
-    b: self.b - other.b,
-    c: self.c - other.c,
-    d: self.d - other.d,
-    tx: self.tx - other.tx,
-    ty: self.ty - other.ty,
-  }
 }
 
 ///|
@@ -392,26 +474,33 @@ test "Transform * operator works correctly" {
   assert_true(transform_approx_eq(composed1, composed2))
 }
 
-// Test operator overloading - addition
+// Test explicit prepend/append order
 
 ///|
-test "Transform + operator works correctly" {
-  let t1 = Transform::new(a=1.0, b=2.0, c=3.0, d=4.0, tx=5.0, ty=6.0)
-  let t2 = Transform::new(a=1.0, b=1.0, c=1.0, d=1.0, tx=1.0, ty=1.0)
-  let result = t1 + t2
-  let expected = Transform::new(a=2.0, b=3.0, c=4.0, d=5.0, tx=6.0, ty=7.0)
-  assert_true(transform_approx_eq(result, expected))
+test "Transform::prepend and Transform::append have explicit order" {
+  let base = Transform::from_scale(2.0, 2.0)
+  let prepended = base.prepend_translation(10.0, 0.0)
+  let appended = base.append_translation(10.0, 0.0)
+  let (x1, y1) = prepended.apply_to_point(1.0, 0.0)
+  let (x2, y2) = appended.apply_to_point(1.0, 0.0)
+  assert_true(approx_eq(x1, 12.0))
+  assert_true(approx_eq(y1, 0.0))
+  assert_true(approx_eq(x2, 22.0))
+  assert_true(approx_eq(y2, 0.0))
 }
 
-// Test operator overloading - subtraction
+// Test direct translation update API
 
 ///|
-test "Transform - operator works correctly" {
-  let t1 = Transform::new(a=5.0, b=4.0, c=3.0, d=2.0, tx=1.0, ty=0.0)
-  let t2 = Transform::new(a=1.0, b=1.0, c=1.0, d=1.0, tx=1.0, ty=1.0)
-  let result = t1 - t2
-  let expected = Transform::new(a=4.0, b=3.0, c=2.0, d=1.0, tx=0.0, ty=-1.0)
-  assert_true(transform_approx_eq(result, expected))
+test "Transform::with_translation updates translation only" {
+  let base = Transform::new(a=1.2, b=0.3, c=0.4, d=1.5, tx=9.0, ty=8.0)
+  let updated = base.with_translation(3.0, 4.0)
+  assert_true(approx_eq(updated.a, 1.2))
+  assert_true(approx_eq(updated.b, 0.3))
+  assert_true(approx_eq(updated.c, 0.4))
+  assert_true(approx_eq(updated.d, 1.5))
+  assert_true(approx_eq(updated.tx, 3.0))
+  assert_true(approx_eq(updated.ty, 4.0))
 }
 
 // Test get/set translation
@@ -422,7 +511,7 @@ test "Transform get/set translation works correctly" {
   let (tx, ty) = transform.get_translation()
   assert_true(approx_eq(tx, 0.0))
   assert_true(approx_eq(ty, 0.0))
-  let new_transform = transform.translate(10.0, 20.0)
+  let new_transform = transform.prepend_translation(10.0, 20.0)
   let (new_tx, new_ty) = new_transform.get_translation()
   assert_true(approx_eq(new_tx, 10.0))
   assert_true(approx_eq(new_ty, 20.0))
@@ -441,7 +530,7 @@ test "Transform get/set scale works correctly" {
   let (sx, sy) = transform.get_scale()
   assert_true(approx_eq(sx, 1.0))
   assert_true(approx_eq(sy, 1.0))
-  let new_transform = transform.scale(2.0, 3.0)
+  let new_transform = transform.prepend_scale(2.0, 3.0)
   let (new_sx, new_sy) = new_transform.get_scale()
   assert_true(approx_eq(new_sx, 2.0))
   assert_true(approx_eq(new_sy, 3.0))
@@ -457,7 +546,7 @@ test "Transform get/set rotation works correctly" {
   let transform = Transform::from_scale(2.0, 3.0)
   let rotation = transform.get_rotation_rad()
   assert_true(approx_eq(rotation, 0.0))
-  let new_transform = transform.rotate_rad(@cmath.PI / 4.0) // 45 degrees
+  let new_transform = transform.prepend_rotation_rad(@cmath.PI / 4.0) // 45 degrees
   let new_rotation = new_transform.get_rotation_rad()
   assert_true(approx_eq(new_rotation, @cmath.PI / 4.0))
 

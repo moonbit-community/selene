@@ -159,10 +159,10 @@ pub fn Area::on_exit(self : Area, callback : (@entity.Entity) -> Unit) -> Unit {
 /// area entities in the collision system.
 ///
 /// This system iterates through all entities with area components, performs
-/// collision detection using a spatial quadtree query, and manages entity
+/// collision detection using Rapier 2D spatial queries, and manages entity
 /// enter/exit events. For each area entity, it:
 ///
-/// 1. Queries the quadtree for potential colliding entities within the area's
+/// 1. Queries Rapier 2D for potential colliding entities within the area's
 /// bounding box
 /// 2. Performs precise collision detection between the area and other entities
 /// 3. Filters entities based on the area's collision mask
@@ -183,6 +183,7 @@ pub fn Area::on_exit(self : Area, callback : (@entity.Entity) -> Unit) -> Unit {
 /// ```
 ///
 pub fn area_collide_system(_delta : Double) -> Unit {
+  let world_index = build_world_rapier_index()
   for e in @entity.iter_entities() {
     guard areas.get(e) is Some(area) else { continue }
     guard @position.positions.get(e) is Some(position)
@@ -192,27 +193,19 @@ pub fn area_collide_system(_delta : Double) -> Unit {
       size: @math.Vec2D(width, height),
       position: position.0 + offset,
     }
-    let new_contains = Set::new()
-    let entities = quadtree_query(box)
-    for entity in entities {
-      guard entity.is_alive() else { continue }
-      guard collision_layers.get(entity) is Some(other_layer) else { continue }
-      guard shapes.get(entity) is Some(other_shape) else { continue }
-      guard other_shape
-        is Rect(size=Vec2D(other_width, other_height), offset=other_offset)
-      guard @position.positions.get(entity) is Some(other_position)
-      let other_box = @math.Rect::{
-        size: @math.Vec2D(other_width, other_height),
-        position: other_position.0 + other_offset,
+    let new_contains = rapier_query_rect_entities(world_index, box, fn(entity) {
+      guard entity != e else { return false }
+      if collision_layers.get(entity) is Some(other_layer) {
+        area.mask.contains(other_layer)
+      } else {
+        false
       }
-      guard box.intersects(other_box) else { continue }
-      guard area.mask.contains(other_layer) else { continue }
-      new_contains.add(entity)
-      if area.contains.contains(entity) {
-        continue
-      }
-      for callback in area.on_enter_callbacks {
-        callback(entity)
+    })
+    for entity in new_contains {
+      if !area.contains.contains(entity) {
+        for callback in area.on_enter_callbacks {
+          callback(entity)
+        }
       }
     }
     for entity in area.contains {

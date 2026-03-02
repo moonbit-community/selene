@@ -223,8 +223,8 @@ pub fn Pickable::on_just_released(
 ///
 /// 1. First, it processes UI entities from the `@ui.uis` collection without
 /// camera offset
-/// 2. Second, it queries world entities using a spatial quadtree and processes
-/// them with camera offset applied
+/// 2. Second, it queries world entities using Rapier 2D spatial queries and
+/// processes them with camera offset applied
 ///
 /// Parameters:
 ///
@@ -250,47 +250,39 @@ pub fn Pickable::on_just_released(
 pub fn pickable_click_system(_delta : Double) -> Unit {
   let mouse_screen = @inputs.mouse.pos
   let camera_pos = @camera.get_position()
-  let world_box = @math.Rect::{
-    size: @math.Vec2D(1.0, 1.0),
-    position: @system.screen_to_world(mouse_screen, camera_pos),
-  }
-  for e, ui in @ui.uis {
-    guard e.is_alive() else { continue }
+  let world_mouse = @system.screen_to_world(mouse_screen, camera_pos)
+  let world_index = build_world_rapier_index()
+  let ui_virtual_index = build_ui_rapier_index(Virtual)
+  let ui_screen_index = build_ui_rapier_index(Screen)
+
+  let mouse_ui_virtual = @system.screen_to_ui_virtual(mouse_screen)
+  let virtual_hits = rapier_query_point_entities(
+    ui_virtual_index,
+    mouse_ui_virtual,
+    fn(entity) { pickables.contains(entity) },
+  )
+  for e in virtual_hits {
     guard pickables.get(e) is Some(pick) else { continue }
-    guard @position.positions.get(e) is Some(position) else { continue }
-    guard shapes.get(e) is Some(shape) else { continue }
-    guard shape is Rect(size=Vec2D(width, height), offset~)
-    let mouse_pos = match ui.space {
-      Virtual => @system.screen_to_ui_virtual(mouse_screen)
-      Screen => mouse_screen
-    }
-    let ui_box = @math.Rect::{
-      size: @math.Vec2D(1.0, 1.0),
-      position: mouse_pos,
-    }
-    let area_box = @math.Rect::{
-      size: @math.Vec2D(width, height),
-      position: position.0 + offset,
-    }
-    if !ui_box.intersects(area_box) {
-      continue
-    }
     dispatch_callbacks(pick)
   }
-  let entities = quadtree_query(world_box)
-  for e in entities {
-    guard e.is_alive() else { continue }
+
+  let screen_hits = rapier_query_point_entities(ui_screen_index, mouse_screen, fn(
+    entity,
+  ) {
+    pickables.contains(entity)
+  })
+  for e in screen_hits {
     guard pickables.get(e) is Some(pick) else { continue }
-    guard @position.positions.get(e) is Some(position) else { continue }
-    guard shapes.get(e) is Some(shape) else { continue }
-    guard shape is Rect(size=Vec2D(width, height), offset~)
-    let area_box = @math.Rect::{
-      size: @math.Vec2D(width, height),
-      position: position.0 + offset,
-    }
-    if !world_box.intersects(area_box) {
-      continue
-    }
+    dispatch_callbacks(pick)
+  }
+
+  let world_hits = rapier_query_point_entities(world_index, world_mouse, fn(
+    entity,
+  ) {
+    pickables.contains(entity)
+  })
+  for e in world_hits {
+    guard pickables.get(e) is Some(pick) else { continue }
     dispatch_callbacks(pick)
   }
 }

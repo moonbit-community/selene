@@ -1,4 +1,6 @@
 import {
+  "Milky2018/moon_rapier/collision",
+  "Milky2018/moon_rapier/rapier_full",
   "Milky2018/selene/entity",
   "Milky2018/selene/math",
   "Milky2018/selene/position",
@@ -11,5 +13,4 @@ import {
   "Milky2018/selene/render",
   "moonbitlang/core/cmp",
   "moonbitlang/core/set",
-  "moonbitlang/core/list",
 }

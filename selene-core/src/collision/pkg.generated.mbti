@@ -2,6 +2,7 @@
 package "Milky2018/selene/collision"
 
 import {
+  "Milky2018/moon_rapier/dynamics",
   "Milky2018/selene/entity",
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
@@ -31,10 +32,6 @@ pub fn move_system(Double) -> Unit
 pub fn pickable_click_system(Double) -> Unit
 
 pub let pickables : Map[@entity.Entity, Pickable]
-
-pub fn quadtree_clear_system(Double) -> Unit
-
-pub fn quadtree_render_system(Double) -> Unit
 
 pub let real_velocities : Map[@entity.Entity, @velocity.Velocity]
 
@@ -81,6 +78,13 @@ pub fn Pickable::on_just_pressed(Self, (@inputs.MouseButton) -> Unit) -> Unit
 pub fn Pickable::on_just_released(Self, (@inputs.MouseButton) -> Unit) -> Unit
 pub fn Pickable::on_pressed(Self, (@inputs.MouseButton) -> Unit) -> Unit
 pub fn Pickable::on_released(Self, (@inputs.MouseButton) -> Unit) -> Unit
+
+pub(all) struct RapierSpatialIndex {
+  bodies : @dynamics.RigidBodySet
+  colliders : @Milky2018/moon_rapier/collision.ColliderSet
+  query : @Milky2018/moon_rapier/collision.QueryPipeline
+  collider_entities : Map[Int, @entity.Entity]
+}
 
 // Type aliases
 
