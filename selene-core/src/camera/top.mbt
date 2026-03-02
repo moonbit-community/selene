@@ -196,8 +196,7 @@ let camera : Camera = {
 pub fn camera_system(_delta : Double) -> Unit {
   guard camera.attached_entity is Some(e) else { return }
   guard @position.positions.get(e) is Some(pos) else { return }
-  let zoom = @backend.get_zoom()
-  let viewport_size = @backend.get_canvas_size() * Vec2D(1 / zoom, 1 / zoom)
+  let viewport_size = @system.get_viewport_size()
   let target_position = pos.0 -
     viewport_size * @math.Vec2D(0.5, 0.5) +
     camera.offset

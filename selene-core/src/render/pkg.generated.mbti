@@ -14,11 +14,12 @@ pub(all) struct BackendConfig {
   startup : () -> Unit
   render_loop : (Double) -> Unit
   game_loop : (Double) -> Unit
-  canvas_width : Double
-  canvas_height : Double
+  viewport_width : Double
+  viewport_height : Double
+  screen_width : Double
+  screen_height : Double
   fps : UInt
   image_smooth : Bool
-  zoom : Double
 }
 
 pub(all) struct CircleDrawCommand {

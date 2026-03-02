@@ -370,17 +370,28 @@ fn render_animation(
   animation : Animation,
   current_frame : Double,
   pos : @math.Vec2D,
+  scale_with_zoom : Bool,
   visible : Bool,
   delta : Double,
 ) -> Double {
   let frame = animation.frames[current_frame.to_int()]
   if visible {
+    let size = if scale_with_zoom {
+      @system.scale_vec2(frame.size)
+    } else {
+      frame.size
+    }
+    let transform = if scale_with_zoom {
+      @system.scale_transform_translation(animation.transform)
+    } else {
+      animation.transform
+    }
     @backend.draw_image({
       path: frame.sprite_path,
-      destination: @math.Rect::{ position: pos, size: frame.size },
+      destination: @math.Rect::{ position: pos, size },
       source: Some({ position: frame.offset, size: frame.size }),
       repeat: NoRepeat,
-      transform: animation.transform,
+      transform,
     })
   }
   let mut new_frame = current_frame + animation.fps * delta

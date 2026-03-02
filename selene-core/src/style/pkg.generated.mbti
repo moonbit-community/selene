@@ -7,10 +7,13 @@ import {
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
   "Milky2018/selene/sprite",
+  "Milky2018/selene/ui",
 }
 
 // Values
-pub fn add_widget(@entity.Entity, sprite? : (Int) -> @sprite.Sprite, on_just_pressed? : (@inputs.MouseButton) -> Unit, shape? : @collision.CollisionShape, size_plan? : SizePlan, flex? : Flex, h_padding? : Double, v_padding? : Double, h_offset? : Double, v_offset? : Double) -> @entity.Entity
+pub fn add_widget(@entity.Entity, sprite? : (Int) -> @sprite.Sprite, on_just_pressed? : (@inputs.MouseButton) -> Unit, shape? : @collision.CollisionShape, ui_space? : @ui.UiSpace, size_plan? : SizePlan, flex? : Flex, h_padding? : Double, v_padding? : Double, h_offset? : Double, v_offset? : Double) -> @entity.Entity
+
+pub let screen_pixel_root : @entity.Entity
 
 pub let screen_root : @entity.Entity
 

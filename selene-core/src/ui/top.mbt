@@ -13,11 +13,19 @@
 // limitations under the License.
 
 ///|
-pub(all) struct Ui {}
+pub(all) enum UiSpace {
+  Virtual
+  Screen
+}
 
 ///|
-pub fn Ui::new() -> Ui {
-  Ui::{  }
+pub(all) struct Ui {
+  space : UiSpace
+}
+
+///|
+pub fn Ui::new(space? : UiSpace = Virtual) -> Ui {
+  Ui::{ space, }
 }
 
 ///|

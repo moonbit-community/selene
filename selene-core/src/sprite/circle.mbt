@@ -89,13 +89,16 @@ pub fn ColorCircle::new(
 fn render_color_circle(
   color_circle : ColorCircle,
   position : @math.Vec2D,
+  scale_with_zoom : Bool,
 ) -> Unit {
+  let radius = if scale_with_zoom {
+    @system.scale_value(color_circle.radius)
+  } else {
+    color_circle.radius
+  }
   @backend.draw_circle({
-    center: @math.Vec2D(
-      position[X] + color_circle.radius,
-      position[Y] + color_circle.radius,
-    ),
-    radius: color_circle.radius,
+    center: @math.Vec2D(position[X] + radius, position[Y] + radius),
+    radius,
     fill_color: parse_color(color_circle.color),
     stroke_color: parse_optional_color(color_circle.stroke_color),
   })

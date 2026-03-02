@@ -16,11 +16,14 @@
 pub let screen_root : @entity.Entity = @entity.Entity::new()
 
 ///|
+pub let screen_pixel_root : @entity.Entity = @entity.Entity::new()
+
+///|
 fn init {
   styles.set(
     screen_root,
     Style::new(
-      size_plan=Sized(@backend.get_canvas_size()),
+      size_plan=Sized(@math.Vec2D::zero()),
       flex=Overlap,
       h_padding=0.0,
       v_padding=0.0,
@@ -29,5 +32,18 @@ fn init {
     ),
   )
   @position.positions.set(screen_root, @math.Vec2D::zero())
-  @ui.uis.set(screen_root, @ui.Ui::new())
+  @ui.uis.set(screen_root, @ui.Ui::new(space=Virtual))
+  styles.set(
+    screen_pixel_root,
+    Style::new(
+      size_plan=Sized(@math.Vec2D::zero()),
+      flex=Overlap,
+      h_padding=0.0,
+      v_padding=0.0,
+      h_offset=0.0,
+      v_offset=0.0,
+    ),
+  )
+  @position.positions.set(screen_pixel_root, @math.Vec2D::zero())
+  @ui.uis.set(screen_pixel_root, @ui.Ui::new(space=Screen))
 }

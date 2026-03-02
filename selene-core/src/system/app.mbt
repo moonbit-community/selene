@@ -13,10 +13,10 @@
 // limitations under the License.
 
 ///|
-const DEFAULT_CANVAS_HEIGHT = 256.0
+const DEFAULT_VIEWPORT_HEIGHT = 256.0
 
 ///|
-const DEFAULT_CANVAS_WIDTH = 512.0
+const DEFAULT_VIEWPORT_WIDTH = 512.0
 
 ///|
 const DEFAULT_FPS : UInt = 60
@@ -32,8 +32,8 @@ const DEFAULT_FPS : UInt = 60
 ///
 /// Fields:
 ///
-/// * `canvas_height` : Height of the rendering canvas in pixels.
-/// * `canvas_width` : Width of the rendering canvas in pixels.
+/// * `viewport_height` : Height of the virtual viewport in pixels.
+/// * `viewport_width` : Width of the virtual viewport in pixels.
 /// * `zoom` : Zoom factor applied to the canvas rendering.
 /// * `image_smooth` : Whether image smoothing is enabled during rendering.
 /// * `fps` : Target frames per second for the application.
@@ -45,20 +45,20 @@ const DEFAULT_FPS : UInt = 60
 ///
 /// ```moonbit nocheck
 /// let app = @system.App::new()
-///   .with_canvas_width(800.0)
-///   .with_canvas_height(600.0)
+///   .with_viewport_width(800.0)
+///   .with_viewport_height(600.0)
 ///   .with_fps(30)
 ///   .with_zoom(2.0)
 ///   .with_image_smooth(false)
 ///
-/// inspect(app.canvas_width, content="800")
+/// inspect(app.viewport_width, content="800")
 /// inspect(app.fps, content="30")
 /// inspect(app.zoom, content="2")
 /// ```
 ///
 pub(all) struct App {
-  canvas_height : Double
-  canvas_width : Double
+  viewport_height : Double
+  viewport_width : Double
   zoom : Double
   image_smooth : Bool
   fps : UInt
@@ -69,16 +69,16 @@ pub(all) struct App {
 ///|
 /// Creates a new `App` instance with default configuration values.
 ///
-/// Returns a new `App` with default canvas dimensions (512x256 pixels), 60 FPS
-/// target frame rate, 1.0 zoom level, image smoothing enabled, and empty
+/// Returns a new `App` with default viewport dimensions (512x256 pixels), 60
+/// FPS target frame rate, 1.0 zoom level, image smoothing enabled, and empty
 /// collections for systems and plugins.
 ///
 /// Example:
 ///
 /// ```moonbit nocheck
 /// let app = @system.App::new()
-/// inspect(app.canvas_width, content="512")
-/// inspect(app.canvas_height, content="256")
+/// inspect(app.viewport_width, content="512")
+/// inspect(app.viewport_height, content="256")
 /// inspect(app.fps, content="60")
 /// inspect(app.zoom, content="1")
 /// inspect(app.image_smooth, content="true")
@@ -86,8 +86,8 @@ pub(all) struct App {
 ///
 pub fn App::new() -> App {
   {
-    canvas_height: DEFAULT_CANVAS_HEIGHT,
-    canvas_width: DEFAULT_CANVAS_WIDTH,
+    viewport_height: DEFAULT_VIEWPORT_HEIGHT,
+    viewport_width: DEFAULT_VIEWPORT_WIDTH,
     zoom: 1.0,
     image_smooth: true,
     fps: DEFAULT_FPS,
@@ -123,49 +123,50 @@ pub fn App::with_image_smooth(self : App, image_smooth : Bool) -> App {
 }
 
 ///|
-/// Configures the canvas height for the application.
+/// Configures the viewport height for the application.
 ///
 /// Parameters:
 ///
 /// * `self` : The `App` instance to configure.
-/// * `height` : The desired height of the rendering canvas in pixels.
+/// * `height` : The desired height of the virtual viewport in pixels.
 ///
-/// Returns a new `App` instance with the updated canvas height configuration.
+/// Returns a new `App` instance with the updated viewport height
+/// configuration.
 ///
 /// Example:
 ///
 /// ```moonbit nocheck
 /// let app = @system.App::new()
-///   .with_canvas_height(600.0)
+///   .with_viewport_height(600.0)
 ///
-/// inspect(app.canvas_height, content="600")
+/// inspect(app.viewport_height, content="600")
 /// ```
 ///
-pub fn App::with_canvas_height(self : App, height : Double) -> App {
-  { ..self, canvas_height: height }
+pub fn App::with_viewport_height(self : App, height : Double) -> App {
+  { ..self, viewport_height: height }
 }
 
 ///|
-/// Configures the canvas width for the application.
+/// Configures the viewport width for the application.
 ///
 /// Parameters:
 ///
 /// * `self` : The `App` instance to configure.
-/// * `width` : The desired width of the rendering canvas in pixels.
+/// * `width` : The desired width of the virtual viewport in pixels.
 ///
-/// Returns a new `App` instance with the updated canvas width configuration.
+/// Returns a new `App` instance with the updated viewport width configuration.
 ///
 /// Example:
 ///
 /// ```moonbit nocheck
 /// let app = @system.App::new()
-///   .with_canvas_width(800.0)
+///   .with_viewport_width(800.0)
 ///
-/// inspect(app.canvas_width, content="800")
+/// inspect(app.viewport_width, content="800")
 /// ```
 ///
-pub fn App::with_canvas_width(self : App, width : Double) -> App {
-  { ..self, canvas_width: width }
+pub fn App::with_viewport_width(self : App, width : Double) -> App {
+  { ..self, viewport_width: width }
 }
 
 ///|
@@ -303,6 +304,12 @@ pub fn App::add_system(
 ///   and settings.
 ///
 pub fn App::run(self : App) -> Unit {
+  if self.zoom <= 0.0 {
+    abort("App::with_zoom must be a positive number")
+  }
+  configure_display(self.viewport_width, self.viewport_height, self.zoom)
+  let screen_width = self.viewport_width * self.zoom
+  let screen_height = self.viewport_height * self.zoom
   for plugin in self.plugins {
     plugin(self)
   }
@@ -343,11 +350,12 @@ pub fn App::run(self : App) -> Unit {
     startup,
     render_loop,
     game_loop,
-    canvas_width: self.canvas_width,
-    canvas_height: self.canvas_height,
+    viewport_width: self.viewport_width,
+    viewport_height: self.viewport_height,
+    screen_width,
+    screen_height,
     fps: self.fps,
     image_smooth: self.image_smooth,
-    zoom: self.zoom,
   })
   @backend.register_key_events(@inputs.pressed_keys)
   @backend.register_mouse_events(@inputs.mouse, @inputs.mouse_movement)

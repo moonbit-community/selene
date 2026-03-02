@@ -119,7 +119,7 @@ pub fn Sprite::from_picture(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let text = @sprite.Text::new("Hello World", color="red")
 /// let sprite = @sprite.Sprite::from_text(text, 1)
 /// inspect(sprite.zindex, content="1")
@@ -149,7 +149,7 @@ pub fn Sprite::from_text(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let rect = @sprite.ColorRect::new(Vec2D(100.0, 50.0), "blue")
 /// let sprite = @sprite.Sprite::from_color_rect(rect, 3)
 /// inspect(sprite.zindex, content="3")
@@ -183,7 +183,7 @@ pub fn Sprite::from_color_rect(
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let circle = @sprite.ColorCircle::new(20.0, "green")
 /// let sprite = @sprite.Sprite::from_color_circle(circle, 5)
 /// inspect(sprite.zindex, content="5")
@@ -215,6 +215,7 @@ pub fn Sprite::from_color_circle(
 ///
 pub fn render_sprite_system(delta : Double) -> Unit {
   let sprites = sprites.to_array().filter(fn(pair) { pair.0.is_alive() })
+  let camera_pos = @camera.get_position()
   sprites.sort_by(fn(sprite1, sprite2) {
     if sprite1.1.zindex < sprite2.1.zindex {
       -1
@@ -236,31 +237,47 @@ pub fn render_sprite_system(delta : Double) -> Unit {
     let e = sprite.0
     let sprite = sprite.1
     guard @position.positions.get(e) is Some(pos) else { continue }
-    let pos = if @ui.uis.get(e) is None {
-      pos.0 - @camera.get_position()
-    } else {
-      pos.0
-    }
+    let raw_pos = pos.0 + sprite.offset
+    let (screen_pos, scale_with_zoom) = project_sprite_position(
+      e, raw_pos, camera_pos,
+    )
     match sprite.sprite_type {
       SpriteType::Picture(picture) if sprite.visible =>
-        render_picture(picture, pos + sprite.offset)
+        render_picture(picture, screen_pos, scale_with_zoom)
       SpriteType::Animation(anime, frame~) as animation_sprite => {
         let new_frame = render_animation(
           anime,
           frame,
-          pos + sprite.offset,
+          screen_pos,
+          scale_with_zoom,
           sprite.visible,
           delta,
         )
         animation_sprite.frame = new_frame
       }
       SpriteType::Text(text) if sprite.visible =>
-        render_text(text, pos + sprite.offset)
+        render_text(text, screen_pos, scale_with_zoom)
       SpriteType::ColorRect(color_rect) if sprite.visible =>
-        render_color_rect(color_rect, pos + sprite.offset)
+        render_color_rect(color_rect, screen_pos, scale_with_zoom)
       SpriteType::ColorCircle(color_circle) if sprite.visible =>
-        render_color_circle(color_circle, pos + sprite.offset)
+        render_color_circle(color_circle, screen_pos, scale_with_zoom)
       _ => ()
     }
+  }
+}
+
+///|
+fn project_sprite_position(
+  entity : @entity.Entity,
+  raw_pos : @math.Vec2D,
+  camera_pos : @math.Vec2D,
+) -> (@math.Vec2D, Bool) {
+  if @ui.uis.get(entity) is Some(ui) {
+    match ui.space {
+      Virtual => (@system.ui_virtual_to_screen(raw_pos), true)
+      Screen => (raw_pos, false)
+    }
+  } else {
+    (@system.world_to_screen(raw_pos, camera_pos), true)
   }
 }

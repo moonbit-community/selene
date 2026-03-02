@@ -248,48 +248,36 @@ pub fn Pickable::on_just_released(
 /// ```
 ///
 pub fn pickable_click_system(_delta : Double) -> Unit {
-  let zoom = @backend.get_zoom()
-  let box = @math.Rect::{
+  let mouse_screen = @inputs.mouse.pos
+  let camera_pos = @camera.get_position()
+  let world_box = @math.Rect::{
     size: @math.Vec2D(1.0, 1.0),
-    position: @inputs.mouse.pos * Vec2D(1 / zoom, 1 / zoom),
+    position: @system.screen_to_world(mouse_screen, camera_pos),
   }
-  for e, _ui in @ui.uis {
+  for e, ui in @ui.uis {
     guard e.is_alive() else { continue }
     guard pickables.get(e) is Some(pick) else { continue }
     guard @position.positions.get(e) is Some(position) else { continue }
     guard shapes.get(e) is Some(shape) else { continue }
     guard shape is Rect(size=Vec2D(width, height), offset~)
+    let mouse_pos = match ui.space {
+      Virtual => @system.screen_to_ui_virtual(mouse_screen)
+      Screen => mouse_screen
+    }
+    let ui_box = @math.Rect::{
+      size: @math.Vec2D(1.0, 1.0),
+      position: mouse_pos,
+    }
     let area_box = @math.Rect::{
       size: @math.Vec2D(width, height),
       position: position.0 + offset,
     }
-    if !box.intersects(area_box) {
+    if !ui_box.intersects(area_box) {
       continue
     }
-    for button in [@inputs.MouseButton::Left, Right, Middle] {
-      if @inputs.is_mouse_pressed(button) {
-        for callback in pick.on_pressed_callbacks {
-          callback(button)
-        }
-      }
-      if @inputs.is_mouse_released(button) {
-        for callback in pick.on_released_callbacks {
-          callback(button)
-        }
-      }
-      if @inputs.is_mouse_just_pressed(button) {
-        for callback in pick.on_just_pressed_callbacks {
-          callback(button)
-        }
-      }
-      if @inputs.is_mouse_just_released(button) {
-        for callback in pick.on_just_released_callbacks {
-          callback(button)
-        }
-      }
-    }
+    dispatch_callbacks(pick)
   }
-  let entities = quadtree_query(box)
+  let entities = quadtree_query(world_box)
   for e in entities {
     guard e.is_alive() else { continue }
     guard pickables.get(e) is Some(pick) else { continue }
@@ -300,29 +288,34 @@ pub fn pickable_click_system(_delta : Double) -> Unit {
       size: @math.Vec2D(width, height),
       position: position.0 + offset,
     }
-    if !box.shift(@camera.get_position()).intersects(area_box) {
+    if !world_box.intersects(area_box) {
       continue
     }
-    for button in [@inputs.MouseButton::Left, Right, Middle] {
-      if @inputs.is_mouse_pressed(button) {
-        for callback in pick.on_pressed_callbacks {
-          callback(button)
-        }
+    dispatch_callbacks(pick)
+  }
+}
+
+///|
+fn dispatch_callbacks(pick : Pickable) -> Unit {
+  for button in [@inputs.MouseButton::Left, Right, Middle] {
+    if @inputs.is_mouse_pressed(button) {
+      for callback in pick.on_pressed_callbacks {
+        callback(button)
       }
-      if @inputs.is_mouse_released(button) {
-        for callback in pick.on_released_callbacks {
-          callback(button)
-        }
+    }
+    if @inputs.is_mouse_released(button) {
+      for callback in pick.on_released_callbacks {
+        callback(button)
       }
-      if @inputs.is_mouse_just_pressed(button) {
-        for callback in pick.on_just_pressed_callbacks {
-          callback(button)
-        }
+    }
+    if @inputs.is_mouse_just_pressed(button) {
+      for callback in pick.on_just_pressed_callbacks {
+        callback(button)
       }
-      if @inputs.is_mouse_just_released(button) {
-        for callback in pick.on_just_released_callbacks {
-          callback(button)
-        }
+    }
+    if @inputs.is_mouse_just_released(button) {
+      for callback in pick.on_just_released_callbacks {
+        callback(button)
       }
     }
   }

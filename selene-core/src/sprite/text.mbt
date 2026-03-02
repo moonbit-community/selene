@@ -54,10 +54,16 @@ pub fn Text::new(
 }
 
 ///|
-fn render_text(text : Text, position : @math.Vec2D) -> Unit {
-  @backend.draw_text({
-    text: text.content,
-    position,
-    style: parse_text_style(text.font, text.color, text.align, text.baseline),
-  })
+fn render_text(
+  text : Text,
+  position : @math.Vec2D,
+  scale_with_zoom : Bool,
+) -> Unit {
+  let style = parse_text_style(text.font, text.color, text.align, text.baseline)
+  let style = if scale_with_zoom {
+    { ..style, size: @system.scale_value(style.size) }
+  } else {
+    style
+  }
+  @backend.draw_text({ text: text.content, position, style })
 }

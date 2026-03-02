@@ -2,4 +2,5 @@ import {
   "Milky2018/selene/inputs",
   "Milky2018/selene/backend",
   "Milky2018/selene/render",
+  "Milky2018/selene/math",
 }

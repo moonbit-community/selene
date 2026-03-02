@@ -36,19 +36,21 @@ fn rgba(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
 /// if the collision shape is not a rectangle.
 ///
 pub fn debug_collide_system(_delta : Double) -> Unit {
+  let camera_pos = @camera.get_position()
   for e, collide in colliders {
     guard e.is_alive() else { continue }
     guard collide.active else { continue }
     guard @position.positions.get(e) is Some(pos) else { continue }
     guard shapes.get(e) is Some(shape)
     guard shape is Rect(size=Vec2D(width, height), offset~)
-    let pos = if @ui.uis.get(e) is Some(_) {
-      pos.0 + offset
-    } else {
-      pos.0 + offset - @camera.get_position()
-    }
+    let rect = to_screen_rect(
+      e,
+      pos.0 + offset,
+      @math.Vec2D(width, height),
+      camera_pos,
+    )
     @backend.draw_rect({
-      rect: @math.Rect::{ position: pos, size: @math.Vec2D(width, height) },
+      rect,
       fill_color: rgba(255U, 0U, 0U, 0.5),
       stroke_color: None,
     })
@@ -58,13 +60,14 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
     guard @position.positions.get(e) is Some(pos) else { continue }
     guard shapes.get(e) is Some(shape) else { continue }
     guard shape is Rect(size=Vec2D(width, height), offset~)
-    let pos = if @ui.uis.get(e) is Some(_) {
-      pos.0 + offset
-    } else {
-      pos.0 + offset - @camera.get_position()
-    }
+    let rect = to_screen_rect(
+      e,
+      pos.0 + offset,
+      @math.Vec2D(width, height),
+      camera_pos,
+    )
     @backend.draw_rect({
-      rect: @math.Rect::{ position: pos, size: @math.Vec2D(width, height) },
+      rect,
       fill_color: rgba(0U, 0U, 255U, 0.5),
       stroke_color: None,
     })
@@ -74,15 +77,40 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
     guard @position.positions.get(e) is Some(pos) else { continue }
     guard shapes.get(e) is Some(shape) else { continue }
     guard shape is Rect(size=Vec2D(width, height), offset~)
-    let pos = if @ui.uis.get(e) is Some(_) {
-      pos.0 + offset
-    } else {
-      pos.0 + offset - @camera.get_position()
-    }
+    let rect = to_screen_rect(
+      e,
+      pos.0 + offset,
+      @math.Vec2D(width, height),
+      camera_pos,
+    )
     @backend.draw_rect({
-      rect: @math.Rect::{ position: pos, size: @math.Vec2D(width, height) },
+      rect,
       fill_color: rgba(0U, 255U, 0U, 0.5),
       stroke_color: None,
     })
+  }
+}
+
+///|
+fn to_screen_rect(
+  entity : @entity.Entity,
+  world_or_ui_pos : @math.Vec2D,
+  size : @math.Vec2D,
+  camera_pos : @math.Vec2D,
+) -> @math.Rect {
+  if @ui.uis.get(entity) is Some(ui) {
+    match ui.space {
+      Virtual =>
+        @math.Rect::{
+          position: @system.ui_virtual_to_screen(world_or_ui_pos),
+          size: @system.scale_vec2(size),
+        }
+      Screen => @math.Rect::{ position: world_or_ui_pos, size }
+    }
+  } else {
+    @math.Rect::{
+      position: @system.world_to_screen(world_or_ui_pos, camera_pos),
+      size: @system.scale_vec2(size),
+    }
   }
 }

@@ -14,8 +14,6 @@
 
 ///|
 priv struct RaylibBackend {
-  mut canvas_size : @smath.Vec2D
-  mut zoom : Double
   mut time_scale : Double
   mut image_smooth : Bool
   mut realtime_delta : Double
@@ -35,8 +33,6 @@ priv struct RaylibBackend {
 
 ///|
 let backend : RaylibBackend = {
-  canvas_size: @smath.Vec2D(512.0, 256.0),
-  zoom: 1.0,
   time_scale: 1.0,
   image_smooth: true,
   realtime_delta: 0.016,
@@ -61,15 +57,6 @@ fn read_float(bytes : Bytes, off : Int) -> Float {
     (bytes[off + 2].to_int() << 16) |
     (bytes[off + 3].to_int() << 24)
   Float::reinterpret_from_int(bits)
-}
-
-///|
-fn safe_zoom() -> Double {
-  if backend.zoom <= 0.0 {
-    1.0
-  } else {
-    backend.zoom
-  }
 }
 
 ///|
@@ -278,11 +265,12 @@ fn sync_key_events() -> Unit {
 fn sync_mouse_events() -> Unit {
   if backend.mouse_state is Some(mouse) &&
     backend.mouse_movement is Some(movement) {
-    let zoom = safe_zoom()
     let pos = @raylib.get_mouse_position() |> to_selene_vec2
     let delta = @raylib.get_mouse_delta() |> to_selene_vec2
-    mouse.pos = @smath.Vec2D(pos[X] / zoom, pos[Y] / zoom)
-    movement.movement = @smath.Vec2D(delta[X] / zoom, delta[Y] / zoom)
+    // Keep raw screen-space mouse coordinates consistent with canvas backend.
+    // Core click systems are responsible for applying zoom conversion.
+    mouse.pos = @smath.Vec2D(pos[X], pos[Y])
+    movement.movement = @smath.Vec2D(delta[X], delta[Y])
     mouse.left_button = @raylib.is_mouse_button_down(@raylib.MouseButtonLeft)
     mouse.right_button = @raylib.is_mouse_button_down(@raylib.MouseButtonRight)
     mouse.middle_button = @raylib.is_mouse_button_down(
@@ -340,13 +328,13 @@ fn cleanup_resources() -> Unit {
 
 ///|
 pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
-  backend.canvas_size = @smath.Vec2D(config.canvas_width, config.canvas_height)
-  backend.zoom = config.zoom
+  ignore(config.viewport_width)
+  ignore(config.viewport_height)
   backend.image_smooth = config.image_smooth
   fn() {
     @raylib.init_window(
-      config.canvas_width.to_int(),
-      config.canvas_height.to_int(),
+      config.screen_width.to_int(),
+      config.screen_height.to_int(),
       "Selene (raylib)",
     )
     @raylib.set_target_fps(config.fps.reinterpret_as_int())
@@ -407,11 +395,10 @@ pub fn lock_mouse(locked : Ref[Bool]) -> Unit {
 ///|
 pub fn draw_text(command : @render.TextDrawCommand) -> Unit {
   let font = get_font_by_family(command.style.family)
-  let zoom = safe_zoom()
   let measured = @raylib.measure_text_ex(
     font,
     command.text,
-    to_float(command.style.size * zoom),
+    to_float(command.style.size),
     0.0,
   )
   let text_width = vector2_x(measured)
@@ -420,19 +407,19 @@ pub fn draw_text(command : @render.TextDrawCommand) -> Unit {
   let mut y = command.position[Y]
   match command.style.align {
     Left => ()
-    Center => x -= text_width / (2.0 * zoom)
-    Right => x -= text_width / zoom
+    Center => x -= text_width / 2.0
+    Right => x -= text_width
   }
   match command.style.baseline {
     Top => ()
-    Center => y -= text_height / (2.0 * zoom)
-    Bottom => y -= text_height / zoom
+    Center => y -= text_height / 2.0
+    Bottom => y -= text_height
   }
   @raylib.draw_text_ex(
     font,
     command.text,
-    to_ray_vector2(x * zoom, y * zoom),
-    to_float(command.style.size * zoom),
+    to_ray_vector2(x, y),
+    to_float(command.style.size),
     0.0,
     to_ray_color(command.style.color),
   )
@@ -440,12 +427,11 @@ pub fn draw_text(command : @render.TextDrawCommand) -> Unit {
 
 ///|
 pub fn draw_rect(command : @render.RectDrawCommand) -> Unit {
-  let zoom = safe_zoom()
   let rect = to_ray_rect(
-    command.rect.position[X] * zoom,
-    command.rect.position[Y] * zoom,
-    command.rect.size[X] * zoom,
-    command.rect.size[Y] * zoom,
+    command.rect.position[X],
+    command.rect.position[Y],
+    command.rect.size[X],
+    command.rect.size[Y],
   )
   @raylib.draw_rectangle_rec(rect, to_ray_color(command.fill_color))
   if command.stroke_color is Some(stroke_color) {
@@ -455,12 +441,8 @@ pub fn draw_rect(command : @render.RectDrawCommand) -> Unit {
 
 ///|
 pub fn draw_circle(command : @render.CircleDrawCommand) -> Unit {
-  let zoom = safe_zoom()
-  let center = to_ray_vector2(
-    command.center[X] * zoom,
-    command.center[Y] * zoom,
-  )
-  let radius = to_float(command.radius * zoom)
+  let center = to_ray_vector2(command.center[X], command.center[Y])
+  let radius = to_float(command.radius)
   @raylib.draw_circle_v(center, radius, to_ray_color(command.fill_color))
   if command.stroke_color is Some(stroke_color) {
     @raylib.draw_circle_lines_v(center, radius, to_ray_color(stroke_color))
@@ -469,12 +451,11 @@ pub fn draw_circle(command : @render.CircleDrawCommand) -> Unit {
 
 ///|
 pub fn draw_gradient_rect(command : @render.GradientRectDrawCommand) -> Unit {
-  let zoom = safe_zoom()
   let rect = to_ray_rect(
-    command.rect.position[X] * zoom,
-    command.rect.position[Y] * zoom,
-    command.rect.size[X] * zoom,
-    command.rect.size[Y] * zoom,
+    command.rect.position[X],
+    command.rect.position[Y],
+    command.rect.size[X],
+    command.rect.size[Y],
   )
   @raylib.draw_rectangle_gradient_ex(
     rect,
@@ -504,16 +485,6 @@ pub fn play_audio(
     @raylib.set_sound_volume(sound, to_float(volume))
     @raylib.play_sound(sound)
   }
-}
-
-///|
-pub fn get_canvas_size() -> @smath.Vec2D {
-  backend.canvas_size
-}
-
-///|
-pub fn get_zoom() -> Double {
-  backend.zoom
 }
 
 ///|

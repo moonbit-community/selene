@@ -86,8 +86,8 @@ options(
 ```moonbit
 pub fn run() -> Unit {
   @system.App::new()
-  .with_canvas_width(960.0)
-  .with_canvas_height(640.0)
+  .with_viewport_width(480.0)
+  .with_viewport_height(320.0)
   .with_image_smooth(false)
   .with_zoom(2.0)
   .with_fps(60)

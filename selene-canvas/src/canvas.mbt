@@ -16,8 +16,6 @@
 struct CanvasBackend {
   canvas : @dom.HTMLCanvasElement
   context : @dom.CanvasRenderingContext2D
-  mut viewport_size : @smath.Vec2D
-  mut zoom : Double
   mut time_scale : Double
   mouse_movement : Ref[@inputs.MouseMovement?]
 }
@@ -30,14 +28,7 @@ pub fn CanvasBackend::new() -> CanvasBackend {
     .to_html_canvas_element()
     .unwrap()
   let context = canvas.get_context("2d").to0().unwrap()
-  {
-    context,
-    canvas,
-    viewport_size: @smath.Vec2D::zero(),
-    time_scale: 1.0,
-    mouse_movement: Ref::new(None),
-    zoom: 1.0,
-  }
+  { context, canvas, time_scale: 1.0, mouse_movement: Ref::new(None) }
 }
 
 ///|
@@ -56,27 +47,25 @@ pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
   let startup = config.startup
   let render_loop = config.render_loop
   let game_loop = config.game_loop
-  let canvas_width = config.canvas_width
-  let canvas_height = config.canvas_height
+  ignore(config.viewport_width)
+  ignore(config.viewport_height)
+  let screen_width = config.screen_width
+  let screen_height = config.screen_height
   let fps = config.fps
   let image_smooth = config.image_smooth
-  let zoom = config.zoom
   if fps > 60 {
     println(
       "Warning: FPS is set above 60. The browser's window only support up to 60 FPS.",
     )
   }
-  canvas_backend.viewport_size = @smath.Vec2D(canvas_width, canvas_height)
-  set_viewport_height(canvas_backend.canvas, canvas_height)
-  set_viewport_width(canvas_backend.canvas, canvas_width)
+  set_viewport_height(canvas_backend.canvas, screen_height)
+  set_viewport_width(canvas_backend.canvas, screen_width)
   set_image_smoothing_enabled(canvas_backend.context, image_smooth)
-  canvas_backend.context.scale(zoom, zoom)
-  canvas_backend.zoom = zoom
   startup()
   schedule_with_fixed_interval(1000 / fps.to_double(), fn(delta) {
     let delta = delta / 1000.0
     // canvas_backend.current_fps = 1.0 / delta
-    canvas_backend.context.clear_rect(0, 0, canvas_width, canvas_height)
+    canvas_backend.context.clear_rect(0, 0, screen_width, screen_height)
     realtime_delta.val = delta
     render_loop(delta * canvas_backend.time_scale)
     game_loop(delta * canvas_backend.time_scale)
@@ -86,16 +75,6 @@ pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
   })
   |> ignore
   return fn() {  }
-}
-
-///|
-pub fn get_canvas_size() -> @smath.Vec2D {
-  canvas_backend.viewport_size
-}
-
-///|
-pub fn get_zoom() -> Double {
-  canvas_backend.zoom
 }
 
 ///|

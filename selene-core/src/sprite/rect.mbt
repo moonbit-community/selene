@@ -29,9 +29,18 @@ pub fn ColorRect::new(
 }
 
 ///|
-fn render_color_rect(color_rect : ColorRect, position : @math.Vec2D) -> Unit {
+fn render_color_rect(
+  color_rect : ColorRect,
+  position : @math.Vec2D,
+  scale_with_zoom : Bool,
+) -> Unit {
+  let size = if scale_with_zoom {
+    @system.scale_vec2(color_rect.size)
+  } else {
+    color_rect.size
+  }
   @backend.draw_rect({
-    rect: @math.Rect::{ position, size: color_rect.size },
+    rect: @math.Rect::{ position, size },
     fill_color: parse_color(color_rect.color),
     stroke_color: parse_optional_color(color_rect.stroke_color),
   })

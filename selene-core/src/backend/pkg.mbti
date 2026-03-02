@@ -16,7 +16,6 @@ package "Milky2018/selene/backend"
 
 import {
   "Milky2018/selene/inputs",
-  "Milky2018/selene/math",
   "Milky2018/selene/render"
 }
 
@@ -39,10 +38,6 @@ fn draw_circle(@render.CircleDrawCommand) -> Unit
 fn draw_gradient_rect(@render.GradientRectDrawCommand) -> Unit
 
 fn play_audio(audio_path~ : String, volume~ : Double, loop_~ : Bool) -> Unit
-
-fn get_canvas_size() -> @math.Vec2D
-
-fn get_zoom() -> Double
 
 fn get_realtime_delta() -> Double
 

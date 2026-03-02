@@ -13,29 +13,16 @@
 // limitations under the License.
 
 ///|
-priv struct DefaultBackend {
-  mut canvas_width : Double
-  mut canvas_height : Double
-  mut zoom : Double
-}
-
-///|
-let default_backend : DefaultBackend = {
-  canvas_width: 32,
-  canvas_height: 32,
-  zoom: 1.0,
-}
-
-///|
 pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
   ignore(config.startup)
   ignore(config.render_loop)
   ignore(config.game_loop)
-  default_backend.canvas_width = config.canvas_width
-  default_backend.canvas_height = config.canvas_height
+  ignore(config.viewport_width)
+  ignore(config.viewport_height)
+  ignore(config.screen_width)
+  ignore(config.screen_height)
   ignore(config.fps)
   ignore(config.image_smooth)
-  default_backend.zoom = config.zoom
   fn() {  }
 }
 
@@ -92,16 +79,6 @@ pub fn play_audio(
   ignore(audio_path)
   ignore(volume)
   ignore(loop_)
-}
-
-///|
-pub fn get_canvas_size() -> @math.Vec2D {
-  Vec2D(default_backend.canvas_width, default_backend.canvas_height)
-}
-
-///|
-pub fn get_zoom() -> Double {
-  default_backend.zoom
 }
 
 ///|

@@ -20,10 +20,9 @@ fn transform_image_point(
   x : Double,
   y : Double,
 ) -> (Float, Float) {
-  let zoom = safe_zoom()
   let world_x = base_x + transform.a * x + transform.c * y + transform.tx
   let world_y = base_y + transform.b * x + transform.d * y + transform.ty
-  (to_float(world_x * zoom), to_float(world_y * zoom))
+  (to_float(world_x), to_float(world_y))
 }
 
 ///|
@@ -55,11 +54,10 @@ fn draw_axis_aligned_textured_quad(
   let y0 = base_y + transform.ty + sy * local_y0
   let x1 = base_x + transform.tx + sx * local_x1
   let y1 = base_y + transform.ty + sy * local_y1
-  let zoom = safe_zoom()
-  let dest_x = @cmp.minimum(x0, x1) * zoom
-  let dest_y = @cmp.minimum(y0, y1) * zoom
-  let dest_w = (x1 - x0).abs() * zoom
-  let dest_h = (y1 - y0).abs() * zoom
+  let dest_x = @cmp.minimum(x0, x1)
+  let dest_y = @cmp.minimum(y0, y1)
+  let dest_w = (x1 - x0).abs()
+  let dest_h = (y1 - y0).abs()
   if dest_w <= 0.0 || dest_h <= 0.0 {
     return
   }

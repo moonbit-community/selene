@@ -14,8 +14,14 @@ pub let uis : Map[@entity.Entity, Ui]
 
 // Types and methods
 pub(all) struct Ui {
+  space : UiSpace
 }
-pub fn Ui::new() -> Self
+pub fn Ui::new(space? : UiSpace) -> Self
+
+pub(all) enum UiSpace {
+  Virtual
+  Screen
+}
 
 // Type aliases
 

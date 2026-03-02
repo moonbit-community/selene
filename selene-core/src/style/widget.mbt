@@ -18,6 +18,7 @@ pub fn add_widget(
   sprite? : (Int) -> @sprite.Sprite,
   on_just_pressed? : (@inputs.MouseButton) -> Unit,
   shape? : @collision.CollisionShape,
+  ui_space? : @ui.UiSpace = @ui.UiSpace::Virtual,
   size_plan? : SizePlan = SizePlan::FromSprite,
   flex? : Flex = Flex::Overlap,
   h_padding? : Double = 0.0,
@@ -26,7 +27,7 @@ pub fn add_widget(
   v_offset? : Double = 0.0,
 ) -> @entity.Entity {
   let child = parent.spawn_child()
-  @ui.uis.set(child, @ui.Ui::new())
+  @ui.uis.set(child, @ui.Ui::new(space=ui_space))
   let style = Style::new(
     size_plan~,
     flex~,

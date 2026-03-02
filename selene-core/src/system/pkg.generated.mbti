@@ -1,10 +1,22 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/system"
 
+import {
+  "Milky2018/selene/math",
+}
+
 // Values
+pub fn configure_display(Double, Double, Double) -> Unit
+
 pub fn defer_event(() -> Unit) -> Unit
 
 pub fn deferred_event_system(Double) -> Unit
+
+pub fn get_screen_size() -> @math.Vec2D
+
+pub fn get_viewport_size() -> @math.Vec2D
+
+pub fn get_zoom() -> Double
 
 pub fn is_mouse_locked() -> Bool
 
@@ -12,16 +24,34 @@ pub fn lock_mouse() -> Unit
 
 pub fn realtime_timer_system(Double) -> Unit
 
+pub fn scale_transform_translation(@math.Transform) -> @math.Transform
+
+pub fn scale_value(Double) -> Double
+
+pub fn scale_vec2(@math.Vec2D) -> @math.Vec2D
+
+pub fn screen_to_ui_virtual(@math.Vec2D) -> @math.Vec2D
+
+pub fn screen_to_world(@math.Vec2D, @math.Vec2D) -> @math.Vec2D
+
 pub fn timeout(Double, () -> Unit, pausible? : Bool) -> Unit
 
 pub fn timer_system(Double) -> Unit
+
+pub fn ui_virtual_to_screen(@math.Vec2D) -> @math.Vec2D
+
+pub fn unscale_value(Double) -> Double
+
+pub fn unscale_vec2(@math.Vec2D) -> @math.Vec2D
+
+pub fn world_to_screen(@math.Vec2D, @math.Vec2D) -> @math.Vec2D
 
 // Errors
 
 // Types and methods
 pub(all) struct App {
-  canvas_height : Double
-  canvas_width : Double
+  viewport_height : Double
+  viewport_width : Double
   zoom : Double
   image_smooth : Bool
   fps : UInt
@@ -32,10 +62,10 @@ pub fn App::add_plugin(Self, (Self) -> Unit) -> Self
 pub fn App::add_system(Self, (Double) -> Unit, schedule? : Schedule, system_name? : String) -> Self
 pub fn App::new() -> Self
 pub fn App::run(Self) -> Unit
-pub fn App::with_canvas_height(Self, Double) -> Self
-pub fn App::with_canvas_width(Self, Double) -> Self
 pub fn App::with_fps(Self, UInt) -> Self
 pub fn App::with_image_smooth(Self, Bool) -> Self
+pub fn App::with_viewport_height(Self, Double) -> Self
+pub fn App::with_viewport_width(Self, Double) -> Self
 pub fn App::with_zoom(Self, Double) -> Self
 
 pub(all) enum Schedule {

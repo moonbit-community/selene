@@ -91,12 +91,26 @@ pub fn Picture::new(
 /// * `pos` : The 2D position where the picture should be rendered, representing
 ///   the top-left corner coordinates.
 ///
-fn render_picture(picture : Picture, pos : @math.Vec2D) -> Unit {
+fn render_picture(
+  picture : Picture,
+  pos : @math.Vec2D,
+  scale_with_zoom : Bool,
+) -> Unit {
+  let size = if scale_with_zoom {
+    @system.scale_vec2(picture.size)
+  } else {
+    picture.size
+  }
+  let transform = if scale_with_zoom {
+    @system.scale_transform_translation(picture.transform)
+  } else {
+    picture.transform
+  }
   @backend.draw_image({
     path: picture.tile_path,
-    destination: @math.Rect::{ position: pos, size: picture.size },
+    destination: @math.Rect::{ position: pos, size },
     source: None,
     repeat: picture.repeat,
-    transform: picture.transform,
+    transform,
   })
 }

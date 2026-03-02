@@ -39,9 +39,26 @@ pub let styles : Map[@entity.Entity, Style] = Map::new()
 
 ///|
 pub fn style_system(_delta : Double) -> Unit {
+  sync_screen_roots()
   for e in @entity.get_roots() {
     guard e.is_alive() else { continue }
     arrange(e, @math.Vec2D::zero()) |> ignore
+  }
+}
+
+///|
+fn sync_screen_roots() -> Unit {
+  if styles.get(screen_root) is Some(style) {
+    styles.set(screen_root, {
+      ..style,
+      size_plan: Sized(@system.get_viewport_size()),
+    })
+  }
+  if styles.get(screen_pixel_root) is Some(style) {
+    styles.set(screen_pixel_root, {
+      ..style,
+      size_plan: Sized(@system.get_screen_size()),
+    })
   }
 }
 

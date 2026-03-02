@@ -122,9 +122,10 @@ fn quadtree_query(area : @math.Rect) -> @set.Set[@entity.Entity] {
 ///   implementation).
 ///
 pub fn quadtree_render_system(_delta : Double) -> Unit {
+  let camera_pos = @camera.get_position()
   fn render_node(node : QuadTree) -> Unit {
-    let position = node.position - @camera.get_position()
-    let size = node.size
+    let position = @system.world_to_screen(node.position, camera_pos)
+    let size = @system.scale_vec2(node.size)
     @backend.draw_rect({
       rect: @math.Rect::{ position, size },
       fill_color: qt_rgba(0U, 0U, 0U, 0.0),
