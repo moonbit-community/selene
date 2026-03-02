@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Texas Hold'em Poker Challenge - Selene Game</title>
+    <title>Survivors - Selene Game</title>
     <style>
         * {
             margin: 0;
@@ -14,7 +14,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%);
+            background: linear-gradient(135deg, #2c1810 0%, #4a2c1c 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -39,7 +39,7 @@
             font-weight: 800;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            color: #ffd700;
+            color: #ff6b6b;
         }
 
         .subtitle {
@@ -75,7 +75,7 @@
         .instructions h2 {
             font-size: 1.3rem;
             margin-bottom: 10px;
-            color: #ffd700;
+            color: #ff6b6b;
         }
 
         .instructions p {
@@ -128,13 +128,13 @@
         }
     </style>
     <script src="../preload-assets.js"></script>
-    <script src="../target/js/release/build/web/cards/cards.js" defer></script>
+    <script src="../_build/js/release/build/web/survivors/survivors.js" defer></script>
 </head>
 
 <body>
     <div class="container">
         <header>
-            <h1>🃏 Texas Hold'em Poker Challenge</h1>
+            <h1>⚔️ Survivors</h1>
         </header>
 
         <div class="game-wrapper">
@@ -142,14 +142,11 @@
         </div>
 
         <div class="instructions">
-            <h2>How to Play</h2>
-            <p><strong>Objective:</strong> Start with $1000 and maximize your profit over exactly 10 poker hands.</p>
             <ul>
-                <li><strong>Big Blind:</strong> $20 per hand (you pay automatically)</li>
-                <li><strong>Actions:</strong> Fold (forfeit hand), Call (continue), or Raise (increase bet & multiplier)</li>
-                <li><strong>Multiplier System:</strong> Each raise increases your payout multiplier by 1×</li>
-                <li><strong>Folding:</strong> Doesn't count as a completed hand - you can retry!</li>
-                <li><strong>Payouts:</strong> Based on poker hand rank × multiplier</li>
+                <li><strong>Movement:</strong> WASD</li>
+                <li><strong>Combat:</strong> Automatically shooting</li>
+                <li><strong>Power-ups:</strong> Gain enough EXP to level up</li>
+                <li><strong>Goal:</strong> Achieve the highest score!</li>
             </ul>
         </div>
 
