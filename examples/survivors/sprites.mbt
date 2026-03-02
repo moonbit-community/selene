@@ -15,7 +15,7 @@
 ///|
 let player_idle_right_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/whiteboy/idle.png",
+    "assets/survivors/whiteboy/idle.png",
     4,
     width=PLAYER_SIZE,
     height=PLAYER_SIZE,
@@ -29,7 +29,7 @@ let player_idle_right_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let player_idle_left_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/whiteboy/idle.png",
+    "assets/survivors/whiteboy/idle.png",
     4,
     width=PLAYER_SIZE,
     height=PLAYER_SIZE,
@@ -44,7 +44,7 @@ let player_idle_left_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let player_idle_up_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/whiteboy/idle.png",
+    "assets/survivors/whiteboy/idle.png",
     4,
     width=PLAYER_SIZE,
     height=PLAYER_SIZE,
@@ -58,7 +58,7 @@ let player_idle_up_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let player_idle_down_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/whiteboy/idle.png",
+    "assets/survivors/whiteboy/idle.png",
     4,
     width=PLAYER_SIZE,
     height=PLAYER_SIZE,
@@ -72,7 +72,7 @@ let player_idle_down_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let player_run_right_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/whiteboy/run.png",
+    "assets/survivors/whiteboy/run.png",
     8,
     width=PLAYER_SIZE,
     height=PLAYER_SIZE,
@@ -86,7 +86,7 @@ let player_run_right_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let player_run_left_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/whiteboy/run.png",
+    "assets/survivors/whiteboy/run.png",
     8,
     width=PLAYER_SIZE,
     height=PLAYER_SIZE,
@@ -101,7 +101,7 @@ let player_run_left_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let player_run_down_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/whiteboy/run.png",
+    "assets/survivors/whiteboy/run.png",
     8,
     width=PLAYER_SIZE,
     height=PLAYER_SIZE,
@@ -115,7 +115,7 @@ let player_run_down_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let player_run_up_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/whiteboy/run.png",
+    "assets/survivors/whiteboy/run.png",
     8,
     width=PLAYER_SIZE,
     height=PLAYER_SIZE,
@@ -129,7 +129,7 @@ let player_run_up_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let grass_sprite : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/tilesets/decor_16x16.png",
+    "assets/survivors/tilesets/decor_16x16.png",
     1,
     width=16,
     height=16,
@@ -138,12 +138,12 @@ let grass_sprite : @sprite.Animation = @sprite.Animation::new(
 )
 
 ///|
-let background_picture = "assets/tilesets/grass.png"
+let background_picture = "assets/survivors/tilesets/grass.png"
 
 ///|
 let creeper_right_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/enemy/Creeper.png",
+    "assets/survivors/enemy/Creeper.png",
     4,
     width=16,
     height=24,
@@ -158,7 +158,7 @@ let creeper_right_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let creeper_left_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/enemy/Creeper.png",
+    "assets/survivors/enemy/Creeper.png",
     4,
     width=16,
     height=24,
@@ -173,7 +173,7 @@ let creeper_left_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let icecream_right_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/enemy/Icecream.png",
+    "assets/survivors/enemy/Icecream.png",
     4,
     width=16,
     height=24,
@@ -188,7 +188,7 @@ let icecream_right_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let icecream_left_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/enemy/Icecream.png",
+    "assets/survivors/enemy/Icecream.png",
     4,
     width=16,
     height=24,
@@ -203,7 +203,7 @@ let icecream_left_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let orc_right_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/enemy/Orc.png",
+    "assets/survivors/enemy/Orc.png",
     4,
     width=16,
     height=24,
@@ -218,7 +218,7 @@ let orc_right_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let orc_left_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/enemy/Orc.png",
+    "assets/survivors/enemy/Orc.png",
     4,
     width=16,
     height=24,
@@ -233,7 +233,7 @@ let orc_left_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let skull_right_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/enemy/Skull.png",
+    "assets/survivors/enemy/Skull.png",
     4,
     width=16,
     height=24,
@@ -248,7 +248,7 @@ let skull_right_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let skull_left_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/enemy/Skull.png",
+    "assets/survivors/enemy/Skull.png",
     4,
     width=16,
     height=24,
@@ -263,7 +263,7 @@ let skull_left_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let devil_right_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/enemy/Devil.png",
+    "assets/survivors/enemy/Devil.png",
     4,
     width=16,
     height=24,
@@ -278,7 +278,7 @@ let devil_right_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let devil_left_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/enemy/Devil.png",
+    "assets/survivors/enemy/Devil.png",
     4,
     width=16,
     height=24,
@@ -293,7 +293,7 @@ let devil_left_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let pirate_right_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/enemy/Pirate.png",
+    "assets/survivors/enemy/Pirate.png",
     4,
     width=16,
     height=24,
@@ -308,7 +308,7 @@ let pirate_right_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let pirate_left_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/enemy/Pirate.png",
+    "assets/survivors/enemy/Pirate.png",
     4,
     width=16,
     height=24,
@@ -323,7 +323,7 @@ let pirate_left_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let teleman_right_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/enemy/Teleman.png",
+    "assets/survivors/enemy/Teleman.png",
     4,
     width=16,
     height=24,
@@ -338,7 +338,7 @@ let teleman_right_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let teleman_left_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/enemy/Teleman.png",
+    "assets/survivors/enemy/Teleman.png",
     4,
     width=16,
     height=24,
@@ -352,63 +352,63 @@ let teleman_left_animation : @sprite.Animation = @sprite.Animation::new(
 
 ///|
 let powerup_range_icon : @sprite.Animation = @sprite.Animation::single_frame(
-  "assets/icon/icon.png",
+  "assets/survivors/icon/icon.png",
   Vec2D(32, 32),
   offset=Vec2D(32 * 6, 32 * 6),
 )
 
 ///|
 let powerup_attack_icon : @sprite.Animation = @sprite.Animation::single_frame(
-  "assets/icon/icon.png",
+  "assets/survivors/icon/icon.png",
   Vec2D(32, 32),
   offset=Vec2D(32 * 12, 32 * 4),
 )
 
 ///|
 let powerup_speed_icon : @sprite.Animation = @sprite.Animation::single_frame(
-  "assets/icon/icon.png",
+  "assets/survivors/icon/icon.png",
   Vec2D(32, 32),
   offset=Vec2D(32 * 2, 32 * 5),
 )
 
 ///|
 let powerup_cooldown_icon : @sprite.Animation = @sprite.Animation::single_frame(
-  "assets/icon/icon.png",
+  "assets/survivors/icon/icon.png",
   Vec2D(32, 32),
   offset=Vec2D(32 * 3, 32 * 5),
 )
 
 ///|
 let powerup_bandana_icon : @sprite.Animation = @sprite.Animation::single_frame(
-  "assets/icon/icon.png",
+  "assets/survivors/icon/icon.png",
   Vec2D(32, 32),
   offset=Vec2D(32 * 6, 32 * 9),
 )
 
 ///|
 let weapon_pistol_icon : @sprite.Animation = @sprite.Animation::single_frame(
-  "assets/icon/icon.png",
+  "assets/survivors/icon/icon.png",
   Vec2D(32, 32),
   offset=Vec2D(32 * 8, 32 * 6),
 )
 
 ///|
 let weapon_minigun_icon : @sprite.Animation = @sprite.Animation::single_frame(
-  "assets/icon/icon.png",
+  "assets/survivors/icon/icon.png",
   Vec2D(32, 32),
   offset=Vec2D(32 * 1, 32 * 7),
 )
 
 ///|
 let weapon_sniperrifle_icon : @sprite.Animation = @sprite.Animation::single_frame(
-  "assets/icon/icon.png",
+  "assets/survivors/icon/icon.png",
   Vec2D(32, 32),
   offset=Vec2D(32 * 4, 32 * 7),
 )
 
 ///|
 let weapon_sword_icon : @sprite.Animation = @sprite.Animation::single_frame(
-  "assets/icon/icon.png",
+  "assets/survivors/icon/icon.png",
   Vec2D(32, 32),
   offset=Vec2D(32 * 1, 32 * 6),
 )

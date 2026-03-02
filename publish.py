@@ -210,15 +210,15 @@ def copy_game_files(game_name: str):
     else:
         print(f"⚠ Warning: index.html not found for {game_name}")
 
-    # Copy assets folder
-    assets_src = game_src_dir / "assets"
+    # Copy assets folder from centralized examples/assets/<game>
+    assets_src = EXAMPLES_DIR / "assets" / game_name
     if assets_src.exists() and assets_src.is_dir():
-        assets_dst = game_page_dir / "assets"
+        assets_dst = game_page_dir / "assets" / game_name
         if assets_dst.exists():
             shutil.rmtree(assets_dst)
         shutil.copytree(assets_src, assets_dst)
         asset_count = len(list(assets_dst.rglob("*")))
-        print(f"✓ Copied {game_name}/assets/ ({asset_count} files)")
+        print(f"✓ Copied assets/{game_name}/ ({asset_count} files)")
 
         # Generate asset manifest
         manifest_count = generate_asset_manifest(assets_dst)

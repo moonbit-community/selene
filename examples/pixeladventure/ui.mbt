@@ -47,13 +47,16 @@ fn add_volume_button() -> Unit {
   let button = @entity.Entity::new()
   @position.positions.set(button, @math.Vec2D(VIEWPORT_WIDTH - 40, 18))
   let volume_on = @sprite.Sprite::from_picture(
-    @sprite.Picture::new(@math.Vec2D(21, 22), "assets/Menu/Buttons/Volume.png"),
+    @sprite.Picture::new(
+      @math.Vec2D(21, 22),
+      "assets/pixeladventure/Menu/Buttons/Volume.png",
+    ),
     100,
   )
   let volumn_off = @sprite.Sprite::from_picture(
     @sprite.Picture::new(
       @math.Vec2D(21, 22),
-      "assets/Menu/Buttons/VolumeOff.png",
+      "assets/pixeladventure/Menu/Buttons/VolumeOff.png",
     ),
     100,
   )

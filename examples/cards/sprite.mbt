@@ -17,7 +17,7 @@ struct Card(CardNum, CardSuit) derive(Eq, Hash)
 
 ///|
 fn Card::to_path(self : Card) -> String {
-  "assets/\{self.0.to_string()}-\{self.1.to_string()}.png"
+  "assets/cards/\{self.0.to_string()}-\{self.1.to_string()}.png"
 }
 
 ///|

@@ -41,7 +41,8 @@ moon run ./native/pixeladventure --target native
 
 ```text
 examples/
-  pixeladventure/            # 共享游戏逻辑和资源
+  assets/                    # 集中管理资源
+  pixeladventure/            # 共享游戏逻辑
   web/pixeladventure/        # Web 入口（override selene-canvas）+ index.html
   native/pixeladventure/     # Native 入口（override selene_raylib）
 ```

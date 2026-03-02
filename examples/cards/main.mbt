@@ -39,7 +39,7 @@ pub fn run() -> Unit {
 /// Game initialization
 fn game_start(_delta : Double) -> Unit {
   // Load font
-  @backend.load_font("ThaleahFat", "assets/ThaleahFat.ttf")
+  @backend.load_font("ThaleahFat", "assets/cards/ThaleahFat.ttf")
 
   // Setup UI
   setup_ui()

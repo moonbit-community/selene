@@ -41,7 +41,8 @@ Selene examples use a shared-logic + wrapper structure:
 
 ```text
 examples/
-  pixeladventure/            # shared game logic and assets
+  assets/                    # centralized assets
+  pixeladventure/            # shared game logic
   web/pixeladventure/        # web entry (override selene-canvas) + index.html
   native/pixeladventure/     # native entry (override selene_raylib)
 ```

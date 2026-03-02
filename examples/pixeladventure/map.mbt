@@ -51,7 +51,11 @@ fn generate_map() -> Unit {
 fn add_background(size : @math.Vec2D) -> Unit {
   let background = @entity.Entity::new()
   let background_sprite = @sprite.Sprite::from_picture(
-    @sprite.Picture::new(size, "assets/Background/Gray.png", repeat=Repeat),
+    @sprite.Picture::new(
+      size,
+      "assets/pixeladventure/Background/Gray.png",
+      repeat=Repeat,
+    ),
     0,
   )
   @sprite.sprites.set(background, background_sprite)
@@ -74,7 +78,7 @@ fn add_grass(pos : @math.Vec2D, sprite_id : String) -> Unit {
   }
   let sprite = @sprite.Sprite::from_animation(
     @sprite.Animation::single_frame(
-      "assets/Terrain/Terrain (16x16).png",
+      "assets/pixeladventure/Terrain/Terrain (16x16).png",
       @math.Vec2D(16.0, 16.0),
       offset=src_pos,
     ),
@@ -95,7 +99,7 @@ fn add_flag(pos : @math.Vec2D) -> Unit {
   let flag = @entity.Entity::new()
   let flag_sprite = @sprite.Sprite::from_animation(
     @sprite.Animation::single_frame(
-      "assets/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png",
+      "assets/pixeladventure/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png",
       @math.Vec2D(64.0, 64.0),
     ),
     20,
@@ -125,7 +129,7 @@ fn add_apple(pos : @math.Vec2D) -> Unit {
   let apple_sprite = @sprite.Sprite::from_animation(
     @sprite.Animation::new(
       @sprite.frames_from_atlas(
-        "assets/Items/Fruits/Apple.png",
+        "assets/pixeladventure/Items/Fruits/Apple.png",
         17,
         width=32.0,
         height=32.0,
@@ -149,7 +153,7 @@ fn add_apple(pos : @math.Vec2D) -> Unit {
     if e == game_state.player {
       set_score(game_state.score + 10)
       if game_state.volume_on {
-        @audio.play_audio("assets/sounds/coin.wav")
+        @audio.play_audio("assets/pixeladventure/sounds/coin.wav")
       }
       @entity.Entity::destroy(apple)
     }

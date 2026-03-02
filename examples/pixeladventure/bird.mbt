@@ -15,7 +15,7 @@
 ///|
 let bird_fly_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/Enemies/BlueBird/Flying (32x32).png",
+    "assets/pixeladventure/Enemies/BlueBird/Flying (32x32).png",
     9,
     width=32.0,
     height=32.0,
@@ -27,7 +27,7 @@ let bird_fly_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 let bird_hit_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
-    "assets/Enemies/BlueBird/Hit (32x32).png",
+    "assets/pixeladventure/Enemies/BlueBird/Hit (32x32).png",
     5,
     width=32.0,
     height=32.0,
