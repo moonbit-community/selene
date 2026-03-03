@@ -16,7 +16,7 @@
 pub(all) struct RapierSpatialIndex {
   bodies : @rapier_full.RigidBodySet
   colliders : @rapier_full.ColliderSet
-  query : @collision.QueryPipeline
+  query : @rapier_collision.QueryPipeline
   collider_entities : Map[Int, @entity.Entity]
 }
 
@@ -36,15 +36,15 @@ fn to_rapier_isometry(rect : @math.Rect) -> @rapier_full.Isometry2 {
 }
 
 ///|
-fn to_rapier_shape(rect : @math.Rect) -> @collision.Shape {
-  @collision.Shape::Cuboid(
+fn to_rapier_shape(rect : @math.Rect) -> @rapier_collision.Shape {
+  @rapier_collision.Shape::Cuboid(
     Float::from_double(rect.size[X] * 0.5),
     Float::from_double(rect.size[Y] * 0.5),
   )
 }
 
 ///|
-fn collider_handle_id(handle : @collision.ColliderHandle) -> Int {
+fn collider_handle_id(handle : @rapier_collision.ColliderHandle) -> Int {
   let (id, _generation) = handle.into_raw_parts()
   id
 }
@@ -52,7 +52,7 @@ fn collider_handle_id(handle : @collision.ColliderHandle) -> Int {
 ///|
 fn get_index_entity(
   index : RapierSpatialIndex,
-  handle : @collision.ColliderHandle,
+  handle : @rapier_collision.ColliderHandle,
 ) -> @entity.Entity? {
   index.collider_entities.get(collider_handle_id(handle))
 }
@@ -84,8 +84,8 @@ fn build_rapier_index(
   {
     bodies,
     colliders,
-    query: @collision.QueryPipeline::new(
-      @collision.QueryFilter::new(),
+    query: @rapier_collision.QueryPipeline::new(
+      @rapier_collision.QueryFilter::new(),
       bodies,
       colliders,
     ),
@@ -119,7 +119,10 @@ fn rapier_query_point_entities(
   point : @math.Vec2D,
   predicate : (@entity.Entity) -> Bool,
 ) -> Set[@entity.Entity] {
-  let filter = @collision.QueryFilter::new().predicate(fn(handle, _collider) {
+  let filter = @rapier_collision.QueryFilter::new().predicate(fn(
+    handle,
+    _collider,
+  ) {
     guard get_index_entity(index, handle) is Some(entity) else { return false }
     predicate(entity)
   })
@@ -145,7 +148,10 @@ fn rapier_query_rect_entities(
   rect : @math.Rect,
   predicate : (@entity.Entity) -> Bool,
 ) -> Set[@entity.Entity] {
-  let filter = @collision.QueryFilter::new().predicate(fn(handle, _collider) {
+  let filter = @rapier_collision.QueryFilter::new().predicate(fn(
+    handle,
+    _collider,
+  ) {
     guard get_index_entity(index, handle) is Some(entity) else { return false }
     predicate(entity)
   })
@@ -174,13 +180,16 @@ fn rapier_cast_rect(
   motion : @math.Vec2D,
   predicate : (@entity.Entity) -> Bool,
 ) -> (@entity.Entity, Double)? {
-  let filter = @collision.QueryFilter::new().predicate(fn(handle, _collider) {
+  let filter = @rapier_collision.QueryFilter::new().predicate(fn(
+    handle,
+    _collider,
+  ) {
     guard get_index_entity(index, handle) is Some(entity) else { return false }
     guard entity != owner else { return false }
     predicate(entity)
   })
   let query = index.query.with_filter(filter)
-  let options = @collision.ShapeCastOptions::new(1.0F, false)
+  let options = @rapier_collision.ShapeCastOptions::new(1.0F, false)
   let cast = query.cast_shape(
     index.bodies,
     index.colliders,
@@ -210,17 +219,17 @@ test "shape cast allows horizontal move when only touching floor" {
     .build()
   colliders.insert(floor) |> ignore
 
-  let shape = @collision.Shape::Cuboid(12.0F, 16.0F)
+  let shape = @rapier_collision.Shape::Cuboid(12.0F, 16.0F)
   let start = @rapier_full.Isometry2::from_translation(
     @rapier_full.Vec2::new(0.0F, 16.0F),
   )
   let velocity = @rapier_full.Vec2::new(60.0F, 0.0F)
-  let query = @collision.QueryPipeline::new(
-    @collision.QueryFilter::new(),
+  let query = @rapier_collision.QueryPipeline::new(
+    @rapier_collision.QueryFilter::new(),
     bodies,
     colliders,
   )
-  let options = @collision.ShapeCastOptions::new(1.0F, false)
+  let options = @rapier_collision.ShapeCastOptions::new(1.0F, false)
 
   let hit = query.cast_shape(bodies, colliders, start, velocity, shape, options)
   inspect(hit is None, content="true")

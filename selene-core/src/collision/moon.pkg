@@ -1,5 +1,5 @@
 import {
-  "Milky2018/moon_rapier/collision",
+  "Milky2018/moon_rapier/collision" @rapier_collision,
   "Milky2018/moon_rapier/rapier_full",
   "Milky2018/selene/entity",
   "Milky2018/selene/math",

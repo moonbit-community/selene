@@ -1,4 +1,4 @@
 ///|
 fn main {
-  @pixeladventure.run()
+  @pixeladventure_game.run()
 }

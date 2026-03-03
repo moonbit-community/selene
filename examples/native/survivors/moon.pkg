@@ -1,5 +1,5 @@
 import {
-  "Milky2018/selene-examples/survivors",
+  "Milky2018/selene-examples/survivors" @survivors_game,
 }
 
 options(

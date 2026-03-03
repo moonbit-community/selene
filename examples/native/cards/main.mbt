@@ -14,5 +14,5 @@
 
 ///|
 fn main {
-  @cards.run()
+  @cards_game.run()
 }

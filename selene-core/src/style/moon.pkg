@@ -7,5 +7,5 @@ import {
   "Milky2018/selene/position",
   "Milky2018/selene/inputs",
   "Milky2018/selene/collision",
-  "moonbitlang/core/cmp",
+  "Milky2018/moon_taffy",
 }

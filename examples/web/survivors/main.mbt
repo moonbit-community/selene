@@ -1,4 +1,4 @@
 ///|
 fn main {
-  @survivors.run()
+  @survivors_game.run()
 }

@@ -51,6 +51,20 @@ let backend : RaylibBackend = {
 }
 
 ///|
+fn default_font_codepoints() -> Array[Int] {
+  let codepoints : Array[Int] = []
+  // Basic printable ASCII.
+  for cp in 32..<127 {
+    codepoints.push(cp)
+  }
+  // Latin-1 supplement (includes multiplication sign U+00D7).
+  for cp in 160..<256 {
+    codepoints.push(cp)
+  }
+  codepoints
+}
+
+///|
 fn read_float(bytes : Bytes, off : Int) -> Float {
   let bits = bytes[off].to_int() |
     (bytes[off + 1].to_int() << 8) |
@@ -517,7 +531,11 @@ pub fn load_font(font : String, path : String) -> Unit {
   let loaded = if backend.fonts_by_path.get(path) is Some(loaded) {
     loaded
   } else {
-    let loaded = @raylib.load_font(path)
+    let loaded = @raylib.load_font_ex_codepoints(
+      path,
+      32,
+      default_font_codepoints(),
+    )
     backend.fonts_by_path.set(path, loaded)
     loaded
   }
