@@ -6,7 +6,7 @@
 
 [selene-core](selene-core/) 是 Selene 引擎核心项目。
 
-[selene-canvas](selene-canvas/) 是官方维护的基于 Canvas2D API 的 Selene 后端。Selene 引擎必须要在一个后端运行。
+[selene-webgpu](selene-webgpu/) 是官方维护的基于 Canvas2D API 的 Selene 后端。Selene 引擎必须要在一个后端运行。
 
 ## 写给 [MGPIC 2025 全球编程创新挑战](https://www.moonbitlang.cn/2025-mgpic)参赛选手
 

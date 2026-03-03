@@ -6,7 +6,7 @@ The [examples](examples/) directory contains sample game projects.
 
 The [selene-core](selene-core/) directory is the core of the Selene engine.
 
-The [selene-canvas](selene-canvas/) directory is the officially maintained Canvas2D API-based backend for Selene. The Selene engine must run with a backend.
+The [selene-webgpu](selene-webgpu/) directory is the officially maintained Canvas2D API-based backend for Selene. The Selene engine must run with a backend.
 
 ## For [MGPIC 2025](https://www.moonbitlang.cn/2025-mgpic) Participants
 

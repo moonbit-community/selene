@@ -27,7 +27,7 @@ moon run ./native/pixeladventure --target native
 examples/
   assets/
   pixeladventure/            # shared game logic
-  web/pixeladventure/        # web entry + override selene-canvas
+  web/pixeladventure/        # web entry + override selene-webgpu
   native/pixeladventure/     # native entry + override selene_raylib
 ```
 
@@ -42,7 +42,7 @@ import {
 
 options(
   "is-main": true,
-  overrides: [ "Milky2018/selene-canvas" ],
+  overrides: [ "Milky2018/selene_webgpu" ],
   targets: { "main.mbt": [ "js" ] },
 )
 ```

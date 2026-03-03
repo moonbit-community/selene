@@ -47,7 +47,7 @@ Selene is an experimental game engine built with MoonBit, designed to encourage 
 
 3. Build the canvas backend:
    ```bash
-   cd ../selene-canvas
+   cd ../selene-webgpu
    moon build --target js
    ```
 
@@ -73,7 +73,7 @@ selene/
 │       ├── camera/       # Camera and UI management
 │       ├── tilemap/      # Tile map support
 │       └── ...
-├── selene-canvas/        # Canvas2D backend implementation
+├── selene-webgpu/        # Canvas2D backend implementation
 ├── examples/              # Complete example games
 ├── docs/                 # Documentation and tutorials
 └── README.md
@@ -82,7 +82,7 @@ selene/
 ### Key Components
 
 - **selene-core**: The main engine with modular ECS architecture
-- **selene-canvas**: Official Canvas2D rendering backend
+- **selene-webgpu**: Official Canvas2D rendering backend
 - **examples**: A complete platform game demonstrating engine features
 
 ## How to Contribute

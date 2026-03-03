@@ -4,6 +4,6 @@ import {
 
 options(
   "is-main": true,
-  overrides: [ "Milky2018/selene-canvas" ],
+  overrides: [ "Milky2018/selene_webgpu" ],
   targets: { "main.mbt": [ "js" ] },
 )

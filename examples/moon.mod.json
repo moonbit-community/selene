@@ -5,8 +5,8 @@
     "Milky2018/selene": {
       "path": "../selene-core"
     },
-    "Milky2018/selene-canvas": {
-      "path": "../selene-canvas"
+    "Milky2018/selene_webgpu": {
+      "path": "../selene-webgpu"
     },
     "Milky2018/selene_raylib": {
       "path": "../selene-raylib"

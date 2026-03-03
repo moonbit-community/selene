@@ -27,7 +27,7 @@ VERSION_RE = re.compile(r"^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$")
 
 INTERNAL_MODULES = {
     "Milky2018/selene",
-    "Milky2018/selene-canvas",
+    "Milky2018/selene_webgpu",
     "Milky2018/selene_raylib",
     "Milky2018/selene-examples",
 }
@@ -41,12 +41,12 @@ class ModuleConfig:
 
 MODULES = [
     ModuleConfig("selene-core", ROOT_DIR / "selene-core"),
-    ModuleConfig("selene-canvas", ROOT_DIR / "selene-canvas"),
+    ModuleConfig("selene-webgpu", ROOT_DIR / "selene-webgpu"),
     ModuleConfig("selene-raylib", ROOT_DIR / "selene-raylib"),
     ModuleConfig("examples", ROOT_DIR / "examples"),
 ]
 
-PUBLISH_ORDER = ["selene-core", "selene-canvas", "selene-raylib", "examples"]
+PUBLISH_ORDER = ["selene-core", "selene-webgpu", "selene-raylib", "examples"]
 
 
 def run_cmd(cmd: list[str], cwd: Path, *, fail_on_warning: bool = False):
@@ -391,7 +391,7 @@ def run_module_quality_checks(module: ModuleConfig):
         run_cmd(["moon", "check", "--target", "all", "--deny-warn"], module.path, fail_on_warning=True)
         return
 
-    if module.name == "selene-canvas":
+    if module.name == "selene-webgpu":
         run_cmd(["moon", "check", "--target", "js", "--deny-warn"], module.path, fail_on_warning=True)
         return
 

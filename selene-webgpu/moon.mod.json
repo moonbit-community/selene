@@ -1,5 +1,5 @@
 {
-  "name": "Milky2018/selene-canvas",
+  "name": "Milky2018/selene_webgpu",
   "version": "0.20.1",
   "deps": {
     "Yoorkin/rabbit-tea": "0.10.11",

@@ -5,7 +5,7 @@
 Import this backend with 
 
 ```shell 
-moon add Milky2018/selene-canvas
+moon add Milky2018/selene_webgpu
 ```
 
 Choose this implementation wherever the `Milky2018/selene/backend` is used. Add this in your `moon.pkg.json`:
@@ -13,7 +13,7 @@ Choose this implementation wherever the `Milky2018/selene/backend` is used. Add 
 ```json 
 {
   "overrides": [
-    "Milky2018/selene-canvas"
+    "Milky2018/selene_webgpu"
   ]
 }
 ```

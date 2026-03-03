@@ -38,7 +38,7 @@ Please check [docs](https://github.com/Milky2018/selene/tree/main/docs).
 - [x] Debug information
 - [x] Audio
 - [x] Timer
-- [ ] Webpack (selene-canvas)
+- [ ] Webpack (selene-webgpu)
 - [x] Parent-child structure
 - [x] Manual atlas
 - [x] Visibility 

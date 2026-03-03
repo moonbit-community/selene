@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "Milky2018/selene-canvas"
+package "Milky2018/selene_webgpu"
 
 import(
   "Milky2018/selene/inputs"
