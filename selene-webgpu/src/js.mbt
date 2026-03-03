@@ -1018,7 +1018,7 @@ extern "js" fn webgpu_initialize(
   #|           layout: layout3d,
   #|           vertex: { module: shader3dColor, entryPoint: 'vs_main', buffers: [color3dVertex] },
   #|           fragment: { module: shader3dColor, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendState }] },
-  #|           primitive: { topology: 'triangle-list', cullMode: 'back' },
+  #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
   #|           depthStencil: { format: 'depth24plus', depthWriteEnabled: true, depthCompare: 'less' },
   #|         }),
   #|         color3dLine: rt.device.createRenderPipeline({
