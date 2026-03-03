@@ -18,7 +18,6 @@ PAGE_DIR = ROOT_DIR / "page"
 EXAMPLES_DIR = ROOT_DIR / "examples"
 WEB_EXAMPLES_DIR = EXAMPLES_DIR / "web"
 BUILD_DIR = EXAMPLES_DIR / "_build" / "js" / "release" / "build"
-LEGACY_TARGET_DIR = EXAMPLES_DIR / "target" / "js" / "release" / "build"
 
 SCRIPT_SRC_RE = re.compile(
     r'<script[^>]+src=["\']([^"\']+\.js)["\']',
@@ -102,28 +101,17 @@ def module_by_name(name: str) -> ModuleConfig:
     raise ValueError(f"Unknown module: {name}")
 
 def get_game_folders() -> list[str]:
-    """Automatically detect game folders from examples/web, fallback to legacy layout."""
-    if not EXAMPLES_DIR.exists():
+    """Automatically detect game folders from examples/web."""
+    if not WEB_EXAMPLES_DIR.exists():
         return []
 
     games: set[str] = set()
-
-    if WEB_EXAMPLES_DIR.exists():
-        for item in WEB_EXAMPLES_DIR.iterdir():
-            if not item.is_dir():
-                continue
-            if item.name.startswith('.'):
-                continue
-            games.add(item.name)
-
-    # Fallback for legacy examples/<game>/index.html layout.
-    for item in EXAMPLES_DIR.iterdir():
+    for item in WEB_EXAMPLES_DIR.iterdir():
         if not item.is_dir():
             continue
-        if item.name.startswith('.') or item.name in ['target', '_build', '.mooncakes', 'web', 'native']:
+        if item.name.startswith("."):
             continue
-        if (item / "index.html").exists():
-            games.add(item.name)
+        games.add(item.name)
 
     return sorted(games)
 
@@ -231,16 +219,14 @@ def copy_game_files(game_name: str):
     game_web_dir = WEB_EXAMPLES_DIR / game_name
     game_page_dir = PAGE_DIR / "examples" / "web" / game_name
 
-    if not game_src_dir.exists() and not game_web_dir.exists():
-        print(f"⚠ Warning: {game_name} not found in examples sources, skipping")
+    if not game_web_dir.exists():
+        print(f"⚠ Warning: {game_name} not found in examples/web, skipping")
         return
 
     game_page_dir.mkdir(parents=True, exist_ok=True)
 
-    # Copy HTML file (new layout first, then fallback to legacy layout)
+    # Copy HTML file from examples/web/<game>/index.html
     index_html = game_web_dir / "index.html"
-    if not index_html.exists():
-        index_html = game_src_dir / "index.html"
     if index_html.exists():
         shutil.copy2(index_html, game_page_dir / "index.html")
         print(f"✓ Copied {game_name}/index.html")
@@ -265,9 +251,6 @@ def copy_game_files(game_name: str):
     # Copy screenshot.png
     screenshot = game_src_dir / "screenshot.png"
     if screenshot.exists():
-        legacy_screenshot_dir = PAGE_DIR / "examples" / game_name
-        legacy_screenshot_dir.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(screenshot, legacy_screenshot_dir / "screenshot.png")
         shutil.copy2(screenshot, game_page_dir / "screenshot.png")
         print(f"✓ Copied {game_name}/screenshot.png")
 
@@ -317,13 +300,6 @@ def resolve_script_src(source_dir: Path, script_src: str) -> Path | None:
     if build_pos != -1:
         build_suffix = normalized[build_pos + len(build_marker):]
         candidates.append((EXAMPLES_DIR / "_build" / build_suffix).resolve())
-        candidates.append((EXAMPLES_DIR / "target" / build_suffix).resolve())
-
-    target_marker = "target/"
-    target_pos = normalized.find(target_marker)
-    if target_pos != -1:
-        target_suffix = normalized[target_pos + len(target_marker):]
-        candidates.append((EXAMPLES_DIR / "target" / target_suffix).resolve())
 
     for candidate in candidates:
         if candidate.exists():
@@ -341,26 +317,6 @@ def copy_compiled_javascript(game_name: str, index_html: Path, game_page_dir: Pa
         (
             BUILD_DIR / "web" / game_name / f"{game_name}.js",
             PAGE_DIR / "examples" / "_build" / "js" / "release" / "build" / "web" / game_name / f"{game_name}.js",
-        ),
-        (
-            BUILD_DIR / game_name / "web" / "web.js",
-            PAGE_DIR / "examples" / "_build" / "js" / "release" / "build" / game_name / "web" / "web.js",
-        ),
-        (
-            BUILD_DIR / game_name / f"{game_name}.js",
-            PAGE_DIR / "examples" / "_build" / "js" / "release" / "build" / game_name / f"{game_name}.js",
-        ),
-        (
-            LEGACY_TARGET_DIR / "web" / game_name / f"{game_name}.js",
-            PAGE_DIR / "examples" / "target" / "js" / "release" / "build" / "web" / game_name / f"{game_name}.js",
-        ),
-        (
-            LEGACY_TARGET_DIR / game_name / "web" / "web.js",
-            PAGE_DIR / "examples" / "target" / "js" / "release" / "build" / game_name / "web" / "web.js",
-        ),
-        (
-            LEGACY_TARGET_DIR / game_name / f"{game_name}.js",
-            PAGE_DIR / "examples" / "target" / "js" / "release" / "build" / game_name / f"{game_name}.js",
         ),
     ]
 
