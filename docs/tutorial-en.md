@@ -127,16 +127,29 @@ if @inputs.is_just_pressed(ArrowUp) {
 ### 6.3 Collision + Trigger Areas
 
 ```moonbit
+let player_group = @collision.CollisionGroup::new()
+let terrain_group = @collision.CollisionGroup::new()
+let trigger_group = @collision.CollisionGroup::new()
+
 @collision.shapes.set(
   player,
   Rect(size=@math.Vec2D(24.0, 32.0), offset=@math.Vec2D(4.0, 0.0)),
 )
-@collision.collision_layers.set(player, player_collision_layer)
 @collision.colliders.set(
   player,
   @collision.Collider::new(
-    @collision.CollisionMask::new([terrain_collision_layer]),
+    @collision.CollisionFilter::new(player_group, [terrain_group]),
   ),
+)
+
+let wall = @entity.Entity::new()
+@collision.shapes.set(
+  wall,
+  Rect(size=@math.Vec2D(16.0, 16.0), offset=@math.Vec2D::zero()),
+)
+@collision.colliders.set(
+  wall,
+  @collision.Collider::new(@collision.CollisionFilter::empty(terrain_group)),
 )
 
 let apple = @entity.Entity::new()
@@ -145,7 +158,7 @@ let apple = @entity.Entity::new()
   Rect(size=@math.Vec2D(32.0, 32.0), offset=@math.Vec2D::zero()),
 )
 let area = @collision.Area::new(
-  @collision.CollisionMask::new([player_collision_layer]),
+  @collision.CollisionFilter::new(trigger_group, [player_group]),
 )
 @collision.areas.set(apple, area)
 area.on_enter(fn(e) {
@@ -188,8 +201,6 @@ Use `_build` paths in `index.html`, for example:
 <script src="../../_build/js/release/build/web/pixeladventure/pixeladventure.js" defer></script>
 ```
 
-`target` is only a compatibility link and should not be used in new docs or new projects.
-
 ## 8. Build Commands You Will Use Most
 
 ```bash
@@ -203,15 +214,15 @@ moon check ./native/pixeladventure --target native
 moon run ./native/pixeladventure --target native
 ```
 
-## 9. Migration Notes from Old Selene Tutorials
+## 9. Practical Notes
 
-If you learned Selene from older docs, update your mental model:
-
-- `@system.App::new(@canvas.CanvasBackend::new())` is obsolete. Use `@system.App::new()`.
-- Use `Milky2018/selene/inputs` instead of `input`.
-- Use `@entity.Entity` instead of `@system.Entity`.
-- Prefer `schedule=Startup` systems instead of old initializer-style setup.
-- Use `_build/...` paths in HTML, not `target/...`.
+- Use `@system.App::new()` to bootstrap apps.
+- Use `Milky2018/selene/inputs` for input.
+- Use `@entity.Entity` as the entity type.
+- Prefer `schedule=Startup` for one-time initialization.
+- Use `CollisionGroup` + `CollisionFilter` for collision filtering.
+- For static blockers, add a collider with `CollisionFilter::empty(group)`.
+- Use `_build/...` paths in HTML.
 
 ## 10. Next Step
 

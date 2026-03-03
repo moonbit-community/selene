@@ -127,16 +127,29 @@ if @inputs.is_just_pressed(ArrowUp) {
 ### 6.3 碰撞与触发区域
 
 ```moonbit
+let player_group = @collision.CollisionGroup::new()
+let terrain_group = @collision.CollisionGroup::new()
+let trigger_group = @collision.CollisionGroup::new()
+
 @collision.shapes.set(
   player,
   Rect(size=@math.Vec2D(24.0, 32.0), offset=@math.Vec2D(4.0, 0.0)),
 )
-@collision.collision_layers.set(player, player_collision_layer)
 @collision.colliders.set(
   player,
   @collision.Collider::new(
-    @collision.CollisionMask::new([terrain_collision_layer]),
+    @collision.CollisionFilter::new(player_group, [terrain_group]),
   ),
+)
+
+let wall = @entity.Entity::new()
+@collision.shapes.set(
+  wall,
+  Rect(size=@math.Vec2D(16.0, 16.0), offset=@math.Vec2D::zero()),
+)
+@collision.colliders.set(
+  wall,
+  @collision.Collider::new(@collision.CollisionFilter::empty(terrain_group)),
 )
 
 let apple = @entity.Entity::new()
@@ -145,7 +158,7 @@ let apple = @entity.Entity::new()
   Rect(size=@math.Vec2D(32.0, 32.0), offset=@math.Vec2D::zero()),
 )
 let area = @collision.Area::new(
-  @collision.CollisionMask::new([player_collision_layer]),
+  @collision.CollisionFilter::new(trigger_group, [player_group]),
 )
 @collision.areas.set(apple, area)
 area.on_enter(fn(e) {
@@ -188,8 +201,6 @@ pickable.on_just_released(fn(mouse_button) {
 <script src="../../_build/js/release/build/web/pixeladventure/pixeladventure.js" defer></script>
 ```
 
-`target` 目前只是兼容用软链接，后续会移除，不建议在新文档和新项目中继续使用。
-
 ## 8. 常用命令
 
 ```bash
@@ -203,15 +214,15 @@ moon check ./native/pixeladventure --target native
 moon run ./native/pixeladventure --target native
 ```
 
-## 9. 从旧教程迁移时的关键差异
+## 9. 实践建议
 
-如果你以前看的是老版本教程，请重点更新这几条：
-
-- `@system.App::new(@canvas.CanvasBackend::new())` 已过时，现在用 `@system.App::new()`。
-- 输入模块应使用 `Milky2018/selene/inputs`，不是 `input`。
-- 实体类型应使用 `@entity.Entity`，不是 `@system.Entity`。
-- 初始化逻辑优先使用 `schedule=Startup` 的系统。
-- HTML 中构建产物路径应使用 `_build/...`，不要再写 `target/...`。
+- 使用 `@system.App::new()` 作为应用启动入口。
+- 输入使用 `Milky2018/selene/inputs`。
+- 实体类型使用 `@entity.Entity`。
+- 一次性初始化逻辑建议放在 `schedule=Startup` 系统中。
+- 碰撞过滤使用 `CollisionGroup` + `CollisionFilter`。
+- 静态阻挡体应挂 `Collider`，并使用 `CollisionFilter::empty(group)`。
+- HTML 构建产物路径使用 `_build/...`。
 
 ## 10. 下一步建议
 
