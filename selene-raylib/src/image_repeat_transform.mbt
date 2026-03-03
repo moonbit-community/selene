@@ -167,16 +167,10 @@ fn draw_image_repeat_transform(
   if texture_width <= 0.0 || texture_height <= 0.0 {
     return
   }
-  let (src_x, src_y, src_w, src_h, has_source) = match command.source {
+  let (src_x, src_y, src_w, src_h) = match command.source {
     Some(source) =>
-      (
-        source.position[X],
-        source.position[Y],
-        source.size[X],
-        source.size[Y],
-        true,
-      )
-    None => (0.0, 0.0, texture_width, texture_height, false)
+      (source.position[X], source.position[Y], source.size[X], source.size[Y])
+    None => (0.0, 0.0, texture_width, texture_height)
   }
   let dest_w = command.destination.size[X]
   let dest_h = command.destination.size[Y]
@@ -185,7 +179,7 @@ fn draw_image_repeat_transform(
   }
   let base_x = command.destination.position[X]
   let base_y = command.destination.position[Y]
-  if has_source && command.repeat is NoRepeat {
+  if command.repeat is NoRepeat {
     draw_textured_quad(
       texture,
       texture_width,
