@@ -269,6 +269,11 @@ fn insert_entity_physics(entity : @entity.Entity) -> Unit {
   guard @position.positions.get(entity) is Some(position)
   guard entity_rect_shape(entity) is Some((size, offset))
   guard entity_collision_config(entity) is Some((filter, sensor, active))
+  let active_hooks = if sensor {
+    @rapier_collision.ActiveHooks::empty()
+  } else {
+    @rapier_collision.ActiveHooks::filter_contact_pairs()
+  }
   let body_builder = if @velocity.velocities.contains(entity) {
     @rapier_full.RigidBodyBuilder::kinematic_position_based()
   } else {
@@ -283,7 +288,9 @@ fn insert_entity_physics(entity : @entity.Entity) -> Unit {
       Float::from_double(to_physics_scalar(size[Y] * 0.5)),
     )
     .translation(to_physics_vec2(local_center))
+    .active_collision_types(@rapier_collision.ActiveCollisionTypes::all())
     .sensor(sensor)
+    .active_hooks(active_hooks)
     .collision_groups(to_rapier_groups(filter))
     .solver_groups(to_rapier_groups(filter))
     .active_events(active_events())
@@ -306,6 +313,11 @@ fn sync_entity_physics(entity : @entity.Entity) -> Unit {
   guard @position.positions.get(entity) is Some(position)
   guard entity_rect_shape(entity) is Some((size, offset))
   guard entity_collision_config(entity) is Some((filter, sensor, active))
+  let active_hooks = if sensor {
+    @rapier_collision.ActiveHooks::empty()
+  } else {
+    @rapier_collision.ActiveHooks::filter_contact_pairs()
+  }
 
   if world.bodies.get_mut(body_handle) is Some(body) {
     let body_type = if @velocity.velocities.contains(entity) {
@@ -325,6 +337,8 @@ fn sync_entity_physics(entity : @entity.Entity) -> Unit {
     collider
     .set_sensor(sensor)
     .set_enabled(active)
+    .set_active_collision_types(@rapier_collision.ActiveCollisionTypes::all())
+    .set_active_hooks(active_hooks)
     .set_collision_groups(to_rapier_groups(filter))
     .set_solver_groups(to_rapier_groups(filter))
     .set_active_events(active_events())
@@ -430,7 +444,10 @@ fn move_with_kinematic_controller(
     to_physics_vec2(displacement),
     fn(_collision) {  },
   )
-  let applied_displacement = from_physics_vec2(effective.translation())
+  let mut applied_displacement = from_physics_vec2(effective.translation())
+  if effective.is_grounded() && applied_displacement[Y].abs() < 0.05 {
+    applied_displacement = applied_displacement.update(Y, 0.0)
+  }
   let new_position = position.0 + applied_displacement
   @position.positions.set(entity, new_position)
   if world.entity_bodies.get(entity) is Some(body_handle) {
@@ -452,10 +469,14 @@ fn move_with_kinematic_controller(
 fn process_contact_events() -> Unit {
   clear_contact_events()
   for event in world.event_handler.take_collision_events() {
-    guard entity_from_collider_handle(event.collider1()) is Some(entity1)
-    guard entity_from_collider_handle(event.collider2()) is Some(entity2)
-    guard colliders.get(entity1) is Some(collider1)
-    guard colliders.get(entity2) is Some(collider2)
+    guard entity_from_collider_handle(event.collider1()) is Some(entity1) else {
+      continue
+    }
+    guard entity_from_collider_handle(event.collider2()) is Some(entity2) else {
+      continue
+    }
+    guard colliders.get(entity1) is Some(collider1) else { continue }
+    guard colliders.get(entity2) is Some(collider2) else { continue }
     guard collider1.active && collider2.active else { continue }
     let direction = estimate_direction(entity1, entity2)
     let started = event.started()
@@ -515,14 +536,45 @@ fn prune_area_contains() -> Unit {
 ///|
 fn process_trigger_events() -> Unit {
   clear_trigger_events()
-  for event in world.event_handler.take_intersection_events() {
-    guard entity_from_collider_handle(event.collider1()) is Some(entity1)
-    guard entity_from_collider_handle(event.collider2()) is Some(entity2)
-    if areas.contains(entity1) {
-      update_area_contains(entity1, entity2, event.intersecting())
+  let query_base = @rapier_collision.QueryPipeline::new(
+    @rapier_collision.QueryFilter::new(),
+    world.bodies,
+    world.colliders,
+  )
+  for area_entity, area in areas {
+    guard area_entity.is_alive() else { continue }
+    guard world.entity_colliders.get(area_entity) is Some(area_handle) else {
+      continue
     }
-    if areas.contains(entity2) {
-      update_area_contains(entity2, entity1, event.intersecting())
+    guard world.colliders.get(area_handle) is Some(area_collider) else {
+      continue
+    }
+    let query = query_base.with_filter(
+      @rapier_collision.QueryFilter::new()
+      .exclude_collider(area_handle)
+      .exclude_sensors()
+      .groups(to_rapier_groups(area.filter)),
+    )
+    let overlaps = query.intersect_shape(
+      world.bodies,
+      world.colliders,
+      area_collider.position(),
+      area_collider.shape(),
+    )
+    let intersecting_entities : Set[@entity.Entity] = Set::new()
+    for handle in overlaps {
+      guard entity_from_collider_handle(handle) is Some(other) else { continue }
+      intersecting_entities.add(other)
+      update_area_contains(area_entity, other, true)
+    }
+    let exiting_entities : Array[@entity.Entity] = []
+    for other in area.contains {
+      if !intersecting_entities.contains(other) {
+        exiting_entities.push(other)
+      }
+    }
+    for other in exiting_entities {
+      update_area_contains(area_entity, other, false)
     }
   }
   prune_area_contains()
@@ -536,6 +588,13 @@ fn sync_positions_from_bodies() -> Unit {
     }
     guard @position.positions.get(entity) is Some(_) else { continue }
     if world.bodies.get(handle) is Some(body) {
+      // KinematicPositionBased bodies are driven by ECS positions in
+      // move_with_kinematic_controller; syncing body->ECS reintroduces tiny
+      // floating-point noise and causes visible jitter.
+      if body.body_type()
+        is @rapier_dynamics.RigidBodyType::KinematicPositionBased {
+        continue
+      }
       @position.positions.set(entity, from_physics_vec2(body.translation()))
     }
   }

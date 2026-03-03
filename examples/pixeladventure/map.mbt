@@ -205,23 +205,22 @@ fn add_apple(pos : @math.Vec2D) -> Unit {
 
 ///|
 fn map_trigger_system(_delta : Double) -> Unit {
-  for event in @collision.trigger_events() {
-    guard event.entered else { continue }
-    guard event.other == game_state.player else { continue }
-    if flags.contains(event.area) {
+  for flag in flags.to_array() {
+    if @collision.get_contains(flag).contains(game_state.player) {
       set_score(game_state.score + 100)
       set_game_result(GameResult::Win)
-      event.area.destroy()
-      flags.remove(event.area)
-      continue
+      flag.destroy()
+      flags.remove(flag)
     }
-    if apples.contains(event.area) {
+  }
+  for apple in apples.to_array() {
+    if @collision.get_contains(apple).contains(game_state.player) {
       set_score(game_state.score + 10)
       if game_state.volume_on {
         @audio.play_audio("assets/pixeladventure/sounds/coin.wav")
       }
-      event.area.destroy()
-      apples.remove(event.area)
+      apple.destroy()
+      apples.remove(apple)
     }
   }
 }

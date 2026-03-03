@@ -13,6 +13,8 @@ pub fn camera_system(Double) -> Unit
 
 pub fn get_position() -> @math.Vec2D
 
+pub fn sample_position(Double) -> @math.Vec2D
+
 pub fn set_follow_x(Bool) -> Unit
 
 pub fn set_follow_y(Bool) -> Unit

@@ -15,6 +15,7 @@
 ///|
 priv struct Camera {
   mut position : @math.Vec2D
+  mut previous_position : @math.Vec2D
   mut limit_top : Double?
   mut limit_bottom : Double?
   mut limit_left : Double?
@@ -39,6 +40,12 @@ priv struct Camera {
 ///
 pub fn get_position() -> @math.Vec2D {
   camera.position
+}
+
+///|
+pub fn sample_position(alpha : Double) -> @math.Vec2D {
+  camera.previous_position.scalar_mul(1.0 - alpha) +
+  camera.position.scalar_mul(alpha)
 }
 
 ///|
@@ -160,6 +167,7 @@ pub fn set_follow_y(follow : Bool) -> Unit {
 ///|
 let camera : Camera = {
   position: @math.Vec2D::zero(),
+  previous_position: @math.Vec2D::zero(),
   limit_bottom: None,
   limit_left: None,
   limit_top: None,
@@ -196,6 +204,7 @@ let camera : Camera = {
 pub fn camera_system(_delta : Double) -> Unit {
   guard camera.attached_entity is Some(e) else { return }
   guard @position.positions.get(e) is Some(pos) else { return }
+  camera.previous_position = camera.position
   let viewport_size = @system.get_viewport_size()
   let target_position = pos.0 -
     viewport_size * @math.Vec2D(0.5, 0.5) +

@@ -215,7 +215,7 @@ pub fn Sprite::from_color_circle(
 ///
 pub fn render_sprite_system(delta : Double) -> Unit {
   let sprites = sprites.to_array().filter(fn(pair) { pair.0.is_alive() })
-  let camera_pos = @camera.get_position()
+  let camera_pos = @camera.sample_position(@system.get_render_alpha())
   sprites.sort_by(fn(sprite1, sprite2) {
     if sprite1.1.zindex < sprite2.1.zindex {
       -1

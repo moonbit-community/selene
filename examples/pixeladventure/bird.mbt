@@ -75,6 +75,9 @@ fn bird_ai_system(_ : Double) -> Unit {
   for e, bird in birds {
     guard e.is_alive() else { continue }
     guard @velocity.velocities.get(e) is Some(_velocity)
+    let resolved_x = @collision.resolved_velocities
+      .get(e)
+      .map_or(0.0, fn(v) { v.0[X] })
     if @sprite.is_animation_finished(e) {
       e.destroy()
       continue
@@ -110,7 +113,13 @@ fn bird_ai_system(_ : Double) -> Unit {
           (event.direction[X] < 0.0 && bird.direction is Left)
         )
       })
-    if hit_wall {
+    // For merged/static terrain colliders, contact direction can be noisy.
+    // Use resolved X movement as a robust "blocked" signal.
+    let blocked = match bird.direction {
+      Left => resolved_x > -BIRD_SPEED * 0.5
+      Right => resolved_x < BIRD_SPEED * 0.5
+    }
+    if hit_wall || blocked {
       bird.direction = match bird.direction {
         Left => Right
         Right => Left

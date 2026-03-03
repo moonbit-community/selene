@@ -86,7 +86,7 @@ fn add_player(pos : @math.Vec2D) -> Unit {
     game_state.player,
     @collision.Collider::new(
       @collision.CollisionFilter::new(player_collision_group, [
-        terrain_collision_group, enemy_collision_group,
+        terrain_collision_group, enemy_collision_group, trigger_collision_group,
       ]),
     ),
   )
@@ -120,22 +120,42 @@ const RUN_ACC = 3600.0
 const BUMP_V : Double = JUMP_V / 2.0
 
 ///|
+fn entity_rect(entity : @entity.Entity) -> @math.Rect? {
+  guard @position.positions.get(entity) is Some(position) else { return None }
+  guard @collision.shapes.get(entity) is Some(shape) else { return None }
+  match shape {
+    Rect(size~, offset~) =>
+      Some(@math.Rect::{ position: position.0 + offset, size })
+  }
+}
+
+///|
 fn player_collision_system(_delta : Double) -> Unit {
   if game_state.hurt_timer > 0.0 {
     game_state.hurt_timer -= 1.0
   }
-  for contact in @collision.contact_events() {
-    guard contact.entity == game_state.player else { continue }
-    guard contact.started else { continue }
-    if birds.get(contact.other) is Some(bird) {
-      if contact.direction[Y] > 0.0 {
-        bird.is_hurt = true
-        guard @velocity.velocities.get(game_state.player) is Some(velocity)
-        @velocity.velocities[game_state.player] = velocity.0.update(Y, -BUMP_V)
-      } else {
-        hurt_player()
-      }
+  guard entity_rect(game_state.player) is Some(player_rect) else { return }
+  let player_bottom = player_rect.position[Y] + player_rect.size[Y]
+  let resolved_vy = @collision.resolved_velocities
+    .get(game_state.player)
+    .map_or(0.0, fn(v) { v.0[Y] })
+  for bird_entity, bird in birds {
+    guard bird_entity.is_alive() else { continue }
+    guard !bird.is_hurt else { continue }
+    guard entity_rect(bird_entity) is Some(bird_rect) else { continue }
+    if !@math.Rect::intersects(player_rect, bird_rect) {
+      continue
     }
+    let bird_mid_y = bird_rect.position[Y] + bird_rect.size[Y] * 0.5
+    let stomp = resolved_vy > 0.0 && player_bottom <= bird_mid_y
+    if stomp {
+      bird.is_hurt = true
+      guard @velocity.velocities.get(game_state.player) is Some(velocity)
+      @velocity.velocities[game_state.player] = velocity.0.update(Y, -BUMP_V)
+    } else {
+      hurt_player()
+    }
+    break
   }
 }
 
