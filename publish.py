@@ -29,7 +29,6 @@ INTERNAL_MODULES = {
     "Milky2018/selene",
     "Milky2018/selene_webgpu",
     "Milky2018/selene_raylib",
-    "Milky2018/selene-examples",
 }
 
 
@@ -39,14 +38,13 @@ class ModuleConfig:
     path: Path
 
 
-MODULES = [
+RELEASE_MODULES = [
     ModuleConfig("selene-core", ROOT_DIR / "selene-core"),
     ModuleConfig("selene-webgpu", ROOT_DIR / "selene-webgpu"),
     ModuleConfig("selene-raylib", ROOT_DIR / "selene-raylib"),
-    ModuleConfig("examples", ROOT_DIR / "examples"),
 ]
 
-PUBLISH_ORDER = ["selene-core", "selene-webgpu", "selene-raylib", "examples"]
+PUBLISH_ORDER = ["selene-core", "selene-webgpu", "selene-raylib"]
 
 
 def run_cmd(cmd: list[str], cwd: Path, *, fail_on_warning: bool = False):
@@ -95,7 +93,7 @@ def write_json(path: Path, data: dict):
 
 
 def module_by_name(name: str) -> ModuleConfig:
-    for module in MODULES:
+    for module in RELEASE_MODULES:
         if module.name == name:
             return module
     raise ValueError(f"Unknown module: {name}")
@@ -385,43 +383,20 @@ def publish_pages(argv: list[str]):
 def run_module_quality_checks(module: ModuleConfig):
     """Run fmt/info/check and fail on any warning."""
     run_cmd(["moon", "fmt"], module.path, fail_on_warning=True)
-    run_cmd(["moon", "info"], module.path, fail_on_warning=True)
 
     if module.name == "selene-core":
+        run_cmd(["moon", "info"], module.path, fail_on_warning=True)
         run_cmd(["moon", "check", "--target", "all", "--deny-warn"], module.path, fail_on_warning=True)
         return
 
     if module.name == "selene-webgpu":
+        run_cmd(["moon", "info"], module.path, fail_on_warning=True)
         run_cmd(["moon", "check", "--target", "js", "--deny-warn"], module.path, fail_on_warning=True)
         return
 
     if module.name == "selene-raylib":
+        run_cmd(["moon", "info"], module.path, fail_on_warning=True)
         run_cmd(["moon", "check", "--target", "native", "--deny-warn"], module.path, fail_on_warning=True)
-        return
-
-    if module.name == "examples":
-        web_root = module.path / "web"
-        native_root = module.path / "native"
-        web_packages = sorted(p for p in web_root.iterdir() if p.is_dir())
-        native_packages = sorted(p for p in native_root.iterdir() if p.is_dir())
-        if not web_packages or not native_packages:
-            raise RuntimeError("examples/web/* or examples/native/* is empty")
-
-        for pkg in web_packages:
-            pkg_rel = f"./web/{pkg.name}"
-            run_cmd(
-                ["moon", "check", pkg_rel, "--target", "js", "--deny-warn"],
-                module.path,
-                fail_on_warning=True,
-            )
-
-        for pkg in native_packages:
-            pkg_rel = f"./native/{pkg.name}"
-            run_cmd(
-                ["moon", "check", pkg_rel, "--target", "native", "--deny-warn"],
-                module.path,
-                fail_on_warning=True,
-            )
         return
 
     raise RuntimeError(f"Unknown module for quality checks: {module.name}")
@@ -449,37 +424,76 @@ def rewrite_module_for_release(module: ModuleConfig, version: str):
     write_json(manifest_path, manifest)
 
 
+def snapshot_module_manifests() -> dict[Path, str]:
+    snapshots: dict[Path, str] = {}
+    for module in RELEASE_MODULES:
+        manifest_path = module.path / "moon.mod.json"
+        snapshots[manifest_path] = manifest_path.read_text(encoding="utf-8")
+    return snapshots
+
+
+def restore_module_manifests(snapshots: dict[Path, str]):
+    for manifest_path, content in snapshots.items():
+        manifest_path.write_text(content, encoding="utf-8")
+
+
 def run_release_pipeline(version: str):
     print("=" * 60)
     print(f"Preparing publish pipeline for version {version}")
     print("=" * 60)
     print()
 
-    print("[1/4] Running fmt/info/check on all modules...")
-    for module in MODULES:
-        print(f"\n==> Quality checks: {module.name}")
-        run_module_quality_checks(module)
+    snapshots = snapshot_module_manifests()
+    pipeline_error = None
+    try:
+        print("[1/4] Running fmt/info/check on all modules...")
+        for module in RELEASE_MODULES:
+            print(f"\n==> Quality checks: {module.name}")
+            run_module_quality_checks(module)
 
-    print("\n[2/4] Rewriting module versions and internal deps...")
-    for module in MODULES:
-        rewrite_module_for_release(module, version)
-        print(f"✓ Updated {module.name}/moon.mod.json")
+        print("\n[2/4] Rewriting module versions and internal deps...")
+        for module in RELEASE_MODULES:
+            rewrite_module_for_release(module, version)
+            print(f"✓ Updated {module.name}/moon.mod.json")
 
-    print("\n[3/4] Running moon update after manifest rewrites...")
-    for module in MODULES:
-        print(f"==> moon update: {module.name}")
-        run_cmd(["moon", "update"], module.path, fail_on_warning=True)
+        print("\n[3/4] Running moon update after manifest rewrites...")
+        for module in RELEASE_MODULES:
+            print(f"==> moon update: {module.name}")
+            run_cmd(["moon", "update"], module.path, fail_on_warning=True)
 
-    print("\n[4/4] Publishing modules in order...")
-    for module_name in PUBLISH_ORDER:
-        module = module_by_name(module_name)
-        print(f"==> moon publish: {module.name}")
-        run_cmd(["moon", "publish"], module.path, fail_on_warning=True)
+        print("\n[4/4] Publishing modules in order...")
+        for idx, module_name in enumerate(PUBLISH_ORDER):
+            module = module_by_name(module_name)
+            print(f"==> moon publish: {module.name}")
+            run_cmd(["moon", "publish"], module.path, fail_on_warning=True)
+            if idx < len(PUBLISH_ORDER) - 1:
+                print("==> moon update for remaining modules...")
+                for next_module_name in PUBLISH_ORDER[idx + 1:]:
+                    next_module = module_by_name(next_module_name)
+                    run_cmd(["moon", "update"], next_module.path, fail_on_warning=True)
 
-    print("\n" + "=" * 60)
-    print(f"✓ Release publish pipeline completed for {version}")
-    print("=" * 60)
+        print("\n" + "=" * 60)
+        print(f"✓ Release publish pipeline completed for {version}")
+        print("=" * 60)
+    except Exception as exc:
+        pipeline_error = exc
+    finally:
+        print("\n[cleanup] Restoring module manifests to pre-publish state...")
+        restore_module_manifests(snapshots)
+        print("[cleanup] Running moon update for restored manifests...")
+        restore_error = None
+        for module in RELEASE_MODULES:
+            try:
+                run_cmd(["moon", "update"], module.path, fail_on_warning=False)
+            except Exception as exc:
+                print(f"⚠ Warning: moon update failed during cleanup for {module.name}: {exc}")
+                if restore_error is None:
+                    restore_error = exc
+        if pipeline_error is None and restore_error is not None:
+            raise restore_error
 
+    if pipeline_error is not None:
+        raise pipeline_error
 
 def main():
     args = sys.argv[1:]

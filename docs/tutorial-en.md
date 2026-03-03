@@ -13,14 +13,6 @@ python3 -m http.server 8000
 
 Open `http://localhost:8000/web/pixeladventure/`.
 
-### 1.2 Native (raylib)
-
-```bash
-cd examples
-moon update
-moon run ./native/pixeladventure --target native
-```
-
 ## 2. Example Layout
 
 ```text
@@ -28,7 +20,6 @@ examples/
   assets/
   pixeladventure/            # shared game logic
   web/pixeladventure/        # web entry + override selene-webgpu
-  native/pixeladventure/     # native entry + override selene_raylib
 ```
 
 ## 3. Backend Wrapper (`moon.pkg`)
@@ -44,20 +35,6 @@ options(
   "is-main": true,
   overrides: [ "Milky2018/selene_webgpu" ],
   targets: { "main.mbt": [ "js" ] },
-)
-```
-
-### 3.2 Native wrapper
-
-```moonbit
-import {
-  "Milky2018/selene-examples/pixeladventure",
-}
-
-options(
-  "is-main": true,
-  overrides: [ "Milky2018/selene_raylib" ],
-  targets: { "main.mbt": [ "native" ] },
 )
 ```
 
@@ -161,10 +138,6 @@ cd examples
 moon check ./web/pixeladventure --target js
 moon build ./web/pixeladventure --target js --target-dir _build --release
 
-# Native
-moon check ./native/pixeladventure --target native
-moon run ./native/pixeladventure --target native
-
 # Build all examples
-./build_all.sh all release
+./build_all.sh web release
 ```

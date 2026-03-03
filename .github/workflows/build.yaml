@@ -71,12 +71,6 @@ jobs:
             exit 1
           fi
 
-          native_packages=$(find ./native -mindepth 1 -maxdepth 1 -type d | sort)
-          if [ -z "$native_packages" ]; then
-            echo "No native example packages found under examples/native/*"
-            exit 1
-          fi
-
           while IFS= read -r pkg; do
             if [ -z "$pkg" ]; then
               continue
@@ -84,11 +78,3 @@ jobs:
             echo "Checking JS target for $pkg"
             moon check "$pkg" --target js --deny-warn
           done <<< "$web_packages"
-
-          while IFS= read -r pkg; do
-            if [ -z "$pkg" ]; then
-              continue
-            fi
-            echo "Checking native target for $pkg"
-            moon check "$pkg" --target native --deny-warn
-          done <<< "$native_packages"

@@ -3,6 +3,7 @@ import {
   "Milky2018/selene/math" @smath,
   "Milky2018/selene/render" @render,
   "tonyfettes/raylib",
+  "tonyfettes/raylib/rl" @rl,
   "moonbitlang/core/cmp",
 }
 

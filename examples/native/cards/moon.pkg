@@ -1,9 +1,0 @@
-import {
-  "Milky2018/selene-examples/cards" @cards_game,
-}
-
-options(
-  "is-main": true,
-  overrides: [ "Milky2018/selene_raylib" ],
-  targets: { "main.mbt": [ "native" ] },
-)

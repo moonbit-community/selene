@@ -1,5 +1,57 @@
 # Changelog
 
+## [0.21.2] - 2026-03-03
+
+### Changed
+
+- Release pipeline now publishes only runtime packages (`selene-core`, `selene-webgpu`, `selene-raylib`) and restores local manifests after publish
+- `examples` is treated as local project content (excluded from package publish)
+
+### Fixed
+
+- WebGPU dynamic vertex-buffer offset handling for draw commands
+- Web `scene3d` rendering visibility and preview-thumbnail capture workflow
+
+## [0.21.1] - 2026-03-03
+
+### Changed
+
+- Updated `selene-raylib` dependency to `tonyfettes/raylib@0.2.3`
+- Migrated raylib repeat/transform rendering path from deprecated `@raylib.rl_*` calls to `@rl.*`
+
+## [0.21.0] - 2026-03-03
+
+### Added
+
+- New WebGPU backend package: `Milky2018/selene_webgpu`
+- New `scene3d` example using the unified backend 3D API
+- Web text rendering integration via `moon_cosmic` + `moon_swash`
+- Accessibility synchronization in core via `moon_accesskit`
+
+### Changed
+
+- Renamed backend package from `selene-canvas` to `selene-webgpu`
+- Migrated runtime architecture to `transform` + `physics2d` APIs and staged schedule
+- Replaced legacy quadtree/layer collision path with Rapier 2D queries and collision filters
+- Unified examples asset paths and web build workflow (`build_all.sh`, `_build` web paths)
+
+## [0.20.0] - 2026-03-02
+
+### Added
+
+- `publish.py` versioned release workflow
+
+### Changed
+
+- Refined zoom/display-space semantics and examples UI behavior
+- Refreshed tutorials for the updated engine layout
+
+### Fixed
+
+- Fixed Rapier shape-cast no-hit abort
+- Fixed movement edge cases in `pixeladventure`
+- Fixed raylib texture sampling and image scaling edge cases
+
 ## [0.19.0] - 2025-10-27
 
 ### Added 

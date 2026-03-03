@@ -7,20 +7,19 @@ cd "$SCRIPT_DIR"
 usage() {
   cat <<'EOF'
 Usage:
-  ./build_all.sh [all|web|native] [release|debug]
+  ./build_all.sh [web] [release|debug]
 
 Examples:
   ./build_all.sh
   ./build_all.sh web
-  ./build_all.sh native release
-  ./build_all.sh all debug
+  ./build_all.sh web release
 EOF
 }
 
-backend="${1:-all}"
+backend="${1:-web}"
 profile="${2:-release}"
 
-if [[ "$backend" != "all" && "$backend" != "web" && "$backend" != "native" ]]; then
+if [[ "$backend" != "web" ]]; then
   usage
   exit 1
 fi
@@ -35,41 +34,19 @@ while IFS= read -r game; do
   web_games+=("$game")
 done < <(find web -mindepth 1 -maxdepth 1 -type d -not -name '.*' -exec basename {} \; | sort)
 
-native_games=()
-while IFS= read -r game; do
-  native_games+=("$game")
-done < <(find native -mindepth 1 -maxdepth 1 -type d -not -name '.*' -exec basename {} \; | sort)
-
-if [[ "$backend" == "all" || "$backend" == "web" ]]; then
-  if [[ ${#web_games[@]} -eq 0 ]]; then
-    echo "No web games found under examples/web"
-    exit 1
-  fi
-  echo "Building web games (${profile})..."
-  for game in "${web_games[@]}"; do
-    echo "  - web/${game}"
-    if [[ "$profile" == "release" ]]; then
-      moon build "./web/${game}" --target js --release
-    else
-      moon build "./web/${game}" --target js
-    fi
-  done
+if [[ ${#web_games[@]} -eq 0 ]]; then
+  echo "No web games found under examples/web"
+  exit 1
 fi
 
-if [[ "$backend" == "all" || "$backend" == "native" ]]; then
-  if [[ ${#native_games[@]} -eq 0 ]]; then
-    echo "No native games found under examples/native"
-    exit 1
+echo "Building web games (${profile})..."
+for game in "${web_games[@]}"; do
+  echo "  - web/${game}"
+  if [[ "$profile" == "release" ]]; then
+    moon build "./web/${game}" --target js --release
+  else
+    moon build "./web/${game}" --target js
   fi
-  echo "Building native games (${profile})..."
-  for game in "${native_games[@]}"; do
-    echo "  - native/${game}"
-    if [[ "$profile" == "release" ]]; then
-      moon build "./native/${game}" --target native --release
-    else
-      moon build "./native/${game}" --target native
-    fi
-  done
-fi
+done
 
 echo "Build complete."

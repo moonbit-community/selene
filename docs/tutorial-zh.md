@@ -13,14 +13,6 @@ python3 -m http.server 8000
 
 打开 `http://localhost:8000/web/pixeladventure/`。
 
-### 1.2 Native（raylib）
-
-```bash
-cd examples
-moon update
-moon run ./native/pixeladventure --target native
-```
-
 ## 2. 示例目录结构
 
 ```text
@@ -28,7 +20,6 @@ examples/
   assets/
   pixeladventure/            # 共享游戏逻辑
   web/pixeladventure/        # Web 入口 + override selene-webgpu
-  native/pixeladventure/     # Native 入口 + override selene_raylib
 ```
 
 ## 3. 后端包装层（`moon.pkg`）
@@ -44,20 +35,6 @@ options(
   "is-main": true,
   overrides: [ "Milky2018/selene_webgpu" ],
   targets: { "main.mbt": [ "js" ] },
-)
-```
-
-### 3.2 Native 包
-
-```moonbit
-import {
-  "Milky2018/selene-examples/pixeladventure",
-}
-
-options(
-  "is-main": true,
-  overrides: [ "Milky2018/selene_raylib" ],
-  targets: { "main.mbt": [ "native" ] },
 )
 ```
 
@@ -161,10 +138,6 @@ cd examples
 moon check ./web/pixeladventure --target js
 moon build ./web/pixeladventure --target js --target-dir _build --release
 
-# Native
-moon check ./native/pixeladventure --target native
-moon run ./native/pixeladventure --target native
-
 # 一次性构建全部示例
-./build_all.sh all release
+./build_all.sh web release
 ```
