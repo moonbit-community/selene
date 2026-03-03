@@ -13,169 +13,280 @@
 // limitations under the License.
 
 ///|
-let element_cache : Map[String, @dom.HTMLImageElement] = Map::new()
+fn repeat_mode_to_code(repeat : @smath.RepeatMode) -> Int {
+  match repeat {
+    RepeatX => 0
+    RepeatY => 1
+    NoRepeat => 2
+    Repeat => 3
+  }
+}
 
 ///|
-fn get_image_element(png : String) -> @dom.HTMLImageElement {
-  let resolved_png = resolve_asset_path(png)
-  if element_cache.get(resolved_png) is Some(element) {
-    return element
+fn h_align_to_code(align : @smath.HAlign) -> Int {
+  match align {
+    Left => 0
+    Center => 1
+    Right => 2
   }
-  let element = @dom.HTMLImageElement::new()
-  element.set_src(resolved_png)
-  element_cache.set(resolved_png, element)
-  return element
+}
+
+///|
+fn v_align_to_code(align : @smath.VAlign) -> Int {
+  match align {
+    Top => 0
+    Center => 1
+    Bottom => 2
+  }
+}
+
+///|
+fn color_rgba(color : @render.Color) -> (Double, Double, Double, Double) {
+  (
+    color.r.reinterpret_as_int().to_double(),
+    color.g.reinterpret_as_int().to_double(),
+    color.b.reinterpret_as_int().to_double(),
+    color.a,
+  )
 }
 
 ///|
 pub fn preload_img(path : String) -> Unit {
-  get_image_element(path) |> ignore
-}
-
-///|
-fn repeat_mode_to_css(repeat : @smath.RepeatMode) -> String {
-  match repeat {
-    NoRepeat => "no-repeat"
-    RepeatY => "repeat-y"
-    RepeatX => "repeat-x"
-    Repeat => "repeat"
-  }
-}
-
-///|
-fn color_to_css(color : @render.Color) -> String {
-  "rgba(\{color.r.reinterpret_as_int()}, \{color.g.reinterpret_as_int()}, \{color.b.reinterpret_as_int()}, \{color.a})"
-}
-
-///|
-fn text_align_to_css(align : @smath.HAlign) -> String {
-  match align {
-    Left => "left"
-    Center => "center"
-    Right => "right"
-  }
-}
-
-///|
-fn text_baseline_to_css(baseline : @smath.VAlign) -> String {
-  match baseline {
-    Top => "top"
-    Center => "center"
-    Bottom => "bottom"
-  }
-}
-
-///|
-fn text_style_to_css(style : @render.TextStyle) -> String {
-  "\{style.size}px \{style.family}"
+  webgpu_preload_img(resolve_asset_path(path))
 }
 
 ///|
 pub fn draw_image(command : @render.ImageDrawCommand) -> Unit {
-  let element = get_image_element(command.path)
-  let x = command.destination.position[X]
-  let y = command.destination.position[Y]
-  let width = command.destination.size[X]
-  let height = command.destination.size[Y]
-  let context = canvas_backend.context
-  context.save()
-  context.translate(x, y)
   let transform = command.transform
-  context.transform(
+  let mut source_x = 0.0
+  let mut source_y = 0.0
+  let mut source_width = 0.0
+  let mut source_height = 0.0
+  let mut has_source = false
+  match command.source {
+    Some(source) => {
+      source_x = source.position[X]
+      source_y = source.position[Y]
+      source_width = source.size[X]
+      source_height = source.size[Y]
+      has_source = true
+    }
+    None => ()
+  }
+  webgpu_draw_image(
+    resolve_asset_path(command.path),
+    command.destination.position[X],
+    command.destination.position[Y],
+    command.destination.size[X],
+    command.destination.size[Y],
+    has_source,
+    source_x,
+    source_y,
+    source_width,
+    source_height,
     transform.a,
     transform.b,
     transform.c,
     transform.d,
     transform.tx,
     transform.ty,
+    repeat_mode_to_code(command.repeat),
   )
-  match command.source {
-    Some(source) =>
-      context.draw_image_with_src_and_dst_size(
-        element |> @js.Value::cast_from |> @js.Value::cast,
-        source.position[X],
-        source.position[Y],
-        source.size[X],
-        source.size[Y],
-        0,
-        0,
-        width,
-        height,
-      )
-    None => {
-      let pattern = context.create_pattern(
-        @js.Union7::from0(element),
-        repeat_mode_to_css(command.repeat),
-      )
-      context.set_fill_style(@js.Union3::from2(pattern))
-      context.fill_rect(0, 0, width, height)
-    }
-  }
-  context.restore()
 }
 
 ///|
 pub fn draw_text(command : @render.TextDrawCommand) -> Unit {
-  let context = canvas_backend.context
-  context.save()
-  context.set_font(text_style_to_css(command.style))
-  set_text_align(context, text_align_to_css(command.style.align))
-  set_text_baseline(context, text_baseline_to_css(command.style.baseline))
-  context.set_fill_style(@js.Union3::from0(color_to_css(command.style.color)))
-  context.fill_text(command.text, command.position[X], command.position[Y])
-  context.restore()
+  let (r, g, b, a) = color_rgba(command.style.color)
+  webgpu_draw_text(
+    command.text,
+    command.position[X],
+    command.position[Y],
+    command.style.family,
+    command.style.size,
+    h_align_to_code(command.style.align),
+    v_align_to_code(command.style.baseline),
+    r,
+    g,
+    b,
+    a,
+  )
 }
 
 ///|
 pub fn draw_rect(command : @render.RectDrawCommand) -> Unit {
-  let x = command.rect.position[X]
-  let y = command.rect.position[Y]
-  let width = command.rect.size[X]
-  let height = command.rect.size[Y]
-  let context = canvas_backend.context
-  context.save()
-  if command.stroke_color is Some(stroke_color) {
-    context.set_stroke_style(@js.Union3::from0(color_to_css(stroke_color)))
-    context.stroke_rect(x, y, width, height)
+  let (fr, fg, fb, fa) = color_rgba(command.fill_color)
+  let mut has_stroke = false
+  let mut sr = 0.0
+  let mut sg = 0.0
+  let mut sb = 0.0
+  let mut sa = 1.0
+  match command.stroke_color {
+    Some(stroke_color) => {
+      has_stroke = true
+      let (tr, tg, tb, ta) = color_rgba(stroke_color)
+      sr = tr
+      sg = tg
+      sb = tb
+      sa = ta
+    }
+    None => ()
   }
-  context.set_fill_style(@js.Union3::from0(color_to_css(command.fill_color)))
-  context.fill_rect(x, y, width, height)
-  context.restore()
+  webgpu_draw_rect(
+    command.rect.position[X],
+    command.rect.position[Y],
+    command.rect.size[X],
+    command.rect.size[Y],
+    fr,
+    fg,
+    fb,
+    fa,
+    has_stroke,
+    sr,
+    sg,
+    sb,
+    sa,
+  )
 }
 
 ///|
 pub fn draw_circle(command : @render.CircleDrawCommand) -> Unit {
-  let context = canvas_backend.context
-  context.save()
-  begin_path(context)
-  context.arc(
+  let (fr, fg, fb, fa) = color_rgba(command.fill_color)
+  let mut has_stroke = false
+  let mut sr = 0.0
+  let mut sg = 0.0
+  let mut sb = 0.0
+  let mut sa = 1.0
+  match command.stroke_color {
+    Some(stroke_color) => {
+      has_stroke = true
+      let (tr, tg, tb, ta) = color_rgba(stroke_color)
+      sr = tr
+      sg = tg
+      sb = tb
+      sa = ta
+    }
+    None => ()
+  }
+  webgpu_draw_circle(
     command.center[X],
     command.center[Y],
     command.radius,
-    0,
-    @math.PI * 2,
+    fr,
+    fg,
+    fb,
+    fa,
+    has_stroke,
+    sr,
+    sg,
+    sb,
+    sa,
   )
-  context.set_fill_style(@js.Union3::from0(color_to_css(command.fill_color)))
-  context.fill()
-  if command.stroke_color is Some(stroke_color) {
-    context.set_stroke_style(@js.Union3::from0(color_to_css(stroke_color)))
-    context.stroke()
-  }
-  context.restore()
 }
 
 ///|
 pub fn draw_gradient_rect(command : @render.GradientRectDrawCommand) -> Unit {
-  let x = command.rect.position[X]
-  let y = command.rect.position[Y]
-  let width = command.rect.size[X]
-  let height = command.rect.size[Y]
-  let context = canvas_backend.context
-  context.save()
-  let gradient = context.create_linear_gradient(x, y, x + width, y + height)
-  gradient.add_color_stop(0.0, color_to_css(command.color_start))
-  gradient.add_color_stop(1.0, color_to_css(command.color_end))
-  context.set_fill_style(@js.Union3::from1(gradient))
-  context.fill_rect(x, y, width, height)
-  context.restore()
+  let (sr, sg, sb, sa) = color_rgba(command.color_start)
+  let (er, eg, eb, ea) = color_rgba(command.color_end)
+  webgpu_draw_gradient_rect(
+    command.rect.position[X],
+    command.rect.position[Y],
+    command.rect.size[X],
+    command.rect.size[Y],
+    sr,
+    sg,
+    sb,
+    sa,
+    er,
+    eg,
+    eb,
+    ea,
+  )
+}
+
+///|
+pub fn begin_3d(camera : @render.Camera3D) -> Unit {
+  webgpu_begin_3d(
+    camera.position.x,
+    camera.position.y,
+    camera.position.z,
+    camera.target.x,
+    camera.target.y,
+    camera.target.z,
+    camera.up.x,
+    camera.up.y,
+    camera.up.z,
+    camera.fovy,
+  )
+}
+
+///|
+pub fn end_3d() -> Unit {
+  webgpu_end_3d()
+}
+
+///|
+pub fn draw_cube_3d(command : @render.CubeDrawCommand3D) -> Unit {
+  let (r, g, b, a) = color_rgba(command.color)
+  webgpu_draw_cube_3d(
+    command.center.x,
+    command.center.y,
+    command.center.z,
+    command.size.x,
+    command.size.y,
+    command.size.z,
+    r,
+    g,
+    b,
+    a,
+  )
+}
+
+///|
+pub fn draw_cube_wires_3d(command : @render.CubeDrawCommand3D) -> Unit {
+  let (r, g, b, a) = color_rgba(command.color)
+  webgpu_draw_cube_wires_3d(
+    command.center.x,
+    command.center.y,
+    command.center.z,
+    command.size.x,
+    command.size.y,
+    command.size.z,
+    r,
+    g,
+    b,
+    a,
+  )
+}
+
+///|
+pub fn draw_sphere_3d(command : @render.SphereDrawCommand3D) -> Unit {
+  let (r, g, b, a) = color_rgba(command.color)
+  webgpu_draw_sphere_3d(
+    command.center.x,
+    command.center.y,
+    command.center.z,
+    command.radius,
+    r,
+    g,
+    b,
+    a,
+  )
+}
+
+///|
+pub fn draw_cylinder_3d(command : @render.CylinderDrawCommand3D) -> Unit {
+  let (r, g, b, a) = color_rgba(command.color)
+  webgpu_draw_cylinder_3d(
+    command.center.x,
+    command.center.y,
+    command.center.z,
+    command.radius_top,
+    command.radius_bottom,
+    command.height,
+    command.slices,
+    r,
+    g,
+    b,
+    a,
+  )
 }

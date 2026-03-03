@@ -95,6 +95,11 @@ fn to_ray_vector2(x : Double, y : Double) -> @raylib.Vector2 {
 }
 
 ///|
+fn to_ray_vector3(value : @render.Vec3) -> @raylib.Vector3 {
+  @raylib.Vector3::new(to_float(value.x), to_float(value.y), to_float(value.z))
+}
+
+///|
 fn to_ray_rect(
   x : Double,
   y : Double,
@@ -131,6 +136,17 @@ fn to_ray_color(color : @render.Color) -> @raylib.Color {
     color.g.reinterpret_as_int(),
     color.b.reinterpret_as_int(),
     clamp_u8((color.a * 255.0).to_int()),
+  )
+}
+
+///|
+fn to_ray_camera3d(camera : @render.Camera3D) -> @raylib.Camera3D {
+  @raylib.Camera3D::new(
+    to_ray_vector3(camera.position),
+    to_ray_vector3(camera.target),
+    to_ray_vector3(camera.up),
+    to_float(camera.fovy),
+    @raylib.CameraPerspective,
   )
 }
 
@@ -477,6 +493,59 @@ pub fn draw_gradient_rect(command : @render.GradientRectDrawCommand) -> Unit {
     to_ray_color(command.color_start),
     to_ray_color(command.color_end),
     to_ray_color(command.color_end),
+  )
+}
+
+///|
+pub fn begin_3d(camera : @render.Camera3D) -> Unit {
+  @raylib.begin_mode_3d(to_ray_camera3d(camera))
+}
+
+///|
+pub fn end_3d() -> Unit {
+  @raylib.end_mode_3d()
+}
+
+///|
+pub fn draw_cube_3d(command : @render.CubeDrawCommand3D) -> Unit {
+  @raylib.draw_cube(
+    to_ray_vector3(command.center),
+    to_float(command.size.x),
+    to_float(command.size.y),
+    to_float(command.size.z),
+    to_ray_color(command.color),
+  )
+}
+
+///|
+pub fn draw_cube_wires_3d(command : @render.CubeDrawCommand3D) -> Unit {
+  @raylib.draw_cube_wires(
+    to_ray_vector3(command.center),
+    to_float(command.size.x),
+    to_float(command.size.y),
+    to_float(command.size.z),
+    to_ray_color(command.color),
+  )
+}
+
+///|
+pub fn draw_sphere_3d(command : @render.SphereDrawCommand3D) -> Unit {
+  @raylib.draw_sphere(
+    to_ray_vector3(command.center),
+    to_float(command.radius),
+    to_ray_color(command.color),
+  )
+}
+
+///|
+pub fn draw_cylinder_3d(command : @render.CylinderDrawCommand3D) -> Unit {
+  @raylib.draw_cylinder(
+    to_ray_vector3(command.center),
+    to_float(command.radius_top),
+    to_float(command.radius_bottom),
+    to_float(command.height),
+    command.slices,
+    to_ray_color(command.color),
   )
 }
 

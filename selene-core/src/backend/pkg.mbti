@@ -37,6 +37,18 @@ fn draw_circle(@render.CircleDrawCommand) -> Unit
 
 fn draw_gradient_rect(@render.GradientRectDrawCommand) -> Unit
 
+fn begin_3d(@render.Camera3D) -> Unit
+
+fn end_3d() -> Unit
+
+fn draw_cube_3d(@render.CubeDrawCommand3D) -> Unit
+
+fn draw_cube_wires_3d(@render.CubeDrawCommand3D) -> Unit
+
+fn draw_sphere_3d(@render.SphereDrawCommand3D) -> Unit
+
+fn draw_cylinder_3d(@render.CylinderDrawCommand3D) -> Unit
+
 fn play_audio(audio_path~ : String, volume~ : Double, loop_~ : Bool) -> Unit
 
 fn get_realtime_delta() -> Double

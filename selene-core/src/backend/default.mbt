@@ -71,6 +71,36 @@ pub fn draw_gradient_rect(command : @render.GradientRectDrawCommand) -> Unit {
 }
 
 ///|
+pub fn begin_3d(camera : @render.Camera3D) -> Unit {
+  ignore(camera)
+}
+
+///|
+pub fn end_3d() -> Unit {
+
+}
+
+///|
+pub fn draw_cube_3d(command : @render.CubeDrawCommand3D) -> Unit {
+  ignore(command)
+}
+
+///|
+pub fn draw_cube_wires_3d(command : @render.CubeDrawCommand3D) -> Unit {
+  ignore(command)
+}
+
+///|
+pub fn draw_sphere_3d(command : @render.SphereDrawCommand3D) -> Unit {
+  ignore(command)
+}
+
+///|
+pub fn draw_cylinder_3d(command : @render.CylinderDrawCommand3D) -> Unit {
+  ignore(command)
+}
+
+///|
 pub fn play_audio(
   audio_path~ : String,
   volume~ : Double,

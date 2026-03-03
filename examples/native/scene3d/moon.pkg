@@ -1,0 +1,9 @@
+import {
+  "Milky2018/selene-examples/scene3d" @scene3d_game,
+}
+
+options(
+  "is-main": true,
+  overrides: [ "Milky2018/selene_raylib" ],
+  targets: { "main.mbt": [ "native" ] },
+)

@@ -34,6 +34,21 @@ pub(all) struct Color {
 }
 
 ///|
+pub(all) struct Vec3 {
+  x : Double
+  y : Double
+  z : Double
+}
+
+///|
+pub(all) struct Camera3D {
+  position : Vec3
+  target : Vec3
+  up : Vec3
+  fovy : Double
+}
+
+///|
 pub(all) struct ImageRegion {
   position : @math.Vec2D
   size : @math.Vec2D
@@ -84,4 +99,28 @@ pub(all) struct GradientRectDrawCommand {
   rect : @math.Rect
   color_start : Color
   color_end : Color
+}
+
+///|
+pub(all) struct CubeDrawCommand3D {
+  center : Vec3
+  size : Vec3
+  color : Color
+}
+
+///|
+pub(all) struct SphereDrawCommand3D {
+  center : Vec3
+  radius : Double
+  color : Color
+}
+
+///|
+pub(all) struct CylinderDrawCommand3D {
+  center : Vec3
+  radius_top : Double
+  radius_bottom : Double
+  height : Double
+  slices : Int
+  color : Color
 }

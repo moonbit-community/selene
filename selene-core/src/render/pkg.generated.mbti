@@ -22,6 +22,13 @@ pub(all) struct BackendConfig {
   image_smooth : Bool
 }
 
+pub(all) struct Camera3D {
+  position : Vec3
+  target : Vec3
+  up : Vec3
+  fovy : Double
+}
+
 pub(all) struct CircleDrawCommand {
   center : @math.Vec2D
   radius : Double
@@ -34,6 +41,21 @@ pub(all) struct Color {
   g : UInt
   b : UInt
   a : Double
+}
+
+pub(all) struct CubeDrawCommand3D {
+  center : Vec3
+  size : Vec3
+  color : Color
+}
+
+pub(all) struct CylinderDrawCommand3D {
+  center : Vec3
+  radius_top : Double
+  radius_bottom : Double
+  height : Double
+  slices : Int
+  color : Color
 }
 
 pub(all) struct GradientRectDrawCommand {
@@ -61,6 +83,12 @@ pub(all) struct RectDrawCommand {
   stroke_color : Color?
 }
 
+pub(all) struct SphereDrawCommand3D {
+  center : Vec3
+  radius : Double
+  color : Color
+}
+
 pub(all) struct TextDrawCommand {
   text : String
   position : @math.Vec2D
@@ -73,6 +101,12 @@ pub(all) struct TextStyle {
   color : Color
   align : @math.HAlign
   baseline : @math.VAlign
+}
+
+pub(all) struct Vec3 {
+  x : Double
+  y : Double
+  z : Double
 }
 
 // Type aliases

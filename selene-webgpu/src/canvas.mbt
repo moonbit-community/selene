@@ -13,26 +13,24 @@
 // limitations under the License.
 
 ///|
-struct CanvasBackend {
+struct WebGpuBackend {
   canvas : @dom.HTMLCanvasElement
-  context : @dom.CanvasRenderingContext2D
   mut time_scale : Double
   mouse_movement : Ref[@inputs.MouseMovement?]
 }
 
 ///|
-pub fn CanvasBackend::new() -> CanvasBackend {
+pub fn WebGpuBackend::new() -> WebGpuBackend {
   let canvas = @dom.document()
     .get_element_by_id("canvas")
     .unwrap()
     .to_html_canvas_element()
     .unwrap()
-  let context = canvas.get_context("2d").to0().unwrap()
-  { context, canvas, time_scale: 1.0, mouse_movement: Ref::new(None) }
+  { canvas, time_scale: 1.0, mouse_movement: Ref::new(None) }
 }
 
 ///|
-let canvas_backend : CanvasBackend = CanvasBackend::new()
+let canvas_backend : WebGpuBackend = WebGpuBackend::new()
 
 ///|
 pub fn set_time_scale(time_scale : Double) -> Unit {
@@ -60,15 +58,20 @@ pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
   }
   set_viewport_height(canvas_backend.canvas, screen_height)
   set_viewport_width(canvas_backend.canvas, screen_width)
-  set_image_smoothing_enabled(canvas_backend.context, image_smooth)
+  webgpu_initialize(
+    canvas_backend.canvas,
+    screen_width,
+    screen_height,
+    image_smooth,
+  )
   startup()
   schedule_with_fixed_interval(1000 / fps.to_double(), fn(delta) {
     let delta = delta / 1000.0
-    // canvas_backend.current_fps = 1.0 / delta
-    canvas_backend.context.clear_rect(0, 0, screen_width, screen_height)
     realtime_delta.val = delta
     game_loop(delta * canvas_backend.time_scale)
+    webgpu_begin_frame(0.0, 0.0, 0.0, 1.0)
     render_loop(delta * canvas_backend.time_scale)
+    webgpu_end_frame()
     if canvas_backend.mouse_movement.val is Some(mouse_movement) {
       mouse_movement.movement = @smath.Vec2D(0.0, 0.0)
     }
