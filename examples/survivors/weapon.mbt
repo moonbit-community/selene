@@ -213,7 +213,6 @@ fn shoot_weapon_bullet(
     .normalize()
     .scalar_mul(weapon_data.bullet_speed)
   @velocity.velocities.set(bullet_entity, vel)
-  @collision.collision_layers.set(bullet_entity, bullet_collision_layer)
   @collision.shapes.set(
     bullet_entity,
     @collision.CollisionShape::Rect(
@@ -222,7 +221,9 @@ fn shoot_weapon_bullet(
     ),
   )
   let area = @collision.Area::new(
-    @collision.CollisionMask::new([enemy_collision_layer, wall_collision_layer]),
+    @collision.CollisionFilter::new(bullet_collision_group, [
+      enemy_collision_group, wall_collision_group,
+    ]),
   )
   let mut bullet_alive = true
   let mut penetration_count = 0

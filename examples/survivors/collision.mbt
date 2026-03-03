@@ -13,16 +13,16 @@
 // limitations under the License.
 
 ///|
-let player_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
+let player_collision_group : @collision.CollisionGroup = @collision.CollisionGroup::new()
 
 ///|
-let wall_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
+let wall_collision_group : @collision.CollisionGroup = @collision.CollisionGroup::new()
 
 ///|
-let enemy_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
+let enemy_collision_group : @collision.CollisionGroup = @collision.CollisionGroup::new()
 
 ///|
-let bullet_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
+let bullet_collision_group : @collision.CollisionGroup = @collision.CollisionGroup::new()
 
 ///|
-let enemybullet_collision_layer : @collision.CollisionLayer = @collision.CollisionLayer::new()
+let enemybullet_collision_group : @collision.CollisionGroup = @collision.CollisionGroup::new()

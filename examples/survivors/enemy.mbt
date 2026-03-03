@@ -288,18 +288,19 @@ fn spawn_enemy_system(_delta : Double) -> Unit {
             offset=Vec2D(-4.0, -4.0),
           ),
         )
-        @collision.collision_layers.set(enemy, enemy_collision_layer)
         @collision.colliders.set(
           enemy,
           @collision.Collider::new(
-            @collision.CollisionMask::new([
-              enemy_collision_layer, wall_collision_layer,
+            @collision.CollisionFilter::new(enemy_collision_group, [
+              enemy_collision_group, wall_collision_group,
             ]),
           ),
         )
         enemies.set(enemy, enemy_state)
         let area = @collision.Area::new(
-          @collision.CollisionMask::new([player_collision_layer]),
+          @collision.CollisionFilter::new(enemy_collision_group, [
+            player_collision_group,
+          ]),
         )
         @collision.areas.set(enemy, area)
         area.on_enter(fn(e) {
@@ -477,7 +478,6 @@ fn shoot_enemy_bullet(
   @position.positions.set(bullet_entity, enemy_pos)
   let vel = (player_pos - enemy_pos).normalize().scalar_mul(120.0)
   @velocity.velocities.set(bullet_entity, vel)
-  @collision.collision_layers.set(bullet_entity, enemybullet_collision_layer)
   @collision.shapes.set(
     bullet_entity,
     @collision.CollisionShape::Rect(
@@ -486,7 +486,9 @@ fn shoot_enemy_bullet(
     ),
   )
   let area = @collision.Area::new(
-    @collision.CollisionMask::new([player_collision_layer, wall_collision_layer]),
+    @collision.CollisionFilter::new(enemybullet_collision_group, [
+      player_collision_group, wall_collision_group,
+    ]),
   )
   let mut bullet_alive = true
   area.on_enter(fn(hit_entity) {

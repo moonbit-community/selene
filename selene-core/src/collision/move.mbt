@@ -62,9 +62,9 @@ fn move_with_collide(
     position: pos.0 + offset,
     size: @math.Vec2D(width, height),
   }
-  let new_x = move_axis(e, object, velocity, X, collider.mask, world_index)
+  let new_x = move_axis(e, object, velocity, X, collider.filter, world_index)
   let object_x = @math.Rect::{ size: object.size, position: new_x.0 }
-  let new_y = move_axis(e, object_x, new_x.1, Y, collider.mask, world_index)
+  let new_y = move_axis(e, object_x, new_x.1, Y, collider.filter, world_index)
   @position.positions.set(e, new_y.0 - offset)
   new_y.1
 }
@@ -93,9 +93,9 @@ pub let real_velocities : Map[@entity.Entity, @velocity.Velocity] = Map::new()
 const RAPIER_CAST_EPSILON = 0.001
 
 ///|
-fn can_collide_with(mask : CollisionMask, target : @entity.Entity) -> Bool {
-  if collision_layers.get(target) is Some(layer) {
-    mask.contains(layer)
+fn can_collide_with(mask : CollisionFilter, target : @entity.Entity) -> Bool {
+  if colliders.get(target) is Some(collider) {
+    collider.active && mask.matches_group(collider.filter.group)
   } else {
     false
   }
@@ -108,7 +108,7 @@ fn move_axis(
   object : @math.Rect,
   velocity : @math.Vec2D,
   axis : @math.Axis,
-  mask : CollisionMask,
+  mask : CollisionFilter,
   world_index : RapierSpatialIndex,
 ) -> (@math.Vec2D, @math.Vec2D) {
   let speed = velocity[axis]

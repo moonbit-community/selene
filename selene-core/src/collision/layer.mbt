@@ -13,78 +13,52 @@
 // limitations under the License.
 
 ///|
-/// The `CollisionLayer` struct represents a layer that defines the collision
-/// properties of a collision object. It is used to categorize collision objects
-/// into different layers, allowing for more granular control over collision detection.
+/// A collision group identifier.
 ///
-pub struct CollisionLayer(UInt) derive(Eq)
+/// Groups are used by `CollisionFilter` to decide which entities can interact.
+pub struct CollisionGroup(UInt) derive(Eq)
 
 ///|
-/// The `CollisionMask` struct represents a mask that defines which collision layers
-/// a collision object can interact with. It is used to filter collisions based on
-/// the layers of the objects involved in the collision.
-/// 
-pub struct CollisionMask(Array[CollisionLayer])
-
-///|
-let collision_layer_generator : Ref[UInt] = { val: 0 }
-
-///|
-/// Creates a new `CollisionLayer` with a unique identifier.
-/// 
-pub fn CollisionLayer::new() -> CollisionLayer {
-  let layer = collision_layer_generator.val
-  collision_layer_generator.val += 1
-  layer
+/// A collision filter used by colliders and trigger areas.
+///
+/// `group` defines which group the owner belongs to.
+/// `mask` defines which groups this owner can interact with.
+pub struct CollisionFilter {
+  group : CollisionGroup
+  mask : Array[CollisionGroup]
 }
 
 ///|
-/// Global registry that maps entities to their assigned collision layers.
-///
-/// This registry maintains the association between entities and their collision
-/// layers, allowing the collision system to determine which layer each entity
-/// belongs to for collision detection and filtering purposes. Entities can be
-/// assigned to different collision layers to control how they interact with
-/// other entities in the collision system.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// let player_entity = @entity.Entity::new()
-/// defer player_entity.destroy()
-/// let enemy_entity = @entity.Entity::new()
-/// defer enemy_entity.destroy()
-/// let player_layer = @collision.CollisionLayer::new()
-/// let enemy_layer = @collision.CollisionLayer::new()
-///
-/// // Assign collision layers to entities
-/// @collision.collision_layers[player_entity] = player_layer
-/// @collision.collision_layers[enemy_entity] = enemy_layer
-///
-/// inspect(@collision.collision_layers.get(player_entity) is Some(_), content="true")
-/// ```
-///
-pub let collision_layers : Map[@entity.Entity, CollisionLayer] = Map::new()
+let collision_group_generator : Ref[UInt] = { val: 0 }
 
 ///|
-/// Creates a new `CollisionMask` with the specified layers 
-/// that the collision object can interact with.
-/// 
-pub fn CollisionMask::new(layers : Array[CollisionLayer]) -> CollisionMask {
-  layers
+/// Creates a new collision group with a unique identifier.
+pub fn CollisionGroup::new() -> CollisionGroup {
+  let group = collision_group_generator.val
+  collision_group_generator.val += 1
+  group
 }
 
 ///|
-/// Creates an empty `CollisionMask` that does not interact with any layers.
-/// 
-pub fn CollisionMask::empty() -> CollisionMask {
-  []
+/// Creates a collision filter that belongs to `group` and can interact with
+/// all groups listed in `mask`.
+pub fn CollisionFilter::new(
+  group : CollisionGroup,
+  mask : Array[CollisionGroup],
+) -> CollisionFilter {
+  { group, mask }
 }
 
 ///|
-fn CollisionMask::contains(
-  self : CollisionMask,
-  layer : CollisionLayer,
+/// Creates a collision filter that cannot interact with any group.
+pub fn CollisionFilter::empty(group : CollisionGroup) -> CollisionFilter {
+  { group, mask: [] }
+}
+
+///|
+fn CollisionFilter::matches_group(
+  self : CollisionFilter,
+  group : CollisionGroup,
 ) -> Bool {
-  self.0.contains(layer.0)
+  self.mask.contains(group)
 }

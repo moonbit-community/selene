@@ -15,19 +15,19 @@
 ///|
 /// FIXME: replace all callbacks with state access
 struct Area {
-  mask : CollisionMask
+  filter : CollisionFilter
   on_enter_callbacks : Array[(@entity.Entity) -> Unit]
   on_exit_callbacks : Array[(@entity.Entity) -> Unit]
   mut contains : Set[@entity.Entity]
 }
 
 ///|
-/// Creates a new area with the specified collision mask.
+/// Creates a new area with the specified collision filter.
 ///
 /// Parameters:
 ///
-/// * `mask` : The collision mask that determines which collision layers this
-///   area will interact with.
+/// * `filter` : The collision filter that determines which groups this area
+///   will interact with.
 ///
 /// Returns a new `Area` instance with an empty set of contained entities and no
 /// registered callbacks.
@@ -37,13 +37,21 @@ struct Area {
 /// ```moonbit nocheck
 /// let entity = @entity.Entity::new()
 /// defer entity.destroy()
-/// let mask = @collision.CollisionMask::empty()
-/// let area = @collision.Area::new(mask)
+/// let sensor = @collision.CollisionGroup::new()
+/// let player = @collision.CollisionGroup::new()
+/// let area = @collision.Area::new(
+///   @collision.CollisionFilter::new(sensor, [player]),
+/// )
 /// areas[entity] = area
 /// ```
 ///
-pub fn Area::new(mask : CollisionMask) -> Area {
-  { mask, contains: Set::new(), on_enter_callbacks: [], on_exit_callbacks: [] }
+pub fn Area::new(filter : CollisionFilter) -> Area {
+  {
+    filter,
+    contains: Set::new(),
+    on_enter_callbacks: [],
+    on_exit_callbacks: [],
+  }
 }
 
 ///|
@@ -65,8 +73,11 @@ pub fn Area::new(mask : CollisionMask) -> Area {
 /// // Create an area and attach it to an entity
 /// let entity = @entity.Entity::new()
 /// defer entity.destroy()
-/// let mask = @collision.CollisionMask::empty()
-/// let area = @collision.Area::new(mask)
+/// let sensor = @collision.CollisionGroup::new()
+/// let player = @collision.CollisionGroup::new()
+/// let area = @collision.Area::new(
+///   @collision.CollisionFilter::new(sensor, [player]),
+/// )
 /// @collision.areas.set(entity, area)
 ///
 /// // Later retrieve the area
@@ -92,8 +103,11 @@ pub let areas : Map[@entity.Entity, Area] = Map::new()
 /// // Create an area entity and get its contained entities
 /// let area_entity = @entity.Entity::new()
 /// defer area_entity.destroy()
-/// let mask = @collision.CollisionMask::empty()
-/// let area = @collision.Area::new(mask)
+/// let sensor = @collision.CollisionGroup::new()
+/// let player = @collision.CollisionGroup::new()
+/// let area = @collision.Area::new(
+///   @collision.CollisionFilter::new(sensor, [player]),
+/// )
 /// @collision.areas.set(area_entity, area)
 ///
 /// let contained_entities = @collision.get_contains(area_entity)
@@ -120,8 +134,11 @@ pub fn get_contains(area : @entity.Entity) -> Set[@entity.Entity] {
 /// ```moonbit nocheck
 /// let my_entity = @entity.Entity::new()
 /// defer my_entity.destroy()
-/// let mask = @collision.CollisionMask::empty()
-/// let area = @collision.Area::new(mask)
+/// let sensor = @collision.CollisionGroup::new()
+/// let player = @collision.CollisionGroup::new()
+/// let area = @collision.Area::new(
+///   @collision.CollisionFilter::new(sensor, [player]),
+/// )
 /// area.on_enter(fn(entity) { println("Entity \{entity} entered the area!") })
 /// @collision.areas.set(my_entity, area)
 /// ```
@@ -144,8 +161,11 @@ pub fn Area::on_enter(self : Area, callback : (@entity.Entity) -> Unit) -> Unit 
 /// ```moonbit nocheck
 /// let my_entity = @entity.Entity::new()
 /// defer my_entity.destroy()
-/// let mask = @collision.CollisionMask::empty()
-/// let area = @collision.Area::new(mask)
+/// let sensor = @collision.CollisionGroup::new()
+/// let player = @collision.CollisionGroup::new()
+/// let area = @collision.Area::new(
+///   @collision.CollisionFilter::new(sensor, [player]),
+/// )
 /// area.on_exit(fn(entity) { println("Entity \{entity} left the area!") })
 /// @collision.areas.set(my_entity, area)
 /// ```
@@ -165,7 +185,7 @@ pub fn Area::on_exit(self : Area, callback : (@entity.Entity) -> Unit) -> Unit {
 /// 1. Queries Rapier 2D for potential colliding entities within the area's
 /// bounding box
 /// 2. Performs precise collision detection between the area and other entities
-/// 3. Filters entities based on the area's collision mask
+/// 3. Filters entities based on the area's collision filter
 /// 4. Triggers enter callbacks for newly detected entities
 /// 5. Triggers exit callbacks for entities that are no longer in the area
 /// 6. Updates the area's contained entities set
@@ -195,8 +215,8 @@ pub fn area_collide_system(_delta : Double) -> Unit {
     }
     let new_contains = rapier_query_rect_entities(world_index, box, fn(entity) {
       guard entity != e else { return false }
-      if collision_layers.get(entity) is Some(other_layer) {
-        area.mask.contains(other_layer)
+      if colliders.get(entity) is Some(collider) {
+        collider.active && area.filter.matches_group(collider.filter.group)
       } else {
         false
       }

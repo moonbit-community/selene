@@ -35,11 +35,12 @@ fn add_player() -> Unit {
   @position.positions.set(entity, Vec2D(MAP_WIDTH / 2.0, MAP_HEIGHT / 2.0))
   @velocity.velocities.set(entity, Vec2D(0.0, 0.0))
   @camera.attach_entity(entity, Vec2D(PLAYER_SIZE / 2.0, PLAYER_SIZE / 2.0))
-  @collision.collision_layers.set(entity, player_collision_layer)
   @collision.colliders.set(
     entity,
     @collision.Collider::new(
-      @collision.CollisionMask::new([wall_collision_layer]),
+      @collision.CollisionFilter::new(player_collision_group, [
+        wall_collision_group,
+      ]),
     ),
   )
   @collision.shapes.set(

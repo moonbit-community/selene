@@ -43,7 +43,7 @@ fn generate_map() -> Unit {
   }
   let birds = tilemap.get_tiles_first("Bird")
   for bird in birds {
-    add_bird(tile_to_vec2d(bird, tilemap.tile_size))
+    add_bird(tile_to_vec2d(bird, tilemap.tile_size) + @math.Vec2D(0.0, 2.0))
   }
 }
 
@@ -91,7 +91,12 @@ fn add_grass(pos : @math.Vec2D, sprite_id : String) -> Unit {
     grass,
     Rect(size=@math.Vec2D(16.0, 16.0), offset=@math.Vec2D::zero()),
   )
-  @collision.collision_layers.set(grass, terrain_collision_layer)
+  @collision.colliders.set(
+    grass,
+    @collision.Collider::new(
+      @collision.CollisionFilter::empty(terrain_collision_group),
+    ),
+  )
 }
 
 ///|
@@ -111,7 +116,9 @@ fn add_flag(pos : @math.Vec2D) -> Unit {
     Rect(size=@math.Vec2D(64.0, 64.0), offset=@math.Vec2D::zero()),
   )
   let area = @collision.Area::new(
-    @collision.CollisionMask::new([player_collision_layer]),
+    @collision.CollisionFilter::new(trigger_collision_group, [
+      player_collision_group,
+    ]),
   )
   @collision.areas.set(flag, area)
   area.on_enter(fn(e) {
@@ -146,7 +153,9 @@ fn add_apple(pos : @math.Vec2D) -> Unit {
     Rect(size=@math.Vec2D(32.0, 32.0), offset=@math.Vec2D::zero()),
   )
   let area = @collision.Area::new(
-    @collision.CollisionMask::new([player_collision_layer]),
+    @collision.CollisionFilter::new(trigger_collision_group, [
+      player_collision_group,
+    ]),
   )
   @collision.areas.set(apple, area)
   area.on_enter(fn(e) {

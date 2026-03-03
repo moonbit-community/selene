@@ -20,15 +20,16 @@
 ///
 /// * `active` : Whether collision detection is enabled for this collider. When
 ///   `false`, the entity will not participate in collision detection.
-/// * `mask` : Collision mask defining which collision layers this collider can
-///   interact with during collision detection.
+/// * `filter` : Collision filter defining this collider's group and which
+///   groups it can interact with.
 ///
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let layer = @collision.CollisionLayer::new()
-/// let mask = @collision.CollisionMask::new([layer])
-/// let collider = @collision.Collider::new(mask)
+/// let player = @collision.CollisionGroup::new()
+/// let terrain = @collision.CollisionGroup::new()
+/// let filter = @collision.CollisionFilter::new(player, [terrain])
+/// let collider = @collision.Collider::new(filter)
 /// inspect(collider.active, content="true")
 /// collider.active = false
 /// inspect(collider.active, content="false")
@@ -36,16 +37,16 @@
 ///
 pub(all) struct Collider {
   mut active : Bool
-  mask : CollisionMask
+  filter : CollisionFilter
 }
 
 ///|
-/// Creates a new collider with the specified collision mask.
+/// Creates a new collider with the specified collision filter.
 ///
 /// Parameters:
 ///
-/// * `mask` : The collision mask that defines which collision layers this
-///   collider can interact with during collision detection.
+/// * `filter` : The collision filter that defines this collider's group and
+///   which groups it can interact with during collision detection.
 ///
 /// Returns a new `Collider` instance with collision detection enabled by
 /// default.
@@ -53,14 +54,15 @@ pub(all) struct Collider {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let layer = @collision.CollisionLayer::new()
-/// let mask = @collision.CollisionMask::new([layer])
-/// let collider = @collision.Collider::new(mask)
+/// let player = @collision.CollisionGroup::new()
+/// let terrain = @collision.CollisionGroup::new()
+/// let filter = @collision.CollisionFilter::new(player, [terrain])
+/// let collider = @collision.Collider::new(filter)
 /// inspect(collider.active, content="true")
 /// ```
 ///
-pub fn Collider::new(mask : CollisionMask) -> Collider {
-  { active: true, mask }
+pub fn Collider::new(filter : CollisionFilter) -> Collider {
+  { active: true, filter }
 }
 
 ///|
@@ -70,7 +72,7 @@ pub fn Collider::new(mask : CollisionMask) -> Collider {
 /// components. Each entity that participates in collision detection must have
 /// an entry in this map. The collision system uses this map to determine which
 /// entities can collide with each other based on their collision masks and
-/// layers.
+/// filters.
 ///
 /// Do not manually modify this map directly. Instead, use the collision
 /// system's APIs to add, remove, or modify colliders for entities. The

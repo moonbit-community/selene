@@ -82,12 +82,11 @@ fn add_player(pos : @math.Vec2D) -> Unit {
     game_state.player,
     Rect(size=@math.Vec2D(24.0, 32.0), offset=@math.Vec2D(4.0, 0.0)),
   )
-  @collision.collision_layers.set(game_state.player, player_collision_layer)
   @collision.colliders.set(
     game_state.player,
     @collision.Collider::new(
-      @collision.CollisionMask::new([
-        terrain_collision_layer, enemy_collision_layer,
+      @collision.CollisionFilter::new(player_collision_group, [
+        terrain_collision_group, enemy_collision_group,
       ]),
     ),
   )

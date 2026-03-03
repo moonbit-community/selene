@@ -27,8 +27,9 @@ fn add_background(size : @math.Vec2D) -> Unit {
 fn add_border(size : @math.Vec2D) -> Unit {
   fn add_one_border(pos : @math.Vec2D, size : @math.Vec2D) -> Unit {
     let entity = @entity.Entity::new()
-    @collision.collision_layers.set(entity, wall_collision_layer)
-    let collider = @collision.Collider::new(@collision.CollisionMask::empty())
+    let collider = @collision.Collider::new(
+      @collision.CollisionFilter::empty(wall_collision_group),
+    )
     @collision.colliders.set(entity, collider)
     @collision.shapes.set(
       entity,
