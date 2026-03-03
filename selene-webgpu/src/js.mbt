@@ -46,6 +46,53 @@ extern "js" fn load_font_async(font : String, path : String) -> Unit =
   #| }
 
 ///|
+extern "js" fn webgpu_preload_font_bytes(font : String, path : String) -> Unit =
+  #| (font, path) => {
+  #|   const g = globalThis;
+  #|   if (!g.__selene_font_bytes_states) {
+  #|     g.__selene_font_bytes_states = new Map();
+  #|   }
+  #|   const states = g.__selene_font_bytes_states;
+  #|   const rec = states.get(font);
+  #|   if (rec && (rec.status === 0 || rec.status === 1)) {
+  #|     return;
+  #|   }
+  #|   states.set(font, { status: 0, bytes: [] });
+  #|   fetch(path)
+  #|     .then((res) => {
+  #|       if (!res.ok) throw new Error('failed to fetch font');
+  #|       return res.arrayBuffer();
+  #|     })
+  #|     .then((buf) => {
+  #|       states.set(font, { status: 1, bytes: Array.from(new Uint8Array(buf)) });
+  #|     })
+  #|     .catch(() => {
+  #|       states.set(font, { status: 2, bytes: [] });
+  #|     });
+  #| }
+
+///|
+extern "js" fn webgpu_font_bytes_status(font : String) -> Int =
+  #| (font) => {
+  #|   const states = globalThis.__selene_font_bytes_states;
+  #|   if (!states) return -1;
+  #|   const rec = states.get(font);
+  #|   if (!rec) return -1;
+  #|   return rec.status | 0;
+  #| }
+
+///|
+extern "js" fn webgpu_take_font_bytes(font : String) -> Array[Int] =
+  #| (font) => {
+  #|   const states = globalThis.__selene_font_bytes_states;
+  #|   if (!states) return [];
+  #|   const rec = states.get(font);
+  #|   if (!rec || rec.status !== 1) return [];
+  #|   states.set(font, { status: 3, bytes: [] });
+  #|   return rec.bytes || [];
+  #| }
+
+///|
 extern "js" fn resolve_asset_path(path : String) -> String =
   #| (path) => {
   #|   if (path.startsWith("assets/")) {
@@ -247,6 +294,62 @@ extern "js" fn webgpu_initialize(
   #|       const rec = { texture, view: texture.createView(), width, height };
   #|       rt.textCache.set(key, rec);
   #|       return rec;
+  #|     };
+  #|
+  #|     rt.uploadTextTexture = (key, width, height, pixels) => {
+  #|       if (!rt.ready || !rt.device) return false;
+  #|       const w = Math.max(1, width | 0);
+  #|       const h = Math.max(1, height | 0);
+  #|       const need = w * h * 4;
+  #|       const data = new Uint8Array(need);
+  #|       const src = Array.isArray(pixels) ? pixels : [];
+  #|       const n = Math.min(need, src.length);
+  #|       for (let i = 0; i < n; i += 1) {
+  #|         data[i] = src[i] & 0xFF;
+  #|       }
+  #|       const prev = rt.textCache.get(key);
+  #|       if (prev?.texture) {
+  #|         try { prev.texture.destroy(); } catch (_err) {}
+  #|       }
+  #|       const texture = rt.device.createTexture({
+  #|         size: [w, h, 1],
+  #|         format: 'rgba8unorm',
+  #|         usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.TEXTURE_BINDING,
+  #|       });
+  #|       rt.device.queue.writeTexture(
+  #|         { texture },
+  #|         data,
+  #|         { offset: 0, bytesPerRow: w * 4, rowsPerImage: h },
+  #|         [w, h, 1],
+  #|       );
+  #|       const rec = { texture, view: texture.createView(), width: w, height: h };
+  #|       rt.textCache.set(key, rec);
+  #|       return true;
+  #|     };
+  #|
+  #|     rt.pushCachedText = (key, x, y, align, baseline) => {
+  #|       const rec = rt.textCache.get(key);
+  #|       if (!rec) return false;
+  #|       let ox = x;
+  #|       let oy = y;
+  #|       if (align === 1) ox -= rec.width / 2;
+  #|       else if (align === 2) ox -= rec.width;
+  #|       if (baseline === 1) oy -= rec.height / 2;
+  #|       else if (baseline === 2) oy -= rec.height;
+  #|       const x0 = ox;
+  #|       const y0 = oy;
+  #|       const x1 = ox + rec.width;
+  #|       const y1 = oy + rec.height;
+  #|       const verts = new Float32Array([
+  #|         x0, y0, 0, 0, 1, 1, 1, 1,
+  #|         x1, y0, 1, 0, 1, 1, 1, 1,
+  #|         x1, y1, 1, 1, 1, 1, 1, 1,
+  #|         x0, y0, 0, 0, 1, 1, 1, 1,
+  #|         x1, y1, 1, 1, 1, 1, 1, 1,
+  #|         x0, y1, 0, 1, 1, 1, 1, 1,
+  #|       ]);
+  #|       rt.pushTex2d(0, rec, verts);
+  #|       return true;
   #|     };
   #|
   #|     rt.pushColor2d = (topology, verts) => {
@@ -995,6 +1098,34 @@ extern "js" fn webgpu_draw_text(
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
   #|     rt.pushText(text, x, y, family, size, align, baseline, r, g, b, a);
+  #|   }
+  #| }
+
+///|
+extern "js" fn webgpu_upload_text_texture(
+  key : String,
+  width : Int,
+  height : Int,
+  pixels : Array[Int],
+) -> Bool =
+  #| (key, width, height, pixels) => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (!rt) return false;
+  #|   return !!rt.uploadTextTexture?.(key, width, height, pixels);
+  #| }
+
+///|
+extern "js" fn webgpu_draw_cached_text(
+  key : String,
+  x : Double,
+  y : Double,
+  align : Int,
+  baseline : Int,
+) -> Unit =
+  #| (key, x, y, align, baseline) => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (rt) {
+  #|     rt.pushCachedText?.(key, x, y, align, baseline);
   #|   }
   #| }
 

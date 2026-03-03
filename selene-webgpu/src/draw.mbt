@@ -96,6 +96,9 @@ pub fn draw_image(command : @render.ImageDrawCommand) -> Unit {
 
 ///|
 pub fn draw_text(command : @render.TextDrawCommand) -> Unit {
+  if draw_text_with_cosmic(command) {
+    return
+  }
   let (r, g, b, a) = color_rgba(command.style.color)
   webgpu_draw_text(
     command.text,

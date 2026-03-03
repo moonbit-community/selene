@@ -118,7 +118,9 @@ fn schedule_with_fixed_interval(
 
 ///|
 pub fn load_font(font : String, path : String) -> Unit {
-  load_font_async(font, resolve_asset_path(path))
+  let resolved_path = resolve_asset_path(path)
+  load_font_async(font, resolved_path)
+  webgpu_preload_font_bytes(font, resolved_path)
 }
 
 ///|
