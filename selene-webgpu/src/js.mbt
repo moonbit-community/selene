@@ -298,33 +298,43 @@ extern "js" fn webgpu_initialize(
   #|
   #|     rt.uploadTextTexture = (key, width, height, pixels) => {
   #|       if (!rt.ready || !rt.device) return false;
-  #|       const w = Math.max(1, width | 0);
-  #|       const h = Math.max(1, height | 0);
-  #|       const need = w * h * 4;
-  #|       const data = new Uint8Array(need);
-  #|       const src = Array.isArray(pixels) ? pixels : [];
-  #|       const n = Math.min(need, src.length);
-  #|       for (let i = 0; i < n; i += 1) {
-  #|         data[i] = src[i] & 0xFF;
+  #|       try {
+  #|         const w = Math.max(1, width | 0);
+  #|         const h = Math.max(1, height | 0);
+  #|         const src = Array.isArray(pixels) ? pixels : [];
+  #|         const tightBytesPerRow = w * 4;
+  #|         const bytesPerRow = Math.ceil(tightBytesPerRow / 256) * 256;
+  #|         const data = new Uint8Array(bytesPerRow * h);
+  #|         for (let y = 0; y < h; y += 1) {
+  #|           const srcBase = y * tightBytesPerRow;
+  #|           const dstBase = y * bytesPerRow;
+  #|           for (let x = 0; x < tightBytesPerRow; x += 1) {
+  #|             const idx = srcBase + x;
+  #|             if (idx >= src.length) break;
+  #|             data[dstBase + x] = src[idx] & 0xFF;
+  #|           }
+  #|         }
+  #|         const prev = rt.textCache.get(key);
+  #|         if (prev?.texture) {
+  #|           try { prev.texture.destroy(); } catch (_err) {}
+  #|         }
+  #|         const texture = rt.device.createTexture({
+  #|           size: [w, h, 1],
+  #|           format: 'rgba8unorm',
+  #|           usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.TEXTURE_BINDING,
+  #|         });
+  #|         rt.device.queue.writeTexture(
+  #|           { texture },
+  #|           data,
+  #|           { offset: 0, bytesPerRow, rowsPerImage: h },
+  #|           [w, h, 1],
+  #|         );
+  #|         const rec = { texture, view: texture.createView(), width: w, height: h };
+  #|         rt.textCache.set(key, rec);
+  #|         return true;
+  #|       } catch (_err) {
+  #|         return false;
   #|       }
-  #|       const prev = rt.textCache.get(key);
-  #|       if (prev?.texture) {
-  #|         try { prev.texture.destroy(); } catch (_err) {}
-  #|       }
-  #|       const texture = rt.device.createTexture({
-  #|         size: [w, h, 1],
-  #|         format: 'rgba8unorm',
-  #|         usage: GPUTextureUsage.COPY_DST | GPUTextureUsage.TEXTURE_BINDING,
-  #|       });
-  #|       rt.device.queue.writeTexture(
-  #|         { texture },
-  #|         data,
-  #|         { offset: 0, bytesPerRow: w * 4, rowsPerImage: h },
-  #|         [w, h, 1],
-  #|       );
-  #|       const rec = { texture, view: texture.createView(), width: w, height: h };
-  #|       rt.textCache.set(key, rec);
-  #|       return true;
   #|     };
   #|
   #|     rt.pushCachedText = (key, x, y, align, baseline) => {
@@ -698,20 +708,28 @@ extern "js" fn webgpu_initialize(
   #|       pass.setBindGroup(0, rt.bindGroups.camera3d);
   #|       if (section.triCommands.length > 0) {
   #|         pass.setPipeline(rt.pipelines.color3dTri);
+  #|         let totalBytes = 0;
+  #|         for (const verts of section.triCommands) totalBytes += verts.byteLength;
+  #|         const vb = rt.ensureDynamicBuffer('dyn3dTri', totalBytes, GPUBufferUsage.VERTEX);
+  #|         let offset = 0;
   #|         for (const verts of section.triCommands) {
-  #|           const vb = rt.ensureDynamicBuffer('dyn3dTri', verts.byteLength, GPUBufferUsage.VERTEX);
-  #|           rt.device.queue.writeBuffer(vb, 0, verts.buffer, verts.byteOffset, verts.byteLength);
-  #|           pass.setVertexBuffer(0, vb);
+  #|           rt.device.queue.writeBuffer(vb, offset, verts.buffer, verts.byteOffset, verts.byteLength);
+  #|           pass.setVertexBuffer(0, vb, offset, verts.byteLength);
   #|           pass.draw(verts.length / 7, 1, 0, 0);
+  #|           offset += verts.byteLength;
   #|         }
   #|       }
   #|       if (section.lineCommands.length > 0) {
   #|         pass.setPipeline(rt.pipelines.color3dLine);
+  #|         let totalBytes = 0;
+  #|         for (const verts of section.lineCommands) totalBytes += verts.byteLength;
+  #|         const vb = rt.ensureDynamicBuffer('dyn3dLine', totalBytes, GPUBufferUsage.VERTEX);
+  #|         let offset = 0;
   #|         for (const verts of section.lineCommands) {
-  #|           const vb = rt.ensureDynamicBuffer('dyn3dLine', verts.byteLength, GPUBufferUsage.VERTEX);
-  #|           rt.device.queue.writeBuffer(vb, 0, verts.buffer, verts.byteOffset, verts.byteLength);
-  #|           pass.setVertexBuffer(0, vb);
+  #|           rt.device.queue.writeBuffer(vb, offset, verts.buffer, verts.byteOffset, verts.byteLength);
+  #|           pass.setVertexBuffer(0, vb, offset, verts.byteLength);
   #|           pass.draw(verts.length / 7, 1, 0, 0);
+  #|           offset += verts.byteLength;
   #|         }
   #|       }
   #|     };
@@ -721,20 +739,31 @@ extern "js" fn webgpu_initialize(
   #|       const canvasUniform = new Float32Array([w, h, 0, 0]);
   #|       rt.device.queue.writeBuffer(rt.uniformBuffers.canvas2d, 0, canvasUniform.buffer, canvasUniform.byteOffset, canvasUniform.byteLength);
   #|       pass.setBindGroup(0, rt.bindGroups.canvas2d);
+  #|       let colorBytes = 0;
+  #|       for (const cmd of rt.color2dCommands) colorBytes += cmd.verts.byteLength;
+  #|       const colorVb = colorBytes > 0
+  #|         ? rt.ensureDynamicBuffer('dyn2dColor', colorBytes, GPUBufferUsage.VERTEX)
+  #|         : null;
+  #|       let colorOffset = 0;
   #|       for (const cmd of rt.color2dCommands) {
   #|         if (cmd.topology === 'line') pass.setPipeline(rt.pipelines.color2dLine);
   #|         else pass.setPipeline(rt.pipelines.color2dTri);
-  #|         const vb = rt.ensureDynamicBuffer('dyn2dColor', cmd.verts.byteLength, GPUBufferUsage.VERTEX);
-  #|         rt.device.queue.writeBuffer(vb, 0, cmd.verts.buffer, cmd.verts.byteOffset, cmd.verts.byteLength);
-  #|         pass.setVertexBuffer(0, vb);
+  #|         rt.device.queue.writeBuffer(colorVb, colorOffset, cmd.verts.buffer, cmd.verts.byteOffset, cmd.verts.byteLength);
+  #|         pass.setVertexBuffer(0, colorVb, colorOffset, cmd.verts.byteLength);
   #|         pass.draw(cmd.verts.length / 6, 1, 0, 0);
+  #|         colorOffset += cmd.verts.byteLength;
   #|       }
   #|       pass.setPipeline(rt.pipelines.tex2dTri);
+  #|       let texBytes = 0;
+  #|       for (const cmd of rt.tex2dCommands) texBytes += cmd.verts.byteLength;
+  #|       const texVb = texBytes > 0
+  #|         ? rt.ensureDynamicBuffer('dyn2dTex', texBytes, GPUBufferUsage.VERTEX)
+  #|         : null;
+  #|       let texOffset = 0;
   #|       for (const cmd of rt.tex2dCommands) {
   #|         const rec = cmd.textureRec;
   #|         if (!rec?.view) continue;
-  #|         const vb = rt.ensureDynamicBuffer('dyn2dTex', cmd.verts.byteLength, GPUBufferUsage.VERTEX);
-  #|         rt.device.queue.writeBuffer(vb, 0, cmd.verts.buffer, cmd.verts.byteOffset, cmd.verts.byteLength);
+  #|         rt.device.queue.writeBuffer(texVb, texOffset, cmd.verts.buffer, cmd.verts.byteOffset, cmd.verts.byteLength);
   #|         const sampler = cmd.samplerCode === 3
   #|           ? rt.samplers.repeat
   #|           : (cmd.samplerCode === 1
@@ -749,8 +778,9 @@ extern "js" fn webgpu_initialize(
   #|           ],
   #|         });
   #|         pass.setBindGroup(0, bindGroup);
-  #|         pass.setVertexBuffer(0, vb);
+  #|         pass.setVertexBuffer(0, texVb, texOffset, cmd.verts.byteLength);
   #|         pass.draw(cmd.verts.length / 8, 1, 0, 0);
+  #|         texOffset += cmd.verts.byteLength;
   #|       }
   #|     };
   #|
@@ -1111,7 +1141,11 @@ extern "js" fn webgpu_upload_text_texture(
   #| (key, width, height, pixels) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (!rt) return false;
-  #|   return !!rt.uploadTextTexture?.(key, width, height, pixels);
+  #|   try {
+  #|     return !!rt.uploadTextTexture?.(key, width, height, pixels);
+  #|   } catch (_err) {
+  #|     return false;
+  #|   }
   #| }
 
 ///|
