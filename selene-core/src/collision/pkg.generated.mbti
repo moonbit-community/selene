@@ -2,7 +2,6 @@
 package "Milky2018/selene/collision"
 
 import {
-  "Milky2018/moon_rapier/dynamics",
   "Milky2018/selene/entity",
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
@@ -11,79 +10,108 @@ import {
 }
 
 // Values
-pub fn area_collide_system(Double) -> Unit
-
 pub let areas : Map[@entity.Entity, Area]
 
 pub let colliders : Map[@entity.Entity, Collider]
 
-pub let collision_layers : Map[@entity.Entity, CollisionLayer]
+pub fn configure_physics(gravity? : @math.Vec2D, pixels_per_meter? : Double, max_ccd_substeps? : Int) -> Unit
+
+pub fn contact_events() -> Array[ContactEvent]
 
 pub fn debug_collide_system(Double) -> Unit
 
-pub fn get_collision_infos(@entity.Entity) -> Array[CollisionInfo]
+pub fn emit_pickable_just_pressed(@entity.Entity, button? : @inputs.MouseButton) -> Unit
 
 pub fn get_contains(@entity.Entity) -> @set.Set[@entity.Entity]
 
-pub fn is_on_floor(@entity.Entity) -> Bool
+pub let grounded_entities : @set.Set[@entity.Entity]
+
+pub fn is_grounded(@entity.Entity) -> Bool
 
 pub fn move_system(Double) -> Unit
+
+pub let physics_config : PhysicsConfig
 
 pub fn pickable_click_system(Double) -> Unit
 
 pub let pickables : Map[@entity.Entity, Pickable]
 
-pub let real_velocities : Map[@entity.Entity, @velocity.Velocity]
+pub fn pointer_events() -> Array[PointerEvent]
+
+pub let resolved_velocities : Map[@entity.Entity, @velocity.Velocity]
 
 pub let shapes : Map[@entity.Entity, CollisionShape]
+
+pub fn trigger_events() -> Array[TriggerEvent]
 
 // Errors
 
 // Types and methods
-type Area
-pub fn Area::new(CollisionMask) -> Self
-pub fn Area::on_enter(Self, (@entity.Entity) -> Unit) -> Unit
-pub fn Area::on_exit(Self, (@entity.Entity) -> Unit) -> Unit
+pub(all) struct Area {
+  filter : CollisionFilter
+  mut contains : @set.Set[@entity.Entity]
+}
+pub fn Area::new(CollisionFilter) -> Self
 
 pub(all) struct Collider {
   mut active : Bool
-  mask : CollisionMask
+  filter : CollisionFilter
 }
-pub fn Collider::new(CollisionMask) -> Self
+pub fn Collider::new(CollisionFilter) -> Self
 
-pub struct CollisionInfo {
-  entity : @entity.Entity
-  direction : @math.Vec2D
+pub struct CollisionFilter {
+  group : CollisionGroup
+  mask : Array[CollisionGroup]
 }
+pub fn CollisionFilter::empty(CollisionGroup) -> Self
+pub fn CollisionFilter::new(CollisionGroup, Array[CollisionGroup]) -> Self
 
-pub struct CollisionLayer(UInt)
-#deprecated
-pub fn CollisionLayer::inner(Self) -> UInt
-pub fn CollisionLayer::new() -> Self
-pub impl Eq for CollisionLayer
-
-pub struct CollisionMask(Array[CollisionLayer])
-pub fn CollisionMask::empty() -> Self
-#deprecated
-pub fn CollisionMask::inner(Self) -> Array[CollisionLayer]
-pub fn CollisionMask::new(Array[CollisionLayer]) -> Self
+pub struct CollisionGroup {
+  value : UInt
+}
+pub fn CollisionGroup::new() -> Self
+pub impl Eq for CollisionGroup
 
 pub(all) enum CollisionShape {
   Rect(size~ : @math.Vec2D, offset~ : @math.Vec2D)
 }
 
-type Pickable
-pub fn Pickable::new() -> Self
-pub fn Pickable::on_just_pressed(Self, (@inputs.MouseButton) -> Unit) -> Unit
-pub fn Pickable::on_just_released(Self, (@inputs.MouseButton) -> Unit) -> Unit
-pub fn Pickable::on_pressed(Self, (@inputs.MouseButton) -> Unit) -> Unit
-pub fn Pickable::on_released(Self, (@inputs.MouseButton) -> Unit) -> Unit
+pub struct ContactEvent {
+  entity : @entity.Entity
+  other : @entity.Entity
+  started : Bool
+  direction : @math.Vec2D
+}
 
-pub(all) struct RapierSpatialIndex {
-  bodies : @dynamics.RigidBodySet
-  colliders : @Milky2018/moon_rapier/collision.ColliderSet
-  query : @Milky2018/moon_rapier/collision.QueryPipeline
-  collider_entities : Map[Int, @entity.Entity]
+pub(all) struct PhysicsConfig {
+  mut gravity : @math.Vec2D
+  mut pixels_per_meter : Double
+  mut max_ccd_substeps : Int
+}
+
+pub(all) struct Pickable {
+  mut active : Bool
+}
+pub fn Pickable::new() -> Self
+
+pub struct PointerEvent {
+  entity : @entity.Entity
+  button : @inputs.MouseButton
+  phase : PointerPhase
+}
+
+pub(all) enum PointerPhase {
+  Pressed
+  Released
+  JustPressed
+  JustReleased
+}
+pub impl Eq for PointerPhase
+
+pub struct TriggerEvent {
+  area : @entity.Entity
+  other : @entity.Entity
+  entered : Bool
 }
 
 // Type aliases

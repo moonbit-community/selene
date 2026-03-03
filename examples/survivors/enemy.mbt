@@ -297,27 +297,6 @@ fn spawn_enemy_system(_delta : Double) -> Unit {
           ),
         )
         enemies.set(enemy, enemy_state)
-        let area = @collision.Area::new(
-          @collision.CollisionFilter::new(enemy_collision_group, [
-            player_collision_group,
-          ]),
-        )
-        @collision.areas.set(enemy, area)
-        area.on_enter(fn(e) {
-          guard e.is_alive() else { return }
-          guard e == game_state.player_entity else { return }
-          if game_state.invincible {
-            return
-          }
-          game_state.invincible = true
-          let penalty = 250 * game_state.current_wave
-          let new_score = (game_state.score - penalty).max(0)
-          set_score(new_score)
-          trigger_damage_effect()
-          @system.timeout(INVINCIBLE_TIME, fn() {
-            game_state.invincible = false
-          })
-        })
       }
       None => () // No more enemies to spawn in this wave
     }
@@ -348,6 +327,9 @@ enum EnemyType {
 
 ///|
 let enemies : Map[@entity.Entity, Enemy] = Map::new()
+
+///|
+let enemy_bullets : Set[@entity.Entity] = Set::new()
 
 ///|
 fn get_enemy_data(enemy_type : EnemyType) -> EnemyData {
@@ -490,27 +472,45 @@ fn shoot_enemy_bullet(
       player_collision_group, wall_collision_group,
     ]),
   )
-  let mut bullet_alive = true
-  area.on_enter(fn(hit_entity) {
-    guard bullet_alive else { return }
-
-    // Check if hit player
-    if hit_entity == game_state.player_entity {
-      if not(game_state.invincible) {
-        game_state.invincible = true
-        let penalty = 250 * game_state.current_wave
-        let new_score = (game_state.score - penalty).max(0)
-        set_score(new_score)
-        trigger_damage_effect()
-        @system.timeout(INVINCIBLE_TIME, fn() { game_state.invincible = false })
-      }
-    }
-
-    // Destroy bullet on any collision
-    bullet_alive = false
-    bullet_entity.destroy()
-  })
   @collision.areas.set(bullet_entity, area)
+  enemy_bullets.add(bullet_entity)
+  @system.timeout(5.0, fn() {
+    bullet_entity.destroy()
+    enemy_bullets.remove(bullet_entity)
+  })
+}
+
+///|
+fn apply_player_damage() -> Unit {
+  if game_state.invincible {
+    return
+  }
+  game_state.invincible = true
+  let penalty = 250 * game_state.current_wave
+  let new_score = (game_state.score - penalty).max(0)
+  set_score(new_score)
+  trigger_damage_effect()
+  @system.timeout(INVINCIBLE_TIME, fn() { game_state.invincible = false })
+}
+
+///|
+fn enemy_collision_system(_delta : Double) -> Unit {
+  for event in @collision.contact_events() {
+    guard event.started else { continue }
+    guard event.entity == game_state.player_entity else { continue }
+    if enemies.contains(event.other) {
+      apply_player_damage()
+    }
+  }
+  for event in @collision.trigger_events() {
+    guard event.entered else { continue }
+    guard enemy_bullets.contains(event.area) else { continue }
+    if event.other == game_state.player_entity {
+      apply_player_damage()
+    }
+    event.area.destroy()
+    enemy_bullets.remove(event.area)
+  }
 }
 
 ///|

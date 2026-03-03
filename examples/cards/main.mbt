@@ -25,6 +25,7 @@ pub fn run() -> Unit {
   .add_plugin(@plugins.default_plugin)
   // .add_plugin(@plugins.debug_plugin)
   .add_system(game_start, schedule=Startup)
+  .add_system(cards_ui_pointer_system)
   .add_system(game_update_system)
   .run()
 }

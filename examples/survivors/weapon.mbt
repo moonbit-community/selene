@@ -144,6 +144,17 @@ fn calculate_weapon_range(weapon_data : WeaponData, range : Double) -> Double {
 let weapon_timers : Array[Double] = []
 
 ///|
+priv struct PlayerBulletState {
+  mut alive : Bool
+  mut penetration_count : Int
+  damage : Double
+  penetration_limit : Int
+}
+
+///|
+let player_bullets : Map[@entity.Entity, PlayerBulletState] = Map::new()
+
+///|
 fn update_weapon_timers(
   weapon_instances : Array[WeaponType],
   delta : Double,
@@ -225,43 +236,47 @@ fn shoot_weapon_bullet(
       enemy_collision_group, wall_collision_group,
     ]),
   )
-  let mut bullet_alive = true
-  let mut penetration_count = 0
-  area.on_enter(fn(enemy_entity) {
-    guard enemies.get(enemy_entity) is Some(enemy) else {
-      // Hit wall
-      bullet_alive = false
-      bullet_entity.destroy()
-      return
-    }
-    guard bullet_alive else { return }
-
-    // Damage enemy
-    enemy.health -= damage
-    penetration_count += 1
-
-    // Check if enemy is killed
-    if enemy.health <= 0.0 {
-      enemy_entity.destroy()
-      // Give both points and EXP for killing enemies
-      let data = get_enemy_data(enemy.enemy_type)
-      set_score(game_state.score + data.points)
-      add_exp(data.points)
-    }
-
-    // Check if bullet has reached penetration limit (weapon base + player bonus)
-    if penetration_count >= total_penetration {
-      bullet_alive = false
-      bullet_entity.destroy()
-    }
-  })
   @collision.areas.set(bullet_entity, area)
+  player_bullets.set(bullet_entity, {
+    alive: true,
+    penetration_count: 0,
+    damage,
+    penetration_limit: total_penetration,
+  })
 
   // Calculate bullet duration based on weapon range
   let weapon_range = calculate_weapon_range(weapon_data, 0.0)
   let bullet_duration = weapon_range / weapon_data.bullet_speed
   @system.timeout(bullet_duration, fn() {
-    bullet_alive = false
     bullet_entity.destroy()
+    player_bullets.remove(bullet_entity)
   })
+}
+
+///|
+fn player_bullet_trigger_system(_delta : Double) -> Unit {
+  for event in @collision.trigger_events() {
+    guard event.entered else { continue }
+    guard player_bullets.get(event.area) is Some(bullet) else { continue }
+    guard bullet.alive else { continue }
+    if enemies.get(event.other) is Some(enemy) {
+      enemy.health -= bullet.damage
+      bullet.penetration_count += 1
+      if enemy.health <= 0.0 {
+        event.other.destroy()
+        let data = get_enemy_data(enemy.enemy_type)
+        set_score(game_state.score + data.points)
+        add_exp(data.points)
+      }
+    } else {
+      bullet.alive = false
+    }
+    if bullet.penetration_count >= bullet.penetration_limit {
+      bullet.alive = false
+    }
+    if !bullet.alive {
+      event.area.destroy()
+      player_bullets.remove(event.area)
+    }
+  }
 }

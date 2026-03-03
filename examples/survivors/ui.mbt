@@ -13,6 +13,12 @@
 // limitations under the License.
 
 ///|
+let levelup_buttons : Array[@entity.Entity] = []
+
+///|
+let restart_button_ref : Ref[@entity.Entity?] = { val: None }
+
+///|
 fn add_score_box() -> Unit {
   @style.add_widget(
     @style.screen_root,
@@ -36,6 +42,7 @@ fn add_score_box() -> Unit {
 fn setup_level_up_ui() -> Unit {
   // Set up main panel root entity with centered position
   let panel = game_state.level_up_panel.panel_entity
+  levelup_buttons.clear()
 
   // Set up title text sprite on the root entity
   @style.add_widget(
@@ -80,8 +87,9 @@ fn setup_level_up_ui() -> Unit {
         size=@math.Vec2D(160.0, 36.0),
         offset=@math.Vec2D::zero(),
       ),
-      on_just_pressed=fn(_button) { select_powerup(i) },
+      pickable=true,
     )
+    levelup_buttons.push(button)
 
     // Icon
     @style.add_widget(button, sprite=zindex => {
@@ -298,8 +306,9 @@ fn setup_game_over_ui() -> Unit {
       size=@math.Vec2D(180.0, 40.0),
       offset=@math.Vec2D::zero(),
     ),
-    on_just_pressed=fn(_button) { restart_game() },
+    pickable=true,
   )
+  restart_button_ref.val = Some(restart_button)
 
   // Restart button text
   @style.add_widget(
@@ -333,4 +342,23 @@ fn add_level_box() -> Unit {
     v_offset=16.0,
   )
   |> ignore
+}
+
+///|
+fn survivors_ui_pointer_system(_delta : Double) -> Unit {
+  for event in @collision.pointer_events() {
+    guard event.phase is @collision.PointerPhase::JustPressed else { continue }
+    guard event.button == @inputs.MouseButton::Left else { continue }
+    if restart_button_ref.val is Some(restart_button) &&
+      event.entity == restart_button {
+      restart_game()
+      continue
+    }
+    for index, button in levelup_buttons {
+      if event.entity == button {
+        select_powerup(index)
+        break
+      }
+    }
+  }
 }

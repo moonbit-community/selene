@@ -124,10 +124,11 @@ fn player_collision_system(_delta : Double) -> Unit {
   if game_state.hurt_timer > 0.0 {
     game_state.hurt_timer -= 1.0
   }
-  let player_collisions = @collision.get_collision_infos(game_state.player)
-  for collision in player_collisions {
-    if birds.get(collision.entity) is Some(bird) {
-      if collision.direction[Y] > 0.0 {
+  for contact in @collision.contact_events() {
+    guard contact.entity == game_state.player else { continue }
+    guard contact.started else { continue }
+    if birds.get(contact.other) is Some(bird) {
+      if contact.direction[Y] > 0.0 {
         bird.is_hurt = true
         guard @velocity.velocities.get(game_state.player) is Some(velocity)
         @velocity.velocities[game_state.player] = velocity.0.update(Y, -BUMP_V)
@@ -140,9 +141,10 @@ fn player_collision_system(_delta : Double) -> Unit {
 
 ///|
 fn player_state_system(delta : Double) -> Unit {
-  let velocity = @collision.real_velocities
+  let velocity = @collision.resolved_velocities
     .get(game_state.player)
     .unwrap_or(@math.Vec2D::zero())
+  let grounded = @collision.is_grounded(game_state.player)
   let mut new_velocity_x = velocity.0[X]
   let mut new_velocity_y = velocity.0[Y]
   if !(game_state.player_state is Hit) {
@@ -181,11 +183,10 @@ fn player_state_system(delta : Double) -> Unit {
           transform~,
         )
       }
-      if velocity.0[Y] > 0.0 {
+      if !grounded && velocity.0[Y] > 0.0 {
         game_state.player_state = PlayerState::Fall
       }
-      if @inputs.is_just_pressed(ArrowUp) &&
-        @collision.is_on_floor(game_state.player) {
+      if @inputs.is_just_pressed(ArrowUp) && grounded {
         new_velocity_y = -JUMP_V
         game_state.player_state = PlayerState::Jump
         if game_state.volume_on {
@@ -199,7 +200,7 @@ fn player_state_system(delta : Double) -> Unit {
         player_fall_animation,
         transform~,
       )
-      if @collision.is_on_floor(game_state.player) {
+      if @collision.is_grounded(game_state.player) {
         game_state.player_state = PlayerState::Idle
       }
     }
@@ -219,11 +220,11 @@ fn player_state_system(delta : Double) -> Unit {
         player_hit_animation,
         transform~,
       )
-      if @collision.is_on_floor(game_state.player) {
+      if @collision.is_grounded(game_state.player) {
         new_velocity_x = 0.0
       }
       if @sprite.is_animation_finished(game_state.player) {
-        if @collision.is_on_floor(game_state.player) {
+        if @collision.is_grounded(game_state.player) {
           game_state.player_state = PlayerState::Idle
         } else if velocity.0[Y] < 0.0 {
           game_state.player_state = PlayerState::Fall

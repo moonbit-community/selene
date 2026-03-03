@@ -16,7 +16,9 @@
 /// A collision group identifier.
 ///
 /// Groups are used by `CollisionFilter` to decide which entities can interact.
-pub struct CollisionGroup(UInt) derive(Eq)
+pub struct CollisionGroup {
+  value : UInt
+} derive(Eq)
 
 ///|
 /// A collision filter used by colliders and trigger areas.
@@ -36,7 +38,7 @@ let collision_group_generator : Ref[UInt] = { val: 0 }
 pub fn CollisionGroup::new() -> CollisionGroup {
   let group = collision_group_generator.val
   collision_group_generator.val += 1
-  group
+  { value: group }
 }
 
 ///|

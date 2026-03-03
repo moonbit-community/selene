@@ -403,5 +403,5 @@ pub fn is_just_pressed(code : Code) -> Bool {
 /// ```
 ///
 pub fn is_just_released(code : Code) -> Bool {
-  just_pressed_keys.contains(code)
+  just_release_keys.contains(code)
 }

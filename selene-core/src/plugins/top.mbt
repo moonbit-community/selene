@@ -46,17 +46,16 @@ pub fn debug_plugin(app : @system.App) -> Unit {
 ///
 pub fn default_plugin(app : @system.App) -> Unit {
   app.systems
-  ..push((@collision.move_system, Update, "Move System"))
+  ..push((@collision.move_system, FixedUpdate, "Move System"))
+  ..push((@camera.camera_system, FixedUpdate, "Camera System"))
   ..push((@inputs.advanced_key_system, Update, "Advanced Key System"))
   ..push((@inputs.advanced_mouse_system, Update, "Advanced Mouse System"))
   ..push((@collision.pickable_click_system, Update, "Pickable Click System"))
-  ..push((@collision.area_collide_system, Update, "Area Collide System"))
   ..push((@system.deferred_event_system, Update, "Deferred Event System"))
-  ..push((@sprite.render_sprite_system, Render(0), "Render Sprite System"))
-  ..push((@camera.camera_system, Update, "Camera System"))
   ..push((@system.timer_system, Update, "Timer System"))
   ..push((@system.realtime_timer_system, Update, "Realtime Timer System"))
   ..push((@inherit.inherit_position_system, Update, "Inherit Position System"))
   ..push((@style.style_system, Update, "Style System"))
-  .push((@a11y.a11y_sync_system, Update, "A11y Sync System"))
+  ..push((@a11y.a11y_sync_system, Update, "A11y Sync System"))
+  .push((@sprite.render_sprite_system, Render(0), "Render Sprite System"))
 }

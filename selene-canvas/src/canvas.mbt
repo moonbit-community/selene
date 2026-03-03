@@ -67,8 +67,8 @@ pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
     // canvas_backend.current_fps = 1.0 / delta
     canvas_backend.context.clear_rect(0, 0, screen_width, screen_height)
     realtime_delta.val = delta
-    render_loop(delta * canvas_backend.time_scale)
     game_loop(delta * canvas_backend.time_scale)
+    render_loop(delta * canvas_backend.time_scale)
     if canvas_backend.mouse_movement.val is Some(mouse_movement) {
       mouse_movement.movement = @smath.Vec2D(0.0, 0.0)
     }

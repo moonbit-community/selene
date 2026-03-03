@@ -22,6 +22,12 @@ const DEFAULT_VIEWPORT_WIDTH = 512.0
 const DEFAULT_FPS : UInt = 60
 
 ///|
+const DEFAULT_FIXED_HZ : UInt = 64
+
+///|
+const DEFAULT_MAX_FIXED_STEPS_PER_FRAME : UInt = 8
+
+///|
 /// Application configuration and runtime container for a game or interactive
 /// application.
 ///
@@ -37,6 +43,9 @@ const DEFAULT_FPS : UInt = 60
 /// * `zoom` : Zoom factor applied to the canvas rendering.
 /// * `image_smooth` : Whether image smoothing is enabled during rendering.
 /// * `fps` : Target frames per second for the application.
+/// * `fixed_hz` : Fixed update frequency in Hertz.
+/// * `max_fixed_steps_per_frame` : Upper bound for fixed updates processed in
+///   a single rendered frame.
 /// * `systems` : Collection of systems with their schedules and names for
 ///   execution management.
 /// * `plugins` : Collection of plugins that extend application functionality.
@@ -62,6 +71,8 @@ pub(all) struct App {
   zoom : Double
   image_smooth : Bool
   fps : UInt
+  fixed_hz : UInt
+  max_fixed_steps_per_frame : UInt
   systems : Array[(System, Schedule, String)]
   plugins : Array[Plugin]
 }
@@ -91,6 +102,8 @@ pub fn App::new() -> App {
     zoom: 1.0,
     image_smooth: true,
     fps: DEFAULT_FPS,
+    fixed_hz: DEFAULT_FIXED_HZ,
+    max_fixed_steps_per_frame: DEFAULT_MAX_FIXED_STEPS_PER_FRAME,
     systems: [],
     plugins: [],
   }
@@ -191,6 +204,31 @@ pub fn App::with_viewport_width(self : App, width : Double) -> App {
 ///
 pub fn App::with_fps(self : App, fps : UInt) -> App {
   { ..self, fps, }
+}
+
+///|
+/// Configures the fixed update frequency in Hertz.
+///
+/// Parameters:
+///
+/// * `self` : The `App` instance to configure.
+/// * `fixed_hz` : Fixed updates per second. Must be greater than 0.
+///
+pub fn App::with_fixed_hz(self : App, fixed_hz : UInt) -> App {
+  { ..self, fixed_hz, }
+}
+
+///|
+/// Configures the maximum number of fixed updates processed per rendered
+/// frame.
+///
+/// Parameters:
+///
+/// * `self` : The `App` instance to configure.
+/// * `steps` : Maximum fixed updates per frame. Must be greater than 0.
+///
+pub fn App::with_max_fixed_steps_per_frame(self : App, steps : UInt) -> App {
+  { ..self, max_fixed_steps_per_frame: steps }
 }
 
 ///|
@@ -307,6 +345,12 @@ pub fn App::run(self : App) -> Unit {
   if self.zoom <= 0.0 {
     abort("App::with_zoom must be a positive number")
   }
+  if self.fixed_hz == 0 {
+    abort("App::with_fixed_hz must be greater than 0")
+  }
+  if self.max_fixed_steps_per_frame == 0 {
+    abort("App::with_max_fixed_steps_per_frame must be greater than 0")
+  }
   configure_display(self.viewport_width, self.viewport_height, self.zoom)
   let screen_width = self.viewport_width * self.zoom
   let screen_height = self.viewport_height * self.zoom
@@ -335,15 +379,35 @@ pub fn App::run(self : App) -> Unit {
   }
 
   let game_loops = []
+  let fixed_loops = []
   for system in self.systems {
     if system.1 is Update {
       game_loops.push(system.0)
+    } else if system.1 is FixedUpdate {
+      fixed_loops.push(system.0)
     }
   }
+  let fixed_dt = 1.0 / self.fixed_hz.to_double()
+  let max_fixed_steps = self.max_fixed_steps_per_frame.reinterpret_as_int()
+  let accumulator : Ref[Double] = { val: 0.0 }
   fn game_loop(delta : Double) {
     for system in game_loops {
       system(delta)
     }
+    accumulator.val += delta
+    let mut fixed_steps = 0
+    while accumulator.val >= fixed_dt && fixed_steps < max_fixed_steps {
+      for system in fixed_loops {
+        system(fixed_dt)
+      }
+      accumulator.val -= fixed_dt
+      fixed_steps += 1
+    }
+    if fixed_steps >= max_fixed_steps {
+      accumulator.val = 0.0
+    }
+    let alpha = @cmp.maximum(0.0, @cmp.minimum(1.0, accumulator.val / fixed_dt))
+    set_render_alpha(alpha)
   }
 
   let run_game = @backend.initialize(@render.BackendConfig::{

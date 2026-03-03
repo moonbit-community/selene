@@ -5,7 +5,6 @@ import {
   "Milky2018/selene/ui",
   "Milky2018/selene/system",
   "Milky2018/selene/position",
-  "Milky2018/selene/inputs",
   "Milky2018/selene/collision",
   "Milky2018/moon_taffy",
 }

@@ -161,11 +161,13 @@ let area = @collision.Area::new(
   @collision.CollisionFilter::new(trigger_group, [player_group]),
 )
 @collision.areas.set(apple, area)
-area.on_enter(fn(e) {
-  if e == player {
-    @entity.Entity::destroy(apple)
+fn trigger_system(_delta : Double) -> Unit {
+  for event in @collision.trigger_events() {
+    if event.entered && event.area == apple && event.other == player {
+      @entity.Entity::destroy(apple)
+    }
   }
-})
+}
 ```
 
 ### 6.4 Camera and UI
@@ -180,16 +182,20 @@ let label = @entity.Entity::new()
 
 ### 6.5 Mouse Interaction
 
-Use `Pickable` for click handlers:
+Use `Pickable` with frame events:
 
 ```moonbit
-let pickable = @collision.Pickable::new()
-pickable.on_just_released(fn(mouse_button) {
-  if mouse_button == Left {
-    // handle click
+@collision.pickables.set(button, @collision.Pickable::new())
+
+fn ui_input_system(_delta : Double) -> Unit {
+  for event in @collision.pointer_events() {
+    if event.entity == button &&
+      event.phase is @collision.PointerPhase::JustReleased &&
+      event.button == @inputs.MouseButton::Left {
+      // handle click
+    }
   }
-})
-@collision.pickables.set(button, pickable)
+}
 ```
 
 ## 7. Web HTML and Build Output

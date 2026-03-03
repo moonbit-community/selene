@@ -21,6 +21,12 @@ fn tile_to_vec2d(tile : @tilemap.Tile, tile_size : Int) -> @math.Vec2D {
 }
 
 ///|
+let apples : Set[@entity.Entity] = Set::new()
+
+///|
+let flags : Set[@entity.Entity] = Set::new()
+
+///|
 fn generate_map() -> Unit {
   let tilemap = @tilemap.TileMap::from_json(tilemap)
   let world_width = tilemap.map_width.to_double() *
@@ -39,8 +45,9 @@ fn generate_map() -> Unit {
   }
   let grasses = tilemap.get_tiles("Grass")
   for grass in grasses {
-    add_grass(tile_to_vec2d(grass, tilemap.tile_size), grass.id)
+    add_grass_visual(tile_to_vec2d(grass, tilemap.tile_size), grass.id)
   }
+  build_terrain_colliders(grasses, tilemap.tile_size, tilemap.map_width)
   let birds = tilemap.get_tiles_first("Bird")
   for bird in birds {
     add_bird(tile_to_vec2d(bird, tilemap.tile_size) + @math.Vec2D(0.0, 2.0))
@@ -63,7 +70,7 @@ fn add_background(size : @math.Vec2D) -> Unit {
 }
 
 ///|
-fn add_grass(pos : @math.Vec2D, sprite_id : String) -> Unit {
+fn add_grass_visual(pos : @math.Vec2D, sprite_id : String) -> Unit {
   let src_pos = match sprite_id {
     "15" => @math.Vec2D(96.0, 0.0)
     "9" => @math.Vec2D(112.0, 0.0)
@@ -87,14 +94,55 @@ fn add_grass(pos : @math.Vec2D, sprite_id : String) -> Unit {
   let grass = @entity.Entity::new()
   @sprite.sprites.set(grass, sprite)
   @position.positions.set(grass, pos)
-  @collision.shapes.set(
-    grass,
-    Rect(size=@math.Vec2D(16.0, 16.0), offset=@math.Vec2D::zero()),
-  )
+}
+
+///|
+fn build_terrain_colliders(
+  grasses : Array[@tilemap.Tile],
+  tile_size : Int,
+  map_width : Int,
+) -> Unit {
+  let rows : Map[Int, Set[Int]] = Map::new()
+  for grass in grasses {
+    rows.get_or_init(grass.y, () => Set::new()).add(grass.x)
+  }
+  let tile_size_d = tile_size.to_double()
+  for y, row in rows {
+    let mut x = 0
+    while x < map_width {
+      if !row.contains(x) {
+        x += 1
+        continue
+      }
+      let start_x = x
+      let mut end_x = x
+      while end_x + 1 < map_width && row.contains(end_x + 1) {
+        end_x += 1
+      }
+      let width_tiles = end_x - start_x + 1
+      add_terrain_collider(
+        @math.Vec2D(
+          start_x.to_double() * tile_size_d,
+          y.to_double() * tile_size_d,
+        ),
+        @math.Vec2D(width_tiles.to_double() * tile_size_d, tile_size_d),
+      )
+      x = end_x + 1
+    }
+  }
+}
+
+///|
+fn add_terrain_collider(pos : @math.Vec2D, size : @math.Vec2D) -> Unit {
+  let terrain = @entity.Entity::new()
+  @position.positions.set(terrain, pos)
+  @collision.shapes.set(terrain, Rect(size~, offset=@math.Vec2D::zero()))
   @collision.colliders.set(
-    grass,
+    terrain,
     @collision.Collider::new(
-      @collision.CollisionFilter::empty(terrain_collision_group),
+      @collision.CollisionFilter::new(terrain_collision_group, [
+        player_collision_group, enemy_collision_group,
+      ]),
     ),
   )
 }
@@ -121,13 +169,7 @@ fn add_flag(pos : @math.Vec2D) -> Unit {
     ]),
   )
   @collision.areas.set(flag, area)
-  area.on_enter(fn(e) {
-    if e == game_state.player {
-      set_score(game_state.score + 100)
-      set_game_result(GameResult::Win)
-      @entity.Entity::destroy(flag)
-    }
-  })
+  flags.add(flag)
 }
 
 ///|
@@ -158,13 +200,28 @@ fn add_apple(pos : @math.Vec2D) -> Unit {
     ]),
   )
   @collision.areas.set(apple, area)
-  area.on_enter(fn(e) {
-    if e == game_state.player {
+  apples.add(apple)
+}
+
+///|
+fn map_trigger_system(_delta : Double) -> Unit {
+  for event in @collision.trigger_events() {
+    guard event.entered else { continue }
+    guard event.other == game_state.player else { continue }
+    if flags.contains(event.area) {
+      set_score(game_state.score + 100)
+      set_game_result(GameResult::Win)
+      event.area.destroy()
+      flags.remove(event.area)
+      continue
+    }
+    if apples.contains(event.area) {
       set_score(game_state.score + 10)
       if game_state.volume_on {
         @audio.play_audio("assets/pixeladventure/sounds/coin.wav")
       }
-      @entity.Entity::destroy(apple)
+      event.area.destroy()
+      apples.remove(event.area)
     }
-  })
+  }
 }

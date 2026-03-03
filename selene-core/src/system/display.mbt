@@ -17,6 +17,7 @@ priv struct DisplayState {
   mut viewport_size : @math.Vec2D
   mut screen_size : @math.Vec2D
   mut zoom : Double
+  mut render_alpha : Double
 }
 
 ///|
@@ -24,6 +25,7 @@ let display_state : DisplayState = {
   viewport_size: @math.Vec2D(512.0, 256.0),
   screen_size: @math.Vec2D(512.0, 256.0),
   zoom: 1.0,
+  render_alpha: 1.0,
 }
 
 ///|
@@ -48,6 +50,7 @@ pub fn configure_display(
     viewport_height * zoom,
   )
   display_state.zoom = zoom
+  display_state.render_alpha = 1.0
 }
 
 ///|
@@ -63,6 +66,16 @@ pub fn get_screen_size() -> @math.Vec2D {
 ///|
 pub fn get_zoom() -> Double {
   display_state.zoom
+}
+
+///|
+pub fn set_render_alpha(alpha : Double) -> Unit {
+  display_state.render_alpha = @cmp.maximum(0.0, @cmp.minimum(1.0, alpha))
+}
+
+///|
+pub fn get_render_alpha() -> Double {
+  display_state.render_alpha
 }
 
 ///|

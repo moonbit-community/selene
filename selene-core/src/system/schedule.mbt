@@ -19,12 +19,15 @@
 ///
 /// * `Startup` : Executes once at application startup before the main loop
 ///   begins.
+/// * `FixedUpdate` : Executes with a fixed timestep. It can run zero or more
+///   times per rendered frame depending on accumulated time.
 /// * `Update` : Executes every frame during the main update loop.
 /// * `Render(Int)` : Executes during the render phase with the specified
 ///   priority. Lower numbers execute first.
 ///
 pub(all) enum Schedule {
   Startup
+  FixedUpdate
   Update
   Render(Int) // priority
 }

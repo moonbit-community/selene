@@ -237,7 +237,12 @@ pub fn render_sprite_system(delta : Double) -> Unit {
     let e = sprite.0
     let sprite = sprite.1
     guard @position.positions.get(e) is Some(pos) else { continue }
-    let raw_pos = pos.0 + sprite.offset
+    let base_pos = if @ui.uis.get(e) is Some(_) {
+      pos.0
+    } else {
+      @position.sample_position(e, @system.get_render_alpha())
+    }
+    let raw_pos = base_pos + sprite.offset
     let (screen_pos, scale_with_zoom) = project_sprite_position(
       e, raw_pos, camera_pos,
     )

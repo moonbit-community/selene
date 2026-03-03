@@ -16,7 +16,7 @@
 pub fn add_widget(
   parent : @entity.Entity,
   sprite? : (Int) -> @sprite.Sprite,
-  on_just_pressed? : (@inputs.MouseButton) -> Unit,
+  pickable? : Bool = false,
   shape? : @collision.CollisionShape,
   ui_space? : @ui.UiSpace = @ui.UiSpace::Virtual,
   size_plan? : SizePlan = SizePlan::FromSprite,
@@ -45,10 +45,8 @@ pub fn add_widget(
   if shape is Some(shape) {
     @collision.shapes.set(child, shape)
   }
-  if on_just_pressed is Some(button_cb) {
-    let pickable = @collision.Pickable::new()
-    pickable.on_just_pressed(button_cb)
-    @collision.pickables.set(child, pickable)
+  if pickable {
+    @collision.pickables.set(child, @collision.Pickable::new())
   }
   child
 }

@@ -363,10 +363,10 @@ pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
       sync_mouse_events()
       sync_mouse_lock()
       update_looping_tracks()
+      (config.game_loop)(delta * backend.time_scale)
       @raylib.begin_drawing()
       @raylib.clear_background(@raylib.black)
       (config.render_loop)(delta * backend.time_scale)
-      (config.game_loop)(delta * backend.time_scale)
       @raylib.end_drawing()
     }
     cleanup_resources()

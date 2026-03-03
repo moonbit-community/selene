@@ -100,12 +100,15 @@ fn bird_ai_system(_ : Double) -> Unit {
       }
       continue
     }
-    let collision_infos = @collision.get_collision_infos(e)
-    let hit_wall = collision_infos
+    let hit_wall = @collision.contact_events()
       .iter()
-      .any(fn(info) {
-        (info.direction[X] > 0.0 && bird.direction is Right) ||
-        (info.direction[X] < 0.0 && bird.direction is Left)
+      .any(fn(event) {
+        event.entity == e &&
+        event.started &&
+        (
+          (event.direction[X] > 0.0 && bird.direction is Right) ||
+          (event.direction[X] < 0.0 && bird.direction is Left)
+        )
       })
     if hit_wall {
       bird.direction = match bird.direction {

@@ -35,3 +35,30 @@ pub(all) struct Position(@math.Vec2D) derive(Eq, Show)
 /// ```
 ///
 pub let positions : Map[@entity.Entity, Position] = Map::new()
+
+///|
+/// Snapshot of positions from the previous fixed step, used for render
+/// interpolation.
+pub let previous_positions : Map[@entity.Entity, Position] = Map::new()
+
+///|
+/// Copies all current positions into the previous-position snapshot.
+pub fn capture_previous_positions() -> Unit {
+  previous_positions.clear()
+  for entity, position in positions {
+    previous_positions.set(entity, position)
+  }
+}
+
+///|
+/// Returns an interpolated position between previous and current snapshots.
+pub fn sample_position(entity : @entity.Entity, alpha : Double) -> @math.Vec2D {
+  guard positions.get(entity) is Some(current) else {
+    return @math.Vec2D::zero()
+  }
+  if previous_positions.get(entity) is Some(previous) {
+    previous.0.scalar_mul(1.0 - alpha) + current.0.scalar_mul(alpha)
+  } else {
+    current.0
+  }
+}

@@ -12,4 +12,5 @@ import {
   "Milky2018/selene/backend",
   "Milky2018/selene/style",
   "moonbitlang/core/random",
+  "moonbitlang/core/set",
 }

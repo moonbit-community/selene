@@ -12,6 +12,8 @@ pub fn defer_event(() -> Unit) -> Unit
 
 pub fn deferred_event_system(Double) -> Unit
 
+pub fn get_render_alpha() -> Double
+
 pub fn get_screen_size() -> @math.Vec2D
 
 pub fn get_viewport_size() -> @math.Vec2D
@@ -34,6 +36,8 @@ pub fn screen_to_ui_virtual(@math.Vec2D) -> @math.Vec2D
 
 pub fn screen_to_world(@math.Vec2D, @math.Vec2D) -> @math.Vec2D
 
+pub fn set_render_alpha(Double) -> Unit
+
 pub fn timeout(Double, () -> Unit, pausible? : Bool) -> Unit
 
 pub fn timer_system(Double) -> Unit
@@ -55,6 +59,8 @@ pub(all) struct App {
   zoom : Double
   image_smooth : Bool
   fps : UInt
+  fixed_hz : UInt
+  max_fixed_steps_per_frame : UInt
   systems : Array[((Double) -> Unit, Schedule, String)]
   plugins : Array[(App) -> Unit]
 }
@@ -62,14 +68,17 @@ pub fn App::add_plugin(Self, (Self) -> Unit) -> Self
 pub fn App::add_system(Self, (Double) -> Unit, schedule? : Schedule, system_name? : String) -> Self
 pub fn App::new() -> Self
 pub fn App::run(Self) -> Unit
+pub fn App::with_fixed_hz(Self, UInt) -> Self
 pub fn App::with_fps(Self, UInt) -> Self
 pub fn App::with_image_smooth(Self, Bool) -> Self
+pub fn App::with_max_fixed_steps_per_frame(Self, UInt) -> Self
 pub fn App::with_viewport_height(Self, Double) -> Self
 pub fn App::with_viewport_width(Self, Double) -> Self
 pub fn App::with_zoom(Self, Double) -> Self
 
 pub(all) enum Schedule {
   Startup
+  FixedUpdate
   Update
   Render(Int)
 }

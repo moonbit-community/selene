@@ -13,6 +13,9 @@
 // limitations under the License.
 
 ///|
+let volume_button_ref : Ref[@entity.Entity?] = { val: None }
+
+///|
 fn add_result_box() -> Unit {
   let box = @entity.Entity::new()
   @position.positions.set(
@@ -43,24 +46,23 @@ fn add_health_box() -> Unit {
 }
 
 ///|
+fn volume_sprite(volume_on : Bool) -> @sprite.Sprite {
+  let path = if volume_on {
+    "assets/pixeladventure/Menu/Buttons/Volume.png"
+  } else {
+    "assets/pixeladventure/Menu/Buttons/VolumeOff.png"
+  }
+  @sprite.Sprite::from_picture(
+    @sprite.Picture::new(@math.Vec2D(21, 22), path),
+    100,
+  )
+}
+
+///|
 fn add_volume_button() -> Unit {
   let button = @entity.Entity::new()
   @position.positions.set(button, @math.Vec2D(VIEWPORT_WIDTH - 40, 18))
-  let volume_on = @sprite.Sprite::from_picture(
-    @sprite.Picture::new(
-      @math.Vec2D(21, 22),
-      "assets/pixeladventure/Menu/Buttons/Volume.png",
-    ),
-    100,
-  )
-  let volumn_off = @sprite.Sprite::from_picture(
-    @sprite.Picture::new(
-      @math.Vec2D(21, 22),
-      "assets/pixeladventure/Menu/Buttons/VolumeOff.png",
-    ),
-    100,
-  )
-  @sprite.sprites.set(button, volume_on)
+  @sprite.sprites.set(button, volume_sprite(game_state.volume_on))
   @collision.shapes.set(
     button,
     @collision.CollisionShape::Rect(
@@ -68,17 +70,19 @@ fn add_volume_button() -> Unit {
       offset=@math.Vec2D::zero(),
     ),
   )
-  let pickable = @collision.Pickable::new()
-  pickable.on_just_released(fn(mouse_button) {
-    if mouse_button == Left {
-      game_state.volume_on = !game_state.volume_on
-      if game_state.volume_on {
-        @sprite.sprites.set(button, volume_on)
-      } else {
-        @sprite.sprites.set(button, volumn_off)
-      }
-    }
-  })
-  @collision.pickables.set(button, pickable)
+  @collision.pickables.set(button, @collision.Pickable::new())
   @ui.uis.set(button, @ui.Ui::new(space=@ui.UiSpace::Virtual))
+  volume_button_ref.val = Some(button)
+}
+
+///|
+fn volume_button_input_system(_delta : Double) -> Unit {
+  guard volume_button_ref.val is Some(button) else { return }
+  for event in @collision.pointer_events() {
+    guard event.entity == button else { continue }
+    guard event.phase is @collision.PointerPhase::JustReleased else { continue }
+    guard event.button == @inputs.MouseButton::Left else { continue }
+    game_state.volume_on = !game_state.volume_on
+    @sprite.sprites.set(button, volume_sprite(game_state.volume_on))
+  }
 }

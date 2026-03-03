@@ -105,7 +105,7 @@ fn create_action_buttons() -> Unit {
       size=@math.Vec2D(button_width, button_height),
       offset=@math.Vec2D::zero(),
     ),
-    on_just_pressed=fn(_button) { on_fold_click() },
+    pickable=true,
   )
   game_state.fold_button = fold_button
 
@@ -141,7 +141,7 @@ fn create_action_buttons() -> Unit {
       size=@math.Vec2D(button_width, button_height),
       offset=@math.Vec2D::zero(),
     ),
-    on_just_pressed=fn(_button) { on_call_click() },
+    pickable=true,
   )
   game_state.call_button = call_button
 
@@ -174,7 +174,7 @@ fn create_action_buttons() -> Unit {
       size=@math.Vec2D(button_width, button_height),
       offset=@math.Vec2D::zero(),
     ),
-    on_just_pressed=fn(_button) { on_raise_click() },
+    pickable=true,
   )
   game_state.raise_button = raise_button
 
@@ -276,6 +276,26 @@ fn on_raise_click() -> Unit {
   // Advance to next phase after raise
   advance_to_next_phase()
   update_ui()
+}
+
+///|
+fn cards_ui_pointer_system(_delta : Double) -> Unit {
+  for event in @collision.pointer_events() {
+    guard event.phase is @collision.PointerPhase::JustPressed else { continue }
+    guard event.button == @inputs.MouseButton::Left else { continue }
+    if event.entity == game_state.fold_button {
+      on_fold_click()
+      continue
+    }
+    if event.entity == game_state.call_button {
+      on_call_click()
+      continue
+    }
+    if event.entity == game_state.raise_button {
+      on_raise_click()
+      continue
+    }
+  }
 }
 
 ///|

@@ -524,7 +524,7 @@ fn dispatch_action(
         set_focus(None, true)
       }
     Click => {
-      @collision.trigger_pickable_just_pressed(entity)
+      @collision.emit_pickable_just_pressed(entity)
       invoke_action_callbacks(entity, action, data)
     }
     _ => invoke_action_callbacks(entity, action, data)
