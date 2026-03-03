@@ -331,10 +331,9 @@ pub fn App::add_system(
 /// Starts the application and begins the main execution loop.
 ///
 /// Executes all registered plugins first, then initializes the backend with
-/// configured systems organized by their schedules. Startup systems run once
-/// during initialization, render systems are sorted by priority and executed in
-/// the render loop, and update systems run in the game loop. Finally registers
-/// input event handlers and starts the main application loop.
+/// configured systems organized by their schedules. Startup systems run once.
+/// Runtime systems are executed with Bevy-like stage ordering for frame,
+/// fixed-step, and render pipelines.
 ///
 /// Parameters:
 ///
@@ -365,39 +364,88 @@ pub fn App::run(self : App) -> Unit {
     }
   }
 
-  let renders = []
+  let frame_first = []
+  let frame_pre = []
+  let frame_update = []
+  let frame_post = []
+  let frame_last = []
+  let fixed_first = []
+  let fixed_pre = []
+  let fixed_update = []
+  let fixed_post = []
+  let fixed_last = []
+  let render_extract = []
+  let render_prepare = []
+  let render_stage = []
+  let render_cleanup = []
   for system in self.systems {
-    if system.1 is Render(pri) {
-      renders.push((system.0, pri))
+    match system.1 {
+      First => frame_first.push(system.0)
+      PreUpdate => frame_pre.push(system.0)
+      Update => frame_update.push(system.0)
+      PostUpdate => frame_post.push(system.0)
+      Last => frame_last.push(system.0)
+      FixedFirst => fixed_first.push(system.0)
+      FixedPreUpdate => fixed_pre.push(system.0)
+      FixedUpdate => fixed_update.push(system.0)
+      FixedPostUpdate => fixed_post.push(system.0)
+      FixedLast => fixed_last.push(system.0)
+      RenderExtract => render_extract.push(system.0)
+      RenderPrepare => render_prepare.push(system.0)
+      Render => render_stage.push(system.0)
+      RenderCleanup => render_cleanup.push(system.0)
+      _ => ()
     }
   }
-  renders.sort_by_key(fn(system) { -system.1 })
   fn render_loop(delta : Double) {
-    for render in renders {
-      (render.0)(delta)
+    for system in render_extract {
+      system(delta)
     }
-  }
-
-  let game_loops = []
-  let fixed_loops = []
-  for system in self.systems {
-    if system.1 is Update {
-      game_loops.push(system.0)
-    } else if system.1 is FixedUpdate {
-      fixed_loops.push(system.0)
+    for system in render_prepare {
+      system(delta)
+    }
+    for system in render_stage {
+      system(delta)
+    }
+    for system in render_cleanup {
+      system(delta)
     }
   }
   let fixed_dt = 1.0 / self.fixed_hz.to_double()
   let max_fixed_steps = self.max_fixed_steps_per_frame.reinterpret_as_int()
   let accumulator : Ref[Double] = { val: 0.0 }
   fn game_loop(delta : Double) {
-    for system in game_loops {
+    for system in frame_first {
+      system(delta)
+    }
+    for system in frame_pre {
+      system(delta)
+    }
+    for system in frame_update {
+      system(delta)
+    }
+    for system in frame_post {
+      system(delta)
+    }
+    for system in frame_last {
       system(delta)
     }
     accumulator.val += delta
     let mut fixed_steps = 0
     while accumulator.val >= fixed_dt && fixed_steps < max_fixed_steps {
-      for system in fixed_loops {
+      for system in fixed_first {
+        system(fixed_dt)
+      }
+      for system in fixed_pre {
+        system(fixed_dt)
+      }
+      for system in fixed_update {
+        system(fixed_dt)
+      }
+      for system in fixed_post {
+        system(fixed_dt)
+      }
+      for system in fixed_last {
         system(fixed_dt)
       }
       accumulator.val -= fixed_dt

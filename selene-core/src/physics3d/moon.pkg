@@ -1,0 +1,6 @@
+import {
+  "Milky2018/moon_rapier/core",
+  "Milky2018/moon_rapier/collision",
+  "Milky2018/moon_rapier/dynamics",
+  "Milky2018/moon_rapier/pipeline",
+}

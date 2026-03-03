@@ -80,7 +80,7 @@ fn hurt_player() -> Unit {
       Left => @math.Vec2D(ATTACK_V, 0.0)
       Right => @math.Vec2D(-ATTACK_V, 0.0)
     }
-    @velocity.velocities[game_state.player] = back_vel
+    @physics2d.linear_velocities[game_state.player] = back_vel
     game_state.player_state = PlayerState::Hit
     game_state.health -= 1
     update_health_display()

@@ -1,0 +1,35 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/physics3d"
+
+import {
+  "Milky2018/moon_rapier/collision",
+  "Milky2018/moon_rapier/core",
+  "Milky2018/moon_rapier/dynamics",
+}
+
+// Values
+pub let colliders : @collision.ColliderSet3D
+
+pub let config : Physics3DConfig
+
+pub fn insert_collider(@collision.ColliderBuilder3D, parent_body? : @dynamics.RigidBodyHandle) -> @collision.ColliderHandle3D
+
+pub fn insert_rigid_body(@dynamics.RigidBodyBuilder3D) -> @dynamics.RigidBodyHandle
+
+pub fn physics_step_system(Double) -> Unit
+
+pub let rigid_bodies : @dynamics.RigidBodySet3D
+
+pub fn set_gravity(@core.Vec3) -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) struct Physics3DConfig {
+  mut gravity : @core.Vec3
+}
+
+// Type aliases
+
+// Traits
+

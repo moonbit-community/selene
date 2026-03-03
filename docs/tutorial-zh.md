@@ -100,14 +100,20 @@ pub fn run() -> Unit {
 
 一次性初始化逻辑建议通过 `schedule=Startup` 的系统完成。
 
+运行时阶段采用 Bevy 风格：
+
+- 帧阶段：`First -> PreUpdate -> Update -> PostUpdate -> Last`
+- 固定步阶段：`FixedFirst -> FixedPreUpdate -> FixedUpdate -> FixedPostUpdate -> FixedLast`
+- 渲染阶段：`RenderExtract -> RenderPrepare -> Render -> RenderCleanup`
+
 ## 6. ECS 与常用系统
 
 ### 6.1 实体与组件
 
 ```moonbit
 let player = @entity.Entity::new()
-@position.positions.set(player, @math.Vec2D(100.0, 100.0))
-@velocity.velocities.set(player, @math.Vec2D::zero())
+@transform.transforms.set(player, @math.Vec2D(100.0, 100.0))
+@physics2d.linear_velocities.set(player, @math.Vec2D::zero())
 ```
 
 ### 6.2 输入
@@ -124,45 +130,47 @@ if @inputs.is_just_pressed(ArrowUp) {
 }
 ```
 
-### 6.3 碰撞与触发区域
+### 6.3 Physics2D 与触发器
 
 ```moonbit
-let player_group = @collision.CollisionGroup::new()
-let terrain_group = @collision.CollisionGroup::new()
-let trigger_group = @collision.CollisionGroup::new()
+let player_group = @physics2d.CollisionGroup::new()
+let terrain_group = @physics2d.CollisionGroup::new()
+let trigger_group = @physics2d.CollisionGroup::new()
 
-@collision.shapes.set(
+@physics2d.shapes.set(
   player,
   Rect(size=@math.Vec2D(24.0, 32.0), offset=@math.Vec2D(4.0, 0.0)),
 )
-@collision.colliders.set(
+@physics2d.colliders.set(
   player,
-  @collision.Collider::new(
-    @collision.CollisionFilter::new(player_group, [terrain_group]),
+  @physics2d.Collider::new(
+    @physics2d.CollisionFilter::new(player_group, [terrain_group]),
   ),
 )
 
 let wall = @entity.Entity::new()
-@collision.shapes.set(
+@physics2d.shapes.set(
   wall,
   Rect(size=@math.Vec2D(16.0, 16.0), offset=@math.Vec2D::zero()),
 )
-@collision.colliders.set(
+@physics2d.colliders.set(
   wall,
-  @collision.Collider::new(@collision.CollisionFilter::empty(terrain_group)),
+  @physics2d.Collider::new(
+    @physics2d.CollisionFilter::empty(terrain_group),
+  ),
 )
 
 let apple = @entity.Entity::new()
-@collision.shapes.set(
+@physics2d.shapes.set(
   apple,
   Rect(size=@math.Vec2D(32.0, 32.0), offset=@math.Vec2D::zero()),
 )
-let area = @collision.Area::new(
-  @collision.CollisionFilter::new(trigger_group, [player_group]),
+let sensor = @physics2d.Sensor::new(
+  @physics2d.CollisionFilter::new(trigger_group, [player_group]),
 )
-@collision.areas.set(apple, area)
+@physics2d.sensors.set(apple, sensor)
 fn trigger_system(_delta : Double) -> Unit {
-  for event in @collision.trigger_events() {
+  for event in @physics2d.sensor_events() {
     if event.entered && event.area == apple && event.other == player {
       @entity.Entity::destroy(apple)
     }
@@ -185,12 +193,12 @@ let label = @entity.Entity::new()
 鼠标点击建议使用 `Pickable` + 帧事件：
 
 ```moonbit
-@collision.pickables.set(button, @collision.Pickable::new())
+@physics2d.pickables.set(button, @physics2d.Pickable::new())
 
 fn ui_input_system(_delta : Double) -> Unit {
-  for event in @collision.pointer_events() {
+  for event in @physics2d.pointer_events() {
     if event.entity == button &&
-      event.phase is @collision.PointerPhase::JustReleased &&
+      event.phase is @physics2d.PointerPhase::JustReleased &&
       event.button == @inputs.MouseButton::Left {
       // 处理点击
     }
@@ -226,6 +234,8 @@ moon run ./native/pixeladventure --target native
 - 输入使用 `Milky2018/selene/inputs`。
 - 实体类型使用 `@entity.Entity`。
 - 一次性初始化逻辑建议放在 `schedule=Startup` 系统中。
+- 世界变换使用 `@transform`。
+- 物理、碰撞与触发器使用 `@physics2d`。
 - 碰撞过滤使用 `CollisionGroup` + `CollisionFilter`。
 - 静态阻挡体应挂 `Collider`，并使用 `CollisionFilter::empty(group)`。
 - HTML 构建产物路径使用 `_build/...`。

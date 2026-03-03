@@ -100,14 +100,20 @@ pub fn run() -> Unit {
 
 Use `schedule=Startup` for one-time initialization.
 
+Runtime stages are Bevy-like:
+
+- frame: `First -> PreUpdate -> Update -> PostUpdate -> Last`
+- fixed: `FixedFirst -> FixedPreUpdate -> FixedUpdate -> FixedPostUpdate -> FixedLast`
+- render: `RenderExtract -> RenderPrepare -> Render -> RenderCleanup`
+
 ## 6. ECS and Common Systems
 
 ### 6.1 Entity + Components
 
 ```moonbit
 let player = @entity.Entity::new()
-@position.positions.set(player, @math.Vec2D(100.0, 100.0))
-@velocity.velocities.set(player, @math.Vec2D::zero())
+@transform.transforms.set(player, @math.Vec2D(100.0, 100.0))
+@physics2d.linear_velocities.set(player, @math.Vec2D::zero())
 ```
 
 ### 6.2 Input
@@ -124,45 +130,47 @@ if @inputs.is_just_pressed(ArrowUp) {
 }
 ```
 
-### 6.3 Collision + Trigger Areas
+### 6.3 Physics2D + Sensors
 
 ```moonbit
-let player_group = @collision.CollisionGroup::new()
-let terrain_group = @collision.CollisionGroup::new()
-let trigger_group = @collision.CollisionGroup::new()
+let player_group = @physics2d.CollisionGroup::new()
+let terrain_group = @physics2d.CollisionGroup::new()
+let trigger_group = @physics2d.CollisionGroup::new()
 
-@collision.shapes.set(
+@physics2d.shapes.set(
   player,
   Rect(size=@math.Vec2D(24.0, 32.0), offset=@math.Vec2D(4.0, 0.0)),
 )
-@collision.colliders.set(
+@physics2d.colliders.set(
   player,
-  @collision.Collider::new(
-    @collision.CollisionFilter::new(player_group, [terrain_group]),
+  @physics2d.Collider::new(
+    @physics2d.CollisionFilter::new(player_group, [terrain_group]),
   ),
 )
 
 let wall = @entity.Entity::new()
-@collision.shapes.set(
+@physics2d.shapes.set(
   wall,
   Rect(size=@math.Vec2D(16.0, 16.0), offset=@math.Vec2D::zero()),
 )
-@collision.colliders.set(
+@physics2d.colliders.set(
   wall,
-  @collision.Collider::new(@collision.CollisionFilter::empty(terrain_group)),
+  @physics2d.Collider::new(
+    @physics2d.CollisionFilter::empty(terrain_group),
+  ),
 )
 
 let apple = @entity.Entity::new()
-@collision.shapes.set(
+@physics2d.shapes.set(
   apple,
   Rect(size=@math.Vec2D(32.0, 32.0), offset=@math.Vec2D::zero()),
 )
-let area = @collision.Area::new(
-  @collision.CollisionFilter::new(trigger_group, [player_group]),
+let sensor = @physics2d.Sensor::new(
+  @physics2d.CollisionFilter::new(trigger_group, [player_group]),
 )
-@collision.areas.set(apple, area)
+@physics2d.sensors.set(apple, sensor)
 fn trigger_system(_delta : Double) -> Unit {
-  for event in @collision.trigger_events() {
+  for event in @physics2d.sensor_events() {
     if event.entered && event.area == apple && event.other == player {
       @entity.Entity::destroy(apple)
     }
@@ -185,12 +193,12 @@ let label = @entity.Entity::new()
 Use `Pickable` with frame events:
 
 ```moonbit
-@collision.pickables.set(button, @collision.Pickable::new())
+@physics2d.pickables.set(button, @physics2d.Pickable::new())
 
 fn ui_input_system(_delta : Double) -> Unit {
-  for event in @collision.pointer_events() {
+  for event in @physics2d.pointer_events() {
     if event.entity == button &&
-      event.phase is @collision.PointerPhase::JustReleased &&
+      event.phase is @physics2d.PointerPhase::JustReleased &&
       event.button == @inputs.MouseButton::Left {
       // handle click
     }
@@ -226,7 +234,9 @@ moon run ./native/pixeladventure --target native
 - Use `Milky2018/selene/inputs` for input.
 - Use `@entity.Entity` as the entity type.
 - Prefer `schedule=Startup` for one-time initialization.
-- Use `CollisionGroup` + `CollisionFilter` for collision filtering.
+- Use `@transform` for world transforms.
+- Use `@physics2d` for rigid-body movement, collision filtering, and sensors.
+- Use `CollisionGroup` + `CollisionFilter` for collision layers.
 - For static blockers, add a collider with `CollisionFilter::empty(group)`.
 - Use `_build/...` paths in HTML.
 

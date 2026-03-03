@@ -20,22 +20,22 @@ fn add_background(size : @math.Vec2D) -> Unit {
     GROUND_ZINDEX,
   )
   @sprite.sprites.set(background, background_sprite)
-  @position.positions.set(background, @math.Vec2D(0, 0))
+  @transform.positions.set(background, @math.Vec2D(0, 0))
 }
 
 ///|
 fn add_border(size : @math.Vec2D) -> Unit {
   fn add_one_border(pos : @math.Vec2D, size : @math.Vec2D) -> Unit {
     let entity = @entity.Entity::new()
-    let collider = @collision.Collider::new(
-      @collision.CollisionFilter::empty(wall_collision_group),
+    let collider = @physics2d.Collider::new(
+      @physics2d.CollisionFilter::empty(wall_collision_group),
     )
-    @collision.colliders.set(entity, collider)
-    @collision.shapes.set(
+    @physics2d.colliders.set(entity, collider)
+    @physics2d.shapes.set(
       entity,
-      @collision.CollisionShape::Rect(size~, offset=Vec2D(0.0, 0.0)),
+      @physics2d.CollisionShape::Rect(size~, offset=Vec2D(0.0, 0.0)),
     )
-    @position.positions.set(entity, pos)
+    @transform.positions.set(entity, pos)
   }
 
   add_one_border(Vec2D(-16.0, -16.0), Vec2D(size[X] + 32.0, 16.0))
@@ -54,7 +54,7 @@ fn add_grass() -> Unit {
         let grass = @entity.Entity::new()
         let sprite = @sprite.Sprite::from_animation(grass_sprite, GRASS_ZINDEX)
         @sprite.sprites.set(grass, sprite)
-        @position.positions.set(
+        @transform.positions.set(
           grass,
           Vec2D(x.to_double() * 16.0, y.to_double() * 16.0),
         )

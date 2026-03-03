@@ -1,0 +1,37 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/transform"
+
+import {
+  "Milky2018/selene/entity",
+  "Milky2018/selene/math",
+  "Milky2018/selene/position",
+}
+
+// Values
+pub fn capture_previous_transforms() -> Unit
+
+pub let global_transforms : Map[@entity.Entity, @position.Position]
+
+pub let positions : Map[@entity.Entity, @position.Position]
+
+pub let previous_positions : Map[@entity.Entity, @position.Position]
+
+pub let previous_transforms : Map[@entity.Entity, @position.Position]
+
+pub fn sample_position(@entity.Entity, Double) -> @math.Vec2D
+
+pub fn sample_translation(@entity.Entity, Double) -> @math.Vec2D
+
+pub let transforms : Map[@entity.Entity, @position.Position]
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+pub using @position {type Position as GlobalTransform}
+
+pub using @position {type Position as Transform}
+
+// Traits
+

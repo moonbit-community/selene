@@ -18,7 +18,7 @@ let volume_button_ref : Ref[@entity.Entity?] = { val: None }
 ///|
 fn add_result_box() -> Unit {
   let box = @entity.Entity::new()
-  @position.positions.set(
+  @transform.positions.set(
     box,
     @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 48, VIEWPORT_HEIGHT / 2.0 - 32),
   )
@@ -30,7 +30,7 @@ fn add_result_box() -> Unit {
 ///|
 fn add_score_box() -> Unit {
   let box = @entity.Entity::new()
-  @position.positions.set(box, @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 24, 16))
+  @transform.positions.set(box, @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 24, 16))
   let text = @sprite.Sprite::from_text(game_state.score_box, @ui.UI_ZINDEX)
   @sprite.sprites.set(box, text)
   @ui.uis.set(box, @ui.Ui::new(space=@ui.UiSpace::Virtual))
@@ -39,7 +39,7 @@ fn add_score_box() -> Unit {
 ///|
 fn add_health_box() -> Unit {
   let box = @entity.Entity::new()
-  @position.positions.set(box, @math.Vec2D(20, 16))
+  @transform.positions.set(box, @math.Vec2D(20, 16))
   let text = @sprite.Sprite::from_text(game_state.health_box, @ui.UI_ZINDEX)
   @sprite.sprites.set(box, text)
   @ui.uis.set(box, @ui.Ui::new(space=@ui.UiSpace::Virtual))
@@ -61,16 +61,16 @@ fn volume_sprite(volume_on : Bool) -> @sprite.Sprite {
 ///|
 fn add_volume_button() -> Unit {
   let button = @entity.Entity::new()
-  @position.positions.set(button, @math.Vec2D(VIEWPORT_WIDTH - 40, 18))
+  @transform.positions.set(button, @math.Vec2D(VIEWPORT_WIDTH - 40, 18))
   @sprite.sprites.set(button, volume_sprite(game_state.volume_on))
-  @collision.shapes.set(
+  @physics2d.shapes.set(
     button,
-    @collision.CollisionShape::Rect(
+    @physics2d.CollisionShape::Rect(
       size=@math.Vec2D(21.0, 22.0),
       offset=@math.Vec2D::zero(),
     ),
   )
-  @collision.pickables.set(button, @collision.Pickable::new())
+  @physics2d.pickables.set(button, @physics2d.Pickable::new())
   @ui.uis.set(button, @ui.Ui::new(space=@ui.UiSpace::Virtual))
   volume_button_ref.val = Some(button)
 }
@@ -78,9 +78,9 @@ fn add_volume_button() -> Unit {
 ///|
 fn volume_button_input_system(_delta : Double) -> Unit {
   guard volume_button_ref.val is Some(button) else { return }
-  for event in @collision.pointer_events() {
+  for event in @physics2d.pointer_events() {
     guard event.entity == button else { continue }
-    guard event.phase is @collision.PointerPhase::JustReleased else { continue }
+    guard event.phase is @physics2d.PointerPhase::JustReleased else { continue }
     guard event.button == @inputs.MouseButton::Left else { continue }
     game_state.volume_on = !game_state.volume_on
     @sprite.sprites.set(button, volume_sprite(game_state.volume_on))

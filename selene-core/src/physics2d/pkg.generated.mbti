@@ -1,0 +1,112 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/physics2d"
+
+import {
+  "Milky2018/selene/collision",
+  "Milky2018/selene/entity",
+  "Milky2018/selene/inputs",
+  "Milky2018/selene/math",
+  "Milky2018/selene/velocity",
+  "moonbitlang/core/set",
+}
+
+// Values
+pub let areas : Map[@entity.Entity, @collision.Area]
+
+pub let colliders : Map[@entity.Entity, @collision.Collider]
+
+pub fn collision_events() -> Array[@collision.ContactEvent]
+
+pub fn configure_physics(gravity? : @math.Vec2D, pixels_per_meter? : Double, max_ccd_substeps? : Int) -> Unit
+
+pub fn contact_events() -> Array[@collision.ContactEvent]
+
+pub fn debug_colliders_system(Double) -> Unit
+
+pub fn emit_pickable_just_pressed(@entity.Entity, button? : @inputs.MouseButton) -> Unit
+
+pub fn empty_collision_layers(@collision.CollisionGroup) -> @collision.CollisionFilter
+
+pub fn get_contains(@entity.Entity) -> @set.Set[@entity.Entity]
+
+pub let grounded_entities : @set.Set[@entity.Entity]
+
+pub fn is_grounded(@entity.Entity) -> Bool
+
+pub let linear_velocities : Map[@entity.Entity, @velocity.Velocity]
+
+pub fn make_linear_velocity(@math.Vec2D) -> @velocity.Velocity
+
+pub fn make_velocity(@math.Vec2D) -> @velocity.Velocity
+
+pub fn move_system(Double) -> Unit
+
+pub fn new_collision_layers(@collision.CollisionGroup, Array[@collision.CollisionGroup]) -> @collision.CollisionFilter
+
+pub fn new_sensor(@collision.CollisionFilter) -> @collision.Area
+
+pub let physics_config : @collision.PhysicsConfig
+
+pub fn physics_step_system(Double) -> Unit
+
+pub fn pickable_click_system(Double) -> Unit
+
+pub let pickables : Map[@entity.Entity, @collision.Pickable]
+
+pub fn pointer_events() -> Array[@collision.PointerEvent]
+
+pub let resolved_velocities : Map[@entity.Entity, @velocity.Velocity]
+
+pub fn sensor_events() -> Array[@collision.TriggerEvent]
+
+pub let sensors : Map[@entity.Entity, @collision.Area]
+
+pub let shapes : Map[@entity.Entity, @collision.CollisionShape]
+
+pub fn trigger_events() -> Array[@collision.TriggerEvent]
+
+pub let velocities : Map[@entity.Entity, @velocity.Velocity]
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+pub using @collision {type Area}
+
+pub using @collision {type Collider}
+
+pub using @collision {type CollisionShape as ColliderShape}
+
+pub using @collision {type ContactEvent as CollisionEvent}
+
+pub using @collision {type CollisionFilter}
+
+pub using @collision {type CollisionGroup}
+
+pub using @collision {type CollisionFilter as CollisionLayers}
+
+pub using @collision {type CollisionShape}
+
+pub using @collision {type ContactEvent}
+
+pub using @velocity {type Velocity as LinearVelocity}
+
+pub using @collision {type PhysicsConfig}
+
+pub using @collision {type Pickable}
+
+pub using @collision {type PointerEvent}
+
+pub using @collision {type PointerPhase}
+
+pub using @collision {type Area as Sensor}
+
+pub using @collision {type TriggerEvent as SensorEvent}
+
+pub using @collision {type TriggerEvent}
+
+pub using @velocity {type Velocity}
+
+// Traits
+

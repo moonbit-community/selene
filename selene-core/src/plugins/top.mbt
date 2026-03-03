@@ -24,7 +24,7 @@
 /// 
 pub fn debug_plugin(app : @system.App) -> Unit {
   app.systems.push(
-    (@collision.debug_collide_system, Render(-10), "Debug Collide System"),
+    (@physics2d.debug_colliders_system, RenderPrepare, "Debug Collide System"),
   )
 }
 
@@ -46,16 +46,22 @@ pub fn debug_plugin(app : @system.App) -> Unit {
 ///
 pub fn default_plugin(app : @system.App) -> Unit {
   app.systems
-  ..push((@collision.move_system, FixedUpdate, "Move System"))
-  ..push((@camera.camera_system, FixedUpdate, "Camera System"))
-  ..push((@inputs.advanced_key_system, Update, "Advanced Key System"))
-  ..push((@inputs.advanced_mouse_system, Update, "Advanced Mouse System"))
-  ..push((@collision.pickable_click_system, Update, "Pickable Click System"))
-  ..push((@system.deferred_event_system, Update, "Deferred Event System"))
-  ..push((@system.timer_system, Update, "Timer System"))
-  ..push((@system.realtime_timer_system, Update, "Realtime Timer System"))
-  ..push((@inherit.inherit_position_system, Update, "Inherit Position System"))
-  ..push((@style.style_system, Update, "Style System"))
-  ..push((@a11y.a11y_sync_system, Update, "A11y Sync System"))
-  .push((@sprite.render_sprite_system, Render(0), "Render Sprite System"))
+  ..push((@inputs.advanced_key_system, PreUpdate, "Advanced Key System"))
+  ..push((@inputs.advanced_mouse_system, PreUpdate, "Advanced Mouse System"))
+  ..push((@physics2d.physics_step_system, FixedUpdate, "Physics2D Step System"))
+  ..push((@camera.camera_system, FixedPostUpdate, "Camera System"))
+  ..push((@physics2d.pickable_click_system, Update, "Pickable Click System"))
+  ..push((@system.deferred_event_system, PostUpdate, "Deferred Event System"))
+  ..push((@system.timer_system, PostUpdate, "Timer System"))
+  ..push((@system.realtime_timer_system, PostUpdate, "Realtime Timer System"))
+  ..push(
+    (
+      @inherit.transform_propagate_system,
+      PostUpdate,
+      "Transform Propagation System",
+    ),
+  )
+  ..push((@style.style_system, PostUpdate, "Style System"))
+  ..push((@a11y.a11y_sync_system, PostUpdate, "A11y Sync System"))
+  .push((@sprite.render_sprite_system, Render, "Render Sprite System"))
 }

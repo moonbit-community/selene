@@ -83,7 +83,7 @@ fn setup_level_up_ui() -> Unit {
       size_plan=FromSprite,
       h_padding=2.0,
       v_padding=2.0,
-      shape=@collision.CollisionShape::Rect(
+      shape=@physics2d.CollisionShape::Rect(
         size=@math.Vec2D(160.0, 36.0),
         offset=@math.Vec2D::zero(),
       ),
@@ -302,7 +302,7 @@ fn setup_game_over_ui() -> Unit {
       )
     },
     h_offset=10.0,
-    shape=@collision.CollisionShape::Rect(
+    shape=@physics2d.CollisionShape::Rect(
       size=@math.Vec2D(180.0, 40.0),
       offset=@math.Vec2D::zero(),
     ),
@@ -346,8 +346,8 @@ fn add_level_box() -> Unit {
 
 ///|
 fn survivors_ui_pointer_system(_delta : Double) -> Unit {
-  for event in @collision.pointer_events() {
-    guard event.phase is @collision.PointerPhase::JustPressed else { continue }
+  for event in @physics2d.pointer_events() {
+    guard event.phase is @physics2d.PointerPhase::JustPressed else { continue }
     guard event.button == @inputs.MouseButton::Left else { continue }
     if restart_button_ref.val is Some(restart_button) &&
       event.entity == restart_button {

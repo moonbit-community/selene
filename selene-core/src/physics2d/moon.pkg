@@ -1,0 +1,8 @@
+import {
+  "Milky2018/selene/collision",
+  "Milky2018/selene/entity",
+  "Milky2018/selene/inputs",
+  "Milky2018/selene/math",
+  "Milky2018/selene/velocity",
+  "moonbitlang/core/set",
+}

@@ -222,8 +222,8 @@ pub fn render_sprite_system(delta : Double) -> Unit {
     } else if sprite1.1.zindex > sprite2.1.zindex {
       1
     } else {
-      guard @position.positions.get(sprite1.0) is Some(pos1) else { return 0 }
-      guard @position.positions.get(sprite2.0) is Some(pos2) else { return 0 }
+      guard @transform.positions.get(sprite1.0) is Some(pos1) else { return 0 }
+      guard @transform.positions.get(sprite2.0) is Some(pos2) else { return 0 }
       if pos1.0[Y] < pos2.0[Y] {
         -1
       } else if pos1.0[Y] > pos2.0[Y] {
@@ -236,11 +236,11 @@ pub fn render_sprite_system(delta : Double) -> Unit {
   for sprite in sprites {
     let e = sprite.0
     let sprite = sprite.1
-    guard @position.positions.get(e) is Some(pos) else { continue }
+    guard @transform.positions.get(e) is Some(pos) else { continue }
     let base_pos = if @ui.uis.get(e) is Some(_) {
       pos.0
     } else {
-      @position.sample_position(e, @system.get_render_alpha())
+      @transform.sample_position(e, @system.get_render_alpha())
     }
     let raw_pos = base_pos + sprite.offset
     let (screen_pos, scale_with_zoom) = project_sprite_position(

@@ -578,9 +578,12 @@ fn restart_game() -> Unit {
   reset_wave_state()
 
   // Reset player position
-  @position.positions.set(
+  @transform.positions.set(
     game_state.player_entity,
     @math.Vec2D(MAP_WIDTH / 2.0, MAP_HEIGHT / 2.0),
   )
-  @velocity.velocities.set(game_state.player_entity, @math.Vec2D::zero())
+  @physics2d.linear_velocities.set(
+    game_state.player_entity,
+    @math.Vec2D::zero(),
+  )
 }

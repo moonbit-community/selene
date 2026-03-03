@@ -219,24 +219,24 @@ fn shoot_weapon_bullet(
       BULLET_ZINDEX,
     ),
   )
-  @position.positions.set(bullet_entity, player_pos)
+  @transform.positions.set(bullet_entity, player_pos)
   let vel = (target_pos - player_pos)
     .normalize()
     .scalar_mul(weapon_data.bullet_speed)
-  @velocity.velocities.set(bullet_entity, vel)
-  @collision.shapes.set(
+  @physics2d.linear_velocities.set(bullet_entity, vel)
+  @physics2d.shapes.set(
     bullet_entity,
-    @collision.CollisionShape::Rect(
+    @physics2d.CollisionShape::Rect(
       size=@math.Vec2D(4.0, 4.0),
       offset=@math.Vec2D(-2.0, -2.0),
     ),
   )
-  let area = @collision.Area::new(
-    @collision.CollisionFilter::new(bullet_collision_group, [
+  let area = @physics2d.Area::new(
+    @physics2d.CollisionFilter::new(bullet_collision_group, [
       enemy_collision_group, wall_collision_group,
     ]),
   )
-  @collision.areas.set(bullet_entity, area)
+  @physics2d.areas.set(bullet_entity, area)
   player_bullets.set(bullet_entity, {
     alive: true,
     penetration_count: 0,
@@ -255,7 +255,7 @@ fn shoot_weapon_bullet(
 
 ///|
 fn player_bullet_trigger_system(_delta : Double) -> Unit {
-  for event in @collision.trigger_events() {
+  for event in @physics2d.trigger_events() {
     guard event.entered else { continue }
     guard player_bullets.get(event.area) is Some(bullet) else { continue }
     guard bullet.alive else { continue }

@@ -17,17 +17,27 @@
 ///
 /// Constructors:
 ///
-/// * `Startup` : Executes once at application startup before the main loop
-///   begins.
-/// * `FixedUpdate` : Executes with a fixed timestep. It can run zero or more
-///   times per rendered frame depending on accumulated time.
-/// * `Update` : Executes every frame during the main update loop.
-/// * `Render(Int)` : Executes during the render phase with the specified
-///   priority. Lower numbers execute first.
+/// * `Startup` : Executes once at application startup before the main loop.
+/// * `First`/`PreUpdate`/`Update`/`PostUpdate`/`Last` : Per-frame update stages.
+/// * `FixedFirst`/`FixedPreUpdate`/`FixedUpdate`/`FixedPostUpdate`/`FixedLast` :
+///   Fixed-step stages, which can run zero or more times per rendered frame.
+/// * `RenderExtract`/`RenderPrepare`/`Render`/`RenderCleanup` : Render pipeline
+///   stages executed once per frame.
 ///
 pub(all) enum Schedule {
   Startup
+  First
+  PreUpdate
   FixedUpdate
+  FixedFirst
+  FixedPreUpdate
+  FixedPostUpdate
+  FixedLast
   Update
-  Render(Int) // priority
+  PostUpdate
+  Last
+  RenderExtract
+  RenderPrepare
+  Render
+  RenderCleanup
 }

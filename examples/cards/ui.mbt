@@ -17,7 +17,7 @@
 fn setup_ui() -> Unit {
   // Create green poker table background (game entity, not UI)
   let table_entity = @entity.Entity::new()
-  @position.positions.set(table_entity, @math.Vec2D(0.0, 0.0))
+  @transform.positions.set(table_entity, @math.Vec2D(0.0, 0.0))
   @sprite.sprites.set(
     table_entity,
     @sprite.Sprite::from_color_rect(
@@ -101,7 +101,7 @@ fn create_action_buttons() -> Unit {
     },
     h_offset=VIEWPORT_WIDTH / 2.0 - 85.0 - button_width / 2.0,
     v_offset=button_y,
-    shape=@collision.CollisionShape::Rect(
+    shape=@physics2d.CollisionShape::Rect(
       size=@math.Vec2D(button_width, button_height),
       offset=@math.Vec2D::zero(),
     ),
@@ -137,7 +137,7 @@ fn create_action_buttons() -> Unit {
     },
     h_offset=VIEWPORT_WIDTH / 2.0 - button_width / 2.0,
     v_offset=button_y,
-    shape=@collision.CollisionShape::Rect(
+    shape=@physics2d.CollisionShape::Rect(
       size=@math.Vec2D(button_width, button_height),
       offset=@math.Vec2D::zero(),
     ),
@@ -170,7 +170,7 @@ fn create_action_buttons() -> Unit {
     },
     h_offset=VIEWPORT_WIDTH / 2.0 + 85.0 - button_width / 2.0,
     v_offset=button_y,
-    shape=@collision.CollisionShape::Rect(
+    shape=@physics2d.CollisionShape::Rect(
       size=@math.Vec2D(button_width, button_height),
       offset=@math.Vec2D::zero(),
     ),
@@ -280,8 +280,8 @@ fn on_raise_click() -> Unit {
 
 ///|
 fn cards_ui_pointer_system(_delta : Double) -> Unit {
-  for event in @collision.pointer_events() {
-    guard event.phase is @collision.PointerPhase::JustPressed else { continue }
+  for event in @physics2d.pointer_events() {
+    guard event.phase is @physics2d.PointerPhase::JustPressed else { continue }
     guard event.button == @inputs.MouseButton::Left else { continue }
     if event.entity == game_state.fold_button {
       on_fold_click()
@@ -321,7 +321,7 @@ fn display_all_cards() -> Unit {
   for j, card in player.hole_cards {
     let card_x = x_base + (j.to_double() - 0.5) * 30.0 - 30
     let card_entity = @entity.Entity::new()
-    @position.positions.set(card_entity, @math.Vec2D(card_x, y_base))
+    @transform.positions.set(card_entity, @math.Vec2D(card_x, y_base))
     @sprite.sprites.set(card_entity, card.to_sprite(j))
     game_state.hole_card_entities.push(card_entity)
   }
@@ -343,7 +343,7 @@ fn display_community_cards() -> Unit {
   for i, card in game_state.community_cards {
     let card_x = center_x + (i.to_double() - 2.5) * 30.0 - 15
     let card_entity = @entity.Entity::new()
-    @position.positions.set(card_entity, @math.Vec2D(card_x, center_y))
+    @transform.positions.set(card_entity, @math.Vec2D(card_x, center_y))
     @sprite.sprites.set(card_entity, card.to_sprite(10 + i))
     game_state.community_card_entities.push(card_entity)
   }
