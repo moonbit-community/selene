@@ -95,10 +95,33 @@ extern "js" fn webgpu_take_font_bytes(font : String) -> Array[Int] =
 ///|
 extern "js" fn resolve_asset_path(path : String) -> String =
   #| (path) => {
-  #|   if (path.startsWith("assets/")) {
+  #|   if (
+  #|     path.startsWith("http://") ||
+  #|     path.startsWith("https://") ||
+  #|     path.startsWith("data:") ||
+  #|     path.startsWith("blob:")
+  #|   ) {
+  #|     return path;
+  #|   }
+  #|   if (!path.startsWith("assets/")) {
+  #|     return path;
+  #|   }
+  #|   const pathname = globalThis.location?.pathname || "/";
+  #|   const marker = "/examples/";
+  #|   const markerIndex = pathname.indexOf(marker);
+  #|   if (markerIndex >= 0) {
+  #|     const base = pathname.slice(0, markerIndex + 1);
+  #|     return base + path;
+  #|   }
+  #|   if (pathname === "/") {
   #|     return "/" + path;
   #|   }
-  #|   return path;
+  #|   if (pathname.endsWith("/")) {
+  #|     return pathname + path;
+  #|   }
+  #|   const slashIndex = pathname.lastIndexOf("/");
+  #|   const base = slashIndex >= 0 ? pathname.slice(0, slashIndex + 1) : "/";
+  #|   return base + path;
   #| }
 
 ///|
