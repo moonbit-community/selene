@@ -49,23 +49,6 @@
             font-weight: 300;
         }
 
-        .back-link {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 10px 25px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .back-link:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-        }
-
         .games-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -181,9 +164,11 @@
         </header>
 
         <div class="games-grid">
-            <a href="survivors/index.html" class="game-card survivors">
+            <a href="web/survivors/index.html" class="game-card survivors">
                 <div class="game-header">
-                    <img src="survivors/screenshot.png" alt="Survivors Game" class="game-screenshot">
+                    <img src="survivors/screenshot.png"
+                        onerror="this.onerror=null; this.src='web/survivors/screenshot.png';" alt="Survivors Game"
+                        class="game-screenshot">
                 </div>
                 <div class="game-content">
                     <h2 class="game-title">Survivors</h2>
@@ -191,9 +176,11 @@
                 </div>
             </a>
 
-            <a href="pixeladventure/index.html" class="game-card pixeladventure">
+            <a href="web/pixeladventure/index.html" class="game-card pixeladventure">
                 <div class="game-header">
-                    <img src="pixeladventure/screenshot.png" alt="Pixel Adventure Game" class="game-screenshot">
+                    <img src="pixeladventure/screenshot.png"
+                        onerror="this.onerror=null; this.src='web/pixeladventure/screenshot.png';"
+                        alt="Pixel Adventure Game" class="game-screenshot">
                 </div>
                 <div class="game-content">
                     <h2 class="game-title">Pixel Adventure</h2>
@@ -201,18 +188,29 @@
                 </div>
             </a>
 
-            <a href="cards/index.html" class="game-card cards">
+            <a href="web/cards/index.html" class="game-card cards">
                 <div class="game-header">
-                    <img src="cards/screenshot.png" alt="Cards Game" class="game-screenshot">
+                    <img src="cards/screenshot.png" onerror="this.onerror=null; this.src='web/cards/screenshot.png';"
+                        alt="Cards Game" class="game-screenshot">
                 </div>
                 <div class="game-content">
                     <h2 class="game-title">Cards</h2>
                     <span class="play-button">Play Now →</span>
                 </div>
             </a>
-        </div>
 
-        <a href="../index.html" class="back-link">← Back</a>
+            <a href="web/scene3d/index.html" class="game-card scene3d">
+                <div class="game-header">
+                    <img src="scene3d/screenshot.png"
+                        onerror="this.onerror=null; this.src='web/scene3d/screenshot.png';" alt="3D Scene Game"
+                        class="game-screenshot">
+                </div>
+                <div class="game-content">
+                    <h2 class="game-title">3D Scene</h2>
+                    <span class="play-button">Play Now →</span>
+                </div>
+            </a>
+        </div>
 
         <footer>
             <p>Built with <a href="https://github.com/moonbit-community/selene" target="_blank">Selene</a> & <a
