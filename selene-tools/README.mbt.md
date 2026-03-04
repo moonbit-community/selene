@@ -14,10 +14,10 @@ Build an embedded asset pack and/or MoonBit index file for native pre-build hook
 
 ```bash
 selene-embed-assets \
-  --assets-dir examples/assets/pixeladventure \
+  --assets-dir <assets-dir> \
   --pack-out _embedded_assets.pack \
   --index-out embedded_assets_index.mbt \
-  --path-prefix assets/pixeladventure \
+  --path-prefix <runtime-prefix> \
   --blob-name embedded_assets_blob \
   --lookup-fn get_embedded_asset
 ```

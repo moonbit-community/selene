@@ -18,14 +18,14 @@ moon install Milky2018/selene_tools/cmd/selene-embed-assets
 options(
   "pre-build": [
     {
-      "input": "../../examples/assets/pixeladventure",
+      "input": "<assets-dir>",
       "output": "_embedded_assets.pack",
-      "command": "selene-embed-assets --assets-dir ../../examples/assets/pixeladventure --pack-out $output --path-prefix assets/pixeladventure",
+      "command": "selene-embed-assets --assets-dir <assets-dir> --pack-out $output --path-prefix <runtime-prefix>",
     },
     {
-      "input": "../../examples/assets/pixeladventure",
+      "input": "<assets-dir>",
       "output": "embedded_assets_index.mbt",
-      "command": "selene-embed-assets --assets-dir ../../examples/assets/pixeladventure --index-out $output --path-prefix assets/pixeladventure --blob-name embedded_assets_blob --lookup-fn get_embedded_asset",
+      "command": "selene-embed-assets --assets-dir <assets-dir> --index-out $output --path-prefix <runtime-prefix> --blob-name embedded_assets_blob --lookup-fn get_embedded_asset",
     },
     {
       "input": "_embedded_assets.pack",
@@ -35,6 +35,8 @@ options(
   ],
 )
 ```
+
+Use the same `<assets-dir>` in both pre-build steps, and set `<runtime-prefix>` to match your runtime asset paths.
 
 This generates:
 - `embedded_assets_blob.mbt` (raw bytes via `:embed`)

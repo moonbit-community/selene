@@ -13,6 +13,48 @@ python3 -m http.server 8000
 
 打开 `http://localhost:8000/web/pixeladventure/`。
 
+### 1.2 Native（raylib）+ 嵌入资源
+
+先安装 CLI：
+
+```bash
+moon install Milky2018/selene_tools/cmd/selene-embed-assets
+```
+
+在原生游戏入口包的 `moon.pkg` 里添加 pre-build：
+
+```moonbit
+options(
+  "is-main": true,
+  overrides: [ "Milky2018/selene_raylib" ],
+  "pre-build": [
+    {
+      "input": "<assets-dir>",
+      "output": "_embedded_assets.pack",
+      "command": "selene-embed-assets --assets-dir <assets-dir> --pack-out $output --path-prefix <runtime-prefix>",
+    },
+    {
+      "input": "<assets-dir>",
+      "output": "embedded_assets_index.mbt",
+      "command": "selene-embed-assets --assets-dir <assets-dir> --index-out $output --path-prefix <runtime-prefix> --blob-name embedded_assets_blob --lookup-fn get_embedded_asset",
+    },
+    {
+      "input": "_embedded_assets.pack",
+      "output": "embedded_assets_blob.mbt",
+      "command": ":embed --binary -i $input -o $output --name embedded_assets_blob",
+    },
+  ],
+)
+```
+
+两个 pre-build 步骤里的 `<assets-dir>` 要保持一致，`<runtime-prefix>` 要和运行时资源路径前缀一致。
+
+在 `app.run()` 之前调用：
+
+```moonbit
+@backend.set_embedded_assets(get_embedded_asset)
+```
+
 ## 2. 示例目录结构
 
 ```text

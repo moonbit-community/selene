@@ -8,6 +8,48 @@ The [selene-core](selene-core/) directory is the core of the Selene engine.
 
 The [selene-webgpu](selene-webgpu/) directory is the officially maintained Canvas2D API-based backend for Selene. The Selene engine must run with a backend.
 
+The [selene-raylib](selene-raylib/) directory is the native backend for Selene.
+
+## Raylib Native Asset Embedding
+
+When building native games with raylib, install the Selene embed-assets CLI and use it from `pre-build`:
+
+```bash
+moon install Milky2018/selene_tools/cmd/selene-embed-assets
+```
+
+Then configure your game package `moon.pkg`:
+
+```moonbit
+options(
+  "pre-build": [
+    {
+      "input": "<assets-dir>",
+      "output": "_embedded_assets.pack",
+      "command": "selene-embed-assets --assets-dir <assets-dir> --pack-out $output --path-prefix <runtime-prefix>",
+    },
+    {
+      "input": "<assets-dir>",
+      "output": "embedded_assets_index.mbt",
+      "command": "selene-embed-assets --assets-dir <assets-dir> --index-out $output --path-prefix <runtime-prefix> --blob-name embedded_assets_blob --lookup-fn get_embedded_asset",
+    },
+    {
+      "input": "_embedded_assets.pack",
+      "output": "embedded_assets_blob.mbt",
+      "command": ":embed --binary -i $input -o $output --name embedded_assets_blob",
+    },
+  ],
+)
+```
+
+Use the same `<assets-dir>` in both pre-build steps, and set `<runtime-prefix>` to match your runtime asset paths.
+
+Before `app.run()`, register embedded lookup:
+
+```moonbit
+@backend.set_embedded_assets(get_embedded_asset)
+```
+
 ## For [MGPIC 2025](https://www.moonbitlang.cn/2025-mgpic) Participants
 
 In principle, the competition only requires the output to be a static HTML5 game, with core logic written in MoonBit. The implementation details are open-ended. Contestants are encouraged to brainstorm and build everything from scratch.

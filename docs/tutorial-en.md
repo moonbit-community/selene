@@ -13,6 +13,48 @@ python3 -m http.server 8000
 
 Open `http://localhost:8000/web/pixeladventure/`.
 
+### 1.2 Native (raylib) with embedded assets
+
+Install the CLI:
+
+```bash
+moon install Milky2018/selene_tools/cmd/selene-embed-assets
+```
+
+Add pre-build to your native game wrapper `moon.pkg`:
+
+```moonbit
+options(
+  "is-main": true,
+  overrides: [ "Milky2018/selene_raylib" ],
+  "pre-build": [
+    {
+      "input": "<assets-dir>",
+      "output": "_embedded_assets.pack",
+      "command": "selene-embed-assets --assets-dir <assets-dir> --pack-out $output --path-prefix <runtime-prefix>",
+    },
+    {
+      "input": "<assets-dir>",
+      "output": "embedded_assets_index.mbt",
+      "command": "selene-embed-assets --assets-dir <assets-dir> --index-out $output --path-prefix <runtime-prefix> --blob-name embedded_assets_blob --lookup-fn get_embedded_asset",
+    },
+    {
+      "input": "_embedded_assets.pack",
+      "output": "embedded_assets_blob.mbt",
+      "command": ":embed --binary -i $input -o $output --name embedded_assets_blob",
+    },
+  ],
+)
+```
+
+Use the same `<assets-dir>` in both pre-build steps, and set `<runtime-prefix>` to match your runtime asset paths.
+
+Before `app.run()`:
+
+```moonbit
+@backend.set_embedded_assets(get_embedded_asset)
+```
+
 ## 2. Example Layout
 
 ```text
