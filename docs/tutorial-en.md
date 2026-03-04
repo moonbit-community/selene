@@ -197,6 +197,6 @@ cd examples
 moon check ./web/pixeladventure --target js
 moon build ./web/pixeladventure --target js --target-dir _build --release
 
-# Build all examples
-./build_all.sh web release
+# Build all web examples
+moon build --release
 ```

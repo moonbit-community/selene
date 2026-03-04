@@ -197,6 +197,6 @@ cd examples
 moon check ./web/pixeladventure --target js
 moon build ./web/pixeladventure --target js --target-dir _build --release
 
-# 一次性构建全部示例
-./build_all.sh web release
+# 一次性构建全部 Web 示例
+moon build --release
 ```

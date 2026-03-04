@@ -160,7 +160,7 @@ def ensure_web_release_built(games: list[str]):
         "Missing web release build artifacts:\n"
         f"{details}\n"
         "Run one of:\n"
-        "  (cd examples && ./build_all.sh web)\n"
+        "  (cd examples && moon build --release)\n"
         "  (cd examples && moon build ./web/<game> --target js --release)"
     )
 
