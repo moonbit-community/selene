@@ -9,4 +9,5 @@ import {
   "Milky2018/selene/system",
   "Milky2018/selene/backend",
   "Milky2018/selene/render",
+  "moonbitlang/core/math" @cmath,
 }

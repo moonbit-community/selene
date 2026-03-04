@@ -5,5 +5,6 @@ import {
   "Milky2018/selene/render3d",
   "Milky2018/selene/render",
   "Milky2018/selene/transform3d",
+  "moonbitlang/core/encoding/base64",
   "moonbitlang/core/json",
 }

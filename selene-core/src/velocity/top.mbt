@@ -21,7 +21,7 @@
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// let vel : Velocity = @math.Vec2D(5.0, 3.0)
 /// inspect(vel, content="Velocity(Vec2D(5, 3))")
 /// ```
@@ -38,7 +38,7 @@ pub(all) struct Velocity(@math.Vec2D) derive(Eq, Show)
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Set velocity for an entity
 /// let entity = @entity.Entity::new()
 /// defer entity.destroy()

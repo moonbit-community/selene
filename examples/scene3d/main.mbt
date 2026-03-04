@@ -25,6 +25,12 @@ let rotating_cube : Ref[@entity.Entity?] = Ref::new(None)
 let cube_rotation : Ref[Double] = Ref::new(0.0)
 
 ///|
+let spotlight_entity : Ref[@entity.Entity?] = Ref::new(None)
+
+///|
+let spotlight_phase : Ref[Double] = Ref::new(0.0)
+
+///|
 fn color(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
   @render.Color::{ r, g, b, a }
 }
@@ -32,6 +38,91 @@ fn color(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
 ///|
 fn vec3(x : Double, y : Double, z : Double) -> @math.Vec3 {
   @math.Vec3::new(x, y, z)
+}
+
+///|
+fn append_cube_face(
+  positions : Array[@math.Vec3],
+  normals : Array[@math.Vec3],
+  a : @math.Vec3,
+  b : @math.Vec3,
+  c : @math.Vec3,
+  d : @math.Vec3,
+  normal : @math.Vec3,
+) -> Unit {
+  positions.push(a)
+  positions.push(b)
+  positions.push(c)
+  positions.push(a)
+  positions.push(c)
+  positions.push(d)
+  for _ in 0..<6 {
+    normals.push(normal)
+  }
+}
+
+///|
+fn lit_cube_mesh(size : Double) -> @render3d.MeshAsset {
+  let half = size * 0.5
+  let positions : Array[@math.Vec3] = []
+  let normals : Array[@math.Vec3] = []
+
+  append_cube_face(
+    positions,
+    normals,
+    vec3(-half, -half, half),
+    vec3(half, -half, half),
+    vec3(half, half, half),
+    vec3(-half, half, half),
+    vec3(0.0, 0.0, 1.0),
+  )
+  append_cube_face(
+    positions,
+    normals,
+    vec3(half, -half, -half),
+    vec3(-half, -half, -half),
+    vec3(-half, half, -half),
+    vec3(half, half, -half),
+    vec3(0.0, 0.0, -1.0),
+  )
+  append_cube_face(
+    positions,
+    normals,
+    vec3(-half, -half, -half),
+    vec3(-half, -half, half),
+    vec3(-half, half, half),
+    vec3(-half, half, -half),
+    vec3(-1.0, 0.0, 0.0),
+  )
+  append_cube_face(
+    positions,
+    normals,
+    vec3(half, -half, half),
+    vec3(half, -half, -half),
+    vec3(half, half, -half),
+    vec3(half, half, half),
+    vec3(1.0, 0.0, 0.0),
+  )
+  append_cube_face(
+    positions,
+    normals,
+    vec3(-half, half, half),
+    vec3(half, half, half),
+    vec3(half, half, -half),
+    vec3(-half, half, -half),
+    vec3(0.0, 1.0, 0.0),
+  )
+  append_cube_face(
+    positions,
+    normals,
+    vec3(-half, -half, -half),
+    vec3(half, -half, -half),
+    vec3(half, -half, half),
+    vec3(-half, -half, half),
+    vec3(0.0, -1.0, 0.0),
+  )
+
+  @render3d.triangle_mesh(positions, normals=Some(normals))
 }
 
 ///|
@@ -44,6 +135,7 @@ pub fn run() -> Unit {
   .add_plugin(@plugins.default_3d_plugin)
   .add_system(setup_scene3d, schedule=Startup)
   .add_system(rotate_cube_system, schedule=Update)
+  .add_system(animate_spotlight_system, schedule=Update)
   .add_system(draw_overlay_system, schedule=RenderCleanup)
   .run()
 }
@@ -66,13 +158,31 @@ fn setup_scene3d(_delta : Double) -> Unit {
     @scene3d_api.instantiate_scene(scene, @transform3d.Transform3D::identity()),
   )
 
-  let cube_mesh = @render3d.register_mesh_asset(
-    @render3d.cube_mesh(vec3(1.0, 1.0, 1.0)),
+  let floor_mesh = @render3d.register_mesh_asset(
+    @render3d.plane_mesh(vec3(10.0, 0.02, 10.0)),
   )
+  let floor_material = @render3d.register_material_asset({
+    ..@render3d.default_standard_material3d(),
+    base_color: color(55U, 62U, 66U, 1.0),
+    roughness: 0.95,
+  })
+  let floor = @entity.Entity::new()
+  @transform3d.transforms3d.set(floor, {
+    translation: vec3(0.0, -0.01, 0.0),
+    rotation: @math.Quat::identity(),
+    scale: @math.Vec3::one(),
+  })
+  @render3d.mesh3d_renderers.set(floor, {
+    mesh: floor_mesh,
+    material: floor_material,
+    visible: true,
+  })
+
+  let cube_mesh = @render3d.register_mesh_asset(lit_cube_mesh(1.0))
   let cube_material = @render3d.register_material_asset({
     ..@render3d.default_standard_material3d(),
     base_color: color(124U, 144U, 255U, 1.0),
-    roughness: 0.35,
+    roughness: 0.25,
   })
 
   let cube = @entity.Entity::new()
@@ -88,15 +198,84 @@ fn setup_scene3d(_delta : Double) -> Unit {
   })
   rotating_cube.val = Some(cube)
 
+  let target_mesh = @render3d.register_mesh_asset(@render3d.sphere_mesh(0.45))
+  let target_material = @render3d.register_material_asset({
+    ..@render3d.default_standard_material3d(),
+    base_color: color(244U, 199U, 124U, 1.0),
+    roughness: 0.25,
+  })
+  let target = @entity.Entity::new()
+  @transform3d.transforms3d.set(target, {
+    translation: vec3(0.0, 0.45, 0.0),
+    rotation: @math.Quat::identity(),
+    scale: @math.Vec3::one(),
+  })
+  @render3d.mesh3d_renderers.set(target, {
+    mesh: target_mesh,
+    material: target_material,
+    visible: true,
+  })
+
+  let off_axis_cube = @entity.Entity::new()
+  @transform3d.transforms3d.set(off_axis_cube, {
+    translation: vec3(-2.2, 0.5, 1.8),
+    rotation: @math.Quat::from_axis_angle(vec3(0.0, 1.0, 0.0), 0.45),
+    scale: vec3(0.7, 0.7, 0.7),
+  })
+  @render3d.mesh3d_renderers.set(off_axis_cube, {
+    mesh: cube_mesh,
+    material: @render3d.register_material_asset({
+      ..@render3d.default_standard_material3d(),
+      base_color: color(118U, 168U, 240U, 1.0),
+      roughness: 0.6,
+    }),
+    visible: true,
+  })
+
+  let spotlight = @entity.Entity::new()
+  @transform3d.transforms3d.set(spotlight, {
+    translation: vec3(3.2, 3.0, 0.0),
+    rotation: @math.Quat::identity(),
+    scale: @math.Vec3::one(),
+  })
+  @render3d.spot_lights3d.set(spotlight, {
+    direction: vec3(-1.0, -1.2, 0.0).normalize(),
+    color: color(255U, 236U, 186U, 1.0),
+    intensity: 8.0,
+    range: 11.0,
+    inner_angle: 0.28,
+    outer_angle: 0.72,
+  })
+  spotlight_entity.val = Some(spotlight)
+
+  let spotlight_marker_mesh = @render3d.register_mesh_asset(
+    @render3d.sphere_mesh(0.14),
+  )
+  let spotlight_marker_material = @render3d.register_material_asset({
+    ..@render3d.default_standard_material3d(),
+    base_color: color(255U, 236U, 186U, 1.0),
+    roughness: 0.05,
+  })
+  let spotlight_marker = spotlight.spawn_child()
+  @transform3d.transforms3d.set(
+    spotlight_marker,
+    @transform3d.Transform3D::identity(),
+  )
+  @render3d.mesh3d_renderers.set(spotlight_marker, {
+    mesh: spotlight_marker_mesh,
+    material: spotlight_marker_material,
+    visible: true,
+  })
+
   let dir_light = @entity.Entity::new()
   @render3d.directional_lights3d.set(dir_light, {
     direction: vec3(-0.35, -1.0, -0.2).normalize(),
     color: color(255U, 255U, 255U, 1.0),
-    intensity: 2.0,
+    intensity: 0.65,
     shadows: true,
   })
   @render3d.set_ambient_light3d(
-    Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.2 }),
+    Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.06 }),
   )
 }
 
@@ -115,9 +294,30 @@ fn rotate_cube_system(delta : Double) -> Unit {
 }
 
 ///|
+fn animate_spotlight_system(delta : Double) -> Unit {
+  guard spotlight_entity.val is Some(spotlight) else { return }
+  spotlight_phase.val += delta * 0.9
+  let x = @cmath.cos(spotlight_phase.val) * 3.2
+  let y = 2.8 + @cmath.sin(spotlight_phase.val * 1.7) * 0.35
+  let z = @cmath.sin(spotlight_phase.val) * 3.2
+  let position = vec3(x, y, z)
+  let focus = vec3(0.0, 0.45, 0.0)
+  let direction = (focus - position).normalize()
+  if @transform3d.transforms3d.get(spotlight) is Some(transform) {
+    @transform3d.transforms3d.set(spotlight, {
+      ..transform,
+      translation: position,
+    })
+  }
+  if @render3d.spot_lights3d.get(spotlight) is Some(light) {
+    @render3d.spot_lights3d.set(spotlight, { ..light, direction, })
+  }
+}
+
+///|
 fn draw_overlay_system(_delta : Double) -> Unit {
   @backend.draw_text(@render.TextDrawCommand::{
-    text: "3d_scene: ECS render3d pipeline",
+    text: "3d_scene: ECS render3d pipeline + spot light",
     position: @math.Vec2D(16.0, 16.0),
     style: @render.TextStyle::{
       family: "sans-serif",

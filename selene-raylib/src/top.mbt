@@ -126,6 +126,11 @@ fn to_ray_vector3(value : @render.Vec3) -> @raylib.Vector3 {
 }
 
 ///|
+fn to_ray_vector3_smath(value : @smath.Vec3) -> @raylib.Vector3 {
+  @raylib.Vector3::new(to_float(value.x), to_float(value.y), to_float(value.z))
+}
+
+///|
 fn to_ray_rect(
   x : Double,
   y : Double,
@@ -854,6 +859,7 @@ fn draw_mesh3d_instance(
         color,
       )
     }
+    Triangles(mesh) => draw_triangle_mesh(mesh.positions, color)
   }
   @rl.pop_matrix()
 }
@@ -882,6 +888,23 @@ fn apply_quat_rotation(quat : @smath.Quat) -> Unit {
     to_float(axis.y),
     to_float(axis.z),
   )
+}
+
+///|
+fn draw_triangle_mesh(
+  vertices : Array[@smath.Vec3],
+  color : @raylib.Color,
+) -> Unit {
+  let triangle_count = vertices.length() / 3
+  for index in 0..<triangle_count {
+    let base = index * 3
+    @raylib.draw_triangle_3d(
+      to_ray_vector3_smath(vertices[base]),
+      to_ray_vector3_smath(vertices[base + 1]),
+      to_ray_vector3_smath(vertices[base + 2]),
+      color,
+    )
+  }
 }
 
 ///|

@@ -52,6 +52,23 @@ pub(all) struct FrameCamera3D {
   clear_color : @render.Color
 }
 
+pub(all) struct FramePointLight3D {
+  position : @math.Vec3
+  color : @render.Color
+  intensity : Double
+  range : Double
+}
+
+pub(all) struct FrameSpotLight3D {
+  position : @math.Vec3
+  direction : @math.Vec3
+  color : @render.Color
+  intensity : Double
+  range : Double
+  inner_angle : Double
+  outer_angle : Double
+}
+
 pub(all) struct FrameTransform3D {
   translation : @math.Vec3
   rotation : @math.Quat
@@ -98,6 +115,7 @@ pub(all) enum MeshPrimitive3D {
   Sphere(Double)
   Cylinder(Double, Double, Double, Int)
   Plane(@math.Vec3)
+  Triangles(TriangleMesh3D)
 }
 pub impl Eq for MeshPrimitive3D
 pub impl Show for MeshPrimitive3D
@@ -113,8 +131,8 @@ pub(all) struct RenderFrame3D {
   mut clear_color : @render.Color
   mut items : Array[RenderItem3D]
   mut directional_lights : Array[DirectionalLight3D]
-  mut point_lights : Array[PointLight3D]
-  mut spot_lights : Array[SpotLight3D]
+  mut point_lights : Array[FramePointLight3D]
+  mut spot_lights : Array[FrameSpotLight3D]
   mut ambient_light : AmbientLight3D?
 }
 
@@ -150,6 +168,14 @@ pub(all) struct StandardMaterial3D {
   roughness : Double
   alpha_mode : AlphaMode3D
 }
+
+pub(all) struct TriangleMesh3D {
+  positions : Array[@math.Vec3]
+  uvs : Array[@math.Vec2D]?
+  normals : Array[@math.Vec3]?
+}
+pub impl Eq for TriangleMesh3D
+pub impl Show for TriangleMesh3D
 
 // Type aliases
 

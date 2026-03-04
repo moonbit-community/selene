@@ -15,7 +15,7 @@
 ///|
 priv struct SceneNodeTemplate {
   transform : @transform3d.Transform3D
-  renderer : @render3d.Mesh3DRenderer?
+  renderers : Array[@render3d.Mesh3DRenderer]
   children : Array[Int]
 }
 
@@ -27,8 +27,24 @@ priv struct SceneTemplate {
 
 ///|
 priv struct MeshSceneTemplate {
-  mesh : @render3d.MeshHandle
-  material : @render3d.MaterialHandle
+  renderers : Array[@render3d.Mesh3DRenderer]
+}
+
+///|
+priv struct BufferViewTemplate {
+  buffer : Int
+  byte_offset : Int
+  byte_length : Int
+  byte_stride : Int?
+}
+
+///|
+priv struct AccessorTemplate {
+  buffer_view : Int
+  byte_offset : Int
+  component_type : Int
+  count : Int
+  type_name : String
 }
 
 ///|
@@ -46,7 +62,7 @@ fn empty_scene_template() -> SceneTemplate {
 fn default_scene_node_template() -> SceneNodeTemplate {
   {
     transform: @transform3d.Transform3D::identity(),
-    renderer: None,
+    renderers: [],
     children: [],
   }
 }
@@ -89,8 +105,17 @@ fn instantiate_scene_node(
   let node = template.nodes[node_index]
   let entity = parent.spawn_child()
   @transform3d.transforms3d.set(entity, node.transform)
-  if node.renderer is Some(renderer) {
-    @render3d.mesh3d_renderers.set(entity, renderer)
+  if node.renderers.length() == 1 {
+    @render3d.mesh3d_renderers.set(entity, node.renderers[0])
+  } else if node.renderers.length() > 1 {
+    for renderer in node.renderers {
+      let primitive_entity = entity.spawn_child()
+      @transform3d.transforms3d.set(
+        primitive_entity,
+        @transform3d.Transform3D::identity(),
+      )
+      @render3d.mesh3d_renderers.set(primitive_entity, renderer)
+    }
   }
   for child_index in node.children {
     instantiate_scene_node(template, child_index, entity, depth + 1)
@@ -120,7 +145,12 @@ fn parse_scene_template(path : String, document : Json) -> SceneTemplate {
   let material_handles = parse_material_handles(
     root_object, texture_sources, image_handles,
   )
-  let mesh_templates = parse_mesh_templates(root_object, material_handles)
+  let buffers = parse_buffer_blobs(path, root_object)
+  let buffer_views = parse_buffer_views(root_object)
+  let accessors = parse_accessors(root_object)
+  let mesh_templates = parse_mesh_templates(
+    root_object, material_handles, buffers, buffer_views, accessors,
+  )
   let nodes = parse_node_templates(root_object, mesh_templates)
   let roots = parse_root_nodes(root_object, nodes.length())
   { roots, nodes }
@@ -281,9 +311,125 @@ fn parse_pbr_material(
 }
 
 ///|
+fn parse_buffer_blobs(
+  scene_path : String,
+  root_object : Map[String, Json],
+) -> Array[Bytes?] {
+  guard root_object.get("buffers") is Some(buffers_json) else { return [] }
+  guard json_array(buffers_json) is Some(buffers) else { return [] }
+  let blobs : Array[Bytes?] = []
+  for buffer_json in buffers {
+    guard json_object(buffer_json) is Some(buffer_object) else {
+      blobs.push(None)
+      continue
+    }
+    guard field_string(buffer_object, "uri") is Some(uri) else {
+      blobs.push(None)
+      continue
+    }
+    if uri.to_lower().has_prefix("data:") {
+      blobs.push(decode_data_uri_base64(uri))
+    } else {
+      let resolved = resolve_relative_asset_path(scene_path, uri)
+      blobs.push(@backend.get_asset_bytes(resolved))
+    }
+  }
+  blobs
+}
+
+///|
+fn decode_data_uri_base64(uri : String) -> Bytes? {
+  guard uri.find(",") is Some(comma_idx) else { return None }
+  let meta = uri.unsafe_substring(start=0, end=comma_idx).to_lower()
+  if !meta.has_suffix(";base64") {
+    return None
+  }
+  let payload = uri.unsafe_substring(start=comma_idx + 1, end=uri.length())
+  Some(@base64.decode_lossy(payload.view()))
+}
+
+///|
+fn parse_buffer_views(
+  root_object : Map[String, Json],
+) -> Array[BufferViewTemplate?] {
+  guard root_object.get("bufferViews") is Some(views_json) else { return [] }
+  guard json_array(views_json) is Some(views) else { return [] }
+  let templates : Array[BufferViewTemplate?] = []
+  for view_json in views {
+    guard json_object(view_json) is Some(view_object) else {
+      templates.push(None)
+      continue
+    }
+    guard field_int(view_object, "buffer") is Some(buffer_index) else {
+      templates.push(None)
+      continue
+    }
+    guard field_int(view_object, "byteLength") is Some(byte_length) else {
+      templates.push(None)
+      continue
+    }
+    if buffer_index < 0 || byte_length <= 0 {
+      templates.push(None)
+      continue
+    }
+    templates.push(
+      Some({
+        buffer: buffer_index,
+        byte_offset: field_int(view_object, "byteOffset").unwrap_or(0),
+        byte_length,
+        byte_stride: field_int(view_object, "byteStride"),
+      }),
+    )
+  }
+  templates
+}
+
+///|
+fn parse_accessors(root_object : Map[String, Json]) -> Array[AccessorTemplate?] {
+  guard root_object.get("accessors") is Some(accessors_json) else { return [] }
+  guard json_array(accessors_json) is Some(accessors) else { return [] }
+  let templates : Array[AccessorTemplate?] = []
+  for accessor_json in accessors {
+    guard json_object(accessor_json) is Some(accessor_object) else {
+      templates.push(None)
+      continue
+    }
+    guard field_int(accessor_object, "bufferView") is Some(buffer_view) else {
+      templates.push(None)
+      continue
+    }
+    guard field_int(accessor_object, "componentType") is Some(component_type) else {
+      templates.push(None)
+      continue
+    }
+    guard field_int(accessor_object, "count") is Some(count) else {
+      templates.push(None)
+      continue
+    }
+    if buffer_view < 0 || count <= 0 {
+      templates.push(None)
+      continue
+    }
+    templates.push(
+      Some({
+        buffer_view,
+        byte_offset: field_int(accessor_object, "byteOffset").unwrap_or(0),
+        component_type,
+        count,
+        type_name: field_string(accessor_object, "type").unwrap_or("SCALAR"),
+      }),
+    )
+  }
+  templates
+}
+
+///|
 fn parse_mesh_templates(
   root_object : Map[String, Json],
   material_handles : Array[@render3d.MaterialHandle],
+  buffers : Array[Bytes?],
+  buffer_views : Array[BufferViewTemplate?],
+  accessors : Array[AccessorTemplate?],
 ) -> Array[MeshSceneTemplate?] {
   guard root_object.get("meshes") is Some(meshes_json) else { return [] }
   guard json_array(meshes_json) is Some(meshes) else { return [] }
@@ -308,19 +454,31 @@ fn parse_mesh_templates(
       templates.push(None)
       continue
     }
-    let primitive_json = primitives[0]
-    guard json_object(primitive_json) is Some(primitive_object) else {
+    let renderers : Array[@render3d.Mesh3DRenderer] = []
+    for primitive_json in primitives {
+      guard json_object(primitive_json) is Some(primitive_object) else {
+        continue
+      }
+      let mesh_asset = parse_mesh_asset(
+        mesh_object, primitive_object, buffers, buffer_views, accessors,
+      )
+      let mesh_handle = @render3d.register_mesh_asset(mesh_asset)
+      let material_handle = match field_int(primitive_object, "material") {
+        Some(material_index) =>
+          material_handles.get(material_index).unwrap_or(default_material)
+        None => default_material
+      }
+      renderers.push({
+        mesh: mesh_handle,
+        material: material_handle,
+        visible: true,
+      })
+    }
+    if renderers.length() == 0 {
       templates.push(None)
       continue
     }
-    let mesh_asset = parse_mesh_asset(mesh_object, primitive_object)
-    let mesh_handle = @render3d.register_mesh_asset(mesh_asset)
-    let material_handle = match field_int(primitive_object, "material") {
-      Some(material_index) =>
-        material_handles.get(material_index).unwrap_or(default_material)
-      None => default_material
-    }
-    templates.push(Some({ mesh: mesh_handle, material: material_handle }))
+    templates.push(Some({ renderers, }))
   }
   templates
 }
@@ -329,43 +487,428 @@ fn parse_mesh_templates(
 fn parse_mesh_asset(
   mesh_object : Map[String, Json],
   primitive_object : Map[String, Json],
+  buffers : Array[Bytes?],
+  buffer_views : Array[BufferViewTemplate?],
+  accessors : Array[AccessorTemplate?],
 ) -> @render3d.MeshAsset {
+  if parse_triangle_mesh_asset(
+      primitive_object, buffers, buffer_views, accessors,
+    )
+    is Some(triangle_mesh) {
+    return triangle_mesh
+  }
+  if parse_mesh_asset_from_extras(mesh_object, primitive_object) is Some(asset) {
+    return asset
+  }
+  @render3d.cube_mesh(@math.Vec3::one())
+}
+
+///|
+fn parse_mesh_asset_from_extras(
+  mesh_object : Map[String, Json],
+  primitive_object : Map[String, Json],
+) -> @render3d.MeshAsset? {
   let extras = if primitive_object.get("extras") is Some(primitive_extras) {
     Some(primitive_extras)
   } else {
     mesh_object.get("extras")
   }
-  guard extras is Some(extras_json) else {
-    return @render3d.cube_mesh(@math.Vec3::one())
-  }
-  guard json_object(extras_json) is Some(extras_object) else {
-    return @render3d.cube_mesh(@math.Vec3::one())
-  }
+  guard extras is Some(extras_json) else { return None }
+  guard json_object(extras_json) is Some(extras_object) else { return None }
   let primitive = field_string(extras_object, "selenePrimitive").map_or(
     "cube",
     fn(name) { name.to_lower() },
   )
-  match primitive {
-    "sphere" =>
-      @render3d.sphere_mesh(
-        field_number(extras_object, "radius").unwrap_or(0.5),
-      )
-    "cylinder" =>
-      @render3d.cylinder_mesh(
-        field_number(extras_object, "radiusTop").unwrap_or(0.5),
-        field_number(extras_object, "radiusBottom").unwrap_or(0.5),
-        field_number(extras_object, "height").unwrap_or(1.0),
-        slices=field_int(extras_object, "slices").unwrap_or(24),
-      )
-    "plane" =>
-      @render3d.plane_mesh(
-        parse_vec3(extras_object.get("size"), @math.Vec3::new(1.0, 0.1, 1.0)),
-      )
-    _ =>
-      @render3d.cube_mesh(
-        parse_vec3(extras_object.get("size"), @math.Vec3::one()),
-      )
+  Some(
+    match primitive {
+      "sphere" =>
+        @render3d.sphere_mesh(
+          field_number(extras_object, "radius").unwrap_or(0.5),
+        )
+      "cylinder" =>
+        @render3d.cylinder_mesh(
+          field_number(extras_object, "radiusTop").unwrap_or(0.5),
+          field_number(extras_object, "radiusBottom").unwrap_or(0.5),
+          field_number(extras_object, "height").unwrap_or(1.0),
+          slices=field_int(extras_object, "slices").unwrap_or(24),
+        )
+      "plane" =>
+        @render3d.plane_mesh(
+          parse_vec3(extras_object.get("size"), @math.Vec3::new(1.0, 0.1, 1.0)),
+        )
+      _ =>
+        @render3d.cube_mesh(
+          parse_vec3(extras_object.get("size"), @math.Vec3::one()),
+        )
+    },
+  )
+}
+
+///|
+fn parse_triangle_mesh_asset(
+  primitive_object : Map[String, Json],
+  buffers : Array[Bytes?],
+  buffer_views : Array[BufferViewTemplate?],
+  accessors : Array[AccessorTemplate?],
+) -> @render3d.MeshAsset? {
+  guard field_object(primitive_object, "attributes") is Some(attributes_object) else {
+    return None
   }
+  guard field_int(attributes_object, "POSITION")
+    is Some(position_accessor_index) else {
+    return None
+  }
+  guard read_accessor_vec3(
+      position_accessor_index, buffers, buffer_views, accessors,
+    )
+    is Some(positions) else {
+    return None
+  }
+  if positions.length() == 0 {
+    return None
+  }
+  let indices = match field_int(primitive_object, "indices") {
+    Some(indices_accessor_index) =>
+      read_accessor_indices(
+        indices_accessor_index, buffers, buffer_views, accessors,
+      ).unwrap_or(default_mesh_indices(positions.length()))
+    None => default_mesh_indices(positions.length())
+  }
+  let mode = field_int(primitive_object, "mode").unwrap_or(4)
+  let triangle_indices = decode_triangle_indices(indices, mode)
+  if triangle_indices.length() < 3 {
+    return None
+  }
+  guard map_indices_vec3(positions, triangle_indices)
+    is Some(triangle_positions) else {
+    return None
+  }
+  let triangle_normals = match field_int(attributes_object, "NORMAL") {
+    Some(normal_accessor_index) =>
+      match
+        read_accessor_vec3(
+          normal_accessor_index, buffers, buffer_views, accessors,
+        ) {
+        Some(normals) =>
+          map_indices_vec3(normals, triangle_indices).unwrap_or(
+            compute_flat_triangle_normals(triangle_positions),
+          )
+        None => compute_flat_triangle_normals(triangle_positions)
+      }
+    None => compute_flat_triangle_normals(triangle_positions)
+  }
+  let triangle_uvs = match field_int(attributes_object, "TEXCOORD_0") {
+    Some(uv_accessor_index) =>
+      match
+        read_accessor_vec2(uv_accessor_index, buffers, buffer_views, accessors) {
+        Some(uvs) => map_indices_vec2(uvs, triangle_indices)
+        None => None
+      }
+    None => None
+  }
+  Some(
+    @render3d.triangle_mesh(
+      triangle_positions,
+      uvs=triangle_uvs,
+      normals=Some(triangle_normals),
+    ),
+  )
+}
+
+///|
+fn read_accessor_vec3(
+  accessor_index : Int,
+  buffers : Array[Bytes?],
+  buffer_views : Array[BufferViewTemplate?],
+  accessors : Array[AccessorTemplate?],
+) -> Array[@math.Vec3]? {
+  guard accessor_index >= 0 else { return None }
+  guard accessors.get(accessor_index) is Some(Some(accessor)) else {
+    return None
+  }
+  if accessor.type_name != "VEC3" ||
+    accessor.component_type != 5126 ||
+    accessor.count <= 0 {
+    return None
+  }
+  guard resolve_accessor_bytes(accessor, buffers, buffer_views)
+    is Some((bytes, base_offset, stride, view_end)) else {
+    return None
+  }
+  let mut step = stride
+  if step <= 0 {
+    step = 12
+  }
+  if step < 12 {
+    return None
+  }
+  let required_end = base_offset + (accessor.count - 1) * step + 12
+  if required_end > view_end || required_end > bytes.length() {
+    return None
+  }
+  let output : Array[@math.Vec3] = []
+  for idx in 0..<accessor.count {
+    let pos = base_offset + idx * step
+    let x = read_f32_le(bytes, pos)
+    let y = read_f32_le(bytes, pos + 4)
+    let z = read_f32_le(bytes, pos + 8)
+    guard (x, y, z) is (Some(px), Some(py), Some(pz)) else { return None }
+    output.push(@math.Vec3::new(px, py, pz))
+  }
+  Some(output)
+}
+
+///|
+fn read_accessor_vec2(
+  accessor_index : Int,
+  buffers : Array[Bytes?],
+  buffer_views : Array[BufferViewTemplate?],
+  accessors : Array[AccessorTemplate?],
+) -> Array[@math.Vec2D]? {
+  guard accessor_index >= 0 else { return None }
+  guard accessors.get(accessor_index) is Some(Some(accessor)) else {
+    return None
+  }
+  if accessor.type_name != "VEC2" ||
+    accessor.component_type != 5126 ||
+    accessor.count <= 0 {
+    return None
+  }
+  guard resolve_accessor_bytes(accessor, buffers, buffer_views)
+    is Some((bytes, base_offset, stride, view_end)) else {
+    return None
+  }
+  let mut step = stride
+  if step <= 0 {
+    step = 8
+  }
+  if step < 8 {
+    return None
+  }
+  let required_end = base_offset + (accessor.count - 1) * step + 8
+  if required_end > view_end || required_end > bytes.length() {
+    return None
+  }
+  let output : Array[@math.Vec2D] = []
+  for idx in 0..<accessor.count {
+    let pos = base_offset + idx * step
+    let x = read_f32_le(bytes, pos)
+    let y = read_f32_le(bytes, pos + 4)
+    guard (x, y) is (Some(px), Some(py)) else { return None }
+    output.push(@math.Vec2D(px, py))
+  }
+  Some(output)
+}
+
+///|
+fn read_accessor_indices(
+  accessor_index : Int,
+  buffers : Array[Bytes?],
+  buffer_views : Array[BufferViewTemplate?],
+  accessors : Array[AccessorTemplate?],
+) -> Array[Int]? {
+  guard accessor_index >= 0 else { return None }
+  guard accessors.get(accessor_index) is Some(Some(accessor)) else {
+    return None
+  }
+  if accessor.type_name != "SCALAR" || accessor.count <= 0 {
+    return None
+  }
+  let component_size = match accessor.component_type {
+    5121 => 1
+    5123 => 2
+    5125 => 4
+    _ => return None
+  }
+  guard resolve_accessor_bytes(accessor, buffers, buffer_views)
+    is Some((bytes, base_offset, stride, view_end)) else {
+    return None
+  }
+  let mut step = stride
+  if step <= 0 {
+    step = component_size
+  }
+  if step < component_size {
+    return None
+  }
+  let required_end = base_offset + (accessor.count - 1) * step + component_size
+  if required_end > view_end || required_end > bytes.length() {
+    return None
+  }
+  let indices : Array[Int] = []
+  for idx in 0..<accessor.count {
+    let pos = base_offset + idx * step
+    let value = match accessor.component_type {
+      5121 => bytes.get(pos).map_or(None, fn(v) { Some(v.to_int()) })
+      5123 => read_u16_le(bytes, pos)
+      5125 => read_u32_le(bytes, pos)
+      _ => None
+    }
+    guard value is Some(index_value) else { return None }
+    indices.push(index_value)
+  }
+  Some(indices)
+}
+
+///|
+fn resolve_accessor_bytes(
+  accessor : AccessorTemplate,
+  buffers : Array[Bytes?],
+  buffer_views : Array[BufferViewTemplate?],
+) -> (Bytes, Int, Int, Int)? {
+  guard buffer_views.get(accessor.buffer_view) is Some(Some(view)) else {
+    return None
+  }
+  if view.buffer < 0 || view.byte_offset < 0 || accessor.byte_offset < 0 {
+    return None
+  }
+  guard buffers.get(view.buffer) is Some(Some(bytes)) else { return None }
+  let total_offset = view.byte_offset + accessor.byte_offset
+  let view_end = view.byte_offset + view.byte_length
+  if total_offset < view.byte_offset || total_offset >= view_end {
+    return None
+  }
+  if total_offset < 0 || total_offset >= bytes.length() {
+    return None
+  }
+  let stride = view.byte_stride.unwrap_or(0)
+  Some((bytes, total_offset, stride, view_end))
+}
+
+///|
+fn read_f32_le(bytes : Bytes, offset : Int) -> Double? {
+  if offset < 0 || offset + 3 >= bytes.length() {
+    return None
+  }
+  Some(
+    Float::reinterpret_from_uint(bytes.unsafe_read_uint32_le(offset)).to_double(),
+  )
+}
+
+///|
+fn read_u16_le(bytes : Bytes, offset : Int) -> Int? {
+  if offset < 0 || offset + 1 >= bytes.length() {
+    return None
+  }
+  Some(bytes.unsafe_read_uint16_le(offset).to_int())
+}
+
+///|
+fn read_u32_le(bytes : Bytes, offset : Int) -> Int? {
+  if offset < 0 || offset + 3 >= bytes.length() {
+    return None
+  }
+  let value = bytes.unsafe_read_uint32_le(offset).reinterpret_as_int()
+  if value < 0 {
+    None
+  } else {
+    Some(value)
+  }
+}
+
+///|
+fn default_mesh_indices(vertex_count : Int) -> Array[Int] {
+  let indices : Array[Int] = []
+  for index in 0..<vertex_count {
+    indices.push(index)
+  }
+  indices
+}
+
+///|
+fn decode_triangle_indices(indices : Array[Int], mode : Int) -> Array[Int] {
+  let triangle_indices : Array[Int] = []
+  let push_index = fn(index : Int) { triangle_indices.push(index) }
+  match mode {
+    4 => {
+      let tri_count = indices.length() / 3
+      for tri in 0..<tri_count {
+        let base = tri * 3
+        push_index(indices[base])
+        push_index(indices[base + 1])
+        push_index(indices[base + 2])
+      }
+    }
+    5 =>
+      if indices.length() >= 3 {
+        for i in 0..<(indices.length() - 2) {
+          if i % 2 == 0 {
+            push_index(indices[i])
+            push_index(indices[i + 1])
+            push_index(indices[i + 2])
+          } else {
+            push_index(indices[i + 1])
+            push_index(indices[i])
+            push_index(indices[i + 2])
+          }
+        }
+      }
+    6 =>
+      if indices.length() >= 3 {
+        let head = indices[0]
+        for i in 1..<(indices.length() - 1) {
+          push_index(head)
+          push_index(indices[i])
+          push_index(indices[i + 1])
+        }
+      }
+    _ => ()
+  }
+  triangle_indices
+}
+
+///|
+fn map_indices_vec3(
+  values : Array[@math.Vec3],
+  indices : Array[Int],
+) -> Array[@math.Vec3]? {
+  let output : Array[@math.Vec3] = []
+  for index in indices {
+    if index < 0 || index >= values.length() {
+      return None
+    }
+    output.push(values[index])
+  }
+  Some(output)
+}
+
+///|
+fn map_indices_vec2(
+  values : Array[@math.Vec2D],
+  indices : Array[Int],
+) -> Array[@math.Vec2D]? {
+  let output : Array[@math.Vec2D] = []
+  for index in indices {
+    if index < 0 || index >= values.length() {
+      return None
+    }
+    output.push(values[index])
+  }
+  Some(output)
+}
+
+///|
+fn compute_flat_triangle_normals(
+  positions : Array[@math.Vec3],
+) -> Array[@math.Vec3] {
+  let normals : Array[@math.Vec3] = []
+  let triangle_count = positions.length() / 3
+  for triangle in 0..<triangle_count {
+    let base = triangle * 3
+    let a = positions[base]
+    let b = positions[base + 1]
+    let c = positions[base + 2]
+    let mut normal = (b - a).cross(c - a)
+    if normal.length_squared() <= 0.0000001 {
+      normal = @math.Vec3::new(0.0, 1.0, 0.0)
+    } else {
+      normal = normal.normalize()
+    }
+    normals.push(normal)
+    normals.push(normal)
+    normals.push(normal)
+  }
+  normals
 }
 
 ///|
@@ -383,20 +926,15 @@ fn parse_node_templates(
     }
     let transform = parse_node_transform(node_object)
     let children = parse_node_children(node_object)
-    let renderer = match field_int(node_object, "mesh") {
+    let renderers = match field_int(node_object, "mesh") {
       Some(mesh_index) =>
         match mesh_templates.get(mesh_index) {
-          Some(Some(mesh_template)) =>
-            Some(@render3d.Mesh3DRenderer::{
-              mesh: mesh_template.mesh,
-              material: mesh_template.material,
-              visible: true,
-            })
-          _ => None
+          Some(Some(mesh_template)) => mesh_template.renderers
+          _ => []
         }
-      None => None
+      None => []
     }
-    templates.push({ transform, renderer, children })
+    templates.push({ transform, renderers, children })
   }
   templates
 }

@@ -46,6 +46,12 @@ pub type DirectionalLight3D = @render3d_types.DirectionalLight3D
 pub type PointLight3D = @render3d_types.PointLight3D
 
 ///|
+pub type FramePointLight3D = @render3d_types.FramePointLight3D
+
+///|
+pub type FrameSpotLight3D = @render3d_types.FrameSpotLight3D
+
+///|
 pub type SpotLight3D = @render3d_types.SpotLight3D
 
 ///|
@@ -157,6 +163,15 @@ pub fn cylinder_mesh(
 ///|
 pub fn plane_mesh(size : @math.Vec3) -> MeshAsset {
   { primitive: Plane(size) }
+}
+
+///|
+pub fn triangle_mesh(
+  positions : Array[@math.Vec3],
+  uvs? : Array[@math.Vec2D]? = None,
+  normals? : Array[@math.Vec3]? = None,
+) -> MeshAsset {
+  { primitive: Triangles({ positions, uvs, normals }) }
 }
 
 ///|
@@ -296,16 +311,43 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
       dir_lights.push(light)
     }
   }
-  let point_lights = []
+  let point_lights : Array[FramePointLight3D] = []
   for entity, light in point_lights3d {
     if entity.is_alive() {
-      point_lights.push(light)
+      let transform = @transform3d.global_transforms3d
+        .get(entity)
+        .unwrap_or(@transform3d.transforms3d.get(entity).unwrap_or_default())
+      point_lights.push({
+        position: transform.translation,
+        color: light.color,
+        intensity: light.intensity,
+        range: light.range,
+      })
     }
   }
-  let spot_lights = []
+  let spot_lights : Array[FrameSpotLight3D] = []
   for entity, light in spot_lights3d {
     if entity.is_alive() {
-      spot_lights.push(light)
+      let transform = @transform3d.global_transforms3d
+        .get(entity)
+        .unwrap_or(@transform3d.transforms3d.get(entity).unwrap_or_default())
+      let local_direction = if light.direction.length_squared() <= 0.0000001 {
+        @math.Vec3::new(0.0, -1.0, 0.0)
+      } else {
+        light.direction.normalize()
+      }
+      let world_direction = transform.rotation
+        .rotate_vec3(local_direction)
+        .normalize()
+      spot_lights.push({
+        position: transform.translation,
+        direction: world_direction,
+        color: light.color,
+        intensity: light.intensity,
+        range: light.range,
+        inner_angle: light.inner_angle,
+        outer_angle: light.outer_angle,
+      })
     }
   }
 

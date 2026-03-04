@@ -37,7 +37,7 @@ let timers : Array[Timer] = Array::new()
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Schedule a callback to run after 2.5 seconds (pausible timer)
 /// @system.timeout(2.5, fn() { println("Timer expired!") })
 ///

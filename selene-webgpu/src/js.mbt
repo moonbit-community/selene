@@ -217,6 +217,12 @@ extern "js" fn webgpu_initialize(
   #|       current3dSection: null,
   #|       imageCache: new Map(),
   #|       textCache: new Map(),
+  #|       light3d: {
+  #|         directionalLights: [],
+  #|         pointLights: [],
+  #|         spotLights: [],
+  #|         ambient: [1, 1, 1],
+  #|       },
   #|       samplers: null,
   #|       pipelines: null,
   #|       bindGroupLayouts: null,
@@ -619,41 +625,66 @@ extern "js" fn webgpu_initialize(
   #|       rt.pushTex2d(0, rec, verts);
   #|     };
   #|
-  #|     rt.transformVerts3d = (verts, tx, ty, tz, qx, qy, qz, qw) => {
-  #|       let nx = qx;
-  #|       let ny = qy;
-  #|       let nz = qz;
-  #|       let nw = qw;
-  #|       const qLen = Math.hypot(nx, ny, nz, nw);
+  #|     rt.transformVerts3dWithStride = (verts, stride, tx, ty, tz, qx, qy, qz, qw, normalOffset = -1) => {
+  #|       let qnx = qx;
+  #|       let qny = qy;
+  #|       let qnz = qz;
+  #|       let qnw = qw;
+  #|       const qLen = Math.hypot(qnx, qny, qnz, qnw);
   #|       if (qLen <= 1e-8) {
-  #|         nx = 0;
-  #|         ny = 0;
-  #|         nz = 0;
-  #|         nw = 1;
+  #|         qnx = 0;
+  #|         qny = 0;
+  #|         qnz = 0;
+  #|         qnw = 1;
   #|       } else {
-  #|         nx /= qLen;
-  #|         ny /= qLen;
-  #|         nz /= qLen;
-  #|         nw /= qLen;
+  #|         qnx /= qLen;
+  #|         qny /= qLen;
+  #|         qnz /= qLen;
+  #|         qnw /= qLen;
   #|       }
-  #|       for (let i = 0; i < verts.length; i += 7) {
-  #|         const x = verts[i];
-  #|         const y = verts[i + 1];
-  #|         const z = verts[i + 2];
-  #|         const dotUV = nx * x + ny * y + nz * z;
-  #|         const dotUU = nx * nx + ny * ny + nz * nz;
-  #|         const cx = ny * z - nz * y;
-  #|         const cy = nz * x - nx * z;
-  #|         const cz = nx * y - ny * x;
-  #|         const rx = 2 * dotUV * nx + (nw * nw - dotUU) * x + 2 * nw * cx;
-  #|         const ry = 2 * dotUV * ny + (nw * nw - dotUU) * y + 2 * nw * cy;
-  #|         const rz = 2 * dotUV * nz + (nw * nw - dotUU) * z + 2 * nw * cz;
+  #|       const rotate = (x, y, z) => {
+  #|         const dotUV = qnx * x + qny * y + qnz * z;
+  #|         const dotUU = qnx * qnx + qny * qny + qnz * qnz;
+  #|         const cx = qny * z - qnz * y;
+  #|         const cy = qnz * x - qnx * z;
+  #|         const cz = qnx * y - qny * x;
+  #|         const rx = 2 * dotUV * qnx + (qnw * qnw - dotUU) * x + 2 * qnw * cx;
+  #|         const ry = 2 * dotUV * qny + (qnw * qnw - dotUU) * y + 2 * qnw * cy;
+  #|         const rz = 2 * dotUV * qnz + (qnw * qnw - dotUU) * z + 2 * qnw * cz;
+  #|         return [rx, ry, rz];
+  #|       };
+  #|       for (let i = 0; i < verts.length; i += stride) {
+  #|         const [rx, ry, rz] = rotate(verts[i], verts[i + 1], verts[i + 2]);
   #|         verts[i] = rx + tx;
   #|         verts[i + 1] = ry + ty;
   #|         verts[i + 2] = rz + tz;
+  #|         if (normalOffset >= 0) {
+  #|           const ni = i + normalOffset;
+  #|           if (ni + 2 < verts.length) {
+  #|             const [nx, ny, nz] = rotate(verts[ni], verts[ni + 1], verts[ni + 2]);
+  #|             const len = Math.hypot(nx, ny, nz);
+  #|             if (len > 1e-8) {
+  #|               verts[ni] = nx / len;
+  #|               verts[ni + 1] = ny / len;
+  #|               verts[ni + 2] = nz / len;
+  #|             } else {
+  #|               verts[ni] = 0.0;
+  #|               verts[ni + 1] = 1.0;
+  #|               verts[ni + 2] = 0.0;
+  #|             }
+  #|           }
+  #|         }
   #|       }
   #|       return verts;
   #|     };
+  #|     rt.transformVerts3d = (verts, tx, ty, tz, qx, qy, qz, qw) =>
+  #|       rt.transformVerts3dWithStride(verts, 7, tx, ty, tz, qx, qy, qz, qw);
+  #|     rt.transformTexVerts3d = (verts, tx, ty, tz, qx, qy, qz, qw) =>
+  #|       rt.transformVerts3dWithStride(verts, 9, tx, ty, tz, qx, qy, qz, qw);
+  #|     rt.transformLitVerts3d = (verts, tx, ty, tz, qx, qy, qz, qw) =>
+  #|       rt.transformVerts3dWithStride(verts, 10, tx, ty, tz, qx, qy, qz, qw, 3);
+  #|     rt.transformLitTexVerts3d = (verts, tx, ty, tz, qx, qy, qz, qw) =>
+  #|       rt.transformVerts3dWithStride(verts, 12, tx, ty, tz, qx, qy, qz, qw, 3);
   #|
   #|     rt.makeCube = (sx, sy, sz, color) => {
   #|       const hx = sx / 2;
@@ -787,6 +818,8 @@ extern "js" fn webgpu_initialize(
   #|           fovy,
   #|         },
   #|         triCommands: [],
+  #|         litTriCommands: [],
+  #|         texTriCommands: [],
   #|         lineCommands: [],
   #|       };
   #|       rt.sections3d.push(section);
@@ -819,6 +852,56 @@ extern "js" fn webgpu_initialize(
   #|       rt.transformVerts3d(verts, cx, cy, cz, qx, qy, qz, qw);
   #|       rt.current3dSection.triCommands.push(verts);
   #|     };
+  #|     rt.pushTriangles3d = (verts, tx, ty, tz, qx, qy, qz, qw, r, g, b, a) => {
+  #|       if (!rt.current3dSection) return;
+  #|       if (!verts || verts.length < 9) return;
+  #|       const triVertexCount = Math.floor(verts.length / 3);
+  #|       if (triVertexCount < 3) return;
+  #|       const out = new Float32Array(triVertexCount * 7);
+  #|       const cr = clamp01((r || 0) / 255.0);
+  #|       const cg = clamp01((g || 0) / 255.0);
+  #|       const cb = clamp01((b || 0) / 255.0);
+  #|       const ca = clamp01(a ?? 1.0);
+  #|       for (let i = 0; i < triVertexCount; i += 1) {
+  #|         const src = i * 3;
+  #|         const dst = i * 7;
+  #|         out[dst] = Number(verts[src]) || 0.0;
+  #|         out[dst + 1] = Number(verts[src + 1]) || 0.0;
+  #|         out[dst + 2] = Number(verts[src + 2]) || 0.0;
+  #|         out[dst + 3] = cr;
+  #|         out[dst + 4] = cg;
+  #|         out[dst + 5] = cb;
+  #|         out[dst + 6] = ca;
+  #|       }
+  #|       rt.transformVerts3d(out, tx, ty, tz, qx, qy, qz, qw);
+  #|       rt.current3dSection.triCommands.push(out);
+  #|     };
+  #|     rt.pushColoredTriangles3d = (verts, tx, ty, tz, qx, qy, qz, qw) => {
+  #|       if (!rt.current3dSection) return;
+  #|       if (!verts || verts.length < 30) return;
+  #|       const triVertexCount = Math.floor(verts.length / 10);
+  #|       if (triVertexCount < 3) return;
+  #|       const out = new Float32Array(triVertexCount * 10);
+  #|       for (let i = 0; i < out.length; i += 1) {
+  #|         out[i] = Number(verts[i]) || 0.0;
+  #|       }
+  #|       rt.transformLitVerts3d(out, tx, ty, tz, qx, qy, qz, qw);
+  #|       rt.current3dSection.litTriCommands.push(out);
+  #|     };
+  #|     rt.pushTexturedTriangles3d = (path, verts, tx, ty, tz, qx, qy, qz, qw) => {
+  #|       if (!rt.current3dSection) return;
+  #|       if (!verts || verts.length < 36) return;
+  #|       const rec = rt.ensureImage(path);
+  #|       if (!rec) return;
+  #|       const triVertexCount = Math.floor(verts.length / 12);
+  #|       if (triVertexCount < 3) return;
+  #|       const out = new Float32Array(triVertexCount * 12);
+  #|       for (let i = 0; i < out.length; i += 1) {
+  #|         out[i] = Number(verts[i]) || 0.0;
+  #|       }
+  #|       rt.transformLitTexVerts3d(out, tx, ty, tz, qx, qy, qz, qw);
+  #|       rt.current3dSection.texTriCommands.push({ textureRec: rec, verts: out });
+  #|     };
   #|
   #|     rt.beginFrame = (r, g, b, a) => {
   #|       rt.clearColor = [clamp01(r), clamp01(g), clamp01(b), clamp01(a)];
@@ -834,7 +917,80 @@ extern "js" fn webgpu_initialize(
   #|       const proj = mat4Perspective(section.camera.fovy, aspect, 0.1, 200.0);
   #|       const view = mat4LookAt(section.camera.position, section.camera.target, section.camera.up);
   #|       const viewProj = mat4Multiply(proj, view);
+  #|       const light = rt.light3d || {
+  #|         directionalLights: [],
+  #|         pointLights: [],
+  #|         spotLights: [],
+  #|         ambient: [1, 1, 1],
+  #|       };
+  #|       const directionalLights = Array.isArray(light.directionalLights) ? light.directionalLights : [];
+  #|       const pointLights = Array.isArray(light.pointLights) ? light.pointLights : [];
+  #|       const spotLights = Array.isArray(light.spotLights) ? light.spotLights : [];
+  #|       const directionalCount = Math.min(4, directionalLights.length);
+  #|       const pointCount = Math.min(8, pointLights.length);
+  #|       const spotCount = Math.min(4, spotLights.length);
+  #|       const lightUniform = new Float32Array(42 * 4);
+  #|       lightUniform[0] = clamp01(Number(light.ambient?.[0]) || 0);
+  #|       lightUniform[1] = clamp01(Number(light.ambient?.[1]) || 0);
+  #|       lightUniform[2] = clamp01(Number(light.ambient?.[2]) || 0);
+  #|       lightUniform[3] = directionalCount;
+  #|       lightUniform[4] = pointCount;
+  #|       lightUniform[5] = spotCount;
+  #|       for (let i = 0; i < directionalCount; i += 1) {
+  #|         const src = directionalLights[i];
+  #|         const base = 8 + i * 8;
+  #|         lightUniform[base] = Number(src.direction?.[0]) || 0;
+  #|         lightUniform[base + 1] = Number(src.direction?.[1]) || -1;
+  #|         lightUniform[base + 2] = Number(src.direction?.[2]) || 0;
+  #|         lightUniform[base + 3] = Math.max(0, Number(src.intensity) || 0);
+  #|         lightUniform[base + 4] = clamp01(Number(src.color?.[0]) || 0);
+  #|         lightUniform[base + 5] = clamp01(Number(src.color?.[1]) || 0);
+  #|         lightUniform[base + 6] = clamp01(Number(src.color?.[2]) || 0);
+  #|       }
+  #|       for (let i = 0; i < pointCount; i += 1) {
+  #|         const src = pointLights[i];
+  #|         const base = 40 + i * 8;
+  #|         lightUniform[base] = Number(src.position?.[0]) || 0;
+  #|         lightUniform[base + 1] = Number(src.position?.[1]) || 0;
+  #|         lightUniform[base + 2] = Number(src.position?.[2]) || 0;
+  #|         lightUniform[base + 3] = Math.max(0, Number(src.intensity) || 0);
+  #|         lightUniform[base + 4] = clamp01(Number(src.color?.[0]) || 0);
+  #|         lightUniform[base + 5] = clamp01(Number(src.color?.[1]) || 0);
+  #|         lightUniform[base + 6] = clamp01(Number(src.color?.[2]) || 0);
+  #|         lightUniform[base + 7] = Math.max(0.0001, Number(src.range) || 0.0001);
+  #|       }
+  #|       for (let i = 0; i < spotCount; i += 1) {
+  #|         const src = spotLights[i];
+  #|         const base = 104 + i * 16;
+  #|         lightUniform[base] = Number(src.position?.[0]) || 0;
+  #|         lightUniform[base + 1] = Number(src.position?.[1]) || 0;
+  #|         lightUniform[base + 2] = Number(src.position?.[2]) || 0;
+  #|         lightUniform[base + 3] = Math.max(0, Number(src.intensity) || 0);
+  #|         lightUniform[base + 4] = clamp01(Number(src.color?.[0]) || 0);
+  #|         lightUniform[base + 5] = clamp01(Number(src.color?.[1]) || 0);
+  #|         lightUniform[base + 6] = clamp01(Number(src.color?.[2]) || 0);
+  #|         lightUniform[base + 7] = Math.max(0.0001, Number(src.range) || 0.0001);
+  #|         let dx = Number(src.direction?.[0]) || 0;
+  #|         let dy = Number(src.direction?.[1]) || -1;
+  #|         let dz = Number(src.direction?.[2]) || 0;
+  #|         const dlen = Math.hypot(dx, dy, dz);
+  #|         if (dlen > 1e-8) {
+  #|           dx /= dlen;
+  #|           dy /= dlen;
+  #|           dz /= dlen;
+  #|         } else {
+  #|           dx = 0;
+  #|           dy = -1;
+  #|           dz = 0;
+  #|         }
+  #|         lightUniform[base + 8] = dx;
+  #|         lightUniform[base + 9] = dy;
+  #|         lightUniform[base + 10] = dz;
+  #|         lightUniform[base + 11] = Number(src.innerCos) || 0;
+  #|         lightUniform[base + 12] = Number(src.outerCos) || 0;
+  #|       }
   #|       rt.device.queue.writeBuffer(rt.uniformBuffers.camera3d, 0, viewProj.buffer, viewProj.byteOffset, viewProj.byteLength);
+  #|       rt.device.queue.writeBuffer(rt.uniformBuffers.light3d, 0, lightUniform.buffer, lightUniform.byteOffset, lightUniform.byteLength);
   #|       pass.setBindGroup(0, rt.bindGroups.camera3d);
   #|       if (section.triCommands.length > 0) {
   #|         pass.setPipeline(rt.pipelines.color3dTri);
@@ -860,6 +1016,45 @@ extern "js" fn webgpu_initialize(
   #|           pass.setVertexBuffer(0, vb, offset, verts.byteLength);
   #|           pass.draw(verts.length / 7, 1, 0, 0);
   #|           offset += verts.byteLength;
+  #|         }
+  #|       }
+  #|       if (section.litTriCommands.length > 0) {
+  #|         pass.setPipeline(rt.pipelines.lit3dTri);
+  #|         pass.setBindGroup(0, rt.bindGroups.lit3d);
+  #|         let totalBytes = 0;
+  #|         for (const verts of section.litTriCommands) totalBytes += verts.byteLength;
+  #|         const vb = rt.ensureDynamicBuffer('dyn3dLitTri', totalBytes, GPUBufferUsage.VERTEX);
+  #|         let offset = 0;
+  #|         for (const verts of section.litTriCommands) {
+  #|           rt.device.queue.writeBuffer(vb, offset, verts.buffer, verts.byteOffset, verts.byteLength);
+  #|           pass.setVertexBuffer(0, vb, offset, verts.byteLength);
+  #|           pass.draw(verts.length / 10, 1, 0, 0);
+  #|           offset += verts.byteLength;
+  #|         }
+  #|       }
+  #|       if (section.texTriCommands.length > 0) {
+  #|         pass.setPipeline(rt.pipelines.lit3dTexTri);
+  #|         let totalBytes = 0;
+  #|         for (const cmd of section.texTriCommands) totalBytes += cmd.verts.byteLength;
+  #|         const vb = rt.ensureDynamicBuffer('dyn3dLitTexTri', totalBytes, GPUBufferUsage.VERTEX);
+  #|         let offset = 0;
+  #|         for (const cmd of section.texTriCommands) {
+  #|           const rec = cmd.textureRec;
+  #|           if (!rec?.view) continue;
+  #|           rt.device.queue.writeBuffer(vb, offset, cmd.verts.buffer, cmd.verts.byteOffset, cmd.verts.byteLength);
+  #|           const bindGroup = rt.device.createBindGroup({
+  #|             layout: rt.bindGroupLayouts.lit3dTex,
+  #|             entries: [
+  #|               { binding: 0, resource: { buffer: rt.uniformBuffers.camera3d } },
+  #|               { binding: 1, resource: { buffer: rt.uniformBuffers.light3d } },
+  #|               { binding: 2, resource: rt.samplers.clamp },
+  #|               { binding: 3, resource: rec.view },
+  #|             ],
+  #|           });
+  #|           pass.setBindGroup(0, bindGroup);
+  #|           pass.setVertexBuffer(0, vb, offset, cmd.verts.byteLength);
+  #|           pass.draw(cmd.verts.length / 12, 1, 0, 0);
+  #|           offset += cmd.verts.byteLength;
   #|         }
   #|       }
   #|     };
@@ -1063,10 +1258,236 @@ extern "js" fn webgpu_initialize(
   #| }
   #| `,
   #|       });
+  #|       const shader3dLitColor = rt.device.createShaderModule({
+  #|         code: `
+  #| struct CameraUniform {
+  #|   view_proj: mat4x4<f32>,
+  #| };
+  #| struct LightUniform {
+  #|   ambient_directional_count: vec4<f32>,
+  #|   point_spot_count: vec4<f32>,
+  #|   directional_data: array<vec4<f32>, 8>,
+  #|   point_data: array<vec4<f32>, 16>,
+  #|   spot_data: array<vec4<f32>, 16>,
+  #| };
+  #| @group(0) @binding(0) var<uniform> u_camera: CameraUniform;
+  #| @group(0) @binding(1) var<uniform> u_light: LightUniform;
+  #| struct VSIn {
+  #|   @location(0) pos: vec3<f32>,
+  #|   @location(1) normal: vec3<f32>,
+  #|   @location(2) color: vec4<f32>,
+  #| };
+  #| struct VSOut {
+  #|   @builtin(position) pos: vec4<f32>,
+  #|   @location(0) world_pos: vec3<f32>,
+  #|   @location(1) normal: vec3<f32>,
+  #|   @location(2) color: vec4<f32>,
+  #| };
+  #| @vertex fn vs_main(v: VSIn) -> VSOut {
+  #|   var o: VSOut;
+  #|   o.pos = u_camera.view_proj * vec4<f32>(v.pos, 1.0);
+  #|   o.world_pos = v.pos;
+  #|   o.normal = normalize(v.normal);
+  #|   o.color = v.color;
+  #|   return o;
+  #| }
+  #| fn saturate(value: f32) -> f32 {
+  #|   return clamp(value, 0.0, 1.0);
+  #| }
+  #| fn point_light_attenuation(distance: f32, range: f32) -> f32 {
+  #|   let safe_range = max(range, 0.0001);
+  #|   return saturate(1.0 - distance / safe_range);
+  #| }
+  #| fn apply_lighting(world_pos: vec3<f32>, normal: vec3<f32>) -> vec3<f32> {
+  #|   let n = normalize(normal);
+  #|   var lit = u_light.ambient_directional_count.xyz;
+  #|   let directional_count = clamp(i32(round(u_light.ambient_directional_count.w)), 0, 4);
+  #|   for (var idx = 0; idx < 4; idx = idx + 1) {
+  #|     if (idx >= directional_count) {
+  #|       continue;
+  #|     }
+  #|     let base = idx * 2;
+  #|     let direction_intensity = u_light.directional_data[base];
+  #|     let color_data = u_light.directional_data[base + 1];
+  #|     let light_dir = normalize(-direction_intensity.xyz);
+  #|     let lambert = max(dot(n, light_dir), 0.0);
+  #|     lit = lit + color_data.xyz * direction_intensity.w * lambert;
+  #|   }
+  #|   let point_count = clamp(i32(round(u_light.point_spot_count.x)), 0, 8);
+  #|   for (var idx = 0; idx < 8; idx = idx + 1) {
+  #|     if (idx >= point_count) {
+  #|       continue;
+  #|     }
+  #|     let base = idx * 2;
+  #|     let position_intensity = u_light.point_data[base];
+  #|     let color_range = u_light.point_data[base + 1];
+  #|     let offset = position_intensity.xyz - world_pos;
+  #|     let distance = length(offset);
+  #|     if (distance <= 0.0001) {
+  #|       continue;
+  #|     }
+  #|     let light_dir = offset / distance;
+  #|     let lambert = max(dot(n, light_dir), 0.0);
+  #|     let attenuation = point_light_attenuation(distance, color_range.w);
+  #|     lit = lit + color_range.xyz * position_intensity.w * lambert * attenuation;
+  #|   }
+  #|   let spot_count = clamp(i32(round(u_light.point_spot_count.y)), 0, 4);
+  #|   for (var idx = 0; idx < 4; idx = idx + 1) {
+  #|     if (idx >= spot_count) {
+  #|       continue;
+  #|     }
+  #|     let base = idx * 4;
+  #|     let position_intensity = u_light.spot_data[base];
+  #|     let color_range = u_light.spot_data[base + 1];
+  #|     let direction_inner = u_light.spot_data[base + 2];
+  #|     let outer_cos = u_light.spot_data[base + 3].x;
+  #|     let offset = position_intensity.xyz - world_pos;
+  #|     let distance = length(offset);
+  #|     if (distance <= 0.0001) {
+  #|       continue;
+  #|     }
+  #|     let light_dir = offset / distance;
+  #|     let to_fragment = -light_dir;
+  #|     let spot_direction = normalize(direction_inner.xyz);
+  #|     let spot_cos = dot(spot_direction, to_fragment);
+  #|     let inner_cos = direction_inner.w;
+  #|     let spot_denom = max(inner_cos - outer_cos, 0.0001);
+  #|     let spot_factor = saturate((spot_cos - outer_cos) / spot_denom);
+  #|     if (spot_factor <= 0.0) {
+  #|       continue;
+  #|     }
+  #|     let lambert = max(dot(n, light_dir), 0.0);
+  #|     let attenuation = point_light_attenuation(distance, color_range.w);
+  #|     lit = lit + color_range.xyz * position_intensity.w * lambert * attenuation * spot_factor;
+  #|   }
+  #|   return lit;
+  #| }
+  #| @fragment fn fs_main(v: VSOut) -> @location(0) vec4<f32> {
+  #|   let lit = apply_lighting(v.world_pos, v.normal);
+  #|   return vec4<f32>(v.color.rgb * lit, v.color.a);
+  #| }
+  #| `,
+  #|       });
+  #|       const shader3dLitTex = rt.device.createShaderModule({
+  #|         code: `
+  #| struct CameraUniform {
+  #|   view_proj: mat4x4<f32>,
+  #| };
+  #| struct LightUniform {
+  #|   ambient_directional_count: vec4<f32>,
+  #|   point_spot_count: vec4<f32>,
+  #|   directional_data: array<vec4<f32>, 8>,
+  #|   point_data: array<vec4<f32>, 16>,
+  #|   spot_data: array<vec4<f32>, 16>,
+  #| };
+  #| @group(0) @binding(0) var<uniform> u_camera: CameraUniform;
+  #| @group(0) @binding(1) var<uniform> u_light: LightUniform;
+  #| @group(0) @binding(2) var u_sampler: sampler;
+  #| @group(0) @binding(3) var u_texture: texture_2d<f32>;
+  #| struct VSIn {
+  #|   @location(0) pos: vec3<f32>,
+  #|   @location(1) normal: vec3<f32>,
+  #|   @location(2) uv: vec2<f32>,
+  #|   @location(3) color: vec4<f32>,
+  #| };
+  #| struct VSOut {
+  #|   @builtin(position) pos: vec4<f32>,
+  #|   @location(0) world_pos: vec3<f32>,
+  #|   @location(1) normal: vec3<f32>,
+  #|   @location(2) uv: vec2<f32>,
+  #|   @location(3) color: vec4<f32>,
+  #| };
+  #| @vertex fn vs_main(v: VSIn) -> VSOut {
+  #|   var o: VSOut;
+  #|   o.pos = u_camera.view_proj * vec4<f32>(v.pos, 1.0);
+  #|   o.world_pos = v.pos;
+  #|   o.normal = normalize(v.normal);
+  #|   o.uv = v.uv;
+  #|   o.color = v.color;
+  #|   return o;
+  #| }
+  #| fn saturate(value: f32) -> f32 {
+  #|   return clamp(value, 0.0, 1.0);
+  #| }
+  #| fn point_light_attenuation(distance: f32, range: f32) -> f32 {
+  #|   let safe_range = max(range, 0.0001);
+  #|   return saturate(1.0 - distance / safe_range);
+  #| }
+  #| fn apply_lighting(world_pos: vec3<f32>, normal: vec3<f32>) -> vec3<f32> {
+  #|   let n = normalize(normal);
+  #|   var lit = u_light.ambient_directional_count.xyz;
+  #|   let directional_count = clamp(i32(round(u_light.ambient_directional_count.w)), 0, 4);
+  #|   for (var idx = 0; idx < 4; idx = idx + 1) {
+  #|     if (idx >= directional_count) {
+  #|       continue;
+  #|     }
+  #|     let base = idx * 2;
+  #|     let direction_intensity = u_light.directional_data[base];
+  #|     let color_data = u_light.directional_data[base + 1];
+  #|     let light_dir = normalize(-direction_intensity.xyz);
+  #|     let lambert = max(dot(n, light_dir), 0.0);
+  #|     lit = lit + color_data.xyz * direction_intensity.w * lambert;
+  #|   }
+  #|   let point_count = clamp(i32(round(u_light.point_spot_count.x)), 0, 8);
+  #|   for (var idx = 0; idx < 8; idx = idx + 1) {
+  #|     if (idx >= point_count) {
+  #|       continue;
+  #|     }
+  #|     let base = idx * 2;
+  #|     let position_intensity = u_light.point_data[base];
+  #|     let color_range = u_light.point_data[base + 1];
+  #|     let offset = position_intensity.xyz - world_pos;
+  #|     let distance = length(offset);
+  #|     if (distance <= 0.0001) {
+  #|       continue;
+  #|     }
+  #|     let light_dir = offset / distance;
+  #|     let lambert = max(dot(n, light_dir), 0.0);
+  #|     let attenuation = point_light_attenuation(distance, color_range.w);
+  #|     lit = lit + color_range.xyz * position_intensity.w * lambert * attenuation;
+  #|   }
+  #|   let spot_count = clamp(i32(round(u_light.point_spot_count.y)), 0, 4);
+  #|   for (var idx = 0; idx < 4; idx = idx + 1) {
+  #|     if (idx >= spot_count) {
+  #|       continue;
+  #|     }
+  #|     let base = idx * 4;
+  #|     let position_intensity = u_light.spot_data[base];
+  #|     let color_range = u_light.spot_data[base + 1];
+  #|     let direction_inner = u_light.spot_data[base + 2];
+  #|     let outer_cos = u_light.spot_data[base + 3].x;
+  #|     let offset = position_intensity.xyz - world_pos;
+  #|     let distance = length(offset);
+  #|     if (distance <= 0.0001) {
+  #|       continue;
+  #|     }
+  #|     let light_dir = offset / distance;
+  #|     let to_fragment = -light_dir;
+  #|     let spot_direction = normalize(direction_inner.xyz);
+  #|     let spot_cos = dot(spot_direction, to_fragment);
+  #|     let inner_cos = direction_inner.w;
+  #|     let spot_denom = max(inner_cos - outer_cos, 0.0001);
+  #|     let spot_factor = saturate((spot_cos - outer_cos) / spot_denom);
+  #|     if (spot_factor <= 0.0) {
+  #|       continue;
+  #|     }
+  #|     let lambert = max(dot(n, light_dir), 0.0);
+  #|     let attenuation = point_light_attenuation(distance, color_range.w);
+  #|     lit = lit + color_range.xyz * position_intensity.w * lambert * attenuation * spot_factor;
+  #|   }
+  #|   return lit;
+  #| }
+  #| @fragment fn fs_main(v: VSOut) -> @location(0) vec4<f32> {
+  #|   let lit = apply_lighting(v.world_pos, v.normal);
+  #|   return textureSample(u_texture, u_sampler, v.uv) * vec4<f32>(v.color.rgb * lit, v.color.a);
+  #| }
+  #| `,
+  #|       });
   #|
   #|       rt.uniformBuffers = {
   #|         canvas2d: rt.device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }),
   #|         camera3d: rt.device.createBuffer({ size: 64, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }),
+  #|         light3d: rt.device.createBuffer({ size: 704, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }),
   #|       };
   #|       rt.bindGroupLayouts = {
   #|         canvas2d: rt.device.createBindGroupLayout({
@@ -1082,6 +1503,20 @@ extern "js" fn webgpu_initialize(
   #|         camera3d: rt.device.createBindGroupLayout({
   #|           entries: [{ binding: 0, visibility: GPUShaderStage.VERTEX, buffer: {} }],
   #|         }),
+  #|         lit3d: rt.device.createBindGroupLayout({
+  #|           entries: [
+  #|             { binding: 0, visibility: GPUShaderStage.VERTEX, buffer: {} },
+  #|             { binding: 1, visibility: GPUShaderStage.FRAGMENT, buffer: {} },
+  #|           ],
+  #|         }),
+  #|         lit3dTex: rt.device.createBindGroupLayout({
+  #|           entries: [
+  #|             { binding: 0, visibility: GPUShaderStage.VERTEX, buffer: {} },
+  #|             { binding: 1, visibility: GPUShaderStage.FRAGMENT, buffer: {} },
+  #|             { binding: 2, visibility: GPUShaderStage.FRAGMENT, sampler: {} },
+  #|             { binding: 3, visibility: GPUShaderStage.FRAGMENT, texture: {} },
+  #|           ],
+  #|         }),
   #|       };
   #|       rt.bindGroups = {
   #|         canvas2d: rt.device.createBindGroup({
@@ -1092,6 +1527,13 @@ extern "js" fn webgpu_initialize(
   #|           layout: rt.bindGroupLayouts.camera3d,
   #|           entries: [{ binding: 0, resource: { buffer: rt.uniformBuffers.camera3d } }],
   #|         }),
+  #|         lit3d: rt.device.createBindGroup({
+  #|           layout: rt.bindGroupLayouts.lit3d,
+  #|           entries: [
+  #|             { binding: 0, resource: { buffer: rt.uniformBuffers.camera3d } },
+  #|             { binding: 1, resource: { buffer: rt.uniformBuffers.light3d } },
+  #|           ],
+  #|         }),
   #|       };
   #|       const blendState = {
   #|         color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha', operation: 'add' },
@@ -1101,6 +1543,8 @@ extern "js" fn webgpu_initialize(
   #|       const layout2dColor = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.canvas2d] });
   #|       const layout2dTex = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.tex2d] });
   #|       const layout3d = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.camera3d] });
+  #|       const layoutLit3d = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.lit3d] });
+  #|       const layoutLit3dTex = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.lit3dTex] });
   #|
   #|       const color2dVertex = {
   #|         arrayStride: 24,
@@ -1122,6 +1566,23 @@ extern "js" fn webgpu_initialize(
   #|         attributes: [
   #|           { shaderLocation: 0, offset: 0, format: 'float32x3' },
   #|           { shaderLocation: 1, offset: 12, format: 'float32x4' },
+  #|         ],
+  #|       };
+  #|       const lit3dVertex = {
+  #|         arrayStride: 40,
+  #|         attributes: [
+  #|           { shaderLocation: 0, offset: 0, format: 'float32x3' },
+  #|           { shaderLocation: 1, offset: 12, format: 'float32x3' },
+  #|           { shaderLocation: 2, offset: 24, format: 'float32x4' },
+  #|         ],
+  #|       };
+  #|       const litTex3dVertex = {
+  #|         arrayStride: 48,
+  #|         attributes: [
+  #|           { shaderLocation: 0, offset: 0, format: 'float32x3' },
+  #|           { shaderLocation: 1, offset: 12, format: 'float32x3' },
+  #|           { shaderLocation: 2, offset: 24, format: 'float32x2' },
+  #|           { shaderLocation: 3, offset: 32, format: 'float32x4' },
   #|         ],
   #|       };
   #|
@@ -1157,6 +1618,20 @@ extern "js" fn webgpu_initialize(
   #|           fragment: { module: shader3dColor, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendState }] },
   #|           primitive: { topology: 'line-list', cullMode: 'none' },
   #|           depthStencil: { format: 'depth24plus', depthWriteEnabled: false, depthCompare: 'less' },
+  #|         }),
+  #|         lit3dTri: rt.device.createRenderPipeline({
+  #|           layout: layoutLit3d,
+  #|           vertex: { module: shader3dLitColor, entryPoint: 'vs_main', buffers: [lit3dVertex] },
+  #|           fragment: { module: shader3dLitColor, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendState }] },
+  #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
+  #|           depthStencil: { format: 'depth24plus', depthWriteEnabled: true, depthCompare: 'less' },
+  #|         }),
+  #|         lit3dTexTri: rt.device.createRenderPipeline({
+  #|           layout: layoutLit3dTex,
+  #|           vertex: { module: shader3dLitTex, entryPoint: 'vs_main', buffers: [litTex3dVertex] },
+  #|           fragment: { module: shader3dLitTex, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendState }] },
+  #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
+  #|           depthStencil: { format: 'depth24plus', depthWriteEnabled: true, depthCompare: 'less' },
   #|         }),
   #|       };
   #|       rt.ensureDepth();
@@ -1390,6 +1865,111 @@ extern "js" fn webgpu_end_3d() -> Unit =
   #| }
 
 ///|
+extern "js" fn webgpu_set_lighting_3d(
+  directional_data : Array[Double],
+  point_data : Array[Double],
+  spot_data : Array[Double],
+  ambient_r : Double,
+  ambient_g : Double,
+  ambient_b : Double,
+) -> Unit =
+  #| (directionalData, pointData, spotData, ar, ag, ab) => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (!rt) return;
+  #|   const clamp01 = (x) => Math.max(0, Math.min(1, Number.isFinite(x) ? x : 0));
+  #|   const safeDirectional = Array.isArray(directionalData) ? directionalData : [];
+  #|   const safePoint = Array.isArray(pointData) ? pointData : [];
+  #|   const safeSpot = Array.isArray(spotData) ? spotData : [];
+  #|   const directionalLights = [];
+  #|   for (let i = 0; i + 6 < safeDirectional.length && directionalLights.length < 4; i += 7) {
+  #|     let dx = Number(safeDirectional[i]) || 0;
+  #|     let dy = Number(safeDirectional[i + 1]) || -1;
+  #|     let dz = Number(safeDirectional[i + 2]) || 0;
+  #|     const len = Math.hypot(dx, dy, dz);
+  #|     if (len <= 1e-8) {
+  #|       dx = 0;
+  #|       dy = -1;
+  #|       dz = 0;
+  #|     } else {
+  #|       dx /= len;
+  #|       dy /= len;
+  #|       dz /= len;
+  #|     }
+  #|     directionalLights.push({
+  #|       direction: [dx, dy, dz],
+  #|       intensity: Math.max(0, Number(safeDirectional[i + 3]) || 0),
+  #|       color: [
+  #|         clamp01(safeDirectional[i + 4]),
+  #|         clamp01(safeDirectional[i + 5]),
+  #|         clamp01(safeDirectional[i + 6]),
+  #|       ],
+  #|     });
+  #|   }
+  #|   const pointLights = [];
+  #|   for (let i = 0; i + 7 < safePoint.length && pointLights.length < 8; i += 8) {
+  #|     pointLights.push({
+  #|       position: [
+  #|         Number(safePoint[i]) || 0,
+  #|         Number(safePoint[i + 1]) || 0,
+  #|         Number(safePoint[i + 2]) || 0,
+  #|       ],
+  #|       intensity: Math.max(0, Number(safePoint[i + 3]) || 0),
+  #|       color: [
+  #|         clamp01(safePoint[i + 4]),
+  #|         clamp01(safePoint[i + 5]),
+  #|         clamp01(safePoint[i + 6]),
+  #|       ],
+  #|       range: Math.max(0.0001, Number(safePoint[i + 7]) || 0.0001),
+  #|     });
+  #|   }
+  #|   const spotLights = [];
+  #|   for (let i = 0; i + 12 < safeSpot.length && spotLights.length < 4; i += 13) {
+  #|     let dx = Number(safeSpot[i + 8]) || 0;
+  #|     let dy = Number(safeSpot[i + 9]) || -1;
+  #|     let dz = Number(safeSpot[i + 10]) || 0;
+  #|     const dlen = Math.hypot(dx, dy, dz);
+  #|     if (dlen <= 1e-8) {
+  #|       dx = 0;
+  #|       dy = -1;
+  #|       dz = 0;
+  #|     } else {
+  #|       dx /= dlen;
+  #|       dy /= dlen;
+  #|       dz /= dlen;
+  #|     }
+  #|     const innerCos = Number(safeSpot[i + 11]) || 0;
+  #|     const outerCos = Number(safeSpot[i + 12]) || 0;
+  #|     spotLights.push({
+  #|       position: [
+  #|         Number(safeSpot[i]) || 0,
+  #|         Number(safeSpot[i + 1]) || 0,
+  #|         Number(safeSpot[i + 2]) || 0,
+  #|       ],
+  #|       intensity: Math.max(0, Number(safeSpot[i + 3]) || 0),
+  #|       color: [
+  #|         clamp01(safeSpot[i + 4]),
+  #|         clamp01(safeSpot[i + 5]),
+  #|         clamp01(safeSpot[i + 6]),
+  #|       ],
+  #|       range: Math.max(0.0001, Number(safeSpot[i + 7]) || 0.0001),
+  #|       direction: [dx, dy, dz],
+  #|       innerCos: Math.max(-1, Math.min(1, innerCos)),
+  #|       outerCos: Math.max(-1, Math.min(1, outerCos)),
+  #|     });
+  #|   }
+  #|   rt.light3d = {
+  #|     directionalLights,
+  #|     pointLights,
+  #|     spotLights,
+  #|     ambient: [
+  #|       clamp01(ar),
+  #|       clamp01(ag),
+  #|       clamp01(ab),
+  #|     ],
+  #|   };
+  #| }
+
+///|
 extern "js" fn webgpu_draw_cube_3d(
   center_x : Double,
   center_y : Double,
@@ -1481,6 +2061,43 @@ extern "js" fn webgpu_draw_cylinder_3d(
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
   #|     rt.pushCylinder3d(cx, cy, cz, rtTop, rtBottom, h, slices, qx, qy, qz, qw, r, g, b, a);
+  #|   }
+  #| }
+
+///|
+extern "js" fn webgpu_draw_colored_triangles_3d(
+  vertices : Array[Double],
+  translation_x : Double,
+  translation_y : Double,
+  translation_z : Double,
+  rotation_x : Double,
+  rotation_y : Double,
+  rotation_z : Double,
+  rotation_w : Double,
+) -> Unit =
+  #| (vertices, tx, ty, tz, qx, qy, qz, qw) => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (rt) {
+  #|     rt.pushColoredTriangles3d(vertices, tx, ty, tz, qx, qy, qz, qw);
+  #|   }
+  #| }
+
+///|
+extern "js" fn webgpu_draw_textured_triangles_3d(
+  path : String,
+  vertices : Array[Double],
+  translation_x : Double,
+  translation_y : Double,
+  translation_z : Double,
+  rotation_x : Double,
+  rotation_y : Double,
+  rotation_z : Double,
+  rotation_w : Double,
+) -> Unit =
+  #| (path, vertices, tx, ty, tz, qx, qy, qz, qw) => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (rt) {
+  #|     rt.pushTexturedTriangles3d(path, vertices, tx, ty, tz, qx, qy, qz, qw);
   #|   }
   #| }
 

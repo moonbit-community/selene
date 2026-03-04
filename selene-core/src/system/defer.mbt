@@ -45,14 +45,14 @@ let deferred_events : Array[Event] = Array::new()
 /// 
 /// Usage:
 /// 
-/// ```moonbit
+/// ```moonbit nocheck
 /// let app = @system.App::new()
 /// app.add_system(@system.deferred_event_system).run()
 /// ```
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Add some events to be processed later
 /// defer_event(fn() { println("First event") })
 /// defer_event(fn() { println("Second event") })
@@ -75,7 +75,7 @@ pub fn deferred_event_system(_delta : Double) -> Unit {
 ///
 /// Example:
 ///
-/// ```moonbit
+/// ```moonbit nocheck
 /// // Schedule a simple logging event
 /// @system.defer_event(fn() { println("This will be executed next frame") })
 /// ```

@@ -51,6 +51,15 @@ fn color_rgba(color : @render.Color) -> (Double, Double, Double, Double) {
 }
 
 ///|
+const MAX_DIRECTIONAL_LIGHTS : Int = 4
+
+///|
+const MAX_POINT_LIGHTS : Int = 8
+
+///|
+const MAX_SPOT_LIGHTS : Int = 4
+
+///|
 let synced_mesh_assets : Map[
   @render3d_types.MeshHandle,
   @render3d_types.MeshAsset,
@@ -382,6 +391,7 @@ pub fn release_image_asset(handle : @render3d_types.ImageHandle) -> Unit {
 ///|
 pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
   guard frame.camera is Some(active_camera) else { return }
+  configure_scene_lighting(frame)
   begin_3d({
     position: to_render_vec3(active_camera.position),
     target: to_render_vec3(active_camera.target),
@@ -469,6 +479,65 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
           color.a,
         )
       }
+      Triangles(mesh) =>
+        if mesh.positions.length() >= 3 {
+          let normals = resolve_mesh_normals(mesh)
+          match (mesh.uvs, resolve_material_texture_path(material)) {
+            (Some(uvs), Some(texture_path)) =>
+              if uvs.length() == mesh.positions.length() &&
+                normals.length() == mesh.positions.length() {
+                webgpu_draw_textured_triangles_3d(
+                  texture_path,
+                  flatten_textured_vertices3d(
+                    mesh.positions,
+                    uvs,
+                    normals,
+                    item.transform.scale,
+                    color,
+                  ),
+                  center.x,
+                  center.y,
+                  center.z,
+                  rotation.x,
+                  rotation.y,
+                  rotation.z,
+                  rotation.w,
+                )
+              } else {
+                webgpu_draw_colored_triangles_3d(
+                  flatten_colored_vertices3d(
+                    mesh.positions,
+                    normals,
+                    item.transform.scale,
+                    color,
+                  ),
+                  center.x,
+                  center.y,
+                  center.z,
+                  rotation.x,
+                  rotation.y,
+                  rotation.z,
+                  rotation.w,
+                )
+              }
+            _ =>
+              webgpu_draw_colored_triangles_3d(
+                flatten_colored_vertices3d(
+                  mesh.positions,
+                  normals,
+                  item.transform.scale,
+                  color,
+                ),
+                center.x,
+                center.y,
+                center.z,
+                rotation.x,
+                rotation.y,
+                rotation.z,
+                rotation.w,
+              )
+          }
+        }
     }
   }
   end_3d()
@@ -494,4 +563,216 @@ fn scaled_radius(radius : Double, scale : @smath.Vec3) -> Double {
   let sz = scale.z.abs()
   let max_xz = if sx > sz { sx } else { sz }
   radius * max_xz
+}
+
+///|
+fn configure_scene_lighting(frame : @render3d_types.RenderFrame3D) -> Unit {
+  let has_lighting = frame.ambient_light is Some(_) ||
+    frame.directional_lights.length() > 0 ||
+    frame.point_lights.length() > 0 ||
+    frame.spot_lights.length() > 0
+  let ambient = if has_lighting {
+    frame.ambient_light.map_or(@smath.Vec3::zero(), fn(light) {
+      let (r, g, b) = color_rgb01(light.color)
+      @smath.Vec3::new(r, g, b).scalar_mul(light.intensity)
+    })
+  } else {
+    @smath.Vec3::one()
+  }
+  let directional_data : Array[Double] = []
+  let directional_count = if frame.directional_lights.length() <
+    MAX_DIRECTIONAL_LIGHTS {
+    frame.directional_lights.length()
+  } else {
+    MAX_DIRECTIONAL_LIGHTS
+  }
+  for idx in 0..<directional_count {
+    let light = frame.directional_lights[idx]
+    let direction = if light.direction.length_squared() <= 0.0000001 {
+      @smath.Vec3::new(0.0, -1.0, 0.0)
+    } else {
+      light.direction.normalize()
+    }
+    let (r, g, b) = color_rgb01(light.color)
+    directional_data.push(direction.x)
+    directional_data.push(direction.y)
+    directional_data.push(direction.z)
+    directional_data.push(light.intensity)
+    directional_data.push(r)
+    directional_data.push(g)
+    directional_data.push(b)
+  }
+  let point_data : Array[Double] = []
+  let point_count = if frame.point_lights.length() < MAX_POINT_LIGHTS {
+    frame.point_lights.length()
+  } else {
+    MAX_POINT_LIGHTS
+  }
+  for idx in 0..<point_count {
+    let light = frame.point_lights[idx]
+    let (r, g, b) = color_rgb01(light.color)
+    point_data.push(light.position.x)
+    point_data.push(light.position.y)
+    point_data.push(light.position.z)
+    point_data.push(light.intensity)
+    point_data.push(r)
+    point_data.push(g)
+    point_data.push(b)
+    point_data.push(light.range)
+  }
+  let spot_data : Array[Double] = []
+  let spot_count = if frame.spot_lights.length() < MAX_SPOT_LIGHTS {
+    frame.spot_lights.length()
+  } else {
+    MAX_SPOT_LIGHTS
+  }
+  for idx in 0..<spot_count {
+    let light = frame.spot_lights[idx]
+    let direction = if light.direction.length_squared() <= 0.0000001 {
+      @smath.Vec3::new(0.0, -1.0, 0.0)
+    } else {
+      light.direction.normalize()
+    }
+    let (r, g, b) = color_rgb01(light.color)
+    let (inner_angle, outer_angle) = if light.inner_angle <= light.outer_angle {
+      (light.inner_angle, light.outer_angle)
+    } else {
+      (light.outer_angle, light.inner_angle)
+    }
+    spot_data.push(light.position.x)
+    spot_data.push(light.position.y)
+    spot_data.push(light.position.z)
+    spot_data.push(light.intensity)
+    spot_data.push(r)
+    spot_data.push(g)
+    spot_data.push(b)
+    spot_data.push(light.range)
+    spot_data.push(direction.x)
+    spot_data.push(direction.y)
+    spot_data.push(direction.z)
+    spot_data.push(@math.cos(inner_angle))
+    spot_data.push(@math.cos(outer_angle))
+  }
+  webgpu_set_lighting_3d(
+    directional_data,
+    point_data,
+    spot_data,
+    ambient.x,
+    ambient.y,
+    ambient.z,
+  )
+}
+
+///|
+fn resolve_mesh_normals(
+  mesh : @render3d_types.TriangleMesh3D,
+) -> Array[@smath.Vec3] {
+  mesh.normals
+  .filter(fn(candidates) { candidates.length() == mesh.positions.length() })
+  .unwrap_or(compute_flat_triangle_normals(mesh.positions))
+}
+
+///|
+fn compute_flat_triangle_normals(
+  positions : Array[@smath.Vec3],
+) -> Array[@smath.Vec3] {
+  let normals : Array[@smath.Vec3] = []
+  let triangle_count = positions.length() / 3
+  for triangle in 0..<triangle_count {
+    let base = triangle * 3
+    let a = positions[base]
+    let b = positions[base + 1]
+    let c = positions[base + 2]
+    let mut normal = (b - a).cross(c - a)
+    if normal.length_squared() <= 0.0000001 {
+      normal = @smath.Vec3::new(0.0, 1.0, 0.0)
+    } else {
+      normal = normal.normalize()
+    }
+    normals.push(normal)
+    normals.push(normal)
+    normals.push(normal)
+  }
+  normals
+}
+
+///|
+fn flatten_colored_vertices3d(
+  positions : Array[@smath.Vec3],
+  normals : Array[@smath.Vec3],
+  scale : @smath.Vec3,
+  base_color : @render.Color,
+) -> Array[Double] {
+  let values : Array[Double] = []
+  let (r, g, b) = color_rgb01(base_color)
+  let a = base_color.a
+  for index in 0..<positions.length() {
+    let position = positions[index]
+    let normal = normals[index]
+    values.push(position.x * scale.x)
+    values.push(position.y * scale.y)
+    values.push(position.z * scale.z)
+    values.push(normal.x)
+    values.push(normal.y)
+    values.push(normal.z)
+    values.push(r)
+    values.push(g)
+    values.push(b)
+    values.push(a)
+  }
+  values
+}
+
+///|
+fn flatten_textured_vertices3d(
+  positions : Array[@smath.Vec3],
+  uvs : Array[@smath.Vec2D],
+  normals : Array[@smath.Vec3],
+  scale : @smath.Vec3,
+  base_color : @render.Color,
+) -> Array[Double] {
+  let values : Array[Double] = []
+  let (r, g, b) = color_rgb01(base_color)
+  let a = base_color.a
+  for index in 0..<positions.length() {
+    let position = positions[index]
+    let uv = uvs[index]
+    let normal = normals[index]
+    values.push(position.x * scale.x)
+    values.push(position.y * scale.y)
+    values.push(position.z * scale.z)
+    values.push(normal.x)
+    values.push(normal.y)
+    values.push(normal.z)
+    values.push(uv[X])
+    values.push(uv[Y])
+    values.push(r)
+    values.push(g)
+    values.push(b)
+    values.push(a)
+  }
+  values
+}
+
+///|
+fn color_rgb01(color : @render.Color) -> (Double, Double, Double) {
+  (
+    color.r.reinterpret_as_int().to_double() / 255.0,
+    color.g.reinterpret_as_int().to_double() / 255.0,
+    color.b.reinterpret_as_int().to_double() / 255.0,
+  )
+}
+
+///|
+fn resolve_material_texture_path(
+  material : @render3d_types.StandardMaterial3D,
+) -> String? {
+  match material.base_color_texture {
+    Some(image_handle) =>
+      match synced_image_assets.get(image_handle) {
+        Some(image_asset) => Some(resolve_asset_path(image_asset.path))
+        None => None
+      }
+    None => None
+  }
 }

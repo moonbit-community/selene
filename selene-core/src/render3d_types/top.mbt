@@ -38,11 +38,19 @@ pub(all) enum AlphaMode3D {
 } derive(Eq, Show)
 
 ///|
+pub(all) struct TriangleMesh3D {
+  positions : Array[@math.Vec3]
+  uvs : Array[@math.Vec2D]?
+  normals : Array[@math.Vec3]?
+} derive(Eq, Show)
+
+///|
 pub(all) enum MeshPrimitive3D {
   Cube(@math.Vec3)
   Sphere(Double)
   Cylinder(Double, Double, Double, Int)
   Plane(@math.Vec3)
+  Triangles(TriangleMesh3D)
 } derive(Eq, Show)
 
 ///|
@@ -80,6 +88,25 @@ pub(all) struct PointLight3D {
   color : @render.Color
   intensity : Double
   range : Double
+}
+
+///|
+pub(all) struct FramePointLight3D {
+  position : @math.Vec3
+  color : @render.Color
+  intensity : Double
+  range : Double
+}
+
+///|
+pub(all) struct FrameSpotLight3D {
+  position : @math.Vec3
+  direction : @math.Vec3
+  color : @render.Color
+  intensity : Double
+  range : Double
+  inner_angle : Double
+  outer_angle : Double
 }
 
 ///|
@@ -130,8 +157,8 @@ pub(all) struct RenderFrame3D {
   mut clear_color : @render.Color
   mut items : Array[RenderItem3D]
   mut directional_lights : Array[DirectionalLight3D]
-  mut point_lights : Array[PointLight3D]
-  mut spot_lights : Array[SpotLight3D]
+  mut point_lights : Array[FramePointLight3D]
+  mut spot_lights : Array[FrameSpotLight3D]
   mut ambient_light : AmbientLight3D?
 }
 

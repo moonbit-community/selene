@@ -64,6 +64,8 @@ pub fn take_released_material_assets() -> Array[@render3d_types.MaterialHandle]
 
 pub fn take_released_mesh_assets() -> Array[@render3d_types.MeshHandle]
 
+pub fn triangle_mesh(Array[@math.Vec3], uvs? : Array[@math.Vec2D]?, normals? : Array[@math.Vec3]?) -> @render3d_types.MeshAsset
+
 pub fn update_image_asset(@render3d_types.ImageHandle, @render3d_types.ImageAsset) -> Unit
 
 pub fn update_material_asset(@render3d_types.MaterialHandle, @render3d_types.StandardMaterial3D) -> Unit
@@ -87,6 +89,10 @@ pub using @render3d_types {type AlphaMode3D}
 pub using @render3d_types {type AmbientLight3D}
 
 pub using @render3d_types {type DirectionalLight3D}
+
+pub using @render3d_types {type FramePointLight3D}
+
+pub using @render3d_types {type FrameSpotLight3D}
 
 pub using @render3d_types {type ImageAsset}
 
