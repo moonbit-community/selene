@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.23.0] - 2026-03-04
+
+### Added
+
+- Platform-layer interface packages: `platform_window`, `platform_input`, `platform_render`, `platform_audio`, `platform_asset_io`
+- Shared runtime config package `platform_runtime` (`WindowConfig`, `RunnerCallbacks`)
+- Core runtime modules: `time`, `asset`, `asset_types`, `render2d`, `render2d_types`, `render_pipeline`, `render_submit`, `system.exit`
+- Handle-based 2D frame command model (`ImageDrawCommand2D`, `TextDrawCommand2D`, `TextStyle2D`, shape commands)
+- Pull-based input snapshot path in core (`inputs.apply_input_snapshot`)
+
+### Changed
+
+- Unified render submission to a single frame object (`RenderFrame`) combining 2D/3D extraction output
+- `App::run` loop migrated to platform poll + submit flow (window/input/render/audio split responsibilities)
+- 2D render commands migrated to asset-handle-driven types (`ImageHandle` / `FontHandle`) instead of direct backend draw payloads
+- `scene3d`/examples runtime APIs migrated from backend-facing calls to `asset` / `time` / `render2d` paths
+- Style/text layout sizing path now uses backend/platform text measurement
+
+### Removed
+
+- Legacy high-level backend usage path from core gameplay flow (`draw_*`, backend-side time/asset/font control semantics)
+- Legacy 2D draw command structs from `selene/render` (kept as color semantics only)
+
 ## [0.22.2] - 2026-03-04
 
 ### Changed
