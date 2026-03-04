@@ -7,9 +7,37 @@ import {
 }
 
 // Values
+pub fn advanced_gamepad_system(Double) -> Unit
+
 pub fn advanced_key_system(Double) -> Unit
 
 pub fn advanced_mouse_system(Double) -> Unit
+
+pub let connected_gamepads : @set.Set[Gamepad]
+
+pub fn gamepad_axis_value(Gamepad, GamepadAxis) -> Double
+
+pub let gamepad_axis_values : Map[GamepadAxisInput, Double]
+
+pub fn gamepad_left_stick(Gamepad) -> @math.Vec2D
+
+pub fn gamepad_right_stick(Gamepad) -> @math.Vec2D
+
+pub fn gamepad_triggers(Gamepad) -> @math.Vec2D
+
+pub fn is_gamepad_button_just_pressed(Gamepad, GamepadButton) -> Bool
+
+pub fn is_gamepad_button_just_released(Gamepad, GamepadButton) -> Bool
+
+pub fn is_gamepad_button_pressed(Gamepad, GamepadButton) -> Bool
+
+pub fn is_gamepad_button_released(Gamepad, GamepadButton) -> Bool
+
+pub fn is_gamepad_connected(Gamepad) -> Bool
+
+pub fn is_gamepad_just_connected(Gamepad) -> Bool
+
+pub fn is_gamepad_just_disconnected(Gamepad) -> Bool
 
 pub fn is_just_pressed(Code) -> Bool
 
@@ -27,15 +55,25 @@ pub fn is_pressed(Code) -> Bool
 
 pub fn is_released(Code) -> Bool
 
+pub let just_connected_gamepads : @set.Set[Gamepad]
+
+pub let just_disconnected_gamepads : @set.Set[Gamepad]
+
+pub let just_pressed_gamepad_buttons : @set.Set[GamepadButtonInput]
+
 pub let just_pressed_mouse : Mouse
 
 pub let just_release_mouse : Mouse
+
+pub let just_released_gamepad_buttons : @set.Set[GamepadButtonInput]
 
 pub fn key_vector(Code, Code, Code, Code) -> @math.Vec2D
 
 pub let mouse : Mouse
 
 pub let mouse_movement : MouseMovement
+
+pub let pressed_gamepad_buttons : @set.Set[GamepadButtonInput]
 
 pub let pressed_keys : @set.Set[Code]
 
@@ -81,6 +119,70 @@ pub fn Code::from_string(String) -> Self?
 pub impl Eq for Code
 pub impl Hash for Code
 pub impl Show for Code
+
+pub(all) struct Gamepad(Int)
+pub fn Gamepad::id(Self) -> Int
+#deprecated
+pub fn Gamepad::inner(Self) -> Int
+pub fn Gamepad::new(Int) -> Self
+pub impl Eq for Gamepad
+pub impl Hash for Gamepad
+pub impl Show for Gamepad
+
+pub(all) enum GamepadAxis {
+  LeftStickX
+  LeftStickY
+  RightStickX
+  RightStickY
+  LeftZ
+  RightZ
+}
+pub impl Eq for GamepadAxis
+pub impl Hash for GamepadAxis
+pub impl Show for GamepadAxis
+
+pub(all) struct GamepadAxisInput {
+  gamepad : Gamepad
+  axis : GamepadAxis
+}
+pub fn GamepadAxisInput::new(Gamepad, GamepadAxis) -> Self
+pub impl Eq for GamepadAxisInput
+pub impl Hash for GamepadAxisInput
+pub impl Show for GamepadAxisInput
+
+pub(all) enum GamepadButton {
+  South
+  East
+  North
+  West
+  C
+  Z
+  LeftTrigger
+  LeftTrigger2
+  RightTrigger
+  RightTrigger2
+  Select
+  Start
+  Mode
+  LeftThumb
+  RightThumb
+  DPadUp
+  DPadDown
+  DPadLeft
+  DPadRight
+}
+pub impl Eq for GamepadButton
+pub impl Hash for GamepadButton
+pub impl Show for GamepadButton
+
+pub(all) struct GamepadButtonInput {
+  gamepad : Gamepad
+  button : GamepadButton
+}
+pub fn GamepadButtonInput::new(Gamepad, GamepadButton) -> Self
+pub impl Eq for GamepadButtonInput
+pub impl Hash for GamepadButtonInput
+pub impl Show for GamepadButtonInput
 
 pub(all) struct Mouse {
   mut pos : @math.Vec2D

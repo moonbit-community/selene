@@ -18,6 +18,8 @@ PAGE_DIR = ROOT_DIR / "page"
 EXAMPLES_DIR = ROOT_DIR / "examples"
 WEB_EXAMPLES_DIR = EXAMPLES_DIR / "web"
 BUILD_DIR = EXAMPLES_DIR / "_build" / "js" / "release" / "build"
+CHANGELOG_REL_PATH = Path("docs/CHANGELOG.md")
+CHANGELOG_PATH = ROOT_DIR / CHANGELOG_REL_PATH
 
 SCRIPT_SRC_RE = re.compile(
     r'<script[^>]+src=["\']([^"\']+\.js)["\']',
@@ -47,6 +49,32 @@ RELEASE_MODULES = [
 ]
 
 PUBLISH_ORDER = ["selene-core", "selene-webgpu", "selene-raylib", "selene-tools"]
+
+
+def changelog_has_version(version: str, changelog_text: str) -> bool:
+    heading_patterns = [
+        rf"^##\s*\[{re.escape(version)}\](?:\s*-.*)?$",
+        rf"^##\s*\[v{re.escape(version)}\](?:\s*-.*)?$",
+        rf"^##\s+{re.escape(version)}(?:\s*-.*)?$",
+        rf"^##\s+v{re.escape(version)}(?:\s*-.*)?$",
+    ]
+    return any(re.search(pattern, changelog_text, flags=re.MULTILINE) for pattern in heading_patterns)
+
+
+def ensure_changelog_entry_exists(version: str):
+    if not CHANGELOG_PATH.exists():
+        raise RuntimeError(f"Missing changelog file: {CHANGELOG_REL_PATH}")
+
+    changelog_text = CHANGELOG_PATH.read_text(encoding="utf-8")
+    if changelog_has_version(version, changelog_text):
+        return
+
+    raise RuntimeError(
+        "Missing changelog entry for release version "
+        f"{version} in {CHANGELOG_REL_PATH}.\n"
+        "Please add a section header like:\n"
+        f"  ## [{version}] - YYYY-MM-DD"
+    )
 
 
 def run_cmd(cmd: list[str], cwd: Path, *, fail_on_warning: bool = False):
@@ -456,6 +484,8 @@ def restore_module_deps(snapshots: dict[Path, dict | None]):
 
 
 def run_release_pipeline(version: str):
+    ensure_changelog_entry_exists(version)
+
     print("=" * 60)
     print(f"Preparing publish pipeline for version {version}")
     print("=" * 60)

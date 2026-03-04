@@ -2,7 +2,7 @@
 package "Milky2018/selene/render3d_types"
 
 import {
-  "Milky2018/selene/math3d",
+  "Milky2018/selene/math",
   "Milky2018/selene/render",
 }
 
@@ -35,16 +35,16 @@ pub impl Eq for CameraProjection3D
 pub impl Show for CameraProjection3D
 
 pub(all) struct DirectionalLight3D {
-  direction : @math3d.Vec3
+  direction : @math.Vec3
   color : @render.Color
   intensity : Double
   shadows : Bool
 }
 
 pub(all) struct FrameCamera3D {
-  position : @math3d.Vec3
-  target : @math3d.Vec3
-  up : @math3d.Vec3
+  position : @math.Vec3
+  target : @math.Vec3
+  up : @math.Vec3
   fov_y : Double
   projection : CameraProjection3D
   near : Double
@@ -53,9 +53,9 @@ pub(all) struct FrameCamera3D {
 }
 
 pub(all) struct FrameTransform3D {
-  translation : @math3d.Vec3
-  rotation : @math3d.Quat
-  scale : @math3d.Vec3
+  translation : @math.Vec3
+  rotation : @math.Quat
+  scale : @math.Vec3
 }
 pub impl Eq for FrameTransform3D
 pub impl Show for FrameTransform3D
@@ -94,10 +94,10 @@ pub impl Hash for MeshHandle
 pub impl Show for MeshHandle
 
 pub(all) enum MeshPrimitive3D {
-  Cube(@math3d.Vec3)
+  Cube(@math.Vec3)
   Sphere(Double)
   Cylinder(Double, Double, Double, Int)
-  Plane(@math3d.Vec3)
+  Plane(@math.Vec3)
 }
 pub impl Eq for MeshPrimitive3D
 pub impl Show for MeshPrimitive3D
@@ -132,7 +132,7 @@ pub impl Hash for SceneHandle
 pub impl Show for SceneHandle
 
 pub(all) struct SpotLight3D {
-  direction : @math3d.Vec3
+  direction : @math.Vec3
   color : @render.Color
   intensity : Double
   range : Double

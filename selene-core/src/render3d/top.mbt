@@ -135,7 +135,7 @@ pub fn default_standard_material3d() -> StandardMaterial3D {
 }
 
 ///|
-pub fn cube_mesh(size : @math3d.Vec3) -> MeshAsset {
+pub fn cube_mesh(size : @math.Vec3) -> MeshAsset {
   { primitive: Cube(size) }
 }
 
@@ -155,7 +155,7 @@ pub fn cylinder_mesh(
 }
 
 ///|
-pub fn plane_mesh(size : @math3d.Vec3) -> MeshAsset {
+pub fn plane_mesh(size : @math.Vec3) -> MeshAsset {
   { primitive: Plane(size) }
 }
 
@@ -366,8 +366,8 @@ pub fn take_released_image_assets() -> Array[ImageHandle] {
 }
 
 ///|
-fn to_math3d_vec3(value : @render.Vec3) -> @math3d.Vec3 {
-  @math3d.Vec3::new(value.x, value.y, value.z)
+fn to_math3d_vec3(value : @render.Vec3) -> @math.Vec3 {
+  @math.Vec3::new(value.x, value.y, value.z)
 }
 
 ///|

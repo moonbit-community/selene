@@ -60,28 +60,27 @@ fn volume_sprite(volume_on : Bool) -> @sprite.Sprite {
 
 ///|
 fn add_volume_button() -> Unit {
-  let button = @entity.Entity::new()
-  @transform.positions.set(button, @math.Vec2D(VIEWPORT_WIDTH - 40, 18))
-  @sprite.sprites.set(button, volume_sprite(game_state.volume_on))
-  @physics2d.shapes.set(
-    button,
-    @physics2d.CollisionShape::Rect(
-      size=@math.Vec2D(21.0, 22.0),
-      offset=@math.Vec2D::zero(),
+  let button = @ui.add_button(
+    @ui.virtual_root,
+    node=@ui.Node::new(
+      size=@ui.NodeSize::Fixed(@math.Vec2D(21.0, 22.0)),
+      layout=@ui.LayoutDirection::Overlay,
+      space=@ui.UiSpace::Virtual,
+      offset=@math.Vec2D(VIEWPORT_WIDTH - 40, 18),
     ),
+    button=@ui.Button::new(trigger=@inputs.MouseButton::Left),
   )
-  @physics2d.pickables.set(button, @physics2d.Pickable::new())
-  @ui.uis.set(button, @ui.Ui::new(space=@ui.UiSpace::Virtual))
+  @sprite.sprites.set(button, volume_sprite(game_state.volume_on))
   volume_button_ref.val = Some(button)
 }
 
 ///|
 fn volume_button_input_system(_delta : Double) -> Unit {
   guard volume_button_ref.val is Some(button) else { return }
-  for event in @physics2d.pointer_events() {
+  for event in @ui.interaction_events() {
     guard event.entity == button else { continue }
-    guard event.phase is @physics2d.PointerPhase::JustReleased else { continue }
-    guard event.button == @inputs.MouseButton::Left else { continue }
+    guard event.previous is @ui.Interaction::Pressed else { continue }
+    guard event.current is @ui.Interaction::Hovered else { continue }
     game_state.volume_on = !game_state.volume_on
     @sprite.sprites.set(button, volume_sprite(game_state.volume_on))
   }

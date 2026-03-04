@@ -17,6 +17,11 @@ struct WebGpuBackend {
   canvas : @dom.HTMLCanvasElement
   mut time_scale : Double
   mouse_movement : Ref[@inputs.MouseMovement?]
+  mut gamepads : Set[@inputs.Gamepad]?
+  mut gamepad_buttons : Set[@inputs.GamepadButtonInput]?
+  mut gamepad_axes : Map[@inputs.GamepadAxisInput, Double]?
+  mut close_requested : Bool
+  mut stop_loop : (() -> Unit)?
 }
 
 ///|
@@ -26,7 +31,16 @@ pub fn WebGpuBackend::new() -> WebGpuBackend {
     .unwrap()
     .to_html_canvas_element()
     .unwrap()
-  { canvas, time_scale: 1.0, mouse_movement: Ref::new(None) }
+  {
+    canvas,
+    time_scale: 1.0,
+    mouse_movement: Ref::new(None),
+    gamepads: None,
+    gamepad_buttons: None,
+    gamepad_axes: None,
+    close_requested: false,
+    stop_loop: None,
+  }
 }
 
 ///|
@@ -126,6 +140,11 @@ pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
       "Warning: FPS is set above 60. The browser's window only support up to 60 FPS.",
     )
   }
+  if canvas_backend.stop_loop is Some(stop_loop) {
+    stop_loop()
+  }
+  canvas_backend.stop_loop = None
+  canvas_backend.close_requested = false
   set_viewport_height(canvas_backend.canvas, screen_height)
   set_viewport_width(canvas_backend.canvas, screen_width)
   webgpu_initialize(
@@ -135,9 +154,15 @@ pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
     image_smooth,
   )
   startup()
-  schedule_with_fixed_interval(1000 / fps.to_double(), fn(delta) {
+  let stop_loop = schedule_with_fixed_interval(1000 / fps.to_double(), fn(
+    delta,
+  ) {
+    if canvas_backend.close_requested {
+      return
+    }
     let delta = delta / 1000.0
     realtime_delta.val = delta
+    sync_gamepad_events()
     game_loop(delta * canvas_backend.time_scale)
     webgpu_begin_frame(0.0, 0.0, 0.0, 1.0)
     render_loop(delta * canvas_backend.time_scale)
@@ -146,7 +171,7 @@ pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
       mouse_movement.movement = @smath.Vec2D(0.0, 0.0)
     }
   })
-  |> ignore
+  canvas_backend.stop_loop = Some(stop_loop)
   return fn() {  }
 }
 
@@ -167,6 +192,10 @@ fn schedule_with_fixed_interval(
   let accumulator = Ref::new(0.0)
   let lastId = Ref::new(0.0)
   fn update(time : Double) -> Unit {
+    if canvas_backend.close_requested {
+      lastId.val = 0.0
+      return
+    }
     if lastTime.val == 0.0 {
       lastTime.val = time
     }
@@ -178,12 +207,25 @@ fn schedule_with_fixed_interval(
     while accumulator.val >= interval {
       callback(delta)
       accumulator.val = accumulator.val - interval
+      if canvas_backend.close_requested {
+        lastId.val = 0.0
+        return
+      }
     }
     lastId.val = window.request_animation_frame(update)
   }
 
   lastId.val = window.request_animation_frame(update)
   () => if lastId.val != 0.0 { window.cancel_animation_frame(lastId.val) }
+}
+
+///|
+pub fn request_close() -> Unit {
+  canvas_backend.close_requested = true
+  if canvas_backend.stop_loop is Some(stop_loop) {
+    stop_loop()
+  }
+  canvas_backend.stop_loop = None
 }
 
 ///|

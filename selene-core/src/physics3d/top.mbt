@@ -33,7 +33,7 @@ pub(all) struct RigidBody3D {
 
 ///|
 pub(all) enum ColliderShape3D {
-  Cuboid(@math3d.Vec3)
+  Cuboid(@math.Vec3)
   Ball(Double)
   CapsuleY(Double, Double)
   Cylinder(Double, Double)
@@ -58,10 +58,10 @@ pub(all) struct Collider3D {
 pub type Sensor3D = Collider3D
 
 ///|
-pub(all) struct LinearVelocity3D(@math3d.Vec3) derive(Eq, Show)
+pub(all) struct LinearVelocity3D(@math.Vec3) derive(Eq, Show)
 
 ///|
-pub(all) struct AngularVelocity3D(@math3d.Vec3) derive(Eq, Show)
+pub(all) struct AngularVelocity3D(@math.Vec3) derive(Eq, Show)
 
 ///|
 pub(all) struct ContactEvent3D {
@@ -70,7 +70,7 @@ pub(all) struct ContactEvent3D {
   started : Bool
   stopped : Bool
   sensor : Bool
-  normal : @math3d.Vec3
+  normal : @math.Vec3
 } derive(Eq, Show)
 
 ///|
@@ -84,19 +84,19 @@ pub(all) struct TriggerEvent3D {
 pub(all) struct RaycastHit3D {
   entity : @entity.Entity
   toi : Double
-  normal : @math3d.Vec3
+  normal : @math.Vec3
 } derive(Eq, Show)
 
 ///|
 pub(all) struct ShapeCastHit3D {
   entity : @entity.Entity
   toi : Double
-  normal : @math3d.Vec3
+  normal : @math.Vec3
 } derive(Eq, Show)
 
 ///|
 pub(all) struct Physics3DConfig {
-  mut gravity : @math3d.Vec3
+  mut gravity : @math.Vec3
 }
 
 ///|
@@ -128,7 +128,7 @@ pub fn RigidBody3D::kinematic_velocity_based() -> RigidBody3D {
 }
 
 ///|
-pub fn Collider3D::cuboid(half_extents : @math3d.Vec3) -> Collider3D {
+pub fn Collider3D::cuboid(half_extents : @math.Vec3) -> Collider3D {
   {
     shape: Cuboid(half_extents),
     friction: 0.5,
@@ -158,9 +158,7 @@ pub fn new_collision_layers3d(
 }
 
 ///|
-pub let config : Physics3DConfig = {
-  gravity: @math3d.Vec3::new(0.0, -9.81, 0.0),
-}
+pub let config : Physics3DConfig = { gravity: @math.Vec3::new(0.0, -9.81, 0.0) }
 
 ///|
 pub let rigid_bodies3d : Map[@entity.Entity, RigidBody3D] = Map::new()
@@ -217,7 +215,7 @@ let frame_contact_events3d : Ref[Array[ContactEvent3D]] = Ref::new([])
 let frame_trigger_events3d : Ref[Array[TriggerEvent3D]] = Ref::new([])
 
 ///|
-pub fn set_gravity(gravity : @math3d.Vec3) -> Unit {
+pub fn set_gravity(gravity : @math.Vec3) -> Unit {
   config.gravity = gravity
 }
 
@@ -268,8 +266,8 @@ pub fn physics_step_system(delta : Double) -> Unit {
 
 ///|
 pub fn raycast3d(
-  origin : @math3d.Vec3,
-  direction : @math3d.Vec3,
+  origin : @math.Vec3,
+  direction : @math.Vec3,
   max_toi? : Double = 1000.0,
   solid? : Bool = true,
 ) -> RaycastHit3D? {
@@ -294,7 +292,7 @@ pub fn raycast3d(
         {
           entity,
           toi: hit.toi().to_double(),
-          normal: @math3d.vec3_from_rapier(hit.normal()),
+          normal: @math.vec3_from_rapier(hit.normal()),
         }
       })
     None => None
@@ -304,9 +302,9 @@ pub fn raycast3d(
 ///|
 pub fn shape_cast3d(
   shape : ColliderShape3D,
-  origin : @math3d.Vec3,
-  rotation? : @math3d.Quat = @math3d.Quat::identity(),
-  direction? : @math3d.Vec3 = @math3d.Vec3::new(0.0, -1.0, 0.0),
+  origin : @math.Vec3,
+  rotation? : @math.Quat = @math.Quat::identity(),
+  direction? : @math.Vec3 = @math.Vec3::new(0.0, -1.0, 0.0),
   max_toi? : Double = 1000.0,
   stop_at_penetration? : Bool = false,
 ) -> ShapeCastHit3D? {
@@ -332,7 +330,7 @@ pub fn shape_cast3d(
         {
           entity,
           toi: hit.toi().to_double(),
-          normal: @math3d.vec3_from_rapier(hit.normal()),
+          normal: @math.vec3_from_rapier(hit.normal()),
         }
       })
     None => None
@@ -342,8 +340,8 @@ pub fn shape_cast3d(
 ///|
 pub fn character_controller3d_move(
   entity : @entity.Entity,
-  desired_delta : @math3d.Vec3,
-) -> @math3d.Vec3 {
+  desired_delta : @math.Vec3,
+) -> @math.Vec3 {
   guard rigid_bodies3d.get(entity) is Some(body_desc) else {
     let transform = @transform3d.transforms3d.get(entity).unwrap_or_default()
     @transform3d.transforms3d.set(entity, {
@@ -367,7 +365,7 @@ pub fn character_controller3d_move(
       linear_velocities3d.set(entity, LinearVelocity3D(desired_delta))
       desired_delta
     }
-    Fixed => @math3d.Vec3::zero()
+    Fixed => @math.Vec3::zero()
   }
 }
 
@@ -437,16 +435,16 @@ fn sync_rapier_to_components() -> Unit {
     let transform = @transform3d.transforms3d.get(entity).unwrap_or_default()
     @transform3d.transforms3d.set(entity, {
       ..transform,
-      translation: @math3d.vec3_from_rapier(body.translation()),
-      rotation: @math3d.quat_from_rapier(body.rotation()),
+      translation: @math.vec3_from_rapier(body.translation()),
+      rotation: @math.quat_from_rapier(body.rotation()),
     })
     linear_velocities3d.set(
       entity,
-      LinearVelocity3D(@math3d.vec3_from_rapier(body.linvel())),
+      LinearVelocity3D(@math.vec3_from_rapier(body.linvel())),
     )
     angular_velocities3d.set(
       entity,
-      AngularVelocity3D(@math3d.vec3_from_rapier(body.angvel())),
+      AngularVelocity3D(@math.vec3_from_rapier(body.angvel())),
     )
   }
 }
@@ -617,7 +615,7 @@ fn collect_events() -> Unit {
       started: collision_event.started(),
       stopped: collision_event.stopped(),
       sensor: collision_event.sensor(),
-      normal: @math3d.Vec3::zero(),
+      normal: @math.Vec3::zero(),
     })
   }
 

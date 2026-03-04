@@ -48,7 +48,7 @@ pub fn run() -> Unit {
   .add_system(enemy_collision_system)
   .add_system(devil_shooting_system)
   .add_system(player_bullet_trigger_system)
-  .add_system(survivors_ui_pointer_system)
+  .add_system(survivors_ui_pointer_system, schedule=PostUpdate)
   .add_system(check_victory_system)
   .add_system(game_timer_system)
   .add_system(score_blink_system)
@@ -119,6 +119,60 @@ priv struct GameOverPanel {
 }
 
 ///|
+fn create_level_up_panel_entity() -> @entity.Entity {
+  let panel = @ui.add_node(
+    @ui.screen_root,
+    node=@ui.Node::new(
+      size=@ui.NodeSize::Fixed(@math.Vec2D(160.0, 250.0)),
+      space=@ui.UiSpace::Screen,
+      offset=@math.Vec2D(
+        VIEWPORT_WIDTH / 2.0 - 80.0,
+        VIEWPORT_HEIGHT / 2.0 - 120.0,
+      ),
+    ),
+  )
+  @sprite.sprites.set(
+    panel,
+    @sprite.Sprite::from_color_rect(
+      @sprite.ColorRect::new(
+        @math.Vec2D(160.0, 250.0),
+        "rgba(13, 170, 26, 1)",
+        stroke_color="black",
+      ),
+      @ui.UI_ZINDEX + 1,
+    ),
+  )
+  panel
+}
+
+///|
+fn create_game_over_panel_entity() -> @entity.Entity {
+  let panel = @ui.add_node(
+    @ui.screen_root,
+    node=@ui.Node::new(
+      size=@ui.NodeSize::Fixed(@math.Vec2D(200.0, 120.0)),
+      space=@ui.UiSpace::Screen,
+      offset=@math.Vec2D(
+        VIEWPORT_WIDTH / 2.0 - 100.0,
+        VIEWPORT_HEIGHT / 2.0 - 60.0,
+      ),
+    ),
+  )
+  @sprite.sprites.set(
+    panel,
+    @sprite.Sprite::from_color_rect(
+      @sprite.ColorRect::new(
+        @math.Vec2D(200.0, 120.0),
+        "rgba(0, 0, 0, 0.8)",
+        stroke_color="white",
+      ),
+      @ui.UI_ZINDEX + 1,
+    ),
+  )
+  panel
+}
+
+///|
 let game_state : GameState = {
   player_entity: @entity.Entity::new(),
   player_direction: Down,
@@ -162,47 +216,13 @@ let game_state : GameState = {
     weapon_instances: [Pistol], // Start with one Pistol
   },
   level_up_panel: {
-    panel_entity: @style.add_widget(
-      @style.screen_root,
-      h_offset=VIEWPORT_WIDTH / 2.0 - 80,
-      v_offset=VIEWPORT_HEIGHT / 2.0 - 120,
-      flex=Vertical,
-      v_padding=20.0,
-      sprite=zindex => {
-        @sprite.Sprite::from_color_rect(
-          @sprite.ColorRect::new(
-            Vec2D(160.0, 250.0),
-            "rgba(13, 170, 26, 1)",
-            stroke_color="black",
-          ),
-          zindex,
-        )
-      },
-    ),
+    panel_entity: create_level_up_panel_entity(),
     available_selections: [],
   },
   pending_level_ups: [],
   score_blink_timer: 0.0,
   score_is_red: false,
-  game_over_panel: {
-    panel_entity: @style.add_widget(
-      @style.screen_root,
-      h_offset=VIEWPORT_WIDTH / 2.0 - 100,
-      v_offset=VIEWPORT_HEIGHT / 2.0 - 60,
-      flex=Vertical,
-      v_padding=20.0,
-      sprite=zindex => {
-        @sprite.Sprite::from_color_rect(
-          @sprite.ColorRect::new(
-            Vec2D(200.0, 120.0),
-            "rgba(0, 0, 0, 0.8)",
-            stroke_color="white",
-          ),
-          zindex,
-        )
-      },
-    ),
-  },
+  game_over_panel: { panel_entity: create_game_over_panel_entity() },
 }
 
 ///|

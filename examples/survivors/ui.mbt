@@ -13,18 +13,77 @@
 // limitations under the License.
 
 ///|
+const UI_WIDGET_ZINDEX : Int = @ui.UI_ZINDEX + 1
+
+///|
+const UI_CHILD_ZINDEX : Int = @ui.UI_ZINDEX + 2
+
+///|
+const LEVELUP_PANEL_TITLE_OFFSET_Y = 20.0
+
+///|
+const LEVELUP_PANEL_BUTTON_START_Y = 76.0
+
+///|
+const LEVELUP_PANEL_BUTTON_GAP_Y = 20.0
+
+///|
 let levelup_buttons : Array[@entity.Entity] = []
 
 ///|
 let restart_button_ref : Ref[@entity.Entity?] = { val: None }
 
 ///|
+fn add_screen_sprite(
+  offset : @math.Vec2D,
+  sprite : @sprite.Sprite,
+) -> @entity.Entity {
+  let entity = @ui.add_node(
+    @ui.screen_root,
+    node=@ui.Node::new(space=@ui.UiSpace::Screen, offset~),
+  )
+  @sprite.sprites.set(entity, sprite)
+  entity
+}
+
+///|
+fn add_child_sprite(
+  parent : @entity.Entity,
+  offset : @math.Vec2D,
+  sprite : @sprite.Sprite,
+) -> @entity.Entity {
+  let entity = @ui.add_node(
+    parent,
+    node=@ui.Node::new(space=@ui.UiSpace::Screen, offset~),
+  )
+  @sprite.sprites.set(entity, sprite)
+  entity
+}
+
+///|
+fn add_child_sprite_sized(
+  parent : @entity.Entity,
+  offset : @math.Vec2D,
+  size : @math.Vec2D,
+  sprite : @sprite.Sprite,
+) -> @entity.Entity {
+  let entity = @ui.add_node(
+    parent,
+    node=@ui.Node::new(
+      space=@ui.UiSpace::Screen,
+      offset~,
+      size=@ui.NodeSize::Fixed(size),
+    ),
+  )
+  @sprite.sprites.set(entity, sprite)
+  entity
+}
+
+///|
 fn add_score_box() -> Unit {
-  @style.add_widget(
-    @style.screen_root,
-    sprite=zindex => @sprite.Sprite::from_text(game_state.score_box, zindex),
-    h_offset=VIEWPORT_WIDTH / 2.0 - 40,
-    v_offset=16,
+  add_screen_sprite(
+    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 40, 16.0),
+    @sprite.Sprite::from_text(game_state.score_box, UI_WIDGET_ZINDEX),
   )
   |> ignore
 }
@@ -34,80 +93,75 @@ fn add_score_box() -> Unit {
 /// - LevelUpText
 /// - Button1
 ///   - Icon1 | Text1
-/// - Button2 
-///   - Icon2 | Text2 
+/// - Button2
+///   - Icon2 | Text2
 /// - Button3
 ///   - Icon3 | Text3
-/// 
+///
 fn setup_level_up_ui() -> Unit {
-  // Set up main panel root entity with centered position
   let panel = game_state.level_up_panel.panel_entity
   levelup_buttons.clear()
 
-  // Set up title text sprite on the root entity
-  @style.add_widget(
+  add_child_sprite_sized(
     panel,
-    sprite=zindex => {
-      @sprite.Sprite::from_text(
-        @sprite.Text::new(
-          "LEVEL UP!",
-          color="gold",
-          font="36px ThaleahFat",
-          baseline=Top,
-          align=Left,
-        ),
-        zindex,
-      )
-    },
-    size_plan=Sized(Vec2D(160.0, 36.0)),
-    h_offset=8.0,
+    @math.Vec2D(8.0, LEVELUP_PANEL_TITLE_OFFSET_Y),
+    @math.Vec2D(160.0, 36.0),
+    @sprite.Sprite::from_text(
+      @sprite.Text::new(
+        "LEVEL UP!",
+        color="gold",
+        font="36px ThaleahFat",
+        baseline=Top,
+        align=Left,
+      ),
+      UI_CHILD_ZINDEX,
+    ),
   )
   |> ignore
 
-  // Create 3 powerup buttons as children during setup
   for i in 0..<3 {
-    // Create button entity as child
-    let button = @style.add_widget(
+    let button_y = LEVELUP_PANEL_BUTTON_START_Y +
+      i.to_double() * (36.0 + LEVELUP_PANEL_BUTTON_GAP_Y)
+    let button = add_child_sprite_sized(
       panel,
-      sprite=zindex => {
-        @sprite.Sprite::from_color_rect(
-          @sprite.ColorRect::new(
-            Vec2D(160.0, 36.0),
-            "rgba(13, 167, 170, 1)",
-            stroke_color="black",
-          ),
-          zindex,
-        )
-      },
-      flex=Horizontal,
-      size_plan=FromSprite,
-      h_padding=2.0,
-      v_padding=2.0,
-      shape=@physics2d.CollisionShape::Rect(
-        size=@math.Vec2D(160.0, 36.0),
-        offset=@math.Vec2D::zero(),
+      @math.Vec2D(0.0, button_y),
+      @math.Vec2D(160.0, 36.0),
+      @sprite.Sprite::from_color_rect(
+        @sprite.ColorRect::new(
+          @math.Vec2D(160.0, 36.0),
+          "rgba(13, 167, 170, 1)",
+          stroke_color="black",
+        ),
+        UI_CHILD_ZINDEX,
       ),
-      pickable=true,
     )
     levelup_buttons.push(button)
+    @ui.buttons.set(
+      button,
+      @ui.Button::new(
+        trigger=@inputs.MouseButton::Left,
+        hit_size=@math.Vec2D(160.0, 36.0),
+      ),
+    )
 
-    // Icon
-    @style.add_widget(button, sprite=zindex => {
-      @sprite.Sprite::from_animation(powerup_range_icon, zindex)
-    })
+    add_child_sprite(
+      button,
+      @math.Vec2D(6.0, 2.0),
+      @sprite.Sprite::from_animation(powerup_range_icon, UI_CHILD_ZINDEX + 1),
+    )
     |> ignore
 
-    // Text
-    @style.add_widget(button, sprite=zindex => {
+    add_child_sprite(
+      button,
+      @math.Vec2D(44.0, 10.0),
       @sprite.Sprite::from_text(
         @sprite.Text::new("Default", color="white", font="16px ThaleahFat"),
-        zindex,
-      )
-    })
+        UI_CHILD_ZINDEX + 1,
+      ),
+    )
     |> ignore
   }
 
-  // Initially destroy the root panel (all children will be destroyed too)
   panel.destroy()
 }
 
@@ -116,14 +170,10 @@ fn level_up(level : Int) -> Unit {
   @backend.set_time_scale(0.0)
   let panel = game_state.level_up_panel
 
-  // Generate selections based on the level being processed
   panel.available_selections = generate_level_up_selections(level)
-
-  // Respawn the main panel (this will respawn all children automatically)
   panel.panel_entity.respawn()
   let button_entities = panel.panel_entity.get_children()
 
-  // Update button text and icons with selection information
   for i in 0..<3 {
     update_selection_display(
       panel.available_selections[i],
@@ -142,7 +192,6 @@ fn update_selection_display(
   let text_entity = children[1]
   match selection {
     PowerupSelection(powerup) => {
-      // Update button background color to cyan for powerups
       let button_background = @sprite.Sprite::from_color_rect(
         @sprite.ColorRect::new(
           Vec2D(160.0, 36.0),
@@ -153,7 +202,6 @@ fn update_selection_display(
       )
       @sprite.sprites.set(button_entity, button_background)
 
-      // Update text
       let button_text = @sprite.Text::new(
         powerup.name,
         color="white",
@@ -162,7 +210,6 @@ fn update_selection_display(
       let button_sprite = @sprite.Sprite::from_text(button_text, UI_ZINDEX + 3)
       @sprite.sprites.set(text_entity, button_sprite)
 
-      // Update icon
       let icon_animation = get_powerup_icon(powerup.powerup_type)
       let icon_sprite = @sprite.Sprite::from_animation(
         icon_animation,
@@ -171,7 +218,6 @@ fn update_selection_display(
       @sprite.sprites.set(icon_entity, icon_sprite)
     }
     WeaponSelection(weapon_type) => {
-      // Update button background color to orange for weapons
       let button_background = @sprite.Sprite::from_color_rect(
         @sprite.ColorRect::new(
           Vec2D(160.0, 36.0),
@@ -182,7 +228,6 @@ fn update_selection_display(
       )
       @sprite.sprites.set(button_entity, button_background)
 
-      // Update text
       let button_text = @sprite.Text::new(
         get_weapon_name(weapon_type),
         color="white",
@@ -191,7 +236,6 @@ fn update_selection_display(
       let button_sprite = @sprite.Sprite::from_text(button_text, UI_ZINDEX + 3)
       @sprite.sprites.set(text_entity, button_sprite)
 
-      // Update icon
       let icon_animation = get_weapon_icon(weapon_type)
       let icon_sprite = @sprite.Sprite::from_animation(
         icon_animation,
@@ -216,7 +260,6 @@ fn select_powerup(index : Int) -> Unit {
 fn resume_game() -> Unit {
   game_state.level_up_panel.panel_entity.destroy()
 
-  // Check if there are more pending level-ups
   if game_state.pending_level_ups.is_empty() {
     @backend.set_time_scale(1.0)
   } else {
@@ -226,33 +269,27 @@ fn resume_game() -> Unit {
 
 ///|
 fn add_wave_box() -> Unit {
-  @style.add_widget(
-    @style.screen_root,
-    sprite=zindex => @sprite.Sprite::from_text(game_state.wave_box, zindex),
-    h_offset=16.0,
-    v_offset=84.0,
+  add_screen_sprite(
+    @math.Vec2D(16.0, 84.0),
+    @sprite.Sprite::from_text(game_state.wave_box, UI_WIDGET_ZINDEX),
   )
   |> ignore
 }
 
 ///|
 fn add_exp_box() -> Unit {
-  @style.add_widget(
-    @style.screen_root,
-    sprite=zindex => @sprite.Sprite::from_text(game_state.exp_box, zindex),
-    h_offset=16.0,
-    v_offset=50.0,
+  add_screen_sprite(
+    @math.Vec2D(16.0, 50.0),
+    @sprite.Sprite::from_text(game_state.exp_box, UI_WIDGET_ZINDEX),
   )
   |> ignore
 }
 
 ///|
 fn add_timer_box() -> Unit {
-  @style.add_widget(
-    @style.screen_root,
-    sprite=zindex => @sprite.Sprite::from_text(game_state.timer_box, zindex),
-    h_offset=VIEWPORT_WIDTH - 120,
-    v_offset=16.0,
+  add_screen_sprite(
+    @math.Vec2D(VIEWPORT_WIDTH - 120.0, 16.0),
+    @sprite.Sprite::from_text(game_state.timer_box, UI_WIDGET_ZINDEX),
   )
   |> ignore
 }
@@ -261,70 +298,61 @@ fn add_timer_box() -> Unit {
 fn setup_game_over_ui() -> Unit {
   let panel = game_state.game_over_panel.panel_entity
 
-  // Victory message text
-  @style.add_widget(
+  add_child_sprite(
     panel,
-    sprite=zindex => {
-      @sprite.Sprite::from_text(
-        @sprite.Text::new(
-          "VICTORY!",
-          color="gold",
-          font="32px ThaleahFat",
-          baseline=Top,
-          align=Left,
-        ),
-        zindex,
-      )
-    },
-    h_offset=30.0,
-  )
-  |> ignore
-
-  // Score text
-  @style.add_widget(
-    panel,
-    sprite=zindex => @sprite.Sprite::from_text(game_state.game_over_box, zindex),
-    h_offset=8.0,
-  )
-  |> ignore
-
-  // Restart button
-  let restart_button = @style.add_widget(
-    panel,
-    sprite=zindex => {
-      @sprite.Sprite::from_color_rect(
-        @sprite.ColorRect::new(
-          Vec2D(180.0, 40.0),
-          "rgba(13, 167, 170, 1)",
-          stroke_color="white",
-        ),
-        zindex,
-      )
-    },
-    h_offset=10.0,
-    shape=@physics2d.CollisionShape::Rect(
-      size=@math.Vec2D(180.0, 40.0),
-      offset=@math.Vec2D::zero(),
+    @math.Vec2D(30.0, 18.0),
+    @sprite.Sprite::from_text(
+      @sprite.Text::new(
+        "VICTORY!",
+        color="gold",
+        font="32px ThaleahFat",
+        baseline=Top,
+        align=Left,
+      ),
+      UI_CHILD_ZINDEX,
     ),
-    pickable=true,
+  )
+  |> ignore
+
+  add_child_sprite(
+    panel,
+    @math.Vec2D(8.0, 52.0),
+    @sprite.Sprite::from_text(game_state.game_over_box, UI_CHILD_ZINDEX),
+  )
+  |> ignore
+
+  let restart_button = add_child_sprite_sized(
+    panel,
+    @math.Vec2D(10.0, 74.0),
+    @math.Vec2D(180.0, 40.0),
+    @sprite.Sprite::from_color_rect(
+      @sprite.ColorRect::new(
+        Vec2D(180.0, 40.0),
+        "rgba(13, 167, 170, 1)",
+        stroke_color="white",
+      ),
+      UI_CHILD_ZINDEX,
+    ),
+  )
+  @ui.buttons.set(
+    restart_button,
+    @ui.Button::new(
+      trigger=@inputs.MouseButton::Left,
+      hit_size=@math.Vec2D(180.0, 40.0),
+    ),
   )
   restart_button_ref.val = Some(restart_button)
 
-  // Restart button text
-  @style.add_widget(
+  add_child_sprite(
     restart_button,
-    sprite=zindex => {
-      @sprite.Sprite::from_text(
-        @sprite.Text::new("RESTART", color="white", font="24px ThaleahFat"),
-        zindex,
-      )
-    },
-    h_offset=45.0,
-    v_offset=8.0,
+    @math.Vec2D(45.0, 8.0),
+    @sprite.Sprite::from_text(
+      @sprite.Text::new("RESTART", color="white", font="24px ThaleahFat"),
+      UI_CHILD_ZINDEX + 1,
+    ),
   )
   |> ignore
 
-  // Initially destroy the panel
   panel.destroy()
 }
 
@@ -335,20 +363,17 @@ fn add_game_over_box() -> Unit {
 
 ///|
 fn add_level_box() -> Unit {
-  @style.add_widget(
-    @style.screen_root,
-    sprite=zindex => @sprite.Sprite::from_text(game_state.level_box, zindex),
-    h_offset=16.0,
-    v_offset=16.0,
+  add_screen_sprite(
+    @math.Vec2D(16.0, 16.0),
+    @sprite.Sprite::from_text(game_state.level_box, UI_WIDGET_ZINDEX),
   )
   |> ignore
 }
 
 ///|
 fn survivors_ui_pointer_system(_delta : Double) -> Unit {
-  for event in @physics2d.pointer_events() {
-    guard event.phase is @physics2d.PointerPhase::JustPressed else { continue }
-    guard event.button == @inputs.MouseButton::Left else { continue }
+  for event in @ui.interaction_events() {
+    guard event.current is @ui.Interaction::Pressed else { continue }
     if restart_button_ref.val is Some(restart_button) &&
       event.entity == restart_button {
       restart_game()

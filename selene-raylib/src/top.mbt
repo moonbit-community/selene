@@ -21,9 +21,13 @@ priv struct RaylibBackend {
   mut key_events : Set[@inputs.Code]?
   mut mouse_state : @inputs.Mouse?
   mut mouse_movement : @inputs.MouseMovement?
+  mut gamepads_state : Set[@inputs.Gamepad]?
+  mut gamepad_buttons_state : Set[@inputs.GamepadButtonInput]?
+  mut gamepad_axes_state : Map[@inputs.GamepadAxisInput, Double]?
   mut lock_state : Ref[Bool]?
   mut lock_requested : Bool
   mut cursor_locked : Bool
+  mut close_requested : Bool
   textures : Map[String, @raylib.Texture]
   sounds : Map[String, @raylib.Sound]
   musics : Map[String, @raylib.Music]
@@ -48,9 +52,13 @@ let backend : RaylibBackend = {
   key_events: None,
   mouse_state: None,
   mouse_movement: None,
+  gamepads_state: None,
+  gamepad_buttons_state: None,
+  gamepad_axes_state: None,
   lock_state: None,
   lock_requested: false,
   cursor_locked: false,
+  close_requested: false,
   textures: Map::new(),
   sounds: Map::new(),
   musics: Map::new(),
@@ -387,6 +395,94 @@ fn sync_mouse_events() -> Unit {
 }
 
 ///|
+const MAX_GAMEPADS : Int = 8
+
+///|
+fn sync_gamepad_events() -> Unit {
+  guard backend.gamepads_state is Some(gamepads) else { return }
+  guard backend.gamepad_buttons_state is Some(buttons) else { return }
+  guard backend.gamepad_axes_state is Some(axes) else { return }
+
+  gamepads.clear()
+  buttons.clear()
+  axes.clear()
+
+  for id in 0..<MAX_GAMEPADS {
+    if !@raylib.is_gamepad_available(id) {
+      continue
+    }
+    let gamepad = @inputs.Gamepad::new(id)
+    gamepads.add(gamepad)
+    sync_one_gamepad_buttons(id, gamepad, buttons)
+    sync_one_gamepad_axes(id, gamepad, axes)
+  }
+}
+
+///|
+fn sync_one_gamepad_buttons(
+  id : Int,
+  gamepad : @inputs.Gamepad,
+  buttons : Set[@inputs.GamepadButtonInput],
+) -> Unit {
+  let mappings : Array[(Int, @inputs.GamepadButton)] = [
+    (@raylib.GamepadButtonRightFaceDown, South),
+    (@raylib.GamepadButtonRightFaceRight, East),
+    (@raylib.GamepadButtonRightFaceUp, North),
+    (@raylib.GamepadButtonRightFaceLeft, West),
+    (@raylib.GamepadButtonLeftTrigger1, LeftTrigger),
+    (@raylib.GamepadButtonLeftTrigger2, LeftTrigger2),
+    (@raylib.GamepadButtonRightTrigger1, RightTrigger),
+    (@raylib.GamepadButtonRightTrigger2, RightTrigger2),
+    (@raylib.GamepadButtonMiddleLeft, Select),
+    (@raylib.GamepadButtonMiddleRight, Start),
+    (@raylib.GamepadButtonMiddle, Mode),
+    (@raylib.GamepadButtonLeftThumb, LeftThumb),
+    (@raylib.GamepadButtonRightThumb, RightThumb),
+    (@raylib.GamepadButtonLeftFaceUp, DPadUp),
+    (@raylib.GamepadButtonLeftFaceDown, DPadDown),
+    (@raylib.GamepadButtonLeftFaceLeft, DPadLeft),
+    (@raylib.GamepadButtonLeftFaceRight, DPadRight),
+  ]
+  for mapping in mappings {
+    if @raylib.is_gamepad_button_down(id, mapping.0) {
+      buttons.add(@inputs.GamepadButtonInput::new(gamepad, mapping.1))
+    }
+  }
+}
+
+///|
+fn sync_one_gamepad_axes(
+  id : Int,
+  gamepad : @inputs.Gamepad,
+  axes : Map[@inputs.GamepadAxisInput, Double],
+) -> Unit {
+  axes.set(
+    @inputs.GamepadAxisInput::new(gamepad, LeftStickX),
+    @raylib.get_gamepad_axis_movement(id, @raylib.GamepadAxisLeftX).to_double(),
+  )
+  axes.set(
+    @inputs.GamepadAxisInput::new(gamepad, LeftStickY),
+    @raylib.get_gamepad_axis_movement(id, @raylib.GamepadAxisLeftY).to_double(),
+  )
+  axes.set(
+    @inputs.GamepadAxisInput::new(gamepad, RightStickX),
+    @raylib.get_gamepad_axis_movement(id, @raylib.GamepadAxisRightX).to_double(),
+  )
+  axes.set(
+    @inputs.GamepadAxisInput::new(gamepad, RightStickY),
+    @raylib.get_gamepad_axis_movement(id, @raylib.GamepadAxisRightY).to_double(),
+  )
+  axes.set(
+    @inputs.GamepadAxisInput::new(gamepad, LeftZ),
+    @raylib.get_gamepad_axis_movement(id, @raylib.GamepadAxisLeftTrigger).to_double(),
+  )
+  axes.set(
+    @inputs.GamepadAxisInput::new(gamepad, RightZ),
+    @raylib.get_gamepad_axis_movement(id, @raylib.GamepadAxisRightTrigger).to_double(),
+  )
+}
+
+///|
 fn sync_mouse_lock() -> Unit {
   if backend.lock_state is Some(lock_state) {
     // Keep requested lock state separate from runtime cursor visibility.
@@ -438,6 +534,7 @@ pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
   ignore(config.viewport_width)
   ignore(config.viewport_height)
   backend.image_smooth = config.image_smooth
+  backend.close_requested = false
   fn() {
     @raylib.init_window(
       config.screen_width.to_int(),
@@ -449,11 +546,12 @@ pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
       @raylib.init_audio_device()
     }
     (config.startup)()
-    while !@raylib.window_should_close() {
+    while !backend.close_requested && !@raylib.window_should_close() {
       let delta = @raylib.get_frame_time().to_double()
       backend.realtime_delta = delta
       sync_key_events()
       sync_mouse_events()
+      sync_gamepad_events()
       sync_mouse_lock()
       update_looping_tracks()
       (config.game_loop)(delta * backend.time_scale)
@@ -488,6 +586,18 @@ pub fn register_mouse_events(
 ) -> Unit {
   backend.mouse_state = Some(mouse)
   backend.mouse_movement = Some(mouse_movement)
+}
+
+///|
+pub fn register_gamepad_events(
+  gamepads : Set[@inputs.Gamepad],
+  buttons : Set[@inputs.GamepadButtonInput],
+  axes : Map[@inputs.GamepadAxisInput, Double],
+) -> Unit {
+  backend.gamepads_state = Some(gamepads)
+  backend.gamepad_buttons_state = Some(buttons)
+  backend.gamepad_axes_state = Some(axes)
+  sync_gamepad_events()
 }
 
 ///|
@@ -687,7 +797,7 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
 }
 
 ///|
-fn to_render_vec3(value : @math3d.Vec3) -> @render.Vec3 {
+fn to_render_vec3(value : @smath.Vec3) -> @render.Vec3 {
   { x: value.x, y: value.y, z: value.z }
 }
 
@@ -749,7 +859,7 @@ fn draw_mesh3d_instance(
 }
 
 ///|
-fn apply_quat_rotation(quat : @math3d.Quat) -> Unit {
+fn apply_quat_rotation(quat : @smath.Quat) -> Unit {
   let normalized = quat.normalize()
   let w = @cmp.minimum(1.0, @cmp.maximum(-1.0, normalized.w))
   let angle = 2.0 * @cmath.acos(w)
@@ -758,9 +868,9 @@ fn apply_quat_rotation(quat : @math3d.Quat) -> Unit {
   }
   let sin_half = (1.0 - w * w).sqrt()
   let axis = if sin_half < 0.000001 {
-    @math3d.Vec3::new(0.0, 1.0, 0.0)
+    @smath.Vec3::new(0.0, 1.0, 0.0)
   } else {
-    @math3d.Vec3::new(
+    @smath.Vec3::new(
       normalized.x / sin_half,
       normalized.y / sin_half,
       normalized.z / sin_half,
@@ -857,4 +967,9 @@ pub fn get_asset_bytes(path : String) -> Bytes? {
     return None
   }
   Some(@raylib.load_file_data(path))
+}
+
+///|
+pub fn request_close() -> Unit {
+  backend.close_requested = true
 }

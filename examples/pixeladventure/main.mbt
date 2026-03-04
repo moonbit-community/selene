@@ -36,7 +36,7 @@ pub fn run() -> Unit {
   .add_system(player_collision_system)
   .add_system(bird_ai_system)
   .add_system(map_trigger_system)
-  .add_system(volume_button_input_system)
+  .add_system(volume_button_input_system, schedule=PostUpdate)
   .run()
 }
 

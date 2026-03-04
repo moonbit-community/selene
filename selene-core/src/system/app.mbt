@@ -471,5 +471,8 @@ pub fn App::run(self : App) -> Unit {
   })
   @backend.register_key_events(@inputs.pressed_keys)
   @backend.register_mouse_events(@inputs.mouse, @inputs.mouse_movement)
+  @backend.register_gamepad_events(
+    @inputs.connected_gamepads, @inputs.pressed_gamepad_buttons, @inputs.gamepad_axis_values,
+  )
   run_game()
 }

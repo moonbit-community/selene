@@ -1,6 +1,6 @@
 {
   "name": "Milky2018/selene_raylib",
-  "version": "0.21.3",
+  "version": "0.22.0",
   "deps": {
     "Milky2018/selene": {
       "path": "../selene-core"

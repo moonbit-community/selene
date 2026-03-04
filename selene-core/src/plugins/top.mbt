@@ -48,6 +48,9 @@ pub fn default_plugin(app : @system.App) -> Unit {
   app.systems
   ..push((@inputs.advanced_key_system, PreUpdate, "Advanced Key System"))
   ..push((@inputs.advanced_mouse_system, PreUpdate, "Advanced Mouse System"))
+  ..push(
+    (@inputs.advanced_gamepad_system, PreUpdate, "Advanced Gamepad System"),
+  )
   ..push((@physics2d.physics_step_system, FixedUpdate, "Physics2D Step System"))
   ..push((@camera.camera_system, FixedPostUpdate, "Camera System"))
   ..push((@physics2d.pickable_click_system, Update, "Pickable Click System"))
@@ -62,6 +65,15 @@ pub fn default_plugin(app : @system.App) -> Unit {
     ),
   )
   ..push((@style.style_system, PostUpdate, "Style System"))
+  ..push((@ui.ui_layout_system, PostUpdate, "UI Layout System"))
+  ..push(
+    (
+      @inherit.transform_propagate_system,
+      PostUpdate,
+      "Transform Propagation System (UI)",
+    ),
+  )
+  ..push((@ui.ui_button_system, PostUpdate, "UI Button System"))
   ..push((@a11y.a11y_sync_system, PostUpdate, "A11y Sync System"))
   .push((@sprite.render_sprite_system, Render, "Render Sprite System"))
 }
@@ -74,6 +86,9 @@ pub fn default_3d_plugin(app : @system.App) -> Unit {
   app.systems
   ..push((@inputs.advanced_key_system, PreUpdate, "Advanced Key System"))
   ..push((@inputs.advanced_mouse_system, PreUpdate, "Advanced Mouse System"))
+  ..push(
+    (@inputs.advanced_gamepad_system, PreUpdate, "Advanced Gamepad System"),
+  )
   ..push((@physics3d.physics_step_system, FixedUpdate, "Physics3D Step System"))
   ..push(
     (

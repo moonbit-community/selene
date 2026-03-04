@@ -46,6 +46,17 @@ pub fn register_mouse_events(
 }
 
 ///|
+pub fn register_gamepad_events(
+  gamepads : Set[@inputs.Gamepad],
+  buttons : Set[@inputs.GamepadButtonInput],
+  axes : Map[@inputs.GamepadAxisInput, Double],
+) -> Unit {
+  ignore(gamepads)
+  ignore(buttons)
+  ignore(axes)
+}
+
+///|
 pub fn lock_mouse(locked : Ref[Bool]) -> Unit {
   ignore(locked)
 }
@@ -184,6 +195,11 @@ pub fn set_embedded_assets(lookup : (String) -> Bytes?) -> Unit {
 pub fn get_asset_bytes(path : String) -> Bytes? {
   ignore(path)
   None
+}
+
+///|
+pub fn request_close() -> Unit {
+
 }
 
 ///|

@@ -475,12 +475,12 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
 }
 
 ///|
-fn to_render_vec3(value : @math3d.Vec3) -> @render.Vec3 {
+fn to_render_vec3(value : @smath.Vec3) -> @render.Vec3 {
   { x: value.x, y: value.y, z: value.z }
 }
 
 ///|
-fn scaled_vec3(size : @math3d.Vec3, scale : @math3d.Vec3) -> @render.Vec3 {
+fn scaled_vec3(size : @smath.Vec3, scale : @smath.Vec3) -> @render.Vec3 {
   {
     x: size.x * scale.x.abs(),
     y: size.y * scale.y.abs(),
@@ -489,7 +489,7 @@ fn scaled_vec3(size : @math3d.Vec3, scale : @math3d.Vec3) -> @render.Vec3 {
 }
 
 ///|
-fn scaled_radius(radius : Double, scale : @math3d.Vec3) -> Double {
+fn scaled_radius(radius : Double, scale : @smath.Vec3) -> Double {
   let sx = scale.x.abs()
   let sz = scale.z.abs()
   let max_xz = if sx > sz { sx } else { sz }

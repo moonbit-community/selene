@@ -12,4 +12,5 @@ import {
   "Milky2018/selene/render3d_pipeline",
   "Milky2018/selene/a11y",
   "Milky2018/selene/style",
+  "Milky2018/selene/ui",
 }

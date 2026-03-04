@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.22.0] - 2026-03-04
+
+### Added
+
+- Bevy-style UI interaction primitives in `selene/ui`: `Node`, `Button`, `Interaction`, and frame-level `interaction_events`
+- UI helpers `add_node` / `add_button` and dedicated `ui_layout_system` / `ui_button_system`
+- Gamepad input abstraction in `selene/inputs` with backend event registration support
+- 3D math types (`Vec3`, `Quat`, `Mat4`) merged into `Milky2018/selene/math`
+
+### Changed
+
+- Migrated examples UI interaction flow (`pixeladventure`, `cards`, `survivors`) from pickable-pointer handling to `selene/ui` button interaction events
+- Migrated examples UI construction in `cards` and `survivors` to `selene/ui` node APIs
+- Updated render/physics/scene/transform 3D modules to use unified `@math` instead of `@math3d`
+- Release script now validates `docs/CHANGELOG.md` for the target version before running the publish pipeline
+
+### Removed
+
+- Removed legacy standalone package `Milky2018/selene/math3d`
+
 ## [0.21.2] - 2026-03-03
 
 ### Changed

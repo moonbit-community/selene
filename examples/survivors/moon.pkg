@@ -9,7 +9,7 @@ import {
   "Milky2018/selene/camera",
   "Milky2018/selene/inputs",
   "Milky2018/selene/backend",
-  "Milky2018/selene/style",
+  "Milky2018/selene/ui",
   "moonbitlang/core/random",
   "moonbitlang/core/set",
 }

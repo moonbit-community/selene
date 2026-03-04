@@ -1,4 +1,0 @@
-import {
-  "Milky2018/moon_rapier/core" @rcore,
-  "moonbitlang/core/math" @cmath,
-}

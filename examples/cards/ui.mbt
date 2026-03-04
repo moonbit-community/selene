@@ -13,6 +13,57 @@
 // limitations under the License.
 
 ///|
+const UI_WIDGET_ZINDEX : Int = @ui.UI_ZINDEX + 1
+
+///|
+const UI_WIDGET_CHILD_ZINDEX : Int = @ui.UI_ZINDEX + 2
+
+///|
+fn add_screen_sprite(
+  offset : @math.Vec2D,
+  sprite : @sprite.Sprite,
+) -> @entity.Entity {
+  let entity = @ui.add_node(
+    @ui.screen_root,
+    node=@ui.Node::new(space=@ui.UiSpace::Screen, offset~),
+  )
+  @sprite.sprites.set(entity, sprite)
+  entity
+}
+
+///|
+fn add_screen_sprite_sized(
+  offset : @math.Vec2D,
+  size : @math.Vec2D,
+  sprite : @sprite.Sprite,
+) -> @entity.Entity {
+  let entity = @ui.add_node(
+    @ui.screen_root,
+    node=@ui.Node::new(
+      space=@ui.UiSpace::Screen,
+      offset~,
+      size=@ui.NodeSize::Fixed(size),
+    ),
+  )
+  @sprite.sprites.set(entity, sprite)
+  entity
+}
+
+///|
+fn add_child_sprite(
+  parent : @entity.Entity,
+  offset : @math.Vec2D,
+  sprite : @sprite.Sprite,
+) -> @entity.Entity {
+  let entity = @ui.add_node(
+    parent,
+    node=@ui.Node::new(space=@ui.UiSpace::Screen, offset~),
+  )
+  @sprite.sprites.set(entity, sprite)
+  entity
+}
+
+///|
 /// Setup UI elements
 fn setup_ui() -> Unit {
   // Create green poker table background (game entity, not UI)
@@ -30,49 +81,37 @@ fn setup_ui() -> Unit {
   )
 
   // Create blind display (center top)
-  @style.add_widget(
-    @style.screen_root,
-    sprite=zindex => @sprite.Sprite::from_text(game_state.blind_text, zindex),
-    h_offset=VIEWPORT_WIDTH / 2.0 - 40,
-    v_offset=20.0,
+  add_screen_sprite(
+    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 40, 20.0),
+    @sprite.Sprite::from_text(game_state.blind_text, UI_WIDGET_ZINDEX),
   )
   |> ignore
 
   // Create chips display (under blind)
-  @style.add_widget(
-    @style.screen_root,
-    sprite=zindex => @sprite.Sprite::from_text(game_state.chips_text, zindex),
-    h_offset=VIEWPORT_WIDTH / 2.0 - 40,
-    v_offset=40.0,
+  add_screen_sprite(
+    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 40, 40.0),
+    @sprite.Sprite::from_text(game_state.chips_text, UI_WIDGET_ZINDEX),
   )
   |> ignore
 
   // Create phase display (top left)
-  @style.add_widget(
-    @style.screen_root,
-    sprite=zindex => @sprite.Sprite::from_text(game_state.phase_text, zindex),
-    h_offset=20.0,
-    v_offset=20.0,
+  add_screen_sprite(
+    @math.Vec2D(20.0, 20.0),
+    @sprite.Sprite::from_text(game_state.phase_text, UI_WIDGET_ZINDEX),
   )
   |> ignore
 
   // Create turns display (top right)
-  @style.add_widget(
-    @style.screen_root,
-    sprite=zindex => @sprite.Sprite::from_text(game_state.turns_text, zindex),
-    h_offset=VIEWPORT_WIDTH - 90.0,
-    v_offset=20.0,
+  add_screen_sprite(
+    @math.Vec2D(VIEWPORT_WIDTH - 90.0, 20.0),
+    @sprite.Sprite::from_text(game_state.turns_text, UI_WIDGET_ZINDEX),
   )
   |> ignore
 
   // Create hand strength display (center, above community cards)
-  @style.add_widget(
-    @style.screen_root,
-    sprite=zindex => {
-      @sprite.Sprite::from_text(game_state.hand_strength_text, zindex)
-    },
-    h_offset=VIEWPORT_WIDTH / 2.0 - 60.0,
-    v_offset=VIEWPORT_HEIGHT / 2.0 - 80.0,
+  add_screen_sprite(
+    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 60.0, VIEWPORT_HEIGHT / 2.0 - 80.0),
+    @sprite.Sprite::from_text(game_state.hand_strength_text, UI_WIDGET_ZINDEX),
   )
   |> ignore
 
@@ -86,109 +125,92 @@ fn create_action_buttons() -> Unit {
   let button_y = VIEWPORT_HEIGHT - 35.0
   let button_width = 70.0
   let button_height = 25.0
+  let button_size = @math.Vec2D(button_width, button_height)
 
   // Fold button
-  let fold_button = @style.add_widget(
-    @style.screen_root,
-    sprite=zindex => {
-      @sprite.Sprite::from_color_rect(
-        @sprite.ColorRect::new(
-          @math.Vec2D(button_width, button_height),
-          "#cc0000",
-        ),
-        zindex,
-      )
-    },
-    h_offset=VIEWPORT_WIDTH / 2.0 - 85.0 - button_width / 2.0,
-    v_offset=button_y,
-    shape=@physics2d.CollisionShape::Rect(
-      size=@math.Vec2D(button_width, button_height),
-      offset=@math.Vec2D::zero(),
+  let fold_button = add_screen_sprite_sized(
+    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 85.0 - button_width / 2.0, button_y),
+    button_size,
+    @sprite.Sprite::from_color_rect(
+      @sprite.ColorRect::new(
+        @math.Vec2D(button_width, button_height),
+        "#cc0000",
+      ),
+      UI_WIDGET_ZINDEX,
     ),
-    pickable=true,
   )
   game_state.fold_button = fold_button
+  @ui.buttons.set(
+    fold_button,
+    @ui.Button::new(trigger=@inputs.MouseButton::Left, hit_size=button_size),
+  )
 
   // Fold button text
-  @style.add_widget(
+  add_child_sprite(
     fold_button,
-    sprite=zindex => {
-      @sprite.Sprite::from_text(
-        @sprite.Text::new("Fold", color="white", font="16px ThaleahFat"),
-        zindex,
-      )
-    },
-    h_offset=button_width / 2.0 - 15.0,
-    v_offset=button_height / 2.0 - 8.0,
+    @math.Vec2D(button_width / 2.0 - 15.0, button_height / 2.0 - 8.0),
+    @sprite.Sprite::from_text(
+      @sprite.Text::new("Fold", color="white", font="16px ThaleahFat"),
+      UI_WIDGET_CHILD_ZINDEX,
+    ),
   )
   |> ignore
 
   // Call button
-  let call_button = @style.add_widget(
-    @style.screen_root,
-    sprite=zindex => {
-      @sprite.Sprite::from_color_rect(
-        @sprite.ColorRect::new(
-          @math.Vec2D(button_width, button_height),
-          "#00aa00",
-        ),
-        zindex,
-      )
-    },
-    h_offset=VIEWPORT_WIDTH / 2.0 - button_width / 2.0,
-    v_offset=button_y,
-    shape=@physics2d.CollisionShape::Rect(
-      size=@math.Vec2D(button_width, button_height),
-      offset=@math.Vec2D::zero(),
+  let call_button = add_screen_sprite_sized(
+    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - button_width / 2.0, button_y),
+    button_size,
+    @sprite.Sprite::from_color_rect(
+      @sprite.ColorRect::new(
+        @math.Vec2D(button_width, button_height),
+        "#00aa00",
+      ),
+      UI_WIDGET_ZINDEX,
     ),
-    pickable=true,
   )
   game_state.call_button = call_button
+  @ui.buttons.set(
+    call_button,
+    @ui.Button::new(trigger=@inputs.MouseButton::Left, hit_size=button_size),
+  )
 
   // Call button text
-  @style.add_widget(
+  add_child_sprite(
     call_button,
-    sprite=zindex => {
-      @sprite.Sprite::from_text(game_state.call_button_text, zindex)
-    },
-    h_offset=button_width / 2.0 - 15.0,
-    v_offset=button_height / 2.0 - 8.0,
+    @math.Vec2D(button_width / 2.0 - 15.0, button_height / 2.0 - 8.0),
+    @sprite.Sprite::from_text(
+      game_state.call_button_text,
+      UI_WIDGET_CHILD_ZINDEX,
+    ),
   )
   |> ignore
 
   // Raise button
-  let raise_button = @style.add_widget(
-    @style.screen_root,
-    sprite=zindex => {
-      @sprite.Sprite::from_color_rect(
-        @sprite.ColorRect::new(
-          @math.Vec2D(button_width, button_height),
-          "#0066cc",
-        ),
-        zindex,
-      )
-    },
-    h_offset=VIEWPORT_WIDTH / 2.0 + 85.0 - button_width / 2.0,
-    v_offset=button_y,
-    shape=@physics2d.CollisionShape::Rect(
-      size=@math.Vec2D(button_width, button_height),
-      offset=@math.Vec2D::zero(),
+  let raise_button = add_screen_sprite_sized(
+    @math.Vec2D(VIEWPORT_WIDTH / 2.0 + 85.0 - button_width / 2.0, button_y),
+    button_size,
+    @sprite.Sprite::from_color_rect(
+      @sprite.ColorRect::new(
+        @math.Vec2D(button_width, button_height),
+        "#0066cc",
+      ),
+      UI_WIDGET_ZINDEX,
     ),
-    pickable=true,
   )
   game_state.raise_button = raise_button
+  @ui.buttons.set(
+    raise_button,
+    @ui.Button::new(trigger=@inputs.MouseButton::Left, hit_size=button_size),
+  )
 
   // Raise button text
-  @style.add_widget(
+  add_child_sprite(
     raise_button,
-    sprite=zindex => {
-      @sprite.Sprite::from_text(
-        @sprite.Text::new("Raise", color="white", font="16px ThaleahFat"),
-        zindex,
-      )
-    },
-    h_offset=button_width / 2.0 - 18.0,
-    v_offset=button_height / 2.0 - 8.0,
+    @math.Vec2D(button_width / 2.0 - 18.0, button_height / 2.0 - 8.0),
+    @sprite.Sprite::from_text(
+      @sprite.Text::new("Raise", color="white", font="16px ThaleahFat"),
+      UI_WIDGET_CHILD_ZINDEX,
+    ),
   )
   |> ignore
   hide_action_buttons()
@@ -280,9 +302,8 @@ fn on_raise_click() -> Unit {
 
 ///|
 fn cards_ui_pointer_system(_delta : Double) -> Unit {
-  for event in @physics2d.pointer_events() {
-    guard event.phase is @physics2d.PointerPhase::JustPressed else { continue }
-    guard event.button == @inputs.MouseButton::Left else { continue }
+  for event in @ui.interaction_events() {
+    guard event.current is @ui.Interaction::Pressed else { continue }
     if event.entity == game_state.fold_button {
       on_fold_click()
       continue

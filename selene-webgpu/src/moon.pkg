@@ -3,7 +3,6 @@ import {
   "rami3l/js-ffi/js",
   "Milky2018/moon_cosmic" @cosmic,
   "Milky2018/selene/math" @smath,
-  "Milky2018/selene/math3d",
   "Milky2018/selene/render" @render,
   "Milky2018/selene/render3d_types",
   "Milky2018/selene/inputs",

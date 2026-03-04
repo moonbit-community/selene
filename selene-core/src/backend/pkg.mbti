@@ -28,6 +28,8 @@ fn register_key_events(Set[@inputs.Code]) -> Unit
 
 fn register_mouse_events(@inputs.Mouse, @inputs.MouseMovement) -> Unit
 
+fn register_gamepad_events(Set[@inputs.Gamepad], Set[@inputs.GamepadButtonInput], Map[@inputs.GamepadAxisInput, Double]) -> Unit
+
 fn lock_mouse(Ref[Bool]) -> Unit
 
 fn draw_text(@render.TextDrawCommand) -> Unit
@@ -77,6 +79,8 @@ fn preload_audio(String) -> Unit
 fn set_embedded_assets((String) -> Bytes?) -> Unit
 
 fn get_asset_bytes(String) -> Bytes?
+
+fn request_close() -> Unit
 
 fn set_time_scale(Double) -> Unit
 

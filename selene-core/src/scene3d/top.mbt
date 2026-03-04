@@ -336,10 +336,10 @@ fn parse_mesh_asset(
     mesh_object.get("extras")
   }
   guard extras is Some(extras_json) else {
-    return @render3d.cube_mesh(@math3d.Vec3::one())
+    return @render3d.cube_mesh(@math.Vec3::one())
   }
   guard json_object(extras_json) is Some(extras_object) else {
-    return @render3d.cube_mesh(@math3d.Vec3::one())
+    return @render3d.cube_mesh(@math.Vec3::one())
   }
   let primitive = field_string(extras_object, "selenePrimitive").map_or(
     "cube",
@@ -359,11 +359,11 @@ fn parse_mesh_asset(
       )
     "plane" =>
       @render3d.plane_mesh(
-        parse_vec3(extras_object.get("size"), @math3d.Vec3::new(1.0, 0.1, 1.0)),
+        parse_vec3(extras_object.get("size"), @math.Vec3::new(1.0, 0.1, 1.0)),
       )
     _ =>
       @render3d.cube_mesh(
-        parse_vec3(extras_object.get("size"), @math3d.Vec3::one()),
+        parse_vec3(extras_object.get("size"), @math.Vec3::one()),
       )
   }
 }
@@ -406,12 +406,9 @@ fn parse_node_transform(
   node_object : Map[String, Json],
 ) -> @transform3d.Transform3D {
   {
-    translation: parse_vec3(
-      node_object.get("translation"),
-      @math3d.Vec3::zero(),
-    ),
-    rotation: parse_quat(node_object.get("rotation"), @math3d.Quat::identity()),
-    scale: parse_vec3(node_object.get("scale"), @math3d.Vec3::one()),
+    translation: parse_vec3(node_object.get("translation"), @math.Vec3::zero()),
+    rotation: parse_quat(node_object.get("rotation"), @math.Quat::identity()),
+    scale: parse_vec3(node_object.get("scale"), @math.Vec3::one()),
   }
 }
 
@@ -484,7 +481,7 @@ fn fallback_root_nodes(max_nodes : Int) -> Array[Int] {
 }
 
 ///|
-fn parse_vec3(value : Json?, fallback : @math3d.Vec3) -> @math3d.Vec3 {
+fn parse_vec3(value : Json?, fallback : @math.Vec3) -> @math.Vec3 {
   guard value is Some(actual) else { return fallback }
   guard json_array(actual) is Some(values) else { return fallback }
   if values.length() < 3 {
@@ -493,11 +490,11 @@ fn parse_vec3(value : Json?, fallback : @math3d.Vec3) -> @math3d.Vec3 {
   let x = json_number(values[0]).unwrap_or(fallback.x)
   let y = json_number(values[1]).unwrap_or(fallback.y)
   let z = json_number(values[2]).unwrap_or(fallback.z)
-  @math3d.Vec3::new(x, y, z)
+  @math.Vec3::new(x, y, z)
 }
 
 ///|
-fn parse_quat(value : Json?, fallback : @math3d.Quat) -> @math3d.Quat {
+fn parse_quat(value : Json?, fallback : @math.Quat) -> @math.Quat {
   guard value is Some(actual) else { return fallback }
   guard json_array(actual) is Some(values) else { return fallback }
   if values.length() < 4 {
@@ -507,7 +504,7 @@ fn parse_quat(value : Json?, fallback : @math3d.Quat) -> @math3d.Quat {
   let y = json_number(values[1]).unwrap_or(fallback.y)
   let z = json_number(values[2]).unwrap_or(fallback.z)
   let w = json_number(values[3]).unwrap_or(fallback.w)
-  @math3d.Quat::new(x, y, z, w).normalize()
+  @math.Quat::new(x, y, z, w).normalize()
 }
 
 ///|

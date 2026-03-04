@@ -119,6 +119,59 @@ extern "js" fn webgpu_load_file_bytes_sync(path : String) -> Array[Int] =
   #| }
 
 ///|
+extern "js" fn webgpu_gamepad_count() -> Int =
+  #| () => {
+  #|   const pads = globalThis.navigator?.getGamepads?.();
+  #|   return pads ? (pads.length | 0) : 0;
+  #| }
+
+///|
+extern "js" fn webgpu_gamepad_connected(index : Int) -> Bool =
+  #| (index) => {
+  #|   const pads = globalThis.navigator?.getGamepads?.();
+  #|   if (!pads || index < 0 || index >= pads.length) return false;
+  #|   const pad = pads[index];
+  #|   return !!(pad && pad.connected);
+  #| }
+
+///|
+extern "js" fn webgpu_gamepad_button_pressed(index : Int, button : Int) -> Bool =
+  #| (index, button) => {
+  #|   const pads = globalThis.navigator?.getGamepads?.();
+  #|   const pad = pads?.[index];
+  #|   const b = pad?.buttons?.[button];
+  #|   return !!(b && b.pressed);
+  #| }
+
+///|
+extern "js" fn webgpu_gamepad_button_value(index : Int, button : Int) -> Double =
+  #| (index, button) => {
+  #|   const pads = globalThis.navigator?.getGamepads?.();
+  #|   const pad = pads?.[index];
+  #|   const b = pad?.buttons?.[button];
+  #|   if (!b) return 0;
+  #|   const v = Number(b.value);
+  #|   if (!Number.isFinite(v)) return 0;
+  #|   if (v < 0) return 0;
+  #|   if (v > 1) return 1;
+  #|   return v;
+  #| }
+
+///|
+extern "js" fn webgpu_gamepad_axis_value(index : Int, axis : Int) -> Double =
+  #| (index, axis) => {
+  #|   const pads = globalThis.navigator?.getGamepads?.();
+  #|   const pad = pads?.[index];
+  #|   const a = pad?.axes?.[axis];
+  #|   if (a == null) return 0;
+  #|   const v = Number(a);
+  #|   if (!Number.isFinite(v)) return 0;
+  #|   if (v < -1) return -1;
+  #|   if (v > 1) return 1;
+  #|   return v;
+  #| }
+
+///|
 extern "js" fn webgpu_measure_text(
   text : String,
   family : String,

@@ -3,12 +3,12 @@ package "Milky2018/selene/render3d"
 
 import {
   "Milky2018/selene/entity",
-  "Milky2018/selene/math3d",
+  "Milky2018/selene/math",
   "Milky2018/selene/render3d_types",
 }
 
 // Values
-pub fn cube_mesh(@math3d.Vec3) -> @render3d_types.MeshAsset
+pub fn cube_mesh(@math.Vec3) -> @render3d_types.MeshAsset
 
 pub fn cylinder_mesh(Double, Double, Double, slices? : Int) -> @render3d_types.MeshAsset
 
@@ -26,7 +26,7 @@ pub fn get_scene_path(@render3d_types.SceneHandle) -> String?
 
 pub let mesh3d_renderers : Map[@entity.Entity, Mesh3DRenderer]
 
-pub fn plane_mesh(@math3d.Vec3) -> @render3d_types.MeshAsset
+pub fn plane_mesh(@math.Vec3) -> @render3d_types.MeshAsset
 
 pub let point_lights3d : Map[@entity.Entity, @render3d_types.PointLight3D]
 

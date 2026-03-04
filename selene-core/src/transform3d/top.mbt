@@ -14,9 +14,9 @@
 
 ///|
 pub(all) struct Transform3D {
-  translation : @math3d.Vec3
-  rotation : @math3d.Quat
-  scale : @math3d.Vec3
+  translation : @math.Vec3
+  rotation : @math.Quat
+  scale : @math.Vec3
 } derive(Eq, Show)
 
 ///|
@@ -25,9 +25,9 @@ pub type GlobalTransform3D = Transform3D
 ///|
 pub fn Transform3D::identity() -> Transform3D {
   {
-    translation: @math3d.Vec3::zero(),
-    rotation: @math3d.Quat::identity(),
-    scale: @math3d.Vec3::one(),
+    translation: @math.Vec3::zero(),
+    rotation: @math.Quat::identity(),
+    scale: @math.Vec3::one(),
   }
 }
 
@@ -99,7 +99,7 @@ pub fn sample_global_transform3d(
 pub fn sample_global_translation3d(
   entity : @entity.Entity,
   alpha : Double,
-) -> @math3d.Vec3 {
+) -> @math.Vec3 {
   sample_global_transform3d(entity, alpha).translation
 }
 
@@ -142,12 +142,8 @@ fn propagate_from(entity : @entity.Entity, parent_global : Transform3D) -> Unit 
 }
 
 ///|
-fn quat_nlerp(
-  a : @math3d.Quat,
-  b : @math3d.Quat,
-  alpha : Double,
-) -> @math3d.Quat {
-  @math3d.Quat::new(
+fn quat_nlerp(a : @math.Quat, b : @math.Quat, alpha : Double) -> @math.Quat {
+  @math.Quat::new(
     a.x * (1.0 - alpha) + b.x * alpha,
     a.y * (1.0 - alpha) + b.y * alpha,
     a.z * (1.0 - alpha) + b.z * alpha,

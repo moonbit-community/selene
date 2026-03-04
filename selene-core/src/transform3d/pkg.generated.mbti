@@ -3,7 +3,7 @@ package "Milky2018/selene/transform3d"
 
 import {
   "Milky2018/selene/entity",
-  "Milky2018/selene/math3d",
+  "Milky2018/selene/math",
 }
 
 // Values
@@ -17,7 +17,7 @@ pub let previous_global_transforms3d : Map[@entity.Entity, Transform3D]
 
 pub fn sample_global_transform3d(@entity.Entity, Double) -> Transform3D
 
-pub fn sample_global_translation3d(@entity.Entity, Double) -> @math3d.Vec3
+pub fn sample_global_translation3d(@entity.Entity, Double) -> @math.Vec3
 
 pub fn transform3d_propagate_system(Double) -> Unit
 
@@ -28,9 +28,9 @@ pub let transforms3d : Map[@entity.Entity, Transform3D]
 // Types and methods
 #alias(GlobalTransform3D)
 pub(all) struct Transform3D {
-  translation : @math3d.Vec3
-  rotation : @math3d.Quat
-  scale : @math3d.Vec3
+  translation : @math.Vec3
+  rotation : @math.Quat
+  scale : @math.Vec3
 }
 pub fn Transform3D::compose(Self, Self) -> Self
 pub fn Transform3D::identity() -> Self

@@ -30,8 +30,8 @@ fn color(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
 }
 
 ///|
-fn vec3(x : Double, y : Double, z : Double) -> @math3d.Vec3 {
-  @math3d.Vec3::new(x, y, z)
+fn vec3(x : Double, y : Double, z : Double) -> @math.Vec3 {
+  @math.Vec3::new(x, y, z)
 }
 
 ///|
@@ -53,8 +53,8 @@ fn setup_scene3d(_delta : Double) -> Unit {
   let camera = @entity.Entity::new()
   @transform3d.transforms3d.set(camera, {
     translation: vec3(0.0, 1.5, 8.0),
-    rotation: @math3d.Quat::identity(),
-    scale: @math3d.Vec3::one(),
+    rotation: @math.Quat::identity(),
+    scale: @math.Vec3::one(),
   })
   @camera3d.cameras3d.set(camera, {
     ..@camera3d.Camera3DComponent::default(),
@@ -78,8 +78,8 @@ fn setup_scene3d(_delta : Double) -> Unit {
   let cube = @entity.Entity::new()
   @transform3d.transforms3d.set(cube, {
     translation: vec3(0.0, 0.5, 0.0),
-    rotation: @math3d.Quat::identity(),
-    scale: @math3d.Vec3::one(),
+    rotation: @math.Quat::identity(),
+    scale: @math.Vec3::one(),
   })
   @render3d.mesh3d_renderers.set(cube, {
     mesh: cube_mesh,
@@ -107,7 +107,7 @@ fn rotate_cube_system(delta : Double) -> Unit {
   cube_rotation.val += delta
   @transform3d.transforms3d.set(cube, {
     ..transform,
-    rotation: @math3d.Quat::from_axis_angle(
+    rotation: @math.Quat::from_axis_angle(
       vec3(0.0, 1.0, 0.0),
       cube_rotation.val,
     ),

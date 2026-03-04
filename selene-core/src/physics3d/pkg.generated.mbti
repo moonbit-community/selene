@@ -5,13 +5,13 @@ import {
   "Milky2018/moon_rapier/collision",
   "Milky2018/moon_rapier/dynamics",
   "Milky2018/selene/entity",
-  "Milky2018/selene/math3d",
+  "Milky2018/selene/math",
 }
 
 // Values
 pub let angular_velocities3d : Map[@entity.Entity, AngularVelocity3D]
 
-pub fn character_controller3d_move(@entity.Entity, @math3d.Vec3) -> @math3d.Vec3
+pub fn character_controller3d_move(@entity.Entity, @math.Vec3) -> @math.Vec3
 
 pub fn collider_handle(@entity.Entity) -> @collision.ColliderHandle3D?
 
@@ -27,7 +27,7 @@ pub fn new_collision_layers3d(Int, Int) -> CollisionLayers3D
 
 pub fn physics_step_system(Double) -> Unit
 
-pub fn raycast3d(@math3d.Vec3, @math3d.Vec3, max_toi? : Double, solid? : Bool) -> RaycastHit3D?
+pub fn raycast3d(@math.Vec3, @math.Vec3, max_toi? : Double, solid? : Bool) -> RaycastHit3D?
 
 pub let rigid_bodies3d : Map[@entity.Entity, RigidBody3D]
 
@@ -35,18 +35,18 @@ pub fn rigid_body_handle(@entity.Entity) -> @dynamics.RigidBodyHandle?
 
 pub let sensors3d : Map[@entity.Entity, Collider3D]
 
-pub fn set_gravity(@math3d.Vec3) -> Unit
+pub fn set_gravity(@math.Vec3) -> Unit
 
-pub fn shape_cast3d(ColliderShape3D, @math3d.Vec3, rotation? : @math3d.Quat, direction? : @math3d.Vec3, max_toi? : Double, stop_at_penetration? : Bool) -> ShapeCastHit3D?
+pub fn shape_cast3d(ColliderShape3D, @math.Vec3, rotation? : @math.Quat, direction? : @math.Vec3, max_toi? : Double, stop_at_penetration? : Bool) -> ShapeCastHit3D?
 
 pub fn trigger_events3d() -> Array[TriggerEvent3D]
 
 // Errors
 
 // Types and methods
-pub(all) struct AngularVelocity3D(@math3d.Vec3)
+pub(all) struct AngularVelocity3D(@math.Vec3)
 #deprecated
-pub fn AngularVelocity3D::inner(Self) -> @math3d.Vec3
+pub fn AngularVelocity3D::inner(Self) -> @math.Vec3
 pub impl Eq for AngularVelocity3D
 pub impl Show for AngularVelocity3D
 
@@ -59,12 +59,12 @@ pub(all) struct Collider3D {
   layers : CollisionLayers3D
 }
 pub fn Collider3D::ball(Double) -> Self
-pub fn Collider3D::cuboid(@math3d.Vec3) -> Self
+pub fn Collider3D::cuboid(@math.Vec3) -> Self
 pub impl Eq for Collider3D
 pub impl Show for Collider3D
 
 pub(all) enum ColliderShape3D {
-  Cuboid(@math3d.Vec3)
+  Cuboid(@math.Vec3)
   Ball(Double)
   CapsuleY(Double, Double)
   Cylinder(Double, Double)
@@ -85,25 +85,25 @@ pub(all) struct ContactEvent3D {
   started : Bool
   stopped : Bool
   sensor : Bool
-  normal : @math3d.Vec3
+  normal : @math.Vec3
 }
 pub impl Eq for ContactEvent3D
 pub impl Show for ContactEvent3D
 
-pub(all) struct LinearVelocity3D(@math3d.Vec3)
+pub(all) struct LinearVelocity3D(@math.Vec3)
 #deprecated
-pub fn LinearVelocity3D::inner(Self) -> @math3d.Vec3
+pub fn LinearVelocity3D::inner(Self) -> @math.Vec3
 pub impl Eq for LinearVelocity3D
 pub impl Show for LinearVelocity3D
 
 pub(all) struct Physics3DConfig {
-  mut gravity : @math3d.Vec3
+  mut gravity : @math.Vec3
 }
 
 pub(all) struct RaycastHit3D {
   entity : @entity.Entity
   toi : Double
-  normal : @math3d.Vec3
+  normal : @math.Vec3
 }
 pub impl Eq for RaycastHit3D
 pub impl Show for RaycastHit3D
@@ -136,7 +136,7 @@ pub impl Show for RigidBodyType3D
 pub(all) struct ShapeCastHit3D {
   entity : @entity.Entity
   toi : Double
-  normal : @math3d.Vec3
+  normal : @math.Vec3
 }
 pub impl Eq for ShapeCastHit3D
 pub impl Show for ShapeCastHit3D
