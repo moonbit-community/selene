@@ -37,7 +37,7 @@ jobs:
               continue
             fi
             echo "Building $pkg"
-            moon build "$pkg" --target js --target-dir target --release
+            moon build "$pkg" --target js --release
           done <<< "$web_packages"
 
       - name: Copy example games

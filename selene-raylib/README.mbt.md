@@ -20,12 +20,12 @@ options(
     {
       "input": "<assets-dir>",
       "output": "_embedded_assets.pack",
-      "command": "selene-embed-assets --assets-dir <assets-dir> --pack-out $output --path-prefix <runtime-prefix>",
+      "command": "selene-embed-assets --assets-dir $input --pack-out $output --path-prefix <runtime-prefix>",
     },
     {
       "input": "<assets-dir>",
       "output": "embedded_assets_index.mbt",
-      "command": "selene-embed-assets --assets-dir <assets-dir> --index-out $output --path-prefix <runtime-prefix> --blob-name embedded_assets_blob --lookup-fn get_embedded_asset",
+      "command": "selene-embed-assets --assets-dir $input --index-out $output --path-prefix <runtime-prefix> --blob-name embedded_assets_blob --lookup-fn get_embedded_asset",
     },
     {
       "input": "_embedded_assets.pack",
