@@ -116,6 +116,18 @@ pub fn draw_text(command : @render.TextDrawCommand) -> Unit {
 }
 
 ///|
+pub fn measure_text(style : @render.TextStyle, text : String) -> @smath.Vec2D {
+  let measured = webgpu_measure_text(text, style.family, style.size)
+  if measured.length() >= 2 {
+    @smath.Vec2D(measured[0], measured[1])
+  } else {
+    let width = text.length().to_double() * style.size * 0.6
+    let height = if style.size <= 0.0 { 1.0 } else { style.size }
+    @smath.Vec2D(width, height)
+  }
+}
+
+///|
 pub fn draw_rect(command : @render.RectDrawCommand) -> Unit {
   let (fr, fg, fb, fa) = color_rgba(command.fill_color)
   let mut has_stroke = false

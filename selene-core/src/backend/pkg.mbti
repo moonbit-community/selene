@@ -31,6 +31,8 @@ fn lock_mouse(Ref[Bool]) -> Unit
 
 fn draw_text(@render.TextDrawCommand) -> Unit
 
+fn measure_text(@render.TextStyle, String) -> @math.Vec2D
+
 fn draw_rect(@render.RectDrawCommand) -> Unit
 
 fn draw_circle(@render.CircleDrawCommand) -> Unit

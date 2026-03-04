@@ -102,6 +102,26 @@ extern "js" fn resolve_asset_path(path : String) -> String =
   #| }
 
 ///|
+extern "js" fn webgpu_measure_text(
+  text : String,
+  family : String,
+  size : Double,
+) -> Array[Double] =
+  #| (text, family, size) => {
+  #|   const cvs = document.createElement('canvas');
+  #|   const ctx = cvs.getContext('2d');
+  #|   const fontSize = Number.isFinite(size) && size > 0 ? size : 16;
+  #|   const fontFamily = family && family.length > 0 ? family : 'Arial';
+  #|   ctx.font = `${fontSize}px ${fontFamily}`;
+  #|   const m = ctx.measureText(text ?? '');
+  #|   const width = Math.max(0, Number(m.width) || 0);
+  #|   const ascent = Math.max(0, Number(m.actualBoundingBoxAscent) || fontSize * 0.8);
+  #|   const descent = Math.max(0, Number(m.actualBoundingBoxDescent) || fontSize * 0.2);
+  #|   const height = Math.max(1, Math.ceil(ascent + descent));
+  #|   return [width, height];
+  #| }
+
+///|
 extern "js" fn webgpu_initialize(
   canvas : @dom.HTMLCanvasElement,
   width : Double,

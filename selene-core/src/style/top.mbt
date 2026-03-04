@@ -237,7 +237,7 @@ fn resolve_plan_size(entity : @entity.Entity, style : Style) -> @math.Vec2D? {
       .map(sprite => {
         match sprite.sprite_type {
           Picture(picture) => picture.transform.apply_to_vec2d(picture.size)
-          Text(_text) => default_text_size()
+          Text(text) => @sprite.measure_text_size(text)
           Animation(anime, ..) =>
             anime.transform.apply_to_vec2d(anime.frames[0].size)
           ColorRect(rect) => rect.size
@@ -264,10 +264,4 @@ fn non_negative(value : Double) -> Double {
   } else {
     value
   }
-}
-
-///|
-/// Fallback text size used before real text metrics are wired to layout.
-fn default_text_size() -> @math.Vec2D {
-  @math.Vec2D(48, 24)
 }

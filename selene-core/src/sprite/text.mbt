@@ -67,3 +67,9 @@ fn render_text(
   }
   @backend.draw_text({ text: text.content, position, style })
 }
+
+///|
+pub fn measure_text_size(text : Text) -> @math.Vec2D {
+  let style = parse_text_style(text.font, text.color, text.align, text.baseline)
+  @backend.measure_text(style, text.content)
+}

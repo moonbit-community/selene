@@ -493,14 +493,9 @@ pub fn lock_mouse(locked : Ref[Bool]) -> Unit {
 ///|
 pub fn draw_text(command : @render.TextDrawCommand) -> Unit {
   let font = get_font_by_family(command.style.family)
-  let measured = @raylib.measure_text_ex(
-    font,
-    command.text,
-    to_float(command.style.size),
-    0.0,
-  )
-  let text_width = vector2_x(measured)
-  let text_height = vector2_y(measured)
+  let measured = measure_text(command.style, command.text)
+  let text_width = measured[X]
+  let text_height = measured[Y]
   let mut x = command.position[X]
   let mut y = command.position[Y]
   match command.style.align {
@@ -521,6 +516,13 @@ pub fn draw_text(command : @render.TextDrawCommand) -> Unit {
     0.0,
     to_ray_color(command.style.color),
   )
+}
+
+///|
+pub fn measure_text(style : @render.TextStyle, text : String) -> @smath.Vec2D {
+  let font = get_font_by_family(style.family)
+  let measured = @raylib.measure_text_ex(font, text, to_float(style.size), 0.0)
+  @smath.Vec2D(vector2_x(measured), vector2_y(measured))
 }
 
 ///|

@@ -56,6 +56,13 @@ pub fn draw_text(command : @render.TextDrawCommand) -> Unit {
 }
 
 ///|
+pub fn measure_text(style : @render.TextStyle, text : String) -> @math.Vec2D {
+  let width = text.length().to_double() * style.size * 0.6
+  let height = style.size
+  @math.Vec2D(width, height)
+}
+
+///|
 pub fn draw_rect(command : @render.RectDrawCommand) -> Unit {
   ignore(command)
 }
