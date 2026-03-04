@@ -2,6 +2,7 @@
 package "Milky2018/selene/inputs"
 
 import {
+  "Milky2018/selene/event",
   "Milky2018/selene/math",
   "moonbitlang/core/set",
 }
@@ -19,9 +20,15 @@ pub let connected_gamepads : @set.Set[Gamepad]
 
 pub fn empty_input_snapshot() -> InputSnapshot
 
+pub let gamepad_axis_event_bus : @event.Events[GamepadAxisEvent]
+
 pub fn gamepad_axis_value(Gamepad, GamepadAxis) -> Double
 
 pub let gamepad_axis_values : Map[GamepadAxisInput, Double]
+
+pub let gamepad_button_event_bus : @event.Events[GamepadButtonEvent]
+
+pub let gamepad_connection_event_bus : @event.Events[GamepadConnectionEvent]
 
 pub fn gamepad_left_stick(Gamepad) -> @math.Vec2D
 
@@ -71,9 +78,15 @@ pub let just_release_mouse : Mouse
 
 pub let just_released_gamepad_buttons : @set.Set[GamepadButtonInput]
 
+pub let key_input_event_bus : @event.Events[KeyInputEvent]
+
 pub fn key_vector(Code, Code, Code, Code) -> @math.Vec2D
 
 pub let mouse : Mouse
+
+pub let mouse_button_event_bus : @event.Events[MouseButtonEvent]
+
+pub let mouse_motion_event_bus : @event.Events[MouseMotionEvent]
 
 pub let mouse_movement : MouseMovement
 
@@ -146,6 +159,12 @@ pub impl Eq for GamepadAxis
 pub impl Hash for GamepadAxis
 pub impl Show for GamepadAxis
 
+pub struct GamepadAxisEvent {
+  input : GamepadAxisInput
+  value : Double
+  delta : Double
+}
+
 pub(all) struct GamepadAxisInput {
   gamepad : Gamepad
   axis : GamepadAxis
@@ -180,6 +199,11 @@ pub impl Eq for GamepadButton
 pub impl Hash for GamepadButton
 pub impl Show for GamepadButton
 
+pub struct GamepadButtonEvent {
+  input : GamepadButtonInput
+  state : GamepadButtonInputState
+}
+
 pub(all) struct GamepadButtonInput {
   gamepad : Gamepad
   button : GamepadButton
@@ -189,6 +213,18 @@ pub impl Eq for GamepadButtonInput
 pub impl Hash for GamepadButtonInput
 pub impl Show for GamepadButtonInput
 
+pub(all) enum GamepadButtonInputState {
+  Pressed
+  Released
+}
+pub impl Eq for GamepadButtonInputState
+pub impl Show for GamepadButtonInputState
+
+pub struct GamepadConnectionEvent {
+  gamepad : Gamepad
+  connected : Bool
+}
+
 pub(all) struct InputSnapshot {
   pressed_keys : @set.Set[Code]
   mouse : Mouse
@@ -197,6 +233,18 @@ pub(all) struct InputSnapshot {
   pressed_gamepad_buttons : @set.Set[GamepadButtonInput]
   gamepad_axis_values : Map[GamepadAxisInput, Double]
 }
+
+pub struct KeyInputEvent {
+  key : Code
+  state : KeyInputState
+}
+
+pub(all) enum KeyInputState {
+  Pressed
+  Released
+}
+pub impl Eq for KeyInputState
+pub impl Show for KeyInputState
 
 pub(all) struct Mouse {
   mut pos : @math.Vec2D
@@ -212,6 +260,24 @@ pub(all) enum MouseButton {
 }
 pub impl Eq for MouseButton
 pub impl Show for MouseButton
+
+pub struct MouseButtonEvent {
+  button : MouseButton
+  state : MouseButtonInputState
+  position : @math.Vec2D
+}
+
+pub(all) enum MouseButtonInputState {
+  Pressed
+  Released
+}
+pub impl Eq for MouseButtonInputState
+pub impl Show for MouseButtonInputState
+
+pub struct MouseMotionEvent {
+  position : @math.Vec2D
+  delta : @math.Vec2D
+}
 
 pub(all) struct MouseMovement {
   mut movement : @math.Vec2D

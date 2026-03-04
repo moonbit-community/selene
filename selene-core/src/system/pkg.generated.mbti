@@ -8,10 +8,6 @@ import {
 // Values
 pub fn configure_display(Double, Double, Double) -> Unit
 
-pub fn defer_event(() -> Unit) -> Unit
-
-pub fn deferred_event_system(Double) -> Unit
-
 pub fn exit() -> Unit
 
 pub fn get_render_alpha() -> Double
@@ -99,7 +95,6 @@ pub(all) enum Schedule {
 }
 
 // Type aliases
-pub type Event = () -> Unit
 
 // Traits
 

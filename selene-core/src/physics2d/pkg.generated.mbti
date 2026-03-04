@@ -4,6 +4,7 @@ package "Milky2018/selene/physics2d"
 import {
   "Milky2018/selene/collision",
   "Milky2018/selene/entity",
+  "Milky2018/selene/event",
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
   "Milky2018/selene/velocity",
@@ -15,11 +16,9 @@ pub let areas : Map[@entity.Entity, @collision.Area]
 
 pub let colliders : Map[@entity.Entity, @collision.Collider]
 
-pub fn collision_events() -> Array[@collision.ContactEvent]
-
 pub fn configure_physics(gravity? : @math.Vec2D, pixels_per_meter? : Double, max_ccd_substeps? : Int) -> Unit
 
-pub fn contact_events() -> Array[@collision.ContactEvent]
+pub let contact_event_bus : @event.Events[@collision.ContactEvent]
 
 pub fn debug_colliders_system(Double) -> Unit
 
@@ -53,17 +52,15 @@ pub fn pickable_click_system(Double) -> Unit
 
 pub let pickables : Map[@entity.Entity, @collision.Pickable]
 
-pub fn pointer_events() -> Array[@collision.PointerEvent]
+pub let pointer_event_bus : @event.Events[@collision.PointerEvent]
 
 pub let resolved_velocities : Map[@entity.Entity, @velocity.Velocity]
-
-pub fn sensor_events() -> Array[@collision.TriggerEvent]
 
 pub let sensors : Map[@entity.Entity, @collision.Area]
 
 pub let shapes : Map[@entity.Entity, @collision.CollisionShape]
 
-pub fn trigger_events() -> Array[@collision.TriggerEvent]
+pub let trigger_event_bus : @event.Events[@collision.TriggerEvent]
 
 pub let velocities : Map[@entity.Entity, @velocity.Velocity]
 

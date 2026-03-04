@@ -1,5 +1,25 @@
 package "Milky2018/selene/platform_audio"
 
-fn play_audio(audio_path~ : String, volume~ : Double, loop_~ : Bool) -> Unit
+type AudioInstance
+
+fn play_audio(
+  audio_path~ : String,
+  volume~ : Double,
+  speed~ : Double,
+  loop_~ : Bool,
+  paused~ : Bool
+) -> AudioInstance
+
+fn set_volume(instance~ : AudioInstance, volume~ : Double) -> Unit
+
+fn set_speed(instance~ : AudioInstance, speed~ : Double) -> Unit
+
+fn set_loop(instance~ : AudioInstance, loop_~ : Bool) -> Unit
+
+fn set_paused(instance~ : AudioInstance, paused~ : Bool) -> Unit
+
+fn stop(instance~ : AudioInstance) -> Unit
+
+fn is_finished(instance~ : AudioInstance) -> Bool
 
 fn tick() -> Unit

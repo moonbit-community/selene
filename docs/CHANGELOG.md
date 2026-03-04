@@ -1,5 +1,56 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- New typed event module `Milky2018/selene/event` with `Events<T>`, `EventReader<T>`, `EventWriter<T>`, `Trigger<T>`, and observer APIs (`observe_global`, `observe_entity`, `unobserve`)
+- Standard input event channels in `selene/inputs`:
+  - `key_input_event_bus`
+  - `mouse_button_event_bus`
+  - `mouse_motion_event_bus`
+  - `gamepad_connection_event_bus`
+  - `gamepad_button_event_bus`
+  - `gamepad_axis_event_bus`
+
+### Changed
+
+- `selene/ui` interaction events migrated to event bus form: `interaction_event_bus`
+- `selene/physics2d` collision/trigger/pointer events migrated to event bus form:
+  - `contact_event_bus`
+  - `trigger_event_bus`
+  - `pointer_event_bus`
+- `selene/physics3d` contact/trigger events migrated to event bus form:
+  - `contact_event_bus3d`
+  - `trigger_event_bus3d`
+- `cards`, `pixeladventure`, and `survivors` examples migrated to reader-based event consumption
+
+### Removed
+
+- `@system.defer_event` and `@system.deferred_event_system`
+- Array-pull event APIs removed in favor of typed event buses:
+  - `@ui.interaction_events()`
+  - `@physics2d.contact_events()`
+  - `@physics2d.trigger_events()`
+  - `@physics2d.sensor_events()`
+  - `@physics2d.pointer_events()`
+  - `@physics2d.collision_events()`
+  - `@physics3d.contact_events3d()`
+  - `@physics3d.trigger_events3d()`
+
+## [0.23.1] - 2026-03-04
+
+### Added
+
+- Bevy-style ECS audio model in `selene/audio`: `AudioPlayer`, `PlaybackSettings`, `PlaybackMode`, `AudioSink`
+- Audio playback lifecycle APIs: `attach_audio`, `spawn_audio`, `restart_audio`, `stop_audio`, `set_global_volume`
+
+### Changed
+
+- `platform_audio` interface migrated to instance-based control (`play_audio -> AudioInstance`, plus `set_volume/set_speed/set_loop/set_paused/stop/is_finished/tick`)
+- `selene-webgpu` and `selene-raylib` audio implementations now support per-instance runtime playback control
+- `pixeladventure` sound triggers migrated from direct `@audio.play_audio(...)` calls to explicit `AudioHandle + spawn_audio(...)` usage
+
 ## [0.23.0] - 2026-03-04
 
 ### Added

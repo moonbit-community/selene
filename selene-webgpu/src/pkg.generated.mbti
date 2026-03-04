@@ -34,13 +34,15 @@ pub fn get_time_scale() -> Double
 
 pub fn initialize(@platform_runtime.WindowConfig, @platform_runtime.RunnerCallbacks) -> () -> Unit
 
+pub fn is_finished(instance~ : Int) -> Bool
+
 pub fn load_font(String, String) -> Unit
 
 pub fn lock_mouse(Ref[Bool]) -> Unit
 
 pub fn measure_text(@render2d_types.TextStyle2D, String) -> @math.Vec2D
 
-pub fn play_audio(audio_path~ : String, volume~ : Double, loop_~ : Bool) -> Unit
+pub fn play_audio(audio_path~ : String, volume~ : Double, speed~ : Double, loop_~ : Bool, paused~ : Bool) -> Int
 
 pub fn preload_audio(String) -> Unit
 
@@ -64,7 +66,17 @@ pub fn request_close() -> Unit
 
 pub fn set_embedded_assets((String) -> Bytes?) -> Unit
 
+pub fn set_loop(instance~ : Int, loop_~ : Bool) -> Unit
+
+pub fn set_paused(instance~ : Int, paused~ : Bool) -> Unit
+
+pub fn set_speed(instance~ : Int, speed~ : Double) -> Unit
+
 pub fn set_time_scale(Double) -> Unit
+
+pub fn set_volume(instance~ : Int, volume~ : Double) -> Unit
+
+pub fn stop(instance~ : Int) -> Unit
 
 pub fn sync_image_asset(@render3d_types.ImageHandle, @render3d_types.ImageAsset) -> Unit
 
@@ -72,20 +84,26 @@ pub fn sync_material_asset(@render3d_types.MaterialHandle, @render3d_types.Stand
 
 pub fn sync_mesh_asset(@render3d_types.MeshHandle, @render3d_types.MeshAsset) -> Unit
 
+pub fn tick_audio() -> Unit
+
 // Errors
 
 // Types and methods
 type Audio
+pub fn Audio::is_ended(Self) -> Bool
 pub fn Audio::new(String) -> Self
 pub fn Audio::pause(Self) -> Unit
 pub fn Audio::play(Self) -> Unit
+pub fn Audio::set_current_time(Self, Double) -> Unit
 pub fn Audio::set_loop(Self, Bool) -> Unit
+pub fn Audio::set_playback_rate(Self, Double) -> Unit
 pub fn Audio::set_volume(Self, Double) -> Unit
 
 type WebGpuBackend
 pub fn WebGpuBackend::new() -> Self
 
 // Type aliases
+pub type AudioInstance = Int
 
 // Traits
 

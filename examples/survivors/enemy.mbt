@@ -332,6 +332,12 @@ let enemies : Map[@entity.Entity, Enemy] = Map::new()
 let enemy_bullets : Set[@entity.Entity] = Set::new()
 
 ///|
+let enemy_contact_event_reader : @event.EventReader[@physics2d.ContactEvent] = @event.EventReader::new()
+
+///|
+let enemy_trigger_event_reader : @event.EventReader[@physics2d.TriggerEvent] = @event.EventReader::new()
+
+///|
 fn get_enemy_data(enemy_type : EnemyType) -> EnemyData {
   match enemy_data.get(enemy_type) {
     Some(data) => data
@@ -495,14 +501,14 @@ fn apply_player_damage() -> Unit {
 
 ///|
 fn enemy_collision_system(_delta : Double) -> Unit {
-  for event in @physics2d.contact_events() {
+  for event in @physics2d.contact_event_bus.read(enemy_contact_event_reader) {
     guard event.started else { continue }
     guard event.entity == game_state.player_entity else { continue }
     if enemies.contains(event.other) {
       apply_player_damage()
     }
   }
-  for event in @physics2d.trigger_events() {
+  for event in @physics2d.trigger_event_bus.read(enemy_trigger_event_reader) {
     guard event.entered else { continue }
     guard enemy_bullets.contains(event.area) else { continue }
     if event.other == game_state.player_entity {

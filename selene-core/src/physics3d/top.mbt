@@ -209,24 +209,20 @@ let collider_handles : Map[@entity.Entity, @collision.ColliderHandle3D] = Map::n
 let collider_entities_by_key : Map[String, @entity.Entity] = Map::new()
 
 ///|
-let frame_contact_events3d : Ref[Array[ContactEvent3D]] = Ref::new([])
+pub let contact_event_bus3d : @event.Events[ContactEvent3D] = @event.Events::new()
 
 ///|
-let frame_trigger_events3d : Ref[Array[TriggerEvent3D]] = Ref::new([])
+pub let trigger_event_bus3d : @event.Events[TriggerEvent3D] = @event.Events::new()
+
+///|
+fn init {
+  contact_event_bus3d.register()
+  trigger_event_bus3d.register()
+}
 
 ///|
 pub fn set_gravity(gravity : @math.Vec3) -> Unit {
   config.gravity = gravity
-}
-
-///|
-pub fn contact_events3d() -> Array[ContactEvent3D] {
-  frame_contact_events3d.val.copy()
-}
-
-///|
-pub fn trigger_events3d() -> Array[TriggerEvent3D] {
-  frame_trigger_events3d.val.copy()
 }
 
 ///|
@@ -594,22 +590,19 @@ fn cleanup_world_components() -> Unit {
 
 ///|
 fn collect_events() -> Unit {
-  let contacts : Array[ContactEvent3D] = []
-  let triggers : Array[TriggerEvent3D] = []
-
   for collision_event in world.event_handler.take_collision_events() {
     let collider1 = collision_event.collider1()
     let collider2 = collision_event.collider2()
     guard resolve_collider_entity(collider1) is Some(entity_a) else { continue }
     guard resolve_collider_entity(collider2) is Some(entity_b) else { continue }
     if collision_event.sensor() {
-      triggers.push({
+      trigger_event_bus3d.send({
         sensor: entity_a,
         other: entity_b,
         entered: collision_event.started(),
       })
     }
-    contacts.push({
+    contact_event_bus3d.send({
       entity_a,
       entity_b,
       started: collision_event.started(),
@@ -628,15 +621,12 @@ fn collect_events() -> Unit {
       is Some(other_entity) else {
       continue
     }
-    triggers.push({
+    trigger_event_bus3d.send({
       sensor: sensor_entity,
       other: other_entity,
       entered: intersection_event.intersecting(),
     })
   }
-
-  frame_contact_events3d.val = contacts
-  frame_trigger_events3d.val = triggers
 }
 
 ///|

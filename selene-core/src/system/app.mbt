@@ -399,6 +399,7 @@ pub fn App::run(self : App) -> Unit {
   }
   fn render_loop(_raw_delta : Double) {
     let delta = @time.delta()
+    @event.event_render_update_system(delta)
     for system in render_extract {
       system(delta)
     }
@@ -420,6 +421,7 @@ pub fn App::run(self : App) -> Unit {
     @time.begin_frame(raw_delta)
     @inputs.apply_input_snapshot(@platform_input.poll_input())
     let delta = @time.delta()
+    @event.event_frame_update_system(delta)
     for system in frame_first {
       system(delta)
     }
@@ -432,12 +434,15 @@ pub fn App::run(self : App) -> Unit {
     for system in frame_post {
       system(delta)
     }
+    @event.event_observer_dispatch_system(delta)
     for system in frame_last {
       system(delta)
     }
+    @entity.entity_flush_system(delta)
     accumulator.val += delta
     let mut fixed_steps = 0
     while accumulator.val >= fixed_dt && fixed_steps < max_fixed_steps {
+      @event.event_fixed_update_system(fixed_dt)
       for system in fixed_first {
         system(fixed_dt)
       }
@@ -453,6 +458,7 @@ pub fn App::run(self : App) -> Unit {
       for system in fixed_last {
         system(fixed_dt)
       }
+      @entity.entity_flush_system(fixed_dt)
       accumulator.val -= fixed_dt
       fixed_steps += 1
     }

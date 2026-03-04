@@ -1,0 +1,96 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/event"
+
+import {
+  "Milky2018/selene/entity",
+}
+
+// Values
+pub fn event_fixed_update_system(Double) -> Unit
+
+pub fn event_frame_update_system(Double) -> Unit
+
+pub fn event_observer_dispatch_system(Double) -> Unit
+
+pub fn event_render_update_system(Double) -> Unit
+
+pub fn[T] observe_entity(Events[T], @entity.Entity, (Trigger[T]) -> Unit) -> ObserverHandle
+
+pub fn[T] observe_global(Events[T], (Trigger[T]) -> Unit) -> ObserverHandle
+
+pub fn[T] read(EventReader[T], Events[T]) -> Array[T]
+
+pub fn[T] send(Events[T], T) -> Unit
+
+pub fn[T] trigger(Events[T], T, target? : @entity.Entity?) -> Unit
+
+pub fn[T] unobserve(Events[T], ObserverHandle) -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) enum EventDomain {
+  Frame
+  Fixed
+  Render
+}
+pub impl Eq for EventDomain
+pub impl Show for EventDomain
+
+pub(all) struct EventReader[T] {
+  mut last_seen_id : Int
+  marker : T?
+}
+pub fn[T] EventReader::new() -> Self[T]
+pub fn[T] EventReader::read(Self[T], Events[T]) -> Array[T]
+
+type EventRecord[T]
+
+pub(all) struct EventWriter[T] {
+  events : Events[T]
+}
+pub fn[T] EventWriter::new(Events[T]) -> Self[T]
+pub fn[T] EventWriter::send(Self[T], T) -> Unit
+pub fn[T] EventWriter::trigger(Self[T], T, target? : @entity.Entity?) -> Unit
+
+pub struct Events[T] {
+  mut next_event_id : Int
+  mut next_observer_id : Int
+  domain : EventDomain
+  mut older : Array[EventRecord[T]]
+  mut newer : Array[EventRecord[T]]
+  observers : Map[ObserverHandle, ObserverEntry[T]]
+  observer_queue : Array[Trigger[T]]
+  marker : T?
+}
+pub fn[T] Events::clear(Self[T]) -> Unit
+pub fn[T] Events::dispatch_observers(Self[T]) -> Unit
+pub fn[T] Events::new(domain? : EventDomain) -> Self[T]
+pub fn[T] Events::observe_entity(Self[T], @entity.Entity, (Trigger[T]) -> Unit) -> ObserverHandle
+pub fn[T] Events::observe_global(Self[T], (Trigger[T]) -> Unit) -> ObserverHandle
+pub fn[T] Events::read(Self[T], EventReader[T]) -> Array[T]
+pub fn[T] Events::register(Self[T]) -> Unit
+pub fn[T] Events::send(Self[T], T) -> Unit
+pub fn[T] Events::trigger(Self[T], T, @entity.Entity?) -> Unit
+pub fn[T] Events::unobserve(Self[T], ObserverHandle) -> Unit
+pub fn[T] Events::update(Self[T]) -> Unit
+pub fn[T] Events::writer(Self[T]) -> EventWriter[T]
+
+type ObserverEntry[T]
+
+pub(all) struct ObserverHandle(Int)
+#deprecated
+pub fn ObserverHandle::inner(Self) -> Int
+pub impl Eq for ObserverHandle
+pub impl Hash for ObserverHandle
+pub impl Show for ObserverHandle
+
+pub(all) struct Trigger[T] {
+  event : T
+  target : @entity.Entity?
+}
+
+// Type aliases
+
+// Traits
+

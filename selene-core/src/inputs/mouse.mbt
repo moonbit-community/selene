@@ -28,6 +28,25 @@ pub(all) enum MouseButton {
 } derive(Eq, Show)
 
 ///|
+pub(all) enum MouseButtonInputState {
+  Pressed
+  Released
+} derive(Eq, Show)
+
+///|
+pub struct MouseButtonEvent {
+  button : MouseButton
+  state : MouseButtonInputState
+  position : @math.Vec2D
+}
+
+///|
+pub struct MouseMotionEvent {
+  position : @math.Vec2D
+  delta : @math.Vec2D
+}
+
+///|
 /// Mouse input state containing position and button states.
 ///
 /// Fields:
@@ -135,6 +154,18 @@ pub(all) struct MouseMovement {
 pub let mouse_movement : MouseMovement = { movement: @math.Vec2D(0.0, 0.0) }
 
 ///|
+pub let mouse_button_event_bus : @event.Events[MouseButtonEvent] = @event.Events::new()
+
+///|
+pub let mouse_motion_event_bus : @event.Events[MouseMotionEvent] = @event.Events::new()
+
+///|
+fn init {
+  mouse_button_event_bus.register()
+  mouse_motion_event_bus.register()
+}
+
+///|
 let last_mouse : Mouse = {
   pos: @math.Vec2D(0.0, 0.0),
   left_button: false,
@@ -237,12 +268,39 @@ pub let just_release_mouse : Mouse = {
 /// ```
 ///
 pub fn advanced_mouse_system(_delta : Double) -> Unit {
+  let delta = mouse.pos - last_mouse.pos
+  mouse_movement.movement = delta
+  if delta[X] != 0.0 || delta[Y] != 0.0 {
+    mouse_motion_event_bus.send({ position: mouse.pos, delta })
+  }
+
   // Just pressed
   just_pressed_mouse.left_button = mouse.left_button && !last_mouse.left_button
   just_pressed_mouse.right_button = mouse.right_button &&
     !last_mouse.right_button
   just_pressed_mouse.middle_button = mouse.middle_button &&
     !last_mouse.middle_button
+  if just_pressed_mouse.left_button {
+    mouse_button_event_bus.send({
+      button: MouseButton::Left,
+      state: Pressed,
+      position: mouse.pos,
+    })
+  }
+  if just_pressed_mouse.right_button {
+    mouse_button_event_bus.send({
+      button: MouseButton::Right,
+      state: Pressed,
+      position: mouse.pos,
+    })
+  }
+  if just_pressed_mouse.middle_button {
+    mouse_button_event_bus.send({
+      button: MouseButton::Middle,
+      state: Pressed,
+      position: mouse.pos,
+    })
+  }
 
   // Just released
   just_release_mouse.left_button = !mouse.left_button && last_mouse.left_button
@@ -250,6 +308,27 @@ pub fn advanced_mouse_system(_delta : Double) -> Unit {
     last_mouse.right_button
   just_release_mouse.middle_button = !mouse.middle_button &&
     last_mouse.middle_button
+  if just_release_mouse.left_button {
+    mouse_button_event_bus.send({
+      button: MouseButton::Left,
+      state: Released,
+      position: mouse.pos,
+    })
+  }
+  if just_release_mouse.right_button {
+    mouse_button_event_bus.send({
+      button: MouseButton::Right,
+      state: Released,
+      position: mouse.pos,
+    })
+  }
+  if just_release_mouse.middle_button {
+    mouse_button_event_bus.send({
+      button: MouseButton::Middle,
+      state: Released,
+      position: mouse.pos,
+    })
+  }
   last_mouse.pos = mouse.pos
   last_mouse.left_button = mouse.left_button
   last_mouse.right_button = mouse.right_button

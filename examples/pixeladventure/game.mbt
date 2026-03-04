@@ -51,6 +51,26 @@ let game_state : GameState = {
 }
 
 ///|
+let jump_sound : @audio.AudioHandle = @asset.load_audio(
+  "assets/pixeladventure/sounds/jump.wav",
+)
+
+///|
+let coin_sound : @audio.AudioHandle = @asset.load_audio(
+  "assets/pixeladventure/sounds/coin.wav",
+)
+
+///|
+let hurt_sound : @audio.AudioHandle = @asset.load_audio(
+  "assets/pixeladventure/sounds/hurt.wav",
+)
+
+///|
+fn play_sfx(sound : @audio.AudioHandle) -> Unit {
+  ignore(@audio.spawn_audio(sound, settings=@audio.PlaybackSettings::remove()))
+}
+
+///|
 priv enum GameResult {
   Win
   GameOver
@@ -86,7 +106,7 @@ fn hurt_player() -> Unit {
     update_health_display()
     game_state.hurt_timer = 60.0
     if game_state.volume_on {
-      @audio.play_audio("assets/pixeladventure/sounds/hurt.wav")
+      play_sfx(hurt_sound)
     }
     if game_state.health <= 0 {
       set_game_result(GameResult::GameOver)

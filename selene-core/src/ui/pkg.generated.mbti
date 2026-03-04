@@ -3,6 +3,7 @@ package "Milky2018/selene/ui"
 
 import {
   "Milky2018/selene/entity",
+  "Milky2018/selene/event",
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
 }
@@ -16,7 +17,7 @@ pub fn add_node(@entity.Entity, node? : Node, offset? : @math.Vec2D) -> @entity.
 
 pub let buttons : Map[@entity.Entity, Button]
 
-pub fn interaction_events() -> Array[InteractionEvent]
+pub let interaction_event_bus : @event.Events[InteractionEvent]
 
 pub let interactions : Map[@entity.Entity, Interaction]
 

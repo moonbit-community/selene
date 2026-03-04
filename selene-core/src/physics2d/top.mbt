@@ -125,6 +125,15 @@ pub let pickables : Map[@entity.Entity, Pickable] = @collision.pickables
 pub let physics_config : PhysicsConfig = @collision.physics_config
 
 ///|
+pub let contact_event_bus : @event.Events[ContactEvent] = @collision.contact_event_bus
+
+///|
+pub let trigger_event_bus : @event.Events[TriggerEvent] = @collision.trigger_event_bus
+
+///|
+pub let pointer_event_bus : @event.Events[PointerEvent] = @collision.pointer_event_bus
+
+///|
 pub fn make_velocity(value : @math.Vec2D) -> Velocity {
   @velocity.Velocity(value)
 }
@@ -180,26 +189,6 @@ pub fn configure_physics(
 }
 
 ///|
-pub fn collision_events() -> Array[CollisionEvent] {
-  @collision.contact_events()
-}
-
-///|
-pub fn contact_events() -> Array[ContactEvent] {
-  @collision.contact_events()
-}
-
-///|
-pub fn sensor_events() -> Array[SensorEvent] {
-  @collision.trigger_events()
-}
-
-///|
-pub fn trigger_events() -> Array[TriggerEvent] {
-  @collision.trigger_events()
-}
-
-///|
 pub fn is_grounded(entity : @entity.Entity) -> Bool {
   @collision.is_grounded(entity)
 }
@@ -207,11 +196,6 @@ pub fn is_grounded(entity : @entity.Entity) -> Bool {
 ///|
 pub fn get_contains(area : @entity.Entity) -> @set.Set[@entity.Entity] {
   @collision.get_contains(area)
-}
-
-///|
-pub fn pointer_events() -> Array[PointerEvent] {
-  @collision.pointer_events()
 }
 
 ///|

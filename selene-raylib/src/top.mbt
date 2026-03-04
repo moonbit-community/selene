@@ -31,8 +31,8 @@ priv struct RaylibBackend {
   mut frame_has_draw_commands : Bool
   textures : Map[String, @raylib.Texture]
   sounds : Map[String, @raylib.Sound]
-  musics : Map[String, @raylib.Music]
-  looping_tracks : Set[String]
+  audio_instances : Map[AudioInstance, AudioPlayback]
+  mut next_audio_instance : UInt
   font_alias : Map[String, String]
   fonts_by_path : Map[String, @raylib.Font]
   mut embedded_asset_cache : Map[String, Bytes]
@@ -42,6 +42,24 @@ priv struct RaylibBackend {
     @render3d_types.StandardMaterial3D,
   ]
   images3d : Map[@render3d_types.ImageHandle, @render3d_types.ImageAsset]
+}
+
+///|
+pub type AudioInstance = Int
+
+///|
+priv enum AudioPlaybackKind {
+  Sound(@raylib.Sound)
+  Music(@raylib.Music)
+}
+
+///|
+priv struct AudioPlayback {
+  kind : AudioPlaybackKind
+  mut loop_ : Bool
+  mut paused : Bool
+  mut started : Bool
+  mut finished : Bool
 }
 
 ///|
@@ -63,8 +81,8 @@ let backend : RaylibBackend = {
   frame_has_draw_commands: false,
   textures: Map::new(),
   sounds: Map::new(),
-  musics: Map::new(),
-  looping_tracks: Set::new(),
+  audio_instances: Map::new(),
+  next_audio_instance: 1U,
   font_alias: Map::new(),
   fonts_by_path: Map::new(),
   embedded_asset_cache: Map::new(),
@@ -115,6 +133,15 @@ fn clamp_u8(value : Int) -> Int {
 ///|
 fn to_float(value : Double) -> Float {
   Float::from_double(value)
+}
+
+///|
+fn clamp_playback_speed(speed : Double) -> Double {
+  if speed <= 0.0 {
+    0.01
+  } else {
+    speed
+  }
 }
 
 ///|
@@ -270,11 +297,8 @@ fn get_sound(path : String) -> @raylib.Sound {
 }
 
 ///|
-fn get_music(path : String) -> @raylib.Music {
-  if backend.musics.get(path) is Some(music) {
-    return music
-  }
-  let music = if get_embedded_asset(path) is Some(bytes) {
+fn create_music(path : String) -> @raylib.Music {
+  if get_embedded_asset(path) is Some(bytes) {
     @raylib.load_music_stream_from_memory(
       file_extension(path),
       bytes,
@@ -283,8 +307,54 @@ fn get_music(path : String) -> @raylib.Music {
   } else {
     @raylib.load_music_stream(path)
   }
-  backend.musics.set(path, music)
-  music
+}
+
+///|
+fn next_audio_instance() -> AudioInstance {
+  let instance = backend.next_audio_instance.reinterpret_as_int()
+  backend.next_audio_instance += 1U
+  instance
+}
+
+///|
+fn free_audio_playback(playback : AudioPlayback) -> Unit {
+  match playback.kind {
+    Sound(sound) => {
+      @raylib.stop_sound(sound)
+      @raylib.unload_sound_alias(sound)
+    }
+    Music(music) => {
+      @raylib.stop_music_stream(music)
+      @raylib.unload_music_stream(music)
+    }
+  }
+}
+
+///|
+fn tick_audio_playback(playback : AudioPlayback) -> Unit {
+  if playback.finished || playback.paused {
+    return
+  }
+  match playback.kind {
+    Sound(sound) =>
+      if playback.started && !@raylib.is_sound_playing(sound) {
+        if playback.loop_ {
+          @raylib.play_sound(sound)
+        } else {
+          playback.finished = true
+        }
+      }
+    Music(music) => {
+      @raylib.update_music_stream(music)
+      if playback.started && !@raylib.is_music_stream_playing(music) {
+        if playback.loop_ {
+          @raylib.play_music_stream(music)
+        } else {
+          playback.finished = true
+        }
+      }
+    }
+  }
 }
 
 ///|
@@ -521,27 +591,29 @@ fn sync_mouse_lock() -> Unit {
 }
 
 ///|
-fn update_looping_tracks() -> Unit {
-  for path in backend.looping_tracks {
-    if backend.musics.get(path) is Some(music) {
-      @raylib.update_music_stream(music)
-      if !@raylib.is_music_stream_playing(music) {
-        @raylib.play_music_stream(music)
-      }
+fn update_audio_instances() -> Unit {
+  for _instance, playback in backend.audio_instances {
+    tick_audio_playback(playback)
+  }
+  for pair in backend.audio_instances.to_array() {
+    if pair.1.finished {
+      free_audio_playback(pair.1)
+      backend.audio_instances.remove(pair.0)
     }
   }
 }
 
 ///|
 fn cleanup_resources() -> Unit {
+  for pair in backend.audio_instances.to_array() {
+    free_audio_playback(pair.1)
+  }
+  backend.audio_instances.clear()
   for _path, texture in backend.textures {
     @raylib.unload_texture(texture)
   }
   for _path, sound in backend.sounds {
     @raylib.unload_sound(sound)
-  }
-  for _path, music in backend.musics {
-    @raylib.unload_music_stream(music)
   }
   for _path, font in backend.fonts_by_path {
     @raylib.unload_font(font)
@@ -575,7 +647,6 @@ pub fn initialize(
       sync_mouse_events()
       sync_gamepad_events()
       sync_mouse_lock()
-      update_looping_tracks()
       (callbacks.game_loop)(delta * backend.time_scale)
       @raylib.begin_drawing()
       @raylib.clear_background(@raylib.black)
@@ -978,31 +1049,129 @@ fn draw_textured_triangle_mesh(
 pub fn play_audio(
   audio_path~ : String,
   volume~ : Double,
+  speed~ : Double,
   loop_~ : Bool,
-) -> Unit {
-  if loop_ {
-    let music = get_music(audio_path)
+  paused~ : Bool,
+) -> AudioInstance {
+  let speed = clamp_playback_speed(speed)
+  let instance = next_audio_instance()
+  let playback = if loop_ {
+    let music = create_music(audio_path)
     @raylib.set_music_volume(music, to_float(volume))
-    if !@raylib.is_music_stream_playing(music) {
+    @raylib.set_music_pitch(music, to_float(speed))
+    if !paused {
       @raylib.play_music_stream(music)
     }
-    backend.looping_tracks.add(audio_path)
+    {
+      kind: Music(music),
+      loop_: true,
+      paused,
+      started: !paused,
+      finished: false,
+    }
   } else {
-    backend.looping_tracks.remove(audio_path)
-    let sound = get_sound(audio_path)
+    let base_sound = get_sound(audio_path)
+    let sound = @raylib.load_sound_alias(base_sound)
     @raylib.set_sound_volume(sound, to_float(volume))
-    @raylib.play_sound(sound)
+    @raylib.set_sound_pitch(sound, to_float(speed))
+    if !paused {
+      @raylib.play_sound(sound)
+    }
+    {
+      kind: Sound(sound),
+      loop_: false,
+      paused,
+      started: !paused,
+      finished: false,
+    }
   }
+  backend.audio_instances.set(instance, playback)
+  instance
+}
+
+///|
+pub fn set_volume(instance~ : AudioInstance, volume~ : Double) -> Unit {
+  guard backend.audio_instances.get(instance) is Some(playback) else { return }
+  match playback.kind {
+    Sound(sound) => @raylib.set_sound_volume(sound, to_float(volume))
+    Music(music) => @raylib.set_music_volume(music, to_float(volume))
+  }
+}
+
+///|
+pub fn set_speed(instance~ : AudioInstance, speed~ : Double) -> Unit {
+  guard backend.audio_instances.get(instance) is Some(playback) else { return }
+  let speed = clamp_playback_speed(speed)
+  match playback.kind {
+    Sound(sound) => @raylib.set_sound_pitch(sound, to_float(speed))
+    Music(music) => @raylib.set_music_pitch(music, to_float(speed))
+  }
+}
+
+///|
+pub fn set_loop(instance~ : AudioInstance, loop_~ : Bool) -> Unit {
+  if backend.audio_instances.get(instance) is Some(playback) {
+    playback.loop_ = loop_
+  }
+}
+
+///|
+pub fn set_paused(instance~ : AudioInstance, paused~ : Bool) -> Unit {
+  guard backend.audio_instances.get(instance) is Some(playback) else { return }
+  if playback.paused == paused {
+    return
+  }
+  playback.paused = paused
+  match playback.kind {
+    Sound(sound) =>
+      if paused {
+        if playback.started {
+          @raylib.pause_sound(sound)
+        }
+      } else if playback.started {
+        @raylib.resume_sound(sound)
+      } else {
+        @raylib.play_sound(sound)
+        playback.started = true
+      }
+    Music(music) =>
+      if paused {
+        if playback.started {
+          @raylib.pause_music_stream(music)
+        }
+      } else if playback.started {
+        @raylib.resume_music_stream(music)
+      } else {
+        @raylib.play_music_stream(music)
+        playback.started = true
+      }
+  }
+}
+
+///|
+pub fn stop(instance~ : AudioInstance) -> Unit {
+  if backend.audio_instances.get(instance) is Some(playback) {
+    free_audio_playback(playback)
+    backend.audio_instances.remove(instance)
+  }
+}
+
+///|
+pub fn is_finished(instance~ : AudioInstance) -> Bool {
+  match backend.audio_instances.get(instance) {
+    Some(playback) => playback.finished
+    None => true
+  }
+}
+
+///|
+pub fn tick_audio() -> Unit {
+  update_audio_instances()
 }
 
 ///|
 pub fn get_realtime_delta() -> Double {
   backend.realtime_delta
-}
-
-///|
-pub fn tick_audio() -> Unit {
-  update_looping_tracks()
 }
 
 ///|

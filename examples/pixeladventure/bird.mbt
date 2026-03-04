@@ -49,6 +49,9 @@ priv struct Bird {
 let birds : Map[@entity.Entity, Bird] = Map::new()
 
 ///|
+let contact_event_reader : @event.EventReader[@physics2d.ContactEvent] = @event.EventReader::new()
+
+///|
 fn add_bird(pos : @math.Vec2D) -> Unit {
   let entity = @entity.Entity::new()
   let bird_sprite = @sprite.Sprite::from_animation(bird_fly_animation, 10)
@@ -72,6 +75,7 @@ fn add_bird(pos : @math.Vec2D) -> Unit {
 
 ///|
 fn bird_ai_system(_ : Double) -> Unit {
+  let contact_events = @physics2d.contact_event_bus.read(contact_event_reader)
   for e, bird in birds {
     guard e.is_alive() else { continue }
     guard @physics2d.linear_velocities.get(e) is Some(_velocity)
@@ -103,7 +107,7 @@ fn bird_ai_system(_ : Double) -> Unit {
       }
       continue
     }
-    let hit_wall = @physics2d.contact_events()
+    let hit_wall = contact_events
       .iter()
       .any(fn(event) {
         event.entity == e &&

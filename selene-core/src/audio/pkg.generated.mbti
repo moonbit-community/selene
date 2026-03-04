@@ -1,14 +1,81 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/audio"
 
+import {
+  "Milky2018/selene/asset_types",
+  "Milky2018/selene/entity",
+  "Milky2018/selene/platform_audio",
+}
+
 // Values
+pub fn attach_audio(@entity.Entity, AudioPlayer, settings? : PlaybackSettings) -> Unit
+
+pub let audio_playback_settings : Map[@entity.Entity, PlaybackSettings]
+
+pub fn audio_playback_system(Double) -> Unit
+
+pub let audio_players : Map[@entity.Entity, AudioPlayer]
+
+pub let audio_sinks : Map[@entity.Entity, AudioSink]
+
+pub fn global_volume() -> Double
+
 pub fn play_audio(String, volume? : Double, loop_? : Bool) -> Unit
+
+pub fn restart_audio(@entity.Entity) -> Unit
+
+pub fn set_global_volume(Double) -> Unit
+
+pub fn spawn_audio(@asset_types.AudioHandle, settings? : PlaybackSettings) -> @entity.Entity
+
+pub fn stop_audio(@entity.Entity) -> Unit
 
 // Errors
 
 // Types and methods
+pub(all) struct AudioPlayer {
+  source : @asset_types.AudioHandle
+}
+pub fn AudioPlayer::from_path(String) -> Self
+pub fn AudioPlayer::new(@asset_types.AudioHandle) -> Self
+pub impl Eq for AudioPlayer
+pub impl Show for AudioPlayer
+
+pub(all) struct AudioSink {
+  instance : @platform_audio.AudioInstance
+  mut finished : Bool
+}
+
+pub(all) enum PlaybackMode {
+  Once
+  Loop
+  Remove
+  Despawn
+}
+pub impl Eq for PlaybackMode
+pub impl Show for PlaybackMode
+
+pub(all) struct PlaybackSettings {
+  mode : PlaybackMode
+  volume : Double
+  speed : Double
+  paused : Bool
+  muted : Bool
+}
+pub fn PlaybackSettings::despawn() -> Self
+pub fn PlaybackSettings::looped() -> Self
+pub fn PlaybackSettings::once() -> Self
+pub fn PlaybackSettings::remove() -> Self
+pub fn PlaybackSettings::with_mode(Self, PlaybackMode) -> Self
+pub fn PlaybackSettings::with_muted(Self, Bool) -> Self
+pub fn PlaybackSettings::with_paused(Self, Bool) -> Self
+pub fn PlaybackSettings::with_speed(Self, Double) -> Self
+pub fn PlaybackSettings::with_volume(Self, Double) -> Self
+pub impl Eq for PlaybackSettings
+pub impl Show for PlaybackSettings
 
 // Type aliases
+pub using @asset_types {type AudioHandle}
 
 // Traits
 

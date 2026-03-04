@@ -13,196 +13,96 @@
 // limitations under the License.
 
 ///|
-/// Unique identifier for game objects.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// let entity = @entity.Entity::new()
-/// entity.destroy()
-/// ```
-///
 struct Entity(UInt) derive(Eq, Show, Hash)
 
 ///|
-/// Global storage for all active entities in the Selene app.
-///
-/// This set contains all entities that have been created and are currently
-/// active. Entities are automatically added when created with `Entity::new()`
-/// and removed during deferred event processing when destroyed with
-/// `Entity::destroy()`.
-///
-/// Do not manually modify this set directly. Use the entity lifecycle methods
-/// (`Entity::new()`, `Entity::destroy()`, `Entity::respawn()`) instead to
-/// ensure proper deferred event handling and consistency with parent-child
-/// relationships.
-///
+enum EntityLifecycleState {
+  Alive
+  PendingDespawn
+  PendingRespawn
+  Destroyed
+} derive(Eq, Show)
+
+///|
 let all_entities : @set.Set[Entity] = @set.Set::new()
 
 ///|
-/// Returns an iterator over all entities currently registered in the
-/// selene app.
-///
-/// Returns an `Iter[Entity]` that yields all entities that have been created,
-/// including both active and inactive entities.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// let entity1 = @entity.Entity::new()
-/// let entity2 = @entity.Entity::new()
-///
-/// // The following line will be executed in the game loop, instead of manual calling.
-/// @system.deferred_event_system(0.0)
-///
-/// inspect(@entity.iter_entities().count(), content="2")
-///
-/// entity1.destroy()
-/// entity2.destroy()
-/// ```
-///
+let lifecycle_states : Map[Entity, EntityLifecycleState] = Map::new()
+
+///|
+let pending_state_changes : @set.Set[Entity] = @set.Set::new()
+
+///|
 pub fn iter_entities() -> Iter[Entity] {
   all_entities.iter()
 }
 
 ///|
-/// Checks whether an entity is currently active in the selene app.
-///
-/// Parameters:
-///
-/// * `entity` : The entity to check for activity status.
-///
-/// Returns `true` if the entity is currently active and tracked in the system,
-/// `false` otherwise.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// let entity = @entity.Entity::new()
-/// inspect(entity.is_alive(), content="true")
-///
-/// entity.destroy()
-/// // Note: The entity will be marked as inactive during the next deferred event cycle
-/// ```
-///
 pub fn Entity::is_alive(e : Entity) -> Bool {
-  all_entities.contains(e)
+  match lifecycle_states.get(e).unwrap_or(EntityLifecycleState::Destroyed) {
+    Alive | PendingRespawn => true
+    PendingDespawn | Destroyed => false
+  }
 }
 
 ///|
-/// Internal counter for generating unique entity identifiers.
-///
-/// This reference is incremented each time a new entity is created to ensure
-/// every entity has a unique ID. Do not manually modify this value.
-///
 let entity_generator : Ref[UInt] = { val: 0 }
 
 ///|
-/// Creates a new unique entity and registers it in the selene app.
-///
-/// Returns a new `Entity` with a unique identifier that is automatically
-/// tracked in the system.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// let entity1 = @entity.Entity::new()
-/// let entity2 = @entity.Entity::new()
-/// defer entity1.destroy()
-/// defer entity2.destroy()
-///
-/// // Each entity has a unique identifier
-/// inspect(entity1 == entity2, content="false")
-///
-/// // Both entities are automatically registered and alive
-/// inspect(entity1.is_alive(), content="true")
-/// inspect(entity2.is_alive(), content="true")
-/// ```
-///
 pub fn Entity::new() -> Entity {
   let entity = entity_generator.val
   entity_generator.val += 1
   all_entities.add(entity)
+  lifecycle_states.set(entity, Alive)
   entity
 }
 
 ///|
-/// Marks an entity for destruction, scheduling its removal from the
-/// selene app during the next deferred event processing cycle.
-///
-/// When an entity is destroyed, all of its child entities (if any) are also
-/// recursively destroyed, maintaining hierarchy integrity. The actual removal
-/// happens during the next `@system.deferred_event_system` execution to avoid
-/// mid-frame state corruption.
-///
-/// Parameters:
-///
-/// * `entity` : The entity to be destroyed.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// let entity = @entity.Entity::new()
-/// inspect(entity.is_alive(), content="true")
-///
-/// entity.destroy()
-///
-/// // The following line will be executed in the game loop, instead of manual calling.
-/// @system.deferred_event_system(0.0)
-///
-/// // Entity will be removed from all_entities during next deferred event cycle
-/// inspect(entity.is_alive(), content="false")
-/// ```
-///
 pub fn Entity::destroy(e : Entity) -> Unit {
-  @system.defer_event(fn() { all_entities.remove(e) })
-  if parents.get(e) is Some(p) {
-    for c in p.children {
-      c.destroy()
+  match lifecycle_states.get(e).unwrap_or(EntityLifecycleState::Destroyed) {
+    Destroyed | PendingDespawn => ()
+    Alive | PendingRespawn => {
+      lifecycle_states.set(e, PendingDespawn)
+      pending_state_changes.add(e)
+      if parents.get(e) is Some(p) {
+        for c in p.children {
+          c.destroy()
+        }
+      }
     }
   }
 }
 
 ///|
-/// Reactivates a previously destroyed entity by adding it back to the active
-/// entities collection.
-///
-/// When an entity is respawned, all of its child entities (if any) are also
-/// recursively respawned, maintaining hierarchy integrity. The actual addition
-/// happens during the next `@system.deferred_event_system` execution to maintain
-/// consistency with the deferred event pattern.
-///
-/// Parameters:
-///
-/// * `entity` : The entity to be reactivated in the selene app.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// let entity = @entity.Entity::new()
-/// inspect(entity.is_alive(), content="true")
-///
-/// entity.destroy()
-///
-/// // The following line will be executed in the game loop, instead of manual calling.
-/// @system.deferred_event_system(0.0)
-///
-/// inspect(entity.is_alive(), content="false")
-/// // Entity is marked for removal during next deferred event cycle
-///
-/// entity.respawn()
-///
-/// // The following line will be executed in the game loop, instead of manual calling.
-/// @system.deferred_event_system(0.0)
-///
-/// inspect(entity.is_alive(), content="true") // Entity is active again
-/// ```
-///
 pub fn Entity::respawn(e : Entity) -> Unit {
-  @system.defer_event(fn() { all_entities.add(e) })
-  if parents.get(e) is Some(p) {
-    for c in p.children {
-      c.respawn()
+  match lifecycle_states.get(e).unwrap_or(EntityLifecycleState::Destroyed) {
+    Alive | PendingRespawn => ()
+    Destroyed | PendingDespawn => {
+      lifecycle_states.set(e, PendingRespawn)
+      pending_state_changes.add(e)
+      if parents.get(e) is Some(p) {
+        for c in p.children {
+          c.respawn()
+        }
+      }
     }
+  }
+}
+
+///|
+pub fn entity_flush_system(_delta : Double) -> Unit {
+  for entity in pending_state_changes.to_array() {
+    match lifecycle_states.get(entity).unwrap_or(Destroyed) {
+      PendingDespawn => {
+        all_entities.remove(entity)
+        lifecycle_states.set(entity, Destroyed)
+      }
+      PendingRespawn => {
+        all_entities.add(entity)
+        lifecycle_states.set(entity, Alive)
+      }
+      Alive | Destroyed => ()
+    }
+    pending_state_changes.remove(entity)
   }
 }

@@ -142,6 +142,8 @@ let terrain_group = @physics2d.CollisionGroup::new()
 )
 ```
 
+The event examples below assume `Milky2018/selene/event` is imported as `@event`.
+
 ### 6.3 Sensor events
 
 ```moonbit
@@ -151,8 +153,10 @@ let sensor = @physics2d.Sensor::new(
 )
 @physics2d.sensors.set(apple, sensor)
 
+let trigger_reader : @event.EventReader[@physics2d.TriggerEvent] = @event.EventReader::new()
+
 fn trigger_system(_delta : Double) -> Unit {
-  for event in @physics2d.sensor_events() {
+  for event in @physics2d.trigger_event_bus.read(trigger_reader) {
     if event.entered && event.area == apple && event.other == player {
       @entity.Entity::destroy(apple)
     }
@@ -165,8 +169,10 @@ fn trigger_system(_delta : Double) -> Unit {
 ```moonbit
 @physics2d.pickables.set(button, @physics2d.Pickable::new())
 
+let pointer_reader : @event.EventReader[@physics2d.PointerEvent] = @event.EventReader::new()
+
 fn ui_input_system(_delta : Double) -> Unit {
-  for event in @physics2d.pointer_events() {
+  for event in @physics2d.pointer_event_bus.read(pointer_reader) {
     if event.entity == button &&
       event.phase is @physics2d.PointerPhase::JustReleased &&
       event.button == @inputs.MouseButton::Left {

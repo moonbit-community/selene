@@ -19,6 +19,9 @@ const UI_WIDGET_ZINDEX : Int = @ui.UI_ZINDEX + 1
 const UI_WIDGET_CHILD_ZINDEX : Int = @ui.UI_ZINDEX + 2
 
 ///|
+let ui_interaction_reader : @event.EventReader[@ui.InteractionEvent] = @event.EventReader::new()
+
+///|
 fn add_screen_sprite(
   offset : @math.Vec2D,
   sprite : @sprite.Sprite,
@@ -302,7 +305,7 @@ fn on_raise_click() -> Unit {
 
 ///|
 fn cards_ui_pointer_system(_delta : Double) -> Unit {
-  for event in @ui.interaction_events() {
+  for event in @ui.interaction_event_bus.read(ui_interaction_reader) {
     guard event.current is @ui.Interaction::Pressed else { continue }
     if event.entity == game_state.fold_button {
       on_fold_click()

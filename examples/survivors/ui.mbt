@@ -34,6 +34,9 @@ let levelup_buttons : Array[@entity.Entity] = []
 let restart_button_ref : Ref[@entity.Entity?] = { val: None }
 
 ///|
+let ui_interaction_reader : @event.EventReader[@ui.InteractionEvent] = @event.EventReader::new()
+
+///|
 fn add_screen_sprite(
   offset : @math.Vec2D,
   sprite : @sprite.Sprite,
@@ -372,7 +375,7 @@ fn add_level_box() -> Unit {
 
 ///|
 fn survivors_ui_pointer_system(_delta : Double) -> Unit {
-  for event in @ui.interaction_events() {
+  for event in @ui.interaction_event_bus.read(ui_interaction_reader) {
     guard event.current is @ui.Interaction::Pressed else { continue }
     if restart_button_ref.val is Some(restart_button) &&
       event.entity == restart_button {

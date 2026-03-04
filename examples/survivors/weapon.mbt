@@ -155,6 +155,11 @@ priv struct PlayerBulletState {
 let player_bullets : Map[@entity.Entity, PlayerBulletState] = Map::new()
 
 ///|
+let player_bullet_trigger_event_reader : @event.EventReader[
+  @physics2d.TriggerEvent,
+] = @event.EventReader::new()
+
+///|
 fn update_weapon_timers(
   weapon_instances : Array[WeaponType],
   delta : Double,
@@ -255,7 +260,10 @@ fn shoot_weapon_bullet(
 
 ///|
 fn player_bullet_trigger_system(_delta : Double) -> Unit {
-  for event in @physics2d.trigger_events() {
+  for
+    event in @physics2d.trigger_event_bus.read(
+      player_bullet_trigger_event_reader,
+    ) {
     guard event.entered else { continue }
     guard player_bullets.get(event.area) is Some(bullet) else { continue }
     guard bullet.alive else { continue }

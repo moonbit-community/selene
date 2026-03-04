@@ -70,42 +70,16 @@ pub(all) enum Code {
 } derive(Eq, Show, Hash)
 
 ///|
-let all_codes : @set.Set[Code] = @set.Set::from_array([
-  KeyA,
-  KeyB,
-  KeyC,
-  KeyD,
-  KeyE,
-  KeyF,
-  KeyG,
-  KeyH,
-  KeyI,
-  KeyJ,
-  KeyK,
-  KeyL,
-  KeyM,
-  KeyN,
-  KeyO,
-  KeyP,
-  KeyQ,
-  KeyR,
-  KeyS,
-  KeyT,
-  KeyU,
-  KeyV,
-  KeyW,
-  KeyX,
-  KeyY,
-  KeyZ,
-  ArrowUp,
-  ArrowDown,
-  ArrowLeft,
-  ArrowRight,
-  ShiftLeft,
-  Space,
-  Enter,
-  Escape,
-])
+pub(all) enum KeyInputState {
+  Pressed
+  Released
+} derive(Eq, Show)
+
+///|
+pub struct KeyInputEvent {
+  key : Code
+  state : KeyInputState
+}
 
 ///|
 /// Converts a string representation of a keyboard key into its corresponding
@@ -195,6 +169,14 @@ pub fn Code::from_string(code : String) -> Code? {
 /// ```
 ///
 pub let pressed_keys : Set[Code] = @set.Set::new()
+
+///|
+pub let key_input_event_bus : @event.Events[KeyInputEvent] = @event.Events::new()
+
+///|
+fn init {
+  key_input_event_bus.register()
+}
 
 ///|
 /// Checks if a keyboard key is currently being pressed.
@@ -337,10 +319,12 @@ pub fn advanced_key_system(_delta : Double) -> Unit {
   just_pressed_keys.clear()
   for code in pressed_keys.difference(last_pressed_keys) {
     just_pressed_keys.add(code)
+    key_input_event_bus.send({ key: code, state: Pressed })
   }
   just_release_keys.clear()
-  for code in all_codes.difference(pressed_keys).union(last_pressed_keys) {
+  for code in last_pressed_keys.difference(pressed_keys) {
     just_release_keys.add(code)
+    key_input_event_bus.send({ key: code, state: Released })
   }
   last_pressed_keys.clear()
   for code in pressed_keys {

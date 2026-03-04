@@ -135,7 +135,7 @@ pub let buttons : Map[@entity.Entity, Button] = Map::new()
 pub let interactions : Map[@entity.Entity, Interaction] = Map::new()
 
 ///|
-let frame_interaction_events : Array[InteractionEvent] = []
+pub let interaction_event_bus : @event.Events[InteractionEvent] = @event.Events::new()
 
 ///|
 pub const UI_ZINDEX = 100
@@ -150,6 +150,7 @@ pub let screen_root : @entity.Entity = @entity.Entity::new()
 fn init {
   @position.positions.set(virtual_root, @math.Vec2D::zero())
   @position.positions.set(screen_root, @math.Vec2D::zero())
+  interaction_event_bus.register()
   uis.set(virtual_root, Ui::new(space=Virtual))
   uis.set(screen_root, Ui::new(space=Screen))
   nodes.set(
@@ -160,11 +161,6 @@ fn init {
     screen_root,
     Node::new(size=FillScreen, layout=Overlay, space=Screen),
   )
-}
-
-///|
-pub fn interaction_events() -> Array[InteractionEvent] {
-  frame_interaction_events
 }
 
 ///|
@@ -211,7 +207,6 @@ pub fn ui_layout_system(_delta : Double) -> Unit {
 
 ///|
 pub fn ui_button_system(_delta : Double) -> Unit {
-  clear_interaction_events()
   let mouse_screen = @inputs.mouse.pos
   let mouse_virtual = @system.screen_to_ui_virtual(mouse_screen)
   for entity, button in buttons {
@@ -224,14 +219,9 @@ pub fn ui_button_system(_delta : Double) -> Unit {
     )
     if previous != current {
       interactions.set(entity, current)
-      frame_interaction_events.push({ entity, previous, current })
+      interaction_event_bus.send({ entity, previous, current })
     }
   }
-}
-
-///|
-fn clear_interaction_events() -> Unit {
-  frame_interaction_events.clear()
 }
 
 ///|

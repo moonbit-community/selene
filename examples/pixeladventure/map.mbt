@@ -217,7 +217,7 @@ fn map_trigger_system(_delta : Double) -> Unit {
     if @physics2d.get_contains(apple).contains(game_state.player) {
       set_score(game_state.score + 10)
       if game_state.volume_on {
-        @audio.play_audio("assets/pixeladventure/sounds/coin.wav")
+        play_sfx(coin_sound)
       }
       apple.destroy()
       apples.remove(apple)

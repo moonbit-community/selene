@@ -13,32 +13,112 @@
 // limitations under the License.
 
 ///|
-let audio_cache : Map[String, Audio] = Map::new()
+pub type AudioInstance = Int
 
 ///|
-fn get_audio(path : String) -> Audio {
-  let resolved_path = resolve_asset_path(path)
-  if audio_cache.get(resolved_path) is Some(audio) {
-    return audio
+let audio_instances : Map[AudioInstance, Audio] = Map::new()
+
+///|
+let next_audio_instance : Ref[Int] = Ref::new(1)
+
+///|
+fn clamp_playback_speed(speed : Double) -> Double {
+  if speed <= 0.0 {
+    0.01
+  } else {
+    speed
   }
-  let audio = Audio::new(resolved_path)
-  audio_cache.set(resolved_path, audio)
-  audio
+}
+
+///|
+fn create_audio_instance(path : String) -> (AudioInstance, Audio) {
+  let id = next_audio_instance.val
+  next_audio_instance.val += 1
+  let audio = Audio::new(resolve_asset_path(path))
+  audio_instances.set(id, audio)
+  (id, audio)
 }
 
 ///|
 pub fn play_audio(
   audio_path~ : String,
   volume~ : Double,
+  speed~ : Double,
   loop_~ : Bool,
-) -> Unit {
-  let audio = get_audio(audio_path)
+  paused~ : Bool,
+) -> AudioInstance {
+  let (instance, audio) = create_audio_instance(audio_path)
   audio.set_volume(volume)
   audio.set_loop(loop_)
-  audio.play()
+  audio.set_playback_rate(clamp_playback_speed(speed))
+  if paused {
+    audio.pause()
+  } else {
+    audio.play()
+  }
+  instance
+}
+
+///|
+pub fn set_volume(instance~ : AudioInstance, volume~ : Double) -> Unit {
+  if audio_instances.get(instance) is Some(audio) {
+    audio.set_volume(volume)
+  }
+}
+
+///|
+pub fn set_speed(instance~ : AudioInstance, speed~ : Double) -> Unit {
+  if audio_instances.get(instance) is Some(audio) {
+    audio.set_playback_rate(clamp_playback_speed(speed))
+  }
+}
+
+///|
+pub fn set_loop(instance~ : AudioInstance, loop_~ : Bool) -> Unit {
+  if audio_instances.get(instance) is Some(audio) {
+    audio.set_loop(loop_)
+  }
+}
+
+///|
+pub fn set_paused(instance~ : AudioInstance, paused~ : Bool) -> Unit {
+  if audio_instances.get(instance) is Some(audio) {
+    if paused {
+      audio.pause()
+    } else {
+      audio.play()
+    }
+  }
+}
+
+///|
+pub fn stop(instance~ : AudioInstance) -> Unit {
+  if audio_instances.get(instance) is Some(audio) {
+    audio.pause()
+    audio.set_current_time(0.0)
+  }
+  audio_instances.remove(instance)
+}
+
+///|
+pub fn is_finished(instance~ : AudioInstance) -> Bool {
+  match audio_instances.get(instance) {
+    Some(audio) => audio.is_ended()
+    None => true
+  }
+}
+
+///|
+pub fn tick_audio() -> Unit {
+  for pair in audio_instances.to_array() {
+    if pair.1.is_ended() {
+      audio_instances.remove(pair.0)
+    }
+  }
 }
 
 ///|
 pub fn preload_audio(audio_path : String) -> Unit {
-  get_audio(audio_path) |> ignore
+  let audio = Audio::new(resolve_asset_path(audio_path))
+  audio.pause()
 }

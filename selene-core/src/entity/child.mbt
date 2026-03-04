@@ -237,7 +237,7 @@ pub fn Entity::set_offset(child : Entity, offset : @math.Vec2D) -> Unit {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// @system.deferred_event_system(0.0)
+/// @entity.entity_flush_system(0.0)
 ///
 /// let root1 = @entity.Entity::new()
 /// let root2 = @entity.Entity::new()

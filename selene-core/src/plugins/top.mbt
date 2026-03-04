@@ -55,7 +55,7 @@ pub fn default_plugin(app : @system.App) -> Unit {
   ..push((@physics2d.physics_step_system, FixedUpdate, "Physics2D Step System"))
   ..push((@camera.camera_system, FixedPostUpdate, "Camera System"))
   ..push((@physics2d.pickable_click_system, Update, "Pickable Click System"))
-  ..push((@system.deferred_event_system, PostUpdate, "Deferred Event System"))
+  ..push((@audio.audio_playback_system, PostUpdate, "Audio Playback System"))
   ..push((@system.timer_system, PostUpdate, "Timer System"))
   ..push((@system.realtime_timer_system, PostUpdate, "Realtime Timer System"))
   ..push(
@@ -122,6 +122,7 @@ pub fn default_3d_plugin(app : @system.App) -> Unit {
   )
   ..push((@camera3d.camera3d_extract_system, RenderExtract, "Camera3D Extract"))
   ..push((@render3d.render3d_extract_system, RenderExtract, "Render3D Extract"))
+  ..push((@audio.audio_playback_system, PostUpdate, "Audio Playback System"))
   ..push(
     (
       @render3d_pipeline.render3d_prepare_system,
@@ -131,7 +132,6 @@ pub fn default_3d_plugin(app : @system.App) -> Unit {
   )
   ..push((@sprite.render_sprite_system, RenderPrepare, "Render Sprite System"))
   ..push((@render_submit.render_submit_system, Render, "Render Submit"))
-  ..push((@system.deferred_event_system, PostUpdate, "Deferred Event System"))
   ..push((@system.timer_system, PostUpdate, "Timer System"))
   .push((@system.realtime_timer_system, PostUpdate, "Realtime Timer System"))
 }

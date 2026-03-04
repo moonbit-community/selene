@@ -5,6 +5,7 @@ import {
   "Milky2018/moon_rapier/collision",
   "Milky2018/moon_rapier/dynamics",
   "Milky2018/selene/entity",
+  "Milky2018/selene/event",
   "Milky2018/selene/math",
 }
 
@@ -19,7 +20,7 @@ pub let colliders3d : Map[@entity.Entity, Collider3D]
 
 pub let config : Physics3DConfig
 
-pub fn contact_events3d() -> Array[ContactEvent3D]
+pub let contact_event_bus3d : @event.Events[ContactEvent3D]
 
 pub let linear_velocities3d : Map[@entity.Entity, LinearVelocity3D]
 
@@ -39,7 +40,7 @@ pub fn set_gravity(@math.Vec3) -> Unit
 
 pub fn shape_cast3d(ColliderShape3D, @math.Vec3, rotation? : @math.Quat, direction? : @math.Vec3, max_toi? : Double, stop_at_penetration? : Bool) -> ShapeCastHit3D?
 
-pub fn trigger_events3d() -> Array[TriggerEvent3D]
+pub let trigger_event_bus3d : @event.Events[TriggerEvent3D]
 
 // Errors
 

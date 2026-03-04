@@ -1,4 +1,6 @@
 import {
+  "Milky2018/selene/entity",
+  "Milky2018/selene/event",
   "Milky2018/selene/inputs",
   "Milky2018/selene/platform_audio",
   "Milky2018/selene/platform_input",

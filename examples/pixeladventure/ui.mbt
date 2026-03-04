@@ -16,6 +16,9 @@
 let volume_button_ref : Ref[@entity.Entity?] = { val: None }
 
 ///|
+let ui_interaction_reader : @event.EventReader[@ui.InteractionEvent] = @event.EventReader::new()
+
+///|
 fn add_result_box() -> Unit {
   let box = @entity.Entity::new()
   @transform.positions.set(
@@ -77,7 +80,7 @@ fn add_volume_button() -> Unit {
 ///|
 fn volume_button_input_system(_delta : Double) -> Unit {
   guard volume_button_ref.val is Some(button) else { return }
-  for event in @ui.interaction_events() {
+  for event in @ui.interaction_event_bus.read(ui_interaction_reader) {
     guard event.entity == button else { continue }
     guard event.previous is @ui.Interaction::Pressed else { continue }
     guard event.current is @ui.Interaction::Hovered else { continue }

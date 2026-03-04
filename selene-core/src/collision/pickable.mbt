@@ -45,11 +45,11 @@ pub struct PointerEvent {
 }
 
 ///|
-let frame_pointer_events : Array[PointerEvent] = []
+pub let pointer_event_bus : @event.Events[PointerEvent] = @event.Events::new()
 
 ///|
-fn clear_pointer_events() -> Unit {
-  frame_pointer_events.clear()
+fn init {
+  pointer_event_bus.register()
 }
 
 ///|
@@ -58,12 +58,7 @@ fn push_pointer_event(
   button : @inputs.MouseButton,
   phase : PointerPhase,
 ) -> Unit {
-  frame_pointer_events.push({ entity, button, phase })
-}
-
-///|
-pub fn pointer_events() -> Array[PointerEvent] {
-  frame_pointer_events
+  pointer_event_bus.send({ entity, button, phase })
 }
 
 ///|
@@ -128,7 +123,6 @@ fn dispatch_pointer_events(entity : @entity.Entity) -> Unit {
 
 ///|
 pub fn pickable_click_system(_delta : Double) -> Unit {
-  clear_pointer_events()
   let mouse_screen = @inputs.mouse.pos
   let camera_pos = @camera.get_position()
   let mouse_world = @system.screen_to_world(mouse_screen, camera_pos)

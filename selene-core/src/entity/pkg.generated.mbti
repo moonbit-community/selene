@@ -6,6 +6,8 @@ import {
 }
 
 // Values
+pub fn entity_flush_system(Double) -> Unit
+
 pub fn get_roots() -> Iter[Entity]
 
 pub fn iter_entities() -> Iter[Entity]
@@ -27,6 +29,10 @@ pub fn Entity::spawn_child(Self, offset? : @math.Vec2D) -> Self
 pub impl Eq for Entity
 pub impl Hash for Entity
 pub impl Show for Entity
+
+type EntityLifecycleState
+pub impl Eq for EntityLifecycleState
+pub impl Show for EntityLifecycleState
 
 // Type aliases
 

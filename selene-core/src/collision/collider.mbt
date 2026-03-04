@@ -38,8 +38,13 @@ pub struct ContactEvent {
 }
 
 ///|
-/// Frame-local contact events generated during the latest fixed step.
-let frame_contact_events : Array[ContactEvent] = []
+/// Contact event bus.
+pub let contact_event_bus : @event.Events[ContactEvent] = @event.Events::new()
+
+///|
+fn init {
+  contact_event_bus.register()
+}
 
 ///|
 /// Effective post-solve velocities from the latest fixed step.
@@ -50,18 +55,8 @@ pub let resolved_velocities : Map[@entity.Entity, @velocity.Velocity] = Map::new
 pub let grounded_entities : Set[@entity.Entity] = Set::new()
 
 ///|
-fn clear_contact_events() -> Unit {
-  frame_contact_events.clear()
-}
-
-///|
 fn push_contact_event(event : ContactEvent) -> Unit {
-  frame_contact_events.push(event)
-}
-
-///|
-pub fn contact_events() -> Array[ContactEvent] {
-  frame_contact_events
+  contact_event_bus.send(event)
 }
 
 ///|

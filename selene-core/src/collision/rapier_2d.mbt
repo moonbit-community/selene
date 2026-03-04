@@ -467,7 +467,6 @@ fn move_with_kinematic_controller(
 
 ///|
 fn process_contact_events() -> Unit {
-  clear_contact_events()
   for event in world.event_handler.take_collision_events() {
     guard entity_from_collider_handle(event.collider1()) is Some(entity1) else {
       continue
@@ -535,7 +534,6 @@ fn prune_area_contains() -> Unit {
 
 ///|
 fn process_trigger_events() -> Unit {
-  clear_trigger_events()
   let query_base = @rapier_collision.QueryPipeline::new(
     @rapier_collision.QueryFilter::new(),
     world.bodies,
@@ -627,15 +625,11 @@ fn step_rapier_pipeline(delta : Double) -> Unit {
 ///|
 fn rapier_fixed_step(delta : Double) -> Unit {
   if delta <= 0.0 {
-    clear_contact_events()
-    clear_trigger_events()
     grounded_entities.clear()
     resolved_velocities.clear()
     return
   }
   sync_world_entities()
-  clear_contact_events()
-  clear_trigger_events()
   grounded_entities.clear()
   resolved_velocities.clear()
 

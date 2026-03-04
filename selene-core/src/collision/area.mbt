@@ -37,22 +37,17 @@ pub struct TriggerEvent {
 }
 
 ///|
-/// Frame-local trigger events generated during the latest fixed step.
-let frame_trigger_events : Array[TriggerEvent] = []
+/// Trigger event bus.
+pub let trigger_event_bus : @event.Events[TriggerEvent] = @event.Events::new()
 
 ///|
-fn clear_trigger_events() -> Unit {
-  frame_trigger_events.clear()
+fn init {
+  trigger_event_bus.register()
 }
 
 ///|
 fn push_trigger_event(event : TriggerEvent) -> Unit {
-  frame_trigger_events.push(event)
-}
-
-///|
-pub fn trigger_events() -> Array[TriggerEvent] {
-  frame_trigger_events
+  trigger_event_bus.send(event)
 }
 
 ///|
