@@ -3,31 +3,151 @@ package "Milky2018/selene/physics3d"
 
 import {
   "Milky2018/moon_rapier/collision",
-  "Milky2018/moon_rapier/core",
   "Milky2018/moon_rapier/dynamics",
+  "Milky2018/selene/entity",
+  "Milky2018/selene/math3d",
 }
 
 // Values
-pub let colliders : @collision.ColliderSet3D
+pub let angular_velocities3d : Map[@entity.Entity, AngularVelocity3D]
+
+pub fn character_controller3d_move(@entity.Entity, @math3d.Vec3) -> @math3d.Vec3
+
+pub fn collider_handle(@entity.Entity) -> @collision.ColliderHandle3D?
+
+pub let colliders3d : Map[@entity.Entity, Collider3D]
 
 pub let config : Physics3DConfig
 
-pub fn insert_collider(@collision.ColliderBuilder3D, parent_body? : @dynamics.RigidBodyHandle) -> @collision.ColliderHandle3D
+pub fn contact_events3d() -> Array[ContactEvent3D]
 
-pub fn insert_rigid_body(@dynamics.RigidBodyBuilder3D) -> @dynamics.RigidBodyHandle
+pub let linear_velocities3d : Map[@entity.Entity, LinearVelocity3D]
+
+pub fn new_collision_layers3d(Int, Int) -> CollisionLayers3D
 
 pub fn physics_step_system(Double) -> Unit
 
-pub let rigid_bodies : @dynamics.RigidBodySet3D
+pub fn raycast3d(@math3d.Vec3, @math3d.Vec3, max_toi? : Double, solid? : Bool) -> RaycastHit3D?
 
-pub fn set_gravity(@core.Vec3) -> Unit
+pub let rigid_bodies3d : Map[@entity.Entity, RigidBody3D]
+
+pub fn rigid_body_handle(@entity.Entity) -> @dynamics.RigidBodyHandle?
+
+pub let sensors3d : Map[@entity.Entity, Collider3D]
+
+pub fn set_gravity(@math3d.Vec3) -> Unit
+
+pub fn shape_cast3d(ColliderShape3D, @math3d.Vec3, rotation? : @math3d.Quat, direction? : @math3d.Vec3, max_toi? : Double, stop_at_penetration? : Bool) -> ShapeCastHit3D?
+
+pub fn trigger_events3d() -> Array[TriggerEvent3D]
 
 // Errors
 
 // Types and methods
-pub(all) struct Physics3DConfig {
-  mut gravity : @core.Vec3
+pub(all) struct AngularVelocity3D(@math3d.Vec3)
+#deprecated
+pub fn AngularVelocity3D::inner(Self) -> @math3d.Vec3
+pub impl Eq for AngularVelocity3D
+pub impl Show for AngularVelocity3D
+
+#alias(Sensor3D)
+pub(all) struct Collider3D {
+  shape : ColliderShape3D
+  friction : Double
+  restitution : Double
+  sensor : Bool
+  layers : CollisionLayers3D
 }
+pub fn Collider3D::ball(Double) -> Self
+pub fn Collider3D::cuboid(@math3d.Vec3) -> Self
+pub impl Eq for Collider3D
+pub impl Show for Collider3D
+
+pub(all) enum ColliderShape3D {
+  Cuboid(@math3d.Vec3)
+  Ball(Double)
+  CapsuleY(Double, Double)
+  Cylinder(Double, Double)
+}
+pub impl Eq for ColliderShape3D
+pub impl Show for ColliderShape3D
+
+pub(all) struct CollisionLayers3D {
+  memberships : Int
+  filters : Int
+}
+pub impl Eq for CollisionLayers3D
+pub impl Show for CollisionLayers3D
+
+pub(all) struct ContactEvent3D {
+  entity_a : @entity.Entity
+  entity_b : @entity.Entity
+  started : Bool
+  stopped : Bool
+  sensor : Bool
+  normal : @math3d.Vec3
+}
+pub impl Eq for ContactEvent3D
+pub impl Show for ContactEvent3D
+
+pub(all) struct LinearVelocity3D(@math3d.Vec3)
+#deprecated
+pub fn LinearVelocity3D::inner(Self) -> @math3d.Vec3
+pub impl Eq for LinearVelocity3D
+pub impl Show for LinearVelocity3D
+
+pub(all) struct Physics3DConfig {
+  mut gravity : @math3d.Vec3
+}
+
+pub(all) struct RaycastHit3D {
+  entity : @entity.Entity
+  toi : Double
+  normal : @math3d.Vec3
+}
+pub impl Eq for RaycastHit3D
+pub impl Show for RaycastHit3D
+
+pub(all) struct RigidBody3D {
+  body_type : RigidBodyType3D
+  gravity_scale : Double
+  linear_damping : Double
+  angular_damping : Double
+  ccd_enabled : Bool
+  lock_rotations : Bool
+  lock_translations : Bool
+}
+pub fn RigidBody3D::dynamic() -> Self
+pub fn RigidBody3D::fixed() -> Self
+pub fn RigidBody3D::kinematic_position_based() -> Self
+pub fn RigidBody3D::kinematic_velocity_based() -> Self
+pub impl Eq for RigidBody3D
+pub impl Show for RigidBody3D
+
+pub(all) enum RigidBodyType3D {
+  Dynamic
+  Fixed
+  KinematicPositionBased
+  KinematicVelocityBased
+}
+pub impl Eq for RigidBodyType3D
+pub impl Show for RigidBodyType3D
+
+pub(all) struct ShapeCastHit3D {
+  entity : @entity.Entity
+  toi : Double
+  normal : @math3d.Vec3
+}
+pub impl Eq for ShapeCastHit3D
+pub impl Show for ShapeCastHit3D
+
+pub(all) struct TriggerEvent3D {
+  sensor : @entity.Entity
+  other : @entity.Entity
+  entered : Bool
+}
+pub impl Eq for TriggerEvent3D
+pub impl Show for TriggerEvent3D
 
 // Type aliases
 

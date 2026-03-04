@@ -16,7 +16,8 @@ package "Milky2018/selene/backend"
 
 import {
   "Milky2018/selene/inputs",
-  "Milky2018/selene/render"
+  "Milky2018/selene/render",
+  "Milky2018/selene/render3d_types"
 }
 
 fn initialize(@render.BackendConfig) -> () -> Unit
@@ -51,6 +52,20 @@ fn draw_sphere_3d(@render.SphereDrawCommand3D) -> Unit
 
 fn draw_cylinder_3d(@render.CylinderDrawCommand3D) -> Unit
 
+fn sync_mesh_asset(@render3d_types.MeshHandle, @render3d_types.MeshAsset) -> Unit
+
+fn sync_material_asset(@render3d_types.MaterialHandle, @render3d_types.StandardMaterial3D) -> Unit
+
+fn sync_image_asset(@render3d_types.ImageHandle, @render3d_types.ImageAsset) -> Unit
+
+fn release_mesh_asset(@render3d_types.MeshHandle) -> Unit
+
+fn release_material_asset(@render3d_types.MaterialHandle) -> Unit
+
+fn release_image_asset(@render3d_types.ImageHandle) -> Unit
+
+fn render_3d_frame(@render3d_types.RenderFrame3D) -> Unit
+
 fn play_audio(audio_path~ : String, volume~ : Double, loop_~ : Bool) -> Unit
 
 fn get_realtime_delta() -> Double
@@ -60,6 +75,8 @@ fn preload_img(String) -> Unit
 fn preload_audio(String) -> Unit
 
 fn set_embedded_assets((String) -> Bytes?) -> Unit
+
+fn get_asset_bytes(String) -> Bytes?
 
 fn set_time_scale(Double) -> Unit
 

@@ -1,0 +1,90 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/math3d"
+
+import {
+  "Milky2018/moon_rapier/core",
+}
+
+// Values
+pub fn quat_from_rapier(@core.Quat) -> Quat
+
+pub fn vec3_from_rapier(@core.Vec3) -> Vec3
+
+// Errors
+
+// Types and methods
+pub(all) struct Mat4 {
+  m00 : Double
+  m01 : Double
+  m02 : Double
+  m03 : Double
+  m10 : Double
+  m11 : Double
+  m12 : Double
+  m13 : Double
+  m20 : Double
+  m21 : Double
+  m22 : Double
+  m23 : Double
+  m30 : Double
+  m31 : Double
+  m32 : Double
+  m33 : Double
+}
+pub fn Mat4::from_trs(Vec3, Quat, Vec3) -> Self
+pub fn Mat4::identity() -> Self
+pub fn Mat4::mul(Self, Self) -> Self
+pub fn Mat4::transform_point(Self, Vec3) -> Vec3
+pub impl Default for Mat4
+pub impl Eq for Mat4
+pub impl Show for Mat4
+
+pub(all) struct Quat {
+  x : Double
+  y : Double
+  z : Double
+  w : Double
+}
+pub fn Quat::conjugate(Self) -> Self
+pub fn Quat::from_axis_angle(Vec3, Double) -> Self
+pub fn Quat::identity() -> Self
+pub fn Quat::length_squared(Self) -> Double
+pub fn Quat::multiply(Self, Self) -> Self
+pub fn Quat::new(Double, Double, Double, Double) -> Self
+pub fn Quat::normalize(Self) -> Self
+pub fn Quat::rotate_vec3(Self, Vec3) -> Vec3
+pub fn Quat::to_rapier(Self) -> @core.Quat
+pub impl Default for Quat
+pub impl Eq for Quat
+pub impl Mul for Quat
+pub impl Show for Quat
+
+pub(all) struct Vec3 {
+  x : Double
+  y : Double
+  z : Double
+}
+pub fn Vec3::cross(Self, Self) -> Self
+pub fn Vec3::dot(Self, Self) -> Double
+pub fn Vec3::length(Self) -> Double
+pub fn Vec3::length_squared(Self) -> Double
+pub fn Vec3::lerp(Self, Self, Double) -> Self
+pub fn Vec3::new(Double, Double, Double) -> Self
+pub fn Vec3::normalize(Self) -> Self
+pub fn Vec3::one() -> Self
+pub fn Vec3::scalar_div(Self, Double) -> Self
+pub fn Vec3::scalar_mul(Self, Double) -> Self
+pub fn Vec3::to_rapier(Self) -> @core.Vec3
+pub fn Vec3::zero() -> Self
+pub impl Add for Vec3
+pub impl Default for Vec3
+pub impl Eq for Vec3
+pub impl Mul for Vec3
+pub impl Neg for Vec3
+pub impl Show for Vec3
+pub impl Sub for Vec3
+
+// Type aliases
+
+// Traits
+

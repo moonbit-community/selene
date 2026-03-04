@@ -1,0 +1,49 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/camera3d"
+
+import {
+  "Milky2018/selene/entity",
+  "Milky2018/selene/render",
+}
+
+// Values
+pub let active_camera3d : Ref[ActiveCamera3D?]
+
+pub fn camera3d_extract_system(Double) -> Unit
+
+pub let cameras3d : Map[@entity.Entity, Camera3DComponent]
+
+// Errors
+
+// Types and methods
+pub(all) struct ActiveCamera3D {
+  entity : @entity.Entity
+  camera : @render.Camera3D
+  projection : CameraProjection3D
+  near : Double
+  far : Double
+  clear_color : @render.Color
+}
+
+pub(all) struct Camera3DComponent {
+  projection : CameraProjection3D
+  near : Double
+  far : Double
+  fov_y : Double
+  order : Int
+  clear_color : @render.Color
+  mut enabled : Bool
+}
+pub fn Camera3DComponent::default() -> Self
+
+pub(all) enum CameraProjection3D {
+  Perspective
+  Orthographic
+}
+pub impl Eq for CameraProjection3D
+pub impl Show for CameraProjection3D
+
+// Type aliases
+
+// Traits
+

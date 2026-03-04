@@ -51,6 +51,24 @@ fn color_rgba(color : @render.Color) -> (Double, Double, Double, Double) {
 }
 
 ///|
+let synced_mesh_assets : Map[
+  @render3d_types.MeshHandle,
+  @render3d_types.MeshAsset,
+] = Map::new()
+
+///|
+let synced_material_assets : Map[
+  @render3d_types.MaterialHandle,
+  @render3d_types.StandardMaterial3D,
+] = Map::new()
+
+///|
+let synced_image_assets : Map[
+  @render3d_types.ImageHandle,
+  @render3d_types.ImageAsset,
+] = Map::new()
+
+///|
 pub fn preload_img(path : String) -> Unit {
   webgpu_preload_img(resolve_asset_path(path))
 }
@@ -249,6 +267,10 @@ pub fn draw_cube_3d(command : @render.CubeDrawCommand3D) -> Unit {
     command.size.x,
     command.size.y,
     command.size.z,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
     r,
     g,
     b,
@@ -266,6 +288,10 @@ pub fn draw_cube_wires_3d(command : @render.CubeDrawCommand3D) -> Unit {
     command.size.x,
     command.size.y,
     command.size.z,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
     r,
     g,
     b,
@@ -281,6 +307,10 @@ pub fn draw_sphere_3d(command : @render.SphereDrawCommand3D) -> Unit {
     command.center.y,
     command.center.z,
     command.radius,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
     r,
     g,
     b,
@@ -299,9 +329,169 @@ pub fn draw_cylinder_3d(command : @render.CylinderDrawCommand3D) -> Unit {
     command.radius_bottom,
     command.height,
     command.slices,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
     r,
     g,
     b,
     a,
   )
+}
+
+///|
+pub fn sync_mesh_asset(
+  handle : @render3d_types.MeshHandle,
+  mesh : @render3d_types.MeshAsset,
+) -> Unit {
+  synced_mesh_assets.set(handle, mesh)
+}
+
+///|
+pub fn sync_material_asset(
+  handle : @render3d_types.MaterialHandle,
+  material : @render3d_types.StandardMaterial3D,
+) -> Unit {
+  synced_material_assets.set(handle, material)
+}
+
+///|
+pub fn sync_image_asset(
+  handle : @render3d_types.ImageHandle,
+  image : @render3d_types.ImageAsset,
+) -> Unit {
+  synced_image_assets.set(handle, image)
+}
+
+///|
+pub fn release_mesh_asset(handle : @render3d_types.MeshHandle) -> Unit {
+  synced_mesh_assets.remove(handle)
+}
+
+///|
+pub fn release_material_asset(handle : @render3d_types.MaterialHandle) -> Unit {
+  synced_material_assets.remove(handle)
+}
+
+///|
+pub fn release_image_asset(handle : @render3d_types.ImageHandle) -> Unit {
+  synced_image_assets.remove(handle)
+}
+
+///|
+pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
+  guard frame.camera is Some(active_camera) else { return }
+  begin_3d({
+    position: to_render_vec3(active_camera.position),
+    target: to_render_vec3(active_camera.target),
+    up: to_render_vec3(active_camera.up),
+    fovy: active_camera.fov_y,
+  })
+  for item in frame.items {
+    guard synced_mesh_assets.get(item.mesh) is Some(mesh_asset) else {
+      continue
+    }
+    let material = synced_material_assets
+      .get(item.material)
+      .unwrap_or(@render3d_types.default_standard_material3d())
+    let center = to_render_vec3(item.transform.translation)
+    let rotation = item.transform.rotation
+    let color = material.base_color
+    match mesh_asset.primitive {
+      Cube(size) =>
+        webgpu_draw_cube_3d(
+          center.x,
+          center.y,
+          center.z,
+          size.x * item.transform.scale.x,
+          size.y * item.transform.scale.y,
+          size.z * item.transform.scale.z,
+          rotation.x,
+          rotation.y,
+          rotation.z,
+          rotation.w,
+          color.r.reinterpret_as_int().to_double(),
+          color.g.reinterpret_as_int().to_double(),
+          color.b.reinterpret_as_int().to_double(),
+          color.a,
+        )
+      Sphere(radius) =>
+        webgpu_draw_sphere_3d(
+          center.x,
+          center.y,
+          center.z,
+          scaled_radius(radius, item.transform.scale),
+          rotation.x,
+          rotation.y,
+          rotation.z,
+          rotation.w,
+          color.r.reinterpret_as_int().to_double(),
+          color.g.reinterpret_as_int().to_double(),
+          color.b.reinterpret_as_int().to_double(),
+          color.a,
+        )
+      Cylinder(radius_top, radius_bottom, height, slices) =>
+        webgpu_draw_cylinder_3d(
+          center.x,
+          center.y,
+          center.z,
+          scaled_radius(radius_top, item.transform.scale),
+          scaled_radius(radius_bottom, item.transform.scale),
+          height * item.transform.scale.y.abs(),
+          slices,
+          rotation.x,
+          rotation.y,
+          rotation.z,
+          rotation.w,
+          color.r.reinterpret_as_int().to_double(),
+          color.g.reinterpret_as_int().to_double(),
+          color.b.reinterpret_as_int().to_double(),
+          color.a,
+        )
+      Plane(size) => {
+        let scaled = scaled_vec3(size, item.transform.scale)
+        let y = if scaled.y.abs() < 0.0001 { 0.02 } else { scaled.y }
+        webgpu_draw_cube_3d(
+          center.x,
+          center.y,
+          center.z,
+          scaled.x,
+          y,
+          scaled.z,
+          rotation.x,
+          rotation.y,
+          rotation.z,
+          rotation.w,
+          color.r.reinterpret_as_int().to_double(),
+          color.g.reinterpret_as_int().to_double(),
+          color.b.reinterpret_as_int().to_double(),
+          color.a,
+        )
+      }
+    }
+  }
+  end_3d()
+}
+
+///|
+fn to_render_vec3(value : @math3d.Vec3) -> @render.Vec3 {
+  { x: value.x, y: value.y, z: value.z }
+}
+
+///|
+fn scaled_vec3(size : @math3d.Vec3, scale : @math3d.Vec3) -> @render.Vec3 {
+  {
+    x: size.x * scale.x.abs(),
+    y: size.y * scale.y.abs(),
+    z: size.z * scale.z.abs(),
+  }
+}
+
+///|
+fn scaled_radius(radius : Double, scale : @math3d.Vec3) -> Double {
+  let sx = scale.x.abs()
+  let sz = scale.z.abs()
+  let max_xz = if sx > sz { sx } else { sz }
+  radius * max_xz
 }

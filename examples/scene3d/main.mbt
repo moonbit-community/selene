@@ -19,13 +19,19 @@ const VIEWPORT_WIDTH : Double = 960.0
 const VIEWPORT_HEIGHT : Double = 640.0
 
 ///|
+let rotating_cube : Ref[@entity.Entity?] = Ref::new(None)
+
+///|
+let cube_rotation : Ref[Double] = Ref::new(0.0)
+
+///|
 fn color(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
   @render.Color::{ r, g, b, a }
 }
 
 ///|
-fn vec3(x : Double, y : Double, z : Double) -> @render.Vec3 {
-  @render.Vec3::{ x, y, z }
+fn vec3(x : Double, y : Double, z : Double) -> @math3d.Vec3 {
+  @math3d.Vec3::new(x, y, z)
 }
 
 ///|
@@ -35,55 +41,83 @@ pub fn run() -> Unit {
   .with_viewport_height(VIEWPORT_HEIGHT)
   .with_zoom(1.0)
   .with_fps(60)
-  .add_system(draw_scene_system, schedule=Render)
-  .add_system(draw_overlay_system, schedule=Render)
+  .add_plugin(@plugins.default_3d_plugin)
+  .add_system(setup_scene3d, schedule=Startup)
+  .add_system(rotate_cube_system, schedule=Update)
+  .add_system(draw_overlay_system, schedule=RenderCleanup)
   .run()
 }
 
 ///|
-fn draw_scene_system(_delta : Double) -> Unit {
-  @backend.begin_3d(@render.Camera3D::{
-    position: vec3(-2.5, 4.5, 9.0),
-    target: vec3(0.0, 0.0, 0.0),
-    up: vec3(0.0, 1.0, 0.0),
-    fovy: 45.0,
+fn setup_scene3d(_delta : Double) -> Unit {
+  let camera = @entity.Entity::new()
+  @transform3d.transforms3d.set(camera, {
+    translation: vec3(0.0, 1.5, 8.0),
+    rotation: @math3d.Quat::identity(),
+    scale: @math3d.Vec3::one(),
+  })
+  @camera3d.cameras3d.set(camera, {
+    ..@camera3d.Camera3DComponent::default(),
+    clear_color: color(20U, 20U, 24U, 1.0),
   })
 
-  // Bevy sample uses Circle(radius=4.0); a thin cylinder reproduces the same base.
-  @backend.draw_cylinder_3d(@render.CylinderDrawCommand3D::{
-    center: vec3(0.0, -0.05, 0.0),
-    radius_top: 4.0,
-    radius_bottom: 4.0,
-    height: 0.1,
-    slices: 64,
+  let scene = @scene3d_api.load_scene_gltf("assets/scene3d/scene3d.gltf")
+  ignore(
+    @scene3d_api.instantiate_scene(scene, @transform3d.Transform3D::identity()),
+  )
+
+  let cube_mesh = @render3d.register_mesh_asset(
+    @render3d.cube_mesh(vec3(1.0, 1.0, 1.0)),
+  )
+  let cube_material = @render3d.register_material_asset({
+    ..@render3d.default_standard_material3d(),
+    base_color: color(124U, 144U, 255U, 1.0),
+    roughness: 0.35,
+  })
+
+  let cube = @entity.Entity::new()
+  @transform3d.transforms3d.set(cube, {
+    translation: vec3(0.0, 0.5, 0.0),
+    rotation: @math3d.Quat::identity(),
+    scale: @math3d.Vec3::one(),
+  })
+  @render3d.mesh3d_renderers.set(cube, {
+    mesh: cube_mesh,
+    material: cube_material,
+    visible: true,
+  })
+  rotating_cube.val = Some(cube)
+
+  let dir_light = @entity.Entity::new()
+  @render3d.directional_lights3d.set(dir_light, {
+    direction: vec3(-0.35, -1.0, -0.2).normalize(),
     color: color(255U, 255U, 255U, 1.0),
+    intensity: 2.0,
+    shadows: true,
   })
+  @render3d.set_ambient_light3d(
+    Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.2 }),
+  )
+}
 
-  @backend.draw_cube_3d(@render.CubeDrawCommand3D::{
-    center: vec3(0.0, 0.5, 0.0),
-    size: vec3(1.0, 1.0, 1.0),
-    color: color(124U, 144U, 255U, 1.0),
+///|
+fn rotate_cube_system(delta : Double) -> Unit {
+  guard rotating_cube.val is Some(cube) else { return }
+  guard @transform3d.transforms3d.get(cube) is Some(transform) else { return }
+  cube_rotation.val += delta
+  @transform3d.transforms3d.set(cube, {
+    ..transform,
+    rotation: @math3d.Quat::from_axis_angle(
+      vec3(0.0, 1.0, 0.0),
+      cube_rotation.val,
+    ),
   })
-  @backend.draw_cube_wires_3d(@render.CubeDrawCommand3D::{
-    center: vec3(0.0, 0.5, 0.0),
-    size: vec3(1.0, 1.0, 1.0),
-    color: color(0U, 0U, 0U, 1.0),
-  })
-
-  // Point-light marker at (4, 8, 4).
-  @backend.draw_sphere_3d(@render.SphereDrawCommand3D::{
-    center: vec3(4.0, 8.0, 4.0),
-    radius: 0.2,
-    color: color(253U, 249U, 0U, 1.0),
-  })
-
-  @backend.end_3d()
 }
 
 ///|
 fn draw_overlay_system(_delta : Double) -> Unit {
   @backend.draw_text(@render.TextDrawCommand::{
-    text: "3d_scene: bevy 3d_scene.rs replicated",
+    text: "3d_scene: ECS render3d pipeline",
     position: @math.Vec2D(16.0, 16.0),
     style: @render.TextStyle::{
       family: "sans-serif",

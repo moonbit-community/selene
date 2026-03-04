@@ -108,6 +108,53 @@ pub fn draw_cylinder_3d(command : @render.CylinderDrawCommand3D) -> Unit {
 }
 
 ///|
+pub fn sync_mesh_asset(
+  handle : @render3d_types.MeshHandle,
+  mesh : @render3d_types.MeshAsset,
+) -> Unit {
+  ignore(handle)
+  ignore(mesh)
+}
+
+///|
+pub fn sync_material_asset(
+  handle : @render3d_types.MaterialHandle,
+  material : @render3d_types.StandardMaterial3D,
+) -> Unit {
+  ignore(handle)
+  ignore(material)
+}
+
+///|
+pub fn sync_image_asset(
+  handle : @render3d_types.ImageHandle,
+  image : @render3d_types.ImageAsset,
+) -> Unit {
+  ignore(handle)
+  ignore(image)
+}
+
+///|
+pub fn release_mesh_asset(handle : @render3d_types.MeshHandle) -> Unit {
+  ignore(handle)
+}
+
+///|
+pub fn release_material_asset(handle : @render3d_types.MaterialHandle) -> Unit {
+  ignore(handle)
+}
+
+///|
+pub fn release_image_asset(handle : @render3d_types.ImageHandle) -> Unit {
+  ignore(handle)
+}
+
+///|
+pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
+  ignore(frame)
+}
+
+///|
 pub fn play_audio(
   audio_path~ : String,
   volume~ : Double,
@@ -131,6 +178,12 @@ pub fn preload_audio(path : String) -> Unit {
 ///|
 pub fn set_embedded_assets(lookup : (String) -> Bytes?) -> Unit {
   ignore(lookup)
+}
+
+///|
+pub fn get_asset_bytes(path : String) -> Bytes? {
+  ignore(path)
+  None
 }
 
 ///|

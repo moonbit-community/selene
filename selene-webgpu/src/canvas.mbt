@@ -33,13 +33,78 @@ pub fn WebGpuBackend::new() -> WebGpuBackend {
 let canvas_backend : WebGpuBackend = WebGpuBackend::new()
 
 ///|
+fn default_embedded_asset_lookup(_path : String) -> Bytes? {
+  None
+}
+
+///|
+let embedded_asset_lookup : Ref[(String) -> Bytes?] = Ref::new(
+  default_embedded_asset_lookup,
+)
+
+///|
+let embedded_asset_cache : Map[String, Bytes] = Map::new()
+
+///|
+fn get_embedded_asset(path : String) -> Bytes? {
+  if embedded_asset_cache.get(path) is Some(bytes) {
+    return Some(bytes)
+  }
+  if (embedded_asset_lookup.val)(path) is Some(bytes) {
+    embedded_asset_cache.set(path, bytes)
+    Some(bytes)
+  } else {
+    None
+  }
+}
+
+///|
+fn saturating_file_byte(value : Int) -> Byte {
+  if value < 0 {
+    Int::to_byte(0)
+  } else if value > 255 {
+    Int::to_byte(255)
+  } else {
+    value.to_byte()
+  }
+}
+
+///|
 pub fn set_time_scale(time_scale : Double) -> Unit {
   canvas_backend.time_scale = time_scale
 }
 
 ///|
 pub fn set_embedded_assets(lookup : (String) -> Bytes?) -> Unit {
-  ignore(lookup)
+  embedded_asset_lookup.val = lookup
+  embedded_asset_cache.clear()
+}
+
+///|
+pub fn get_asset_bytes(path : String) -> Bytes? {
+  if get_embedded_asset(path) is Some(bytes) {
+    return Some(bytes)
+  }
+  let resolved_path = resolve_asset_path(path)
+  if resolved_path != path && get_embedded_asset(resolved_path) is Some(bytes) {
+    return Some(bytes)
+  }
+  if resolved_path.has_prefix("/") {
+    let trimmed = resolved_path.unsafe_substring(
+      start=1,
+      end=resolved_path.length(),
+    )
+    if get_embedded_asset(trimmed) is Some(bytes) {
+      return Some(bytes)
+    }
+  }
+  let raw = webgpu_load_file_bytes_sync(resolved_path)
+  if raw.length() == 0 {
+    return None
+  }
+  Some(
+    Bytes::from_iter(raw.iter().map(fn(value) { saturating_file_byte(value) })),
+  )
 }
 
 ///|

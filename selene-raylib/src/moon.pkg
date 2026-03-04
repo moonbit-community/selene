@@ -1,10 +1,13 @@
 import {
   "Milky2018/selene/inputs",
   "Milky2018/selene/math" @smath,
+  "Milky2018/selene/math3d",
   "Milky2018/selene/render" @render,
+  "Milky2018/selene/render3d_types",
   "tonyfettes/raylib",
   "tonyfettes/raylib/rl" @rl,
   "moonbitlang/core/cmp",
+  "moonbitlang/core/math" @cmath,
 }
 
 options(

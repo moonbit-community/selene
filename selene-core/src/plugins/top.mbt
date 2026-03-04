@@ -65,3 +65,48 @@ pub fn default_plugin(app : @system.App) -> Unit {
   ..push((@a11y.a11y_sync_system, PostUpdate, "A11y Sync System"))
   .push((@sprite.render_sprite_system, Render, "Render Sprite System"))
 }
+
+///|
+/// Configures a 3D-first pipeline:
+/// transform propagation, camera extraction, render extraction/prepare/submit,
+/// and ECS-driven 3D physics.
+pub fn default_3d_plugin(app : @system.App) -> Unit {
+  app.systems
+  ..push((@inputs.advanced_key_system, PreUpdate, "Advanced Key System"))
+  ..push((@inputs.advanced_mouse_system, PreUpdate, "Advanced Mouse System"))
+  ..push((@physics3d.physics_step_system, FixedUpdate, "Physics3D Step System"))
+  ..push(
+    (
+      @transform3d.capture_previous_global_transforms3d_system,
+      FixedFirst,
+      "Capture Previous Transform3D System",
+    ),
+  )
+  ..push(
+    (
+      @transform3d.transform3d_propagate_system,
+      FixedPostUpdate,
+      "Transform3D Propagation System",
+    ),
+  )
+  ..push(
+    (
+      @transform3d.transform3d_propagate_system,
+      PostUpdate,
+      "Transform3D Propagation System (Frame)",
+    ),
+  )
+  ..push((@camera3d.camera3d_extract_system, RenderExtract, "Camera3D Extract"))
+  ..push((@render3d.render3d_extract_system, RenderExtract, "Render3D Extract"))
+  ..push(
+    (
+      @render3d_pipeline.render3d_prepare_system,
+      RenderPrepare,
+      "Render3D Prepare",
+    ),
+  )
+  ..push((@render3d_pipeline.render3d_submit_system, Render, "Render3D Submit"))
+  ..push((@system.deferred_event_system, PostUpdate, "Deferred Event System"))
+  ..push((@system.timer_system, PostUpdate, "Timer System"))
+  .push((@system.realtime_timer_system, PostUpdate, "Realtime Timer System"))
+}

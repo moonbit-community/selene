@@ -31,6 +31,12 @@ priv struct RaylibBackend {
   font_alias : Map[String, String]
   fonts_by_path : Map[String, @raylib.Font]
   mut embedded_asset_cache : Map[String, Bytes]
+  meshes3d : Map[@render3d_types.MeshHandle, @render3d_types.MeshAsset]
+  materials3d : Map[
+    @render3d_types.MaterialHandle,
+    @render3d_types.StandardMaterial3D,
+  ]
+  images3d : Map[@render3d_types.ImageHandle, @render3d_types.ImageAsset]
 }
 
 ///|
@@ -52,6 +58,9 @@ let backend : RaylibBackend = {
   font_alias: Map::new(),
   fonts_by_path: Map::new(),
   embedded_asset_cache: Map::new(),
+  meshes3d: Map::new(),
+  materials3d: Map::new(),
+  images3d: Map::new(),
 }
 
 ///|
@@ -620,6 +629,152 @@ pub fn draw_cylinder_3d(command : @render.CylinderDrawCommand3D) -> Unit {
 }
 
 ///|
+pub fn sync_mesh_asset(
+  handle : @render3d_types.MeshHandle,
+  mesh : @render3d_types.MeshAsset,
+) -> Unit {
+  backend.meshes3d.set(handle, mesh)
+}
+
+///|
+pub fn sync_material_asset(
+  handle : @render3d_types.MaterialHandle,
+  material : @render3d_types.StandardMaterial3D,
+) -> Unit {
+  backend.materials3d.set(handle, material)
+}
+
+///|
+pub fn sync_image_asset(
+  handle : @render3d_types.ImageHandle,
+  image : @render3d_types.ImageAsset,
+) -> Unit {
+  backend.images3d.set(handle, image)
+}
+
+///|
+pub fn release_mesh_asset(handle : @render3d_types.MeshHandle) -> Unit {
+  backend.meshes3d.remove(handle)
+}
+
+///|
+pub fn release_material_asset(handle : @render3d_types.MaterialHandle) -> Unit {
+  backend.materials3d.remove(handle)
+}
+
+///|
+pub fn release_image_asset(handle : @render3d_types.ImageHandle) -> Unit {
+  backend.images3d.remove(handle)
+}
+
+///|
+pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
+  guard frame.camera is Some(active_camera) else { return }
+  begin_3d({
+    position: to_render_vec3(active_camera.position),
+    target: to_render_vec3(active_camera.target),
+    up: to_render_vec3(active_camera.up),
+    fovy: active_camera.fov_y,
+  })
+  for item in frame.items {
+    guard backend.meshes3d.get(item.mesh) is Some(mesh_asset) else { continue }
+    let material = backend.materials3d
+      .get(item.material)
+      .unwrap_or(@render3d_types.default_standard_material3d())
+    draw_mesh3d_instance(mesh_asset, material, item.transform)
+  }
+  end_3d()
+}
+
+///|
+fn to_render_vec3(value : @math3d.Vec3) -> @render.Vec3 {
+  { x: value.x, y: value.y, z: value.z }
+}
+
+///|
+fn draw_mesh3d_instance(
+  mesh_asset : @render3d_types.MeshAsset,
+  material : @render3d_types.StandardMaterial3D,
+  transform : @render3d_types.FrameTransform3D,
+) -> Unit {
+  @rl.push_matrix()
+  @rl.translatef(
+    to_float(transform.translation.x),
+    to_float(transform.translation.y),
+    to_float(transform.translation.z),
+  )
+  apply_quat_rotation(transform.rotation)
+  @rl.scalef(
+    to_float(transform.scale.x),
+    to_float(transform.scale.y),
+    to_float(transform.scale.z),
+  )
+  let color = to_ray_color(material.base_color)
+  match mesh_asset.primitive {
+    Cube(size) =>
+      @raylib.draw_cube(
+        @raylib.Vector3::new(0.0F, 0.0F, 0.0F),
+        to_float(size.x),
+        to_float(size.y),
+        to_float(size.z),
+        color,
+      )
+    Sphere(radius) =>
+      @raylib.draw_sphere(
+        @raylib.Vector3::new(0.0F, 0.0F, 0.0F),
+        to_float(radius),
+        color,
+      )
+    Cylinder(radius_top, radius_bottom, height, slices) =>
+      @raylib.draw_cylinder(
+        @raylib.Vector3::new(0.0F, 0.0F, 0.0F),
+        to_float(radius_top),
+        to_float(radius_bottom),
+        to_float(height),
+        slices,
+        color,
+      )
+    Plane(size) => {
+      let thickness = if size.y.abs() < 0.0001 { 0.02 } else { size.y }
+      @raylib.draw_cube(
+        @raylib.Vector3::new(0.0F, 0.0F, 0.0F),
+        to_float(size.x),
+        to_float(thickness),
+        to_float(size.z),
+        color,
+      )
+    }
+  }
+  @rl.pop_matrix()
+}
+
+///|
+fn apply_quat_rotation(quat : @math3d.Quat) -> Unit {
+  let normalized = quat.normalize()
+  let w = @cmp.minimum(1.0, @cmp.maximum(-1.0, normalized.w))
+  let angle = 2.0 * @cmath.acos(w)
+  if angle.abs() < 0.0000001 {
+    return
+  }
+  let sin_half = (1.0 - w * w).sqrt()
+  let axis = if sin_half < 0.000001 {
+    @math3d.Vec3::new(0.0, 1.0, 0.0)
+  } else {
+    @math3d.Vec3::new(
+      normalized.x / sin_half,
+      normalized.y / sin_half,
+      normalized.z / sin_half,
+    )
+  }
+  @rl.rotatef(
+    to_float(angle * 180.0 / @cmath.PI),
+    to_float(axis.x),
+    to_float(axis.y),
+    to_float(axis.z),
+  )
+}
+
+///|
 pub fn play_audio(
   audio_path~ : String,
   volume~ : Double,
@@ -691,4 +846,15 @@ pub fn load_font(font : String, path : String) -> Unit {
 pub fn set_embedded_assets(lookup : (String) -> Bytes?) -> Unit {
   backend.embedded_asset_lookup = lookup
   backend.embedded_asset_cache = Map::new()
+}
+
+///|
+pub fn get_asset_bytes(path : String) -> Bytes? {
+  if get_embedded_asset(path) is Some(bytes) {
+    return Some(bytes)
+  }
+  if !@raylib.file_exists(path) {
+    return None
+  }
+  Some(@raylib.load_file_data(path))
 }

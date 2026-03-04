@@ -1,0 +1,75 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "Selene scene3d minimal glTF"
+  },
+  "scene": 0,
+  "scenes": [
+    {
+      "nodes": [0, 1]
+    }
+  ],
+  "nodes": [
+    {
+      "name": "Ground",
+      "mesh": 0,
+      "translation": [0.0, -0.05, 0.0],
+      "rotation": [0.0, 0.0, 0.0, 1.0],
+      "scale": [1.0, 1.0, 1.0]
+    },
+    {
+      "name": "LightMarker",
+      "mesh": 1,
+      "translation": [4.0, 8.0, 4.0],
+      "rotation": [0.0, 0.0, 0.0, 1.0],
+      "scale": [1.0, 1.0, 1.0]
+    }
+  ],
+  "meshes": [
+    {
+      "name": "GroundMesh",
+      "primitives": [
+        {
+          "material": 0,
+          "extras": {
+            "selenePrimitive": "plane",
+            "size": [8.0, 0.1, 8.0]
+          }
+        }
+      ]
+    },
+    {
+      "name": "LightMarkerMesh",
+      "primitives": [
+        {
+          "material": 1,
+          "extras": {
+            "selenePrimitive": "sphere",
+            "radius": 0.2
+          }
+        }
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "GroundMaterial",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [1.0, 1.0, 1.0, 1.0],
+        "metallicFactor": 0.0,
+        "roughnessFactor": 1.0
+      },
+      "alphaMode": "OPAQUE"
+    },
+    {
+      "name": "LightMaterial",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [0.992, 0.976, 0.0, 1.0],
+        "metallicFactor": 0.0,
+        "roughnessFactor": 0.1
+      },
+      "emissiveFactor": [0.992, 0.976, 0.0],
+      "alphaMode": "OPAQUE"
+    }
+  ]
+}

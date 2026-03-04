@@ -102,6 +102,23 @@ extern "js" fn resolve_asset_path(path : String) -> String =
   #| }
 
 ///|
+extern "js" fn webgpu_load_file_bytes_sync(path : String) -> Array[Int] =
+  #| (path) => {
+  #|   try {
+  #|     const xhr = new XMLHttpRequest();
+  #|     xhr.open('GET', path, false);
+  #|     xhr.responseType = 'arraybuffer';
+  #|     xhr.send(null);
+  #|     if (xhr.status >= 200 && xhr.status < 300 && xhr.response) {
+  #|       return Array.from(new Uint8Array(xhr.response));
+  #|     }
+  #|   } catch (_err) {
+  #|     return [];
+  #|   }
+  #|   return [];
+  #| }
+
+///|
 extern "js" fn webgpu_measure_text(
   text : String,
   family : String,
@@ -549,19 +566,55 @@ extern "js" fn webgpu_initialize(
   #|       rt.pushTex2d(0, rec, verts);
   #|     };
   #|
-  #|     rt.makeCube = (cx, cy, cz, sx, sy, sz, color) => {
+  #|     rt.transformVerts3d = (verts, tx, ty, tz, qx, qy, qz, qw) => {
+  #|       let nx = qx;
+  #|       let ny = qy;
+  #|       let nz = qz;
+  #|       let nw = qw;
+  #|       const qLen = Math.hypot(nx, ny, nz, nw);
+  #|       if (qLen <= 1e-8) {
+  #|         nx = 0;
+  #|         ny = 0;
+  #|         nz = 0;
+  #|         nw = 1;
+  #|       } else {
+  #|         nx /= qLen;
+  #|         ny /= qLen;
+  #|         nz /= qLen;
+  #|         nw /= qLen;
+  #|       }
+  #|       for (let i = 0; i < verts.length; i += 7) {
+  #|         const x = verts[i];
+  #|         const y = verts[i + 1];
+  #|         const z = verts[i + 2];
+  #|         const dotUV = nx * x + ny * y + nz * z;
+  #|         const dotUU = nx * nx + ny * ny + nz * nz;
+  #|         const cx = ny * z - nz * y;
+  #|         const cy = nz * x - nx * z;
+  #|         const cz = nx * y - ny * x;
+  #|         const rx = 2 * dotUV * nx + (nw * nw - dotUU) * x + 2 * nw * cx;
+  #|         const ry = 2 * dotUV * ny + (nw * nw - dotUU) * y + 2 * nw * cy;
+  #|         const rz = 2 * dotUV * nz + (nw * nw - dotUU) * z + 2 * nw * cz;
+  #|         verts[i] = rx + tx;
+  #|         verts[i + 1] = ry + ty;
+  #|         verts[i + 2] = rz + tz;
+  #|       }
+  #|       return verts;
+  #|     };
+  #|
+  #|     rt.makeCube = (sx, sy, sz, color) => {
   #|       const hx = sx / 2;
   #|       const hy = sy / 2;
   #|       const hz = sz / 2;
   #|       const p = [
-  #|         [cx - hx, cy - hy, cz - hz],
-  #|         [cx + hx, cy - hy, cz - hz],
-  #|         [cx + hx, cy + hy, cz - hz],
-  #|         [cx - hx, cy + hy, cz - hz],
-  #|         [cx - hx, cy - hy, cz + hz],
-  #|         [cx + hx, cy - hy, cz + hz],
-  #|         [cx + hx, cy + hy, cz + hz],
-  #|         [cx - hx, cy + hy, cz + hz],
+  #|         [-hx, -hy, -hz],
+  #|         [hx, -hy, -hz],
+  #|         [hx, hy, -hz],
+  #|         [-hx, hy, -hz],
+  #|         [-hx, -hy, hz],
+  #|         [hx, -hy, hz],
+  #|         [hx, hy, hz],
+  #|         [-hx, hy, hz],
   #|       ];
   #|       const idx = [
   #|         0, 1, 2, 0, 2, 3,
@@ -579,19 +632,19 @@ extern "js" fn webgpu_initialize(
   #|       return new Float32Array(out);
   #|     };
   #|
-  #|     rt.makeCubeEdges = (cx, cy, cz, sx, sy, sz, color) => {
+  #|     rt.makeCubeEdges = (sx, sy, sz, color) => {
   #|       const hx = sx / 2;
   #|       const hy = sy / 2;
   #|       const hz = sz / 2;
   #|       const p = [
-  #|         [cx - hx, cy - hy, cz - hz],
-  #|         [cx + hx, cy - hy, cz - hz],
-  #|         [cx + hx, cy + hy, cz - hz],
-  #|         [cx - hx, cy + hy, cz - hz],
-  #|         [cx - hx, cy - hy, cz + hz],
-  #|         [cx + hx, cy - hy, cz + hz],
-  #|         [cx + hx, cy + hy, cz + hz],
-  #|         [cx - hx, cy + hy, cz + hz],
+  #|         [-hx, -hy, -hz],
+  #|         [hx, -hy, -hz],
+  #|         [hx, hy, -hz],
+  #|         [-hx, hy, -hz],
+  #|         [-hx, -hy, hz],
+  #|         [hx, -hy, hz],
+  #|         [hx, hy, hz],
+  #|         [-hx, hy, hz],
   #|       ];
   #|       const e = [
   #|         0,1, 1,2, 2,3, 3,0,
@@ -606,7 +659,7 @@ extern "js" fn webgpu_initialize(
   #|       return new Float32Array(out);
   #|     };
   #|
-  #|     rt.makeSphere = (cx, cy, cz, radius, color) => {
+  #|     rt.makeSphere = (radius, color) => {
   #|       const stacks = 12;
   #|       const slices = 24;
   #|       const out = [];
@@ -620,10 +673,10 @@ extern "js" fn webgpu_initialize(
   #|           const u1 = (j + 1) / slices;
   #|           const th0 = u0 * Math.PI * 2;
   #|           const th1 = u1 * Math.PI * 2;
-  #|           const p0 = [cx + Math.cos(th0) * Math.sin(phi0) * radius, cy + Math.cos(phi0) * radius, cz + Math.sin(th0) * Math.sin(phi0) * radius];
-  #|           const p1 = [cx + Math.cos(th1) * Math.sin(phi0) * radius, cy + Math.cos(phi0) * radius, cz + Math.sin(th1) * Math.sin(phi0) * radius];
-  #|           const p2 = [cx + Math.cos(th1) * Math.sin(phi1) * radius, cy + Math.cos(phi1) * radius, cz + Math.sin(th1) * Math.sin(phi1) * radius];
-  #|           const p3 = [cx + Math.cos(th0) * Math.sin(phi1) * radius, cy + Math.cos(phi1) * radius, cz + Math.sin(th0) * Math.sin(phi1) * radius];
+  #|           const p0 = [Math.cos(th0) * Math.sin(phi0) * radius, Math.cos(phi0) * radius, Math.sin(th0) * Math.sin(phi0) * radius];
+  #|           const p1 = [Math.cos(th1) * Math.sin(phi0) * radius, Math.cos(phi0) * radius, Math.sin(th1) * Math.sin(phi0) * radius];
+  #|           const p2 = [Math.cos(th1) * Math.sin(phi1) * radius, Math.cos(phi1) * radius, Math.sin(th1) * Math.sin(phi1) * radius];
+  #|           const p3 = [Math.cos(th0) * Math.sin(phi1) * radius, Math.cos(phi1) * radius, Math.sin(th0) * Math.sin(phi1) * radius];
   #|           out.push(
   #|             p0[0], p0[1], p0[2], color[0], color[1], color[2], color[3],
   #|             p1[0], p1[1], p1[2], color[0], color[1], color[2], color[3],
@@ -637,17 +690,17 @@ extern "js" fn webgpu_initialize(
   #|       return new Float32Array(out);
   #|     };
   #|
-  #|     rt.makeCylinder = (cx, cy, cz, rtTop, rtBottom, height, slices, color) => {
+  #|     rt.makeCylinder = (rtTop, rtBottom, height, slices, color) => {
   #|       const out = [];
   #|       const h2 = height / 2;
   #|       const n = Math.max(3, slices | 0);
   #|       for (let i = 0; i < n; i += 1) {
   #|         const a0 = (i / n) * Math.PI * 2;
   #|         const a1 = ((i + 1) / n) * Math.PI * 2;
-  #|         const t0 = [cx + Math.cos(a0) * rtTop, cy + h2, cz + Math.sin(a0) * rtTop];
-  #|         const t1 = [cx + Math.cos(a1) * rtTop, cy + h2, cz + Math.sin(a1) * rtTop];
-  #|         const b0 = [cx + Math.cos(a0) * rtBottom, cy - h2, cz + Math.sin(a0) * rtBottom];
-  #|         const b1 = [cx + Math.cos(a1) * rtBottom, cy - h2, cz + Math.sin(a1) * rtBottom];
+  #|         const t0 = [Math.cos(a0) * rtTop, h2, Math.sin(a0) * rtTop];
+  #|         const t1 = [Math.cos(a1) * rtTop, h2, Math.sin(a1) * rtTop];
+  #|         const b0 = [Math.cos(a0) * rtBottom, -h2, Math.sin(a0) * rtBottom];
+  #|         const b1 = [Math.cos(a1) * rtBottom, -h2, Math.sin(a1) * rtBottom];
   #|         out.push(
   #|           t0[0], t0[1], t0[2], color[0], color[1], color[2], color[3],
   #|           b0[0], b0[1], b0[2], color[0], color[1], color[2], color[3],
@@ -656,13 +709,13 @@ extern "js" fn webgpu_initialize(
   #|           b1[0], b1[1], b1[2], color[0], color[1], color[2], color[3],
   #|           t1[0], t1[1], t1[2], color[0], color[1], color[2], color[3],
   #|         );
-  #|         const top = [cx, cy + h2, cz];
+  #|         const top = [0, h2, 0];
   #|         out.push(
   #|           top[0], top[1], top[2], color[0], color[1], color[2], color[3],
   #|           t1[0], t1[1], t1[2], color[0], color[1], color[2], color[3],
   #|           t0[0], t0[1], t0[2], color[0], color[1], color[2], color[3],
   #|         );
-  #|         const bottom = [cx, cy - h2, cz];
+  #|         const bottom = [0, -h2, 0];
   #|         out.push(
   #|           bottom[0], bottom[1], bottom[2], color[0], color[1], color[2], color[3],
   #|           b0[0], b0[1], b0[2], color[0], color[1], color[2], color[3],
@@ -689,24 +742,28 @@ extern "js" fn webgpu_initialize(
   #|     rt.end3d = () => {
   #|       rt.current3dSection = null;
   #|     };
-  #|     rt.pushCube3d = (cx, cy, cz, sx, sy, sz, r, g, b, a) => {
+  #|     rt.pushCube3d = (cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, r, g, b, a) => {
   #|       if (!rt.current3dSection) return;
-  #|       const verts = rt.makeCube(cx, cy, cz, sx, sy, sz, colorNorm(r, g, b, a));
+  #|       const verts = rt.makeCube(sx, sy, sz, colorNorm(r, g, b, a));
+  #|       rt.transformVerts3d(verts, cx, cy, cz, qx, qy, qz, qw);
   #|       rt.current3dSection.triCommands.push(verts);
   #|     };
-  #|     rt.pushCubeWires3d = (cx, cy, cz, sx, sy, sz, r, g, b, a) => {
+  #|     rt.pushCubeWires3d = (cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, r, g, b, a) => {
   #|       if (!rt.current3dSection) return;
-  #|       const verts = rt.makeCubeEdges(cx, cy, cz, sx, sy, sz, colorNorm(r, g, b, a));
+  #|       const verts = rt.makeCubeEdges(sx, sy, sz, colorNorm(r, g, b, a));
+  #|       rt.transformVerts3d(verts, cx, cy, cz, qx, qy, qz, qw);
   #|       rt.current3dSection.lineCommands.push(verts);
   #|     };
-  #|     rt.pushSphere3d = (cx, cy, cz, radius, r, g, b, a) => {
+  #|     rt.pushSphere3d = (cx, cy, cz, radius, qx, qy, qz, qw, r, g, b, a) => {
   #|       if (!rt.current3dSection) return;
-  #|       const verts = rt.makeSphere(cx, cy, cz, radius, colorNorm(r, g, b, a));
+  #|       const verts = rt.makeSphere(radius, colorNorm(r, g, b, a));
+  #|       rt.transformVerts3d(verts, cx, cy, cz, qx, qy, qz, qw);
   #|       rt.current3dSection.triCommands.push(verts);
   #|     };
-  #|     rt.pushCylinder3d = (cx, cy, cz, rtTop, rtBottom, h, slices, r, g, b, a) => {
+  #|     rt.pushCylinder3d = (cx, cy, cz, rtTop, rtBottom, h, slices, qx, qy, qz, qw, r, g, b, a) => {
   #|       if (!rt.current3dSection) return;
-  #|       const verts = rt.makeCylinder(cx, cy, cz, rtTop, rtBottom, h, slices, colorNorm(r, g, b, a));
+  #|       const verts = rt.makeCylinder(rtTop, rtBottom, h, slices, colorNorm(r, g, b, a));
+  #|       rt.transformVerts3d(verts, cx, cy, cz, qx, qy, qz, qw);
   #|       rt.current3dSection.triCommands.push(verts);
   #|     };
   #|
@@ -1287,15 +1344,19 @@ extern "js" fn webgpu_draw_cube_3d(
   size_x : Double,
   size_y : Double,
   size_z : Double,
+  rotation_x : Double,
+  rotation_y : Double,
+  rotation_z : Double,
+  rotation_w : Double,
   r : Double,
   g : Double,
   b : Double,
   a : Double,
 ) -> Unit =
-  #| (cx, cy, cz, sx, sy, sz, r, g, b, a) => {
+  #| (cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, r, g, b, a) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushCube3d(cx, cy, cz, sx, sy, sz, r, g, b, a);
+  #|     rt.pushCube3d(cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, r, g, b, a);
   #|   }
   #| }
 
@@ -1307,15 +1368,19 @@ extern "js" fn webgpu_draw_cube_wires_3d(
   size_x : Double,
   size_y : Double,
   size_z : Double,
+  rotation_x : Double,
+  rotation_y : Double,
+  rotation_z : Double,
+  rotation_w : Double,
   r : Double,
   g : Double,
   b : Double,
   a : Double,
 ) -> Unit =
-  #| (cx, cy, cz, sx, sy, sz, r, g, b, a) => {
+  #| (cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, r, g, b, a) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushCubeWires3d(cx, cy, cz, sx, sy, sz, r, g, b, a);
+  #|     rt.pushCubeWires3d(cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, r, g, b, a);
   #|   }
   #| }
 
@@ -1325,15 +1390,19 @@ extern "js" fn webgpu_draw_sphere_3d(
   center_y : Double,
   center_z : Double,
   radius : Double,
+  rotation_x : Double,
+  rotation_y : Double,
+  rotation_z : Double,
+  rotation_w : Double,
   r : Double,
   g : Double,
   b : Double,
   a : Double,
 ) -> Unit =
-  #| (cx, cy, cz, radius, r, g, b, a) => {
+  #| (cx, cy, cz, radius, qx, qy, qz, qw, r, g, b, a) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushSphere3d(cx, cy, cz, radius, r, g, b, a);
+  #|     rt.pushSphere3d(cx, cy, cz, radius, qx, qy, qz, qw, r, g, b, a);
   #|   }
   #| }
 
@@ -1346,15 +1415,19 @@ extern "js" fn webgpu_draw_cylinder_3d(
   radius_bottom : Double,
   height : Double,
   slices : Int,
+  rotation_x : Double,
+  rotation_y : Double,
+  rotation_z : Double,
+  rotation_w : Double,
   r : Double,
   g : Double,
   b : Double,
   a : Double,
 ) -> Unit =
-  #| (cx, cy, cz, rtTop, rtBottom, h, slices, r, g, b, a) => {
+  #| (cx, cy, cz, rtTop, rtBottom, h, slices, qx, qy, qz, qw, r, g, b, a) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushCylinder3d(cx, cy, cz, rtTop, rtBottom, h, slices, r, g, b, a);
+  #|     rt.pushCylinder3d(cx, cy, cz, rtTop, rtBottom, h, slices, qx, qy, qz, qw, r, g, b, a);
   #|   }
   #| }
 

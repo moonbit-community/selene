@@ -8,6 +8,8 @@ import {
 // Values
 pub fn debug_plugin(@system.App) -> Unit
 
+pub fn default_3d_plugin(@system.App) -> Unit
+
 pub fn default_plugin(@system.App) -> Unit
 
 // Errors
