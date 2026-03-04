@@ -13,7 +13,10 @@ python3 -m http.server 8000
 
 打开 `http://localhost:8000/web/pixeladventure/`。
 
-### 1.2 Native（raylib）+ 嵌入资源
+### 1.2 Native（raylib）+ 嵌入资源（可选）
+
+这是一个用于原生发布的可选优化和打包流程。
+默认可以不开启，直接走文件系统加载资源。
 
 先安装 CLI：
 
@@ -49,11 +52,13 @@ options(
 
 两个 pre-build 步骤里的 `<assets-dir>` 要保持一致，`<runtime-prefix>` 要和运行时资源路径前缀一致。
 
-在 `app.run()` 之前调用：
+仅当开启嵌入时，才需要在 `app.run()` 之前调用：
 
 ```moonbit
 @backend.set_embedded_assets(get_embedded_asset)
 ```
+
+如果没有开启嵌入，不需要调用这个 API。
 
 ## 2. 示例目录结构
 

@@ -10,9 +10,12 @@ The [selene-webgpu](selene-webgpu/) directory is the officially maintained Canva
 
 The [selene-raylib](selene-raylib/) directory is the native backend for Selene.
 
-## Raylib Native Asset Embedding
+## Raylib Native Asset Embedding (Optional)
 
-When building native games with raylib, install the Selene embed-assets CLI and use it from `pre-build`:
+This is an optional optimization and packaging technique for native releases.
+By default, you can skip it and load assets directly from the filesystem.
+
+If you want to enable embedding, install the Selene embed-assets CLI and use it from `pre-build`:
 
 ```bash
 moon install Milky2018/selene_tools/cmd/selene-embed-assets
@@ -44,11 +47,13 @@ options(
 
 Use the same `<assets-dir>` in both pre-build steps, and set `<runtime-prefix>` to match your runtime asset paths.
 
-Before `app.run()`, register embedded lookup:
+When embedding is enabled, register embedded lookup before `app.run()`:
 
 ```moonbit
 @backend.set_embedded_assets(get_embedded_asset)
 ```
+
+If embedding is not enabled, do not call this API.
 
 ## For [MGPIC 2025](https://www.moonbitlang.cn/2025-mgpic) Participants
 

@@ -4,7 +4,8 @@ Native backend implementation for Selene based on `tonyfettes/raylib`.
 
 ## Embed assets with MoonBit pre-build
 
-For native binary distribution, you can embed all assets into the executable and let raylib load textures/audio/fonts from memory.
+This is an optional optimization and packaging workflow for native binary distribution.
+By default, you can skip it and let raylib load textures/audio/fonts from the filesystem.
 
 ### 1. Install the asset bundling CLI
 
@@ -42,7 +43,7 @@ This generates:
 - `embedded_assets_blob.mbt` (raw bytes via `:embed`)
 - `embedded_assets_index.mbt` (`get_embedded_asset(path) -> Bytes?`)
 
-### 3. Install embedded lookup before `App::run`
+### 3. Install embedded lookup before `App::run` (only when embedding is enabled)
 
 ```moonbit
 import { "Milky2018/selene/backend" @backend }
@@ -59,3 +60,5 @@ When installed, `selene_raylib` will prefer embedded bytes for:
 - fonts
 
 If a path is not found in embedded assets, it falls back to filesystem loading.
+
+If embedding is not enabled, you should not call `set_embedded_assets`.

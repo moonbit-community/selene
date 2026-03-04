@@ -13,7 +13,10 @@ python3 -m http.server 8000
 
 Open `http://localhost:8000/web/pixeladventure/`.
 
-### 1.2 Native (raylib) with embedded assets
+### 1.2 Native (raylib) with embedded assets (optional)
+
+This is an optional optimization and packaging flow for native release builds.
+By default, you can skip it and load assets from the filesystem.
 
 Install the CLI:
 
@@ -49,11 +52,13 @@ options(
 
 Use the same `<assets-dir>` in both pre-build steps, and set `<runtime-prefix>` to match your runtime asset paths.
 
-Before `app.run()`:
+When embedding is enabled, call this before `app.run()`:
 
 ```moonbit
 @backend.set_embedded_assets(get_embedded_asset)
 ```
+
+If embedding is not enabled, do not call this API.
 
 ## 2. Example Layout
 

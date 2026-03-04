@@ -10,9 +10,12 @@
 
 [selene-raylib](selene-raylib/) 是 Selene 的原生后端。
 
-## Raylib 原生资源嵌入
+## Raylib 原生资源嵌入（可选）
 
-在使用 raylib 构建原生游戏时，请先安装 Selene 的资源打包 CLI，并在 `pre-build` 中使用：
+这是一个可选的优化和打包手段，主要用于原生发布。
+默认情况下可以不开启，直接走文件系统加载资源。
+
+如果你要开启嵌入，再安装 Selene 的资源打包 CLI 并在 `pre-build` 中使用：
 
 ```bash
 moon install Milky2018/selene_tools/cmd/selene-embed-assets
@@ -44,11 +47,13 @@ options(
 
 两个 pre-build 步骤里的 `<assets-dir>` 要保持一致，`<runtime-prefix>` 要和运行时资源路径前缀一致。
 
-在 `app.run()` 之前注册嵌入资源查询函数：
+仅当开启嵌入时，才需要在 `app.run()` 之前注册嵌入资源查询函数：
 
 ```moonbit
 @backend.set_embedded_assets(get_embedded_asset)
 ```
+
+如果没有开启嵌入，不需要调用这个 API。
 
 ## 写给 [MGPIC 2025 全球编程创新挑战](https://www.moonbitlang.cn/2025-mgpic)参赛选手
 

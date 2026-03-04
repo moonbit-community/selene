@@ -11,6 +11,7 @@ moon install Milky2018/selene_tools/cmd/selene-embed-assets
 ## selene-embed-assets
 
 Build an embedded asset pack and/or MoonBit index file for native pre-build hooks.
+This is an optional optimization/packaging flow for native release; default filesystem loading does not require it.
 
 ```bash
 selene-embed-assets \
@@ -43,10 +44,12 @@ Add the generated file as source and run `selene-embed-assets` in `pre-build`:
       "command": "selene-embed-assets --assets-dir $input --pack-out $output --path-prefix <runtime-prefix>"
     },
     {
-      "input": "_embedded_assets.pack",
+      "input": "<assets-dir>",
       "output": "embedded_assets_index.mbt",
-      "command": "selene-embed-assets --pack-in $input --index-out $output --blob-name embedded_assets_blob --lookup-fn get_embedded_asset"
+      "command": "selene-embed-assets --assets-dir $input --index-out $output --path-prefix <runtime-prefix> --blob-name embedded_assets_blob --lookup-fn get_embedded_asset"
     }
   ]
 }
 ```
+
+If you are not embedding assets into a native binary, you can skip this setup.
