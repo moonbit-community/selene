@@ -38,6 +38,7 @@ pub(all) struct Text {
   mut content : String
   mut color : String
   mut font : String
+  mut font_handle : @asset.FontHandle?
   mut baseline : @math.VAlign
   mut align : @math.HAlign
 }
@@ -50,7 +51,27 @@ pub fn Text::new(
   baseline? : @math.VAlign = Top,
   align? : @math.HAlign = Left,
 ) -> Text {
-  { content, color, font, baseline, align }
+  { content, color, font, font_handle: None, baseline, align }
+}
+
+///|
+pub fn Text::from_font(
+  content : String,
+  font : @asset.FontHandle,
+  size? : Double = 16.0,
+  color? : String = "white",
+  baseline? : @math.VAlign = Top,
+  align? : @math.HAlign = Left,
+) -> Text {
+  let family = @asset.font_family(font).unwrap_or("Arial")
+  {
+    content,
+    color,
+    font: "\{size}px \{family}",
+    font_handle: Some(font),
+    baseline,
+    align,
+  }
 }
 
 ///|
@@ -59,17 +80,29 @@ fn render_text(
   position : @math.Vec2D,
   scale_with_zoom : Bool,
 ) -> Unit {
-  let style = parse_text_style(text.font, text.color, text.align, text.baseline)
+  let style = parse_text_style(
+    text.font,
+    text.color,
+    text.align,
+    text.baseline,
+    font_handle=text.font_handle,
+  )
   let style = if scale_with_zoom {
     { ..style, size: @system.scale_value(style.size) }
   } else {
     style
   }
-  @backend.draw_text({ text: text.content, position, style })
+  @render2d.push_text({ text: text.content, position, style })
 }
 
 ///|
 pub fn measure_text_size(text : Text) -> @math.Vec2D {
-  let style = parse_text_style(text.font, text.color, text.align, text.baseline)
-  @backend.measure_text(style, text.content)
+  let style = parse_text_style(
+    text.font,
+    text.color,
+    text.align,
+    text.baseline,
+    font_handle=text.font_handle,
+  )
+  @platform_render.measure_text(style, text.content)
 }

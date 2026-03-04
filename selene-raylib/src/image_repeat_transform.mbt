@@ -44,6 +44,7 @@ fn draw_axis_aligned_textured_quad(
   base_x : Double,
   base_y : Double,
   transform : @smath.Transform,
+  tint : @render.Color,
 ) -> Unit {
   let sx = transform.a
   let sy = transform.d
@@ -75,7 +76,7 @@ fn draw_axis_aligned_textured_quad(
     to_ray_rect(dest_x, dest_y, dest_w, dest_h),
     to_ray_vector2(0.0, 0.0),
     0.0,
-    @raylib.white,
+    to_ray_color(tint),
   )
 }
 
@@ -95,6 +96,7 @@ fn draw_affine_textured_quad(
   base_x : Double,
   base_y : Double,
   transform : @smath.Transform,
+  tint : @render.Color,
 ) -> Unit {
   if src_x1 <= src_x0 ||
     src_y1 <= src_y0 ||
@@ -113,7 +115,8 @@ fn draw_affine_textured_quad(
   ignore(@rl.check_render_batch_limit(4))
   @rl.set_texture(@raylib.get_texture_id(texture).reinterpret_as_uint())
   @rl.begin(@rl.Quads)
-  @rl.color4ub(b'\xFF', b'\xFF', b'\xFF', b'\xFF')
+  let (r, g, b, a) = to_ray_color_bytes(tint)
+  @rl.color4ub(r, g, b, a)
   @rl.normal3f(0.0, 0.0, 1.0)
   @rl.tex_coord2f(u0, v0)
   @rl.vertex2f(p00.0, p00.1)
@@ -143,24 +146,25 @@ fn draw_textured_quad(
   base_x : Double,
   base_y : Double,
   transform : @smath.Transform,
+  tint : @render.Color,
 ) -> Unit {
   if can_use_texture_pro_path(transform) {
     draw_axis_aligned_textured_quad(
       texture, src_x0, src_y0, src_x1, src_y1, local_x0, local_y0, local_x1, local_y1,
-      base_x, base_y, transform,
+      base_x, base_y, transform, tint,
     )
     return
   }
   draw_affine_textured_quad(
     texture, texture_width, texture_height, src_x0, src_y0, src_x1, src_y1, local_x0,
-    local_y0, local_x1, local_y1, base_x, base_y, transform,
+    local_y0, local_x1, local_y1, base_x, base_y, transform, tint,
   )
 }
 
 ///|
 fn draw_image_repeat_transform(
   texture : @raylib.Texture,
-  command : @render.ImageDrawCommand,
+  command : @render2d_types.ImageDrawCommand2D,
 ) -> Unit {
   let texture_width = @raylib.get_texture_width(texture).to_double()
   let texture_height = @raylib.get_texture_height(texture).to_double()
@@ -195,6 +199,7 @@ fn draw_image_repeat_transform(
       base_x,
       base_y,
       command.transform,
+      command.color,
     )
     return
   }
@@ -229,6 +234,7 @@ fn draw_image_repeat_transform(
         base_x,
         base_y,
         command.transform,
+        command.color,
       )
       oy += tile_h
     }

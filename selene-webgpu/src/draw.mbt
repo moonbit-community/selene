@@ -83,7 +83,25 @@ pub fn preload_img(path : String) -> Unit {
 }
 
 ///|
-pub fn draw_image(command : @render.ImageDrawCommand) -> Unit {
+pub fn begin_frame(clear : @render.Color) -> Unit {
+  webgpu_begin_frame(
+    clear.r.reinterpret_as_int().to_double() / 255.0,
+    clear.g.reinterpret_as_int().to_double() / 255.0,
+    clear.b.reinterpret_as_int().to_double() / 255.0,
+    clear.a,
+  )
+}
+
+///|
+pub fn end_frame() -> Unit {
+  webgpu_end_frame()
+}
+
+///|
+pub fn draw_image(
+  command : @render2d_types.ImageDrawCommand2D,
+  image_path : String,
+) -> Unit {
   let transform = command.transform
   let mut source_x = 0.0
   let mut source_y = 0.0
@@ -100,8 +118,9 @@ pub fn draw_image(command : @render.ImageDrawCommand) -> Unit {
     }
     None => ()
   }
+  let (tr, tg, tb, ta) = color_rgba(command.color)
   webgpu_draw_image(
-    resolve_asset_path(command.path),
+    resolve_asset_path(image_path),
     command.destination.position[X],
     command.destination.position[Y],
     command.destination.size[X],
@@ -118,11 +137,15 @@ pub fn draw_image(command : @render.ImageDrawCommand) -> Unit {
     transform.tx,
     transform.ty,
     repeat_mode_to_code(command.repeat),
+    tr,
+    tg,
+    tb,
+    ta,
   )
 }
 
 ///|
-pub fn draw_text(command : @render.TextDrawCommand) -> Unit {
+pub fn draw_text(command : @render2d_types.TextDrawCommand2D) -> Unit {
   if draw_text_with_cosmic(command) {
     return
   }
@@ -143,7 +166,10 @@ pub fn draw_text(command : @render.TextDrawCommand) -> Unit {
 }
 
 ///|
-pub fn measure_text(style : @render.TextStyle, text : String) -> @smath.Vec2D {
+pub fn measure_text(
+  style : @render2d_types.TextStyle2D,
+  text : String,
+) -> @smath.Vec2D {
   let measured = webgpu_measure_text(text, style.family, style.size)
   if measured.length() >= 2 {
     @smath.Vec2D(measured[0], measured[1])
@@ -155,7 +181,7 @@ pub fn measure_text(style : @render.TextStyle, text : String) -> @smath.Vec2D {
 }
 
 ///|
-pub fn draw_rect(command : @render.RectDrawCommand) -> Unit {
+pub fn draw_rect(command : @render2d_types.RectDrawCommand2D) -> Unit {
   let (fr, fg, fb, fa) = color_rgba(command.fill_color)
   let mut has_stroke = false
   let mut sr = 0.0
@@ -191,7 +217,7 @@ pub fn draw_rect(command : @render.RectDrawCommand) -> Unit {
 }
 
 ///|
-pub fn draw_circle(command : @render.CircleDrawCommand) -> Unit {
+pub fn draw_circle(command : @render2d_types.CircleDrawCommand2D) -> Unit {
   let (fr, fg, fb, fa) = color_rgba(command.fill_color)
   let mut has_stroke = false
   let mut sr = 0.0
@@ -226,7 +252,9 @@ pub fn draw_circle(command : @render.CircleDrawCommand) -> Unit {
 }
 
 ///|
-pub fn draw_gradient_rect(command : @render.GradientRectDrawCommand) -> Unit {
+pub fn draw_gradient_rect(
+  command : @render2d_types.GradientRectDrawCommand2D,
+) -> Unit {
   let (sr, sg, sb, sa) = color_rgba(command.color_start)
   let (er, eg, eb, ea) = color_rgba(command.color_end)
   webgpu_draw_gradient_rect(
@@ -246,7 +274,7 @@ pub fn draw_gradient_rect(command : @render.GradientRectDrawCommand) -> Unit {
 }
 
 ///|
-pub fn begin_3d(camera : @render.Camera3D) -> Unit {
+fn begin_3d(camera : @render3d_types.FrameCamera3D) -> Unit {
   webgpu_begin_3d(
     camera.position.x,
     camera.position.y,
@@ -257,96 +285,13 @@ pub fn begin_3d(camera : @render.Camera3D) -> Unit {
     camera.up.x,
     camera.up.y,
     camera.up.z,
-    camera.fovy,
+    camera.fov_y,
   )
 }
 
 ///|
-pub fn end_3d() -> Unit {
+fn end_3d() -> Unit {
   webgpu_end_3d()
-}
-
-///|
-pub fn draw_cube_3d(command : @render.CubeDrawCommand3D) -> Unit {
-  let (r, g, b, a) = color_rgba(command.color)
-  webgpu_draw_cube_3d(
-    command.center.x,
-    command.center.y,
-    command.center.z,
-    command.size.x,
-    command.size.y,
-    command.size.z,
-    0.0,
-    0.0,
-    0.0,
-    1.0,
-    r,
-    g,
-    b,
-    a,
-  )
-}
-
-///|
-pub fn draw_cube_wires_3d(command : @render.CubeDrawCommand3D) -> Unit {
-  let (r, g, b, a) = color_rgba(command.color)
-  webgpu_draw_cube_wires_3d(
-    command.center.x,
-    command.center.y,
-    command.center.z,
-    command.size.x,
-    command.size.y,
-    command.size.z,
-    0.0,
-    0.0,
-    0.0,
-    1.0,
-    r,
-    g,
-    b,
-    a,
-  )
-}
-
-///|
-pub fn draw_sphere_3d(command : @render.SphereDrawCommand3D) -> Unit {
-  let (r, g, b, a) = color_rgba(command.color)
-  webgpu_draw_sphere_3d(
-    command.center.x,
-    command.center.y,
-    command.center.z,
-    command.radius,
-    0.0,
-    0.0,
-    0.0,
-    1.0,
-    r,
-    g,
-    b,
-    a,
-  )
-}
-
-///|
-pub fn draw_cylinder_3d(command : @render.CylinderDrawCommand3D) -> Unit {
-  let (r, g, b, a) = color_rgba(command.color)
-  webgpu_draw_cylinder_3d(
-    command.center.x,
-    command.center.y,
-    command.center.z,
-    command.radius_top,
-    command.radius_bottom,
-    command.height,
-    command.slices,
-    0.0,
-    0.0,
-    0.0,
-    1.0,
-    r,
-    g,
-    b,
-    a,
-  )
 }
 
 ///|
@@ -392,12 +337,7 @@ pub fn release_image_asset(handle : @render3d_types.ImageHandle) -> Unit {
 pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
   guard frame.camera is Some(active_camera) else { return }
   configure_scene_lighting(frame)
-  begin_3d({
-    position: to_render_vec3(active_camera.position),
-    target: to_render_vec3(active_camera.target),
-    up: to_render_vec3(active_camera.up),
-    fovy: active_camera.fov_y,
-  })
+  begin_3d(active_camera)
   for item in frame.items {
     guard synced_mesh_assets.get(item.mesh) is Some(mesh_asset) else {
       continue
@@ -405,7 +345,7 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
     let material = synced_material_assets
       .get(item.material)
       .unwrap_or(@render3d_types.default_standard_material3d())
-    let center = to_render_vec3(item.transform.translation)
+    let center = item.transform.translation
     let rotation = item.transform.rotation
     let color = material.base_color
     match mesh_asset.primitive {
@@ -544,12 +484,7 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
 }
 
 ///|
-fn to_render_vec3(value : @smath.Vec3) -> @render.Vec3 {
-  { x: value.x, y: value.y, z: value.z }
-}
-
-///|
-fn scaled_vec3(size : @smath.Vec3, scale : @smath.Vec3) -> @render.Vec3 {
+fn scaled_vec3(size : @smath.Vec3, scale : @smath.Vec3) -> @smath.Vec3 {
   {
     x: size.x * scale.x.abs(),
     y: size.y * scale.y.abs(),

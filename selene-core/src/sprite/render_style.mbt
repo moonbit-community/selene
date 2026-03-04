@@ -291,9 +291,15 @@ fn parse_text_style(
   color : String,
   align : @math.HAlign,
   baseline : @math.VAlign,
-) -> @render.TextStyle {
+  font_handle? : @asset.FontHandle? = None,
+) -> @render2d_types.TextStyle2D {
   let (size, family) = parse_font(font)
-  @render.TextStyle::{
+  let font = match font_handle {
+    Some(handle) => Some(handle)
+    None => @asset.font_by_family(family)
+  }
+  @render2d_types.TextStyle2D::{
+    font,
     family,
     size,
     color: parse_color(color),

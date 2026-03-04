@@ -39,7 +39,7 @@ fn render_color_rect(
   } else {
     color_rect.size
   }
-  @backend.draw_rect({
+  @render2d.push_rect({
     rect: @math.Rect::{ position, size },
     fill_color: parse_color(color_rect.color),
     stroke_color: parse_optional_color(color_rect.stroke_color),

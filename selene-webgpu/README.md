@@ -8,14 +8,18 @@ Import this backend with
 moon add Milky2018/selene_webgpu
 ```
 
-Choose this implementation wherever the `Milky2018/selene/backend` is used. Add this in your `moon.pkg.json`:
+Select this backend by overriding Selene platform interfaces in your entry package:
 
-```json 
-{
-  "overrides": [
-    "Milky2018/selene_webgpu"
-  ]
-}
+```moonbit
+options(
+  overrides: [
+    "Milky2018/selene_webgpu/platform_window",
+    "Milky2018/selene_webgpu/platform_input",
+    "Milky2018/selene_webgpu/platform_render",
+    "Milky2018/selene_webgpu/platform_audio",
+    "Milky2018/selene_webgpu/platform_asset_io",
+  ],
+)
 ```
 
 ## Instruction

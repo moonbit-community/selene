@@ -1,0 +1,9 @@
+import {
+  "Milky2018/selene/inputs",
+}
+
+warnings = "-reserved_keyword"
+
+options(
+  virtual: { "has-default": true },
+)

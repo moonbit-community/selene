@@ -1,0 +1,33 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/asset_types"
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct AudioHandle(UInt)
+#deprecated
+pub fn AudioHandle::inner(Self) -> UInt
+pub impl Eq for AudioHandle
+pub impl Hash for AudioHandle
+pub impl Show for AudioHandle
+
+pub(all) struct FontHandle(UInt)
+#deprecated
+pub fn FontHandle::inner(Self) -> UInt
+pub impl Eq for FontHandle
+pub impl Hash for FontHandle
+pub impl Show for FontHandle
+
+pub(all) struct ImageHandle(UInt)
+#deprecated
+pub fn ImageHandle::inner(Self) -> UInt
+pub impl Eq for ImageHandle
+pub impl Hash for ImageHandle
+pub impl Show for ImageHandle
+
+// Type aliases
+
+// Traits
+

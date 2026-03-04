@@ -96,7 +96,7 @@ fn render_color_circle(
   } else {
     color_circle.radius
   }
-  @backend.draw_circle({
+  @render2d.push_circle({
     center: @math.Vec2D(position[X] + radius, position[Y] + radius),
     radius,
     fill_color: parse_color(color_circle.color),

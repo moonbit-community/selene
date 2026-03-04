@@ -1,0 +1,11 @@
+import {
+  "Milky2018/selene/asset",
+  "Milky2018/selene/math",
+  "Milky2018/selene/render2d_types",
+  "Milky2018/selene/render_pipeline",
+  "Milky2018/selene_raylib" @impl,
+}
+
+options(
+  implement: "Milky2018/selene/platform_render",
+)

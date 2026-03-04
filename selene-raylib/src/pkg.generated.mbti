@@ -1,0 +1,79 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene_raylib"
+
+import {
+  "Milky2018/selene/inputs",
+  "Milky2018/selene/math",
+  "Milky2018/selene/platform_runtime",
+  "Milky2018/selene/render2d_types",
+  "Milky2018/selene/render3d_types",
+  "moonbitlang/core/set",
+}
+
+// Values
+pub fn draw_circle(@render2d_types.CircleDrawCommand2D) -> Unit
+
+pub fn draw_gradient_rect(@render2d_types.GradientRectDrawCommand2D) -> Unit
+
+pub fn draw_image(@render2d_types.ImageDrawCommand2D, String) -> Unit
+
+pub fn draw_rect(@render2d_types.RectDrawCommand2D) -> Unit
+
+pub fn draw_text(@render2d_types.TextDrawCommand2D) -> Unit
+
+pub fn get_asset_bytes(String) -> Bytes?
+
+pub fn get_realtime_delta() -> Double
+
+pub fn get_time_scale() -> Double
+
+pub fn initialize(@platform_runtime.WindowConfig, @platform_runtime.RunnerCallbacks) -> () -> Unit
+
+pub fn load_font(String, String) -> Unit
+
+pub fn lock_mouse(Ref[Bool]) -> Unit
+
+pub fn measure_text(@render2d_types.TextStyle2D, String) -> @math.Vec2D
+
+pub fn play_audio(audio_path~ : String, volume~ : Double, loop_~ : Bool) -> Unit
+
+pub fn preload_audio(String) -> Unit
+
+pub fn preload_img(String) -> Unit
+
+pub fn register_gamepad_events(@set.Set[@inputs.Gamepad], @set.Set[@inputs.GamepadButtonInput], Map[@inputs.GamepadAxisInput, Double]) -> Unit
+
+pub fn register_key_events(@set.Set[@inputs.Code]) -> Unit
+
+pub fn register_mouse_events(@inputs.Mouse, @inputs.MouseMovement) -> Unit
+
+pub fn release_image_asset(@render3d_types.ImageHandle) -> Unit
+
+pub fn release_material_asset(@render3d_types.MaterialHandle) -> Unit
+
+pub fn release_mesh_asset(@render3d_types.MeshHandle) -> Unit
+
+pub fn render_3d_frame(@render3d_types.RenderFrame3D) -> Unit
+
+pub fn request_close() -> Unit
+
+pub fn set_embedded_assets((String) -> Bytes?) -> Unit
+
+pub fn set_time_scale(Double) -> Unit
+
+pub fn sync_image_asset(@render3d_types.ImageHandle, @render3d_types.ImageAsset) -> Unit
+
+pub fn sync_material_asset(@render3d_types.MaterialHandle, @render3d_types.StandardMaterial3D) -> Unit
+
+pub fn sync_mesh_asset(@render3d_types.MeshHandle, @render3d_types.MeshAsset) -> Unit
+
+pub fn tick_audio() -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

@@ -12,6 +12,8 @@ pub fn defer_event(() -> Unit) -> Unit
 
 pub fn deferred_event_system(Double) -> Unit
 
+pub fn exit() -> Unit
+
 pub fn get_render_alpha() -> Double
 
 pub fn get_screen_size() -> @math.Vec2D
@@ -37,6 +39,8 @@ pub fn screen_to_ui_virtual(@math.Vec2D) -> @math.Vec2D
 pub fn screen_to_world(@math.Vec2D, @math.Vec2D) -> @math.Vec2D
 
 pub fn set_render_alpha(Double) -> Unit
+
+pub fn sync_mouse_lock_system(Double) -> Unit
 
 pub fn timeout(Double, () -> Unit, pausible? : Bool) -> Unit
 

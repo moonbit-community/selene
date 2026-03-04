@@ -11,7 +11,7 @@ import {
   "Milky2018/selene/camera",
   "Milky2018/selene/ui",
   "Milky2018/selene/inputs",
-  "Milky2018/selene/backend",
+  "Milky2018/selene/asset",
   "moonbitlang/core/random",
   "moonbitlang/core/set",
 }

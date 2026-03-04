@@ -37,9 +37,10 @@
 ///
 pub(all) struct Picture {
   size : @math.Vec2D
-  tile_path : String
+  image : @asset.ImageHandle
   transform : @math.Transform
   repeat : @math.RepeatMode
+  mut color : @render.Color
 }
 
 ///|
@@ -75,8 +76,26 @@ pub fn Picture::new(
   tile_path : String,
   transform? : @math.Transform = @math.Transform::new(),
   repeat? : @math.RepeatMode = NoRepeat,
+  color? : @render.Color = { r: 255U, g: 255U, b: 255U, a: 1.0 },
 ) -> Picture {
-  { size, tile_path, transform, repeat }
+  Picture::from_image(
+    size,
+    @asset.load_image(tile_path),
+    transform~,
+    repeat~,
+    color~,
+  )
+}
+
+///|
+pub fn Picture::from_image(
+  size : @math.Vec2D,
+  image : @asset.ImageHandle,
+  transform? : @math.Transform = @math.Transform::new(),
+  repeat? : @math.RepeatMode = NoRepeat,
+  color? : @render.Color = { r: 255U, g: 255U, b: 255U, a: 1.0 },
+) -> Picture {
+  { size, image, transform, repeat, color }
 }
 
 ///|
@@ -106,11 +125,12 @@ fn render_picture(
   } else {
     picture.transform
   }
-  @backend.draw_image({
-    path: picture.tile_path,
+  @render2d.push_image({
+    image: picture.image,
     destination: @math.Rect::{ position: pos, size },
     source: None,
     repeat: picture.repeat,
     transform,
+    color: picture.color,
   })
 }

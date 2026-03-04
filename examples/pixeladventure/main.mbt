@@ -42,7 +42,12 @@ pub fn run() -> Unit {
 
 ///|
 fn game_start(_delta : Double) -> Unit {
-  @backend.load_font("ThaleahFat", "assets/pixeladventure/Fonts/ThaleahFat.ttf")
+  ignore(
+    @asset.load_font(
+      "assets/pixeladventure/Fonts/ThaleahFat.ttf",
+      family="ThaleahFat",
+    ),
+  )
   generate_map()
   add_result_box()
   add_score_box()

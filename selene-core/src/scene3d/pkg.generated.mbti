@@ -10,11 +10,19 @@ import {
 // Values
 pub fn instantiate_scene(@render3d_types.SceneHandle, @transform3d.Transform3D) -> @entity.Entity
 
+pub fn instantiate_scene_instance(@render3d_types.SceneHandle, @transform3d.Transform3D) -> SceneInstance
+
 pub fn load_scene_gltf(String) -> @render3d_types.SceneHandle
+
+pub fn scene_instance_part(SceneInstance, String) -> @entity.Entity?
 
 // Errors
 
 // Types and methods
+pub(all) struct SceneInstance {
+  root : @entity.Entity
+  parts : Map[String, @entity.Entity]
+}
 
 // Type aliases
 

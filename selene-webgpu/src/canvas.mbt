@@ -125,10 +125,13 @@ pub fn get_asset_bytes(path : String) -> Bytes? {
 let realtime_delta : Ref[Double] = Ref::new(0.0)
 
 ///|
-pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
-  let startup = config.startup
-  let render_loop = config.render_loop
-  let game_loop = config.game_loop
+pub fn initialize(
+  config : @runtime.WindowConfig,
+  callbacks : @runtime.RunnerCallbacks,
+) -> () -> Unit {
+  let startup = callbacks.startup
+  let render_loop = callbacks.render_loop
+  let game_loop = callbacks.game_loop
   ignore(config.viewport_width)
   ignore(config.viewport_height)
   let screen_width = config.screen_width
@@ -164,9 +167,7 @@ pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
     realtime_delta.val = delta
     sync_gamepad_events()
     game_loop(delta * canvas_backend.time_scale)
-    webgpu_begin_frame(0.0, 0.0, 0.0, 1.0)
     render_loop(delta * canvas_backend.time_scale)
-    webgpu_end_frame()
     if canvas_backend.mouse_movement.val is Some(mouse_movement) {
       mouse_movement.movement = @smath.Vec2D(0.0, 0.0)
     }

@@ -1,0 +1,5 @@
+package "Milky2018/selene/platform_asset_io"
+
+fn set_reader((String) -> Bytes?) -> Unit
+
+fn read_bytes(String) -> Bytes?

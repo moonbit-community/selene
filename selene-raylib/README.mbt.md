@@ -46,10 +46,10 @@ This generates:
 ### 3. Install embedded lookup before `App::run` (only when embedding is enabled)
 
 ```moonbit
-import { "Milky2018/selene/backend" @backend }
+import { "Milky2018/selene/asset" @asset }
 
 fn main {
-  @backend.set_embedded_assets(get_embedded_asset)
+  @asset.set_io(get_embedded_asset)
   // app.run()
 }
 ```
@@ -61,4 +61,4 @@ When installed, `selene_raylib` will prefer embedded bytes for:
 
 If a path is not found in embedded assets, it falls back to filesystem loading.
 
-If embedding is not enabled, you should not call `set_embedded_assets`.
+If embedding is not enabled, you should not call `set_io`.

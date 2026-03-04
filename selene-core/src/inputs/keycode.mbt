@@ -63,6 +63,7 @@ pub(all) enum Code {
   ArrowDown
   ArrowLeft
   ArrowRight
+  ShiftLeft
   Space
   Enter
   Escape
@@ -100,6 +101,7 @@ let all_codes : @set.Set[Code] = @set.Set::from_array([
   ArrowDown,
   ArrowLeft,
   ArrowRight,
+  ShiftLeft,
   Space,
   Enter,
   Escape,
@@ -157,10 +159,12 @@ pub fn Code::from_string(code : String) -> Code? {
     "KeyW" => Some(KeyW)
     "KeyX" => Some(KeyX)
     "KeyY" => Some(KeyY)
+    "KeyZ" => Some(KeyZ)
     "ArrowUp" => Some(ArrowUp)
     "ArrowDown" => Some(ArrowDown)
     "ArrowLeft" => Some(ArrowLeft)
     "ArrowRight" => Some(ArrowRight)
+    "ShiftLeft" => Some(ShiftLeft)
     "Space" => Some(Space)
     "Enter" => Some(Enter)
     "Escape" => Some(Escape)

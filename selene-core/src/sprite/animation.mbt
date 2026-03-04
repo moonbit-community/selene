@@ -81,7 +81,7 @@ pub struct Animation {
 /// ```
 ///
 pub(all) struct AnimationFrame {
-  sprite_path : String
+  image : @asset.ImageHandle
   size : @math.Vec2D
   offset : @math.Vec2D
 }
@@ -189,12 +189,18 @@ pub fn Animation::single_frame(
   transform? : @math.Transform = @math.Transform::new(),
   offset? : @math.Vec2D = @math.Vec2D(0, 0),
 ) -> Animation {
-  Animation::new(
-    [{ sprite_path, size, offset }],
-    transform~,
-    loop_=false,
-    fps=0.0,
-  )
+  let image = @asset.load_image(sprite_path)
+  Animation::single_frame_from_image(image, size, transform~, offset~)
+}
+
+///|
+pub fn Animation::single_frame_from_image(
+  image : @asset.ImageHandle,
+  size : @math.Vec2D,
+  transform? : @math.Transform = @math.Transform::new(),
+  offset? : @math.Vec2D = @math.Vec2D(0, 0),
+) -> Animation {
+  Animation::new([{ image, size, offset }], transform~, loop_=false, fps=0.0)
 }
 
 ///|
@@ -250,11 +256,30 @@ pub fn frames_from_atlas(
   offset? : @math.Vec2D = @math.Vec2D(0, 0),
   space_x? : Double = 0.0,
 ) -> Array[AnimationFrame] {
+  frames_from_image_atlas(
+    @asset.load_image(sprite_path),
+    frame_count,
+    width~,
+    height~,
+    offset~,
+    space_x~,
+  )
+}
+
+///|
+pub fn frames_from_image_atlas(
+  image : @asset.ImageHandle,
+  frame_count : Int,
+  width~ : Double,
+  height~ : Double,
+  offset? : @math.Vec2D = @math.Vec2D(0, 0),
+  space_x? : Double = 0.0,
+) -> Array[AnimationFrame] {
   let frames = []
   for i in 0..<frame_count {
     let x = offset[X] + i.to_double() * (width + space_x)
     frames.push({
-      sprite_path,
+      image,
       size: @math.Vec2D(width, height),
       offset: offset.update(X, x),
     })
@@ -386,12 +411,13 @@ fn render_animation(
     } else {
       animation.transform
     }
-    @backend.draw_image({
-      path: frame.sprite_path,
+    @render2d.push_image({
+      image: frame.image,
       destination: @math.Rect::{ position: pos, size },
       source: Some({ position: frame.offset, size: frame.size }),
       repeat: NoRepeat,
       transform,
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
     })
   }
   let mut new_frame = current_frame + animation.fps * delta

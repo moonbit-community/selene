@@ -270,17 +270,8 @@ pub fn get_ambient_light3d() -> AmbientLight3D? {
 pub fn render3d_extract_system(_delta : Double) -> Unit {
   let frame = empty_render_frame3d()
   if @camera3d.active_camera3d.val is Some(camera) {
-    frame.camera = Some({
-      position: to_math3d_vec3(camera.camera.position),
-      target: to_math3d_vec3(camera.camera.target),
-      up: to_math3d_vec3(camera.camera.up),
-      fov_y: camera.camera.fovy,
-      projection: to_projection(camera.projection),
-      near: camera.near,
-      far: camera.far,
-      clear_color: camera.clear_color,
-    })
-    frame.clear_color = camera.clear_color
+    frame.camera = Some(camera.camera)
+    frame.clear_color = camera.camera.clear_color
   }
   frame.ambient_light = ambient_light3d.val
 
@@ -405,19 +396,4 @@ pub fn take_released_image_assets() -> Array[ImageHandle] {
   let values = released_image_assets.copy()
   released_image_assets.clear()
   values
-}
-
-///|
-fn to_math3d_vec3(value : @render.Vec3) -> @math.Vec3 {
-  @math.Vec3::new(value.x, value.y, value.z)
-}
-
-///|
-fn to_projection(
-  projection : @camera3d.CameraProjection3D,
-) -> @render3d_types.CameraProjection3D {
-  match projection {
-    Perspective => @render3d_types.CameraProjection3D::Perspective
-    Orthographic => @render3d_types.CameraProjection3D::Orthographic
-  }
 }

@@ -136,7 +136,7 @@ pub fn run() -> Unit {
   .add_system(setup_scene3d, schedule=Startup)
   .add_system(rotate_cube_system, schedule=Update)
   .add_system(animate_spotlight_system, schedule=Update)
-  .add_system(draw_overlay_system, schedule=RenderCleanup)
+  .add_system(draw_overlay_system, schedule=RenderPrepare)
   .run()
 }
 
@@ -316,10 +316,11 @@ fn animate_spotlight_system(delta : Double) -> Unit {
 
 ///|
 fn draw_overlay_system(_delta : Double) -> Unit {
-  @backend.draw_text(@render.TextDrawCommand::{
+  @render2d.push_text(@render2d_types.TextDrawCommand2D::{
     text: "3d_scene: ECS render3d pipeline + spot light",
     position: @math.Vec2D(16.0, 16.0),
-    style: @render.TextStyle::{
+    style: @render2d_types.TextStyle2D::{
+      font: None,
       family: "sans-serif",
       size: 20.0,
       color: color(245U, 245U, 245U, 1.0),

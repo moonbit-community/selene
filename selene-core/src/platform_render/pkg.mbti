@@ -1,0 +1,13 @@
+package "Milky2018/selene/platform_render"
+
+import {
+  "Milky2018/selene/math",
+  "Milky2018/selene/render2d_types",
+  "Milky2018/selene/render_pipeline",
+}
+
+fn submit_frame(@render_pipeline.RenderFrame) -> Unit
+
+fn register_font(String, String) -> Unit
+
+fn measure_text(@render2d_types.TextStyle2D, String) -> @math.Vec2D

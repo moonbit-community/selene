@@ -457,7 +457,12 @@ fn apply_selection(selection : LevelUpSelection) -> Unit {
 
 ///|
 fn game_start(_delta : Double) -> Unit {
-  @backend.load_font("ThaleahFat", "assets/survivors/fonts/ThaleahFat.ttf")
+  ignore(
+    @asset.load_font(
+      "assets/survivors/fonts/ThaleahFat.ttf",
+      family="ThaleahFat",
+    ),
+  )
   @camera.set_limits(top=0.0, bottom=MAP_HEIGHT, left=0.0, right=MAP_WIDTH)
   add_player()
   add_border(Vec2D(MAP_WIDTH, MAP_HEIGHT))

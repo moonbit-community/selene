@@ -4,6 +4,12 @@ import {
 
 options(
   "is-main": true,
-  overrides: [ "Milky2018/selene_webgpu" ],
+  overrides: [
+    "Milky2018/selene_webgpu/platform_window",
+    "Milky2018/selene_webgpu/platform_input",
+    "Milky2018/selene_webgpu/platform_render",
+    "Milky2018/selene_webgpu/platform_audio",
+    "Milky2018/selene_webgpu/platform_asset_io",
+  ],
   targets: { "main.mbt": [ "js" ] },
 )

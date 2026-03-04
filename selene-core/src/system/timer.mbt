@@ -78,8 +78,8 @@ pub fn timer_system(delta : Double) -> Unit {
 /// * `delta` : The time elapsed since the last update, in seconds.
 ///
 pub fn realtime_timer_system(_delta : Double) -> Unit {
+  let realtime_delta = @time.raw_delta()
   for timer in timers.filter(timer => !timer.pausible) {
-    let realtime_delta = @backend.get_realtime_delta()
     timer.rest -= realtime_delta
     if timer.rest <= 0 {
       (timer.callback)()

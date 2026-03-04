@@ -13,7 +13,11 @@ pub fn advanced_key_system(Double) -> Unit
 
 pub fn advanced_mouse_system(Double) -> Unit
 
+pub fn apply_input_snapshot(InputSnapshot) -> Unit
+
 pub let connected_gamepads : @set.Set[Gamepad]
+
+pub fn empty_input_snapshot() -> InputSnapshot
 
 pub fn gamepad_axis_value(Gamepad, GamepadAxis) -> Double
 
@@ -111,6 +115,7 @@ pub(all) enum Code {
   ArrowDown
   ArrowLeft
   ArrowRight
+  ShiftLeft
   Space
   Enter
   Escape
@@ -183,6 +188,15 @@ pub fn GamepadButtonInput::new(Gamepad, GamepadButton) -> Self
 pub impl Eq for GamepadButtonInput
 pub impl Hash for GamepadButtonInput
 pub impl Show for GamepadButtonInput
+
+pub(all) struct InputSnapshot {
+  pressed_keys : @set.Set[Code]
+  mouse : Mouse
+  mouse_movement : MouseMovement
+  connected_gamepads : @set.Set[Gamepad]
+  pressed_gamepad_buttons : @set.Set[GamepadButtonInput]
+  gamepad_axis_values : Map[GamepadAxisInput, Double]
+}
 
 pub(all) struct Mouse {
   mut pos : @math.Vec2D

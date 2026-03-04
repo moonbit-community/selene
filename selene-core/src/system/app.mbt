@@ -397,7 +397,8 @@ pub fn App::run(self : App) -> Unit {
       _ => ()
     }
   }
-  fn render_loop(delta : Double) {
+  fn render_loop(_raw_delta : Double) {
+    let delta = @time.delta()
     for system in render_extract {
       system(delta)
     }
@@ -410,11 +411,15 @@ pub fn App::run(self : App) -> Unit {
     for system in render_cleanup {
       system(delta)
     }
+    @platform_audio.tick()
   }
   let fixed_dt = 1.0 / self.fixed_hz.to_double()
   let max_fixed_steps = self.max_fixed_steps_per_frame.reinterpret_as_int()
   let accumulator : Ref[Double] = { val: 0.0 }
-  fn game_loop(delta : Double) {
+  fn game_loop(raw_delta : Double) {
+    @time.begin_frame(raw_delta)
+    @inputs.apply_input_snapshot(@platform_input.poll_input())
+    let delta = @time.delta()
     for system in frame_first {
       system(delta)
     }
@@ -458,21 +463,16 @@ pub fn App::run(self : App) -> Unit {
     set_render_alpha(alpha)
   }
 
-  let run_game = @backend.initialize(@render.BackendConfig::{
-    startup,
-    render_loop,
-    game_loop,
-    viewport_width: self.viewport_width,
-    viewport_height: self.viewport_height,
-    screen_width,
-    screen_height,
-    fps: self.fps,
-    image_smooth: self.image_smooth,
-  })
-  @backend.register_key_events(@inputs.pressed_keys)
-  @backend.register_mouse_events(@inputs.mouse, @inputs.mouse_movement)
-  @backend.register_gamepad_events(
-    @inputs.connected_gamepads, @inputs.pressed_gamepad_buttons, @inputs.gamepad_axis_values,
+  let run_game = @platform_window.initialize(
+    {
+      viewport_width: self.viewport_width,
+      viewport_height: self.viewport_height,
+      screen_width,
+      screen_height,
+      fps: self.fps,
+      image_smooth: self.image_smooth,
+    },
+    { startup, render_loop, game_loop },
   )
   run_game()
 }

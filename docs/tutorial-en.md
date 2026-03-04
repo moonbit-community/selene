@@ -55,7 +55,7 @@ Use the same `<assets-dir>` in both pre-build steps, and set `<runtime-prefix>` 
 When embedding is enabled, call this before `app.run()`:
 
 ```moonbit
-@backend.set_embedded_assets(get_embedded_asset)
+@asset.set_io(get_embedded_asset)
 ```
 
 If embedding is not enabled, do not call this API.
@@ -80,7 +80,13 @@ import {
 
 options(
   "is-main": true,
-  overrides: [ "Milky2018/selene_webgpu" ],
+  overrides: [
+    "Milky2018/selene_webgpu/platform_window",
+    "Milky2018/selene_webgpu/platform_input",
+    "Milky2018/selene_webgpu/platform_render",
+    "Milky2018/selene_webgpu/platform_audio",
+    "Milky2018/selene_webgpu/platform_asset_io",
+  ],
   targets: { "main.mbt": [ "js" ] },
 )
 ```

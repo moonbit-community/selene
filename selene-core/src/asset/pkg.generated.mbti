@@ -1,0 +1,41 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/asset"
+
+import {
+  "Milky2018/selene/asset_types",
+}
+
+// Values
+pub fn audio_path(@asset_types.AudioHandle) -> String?
+
+pub fn font_by_family(String) -> @asset_types.FontHandle?
+
+pub fn font_family(@asset_types.FontHandle) -> String?
+
+pub fn font_path(@asset_types.FontHandle) -> String?
+
+pub fn image_path(@asset_types.ImageHandle) -> String?
+
+pub fn load_audio(String) -> @asset_types.AudioHandle
+
+pub fn load_font(String, family? : String) -> @asset_types.FontHandle
+
+pub fn load_image(String) -> @asset_types.ImageHandle
+
+pub fn read_bytes(String) -> Bytes?
+
+pub fn set_io((String) -> Bytes?) -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+pub using @asset_types {type AudioHandle}
+
+pub using @asset_types {type FontHandle}
+
+pub using @asset_types {type ImageHandle}
+
+// Traits
+

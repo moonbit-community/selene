@@ -1,10 +1,14 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/render3d_pipeline"
 
-// Values
-pub fn render3d_prepare_system(Double) -> Unit
+import {
+  "Milky2018/selene/render3d_types",
+}
 
-pub fn render3d_submit_system(Double) -> Unit
+// Values
+pub fn get_prepared_frame3d() -> @render3d_types.RenderFrame3D
+
+pub fn render3d_prepare_system(Double) -> Unit
 
 // Errors
 

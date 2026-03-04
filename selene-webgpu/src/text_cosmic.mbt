@@ -62,7 +62,7 @@ fn to_cosmic_color(color : @render.Color) -> @cosmic.Color {
 }
 
 ///|
-fn text_cache_key(command : @render.TextDrawCommand) -> String {
+fn text_cache_key(command : @render2d_types.TextDrawCommand2D) -> String {
   let color = command.style.color
   let a = alpha_to_byte(color.a).to_int()
   "t:" +
@@ -108,7 +108,7 @@ fn ensure_font_loaded(family : String) -> Bool {
 
 ///|
 fn rasterize_with_cosmic(
-  command : @render.TextDrawCommand,
+  command : @render2d_types.TextDrawCommand2D,
 ) -> CosmicRasterImage? {
   let family = command.style.family
   if !cosmic_loaded_families.contains(family) {
@@ -189,7 +189,7 @@ fn rasterize_with_cosmic(
 }
 
 ///|
-fn draw_text_with_cosmic(command : @render.TextDrawCommand) -> Bool {
+fn draw_text_with_cosmic(command : @render2d_types.TextDrawCommand2D) -> Bool {
   if command.text == "" {
     return true
   }

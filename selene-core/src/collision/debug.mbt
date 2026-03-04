@@ -49,7 +49,7 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
       @math.Vec2D(width, height),
       camera_pos,
     )
-    @backend.draw_rect({
+    @render2d.push_rect({
       rect,
       fill_color: rgba(255U, 0U, 0U, 0.5),
       stroke_color: None,
@@ -66,7 +66,7 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
       @math.Vec2D(width, height),
       camera_pos,
     )
-    @backend.draw_rect({
+    @render2d.push_rect({
       rect,
       fill_color: rgba(0U, 0U, 255U, 0.5),
       stroke_color: None,
@@ -83,7 +83,7 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
       @math.Vec2D(width, height),
       camera_pos,
     )
-    @backend.draw_rect({
+    @render2d.push_rect({
       rect,
       fill_color: rgba(0U, 255U, 0U, 0.5),
       stroke_color: None,

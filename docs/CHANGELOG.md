@@ -1,5 +1,49 @@
 # Changelog
 
+## [0.22.2] - 2026-03-04
+
+### Changed
+
+- Roll-forward release for the latest engine/runtime updates shipped in `0.22.1`
+
+### Added
+
+- `ShiftLeft` keyboard input mapping across core/web/raylib input paths
+- UI alignment controls in `selene/ui` (`MainAxisAlign`, `CrossAxisAlign`)
+- Scene part indexing APIs in `scene3d` (`SceneInstance`, `instantiate_scene_instance`, `scene_instance_part`)
+
+### Fixed
+
+- 3D frame clear-color synchronization between extracted render frame and backend submission
+- Raylib textured triangle runtime tint/alpha handling for material-driven rendering
+
+## [0.22.1] - 2026-03-04
+
+### Added
+
+- Triangle mesh path for `render3d` assets with optional UV/normal payloads
+- Frame-space spotlight data extraction (`FrameSpotLight3D`) and world-space light transform handling
+- WebGPU lit-triangle pipelines with multi-light uniforms (directional + point + spot)
+- `Code::ShiftLeft` keyboard input support across backend mappings
+- UI layout alignment controls in `selene/ui` (`MainAxisAlign` + `CrossAxisAlign`)
+- `scene3d` scene instance APIs for part-level indexing (`SceneInstance`, `instantiate_scene_instance`, `scene_instance_part`)
+
+### Changed
+
+- `scene3d` glTF loading path now parses mesh primitives with accessor/buffer data, including normals/UVs
+- `scene3d` example updated to a dynamic spotlight demo and sharper cube shading for clearer edge perception
+- `render3d_extract_system` now emits frame-local point/spot light data including world position and direction
+- 3D frame clear-color submission is now unified from extracted frame data for both web and raylib backends
+- Raylib triangle-mesh render path now uses material texture + tint in runtime rendering
+
+### Fixed
+
+- WebGPU lighting submission protocol mismatch between MoonBit and JS runtime (array-packed light data)
+- 3D textured/colored triangle rendering sync for normals-aware shading in the unified backend path
+- Missing `KeyZ` conversion branch in `Code::from_string`
+- Missing runtime `tint/alpha` application on textured triangle meshes in raylib backend
+- 3D background clear mismatch where extracted camera clear color was not consistently applied
+
 ## [0.22.0] - 2026-03-04
 
 ### Added

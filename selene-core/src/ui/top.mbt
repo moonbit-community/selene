@@ -26,6 +26,24 @@ pub(all) enum LayoutDirection {
 } derive(Eq)
 
 ///|
+pub(all) enum MainAxisAlign {
+  Start
+  Center
+  End
+  SpaceBetween
+  SpaceAround
+  SpaceEvenly
+} derive(Eq)
+
+///|
+pub(all) enum CrossAxisAlign {
+  Start
+  Center
+  End
+  Stretch
+} derive(Eq)
+
+///|
 pub(all) enum NodeSize {
   Auto
   Fixed(@math.Vec2D)
@@ -41,6 +59,8 @@ pub(all) struct Node {
   mut padding : @math.Vec2D
   mut gap : @math.Vec2D
   mut offset : @math.Vec2D
+  mut justify : MainAxisAlign
+  mut align : CrossAxisAlign
   mut active : Bool
 }
 
@@ -52,9 +72,11 @@ pub fn Node::new(
   padding? : @math.Vec2D = @math.Vec2D::zero(),
   gap? : @math.Vec2D = @math.Vec2D::zero(),
   offset? : @math.Vec2D = @math.Vec2D::zero(),
+  justify? : MainAxisAlign = Start,
+  align? : CrossAxisAlign = Stretch,
   active? : Bool = true,
 ) -> Node {
-  { size, layout, space, padding, gap, offset, active }
+  { size, layout, space, padding, gap, offset, justify, align, active }
 }
 
 ///|
@@ -306,6 +328,8 @@ fn node_to_taffy_style(
       taffy_style
       .with_display(@moon_taffy.display_flex())
       .with_flex_direction(@moon_taffy.flex_direction_row())
+      .with_justify_content(main_axis_align_to_taffy(node.justify))
+      .with_align_items(cross_axis_align_to_taffy(node.align))
       .with_padding(
         @moon_taffy.Rect::new(
           left=@moon_taffy.length(node.padding[X]),
@@ -324,6 +348,8 @@ fn node_to_taffy_style(
       taffy_style
       .with_display(@moon_taffy.display_flex())
       .with_flex_direction(@moon_taffy.flex_direction_column())
+      .with_justify_content(main_axis_align_to_taffy(node.justify))
+      .with_align_items(cross_axis_align_to_taffy(node.align))
       .with_padding(
         @moon_taffy.Rect::new(
           left=@moon_taffy.length(node.padding[X]),
@@ -370,6 +396,30 @@ fn node_to_taffy_style(
         bottom=@moon_taffy.auto(),
       ),
     )
+  }
+}
+
+///|
+fn main_axis_align_to_taffy(
+  value : MainAxisAlign,
+) -> @moon_taffy.JustifyContent {
+  match value {
+    Start => @moon_taffy.justify_content_flex_start()
+    Center => @moon_taffy.justify_content_center()
+    End => @moon_taffy.justify_content_flex_end()
+    SpaceBetween => @moon_taffy.justify_content_space_between()
+    SpaceAround => @moon_taffy.justify_content_space_around()
+    SpaceEvenly => @moon_taffy.justify_content_space_evenly()
+  }
+}
+
+///|
+fn cross_axis_align_to_taffy(value : CrossAxisAlign) -> @moon_taffy.AlignItems {
+  match value {
+    Start => @moon_taffy.align_items_flex_start()
+    Center => @moon_taffy.align_items_center()
+    End => @moon_taffy.align_items_flex_end()
+    Stretch => @moon_taffy.align_items_stretch()
   }
 }
 

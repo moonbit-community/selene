@@ -545,7 +545,7 @@ extern "js" fn webgpu_initialize(
   #|       }
   #|     };
   #|
-  #|     rt.pushImage = (path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, repeatMode) => {
+  #|     rt.pushImage = (path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, repeatMode, tr, tg, tb, ta) => {
   #|       const rec = rt.ensureImage(path);
   #|       if (!rec || rec.state !== 'ready') return;
   #|       const p0x = a * 0 + c * 0 + tx + dx;
@@ -590,13 +590,14 @@ extern "js" fn webgpu_initialize(
   #|         }
   #|       }
   #|
+  #|       const tint = colorNorm(tr, tg, tb, ta);
   #|       const verts = new Float32Array([
-  #|         p0x, p0y, u0, v0, 1, 1, 1, 1,
-  #|         p1x, p1y, u1, v0, 1, 1, 1, 1,
-  #|         p2x, p2y, u1, v1, 1, 1, 1, 1,
-  #|         p0x, p0y, u0, v0, 1, 1, 1, 1,
-  #|         p2x, p2y, u1, v1, 1, 1, 1, 1,
-  #|         p3x, p3y, u0, v1, 1, 1, 1, 1,
+  #|         p0x, p0y, u0, v0, tint[0], tint[1], tint[2], tint[3],
+  #|         p1x, p1y, u1, v0, tint[0], tint[1], tint[2], tint[3],
+  #|         p2x, p2y, u1, v1, tint[0], tint[1], tint[2], tint[3],
+  #|         p0x, p0y, u0, v0, tint[0], tint[1], tint[2], tint[3],
+  #|         p2x, p2y, u1, v1, tint[0], tint[1], tint[2], tint[3],
+  #|         p3x, p3y, u0, v1, tint[0], tint[1], tint[2], tint[3],
   #|       ]);
   #|       rt.pushTex2d(samplerCode, rec, verts);
   #|     };
@@ -1707,11 +1708,15 @@ extern "js" fn webgpu_draw_image(
   transform_tx : Double,
   transform_ty : Double,
   repeat_mode : Int,
+  tint_r : Double,
+  tint_g : Double,
+  tint_b : Double,
+  tint_a : Double,
 ) -> Unit =
-  #| (path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, repeatMode) => {
+  #| (path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, repeatMode, tr, tg, tb, ta) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushImage(path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, repeatMode);
+  #|     rt.pushImage(path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, repeatMode, tr, tg, tb, ta);
   #|   }
   #| }
 
@@ -1990,30 +1995,6 @@ extern "js" fn webgpu_draw_cube_3d(
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
   #|     rt.pushCube3d(cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, r, g, b, a);
-  #|   }
-  #| }
-
-///|
-extern "js" fn webgpu_draw_cube_wires_3d(
-  center_x : Double,
-  center_y : Double,
-  center_z : Double,
-  size_x : Double,
-  size_y : Double,
-  size_z : Double,
-  rotation_x : Double,
-  rotation_y : Double,
-  rotation_z : Double,
-  rotation_w : Double,
-  r : Double,
-  g : Double,
-  b : Double,
-  a : Double,
-) -> Unit =
-  #| (cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, r, g, b, a) => {
-  #|   const rt = globalThis.__selene_webgpu_runtime;
-  #|   if (rt) {
-  #|     rt.pushCubeWires3d(cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, r, g, b, a);
   #|   }
   #| }
 

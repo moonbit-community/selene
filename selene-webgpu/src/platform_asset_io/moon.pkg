@@ -1,0 +1,7 @@
+import {
+  "Milky2018/selene_webgpu" @impl,
+}
+
+options(
+  implement: "Milky2018/selene/platform_asset_io",
+)

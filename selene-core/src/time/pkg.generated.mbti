@@ -1,0 +1,26 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/time"
+
+// Values
+pub fn begin_frame(Double) -> Unit
+
+pub fn delta() -> Double
+
+pub fn elapsed() -> Double
+
+pub fn elapsed_raw() -> Double
+
+pub fn raw_delta() -> Double
+
+pub fn scale() -> Double
+
+pub fn set_scale(Double) -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

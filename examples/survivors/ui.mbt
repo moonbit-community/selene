@@ -167,7 +167,7 @@ fn setup_level_up_ui() -> Unit {
 
 ///|
 fn level_up(level : Int) -> Unit {
-  @backend.set_time_scale(0.0)
+  @time.set_scale(0.0)
   let panel = game_state.level_up_panel
 
   panel.available_selections = generate_level_up_selections(level)
@@ -261,7 +261,7 @@ fn resume_game() -> Unit {
   game_state.level_up_panel.panel_entity.destroy()
 
   if game_state.pending_level_ups.is_empty() {
-    @backend.set_time_scale(1.0)
+    @time.set_scale(1.0)
   } else {
     process_next_level_up()
   }

@@ -1,89 +1,9 @@
-// Copyright 2025 International Digital Economy Academy
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package "Milky2018/selene/backend"
 
 import {
-  "Milky2018/selene/inputs",
-  "Milky2018/selene/render",
-  "Milky2018/selene/render3d_types"
+  "Milky2018/selene/platform_runtime",
 }
 
-fn initialize(@render.BackendConfig) -> () -> Unit
-
-fn draw_image(@render.ImageDrawCommand) -> Unit
-
-fn register_key_events(Set[@inputs.Code]) -> Unit
-
-fn register_mouse_events(@inputs.Mouse, @inputs.MouseMovement) -> Unit
-
-fn register_gamepad_events(Set[@inputs.Gamepad], Set[@inputs.GamepadButtonInput], Map[@inputs.GamepadAxisInput, Double]) -> Unit
-
-fn lock_mouse(Ref[Bool]) -> Unit
-
-fn draw_text(@render.TextDrawCommand) -> Unit
-
-fn measure_text(@render.TextStyle, String) -> @math.Vec2D
-
-fn draw_rect(@render.RectDrawCommand) -> Unit
-
-fn draw_circle(@render.CircleDrawCommand) -> Unit
-
-fn draw_gradient_rect(@render.GradientRectDrawCommand) -> Unit
-
-fn begin_3d(@render.Camera3D) -> Unit
-
-fn end_3d() -> Unit
-
-fn draw_cube_3d(@render.CubeDrawCommand3D) -> Unit
-
-fn draw_cube_wires_3d(@render.CubeDrawCommand3D) -> Unit
-
-fn draw_sphere_3d(@render.SphereDrawCommand3D) -> Unit
-
-fn draw_cylinder_3d(@render.CylinderDrawCommand3D) -> Unit
-
-fn sync_mesh_asset(@render3d_types.MeshHandle, @render3d_types.MeshAsset) -> Unit
-
-fn sync_material_asset(@render3d_types.MaterialHandle, @render3d_types.StandardMaterial3D) -> Unit
-
-fn sync_image_asset(@render3d_types.ImageHandle, @render3d_types.ImageAsset) -> Unit
-
-fn release_mesh_asset(@render3d_types.MeshHandle) -> Unit
-
-fn release_material_asset(@render3d_types.MaterialHandle) -> Unit
-
-fn release_image_asset(@render3d_types.ImageHandle) -> Unit
-
-fn render_3d_frame(@render3d_types.RenderFrame3D) -> Unit
-
-fn play_audio(audio_path~ : String, volume~ : Double, loop_~ : Bool) -> Unit
-
-fn get_realtime_delta() -> Double
-
-fn preload_img(String) -> Unit
-
-fn preload_audio(String) -> Unit
-
-fn set_embedded_assets((String) -> Bytes?) -> Unit
-
-fn get_asset_bytes(String) -> Bytes?
+fn initialize(@platform_runtime.WindowConfig, @platform_runtime.RunnerCallbacks) -> () -> Unit
 
 fn request_close() -> Unit
-
-fn set_time_scale(Double) -> Unit
-
-fn get_time_scale() -> Double
-
-fn load_font(String, String) -> Unit

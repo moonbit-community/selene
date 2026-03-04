@@ -13,14 +13,8 @@
 // limitations under the License.
 
 ///|
-pub(all) enum CameraProjection3D {
-  Perspective
-  Orthographic
-} derive(Eq, Show)
-
-///|
 pub(all) struct Camera3DComponent {
-  projection : CameraProjection3D
+  projection : @render3d_types.CameraProjection3D
   near : Double
   far : Double
   fov_y : Double
@@ -32,17 +26,13 @@ pub(all) struct Camera3DComponent {
 ///|
 pub(all) struct ActiveCamera3D {
   entity : @entity.Entity
-  camera : @render.Camera3D
-  projection : CameraProjection3D
-  near : Double
-  far : Double
-  clear_color : @render.Color
+  camera : @render3d_types.FrameCamera3D
 }
 
 ///|
 pub fn Camera3DComponent::default() -> Camera3DComponent {
   {
-    projection: Perspective,
+    projection: @render3d_types.CameraProjection3D::Perspective,
     near: 0.1,
     far: 2000.0,
     fov_y: 45.0,
@@ -82,22 +72,17 @@ pub fn camera3d_extract_system(_delta : Double) -> Unit {
       active_camera3d.val = Some({
         entity,
         camera: {
-          position: to_render_vec3(position),
-          target: to_render_vec3(position + forward),
-          up: to_render_vec3(up),
-          fovy: camera.fov_y,
+          position,
+          target: position + forward,
+          up,
+          fov_y: camera.fov_y,
+          projection: camera.projection,
+          near: camera.near,
+          far: camera.far,
+          clear_color: camera.clear_color,
         },
-        projection: camera.projection,
-        near: camera.near,
-        far: camera.far,
-        clear_color: camera.clear_color,
       })
     }
     None => active_camera3d.val = None
   }
-}
-
-///|
-fn to_render_vec3(vec : @math.Vec3) -> @render.Vec3 {
-  { x: vec.x, y: vec.y, z: vec.z }
 }

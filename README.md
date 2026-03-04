@@ -50,7 +50,7 @@ Use the same `<assets-dir>` in both pre-build steps, and set `<runtime-prefix>` 
 When embedding is enabled, register embedded lookup before `app.run()`:
 
 ```moonbit
-@backend.set_embedded_assets(get_embedded_asset)
+@asset.set_io(get_embedded_asset)
 ```
 
 If embedding is not enabled, do not call this API.

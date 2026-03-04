@@ -55,7 +55,7 @@ options(
 仅当开启嵌入时，才需要在 `app.run()` 之前调用：
 
 ```moonbit
-@backend.set_embedded_assets(get_embedded_asset)
+@asset.set_io(get_embedded_asset)
 ```
 
 如果没有开启嵌入，不需要调用这个 API。
@@ -80,7 +80,13 @@ import {
 
 options(
   "is-main": true,
-  overrides: [ "Milky2018/selene_webgpu" ],
+  overrides: [
+    "Milky2018/selene_webgpu/platform_window",
+    "Milky2018/selene_webgpu/platform_input",
+    "Milky2018/selene_webgpu/platform_render",
+    "Milky2018/selene_webgpu/platform_audio",
+    "Milky2018/selene_webgpu/platform_asset_io",
+  ],
   targets: { "main.mbt": [ "js" ] },
 )
 ```

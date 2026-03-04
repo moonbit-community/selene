@@ -44,6 +44,14 @@ pub(all) struct Button {
 }
 pub fn Button::new(enabled? : Bool, trigger? : @inputs.MouseButton, hit_size? : @math.Vec2D) -> Self
 
+pub(all) enum CrossAxisAlign {
+  Start
+  Center
+  End
+  Stretch
+}
+pub impl Eq for CrossAxisAlign
+
 pub(all) enum Interaction {
   None
   Hovered
@@ -64,6 +72,16 @@ pub(all) enum LayoutDirection {
 }
 pub impl Eq for LayoutDirection
 
+pub(all) enum MainAxisAlign {
+  Start
+  Center
+  End
+  SpaceBetween
+  SpaceAround
+  SpaceEvenly
+}
+pub impl Eq for MainAxisAlign
+
 pub(all) struct Node {
   mut size : NodeSize
   mut layout : LayoutDirection
@@ -71,9 +89,11 @@ pub(all) struct Node {
   mut padding : @math.Vec2D
   mut gap : @math.Vec2D
   mut offset : @math.Vec2D
+  mut justify : MainAxisAlign
+  mut align : CrossAxisAlign
   mut active : Bool
 }
-pub fn Node::new(size? : NodeSize, layout? : LayoutDirection, space? : UiSpace, padding? : @math.Vec2D, gap? : @math.Vec2D, offset? : @math.Vec2D, active? : Bool) -> Self
+pub fn Node::new(size? : NodeSize, layout? : LayoutDirection, space? : UiSpace, padding? : @math.Vec2D, gap? : @math.Vec2D, offset? : @math.Vec2D, justify? : MainAxisAlign, align? : CrossAxisAlign, active? : Bool) -> Self
 
 pub(all) enum NodeSize {
   Auto

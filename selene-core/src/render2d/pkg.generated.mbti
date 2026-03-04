@@ -1,0 +1,30 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/render2d"
+
+import {
+  "Milky2018/selene/render2d_types",
+}
+
+// Values
+pub fn begin_frame2d_system(Double) -> Unit
+
+pub fn get_frame2d() -> @render2d_types.RenderFrame2D
+
+pub fn push_circle(@render2d_types.CircleDrawCommand2D) -> Unit
+
+pub fn push_gradient_rect(@render2d_types.GradientRectDrawCommand2D) -> Unit
+
+pub fn push_image(@render2d_types.ImageDrawCommand2D) -> Unit
+
+pub fn push_rect(@render2d_types.RectDrawCommand2D) -> Unit
+
+pub fn push_text(@render2d_types.TextDrawCommand2D) -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

@@ -32,7 +32,7 @@ let mouse_locked : Ref[Bool] = Ref::new(false)
 ///
 pub fn lock_mouse() -> Unit {
   mouse_locked.val = true
-  @backend.lock_mouse(mouse_locked)
+  mouse_locked.val = @platform_input.set_mouse_lock(true)
 }
 
 ///|
@@ -49,4 +49,9 @@ pub fn lock_mouse() -> Unit {
 ///
 pub fn is_mouse_locked() -> Bool {
   mouse_locked.val
+}
+
+///|
+pub fn sync_mouse_lock_system(_delta : Double) -> Unit {
+  mouse_locked.val = @platform_input.set_mouse_lock(mouse_locked.val)
 }

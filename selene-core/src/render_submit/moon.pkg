@@ -1,0 +1,7 @@
+import {
+  "Milky2018/selene/platform_render",
+  "Milky2018/selene/render2d",
+  "Milky2018/selene/render3d",
+  "Milky2018/selene/render3d_pipeline",
+  "Milky2018/selene/render_pipeline",
+}

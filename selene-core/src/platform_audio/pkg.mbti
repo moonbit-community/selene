@@ -1,0 +1,5 @@
+package "Milky2018/selene/platform_audio"
+
+fn play_audio(audio_path~ : String, volume~ : Double, loop_~ : Bool) -> Unit
+
+fn tick() -> Unit

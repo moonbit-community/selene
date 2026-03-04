@@ -14,6 +14,7 @@
 
 ///|
 priv struct SceneNodeTemplate {
+  name : String?
   transform : @transform3d.Transform3D
   renderers : Array[@render3d.Mesh3DRenderer]
   children : Array[Int]
@@ -23,6 +24,12 @@ priv struct SceneNodeTemplate {
 priv struct SceneTemplate {
   roots : Array[Int]
   nodes : Array[SceneNodeTemplate]
+}
+
+///|
+pub(all) struct SceneInstance {
+  root : @entity.Entity
+  parts : Map[String, @entity.Entity]
 }
 
 ///|
@@ -61,6 +68,7 @@ fn empty_scene_template() -> SceneTemplate {
 ///|
 fn default_scene_node_template() -> SceneNodeTemplate {
   {
+    name: None,
     transform: @transform3d.Transform3D::identity(),
     renderers: [],
     children: [],
@@ -82,13 +90,39 @@ pub fn instantiate_scene(
   scene : @render3d.SceneHandle,
   root_transform : @transform3d.Transform3D,
 ) -> @entity.Entity {
+  instantiate_scene_instance(scene, root_transform).root
+}
+
+///|
+pub fn instantiate_scene_instance(
+  scene : @render3d.SceneHandle,
+  root_transform : @transform3d.Transform3D,
+) -> SceneInstance {
   let root = @entity.Entity::new()
   @transform3d.transforms3d.set(root, root_transform)
-  guard scene_templates.get(scene) is Some(template) else { return root }
-  for node_index in template.roots {
-    instantiate_scene_node(template, node_index, root, 0)
+  let parts : Map[String, @entity.Entity] = Map::new()
+  guard scene_templates.get(scene) is Some(template) else {
+    return { root, parts }
   }
-  root
+  for root_order, node_index in template.roots {
+    instantiate_scene_node(
+      template,
+      node_index,
+      root,
+      parts,
+      "root\{root_order}",
+      0,
+    )
+  }
+  { root, parts }
+}
+
+///|
+pub fn scene_instance_part(
+  instance : SceneInstance,
+  path : String,
+) -> @entity.Entity? {
+  instance.parts.get(path)
 }
 
 ///|
@@ -96,6 +130,8 @@ fn instantiate_scene_node(
   template : SceneTemplate,
   node_index : Int,
   parent : @entity.Entity,
+  parts : Map[String, @entity.Entity],
+  parent_path : String,
   depth : Int,
 ) -> Unit {
   if depth > 512 {
@@ -104,27 +140,43 @@ fn instantiate_scene_node(
   guard node_index >= 0 && node_index < template.nodes.length() else { return }
   let node = template.nodes[node_index]
   let entity = parent.spawn_child()
+  let base_name = node.name.unwrap_or("node\{node_index}")
+  let path_base = "\{parent_path}/\{base_name}"
+  let entity_path = if parts.contains(path_base) {
+    "\{path_base}#\{node_index}"
+  } else {
+    path_base
+  }
+  parts.set(entity_path, entity)
   @transform3d.transforms3d.set(entity, node.transform)
   if node.renderers.length() == 1 {
     @render3d.mesh3d_renderers.set(entity, node.renderers[0])
   } else if node.renderers.length() > 1 {
-    for renderer in node.renderers {
+    for primitive_index, renderer in node.renderers {
       let primitive_entity = entity.spawn_child()
       @transform3d.transforms3d.set(
         primitive_entity,
         @transform3d.Transform3D::identity(),
       )
       @render3d.mesh3d_renderers.set(primitive_entity, renderer)
+      parts.set("\{entity_path}/primitive\{primitive_index}", primitive_entity)
     }
   }
   for child_index in node.children {
-    instantiate_scene_node(template, child_index, entity, depth + 1)
+    instantiate_scene_node(
+      template,
+      child_index,
+      entity,
+      parts,
+      entity_path,
+      depth + 1,
+    )
   }
 }
 
 ///|
 fn load_scene_template(path : String) -> SceneTemplate {
-  guard @backend.get_asset_bytes(path) is Some(bytes) else {
+  guard @asset.read_bytes(path) is Some(bytes) else {
     return empty_scene_template()
   }
   let source = bytes.to_unchecked_string()
@@ -331,7 +383,7 @@ fn parse_buffer_blobs(
       blobs.push(decode_data_uri_base64(uri))
     } else {
       let resolved = resolve_relative_asset_path(scene_path, uri)
-      blobs.push(@backend.get_asset_bytes(resolved))
+      blobs.push(@asset.read_bytes(resolved))
     }
   }
   blobs
@@ -926,6 +978,7 @@ fn parse_node_templates(
     }
     let transform = parse_node_transform(node_object)
     let children = parse_node_children(node_object)
+    let name = field_string(node_object, "name")
     let renderers = match field_int(node_object, "mesh") {
       Some(mesh_index) =>
         match mesh_templates.get(mesh_index) {
@@ -934,7 +987,7 @@ fn parse_node_templates(
         }
       None => []
     }
-    templates.push({ transform, renderers, children })
+    templates.push({ name, transform, renderers, children })
   }
   templates
 }

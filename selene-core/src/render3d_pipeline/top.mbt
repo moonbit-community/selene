@@ -23,24 +23,6 @@ pub fn render3d_prepare_system(_delta : Double) -> Unit {
 }
 
 ///|
-pub fn render3d_submit_system(_delta : Double) -> Unit {
-  for pair in @render3d.take_dirty_mesh_assets() {
-    @backend.sync_mesh_asset(pair.0, pair.1)
-  }
-  for pair in @render3d.take_dirty_material_assets() {
-    @backend.sync_material_asset(pair.0, pair.1)
-  }
-  for pair in @render3d.take_dirty_image_assets() {
-    @backend.sync_image_asset(pair.0, pair.1)
-  }
-  for handle in @render3d.take_released_mesh_assets() {
-    @backend.release_mesh_asset(handle)
-  }
-  for handle in @render3d.take_released_material_assets() {
-    @backend.release_material_asset(handle)
-  }
-  for handle in @render3d.take_released_image_assets() {
-    @backend.release_image_asset(handle)
-  }
-  @backend.render_3d_frame(prepared_frame3d.val)
+pub fn get_prepared_frame3d() -> @render3d.RenderFrame3D {
+  prepared_frame3d.val
 }

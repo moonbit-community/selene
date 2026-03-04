@@ -51,6 +51,7 @@ pub fn default_plugin(app : @system.App) -> Unit {
   ..push(
     (@inputs.advanced_gamepad_system, PreUpdate, "Advanced Gamepad System"),
   )
+  ..push((@system.sync_mouse_lock_system, PreUpdate, "Sync Mouse Lock"))
   ..push((@physics2d.physics_step_system, FixedUpdate, "Physics2D Step System"))
   ..push((@camera.camera_system, FixedPostUpdate, "Camera System"))
   ..push((@physics2d.pickable_click_system, Update, "Pickable Click System"))
@@ -75,7 +76,11 @@ pub fn default_plugin(app : @system.App) -> Unit {
   )
   ..push((@ui.ui_button_system, PostUpdate, "UI Button System"))
   ..push((@a11y.a11y_sync_system, PostUpdate, "A11y Sync System"))
-  .push((@sprite.render_sprite_system, Render, "Render Sprite System"))
+  ..push(
+    (@render2d.begin_frame2d_system, RenderExtract, "Render2D Begin Frame"),
+  )
+  ..push((@sprite.render_sprite_system, RenderPrepare, "Render Sprite System"))
+  .push((@render_submit.render_submit_system, Render, "Render Submit"))
 }
 
 ///|
@@ -89,6 +94,7 @@ pub fn default_3d_plugin(app : @system.App) -> Unit {
   ..push(
     (@inputs.advanced_gamepad_system, PreUpdate, "Advanced Gamepad System"),
   )
+  ..push((@system.sync_mouse_lock_system, PreUpdate, "Sync Mouse Lock"))
   ..push((@physics3d.physics_step_system, FixedUpdate, "Physics3D Step System"))
   ..push(
     (
@@ -111,6 +117,9 @@ pub fn default_3d_plugin(app : @system.App) -> Unit {
       "Transform3D Propagation System (Frame)",
     ),
   )
+  ..push(
+    (@render2d.begin_frame2d_system, RenderExtract, "Render2D Begin Frame"),
+  )
   ..push((@camera3d.camera3d_extract_system, RenderExtract, "Camera3D Extract"))
   ..push((@render3d.render3d_extract_system, RenderExtract, "Render3D Extract"))
   ..push(
@@ -120,7 +129,8 @@ pub fn default_3d_plugin(app : @system.App) -> Unit {
       "Render3D Prepare",
     ),
   )
-  ..push((@render3d_pipeline.render3d_submit_system, Render, "Render3D Submit"))
+  ..push((@sprite.render_sprite_system, RenderPrepare, "Render Sprite System"))
+  ..push((@render_submit.render_submit_system, Render, "Render Submit"))
   ..push((@system.deferred_event_system, PostUpdate, "Deferred Event System"))
   ..push((@system.timer_system, PostUpdate, "Timer System"))
   .push((@system.realtime_timer_system, PostUpdate, "Realtime Timer System"))

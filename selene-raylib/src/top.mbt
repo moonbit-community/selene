@@ -28,6 +28,7 @@ priv struct RaylibBackend {
   mut lock_requested : Bool
   mut cursor_locked : Bool
   mut close_requested : Bool
+  mut frame_has_draw_commands : Bool
   textures : Map[String, @raylib.Texture]
   sounds : Map[String, @raylib.Sound]
   musics : Map[String, @raylib.Music]
@@ -59,6 +60,7 @@ let backend : RaylibBackend = {
   lock_requested: false,
   cursor_locked: false,
   close_requested: false,
+  frame_has_draw_commands: false,
   textures: Map::new(),
   sounds: Map::new(),
   musics: Map::new(),
@@ -121,11 +123,6 @@ fn to_ray_vector2(x : Double, y : Double) -> @raylib.Vector2 {
 }
 
 ///|
-fn to_ray_vector3(value : @render.Vec3) -> @raylib.Vector3 {
-  @raylib.Vector3::new(to_float(value.x), to_float(value.y), to_float(value.z))
-}
-
-///|
 fn to_ray_vector3_smath(value : @smath.Vec3) -> @raylib.Vector3 {
   @raylib.Vector3::new(to_float(value.x), to_float(value.y), to_float(value.z))
 }
@@ -171,12 +168,22 @@ fn to_ray_color(color : @render.Color) -> @raylib.Color {
 }
 
 ///|
-fn to_ray_camera3d(camera : @render.Camera3D) -> @raylib.Camera3D {
+fn to_ray_color_bytes(color : @render.Color) -> (Byte, Byte, Byte, Byte) {
+  (
+    color.r.reinterpret_as_int().to_byte(),
+    color.g.reinterpret_as_int().to_byte(),
+    color.b.reinterpret_as_int().to_byte(),
+    clamp_u8((color.a * 255.0).to_int()).to_byte(),
+  )
+}
+
+///|
+fn to_ray_camera3d(camera : @render3d_types.FrameCamera3D) -> @raylib.Camera3D {
   @raylib.Camera3D::new(
-    to_ray_vector3(camera.position),
-    to_ray_vector3(camera.target),
-    to_ray_vector3(camera.up),
-    to_float(camera.fovy),
+    to_ray_vector3_smath(camera.position),
+    to_ray_vector3_smath(camera.target),
+    to_ray_vector3_smath(camera.up),
+    to_float(camera.fov_y),
     @raylib.CameraPerspective,
   )
 }
@@ -281,6 +288,11 @@ fn get_music(path : String) -> @raylib.Music {
 }
 
 ///|
+fn mark_frame_drawn() -> Unit {
+  backend.frame_has_draw_commands = true
+}
+
+///|
 fn get_font_by_family(family : String) -> @raylib.Font {
   if backend.font_alias.get(family) is Some(path) {
     if backend.fonts_by_path.get(path) is Some(font) {
@@ -323,6 +335,7 @@ fn key_to_raylib(code : @inputs.Code) -> Int {
     ArrowDown => @raylib.KeyDown
     ArrowLeft => @raylib.KeyLeft
     ArrowRight => @raylib.KeyRight
+    ShiftLeft => @raylib.KeyLeftShift
     Space => @raylib.KeySpace
     Enter => @raylib.KeyEnter
     Escape => @raylib.KeyEscape
@@ -362,6 +375,7 @@ fn all_codes() -> Array[@inputs.Code] {
     ArrowDown,
     ArrowLeft,
     ArrowRight,
+    ShiftLeft,
     Space,
     Enter,
     Escape,
@@ -535,7 +549,10 @@ fn cleanup_resources() -> Unit {
 }
 
 ///|
-pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
+pub fn initialize(
+  config : @runtime.WindowConfig,
+  callbacks : @runtime.RunnerCallbacks,
+) -> () -> Unit {
   ignore(config.viewport_width)
   ignore(config.viewport_height)
   backend.image_smooth = config.image_smooth
@@ -550,7 +567,7 @@ pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
     if !@raylib.is_audio_device_ready() {
       @raylib.init_audio_device()
     }
-    (config.startup)()
+    (callbacks.startup)()
     while !backend.close_requested && !@raylib.window_should_close() {
       let delta = @raylib.get_frame_time().to_double()
       backend.realtime_delta = delta
@@ -559,10 +576,11 @@ pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
       sync_gamepad_events()
       sync_mouse_lock()
       update_looping_tracks()
-      (config.game_loop)(delta * backend.time_scale)
+      (callbacks.game_loop)(delta * backend.time_scale)
       @raylib.begin_drawing()
       @raylib.clear_background(@raylib.black)
-      (config.render_loop)(delta * backend.time_scale)
+      backend.frame_has_draw_commands = false
+      (callbacks.render_loop)(delta * backend.time_scale)
       @raylib.end_drawing()
     }
     cleanup_resources()
@@ -574,8 +592,12 @@ pub fn initialize(config : @render.BackendConfig) -> () -> Unit {
 }
 
 ///|
-pub fn draw_image(command : @render.ImageDrawCommand) -> Unit {
-  let texture = get_texture(command.path)
+pub fn draw_image(
+  command : @render2d_types.ImageDrawCommand2D,
+  image_path : String,
+) -> Unit {
+  mark_frame_drawn()
+  let texture = get_texture(image_path)
   draw_image_repeat_transform(texture, command)
 }
 
@@ -615,7 +637,8 @@ pub fn lock_mouse(locked : Ref[Bool]) -> Unit {
 }
 
 ///|
-pub fn draw_text(command : @render.TextDrawCommand) -> Unit {
+pub fn draw_text(command : @render2d_types.TextDrawCommand2D) -> Unit {
+  mark_frame_drawn()
   let font = get_font_by_family(command.style.family)
   let measured = measure_text(command.style, command.text)
   let text_width = measured[X]
@@ -643,14 +666,18 @@ pub fn draw_text(command : @render.TextDrawCommand) -> Unit {
 }
 
 ///|
-pub fn measure_text(style : @render.TextStyle, text : String) -> @smath.Vec2D {
+pub fn measure_text(
+  style : @render2d_types.TextStyle2D,
+  text : String,
+) -> @smath.Vec2D {
   let font = get_font_by_family(style.family)
   let measured = @raylib.measure_text_ex(font, text, to_float(style.size), 0.0)
   @smath.Vec2D(vector2_x(measured), vector2_y(measured))
 }
 
 ///|
-pub fn draw_rect(command : @render.RectDrawCommand) -> Unit {
+pub fn draw_rect(command : @render2d_types.RectDrawCommand2D) -> Unit {
+  mark_frame_drawn()
   let rect = to_ray_rect(
     command.rect.position[X],
     command.rect.position[Y],
@@ -664,7 +691,8 @@ pub fn draw_rect(command : @render.RectDrawCommand) -> Unit {
 }
 
 ///|
-pub fn draw_circle(command : @render.CircleDrawCommand) -> Unit {
+pub fn draw_circle(command : @render2d_types.CircleDrawCommand2D) -> Unit {
+  mark_frame_drawn()
   let center = to_ray_vector2(command.center[X], command.center[Y])
   let radius = to_float(command.radius)
   @raylib.draw_circle_v(center, radius, to_ray_color(command.fill_color))
@@ -674,7 +702,10 @@ pub fn draw_circle(command : @render.CircleDrawCommand) -> Unit {
 }
 
 ///|
-pub fn draw_gradient_rect(command : @render.GradientRectDrawCommand) -> Unit {
+pub fn draw_gradient_rect(
+  command : @render2d_types.GradientRectDrawCommand2D,
+) -> Unit {
+  mark_frame_drawn()
   let rect = to_ray_rect(
     command.rect.position[X],
     command.rect.position[Y],
@@ -691,56 +722,13 @@ pub fn draw_gradient_rect(command : @render.GradientRectDrawCommand) -> Unit {
 }
 
 ///|
-pub fn begin_3d(camera : @render.Camera3D) -> Unit {
+fn begin_3d(camera : @render3d_types.FrameCamera3D) -> Unit {
   @raylib.begin_mode_3d(to_ray_camera3d(camera))
 }
 
 ///|
-pub fn end_3d() -> Unit {
+fn end_3d() -> Unit {
   @raylib.end_mode_3d()
-}
-
-///|
-pub fn draw_cube_3d(command : @render.CubeDrawCommand3D) -> Unit {
-  @raylib.draw_cube(
-    to_ray_vector3(command.center),
-    to_float(command.size.x),
-    to_float(command.size.y),
-    to_float(command.size.z),
-    to_ray_color(command.color),
-  )
-}
-
-///|
-pub fn draw_cube_wires_3d(command : @render.CubeDrawCommand3D) -> Unit {
-  @raylib.draw_cube_wires(
-    to_ray_vector3(command.center),
-    to_float(command.size.x),
-    to_float(command.size.y),
-    to_float(command.size.z),
-    to_ray_color(command.color),
-  )
-}
-
-///|
-pub fn draw_sphere_3d(command : @render.SphereDrawCommand3D) -> Unit {
-  @raylib.draw_sphere(
-    to_ray_vector3(command.center),
-    to_float(command.radius),
-    to_ray_color(command.color),
-  )
-}
-
-///|
-pub fn draw_cylinder_3d(command : @render.CylinderDrawCommand3D) -> Unit {
-  @raylib.draw_cylinder(
-    to_ray_vector3(command.center),
-    to_float(command.radius_top),
-    to_float(command.radius_bottom),
-    to_float(command.height),
-    command.slices,
-    to_ray_color(command.color),
-  )
 }
 
 ///|
@@ -785,12 +773,11 @@ pub fn release_image_asset(handle : @render3d_types.ImageHandle) -> Unit {
 ///|
 pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
   guard frame.camera is Some(active_camera) else { return }
-  begin_3d({
-    position: to_render_vec3(active_camera.position),
-    target: to_render_vec3(active_camera.target),
-    up: to_render_vec3(active_camera.up),
-    fovy: active_camera.fov_y,
-  })
+  if !backend.frame_has_draw_commands {
+    @raylib.clear_background(to_ray_color(frame.clear_color))
+  }
+  mark_frame_drawn()
+  begin_3d(active_camera)
   for item in frame.items {
     guard backend.meshes3d.get(item.mesh) is Some(mesh_asset) else { continue }
     let material = backend.materials3d
@@ -799,11 +786,6 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
     draw_mesh3d_instance(mesh_asset, material, item.transform)
   }
   end_3d()
-}
-
-///|
-fn to_render_vec3(value : @smath.Vec3) -> @render.Vec3 {
-  { x: value.x, y: value.y, z: value.z }
 }
 
 ///|
@@ -859,7 +841,7 @@ fn draw_mesh3d_instance(
         color,
       )
     }
-    Triangles(mesh) => draw_triangle_mesh(mesh.positions, color)
+    Triangles(mesh) => draw_triangle_mesh(mesh, material, color)
   }
   @rl.pop_matrix()
 }
@@ -892,6 +874,66 @@ fn apply_quat_rotation(quat : @smath.Quat) -> Unit {
 
 ///|
 fn draw_triangle_mesh(
+  mesh : @render3d_types.TriangleMesh3D,
+  material : @render3d_types.StandardMaterial3D,
+  color : @raylib.Color,
+) -> Unit {
+  let vertices = mesh.positions
+  if vertices.length() < 3 {
+    return
+  }
+  if material.base_color_texture is Some(image_handle) &&
+    backend.images3d.get(image_handle) is Some(image_asset) &&
+    mesh.uvs is Some(uvs) &&
+    uvs.length() == vertices.length() {
+    let normals = resolve_triangle_normals(mesh)
+    draw_textured_triangle_mesh(
+      vertices,
+      uvs,
+      normals,
+      get_texture(image_asset.path),
+      material.base_color,
+    )
+    return
+  }
+  draw_colored_triangle_mesh(vertices, color)
+}
+
+///|
+fn resolve_triangle_normals(
+  mesh : @render3d_types.TriangleMesh3D,
+) -> Array[@smath.Vec3] {
+  mesh.normals
+  .filter(fn(candidates) { candidates.length() == mesh.positions.length() })
+  .unwrap_or(compute_flat_triangle_normals(mesh.positions))
+}
+
+///|
+fn compute_flat_triangle_normals(
+  positions : Array[@smath.Vec3],
+) -> Array[@smath.Vec3] {
+  let normals : Array[@smath.Vec3] = []
+  let triangle_count = positions.length() / 3
+  for triangle in 0..<triangle_count {
+    let base = triangle * 3
+    let a = positions[base]
+    let b = positions[base + 1]
+    let c = positions[base + 2]
+    let mut normal = (b - a).cross(c - a)
+    if normal.length_squared() <= 0.0000001 {
+      normal = @smath.Vec3::new(0.0, 1.0, 0.0)
+    } else {
+      normal = normal.normalize()
+    }
+    normals.push(normal)
+    normals.push(normal)
+    normals.push(normal)
+  }
+  normals
+}
+
+///|
+fn draw_colored_triangle_mesh(
   vertices : Array[@smath.Vec3],
   color : @raylib.Color,
 ) -> Unit {
@@ -905,6 +947,31 @@ fn draw_triangle_mesh(
       color,
     )
   }
+}
+
+///|
+fn draw_textured_triangle_mesh(
+  vertices : Array[@smath.Vec3],
+  uvs : Array[@smath.Vec2D],
+  normals : Array[@smath.Vec3],
+  texture : @raylib.Texture,
+  tint : @render.Color,
+) -> Unit {
+  let (tint_r, tint_g, tint_b, tint_a) = to_ray_color_bytes(tint)
+  ignore(@rl.check_render_batch_limit(vertices.length()))
+  @rl.set_texture(@raylib.get_texture_id(texture).reinterpret_as_uint())
+  @rl.begin(@rl.Triangles)
+  for index in 0..<vertices.length() {
+    let vertex = vertices[index]
+    let uv = uvs[index]
+    let normal = normals[index]
+    @rl.color4ub(tint_r, tint_g, tint_b, tint_a)
+    @rl.normal3f(to_float(normal.x), to_float(normal.y), to_float(normal.z))
+    @rl.tex_coord2f(to_float(uv[X]), to_float(uv[Y]))
+    @rl.vertex3f(to_float(vertex.x), to_float(vertex.y), to_float(vertex.z))
+  }
+  @rl.end_()
+  @rl.set_texture(0U)
 }
 
 ///|
@@ -931,6 +998,11 @@ pub fn play_audio(
 ///|
 pub fn get_realtime_delta() -> Double {
   backend.realtime_delta
+}
+
+///|
+pub fn tick_audio() -> Unit {
+  update_looping_tracks()
 }
 
 ///|

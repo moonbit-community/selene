@@ -1,0 +1,11 @@
+import {
+  "Milky2018/selene/math",
+  "Milky2018/selene/render2d_types",
+  "Milky2018/selene/render_pipeline",
+}
+
+warnings = "-reserved_keyword"
+
+options(
+  virtual: { "has-default": true },
+)

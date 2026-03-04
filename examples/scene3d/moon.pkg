@@ -7,7 +7,8 @@ import {
   "Milky2018/selene/scene3d" @scene3d_api,
   "Milky2018/selene/transform3d",
   "Milky2018/selene/system",
-  "Milky2018/selene/backend",
+  "Milky2018/selene/render2d",
+  "Milky2018/selene/render2d_types",
   "Milky2018/selene/render",
   "moonbitlang/core/math" @cmath,
 }
