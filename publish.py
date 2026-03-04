@@ -16,7 +16,6 @@ from dataclasses import dataclass
 ROOT_DIR = Path(__file__).parent
 PAGE_DIR = ROOT_DIR / "page"
 EXAMPLES_DIR = ROOT_DIR / "examples"
-WEB_EXAMPLES_DIR = EXAMPLES_DIR / "web"
 BUILD_DIR = EXAMPLES_DIR / "_build" / "js" / "release" / "build"
 CHANGELOG_REL_PATH = Path("docs/CHANGELOG.md")
 CHANGELOG_PATH = ROOT_DIR / CHANGELOG_REL_PATH
@@ -129,15 +128,19 @@ def module_by_name(name: str) -> ModuleConfig:
     raise ValueError(f"Unknown module: {name}")
 
 def get_game_folders() -> list[str]:
-    """Automatically detect game folders from examples/web."""
-    if not WEB_EXAMPLES_DIR.exists():
+    """Automatically detect game folders from examples/<game>/web."""
+    if not EXAMPLES_DIR.exists():
         return []
 
     games: set[str] = set()
-    for item in WEB_EXAMPLES_DIR.iterdir():
+    for item in EXAMPLES_DIR.iterdir():
         if not item.is_dir():
             continue
-        if item.name.startswith("."):
+        if item.name.startswith(".") or item.name in {"_build", "target"}:
+            continue
+        if not (item / "web" / "moon.pkg").exists():
+            continue
+        if not (item / "index.html").exists():
             continue
         games.add(item.name)
 
@@ -148,7 +151,7 @@ def ensure_web_release_built(games: list[str]):
     """Ensure release JS artifacts exist before publishing pages."""
     missing: list[str] = []
     for game in games:
-        js_path = BUILD_DIR / "web" / game / f"{game}.js"
+        js_path = BUILD_DIR / game / "web" / "web.js"
         if not js_path.exists():
             missing.append(f"- {game}: {js_path.relative_to(ROOT_DIR)}")
 
@@ -161,7 +164,7 @@ def ensure_web_release_built(games: list[str]):
         f"{details}\n"
         "Run one of:\n"
         "  (cd examples && moon build --release)\n"
-        "  (cd examples && moon build ./web/<game> --target js --release)"
+        "  (cd examples && moon build ./<game>/web --target js --release)"
     )
 
 
@@ -244,32 +247,32 @@ def generate_asset_manifest(assets_dir: Path):
 def copy_game_files(game_name: str):
     """Copy all files for a specific game"""
     game_src_dir = EXAMPLES_DIR / game_name
-    game_web_dir = WEB_EXAMPLES_DIR / game_name
-    game_page_dir = PAGE_DIR / "examples" / "web" / game_name
+    game_web_dir = game_src_dir / "web"
+    game_page_dir = PAGE_DIR / "examples" / game_name
 
     if not game_web_dir.exists():
-        print(f"⚠ Warning: {game_name} not found in examples/web, skipping")
+        print(f"⚠ Warning: {game_name} missing examples/{game_name}/web, skipping")
         return
 
     game_page_dir.mkdir(parents=True, exist_ok=True)
 
-    # Copy HTML file from examples/web/<game>/index.html
-    index_html = game_web_dir / "index.html"
+    # Copy HTML file from examples/<game>/index.html
+    index_html = game_src_dir / "index.html"
     if index_html.exists():
         shutil.copy2(index_html, game_page_dir / "index.html")
         print(f"✓ Copied {game_name}/index.html")
     else:
         print(f"⚠ Warning: index.html not found for {game_name}")
 
-    # Copy assets folder from centralized examples/assets/<game>
-    assets_src = EXAMPLES_DIR / "assets" / game_name
+    # Copy assets folder from examples/<game>/assets/<game>
+    assets_src = game_src_dir / "assets" / game_name
     if assets_src.exists() and assets_src.is_dir():
-        assets_dst = PAGE_DIR / "assets" / game_name
+        assets_dst = game_page_dir / "assets" / game_name
         if assets_dst.exists():
             shutil.rmtree(assets_dst)
         shutil.copytree(assets_src, assets_dst)
         asset_count = len(list(assets_dst.rglob("*")))
-        print(f"✓ Copied assets/{game_name}/ ({asset_count} files)")
+        print(f"✓ Copied {game_name}/assets/{game_name}/ ({asset_count} files)")
 
         # Generate asset manifest
         manifest_count = generate_asset_manifest(assets_dst)
@@ -343,8 +346,8 @@ def copy_compiled_javascript(game_name: str, index_html: Path, game_page_dir: Pa
 
     fallback_sources = [
         (
-            BUILD_DIR / "web" / game_name / f"{game_name}.js",
-            PAGE_DIR / "examples" / "_build" / "js" / "release" / "build" / "web" / game_name / f"{game_name}.js",
+            BUILD_DIR / game_name / "web" / "web.js",
+            PAGE_DIR / "examples" / "_build" / "js" / "release" / "build" / game_name / "web" / "web.js",
         ),
     ]
 

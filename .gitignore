@@ -1,7 +1,6 @@
 .DS_Store
 __pycache__/
-page/examples/_build/
-page/examples/web/
-page/examples/preload-assets.js
+page/examples/
+page/preload-assets.js
 page/assets/
 todo.md

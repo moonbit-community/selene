@@ -37,6 +37,12 @@ extern "js" fn document_add_event_listener(
 ) -> Unit = "(event, callback) => { document.addEventListener(event, callback); }"
 
 ///|
+extern "js" fn document_hidden() -> Bool = "() => document.hidden"
+
+///|
+extern "js" fn prevent_default_event(event : @dom.Event) -> Unit = "(event) => event.preventDefault()"
+
+///|
 extern "js" fn load_font_async(font : String, path : String) -> Unit =
   #| (font, path) => {
   #|   const ff = new FontFace(font, 'url(' + path + ')');
@@ -106,22 +112,13 @@ extern "js" fn resolve_asset_path(path : String) -> String =
   #|   if (!path.startsWith("assets/")) {
   #|     return path;
   #|   }
-  #|   const pathname = globalThis.location?.pathname || "/";
-  #|   const marker = "/examples/";
-  #|   const markerIndex = pathname.indexOf(marker);
-  #|   if (markerIndex >= 0) {
-  #|     const base = pathname.slice(0, markerIndex + 1);
-  #|     return base + path;
+  #|   try {
+  #|     const href = globalThis.location?.href;
+  #|     if (!href) return path;
+  #|     return new URL(path, href).pathname;
+  #|   } catch (_err) {
+  #|     return path;
   #|   }
-  #|   if (pathname === "/") {
-  #|     return "/" + path;
-  #|   }
-  #|   if (pathname.endsWith("/")) {
-  #|     return pathname + path;
-  #|   }
-  #|   const slashIndex = pathname.lastIndexOf("/");
-  #|   const base = slashIndex >= 0 ? pathname.slice(0, slashIndex + 1) : "/";
-  #|   return base + path;
   #| }
 
 ///|
@@ -2131,6 +2128,9 @@ pub extern "js" fn Audio::set_current_time(
   self : Self,
   current_time : Double,
 ) -> Unit = "(self, current_time) => self.currentTime = current_time"
+
+///|
+pub extern "js" fn Audio::is_paused(self : Self) -> Bool = "(self) => self.paused"
 
 ///|
 pub extern "js" fn Audio::is_ended(self : Self) -> Bool = "(self) => self.ended"

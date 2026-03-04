@@ -7,11 +7,11 @@
 ```bash
 cd examples
 moon update
-moon build ./web/pixeladventure --target js --target-dir _build --release
+moon build ./pixeladventure/web --target js --target-dir _build --release
 python3 -m http.server 8000
 ```
 
-打开 `http://localhost:8000/web/pixeladventure/`。
+打开 `http://localhost:8000/pixeladventure/`。
 
 ### 1.2 Native（raylib）+ 嵌入资源（可选）
 
@@ -64,9 +64,9 @@ options(
 
 ```text
 examples/
-  assets/
-  pixeladventure/            # 共享游戏逻辑
-  web/pixeladventure/        # Web 入口 + override selene-webgpu
+  pixeladventure/            # 游戏逻辑 + Web 入口 + 资源
+    assets/pixeladventure/
+    web/                     # override selene-webgpu
 ```
 
 ## 3. 后端包装层（`moon.pkg`）
@@ -185,8 +185,8 @@ fn ui_input_system(_delta : Double) -> Unit {
 ## 7. Web HTML 脚本路径
 
 ```html
-<script src="../../preload-assets.js"></script>
-<script src="../../_build/js/release/build/web/pixeladventure/pixeladventure.js" defer></script>
+<script src="../preload-assets.js"></script>
+<script src="../_build/js/release/build/pixeladventure/web/web.js" defer></script>
 ```
 
 ## 8. 常用命令
@@ -194,8 +194,8 @@ fn ui_input_system(_delta : Double) -> Unit {
 ```bash
 # Web
 cd examples
-moon check ./web/pixeladventure --target js
-moon build ./web/pixeladventure --target js --target-dir _build --release
+moon check ./pixeladventure/web --target js
+moon build ./pixeladventure/web --target js --target-dir _build --release
 
 # 一次性构建全部 Web 示例
 moon build --release

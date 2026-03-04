@@ -83,9 +83,10 @@ pub fn set_loop(instance~ : AudioInstance, loop_~ : Bool) -> Unit {
 ///|
 pub fn set_paused(instance~ : AudioInstance, paused~ : Bool) -> Unit {
   if audio_instances.get(instance) is Some(audio) {
-    if paused {
+    let currently_paused = audio.is_paused()
+    if paused && !currently_paused {
       audio.pause()
-    } else {
+    } else if !paused && currently_paused {
       audio.play()
     }
   }

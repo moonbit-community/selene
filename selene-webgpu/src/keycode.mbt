@@ -13,11 +13,22 @@
 // limitations under the License.
 
 ///|
+fn should_prevent_default(code : @inputs.Code) -> Bool {
+  match code {
+    ArrowUp | ArrowDown | ArrowLeft | ArrowRight | Space => true
+    _ => false
+  }
+}
+
+///|
 pub fn register_key_events(pressed_keys : Set[@inputs.Code]) -> Unit {
   window.add_event_listener("keyup", event => {
     let keyboard_event = event.to_keyboard_event().unwrap()
     let keycode = keyboard_event.code() |> @inputs.Code::from_string
     if keycode is Some(c) {
+      if should_prevent_default(c) {
+        prevent_default_event(event)
+      }
       pressed_keys.remove(c)
     }
   })
@@ -25,7 +36,16 @@ pub fn register_key_events(pressed_keys : Set[@inputs.Code]) -> Unit {
     let keyboard_event = event.to_keyboard_event().unwrap()
     let keycode = keyboard_event.code() |> @inputs.Code::from_string
     if keycode is Some(c) {
+      if should_prevent_default(c) {
+        prevent_default_event(event)
+      }
       pressed_keys.add(c)
+    }
+  })
+  window.add_event_listener("blur", _event => pressed_keys.clear())
+  document_add_event_listener("visibilitychange", _event => {
+    if document_hidden() {
+      pressed_keys.clear()
     }
   })
 }

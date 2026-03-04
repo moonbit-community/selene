@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Survivors - Selene Game</title>
+    <title>Pixel Adventure - Selene Game</title>
     <style>
         * {
             margin: 0;
@@ -14,7 +14,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #2c1810 0%, #4a2c1c 100%);
+            background: linear-gradient(135deg, #4158d0 0%, #c850c0 46%, #ffcc70 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -39,7 +39,7 @@
             font-weight: 800;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-            color: #ff6b6b;
+            color: #fff;
         }
 
         .subtitle {
@@ -75,7 +75,7 @@
         .instructions h2 {
             font-size: 1.3rem;
             margin-bottom: 10px;
-            color: #ff6b6b;
+            color: #ffcc70;
         }
 
         .instructions p {
@@ -127,14 +127,14 @@
             }
         }
     </style>
-    <script src="../../preload-assets.js"></script>
-    <script src="../../_build/js/release/build/web/survivors/survivors.js" defer></script>
+    <script src="../preload-assets.js"></script>
+    <script src="../_build/js/release/build/pixeladventure/web/web.js" defer></script>
 </head>
 
 <body>
     <div class="container">
         <header>
-            <h1>⚔️ Survivors</h1>
+            <h1>Pixel Adventure</h1>
         </header>
 
         <div class="game-wrapper">
@@ -142,12 +142,7 @@
         </div>
 
         <div class="instructions">
-            <ul>
-                <li><strong>Movement:</strong> WASD</li>
-                <li><strong>Combat:</strong> Automatically shooting</li>
-                <li><strong>Power-ups:</strong> Gain enough EXP to level up</li>
-                <li><strong>Goal:</strong> Achieve the highest score!</li>
-            </ul>
+            <img src="assets/pixeladventure/arrowkey.png" alt="Arrow Keys" style="display: block; margin: 0 auto; max-width: 25%;">
         </div>
 
         <a href="../index.html" class="back-link">← Back to Games</a>

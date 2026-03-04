@@ -12,38 +12,10 @@
         return last;
     }
 
-    function detectBasePath() {
-        const script = document.currentScript || Array.from(document.getElementsByTagName('script')).find((item) => {
-            const src = item.getAttribute('src') || '';
-            return src.includes('preload-assets.js');
-        });
-
-        if (script) {
-            const scriptSrc = script.getAttribute('src') || script.src || '';
-            if (scriptSrc) {
-                const url = new URL(scriptSrc, window.location.href);
-                const marker = '/examples/preload-assets.js';
-                const markerIndex = url.pathname.lastIndexOf(marker);
-                if (markerIndex >= 0) {
-                    return url.pathname.slice(0, markerIndex + 1);
-                }
-            }
-        }
-
-        const pathname = window.location.pathname || '/';
-        const marker = '/examples/web/';
-        const markerIndex = pathname.indexOf(marker);
-        if (markerIndex >= 0) {
-            return pathname.slice(0, markerIndex + 1);
-        }
-        return '/';
-    }
-
     const gameName = detectGameName();
     if (!gameName) return;
 
-    const basePath = detectBasePath();
-    const ASSETS_BASE_PATH = `${basePath}assets/${gameName}/`;
+    const ASSETS_BASE_PATH = `assets/${gameName}/`;
     const MANIFEST_PATH = ASSETS_BASE_PATH + 'assets-manifest.json';
 
     // Fetch and preload all assets

@@ -7,11 +7,11 @@
 ```bash
 cd examples
 moon update
-moon build ./web/pixeladventure --target js --target-dir _build --release
+moon build ./pixeladventure/web --target js --target-dir _build --release
 python3 -m http.server 8000
 ```
 
-Open `http://localhost:8000/web/pixeladventure/`.
+Open `http://localhost:8000/pixeladventure/`.
 
 ### 1.2 Native (raylib) with embedded assets (optional)
 
@@ -64,9 +64,9 @@ If embedding is not enabled, do not call this API.
 
 ```text
 examples/
-  assets/
-  pixeladventure/            # shared game logic
-  web/pixeladventure/        # web entry + override selene-webgpu
+  pixeladventure/            # game logic + web entry + assets
+    assets/pixeladventure/
+    web/                     # override selene-webgpu
 ```
 
 ## 3. Backend Wrapper (`moon.pkg`)
@@ -185,8 +185,8 @@ fn ui_input_system(_delta : Double) -> Unit {
 ## 7. Web HTML Script Path
 
 ```html
-<script src="../../preload-assets.js"></script>
-<script src="../../_build/js/release/build/web/pixeladventure/pixeladventure.js" defer></script>
+<script src="../preload-assets.js"></script>
+<script src="../_build/js/release/build/pixeladventure/web/web.js" defer></script>
 ```
 
 ## 8. Common Commands
@@ -194,8 +194,8 @@ fn ui_input_system(_delta : Double) -> Unit {
 ```bash
 # Web
 cd examples
-moon check ./web/pixeladventure --target js
-moon build ./web/pixeladventure --target js --target-dir _build --release
+moon check ./pixeladventure/web --target js
+moon build ./pixeladventure/web --target js --target-dir _build --release
 
 # Build all web examples
 moon build --release
