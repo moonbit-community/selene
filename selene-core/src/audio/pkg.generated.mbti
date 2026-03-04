@@ -43,8 +43,28 @@ pub impl Show for AudioPlayer
 
 pub(all) struct AudioSink {
   instance : @platform_audio.AudioInstance
+  mode : PlaybackMode
+  mut volume : Double
+  mut speed : Double
+  mut paused : Bool
+  mut muted : Bool
+  mut stopped : Bool
   mut finished : Bool
 }
+pub fn AudioSink::finished(Self) -> Bool
+pub fn AudioSink::mode(Self) -> PlaybackMode
+pub fn AudioSink::muted(Self) -> Bool
+pub fn AudioSink::pause(Self) -> Unit
+pub fn AudioSink::paused(Self) -> Bool
+pub fn AudioSink::play(Self) -> Unit
+pub fn AudioSink::set_muted(Self, Bool) -> Unit
+pub fn AudioSink::set_paused(Self, Bool) -> Unit
+pub fn AudioSink::set_speed(Self, Double) -> Unit
+pub fn AudioSink::set_volume(Self, Double) -> Unit
+pub fn AudioSink::speed(Self) -> Double
+pub fn AudioSink::stop(Self) -> Unit
+pub fn AudioSink::stopped(Self) -> Bool
+pub fn AudioSink::volume(Self) -> Double
 
 pub(all) enum PlaybackMode {
   Once

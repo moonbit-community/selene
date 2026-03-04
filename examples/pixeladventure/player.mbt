@@ -108,7 +108,7 @@ const GRAVITY = 1800.0
 const MAX_RUN_V = 240.0
 
 ///|
-const JUMP_V = 680.0
+const JUMP_V = 560.0
 
 ///|
 const MAX_FALL_V = 900.0

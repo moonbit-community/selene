@@ -40,6 +40,12 @@ pub(all) struct AudioPlayer {
 ///|
 pub(all) struct AudioSink {
   instance : @platform_audio.AudioInstance
+  mode : PlaybackMode
+  mut volume : Double
+  mut speed : Double
+  mut paused : Bool
+  mut muted : Bool
+  mut stopped : Bool
   mut finished : Bool
 }
 
@@ -88,17 +94,17 @@ fn use_loop_mode(mode : PlaybackMode) -> Bool {
 }
 
 ///|
-fn effective_volume(settings : PlaybackSettings) -> Double {
-  if settings.muted {
+fn effective_sink_volume(sink : AudioSink) -> Double {
+  if sink.muted {
     0.0
   } else {
-    sanitize_volume(settings.volume) * global_volume_ref.val
+    sanitize_volume(sink.volume) * global_volume_ref.val
   }
 }
 
 ///|
-fn should_pause(settings : PlaybackSettings) -> Bool {
-  settings.paused || settings.muted
+fn should_sink_pause(sink : AudioSink) -> Bool {
+  sink.paused || sink.muted
 }
 
 ///|
@@ -169,6 +175,77 @@ pub fn PlaybackSettings::with_muted(
   muted : Bool,
 ) -> PlaybackSettings {
   { ..self, muted, }
+}
+
+///|
+pub fn AudioSink::mode(self : AudioSink) -> PlaybackMode {
+  self.mode
+}
+
+///|
+pub fn AudioSink::volume(self : AudioSink) -> Double {
+  self.volume
+}
+
+///|
+pub fn AudioSink::speed(self : AudioSink) -> Double {
+  self.speed
+}
+
+///|
+pub fn AudioSink::paused(self : AudioSink) -> Bool {
+  self.paused
+}
+
+///|
+pub fn AudioSink::muted(self : AudioSink) -> Bool {
+  self.muted
+}
+
+///|
+pub fn AudioSink::stopped(self : AudioSink) -> Bool {
+  self.stopped
+}
+
+///|
+pub fn AudioSink::finished(self : AudioSink) -> Bool {
+  self.finished
+}
+
+///|
+pub fn AudioSink::set_volume(self : AudioSink, volume : Double) -> Unit {
+  self.volume = sanitize_volume(volume)
+}
+
+///|
+pub fn AudioSink::set_speed(self : AudioSink, speed : Double) -> Unit {
+  self.speed = sanitize_speed(speed)
+}
+
+///|
+pub fn AudioSink::set_paused(self : AudioSink, paused : Bool) -> Unit {
+  self.paused = paused
+}
+
+///|
+pub fn AudioSink::set_muted(self : AudioSink, muted : Bool) -> Unit {
+  self.muted = muted
+}
+
+///|
+pub fn AudioSink::pause(self : AudioSink) -> Unit {
+  self.paused = true
+}
+
+///|
+pub fn AudioSink::play(self : AudioSink) -> Unit {
+  self.paused = false
+}
+
+///|
+pub fn AudioSink::stop(self : AudioSink) -> Unit {
+  self.stopped = true
+  self.paused = true
 }
 
 ///|
@@ -253,20 +330,30 @@ fn start_audio_sink(
   let sink = {
     instance: @platform_audio.play_audio(
       audio_path=path,
-      volume=effective_volume(settings),
-      speed=settings.speed,
+      volume=if settings.muted {
+        0.0
+      } else {
+        sanitize_volume(settings.volume) * global_volume_ref.val
+      },
+      speed=sanitize_speed(settings.speed),
       loop_=use_loop_mode(settings.mode),
-      paused=should_pause(settings),
+      paused=settings.paused || settings.muted,
     ),
+    mode: settings.mode,
+    volume: sanitize_volume(settings.volume),
+    speed: sanitize_speed(settings.speed),
+    paused: settings.paused,
+    muted: settings.muted,
+    stopped: false,
     finished: false,
   }
   audio_sinks.set(entity, sink)
 }
 
 ///|
-fn finish_audio_sink(entity : @entity.Entity, mode : PlaybackMode) -> Unit {
+fn finish_audio_sink(entity : @entity.Entity) -> Unit {
   guard audio_sinks.get(entity) is Some(sink) else { return }
-  match mode {
+  match sink.mode {
     Once => sink.finished = true
     Loop => {
       @platform_audio.stop(instance=sink.instance)
@@ -281,36 +368,30 @@ fn finish_audio_sink(entity : @entity.Entity, mode : PlaybackMode) -> Unit {
 }
 
 ///|
-fn sync_audio_sink(
-  entity : @entity.Entity,
-  player : AudioPlayer,
-  settings : PlaybackSettings,
-  sink : AudioSink,
-) -> Unit {
-  if sink.finished {
-    if settings.mode is Loop {
+fn sync_audio_sink(entity : @entity.Entity, sink : AudioSink) -> Unit {
+  if sink.stopped {
+    if !sink.finished {
       @platform_audio.stop(instance=sink.instance)
-      audio_sinks.remove(entity)
-      start_audio_sink(entity, player, settings)
+      sink.finished = true
     }
+    return
+  }
+  if @platform_audio.is_finished(instance=sink.instance) {
+    finish_audio_sink(entity)
+    return
+  }
+  if sink.finished {
     return
   }
   @platform_audio.set_volume(
     instance=sink.instance,
-    volume=effective_volume(settings),
+    volume=effective_sink_volume(sink),
   )
-  @platform_audio.set_speed(instance=sink.instance, speed=settings.speed)
-  @platform_audio.set_loop(
-    instance=sink.instance,
-    loop_=use_loop_mode(settings.mode),
-  )
+  @platform_audio.set_speed(instance=sink.instance, speed=sink.speed)
   @platform_audio.set_paused(
     instance=sink.instance,
-    paused=should_pause(settings),
+    paused=should_sink_pause(sink),
   )
-  if @platform_audio.is_finished(instance=sink.instance) {
-    finish_audio_sink(entity, settings.mode)
-  }
 }
 
 ///|
@@ -337,13 +418,13 @@ pub fn audio_playback_system(_delta : Double) -> Unit {
     if !entity.is_alive() {
       continue
     }
-    let settings = normalize_settings(
-      audio_playback_settings.get(entity).unwrap_or(PlaybackSettings::once()),
-    )
-    audio_playback_settings.set(entity, settings)
     if audio_sinks.get(entity) is Some(sink) {
-      sync_audio_sink(entity, player, settings, sink)
+      sync_audio_sink(entity, sink)
     } else {
+      let settings = normalize_settings(
+        audio_playback_settings.get(entity).unwrap_or(PlaybackSettings::once()),
+      )
+      audio_playback_settings.set(entity, settings)
       start_audio_sink(entity, player, settings)
     }
   }
