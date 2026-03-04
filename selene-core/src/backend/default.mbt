@@ -122,6 +122,11 @@ pub fn preload_audio(path : String) -> Unit {
 }
 
 ///|
+pub fn set_embedded_assets(lookup : (String) -> Bytes?) -> Unit {
+  ignore(lookup)
+}
+
+///|
 pub fn set_time_scale(scale : Double) -> Unit {
   ignore(scale)
 }

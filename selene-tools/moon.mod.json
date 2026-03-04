@@ -1,0 +1,16 @@
+{
+  "name": "Milky2018/selene_tools",
+  "version": "0.21.2",
+  "deps": {
+    "moonbitlang/x": "0.4.40"
+  },
+  "readme": "README.mbt.md",
+  "repository": "https://github.com/moonbit-community/selene.git",
+  "license": "Apache-2.0",
+  "keywords": [
+    "Game Engine",
+    "CLI",
+    "Assets"
+  ],
+  "description": "CLI tools for Selene workflows."
+}

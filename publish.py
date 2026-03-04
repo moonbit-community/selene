@@ -29,6 +29,7 @@ INTERNAL_MODULES = {
     "Milky2018/selene",
     "Milky2018/selene_webgpu",
     "Milky2018/selene_raylib",
+    "Milky2018/selene_tools",
 }
 
 
@@ -42,9 +43,10 @@ RELEASE_MODULES = [
     ModuleConfig("selene-core", ROOT_DIR / "selene-core"),
     ModuleConfig("selene-webgpu", ROOT_DIR / "selene-webgpu"),
     ModuleConfig("selene-raylib", ROOT_DIR / "selene-raylib"),
+    ModuleConfig("selene-tools", ROOT_DIR / "selene-tools"),
 ]
 
-PUBLISH_ORDER = ["selene-core", "selene-webgpu", "selene-raylib"]
+PUBLISH_ORDER = ["selene-core", "selene-webgpu", "selene-raylib", "selene-tools"]
 
 
 def run_cmd(cmd: list[str], cwd: Path, *, fail_on_warning: bool = False):
@@ -399,6 +401,11 @@ def run_module_quality_checks(module: ModuleConfig):
         run_cmd(["moon", "check", "--target", "native", "--deny-warn"], module.path, fail_on_warning=True)
         return
 
+    if module.name == "selene-tools":
+        run_cmd(["moon", "info"], module.path, fail_on_warning=True)
+        run_cmd(["moon", "check", "--target", "native", "--deny-warn"], module.path, fail_on_warning=True)
+        return
+
     raise RuntimeError(f"Unknown module for quality checks: {module.name}")
 
 
@@ -424,17 +431,28 @@ def rewrite_module_for_release(module: ModuleConfig, version: str):
     write_json(manifest_path, manifest)
 
 
-def snapshot_module_manifests() -> dict[Path, str]:
-    snapshots: dict[Path, str] = {}
+def snapshot_module_deps() -> dict[Path, dict | None]:
+    snapshots: dict[Path, dict | None] = {}
     for module in RELEASE_MODULES:
         manifest_path = module.path / "moon.mod.json"
-        snapshots[manifest_path] = manifest_path.read_text(encoding="utf-8")
+        manifest = load_json(manifest_path)
+        deps = manifest.get("deps")
+        if deps is None:
+            snapshots[manifest_path] = None
+        else:
+            # Detach mutable dict from loaded manifest.
+            snapshots[manifest_path] = json.loads(json.dumps(deps))
     return snapshots
 
 
-def restore_module_manifests(snapshots: dict[Path, str]):
-    for manifest_path, content in snapshots.items():
-        manifest_path.write_text(content, encoding="utf-8")
+def restore_module_deps(snapshots: dict[Path, dict | None]):
+    for manifest_path, deps in snapshots.items():
+        manifest = load_json(manifest_path)
+        if deps is None:
+            manifest.pop("deps", None)
+        else:
+            manifest["deps"] = deps
+        write_json(manifest_path, manifest)
 
 
 def run_release_pipeline(version: str):
@@ -443,7 +461,7 @@ def run_release_pipeline(version: str):
     print("=" * 60)
     print()
 
-    snapshots = snapshot_module_manifests()
+    snapshots = snapshot_module_deps()
     pipeline_error = None
     try:
         print("[1/4] Running fmt/info/check on all modules...")
@@ -478,9 +496,9 @@ def run_release_pipeline(version: str):
     except Exception as exc:
         pipeline_error = exc
     finally:
-        print("\n[cleanup] Restoring module manifests to pre-publish state...")
-        restore_module_manifests(snapshots)
-        print("[cleanup] Running moon update for restored manifests...")
+        print("\n[cleanup] Restoring module deps to pre-publish state...")
+        restore_module_deps(snapshots)
+        print("[cleanup] Running moon update for restored deps...")
         restore_error = None
         for module in RELEASE_MODULES:
             try:

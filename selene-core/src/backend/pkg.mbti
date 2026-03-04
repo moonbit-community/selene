@@ -57,6 +57,8 @@ fn preload_img(String) -> Unit
 
 fn preload_audio(String) -> Unit
 
+fn set_embedded_assets((String) -> Bytes?) -> Unit
+
 fn set_time_scale(Double) -> Unit
 
 fn get_time_scale() -> Double

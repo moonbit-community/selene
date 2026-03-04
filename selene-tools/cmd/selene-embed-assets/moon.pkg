@@ -1,0 +1,8 @@
+import {
+  "Milky2018/selene_tools" @lib,
+  "moonbitlang/x/sys" @sys,
+}
+
+options(
+  "is-main": true,
+)

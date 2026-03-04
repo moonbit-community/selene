@@ -17,6 +17,7 @@ priv struct RaylibBackend {
   mut time_scale : Double
   mut image_smooth : Bool
   mut realtime_delta : Double
+  mut embedded_asset_lookup : (String) -> Bytes?
   mut key_events : Set[@inputs.Code]?
   mut mouse_state : @inputs.Mouse?
   mut mouse_movement : @inputs.MouseMovement?
@@ -29,6 +30,7 @@ priv struct RaylibBackend {
   looping_tracks : Set[String]
   font_alias : Map[String, String]
   fonts_by_path : Map[String, @raylib.Font]
+  mut embedded_asset_cache : Map[String, Bytes]
 }
 
 ///|
@@ -36,6 +38,7 @@ let backend : RaylibBackend = {
   time_scale: 1.0,
   image_smooth: true,
   realtime_delta: 0.016,
+  embedded_asset_lookup: default_embedded_asset_lookup,
   key_events: None,
   mouse_state: None,
   mouse_movement: None,
@@ -48,6 +51,7 @@ let backend : RaylibBackend = {
   looping_tracks: Set::new(),
   font_alias: Map::new(),
   fonts_by_path: Map::new(),
+  embedded_asset_cache: Map::new(),
 }
 
 ///|
@@ -62,6 +66,11 @@ fn default_font_codepoints() -> Array[Int] {
     codepoints.push(cp)
   }
   codepoints
+}
+
+///|
+fn default_embedded_asset_lookup(_path : String) -> Bytes? {
+  None
 }
 
 ///|
@@ -160,11 +169,51 @@ fn configured_filter() -> Int {
 }
 
 ///|
+fn file_extension(path : String) -> String {
+  let slash_idx = if path.rev_find("/") is Some(i) { i } else { -1 }
+  let backslash_idx = if path.rev_find("\\") is Some(i) { i } else { -1 }
+  let last_separator = if slash_idx > backslash_idx {
+    slash_idx
+  } else {
+    backslash_idx
+  }
+  if path.rev_find(".") is Some(dot_idx) && dot_idx > last_separator {
+    path.unsafe_substring(start=dot_idx, end=path.length())
+  } else {
+    ".bin"
+  }
+}
+
+///|
+fn get_embedded_asset(path : String) -> Bytes? {
+  if backend.embedded_asset_cache.get(path) is Some(cached) {
+    return Some(cached)
+  }
+  if (backend.embedded_asset_lookup)(path) is Some(bytes) {
+    backend.embedded_asset_cache.set(path, bytes)
+    Some(bytes)
+  } else {
+    None
+  }
+}
+
+///|
 fn get_texture(path : String) -> @raylib.Texture {
   if backend.textures.get(path) is Some(texture) {
     return texture
   }
-  let texture = @raylib.load_texture(path)
+  let texture = if get_embedded_asset(path) is Some(bytes) {
+    let image = @raylib.load_image_from_memory(
+      file_extension(path),
+      bytes,
+      bytes.length(),
+    )
+    let texture = @raylib.load_texture_from_image(image)
+    @raylib.unload_image(image)
+    texture
+  } else {
+    @raylib.load_texture(path)
+  }
   @raylib.set_texture_filter(texture, configured_filter())
   backend.textures.set(path, texture)
   texture
@@ -175,7 +224,18 @@ fn get_sound(path : String) -> @raylib.Sound {
   if backend.sounds.get(path) is Some(sound) {
     return sound
   }
-  let sound = @raylib.load_sound(path)
+  let sound = if get_embedded_asset(path) is Some(bytes) {
+    let wave = @raylib.load_wave_from_memory(
+      file_extension(path),
+      bytes,
+      bytes.length(),
+    )
+    let sound = @raylib.load_sound_from_wave(wave)
+    @raylib.unload_wave(wave)
+    sound
+  } else {
+    @raylib.load_sound(path)
+  }
   backend.sounds.set(path, sound)
   sound
 }
@@ -185,7 +245,15 @@ fn get_music(path : String) -> @raylib.Music {
   if backend.musics.get(path) is Some(music) {
     return music
   }
-  let music = @raylib.load_music_stream(path)
+  let music = if get_embedded_asset(path) is Some(bytes) {
+    @raylib.load_music_stream_from_memory(
+      file_extension(path),
+      bytes,
+      bytes.length(),
+    )
+  } else {
+    @raylib.load_music_stream(path)
+  }
   backend.musics.set(path, music)
   music
 }
@@ -600,14 +668,25 @@ pub fn load_font(font : String, path : String) -> Unit {
   let loaded = if backend.fonts_by_path.get(path) is Some(loaded) {
     loaded
   } else {
-    let loaded = @raylib.load_font_ex_codepoints(
-      path,
-      32,
-      default_font_codepoints(),
-    )
+    let loaded = if get_embedded_asset(path) is Some(bytes) {
+      @raylib.load_font_from_memory(
+        file_extension(path),
+        bytes,
+        bytes.length(),
+        32,
+      )
+    } else {
+      @raylib.load_font_ex_codepoints(path, 32, default_font_codepoints())
+    }
     backend.fonts_by_path.set(path, loaded)
     loaded
   }
   ignore(loaded)
   backend.font_alias.set(font, path)
+}
+
+///|
+pub fn set_embedded_assets(lookup : (String) -> Bytes?) -> Unit {
+  backend.embedded_asset_lookup = lookup
+  backend.embedded_asset_cache = Map::new()
 }

@@ -38,6 +38,11 @@ pub fn set_time_scale(time_scale : Double) -> Unit {
 }
 
 ///|
+pub fn set_embedded_assets(lookup : (String) -> Bytes?) -> Unit {
+  ignore(lookup)
+}
+
+///|
 let realtime_delta : Ref[Double] = Ref::new(0.0)
 
 ///|
