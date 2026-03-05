@@ -1060,41 +1060,433 @@ fn draw_mesh3d_instance(
   let color = to_ray_color(lit_color)
   match mesh_asset.primitive {
     Cube(size) =>
-      @raylib.draw_cube(
-        @raylib.Vector3::new(0.0F, 0.0F, 0.0F),
-        to_float(size.x),
-        to_float(size.y),
-        to_float(size.z),
-        color,
-      )
+      if !draw_textured_cuboid_if_possible(size, material, lit_color) {
+        @raylib.draw_cube(
+          @raylib.Vector3::new(0.0F, 0.0F, 0.0F),
+          to_float(size.x),
+          to_float(size.y),
+          to_float(size.z),
+          color,
+        )
+      }
     Sphere(radius) =>
-      @raylib.draw_sphere(
-        @raylib.Vector3::new(0.0F, 0.0F, 0.0F),
-        to_float(radius),
-        color,
-      )
+      if !draw_textured_sphere_if_possible(radius, material, lit_color) {
+        @raylib.draw_sphere(
+          @raylib.Vector3::new(0.0F, 0.0F, 0.0F),
+          to_float(radius),
+          color,
+        )
+      }
     Cylinder(radius_top, radius_bottom, height, slices) =>
-      @raylib.draw_cylinder(
-        @raylib.Vector3::new(0.0F, 0.0F, 0.0F),
-        to_float(radius_top),
-        to_float(radius_bottom),
-        to_float(height),
-        slices,
-        color,
-      )
+      if !draw_textured_cylinder_if_possible(
+          radius_top, radius_bottom, height, slices, material, lit_color,
+        ) {
+        @raylib.draw_cylinder(
+          @raylib.Vector3::new(0.0F, 0.0F, 0.0F),
+          to_float(radius_top),
+          to_float(radius_bottom),
+          to_float(height),
+          slices,
+          color,
+        )
+      }
     Plane(size) => {
       let thickness = if size.y.abs() < 0.0001 { 0.02 } else { size.y }
-      @raylib.draw_cube(
-        @raylib.Vector3::new(0.0F, 0.0F, 0.0F),
-        to_float(size.x),
-        to_float(thickness),
-        to_float(size.z),
-        color,
-      )
+      let cuboid = @smath.Vec3::new(size.x, thickness, size.z)
+      if !draw_textured_cuboid_if_possible(cuboid, material, lit_color) {
+        @raylib.draw_cube(
+          @raylib.Vector3::new(0.0F, 0.0F, 0.0F),
+          to_float(size.x),
+          to_float(thickness),
+          to_float(size.z),
+          color,
+        )
+      }
     }
     Triangles(mesh) => draw_triangle_mesh(mesh, material, lit_color)
   }
   @rl.pop_matrix()
+}
+
+///|
+const TEXTURED_SPHERE_STACKS : Int = 16
+
+///|
+const TEXTURED_SPHERE_SLICES : Int = 24
+
+///|
+fn draw_textured_cuboid_if_possible(
+  size : @smath.Vec3,
+  material : @render3d_types.StandardMaterial3D,
+  tint : @render.Color,
+) -> Bool {
+  guard resolve_material_texture(material) is Some(texture) else {
+    return false
+  }
+  let (vertices, uvs, normals) = build_cuboid_mesh(size)
+  draw_textured_triangle_mesh(vertices, uvs, normals, texture, tint)
+  true
+}
+
+///|
+fn draw_textured_sphere_if_possible(
+  radius : Double,
+  material : @render3d_types.StandardMaterial3D,
+  tint : @render.Color,
+) -> Bool {
+  guard resolve_material_texture(material) is Some(texture) else {
+    return false
+  }
+  let (vertices, uvs, normals) = build_sphere_mesh(radius)
+  if vertices.length() < 3 {
+    return false
+  }
+  draw_textured_triangle_mesh(vertices, uvs, normals, texture, tint)
+  true
+}
+
+///|
+fn draw_textured_cylinder_if_possible(
+  radius_top : Double,
+  radius_bottom : Double,
+  height : Double,
+  slices : Int,
+  material : @render3d_types.StandardMaterial3D,
+  tint : @render.Color,
+) -> Bool {
+  guard resolve_material_texture(material) is Some(texture) else {
+    return false
+  }
+  let (vertices, uvs, normals) = build_cylinder_mesh(
+    radius_top, radius_bottom, height, slices,
+  )
+  if vertices.length() < 3 {
+    return false
+  }
+  draw_textured_triangle_mesh(vertices, uvs, normals, texture, tint)
+  true
+}
+
+///|
+fn resolve_material_texture(
+  material : @render3d_types.StandardMaterial3D,
+) -> @raylib.Texture? {
+  guard material.base_color_texture is Some(image_handle) else { return None }
+  guard backend.images3d.get(image_handle) is Some(image_asset) else {
+    return None
+  }
+  Some(get_texture(image_asset.path))
+}
+
+///|
+fn build_sphere_mesh(
+  radius : Double,
+) -> (Array[@smath.Vec3], Array[@smath.Vec2D], Array[@smath.Vec3]) {
+  let vertices : Array[@smath.Vec3] = []
+  let uvs : Array[@smath.Vec2D] = []
+  let normals : Array[@smath.Vec3] = []
+  for stack in 0..<TEXTURED_SPHERE_STACKS {
+    let stack0 = stack.to_double() / TEXTURED_SPHERE_STACKS.to_double()
+    let stack1 = (stack + 1).to_double() / TEXTURED_SPHERE_STACKS.to_double()
+    let theta0 = stack0 * @cmath.PI
+    let theta1 = stack1 * @cmath.PI
+    for slice in 0..<TEXTURED_SPHERE_SLICES {
+      let slice0 = slice.to_double() / TEXTURED_SPHERE_SLICES.to_double()
+      let slice1 = (slice + 1).to_double() / TEXTURED_SPHERE_SLICES.to_double()
+      let phi0 = slice0 * 2.0 * @cmath.PI
+      let phi1 = slice1 * 2.0 * @cmath.PI
+      let p00 = sphere_vertex(radius, theta0, phi0)
+      let p01 = sphere_vertex(radius, theta0, phi1)
+      let p10 = sphere_vertex(radius, theta1, phi0)
+      let p11 = sphere_vertex(radius, theta1, phi1)
+      let n00 = sphere_normal(theta0, phi0)
+      let n01 = sphere_normal(theta0, phi1)
+      let n10 = sphere_normal(theta1, phi0)
+      let n11 = sphere_normal(theta1, phi1)
+      let uv00 = @smath.Vec2D(slice0, 1.0 - stack0)
+      let uv01 = @smath.Vec2D(slice1, 1.0 - stack0)
+      let uv10 = @smath.Vec2D(slice0, 1.0 - stack1)
+      let uv11 = @smath.Vec2D(slice1, 1.0 - stack1)
+      push_textured_triangle(
+        vertices, uvs, normals, p00, p10, p11, uv00, uv10, uv11, n00, n10, n11,
+      )
+      push_textured_triangle(
+        vertices, uvs, normals, p00, p11, p01, uv00, uv11, uv01, n00, n11, n01,
+      )
+    }
+  }
+  (vertices, uvs, normals)
+}
+
+///|
+fn sphere_vertex(radius : Double, theta : Double, phi : Double) -> @smath.Vec3 {
+  let sin_theta = @cmath.sin(theta)
+  @smath.Vec3::new(
+    radius * sin_theta * @cmath.cos(phi),
+    radius * @cmath.cos(theta),
+    radius * sin_theta * @cmath.sin(phi),
+  )
+}
+
+///|
+fn sphere_normal(theta : Double, phi : Double) -> @smath.Vec3 {
+  let sin_theta = @cmath.sin(theta)
+  @smath.Vec3::new(
+    sin_theta * @cmath.cos(phi),
+    @cmath.cos(theta),
+    sin_theta * @cmath.sin(phi),
+  )
+}
+
+///|
+fn build_cylinder_mesh(
+  radius_top : Double,
+  radius_bottom : Double,
+  height : Double,
+  slices : Int,
+) -> (Array[@smath.Vec3], Array[@smath.Vec2D], Array[@smath.Vec3]) {
+  let vertices : Array[@smath.Vec3] = []
+  let uvs : Array[@smath.Vec2D] = []
+  let normals : Array[@smath.Vec3] = []
+  let segment_count = if slices < 3 { 3 } else { slices }
+  let half_h = height / 2.0
+  let slope_y = if height.abs() < 0.000001 {
+    0.0
+  } else {
+    (radius_bottom - radius_top) / height
+  }
+  for segment in 0..<segment_count {
+    let u0 = segment.to_double() / segment_count.to_double()
+    let u1 = (segment + 1).to_double() / segment_count.to_double()
+    let phi0 = u0 * 2.0 * @cmath.PI
+    let phi1 = u1 * 2.0 * @cmath.PI
+    let top0 = @smath.Vec3::new(
+      radius_top * @cmath.cos(phi0),
+      half_h,
+      radius_top * @cmath.sin(phi0),
+    )
+    let top1 = @smath.Vec3::new(
+      radius_top * @cmath.cos(phi1),
+      half_h,
+      radius_top * @cmath.sin(phi1),
+    )
+    let bot0 = @smath.Vec3::new(
+      radius_bottom * @cmath.cos(phi0),
+      -half_h,
+      radius_bottom * @cmath.sin(phi0),
+    )
+    let bot1 = @smath.Vec3::new(
+      radius_bottom * @cmath.cos(phi1),
+      -half_h,
+      radius_bottom * @cmath.sin(phi1),
+    )
+    let side_normal0 = @smath.Vec3::new(
+      @cmath.cos(phi0),
+      slope_y,
+      @cmath.sin(phi0),
+    ).normalize()
+    let side_normal1 = @smath.Vec3::new(
+      @cmath.cos(phi1),
+      slope_y,
+      @cmath.sin(phi1),
+    ).normalize()
+    push_textured_triangle(
+      vertices,
+      uvs,
+      normals,
+      top0,
+      bot0,
+      bot1,
+      @smath.Vec2D(u0, 0.0),
+      @smath.Vec2D(u0, 1.0),
+      @smath.Vec2D(u1, 1.0),
+      side_normal0,
+      side_normal0,
+      side_normal1,
+    )
+    push_textured_triangle(
+      vertices,
+      uvs,
+      normals,
+      top0,
+      bot1,
+      top1,
+      @smath.Vec2D(u0, 0.0),
+      @smath.Vec2D(u1, 1.0),
+      @smath.Vec2D(u1, 0.0),
+      side_normal0,
+      side_normal1,
+      side_normal1,
+    )
+    if radius_top.abs() > 0.000001 {
+      let top_center = @smath.Vec3::new(0.0, half_h, 0.0)
+      let top_normal = @smath.Vec3::new(0.0, 1.0, 0.0)
+      push_textured_triangle(
+        vertices,
+        uvs,
+        normals,
+        top_center,
+        top1,
+        top0,
+        @smath.Vec2D(0.5, 0.5),
+        @smath.Vec2D(0.5 + 0.5 * @cmath.cos(phi1), 0.5 + 0.5 * @cmath.sin(phi1)),
+        @smath.Vec2D(0.5 + 0.5 * @cmath.cos(phi0), 0.5 + 0.5 * @cmath.sin(phi0)),
+        top_normal,
+        top_normal,
+        top_normal,
+      )
+    }
+    if radius_bottom.abs() > 0.000001 {
+      let bottom_center = @smath.Vec3::new(0.0, -half_h, 0.0)
+      let bottom_normal = @smath.Vec3::new(0.0, -1.0, 0.0)
+      push_textured_triangle(
+        vertices,
+        uvs,
+        normals,
+        bottom_center,
+        bot0,
+        bot1,
+        @smath.Vec2D(0.5, 0.5),
+        @smath.Vec2D(0.5 + 0.5 * @cmath.cos(phi0), 0.5 + 0.5 * @cmath.sin(phi0)),
+        @smath.Vec2D(0.5 + 0.5 * @cmath.cos(phi1), 0.5 + 0.5 * @cmath.sin(phi1)),
+        bottom_normal,
+        bottom_normal,
+        bottom_normal,
+      )
+    }
+  }
+  (vertices, uvs, normals)
+}
+
+///|
+fn push_textured_triangle(
+  vertices : Array[@smath.Vec3],
+  uvs : Array[@smath.Vec2D],
+  normals : Array[@smath.Vec3],
+  a : @smath.Vec3,
+  b : @smath.Vec3,
+  c : @smath.Vec3,
+  uv_a : @smath.Vec2D,
+  uv_b : @smath.Vec2D,
+  uv_c : @smath.Vec2D,
+  n_a : @smath.Vec3,
+  n_b : @smath.Vec3,
+  n_c : @smath.Vec3,
+) -> Unit {
+  vertices.push(a)
+  vertices.push(b)
+  vertices.push(c)
+  uvs.push(uv_a)
+  uvs.push(uv_b)
+  uvs.push(uv_c)
+  normals.push(n_a)
+  normals.push(n_b)
+  normals.push(n_c)
+}
+
+///|
+fn build_cuboid_mesh(
+  size : @smath.Vec3,
+) -> (Array[@smath.Vec3], Array[@smath.Vec2D], Array[@smath.Vec3]) {
+  let hx = size.x / 2.0
+  let hy = size.y / 2.0
+  let hz = size.z / 2.0
+  let vertices : Array[@smath.Vec3] = []
+  let uvs : Array[@smath.Vec2D] = []
+  let normals : Array[@smath.Vec3] = []
+  add_cuboid_face(
+    vertices,
+    uvs,
+    normals,
+    @smath.Vec3::new(-hx, -hy, hz),
+    @smath.Vec3::new(hx, -hy, hz),
+    @smath.Vec3::new(hx, hy, hz),
+    @smath.Vec3::new(-hx, hy, hz),
+    @smath.Vec3::new(0.0, 0.0, 1.0),
+  )
+  add_cuboid_face(
+    vertices,
+    uvs,
+    normals,
+    @smath.Vec3::new(-hx, -hy, -hz),
+    @smath.Vec3::new(-hx, hy, -hz),
+    @smath.Vec3::new(hx, hy, -hz),
+    @smath.Vec3::new(hx, -hy, -hz),
+    @smath.Vec3::new(0.0, 0.0, -1.0),
+  )
+  add_cuboid_face(
+    vertices,
+    uvs,
+    normals,
+    @smath.Vec3::new(hx, -hy, -hz),
+    @smath.Vec3::new(hx, hy, -hz),
+    @smath.Vec3::new(hx, hy, hz),
+    @smath.Vec3::new(hx, -hy, hz),
+    @smath.Vec3::new(1.0, 0.0, 0.0),
+  )
+  add_cuboid_face(
+    vertices,
+    uvs,
+    normals,
+    @smath.Vec3::new(-hx, -hy, -hz),
+    @smath.Vec3::new(-hx, -hy, hz),
+    @smath.Vec3::new(-hx, hy, hz),
+    @smath.Vec3::new(-hx, hy, -hz),
+    @smath.Vec3::new(-1.0, 0.0, 0.0),
+  )
+  add_cuboid_face(
+    vertices,
+    uvs,
+    normals,
+    @smath.Vec3::new(-hx, hy, -hz),
+    @smath.Vec3::new(-hx, hy, hz),
+    @smath.Vec3::new(hx, hy, hz),
+    @smath.Vec3::new(hx, hy, -hz),
+    @smath.Vec3::new(0.0, 1.0, 0.0),
+  )
+  add_cuboid_face(
+    vertices,
+    uvs,
+    normals,
+    @smath.Vec3::new(-hx, -hy, -hz),
+    @smath.Vec3::new(hx, -hy, -hz),
+    @smath.Vec3::new(hx, -hy, hz),
+    @smath.Vec3::new(-hx, -hy, hz),
+    @smath.Vec3::new(0.0, -1.0, 0.0),
+  )
+  (vertices, uvs, normals)
+}
+
+///|
+fn add_cuboid_face(
+  vertices : Array[@smath.Vec3],
+  uvs : Array[@smath.Vec2D],
+  normals : Array[@smath.Vec3],
+  a : @smath.Vec3,
+  b : @smath.Vec3,
+  c : @smath.Vec3,
+  d : @smath.Vec3,
+  normal : @smath.Vec3,
+) -> Unit {
+  vertices.push(a)
+  vertices.push(b)
+  vertices.push(c)
+  vertices.push(a)
+  vertices.push(c)
+  vertices.push(d)
+  let uv0 = @smath.Vec2D(0.0, 1.0)
+  let uv1 = @smath.Vec2D(1.0, 1.0)
+  let uv2 = @smath.Vec2D(1.0, 0.0)
+  let uv3 = @smath.Vec2D(0.0, 0.0)
+  uvs.push(uv0)
+  uvs.push(uv1)
+  uvs.push(uv2)
+  uvs.push(uv0)
+  uvs.push(uv2)
+  uvs.push(uv3)
+  for _ in 0..<6 {
+    normals.push(normal)
+  }
 }
 
 ///|

@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- `scene3d` example overlay label now uses the overlay 2D pass, so 3D content no longer covers HUD text
+- Rapier 2D interaction-group matching switched to `Or` semantics to restore Selene collision-filter expectations for one-sided mask declarations
+- `survivors` bullets now keep a brief render window on hit/despawn and use a clearer visual sprite offset, avoiding "firing without visible projectile" frames
+- raylib 3D primitive rendering (`Cube`/`Plane`/`Sphere`/`Cylinder`) now samples `base_color_texture` when present instead of falling back to flat base-color shading
+- raylib backend now emits a capability warning when `StandardMaterial3D.alpha_mode` is `Mask`, clarifying the current fallback to alpha blending
+
 ## [0.24.0] - 2026-03-05
 
 ### Added

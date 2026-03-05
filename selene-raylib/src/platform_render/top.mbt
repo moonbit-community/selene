@@ -57,6 +57,11 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
         "pbr_metallic_roughness", "raylib backend approximates with basic lighting",
       )
     }
+    if material.alpha_mode == Mask {
+      capability_warning(
+        "alpha_mode_mask", "raylib backend falls back to alpha blending",
+      )
+    }
     @impl.sync_material_asset(pair.0, pair.1)
   }
   for pair in frame.assets3d.image_upserts {
