@@ -50,6 +50,13 @@ pub(all) struct AudioSink {
 }
 
 ///|
+pub(all) struct AudioEvent {
+  source : AudioHandle
+  settings : PlaybackSettings
+  target : @entity.Entity?
+} derive(Eq, Show)
+
+///|
 pub let audio_players : Map[@entity.Entity, AudioPlayer] = Map::new()
 
 ///|
@@ -57,6 +64,17 @@ pub let audio_playback_settings : Map[@entity.Entity, PlaybackSettings] = Map::n
 
 ///|
 pub let audio_sinks : Map[@entity.Entity, AudioSink] = Map::new()
+
+///|
+pub let audio_event_bus : @event.Events[AudioEvent] = @event.Events::new()
+
+///|
+let audio_event_reader : @event.EventReader[AudioEvent] = @event.EventReader::new()
+
+///|
+fn init {
+  audio_event_bus.register()
+}
 
 ///|
 let global_volume_ref : Ref[Double] = Ref::new(1.0)
@@ -283,6 +301,23 @@ pub fn spawn_audio(
 }
 
 ///|
+pub fn send_audio_event(
+  source : AudioHandle,
+  settings? : PlaybackSettings = PlaybackSettings::once(),
+  target? : @entity.Entity,
+) -> Unit {
+  audio_event_bus.send({ source, settings, target })
+}
+
+///|
+pub fn play_one_shot(source : AudioHandle, volume? : Double = 1.0) -> Unit {
+  send_audio_event(
+    source,
+    settings=PlaybackSettings::remove().with_volume(volume),
+  )
+}
+
+///|
 pub fn restart_audio(entity : @entity.Entity) -> Unit {
   if audio_sinks.get(entity) is Some(sink) {
     @platform_audio.stop(instance=sink.instance)
@@ -395,20 +430,15 @@ fn sync_audio_sink(entity : @entity.Entity, sink : AudioSink) -> Unit {
 }
 
 ///|
-/// Legacy helper that spawns one-shot (or looping) audio players.
-pub fn play_audio(
-  audio_path : String,
-  volume? : Double = 1.0,
-  loop_? : Bool = false,
-) -> Unit {
-  let source = @asset.load_audio(audio_path)
-  let settings = if loop_ {
-    PlaybackSettings::looped()
-  } else {
-    PlaybackSettings::remove()
+pub fn audio_event_playback_system(_delta : Double) -> Unit {
+  for event in @event.read(audio_event_reader, audio_event_bus) {
+    let settings = normalize_settings(event.settings)
+    match event.target {
+      Some(entity) =>
+        attach_audio(entity, AudioPlayer::new(event.source), settings~)
+      None => ignore(spawn_audio(event.source, settings~))
+    }
   }
-  let settings = settings.with_volume(volume)
-  ignore(spawn_audio(source, settings~))
 }
 
 ///|

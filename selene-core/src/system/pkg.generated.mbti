@@ -3,6 +3,7 @@ package "Milky2018/selene/system"
 
 import {
   "Milky2018/selene/math",
+  "Milky2018/selene/system_set",
 }
 
 // Values
@@ -61,11 +62,12 @@ pub(all) struct App {
   fps : UInt
   fixed_hz : UInt
   max_fixed_steps_per_frame : UInt
-  systems : Array[((Double) -> Unit, Schedule, String)]
+  systems : Array[RegisteredSystem]
   plugins : Array[(App) -> Unit]
 }
 pub fn App::add_plugin(Self, (Self) -> Unit) -> Self
-pub fn App::add_system(Self, (Double) -> Unit, schedule? : Schedule, system_name? : String) -> Self
+pub fn App::add_system(Self, (Double) -> Unit, schedule? : Schedule, system_name? : String, in_set? : @system_set.SystemSet, before? : Array[@system_set.SystemSet], after? : Array[@system_set.SystemSet], run_if? : () -> Bool) -> Self
+pub fn App::add_systems(Self, Array[(Double) -> Unit], schedule? : Schedule, in_set? : @system_set.SystemSet, before? : Array[@system_set.SystemSet], after? : Array[@system_set.SystemSet], run_if? : () -> Bool) -> Self
 pub fn App::new() -> Self
 pub fn App::run(Self) -> Unit
 pub fn App::with_fixed_hz(Self, UInt) -> Self
@@ -76,10 +78,22 @@ pub fn App::with_viewport_height(Self, Double) -> Self
 pub fn App::with_viewport_width(Self, Double) -> Self
 pub fn App::with_zoom(Self, Double) -> Self
 
+pub(all) struct RegisteredSystem {
+  system : (Double) -> Unit
+  schedule : Schedule
+  name : String
+  in_set : @system_set.SystemSet?
+  before : Array[@system_set.SystemSet]
+  after : Array[@system_set.SystemSet]
+  run_if : (() -> Bool)?
+}
+
 pub(all) enum Schedule {
   Startup
   First
   PreUpdate
+  OnExit(() -> Bool)
+  OnEnter(() -> Bool)
   FixedUpdate
   FixedFirst
   FixedPreUpdate

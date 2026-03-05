@@ -1,0 +1,38 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/system_set"
+
+// Values
+pub fn after(SystemSet) -> SystemOrdering
+
+pub fn before(SystemSet) -> SystemOrdering
+
+pub fn in_set(SystemSet) -> SystemOrdering
+
+pub fn merge(SystemOrdering, SystemOrdering) -> SystemOrdering
+
+pub fn named(String) -> SystemSet
+
+// Errors
+
+// Types and methods
+pub(all) struct SystemOrdering {
+  set : SystemSet?
+  before : Array[SystemSet]
+  after : Array[SystemSet]
+}
+pub fn SystemOrdering::with_after(Self, SystemSet) -> Self
+pub fn SystemOrdering::with_before(Self, SystemSet) -> Self
+pub fn SystemOrdering::with_set(Self, SystemSet) -> Self
+
+pub(all) struct SystemSet {
+  name : String
+}
+pub fn SystemSet::new(String) -> Self
+pub impl Eq for SystemSet
+pub impl Hash for SystemSet
+pub impl Show for SystemSet
+
+// Type aliases
+
+// Traits
+

@@ -20,3 +20,9 @@ pub fn measure_text(
   let height = style.size
   @math.Vec2D(width, height)
 }
+
+///|
+pub fn capability_warning(feature : String, fallback : String) -> Unit {
+  ignore(feature)
+  ignore(fallback)
+}

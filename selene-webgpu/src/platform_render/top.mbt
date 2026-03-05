@@ -73,3 +73,8 @@ pub fn measure_text(
 ) -> @math.Vec2D {
   @impl.measure_text(resolve_text_style(style), text)
 }
+
+///|
+pub fn capability_warning(_feature : String, _fallback : String) -> Unit {
+  ()
+}

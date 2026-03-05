@@ -1,4 +1,5 @@
 import {
+  "Milky2018/selene/animation3d",
   "Milky2018/selene/asset",
   "Milky2018/selene/entity",
   "Milky2018/selene/math",

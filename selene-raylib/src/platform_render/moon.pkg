@@ -4,6 +4,7 @@ import {
   "Milky2018/selene/render2d_types",
   "Milky2018/selene/render_pipeline",
   "Milky2018/selene_raylib" @impl,
+  "moonbitlang/core/set",
 }
 
 options(

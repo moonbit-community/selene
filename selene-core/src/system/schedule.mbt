@@ -19,6 +19,7 @@
 ///
 /// * `Startup` : Executes once at application startup before the main loop.
 /// * `First`/`PreUpdate`/`Update`/`PostUpdate`/`Last` : Per-frame update stages.
+/// * `OnExit`/`OnEnter` : State transition stages evaluated once per frame.
 /// * `FixedFirst`/`FixedPreUpdate`/`FixedUpdate`/`FixedPostUpdate`/`FixedLast` :
 ///   Fixed-step stages, which can run zero or more times per rendered frame.
 /// * `RenderExtract`/`RenderPrepare`/`Render`/`RenderCleanup` : Render pipeline
@@ -28,6 +29,8 @@ pub(all) enum Schedule {
   Startup
   First
   PreUpdate
+  OnExit(() -> Bool)
+  OnEnter(() -> Bool)
   FixedUpdate
   FixedFirst
   FixedPreUpdate

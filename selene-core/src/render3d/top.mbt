@@ -269,15 +269,25 @@ pub fn get_ambient_light3d() -> AmbientLight3D? {
 ///|
 pub fn render3d_extract_system(_delta : Double) -> Unit {
   let frame = empty_render_frame3d()
+  let mut active_camera_layers = @visibility.default_render_layers()
   if @camera3d.active_camera3d.val is Some(camera) {
     frame.camera = Some(camera.camera)
     frame.clear_color = camera.camera.clear_color
+    active_camera_layers = @visibility.entity_render_layers(camera.entity)
   }
   frame.ambient_light = ambient_light3d.val
 
   let items : Array[RenderItem3D] = []
   for entity, renderer in mesh3d_renderers {
-    if !entity.is_alive() || !renderer.visible {
+    if !entity.is_alive() ||
+      !renderer.visible ||
+      !@visibility.is_visible(entity) {
+      continue
+    }
+    if !@visibility.matches(
+        @visibility.entity_render_layers(entity),
+        active_camera_layers,
+      ) {
       continue
     }
     guard meshes.get(renderer.mesh) is Some(_) else { continue }
@@ -285,6 +295,12 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
     let transform = @transform3d.global_transforms3d
       .get(entity)
       .unwrap_or(@transform3d.transforms3d.get(entity).unwrap_or_default())
+    if frame.camera is Some(camera) {
+      let distance = (transform.translation - camera.position).length()
+      if distance < camera.near || distance > camera.far {
+        continue
+      }
+    }
     items.push({
       transform: {
         translation: transform.translation,

@@ -16,4 +16,7 @@
 type System = (Double) -> Unit
 
 ///|
+type RunCondition = () -> Bool
+
+///|
 type Plugin = (App) -> Unit

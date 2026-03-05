@@ -11,3 +11,5 @@ fn submit_frame(@render_pipeline.RenderFrame) -> Unit
 fn register_font(String, String) -> Unit
 
 fn measure_text(@render2d_types.TextStyle2D, String) -> @math.Vec2D
+
+fn capability_warning(String, String) -> Unit

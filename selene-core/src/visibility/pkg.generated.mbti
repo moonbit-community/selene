@@ -1,0 +1,62 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/visibility"
+
+import {
+  "Milky2018/selene/entity",
+}
+
+// Values
+pub fn default_render_layers() -> RenderLayers
+
+pub fn entity_render_layers(@entity.Entity) -> RenderLayers
+
+pub let inherited_visibilities : Map[@entity.Entity, InheritedVisibility]
+
+pub fn is_visible(@entity.Entity) -> Bool
+
+pub fn layer(UInt) -> RenderLayers
+
+pub fn layers(UInt) -> RenderLayers
+
+pub fn matches(RenderLayers, RenderLayers) -> Bool
+
+pub let render_layers : Map[@entity.Entity, RenderLayers]
+
+pub let view_visibilities : Map[@entity.Entity, ViewVisibility]
+
+pub let visibilities : Map[@entity.Entity, Visibility]
+
+pub fn visibility_propagate_system(Double) -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) struct InheritedVisibility {
+  visible : Bool
+}
+pub impl Eq for InheritedVisibility
+pub impl Show for InheritedVisibility
+
+pub(all) struct RenderLayers {
+  mask : UInt
+}
+pub impl Eq for RenderLayers
+pub impl Show for RenderLayers
+
+pub(all) struct ViewVisibility {
+  visible : Bool
+}
+pub impl Eq for ViewVisibility
+pub impl Show for ViewVisibility
+
+pub(all) enum Visibility {
+  Visible
+  Hidden
+}
+pub impl Eq for Visibility
+pub impl Show for Visibility
+
+// Type aliases
+
+// Traits
+

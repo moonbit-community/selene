@@ -1,0 +1,50 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/scene"
+
+import {
+  "Milky2018/selene/entity",
+  "Milky2018/selene/event",
+  "Milky2018/selene/render3d_types",
+  "Milky2018/selene/scene3d",
+  "Milky2018/selene/transform3d",
+}
+
+// Values
+pub fn despawn_all_scenes() -> Unit
+
+pub fn despawn_scene(@entity.Entity) -> Unit
+
+pub fn instantiate_scene(@render3d_types.SceneHandle, @transform3d.Transform3D) -> @scene3d.SceneInstance
+
+pub fn load_scene_gltf(String) -> @render3d_types.SceneHandle
+
+pub let scene_instance_ready_events : @event.Events[SceneInstanceReadyEvent]
+
+pub fn scene_of(@entity.Entity) -> @render3d_types.SceneHandle?
+
+pub fn scene_spawner_cleanup_system(Double) -> Unit
+
+pub fn spawner() -> SceneSpawner
+
+// Errors
+
+// Types and methods
+pub(all) struct SceneInstanceReadyEvent {
+  scene : @render3d_types.SceneHandle
+  root : @entity.Entity
+}
+pub impl Eq for SceneInstanceReadyEvent
+pub impl Show for SceneInstanceReadyEvent
+
+pub(all) struct SceneSpawner {
+  _tag : Unit
+}
+pub fn SceneSpawner::spawn(Self, @render3d_types.SceneHandle, @transform3d.Transform3D) -> @scene3d.SceneInstance
+
+// Type aliases
+pub using @render3d_types {type SceneHandle}
+
+pub using @scene3d {type SceneInstance}
+
+// Traits
+

@@ -4,11 +4,16 @@ package "Milky2018/selene/audio"
 import {
   "Milky2018/selene/asset_types",
   "Milky2018/selene/entity",
+  "Milky2018/selene/event",
   "Milky2018/selene/platform_audio",
 }
 
 // Values
 pub fn attach_audio(@entity.Entity, AudioPlayer, settings? : PlaybackSettings) -> Unit
+
+pub let audio_event_bus : @event.Events[AudioEvent]
+
+pub fn audio_event_playback_system(Double) -> Unit
 
 pub let audio_playback_settings : Map[@entity.Entity, PlaybackSettings]
 
@@ -20,9 +25,11 @@ pub let audio_sinks : Map[@entity.Entity, AudioSink]
 
 pub fn global_volume() -> Double
 
-pub fn play_audio(String, volume? : Double, loop_? : Bool) -> Unit
+pub fn play_one_shot(@asset_types.AudioHandle, volume? : Double) -> Unit
 
 pub fn restart_audio(@entity.Entity) -> Unit
+
+pub fn send_audio_event(@asset_types.AudioHandle, settings? : PlaybackSettings, target? : @entity.Entity) -> Unit
 
 pub fn set_global_volume(Double) -> Unit
 
@@ -33,6 +40,14 @@ pub fn stop_audio(@entity.Entity) -> Unit
 // Errors
 
 // Types and methods
+pub(all) struct AudioEvent {
+  source : @asset_types.AudioHandle
+  settings : PlaybackSettings
+  target : @entity.Entity?
+}
+pub impl Eq for AudioEvent
+pub impl Show for AudioEvent
+
 pub(all) struct AudioPlayer {
   source : @asset_types.AudioHandle
 }

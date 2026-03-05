@@ -214,7 +214,9 @@ pub fn Sprite::from_color_circle(
 /// Panics if an entity has a sprite but no position component.
 ///
 pub fn render_sprite_system(delta : Double) -> Unit {
-  let sprites = sprites.to_array().filter(fn(pair) { pair.0.is_alive() })
+  let sprites = sprites
+    .to_array()
+    .filter(fn(pair) { pair.0.is_alive() && @visibility.is_visible(pair.0) })
   let camera_pos = @camera.sample_position(@system.get_render_alpha())
   sprites.sort_by(fn(sprite1, sprite2) {
     if sprite1.1.zindex < sprite2.1.zindex {

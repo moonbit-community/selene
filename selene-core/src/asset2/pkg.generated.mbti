@@ -1,0 +1,72 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/asset2"
+
+import {
+  "Milky2018/selene/asset_types",
+  "Milky2018/selene/event",
+}
+
+// Values
+pub let audio_asset_events : @event.Events[AssetEvent[@asset_types.AudioHandle]]
+
+pub fn audio_state(@asset_types.AudioHandle) -> AssetState
+
+pub let font_asset_events : @event.Events[AssetEvent[@asset_types.FontHandle]]
+
+pub fn font_state(@asset_types.FontHandle) -> AssetState
+
+pub let image_asset_events : @event.Events[AssetEvent[@asset_types.ImageHandle]]
+
+pub fn image_state(@asset_types.ImageHandle) -> AssetState
+
+pub fn load_audio(String) -> @asset_types.AudioHandle
+
+pub fn load_font(String, family? : String) -> @asset_types.FontHandle
+
+pub fn load_image(String) -> @asset_types.ImageHandle
+
+pub fn reload_audio(@asset_types.AudioHandle) -> Unit
+
+pub fn reload_font(@asset_types.FontHandle) -> Unit
+
+pub fn reload_image(@asset_types.ImageHandle) -> Unit
+
+pub fn remove_audio(@asset_types.AudioHandle) -> Unit
+
+pub fn remove_font(@asset_types.FontHandle) -> Unit
+
+pub fn remove_image(@asset_types.ImageHandle) -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) struct AssetEvent[T] {
+  handle : T
+  kind : AssetEventKind
+}
+pub impl[T : Eq] Eq for AssetEvent[T]
+pub impl[T : Show] Show for AssetEvent[T]
+
+pub(all) enum AssetEventKind {
+  Added
+  Modified
+  Removed
+  Loaded
+  Failed(String)
+}
+pub impl Eq for AssetEventKind
+pub impl Show for AssetEventKind
+
+pub(all) enum AssetState {
+  NotLoaded
+  Loading
+  Loaded
+  Failed(String)
+}
+pub impl Eq for AssetState
+pub impl Show for AssetState
+
+// Type aliases
+
+// Traits
+

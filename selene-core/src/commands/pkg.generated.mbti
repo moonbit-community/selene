@@ -1,0 +1,33 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/commands"
+
+import {
+  "Milky2018/selene/entity",
+  "Milky2018/selene/event",
+}
+
+// Values
+pub fn commands() -> Commands
+
+pub fn commands_flush_system(Double) -> Unit
+
+pub fn has_pending_commands() -> Bool
+
+// Errors
+
+// Types and methods
+pub(all) struct Commands {
+  _tag : Unit
+}
+pub fn Commands::add(Self, () -> Unit) -> Unit
+pub fn Commands::despawn(Self, @entity.Entity) -> Unit
+pub fn[T] Commands::insert(Self, Map[@entity.Entity, T], @entity.Entity, T) -> Unit
+pub fn[T] Commands::remove(Self, Map[@entity.Entity, T], @entity.Entity) -> Unit
+pub fn[T] Commands::send(Self, @event.Events[T], T) -> Unit
+pub fn Commands::spawn(Self) -> @entity.Entity
+pub fn[T] Commands::trigger(Self, @event.Events[T], T, @entity.Entity?) -> Unit
+
+// Type aliases
+
+// Traits
+

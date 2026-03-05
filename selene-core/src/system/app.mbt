@@ -28,43 +28,17 @@ const DEFAULT_FIXED_HZ : UInt = 64
 const DEFAULT_MAX_FIXED_STEPS_PER_FRAME : UInt = 8
 
 ///|
-/// Application configuration and runtime container for a game or interactive
-/// application.
-///
-/// The `App` struct serves as the central configuration hub that defines canvas
-/// properties, manages systems with their execution schedules, and handles
-/// plugins. It provides a builder pattern for configuration and orchestrates
-/// the application lifecycle through system execution.
-///
-/// Fields:
-///
-/// * `viewport_height` : Height of the virtual viewport in pixels.
-/// * `viewport_width` : Width of the virtual viewport in pixels.
-/// * `zoom` : Zoom factor applied to the canvas rendering.
-/// * `image_smooth` : Whether image smoothing is enabled during rendering.
-/// * `fps` : Target frames per second for the application.
-/// * `fixed_hz` : Fixed update frequency in Hertz.
-/// * `max_fixed_steps_per_frame` : Upper bound for fixed updates processed in
-///   a single rendered frame.
-/// * `systems` : Collection of systems with their schedules and names for
-///   execution management.
-/// * `plugins` : Collection of plugins that extend application functionality.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// let app = @system.App::new()
-///   .with_viewport_width(800.0)
-///   .with_viewport_height(600.0)
-///   .with_fps(30)
-///   .with_zoom(2.0)
-///   .with_image_smooth(false)
-///
-/// inspect(app.viewport_width, content="800")
-/// inspect(app.fps, content="30")
-/// inspect(app.zoom, content="2")
-/// ```
-///
+pub(all) struct RegisteredSystem {
+  system : System
+  schedule : Schedule
+  name : String
+  in_set : @system_set.SystemSet?
+  before : Array[@system_set.SystemSet]
+  after : Array[@system_set.SystemSet]
+  run_if : RunCondition?
+}
+
+///|
 pub(all) struct App {
   viewport_height : Double
   viewport_width : Double
@@ -73,28 +47,11 @@ pub(all) struct App {
   fps : UInt
   fixed_hz : UInt
   max_fixed_steps_per_frame : UInt
-  systems : Array[(System, Schedule, String)]
+  systems : Array[RegisteredSystem]
   plugins : Array[Plugin]
 }
 
 ///|
-/// Creates a new `App` instance with default configuration values.
-///
-/// Returns a new `App` with default viewport dimensions (512x256 pixels), 60
-/// FPS target frame rate, 1.0 zoom level, image smoothing enabled, and empty
-/// collections for systems and plugins.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// let app = @system.App::new()
-/// inspect(app.viewport_width, content="512")
-/// inspect(app.viewport_height, content="256")
-/// inspect(app.fps, content="60")
-/// inspect(app.zoom, content="1")
-/// inspect(app.image_smooth, content="true")
-/// ```
-///
 pub fn App::new() -> App {
   {
     viewport_height: DEFAULT_VIEWPORT_HEIGHT,
@@ -110,176 +67,41 @@ pub fn App::new() -> App {
 }
 
 ///|
-/// Configures the image smoothing setting for the application's rendering.
-///
-/// Parameters:
-///
-/// * `self` : The `App` instance to configure.
-/// * `image_smooth` : Whether to enable image smoothing during rendering. When
-///   `true`, the renderer will apply smoothing algorithms to scale images,
-///   making them appear softer. When `false`, images will maintain crisp,
-///   pixelated edges when scaled.
-///
-/// Returns a new `App` instance with the updated image smoothing configuration.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// let app = @system.App::new()
-///   .with_image_smooth(false) // Disable smoothing for pixel-perfect rendering
-///
-/// inspect(app.image_smooth, content="false")
-/// ```
-///
 pub fn App::with_image_smooth(self : App, image_smooth : Bool) -> App {
   { ..self, image_smooth, }
 }
 
 ///|
-/// Configures the viewport height for the application.
-///
-/// Parameters:
-///
-/// * `self` : The `App` instance to configure.
-/// * `height` : The desired height of the virtual viewport in pixels.
-///
-/// Returns a new `App` instance with the updated viewport height
-/// configuration.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// let app = @system.App::new()
-///   .with_viewport_height(600.0)
-///
-/// inspect(app.viewport_height, content="600")
-/// ```
-///
 pub fn App::with_viewport_height(self : App, height : Double) -> App {
   { ..self, viewport_height: height }
 }
 
 ///|
-/// Configures the viewport width for the application.
-///
-/// Parameters:
-///
-/// * `self` : The `App` instance to configure.
-/// * `width` : The desired width of the virtual viewport in pixels.
-///
-/// Returns a new `App` instance with the updated viewport width configuration.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// let app = @system.App::new()
-///   .with_viewport_width(800.0)
-///
-/// inspect(app.viewport_width, content="800")
-/// ```
-///
 pub fn App::with_viewport_width(self : App, width : Double) -> App {
   { ..self, viewport_width: width }
 }
 
 ///|
-/// Configures the target frames per second (FPS) for the application.
-///
-/// Parameters:
-///
-/// * `self` : The `App` instance to configure.
-/// * `fps` : The desired target frame rate in frames per second. This controls
-///   how often the application's update and render loops execute.
-///
-/// Returns a new `App` instance with the updated FPS configuration.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// let app = @system.App::new()
-///   .with_fps(30)
-///
-/// inspect(app.fps, content="30")
-/// ```
-///
 pub fn App::with_fps(self : App, fps : UInt) -> App {
   { ..self, fps, }
 }
 
 ///|
-/// Configures the fixed update frequency in Hertz.
-///
-/// Parameters:
-///
-/// * `self` : The `App` instance to configure.
-/// * `fixed_hz` : Fixed updates per second. Must be greater than 0.
-///
 pub fn App::with_fixed_hz(self : App, fixed_hz : UInt) -> App {
   { ..self, fixed_hz, }
 }
 
 ///|
-/// Configures the maximum number of fixed updates processed per rendered
-/// frame.
-///
-/// Parameters:
-///
-/// * `self` : The `App` instance to configure.
-/// * `steps` : Maximum fixed updates per frame. Must be greater than 0.
-///
 pub fn App::with_max_fixed_steps_per_frame(self : App, steps : UInt) -> App {
   { ..self, max_fixed_steps_per_frame: steps }
 }
 
 ///|
-/// Configures the zoom factor for the application's rendering.
-///
-/// Parameters:
-///
-/// * `self` : The `App` instance to configure.
-/// * `zoom` : The zoom factor to apply to the canvas rendering. A value of 1.0
-///   represents normal size, values greater than 1.0 will magnify the content,
-///   and values less than 1.0 will shrink it.
-///
-/// Returns a new `App` instance with the updated zoom configuration.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// let app = @system.App::new()
-///   .with_zoom(2.0)
-///
-/// inspect(app.zoom, content="2")
-/// ```
-///
 pub fn App::with_zoom(self : App, zoom : Double) -> App {
   { ..self, zoom, }
 }
 
 ///|
-/// Adds a plugin to the application's plugin collection.
-///
-/// Parameters:
-///
-/// * `self` : The `App` instance to which the plugin will be added.
-/// * `plugin` : The plugin to add to the application. Plugins extend
-///   application functionality and are executed when the application runs.
-///
-/// Returns a new `App` instance with the plugin added to its plugin collection.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// fn my_plugin(_app : @system.App) -> Unit {
-///   // Plugin implementation
-/// }
-///
-/// let app = @system.App::new()
-///   .add_plugin(my_plugin)
-///
-/// inspect(app.plugins.length(), content="1")
-/// ```
-///
 pub fn App::add_plugin(self : App, plugin : Plugin) -> App {
   let plugins = self.plugins
   plugins.push(plugin)
@@ -287,59 +109,203 @@ pub fn App::add_plugin(self : App, plugin : Plugin) -> App {
 }
 
 ///|
-/// Adds a system to the application with an optional execution schedule and
-/// name.
-///
-/// Parameters:
-///
-/// * `self` : The `App` instance to add the system to.
-/// * `system` : The system function to be added that will be executed during
-///   the application lifecycle.
-/// * `schedule` : The execution schedule that determines when the system runs
-///   (defaults to `Update` if not specified).
-/// * `system_name` : An optional name for the system used for identification
-///   and debugging purposes. If not provided, generates an automatic name in
-///   the format "unnamed\_system{N}" where N is the current number of systems.
-///
-/// Returns a new `App` instance with the system added to its collection.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// @system.App::new()
-///   .add_system(timer_system)
-///   .run()
-///
-/// // The app now contains three systems with different schedules
-/// ```
-///
 pub fn App::add_system(
   self : App,
   system : System,
   schedule? : Schedule = Update,
   system_name? : String,
+  in_set? : @system_set.SystemSet,
+  before? : Array[@system_set.SystemSet] = [],
+  after? : Array[@system_set.SystemSet] = [],
+  run_if? : RunCondition,
 ) -> App {
   let system_name = system_name.unwrap_or(
     "unnamed_system\{self.systems.length()}",
   )
   let systems = self.systems
-  systems.push((system, schedule, system_name))
+  systems.push({
+    system,
+    schedule,
+    name: system_name,
+    in_set,
+    before,
+    after,
+    run_if,
+  })
   { ..self, systems, }
 }
 
 ///|
-/// Starts the application and begins the main execution loop.
-///
-/// Executes all registered plugins first, then initializes the backend with
-/// configured systems organized by their schedules. Startup systems run once.
-/// Runtime systems are executed with Bevy-like stage ordering for frame,
-/// fixed-step, and render pipelines.
-///
-/// Parameters:
-///
-/// * `self` : The `App` instance to run with its configured systems, plugins,
-///   and settings.
-///
+pub fn App::add_systems(
+  self : App,
+  systems_to_add : Array[System],
+  schedule? : Schedule = Update,
+  in_set? : @system_set.SystemSet,
+  before? : Array[@system_set.SystemSet] = [],
+  after? : Array[@system_set.SystemSet] = [],
+  run_if? : RunCondition,
+) -> App {
+  let systems = self.systems
+  for system in systems_to_add {
+    let name = "unnamed_system\{systems.length()}"
+    systems.push({ system, schedule, name, in_set, before, after, run_if })
+  }
+  { ..self, systems, }
+}
+
+///|
+fn set_key(system : RegisteredSystem, index : Int) -> String {
+  match system.in_set {
+    Some(set) => set.name
+    None => "__system_\{index}"
+  }
+}
+
+///|
+fn sort_systems_by_set(
+  systems : Array[RegisteredSystem],
+) -> Array[RegisteredSystem] {
+  if systems.length() <= 1 {
+    return systems
+  }
+
+  let group_members : Map[String, Array[RegisteredSystem]] = Map::new()
+  let group_order : Map[String, Int] = Map::new()
+  let group_keys : Array[String] = []
+
+  for index, system in systems {
+    let key = set_key(system, index)
+    if !group_members.contains(key) {
+      group_members.set(key, [])
+      group_order.set(key, index)
+      group_keys.push(key)
+    }
+    let members = group_members.get(key).unwrap_or([])
+    members.push(system)
+    group_members.set(key, members)
+  }
+
+  let outgoing : Map[String, @set.Set[String]] = Map::new()
+  let indegree : Map[String, Int] = Map::new()
+  for key in group_keys {
+    outgoing.set(key, @set.Set::new())
+    indegree.set(key, 0)
+  }
+
+  fn add_edge(
+    from : String,
+    to : String,
+    outgoing : Map[String, @set.Set[String]],
+    indegree : Map[String, Int],
+  ) -> Unit {
+    if from == to {
+      return
+    }
+    if !outgoing.contains(from) || !outgoing.contains(to) {
+      return
+    }
+    guard outgoing.get(from) is Some(edges) else { return }
+    if edges.contains(to) {
+      return
+    }
+    edges.add(to)
+    indegree.set(to, indegree.get(to).unwrap_or(0) + 1)
+  }
+
+  for index, system in systems {
+    let current_key = set_key(system, index)
+    for target in system.before {
+      add_edge(current_key, target.name, outgoing, indegree)
+    }
+    for source in system.after {
+      add_edge(source.name, current_key, outgoing, indegree)
+    }
+  }
+
+  let sorted_candidates = group_keys.copy()
+  sorted_candidates.sort_by(fn(lhs, rhs) {
+    group_order.get(lhs).unwrap_or(0) - group_order.get(rhs).unwrap_or(0)
+  })
+
+  let processed : @set.Set[String] = @set.Set::new()
+  let sorted_keys : Array[String] = []
+  while processed.to_array().length() < group_keys.length() {
+    let mut progressed = false
+    for key in sorted_candidates {
+      if processed.contains(key) {
+        continue
+      }
+      if indegree.get(key).unwrap_or(0) != 0 {
+        continue
+      }
+      progressed = true
+      processed.add(key)
+      sorted_keys.push(key)
+      for target in outgoing.get(key).unwrap_or(@set.Set::new()) {
+        let degree = indegree.get(target).unwrap_or(0)
+        indegree.set(target, @cmp.maximum(0, degree - 1))
+      }
+    }
+    if progressed {
+      continue
+    }
+    for key in sorted_candidates {
+      if !processed.contains(key) {
+        processed.add(key)
+        sorted_keys.push(key)
+      }
+    }
+  }
+
+  let ordered : Array[RegisteredSystem] = []
+  for key in sorted_keys {
+    for system in group_members.get(key).unwrap_or([]) {
+      ordered.push(system)
+    }
+  }
+  ordered
+}
+
+///|
+fn collect_systems(
+  systems : Array[RegisteredSystem],
+  matcher : (Schedule) -> Bool,
+) -> Array[RegisteredSystem] {
+  let selected : Array[RegisteredSystem] = []
+  for system in systems {
+    if matcher(system.schedule) {
+      selected.push(system)
+    }
+  }
+  sort_systems_by_set(selected)
+}
+
+///|
+fn should_run(system : RegisteredSystem) -> Bool {
+  let schedule_allows = match system.schedule {
+    OnEnter(condition) => condition()
+    OnExit(condition) => condition()
+    _ => true
+  }
+  if !schedule_allows {
+    return false
+  }
+  match system.run_if {
+    Some(condition) => condition()
+    None => true
+  }
+}
+
+///|
+fn run_stage(systems : Array[RegisteredSystem], delta : Double) -> Unit {
+  for system in systems {
+    if should_run(system) {
+      (system.system)(delta)
+    }
+  }
+}
+
+///|
 pub fn App::run(self : App) -> Unit {
   if self.zoom <= 0.0 {
     abort("App::with_zoom must be a positive number")
@@ -350,114 +316,117 @@ pub fn App::run(self : App) -> Unit {
   if self.max_fixed_steps_per_frame == 0 {
     abort("App::with_max_fixed_steps_per_frame must be greater than 0")
   }
+
   configure_display(self.viewport_width, self.viewport_height, self.zoom)
   let screen_width = self.viewport_width * self.zoom
   let screen_height = self.viewport_height * self.zoom
   for plugin in self.plugins {
     plugin(self)
   }
+
+  let startup_systems = collect_systems(self.systems, fn(schedule) {
+    schedule is Startup
+  })
+  let frame_first = collect_systems(self.systems, fn(schedule) {
+    schedule is First
+  })
+  let frame_pre = collect_systems(self.systems, fn(schedule) {
+    schedule is PreUpdate
+  })
+  let frame_on_exit = collect_systems(self.systems, fn(schedule) {
+    schedule is OnExit(_)
+  })
+  let frame_on_enter = collect_systems(self.systems, fn(schedule) {
+    schedule is OnEnter(_)
+  })
+  let frame_update = collect_systems(self.systems, fn(schedule) {
+    schedule is Update
+  })
+  let frame_post = collect_systems(self.systems, fn(schedule) {
+    schedule is PostUpdate
+  })
+  let frame_last = collect_systems(self.systems, fn(schedule) {
+    schedule is Last
+  })
+
+  let fixed_first = collect_systems(self.systems, fn(schedule) {
+    schedule is FixedFirst
+  })
+  let fixed_pre = collect_systems(self.systems, fn(schedule) {
+    schedule is FixedPreUpdate
+  })
+  let fixed_update = collect_systems(self.systems, fn(schedule) {
+    schedule is FixedUpdate
+  })
+  let fixed_post = collect_systems(self.systems, fn(schedule) {
+    schedule is FixedPostUpdate
+  })
+  let fixed_last = collect_systems(self.systems, fn(schedule) {
+    schedule is FixedLast
+  })
+
+  let render_extract = collect_systems(self.systems, fn(schedule) {
+    schedule is RenderExtract
+  })
+  let render_prepare = collect_systems(self.systems, fn(schedule) {
+    schedule is RenderPrepare
+  })
+  let render_stage = collect_systems(self.systems, fn(schedule) {
+    schedule is Render
+  })
+  let render_cleanup = collect_systems(self.systems, fn(schedule) {
+    schedule is RenderCleanup
+  })
+
   fn startup() {
-    for system in self.systems {
-      if system.1 is Startup {
-        (system.0)(0)
-      }
-    }
+    run_stage(startup_systems, 0.0)
+    @commands.commands_flush_system(0.0)
+    @entity.entity_flush_system(0.0)
   }
 
-  let frame_first = []
-  let frame_pre = []
-  let frame_update = []
-  let frame_post = []
-  let frame_last = []
-  let fixed_first = []
-  let fixed_pre = []
-  let fixed_update = []
-  let fixed_post = []
-  let fixed_last = []
-  let render_extract = []
-  let render_prepare = []
-  let render_stage = []
-  let render_cleanup = []
-  for system in self.systems {
-    match system.1 {
-      First => frame_first.push(system.0)
-      PreUpdate => frame_pre.push(system.0)
-      Update => frame_update.push(system.0)
-      PostUpdate => frame_post.push(system.0)
-      Last => frame_last.push(system.0)
-      FixedFirst => fixed_first.push(system.0)
-      FixedPreUpdate => fixed_pre.push(system.0)
-      FixedUpdate => fixed_update.push(system.0)
-      FixedPostUpdate => fixed_post.push(system.0)
-      FixedLast => fixed_last.push(system.0)
-      RenderExtract => render_extract.push(system.0)
-      RenderPrepare => render_prepare.push(system.0)
-      Render => render_stage.push(system.0)
-      RenderCleanup => render_cleanup.push(system.0)
-      _ => ()
-    }
-  }
   fn render_loop(_raw_delta : Double) {
     let delta = @time.delta()
     @event.event_render_update_system(delta)
-    for system in render_extract {
-      system(delta)
-    }
-    for system in render_prepare {
-      system(delta)
-    }
-    for system in render_stage {
-      system(delta)
-    }
-    for system in render_cleanup {
-      system(delta)
-    }
+    run_stage(render_extract, delta)
+    run_stage(render_prepare, delta)
+    run_stage(render_stage, delta)
+    run_stage(render_cleanup, delta)
     @platform_audio.tick()
   }
+
   let fixed_dt = 1.0 / self.fixed_hz.to_double()
   let max_fixed_steps = self.max_fixed_steps_per_frame.reinterpret_as_int()
   let accumulator : Ref[Double] = { val: 0.0 }
+
   fn game_loop(raw_delta : Double) {
     @time.begin_frame(raw_delta)
     @inputs.apply_input_snapshot(@platform_input.poll_input())
     let delta = @time.delta()
+    @state.state_transition_system(delta)
     @event.event_frame_update_system(delta)
-    for system in frame_first {
-      system(delta)
-    }
-    for system in frame_pre {
-      system(delta)
-    }
-    for system in frame_update {
-      system(delta)
-    }
-    for system in frame_post {
-      system(delta)
-    }
+
+    run_stage(frame_first, delta)
+    run_stage(frame_pre, delta)
+    run_stage(frame_on_exit, delta)
+    run_stage(frame_on_enter, delta)
+    run_stage(frame_update, delta)
+    run_stage(frame_post, delta)
+
     @event.event_observer_dispatch_system(delta)
-    for system in frame_last {
-      system(delta)
-    }
+    run_stage(frame_last, delta)
+    @commands.commands_flush_system(delta)
     @entity.entity_flush_system(delta)
+
     accumulator.val += delta
     let mut fixed_steps = 0
     while accumulator.val >= fixed_dt && fixed_steps < max_fixed_steps {
       @event.event_fixed_update_system(fixed_dt)
-      for system in fixed_first {
-        system(fixed_dt)
-      }
-      for system in fixed_pre {
-        system(fixed_dt)
-      }
-      for system in fixed_update {
-        system(fixed_dt)
-      }
-      for system in fixed_post {
-        system(fixed_dt)
-      }
-      for system in fixed_last {
-        system(fixed_dt)
-      }
+      run_stage(fixed_first, fixed_dt)
+      run_stage(fixed_pre, fixed_dt)
+      run_stage(fixed_update, fixed_dt)
+      run_stage(fixed_post, fixed_dt)
+      run_stage(fixed_last, fixed_dt)
+      @commands.commands_flush_system(fixed_dt)
       @entity.entity_flush_system(fixed_dt)
       accumulator.val -= fixed_dt
       fixed_steps += 1
@@ -465,6 +434,7 @@ pub fn App::run(self : App) -> Unit {
     if fixed_steps >= max_fixed_steps {
       accumulator.val = 0.0
     }
+
     let alpha = @cmp.maximum(0.0, @cmp.minimum(1.0, accumulator.val / fixed_dt))
     set_render_alpha(alpha)
   }

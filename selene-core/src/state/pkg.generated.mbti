@@ -1,0 +1,44 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/state"
+
+// Values
+pub fn[T] in_state(State[T], (T) -> Bool) -> () -> Bool
+
+pub fn[T : Eq] in_state_eq(State[T], T) -> () -> Bool
+
+pub fn[T] on_enter(State[T], (T) -> Bool) -> () -> Bool
+
+pub fn[T : Eq] on_enter_eq(State[T], T) -> () -> Bool
+
+pub fn[T] on_exit(State[T], (T) -> Bool) -> () -> Bool
+
+pub fn[T : Eq] on_exit_eq(State[T], T) -> () -> Bool
+
+pub fn[T] set_next_state(NextState[T], T) -> Unit
+
+pub fn state_transition_system(Double) -> Unit
+
+pub fn[T] transitioned_this_frame(State[T]) -> Bool
+
+// Errors
+
+// Types and methods
+pub(all) struct NextState[T] {
+  state : State[T]
+}
+pub fn[T] NextState::set(Self[T], T) -> Unit
+
+pub(all) struct State[T] {
+  current : Ref[T]
+  next : Ref[T?]
+  previous : Ref[T?]
+  changed_serial : Ref[UInt]
+}
+pub fn[T] State::get(Self[T]) -> T
+pub fn[T] State::new(T) -> Self[T]
+pub fn[T] State::next(Self[T]) -> NextState[T]
+
+// Type aliases
+
+// Traits
+

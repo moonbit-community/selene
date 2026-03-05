@@ -10,5 +10,6 @@ import {
   "Milky2018/selene/platform_render",
   "Milky2018/selene/system",
   "Milky2018/selene/render",
+  "Milky2018/selene/visibility",
   "moonbitlang/core/strconv",
 }

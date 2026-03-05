@@ -11,6 +11,7 @@ type Direction2
 pub impl Eq for Direction2
 
 type PlayerState
+pub impl Eq for PlayerState
 pub impl Show for PlayerState
 
 // Type aliases

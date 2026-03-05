@@ -1,0 +1,74 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/input_action"
+
+import {
+  "Milky2018/selene/event",
+  "Milky2018/selene/inputs",
+}
+
+// Values
+pub fn action_just_pressed(InputAction) -> Bool
+
+pub fn action_just_released(InputAction) -> Bool
+
+pub fn action_pressed(InputAction) -> Bool
+
+pub fn action_value(InputAction) -> Double
+
+pub fn bind_action(InputAction, InputBinding) -> Unit
+
+pub fn clear_action_bindings(InputAction) -> Unit
+
+pub fn clear_all_action_bindings() -> Unit
+
+pub let input_action_event_bus : @event.Events[ActionEvent]
+
+pub fn input_action_system(Double) -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) struct ActionEvent {
+  action : InputAction
+  kind : ActionEventKind
+  value : Double
+}
+pub impl Eq for ActionEvent
+pub impl Show for ActionEvent
+
+pub(all) enum ActionEventKind {
+  Pressed
+  Released
+  ValueChanged
+}
+pub impl Eq for ActionEventKind
+pub impl Show for ActionEventKind
+
+pub(all) struct ActionState {
+  mut pressed : Bool
+  mut just_pressed : Bool
+  mut just_released : Bool
+  mut value : Double
+}
+pub impl Eq for ActionState
+pub impl Show for ActionState
+
+pub(all) struct InputAction {
+  name : String
+}
+pub fn InputAction::new(String) -> Self
+pub impl Eq for InputAction
+pub impl Hash for InputAction
+pub impl Show for InputAction
+
+pub(all) enum InputBinding {
+  Key(@inputs.Code)
+  Mouse(@inputs.MouseButton)
+  GamepadButton(@inputs.Gamepad, @inputs.GamepadButton)
+  GamepadAxis(@inputs.Gamepad, @inputs.GamepadAxis, mut dead_zone~ : Double, mut positive~ : Bool)
+}
+
+// Type aliases
+
+// Traits
+

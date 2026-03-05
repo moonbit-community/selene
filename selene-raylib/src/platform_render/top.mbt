@@ -21,11 +21,28 @@ fn resolve_text_command(
 }
 
 ///|
+let reported_capabilities : @set.Set[String] = @set.Set::new()
+
+///|
 pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
   for pair in frame.assets3d.mesh_upserts {
     @impl.sync_mesh_asset(pair.0, pair.1)
   }
   for pair in frame.assets3d.material_upserts {
+    let material = pair.1
+    if material.normal_texture is Some(_) {
+      capability_warning("normal_texture", "raylib backend ignores normal map")
+    }
+    if material.emissive_texture is Some(_) {
+      capability_warning(
+        "emissive_texture", "raylib backend uses emissive color only",
+      )
+    }
+    if material.roughness < 0.999 || material.metallic > 0.001 {
+      capability_warning(
+        "pbr_metallic_roughness", "raylib backend approximates with basic lighting",
+      )
+    }
     @impl.sync_material_asset(pair.0, pair.1)
   }
   for pair in frame.assets3d.image_upserts {
@@ -55,6 +72,11 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
   }
 
   @impl.render_3d_frame(frame.frame3d)
+  if frame.frame3d.spot_lights.length() > 0 {
+    capability_warning(
+      "spot_light_shaping", "raylib backend approximates spot lights as point lights",
+    )
+  }
 }
 
 ///|
@@ -68,4 +90,15 @@ pub fn measure_text(
   text : String,
 ) -> @math.Vec2D {
   @impl.measure_text(resolve_text_style(style), text)
+}
+
+///|
+pub fn capability_warning(feature : String, fallback : String) -> Unit {
+  if reported_capabilities.contains(feature) {
+    return
+  }
+  reported_capabilities.add(feature)
+  println(
+    "[selene-raylib][capability-warning] \{feature} is not fully supported; fallback: \{fallback}",
+  )
 }
