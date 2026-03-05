@@ -31,6 +31,9 @@ extern "js" fn request_pointer_lock(elem : @dom.HTMLCanvasElement) -> Unit = "(e
 extern "js" fn is_pointer_locked(canvas : @dom.HTMLCanvasElement) -> Bool = "(canvas) => document.pointerLockElement === canvas"
 
 ///|
+extern "js" fn exit_pointer_lock() -> Unit = "() => { if (document.exitPointerLock) { document.exitPointerLock(); } }"
+
+///|
 extern "js" fn document_add_event_listener(
   event : String,
   callback : (@dom.Event) -> Unit,

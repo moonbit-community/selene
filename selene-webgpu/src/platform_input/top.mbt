@@ -68,5 +68,6 @@ pub fn set_mouse_lock(locked : Bool) -> Bool {
     mouse_lock_registered.val = true
   }
   mouse_lock_ref.val = locked
+  mouse_lock_ref.val = @impl.sync_mouse_lock_state(mouse_lock_ref.val)
   mouse_lock_ref.val
 }

@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Web pointer lock now only requests capture when mouse lock is explicitly enabled; default canvas clicks no longer force pointer capture
+- Disabling mouse lock now actively exits browser pointer-lock state
+- Web keyboard input now ignores browser key-repeat keydown events to preserve stable `just_pressed` semantics
+- `pixeladventure` jump SFX trigger migrated to player-state enter (`Jump`) semantics, preventing repeated jump audio during a single jump action
+
 ## [0.23.2] - 2026-03-05
 
 ### Added

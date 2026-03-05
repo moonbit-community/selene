@@ -71,6 +71,19 @@ fn play_sfx(sound : @audio.AudioHandle) -> Unit {
 }
 
 ///|
+fn set_player_state(next : PlayerState) -> Unit {
+  let previous = game_state.player_state
+  if previous == next {
+    return
+  }
+  game_state.player_state = next
+  // Bevy-style: trigger one-shot SFX on state enter, not on per-frame input branch.
+  if next is PlayerState::Jump && game_state.volume_on {
+    play_sfx(jump_sound)
+  }
+}
+
+///|
 priv enum GameResult {
   Win
   GameOver
@@ -101,7 +114,7 @@ fn hurt_player() -> Unit {
       Right => @math.Vec2D(-ATTACK_V, 0.0)
     }
     @physics2d.linear_velocities[game_state.player] = back_vel
-    game_state.player_state = PlayerState::Hit
+    set_player_state(PlayerState::Hit)
     game_state.health -= 1
     update_health_display()
     game_state.hurt_timer = 60.0

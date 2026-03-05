@@ -84,6 +84,8 @@ pub fn sync_material_asset(@render3d_types.MaterialHandle, @render3d_types.Stand
 
 pub fn sync_mesh_asset(@render3d_types.MeshHandle, @render3d_types.MeshAsset) -> Unit
 
+pub fn sync_mouse_lock_state(Bool) -> Bool
+
 pub fn tick_audio() -> Unit
 
 // Errors

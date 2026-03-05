@@ -99,7 +99,7 @@ enum PlayerState {
   Jump
   Fall
   Hit
-} derive(Show)
+} derive(Eq, Show)
 
 ///|
 const GRAVITY = 1800.0
@@ -208,14 +208,11 @@ fn player_state_system(delta : Double) -> Unit {
         )
       }
       if !grounded && velocity.0[Y] > 0.0 {
-        game_state.player_state = PlayerState::Fall
+        set_player_state(PlayerState::Fall)
       }
       if @inputs.is_just_pressed(ArrowUp) && grounded {
         new_velocity_y = -JUMP_V
-        game_state.player_state = PlayerState::Jump
-        if game_state.volume_on {
-          play_sfx(jump_sound)
-        }
+        set_player_state(PlayerState::Jump)
       }
     }
     Fall => {
@@ -225,7 +222,7 @@ fn player_state_system(delta : Double) -> Unit {
         transform~,
       )
       if @physics2d.is_grounded(game_state.player) {
-        game_state.player_state = PlayerState::Idle
+        set_player_state(PlayerState::Idle)
       }
     }
     Jump => {
@@ -235,7 +232,7 @@ fn player_state_system(delta : Double) -> Unit {
         transform~,
       )
       if velocity.0[Y] > 0.0 {
-        game_state.player_state = PlayerState::Fall
+        set_player_state(PlayerState::Fall)
       }
     }
     Hit => {
@@ -249,11 +246,11 @@ fn player_state_system(delta : Double) -> Unit {
       }
       if @sprite.is_animation_finished(game_state.player) {
         if @physics2d.is_grounded(game_state.player) {
-          game_state.player_state = PlayerState::Idle
+          set_player_state(PlayerState::Idle)
         } else if velocity.0[Y] < 0.0 {
-          game_state.player_state = PlayerState::Fall
+          set_player_state(PlayerState::Fall)
         } else {
-          game_state.player_state = PlayerState::Jump
+          set_player_state(PlayerState::Jump)
         }
       }
     }

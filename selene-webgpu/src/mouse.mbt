@@ -52,9 +52,23 @@ pub fn register_mouse_events(
 ///|
 pub fn lock_mouse(locked : Ref[Bool]) -> Unit {
   canvas_backend.canvas.add_event_listener("click", fn(_event) {
-    request_pointer_lock(canvas_backend.canvas)
+    if locked.val && !is_pointer_locked(canvas_backend.canvas) {
+      request_pointer_lock(canvas_backend.canvas)
+    }
   })
   document_add_event_listener("pointerlockchange", fn(_event) {
     locked.val = is_pointer_locked(canvas_backend.canvas)
   })
+}
+
+///|
+pub fn sync_mouse_lock_state(locked : Bool) -> Bool {
+  if !locked && is_pointer_locked(canvas_backend.canvas) {
+    exit_pointer_lock()
+    return false
+  }
+  if locked {
+    return is_pointer_locked(canvas_backend.canvas)
+  }
+  false
 }
