@@ -6,6 +6,15 @@ import {
 }
 
 // Values
+pub fn decode_tiled_gid(Int) -> TiledGid
+
+pub fn empty_tiled_gid() -> TiledGid
+
+pub fn empty_tiled_map() -> TiledMap
+
+pub fn encode_tiled_gid(TiledGid) -> Int
+
+pub fn load_tiled_map(String) -> TiledMap
 
 // Errors
 
@@ -34,6 +43,194 @@ pub fn TileMap::from_json(Json) -> Self
 pub fn TileMap::get_tiles(Self, String) -> Array[Tile]
 pub fn TileMap::get_tiles_first(Self, String) -> Array[Tile]
 pub impl @json.FromJson for TileMap
+
+pub struct TiledCell {
+  x : Int
+  y : Int
+  gid : TiledGid
+}
+
+pub struct TiledChunk {
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+  data : Array[TiledGid]
+}
+
+pub struct TiledGid {
+  raw : Int
+  tile_id : Int
+  flipped_horizontally : Bool
+  flipped_vertically : Bool
+  flipped_diagonally : Bool
+}
+pub fn TiledGid::is_empty(Self) -> Bool
+
+pub struct TiledImageLayer {
+  image : String?
+  transparent_color : String?
+  repeat_x : Bool
+  repeat_y : Bool
+}
+
+pub struct TiledLayer {
+  id : Int
+  name : String
+  layer_type : String
+  class_name : String?
+  opacity : Double
+  visible : Bool
+  offset_x : Double
+  offset_y : Double
+  parallax_x : Double
+  parallax_y : Double
+  tint_color : String?
+  properties : Array[TiledProperty]
+  kind : TiledLayerKind
+}
+pub fn TiledLayer::property(Self, String) -> TiledPropertyValue?
+
+pub enum TiledLayerKind {
+  TileLayer(TiledTileLayer)
+  ObjectLayer(TiledObjectLayer)
+  GroupLayer(Array[TiledLayer])
+  ImageLayer(TiledImageLayer)
+  Unknown(String)
+}
+
+pub struct TiledMap {
+  width : Int
+  height : Int
+  tile_width : Int
+  tile_height : Int
+  infinite : Bool
+  orientation : String
+  render_order : String
+  background_color : String?
+  next_layer_id : Int
+  next_object_id : Int
+  source_path : String?
+  layers : Array[TiledLayer]
+  tilesets : Array[TiledTileset]
+  properties : Array[TiledProperty]
+}
+pub fn TiledMap::from_tiled_json(Json) -> Self
+pub fn TiledMap::layer(Self, String) -> TiledLayer?
+pub fn TiledMap::layer_by_id(Self, Int) -> TiledLayer?
+pub fn TiledMap::object_layer(Self, String) -> TiledObjectLayer?
+pub fn TiledMap::property(Self, String) -> TiledPropertyValue?
+pub fn TiledMap::resolve_path(Self, String) -> String
+pub fn TiledMap::tile_layer(Self, String) -> TiledTileLayer?
+pub fn TiledMap::tileset_for_gid(Self, Int) -> TiledTileset?
+
+pub struct TiledObject {
+  id : Int
+  name : String
+  object_type : String
+  class_name : String?
+  gid : TiledGid?
+  x : Double
+  y : Double
+  width : Double
+  height : Double
+  rotation : Double
+  visible : Bool
+  point : Bool
+  ellipse : Bool
+  polygon : Array[TiledPoint]
+  polyline : Array[TiledPoint]
+  text : TiledText?
+  properties : Array[TiledProperty]
+}
+pub fn TiledObject::property(Self, String) -> TiledPropertyValue?
+
+pub struct TiledObjectLayer {
+  draw_order : String
+  objects : Array[TiledObject]
+}
+pub fn TiledObjectLayer::object(Self, String) -> TiledObject?
+
+pub struct TiledPoint {
+  x : Double
+  y : Double
+}
+
+pub struct TiledProperty {
+  name : String
+  value : TiledPropertyValue
+}
+
+pub enum TiledPropertyValue {
+  None
+  String(String)
+  Int(Int)
+  Float(Double)
+  Bool(Bool)
+  Color(String)
+  File(String)
+  Object(Int)
+  Custom(Json)
+}
+
+pub struct TiledText {
+  text : String
+  wrap : Bool
+  color : String?
+  bold : Bool
+  italic : Bool
+  underline : Bool
+  strikeout : Bool
+  kerning : Bool
+  pixel_size : Int?
+  font_family : String?
+  horizontal_align : String?
+  vertical_align : String?
+}
+
+pub struct TiledTileDefinition {
+  id : Int
+  object_type : String?
+  class_name : String?
+  image : String?
+  probability : Double?
+  properties : Array[TiledProperty]
+  object_layer : TiledObjectLayer?
+}
+
+pub struct TiledTileLayer {
+  width : Int
+  height : Int
+  x : Int
+  y : Int
+  start_x : Int
+  start_y : Int
+  encoding : String?
+  compression : String?
+  data : Array[TiledGid]
+  chunks : Array[TiledChunk]
+}
+pub fn TiledTileLayer::tile_cells(Self) -> Array[TiledCell]
+pub fn TiledTileLayer::tile_gid_at(Self, Int, Int) -> TiledGid
+
+pub struct TiledTileset {
+  first_gid : Int
+  source : String?
+  name : String?
+  class_name : String?
+  tile_width : Int?
+  tile_height : Int?
+  tile_count : Int?
+  columns : Int?
+  spacing : Int
+  margin : Int
+  image : String?
+  image_width : Int?
+  image_height : Int?
+  properties : Array[TiledProperty]
+  tiles : Array[TiledTileDefinition]
+}
+pub fn TiledTileset::property(Self, String) -> TiledPropertyValue?
 
 // Type aliases
 
