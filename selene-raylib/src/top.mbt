@@ -205,6 +205,178 @@ fn to_ray_color_bytes(color : @render.Color) -> (Byte, Byte, Byte, Byte) {
 }
 
 ///|
+fn clamp01(value : Double) -> Double {
+  if value < 0.0 {
+    0.0
+  } else if value > 1.0 {
+    1.0
+  } else {
+    value
+  }
+}
+
+///|
+fn factor_to_u8(value : Double) -> UInt {
+  (clamp01(value) * 255.0).to_int().reinterpret_as_uint()
+}
+
+///|
+fn color_to_vec3(color : @render.Color) -> @smath.Vec3 {
+  @smath.Vec3::new(
+    color.r.to_double() / 255.0,
+    color.g.to_double() / 255.0,
+    color.b.to_double() / 255.0,
+  )
+}
+
+///|
+fn normalize_or(value : @smath.Vec3, fallback : @smath.Vec3) -> @smath.Vec3 {
+  if value.length_squared() <= 0.0000001 {
+    fallback
+  } else {
+    value.normalize()
+  }
+}
+
+///|
+fn has_scene_lights(frame : @render3d_types.RenderFrame3D) -> Bool {
+  frame.ambient_light is Some(_) ||
+  frame.directional_lights.length() > 0 ||
+  frame.point_lights.length() > 0 ||
+  frame.spot_lights.length() > 0
+}
+
+///|
+fn light_rgb(color : @render.Color, intensity : Double) -> @smath.Vec3 {
+  color_to_vec3(color).scalar_mul(@cmp.maximum(0.0, intensity))
+}
+
+///|
+fn range_attenuation(distance : Double, range : Double) -> Double {
+  if range <= 0.000001 {
+    1.0
+  } else if distance >= range {
+    0.0
+  } else {
+    let t = 1.0 - distance / range
+    t * t
+  }
+}
+
+///|
+fn spot_cone_attenuation(
+  light : @render3d_types.FrameSpotLight3D,
+  point : @smath.Vec3,
+) -> Double {
+  let light_dir = normalize_or(light.direction, @smath.Vec3::new(0.0, -1.0, 0.0))
+  let from_light = point - light.position
+  if from_light.length_squared() <= 0.0000001 {
+    return 1.0
+  }
+  let point_dir = from_light.normalize()
+  let cos_theta = light_dir.dot(point_dir)
+  let inner = @cmath.cos(light.inner_angle)
+  let outer = @cmath.cos(light.outer_angle)
+  let high = @cmp.maximum(inner, outer)
+  let low = @cmp.minimum(inner, outer)
+  let delta = high - low
+  if cos_theta <= low {
+    0.0
+  } else if cos_theta >= high || delta.abs() <= 0.000001 {
+    1.0
+  } else {
+    (cos_theta - low) / delta
+  }
+}
+
+///|
+fn compute_lighting_rgb(
+  frame : @render3d_types.RenderFrame3D,
+  world_pos : @smath.Vec3,
+  world_normal : @smath.Vec3,
+) -> @smath.Vec3 {
+  if !has_scene_lights(frame) {
+    return @smath.Vec3::one()
+  }
+  let normal = normalize_or(world_normal, @smath.Vec3::new(0.0, 1.0, 0.0))
+  let mut out = @smath.Vec3::zero()
+  if frame.ambient_light is Some(ambient) {
+    out = out + light_rgb(ambient.color, ambient.intensity)
+  }
+  for light in frame.directional_lights {
+    let incoming = -normalize_or(
+      light.direction,
+      @smath.Vec3::new(0.0, -1.0, 0.0),
+    )
+    let lambert = @cmp.maximum(0.0, normal.dot(incoming))
+    if lambert > 0.0 {
+      out = out + light_rgb(light.color, light.intensity * lambert)
+    }
+  }
+  for light in frame.point_lights {
+    let to_light = light.position - world_pos
+    let distance = to_light.length()
+    if distance <= 0.000001 {
+      out = out + light_rgb(light.color, light.intensity)
+      continue
+    }
+    let lambert = @cmp.maximum(0.0, normal.dot(to_light.scalar_div(distance)))
+    if lambert <= 0.0 {
+      continue
+    }
+    let attenuation = range_attenuation(distance, light.range)
+    if attenuation <= 0.0 {
+      continue
+    }
+    out = out + light_rgb(light.color, light.intensity * lambert * attenuation)
+  }
+  for light in frame.spot_lights {
+    let to_light = light.position - world_pos
+    let distance = to_light.length()
+    if distance <= 0.000001 {
+      out = out + light_rgb(light.color, light.intensity)
+      continue
+    }
+    let lambert = @cmp.maximum(0.0, normal.dot(to_light.scalar_div(distance)))
+    if lambert <= 0.0 {
+      continue
+    }
+    let attenuation = range_attenuation(distance, light.range)
+    if attenuation <= 0.0 {
+      continue
+    }
+    let cone = spot_cone_attenuation(light, world_pos)
+    if cone <= 0.0 {
+      continue
+    }
+    out = out + light_rgb(
+      light.color,
+      light.intensity * lambert * attenuation * cone,
+    )
+  }
+  out
+}
+
+///|
+fn lit_material_color(
+  material : @render3d_types.StandardMaterial3D,
+  frame : @render3d_types.RenderFrame3D,
+  world_pos : @smath.Vec3,
+  world_normal : @smath.Vec3,
+) -> @render.Color {
+  let base_rgb = color_to_vec3(material.base_color)
+  let emissive_rgb = color_to_vec3(material.emissive_color)
+  let lighting_rgb = compute_lighting_rgb(frame, world_pos, world_normal)
+  let lit = base_rgb * lighting_rgb + emissive_rgb
+  {
+    r: factor_to_u8(lit.x),
+    g: factor_to_u8(lit.y),
+    b: factor_to_u8(lit.z),
+    a: clamp01(material.base_color.a),
+  }
+}
+
+///|
 fn to_ray_camera3d(camera : @render3d_types.FrameCamera3D) -> @raylib.Camera3D {
   @raylib.Camera3D::new(
     to_ray_vector3_smath(camera.position),
@@ -854,7 +1026,7 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
     let material = backend.materials3d
       .get(item.material)
       .unwrap_or(@render3d_types.default_standard_material3d())
-    draw_mesh3d_instance(mesh_asset, material, item.transform)
+    draw_mesh3d_instance(mesh_asset, material, item.transform, frame)
   }
   end_3d()
 }
@@ -864,6 +1036,7 @@ fn draw_mesh3d_instance(
   mesh_asset : @render3d_types.MeshAsset,
   material : @render3d_types.StandardMaterial3D,
   transform : @render3d_types.FrameTransform3D,
+  frame : @render3d_types.RenderFrame3D,
 ) -> Unit {
   @rl.push_matrix()
   @rl.translatef(
@@ -877,7 +1050,13 @@ fn draw_mesh3d_instance(
     to_float(transform.scale.y),
     to_float(transform.scale.z),
   )
-  let color = to_ray_color(material.base_color)
+  let lit_color = lit_material_color(
+    material,
+    frame,
+    transform.translation,
+    transform.rotation.rotate_vec3(@smath.Vec3::new(0.0, 1.0, 0.0)),
+  )
+  let color = to_ray_color(lit_color)
   match mesh_asset.primitive {
     Cube(size) =>
       @raylib.draw_cube(
@@ -912,7 +1091,7 @@ fn draw_mesh3d_instance(
         color,
       )
     }
-    Triangles(mesh) => draw_triangle_mesh(mesh, material, color)
+    Triangles(mesh) => draw_triangle_mesh(mesh, material, lit_color)
   }
   @rl.pop_matrix()
 }
@@ -947,7 +1126,7 @@ fn apply_quat_rotation(quat : @smath.Quat) -> Unit {
 fn draw_triangle_mesh(
   mesh : @render3d_types.TriangleMesh3D,
   material : @render3d_types.StandardMaterial3D,
-  color : @raylib.Color,
+  lit_color : @render.Color,
 ) -> Unit {
   let vertices = mesh.positions
   if vertices.length() < 3 {
@@ -963,11 +1142,11 @@ fn draw_triangle_mesh(
       uvs,
       normals,
       get_texture(image_asset.path),
-      material.base_color,
+      lit_color,
     )
     return
   }
-  draw_colored_triangle_mesh(vertices, color)
+  draw_colored_triangle_mesh(vertices, to_ray_color(lit_color))
 }
 
 ///|
