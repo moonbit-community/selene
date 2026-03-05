@@ -79,7 +79,7 @@ fn render_text(
   text : Text,
   position : @math.Vec2D,
   scale_with_zoom : Bool,
-  overlay~ : Bool = false,
+  overlay? : Bool = false,
 ) -> Unit {
   let style = parse_text_style(
     text.font,

@@ -44,7 +44,9 @@ pub fn push_circle(command : @render2d_types.CircleDrawCommand2D) -> Unit {
 }
 
 ///|
-pub fn push_overlay_circle(command : @render2d_types.CircleDrawCommand2D) -> Unit {
+pub fn push_overlay_circle(
+  command : @render2d_types.CircleDrawCommand2D,
+) -> Unit {
   frame2d.val.overlay_commands.push(Circle(command))
 }
 

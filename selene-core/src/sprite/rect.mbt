@@ -33,7 +33,7 @@ fn render_color_rect(
   color_rect : ColorRect,
   position : @math.Vec2D,
   scale_with_zoom : Bool,
-  overlay~ : Bool = false,
+  overlay? : Bool = false,
 ) -> Unit {
   let size = if scale_with_zoom {
     @system.scale_vec2(color_rect.size)

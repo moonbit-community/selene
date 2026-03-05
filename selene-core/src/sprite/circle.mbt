@@ -90,7 +90,7 @@ fn render_color_circle(
   color_circle : ColorCircle,
   position : @math.Vec2D,
   scale_with_zoom : Bool,
-  overlay~ : Bool = false,
+  overlay? : Bool = false,
 ) -> Unit {
   let radius = if scale_with_zoom {
     @system.scale_value(color_circle.radius)

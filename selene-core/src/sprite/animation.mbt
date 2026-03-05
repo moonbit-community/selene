@@ -398,7 +398,7 @@ fn render_animation(
   scale_with_zoom : Bool,
   visible : Bool,
   delta : Double,
-  overlay~ : Bool = false,
+  overlay? : Bool = false,
 ) -> Double {
   let frame = animation.frames[current_frame.to_int()]
   if visible {

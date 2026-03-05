@@ -268,7 +268,10 @@ fn spot_cone_attenuation(
   light : @render3d_types.FrameSpotLight3D,
   point : @smath.Vec3,
 ) -> Double {
-  let light_dir = normalize_or(light.direction, @smath.Vec3::new(0.0, -1.0, 0.0))
+  let light_dir = normalize_or(
+    light.direction,
+    @smath.Vec3::new(0.0, -1.0, 0.0),
+  )
   let from_light = point - light.position
   if from_light.length_squared() <= 0.0000001 {
     return 1.0
@@ -349,10 +352,8 @@ fn compute_lighting_rgb(
     if cone <= 0.0 {
       continue
     }
-    out = out + light_rgb(
-      light.color,
-      light.intensity * lambert * attenuation * cone,
-    )
+    out = out +
+      light_rgb(light.color, light.intensity * lambert * attenuation * cone)
   }
   out
 }

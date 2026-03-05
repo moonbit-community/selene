@@ -267,7 +267,12 @@ pub fn render_sprite_system(delta : Double) -> Unit {
       SpriteType::Text(text) if sprite.visible =>
         render_text(text, screen_pos, scale_with_zoom, overlay=is_ui)
       SpriteType::ColorRect(color_rect) if sprite.visible =>
-        render_color_rect(color_rect, screen_pos, scale_with_zoom, overlay=is_ui)
+        render_color_rect(
+          color_rect,
+          screen_pos,
+          scale_with_zoom,
+          overlay=is_ui,
+        )
       SpriteType::ColorCircle(color_circle) if sprite.visible =>
         render_color_circle(
           color_circle,
