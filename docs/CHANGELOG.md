@@ -40,6 +40,7 @@
 ### Fixed
 
 - 2D frame submission is now split into world and overlay passes; UI overlay commands render after 3D on both webgpu and raylib backends
+- raylib 3D shading now consumes scene lighting fields (`ambient` / `directional` / `point` / `spot`) instead of rendering purely with raw material base color
 - Web pointer lock now only requests capture when mouse lock is explicitly enabled; default canvas clicks no longer force pointer capture
 - Disabling mouse lock now actively exits browser pointer-lock state
 - Web keyboard input now ignores browser key-repeat keydown events to preserve stable `just_pressed` semantics
