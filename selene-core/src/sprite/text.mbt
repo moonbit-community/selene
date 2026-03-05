@@ -79,6 +79,7 @@ fn render_text(
   text : Text,
   position : @math.Vec2D,
   scale_with_zoom : Bool,
+  overlay~ : Bool = false,
 ) -> Unit {
   let style = parse_text_style(
     text.font,
@@ -92,7 +93,16 @@ fn render_text(
   } else {
     style
   }
-  @render2d.push_text({ text: text.content, position, style })
+  let command : @render2d_types.TextDrawCommand2D = {
+    text: text.content,
+    position,
+    style,
+  }
+  if overlay {
+    @render2d.push_overlay_text(command)
+  } else {
+    @render2d.push_text(command)
+  }
 }
 
 ///|

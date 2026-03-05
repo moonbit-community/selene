@@ -90,16 +90,22 @@ fn render_color_circle(
   color_circle : ColorCircle,
   position : @math.Vec2D,
   scale_with_zoom : Bool,
+  overlay~ : Bool = false,
 ) -> Unit {
   let radius = if scale_with_zoom {
     @system.scale_value(color_circle.radius)
   } else {
     color_circle.radius
   }
-  @render2d.push_circle({
+  let command : @render2d_types.CircleDrawCommand2D = {
     center: @math.Vec2D(position[X] + radius, position[Y] + radius),
     radius,
     fill_color: parse_color(color_circle.color),
     stroke_color: parse_optional_color(color_circle.stroke_color),
-  })
+  }
+  if overlay {
+    @render2d.push_overlay_circle(command)
+  } else {
+    @render2d.push_circle(command)
+  }
 }

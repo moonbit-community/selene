@@ -55,7 +55,8 @@ pub(all) struct RectDrawCommand2D {
 }
 
 pub(all) struct RenderFrame2D {
-  mut commands : Array[DrawCommand2D]
+  mut world_commands : Array[DrawCommand2D]
+  mut overlay_commands : Array[DrawCommand2D]
 }
 
 pub(all) struct TextDrawCommand2D {

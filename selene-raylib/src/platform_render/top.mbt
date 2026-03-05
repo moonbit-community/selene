@@ -21,6 +21,20 @@ fn resolve_text_command(
 }
 
 ///|
+fn submit_draw_command(command : @render2d_types.DrawCommand2D) -> Unit {
+  match command {
+    Image(image) =>
+      if @asset.image_path(image.image) is Some(path) {
+        @impl.draw_image(image, path)
+      }
+    Text(text) => @impl.draw_text(resolve_text_command(text))
+    Rect(rect) => @impl.draw_rect(rect)
+    Circle(circle) => @impl.draw_circle(circle)
+    GradientRect(gradient) => @impl.draw_gradient_rect(gradient)
+  }
+}
+
+///|
 let reported_capabilities : @set.Set[String] = @set.Set::new()
 
 ///|
@@ -58,20 +72,14 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
     @impl.release_image_asset(handle)
   }
 
-  for command in frame.frame2d.commands {
-    match command {
-      Image(image) =>
-        if @asset.image_path(image.image) is Some(path) {
-          @impl.draw_image(image, path)
-        }
-      Text(text) => @impl.draw_text(resolve_text_command(text))
-      Rect(rect) => @impl.draw_rect(rect)
-      Circle(circle) => @impl.draw_circle(circle)
-      GradientRect(gradient) => @impl.draw_gradient_rect(gradient)
-    }
+  for command in frame.frame2d.world_commands {
+    submit_draw_command(command)
   }
 
   @impl.render_3d_frame(frame.frame3d)
+  for command in frame.frame2d.overlay_commands {
+    submit_draw_command(command)
+  }
   if frame.frame3d.spot_lights.length() > 0 {
     capability_warning(
       "spot_light_shaping", "raylib backend approximates spot lights as point lights",

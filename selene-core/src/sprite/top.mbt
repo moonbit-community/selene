@@ -238,8 +238,9 @@ pub fn render_sprite_system(delta : Double) -> Unit {
   for sprite in sprites {
     let e = sprite.0
     let sprite = sprite.1
+    let is_ui = @ui.uis.get(e) is Some(_)
     guard @transform.positions.get(e) is Some(pos) else { continue }
-    let base_pos = if @ui.uis.get(e) is Some(_) {
+    let base_pos = if is_ui {
       pos.0
     } else {
       @transform.sample_position(e, @system.get_render_alpha())
@@ -250,7 +251,7 @@ pub fn render_sprite_system(delta : Double) -> Unit {
     )
     match sprite.sprite_type {
       SpriteType::Picture(picture) if sprite.visible =>
-        render_picture(picture, screen_pos, scale_with_zoom)
+        render_picture(picture, screen_pos, scale_with_zoom, overlay=is_ui)
       SpriteType::Animation(anime, frame~) as animation_sprite => {
         let new_frame = render_animation(
           anime,
@@ -259,15 +260,21 @@ pub fn render_sprite_system(delta : Double) -> Unit {
           scale_with_zoom,
           sprite.visible,
           delta,
+          overlay=is_ui,
         )
         animation_sprite.frame = new_frame
       }
       SpriteType::Text(text) if sprite.visible =>
-        render_text(text, screen_pos, scale_with_zoom)
+        render_text(text, screen_pos, scale_with_zoom, overlay=is_ui)
       SpriteType::ColorRect(color_rect) if sprite.visible =>
-        render_color_rect(color_rect, screen_pos, scale_with_zoom)
+        render_color_rect(color_rect, screen_pos, scale_with_zoom, overlay=is_ui)
       SpriteType::ColorCircle(color_circle) if sprite.visible =>
-        render_color_circle(color_circle, screen_pos, scale_with_zoom)
+        render_color_circle(
+          color_circle,
+          screen_pos,
+          scale_with_zoom,
+          overlay=is_ui,
+        )
       _ => ()
     }
   }

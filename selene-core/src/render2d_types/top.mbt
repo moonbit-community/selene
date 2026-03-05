@@ -64,10 +64,11 @@ pub(all) enum DrawCommand2D {
 
 ///|
 pub(all) struct RenderFrame2D {
-  mut commands : Array[DrawCommand2D]
+  mut world_commands : Array[DrawCommand2D]
+  mut overlay_commands : Array[DrawCommand2D]
 }
 
 ///|
 pub fn empty_render_frame2d() -> RenderFrame2D {
-  { commands: [] }
+  { world_commands: [], overlay_commands: [] }
 }

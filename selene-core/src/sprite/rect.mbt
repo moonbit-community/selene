@@ -33,15 +33,21 @@ fn render_color_rect(
   color_rect : ColorRect,
   position : @math.Vec2D,
   scale_with_zoom : Bool,
+  overlay~ : Bool = false,
 ) -> Unit {
   let size = if scale_with_zoom {
     @system.scale_vec2(color_rect.size)
   } else {
     color_rect.size
   }
-  @render2d.push_rect({
+  let command : @render2d_types.RectDrawCommand2D = {
     rect: @math.Rect::{ position, size },
     fill_color: parse_color(color_rect.color),
     stroke_color: parse_optional_color(color_rect.stroke_color),
-  })
+  }
+  if overlay {
+    @render2d.push_overlay_rect(command)
+  } else {
+    @render2d.push_rect(command)
+  }
 }

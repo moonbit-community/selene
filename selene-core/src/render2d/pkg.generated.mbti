@@ -16,6 +16,16 @@ pub fn push_gradient_rect(@render2d_types.GradientRectDrawCommand2D) -> Unit
 
 pub fn push_image(@render2d_types.ImageDrawCommand2D) -> Unit
 
+pub fn push_overlay_circle(@render2d_types.CircleDrawCommand2D) -> Unit
+
+pub fn push_overlay_gradient_rect(@render2d_types.GradientRectDrawCommand2D) -> Unit
+
+pub fn push_overlay_image(@render2d_types.ImageDrawCommand2D) -> Unit
+
+pub fn push_overlay_rect(@render2d_types.RectDrawCommand2D) -> Unit
+
+pub fn push_overlay_text(@render2d_types.TextDrawCommand2D) -> Unit
+
 pub fn push_rect(@render2d_types.RectDrawCommand2D) -> Unit
 
 pub fn push_text(@render2d_types.TextDrawCommand2D) -> Unit
