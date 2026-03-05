@@ -30,8 +30,12 @@
   - animation samplers/channels (translation/rotation/scale)
   - skin joints + inverse bind matrices
   - JOINTS_0/WEIGHTS_0 vertex influences and runtime CPU skinning updates
-- `render3d_extract_system` now honors visibility/render layers and applies camera near/far culling during extraction
+- `render3d_extract_system` now honors visibility/render layers and applies perspective frustum culling (`fov/aspect/near/far`) during extraction
 - `platform_render` now exposes `capability_warning(feature, fallback)` and raylib backend emits explicit downgrade warnings for unsupported features
+- `commands.spawn()` now follows deferred structural-change semantics (reserved entity id + flush activation) via entity lifecycle `PendingSpawn`
+- `query` now provides reader/cursor-based delta consumption (`QueryReader`, `QueryDelta`) for `added/removed/changed` semantics
+- `scene3d`/`tilemap` runtime bytes loading moved to `asset2.read_bytes`, and examples direct asset loads are migrated to `asset2` APIs
+- `scene3d` example now uses `selene/scene` entry APIs instead of direct `scene3d` calls
 
 ### Fixed
 
@@ -39,6 +43,7 @@
 - Disabling mouse lock now actively exits browser pointer-lock state
 - Web keyboard input now ignores browser key-repeat keydown events to preserve stable `just_pressed` semantics
 - `pixeladventure` jump SFX trigger migrated to player-state enter (`Jump`) semantics, preventing repeated jump audio during a single jump action
+- Legacy `backend.request_close` path removed from core backend surface (window close control remains in `system.exit` / `platform_window`)
 
 ## [0.23.2] - 2026-03-05
 

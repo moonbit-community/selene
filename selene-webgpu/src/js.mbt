@@ -25,7 +25,10 @@ extern "js" fn set_viewport_width(
 ) -> Unit = "(x, y) => { x.width = y; }"
 
 ///|
-extern "js" fn request_pointer_lock(elem : @dom.HTMLCanvasElement) -> Unit = "(elem) => elem.requestPointerLock();"
+extern "js" fn request_pointer_lock_if_enabled(
+  elem : @dom.HTMLCanvasElement,
+  enabled : Bool,
+) -> Unit = "(elem, enabled) => { if (enabled && document.pointerLockElement !== elem) { elem.requestPointerLock(); } }"
 
 ///|
 extern "js" fn is_pointer_locked(canvas : @dom.HTMLCanvasElement) -> Bool = "(canvas) => document.pointerLockElement === canvas"
