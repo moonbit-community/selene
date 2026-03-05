@@ -2,6 +2,7 @@
 package "Milky2018/selene/scene"
 
 import {
+  "Milky2018/selene/animation3d",
   "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/render3d_types",
@@ -18,13 +19,21 @@ pub fn instantiate_scene(@render3d_types.SceneHandle, @transform3d.Transform3D) 
 
 pub fn load_scene_gltf(String) -> @render3d_types.SceneHandle
 
+pub fn play_scene_animation(@scene3d.SceneInstance, String, repeat? : Bool) -> Bool
+
+pub fn scene_animation(@scene3d.SceneInstance, String) -> @animation3d.AnimationClipHandle?
+
 pub let scene_instance_ready_events : @event.Events[SceneInstanceReadyEvent]
 
 pub fn scene_of(@entity.Entity) -> @render3d_types.SceneHandle?
 
 pub fn scene_spawner_cleanup_system(Double) -> Unit
 
+pub fn set_scene_animation_graph(@scene3d.SceneInstance, @animation3d.AnimationGraph3D, repeat? : Bool) -> Unit
+
 pub fn spawner() -> SceneSpawner
+
+pub fn trigger_scene_animation(@scene3d.SceneInstance, String) -> Unit
 
 // Errors
 

@@ -33,6 +33,12 @@ pub fn run() -> Unit {
   // .add_plugin(@plugins.debug_plugin)
   .add_system(game_start, schedule=Startup)
   .add_system(player_state_system)
+  .add_system(
+    jump_audio_on_enter_system,
+    schedule=OnEnter(
+      @state.on_enter_eq(player_state_machine, PlayerState::Jump),
+    ),
+  )
   .add_system(player_collision_system)
   .add_system(bird_ai_system)
   .add_system(map_trigger_system)
@@ -43,7 +49,7 @@ pub fn run() -> Unit {
 ///|
 fn game_start(_delta : Double) -> Unit {
   ignore(
-    @asset.load_font(
+    @asset2.load_font(
       "assets/pixeladventure/Fonts/ThaleahFat.ttf",
       family="ThaleahFat",
     ),

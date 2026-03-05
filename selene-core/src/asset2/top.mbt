@@ -47,6 +47,11 @@ fn init {
 }
 
 ///|
+pub fn read_bytes(path : String) -> Bytes? {
+  @asset.read_bytes(path)
+}
+
+///|
 pub fn load_image(path : String) -> @asset.ImageHandle {
   let handle = @asset.load_image(path)
   image_states.set(handle, Loading)

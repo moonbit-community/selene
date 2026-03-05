@@ -153,10 +153,8 @@ fn setup_scene3d(_delta : Double) -> Unit {
     clear_color: color(20U, 20U, 24U, 1.0),
   })
 
-  let scene = @scene3d_api.load_scene_gltf("assets/scene3d/scene3d.gltf")
-  ignore(
-    @scene3d_api.instantiate_scene(scene, @transform3d.Transform3D::identity()),
-  )
+  let scene = @scene.load_scene_gltf("assets/scene3d/scene3d.gltf")
+  ignore(@scene.instantiate_scene(scene, @transform3d.Transform3D::identity()))
 
   let floor_mesh = @render3d.register_mesh_asset(
     @render3d.plane_mesh(vec3(10.0, 0.02, 10.0)),

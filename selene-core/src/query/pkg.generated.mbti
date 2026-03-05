@@ -47,6 +47,20 @@ pub(all) struct Query[T] {
 pub fn[T] Query::iter(Self[T], require_filters? : Array[EntityFilter], reject_filters? : Array[EntityFilter]) -> Array[(@entity.Entity, T)]
 pub fn[T] Query::single(Self[T], require_filters? : Array[EntityFilter], reject_filters? : Array[EntityFilter]) -> (@entity.Entity, T)?
 
+pub(all) struct QueryDelta[T] {
+  added : Array[(@entity.Entity, T)]
+  removed : Array[@entity.Entity]
+  changed : Array[(@entity.Entity, T)]
+}
+pub fn[T] QueryDelta::empty() -> Self[T]
+
+pub(all) struct QueryReader[T] {
+  mut snapshot : Snapshot[T]?
+}
+pub fn[T] QueryReader::new() -> Self[T]
+pub fn[T : Eq] QueryReader::read(Self[T], Map[@entity.Entity, T]) -> QueryDelta[T]
+pub fn[T] QueryReader::reset(Self[T]) -> Unit
+
 pub(all) struct Removed[T] {
   snapshot : Snapshot[T]
   storage : Map[@entity.Entity, T]

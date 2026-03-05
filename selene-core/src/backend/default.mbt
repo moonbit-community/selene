@@ -14,8 +14,3 @@ pub fn initialize(
   ignore(config.image_smooth)
   fn() {  }
 }
-
-///|
-pub fn request_close() -> Unit {
-
-}

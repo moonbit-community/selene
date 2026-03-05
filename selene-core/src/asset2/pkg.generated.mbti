@@ -25,6 +25,8 @@ pub fn load_font(String, family? : String) -> @asset_types.FontHandle
 
 pub fn load_image(String) -> @asset_types.ImageHandle
 
+pub fn read_bytes(String) -> Bytes?
+
 pub fn reload_audio(@asset_types.AudioHandle) -> Unit
 
 pub fn reload_font(@asset_types.FontHandle) -> Unit

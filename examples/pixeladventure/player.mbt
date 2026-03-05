@@ -102,6 +102,11 @@ enum PlayerState {
 } derive(Eq, Show)
 
 ///|
+let player_state_machine : @state.State[PlayerState] = @state.State::new(
+  PlayerState::Idle,
+)
+
+///|
 const GRAVITY = 1800.0
 
 ///|
@@ -165,13 +170,14 @@ fn player_collision_system(_delta : Double) -> Unit {
 
 ///|
 fn player_state_system(delta : Double) -> Unit {
+  let player_state = player_state_machine.get()
   let velocity = @physics2d.resolved_velocities
     .get(game_state.player)
     .unwrap_or(@math.Vec2D::zero())
   let grounded = @physics2d.is_grounded(game_state.player)
   let mut new_velocity_x = velocity.0[X]
   let mut new_velocity_y = velocity.0[Y]
-  if !(game_state.player_state is Hit) {
+  if !(player_state is Hit) {
     if @inputs.is_pressed(@inputs.ArrowLeft) {
       new_velocity_x -= RUN_ACC * delta
       if new_velocity_x < -MAX_RUN_V {
@@ -192,7 +198,7 @@ fn player_state_system(delta : Double) -> Unit {
     Direction2::Left => @math.Transform::flip_x(32.0)
     Direction2::Right => @math.Transform::new()
   }
-  match game_state.player_state {
+  match player_state {
     Idle => {
       if velocity.0[X] == 0.0 {
         @sprite.play_animation(

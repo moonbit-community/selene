@@ -20,7 +20,7 @@ pub fn Commands::add(self : Commands, command : () -> Unit) -> Unit {
 ///|
 pub fn Commands::spawn(self : Commands) -> @entity.Entity {
   ignore(self)
-  @entity.Entity::new()
+  @entity.Entity::reserve_spawn()
 }
 
 ///|

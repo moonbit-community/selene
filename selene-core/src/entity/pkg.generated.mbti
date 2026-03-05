@@ -23,6 +23,7 @@ pub fn Entity::get_parent(Self) -> Self?
 pub fn Entity::is_alive(Self) -> Bool
 pub fn Entity::is_child(Self) -> Bool
 pub fn Entity::new() -> Self
+pub fn Entity::reserve_spawn() -> Self
 pub fn Entity::respawn(Self) -> Unit
 pub fn Entity::set_offset(Self, @math.Vec2D) -> Unit
 pub fn Entity::spawn_child(Self, offset? : @math.Vec2D) -> Self

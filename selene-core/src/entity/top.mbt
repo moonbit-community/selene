@@ -18,6 +18,7 @@ struct Entity(UInt) derive(Eq, Show, Hash)
 ///|
 enum EntityLifecycleState {
   Alive
+  PendingSpawn
   PendingDespawn
   PendingRespawn
   Destroyed
@@ -41,7 +42,7 @@ pub fn iter_entities() -> Iter[Entity] {
 pub fn Entity::is_alive(e : Entity) -> Bool {
   match lifecycle_states.get(e).unwrap_or(EntityLifecycleState::Destroyed) {
     Alive | PendingRespawn => true
-    PendingDespawn | Destroyed => false
+    PendingSpawn | PendingDespawn | Destroyed => false
   }
 }
 
@@ -58,10 +59,21 @@ pub fn Entity::new() -> Entity {
 }
 
 ///|
+/// Reserves an entity id that becomes alive on the next flush.
+/// This matches deferred-spawn semantics used by commands.
+pub fn Entity::reserve_spawn() -> Entity {
+  let entity = entity_generator.val
+  entity_generator.val += 1
+  lifecycle_states.set(entity, PendingSpawn)
+  pending_state_changes.add(entity)
+  entity
+}
+
+///|
 pub fn Entity::destroy(e : Entity) -> Unit {
   match lifecycle_states.get(e).unwrap_or(EntityLifecycleState::Destroyed) {
     Destroyed | PendingDespawn => ()
-    Alive | PendingRespawn => {
+    Alive | PendingRespawn | PendingSpawn => {
       lifecycle_states.set(e, PendingDespawn)
       pending_state_changes.add(e)
       if parents.get(e) is Some(p) {
@@ -77,7 +89,7 @@ pub fn Entity::destroy(e : Entity) -> Unit {
 pub fn Entity::respawn(e : Entity) -> Unit {
   match lifecycle_states.get(e).unwrap_or(EntityLifecycleState::Destroyed) {
     Alive | PendingRespawn => ()
-    Destroyed | PendingDespawn => {
+    Destroyed | PendingDespawn | PendingSpawn => {
       lifecycle_states.set(e, PendingRespawn)
       pending_state_changes.add(e)
       if parents.get(e) is Some(p) {
@@ -93,6 +105,10 @@ pub fn Entity::respawn(e : Entity) -> Unit {
 pub fn entity_flush_system(_delta : Double) -> Unit {
   for entity in pending_state_changes.to_array() {
     match lifecycle_states.get(entity).unwrap_or(Destroyed) {
+      PendingSpawn => {
+        all_entities.add(entity)
+        lifecycle_states.set(entity, Alive)
+      }
       PendingDespawn => {
         all_entities.remove(entity)
         lifecycle_states.set(entity, Destroyed)

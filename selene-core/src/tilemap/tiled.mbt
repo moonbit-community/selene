@@ -280,7 +280,9 @@ pub fn empty_tiled_map() -> TiledMap {
 
 ///|
 pub fn load_tiled_map(path : String) -> TiledMap {
-  guard @asset.read_bytes(path) is Some(bytes) else { return empty_tiled_map() }
+  guard @asset2.read_bytes(path) is Some(bytes) else {
+    return empty_tiled_map()
+  }
   let source = bytes.to_unchecked_string()
   let parsed : Result[Json, @json.ParseError] = try? @json.parse(source.view())
   match parsed {

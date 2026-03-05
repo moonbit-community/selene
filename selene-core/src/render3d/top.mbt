@@ -267,6 +267,110 @@ pub fn get_ambient_light3d() -> AmbientLight3D? {
 }
 
 ///|
+fn abs_double(value : Double) -> Double {
+  if value < 0.0 {
+    -value
+  } else {
+    value
+  }
+}
+
+///|
+fn mesh_local_radius(mesh : MeshAsset) -> Double {
+  match mesh.primitive {
+    Cube(size) => size.length() * 0.5
+    Sphere(radius) => radius
+    Cylinder(radius_top, radius_bottom, height, _) => {
+      let radius = if radius_top > radius_bottom {
+        radius_top
+      } else {
+        radius_bottom
+      }
+      @cmath.pow(radius * radius + height * 0.5 * (height * 0.5), 0.5)
+    }
+    Plane(size) => size.length() * 0.5
+    Triangles(triangles) => {
+      let mut radius_sq = 0.0
+      for position in triangles.positions {
+        let sq = position.length_squared()
+        if sq > radius_sq {
+          radius_sq = sq
+        }
+      }
+      @cmath.pow(radius_sq, 0.5)
+    }
+  }
+}
+
+///|
+fn is_visible_in_camera_frustum(
+  camera : @render3d_types.FrameCamera3D,
+  mesh : MeshAsset,
+  transform : @transform3d.GlobalTransform3D,
+) -> Bool {
+  let scale = transform.scale
+  let max_scale_xy = if abs_double(scale.x) > abs_double(scale.y) {
+    abs_double(scale.x)
+  } else {
+    abs_double(scale.y)
+  }
+  let max_scale = if max_scale_xy > abs_double(scale.z) {
+    max_scale_xy
+  } else {
+    abs_double(scale.z)
+  }
+  let radius = mesh_local_radius(mesh) * max_scale
+  let to_center = transform.translation - camera.position
+  let forward = camera.target - camera.position
+  if forward.length_squared() <= 0.0000001 {
+    return true
+  }
+  let forward_n = forward.normalize()
+  let depth = to_center.dot(forward_n)
+  if depth + radius < camera.near || depth - radius > camera.far {
+    return false
+  }
+  match camera.projection {
+    Perspective => {
+      if depth <= 0.0 {
+        return depth + radius >= 0.0
+      }
+      let up = if camera.up.length_squared() > 0.0000001 {
+        camera.up.normalize()
+      } else {
+        @math.Vec3::new(0.0, 1.0, 0.0)
+      }
+      let right = forward_n.cross(up)
+      let right_n = if right.length_squared() > 0.0000001 {
+        right.normalize()
+      } else {
+        @math.Vec3::new(1.0, 0.0, 0.0)
+      }
+      let up_n = right_n.cross(forward_n).normalize()
+      let viewport = @system.get_viewport_size()
+      let aspect = if viewport[Y] <= 0.0000001 {
+        1.0
+      } else {
+        viewport[X] / viewport[Y]
+      }
+      let half_fovy_rad = camera.fov_y * 0.5 * @cmath.PI / 180.0
+      let tan_half_y = @cmath.tan(half_fovy_rad)
+      let tan_half_x = tan_half_y * aspect
+      let side = abs_double(to_center.dot(right_n))
+      let vertical = abs_double(to_center.dot(up_n))
+      if side > depth * tan_half_x + radius {
+        return false
+      }
+      if vertical > depth * tan_half_y + radius {
+        return false
+      }
+      true
+    }
+    Orthographic => true
+  }
+}
+
+///|
 pub fn render3d_extract_system(_delta : Double) -> Unit {
   let frame = empty_render_frame3d()
   let mut active_camera_layers = @visibility.default_render_layers()
@@ -296,8 +400,7 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
       .get(entity)
       .unwrap_or(@transform3d.transforms3d.get(entity).unwrap_or_default())
     if frame.camera is Some(camera) {
-      let distance = (transform.translation - camera.position).length()
-      if distance < camera.near || distance > camera.far {
+      if !is_visible_in_camera_frustum(camera, meshes[renderer.mesh], transform) {
         continue
       }
     }

@@ -15,7 +15,6 @@
 ///|
 priv struct GameState {
   player : @entity.Entity
-  mut player_state : PlayerState
   mut direction : Direction2
   mut score : Int
   result_box : @sprite.Text
@@ -35,7 +34,6 @@ enum Direction2 {
 ///|
 let game_state : GameState = {
   player: @entity.Entity::new(),
-  player_state: PlayerState::Idle,
   score: 0,
   result_box: @sprite.Text::new("", font="24px ThaleahFat"),
   score_box: @sprite.Text::new(
@@ -51,34 +49,37 @@ let game_state : GameState = {
 }
 
 ///|
-let jump_sound : @audio.AudioHandle = @asset.load_audio(
+let jump_sound : @audio.AudioHandle = @asset2.load_audio(
   "assets/pixeladventure/sounds/jump.wav",
 )
 
 ///|
-let coin_sound : @audio.AudioHandle = @asset.load_audio(
+let coin_sound : @audio.AudioHandle = @asset2.load_audio(
   "assets/pixeladventure/sounds/coin.wav",
 )
 
 ///|
-let hurt_sound : @audio.AudioHandle = @asset.load_audio(
+let hurt_sound : @audio.AudioHandle = @asset2.load_audio(
   "assets/pixeladventure/sounds/hurt.wav",
 )
 
 ///|
 fn play_sfx(sound : @audio.AudioHandle) -> Unit {
-  ignore(@audio.spawn_audio(sound, settings=@audio.PlaybackSettings::remove()))
+  @audio.send_audio_event(sound, settings=@audio.PlaybackSettings::remove())
 }
 
 ///|
 fn set_player_state(next : PlayerState) -> Unit {
-  let previous = game_state.player_state
-  if previous == next {
+  let current = player_state_machine.get()
+  if current == next {
     return
   }
-  game_state.player_state = next
-  // Bevy-style: trigger one-shot SFX on state enter, not on per-frame input branch.
-  if next is PlayerState::Jump && game_state.volume_on {
+  @state.set_next_state(player_state_machine.next(), next)
+}
+
+///|
+fn jump_audio_on_enter_system(_delta : Double) -> Unit {
+  if game_state.volume_on {
     play_sfx(jump_sound)
   }
 }

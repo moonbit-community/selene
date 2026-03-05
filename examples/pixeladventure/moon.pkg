@@ -1,6 +1,7 @@
 import {
   "Milky2018/selene/audio",
   "Milky2018/selene/system",
+  "Milky2018/selene/state",
   "Milky2018/selene/entity",
   "Milky2018/selene/math",
   "Milky2018/selene/sprite",
@@ -12,7 +13,7 @@ import {
   "Milky2018/selene/ui",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
-  "Milky2018/selene/asset",
+  "Milky2018/selene/asset2",
   "moonbitlang/core/random",
   "moonbitlang/core/set",
 }

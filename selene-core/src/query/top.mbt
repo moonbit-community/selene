@@ -43,8 +43,75 @@ pub(all) struct Changed[T] {
 }
 
 ///|
+pub(all) struct QueryReader[T] {
+  mut snapshot : Snapshot[T]?
+}
+
+///|
+pub(all) struct QueryDelta[T] {
+  added : Array[(@entity.Entity, T)]
+  removed : Array[@entity.Entity]
+  changed : Array[(@entity.Entity, T)]
+}
+
+///|
 pub fn[T] query(storage : Map[@entity.Entity, T]) -> Query[T] {
   { storage, }
+}
+
+///|
+pub fn[T] QueryReader::new() -> QueryReader[T] {
+  { snapshot: None }
+}
+
+///|
+pub fn[T] QueryReader::reset(self : QueryReader[T]) -> Unit {
+  self.snapshot = None
+}
+
+///|
+pub fn[T] QueryDelta::empty() -> QueryDelta[T] {
+  { added: [], removed: [], changed: [] }
+}
+
+///|
+pub fn[T : Eq] QueryReader::read(
+  self : QueryReader[T],
+  storage : Map[@entity.Entity, T],
+) -> QueryDelta[T] {
+  let current = snapshot_of(storage)
+  let previous = self.snapshot
+  self.snapshot = Some(current)
+  match previous {
+    None => {
+      let added : Array[(@entity.Entity, T)] = []
+      for entity, component in storage {
+        added.push((entity, component))
+      }
+      { ..QueryDelta::empty(), added, }
+    }
+    Some(snapshot) => {
+      let added : Array[(@entity.Entity, T)] = []
+      let removed : Array[@entity.Entity] = []
+      let changed : Array[(@entity.Entity, T)] = []
+      for entity, component in storage {
+        if !snapshot.entities.contains(entity) {
+          added.push((entity, component))
+          continue
+        }
+        if snapshot.entries.get(entity) is Some(previous_component) &&
+          previous_component != component {
+          changed.push((entity, component))
+        }
+      }
+      for entity in snapshot.entities {
+        if !storage.contains(entity) {
+          removed.push(entity)
+        }
+      }
+      { added, removed, changed }
+    }
+  }
 }
 
 ///|
