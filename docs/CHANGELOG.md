@@ -5,6 +5,10 @@
 ### Added
 
 - New typed event module `Milky2018/selene/event` with `Events<T>`, `EventReader<T>`, `EventWriter<T>`, `Trigger<T>`, and observer APIs (`observe_global`, `observe_entity`, `unobserve`)
+- Tiled (`.tmj`) map support in `selene/tilemap`, including:
+  - `load_tiled_map` and `TiledMap::from_tiled_json`
+  - Layer/object/tileset typed data model and lookup helpers
+  - Global tile ID flip-flag decode/encode (`decode_tiled_gid`, `encode_tiled_gid`)
 - Standard input event channels in `selene/inputs`:
   - `key_input_event_bus`
   - `mouse_button_event_bus`
@@ -12,6 +16,11 @@
   - `gamepad_connection_event_bus`
   - `gamepad_button_event_bus`
   - `gamepad_axis_event_bus`
+- Bevy-style runtime `AudioSink` control methods in `selene/audio`:
+  - `AudioSink::set_volume`, `AudioSink::set_speed`
+  - `AudioSink::set_paused`, `AudioSink::set_muted`
+  - `AudioSink::pause`, `AudioSink::play`, `AudioSink::stop`
+  - `AudioSink::mode`, `AudioSink::volume`, `AudioSink::speed`, `AudioSink::paused`, `AudioSink::muted`, `AudioSink::stopped`, `AudioSink::finished`
 
 ### Changed
 
@@ -24,6 +33,15 @@
   - `contact_event_bus3d`
   - `trigger_event_bus3d`
 - `cards`, `pixeladventure`, and `survivors` examples migrated to reader-based event consumption
+- `selene/audio` playback flow now follows Bevy-style semantics:
+  - `PlaybackSettings` is applied when creating a sink
+  - runtime playback state is controlled via `AudioSink`
+  - `audio_playback_system` no longer re-applies `PlaybackSettings` every frame to active sinks
+
+### Fixed
+
+- Web audio one-shot replay loop caused by re-playing ended instances
+- `pixeladventure` jump tuning (`JUMP_V` reduced from `680.0` to `560.0`) to avoid over-high jump arcs
 
 ### Removed
 
