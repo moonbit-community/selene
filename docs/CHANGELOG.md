@@ -2,6 +2,37 @@
 
 ## [Unreleased]
 
+### Added
+
+- Bevy-aligned core runtime modules:
+  - `selene/state` (`State`, `NextState`, `in_state`, `on_enter`, `on_exit`)
+  - `selene/system_set` (`SystemSet`, `in_set`, `before`, `after`)
+  - `selene/commands` (queued structural/world changes with frame/fixed flush)
+  - `selene/query` (`Query`, `With`, `Without`, `Added`, `Removed`, `Changed`)
+  - `selene/input_action` (action map + action event bus)
+  - `selene/visibility` (`Visibility`, `InheritedVisibility`, `ViewVisibility`, `RenderLayers`)
+  - `selene/asset2` (`AssetState`, typed asset lifecycle events)
+  - `selene/scene` (`SceneSpawner`, `SceneInstanceReadyEvent`, scene-level animation helpers)
+- New `selene/animation3d` module with clip/player/graph workflow:
+  - clip registration (`register_animation_clip`)
+  - player control (`play_clip`, `play_state`, `set_animation_graph`, `trigger_animation`)
+  - runtime systems (`animation3d_player_system`, `animation3d_skinning_system`)
+
+### Changed
+
+- `system.App` scheduler now supports Bevy-style stage gating and ordering:
+  - `OnEnter` / `OnExit` schedule matching
+  - `run_if` conditions
+  - set-based ordering (`in_set/before/after`) with per-stage sorting
+  - command/entity flush integrated into both frame and fixed loops
+- Default plugins now wire `input_action`, state transition flow, visibility propagation, scene cleanup, and 3D animation+skinning systems
+- `scene3d` glTF pipeline now parses and instantiates animation/skin data:
+  - animation samplers/channels (translation/rotation/scale)
+  - skin joints + inverse bind matrices
+  - JOINTS_0/WEIGHTS_0 vertex influences and runtime CPU skinning updates
+- `render3d_extract_system` now honors visibility/render layers and applies camera near/far culling during extraction
+- `platform_render` now exposes `capability_warning(feature, fallback)` and raylib backend emits explicit downgrade warnings for unsupported features
+
 ### Fixed
 
 - Web pointer lock now only requests capture when mouse lock is explicitly enabled; default canvas clicks no longer force pointer capture
