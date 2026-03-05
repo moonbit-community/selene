@@ -91,6 +91,7 @@ pub fn tick_audio() -> Unit
 // Types and methods
 type Audio
 pub fn Audio::is_ended(Self) -> Bool
+pub fn Audio::is_paused(Self) -> Bool
 pub fn Audio::new(String) -> Self
 pub fn Audio::pause(Self) -> Unit
 pub fn Audio::play(Self) -> Unit

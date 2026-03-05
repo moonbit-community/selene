@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.23.2] - 2026-03-05
+
 ### Added
 
 - New typed event module `Milky2018/selene/event` with `Events<T>`, `EventReader<T>`, `EventWriter<T>`, `Trigger<T>`, and observer APIs (`observe_global`, `observe_entity`, `unobserve`)
