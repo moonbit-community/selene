@@ -862,50 +862,39 @@ fn resolve_relative_asset_path(scene_path : String, uri : String) -> String {
 
 ///|
 fn json_object(value : Json) -> Map[String, Json]? {
-  match value {
-    Object(object) => Some(object)
-    _ => None
-  }
+  json_decode(value)
 }
 
 ///|
 fn json_array(value : Json) -> Array[Json]? {
-  match value {
-    Array(array) => Some(array)
-    _ => None
-  }
+  json_decode(value)
 }
 
 ///|
 fn json_string(value : Json) -> String? {
-  match value {
-    String(text) => Some(text)
-    _ => None
-  }
+  json_decode(value)
 }
 
 ///|
 fn json_number(value : Json) -> Double? {
-  match value {
-    Number(number, ..) => Some(number)
-    _ => None
-  }
+  json_decode(value)
 }
 
 ///|
 fn json_int(value : Json) -> Int? {
-  if json_number(value) is Some(number) {
-    Some(number.to_int())
-  } else {
-    None
-  }
+  json_decode(value)
 }
 
 ///|
 fn json_bool(value : Json) -> Bool? {
-  let parsed : Result[Bool, @json.JsonDecodeError] = try? @json.from_json(value)
+  json_decode(value)
+}
+
+///|
+fn[T : @json.FromJson] json_decode(value : Json) -> T? {
+  let parsed : Result[T, @json.JsonDecodeError] = try? @json.from_json(value)
   match parsed {
-    Ok(flag) => Some(flag)
+    Ok(output) => Some(output)
     Err(_) => None
   }
 }
