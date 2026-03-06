@@ -116,7 +116,7 @@ fn collider_handle_id(handle : @rapier_collision.ColliderHandle) -> Int {
 
 ///|
 fn world_entity(entity : @entity.Entity) -> Bool {
-  @ui.uis.get(entity) is None
+  !@ui.nodes.contains(entity)
 }
 
 ///|

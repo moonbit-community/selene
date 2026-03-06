@@ -3,6 +3,7 @@ pub(all) struct InputSnapshot {
   pressed_keys : Set[Code]
   mouse : Mouse
   mouse_movement : MouseMovement
+  mouse_wheel : MouseWheel
   connected_gamepads : Set[Gamepad]
   pressed_gamepad_buttons : Set[GamepadButtonInput]
   gamepad_axis_values : Map[GamepadAxisInput, Double]
@@ -19,6 +20,7 @@ pub fn empty_input_snapshot() -> InputSnapshot {
       middle_button: false,
     },
     mouse_movement: { movement: @math.Vec2D::zero() },
+    mouse_wheel: { delta: @math.Vec2D::zero() },
     connected_gamepads: Set::new(),
     pressed_gamepad_buttons: Set::new(),
     gamepad_axis_values: Map::new(),
@@ -38,6 +40,7 @@ pub fn apply_input_snapshot(snapshot : InputSnapshot) -> Unit {
   mouse.middle_button = snapshot.mouse.middle_button
 
   mouse_movement.movement = snapshot.mouse_movement.movement
+  mouse_wheel.delta = snapshot.mouse_wheel.delta
 
   connected_gamepads.clear()
   for gamepad in snapshot.connected_gamepads {

@@ -63,6 +63,7 @@ pub(all) enum Code {
   ArrowDown
   ArrowLeft
   ArrowRight
+  Tab
   ShiftLeft
   Space
   Enter
@@ -138,6 +139,7 @@ pub fn Code::from_string(code : String) -> Code? {
     "ArrowDown" => Some(ArrowDown)
     "ArrowLeft" => Some(ArrowLeft)
     "ArrowRight" => Some(ArrowRight)
+    "Tab" => Some(Tab)
     "ShiftLeft" => Some(ShiftLeft)
     "Space" => Some(Space)
     "Enter" => Some(Enter)

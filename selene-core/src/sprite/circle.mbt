@@ -90,7 +90,6 @@ fn render_color_circle(
   color_circle : ColorCircle,
   position : @math.Vec2D,
   scale_with_zoom : Bool,
-  overlay? : Bool = false,
 ) -> Unit {
   let radius = if scale_with_zoom {
     @system.scale_value(color_circle.radius)
@@ -103,9 +102,5 @@ fn render_color_circle(
     fill_color: parse_color(color_circle.color),
     stroke_color: parse_optional_color(color_circle.stroke_color),
   }
-  if overlay {
-    @render2d.push_overlay_circle(command)
-  } else {
-    @render2d.push_circle(command)
-  }
+  @render2d.push_circle(command)
 }

@@ -29,27 +29,17 @@ python3 -m http.server 8000
 
 打开 `http://localhost:8000/index.html`。
 
-## 2D HUD 覆盖 3D
+## UI 位于 2D 和 3D 之上
 
-Selene 的 2D/3D 提交顺序是：
+Selene 的帧提交流程现在固定为：
 
-1. `frame2d.world_commands`
-2. `frame3d`
-3. `frame2d.overlay_commands`
+1. `frame3d`
+2. `frame2d.world_commands`
+3. `frame2d.ui_commands`
 
-带 `@ui` 的实体会自动进入 overlay pass。  
-对于不带 `@ui` 的旧版 sprite/text HUD，可以显式开启 overlay：
-
-```moonbit
-@sprite.set_overlay_space(hud_entity) // 默认 Virtual 空间
-@sprite.set_overlay_space(minimap_entity, space=Screen)
-```
-
-如果要恢复为 world pass：
-
-```moonbit
-@sprite.clear_overlay_space(hud_entity)
-```
+所有 HUD、菜单和说明层都应走 `selene/ui`。  
+顶层 UI 由“带 `@ui.Node` 且没有 UI 父节点”的实体定义。  
+默认布局空间是屏幕空间；如果项目需要跟随虚拟分辨率缩放 HUD，可配置 `@ui.set_ui_scale_mode(@ui.UiScaleMode::Viewport)`。
 
 ## raylib 原生资源嵌入（可选）
 

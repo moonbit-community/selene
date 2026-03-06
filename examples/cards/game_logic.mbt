@@ -42,7 +42,7 @@ fn start_new_hand() -> Unit {
   game_state.phase = PreFlop
   game_state.current_bet = game_state.big_blind
   game_state.community_cards.clear()
-  game_state.action_text.content = "" // Clear previous action
+  set_text(game_state.action_label, "")
   game_state.magnification = 1 // Reset magnification to 1 for new hand
 
   // Update blinds every 10 hands

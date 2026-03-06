@@ -21,6 +21,7 @@ priv struct RaylibBackend {
   mut key_events : Set[@inputs.Code]?
   mut mouse_state : @inputs.Mouse?
   mut mouse_movement : @inputs.MouseMovement?
+  mut mouse_wheel : @inputs.MouseWheel?
   mut gamepads_state : Set[@inputs.Gamepad]?
   mut gamepad_buttons_state : Set[@inputs.GamepadButtonInput]?
   mut gamepad_axes_state : Map[@inputs.GamepadAxisInput, Double]?
@@ -74,6 +75,7 @@ let backend : RaylibBackend = {
   key_events: None,
   mouse_state: None,
   mouse_movement: None,
+  mouse_wheel: None,
   gamepads_state: None,
   gamepad_buttons_state: None,
   gamepad_axes_state: None,
@@ -96,6 +98,9 @@ let backend : RaylibBackend = {
   textured_material: None,
   texture_warning_keys: Set::new(),
 }
+
+///|
+let clip_stack : Array[@smath.Rect] = []
 
 ///|
 fn default_font_codepoints() -> Array[Int] {
@@ -173,6 +178,47 @@ fn to_ray_rect(
     to_float(width),
     to_float(height),
   )
+}
+
+///|
+fn clip_rect_intersection(lhs : @smath.Rect, rhs : @smath.Rect) -> @smath.Rect? {
+  let left = @cmp.maximum(lhs.position[X], rhs.position[X])
+  let top = @cmp.maximum(lhs.position[Y], rhs.position[Y])
+  let right = @cmp.minimum(
+    lhs.position[X] + lhs.size[X],
+    rhs.position[X] + rhs.size[X],
+  )
+  let bottom = @cmp.minimum(
+    lhs.position[Y] + lhs.size[Y],
+    rhs.position[Y] + rhs.size[Y],
+  )
+  if right <= left || bottom <= top {
+    None
+  } else {
+    Some({
+      position: @smath.Vec2D(left, top),
+      size: @smath.Vec2D(right - left, bottom - top),
+    })
+  }
+}
+
+///|
+fn activate_clip_rect(rect : @smath.Rect) -> Unit {
+  @raylib.begin_scissor_mode(
+    rect.position[X].to_int(),
+    rect.position[Y].to_int(),
+    rect.size[X].to_int(),
+    rect.size[Y].to_int(),
+  )
+}
+
+///|
+fn refresh_clip_stack() -> Unit {
+  @raylib.end_scissor_mode()
+  match clip_stack.last() {
+    Some(rect) => activate_clip_rect(rect)
+    None => ()
+  }
 }
 
 ///|
@@ -632,6 +678,7 @@ fn key_to_raylib(code : @inputs.Code) -> Int {
     ArrowDown => @raylib.KeyDown
     ArrowLeft => @raylib.KeyLeft
     ArrowRight => @raylib.KeyRight
+    Tab => @raylib.KeyTab
     ShiftLeft => @raylib.KeyLeftShift
     Space => @raylib.KeySpace
     Enter => @raylib.KeyEnter
@@ -672,6 +719,7 @@ fn all_codes() -> Array[@inputs.Code] {
     ArrowDown,
     ArrowLeft,
     ArrowRight,
+    Tab,
     ShiftLeft,
     Space,
     Enter,
@@ -698,10 +746,14 @@ fn sync_mouse_events() -> Unit {
     backend.mouse_movement is Some(movement) {
     let pos = @raylib.get_mouse_position() |> to_selene_vec2
     let delta = @raylib.get_mouse_delta() |> to_selene_vec2
+    let wheel = @raylib.get_mouse_wheel_move_v() |> to_selene_vec2
     // Keep raw screen-space mouse coordinates consistent with canvas backend.
     // Core click systems are responsible for applying zoom conversion.
     mouse.pos = @smath.Vec2D(pos[X], pos[Y])
     movement.movement = @smath.Vec2D(delta[X], delta[Y])
+    if backend.mouse_wheel is Some(mouse_wheel) {
+      mouse_wheel.delta = @smath.Vec2D(wheel[X], wheel[Y])
+    }
     mouse.left_button = @raylib.is_mouse_button_down(@raylib.MouseButtonLeft)
     mouse.right_button = @raylib.is_mouse_button_down(@raylib.MouseButtonRight)
     mouse.middle_button = @raylib.is_mouse_button_down(
@@ -918,6 +970,37 @@ pub fn draw_image(
 }
 
 ///|
+pub fn push_clip_rect(rect : @smath.Rect) -> Unit {
+  let next = match clip_stack.last() {
+    Some(current) =>
+      clip_rect_intersection(current, rect).unwrap_or({
+        position: @smath.Vec2D::zero(),
+        size: @smath.Vec2D::zero(),
+      })
+    None => rect
+  }
+  clip_stack.push(next)
+  refresh_clip_stack()
+}
+
+///|
+pub fn pop_clip_rect() -> Unit {
+  if clip_stack.is_empty() {
+    return
+  }
+  ignore(clip_stack.pop())
+  refresh_clip_stack()
+}
+
+///|
+pub fn reset_clip_stack() -> Unit {
+  while !clip_stack.is_empty() {
+    ignore(clip_stack.pop())
+  }
+  @raylib.end_scissor_mode()
+}
+
+///|
 pub fn register_key_events(pressed_keys : Set[@inputs.Code]) -> Unit {
   backend.key_events = Some(pressed_keys)
 }
@@ -926,9 +1009,11 @@ pub fn register_key_events(pressed_keys : Set[@inputs.Code]) -> Unit {
 pub fn register_mouse_events(
   mouse : @inputs.Mouse,
   mouse_movement : @inputs.MouseMovement,
+  mouse_wheel : @inputs.MouseWheel,
 ) -> Unit {
   backend.mouse_state = Some(mouse)
   backend.mouse_movement = Some(mouse_movement)
+  backend.mouse_wheel = Some(mouse_wheel)
 }
 
 ///|

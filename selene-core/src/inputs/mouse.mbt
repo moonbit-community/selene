@@ -47,6 +47,11 @@ pub struct MouseMotionEvent {
 }
 
 ///|
+pub struct MouseWheelEvent {
+  delta : @math.Vec2D
+}
+
+///|
 /// Mouse input state containing position and button states.
 ///
 /// Fields:
@@ -128,6 +133,11 @@ pub(all) struct MouseMovement {
 }
 
 ///|
+pub(all) struct MouseWheel {
+  mut delta : @math.Vec2D
+}
+
+///|
 /// Global mouse movement delta tracking instance that stores the change in
 /// mouse position since the last frame.
 ///
@@ -154,15 +164,22 @@ pub(all) struct MouseMovement {
 pub let mouse_movement : MouseMovement = { movement: @math.Vec2D(0.0, 0.0) }
 
 ///|
+pub let mouse_wheel : MouseWheel = { delta: @math.Vec2D(0.0, 0.0) }
+
+///|
 pub let mouse_button_event_bus : @event.Events[MouseButtonEvent] = @event.Events::new()
 
 ///|
 pub let mouse_motion_event_bus : @event.Events[MouseMotionEvent] = @event.Events::new()
 
 ///|
+pub let mouse_wheel_event_bus : @event.Events[MouseWheelEvent] = @event.Events::new()
+
+///|
 fn init {
   mouse_button_event_bus.register()
   mouse_motion_event_bus.register()
+  mouse_wheel_event_bus.register()
 }
 
 ///|
@@ -273,6 +290,10 @@ pub fn advanced_mouse_system(_delta : Double) -> Unit {
   if delta[X] != 0.0 || delta[Y] != 0.0 {
     mouse_motion_event_bus.send({ position: mouse.pos, delta })
   }
+  let wheel_delta = mouse_wheel.delta
+  if wheel_delta[X] != 0.0 || wheel_delta[Y] != 0.0 {
+    mouse_wheel_event_bus.send({ delta: wheel_delta })
+  }
 
   // Just pressed
   just_pressed_mouse.left_button = mouse.left_button && !last_mouse.left_button
@@ -333,6 +354,7 @@ pub fn advanced_mouse_system(_delta : Double) -> Unit {
   last_mouse.left_button = mouse.left_button
   last_mouse.right_button = mouse.right_button
   last_mouse.middle_button = mouse.middle_button
+  mouse_wheel.delta = @math.Vec2D::zero()
 }
 
 ///|

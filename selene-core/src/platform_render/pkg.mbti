@@ -12,4 +12,10 @@ fn register_font(String, String) -> Unit
 
 fn measure_text(@render2d_types.TextStyle2D, String) -> @math.Vec2D
 
+fn push_clip_rect(@math.Rect) -> Unit
+
+fn pop_clip_rect() -> Unit
+
+fn reset_clip_stack() -> Unit
+
 fn capability_warning(String, String) -> Unit

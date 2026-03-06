@@ -34,7 +34,11 @@ fn ensure_registered() -> Unit {
     return
   }
   @impl.register_key_events(snapshot.pressed_keys)
-  @impl.register_mouse_events(snapshot.mouse, snapshot.mouse_movement)
+  @impl.register_mouse_events(
+    snapshot.mouse,
+    snapshot.mouse_movement,
+    snapshot.mouse_wheel,
+  )
   @impl.register_gamepad_events(
     snapshot.connected_gamepads,
     snapshot.pressed_gamepad_buttons,
@@ -55,6 +59,7 @@ pub fn poll_input() -> @inputs.InputSnapshot {
       middle_button: snapshot.mouse.middle_button,
     },
     mouse_movement: { movement: snapshot.mouse_movement.movement },
+    mouse_wheel: { delta: snapshot.mouse_wheel.delta },
     connected_gamepads: copy_set(snapshot.connected_gamepads),
     pressed_gamepad_buttons: copy_set(snapshot.pressed_gamepad_buttons),
     gamepad_axis_values: copy_map(snapshot.gamepad_axis_values),

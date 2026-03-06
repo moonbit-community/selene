@@ -44,15 +44,19 @@ pub fn measure_text(@render2d_types.TextStyle2D, String) -> @math.Vec2D
 
 pub fn play_audio(audio_path~ : String, volume~ : Double, speed~ : Double, loop_~ : Bool, paused~ : Bool) -> Int
 
+pub fn pop_clip_rect() -> Unit
+
 pub fn preload_audio(String) -> Unit
 
 pub fn preload_img(String) -> Unit
+
+pub fn push_clip_rect(@math.Rect) -> Unit
 
 pub fn register_gamepad_events(@set.Set[@inputs.Gamepad], @set.Set[@inputs.GamepadButtonInput], Map[@inputs.GamepadAxisInput, Double]) -> Unit
 
 pub fn register_key_events(@set.Set[@inputs.Code]) -> Unit
 
-pub fn register_mouse_events(@inputs.Mouse, @inputs.MouseMovement) -> Unit
+pub fn register_mouse_events(@inputs.Mouse, @inputs.MouseMovement, @inputs.MouseWheel) -> Unit
 
 pub fn release_image_asset(@render3d_types.ImageHandle) -> Unit
 
@@ -63,6 +67,8 @@ pub fn release_mesh_asset(@render3d_types.MeshHandle) -> Unit
 pub fn render_3d_frame(@render3d_types.RenderFrame3D) -> Unit
 
 pub fn request_close() -> Unit
+
+pub fn reset_clip_stack() -> Unit
 
 pub fn set_embedded_assets((String) -> Bytes?) -> Unit
 

@@ -54,6 +54,7 @@ fn game_start(_delta : Double) -> Unit {
       family="ThaleahFat",
     ),
   )
+  @ui.set_ui_scale_mode(@ui.UiScaleMode::Viewport)
   generate_map()
   add_result_box()
   add_score_box()

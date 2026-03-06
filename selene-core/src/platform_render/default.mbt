@@ -22,6 +22,21 @@ pub fn measure_text(
 }
 
 ///|
+pub fn push_clip_rect(_rect : @math.Rect) -> Unit {
+  ()
+}
+
+///|
+pub fn pop_clip_rect() -> Unit {
+  ()
+}
+
+///|
+pub fn reset_clip_stack() -> Unit {
+  ()
+}
+
+///|
 pub fn capability_warning(feature : String, fallback : String) -> Unit {
   ignore(feature)
   ignore(fallback)

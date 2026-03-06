@@ -35,6 +35,7 @@ pub fn run() -> Unit {
 fn game_start(_delta : Double) -> Unit {
   // Load font
   ignore(@asset2.load_font("assets/cards/ThaleahFat.ttf", family="ThaleahFat"))
+  @ui.set_ui_scale_mode(@ui.UiScaleMode::Viewport)
 
   // Setup UI
   setup_ui()

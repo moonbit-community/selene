@@ -98,15 +98,8 @@ fn to_screen_rect(
   size : @math.Vec2D,
   camera_pos : @math.Vec2D,
 ) -> @math.Rect {
-  if @ui.uis.get(entity) is Some(ui) {
-    match ui.space {
-      Virtual =>
-        @math.Rect::{
-          position: @system.ui_virtual_to_screen(world_or_ui_pos),
-          size: @system.scale_vec2(size),
-        }
-      Screen => @math.Rect::{ position: world_or_ui_pos, size }
-    }
+  if @ui.global_ui_nodes.get(entity) is Some(transform) {
+    transform.screen_rect
   } else {
     @math.Rect::{
       position: @system.world_to_screen(world_or_ui_pos, camera_pos),

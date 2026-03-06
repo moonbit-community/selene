@@ -1,5 +1,20 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- release and CI now include a `check_no_legacy_ui` guard that rejects legacy `style`, legacy UI helper APIs, and sprite overlay UI paths
+
+### Changed
+
+- `selene/ui` now exposes a single Bevy-aligned UI path built around `Node`, computed UI layout data, typed pointer/focus/navigation events, and a dedicated `frame2d.ui_commands` pass
+- examples, docs, and engine wiring now target the unified UI node tree instead of mixed `style` + old `ui` + sprite overlay semantics
+
+### Removed
+
+- deleted the legacy `selene/style` package, old UI root/helper APIs (`screen_root`, `virtual_root`, `UiSpace`, `add_node`, `add_button`), and sprite overlay UI entry points from the supported workflow
+
 ## [0.24.4] - 2026-03-06
 
 ### Added

@@ -61,19 +61,19 @@ priv struct GameState {
   mut player_direction : Dir4
   rand : @random.Rand
   mut score : Int
-  score_box : @sprite.Text
+  score_box : @entity.Entity
   mut invincible : Bool
   mut game_timer : Double
   mut game_over : Bool
-  timer_box : @sprite.Text
-  game_over_box : @sprite.Text
+  timer_box : @entity.Entity
+  game_over_box : @entity.Entity
   mut game_over_displayed : Bool
   mut current_wave : Int
-  wave_box : @sprite.Text
+  wave_box : @entity.Entity
   mut exp : Int
-  exp_box : @sprite.Text
+  exp_box : @entity.Entity
   mut player_level : Int
-  level_box : @sprite.Text
+  level_box : @entity.Entity
   player_stats : PlayerStats
   level_up_panel : LevelUpPanel
   pending_level_ups : Array[Int] // Queue of pending level-ups
@@ -120,55 +120,39 @@ priv struct GameOverPanel {
 
 ///|
 fn create_level_up_panel_entity() -> @entity.Entity {
-  let panel = @ui.add_node(
-    @ui.screen_root,
-    node=@ui.Node::new(
-      size=@ui.NodeSize::Fixed(@math.Vec2D(160.0, 250.0)),
-      space=@ui.UiSpace::Virtual,
-      offset=@math.Vec2D(
-        VIEWPORT_WIDTH / 2.0 - 80.0,
-        VIEWPORT_HEIGHT / 2.0 - 120.0,
-      ),
-    ),
-  )
-  @sprite.sprites.set(
+  let panel = @entity.Entity::new()
+  @ui.nodes.set(
     panel,
-    @sprite.Sprite::from_color_rect(
-      @sprite.ColorRect::new(
-        @math.Vec2D(160.0, 250.0),
-        "rgba(13, 170, 26, 1)",
-        stroke_color="black",
-      ),
-      @ui.UI_ZINDEX + 1,
+    @ui.Node::absolute(
+      @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 80.0, VIEWPORT_HEIGHT / 2.0 - 120.0),
+      size=@math.Vec2D(160.0, 250.0),
     ),
   )
+  @ui.ui_zindexes.set(panel, @ui.UiZIndex::new(HUD_ZINDEX + 10))
+  @ui.background_colors.set(
+    panel,
+    @ui.BackgroundColor::from_css("rgba(13, 170, 26, 1)"),
+  )
+  @ui.border_colors.set(panel, @ui.BorderColor::from_css("black"))
   panel
 }
 
 ///|
 fn create_game_over_panel_entity() -> @entity.Entity {
-  let panel = @ui.add_node(
-    @ui.screen_root,
-    node=@ui.Node::new(
-      size=@ui.NodeSize::Fixed(@math.Vec2D(200.0, 120.0)),
-      space=@ui.UiSpace::Virtual,
-      offset=@math.Vec2D(
-        VIEWPORT_WIDTH / 2.0 - 100.0,
-        VIEWPORT_HEIGHT / 2.0 - 60.0,
-      ),
-    ),
-  )
-  @sprite.sprites.set(
+  let panel = @entity.Entity::new()
+  @ui.nodes.set(
     panel,
-    @sprite.Sprite::from_color_rect(
-      @sprite.ColorRect::new(
-        @math.Vec2D(200.0, 120.0),
-        "rgba(0, 0, 0, 0.8)",
-        stroke_color="white",
-      ),
-      @ui.UI_ZINDEX + 1,
+    @ui.Node::absolute(
+      @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 100.0, VIEWPORT_HEIGHT / 2.0 - 60.0),
+      size=@math.Vec2D(200.0, 120.0),
     ),
   )
+  @ui.ui_zindexes.set(panel, @ui.UiZIndex::new(HUD_ZINDEX + 10))
+  @ui.background_colors.set(
+    panel,
+    @ui.BackgroundColor::from_css("rgba(0, 0, 0, 0.8)"),
+  )
+  @ui.border_colors.set(panel, @ui.BorderColor::from_css("white"))
   panel
 }
 
@@ -178,35 +162,19 @@ let game_state : GameState = {
   player_direction: Down,
   rand: @random.Rand::new(),
   score: 0,
-  score_box: @sprite.Text::new(
-    "Score: 0",
-    color="white",
-    font="24px ThaleahFat",
-  ),
+  score_box: @entity.Entity::new(),
   invincible: false,
   game_timer: 600.0,
   game_over: false,
-  timer_box: @sprite.Text::new(
-    "Time: 10:00",
-    color="white",
-    font="24px ThaleahFat",
-  ),
-  game_over_box: @sprite.Text::new(
-    "Final Score: 0",
-    color="white",
-    font="24px ThaleahFat",
-  ),
+  timer_box: @entity.Entity::new(),
+  game_over_box: @entity.Entity::new(),
   game_over_displayed: false,
   current_wave: 1,
-  wave_box: @sprite.Text::new("Wave: 1", color="orange", font="24px ThaleahFat"),
+  wave_box: @entity.Entity::new(),
   exp: 0,
-  exp_box: @sprite.Text::new("EXP: 0/16", color="cyan", font="24px ThaleahFat"),
+  exp_box: @entity.Entity::new(),
   player_level: 1,
-  level_box: @sprite.Text::new(
-    "Level: 1",
-    color="yellow",
-    font="24px ThaleahFat",
-  ),
+  level_box: @entity.Entity::new(),
   player_stats: {
     attack: 0.0,
     range: 0.0, // Base range, weapons add to this
@@ -228,7 +196,7 @@ let game_state : GameState = {
 ///|
 fn set_score(score : Int) -> Unit {
   game_state.score = score
-  game_state.score_box.content = "Score: " + game_state.score.to_string()
+  set_ui_text(game_state.score_box, "Score: " + game_state.score.to_string())
 }
 
 ///|
@@ -262,8 +230,10 @@ fn add_exp(exp_gained : Int) -> Unit {
 
     // Update player level immediately
     game_state.player_level = new_level
-    game_state.level_box.content = "Level: " +
-      game_state.player_level.to_string()
+    set_ui_text(
+      game_state.level_box,
+      "Level: " + game_state.player_level.to_string(),
+    )
 
     // Process the first level-up in the queue
     process_next_level_up()
@@ -278,10 +248,10 @@ fn add_exp(exp_gained : Int) -> Unit {
   let next_level_xp = xp_required_for_level(game_state.player_level)
   let progress_xp = game_state.exp - current_level_xp
   let needed_xp = next_level_xp - current_level_xp
-  game_state.exp_box.content = "EXP: " +
-    progress_xp.to_string() +
-    "/" +
-    needed_xp.to_string()
+  set_ui_text(
+    game_state.exp_box,
+    "EXP: " + progress_xp.to_string() + "/" + needed_xp.to_string(),
+  )
 }
 
 ///|
@@ -463,6 +433,7 @@ fn game_start(_delta : Double) -> Unit {
       family="ThaleahFat",
     ),
   )
+  @ui.set_ui_scale_mode(@ui.UiScaleMode::Viewport)
   @camera.set_limits(top=0.0, bottom=MAP_HEIGHT, left=0.0, right=MAP_WIDTH)
   add_player()
   add_border(Vec2D(MAP_WIDTH, MAP_HEIGHT))
@@ -483,8 +454,10 @@ fn game_timer_system(delta : Double) -> Unit {
   if game_state.game_over {
     if not(game_state.game_over_displayed) {
       game_state.game_over_displayed = true
-      game_state.game_over_box.content = "Final Score: " +
-        game_state.score.to_string()
+      set_ui_text(
+        game_state.game_over_box,
+        "Final Score: " + game_state.score.to_string(),
+      )
       add_game_over_box()
     }
     return
@@ -508,7 +481,10 @@ fn game_timer_system(delta : Double) -> Unit {
   // Update wave if changed
   if new_wave != game_state.current_wave {
     game_state.current_wave = new_wave
-    game_state.wave_box.content = "Wave: " + game_state.current_wave.to_string()
+    set_ui_text(
+      game_state.wave_box,
+      "Wave: " + game_state.current_wave.to_string(),
+    )
     reset_wave_state() // Reset spawn counters for new wave
   }
 
@@ -521,10 +497,10 @@ fn game_timer_system(delta : Double) -> Unit {
   } else {
     seconds.to_string()
   }
-  game_state.timer_box.content = "Time: " +
-    minutes.to_string() +
-    ":" +
-    seconds_str
+  set_ui_text(
+    game_state.timer_box,
+    "Time: " + minutes.to_string() + ":" + seconds_str,
+  )
 }
 
 ///|
@@ -538,14 +514,21 @@ fn score_blink_system(delta : Double) -> Unit {
     let should_be_red = (elapsed / blink_interval).to_int() % 2 == 0
     if should_be_red != game_state.score_is_red {
       game_state.score_is_red = should_be_red
-      game_state.score_box.color = if should_be_red { "red" } else { "white" }
+      set_ui_text_color(
+        game_state.score_box,
+        if should_be_red {
+          "red"
+        } else {
+          "white"
+        },
+      )
     }
 
     // Reset to white when timer expires
     if game_state.score_blink_timer <= 0.0 {
       game_state.score_blink_timer = 0.0
       game_state.score_is_red = false
-      game_state.score_box.color = "white"
+      set_ui_text_color(game_state.score_box, "white")
     }
   }
 }
@@ -554,29 +537,28 @@ fn score_blink_system(delta : Double) -> Unit {
 fn trigger_damage_effect() -> Unit {
   game_state.score_blink_timer = 1.0
   game_state.score_is_red = true
-  game_state.score_box.color = "red"
+  set_ui_text_color(game_state.score_box, "red")
 }
 
 ///|
 fn restart_game() -> Unit {
-  // Destroy game over panel
-  game_state.game_over_panel.panel_entity.destroy()
+  hide_game_over_ui()
 
   // Reset game state
   game_state.game_over = false
   game_state.game_over_displayed = false
   game_state.game_timer = 600.0
   game_state.current_wave = 1
-  game_state.wave_box.content = "Wave: 1"
+  set_ui_text(game_state.wave_box, "Wave: 1")
   set_score(0)
   game_state.exp = 0
   game_state.player_level = 1
-  game_state.level_box.content = "Level: 1"
-  game_state.exp_box.content = "EXP: 0/16"
+  set_ui_text(game_state.level_box, "Level: 1")
+  set_ui_text(game_state.exp_box, "EXP: 0/16")
   game_state.invincible = false
   game_state.score_blink_timer = 0.0
   game_state.score_is_red = false
-  game_state.score_box.color = "white"
+  set_ui_text_color(game_state.score_box, "white")
   game_state.pending_level_ups.clear()
 
   // Reset player stats

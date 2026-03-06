@@ -90,6 +90,10 @@ pub let mouse_motion_event_bus : @event.Events[MouseMotionEvent]
 
 pub let mouse_movement : MouseMovement
 
+pub let mouse_wheel : MouseWheel
+
+pub let mouse_wheel_event_bus : @event.Events[MouseWheelEvent]
+
 pub let pressed_gamepad_buttons : @set.Set[GamepadButtonInput]
 
 pub let pressed_keys : @set.Set[Code]
@@ -128,6 +132,7 @@ pub(all) enum Code {
   ArrowDown
   ArrowLeft
   ArrowRight
+  Tab
   ShiftLeft
   Space
   Enter
@@ -229,6 +234,7 @@ pub(all) struct InputSnapshot {
   pressed_keys : @set.Set[Code]
   mouse : Mouse
   mouse_movement : MouseMovement
+  mouse_wheel : MouseWheel
   connected_gamepads : @set.Set[Gamepad]
   pressed_gamepad_buttons : @set.Set[GamepadButtonInput]
   gamepad_axis_values : Map[GamepadAxisInput, Double]
@@ -281,6 +287,14 @@ pub struct MouseMotionEvent {
 
 pub(all) struct MouseMovement {
   mut movement : @math.Vec2D
+}
+
+pub(all) struct MouseWheel {
+  mut delta : @math.Vec2D
+}
+
+pub struct MouseWheelEvent {
+  delta : @math.Vec2D
 }
 
 // Type aliases

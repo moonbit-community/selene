@@ -2,6 +2,7 @@
 package "Milky2018/selene/render2d"
 
 import {
+  "Milky2018/selene/math",
   "Milky2018/selene/render2d_types",
 }
 
@@ -10,25 +11,29 @@ pub fn begin_frame2d_system(Double) -> Unit
 
 pub fn get_frame2d() -> @render2d_types.RenderFrame2D
 
+pub fn pop_ui_clip() -> Unit
+
 pub fn push_circle(@render2d_types.CircleDrawCommand2D) -> Unit
 
 pub fn push_gradient_rect(@render2d_types.GradientRectDrawCommand2D) -> Unit
 
 pub fn push_image(@render2d_types.ImageDrawCommand2D) -> Unit
 
-pub fn push_overlay_circle(@render2d_types.CircleDrawCommand2D) -> Unit
-
-pub fn push_overlay_gradient_rect(@render2d_types.GradientRectDrawCommand2D) -> Unit
-
-pub fn push_overlay_image(@render2d_types.ImageDrawCommand2D) -> Unit
-
-pub fn push_overlay_rect(@render2d_types.RectDrawCommand2D) -> Unit
-
-pub fn push_overlay_text(@render2d_types.TextDrawCommand2D) -> Unit
-
 pub fn push_rect(@render2d_types.RectDrawCommand2D) -> Unit
 
 pub fn push_text(@render2d_types.TextDrawCommand2D) -> Unit
+
+pub fn push_ui_circle(@render2d_types.CircleDrawCommand2D) -> Unit
+
+pub fn push_ui_clip(@math.Rect) -> Unit
+
+pub fn push_ui_gradient_rect(@render2d_types.GradientRectDrawCommand2D) -> Unit
+
+pub fn push_ui_image(@render2d_types.ImageDrawCommand2D) -> Unit
+
+pub fn push_ui_rect(@render2d_types.RectDrawCommand2D) -> Unit
+
+pub fn push_ui_text(@render2d_types.TextDrawCommand2D) -> Unit
 
 // Errors
 

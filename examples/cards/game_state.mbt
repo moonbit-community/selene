@@ -62,16 +62,18 @@ priv struct GameState {
   starting_chips : Int // Track starting amount
   mut magnification : Int // Payout multiplier, starts at 1, increases with raises
   // UI elements
-  blind_text : @sprite.Text // Display current blind
-  chips_text : @sprite.Text
-  phase_text : @sprite.Text
-  call_button_text : @sprite.Text
-  turns_text : @sprite.Text
-  action_text : @sprite.Text // Last action feedback
-  hand_strength_text : @sprite.Text // Current hand strength
-  mut fold_button : @entity.Entity
-  mut call_button : @entity.Entity
-  mut raise_button : @entity.Entity
+  blind_label : @entity.Entity // Display current blind
+  chips_label : @entity.Entity
+  phase_label : @entity.Entity
+  fold_button_label : @entity.Entity
+  call_button_label : @entity.Entity
+  raise_button_label : @entity.Entity
+  turns_label : @entity.Entity
+  action_label : @entity.Entity // Last action feedback
+  hand_strength_label : @entity.Entity // Current hand strength
+  fold_button : @entity.Entity
+  call_button : @entity.Entity
+  raise_button : @entity.Entity
   mut waiting_for_player : Bool
   // Card entities for cleanup
   hole_card_entities : Array[@entity.Entity]
@@ -99,37 +101,15 @@ let game_state : GameState = {
   turns_remaining: 10,
   starting_chips: 1000,
   magnification: 1,
-  blind_text: @sprite.Text::new(
-    "Blind: $20",
-    color="gold",
-    font="20px ThaleahFat",
-  ),
-  chips_text: @sprite.Text::new(
-    "Chips: $1000",
-    color="lightgreen",
-    font="18px ThaleahFat",
-  ),
-  phase_text: @sprite.Text::new(
-    "Pre-Flop",
-    color="white",
-    font="18px ThaleahFat",
-  ),
-  call_button_text: @sprite.Text::new(
-    "Call",
-    color="white",
-    font="16px ThaleahFat",
-  ),
-  turns_text: @sprite.Text::new(
-    "Turns: 10/10",
-    color="white",
-    font="18px ThaleahFat",
-  ),
-  action_text: @sprite.Text::new("", color="yellow", font="16px ThaleahFat"),
-  hand_strength_text: @sprite.Text::new(
-    "",
-    color="cyan",
-    font="16px ThaleahFat",
-  ),
+  blind_label: @entity.Entity::new(),
+  chips_label: @entity.Entity::new(),
+  phase_label: @entity.Entity::new(),
+  fold_button_label: @entity.Entity::new(),
+  call_button_label: @entity.Entity::new(),
+  raise_button_label: @entity.Entity::new(),
+  turns_label: @entity.Entity::new(),
+  action_label: @entity.Entity::new(),
+  hand_strength_label: @entity.Entity::new(),
   fold_button: @entity.Entity::new(),
   call_button: @entity.Entity::new(),
   raise_button: @entity.Entity::new(),

@@ -15,7 +15,7 @@
 ///|
 fn should_prevent_default(code : @inputs.Code) -> Bool {
   match code {
-    ArrowUp | ArrowDown | ArrowLeft | ArrowRight | Space => true
+    ArrowUp | ArrowDown | ArrowLeft | ArrowRight | Tab | Space => true
     _ => false
   }
 }

@@ -31,6 +31,8 @@ fn submit_draw_command(command : @render2d_types.DrawCommand2D) -> Unit {
     Rect(rect) => @impl.draw_rect(rect)
     Circle(circle) => @impl.draw_circle(circle)
     GradientRect(gradient) => @impl.draw_gradient_rect(gradient)
+    PushClip(clip) => @impl.push_clip_rect(clip.rect)
+    PopClip => @impl.pop_clip_rect()
   }
 }
 
@@ -39,6 +41,7 @@ let reported_capabilities : @set.Set[String] = @set.Set::new()
 
 ///|
 pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
+  @impl.reset_clip_stack()
   for pair in frame.assets3d.mesh_upserts {
     @impl.sync_mesh_asset(pair.0, pair.1)
   }
@@ -77,14 +80,16 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
     @impl.release_image_asset(handle)
   }
 
+  @impl.render_3d_frame(frame.frame3d)
+  @impl.reset_clip_stack()
   for command in frame.frame2d.world_commands {
     submit_draw_command(command)
   }
-
-  @impl.render_3d_frame(frame.frame3d)
-  for command in frame.frame2d.overlay_commands {
+  @impl.reset_clip_stack()
+  for command in frame.frame2d.ui_commands {
     submit_draw_command(command)
   }
+  @impl.reset_clip_stack()
   if frame.frame3d.spot_lights.length() > 0 {
     capability_warning(
       "spot_light_shaping", "raylib backend approximates spot lights as point lights",
@@ -103,6 +108,21 @@ pub fn measure_text(
   text : String,
 ) -> @math.Vec2D {
   @impl.measure_text(resolve_text_style(style), text)
+}
+
+///|
+pub fn push_clip_rect(rect : @math.Rect) -> Unit {
+  @impl.push_clip_rect(rect)
+}
+
+///|
+pub fn pop_clip_rect() -> Unit {
+  @impl.pop_clip_rect()
+}
+
+///|
+pub fn reset_clip_stack() -> Unit {
+  @impl.reset_clip_stack()
 }
 
 ///|

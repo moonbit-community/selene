@@ -54,21 +54,28 @@ pub(all) struct GradientRectDrawCommand2D {
 }
 
 ///|
+pub(all) struct ClipRectCommand2D {
+  rect : @math.Rect
+}
+
+///|
 pub(all) enum DrawCommand2D {
   Image(ImageDrawCommand2D)
   Text(TextDrawCommand2D)
   Rect(RectDrawCommand2D)
   Circle(CircleDrawCommand2D)
   GradientRect(GradientRectDrawCommand2D)
+  PushClip(ClipRectCommand2D)
+  PopClip
 }
 
 ///|
 pub(all) struct RenderFrame2D {
   mut world_commands : Array[DrawCommand2D]
-  mut overlay_commands : Array[DrawCommand2D]
+  mut ui_commands : Array[DrawCommand2D]
 }
 
 ///|
 pub fn empty_render_frame2d() -> RenderFrame2D {
-  { world_commands: [], overlay_commands: [] }
+  { world_commands: [], ui_commands: [] }
 }

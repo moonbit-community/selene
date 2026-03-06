@@ -6,12 +6,9 @@ import {
   "Milky2018/selene/entity",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
-  "Milky2018/selene/ui",
 }
 
 // Values
-pub fn clear_overlay_space(@entity.Entity) -> Unit
-
 pub fn frames_from_atlas(String, Int, width~ : Double, height~ : Double, offset? : @math.Vec2D, space_x? : Double) -> Array[AnimationFrame]
 
 pub fn frames_from_image_atlas(@asset_types.ImageHandle, Int, width~ : Double, height~ : Double, offset? : @math.Vec2D, space_x? : Double) -> Array[AnimationFrame]
@@ -23,8 +20,6 @@ pub fn measure_text_size(Text) -> @math.Vec2D
 pub fn play_animation(@entity.Entity, Animation, from_start? : Bool, loop_? : Bool, rate? : Double, transform? : @math.Transform) -> Unit
 
 pub fn render_sprite_system(Double) -> Unit
-
-pub fn set_overlay_space(@entity.Entity, space? : @ui.UiSpace) -> Unit
 
 pub let sprites : Map[@entity.Entity, Sprite]
 

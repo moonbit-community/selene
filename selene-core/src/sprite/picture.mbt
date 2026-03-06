@@ -114,7 +114,6 @@ fn render_picture(
   picture : Picture,
   pos : @math.Vec2D,
   scale_with_zoom : Bool,
-  overlay? : Bool = false,
 ) -> Unit {
   let size = if scale_with_zoom {
     @system.scale_vec2(picture.size)
@@ -134,9 +133,5 @@ fn render_picture(
     transform,
     color: picture.color,
   }
-  if overlay {
-    @render2d.push_overlay_image(command)
-  } else {
-    @render2d.push_image(command)
-  }
+  @render2d.push_image(command)
 }

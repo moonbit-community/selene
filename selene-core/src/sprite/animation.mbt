@@ -398,7 +398,6 @@ fn render_animation(
   scale_with_zoom : Bool,
   visible : Bool,
   delta : Double,
-  overlay? : Bool = false,
 ) -> Double {
   let frame = animation.frames[current_frame.to_int()]
   if visible {
@@ -420,11 +419,7 @@ fn render_animation(
       transform,
       color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
     }
-    if overlay {
-      @render2d.push_overlay_image(command)
-    } else {
-      @render2d.push_image(command)
-    }
+    @render2d.push_image(command)
   }
   let mut new_frame = current_frame + animation.fps * delta
   if new_frame.to_int() >= animation.frames.length() {

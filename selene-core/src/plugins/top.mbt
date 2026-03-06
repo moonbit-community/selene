@@ -166,9 +166,6 @@ pub fn default_plugin(app : @system.App) -> Unit {
     in_set=transform,
     after=[transform],
   )
-  add_system(app, @style.style_system, PostUpdate, "Style System", in_set=ui, after=[
-    transform,
-  ])
   add_system(
     app,
     @ui.ui_layout_system,
@@ -187,9 +184,9 @@ pub fn default_plugin(app : @system.App) -> Unit {
   )
   add_system(
     app,
-    @ui.ui_button_system,
+    @ui.ui_interaction_system,
     PostUpdate,
-    "UI Button System",
+    "UI Interaction System",
     in_set=ui,
     after=[ui],
   )
@@ -210,9 +207,24 @@ pub fn default_plugin(app : @system.App) -> Unit {
   )
   add_system(
     app,
+    @ui.ui_extract_system,
+    RenderExtract,
+    "UI Extract",
+    in_set=render_extract,
+  )
+  add_system(
+    app,
     @sprite.render_sprite_system,
     RenderPrepare,
     "Render Sprite System",
+    in_set=render_prepare,
+    after=[render_extract],
+  )
+  add_system(
+    app,
+    @ui.ui_prepare_system,
+    RenderPrepare,
+    "UI Prepare",
     in_set=render_prepare,
     after=[render_extract],
   )
@@ -334,6 +346,13 @@ pub fn default_3d_plugin(app : @system.App) -> Unit {
   )
   add_system(
     app,
+    @ui.ui_extract_system,
+    RenderExtract,
+    "UI Extract",
+    in_set=render_extract,
+  )
+  add_system(
+    app,
     @camera3d.camera3d_extract_system,
     RenderExtract,
     "Camera3D Extract",
@@ -373,6 +392,14 @@ pub fn default_3d_plugin(app : @system.App) -> Unit {
     @sprite.render_sprite_system,
     RenderPrepare,
     "Render Sprite System",
+    in_set=render_prepare,
+    after=[render_extract],
+  )
+  add_system(
+    app,
+    @ui.ui_prepare_system,
+    RenderPrepare,
+    "UI Prepare",
     in_set=render_prepare,
     after=[render_extract],
   )

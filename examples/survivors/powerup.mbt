@@ -114,14 +114,3 @@ fn apply_powerup(powerup : Powerup) -> Unit {
     Bandana => game_state.player_stats.penetration += 1
   }
 }
-
-///|
-fn get_powerup_icon(powerup_type : PowerupType) -> @sprite.Animation {
-  match powerup_type {
-    AttackLv1 | AttackLv2 | AttackLv3 => powerup_attack_icon
-    RangeLv1 | RangeLv2 => powerup_range_icon
-    SpeedLv1 | SpeedLv2 => powerup_speed_icon
-    CooldownLv1 | CooldownLv2 => powerup_cooldown_icon
-    Bandana => powerup_bandana_icon
-  }
-}

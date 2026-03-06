@@ -16,6 +16,7 @@
 pub fn register_mouse_events(
   mouse : @inputs.Mouse,
   mouse_movement : @inputs.MouseMovement,
+  mouse_wheel : @inputs.MouseWheel,
 ) -> Unit {
   canvas_backend.mouse_movement.val = Some(mouse_movement)
   window.add_event_listener("mousemove", event => {
@@ -46,6 +47,13 @@ pub fn register_mouse_events(
       2 => mouse.right_button = false
       _ => ()
     }
+  })
+  window.add_event_listener("wheel", event => {
+    let wheel_event = event.to_wheel_event().unwrap()
+    mouse_wheel.delta = @smath.Vec2D(
+      wheel_event.get_delta_x(),
+      wheel_event.get_delta_y(),
+    )
   })
 }
 

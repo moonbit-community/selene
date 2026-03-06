@@ -73,14 +73,10 @@ pub fn A11y::on_click(self : A11y, callback : () -> Unit) -> Unit {
 }
 
 ///|
-/// Explicit accessibility semantics attached to entities.
 pub let a11ys : Map[@entity.Entity, A11y] = Map::new()
 
 ///|
 let a11y_tree_id : @moon_accesskit.TreeId = @moon_accesskit.TreeId::root()
-
-///|
-let focused_entity : Ref[@entity.Entity?] = { val: None }
 
 ///|
 let latest_tree_update_ref : Ref[@moon_accesskit.TreeUpdate?] = { val: None }
@@ -109,17 +105,17 @@ pub fn attach(entity : @entity.Entity, a11y : A11y) -> Unit {
 
 ///|
 pub fn get_focused_entity() -> @entity.Entity? {
-  focused_entity.val
+  @ui.focused_entity()
 }
 
 ///|
 pub fn focus(entity : @entity.Entity) -> Unit {
-  set_focus(Some(entity), true)
+  @ui.focus(entity)
 }
 
 ///|
 pub fn blur() -> Unit {
-  set_focus(None, true)
+  @ui.blur()
 }
 
 ///|
@@ -145,9 +141,6 @@ pub fn latest_tree_update_json() -> Json? {
 pub fn a11y_sync_system(_delta : Double) -> Unit {
   let ordered = collect_ordered_semantic_entities()
   let (roots, child_map) = build_hierarchy(ordered)
-  let focusables = collect_focusables(ordered)
-  sanitize_focus(focusables)
-  handle_keyboard_navigation(focusables)
   let update = build_tree_update(ordered, roots, child_map)
   latest_tree_update_ref.val = Some(update)
   process_action_requests()
@@ -168,9 +161,12 @@ fn to_accesskit_role(role : A11yRole) -> @moon_accesskit.Role {
 
 ///|
 fn auto_a11y(entity : @entity.Entity) -> A11y? {
-  guard @ui.uis.get(entity) is Some(_)
-  if @collision.pickables.contains(entity) {
-    Some(A11y::new(role=Button, focusable=true))
+  if @ui.buttons.get(entity) is Some(button) {
+    Some(A11y::new(role=Button, focusable=true, disabled=!button.enabled))
+  } else if @ui.texts.get(entity) is Some(_) {
+    Some(A11y::new(role=Label))
+  } else if @ui.ui_images.get(entity) is Some(_) {
+    Some(A11y::new(role=Image))
   } else {
     None
   }
@@ -190,21 +186,29 @@ fn get_a11y(entity : @entity.Entity) -> A11y? {
 }
 
 ///|
-fn collect_ordered_semantic_entities() -> Array[@entity.Entity] {
-  let ordered = []
-  let seen : Map[@entity.Entity, Bool] = Map::new()
-  collect_semantic_descendants(@style.screen_root, ordered, seen)
-  collect_semantic_descendants(@style.screen_pixel_root, ordered, seen)
-  for entity, _ in a11ys {
-    guard entity.is_alive() else { continue }
-    guard @ui.uis.get(entity) is Some(_)
-    guard get_a11y(entity) is Some(_)
-    if !seen.contains(entity) {
-      seen.set(entity, true)
-      ordered.push(entity)
+fn ui_children(entity : @entity.Entity) -> Array[@entity.Entity] {
+  let children : Array[@entity.Entity] = []
+  for child in entity.get_children() {
+    if child.is_alive() && @ui.nodes.contains(child) {
+      children.push(child)
     }
   }
-  ordered
+  children.sort_by(fn(lhs, rhs) {
+    let lz = @ui.ui_zindexes
+      .get(lhs)
+      .map(fn(value) { value.value })
+      .unwrap_or(0)
+    let rz = @ui.ui_zindexes
+      .get(rhs)
+      .map(fn(value) { value.value })
+      .unwrap_or(0)
+    if lz != rz {
+      lz - rz
+    } else {
+      lhs.to_string().compare(rhs.to_string())
+    }
+  })
+  children
 }
 
 ///|
@@ -213,15 +217,36 @@ fn collect_semantic_descendants(
   ordered : Array[@entity.Entity],
   seen : Map[@entity.Entity, Bool],
 ) -> Unit {
-  for child in root.get_children() {
-    if child.is_alive() {
-      if get_a11y(child) is Some(_) && !seen.contains(child) {
-        seen.set(child, true)
-        ordered.push(child)
-      }
-      collect_semantic_descendants(child, ordered, seen)
+  if get_a11y(root) is Some(_) && !seen.contains(root) {
+    seen.set(root, true)
+    ordered.push(root)
+  }
+  for child in ui_children(root) {
+    collect_semantic_descendants(child, ordered, seen)
+  }
+}
+
+///|
+fn collect_ordered_semantic_entities() -> Array[@entity.Entity] {
+  let ordered : Array[@entity.Entity] = []
+  let seen : Map[@entity.Entity, Bool] = Map::new()
+  for entity, _node in @ui.nodes {
+    guard entity.is_alive() else { continue }
+    match entity.get_parent() {
+      Some(parent) => if @ui.nodes.contains(parent) { continue }
+      None => ()
+    }
+    collect_semantic_descendants(entity, ordered, seen)
+  }
+  for entity, _ in a11ys {
+    guard entity.is_alive() else { continue }
+    guard get_a11y(entity) is Some(_) else { continue }
+    if !seen.contains(entity) {
+      seen.set(entity, true)
+      ordered.push(entity)
     }
   }
+  ordered
 }
 
 ///|
@@ -240,7 +265,7 @@ fn find_semantic_parent(entity : @entity.Entity) -> @entity.Entity? {
 fn build_hierarchy(
   ordered : Array[@entity.Entity],
 ) -> (Array[@entity.Entity], Map[@entity.Entity, Array[@entity.Entity]]) {
-  let roots = []
+  let roots : Array[@entity.Entity] = []
   let children : Map[@entity.Entity, Array[@entity.Entity]] = Map::new()
   for entity in ordered {
     if find_semantic_parent(entity) is Some(parent) {
@@ -253,147 +278,14 @@ fn build_hierarchy(
 }
 
 ///|
-fn collect_focusables(ordered : Array[@entity.Entity]) -> Array[@entity.Entity] {
-  let focusables = []
-  for entity in ordered {
-    guard get_a11y(entity) is Some(a11y)
-    if a11y.focusable && !a11y.disabled {
-      focusables.push(entity)
-    }
-  }
-  focusables
-}
-
-///|
-fn sanitize_focus(focusables : Array[@entity.Entity]) -> Unit {
-  if focused_entity.val is Some(current) {
-    if !focusables.contains(current) {
-      focused_entity.val = None
-    }
-  }
-}
-
-///|
-fn set_focus(new_focus : @entity.Entity?, emit_callbacks : Bool) -> Unit {
-  let old_focus = focused_entity.val
-  if old_focus is Some(old) && new_focus is Some(newf) && old == newf {
-    return
-  }
-  focused_entity.val = new_focus
-  if emit_callbacks {
-    if old_focus is Some(old) {
-      invoke_action_callbacks(old, @moon_accesskit.Action::Blur, None)
-    }
-    if new_focus is Some(newf) {
-      invoke_action_callbacks(newf, @moon_accesskit.Action::Focus, None)
-    }
-  }
-}
-
-///|
-fn move_focus(focusables : Array[@entity.Entity], step : Int) -> Unit {
-  if focusables.is_empty() {
-    set_focus(None, true)
-    return
-  }
-  if focused_entity.val is None {
-    if step >= 0 {
-      set_focus(Some(focusables[0]), true)
-    } else {
-      set_focus(Some(focusables[focusables.length() - 1]), true)
-    }
-    return
-  }
-  let current = focused_entity.val.unwrap()
-  let mut index = -1
-  for i in 0..<focusables.length() {
-    if focusables[i] == current {
-      index = i
-      break
-    }
-  }
-  if index < 0 {
-    if step >= 0 {
-      set_focus(Some(focusables[0]), true)
-    } else {
-      set_focus(Some(focusables[focusables.length() - 1]), true)
-    }
-    return
-  }
-  let mut next_index = index + step
-  if next_index < 0 {
-    next_index = focusables.length() - 1
-  }
-  if next_index >= focusables.length() {
-    next_index = 0
-  }
-  set_focus(Some(focusables[next_index]), true)
-}
-
-///|
-fn handle_keyboard_navigation(focusables : Array[@entity.Entity]) -> Unit {
-  if @inputs.is_just_pressed(@inputs.ArrowRight) ||
-    @inputs.is_just_pressed(@inputs.ArrowDown) {
-    move_focus(focusables, 1)
-  }
-  if @inputs.is_just_pressed(@inputs.ArrowLeft) ||
-    @inputs.is_just_pressed(@inputs.ArrowUp) {
-    move_focus(focusables, -1)
-  }
-  if (
-      @inputs.is_just_pressed(@inputs.Enter) ||
-      @inputs.is_just_pressed(@inputs.Space)
-    ) &&
-    focused_entity.val is Some(focused) {
-    dispatch_action(focused, @moon_accesskit.Action::Click, None)
-  }
-}
-
-///|
-fn resolve_size(entity : @entity.Entity) -> @math.Vec2D? {
-  if @style.layout_sizes.get(entity) is Some(size) {
-    return Some(size)
-  }
-  if @collision.shapes.get(entity) is Some(shape) {
-    match shape {
-      Rect(size~, ..) => return Some(size)
-    }
-  }
-  if @sprite.sprites.get(entity) is Some(sprite) {
-    match sprite.sprite_type {
-      Picture(picture) => Some(picture.transform.apply_to_vec2d(picture.size))
-      Animation(animation, ..) =>
-        if animation.frames.length() > 0 {
-          Some(animation.transform.apply_to_vec2d(animation.frames[0].size))
-        } else {
-          None
-        }
-      Text(_text) => Some(@math.Vec2D(48.0, 24.0))
-      ColorRect(rect) => Some(rect.size)
-      ColorCircle(circle) =>
-        Some(@math.Vec2D(circle.radius * 2.0, circle.radius * 2.0))
-    }
-  } else {
-    None
-  }
-}
-
-///|
 fn resolve_bounds(entity : @entity.Entity) -> @moon_accesskit.Rect? {
-  guard @ui.uis.get(entity) is Some(ui)
-  guard @position.positions.get(entity) is Some(position)
-  guard resolve_size(entity) is Some(size)
-  let (screen_pos, screen_size) = match ui.space {
-    Virtual =>
-      (@system.ui_virtual_to_screen(position.0), @system.scale_vec2(size))
-    Screen => (position.0, size)
-  }
+  guard @ui.global_ui_nodes.get(entity) is Some(node) else { return None }
   Some(
     @moon_accesskit.Rect::new(
-      screen_pos[X],
-      screen_pos[Y],
-      screen_pos[X] + screen_size[X],
-      screen_pos[Y] + screen_size[Y],
+      node.screen_rect.position[X],
+      node.screen_rect.position[Y],
+      node.screen_rect.position[X] + node.screen_rect.size[X],
+      node.screen_rect.position[Y] + node.screen_rect.size[Y],
     ),
   )
 }
@@ -403,11 +295,8 @@ fn effective_label(entity : @entity.Entity, a11y : A11y) -> String? {
   if a11y.label is Some(label) {
     return Some(label)
   }
-  if @sprite.sprites.get(entity) is Some(sprite) {
-    match sprite.sprite_type {
-      Text(text) => if text.content != "" { Some(text.content) } else { None }
-      _ => None
-    }
+  if @ui.texts.get(entity) is Some(text) && text.content != "" {
+    Some(text.content)
   } else {
     None
   }
@@ -415,7 +304,7 @@ fn effective_label(entity : @entity.Entity, a11y : A11y) -> String? {
 
 ///|
 fn is_clickable(entity : @entity.Entity, a11y : A11y) -> Bool {
-  @collision.pickables.contains(entity) || a11y.action_callbacks.length() > 0
+  @ui.buttons.contains(entity) || a11y.action_callbacks.length() > 0
 }
 
 ///|
@@ -432,7 +321,7 @@ fn get_or_create_node_id(entity : @entity.Entity) -> @moon_accesskit.NodeId {
 
 ///|
 fn focused_node_id() -> @moon_accesskit.NodeId {
-  if focused_entity.val is Some(entity) && get_a11y(entity) is Some(_) {
+  if get_focused_entity() is Some(entity) && get_a11y(entity) is Some(_) {
     get_or_create_node_id(entity)
   } else {
     @moon_accesskit.NodeId::root()
@@ -449,7 +338,7 @@ fn build_tree_update(
   let update = @moon_accesskit.TreeUpdate::new(a11y_tree_id, focused_node_id())
   let root = @moon_accesskit.Node::new(@moon_accesskit.Role::Window)
   root.set_label("Selene")
-  let root_children = []
+  let root_children : Array[@moon_accesskit.NodeId] = []
   for entity in roots {
     let id = get_or_create_node_id(entity)
     root_children.push(id)
@@ -459,7 +348,7 @@ fn build_tree_update(
   update.push_node(@moon_accesskit.NodeId::root(), root)
 
   for entity in ordered {
-    guard get_a11y(entity) is Some(a11y)
+    guard get_a11y(entity) is Some(a11y) else { continue }
     let id = get_or_create_node_id(entity)
     current_node_entities.set(id, entity)
     let node = @moon_accesskit.Node::new(to_accesskit_role(a11y.role))
@@ -484,7 +373,7 @@ fn build_tree_update(
     if is_clickable(entity, a11y) && !a11y.disabled {
       node.add_action(@moon_accesskit.Action::Click)
     }
-    let child_ids = []
+    let child_ids : Array[@moon_accesskit.NodeId] = []
     for child in child_map.get(entity).unwrap_or_default() {
       child_ids.push(get_or_create_node_id(child))
     }
@@ -513,18 +402,15 @@ fn dispatch_action(
   action : @moon_accesskit.Action,
   data : @moon_accesskit.ActionData?,
 ) -> Unit {
-  guard get_a11y(entity) is Some(a11y)
+  guard get_a11y(entity) is Some(a11y) else { return }
   if a11y.disabled {
     return
   }
   match action {
-    Focus => set_focus(Some(entity), true)
-    Blur =>
-      if focused_entity.val is Some(current) && current == entity {
-        set_focus(None, true)
-      }
+    Focus => @ui.focus(entity)
+    Blur => @ui.blur()
     Click => {
-      @collision.emit_pickable_just_pressed(entity)
+      @ui.click_event_bus.send({ entity, button: @inputs.MouseButton::Left })
       invoke_action_callbacks(entity, action, data)
     }
     _ => invoke_action_callbacks(entity, action, data)
@@ -535,7 +421,9 @@ fn dispatch_action(
 fn process_action_requests() -> Unit {
   for request in pending_action_requests {
     guard request.target_tree() == a11y_tree_id else { continue }
-    guard current_node_entities.get(request.target_node()) is Some(entity)
+    guard current_node_entities.get(request.target_node()) is Some(entity) else {
+      continue
+    }
     dispatch_action(entity, request.action(), request.data())
   }
   pending_action_requests.clear()

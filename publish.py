@@ -48,6 +48,8 @@ RELEASE_MODULES = [
 ]
 
 PUBLISH_ORDER = ["selene-core", "selene-webgpu", "selene-raylib", "selene-tools"]
+LEGACY_UI_CHECK_REL_PATH = Path("scripts/check_no_legacy_ui.sh")
+LEGACY_UI_CHECK_PATH = ROOT_DIR / LEGACY_UI_CHECK_REL_PATH
 
 
 def changelog_has_version(version: str, changelog_text: str) -> bool:
@@ -126,6 +128,12 @@ def module_by_name(name: str) -> ModuleConfig:
         if module.name == name:
             return module
     raise ValueError(f"Unknown module: {name}")
+
+
+def ensure_no_legacy_ui_references():
+    if not LEGACY_UI_CHECK_PATH.exists():
+        raise RuntimeError(f"Missing legacy UI check script: {LEGACY_UI_CHECK_REL_PATH}")
+    run_cmd(["bash", str(LEGACY_UI_CHECK_PATH)], ROOT_DIR, fail_on_warning=True)
 
 def get_game_folders() -> list[str]:
     """Automatically detect game folders from examples/<game>/web."""
@@ -369,6 +377,7 @@ def publish_pages(argv: list[str]):
         print("=" * 60)
         print("Publishing Selene Game Engine to page/")
         print("=" * 60)
+        ensure_no_legacy_ui_references()
 
     # Step 1: Detect games
     games = get_game_folders()
@@ -497,22 +506,25 @@ def run_release_pipeline(version: str):
     snapshots = snapshot_module_deps()
     pipeline_error = None
     try:
-        print("[1/4] Running fmt/info/check on all modules...")
+        print("[0/5] Checking for legacy UI references...")
+        ensure_no_legacy_ui_references()
+
+        print("\n[1/5] Running fmt/info/check on all modules...")
         for module in RELEASE_MODULES:
             print(f"\n==> Quality checks: {module.name}")
             run_module_quality_checks(module)
 
-        print("\n[2/4] Rewriting module versions and internal deps...")
+        print("\n[2/5] Rewriting module versions and internal deps...")
         for module in RELEASE_MODULES:
             rewrite_module_for_release(module, version)
             print(f"✓ Updated {module.name}/moon.mod.json")
 
-        print("\n[3/4] Running moon update after manifest rewrites...")
+        print("\n[3/5] Running moon update after manifest rewrites...")
         for module in RELEASE_MODULES:
             print(f"==> moon update: {module.name}")
             run_cmd(["moon", "update"], module.path, fail_on_warning=True)
 
-        print("\n[4/4] Publishing modules in order...")
+        print("\n[4/5] Publishing modules in order...")
         for idx, module_name in enumerate(PUBLISH_ORDER):
             module = module_by_name(module_name)
             print(f"==> moon publish: {module.name}")

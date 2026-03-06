@@ -55,22 +55,6 @@ pub(all) struct Sprite {
 pub let sprites : Map[@entity.Entity, Sprite] = Map::new()
 
 ///|
-let forced_overlay_spaces : Map[@entity.Entity, @ui.UiSpace] = Map::new()
-
-///|
-pub fn set_overlay_space(
-  entity : @entity.Entity,
-  space? : @ui.UiSpace = Virtual,
-) -> Unit {
-  forced_overlay_spaces.set(entity, space)
-}
-
-///|
-pub fn clear_overlay_space(entity : @entity.Entity) -> Unit {
-  forced_overlay_spaces.remove(entity)
-}
-
-///|
 pub enum SpriteType {
   Picture(Picture)
   Animation(Animation, mut frame~ : Double)
@@ -230,11 +214,6 @@ pub fn Sprite::from_color_circle(
 /// Panics if an entity has a sprite but no position component.
 ///
 pub fn render_sprite_system(delta : Double) -> Unit {
-  for pair in forced_overlay_spaces.to_array() {
-    if !pair.0.is_alive() {
-      forced_overlay_spaces.remove(pair.0)
-    }
-  }
   let sprites = sprites
     .to_array()
     .filter(fn(pair) { pair.0.is_alive() && @visibility.is_visible(pair.0) })
@@ -259,60 +238,31 @@ pub fn render_sprite_system(delta : Double) -> Unit {
   for sprite in sprites {
     let e = sprite.0
     let sprite = sprite.1
-    let is_ui = @ui.uis.get(e) is Some(_)
-    guard @transform.positions.get(e) is Some(pos) else { continue }
-    let base_pos = if is_ui {
-      pos.0
-    } else {
-      @transform.sample_position(e, @system.get_render_alpha())
-    }
-    let raw_pos = base_pos + sprite.offset
-    let (screen_pos, scale_with_zoom, overlay) = resolve_sprite_projection(
-      e, raw_pos, camera_pos,
-    )
+    guard @transform.positions.contains(e) else { continue }
+    let raw_pos = @transform.sample_position(e, @system.get_render_alpha()) +
+      sprite.offset
+    let screen_pos = @system.world_to_screen(raw_pos, camera_pos)
     match sprite.sprite_type {
       SpriteType::Picture(picture) if sprite.visible =>
-        render_picture(picture, screen_pos, scale_with_zoom, overlay~)
+        render_picture(picture, screen_pos, true)
       SpriteType::Animation(anime, frame~) as animation_sprite => {
         let new_frame = render_animation(
           anime,
           frame,
           screen_pos,
-          scale_with_zoom,
+          true,
           sprite.visible,
           delta,
-          overlay~,
         )
         animation_sprite.frame = new_frame
       }
       SpriteType::Text(text) if sprite.visible =>
-        render_text(text, screen_pos, scale_with_zoom, overlay~)
+        render_text(text, screen_pos, true)
       SpriteType::ColorRect(color_rect) if sprite.visible =>
-        render_color_rect(color_rect, screen_pos, scale_with_zoom, overlay~)
+        render_color_rect(color_rect, screen_pos, true)
       SpriteType::ColorCircle(color_circle) if sprite.visible =>
-        render_color_circle(color_circle, screen_pos, scale_with_zoom, overlay~)
+        render_color_circle(color_circle, screen_pos, true)
       _ => ()
     }
-  }
-}
-
-///|
-fn resolve_sprite_projection(
-  entity : @entity.Entity,
-  raw_pos : @math.Vec2D,
-  camera_pos : @math.Vec2D,
-) -> (@math.Vec2D, Bool, Bool) {
-  if @ui.uis.get(entity) is Some(ui) {
-    match ui.space {
-      Virtual => (@system.ui_virtual_to_screen(raw_pos), true, true)
-      Screen => (raw_pos, false, true)
-    }
-  } else if forced_overlay_spaces.get(entity) is Some(space) {
-    match space {
-      Virtual => (@system.ui_virtual_to_screen(raw_pos), true, true)
-      Screen => (raw_pos, false, true)
-    }
-  } else {
-    (@system.world_to_screen(raw_pos, camera_pos), true, false)
   }
 }

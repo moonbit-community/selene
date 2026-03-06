@@ -98,6 +98,21 @@ pub fn end_frame() -> Unit {
 }
 
 ///|
+pub fn push_clip_rect(_rect : @smath.Rect) -> Unit {
+  ()
+}
+
+///|
+pub fn pop_clip_rect() -> Unit {
+  ()
+}
+
+///|
+pub fn reset_clip_stack() -> Unit {
+  ()
+}
+
+///|
 pub fn draw_image(
   command : @render2d_types.ImageDrawCommand2D,
   image_path : String,

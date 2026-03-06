@@ -17,9 +17,10 @@ priv struct GameState {
   player : @entity.Entity
   mut direction : Direction2
   mut score : Int
-  result_box : @sprite.Text
-  score_box : @sprite.Text
-  health_box : @sprite.Text
+  result_box : @entity.Entity
+  score_box : @entity.Entity
+  health_box : @entity.Entity
+  volume_button : @entity.Entity
   mut volume_on : Bool
   mut health : Int
   mut hurt_timer : Double
@@ -35,13 +36,10 @@ enum Direction2 {
 let game_state : GameState = {
   player: @entity.Entity::new(),
   score: 0,
-  result_box: @sprite.Text::new("", font="24px ThaleahFat"),
-  score_box: @sprite.Text::new(
-    "Score: 0",
-    font="20px ThaleahFat",
-    color="white",
-  ),
-  health_box: @sprite.Text::new("HP: 3", font="20px ThaleahFat", color="red"),
+  result_box: @entity.Entity::new(),
+  score_box: @entity.Entity::new(),
+  health_box: @entity.Entity::new(),
+  volume_button: @entity.Entity::new(),
   direction: Direction2::Right,
   volume_on: true,
   health: 3,
@@ -94,12 +92,12 @@ priv enum GameResult {
 fn set_game_result(result : GameResult) -> Unit {
   match result {
     GameResult::Win => {
-      game_state.result_box.content = "You Win!"
-      game_state.result_box.color = "green"
+      set_ui_text(game_state.result_box, "You Win!")
+      set_ui_text_color(game_state.result_box, "green")
     }
     GameResult::GameOver => {
-      game_state.result_box.content = "Game Over!"
-      game_state.result_box.color = "red"
+      set_ui_text(game_state.result_box, "Game Over!")
+      set_ui_text_color(game_state.result_box, "red")
     }
   }
 }
@@ -131,10 +129,10 @@ fn hurt_player() -> Unit {
 ///|
 fn set_score(score : Int) -> Unit {
   game_state.score = score
-  game_state.score_box.content = "Score: " + game_state.score.to_string()
+  set_ui_text(game_state.score_box, "Score: " + game_state.score.to_string())
 }
 
 ///|
 fn update_health_display() -> Unit {
-  game_state.health_box.content = "HP: " + game_state.health.to_string()
+  set_ui_text(game_state.health_box, "HP: " + game_state.health.to_string())
 }

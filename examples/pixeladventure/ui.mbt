@@ -13,78 +13,115 @@
 // limitations under the License.
 
 ///|
-let volume_button_ref : Ref[@entity.Entity?] = { val: None }
+const HUD_ZINDEX : Int = 100
 
 ///|
-let ui_interaction_reader : @event.EventReader[@ui.InteractionEvent] = @event.EventReader::new()
+const BUTTON_ZINDEX : Int = 110
+
+///|
+let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = @event.EventReader::new()
+
+///|
+fn set_ui_text(entity : @entity.Entity, content : String) -> Unit {
+  let text = @ui.texts.get_or_init(entity, fn() { @ui.Text::new(content) })
+  text.content = content
+}
+
+///|
+fn set_ui_text_color(entity : @entity.Entity, color : String) -> Unit {
+  @ui.text_colors.set(entity, @ui.TextColor::from_css(color))
+}
+
+///|
+fn configure_text_box(
+  entity : @entity.Entity,
+  offset : @math.Vec2D,
+  content : String,
+  color : String,
+  font : String,
+  size? : @math.Vec2D = @math.Vec2D(-1.0, -1.0),
+  align? : @math.HAlign = @math.HAlign::Left,
+  baseline? : @math.VAlign = @math.VAlign::Top,
+) -> Unit {
+  @ui.nodes.set(entity, @ui.Node::absolute(offset, size~))
+  @ui.ui_zindexes.set(entity, @ui.UiZIndex::new(HUD_ZINDEX))
+  set_ui_text(entity, content)
+  @ui.text_fonts.set(entity, @ui.TextFont::from_css(font))
+  set_ui_text_color(entity, color)
+  @ui.text_layouts.set(entity, @ui.TextLayout::new(align~, baseline~))
+}
 
 ///|
 fn add_result_box() -> Unit {
-  let box = @entity.Entity::new()
-  @transform.positions.set(
-    box,
-    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 48, VIEWPORT_HEIGHT / 2.0 - 32),
+  configure_text_box(
+    game_state.result_box,
+    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 96.0, VIEWPORT_HEIGHT / 2.0 - 32.0),
+    "",
+    "white",
+    "24px ThaleahFat",
+    size=@math.Vec2D(192.0, 32.0),
+    align=@math.HAlign::Center,
+    baseline=@math.VAlign::Center,
   )
-  let text = @sprite.Sprite::from_text(game_state.result_box, @ui.UI_ZINDEX)
-  @ui.uis.set(box, @ui.Ui::new(space=@ui.UiSpace::Virtual))
-  @sprite.sprites.set(box, text)
 }
 
 ///|
 fn add_score_box() -> Unit {
-  let box = @entity.Entity::new()
-  @transform.positions.set(box, @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 24, 16))
-  let text = @sprite.Sprite::from_text(game_state.score_box, @ui.UI_ZINDEX)
-  @sprite.sprites.set(box, text)
-  @ui.uis.set(box, @ui.Ui::new(space=@ui.UiSpace::Virtual))
+  configure_text_box(
+    game_state.score_box,
+    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 60.0, 16.0),
+    "Score: 0",
+    "white",
+    "20px ThaleahFat",
+    size=@math.Vec2D(120.0, 24.0),
+    align=@math.HAlign::Center,
+  )
 }
 
 ///|
 fn add_health_box() -> Unit {
-  let box = @entity.Entity::new()
-  @transform.positions.set(box, @math.Vec2D(20, 16))
-  let text = @sprite.Sprite::from_text(game_state.health_box, @ui.UI_ZINDEX)
-  @sprite.sprites.set(box, text)
-  @ui.uis.set(box, @ui.Ui::new(space=@ui.UiSpace::Virtual))
+  configure_text_box(
+    game_state.health_box,
+    @math.Vec2D(20.0, 16.0),
+    "HP: 3",
+    "red",
+    "20px ThaleahFat",
+  )
 }
 
 ///|
-fn volume_sprite(volume_on : Bool) -> @sprite.Sprite {
+fn volume_image(volume_on : Bool) -> @ui.UiImage {
   let path = if volume_on {
     "assets/pixeladventure/Menu/Buttons/Volume.png"
   } else {
     "assets/pixeladventure/Menu/Buttons/VolumeOff.png"
   }
-  @sprite.Sprite::from_picture(
-    @sprite.Picture::new(@math.Vec2D(21, 22), path),
-    100,
-  )
+  @ui.UiImage::new(@math.Vec2D(21.0, 22.0), path, fit=@ui.ImageFit::Contain)
 }
 
 ///|
 fn add_volume_button() -> Unit {
-  let button = @ui.add_button(
-    @ui.virtual_root,
-    node=@ui.Node::new(
-      size=@ui.NodeSize::Fixed(@math.Vec2D(21.0, 22.0)),
-      layout=@ui.LayoutDirection::Overlay,
-      space=@ui.UiSpace::Virtual,
-      offset=@math.Vec2D(VIEWPORT_WIDTH - 40, 18),
+  let button = game_state.volume_button
+  @ui.nodes.set(
+    button,
+    @ui.Node::absolute(
+      @math.Vec2D(VIEWPORT_WIDTH - 40.0, 18.0),
+      size=@math.Vec2D(21.0, 22.0),
     ),
-    button=@ui.Button::new(trigger=@inputs.MouseButton::Left),
   )
-  @sprite.sprites.set(button, volume_sprite(game_state.volume_on))
-  volume_button_ref.val = Some(button)
+  @ui.ui_zindexes.set(button, @ui.UiZIndex::new(BUTTON_ZINDEX))
+  @ui.buttons.set(button, @ui.Button::new())
+  @ui.ui_images.set(button, volume_image(game_state.volume_on))
 }
 
 ///|
 fn volume_button_input_system(_delta : Double) -> Unit {
-  guard volume_button_ref.val is Some(button) else { return }
-  for event in @ui.interaction_event_bus.read(ui_interaction_reader) {
-    guard event.entity == button else { continue }
-    guard event.previous is @ui.Interaction::Pressed else { continue }
-    guard event.current is @ui.Interaction::Hovered else { continue }
+  for event in @ui.click_event_bus.read(ui_click_reader) {
+    guard event.entity == game_state.volume_button else { continue }
     game_state.volume_on = !game_state.volume_on
-    @sprite.sprites.set(button, volume_sprite(game_state.volume_on))
+    @ui.ui_images.set(
+      game_state.volume_button,
+      volume_image(game_state.volume_on),
+    )
   }
 }

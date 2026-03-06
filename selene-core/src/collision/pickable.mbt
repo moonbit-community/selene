@@ -86,20 +86,20 @@ fn hit_test_pickable(
   entity : @entity.Entity,
   mouse_screen : @math.Vec2D,
   mouse_world : @math.Vec2D,
-  mouse_virtual : @math.Vec2D,
+  _mouse_virtual : @math.Vec2D,
 ) -> Bool {
+  if @ui.global_ui_nodes.get(entity) is Some(transform) {
+    return point_in_rect(
+      mouse_screen,
+      transform.screen_rect.position,
+      transform.screen_rect.size,
+    )
+  }
   guard @position.positions.get(entity) is Some(position) else { return false }
   guard shapes.get(entity) is Some(shape) else { return false }
   guard shape is Rect(size~, offset~) else { return false }
   let shape_position = position.0 + offset
-  let point = if @ui.uis.get(entity) is Some(ui) {
-    match ui.space {
-      Virtual => mouse_virtual
-      Screen => mouse_screen
-    }
-  } else {
-    mouse_world
-  }
+  let point = mouse_world
   point_in_rect(point, shape_position, size)
 }
 

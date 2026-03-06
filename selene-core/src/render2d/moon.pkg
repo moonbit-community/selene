@@ -1,3 +1,4 @@
 import {
+  "Milky2018/selene/math",
   "Milky2018/selene/render2d_types",
 }

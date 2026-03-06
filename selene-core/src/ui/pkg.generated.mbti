@@ -2,56 +2,197 @@
 package "Milky2018/selene/ui"
 
 import {
+  "Milky2018/selene/asset_types",
   "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
+  "Milky2018/selene/render",
 }
 
 // Values
-pub const UI_ZINDEX : Int = 100
+pub let background_colors : Map[@entity.Entity, BackgroundColor]
 
-pub fn add_button(@entity.Entity, node? : Node, button? : Button, offset? : @math.Vec2D) -> @entity.Entity
+pub fn blur() -> Unit
 
-pub fn add_node(@entity.Entity, node? : Node, offset? : @math.Vec2D) -> @entity.Entity
+pub let border_colors : Map[@entity.Entity, BorderColor]
+
+pub let border_radii : Map[@entity.Entity, BorderRadius]
 
 pub let buttons : Map[@entity.Entity, Button]
 
-pub let interaction_event_bus : @event.Events[InteractionEvent]
+pub let click_event_bus : @event.Events[UiClickEvent]
+
+pub let computed_ui_nodes : Map[@entity.Entity, ComputedUiNode]
+
+pub fn focus(@entity.Entity) -> Unit
+
+pub let focus_in_event_bus : @event.Events[UiFocusInEvent]
+
+pub let focus_out_event_bus : @event.Events[UiFocusOutEvent]
+
+pub let focus_policies : Map[@entity.Entity, FocusPolicy]
+
+pub let focusables : Map[@entity.Entity, Focusable]
+
+pub fn focused_entity() -> @entity.Entity?
+
+pub let focuseds : Map[@entity.Entity, Focused]
+
+pub fn get_ui_scale_mode() -> UiScaleMode
+
+pub let global_ui_nodes : Map[@entity.Entity, GlobalUiNode]
+
+pub fn hovered_entity() -> @entity.Entity?
 
 pub let interactions : Map[@entity.Entity, Interaction]
 
-pub let layout_sizes : Map[@entity.Entity, @math.Vec2D]
+pub fn is_ui_entity(@entity.Entity) -> Bool
+
+pub let navigation_event_bus : @event.Events[UiNavigationEvent]
 
 pub let nodes : Map[@entity.Entity, Node]
 
-pub let screen_root : @entity.Entity
+pub let outlines : Map[@entity.Entity, Outline]
 
-pub fn ui_button_system(Double) -> Unit
+pub fn parse_color(String) -> @render.Color
+
+pub let pointer_down_event_bus : @event.Events[UiPointerDownEvent]
+
+pub let pointer_enter_event_bus : @event.Events[UiPointerEnterEvent]
+
+pub let pointer_leave_event_bus : @event.Events[UiPointerLeaveEvent]
+
+pub let pointer_up_event_bus : @event.Events[UiPointerUpEvent]
+
+pub fn rgba(Int, Int, Int, Double) -> @render.Color
+
+pub let scroll_positions : Map[@entity.Entity, ScrollPosition]
+
+pub fn set_ui_scale_mode(UiScaleMode) -> Unit
+
+pub let tab_indexes : Map[@entity.Entity, TabIndex]
+
+pub let text_colors : Map[@entity.Entity, TextColor]
+
+pub let text_fonts : Map[@entity.Entity, TextFont]
+
+pub let text_layouts : Map[@entity.Entity, TextLayout]
+
+pub let texts : Map[@entity.Entity, Text]
+
+pub fn transparent() -> @render.Color
+
+pub fn ui_extract_system(Double) -> Unit
+
+pub let ui_images : Map[@entity.Entity, UiImage]
+
+pub fn ui_interaction_system(Double) -> Unit
 
 pub fn ui_layout_system(Double) -> Unit
 
-pub let uis : Map[@entity.Entity, Ui]
+pub fn ui_prepare_system(Double) -> Unit
 
-pub let virtual_root : @entity.Entity
+pub let ui_scale_mode : Ref[UiScaleMode]
+
+pub let ui_zindexes : Map[@entity.Entity, UiZIndex]
 
 // Errors
 
 // Types and methods
-pub(all) struct Button {
-  mut enabled : Bool
-  trigger : @inputs.MouseButton
-  hit_size : @math.Vec2D
-}
-pub fn Button::new(enabled? : Bool, trigger? : @inputs.MouseButton, hit_size? : @math.Vec2D) -> Self
-
-pub(all) enum CrossAxisAlign {
+pub(all) enum AlignItems {
   Start
   Center
   End
   Stretch
 }
-pub impl Eq for CrossAxisAlign
+pub impl Eq for AlignItems
+pub impl Show for AlignItems
+
+pub(all) struct BackgroundColor {
+  color : @render.Color
+}
+pub fn BackgroundColor::from_css(String) -> Self
+pub fn BackgroundColor::new(@render.Color) -> Self
+
+pub(all) struct BorderColor {
+  color : @render.Color
+}
+pub fn BorderColor::from_css(String) -> Self
+pub fn BorderColor::new(@render.Color) -> Self
+
+pub(all) struct BorderRadius {
+  top_left : Double
+  top_right : Double
+  bottom_right : Double
+  bottom_left : Double
+}
+pub fn BorderRadius::all(Double) -> Self
+pub impl Eq for BorderRadius
+pub impl Show for BorderRadius
+
+pub(all) struct Button {
+  enabled : Bool
+}
+pub fn Button::new(enabled? : Bool) -> Self
+pub impl Eq for Button
+pub impl Show for Button
+
+pub(all) struct ComputedUiNode {
+  position : @math.Vec2D
+  size : @math.Vec2D
+  content_position : @math.Vec2D
+  content_size : @math.Vec2D
+  border : UiInsets
+  padding : UiInsets
+}
+
+pub(all) enum Display {
+  Flex
+  None
+}
+pub impl Eq for Display
+pub impl Show for Display
+
+pub(all) enum FlexDirection {
+  Row
+  Column
+}
+pub impl Eq for FlexDirection
+pub impl Show for FlexDirection
+
+pub(all) enum FocusPolicy {
+  Block
+  Pass
+}
+pub impl Eq for FocusPolicy
+pub impl Show for FocusPolicy
+
+pub(all) struct Focusable {
+  _tag : Unit
+}
+pub fn Focusable::new() -> Self
+
+pub(all) struct Focused {
+  _tag : Unit
+}
+pub fn Focused::new() -> Self
+
+pub(all) struct GlobalUiNode {
+  logical_rect : @math.Rect
+  screen_rect : @math.Rect
+  logical_content_rect : @math.Rect
+  screen_content_rect : @math.Rect
+}
+
+pub(all) enum ImageFit {
+  Stretch
+  Contain
+  Cover
+  None
+}
+pub impl Eq for ImageFit
+pub impl Show for ImageFit
 
 pub(all) enum Interaction {
   None
@@ -59,21 +200,9 @@ pub(all) enum Interaction {
   Pressed
 }
 pub impl Eq for Interaction
+pub impl Show for Interaction
 
-pub struct InteractionEvent {
-  entity : @entity.Entity
-  previous : Interaction
-  current : Interaction
-}
-
-pub(all) enum LayoutDirection {
-  Overlay
-  Row
-  Column
-}
-pub impl Eq for LayoutDirection
-
-pub(all) enum MainAxisAlign {
+pub(all) enum JustifyContent {
   Start
   Center
   End
@@ -81,37 +210,224 @@ pub(all) enum MainAxisAlign {
   SpaceAround
   SpaceEvenly
 }
-pub impl Eq for MainAxisAlign
+pub impl Eq for JustifyContent
+pub impl Show for JustifyContent
 
 pub(all) struct Node {
-  mut size : NodeSize
-  mut layout : LayoutDirection
-  mut space : UiSpace
-  mut padding : @math.Vec2D
-  mut gap : @math.Vec2D
-  mut offset : @math.Vec2D
-  mut justify : MainAxisAlign
-  mut align : CrossAxisAlign
-  mut active : Bool
+  width : Val
+  height : Val
+  min_width : Val
+  min_height : Val
+  max_width : Val
+  max_height : Val
+  left : Val
+  right : Val
+  top : Val
+  bottom : Val
+  margin : UiRectValues
+  padding : UiRectValues
+  border : UiRectValues
+  display : Display
+  position_type : PositionType
+  flex_direction : FlexDirection
+  justify_content : JustifyContent
+  align_items : AlignItems
+  row_gap : Double
+  column_gap : Double
+  overflow_x : Overflow
+  overflow_y : Overflow
+  flex_grow : Double
+  flex_shrink : Double
+  active : Bool
 }
-pub fn Node::new(size? : NodeSize, layout? : LayoutDirection, space? : UiSpace, padding? : @math.Vec2D, gap? : @math.Vec2D, offset? : @math.Vec2D, justify? : MainAxisAlign, align? : CrossAxisAlign, active? : Bool) -> Self
+pub fn Node::absolute(@math.Vec2D, size? : @math.Vec2D, padding? : UiRectValues, border? : UiRectValues, display? : Display, flex_direction? : FlexDirection, justify_content? : JustifyContent, align_items? : AlignItems, row_gap? : Double, column_gap? : Double, overflow_x? : Overflow, overflow_y? : Overflow, active? : Bool) -> Self
+pub fn Node::new(width? : Val, height? : Val, min_width? : Val, min_height? : Val, max_width? : Val, max_height? : Val, left? : Val, right? : Val, top? : Val, bottom? : Val, margin? : UiRectValues, padding? : UiRectValues, border? : UiRectValues, display? : Display, position_type? : PositionType, flex_direction? : FlexDirection, justify_content? : JustifyContent, align_items? : AlignItems, row_gap? : Double, column_gap? : Double, overflow_x? : Overflow, overflow_y? : Overflow, flex_grow? : Double, flex_shrink? : Double, active? : Bool) -> Self
+pub impl Eq for Node
+pub impl Show for Node
 
-pub(all) enum NodeSize {
-  Auto
-  Fixed(@math.Vec2D)
-  FillViewport
-  FillScreen
+pub(all) struct Outline {
+  width : Double
+  offset : Double
+  color : @render.Color
+}
+pub fn Outline::new(Double, @render.Color, offset? : Double) -> Self
+
+pub(all) enum Overflow {
+  Visible
+  Clip
+  Scroll
+}
+pub impl Eq for Overflow
+pub impl Show for Overflow
+
+pub(all) enum PositionType {
+  Relative
+  Absolute
+}
+pub impl Eq for PositionType
+pub impl Show for PositionType
+
+pub(all) struct ScrollPosition {
+  mut x : Double
+  mut y : Double
+}
+pub fn ScrollPosition::zero() -> Self
+pub impl Eq for ScrollPosition
+pub impl Show for ScrollPosition
+
+pub(all) struct TabIndex {
+  value : Int
+}
+pub fn TabIndex::new(Int) -> Self
+pub impl Eq for TabIndex
+pub impl Show for TabIndex
+
+pub(all) struct Text {
+  mut content : String
+}
+pub fn Text::new(String) -> Self
+
+pub(all) struct TextColor {
+  mut color : @render.Color
+}
+pub fn TextColor::from_css(String) -> Self
+pub fn TextColor::new(@render.Color) -> Self
+
+pub(all) struct TextFont {
+  mut family : String
+  mut size : Double
+  mut font_handle : @asset_types.FontHandle?
+}
+pub fn TextFont::from_css(String) -> Self
+pub fn TextFont::from_font(@asset_types.FontHandle, size? : Double) -> Self
+pub fn TextFont::new(family? : String, size? : Double) -> Self
+
+pub(all) struct TextLayout {
+  mut align : @math.HAlign
+  mut baseline : @math.VAlign
+  mut line_height : Double
+  mut wrap : TextWrap
+  mut overflow : TextOverflow
+}
+pub fn TextLayout::new(align? : @math.HAlign, baseline? : @math.VAlign, line_height? : Double, wrap? : TextWrap, overflow? : TextOverflow) -> Self
+
+pub(all) enum TextOverflow {
+  Clip
+  Ellipsis
+}
+pub impl Eq for TextOverflow
+pub impl Show for TextOverflow
+
+pub(all) enum TextWrap {
+  NoWrap
+  WordWrap
+}
+pub impl Eq for TextWrap
+pub impl Show for TextWrap
+
+pub(all) struct UiClickEvent {
+  entity : @entity.Entity
+  button : @inputs.MouseButton
 }
 
-pub(all) struct Ui {
-  space : UiSpace
+pub(all) struct UiFocusInEvent {
+  entity : @entity.Entity
 }
-pub fn Ui::new(space? : UiSpace) -> Self
 
-pub(all) enum UiSpace {
-  Virtual
+pub(all) struct UiFocusOutEvent {
+  entity : @entity.Entity
+}
+
+pub(all) struct UiImage {
+  size : @math.Vec2D
+  image : @asset_types.ImageHandle
+  tint : @render.Color
+  fit : ImageFit
+}
+pub fn UiImage::from_image(@math.Vec2D, @asset_types.ImageHandle, tint? : @render.Color, fit? : ImageFit) -> Self
+pub fn UiImage::new(@math.Vec2D, String, tint? : @render.Color, fit? : ImageFit) -> Self
+
+pub(all) struct UiInsets {
+  left : Double
+  right : Double
+  top : Double
+  bottom : Double
+}
+pub fn UiInsets::zero() -> Self
+pub impl Eq for UiInsets
+pub impl Show for UiInsets
+
+pub(all) enum UiNavigationDirection {
+  Up
+  Down
+  Left
+  Right
+  Activate
+  Cancel
+}
+pub impl Eq for UiNavigationDirection
+pub impl Show for UiNavigationDirection
+
+pub(all) struct UiNavigationEvent {
+  entity : @entity.Entity?
+  direction : UiNavigationDirection
+}
+
+pub(all) struct UiPointerDownEvent {
+  entity : @entity.Entity
+  button : @inputs.MouseButton
+  position : @math.Vec2D
+}
+
+pub(all) struct UiPointerEnterEvent {
+  entity : @entity.Entity
+}
+
+pub(all) struct UiPointerLeaveEvent {
+  entity : @entity.Entity
+}
+
+pub(all) struct UiPointerUpEvent {
+  entity : @entity.Entity
+  button : @inputs.MouseButton
+  position : @math.Vec2D
+}
+
+pub(all) struct UiRectValues {
+  left : Val
+  right : Val
+  top : Val
+  bottom : Val
+}
+pub fn UiRectValues::all(Double) -> Self
+pub fn UiRectValues::new(left? : Val, right? : Val, top? : Val, bottom? : Val) -> Self
+pub fn UiRectValues::px(left? : Double, right? : Double, top? : Double, bottom? : Double) -> Self
+pub impl Eq for UiRectValues
+pub impl Show for UiRectValues
+
+pub(all) enum UiScaleMode {
   Screen
+  Viewport
 }
+pub impl Eq for UiScaleMode
+pub impl Show for UiScaleMode
+
+pub(all) struct UiZIndex {
+  value : Int
+}
+pub fn UiZIndex::new(Int) -> Self
+pub impl Eq for UiZIndex
+pub impl Show for UiZIndex
+
+pub(all) enum Val {
+  Auto
+  Px(Double)
+  Percent(Double)
+}
+pub fn Val::percent(Double) -> Self
+pub fn Val::px(Double) -> Self
+pub impl Eq for Val
+pub impl Show for Val
 
 // Type aliases
 

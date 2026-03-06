@@ -13,63 +13,101 @@
 // limitations under the License.
 
 ///|
-const UI_WIDGET_ZINDEX : Int = @ui.UI_ZINDEX + 1
+const HUD_ZINDEX : Int = 100
 
 ///|
-const UI_WIDGET_CHILD_ZINDEX : Int = @ui.UI_ZINDEX + 2
+const BUTTON_ZINDEX : Int = 110
 
 ///|
-let ui_interaction_reader : @event.EventReader[@ui.InteractionEvent] = @event.EventReader::new()
+const BUTTON_LABEL_ZINDEX : Int = 111
 
 ///|
-fn add_screen_sprite(
-  offset : @math.Vec2D,
-  sprite : @sprite.Sprite,
-) -> @entity.Entity {
-  let entity = @ui.add_node(
-    @ui.virtual_root,
-    node=@ui.Node::new(space=@ui.UiSpace::Virtual, offset~),
-  )
-  @sprite.sprites.set(entity, sprite)
-  entity
+let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = @event.EventReader::new()
+
+///|
+fn set_text(entity : @entity.Entity, content : String) -> Unit {
+  let text = @ui.texts.get_or_init(entity, fn() { @ui.Text::new(content) })
+  text.content = content
 }
 
 ///|
-fn add_screen_sprite_sized(
+fn with_display(node : @ui.Node, display : @ui.Display) -> @ui.Node {
+  @ui.Node::new(
+    width=node.width,
+    height=node.height,
+    min_width=node.min_width,
+    min_height=node.min_height,
+    max_width=node.max_width,
+    max_height=node.max_height,
+    left=node.left,
+    right=node.right,
+    top=node.top,
+    bottom=node.bottom,
+    margin=node.margin,
+    padding=node.padding,
+    border=node.border,
+    display~,
+    position_type=node.position_type,
+    flex_direction=node.flex_direction,
+    justify_content=node.justify_content,
+    align_items=node.align_items,
+    row_gap=node.row_gap,
+    column_gap=node.column_gap,
+    overflow_x=node.overflow_x,
+    overflow_y=node.overflow_y,
+    flex_grow=node.flex_grow,
+    flex_shrink=node.flex_shrink,
+    active=node.active,
+  )
+}
+
+///|
+fn set_display(entity : @entity.Entity, display : @ui.Display) -> Unit {
+  match @ui.nodes.get(entity) {
+    Some(node) => @ui.nodes.set(entity, with_display(node, display))
+    None => @ui.nodes.set(entity, @ui.Node::new(display~))
+  }
+}
+
+///|
+fn configure_text(
+  entity : @entity.Entity,
+  offset : @math.Vec2D,
+  content : String,
+  color : String,
+  font : String,
+  size? : @math.Vec2D = @math.Vec2D(-1.0, -1.0),
+  align? : @math.HAlign = @math.HAlign::Left,
+  baseline? : @math.VAlign = @math.VAlign::Top,
+  zindex? : Int = HUD_ZINDEX,
+) -> Unit {
+  @ui.nodes.set(entity, @ui.Node::absolute(offset, size~))
+  @ui.ui_zindexes.set(entity, @ui.UiZIndex::new(zindex))
+  set_text(entity, content)
+  @ui.text_fonts.set(entity, @ui.TextFont::from_css(font))
+  @ui.text_colors.set(entity, @ui.TextColor::from_css(color))
+  @ui.text_layouts.set(entity, @ui.TextLayout::new(align~, baseline~))
+}
+
+///|
+fn configure_button(
+  entity : @entity.Entity,
   offset : @math.Vec2D,
   size : @math.Vec2D,
-  sprite : @sprite.Sprite,
-) -> @entity.Entity {
-  let entity = @ui.add_node(
-    @ui.virtual_root,
-    node=@ui.Node::new(
-      space=@ui.UiSpace::Virtual,
-      offset~,
-      size=@ui.NodeSize::Fixed(size),
-    ),
-  )
-  @sprite.sprites.set(entity, sprite)
-  entity
-}
-
-///|
-fn add_child_sprite(
-  parent : @entity.Entity,
-  offset : @math.Vec2D,
-  sprite : @sprite.Sprite,
-) -> @entity.Entity {
-  let entity = @ui.add_node(
-    parent,
-    node=@ui.Node::new(space=@ui.UiSpace::Virtual, offset~),
-  )
-  @sprite.sprites.set(entity, sprite)
-  entity
+  background : String,
+  tab_index : Int,
+) -> Unit {
+  @ui.nodes.set(entity, @ui.Node::absolute(offset, size~))
+  @ui.ui_zindexes.set(entity, @ui.UiZIndex::new(BUTTON_ZINDEX))
+  @ui.background_colors.set(entity, @ui.BackgroundColor::from_css(background))
+  @ui.border_radii.set(entity, @ui.BorderRadius::all(6.0))
+  @ui.buttons.set(entity, @ui.Button::new())
+  @ui.tab_indexes.set(entity, @ui.TabIndex::new(tab_index))
 }
 
 ///|
 /// Setup UI elements
 fn setup_ui() -> Unit {
-  // Create green poker table background (game entity, not UI)
   let table_entity = @entity.Entity::new()
   @transform.positions.set(table_entity, @math.Vec2D(0.0, 0.0))
   @sprite.sprites.set(
@@ -77,48 +115,65 @@ fn setup_ui() -> Unit {
     @sprite.Sprite::from_color_rect(
       @sprite.ColorRect::new(
         @math.Vec2D(VIEWPORT_WIDTH, VIEWPORT_HEIGHT),
-        "#2d5016", // Poker table green
+        "#2d5016",
       ),
-      0, // Background at z-index 0
+      0,
     ),
   )
 
-  // Create blind display (center top)
-  add_screen_sprite(
-    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 40, 20.0),
-    @sprite.Sprite::from_text(game_state.blind_text, UI_WIDGET_ZINDEX),
+  configure_text(
+    game_state.blind_label,
+    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 80.0, 20.0),
+    "Blind: $20",
+    "gold",
+    "20px ThaleahFat",
+    size=@math.Vec2D(160.0, 24.0),
+    align=@math.HAlign::Center,
   )
-  |> ignore
-
-  // Create chips display (under blind)
-  add_screen_sprite(
-    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 40, 40.0),
-    @sprite.Sprite::from_text(game_state.chips_text, UI_WIDGET_ZINDEX),
+  configure_text(
+    game_state.chips_label,
+    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 80.0, 42.0),
+    "Chips: $1000",
+    "lightgreen",
+    "18px ThaleahFat",
+    size=@math.Vec2D(160.0, 22.0),
+    align=@math.HAlign::Center,
   )
-  |> ignore
-
-  // Create phase display (top left)
-  add_screen_sprite(
+  configure_text(
+    game_state.phase_label,
     @math.Vec2D(20.0, 20.0),
-    @sprite.Sprite::from_text(game_state.phase_text, UI_WIDGET_ZINDEX),
+    "Pre-Flop",
+    "white",
+    "18px ThaleahFat",
   )
-  |> ignore
-
-  // Create turns display (top right)
-  add_screen_sprite(
-    @math.Vec2D(VIEWPORT_WIDTH - 90.0, 20.0),
-    @sprite.Sprite::from_text(game_state.turns_text, UI_WIDGET_ZINDEX),
+  configure_text(
+    game_state.turns_label,
+    @math.Vec2D(VIEWPORT_WIDTH - 110.0, 20.0),
+    "Turns: 10/10",
+    "white",
+    "18px ThaleahFat",
+    size=@math.Vec2D(90.0, 22.0),
+    align=@math.HAlign::Right,
   )
-  |> ignore
-
-  // Create hand strength display (center, above community cards)
-  add_screen_sprite(
-    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 60.0, VIEWPORT_HEIGHT / 2.0 - 80.0),
-    @sprite.Sprite::from_text(game_state.hand_strength_text, UI_WIDGET_ZINDEX),
+  configure_text(
+    game_state.hand_strength_label,
+    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 100.0, VIEWPORT_HEIGHT / 2.0 - 82.0),
+    "",
+    "cyan",
+    "16px ThaleahFat",
+    size=@math.Vec2D(200.0, 20.0),
+    align=@math.HAlign::Center,
   )
-  |> ignore
+  configure_text(
+    game_state.action_label,
+    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 110.0, VIEWPORT_HEIGHT - 64.0),
+    "",
+    "yellow",
+    "16px ThaleahFat",
+    size=@math.Vec2D(220.0, 20.0),
+    align=@math.HAlign::Center,
+  )
 
-  // Create action buttons
   create_action_buttons()
 }
 
@@ -129,93 +184,76 @@ fn create_action_buttons() -> Unit {
   let button_width = 70.0
   let button_height = 25.0
   let button_size = @math.Vec2D(button_width, button_height)
+  let fold_offset = @math.Vec2D(
+    VIEWPORT_WIDTH / 2.0 - 85.0 - button_width / 2.0,
+    button_y,
+  )
+  let call_offset = @math.Vec2D(
+    VIEWPORT_WIDTH / 2.0 - button_width / 2.0,
+    button_y,
+  )
+  let raise_offset = @math.Vec2D(
+    VIEWPORT_WIDTH / 2.0 + 85.0 - button_width / 2.0,
+    button_y,
+  )
 
-  // Fold button
-  let fold_button = add_screen_sprite_sized(
-    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 85.0 - button_width / 2.0, button_y),
+  configure_button(
+    game_state.fold_button,
+    fold_offset,
     button_size,
-    @sprite.Sprite::from_color_rect(
-      @sprite.ColorRect::new(
-        @math.Vec2D(button_width, button_height),
-        "#cc0000",
-      ),
-      UI_WIDGET_ZINDEX,
-    ),
+    "#cc0000",
+    0,
   )
-  game_state.fold_button = fold_button
-  @ui.buttons.set(
-    fold_button,
-    @ui.Button::new(trigger=@inputs.MouseButton::Left, hit_size=button_size),
+  configure_text(
+    game_state.fold_button_label,
+    fold_offset,
+    "Fold",
+    "white",
+    "16px ThaleahFat",
+    size=button_size,
+    align=@math.HAlign::Center,
+    baseline=@math.VAlign::Center,
+    zindex=BUTTON_LABEL_ZINDEX,
   )
 
-  // Fold button text
-  add_child_sprite(
-    fold_button,
-    @math.Vec2D(button_width / 2.0 - 15.0, button_height / 2.0 - 8.0),
-    @sprite.Sprite::from_text(
-      @sprite.Text::new("Fold", color="white", font="16px ThaleahFat"),
-      UI_WIDGET_CHILD_ZINDEX,
-    ),
-  )
-  |> ignore
-
-  // Call button
-  let call_button = add_screen_sprite_sized(
-    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - button_width / 2.0, button_y),
+  configure_button(
+    game_state.call_button,
+    call_offset,
     button_size,
-    @sprite.Sprite::from_color_rect(
-      @sprite.ColorRect::new(
-        @math.Vec2D(button_width, button_height),
-        "#00aa00",
-      ),
-      UI_WIDGET_ZINDEX,
-    ),
+    "#00aa00",
+    1,
   )
-  game_state.call_button = call_button
-  @ui.buttons.set(
-    call_button,
-    @ui.Button::new(trigger=@inputs.MouseButton::Left, hit_size=button_size),
+  configure_text(
+    game_state.call_button_label,
+    call_offset,
+    "Call",
+    "white",
+    "16px ThaleahFat",
+    size=button_size,
+    align=@math.HAlign::Center,
+    baseline=@math.VAlign::Center,
+    zindex=BUTTON_LABEL_ZINDEX,
   )
 
-  // Call button text
-  add_child_sprite(
-    call_button,
-    @math.Vec2D(button_width / 2.0 - 15.0, button_height / 2.0 - 8.0),
-    @sprite.Sprite::from_text(
-      game_state.call_button_text,
-      UI_WIDGET_CHILD_ZINDEX,
-    ),
-  )
-  |> ignore
-
-  // Raise button
-  let raise_button = add_screen_sprite_sized(
-    @math.Vec2D(VIEWPORT_WIDTH / 2.0 + 85.0 - button_width / 2.0, button_y),
+  configure_button(
+    game_state.raise_button,
+    raise_offset,
     button_size,
-    @sprite.Sprite::from_color_rect(
-      @sprite.ColorRect::new(
-        @math.Vec2D(button_width, button_height),
-        "#0066cc",
-      ),
-      UI_WIDGET_ZINDEX,
-    ),
+    "#0066cc",
+    2,
   )
-  game_state.raise_button = raise_button
-  @ui.buttons.set(
-    raise_button,
-    @ui.Button::new(trigger=@inputs.MouseButton::Left, hit_size=button_size),
+  configure_text(
+    game_state.raise_button_label,
+    raise_offset,
+    "Raise",
+    "white",
+    "16px ThaleahFat",
+    size=button_size,
+    align=@math.HAlign::Center,
+    baseline=@math.VAlign::Center,
+    zindex=BUTTON_LABEL_ZINDEX,
   )
 
-  // Raise button text
-  add_child_sprite(
-    raise_button,
-    @math.Vec2D(button_width / 2.0 - 18.0, button_height / 2.0 - 8.0),
-    @sprite.Sprite::from_text(
-      @sprite.Text::new("Raise", color="white", font="16px ThaleahFat"),
-      UI_WIDGET_CHILD_ZINDEX,
-    ),
-  )
-  |> ignore
   hide_action_buttons()
 }
 
@@ -223,21 +261,47 @@ fn create_action_buttons() -> Unit {
 /// Show action buttons
 fn show_action_buttons() -> Unit {
   game_state.waiting_for_player = true
-  // Respawn buttons if they were hidden
-  // At River phase, only show Call/Check button (no Fold or Raise)
-  if game_state.phase != River {
-    game_state.fold_button.respawn()
-  }
-  game_state.call_button.respawn()
-  if game_state.phase != River {
-    game_state.raise_button.respawn()
-  }
-  // Update call button text
+  let show_fold_and_raise = game_state.phase != River
+  set_display(game_state.call_button, @ui.Display::Flex)
+  set_display(game_state.call_button_label, @ui.Display::Flex)
+  set_display(
+    game_state.fold_button,
+    if show_fold_and_raise {
+      @ui.Display::Flex
+    } else {
+      @ui.Display::None
+    },
+  )
+  set_display(
+    game_state.fold_button_label,
+    if show_fold_and_raise {
+      @ui.Display::Flex
+    } else {
+      @ui.Display::None
+    },
+  )
+  set_display(
+    game_state.raise_button,
+    if show_fold_and_raise {
+      @ui.Display::Flex
+    } else {
+      @ui.Display::None
+    },
+  )
+  set_display(
+    game_state.raise_button_label,
+    if show_fold_and_raise {
+      @ui.Display::Flex
+    } else {
+      @ui.Display::None
+    },
+  )
+
   let call_amount = game_state.current_bet - game_state.player.current_bet
   if call_amount == 0 {
-    game_state.call_button_text.content = "Check"
+    set_text(game_state.call_button_label, "Check")
   } else {
-    game_state.call_button_text.content = "Call $" + call_amount.to_string()
+    set_text(game_state.call_button_label, "Call $" + call_amount.to_string())
   }
 }
 
@@ -245,9 +309,17 @@ fn show_action_buttons() -> Unit {
 /// Hide action buttons
 fn hide_action_buttons() -> Unit {
   game_state.waiting_for_player = false
-  game_state.fold_button.destroy()
-  game_state.call_button.destroy()
-  game_state.raise_button.destroy()
+  for
+    entity in [
+      game_state.fold_button,
+      game_state.fold_button_label,
+      game_state.call_button,
+      game_state.call_button_label,
+      game_state.raise_button,
+      game_state.raise_button_label,
+    ] {
+    set_display(entity, @ui.Display::None)
+  }
 }
 
 ///|
@@ -255,9 +327,8 @@ fn hide_action_buttons() -> Unit {
 fn on_fold_click() -> Unit {
   let human = game_state.player
   human.has_folded = true
-  game_state.action_text.content = "You folded"
+  set_text(game_state.action_label, "You folded")
   hide_action_buttons()
-  // Go straight to showdown when folding
   game_state.phase = Showdown
 }
 
@@ -270,14 +341,16 @@ fn on_call_click() -> Unit {
   human.chips -= actual_amount
   human.current_bet += actual_amount
   if human.chips == 0 {
-    game_state.action_text.content = "You went All-In!"
+    set_text(game_state.action_label, "You went All-In!")
   } else if call_amount == 0 {
-    game_state.action_text.content = "You checked"
+    set_text(game_state.action_label, "You checked")
   } else {
-    game_state.action_text.content = "You called $" + actual_amount.to_string()
+    set_text(
+      game_state.action_label,
+      "You called $" + actual_amount.to_string(),
+    )
   }
   hide_action_buttons()
-  // Advance to next phase after call/check
   advance_to_next_phase()
   update_ui()
 }
@@ -286,27 +359,25 @@ fn on_call_click() -> Unit {
 /// Handle raise button click
 fn on_raise_click() -> Unit {
   let human = game_state.player
-  let min_raise = game_state.big_blind // Raise by one blind increment
+  let min_raise = game_state.big_blind
   let raise_amount = min_raise.min(human.chips)
   human.chips -= raise_amount
   human.current_bet += raise_amount
   game_state.current_bet = human.current_bet
-  game_state.magnification += 1 // Increase magnification by 1
+  game_state.magnification += 1
   if human.chips == 0 {
-    game_state.action_text.content = "You went All-In!"
+    set_text(game_state.action_label, "You went All-In!")
   } else {
-    game_state.action_text.content = "You raised $" + raise_amount.to_string()
+    set_text(game_state.action_label, "You raised $" + raise_amount.to_string())
   }
   hide_action_buttons()
-  // Advance to next phase after raise
   advance_to_next_phase()
   update_ui()
 }
 
 ///|
 fn cards_ui_pointer_system(_delta : Double) -> Unit {
-  for event in @ui.interaction_event_bus.read(ui_interaction_reader) {
-    guard event.current is @ui.Interaction::Pressed else { continue }
+  for event in @ui.click_event_bus.read(ui_click_reader) {
     if event.entity == game_state.fold_button {
       on_fold_click()
       continue
@@ -325,7 +396,6 @@ fn cards_ui_pointer_system(_delta : Double) -> Unit {
 ///|
 /// Display all players' cards
 fn display_all_cards() -> Unit {
-  // Clean up old card entities
   for entity in game_state.hole_card_entities {
     entity.destroy()
   }
@@ -335,13 +405,11 @@ fn display_all_cards() -> Unit {
   }
   game_state.community_card_entities.clear()
 
-  // Display player's hole cards
   let player = game_state.player
   let pos = player.position
   let x_base = pos.0
-  let y_base = pos.1 - 40.0 // Move cards up by 40
+  let y_base = pos.1 - 40.0
 
-  // Display hole cards side by side
   for j, card in player.hole_cards {
     let card_x = x_base + (j.to_double() - 0.5) * 30.0 - 30
     let card_entity = @entity.Entity::new()
@@ -350,20 +418,18 @@ fn display_all_cards() -> Unit {
     game_state.hole_card_entities.push(card_entity)
   }
 
-  // Display community cards in center
   display_community_cards()
 }
 
 ///|
 /// Display community cards
 fn display_community_cards() -> Unit {
-  // Clean up old community card entities (in case called separately)
   for entity in game_state.community_card_entities {
     entity.destroy()
   }
   game_state.community_card_entities.clear()
   let center_x = VIEWPORT_WIDTH / 2.0
-  let center_y = VIEWPORT_HEIGHT / 2.0 - 60.0 // Move cards up by 40
+  let center_y = VIEWPORT_HEIGHT / 2.0 - 60.0
   for i, card in game_state.community_cards {
     let card_x = center_x + (i.to_double() - 2.5) * 30.0 - 15
     let card_entity = @entity.Entity::new()
@@ -376,25 +442,32 @@ fn display_community_cards() -> Unit {
 ///|
 /// Update UI displays
 fn update_ui() -> Unit {
-  game_state.blind_text.content = "Blind: $" + game_state.big_blind.to_string()
-  game_state.chips_text.content = "Chips: $" +
-    game_state.player.chips.to_string()
-  game_state.phase_text.content = match game_state.phase {
-    PreFlop => "Pre-Flop"
-    Flop => "Flop"
-    Turn => "Turn"
-    River => "River"
-    Showdown => "Showdown"
-    GameOver => "GAME OVER"
-  }
-  game_state.turns_text.content = "Turns: " +
-    game_state.turns_remaining.to_string() +
-    "/10"
+  set_text(
+    game_state.blind_label,
+    "Blind: $" + game_state.big_blind.to_string(),
+  )
+  set_text(
+    game_state.chips_label,
+    "Chips: $" + game_state.player.chips.to_string(),
+  )
+  set_text(
+    game_state.phase_label,
+    match game_state.phase {
+      PreFlop => "Pre-Flop"
+      Flop => "Flop"
+      Turn => "Turn"
+      River => "River"
+      Showdown => "Showdown"
+      GameOver => "GAME OVER"
+    },
+  )
+  set_text(
+    game_state.turns_label,
+    "Turns: " + game_state.turns_remaining.to_string() + "/10",
+  )
 
-  // Update hand strength display
   update_hand_strength()
 
-  // Show game over info if game is over
   if game_state.phase == GameOver {
     let player = game_state.player
     let profit = player.chips - game_state.starting_chips
@@ -403,7 +476,7 @@ fn update_ui() -> Unit {
     } else {
       "Loss: $" + profit.to_string()
     }
-    game_state.hand_strength_text.content = profit_text
+    set_text(game_state.hand_strength_label, profit_text)
   }
 }
 
@@ -412,13 +485,11 @@ fn update_ui() -> Unit {
 fn update_hand_strength() -> Unit {
   let player = game_state.player
 
-  // Can only evaluate hand if we have at least 5 cards total
   if player.hole_cards.length() + game_state.community_cards.length() < 5 {
-    game_state.hand_strength_text.content = ""
+    set_text(game_state.hand_strength_label, "")
     return
   }
 
-  // Build full hand
   let hand = []
   for card in player.hole_cards {
     hand.push(card)
@@ -427,14 +498,13 @@ fn update_hand_strength() -> Unit {
     hand.push(card)
   }
 
-  // Evaluate best 5-card hand from all available cards
   if hand.length() >= 5 {
     let rank = find_best_hand(hand)
     let hand_name = rank.hand_rank_to_string()
     let magnification = game_state.magnification
-    game_state.hand_strength_text.content = "Hand: " +
-      hand_name +
-      " × " +
-      magnification.to_string()
+    set_text(
+      game_state.hand_strength_label,
+      "Hand: " + hand_name + " × " + magnification.to_string(),
+    )
   }
 }

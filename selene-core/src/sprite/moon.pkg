@@ -4,7 +4,6 @@ import {
   "Milky2018/selene/math",
   "Milky2018/selene/transform",
   "Milky2018/selene/camera",
-  "Milky2018/selene/ui",
   "Milky2018/selene/render2d",
   "Milky2018/selene/render2d_types",
   "Milky2018/selene/platform_render",

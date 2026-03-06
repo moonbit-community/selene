@@ -28,4 +28,4 @@ const PLAYER_ZINDEX : Int = 3
 const BULLET_ZINDEX : Int = 4
 
 ///|
-const UI_ZINDEX : Int = 100
+const HUD_ZINDEX : Int = 100
