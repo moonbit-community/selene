@@ -13,16 +13,20 @@
 // limitations under the License.
 
 ///|
+let mouse_lock_enabled : Ref[Bool] = Ref::new(false)
+
+///|
 let mouse_locked : Ref[Bool] = Ref::new(false)
 
 ///|
-/// Locks the mouse cursor to prevent it from leaving the application window.
+/// Enables mouse capture mode for the application window.
 ///
-/// This function enables mouse lock mode, which is commonly used in
+/// This function opts the application into mouse capture mode, which is commonly used in
 /// first-person games, 3D applications, or other interactive software where
 /// continuous mouse movement input is needed without the cursor hitting screen
-/// boundaries. When locked, mouse movement events continue to be generated even
-/// though the cursor position remains fixed.
+/// boundaries. Capture does not start immediately: the cursor remains free until
+/// the user clicks inside the game window, and pressing `Escape` releases the
+/// capture again.
 ///
 /// Example:
 ///
@@ -31,8 +35,8 @@ let mouse_locked : Ref[Bool] = Ref::new(false)
 /// ```
 ///
 pub fn lock_mouse() -> Unit {
-  mouse_locked.val = true
-  mouse_locked.val = @platform_input.set_mouse_lock(true)
+  mouse_lock_enabled.val = true
+  mouse_locked.val = @platform_input.set_mouse_lock(mouse_locked.val)
 }
 
 ///|
@@ -53,5 +57,15 @@ pub fn is_mouse_locked() -> Bool {
 
 ///|
 pub fn sync_mouse_lock_system(_delta : Double) -> Unit {
+  if !mouse_lock_enabled.val {
+    mouse_locked.val = @platform_input.set_mouse_lock(false)
+    return
+  }
+  if mouse_locked.val && @inputs.is_just_pressed(@inputs.Escape) {
+    mouse_locked.val = false
+  } else if !mouse_locked.val &&
+    @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) {
+    mouse_locked.val = true
+  }
   mouse_locked.val = @platform_input.set_mouse_lock(mouse_locked.val)
 }

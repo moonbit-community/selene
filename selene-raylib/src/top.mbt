@@ -1384,6 +1384,7 @@ pub fn initialize(
       config.screen_height.to_int(),
       "Selene (raylib)",
     )
+    @raylib.set_exit_key(@raylib.KeyNull)
     @raylib.set_target_fps(config.fps.reinterpret_as_int())
     if !@raylib.is_audio_device_ready() {
       @raylib.init_audio_device()

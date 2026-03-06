@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Changed
+
+- pointer-capture mode now stays opt-in but starts unlocked; games that call `@system.lock_mouse()` will capture the pointer only after the player clicks inside the game window
+
+### Fixed
+
+- raylib apps no longer let the engine quit through raylib's default `Escape` exit key; pressing `Escape` now releases active mouse capture instead of closing the game window
+
 ## [0.25.0] - 2026-03-06
 
 ### Added
