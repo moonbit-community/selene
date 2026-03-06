@@ -2,6 +2,33 @@
 
 ## [Unreleased]
 
+### Added
+
+- `scene3d` glTF importing now accepts binary `.glb` containers, bufferView-backed embedded images, glTF texture sampler metadata, imported camera nodes, and `KHR_lights_punctual` node lights
+- `scene3d` glTF importing now reads additional core mesh/animation data: multiple `TEXCOORD_n` sets, `COLOR_0`, `TANGENT`, `JOINTS_1` / `WEIGHTS_1`, morph targets, morph-weight animation channels, and plain `.gltf` `data:` asset URIs
+- `scene3d` animation importing now parses glTF `CUBICSPLINE` samplers into keyed in/out tangents instead of collapsing them to linear interpolation
+- `scene3d` glTF importing now supports sparse accessors, including sparse-only accessors without a base `bufferView` and sparse overrides layered over base vertex/index payloads
+
+### Changed
+
+- `render3d` now exposes richer glTF-facing 3D asset types: `TextureWrap3D`, `TextureFilter3D`, `TextureSampler3D`, `TextureBinding3D`, extended `StandardMaterial3D` texture/factor fields, and orthographic camera size data in `FrameCamera3D` / `Camera3DComponent`
+- triangle-mesh data now keeps full authored UV/color/tangent payloads (`uv_sets`, `colors`, `tangents`) so glTF vertex attributes survive import, skinning, morphing, and backend submission instead of collapsing to a single optional UV stream
+- `animation3d` deformable-mesh bindings now track `target_entity`, morph targets, morph weights, UV sets, tangents, and vertex colors so glTF node-weight animation and per-instance deformation stay aligned with the imported scene graph
+- `animation3d` keyframe types and runtime sampling now preserve cubic Hermite tangents for translation, rotation, scale, and morph-weight channels instead of treating every non-step glTF sampler as linear
+- `selene-raylib` triangle-mesh rendering now consumes selected glTF UV sets and imported vertex colors instead of forcing `TEXCOORD_0` + white vertex color for every imported triangle mesh
+- `selene-webgpu` lit 3D triangle rendering now carries imported vertex colors, selected glTF UV sets, emissive color, and alpha-mode metadata into the shader path instead of flattening everything down to base color plus one implicit UV stream
+
+### Fixed
+
+- imported glTF orthographic cameras now render through both `selene-webgpu` and `selene-raylib` instead of collapsing to the old perspective-only path
+- `selene-raylib` now loads embedded glTF image data from data URIs and applies glTF wrap/filter sampler settings to base-color textures
+- `selene-raylib` alpha-mask materials now honor `alphaCutoff` in shader instead of warning and falling back to plain alpha blending
+- imported glTF vertex colors, alternate UV sets, normalized integer UV/color accessors, morph targets, and 8-influence skinning data now reach runtime meshes instead of being dropped during import
+- scene-instantiated skinned and morphed meshes now clone their mesh assets per instance before deformation, fixing shared-mesh corruption when the same glTF scene is instantiated multiple times
+- `selene-webgpu` lit 3D shaders now honor glTF `alphaMode=Mask` / `alphaCutoff` and add scalar emissive color on imported triangle meshes instead of treating every textured material as plain alpha-blended Lambert shading
+
+## [0.25.1] - 2026-03-06
+
 ### Changed
 
 - pointer-capture mode now stays opt-in but starts unlocked; games that call `@system.lock_mouse()` will capture the pointer only after the player clicks inside the game window
