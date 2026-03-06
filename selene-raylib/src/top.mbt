@@ -13,6 +13,30 @@
 // limitations under the License.
 
 ///|
+priv struct LightingShaderState {
+  shader : @raylib.Shader
+  ambient_light_loc : Int
+  view_position_loc : Int
+  directional_count_loc : Int
+  directional_directions_loc : Int
+  directional_colors_loc : Int
+  point_count_loc : Int
+  point_positions_loc : Int
+  point_colors_loc : Int
+  point_ranges_loc : Int
+  spot_count_loc : Int
+  spot_positions_loc : Int
+  spot_directions_loc : Int
+  spot_colors_loc : Int
+  spot_params_loc : Int
+  material_base_color_loc : Int
+  material_emissive_color_loc : Int
+  material_metallic_loc : Int
+  material_roughness_loc : Int
+  material_has_texture_loc : Int
+}
+
+///|
 priv struct RaylibBackend {
   mut time_scale : Double
   mut image_smooth : Bool
@@ -44,7 +68,9 @@ priv struct RaylibBackend {
   ]
   images3d : Map[@render3d_types.ImageHandle, @render3d_types.ImageAsset]
   primitive_meshes : Map[String, @raylib.Mesh]
-  mut textured_material : @raylib.Material?
+  mut lighting_shader : LightingShaderState?
+  mut lit_material : @raylib.Material?
+  mut lit_textured_material : @raylib.Material?
   texture_warning_keys : Set[String]
 }
 
@@ -95,12 +121,148 @@ let backend : RaylibBackend = {
   materials3d: Map::new(),
   images3d: Map::new(),
   primitive_meshes: Map::new(),
-  textured_material: None,
+  lighting_shader: None,
+  lit_material: None,
+  lit_textured_material: None,
   texture_warning_keys: Set::new(),
 }
 
 ///|
 let clip_stack : Array[@smath.Rect] = []
+
+///|
+const MAX_DIRECTIONAL_LIGHTS : Int = 4
+
+///|
+const MAX_POINT_LIGHTS : Int = 8
+
+///|
+const MAX_SPOT_LIGHTS : Int = 4
+
+///|
+let raylib_lighting_vertex_shader : String = "#version 330\n" +
+  "in vec3 vertexPosition;\n" +
+  "in vec2 vertexTexCoord;\n" +
+  "in vec3 vertexNormal;\n" +
+  "in vec4 vertexColor;\n" +
+  "uniform mat4 mvp;\n" +
+  "uniform mat4 matModel;\n" +
+  "uniform mat4 matNormal;\n" +
+  "out vec3 fragPosition;\n" +
+  "out vec2 fragTexCoord;\n" +
+  "out vec3 fragNormal;\n" +
+  "out vec4 fragVertexColor;\n" +
+  "void main() {\n" +
+  "  vec4 worldPosition = matModel * vec4(vertexPosition, 1.0);\n" +
+  "  fragPosition = worldPosition.xyz;\n" +
+  "  fragTexCoord = vertexTexCoord;\n" +
+  "  fragNormal = normalize((matNormal * vec4(vertexNormal, 0.0)).xyz);\n" +
+  "  fragVertexColor = vertexColor;\n" +
+  "  gl_Position = mvp * vec4(vertexPosition, 1.0);\n" +
+  "}\n"
+
+///|
+let raylib_lighting_fragment_shader : String = "#version 330\n" +
+  "in vec3 fragPosition;\n" +
+  "in vec2 fragTexCoord;\n" +
+  "in vec3 fragNormal;\n" +
+  "in vec4 fragVertexColor;\n" +
+  "uniform sampler2D texture0;\n" +
+  "uniform vec3 ambientLight;\n" +
+  "uniform vec3 viewPosition;\n" +
+  "uniform int directionalCount;\n" +
+  "uniform vec3 directionalDirections[4];\n" +
+  "uniform vec3 directionalColors[4];\n" +
+  "uniform int pointCount;\n" +
+  "uniform vec3 pointPositions[8];\n" +
+  "uniform vec3 pointColors[8];\n" +
+  "uniform float pointRanges[8];\n" +
+  "uniform int spotCount;\n" +
+  "uniform vec3 spotPositions[4];\n" +
+  "uniform vec3 spotDirections[4];\n" +
+  "uniform vec3 spotColors[4];\n" +
+  "uniform vec3 spotParams[4];\n" +
+  "uniform vec4 materialBaseColor;\n" +
+  "uniform vec3 materialEmissiveColor;\n" +
+  "uniform float materialMetallic;\n" +
+  "uniform float materialRoughness;\n" +
+  "uniform int materialHasTexture;\n" +
+  "out vec4 finalColor;\n" +
+  "float rangeAttenuation(float distanceToLight, float lightRange) {\n" +
+  "  if (lightRange <= 0.000001) return 1.0;\n" +
+  "  if (distanceToLight >= lightRange) return 0.0;\n" +
+  "  float t = 1.0 - distanceToLight / lightRange;\n" +
+  "  return t * t;\n" +
+  "}\n" +
+  "float spotAttenuation(vec3 spotDirection, vec3 lightToFragment, vec3 params) {\n" +
+  "  float inner = max(params.y, params.z);\n" +
+  "  float outer = min(params.y, params.z);\n" +
+  "  float cosTheta = dot(normalize(spotDirection), normalize(lightToFragment));\n" +
+  "  float delta = inner - outer;\n" +
+  "  if (cosTheta <= outer) return 0.0;\n" +
+  "  if (cosTheta >= inner || abs(delta) <= 0.000001) return 1.0;\n" +
+  "  return (cosTheta - outer) / delta;\n" +
+  "}\n" +
+  "void addLight(\n" +
+  "  vec3 lightDir,\n" +
+  "  vec3 lightColor,\n" +
+  "  float attenuation,\n" +
+  "  vec3 normal,\n" +
+  "  vec3 viewDir,\n" +
+  "  float shininess,\n" +
+  "  float specularStrength,\n" +
+  "  inout vec3 diffuseLight,\n" +
+  "  inout vec3 specularLight\n" +
+  ") {\n" +
+  "  if (attenuation <= 0.0) return;\n" +
+  "  float lambert = max(dot(normal, lightDir), 0.0);\n" +
+  "  if (lambert <= 0.0) return;\n" +
+  "  diffuseLight += lightColor * (lambert * attenuation);\n" +
+  "  vec3 halfway = normalize(lightDir + viewDir);\n" +
+  "  float spec = pow(max(dot(normal, halfway), 0.0), shininess) * specularStrength;\n" +
+  "  specularLight += lightColor * (spec * attenuation);\n" +
+  "}\n" +
+  "void main() {\n" +
+  "  vec4 albedoSample = materialHasTexture != 0 ? texture(texture0, fragTexCoord) : vec4(1.0);\n" +
+  "  vec4 albedo = albedoSample * fragVertexColor * materialBaseColor;\n" +
+  "  if (albedo.a <= 0.0001) discard;\n" +
+  "  vec3 normal = normalize(fragNormal);\n" +
+  "  if (length(normal) <= 0.00001) normal = vec3(0.0, 1.0, 0.0);\n" +
+  "  vec3 viewDir = normalize(viewPosition - fragPosition);\n" +
+  "  if (length(viewDir) <= 0.00001) viewDir = vec3(0.0, 0.0, 1.0);\n" +
+  "  float roughness = clamp(materialRoughness, 0.0, 1.0);\n" +
+  "  float metallic = clamp(materialMetallic, 0.0, 1.0);\n" +
+  "  float shininess = mix(96.0, 8.0, roughness);\n" +
+  "  float specularStrength = mix(0.04, 1.0, metallic);\n" +
+  "  vec3 diffuseLight = ambientLight;\n" +
+  "  vec3 specularLight = vec3(0.0);\n" +
+  "  for (int i = 0; i < directionalCount; i++) {\n" +
+  "    vec3 lightDir = normalize(-directionalDirections[i]);\n" +
+  "    addLight(lightDir, directionalColors[i], 1.0, normal, viewDir, shininess, specularStrength, diffuseLight, specularLight);\n" +
+  "  }\n" +
+  "  for (int i = 0; i < pointCount; i++) {\n" +
+  "    vec3 toLight = pointPositions[i] - fragPosition;\n" +
+  "    float distanceToLight = length(toLight);\n" +
+  "    if (distanceToLight <= 0.00001) continue;\n" +
+  "    vec3 lightDir = toLight / distanceToLight;\n" +
+  "    float attenuation = rangeAttenuation(distanceToLight, pointRanges[i]);\n" +
+  "    addLight(lightDir, pointColors[i], attenuation, normal, viewDir, shininess, specularStrength, diffuseLight, specularLight);\n" +
+  "  }\n" +
+  "  for (int i = 0; i < spotCount; i++) {\n" +
+  "    vec3 toLight = spotPositions[i] - fragPosition;\n" +
+  "    float distanceToLight = length(toLight);\n" +
+  "    if (distanceToLight <= 0.00001) continue;\n" +
+  "    vec3 lightDir = toLight / distanceToLight;\n" +
+  "    float attenuation = rangeAttenuation(distanceToLight, spotParams[i].x);\n" +
+  "    float cone = spotAttenuation(spotDirections[i], -lightDir, spotParams[i]);\n" +
+  "    addLight(lightDir, spotColors[i], attenuation * cone, normal, viewDir, shininess, specularStrength, diffuseLight, specularLight);\n" +
+  "  }\n" +
+  "  if (directionalCount == 0 && pointCount == 0 && spotCount == 0 && dot(ambientLight, ambientLight) <= 0.000001) {\n" +
+  "    diffuseLight = vec3(1.0);\n" +
+  "  }\n" +
+  "  vec3 litColor = albedo.rgb * diffuseLight + specularLight + materialEmissiveColor;\n" +
+  "  finalColor = vec4(litColor, albedo.a);\n" +
+  "}\n"
 
 ///|
 fn default_font_codepoints() -> Array[Int] {
@@ -257,22 +419,6 @@ fn to_ray_color_bytes(color : @render.Color) -> (Byte, Byte, Byte, Byte) {
 }
 
 ///|
-fn clamp01(value : Double) -> Double {
-  if value < 0.0 {
-    0.0
-  } else if value > 1.0 {
-    1.0
-  } else {
-    value
-  }
-}
-
-///|
-fn factor_to_u8(value : Double) -> UInt {
-  (clamp01(value) * 255.0).to_int().reinterpret_as_uint()
-}
-
-///|
 fn color_to_vec3(color : @render.Color) -> @smath.Vec3 {
   @smath.Vec3::new(
     color.r.to_double() / 255.0,
@@ -291,142 +437,440 @@ fn normalize_or(value : @smath.Vec3, fallback : @smath.Vec3) -> @smath.Vec3 {
 }
 
 ///|
-fn has_scene_lights(frame : @render3d_types.RenderFrame3D) -> Bool {
-  frame.ambient_light is Some(_) ||
-  frame.directional_lights.length() > 0 ||
-  frame.point_lights.length() > 0 ||
-  frame.spot_lights.length() > 0
-}
-
-///|
 fn light_rgb(color : @render.Color, intensity : Double) -> @smath.Vec3 {
   color_to_vec3(color).scalar_mul(@cmp.maximum(0.0, intensity))
 }
 
 ///|
-fn range_attenuation(distance : Double, range : Double) -> Double {
-  if range <= 0.000001 {
-    1.0
-  } else if distance >= range {
-    0.0
-  } else {
-    let t = 1.0 - distance / range
-    t * t
-  }
+fn append_u32_le(out : Array[Byte], value : UInt) -> Unit {
+  out.push(value.to_byte())
+  out.push((value >> 8).to_byte())
+  out.push((value >> 16).to_byte())
+  out.push((value >> 24).to_byte())
 }
 
 ///|
-fn spot_cone_attenuation(
-  light : @render3d_types.FrameSpotLight3D,
-  point : @smath.Vec3,
-) -> Double {
-  let light_dir = normalize_or(
-    light.direction,
-    @smath.Vec3::new(0.0, -1.0, 0.0),
+fn append_i32_le(out : Array[Byte], value : Int) -> Unit {
+  append_u32_le(out, value.reinterpret_as_uint())
+}
+
+///|
+fn append_f32_le(out : Array[Byte], value : Double) -> Unit {
+  append_i32_le(out, to_float(value).reinterpret_as_int())
+}
+
+///|
+fn append_vec3_le(out : Array[Byte], value : @smath.Vec3) -> Unit {
+  append_f32_le(out, value.x)
+  append_f32_le(out, value.y)
+  append_f32_le(out, value.z)
+}
+
+///|
+fn bytes_from_int(value : Int) -> Bytes {
+  let out : Array[Byte] = []
+  append_i32_le(out, value)
+  Bytes::from_array(out)
+}
+
+///|
+fn bytes_from_float(value : Double) -> Bytes {
+  let out : Array[Byte] = []
+  append_f32_le(out, value)
+  Bytes::from_array(out)
+}
+
+///|
+fn bytes_from_vec3(value : @smath.Vec3) -> Bytes {
+  let out : Array[Byte] = []
+  append_vec3_le(out, value)
+  Bytes::from_array(out)
+}
+
+///|
+fn bytes_from_color4(color : @render.Color) -> Bytes {
+  let out : Array[Byte] = []
+  append_f32_le(out, color.r.to_double() / 255.0)
+  append_f32_le(out, color.g.to_double() / 255.0)
+  append_f32_le(out, color.b.to_double() / 255.0)
+  append_f32_le(out, color.a)
+  Bytes::from_array(out)
+}
+
+///|
+fn pack_vec3_array(values : Array[@smath.Vec3], count : Int) -> Bytes {
+  let out : Array[Byte] = []
+  for index in 0..<count {
+    append_vec3_le(out, values[index])
+  }
+  Bytes::from_array(out)
+}
+
+///|
+fn pack_float_array(values : Array[Double], count : Int) -> Bytes {
+  let out : Array[Byte] = []
+  for index in 0..<count {
+    append_f32_le(out, values[index])
+  }
+  Bytes::from_array(out)
+}
+
+///|
+fn set_shader_uniform(
+  shader : @raylib.Shader,
+  loc : Int,
+  value : Bytes,
+  uniform_type : Int,
+) -> Unit {
+  if loc == -1 {
+    return
+  }
+  @raylib.set_shader_value(shader, loc, value, uniform_type)
+}
+
+///|
+fn set_shader_uniform_v(
+  shader : @raylib.Shader,
+  loc : Int,
+  value : Bytes,
+  uniform_type : Int,
+  count : Int,
+) -> Unit {
+  if loc == -1 || count <= 0 {
+    return
+  }
+  @raylib.set_shader_value_v(shader, loc, value, uniform_type, count)
+}
+
+///|
+fn configure_lighting_shader_locations(shader : @raylib.Shader) -> Unit {
+  @raylib.set_shader_location(
+    shader,
+    @raylib.ShaderLocVertexPosition,
+    @raylib.get_shader_location_attrib(shader, "vertexPosition"),
   )
-  let from_light = point - light.position
-  if from_light.length_squared() <= 0.0000001 {
-    return 1.0
-  }
-  let point_dir = from_light.normalize()
-  let cos_theta = light_dir.dot(point_dir)
-  let inner = @cmath.cos(light.inner_angle)
-  let outer = @cmath.cos(light.outer_angle)
-  let high = @cmp.maximum(inner, outer)
-  let low = @cmp.minimum(inner, outer)
-  let delta = high - low
-  if cos_theta <= low {
-    0.0
-  } else if cos_theta >= high || delta.abs() <= 0.000001 {
-    1.0
-  } else {
-    (cos_theta - low) / delta
-  }
+  @raylib.set_shader_location(
+    shader,
+    @raylib.ShaderLocVertexTexcoord01,
+    @raylib.get_shader_location_attrib(shader, "vertexTexCoord"),
+  )
+  @raylib.set_shader_location(
+    shader,
+    @raylib.ShaderLocVertexNormal,
+    @raylib.get_shader_location_attrib(shader, "vertexNormal"),
+  )
+  @raylib.set_shader_location(
+    shader,
+    @raylib.ShaderLocVertexColor,
+    @raylib.get_shader_location_attrib(shader, "vertexColor"),
+  )
+  @raylib.set_shader_location(
+    shader,
+    @raylib.ShaderLocMatrixMvp,
+    @raylib.get_shader_location(shader, "mvp"),
+  )
+  @raylib.set_shader_location(
+    shader,
+    @raylib.ShaderLocMatrixView,
+    @raylib.get_shader_location(shader, "matView"),
+  )
+  @raylib.set_shader_location(
+    shader,
+    @raylib.ShaderLocMatrixProjection,
+    @raylib.get_shader_location(shader, "matProjection"),
+  )
+  @raylib.set_shader_location(
+    shader,
+    @raylib.ShaderLocMatrixModel,
+    @raylib.get_shader_location(shader, "matModel"),
+  )
+  @raylib.set_shader_location(
+    shader,
+    @raylib.ShaderLocMatrixNormal,
+    @raylib.get_shader_location(shader, "matNormal"),
+  )
+  @raylib.set_shader_location(
+    shader,
+    @raylib.ShaderLocMapAlbedo,
+    @raylib.get_shader_location(shader, "texture0"),
+  )
 }
 
 ///|
-fn compute_lighting_rgb(
-  frame : @render3d_types.RenderFrame3D,
-  world_pos : @smath.Vec3,
-  world_normal : @smath.Vec3,
-) -> @smath.Vec3 {
-  if !has_scene_lights(frame) {
-    return @smath.Vec3::one()
-  }
-  let normal = normalize_or(world_normal, @smath.Vec3::new(0.0, 1.0, 0.0))
-  let mut out = @smath.Vec3::zero()
-  if frame.ambient_light is Some(ambient) {
-    out = out + light_rgb(ambient.color, ambient.intensity)
-  }
-  for light in frame.directional_lights {
-    let incoming = -normalize_or(
-      light.direction,
-      @smath.Vec3::new(0.0, -1.0, 0.0),
-    )
-    let lambert = @cmp.maximum(0.0, normal.dot(incoming))
-    if lambert > 0.0 {
-      out = out + light_rgb(light.color, light.intensity * lambert)
-    }
-  }
-  for light in frame.point_lights {
-    let to_light = light.position - world_pos
-    let distance = to_light.length()
-    if distance <= 0.000001 {
-      out = out + light_rgb(light.color, light.intensity)
-      continue
-    }
-    let lambert = @cmp.maximum(0.0, normal.dot(to_light.scalar_div(distance)))
-    if lambert <= 0.0 {
-      continue
-    }
-    let attenuation = range_attenuation(distance, light.range)
-    if attenuation <= 0.0 {
-      continue
-    }
-    out = out + light_rgb(light.color, light.intensity * lambert * attenuation)
-  }
-  for light in frame.spot_lights {
-    let to_light = light.position - world_pos
-    let distance = to_light.length()
-    if distance <= 0.000001 {
-      out = out + light_rgb(light.color, light.intensity)
-      continue
-    }
-    let lambert = @cmp.maximum(0.0, normal.dot(to_light.scalar_div(distance)))
-    if lambert <= 0.0 {
-      continue
-    }
-    let attenuation = range_attenuation(distance, light.range)
-    if attenuation <= 0.0 {
-      continue
-    }
-    let cone = spot_cone_attenuation(light, world_pos)
-    if cone <= 0.0 {
-      continue
-    }
-    out = out +
-      light_rgb(light.color, light.intensity * lambert * attenuation * cone)
-  }
-  out
-}
-
-///|
-fn lit_material_color(
-  material : @render3d_types.StandardMaterial3D,
-  frame : @render3d_types.RenderFrame3D,
-  world_pos : @smath.Vec3,
-  world_normal : @smath.Vec3,
-) -> @render.Color {
-  let base_rgb = color_to_vec3(material.base_color)
-  let emissive_rgb = color_to_vec3(material.emissive_color)
-  let lighting_rgb = compute_lighting_rgb(frame, world_pos, world_normal)
-  let lit = base_rgb * lighting_rgb + emissive_rgb
+fn create_lighting_shader_state() -> LightingShaderState {
+  let shader = @raylib.load_shader_from_memory(
+    raylib_lighting_vertex_shader, raylib_lighting_fragment_shader,
+  )
+  configure_lighting_shader_locations(shader)
   {
-    r: factor_to_u8(lit.x),
-    g: factor_to_u8(lit.y),
-    b: factor_to_u8(lit.z),
-    a: clamp01(material.base_color.a),
+    shader,
+    ambient_light_loc: @raylib.get_shader_location(shader, "ambientLight"),
+    view_position_loc: @raylib.get_shader_location(shader, "viewPosition"),
+    directional_count_loc: @raylib.get_shader_location(
+      shader, "directionalCount",
+    ),
+    directional_directions_loc: @raylib.get_shader_location(
+      shader, "directionalDirections[0]",
+    ),
+    directional_colors_loc: @raylib.get_shader_location(
+      shader, "directionalColors[0]",
+    ),
+    point_count_loc: @raylib.get_shader_location(shader, "pointCount"),
+    point_positions_loc: @raylib.get_shader_location(
+      shader, "pointPositions[0]",
+    ),
+    point_colors_loc: @raylib.get_shader_location(shader, "pointColors[0]"),
+    point_ranges_loc: @raylib.get_shader_location(shader, "pointRanges[0]"),
+    spot_count_loc: @raylib.get_shader_location(shader, "spotCount"),
+    spot_positions_loc: @raylib.get_shader_location(shader, "spotPositions[0]"),
+    spot_directions_loc: @raylib.get_shader_location(
+      shader, "spotDirections[0]",
+    ),
+    spot_colors_loc: @raylib.get_shader_location(shader, "spotColors[0]"),
+    spot_params_loc: @raylib.get_shader_location(shader, "spotParams[0]"),
+    material_base_color_loc: @raylib.get_shader_location(
+      shader, "materialBaseColor",
+    ),
+    material_emissive_color_loc: @raylib.get_shader_location(
+      shader, "materialEmissiveColor",
+    ),
+    material_metallic_loc: @raylib.get_shader_location(
+      shader, "materialMetallic",
+    ),
+    material_roughness_loc: @raylib.get_shader_location(
+      shader, "materialRoughness",
+    ),
+    material_has_texture_loc: @raylib.get_shader_location(
+      shader, "materialHasTexture",
+    ),
   }
+}
+
+///|
+fn get_lighting_shader_state() -> LightingShaderState {
+  if backend.lighting_shader is Some(state) {
+    return state
+  }
+  let state = create_lighting_shader_state()
+  backend.lighting_shader = Some(state)
+  state
+}
+
+///|
+fn white_render_color() -> @render.Color {
+  { r: 255U, g: 255U, b: 255U, a: 1.0 }
+}
+
+///|
+fn get_lit_material(textured : Bool) -> @raylib.Material {
+  let existing = if textured {
+    backend.lit_textured_material
+  } else {
+    backend.lit_material
+  }
+  if existing is Some(material) {
+    return material
+  }
+  let material = @raylib.load_material_default()
+  @raylib.set_material_shader(material, get_lighting_shader_state().shader)
+  @raylib.set_material_map_color(
+    material,
+    @raylib.MaterialMapAlbedo,
+    to_ray_color(white_render_color()),
+  )
+  if textured {
+    backend.lit_textured_material = Some(material)
+  } else {
+    backend.lit_material = Some(material)
+  }
+  material
+}
+
+///|
+fn upload_lighting_uniforms(
+  frame : @render3d_types.RenderFrame3D,
+  camera_position : @smath.Vec3,
+  material : @render3d_types.StandardMaterial3D,
+  has_texture : Bool,
+) -> LightingShaderState {
+  let state = get_lighting_shader_state()
+  let shader = state.shader
+  let ambient = frame.ambient_light
+    .map(fn(light) { light_rgb(light.color, light.intensity) })
+    .unwrap_or(@smath.Vec3::zero())
+  set_shader_uniform(
+    shader,
+    state.ambient_light_loc,
+    bytes_from_vec3(ambient),
+    @raylib.ShaderUniformVec3,
+  )
+  set_shader_uniform(
+    shader,
+    state.view_position_loc,
+    bytes_from_vec3(camera_position),
+    @raylib.ShaderUniformVec3,
+  )
+
+  let directional_count = @cmp.minimum(
+    frame.directional_lights.length(),
+    MAX_DIRECTIONAL_LIGHTS,
+  )
+  let directional_directions : Array[@smath.Vec3] = []
+  let directional_colors : Array[@smath.Vec3] = []
+  for index in 0..<directional_count {
+    let light = frame.directional_lights[index]
+    directional_directions.push(
+      normalize_or(light.direction, @smath.Vec3::new(0.0, -1.0, 0.0)),
+    )
+    directional_colors.push(light_rgb(light.color, light.intensity))
+  }
+  set_shader_uniform(
+    shader,
+    state.directional_count_loc,
+    bytes_from_int(directional_count),
+    @raylib.ShaderUniformInt,
+  )
+  set_shader_uniform_v(
+    shader,
+    state.directional_directions_loc,
+    pack_vec3_array(directional_directions, directional_count),
+    @raylib.ShaderUniformVec3,
+    directional_count,
+  )
+  set_shader_uniform_v(
+    shader,
+    state.directional_colors_loc,
+    pack_vec3_array(directional_colors, directional_count),
+    @raylib.ShaderUniformVec3,
+    directional_count,
+  )
+
+  let point_count = @cmp.minimum(frame.point_lights.length(), MAX_POINT_LIGHTS)
+  let point_positions : Array[@smath.Vec3] = []
+  let point_colors : Array[@smath.Vec3] = []
+  let point_ranges : Array[Double] = []
+  for index in 0..<point_count {
+    let light = frame.point_lights[index]
+    point_positions.push(light.position)
+    point_colors.push(light_rgb(light.color, light.intensity))
+    point_ranges.push(light.range)
+  }
+  set_shader_uniform(
+    shader,
+    state.point_count_loc,
+    bytes_from_int(point_count),
+    @raylib.ShaderUniformInt,
+  )
+  set_shader_uniform_v(
+    shader,
+    state.point_positions_loc,
+    pack_vec3_array(point_positions, point_count),
+    @raylib.ShaderUniformVec3,
+    point_count,
+  )
+  set_shader_uniform_v(
+    shader,
+    state.point_colors_loc,
+    pack_vec3_array(point_colors, point_count),
+    @raylib.ShaderUniformVec3,
+    point_count,
+  )
+  set_shader_uniform_v(
+    shader,
+    state.point_ranges_loc,
+    pack_float_array(point_ranges, point_count),
+    @raylib.ShaderUniformFloat,
+    point_count,
+  )
+
+  let spot_count = @cmp.minimum(frame.spot_lights.length(), MAX_SPOT_LIGHTS)
+  let spot_positions : Array[@smath.Vec3] = []
+  let spot_directions : Array[@smath.Vec3] = []
+  let spot_colors : Array[@smath.Vec3] = []
+  let spot_params : Array[@smath.Vec3] = []
+  for index in 0..<spot_count {
+    let light = frame.spot_lights[index]
+    let inner = @cmath.cos(light.inner_angle)
+    let outer = @cmath.cos(light.outer_angle)
+    spot_positions.push(light.position)
+    spot_directions.push(
+      normalize_or(light.direction, @smath.Vec3::new(0.0, -1.0, 0.0)),
+    )
+    spot_colors.push(light_rgb(light.color, light.intensity))
+    spot_params.push(
+      @smath.Vec3::new(
+        light.range,
+        @cmp.maximum(inner, outer),
+        @cmp.minimum(inner, outer),
+      ),
+    )
+  }
+  set_shader_uniform(
+    shader,
+    state.spot_count_loc,
+    bytes_from_int(spot_count),
+    @raylib.ShaderUniformInt,
+  )
+  set_shader_uniform_v(
+    shader,
+    state.spot_positions_loc,
+    pack_vec3_array(spot_positions, spot_count),
+    @raylib.ShaderUniformVec3,
+    spot_count,
+  )
+  set_shader_uniform_v(
+    shader,
+    state.spot_directions_loc,
+    pack_vec3_array(spot_directions, spot_count),
+    @raylib.ShaderUniformVec3,
+    spot_count,
+  )
+  set_shader_uniform_v(
+    shader,
+    state.spot_colors_loc,
+    pack_vec3_array(spot_colors, spot_count),
+    @raylib.ShaderUniformVec3,
+    spot_count,
+  )
+  set_shader_uniform_v(
+    shader,
+    state.spot_params_loc,
+    pack_vec3_array(spot_params, spot_count),
+    @raylib.ShaderUniformVec3,
+    spot_count,
+  )
+
+  set_shader_uniform(
+    shader,
+    state.material_base_color_loc,
+    bytes_from_color4(material.base_color),
+    @raylib.ShaderUniformVec4,
+  )
+  set_shader_uniform(
+    shader,
+    state.material_emissive_color_loc,
+    bytes_from_vec3(color_to_vec3(material.emissive_color)),
+    @raylib.ShaderUniformVec3,
+  )
+  set_shader_uniform(
+    shader,
+    state.material_metallic_loc,
+    bytes_from_float(material.metallic),
+    @raylib.ShaderUniformFloat,
+  )
+  set_shader_uniform(
+    shader,
+    state.material_roughness_loc,
+    bytes_from_float(material.roughness),
+    @raylib.ShaderUniformFloat,
+  )
+  set_shader_uniform(
+    shader,
+    state.material_has_texture_loc,
+    bytes_from_int(if has_texture { 1 } else { 0 }),
+    @raylib.ShaderUniformInt,
+  )
+  state
 }
 
 ///|
@@ -501,29 +945,30 @@ fn get_or_create_primitive_mesh(
 }
 
 ///|
-fn get_textured_material() -> @raylib.Material {
-  if backend.textured_material is Some(material) {
-    return material
-  }
-  let material = @raylib.load_material_default()
-  backend.textured_material = Some(material)
-  material
-}
-
-///|
-fn draw_textured_mesh_with_material(
+fn draw_lit_mesh_with_material(
   mesh : @raylib.Mesh,
-  texture : @raylib.Texture,
-  tint : @render.Color,
+  frame : @render3d_types.RenderFrame3D,
+  camera_position : @smath.Vec3,
+  material : @render3d_types.StandardMaterial3D,
+  texture : @raylib.Texture?,
 ) -> Unit {
-  let material = get_textured_material()
-  @raylib.set_material_texture(material, @raylib.MaterialMapAlbedo, texture)
-  @raylib.set_material_map_color(
-    material,
-    @raylib.MaterialMapAlbedo,
-    to_ray_color(tint),
+  ignore(
+    upload_lighting_uniforms(
+      frame,
+      camera_position,
+      material,
+      texture is Some(_),
+    ),
   )
-  @raylib.draw_mesh(mesh, material, @raylib.Matrix::identity())
+  let ray_material = get_lit_material(texture is Some(_))
+  if texture is Some(texture) {
+    @raylib.set_material_texture(
+      ray_material,
+      @raylib.MaterialMapAlbedo,
+      texture,
+    )
+  }
+  @raylib.draw_mesh(mesh, ray_material, @raylib.Matrix::identity())
 }
 
 ///|
@@ -906,10 +1351,18 @@ fn cleanup_resources() -> Unit {
     @raylib.unload_mesh(mesh)
   }
   backend.primitive_meshes.clear()
-  if backend.textured_material is Some(material) {
+  if backend.lit_material is Some(material) {
     @raylib.unload_material(material)
   }
-  backend.textured_material = None
+  backend.lit_material = None
+  if backend.lit_textured_material is Some(material) {
+    @raylib.unload_material(material)
+  }
+  backend.lit_textured_material = None
+  if backend.lighting_shader is Some(state) {
+    @raylib.unload_shader(state.shader)
+  }
+  backend.lighting_shader = None
   backend.meshes3d.clear()
   backend.materials3d.clear()
   backend.images3d.clear()
@@ -1184,7 +1637,13 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
     let material = backend.materials3d
       .get(item.material)
       .unwrap_or(@render3d_types.default_standard_material3d())
-    draw_mesh3d_instance(mesh_asset, material, item.transform, frame)
+    draw_mesh3d_instance(
+      mesh_asset,
+      material,
+      item.transform,
+      frame,
+      active_camera.position,
+    )
   }
   end_3d()
 }
@@ -1195,6 +1654,7 @@ fn draw_mesh3d_instance(
   material : @render3d_types.StandardMaterial3D,
   transform : @render3d_types.FrameTransform3D,
   frame : @render3d_types.RenderFrame3D,
+  camera_position : @smath.Vec3,
 ) -> Unit {
   @rl.push_matrix()
   @rl.translatef(
@@ -1208,59 +1668,24 @@ fn draw_mesh3d_instance(
     to_float(transform.scale.y),
     to_float(transform.scale.z),
   )
-  let lit_color = lit_material_color(
-    material,
-    frame,
-    transform.translation,
-    transform.rotation.rotate_vec3(@smath.Vec3::new(0.0, 1.0, 0.0)),
-  )
-  let color = to_ray_color(lit_color)
+  let texture = resolve_material_texture(material)
   match mesh_asset.primitive {
     Cube(size) =>
-      if !draw_textured_cuboid_if_possible(size, material, lit_color) {
-        @raylib.draw_cube(
-          @raylib.Vector3::new(0.0F, 0.0F, 0.0F),
-          to_float(size.x),
-          to_float(size.y),
-          to_float(size.z),
-          color,
-        )
-      }
+      draw_lit_cuboid(size, material, frame, camera_position, texture)
     Sphere(radius) =>
-      if !draw_textured_sphere_if_possible(radius, material, lit_color) {
-        @raylib.draw_sphere(
-          @raylib.Vector3::new(0.0F, 0.0F, 0.0F),
-          to_float(radius),
-          color,
-        )
-      }
+      draw_lit_sphere(radius, material, frame, camera_position, texture)
     Cylinder(radius_top, radius_bottom, height, slices) =>
-      if !draw_textured_cylinder_if_possible(
-          radius_top, radius_bottom, height, slices, material, lit_color,
-        ) {
-        @raylib.draw_cylinder(
-          @raylib.Vector3::new(0.0F, 0.0F, 0.0F),
-          to_float(radius_top),
-          to_float(radius_bottom),
-          to_float(height),
-          slices,
-          color,
-        )
-      }
+      draw_lit_cylinder(
+        radius_top, radius_bottom, height, slices, material, frame, camera_position,
+        texture,
+      )
     Plane(size) => {
       let thickness = if size.y.abs() < 0.0001 { 0.02 } else { size.y }
       let cuboid = @smath.Vec3::new(size.x, thickness, size.z)
-      if !draw_textured_cuboid_if_possible(cuboid, material, lit_color) {
-        @raylib.draw_cube(
-          @raylib.Vector3::new(0.0F, 0.0F, 0.0F),
-          to_float(size.x),
-          to_float(thickness),
-          to_float(size.z),
-          color,
-        )
-      }
+      draw_lit_cuboid(cuboid, material, frame, camera_position, texture)
     }
-    Triangles(mesh) => draw_triangle_mesh(mesh, material, lit_color)
+    Triangles(mesh) =>
+      draw_triangle_mesh(mesh, material, frame, camera_position, texture)
   }
   @rl.pop_matrix()
 }
@@ -1272,31 +1697,28 @@ const TEXTURED_SPHERE_STACKS : Int = 16
 const TEXTURED_SPHERE_SLICES : Int = 24
 
 ///|
-fn draw_textured_cuboid_if_possible(
+fn draw_lit_cuboid(
   size : @smath.Vec3,
   material : @render3d_types.StandardMaterial3D,
-  tint : @render.Color,
-) -> Bool {
-  guard resolve_material_texture(material) is Some(texture) else {
-    return false
-  }
+  frame : @render3d_types.RenderFrame3D,
+  camera_position : @smath.Vec3,
+  texture : @raylib.Texture?,
+) -> Unit {
   let key = "cube:\{size.x}:\{size.y}:\{size.z}"
   let mesh = get_or_create_primitive_mesh(key, fn() {
     @raylib.gen_mesh_cube(to_float(size.x), to_float(size.y), to_float(size.z))
   })
-  draw_textured_mesh_with_material(mesh, texture, tint)
-  true
+  draw_lit_mesh_with_material(mesh, frame, camera_position, material, texture)
 }
 
 ///|
-fn draw_textured_sphere_if_possible(
+fn draw_lit_sphere(
   radius : Double,
   material : @render3d_types.StandardMaterial3D,
-  tint : @render.Color,
-) -> Bool {
-  guard resolve_material_texture(material) is Some(texture) else {
-    return false
-  }
+  frame : @render3d_types.RenderFrame3D,
+  camera_position : @smath.Vec3,
+  texture : @raylib.Texture?,
+) -> Unit {
   let key = "sphere:\{radius}:\{TEXTURED_SPHERE_SLICES}:\{TEXTURED_SPHERE_STACKS}"
   let mesh = get_or_create_primitive_mesh(key, fn() {
     @raylib.gen_mesh_sphere(
@@ -1305,38 +1727,43 @@ fn draw_textured_sphere_if_possible(
       TEXTURED_SPHERE_STACKS,
     )
   })
-  draw_textured_mesh_with_material(mesh, texture, tint)
-  true
+  draw_lit_mesh_with_material(mesh, frame, camera_position, material, texture)
 }
 
 ///|
-fn draw_textured_cylinder_if_possible(
+fn draw_lit_cylinder(
   radius_top : Double,
   radius_bottom : Double,
   height : Double,
   slices : Int,
   material : @render3d_types.StandardMaterial3D,
-  tint : @render.Color,
-) -> Bool {
-  guard resolve_material_texture(material) is Some(texture) else {
-    return false
-  }
+  frame : @render3d_types.RenderFrame3D,
+  camera_position : @smath.Vec3,
+  texture : @raylib.Texture?,
+) -> Unit {
   if (radius_top - radius_bottom).abs() <= 0.000001 {
     let key = "cylinder:\{radius_top}:\{height}:\{slices}"
     let mesh = get_or_create_primitive_mesh(key, fn() {
       @raylib.gen_mesh_cylinder(to_float(radius_top), to_float(height), slices)
     })
-    draw_textured_mesh_with_material(mesh, texture, tint)
-    return true
+    draw_lit_mesh_with_material(mesh, frame, camera_position, material, texture)
+    return
   }
   let (vertices, uvs, normals) = build_cylinder_mesh(
     radius_top, radius_bottom, height, slices,
   )
   if vertices.length() < 3 {
-    return false
+    return
   }
-  draw_textured_triangle_mesh(vertices, uvs, normals, texture, tint)
-  true
+  draw_triangle_vertices(
+    vertices,
+    Some(uvs),
+    normals,
+    texture,
+    material,
+    frame,
+    camera_position,
+  )
 }
 
 ///|
@@ -1541,22 +1968,29 @@ fn apply_quat_rotation(quat : @smath.Quat) -> Unit {
 fn draw_triangle_mesh(
   mesh : @render3d_types.TriangleMesh3D,
   material : @render3d_types.StandardMaterial3D,
-  lit_color : @render.Color,
+  frame : @render3d_types.RenderFrame3D,
+  camera_position : @smath.Vec3,
+  texture : @raylib.Texture?,
 ) -> Unit {
   let vertices = mesh.positions
   if vertices.length() < 3 {
     return
   }
-  if material.base_color_texture is Some(_) {
-    guard resolve_material_texture(material) is Some(texture) else {
-      draw_colored_triangle_mesh(vertices, to_ray_color(lit_color))
-      return
-    }
+  let normals = resolve_triangle_normals(mesh)
+  if material.base_color_texture is Some(_) && texture is Some(texture) {
     guard mesh.uvs is Some(uvs) else {
       warn_texture_issue(
         "triangles_missing_uvs", "triangle mesh has base_color_texture but no UVs; fallback to base_color",
       )
-      draw_colored_triangle_mesh(vertices, to_ray_color(lit_color))
+      draw_triangle_vertices(
+        vertices,
+        None,
+        normals,
+        None,
+        material,
+        frame,
+        camera_position,
+      )
       return
     }
     if uvs.length() != vertices.length() {
@@ -1564,14 +1998,37 @@ fn draw_triangle_mesh(
         "triangles_uv_mismatch:\{uvs.length()}:\{vertices.length()}",
         "triangle mesh UV count (\{uvs.length()}) != vertex count (\{vertices.length()}); fallback to base_color",
       )
-      draw_colored_triangle_mesh(vertices, to_ray_color(lit_color))
+      draw_triangle_vertices(
+        vertices,
+        None,
+        normals,
+        None,
+        material,
+        frame,
+        camera_position,
+      )
       return
     }
-    let normals = resolve_triangle_normals(mesh)
-    draw_textured_triangle_mesh(vertices, uvs, normals, texture, lit_color)
+    draw_triangle_vertices(
+      vertices,
+      Some(uvs),
+      normals,
+      Some(texture),
+      material,
+      frame,
+      camera_position,
+    )
     return
   }
-  draw_colored_triangle_mesh(vertices, to_ray_color(lit_color))
+  draw_triangle_vertices(
+    vertices,
+    None,
+    normals,
+    None,
+    material,
+    frame,
+    camera_position,
+  )
 }
 
 ///|
@@ -1608,45 +2065,43 @@ fn compute_flat_triangle_normals(
 }
 
 ///|
-fn draw_colored_triangle_mesh(
+fn draw_triangle_vertices(
   vertices : Array[@smath.Vec3],
-  color : @raylib.Color,
-) -> Unit {
-  let triangle_count = vertices.length() / 3
-  for index in 0..<triangle_count {
-    let base = index * 3
-    @raylib.draw_triangle_3d(
-      to_ray_vector3_smath(vertices[base]),
-      to_ray_vector3_smath(vertices[base + 1]),
-      to_ray_vector3_smath(vertices[base + 2]),
-      color,
-    )
-  }
-}
-
-///|
-fn draw_textured_triangle_mesh(
-  vertices : Array[@smath.Vec3],
-  uvs : Array[@smath.Vec2D],
+  uvs : Array[@smath.Vec2D]?,
   normals : Array[@smath.Vec3],
-  texture : @raylib.Texture,
-  tint : @render.Color,
+  texture : @raylib.Texture?,
+  material : @render3d_types.StandardMaterial3D,
+  frame : @render3d_types.RenderFrame3D,
+  camera_position : @smath.Vec3,
 ) -> Unit {
-  let (tint_r, tint_g, tint_b, tint_a) = to_ray_color_bytes(tint)
+  let state = upload_lighting_uniforms(
+    frame,
+    camera_position,
+    material,
+    texture is Some(_),
+  )
   ignore(@rl.check_render_batch_limit(vertices.length()))
-  @rl.set_texture(@raylib.get_texture_id(texture).reinterpret_as_uint())
+  @raylib.begin_shader_mode(state.shader)
+  if texture is Some(texture) {
+    @rl.set_texture(@raylib.get_texture_id(texture).reinterpret_as_uint())
+  }
   @rl.begin(@rl.Triangles)
   for index in 0..<vertices.length() {
     let vertex = vertices[index]
-    let uv = uvs[index]
+    let uv = uvs
+      .map(fn(values) { values[index] })
+      .unwrap_or(@smath.Vec2D(0.0, 0.0))
     let normal = normals[index]
-    @rl.color4ub(tint_r, tint_g, tint_b, tint_a)
+    @rl.color4ub(255U.to_byte(), 255U.to_byte(), 255U.to_byte(), 255U.to_byte())
     @rl.normal3f(to_float(normal.x), to_float(normal.y), to_float(normal.z))
     @rl.tex_coord2f(to_float(uv[X]), to_float(uv[Y]))
     @rl.vertex3f(to_float(vertex.x), to_float(vertex.y), to_float(vertex.z))
   }
   @rl.end_()
-  @rl.set_texture(0U)
+  if texture is Some(_) {
+    @rl.set_texture(0U)
+  }
+  @raylib.end_shader_mode()
 }
 
 ///|

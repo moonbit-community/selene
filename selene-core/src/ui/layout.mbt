@@ -141,6 +141,24 @@ fn node_to_taffy_style(node : Node) -> @moon_taffy.Style {
 }
 
 ///|
+fn implicit_root_style(size : @math.Vec2D) -> @moon_taffy.Style {
+  @moon_taffy.Style::default()
+  .with_display(@moon_taffy.display_flex())
+  .with_size(
+    @moon_taffy.Size::new(
+      width=@moon_taffy.length(size[X]),
+      height=@moon_taffy.length(size[Y]),
+    ),
+  )
+  .with_min_size(
+    @moon_taffy.Size::new(
+      width=@moon_taffy.length(size[X]),
+      height=@moon_taffy.length(size[Y]),
+    ),
+  )
+}
+
+///|
 fn measure_node(
   known_dimensions : @moon_taffy.Size[Double?],
   _available : @moon_taffy.Size[@moon_taffy.AvailableSpace],
@@ -438,8 +456,11 @@ pub fn ui_layout_system(_delta : Double) -> Unit {
       is Some(root_node) else {
       continue
     }
-    let layout_result = try? taffy.compute_layout_with_measure(
+    let implicit_root = taffy.new_with_children(implicit_root_style(viewport), [
       root_node,
+    ])
+    let layout_result = try? taffy.compute_layout_with_measure(
+      implicit_root,
       @moon_taffy.Size::new(
         width=@moon_taffy.available_space_definite(viewport[X]),
         height=@moon_taffy.available_space_definite(viewport[Y]),

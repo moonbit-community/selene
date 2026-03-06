@@ -57,7 +57,7 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
     }
     if material.roughness < 0.999 || material.metallic > 0.001 {
       capability_warning(
-        "pbr_metallic_roughness", "raylib backend approximates with basic lighting",
+        "pbr_metallic_roughness", "raylib backend uses a non-PBR Blinn-Phong lighting model",
       )
     }
     if material.alpha_mode == Mask {
@@ -90,11 +90,6 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
     submit_draw_command(command)
   }
   @impl.reset_clip_stack()
-  if frame.frame3d.spot_lights.length() > 0 {
-    capability_warning(
-      "spot_light_shaping", "raylib backend approximates spot lights as point lights",
-    )
-  }
 }
 
 ///|

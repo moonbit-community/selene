@@ -13,6 +13,21 @@ fn should_render_ui(entity : @entity.Entity) -> Bool {
 }
 
 ///|
+fn scaled_text_style(
+  style : @render2d_types.TextStyle2D,
+) -> @render2d_types.TextStyle2D {
+  match get_ui_scale_mode() {
+    Screen => style
+    Viewport => { ..style, size: @system.scale_value(style.size) }
+  }
+}
+
+///|
+fn render_text_style(entity : @entity.Entity) -> @render2d_types.TextStyle2D? {
+  text_style_for(entity).map(scaled_text_style)
+}
+
+///|
 fn push_background(entity : @entity.Entity) -> Unit {
   guard background_colors.get(entity) is Some(background) else { return }
   guard global_ui_nodes.get(entity) is Some(transform) else { return }
@@ -185,14 +200,16 @@ fn push_image(entity : @entity.Entity) -> Unit {
 ///|
 fn measure_text_fragment(entity : @entity.Entity, text : String) -> @math.Vec2D {
   @platform_render.measure_text(
-    text_style_for(entity).unwrap_or({
-      font: None,
-      family: "Arial",
-      size: 16.0,
-      color: rgba(255, 255, 255, 1.0),
-      align: Left,
-      baseline: Top,
-    }),
+    render_text_style(entity).unwrap_or(
+      scaled_text_style({
+        font: None,
+        family: "Arial",
+        size: 16.0,
+        color: rgba(255, 255, 255, 1.0),
+        align: Left,
+        baseline: Top,
+      }),
+    ),
     text,
   )
 }
@@ -292,7 +309,7 @@ fn prepared_text_lines(
 fn push_text(entity : @entity.Entity) -> Unit {
   guard texts.get(entity) is Some(_) else { return }
   guard global_ui_nodes.get(entity) is Some(transform) else { return }
-  guard text_style_for(entity) is Some(style) else { return }
+  guard render_text_style(entity) is Some(style) else { return }
   let layout = text_layout(entity)
   let lines = prepared_text_lines(entity, transform.screen_content_rect)
   if lines.is_empty() {

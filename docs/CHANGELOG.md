@@ -2,18 +2,39 @@
 
 ## [Unreleased]
 
+## [0.25.0] - 2026-03-06
+
 ### Added
 
 - release and CI now include a `check_no_legacy_ui` guard that rejects legacy `style`, legacy UI helper APIs, and sprite overlay UI paths
+- `selene/ui` now exports Bevy-aligned UI component/state maps: `background_colors`, `border_colors`, `border_radii`, `buttons`, `computed_ui_nodes`, `focus_policies`, `focusables`, `focuseds`, `global_ui_nodes`, `interactions`, `nodes`, `outlines`, `scroll_positions`, `tab_indexes`, `text_colors`, `text_fonts`, `text_layouts`, `texts`, `ui_images`, `ui_scale_mode`, and `ui_zindexes`
+- `selene/ui` now exports typed UI event buses and focus helpers: `click_event_bus`, `focus_in_event_bus`, `focus_out_event_bus`, `navigation_event_bus`, `pointer_enter_event_bus`, `pointer_leave_event_bus`, `pointer_down_event_bus`, `pointer_up_event_bus`, `focus`, `focused_entity`, `hovered_entity`, `is_ui_entity`, `get_ui_scale_mode`, and `set_ui_scale_mode`
+- `selene/ui` now exports Bevy-style authored types and constructors: `BackgroundColor`, `BorderColor`, `BorderRadius`, `ComputedUiNode`, `Display`, `FlexDirection`, `FocusPolicy`, `Focusable`, `Focused`, `GlobalUiNode`, `ImageFit`, `Outline`, `Overflow`, `PositionType`, `ScrollPosition`, `TabIndex`, `Text`, `TextColor`, `TextFont`, `TextLayout`, `TextOverflow`, `TextWrap`, `UiClickEvent`, `UiFocusInEvent`, `UiFocusOutEvent`, `UiImage`, `UiInsets`, `UiNavigationDirection`, `UiNavigationEvent`, `UiPointerDownEvent`, `UiPointerEnterEvent`, `UiPointerLeaveEvent`, `UiPointerUpEvent`, `UiRectValues`, `UiScaleMode`, `UiZIndex`, and `Val`
+- `selene/ui` now splits the runtime into `ui_layout_system`, `ui_interaction_system`, `ui_extract_system`, and `ui_prepare_system`, and UI submission now flows through `frame2d.ui_commands`
+- `selene/ui` now exposes UI utility helpers `parse_color`, `rgba`, `transparent`, and `blur`
 
 ### Changed
 
-- `selene/ui` now exposes a single Bevy-aligned UI path built around `Node`, computed UI layout data, typed pointer/focus/navigation events, and a dedicated `frame2d.ui_commands` pass
+- `Node` was redesigned from the old `NodeSize` / `LayoutDirection` / `UiSpace` / `offset` model into a Bevy-style box model with `width`, `height`, `min_width`, `min_height`, `max_width`, `max_height`, `left`, `right`, `top`, `bottom`, `margin`, `padding`, `border`, `display`, `position_type`, `flex_direction`, `justify_content`, `align_items`, `row_gap`, `column_gap`, `overflow_x`, `overflow_y`, `flex_grow`, `flex_shrink`, and `active`; `Node::new` and `Node::absolute` now follow that layout model
+- `Button` changed from `enabled + trigger + hit_size` to a lightweight interactive marker with `Button::new(enabled?)`; hit testing and click generation now come from the unified UI interaction pipeline instead of button-local mouse settings
+- `Interaction` still uses `None | Hovered | Pressed`, but it now represents current state only; the old `InteractionEvent` stream was replaced by typed pointer, focus, click, and navigation events
+- text authoring changed from the old single-style flow to `Text` + `TextFont` + `TextColor` + `TextLayout`; image authoring changed from sprite/overlay usage to `UiImage`; layout outputs changed from `layout_sizes` to `computed_ui_nodes` and `global_ui_nodes`
+- `FocusPolicy` now controls pointer hit propagation (`Block | Pass`), while focus participation and ordering moved to `Focusable`, `Focused`, and `TabIndex`
+- the exported `nodes`, `buttons`, and `interactions` maps still exist but now store the new Bevy-aligned semantics instead of the old helper-driven `Ui` / root-space model
 - examples, docs, and engine wiring now target the unified UI node tree instead of mixed `style` + old `ui` + sprite overlay semantics
+- `selene-raylib` capability warnings now describe the 3D backend as a non-PBR Blinn-Phong lighting path and no longer claim that spot lights collapse to point lights
+
+### Fixed
+
+- `selene-raylib` 3D lighting now runs through a shared shader-based per-pixel path for primitives and triangle meshes, restoring directional, point, and spot light shaping instead of the previous per-instance tint approximation
+- top-level absolute UI nodes now layout against an internal implicit root, fixing migrated HUD examples such as `pixeladventure` rendering at the top-left instead of their intended viewport positions
+- viewport-scaled UI text now applies the same overall zoom factor during measurement and submission, restoring readable HUD/menu font sizes across examples
 
 ### Removed
 
-- deleted the legacy `selene/style` package, old UI root/helper APIs (`screen_root`, `virtual_root`, `UiSpace`, `add_node`, `add_button`), and sprite overlay UI entry points from the supported workflow
+- deleted the legacy `selene/style` package and all of its public APIs: `add_widget`, `layout_sizes`, `screen_pixel_root`, `screen_root`, `style_system`, `styles`, `Flex`, `SizePlan`, and `Style::new`
+- removed the old `selene/ui` helper/root API surface: `UI_ZINDEX`, `add_node`, `add_button`, `interaction_event_bus`, `layout_sizes`, `screen_root`, `virtual_root`, `uis`, `ui_button_system`, `Ui`, `UiSpace`, `NodeSize`, `LayoutDirection`, `MainAxisAlign`, `CrossAxisAlign`, and `InteractionEvent`
+- removed the documented legacy UI workflow built around `style`, public UI roots, and sprite-overlay authoring; the supported path is now the unified `selene/ui` node tree only
 
 ## [0.24.4] - 2026-03-06
 
