@@ -29,6 +29,28 @@ python3 -m http.server 8000
 
 打开 `http://localhost:8000/index.html`。
 
+## 2D HUD 覆盖 3D
+
+Selene 的 2D/3D 提交顺序是：
+
+1. `frame2d.world_commands`
+2. `frame3d`
+3. `frame2d.overlay_commands`
+
+带 `@ui` 的实体会自动进入 overlay pass。  
+对于不带 `@ui` 的旧版 sprite/text HUD，可以显式开启 overlay：
+
+```moonbit
+@sprite.set_overlay_space(hud_entity) // 默认 Virtual 空间
+@sprite.set_overlay_space(minimap_entity, space=Screen)
+```
+
+如果要恢复为 world pass：
+
+```moonbit
+@sprite.clear_overlay_space(hud_entity)
+```
+
 ## raylib 原生资源嵌入（可选）
 
 这是一个可选的优化与打包流程，主要用于原生发布。  

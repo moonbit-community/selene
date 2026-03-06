@@ -29,6 +29,28 @@ python3 -m http.server 8000
 
 Open `http://localhost:8000/index.html`.
 
+## 2D HUD Over 3D
+
+Selene submits 2D and 3D in this order:
+
+1. `frame2d.world_commands`
+2. `frame3d`
+3. `frame2d.overlay_commands`
+
+Entities with `@ui` are submitted to the overlay pass automatically.
+For legacy sprite/text HUD without `@ui`, opt in explicitly:
+
+```moonbit
+@sprite.set_overlay_space(hud_entity) // Virtual space (default)
+@sprite.set_overlay_space(minimap_entity, space=Screen)
+```
+
+To revert back to world pass:
+
+```moonbit
+@sprite.clear_overlay_space(hud_entity)
+```
+
 ## Native Asset Embedding for raylib (Optional)
 
 This is an optional optimization and packaging workflow for native releases.

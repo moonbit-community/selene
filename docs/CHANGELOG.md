@@ -1,5 +1,16 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- `selene/sprite` now provides explicit overlay helpers for non-`@ui` HUD migration: `set_overlay_space(entity, space=Virtual)` and `clear_overlay_space(entity)`
+
+### Fixed
+
+- raylib textured primitive rendering now routes `Cube`/`Plane`/`Sphere` through raylib mesh+material draw calls, restoring visible `base_color_texture` details in single-run 3D scenes
+- docs now explicitly describe world-vs-overlay submission semantics for 2D over 3D composition and the non-`@ui` overlay opt-in path
+
 ## [0.24.3] - 2026-03-06
 
 ### Fixed

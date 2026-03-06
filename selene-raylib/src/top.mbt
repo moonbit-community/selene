@@ -42,6 +42,8 @@ priv struct RaylibBackend {
     @render3d_types.StandardMaterial3D,
   ]
   images3d : Map[@render3d_types.ImageHandle, @render3d_types.ImageAsset]
+  primitive_meshes : Map[String, @raylib.Mesh]
+  mut textured_material : @raylib.Material?
   texture_warning_keys : Set[String]
 }
 
@@ -90,6 +92,8 @@ let backend : RaylibBackend = {
   meshes3d: Map::new(),
   materials3d: Map::new(),
   images3d: Map::new(),
+  primitive_meshes: Map::new(),
+  textured_material: None,
   texture_warning_keys: Set::new(),
 }
 
@@ -435,6 +439,45 @@ fn warn_texture_issue(key : String, message : String) -> Unit {
   }
   backend.texture_warning_keys.add(key)
   println("[selene-raylib][texture-warning] \{message}")
+}
+
+///|
+fn get_or_create_primitive_mesh(
+  key : String,
+  create : () -> @raylib.Mesh,
+) -> @raylib.Mesh {
+  if backend.primitive_meshes.get(key) is Some(mesh) {
+    return mesh
+  }
+  let mesh = create()
+  backend.primitive_meshes.set(key, mesh)
+  mesh
+}
+
+///|
+fn get_textured_material() -> @raylib.Material {
+  if backend.textured_material is Some(material) {
+    return material
+  }
+  let material = @raylib.load_material_default()
+  backend.textured_material = Some(material)
+  material
+}
+
+///|
+fn draw_textured_mesh_with_material(
+  mesh : @raylib.Mesh,
+  texture : @raylib.Texture,
+  tint : @render.Color,
+) -> Unit {
+  let material = get_textured_material()
+  @raylib.set_material_texture(material, @raylib.MaterialMapAlbedo, texture)
+  @raylib.set_material_map_color(
+    material,
+    @raylib.MaterialMapAlbedo,
+    to_ray_color(tint),
+  )
+  @raylib.draw_mesh(mesh, material, @raylib.Matrix::identity())
 }
 
 ///|
@@ -807,6 +850,14 @@ fn cleanup_resources() -> Unit {
   backend.fonts_by_path.clear()
   backend.font_alias.clear()
   backend.embedded_asset_cache.clear()
+  for _key, mesh in backend.primitive_meshes {
+    @raylib.unload_mesh(mesh)
+  }
+  backend.primitive_meshes.clear()
+  if backend.textured_material is Some(material) {
+    @raylib.unload_material(material)
+  }
+  backend.textured_material = None
   backend.meshes3d.clear()
   backend.materials3d.clear()
   backend.images3d.clear()
@@ -1144,8 +1195,11 @@ fn draw_textured_cuboid_if_possible(
   guard resolve_material_texture(material) is Some(texture) else {
     return false
   }
-  let (vertices, uvs, normals) = build_cuboid_mesh(size)
-  draw_textured_triangle_mesh(vertices, uvs, normals, texture, tint)
+  let key = "cube:\{size.x}:\{size.y}:\{size.z}"
+  let mesh = get_or_create_primitive_mesh(key, fn() {
+    @raylib.gen_mesh_cube(to_float(size.x), to_float(size.y), to_float(size.z))
+  })
+  draw_textured_mesh_with_material(mesh, texture, tint)
   true
 }
 
@@ -1158,11 +1212,15 @@ fn draw_textured_sphere_if_possible(
   guard resolve_material_texture(material) is Some(texture) else {
     return false
   }
-  let (vertices, uvs, normals) = build_sphere_mesh(radius)
-  if vertices.length() < 3 {
-    return false
-  }
-  draw_textured_triangle_mesh(vertices, uvs, normals, texture, tint)
+  let key = "sphere:\{radius}:\{TEXTURED_SPHERE_SLICES}:\{TEXTURED_SPHERE_STACKS}"
+  let mesh = get_or_create_primitive_mesh(key, fn() {
+    @raylib.gen_mesh_sphere(
+      to_float(radius),
+      TEXTURED_SPHERE_SLICES,
+      TEXTURED_SPHERE_STACKS,
+    )
+  })
+  draw_textured_mesh_with_material(mesh, texture, tint)
   true
 }
 
@@ -1177,6 +1235,14 @@ fn draw_textured_cylinder_if_possible(
 ) -> Bool {
   guard resolve_material_texture(material) is Some(texture) else {
     return false
+  }
+  if (radius_top - radius_bottom).abs() <= 0.000001 {
+    let key = "cylinder:\{radius_top}:\{height}:\{slices}"
+    let mesh = get_or_create_primitive_mesh(key, fn() {
+      @raylib.gen_mesh_cylinder(to_float(radius_top), to_float(height), slices)
+    })
+    draw_textured_mesh_with_material(mesh, texture, tint)
+    return true
   }
   let (vertices, uvs, normals) = build_cylinder_mesh(
     radius_top, radius_bottom, height, slices,
@@ -1212,66 +1278,6 @@ fn resolve_material_texture(
     return None
   }
   Some(texture)
-}
-
-///|
-fn build_sphere_mesh(
-  radius : Double,
-) -> (Array[@smath.Vec3], Array[@smath.Vec2D], Array[@smath.Vec3]) {
-  let vertices : Array[@smath.Vec3] = []
-  let uvs : Array[@smath.Vec2D] = []
-  let normals : Array[@smath.Vec3] = []
-  for stack in 0..<TEXTURED_SPHERE_STACKS {
-    let stack0 = stack.to_double() / TEXTURED_SPHERE_STACKS.to_double()
-    let stack1 = (stack + 1).to_double() / TEXTURED_SPHERE_STACKS.to_double()
-    let theta0 = stack0 * @cmath.PI
-    let theta1 = stack1 * @cmath.PI
-    for slice in 0..<TEXTURED_SPHERE_SLICES {
-      let slice0 = slice.to_double() / TEXTURED_SPHERE_SLICES.to_double()
-      let slice1 = (slice + 1).to_double() / TEXTURED_SPHERE_SLICES.to_double()
-      let phi0 = slice0 * 2.0 * @cmath.PI
-      let phi1 = slice1 * 2.0 * @cmath.PI
-      let p00 = sphere_vertex(radius, theta0, phi0)
-      let p01 = sphere_vertex(radius, theta0, phi1)
-      let p10 = sphere_vertex(radius, theta1, phi0)
-      let p11 = sphere_vertex(radius, theta1, phi1)
-      let n00 = sphere_normal(theta0, phi0)
-      let n01 = sphere_normal(theta0, phi1)
-      let n10 = sphere_normal(theta1, phi0)
-      let n11 = sphere_normal(theta1, phi1)
-      let uv00 = @smath.Vec2D(slice0, 1.0 - stack0)
-      let uv01 = @smath.Vec2D(slice1, 1.0 - stack0)
-      let uv10 = @smath.Vec2D(slice0, 1.0 - stack1)
-      let uv11 = @smath.Vec2D(slice1, 1.0 - stack1)
-      push_textured_triangle(
-        vertices, uvs, normals, p00, p10, p11, uv00, uv10, uv11, n00, n10, n11,
-      )
-      push_textured_triangle(
-        vertices, uvs, normals, p00, p11, p01, uv00, uv11, uv01, n00, n11, n01,
-      )
-    }
-  }
-  (vertices, uvs, normals)
-}
-
-///|
-fn sphere_vertex(radius : Double, theta : Double, phi : Double) -> @smath.Vec3 {
-  let sin_theta = @cmath.sin(theta)
-  @smath.Vec3::new(
-    radius * sin_theta * @cmath.cos(phi),
-    radius * @cmath.cos(theta),
-    radius * sin_theta * @cmath.sin(phi),
-  )
-}
-
-///|
-fn sphere_normal(theta : Double, phi : Double) -> @smath.Vec3 {
-  let sin_theta = @cmath.sin(theta)
-  @smath.Vec3::new(
-    sin_theta * @cmath.cos(phi),
-    @cmath.cos(theta),
-    sin_theta * @cmath.sin(phi),
-  )
 }
 
 ///|
@@ -1418,111 +1424,6 @@ fn push_textured_triangle(
   normals.push(n_a)
   normals.push(n_b)
   normals.push(n_c)
-}
-
-///|
-fn build_cuboid_mesh(
-  size : @smath.Vec3,
-) -> (Array[@smath.Vec3], Array[@smath.Vec2D], Array[@smath.Vec3]) {
-  let hx = size.x / 2.0
-  let hy = size.y / 2.0
-  let hz = size.z / 2.0
-  let vertices : Array[@smath.Vec3] = []
-  let uvs : Array[@smath.Vec2D] = []
-  let normals : Array[@smath.Vec3] = []
-  add_cuboid_face(
-    vertices,
-    uvs,
-    normals,
-    @smath.Vec3::new(-hx, -hy, hz),
-    @smath.Vec3::new(hx, -hy, hz),
-    @smath.Vec3::new(hx, hy, hz),
-    @smath.Vec3::new(-hx, hy, hz),
-    @smath.Vec3::new(0.0, 0.0, 1.0),
-  )
-  add_cuboid_face(
-    vertices,
-    uvs,
-    normals,
-    @smath.Vec3::new(-hx, -hy, -hz),
-    @smath.Vec3::new(-hx, hy, -hz),
-    @smath.Vec3::new(hx, hy, -hz),
-    @smath.Vec3::new(hx, -hy, -hz),
-    @smath.Vec3::new(0.0, 0.0, -1.0),
-  )
-  add_cuboid_face(
-    vertices,
-    uvs,
-    normals,
-    @smath.Vec3::new(hx, -hy, -hz),
-    @smath.Vec3::new(hx, hy, -hz),
-    @smath.Vec3::new(hx, hy, hz),
-    @smath.Vec3::new(hx, -hy, hz),
-    @smath.Vec3::new(1.0, 0.0, 0.0),
-  )
-  add_cuboid_face(
-    vertices,
-    uvs,
-    normals,
-    @smath.Vec3::new(-hx, -hy, -hz),
-    @smath.Vec3::new(-hx, -hy, hz),
-    @smath.Vec3::new(-hx, hy, hz),
-    @smath.Vec3::new(-hx, hy, -hz),
-    @smath.Vec3::new(-1.0, 0.0, 0.0),
-  )
-  add_cuboid_face(
-    vertices,
-    uvs,
-    normals,
-    @smath.Vec3::new(-hx, hy, -hz),
-    @smath.Vec3::new(-hx, hy, hz),
-    @smath.Vec3::new(hx, hy, hz),
-    @smath.Vec3::new(hx, hy, -hz),
-    @smath.Vec3::new(0.0, 1.0, 0.0),
-  )
-  add_cuboid_face(
-    vertices,
-    uvs,
-    normals,
-    @smath.Vec3::new(-hx, -hy, -hz),
-    @smath.Vec3::new(hx, -hy, -hz),
-    @smath.Vec3::new(hx, -hy, hz),
-    @smath.Vec3::new(-hx, -hy, hz),
-    @smath.Vec3::new(0.0, -1.0, 0.0),
-  )
-  (vertices, uvs, normals)
-}
-
-///|
-fn add_cuboid_face(
-  vertices : Array[@smath.Vec3],
-  uvs : Array[@smath.Vec2D],
-  normals : Array[@smath.Vec3],
-  a : @smath.Vec3,
-  b : @smath.Vec3,
-  c : @smath.Vec3,
-  d : @smath.Vec3,
-  normal : @smath.Vec3,
-) -> Unit {
-  vertices.push(a)
-  vertices.push(b)
-  vertices.push(c)
-  vertices.push(a)
-  vertices.push(c)
-  vertices.push(d)
-  let uv0 = @smath.Vec2D(0.0, 1.0)
-  let uv1 = @smath.Vec2D(1.0, 1.0)
-  let uv2 = @smath.Vec2D(1.0, 0.0)
-  let uv3 = @smath.Vec2D(0.0, 0.0)
-  uvs.push(uv0)
-  uvs.push(uv1)
-  uvs.push(uv2)
-  uvs.push(uv0)
-  uvs.push(uv2)
-  uvs.push(uv3)
-  for _ in 0..<6 {
-    normals.push(normal)
-  }
 }
 
 ///|
