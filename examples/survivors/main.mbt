@@ -124,7 +124,7 @@ fn create_level_up_panel_entity() -> @entity.Entity {
     @ui.screen_root,
     node=@ui.Node::new(
       size=@ui.NodeSize::Fixed(@math.Vec2D(160.0, 250.0)),
-      space=@ui.UiSpace::Screen,
+      space=@ui.UiSpace::Virtual,
       offset=@math.Vec2D(
         VIEWPORT_WIDTH / 2.0 - 80.0,
         VIEWPORT_HEIGHT / 2.0 - 120.0,
@@ -151,7 +151,7 @@ fn create_game_over_panel_entity() -> @entity.Entity {
     @ui.screen_root,
     node=@ui.Node::new(
       size=@ui.NodeSize::Fixed(@math.Vec2D(200.0, 120.0)),
-      space=@ui.UiSpace::Screen,
+      space=@ui.UiSpace::Virtual,
       offset=@math.Vec2D(
         VIEWPORT_WIDTH / 2.0 - 100.0,
         VIEWPORT_HEIGHT / 2.0 - 60.0,

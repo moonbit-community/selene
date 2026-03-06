@@ -314,7 +314,7 @@ fn animate_spotlight_system(delta : Double) -> Unit {
 
 ///|
 fn draw_overlay_system(_delta : Double) -> Unit {
-  @render2d.push_text(@render2d_types.TextDrawCommand2D::{
+  @render2d.push_overlay_text(@render2d_types.TextDrawCommand2D::{
     text: "3d_scene: ECS render3d pipeline + spot light",
     position: @math.Vec2D(16.0, 16.0),
     style: @render2d_types.TextStyle2D::{

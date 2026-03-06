@@ -42,6 +42,7 @@ priv struct RaylibBackend {
     @render3d_types.StandardMaterial3D,
   ]
   images3d : Map[@render3d_types.ImageHandle, @render3d_types.ImageAsset]
+  texture_warning_keys : Set[String]
 }
 
 ///|
@@ -89,6 +90,7 @@ let backend : RaylibBackend = {
   meshes3d: Map::new(),
   materials3d: Map::new(),
   images3d: Map::new(),
+  texture_warning_keys: Set::new(),
 }
 
 ///|
@@ -424,6 +426,15 @@ fn get_embedded_asset(path : String) -> Bytes? {
   } else {
     None
   }
+}
+
+///|
+fn warn_texture_issue(key : String, message : String) -> Unit {
+  if backend.texture_warning_keys.contains(key) {
+    return
+  }
+  backend.texture_warning_keys.add(key)
+  println("[selene-raylib][texture-warning] \{message}")
 }
 
 ///|
@@ -812,6 +823,7 @@ pub fn initialize(
     if !@raylib.is_audio_device_ready() {
       @raylib.init_audio_device()
     }
+    backend.texture_warning_keys.clear()
     (callbacks.startup)()
     while !backend.close_requested && !@raylib.window_should_close() {
       let delta = @raylib.get_frame_time().to_double()
@@ -1173,9 +1185,24 @@ fn resolve_material_texture(
 ) -> @raylib.Texture? {
   guard material.base_color_texture is Some(image_handle) else { return None }
   guard backend.images3d.get(image_handle) is Some(image_asset) else {
+    warn_texture_issue(
+      "missing_image_handle:\{image_handle}",
+      "material base_color_texture handle \{image_handle} is not synced; fallback to base_color",
+    )
     return None
   }
-  Some(get_texture(image_asset.path))
+  let texture = get_texture(image_asset.path)
+  let texture_id = @raylib.get_texture_id(texture)
+  let width = @raylib.get_texture_width(texture)
+  let height = @raylib.get_texture_height(texture)
+  if texture_id <= 0 || width <= 0 || height <= 0 {
+    warn_texture_issue(
+      "invalid_texture:\{image_asset.path}",
+      "failed to load texture '\{image_asset.path}' (id=\{texture_id}, size=\{width}x\{height}); fallback to base_color",
+    )
+    return None
+  }
+  Some(texture)
 }
 
 ///|
@@ -1525,18 +1552,28 @@ fn draw_triangle_mesh(
   if vertices.length() < 3 {
     return
   }
-  if material.base_color_texture is Some(image_handle) &&
-    backend.images3d.get(image_handle) is Some(image_asset) &&
-    mesh.uvs is Some(uvs) &&
-    uvs.length() == vertices.length() {
+  if material.base_color_texture is Some(_) {
+    guard resolve_material_texture(material) is Some(texture) else {
+      draw_colored_triangle_mesh(vertices, to_ray_color(lit_color))
+      return
+    }
+    guard mesh.uvs is Some(uvs) else {
+      warn_texture_issue(
+        "triangles_missing_uvs", "triangle mesh has base_color_texture but no UVs; fallback to base_color",
+      )
+      draw_colored_triangle_mesh(vertices, to_ray_color(lit_color))
+      return
+    }
+    if uvs.length() != vertices.length() {
+      warn_texture_issue(
+        "triangles_uv_mismatch:\{uvs.length()}:\{vertices.length()}",
+        "triangle mesh UV count (\{uvs.length()}) != vertex count (\{vertices.length()}); fallback to base_color",
+      )
+      draw_colored_triangle_mesh(vertices, to_ray_color(lit_color))
+      return
+    }
     let normals = resolve_triangle_normals(mesh)
-    draw_textured_triangle_mesh(
-      vertices,
-      uvs,
-      normals,
-      get_texture(image_asset.path),
-      lit_color,
-    )
+    draw_textured_triangle_mesh(vertices, uvs, normals, texture, lit_color)
     return
   }
   draw_colored_triangle_mesh(vertices, to_ray_color(lit_color))

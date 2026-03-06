@@ -1,38 +1,57 @@
 # Selene 游戏引擎 [English](./README.md)
 
-## 目录结构
+Selene 是一个面向 MoonBit 的 ECS 游戏引擎，采用 WebGPU 作为 Web 主线后端，并提供 raylib 原生后端。
 
-[examples](examples/) 目录包含示例游戏项目。
+## 包结构
 
-[selene-core](selene-core/) 是 Selene 引擎核心项目。
+| 包名 | 作用 |
+| --- | --- |
+| `Milky2018/selene` | 核心 ECS/运行时模块（`system`、`state`、`commands`、`event`、`asset2`、`physics2d/3d`、`render2d/3d`、`ui`） |
+| `Milky2018/selene_webgpu` | Web 后端实现 |
+| `Milky2018/selene_raylib` | 原生后端实现（raylib） |
+| `Milky2018/selene_tools` | CLI 工具（包含资源嵌入工具） |
 
-[selene-webgpu](selene-webgpu/) 是官方维护的基于 Canvas2D API 的 Selene 后端。Selene 引擎必须要在一个后端运行。
+## 当前方向
 
-[selene-raylib](selene-raylib/) 是 Selene 的原生后端。
+- 对齐 Bevy 语义的运行时（状态流、系统集合、类型化事件、命令队列刷写）
+- 统一渲染提交流程（`RenderExtract -> RenderPrepare -> Render`）
+- 同一引擎内支持 2D + 3D 玩法
+- 以 WebGPU 为功能基准，raylib 明确作为降级后端
 
-## Raylib 原生资源嵌入（可选）
+## 运行 Web 示例
 
-这是一个可选的优化和打包手段，主要用于原生发布。
-默认情况下可以不开启，直接走文件系统加载资源。
+```bash
+cd examples
+moon update
+moon build --release
+python3 -m http.server 8000
+```
 
-如果你要开启嵌入，再安装 Selene 的资源打包 CLI 并在 `pre-build` 中使用：
+打开 `http://localhost:8000/index.html`。
+
+## raylib 原生资源嵌入（可选）
+
+这是一个可选的优化与打包流程，主要用于原生发布。  
+默认可以不开启，直接从文件系统加载资源。
+
+先安装 CLI：
 
 ```bash
 moon install Milky2018/selene_tools/cmd/selene-embed-assets
 ```
 
-然后在游戏包的 `moon.pkg` 里配置：
+然后在原生入口包的 `moon.pkg` 中添加 pre-build：
 
 ```moonbit
 options(
   "pre-build": [
     {
-      "input": "<assets-dir>",
+      "input": "<your-assets-dir>",
       "output": "_embedded_assets.pack",
       "command": "selene-embed-assets --assets-dir $input --pack-out $output --path-prefix <runtime-prefix>",
     },
     {
-      "input": "<assets-dir>",
+      "input": "<your-assets-dir>",
       "output": "embedded_assets_index.mbt",
       "command": "selene-embed-assets --assets-dir $input --index-out $output --path-prefix <runtime-prefix> --blob-name embedded_assets_blob --lookup-fn get_embedded_asset",
     },
@@ -45,28 +64,23 @@ options(
 )
 ```
 
-两个 pre-build 步骤里的 `<assets-dir>` 要保持一致，`<runtime-prefix>` 要和运行时资源路径前缀一致。
+两个 `<your-assets-dir>` 需要保持一致，`<runtime-prefix>` 需要与运行时资源路径前缀一致。
 
-仅当开启嵌入时，才需要在 `app.run()` 之前注册嵌入资源查询函数：
+只有在开启嵌入时，才需要在 `app.run()` 前注册查询函数：
 
 ```moonbit
-@backend.set_embedded_assets(get_embedded_asset)
+@asset.set_io(get_embedded_asset)
 ```
 
 如果没有开启嵌入，不需要调用这个 API。
 
-## 写给 [MGPIC 2025 全球编程创新挑战](https://www.moonbitlang.cn/2025-mgpic)参赛选手
+## 文档
 
-原则上比赛只要求输出静态 HTML 5 游戏，核心逻辑用 MoonBit 开发，具体实现方式是开放的。鼓励选手头脑风暴，自己手搓一切。比如，选手可以自己选择用哪些 Web API，手写 JavaScript FFI，或者使用 [rabbit-tea](https://github.com/moonbit-community/rabbit-tea) 绘制界面，亦或者为某个现有引擎编写 MoonBit Extension，然后用引擎来完成游戏。（实现跨平台兼容性是加分项哦）
+- 英文教程：[docs/tutorial-en.md](./docs/tutorial-en.md)
+- 中文教程：[docs/tutorial-zh.md](./docs/tutorial-zh.md)
+- 更新日志：[docs/CHANGELOG.md](./docs/CHANGELOG.md)
+- 示例：[examples](./examples/)
 
-而对于期望更专注于游戏上层逻辑的选手，基于 Selene 引擎开发游戏是一个非常友好的入门方式。
+## 许可证
 
-关于 Selene 引擎，参考 [README](./selene-core/README.md), [中文教程](./docs/tutorial-zh.md), [游戏样例](./examples/).
-
-## 版本兼容性
-
-从2025年8月10日开始至比赛结束，0.10.x 版本会一直保持稳定，不会引入破坏性改动。
-
-比赛结束后，本项目会继续维护，但不保证向后兼容。
-
-欢迎贡献！
+Apache-2.0

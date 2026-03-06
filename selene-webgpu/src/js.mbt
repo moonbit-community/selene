@@ -237,8 +237,7 @@ extern "js" fn webgpu_initialize(
   #|       initPromise: null,
   #|       imageSmooth: true,
   #|       clearColor: [0, 0, 0, 1],
-  #|       color2dCommands: [],
-  #|       tex2dCommands: [],
+  #|       draw2dCommands: [],
   #|       sections3d: [],
   #|       current3dSection: null,
   #|       imageCache: new Map(),
@@ -485,10 +484,15 @@ extern "js" fn webgpu_initialize(
   #|     };
   #|
   #|     rt.pushColor2d = (topology, verts) => {
-  #|       rt.color2dCommands.push({ topology, verts });
+  #|       rt.draw2dCommands.push({ kind: 'color', topology, verts });
   #|     };
   #|     rt.pushTex2d = (samplerCode, textureRec, verts) => {
-  #|       rt.tex2dCommands.push({ samplerCode, textureRec, verts });
+  #|       rt.draw2dCommands.push({
+  #|         kind: 'tex',
+  #|         samplerCode,
+  #|         textureRec,
+  #|         verts,
+  #|       });
   #|     };
   #|
   #|     rt.pushRect = (x, y, w, h, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
@@ -932,8 +936,7 @@ extern "js" fn webgpu_initialize(
   #|
   #|     rt.beginFrame = (r, g, b, a) => {
   #|       rt.clearColor = [clamp01(r), clamp01(g), clamp01(b), clamp01(a)];
-  #|       rt.color2dCommands.length = 0;
-  #|       rt.tex2dCommands.length = 0;
+  #|       rt.draw2dCommands.length = 0;
   #|       rt.sections3d.length = 0;
   #|       rt.current3dSection = null;
   #|     };
@@ -1090,31 +1093,34 @@ extern "js" fn webgpu_initialize(
   #|       const [w, h] = toCanvasSize();
   #|       const canvasUniform = new Float32Array([w, h, 0, 0]);
   #|       rt.device.queue.writeBuffer(rt.uniformBuffers.canvas2d, 0, canvasUniform.buffer, canvasUniform.byteOffset, canvasUniform.byteLength);
-  #|       pass.setBindGroup(0, rt.bindGroups.canvas2d);
   #|       let colorBytes = 0;
-  #|       for (const cmd of rt.color2dCommands) colorBytes += cmd.verts.byteLength;
+  #|       let texBytes = 0;
+  #|       for (const cmd of rt.draw2dCommands) {
+  #|         if (cmd.kind === 'color') colorBytes += cmd.verts.byteLength;
+  #|         else texBytes += cmd.verts.byteLength;
+  #|       }
   #|       const colorVb = colorBytes > 0
   #|         ? rt.ensureDynamicBuffer('dyn2dColor', colorBytes, GPUBufferUsage.VERTEX)
   #|         : null;
-  #|       let colorOffset = 0;
-  #|       for (const cmd of rt.color2dCommands) {
-  #|         if (cmd.topology === 'line') pass.setPipeline(rt.pipelines.color2dLine);
-  #|         else pass.setPipeline(rt.pipelines.color2dTri);
-  #|         rt.device.queue.writeBuffer(colorVb, colorOffset, cmd.verts.buffer, cmd.verts.byteOffset, cmd.verts.byteLength);
-  #|         pass.setVertexBuffer(0, colorVb, colorOffset, cmd.verts.byteLength);
-  #|         pass.draw(cmd.verts.length / 6, 1, 0, 0);
-  #|         colorOffset += cmd.verts.byteLength;
-  #|       }
-  #|       pass.setPipeline(rt.pipelines.tex2dTri);
-  #|       let texBytes = 0;
-  #|       for (const cmd of rt.tex2dCommands) texBytes += cmd.verts.byteLength;
   #|       const texVb = texBytes > 0
   #|         ? rt.ensureDynamicBuffer('dyn2dTex', texBytes, GPUBufferUsage.VERTEX)
   #|         : null;
+  #|       let colorOffset = 0;
   #|       let texOffset = 0;
-  #|       for (const cmd of rt.tex2dCommands) {
+  #|       for (const cmd of rt.draw2dCommands) {
+  #|         if (cmd.kind === 'color') {
+  #|           if (cmd.topology === 'line') pass.setPipeline(rt.pipelines.color2dLine);
+  #|           else pass.setPipeline(rt.pipelines.color2dTri);
+  #|           pass.setBindGroup(0, rt.bindGroups.canvas2d);
+  #|           rt.device.queue.writeBuffer(colorVb, colorOffset, cmd.verts.buffer, cmd.verts.byteOffset, cmd.verts.byteLength);
+  #|           pass.setVertexBuffer(0, colorVb, colorOffset, cmd.verts.byteLength);
+  #|           pass.draw(cmd.verts.length / 6, 1, 0, 0);
+  #|           colorOffset += cmd.verts.byteLength;
+  #|           continue;
+  #|         }
   #|         const rec = cmd.textureRec;
   #|         if (!rec?.view) continue;
+  #|         pass.setPipeline(rt.pipelines.tex2dTri);
   #|         rt.device.queue.writeBuffer(texVb, texOffset, cmd.verts.buffer, cmd.verts.byteOffset, cmd.verts.byteLength);
   #|         const sampler = cmd.samplerCode === 3
   #|           ? rt.samplers.repeat
@@ -1165,7 +1171,7 @@ extern "js" fn webgpu_initialize(
   #|           rendered = true;
   #|         }
   #|       }
-  #|       if (rt.color2dCommands.length > 0 || rt.tex2dCommands.length > 0 || !rendered) {
+  #|       if (rt.draw2dCommands.length > 0 || !rendered) {
   #|         const pass = encoder.beginRenderPass({
   #|           colorAttachments: [{
   #|             view,

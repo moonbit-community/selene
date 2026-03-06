@@ -1,6 +1,12 @@
 # Changelog
 
-## [Unreleased]
+## [0.24.2] - 2026-03-06
+
+### Fixed
+
+- raylib backend now emits one-shot `texture-warning` diagnostics for 3D texture fallback cases (`base_color_texture` handle missing, texture load failure, or triangle UV mismatch/missing), making white-material fallbacks directly debuggable
+
+## [0.24.1] - 2026-03-05
 
 ### Fixed
 

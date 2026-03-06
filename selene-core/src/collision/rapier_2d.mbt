@@ -208,7 +208,9 @@ fn to_rapier_groups(
   @rapier_dynamics.InteractionGroups::new(
     group_from_collision(filter.group),
     groups_from_mask(filter.mask),
-    @rapier_dynamics.InteractionTestMode::And,
+    // Selene collision filters are configured as "opt-in on either side":
+    // if A allows B or B allows A, they should interact.
+    @rapier_dynamics.InteractionTestMode::Or,
   )
 }
 

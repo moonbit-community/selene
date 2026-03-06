@@ -43,7 +43,7 @@ fn add_screen_sprite(
 ) -> @entity.Entity {
   let entity = @ui.add_node(
     @ui.screen_root,
-    node=@ui.Node::new(space=@ui.UiSpace::Screen, offset~),
+    node=@ui.Node::new(space=@ui.UiSpace::Virtual, offset~),
   )
   @sprite.sprites.set(entity, sprite)
   entity
@@ -57,7 +57,7 @@ fn add_child_sprite(
 ) -> @entity.Entity {
   let entity = @ui.add_node(
     parent,
-    node=@ui.Node::new(space=@ui.UiSpace::Screen, offset~),
+    node=@ui.Node::new(space=@ui.UiSpace::Virtual, offset~),
   )
   @sprite.sprites.set(entity, sprite)
   entity
@@ -73,7 +73,7 @@ fn add_child_sprite_sized(
   let entity = @ui.add_node(
     parent,
     node=@ui.Node::new(
-      space=@ui.UiSpace::Screen,
+      space=@ui.UiSpace::Virtual,
       offset~,
       size=@ui.NodeSize::Fixed(size),
     ),

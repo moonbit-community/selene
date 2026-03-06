@@ -1,14 +1,16 @@
-# A Selene Backend with Canvas2D/JavaScript
+# Milky2018/selene_webgpu
 
-## Installation
+WebGPU backend implementation for Selene.
 
-Import this backend with 
+## Install
 
-```shell 
+```bash
 moon add Milky2018/selene_webgpu
 ```
 
-Select this backend by overriding Selene platform interfaces in your entry package:
+## Enable This Backend
+
+Override Selene platform interfaces in your entry package:
 
 ```moonbit
 options(
@@ -22,22 +24,11 @@ options(
 )
 ```
 
-## Instruction
+## Build And Run
 
-Copy the provided [index.html](./index.html) to the root path of your project. 
-
-Replace the source file path with your actual file path.
-
-Build your project with 
-
-```shell
-moon build --target js
-```
-
-Run the server with any Web Server such as
-
-```shell
+```bash
+moon build --target js --release
 python3 -m http.server 8000
 ```
 
-Finally, you can play your game by accessing localhost:8000 in your browser.
+Open `http://localhost:8000`.

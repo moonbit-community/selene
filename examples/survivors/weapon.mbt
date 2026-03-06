@@ -160,6 +160,12 @@ let player_bullet_trigger_event_reader : @event.EventReader[
 ] = @event.EventReader::new()
 
 ///|
+let player_bullet_visual : @sprite.Animation = @sprite.Animation::single_frame(
+  "assets/survivors/icon/bullet.png",
+  Vec2D(12.0, 12.0),
+)
+
+///|
 fn update_weapon_timers(
   weapon_instances : Array[WeaponType],
   delta : Double,
@@ -216,24 +222,36 @@ fn shoot_weapon_bullet(
   damage : Double,
   total_penetration : Int,
 ) -> Unit {
+  let bullet_visual_size = 12.0
+  let bullet_hitbox_size = 6.0
+  let direction = target_pos - player_pos
+  let dir = if direction.distance() <= 0.0000001 {
+    @math.Vec2D(1.0, 0.0)
+  } else {
+    direction.normalize()
+  }
+  let bullet_spawn_pos = player_pos + dir.scalar_mul(14.0)
+  let bullet_visual_offset = @math.Vec2D(
+    -bullet_visual_size / 2.0,
+    -bullet_visual_size / 2.0,
+  )
   let bullet_entity = @entity.Entity::new()
   @sprite.sprites.set(
     bullet_entity,
-    @sprite.Sprite::from_color_rect(
-      @sprite.ColorRect::new(Vec2D(4.0, 4.0), "white"),
+    @sprite.Sprite::from_animation(
+      player_bullet_visual,
       BULLET_ZINDEX,
+      offset=bullet_visual_offset,
     ),
   )
-  @transform.positions.set(bullet_entity, player_pos)
-  let vel = (target_pos - player_pos)
-    .normalize()
-    .scalar_mul(weapon_data.bullet_speed)
+  @transform.positions.set(bullet_entity, bullet_spawn_pos)
+  let vel = dir.scalar_mul(weapon_data.bullet_speed)
   @physics2d.linear_velocities.set(bullet_entity, vel)
   @physics2d.shapes.set(
     bullet_entity,
     @physics2d.CollisionShape::Rect(
-      size=@math.Vec2D(4.0, 4.0),
-      offset=@math.Vec2D(-2.0, -2.0),
+      size=@math.Vec2D(bullet_hitbox_size, bullet_hitbox_size),
+      offset=@math.Vec2D(-bullet_hitbox_size / 2.0, -bullet_hitbox_size / 2.0),
     ),
   )
   let area = @physics2d.Area::new(
@@ -259,6 +277,21 @@ fn shoot_weapon_bullet(
 }
 
 ///|
+fn start_bullet_despawn(bullet_entity : @entity.Entity) -> Unit {
+  guard player_bullets.get(bullet_entity) is Some(bullet) else { return }
+  if !bullet.alive {
+    return
+  }
+  bullet.alive = false
+  @physics2d.linear_velocities.remove(bullet_entity)
+  @physics2d.areas.remove(bullet_entity)
+  @system.timeout(0.2, fn() {
+    bullet_entity.destroy()
+    player_bullets.remove(bullet_entity)
+  })
+}
+
+///|
 fn player_bullet_trigger_system(_delta : Double) -> Unit {
   for
     event in @physics2d.trigger_event_bus.read(
@@ -276,15 +309,11 @@ fn player_bullet_trigger_system(_delta : Double) -> Unit {
         set_score(game_state.score + data.points)
         add_exp(data.points)
       }
+      if bullet.penetration_count >= bullet.penetration_limit {
+        start_bullet_despawn(event.area)
+      }
     } else {
-      bullet.alive = false
-    }
-    if bullet.penetration_count >= bullet.penetration_limit {
-      bullet.alive = false
-    }
-    if !bullet.alive {
-      event.area.destroy()
-      player_bullets.remove(event.area)
+      start_bullet_despawn(event.area)
     }
   }
 }

@@ -1,38 +1,57 @@
 # Selene Game Engine [中文版](./README-zh.md)
 
-## Directory Structure
+Selene is an ECS game engine for MoonBit, with a WebGPU-first web backend and a raylib native backend.
 
-The [examples](examples/) directory contains sample game projects.
+## Packages
 
-The [selene-core](selene-core/) directory is the core of the Selene engine.
+| Package | Purpose |
+| --- | --- |
+| `Milky2018/selene` | Core ECS/runtime modules (`system`, `state`, `commands`, `event`, `asset2`, `physics2d/3d`, `render2d/3d`, `ui`) |
+| `Milky2018/selene_webgpu` | Web backend implementation |
+| `Milky2018/selene_raylib` | Native backend implementation (raylib) |
+| `Milky2018/selene_tools` | CLI utilities (including embedded-asset tooling) |
 
-The [selene-webgpu](selene-webgpu/) directory is the officially maintained Canvas2D API-based backend for Selene. The Selene engine must run with a backend.
+## Current Direction
 
-The [selene-raylib](selene-raylib/) directory is the native backend for Selene.
+- Bevy-aligned runtime semantics (state flow, system sets, typed events, command flushing)
+- Unified frame submission (`RenderExtract -> RenderPrepare -> Render`)
+- 2D + 3D gameplay support in the same engine
+- WebGPU as feature baseline, raylib as explicit downgrade backend
 
-## Raylib Native Asset Embedding (Optional)
+## Run Examples (Web)
 
-This is an optional optimization and packaging technique for native releases.
-By default, you can skip it and load assets directly from the filesystem.
+```bash
+cd examples
+moon update
+moon build --release
+python3 -m http.server 8000
+```
 
-If you want to enable embedding, install the Selene embed-assets CLI and use it from `pre-build`:
+Open `http://localhost:8000/index.html`.
+
+## Native Asset Embedding for raylib (Optional)
+
+This is an optional optimization and packaging workflow for native releases.
+By default, you can skip this and load assets from filesystem paths.
+
+Install the CLI:
 
 ```bash
 moon install Milky2018/selene_tools/cmd/selene-embed-assets
 ```
 
-Then configure your game package `moon.pkg`:
+Then add pre-build steps in your native wrapper package `moon.pkg`:
 
 ```moonbit
 options(
   "pre-build": [
     {
-      "input": "<assets-dir>",
+      "input": "<your-assets-dir>",
       "output": "_embedded_assets.pack",
       "command": "selene-embed-assets --assets-dir $input --pack-out $output --path-prefix <runtime-prefix>",
     },
     {
-      "input": "<assets-dir>",
+      "input": "<your-assets-dir>",
       "output": "embedded_assets_index.mbt",
       "command": "selene-embed-assets --assets-dir $input --index-out $output --path-prefix <runtime-prefix> --blob-name embedded_assets_blob --lookup-fn get_embedded_asset",
     },
@@ -45,9 +64,9 @@ options(
 )
 ```
 
-Use the same `<assets-dir>` in both pre-build steps, and set `<runtime-prefix>` to match your runtime asset paths.
+Use the same value for both `<your-assets-dir>` fields, and make `<runtime-prefix>` match your runtime asset paths.
 
-When embedding is enabled, register embedded lookup before `app.run()`:
+When embedding is enabled, register the lookup before `app.run()`:
 
 ```moonbit
 @asset.set_io(get_embedded_asset)
@@ -55,20 +74,13 @@ When embedding is enabled, register embedded lookup before `app.run()`:
 
 If embedding is not enabled, do not call this API.
 
-## For [MGPIC 2025](https://www.moonbitlang.cn/2025-mgpic) Participants
+## Documentation
 
-In principle, the competition only requires the output to be a static HTML5 game, with core logic written in MoonBit. The implementation details are open-ended. Contestants are encouraged to brainstorm and build everything from scratch.
+- English tutorial: [docs/tutorial-en.md](./docs/tutorial-en.md)
+- Chinese tutorial: [docs/tutorial-zh.md](./docs/tutorial-zh.md)
+- Changelog: [docs/CHANGELOG.md](./docs/CHANGELOG.md)
+- Examples: [examples](./examples/)
 
-For example, participants can freely choose which Web APIs to use, write JavaScript FFI by hand, use [rabbit-tea](https://github.com/moonbit-community/rabbit-tea) to draw the UI, or even develop a MoonBit Extension for an existing engine and use that engine to build the game. (Cross-platform compatibility is a plus!)
+## License
 
-For those who prefer to focus on high-level game logic, building games on top of the Selene engine provides a very friendly entry point.
-
-For more information about the Selene engine, see the [README](./selene-core/README.md), [docs](./docs/tutorial-zh.md), and [examples](./examples/).
-
-## Version Compatibility
-
-From August 10, 2025 until the end of the competition, the `0.10.x` series will remain stable and will not introduce any breaking changes.
-
-After the competition, this project will continue to be maintained, but backward compatibility is not guaranteed.
-
-Contributions are welcome!
+Apache-2.0
