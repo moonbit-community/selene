@@ -796,12 +796,21 @@ fn cleanup_resources() -> Unit {
   for _path, texture in backend.textures {
     @raylib.unload_texture(texture)
   }
+  backend.textures.clear()
   for _path, sound in backend.sounds {
     @raylib.unload_sound(sound)
   }
+  backend.sounds.clear()
   for _path, font in backend.fonts_by_path {
     @raylib.unload_font(font)
   }
+  backend.fonts_by_path.clear()
+  backend.font_alias.clear()
+  backend.embedded_asset_cache.clear()
+  backend.meshes3d.clear()
+  backend.materials3d.clear()
+  backend.images3d.clear()
+  backend.texture_warning_keys.clear()
 }
 
 ///|

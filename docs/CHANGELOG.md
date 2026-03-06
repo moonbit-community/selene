@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.24.3] - 2026-03-06
+
+### Fixed
+
+- raylib runtime cleanup now clears cached texture/sound/font and 3D synced-asset maps after unload, preventing stale resource handles from causing white/missing textures across multiple `App::run()` sessions
+
 ## [0.24.2] - 2026-03-06
 
 ### Fixed
