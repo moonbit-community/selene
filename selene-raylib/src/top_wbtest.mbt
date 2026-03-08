@@ -43,3 +43,31 @@ test "raylib shader texture transform helpers preserve default identity uniforms
   inspect(rotation[X], content="0")
   inspect(rotation[Y], content="1")
 }
+
+///|
+test "raylib lighting shader falls back to scalar factors when no textures are bound" {
+  inspect(
+    raylib_lighting_fragment_shader.contains(
+      "vec4 metallicRoughnessSample = materialHasTexture != 0 ? texture(texture1, metallicRoughnessUv) : vec4(1.0);",
+    ),
+    content="true",
+  )
+  inspect(
+    raylib_lighting_fragment_shader.contains(
+      "if (materialHasTexture != 0) normal = applyNormalMap(normal, fragPosition, normalUv);",
+    ),
+    content="true",
+  )
+  inspect(
+    raylib_lighting_fragment_shader.contains(
+      "float occlusion = materialHasTexture != 0 ? mix(1.0, texture(texture4, occlusionUv).r, clamp(materialOcclusionStrength, 0.0, 1.0)) : 1.0;",
+    ),
+    content="true",
+  )
+  inspect(
+    raylib_lighting_fragment_shader.contains(
+      "vec3 emissive = materialHasTexture != 0 ? texture(texture5, emissiveUv).rgb * materialEmissiveColor : materialEmissiveColor;",
+    ),
+    content="true",
+  )
+}

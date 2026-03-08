@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- `selene-raylib` lit `StandardMaterial3D` rendering now binds white fallback maps / a flat normal map and keeps shader-side scalar-factor fallbacks when a material has no textures at all, so pure-color 3D materials preserve `base_color` / `roughness` / `metallic` / `emissive_color` instead of rendering black from unbound secondary texture samples
+
 ## [0.26.0] - 2026-03-08
 
 ### Added

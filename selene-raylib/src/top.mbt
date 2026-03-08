@@ -86,7 +86,6 @@ priv struct MaterialTextureBundle3D {
   occlusion_transform : @render3d_types.TextureTransform3D
   normal_transform : @render3d_types.TextureTransform3D
   texcoord_set : Int
-  has_base_texture : Bool
 }
 
 ///|
@@ -526,11 +525,11 @@ let raylib_lighting_fragment_shader : String = "#version 330\n" +
   "    finalColor = vec4(albedo.rgb, albedo.a);\n" +
   "    return;\n" +
   "  }\n" +
-  "  vec4 metallicRoughnessSample = texture(texture1, metallicRoughnessUv);\n" +
+  "  vec4 metallicRoughnessSample = materialHasTexture != 0 ? texture(texture1, metallicRoughnessUv) : vec4(1.0);\n" +
   "  vec3 normal = normalize(fragNormal);\n" +
   "  if (length(normal) <= 0.00001) normal = vec3(0.0, 1.0, 0.0);\n" +
   "  vec3 geometricNormal = normal;\n" +
-  "  normal = applyNormalMap(normal, fragPosition, normalUv);\n" +
+  "  if (materialHasTexture != 0) normal = applyNormalMap(normal, fragPosition, normalUv);\n" +
   "  vec3 viewDir = normalize(viewPosition - fragPosition);\n" +
   "  if (length(viewDir) <= 0.00001) viewDir = vec3(0.0, 0.0, 1.0);\n" +
   "  float roughness = clamp(materialRoughness * metallicRoughnessSample.g, 0.0, 1.0);\n" +
@@ -564,8 +563,8 @@ let raylib_lighting_fragment_shader : String = "#version 330\n" +
   "  if (directionalCount == 0 && pointCount == 0 && spotCount == 0 && dot(ambientLight, ambientLight) <= 0.000001) {\n" +
   "    diffuseLight = vec3(1.0);\n" +
   "  }\n" +
-  "  float occlusion = mix(1.0, texture(texture4, occlusionUv).r, clamp(materialOcclusionStrength, 0.0, 1.0));\n" +
-  "  vec3 emissive = texture(texture5, emissiveUv).rgb * materialEmissiveColor;\n" +
+  "  float occlusion = materialHasTexture != 0 ? mix(1.0, texture(texture4, occlusionUv).r, clamp(materialOcclusionStrength, 0.0, 1.0)) : 1.0;\n" +
+  "  vec3 emissive = materialHasTexture != 0 ? texture(texture5, emissiveUv).rgb * materialEmissiveColor : materialEmissiveColor;\n" +
   "  vec3 litColor = albedo.rgb * diffuseLight * occlusion + specularLight * occlusion + emissive;\n" +
   "  finalColor = vec4(litColor, albedo.a);\n" +
   "}\n"
@@ -1243,6 +1242,24 @@ fn get_flat_normal_texture() -> @raylib.Texture {
 }
 
 ///|
+fn fallback_lighting_texture_bundle() -> MaterialTextureBundle3D {
+  let default_transform = @render3d_types.default_texture_transform3d()
+  {
+    base_texture: get_white_texture(),
+    emissive_texture: get_white_texture(),
+    metallic_roughness_texture: get_white_texture(),
+    occlusion_texture: get_white_texture(),
+    normal_texture: get_flat_normal_texture(),
+    base_transform: default_transform,
+    emissive_transform: default_transform,
+    metallic_roughness_transform: default_transform,
+    occlusion_transform: default_transform,
+    normal_transform: default_transform,
+    texcoord_set: 0,
+  }
+}
+
+///|
 fn get_lit_material(textured : Bool) -> @raylib.Material {
   let existing = if textured {
     backend.lit_textured_material
@@ -1727,7 +1744,7 @@ fn upload_lighting_uniforms(
     shader,
     state.material_has_texture_loc,
     bytes_from_int(
-      if texture_bundle.map_or(false, fn(bundle) { bundle.has_base_texture }) {
+      if texture_bundle is Some(_) {
         1
       } else {
         0
@@ -1928,39 +1945,40 @@ fn draw_lit_mesh_with_material(
       frame, camera_position, material, texture_bundle, receive_shadows, shadow_state,
     ),
   )
+  let effective_bundle = texture_bundle.unwrap_or(
+    fallback_lighting_texture_bundle(),
+  )
   let ray_material = get_lit_material(texture_bundle is Some(_))
-  if texture_bundle is Some(bundle) {
-    @raylib.set_material_texture(
-      ray_material,
-      @raylib.MaterialMapAlbedo,
-      bundle.base_texture,
-    )
-    @raylib.set_material_texture(
-      ray_material,
-      @raylib.MaterialMapEmission,
-      bundle.emissive_texture,
-    )
-    @raylib.set_material_texture(
-      ray_material,
-      @raylib.MaterialMapMetalness,
-      bundle.metallic_roughness_texture,
-    )
-    @raylib.set_material_texture(
-      ray_material,
-      @raylib.MaterialMapRoughness,
-      bundle.metallic_roughness_texture,
-    )
-    @raylib.set_material_texture(
-      ray_material,
-      @raylib.MaterialMapOcclusion,
-      bundle.occlusion_texture,
-    )
-    @raylib.set_material_texture(
-      ray_material,
-      @raylib.MaterialMapNormal,
-      bundle.normal_texture,
-    )
-  }
+  @raylib.set_material_texture(
+    ray_material,
+    @raylib.MaterialMapAlbedo,
+    effective_bundle.base_texture,
+  )
+  @raylib.set_material_texture(
+    ray_material,
+    @raylib.MaterialMapEmission,
+    effective_bundle.emissive_texture,
+  )
+  @raylib.set_material_texture(
+    ray_material,
+    @raylib.MaterialMapMetalness,
+    effective_bundle.metallic_roughness_texture,
+  )
+  @raylib.set_material_texture(
+    ray_material,
+    @raylib.MaterialMapRoughness,
+    effective_bundle.metallic_roughness_texture,
+  )
+  @raylib.set_material_texture(
+    ray_material,
+    @raylib.MaterialMapOcclusion,
+    effective_bundle.occlusion_texture,
+  )
+  @raylib.set_material_texture(
+    ray_material,
+    @raylib.MaterialMapNormal,
+    effective_bundle.normal_texture,
+  )
   if material.double_sided {
     @rl.disable_backface_culling()
   } else {
@@ -2969,7 +2987,6 @@ fn resolve_material_texture_bundle(
       source.transform
     }),
     texcoord_set: primary_source.texcoord_set,
-    has_base_texture: base_source is Some(_),
   })
 }
 
@@ -3314,6 +3331,9 @@ fn draw_triangle_vertices(
   let state = upload_lighting_uniforms(
     frame, camera_position, material, texture_bundle, receive_shadows, shadow_state,
   )
+  let effective_bundle = texture_bundle.unwrap_or(
+    fallback_lighting_texture_bundle(),
+  )
   ignore(@rl.check_render_batch_limit(vertices.length()))
   if material.double_sided {
     @rl.disable_backface_culling()
@@ -3321,33 +3341,31 @@ fn draw_triangle_vertices(
     @rl.enable_backface_culling()
   }
   @raylib.begin_shader_mode(state.shader)
-  if texture_bundle is Some(bundle) {
-    @rl.active_texture_slot(0)
-    @rl.enable_texture(
-      @raylib.get_texture_id(bundle.base_texture).reinterpret_as_uint(),
-    )
-    @rl.active_texture_slot(1)
-    @rl.enable_texture(
-      @raylib.get_texture_id(bundle.metallic_roughness_texture).reinterpret_as_uint(),
-    )
-    @rl.active_texture_slot(2)
-    @rl.enable_texture(
-      @raylib.get_texture_id(bundle.normal_texture).reinterpret_as_uint(),
-    )
-    @rl.active_texture_slot(3)
-    @rl.enable_texture(
-      @raylib.get_texture_id(bundle.metallic_roughness_texture).reinterpret_as_uint(),
-    )
-    @rl.active_texture_slot(4)
-    @rl.enable_texture(
-      @raylib.get_texture_id(bundle.occlusion_texture).reinterpret_as_uint(),
-    )
-    @rl.active_texture_slot(5)
-    @rl.enable_texture(
-      @raylib.get_texture_id(bundle.emissive_texture).reinterpret_as_uint(),
-    )
-    @rl.active_texture_slot(0)
-  }
+  @rl.active_texture_slot(0)
+  @rl.enable_texture(
+    @raylib.get_texture_id(effective_bundle.base_texture).reinterpret_as_uint(),
+  )
+  @rl.active_texture_slot(1)
+  @rl.enable_texture(
+    @raylib.get_texture_id(effective_bundle.metallic_roughness_texture).reinterpret_as_uint(),
+  )
+  @rl.active_texture_slot(2)
+  @rl.enable_texture(
+    @raylib.get_texture_id(effective_bundle.normal_texture).reinterpret_as_uint(),
+  )
+  @rl.active_texture_slot(3)
+  @rl.enable_texture(
+    @raylib.get_texture_id(effective_bundle.metallic_roughness_texture).reinterpret_as_uint(),
+  )
+  @rl.active_texture_slot(4)
+  @rl.enable_texture(
+    @raylib.get_texture_id(effective_bundle.occlusion_texture).reinterpret_as_uint(),
+  )
+  @rl.active_texture_slot(5)
+  @rl.enable_texture(
+    @raylib.get_texture_id(effective_bundle.emissive_texture).reinterpret_as_uint(),
+  )
+  @rl.active_texture_slot(0)
   bind_shadow_textures(shadow_state)
   @rl.begin(@rl.Triangles)
   for index in 0..<vertices.length() {
@@ -3373,13 +3391,11 @@ fn draw_triangle_vertices(
     @rl.vertex3f(to_float(vertex.x), to_float(vertex.y), to_float(vertex.z))
   }
   @rl.end_()
-  if texture_bundle is Some(_) {
-    for slot in 0..<6 {
-      @rl.active_texture_slot(slot)
-      @rl.disable_texture()
-    }
-    @rl.active_texture_slot(0)
+  for slot in 0..<6 {
+    @rl.active_texture_slot(slot)
+    @rl.disable_texture()
   }
+  @rl.active_texture_slot(0)
   unbind_shadow_textures(shadow_state)
   @raylib.end_shader_mode()
   @rl.disable_backface_culling()
