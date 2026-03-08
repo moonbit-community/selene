@@ -793,9 +793,7 @@ fn pack_point_light_data(
 }
 
 ///|
-fn pack_spot_light_data(
-  frame : @render3d_types.RenderFrame3D,
-) -> Array[Double] {
+fn pack_spot_light_data(frame : @render3d_types.RenderFrame3D) -> Array[Double] {
   let spot_data : Array[Double] = []
   let spot_count = if frame.spot_lights.length() < MAX_SPOT_LIGHTS {
     frame.spot_lights.length()

@@ -173,7 +173,10 @@ fn vec3_midpoint(lhs : @smath.Vec3, rhs : @smath.Vec3) -> @smath.Vec3 {
 
 ///|
 fn choose_shadow_up(light_direction : @smath.Vec3) -> @smath.Vec3 {
-  let normalized = normalize_or(light_direction, @smath.Vec3::new(0.0, -1.0, 0.0))
+  let normalized = normalize_or(
+    light_direction,
+    @smath.Vec3::new(0.0, -1.0, 0.0),
+  )
   let world_up = @smath.Vec3::new(0.0, 1.0, 0.0)
   if normalized.cross(world_up).length_squared() <= 0.0001 {
     @smath.Vec3::new(0.0, 0.0, 1.0)
@@ -255,29 +258,63 @@ fn camera_frustum_slice_corners(
       let far_width = far_height * aspect
       let near_center = camera.position + forward.scalar_mul(near_bound)
       let far_center = camera.position + forward.scalar_mul(far_bound)
-      corners.push(near_center - right.scalar_mul(near_width) - up.scalar_mul(near_height))
-      corners.push(near_center + right.scalar_mul(near_width) - up.scalar_mul(near_height))
-      corners.push(near_center + right.scalar_mul(near_width) + up.scalar_mul(near_height))
-      corners.push(near_center - right.scalar_mul(near_width) + up.scalar_mul(near_height))
-      corners.push(far_center - right.scalar_mul(far_width) - up.scalar_mul(far_height))
-      corners.push(far_center + right.scalar_mul(far_width) - up.scalar_mul(far_height))
-      corners.push(far_center + right.scalar_mul(far_width) + up.scalar_mul(far_height))
-      corners.push(far_center - right.scalar_mul(far_width) + up.scalar_mul(far_height))
+      corners.push(
+        near_center - right.scalar_mul(near_width) - up.scalar_mul(near_height),
+      )
+      corners.push(
+        near_center + right.scalar_mul(near_width) - up.scalar_mul(near_height),
+      )
+      corners.push(
+        near_center + right.scalar_mul(near_width) + up.scalar_mul(near_height),
+      )
+      corners.push(
+        near_center - right.scalar_mul(near_width) + up.scalar_mul(near_height),
+      )
+      corners.push(
+        far_center - right.scalar_mul(far_width) - up.scalar_mul(far_height),
+      )
+      corners.push(
+        far_center + right.scalar_mul(far_width) - up.scalar_mul(far_height),
+      )
+      corners.push(
+        far_center + right.scalar_mul(far_width) + up.scalar_mul(far_height),
+      )
+      corners.push(
+        far_center - right.scalar_mul(far_width) + up.scalar_mul(far_height),
+      )
     }
     Orthographic => {
-      let ortho_size = camera.orthographic_size.unwrap_or(@smath.Vec2D(20.0, 20.0))
+      let ortho_size = camera.orthographic_size.unwrap_or(
+        @smath.Vec2D(20.0, 20.0),
+      )
       let half_width = ortho_size[X].abs() * 0.5
       let half_height = ortho_size[Y].abs() * 0.5
       let near_center = camera.position + forward.scalar_mul(near_bound)
       let far_center = camera.position + forward.scalar_mul(far_bound)
-      corners.push(near_center - right.scalar_mul(half_width) - up.scalar_mul(half_height))
-      corners.push(near_center + right.scalar_mul(half_width) - up.scalar_mul(half_height))
-      corners.push(near_center + right.scalar_mul(half_width) + up.scalar_mul(half_height))
-      corners.push(near_center - right.scalar_mul(half_width) + up.scalar_mul(half_height))
-      corners.push(far_center - right.scalar_mul(half_width) - up.scalar_mul(half_height))
-      corners.push(far_center + right.scalar_mul(half_width) - up.scalar_mul(half_height))
-      corners.push(far_center + right.scalar_mul(half_width) + up.scalar_mul(half_height))
-      corners.push(far_center - right.scalar_mul(half_width) + up.scalar_mul(half_height))
+      corners.push(
+        near_center - right.scalar_mul(half_width) - up.scalar_mul(half_height),
+      )
+      corners.push(
+        near_center + right.scalar_mul(half_width) - up.scalar_mul(half_height),
+      )
+      corners.push(
+        near_center + right.scalar_mul(half_width) + up.scalar_mul(half_height),
+      )
+      corners.push(
+        near_center - right.scalar_mul(half_width) + up.scalar_mul(half_height),
+      )
+      corners.push(
+        far_center - right.scalar_mul(half_width) - up.scalar_mul(half_height),
+      )
+      corners.push(
+        far_center + right.scalar_mul(half_width) - up.scalar_mul(half_height),
+      )
+      corners.push(
+        far_center + right.scalar_mul(half_width) + up.scalar_mul(half_height),
+      )
+      corners.push(
+        far_center - right.scalar_mul(half_width) + up.scalar_mul(half_height),
+      )
     }
   }
   corners
@@ -349,7 +386,9 @@ fn build_directional_shadow_cascades_for_light(
     to_ray_vector3_smath(choose_shadow_up(light_direction)),
   )
   let tile_size = normalize_shadow_map_size(shadow_map_size)
-  let (atlas_columns, atlas_rows) = directional_shadow_atlas_layout(bounds.length())
+  let (atlas_columns, atlas_rows) = directional_shadow_atlas_layout(
+    bounds.length(),
+  )
   let atlas_width = tile_size * atlas_columns
   let atlas_height = tile_size * atlas_rows
   let cascades : Array[DirectionalShadowCascadeState] = []
@@ -369,16 +408,24 @@ fn build_directional_shadow_cascades_for_light(
     let far_plane_diagonal = (corners[4] - corners[6]).length_squared()
     let diameter = @cmp.maximum(
       1.0,
-      @cmath.ceil(@cmath.pow(@cmp.maximum(body_diagonal, far_plane_diagonal), 0.5)),
+      @cmath.ceil(
+        @cmath.pow(@cmp.maximum(body_diagonal, far_plane_diagonal), 0.5),
+      ),
     )
     let texel_size = diameter / tile_size.to_double()
-    let center_x = @cmath.floor(((min_corner.x + max_corner.x) * 0.5) / texel_size) * texel_size
-    let center_y = @cmath.floor(((min_corner.y + max_corner.y) * 0.5) / texel_size) * texel_size
+    let center_x = @cmath.floor(
+        (min_corner.x + max_corner.x) * 0.5 / texel_size,
+      ) *
+      texel_size
+    let center_y = @cmath.floor(
+        (min_corner.y + max_corner.y) * 0.5 / texel_size,
+      ) *
+      texel_size
     let half_extent = diameter * 0.5
     let near_plane = SHADOW_CAMERA_NEAR_MIN
     let far_plane = @cmp.maximum(
       near_plane + 1.0,
-      (max_corner.z - min_corner.z) + near_plane,
+      max_corner.z - min_corner.z + near_plane,
     )
     let cascade_view = @raylib.Matrix::multiply(
       light_view,
@@ -397,16 +444,11 @@ fn build_directional_shadow_cascades_for_light(
       far_plane,
     )
     let atlas_rect = make_shadow_atlas_rect(
-      cascade_index,
-      atlas_columns,
-      tile_size,
-      atlas_width,
-      atlas_height,
+      cascade_index, atlas_columns, tile_size, atlas_width, atlas_height,
     )
     cascades.push({
       light_view_projection: @raylib.Matrix::multiply(
-        cascade_view,
-        cascade_projection,
+        cascade_view, cascade_projection,
       ),
       atlas_rect,
       near_bound,
@@ -416,6 +458,7 @@ fn build_directional_shadow_cascades_for_light(
   cascades
 }
 
+///|
 fn shadowed_directional_light_indices(
   frame : @render3d_types.RenderFrame3D,
 ) -> Array[Int] {
@@ -464,7 +507,11 @@ fn transform_shadow_point(
   point : @smath.Vec3,
 ) -> @smath.Vec3 {
   let transformed = @raylib.Vector3::transform(
-    @raylib.Vector3::new(to_float(point.x), to_float(point.y), to_float(point.z)),
+    @raylib.Vector3::new(
+      to_float(point.x),
+      to_float(point.y),
+      to_float(point.z),
+    ),
     matrix,
   )
   @smath.Vec3::new(
@@ -500,22 +547,18 @@ fn primitive_local_bounding_sphere(
         size.y.abs() * 0.5,
         size.z.abs() * 0.5,
       )
-      Some({
-        center: @smath.Vec3::zero(),
-        radius: half_extents.length(),
-      })
+      Some({ center: @smath.Vec3::zero(), radius: half_extents.length() })
     }
-    Sphere(radius) => Some({
-      center: @smath.Vec3::zero(),
-      radius: radius.abs(),
-    })
+    Sphere(radius) =>
+      Some({ center: @smath.Vec3::zero(), radius: radius.abs() })
     Cylinder(radius_top, radius_bottom, height, _slices) => {
       let max_radius = @cmp.maximum(radius_top.abs(), radius_bottom.abs())
-      let half_extents = @smath.Vec3::new(max_radius, height.abs() * 0.5, max_radius)
-      Some({
-        center: @smath.Vec3::zero(),
-        radius: half_extents.length(),
-      })
+      let half_extents = @smath.Vec3::new(
+        max_radius,
+        height.abs() * 0.5,
+        max_radius,
+      )
+      Some({ center: @smath.Vec3::zero(), radius: half_extents.length() })
     }
     Plane(size) => {
       let thickness = if size.y.abs() < 0.0001 { 0.02 } else { size.y.abs() }
@@ -524,18 +567,12 @@ fn primitive_local_bounding_sphere(
         thickness * 0.5,
         size.z.abs() * 0.5,
       )
-      Some({
-        center: @smath.Vec3::zero(),
-        radius: half_extents.length(),
-      })
+      Some({ center: @smath.Vec3::zero(), radius: half_extents.length() })
     }
     Triangles(mesh) =>
       triangle_mesh_local_bounds(mesh).map(fn(bounds) {
         let center = vec3_midpoint(bounds.min, bounds.max)
-        {
-          center,
-          radius: (bounds.max - center).length(),
-        }
+        { center, radius: (bounds.max - center).length() }
       })
   }
 }
@@ -556,7 +593,8 @@ fn world_bounding_sphere(
       @cmp.maximum(transform.scale.y.abs(), transform.scale.z.abs()),
     )
     {
-      center: transform.translation + transform.rotation.rotate_vec3(scaled_center),
+      center: transform.translation +
+      transform.rotation.rotate_vec3(scaled_center),
       radius: local_sphere.radius * max_scale,
     }
   })
@@ -575,13 +613,16 @@ fn scene_shadow_bounds(frame : @render3d_types.RenderFrame3D) -> Bounds3D? {
       min: sphere.center - extent,
       max: sphere.center + extent,
     }
-    bounds = Some(match bounds {
-      Some(existing) => {
-        min: vec3_min(existing.min, item_bounds.min),
-        max: vec3_max(existing.max, item_bounds.max),
-      }
-      None => item_bounds
-    })
+    bounds = Some(
+      match bounds {
+        Some(existing) =>
+          {
+            min: vec3_min(existing.min, item_bounds.min),
+            max: vec3_max(existing.max, item_bounds.max),
+          }
+        None => item_bounds
+      },
+    )
   }
   bounds
 }
@@ -611,11 +652,12 @@ fn build_directional_shadow_setup_for_light(
     radius * SHADOW_CAMERA_DISTANCE_SCALE + margin,
     SHADOW_CAMERA_DISTANCE_MIN,
   )
-  let light_position = center - @smath.Vec3::new(
-    light_direction.x * distance,
-    light_direction.y * distance,
-    light_direction.z * distance,
-  )
+  let light_position = center -
+    @smath.Vec3::new(
+      light_direction.x * distance,
+      light_direction.y * distance,
+      light_direction.z * distance,
+    )
   let light_view = @raylib.Matrix::look_at(
     to_ray_vector3_smath(light_position),
     to_ray_vector3_smath(center),
@@ -653,8 +695,7 @@ fn build_directional_shadow_setup_for_light(
   )
   Some({
     light_view_projection: @raylib.Matrix::multiply(
-      light_view,
-      light_projection,
+      light_view, light_projection,
     ),
     half_extent,
     near_plane,
@@ -664,6 +705,7 @@ fn build_directional_shadow_setup_for_light(
   })
 }
 
+///|
 fn configure_shadow_shader_locations(shader : @raylib.Shader) -> Unit {
   @raylib.set_shader_location(
     shader,
@@ -690,36 +732,27 @@ fn configure_shadow_shader_locations(shader : @raylib.Shader) -> Unit {
 ///|
 fn create_shadow_shader_state() -> ShadowShaderState {
   let shader = @raylib.load_shader_from_memory(
-    raylib_shadow_vertex_shader,
-    raylib_shadow_fragment_shader,
+    raylib_shadow_vertex_shader, raylib_shadow_fragment_shader,
   )
   configure_shadow_shader_locations(shader)
   {
     shader,
     light_view_projection_loc: @raylib.get_shader_location(
-      shader,
-      "lightViewProjection",
+      shader, "lightViewProjection",
     ),
     material_has_texture_loc: @raylib.get_shader_location(
-      shader,
-      "materialHasTexture",
+      shader, "materialHasTexture",
     ),
     material_alpha_mode_loc: @raylib.get_shader_location(
-      shader,
-      "materialAlphaMode",
+      shader, "materialAlphaMode",
     ),
     material_alpha_cutoff_loc: @raylib.get_shader_location(
-      shader,
-      "materialAlphaCutoff",
+      shader, "materialAlphaCutoff",
     ),
     base_uv_offset_scale_loc: @raylib.get_shader_location(
-      shader,
-      "baseUvOffsetScale",
+      shader, "baseUvOffsetScale",
     ),
-    base_uv_rotation_loc: @raylib.get_shader_location(
-      shader,
-      "baseUvRotation",
-    ),
+    base_uv_rotation_loc: @raylib.get_shader_location(shader, "baseUvRotation"),
   }
 }
 
@@ -762,8 +795,7 @@ fn create_directional_shadow_render_texture(
   let depth_id = @raylib.get_render_texture_depth_id(render_texture)
   if @raylib.get_render_texture_fbo_id(render_texture) == 0U || depth_id == 0U {
     warn_texture_issue(
-      warn_key,
-      "raylib shadow-map framebuffer could not be created; directional cascaded shadows are disabled for one light",
+      warn_key, "raylib shadow-map framebuffer could not be created; directional cascaded shadows are disabled for one light",
     )
     @raylib.unload_shadowmap_render_texture(render_texture)
     return None
@@ -786,15 +818,18 @@ fn get_shadow_render_texture(
     1,
     @cmp.minimum(MAX_DIRECTIONAL_CASCADES, cascade_count),
   )
-  let (atlas_columns, atlas_rows) = directional_shadow_atlas_layout(cascade_count)
+  let (atlas_columns, atlas_rows) = directional_shadow_atlas_layout(
+    cascade_count,
+  )
   while backend.shadow_render_textures.length() <= index {
     let slot = backend.shadow_render_textures.length()
     guard create_directional_shadow_render_texture(
-      tile_size,
-      atlas_columns,
-      atlas_rows,
-      "shadowmap_unavailable:\{slot}",
-    ) is Some(render_texture) else {
+        tile_size,
+        atlas_columns,
+        atlas_rows,
+        "shadowmap_unavailable:\{slot}",
+      )
+      is Some(render_texture) else {
       return None
     }
     backend.shadow_render_textures.push(render_texture)
@@ -805,22 +840,29 @@ fn get_shadow_render_texture(
   guard backend.shadow_render_textures.get(index) is Some(existing) else {
     return None
   }
-  let existing_tile_size = backend.directional_shadow_tile_sizes.get(index).unwrap_or(0)
-  let existing_columns = backend.directional_shadow_atlas_columns.get(index).unwrap_or(0)
-  let existing_rows = backend.directional_shadow_atlas_rows.get(index).unwrap_or(0)
+  let existing_tile_size = backend.directional_shadow_tile_sizes
+    .get(index)
+    .unwrap_or(0)
+  let existing_columns = backend.directional_shadow_atlas_columns
+    .get(index)
+    .unwrap_or(0)
+  let existing_rows = backend.directional_shadow_atlas_rows
+    .get(index)
+    .unwrap_or(0)
   let needs_recreate = existing_tile_size != tile_size ||
     existing_columns != atlas_columns ||
-      existing_rows != atlas_rows ||
-        @raylib.get_render_texture_fbo_id(existing) == 0U ||
-          @raylib.get_render_texture_depth_id(existing) == 0U
+    existing_rows != atlas_rows ||
+    @raylib.get_render_texture_fbo_id(existing) == 0U ||
+    @raylib.get_render_texture_depth_id(existing) == 0U
   if needs_recreate {
     @raylib.unload_shadowmap_render_texture(existing)
     guard create_directional_shadow_render_texture(
-      tile_size,
-      atlas_columns,
-      atlas_rows,
-      "shadowmap_unavailable:\{index}",
-    ) is Some(render_texture) else {
+        tile_size,
+        atlas_columns,
+        atlas_rows,
+        "shadowmap_unavailable:\{index}",
+      )
+      is Some(render_texture) else {
       return None
     }
     backend.shadow_render_textures[index] = render_texture
@@ -958,10 +1000,7 @@ fn draw_shadow_cylinder(
     return
   }
   let (vertices, uvs, _normals) = build_cylinder_mesh(
-    radius_top,
-    radius_bottom,
-    height,
-    slices,
+    radius_top, radius_bottom, height, slices,
   )
   draw_shadow_triangle_mesh(
     {
@@ -1015,13 +1054,17 @@ fn draw_shadow_triangle_mesh(
   @raylib.begin_shader_mode(state.shader)
   if base_source is Some(source) {
     @rl.active_texture_slot(0)
-    @rl.enable_texture(@raylib.get_texture_id(source.texture).reinterpret_as_uint())
+    @rl.enable_texture(
+      @raylib.get_texture_id(source.texture).reinterpret_as_uint(),
+    )
     @rl.active_texture_slot(0)
   }
   @rl.begin(@rl.Triangles)
   for index in 0..<vertices.length() {
     let vertex = vertices[index]
-    let uv = uvs.map(fn(values) { values[index] }).unwrap_or(@smath.Vec2D(0.0, 0.0))
+    let uv = uvs
+      .map(fn(values) { values[index] })
+      .unwrap_or(@smath.Vec2D(0.0, 0.0))
     @rl.tex_coord2f(to_float(uv[X]), to_float(uv[Y]))
     @rl.vertex3f(to_float(vertex.x), to_float(vertex.y), to_float(vertex.z))
   }
@@ -1053,19 +1096,15 @@ fn draw_shadow_mesh3d_instance(
     to_float(transform.scale.y),
     to_float(transform.scale.z),
   )
-  let base_source = material.base_color_texture.bind(resolve_material_texture_source)
+  let base_source = material.base_color_texture.bind(
+    resolve_material_texture_source,
+  )
   match mesh_asset.primitive {
     Cube(size) => draw_shadow_cuboid(size, material, base_source, setup)
     Sphere(radius) => draw_shadow_sphere(radius, material, base_source, setup)
     Cylinder(radius_top, radius_bottom, height, slices) =>
       draw_shadow_cylinder(
-        radius_top,
-        radius_bottom,
-        height,
-        slices,
-        material,
-        base_source,
-        setup,
+        radius_top, radius_bottom, height, slices, material, base_source, setup,
       )
     Plane(size) => {
       let thickness = if size.y.abs() < 0.0001 { 0.02 } else { size.y }
@@ -1076,7 +1115,8 @@ fn draw_shadow_mesh3d_instance(
         setup,
       )
     }
-    Triangles(mesh) => draw_shadow_triangle_mesh(mesh, material, base_source, setup)
+    Triangles(mesh) =>
+      draw_shadow_triangle_mesh(mesh, material, base_source, setup)
   }
   @rl.pop_matrix()
 }
@@ -1086,26 +1126,22 @@ fn render_directional_shadow_map(
   frame : @render3d_types.RenderFrame3D,
   camera : @render3d_types.FrameCamera3D,
 ) -> FrameShadowState? {
-  let shadow_map_size = normalize_shadow_map_size(frame.directional_shadow_map_size)
+  let shadow_map_size = normalize_shadow_map_size(
+    frame.directional_shadow_map_size,
+  )
   let directional_shadows : Map[Int, FrameDirectionalShadowState] = Map::new()
   for light_index in shadowed_directional_light_indices(frame) {
     let mut cascades = build_directional_shadow_cascades_for_light(
-      frame,
-      light_index,
-      camera,
-      shadow_map_size,
+      frame, light_index, camera, shadow_map_size,
     )
     if cascades.length() == 0 {
-      if build_directional_shadow_setup_for_light(frame, light_index) is Some(setup) {
+      if build_directional_shadow_setup_for_light(frame, light_index)
+        is Some(setup) {
         cascades = [
           {
             light_view_projection: setup.light_view_projection,
             atlas_rect: make_shadow_atlas_rect(
-              0,
-              1,
-              shadow_map_size,
-              shadow_map_size,
-              shadow_map_size,
+              0, 1, shadow_map_size, shadow_map_size, shadow_map_size,
             ),
             near_bound: setup.near_bound,
             far_bound: setup.far_bound,
@@ -1116,13 +1152,16 @@ fn render_directional_shadow_map(
       }
     }
     guard get_shadow_render_texture(
-      light_index,
-      shadow_map_size,
-      cascades.length(),
-    ) is Some(render_texture) else {
+        light_index,
+        shadow_map_size,
+        cascades.length(),
+      )
+      is Some(render_texture) else {
       continue
     }
-    let (atlas_columns, atlas_rows) = directional_shadow_atlas_layout(cascades.length())
+    let (atlas_columns, atlas_rows) = directional_shadow_atlas_layout(
+      cascades.length(),
+    )
     let atlas_width = shadow_map_size * atlas_columns
     let atlas_height = shadow_map_size * atlas_rows
     @raylib.begin_texture_mode(render_texture)
@@ -1153,16 +1192,14 @@ fn render_directional_shadow_map(
     })
   }
   let (spot_shadows, spot_shadow_atlas_id, spot_texel_size) = render_spot_shadow_map(
-    frame,
-    camera,
+    frame, camera,
   )
   let (point_shadows, point_shadow_atlas_id, point_texel_size) = render_point_shadow_map(
-    frame,
-    camera,
+    frame, camera,
   )
   if directional_shadows.length() == 0 &&
     spot_shadows.length() == 0 &&
-      point_shadows.length() == 0 {
+    point_shadows.length() == 0 {
     None
   } else {
     Some({

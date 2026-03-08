@@ -407,9 +407,15 @@ pub fn get_ambient_light3d() -> AmbientLight3D? {
 }
 
 ///|
-pub fn set_directional_light_shadow_map3d(resource : DirectionalLightShadowMap3D) -> Unit {
+pub fn set_directional_light_shadow_map3d(
+  resource : DirectionalLightShadowMap3D,
+) -> Unit {
   directional_light_shadow_map3d.val = {
-    size: if resource.size < 1 { 1 } else { resource.size },
+    size: if resource.size < 1 {
+      1
+    } else {
+      resource.size
+    },
   }
 }
 
@@ -421,7 +427,11 @@ pub fn get_directional_light_shadow_map3d() -> DirectionalLightShadowMap3D {
 ///|
 pub fn set_point_light_shadow_map3d(resource : PointLightShadowMap3D) -> Unit {
   point_light_shadow_map3d.val = {
-    size: if resource.size < 1 { 1 } else { resource.size },
+    size: if resource.size < 1 {
+      1
+    } else {
+      resource.size
+    },
   }
 }
 

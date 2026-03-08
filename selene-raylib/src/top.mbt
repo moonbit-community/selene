@@ -1134,8 +1134,7 @@ fn create_lighting_shader_state() -> LightingShaderState {
     ),
     material_unlit_loc: @raylib.get_shader_location(shader, "materialUnlit"),
     material_receive_shadows_loc: @raylib.get_shader_location(
-      shader,
-      "materialReceiveShadows",
+      shader, "materialReceiveShadows",
     ),
     shadow_enabled_locs,
     shadow_cascade_count_locs,
@@ -1145,8 +1144,7 @@ fn create_lighting_shader_state() -> LightingShaderState {
     shadow_depth_bias_locs,
     shadow_normal_bias_locs,
     directional_shadow_texel_size_loc: @raylib.get_shader_location(
-      shader,
-      "directionalShadowTexelSize",
+      shader, "directionalShadowTexelSize",
     ),
     spot_shadow_enabled_locs,
     spot_shadow_matrix_locs,
@@ -1154,8 +1152,7 @@ fn create_lighting_shader_state() -> LightingShaderState {
     spot_shadow_depth_bias_locs,
     spot_shadow_normal_bias_locs,
     spot_shadow_texel_size_loc: @raylib.get_shader_location(
-      shader,
-      "spotShadowTexelSize",
+      shader, "spotShadowTexelSize",
     ),
     point_shadow_enabled_locs,
     point_shadow_depth_bias_locs,
@@ -1163,8 +1160,7 @@ fn create_lighting_shader_state() -> LightingShaderState {
     point_shadow_matrix_locs,
     point_shadow_rect_locs,
     point_shadow_texel_size_loc: @raylib.get_shader_location(
-      shader,
-      "pointShadowTexelSize",
+      shader, "pointShadowTexelSize",
     ),
     base_uv_offset_scale_loc: @raylib.get_shader_location(
       shader, "baseUvOffsetScale",
@@ -1362,15 +1358,14 @@ fn upload_lighting_uniforms(
     bytes_from_vec3(camera_position),
     @raylib.ShaderUniformVec3,
   )
-  let camera_forward = frame.camera.map_or(
-    @smath.Vec3::new(0.0, 0.0, -1.0),
-    fn(active_camera) {
-      normalize_or(
-        active_camera.target - active_camera.position,
-        @smath.Vec3::new(0.0, 0.0, -1.0),
-      )
-    },
-  )
+  let camera_forward = frame.camera.map_or(@smath.Vec3::new(0.0, 0.0, -1.0), fn(
+    active_camera,
+  ) {
+    normalize_or(
+      active_camera.target - active_camera.position,
+      @smath.Vec3::new(0.0, 0.0, -1.0),
+    )
+  })
   set_shader_uniform(
     shader,
     state.view_forward_loc,
@@ -1454,19 +1449,19 @@ fn upload_lighting_uniforms(
       set_shader_uniform(
         shader,
         state.shadow_rect_locs[matrix_index],
-        cascade.map_or(
-          bytes_from_shadow_atlas_rect(default_shadow_rect),
-          fn(value) { bytes_from_shadow_atlas_rect(value.atlas_rect) },
-        ),
+        cascade.map_or(bytes_from_shadow_atlas_rect(default_shadow_rect), fn(
+          value,
+        ) {
+          bytes_from_shadow_atlas_rect(value.atlas_rect)
+        }),
         @raylib.ShaderUniformVec4,
       )
       set_shader_uniform(
         shader,
         state.shadow_bound_locs[matrix_index],
-        cascade.map_or(
-          bytes_from_vec2(@smath.Vec2D(0.0, 0.0)),
-          fn(value) { bytes_from_vec2(@smath.Vec2D(value.near_bound, value.far_bound)) },
-        ),
+        cascade.map_or(bytes_from_vec2(@smath.Vec2D(0.0, 0.0)), fn(value) {
+          bytes_from_vec2(@smath.Vec2D(value.near_bound, value.far_bound))
+        }),
         @raylib.ShaderUniformVec2,
       )
     }
@@ -1930,22 +1925,41 @@ fn draw_lit_mesh_with_material(
 ) -> Unit {
   ignore(
     upload_lighting_uniforms(
-      frame,
-      camera_position,
-      material,
-      texture_bundle,
-      receive_shadows,
-      shadow_state,
+      frame, camera_position, material, texture_bundle, receive_shadows, shadow_state,
     ),
   )
   let ray_material = get_lit_material(texture_bundle is Some(_))
   if texture_bundle is Some(bundle) {
-    @raylib.set_material_texture(ray_material, @raylib.MaterialMapAlbedo, bundle.base_texture)
-    @raylib.set_material_texture(ray_material, @raylib.MaterialMapEmission, bundle.emissive_texture)
-    @raylib.set_material_texture(ray_material, @raylib.MaterialMapMetalness, bundle.metallic_roughness_texture)
-    @raylib.set_material_texture(ray_material, @raylib.MaterialMapRoughness, bundle.metallic_roughness_texture)
-    @raylib.set_material_texture(ray_material, @raylib.MaterialMapOcclusion, bundle.occlusion_texture)
-    @raylib.set_material_texture(ray_material, @raylib.MaterialMapNormal, bundle.normal_texture)
+    @raylib.set_material_texture(
+      ray_material,
+      @raylib.MaterialMapAlbedo,
+      bundle.base_texture,
+    )
+    @raylib.set_material_texture(
+      ray_material,
+      @raylib.MaterialMapEmission,
+      bundle.emissive_texture,
+    )
+    @raylib.set_material_texture(
+      ray_material,
+      @raylib.MaterialMapMetalness,
+      bundle.metallic_roughness_texture,
+    )
+    @raylib.set_material_texture(
+      ray_material,
+      @raylib.MaterialMapRoughness,
+      bundle.metallic_roughness_texture,
+    )
+    @raylib.set_material_texture(
+      ray_material,
+      @raylib.MaterialMapOcclusion,
+      bundle.occlusion_texture,
+    )
+    @raylib.set_material_texture(
+      ray_material,
+      @raylib.MaterialMapNormal,
+      bundle.normal_texture,
+    )
   }
   if material.double_sided {
     @rl.disable_backface_culling()
@@ -2702,53 +2716,34 @@ fn draw_mesh3d_instance(
   )
   let texture_bundle = resolve_material_texture_bundle(material)
   match mesh_asset.primitive {
-    Cube(size) => draw_lit_cuboid(
-      size,
-      material,
-      frame,
-      camera_position,
-      texture_bundle,
-      receive_shadows,
-      shadow_state,
-    )
-    Sphere(radius) => draw_lit_sphere(
-      radius,
-      material,
-      frame,
-      camera_position,
-      texture_bundle,
-      receive_shadows,
-      shadow_state,
-    )
+    Cube(size) =>
+      draw_lit_cuboid(
+        size, material, frame, camera_position, texture_bundle, receive_shadows,
+        shadow_state,
+      )
+    Sphere(radius) =>
+      draw_lit_sphere(
+        radius, material, frame, camera_position, texture_bundle, receive_shadows,
+        shadow_state,
+      )
     Cylinder(radius_top, radius_bottom, height, slices) =>
       draw_lit_cylinder(
         radius_top, radius_bottom, height, slices, material, frame, camera_position,
-        texture_bundle,
-        receive_shadows,
-        shadow_state,
+        texture_bundle, receive_shadows, shadow_state,
       )
     Plane(size) => {
       let thickness = if size.y.abs() < 0.0001 { 0.02 } else { size.y }
       let cuboid = @smath.Vec3::new(size.x, thickness, size.z)
       draw_lit_cuboid(
-        cuboid,
-        material,
-        frame,
-        camera_position,
-        texture_bundle,
-        receive_shadows,
+        cuboid, material, frame, camera_position, texture_bundle, receive_shadows,
         shadow_state,
       )
     }
-    Triangles(mesh) => draw_triangle_mesh(
-      mesh,
-      material,
-      frame,
-      camera_position,
-      texture_bundle,
-      receive_shadows,
-      shadow_state,
-    )
+    Triangles(mesh) =>
+      draw_triangle_mesh(
+        mesh, material, frame, camera_position, texture_bundle, receive_shadows,
+        shadow_state,
+      )
   }
   @rl.pop_matrix()
 }
@@ -2774,13 +2769,7 @@ fn draw_lit_cuboid(
     @raylib.gen_mesh_cube(to_float(size.x), to_float(size.y), to_float(size.z))
   })
   draw_lit_mesh_with_material(
-    mesh,
-    frame,
-    camera_position,
-    material,
-    texture_bundle,
-    receive_shadows,
-    shadow_state,
+    mesh, frame, camera_position, material, texture_bundle, receive_shadows, shadow_state,
   )
 }
 
@@ -2803,13 +2792,7 @@ fn draw_lit_sphere(
     )
   })
   draw_lit_mesh_with_material(
-    mesh,
-    frame,
-    camera_position,
-    material,
-    texture_bundle,
-    receive_shadows,
-    shadow_state,
+    mesh, frame, camera_position, material, texture_bundle, receive_shadows, shadow_state,
   )
 }
 
@@ -2832,13 +2815,7 @@ fn draw_lit_cylinder(
       @raylib.gen_mesh_cylinder(to_float(radius_top), to_float(height), slices)
     })
     draw_lit_mesh_with_material(
-      mesh,
-      frame,
-      camera_position,
-      material,
-      texture_bundle,
-      receive_shadows,
-      shadow_state,
+      mesh, frame, camera_position, material, texture_bundle, receive_shadows, shadow_state,
     )
     return
   }
@@ -3335,12 +3312,7 @@ fn draw_triangle_vertices(
   shadow_state : FrameShadowState?,
 ) -> Unit {
   let state = upload_lighting_uniforms(
-    frame,
-    camera_position,
-    material,
-    texture_bundle,
-    receive_shadows,
-    shadow_state,
+    frame, camera_position, material, texture_bundle, receive_shadows, shadow_state,
   )
   ignore(@rl.check_render_batch_limit(vertices.length()))
   if material.double_sided {
@@ -3351,31 +3323,50 @@ fn draw_triangle_vertices(
   @raylib.begin_shader_mode(state.shader)
   if texture_bundle is Some(bundle) {
     @rl.active_texture_slot(0)
-    @rl.enable_texture(@raylib.get_texture_id(bundle.base_texture).reinterpret_as_uint())
+    @rl.enable_texture(
+      @raylib.get_texture_id(bundle.base_texture).reinterpret_as_uint(),
+    )
     @rl.active_texture_slot(1)
-    @rl.enable_texture(@raylib.get_texture_id(bundle.metallic_roughness_texture).reinterpret_as_uint())
+    @rl.enable_texture(
+      @raylib.get_texture_id(bundle.metallic_roughness_texture).reinterpret_as_uint(),
+    )
     @rl.active_texture_slot(2)
-    @rl.enable_texture(@raylib.get_texture_id(bundle.normal_texture).reinterpret_as_uint())
+    @rl.enable_texture(
+      @raylib.get_texture_id(bundle.normal_texture).reinterpret_as_uint(),
+    )
     @rl.active_texture_slot(3)
-    @rl.enable_texture(@raylib.get_texture_id(bundle.metallic_roughness_texture).reinterpret_as_uint())
+    @rl.enable_texture(
+      @raylib.get_texture_id(bundle.metallic_roughness_texture).reinterpret_as_uint(),
+    )
     @rl.active_texture_slot(4)
-    @rl.enable_texture(@raylib.get_texture_id(bundle.occlusion_texture).reinterpret_as_uint())
+    @rl.enable_texture(
+      @raylib.get_texture_id(bundle.occlusion_texture).reinterpret_as_uint(),
+    )
     @rl.active_texture_slot(5)
-    @rl.enable_texture(@raylib.get_texture_id(bundle.emissive_texture).reinterpret_as_uint())
+    @rl.enable_texture(
+      @raylib.get_texture_id(bundle.emissive_texture).reinterpret_as_uint(),
+    )
     @rl.active_texture_slot(0)
   }
   bind_shadow_textures(shadow_state)
   @rl.begin(@rl.Triangles)
   for index in 0..<vertices.length() {
     let vertex = vertices[index]
-    let uv = uvs.map(fn(values) { values[index] }).unwrap_or(@smath.Vec2D(0.0, 0.0))
+    let uv = uvs
+      .map(fn(values) { values[index] })
+      .unwrap_or(@smath.Vec2D(0.0, 0.0))
     let normal = normals[index]
-    let color = colors.bind(fn(values) { values.get(index) }).unwrap_or({ r: 255U, g: 255U, b: 255U, a: 1.0 })
+    let color = colors
+      .bind(fn(values) { values.get(index) })
+      .unwrap_or({ r: 255U, g: 255U, b: 255U, a: 1.0 })
     @rl.color4ub(
       color.r.to_byte(),
       color.g.to_byte(),
       color.b.to_byte(),
-      (@cmp.maximum(0.0, @cmp.minimum(1.0, color.a)) * 255.0).to_int().reinterpret_as_uint().to_byte(),
+      (@cmp.maximum(0.0, @cmp.minimum(1.0, color.a)) * 255.0)
+      .to_int()
+      .reinterpret_as_uint()
+      .to_byte(),
     )
     @rl.normal3f(to_float(normal.x), to_float(normal.y), to_float(normal.z))
     @rl.tex_coord2f(to_float(uv[X]), to_float(uv[Y]))

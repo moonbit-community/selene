@@ -58,6 +58,7 @@ const POINT_SHADOW_ATLAS_ROWS : Int = 6
 ///|
 const LOCAL_SHADOW_NEAR_MIN : Double = 0.01
 
+///|
 fn make_shadow_atlas_rect(
   slot : Int,
   columns : Int,
@@ -88,6 +89,7 @@ fn bytes_from_shadow_atlas_rect(rect : ShadowAtlasRect) -> Bytes {
   Bytes::from_array(out)
 }
 
+///|
 fn point_shadow_texel_size(face_size : Int) -> @smath.Vec2D {
   let inv = 1.0 / @cmp.maximum(1, face_size).to_double()
   @smath.Vec2D(inv, inv)
@@ -105,8 +107,13 @@ fn shadow_map_near_z(near_z : Double) -> Double {
 }
 
 ///|
-fn build_spot_shadow_setup(light : @render3d_types.FrameSpotLight3D) -> DirectionalShadowSetup {
-  let direction = normalize_or(light.direction, @smath.Vec3::new(0.0, -1.0, 0.0))
+fn build_spot_shadow_setup(
+  light : @render3d_types.FrameSpotLight3D,
+) -> DirectionalShadowSetup {
+  let direction = normalize_or(
+    light.direction,
+    @smath.Vec3::new(0.0, -1.0, 0.0),
+  )
   let target = light.position + direction
   let near_plane = shadow_map_near_z(light.shadow_map_near_z)
   let far_plane = @cmp.maximum(near_plane + 1.0, light.range)
@@ -122,7 +129,9 @@ fn build_spot_shadow_setup(light : @render3d_types.FrameSpotLight3D) -> Directio
     far_plane,
   )
   {
-    light_view_projection: @raylib.Matrix::multiply(light_view, light_projection),
+    light_view_projection: @raylib.Matrix::multiply(
+      light_view, light_projection,
+    ),
     half_extent: 0.0,
     near_plane,
     far_plane,
@@ -157,13 +166,12 @@ fn build_point_shadow_face_setup(
     to_ray_vector3_smath(up),
   )
   let light_projection = @raylib.Matrix::perspective(
-    1.5707963267948966,
-    1.0,
-    near_plane,
-    far_plane,
+    1.5707963267948966, 1.0, near_plane, far_plane,
   )
   {
-    light_view_projection: @raylib.Matrix::multiply(light_view, light_projection),
+    light_view_projection: @raylib.Matrix::multiply(
+      light_view, light_projection,
+    ),
     half_extent: 0.0,
     near_plane,
     far_plane,
@@ -173,7 +181,9 @@ fn build_point_shadow_face_setup(
 }
 
 ///|
-fn get_spot_shadow_render_texture(shadow_map_size : Int) -> @raylib.RenderTexture? {
+fn get_spot_shadow_render_texture(
+  shadow_map_size : Int,
+) -> @raylib.RenderTexture? {
   let shadow_map_size = @cmp.maximum(1, shadow_map_size)
   if backend.spot_shadow_map_size != shadow_map_size {
     if backend.spot_shadow_render_texture is Some(render_texture) {
@@ -195,8 +205,7 @@ fn get_spot_shadow_render_texture(shadow_map_size : Int) -> @raylib.RenderTextur
   let depth_id = @raylib.get_render_texture_depth_id(render_texture)
   if @raylib.get_render_texture_fbo_id(render_texture) == 0U || depth_id == 0U {
     warn_texture_issue(
-      "spot_shadow_atlas_unavailable",
-      "raylib spot-light shadow atlas framebuffer could not be created; spot shadows are disabled",
+      "spot_shadow_atlas_unavailable", "raylib spot-light shadow atlas framebuffer could not be created; spot shadows are disabled",
     )
     @raylib.unload_shadowmap_render_texture(render_texture)
     return None
@@ -231,8 +240,7 @@ fn get_point_shadow_render_texture(face_size : Int) -> @raylib.RenderTexture? {
   let depth_id = @raylib.get_render_texture_depth_id(render_texture)
   if @raylib.get_render_texture_fbo_id(render_texture) == 0U || depth_id == 0U {
     warn_texture_issue(
-      "point_shadow_atlas_unavailable",
-      "raylib point-light shadow atlas framebuffer could not be created; point shadows are disabled",
+      "point_shadow_atlas_unavailable", "raylib point-light shadow atlas framebuffer could not be created; point shadows are disabled",
     )
     @raylib.unload_shadowmap_render_texture(render_texture)
     return None

@@ -346,7 +346,11 @@ pub fn default_cascade_shadow_config_builder3d() -> CascadeShadowConfigBuilder3D
 pub fn build_cascade_shadow_config3d(
   builder : CascadeShadowConfigBuilder3D,
 ) -> CascadeShadowConfig3D {
-  let num_cascades = if builder.num_cascades < 1 { 1 } else { builder.num_cascades }
+  let num_cascades = if builder.num_cascades < 1 {
+    1
+  } else {
+    builder.num_cascades
+  }
   let minimum_distance = if builder.minimum_distance < 0.0 {
     0.0
   } else {
@@ -357,8 +361,10 @@ pub fn build_cascade_shadow_config3d(
   } else {
     builder.maximum_distance
   }
-  let first_cascade_far_bound = if builder.first_cascade_far_bound <= minimum_distance {
-    minimum_distance + (maximum_distance - minimum_distance) / num_cascades.to_double()
+  let first_cascade_far_bound = if builder.first_cascade_far_bound <=
+    minimum_distance {
+    minimum_distance +
+    (maximum_distance - minimum_distance) / num_cascades.to_double()
   } else if builder.first_cascade_far_bound >= maximum_distance {
     maximum_distance
   } else {
@@ -383,11 +389,7 @@ pub fn build_cascade_shadow_config3d(
       bounds.push(first_cascade_far_bound * @cmath.pow(base, index.to_double()))
     }
   }
-  {
-    bounds,
-    minimum_distance,
-    overlap_proportion,
-  }
+  { bounds, minimum_distance, overlap_proportion }
 }
 
 ///|

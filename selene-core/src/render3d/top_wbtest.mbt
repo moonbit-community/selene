@@ -65,8 +65,14 @@ test "render3d directional defaults include Bevy-aligned cascade config" {
   inspect(config.overlap_proportion == 0.2, content="true")
   inspect(config.bounds.length(), content="4")
   inspect(config.bounds[0] == 10.0, content="true")
-  inspect((config.bounds[1] - 24.662120743304698).abs() < 0.000001, content="true")
-  inspect((config.bounds[2] - 60.82201995573399).abs() < 0.000001, content="true")
+  inspect(
+    (config.bounds[1] - 24.662120743304698).abs() < 0.000001,
+    content="true",
+  )
+  inspect(
+    (config.bounds[2] - 60.82201995573399).abs() < 0.000001,
+    content="true",
+  )
   inspect((config.bounds[3] - 150.0).abs() < 0.000001, content="true")
 }
 

@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.26.0] - 2026-03-08
+
 ### Added
 
 - `scene3d` glTF importing now accepts binary `.glb` containers, bufferView-backed embedded images, glTF texture sampler metadata, imported camera nodes, and `KHR_lights_punctual` node lights

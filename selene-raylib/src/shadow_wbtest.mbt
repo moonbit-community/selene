@@ -45,26 +45,11 @@ test "raylib directional shadow helper picks enabled lights in frame order" {
 test "raylib directional shadow helper keeps enabled light order within the shader limit" {
   let frame = @render3d_types.empty_render_frame3d()
   frame.directional_lights = [
-    {
-      ..@render3d_types.default_directional_light3d(),
-      shadows: false,
-    },
-    {
-      ..@render3d_types.default_directional_light3d(),
-      shadows: true,
-    },
-    {
-      ..@render3d_types.default_directional_light3d(),
-      shadows: true,
-    },
-    {
-      ..@render3d_types.default_directional_light3d(),
-      shadows: false,
-    },
-    {
-      ..@render3d_types.default_directional_light3d(),
-      shadows: true,
-    },
+    { ..@render3d_types.default_directional_light3d(), shadows: false },
+    { ..@render3d_types.default_directional_light3d(), shadows: true },
+    { ..@render3d_types.default_directional_light3d(), shadows: true },
+    { ..@render3d_types.default_directional_light3d(), shadows: false },
+    { ..@render3d_types.default_directional_light3d(), shadows: true },
   ]
   inspect(shadowed_directional_light_indices(frame), content="[1, 2]")
 }
@@ -83,10 +68,7 @@ test "raylib directional shadow helper clamps negative bias values" {
 
 ///|
 test "raylib directional shadow helper builds Bevy-aligned cascade bounds" {
-  let light = {
-    ..@render3d_types.default_directional_light3d(),
-    shadows: true,
-  }
+  let light = { ..@render3d_types.default_directional_light3d(), shadows: true }
   let camera : @render3d_types.FrameCamera3D = {
     position: @smath.Vec3::new(0.0, 2.0, 8.0),
     target: @smath.Vec3::new(0.0, 1.0, 0.0),
@@ -131,14 +113,28 @@ test "raylib directional shadow helper builds cascade atlas states" {
     far: 80.0,
     clear_color: white_render_color(),
   }
-  let cascades = build_directional_shadow_cascades_for_light(frame, 0, camera, 1024)
+  let cascades = build_directional_shadow_cascades_for_light(
+    frame, 0, camera, 1024,
+  )
   inspect(cascades.length(), content="4")
   inspect(cascades[0].near_bound == 0.1, content="true")
   inspect(cascades[0].far_bound == 10.0, content="true")
-  inspect(cascades[0].atlas_rect.offset == @smath.Vec2D(0.0, 0.0), content="true")
-  inspect(cascades[0].atlas_rect.scale == @smath.Vec2D(0.5, 0.5), content="true")
-  inspect(cascades[3].atlas_rect.offset == @smath.Vec2D(0.5, 0.5), content="true")
-  inspect(cascades[3].atlas_rect.scale == @smath.Vec2D(0.5, 0.5), content="true")
+  inspect(
+    cascades[0].atlas_rect.offset == @smath.Vec2D(0.0, 0.0),
+    content="true",
+  )
+  inspect(
+    cascades[0].atlas_rect.scale == @smath.Vec2D(0.5, 0.5),
+    content="true",
+  )
+  inspect(
+    cascades[3].atlas_rect.offset == @smath.Vec2D(0.5, 0.5),
+    content="true",
+  )
+  inspect(
+    cascades[3].atlas_rect.scale == @smath.Vec2D(0.5, 0.5),
+    content="true",
+  )
 }
 
 ///|
@@ -220,7 +216,10 @@ test "raylib local shadow helpers build clamped projected setups" {
   inspect(atlas_rect.offset[X] == 0.625, content="true")
   inspect(atlas_rect.offset[Y] == 0.0, content="true")
   inspect(atlas_rect.scale[X] == 0.125, content="true")
-  inspect(atlas_rect.scale[Y] == 1.0 / POINT_SHADOW_ATLAS_ROWS.to_double(), content="true")
+  inspect(
+    atlas_rect.scale[Y] == 1.0 / POINT_SHADOW_ATLAS_ROWS.to_double(),
+    content="true",
+  )
   inspect(spot_shadow_texel_size(1536)[X] == 1.0 / 1536.0, content="true")
   inspect(point_shadow_texel_size(768)[Y] == 1.0 / 768.0, content="true")
 }
