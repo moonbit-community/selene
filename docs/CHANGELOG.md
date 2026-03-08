@@ -32,6 +32,8 @@
 ### Fixed
 
 - imported glTF orthographic cameras now render through both `selene-webgpu` and `selene-raylib` instead of collapsing to the old perspective-only path
+- extracted directional lights now respect their entity/global rotation when building render frames, so authored and imported light nodes no longer keep using stale local-space directions
+- orthographic 3D cameras now use their authored orthographic extents for visibility testing instead of treating orthographic views as effectively unbounded during extraction
 - `selene-raylib` now loads embedded glTF image data from data URIs and applies glTF wrap/filter sampler settings to base-color textures
 - `selene-raylib` alpha-mask materials now honor `alphaCutoff` in shader instead of warning and falling back to plain alpha blending
 - imported glTF vertex colors, alternate UV sets, normalized integer UV/color accessors, morph targets, and 8-influence skinning data now reach runtime meshes instead of being dropped during import
@@ -49,6 +51,7 @@
 - `selene-raylib` directional shadows now render Bevy-style cascades into per-light atlases and blend overlap regions in the lighting shader instead of projecting the whole camera range through one directional shadow matrix
 - `selene-webgpu` now renders Bevy-style directional cascades plus point and spot shadow maps, honoring extracted shadow-map sizes and per-object `cast_shadows` / `receive_shadows` flags instead of treating all WebGPU 3D lighting as unshadowed direct light
 - `selene-webgpu` primitive meshes (`Cube` / `Sphere` / `Cylinder` / `Plane`) now submit through the lit 3D pipeline with corrected face winding and material metadata instead of bypassing lighting and shadow receiving via the unlit color-triangle path
+- `selene-webgpu` shadow atlas sampling now uses WebGPU-correct texture-space coordinates, fixing browser runs where generated shadow maps still produced inverted or fully black receivers
 
 ## [0.25.1] - 2026-03-06
 
