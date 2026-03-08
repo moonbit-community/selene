@@ -4,15 +4,38 @@ package "Milky2018/selene/render3d"
 import {
   "Milky2018/selene/entity",
   "Milky2018/selene/math",
+  "Milky2018/selene/render",
   "Milky2018/selene/render3d_types",
 }
 
 // Values
+pub fn apply_texture_transform3d(@render3d_types.TextureTransform3D, @math.Vec2D) -> @math.Vec2D
+
+pub fn build_cascade_shadow_config3d(@render3d_types.CascadeShadowConfigBuilder3D) -> @render3d_types.CascadeShadowConfig3D
+
 pub fn cube_mesh(@math.Vec3) -> @render3d_types.MeshAsset
 
 pub fn cylinder_mesh(Double, Double, Double, slices? : Int) -> @render3d_types.MeshAsset
 
+pub fn default_cascade_shadow_config3d() -> @render3d_types.CascadeShadowConfig3D
+
+pub fn default_cascade_shadow_config_builder3d() -> @render3d_types.CascadeShadowConfigBuilder3D
+
+pub fn default_directional_light3d() -> @render3d_types.DirectionalLight3D
+
+pub fn default_directional_light_shadow_map3d() -> @render3d_types.DirectionalLightShadowMap3D
+
+pub fn default_point_light3d() -> @render3d_types.PointLight3D
+
+pub fn default_point_light_shadow_map3d() -> @render3d_types.PointLightShadowMap3D
+
+pub fn default_spot_light3d() -> @render3d_types.SpotLight3D
+
 pub fn default_standard_material3d() -> @render3d_types.StandardMaterial3D
+
+pub fn default_texture_sampler3d() -> @render3d_types.TextureSampler3D
+
+pub fn default_texture_transform3d() -> @render3d_types.TextureTransform3D
 
 pub let directional_lights3d : Map[@entity.Entity, @render3d_types.DirectionalLight3D]
 
@@ -20,11 +43,17 @@ pub fn empty_render_frame3d() -> @render3d_types.RenderFrame3D
 
 pub fn get_ambient_light3d() -> @render3d_types.AmbientLight3D?
 
+pub fn get_directional_light_shadow_map3d() -> @render3d_types.DirectionalLightShadowMap3D
+
 pub fn get_extracted_frame3d() -> @render3d_types.RenderFrame3D
+
+pub fn get_point_light_shadow_map3d() -> @render3d_types.PointLightShadowMap3D
 
 pub fn get_scene_path(@render3d_types.SceneHandle) -> String?
 
 pub let mesh3d_renderers : Map[@entity.Entity, Mesh3DRenderer]
+
+pub fn mesh_asset(@render3d_types.MeshHandle) -> @render3d_types.MeshAsset?
 
 pub fn plane_mesh(@math.Vec3) -> @render3d_types.MeshAsset
 
@@ -48,6 +77,10 @@ pub fn render3d_extract_system(Double) -> Unit
 
 pub fn set_ambient_light3d(@render3d_types.AmbientLight3D?) -> Unit
 
+pub fn set_directional_light_shadow_map3d(@render3d_types.DirectionalLightShadowMap3D) -> Unit
+
+pub fn set_point_light_shadow_map3d(@render3d_types.PointLightShadowMap3D) -> Unit
+
 pub fn sphere_mesh(Double) -> @render3d_types.MeshAsset
 
 pub let spot_lights3d : Map[@entity.Entity, @render3d_types.SpotLight3D]
@@ -64,7 +97,9 @@ pub fn take_released_material_assets() -> Array[@render3d_types.MaterialHandle]
 
 pub fn take_released_mesh_assets() -> Array[@render3d_types.MeshHandle]
 
-pub fn triangle_mesh(Array[@math.Vec3], uvs? : Array[@math.Vec2D]?, normals? : Array[@math.Vec3]?) -> @render3d_types.MeshAsset
+pub fn texture_binding3d(@render3d_types.ImageHandle, texcoord_set? : Int, sampler? : @render3d_types.TextureSampler3D, transform? : @render3d_types.TextureTransform3D) -> @render3d_types.TextureBinding3D
+
+pub fn triangle_mesh(Array[@math.Vec3], uvs? : Array[@math.Vec2D]?, normals? : Array[@math.Vec3]?, tangents? : Array[@render3d_types.Tangent3D]?, colors? : Array[@render.Color]?, uv_sets? : Array[Array[@math.Vec2D]]) -> @render3d_types.MeshAsset
 
 pub fn update_image_asset(@render3d_types.ImageHandle, @render3d_types.ImageAsset) -> Unit
 
@@ -79,6 +114,8 @@ pub(all) struct Mesh3DRenderer {
   mesh : @render3d_types.MeshHandle
   material : @render3d_types.MaterialHandle
   mut visible : Bool
+  mut cast_shadows : Bool
+  mut receive_shadows : Bool
 }
 pub impl Eq for Mesh3DRenderer
 pub impl Show for Mesh3DRenderer
@@ -88,7 +125,13 @@ pub using @render3d_types {type AlphaMode3D}
 
 pub using @render3d_types {type AmbientLight3D}
 
+pub using @render3d_types {type CascadeShadowConfig3D}
+
+pub using @render3d_types {type CascadeShadowConfigBuilder3D}
+
 pub using @render3d_types {type DirectionalLight3D}
+
+pub using @render3d_types {type DirectionalLightShadowMap3D}
 
 pub using @render3d_types {type FramePointLight3D}
 
@@ -108,6 +151,8 @@ pub using @render3d_types {type MeshPrimitive3D}
 
 pub using @render3d_types {type PointLight3D}
 
+pub using @render3d_types {type PointLightShadowMap3D}
+
 pub using @render3d_types {type RenderFrame3D}
 
 pub using @render3d_types {type RenderItem3D}
@@ -117,6 +162,18 @@ pub using @render3d_types {type SceneHandle}
 pub using @render3d_types {type SpotLight3D}
 
 pub using @render3d_types {type StandardMaterial3D}
+
+pub using @render3d_types {type Tangent3D}
+
+pub using @render3d_types {type TextureBinding3D}
+
+pub using @render3d_types {type TextureFilter3D}
+
+pub using @render3d_types {type TextureSampler3D}
+
+pub using @render3d_types {type TextureTransform3D}
+
+pub using @render3d_types {type TextureWrap3D}
 
 // Traits
 

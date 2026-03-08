@@ -163,8 +163,8 @@ fn setup_scene3d(_delta : Double) -> Unit {
   )
   let floor_material = @render3d.register_material_asset({
     ..@render3d.default_standard_material3d(),
-    base_color: color(55U, 62U, 66U, 1.0),
-    roughness: 0.95,
+    base_color: color(96U, 104U, 110U, 1.0),
+    roughness: 0.9,
   })
   let floor = @entity.Entity::new()
   @transform3d.transforms3d.set(floor, {
@@ -176,6 +176,8 @@ fn setup_scene3d(_delta : Double) -> Unit {
     mesh: floor_mesh,
     material: floor_material,
     visible: true,
+    cast_shadows: false,
+    receive_shadows: true,
   })
 
   let cube_mesh = @render3d.register_mesh_asset(lit_cube_mesh(1.0))
@@ -195,6 +197,8 @@ fn setup_scene3d(_delta : Double) -> Unit {
     mesh: cube_mesh,
     material: cube_material,
     visible: true,
+    cast_shadows: true,
+    receive_shadows: true,
   })
   rotating_cube.val = Some(cube)
 
@@ -206,7 +210,7 @@ fn setup_scene3d(_delta : Double) -> Unit {
   })
   let target = @entity.Entity::new()
   @transform3d.transforms3d.set(target, {
-    translation: vec3(0.0, 0.45, 0.0),
+    translation: vec3(1.35, 1.55, -0.75),
     rotation: @math.Quat::identity(),
     scale: @math.Vec3::one(),
   })
@@ -214,6 +218,30 @@ fn setup_scene3d(_delta : Double) -> Unit {
     mesh: target_mesh,
     material: target_material,
     visible: true,
+    cast_shadows: true,
+    receive_shadows: true,
+  })
+
+  let shadow_wall_mesh = @render3d.register_mesh_asset(
+    @render3d.cube_mesh(vec3(8.0, 3.2, 0.16)),
+  )
+  let shadow_wall_material = @render3d.register_material_asset({
+    ..@render3d.default_standard_material3d(),
+    base_color: color(86U, 96U, 112U, 1.0),
+    roughness: 0.82,
+  })
+  let shadow_wall = @entity.Entity::new()
+  @transform3d.transforms3d.set(shadow_wall, {
+    translation: vec3(0.0, 1.6, -2.9),
+    rotation: @math.Quat::identity(),
+    scale: @math.Vec3::one(),
+  })
+  @render3d.mesh3d_renderers.set(shadow_wall, {
+    mesh: shadow_wall_mesh,
+    material: shadow_wall_material,
+    visible: true,
+    cast_shadows: false,
+    receive_shadows: true,
   })
 
   let off_axis_cube = @entity.Entity::new()
@@ -230,6 +258,8 @@ fn setup_scene3d(_delta : Double) -> Unit {
       roughness: 0.6,
     }),
     visible: true,
+    cast_shadows: true,
+    receive_shadows: true,
   })
 
   let spotlight = @entity.Entity::new()
@@ -239,10 +269,14 @@ fn setup_scene3d(_delta : Double) -> Unit {
     scale: @math.Vec3::one(),
   })
   @render3d.spot_lights3d.set(spotlight, {
+    ..@render3d.default_spot_light3d(),
     direction: vec3(-1.0, -1.2, 0.0).normalize(),
     color: color(255U, 236U, 186U, 1.0),
     intensity: 8.0,
     range: 11.0,
+    shadows: true,
+    shadow_depth_bias: 0.001,
+    shadow_normal_bias: 0.15,
     inner_angle: 0.28,
     outer_angle: 0.72,
   })
@@ -265,17 +299,22 @@ fn setup_scene3d(_delta : Double) -> Unit {
     mesh: spotlight_marker_mesh,
     material: spotlight_marker_material,
     visible: true,
+    cast_shadows: false,
+    receive_shadows: false,
   })
 
   let dir_light = @entity.Entity::new()
   @render3d.directional_lights3d.set(dir_light, {
-    direction: vec3(-0.35, -1.0, -0.2).normalize(),
+    ..@render3d.default_directional_light3d(),
+    direction: vec3(-0.72, -1.0, -0.42).normalize(),
     color: color(255U, 255U, 255U, 1.0),
-    intensity: 0.65,
+    intensity: 1.15,
     shadows: true,
+    shadow_depth_bias: 0.001,
+    shadow_normal_bias: 0.15,
   })
   @render3d.set_ambient_light3d(
-    Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.06 }),
+    Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.03 }),
   )
 
   let label = @entity.Entity::new()
@@ -285,7 +324,7 @@ fn setup_scene3d(_delta : Double) -> Unit {
   )
   @ui.texts.set(
     label,
-    @ui.Text::new("3d_scene: ECS render3d pipeline + spot light"),
+    @ui.Text::new("3d_scene: WebGPU directional + spot shadows"),
   )
   @ui.text_fonts.set(label, @ui.TextFont::new(family="sans-serif", size=20.0))
   @ui.text_colors.set(label, @ui.TextColor::new(color(245U, 245U, 245U, 1.0)))

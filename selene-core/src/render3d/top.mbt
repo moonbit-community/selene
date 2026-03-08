@@ -28,6 +28,24 @@ pub type SceneHandle = @render3d_types.SceneHandle
 pub type AlphaMode3D = @render3d_types.AlphaMode3D
 
 ///|
+pub type TextureWrap3D = @render3d_types.TextureWrap3D
+
+///|
+pub type TextureFilter3D = @render3d_types.TextureFilter3D
+
+///|
+pub type TextureSampler3D = @render3d_types.TextureSampler3D
+
+///|
+pub type TextureTransform3D = @render3d_types.TextureTransform3D
+
+///|
+pub type TextureBinding3D = @render3d_types.TextureBinding3D
+
+///|
+pub type Tangent3D = @render3d_types.Tangent3D
+
+///|
 pub type MeshPrimitive3D = @render3d_types.MeshPrimitive3D
 
 ///|
@@ -58,6 +76,18 @@ pub type SpotLight3D = @render3d_types.SpotLight3D
 pub type AmbientLight3D = @render3d_types.AmbientLight3D
 
 ///|
+pub type DirectionalLightShadowMap3D = @render3d_types.DirectionalLightShadowMap3D
+
+///|
+pub type PointLightShadowMap3D = @render3d_types.PointLightShadowMap3D
+
+///|
+pub type CascadeShadowConfigBuilder3D = @render3d_types.CascadeShadowConfigBuilder3D
+
+///|
+pub type CascadeShadowConfig3D = @render3d_types.CascadeShadowConfig3D
+
+///|
 pub type RenderItem3D = @render3d_types.RenderItem3D
 
 ///|
@@ -68,6 +98,8 @@ pub(all) struct Mesh3DRenderer {
   mesh : MeshHandle
   material : MaterialHandle
   mut visible : Bool
+  mut cast_shadows : Bool
+  mut receive_shadows : Bool
 } derive(Eq, Show)
 
 ///|
@@ -84,6 +116,16 @@ pub let spot_lights3d : Map[@entity.Entity, SpotLight3D] = Map::new()
 
 ///|
 let ambient_light3d : Ref[AmbientLight3D?] = Ref::new(None)
+
+///|
+let directional_light_shadow_map3d : Ref[DirectionalLightShadowMap3D] = Ref::new(
+  @render3d_types.default_directional_light_shadow_map3d(),
+)
+
+///|
+let point_light_shadow_map3d : Ref[PointLightShadowMap3D] = Ref::new(
+  @render3d_types.default_point_light_shadow_map3d(),
+)
 
 ///|
 let meshes : Map[MeshHandle, MeshAsset] = Map::new()
@@ -136,8 +178,78 @@ pub fn empty_render_frame3d() -> RenderFrame3D {
 }
 
 ///|
+pub fn default_directional_light3d() -> DirectionalLight3D {
+  @render3d_types.default_directional_light3d()
+}
+
+///|
+pub fn default_directional_light_shadow_map3d() -> DirectionalLightShadowMap3D {
+  @render3d_types.default_directional_light_shadow_map3d()
+}
+
+///|
+pub fn default_cascade_shadow_config_builder3d() -> CascadeShadowConfigBuilder3D {
+  @render3d_types.default_cascade_shadow_config_builder3d()
+}
+
+///|
+pub fn build_cascade_shadow_config3d(
+  builder : CascadeShadowConfigBuilder3D,
+) -> CascadeShadowConfig3D {
+  @render3d_types.build_cascade_shadow_config3d(builder)
+}
+
+///|
+pub fn default_cascade_shadow_config3d() -> CascadeShadowConfig3D {
+  @render3d_types.default_cascade_shadow_config3d()
+}
+
+///|
+pub fn default_point_light3d() -> PointLight3D {
+  @render3d_types.default_point_light3d()
+}
+
+///|
+pub fn default_point_light_shadow_map3d() -> PointLightShadowMap3D {
+  @render3d_types.default_point_light_shadow_map3d()
+}
+
+///|
+pub fn default_spot_light3d() -> SpotLight3D {
+  @render3d_types.default_spot_light3d()
+}
+
+///|
 pub fn default_standard_material3d() -> StandardMaterial3D {
   @render3d_types.default_standard_material3d()
+}
+
+///|
+pub fn default_texture_sampler3d() -> TextureSampler3D {
+  @render3d_types.default_texture_sampler3d()
+}
+
+///|
+pub fn default_texture_transform3d() -> TextureTransform3D {
+  @render3d_types.default_texture_transform3d()
+}
+
+///|
+pub fn apply_texture_transform3d(
+  transform : TextureTransform3D,
+  uv : @math.Vec2D,
+) -> @math.Vec2D {
+  @render3d_types.apply_texture_transform3d(transform, uv)
+}
+
+///|
+pub fn texture_binding3d(
+  image : ImageHandle,
+  texcoord_set? : Int = 0,
+  sampler? : TextureSampler3D = default_texture_sampler3d(),
+  transform? : TextureTransform3D = default_texture_transform3d(),
+) -> TextureBinding3D {
+  @render3d_types.texture_binding3d(image, texcoord_set~, sampler~, transform~)
 }
 
 ///|
@@ -170,8 +282,31 @@ pub fn triangle_mesh(
   positions : Array[@math.Vec3],
   uvs? : Array[@math.Vec2D]? = None,
   normals? : Array[@math.Vec3]? = None,
+  tangents? : Array[Tangent3D]? = None,
+  colors? : Array[@render.Color]? = None,
+  uv_sets? : Array[Array[@math.Vec2D]] = [],
 ) -> MeshAsset {
-  { primitive: Triangles({ positions, uvs, normals }) }
+  let resolved_uv_sets = uv_sets.copy()
+  if resolved_uv_sets.length() == 0 {
+    if uvs is Some(primary_uvs) {
+      resolved_uv_sets.push(primary_uvs)
+    }
+  } else if uvs is Some(primary_uvs) {
+    if resolved_uv_sets.length() > 0 {
+      resolved_uv_sets[0] = primary_uvs
+    } else {
+      resolved_uv_sets.push(primary_uvs)
+    }
+  }
+  {
+    primitive: Triangles({
+      positions,
+      uv_sets: resolved_uv_sets,
+      normals,
+      tangents,
+      colors,
+    }),
+  }
 }
 
 ///|
@@ -181,6 +316,11 @@ pub fn register_mesh_asset(mesh : MeshAsset) -> MeshHandle {
   meshes.set(handle, mesh)
   dirty_mesh_assets.set(handle, mesh)
   handle
+}
+
+///|
+pub fn mesh_asset(handle : MeshHandle) -> MeshAsset? {
+  meshes.get(handle)
 }
 
 ///|
@@ -264,6 +404,30 @@ pub fn set_ambient_light3d(light : AmbientLight3D?) -> Unit {
 ///|
 pub fn get_ambient_light3d() -> AmbientLight3D? {
   ambient_light3d.val
+}
+
+///|
+pub fn set_directional_light_shadow_map3d(resource : DirectionalLightShadowMap3D) -> Unit {
+  directional_light_shadow_map3d.val = {
+    size: if resource.size < 1 { 1 } else { resource.size },
+  }
+}
+
+///|
+pub fn get_directional_light_shadow_map3d() -> DirectionalLightShadowMap3D {
+  directional_light_shadow_map3d.val
+}
+
+///|
+pub fn set_point_light_shadow_map3d(resource : PointLightShadowMap3D) -> Unit {
+  point_light_shadow_map3d.val = {
+    size: if resource.size < 1 { 1 } else { resource.size },
+  }
+}
+
+///|
+pub fn get_point_light_shadow_map3d() -> PointLightShadowMap3D {
+  point_light_shadow_map3d.val
 }
 
 ///|
@@ -366,7 +530,28 @@ fn is_visible_in_camera_frustum(
       }
       true
     }
-    Orthographic => true
+    Orthographic => {
+      let up = if camera.up.length_squared() > 0.0000001 {
+        camera.up.normalize()
+      } else {
+        @math.Vec3::new(0.0, 1.0, 0.0)
+      }
+      let right = forward_n.cross(up)
+      let right_n = if right.length_squared() > 0.0000001 {
+        right.normalize()
+      } else {
+        @math.Vec3::new(1.0, 0.0, 0.0)
+      }
+      let up_n = right_n.cross(forward_n).normalize()
+      let ortho_size = camera.orthographic_size.unwrap_or(
+        @math.Vec2D(20.0, 20.0),
+      )
+      let half_width = abs_double(ortho_size[X]) * 0.5
+      let half_height = abs_double(ortho_size[Y]) * 0.5
+      let side = abs_double(to_center.dot(right_n))
+      let vertical = abs_double(to_center.dot(up_n))
+      side <= half_width + radius && vertical <= half_height + radius
+    }
   }
 }
 
@@ -380,6 +565,8 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
     active_camera_layers = @visibility.entity_render_layers(camera.entity)
   }
   frame.ambient_light = ambient_light3d.val
+  frame.directional_shadow_map_size = directional_light_shadow_map3d.val.size
+  frame.point_shadow_map_size = point_light_shadow_map3d.val.size
 
   let items : Array[RenderItem3D] = []
   for entity, renderer in mesh3d_renderers {
@@ -412,13 +599,31 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
       },
       mesh: renderer.mesh,
       material: renderer.material,
+      cast_shadows: renderer.cast_shadows,
+      receive_shadows: renderer.receive_shadows,
     })
   }
 
-  let dir_lights = []
+  let dir_lights : Array[DirectionalLight3D] = []
   for entity, light in directional_lights3d {
     if entity.is_alive() {
-      dir_lights.push(light)
+      let transform = @transform3d.global_transforms3d
+        .get(entity)
+        .unwrap_or(@transform3d.transforms3d.get(entity).unwrap_or_default())
+      let local_direction = if light.direction.length_squared() <= 0.0000001 {
+        @math.Vec3::new(0.0, 0.0, -1.0)
+      } else {
+        light.direction.normalize()
+      }
+      dir_lights.push({
+        direction: transform.rotation.rotate_vec3(local_direction),
+        color: light.color,
+        intensity: light.intensity,
+        shadows: light.shadows,
+        shadow_depth_bias: light.shadow_depth_bias,
+        shadow_normal_bias: light.shadow_normal_bias,
+        cascade_shadow_config: light.cascade_shadow_config,
+      })
     }
   }
   let point_lights : Array[FramePointLight3D] = []
@@ -432,6 +637,10 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
         color: light.color,
         intensity: light.intensity,
         range: light.range,
+        shadows: light.shadows,
+        shadow_depth_bias: light.shadow_depth_bias,
+        shadow_normal_bias: light.shadow_normal_bias,
+        shadow_map_near_z: light.shadow_map_near_z,
       })
     }
   }
@@ -455,6 +664,10 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
         color: light.color,
         intensity: light.intensity,
         range: light.range,
+        shadows: light.shadows,
+        shadow_depth_bias: light.shadow_depth_bias,
+        shadow_normal_bias: light.shadow_normal_bias,
+        shadow_map_near_z: light.shadow_map_near_z,
         inner_angle: light.inner_angle,
         outer_angle: light.outer_angle,
       })

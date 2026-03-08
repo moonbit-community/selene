@@ -47,22 +47,9 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
   }
   for pair in frame.assets3d.material_upserts {
     let material = pair.1
-    if material.normal_texture is Some(_) {
-      capability_warning("normal_texture", "raylib backend ignores normal map")
-    }
-    if material.emissive_texture is Some(_) {
-      capability_warning(
-        "emissive_texture", "raylib backend uses emissive color only",
-      )
-    }
     if material.roughness < 0.999 || material.metallic > 0.001 {
       capability_warning(
         "pbr_metallic_roughness", "raylib backend uses a non-PBR Blinn-Phong lighting model",
-      )
-    }
-    if material.alpha_mode == Mask {
-      capability_warning(
-        "alpha_mode_mask", "raylib backend falls back to alpha blending",
       )
     }
     @impl.sync_material_asset(pair.0, pair.1)

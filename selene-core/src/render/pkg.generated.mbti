@@ -12,6 +12,8 @@ pub(all) struct Color {
   b : UInt
   a : Double
 }
+pub impl Eq for Color
+pub impl Show for Color
 
 // Type aliases
 

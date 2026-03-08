@@ -18,4 +18,4 @@ pub(all) struct Color {
   g : UInt
   b : UInt
   a : Double
-}
+} derive(Eq, Show)

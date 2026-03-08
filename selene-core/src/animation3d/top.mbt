@@ -2,18 +2,31 @@
 pub(all) enum ChannelInterpolation3D {
   Step
   Linear
+  CubicSpline
 } derive(Eq, Show)
 
 ///|
 pub(all) struct Vec3Keyframe3D {
   time : Double
   value : @math.Vec3
+  in_tangent : @math.Vec3?
+  out_tangent : @math.Vec3?
 } derive(Eq, Show)
 
 ///|
 pub(all) struct QuatKeyframe3D {
   time : Double
   value : @math.Quat
+  in_tangent : @math.Quat?
+  out_tangent : @math.Quat?
+} derive(Eq, Show)
+
+///|
+pub(all) struct WeightKeyframe3D {
+  time : Double
+  value : Array[Double]
+  in_tangent : Array[Double]?
+  out_tangent : Array[Double]?
 } derive(Eq, Show)
 
 ///|
@@ -22,6 +35,7 @@ pub(all) struct AnimationChannel3D {
   translations : Array[Vec3Keyframe3D]
   rotations : Array[QuatKeyframe3D]
   scales : Array[Vec3Keyframe3D]
+  weights : Array[WeightKeyframe3D]
   interpolation : ChannelInterpolation3D
 }
 
@@ -81,14 +95,38 @@ pub(all) struct SkinVertexInfluence3D {
 }
 
 ///|
+pub(all) struct MorphTargetBinding3D {
+  position_deltas : Array[@math.Vec3]?
+  normal_deltas : Array[@math.Vec3]?
+} derive(Eq, Show)
+
+///|
 pub(all) struct SkinnedMeshBinding3D {
+  target_entity : @entity.Entity
   mesh : @render3d.MeshHandle
   base_positions : Array[@math.Vec3]
   base_normals : Array[@math.Vec3]
-  uvs : Array[@math.Vec2D]?
+  uv_sets : Array[Array[@math.Vec2D]]
+  colors : Array[@render.Color]?
+  tangents : Array[@render3d.Tangent3D]?
+  morph_targets : Array[MorphTargetBinding3D]
+  mut morph_weights : Array[Double]
   influences : Array[SkinVertexInfluence3D]
   joint_entities : Array[@entity.Entity]
   inverse_bind_matrices : Array[@math.Mat4]
+}
+
+///|
+pub(all) struct MorphMeshBinding3D {
+  target_entity : @entity.Entity
+  mesh : @render3d.MeshHandle
+  base_positions : Array[@math.Vec3]
+  base_normals : Array[@math.Vec3]
+  uv_sets : Array[Array[@math.Vec2D]]
+  colors : Array[@render.Color]?
+  tangents : Array[@render3d.Tangent3D]?
+  morph_targets : Array[MorphTargetBinding3D]
+  mut morph_weights : Array[Double]
 }
 
 ///|
@@ -105,6 +143,9 @@ let animation_targets3d : Map[@entity.Entity, AnimationTargets3D] = Map::new()
 
 ///|
 let skinned_meshes3d : Map[@entity.Entity, SkinnedMeshBinding3D] = Map::new()
+
+///|
+let morphed_meshes3d : Map[@entity.Entity, MorphMeshBinding3D] = Map::new()
 
 ///|
 pub fn register_animation_clip(clip : AnimationClip3D) -> AnimationClipHandle {
@@ -272,8 +313,21 @@ pub fn bind_skinned_mesh(
 }
 
 ///|
+pub fn bind_morph_mesh(
+  entity : @entity.Entity,
+  binding : MorphMeshBinding3D,
+) -> Unit {
+  morphed_meshes3d.set(entity, binding)
+}
+
+///|
 pub fn clear_skinned_mesh(entity : @entity.Entity) -> Unit {
   skinned_meshes3d.remove(entity)
+}
+
+///|
+pub fn clear_morph_mesh(entity : @entity.Entity) -> Unit {
+  morphed_meshes3d.remove(entity)
 }
 
 ///|
@@ -310,6 +364,87 @@ fn choose_transition(
 }
 
 ///|
+fn cubic_hermite_basis(alpha : Double) -> (Double, Double, Double, Double) {
+  let t = @cmp.maximum(0.0, @cmp.minimum(1.0, alpha))
+  let t2 = t * t
+  let t3 = t2 * t
+  (2.0 * t3 - 3.0 * t2 + 1.0, t3 - 2.0 * t2 + t, -2.0 * t3 + 3.0 * t2, t3 - t2)
+}
+
+///|
+fn cubic_hermite_vec3(
+  lhs_value : @math.Vec3,
+  lhs_out_tangent : @math.Vec3,
+  rhs_value : @math.Vec3,
+  rhs_in_tangent : @math.Vec3,
+  alpha : Double,
+  dt : Double,
+) -> @math.Vec3 {
+  let (h00, h10, h01, h11) = cubic_hermite_basis(alpha)
+  lhs_value.scalar_mul(h00) +
+  lhs_out_tangent.scalar_mul(dt * h10) +
+  rhs_value.scalar_mul(h01) +
+  rhs_in_tangent.scalar_mul(dt * h11)
+}
+
+///|
+fn cubic_hermite_quat(
+  lhs_value : @math.Quat,
+  lhs_out_tangent : @math.Quat,
+  rhs_value : @math.Quat,
+  rhs_in_tangent : @math.Quat,
+  alpha : Double,
+  dt : Double,
+) -> @math.Quat {
+  let (h00, h10, h01, h11) = cubic_hermite_basis(alpha)
+  @math.Quat::new(
+    lhs_value.x * h00 +
+    lhs_out_tangent.x * dt * h10 +
+    rhs_value.x * h01 +
+    rhs_in_tangent.x * dt * h11,
+    lhs_value.y * h00 +
+    lhs_out_tangent.y * dt * h10 +
+    rhs_value.y * h01 +
+    rhs_in_tangent.y * dt * h11,
+    lhs_value.z * h00 +
+    lhs_out_tangent.z * dt * h10 +
+    rhs_value.z * h01 +
+    rhs_in_tangent.z * dt * h11,
+    lhs_value.w * h00 +
+    lhs_out_tangent.w * dt * h10 +
+    rhs_value.w * h01 +
+    rhs_in_tangent.w * dt * h11,
+  ).normalize()
+}
+
+///|
+fn cubic_hermite_weights(
+  lhs_value : Array[Double],
+  lhs_out_tangent : Array[Double],
+  rhs_value : Array[Double],
+  rhs_in_tangent : Array[Double],
+  alpha : Double,
+  dt : Double,
+) -> Array[Double] {
+  let (h00, h10, h01, h11) = cubic_hermite_basis(alpha)
+  let count = if lhs_value.length() > rhs_value.length() {
+    lhs_value.length()
+  } else {
+    rhs_value.length()
+  }
+  let output : Array[Double] = []
+  for index in 0..<count {
+    output.push(
+      lhs_value.get(index).unwrap_or(0.0) * h00 +
+      lhs_out_tangent.get(index).unwrap_or(0.0) * dt * h10 +
+      rhs_value.get(index).unwrap_or(0.0) * h01 +
+      rhs_in_tangent.get(index).unwrap_or(0.0) * dt * h11,
+    )
+  }
+  output
+}
+
+///|
 fn sample_vec3(
   keys : Array[Vec3Keyframe3D],
   time : Double,
@@ -338,6 +473,18 @@ fn sample_vec3(
       0.0,
       @cmp.minimum(1.0, (time - lhs.time) / (rhs.time - lhs.time)),
     )
+    if interpolation is CubicSpline &&
+      lhs.out_tangent is Some(lhs_out_tangent) &&
+      rhs.in_tangent is Some(rhs_in_tangent) {
+      return cubic_hermite_vec3(
+        lhs.value,
+        lhs_out_tangent,
+        rhs.value,
+        rhs_in_tangent,
+        alpha,
+        rhs.time - lhs.time,
+      )
+    }
     return lhs.value.lerp(rhs.value, alpha)
   }
   keys[last_index].value
@@ -372,6 +519,18 @@ fn sample_quat(
       0.0,
       @cmp.minimum(1.0, (time - lhs.time) / (rhs.time - lhs.time)),
     )
+    if interpolation is CubicSpline &&
+      lhs.out_tangent is Some(lhs_out_tangent) &&
+      rhs.in_tangent is Some(rhs_in_tangent) {
+      return cubic_hermite_quat(
+        lhs.value,
+        lhs_out_tangent,
+        rhs.value,
+        rhs_in_tangent,
+        alpha,
+        rhs.time - lhs.time,
+      )
+    }
     return @math.Quat::new(
       lhs.value.x * (1.0 - alpha) + rhs.value.x * alpha,
       lhs.value.y * (1.0 - alpha) + rhs.value.y * alpha,
@@ -380,6 +539,180 @@ fn sample_quat(
     ).normalize()
   }
   keys[last_index].value
+}
+
+///|
+fn sample_weights(
+  keys : Array[WeightKeyframe3D],
+  time : Double,
+  interpolation : ChannelInterpolation3D,
+) -> Array[Double] {
+  if keys.length() == 0 {
+    return []
+  }
+  if keys.length() == 1 || time <= keys[0].time {
+    return keys[0].value.copy()
+  }
+  let last_index = keys.length() - 1
+  if time >= keys[last_index].time {
+    return keys[last_index].value.copy()
+  }
+  for index in 0..<last_index {
+    let lhs = keys[index]
+    let rhs = keys[index + 1]
+    if time < lhs.time || time > rhs.time {
+      continue
+    }
+    if interpolation is Step || rhs.time <= lhs.time {
+      return lhs.value.copy()
+    }
+    let alpha = @cmp.maximum(
+      0.0,
+      @cmp.minimum(1.0, (time - lhs.time) / (rhs.time - lhs.time)),
+    )
+    if interpolation is CubicSpline &&
+      lhs.out_tangent is Some(lhs_out_tangent) &&
+      rhs.in_tangent is Some(rhs_in_tangent) {
+      return cubic_hermite_weights(
+        lhs.value,
+        lhs_out_tangent,
+        rhs.value,
+        rhs_in_tangent,
+        alpha,
+        rhs.time - lhs.time,
+      )
+    }
+    let count = if lhs.value.length() > rhs.value.length() {
+      lhs.value.length()
+    } else {
+      rhs.value.length()
+    }
+    let mixed : Array[Double] = []
+    for weight_index in 0..<count {
+      let lhs_value = lhs.value.get(weight_index).unwrap_or(0.0)
+      let rhs_value = rhs.value.get(weight_index).unwrap_or(lhs_value)
+      mixed.push(lhs_value * (1.0 - alpha) + rhs_value * alpha)
+    }
+    return mixed
+  }
+  keys[last_index].value.copy()
+}
+
+///|
+fn apply_morph_targets(
+  base_positions : Array[@math.Vec3],
+  base_normals : Array[@math.Vec3],
+  morph_targets : Array[MorphTargetBinding3D],
+  morph_weights : Array[Double],
+) -> (Array[@math.Vec3], Array[@math.Vec3]) {
+  let positions = base_positions.copy()
+  let normals = base_normals.copy()
+  if morph_targets.length() == 0 || morph_weights.length() == 0 {
+    return (positions, normals)
+  }
+  let target_count = if morph_targets.length() < morph_weights.length() {
+    morph_targets.length()
+  } else {
+    morph_weights.length()
+  }
+  for target_index in 0..<target_count {
+    let weight = morph_weights[target_index]
+    if weight.abs() <= 0.0000001 {
+      continue
+    }
+    let target = morph_targets[target_index]
+    if target.position_deltas is Some(position_deltas) {
+      let count = if positions.length() < position_deltas.length() {
+        positions.length()
+      } else {
+        position_deltas.length()
+      }
+      for index in 0..<count {
+        positions[index] = positions[index] +
+          position_deltas[index].scalar_mul(weight)
+      }
+    }
+    if target.normal_deltas is Some(normal_deltas) {
+      let count = if normals.length() < normal_deltas.length() {
+        normals.length()
+      } else {
+        normal_deltas.length()
+      }
+      for index in 0..<count {
+        normals[index] = normals[index] +
+          normal_deltas[index].scalar_mul(weight)
+      }
+    }
+  }
+  for index in 0..<normals.length() {
+    let normal = normals[index]
+    if normal.length_squared() > 0.0000001 {
+      normals[index] = normal.normalize()
+    } else {
+      normals[index] = @math.Vec3::new(0.0, 1.0, 0.0)
+    }
+  }
+  (positions, normals)
+}
+
+///|
+fn skin_tangent(
+  tangent : @render3d.Tangent3D,
+  skin_matrix : @math.Mat4,
+) -> @render3d.Tangent3D {
+  let tangent_head = skin_matrix.transform_point(
+    @math.Vec3::new(tangent.x, tangent.y, tangent.z),
+  )
+  let tangent_tail = skin_matrix.transform_point(@math.Vec3::zero())
+  let direction = tangent_head - tangent_tail
+  let normalized = if direction.length_squared() > 0.0000001 {
+    direction.normalize()
+  } else {
+    @math.Vec3::new(1.0, 0.0, 0.0)
+  }
+  { x: normalized.x, y: normalized.y, z: normalized.z, w: tangent.w }
+}
+
+///|
+fn update_bound_mesh(
+  mesh : @render3d.MeshHandle,
+  positions : Array[@math.Vec3],
+  normals : Array[@math.Vec3],
+  uv_sets : Array[Array[@math.Vec2D]],
+  tangents : Array[@render3d.Tangent3D]?,
+  colors : Array[@render.Color]?,
+) -> Unit {
+  @render3d.update_mesh_asset(
+    mesh,
+    @render3d.triangle_mesh(
+      positions,
+      normals=Some(normals),
+      tangents~,
+      colors~,
+      uv_sets~,
+    ),
+  )
+}
+
+///|
+fn set_target_morph_weights(
+  target_entity : @entity.Entity,
+  weights : Array[Double],
+) -> Unit {
+  for _, pair in morphed_meshes3d.to_array() {
+    let (entity, binding) = pair
+    if binding.target_entity == target_entity {
+      binding.morph_weights = weights.copy()
+      morphed_meshes3d.set(entity, binding)
+    }
+  }
+  for _, pair in skinned_meshes3d.to_array() {
+    let (entity, binding) = pair
+    if binding.target_entity == target_entity {
+      binding.morph_weights = weights.copy()
+      skinned_meshes3d.set(entity, binding)
+    }
+  }
 }
 
 ///|
@@ -407,6 +740,12 @@ fn apply_clip(
       sample_vec3(channel.scales, time, channel.interpolation)
     }
     @transform3d.transforms3d.set(entity, { translation, rotation, scale })
+    if channel.weights.length() > 0 {
+      set_target_morph_weights(
+        entity,
+        sample_weights(channel.weights, time, channel.interpolation),
+      )
+    }
   }
 }
 
@@ -537,6 +876,27 @@ pub fn animation3d_player_system(delta : Double) -> Unit {
 
 ///|
 pub fn animation3d_skinning_system(_delta : Double) -> Unit {
+  for _, pair in morphed_meshes3d.to_array() {
+    let (entity, binding) = pair
+    if !entity.is_alive() {
+      morphed_meshes3d.remove(entity)
+      continue
+    }
+    let (morphed_positions, morphed_normals) = apply_morph_targets(
+      binding.base_positions,
+      binding.base_normals,
+      binding.morph_targets,
+      binding.morph_weights,
+    )
+    update_bound_mesh(
+      binding.mesh,
+      morphed_positions,
+      morphed_normals,
+      binding.uv_sets,
+      binding.tangents,
+      binding.colors,
+    )
+  }
   for _, pair in skinned_meshes3d.to_array() {
     let (entity, binding) = pair
     if !entity.is_alive() {
@@ -564,27 +924,43 @@ pub fn animation3d_skinning_system(_delta : Double) -> Unit {
     if joint_matrices.length() == 0 {
       continue
     }
+    let (morphed_positions, morphed_normals) = apply_morph_targets(
+      binding.base_positions,
+      binding.base_normals,
+      binding.morph_targets,
+      binding.morph_weights,
+    )
     let deformed_positions : Array[@math.Vec3] = []
     let deformed_normals : Array[@math.Vec3] = []
-    for index, base_position in binding.base_positions {
+    let deformed_tangents : Array[@render3d.Tangent3D] = []
+    for index, base_position in morphed_positions {
       let influence = binding.influences[index]
       let skin_matrix = weighted_skin_matrix(influence, joint_matrices)
       deformed_positions.push(skin_matrix.transform_point(base_position))
-      let base_normal = binding.base_normals
+      let base_normal = morphed_normals
         .get(index)
         .unwrap_or(@math.Vec3::new(0.0, 1.0, 0.0))
       let normal_head = skin_matrix.transform_point(base_normal)
       let normal_tail = skin_matrix.transform_point(@math.Vec3::zero())
       let normal = (normal_head - normal_tail).normalize()
       deformed_normals.push(normal)
+      if binding.tangents is Some(base_tangents) &&
+        base_tangents.get(index) is Some(base_tangent) {
+        deformed_tangents.push(skin_tangent(base_tangent, skin_matrix))
+      }
     }
-    @render3d.update_mesh_asset(
+    let tangents = if deformed_tangents.length() == deformed_positions.length() {
+      Some(deformed_tangents)
+    } else {
+      binding.tangents
+    }
+    update_bound_mesh(
       binding.mesh,
-      @render3d.triangle_mesh(
-        deformed_positions,
-        uvs=binding.uvs,
-        normals=Some(deformed_normals),
-      ),
+      deformed_positions,
+      deformed_normals,
+      binding.uv_sets,
+      tangents,
+      binding.colors,
     )
   }
 }

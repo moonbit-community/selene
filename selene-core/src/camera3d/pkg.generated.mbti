@@ -3,6 +3,7 @@ package "Milky2018/selene/camera3d"
 
 import {
   "Milky2018/selene/entity",
+  "Milky2018/selene/math",
   "Milky2018/selene/render",
   "Milky2018/selene/render3d_types",
 }
@@ -24,6 +25,7 @@ pub(all) struct ActiveCamera3D {
 
 pub(all) struct Camera3DComponent {
   projection : @render3d_types.CameraProjection3D
+  orthographic_size : @math.Vec2D?
   near : Double
   far : Double
   fov_y : Double

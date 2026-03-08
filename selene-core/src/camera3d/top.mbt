@@ -15,6 +15,7 @@
 ///|
 pub(all) struct Camera3DComponent {
   projection : @render3d_types.CameraProjection3D
+  orthographic_size : @math.Vec2D?
   near : Double
   far : Double
   fov_y : Double
@@ -33,6 +34,7 @@ pub(all) struct ActiveCamera3D {
 pub fn Camera3DComponent::default() -> Camera3DComponent {
   {
     projection: @render3d_types.CameraProjection3D::Perspective,
+    orthographic_size: None,
     near: 0.1,
     far: 2000.0,
     fov_y: 45.0,
@@ -77,6 +79,7 @@ pub fn camera3d_extract_system(_delta : Double) -> Unit {
           up,
           fov_y: camera.fov_y,
           projection: camera.projection,
+          orthographic_size: camera.orthographic_size,
           near: camera.near,
           far: camera.far,
           clear_color: camera.clear_color,

@@ -1,6 +1,7 @@
 import {
   "Milky2018/selene/animation3d",
   "Milky2018/selene/asset2",
+  "Milky2018/selene/camera3d",
   "Milky2018/selene/entity",
   "Milky2018/selene/math",
   "Milky2018/selene/render3d",
@@ -8,4 +9,6 @@ import {
   "Milky2018/selene/transform3d",
   "moonbitlang/core/encoding/base64",
   "moonbitlang/core/json",
+  "moonbitlang/core/cmp",
+  "moonbitlang/core/strconv",
 }

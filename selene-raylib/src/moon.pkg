@@ -5,6 +5,7 @@ import {
   "Milky2018/selene/render" @render,
   "Milky2018/selene/render2d_types",
   "Milky2018/selene/render3d_types",
+  "moonbitlang/core/encoding/base64",
   "tonyfettes/raylib",
   "tonyfettes/raylib/rl" @rl,
   "moonbitlang/core/cmp",

@@ -1161,6 +1161,9 @@ fn parse_material_asset(
     Some(double_sided) => { ..material, double_sided, }
     None => material
   }
+  if material_has_unlit_extension(material_object) {
+    material = { ..material, unlit: true }
+  }
   material = match field_array(material_object, "emissiveFactor") {
     Some(values) =>
       if values.length() >= 3 {
@@ -1175,7 +1178,12 @@ fn parse_material_asset(
   }
   material = match field_object(material_object, "emissiveTexture") {
     Some(emissive_texture) =>
-      match resolve_texture_binding(emissive_texture, texture_sources) {
+      match
+        resolve_texture_binding(
+          emissive_texture,
+          texture_sources,
+          texture_transform=true,
+        ) {
         Some(binding) => { ..material, emissive_texture: Some(binding) }
         None => material
       }
@@ -1183,7 +1191,12 @@ fn parse_material_asset(
   }
   material = match field_object(material_object, "normalTexture") {
     Some(normal_texture) =>
-      match resolve_texture_binding(normal_texture, texture_sources) {
+      match
+        resolve_texture_binding(
+          normal_texture,
+          texture_sources,
+          texture_transform=true,
+        ) {
         Some(binding) =>
           {
             ..material,
@@ -1196,7 +1209,12 @@ fn parse_material_asset(
   }
   material = match field_object(material_object, "occlusionTexture") {
     Some(occlusion_texture) =>
-      match resolve_texture_binding(occlusion_texture, texture_sources) {
+      match
+        resolve_texture_binding(
+          occlusion_texture,
+          texture_sources,
+          texture_transform=true,
+        ) {
         Some(binding) =>
           {
             ..material,
@@ -1215,6 +1233,14 @@ fn parse_material_asset(
     None => material
   }
   material
+}
+
+///|
+fn material_has_unlit_extension(material_object : Map[String, Json]) -> Bool {
+  match field_object(material_object, "extensions") {
+    Some(extensions) => field_json(extensions, "KHR_materials_unlit") is Some(_)
+    None => false
+  }
 }
 
 ///|
@@ -1251,7 +1277,12 @@ fn parse_pbr_material(
   }
   output = match field_object(pbr_object, "baseColorTexture") {
     Some(base_texture) =>
-      match resolve_texture_binding(base_texture, texture_sources) {
+      match
+        resolve_texture_binding(
+          base_texture,
+          texture_sources,
+          texture_transform=true,
+        ) {
         Some(binding) => { ..output, base_color_texture: Some(binding) }
         None => output
       }
@@ -1260,7 +1291,11 @@ fn parse_pbr_material(
   output = match field_object(pbr_object, "metallicRoughnessTexture") {
     Some(metallic_roughness_texture) =>
       match
-        resolve_texture_binding(metallic_roughness_texture, texture_sources) {
+        resolve_texture_binding(
+          metallic_roughness_texture,
+          texture_sources,
+          texture_transform=true,
+        ) {
         Some(binding) => { ..output, metallic_roughness_texture: Some(binding) }
         None => output
       }
@@ -1273,6 +1308,7 @@ fn parse_pbr_material(
 fn resolve_texture_binding(
   texture_object : Map[String, Json],
   texture_sources : Array[TextureSourceTemplate?],
+  texture_transform? : Bool = false,
 ) -> @render3d.TextureBinding3D? {
   guard field_int(texture_object, "index") is Some(texture_index) else {
     return None
@@ -1281,13 +1317,63 @@ fn resolve_texture_binding(
     return None
   }
   guard source.image is Some(image_handle) else { return None }
+  let base_texcoord_set = field_int(texture_object, "texCoord").unwrap_or(0)
+  let (texcoord_set, transform) = if texture_transform {
+    resolve_texture_transform(texture_object, base_texcoord_set)
+  } else {
+    (base_texcoord_set, @render3d.default_texture_transform3d())
+  }
   Some(
     @render3d.texture_binding3d(
       image_handle,
-      texcoord_set=field_int(texture_object, "texCoord").unwrap_or(0),
+      texcoord_set~,
       sampler=source.sampler,
+      transform~,
     ),
   )
+}
+
+///|
+fn resolve_texture_transform(
+  texture_object : Map[String, Json],
+  fallback_texcoord_set : Int,
+) -> (Int, @render3d.TextureTransform3D) {
+  guard field_object(texture_object, "extensions") is Some(extensions) else {
+    return (fallback_texcoord_set, @render3d.default_texture_transform3d())
+  }
+  guard field_object(extensions, "KHR_texture_transform")
+    is Some(transform_object) else {
+    return (fallback_texcoord_set, @render3d.default_texture_transform3d())
+  }
+  (
+    field_int(transform_object, "texCoord").unwrap_or(fallback_texcoord_set),
+    {
+      offset: parse_texture_transform_vec2(
+        field_array(transform_object, "offset"),
+        @math.Vec2D::zero(),
+      ),
+      scale: parse_texture_transform_vec2(
+        field_array(transform_object, "scale"),
+        @math.Vec2D(1.0, 1.0),
+      ),
+      rotation: field_number(transform_object, "rotation").unwrap_or(0.0),
+    },
+  )
+}
+
+///|
+fn parse_texture_transform_vec2(
+  values : Array[Json]?,
+  fallback : @math.Vec2D,
+) -> @math.Vec2D {
+  match values {
+    Some(items) if items.length() >= 2 =>
+      @math.Vec2D(
+        json_number(items[0]).unwrap_or(fallback[X]),
+        json_number(items[1]).unwrap_or(fallback[Y]),
+      )
+    _ => fallback
+  }
 }
 
 ///|
@@ -1519,6 +1605,8 @@ fn parse_mesh_templates(
           mesh: mesh_handle,
           material: material_handle,
           visible: true,
+          cast_shadows: true,
+          receive_shadows: true,
         },
         skinned: parsed_asset.skinned.map(fn(binding) {
           {
@@ -3698,10 +3786,9 @@ fn parse_light_template(
     "directional" =>
       Some({
         directional: Some({
-          direction: @math.Vec3::new(0.0, 0.0, -1.0),
+          ..@render3d.default_directional_light3d(),
           color,
           intensity,
-          shadows: false,
         }),
         point: None,
         spot: None,
@@ -3709,7 +3796,12 @@ fn parse_light_template(
     "point" =>
       Some({
         directional: None,
-        point: Some({ color, intensity, range }),
+        point: Some({
+          ..@render3d.default_point_light3d(),
+          color,
+          intensity,
+          range,
+        }),
         spot: None,
       })
     "spot" => {
@@ -3718,7 +3810,7 @@ fn parse_light_template(
         directional: None,
         point: None,
         spot: Some({
-          direction: @math.Vec3::new(0.0, 0.0, -1.0),
+          ..@render3d.default_spot_light3d(),
           color,
           intensity,
           range,

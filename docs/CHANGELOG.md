@@ -8,15 +8,24 @@
 - `scene3d` glTF importing now reads additional core mesh/animation data: multiple `TEXCOORD_n` sets, `COLOR_0`, `TANGENT`, `JOINTS_1` / `WEIGHTS_1`, morph targets, morph-weight animation channels, and plain `.gltf` `data:` asset URIs
 - `scene3d` animation importing now parses glTF `CUBICSPLINE` samplers into keyed in/out tangents instead of collapsing them to linear interpolation
 - `scene3d` glTF importing now supports sparse accessors, including sparse-only accessors without a base `bufferView` and sparse overrides layered over base vertex/index payloads
+- `scene3d` glTF importing now parses `KHR_texture_transform` for glTF material texture slots and carries the authored UV transform into triangle-mesh rendering backends
+- `scene3d` glTF importing now parses `KHR_materials_unlit`, and imported unlit materials bypass PBR lighting in both `selene-webgpu` and `selene-raylib`
 
 ### Changed
 
 - `render3d` now exposes richer glTF-facing 3D asset types: `TextureWrap3D`, `TextureFilter3D`, `TextureSampler3D`, `TextureBinding3D`, extended `StandardMaterial3D` texture/factor fields, and orthographic camera size data in `FrameCamera3D` / `Camera3DComponent`
+- `render3d` directional lights now expose Bevy-aligned shadow bias tuning (`shadow_depth_bias`, `shadow_normal_bias`) plus `default_directional_light3d()` for constructing updated light values
+- `render3d` point and spot lights now mirror Bevy-style shadow controls with `shadows`, `shadow_depth_bias`, `shadow_normal_bias`, `shadow_map_near_z`, plus `default_point_light3d()` / `default_spot_light3d()` helper constructors; `scene3d` glTF light import and the `scene3d` example now build lights through those defaults
+- `render3d` now exposes Bevy-style global shadow-map resources through `DirectionalLightShadowMap3D` / `PointLightShadowMap3D`, along with `set_*` / `get_*` helpers, so backends can configure directional/spot and point shadow resolution without editing backend constants
+- `render3d` directional lights now carry Bevy-style cascaded shadow configuration through `CascadeShadowConfigBuilder3D` / `CascadeShadowConfig3D`, plus `build_*` / `default_*` helpers for matching Bevy's default cascade split and overlap behavior
+- `render3d` mesh renderers and extracted 3D render items now carry Bevy-style `cast_shadows` / `receive_shadows` toggles so backends can skip shadow casting and receiving per object instead of treating every visible mesh the same
 - triangle-mesh data now keeps full authored UV/color/tangent payloads (`uv_sets`, `colors`, `tangents`) so glTF vertex attributes survive import, skinning, morphing, and backend submission instead of collapsing to a single optional UV stream
 - `animation3d` deformable-mesh bindings now track `target_entity`, morph targets, morph weights, UV sets, tangents, and vertex colors so glTF node-weight animation and per-instance deformation stay aligned with the imported scene graph
 - `animation3d` keyframe types and runtime sampling now preserve cubic Hermite tangents for translation, rotation, scale, and morph-weight channels instead of treating every non-step glTF sampler as linear
 - `selene-raylib` triangle-mesh rendering now consumes selected glTF UV sets and imported vertex colors instead of forcing `TEXCOORD_0` + white vertex color for every imported triangle mesh
 - `selene-webgpu` lit 3D triangle rendering now carries imported vertex colors, selected glTF UV sets, emissive color, and alpha-mode metadata into the shader path instead of flattening everything down to base color plus one implicit UV stream
+- `selene-raylib` directional shadow filtering now uses per-light shadow bias tuning and weighted PCF sampling to reduce acne and hard-edged aliasing on shadowed surfaces
+- the `examples/scene3d` demo now uses elevated casters, a dedicated shadow receiver wall, and brighter lighting balance so WebGPU and raylib shadow behavior is easier to verify visually
 
 ### Fixed
 
@@ -26,6 +35,18 @@
 - imported glTF vertex colors, alternate UV sets, normalized integer UV/color accessors, morph targets, and 8-influence skinning data now reach runtime meshes instead of being dropped during import
 - scene-instantiated skinned and morphed meshes now clone their mesh assets per instance before deformation, fixing shared-mesh corruption when the same glTF scene is instantiated multiple times
 - `selene-webgpu` lit 3D shaders now honor glTF `alphaMode=Mask` / `alphaCutoff` and add scalar emissive color on imported triangle meshes instead of treating every textured material as plain alpha-blended Lambert shading
+- `selene-webgpu` imported triangle meshes now consume `emissiveTexture` and shared-UV repeat/clamp sampler behavior when the material texture stack shares one UV set, bringing common glTF emissive materials closer to authored output
+- `selene-webgpu` imported triangle materials now keep independent glTF UV channels per texture map instead of collapsing the whole material to the primary texture's `TEXCOORD_n`
+- `selene-webgpu` imported triangle materials now preserve glTF wrap/clamp sampler selection per texture map instead of forcing the whole material stack onto one shared sampler
+- `selene-raylib` now binds glTF `emissiveTexture`, `metallicRoughnessTexture`, `occlusionTexture`, and `normalTexture` through its lit-material path instead of only consuming `baseColorTexture`
+- single-sided glTF materials now honor `doubleSided=false` in both `selene-webgpu` and `selene-raylib` instead of rendering every imported triangle mesh as effectively double-sided
+- non-base glTF texture slots now honor `KHR_texture_transform` in `scene3d` import and `selene-webgpu`; `selene-raylib` now also honors per-texture transforms when the material texture stack shares one UV set instead of dropping secondary textures with different transforms
+- `selene-raylib` directional lights with `shadows = true` now render and sample shadow maps for every supported directional light slot instead of only shadowing the first enabled light; primitives, triangle meshes, and alpha-mask casters all participate
+- `selene-raylib` now renders Bevy-style shadowed point and spot lights through local shadow atlases, and all directional/point/spot shadow passes now respect per-object `cast_shadows` / `receive_shadows` flags instead of forcing every visible mesh to both cast and receive shadows
+- `selene-raylib` shadow passes now size directional/spot and point shadow maps from extracted `render3d` shadow-map resources instead of baking 2048/1024-sized shadow targets into backend constants
+- `selene-raylib` directional shadows now render Bevy-style cascades into per-light atlases and blend overlap regions in the lighting shader instead of projecting the whole camera range through one directional shadow matrix
+- `selene-webgpu` now renders Bevy-style directional cascades plus point and spot shadow maps, honoring extracted shadow-map sizes and per-object `cast_shadows` / `receive_shadows` flags instead of treating all WebGPU 3D lighting as unshadowed direct light
+- `selene-webgpu` primitive meshes (`Cube` / `Sphere` / `Cylinder` / `Plane`) now submit through the lit 3D pipeline with corrected face winding and material metadata instead of bypassing lighting and shadow receiving via the unlit color-triangle path
 
 ## [0.25.1] - 2026-03-06
 

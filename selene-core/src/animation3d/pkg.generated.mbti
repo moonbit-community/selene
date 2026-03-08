@@ -4,6 +4,7 @@ package "Milky2018/selene/animation3d"
 import {
   "Milky2018/selene/entity",
   "Milky2018/selene/math",
+  "Milky2018/selene/render",
   "Milky2018/selene/render3d_types",
 }
 
@@ -20,7 +21,11 @@ pub fn attach_animation_player(@entity.Entity, AnimationPlayer3D) -> Unit
 
 pub fn bind_animation_targets(@entity.Entity, Map[Int, @entity.Entity], Map[String, AnimationClipHandle]) -> Unit
 
+pub fn bind_morph_mesh(@entity.Entity, MorphMeshBinding3D) -> Unit
+
 pub fn bind_skinned_mesh(@entity.Entity, SkinnedMeshBinding3D) -> Unit
+
+pub fn clear_morph_mesh(@entity.Entity) -> Unit
 
 pub fn clear_skinned_mesh(@entity.Entity) -> Unit
 
@@ -42,6 +47,7 @@ pub(all) struct AnimationChannel3D {
   translations : Array[Vec3Keyframe3D]
   rotations : Array[QuatKeyframe3D]
   scales : Array[Vec3Keyframe3D]
+  weights : Array[WeightKeyframe3D]
   interpolation : ChannelInterpolation3D
 }
 
@@ -96,13 +102,35 @@ pub(all) struct AnimationTransition3D {
 pub(all) enum ChannelInterpolation3D {
   Step
   Linear
+  CubicSpline
 }
 pub impl Eq for ChannelInterpolation3D
 pub impl Show for ChannelInterpolation3D
 
+pub(all) struct MorphMeshBinding3D {
+  target_entity : @entity.Entity
+  mesh : @render3d_types.MeshHandle
+  base_positions : Array[@math.Vec3]
+  base_normals : Array[@math.Vec3]
+  uv_sets : Array[Array[@math.Vec2D]]
+  colors : Array[@render.Color]?
+  tangents : Array[@render3d_types.Tangent3D]?
+  morph_targets : Array[MorphTargetBinding3D]
+  mut morph_weights : Array[Double]
+}
+
+pub(all) struct MorphTargetBinding3D {
+  position_deltas : Array[@math.Vec3]?
+  normal_deltas : Array[@math.Vec3]?
+}
+pub impl Eq for MorphTargetBinding3D
+pub impl Show for MorphTargetBinding3D
+
 pub(all) struct QuatKeyframe3D {
   time : Double
   value : @math.Quat
+  in_tangent : @math.Quat?
+  out_tangent : @math.Quat?
 }
 pub impl Eq for QuatKeyframe3D
 pub impl Show for QuatKeyframe3D
@@ -119,10 +147,15 @@ pub(all) struct SkinVertexInfluence3D {
 }
 
 pub(all) struct SkinnedMeshBinding3D {
+  target_entity : @entity.Entity
   mesh : @render3d_types.MeshHandle
   base_positions : Array[@math.Vec3]
   base_normals : Array[@math.Vec3]
-  uvs : Array[@math.Vec2D]?
+  uv_sets : Array[Array[@math.Vec2D]]
+  colors : Array[@render.Color]?
+  tangents : Array[@render3d_types.Tangent3D]?
+  morph_targets : Array[MorphTargetBinding3D]
+  mut morph_weights : Array[Double]
   influences : Array[SkinVertexInfluence3D]
   joint_entities : Array[@entity.Entity]
   inverse_bind_matrices : Array[@math.Mat4]
@@ -131,9 +164,20 @@ pub(all) struct SkinnedMeshBinding3D {
 pub(all) struct Vec3Keyframe3D {
   time : Double
   value : @math.Vec3
+  in_tangent : @math.Vec3?
+  out_tangent : @math.Vec3?
 }
 pub impl Eq for Vec3Keyframe3D
 pub impl Show for Vec3Keyframe3D
+
+pub(all) struct WeightKeyframe3D {
+  time : Double
+  value : Array[Double]
+  in_tangent : Array[Double]?
+  out_tangent : Array[Double]?
+}
+pub impl Eq for WeightKeyframe3D
+pub impl Show for WeightKeyframe3D
 
 // Type aliases
 

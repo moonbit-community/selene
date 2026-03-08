@@ -7,9 +7,33 @@ import {
 }
 
 // Values
+pub fn apply_texture_transform3d(TextureTransform3D, @math.Vec2D) -> @math.Vec2D
+
+pub fn build_cascade_shadow_config3d(CascadeShadowConfigBuilder3D) -> CascadeShadowConfig3D
+
+pub fn default_cascade_shadow_config3d() -> CascadeShadowConfig3D
+
+pub fn default_cascade_shadow_config_builder3d() -> CascadeShadowConfigBuilder3D
+
+pub fn default_directional_light3d() -> DirectionalLight3D
+
+pub fn default_directional_light_shadow_map3d() -> DirectionalLightShadowMap3D
+
+pub fn default_point_light3d() -> PointLight3D
+
+pub fn default_point_light_shadow_map3d() -> PointLightShadowMap3D
+
+pub fn default_spot_light3d() -> SpotLight3D
+
 pub fn default_standard_material3d() -> StandardMaterial3D
 
+pub fn default_texture_sampler3d() -> TextureSampler3D
+
+pub fn default_texture_transform3d() -> TextureTransform3D
+
 pub fn empty_render_frame3d() -> RenderFrame3D
+
+pub fn texture_binding3d(ImageHandle, texcoord_set? : Int, sampler? : TextureSampler3D, transform? : TextureTransform3D) -> TextureBinding3D
 
 // Errors
 
@@ -34,12 +58,38 @@ pub(all) enum CameraProjection3D {
 pub impl Eq for CameraProjection3D
 pub impl Show for CameraProjection3D
 
+pub(all) struct CascadeShadowConfig3D {
+  bounds : Array[Double]
+  minimum_distance : Double
+  overlap_proportion : Double
+}
+pub impl Show for CascadeShadowConfig3D
+
+pub(all) struct CascadeShadowConfigBuilder3D {
+  num_cascades : Int
+  minimum_distance : Double
+  maximum_distance : Double
+  first_cascade_far_bound : Double
+  overlap_proportion : Double
+}
+pub impl Eq for CascadeShadowConfigBuilder3D
+pub impl Show for CascadeShadowConfigBuilder3D
+
 pub(all) struct DirectionalLight3D {
   direction : @math.Vec3
   color : @render.Color
   intensity : Double
   shadows : Bool
+  shadow_depth_bias : Double
+  shadow_normal_bias : Double
+  cascade_shadow_config : CascadeShadowConfig3D
 }
+
+pub(all) struct DirectionalLightShadowMap3D {
+  size : Int
+}
+pub impl Eq for DirectionalLightShadowMap3D
+pub impl Show for DirectionalLightShadowMap3D
 
 pub(all) struct FrameCamera3D {
   position : @math.Vec3
@@ -47,6 +97,7 @@ pub(all) struct FrameCamera3D {
   up : @math.Vec3
   fov_y : Double
   projection : CameraProjection3D
+  orthographic_size : @math.Vec2D?
   near : Double
   far : Double
   clear_color : @render.Color
@@ -57,6 +108,10 @@ pub(all) struct FramePointLight3D {
   color : @render.Color
   intensity : Double
   range : Double
+  shadows : Bool
+  shadow_depth_bias : Double
+  shadow_normal_bias : Double
+  shadow_map_near_z : Double
 }
 
 pub(all) struct FrameSpotLight3D {
@@ -65,6 +120,10 @@ pub(all) struct FrameSpotLight3D {
   color : @render.Color
   intensity : Double
   range : Double
+  shadows : Bool
+  shadow_depth_bias : Double
+  shadow_normal_bias : Double
+  shadow_map_near_z : Double
   inner_angle : Double
   outer_angle : Double
 }
@@ -124,7 +183,17 @@ pub(all) struct PointLight3D {
   color : @render.Color
   intensity : Double
   range : Double
+  shadows : Bool
+  shadow_depth_bias : Double
+  shadow_normal_bias : Double
+  shadow_map_near_z : Double
 }
+
+pub(all) struct PointLightShadowMap3D {
+  size : Int
+}
+pub impl Eq for PointLightShadowMap3D
+pub impl Show for PointLightShadowMap3D
 
 pub(all) struct RenderFrame3D {
   mut camera : FrameCamera3D?
@@ -134,12 +203,16 @@ pub(all) struct RenderFrame3D {
   mut point_lights : Array[FramePointLight3D]
   mut spot_lights : Array[FrameSpotLight3D]
   mut ambient_light : AmbientLight3D?
+  mut directional_shadow_map_size : Int
+  mut point_shadow_map_size : Int
 }
 
 pub(all) struct RenderItem3D {
   transform : FrameTransform3D
   mesh : MeshHandle
   material : MaterialHandle
+  cast_shadows : Bool
+  receive_shadows : Bool
 }
 
 pub(all) struct SceneHandle(UInt)
@@ -154,25 +227,89 @@ pub(all) struct SpotLight3D {
   color : @render.Color
   intensity : Double
   range : Double
+  shadows : Bool
+  shadow_depth_bias : Double
+  shadow_normal_bias : Double
+  shadow_map_near_z : Double
   inner_angle : Double
   outer_angle : Double
 }
 
 pub(all) struct StandardMaterial3D {
   base_color : @render.Color
-  base_color_texture : ImageHandle?
-  normal_texture : ImageHandle?
-  emissive_texture : ImageHandle?
+  base_color_texture : TextureBinding3D?
+  normal_texture : TextureBinding3D?
+  normal_scale : Double
+  emissive_texture : TextureBinding3D?
   emissive_color : @render.Color
+  metallic_roughness_texture : TextureBinding3D?
+  occlusion_texture : TextureBinding3D?
+  occlusion_strength : Double
   metallic : Double
   roughness : Double
   alpha_mode : AlphaMode3D
+  alpha_cutoff : Double
+  double_sided : Bool
+  unlit : Bool
 }
+
+pub(all) struct Tangent3D {
+  x : Double
+  y : Double
+  z : Double
+  w : Double
+}
+pub impl Eq for Tangent3D
+pub impl Show for Tangent3D
+
+pub(all) struct TextureBinding3D {
+  image : ImageHandle
+  sampler : TextureSampler3D
+  texcoord_set : Int
+  transform : TextureTransform3D
+}
+pub impl Eq for TextureBinding3D
+pub impl Show for TextureBinding3D
+
+pub(all) enum TextureFilter3D {
+  Nearest
+  Linear
+}
+pub impl Eq for TextureFilter3D
+pub impl Show for TextureFilter3D
+
+pub(all) struct TextureSampler3D {
+  wrap_u : TextureWrap3D
+  wrap_v : TextureWrap3D
+  min_filter : TextureFilter3D
+  mag_filter : TextureFilter3D
+  mipmap_filter : TextureFilter3D?
+}
+pub impl Eq for TextureSampler3D
+pub impl Show for TextureSampler3D
+
+pub(all) struct TextureTransform3D {
+  offset : @math.Vec2D
+  scale : @math.Vec2D
+  rotation : Double
+}
+pub impl Eq for TextureTransform3D
+pub impl Show for TextureTransform3D
+
+pub(all) enum TextureWrap3D {
+  ClampToEdge
+  Repeat
+  MirroredRepeat
+}
+pub impl Eq for TextureWrap3D
+pub impl Show for TextureWrap3D
 
 pub(all) struct TriangleMesh3D {
   positions : Array[@math.Vec3]
-  uvs : Array[@math.Vec2D]?
+  uv_sets : Array[Array[@math.Vec2D]]
   normals : Array[@math.Vec3]?
+  tangents : Array[Tangent3D]?
+  colors : Array[@render.Color]?
 }
 pub impl Eq for TriangleMesh3D
 pub impl Show for TriangleMesh3D

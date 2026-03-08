@@ -54,6 +54,9 @@ fn color_rgba(color : @render.Color) -> (Double, Double, Double, Double) {
 const MAX_DIRECTIONAL_LIGHTS : Int = 4
 
 ///|
+const MAX_DIRECTIONAL_CASCADES : Int = 4
+
+///|
 const MAX_POINT_LIGHTS : Int = 8
 
 ///|
@@ -76,6 +79,30 @@ let synced_image_assets : Map[
   @render3d_types.ImageHandle,
   @render3d_types.ImageAsset,
 ] = Map::new()
+
+///|
+priv struct MaterialTextureSource3D {
+  path : String
+  texcoord_set : Int
+  sampler_code : Int
+}
+
+///|
+priv struct MaterialTextureBundle3D {
+  base_source : MaterialTextureSource3D?
+  emissive_source : MaterialTextureSource3D?
+  metallic_roughness_source : MaterialTextureSource3D?
+  occlusion_source : MaterialTextureSource3D?
+  normal_source : MaterialTextureSource3D?
+  primary_texcoord_set : Int
+}
+
+///|
+priv struct ResolvedMaterialTextureInput3D {
+  path : String
+  uvs : Array[@smath.Vec2D]
+  sampler_code : Int
+}
 
 ///|
 pub fn preload_img(path : String) -> Unit {
@@ -301,6 +328,15 @@ fn begin_3d(camera : @render3d_types.FrameCamera3D) -> Unit {
     camera.up.y,
     camera.up.z,
     camera.fov_y,
+    camera.near,
+    camera.far,
+    if camera.projection == Orthographic {
+      1.0
+    } else {
+      0.0
+    },
+    camera.orthographic_size.map_or(0.0, fn(size) { size[X] }),
+    camera.orthographic_size.map_or(0.0, fn(size) { size[Y] }),
   )
 }
 
@@ -362,7 +398,13 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
       .unwrap_or(@render3d_types.default_standard_material3d())
     let center = item.transform.translation
     let rotation = item.transform.rotation
-    let color = material.base_color
+    let color = effective_material_color(material)
+    let (emissive_r, emissive_g, emissive_b) = color_rgb01(
+      material.emissive_color,
+    )
+    let alpha_mode = alpha_mode_code(material.alpha_mode)
+    let alpha_cutoff = material.alpha_cutoff
+    let unlit = material.unlit
     match mesh_asset.primitive {
       Cube(size) =>
         webgpu_draw_cube_3d(
@@ -380,6 +422,14 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
           color.g.reinterpret_as_int().to_double(),
           color.b.reinterpret_as_int().to_double(),
           color.a,
+          emissive_r,
+          emissive_g,
+          emissive_b,
+          alpha_mode,
+          alpha_cutoff,
+          unlit,
+          item.cast_shadows,
+          item.receive_shadows,
         )
       Sphere(radius) =>
         webgpu_draw_sphere_3d(
@@ -395,6 +445,14 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
           color.g.reinterpret_as_int().to_double(),
           color.b.reinterpret_as_int().to_double(),
           color.a,
+          emissive_r,
+          emissive_g,
+          emissive_b,
+          alpha_mode,
+          alpha_cutoff,
+          unlit,
+          item.cast_shadows,
+          item.receive_shadows,
         )
       Cylinder(radius_top, radius_bottom, height, slices) =>
         webgpu_draw_cylinder_3d(
@@ -413,6 +471,14 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
           color.g.reinterpret_as_int().to_double(),
           color.b.reinterpret_as_int().to_double(),
           color.a,
+          emissive_r,
+          emissive_g,
+          emissive_b,
+          alpha_mode,
+          alpha_cutoff,
+          unlit,
+          item.cast_shadows,
+          item.receive_shadows,
         )
       Plane(size) => {
         let scaled = scaled_vec3(size, item.transform.scale)
@@ -432,56 +498,153 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
           color.g.reinterpret_as_int().to_double(),
           color.b.reinterpret_as_int().to_double(),
           color.a,
+          emissive_r,
+          emissive_g,
+          emissive_b,
+          alpha_mode,
+          alpha_cutoff,
+          unlit,
+          item.cast_shadows,
+          item.receive_shadows,
         )
       }
       Triangles(mesh) =>
         if mesh.positions.length() >= 3 {
           let normals = resolve_mesh_normals(mesh)
-          match (mesh.uvs, resolve_material_texture_path(material)) {
-            (Some(uvs), Some(texture_path)) =>
-              if uvs.length() == mesh.positions.length() &&
-                normals.length() == mesh.positions.length() {
-                webgpu_draw_textured_triangles_3d(
-                  texture_path,
-                  flatten_textured_vertices3d(
-                    mesh.positions,
-                    uvs,
-                    normals,
-                    item.transform.scale,
-                    color,
-                  ),
-                  center.x,
-                  center.y,
-                  center.z,
-                  rotation.x,
-                  rotation.y,
-                  rotation.z,
-                  rotation.w,
-                )
-              } else {
-                webgpu_draw_colored_triangles_3d(
-                  flatten_colored_vertices3d(
-                    mesh.positions,
-                    normals,
-                    item.transform.scale,
-                    color,
-                  ),
-                  center.x,
-                  center.y,
-                  center.z,
-                  rotation.x,
-                  rotation.y,
-                  rotation.z,
-                  rotation.w,
-                )
+          let tangents = resolve_mesh_tangents(mesh)
+          match resolve_material_texture_bundle(material) {
+            Some(bundle) =>
+              match mesh.uv_sets.get(bundle.primary_texcoord_set) {
+                Some(primary_uvs) =>
+                  if primary_uvs.length() == mesh.positions.length() &&
+                    normals.length() == mesh.positions.length() {
+                    let base_input = resolve_material_texture_input(
+                      mesh,
+                      bundle.base_source,
+                      primary_uvs,
+                      transform_binding=material.base_color_texture,
+                    )
+                    let emissive_input = resolve_material_texture_input(
+                      mesh,
+                      bundle.emissive_source,
+                      primary_uvs,
+                      transform_binding=material.emissive_texture,
+                    )
+                    let metallic_roughness_input = resolve_material_texture_input(
+                      mesh,
+                      bundle.metallic_roughness_source,
+                      primary_uvs,
+                      transform_binding=material.metallic_roughness_texture,
+                    )
+                    let occlusion_input = resolve_material_texture_input(
+                      mesh,
+                      bundle.occlusion_source,
+                      primary_uvs,
+                      transform_binding=material.occlusion_texture,
+                    )
+                    let normal_input = resolve_material_texture_input(
+                      mesh,
+                      bundle.normal_source,
+                      primary_uvs,
+                      transform_binding=material.normal_texture,
+                    )
+                    webgpu_draw_textured_triangles_3d(
+                      base_input.path,
+                      emissive_input.path,
+                      metallic_roughness_input.path,
+                      occlusion_input.path,
+                      if tangents.length() == mesh.positions.length() {
+                        normal_input.path
+                      } else {
+                        ""
+                      },
+                      base_input.sampler_code,
+                      emissive_input.sampler_code,
+                      metallic_roughness_input.sampler_code,
+                      occlusion_input.sampler_code,
+                      normal_input.sampler_code,
+                      flatten_textured_vertices3d(
+                        mesh.positions,
+                        base_input.uvs,
+                        emissive_input.uvs,
+                        metallic_roughness_input.uvs,
+                        occlusion_input.uvs,
+                        normal_input.uvs,
+                        normals,
+                        tangents,
+                        mesh.colors,
+                        item.transform.scale,
+                        material,
+                        color,
+                        item.receive_shadows,
+                      ),
+                      center.x,
+                      center.y,
+                      center.z,
+                      rotation.x,
+                      rotation.y,
+                      rotation.z,
+                      rotation.w,
+                      material.double_sided,
+                      item.cast_shadows,
+                      item.receive_shadows,
+                    )
+                  } else {
+                    webgpu_draw_colored_triangles_3d(
+                      flatten_colored_vertices3d(
+                        mesh.positions,
+                        normals,
+                        mesh.colors,
+                        item.transform.scale,
+                        material,
+                        color,
+                        item.receive_shadows,
+                      ),
+                      center.x,
+                      center.y,
+                      center.z,
+                      rotation.x,
+                      rotation.y,
+                      rotation.z,
+                      rotation.w,
+                      material.double_sided,
+                      item.cast_shadows,
+                      item.receive_shadows,
+                    )
+                  }
+                None =>
+                  webgpu_draw_colored_triangles_3d(
+                    flatten_colored_vertices3d(
+                      mesh.positions,
+                      normals,
+                      mesh.colors,
+                      item.transform.scale,
+                      material,
+                      color,
+                      item.receive_shadows,
+                    ),
+                    center.x,
+                    center.y,
+                    center.z,
+                    rotation.x,
+                    rotation.y,
+                    rotation.z,
+                    rotation.w,
+                    material.double_sided,
+                    item.cast_shadows,
+                    item.receive_shadows,
+                  )
               }
-            _ =>
+            None =>
               webgpu_draw_colored_triangles_3d(
                 flatten_colored_vertices3d(
                   mesh.positions,
                   normals,
+                  mesh.colors,
                   item.transform.scale,
+                  material,
                   color,
+                  item.receive_shadows,
                 ),
                 center.x,
                 center.y,
@@ -490,6 +653,9 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
                 rotation.y,
                 rotation.z,
                 rotation.w,
+                material.double_sided,
+                item.cast_shadows,
+                item.receive_shadows,
               )
           }
         }
@@ -529,6 +695,25 @@ fn configure_scene_lighting(frame : @render3d_types.RenderFrame3D) -> Unit {
   } else {
     @smath.Vec3::one()
   }
+  let directional_data = pack_directional_light_data(frame)
+  let point_data = pack_point_light_data(frame)
+  let spot_data = pack_spot_light_data(frame)
+  webgpu_set_lighting_3d(
+    directional_data,
+    point_data,
+    spot_data,
+    ambient.x,
+    ambient.y,
+    ambient.z,
+    frame.directional_shadow_map_size.to_double(),
+    frame.point_shadow_map_size.to_double(),
+  )
+}
+
+///|
+fn pack_directional_light_data(
+  frame : @render3d_types.RenderFrame3D,
+) -> Array[Double] {
   let directional_data : Array[Double] = []
   let directional_count = if frame.directional_lights.length() <
     MAX_DIRECTIONAL_LIGHTS {
@@ -544,6 +729,14 @@ fn configure_scene_lighting(frame : @render3d_types.RenderFrame3D) -> Unit {
       light.direction.normalize()
     }
     let (r, g, b) = color_rgb01(light.color)
+    let authored_bounds = light.cascade_shadow_config.bounds
+    let cascade_count = if authored_bounds.length() < 1 {
+      1
+    } else if authored_bounds.length() > MAX_DIRECTIONAL_CASCADES {
+      MAX_DIRECTIONAL_CASCADES
+    } else {
+      authored_bounds.length()
+    }
     directional_data.push(direction.x)
     directional_data.push(direction.y)
     directional_data.push(direction.z)
@@ -551,7 +744,29 @@ fn configure_scene_lighting(frame : @render3d_types.RenderFrame3D) -> Unit {
     directional_data.push(r)
     directional_data.push(g)
     directional_data.push(b)
+    directional_data.push(if light.shadows { 1.0 } else { 0.0 })
+    directional_data.push(light.shadow_depth_bias)
+    directional_data.push(light.shadow_normal_bias)
+    directional_data.push(cascade_count.to_double())
+    directional_data.push(light.cascade_shadow_config.minimum_distance)
+    directional_data.push(light.cascade_shadow_config.overlap_proportion)
+    let fallback_bound = match authored_bounds.last() {
+      Some(bound) => bound
+      None => 0.0
+    }
+    for bound_index in 0..<MAX_DIRECTIONAL_CASCADES {
+      directional_data.push(
+        authored_bounds.get(bound_index).unwrap_or(fallback_bound),
+      )
+    }
   }
+  directional_data
+}
+
+///|
+fn pack_point_light_data(
+  frame : @render3d_types.RenderFrame3D,
+) -> Array[Double] {
   let point_data : Array[Double] = []
   let point_count = if frame.point_lights.length() < MAX_POINT_LIGHTS {
     frame.point_lights.length()
@@ -569,7 +784,18 @@ fn configure_scene_lighting(frame : @render3d_types.RenderFrame3D) -> Unit {
     point_data.push(g)
     point_data.push(b)
     point_data.push(light.range)
+    point_data.push(if light.shadows { 1.0 } else { 0.0 })
+    point_data.push(light.shadow_depth_bias)
+    point_data.push(light.shadow_normal_bias)
+    point_data.push(light.shadow_map_near_z)
   }
+  point_data
+}
+
+///|
+fn pack_spot_light_data(
+  frame : @render3d_types.RenderFrame3D,
+) -> Array[Double] {
   let spot_data : Array[Double] = []
   let spot_count = if frame.spot_lights.length() < MAX_SPOT_LIGHTS {
     frame.spot_lights.length()
@@ -602,15 +828,12 @@ fn configure_scene_lighting(frame : @render3d_types.RenderFrame3D) -> Unit {
     spot_data.push(direction.z)
     spot_data.push(@math.cos(inner_angle))
     spot_data.push(@math.cos(outer_angle))
+    spot_data.push(if light.shadows { 1.0 } else { 0.0 })
+    spot_data.push(light.shadow_depth_bias)
+    spot_data.push(light.shadow_normal_bias)
+    spot_data.push(light.shadow_map_near_z)
   }
-  webgpu_set_lighting_3d(
-    directional_data,
-    point_data,
-    spot_data,
-    ambient.x,
-    ambient.y,
-    ambient.z,
-  )
+  spot_data
 }
 
 ///|
@@ -647,18 +870,45 @@ fn compute_flat_triangle_normals(
 }
 
 ///|
+fn resolve_mesh_tangents(
+  mesh : @render3d_types.TriangleMesh3D,
+) -> Array[@render3d_types.Tangent3D] {
+  match mesh.tangents {
+    Some(candidates) if candidates.length() == mesh.positions.length() =>
+      candidates
+    _ => {
+      let tangents : Array[@render3d_types.Tangent3D] = []
+      for _ in 0..<mesh.positions.length() {
+        tangents.push({ x: 1.0, y: 0.0, z: 0.0, w: 1.0 })
+      }
+      tangents
+    }
+  }
+}
+
+///|
 fn flatten_colored_vertices3d(
   positions : Array[@smath.Vec3],
   normals : Array[@smath.Vec3],
+  vertex_colors : Array[@render.Color]?,
   scale : @smath.Vec3,
+  material : @render3d_types.StandardMaterial3D,
   base_color : @render.Color,
+  receive_shadows : Bool,
 ) -> Array[Double] {
   let values : Array[Double] = []
-  let (r, g, b) = color_rgb01(base_color)
-  let a = base_color.a
+  let (emissive_r, emissive_g, emissive_b) = color_rgb01(
+    material.emissive_color,
+  )
+  let alpha_mode = alpha_mode_code(material.alpha_mode)
+  let alpha_cutoff = material.alpha_cutoff
+  let unlit = material_unlit_code(material)
   for index in 0..<positions.length() {
     let position = positions[index]
     let normal = normals[index]
+    let color = resolve_vertex_color(vertex_colors, index, base_color)
+    let (r, g, b) = color_rgb01(color)
+    let a = color.a
     values.push(position.x * scale.x)
     values.push(position.y * scale.y)
     values.push(position.z * scale.z)
@@ -669,6 +919,13 @@ fn flatten_colored_vertices3d(
     values.push(g)
     values.push(b)
     values.push(a)
+    values.push(emissive_r)
+    values.push(emissive_g)
+    values.push(emissive_b)
+    values.push(alpha_mode)
+    values.push(alpha_cutoff)
+    values.push(unlit)
+    values.push(if receive_shadows { 1.0 } else { 0.0 })
   }
   values
 }
@@ -676,32 +933,125 @@ fn flatten_colored_vertices3d(
 ///|
 fn flatten_textured_vertices3d(
   positions : Array[@smath.Vec3],
-  uvs : Array[@smath.Vec2D],
+  base_uvs : Array[@smath.Vec2D],
+  emissive_uvs : Array[@smath.Vec2D],
+  metallic_roughness_uvs : Array[@smath.Vec2D],
+  occlusion_uvs : Array[@smath.Vec2D],
+  normal_uvs : Array[@smath.Vec2D],
   normals : Array[@smath.Vec3],
+  tangents : Array[@render3d_types.Tangent3D],
+  vertex_colors : Array[@render.Color]?,
   scale : @smath.Vec3,
+  material : @render3d_types.StandardMaterial3D,
   base_color : @render.Color,
+  receive_shadows : Bool,
 ) -> Array[Double] {
   let values : Array[Double] = []
-  let (r, g, b) = color_rgb01(base_color)
-  let a = base_color.a
+  let (emissive_r, emissive_g, emissive_b) = color_rgb01(
+    material.emissive_color,
+  )
+  let alpha_mode = alpha_mode_code(material.alpha_mode)
+  let alpha_cutoff = material.alpha_cutoff
+  let metallic = material.metallic
+  let roughness = material.roughness
+  let occlusion_strength = material.occlusion_strength
+  let normal_scale = material.normal_scale
+  let unlit = material_unlit_code(material)
   for index in 0..<positions.length() {
     let position = positions[index]
-    let uv = uvs[index]
+    let base_uv = base_uvs[index]
+    let emissive_uv = emissive_uvs[index]
+    let metallic_roughness_uv = metallic_roughness_uvs[index]
+    let occlusion_uv = occlusion_uvs[index]
+    let normal_uv = normal_uvs[index]
     let normal = normals[index]
+    let tangent = tangents[index]
+    let color = resolve_vertex_color(vertex_colors, index, base_color)
+    let (r, g, b) = color_rgb01(color)
+    let a = color.a
     values.push(position.x * scale.x)
     values.push(position.y * scale.y)
     values.push(position.z * scale.z)
     values.push(normal.x)
     values.push(normal.y)
     values.push(normal.z)
-    values.push(uv[X])
-    values.push(uv[Y])
+    values.push(base_uv[X])
+    values.push(base_uv[Y])
+    values.push(emissive_uv[X])
+    values.push(emissive_uv[Y])
+    values.push(metallic_roughness_uv[X])
+    values.push(metallic_roughness_uv[Y])
+    values.push(occlusion_uv[X])
+    values.push(occlusion_uv[Y])
+    values.push(normal_uv[X])
+    values.push(normal_uv[Y])
     values.push(r)
     values.push(g)
     values.push(b)
     values.push(a)
+    values.push(emissive_r)
+    values.push(emissive_g)
+    values.push(emissive_b)
+    values.push(tangent.x)
+    values.push(tangent.y)
+    values.push(tangent.z)
+    values.push(tangent.w)
+    values.push(alpha_mode)
+    values.push(alpha_cutoff)
+    values.push(metallic)
+    values.push(roughness)
+    values.push(occlusion_strength)
+    values.push(normal_scale)
+    values.push(unlit)
+    values.push(if receive_shadows { 1.0 } else { 0.0 })
   }
   values
+}
+
+///|
+fn resolve_material_texture_input(
+  mesh : @render3d_types.TriangleMesh3D,
+  source : MaterialTextureSource3D?,
+  fallback_uvs : Array[@smath.Vec2D],
+  transform_binding? : @render3d_types.TextureBinding3D? = None,
+) -> ResolvedMaterialTextureInput3D {
+  match source {
+    Some(source) =>
+      match mesh.uv_sets.get(source.texcoord_set) {
+        Some(uvs) if uvs.length() == mesh.positions.length() =>
+          {
+            path: source.path,
+            uvs: resolve_material_texture_uvs(
+              transform_binding,
+              source.texcoord_set,
+              uvs,
+            ),
+            sampler_code: source.sampler_code,
+          }
+        _ => { path: "", uvs: fallback_uvs, sampler_code: 0 }
+      }
+    None => { path: "", uvs: fallback_uvs, sampler_code: 0 }
+  }
+}
+
+///|
+fn resolve_material_texture_uvs(
+  binding : @render3d_types.TextureBinding3D?,
+  texcoord_set : Int,
+  uvs : Array[@smath.Vec2D],
+) -> Array[@smath.Vec2D] {
+  match binding {
+    Some(binding) =>
+      if binding.texcoord_set == texcoord_set &&
+        binding.transform != @render3d_types.default_texture_transform3d() {
+        uvs.map(fn(uv) {
+          @render3d_types.apply_texture_transform3d(binding.transform, uv)
+        })
+      } else {
+        uvs
+      }
+    _ => uvs
+  }
 }
 
 ///|
@@ -714,15 +1064,122 @@ fn color_rgb01(color : @render.Color) -> (Double, Double, Double) {
 }
 
 ///|
-fn resolve_material_texture_path(
+fn alpha_mode_code(mode : @render3d_types.AlphaMode3D) -> Double {
+  match mode {
+    Opaque => 0.0
+    Mask => 1.0
+    Blend => 2.0
+  }
+}
+
+///|
+fn material_unlit_code(material : @render3d_types.StandardMaterial3D) -> Double {
+  if material.unlit {
+    1.0
+  } else {
+    0.0
+  }
+}
+
+///|
+fn effective_material_color(
   material : @render3d_types.StandardMaterial3D,
-) -> String? {
-  match material.base_color_texture {
-    Some(image_handle) =>
-      match synced_image_assets.get(image_handle) {
-        Some(image_asset) => Some(resolve_asset_path(image_asset.path))
-        None => None
+) -> @render.Color {
+  match material.alpha_mode {
+    Opaque => { ..material.base_color, a: 1.0 }
+    _ => material.base_color
+  }
+}
+
+///|
+fn resolve_vertex_color(
+  vertex_colors : Array[@render.Color]?,
+  index : Int,
+  base_color : @render.Color,
+) -> @render.Color {
+  match vertex_colors.bind(fn(values) { values.get(index) }) {
+    Some(vertex_color) => multiply_colors(base_color, vertex_color)
+    None => base_color
+  }
+}
+
+///|
+fn multiply_colors(lhs : @render.Color, rhs : @render.Color) -> @render.Color {
+  {
+    r: ((lhs.r.reinterpret_as_int() * rhs.r.reinterpret_as_int() + 127) / 255).reinterpret_as_uint(),
+    g: ((lhs.g.reinterpret_as_int() * rhs.g.reinterpret_as_int() + 127) / 255).reinterpret_as_uint(),
+    b: ((lhs.b.reinterpret_as_int() * rhs.b.reinterpret_as_int() + 127) / 255).reinterpret_as_uint(),
+    a: lhs.a * rhs.a,
+  }
+}
+
+///|
+fn texture_sampler_code(sampler : @render3d_types.TextureSampler3D) -> Int {
+  let repeat_u = sampler.wrap_u != ClampToEdge
+  let repeat_v = sampler.wrap_v != ClampToEdge
+  if repeat_u && repeat_v {
+    3
+  } else if repeat_u {
+    1
+  } else if repeat_v {
+    2
+  } else {
+    0
+  }
+}
+
+///|
+fn resolve_texture_source(
+  binding : @render3d_types.TextureBinding3D,
+) -> MaterialTextureSource3D? {
+  match synced_image_assets.get(binding.image) {
+    Some(image_asset) =>
+      Some({
+        path: resolve_asset_path(image_asset.path),
+        texcoord_set: binding.texcoord_set,
+        sampler_code: texture_sampler_code(binding.sampler),
+      })
+    None => None
+  }
+}
+
+///|
+fn resolve_material_texture_bundle(
+  material : @render3d_types.StandardMaterial3D,
+) -> MaterialTextureBundle3D? {
+  let base_source = material.base_color_texture.bind(resolve_texture_source)
+  let emissive_source = material.emissive_texture.bind(resolve_texture_source)
+  let metallic_roughness_source = material.metallic_roughness_texture.bind(
+    resolve_texture_source,
+  )
+  let occlusion_source = material.occlusion_texture.bind(resolve_texture_source)
+  let normal_source = material.normal_texture.bind(resolve_texture_source)
+  let primary = match base_source {
+    Some(base) => Some(base)
+    None =>
+      match emissive_source {
+        Some(emissive) => Some(emissive)
+        None =>
+          match metallic_roughness_source {
+            Some(metallic_roughness) => Some(metallic_roughness)
+            None =>
+              match occlusion_source {
+                Some(occlusion) => Some(occlusion)
+                None => normal_source
+              }
+          }
       }
+  }
+  match primary {
+    Some(primary_source) =>
+      Some({
+        base_source,
+        emissive_source,
+        metallic_roughness_source,
+        occlusion_source,
+        normal_source,
+        primary_texcoord_set: primary_source.texcoord_set,
+      })
     None => None
   }
 }
