@@ -1743,13 +1743,7 @@ fn upload_lighting_uniforms(
   set_shader_uniform(
     shader,
     state.material_has_texture_loc,
-    bytes_from_int(
-      if texture_bundle is Some(_) {
-        1
-      } else {
-        0
-      },
-    ),
+    bytes_from_int(if texture_bundle is Some(_) { 1 } else { 0 }),
     @raylib.ShaderUniformInt,
   )
   set_shader_uniform(
