@@ -445,6 +445,16 @@ fn cleanup_dead_ui_state() -> Unit {
       focuseds.remove(pair.0)
     }
   }
+  for pair in override_clips.to_array() {
+    if !pair.0.is_alive() {
+      override_clips.remove(pair.0)
+    }
+  }
+  for pair in relative_cursor_positions.to_array() {
+    if !pair.0.is_alive() {
+      relative_cursor_positions.remove(pair.0)
+    }
+  }
   for pair in background_colors.to_array() {
     if !pair.0.is_alive() {
       background_colors.remove(pair.0)
@@ -500,9 +510,9 @@ fn cleanup_dead_ui_state() -> Unit {
       interactions.remove(pair.0)
     }
   }
-  for pair in screen_clip_rects.to_array() {
+  for pair in calculated_clips.to_array() {
     if !pair.0.is_alive() {
-      screen_clip_rects.remove(pair.0)
+      calculated_clips.remove(pair.0)
     }
   }
   for pair in tree_orders.to_array() {
@@ -578,20 +588,25 @@ fn apply_layout_recursive(
   order_counter.val += 1
   tree_orders.set(entity, order_counter.val)
 
-  let current_clip = if node.overflow_x == Visible && node.overflow_y == Visible {
+  let inherited_clip : @math.Rect? = if override_clips.contains(entity) {
+    None
+  } else {
     parent_clip
+  }
+  let current_clip = if node.overflow_x == Visible && node.overflow_y == Visible {
+    inherited_clip
   } else {
     let clip_rect = clip_rect_for_node(
       logical_rect, logical_content_rect, border, node,
     )
-    match parent_clip {
+    match inherited_clip {
       Some(parent) => rect_intersection(parent, clip_rect)
       None => Some(clip_rect)
     }
   }
   match current_clip {
-    Some(rect) => screen_clip_rects.set(entity, rect)
-    None => screen_clip_rects.remove(entity)
+    Some(rect) => calculated_clips.set(entity, CalculatedClip::new(rect))
+    None => calculated_clips.remove(entity)
   }
 
   let scroll = scroll_positions.get(entity).unwrap_or(ScrollPosition::zero())
@@ -611,7 +626,7 @@ pub fn ui_layout_system(_delta : Double) -> Unit {
   cleanup_dead_ui_state()
   computed_ui_nodes.clear()
   global_ui_nodes.clear()
-  screen_clip_rects.clear()
+  calculated_clips.clear()
   tree_orders.clear()
 
   let viewport = root_size()

@@ -722,30 +722,68 @@ fn push_text(entity : @entity.Entity) -> Unit {
 }
 
 ///|
-fn render_entity_recursive(entity : @entity.Entity) -> Unit {
+fn render_entity_recursive(
+  entity : @entity.Entity,
+  inherited_clip : @math.Rect?,
+) -> Unit {
   guard should_render_ui(entity) else { return }
   guard nodes.get(entity) is Some(node) else { return }
+  let effective_inherited_clip : @math.Rect? = if override_clips.contains(
+      entity,
+    ) {
+    None
+  } else {
+    inherited_clip
+  }
+
+  let mut pushed_inherited_clip = false
+  match effective_inherited_clip {
+    Some(clip_rect) => {
+      @render2d.push_ui_clip(clip_rect)
+      pushed_inherited_clip = true
+    }
+    None => ()
+  }
+
   push_box_shadow(entity)
   push_background(entity)
   push_border(entity)
   push_outline(entity)
 
+  if pushed_inherited_clip {
+    @render2d.pop_ui_clip()
+  }
+
   let needs_clip = node.overflow_x != Visible || node.overflow_y != Visible
-  let mut pushed_clip = false
+  let content_clip = if needs_clip {
+    calculated_clips.get(entity).map(fn(value) { value.clip })
+  } else {
+    effective_inherited_clip
+  }
+  let child_inherited_clip = if needs_clip {
+    content_clip
+  } else {
+    effective_inherited_clip
+  }
   let mut content_visible = true
-  if needs_clip {
-    match screen_clip_rects.get(entity) {
-      Some(clip_rect) => {
-        @render2d.push_ui_clip(clip_rect)
-        pushed_clip = true
-      }
-      None => content_visible = false
-    }
+  if needs_clip && content_clip is None {
+    content_visible = false
   }
 
   if content_visible {
+    let mut pushed_content_clip = false
+    match content_clip {
+      Some(clip_rect) => {
+        @render2d.push_ui_clip(clip_rect)
+        pushed_content_clip = true
+      }
+      None => ()
+    }
     push_image(entity)
     push_text(entity)
+    if pushed_content_clip {
+      @render2d.pop_ui_clip()
+    }
 
     let children = ui_children(entity)
     children.sort_by(fn(lhs, rhs) {
@@ -758,12 +796,8 @@ fn render_entity_recursive(entity : @entity.Entity) -> Unit {
       }
     })
     for child in children {
-      render_entity_recursive(child)
+      render_entity_recursive(child, child_inherited_clip)
     }
-  }
-
-  if pushed_clip {
-    @render2d.pop_ui_clip()
   }
 }
 
@@ -780,6 +814,6 @@ pub fn ui_extract_system(_delta : Double) -> Unit {
 ///|
 pub fn ui_prepare_system(_delta : Double) -> Unit {
   for entity in extracted_ui_roots {
-    render_entity_recursive(entity)
+    render_entity_recursive(entity, None)
   }
 }

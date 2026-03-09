@@ -41,6 +41,8 @@ pub let box_shadows : Map[@entity.Entity, BoxShadow]
 
 pub let buttons : Map[@entity.Entity, Button]
 
+pub let calculated_clips : Map[@entity.Entity, CalculatedClip]
+
 pub let click_event_bus : @event.Events[UiClickEvent]
 
 pub let computed_ui_nodes : Map[@entity.Entity, ComputedUiNode]
@@ -121,6 +123,8 @@ pub let nodes : Map[@entity.Entity, Node]
 
 pub let outlines : Map[@entity.Entity, Outline]
 
+pub let override_clips : Map[@entity.Entity, OverrideClip]
+
 pub fn parse_color(String) -> @render.Color
 
 pub let pointer_down_event_bus : @event.Events[UiPointerDownEvent]
@@ -130,6 +134,8 @@ pub let pointer_enter_event_bus : @event.Events[UiPointerEnterEvent]
 pub let pointer_leave_event_bus : @event.Events[UiPointerLeaveEvent]
 
 pub let pointer_up_event_bus : @event.Events[UiPointerUpEvent]
+
+pub let relative_cursor_positions : Map[@entity.Entity, RelativeCursorPosition]
 
 pub fn rgba(Int, Int, Int, Double) -> @render.Color
 
@@ -229,6 +235,11 @@ pub(all) struct Button {
 pub fn Button::new(enabled? : Bool) -> Self
 pub impl Eq for Button
 pub impl Show for Button
+
+pub(all) struct CalculatedClip {
+  clip : @math.Rect
+}
+pub fn CalculatedClip::new(@math.Rect) -> Self
 
 pub(all) struct ComputedUiNode {
   position : @math.Vec2D
@@ -450,12 +461,28 @@ pub fn OverflowClipMargin::with_margin(Self, Double) -> Self
 pub impl Eq for OverflowClipMargin
 pub impl Show for OverflowClipMargin
 
+pub(all) struct OverrideClip {
+  _tag : Unit
+}
+pub fn OverrideClip::new() -> Self
+pub impl Eq for OverrideClip
+pub impl Show for OverrideClip
+
 pub(all) enum PositionType {
   Relative
   Absolute
 }
 pub impl Eq for PositionType
 pub impl Show for PositionType
+
+pub(all) struct RelativeCursorPosition {
+  mut normalized : @math.Vec2D?
+  mut cursor_over : Bool
+}
+pub fn RelativeCursorPosition::mouse_over(Self) -> Bool
+pub fn RelativeCursorPosition::new() -> Self
+pub impl Eq for RelativeCursorPosition
+pub impl Show for RelativeCursorPosition
 
 pub(all) struct ScrollPosition {
   mut x : Double

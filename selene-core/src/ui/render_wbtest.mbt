@@ -26,6 +26,7 @@ fn cleanup_test_ui_entity(entity : @entity.Entity) -> Unit {
   nodes.remove(entity)
   computed_ui_nodes.remove(entity)
   global_ui_nodes.remove(entity)
+  calculated_clips.remove(entity)
   background_colors.remove(entity)
   border_colors.remove(entity)
   border_radii.remove(entity)
@@ -37,7 +38,8 @@ fn cleanup_test_ui_entity(entity : @entity.Entity) -> Unit {
   text_layouts.remove(entity)
   ui_images.remove(entity)
   ui_zindexes.remove(entity)
-  screen_clip_rects.remove(entity)
+  override_clips.remove(entity)
+  relative_cursor_positions.remove(entity)
   tree_orders.remove(entity)
   entity.destroy()
 }
@@ -180,10 +182,10 @@ test "ui overflow clipping applies after node decorations" {
   global_ui_nodes.set(entity, test_global_node(screen_rect, content_rect))
   background_colors.set(entity, BackgroundColor::new(rgba(32, 64, 96, 1.0)))
   texts.set(entity, Text::new("Overflow"))
-  screen_clip_rects.set(entity, content_rect)
+  calculated_clips.set(entity, CalculatedClip::new(content_rect))
   tree_orders.set(entity, 1)
 
-  render_entity_recursive(entity)
+  render_entity_recursive(entity, None)
 
   let frame = @render2d.get_frame2d()
   inspect(frame.ui_commands.length(), content="4")
@@ -217,4 +219,67 @@ test "ui overflow clipping applies after node decorations" {
   )
 
   cleanup_test_ui_entity(entity)
+}
+
+///|
+test "ui override clip removes inherited clip from child rendering" {
+  @render2d.begin_frame2d_system(0.0)
+  let parent = @entity.Entity::new()
+  let child = parent.spawn_child()
+  nodes.set(
+    parent,
+    Node::new(overflow_x=Overflow::Hidden, overflow_y=Overflow::Hidden),
+  )
+  nodes.set(child, Node::new())
+  global_ui_nodes.set(
+    parent,
+    test_global_node(
+      test_rect(0.0, 0.0, 100.0, 80.0),
+      test_rect(0.0, 0.0, 100.0, 80.0),
+    ),
+  )
+  global_ui_nodes.set(
+    child,
+    test_global_node(
+      test_rect(90.0, 12.0, 40.0, 20.0),
+      test_rect(90.0, 12.0, 40.0, 20.0),
+    ),
+  )
+  calculated_clips.set(
+    parent,
+    CalculatedClip::new(test_rect(0.0, 0.0, 100.0, 80.0)),
+  )
+  texts.set(child, Text::new("Child"))
+  tree_orders.set(parent, 1)
+  tree_orders.set(child, 2)
+  override_clips.set(child, OverrideClip::new())
+
+  render_entity_recursive(parent, None)
+
+  let frame = @render2d.get_frame2d()
+  inspect(frame.ui_commands.length(), content="3")
+  inspect(
+    match frame.ui_commands[0] {
+      PushClip(_) => true
+      _ => false
+    },
+    content="true",
+  )
+  inspect(
+    match frame.ui_commands[1] {
+      PopClip => true
+      _ => false
+    },
+    content="true",
+  )
+  inspect(
+    match frame.ui_commands[2] {
+      Text(_) => true
+      _ => false
+    },
+    content="true",
+  )
+
+  cleanup_test_ui_entity(child)
+  cleanup_test_ui_entity(parent)
 }

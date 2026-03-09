@@ -599,6 +599,16 @@ pub(all) struct GlobalUiNode {
 }
 
 ///|
+pub(all) struct CalculatedClip {
+  clip : @math.Rect
+}
+
+///|
+pub fn CalculatedClip::new(clip : @math.Rect) -> CalculatedClip {
+  { clip, }
+}
+
+///|
 pub(all) struct UiZIndex {
   value : Int
 } derive(Eq, Show)
@@ -656,6 +666,34 @@ pub fn Focusable::new() -> Focusable {
 }
 
 ///|
+pub(all) struct OverrideClip {
+  _tag : Unit
+} derive(Eq, Show)
+
+///|
+pub fn OverrideClip::new() -> OverrideClip {
+  { _tag: () }
+}
+
+///|
+pub(all) struct RelativeCursorPosition {
+  mut normalized : @math.Vec2D?
+  mut cursor_over : Bool
+} derive(Eq, Show)
+
+///|
+pub fn RelativeCursorPosition::new() -> RelativeCursorPosition {
+  { normalized: None, cursor_over: false }
+}
+
+///|
+pub fn RelativeCursorPosition::mouse_over(
+  self : RelativeCursorPosition,
+) -> Bool {
+  self.cursor_over
+}
+
+///|
 pub let nodes : Map[@entity.Entity, Node] = Map::new()
 
 ///|
@@ -663,6 +701,9 @@ pub let computed_ui_nodes : Map[@entity.Entity, ComputedUiNode] = Map::new()
 
 ///|
 pub let global_ui_nodes : Map[@entity.Entity, GlobalUiNode] = Map::new()
+
+///|
+pub let calculated_clips : Map[@entity.Entity, CalculatedClip] = Map::new()
 
 ///|
 pub let ui_zindexes : Map[@entity.Entity, UiZIndex] = Map::new()
@@ -683,7 +724,10 @@ pub let focusables : Map[@entity.Entity, Focusable] = Map::new()
 pub let focuseds : Map[@entity.Entity, Focused] = Map::new()
 
 ///|
-let screen_clip_rects : Map[@entity.Entity, @math.Rect] = Map::new()
+pub let override_clips : Map[@entity.Entity, OverrideClip] = Map::new()
+
+///|
+pub let relative_cursor_positions : Map[@entity.Entity, RelativeCursorPosition] = Map::new()
 
 ///|
 let tree_orders : Map[@entity.Entity, Int] = Map::new()

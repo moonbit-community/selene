@@ -343,9 +343,54 @@ fn point_in_rect(point : @math.Vec2D, rect : @math.Rect) -> Bool {
 
 ///|
 fn screen_clip_allows(entity : @entity.Entity, point : @math.Vec2D) -> Bool {
-  match screen_clip_rects.get(entity) {
-    Some(rect) => point_in_rect(point, rect)
+  match calculated_clips.get(entity) {
+    Some(clip) => point_in_rect(point, clip.clip)
     None => true
+  }
+}
+
+///|
+fn normalized_cursor_position(
+  point : @math.Vec2D,
+  rect : @math.Rect,
+) -> @math.Vec2D? {
+  if rect.size[X] <= 0.0 || rect.size[Y] <= 0.0 {
+    None
+  } else {
+    Some(
+      @math.Vec2D(
+        (point[X] - rect.position[X]) / rect.size[X] - 0.5,
+        (point[Y] - rect.position[Y]) / rect.size[Y] - 0.5,
+      ),
+    )
+  }
+}
+
+///|
+fn update_relative_cursor_positions(position : @math.Vec2D) -> Unit {
+  for entity, relative in relative_cursor_positions {
+    guard entity.is_alive() else { continue }
+    guard nodes.get(entity) is Some(node) else {
+      relative.normalized = None
+      relative.cursor_over = false
+      continue
+    }
+    guard global_ui_nodes.get(entity) is Some(transform) else {
+      relative.normalized = None
+      relative.cursor_over = false
+      continue
+    }
+    if !node.active || node.display == None || !@visibility.is_visible(entity) {
+      relative.normalized = None
+      relative.cursor_over = false
+      continue
+    }
+    relative.normalized = normalized_cursor_position(
+      position,
+      transform.screen_rect,
+    )
+    relative.cursor_over = point_in_rect(position, transform.screen_rect) &&
+      screen_clip_allows(entity, position)
   }
 }
 
@@ -417,6 +462,7 @@ fn sanitize_focus() -> Unit {
 pub fn ui_interaction_system(_delta : Double) -> Unit {
   sanitize_focus()
   let mouse_position = @inputs.mouse.pos
+  update_relative_cursor_positions(mouse_position)
   update_scroll(mouse_position)
   let hovered = resolve_pointer_target(mouse_position)
   if hovered_entity_ref.val != hovered {
