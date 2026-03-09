@@ -811,6 +811,13 @@ fn bytes_from_color4(color : @render.Color) -> Bytes {
 }
 
 ///|
+#borrow(target, source)
+extern "c" fn reset_material_from_material(
+  target : @raylib.Material,
+  source : @raylib.Material,
+) = "selene_raylib_reset_material_from_material"
+
+///|
 fn texture_transform_offset_scale(
   transform : @render3d_types.TextureTransform3D,
 ) -> (Double, Double, Double, Double) {
@@ -2360,10 +2367,6 @@ fn cleanup_resources() -> Unit {
     free_audio_playback(pair.1)
   }
   backend.audio_instances.clear()
-  for _path, texture in backend.textures {
-    @raylib.unload_texture(texture)
-  }
-  backend.textures.clear()
   for _path, sound in backend.sounds {
     @raylib.unload_sound(sound)
   }
@@ -2378,18 +2381,37 @@ fn cleanup_resources() -> Unit {
     @raylib.unload_mesh(mesh)
   }
   backend.primitive_meshes.clear()
+  let cleanup_default_material = if backend.lit_material is Some(_) ||
+    backend.lit_textured_material is Some(_) ||
+    backend.shadow_material is Some(_) {
+    Some(@raylib.load_material_default())
+  } else {
+    None
+  }
   if backend.lit_material is Some(material) {
+    if cleanup_default_material is Some(default_material) {
+      reset_material_from_material(material, default_material)
+    }
     @raylib.unload_material(material)
   }
   backend.lit_material = None
   if backend.lit_textured_material is Some(material) {
+    if cleanup_default_material is Some(default_material) {
+      reset_material_from_material(material, default_material)
+    }
     @raylib.unload_material(material)
   }
   backend.lit_textured_material = None
   if backend.shadow_material is Some(material) {
+    if cleanup_default_material is Some(default_material) {
+      reset_material_from_material(material, default_material)
+    }
     @raylib.unload_material(material)
   }
   backend.shadow_material = None
+  if cleanup_default_material is Some(material) {
+    @raylib.unload_material(material)
+  }
   if backend.lighting_shader is Some(state) {
     @raylib.unload_shader(state.shader)
   }
@@ -2398,6 +2420,10 @@ fn cleanup_resources() -> Unit {
     @raylib.unload_shader(state.shader)
   }
   backend.shadow_shader = None
+  for _path, texture in backend.textures {
+    @raylib.unload_texture(texture)
+  }
+  backend.textures.clear()
   for render_texture in backend.shadow_render_textures {
     @raylib.unload_shadowmap_render_texture(render_texture)
   }

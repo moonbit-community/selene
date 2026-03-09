@@ -11,3 +11,7 @@ import {
   "moonbitlang/core/cmp",
   "moonbitlang/core/math" @cmath,
 }
+
+options(
+  "native-stub": [ "material_cleanup_native.c" ],
+)

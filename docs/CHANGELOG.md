@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- `selene-raylib` shutdown cleanup now resets cached lit/shadow materials back to raylib's default material state before unloading them, so `cleanup_resources()` no longer double-unloads shared custom shaders or material-map textures on app exit
+
 ## [0.26.1] - 2026-03-08
 
 ### Fixed
