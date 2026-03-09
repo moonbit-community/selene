@@ -42,6 +42,16 @@ pub fn BorderRadius::all(value : Double) -> BorderRadius {
 }
 
 ///|
+pub fn BorderRadius::new(
+  top_left? : Double = 0.0,
+  top_right? : Double = top_left,
+  bottom_right? : Double = top_left,
+  bottom_left? : Double = bottom_right,
+) -> BorderRadius {
+  { top_left, top_right, bottom_right, bottom_left }
+}
+
+///|
 pub(all) struct Outline {
   width : Double
   offset : Double
@@ -55,6 +65,49 @@ pub fn Outline::new(
   offset? : Double = 0.0,
 ) -> Outline {
   { width, offset, color }
+}
+
+///|
+pub(all) struct ShadowStyle {
+  color : @render.Color
+  x_offset : Val
+  y_offset : Val
+  spread_radius : Val
+  blur_radius : Val
+} derive(Eq, Show)
+
+///|
+pub fn ShadowStyle::new(
+  color : @render.Color,
+  x_offset? : Val = Val::px(0.0),
+  y_offset? : Val = Val::px(0.0),
+  spread_radius? : Val = Val::px(0.0),
+  blur_radius? : Val = Val::px(0.0),
+) -> ShadowStyle {
+  { color, x_offset, y_offset, spread_radius, blur_radius }
+}
+
+///|
+pub(all) struct BoxShadow {
+  layers : Array[ShadowStyle]
+} derive(Eq, Show)
+
+///|
+pub fn BoxShadow::new(layers : Array[ShadowStyle]) -> BoxShadow {
+  { layers, }
+}
+
+///|
+pub fn BoxShadow::single(
+  color : @render.Color,
+  x_offset? : Val = Val::px(0.0),
+  y_offset? : Val = Val::px(0.0),
+  spread_radius? : Val = Val::px(0.0),
+  blur_radius? : Val = Val::px(0.0),
+) -> BoxShadow {
+  BoxShadow::new([
+    ShadowStyle::new(color, x_offset~, y_offset~, spread_radius~, blur_radius~),
+  ])
 }
 
 ///|
@@ -238,6 +291,9 @@ pub let border_colors : Map[@entity.Entity, BorderColor] = Map::new()
 
 ///|
 pub let border_radii : Map[@entity.Entity, BorderRadius] = Map::new()
+
+///|
+pub let box_shadows : Map[@entity.Entity, BoxShadow] = Map::new()
 
 ///|
 pub let outlines : Map[@entity.Entity, Outline] = Map::new()

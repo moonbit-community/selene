@@ -2,6 +2,293 @@
 let extracted_ui_roots : Array[@entity.Entity] = []
 
 ///|
+fn push_ui_rect_fill(rect : @math.Rect, color : @render.Color) -> Unit {
+  if rect.size[X] <= 0.0 || rect.size[Y] <= 0.0 || color.a <= 0.0 {
+    return
+  }
+  @render2d.push_ui_rect({ rect, fill_color: color, stroke_color: None })
+}
+
+///|
+fn push_ui_circle_fill(
+  center : @math.Vec2D,
+  radius : Double,
+  color : @render.Color,
+) -> Unit {
+  if radius <= 0.0 || color.a <= 0.0 {
+    return
+  }
+  @render2d.push_ui_circle({
+    center,
+    radius,
+    fill_color: color,
+    stroke_color: None,
+  })
+}
+
+///|
+fn scale_alpha(color : @render.Color, factor : Double) -> @render.Color {
+  let alpha = if factor <= 0.0 {
+    0.0
+  } else if factor >= 1.0 {
+    color.a
+  } else {
+    color.a * factor
+  }
+  @render.Color::{ ..color, a: alpha }
+}
+
+///|
+fn has_rounded_corners(radius : BorderRadius) -> Bool {
+  radius.top_left > 0.0 ||
+  radius.top_right > 0.0 ||
+  radius.bottom_right > 0.0 ||
+  radius.bottom_left > 0.0
+}
+
+///|
+fn resolved_border_radius(
+  radius : BorderRadius,
+  size : @math.Vec2D,
+) -> BorderRadius {
+  let limit = @cmp.maximum(0.0, @cmp.minimum(size[X], size[Y]) / 2.0)
+  BorderRadius::new(
+    top_left=@cmp.minimum(limit, @cmp.maximum(0.0, radius.top_left)),
+    top_right=@cmp.minimum(limit, @cmp.maximum(0.0, radius.top_right)),
+    bottom_right=@cmp.minimum(limit, @cmp.maximum(0.0, radius.bottom_right)),
+    bottom_left=@cmp.minimum(limit, @cmp.maximum(0.0, radius.bottom_left)),
+  )
+}
+
+///|
+fn inset_rect(rect : @math.Rect, inset : UiInsets) -> @math.Rect {
+  {
+    position: @math.Vec2D(
+      rect.position[X] + inset.left,
+      rect.position[Y] + inset.top,
+    ),
+    size: @math.Vec2D(
+      @cmp.maximum(0.0, rect.size[X] - inset.left - inset.right),
+      @cmp.maximum(0.0, rect.size[Y] - inset.top - inset.bottom),
+    ),
+  }
+}
+
+///|
+fn inset_border_radius(radius : BorderRadius, inset : UiInsets) -> BorderRadius {
+  BorderRadius::new(
+    top_left=@cmp.maximum(
+      0.0,
+      radius.top_left - @cmp.maximum(inset.top, inset.left),
+    ),
+    top_right=@cmp.maximum(
+      0.0,
+      radius.top_right - @cmp.maximum(inset.top, inset.right),
+    ),
+    bottom_right=@cmp.maximum(
+      0.0,
+      radius.bottom_right - @cmp.maximum(inset.bottom, inset.right),
+    ),
+    bottom_left=@cmp.maximum(
+      0.0,
+      radius.bottom_left - @cmp.maximum(inset.bottom, inset.left),
+    ),
+  )
+}
+
+///|
+fn inflate_rect(rect : @math.Rect, amount : Double) -> @math.Rect {
+  {
+    position: @math.Vec2D(rect.position[X] - amount, rect.position[Y] - amount),
+    size: @math.Vec2D(
+      @cmp.maximum(0.0, rect.size[X] + amount * 2.0),
+      @cmp.maximum(0.0, rect.size[Y] + amount * 2.0),
+    ),
+  }
+}
+
+///|
+fn offset_rect(rect : @math.Rect, offset : @math.Vec2D) -> @math.Rect {
+  { position: rect.position + offset, size: rect.size }
+}
+
+///|
+fn inflate_border_radius(
+  radius : BorderRadius,
+  amount : Double,
+) -> BorderRadius {
+  BorderRadius::new(
+    top_left=@cmp.maximum(0.0, radius.top_left + amount),
+    top_right=@cmp.maximum(0.0, radius.top_right + amount),
+    bottom_right=@cmp.maximum(0.0, radius.bottom_right + amount),
+    bottom_left=@cmp.maximum(0.0, radius.bottom_left + amount),
+  )
+}
+
+///|
+fn push_quarter_circle(
+  clip_rect : @math.Rect,
+  center : @math.Vec2D,
+  radius : Double,
+  color : @render.Color,
+) -> Unit {
+  if clip_rect.size[X] <= 0.0 || clip_rect.size[Y] <= 0.0 || radius <= 0.0 {
+    return
+  }
+  @render2d.push_ui_clip(clip_rect)
+  push_ui_circle_fill(center, radius, color)
+  @render2d.pop_ui_clip()
+}
+
+///|
+fn push_rounded_rect(
+  rect : @math.Rect,
+  radius : BorderRadius,
+  color : @render.Color,
+) -> Unit {
+  if rect.size[X] <= 0.0 || rect.size[Y] <= 0.0 || color.a <= 0.0 {
+    return
+  }
+  let radius = resolved_border_radius(radius, rect.size)
+  if !has_rounded_corners(radius) {
+    push_ui_rect_fill(rect, color)
+    return
+  }
+
+  let tl = radius.top_left
+  let tr = radius.top_right
+  let br = radius.bottom_right
+  let bl = radius.bottom_left
+  let x = rect.position[X]
+  let y = rect.position[Y]
+  let w = rect.size[X]
+  let h = rect.size[Y]
+  let left_band = @cmp.maximum(tl, bl)
+  let right_band = @cmp.maximum(tr, br)
+  let top_band = @cmp.maximum(tl, tr)
+  let bottom_band = @cmp.maximum(bl, br)
+
+  push_ui_rect_fill(
+    {
+      position: @math.Vec2D(x + left_band, y + top_band),
+      size: @math.Vec2D(
+        @cmp.maximum(0.0, w - left_band - right_band),
+        @cmp.maximum(0.0, h - top_band - bottom_band),
+      ),
+    },
+    color,
+  )
+  push_ui_rect_fill(
+    {
+      position: @math.Vec2D(x + tl, y),
+      size: @math.Vec2D(@cmp.maximum(0.0, w - tl - tr), top_band),
+    },
+    color,
+  )
+  push_ui_rect_fill(
+    {
+      position: @math.Vec2D(x + bl, y + h - bottom_band),
+      size: @math.Vec2D(@cmp.maximum(0.0, w - bl - br), bottom_band),
+    },
+    color,
+  )
+  push_ui_rect_fill(
+    {
+      position: @math.Vec2D(x, y + tl),
+      size: @math.Vec2D(left_band, @cmp.maximum(0.0, h - tl - bl)),
+    },
+    color,
+  )
+  push_ui_rect_fill(
+    {
+      position: @math.Vec2D(x + w - right_band, y + tr),
+      size: @math.Vec2D(right_band, @cmp.maximum(0.0, h - tr - br)),
+    },
+    color,
+  )
+  push_quarter_circle(
+    { position: @math.Vec2D(x, y), size: @math.Vec2D(tl, tl) },
+    @math.Vec2D(x + tl, y + tl),
+    tl,
+    color,
+  )
+  push_quarter_circle(
+    { position: @math.Vec2D(x + w - tr, y), size: @math.Vec2D(tr, tr) },
+    @math.Vec2D(x + w - tr, y + tr),
+    tr,
+    color,
+  )
+  push_quarter_circle(
+    { position: @math.Vec2D(x + w - br, y + h - br), size: @math.Vec2D(br, br) },
+    @math.Vec2D(x + w - br, y + h - br),
+    br,
+    color,
+  )
+  push_quarter_circle(
+    { position: @math.Vec2D(x, y + h - bl), size: @math.Vec2D(bl, bl) },
+    @math.Vec2D(x + bl, y + h - bl),
+    bl,
+    color,
+  )
+}
+
+///|
+fn shadow_samples(blur : Double) -> Int {
+  if blur <= 0.0 {
+    1
+  } else {
+    let steps = (blur / 8.0).ceil().to_int() + 1
+    @cmp.minimum(6, @cmp.maximum(2, steps))
+  }
+}
+
+///|
+fn push_box_shadow(entity : @entity.Entity) -> Unit {
+  guard box_shadows.get(entity) is Some(shadow) else { return }
+  guard global_ui_nodes.get(entity) is Some(global) else { return }
+  let base_radius = resolved_border_radius(
+    border_radii.get(entity).unwrap_or(BorderRadius::all(0.0)),
+    global.screen_rect.size,
+  )
+  let spread_basis = @cmp.minimum(
+    global.screen_rect.size[X],
+    global.screen_rect.size[Y],
+  )
+  for layer in shadow.layers {
+    let offset = @math.Vec2D(
+      resolve_val(layer.x_offset, global.screen_rect.size[X]),
+      resolve_val(layer.y_offset, global.screen_rect.size[Y]),
+    )
+    let spread = resolve_val(layer.spread_radius, spread_basis)
+    let blur = resolve_val(layer.blur_radius, spread_basis)
+    let samples = shadow_samples(blur)
+    let mut index = samples - 1
+    while index >= 0 {
+      let t = if samples <= 1 {
+        0.0
+      } else {
+        index.to_double() / (samples - 1).to_double()
+      }
+      let blur_amount = blur * t
+      let alpha_scale = if samples <= 1 {
+        1.0
+      } else {
+        (1.0 - t * 0.85) / samples.to_double()
+      }
+      push_rounded_rect(
+        offset_rect(
+          inflate_rect(global.screen_rect, spread + blur_amount),
+          offset,
+        ),
+        inflate_border_radius(base_radius, spread + blur_amount),
+        scale_alpha(layer.color, alpha_scale),
+      )
+      index -= 1
+    }
+  }
+}
+
+///|
 fn should_render_ui(entity : @entity.Entity) -> Bool {
   entity.is_alive() &&
   @visibility.is_visible(entity) &&
@@ -31,22 +318,11 @@ fn render_text_style(entity : @entity.Entity) -> @render2d_types.TextStyle2D? {
 fn push_background(entity : @entity.Entity) -> Unit {
   guard background_colors.get(entity) is Some(background) else { return }
   guard global_ui_nodes.get(entity) is Some(transform) else { return }
-  if border_radii.get(entity) is Some(radius) &&
-    (
-      radius.top_left > 0.0 ||
-      radius.top_right > 0.0 ||
-      radius.bottom_right > 0.0 ||
-      radius.bottom_left > 0.0
-    ) {
-    @platform_render.capability_warning(
-      "ui_border_radius", "current UI path falls back to square-corner backgrounds",
-    )
-  }
-  @render2d.push_ui_rect({
-    rect: transform.screen_rect,
-    fill_color: background.color,
-    stroke_color: None,
-  })
+  push_rounded_rect(
+    transform.screen_rect,
+    border_radii.get(entity).unwrap_or(BorderRadius::all(0.0)),
+    background.color,
+  )
 }
 
 ///|
@@ -56,45 +332,60 @@ fn push_border(entity : @entity.Entity) -> Unit {
   guard computed_ui_nodes.get(entity) is Some(computed) else { return }
   let rect = global.screen_rect
   let border = computed.border
+  let radius = resolved_border_radius(
+    border_radii.get(entity).unwrap_or(BorderRadius::all(0.0)),
+    rect.size,
+  )
+  if has_rounded_corners(radius) {
+    match background_colors.get(entity) {
+      Some(background) => {
+        push_rounded_rect(rect, radius, border_color.color)
+        push_rounded_rect(
+          inset_rect(rect, border),
+          inset_border_radius(radius, border),
+          background.color,
+        )
+        return
+      }
+      None =>
+        @platform_render.capability_warning(
+          "ui_rounded_border_without_fill", "rounded UI borders without a background color still fall back to square edge segments",
+        )
+    }
+  }
   if border.top > 0.0 {
-    @render2d.push_ui_rect({
-      rect: {
-        position: rect.position,
-        size: @math.Vec2D(rect.size[X], border.top),
-      },
-      fill_color: border_color.color,
-      stroke_color: None,
-    })
+    push_ui_rect_fill(
+      { position: rect.position, size: @math.Vec2D(rect.size[X], border.top) },
+      border_color.color,
+    )
   }
   if border.bottom > 0.0 {
-    @render2d.push_ui_rect({
-      rect: {
+    push_ui_rect_fill(
+      {
         position: @math.Vec2D(
           rect.position[X],
           rect.position[Y] + rect.size[Y] - border.bottom,
         ),
         size: @math.Vec2D(rect.size[X], border.bottom),
       },
-      fill_color: border_color.color,
-      stroke_color: None,
-    })
+      border_color.color,
+    )
   }
   if border.left > 0.0 {
-    @render2d.push_ui_rect({
-      rect: {
+    push_ui_rect_fill(
+      {
         position: @math.Vec2D(rect.position[X], rect.position[Y] + border.top),
         size: @math.Vec2D(
           border.left,
           @cmp.maximum(0.0, rect.size[Y] - border.top - border.bottom),
         ),
       },
-      fill_color: border_color.color,
-      stroke_color: None,
-    })
+      border_color.color,
+    )
   }
   if border.right > 0.0 {
-    @render2d.push_ui_rect({
-      rect: {
+    push_ui_rect_fill(
+      {
         position: @math.Vec2D(
           rect.position[X] + rect.size[X] - border.right,
           rect.position[Y] + border.top,
@@ -104,9 +395,8 @@ fn push_border(entity : @entity.Entity) -> Unit {
           @cmp.maximum(0.0, rect.size[Y] - border.top - border.bottom),
         ),
       },
-      fill_color: border_color.color,
-      stroke_color: None,
-    })
+      border_color.color,
+    )
   }
 }
 
@@ -351,30 +641,41 @@ fn push_text(entity : @entity.Entity) -> Unit {
 fn render_entity_recursive(entity : @entity.Entity) -> Unit {
   guard should_render_ui(entity) else { return }
   guard nodes.get(entity) is Some(node) else { return }
-  let pushed_clip = node.overflow_x != Visible || node.overflow_y != Visible
-  if pushed_clip {
-    guard screen_clip_rects.get(entity) is Some(clip_rect) else { return }
-    @render2d.push_ui_clip(clip_rect)
-  }
-
+  push_box_shadow(entity)
   push_background(entity)
   push_border(entity)
-  push_image(entity)
-  push_text(entity)
   push_outline(entity)
 
-  let children = ui_children(entity)
-  children.sort_by(fn(lhs, rhs) {
-    let lz = ui_zindexes.get(lhs).map(fn(value) { value.value }).unwrap_or(0)
-    let rz = ui_zindexes.get(rhs).map(fn(value) { value.value }).unwrap_or(0)
-    if lz != rz {
-      lz - rz
-    } else {
-      tree_orders.get(lhs).unwrap_or(0) - tree_orders.get(rhs).unwrap_or(0)
+  let needs_clip = node.overflow_x != Visible || node.overflow_y != Visible
+  let mut pushed_clip = false
+  let mut content_visible = true
+  if needs_clip {
+    match screen_clip_rects.get(entity) {
+      Some(clip_rect) => {
+        @render2d.push_ui_clip(clip_rect)
+        pushed_clip = true
+      }
+      None => content_visible = false
     }
-  })
-  for child in children {
-    render_entity_recursive(child)
+  }
+
+  if content_visible {
+    push_image(entity)
+    push_text(entity)
+
+    let children = ui_children(entity)
+    children.sort_by(fn(lhs, rhs) {
+      let lz = ui_zindexes.get(lhs).map(fn(value) { value.value }).unwrap_or(0)
+      let rz = ui_zindexes.get(rhs).map(fn(value) { value.value }).unwrap_or(0)
+      if lz != rz {
+        lz - rz
+      } else {
+        tree_orders.get(lhs).unwrap_or(0) - tree_orders.get(rhs).unwrap_or(0)
+      }
+    })
+    for child in children {
+      render_entity_recursive(child)
+    }
   }
 
   if pushed_clip {

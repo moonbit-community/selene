@@ -2,9 +2,17 @@
 
 ## [Unreleased]
 
+### Added
+
+- `selene/ui` now exposes Bevy-style `ShadowStyle`, `BoxShadow`, and `box_shadows`, and the UI renderer submits layered box-shadow draws for nodes through the existing 2D command path
+
 ### Changed
 
 - `selene/ui` `Node` now exposes Bevy-aligned block/grid layout authoring, including `Display::Block` / `Display::Grid`, reverse flex directions, `align_content` / `align_self` / `justify_items` / `justify_self`, `flex_wrap` / `flex_basis`, `aspect_ratio`, `scrollbar_width`, and grid template/auto-flow/placement helpers, and the UI layout system now applies those fields through `moon_taffy`
+
+### Fixed
+
+- `selene/ui` now renders rounded background fills for `BorderRadius` nodes instead of warning and falling back to square-corner backgrounds, and overflow clipping now applies after node decorations so a scrolling/clipped node no longer clips away its own background and border before drawing content
 
 ## [0.26.2] - 2026-03-09
 

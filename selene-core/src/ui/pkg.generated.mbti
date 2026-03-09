@@ -37,6 +37,8 @@ pub let border_colors : Map[@entity.Entity, BorderColor]
 
 pub let border_radii : Map[@entity.Entity, BorderRadius]
 
+pub let box_shadows : Map[@entity.Entity, BoxShadow]
+
 pub let buttons : Map[@entity.Entity, Button]
 
 pub let click_event_bus : @event.Events[UiClickEvent]
@@ -207,8 +209,17 @@ pub(all) struct BorderRadius {
   bottom_left : Double
 }
 pub fn BorderRadius::all(Double) -> Self
+pub fn BorderRadius::new(top_left? : Double, top_right? : Double, bottom_right? : Double, bottom_left? : Double) -> Self
 pub impl Eq for BorderRadius
 pub impl Show for BorderRadius
+
+pub(all) struct BoxShadow {
+  layers : Array[ShadowStyle]
+}
+pub fn BoxShadow::new(Array[ShadowStyle]) -> Self
+pub fn BoxShadow::single(@render.Color, x_offset? : Val, y_offset? : Val, spread_radius? : Val, blur_radius? : Val) -> Self
+pub impl Eq for BoxShadow
+pub impl Show for BoxShadow
 
 pub(all) struct Button {
   enabled : Bool
@@ -430,6 +441,17 @@ pub(all) struct ScrollPosition {
 pub fn ScrollPosition::zero() -> Self
 pub impl Eq for ScrollPosition
 pub impl Show for ScrollPosition
+
+pub(all) struct ShadowStyle {
+  color : @render.Color
+  x_offset : Val
+  y_offset : Val
+  spread_radius : Val
+  blur_radius : Val
+}
+pub fn ShadowStyle::new(@render.Color, x_offset? : Val, y_offset? : Val, spread_radius? : Val, blur_radius? : Val) -> Self
+pub impl Eq for ShadowStyle
+pub impl Show for ShadowStyle
 
 pub(all) struct TabIndex {
   value : Int
