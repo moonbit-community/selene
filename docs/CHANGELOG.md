@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- `selene/ui` `Node` now exposes Bevy-aligned block/grid layout authoring, including `Display::Block` / `Display::Grid`, reverse flex directions, `align_content` / `align_self` / `justify_items` / `justify_self`, `flex_wrap` / `flex_basis`, `aspect_ratio`, `scrollbar_width`, and grid template/auto-flow/placement helpers, and the UI layout system now applies those fields through `moon_taffy`
+
 ## [0.26.2] - 2026-03-09
 
 ### Fixed

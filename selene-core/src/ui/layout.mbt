@@ -28,6 +28,118 @@ fn rect_values_to_taffy(
 }
 
 ///|
+fn align_items_to_taffy(value : AlignItems) -> @moon_taffy.AlignItems {
+  match value {
+    Start => @moon_taffy.align_items_start()
+    End => @moon_taffy.align_items_end()
+    FlexStart => @moon_taffy.align_items_flex_start()
+    FlexEnd => @moon_taffy.align_items_flex_end()
+    Center => @moon_taffy.align_items_center()
+    Baseline => @moon_taffy.align_items_baseline()
+    Stretch => @moon_taffy.align_items_stretch()
+  }
+}
+
+///|
+fn align_content_to_taffy(value : AlignContent) -> @moon_taffy.AlignContent {
+  match value {
+    Start => @moon_taffy.align_content_start()
+    End => @moon_taffy.align_content_end()
+    FlexStart => @moon_taffy.align_content_flex_start()
+    FlexEnd => @moon_taffy.align_content_flex_end()
+    Center => @moon_taffy.align_content_center()
+    Stretch => @moon_taffy.align_content_stretch()
+    SpaceBetween => @moon_taffy.align_content_space_between()
+    SpaceAround => @moon_taffy.align_content_space_around()
+    SpaceEvenly => @moon_taffy.align_content_space_evenly()
+  }
+}
+
+///|
+fn justify_content_to_taffy(value : JustifyContent) -> @moon_taffy.AlignContent {
+  match value {
+    Start => @moon_taffy.justify_content_start()
+    End => @moon_taffy.justify_content_end()
+    FlexStart => @moon_taffy.justify_content_flex_start()
+    FlexEnd => @moon_taffy.justify_content_flex_end()
+    Center => @moon_taffy.justify_content_center()
+    Stretch => @moon_taffy.justify_content_stretch()
+    SpaceBetween => @moon_taffy.justify_content_space_between()
+    SpaceAround => @moon_taffy.justify_content_space_around()
+    SpaceEvenly => @moon_taffy.justify_content_space_evenly()
+  }
+}
+
+///|
+fn flex_wrap_to_taffy(value : FlexWrap) -> @moon_taffy.FlexWrap {
+  match value {
+    NoWrap => @moon_taffy.flex_wrap_no_wrap()
+    Wrap => @moon_taffy.flex_wrap_wrap()
+    WrapReverse => @moon_taffy.flex_wrap_wrap_reverse()
+  }
+}
+
+///|
+fn grid_auto_flow_to_taffy(value : GridAutoFlow) -> @moon_taffy.GridAutoFlow {
+  match value {
+    Row => @moon_taffy.grid_auto_flow_row()
+    Column => @moon_taffy.grid_auto_flow_column()
+    RowDense => @moon_taffy.grid_auto_flow_row_dense()
+    ColumnDense => @moon_taffy.grid_auto_flow_column_dense()
+  }
+}
+
+///|
+fn grid_track_repetition_to_taffy(
+  value : GridTrackRepetition,
+) -> @moon_taffy.GridTrackRepetition {
+  match value {
+    Count(count) => @moon_taffy.repeat_count(count)
+    AutoFill => @moon_taffy.repeat_auto_fill()
+    AutoFit => @moon_taffy.repeat_auto_fit()
+  }
+}
+
+///|
+fn grid_track_to_taffy(value : GridTrack) -> @moon_taffy.Dimension {
+  match value {
+    Auto => @moon_taffy.auto()
+    Px(value) => @moon_taffy.length(@cmp.maximum(0.0, value))
+    Percent(value) => @moon_taffy.percent(value)
+    Fr(value) => @moon_taffy.fr(@cmp.maximum(0.0, value))
+    MinContent => @moon_taffy.grid_min_content()
+    MaxContent => @moon_taffy.grid_max_content()
+    FitContent(track) => @moon_taffy.fit_content(grid_track_to_taffy(track))
+    MinMax(min, max) =>
+      @moon_taffy.minmax(grid_track_to_taffy(min), grid_track_to_taffy(max))
+    Repeat(repetition, tracks) =>
+      @moon_taffy.repeat(
+        grid_track_repetition_to_taffy(repetition),
+        tracks.map(grid_track_to_taffy),
+      )
+  }
+}
+
+///|
+fn grid_placement_to_taffy(value : GridPlacement) -> @moon_taffy.GridPlacement {
+  match value {
+    Auto => @moon_taffy.place_auto()
+    Line(value) => @moon_taffy.line(value)
+    Span(value) => @moon_taffy.span(value)
+  }
+}
+
+///|
+fn grid_line_to_taffy(
+  value : GridLine,
+) -> @moon_taffy.Line[@moon_taffy.GridPlacement] {
+  @moon_taffy.Line::new(
+    start=grid_placement_to_taffy(value.start),
+    end=grid_placement_to_taffy(value.end),
+  )
+}
+
+///|
 fn resolve_val(value : Val, basis : Double) -> Double {
   match value {
     Auto => 0.0
@@ -48,96 +160,112 @@ fn resolve_insets(rect : UiRectValues, size : @math.Vec2D) -> UiInsets {
 
 ///|
 fn node_to_taffy_style(node : Node) -> @moon_taffy.Style {
-  @moon_taffy.Style::default()
-  .with_display(
-    match node.display {
-      Flex => @moon_taffy.display_flex()
-      None => @moon_taffy.display_none()
-    },
-  )
-  .with_position(
-    match node.position_type {
-      Relative => @moon_taffy.position_relative()
-      Absolute => @moon_taffy.position_absolute()
-    },
-  )
-  .with_size(
-    @moon_taffy.Size::new(
-      width=val_to_dimension(node.width),
-      height=val_to_dimension(node.height),
-    ),
-  )
-  .with_min_size(
-    @moon_taffy.Size::new(
-      width=val_to_dimension(node.min_width),
-      height=val_to_dimension(node.min_height),
-    ),
-  )
-  .with_max_size(
-    @moon_taffy.Size::new(
-      width=val_to_dimension(node.max_width),
-      height=val_to_dimension(node.max_height),
-    ),
-  )
-  .with_margin(rect_values_to_taffy(node.margin))
-  .with_padding(rect_values_to_taffy(node.padding))
-  .with_border(rect_values_to_taffy(node.border))
-  .with_inset(
-    rect_values_to_taffy(
-      UiRectValues::new(
-        left=node.left,
-        right=node.right,
-        top=node.top,
-        bottom=node.bottom,
+  let mut style = @moon_taffy.Style::default()
+    .with_display(
+      match node.display {
+        Block => @moon_taffy.display_block()
+        Flex => @moon_taffy.display_flex()
+        Grid => @moon_taffy.display_grid()
+        None => @moon_taffy.display_none()
+      },
+    )
+    .with_position(
+      match node.position_type {
+        Relative => @moon_taffy.position_relative()
+        Absolute => @moon_taffy.position_absolute()
+      },
+    )
+    .with_size(
+      @moon_taffy.Size::new(
+        width=val_to_dimension(node.width),
+        height=val_to_dimension(node.height),
       ),
-    ),
-  )
-  .with_flex_direction(
-    match node.flex_direction {
-      Row => @moon_taffy.flex_direction_row()
-      Column => @moon_taffy.flex_direction_column()
-    },
-  )
-  .with_justify_content(
-    match node.justify_content {
-      Start => @moon_taffy.justify_content_flex_start()
-      Center => @moon_taffy.justify_content_center()
-      End => @moon_taffy.justify_content_flex_end()
-      SpaceBetween => @moon_taffy.justify_content_space_between()
-      SpaceAround => @moon_taffy.justify_content_space_around()
-      SpaceEvenly => @moon_taffy.justify_content_space_evenly()
-    },
-  )
-  .with_align_items(
-    match node.align_items {
-      Start => @moon_taffy.align_items_flex_start()
-      Center => @moon_taffy.align_items_center()
-      End => @moon_taffy.align_items_flex_end()
-      Stretch => @moon_taffy.align_items_stretch()
-    },
-  )
-  .with_gap(
-    @moon_taffy.Size::new(
-      width=@moon_taffy.length(@cmp.maximum(0.0, node.column_gap)),
-      height=@moon_taffy.length(@cmp.maximum(0.0, node.row_gap)),
-    ),
-  )
-  .with_flex_grow(node.flex_grow)
-  .with_flex_shrink(node.flex_shrink)
-  .with_overflow(
-    @moon_taffy.Point::new(
-      x=match node.overflow_x {
-        Visible => @moon_taffy.overflow_visible()
-        Clip => @moon_taffy.overflow_clip()
-        Scroll => @moon_taffy.overflow_scroll()
+    )
+    .with_min_size(
+      @moon_taffy.Size::new(
+        width=val_to_dimension(node.min_width),
+        height=val_to_dimension(node.min_height),
+      ),
+    )
+    .with_max_size(
+      @moon_taffy.Size::new(
+        width=val_to_dimension(node.max_width),
+        height=val_to_dimension(node.max_height),
+      ),
+    )
+    .with_margin(rect_values_to_taffy(node.margin))
+    .with_padding(rect_values_to_taffy(node.padding))
+    .with_border(rect_values_to_taffy(node.border))
+    .with_inset(
+      rect_values_to_taffy(
+        UiRectValues::new(
+          left=node.left,
+          right=node.right,
+          top=node.top,
+          bottom=node.bottom,
+        ),
+      ),
+    )
+    .with_flex_direction(
+      match node.flex_direction {
+        Row => @moon_taffy.flex_direction_row()
+        RowReverse => @moon_taffy.flex_direction_row_reverse()
+        Column => @moon_taffy.flex_direction_column()
+        ColumnReverse => @moon_taffy.flex_direction_column_reverse()
       },
-      y=match node.overflow_y {
-        Visible => @moon_taffy.overflow_visible()
-        Clip => @moon_taffy.overflow_clip()
-        Scroll => @moon_taffy.overflow_scroll()
-      },
-    ),
-  )
+    )
+    .with_justify_content(justify_content_to_taffy(node.justify_content))
+    .with_align_items(align_items_to_taffy(node.align_items))
+    .with_gap(
+      @moon_taffy.Size::new(
+        width=@moon_taffy.length(@cmp.maximum(0.0, node.column_gap)),
+        height=@moon_taffy.length(@cmp.maximum(0.0, node.row_gap)),
+      ),
+    )
+    .with_flex_wrap(flex_wrap_to_taffy(node.flex_wrap))
+    .with_flex_basis(val_to_dimension(node.flex_basis))
+    .with_flex_grow(node.flex_grow)
+    .with_flex_shrink(node.flex_shrink)
+    .with_scrollbar_width(@cmp.maximum(0.0, node.scrollbar_width))
+    .with_grid_template_rows(node.grid_template_rows.map(grid_track_to_taffy))
+    .with_grid_template_columns(
+      node.grid_template_columns.map(grid_track_to_taffy),
+    )
+    .with_grid_auto_rows(node.grid_auto_rows.map(grid_track_to_taffy))
+    .with_grid_auto_columns(node.grid_auto_columns.map(grid_track_to_taffy))
+    .with_grid_auto_flow(grid_auto_flow_to_taffy(node.grid_auto_flow))
+    .with_grid_row(grid_line_to_taffy(node.grid_row))
+    .with_grid_column(grid_line_to_taffy(node.grid_column))
+    .with_overflow(
+      @moon_taffy.Point::new(
+        x=match node.overflow_x {
+          Visible => @moon_taffy.overflow_visible()
+          Clip => @moon_taffy.overflow_clip()
+          Scroll => @moon_taffy.overflow_scroll()
+        },
+        y=match node.overflow_y {
+          Visible => @moon_taffy.overflow_visible()
+          Clip => @moon_taffy.overflow_clip()
+          Scroll => @moon_taffy.overflow_scroll()
+        },
+      ),
+    )
+  if node.align_content is Some(value) {
+    style = style.with_align_content(align_content_to_taffy(value))
+  }
+  if node.align_self is Some(value) {
+    style = style.with_align_self(align_items_to_taffy(value))
+  }
+  if node.justify_items is Some(value) {
+    style = style.with_justify_items(align_items_to_taffy(value))
+  }
+  if node.justify_self is Some(value) {
+    style = style.with_justify_self(align_items_to_taffy(value))
+  }
+  if node.aspect_ratio is Some(value) && value > 0.0 {
+    style = style.with_aspect_ratio(value)
+  }
+  style
 }
 
 ///|

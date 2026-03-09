@@ -11,6 +11,24 @@ import {
 }
 
 // Values
+pub fn align_content_center() -> AlignContent
+
+pub fn align_content_end() -> AlignContent
+
+pub fn align_content_flex_end() -> AlignContent
+
+pub fn align_content_flex_start() -> AlignContent
+
+pub fn align_content_space_around() -> AlignContent
+
+pub fn align_content_space_between() -> AlignContent
+
+pub fn align_content_space_evenly() -> AlignContent
+
+pub fn align_content_start() -> AlignContent
+
+pub fn align_content_stretch() -> AlignContent
+
 pub let background_colors : Map[@entity.Entity, BackgroundColor]
 
 pub fn blur() -> Unit
@@ -24,6 +42,12 @@ pub let buttons : Map[@entity.Entity, Button]
 pub let click_event_bus : @event.Events[UiClickEvent]
 
 pub let computed_ui_nodes : Map[@entity.Entity, ComputedUiNode]
+
+pub fn flex_wrap_no_wrap() -> FlexWrap
+
+pub fn flex_wrap_wrap() -> FlexWrap
+
+pub fn flex_wrap_wrap_reverse() -> FlexWrap
 
 pub fn focus(@entity.Entity) -> Unit
 
@@ -42,6 +66,44 @@ pub let focuseds : Map[@entity.Entity, Focused]
 pub fn get_ui_scale_mode() -> UiScaleMode
 
 pub let global_ui_nodes : Map[@entity.Entity, GlobalUiNode]
+
+pub fn grid_auto() -> GridTrack
+
+pub fn grid_auto_flow_column() -> GridAutoFlow
+
+pub fn grid_auto_flow_column_dense() -> GridAutoFlow
+
+pub fn grid_auto_flow_row() -> GridAutoFlow
+
+pub fn grid_auto_flow_row_dense() -> GridAutoFlow
+
+pub fn grid_fit_content(GridTrack) -> GridTrack
+
+pub fn grid_fr(Double) -> GridTrack
+
+pub fn grid_line_index(Int) -> GridPlacement
+
+pub fn grid_max_content() -> GridTrack
+
+pub fn grid_min_content() -> GridTrack
+
+pub fn grid_minmax(GridTrack, GridTrack) -> GridTrack
+
+pub fn grid_percent(Double) -> GridTrack
+
+pub fn grid_place_auto() -> GridPlacement
+
+pub fn grid_px(Double) -> GridTrack
+
+pub fn grid_repeat(GridTrackRepetition, Array[GridTrack]) -> GridTrack
+
+pub fn grid_repeat_auto_fill() -> GridTrackRepetition
+
+pub fn grid_repeat_auto_fit() -> GridTrackRepetition
+
+pub fn grid_repeat_count(Int) -> GridTrackRepetition
+
+pub fn grid_span(Int) -> GridPlacement
 
 pub fn hovered_entity() -> @entity.Entity?
 
@@ -100,10 +162,27 @@ pub let ui_zindexes : Map[@entity.Entity, UiZIndex]
 // Errors
 
 // Types and methods
+pub(all) enum AlignContent {
+  Start
+  End
+  FlexStart
+  FlexEnd
+  Center
+  Stretch
+  SpaceBetween
+  SpaceAround
+  SpaceEvenly
+}
+pub impl Eq for AlignContent
+pub impl Show for AlignContent
+
 pub(all) enum AlignItems {
   Start
-  Center
   End
+  FlexStart
+  FlexEnd
+  Center
+  Baseline
   Stretch
 }
 pub impl Eq for AlignItems
@@ -148,7 +227,9 @@ pub(all) struct ComputedUiNode {
 }
 
 pub(all) enum Display {
+  Block
   Flex
+  Grid
   None
 }
 pub impl Eq for Display
@@ -156,10 +237,20 @@ pub impl Show for Display
 
 pub(all) enum FlexDirection {
   Row
+  RowReverse
   Column
+  ColumnReverse
 }
 pub impl Eq for FlexDirection
 pub impl Show for FlexDirection
+
+pub(all) enum FlexWrap {
+  NoWrap
+  Wrap
+  WrapReverse
+}
+pub impl Eq for FlexWrap
+pub impl Show for FlexWrap
 
 pub(all) enum FocusPolicy {
   Block
@@ -185,6 +276,53 @@ pub(all) struct GlobalUiNode {
   screen_content_rect : @math.Rect
 }
 
+pub(all) enum GridAutoFlow {
+  Row
+  Column
+  RowDense
+  ColumnDense
+}
+pub impl Eq for GridAutoFlow
+pub impl Show for GridAutoFlow
+
+pub(all) struct GridLine {
+  start : GridPlacement
+  end : GridPlacement
+}
+pub fn GridLine::new(start? : GridPlacement, end? : GridPlacement) -> Self
+pub impl Eq for GridLine
+pub impl Show for GridLine
+
+pub(all) enum GridPlacement {
+  Auto
+  Line(Int)
+  Span(Int)
+}
+pub impl Eq for GridPlacement
+pub impl Show for GridPlacement
+
+pub(all) enum GridTrack {
+  Auto
+  Px(Double)
+  Percent(Double)
+  Fr(Double)
+  MinContent
+  MaxContent
+  FitContent(GridTrack)
+  MinMax(GridTrack, GridTrack)
+  Repeat(GridTrackRepetition, Array[GridTrack])
+}
+pub impl Eq for GridTrack
+pub impl Show for GridTrack
+
+pub(all) enum GridTrackRepetition {
+  Count(Int)
+  AutoFill
+  AutoFit
+}
+pub impl Eq for GridTrackRepetition
+pub impl Show for GridTrackRepetition
+
 pub(all) enum ImageFit {
   Stretch
   Contain
@@ -204,8 +342,11 @@ pub impl Show for Interaction
 
 pub(all) enum JustifyContent {
   Start
-  Center
   End
+  FlexStart
+  FlexEnd
+  Center
+  Stretch
   SpaceBetween
   SpaceAround
   SpaceEvenly
@@ -232,16 +373,31 @@ pub(all) struct Node {
   flex_direction : FlexDirection
   justify_content : JustifyContent
   align_items : AlignItems
+  align_content : AlignContent?
+  align_self : AlignItems?
+  justify_items : AlignItems?
+  justify_self : AlignItems?
   row_gap : Double
   column_gap : Double
   overflow_x : Overflow
   overflow_y : Overflow
+  flex_wrap : FlexWrap
+  flex_basis : Val
   flex_grow : Double
   flex_shrink : Double
+  aspect_ratio : Double?
+  scrollbar_width : Double
+  grid_template_rows : Array[GridTrack]
+  grid_template_columns : Array[GridTrack]
+  grid_auto_rows : Array[GridTrack]
+  grid_auto_columns : Array[GridTrack]
+  grid_auto_flow : GridAutoFlow
+  grid_row : GridLine
+  grid_column : GridLine
   active : Bool
 }
 pub fn Node::absolute(@math.Vec2D, size? : @math.Vec2D, padding? : UiRectValues, border? : UiRectValues, display? : Display, flex_direction? : FlexDirection, justify_content? : JustifyContent, align_items? : AlignItems, row_gap? : Double, column_gap? : Double, overflow_x? : Overflow, overflow_y? : Overflow, active? : Bool) -> Self
-pub fn Node::new(width? : Val, height? : Val, min_width? : Val, min_height? : Val, max_width? : Val, max_height? : Val, left? : Val, right? : Val, top? : Val, bottom? : Val, margin? : UiRectValues, padding? : UiRectValues, border? : UiRectValues, display? : Display, position_type? : PositionType, flex_direction? : FlexDirection, justify_content? : JustifyContent, align_items? : AlignItems, row_gap? : Double, column_gap? : Double, overflow_x? : Overflow, overflow_y? : Overflow, flex_grow? : Double, flex_shrink? : Double, active? : Bool) -> Self
+pub fn Node::new(width? : Val, height? : Val, min_width? : Val, min_height? : Val, max_width? : Val, max_height? : Val, left? : Val, right? : Val, top? : Val, bottom? : Val, margin? : UiRectValues, padding? : UiRectValues, border? : UiRectValues, display? : Display, position_type? : PositionType, flex_direction? : FlexDirection, justify_content? : JustifyContent, align_items? : AlignItems, row_gap? : Double, column_gap? : Double, overflow_x? : Overflow, overflow_y? : Overflow, flex_grow? : Double, flex_shrink? : Double, active? : Bool, align_content? : AlignContent?, align_self? : AlignItems?, justify_items? : AlignItems?, justify_self? : AlignItems?, flex_wrap? : FlexWrap, flex_basis? : Val, aspect_ratio? : Double?, scrollbar_width? : Double, grid_template_rows? : Array[GridTrack], grid_template_columns? : Array[GridTrack], grid_auto_rows? : Array[GridTrack], grid_auto_columns? : Array[GridTrack], grid_auto_flow? : GridAutoFlow, grid_row? : GridLine, grid_column? : GridLine) -> Self
 pub impl Eq for Node
 pub impl Show for Node
 

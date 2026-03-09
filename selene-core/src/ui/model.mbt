@@ -83,7 +83,9 @@ pub fn UiInsets::zero() -> UiInsets {
 
 ///|
 pub(all) enum Display {
+  Block
   Flex
+  Grid
   None
 } derive(Eq, Show)
 
@@ -96,14 +98,19 @@ pub(all) enum PositionType {
 ///|
 pub(all) enum FlexDirection {
   Row
+  RowReverse
   Column
+  ColumnReverse
 } derive(Eq, Show)
 
 ///|
 pub(all) enum JustifyContent {
   Start
-  Center
   End
+  FlexStart
+  FlexEnd
+  Center
+  Stretch
   SpaceBetween
   SpaceAround
   SpaceEvenly
@@ -112,10 +119,240 @@ pub(all) enum JustifyContent {
 ///|
 pub(all) enum AlignItems {
   Start
-  Center
   End
+  FlexStart
+  FlexEnd
+  Center
+  Baseline
   Stretch
 } derive(Eq, Show)
+
+///|
+pub(all) enum AlignContent {
+  Start
+  End
+  FlexStart
+  FlexEnd
+  Center
+  Stretch
+  SpaceBetween
+  SpaceAround
+  SpaceEvenly
+} derive(Eq, Show)
+
+///|
+pub(all) enum FlexWrap {
+  NoWrap
+  Wrap
+  WrapReverse
+} derive(Eq, Show)
+
+///|
+pub(all) enum GridAutoFlow {
+  Row
+  Column
+  RowDense
+  ColumnDense
+} derive(Eq, Show)
+
+///|
+pub(all) enum GridPlacement {
+  Auto
+  Line(Int)
+  Span(Int)
+} derive(Eq, Show)
+
+///|
+pub(all) struct GridLine {
+  start : GridPlacement
+  end : GridPlacement
+} derive(Eq, Show)
+
+///|
+pub fn GridLine::new(
+  start? : GridPlacement = Auto,
+  end? : GridPlacement = Auto,
+) -> GridLine {
+  { start, end }
+}
+
+///|
+pub(all) enum GridTrackRepetition {
+  Count(Int)
+  AutoFill
+  AutoFit
+} derive(Eq, Show)
+
+///|
+pub(all) enum GridTrack {
+  Auto
+  Px(Double)
+  Percent(Double)
+  Fr(Double)
+  MinContent
+  MaxContent
+  FitContent(GridTrack)
+  MinMax(GridTrack, GridTrack)
+  Repeat(GridTrackRepetition, Array[GridTrack])
+} derive(Eq, Show)
+
+///|
+pub fn align_content_start() -> AlignContent {
+  Start
+}
+
+///|
+pub fn align_content_end() -> AlignContent {
+  End
+}
+
+///|
+pub fn align_content_flex_start() -> AlignContent {
+  FlexStart
+}
+
+///|
+pub fn align_content_flex_end() -> AlignContent {
+  FlexEnd
+}
+
+///|
+pub fn align_content_center() -> AlignContent {
+  Center
+}
+
+///|
+pub fn align_content_stretch() -> AlignContent {
+  Stretch
+}
+
+///|
+pub fn align_content_space_between() -> AlignContent {
+  SpaceBetween
+}
+
+///|
+pub fn align_content_space_around() -> AlignContent {
+  SpaceAround
+}
+
+///|
+pub fn align_content_space_evenly() -> AlignContent {
+  SpaceEvenly
+}
+
+///|
+pub fn flex_wrap_no_wrap() -> FlexWrap {
+  NoWrap
+}
+
+///|
+pub fn flex_wrap_wrap() -> FlexWrap {
+  Wrap
+}
+
+///|
+pub fn flex_wrap_wrap_reverse() -> FlexWrap {
+  WrapReverse
+}
+
+///|
+pub fn grid_auto() -> GridTrack {
+  Auto
+}
+
+///|
+pub fn grid_px(value : Double) -> GridTrack {
+  Px(value)
+}
+
+///|
+pub fn grid_percent(value : Double) -> GridTrack {
+  Percent(value)
+}
+
+///|
+pub fn grid_fr(value : Double) -> GridTrack {
+  Fr(value)
+}
+
+///|
+pub fn grid_min_content() -> GridTrack {
+  MinContent
+}
+
+///|
+pub fn grid_max_content() -> GridTrack {
+  MaxContent
+}
+
+///|
+pub fn grid_fit_content(value : GridTrack) -> GridTrack {
+  FitContent(value)
+}
+
+///|
+pub fn grid_minmax(min : GridTrack, max : GridTrack) -> GridTrack {
+  MinMax(min, max)
+}
+
+///|
+pub fn grid_repeat_count(value : Int) -> GridTrackRepetition {
+  Count(value)
+}
+
+///|
+pub fn grid_repeat_auto_fill() -> GridTrackRepetition {
+  AutoFill
+}
+
+///|
+pub fn grid_repeat_auto_fit() -> GridTrackRepetition {
+  AutoFit
+}
+
+///|
+pub fn grid_repeat(
+  repetition : GridTrackRepetition,
+  tracks : Array[GridTrack],
+) -> GridTrack {
+  Repeat(repetition, tracks)
+}
+
+///|
+pub fn grid_place_auto() -> GridPlacement {
+  Auto
+}
+
+///|
+pub fn grid_line_index(value : Int) -> GridPlacement {
+  Line(value)
+}
+
+///|
+pub fn grid_span(value : Int) -> GridPlacement {
+  Span(value)
+}
+
+///|
+pub fn grid_auto_flow_row() -> GridAutoFlow {
+  Row
+}
+
+///|
+pub fn grid_auto_flow_column() -> GridAutoFlow {
+  Column
+}
+
+///|
+pub fn grid_auto_flow_row_dense() -> GridAutoFlow {
+  RowDense
+}
+
+///|
+pub fn grid_auto_flow_column_dense() -> GridAutoFlow {
+  ColumnDense
+}
 
 ///|
 pub(all) enum Overflow {
@@ -144,12 +381,27 @@ pub(all) struct Node {
   flex_direction : FlexDirection
   justify_content : JustifyContent
   align_items : AlignItems
+  align_content : AlignContent?
+  align_self : AlignItems?
+  justify_items : AlignItems?
+  justify_self : AlignItems?
   row_gap : Double
   column_gap : Double
   overflow_x : Overflow
   overflow_y : Overflow
+  flex_wrap : FlexWrap
+  flex_basis : Val
   flex_grow : Double
   flex_shrink : Double
+  aspect_ratio : Double?
+  scrollbar_width : Double
+  grid_template_rows : Array[GridTrack]
+  grid_template_columns : Array[GridTrack]
+  grid_auto_rows : Array[GridTrack]
+  grid_auto_columns : Array[GridTrack]
+  grid_auto_flow : GridAutoFlow
+  grid_row : GridLine
+  grid_column : GridLine
   active : Bool
 } derive(Eq, Show)
 
@@ -180,6 +432,21 @@ pub fn Node::new(
   flex_grow? : Double = 0.0,
   flex_shrink? : Double = 1.0,
   active? : Bool = true,
+  align_content? : AlignContent? = None,
+  align_self? : AlignItems? = None,
+  justify_items? : AlignItems? = None,
+  justify_self? : AlignItems? = None,
+  flex_wrap? : FlexWrap = NoWrap,
+  flex_basis? : Val = Auto,
+  aspect_ratio? : Double? = None,
+  scrollbar_width? : Double = 0.0,
+  grid_template_rows? : Array[GridTrack] = [],
+  grid_template_columns? : Array[GridTrack] = [],
+  grid_auto_rows? : Array[GridTrack] = [],
+  grid_auto_columns? : Array[GridTrack] = [],
+  grid_auto_flow? : GridAutoFlow = Row,
+  grid_row? : GridLine = GridLine::new(),
+  grid_column? : GridLine = GridLine::new(),
 ) -> Node {
   {
     width,
@@ -200,12 +467,27 @@ pub fn Node::new(
     flex_direction,
     justify_content,
     align_items,
+    align_content,
+    align_self,
+    justify_items,
+    justify_self,
     row_gap,
     column_gap,
     overflow_x,
     overflow_y,
+    flex_wrap,
+    flex_basis,
     flex_grow,
     flex_shrink,
+    aspect_ratio,
+    scrollbar_width,
+    grid_template_rows,
+    grid_template_columns,
+    grid_auto_rows,
+    grid_auto_columns,
+    grid_auto_flow,
+    grid_row,
+    grid_column,
     active,
   }
 }
@@ -227,15 +509,15 @@ pub fn Node::absolute(
   active? : Bool = true,
 ) -> Node {
   let (width, height) = if size[X] >= 0.0 && size[Y] >= 0.0 {
-    (Px(size[X]), Px(size[Y]))
+    (Val::Px(size[X]), Val::Px(size[Y]))
   } else {
-    (Auto, Auto)
+    (Val::Auto, Val::Auto)
   }
   Node::new(
     width~,
     height~,
-    left=Px(offset[X]),
-    top=Px(offset[Y]),
+    left=Val::Px(offset[X]),
+    top=Val::Px(offset[Y]),
     padding~,
     border~,
     display~,
