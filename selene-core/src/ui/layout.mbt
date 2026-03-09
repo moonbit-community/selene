@@ -415,9 +415,14 @@ fn cleanup_dead_ui_state() -> Unit {
       global_ui_nodes.remove(pair.0)
     }
   }
-  for pair in ui_zindexes.to_array() {
+  for pair in z_indexes.to_array() {
     if !pair.0.is_alive() {
-      ui_zindexes.remove(pair.0)
+      z_indexes.remove(pair.0)
+    }
+  }
+  for pair in global_zindexes.to_array() {
+    if !pair.0.is_alive() {
+      global_zindexes.remove(pair.0)
     }
   }
   for pair in scroll_positions.to_array() {

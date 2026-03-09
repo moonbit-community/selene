@@ -72,7 +72,7 @@ fn configure_text_entity(
     entity,
     @ui.Node::absolute(offset, size~, border=@ui.UiRectValues::all(1.0)),
   )
-  @ui.ui_zindexes.set(entity, @ui.UiZIndex::new(zindex))
+  @ui.z_indexes.set(entity, @ui.ZIndex::new(zindex))
   set_ui_text(entity, content)
   @ui.text_fonts.set(entity, @ui.TextFont::from_css(font))
   set_ui_text_color(entity, color)
@@ -91,7 +91,7 @@ fn configure_panel_box(
     entity,
     @ui.Node::absolute(offset, size~, border=@ui.UiRectValues::all(1.0)),
   )
-  @ui.ui_zindexes.set(entity, @ui.UiZIndex::new(PANEL_LAYER_ZINDEX))
+  @ui.z_indexes.set(entity, @ui.ZIndex::new(PANEL_LAYER_ZINDEX))
   @ui.background_colors.set(entity, @ui.BackgroundColor::from_css(background))
   @ui.border_colors.set(entity, @ui.BorderColor::from_css(border))
   @ui.border_radii.set(entity, @ui.BorderRadius::all(@ui.Val::px(10.0)))
@@ -108,7 +108,7 @@ fn configure_panel_button(
   tab_index : Int,
 ) -> Unit {
   @ui.nodes.set(entity, @ui.Node::absolute(offset, size~))
-  @ui.ui_zindexes.set(entity, @ui.UiZIndex::new(PANEL_TEXT_ZINDEX))
+  @ui.z_indexes.set(entity, @ui.ZIndex::new(PANEL_TEXT_ZINDEX))
   @ui.background_colors.set(entity, @ui.BackgroundColor::from_css(background))
   @ui.border_colors.set(entity, @ui.BorderColor::from_css(border))
   @ui.border_radii.set(entity, @ui.BorderRadius::all(@ui.Val::px(8.0)))

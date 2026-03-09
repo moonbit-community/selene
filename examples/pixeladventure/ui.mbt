@@ -47,7 +47,7 @@ fn configure_text_box(
   baseline? : @math.VAlign = @math.VAlign::Top,
 ) -> Unit {
   @ui.nodes.set(entity, @ui.Node::absolute(offset, size~))
-  @ui.ui_zindexes.set(entity, @ui.UiZIndex::new(HUD_ZINDEX))
+  @ui.z_indexes.set(entity, @ui.ZIndex::new(HUD_ZINDEX))
   set_ui_text(entity, content)
   @ui.text_fonts.set(entity, @ui.TextFont::from_css(font))
   set_ui_text_color(entity, color)
@@ -112,7 +112,7 @@ fn add_volume_button() -> Unit {
       size=@math.Vec2D(21.0, 22.0),
     ),
   )
-  @ui.ui_zindexes.set(button, @ui.UiZIndex::new(BUTTON_ZINDEX))
+  @ui.z_indexes.set(button, @ui.ZIndex::new(BUTTON_ZINDEX))
   @ui.buttons.set(button, @ui.Button::new())
   @ui.ui_images.set(button, volume_image(game_state.volume_on))
 }

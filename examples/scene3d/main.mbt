@@ -328,7 +328,7 @@ fn setup_scene3d(_delta : Double) -> Unit {
   )
   @ui.text_fonts.set(label, @ui.TextFont::new(family="sans-serif", size=20.0))
   @ui.text_colors.set(label, @ui.TextColor::new(color(245U, 245U, 245U, 1.0)))
-  @ui.ui_zindexes.set(label, @ui.UiZIndex::new(100))
+  @ui.z_indexes.set(label, @ui.ZIndex::new(100))
   hud_label.val = Some(label)
 }
 

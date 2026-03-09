@@ -1,5 +1,5 @@
 ///|
-let extracted_ui_roots : Array[@entity.Entity] = []
+let extracted_ui_entities : Array[@entity.Entity] = []
 
 ///|
 fn push_ui_rect_fill(rect : @math.Rect, color : @render.Color) -> Unit {
@@ -722,19 +722,32 @@ fn push_text(entity : @entity.Entity) -> Unit {
 }
 
 ///|
-fn render_entity_recursive(
-  entity : @entity.Entity,
-  inherited_clip : @math.Rect?,
-) -> Unit {
+fn inherited_clip_for_entity(entity : @entity.Entity) -> @math.Rect? {
+  if override_clips.contains(entity) {
+    return None
+  }
+  let mut current = entity.get_parent()
+  let mut clip : @math.Rect? = None
+  while current is Some(ancestor) {
+    if calculated_clips.get(ancestor) is Some(calculated) {
+      clip = match clip {
+        Some(existing) => rect_intersection(existing, calculated.clip)
+        None => Some(calculated.clip)
+      }
+    }
+    if override_clips.contains(ancestor) {
+      break
+    }
+    current = ancestor.get_parent()
+  }
+  clip
+}
+
+///|
+fn render_entity(entity : @entity.Entity) -> Unit {
   guard should_render_ui(entity) else { return }
   guard nodes.get(entity) is Some(node) else { return }
-  let effective_inherited_clip : @math.Rect? = if override_clips.contains(
-      entity,
-    ) {
-    None
-  } else {
-    inherited_clip
-  }
+  let effective_inherited_clip = inherited_clip_for_entity(entity)
 
   let mut pushed_inherited_clip = false
   match effective_inherited_clip {
@@ -760,11 +773,6 @@ fn render_entity_recursive(
   } else {
     effective_inherited_clip
   }
-  let child_inherited_clip = if needs_clip {
-    content_clip
-  } else {
-    effective_inherited_clip
-  }
   let mut content_visible = true
   if needs_clip && content_clip is None {
     content_visible = false
@@ -784,36 +792,23 @@ fn render_entity_recursive(
     if pushed_content_clip {
       @render2d.pop_ui_clip()
     }
-
-    let children = ui_children(entity)
-    children.sort_by(fn(lhs, rhs) {
-      let lz = ui_zindexes.get(lhs).map(fn(value) { value.value }).unwrap_or(0)
-      let rz = ui_zindexes.get(rhs).map(fn(value) { value.value }).unwrap_or(0)
-      if lz != rz {
-        lz - rz
-      } else {
-        tree_orders.get(lhs).unwrap_or(0) - tree_orders.get(rhs).unwrap_or(0)
-      }
-    })
-    for child in children {
-      render_entity_recursive(child, child_inherited_clip)
-    }
   }
 }
 
 ///|
 pub fn ui_extract_system(_delta : Double) -> Unit {
-  extracted_ui_roots.clear()
-  for entity in top_level_ui_nodes() {
+  extracted_ui_entities.clear()
+  for entity, _ in nodes {
     if should_render_ui(entity) {
-      extracted_ui_roots.push(entity)
+      extracted_ui_entities.push(entity)
     }
   }
+  extracted_ui_entities.sort_by(compare_ui_stacking)
 }
 
 ///|
 pub fn ui_prepare_system(_delta : Double) -> Unit {
-  for entity in extracted_ui_roots {
-    render_entity_recursive(entity, None)
+  for entity in extracted_ui_entities {
+    render_entity(entity)
   }
 }

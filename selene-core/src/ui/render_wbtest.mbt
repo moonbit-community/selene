@@ -37,7 +37,8 @@ fn cleanup_test_ui_entity(entity : @entity.Entity) -> Unit {
   text_colors.remove(entity)
   text_layouts.remove(entity)
   ui_images.remove(entity)
-  ui_zindexes.remove(entity)
+  z_indexes.remove(entity)
+  global_zindexes.remove(entity)
   override_clips.remove(entity)
   relative_cursor_positions.remove(entity)
   tree_orders.remove(entity)
@@ -185,7 +186,7 @@ test "ui overflow clipping applies after node decorations" {
   calculated_clips.set(entity, CalculatedClip::new(content_rect))
   tree_orders.set(entity, 1)
 
-  render_entity_recursive(entity, None)
+  render_entity(entity)
 
   let frame = @render2d.get_frame2d()
   inspect(frame.ui_commands.length(), content="4")
@@ -254,7 +255,8 @@ test "ui override clip removes inherited clip from child rendering" {
   tree_orders.set(child, 2)
   override_clips.set(child, OverrideClip::new())
 
-  render_entity_recursive(parent, None)
+  render_entity(parent)
+  render_entity(child)
 
   let frame = @render2d.get_frame2d()
   inspect(frame.ui_commands.length(), content="3")
@@ -282,4 +284,27 @@ test "ui override clip removes inherited clip from child rendering" {
 
   cleanup_test_ui_entity(child)
   cleanup_test_ui_entity(parent)
+}
+
+///|
+test "ui stacking sorts by global z before local z and tree order" {
+  let back = @entity.Entity::new()
+  let front = @entity.Entity::new()
+  nodes.set(back, Node::new())
+  nodes.set(front, Node::new())
+  tree_orders.set(back, 5)
+  tree_orders.set(front, 1)
+  z_indexes.set(back, ZIndex::new(100))
+  z_indexes.set(front, ZIndex::new(0))
+  global_zindexes.set(back, GlobalZIndex::new(0))
+  global_zindexes.set(front, GlobalZIndex::new(1))
+
+  let entities = [front, back]
+  entities.sort_by(compare_ui_stacking)
+
+  inspect(entities[0] == back, content="true")
+  inspect(entities[1] == front, content="true")
+
+  cleanup_test_ui_entity(back)
+  cleanup_test_ui_entity(front)
 }

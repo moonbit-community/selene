@@ -82,7 +82,7 @@ fn configure_text(
   zindex? : Int = HUD_ZINDEX,
 ) -> Unit {
   @ui.nodes.set(entity, @ui.Node::absolute(offset, size~))
-  @ui.ui_zindexes.set(entity, @ui.UiZIndex::new(zindex))
+  @ui.z_indexes.set(entity, @ui.ZIndex::new(zindex))
   set_text(entity, content)
   @ui.text_fonts.set(entity, @ui.TextFont::from_css(font))
   @ui.text_colors.set(entity, @ui.TextColor::from_css(color))
@@ -98,7 +98,7 @@ fn configure_button(
   tab_index : Int,
 ) -> Unit {
   @ui.nodes.set(entity, @ui.Node::absolute(offset, size~))
-  @ui.ui_zindexes.set(entity, @ui.UiZIndex::new(BUTTON_ZINDEX))
+  @ui.z_indexes.set(entity, @ui.ZIndex::new(BUTTON_ZINDEX))
   @ui.background_colors.set(entity, @ui.BackgroundColor::from_css(background))
   @ui.border_radii.set(entity, @ui.BorderRadius::all(@ui.Val::px(6.0)))
   @ui.buttons.set(entity, @ui.Button::new())

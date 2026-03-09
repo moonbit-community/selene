@@ -189,15 +189,7 @@ fn sorted_ui_entities() -> Array[@entity.Entity] {
       entities.push(entity)
     }
   }
-  entities.sort_by(fn(lhs, rhs) {
-    let lz = ui_zindexes.get(lhs).map(fn(value) { value.value }).unwrap_or(0)
-    let rz = ui_zindexes.get(rhs).map(fn(value) { value.value }).unwrap_or(0)
-    if lz != rz {
-      lz - rz
-    } else {
-      tree_orders.get(lhs).unwrap_or(0) - tree_orders.get(rhs).unwrap_or(0)
-    }
-  })
+  entities.sort_by(compare_ui_stacking)
   entities
 }
 

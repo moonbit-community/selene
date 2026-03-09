@@ -609,12 +609,22 @@ pub fn CalculatedClip::new(clip : @math.Rect) -> CalculatedClip {
 }
 
 ///|
-pub(all) struct UiZIndex {
+pub(all) struct ZIndex {
   value : Int
 } derive(Eq, Show)
 
 ///|
-pub fn UiZIndex::new(value : Int) -> UiZIndex {
+pub fn ZIndex::new(value : Int) -> ZIndex {
+  { value, }
+}
+
+///|
+pub(all) struct GlobalZIndex {
+  value : Int
+} derive(Eq, Show)
+
+///|
+pub fn GlobalZIndex::new(value : Int) -> GlobalZIndex {
   { value, }
 }
 
@@ -706,7 +716,10 @@ pub let global_ui_nodes : Map[@entity.Entity, GlobalUiNode] = Map::new()
 pub let calculated_clips : Map[@entity.Entity, CalculatedClip] = Map::new()
 
 ///|
-pub let ui_zindexes : Map[@entity.Entity, UiZIndex] = Map::new()
+pub let z_indexes : Map[@entity.Entity, ZIndex] = Map::new()
+
+///|
+pub let global_zindexes : Map[@entity.Entity, GlobalZIndex] = Map::new()
 
 ///|
 pub let scroll_positions : Map[@entity.Entity, ScrollPosition] = Map::new()
@@ -731,6 +744,53 @@ pub let relative_cursor_positions : Map[@entity.Entity, RelativeCursorPosition] 
 
 ///|
 let tree_orders : Map[@entity.Entity, Int] = Map::new()
+
+///|
+fn global_zindex_value(entity : @entity.Entity) -> Int {
+  global_zindexes.get(entity).map(fn(value) { value.value }).unwrap_or(0)
+}
+
+///|
+fn zindex_value(entity : @entity.Entity) -> Int {
+  z_indexes.get(entity).map(fn(value) { value.value }).unwrap_or(0)
+}
+
+///|
+fn compare_ui_stacking(lhs : @entity.Entity, rhs : @entity.Entity) -> Int {
+  let lg = global_zindex_value(lhs)
+  let rg = global_zindex_value(rhs)
+  if lg != rg {
+    return lg - rg
+  }
+  let lz = zindex_value(lhs)
+  let rz = zindex_value(rhs)
+  if lz != rz {
+    return lz - rz
+  }
+  let lt = tree_orders.get(lhs).unwrap_or(0)
+  let rt = tree_orders.get(rhs).unwrap_or(0)
+  if lt != rt {
+    lt - rt
+  } else {
+    lhs.to_string().compare(rhs.to_string())
+  }
+}
+
+///|
+fn compare_ui_root_order(lhs : @entity.Entity, rhs : @entity.Entity) -> Int {
+  let lg = global_zindex_value(lhs)
+  let rg = global_zindex_value(rhs)
+  if lg != rg {
+    return lg - rg
+  }
+  let lz = zindex_value(lhs)
+  let rz = zindex_value(rhs)
+  if lz != rz {
+    lz - rz
+  } else {
+    lhs.to_string().compare(rhs.to_string())
+  }
+}
 
 ///|
 pub fn is_ui_entity(entity : @entity.Entity) -> Bool {
@@ -772,15 +832,7 @@ fn top_level_ui_nodes() -> Array[@entity.Entity] {
       None => roots.push(entity)
     }
   }
-  roots.sort_by(fn(lhs, rhs) {
-    let lz = ui_zindexes.get(lhs).map(fn(value) { value.value }).unwrap_or(0)
-    let rz = ui_zindexes.get(rhs).map(fn(value) { value.value }).unwrap_or(0)
-    if lz != rz {
-      lz - rz
-    } else {
-      lhs.to_string().compare(rhs.to_string())
-    }
-  })
+  roots.sort_by(compare_ui_root_order)
   roots
 }
 

@@ -128,7 +128,7 @@ fn create_level_up_panel_entity() -> @entity.Entity {
       size=@math.Vec2D(160.0, 250.0),
     ),
   )
-  @ui.ui_zindexes.set(panel, @ui.UiZIndex::new(HUD_ZINDEX + 10))
+  @ui.z_indexes.set(panel, @ui.ZIndex::new(HUD_ZINDEX + 10))
   @ui.background_colors.set(
     panel,
     @ui.BackgroundColor::from_css("rgba(13, 170, 26, 1)"),
@@ -147,7 +147,7 @@ fn create_game_over_panel_entity() -> @entity.Entity {
       size=@math.Vec2D(200.0, 120.0),
     ),
   )
-  @ui.ui_zindexes.set(panel, @ui.UiZIndex::new(HUD_ZINDEX + 10))
+  @ui.z_indexes.set(panel, @ui.ZIndex::new(HUD_ZINDEX + 10))
   @ui.background_colors.set(
     panel,
     @ui.BackgroundColor::from_css("rgba(0, 0, 0, 0.8)"),

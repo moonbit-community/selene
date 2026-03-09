@@ -194,18 +194,30 @@ fn ui_children(entity : @entity.Entity) -> Array[@entity.Entity] {
     }
   }
   children.sort_by(fn(lhs, rhs) {
-    let lz = @ui.ui_zindexes
+    let lg = @ui.global_zindexes
       .get(lhs)
       .map(fn(value) { value.value })
       .unwrap_or(0)
-    let rz = @ui.ui_zindexes
+    let rg = @ui.global_zindexes
       .get(rhs)
       .map(fn(value) { value.value })
       .unwrap_or(0)
-    if lz != rz {
-      lz - rz
+    if lg != rg {
+      lg - rg
     } else {
-      lhs.to_string().compare(rhs.to_string())
+      let lz = @ui.z_indexes
+        .get(lhs)
+        .map(fn(value) { value.value })
+        .unwrap_or(0)
+      let rz = @ui.z_indexes
+        .get(rhs)
+        .map(fn(value) { value.value })
+        .unwrap_or(0)
+      if lz != rz {
+        lz - rz
+      } else {
+        lhs.to_string().compare(rhs.to_string())
+      }
     }
   })
   children

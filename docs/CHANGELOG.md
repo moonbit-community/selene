@@ -8,12 +8,14 @@
 - `selene/ui` now exposes the overflow-clipping API surface `Overflow::Hidden`, `OverflowClipBox`, `OverflowClipMargin`, `OverflowClipMargin::content_box()`, `OverflowClipMargin::padding_box()`, `OverflowClipMargin::border_box()`, `OverflowClipMargin::with_margin(...)`, and `default_overflow_clip_margin()`
 - `selene/ui` `Node` now carries Bevy-style `overflow_clip_margin`, and both `Node::new(...)` and `Node::absolute(...)` now accept `overflow_clip_margin?`, so clipped/scrolling nodes can choose content-box, padding-box, or border-box clipping with extra clip margin instead of always clipping to content bounds
 - `selene/ui` now exposes Bevy-style clipping and cursor-tracking components through `CalculatedClip`, `CalculatedClip::new(...)`, `OverrideClip`, `OverrideClip::new()`, `RelativeCursorPosition`, `RelativeCursorPosition::new()`, `RelativeCursorPosition::mouse_over()`, `calculated_clips`, `override_clips`, and `relative_cursor_positions`
+- `selene/ui` now exposes Bevy-style stacking components and stores through `ZIndex`, `ZIndex::new(...)`, `GlobalZIndex`, `GlobalZIndex::new(...)`, `z_indexes`, and `global_zindexes`
 
 ### Changed
 
 - `selene/ui` `Node` now exposes Bevy-aligned block/grid layout authoring, including `Display::Block` / `Display::Grid`, reverse flex directions, `align_content` / `align_self` / `justify_items` / `justify_self`, `flex_wrap` / `flex_basis`, `aspect_ratio`, `scrollbar_width`, and grid template/auto-flow/placement helpers, and the UI layout system now applies those fields through `moon_taffy`
 - `selene/ui` `BorderRadius` now uses Bevy-style `Val` sizing semantics instead of raw `Double`s: the `top_left` / `top_right` / `bottom_right` / `bottom_left` fields are now `Val`, `BorderRadius::all(...)` now takes `Val`, and `BorderRadius::new(...)` now takes `Val` corners with `Val::px(0.0)` defaults
 - `selene/ui` `Outline` now uses Bevy-style `Val` sizing semantics instead of raw `Double`s: `Outline.width` and `Outline.offset` are now `Val`, and `Outline::new(...)` now takes `width : Val` plus `offset? : Val`
+- `selene/ui` rendering, hit-testing, and accessibility child ordering now sort by `GlobalZIndex` before local `ZIndex` and tree order, and UI prepare now renders a flat stacking-sorted entity list so global UI stacking can cross subtree boundaries instead of being trapped inside recursive parent draw order
 
 ### Fixed
 
@@ -21,6 +23,10 @@
 - `selene/ui` now maps `Overflow::Hidden` through `moon_taffy` and uses the authored `overflow_clip_margin` box when computing screen clip rects, so hidden overflow participates in layout correctly and clipped UI content no longer has to be constrained to the content box only
 - `selene/ui` outlines now resolve authored `width` / `offset` values into explicit outer fill bands instead of relying on a single stroke rect, so outline thickness and offset match the node's `Val`-resolved geometry more closely
 - `selene/ui` now honors `OverrideClip` in layout, hit-testing, and rendering instead of always inheriting ancestor clip rectangles, and `RelativeCursorPosition` now tracks Bevy-style centered normalized cursor coordinates while reporting `mouse_over()` only when the cursor is inside the node's currently visible clipped region
+
+### Removed
+
+- `selene/ui` no longer exposes the old `UiZIndex` / `UiZIndex::new(...)` / `ui_zindexes` naming; consumers should use `ZIndex` / `ZIndex::new(...)` / `z_indexes`, and add `GlobalZIndex` / `global_zindexes` when they need stacking that escapes local subtree ordering
 
 ## [0.26.2] - 2026-03-09
 

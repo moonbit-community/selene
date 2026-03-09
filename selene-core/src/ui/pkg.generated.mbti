@@ -73,6 +73,8 @@ pub fn get_ui_scale_mode() -> UiScaleMode
 
 pub let global_ui_nodes : Map[@entity.Entity, GlobalUiNode]
 
+pub let global_zindexes : Map[@entity.Entity, GlobalZIndex]
+
 pub fn grid_auto() -> GridTrack
 
 pub fn grid_auto_flow_column() -> GridAutoFlow
@@ -167,7 +169,7 @@ pub fn ui_prepare_system(Double) -> Unit
 
 pub let ui_scale_mode : Ref[UiScaleMode]
 
-pub let ui_zindexes : Map[@entity.Entity, UiZIndex]
+pub let z_indexes : Map[@entity.Entity, ZIndex]
 
 // Errors
 
@@ -299,6 +301,13 @@ pub(all) struct GlobalUiNode {
   logical_content_rect : @math.Rect
   screen_content_rect : @math.Rect
 }
+
+pub(all) struct GlobalZIndex {
+  value : Int
+}
+pub fn GlobalZIndex::new(Int) -> Self
+pub impl Eq for GlobalZIndex
+pub impl Show for GlobalZIndex
 
 pub(all) enum GridAutoFlow {
   Row
@@ -640,13 +649,6 @@ pub(all) enum UiScaleMode {
 pub impl Eq for UiScaleMode
 pub impl Show for UiScaleMode
 
-pub(all) struct UiZIndex {
-  value : Int
-}
-pub fn UiZIndex::new(Int) -> Self
-pub impl Eq for UiZIndex
-pub impl Show for UiZIndex
-
 pub(all) enum Val {
   Auto
   Px(Double)
@@ -656,6 +658,13 @@ pub fn Val::percent(Double) -> Self
 pub fn Val::px(Double) -> Self
 pub impl Eq for Val
 pub impl Show for Val
+
+pub(all) struct ZIndex {
+  value : Int
+}
+pub fn ZIndex::new(Int) -> Self
+pub impl Eq for ZIndex
+pub impl Show for ZIndex
 
 // Type aliases
 
