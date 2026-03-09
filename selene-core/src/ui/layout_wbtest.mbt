@@ -1,4 +1,31 @@
 ///|
+fn cleanup_layout_test_entity(entity : @entity.Entity) -> Unit {
+  nodes.remove(entity)
+  computed_ui_nodes.remove(entity)
+  global_ui_nodes.remove(entity)
+  ui_zindexes.remove(entity)
+  scroll_positions.remove(entity)
+  focus_policies.remove(entity)
+  focusables.remove(entity)
+  focuseds.remove(entity)
+  background_colors.remove(entity)
+  border_colors.remove(entity)
+  border_radii.remove(entity)
+  box_shadows.remove(entity)
+  outlines.remove(entity)
+  ui_images.remove(entity)
+  texts.remove(entity)
+  text_fonts.remove(entity)
+  text_colors.remove(entity)
+  text_layouts.remove(entity)
+  buttons.remove(entity)
+  interactions.remove(entity)
+  screen_clip_rects.remove(entity)
+  tree_orders.remove(entity)
+  entity.destroy()
+}
+
+///|
 test "ui nodes map flex wrap and align content into wrapped layout" {
   let taffy : @moon_taffy.TaffyTree[Unit] = @moon_taffy.TaffyTree::new()
   let mk_child = fn() {
@@ -127,6 +154,7 @@ test "ui nodes map style-only grid and flex fields into taffy style" {
   let style = node_to_taffy_style(
     Node::new(
       display=Display::Grid,
+      overflow_x=Overflow::Hidden,
       flex_basis=Val::percent(0.25),
       scrollbar_width=12.0,
       grid_auto_rows=[grid_px(16.0)],
@@ -177,4 +205,37 @@ test "ui nodes map style-only grid and flex fields into taffy style" {
     _ => false
   }
   inspect(has_repeated_template, content="true")
+
+  let has_hidden_overflow = match style.overflow.x {
+    @moon_taffy.OverflowHidden => true
+    _ => false
+  }
+  inspect(has_hidden_overflow, content="true")
+}
+
+///|
+test "ui layout uses overflow clip margins from the requested visual box" {
+  let entity = @entity.Entity::new()
+  nodes.set(
+    entity,
+    Node::absolute(
+      @math.Vec2D(10.0, 20.0),
+      size=@math.Vec2D(100.0, 80.0),
+      padding=UiRectValues::px(left=6.0),
+      border=UiRectValues::px(left=4.0),
+      overflow_x=Overflow::Hidden,
+      overflow_y=Overflow::Hidden,
+      overflow_clip_margin=OverflowClipMargin::padding_box().with_margin(3.0),
+    ),
+  )
+
+  ui_layout_system(0.0)
+
+  let clip = screen_clip_rects.get(entity).unwrap()
+  inspect(clip.position[X] == 11.0, content="true")
+  inspect(clip.position[Y] == 21.0, content="true")
+  inspect(clip.size[X] == 98.0, content="true")
+  inspect(clip.size[Y] == 78.0, content="true")
+
+  cleanup_layout_test_entity(entity)
 }

@@ -39,7 +39,15 @@ fn scale_alpha(color : @render.Color, factor : Double) -> @render.Color {
 }
 
 ///|
-fn has_rounded_corners(radius : BorderRadius) -> Bool {
+priv struct ResolvedBorderRadius {
+  top_left : Double
+  top_right : Double
+  bottom_right : Double
+  bottom_left : Double
+}
+
+///|
+fn has_rounded_corners(radius : ResolvedBorderRadius) -> Bool {
   radius.top_left > 0.0 ||
   radius.top_right > 0.0 ||
   radius.bottom_right > 0.0 ||
@@ -47,17 +55,35 @@ fn has_rounded_corners(radius : BorderRadius) -> Bool {
 }
 
 ///|
+fn resolve_corner_radius(value : Val, size : @math.Vec2D) -> Double {
+  let basis = @cmp.maximum(0.0, @cmp.minimum(size[X], size[Y]))
+  resolve_val(value, basis)
+}
+
+///|
 fn resolved_border_radius(
   radius : BorderRadius,
   size : @math.Vec2D,
-) -> BorderRadius {
+) -> ResolvedBorderRadius {
   let limit = @cmp.maximum(0.0, @cmp.minimum(size[X], size[Y]) / 2.0)
-  BorderRadius::new(
-    top_left=@cmp.minimum(limit, @cmp.maximum(0.0, radius.top_left)),
-    top_right=@cmp.minimum(limit, @cmp.maximum(0.0, radius.top_right)),
-    bottom_right=@cmp.minimum(limit, @cmp.maximum(0.0, radius.bottom_right)),
-    bottom_left=@cmp.minimum(limit, @cmp.maximum(0.0, radius.bottom_left)),
-  )
+  {
+    top_left: @cmp.minimum(
+      limit,
+      @cmp.maximum(0.0, resolve_corner_radius(radius.top_left, size)),
+    ),
+    top_right: @cmp.minimum(
+      limit,
+      @cmp.maximum(0.0, resolve_corner_radius(radius.top_right, size)),
+    ),
+    bottom_right: @cmp.minimum(
+      limit,
+      @cmp.maximum(0.0, resolve_corner_radius(radius.bottom_right, size)),
+    ),
+    bottom_left: @cmp.minimum(
+      limit,
+      @cmp.maximum(0.0, resolve_corner_radius(radius.bottom_left, size)),
+    ),
+  }
 }
 
 ///|
@@ -75,25 +101,28 @@ fn inset_rect(rect : @math.Rect, inset : UiInsets) -> @math.Rect {
 }
 
 ///|
-fn inset_border_radius(radius : BorderRadius, inset : UiInsets) -> BorderRadius {
-  BorderRadius::new(
-    top_left=@cmp.maximum(
+fn inset_border_radius(
+  radius : ResolvedBorderRadius,
+  inset : UiInsets,
+) -> ResolvedBorderRadius {
+  {
+    top_left: @cmp.maximum(
       0.0,
       radius.top_left - @cmp.maximum(inset.top, inset.left),
     ),
-    top_right=@cmp.maximum(
+    top_right: @cmp.maximum(
       0.0,
       radius.top_right - @cmp.maximum(inset.top, inset.right),
     ),
-    bottom_right=@cmp.maximum(
+    bottom_right: @cmp.maximum(
       0.0,
       radius.bottom_right - @cmp.maximum(inset.bottom, inset.right),
     ),
-    bottom_left=@cmp.maximum(
+    bottom_left: @cmp.maximum(
       0.0,
       radius.bottom_left - @cmp.maximum(inset.bottom, inset.left),
     ),
-  )
+  }
 }
 
 ///|
@@ -114,15 +143,15 @@ fn offset_rect(rect : @math.Rect, offset : @math.Vec2D) -> @math.Rect {
 
 ///|
 fn inflate_border_radius(
-  radius : BorderRadius,
+  radius : ResolvedBorderRadius,
   amount : Double,
-) -> BorderRadius {
-  BorderRadius::new(
-    top_left=@cmp.maximum(0.0, radius.top_left + amount),
-    top_right=@cmp.maximum(0.0, radius.top_right + amount),
-    bottom_right=@cmp.maximum(0.0, radius.bottom_right + amount),
-    bottom_left=@cmp.maximum(0.0, radius.bottom_left + amount),
-  )
+) -> ResolvedBorderRadius {
+  {
+    top_left: @cmp.maximum(0.0, radius.top_left + amount),
+    top_right: @cmp.maximum(0.0, radius.top_right + amount),
+    bottom_right: @cmp.maximum(0.0, radius.bottom_right + amount),
+    bottom_left: @cmp.maximum(0.0, radius.bottom_left + amount),
+  }
 }
 
 ///|
@@ -143,13 +172,12 @@ fn push_quarter_circle(
 ///|
 fn push_rounded_rect(
   rect : @math.Rect,
-  radius : BorderRadius,
+  radius : ResolvedBorderRadius,
   color : @render.Color,
 ) -> Unit {
   if rect.size[X] <= 0.0 || rect.size[Y] <= 0.0 || color.a <= 0.0 {
     return
   }
-  let radius = resolved_border_radius(radius, rect.size)
   if !has_rounded_corners(radius) {
     push_ui_rect_fill(rect, color)
     return
@@ -247,7 +275,7 @@ fn push_box_shadow(entity : @entity.Entity) -> Unit {
   guard box_shadows.get(entity) is Some(shadow) else { return }
   guard global_ui_nodes.get(entity) is Some(global) else { return }
   let base_radius = resolved_border_radius(
-    border_radii.get(entity).unwrap_or(BorderRadius::all(0.0)),
+    border_radii.get(entity).unwrap_or(BorderRadius::all(Val::px(0.0))),
     global.screen_rect.size,
   )
   let spread_basis = @cmp.minimum(
@@ -320,7 +348,10 @@ fn push_background(entity : @entity.Entity) -> Unit {
   guard global_ui_nodes.get(entity) is Some(transform) else { return }
   push_rounded_rect(
     transform.screen_rect,
-    border_radii.get(entity).unwrap_or(BorderRadius::all(0.0)),
+    resolved_border_radius(
+      border_radii.get(entity).unwrap_or(BorderRadius::all(Val::px(0.0))),
+      transform.screen_rect.size,
+    ),
     background.color,
   )
 }
@@ -333,7 +364,7 @@ fn push_border(entity : @entity.Entity) -> Unit {
   let rect = global.screen_rect
   let border = computed.border
   let radius = resolved_border_radius(
-    border_radii.get(entity).unwrap_or(BorderRadius::all(0.0)),
+    border_radii.get(entity).unwrap_or(BorderRadius::all(Val::px(0.0))),
     rect.size,
   )
   if has_rounded_corners(radius) {
@@ -404,21 +435,74 @@ fn push_border(entity : @entity.Entity) -> Unit {
 fn push_outline(entity : @entity.Entity) -> Unit {
   guard outlines.get(entity) is Some(outline) else { return }
   guard global_ui_nodes.get(entity) is Some(transform) else { return }
-  let offset = outline.offset
-  @render2d.push_ui_rect({
-    rect: {
-      position: @math.Vec2D(
-        transform.screen_rect.position[X] - offset,
-        transform.screen_rect.position[Y] - offset,
-      ),
+  let width = resolve_val(outline.width, transform.screen_rect.size[X])
+  let offset = resolve_val(outline.offset, transform.screen_rect.size[X])
+  if width <= 0.0 || outline.color.a <= 0.0 {
+    return
+  }
+  let inner = inflate_rect(transform.screen_rect, offset)
+  let outer = inflate_rect(transform.screen_rect, offset + width)
+  let radius = resolved_border_radius(
+    border_radii.get(entity).unwrap_or(BorderRadius::all(Val::px(0.0))),
+    transform.screen_rect.size,
+  )
+  if has_rounded_corners(radius) {
+    @platform_render.capability_warning(
+      "ui_rounded_outline", "rounded UI outlines still render as square outline bands in the current 2D path",
+    )
+  }
+  push_ui_rect_fill(
+    {
+      position: outer.position,
       size: @math.Vec2D(
-        transform.screen_rect.size[X] + offset * 2.0,
-        transform.screen_rect.size[Y] + offset * 2.0,
+        outer.size[X],
+        @cmp.maximum(0.0, inner.position[Y] - outer.position[Y]),
       ),
     },
-    fill_color: transparent(),
-    stroke_color: Some(outline.color),
-  })
+    outline.color,
+  )
+  push_ui_rect_fill(
+    {
+      position: @math.Vec2D(
+        outer.position[X],
+        inner.position[Y] + inner.size[Y],
+      ),
+      size: @math.Vec2D(
+        outer.size[X],
+        @cmp.maximum(
+          0.0,
+          outer.position[Y] + outer.size[Y] - inner.position[Y] - inner.size[Y],
+        ),
+      ),
+    },
+    outline.color,
+  )
+  push_ui_rect_fill(
+    {
+      position: @math.Vec2D(outer.position[X], inner.position[Y]),
+      size: @math.Vec2D(
+        @cmp.maximum(0.0, inner.position[X] - outer.position[X]),
+        inner.size[Y],
+      ),
+    },
+    outline.color,
+  )
+  push_ui_rect_fill(
+    {
+      position: @math.Vec2D(
+        inner.position[X] + inner.size[X],
+        inner.position[Y],
+      ),
+      size: @math.Vec2D(
+        @cmp.maximum(
+          0.0,
+          outer.position[X] + outer.size[X] - inner.position[X] - inner.size[X],
+        ),
+        inner.size[Y],
+      ),
+    },
+    outline.color,
+  )
 }
 
 ///|

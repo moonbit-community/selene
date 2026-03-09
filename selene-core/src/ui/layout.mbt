@@ -241,11 +241,13 @@ fn node_to_taffy_style(node : Node) -> @moon_taffy.Style {
         x=match node.overflow_x {
           Visible => @moon_taffy.overflow_visible()
           Clip => @moon_taffy.overflow_clip()
+          Hidden => @moon_taffy.overflow_hidden()
           Scroll => @moon_taffy.overflow_scroll()
         },
         y=match node.overflow_y {
           Visible => @moon_taffy.overflow_visible()
           Clip => @moon_taffy.overflow_clip()
+          Hidden => @moon_taffy.overflow_hidden()
           Scroll => @moon_taffy.overflow_scroll()
         },
       ),
@@ -359,6 +361,41 @@ fn rect_intersection(lhs : @math.Rect, rhs : @math.Rect) -> @math.Rect? {
       size: @math.Vec2D(right - left, bottom - top),
     })
   }
+}
+
+///|
+fn clip_rect_for_node(
+  logical_rect : @math.Rect,
+  logical_content_rect : @math.Rect,
+  border : UiInsets,
+  node : Node,
+) -> @math.Rect {
+  let base_rect = match node.overflow_clip_margin.visual_box {
+    ContentBox => logical_content_rect
+    PaddingBox =>
+      {
+        position: @math.Vec2D(
+          logical_rect.position[X] + border.left,
+          logical_rect.position[Y] + border.top,
+        ),
+        size: @math.Vec2D(
+          @cmp.maximum(0.0, logical_rect.size[X] - border.left - border.right),
+          @cmp.maximum(0.0, logical_rect.size[Y] - border.top - border.bottom),
+        ),
+      }
+    BorderBox => logical_rect
+  }
+  let margin = node.overflow_clip_margin.margin
+  to_screen_rect({
+    position: @math.Vec2D(
+      base_rect.position[X] - margin,
+      base_rect.position[Y] - margin,
+    ),
+    size: @math.Vec2D(
+      @cmp.maximum(0.0, base_rect.size[X] + margin * 2.0),
+      @cmp.maximum(0.0, base_rect.size[Y] + margin * 2.0),
+    ),
+  })
 }
 
 ///|
@@ -544,10 +581,12 @@ fn apply_layout_recursive(
   let current_clip = if node.overflow_x == Visible && node.overflow_y == Visible {
     parent_clip
   } else {
+    let clip_rect = clip_rect_for_node(
+      logical_rect, logical_content_rect, border, node,
+    )
     match parent_clip {
-      Some(parent) =>
-        rect_intersection(parent, to_screen_rect(logical_content_rect))
-      None => Some(to_screen_rect(logical_content_rect))
+      Some(parent) => rect_intersection(parent, clip_rect)
+      None => Some(clip_rect)
     }
   }
   match current_clip {

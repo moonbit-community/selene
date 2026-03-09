@@ -5,14 +5,20 @@
 ### Added
 
 - `selene/ui` now exposes Bevy-style `ShadowStyle`, `BoxShadow`, and `box_shadows`, and the UI renderer submits layered box-shadow draws for nodes through the existing 2D command path
+- `selene/ui` now exposes the overflow-clipping API surface `Overflow::Hidden`, `OverflowClipBox`, `OverflowClipMargin`, `OverflowClipMargin::content_box()`, `OverflowClipMargin::padding_box()`, `OverflowClipMargin::border_box()`, `OverflowClipMargin::with_margin(...)`, and `default_overflow_clip_margin()`
+- `selene/ui` `Node` now carries Bevy-style `overflow_clip_margin`, and both `Node::new(...)` and `Node::absolute(...)` now accept `overflow_clip_margin?`, so clipped/scrolling nodes can choose content-box, padding-box, or border-box clipping with extra clip margin instead of always clipping to content bounds
 
 ### Changed
 
 - `selene/ui` `Node` now exposes Bevy-aligned block/grid layout authoring, including `Display::Block` / `Display::Grid`, reverse flex directions, `align_content` / `align_self` / `justify_items` / `justify_self`, `flex_wrap` / `flex_basis`, `aspect_ratio`, `scrollbar_width`, and grid template/auto-flow/placement helpers, and the UI layout system now applies those fields through `moon_taffy`
+- `selene/ui` `BorderRadius` now uses Bevy-style `Val` sizing semantics instead of raw `Double`s: the `top_left` / `top_right` / `bottom_right` / `bottom_left` fields are now `Val`, `BorderRadius::all(...)` now takes `Val`, and `BorderRadius::new(...)` now takes `Val` corners with `Val::px(0.0)` defaults
+- `selene/ui` `Outline` now uses Bevy-style `Val` sizing semantics instead of raw `Double`s: `Outline.width` and `Outline.offset` are now `Val`, and `Outline::new(...)` now takes `width : Val` plus `offset? : Val`
 
 ### Fixed
 
 - `selene/ui` now renders rounded background fills for `BorderRadius` nodes instead of warning and falling back to square-corner backgrounds, and overflow clipping now applies after node decorations so a scrolling/clipped node no longer clips away its own background and border before drawing content
+- `selene/ui` now maps `Overflow::Hidden` through `moon_taffy` and uses the authored `overflow_clip_margin` box when computing screen clip rects, so hidden overflow participates in layout correctly and clipped UI content no longer has to be constrained to the content box only
+- `selene/ui` outlines now resolve authored `width` / `offset` values into explicit outer fill bands instead of relying on a single stroke rect, so outline thickness and offset match the node's `Val`-resolved geometry more closely
 
 ## [0.26.2] - 2026-03-09
 

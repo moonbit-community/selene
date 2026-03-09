@@ -45,6 +45,8 @@ pub let click_event_bus : @event.Events[UiClickEvent]
 
 pub let computed_ui_nodes : Map[@entity.Entity, ComputedUiNode]
 
+pub fn default_overflow_clip_margin() -> OverflowClipMargin
+
 pub fn flex_wrap_no_wrap() -> FlexWrap
 
 pub fn flex_wrap_wrap() -> FlexWrap
@@ -203,13 +205,13 @@ pub fn BorderColor::from_css(String) -> Self
 pub fn BorderColor::new(@render.Color) -> Self
 
 pub(all) struct BorderRadius {
-  top_left : Double
-  top_right : Double
-  bottom_right : Double
-  bottom_left : Double
+  top_left : Val
+  top_right : Val
+  bottom_right : Val
+  bottom_left : Val
 }
-pub fn BorderRadius::all(Double) -> Self
-pub fn BorderRadius::new(top_left? : Double, top_right? : Double, bottom_right? : Double, bottom_left? : Double) -> Self
+pub fn BorderRadius::all(Val) -> Self
+pub fn BorderRadius::new(top_left? : Val, top_right? : Val, bottom_right? : Val, bottom_left? : Val) -> Self
 pub impl Eq for BorderRadius
 pub impl Show for BorderRadius
 
@@ -392,6 +394,7 @@ pub(all) struct Node {
   column_gap : Double
   overflow_x : Overflow
   overflow_y : Overflow
+  overflow_clip_margin : OverflowClipMargin
   flex_wrap : FlexWrap
   flex_basis : Val
   flex_grow : Double
@@ -407,25 +410,45 @@ pub(all) struct Node {
   grid_column : GridLine
   active : Bool
 }
-pub fn Node::absolute(@math.Vec2D, size? : @math.Vec2D, padding? : UiRectValues, border? : UiRectValues, display? : Display, flex_direction? : FlexDirection, justify_content? : JustifyContent, align_items? : AlignItems, row_gap? : Double, column_gap? : Double, overflow_x? : Overflow, overflow_y? : Overflow, active? : Bool) -> Self
-pub fn Node::new(width? : Val, height? : Val, min_width? : Val, min_height? : Val, max_width? : Val, max_height? : Val, left? : Val, right? : Val, top? : Val, bottom? : Val, margin? : UiRectValues, padding? : UiRectValues, border? : UiRectValues, display? : Display, position_type? : PositionType, flex_direction? : FlexDirection, justify_content? : JustifyContent, align_items? : AlignItems, row_gap? : Double, column_gap? : Double, overflow_x? : Overflow, overflow_y? : Overflow, flex_grow? : Double, flex_shrink? : Double, active? : Bool, align_content? : AlignContent?, align_self? : AlignItems?, justify_items? : AlignItems?, justify_self? : AlignItems?, flex_wrap? : FlexWrap, flex_basis? : Val, aspect_ratio? : Double?, scrollbar_width? : Double, grid_template_rows? : Array[GridTrack], grid_template_columns? : Array[GridTrack], grid_auto_rows? : Array[GridTrack], grid_auto_columns? : Array[GridTrack], grid_auto_flow? : GridAutoFlow, grid_row? : GridLine, grid_column? : GridLine) -> Self
+pub fn Node::absolute(@math.Vec2D, size? : @math.Vec2D, padding? : UiRectValues, border? : UiRectValues, display? : Display, flex_direction? : FlexDirection, justify_content? : JustifyContent, align_items? : AlignItems, row_gap? : Double, column_gap? : Double, overflow_x? : Overflow, overflow_y? : Overflow, overflow_clip_margin? : OverflowClipMargin, active? : Bool) -> Self
+pub fn Node::new(width? : Val, height? : Val, min_width? : Val, min_height? : Val, max_width? : Val, max_height? : Val, left? : Val, right? : Val, top? : Val, bottom? : Val, margin? : UiRectValues, padding? : UiRectValues, border? : UiRectValues, display? : Display, position_type? : PositionType, flex_direction? : FlexDirection, justify_content? : JustifyContent, align_items? : AlignItems, row_gap? : Double, column_gap? : Double, overflow_x? : Overflow, overflow_y? : Overflow, overflow_clip_margin? : OverflowClipMargin, flex_grow? : Double, flex_shrink? : Double, active? : Bool, align_content? : AlignContent?, align_self? : AlignItems?, justify_items? : AlignItems?, justify_self? : AlignItems?, flex_wrap? : FlexWrap, flex_basis? : Val, aspect_ratio? : Double?, scrollbar_width? : Double, grid_template_rows? : Array[GridTrack], grid_template_columns? : Array[GridTrack], grid_auto_rows? : Array[GridTrack], grid_auto_columns? : Array[GridTrack], grid_auto_flow? : GridAutoFlow, grid_row? : GridLine, grid_column? : GridLine) -> Self
 pub impl Eq for Node
 pub impl Show for Node
 
 pub(all) struct Outline {
-  width : Double
-  offset : Double
+  width : Val
+  offset : Val
   color : @render.Color
 }
-pub fn Outline::new(Double, @render.Color, offset? : Double) -> Self
+pub fn Outline::new(Val, @render.Color, offset? : Val) -> Self
 
 pub(all) enum Overflow {
   Visible
   Clip
+  Hidden
   Scroll
 }
 pub impl Eq for Overflow
 pub impl Show for Overflow
+
+pub(all) enum OverflowClipBox {
+  ContentBox
+  PaddingBox
+  BorderBox
+}
+pub impl Eq for OverflowClipBox
+pub impl Show for OverflowClipBox
+
+pub(all) struct OverflowClipMargin {
+  visual_box : OverflowClipBox
+  margin : Double
+}
+pub fn OverflowClipMargin::border_box() -> Self
+pub fn OverflowClipMargin::content_box() -> Self
+pub fn OverflowClipMargin::padding_box() -> Self
+pub fn OverflowClipMargin::with_margin(Self, Double) -> Self
+pub impl Eq for OverflowClipMargin
+pub impl Show for OverflowClipMargin
 
 pub(all) enum PositionType {
   Relative

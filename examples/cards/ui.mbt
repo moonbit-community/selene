@@ -100,7 +100,7 @@ fn configure_button(
   @ui.nodes.set(entity, @ui.Node::absolute(offset, size~))
   @ui.ui_zindexes.set(entity, @ui.UiZIndex::new(BUTTON_ZINDEX))
   @ui.background_colors.set(entity, @ui.BackgroundColor::from_css(background))
-  @ui.border_radii.set(entity, @ui.BorderRadius::all(6.0))
+  @ui.border_radii.set(entity, @ui.BorderRadius::all(@ui.Val::px(6.0)))
   @ui.buttons.set(entity, @ui.Button::new())
   @ui.tab_indexes.set(entity, @ui.TabIndex::new(tab_index))
 }

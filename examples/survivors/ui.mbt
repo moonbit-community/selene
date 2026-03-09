@@ -94,7 +94,7 @@ fn configure_panel_box(
   @ui.ui_zindexes.set(entity, @ui.UiZIndex::new(PANEL_LAYER_ZINDEX))
   @ui.background_colors.set(entity, @ui.BackgroundColor::from_css(background))
   @ui.border_colors.set(entity, @ui.BorderColor::from_css(border))
-  @ui.border_radii.set(entity, @ui.BorderRadius::all(10.0))
+  @ui.border_radii.set(entity, @ui.BorderRadius::all(@ui.Val::px(10.0)))
 }
 
 ///|
@@ -111,7 +111,7 @@ fn configure_panel_button(
   @ui.ui_zindexes.set(entity, @ui.UiZIndex::new(PANEL_TEXT_ZINDEX))
   @ui.background_colors.set(entity, @ui.BackgroundColor::from_css(background))
   @ui.border_colors.set(entity, @ui.BorderColor::from_css(border))
-  @ui.border_radii.set(entity, @ui.BorderRadius::all(8.0))
+  @ui.border_radii.set(entity, @ui.BorderRadius::all(@ui.Val::px(8.0)))
   @ui.buttons.set(entity, @ui.Button::new())
   @ui.tab_indexes.set(entity, @ui.TabIndex::new(tab_index))
   set_ui_text(entity, label)

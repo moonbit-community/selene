@@ -358,8 +358,50 @@ pub fn grid_auto_flow_column_dense() -> GridAutoFlow {
 pub(all) enum Overflow {
   Visible
   Clip
+  Hidden
   Scroll
 } derive(Eq, Show)
+
+///|
+pub(all) enum OverflowClipBox {
+  ContentBox
+  PaddingBox
+  BorderBox
+} derive(Eq, Show)
+
+///|
+pub(all) struct OverflowClipMargin {
+  visual_box : OverflowClipBox
+  margin : Double
+} derive(Eq, Show)
+
+///|
+pub fn OverflowClipMargin::content_box() -> OverflowClipMargin {
+  { visual_box: ContentBox, margin: 0.0 }
+}
+
+///|
+pub fn OverflowClipMargin::padding_box() -> OverflowClipMargin {
+  { visual_box: PaddingBox, margin: 0.0 }
+}
+
+///|
+pub fn OverflowClipMargin::border_box() -> OverflowClipMargin {
+  { visual_box: BorderBox, margin: 0.0 }
+}
+
+///|
+pub fn OverflowClipMargin::with_margin(
+  self : OverflowClipMargin,
+  margin : Double,
+) -> OverflowClipMargin {
+  { ..self, margin: @cmp.maximum(0.0, margin) }
+}
+
+///|
+pub fn default_overflow_clip_margin() -> OverflowClipMargin {
+  OverflowClipMargin::content_box()
+}
 
 ///|
 pub(all) struct Node {
@@ -389,6 +431,7 @@ pub(all) struct Node {
   column_gap : Double
   overflow_x : Overflow
   overflow_y : Overflow
+  overflow_clip_margin : OverflowClipMargin
   flex_wrap : FlexWrap
   flex_basis : Val
   flex_grow : Double
@@ -429,6 +472,7 @@ pub fn Node::new(
   column_gap? : Double = 0.0,
   overflow_x? : Overflow = Visible,
   overflow_y? : Overflow = Visible,
+  overflow_clip_margin? : OverflowClipMargin = default_overflow_clip_margin(),
   flex_grow? : Double = 0.0,
   flex_shrink? : Double = 1.0,
   active? : Bool = true,
@@ -475,6 +519,7 @@ pub fn Node::new(
     column_gap,
     overflow_x,
     overflow_y,
+    overflow_clip_margin,
     flex_wrap,
     flex_basis,
     flex_grow,
@@ -506,6 +551,7 @@ pub fn Node::absolute(
   column_gap? : Double = 0.0,
   overflow_x? : Overflow = Visible,
   overflow_y? : Overflow = Visible,
+  overflow_clip_margin? : OverflowClipMargin = default_overflow_clip_margin(),
   active? : Bool = true,
 ) -> Node {
   let (width, height) = if size[X] >= 0.0 && size[Y] >= 0.0 {
@@ -529,6 +575,7 @@ pub fn Node::absolute(
     column_gap~,
     overflow_x~,
     overflow_y~,
+    overflow_clip_margin~,
     active~,
   )
 }

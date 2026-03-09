@@ -30,39 +30,39 @@ pub fn BorderColor::from_css(color : String) -> BorderColor {
 
 ///|
 pub(all) struct BorderRadius {
-  top_left : Double
-  top_right : Double
-  bottom_right : Double
-  bottom_left : Double
+  top_left : Val
+  top_right : Val
+  bottom_right : Val
+  bottom_left : Val
 } derive(Eq, Show)
 
 ///|
-pub fn BorderRadius::all(value : Double) -> BorderRadius {
+pub fn BorderRadius::all(value : Val) -> BorderRadius {
   { top_left: value, top_right: value, bottom_right: value, bottom_left: value }
 }
 
 ///|
 pub fn BorderRadius::new(
-  top_left? : Double = 0.0,
-  top_right? : Double = top_left,
-  bottom_right? : Double = top_left,
-  bottom_left? : Double = bottom_right,
+  top_left? : Val = Val::px(0.0),
+  top_right? : Val = top_left,
+  bottom_right? : Val = top_left,
+  bottom_left? : Val = bottom_right,
 ) -> BorderRadius {
   { top_left, top_right, bottom_right, bottom_left }
 }
 
 ///|
 pub(all) struct Outline {
-  width : Double
-  offset : Double
+  width : Val
+  offset : Val
   color : @render.Color
 }
 
 ///|
 pub fn Outline::new(
-  width : Double,
+  width : Val,
   color : @render.Color,
-  offset? : Double = 0.0,
+  offset? : Val = Val::px(0.0),
 ) -> Outline {
   { width, offset, color }
 }

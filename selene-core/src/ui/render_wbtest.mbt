@@ -49,7 +49,7 @@ test "ui rounded backgrounds emit quarter-circle fill commands" {
   let rect = test_rect(10.0, 20.0, 100.0, 60.0)
   global_ui_nodes.set(entity, test_global_node(rect, rect))
   background_colors.set(entity, BackgroundColor::new(rgba(20, 40, 60, 1.0)))
-  border_radii.set(entity, BorderRadius::all(12.0))
+  border_radii.set(entity, BorderRadius::all(Val::px(12.0)))
 
   push_background(entity)
 
@@ -76,12 +76,30 @@ test "ui rounded backgrounds emit quarter-circle fill commands" {
 }
 
 ///|
+test "ui border radii resolve percent values against node size" {
+  let resolved = resolved_border_radius(
+    BorderRadius::new(
+      top_left=Val::percent(0.25),
+      top_right=Val::percent(0.5),
+      bottom_right=Val::px(8.0),
+      bottom_left=Val::percent(1.0),
+    ),
+    @math.Vec2D(120.0, 80.0),
+  )
+
+  inspect(resolved.top_left == 20.0, content="true")
+  inspect(resolved.top_right == 40.0, content="true")
+  inspect(resolved.bottom_right == 8.0, content="true")
+  inspect(resolved.bottom_left == 40.0, content="true")
+}
+
+///|
 test "ui box shadows emit layered rounded shadow commands" {
   @render2d.begin_frame2d_system(0.0)
   let entity = @entity.Entity::new()
   let rect = test_rect(16.0, 24.0, 96.0, 48.0)
   global_ui_nodes.set(entity, test_global_node(rect, rect))
-  border_radii.set(entity, BorderRadius::all(8.0))
+  border_radii.set(entity, BorderRadius::all(Val::px(8.0)))
   box_shadows.set(
     entity,
     BoxShadow::single(
@@ -107,6 +125,47 @@ test "ui box shadows emit layered rounded shadow commands" {
   }
   inspect(circles, content="12")
   inspect(push_clips, content="12")
+
+  cleanup_test_ui_entity(entity)
+}
+
+///|
+test "ui outlines resolve width and offset into outer bands" {
+  @render2d.begin_frame2d_system(0.0)
+  let entity = @entity.Entity::new()
+  let rect = test_rect(20.0, 30.0, 100.0, 60.0)
+  global_ui_nodes.set(entity, test_global_node(rect, rect))
+  outlines.set(
+    entity,
+    Outline::new(Val::px(4.0), rgba(255, 200, 0, 1.0), offset=Val::px(2.0)),
+  )
+
+  push_outline(entity)
+
+  let frame = @render2d.get_frame2d()
+  inspect(frame.ui_commands.length(), content="4")
+  inspect(
+    match frame.ui_commands[0] {
+      Rect(command) =>
+        command.rect.position[X] == 14.0 &&
+        command.rect.position[Y] == 24.0 &&
+        command.rect.size[X] == 112.0 &&
+        command.rect.size[Y] == 4.0
+      _ => false
+    },
+    content="true",
+  )
+  inspect(
+    match frame.ui_commands[2] {
+      Rect(command) =>
+        command.rect.position[X] == 14.0 &&
+        command.rect.position[Y] == 28.0 &&
+        command.rect.size[X] == 4.0 &&
+        command.rect.size[Y] == 64.0
+      _ => false
+    },
+    content="true",
+  )
 
   cleanup_test_ui_entity(entity)
 }
