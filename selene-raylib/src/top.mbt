@@ -38,7 +38,11 @@ priv struct LightingShaderState {
   material_roughness_loc : Int
   material_alpha_mode_loc : Int
   material_alpha_cutoff_loc : Int
-  material_has_texture_loc : Int
+  material_has_base_texture_loc : Int
+  material_has_emissive_texture_loc : Int
+  material_has_metallic_roughness_texture_loc : Int
+  material_has_occlusion_texture_loc : Int
+  material_has_normal_texture_loc : Int
   material_unlit_loc : Int
   material_receive_shadows_loc : Int
   shadow_enabled_locs : Array[Int]
@@ -80,6 +84,11 @@ priv struct MaterialTextureBundle3D {
   metallic_roughness_texture : @raylib.Texture
   occlusion_texture : @raylib.Texture
   normal_texture : @raylib.Texture
+  has_base_texture : Bool
+  has_emissive_texture : Bool
+  has_metallic_roughness_texture : Bool
+  has_occlusion_texture : Bool
+  has_normal_texture : Bool
   base_transform : @render3d_types.TextureTransform3D
   emissive_transform : @render3d_types.TextureTransform3D
   metallic_roughness_transform : @render3d_types.TextureTransform3D
@@ -278,7 +287,11 @@ let raylib_lighting_fragment_shader : String = "#version 330\n" +
   "uniform float materialRoughness;\n" +
   "uniform int materialAlphaMode;\n" +
   "uniform float materialAlphaCutoff;\n" +
-  "uniform int materialHasTexture;\n" +
+  "uniform int materialHasBaseTexture;\n" +
+  "uniform int materialHasEmissiveTexture;\n" +
+  "uniform int materialHasMetallicRoughnessTexture;\n" +
+  "uniform int materialHasOcclusionTexture;\n" +
+  "uniform int materialHasNormalTexture;\n" +
   "uniform int materialUnlit;\n" +
   "uniform int materialReceiveShadows;\n" +
   "uniform int shadowEnabled[4];\n" +
@@ -513,7 +526,7 @@ let raylib_lighting_fragment_shader : String = "#version 330\n" +
   "  vec2 normalUv = applyTextureTransform(fragTexCoord, normalUvOffsetScale, normalUvRotation);\n" +
   "  vec2 occlusionUv = applyTextureTransform(fragTexCoord, occlusionUvOffsetScale, occlusionUvRotation);\n" +
   "  vec2 emissiveUv = applyTextureTransform(fragTexCoord, emissiveUvOffsetScale, emissiveUvRotation);\n" +
-  "  vec4 albedoSample = materialHasTexture != 0 ? texture(texture0, baseUv) : vec4(1.0);\n" +
+  "  vec4 albedoSample = materialHasBaseTexture != 0 ? texture(texture0, baseUv) : vec4(1.0);\n" +
   "  vec4 albedo = albedoSample * fragVertexColor * materialBaseColor;\n" +
   "  if (materialAlphaMode == 0) {\n" +
   "    albedo.a = 1.0;\n" +
@@ -525,11 +538,11 @@ let raylib_lighting_fragment_shader : String = "#version 330\n" +
   "    finalColor = vec4(albedo.rgb, albedo.a);\n" +
   "    return;\n" +
   "  }\n" +
-  "  vec4 metallicRoughnessSample = materialHasTexture != 0 ? texture(texture1, metallicRoughnessUv) : vec4(1.0);\n" +
+  "  vec4 metallicRoughnessSample = materialHasMetallicRoughnessTexture != 0 ? texture(texture1, metallicRoughnessUv) : vec4(1.0);\n" +
   "  vec3 normal = normalize(fragNormal);\n" +
   "  if (length(normal) <= 0.00001) normal = vec3(0.0, 1.0, 0.0);\n" +
   "  vec3 geometricNormal = normal;\n" +
-  "  if (materialHasTexture != 0) normal = applyNormalMap(normal, fragPosition, normalUv);\n" +
+  "  if (materialHasNormalTexture != 0) normal = applyNormalMap(normal, fragPosition, normalUv);\n" +
   "  vec3 viewDir = normalize(viewPosition - fragPosition);\n" +
   "  if (length(viewDir) <= 0.00001) viewDir = vec3(0.0, 0.0, 1.0);\n" +
   "  float roughness = clamp(materialRoughness * metallicRoughnessSample.g, 0.0, 1.0);\n" +
@@ -563,8 +576,8 @@ let raylib_lighting_fragment_shader : String = "#version 330\n" +
   "  if (directionalCount == 0 && pointCount == 0 && spotCount == 0 && dot(ambientLight, ambientLight) <= 0.000001) {\n" +
   "    diffuseLight = vec3(1.0);\n" +
   "  }\n" +
-  "  float occlusion = materialHasTexture != 0 ? mix(1.0, texture(texture4, occlusionUv).r, clamp(materialOcclusionStrength, 0.0, 1.0)) : 1.0;\n" +
-  "  vec3 emissive = materialHasTexture != 0 ? texture(texture5, emissiveUv).rgb * materialEmissiveColor : materialEmissiveColor;\n" +
+  "  float occlusion = materialHasOcclusionTexture != 0 ? mix(1.0, texture(texture4, occlusionUv).r, clamp(materialOcclusionStrength, 0.0, 1.0)) : 1.0;\n" +
+  "  vec3 emissive = materialHasEmissiveTexture != 0 ? texture(texture5, emissiveUv).rgb * materialEmissiveColor : materialEmissiveColor;\n" +
   "  vec3 litColor = albedo.rgb * diffuseLight * occlusion + specularLight * occlusion + emissive;\n" +
   "  finalColor = vec4(litColor, albedo.a);\n" +
   "}\n"
@@ -1135,8 +1148,20 @@ fn create_lighting_shader_state() -> LightingShaderState {
     material_alpha_cutoff_loc: @raylib.get_shader_location(
       shader, "materialAlphaCutoff",
     ),
-    material_has_texture_loc: @raylib.get_shader_location(
-      shader, "materialHasTexture",
+    material_has_base_texture_loc: @raylib.get_shader_location(
+      shader, "materialHasBaseTexture",
+    ),
+    material_has_emissive_texture_loc: @raylib.get_shader_location(
+      shader, "materialHasEmissiveTexture",
+    ),
+    material_has_metallic_roughness_texture_loc: @raylib.get_shader_location(
+      shader, "materialHasMetallicRoughnessTexture",
+    ),
+    material_has_occlusion_texture_loc: @raylib.get_shader_location(
+      shader, "materialHasOcclusionTexture",
+    ),
+    material_has_normal_texture_loc: @raylib.get_shader_location(
+      shader, "materialHasNormalTexture",
     ),
     material_unlit_loc: @raylib.get_shader_location(shader, "materialUnlit"),
     material_receive_shadows_loc: @raylib.get_shader_location(
@@ -1257,6 +1282,11 @@ fn fallback_lighting_texture_bundle() -> MaterialTextureBundle3D {
     metallic_roughness_texture: get_white_texture(),
     occlusion_texture: get_white_texture(),
     normal_texture: get_flat_normal_texture(),
+    has_base_texture: false,
+    has_emissive_texture: false,
+    has_metallic_roughness_texture: false,
+    has_occlusion_texture: false,
+    has_normal_texture: false,
     base_transform: default_transform,
     emissive_transform: default_transform,
     metallic_roughness_transform: default_transform,
@@ -1749,8 +1779,72 @@ fn upload_lighting_uniforms(
   )
   set_shader_uniform(
     shader,
-    state.material_has_texture_loc,
-    bytes_from_int(if texture_bundle is Some(_) { 1 } else { 0 }),
+    state.material_has_base_texture_loc,
+    bytes_from_int(
+      texture_bundle.map_or(0, fn(bundle) {
+        if bundle.has_base_texture {
+          1
+        } else {
+          0
+        }
+      }),
+    ),
+    @raylib.ShaderUniformInt,
+  )
+  set_shader_uniform(
+    shader,
+    state.material_has_emissive_texture_loc,
+    bytes_from_int(
+      texture_bundle.map_or(0, fn(bundle) {
+        if bundle.has_emissive_texture {
+          1
+        } else {
+          0
+        }
+      }),
+    ),
+    @raylib.ShaderUniformInt,
+  )
+  set_shader_uniform(
+    shader,
+    state.material_has_metallic_roughness_texture_loc,
+    bytes_from_int(
+      texture_bundle.map_or(0, fn(bundle) {
+        if bundle.has_metallic_roughness_texture {
+          1
+        } else {
+          0
+        }
+      }),
+    ),
+    @raylib.ShaderUniformInt,
+  )
+  set_shader_uniform(
+    shader,
+    state.material_has_occlusion_texture_loc,
+    bytes_from_int(
+      texture_bundle.map_or(0, fn(bundle) {
+        if bundle.has_occlusion_texture {
+          1
+        } else {
+          0
+        }
+      }),
+    ),
+    @raylib.ShaderUniformInt,
+  )
+  set_shader_uniform(
+    shader,
+    state.material_has_normal_texture_loc,
+    bytes_from_int(
+      texture_bundle.map_or(0, fn(bundle) {
+        if bundle.has_normal_texture {
+          1
+        } else {
+          0
+        }
+      }),
+    ),
     @raylib.ShaderUniformInt,
   )
   set_shader_uniform(
@@ -2990,6 +3084,11 @@ fn resolve_material_texture_bundle(
     normal_texture: normal_source.map_or(get_flat_normal_texture(), fn(source) {
       source.texture
     }),
+    has_base_texture: base_source is Some(_),
+    has_emissive_texture: emissive_source is Some(_),
+    has_metallic_roughness_texture: metallic_roughness_source is Some(_),
+    has_occlusion_texture: occlusion_source is Some(_),
+    has_normal_texture: normal_source is Some(_),
     base_transform: base_source.map_or(default_transform, fn(source) {
       source.transform
     }),

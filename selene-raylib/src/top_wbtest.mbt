@@ -48,25 +48,31 @@ test "raylib shader texture transform helpers preserve default identity uniforms
 test "raylib lighting shader falls back to scalar factors when no textures are bound" {
   inspect(
     raylib_lighting_fragment_shader.contains(
-      "vec4 metallicRoughnessSample = materialHasTexture != 0 ? texture(texture1, metallicRoughnessUv) : vec4(1.0);",
+      "vec4 albedoSample = materialHasBaseTexture != 0 ? texture(texture0, baseUv) : vec4(1.0);",
     ),
     content="true",
   )
   inspect(
     raylib_lighting_fragment_shader.contains(
-      "if (materialHasTexture != 0) normal = applyNormalMap(normal, fragPosition, normalUv);",
+      "vec4 metallicRoughnessSample = materialHasMetallicRoughnessTexture != 0 ? texture(texture1, metallicRoughnessUv) : vec4(1.0);",
     ),
     content="true",
   )
   inspect(
     raylib_lighting_fragment_shader.contains(
-      "float occlusion = materialHasTexture != 0 ? mix(1.0, texture(texture4, occlusionUv).r, clamp(materialOcclusionStrength, 0.0, 1.0)) : 1.0;",
+      "if (materialHasNormalTexture != 0) normal = applyNormalMap(normal, fragPosition, normalUv);",
     ),
     content="true",
   )
   inspect(
     raylib_lighting_fragment_shader.contains(
-      "vec3 emissive = materialHasTexture != 0 ? texture(texture5, emissiveUv).rgb * materialEmissiveColor : materialEmissiveColor;",
+      "float occlusion = materialHasOcclusionTexture != 0 ? mix(1.0, texture(texture4, occlusionUv).r, clamp(materialOcclusionStrength, 0.0, 1.0)) : 1.0;",
+    ),
+    content="true",
+  )
+  inspect(
+    raylib_lighting_fragment_shader.contains(
+      "vec3 emissive = materialHasEmissiveTexture != 0 ? texture(texture5, emissiveUv).rgb * materialEmissiveColor : materialEmissiveColor;",
     ),
     content="true",
   )
