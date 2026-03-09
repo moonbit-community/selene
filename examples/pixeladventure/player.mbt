@@ -86,7 +86,7 @@ fn add_player(pos : @math.Vec2D) -> Unit {
     game_state.player,
     @physics2d.Collider::new(
       @physics2d.CollisionFilter::new(player_collision_group, [
-        terrain_collision_group, enemy_collision_group, trigger_collision_group,
+        terrain_collision_group, trigger_collision_group,
       ]),
     ),
   )
@@ -125,6 +125,13 @@ const RUN_ACC = 3600.0
 const BUMP_V : Double = JUMP_V / 2.0
 
 ///|
+priv enum BirdContactOutcome {
+  None
+  Stomp
+  Hurt
+}
+
+///|
 fn entity_rect(entity : @entity.Entity) -> @math.Rect? {
   guard @transform.positions.get(entity) is Some(position) else { return None }
   guard @physics2d.shapes.get(entity) is Some(shape) else { return None }
@@ -135,34 +142,132 @@ fn entity_rect(entity : @entity.Entity) -> @math.Rect? {
 }
 
 ///|
-fn player_collision_system(_delta : Double) -> Unit {
+fn rects_touch_or_intersect(a : @math.Rect, b : @math.Rect) -> Bool {
+  a.position[X] <= b.position[X] + b.size[X] &&
+  a.position[X] + a.size[X] >= b.position[X] &&
+  a.position[Y] <= b.position[Y] + b.size[Y] &&
+  a.position[Y] + a.size[Y] >= b.position[Y]
+}
+
+///|
+fn sweep_rect(from : @math.Rect, to : @math.Rect) -> @math.Rect {
+  let left = if from.position[X] < to.position[X] {
+    from.position[X]
+  } else {
+    to.position[X]
+  }
+  let top = if from.position[Y] < to.position[Y] {
+    from.position[Y]
+  } else {
+    to.position[Y]
+  }
+  let right_from = from.position[X] + from.size[X]
+  let right_to = to.position[X] + to.size[X]
+  let right = if right_from > right_to { right_from } else { right_to }
+  let bottom_from = from.position[Y] + from.size[Y]
+  let bottom_to = to.position[Y] + to.size[Y]
+  let bottom = if bottom_from > bottom_to { bottom_from } else { bottom_to }
+  {
+    position: @math.Vec2D(left, top),
+    size: @math.Vec2D(right - left, bottom - top),
+  }
+}
+
+///|
+fn classify_bird_contact(
+  player_prev_rect : @math.Rect,
+  player_rect : @math.Rect,
+  bird_prev_rect : @math.Rect,
+  bird_rect : @math.Rect,
+  player_resolved_vy : Double,
+) -> BirdContactOutcome {
+  let player_sweep = sweep_rect(player_prev_rect, player_rect)
+  let bird_sweep = sweep_rect(bird_prev_rect, bird_rect)
+  if !rects_touch_or_intersect(player_sweep, bird_sweep) {
+    return BirdContactOutcome::None
+  }
+  let player_bottom_prev = player_prev_rect.position[Y] +
+    player_prev_rect.size[Y]
+  let player_bottom = player_rect.position[Y] + player_rect.size[Y]
+  let bird_top = bird_rect.position[Y]
+  let bird_mid_y = bird_rect.position[Y] + bird_rect.size[Y] * 0.5
+  if player_resolved_vy > 0.0 &&
+    player_bottom_prev <= bird_mid_y &&
+    player_bottom >= bird_top {
+    BirdContactOutcome::Stomp
+  } else {
+    BirdContactOutcome::Hurt
+  }
+}
+
+///|
+fn apply_stomp_bounce(player_rect : @math.Rect, bird_rect : @math.Rect) -> Unit {
+  let snap_delta_y = bird_rect.position[Y] -
+    (player_rect.position[Y] + player_rect.size[Y])
+  if snap_delta_y < 0.0 {
+    guard @transform.positions.get(game_state.player) is Some(player_position)
+    @transform.positions[game_state.player] = player_position.0.update(
+      Y,
+      player_position.0[Y] + snap_delta_y,
+    )
+  }
+  game_state.pending_bounce_velocity_y = Some(-BUMP_V)
+  let bounce_velocity = @physics2d.linear_velocities
+    .get(game_state.player)
+    .map_or(@math.Vec2D(0.0, -BUMP_V), fn(velocity) {
+      velocity.0.update(Y, -BUMP_V)
+    })
+  @physics2d.linear_velocities[game_state.player] = bounce_velocity
+}
+
+///|
+fn player_motion_base_velocity(
+  resolved_velocity : @math.Vec2D,
+  pending_bounce_velocity_y : Double?,
+) -> @math.Vec2D {
+  match pending_bounce_velocity_y {
+    Some(bounce_velocity_y) => resolved_velocity.update(Y, bounce_velocity_y)
+    None => resolved_velocity
+  }
+}
+
+///|
+fn player_collision_system(delta : Double) -> Unit {
   if game_state.hurt_timer > 0.0 {
     game_state.hurt_timer -= 1.0
   }
   guard entity_rect(game_state.player) is Some(player_rect) else { return }
-  let player_bottom = player_rect.position[Y] + player_rect.size[Y]
-  let resolved_vy = @physics2d.resolved_velocities
+  let player_resolved_velocity = @physics2d.resolved_velocities
     .get(game_state.player)
-    .map_or(0.0, fn(v) { v.0[Y] })
+    .map_or(@math.Vec2D::zero(), fn(v) { v.0 })
+  let player_prev_rect = player_rect.shift(
+    player_resolved_velocity.scalar_mul(-delta),
+  )
   for bird_entity, bird in birds {
     guard bird_entity.is_alive() else { continue }
     guard !bird.is_hurt else { continue }
     guard entity_rect(bird_entity) is Some(bird_rect) else { continue }
-    if !@math.Rect::intersects(player_rect, bird_rect) {
-      continue
-    }
-    let bird_mid_y = bird_rect.position[Y] + bird_rect.size[Y] * 0.5
-    let stomp = resolved_vy > 0.0 && player_bottom <= bird_mid_y
-    if stomp {
-      bird.is_hurt = true
-      guard @physics2d.linear_velocities.get(game_state.player)
-        is Some(velocity)
-      @physics2d.linear_velocities[game_state.player] = velocity.0.update(
-        Y,
-        -BUMP_V,
-      )
-    } else {
-      hurt_player()
+    let bird_resolved_velocity = @physics2d.resolved_velocities
+      .get(bird_entity)
+      .map_or(@math.Vec2D::zero(), fn(v) { v.0 })
+    let bird_prev_rect = bird_rect.shift(
+      bird_resolved_velocity.scalar_mul(-delta),
+    )
+    match
+      classify_bird_contact(
+        player_prev_rect,
+        player_rect,
+        bird_prev_rect,
+        bird_rect,
+        player_resolved_velocity[Y],
+      ) {
+      BirdContactOutcome::None => continue
+      BirdContactOutcome::Stomp => {
+        bird.is_hurt = true
+        set_player_state(PlayerState::Jump)
+        apply_stomp_bounce(player_rect, bird_rect)
+      }
+      BirdContactOutcome::Hurt => hurt_player()
     }
     break
   }
@@ -171,12 +276,19 @@ fn player_collision_system(_delta : Double) -> Unit {
 ///|
 fn player_state_system(delta : Double) -> Unit {
   let player_state = player_state_machine.get()
-  let velocity = @physics2d.resolved_velocities
+  let resolved_velocity = @physics2d.resolved_velocities
     .get(game_state.player)
     .unwrap_or(@math.Vec2D::zero())
+  let velocity = player_motion_base_velocity(
+    resolved_velocity.0,
+    game_state.pending_bounce_velocity_y,
+  )
+  if game_state.pending_bounce_velocity_y is Some(_) {
+    game_state.pending_bounce_velocity_y = None
+  }
   let grounded = @physics2d.is_grounded(game_state.player)
-  let mut new_velocity_x = velocity.0[X]
-  let mut new_velocity_y = velocity.0[Y]
+  let mut new_velocity_x = velocity[X]
+  let mut new_velocity_y = velocity[Y]
   if !(player_state is Hit) {
     if @inputs.is_pressed(@inputs.ArrowLeft) {
       new_velocity_x -= RUN_ACC * delta
@@ -200,7 +312,7 @@ fn player_state_system(delta : Double) -> Unit {
   }
   match player_state {
     Idle => {
-      if velocity.0[X] == 0.0 {
+      if velocity[X] == 0.0 {
         @sprite.play_animation(
           game_state.player,
           player_idle_animation,
@@ -213,7 +325,7 @@ fn player_state_system(delta : Double) -> Unit {
           transform~,
         )
       }
-      if !grounded && velocity.0[Y] > 0.0 {
+      if !grounded && velocity[Y] > 0.0 {
         set_player_state(PlayerState::Fall)
       }
       if @inputs.is_just_pressed(ArrowUp) && grounded {
@@ -237,7 +349,7 @@ fn player_state_system(delta : Double) -> Unit {
         player_jump_animation,
         transform~,
       )
-      if velocity.0[Y] > 0.0 {
+      if velocity[Y] > 0.0 {
         set_player_state(PlayerState::Fall)
       }
     }
@@ -253,7 +365,7 @@ fn player_state_system(delta : Double) -> Unit {
       if @sprite.is_animation_finished(game_state.player) {
         if @physics2d.is_grounded(game_state.player) {
           set_player_state(PlayerState::Idle)
-        } else if velocity.0[Y] < 0.0 {
+        } else if velocity[Y] < 0.0 {
           set_player_state(PlayerState::Fall)
         } else {
           set_player_state(PlayerState::Jump)

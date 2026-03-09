@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- `examples/pixeladventure` now keeps birds out of the player's physics collision mask, resolves player/bird hits with a fixed-step swept contact classifier, and preserves stomp bounce velocity into the next player update, so birds no longer act like moving platforms and stomps recover their natural rebound
+- `examples/pixeladventure` now runs bird contact handling after each fixed physics step and centers the `Score` HUD within the visible playfield instead of the full canvas, so player/bird collisions use fresh physics results and the score label no longer sits left of the gameplay centerline
 - `selene-raylib` shutdown cleanup now resets cached lit/shadow materials back to raylib's default material state before unloading them, so `cleanup_resources()` no longer double-unloads shared custom shaders or material-map textures on app exit
 
 ## [0.26.1] - 2026-03-08

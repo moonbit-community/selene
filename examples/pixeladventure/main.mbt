@@ -39,8 +39,8 @@ pub fn run() -> Unit {
       @state.on_enter_eq(player_state_machine, PlayerState::Jump),
     ),
   )
-  .add_system(player_collision_system)
-  .add_system(bird_ai_system)
+  .add_system(player_collision_system, schedule=FixedPostUpdate)
+  .add_system(bird_ai_system, schedule=FixedPostUpdate)
   .add_system(map_trigger_system)
   .add_system(volume_button_input_system, schedule=PostUpdate)
   .run()

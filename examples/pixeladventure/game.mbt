@@ -24,6 +24,7 @@ priv struct GameState {
   mut volume_on : Bool
   mut health : Int
   mut hurt_timer : Double
+  mut pending_bounce_velocity_y : Double?
 }
 
 ///|
@@ -44,6 +45,7 @@ let game_state : GameState = {
   volume_on: true,
   health: 3,
   hurt_timer: 0.0,
+  pending_bounce_velocity_y: None,
 }
 
 ///|

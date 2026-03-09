@@ -19,6 +19,9 @@ const HUD_ZINDEX : Int = 100
 const BUTTON_ZINDEX : Int = 110
 
 ///|
+const PLAYFIELD_LEFT_INSET : Double = 48.0
+
+///|
 let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = @event.EventReader::new()
 
 ///|
@@ -69,11 +72,11 @@ fn add_result_box() -> Unit {
 fn add_score_box() -> Unit {
   configure_text_box(
     game_state.score_box,
-    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 60.0, 16.0),
+    @math.Vec2D(PLAYFIELD_LEFT_INSET, 16.0),
     "Score: 0",
     "white",
     "20px ThaleahFat",
-    size=@math.Vec2D(120.0, 24.0),
+    size=@math.Vec2D(VIEWPORT_WIDTH - PLAYFIELD_LEFT_INSET, 24.0),
     align=@math.HAlign::Center,
   )
 }
