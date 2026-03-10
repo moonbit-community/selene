@@ -13,12 +13,13 @@
 // limitations under the License.
 
 ///|
-/// The `CollisionShape` enum represents different shapes that can be used for collision detection.
-/// It currently supports rectangular shapes defined by their size and offset.
-/// 
+/// Collision geometry used by 2D colliders and trigger areas.
 pub(all) enum CollisionShape {
   Rect(size~ : @math.Vec2D, offset~ : @math.Vec2D)
-}
+  Ball(radius~ : Double, offset~ : @math.Vec2D)
+  Polygon(points~ : Array[@math.Vec2D], offset~ : @math.Vec2D)
+  Polyline(points~ : Array[@math.Vec2D], offset~ : @math.Vec2D, closed~ : Bool)
+} derive(Eq, Show)
 
 ///|
 /// Stores the collision shapes for all entities in the game world.

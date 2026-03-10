@@ -2,6 +2,7 @@
 package "Milky2018/selene/collision"
 
 import {
+  "Milky2018/moon_rapier/dynamics",
   "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
@@ -11,7 +12,21 @@ import {
 }
 
 // Values
+pub fn add_force(@entity.Entity, @math.Vec2D, wake_up? : Bool) -> Unit
+
+pub fn add_force_at_point(@entity.Entity, @math.Vec2D, @math.Vec2D, wake_up? : Bool) -> Unit
+
+pub fn add_torque(@entity.Entity, Double, wake_up? : Bool) -> Unit
+
+pub fn apply_impulse(@entity.Entity, @math.Vec2D, wake_up? : Bool) -> Unit
+
+pub fn apply_impulse_at_point(@entity.Entity, @math.Vec2D, @math.Vec2D, wake_up? : Bool) -> Unit
+
+pub fn apply_torque_impulse(@entity.Entity, Double, wake_up? : Bool) -> Unit
+
 pub let areas : Map[@entity.Entity, Area]
+
+pub fn collider_handle(@entity.Entity) -> @Milky2018/moon_rapier/collision.ColliderHandle?
 
 pub let colliders : Map[@entity.Entity, Collider]
 
@@ -27,9 +42,23 @@ pub fn get_contains(@entity.Entity) -> @set.Set[@entity.Entity]
 
 pub let grounded_entities : @set.Set[@entity.Entity]
 
+pub fn intersect_point(@math.Vec2D, query_filter? : SpatialQueryFilter) -> Array[@entity.Entity]
+
+pub fn intersect_shape(CollisionShape, @math.Vec2D, rotation? : Double, query_filter? : SpatialQueryFilter) -> Array[@entity.Entity]
+
 pub fn is_grounded(@entity.Entity) -> Bool
 
+pub fn joint_handle(@entity.Entity) -> @dynamics.ImpulseJointHandle?
+
+pub let joints : Map[@entity.Entity, Joint]
+
 pub fn move_system(Double) -> Unit
+
+pub fn multibody_joint_handle(@entity.Entity) -> @dynamics.MultibodyJointHandle?
+
+pub let multibody_joints : Map[@entity.Entity, MultibodyJoint]
+
+pub fn multibody_link(@entity.Entity) -> @dynamics.MultibodyLinkId?
 
 pub let physics_config : PhysicsConfig
 
@@ -39,7 +68,35 @@ pub let pickables : Map[@entity.Entity, Pickable]
 
 pub let pointer_event_bus : @event.Events[PointerEvent]
 
+pub fn raycast(@math.Vec2D, @math.Vec2D, max_toi? : Double, solid? : Bool, query_filter? : SpatialQueryFilter) -> RaycastHit?
+
+pub fn reset_forces(@entity.Entity, wake_up? : Bool) -> Unit
+
+pub fn reset_torques(@entity.Entity, wake_up? : Bool) -> Unit
+
 pub let resolved_velocities : Map[@entity.Entity, @velocity.Velocity]
+
+pub let rigid_bodies : Map[@entity.Entity, RigidBody]
+
+pub fn rigid_body_angular_velocity(@entity.Entity) -> Double?
+
+pub fn rigid_body_handle(@entity.Entity) -> @dynamics.RigidBodyHandle?
+
+pub fn rigid_body_linear_velocity(@entity.Entity) -> @math.Vec2D?
+
+pub fn rigid_body_rotation(@entity.Entity) -> Double?
+
+pub fn rigid_body_translation(@entity.Entity) -> @math.Vec2D?
+
+pub fn set_rigid_body_angular_velocity(@entity.Entity, Double) -> Unit
+
+pub fn set_rigid_body_linear_velocity(@entity.Entity, @math.Vec2D) -> Unit
+
+pub fn set_rigid_body_rotation(@entity.Entity, Double) -> Unit
+
+pub fn set_rigid_body_translation(@entity.Entity, @math.Vec2D) -> Unit
+
+pub fn shape_cast(CollisionShape, @math.Vec2D, rotation? : Double, direction? : @math.Vec2D, max_toi? : Double, stop_at_penetration? : Bool, query_filter? : SpatialQueryFilter) -> ShapeCastHit?
 
 pub let shapes : Map[@entity.Entity, CollisionShape]
 
@@ -49,23 +106,32 @@ pub let trigger_event_bus : @event.Events[TriggerEvent]
 
 // Types and methods
 pub(all) struct Area {
+  mut active : Bool
   filter : CollisionFilter
   mut contains : @set.Set[@entity.Entity]
 }
 pub fn Area::new(CollisionFilter) -> Self
+pub impl Eq for Area
 
 pub(all) struct Collider {
   mut active : Bool
   filter : CollisionFilter
+  mut friction : Double
+  mut restitution : Double
 }
 pub fn Collider::new(CollisionFilter) -> Self
+pub fn Collider::with_material(CollisionFilter, friction? : Double, restitution? : Double, active? : Bool) -> Self
+pub impl Eq for Collider
 
 pub struct CollisionFilter {
   group : CollisionGroup
   mask : Array[CollisionGroup]
+  match_all : Bool
 }
+pub fn CollisionFilter::all(CollisionGroup) -> Self
 pub fn CollisionFilter::empty(CollisionGroup) -> Self
 pub fn CollisionFilter::new(CollisionGroup, Array[CollisionGroup]) -> Self
+pub impl Eq for CollisionFilter
 
 pub struct CollisionGroup {
   value : UInt
@@ -75,7 +141,12 @@ pub impl Eq for CollisionGroup
 
 pub(all) enum CollisionShape {
   Rect(size~ : @math.Vec2D, offset~ : @math.Vec2D)
+  Ball(radius~ : Double, offset~ : @math.Vec2D)
+  Polygon(points~ : Array[@math.Vec2D], offset~ : @math.Vec2D)
+  Polyline(points~ : Array[@math.Vec2D], offset~ : @math.Vec2D, closed~ : Bool)
 }
+pub impl Eq for CollisionShape
+pub impl Show for CollisionShape
 
 pub struct ContactEvent {
   entity : @entity.Entity
@@ -83,6 +154,80 @@ pub struct ContactEvent {
   started : Bool
   direction : @math.Vec2D
 }
+
+pub struct Joint {
+  entity1 : @entity.Entity
+  entity2 : @entity.Entity
+  kind : JointKind
+  active : Bool
+  contacts_enabled : Bool
+}
+pub fn Joint::fixed(@entity.Entity, @entity.Entity, local_anchor1? : @math.Vec2D, local_anchor2? : @math.Vec2D, active? : Bool, contacts_enabled? : Bool) -> Self
+pub fn Joint::prismatic(@entity.Entity, @entity.Entity, @math.Vec2D, local_anchor1? : @math.Vec2D, local_anchor2? : @math.Vec2D, limits? : JointLimits, active? : Bool, contacts_enabled? : Bool) -> Self
+pub fn Joint::revolute(@entity.Entity, @entity.Entity, local_anchor1? : @math.Vec2D, local_anchor2? : @math.Vec2D, limits? : JointLimits, motor? : JointMotor, softness? : JointSoftness, active? : Bool, contacts_enabled? : Bool) -> Self
+pub fn Joint::rope(@entity.Entity, @entity.Entity, Double, local_anchor1? : @math.Vec2D, local_anchor2? : @math.Vec2D, active? : Bool, contacts_enabled? : Bool) -> Self
+pub fn Joint::spring(@entity.Entity, @entity.Entity, Double, Double, Double, local_anchor1? : @math.Vec2D, local_anchor2? : @math.Vec2D, model? : JointMotorModel, active? : Bool, contacts_enabled? : Bool) -> Self
+pub impl Eq for Joint
+pub impl Show for Joint
+
+pub enum JointKind {
+  Fixed(local_anchor1~ : @math.Vec2D, local_anchor2~ : @math.Vec2D)
+  Revolute(local_anchor1~ : @math.Vec2D, local_anchor2~ : @math.Vec2D, limits~ : JointLimits?, motor~ : JointMotor?, softness~ : JointSoftness?)
+  Prismatic(axis~ : @math.Vec2D, local_anchor1~ : @math.Vec2D, local_anchor2~ : @math.Vec2D, limits~ : JointLimits?)
+  Rope(max_distance~ : Double, local_anchor1~ : @math.Vec2D, local_anchor2~ : @math.Vec2D)
+  Spring(rest_length~ : Double, stiffness~ : Double, damping~ : Double, local_anchor1~ : @math.Vec2D, local_anchor2~ : @math.Vec2D, model~ : JointMotorModel)
+}
+pub impl Eq for JointKind
+pub impl Show for JointKind
+
+pub struct JointLimits {
+  min : Double
+  max : Double
+}
+pub fn JointLimits::new(Double, Double) -> Self
+pub impl Eq for JointLimits
+pub impl Show for JointLimits
+
+pub enum JointMotor {
+  Position(target_position~ : Double, stiffness~ : Double, damping~ : Double, max_force~ : Double?, model~ : JointMotorModel)
+  Velocity(target_velocity~ : Double, damping~ : Double, max_force~ : Double?, model~ : JointMotorModel)
+}
+pub fn JointMotor::position(Double, Double, Double, max_force? : Double, model? : JointMotorModel) -> Self
+pub fn JointMotor::velocity(Double, Double, max_force? : Double, model? : JointMotorModel) -> Self
+pub impl Eq for JointMotor
+pub impl Show for JointMotor
+
+pub enum JointMotorModel {
+  AccelerationBased
+  ForceBased
+}
+pub fn JointMotorModel::acceleration_based() -> Self
+pub fn JointMotorModel::force_based() -> Self
+pub impl Eq for JointMotorModel
+pub impl Show for JointMotorModel
+
+pub struct JointSoftness {
+  damping_ratio : Double
+  natural_frequency : Double
+}
+pub fn JointSoftness::new(Double, Double) -> Self
+pub impl Eq for JointSoftness
+pub impl Show for JointSoftness
+
+pub struct MultibodyJoint {
+  parent : @entity.Entity
+  kind : MultibodyJointKind
+  active : Bool
+}
+pub fn MultibodyJoint::revolute(@entity.Entity, local_anchor1? : @math.Vec2D, local_anchor2? : @math.Vec2D, limits? : JointLimits, motor? : JointMotor, softness? : JointSoftness, active? : Bool) -> Self
+pub impl Eq for MultibodyJoint
+pub impl Show for MultibodyJoint
+
+pub enum MultibodyJointKind {
+  Revolute(local_anchor1~ : @math.Vec2D, local_anchor2~ : @math.Vec2D, limits~ : JointLimits?, motor~ : JointMotor?, softness~ : JointSoftness?)
+}
+pub impl Eq for MultibodyJointKind
+pub impl Show for MultibodyJointKind
 
 pub(all) struct PhysicsConfig {
   mut gravity : @math.Vec2D
@@ -109,6 +254,69 @@ pub(all) enum PointerPhase {
 }
 pub impl Eq for PointerPhase
 
+pub struct RaycastHit {
+  entity : @entity.Entity
+  toi : Double
+  point : @math.Vec2D
+  normal : @math.Vec2D
+}
+pub impl Eq for RaycastHit
+pub impl Show for RaycastHit
+
+pub(all) struct RigidBody {
+  body_type : RigidBodyType
+  gravity_scale : Double
+  linear_damping : Double
+  angular_damping : Double
+  ccd_enabled : Bool
+  lock_rotation : Bool
+}
+pub fn RigidBody::dynamic() -> Self
+pub fn RigidBody::fixed() -> Self
+pub fn RigidBody::kinematic_position_based() -> Self
+pub fn RigidBody::kinematic_velocity_based() -> Self
+pub impl Eq for RigidBody
+pub impl Show for RigidBody
+
+pub(all) enum RigidBodyType {
+  Dynamic
+  Fixed
+  KinematicPositionBased
+  KinematicVelocityBased
+}
+pub impl Eq for RigidBodyType
+pub impl Show for RigidBodyType
+
+pub struct ShapeCastHit {
+  entity : @entity.Entity
+  toi : Double
+  point : @math.Vec2D
+  normal : @math.Vec2D
+}
+pub impl Eq for ShapeCastHit
+pub impl Show for ShapeCastHit
+
+pub enum SpatialQueryBodyFilter {
+  All
+  Dynamic
+  Fixed
+  Kinematic
+}
+pub impl Eq for SpatialQueryBodyFilter
+
+pub struct SpatialQueryFilter {
+  groups : CollisionFilter?
+  exclude_entity : @entity.Entity?
+  exclude_sensors : Bool
+  exclude_solids : Bool
+  body_filter : SpatialQueryBodyFilter
+}
+pub fn SpatialQueryFilter::default() -> Self
+pub fn SpatialQueryFilter::only_dynamic() -> Self
+pub fn SpatialQueryFilter::only_fixed() -> Self
+pub fn SpatialQueryFilter::only_kinematic() -> Self
+pub impl Eq for SpatialQueryFilter
+
 pub struct TriggerEvent {
   area : @entity.Entity
   other : @entity.Entity
@@ -116,6 +324,15 @@ pub struct TriggerEvent {
 }
 
 // Type aliases
+pub using @Milky2018/moon_rapier/collision {type ColliderHandle}
+
+pub using @dynamics {type ImpulseJointHandle as JointHandle}
+
+pub using @dynamics {type MultibodyJointHandle}
+
+pub using @dynamics {type MultibodyLinkId}
+
+pub using @dynamics {type RigidBodyHandle}
 
 // Traits
 

@@ -28,7 +28,8 @@ pub struct CollisionGroup {
 pub struct CollisionFilter {
   group : CollisionGroup
   mask : Array[CollisionGroup]
-}
+  match_all : Bool
+} derive(Eq)
 
 ///|
 let collision_group_generator : Ref[UInt] = { val: 0 }
@@ -48,13 +49,19 @@ pub fn CollisionFilter::new(
   group : CollisionGroup,
   mask : Array[CollisionGroup],
 ) -> CollisionFilter {
-  { group, mask }
+  { group, mask, match_all: false }
 }
 
 ///|
 /// Creates a collision filter that cannot interact with any group.
 pub fn CollisionFilter::empty(group : CollisionGroup) -> CollisionFilter {
-  { group, mask: [] }
+  { group, mask: [], match_all: false }
+}
+
+///|
+/// Creates a collision filter that can interact with every group.
+pub fn CollisionFilter::all(group : CollisionGroup) -> CollisionFilter {
+  { group, mask: [], match_all: true }
 }
 
 ///|
@@ -62,5 +69,5 @@ fn CollisionFilter::matches_group(
   self : CollisionFilter,
   group : CollisionGroup,
 ) -> Bool {
-  self.mask.contains(group)
+  self.match_all || self.mask.contains(group)
 }

@@ -15,13 +15,14 @@
 ///|
 /// Sensor area component.
 pub(all) struct Area {
+  mut active : Bool
   filter : CollisionFilter
   mut contains : Set[@entity.Entity]
-}
+} derive(Eq)
 
 ///|
 pub fn Area::new(filter : CollisionFilter) -> Area {
-  { filter, contains: Set::new() }
+  { active: true, filter, contains: Set::new() }
 }
 
 ///|

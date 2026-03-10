@@ -13,6 +13,74 @@
 // limitations under the License.
 
 ///|
+/// Rigid-body mode enum.
+pub type RigidBodyType = @collision.RigidBodyType
+
+///|
+/// Explicit 2D rigid-body descriptor.
+pub type RigidBody = @collision.RigidBody
+
+///|
+/// Native Rapier rigid-body handle.
+pub type RigidBodyHandle = @collision.RigidBodyHandle
+
+///|
+/// Native Rapier collider handle.
+pub type ColliderHandle = @collision.ColliderHandle
+
+///|
+/// Authored 2D joint motor model.
+pub type JointMotorModel = @collision.JointMotorModel
+
+///|
+/// Optional scalar joint limits.
+pub type JointLimits = @collision.JointLimits
+
+///|
+/// Optional joint softness coefficients.
+pub type JointSoftness = @collision.JointSoftness
+
+///|
+/// Revolute joint motor descriptor.
+pub type JointMotor = @collision.JointMotor
+
+///|
+/// 2D joint kind enum.
+pub type JointKind = @collision.JointKind
+
+///|
+/// Authored 2D joint component.
+pub type Joint = @collision.Joint
+
+///|
+/// Native Rapier impulse-joint handle.
+pub type JointHandle = @collision.JointHandle
+
+///|
+/// 2D multibody joint kind enum.
+pub type MultibodyJointKind = @collision.MultibodyJointKind
+
+///|
+/// Authored 2D multibody joint component.
+pub type MultibodyJoint = @collision.MultibodyJoint
+
+///|
+/// Native Rapier multibody-joint handle.
+pub type MultibodyJointHandle = @collision.MultibodyJointHandle
+
+///|
+/// Native Rapier multibody link identifier.
+pub type MultibodyLinkId = @collision.MultibodyLinkId
+
+///|
+/// Spatial query body-type filter.
+pub type SpatialQueryBodyFilter = @collision.SpatialQueryBodyFilter
+
+///|
+/// Spatial query filter translated to Rapier predicates.
+pub type SpatialQueryFilter = @collision.SpatialQueryFilter
+
+///|
 /// 2D linear velocity component.
 pub type LinearVelocity = @velocity.Velocity
 
@@ -69,6 +137,14 @@ pub type ContactEvent = @collision.ContactEvent
 pub type SensorEvent = @collision.TriggerEvent
 
 ///|
+/// 2D raycast hit payload.
+pub type RaycastHit = @collision.RaycastHit
+
+///|
+/// 2D shape-cast hit payload.
+pub type ShapeCastHit = @collision.ShapeCastHit
+
+///|
 /// Backward-compatible trigger event alias.
 pub type TriggerEvent = @collision.TriggerEvent
 
@@ -95,6 +171,18 @@ pub let velocities : Map[@entity.Entity, Velocity] = @velocity.velocities
 ///|
 /// Collider components.
 pub let colliders : Map[@entity.Entity, Collider] = @collision.colliders
+
+///|
+/// Explicit rigid-body descriptors.
+pub let rigid_bodies : Map[@entity.Entity, RigidBody] = @collision.rigid_bodies
+
+///|
+/// Authored 2D joint descriptors.
+pub let joints : Map[@entity.Entity, Joint] = @collision.joints
+
+///|
+/// Authored 2D multibody joint descriptors keyed by the child rigid-body entity.
+pub let multibody_joints : Map[@entity.Entity, MultibodyJoint] = @collision.multibody_joints
 
 ///|
 /// Sensor/area components.
@@ -157,8 +245,208 @@ pub fn empty_collision_layers(memberships : CollisionGroup) -> CollisionLayers {
 }
 
 ///|
+pub fn all_collision_layers(memberships : CollisionGroup) -> CollisionLayers {
+  @collision.CollisionFilter::all(memberships)
+}
+
+///|
 pub fn new_sensor(filter : CollisionLayers) -> Sensor {
   @collision.Area::new(filter)
+}
+
+///|
+pub fn rigid_body_handle(entity : @entity.Entity) -> RigidBodyHandle? {
+  @collision.rigid_body_handle(entity)
+}
+
+///|
+pub fn collider_handle(entity : @entity.Entity) -> ColliderHandle? {
+  @collision.collider_handle(entity)
+}
+
+///|
+pub fn joint_handle(entity : @entity.Entity) -> JointHandle? {
+  @collision.joint_handle(entity)
+}
+
+///|
+pub fn multibody_joint_handle(
+  entity : @entity.Entity,
+) -> MultibodyJointHandle? {
+  @collision.multibody_joint_handle(entity)
+}
+
+///|
+pub fn multibody_link(entity : @entity.Entity) -> MultibodyLinkId? {
+  @collision.multibody_link(entity)
+}
+
+///|
+pub fn raycast(
+  origin : @math.Vec2D,
+  direction : @math.Vec2D,
+  max_toi? : Double = 1000.0,
+  solid? : Bool = true,
+  query_filter? : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
+) -> RaycastHit? {
+  @collision.raycast(origin, direction, max_toi~, solid~, query_filter~)
+}
+
+///|
+pub fn shape_cast(
+  shape : CollisionShape,
+  origin : @math.Vec2D,
+  rotation? : Double = 0.0,
+  direction? : @math.Vec2D = @math.Vec2D(0.0, -1.0),
+  max_toi? : Double = 1000.0,
+  stop_at_penetration? : Bool = false,
+  query_filter? : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
+) -> ShapeCastHit? {
+  @collision.shape_cast(
+    shape,
+    origin,
+    rotation~,
+    direction~,
+    max_toi~,
+    stop_at_penetration~,
+    query_filter~,
+  )
+}
+
+///|
+pub fn intersect_point(
+  point : @math.Vec2D,
+  query_filter? : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
+) -> Array[@entity.Entity] {
+  @collision.intersect_point(point, query_filter~)
+}
+
+///|
+pub fn intersect_shape(
+  shape : CollisionShape,
+  origin : @math.Vec2D,
+  rotation? : Double = 0.0,
+  query_filter? : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
+) -> Array[@entity.Entity] {
+  @collision.intersect_shape(shape, origin, rotation~, query_filter~)
+}
+
+///|
+pub fn rigid_body_translation(entity : @entity.Entity) -> @math.Vec2D? {
+  @collision.rigid_body_translation(entity)
+}
+
+///|
+pub fn set_rigid_body_translation(
+  entity : @entity.Entity,
+  translation : @math.Vec2D,
+) -> Unit {
+  @collision.set_rigid_body_translation(entity, translation)
+}
+
+///|
+pub fn rigid_body_rotation(entity : @entity.Entity) -> Double? {
+  @collision.rigid_body_rotation(entity)
+}
+
+///|
+pub fn set_rigid_body_rotation(
+  entity : @entity.Entity,
+  rotation : Double,
+) -> Unit {
+  @collision.set_rigid_body_rotation(entity, rotation)
+}
+
+///|
+pub fn rigid_body_linear_velocity(entity : @entity.Entity) -> @math.Vec2D? {
+  @collision.rigid_body_linear_velocity(entity)
+}
+
+///|
+pub fn set_rigid_body_linear_velocity(
+  entity : @entity.Entity,
+  linear_velocity : @math.Vec2D,
+) -> Unit {
+  @collision.set_rigid_body_linear_velocity(entity, linear_velocity)
+}
+
+///|
+pub fn rigid_body_angular_velocity(entity : @entity.Entity) -> Double? {
+  @collision.rigid_body_angular_velocity(entity)
+}
+
+///|
+pub fn set_rigid_body_angular_velocity(
+  entity : @entity.Entity,
+  angular_velocity : Double,
+) -> Unit {
+  @collision.set_rigid_body_angular_velocity(entity, angular_velocity)
+}
+
+///|
+pub fn add_force(
+  entity : @entity.Entity,
+  force : @math.Vec2D,
+  wake_up? : Bool = true,
+) -> Unit {
+  @collision.add_force(entity, force, wake_up~)
+}
+
+///|
+pub fn add_force_at_point(
+  entity : @entity.Entity,
+  force : @math.Vec2D,
+  point : @math.Vec2D,
+  wake_up? : Bool = true,
+) -> Unit {
+  @collision.add_force_at_point(entity, force, point, wake_up~)
+}
+
+///|
+pub fn add_torque(
+  entity : @entity.Entity,
+  torque : Double,
+  wake_up? : Bool = true,
+) -> Unit {
+  @collision.add_torque(entity, torque, wake_up~)
+}
+
+///|
+pub fn apply_impulse(
+  entity : @entity.Entity,
+  impulse : @math.Vec2D,
+  wake_up? : Bool = true,
+) -> Unit {
+  @collision.apply_impulse(entity, impulse, wake_up~)
+}
+
+///|
+pub fn apply_impulse_at_point(
+  entity : @entity.Entity,
+  impulse : @math.Vec2D,
+  point : @math.Vec2D,
+  wake_up? : Bool = true,
+) -> Unit {
+  @collision.apply_impulse_at_point(entity, impulse, point, wake_up~)
+}
+
+///|
+pub fn apply_torque_impulse(
+  entity : @entity.Entity,
+  impulse : Double,
+  wake_up? : Bool = true,
+) -> Unit {
+  @collision.apply_torque_impulse(entity, impulse, wake_up~)
+}
+
+///|
+pub fn reset_forces(entity : @entity.Entity, wake_up? : Bool = true) -> Unit {
+  @collision.reset_forces(entity, wake_up~)
+}
+
+///|
+pub fn reset_torques(entity : @entity.Entity, wake_up? : Bool = true) -> Unit {
+  @collision.reset_torques(entity, wake_up~)
 }
 
 ///|

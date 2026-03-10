@@ -17,11 +17,23 @@
 pub(all) struct Collider {
   mut active : Bool
   filter : CollisionFilter
-}
+  mut friction : Double
+  mut restitution : Double
+} derive(Eq)
 
 ///|
 pub fn Collider::new(filter : CollisionFilter) -> Collider {
-  { active: true, filter }
+  { active: true, filter, friction: 0.5, restitution: 0.0 }
+}
+
+///|
+pub fn Collider::with_material(
+  filter : CollisionFilter,
+  friction? : Double = 0.5,
+  restitution? : Double = 0.0,
+  active? : Bool = true,
+) -> Collider {
+  { active, filter, friction, restitution }
 }
 
 ///|

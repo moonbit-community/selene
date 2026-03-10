@@ -4,20 +4,357 @@
 
 ### Added
 
-- `selene/tilemap` now exposes a Tiled-authored data model through `TiledPropertyValue`, `TiledProperty`, `TiledGid`, `TiledChunk`, `TiledCell`, `TiledTileLayer`, `TiledPoint`, `TiledText`, `TiledObject`, `TiledObjectLayer`, `TiledImageLayer`, `TiledTileDefinition`, `TiledTileset`, `TiledLayerKind`, `TiledLayer`, `TiledMap`, `empty_tiled_gid()`, `decode_tiled_gid()`, `encode_tiled_gid()`, `TiledGid::is_empty()`, `empty_tiled_map()`, `load_tiled_map(...)`, `TiledMap::from_tiled_json(...)`, `TiledMap::from_tiled_xml(...)`, `TiledMap::resolve_path(...)`, `TiledMap::resolve_tileset_asset_path(...)`, `TiledMap::layer(...)`, `TiledMap::layer_by_id(...)`, `TiledMap::tile_layer(...)`, `TiledMap::object_layer(...)`, `TiledMap::tileset_for_gid(...)`, `TiledMap::property(...)`, `TiledTileset::tile_definition(...)`, `TiledLayer::property(...)`, `TiledObject::property(...)`, `TiledTileset::property(...)`, `TiledObjectLayer::object(...)`, `TiledTileLayer::tile_gid_at(...)`, and `TiledTileLayer::tile_cells(...)`
-- `selene/tilemap` now exposes real Tiled ECS-spawn API through `TiledSpawnSettings`, `default_tiled_spawn_settings()`, `spawn_tiled_map(...)`, `load_and_spawn_tiled_map(...)`, `TiledMapInstance`, `TiledLayerInstance`, `TiledTileInstance`, `TiledObjectInstance`, `TiledImageLayerInstance`, `tiled_map_instances`, `tiled_layer_instances`, `tiled_tile_instances`, `tiled_object_instances`, and `tiled_image_layer_instances`
-- `selene/ui` now exposes Bevy-style `ShadowStyle`, `BoxShadow`, and `box_shadows`, and the UI renderer submits layered box-shadow draws for nodes through the existing 2D command path
-- `selene/ui` now exposes the overflow-clipping API surface `Overflow::Hidden`, `OverflowClipBox`, `OverflowClipMargin`, `OverflowClipMargin::content_box()`, `OverflowClipMargin::padding_box()`, `OverflowClipMargin::border_box()`, `OverflowClipMargin::with_margin(...)`, and `default_overflow_clip_margin()`
-- `selene/ui` `Node` now carries Bevy-style `overflow_clip_margin`, and both `Node::new(...)` and `Node::absolute(...)` now accept `overflow_clip_margin?`, so clipped/scrolling nodes can choose content-box, padding-box, or border-box clipping with extra clip margin instead of always clipping to content bounds
-- `selene/ui` now exposes Bevy-style clipping and cursor-tracking components through `CalculatedClip`, `CalculatedClip::new(...)`, `OverrideClip`, `OverrideClip::new()`, `RelativeCursorPosition`, `RelativeCursorPosition::new()`, `RelativeCursorPosition::mouse_over()`, `calculated_clips`, `override_clips`, and `relative_cursor_positions`
-- `selene/ui` now exposes Bevy-style layout rounding controls through `LayoutConfig`, `LayoutConfig::new(...)`, and `layout_configs`
-- `selene/ui` now exposes Bevy-style stacking components and stores through `ZIndex`, `ZIndex::new(...)`, `GlobalZIndex`, `GlobalZIndex::new(...)`, `z_indexes`, and `global_zindexes`
-- `selene/ui` now exposes an asset-driven material-node surface through `UiMaterialHandle`, `MaterialNode`, `MaterialNode::new(...)`, `UiGradient`, `UiGradient::new(...)`, `UiMaterialContext`, `UiMaterialContext::new(...)`, `UiMaterialAsset`, `UiMaterialAsset::from_draw(...)`, `UiMaterialAsset::solid(...)`, `UiMaterialAsset::gradient(...)`, `UiMaterialAsset::from_ui_image(...)`, `UiMaterialAsset::from_image(...)`, `UiMaterialAsset::new(...)`, `draw_ui_material_solid(...)`, `draw_ui_material_gradient(...)`, `draw_ui_material_image(...)`, `material_nodes`, `register_ui_material_asset(...)`, `ui_material_asset(...)`, `update_ui_material_asset(...)`, and `release_ui_material_asset(...)`
+#### `selene/tiled` map data APIs
+
+- `TiledPropertyValue`: typed property union for Tiled property values (`String`, `Int`, `Float`, `Bool`, `Color`, `File`, `Object`, `Custom`).
+- `TiledProperty`: `name + value` pair for map/layer/object/tileset properties.
+- `TiledGid`: decoded global tile ID with flip flags and raw numeric value.
+- `TiledChunk`: infinite-map chunk payload (`x`, `y`, `width`, `height`, `data`).
+- `TiledCell`: normalized tile cell view (`x`, `y`, `gid`).
+- `TiledTileLayer`: parsed tile-layer payload including fixed-grid or chunked data and encoding metadata.
+- `TiledPoint`: polygon/polyline point payload (`x`, `y`).
+- `TiledText`: text-object payload (text content + style fields).
+- `TiledObject`: object-layer object payload (shape/tile/text/properties).
+- `TiledObjectLayer`: object layer payload (`draw_order`, `objects`).
+- `TiledImageLayer`: image-layer payload (`image`, repeat, transparent color).
+- `TiledAnimationFrame`: per-frame animated-tile entry (`tile_id`, `duration_ms`).
+- `TiledTileDefinition`: per-tile definition payload from tilesets.
+- `TiledTileset`: parsed tileset payload (atlas metadata, tile definitions, properties).
+- `TiledLayerKind`: discriminated layer payload (`TileLayer`, `ObjectLayer`, `GroupLayer`, `ImageLayer`, `Unknown`).
+- `TiledLayer`: normalized layer metadata + typed payload.
+- `TiledMap`: top-level parsed map payload (size, orientation, hex/stagger metadata, layers, tilesets, properties).
+- `empty_tiled_gid()`: returns an empty/zero `TiledGid`.
+- `decode_tiled_gid(raw)`: decodes Tiled flip bits + tile ID from integer GID.
+- `encode_tiled_gid(gid)`: re-encodes typed `TiledGid` to raw integer.
+- `TiledGid::is_empty()`: returns whether the GID is the empty tile (`tile_id == 0`).
+- `empty_tiled_map()`: returns an empty map object for fallback/error cases.
+- `load_tiled_map(path)`: loads TMJ/TMX map file and resolves external tilesets.
+- `TiledMap::from_tiled_json(json)`: builds map payload directly from parsed JSON.
+- `TiledMap::from_tiled_xml(source)`: builds map payload directly from TMX XML source text.
+- `TiledMap::resolve_path(path)`: resolves map-relative asset path to absolute/normalized path.
+- `TiledMap::resolve_tileset_asset_path(tileset, path)`: resolves tileset-local asset path, including external tileset directory.
+- `TiledMap::layer(name)`: returns a layer by name.
+- `TiledMap::layer_by_id(id)`: returns a layer by numeric layer ID.
+- `TiledMap::tile_layer(name)`: returns named tile layer payload.
+- `TiledMap::object_layer(name)`: returns named object layer payload.
+- `TiledMap::tileset_for_gid(global_gid)`: finds tileset owning the given global tile ID.
+- `TiledMap::property(name)`: reads map-level property value by name.
+- `TiledTileset::tile_definition(local_id)`: reads tileset tile definition by local tile ID.
+- `TiledLayer::property(name)`: reads layer-level property value by name.
+- `TiledObject::property(name)`: reads object-level property value by name.
+- `TiledTileset::property(name)`: reads tileset-level property value by name.
+- `TiledObjectLayer::object(name)`: finds object-layer object by name.
+- `TiledTileLayer::tile_gid_at(x, y)`: returns tile gid at world tile coordinate (supports chunked maps).
+- `TiledTileLayer::tile_cells()`: flattens tile data into `(x, y, gid)` cells.
+
+#### `selene/tiled` ECS spawn APIs
+
+- `TiledSpawnSettings`: controls tiled map spawn behavior (root position/z, visibility policy, per-level hooks).
+- `default_tiled_spawn_settings()`: returns default spawn settings for map instantiation.
+- `spawn_tiled_map(map, settings?)`: spawns entities from parsed `TiledMap`.
+- `spawn_tiled_map_into_entity(root, map, settings?)`: spawns a parsed `TiledMap` into an existing root entity.
+- `respawn_tiled_map_into_entity(root, map, settings?)`: clears existing tiled children/state under a root entity and rebuilds the map in place.
+- `load_and_spawn_tiled_map(path, settings?)`: loads map from disk and spawns in one call.
+- `TiledMapInstance`: runtime component payload for spawned map root entity.
+- `TiledLayerInstance`: runtime component payload for spawned layer entity.
+- `TiledTileInstance`: runtime component payload for spawned tile entity.
+- `TiledObjectInstance`: runtime component payload for spawned object entity.
+- `TiledImageLayerInstance`: runtime component payload for spawned image-layer entity.
+- `TiledProperties`: runtime property bag populated from map/layer/object/tile definitions.
+- `TiledProperties::get(name)`: reads a typed property from runtime property storage.
+- `TiledMapStorage`: runtime lookup payload for spawned layers, objects, and tile entities.
+- `TiledParallaxLayer`: runtime parallax payload for layers with non-default `parallaxx/parallaxy`.
+- `empty_tiled_map_storage()`: returns an empty runtime lookup payload.
+- `TiledMapStorage::layer_entity(id)`: resolves a spawned layer entity by Tiled layer ID.
+- `TiledMapStorage::object_entity(id)`: resolves a spawned object entity by Tiled object ID.
+- `TiledMapStorage::tile_entities(gid)`: resolves spawned tile entities by global tile ID.
+- `tiled_map_instances`: storage map of `Entity -> TiledMapInstance`.
+- `tiled_layer_instances`: storage map of `Entity -> TiledLayerInstance`.
+- `tiled_tile_instances`: storage map of `Entity -> TiledTileInstance`.
+- `tiled_object_instances`: storage map of `Entity -> TiledObjectInstance`.
+- `tiled_image_layer_instances`: storage map of `Entity -> TiledImageLayerInstance`.
+- `tiled_properties`: storage map of `Entity -> TiledProperties`.
+- `tiled_map_storages`: storage map of `Entity -> TiledMapStorage`.
+- `tiled_parallax_layers`: storage map of `Entity -> TiledParallaxLayer`.
+- `tiled_parallax_system(delta)`: camera-driven parallax update for spawned Tiled layers.
+
+#### `selene/tiled` lifecycle helper APIs
+
+- `despawn_tiled_tree(root)`: despawns a spawned tiled subtree and clears all Selene tiled runtime stores for every entity in it.
+- `clear_tiled_children(root)`: despawns all live tiled child subtrees beneath an existing root entity without destroying the root itself.
+
+#### `selene/tiled` world APIs
+
+- `TiledWorldMap`: explicit world-map record (`file_name`, world position, optional world size).
+- `TiledWorldPattern`: pattern record (`regexp`, multipliers, offsets, optional map size metadata).
+- `TiledWorld`: parsed world payload (`only_show_adjacent_maps`, explicit maps, patterns, source path).
+- `TiledWorldLoadedMap`: runtime payload describing a resolved world entry, its parsed map, and whether it should spawn.
+- `TiledWorldInstance`: runtime payload for spawned world root entity, including loaded world maps, spawn settings, and spawned-map lookup state.
+- `TiledWorldMapInstance`: runtime payload for spawned world-map entity and its resolved source path.
+- `TiledWorldSpawnSettings`: controls world spawn behavior (position, z stepping, nested map settings, optional focus map, optional chunk margin, hooks).
+- `tiled_world_instances`: storage map of `Entity -> TiledWorldInstance`.
+- `tiled_world_map_instances`: storage map of `Entity -> TiledWorldMapInstance`.
+- `empty_tiled_world()`: returns empty world payload fallback.
+- `default_tiled_world_spawn_settings()`: returns default world spawn settings.
+- `load_tiled_world(path)`: loads `.world` payload from disk.
+- `load_and_spawn_tiled_world(path, settings?)`: loads world and spawns maps in one call.
+- `spawn_tiled_world(world, settings?)`: spawns world root + map children from `TiledWorld`.
+- `spawn_tiled_world_into_entity(root, world, settings?)`: spawns a parsed `TiledWorld` into an existing root entity.
+- `respawn_tiled_world_into_entity(root, world, settings?)`: clears existing tiled children/state under a root entity and rebuilds the world in place.
+- `tiled_world_chunking_system(delta)`: camera-driven chunk streaming system that spawns/despawns world maps based on viewport coverage.
+- `TiledWorld::resolve_map_path(path)`: resolves world-relative map path.
+- `TiledWorld::map(file_name)`: looks up world map entry by file name.
+
+#### `selene/tiled` spawn event APIs
+
+- `TiledWorldSpawnedEvent`: payload emitted when world root entity is spawned.
+- `TiledWorldMapSpawnedEvent`: payload emitted when a world map child is spawned.
+- `TiledMapSpawnedEvent`: payload emitted when map root is spawned.
+- `TiledLayerSpawnedEvent`: payload emitted when a layer entity is spawned.
+- `TiledTileSpawnedEvent`: payload emitted when a tile entity is spawned.
+- `TiledObjectSpawnedEvent`: payload emitted when an object entity is spawned.
+- `TiledImageLayerSpawnedEvent`: payload emitted when an image-layer entity is spawned.
+- `tiled_world_spawned_event_bus`: event bus for `TiledWorldSpawnedEvent`.
+- `tiled_world_map_spawned_event_bus`: event bus for `TiledWorldMapSpawnedEvent`.
+- `tiled_map_spawned_event_bus`: event bus for `TiledMapSpawnedEvent`.
+- `tiled_layer_spawned_event_bus`: event bus for `TiledLayerSpawnedEvent`.
+- `tiled_tile_spawned_event_bus`: event bus for `TiledTileSpawnedEvent`.
+- `tiled_object_spawned_event_bus`: event bus for `TiledObjectSpawnedEvent`.
+- `tiled_image_layer_spawned_event_bus`: event bus for `TiledImageLayerSpawnedEvent`.
+
+#### `selene/tiled` physics integration APIs
+
+- `TiledNameFilter`: name-filter enum for selecting tiled objects/layers (`All`, `None`, `Names([...])`).
+- `TiledNameFilter::none()`: helper returning the `None` filter variant.
+- `TiledNameFilter::names([...])`: helper returning the `Names` filter variant.
+- `TiledNameFilter::matches(name)`: evaluates whether a name passes the filter.
+- `TiledColliderSourceKind`: source-kind enum for physics collider provenance (`TilesLayer`, `Object`).
+- `TiledPhysicsSettings`: tiled physics spawn settings payload (object filter, tile-layer filter, collision/sensor filters, point radius, ellipse tessellation, tile-rect merge toggle, collider hook).
+- `TiledColliders`: runtime payload recording physics collider entities spawned from a tiled source entity.
+- `TiledColliders::alive_entities()`: returns the live physics collider entities for a tiled source entity.
+- `TiledColliderOrigin`: runtime provenance payload mapping a spawned physics collider back to its tiled source entity/layer.
+- `TiledColliderSpawnedEvent`: payload emitted when a tiled physics collider entity is spawned.
+- `tiled_colliders`: storage map of `Entity -> TiledColliders`.
+- `tiled_collider_origins`: storage map of `Entity -> TiledColliderOrigin`.
+- `tiled_collider_spawned_event_bus`: event bus for `TiledColliderSpawnedEvent`.
+- `default_tiled_physics_settings()`: returns default tiled physics settings with all-name filters and all-collision interaction enabled.
+
+#### `selene/collision` shape and filter APIs
+
+- `RigidBodyType`: explicit 2D rigid-body mode enum (`Dynamic`, `Fixed`, `KinematicPositionBased`, `KinematicVelocityBased`).
+- `RigidBody`: explicit 2D rigid-body descriptor (`body_type`, `gravity_scale`, `linear_damping`, `angular_damping`, `ccd_enabled`, `lock_rotation`).
+- `RigidBodyHandle`: native Rapier rigid-body handle alias exposed by `selene/collision`.
+- `ColliderHandle`: native Rapier collider handle alias exposed by `selene/collision`.
+- `RigidBody::dynamic()`: creates default dynamic 2D rigid body config.
+- `RigidBody::fixed()`: creates default fixed 2D rigid body config.
+- `RigidBody::kinematic_position_based()`: creates default position-driven kinematic 2D rigid body config.
+- `RigidBody::kinematic_velocity_based()`: creates default velocity-driven kinematic 2D rigid body config.
+- `CollisionFilter::all(group)`: creates a collision filter that can interact with every collision group.
+- `CollisionShape::Ball(radius, offset)`: circular collision shape payload.
+- `CollisionShape::Polygon(points, offset)`: filled polygon collision shape payload.
+- `CollisionShape::Polyline(points, offset, closed)`: polyline/segment-chain collision shape payload.
+- `SpatialQueryBodyFilter`: query body-kind enum (`All`, `Dynamic`, `Fixed`, `Kinematic`).
+- `SpatialQueryFilter`: spatial-query filter payload (`groups`, `exclude_entity`, `exclude_sensors`, `exclude_solids`, `body_filter`).
+- `SpatialQueryFilter::default()`: returns the default unrestricted spatial-query filter.
+- `SpatialQueryFilter::only_dynamic()`: returns a spatial-query filter that only matches dynamic rigid bodies.
+- `SpatialQueryFilter::only_fixed()`: returns a spatial-query filter that only matches fixed rigid bodies.
+- `SpatialQueryFilter::only_kinematic()`: returns a spatial-query filter that only matches kinematic rigid bodies.
+- `RaycastHit`: 2D raycast hit payload (`entity`, `toi`, `point`, `normal`).
+- `ShapeCastHit`: 2D shape-cast hit payload (`entity`, `toi`, `point`, `normal`).
+- `JointMotorModel`: joint motor model enum (`AccelerationBased`, `ForceBased`).
+- `JointLimits`: scalar joint-limit payload (`min`, `max`).
+- `JointLimits::new(min, max)`: creates scalar joint limits.
+- `JointSoftness`: joint softness payload (`damping_ratio`, `natural_frequency`).
+- `JointSoftness::new(damping_ratio, natural_frequency)`: creates joint softness coefficients.
+- `JointMotor`: revolute-joint motor payload (`Position`, `Velocity`).
+- `JointMotor::position(target_position, stiffness, damping, max_force?, model?)`: creates a position motor payload for revolute joints.
+- `JointMotor::velocity(target_velocity, damping, max_force?, model?)`: creates a velocity motor payload for revolute joints.
+- `JointKind`: 2D joint kind enum (`Fixed`, `Revolute`, `Prismatic`, `Rope`, `Spring`).
+- `Joint`: authored 2D joint component (`entity1`, `entity2`, `kind`, `active`, `contacts_enabled`).
+- `JointHandle`: native Rapier impulse-joint handle alias exposed by `selene/collision`.
+- `MultibodyJointKind`: 2D multibody joint kind enum (`Revolute`).
+- `MultibodyJoint`: authored 2D multibody joint component attached to the child rigid-body entity (`parent`, `kind`, `active`).
+- `MultibodyJointHandle`: native Rapier multibody-joint handle alias exposed by `selene/collision`.
+- `MultibodyLinkId`: native Rapier multibody link identifier alias exposed by `selene/collision`.
+- `JointMotorModel::acceleration_based()`: returns the acceleration-based motor model.
+- `JointMotorModel::force_based()`: returns the force-based motor model.
+- `Joint::fixed(entity1, entity2, ...)`: creates a fixed joint component.
+- `Joint::revolute(entity1, entity2, ...)`: creates a revolute joint component with optional limits/motor/softness.
+- `Joint::prismatic(entity1, entity2, axis, ...)`: creates a prismatic joint component with optional linear limits.
+- `Joint::rope(entity1, entity2, max_distance, ...)`: creates a rope joint component with a maximum distance.
+- `Joint::spring(entity1, entity2, rest_length, stiffness, damping, ...)`: creates a spring joint component with optional model override.
+- `MultibodyJoint::revolute(parent, ...)`: creates a revolute multibody joint component for the child entity with optional limits/motor/softness.
+- `Collider::with_material(filter, friction?, restitution?, active?)`: creates a collider with explicit friction/restitution/active state instead of filter-only defaults.
+- `joints`: storage map of `Entity -> Joint`.
+- `multibody_joints`: storage map of `Entity -> MultibodyJoint` keyed by the child rigid-body entity.
+- `joint_handle(entity)`: resolves the live Rapier impulse-joint handle for a joint entity when one exists.
+- `multibody_joint_handle(entity)`: resolves the live Rapier multibody-joint handle for a child rigid-body entity when one exists.
+- `multibody_link(entity)`: resolves the live Rapier multibody link identifier for a rigid-body entity when it belongs to a multibody articulation.
+- `rigid_bodies`: storage map of `Entity -> RigidBody`.
+- `rigid_body_handle(entity)`: resolves the live Rapier body handle for an entity when one exists.
+- `collider_handle(entity)`: resolves the live Rapier collider handle for an entity when one exists.
+- `raycast(origin, direction, max_toi?, solid?, query_filter?)`: casts a 2D ray against the live Rapier world and returns the first hit.
+- `shape_cast(shape, origin, rotation?, direction?, max_toi?, stop_at_penetration?, query_filter?)`: casts a 2D shape sweep against the live Rapier world and returns the first hit.
+- `intersect_point(point, query_filter?)`: returns entities whose colliders overlap the queried world-space point.
+- `intersect_shape(shape, origin, rotation?, query_filter?)`: returns entities whose colliders overlap the queried world-space shape.
+- `rigid_body_translation(entity)`: reads the current world-space body translation (or authored pending translation before spawn).
+- `rigid_body_rotation(entity)`: reads the current body rotation in radians (or authored pending rotation before spawn).
+- `rigid_body_linear_velocity(entity)`: reads the current body linear velocity in world units.
+- `rigid_body_angular_velocity(entity)`: reads the current body angular velocity in radians per second.
+- `set_rigid_body_translation(entity, translation)`: teleports or authors a body's world-space translation.
+- `set_rigid_body_rotation(entity, rotation)`: updates or authors a body's world-space rotation.
+- `set_rigid_body_linear_velocity(entity, linear_velocity)`: updates or authors a body's linear velocity.
+- `set_rigid_body_angular_velocity(entity, angular_velocity)`: updates or authors a body's angular velocity.
+- `add_force(entity, force, wake_up?)`: applies a continuous world-space force to a body.
+- `add_force_at_point(entity, force, point, wake_up?)`: applies a world-space force at an explicit world-space point.
+- `add_torque(entity, torque, wake_up?)`: applies a continuous scalar torque to a body.
+- `apply_impulse(entity, impulse, wake_up?)`: applies an instantaneous world-space linear impulse to a body.
+- `apply_impulse_at_point(entity, impulse, point, wake_up?)`: applies an instantaneous world-space impulse at an explicit world-space point.
+- `apply_torque_impulse(entity, impulse, wake_up?)`: applies an instantaneous scalar torque impulse to a body.
+- `reset_forces(entity, wake_up?)`: clears accumulated continuous forces queued on a body.
+- `reset_torques(entity, wake_up?)`: clears accumulated continuous torques queued on a body.
+
+#### `selene/physics2d` helper APIs
+
+- `all_collision_layers(group)`: creates a `CollisionLayers` filter that can interact with every collision group.
+- `RigidBodyType`: re-export of the explicit 2D rigid-body mode enum.
+- `RigidBody`: re-export of the explicit 2D rigid-body descriptor.
+- `RigidBodyHandle`: re-export of the native Rapier rigid-body handle alias.
+- `ColliderHandle`: re-export of the native Rapier collider handle alias.
+- `JointMotorModel`: re-export of the authored 2D joint motor model enum.
+- `JointLimits`: re-export of the 2D joint-limit payload.
+- `JointSoftness`: re-export of the 2D joint-softness payload.
+- `JointMotor`: re-export of the revolute-joint motor payload.
+- `JointKind`: re-export of the authored 2D joint kind enum.
+- `Joint`: re-export of the authored 2D joint component.
+- `JointHandle`: re-export of the native Rapier impulse-joint handle alias.
+- `MultibodyJointKind`: re-export of the authored 2D multibody joint kind enum.
+- `MultibodyJoint`: re-export of the authored 2D multibody joint component.
+- `MultibodyJointHandle`: re-export of the native Rapier multibody-joint handle alias.
+- `MultibodyLinkId`: re-export of the native Rapier multibody link identifier alias.
+- `JointMotorModel::acceleration_based()`: re-exported helper returning the acceleration-based motor model.
+- `JointMotorModel::force_based()`: re-exported helper returning the force-based motor model.
+- `JointLimits::new(min, max)`: re-exported helper creating scalar joint limits.
+- `JointSoftness::new(damping_ratio, natural_frequency)`: re-exported helper creating joint softness coefficients.
+- `JointMotor::position(target_position, stiffness, damping, max_force?, model?)`: re-exported helper creating a revolute position motor payload.
+- `JointMotor::velocity(target_velocity, damping, max_force?, model?)`: re-exported helper creating a revolute velocity motor payload.
+- `Joint::fixed(entity1, entity2, ...)`: re-exported helper creating a fixed joint component.
+- `Joint::revolute(entity1, entity2, ...)`: re-exported helper creating a revolute joint component.
+- `Joint::prismatic(entity1, entity2, axis, ...)`: re-exported helper creating a prismatic joint component.
+- `Joint::rope(entity1, entity2, max_distance, ...)`: re-exported helper creating a rope joint component.
+- `Joint::spring(entity1, entity2, rest_length, stiffness, damping, ...)`: re-exported helper creating a spring joint component.
+- `MultibodyJoint::revolute(parent, ...)`: re-exported helper creating a child-authored revolute multibody joint component.
+- `SpatialQueryBodyFilter`: re-export of the 2D spatial-query body-kind filter enum.
+- `SpatialQueryFilter`: re-export of the 2D spatial-query filter payload.
+- `RaycastHit`: re-export of the 2D raycast hit payload.
+- `ShapeCastHit`: re-export of the 2D shape-cast hit payload.
+- `joints`: re-export of the authored 2D joint storage map.
+- `multibody_joints`: re-export of the authored 2D multibody joint storage map.
+- `rigid_bodies`: re-export of the explicit 2D rigid-body storage map.
+- `joint_handle(entity)`: re-export of Rapier impulse-joint handle lookup.
+- `multibody_joint_handle(entity)`: re-export of Rapier multibody-joint handle lookup.
+- `multibody_link(entity)`: re-export of Rapier multibody link lookup.
+- `rigid_body_handle(entity)`: re-export of Rapier rigid-body handle lookup.
+- `collider_handle(entity)`: re-export of Rapier collider handle lookup.
+- `raycast(origin, direction, max_toi?, solid?, query_filter?)`: re-exported 2D raycast helper against the live physics world.
+- `shape_cast(shape, origin, rotation?, direction?, max_toi?, stop_at_penetration?, query_filter?)`: re-exported 2D shape-cast helper against the live physics world.
+- `intersect_point(point, query_filter?)`: re-exported point-overlap helper against the live physics world.
+- `intersect_shape(shape, origin, rotation?, query_filter?)`: re-exported shape-overlap helper against the live physics world.
+- `rigid_body_translation(entity)`: re-exported rigid-body translation getter.
+- `rigid_body_rotation(entity)`: re-exported rigid-body rotation getter.
+- `rigid_body_linear_velocity(entity)`: re-exported rigid-body linear-velocity getter.
+- `rigid_body_angular_velocity(entity)`: re-exported rigid-body angular-velocity getter.
+- `set_rigid_body_translation(entity, translation)`: re-exported rigid-body translation setter.
+- `set_rigid_body_rotation(entity, rotation)`: re-exported rigid-body rotation setter.
+- `set_rigid_body_linear_velocity(entity, linear_velocity)`: re-exported rigid-body linear-velocity setter.
+- `set_rigid_body_angular_velocity(entity, angular_velocity)`: re-exported rigid-body angular-velocity setter.
+- `add_force(entity, force, wake_up?)`: re-exported continuous force helper.
+- `add_force_at_point(entity, force, point, wake_up?)`: re-exported point-force helper.
+- `add_torque(entity, torque, wake_up?)`: re-exported torque helper.
+- `apply_impulse(entity, impulse, wake_up?)`: re-exported linear-impulse helper.
+- `apply_impulse_at_point(entity, impulse, point, wake_up?)`: re-exported point-impulse helper.
+- `apply_torque_impulse(entity, impulse, wake_up?)`: re-exported torque-impulse helper.
+- `reset_forces(entity, wake_up?)`: re-exported accumulated-force reset helper.
+- `reset_torques(entity, wake_up?)`: re-exported accumulated-torque reset helper.
+
+#### `selene/ui` shadow and clipping APIs
+
+- `ShadowStyle`: box-shadow style enum for UI node shadow rendering.
+- `BoxShadow`: per-shadow configuration payload for UI node shadows.
+- `box_shadows`: storage map of `Entity -> BoxShadow` (or shadow list payload).
+- `Overflow::Hidden`: new overflow mode that enables clipping in layout/render/hit test.
+- `OverflowClipBox`: enum selecting clip reference box (content/padding/border).
+- `OverflowClipMargin`: clip-margin payload extending clip region around selected clip box.
+- `OverflowClipMargin::content_box()`: helper returning content-box clip margin preset.
+- `OverflowClipMargin::padding_box()`: helper returning padding-box clip margin preset.
+- `OverflowClipMargin::border_box()`: helper returning border-box clip margin preset.
+- `OverflowClipMargin::with_margin(...)`: helper to build clip-margin with explicit margin value.
+- `default_overflow_clip_margin()`: default clip-margin preset used by nodes.
+- `Node.overflow_clip_margin`: authored field controlling node clip box + extra clip margin.
+- `Node::new(..., overflow_clip_margin?)`: constructor now accepts explicit overflow clip margin.
+- `Node::absolute(..., overflow_clip_margin?)`: absolute constructor now accepts explicit overflow clip margin.
+- `CalculatedClip`: runtime clip rectangle component.
+- `CalculatedClip::new(...)`: helper to create `CalculatedClip`.
+- `OverrideClip`: authored override clip component.
+- `OverrideClip::new()`: helper to create `OverrideClip`.
+- `RelativeCursorPosition`: runtime cursor position relative to node bounds.
+- `RelativeCursorPosition::new(...)`: helper to create cursor-position payload.
+- `RelativeCursorPosition::mouse_over()`: helper returning whether cursor is currently over visible clipped node area.
+- `calculated_clips`: storage map of `Entity -> CalculatedClip`.
+- `override_clips`: storage map of `Entity -> OverrideClip`.
+- `relative_cursor_positions`: storage map of `Entity -> RelativeCursorPosition`.
+
+#### `selene/ui` layout and stacking APIs
+
+- `LayoutConfig`: layout extraction config payload (including layout rounding policy).
+- `LayoutConfig::new(...)`: helper to create `LayoutConfig`.
+- `layout_configs`: storage map of `Entity -> LayoutConfig`.
+- `ZIndex`: local stacking order component.
+- `ZIndex::new(...)`: helper to create `ZIndex`.
+- `GlobalZIndex`: global stacking order component that can cross subtree boundaries.
+- `GlobalZIndex::new(...)`: helper to create `GlobalZIndex`.
+- `z_indexes`: storage map of `Entity -> ZIndex`.
+- `global_zindexes`: storage map of `Entity -> GlobalZIndex`.
+
+#### `selene/ui` material-node APIs
+
+- `UiMaterialHandle`: material-asset handle for UI material rendering.
+- `MaterialNode`: authored component that binds a UI node to material asset rendering.
+- `MaterialNode::new(...)`: helper to create `MaterialNode`.
+- `UiGradient`: gradient payload for built-in gradient material rendering.
+- `UiGradient::new(...)`: helper to create `UiGradient`.
+- `UiMaterialContext`: draw callback context carrying rect/clip/opacity/material draw state.
+- `UiMaterialContext::new(...)`: helper to construct material draw context.
+- `UiMaterialAsset`: asset payload defining custom or built-in UI material draw behavior.
+- `UiMaterialAsset::from_draw(...)`: creates material from custom draw callback.
+- `UiMaterialAsset::solid(...)`: creates solid-color material.
+- `UiMaterialAsset::gradient(...)`: creates gradient material.
+- `UiMaterialAsset::from_ui_image(...)`: creates image material from `UiImage`.
+- `UiMaterialAsset::from_image(...)`: creates image material from image handle/path input.
+- `UiMaterialAsset::new(...)`: generic constructor for explicit material payload initialization.
+- `draw_ui_material_solid(...)`: built-in solid material draw helper.
+- `draw_ui_material_gradient(...)`: built-in gradient material draw helper.
+- `draw_ui_material_image(...)`: built-in image material draw helper.
+- `material_nodes`: storage map of `Entity -> MaterialNode`.
+- `register_ui_material_asset(...)`: registers UI material asset and returns handle.
+- `ui_material_asset(...)`: reads registered material asset by handle.
+- `update_ui_material_asset(...)`: updates registered material asset payload.
+- `release_ui_material_asset(...)`: removes registered material asset by handle.
 
 ### Changed
 
-- `selene/tilemap` is now a Tiled Map Editor package instead of a mixed Tiled/SpriteFusion surface: `load_tiled_map(...)` now dispatches between TMJ/TSJ JSON and TMX/TSX XML sources, and the orthogonal spawn helpers preserve Tiled group/layer offsets through ECS child hierarchy for both authoring formats
-- `examples/pixeladventure` now keeps its old SpriteFusion-style `TileMap` / `TileLayer` / `Tile` parser locally in the example package instead of depending on `selene/tilemap`
+- `selene/tiled` replaces the old `selene/tilemap` package path; the published Tiled integration now lives under `Milky2018/selene/tiled`, while the old SpriteFusion parser is no longer part of the core package surface
+- `selene/tiled` is now a Tiled Map Editor package instead of a mixed Tiled/SpriteFusion surface: `load_tiled_map(...)` now dispatches between TMJ/TSJ JSON and TMX/TSX XML sources, `load_tiled_world(...)` reads both explicit world maps and `patterns` metadata, and world spawning now evaluates adjacency over the merged map set (including pattern-derived `mapWidth`/`mapHeight` bounds) when `onlyShowAdjacentMaps` is enabled
+- `selene/tiled` `TiledSpawnSettings` now carries `map_hook`, `layer_hook`, `tile_hook`, `object_hook`, and `image_layer_hook`, and `TiledWorldSpawnSettings` now carries nested `map_settings`, `world_hook`, and `world_map_hook`, so downstream gameplay code can attach property-driven prefab/component logic without forking the loader
+- `selene/tiled` `TiledSpawnSettings` now also carries `physics_settings`, so tiled map/world spawn, respawn, and world chunk streaming can automatically materialize physics colliders from tile collision objects and object layers without a second manual traversal
+- `selene/tiled` physics integration now covers the full Tiled 2D collision object set used by `bevy_ecs_tiled`: regular objects, tile objects, tileset collision-editor objects on tile layers, points, ellipses, polygons, and polylines, while merging adjacent simple tile rectangles to reduce collider count
+- `selene/collision` filters now support an explicit “match all groups” mode, and the Rapier bridge now synchronizes `Ball`, `Polygon`, and `Polyline` shapes in addition to rectangular colliders
+- `selene/collision` 2D physics is no longer limited to the legacy “velocity means kinematic, no velocity means fixed” heuristic: entities can now opt into explicit `RigidBody` descriptors, collider material properties, and native Rapier handle lookup while preserving the old fallback for unchanged call sites
+- `selene/collision` now also exposes live Rapier spatial queries plus direct body translation/rotation/velocity/force control, so higher-level systems can query and manipulate 2D rigid bodies without reaching into Rapier internals
+- `selene/collision` now also exposes authored 2D impulse joints (`Fixed`, `Revolute`, `Prismatic`, `Rope`, `Spring`) through ECS components and Rapier handle lookup, so physics relationships can be authored without dropping to backend-specific builders
+- `selene/collision` now also exposes authored 2D multibody revolute joints as child-attached ECS components with Rapier multibody handle/link lookup, so articulated chains can be authored without dropping to backend-specific multibody APIs
+- `selene/tiled` physics spawning now applies authored material/body overrides directly from Tiled properties: `physics_active`, `physics_friction`, `physics_restitution`, `physics_body`, `physics_gravity_scale`, `physics_linear_damping`, `physics_angular_damping`, `physics_ccd`, and `physics_lock_rotation` (with unprefixed fallback names for convenience)
+- `examples/pixeladventure` now keeps its old SpriteFusion-style `TileMap` / `TileLayer` / `Tile` parser locally in the example package instead of depending on `selene/tiled`
 - `selene/ui` `Node` now exposes Bevy-aligned block/grid layout authoring, including `Display::Block` / `Display::Grid`, reverse flex directions, `align_content` / `align_self` / `justify_items` / `justify_self`, `flex_wrap` / `flex_basis`, `aspect_ratio`, `scrollbar_width`, and grid template/auto-flow/placement helpers, and the UI layout system now applies those fields through `moon_taffy`
 - `selene/ui` `BorderRadius` now uses Bevy-style `Val` sizing semantics instead of raw `Double`s: the `top_left` / `top_right` / `bottom_right` / `bottom_left` fields are now `Val`, `BorderRadius::all(...)` now takes `Val`, and `BorderRadius::new(...)` now takes `Val` corners with `Val::px(0.0)` defaults
 - `selene/ui` `Outline` now uses Bevy-style `Val` sizing semantics instead of raw `Double`s: `Outline.width` and `Outline.offset` are now `Val`, and `Outline::new(...)` now takes `width : Val` plus `offset? : Val`
@@ -28,7 +365,20 @@
 
 ### Fixed
 
-- `selene/tilemap` `load_tiled_map(...)` now follows external tileset references from both JSON and XML Tiled maps before returning, so `.tmj` maps using `.tsj` tilesets and `.tmx` maps using `.tsx` tilesets no longer come back with unresolved `source`-only tileset stubs
+- `selene/tiled` `load_tiled_map(...)` now follows external tileset references from both JSON and XML Tiled maps before returning, so `.tmj` maps using `.tsj` tilesets and `.tmx` maps using `.tsx` tilesets no longer come back with unresolved `source`-only tileset stubs
+- `selene/tiled` now decodes compressed `base64` tile layer payloads (`gzip`, `zlib`, `zstd`) in addition to uncompressed `base64` (including empty-string compression markers) and `csv` payloads, for both JSON and TMX sources, instead of silently treating encoded layer data as empty
+- `selene/tiled` tile spawning now supports non-orthogonal maps (`isometric`, `hexagonal`, `staggered`) and no longer drops non-orthogonal tile layers during ECS instantiation
+- `selene/tiled` animated tiles now use tileset `tiles[].animation` timelines (including per-frame duration expansion) when building sprite animations instead of always rendering a single static frame
+- `selene/tiled` isometric tile-object placement now applies the expected horizontal origin offset for tile objects, matching Tiled's isometric object anchoring behavior
+- `selene/tiled` in-place map/world respawn now flushes old live child entities before rebuilding under the same root entity, so `respawn_tiled_map_into_entity(...)` and `respawn_tiled_world_into_entity(...)` do not keep previous spawned tiled content alive alongside the new tree
+- `selene/tiled` tiled subtree cleanup now also removes auto-generated `physics2d` collider/area/shape state, so despawning or respawning a map no longer leaves stale physics components behind on destroyed collider entities
+- `selene/physics2d` explicit `Fixed` bodies now override the legacy velocity heuristic correctly, while `Dynamic` and `KinematicVelocityBased` bodies feed their post-step translation/velocity back into ECS state instead of remaining frozen at their authored positions
+- `selene/collision` body sync now preserves authored or runtime rotation/velocity state across resyncs, and queued force/impulse commands now apply correctly even when issued before the Rapier body is instantiated
+- `selene/collision` spatial queries now refresh against the current ECS-authored body/collider state before querying, so raycasts and overlap checks do not lag one fixed step behind freshly spawned or teleported bodies
+- `selene/collision` impulse joints now rebuild and clean up automatically as endpoint bodies appear, disappear, or change configuration, so authored joint entities do not leave stale Rapier joint handles behind
+- `selene/collision` multibody joints now rebuild and clean up automatically as child/parent bodies appear, disappear, or change configuration, so articulated child entities do not leave stale Rapier multibody-joint handles behind
+- `selene/collision` joint softness now maps to Rapier `SpringCoefficients` using the correct `(natural_frequency, damping_ratio)` argument order, so authored revolute softness values no longer swap frequency and damping at runtime
+- `selene/collision` disabled trigger areas now clear stale overlap membership instead of keeping `contains` entries after the area is deactivated
 - `selene/ui` now renders rounded background fills for `BorderRadius` nodes instead of warning and falling back to square-corner backgrounds, and overflow clipping now applies after node decorations so a scrolling/clipped node no longer clips away its own background and border before drawing content
 - `selene/ui` now maps `Overflow::Hidden` through `moon_taffy` and uses the authored `overflow_clip_margin` box when computing screen clip rects, so hidden overflow participates in layout correctly and clipped UI content no longer has to be constrained to the content box only
 - `selene/ui` outlines now resolve authored `width` / `offset` values into explicit outer fill bands instead of relying on a single stroke rect, so outline thickness and offset match the node's `Val`-resolved geometry more closely
@@ -36,7 +386,8 @@
 
 ### Removed
 
-- `selene/tilemap` no longer exposes the old SpriteFusion-only `TileMap`, `TileLayer`, `Tile`, `TileMap::from_json(...)`, `TileMap::get_tiles(...)`, or `TileMap::get_tiles_first(...)` API; legacy SpriteFusion parsing is now example-local instead of part of the published core package
+- `selene/tilemap` is no longer the published package path; consumers should switch imports to `selene/tiled`
+- `selene/tiled` no longer exposes the old SpriteFusion-only `TileMap`, `TileLayer`, `Tile`, `TileMap::from_json(...)`, `TileMap::get_tiles(...)`, or `TileMap::get_tiles_first(...)` API; legacy SpriteFusion parsing is now example-local instead of part of the published core package
 - `selene/ui` no longer exposes the old `UiZIndex` / `UiZIndex::new(...)` / `ui_zindexes` naming; consumers should use `ZIndex` / `ZIndex::new(...)` / `z_indexes`, and add `GlobalZIndex` / `global_zindexes` when they need stacking that escapes local subtree ordering
 - `selene/ui` no longer exposes the closed `UiMaterialKind` enum shape for material nodes; consumers should author `UiMaterialAsset::from_draw(...)` callbacks directly or use the built-in `solid(...)`, `gradient(...)`, and image helpers
 
