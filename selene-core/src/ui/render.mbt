@@ -343,17 +343,77 @@ fn render_text_style(entity : @entity.Entity) -> @render2d_types.TextStyle2D? {
 }
 
 ///|
-fn push_background(entity : @entity.Entity) -> Unit {
-  guard background_colors.get(entity) is Some(background) else { return }
-  guard global_ui_nodes.get(entity) is Some(transform) else { return }
+fn ui_material_context_for(entity : @entity.Entity) -> UiMaterialContext? {
+  global_ui_nodes
+  .get(entity)
+  .map(fn(transform) {
+    UiMaterialContext::new(
+      entity,
+      transform.screen_rect,
+      content_rect=transform.screen_content_rect,
+      border_radius=border_radii
+        .get(entity)
+        .unwrap_or(BorderRadius::all(Val::px(0.0))),
+    )
+  })
+}
+
+///|
+pub fn draw_ui_material_solid(
+  context : UiMaterialContext,
+  color : @render.Color,
+) -> Unit {
   push_rounded_rect(
-    transform.screen_rect,
-    resolved_border_radius(
-      border_radii.get(entity).unwrap_or(BorderRadius::all(Val::px(0.0))),
-      transform.screen_rect.size,
-    ),
-    background.color,
+    context.rect,
+    resolved_border_radius(context.border_radius, context.rect.size),
+    color,
   )
+}
+
+///|
+pub fn draw_ui_material_gradient(
+  context : UiMaterialContext,
+  gradient : UiGradient,
+) -> Unit {
+  @render2d.push_ui_gradient_rect({
+    rect: context.rect,
+    color_start: gradient.color_start,
+    color_end: gradient.color_end,
+  })
+}
+
+///|
+pub fn draw_ui_material_image(
+  context : UiMaterialContext,
+  image : UiImage,
+) -> Unit {
+  @render2d.push_ui_image({
+    image: image.image,
+    destination: fitted_image_rect(context.rect, image),
+    source: None,
+    transform: @math.Transform::new(),
+    repeat: NoRepeat,
+    color: image.tint,
+  })
+}
+
+///|
+fn push_background(entity : @entity.Entity) -> Unit {
+  guard !material_nodes.contains(entity) else { return }
+  guard background_colors.get(entity) is Some(background) else { return }
+  guard ui_material_context_for(entity) is Some(context) else { return }
+  draw_ui_material_solid(context, background.color)
+}
+
+///|
+fn push_material_node(entity : @entity.Entity) -> Bool {
+  guard material_nodes.get(entity) is Some(material_node) else { return false }
+  guard ui_material_asset(material_node.material) is Some(material) else {
+    return false
+  }
+  guard ui_material_context_for(entity) is Some(context) else { return false }
+  (material.draw)(context)
+  true
 }
 
 ///|
@@ -559,6 +619,7 @@ fn fitted_image_rect(container : @math.Rect, image : UiImage) -> @math.Rect {
 
 ///|
 fn push_image(entity : @entity.Entity) -> Unit {
+  guard !material_nodes.contains(entity) else { return }
   guard ui_images.get(entity) is Some(image) else { return }
   guard global_ui_nodes.get(entity) is Some(transform) else { return }
   @render2d.push_ui_image({
@@ -759,6 +820,7 @@ fn render_entity(entity : @entity.Entity) -> Unit {
   }
 
   push_box_shadow(entity)
+  ignore(push_material_node(entity))
   push_background(entity)
   push_border(entity)
   push_outline(entity)

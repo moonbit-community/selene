@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-fn tile_to_vec2d(tile : @tilemap.Tile, tile_size : Int) -> @math.Vec2D {
+fn tile_to_vec2d(tile : Tile, tile_size : Int) -> @math.Vec2D {
   @math.Vec2D(
     tile.x.to_double() * tile_size.to_double(),
     tile.y.to_double() * tile_size.to_double(),
@@ -28,7 +28,7 @@ let flags : Set[@entity.Entity] = Set::new()
 
 ///|
 fn generate_map() -> Unit {
-  let tilemap = @tilemap.TileMap::from_json(tilemap)
+  let tilemap = TileMap::from_json(tilemap)
   let world_width = tilemap.map_width.to_double() *
     tilemap.tile_size.to_double()
   let world_height = tilemap.map_height.to_double() *
@@ -98,7 +98,7 @@ fn add_grass_visual(pos : @math.Vec2D, sprite_id : String) -> Unit {
 
 ///|
 fn build_terrain_colliders(
-  grasses : Array[@tilemap.Tile],
+  grasses : Array[Tile],
   tile_size : Int,
   map_width : Int,
 ) -> Unit {

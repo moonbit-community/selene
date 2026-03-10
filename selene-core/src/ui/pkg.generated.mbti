@@ -49,6 +49,12 @@ pub let computed_ui_nodes : Map[@entity.Entity, ComputedUiNode]
 
 pub fn default_overflow_clip_margin() -> OverflowClipMargin
 
+pub fn draw_ui_material_gradient(UiMaterialContext, UiGradient) -> Unit
+
+pub fn draw_ui_material_image(UiMaterialContext, UiImage) -> Unit
+
+pub fn draw_ui_material_solid(UiMaterialContext, @render.Color) -> Unit
+
 pub fn flex_wrap_no_wrap() -> FlexWrap
 
 pub fn flex_wrap_wrap() -> FlexWrap
@@ -119,6 +125,10 @@ pub let interactions : Map[@entity.Entity, Interaction]
 
 pub fn is_ui_entity(@entity.Entity) -> Bool
 
+pub let layout_configs : Map[@entity.Entity, LayoutConfig]
+
+pub let material_nodes : Map[@entity.Entity, MaterialNode]
+
 pub let navigation_event_bus : @event.Events[UiNavigationEvent]
 
 pub let nodes : Map[@entity.Entity, Node]
@@ -137,7 +147,11 @@ pub let pointer_leave_event_bus : @event.Events[UiPointerLeaveEvent]
 
 pub let pointer_up_event_bus : @event.Events[UiPointerUpEvent]
 
+pub fn register_ui_material_asset(UiMaterialAsset) -> UiMaterialHandle
+
 pub let relative_cursor_positions : Map[@entity.Entity, RelativeCursorPosition]
+
+pub fn release_ui_material_asset(UiMaterialHandle) -> Unit
 
 pub fn rgba(Int, Int, Int, Double) -> @render.Color
 
@@ -165,9 +179,13 @@ pub fn ui_interaction_system(Double) -> Unit
 
 pub fn ui_layout_system(Double) -> Unit
 
+pub fn ui_material_asset(UiMaterialHandle) -> UiMaterialAsset?
+
 pub fn ui_prepare_system(Double) -> Unit
 
 pub let ui_scale_mode : Ref[UiScaleMode]
+
+pub fn update_ui_material_asset(UiMaterialHandle, UiMaterialAsset) -> Unit
 
 pub let z_indexes : Map[@entity.Entity, ZIndex]
 
@@ -387,6 +405,20 @@ pub(all) enum JustifyContent {
 pub impl Eq for JustifyContent
 pub impl Show for JustifyContent
 
+pub(all) struct LayoutConfig {
+  use_rounding : Bool
+}
+pub fn LayoutConfig::new(use_rounding? : Bool) -> Self
+pub impl Eq for LayoutConfig
+pub impl Show for LayoutConfig
+
+pub(all) struct MaterialNode {
+  material : UiMaterialHandle
+}
+pub fn MaterialNode::new(UiMaterialHandle) -> Self
+pub impl Eq for MaterialNode
+pub impl Show for MaterialNode
+
 pub(all) struct Node {
   width : Val
   height : Val
@@ -575,6 +607,14 @@ pub(all) struct UiFocusOutEvent {
   entity : @entity.Entity
 }
 
+pub(all) struct UiGradient {
+  color_start : @render.Color
+  color_end : @render.Color
+}
+pub fn UiGradient::new(@render.Color, @render.Color) -> Self
+pub impl Eq for UiGradient
+pub impl Show for UiGradient
+
 pub(all) struct UiImage {
   size : @math.Vec2D
   image : @asset_types.ImageHandle
@@ -583,6 +623,8 @@ pub(all) struct UiImage {
 }
 pub fn UiImage::from_image(@math.Vec2D, @asset_types.ImageHandle, tint? : @render.Color, fit? : ImageFit) -> Self
 pub fn UiImage::new(@math.Vec2D, String, tint? : @render.Color, fit? : ImageFit) -> Self
+pub impl Eq for UiImage
+pub impl Show for UiImage
 
 pub(all) struct UiInsets {
   left : Double
@@ -593,6 +635,31 @@ pub(all) struct UiInsets {
 pub fn UiInsets::zero() -> Self
 pub impl Eq for UiInsets
 pub impl Show for UiInsets
+
+pub(all) struct UiMaterialAsset {
+  draw : (UiMaterialContext) -> Unit
+}
+pub fn UiMaterialAsset::from_draw((UiMaterialContext) -> Unit) -> Self
+pub fn UiMaterialAsset::from_image(@math.Vec2D, @asset_types.ImageHandle, tint? : @render.Color, fit? : ImageFit) -> Self
+pub fn UiMaterialAsset::from_ui_image(UiImage) -> Self
+pub fn UiMaterialAsset::gradient(@render.Color, @render.Color) -> Self
+pub fn UiMaterialAsset::new(@math.Vec2D, String, tint? : @render.Color, fit? : ImageFit) -> Self
+pub fn UiMaterialAsset::solid(@render.Color) -> Self
+
+pub(all) struct UiMaterialContext {
+  entity : @entity.Entity
+  rect : @math.Rect
+  content_rect : @math.Rect
+  border_radius : BorderRadius
+}
+pub fn UiMaterialContext::new(@entity.Entity, @math.Rect, content_rect? : @math.Rect, border_radius? : BorderRadius) -> Self
+
+pub(all) struct UiMaterialHandle(UInt)
+#deprecated
+pub fn UiMaterialHandle::inner(Self) -> UInt
+pub impl Eq for UiMaterialHandle
+pub impl Hash for UiMaterialHandle
+pub impl Show for UiMaterialHandle
 
 pub(all) enum UiNavigationDirection {
   Up

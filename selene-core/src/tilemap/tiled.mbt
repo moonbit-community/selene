@@ -280,18 +280,11 @@ pub fn empty_tiled_map() -> TiledMap {
 
 ///|
 pub fn load_tiled_map(path : String) -> TiledMap {
-  guard @asset2.read_bytes(path) is Some(bytes) else {
+  guard load_tiled_text_document(path) is Some(source) else {
     return empty_tiled_map()
   }
-  let source = bytes.to_unchecked_string()
-  let parsed : Result[Json, @json.ParseError] = try? @json.parse(source.view())
-  match parsed {
-    Ok(document) => {
-      let map = TiledMap::from_tiled_json(document)
-      { ..map, source_path: Some(path) }
-    }
-    Err(_) => empty_tiled_map()
-  }
+  let map = parse_tiled_map_source(source)
+  resolve_external_tiled_tilesets({ ..map, source_path: Some(path) })
 }
 
 ///|
@@ -328,6 +321,25 @@ pub fn TiledMap::resolve_path(self : TiledMap, path : String) -> String {
       Some(source_path) => resolve_relative_asset_path(source_path, path)
       None => path
     }
+  }
+}
+
+///|
+pub fn TiledMap::resolve_tileset_asset_path(
+  self : TiledMap,
+  tileset : TiledTileset,
+  path : String,
+) -> String {
+  if is_absolute_path(path) {
+    return path
+  }
+  match (self.source_path, tileset.source) {
+    (Some(scene_path), Some(source)) =>
+      resolve_relative_asset_path(
+        resolve_relative_asset_path(scene_path, source),
+        path,
+      )
+    _ => self.resolve_path(path)
   }
 }
 
@@ -398,6 +410,19 @@ pub fn TiledMap::property(
   name : String,
 ) -> TiledPropertyValue? {
   find_property_value(self.properties, name)
+}
+
+///|
+pub fn TiledTileset::tile_definition(
+  self : TiledTileset,
+  local_id : Int,
+) -> TiledTileDefinition? {
+  for tile in self.tiles {
+    if tile.id == local_id {
+      return Some(tile)
+    }
+  }
+  None
 }
 
 ///|
@@ -517,6 +542,83 @@ fn parse_layers(layers_json : Json?) -> Array[TiledLayer] {
     layers.push(parse_layer(layer_object))
   }
   layers
+}
+
+///|
+fn load_tiled_text_document(path : String) -> String? {
+  guard @asset2.read_bytes(path) is Some(bytes) else { return None }
+  Some(bytes.to_unchecked_string())
+}
+
+///|
+fn parse_tiled_map_source(source : String) -> TiledMap {
+  if tiled_source_is_xml(source) {
+    TiledMap::from_tiled_xml(source)
+  } else {
+    parse_tiled_json_map_source(source)
+  }
+}
+
+///|
+fn parse_tiled_tileset_source(
+  source : String,
+  first_gid : Int,
+  source_path : String,
+) -> TiledTileset? {
+  if tiled_source_is_xml(source) {
+    parse_tiled_xml_tileset_document(source, first_gid, source_path)
+  } else {
+    parse_tiled_json_tileset_source(source, first_gid, source_path)
+  }
+}
+
+///|
+fn parse_tiled_json_map_source(source : String) -> TiledMap {
+  let parsed : Result[Json, @json.ParseError] = try? @json.parse(source.view())
+  match parsed {
+    Ok(document) => TiledMap::from_tiled_json(document)
+    Err(_) => empty_tiled_map()
+  }
+}
+
+///|
+fn parse_tiled_json_tileset_source(
+  source : String,
+  first_gid : Int,
+  source_path : String,
+) -> TiledTileset? {
+  let parsed : Result[Json, @json.ParseError] = try? @json.parse(source.view())
+  guard parsed is Ok(document) else { return None }
+  guard json_object(document) is Some(tileset_object) else { return None }
+  let external_tileset = parse_tileset(tileset_object)
+  Some({ ..external_tileset, first_gid, source: Some(source_path) })
+}
+
+///|
+fn resolve_external_tiled_tilesets(map : TiledMap) -> TiledMap {
+  if map.source_path is None {
+    return map
+  }
+  let resolved_tilesets : Array[TiledTileset] = []
+  for tileset in map.tilesets {
+    resolved_tilesets.push(resolve_external_tiled_tileset(map, tileset))
+  }
+  { ..map, tilesets: resolved_tilesets }
+}
+
+///|
+fn resolve_external_tiled_tileset(
+  map : TiledMap,
+  tileset : TiledTileset,
+) -> TiledTileset {
+  guard tileset.source is Some(source) else { return tileset }
+  let resolved_path = map.resolve_path(source)
+  guard load_tiled_text_document(resolved_path) is Some(document) else {
+    return tileset
+  }
+  parse_tiled_tileset_source(document, tileset.first_gid, source).unwrap_or(
+    tileset,
+  )
 }
 
 ///|
@@ -860,6 +962,22 @@ fn resolve_relative_asset_path(scene_path : String, uri : String) -> String {
   } else {
     scene_path.unsafe_substring(start=0, end=last_sep + 1) + uri
   }
+}
+
+///|
+fn tiled_source_is_xml(source : String) -> Bool {
+  for ch in source.to_array() {
+    if is_tiled_source_whitespace(ch) {
+      continue
+    }
+    return ch == '<'
+  }
+  false
+}
+
+///|
+fn is_tiled_source_whitespace(ch : Char) -> Bool {
+  ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t'
 }
 
 ///|

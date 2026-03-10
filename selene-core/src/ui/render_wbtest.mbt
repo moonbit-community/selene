@@ -27,11 +27,13 @@ fn cleanup_test_ui_entity(entity : @entity.Entity) -> Unit {
   computed_ui_nodes.remove(entity)
   global_ui_nodes.remove(entity)
   calculated_clips.remove(entity)
+  layout_configs.remove(entity)
   background_colors.remove(entity)
   border_colors.remove(entity)
   border_radii.remove(entity)
   box_shadows.remove(entity)
   outlines.remove(entity)
+  material_nodes.remove(entity)
   texts.remove(entity)
   text_fonts.remove(entity)
   text_colors.remove(entity)
@@ -75,6 +77,74 @@ test "ui rounded backgrounds emit quarter-circle fill commands" {
   inspect(push_clips, content="4")
   inspect(pop_clips, content="4")
 
+  cleanup_test_ui_entity(entity)
+}
+
+///|
+test "ui material nodes render gradient materials ahead of legacy background fills" {
+  @render2d.begin_frame2d_system(0.0)
+  let entity = @entity.Entity::new()
+  let rect = test_rect(8.0, 12.0, 80.0, 40.0)
+  let handle = register_ui_material_asset(
+    UiMaterialAsset::gradient(rgba(255, 0, 0, 1.0), rgba(0, 0, 255, 1.0)),
+  )
+  nodes.set(entity, Node::new())
+  global_ui_nodes.set(entity, test_global_node(rect, rect))
+  material_nodes.set(entity, MaterialNode::new(handle))
+  background_colors.set(entity, BackgroundColor::new(rgba(20, 40, 60, 1.0)))
+
+  render_entity(entity)
+
+  let frame = @render2d.get_frame2d()
+  inspect(frame.ui_commands.length(), content="1")
+  inspect(
+    match frame.ui_commands[0] {
+      GradientRect(command) =>
+        command.rect.position[X] == 8.0 &&
+        command.rect.position[Y] == 12.0 &&
+        command.rect.size[X] == 80.0 &&
+        command.rect.size[Y] == 40.0
+      _ => false
+    },
+    content="true",
+  )
+
+  release_ui_material_asset(handle)
+  cleanup_test_ui_entity(entity)
+}
+
+///|
+test "ui material assets can render through custom draw callbacks" {
+  @render2d.begin_frame2d_system(0.0)
+  let entity = @entity.Entity::new()
+  let screen_rect = test_rect(4.0, 6.0, 120.0, 80.0)
+  let content_rect = test_rect(12.0, 18.0, 64.0, 24.0)
+  let handle = register_ui_material_asset(
+    UiMaterialAsset::from_draw(fn(context) {
+      push_ui_rect_fill(context.content_rect, rgba(0, 200, 80, 1.0))
+    }),
+  )
+  nodes.set(entity, Node::new())
+  global_ui_nodes.set(entity, test_global_node(screen_rect, content_rect))
+  material_nodes.set(entity, MaterialNode::new(handle))
+
+  render_entity(entity)
+
+  let frame = @render2d.get_frame2d()
+  inspect(frame.ui_commands.length(), content="1")
+  inspect(
+    match frame.ui_commands[0] {
+      Rect(command) =>
+        command.rect.position[X] == 12.0 &&
+        command.rect.position[Y] == 18.0 &&
+        command.rect.size[X] == 64.0 &&
+        command.rect.size[Y] == 24.0
+      _ => false
+    },
+    content="true",
+  )
+
+  release_ui_material_asset(handle)
   cleanup_test_ui_entity(entity)
 }
 

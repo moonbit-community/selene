@@ -4,21 +4,31 @@
 
 ### Added
 
+- `selene/tilemap` now exposes a Tiled-authored data model through `TiledPropertyValue`, `TiledProperty`, `TiledGid`, `TiledChunk`, `TiledCell`, `TiledTileLayer`, `TiledPoint`, `TiledText`, `TiledObject`, `TiledObjectLayer`, `TiledImageLayer`, `TiledTileDefinition`, `TiledTileset`, `TiledLayerKind`, `TiledLayer`, `TiledMap`, `empty_tiled_gid()`, `decode_tiled_gid()`, `encode_tiled_gid()`, `TiledGid::is_empty()`, `empty_tiled_map()`, `load_tiled_map(...)`, `TiledMap::from_tiled_json(...)`, `TiledMap::from_tiled_xml(...)`, `TiledMap::resolve_path(...)`, `TiledMap::resolve_tileset_asset_path(...)`, `TiledMap::layer(...)`, `TiledMap::layer_by_id(...)`, `TiledMap::tile_layer(...)`, `TiledMap::object_layer(...)`, `TiledMap::tileset_for_gid(...)`, `TiledMap::property(...)`, `TiledTileset::tile_definition(...)`, `TiledLayer::property(...)`, `TiledObject::property(...)`, `TiledTileset::property(...)`, `TiledObjectLayer::object(...)`, `TiledTileLayer::tile_gid_at(...)`, and `TiledTileLayer::tile_cells(...)`
+- `selene/tilemap` now exposes real Tiled ECS-spawn API through `TiledSpawnSettings`, `default_tiled_spawn_settings()`, `spawn_tiled_map(...)`, `load_and_spawn_tiled_map(...)`, `TiledMapInstance`, `TiledLayerInstance`, `TiledTileInstance`, `TiledObjectInstance`, `TiledImageLayerInstance`, `tiled_map_instances`, `tiled_layer_instances`, `tiled_tile_instances`, `tiled_object_instances`, and `tiled_image_layer_instances`
 - `selene/ui` now exposes Bevy-style `ShadowStyle`, `BoxShadow`, and `box_shadows`, and the UI renderer submits layered box-shadow draws for nodes through the existing 2D command path
 - `selene/ui` now exposes the overflow-clipping API surface `Overflow::Hidden`, `OverflowClipBox`, `OverflowClipMargin`, `OverflowClipMargin::content_box()`, `OverflowClipMargin::padding_box()`, `OverflowClipMargin::border_box()`, `OverflowClipMargin::with_margin(...)`, and `default_overflow_clip_margin()`
 - `selene/ui` `Node` now carries Bevy-style `overflow_clip_margin`, and both `Node::new(...)` and `Node::absolute(...)` now accept `overflow_clip_margin?`, so clipped/scrolling nodes can choose content-box, padding-box, or border-box clipping with extra clip margin instead of always clipping to content bounds
 - `selene/ui` now exposes Bevy-style clipping and cursor-tracking components through `CalculatedClip`, `CalculatedClip::new(...)`, `OverrideClip`, `OverrideClip::new()`, `RelativeCursorPosition`, `RelativeCursorPosition::new()`, `RelativeCursorPosition::mouse_over()`, `calculated_clips`, `override_clips`, and `relative_cursor_positions`
+- `selene/ui` now exposes Bevy-style layout rounding controls through `LayoutConfig`, `LayoutConfig::new(...)`, and `layout_configs`
 - `selene/ui` now exposes Bevy-style stacking components and stores through `ZIndex`, `ZIndex::new(...)`, `GlobalZIndex`, `GlobalZIndex::new(...)`, `z_indexes`, and `global_zindexes`
+- `selene/ui` now exposes an asset-driven material-node surface through `UiMaterialHandle`, `MaterialNode`, `MaterialNode::new(...)`, `UiGradient`, `UiGradient::new(...)`, `UiMaterialContext`, `UiMaterialContext::new(...)`, `UiMaterialAsset`, `UiMaterialAsset::from_draw(...)`, `UiMaterialAsset::solid(...)`, `UiMaterialAsset::gradient(...)`, `UiMaterialAsset::from_ui_image(...)`, `UiMaterialAsset::from_image(...)`, `UiMaterialAsset::new(...)`, `draw_ui_material_solid(...)`, `draw_ui_material_gradient(...)`, `draw_ui_material_image(...)`, `material_nodes`, `register_ui_material_asset(...)`, `ui_material_asset(...)`, `update_ui_material_asset(...)`, and `release_ui_material_asset(...)`
 
 ### Changed
 
+- `selene/tilemap` is now a Tiled Map Editor package instead of a mixed Tiled/SpriteFusion surface: `load_tiled_map(...)` now dispatches between TMJ/TSJ JSON and TMX/TSX XML sources, and the orthogonal spawn helpers preserve Tiled group/layer offsets through ECS child hierarchy for both authoring formats
+- `examples/pixeladventure` now keeps its old SpriteFusion-style `TileMap` / `TileLayer` / `Tile` parser locally in the example package instead of depending on `selene/tilemap`
 - `selene/ui` `Node` now exposes Bevy-aligned block/grid layout authoring, including `Display::Block` / `Display::Grid`, reverse flex directions, `align_content` / `align_self` / `justify_items` / `justify_self`, `flex_wrap` / `flex_basis`, `aspect_ratio`, `scrollbar_width`, and grid template/auto-flow/placement helpers, and the UI layout system now applies those fields through `moon_taffy`
 - `selene/ui` `BorderRadius` now uses Bevy-style `Val` sizing semantics instead of raw `Double`s: the `top_left` / `top_right` / `bottom_right` / `bottom_left` fields are now `Val`, `BorderRadius::all(...)` now takes `Val`, and `BorderRadius::new(...)` now takes `Val` corners with `Val::px(0.0)` defaults
 - `selene/ui` `Outline` now uses Bevy-style `Val` sizing semantics instead of raw `Double`s: `Outline.width` and `Outline.offset` are now `Val`, and `Outline::new(...)` now takes `width : Val` plus `offset? : Val`
+- `selene/ui` `UiMaterialAsset` now uses an open draw-callback model through `UiMaterialAsset::from_draw(...)` and `UiMaterialContext` instead of the earlier closed `UiMaterialKind` enum shape, so material nodes can compose custom UI drawing without waiting for new engine-owned variants
 - `selene/ui` rendering, hit-testing, and accessibility child ordering now sort by `GlobalZIndex` before local `ZIndex` and tree order, and UI prepare now renders a flat stacking-sorted entity list so global UI stacking can cross subtree boundaries instead of being trapped inside recursive parent draw order
+- `selene/ui` `UiImage` now derives `Eq` / `Show`, and `MaterialNode` rendering takes precedence over co-authored legacy `BackgroundColor` and `UiImage` on the same entity so the new material asset path can replace direct node fill/image styling instead of double-drawing both
+- `selene/ui` layout extraction now rounds screen-space node rects and clip rects by default through `LayoutConfig { use_rounding: true }`, matching Bevy's default pixel snapping while still allowing subtree opt-out through `layout_configs`
 
 ### Fixed
 
+- `selene/tilemap` `load_tiled_map(...)` now follows external tileset references from both JSON and XML Tiled maps before returning, so `.tmj` maps using `.tsj` tilesets and `.tmx` maps using `.tsx` tilesets no longer come back with unresolved `source`-only tileset stubs
 - `selene/ui` now renders rounded background fills for `BorderRadius` nodes instead of warning and falling back to square-corner backgrounds, and overflow clipping now applies after node decorations so a scrolling/clipped node no longer clips away its own background and border before drawing content
 - `selene/ui` now maps `Overflow::Hidden` through `moon_taffy` and uses the authored `overflow_clip_margin` box when computing screen clip rects, so hidden overflow participates in layout correctly and clipped UI content no longer has to be constrained to the content box only
 - `selene/ui` outlines now resolve authored `width` / `offset` values into explicit outer fill bands instead of relying on a single stroke rect, so outline thickness and offset match the node's `Val`-resolved geometry more closely
@@ -26,7 +36,9 @@
 
 ### Removed
 
+- `selene/tilemap` no longer exposes the old SpriteFusion-only `TileMap`, `TileLayer`, `Tile`, `TileMap::from_json(...)`, `TileMap::get_tiles(...)`, or `TileMap::get_tiles_first(...)` API; legacy SpriteFusion parsing is now example-local instead of part of the published core package
 - `selene/ui` no longer exposes the old `UiZIndex` / `UiZIndex::new(...)` / `ui_zindexes` naming; consumers should use `ZIndex` / `ZIndex::new(...)` / `z_indexes`, and add `GlobalZIndex` / `global_zindexes` when they need stacking that escapes local subtree ordering
+- `selene/ui` no longer exposes the closed `UiMaterialKind` enum shape for material nodes; consumers should author `UiMaterialAsset::from_draw(...)` callbacks directly or use the built-in `solid(...)`, `gradient(...)`, and image helpers
 
 ## [0.26.2] - 2026-03-09
 

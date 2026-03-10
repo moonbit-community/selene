@@ -609,6 +609,16 @@ pub fn CalculatedClip::new(clip : @math.Rect) -> CalculatedClip {
 }
 
 ///|
+pub(all) struct LayoutConfig {
+  use_rounding : Bool
+} derive(Eq, Show)
+
+///|
+pub fn LayoutConfig::new(use_rounding? : Bool = true) -> LayoutConfig {
+  { use_rounding, }
+}
+
+///|
 pub(all) struct ZIndex {
   value : Int
 } derive(Eq, Show)
@@ -714,6 +724,9 @@ pub let global_ui_nodes : Map[@entity.Entity, GlobalUiNode] = Map::new()
 
 ///|
 pub let calculated_clips : Map[@entity.Entity, CalculatedClip] = Map::new()
+
+///|
+pub let layout_configs : Map[@entity.Entity, LayoutConfig] = Map::new()
 
 ///|
 pub let z_indexes : Map[@entity.Entity, ZIndex] = Map::new()

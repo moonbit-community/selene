@@ -124,7 +124,7 @@ pub(all) struct UiImage {
   image : @asset.ImageHandle
   tint : @render.Color
   fit : ImageFit
-}
+} derive(Eq, Show)
 
 ///|
 pub fn UiImage::from_image(
@@ -144,6 +144,108 @@ pub fn UiImage::new(
   fit? : ImageFit = Stretch,
 ) -> UiImage {
   UiImage::from_image(size, @asset.load_image(path), tint~, fit~)
+}
+
+///|
+pub(all) struct UiMaterialHandle(UInt) derive(Eq, Show, Hash)
+
+///|
+pub(all) struct MaterialNode {
+  material : UiMaterialHandle
+} derive(Eq, Show)
+
+///|
+pub fn MaterialNode::new(material : UiMaterialHandle) -> MaterialNode {
+  { material, }
+}
+
+///|
+pub(all) struct UiGradient {
+  color_start : @render.Color
+  color_end : @render.Color
+} derive(Eq, Show)
+
+///|
+pub fn UiGradient::new(
+  color_start : @render.Color,
+  color_end : @render.Color,
+) -> UiGradient {
+  { color_start, color_end }
+}
+
+///|
+pub(all) struct UiMaterialContext {
+  entity : @entity.Entity
+  rect : @math.Rect
+  content_rect : @math.Rect
+  border_radius : BorderRadius
+}
+
+///|
+pub fn UiMaterialContext::new(
+  entity : @entity.Entity,
+  rect : @math.Rect,
+  content_rect? : @math.Rect = rect,
+  border_radius? : BorderRadius = BorderRadius::all(Val::px(0.0)),
+) -> UiMaterialContext {
+  { entity, rect, content_rect, border_radius }
+}
+
+///|
+pub(all) struct UiMaterialAsset {
+  draw : (UiMaterialContext) -> Unit
+}
+
+///|
+pub fn UiMaterialAsset::from_draw(
+  draw : (UiMaterialContext) -> Unit,
+) -> UiMaterialAsset {
+  { draw, }
+}
+
+///|
+pub fn UiMaterialAsset::solid(color : @render.Color) -> UiMaterialAsset {
+  UiMaterialAsset::from_draw(fn(context) {
+    draw_ui_material_solid(context, color)
+  })
+}
+
+///|
+pub fn UiMaterialAsset::gradient(
+  color_start : @render.Color,
+  color_end : @render.Color,
+) -> UiMaterialAsset {
+  let gradient = UiGradient::new(color_start, color_end)
+  UiMaterialAsset::from_draw(fn(context) {
+    draw_ui_material_gradient(context, gradient)
+  })
+}
+
+///|
+pub fn UiMaterialAsset::from_ui_image(image : UiImage) -> UiMaterialAsset {
+  UiMaterialAsset::from_draw(fn(context) {
+    draw_ui_material_image(context, image)
+  })
+}
+
+///|
+pub fn UiMaterialAsset::from_image(
+  size : @math.Vec2D,
+  image : @asset.ImageHandle,
+  tint? : @render.Color = rgba(255, 255, 255, 1.0),
+  fit? : ImageFit = Stretch,
+) -> UiMaterialAsset {
+  UiMaterialAsset::from_ui_image(UiImage::from_image(size, image, tint~, fit~))
+}
+
+///|
+pub fn UiMaterialAsset::new(
+  size : @math.Vec2D,
+  path : String,
+  tint? : @render.Color = rgba(255, 255, 255, 1.0),
+  fit? : ImageFit = Stretch,
+) -> UiMaterialAsset {
+  UiMaterialAsset::from_ui_image(UiImage::new(size, path, tint~, fit~))
 }
 
 ///|
@@ -302,6 +404,15 @@ pub let outlines : Map[@entity.Entity, Outline] = Map::new()
 pub let ui_images : Map[@entity.Entity, UiImage] = Map::new()
 
 ///|
+pub let material_nodes : Map[@entity.Entity, MaterialNode] = Map::new()
+
+///|
+let ui_material_assets : Map[UiMaterialHandle, UiMaterialAsset] = Map::new()
+
+///|
+let next_ui_material_id : Ref[UInt] = Ref::new(0)
+
+///|
 pub let texts : Map[@entity.Entity, Text] = Map::new()
 
 ///|
@@ -318,6 +429,34 @@ pub let buttons : Map[@entity.Entity, Button] = Map::new()
 
 ///|
 pub let interactions : Map[@entity.Entity, Interaction] = Map::new()
+
+///|
+pub fn register_ui_material_asset(
+  material : UiMaterialAsset,
+) -> UiMaterialHandle {
+  let handle = UiMaterialHandle(next_ui_material_id.val)
+  next_ui_material_id.val += 1
+  ui_material_assets.set(handle, material)
+  handle
+}
+
+///|
+pub fn ui_material_asset(handle : UiMaterialHandle) -> UiMaterialAsset? {
+  ui_material_assets.get(handle)
+}
+
+///|
+pub fn update_ui_material_asset(
+  handle : UiMaterialHandle,
+  material : UiMaterialAsset,
+) -> Unit {
+  ui_material_assets.set(handle, material)
+}
+
+///|
+pub fn release_ui_material_asset(handle : UiMaterialHandle) -> Unit {
+  ui_material_assets.remove(handle)
+}
 
 ///|
 fn default_text_font() -> TextFont {

@@ -2,11 +2,14 @@
 package "Milky2018/selene/tilemap"
 
 import {
-  "moonbitlang/core/json",
+  "Milky2018/selene/entity",
+  "Milky2018/selene/math",
 }
 
 // Values
 pub fn decode_tiled_gid(Int) -> TiledGid
+
+pub fn default_tiled_spawn_settings() -> TiledSpawnSettings
 
 pub fn empty_tiled_gid() -> TiledGid
 
@@ -14,36 +17,25 @@ pub fn empty_tiled_map() -> TiledMap
 
 pub fn encode_tiled_gid(TiledGid) -> Int
 
+pub fn load_and_spawn_tiled_map(String, settings? : TiledSpawnSettings) -> @entity.Entity
+
 pub fn load_tiled_map(String) -> TiledMap
+
+pub fn spawn_tiled_map(TiledMap, settings? : TiledSpawnSettings) -> @entity.Entity
+
+pub let tiled_image_layer_instances : Map[@entity.Entity, TiledImageLayerInstance]
+
+pub let tiled_layer_instances : Map[@entity.Entity, TiledLayerInstance]
+
+pub let tiled_map_instances : Map[@entity.Entity, TiledMapInstance]
+
+pub let tiled_object_instances : Map[@entity.Entity, TiledObjectInstance]
+
+pub let tiled_tile_instances : Map[@entity.Entity, TiledTileInstance]
 
 // Errors
 
 // Types and methods
-pub struct Tile {
-  id : String
-  x : Int
-  y : Int
-}
-pub impl @json.FromJson for Tile
-
-pub struct TileLayer {
-  name : String
-  tiles : Array[Tile]
-  collider : Bool
-}
-pub impl @json.FromJson for TileLayer
-
-pub struct TileMap {
-  tile_size : Int
-  map_width : Int
-  map_height : Int
-  layers : Array[TileLayer]
-}
-pub fn TileMap::from_json(Json) -> Self
-pub fn TileMap::get_tiles(Self, String) -> Array[Tile]
-pub fn TileMap::get_tiles_first(Self, String) -> Array[Tile]
-pub impl @json.FromJson for TileMap
-
 pub struct TiledCell {
   x : Int
   y : Int
@@ -74,6 +66,13 @@ pub struct TiledImageLayer {
   repeat_y : Bool
 }
 
+pub struct TiledImageLayerInstance {
+  map_entity : @entity.Entity
+  layer : TiledLayer
+  image_layer : TiledImageLayer
+  resolved_image_path : String?
+}
+
 pub struct TiledLayer {
   id : Int
   name : String
@@ -90,6 +89,13 @@ pub struct TiledLayer {
   kind : TiledLayerKind
 }
 pub fn TiledLayer::property(Self, String) -> TiledPropertyValue?
+
+pub struct TiledLayerInstance {
+  map_entity : @entity.Entity
+  layer : TiledLayer
+  effective_visible : Bool
+  zindex : Int
+}
 
 pub enum TiledLayerKind {
   TileLayer(TiledTileLayer)
@@ -116,13 +122,19 @@ pub struct TiledMap {
   properties : Array[TiledProperty]
 }
 pub fn TiledMap::from_tiled_json(Json) -> Self
+pub fn TiledMap::from_tiled_xml(String) -> Self
 pub fn TiledMap::layer(Self, String) -> TiledLayer?
 pub fn TiledMap::layer_by_id(Self, Int) -> TiledLayer?
 pub fn TiledMap::object_layer(Self, String) -> TiledObjectLayer?
 pub fn TiledMap::property(Self, String) -> TiledPropertyValue?
 pub fn TiledMap::resolve_path(Self, String) -> String
+pub fn TiledMap::resolve_tileset_asset_path(Self, TiledTileset, String) -> String
 pub fn TiledMap::tile_layer(Self, String) -> TiledTileLayer?
 pub fn TiledMap::tileset_for_gid(Self, Int) -> TiledTileset?
+
+pub struct TiledMapInstance {
+  map : TiledMap
+}
 
 pub struct TiledObject {
   id : Int
@@ -144,6 +156,13 @@ pub struct TiledObject {
   properties : Array[TiledProperty]
 }
 pub fn TiledObject::property(Self, String) -> TiledPropertyValue?
+
+pub struct TiledObjectInstance {
+  map_entity : @entity.Entity
+  layer_entity : @entity.Entity
+  layer : TiledLayer
+  object : TiledObject
+}
 
 pub struct TiledObjectLayer {
   draw_order : String
@@ -173,6 +192,13 @@ pub enum TiledPropertyValue {
   Custom(Json)
 }
 
+pub struct TiledSpawnSettings {
+  position : @math.Vec2D
+  zindex : Int
+  layer_z_step : Int
+  spawn_hidden_layers : Bool
+}
+
 pub struct TiledText {
   text : String
   wrap : Bool
@@ -196,6 +222,14 @@ pub struct TiledTileDefinition {
   probability : Double?
   properties : Array[TiledProperty]
   object_layer : TiledObjectLayer?
+}
+
+pub struct TiledTileInstance {
+  map_entity : @entity.Entity
+  layer_entity : @entity.Entity
+  gid : TiledGid
+  tileset : TiledTileset
+  cell : TiledCell
 }
 
 pub struct TiledTileLayer {
@@ -231,6 +265,7 @@ pub struct TiledTileset {
   tiles : Array[TiledTileDefinition]
 }
 pub fn TiledTileset::property(Self, String) -> TiledPropertyValue?
+pub fn TiledTileset::tile_definition(Self, Int) -> TiledTileDefinition?
 
 // Type aliases
 

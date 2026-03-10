@@ -4,6 +4,7 @@ fn cleanup_layout_test_entity(entity : @entity.Entity) -> Unit {
   computed_ui_nodes.remove(entity)
   global_ui_nodes.remove(entity)
   calculated_clips.remove(entity)
+  layout_configs.remove(entity)
   z_indexes.remove(entity)
   global_zindexes.remove(entity)
   scroll_positions.remove(entity)
@@ -17,6 +18,7 @@ fn cleanup_layout_test_entity(entity : @entity.Entity) -> Unit {
   border_radii.remove(entity)
   box_shadows.remove(entity)
   outlines.remove(entity)
+  material_nodes.remove(entity)
   ui_images.remove(entity)
   texts.remove(entity)
   text_fonts.remove(entity)
@@ -241,6 +243,43 @@ test "ui layout uses overflow clip margins from the requested visual box" {
   inspect(clip.size[Y] == 78.0, content="true")
 
   cleanup_layout_test_entity(entity)
+}
+
+///|
+test "ui layout config controls screen-space rounding for viewport-scaled rects" {
+  let old_scale_mode = get_ui_scale_mode()
+  let old_viewport = @system.get_viewport_size()
+  let old_zoom = @system.get_zoom()
+  set_ui_scale_mode(Viewport)
+  @system.configure_display(101.0, 101.0, 1.5)
+
+  let logical_rect : @math.Rect = {
+    position: @math.Vec2D(33.835, 33.835),
+    size: @math.Vec2D(10.0, 10.0),
+  }
+  let rounded_rect = screen_rect_for(
+    logical_rect,
+    LayoutConfig::new().use_rounding,
+  )
+  inspect(rounded_rect.position[X] == 51.0, content="true")
+  inspect(rounded_rect.position[Y] == 51.0, content="true")
+
+  let unrounded_rect = screen_rect_for(
+    logical_rect,
+    LayoutConfig::new(use_rounding=false).use_rounding,
+  )
+  let expected = 33.835 * 1.5
+  inspect(
+    (unrounded_rect.position[X] - expected).abs() < 0.000001,
+    content="true",
+  )
+  inspect(
+    (unrounded_rect.position[Y] - expected).abs() < 0.000001,
+    content="true",
+  )
+
+  set_ui_scale_mode(old_scale_mode)
+  @system.configure_display(old_viewport[X], old_viewport[Y], old_zoom)
 }
 
 ///|

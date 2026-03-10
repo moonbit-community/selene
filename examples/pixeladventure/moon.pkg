@@ -8,12 +8,12 @@ import {
   "Milky2018/selene/physics2d",
   "Milky2018/selene/plugins",
   "Milky2018/selene/transform",
-  "Milky2018/selene/tilemap",
   "Milky2018/selene/camera",
   "Milky2018/selene/ui",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
   "Milky2018/selene/asset2",
+  "moonbitlang/core/json",
   "moonbitlang/core/random",
   "moonbitlang/core/set",
 }

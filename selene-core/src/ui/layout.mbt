@@ -369,6 +369,7 @@ fn clip_rect_for_node(
   logical_content_rect : @math.Rect,
   border : UiInsets,
   node : Node,
+  use_rounding : Bool,
 ) -> @math.Rect {
   let base_rect = match node.overflow_clip_margin.visual_box {
     ContentBox => logical_content_rect
@@ -386,16 +387,47 @@ fn clip_rect_for_node(
     BorderBox => logical_rect
   }
   let margin = node.overflow_clip_margin.margin
-  to_screen_rect({
-    position: @math.Vec2D(
-      base_rect.position[X] - margin,
-      base_rect.position[Y] - margin,
-    ),
+  screen_rect_for(
+    {
+      position: @math.Vec2D(
+        base_rect.position[X] - margin,
+        base_rect.position[Y] - margin,
+      ),
+      size: @math.Vec2D(
+        @cmp.maximum(0.0, base_rect.size[X] + margin * 2.0),
+        @cmp.maximum(0.0, base_rect.size[Y] + margin * 2.0),
+      ),
+    },
+    use_rounding,
+  )
+}
+
+///|
+fn rounded_screen_rect(rect : @math.Rect) -> @math.Rect {
+  let left = rect.position[X].round()
+  let top = rect.position[Y].round()
+  let right = (rect.position[X] + rect.size[X]).round()
+  let bottom = (rect.position[Y] + rect.size[Y]).round()
+  {
+    position: @math.Vec2D(left, top),
     size: @math.Vec2D(
-      @cmp.maximum(0.0, base_rect.size[X] + margin * 2.0),
-      @cmp.maximum(0.0, base_rect.size[Y] + margin * 2.0),
+      @cmp.maximum(0.0, right - left),
+      @cmp.maximum(0.0, bottom - top),
     ),
-  })
+  }
+}
+
+///|
+fn screen_rect_for(
+  logical_rect : @math.Rect,
+  use_rounding : Bool,
+) -> @math.Rect {
+  let screen_rect = to_screen_rect(logical_rect)
+  if use_rounding {
+    rounded_screen_rect(screen_rect)
+  } else {
+    screen_rect
+  }
 }
 
 ///|
@@ -480,6 +512,11 @@ fn cleanup_dead_ui_state() -> Unit {
       outlines.remove(pair.0)
     }
   }
+  for pair in material_nodes.to_array() {
+    if !pair.0.is_alive() {
+      material_nodes.remove(pair.0)
+    }
+  }
   for pair in ui_images.to_array() {
     if !pair.0.is_alive() {
       ui_images.remove(pair.0)
@@ -520,6 +557,11 @@ fn cleanup_dead_ui_state() -> Unit {
       calculated_clips.remove(pair.0)
     }
   }
+  for pair in layout_configs.to_array() {
+    if !pair.0.is_alive() {
+      layout_configs.remove(pair.0)
+    }
+  }
   for pair in tree_orders.to_array() {
     if !pair.0.is_alive() {
       tree_orders.remove(pair.0)
@@ -534,10 +576,15 @@ fn apply_layout_recursive(
   entity_to_node_id : Map[@entity.Entity, Int],
   parent_content_origin : @math.Vec2D,
   parent_clip : @math.Rect?,
+  inherited_use_rounding : Bool,
   order_counter : Ref[Int],
 ) -> Unit {
   guard entity_to_node_id.get(entity) is Some(node_id) else { return }
   guard nodes.get(entity) is Some(node) else { return }
+  let use_rounding = layout_configs
+    .get(entity)
+    .map(fn(config) { config.use_rounding })
+    .unwrap_or(inherited_use_rounding)
   let layout_result = try? taffy.layout(node_id)
   guard layout_result is Ok(layout) else { return }
 
@@ -583,11 +630,13 @@ fn apply_layout_recursive(
     border,
     padding,
   })
+  let screen_rect = screen_rect_for(logical_rect, use_rounding)
+  let screen_content_rect = screen_rect_for(logical_content_rect, use_rounding)
   global_ui_nodes.set(entity, {
     logical_rect,
-    screen_rect: to_screen_rect(logical_rect),
+    screen_rect,
     logical_content_rect,
-    screen_content_rect: to_screen_rect(logical_content_rect),
+    screen_content_rect,
   })
 
   order_counter.val += 1
@@ -602,7 +651,7 @@ fn apply_layout_recursive(
     inherited_clip
   } else {
     let clip_rect = clip_rect_for_node(
-      logical_rect, logical_content_rect, border, node,
+      logical_rect, logical_content_rect, border, node, use_rounding,
     )
     match inherited_clip {
       Some(parent) => rect_intersection(parent, clip_rect)
@@ -621,7 +670,7 @@ fn apply_layout_recursive(
   )
   for child in ui_children(entity) {
     apply_layout_recursive(
-      child, taffy, entity_to_node_id, next_origin, current_clip, order_counter,
+      child, taffy, entity_to_node_id, next_origin, current_clip, use_rounding, order_counter,
     )
   }
 }
@@ -661,6 +710,7 @@ pub fn ui_layout_system(_delta : Double) -> Unit {
       entity_to_node_id,
       @math.Vec2D::zero(),
       None,
+      true,
       order_counter,
     )
   }
