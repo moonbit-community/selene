@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.27.0] - 2026-03-10
+
 ### Added
 
 #### `selene/tiled` map data APIs

@@ -517,11 +517,12 @@ test "multibody joints insert, expose handles, and rebuild chains" {
   let grandchild = @entity.Entity::new()
   defer collision_test_cleanup([parent, child, grandchild])
 
-  for entry in [
-    (parent, @math.Vec2D::zero()),
-    (child, @math.Vec2D(32.0, 0.0)),
-    (grandchild, @math.Vec2D(64.0, 0.0)),
-  ] {
+  for
+    entry in [
+      (parent, @math.Vec2D::zero()),
+      (child, @math.Vec2D(32.0, 0.0)),
+      (grandchild, @math.Vec2D(64.0, 0.0)),
+    ] {
     @position.positions.set(entry.0, entry.1)
     shapes.set(entry.0, collision_test_shape())
     colliders.set(entry.0, Collider::new(collision_test_filter()))
@@ -553,7 +554,10 @@ test "multibody joints insert, expose handles, and rebuild chains" {
   inspect(multibody_joint_handle(child) is Some(_), content="true")
   inspect(multibody_joint_handle(grandchild) is Some(_), content="true")
   inspect(multibody_link(child) is Some(_), content="true")
-  inspect(world.multibody_joints.revolute_joint_descriptors().length() == 2, content="true")
+  inspect(
+    world.multibody_joints.revolute_joint_descriptors().length() == 2,
+    content="true",
+  )
 
   guard rigid_body_handle(parent) is Some(parent_handle) else {
     inspect("missing", content="true")
@@ -581,20 +585,22 @@ test "multibody joints insert, expose handles, and rebuild chains" {
           collision_test_close(limits.min().to_double(), -0.5) &&
           collision_test_close(limits.max().to_double(), 0.5)
         }) &&
-      descriptor.joint.motor().map_or(false, fn(motor) {
-        collision_test_close(motor.target_pos.to_double(), 0.25) &&
-        collision_test_close(motor.stiffness.to_double(), 4.0) &&
-        collision_test_close(motor.damping.to_double(), 0.75) &&
-        collision_test_close(motor.max_force.to_double(), 2.0)
-      }) &&
-      collision_test_close(
-        descriptor.joint.softness().damping_ratio.to_double(),
-        0.8,
-      ) &&
-      collision_test_close(
-        descriptor.joint.softness().natural_frequency.to_double(),
-        6.0,
-      )
+        descriptor.joint
+        .motor()
+        .map_or(false, fn(motor) {
+          collision_test_close(motor.target_pos.to_double(), 0.25) &&
+          collision_test_close(motor.stiffness.to_double(), 4.0) &&
+          collision_test_close(motor.damping.to_double(), 0.75) &&
+          collision_test_close(motor.max_force.to_double(), 2.0)
+        }) &&
+        collision_test_close(
+          descriptor.joint.softness().damping_ratio.to_double(),
+          0.8,
+        ) &&
+        collision_test_close(
+          descriptor.joint.softness().natural_frequency.to_double(),
+          6.0,
+        )
     } else if body_handle_parts(descriptor.parent) == child_key &&
       body_handle_parts(descriptor.child) == grandchild_key {
       found_grandchild_joint = true
@@ -603,13 +609,13 @@ test "multibody joints insert, expose handles, and rebuild chains" {
   inspect(found_child_joint, content="true")
   inspect(found_grandchild_joint, content="true")
 
-  multibody_joints.set(
-    child,
-    MultibodyJoint::revolute(parent, active=false),
-  )
+  multibody_joints.set(child, MultibodyJoint::revolute(parent, active=false))
   rapier_fixed_step(0.016)
   inspect(multibody_joint_handle(child) is None, content="true")
-  inspect(world.multibody_joints.revolute_joint_descriptors().length() == 1, content="true")
+  inspect(
+    world.multibody_joints.revolute_joint_descriptors().length() == 1,
+    content="true",
+  )
 
   multibody_joints.set(
     child,
@@ -621,7 +627,10 @@ test "multibody joints insert, expose handles, and rebuild chains" {
   )
   rapier_fixed_step(0.016)
   inspect(multibody_joint_handle(child) is Some(_), content="true")
-  inspect(world.multibody_joints.revolute_joint_descriptors().length() == 2, content="true")
+  inspect(
+    world.multibody_joints.revolute_joint_descriptors().length() == 2,
+    content="true",
+  )
 }
 
 ///|
@@ -645,7 +654,10 @@ test "multibody joints are removed when endpoints disappear" {
 
   rapier_fixed_step(0.016)
   inspect(multibody_joint_handle(child) is Some(_), content="true")
-  inspect(world.multibody_joints.revolute_joint_descriptors().length() == 1, content="true")
+  inspect(
+    world.multibody_joints.revolute_joint_descriptors().length() == 1,
+    content="true",
+  )
 
   colliders.remove(parent)
   shapes.remove(parent)
@@ -655,5 +667,8 @@ test "multibody joints are removed when endpoints disappear" {
   rapier_fixed_step(0.016)
 
   inspect(multibody_joint_handle(child) is None, content="true")
-  inspect(world.multibody_joints.revolute_joint_descriptors().length() == 0, content="true")
+  inspect(
+    world.multibody_joints.revolute_joint_descriptors().length() == 0,
+    content="true",
+  )
 }

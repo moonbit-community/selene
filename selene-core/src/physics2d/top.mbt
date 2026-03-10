@@ -270,9 +270,7 @@ pub fn joint_handle(entity : @entity.Entity) -> JointHandle? {
 }
 
 ///|
-pub fn multibody_joint_handle(
-  entity : @entity.Entity,
-) -> MultibodyJointHandle? {
+pub fn multibody_joint_handle(entity : @entity.Entity) -> MultibodyJointHandle? {
   @collision.multibody_joint_handle(entity)
 }
 

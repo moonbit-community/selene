@@ -192,17 +192,13 @@ pub fn joint_handle(entity : @entity.Entity) -> JointHandle? {
 }
 
 ///|
-pub fn multibody_joint_handle(
-  entity : @entity.Entity,
-) -> MultibodyJointHandle? {
+pub fn multibody_joint_handle(entity : @entity.Entity) -> MultibodyJointHandle? {
   world.entity_multibody_joints.get(entity)
 }
 
 ///|
 pub fn multibody_link(entity : @entity.Entity) -> MultibodyLinkId? {
-  guard world.entity_bodies.get(entity) is Some(handle) else {
-    return None
-  }
+  guard world.entity_bodies.get(entity) is Some(handle) else { return None }
   world.multibody_joints.rigid_body_link(handle)
 }
 
@@ -1643,9 +1639,7 @@ fn multibody_joint_endpoint_handles(
   guard world.entity_bodies.get(joint.parent) is Some(parent) else {
     return None
   }
-  guard world.entity_bodies.get(entity) is Some(child) else {
-    return None
-  }
+  guard world.entity_bodies.get(entity) is Some(child) else { return None }
   if body_handle_parts(parent) == body_handle_parts(child) {
     None
   } else {
@@ -1661,11 +1655,7 @@ fn entity_multibody_joint_config_key(
   child : @rapier_dynamics.RigidBodyHandle,
 ) -> EntityMultibodyJointConfigKey {
   entity |> ignore
-  {
-    joint,
-    parent: body_handle_parts(parent),
-    child: body_handle_parts(child),
-  }
+  { joint, parent: body_handle_parts(parent), child: body_handle_parts(child) }
 }
 
 ///|
@@ -1825,10 +1815,7 @@ fn sync_world_multibody_joints() -> Unit {
       continue
     }
     let config_key = entity_multibody_joint_config_key(
-      entity,
-      joint,
-      parent,
-      child,
+      entity, joint, parent, child,
     )
     if world.entity_multibody_joints.get(entity) is Some(handle) &&
       world.multibody_joints.get(handle) is Some(_) &&
