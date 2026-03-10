@@ -20,4 +20,5 @@ import {
   "Milky2018/selene/audio",
   "Milky2018/selene/a11y",
   "Milky2018/selene/ui",
+  "Milky2018/selene/tiled",
 }

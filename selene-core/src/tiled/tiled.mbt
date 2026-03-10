@@ -140,12 +140,19 @@ pub struct TiledImageLayer {
 }
 
 ///|
+pub struct TiledAnimationFrame {
+  tile_id : Int
+  duration_ms : Int
+}
+
+///|
 pub struct TiledTileDefinition {
   id : Int
   object_type : String?
   class_name : String?
   image : String?
   probability : Double?
+  animation : Array[TiledAnimationFrame]
   properties : Array[TiledProperty]
   object_layer : TiledObjectLayer?
 }
@@ -201,6 +208,9 @@ pub struct TiledMap {
   height : Int
   tile_width : Int
   tile_height : Int
+  hex_side_length : Int?
+  stagger_axis : String?
+  stagger_index : String?
   infinite : Bool
   orientation : String
   render_order : String
@@ -265,6 +275,9 @@ pub fn empty_tiled_map() -> TiledMap {
     height: 0,
     tile_width: 0,
     tile_height: 0,
+    hex_side_length: None,
+    stagger_axis: None,
+    stagger_index: None,
     infinite: false,
     orientation: "orthogonal",
     render_order: "right-down",
@@ -295,6 +308,9 @@ pub fn TiledMap::from_tiled_json(json : Json) -> TiledMap {
     height: field_int(root_object, "height").unwrap_or(0),
     tile_width: field_int(root_object, "tilewidth").unwrap_or(0),
     tile_height: field_int(root_object, "tileheight").unwrap_or(0),
+    hex_side_length: field_int(root_object, "hexsidelength"),
+    stagger_axis: field_string(root_object, "staggeraxis"),
+    stagger_index: field_string(root_object, "staggerindex"),
     infinite: field_bool(root_object, "infinite").unwrap_or(false),
     orientation: field_string(root_object, "orientation").unwrap_or(
       "orthogonal",
@@ -650,6 +666,8 @@ fn parse_layer(layer_object : Map[String, Json]) -> TiledLayer {
 
 ///|
 fn parse_tile_layer(layer_object : Map[String, Json]) -> TiledTileLayer {
+  let encoding = field_string(layer_object, "encoding")
+  let compression = field_string(layer_object, "compression")
   {
     width: field_int(layer_object, "width").unwrap_or(0),
     height: field_int(layer_object, "height").unwrap_or(0),
@@ -657,15 +675,27 @@ fn parse_tile_layer(layer_object : Map[String, Json]) -> TiledTileLayer {
     y: field_int(layer_object, "y").unwrap_or(0),
     start_x: field_int(layer_object, "startx").unwrap_or(0),
     start_y: field_int(layer_object, "starty").unwrap_or(0),
-    encoding: field_string(layer_object, "encoding"),
-    compression: field_string(layer_object, "compression"),
-    data: parse_gid_array(field_json(layer_object, "data")),
-    chunks: parse_chunks(field_json(layer_object, "chunks")),
+    encoding,
+    compression,
+    data: parse_layer_gid_data(
+      field_json(layer_object, "data"),
+      encoding,
+      compression,
+    ),
+    chunks: parse_chunks(
+      field_json(layer_object, "chunks"),
+      encoding,
+      compression,
+    ),
   }
 }
 
 ///|
-fn parse_chunks(chunks_json : Json?) -> Array[TiledChunk] {
+fn parse_chunks(
+  chunks_json : Json?,
+  encoding : String?,
+  compression : String?,
+) -> Array[TiledChunk] {
   guard chunks_json is Some(chunks_value) else { return [] }
   guard json_array(chunks_value) is Some(chunk_values) else { return [] }
   let chunks : Array[TiledChunk] = []
@@ -676,10 +706,28 @@ fn parse_chunks(chunks_json : Json?) -> Array[TiledChunk] {
       y: field_int(chunk_object, "y").unwrap_or(0),
       width: field_int(chunk_object, "width").unwrap_or(0),
       height: field_int(chunk_object, "height").unwrap_or(0),
-      data: parse_gid_array(field_json(chunk_object, "data")),
+      data: parse_layer_gid_data(
+        field_json(chunk_object, "data"),
+        encoding,
+        compression,
+      ),
     })
   }
   chunks
+}
+
+///|
+fn parse_layer_gid_data(
+  data_json : Json?,
+  encoding : String?,
+  compression : String?,
+) -> Array[TiledGid] {
+  match encoding {
+    Some("csv") => parse_json_gid_data_csv(data_json)
+    Some("base64") => parse_json_gid_data_string(data_json, compression)
+    Some(_) => []
+    None => parse_gid_array(data_json)
+  }
 }
 
 ///|
@@ -697,6 +745,184 @@ fn parse_gid_array(data_json : Json?) -> Array[TiledGid] {
     }
   }
   gids
+}
+
+///|
+fn parse_json_gid_data_string(
+  data_json : Json?,
+  compression : String?,
+) -> Array[TiledGid] {
+  guard data_json is Some(data_value) else { return [] }
+  guard json_string(data_value) is Some(source) else { return [] }
+  parse_tiled_base64_gids(source, compression~)
+}
+
+///|
+fn parse_json_gid_data_csv(data_json : Json?) -> Array[TiledGid] {
+  guard data_json is Some(data_value) else { return [] }
+  if json_string(data_value) is Some(source) {
+    return parse_tiled_gid_csv(source)
+  }
+  parse_gid_array(data_json)
+}
+
+///|
+fn tiled_gid_data_is_uncompressed(compression : String?) -> Bool {
+  match compression {
+    None => true
+    Some(mode) => {
+      let normalized = strip_tiled_base64_whitespace(mode).to_lower()
+      normalized.length() == 0 || normalized == "none"
+    }
+  }
+}
+
+///|
+fn parse_tiled_base64_gids(
+  source : String,
+  compression? : String? = None,
+) -> Array[TiledGid] {
+  let cleaned = strip_tiled_base64_whitespace(source)
+  if cleaned.length() == 0 {
+    return []
+  }
+  let decoded : Result[Bytes, @base64.CorruptInputError] = try? @base64.std_decode2bytes(
+    cleaned,
+  )
+  match decoded {
+    Ok(bytes) =>
+      match decompress_tiled_gid_bytes(bytes, compression) {
+        Some(decompressed) => parse_tiled_gid_bytes(decompressed)
+        None => []
+      }
+    Err(_) => []
+  }
+}
+
+///|
+fn decompress_tiled_gid_bytes(bytes : Bytes, compression : String?) -> Bytes? {
+  if tiled_gid_data_is_uncompressed(compression) {
+    return Some(bytes)
+  }
+  let normalized = compression.map_or("", fn(mode) {
+    strip_tiled_base64_whitespace(mode).to_lower()
+  })
+  match normalized {
+    "gzip" => tiled_gzip_decompress(bytes)
+    "zstd" => tiled_zstd_decompress(bytes)
+    "zlib" => tiled_zlib_decompress(bytes)
+    _ => None
+  }
+}
+
+///|
+fn tiled_gzip_decompress(bytes : Bytes) -> Bytes? {
+  let source = @io.Buffer::from_bytes(bytes)
+  let (reader, err) = @gzip.Reader::new(source)
+  guard err is None else { return None }
+  let (decoded, read_err) = @io.read_all(reader)
+  ignore(reader.close())
+  guard read_err is None else { return None }
+  Some(decoded.to_bytes())
+}
+
+///|
+fn tiled_zstd_decompress(bytes : Bytes) -> Bytes? {
+  let decoded : Result[Bytes, @zstd.ZstdError] = try? @zstd.decompress(bytes)
+  match decoded {
+    Ok(output) => Some(output)
+    Err(_) => None
+  }
+}
+
+///|
+fn tiled_zlib_decompress(bytes : Bytes) -> Bytes? {
+  let raw = bytes.to_array()
+  if raw.length() < 6 {
+    return None
+  }
+  let cmf = raw[0].to_int()
+  let flg = raw[1].to_int()
+  if (cmf & 0x0F) != 8 {
+    return None
+  }
+  if ((cmf << 8) | flg) % 31 != 0 {
+    return None
+  }
+  let has_dict = (flg & 0x20) != 0
+  let header_size = if has_dict { 6 } else { 2 }
+  if raw.length() <= header_size + 4 {
+    return None
+  }
+  let payload = Bytes::from_array(raw[header_size:raw.length() - 4])
+  let source = @io.Buffer::from_bytes(payload)
+  let inflater = &@flate.Reader::new(source)
+  let (decoded, read_err) = @io.read_all(inflater)
+  ignore(inflater.close())
+  guard read_err is None else { return None }
+  Some(decoded.to_bytes())
+}
+
+///|
+fn parse_tiled_gid_bytes(bytes : Bytes) -> Array[TiledGid] {
+  let raw = bytes.to_array()
+  let gids : Array[TiledGid] = []
+  let mut index = 0
+  while index + 3 < raw.length() {
+    let raw_gid = raw[index].to_int() |
+      (raw[index + 1].to_int() << 8) |
+      (raw[index + 2].to_int() << 16) |
+      (raw[index + 3].to_int() << 24)
+    gids.push(decode_tiled_gid(raw_gid))
+    index += 4
+  }
+  gids
+}
+
+///|
+fn parse_tiled_gid_csv(source : String) -> Array[TiledGid] {
+  let gids : Array[TiledGid] = []
+  let mut token = StringBuilder::new()
+  for ch in source.to_array() {
+    if ch == ',' || is_tiled_source_whitespace(ch) {
+      let token_string = token.to_string()
+      if token_string.length() > 0 {
+        let parsed : Result[Int, @strconv.StrConvError] = try? @strconv.parse_int(
+          token_string[:],
+        )
+        match parsed {
+          Ok(raw) => gids.push(decode_tiled_gid(raw))
+          Err(_) => gids.push(empty_tiled_gid())
+        }
+        token = StringBuilder::new()
+      }
+      continue
+    }
+    token.write_char(ch)
+  }
+  let token_string = token.to_string()
+  if token_string.length() > 0 {
+    let parsed : Result[Int, @strconv.StrConvError] = try? @strconv.parse_int(
+      token_string[:],
+    )
+    match parsed {
+      Ok(raw) => gids.push(decode_tiled_gid(raw))
+      Err(_) => gids.push(empty_tiled_gid())
+    }
+  }
+  gids
+}
+
+///|
+fn strip_tiled_base64_whitespace(source : String) -> String {
+  let cleaned = StringBuilder::new()
+  for ch in source.to_array() {
+    if is_tiled_source_whitespace(ch) {
+      continue
+    }
+    cleaned.write_char(ch)
+  }
+  cleaned.to_string()
 }
 
 ///|
@@ -833,6 +1059,9 @@ fn parse_tile_definitions(tiles_json : Json?) -> Array[TiledTileDefinition] {
       class_name: field_string(tile_object, "class"),
       image: field_string(tile_object, "image"),
       probability: field_number(tile_object, "probability"),
+      animation: parse_tile_animation_frames(
+        field_json(tile_object, "animation"),
+      ),
       properties: parse_properties(field_json(tile_object, "properties")),
       object_layer: field_object(tile_object, "objectgroup").map(fn(group) {
         parse_object_layer(group)
@@ -840,6 +1069,23 @@ fn parse_tile_definitions(tiles_json : Json?) -> Array[TiledTileDefinition] {
     })
   }
   tiles
+}
+
+///|
+fn parse_tile_animation_frames(
+  animation_json : Json?,
+) -> Array[TiledAnimationFrame] {
+  guard animation_json is Some(animation_value) else { return [] }
+  guard json_array(animation_value) is Some(frame_values) else { return [] }
+  let frames : Array[TiledAnimationFrame] = []
+  for frame_value in frame_values {
+    guard json_object(frame_value) is Some(frame_object) else { continue }
+    frames.push({
+      tile_id: field_int(frame_object, "tileid").unwrap_or(0),
+      duration_ms: field_int(frame_object, "duration").unwrap_or(100),
+    })
+  }
+  frames
 }
 
 ///|

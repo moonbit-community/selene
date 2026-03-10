@@ -112,6 +112,20 @@ pub fn default_plugin(app : @system.App) -> Unit {
   )
   add_system(
     app,
+    @tiled.tiled_world_chunking_system,
+    Update,
+    "Tiled World Chunking System",
+    in_set=gameplay,
+  )
+  add_system(
+    app,
+    @tiled.tiled_parallax_system,
+    Update,
+    "Tiled Parallax System",
+    in_set=gameplay,
+  )
+  add_system(
+    app,
     @audio.audio_event_playback_system,
     PostUpdate,
     "Audio Event Playback System",

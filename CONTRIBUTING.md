@@ -71,7 +71,7 @@ selene/
 │       ├── collision/    # Collision detection and physics
 │       ├── audio/        # Audio system
 │       ├── camera/       # Camera and UI management
-│       ├── tilemap/      # Tile map support
+│       ├── tiled/        # Tiled map support
 │       └── ...
 ├── selene-webgpu/        # Canvas2D backend implementation
 ├── examples/              # Complete example games

@@ -5,7 +5,13 @@
     "Milky2018/moon_rapier": "0.2.5",
     "Milky2018/moon_accesskit": "0.2.1",
     "Milky2018/moon_taffy": "0.2.0",
-    "Milky2018/xml": "0.2.0"
+    "Milky2018/xml": "0.2.0",
+    "gmlewis/base64": "0.16.2",
+    "moonbitlang/x": "0.4.38",
+    "gmlewis/gzip": "0.34.2",
+    "Milky2018/zstd": "0.1.0",
+    "gmlewis/io": "0.23.2",
+    "gmlewis/flate": "0.36.2"
   },
   "readme": "README.md",
   "repository": "https://github.com/moonbit-community/selene.git",

@@ -134,6 +134,9 @@ fn parse_tiled_xml_map(root : TiledXmlNode) -> TiledMap {
     height: xml_int_attr(root, "height").unwrap_or(0),
     tile_width: xml_int_attr(root, "tilewidth").unwrap_or(0),
     tile_height: xml_int_attr(root, "tileheight").unwrap_or(0),
+    hex_side_length: xml_int_attr(root, "hexsidelength"),
+    stagger_axis: xml_attr(root, "staggeraxis"),
+    stagger_index: xml_attr(root, "staggerindex"),
     infinite: xml_bool_attr(root, "infinite").unwrap_or(false),
     orientation: xml_attr(root, "orientation").unwrap_or("orthogonal"),
     render_order: xml_attr(root, "renderorder").unwrap_or("right-down"),
@@ -228,7 +231,17 @@ fn parse_tiled_xml_chunks(data_node : TiledXmlNode) -> Array[TiledChunk] {
 
 ///|
 fn parse_tiled_xml_gid_data(data_node : TiledXmlNode) -> Array[TiledGid] {
-  if xml_attr(data_node, "encoding") == Some("base64") {
+  let encoding = xml_attr(data_node, "encoding")
+  if encoding == Some("base64") {
+    return parse_tiled_base64_gids(
+      xml_text(data_node),
+      compression=xml_attr(data_node, "compression"),
+    )
+  }
+  if encoding == Some("csv") {
+    return parse_tiled_gid_csv(xml_text(data_node))
+  }
+  if encoding is Some(_) && encoding != Some("csv") {
     return []
   }
   let tiles = xml_children(data_node, "tile")
@@ -387,11 +400,29 @@ fn parse_tiled_xml_tile_definition(node : TiledXmlNode) -> TiledTileDefinition {
     class_name: xml_attr(node, "class"),
     image: xml_child(node, "image").bind(fn(img) { xml_attr(img, "source") }),
     probability: xml_double_attr(node, "probability"),
+    animation: parse_tiled_xml_tile_animation_frames(node),
     properties: parse_tiled_xml_properties(node),
     object_layer: xml_child(node, "objectgroup").map(
       parse_tiled_xml_object_layer,
     ),
   }
+}
+
+///|
+fn parse_tiled_xml_tile_animation_frames(
+  tile_node : TiledXmlNode,
+) -> Array[TiledAnimationFrame] {
+  guard xml_child(tile_node, "animation") is Some(animation_node) else {
+    return []
+  }
+  let frames : Array[TiledAnimationFrame] = []
+  for frame_node in xml_children(animation_node, "frame") {
+    frames.push({
+      tile_id: xml_int_attr(frame_node, "tileid").unwrap_or(0),
+      duration_ms: xml_int_attr(frame_node, "duration").unwrap_or(100),
+    })
+  }
+  frames
 }
 
 ///|
