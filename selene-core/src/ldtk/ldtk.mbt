@@ -781,6 +781,7 @@ pub struct LdtkTileInstance {
   flip_x : Bool
   flip_y : Bool
   alpha : Double
+  data : Array[Int]
 }
 
 ///|
@@ -794,6 +795,7 @@ pub struct LdtkEntityInstance {
   grid : @math.Vec2D
   pivot : @math.Vec2D
   smart_color : String?
+  tags : Array[String]
   field_instances : Array[LdtkFieldInstance]
 }
 
@@ -979,6 +981,16 @@ pub fn LdtkEntityInstance::field_tiles(
   identifier : String,
 ) -> Array[LdtkTilesetRect]? {
   ldtk_field_tiles(self.field_instances, identifier)
+}
+
+///|
+pub fn LdtkEntityInstance::has_tag(self : LdtkEntityInstance, tag : String) -> Bool {
+  for entity_tag in self.tags {
+    if entity_tag == tag {
+      return true
+    }
+  }
+  false
 }
 
 ///|
@@ -1347,11 +1359,16 @@ pub fn empty_ldtk_project() -> LdtkProject {
 
 ///|
 pub fn load_ldtk_project(path : String) -> LdtkProject {
+  let project = load_ldtk_project_raw(path)
+  resolve_external_ldtk_levels(project)
+}
+
+///|
+pub fn load_ldtk_project_raw(path : String) -> LdtkProject {
   guard load_ldtk_text_document(path) is Some(source) else {
     return empty_ldtk_project()
   }
-  let project = parse_ldtk_project_source(source)
-  resolve_external_ldtk_levels({ ..project, source_path: Some(path) })
+  { ..parse_ldtk_project_source(source), source_path: Some(path) }
 }
 
 ///|
@@ -1392,6 +1409,11 @@ pub fn LdtkProject::indexed_levels(self : LdtkProject) -> Array[LdtkIndexedLevel
 }
 
 ///|
+pub fn LdtkProject::raw_indexed_levels(self : LdtkProject) -> Array[LdtkIndexedLevel] {
+  ldtk_project_raw_view(self).indexed_levels()
+}
+
+///|
 pub fn LdtkProject::level_at_indices(
   self : LdtkProject,
   indices : LdtkLevelIndices,
@@ -1417,6 +1439,14 @@ pub fn LdtkProject::level_at_indices(
 }
 
 ///|
+pub fn LdtkProject::raw_level_at_indices(
+  self : LdtkProject,
+  indices : LdtkLevelIndices,
+) -> LdtkLevel? {
+  ldtk_project_raw_view(self).level_at_indices(indices)
+}
+
+///|
 pub fn LdtkProject::find_level_by_selection(
   self : LdtkProject,
   selection : LdtkLevelSelection,
@@ -1430,6 +1460,14 @@ pub fn LdtkProject::find_level_by_selection(
 }
 
 ///|
+pub fn LdtkProject::raw_find_level_by_selection(
+  self : LdtkProject,
+  selection : LdtkLevelSelection,
+) -> LdtkIndexedLevel? {
+  ldtk_project_raw_view(self).find_level_by_selection(selection)
+}
+
+///|
 pub fn LdtkProject::level_by_iid(self : LdtkProject, iid : String) -> LdtkLevel? {
   for indexed in self.indexed_levels() {
     if indexed.level.iid == iid {
@@ -1437,6 +1475,11 @@ pub fn LdtkProject::level_by_iid(self : LdtkProject, iid : String) -> LdtkLevel?
     }
   }
   None
+}
+
+///|
+pub fn LdtkProject::raw_level_by_iid(self : LdtkProject, iid : String) -> LdtkLevel? {
+  ldtk_project_raw_view(self).level_by_iid(iid)
 }
 
 ///|
@@ -1462,6 +1505,15 @@ pub fn LdtkProject::level_set_for_selection(
     }
   }
   ldtk_level_set_from_iids(iids)
+}
+
+///|
+pub fn LdtkProject::raw_level_set_for_selection(
+  self : LdtkProject,
+  selection : LdtkLevelSelection,
+  behavior : LdtkLevelSpawnBehavior,
+) -> LdtkLevelSet {
+  ldtk_project_raw_view(self).level_set_for_selection(selection, behavior)
 }
 
 ///|
@@ -1657,6 +1709,19 @@ pub fn LdtkLevelSelection::is_match(
     Indices(other_indices) => indices.equals(other_indices)
     Iid(iid) => iid == level.iid
     Uid(uid) => uid == level.uid
+  }
+}
+
+///|
+fn ldtk_project_raw_view(project : LdtkProject) -> LdtkProject {
+  match project.source_path {
+    Some(source_path) => {
+      guard load_ldtk_text_document(source_path) is Some(source) else {
+        return project
+      }
+      { ..parse_ldtk_project_source(source), source_path: Some(source_path) }
+    }
+    None => project
   }
 }
 
@@ -2130,6 +2195,7 @@ fn parse_ldtk_tile_instances(
       flip_x: (flags & 1) != 0,
       flip_y: (flags & 2) != 0,
       alpha: field_number(object, "a").unwrap_or(1.0),
+      data: parse_ldtk_int_array(field_json(object, "d")),
     })
   }
   instances
@@ -2154,6 +2220,7 @@ fn parse_ldtk_entity_instances(
       grid: json_vec2_from_int_array(field_json(object, "__grid")),
       pivot: json_vec2_from_number_array(field_json(object, "__pivot")),
       smart_color: field_string_any(object, ["__smartColor", "smartColor"]),
+      tags: parse_ldtk_string_array(field_json_any(object, ["__tags", "tags"])),
       field_instances: parse_ldtk_field_instances(
         field_json(object, "fieldInstances"),
       ),

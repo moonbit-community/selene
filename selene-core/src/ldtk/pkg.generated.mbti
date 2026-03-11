@@ -196,6 +196,8 @@ pub fn load_and_spawn_ldtk_world(String, settings? : LdtkWorldSpawnSettings) -> 
 
 pub fn load_ldtk_project(String) -> LdtkProject
 
+pub fn load_ldtk_project_raw(String) -> LdtkProject
+
 pub fn mark_ldtk_respawn(@entity.Entity) -> Unit
 
 pub fn register_ldtk_entity_default_spawn_hook((LdtkEntitySpawnedEvent) -> Unit) -> Unit
@@ -206,11 +208,15 @@ pub fn register_ldtk_entity_spawn_hook(String, (LdtkEntitySpawnedEvent) -> Unit)
 
 pub fn register_ldtk_entity_spawn_hook_for_layer(String, String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
+pub fn register_ldtk_entity_spawn_hook_optional(String?, String?, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+
 pub fn register_ldtk_int_grid_cell_spawn_hook(String, Int, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
 pub fn register_ldtk_int_grid_default_spawn_hook((LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
 pub fn register_ldtk_int_grid_layer_spawn_hook(String, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+
+pub fn register_ldtk_int_grid_spawn_hook_optional(String?, Int?, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
 pub fn register_ldtk_int_grid_value_spawn_hook(Int, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
@@ -236,9 +242,13 @@ pub fn unregister_ldtk_entity_spawn_hook(String) -> Unit
 
 pub fn unregister_ldtk_entity_spawn_hook_for_layer(String, String) -> Unit
 
+pub fn unregister_ldtk_entity_spawn_hook_optional(String?, String?) -> Unit
+
 pub fn unregister_ldtk_int_grid_cell_spawn_hook(String, Int) -> Unit
 
 pub fn unregister_ldtk_int_grid_layer_spawn_hook(String) -> Unit
+
+pub fn unregister_ldtk_int_grid_spawn_hook_optional(String?, Int?) -> Unit
 
 pub fn unregister_ldtk_int_grid_value_spawn_hook(Int) -> Unit
 
@@ -269,6 +279,7 @@ pub struct LdtkEntityInstance {
   grid : @math.Vec2D
   pivot : @math.Vec2D
   smart_color : String?
+  tags : Array[String]
   field_instances : Array[LdtkFieldInstance]
 }
 pub fn LdtkEntityInstance::field(Self, String) -> LdtkFieldInstance?
@@ -294,6 +305,7 @@ pub fn LdtkEntityInstance::field_tile(Self, String) -> LdtkTilesetRect?
 pub fn LdtkEntityInstance::field_tiles(Self, String) -> Array[LdtkTilesetRect]?
 pub fn LdtkEntityInstance::field_vec2(Self, String) -> @math.Vec2D?
 pub fn LdtkEntityInstance::field_vec2_array(Self, String) -> Array[@math.Vec2D]?
+pub fn LdtkEntityInstance::has_tag(Self, String) -> Bool
 
 pub struct LdtkEntityReference {
   entity_iid : String?
@@ -637,6 +649,11 @@ pub fn LdtkProject::layer_definition_by_identifier(Self, String) -> LdtkLayerDef
 pub fn LdtkProject::level_at_indices(Self, LdtkLevelIndices) -> LdtkLevel?
 pub fn LdtkProject::level_by_iid(Self, String) -> LdtkLevel?
 pub fn LdtkProject::level_set_for_selection(Self, LdtkLevelSelection, LdtkLevelSpawnBehavior) -> LdtkLevelSet
+pub fn LdtkProject::raw_find_level_by_selection(Self, LdtkLevelSelection) -> LdtkIndexedLevel?
+pub fn LdtkProject::raw_indexed_levels(Self) -> Array[LdtkIndexedLevel]
+pub fn LdtkProject::raw_level_at_indices(Self, LdtkLevelIndices) -> LdtkLevel?
+pub fn LdtkProject::raw_level_by_iid(Self, String) -> LdtkLevel?
+pub fn LdtkProject::raw_level_set_for_selection(Self, LdtkLevelSelection, LdtkLevelSpawnBehavior) -> LdtkLevelSet
 pub fn LdtkProject::resolve_path(Self, String) -> String
 pub fn LdtkProject::tileset_by_uid(Self, Int) -> LdtkTilesetDefinition?
 pub fn LdtkProject::tileset_tile_custom_data(Self, Int, Int) -> String?
@@ -709,6 +726,7 @@ pub struct LdtkTileInstance {
   flip_x : Bool
   flip_y : Bool
   alpha : Double
+  data : Array[Int]
 }
 
 pub struct LdtkTileMetadata {

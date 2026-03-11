@@ -333,6 +333,17 @@ test "load_ldtk_project resolves external level files" {
     inspect(level.world_x, content="64")
     inspect(level.layer_instances.length(), content="1")
     inspect(level.layer_instances[0].identifier, content="Tiles")
+    let raw_level = project.raw_level_by_iid("iid-root").unwrap()
+    inspect(raw_level.identifier, content="Root")
+    inspect(raw_level.world_x, content="0")
+    inspect(raw_level.layer_instances.length(), content="0")
+    inspect(
+      project.raw_find_level_by_selection(ldtk_level_selection_iid("iid-root"))
+      .unwrap()
+      .level
+      .identifier,
+      content="Root",
+    )
   })
 }
 
@@ -370,6 +381,25 @@ test "load_ldtk_project parses defs entities enums and typed entity field helper
     inspect(entity.field_entity_iid("Target").unwrap(), content="enemy-2")
     inspect(entity.field_entity_iids("Targets").unwrap().length(), content="2")
     inspect(entity.field_entity_iids("Targets").unwrap()[1], content="enemy-3")
+  })
+}
+
+///|
+test "load_ldtk_project parses entity instance tags" {
+  let files : Map[String, Bytes] = Map::new()
+  files.set(
+    "levels/world.ldtk",
+    ascii_bytes(
+      "{\"externalLevels\":false,\"defs\":{\"tilesets\":[]},\"levels\":[{\"identifier\":\"Main\",\"iid\":\"level-main\",\"uid\":1,\"worldX\":0,\"worldY\":0,\"pxWid\":64,\"pxHei\":64,\"layerInstances\":[{\"iid\":\"layer-entities\",\"__identifier\":\"Entities\",\"__type\":\"Entities\",\"__gridSize\":16,\"__cWid\":4,\"__cHei\":4,\"visible\":true,\"intGridCsv\":[],\"autoLayerTiles\":[],\"gridTiles\":[],\"entityInstances\":[{\"iid\":\"enemy-1\",\"__identifier\":\"Enemy\",\"defUid\":10,\"width\":16,\"height\":16,\"px\":[16,16],\"__grid\":[1,1],\"__pivot\":[0,0],\"__tags\":[\"Hostile\",\"Flying\"],\"fieldInstances\":[]}]}]}],\"worlds\":[]}",
+    ),
+  )
+  with_fake_asset_io(files, fn() raise {
+    let project = load_ldtk_project("levels/world.ldtk")
+    let entity = project.levels[0].layer_instances[0].entity_instances[0]
+    inspect(entity.tags.length(), content="2")
+    inspect(entity.tags[0], content="Hostile")
+    inspect(entity.has_tag("Flying"), content="true")
+    inspect(entity.has_tag("Boss"), content="false")
   })
 }
 
@@ -605,6 +635,7 @@ test "spawn_ldtk_world spawns layer tiles entities and intgrid cells" {
           flip_x: false,
           flip_y: false,
           alpha: 1.0,
+          data: [],
         },
       ],
       entity_instances: [],
@@ -668,6 +699,7 @@ test "spawn_ldtk_world spawns layer tiles entities and intgrid cells" {
           grid: @math.Vec2D(2.0, 1.0),
           pivot: @math.Vec2D(0.5, 1.0),
           smart_color: Some("#ff0000"),
+          tags: [],
           field_instances: [],
         },
       ],
@@ -845,6 +877,7 @@ test "ldtk tile source uses tileset spacing and padding" {
                   flip_x: false,
                   flip_y: false,
                   alpha: 1.0,
+                  data: [],
                 },
               ],
               entity_instances: [],
@@ -935,6 +968,7 @@ test "ldtk tile render alpha multiplies layer opacity and tile alpha" {
                   flip_x: false,
                   flip_y: false,
                   alpha: 0.5,
+                  data: [],
                 },
               ],
               entity_instances: [],
@@ -1075,6 +1109,7 @@ test "ldtk spawned tile metadata includes custom data and enum tags" {
                   flip_x: false,
                   flip_y: false,
                   alpha: 1.0,
+                  data: [],
                 },
               ],
               entity_instances: [],
@@ -1110,6 +1145,7 @@ test "ldtk entity spawn hook applies by identifier" {
       grid: @math.Vec2D(0.0, 0.0),
       pivot: @math.Vec2D::zero(),
       smart_color: None,
+      tags: [],
       field_instances: [],
     },
     {
@@ -1122,6 +1158,7 @@ test "ldtk entity spawn hook applies by identifier" {
       grid: @math.Vec2D(1.0, 0.0),
       pivot: @math.Vec2D::zero(),
       smart_color: None,
+      tags: [],
       field_instances: [],
     },
   ])])
@@ -1157,6 +1194,7 @@ test "ldtk entity spawn hooks support layer and default scopes" {
           grid: @math.Vec2D(0.0, 0.0),
           pivot: @math.Vec2D::zero(),
           smart_color: None,
+          tags: [],
           field_instances: [],
         },
         {
@@ -1169,6 +1207,7 @@ test "ldtk entity spawn hooks support layer and default scopes" {
           grid: @math.Vec2D(1.0, 0.0),
           pivot: @math.Vec2D::zero(),
           smart_color: None,
+          tags: [],
           field_instances: [],
         },
       ]),
@@ -1183,6 +1222,7 @@ test "ldtk entity spawn hooks support layer and default scopes" {
           grid: @math.Vec2D(2.0, 0.0),
           pivot: @math.Vec2D::zero(),
           smart_color: None,
+          tags: [],
           field_instances: [],
         },
       ]),
@@ -1214,6 +1254,78 @@ test "ldtk entity spawn hooks support layer and default scopes" {
   inspect(layer_hits.val, content="2")
   inspect(identifier_hits.val, content="2")
   inspect(default_hits.val, content="3")
+
+  cleanup_ldtk_entity(world)
+}
+
+///|
+test "ldtk entity optional hook registration routes by scope" {
+  reset_ldtk_runtime()
+  let project = test_project_with_layers(
+    "level-main",
+    [test_entity_layer_with_identifier("LayerA", [
+      {
+        iid: "entity-enemy-a",
+        identifier: "Enemy",
+        def_uid: 1,
+        width: 16,
+        height: 16,
+        px: @math.Vec2D(0.0, 0.0),
+        grid: @math.Vec2D(0.0, 0.0),
+        pivot: @math.Vec2D::zero(),
+        smart_color: None,
+        tags: [],
+        field_instances: [],
+      },
+      {
+        iid: "entity-npc-a",
+        identifier: "Npc",
+        def_uid: 2,
+        width: 16,
+        height: 16,
+        px: @math.Vec2D(16.0, 0.0),
+        grid: @math.Vec2D(1.0, 0.0),
+        pivot: @math.Vec2D::zero(),
+        smart_color: None,
+        tags: [],
+        field_instances: [],
+      },
+    ])],
+  )
+  let scoped_hits = Ref::new(0)
+  let layer_hits = Ref::new(0)
+  let identifier_hits = Ref::new(0)
+  let default_hits = Ref::new(0)
+
+  register_ldtk_entity_spawn_hook_optional(Some("LayerA"), Some("Enemy"), fn(_event) {
+    scoped_hits.val += 1
+  })
+  register_ldtk_entity_spawn_hook_optional(Some("LayerA"), None, fn(_event) {
+    layer_hits.val += 1
+  })
+  register_ldtk_entity_spawn_hook_optional(None, Some("Enemy"), fn(_event) {
+    identifier_hits.val += 1
+  })
+  register_ldtk_entity_spawn_hook_optional(None, None, fn(_event) {
+    default_hits.val += 1
+  })
+
+  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_level_selection(ldtk_level_selection_index(0))
+  let world = spawn_ldtk_world(project)
+  inspect(scoped_hits.val, content="1")
+  inspect(layer_hits.val, content="2")
+  inspect(identifier_hits.val, content="1")
+  inspect(default_hits.val, content="2")
+
+  unregister_ldtk_entity_spawn_hook_optional(Some("LayerA"), Some("Enemy"))
+  unregister_ldtk_entity_spawn_hook_optional(Some("LayerA"), None)
+  unregister_ldtk_entity_spawn_hook_optional(None, Some("Enemy"))
+  unregister_ldtk_entity_spawn_hook_optional(None, None)
+  inspect(ldtk_entity_layer_identifier_spawn_hooks.to_array().length(), content="0")
+  inspect(ldtk_entity_layer_spawn_hooks.to_array().length(), content="0")
+  inspect(ldtk_entity_spawn_hooks.to_array().length(), content="0")
+  inspect(ldtk_entity_default_spawn_hook.val is None, content="true")
 
   cleanup_ldtk_entity(world)
 }
@@ -1251,6 +1363,55 @@ test "ldtk intgrid spawn hooks apply by layer and cell value" {
   let value_2_entity = cell_value_2.unwrap()
   inspect(ldtk_int_grid_colliders.get(value_1_entity).unwrap().sensor, content="false")
   inspect(ldtk_int_grid_colliders.get(value_2_entity).unwrap().sensor, content="true")
+
+  cleanup_ldtk_entity(world)
+}
+
+///|
+test "ldtk intgrid optional hook registration routes by scope" {
+  reset_ldtk_runtime()
+  let project = test_project_with_layers(
+    "level-main",
+    [test_int_grid_layer("Collision", 2, 1, [1, 2])],
+  )
+  let scoped_hits = Ref::new(0)
+  let layer_hits = Ref::new(0)
+  let value_hits = Ref::new(0)
+  let default_hits = Ref::new(0)
+
+  register_ldtk_int_grid_spawn_hook_optional(
+    Some("Collision"),
+    Some(2),
+    fn(_event) {
+      scoped_hits.val += 1
+    },
+  )
+  register_ldtk_int_grid_spawn_hook_optional(Some("Collision"), None, fn(_event) {
+    layer_hits.val += 1
+  })
+  register_ldtk_int_grid_spawn_hook_optional(None, Some(2), fn(_event) {
+    value_hits.val += 1
+  })
+  register_ldtk_int_grid_spawn_hook_optional(None, None, fn(_event) {
+    default_hits.val += 1
+  })
+
+  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_level_selection(ldtk_level_selection_index(0))
+  let world = spawn_ldtk_world(project)
+  inspect(scoped_hits.val, content="1")
+  inspect(layer_hits.val, content="2")
+  inspect(value_hits.val, content="1")
+  inspect(default_hits.val, content="2")
+
+  unregister_ldtk_int_grid_spawn_hook_optional(Some("Collision"), Some(2))
+  unregister_ldtk_int_grid_spawn_hook_optional(Some("Collision"), None)
+  unregister_ldtk_int_grid_spawn_hook_optional(None, Some(2))
+  unregister_ldtk_int_grid_spawn_hook_optional(None, None)
+  inspect(ldtk_int_grid_cell_spawn_hooks.to_array().length(), content="0")
+  inspect(ldtk_int_grid_layer_spawn_hooks.to_array().length(), content="0")
+  inspect(ldtk_int_grid_value_spawn_hooks.to_array().length(), content="0")
+  inspect(ldtk_int_grid_default_spawn_hook.val is None, content="true")
 
   cleanup_ldtk_entity(world)
 }
@@ -1466,6 +1627,7 @@ test "ldtk intgrid with tileset skips colorful fallback sprites" {
                   flip_x: false,
                   flip_y: false,
                   alpha: 1.0,
+                  data: [],
                 },
               ],
               grid_tiles: [],
@@ -1598,6 +1760,7 @@ test "ldtk settings intgrid invisible and layer exclusion apply at spawn" {
                   grid: @math.Vec2D(0.0, 0.0),
                   pivot: @math.Vec2D::zero(),
                   smart_color: None,
+                  tags: [],
                   field_instances: [],
                 },
               ],
@@ -1655,6 +1818,7 @@ test "ldtk level respawn keeps worldly entities and respawns level entities" {
       grid: @math.Vec2D(1.0, 1.0),
       pivot: @math.Vec2D::zero(),
       smart_color: None,
+      tags: [],
       field_instances: [],
     },
     {
@@ -1667,6 +1831,7 @@ test "ldtk level respawn keeps worldly entities and respawns level entities" {
       grid: @math.Vec2D(2.0, 1.0),
       pivot: @math.Vec2D::zero(),
       smart_color: None,
+      tags: [],
       field_instances: [
         {
           identifier: "worldly",
@@ -1728,6 +1893,7 @@ test "ldtk world respawn recreates worldly entities" {
       grid: @math.Vec2D(2.0, 1.0),
       pivot: @math.Vec2D::zero(),
       smart_color: None,
+      tags: [],
       field_instances: [
         {
           identifier: "worldly",

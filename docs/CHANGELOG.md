@@ -92,8 +92,8 @@
 - `ldtk_field_entity_refs(field_instances, identifier)`: finds and decodes a field value as typed `Array[LdtkEntityReference]`.
 - `ldtk_field_tile(field_instances, identifier)`: finds and decodes a field value as typed `LdtkTilesetRect`.
 - `ldtk_field_tiles(field_instances, identifier)`: finds and decodes a field value as typed `Array[LdtkTilesetRect]`.
-- `LdtkTileInstance`: parsed tile instance payload (`tile_id`, `src`, `px`, flip, alpha).
-- `LdtkEntityInstance`: parsed entity instance payload.
+- `LdtkTileInstance`: parsed tile instance payload (`tile_id`, `src`, `px`, flip, alpha, internal `d` data).
+- `LdtkEntityInstance`: parsed entity instance payload (including LDtk entity tags from `__tags`/`tags`).
 - `LdtkEntityInstance::field(identifier)`: finds an entity field instance by identifier.
 - `LdtkEntityInstance::field_bool(identifier)`: reads an entity field as `Bool`.
 - `LdtkEntityInstance::field_int(identifier)`: reads an entity field as `Int`.
@@ -117,6 +117,7 @@
 - `LdtkEntityInstance::field_entity_refs(identifier)`: reads an entity field as typed `Array[LdtkEntityReference]`.
 - `LdtkEntityInstance::field_tile(identifier)`: reads an entity field as typed `LdtkTilesetRect`.
 - `LdtkEntityInstance::field_tiles(identifier)`: reads an entity field as typed `Array[LdtkTilesetRect]`.
+- `LdtkEntityInstance::has_tag(tag)`: checks whether an entity instance includes a specific LDtk tag.
 - `LdtkLayerInstance`: parsed layer instance payload.
 - `LdtkLevelBackgroundPosition`: parsed level background placement payload (`crop_x`, `crop_y`, `crop_width`, `crop_height`, `scale`, `top_left_px`).
 - `LdtkLevel`: parsed level payload (including optional `bg_pos`).
@@ -160,13 +161,19 @@
 - `empty_ldtk_level()`: returns empty LDtk level payload.
 - `empty_ldtk_project()`: returns empty LDtk project payload.
 - `load_ldtk_project(path)`: loads `.ldtk` project JSON and resolves external levels.
+- `load_ldtk_project_raw(path)`: loads `.ldtk` project JSON without resolving external `.ldtkl` payloads.
 - `LdtkProject::from_ldtk_json(json)`: parses project payload from JSON value.
 - `LdtkProject::resolve_path(path)`: resolves project-relative file paths.
 - `LdtkProject::indexed_levels()`: returns flattened root/world level list with indices.
+- `LdtkProject::raw_indexed_levels()`: returns flattened root/world level list from raw project JSON (before external-level merge).
 - `LdtkProject::level_at_indices(indices)`: returns a level by `LdtkLevelIndices`.
+- `LdtkProject::raw_level_at_indices(indices)`: returns a level by `LdtkLevelIndices` from raw project JSON.
 - `LdtkProject::find_level_by_selection(selection)`: finds level by `LdtkLevelSelection`.
+- `LdtkProject::raw_find_level_by_selection(selection)`: finds level by `LdtkLevelSelection` from raw project JSON.
 - `LdtkProject::level_by_iid(iid)`: finds level by level IID.
+- `LdtkProject::raw_level_by_iid(iid)`: finds level by level IID from raw project JSON.
 - `LdtkProject::level_set_for_selection(selection, behavior)`: computes target level set (including neighbor expansion when enabled).
+- `LdtkProject::raw_level_set_for_selection(selection, behavior)`: computes target level set from raw project JSON.
 - `LdtkProject::tileset_by_uid(uid)`: resolves a tileset definition by UID.
 - `LdtkTilesetDefinition::tile_custom_data(tile_id)`: resolves tileset `customData` payload for a tile ID.
 - `LdtkTilesetDefinition::tile_enum_tags(tile_id)`: resolves all enum-tag identifiers attached to a tile ID.
@@ -229,18 +236,22 @@
 - `mark_ldtk_respawn(entity)`: marks an LDtk world/level entity for respawn on the next sync tick.
 - `clear_ldtk_respawn(entity)`: clears a pending respawn mark from an LDtk world/level entity.
 - `register_ldtk_entity_spawn_hook(identifier, hook)`: registers/overwrites an entity spawn hook for an LDtk entity identifier.
+- `register_ldtk_entity_spawn_hook_optional(layer_identifier?, identifier?, hook)`: routes entity spawn-hook registration to default/identifier/layer/layer+identifier scope by optional matcher.
 - `register_ldtk_entity_layer_spawn_hook(layer_identifier, hook)`: registers/overwrites a layer-wide entity spawn hook.
 - `register_ldtk_entity_spawn_hook_for_layer(layer_identifier, identifier, hook)`: registers/overwrites an entity spawn hook scoped to a layer+identifier pair.
 - `register_ldtk_entity_default_spawn_hook(hook)`: registers/overwrites the fallback entity spawn hook.
 - `unregister_ldtk_entity_spawn_hook(identifier)`: removes the entity spawn hook for an LDtk entity identifier.
+- `unregister_ldtk_entity_spawn_hook_optional(layer_identifier?, identifier?)`: routes entity spawn-hook unregistration by optional matcher.
 - `unregister_ldtk_entity_layer_spawn_hook(layer_identifier)`: removes a layer-wide entity spawn hook.
 - `unregister_ldtk_entity_spawn_hook_for_layer(layer_identifier, identifier)`: removes a layer+identifier entity spawn hook.
 - `clear_ldtk_entity_default_spawn_hook()`: clears the fallback entity spawn hook.
 - `clear_ldtk_entity_spawn_hooks()`: clears all registered LDtk entity spawn hooks.
 - `register_ldtk_int_grid_layer_spawn_hook(layer_identifier, hook)`: registers/overwrites a layer-wide IntGrid cell spawn hook.
+- `register_ldtk_int_grid_spawn_hook_optional(layer_identifier?, value?, hook)`: routes IntGrid spawn-hook registration to default/value/layer/layer+value scope by optional matcher.
 - `register_ldtk_int_grid_value_spawn_hook(value, hook)`: registers/overwrites an IntGrid cell spawn hook by value across layers.
 - `register_ldtk_int_grid_default_spawn_hook(hook)`: registers/overwrites the fallback IntGrid cell spawn hook.
 - `unregister_ldtk_int_grid_layer_spawn_hook(layer_identifier)`: removes a layer-wide IntGrid cell spawn hook.
+- `unregister_ldtk_int_grid_spawn_hook_optional(layer_identifier?, value?)`: routes IntGrid spawn-hook unregistration by optional matcher.
 - `unregister_ldtk_int_grid_value_spawn_hook(value)`: removes an IntGrid value-scoped spawn hook.
 - `clear_ldtk_int_grid_layer_spawn_hooks()`: clears all registered layer-wide IntGrid cell spawn hooks.
 - `register_ldtk_int_grid_cell_spawn_hook(layer_identifier, value, hook)`: registers/overwrites an IntGrid `(layer,value)` spawn hook.
@@ -292,6 +303,9 @@
 - `ldtk_world_sync_system(...)` runtime behavior: `LdtkLevelEvent::Transformed` is now emitted on the next sync tick after spawn (matching delayed transform timing), rather than in the same spawn tick.
 - `LdtkProject::enum_definition_by_identifier(...)` / `LdtkProject::enum_definition_by_uid(...)` now resolve both internal `defs.enums` and `defs.external_enums`.
 - `LdtkFieldInstance` parsing now preserves `defUid` into `def_uid` for direct field-definition UID lookups.
+- `LdtkProject` now exposes raw-level accessor APIs (`raw_*`) so external-level projects can query pre-merge metadata and resolved runtime data independently.
+- `LdtkTileInstance` parsing now preserves LDtk internal tile payload `d` as `LdtkTileInstance.data`.
+- `LdtkEntityInstance` parsing now preserves LDtk entity tags from `__tags`/`tags` as `LdtkEntityInstance.tags`.
 - `spawn_ldtk_world(...)` tile rendering now resolves sprite-atlas source offsets using LDtk tileset `padding` and `spacing`; this resolved source is also stored in `ldtk_tile_metadata.src`.
 - `spawn_ldtk_world(...)` tile metadata now carries LDtk tileset per-tile metadata (`customData` and `enumTags`) into `ldtk_tile_metadata.custom_data` and `ldtk_tile_metadata.enum_tags`.
 - `spawn_ldtk_world(...)` tile rendering now applies LDtk tile opacity by multiplying `layer.opacity * tile.alpha` into sprite animation draw alpha.

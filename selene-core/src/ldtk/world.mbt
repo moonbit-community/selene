@@ -302,6 +302,22 @@ pub fn register_ldtk_entity_spawn_hook(
 }
 
 ///|
+pub fn register_ldtk_entity_spawn_hook_optional(
+  layer_identifier : String?,
+  identifier : String?,
+  hook : (LdtkEntitySpawnedEvent) -> Unit,
+) -> Unit {
+  match (layer_identifier, identifier) {
+    (Some(layer), Some(entity_identifier)) =>
+      register_ldtk_entity_spawn_hook_for_layer(layer, entity_identifier, hook)
+    (Some(layer), None) => register_ldtk_entity_layer_spawn_hook(layer, hook)
+    (None, Some(entity_identifier)) =>
+      register_ldtk_entity_spawn_hook(entity_identifier, hook)
+    (None, None) => register_ldtk_entity_default_spawn_hook(hook)
+  }
+}
+
+///|
 pub fn register_ldtk_entity_layer_spawn_hook(
   layer_identifier : String,
   hook : (LdtkEntitySpawnedEvent) -> Unit,
@@ -331,6 +347,21 @@ pub fn register_ldtk_entity_default_spawn_hook(
 ///|
 pub fn unregister_ldtk_entity_spawn_hook(identifier : String) -> Unit {
   ldtk_entity_spawn_hooks.remove(identifier)
+}
+
+///|
+pub fn unregister_ldtk_entity_spawn_hook_optional(
+  layer_identifier : String?,
+  identifier : String?,
+) -> Unit {
+  match (layer_identifier, identifier) {
+    (Some(layer), Some(entity_identifier)) =>
+      unregister_ldtk_entity_spawn_hook_for_layer(layer, entity_identifier)
+    (Some(layer), None) => unregister_ldtk_entity_layer_spawn_hook(layer)
+    (None, Some(entity_identifier)) =>
+      unregister_ldtk_entity_spawn_hook(entity_identifier)
+    (None, None) => clear_ldtk_entity_default_spawn_hook()
+  }
 }
 
 ///|
@@ -376,6 +407,22 @@ pub fn register_ldtk_int_grid_layer_spawn_hook(
 }
 
 ///|
+pub fn register_ldtk_int_grid_spawn_hook_optional(
+  layer_identifier : String?,
+  value : Int?,
+  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+) -> Unit {
+  match (layer_identifier, value) {
+    (Some(layer), Some(cell_value)) =>
+      register_ldtk_int_grid_cell_spawn_hook(layer, cell_value, hook)
+    (Some(layer), None) => register_ldtk_int_grid_layer_spawn_hook(layer, hook)
+    (None, Some(cell_value)) =>
+      register_ldtk_int_grid_value_spawn_hook(cell_value, hook)
+    (None, None) => register_ldtk_int_grid_default_spawn_hook(hook)
+  }
+}
+
+///|
 pub fn register_ldtk_int_grid_value_spawn_hook(
   value : Int,
   hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
@@ -398,6 +445,21 @@ pub fn unregister_ldtk_int_grid_layer_spawn_hook(
   layer_identifier : String,
 ) -> Unit {
   ldtk_int_grid_layer_spawn_hooks.remove(layer_identifier)
+}
+
+///|
+pub fn unregister_ldtk_int_grid_spawn_hook_optional(
+  layer_identifier : String?,
+  value : Int?,
+) -> Unit {
+  match (layer_identifier, value) {
+    (Some(layer), Some(cell_value)) =>
+      unregister_ldtk_int_grid_cell_spawn_hook(layer, cell_value)
+    (Some(layer), None) => unregister_ldtk_int_grid_layer_spawn_hook(layer)
+    (None, Some(cell_value)) =>
+      unregister_ldtk_int_grid_value_spawn_hook(cell_value)
+    (None, None) => clear_ldtk_int_grid_default_spawn_hook()
+  }
 }
 
 ///|
