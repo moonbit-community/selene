@@ -12,11 +12,17 @@ import {
 // Values
 pub fn clear_ldtk_children(@entity.Entity) -> Unit
 
+pub fn clear_ldtk_entity_default_spawn_hook() -> Unit
+
 pub fn clear_ldtk_entity_spawn_hooks() -> Unit
 
 pub fn clear_ldtk_int_grid_cell_spawn_hooks() -> Unit
 
+pub fn clear_ldtk_int_grid_default_spawn_hook() -> Unit
+
 pub fn clear_ldtk_int_grid_layer_spawn_hooks() -> Unit
+
+pub fn clear_ldtk_int_grid_value_spawn_hooks() -> Unit
 
 pub fn clear_ldtk_respawn(@entity.Entity) -> Unit
 
@@ -46,7 +52,13 @@ pub fn empty_ldtk_tileset_rect() -> LdtkTilesetRect
 
 pub fn ldtk_entity_by_iid(@entity.Entity, String) -> @entity.Entity?
 
+pub let ldtk_entity_default_spawn_hook : @ref.Ref[((LdtkEntitySpawnedEvent) -> Unit)?]
+
 pub let ldtk_entity_iids : Map[@entity.Entity, LdtkEntityIid]
+
+pub let ldtk_entity_layer_identifier_spawn_hooks : Map[String, (LdtkEntitySpawnedEvent) -> Unit]
+
+pub let ldtk_entity_layer_spawn_hooks : Map[String, (LdtkEntitySpawnedEvent) -> Unit]
 
 pub let ldtk_entity_spawn_hooks : Map[String, (LdtkEntitySpawnedEvent) -> Unit]
 
@@ -110,9 +122,13 @@ pub let ldtk_int_grid_collider_spawned_event_bus : @event.Events[LdtkIntGridColl
 
 pub let ldtk_int_grid_colliders : Map[@entity.Entity, LdtkIntGridCollider]
 
+pub let ldtk_int_grid_default_spawn_hook : @ref.Ref[((LdtkIntGridCellSpawnedEvent) -> Unit)?]
+
 pub let ldtk_int_grid_layer_spawn_hooks : Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]
 
 pub let ldtk_int_grid_physics_settings : @ref.Ref[LdtkIntGridPhysicsSettings]
+
+pub let ldtk_int_grid_value_spawn_hooks : Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]
 
 pub let ldtk_layer_metadata : Map[@entity.Entity, LdtkLayerMetadata]
 
@@ -182,11 +198,21 @@ pub fn load_ldtk_project(String) -> LdtkProject
 
 pub fn mark_ldtk_respawn(@entity.Entity) -> Unit
 
+pub fn register_ldtk_entity_default_spawn_hook((LdtkEntitySpawnedEvent) -> Unit) -> Unit
+
+pub fn register_ldtk_entity_layer_spawn_hook(String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+
 pub fn register_ldtk_entity_spawn_hook(String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+
+pub fn register_ldtk_entity_spawn_hook_for_layer(String, String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
 pub fn register_ldtk_int_grid_cell_spawn_hook(String, Int, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
+pub fn register_ldtk_int_grid_default_spawn_hook((LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+
 pub fn register_ldtk_int_grid_layer_spawn_hook(String, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+
+pub fn register_ldtk_int_grid_value_spawn_hook(Int, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
 pub fn respawn_ldtk_world_into_entity(@entity.Entity, LdtkProject, settings? : LdtkWorldSpawnSettings) -> Unit
 
@@ -204,11 +230,17 @@ pub fn spawn_ldtk_world(LdtkProject, settings? : LdtkWorldSpawnSettings) -> @ent
 
 pub fn spawn_ldtk_world_into_entity(@entity.Entity, LdtkProject, settings? : LdtkWorldSpawnSettings) -> Unit
 
+pub fn unregister_ldtk_entity_layer_spawn_hook(String) -> Unit
+
 pub fn unregister_ldtk_entity_spawn_hook(String) -> Unit
+
+pub fn unregister_ldtk_entity_spawn_hook_for_layer(String, String) -> Unit
 
 pub fn unregister_ldtk_int_grid_cell_spawn_hook(String, Int) -> Unit
 
 pub fn unregister_ldtk_int_grid_layer_spawn_hook(String) -> Unit
+
+pub fn unregister_ldtk_int_grid_value_spawn_hook(Int) -> Unit
 
 // Errors
 

@@ -211,21 +211,37 @@
 - `ldtk_spawned_entity_instances`: storage map of `Entity -> LdtkSpawnedEntityInstance`.
 - `ldtk_spawned_int_grid_cells`: storage map of `Entity -> LdtkSpawnedIntGridCell`.
 - `ldtk_entity_spawn_hooks`: registry map of `Entity identifier -> entity spawn hook`.
+- `ldtk_entity_layer_spawn_hooks`: registry map of `Entity layer identifier -> entity spawn hook`.
+- `ldtk_entity_layer_identifier_spawn_hooks`: registry map of `(Entity layer identifier, entity identifier) -> entity spawn hook`.
+- `ldtk_entity_default_spawn_hook`: optional fallback hook for all spawned LDtk entities.
 - `ldtk_int_grid_layer_spawn_hooks`: registry map of `IntGrid layer identifier -> cell spawn hook`.
 - `ldtk_int_grid_cell_spawn_hooks`: registry map of `IntGrid (layer,value) -> cell spawn hook`.
+- `ldtk_int_grid_value_spawn_hooks`: registry map of `IntGrid value -> cell spawn hook` across layers.
+- `ldtk_int_grid_default_spawn_hook`: optional fallback hook for all spawned IntGrid cells.
 - `ldtk_pending_transformed_level_iids`: internal pending-transformed queue keyed by level IID for delayed transform events.
 - `default_ldtk_world_spawn_settings()`: returns default world spawn settings.
 - `mark_ldtk_respawn(entity)`: marks an LDtk world/level entity for respawn on the next sync tick.
 - `clear_ldtk_respawn(entity)`: clears a pending respawn mark from an LDtk world/level entity.
 - `register_ldtk_entity_spawn_hook(identifier, hook)`: registers/overwrites an entity spawn hook for an LDtk entity identifier.
+- `register_ldtk_entity_layer_spawn_hook(layer_identifier, hook)`: registers/overwrites a layer-wide entity spawn hook.
+- `register_ldtk_entity_spawn_hook_for_layer(layer_identifier, identifier, hook)`: registers/overwrites an entity spawn hook scoped to a layer+identifier pair.
+- `register_ldtk_entity_default_spawn_hook(hook)`: registers/overwrites the fallback entity spawn hook.
 - `unregister_ldtk_entity_spawn_hook(identifier)`: removes the entity spawn hook for an LDtk entity identifier.
+- `unregister_ldtk_entity_layer_spawn_hook(layer_identifier)`: removes a layer-wide entity spawn hook.
+- `unregister_ldtk_entity_spawn_hook_for_layer(layer_identifier, identifier)`: removes a layer+identifier entity spawn hook.
+- `clear_ldtk_entity_default_spawn_hook()`: clears the fallback entity spawn hook.
 - `clear_ldtk_entity_spawn_hooks()`: clears all registered LDtk entity spawn hooks.
 - `register_ldtk_int_grid_layer_spawn_hook(layer_identifier, hook)`: registers/overwrites a layer-wide IntGrid cell spawn hook.
+- `register_ldtk_int_grid_value_spawn_hook(value, hook)`: registers/overwrites an IntGrid cell spawn hook by value across layers.
+- `register_ldtk_int_grid_default_spawn_hook(hook)`: registers/overwrites the fallback IntGrid cell spawn hook.
 - `unregister_ldtk_int_grid_layer_spawn_hook(layer_identifier)`: removes a layer-wide IntGrid cell spawn hook.
+- `unregister_ldtk_int_grid_value_spawn_hook(value)`: removes an IntGrid value-scoped spawn hook.
 - `clear_ldtk_int_grid_layer_spawn_hooks()`: clears all registered layer-wide IntGrid cell spawn hooks.
 - `register_ldtk_int_grid_cell_spawn_hook(layer_identifier, value, hook)`: registers/overwrites an IntGrid `(layer,value)` spawn hook.
 - `unregister_ldtk_int_grid_cell_spawn_hook(layer_identifier, value)`: removes an IntGrid `(layer,value)` spawn hook.
 - `clear_ldtk_int_grid_cell_spawn_hooks()`: clears all registered IntGrid `(layer,value)` spawn hooks.
+- `clear_ldtk_int_grid_value_spawn_hooks()`: clears all registered IntGrid value-scoped spawn hooks.
+- `clear_ldtk_int_grid_default_spawn_hook()`: clears the fallback IntGrid cell spawn hook.
 - `load_and_spawn_ldtk_world(path, settings?)`: loads project and spawns world in one call.
 - `spawn_ldtk_world(project, settings?)`: spawns LDtk world root and selected levels.
 - `spawn_ldtk_world_into_entity(root, project, settings?)`: spawns LDtk world into an existing root entity.
@@ -273,7 +289,7 @@
 - `spawn_ldtk_world(...)` tile rendering now applies LDtk tile opacity by multiplying `layer.opacity * tile.alpha` into sprite animation draw alpha.
 - `spawn_ldtk_world(...)` level background-image rendering now applies LDtk `__bgPos` crop/scale/offset when present.
 - `spawn_ldtk_world(...)` layer z-ordering now follows LDtk display order semantics (`layerInstances[0]` is top-most), matching bevy_ecs_ldtk expectations.
-- `spawn_ldtk_world(...)` now runs registered hook registries (`ldtk_entity_spawn_hooks`, `ldtk_int_grid_layer_spawn_hooks`, `ldtk_int_grid_cell_spawn_hooks`) in addition to per-world spawn hooks.
+- `spawn_ldtk_world(...)` now runs expanded hook registries (`ldtk_entity_spawn_hooks`, `ldtk_entity_layer_spawn_hooks`, `ldtk_entity_layer_identifier_spawn_hooks`, `ldtk_entity_default_spawn_hook`, `ldtk_int_grid_layer_spawn_hooks`, `ldtk_int_grid_cell_spawn_hooks`, `ldtk_int_grid_value_spawn_hooks`, `ldtk_int_grid_default_spawn_hook`) in addition to per-world spawn hooks.
 - `selene/sprite` `Animation` payload now carries per-animation draw color (`color`) instead of always forcing opaque white in render submission.
 - `Animation::new(...)` signature now accepts optional `color? : @render.Color`.
 - `Animation::single_frame(...)` signature now accepts optional `color? : @render.Color`.

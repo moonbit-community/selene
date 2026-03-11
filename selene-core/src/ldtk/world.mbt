@@ -219,6 +219,23 @@ pub let ldtk_entity_spawn_hooks : Map[
 ] = Map::new()
 
 ///|
+pub let ldtk_entity_layer_spawn_hooks : Map[
+  String,
+  (LdtkEntitySpawnedEvent) -> Unit,
+] = Map::new()
+
+///|
+pub let ldtk_entity_layer_identifier_spawn_hooks : Map[
+  String,
+  (LdtkEntitySpawnedEvent) -> Unit,
+] = Map::new()
+
+///|
+pub let ldtk_entity_default_spawn_hook : Ref[((LdtkEntitySpawnedEvent) -> Unit)?] = {
+  val: None,
+}
+
+///|
 pub let ldtk_int_grid_layer_spawn_hooks : Map[
   String,
   (LdtkIntGridCellSpawnedEvent) -> Unit,
@@ -229,6 +246,17 @@ pub let ldtk_int_grid_cell_spawn_hooks : Map[
   String,
   (LdtkIntGridCellSpawnedEvent) -> Unit,
 ] = Map::new()
+
+///|
+pub let ldtk_int_grid_value_spawn_hooks : Map[
+  String,
+  (LdtkIntGridCellSpawnedEvent) -> Unit,
+] = Map::new()
+
+///|
+pub let ldtk_int_grid_default_spawn_hook : Ref[((LdtkIntGridCellSpawnedEvent) -> Unit)?] = {
+  val: None,
+}
 
 ///|
 pub let ldtk_pending_transformed_level_iids : Map[String, Bool] = Map::new()
@@ -272,8 +300,55 @@ pub fn register_ldtk_entity_spawn_hook(
 }
 
 ///|
+pub fn register_ldtk_entity_layer_spawn_hook(
+  layer_identifier : String,
+  hook : (LdtkEntitySpawnedEvent) -> Unit,
+) -> Unit {
+  ldtk_entity_layer_spawn_hooks.set(layer_identifier, hook)
+}
+
+///|
+pub fn register_ldtk_entity_spawn_hook_for_layer(
+  layer_identifier : String,
+  identifier : String,
+  hook : (LdtkEntitySpawnedEvent) -> Unit,
+) -> Unit {
+  ldtk_entity_layer_identifier_spawn_hooks.set(
+    ldtk_entity_layer_identifier_spawn_hook_key(layer_identifier, identifier),
+    hook,
+  )
+}
+
+///|
+pub fn register_ldtk_entity_default_spawn_hook(
+  hook : (LdtkEntitySpawnedEvent) -> Unit,
+) -> Unit {
+  ldtk_entity_default_spawn_hook.val = Some(hook)
+}
+
+///|
 pub fn unregister_ldtk_entity_spawn_hook(identifier : String) -> Unit {
   ldtk_entity_spawn_hooks.remove(identifier)
+}
+
+///|
+pub fn unregister_ldtk_entity_layer_spawn_hook(layer_identifier : String) -> Unit {
+  ldtk_entity_layer_spawn_hooks.remove(layer_identifier)
+}
+
+///|
+pub fn unregister_ldtk_entity_spawn_hook_for_layer(
+  layer_identifier : String,
+  identifier : String,
+) -> Unit {
+  ldtk_entity_layer_identifier_spawn_hooks.remove(
+    ldtk_entity_layer_identifier_spawn_hook_key(layer_identifier, identifier),
+  )
+}
+
+///|
+pub fn clear_ldtk_entity_default_spawn_hook() -> Unit {
+  ldtk_entity_default_spawn_hook.val = None
 }
 
 ///|
@@ -281,6 +356,13 @@ pub fn clear_ldtk_entity_spawn_hooks() -> Unit {
   for pair in ldtk_entity_spawn_hooks.to_array() {
     ldtk_entity_spawn_hooks.remove(pair.0)
   }
+  for pair in ldtk_entity_layer_spawn_hooks.to_array() {
+    ldtk_entity_layer_spawn_hooks.remove(pair.0)
+  }
+  for pair in ldtk_entity_layer_identifier_spawn_hooks.to_array() {
+    ldtk_entity_layer_identifier_spawn_hooks.remove(pair.0)
+  }
+  ldtk_entity_default_spawn_hook.val = None
 }
 
 ///|
@@ -292,10 +374,38 @@ pub fn register_ldtk_int_grid_layer_spawn_hook(
 }
 
 ///|
+pub fn register_ldtk_int_grid_value_spawn_hook(
+  value : Int,
+  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+) -> Unit {
+  ldtk_int_grid_value_spawn_hooks.set(
+    ldtk_int_grid_value_spawn_hook_key(value),
+    hook,
+  )
+}
+
+///|
+pub fn register_ldtk_int_grid_default_spawn_hook(
+  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+) -> Unit {
+  ldtk_int_grid_default_spawn_hook.val = Some(hook)
+}
+
+///|
 pub fn unregister_ldtk_int_grid_layer_spawn_hook(
   layer_identifier : String,
 ) -> Unit {
   ldtk_int_grid_layer_spawn_hooks.remove(layer_identifier)
+}
+
+///|
+pub fn unregister_ldtk_int_grid_value_spawn_hook(value : Int) -> Unit {
+  ldtk_int_grid_value_spawn_hooks.remove(ldtk_int_grid_value_spawn_hook_key(value))
+}
+
+///|
+pub fn clear_ldtk_int_grid_default_spawn_hook() -> Unit {
+  ldtk_int_grid_default_spawn_hook.val = None
 }
 
 ///|
@@ -331,6 +441,13 @@ pub fn unregister_ldtk_int_grid_cell_spawn_hook(
 pub fn clear_ldtk_int_grid_cell_spawn_hooks() -> Unit {
   for pair in ldtk_int_grid_cell_spawn_hooks.to_array() {
     ldtk_int_grid_cell_spawn_hooks.remove(pair.0)
+  }
+}
+
+///|
+pub fn clear_ldtk_int_grid_value_spawn_hooks() -> Unit {
+  for pair in ldtk_int_grid_value_spawn_hooks.to_array() {
+    ldtk_int_grid_value_spawn_hooks.remove(pair.0)
   }
 }
 
@@ -885,6 +1002,14 @@ fn ldtk_spawn_int_grid_cells(
     ) is Some(hook) {
       hook(int_grid_event)
     }
+    if ldtk_int_grid_value_spawn_hooks.get(
+      ldtk_int_grid_value_spawn_hook_key(value),
+    ) is Some(hook) {
+      hook(int_grid_event)
+    }
+    if ldtk_int_grid_default_spawn_hook.val is Some(default_hook) {
+      default_hook(int_grid_event)
+    }
     if ldtk_apply_int_grid_physics(
       cell_entity,
       layer.identifier,
@@ -984,8 +1109,19 @@ fn ldtk_spawn_layer_entities(
     if instance.settings.entity_hook is Some(entity_hook) {
       entity_hook(entity_event)
     }
+    if ldtk_entity_layer_identifier_spawn_hooks.get(
+      ldtk_entity_layer_identifier_spawn_hook_key(layer.identifier, entity_instance.identifier),
+    ) is Some(entity_hook) {
+      entity_hook(entity_event)
+    }
+    if ldtk_entity_layer_spawn_hooks.get(layer.identifier) is Some(entity_hook) {
+      entity_hook(entity_event)
+    }
     if ldtk_entity_spawn_hooks.get(entity_instance.identifier) is Some(entity_hook) {
       entity_hook(entity_event)
+    }
+    if ldtk_entity_default_spawn_hook.val is Some(default_hook) {
+      default_hook(entity_event)
     }
   }
 }
@@ -1391,6 +1527,19 @@ fn ldtk_int_grid_cell_spawn_hook_key(
   value : Int,
 ) -> String {
   "\{layer_identifier}#\{value}"
+}
+
+///|
+fn ldtk_int_grid_value_spawn_hook_key(value : Int) -> String {
+  value.to_string()
+}
+
+///|
+fn ldtk_entity_layer_identifier_spawn_hook_key(
+  layer_identifier : String,
+  identifier : String,
+) -> String {
+  "\{layer_identifier}#\{identifier}"
 }
 
 ///|

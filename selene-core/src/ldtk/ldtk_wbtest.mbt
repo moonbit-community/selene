@@ -85,12 +85,23 @@ fn reset_ldtk_runtime() -> Unit {
   for pair in ldtk_entity_spawn_hooks.to_array() {
     ldtk_entity_spawn_hooks.remove(pair.0)
   }
+  for pair in ldtk_entity_layer_spawn_hooks.to_array() {
+    ldtk_entity_layer_spawn_hooks.remove(pair.0)
+  }
+  for pair in ldtk_entity_layer_identifier_spawn_hooks.to_array() {
+    ldtk_entity_layer_identifier_spawn_hooks.remove(pair.0)
+  }
+  ldtk_entity_default_spawn_hook.val = None
   for pair in ldtk_int_grid_layer_spawn_hooks.to_array() {
     ldtk_int_grid_layer_spawn_hooks.remove(pair.0)
   }
   for pair in ldtk_int_grid_cell_spawn_hooks.to_array() {
     ldtk_int_grid_cell_spawn_hooks.remove(pair.0)
   }
+  for pair in ldtk_int_grid_value_spawn_hooks.to_array() {
+    ldtk_int_grid_value_spawn_hooks.remove(pair.0)
+  }
+  ldtk_int_grid_default_spawn_hook.val = None
   ldtk_world_spawned_event_bus.clear()
   ldtk_level_spawned_event_bus.clear()
   ldtk_layer_spawned_event_bus.clear()
@@ -120,10 +131,13 @@ fn json_literal(source : String) -> Json {
 }
 
 ///|
-fn test_entity_layer(entity_instances : Array[LdtkEntityInstance]) -> LdtkLayerInstance {
+fn test_entity_layer_with_identifier(
+  identifier : String,
+  entity_instances : Array[LdtkEntityInstance],
+) -> LdtkLayerInstance {
   {
-    iid: "layer-entities",
-    identifier: "Entities",
+    iid: "layer-\{identifier}",
+    identifier,
     layer_type: "Entities",
     level_id: 1,
     layer_def_uid: 0,
@@ -146,6 +160,11 @@ fn test_entity_layer(entity_instances : Array[LdtkEntityInstance]) -> LdtkLayerI
     grid_tiles: [],
     entity_instances,
   }
+}
+
+///|
+fn test_entity_layer(entity_instances : Array[LdtkEntityInstance]) -> LdtkLayerInstance {
+  test_entity_layer_with_identifier("Entities", entity_instances)
 }
 
 ///|
@@ -182,7 +201,7 @@ fn test_int_grid_layer(
   int_grid_csv : Array[Int],
 ) -> LdtkLayerInstance {
   {
-    iid: "layer-int",
+    iid: "layer-int-\{identifier}",
     identifier,
     layer_type: "IntGrid",
     level_id: 1,
@@ -971,6 +990,84 @@ test "ldtk entity spawn hook applies by identifier" {
 }
 
 ///|
+test "ldtk entity spawn hooks support layer and default scopes" {
+  reset_ldtk_runtime()
+  let project = test_project_with_layers(
+    "level-main",
+    [
+      test_entity_layer_with_identifier("LayerA", [
+        {
+          iid: "entity-enemy-a",
+          identifier: "Enemy",
+          def_uid: 1,
+          width: 16,
+          height: 16,
+          px: @math.Vec2D(0.0, 0.0),
+          grid: @math.Vec2D(0.0, 0.0),
+          pivot: @math.Vec2D::zero(),
+          smart_color: None,
+          field_instances: [],
+        },
+        {
+          iid: "entity-npc-a",
+          identifier: "Npc",
+          def_uid: 2,
+          width: 16,
+          height: 16,
+          px: @math.Vec2D(16.0, 0.0),
+          grid: @math.Vec2D(1.0, 0.0),
+          pivot: @math.Vec2D::zero(),
+          smart_color: None,
+          field_instances: [],
+        },
+      ]),
+      test_entity_layer_with_identifier("LayerB", [
+        {
+          iid: "entity-enemy-b",
+          identifier: "Enemy",
+          def_uid: 3,
+          width: 16,
+          height: 16,
+          px: @math.Vec2D(32.0, 0.0),
+          grid: @math.Vec2D(2.0, 0.0),
+          pivot: @math.Vec2D::zero(),
+          smart_color: None,
+          field_instances: [],
+        },
+      ]),
+    ],
+  )
+  let layer_identifier_hits = Ref::new(0)
+  let layer_hits = Ref::new(0)
+  let identifier_hits = Ref::new(0)
+  let default_hits = Ref::new(0)
+
+  register_ldtk_entity_spawn_hook_for_layer("LayerA", "Enemy", fn(_event) {
+    layer_identifier_hits.val += 1
+  })
+  register_ldtk_entity_layer_spawn_hook("LayerA", fn(_event) {
+    layer_hits.val += 1
+  })
+  register_ldtk_entity_spawn_hook("Enemy", fn(_event) {
+    identifier_hits.val += 1
+  })
+  register_ldtk_entity_default_spawn_hook(fn(_event) {
+    default_hits.val += 1
+  })
+
+  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_level_selection(ldtk_level_selection_index(0))
+  let world = spawn_ldtk_world(project)
+
+  inspect(layer_identifier_hits.val, content="1")
+  inspect(layer_hits.val, content="2")
+  inspect(identifier_hits.val, content="2")
+  inspect(default_hits.val, content="3")
+
+  cleanup_ldtk_entity(world)
+}
+
+///|
 test "ldtk intgrid spawn hooks apply by layer and cell value" {
   reset_ldtk_runtime()
   let project = test_project_with_layers(
@@ -1003,6 +1100,46 @@ test "ldtk intgrid spawn hooks apply by layer and cell value" {
   let value_2_entity = cell_value_2.unwrap()
   inspect(ldtk_int_grid_colliders.get(value_1_entity).unwrap().sensor, content="false")
   inspect(ldtk_int_grid_colliders.get(value_2_entity).unwrap().sensor, content="true")
+
+  cleanup_ldtk_entity(world)
+}
+
+///|
+test "ldtk intgrid spawn hooks support value and default scopes" {
+  reset_ldtk_runtime()
+  let project = test_project_with_layers(
+    "level-main",
+    [
+      test_int_grid_layer("Collision", 2, 1, [1, 2]),
+      test_int_grid_layer("Water", 2, 1, [1, 2]),
+    ],
+  )
+  let layer_hits = Ref::new(0)
+  let cell_hits = Ref::new(0)
+  let value_hits = Ref::new(0)
+  let default_hits = Ref::new(0)
+
+  register_ldtk_int_grid_layer_spawn_hook("Collision", fn(_event) {
+    layer_hits.val += 1
+  })
+  register_ldtk_int_grid_cell_spawn_hook("Collision", 2, fn(_event) {
+    cell_hits.val += 1
+  })
+  register_ldtk_int_grid_value_spawn_hook(2, fn(_event) {
+    value_hits.val += 1
+  })
+  register_ldtk_int_grid_default_spawn_hook(fn(_event) {
+    default_hits.val += 1
+  })
+
+  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_level_selection(ldtk_level_selection_index(0))
+  let world = spawn_ldtk_world(project)
+
+  inspect(layer_hits.val, content="2")
+  inspect(cell_hits.val, content="1")
+  inspect(value_hits.val, content="2")
+  inspect(default_hits.val, content="4")
 
   cleanup_ldtk_entity(world)
 }
@@ -1546,6 +1683,14 @@ test "reset_ldtk_runtime clears runtime maps and intgrid physics components" {
   inspect(ldtk_spawned_tile_instances.to_array().length(), content="0")
   inspect(ldtk_spawned_entity_instances.to_array().length(), content="0")
   inspect(ldtk_spawned_int_grid_cells.to_array().length(), content="0")
+  inspect(ldtk_entity_spawn_hooks.to_array().length(), content="0")
+  inspect(ldtk_entity_layer_spawn_hooks.to_array().length(), content="0")
+  inspect(ldtk_entity_layer_identifier_spawn_hooks.to_array().length(), content="0")
+  inspect(ldtk_entity_default_spawn_hook.val is None, content="true")
+  inspect(ldtk_int_grid_layer_spawn_hooks.to_array().length(), content="0")
+  inspect(ldtk_int_grid_cell_spawn_hooks.to_array().length(), content="0")
+  inspect(ldtk_int_grid_value_spawn_hooks.to_array().length(), content="0")
+  inspect(ldtk_int_grid_default_spawn_hook.val is None, content="true")
   inspect(ldtk_pending_transformed_level_iids.to_array().length(), content="0")
   inspect(@physics2d.colliders.contains(cell_entity), content="false")
   inspect(@physics2d.shapes.contains(cell_entity), content="false")
