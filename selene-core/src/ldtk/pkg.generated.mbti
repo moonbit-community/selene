@@ -1,0 +1,753 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/ldtk"
+
+import {
+  "Milky2018/selene/collision",
+  "Milky2018/selene/entity",
+  "Milky2018/selene/event",
+  "Milky2018/selene/math",
+  "moonbitlang/core/ref",
+}
+
+// Values
+pub fn clear_ldtk_children(@entity.Entity) -> Unit
+
+pub fn clear_ldtk_entity_spawn_hooks() -> Unit
+
+pub fn clear_ldtk_int_grid_cell_spawn_hooks() -> Unit
+
+pub fn clear_ldtk_int_grid_layer_spawn_hooks() -> Unit
+
+pub fn clear_ldtk_respawn(@entity.Entity) -> Unit
+
+pub fn default_ldtk_int_grid_physics_settings() -> LdtkIntGridPhysicsSettings
+
+pub fn default_ldtk_level_selection() -> LdtkLevelSelection
+
+pub fn default_ldtk_settings() -> LdtkSettings
+
+pub fn default_ldtk_spawn_exclusions() -> LdtkSpawnExclusions
+
+pub fn default_ldtk_world_spawn_settings() -> LdtkWorldSpawnSettings
+
+pub fn despawn_ldtk_tree(@entity.Entity) -> Unit
+
+pub fn empty_ldtk_entity_reference() -> LdtkEntityReference
+
+pub fn empty_ldtk_level() -> LdtkLevel
+
+pub fn empty_ldtk_level_set() -> LdtkLevelSet
+
+pub fn empty_ldtk_project() -> LdtkProject
+
+pub fn empty_ldtk_project_definitions() -> LdtkProjectDefinitions
+
+pub fn empty_ldtk_tileset_rect() -> LdtkTilesetRect
+
+pub fn ldtk_entity_by_iid(@entity.Entity, String) -> @entity.Entity?
+
+pub let ldtk_entity_iids : Map[@entity.Entity, LdtkEntityIid]
+
+pub let ldtk_entity_spawn_hooks : Map[String, (LdtkEntitySpawnedEvent) -> Unit]
+
+pub let ldtk_entity_spawned_event_bus : @event.Events[LdtkEntitySpawnedEvent]
+
+pub fn ldtk_field_bool(Array[LdtkFieldInstance], String) -> Bool?
+
+pub fn ldtk_field_bool_array(Array[LdtkFieldInstance], String) -> Array[Bool]?
+
+pub fn ldtk_field_color(Array[LdtkFieldInstance], String) -> String?
+
+pub fn ldtk_field_color_array(Array[LdtkFieldInstance], String) -> Array[String]?
+
+pub fn ldtk_field_entity_iid(Array[LdtkFieldInstance], String) -> String?
+
+pub fn ldtk_field_entity_iids(Array[LdtkFieldInstance], String) -> Array[String]?
+
+pub fn ldtk_field_entity_ref(Array[LdtkFieldInstance], String) -> LdtkEntityReference?
+
+pub fn ldtk_field_entity_refs(Array[LdtkFieldInstance], String) -> Array[LdtkEntityReference]?
+
+pub fn ldtk_field_enum(Array[LdtkFieldInstance], String) -> String?
+
+pub fn ldtk_field_enum_array(Array[LdtkFieldInstance], String) -> Array[String]?
+
+pub fn ldtk_field_file_path(Array[LdtkFieldInstance], String) -> String?
+
+pub fn ldtk_field_file_path_array(Array[LdtkFieldInstance], String) -> Array[String]?
+
+pub fn ldtk_field_instance(Array[LdtkFieldInstance], String) -> LdtkFieldInstance?
+
+pub fn ldtk_field_int(Array[LdtkFieldInstance], String) -> Int?
+
+pub fn ldtk_field_int_array(Array[LdtkFieldInstance], String) -> Array[Int]?
+
+pub fn ldtk_field_number(Array[LdtkFieldInstance], String) -> Double?
+
+pub fn ldtk_field_number_array(Array[LdtkFieldInstance], String) -> Array[Double]?
+
+pub fn ldtk_field_string(Array[LdtkFieldInstance], String) -> String?
+
+pub fn ldtk_field_string_array(Array[LdtkFieldInstance], String) -> Array[String]?
+
+pub fn ldtk_field_tile(Array[LdtkFieldInstance], String) -> LdtkTilesetRect?
+
+pub fn ldtk_field_tiles(Array[LdtkFieldInstance], String) -> Array[LdtkTilesetRect]?
+
+pub fn ldtk_field_vec2(Array[LdtkFieldInstance], String) -> @math.Vec2D?
+
+pub fn ldtk_field_vec2_array(Array[LdtkFieldInstance], String) -> Array[@math.Vec2D]?
+
+pub let ldtk_grid_coords : Map[@entity.Entity, LdtkGridCoords]
+
+pub let ldtk_int_grid_cell_spawn_hooks : Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]
+
+pub let ldtk_int_grid_cell_spawned_event_bus : @event.Events[LdtkIntGridCellSpawnedEvent]
+
+pub let ldtk_int_grid_cells : Map[@entity.Entity, LdtkIntGridCell]
+
+pub let ldtk_int_grid_collider_spawned_event_bus : @event.Events[LdtkIntGridColliderSpawnedEvent]
+
+pub let ldtk_int_grid_colliders : Map[@entity.Entity, LdtkIntGridCollider]
+
+pub let ldtk_int_grid_layer_spawn_hooks : Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]
+
+pub let ldtk_int_grid_physics_settings : @ref.Ref[LdtkIntGridPhysicsSettings]
+
+pub let ldtk_layer_metadata : Map[@entity.Entity, LdtkLayerMetadata]
+
+pub let ldtk_layer_spawned_event_bus : @event.Events[LdtkLayerSpawnedEvent]
+
+pub let ldtk_level_backgrounds : Map[@entity.Entity, LdtkLevelBackground]
+
+pub fn ldtk_level_entity(@entity.Entity, String) -> @entity.Entity?
+
+pub let ldtk_level_event_bus : @event.Events[LdtkLevelEvent]
+
+pub let ldtk_level_iids : Map[@entity.Entity, LdtkLevelIid]
+
+pub let ldtk_level_instances : Map[@entity.Entity, LdtkLevelInstance]
+
+pub let ldtk_level_selection : @ref.Ref[LdtkLevelSelection]
+
+pub fn ldtk_level_selection_identifier(String) -> LdtkLevelSelection
+
+pub fn ldtk_level_selection_iid(String) -> LdtkLevelSelection
+
+pub fn ldtk_level_selection_index(Int) -> LdtkLevelSelection
+
+pub fn ldtk_level_selection_indices(Int, Int) -> LdtkLevelSelection
+
+pub fn ldtk_level_selection_uid(Int) -> LdtkLevelSelection
+
+pub fn ldtk_level_set_equals(LdtkLevelSet, LdtkLevelSet) -> Bool
+
+pub fn ldtk_level_set_from_iids(Array[String]) -> LdtkLevelSet
+
+pub fn ldtk_level_spawn_behavior_world_translation(Bool) -> LdtkLevelSpawnBehavior
+
+pub let ldtk_level_spawned_event_bus : @event.Events[LdtkLevelSpawnedEvent]
+
+pub let ldtk_pending_transformed_level_iids : Map[String, Bool]
+
+pub let ldtk_respawns : Map[@entity.Entity, LdtkRespawn]
+
+pub let ldtk_settings : @ref.Ref[LdtkSettings]
+
+pub let ldtk_spawned_entity_instances : Map[@entity.Entity, LdtkSpawnedEntityInstance]
+
+pub let ldtk_spawned_int_grid_cells : Map[@entity.Entity, LdtkSpawnedIntGridCell]
+
+pub let ldtk_spawned_layer_instances : Map[@entity.Entity, LdtkSpawnedLayerInstance]
+
+pub let ldtk_spawned_tile_instances : Map[@entity.Entity, LdtkSpawnedTileInstance]
+
+pub let ldtk_tile_metadata : Map[@entity.Entity, LdtkTileMetadata]
+
+pub let ldtk_tile_spawned_event_bus : @event.Events[LdtkTileSpawnedEvent]
+
+pub let ldtk_world_instances : Map[@entity.Entity, LdtkWorldInstance]
+
+pub let ldtk_world_spawned_event_bus : @event.Events[LdtkWorldSpawnedEvent]
+
+pub fn ldtk_world_sync_system(Double) -> Unit
+
+pub let ldtk_worldly_entities : Map[@entity.Entity, LdtkWorldly]
+
+pub fn ldtk_worldly_entity(@entity.Entity, String) -> @entity.Entity?
+
+pub fn load_and_spawn_ldtk_world(String, settings? : LdtkWorldSpawnSettings) -> @entity.Entity
+
+pub fn load_ldtk_project(String) -> LdtkProject
+
+pub fn mark_ldtk_respawn(@entity.Entity) -> Unit
+
+pub fn register_ldtk_entity_spawn_hook(String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+
+pub fn register_ldtk_int_grid_cell_spawn_hook(String, Int, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+
+pub fn register_ldtk_int_grid_layer_spawn_hook(String, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+
+pub fn respawn_ldtk_world_into_entity(@entity.Entity, LdtkProject, settings? : LdtkWorldSpawnSettings) -> Unit
+
+pub fn set_ldtk_int_grid_physics_settings(LdtkIntGridPhysicsSettings) -> Unit
+
+pub fn set_ldtk_level_selection(LdtkLevelSelection) -> Unit
+
+pub fn set_ldtk_level_set(@entity.Entity, LdtkLevelSet) -> Unit
+
+pub fn set_ldtk_settings(LdtkSettings) -> Unit
+
+pub fn set_ldtk_world_follow_level_selection(@entity.Entity, Bool) -> Unit
+
+pub fn spawn_ldtk_world(LdtkProject, settings? : LdtkWorldSpawnSettings) -> @entity.Entity
+
+pub fn spawn_ldtk_world_into_entity(@entity.Entity, LdtkProject, settings? : LdtkWorldSpawnSettings) -> Unit
+
+pub fn unregister_ldtk_entity_spawn_hook(String) -> Unit
+
+pub fn unregister_ldtk_int_grid_cell_spawn_hook(String, Int) -> Unit
+
+pub fn unregister_ldtk_int_grid_layer_spawn_hook(String) -> Unit
+
+// Errors
+
+// Types and methods
+pub struct LdtkEntityDefinition {
+  uid : Int
+  identifier : String
+  width : Int
+  height : Int
+  color : String?
+  tags : Array[String]
+  field_definitions : Array[LdtkFieldDefinition]
+}
+
+pub struct LdtkEntityIid {
+  iid : String
+}
+
+pub struct LdtkEntityInstance {
+  iid : String
+  identifier : String
+  def_uid : Int
+  width : Int
+  height : Int
+  px : @math.Vec2D
+  grid : @math.Vec2D
+  pivot : @math.Vec2D
+  smart_color : String?
+  field_instances : Array[LdtkFieldInstance]
+}
+pub fn LdtkEntityInstance::field(Self, String) -> LdtkFieldInstance?
+pub fn LdtkEntityInstance::field_bool(Self, String) -> Bool?
+pub fn LdtkEntityInstance::field_bool_array(Self, String) -> Array[Bool]?
+pub fn LdtkEntityInstance::field_color(Self, String) -> String?
+pub fn LdtkEntityInstance::field_color_array(Self, String) -> Array[String]?
+pub fn LdtkEntityInstance::field_entity_iid(Self, String) -> String?
+pub fn LdtkEntityInstance::field_entity_iids(Self, String) -> Array[String]?
+pub fn LdtkEntityInstance::field_entity_ref(Self, String) -> LdtkEntityReference?
+pub fn LdtkEntityInstance::field_entity_refs(Self, String) -> Array[LdtkEntityReference]?
+pub fn LdtkEntityInstance::field_enum(Self, String) -> String?
+pub fn LdtkEntityInstance::field_enum_array(Self, String) -> Array[String]?
+pub fn LdtkEntityInstance::field_file_path(Self, String) -> String?
+pub fn LdtkEntityInstance::field_file_path_array(Self, String) -> Array[String]?
+pub fn LdtkEntityInstance::field_int(Self, String) -> Int?
+pub fn LdtkEntityInstance::field_int_array(Self, String) -> Array[Int]?
+pub fn LdtkEntityInstance::field_number(Self, String) -> Double?
+pub fn LdtkEntityInstance::field_number_array(Self, String) -> Array[Double]?
+pub fn LdtkEntityInstance::field_string(Self, String) -> String?
+pub fn LdtkEntityInstance::field_string_array(Self, String) -> Array[String]?
+pub fn LdtkEntityInstance::field_tile(Self, String) -> LdtkTilesetRect?
+pub fn LdtkEntityInstance::field_tiles(Self, String) -> Array[LdtkTilesetRect]?
+pub fn LdtkEntityInstance::field_vec2(Self, String) -> @math.Vec2D?
+pub fn LdtkEntityInstance::field_vec2_array(Self, String) -> Array[@math.Vec2D]?
+
+pub struct LdtkEntityReference {
+  entity_iid : String?
+  level_iid : String?
+  world_iid : String?
+  layer_iid : String?
+}
+
+pub struct LdtkEntitySpawnedEvent {
+  world_entity : @entity.Entity
+  level_entity : @entity.Entity
+  layer_entity : @entity.Entity
+  entity : @entity.Entity
+  level : LdtkLevel
+  layer : LdtkLayerInstance
+  instance : LdtkEntityInstance
+  zindex : Int
+}
+
+pub struct LdtkEnumDefinition {
+  uid : Int
+  identifier : String
+  external_rel_path : String?
+  tags : Array[String]
+  values : Array[LdtkEnumValueDefinition]
+}
+
+pub struct LdtkEnumValueDefinition {
+  id : String
+  color : String?
+}
+
+pub struct LdtkFieldDefinition {
+  uid : Int
+  identifier : String
+  field_type : String
+  is_array : Bool
+  can_be_null : Bool
+  default_override : Json?
+}
+
+pub struct LdtkFieldInstance {
+  identifier : String
+  value_type : String
+  value : Json?
+  def_uid : Int?
+}
+pub fn LdtkFieldInstance::bool_array_value(Self) -> Array[Bool]?
+pub fn LdtkFieldInstance::bool_value(Self) -> Bool?
+pub fn LdtkFieldInstance::color_array_value(Self) -> Array[String]?
+pub fn LdtkFieldInstance::color_value(Self) -> String?
+pub fn LdtkFieldInstance::entity_iid_value(Self) -> String?
+pub fn LdtkFieldInstance::entity_iids_value(Self) -> Array[String]?
+pub fn LdtkFieldInstance::entity_ref_value(Self) -> LdtkEntityReference?
+pub fn LdtkFieldInstance::entity_refs_value(Self) -> Array[LdtkEntityReference]?
+pub fn LdtkFieldInstance::enum_array_value(Self) -> Array[String]?
+pub fn LdtkFieldInstance::enum_value(Self) -> String?
+pub fn LdtkFieldInstance::file_path_array_value(Self) -> Array[String]?
+pub fn LdtkFieldInstance::file_path_value(Self) -> String?
+pub fn LdtkFieldInstance::int_array_value(Self) -> Array[Int]?
+pub fn LdtkFieldInstance::int_value(Self) -> Int?
+pub fn LdtkFieldInstance::number_array_value(Self) -> Array[Double]?
+pub fn LdtkFieldInstance::number_value(Self) -> Double?
+pub fn LdtkFieldInstance::string_array_value(Self) -> Array[String]?
+pub fn LdtkFieldInstance::string_value(Self) -> String?
+pub fn LdtkFieldInstance::tile_array_value(Self) -> Array[LdtkTilesetRect]?
+pub fn LdtkFieldInstance::tile_value(Self) -> LdtkTilesetRect?
+pub fn LdtkFieldInstance::vec2_array_value(Self) -> Array[@math.Vec2D]?
+pub fn LdtkFieldInstance::vec2_value(Self) -> @math.Vec2D?
+
+pub struct LdtkGridCoords {
+  x : Int
+  y : Int
+}
+
+pub struct LdtkIndexedLevel {
+  indices : LdtkLevelIndices
+  level : LdtkLevel
+}
+
+pub struct LdtkIntGridCell {
+  value : Int
+}
+
+pub struct LdtkIntGridCellSpawnedEvent {
+  world_entity : @entity.Entity
+  level_entity : @entity.Entity
+  layer_entity : @entity.Entity
+  cell_entity : @entity.Entity
+  level : LdtkLevel
+  layer : LdtkLayerInstance
+  value : Int
+  grid_x : Int
+  grid_y : Int
+  zindex : Int
+}
+
+pub struct LdtkIntGridCollider {
+  sensor : Bool
+}
+
+pub struct LdtkIntGridColliderSpawnedEvent {
+  world_entity : @entity.Entity
+  level_entity : @entity.Entity
+  layer_entity : @entity.Entity
+  cell_entity : @entity.Entity
+  collider_entity : @entity.Entity
+  level : LdtkLevel
+  layer : LdtkLayerInstance
+  value : Int
+  grid_x : Int
+  grid_y : Int
+  zindex : Int
+  sensor : Bool
+}
+
+pub struct LdtkIntGridPhysicsSettings {
+  enabled : Bool
+  layer_identifiers : Array[String]
+  values : Array[Int]
+  as_sensor : Bool
+  collision_filter : @collision.CollisionFilter
+  sensor_filter : @collision.CollisionFilter
+}
+pub fn LdtkIntGridPhysicsSettings::matches(Self, String, Int) -> Bool
+
+pub enum LdtkIntGridRendering {
+  Colorful
+  Invisible
+}
+pub impl Eq for LdtkIntGridRendering
+pub impl Show for LdtkIntGridRendering
+
+pub struct LdtkIntGridValueDefinition {
+  value : Int
+  color : String?
+  identifier : String?
+}
+
+pub struct LdtkLayerDefinition {
+  uid : Int
+  identifier : String
+  layer_type : String?
+  int_grid_values : Array[LdtkIntGridValueDefinition]
+}
+
+pub struct LdtkLayerInstance {
+  iid : String
+  identifier : String
+  layer_type : String
+  level_id : Int
+  layer_def_uid : Int
+  c_wid : Int
+  c_hei : Int
+  grid_size : Int
+  opacity : Double
+  visible : Bool
+  optional_rules : Array[Int]
+  override_tileset_uid : Int?
+  px_offset_x : Int
+  px_offset_y : Int
+  px_total_offset_x : Int
+  px_total_offset_y : Int
+  seed : Int
+  tileset_def_uid : Int?
+  tileset_rel_path : String?
+  int_grid_csv : Array[Int]
+  auto_layer_tiles : Array[LdtkTileInstance]
+  grid_tiles : Array[LdtkTileInstance]
+  entity_instances : Array[LdtkEntityInstance]
+}
+
+pub struct LdtkLayerMetadata {
+  c_hei : Int
+  c_wid : Int
+  grid_size : Int
+  identifier : String
+  opacity : Double
+  px_total_offset_x : Int
+  px_total_offset_y : Int
+  tileset_def_uid : Int?
+  tileset_rel_path : String?
+  layer_type : String
+  iid : String
+  layer_def_uid : Int
+  level_id : Int
+  optional_rules : Array[Int]
+  override_tileset_uid : Int?
+  px_offset_x : Int
+  px_offset_y : Int
+  seed : Int
+  visible : Bool
+}
+
+pub struct LdtkLayerSpawnedEvent {
+  world_entity : @entity.Entity
+  level_entity : @entity.Entity
+  layer_entity : @entity.Entity
+  level : LdtkLevel
+  layer : LdtkLayerInstance
+  effective_visible : Bool
+  zindex : Int
+}
+
+pub struct LdtkLevel {
+  identifier : String
+  iid : String
+  uid : Int
+  world_x : Int
+  world_y : Int
+  px_wid : Int
+  px_hei : Int
+  bg_color : String?
+  bg_rel_path : String?
+  external_rel_path : String?
+  neighbours : Array[LdtkNeighbour]
+  field_instances : Array[LdtkFieldInstance]
+  layer_instances : Array[LdtkLayerInstance]
+}
+pub fn LdtkLevel::field(Self, String) -> LdtkFieldInstance?
+pub fn LdtkLevel::field_bool(Self, String) -> Bool?
+pub fn LdtkLevel::field_bool_array(Self, String) -> Array[Bool]?
+pub fn LdtkLevel::field_color(Self, String) -> String?
+pub fn LdtkLevel::field_color_array(Self, String) -> Array[String]?
+pub fn LdtkLevel::field_entity_iid(Self, String) -> String?
+pub fn LdtkLevel::field_entity_iids(Self, String) -> Array[String]?
+pub fn LdtkLevel::field_entity_ref(Self, String) -> LdtkEntityReference?
+pub fn LdtkLevel::field_entity_refs(Self, String) -> Array[LdtkEntityReference]?
+pub fn LdtkLevel::field_enum(Self, String) -> String?
+pub fn LdtkLevel::field_enum_array(Self, String) -> Array[String]?
+pub fn LdtkLevel::field_file_path(Self, String) -> String?
+pub fn LdtkLevel::field_file_path_array(Self, String) -> Array[String]?
+pub fn LdtkLevel::field_int(Self, String) -> Int?
+pub fn LdtkLevel::field_int_array(Self, String) -> Array[Int]?
+pub fn LdtkLevel::field_number(Self, String) -> Double?
+pub fn LdtkLevel::field_number_array(Self, String) -> Array[Double]?
+pub fn LdtkLevel::field_string(Self, String) -> String?
+pub fn LdtkLevel::field_string_array(Self, String) -> Array[String]?
+pub fn LdtkLevel::field_tile(Self, String) -> LdtkTilesetRect?
+pub fn LdtkLevel::field_tiles(Self, String) -> Array[LdtkTilesetRect]?
+pub fn LdtkLevel::field_vec2(Self, String) -> @math.Vec2D?
+pub fn LdtkLevel::field_vec2_array(Self, String) -> Array[@math.Vec2D]?
+
+pub struct LdtkLevelBackground {
+  world_entity : @entity.Entity
+  level_entity : @entity.Entity
+  level_iid : String
+  color : String?
+  rel_path : String?
+  zindex : Int
+}
+
+pub enum LdtkLevelEvent {
+  SpawnTriggered(String)
+  Spawned(String)
+  Transformed(String)
+  Despawned(String)
+}
+
+pub struct LdtkLevelIid {
+  iid : String
+}
+
+pub struct LdtkLevelIndices {
+  world : Int?
+  level : Int
+}
+pub fn LdtkLevelIndices::equals(Self, Self) -> Bool
+pub fn LdtkLevelIndices::in_root(Int) -> Self
+pub fn LdtkLevelIndices::in_world(Int, Int) -> Self
+
+pub struct LdtkLevelInstance {
+  world_entity : @entity.Entity
+  indices : LdtkLevelIndices
+  level : LdtkLevel
+}
+
+pub enum LdtkLevelSelection {
+  Identifier(String)
+  Indices(LdtkLevelIndices)
+  Iid(String)
+  Uid(Int)
+}
+pub fn LdtkLevelSelection::is_match(Self, LdtkLevelIndices, LdtkLevel) -> Bool
+
+pub struct LdtkLevelSet {
+  iids : Array[String]
+}
+pub fn LdtkLevelSet::contains(Self, String) -> Bool
+pub fn LdtkLevelSet::to_array(Self) -> Array[String]
+
+pub enum LdtkLevelSpawnBehavior {
+  UseZeroTranslation
+  UseWorldTranslation(Bool)
+}
+
+pub struct LdtkLevelSpawnedEvent {
+  world_entity : @entity.Entity
+  level_entity : @entity.Entity
+  indices : LdtkLevelIndices
+  level : LdtkLevel
+}
+
+pub struct LdtkNeighbour {
+  level_iid : String
+  dir : String?
+}
+
+pub struct LdtkProject {
+  source_path : String?
+  external_levels : Bool
+  world_layout : String?
+  bg_color : String?
+  default_level_width : Int?
+  default_level_height : Int?
+  defs : LdtkProjectDefinitions
+  levels : Array[LdtkLevel]
+  worlds : Array[LdtkWorld]
+}
+pub fn LdtkProject::entity_definition_by_identifier(Self, String) -> LdtkEntityDefinition?
+pub fn LdtkProject::entity_definition_by_uid(Self, Int) -> LdtkEntityDefinition?
+pub fn LdtkProject::enum_definition_by_identifier(Self, String) -> LdtkEnumDefinition?
+pub fn LdtkProject::enum_definition_by_uid(Self, Int) -> LdtkEnumDefinition?
+pub fn LdtkProject::external_enum_definition_by_identifier(Self, String) -> LdtkEnumDefinition?
+pub fn LdtkProject::external_enum_definition_by_uid(Self, Int) -> LdtkEnumDefinition?
+pub fn LdtkProject::find_level_by_selection(Self, LdtkLevelSelection) -> LdtkIndexedLevel?
+pub fn LdtkProject::from_ldtk_json(Json) -> Self
+pub fn LdtkProject::indexed_levels(Self) -> Array[LdtkIndexedLevel]
+pub fn LdtkProject::int_grid_color(Self, String, Int) -> String?
+pub fn LdtkProject::layer_definition_by_identifier(Self, String) -> LdtkLayerDefinition?
+pub fn LdtkProject::level_at_indices(Self, LdtkLevelIndices) -> LdtkLevel?
+pub fn LdtkProject::level_by_iid(Self, String) -> LdtkLevel?
+pub fn LdtkProject::level_set_for_selection(Self, LdtkLevelSelection, LdtkLevelSpawnBehavior) -> LdtkLevelSet
+pub fn LdtkProject::resolve_path(Self, String) -> String
+pub fn LdtkProject::tileset_by_uid(Self, Int) -> LdtkTilesetDefinition?
+
+pub struct LdtkProjectDefinitions {
+  tilesets : Array[LdtkTilesetDefinition]
+  layers : Array[LdtkLayerDefinition]
+  entities : Array[LdtkEntityDefinition]
+  enums : Array[LdtkEnumDefinition]
+  external_enums : Array[LdtkEnumDefinition]
+}
+
+pub struct LdtkRespawn {
+  requested : Bool
+}
+
+pub struct LdtkSettings {
+  level_spawn_behavior : LdtkLevelSpawnBehavior
+  int_grid_rendering : LdtkIntGridRendering
+  spawn_exclusions : LdtkSpawnExclusions
+}
+
+pub struct LdtkSpawnExclusions {
+  layer_identifiers : Array[String]
+}
+pub fn LdtkSpawnExclusions::excludes_layer(Self, String) -> Bool
+
+pub struct LdtkSpawnedEntityInstance {
+  world_entity : @entity.Entity
+  level_entity : @entity.Entity
+  layer_entity : @entity.Entity
+  layer : LdtkLayerInstance
+  instance : LdtkEntityInstance
+  zindex : Int
+}
+
+pub struct LdtkSpawnedIntGridCell {
+  world_entity : @entity.Entity
+  level_entity : @entity.Entity
+  layer_entity : @entity.Entity
+  layer : LdtkLayerInstance
+  value : Int
+  grid_x : Int
+  grid_y : Int
+  zindex : Int
+}
+
+pub struct LdtkSpawnedLayerInstance {
+  world_entity : @entity.Entity
+  level_entity : @entity.Entity
+  layer : LdtkLayerInstance
+  effective_visible : Bool
+  zindex : Int
+}
+
+pub struct LdtkSpawnedTileInstance {
+  world_entity : @entity.Entity
+  level_entity : @entity.Entity
+  layer_entity : @entity.Entity
+  layer : LdtkLayerInstance
+  tile : LdtkTileInstance
+  zindex : Int
+}
+
+pub struct LdtkTileInstance {
+  tile_id : Int
+  src : @math.Vec2D
+  px : @math.Vec2D
+  flip_x : Bool
+  flip_y : Bool
+  alpha : Double
+}
+
+pub struct LdtkTileMetadata {
+  tile_id : Int
+  src : @math.Vec2D
+  flip_x : Bool
+  flip_y : Bool
+  alpha : Double
+}
+
+pub struct LdtkTileSpawnedEvent {
+  world_entity : @entity.Entity
+  level_entity : @entity.Entity
+  layer_entity : @entity.Entity
+  tile_entity : @entity.Entity
+  level : LdtkLevel
+  layer : LdtkLayerInstance
+  tile : LdtkTileInstance
+  zindex : Int
+}
+
+pub struct LdtkTilesetDefinition {
+  uid : Int
+  identifier : String
+  rel_path : String?
+  tile_grid_size : Int
+  px_wid : Int
+  px_hei : Int
+  spacing : Int
+  padding : Int
+}
+
+pub struct LdtkTilesetRect {
+  tileset_uid : Int?
+  x : Int
+  y : Int
+  w : Int
+  h : Int
+}
+
+pub struct LdtkWorld {
+  iid : String
+  identifier : String
+  world_layout : String?
+  levels : Array[LdtkLevel]
+}
+
+pub struct LdtkWorldInstance {
+  project : LdtkProject
+  mut settings : LdtkWorldSpawnSettings
+  mut level_set : LdtkLevelSet
+  spawned_levels : Map[String, @entity.Entity]
+}
+
+pub struct LdtkWorldSpawnSettings {
+  position : @math.Vec2D
+  zindex : Int
+  level_z_step : Int
+  layer_z_step : Int
+  spawn_hidden_layers : Bool
+  follow_level_selection : Bool
+  initial_level_set : LdtkLevelSet?
+  spawn_behavior_override : LdtkLevelSpawnBehavior?
+  world_hook : ((LdtkWorldSpawnedEvent) -> Unit)?
+  level_hook : ((LdtkLevelSpawnedEvent) -> Unit)?
+  layer_hook : ((LdtkLayerSpawnedEvent) -> Unit)?
+  tile_hook : ((LdtkTileSpawnedEvent) -> Unit)?
+  entity_hook : ((LdtkEntitySpawnedEvent) -> Unit)?
+  int_grid_cell_hook : ((LdtkIntGridCellSpawnedEvent) -> Unit)?
+}
+
+pub struct LdtkWorldSpawnedEvent {
+  world_entity : @entity.Entity
+  project : LdtkProject
+}
+
+pub struct LdtkWorldly {
+  world_entity : @entity.Entity
+  level_iid : String
+  entity_iid : String
+}
+
+// Type aliases
+
+// Traits
+

@@ -2,6 +2,281 @@
 
 ## [Unreleased]
 
+### Added
+
+#### `selene/ldtk` project data and selection APIs
+
+- `LdtkLevelIndices`: index locator for LDtk levels (`world`, `level`).
+- `LdtkLevelIndices::in_world(world_index, level_index)`: constructs world-scoped level indices.
+- `LdtkLevelIndices::in_root(index)`: constructs root-level indices.
+- `LdtkLevelIndices::equals(other)`: compares two level-index locators.
+- `LdtkLevelSelection`: level selector union (`Identifier`, `Indices`, `Iid`, `Uid`).
+- `default_ldtk_level_selection()`: returns default selection (`Indices(in_root(0))`).
+- `ldtk_level_selection_iid(iid)`: constructs `LdtkLevelSelection::Iid`.
+- `ldtk_level_selection_identifier(identifier)`: constructs `LdtkLevelSelection::Identifier`.
+- `ldtk_level_selection_index(level_index)`: constructs root-index selection.
+- `ldtk_level_selection_indices(world_index, level_index)`: constructs world+level index selection.
+- `ldtk_level_selection_uid(uid)`: constructs `LdtkLevelSelection::Uid`.
+- `LdtkLevelSelection::is_match(indices, level)`: tests whether a level matches a selection.
+- `LdtkLevelSpawnBehavior`: level transform behavior (`UseZeroTranslation`, `UseWorldTranslation(load_level_neighbors)`).
+- `ldtk_level_spawn_behavior_world_translation(load_level_neighbors)`: helper to construct world-translation spawn behavior.
+- `LdtkIntGridRendering`: int-grid render policy (`Colorful`, `Invisible`).
+- `LdtkSpawnExclusions`: spawn exclusion payload for layer identifiers.
+- `default_ldtk_spawn_exclusions()`: returns empty spawn exclusions payload.
+- `LdtkSpawnExclusions::excludes_layer(identifier)`: checks whether a layer identifier is excluded from spawning.
+- `LdtkIntGridPhysicsSettings`: global int-grid physics spawn settings payload (`enabled`, layer/value filters, sensor mode, collision/sensor filters).
+- `default_ldtk_int_grid_physics_settings()`: returns default disabled int-grid physics settings.
+- `LdtkIntGridPhysicsSettings::matches(layer_identifier, value)`: checks whether a layer/value pair should spawn int-grid physics.
+- `LdtkSettings`: LDtk runtime settings payload.
+- `default_ldtk_settings()`: returns default LDtk settings.
+- `ldtk_settings`: global LDtk settings ref.
+- `ldtk_int_grid_physics_settings`: global int-grid physics settings ref.
+- `ldtk_level_selection`: global LDtk selection ref.
+- `set_ldtk_settings(settings)`: updates global LDtk settings.
+- `set_ldtk_int_grid_physics_settings(settings)`: updates global int-grid physics settings.
+- `set_ldtk_level_selection(selection)`: updates global LDtk level selection.
+- `LdtkLevelSet`: desired spawned-level IID set payload.
+- `empty_ldtk_level_set()`: returns an empty desired level set.
+- `ldtk_level_set_from_iids(iids)`: constructs a deduplicated level set from IID list.
+- `LdtkLevelSet::contains(iid)`: checks whether an IID is in the level set.
+- `LdtkLevelSet::to_array()`: returns level set IIDs as an array.
+- `ldtk_level_set_equals(left, right)`: compares two level sets.
+- `LdtkNeighbour`: parsed neighbor link payload (`level_iid`, `dir`).
+- `LdtkEntityReference`: typed LDtk `EntityRef` payload (`entity_iid`, `level_iid`, `world_iid`, `layer_iid`).
+- `empty_ldtk_entity_reference()`: returns an empty `LdtkEntityReference` payload.
+- `LdtkTilesetRect`: typed LDtk `Tile` field payload (`tileset_uid`, `x`, `y`, `w`, `h`).
+- `empty_ldtk_tileset_rect()`: returns an empty `LdtkTilesetRect` payload.
+- `LdtkFieldInstance`: parsed field instance payload (`identifier`, `value_type`, `value`, `def_uid`).
+- `LdtkFieldInstance::bool_value()`: decodes field value as `Bool` (supports bool/string/number JSON forms).
+- `LdtkFieldInstance::int_value()`: decodes field value as `Int`.
+- `LdtkFieldInstance::string_value()`: decodes field value as `String`.
+- `LdtkFieldInstance::color_value()`: decodes field value as color string.
+- `LdtkFieldInstance::file_path_value()`: decodes field value as file-path string.
+- `LdtkFieldInstance::enum_value()`: decodes field value as enum identifier string.
+- `LdtkFieldInstance::number_value()`: decodes field value as `Double`.
+- `LdtkFieldInstance::vec2_value()`: decodes field value as `Vec2D` from array/object point payloads.
+- `LdtkFieldInstance::int_array_value()`: decodes field value as `Array[Int]`.
+- `LdtkFieldInstance::number_array_value()`: decodes field value as `Array[Double]`.
+- `LdtkFieldInstance::string_array_value()`: decodes field value as `Array[String]`.
+- `LdtkFieldInstance::bool_array_value()`: decodes field value as `Array[Bool]`.
+- `LdtkFieldInstance::vec2_array_value()`: decodes field value as `Array[Vec2D]`.
+- `LdtkFieldInstance::color_array_value()`: decodes field value as color string array.
+- `LdtkFieldInstance::file_path_array_value()`: decodes field value as file-path string array.
+- `LdtkFieldInstance::enum_array_value()`: decodes field value as enum identifier string array.
+- `LdtkFieldInstance::entity_iid_value()`: decodes field value as single entity reference IID.
+- `LdtkFieldInstance::entity_iids_value()`: decodes field value as entity reference IID array.
+- `LdtkFieldInstance::entity_ref_value()`: decodes field value as typed `LdtkEntityReference`.
+- `LdtkFieldInstance::entity_refs_value()`: decodes field value as typed `Array[LdtkEntityReference]`.
+- `LdtkFieldInstance::tile_value()`: decodes field value as typed `LdtkTilesetRect`.
+- `LdtkFieldInstance::tile_array_value()`: decodes field value as typed `Array[LdtkTilesetRect]`.
+- `ldtk_field_instance(field_instances, identifier)`: finds a field instance by identifier.
+- `ldtk_field_bool(field_instances, identifier)`: finds and decodes a field value as `Bool`.
+- `ldtk_field_int(field_instances, identifier)`: finds and decodes a field value as `Int`.
+- `ldtk_field_string(field_instances, identifier)`: finds and decodes a field value as `String`.
+- `ldtk_field_color(field_instances, identifier)`: finds and decodes a field value as color string.
+- `ldtk_field_file_path(field_instances, identifier)`: finds and decodes a field value as file-path string.
+- `ldtk_field_enum(field_instances, identifier)`: finds and decodes a field value as enum identifier string.
+- `ldtk_field_number(field_instances, identifier)`: finds and decodes a field value as `Double`.
+- `ldtk_field_vec2(field_instances, identifier)`: finds and decodes a field value as `Vec2D`.
+- `ldtk_field_int_array(field_instances, identifier)`: finds and decodes a field value as `Array[Int]`.
+- `ldtk_field_number_array(field_instances, identifier)`: finds and decodes a field value as `Array[Double]`.
+- `ldtk_field_string_array(field_instances, identifier)`: finds and decodes a field value as `Array[String]`.
+- `ldtk_field_bool_array(field_instances, identifier)`: finds and decodes a field value as `Array[Bool]`.
+- `ldtk_field_vec2_array(field_instances, identifier)`: finds and decodes a field value as `Array[Vec2D]`.
+- `ldtk_field_color_array(field_instances, identifier)`: finds and decodes a field value as color string array.
+- `ldtk_field_file_path_array(field_instances, identifier)`: finds and decodes a field value as file-path string array.
+- `ldtk_field_enum_array(field_instances, identifier)`: finds and decodes a field value as enum identifier string array.
+- `ldtk_field_entity_iid(field_instances, identifier)`: finds and decodes a field value as referenced entity IID.
+- `ldtk_field_entity_iids(field_instances, identifier)`: finds and decodes a field value as referenced entity IID list.
+- `ldtk_field_entity_ref(field_instances, identifier)`: finds and decodes a field value as typed `LdtkEntityReference`.
+- `ldtk_field_entity_refs(field_instances, identifier)`: finds and decodes a field value as typed `Array[LdtkEntityReference]`.
+- `ldtk_field_tile(field_instances, identifier)`: finds and decodes a field value as typed `LdtkTilesetRect`.
+- `ldtk_field_tiles(field_instances, identifier)`: finds and decodes a field value as typed `Array[LdtkTilesetRect]`.
+- `LdtkTileInstance`: parsed tile instance payload (`tile_id`, `src`, `px`, flip, alpha).
+- `LdtkEntityInstance`: parsed entity instance payload.
+- `LdtkEntityInstance::field(identifier)`: finds an entity field instance by identifier.
+- `LdtkEntityInstance::field_bool(identifier)`: reads an entity field as `Bool`.
+- `LdtkEntityInstance::field_int(identifier)`: reads an entity field as `Int`.
+- `LdtkEntityInstance::field_string(identifier)`: reads an entity field as `String`.
+- `LdtkEntityInstance::field_color(identifier)`: reads an entity field as color string.
+- `LdtkEntityInstance::field_file_path(identifier)`: reads an entity field as file-path string.
+- `LdtkEntityInstance::field_enum(identifier)`: reads an entity field as enum identifier string.
+- `LdtkEntityInstance::field_number(identifier)`: reads an entity field as `Double`.
+- `LdtkEntityInstance::field_vec2(identifier)`: reads an entity field as `Vec2D`.
+- `LdtkEntityInstance::field_int_array(identifier)`: reads an entity field as `Array[Int]`.
+- `LdtkEntityInstance::field_number_array(identifier)`: reads an entity field as `Array[Double]`.
+- `LdtkEntityInstance::field_string_array(identifier)`: reads an entity field as `Array[String]`.
+- `LdtkEntityInstance::field_bool_array(identifier)`: reads an entity field as `Array[Bool]`.
+- `LdtkEntityInstance::field_vec2_array(identifier)`: reads an entity field as `Array[Vec2D]`.
+- `LdtkEntityInstance::field_color_array(identifier)`: reads an entity field as color string array.
+- `LdtkEntityInstance::field_file_path_array(identifier)`: reads an entity field as file-path string array.
+- `LdtkEntityInstance::field_enum_array(identifier)`: reads an entity field as enum identifier string array.
+- `LdtkEntityInstance::field_entity_iid(identifier)`: reads an entity field as single referenced entity IID.
+- `LdtkEntityInstance::field_entity_iids(identifier)`: reads an entity field as referenced entity IID list.
+- `LdtkEntityInstance::field_entity_ref(identifier)`: reads an entity field as typed `LdtkEntityReference`.
+- `LdtkEntityInstance::field_entity_refs(identifier)`: reads an entity field as typed `Array[LdtkEntityReference]`.
+- `LdtkEntityInstance::field_tile(identifier)`: reads an entity field as typed `LdtkTilesetRect`.
+- `LdtkEntityInstance::field_tiles(identifier)`: reads an entity field as typed `Array[LdtkTilesetRect]`.
+- `LdtkLayerInstance`: parsed layer instance payload.
+- `LdtkLevel`: parsed level payload.
+- `LdtkLevel::field(identifier)`: finds a level field instance by identifier.
+- `LdtkLevel::field_bool(identifier)`: reads a level field as `Bool`.
+- `LdtkLevel::field_int(identifier)`: reads a level field as `Int`.
+- `LdtkLevel::field_string(identifier)`: reads a level field as `String`.
+- `LdtkLevel::field_color(identifier)`: reads a level field as color string.
+- `LdtkLevel::field_file_path(identifier)`: reads a level field as file-path string.
+- `LdtkLevel::field_enum(identifier)`: reads a level field as enum identifier string.
+- `LdtkLevel::field_number(identifier)`: reads a level field as `Double`.
+- `LdtkLevel::field_vec2(identifier)`: reads a level field as `Vec2D`.
+- `LdtkLevel::field_int_array(identifier)`: reads a level field as `Array[Int]`.
+- `LdtkLevel::field_number_array(identifier)`: reads a level field as `Array[Double]`.
+- `LdtkLevel::field_string_array(identifier)`: reads a level field as `Array[String]`.
+- `LdtkLevel::field_bool_array(identifier)`: reads a level field as `Array[Bool]`.
+- `LdtkLevel::field_vec2_array(identifier)`: reads a level field as `Array[Vec2D]`.
+- `LdtkLevel::field_color_array(identifier)`: reads a level field as color string array.
+- `LdtkLevel::field_file_path_array(identifier)`: reads a level field as file-path string array.
+- `LdtkLevel::field_enum_array(identifier)`: reads a level field as enum identifier string array.
+- `LdtkLevel::field_entity_iid(identifier)`: reads a level field as single referenced entity IID.
+- `LdtkLevel::field_entity_iids(identifier)`: reads a level field as referenced entity IID list.
+- `LdtkLevel::field_entity_ref(identifier)`: reads a level field as typed `LdtkEntityReference`.
+- `LdtkLevel::field_entity_refs(identifier)`: reads a level field as typed `Array[LdtkEntityReference]`.
+- `LdtkLevel::field_tile(identifier)`: reads a level field as typed `LdtkTilesetRect`.
+- `LdtkLevel::field_tiles(identifier)`: reads a level field as typed `Array[LdtkTilesetRect]`.
+- `LdtkWorld`: parsed world payload.
+- `LdtkTilesetDefinition`: parsed tileset definition payload.
+- `LdtkIntGridValueDefinition`: parsed int-grid value definition payload (`value`, `color`, `identifier`).
+- `LdtkLayerDefinition`: parsed layer-definition payload (`uid`, `identifier`, `type`, `int_grid_values`).
+- `LdtkFieldDefinition`: parsed entity-field definition payload (`uid`, `identifier`, field type, nullability, default override).
+- `LdtkEntityDefinition`: parsed entity definition payload (`uid`, `identifier`, dimensions, color, tags, field definitions).
+- `LdtkEnumValueDefinition`: parsed enum value definition payload (`id`, `color`).
+- `LdtkEnumDefinition`: parsed enum definition payload (`uid`, `identifier`, external path, tags, values).
+- `LdtkProjectDefinitions`: parsed project definitions payload (tilesets, layers, entities, enums, external enums).
+- `LdtkProject`: parsed project payload with source path, defs, root levels, and worlds.
+- `LdtkIndexedLevel`: indexed level payload (`indices`, `level`).
+- `empty_ldtk_project_definitions()`: returns empty LDtk definitions payload.
+- `empty_ldtk_level()`: returns empty LDtk level payload.
+- `empty_ldtk_project()`: returns empty LDtk project payload.
+- `load_ldtk_project(path)`: loads `.ldtk` project JSON and resolves external levels.
+- `LdtkProject::from_ldtk_json(json)`: parses project payload from JSON value.
+- `LdtkProject::resolve_path(path)`: resolves project-relative file paths.
+- `LdtkProject::indexed_levels()`: returns flattened root/world level list with indices.
+- `LdtkProject::level_at_indices(indices)`: returns a level by `LdtkLevelIndices`.
+- `LdtkProject::find_level_by_selection(selection)`: finds level by `LdtkLevelSelection`.
+- `LdtkProject::level_by_iid(iid)`: finds level by level IID.
+- `LdtkProject::level_set_for_selection(selection, behavior)`: computes target level set (including neighbor expansion when enabled).
+- `LdtkProject::tileset_by_uid(uid)`: resolves a tileset definition by UID.
+- `LdtkProject::layer_definition_by_identifier(identifier)`: resolves layer definitions by identifier.
+- `LdtkProject::entity_definition_by_identifier(identifier)`: resolves entity definitions by identifier.
+- `LdtkProject::entity_definition_by_uid(uid)`: resolves entity definitions by UID.
+- `LdtkProject::enum_definition_by_identifier(identifier)`: resolves enum definitions by identifier.
+- `LdtkProject::enum_definition_by_uid(uid)`: resolves enum definitions by UID.
+- `LdtkProject::external_enum_definition_by_identifier(identifier)`: resolves external enum definitions by identifier.
+- `LdtkProject::external_enum_definition_by_uid(uid)`: resolves external enum definitions by UID.
+- `LdtkProject::int_grid_color(layer_identifier, value)`: resolves int-grid color by layer identifier and value.
+
+#### `selene/ldtk` world runtime and lifecycle APIs
+
+- `LdtkWorldSpawnSettings`: world spawn configuration (position, selection-following, initial set, spawn behavior override, hooks).
+- `LdtkWorldInstance`: runtime world payload (`project`, `settings`, `level_set`, `spawned_levels`).
+- `LdtkLevelInstance`: runtime spawned-level payload (`world_entity`, `indices`, `level`).
+- `LdtkLayerMetadata`: per-spawned-layer metadata payload mirroring parsed LDtk layer attributes.
+- `LdtkLevelBackground`: runtime level background payload for spawned `bgColor/bgRelPath` entities.
+- `LdtkLevelIid`: per-spawned-level IID payload.
+- `LdtkEntityIid`: per-spawned-entity IID payload.
+- `LdtkGridCoords`: grid coordinate payload (`x`, `y`) for spawned tile/entity/int-grid cell entities.
+- `LdtkIntGridCell`: int-grid value payload (`value`) for spawned int-grid cell entities.
+- `LdtkTileMetadata`: per-spawned-tile metadata payload (`tile_id`, `src`, flip flags, alpha).
+- `LdtkIntGridCollider`: marker payload for int-grid cell entities with generated 2D collider/area components.
+- `LdtkWorldly`: runtime payload describing a worldly LDtk entity bound to a world root.
+- `LdtkRespawn`: respawn marker payload used by `ldtk_world_sync_system`.
+- `LdtkSpawnedLayerInstance`: runtime spawned-layer payload.
+- `LdtkSpawnedTileInstance`: runtime spawned-tile payload.
+- `LdtkSpawnedEntityInstance`: runtime spawned-entity payload.
+- `LdtkSpawnedIntGridCell`: runtime spawned int-grid cell payload.
+- `ldtk_world_instances`: storage map of `Entity -> LdtkWorldInstance`.
+- `ldtk_level_instances`: storage map of `Entity -> LdtkLevelInstance`.
+- `ldtk_layer_metadata`: storage map of `Entity -> LdtkLayerMetadata`.
+- `ldtk_level_backgrounds`: storage map of `Entity -> LdtkLevelBackground`.
+- `ldtk_level_iids`: storage map of `Entity -> LdtkLevelIid`.
+- `ldtk_entity_iids`: storage map of `Entity -> LdtkEntityIid`.
+- `ldtk_grid_coords`: storage map of `Entity -> LdtkGridCoords`.
+- `ldtk_int_grid_cells`: storage map of `Entity -> LdtkIntGridCell`.
+- `ldtk_tile_metadata`: storage map of `Entity -> LdtkTileMetadata`.
+- `ldtk_int_grid_colliders`: storage map of `Entity -> LdtkIntGridCollider`.
+- `ldtk_worldly_entities`: storage map of `Entity -> LdtkWorldly`.
+- `ldtk_respawns`: storage map of `Entity -> LdtkRespawn`.
+- `ldtk_spawned_layer_instances`: storage map of `Entity -> LdtkSpawnedLayerInstance`.
+- `ldtk_spawned_tile_instances`: storage map of `Entity -> LdtkSpawnedTileInstance`.
+- `ldtk_spawned_entity_instances`: storage map of `Entity -> LdtkSpawnedEntityInstance`.
+- `ldtk_spawned_int_grid_cells`: storage map of `Entity -> LdtkSpawnedIntGridCell`.
+- `ldtk_entity_spawn_hooks`: registry map of `Entity identifier -> entity spawn hook`.
+- `ldtk_int_grid_layer_spawn_hooks`: registry map of `IntGrid layer identifier -> cell spawn hook`.
+- `ldtk_int_grid_cell_spawn_hooks`: registry map of `IntGrid (layer,value) -> cell spawn hook`.
+- `ldtk_pending_transformed_level_iids`: internal pending-transformed queue keyed by level IID for delayed transform events.
+- `default_ldtk_world_spawn_settings()`: returns default world spawn settings.
+- `mark_ldtk_respawn(entity)`: marks an LDtk world/level entity for respawn on the next sync tick.
+- `clear_ldtk_respawn(entity)`: clears a pending respawn mark from an LDtk world/level entity.
+- `register_ldtk_entity_spawn_hook(identifier, hook)`: registers/overwrites an entity spawn hook for an LDtk entity identifier.
+- `unregister_ldtk_entity_spawn_hook(identifier)`: removes the entity spawn hook for an LDtk entity identifier.
+- `clear_ldtk_entity_spawn_hooks()`: clears all registered LDtk entity spawn hooks.
+- `register_ldtk_int_grid_layer_spawn_hook(layer_identifier, hook)`: registers/overwrites a layer-wide IntGrid cell spawn hook.
+- `unregister_ldtk_int_grid_layer_spawn_hook(layer_identifier)`: removes a layer-wide IntGrid cell spawn hook.
+- `clear_ldtk_int_grid_layer_spawn_hooks()`: clears all registered layer-wide IntGrid cell spawn hooks.
+- `register_ldtk_int_grid_cell_spawn_hook(layer_identifier, value, hook)`: registers/overwrites an IntGrid `(layer,value)` spawn hook.
+- `unregister_ldtk_int_grid_cell_spawn_hook(layer_identifier, value)`: removes an IntGrid `(layer,value)` spawn hook.
+- `clear_ldtk_int_grid_cell_spawn_hooks()`: clears all registered IntGrid `(layer,value)` spawn hooks.
+- `load_and_spawn_ldtk_world(path, settings?)`: loads project and spawns world in one call.
+- `spawn_ldtk_world(project, settings?)`: spawns LDtk world root and selected levels.
+- `spawn_ldtk_world_into_entity(root, project, settings?)`: spawns LDtk world into an existing root entity.
+- `respawn_ldtk_world_into_entity(root, project, settings?)`: rebuilds LDtk world subtree in place.
+- `set_ldtk_level_set(world_entity, level_set)`: sets explicit per-world desired level set and disables auto-follow.
+- `set_ldtk_world_follow_level_selection(world_entity, follow)`: toggles per-world auto-follow of global level selection.
+- `ldtk_level_entity(world_entity, level_iid)`: resolves the currently spawned level entity for a world+level IID.
+- `ldtk_worldly_entity(world_entity, entity_iid)`: finds the live worldly entity for a given world/entity IID pair.
+- `ldtk_entity_by_iid(world_entity, entity_iid)`: resolves the live spawned entity for a world+entity IID pair.
+- `ldtk_world_sync_system(delta)`: applies level selection/set changes and performs spawn/despawn sync.
+- `despawn_ldtk_tree(root)`: despawns a spawned LDtk subtree and clears LDtk runtime stores.
+- `clear_ldtk_children(root)`: clears all LDtk child subtrees beneath a root entity.
+
+#### `selene/ldtk` event APIs
+
+- `LdtkWorldSpawnedEvent`: payload emitted when an LDtk world root is spawned.
+- `LdtkLevelSpawnedEvent`: payload emitted when an LDtk level entity is spawned.
+- `LdtkLayerSpawnedEvent`: payload emitted when an LDtk layer entity is spawned.
+- `LdtkTileSpawnedEvent`: payload emitted when an LDtk tile entity is spawned.
+- `LdtkEntitySpawnedEvent`: payload emitted when an LDtk entity-instance entity is spawned.
+- `LdtkIntGridCellSpawnedEvent`: payload emitted when an LDtk int-grid cell entity is spawned.
+- `LdtkIntGridColliderSpawnedEvent`: payload emitted when int-grid physics generates collider/area components for a spawned cell.
+- `LdtkLevelEvent`: level lifecycle event union (`SpawnTriggered`, `Spawned`, `Transformed`, `Despawned`).
+- `ldtk_world_spawned_event_bus`: event bus for `LdtkWorldSpawnedEvent`.
+- `ldtk_level_spawned_event_bus`: event bus for `LdtkLevelSpawnedEvent`.
+- `ldtk_layer_spawned_event_bus`: event bus for `LdtkLayerSpawnedEvent`.
+- `ldtk_tile_spawned_event_bus`: event bus for `LdtkTileSpawnedEvent`.
+- `ldtk_entity_spawned_event_bus`: event bus for `LdtkEntitySpawnedEvent`.
+- `ldtk_int_grid_cell_spawned_event_bus`: event bus for `LdtkIntGridCellSpawnedEvent`.
+- `ldtk_int_grid_collider_spawned_event_bus`: event bus for `LdtkIntGridColliderSpawnedEvent`.
+- `ldtk_level_event_bus`: event bus for `LdtkLevelEvent`.
+
+### Changed
+
+- `plugins/default_plugin`: added `@ldtk.ldtk_world_sync_system` to the `Update` gameplay stage so LDtk level selection/set changes are applied automatically each frame.
+- `spawn_ldtk_world(...)` runtime behavior: level spawn now materializes LDtk layer contents (`Tiles`, `AutoLayer`, `IntGrid`, `Entities`) into Selene entities and sprites, with per-layer z-index stepping and hook dispatch.
+- `LdtkLayerInstance` parsed payload now includes LDtk layer-definition metadata fields (`layer_def_uid`, `optional_rules`, `override_tileset_uid`, `px_offset_x`, `px_offset_y`, `seed`) in addition to existing render/runtime offsets.
+- `spawn_ldtk_world(...)` runtime behavior: spawned levels/entities/tiles/int-grid cells now also populate dedicated lookup/metadata maps (`ldtk_level_iids`, `ldtk_entity_iids`, `ldtk_tile_metadata`, `ldtk_int_grid_cells`) for direct IID/value queries.
+- `spawn_ldtk_world(...)` runtime behavior: when `ldtk_int_grid_physics_settings.enabled` is true, matching int-grid cells now automatically get `physics2d` collider/area+shape components with optional sensor mode and layer/value filtering.
+- `spawn_ldtk_world(...)` runtime behavior: worldly entities (`worldly`/`Worldly` field) now spawn under the world root and persist across individual level respawns; full world respawn recreates worldly entities.
+- `ldtk_world_sync_system(...)` runtime behavior: `LdtkLevelEvent::Transformed` is now emitted on the next sync tick after spawn (matching delayed transform timing), rather than in the same spawn tick.
+- `LdtkProject::enum_definition_by_identifier(...)` / `LdtkProject::enum_definition_by_uid(...)` now resolve both internal `defs.enums` and `defs.external_enums`.
+- `LdtkFieldInstance` parsing now preserves `defUid` into `def_uid` for direct field-definition UID lookups.
+- `spawn_ldtk_world(...)` tile rendering now resolves sprite-atlas source offsets using LDtk tileset `padding` and `spacing`; this resolved source is also stored in `ldtk_tile_metadata.src`.
+- `spawn_ldtk_world(...)` now runs registered hook registries (`ldtk_entity_spawn_hooks`, `ldtk_int_grid_layer_spawn_hooks`, `ldtk_int_grid_cell_spawn_hooks`) in addition to per-world spawn hooks.
+
+### Fixed
+
+- `selene/tiled` world pattern regex capture parsing no longer uses an unnecessary `try!` on substring-to-string conversion, removing the `unused_try` warning in `moon check`.
+- `selene/ldtk` lifecycle cleanup now removes pending transformed level IIDs when levels are despawned via generic tree cleanup (`despawn_ldtk_tree`), preventing stale `Transformed` emissions after despawn.
+- `selene/ldtk` cleanup paths now also remove `physics2d` collider/area/shape/body components for int-grid physics entities in both tree-despawn and dead-runtime cleanup passes.
+
 ## [0.27.0] - 2026-03-10
 
 ### Added

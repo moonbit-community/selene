@@ -112,6 +112,13 @@ pub fn default_plugin(app : @system.App) -> Unit {
   )
   add_system(
     app,
+    @ldtk.ldtk_world_sync_system,
+    Update,
+    "LDtk World Sync System",
+    in_set=gameplay,
+  )
+  add_system(
+    app,
     @tiled.tiled_world_chunking_system,
     Update,
     "Tiled World Chunking System",
