@@ -215,10 +215,7 @@ pub let ldtk_spawned_int_grid_cells : Map[
 ] = Map::new()
 
 ///|
-pub let ldtk_entity_spawn_hooks : Map[
-  String,
-  (LdtkEntitySpawnedEvent) -> Unit,
-] = Map::new()
+pub let ldtk_entity_spawn_hooks : Map[String, (LdtkEntitySpawnedEvent) -> Unit] = Map::new()
 
 ///|
 pub let ldtk_entity_layer_spawn_hooks : Map[
@@ -233,9 +230,9 @@ pub let ldtk_entity_layer_identifier_spawn_hooks : Map[
 ] = Map::new()
 
 ///|
-pub let ldtk_entity_default_spawn_hook : Ref[((LdtkEntitySpawnedEvent) -> Unit)?] = {
-  val: None,
-}
+pub let ldtk_entity_default_spawn_hook : Ref[
+  ((LdtkEntitySpawnedEvent) -> Unit)?,
+] = { val: None }
 
 ///|
 pub let ldtk_int_grid_layer_spawn_hooks : Map[
@@ -256,9 +253,9 @@ pub let ldtk_int_grid_value_spawn_hooks : Map[
 ] = Map::new()
 
 ///|
-pub let ldtk_int_grid_default_spawn_hook : Ref[((LdtkIntGridCellSpawnedEvent) -> Unit)?] = {
-  val: None,
-}
+pub let ldtk_int_grid_default_spawn_hook : Ref[
+  ((LdtkIntGridCellSpawnedEvent) -> Unit)?,
+] = { val: None }
 
 ///|
 pub let ldtk_pending_transformed_level_iids : Map[String, Bool] = Map::new()
@@ -365,7 +362,9 @@ pub fn unregister_ldtk_entity_spawn_hook_optional(
 }
 
 ///|
-pub fn unregister_ldtk_entity_layer_spawn_hook(layer_identifier : String) -> Unit {
+pub fn unregister_ldtk_entity_layer_spawn_hook(
+  layer_identifier : String,
+) -> Unit {
   ldtk_entity_layer_spawn_hooks.remove(layer_identifier)
 }
 
@@ -464,7 +463,9 @@ pub fn unregister_ldtk_int_grid_spawn_hook_optional(
 
 ///|
 pub fn unregister_ldtk_int_grid_value_spawn_hook(value : Int) -> Unit {
-  ldtk_int_grid_value_spawn_hooks.remove(ldtk_int_grid_value_spawn_hook_key(value))
+  ldtk_int_grid_value_spawn_hooks.remove(
+    ldtk_int_grid_value_spawn_hook_key(value),
+  )
 }
 
 ///|
@@ -690,15 +691,14 @@ fn spawn_ldtk_world_root(
 
 ///|
 fn ldtk_world_apply_level_set(world_entity : @entity.Entity) -> Unit {
-  guard ldtk_world_instances.get(world_entity) is Some(instance) else {
-    return
-  }
+  guard ldtk_world_instances.get(world_entity) is Some(instance) else { return }
   let desired_iids = instance.level_set.iids
   for iid in desired_iids {
     if instance.spawned_levels.contains(iid) {
       continue
     }
-    guard ldtk_project_indexed_level_by_iid(instance.project, iid) is Some(indexed) else {
+    guard ldtk_project_indexed_level_by_iid(instance.project, iid)
+      is Some(indexed) else {
       continue
     }
     ldtk_level_event_bus.trigger(SpawnTriggered(iid), Some(world_entity))
@@ -745,7 +745,12 @@ fn ldtk_spawn_level_entity(
   if instance.settings.level_hook is Some(level_hook) {
     level_hook(level_event)
   }
-  ldtk_spawn_level_background(world_entity, level_entity, indexed.level, instance)
+  ldtk_spawn_level_background(
+    world_entity,
+    level_entity,
+    indexed.level,
+    instance,
+  )
   ldtk_spawn_level_layers(
     world_entity,
     level_entity,
@@ -887,25 +892,12 @@ fn ldtk_spawn_level_layers(
         layer.auto_layer_tiles
       }
       ldtk_spawn_layer_tiles(
-        world_entity,
-        level_entity,
-        layer_entity,
-        level,
-        instance,
-        layer,
-        tiles,
-        layer_zindex,
-        effective_visible,
+        world_entity, level_entity, layer_entity, level, instance, layer, tiles,
+        layer_zindex, effective_visible,
       )
     } else if layer_type == "intgrid" {
       ldtk_spawn_int_grid_cells(
-        world_entity,
-        level_entity,
-        layer_entity,
-        level,
-        instance,
-        layer,
-        layer_zindex,
+        world_entity, level_entity, layer_entity, level, instance, layer, layer_zindex,
         effective_visible,
       )
       if layer.auto_layer_tiles.length() > 0 {
@@ -936,15 +928,8 @@ fn ldtk_spawn_level_layers(
       }
     } else if layer_type == "entities" {
       ldtk_spawn_layer_entities(
-        world_entity,
-        level_entity,
-        layer_entity,
-        level,
-        level_offset,
-        layer_offset,
-        instance,
-        layer,
-        layer_zindex,
+        world_entity, level_entity, layer_entity, level, level_offset, layer_offset,
+        instance, layer, layer_zindex,
       )
     }
   }
@@ -1085,7 +1070,10 @@ fn ldtk_spawn_int_grid_cells(
       grid_y,
       zindex,
     }
-    ldtk_int_grid_cell_spawned_event_bus.trigger(int_grid_event, Some(cell_entity))
+    ldtk_int_grid_cell_spawned_event_bus.trigger(
+      int_grid_event,
+      Some(cell_entity),
+    )
     if instance.settings.int_grid_cell_hook is Some(int_grid_cell_hook) {
       int_grid_cell_hook(int_grid_event)
     }
@@ -1093,24 +1081,27 @@ fn ldtk_spawn_int_grid_cells(
       hook(int_grid_event)
     }
     if ldtk_int_grid_cell_spawn_hooks.get(
-      ldtk_int_grid_cell_spawn_hook_key(layer.identifier, value),
-    ) is Some(hook) {
+        ldtk_int_grid_cell_spawn_hook_key(layer.identifier, value),
+      )
+      is Some(hook) {
       hook(int_grid_event)
     }
     if ldtk_int_grid_value_spawn_hooks.get(
-      ldtk_int_grid_value_spawn_hook_key(value),
-    ) is Some(hook) {
+        ldtk_int_grid_value_spawn_hook_key(value),
+      )
+      is Some(hook) {
       hook(int_grid_event)
     }
     if ldtk_int_grid_default_spawn_hook.val is Some(default_hook) {
       default_hook(int_grid_event)
     }
     if ldtk_apply_int_grid_physics(
-      cell_entity,
-      layer.identifier,
-      value,
-      grid_size,
-    ) is Some(collider) {
+        cell_entity,
+        layer.identifier,
+        value,
+        grid_size,
+      )
+      is Some(collider) {
       ldtk_int_grid_collider_spawned_event_bus.trigger(
         {
           world_entity: runtime.world_entity,
@@ -1134,11 +1125,14 @@ fn ldtk_spawn_int_grid_cells(
       !visible {
       continue
     }
-    let color = instance.project.int_grid_color(layer.identifier, value).unwrap_or(
-      "rgba(255,255,255,0.2)",
-    )
+    let color = instance.project
+      .int_grid_color(layer.identifier, value)
+      .unwrap_or("rgba(255,255,255,0.2)")
     let render_color = ldtk_color_with_alpha(color, layer.opacity)
-    let rect = @sprite.ColorRect::new(@math.Vec2D(grid_size, grid_size), render_color)
+    let rect = @sprite.ColorRect::new(
+      @math.Vec2D(grid_size, grid_size),
+      render_color,
+    )
     let sprite = @sprite.Sprite::from_color_rect(rect, zindex)
     sprite.visible = visible
     @sprite.sprites.set(cell_entity, sprite)
@@ -1160,7 +1154,8 @@ fn ldtk_spawn_layer_entities(
   for entity_instance in layer.entity_instances {
     let base_offset = ldtk_entity_position(entity_instance)
     let is_worldly = ldtk_entity_is_worldly(entity_instance)
-    if is_worldly && ldtk_worldly_entity(world_entity, entity_instance.iid) is Some(_) {
+    if is_worldly &&
+      ldtk_worldly_entity(world_entity, entity_instance.iid) is Some(_) {
       continue
     }
     let parent_entity = if is_worldly { world_entity } else { layer_entity }
@@ -1207,14 +1202,19 @@ fn ldtk_spawn_layer_entities(
       entity_hook(entity_event)
     }
     if ldtk_entity_layer_identifier_spawn_hooks.get(
-      ldtk_entity_layer_identifier_spawn_hook_key(layer.identifier, entity_instance.identifier),
-    ) is Some(entity_hook) {
+        ldtk_entity_layer_identifier_spawn_hook_key(
+          layer.identifier,
+          entity_instance.identifier,
+        ),
+      )
+      is Some(entity_hook) {
       entity_hook(entity_event)
     }
     if ldtk_entity_layer_spawn_hooks.get(layer.identifier) is Some(entity_hook) {
       entity_hook(entity_event)
     }
-    if ldtk_entity_spawn_hooks.get(entity_instance.identifier) is Some(entity_hook) {
+    if ldtk_entity_spawn_hooks.get(entity_instance.identifier)
+      is Some(entity_hook) {
       entity_hook(entity_event)
     }
     if ldtk_entity_default_spawn_hook.val is Some(default_hook) {
@@ -1250,9 +1250,7 @@ fn ldtk_despawn_level(
 
 ///|
 fn ldtk_force_world_respawn(world_entity : @entity.Entity) -> Unit {
-  guard ldtk_world_instances.get(world_entity) is Some(instance) else {
-    return
-  }
+  guard ldtk_world_instances.get(world_entity) is Some(instance) else { return }
   for pair in instance.spawned_levels.to_array() {
     ldtk_despawn_level(world_entity, pair.0, pair.1)
     instance.spawned_levels.remove(pair.0)
@@ -1270,9 +1268,7 @@ fn ldtk_force_world_respawn(world_entity : @entity.Entity) -> Unit {
 
 ///|
 fn ldtk_force_level_respawns(world_entity : @entity.Entity) -> Unit {
-  guard ldtk_world_instances.get(world_entity) is Some(instance) else {
-    return
-  }
+  guard ldtk_world_instances.get(world_entity) is Some(instance) else { return }
   for pair in instance.spawned_levels.to_array() {
     let level_iid = pair.0
     let level_entity = pair.1
@@ -1329,12 +1325,8 @@ fn ldtk_layer_grid_size(
   if layer.grid_size > 0 {
     return layer.grid_size.to_double()
   }
-  guard ldtk_layer_tileset_uid(layer) is Some(uid) else {
-    return 16.0
-  }
-  guard project.tileset_by_uid(uid) is Some(tileset) else {
-    return 16.0
-  }
+  guard ldtk_layer_tileset_uid(layer) is Some(uid) else { return 16.0 }
+  guard project.tileset_by_uid(uid) is Some(tileset) else { return 16.0 }
   if tileset.tile_grid_size > 0 {
     return tileset.tile_grid_size.to_double()
   }
@@ -1419,14 +1411,14 @@ fn ldtk_tile_enum_tags(
 }
 
 ///|
-fn ldtk_grid_coords_from_px(px : @math.Vec2D, cell_size : Double) -> LdtkGridCoords {
+fn ldtk_grid_coords_from_px(
+  px : @math.Vec2D,
+  cell_size : Double,
+) -> LdtkGridCoords {
   if cell_size <= 0.0 {
     return { x: 0, y: 0 }
   }
-  {
-    x: (px[X] / cell_size).to_int(),
-    y: (px[Y] / cell_size).to_int(),
-  }
+  { x: (px[X] / cell_size).to_int(), y: (px[Y] / cell_size).to_int() }
 }
 
 ///|
@@ -1451,10 +1443,7 @@ fn ldtk_apply_int_grid_physics(
     return None
   }
   let size = @math.Vec2D(grid_size, grid_size)
-  let shape = @physics2d.CollisionShape::Rect(
-    size=size,
-    offset=@math.Vec2D::zero(),
-  )
+  let shape = @physics2d.CollisionShape::Rect(size~, offset=@math.Vec2D::zero())
   if physics_settings.as_sensor {
     @physics2d.areas.set(
       cell_entity,
@@ -1527,7 +1516,9 @@ fn ldtk_level_order_key(indices : LdtkLevelIndices) -> Int {
 fn ldtk_world_spawn_behavior(
   settings : LdtkWorldSpawnSettings,
 ) -> LdtkLevelSpawnBehavior {
-  settings.spawn_behavior_override.unwrap_or(ldtk_settings.val.level_spawn_behavior)
+  settings.spawn_behavior_override.unwrap_or(
+    ldtk_settings.val.level_spawn_behavior,
+  )
 }
 
 ///|
@@ -1683,7 +1674,9 @@ fn ldtk_color_with_alpha(color : String, alpha : Double) -> String {
     return ldtk_hex_color_with_alpha(normalized, clamped_alpha).unwrap_or(color)
   }
   if normalized.has_prefix("rgba(") && normalized.has_suffix(")") {
-    return ldtk_rgba_color_with_alpha(normalized, clamped_alpha).unwrap_or(color)
+    return ldtk_rgba_color_with_alpha(normalized, clamped_alpha).unwrap_or(
+      color,
+    )
   }
   if normalized.has_prefix("rgb(") && normalized.has_suffix(")") {
     return ldtk_rgb_color_with_alpha(normalized, clamped_alpha).unwrap_or(color)
@@ -1701,7 +1694,9 @@ fn ldtk_hex_color_with_alpha(color : String, alpha : Double) -> String? {
   guard ldtk_hex_pair_to_int(hex, 2) is Some(green) else { return None }
   guard ldtk_hex_pair_to_int(hex, 4) is Some(blue) else { return None }
   let base_alpha = if hex.length() == 8 {
-    ldtk_hex_pair_to_int(hex, 6).map(value => value.to_double() / 255.0).unwrap_or(1.0)
+    ldtk_hex_pair_to_int(hex, 6)
+    .map(value => value.to_double() / 255.0)
+    .unwrap_or(1.0)
   } else {
     1.0
   }
@@ -1732,7 +1727,9 @@ fn ldtk_rgba_color_with_alpha(color : String, alpha : Double) -> String? {
   guard ldtk_parse_color_channel(values[0]) is Some(red) else { return None }
   guard ldtk_parse_color_channel(values[1]) is Some(green) else { return None }
   guard ldtk_parse_color_channel(values[2]) is Some(blue) else { return None }
-  guard ldtk_parse_alpha_channel(values[3]) is Some(base_alpha) else { return None }
+  guard ldtk_parse_alpha_channel(values[3]) is Some(base_alpha) else {
+    return None
+  }
   Some("rgba(\{red},\{green},\{blue},\{ldtk_clamp_alpha(alpha * base_alpha)})")
 }
 
@@ -1742,13 +1739,7 @@ fn ldtk_parse_color_channel(source : StringView) -> Int? {
   let parsed : Result[Int, Error] = try? @strconv.parse_int(trimmed, base=10)
   match parsed {
     Ok(value) =>
-      Some(if value < 0 {
-        0
-      } else if value > 255 {
-        255
-      } else {
-        value
-      })
+      Some(if value < 0 { 0 } else if value > 255 { 255 } else { value })
     Err(_) => None
   }
 }

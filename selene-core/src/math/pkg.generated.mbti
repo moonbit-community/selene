@@ -138,8 +138,6 @@ pub(all) enum VAlign {
 }
 
 pub(all) struct Vec2D(Double, Double)
-
-
 pub fn Vec2D::clone(Self) -> Self
 pub fn Vec2D::distance(Self) -> Double
 pub fn Vec2D::distance_to(Self, Self) -> Double

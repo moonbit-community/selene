@@ -6,10 +6,11 @@ import {
   "Milky2018/selene/math",
   "Milky2018/selene/render",
   "Milky2018/selene/render3d_types",
+  "moonbitlang/core/ref",
 }
 
 // Values
-pub let active_camera3d : Ref[ActiveCamera3D?]
+pub let active_camera3d : @ref.Ref[ActiveCamera3D?]
 
 pub fn camera3d_extract_system(Double) -> Unit
 

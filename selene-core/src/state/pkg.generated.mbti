@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/state"
 
+import {
+  "moonbitlang/core/ref",
+}
+
 // Values
 pub fn[T] in_state(State[T], (T) -> Bool) -> () -> Bool
 
@@ -29,10 +33,10 @@ pub(all) struct NextState[T] {
 pub fn[T] NextState::set(Self[T], T) -> Unit
 
 pub(all) struct State[T] {
-  current : Ref[T]
-  next : Ref[T?]
-  previous : Ref[T?]
-  changed_serial : Ref[UInt]
+  current : @ref.Ref[T]
+  next : @ref.Ref[T?]
+  previous : @ref.Ref[T?]
+  changed_serial : @ref.Ref[UInt]
 }
 pub fn[T] State::get(Self[T]) -> T
 pub fn[T] State::new(T) -> Self[T]

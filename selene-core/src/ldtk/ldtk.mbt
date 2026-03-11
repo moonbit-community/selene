@@ -466,10 +466,7 @@ pub fn ldtk_field_tiles(
 }
 
 ///|
-pub fn ldtk_level_set_equals(
-  left : LdtkLevelSet,
-  right : LdtkLevelSet,
-) -> Bool {
+pub fn ldtk_level_set_equals(left : LdtkLevelSet, right : LdtkLevelSet) -> Bool {
   if left.iids.length() != right.iids.length() {
     return false
   }
@@ -497,12 +494,7 @@ pub struct LdtkEntityReference {
 
 ///|
 pub fn empty_ldtk_entity_reference() -> LdtkEntityReference {
-  {
-    entity_iid: None,
-    level_iid: None,
-    world_iid: None,
-    layer_iid: None,
-  }
+  { entity_iid: None, level_iid: None, world_iid: None, layer_iid: None }
 }
 
 ///|
@@ -516,13 +508,7 @@ pub struct LdtkTilesetRect {
 
 ///|
 pub fn empty_ldtk_tileset_rect() -> LdtkTilesetRect {
-  {
-    tileset_uid: None,
-    x: 0,
-    y: 0,
-    w: 0,
-    h: 0,
-  }
+  { tileset_uid: None, x: 0, y: 0, w: 0, h: 0 }
 }
 
 ///|
@@ -622,7 +608,9 @@ pub fn LdtkFieldInstance::vec2_value(self : LdtkFieldInstance) -> @math.Vec2D? {
 }
 
 ///|
-pub fn LdtkFieldInstance::int_array_value(self : LdtkFieldInstance) -> Array[Int]? {
+pub fn LdtkFieldInstance::int_array_value(
+  self : LdtkFieldInstance,
+) -> Array[Int]? {
   match self.value {
     Some(json_value) => json_int_array(json_value)
     None => None
@@ -745,7 +733,9 @@ pub fn LdtkFieldInstance::entity_refs_value(
 }
 
 ///|
-pub fn LdtkFieldInstance::tile_value(self : LdtkFieldInstance) -> LdtkTilesetRect? {
+pub fn LdtkFieldInstance::tile_value(
+  self : LdtkFieldInstance,
+) -> LdtkTilesetRect? {
   match self.value {
     Some(json_value) => json_tileset_rect(json_value)
     None => None
@@ -984,7 +974,10 @@ pub fn LdtkEntityInstance::field_tiles(
 }
 
 ///|
-pub fn LdtkEntityInstance::has_tag(self : LdtkEntityInstance, tag : String) -> Bool {
+pub fn LdtkEntityInstance::has_tag(
+  self : LdtkEntityInstance,
+  tag : String,
+) -> Bool {
   for entity_tag in self.tags {
     if entity_tag == tag {
       return true
@@ -1049,7 +1042,10 @@ pub struct LdtkLevel {
 }
 
 ///|
-pub fn LdtkLevel::field(self : LdtkLevel, identifier : String) -> LdtkFieldInstance? {
+pub fn LdtkLevel::field(
+  self : LdtkLevel,
+  identifier : String,
+) -> LdtkFieldInstance? {
   ldtk_field_instance(self.field_instances, identifier)
 }
 
@@ -1064,7 +1060,10 @@ pub fn LdtkLevel::field_int(self : LdtkLevel, identifier : String) -> Int? {
 }
 
 ///|
-pub fn LdtkLevel::field_string(self : LdtkLevel, identifier : String) -> String? {
+pub fn LdtkLevel::field_string(
+  self : LdtkLevel,
+  identifier : String,
+) -> String? {
   ldtk_field_string(self.field_instances, identifier)
 }
 
@@ -1074,7 +1073,10 @@ pub fn LdtkLevel::field_color(self : LdtkLevel, identifier : String) -> String? 
 }
 
 ///|
-pub fn LdtkLevel::field_file_path(self : LdtkLevel, identifier : String) -> String? {
+pub fn LdtkLevel::field_file_path(
+  self : LdtkLevel,
+  identifier : String,
+) -> String? {
   ldtk_field_file_path(self.field_instances, identifier)
 }
 
@@ -1084,12 +1086,18 @@ pub fn LdtkLevel::field_enum(self : LdtkLevel, identifier : String) -> String? {
 }
 
 ///|
-pub fn LdtkLevel::field_number(self : LdtkLevel, identifier : String) -> Double? {
+pub fn LdtkLevel::field_number(
+  self : LdtkLevel,
+  identifier : String,
+) -> Double? {
   ldtk_field_number(self.field_instances, identifier)
 }
 
 ///|
-pub fn LdtkLevel::field_vec2(self : LdtkLevel, identifier : String) -> @math.Vec2D? {
+pub fn LdtkLevel::field_vec2(
+  self : LdtkLevel,
+  identifier : String,
+) -> @math.Vec2D? {
   ldtk_field_vec2(self.field_instances, identifier)
 }
 
@@ -1158,7 +1166,10 @@ pub fn LdtkLevel::field_enum_array(
 }
 
 ///|
-pub fn LdtkLevel::field_entity_iid(self : LdtkLevel, identifier : String) -> String? {
+pub fn LdtkLevel::field_entity_iid(
+  self : LdtkLevel,
+  identifier : String,
+) -> String? {
   ldtk_field_entity_iid(self.field_instances, identifier)
 }
 
@@ -1389,7 +1400,9 @@ pub fn LdtkProject::resolve_path(self : LdtkProject, path : String) -> String {
 }
 
 ///|
-pub fn LdtkProject::indexed_levels(self : LdtkProject) -> Array[LdtkIndexedLevel] {
+pub fn LdtkProject::indexed_levels(
+  self : LdtkProject,
+) -> Array[LdtkIndexedLevel] {
   let indexed_levels : Array[LdtkIndexedLevel] = []
   for level_index, level in self.levels {
     indexed_levels.push({
@@ -1409,7 +1422,9 @@ pub fn LdtkProject::indexed_levels(self : LdtkProject) -> Array[LdtkIndexedLevel
 }
 
 ///|
-pub fn LdtkProject::raw_indexed_levels(self : LdtkProject) -> Array[LdtkIndexedLevel] {
+pub fn LdtkProject::raw_indexed_levels(
+  self : LdtkProject,
+) -> Array[LdtkIndexedLevel] {
   ldtk_project_raw_view(self).indexed_levels()
 }
 
@@ -1468,7 +1483,10 @@ pub fn LdtkProject::raw_find_level_by_selection(
 }
 
 ///|
-pub fn LdtkProject::level_by_iid(self : LdtkProject, iid : String) -> LdtkLevel? {
+pub fn LdtkProject::level_by_iid(
+  self : LdtkProject,
+  iid : String,
+) -> LdtkLevel? {
   for indexed in self.indexed_levels() {
     if indexed.level.iid == iid {
       return Some(indexed.level)
@@ -1478,7 +1496,10 @@ pub fn LdtkProject::level_by_iid(self : LdtkProject, iid : String) -> LdtkLevel?
 }
 
 ///|
-pub fn LdtkProject::raw_level_by_iid(self : LdtkProject, iid : String) -> LdtkLevel? {
+pub fn LdtkProject::raw_level_by_iid(
+  self : LdtkProject,
+  iid : String,
+) -> LdtkLevel? {
   ldtk_project_raw_view(self).level_by_iid(iid)
 }
 
@@ -1494,7 +1515,7 @@ pub fn LdtkProject::level_set_for_selection(
   let iids : Array[String] = [selected.level.iid]
   match behavior {
     UseZeroTranslation => ()
-    UseWorldTranslation(load_level_neighbors) => {
+    UseWorldTranslation(load_level_neighbors) =>
       if load_level_neighbors {
         for neighbour in selected.level.neighbours {
           if self.level_by_iid(neighbour.level_iid) is Some(_) {
@@ -1502,7 +1523,6 @@ pub fn LdtkProject::level_set_for_selection(
           }
         }
       }
-    }
   }
   ldtk_level_set_from_iids(iids)
 }
@@ -1800,7 +1820,9 @@ fn parse_ldtk_tilesets(tilesets_json : Json?) -> Array[LdtkTilesetDefinition] {
       px_hei: field_int(object, "pxHei").unwrap_or(0),
       spacing: field_int(object, "spacing").unwrap_or(0),
       padding: field_int(object, "padding").unwrap_or(0),
-      custom_data: parse_ldtk_tileset_custom_data(field_json(object, "customData")),
+      custom_data: parse_ldtk_tileset_custom_data(
+        field_json(object, "customData"),
+      ),
       enum_tags: parse_ldtk_tileset_enum_tags(field_json(object, "enumTags")),
       tags: parse_ldtk_string_array(field_json(object, "tags")),
       tags_source_enum_uid: field_int(object, "tagsSourceEnumUid"),
@@ -1830,11 +1852,12 @@ fn parse_ldtk_tileset_enum_tags(
   let enum_tags : Array[LdtkTilesetEnumTag] = []
   for object in json_object_array(enum_tags_json) {
     enum_tags.push({
-      enum_value_id: field_string_any(object, [
-        "enumValueId",
-        "enumValueID",
-      ]).unwrap_or(""),
-      tile_ids: parse_ldtk_int_array(field_json_any(object, ["tileIds", "tileIDs"])),
+      enum_value_id: field_string_any(object, ["enumValueId", "enumValueID"]).unwrap_or(
+        "",
+      ),
+      tile_ids: parse_ldtk_int_array(
+        field_json_any(object, ["tileIds", "tileIDs"]),
+      ),
     })
   }
   enum_tags
@@ -1904,19 +1927,16 @@ fn parse_ldtk_field_definitions(
       field_bool(object, "isArray").unwrap_or(false)
     field_definitions.push({
       uid: field_int(object, "uid").unwrap_or(0),
-      identifier: field_string_any(object, [
-        "identifier",
-        "__identifier",
-      ]).unwrap_or(""),
+      identifier: field_string_any(object, ["identifier", "__identifier"]).unwrap_or(
+        "",
+      ),
       field_type: type_name,
       is_array,
-      can_be_null: field_bool_any(object, [
-        "canBeNull",
-        "__canBeNull",
-      ]).unwrap_or(false),
+      can_be_null: field_bool_any(object, ["canBeNull", "__canBeNull"]).unwrap_or(
+        false,
+      ),
       default_override: field_json_any(object, [
-        "defaultOverride",
-        "__defaultOverride",
+        "defaultOverride", "__defaultOverride",
       ]),
     })
   }
@@ -1924,9 +1944,7 @@ fn parse_ldtk_field_definitions(
 }
 
 ///|
-fn parse_ldtk_enum_definitions(
-  enums_json : Json?,
-) -> Array[LdtkEnumDefinition] {
+fn parse_ldtk_enum_definitions(enums_json : Json?) -> Array[LdtkEnumDefinition] {
   let enum_definitions : Array[LdtkEnumDefinition] = []
   for object in json_object_array(enums_json) {
     enum_definitions.push({
@@ -1981,10 +1999,9 @@ fn parse_ldtk_levels(levels_json : Json?) -> Array[LdtkLevel] {
 ///|
 fn parse_ldtk_level(level_object : Map[String, Json]) -> LdtkLevel {
   {
-    identifier: field_string_any(level_object, [
-      "identifier",
-      "__identifier",
-    ]).unwrap_or(""),
+    identifier: field_string_any(level_object, ["identifier", "__identifier"]).unwrap_or(
+      "",
+    ),
     iid: field_string(level_object, "iid").unwrap_or(""),
     uid: field_int(level_object, "uid").unwrap_or(0),
     world_x: field_int(level_object, "worldX").unwrap_or(0),
@@ -2010,9 +2027,7 @@ fn parse_ldtk_level(level_object : Map[String, Json]) -> LdtkLevel {
 }
 
 ///|
-fn parse_ldtk_neighbours(
-  neighbours_json : Json?,
-) -> Array[LdtkNeighbour] {
+fn parse_ldtk_neighbours(neighbours_json : Json?) -> Array[LdtkNeighbour] {
   let neighbours : Array[LdtkNeighbour] = []
   for object in json_object_array(neighbours_json) {
     neighbours.push({
@@ -2030,10 +2045,9 @@ fn parse_ldtk_field_instances(
   let instances : Array[LdtkFieldInstance] = []
   for object in json_object_array(instances_json) {
     instances.push({
-      identifier: field_string_any(object, [
-        "__identifier",
-        "identifier",
-      ]).unwrap_or(""),
+      identifier: field_string_any(object, ["__identifier", "identifier"]).unwrap_or(
+        "",
+      ),
       value_type: field_string_any(object, ["__type", "type"]).unwrap_or(""),
       value: field_json_any(object, ["__value", "value"]),
       def_uid: field_int_any(object, ["defUid", "__defUid"]),
@@ -2043,64 +2057,48 @@ fn parse_ldtk_field_instances(
 }
 
 ///|
-fn parse_ldtk_layer_instances(
-  layers_json : Json?,
-) -> Array[LdtkLayerInstance] {
+fn parse_ldtk_layer_instances(layers_json : Json?) -> Array[LdtkLayerInstance] {
   let layers : Array[LdtkLayerInstance] = []
   for object in json_object_array(layers_json) {
     layers.push({
       iid: field_string(object, "iid").unwrap_or(""),
-      identifier: field_string_any(object, [
-        "__identifier",
-        "identifier",
-      ]).unwrap_or(""),
+      identifier: field_string_any(object, ["__identifier", "identifier"]).unwrap_or(
+        "",
+      ),
       layer_type: field_string_any(object, ["__type", "type"]).unwrap_or(""),
       level_id: field_int_any(object, ["levelId", "__levelId"]).unwrap_or(0),
-      layer_def_uid: field_int_any(object, [
-        "layerDefUid",
-        "__layerDefUid",
-      ]).unwrap_or(0),
+      layer_def_uid: field_int_any(object, ["layerDefUid", "__layerDefUid"]).unwrap_or(
+        0,
+      ),
       c_wid: field_int_any(object, ["__cWid", "cWid"]).unwrap_or(0),
       c_hei: field_int_any(object, ["__cHei", "cHei"]).unwrap_or(0),
-      grid_size: field_int_any(object, [
-        "__gridSize",
-        "gridSize",
-      ]).unwrap_or(0),
-      opacity: field_number_any(object, ["__opacity", "opacity"]).unwrap_or(
-        1.0,
-      ),
+      grid_size: field_int_any(object, ["__gridSize", "gridSize"]).unwrap_or(0),
+      opacity: field_number_any(object, ["__opacity", "opacity"]).unwrap_or(1.0),
       visible: field_bool(object, "visible").unwrap_or(true),
       optional_rules: parse_ldtk_int_array(
         field_json_any(object, ["optionalRules", "__optionalRules"]),
       ),
       override_tileset_uid: field_int_any(object, [
-        "overrideTilesetUid",
-        "__overrideTilesetUid",
+        "overrideTilesetUid", "__overrideTilesetUid",
       ]),
-      px_offset_x: field_int_any(object, [
-        "pxOffsetX",
-        "__pxOffsetX",
-      ]).unwrap_or(0),
-      px_offset_y: field_int_any(object, [
-        "pxOffsetY",
-        "__pxOffsetY",
-      ]).unwrap_or(0),
+      px_offset_x: field_int_any(object, ["pxOffsetX", "__pxOffsetX"]).unwrap_or(
+        0,
+      ),
+      px_offset_y: field_int_any(object, ["pxOffsetY", "__pxOffsetY"]).unwrap_or(
+        0,
+      ),
       px_total_offset_x: field_int_any(object, [
-        "__pxTotalOffsetX",
-        "pxTotalOffsetX",
+        "__pxTotalOffsetX", "pxTotalOffsetX",
       ]).unwrap_or(0),
       px_total_offset_y: field_int_any(object, [
-        "__pxTotalOffsetY",
-        "pxTotalOffsetY",
+        "__pxTotalOffsetY", "pxTotalOffsetY",
       ]).unwrap_or(0),
       seed: field_int(object, "seed").unwrap_or(0),
       tileset_def_uid: field_int_any(object, [
-        "__tilesetDefUid",
-        "tilesetDefUid",
+        "__tilesetDefUid", "tilesetDefUid",
       ]),
       tileset_rel_path: field_string_any(object, [
-        "__tilesetRelPath",
-        "tilesetRelPath",
+        "__tilesetRelPath", "tilesetRelPath",
       ]),
       int_grid_csv: parse_ldtk_int_array(
         field_json_any(object, ["intGridCsv", "int_grid_csv"]),
@@ -2165,12 +2163,12 @@ fn parse_ldtk_level_background_position(
   guard bg_pos_json is Some(value_json) else { return None }
   guard json_object(value_json) is Some(object) else { return None }
   let crop = parse_ldtk_number_array(field_json(object, "cropRect"))
-  let scale = field_json(object, "scale").bind(value => json_vec2(value)).unwrap_or(
-    @math.Vec2D(1.0, 1.0),
-  )
-  let top_left = field_json(object, "topLeftPx").bind(value => json_vec2(value)).unwrap_or(
-    @math.Vec2D::zero(),
-  )
+  let scale = field_json(object, "scale")
+    .bind(value => json_vec2(value))
+    .unwrap_or(@math.Vec2D(1.0, 1.0))
+  let top_left = field_json(object, "topLeftPx")
+    .bind(value => json_vec2(value))
+    .unwrap_or(@math.Vec2D::zero())
   Some({
     crop_x: crop.get(0).unwrap_or(0.0),
     crop_y: crop.get(1).unwrap_or(0.0),
@@ -2182,9 +2180,7 @@ fn parse_ldtk_level_background_position(
 }
 
 ///|
-fn parse_ldtk_tile_instances(
-  instances_json : Json?,
-) -> Array[LdtkTileInstance] {
+fn parse_ldtk_tile_instances(instances_json : Json?) -> Array[LdtkTileInstance] {
   let instances : Array[LdtkTileInstance] = []
   for object in json_object_array(instances_json) {
     let flags = field_int(object, "f").unwrap_or(0)
@@ -2209,10 +2205,9 @@ fn parse_ldtk_entity_instances(
   for object in json_object_array(instances_json) {
     instances.push({
       iid: field_string(object, "iid").unwrap_or(""),
-      identifier: field_string_any(object, [
-        "__identifier",
-        "identifier",
-      ]).unwrap_or(""),
+      identifier: field_string_any(object, ["__identifier", "identifier"]).unwrap_or(
+        "",
+      ),
       def_uid: field_int_any(object, ["defUid", "__defUid"]).unwrap_or(0),
       width: field_int_any(object, ["width", "__width"]).unwrap_or(0),
       height: field_int_any(object, ["height", "__height"]).unwrap_or(0),
@@ -2336,7 +2331,9 @@ fn[T] option_or(value : T?, fallback : T?) -> T? {
 ///|
 fn json_vec2_from_int_array(value : Json?) -> @math.Vec2D {
   guard value is Some(value_json) else { return @math.Vec2D::zero() }
-  guard json_array(value_json) is Some(items) else { return @math.Vec2D::zero() }
+  guard json_array(value_json) is Some(items) else {
+    return @math.Vec2D::zero()
+  }
   if items.length() < 2 {
     return @math.Vec2D::zero()
   }
@@ -2369,12 +2366,8 @@ fn json_vec2(value : Json) -> @math.Vec2D? {
     field_number_any(object, ["y", "cy"]),
     field_int_any(object, ["y", "cy"]).map(value => value.to_double()),
   )
-  guard x is Some(x) else {
-    return None
-  }
-  guard y is Some(y) else {
-    return None
-  }
+  guard x is Some(x) else { return None }
+  guard y is Some(y) else { return None }
   Some(@math.Vec2D(x, y))
 }
 
@@ -2434,18 +2427,11 @@ fn json_entity_reference(value : Json) -> LdtkEntityReference? {
     if iid.length() == 0 {
       return None
     }
-    return Some({
-      ..empty_ldtk_entity_reference(),
-      entity_iid: Some(iid),
-    })
+    return Some({ ..empty_ldtk_entity_reference(), entity_iid: Some(iid) })
   }
   guard json_object(value) is Some(object) else { return None }
   Some({
-    entity_iid: field_string_any(object, [
-      "entityIid",
-      "__entityIid",
-      "iid",
-    ]),
+    entity_iid: field_string_any(object, ["entityIid", "__entityIid", "iid"]),
     level_iid: field_string_any(object, ["levelIid", "__levelIid"]),
     world_iid: field_string_any(object, ["worldIid", "__worldIid"]),
     layer_iid: field_string_any(object, ["layerIid", "__layerIid"]),
@@ -2677,10 +2663,7 @@ fn field_int(object : Map[String, Json], key : String) -> Int? {
 }
 
 ///|
-fn field_int_any(
-  object : Map[String, Json],
-  keys : Array[String],
-) -> Int? {
+fn field_int_any(object : Map[String, Json], keys : Array[String]) -> Int? {
   for key in keys {
     if field_int(object, key) is Some(value) {
       return Some(value)
@@ -2690,10 +2673,7 @@ fn field_int_any(
 }
 
 ///|
-fn field_bool_any(
-  object : Map[String, Json],
-  keys : Array[String],
-) -> Bool? {
+fn field_bool_any(object : Map[String, Json], keys : Array[String]) -> Bool? {
   for key in keys {
     if field_bool(object, key) is Some(value) {
       return Some(value)

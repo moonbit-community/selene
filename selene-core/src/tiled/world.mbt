@@ -954,9 +954,7 @@ fn tiled_world_match_pattern_atom_once(
         return None
       }
       if capture_index is Some(index) && index < group_captures.length() {
-        group_captures[index] = Some(
-          source[position:next_position].to_string(),
-        )
+        group_captures[index] = Some(source[position:next_position].to_string())
       }
       Some((next_position, group_captures))
     }

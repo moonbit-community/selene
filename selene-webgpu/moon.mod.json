@@ -1,6 +1,6 @@
 {
   "name": "Milky2018/selene_webgpu",
-  "version": "0.27.0",
+  "version": "0.28.0",
   "deps": {
     "Yoorkin/rabbit-tea": "0.10.11",
     "Milky2018/selene": {
