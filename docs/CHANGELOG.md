@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.28.1] - 2026-03-11
+
 ### Added
 
 #### `selene/ldtk` typed registration APIs (bevy-style optional scope + priority lookup)
@@ -58,6 +60,7 @@
 
 - `spawn_ldtk_world(...)` typed registration behavior now mirrors bevy optional-scope precedence for both entities and int-cells: `(layer+identifier/value) -> (identifier/value) -> (layer) -> (default)`, with only the highest-priority match executed.
 - `spawn_ldtk_world(...)` int-grid tileset rendering now combines `gridTiles` and `autoLayerTiles`, filters out-of-bounds tiles, and renders overlapping tiles in deterministic stacked sublayers (higher sublayer gets higher z-index), aligning with bevy_ecs_ldtk layer splitting behavior.
+- `selene/ldtk` documentation now includes a `src/ldtk/README.md` template showing no-derive bundle-like registration with `add_*` and component insertion helpers.
 
 ## [0.28.0] - 2026-03-11
 
