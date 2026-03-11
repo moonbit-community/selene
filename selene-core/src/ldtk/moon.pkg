@@ -8,4 +8,5 @@ import {
   "Milky2018/selene/sprite",
   "Milky2018/selene/transform",
   "moonbitlang/core/json",
+  "moonbitlang/core/strconv",
 }

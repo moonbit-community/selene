@@ -53,6 +53,7 @@ pub struct Animation {
   transform : @math.Transform
   loop_ : Bool
   fps : Double
+  color : @render.Color
   id : Int
 }
 
@@ -130,12 +131,13 @@ pub fn Animation::new(
   loop_? : Bool = false,
   fps? : Double = 1.0,
   transform? : @math.Transform = @math.Transform::new(),
+  color? : @render.Color = { r: 255U, g: 255U, b: 255U, a: 1.0 },
 ) -> Animation {
   let max_frame = frames.length().reinterpret_as_uint()
   if max_frame == 0 {
     abort("Animation must have at least one frame")
   }
-  { frames, transform, loop_, fps, id: generate_animation() }
+  { frames, transform, loop_, fps, color, id: generate_animation() }
 }
 
 ///|
@@ -188,9 +190,10 @@ pub fn Animation::single_frame(
   size : @math.Vec2D,
   transform? : @math.Transform = @math.Transform::new(),
   offset? : @math.Vec2D = @math.Vec2D(0, 0),
+  color? : @render.Color = { r: 255U, g: 255U, b: 255U, a: 1.0 },
 ) -> Animation {
   let image = @asset.load_image(sprite_path)
-  Animation::single_frame_from_image(image, size, transform~, offset~)
+  Animation::single_frame_from_image(image, size, transform~, offset~, color~)
 }
 
 ///|
@@ -199,8 +202,15 @@ pub fn Animation::single_frame_from_image(
   size : @math.Vec2D,
   transform? : @math.Transform = @math.Transform::new(),
   offset? : @math.Vec2D = @math.Vec2D(0, 0),
+  color? : @render.Color = { r: 255U, g: 255U, b: 255U, a: 1.0 },
 ) -> Animation {
-  Animation::new([{ image, size, offset }], transform~, loop_=false, fps=0.0)
+  Animation::new(
+    [{ image, size, offset }],
+    transform~,
+    loop_=false,
+    fps=0.0,
+    color~,
+  )
 }
 
 ///|
@@ -370,6 +380,7 @@ pub fn play_animation(
     transform,
     loop_,
     fps: rate,
+    color: animation.color,
     id: animation.id,
   }
   sprites.set(entity, {
@@ -417,7 +428,7 @@ fn render_animation(
       source: Some({ position: frame.offset, size: frame.size }),
       repeat: NoRepeat,
       transform,
-      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      color: animation.color,
     }
     @render2d.push_image(command)
   }

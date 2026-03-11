@@ -31,11 +31,12 @@ pub struct Animation {
   transform : @math.Transform
   loop_ : Bool
   fps : Double
+  color : @render.Color
   id : Int
 }
-pub fn Animation::new(Array[AnimationFrame], loop_? : Bool, fps? : Double, transform? : @math.Transform) -> Self
-pub fn Animation::single_frame(String, @math.Vec2D, transform? : @math.Transform, offset? : @math.Vec2D) -> Self
-pub fn Animation::single_frame_from_image(@asset_types.ImageHandle, @math.Vec2D, transform? : @math.Transform, offset? : @math.Vec2D) -> Self
+pub fn Animation::new(Array[AnimationFrame], loop_? : Bool, fps? : Double, transform? : @math.Transform, color? : @render.Color) -> Self
+pub fn Animation::single_frame(String, @math.Vec2D, transform? : @math.Transform, offset? : @math.Vec2D, color? : @render.Color) -> Self
+pub fn Animation::single_frame_from_image(@asset_types.ImageHandle, @math.Vec2D, transform? : @math.Transform, offset? : @math.Vec2D, color? : @render.Color) -> Self
 
 pub(all) struct AnimationFrame {
   image : @asset_types.ImageHandle

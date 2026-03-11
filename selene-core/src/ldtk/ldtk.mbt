@@ -1009,6 +1009,16 @@ pub struct LdtkLayerInstance {
 }
 
 ///|
+pub struct LdtkLevelBackgroundPosition {
+  crop_x : Double
+  crop_y : Double
+  crop_width : Double
+  crop_height : Double
+  scale : @math.Vec2D
+  top_left_px : @math.Vec2D
+}
+
+///|
 pub struct LdtkLevel {
   identifier : String
   iid : String
@@ -1018,6 +1028,7 @@ pub struct LdtkLevel {
   px_wid : Int
   px_hei : Int
   bg_color : String?
+  bg_pos : LdtkLevelBackgroundPosition?
   bg_rel_path : String?
   external_rel_path : String?
   neighbours : Array[LdtkNeighbour]
@@ -1294,6 +1305,7 @@ pub fn empty_ldtk_level() -> LdtkLevel {
     px_wid: 0,
     px_hei: 0,
     bg_color: None,
+    bg_pos: None,
     bg_rel_path: None,
     external_rel_path: None,
     neighbours: [],
@@ -1814,6 +1826,9 @@ fn parse_ldtk_level(level_object : Map[String, Json]) -> LdtkLevel {
     px_wid: field_int(level_object, "pxWid").unwrap_or(0),
     px_hei: field_int(level_object, "pxHei").unwrap_or(0),
     bg_color: field_string_any(level_object, ["__bgColor", "bgColor"]),
+    bg_pos: parse_ldtk_level_background_position(
+      field_json_any(level_object, ["__bgPos", "bgPos"]),
+    ),
     bg_rel_path: field_string(level_object, "bgRelPath"),
     external_rel_path: field_string(level_object, "externalRelPath"),
     neighbours: parse_ldtk_neighbours(
@@ -1952,6 +1967,19 @@ fn parse_ldtk_int_array(value : Json?) -> Array[Int] {
 }
 
 ///|
+fn parse_ldtk_number_array(value : Json?) -> Array[Double] {
+  guard value is Some(value_json) else { return [] }
+  guard json_array(value_json) is Some(items) else { return [] }
+  let values : Array[Double] = []
+  for item in items {
+    if ldtk_json_number(item) is Some(number_value) {
+      values.push(number_value)
+    }
+  }
+  values
+}
+
+///|
 fn parse_ldtk_string_array(value : Json?) -> Array[String] {
   guard value is Some(value_json) else { return [] }
   guard json_array(value_json) is Some(items) else { return [] }
@@ -1962,6 +1990,29 @@ fn parse_ldtk_string_array(value : Json?) -> Array[String] {
     }
   }
   values
+}
+
+///|
+fn parse_ldtk_level_background_position(
+  bg_pos_json : Json?,
+) -> LdtkLevelBackgroundPosition? {
+  guard bg_pos_json is Some(value_json) else { return None }
+  guard json_object(value_json) is Some(object) else { return None }
+  let crop = parse_ldtk_number_array(field_json(object, "cropRect"))
+  let scale = field_json(object, "scale").bind(value => json_vec2(value)).unwrap_or(
+    @math.Vec2D(1.0, 1.0),
+  )
+  let top_left = field_json(object, "topLeftPx").bind(value => json_vec2(value)).unwrap_or(
+    @math.Vec2D::zero(),
+  )
+  Some({
+    crop_x: crop.get(0).unwrap_or(0.0),
+    crop_y: crop.get(1).unwrap_or(0.0),
+    crop_width: crop.get(2).unwrap_or(0.0),
+    crop_height: crop.get(3).unwrap_or(0.0),
+    scale,
+    top_left_px: top_left,
+  })
 }
 
 ///|
@@ -2076,6 +2127,7 @@ fn merge_ldtk_level(base : LdtkLevel, external : LdtkLevel) -> LdtkLevel {
     px_wid: external.px_wid,
     px_hei: external.px_hei,
     bg_color: option_or(external.bg_color, base.bg_color),
+    bg_pos: option_or(external.bg_pos, base.bg_pos),
     bg_rel_path: option_or(external.bg_rel_path, base.bg_rel_path),
     external_rel_path: base.external_rel_path,
     neighbours: if external.neighbours.length() > 0 {

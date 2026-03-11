@@ -475,6 +475,7 @@ pub struct LdtkLevel {
   px_wid : Int
   px_hei : Int
   bg_color : String?
+  bg_pos : LdtkLevelBackgroundPosition?
   bg_rel_path : String?
   external_rel_path : String?
   neighbours : Array[LdtkNeighbour]
@@ -512,6 +513,15 @@ pub struct LdtkLevelBackground {
   color : String?
   rel_path : String?
   zindex : Int
+}
+
+pub struct LdtkLevelBackgroundPosition {
+  crop_x : Double
+  crop_y : Double
+  crop_width : Double
+  crop_height : Double
+  scale : @math.Vec2D
+  top_left_px : @math.Vec2D
 }
 
 pub enum LdtkLevelEvent {

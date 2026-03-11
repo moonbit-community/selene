@@ -118,7 +118,8 @@
 - `LdtkEntityInstance::field_tile(identifier)`: reads an entity field as typed `LdtkTilesetRect`.
 - `LdtkEntityInstance::field_tiles(identifier)`: reads an entity field as typed `Array[LdtkTilesetRect]`.
 - `LdtkLayerInstance`: parsed layer instance payload.
-- `LdtkLevel`: parsed level payload.
+- `LdtkLevelBackgroundPosition`: parsed level background placement payload (`crop_x`, `crop_y`, `crop_width`, `crop_height`, `scale`, `top_left_px`).
+- `LdtkLevel`: parsed level payload (including optional `bg_pos`).
 - `LdtkLevel::field(identifier)`: finds a level field instance by identifier.
 - `LdtkLevel::field_bool(identifier)`: reads a level field as `Bool`.
 - `LdtkLevel::field_int(identifier)`: reads a level field as `Int`.
@@ -269,7 +270,14 @@
 - `LdtkProject::enum_definition_by_identifier(...)` / `LdtkProject::enum_definition_by_uid(...)` now resolve both internal `defs.enums` and `defs.external_enums`.
 - `LdtkFieldInstance` parsing now preserves `defUid` into `def_uid` for direct field-definition UID lookups.
 - `spawn_ldtk_world(...)` tile rendering now resolves sprite-atlas source offsets using LDtk tileset `padding` and `spacing`; this resolved source is also stored in `ldtk_tile_metadata.src`.
+- `spawn_ldtk_world(...)` tile rendering now applies LDtk tile opacity by multiplying `layer.opacity * tile.alpha` into sprite animation draw alpha.
+- `spawn_ldtk_world(...)` level background-image rendering now applies LDtk `__bgPos` crop/scale/offset when present.
+- `spawn_ldtk_world(...)` layer z-ordering now follows LDtk display order semantics (`layerInstances[0]` is top-most), matching bevy_ecs_ldtk expectations.
 - `spawn_ldtk_world(...)` now runs registered hook registries (`ldtk_entity_spawn_hooks`, `ldtk_int_grid_layer_spawn_hooks`, `ldtk_int_grid_cell_spawn_hooks`) in addition to per-world spawn hooks.
+- `selene/sprite` `Animation` payload now carries per-animation draw color (`color`) instead of always forcing opaque white in render submission.
+- `Animation::new(...)` signature now accepts optional `color? : @render.Color`.
+- `Animation::single_frame(...)` signature now accepts optional `color? : @render.Color`.
+- `Animation::single_frame_from_image(...)` signature now accepts optional `color? : @render.Color`.
 
 ### Fixed
 

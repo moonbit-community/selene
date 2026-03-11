@@ -407,6 +407,27 @@ test "load_ldtk_project parses advanced field helpers for level and entity" {
 }
 
 ///|
+test "load_ldtk_project parses level background position" {
+  let files : Map[String, Bytes] = Map::new()
+  files.set(
+    "levels/world.ldtk",
+    ascii_bytes(
+      "{\"externalLevels\":false,\"defs\":{\"tilesets\":[]},\"levels\":[{\"identifier\":\"Main\",\"iid\":\"level-main\",\"uid\":1,\"worldX\":0,\"worldY\":0,\"pxWid\":64,\"pxHei\":32,\"__bgPos\":{\"cropRect\":[1,2,30,40],\"scale\":[1.5,2.0],\"topLeftPx\":[7,8]},\"layerInstances\":[]}]}",
+    ),
+  )
+  with_fake_asset_io(files, fn() raise {
+    let project = load_ldtk_project("levels/world.ldtk")
+    let bg_pos = project.levels[0].bg_pos.unwrap()
+    inspect(bg_pos.crop_x, content="1")
+    inspect(bg_pos.crop_y, content="2")
+    inspect(bg_pos.crop_width, content="30")
+    inspect(bg_pos.crop_height, content="40")
+    inspect(bg_pos.scale, content="Vec2D(1.5, 2)")
+    inspect(bg_pos.top_left_px, content="Vec2D(7, 8)")
+  })
+}
+
+///|
 test "ldtk_world_sync_system updates spawned levels from selection" {
   reset_ldtk_runtime()
   let project : LdtkProject = {
@@ -484,6 +505,14 @@ test "spawn_ldtk_world spawns level backgrounds from bg color and image" {
           px_wid: 64,
           px_hei: 32,
           bg_color: Some("#112233"),
+          bg_pos: Some({
+            crop_x: 3.0,
+            crop_y: 5.0,
+            crop_width: 20.0,
+            crop_height: 10.0,
+            scale: @math.Vec2D(2.0, 3.0),
+            top_left_px: @math.Vec2D(3.0, 5.0),
+          }),
           bg_rel_path: Some("assets/bg.png"),
         },
       ],
@@ -497,6 +526,24 @@ test "spawn_ldtk_world spawns level backgrounds from bg color and image" {
     inspect(ldtk_level_backgrounds.to_array().length(), content="2")
     for pair in ldtk_level_backgrounds.to_array() {
       inspect(@sprite.sprites.contains(pair.0), content="true")
+    }
+    let mut image_background_entity : @entity.Entity? = None
+    for pair in ldtk_level_backgrounds.to_array() {
+      if pair.1.level_iid == "level-main" && pair.1.rel_path is Some(_) {
+        image_background_entity = Some(pair.0)
+      }
+    }
+    let background_entity = image_background_entity.unwrap()
+    let background_sprite = @sprite.sprites.get(background_entity).unwrap()
+    match background_sprite.sprite_type {
+      Animation(animation, frame=_) => {
+        inspect(animation.frames[0].offset, content="Vec2D(3, 5)")
+        inspect(animation.frames[0].size, content="Vec2D(20, 10)")
+        let (scale_x, scale_y) = animation.transform.get_scale()
+        inspect(scale_x, content="2")
+        inspect(scale_y, content="3")
+      }
+      _ => fail("expected level background image to use animation sprite")
     }
     cleanup_ldtk_entity(world)
     inspect(ldtk_level_backgrounds.to_array().length(), content="0")
@@ -790,6 +837,96 @@ test "ldtk tile source uses tileset spacing and padding" {
 }
 
 ///|
+test "ldtk tile render alpha multiplies layer opacity and tile alpha" {
+  reset_ldtk_runtime()
+  let files : Map[String, Bytes] = Map::new()
+  files.set("assets/tiles.png", ascii_bytes("png"))
+  with_fake_asset_io(files, fn() raise {
+    let project : LdtkProject = {
+      source_path: Some("project.ldtk"),
+      external_levels: false,
+      world_layout: None,
+      bg_color: None,
+      default_level_width: Some(1),
+      default_level_height: Some(1),
+      defs: {
+        tilesets: [
+          {
+            uid: 1,
+            identifier: "main",
+            rel_path: Some("assets/tiles.png"),
+            tile_grid_size: 16,
+            px_wid: 16,
+            px_hei: 16,
+            spacing: 0,
+            padding: 0,
+          },
+        ],
+        layers: [],
+        entities: [],
+        enums: [],
+        external_enums: [],
+      },
+      levels: [
+        {
+          ..empty_ldtk_level(),
+          identifier: "Main",
+          iid: "level-main",
+          uid: 1,
+          layer_instances: [
+            {
+              iid: "layer-tiles",
+              identifier: "Tiles",
+              layer_type: "Tiles",
+              level_id: 1,
+              layer_def_uid: 0,
+              c_wid: 1,
+              c_hei: 1,
+              grid_size: 16,
+              opacity: 0.4,
+              visible: true,
+              optional_rules: [],
+              override_tileset_uid: None,
+              px_offset_x: 0,
+              px_offset_y: 0,
+              px_total_offset_x: 0,
+              px_total_offset_y: 0,
+              seed: 0,
+              tileset_def_uid: Some(1),
+              tileset_rel_path: None,
+              int_grid_csv: [],
+              auto_layer_tiles: [],
+              grid_tiles: [
+                {
+                  tile_id: 0,
+                  src: @math.Vec2D::zero(),
+                  px: @math.Vec2D::zero(),
+                  flip_x: false,
+                  flip_y: false,
+                  alpha: 0.5,
+                },
+              ],
+              entity_instances: [],
+            },
+          ],
+        },
+      ],
+      worlds: [],
+    }
+    set_ldtk_settings(default_ldtk_settings())
+    set_ldtk_level_selection(ldtk_level_selection_index(0))
+    let world = spawn_ldtk_world(project)
+    let tile_entity = ldtk_spawned_tile_instances.to_array()[0].0
+    let sprite = @sprite.sprites.get(tile_entity).unwrap()
+    match sprite.sprite_type {
+      Animation(animation, frame=_) => inspect(animation.color.a, content="0.2")
+      _ => fail("expected animation sprite for LDtk tile")
+    }
+    cleanup_ldtk_entity(world)
+  })
+}
+
+///|
 test "ldtk entity spawn hook applies by identifier" {
   reset_ldtk_runtime()
   let project = test_project_with_layers("level-main", [test_entity_layer([
@@ -866,6 +1003,97 @@ test "ldtk intgrid spawn hooks apply by layer and cell value" {
   let value_2_entity = cell_value_2.unwrap()
   inspect(ldtk_int_grid_colliders.get(value_1_entity).unwrap().sensor, content="false")
   inspect(ldtk_int_grid_colliders.get(value_2_entity).unwrap().sensor, content="true")
+
+  cleanup_ldtk_entity(world)
+}
+
+///|
+test "ldtk layer display order uses LDtk top-most first ordering" {
+  reset_ldtk_runtime()
+  let project : LdtkProject = {
+    source_path: None,
+    external_levels: false,
+    world_layout: None,
+    bg_color: None,
+    default_level_width: Some(1),
+    default_level_height: Some(1),
+    defs: empty_ldtk_project_definitions(),
+    levels: [
+      {
+        ..empty_ldtk_level(),
+        identifier: "Main",
+        iid: "level-main",
+        uid: 1,
+        layer_instances: [
+          {
+            iid: "layer-top",
+            identifier: "Top",
+            layer_type: "Entities",
+            level_id: 1,
+            layer_def_uid: 0,
+            c_wid: 1,
+            c_hei: 1,
+            grid_size: 16,
+            opacity: 1.0,
+            visible: true,
+            optional_rules: [],
+            override_tileset_uid: None,
+            px_offset_x: 0,
+            px_offset_y: 0,
+            px_total_offset_x: 0,
+            px_total_offset_y: 0,
+            seed: 0,
+            tileset_def_uid: None,
+            tileset_rel_path: None,
+            int_grid_csv: [],
+            auto_layer_tiles: [],
+            grid_tiles: [],
+            entity_instances: [],
+          },
+          {
+            iid: "layer-bottom",
+            identifier: "Bottom",
+            layer_type: "Entities",
+            level_id: 1,
+            layer_def_uid: 0,
+            c_wid: 1,
+            c_hei: 1,
+            grid_size: 16,
+            opacity: 1.0,
+            visible: true,
+            optional_rules: [],
+            override_tileset_uid: None,
+            px_offset_x: 0,
+            px_offset_y: 0,
+            px_total_offset_x: 0,
+            px_total_offset_y: 0,
+            seed: 0,
+            tileset_def_uid: None,
+            tileset_rel_path: None,
+            int_grid_csv: [],
+            auto_layer_tiles: [],
+            grid_tiles: [],
+            entity_instances: [],
+          },
+        ],
+      },
+    ],
+    worlds: [],
+  }
+  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_level_selection(ldtk_level_selection_index(0))
+  let world = spawn_ldtk_world(project)
+  let mut top_zindex = 0
+  let mut bottom_zindex = 0
+  for pair in ldtk_spawned_layer_instances.to_array() {
+    let runtime = pair.1
+    if runtime.layer.identifier == "Top" {
+      top_zindex = runtime.zindex
+    } else if runtime.layer.identifier == "Bottom" {
+      bottom_zindex = runtime.zindex
+    }
+  }
+  inspect(top_zindex > bottom_zindex, content="true")
 
   cleanup_ldtk_entity(world)
 }

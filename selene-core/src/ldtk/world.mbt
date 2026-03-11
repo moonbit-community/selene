@@ -611,7 +611,25 @@ fn ldtk_spawn_level_background(
     let background_entity = level_entity.spawn_child(offset=@math.Vec2D::zero())
     @transform.positions.set(background_entity, @math.Vec2D::zero())
     let image = @asset2.load_image(instance.project.resolve_path(rel_path))
-    let animation = @sprite.Animation::single_frame_from_image(image, size)
+    let mut image_size = size
+    let mut image_offset = @math.Vec2D::zero()
+    let mut image_transform = @math.Transform::identity()
+    if level.bg_pos is Some(bg_pos) {
+      image_offset = bg_pos.top_left_px
+      if bg_pos.crop_width > 0.0 && bg_pos.crop_height > 0.0 {
+        image_size = @math.Vec2D(bg_pos.crop_width, bg_pos.crop_height)
+      }
+      image_transform = @math.Transform::from_scale(
+        bg_pos.scale[X],
+        bg_pos.scale[Y],
+      )
+    }
+    let animation = @sprite.Animation::single_frame_from_image(
+      image,
+      image_size,
+      transform=image_transform,
+      offset=image_offset,
+    )
     let sprite = @sprite.Sprite::from_animation(animation, zindex)
     sprite.visible = true
     @sprite.sprites.set(background_entity, sprite)
@@ -634,7 +652,7 @@ fn ldtk_spawn_level_layers(
   level_offset : @math.Vec2D,
   instance : LdtkWorldInstance,
 ) -> Unit {
-  let mut layer_index = 0
+  let spawnable_layers : Array[LdtkLayerInstance] = []
   for layer in level.layer_instances {
     let layer_identifier = layer.identifier
     if ldtk_settings.val.spawn_exclusions.excludes_layer(layer_identifier) {
@@ -644,9 +662,14 @@ fn ldtk_spawn_level_layers(
     if !instance.settings.spawn_hidden_layers && !effective_visible {
       continue
     }
+    spawnable_layers.push(layer)
+  }
+  let spawn_count = spawnable_layers.length()
+  for layer_index, layer in spawnable_layers {
+    let effective_visible = layer.visible
+    let z_order = spawn_count - 1 - layer_index
     let layer_zindex = ldtk_level_zindex(level_entity, instance.settings) +
-      layer_index * instance.settings.layer_z_step
-    layer_index += 1
+      z_order * instance.settings.layer_z_step
     let layer_offset = @math.Vec2D(
       layer.px_total_offset_x.to_double(),
       layer.px_total_offset_y.to_double(),
@@ -740,6 +763,7 @@ fn ldtk_spawn_layer_tiles(
     return
   }
   for tile in tiles {
+    let render_alpha = ldtk_clamp_alpha(layer.opacity * tile.alpha)
     let tile_src = ldtk_tile_source(instance.project, layer, tile)
     let tile_entity = layer_entity.spawn_child(offset=tile.px)
     @transform.positions.set(tile_entity, @math.Vec2D::zero())
@@ -773,6 +797,7 @@ fn ldtk_spawn_layer_tiles(
       loop_=false,
       fps=0.0,
       transform=ldtk_tile_transform(tile, tile_size),
+      color={ r: 255U, g: 255U, b: 255U, a: render_alpha },
     )
     let sprite = @sprite.Sprite::from_animation(animation, zindex)
     sprite.visible = visible
@@ -890,7 +915,8 @@ fn ldtk_spawn_int_grid_cells(
     let color = instance.project.int_grid_color(layer.identifier, value).unwrap_or(
       "rgba(255,255,255,0.2)",
     )
-    let rect = @sprite.ColorRect::new(@math.Vec2D(grid_size, grid_size), color)
+    let render_color = ldtk_color_with_alpha(color, layer.opacity)
+    let rect = @sprite.ColorRect::new(@math.Vec2D(grid_size, grid_size), render_color)
     let sprite = @sprite.Sprite::from_color_rect(rect, zindex)
     sprite.visible = visible
     @sprite.sprites.set(cell_entity, sprite)
@@ -1365,4 +1391,119 @@ fn ldtk_int_grid_cell_spawn_hook_key(
   value : Int,
 ) -> String {
   "\{layer_identifier}#\{value}"
+}
+
+///|
+fn ldtk_clamp_alpha(alpha : Double) -> Double {
+  if alpha < 0.0 {
+    0.0
+  } else if alpha > 1.0 {
+    1.0
+  } else {
+    alpha
+  }
+}
+
+///|
+fn ldtk_color_with_alpha(color : String, alpha : Double) -> String {
+  let clamped_alpha = ldtk_clamp_alpha(alpha)
+  if clamped_alpha >= 0.999999 {
+    return color
+  }
+  let normalized = color.trim().to_string()
+  if normalized.has_prefix("#") {
+    return ldtk_hex_color_with_alpha(normalized, clamped_alpha).unwrap_or(color)
+  }
+  if normalized.has_prefix("rgba(") && normalized.has_suffix(")") {
+    return ldtk_rgba_color_with_alpha(normalized, clamped_alpha).unwrap_or(color)
+  }
+  if normalized.has_prefix("rgb(") && normalized.has_suffix(")") {
+    return ldtk_rgb_color_with_alpha(normalized, clamped_alpha).unwrap_or(color)
+  }
+  color
+}
+
+///|
+fn ldtk_hex_color_with_alpha(color : String, alpha : Double) -> String? {
+  let hex = color.unsafe_substring(start=1, end=color.length())
+  if hex.length() != 6 && hex.length() != 8 {
+    return None
+  }
+  guard ldtk_hex_pair_to_int(hex, 0) is Some(red) else { return None }
+  guard ldtk_hex_pair_to_int(hex, 2) is Some(green) else { return None }
+  guard ldtk_hex_pair_to_int(hex, 4) is Some(blue) else { return None }
+  let base_alpha = if hex.length() == 8 {
+    ldtk_hex_pair_to_int(hex, 6).map(value => value.to_double() / 255.0).unwrap_or(1.0)
+  } else {
+    1.0
+  }
+  let final_alpha = ldtk_clamp_alpha(alpha * base_alpha)
+  Some("rgba(\{red},\{green},\{blue},\{final_alpha})")
+}
+
+///|
+fn ldtk_rgb_color_with_alpha(color : String, alpha : Double) -> String? {
+  let body = color.unsafe_substring(start=4, end=color.length() - 1)
+  let values = body.split(",").to_array()
+  if values.length() != 3 {
+    return None
+  }
+  guard ldtk_parse_color_channel(values[0]) is Some(red) else { return None }
+  guard ldtk_parse_color_channel(values[1]) is Some(green) else { return None }
+  guard ldtk_parse_color_channel(values[2]) is Some(blue) else { return None }
+  Some("rgba(\{red},\{green},\{blue},\{ldtk_clamp_alpha(alpha)})")
+}
+
+///|
+fn ldtk_rgba_color_with_alpha(color : String, alpha : Double) -> String? {
+  let body = color.unsafe_substring(start=5, end=color.length() - 1)
+  let values = body.split(",").to_array()
+  if values.length() != 4 {
+    return None
+  }
+  guard ldtk_parse_color_channel(values[0]) is Some(red) else { return None }
+  guard ldtk_parse_color_channel(values[1]) is Some(green) else { return None }
+  guard ldtk_parse_color_channel(values[2]) is Some(blue) else { return None }
+  guard ldtk_parse_alpha_channel(values[3]) is Some(base_alpha) else { return None }
+  Some("rgba(\{red},\{green},\{blue},\{ldtk_clamp_alpha(alpha * base_alpha)})")
+}
+
+///|
+fn ldtk_parse_color_channel(source : StringView) -> Int? {
+  let trimmed = source.trim()
+  let parsed : Result[Int, Error] = try? @strconv.parse_int(trimmed, base=10)
+  match parsed {
+    Ok(value) =>
+      Some(if value < 0 {
+        0
+      } else if value > 255 {
+        255
+      } else {
+        value
+      })
+    Err(_) => None
+  }
+}
+
+///|
+fn ldtk_parse_alpha_channel(source : StringView) -> Double? {
+  let trimmed = source.trim()
+  let parsed : Result[Double, Error] = try? @strconv.parse_double(trimmed)
+  match parsed {
+    Ok(value) => Some(ldtk_clamp_alpha(value))
+    Err(_) => None
+  }
+}
+
+///|
+fn ldtk_hex_pair_to_int(hex : String, index : Int) -> Int? {
+  if index < 0 || index + 2 > hex.length() {
+    return None
+  }
+  let pair = hex.unsafe_substring(start=index, end=index + 2)
+  let parsed : Result[Int, Error] = try? @strconv.parse_int(pair, base=16)
+  match parsed {
+    Ok(value) => Some(value)
+    Err(_) => None
+  }
 }
