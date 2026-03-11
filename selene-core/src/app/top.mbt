@@ -331,7 +331,11 @@ pub fn App::run(self : App) -> Unit {
   }
 
   @ecs.set_current_world(self.world)
-  @system.configure_display(self.viewport_width, self.viewport_height, self.zoom)
+  @system.configure_display(
+    self.viewport_width,
+    self.viewport_height,
+    self.zoom,
+  )
   let screen_width = self.viewport_width * self.zoom
   let screen_height = self.viewport_height * self.zoom
   for plugin in self.plugins {

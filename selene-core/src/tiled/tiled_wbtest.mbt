@@ -647,7 +647,8 @@ test "spawn_tiled_map applies physics body and material properties" {
       content="true",
     )
     inspect(
-      @physics2d.rigid_bodies().get(dynamic_entity).unwrap().gravity_scale == 0.5,
+      @physics2d.rigid_bodies().get(dynamic_entity).unwrap().gravity_scale ==
+      0.5,
       content="true",
     )
     inspect(

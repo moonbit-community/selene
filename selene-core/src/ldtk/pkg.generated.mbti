@@ -96,19 +96,19 @@ pub fn empty_ldtk_tileset_rect() -> LdtkTilesetRect
 
 pub fn ldtk_entity_by_iid(@entity.Entity, String) -> @entity.Entity?
 
-pub let ldtk_entity_default_spawn_hook : @ref.Ref[((LdtkEntitySpawnedEvent) -> Unit)?]
+pub fn ldtk_entity_default_spawn_hook() -> @ref.Ref[((LdtkEntitySpawnedEvent) -> Unit)?]
 
-pub let ldtk_entity_iids : Map[@entity.Entity, LdtkEntityIid]
+pub fn ldtk_entity_iids() -> Map[@entity.Entity, LdtkEntityIid]
 
-pub let ldtk_entity_layer_identifier_spawn_hooks : Map[String, (LdtkEntitySpawnedEvent) -> Unit]
+pub fn ldtk_entity_layer_identifier_spawn_hooks() -> Map[String, (LdtkEntitySpawnedEvent) -> Unit]
 
-pub let ldtk_entity_layer_spawn_hooks : Map[String, (LdtkEntitySpawnedEvent) -> Unit]
+pub fn ldtk_entity_layer_spawn_hooks() -> Map[String, (LdtkEntitySpawnedEvent) -> Unit]
 
-pub let ldtk_entity_spawn_hooks : Map[String, (LdtkEntitySpawnedEvent) -> Unit]
+pub fn ldtk_entity_spawn_hooks() -> Map[String, (LdtkEntitySpawnedEvent) -> Unit]
 
 pub let ldtk_entity_spawned_event_bus : @event.Events[LdtkEntitySpawnedEvent]
 
-pub let ldtk_entity_typed_registrations : Map[String, (LdtkEntitySpawnedEvent) -> Unit]
+pub fn ldtk_entity_typed_registrations() -> Map[String, (LdtkEntitySpawnedEvent) -> Unit]
 
 pub fn ldtk_field_bool(Array[LdtkFieldInstance], String) -> Bool?
 
@@ -156,41 +156,41 @@ pub fn ldtk_field_vec2(Array[LdtkFieldInstance], String) -> @math.Vec2D?
 
 pub fn ldtk_field_vec2_array(Array[LdtkFieldInstance], String) -> Array[@math.Vec2D]?
 
-pub let ldtk_grid_coords : Map[@entity.Entity, LdtkGridCoords]
+pub fn ldtk_grid_coords() -> Map[@entity.Entity, LdtkGridCoords]
 
-pub let ldtk_int_cell_typed_registrations : Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]
+pub fn ldtk_int_cell_typed_registrations() -> Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]
 
-pub let ldtk_int_grid_cell_spawn_hooks : Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]
+pub fn ldtk_int_grid_cell_spawn_hooks() -> Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]
 
 pub let ldtk_int_grid_cell_spawned_event_bus : @event.Events[LdtkIntGridCellSpawnedEvent]
 
-pub let ldtk_int_grid_cells : Map[@entity.Entity, LdtkIntGridCell]
+pub fn ldtk_int_grid_cells() -> Map[@entity.Entity, LdtkIntGridCell]
 
 pub let ldtk_int_grid_collider_spawned_event_bus : @event.Events[LdtkIntGridColliderSpawnedEvent]
 
-pub let ldtk_int_grid_colliders : Map[@entity.Entity, LdtkIntGridCollider]
+pub fn ldtk_int_grid_colliders() -> Map[@entity.Entity, LdtkIntGridCollider]
 
-pub let ldtk_int_grid_default_spawn_hook : @ref.Ref[((LdtkIntGridCellSpawnedEvent) -> Unit)?]
+pub fn ldtk_int_grid_default_spawn_hook() -> @ref.Ref[((LdtkIntGridCellSpawnedEvent) -> Unit)?]
 
-pub let ldtk_int_grid_layer_spawn_hooks : Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]
+pub fn ldtk_int_grid_layer_spawn_hooks() -> Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]
 
 pub let ldtk_int_grid_physics_settings : @ref.Ref[LdtkIntGridPhysicsSettings]
 
-pub let ldtk_int_grid_value_spawn_hooks : Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]
+pub fn ldtk_int_grid_value_spawn_hooks() -> Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]
 
-pub let ldtk_layer_metadata : Map[@entity.Entity, LdtkLayerMetadata]
+pub fn ldtk_layer_metadata() -> Map[@entity.Entity, LdtkLayerMetadata]
 
 pub let ldtk_layer_spawned_event_bus : @event.Events[LdtkLayerSpawnedEvent]
 
-pub let ldtk_level_backgrounds : Map[@entity.Entity, LdtkLevelBackground]
+pub fn ldtk_level_backgrounds() -> Map[@entity.Entity, LdtkLevelBackground]
 
 pub fn ldtk_level_entity(@entity.Entity, String) -> @entity.Entity?
 
 pub let ldtk_level_event_bus : @event.Events[LdtkLevelEvent]
 
-pub let ldtk_level_iids : Map[@entity.Entity, LdtkLevelIid]
+pub fn ldtk_level_iids() -> Map[@entity.Entity, LdtkLevelIid]
 
-pub let ldtk_level_instances : Map[@entity.Entity, LdtkLevelInstance]
+pub fn ldtk_level_instances() -> Map[@entity.Entity, LdtkLevelInstance]
 
 pub let ldtk_level_selection : @ref.Ref[LdtkLevelSelection]
 
@@ -212,31 +212,31 @@ pub fn ldtk_level_spawn_behavior_world_translation(Bool) -> LdtkLevelSpawnBehavi
 
 pub let ldtk_level_spawned_event_bus : @event.Events[LdtkLevelSpawnedEvent]
 
-pub let ldtk_pending_transformed_level_iids : Map[String, Bool]
+pub fn ldtk_pending_transformed_level_iids() -> Map[String, Bool]
 
-pub let ldtk_respawns : Map[@entity.Entity, LdtkRespawn]
+pub fn ldtk_respawns() -> Map[@entity.Entity, LdtkRespawn]
 
 pub let ldtk_settings : @ref.Ref[LdtkSettings]
 
-pub let ldtk_spawned_entity_instances : Map[@entity.Entity, LdtkSpawnedEntityInstance]
+pub fn ldtk_spawned_entity_instances() -> Map[@entity.Entity, LdtkSpawnedEntityInstance]
 
-pub let ldtk_spawned_int_grid_cells : Map[@entity.Entity, LdtkSpawnedIntGridCell]
+pub fn ldtk_spawned_int_grid_cells() -> Map[@entity.Entity, LdtkSpawnedIntGridCell]
 
-pub let ldtk_spawned_layer_instances : Map[@entity.Entity, LdtkSpawnedLayerInstance]
+pub fn ldtk_spawned_layer_instances() -> Map[@entity.Entity, LdtkSpawnedLayerInstance]
 
-pub let ldtk_spawned_tile_instances : Map[@entity.Entity, LdtkSpawnedTileInstance]
+pub fn ldtk_spawned_tile_instances() -> Map[@entity.Entity, LdtkSpawnedTileInstance]
 
-pub let ldtk_tile_metadata : Map[@entity.Entity, LdtkTileMetadata]
+pub fn ldtk_tile_metadata() -> Map[@entity.Entity, LdtkTileMetadata]
 
 pub let ldtk_tile_spawned_event_bus : @event.Events[LdtkTileSpawnedEvent]
 
-pub let ldtk_world_instances : Map[@entity.Entity, LdtkWorldInstance]
+pub fn ldtk_world_instances() -> Map[@entity.Entity, LdtkWorldInstance]
 
 pub let ldtk_world_spawned_event_bus : @event.Events[LdtkWorldSpawnedEvent]
 
 pub fn ldtk_world_sync_system(Double) -> Unit
 
-pub let ldtk_worldly_entities : Map[@entity.Entity, LdtkWorldly]
+pub fn ldtk_worldly_entities() -> Map[@entity.Entity, LdtkWorldly]
 
 pub fn ldtk_worldly_entity(@entity.Entity, String) -> @entity.Entity?
 

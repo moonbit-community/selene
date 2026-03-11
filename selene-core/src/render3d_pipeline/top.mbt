@@ -18,7 +18,9 @@ let prepared_frame3d_by_world : Map[UInt, @render3d.RenderFrame3D] = Map::new()
 ///|
 fn prepared_frame3d() -> @render3d.RenderFrame3D {
   let world_id = @ecs.require_current_world().id()
-  prepared_frame3d_by_world.get_or_init(world_id, @render3d.empty_render_frame3d)
+  prepared_frame3d_by_world.get_or_init(
+    world_id, @render3d.empty_render_frame3d,
+  )
 }
 
 ///|

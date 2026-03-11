@@ -219,7 +219,9 @@ pub fn tiled_world_chunking_system(_delta : Double) -> Unit {
     if !entity.is_alive() {
       continue
     }
-    guard tiled_world_instances().get(entity) is Some(instance) else { continue }
+    guard tiled_world_instances().get(entity) is Some(instance) else {
+      continue
+    }
     if instance.settings.chunking is Some(_) {
       tiled_world_update_chunking(entity)
     }

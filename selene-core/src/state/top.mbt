@@ -94,7 +94,8 @@ pub fn[T : Eq] in_state_eq(state : State[T], value : T) -> () -> Bool {
 pub fn[T] on_enter(state : State[T], predicate : (T) -> Bool) -> () -> Bool {
   fn() {
     let runtime = state_runtime(state.world_id)
-    state.changed_serial.val == runtime.frame_serial && predicate(state.current.val)
+    state.changed_serial.val == runtime.frame_serial &&
+    predicate(state.current.val)
   }
 }
 

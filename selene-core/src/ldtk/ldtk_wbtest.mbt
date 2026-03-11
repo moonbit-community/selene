@@ -2368,7 +2368,10 @@ test "despawn_ldtk_tree clears intgrid runtime maps and physics components" {
   inspect(ldtk_world_instances().contains(world), content="false")
   inspect(ldtk_level_instances().contains(level_entity), content="false")
   inspect(ldtk_level_iids().contains(level_entity), content="false")
-  inspect(ldtk_spawned_layer_instances().contains(layer_entity), content="false")
+  inspect(
+    ldtk_spawned_layer_instances().contains(layer_entity),
+    content="false",
+  )
   inspect(ldtk_grid_coords().contains(cell_entity), content="false")
   inspect(ldtk_int_grid_cells().contains(cell_entity), content="false")
   inspect(ldtk_int_grid_colliders().contains(cell_entity), content="false")
@@ -2426,7 +2429,10 @@ test "reset_ldtk_runtime clears runtime maps and intgrid physics components" {
   inspect(ldtk_int_grid_default_spawn_hook().val is None, content="true")
   inspect(ldtk_entity_typed_registrations().to_array().length(), content="0")
   inspect(ldtk_int_cell_typed_registrations().to_array().length(), content="0")
-  inspect(ldtk_pending_transformed_level_iids().to_array().length(), content="0")
+  inspect(
+    ldtk_pending_transformed_level_iids().to_array().length(),
+    content="0",
+  )
   inspect(@physics2d.colliders().contains(cell_entity), content="false")
   inspect(@physics2d.shapes().contains(cell_entity), content="false")
   inspect(@physics2d.areas().contains(cell_entity), content="false")

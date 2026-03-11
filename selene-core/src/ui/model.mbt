@@ -829,7 +829,10 @@ pub fn override_clips() -> Map[@entity.Entity, OverrideClip] {
 }
 
 ///|
-pub fn relative_cursor_positions() -> Map[@entity.Entity, RelativeCursorPosition] {
+pub fn relative_cursor_positions() -> Map[
+  @entity.Entity,
+  RelativeCursorPosition,
+] {
   ui_model_world_store().relative_cursor_positions
 }
 

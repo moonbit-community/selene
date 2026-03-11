@@ -171,7 +171,10 @@ pub fn tiled_object_instances() -> Map[@entity.Entity, TiledObjectInstance] {
 }
 
 ///|
-pub fn tiled_image_layer_instances() -> Map[@entity.Entity, TiledImageLayerInstance] {
+pub fn tiled_image_layer_instances() -> Map[
+  @entity.Entity,
+  TiledImageLayerInstance,
+] {
   tiled_ecs_world_store().tiled_image_layer_instances
 }
 

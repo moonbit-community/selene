@@ -111,7 +111,9 @@ fn hit_test_pickable(
       transform.screen_rect.size,
     )
   }
-  guard @position.positions().get(entity) is Some(position) else { return false }
+  guard @position.positions().get(entity) is Some(position) else {
+    return false
+  }
   guard shapes().get(entity) is Some(shape) else { return false }
   guard shape is Rect(size~, offset~) else { return false }
   let shape_position = position.0 + offset

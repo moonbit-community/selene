@@ -16,7 +16,7 @@ pub fn advanced_mouse_system(Double) -> Unit
 
 pub fn apply_input_snapshot(InputSnapshot) -> Unit
 
-pub let connected_gamepads : @set.Set[Gamepad]
+pub fn connected_gamepads() -> @set.Set[Gamepad]
 
 pub fn empty_input_snapshot() -> InputSnapshot
 
@@ -24,7 +24,7 @@ pub let gamepad_axis_event_bus : @event.Events[GamepadAxisEvent]
 
 pub fn gamepad_axis_value(Gamepad, GamepadAxis) -> Double
 
-pub let gamepad_axis_values : Map[GamepadAxisInput, Double]
+pub fn gamepad_axis_values() -> Map[GamepadAxisInput, Double]
 
 pub let gamepad_button_event_bus : @event.Events[GamepadButtonEvent]
 
@@ -66,17 +66,17 @@ pub fn is_pressed(Code) -> Bool
 
 pub fn is_released(Code) -> Bool
 
-pub let just_connected_gamepads : @set.Set[Gamepad]
+pub fn just_connected_gamepads() -> @set.Set[Gamepad]
 
-pub let just_disconnected_gamepads : @set.Set[Gamepad]
+pub fn just_disconnected_gamepads() -> @set.Set[Gamepad]
 
-pub let just_pressed_gamepad_buttons : @set.Set[GamepadButtonInput]
+pub fn just_pressed_gamepad_buttons() -> @set.Set[GamepadButtonInput]
 
 pub let just_pressed_mouse : Mouse
 
 pub let just_release_mouse : Mouse
 
-pub let just_released_gamepad_buttons : @set.Set[GamepadButtonInput]
+pub fn just_released_gamepad_buttons() -> @set.Set[GamepadButtonInput]
 
 pub let key_input_event_bus : @event.Events[KeyInputEvent]
 
@@ -94,7 +94,7 @@ pub let mouse_wheel : MouseWheel
 
 pub let mouse_wheel_event_bus : @event.Events[MouseWheelEvent]
 
-pub let pressed_gamepad_buttons : @set.Set[GamepadButtonInput]
+pub fn pressed_gamepad_buttons() -> @set.Set[GamepadButtonInput]
 
 pub let pressed_keys : @set.Set[Code]
 

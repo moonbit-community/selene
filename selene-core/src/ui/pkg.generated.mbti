@@ -29,23 +29,23 @@ pub fn align_content_start() -> AlignContent
 
 pub fn align_content_stretch() -> AlignContent
 
-pub let background_colors : Map[@entity.Entity, BackgroundColor]
+pub fn background_colors() -> Map[@entity.Entity, BackgroundColor]
 
 pub fn blur() -> Unit
 
-pub let border_colors : Map[@entity.Entity, BorderColor]
+pub fn border_colors() -> Map[@entity.Entity, BorderColor]
 
-pub let border_radii : Map[@entity.Entity, BorderRadius]
+pub fn border_radii() -> Map[@entity.Entity, BorderRadius]
 
-pub let box_shadows : Map[@entity.Entity, BoxShadow]
+pub fn box_shadows() -> Map[@entity.Entity, BoxShadow]
 
-pub let buttons : Map[@entity.Entity, Button]
+pub fn buttons() -> Map[@entity.Entity, Button]
 
-pub let calculated_clips : Map[@entity.Entity, CalculatedClip]
+pub fn calculated_clips() -> Map[@entity.Entity, CalculatedClip]
 
 pub let click_event_bus : @event.Events[UiClickEvent]
 
-pub let computed_ui_nodes : Map[@entity.Entity, ComputedUiNode]
+pub fn computed_ui_nodes() -> Map[@entity.Entity, ComputedUiNode]
 
 pub fn default_overflow_clip_margin() -> OverflowClipMargin
 
@@ -67,19 +67,19 @@ pub let focus_in_event_bus : @event.Events[UiFocusInEvent]
 
 pub let focus_out_event_bus : @event.Events[UiFocusOutEvent]
 
-pub let focus_policies : Map[@entity.Entity, FocusPolicy]
+pub fn focus_policies() -> Map[@entity.Entity, FocusPolicy]
 
-pub let focusables : Map[@entity.Entity, Focusable]
+pub fn focusables() -> Map[@entity.Entity, Focusable]
 
 pub fn focused_entity() -> @entity.Entity?
 
-pub let focuseds : Map[@entity.Entity, Focused]
+pub fn focuseds() -> Map[@entity.Entity, Focused]
 
 pub fn get_ui_scale_mode() -> UiScaleMode
 
-pub let global_ui_nodes : Map[@entity.Entity, GlobalUiNode]
+pub fn global_ui_nodes() -> Map[@entity.Entity, GlobalUiNode]
 
-pub let global_zindexes : Map[@entity.Entity, GlobalZIndex]
+pub fn global_zindexes() -> Map[@entity.Entity, GlobalZIndex]
 
 pub fn grid_auto() -> GridTrack
 
@@ -121,21 +121,21 @@ pub fn grid_span(Int) -> GridPlacement
 
 pub fn hovered_entity() -> @entity.Entity?
 
-pub let interactions : Map[@entity.Entity, Interaction]
+pub fn interactions() -> Map[@entity.Entity, Interaction]
 
 pub fn is_ui_entity(@entity.Entity) -> Bool
 
-pub let layout_configs : Map[@entity.Entity, LayoutConfig]
+pub fn layout_configs() -> Map[@entity.Entity, LayoutConfig]
 
-pub let material_nodes : Map[@entity.Entity, MaterialNode]
+pub fn material_nodes() -> Map[@entity.Entity, MaterialNode]
 
 pub let navigation_event_bus : @event.Events[UiNavigationEvent]
 
-pub let nodes : Map[@entity.Entity, Node]
+pub fn nodes() -> Map[@entity.Entity, Node]
 
-pub let outlines : Map[@entity.Entity, Outline]
+pub fn outlines() -> Map[@entity.Entity, Outline]
 
-pub let override_clips : Map[@entity.Entity, OverrideClip]
+pub fn override_clips() -> Map[@entity.Entity, OverrideClip]
 
 pub fn parse_color(String) -> @render.Color
 
@@ -149,31 +149,31 @@ pub let pointer_up_event_bus : @event.Events[UiPointerUpEvent]
 
 pub fn register_ui_material_asset(UiMaterialAsset) -> UiMaterialHandle
 
-pub let relative_cursor_positions : Map[@entity.Entity, RelativeCursorPosition]
+pub fn relative_cursor_positions() -> Map[@entity.Entity, RelativeCursorPosition]
 
 pub fn release_ui_material_asset(UiMaterialHandle) -> Unit
 
 pub fn rgba(Int, Int, Int, Double) -> @render.Color
 
-pub let scroll_positions : Map[@entity.Entity, ScrollPosition]
+pub fn scroll_positions() -> Map[@entity.Entity, ScrollPosition]
 
 pub fn set_ui_scale_mode(UiScaleMode) -> Unit
 
-pub let tab_indexes : Map[@entity.Entity, TabIndex]
+pub fn tab_indexes() -> Map[@entity.Entity, TabIndex]
 
-pub let text_colors : Map[@entity.Entity, TextColor]
+pub fn text_colors() -> Map[@entity.Entity, TextColor]
 
-pub let text_fonts : Map[@entity.Entity, TextFont]
+pub fn text_fonts() -> Map[@entity.Entity, TextFont]
 
-pub let text_layouts : Map[@entity.Entity, TextLayout]
+pub fn text_layouts() -> Map[@entity.Entity, TextLayout]
 
-pub let texts : Map[@entity.Entity, Text]
+pub fn texts() -> Map[@entity.Entity, Text]
 
 pub fn transparent() -> @render.Color
 
 pub fn ui_extract_system(Double) -> Unit
 
-pub let ui_images : Map[@entity.Entity, UiImage]
+pub fn ui_images() -> Map[@entity.Entity, UiImage]
 
 pub fn ui_interaction_system(Double) -> Unit
 
@@ -185,7 +185,7 @@ pub fn ui_prepare_system(Double) -> Unit
 
 pub fn update_ui_material_asset(UiMaterialHandle, UiMaterialAsset) -> Unit
 
-pub let z_indexes : Map[@entity.Entity, ZIndex]
+pub fn z_indexes() -> Map[@entity.Entity, ZIndex]
 
 // Errors
 

@@ -34,17 +34,16 @@ pub(all) struct QueryDelta[T] {
 }
 
 ///|
-pub fn[T] query(world : @ecs.World, storage : Map[@entity.Entity, T]) -> Query[T] {
+pub fn[T] query(
+  world : @ecs.World,
+  storage : Map[@entity.Entity, T],
+) -> Query[T] {
   { world, storage }
 }
 
 ///|
 pub fn[T] QueryReader::new() -> QueryReader[T] {
-  {
-    entities: @set.Set::new(),
-    entries: Map::new(),
-    initialized: false,
-  }
+  { entities: @set.Set::new(), entries: Map::new(), initialized: false }
 }
 
 ///|

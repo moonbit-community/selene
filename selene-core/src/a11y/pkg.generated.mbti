@@ -9,7 +9,7 @@ import {
 // Values
 pub fn a11y_sync_system(Double) -> Unit
 
-pub let a11ys : Map[@entity.Entity, A11y]
+pub fn a11ys() -> Map[@entity.Entity, A11y]
 
 pub fn attach(@entity.Entity, A11y) -> Unit
 

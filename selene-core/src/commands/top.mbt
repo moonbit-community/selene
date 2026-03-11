@@ -9,10 +9,7 @@ pub fn commands(world : @ecs.World) -> Commands {
 }
 
 ///|
-pub fn Commands::add(
-  self : Commands,
-  command : (@ecs.World) -> Unit,
-) -> Unit {
+pub fn Commands::add(self : Commands, command : (@ecs.World) -> Unit) -> Unit {
   self.world.queue_command(command)
 }
 

@@ -74,7 +74,10 @@ priv struct PhysicsWorldRuntime {
   pending_body_linear_velocities : Map[@entity.Entity, @math.Vec2D]
   pending_body_angular_velocities : Map[@entity.Entity, Double]
   pending_body_forces : Map[@entity.Entity, @math.Vec2D]
-  pending_body_force_points : Map[@entity.Entity, Array[(@math.Vec2D, @math.Vec2D)]]
+  pending_body_force_points : Map[
+    @entity.Entity,
+    Array[(@math.Vec2D, @math.Vec2D)],
+  ]
   pending_body_torques : Map[@entity.Entity, Double]
   pending_body_impulses : Map[@entity.Entity, @math.Vec2D]
   pending_body_impulse_points : Map[
@@ -370,7 +373,11 @@ pub fn intersect_point(
   refresh_query_world()
   let query = make_query_pipeline(query_filter)
   intersecting_entities(
-    query.intersect_point(world().bodies, world().colliders, to_physics_vec2(point)),
+    query.intersect_point(
+      world().bodies,
+      world().colliders,
+      to_physics_vec2(point),
+    ),
   )
 }
 
@@ -1913,7 +1920,12 @@ fn remove_entity_physics(entity : @entity.Entity) -> Unit {
   remove_joint_physics(entity)
   remove_multibody_joint_physics(entity)
   if world().entity_colliders.get(entity) is Some(collider_handle) {
-    world().colliders.remove(collider_handle, world().islands, world().bodies, true)
+    world().colliders.remove(
+      collider_handle,
+      world().islands,
+      world().bodies,
+      true,
+    )
     world().collider_entities.remove(collider_handle_id(collider_handle))
     world().entity_colliders.remove(entity)
   }

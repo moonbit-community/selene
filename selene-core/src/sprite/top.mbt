@@ -240,8 +240,12 @@ pub fn render_sprite_system(delta : Double) -> Unit {
     } else if sprite1.1.zindex > sprite2.1.zindex {
       1
     } else {
-      guard @transform.positions().get(sprite1.0) is Some(pos1) else { return 0 }
-      guard @transform.positions().get(sprite2.0) is Some(pos2) else { return 0 }
+      guard @transform.positions().get(sprite1.0) is Some(pos1) else {
+        return 0
+      }
+      guard @transform.positions().get(sprite2.0) is Some(pos2) else {
+        return 0
+      }
       if pos1.0[Y] < pos2.0[Y] {
         -1
       } else if pos1.0[Y] > pos2.0[Y] {

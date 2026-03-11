@@ -478,7 +478,9 @@ pub fn audio_playback_system(_delta : Double) -> Unit {
       sync_audio_sink(entity, sink)
     } else {
       let settings = normalize_settings(
-        audio_playback_settings().get(entity).unwrap_or(PlaybackSettings::once()),
+        audio_playback_settings()
+        .get(entity)
+        .unwrap_or(PlaybackSettings::once()),
       )
       audio_playback_settings().set(entity, settings)
       start_audio_sink(entity, player, settings)

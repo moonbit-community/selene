@@ -468,7 +468,10 @@ fn spawn_tiled_physics_spec(
   if spec.sensor {
     @physics2d.areas().set(collider_entity, @physics2d.new_sensor(filter))
   } else {
-    @physics2d.colliders().set(collider_entity, @physics2d.Collider::new(filter))
+    @physics2d.colliders().set(
+      collider_entity,
+      @physics2d.Collider::new(filter),
+    )
   }
   tiled_apply_physics_properties(collider_entity, spec.sensor, spec.properties)
   @physics2d.shapes().set(collider_entity, spec.shape)

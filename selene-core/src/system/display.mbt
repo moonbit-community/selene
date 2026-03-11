@@ -52,10 +52,7 @@ pub fn configure_display(
   let state = display_state()
   let zoom = positive_zoom(zoom)
   state.viewport_size = @math.Vec2D(viewport_width, viewport_height)
-  state.screen_size = @math.Vec2D(
-    viewport_width * zoom,
-    viewport_height * zoom,
-  )
+  state.screen_size = @math.Vec2D(viewport_width * zoom, viewport_height * zoom)
   state.zoom = zoom
   state.render_alpha = 1.0
 }

@@ -111,8 +111,7 @@ priv struct Render3DComponentWorldStore {
 }
 
 ///|
-let render3d_component_world_stores : Map[UInt, Render3DComponentWorldStore] =
-  Map::new()
+let render3d_component_world_stores : Map[UInt, Render3DComponentWorldStore] = Map::new()
 
 ///|
 fn render3d_component_world_store() -> Render3DComponentWorldStore {

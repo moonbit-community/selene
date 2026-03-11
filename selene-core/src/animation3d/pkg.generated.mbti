@@ -15,7 +15,7 @@ pub fn animation3d_skinning_system(Double) -> Unit
 
 pub fn animation_clip(AnimationClipHandle) -> AnimationClip3D?
 
-pub let animation_players3d : Map[@entity.Entity, AnimationPlayer3D]
+pub fn animation_players3d() -> Map[@entity.Entity, AnimationPlayer3D]
 
 pub fn attach_animation_player(@entity.Entity, AnimationPlayer3D) -> Unit
 

@@ -8,12 +8,7 @@ pub(all) struct World {
 
 ///|
 fn make_world(id : UInt) -> World {
-  {
-    id,
-    pending_commands: [],
-    frame_index: 0,
-    fixed_step_index: 0,
-  }
+  { id, pending_commands: [], frame_index: 0, fixed_step_index: 0 }
 }
 
 ///|
@@ -66,10 +61,7 @@ pub fn World::id(self : World) -> UInt {
 }
 
 ///|
-pub fn World::queue_command(
-  self : World,
-  command : (World) -> Unit,
-) -> Unit {
+pub fn World::queue_command(self : World, command : (World) -> Unit) -> Unit {
   self.pending_commands.push(command)
 }
 

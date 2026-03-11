@@ -80,7 +80,9 @@ let rigid_body_world_stores : Map[UInt, RigidBodyWorldStore] = Map::new()
 ///|
 fn rigid_body_world_store() -> RigidBodyWorldStore {
   let world_id = @ecs.require_current_world().id()
-  rigid_body_world_stores.get_or_init(world_id, () => { rigid_bodies: Map::new() })
+  rigid_body_world_stores.get_or_init(world_id, () => {
+    rigid_bodies: Map::new(),
+  })
 }
 
 ///|

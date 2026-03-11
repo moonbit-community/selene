@@ -134,11 +134,7 @@ pub fn[T] EventWriter::trigger(
 
 ///|
 pub fn[T] Events::new(domain? : EventDomain = EventDomain::Frame) -> Events[T] {
-  {
-    domain,
-    stores: Map::new(),
-    marker: None,
-  }
+  { domain, stores: Map::new(), marker: None }
 }
 
 ///|

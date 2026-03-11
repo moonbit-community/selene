@@ -10,19 +10,19 @@ import {
 }
 
 // Values
-pub let angular_velocities3d : Map[@entity.Entity, AngularVelocity3D]
+pub fn angular_velocities3d() -> Map[@entity.Entity, AngularVelocity3D]
 
 pub fn character_controller3d_move(@entity.Entity, @math.Vec3) -> @math.Vec3
 
 pub fn collider_handle(@entity.Entity) -> @collision.ColliderHandle3D?
 
-pub let colliders3d : Map[@entity.Entity, Collider3D]
+pub fn colliders3d() -> Map[@entity.Entity, Collider3D]
 
 pub let config : Physics3DConfig
 
 pub let contact_event_bus3d : @event.Events[ContactEvent3D]
 
-pub let linear_velocities3d : Map[@entity.Entity, LinearVelocity3D]
+pub fn linear_velocities3d() -> Map[@entity.Entity, LinearVelocity3D]
 
 pub fn new_collision_layers3d(Int, Int) -> CollisionLayers3D
 
@@ -30,11 +30,11 @@ pub fn physics_step_system(Double) -> Unit
 
 pub fn raycast3d(@math.Vec3, @math.Vec3, max_toi? : Double, solid? : Bool) -> RaycastHit3D?
 
-pub let rigid_bodies3d : Map[@entity.Entity, RigidBody3D]
+pub fn rigid_bodies3d() -> Map[@entity.Entity, RigidBody3D]
 
 pub fn rigid_body_handle(@entity.Entity) -> @dynamics.RigidBodyHandle?
 
-pub let sensors3d : Map[@entity.Entity, Collider3D]
+pub fn sensors3d() -> Map[@entity.Entity, Collider3D]
 
 pub fn set_gravity(@math.Vec3) -> Unit
 

@@ -170,8 +170,7 @@ priv struct Physics3DComponentWorldStore {
 }
 
 ///|
-let physics3d_component_world_stores : Map[UInt, Physics3DComponentWorldStore] =
-  Map::new()
+let physics3d_component_world_stores : Map[UInt, Physics3DComponentWorldStore] = Map::new()
 
 ///|
 fn physics3d_component_world_store() -> Physics3DComponentWorldStore {
@@ -419,10 +418,15 @@ pub fn character_controller3d_move(
   guard world.bodies.get_mut(handle) is Some(body) else { return desired_delta }
   match body_desc.body_type {
     KinematicPositionBased => {
-      let transform = @transform3d.transforms3d().get(entity).unwrap_or_default()
+      let transform = @transform3d.transforms3d()
+        .get(entity)
+        .unwrap_or_default()
       let target = transform.translation + desired_delta
       body.set_next_kinematic_translation(target.to_rapier())
-      @transform3d.transforms3d().set(entity, { ..transform, translation: target })
+      @transform3d.transforms3d().set(entity, {
+        ..transform,
+        translation: target,
+      })
       desired_delta
     }
     Dynamic | KinematicVelocityBased => {

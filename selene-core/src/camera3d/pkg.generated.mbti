@@ -11,7 +11,7 @@ import {
 // Values
 pub fn camera3d_extract_system(Double) -> Unit
 
-pub let cameras3d : Map[@entity.Entity, Camera3DComponent]
+pub fn cameras3d() -> Map[@entity.Entity, Camera3DComponent]
 
 pub fn get_active_camera3d() -> ActiveCamera3D?
 

@@ -303,27 +303,42 @@ pub fn ldtk_respawns() -> Map[@entity.Entity, LdtkRespawn] {
 }
 
 ///|
-pub fn ldtk_spawned_layer_instances() -> Map[@entity.Entity, LdtkSpawnedLayerInstance] {
+pub fn ldtk_spawned_layer_instances() -> Map[
+  @entity.Entity,
+  LdtkSpawnedLayerInstance,
+] {
   ldtk_world_store().ldtk_spawned_layer_instances
 }
 
 ///|
-pub fn ldtk_spawned_tile_instances() -> Map[@entity.Entity, LdtkSpawnedTileInstance] {
+pub fn ldtk_spawned_tile_instances() -> Map[
+  @entity.Entity,
+  LdtkSpawnedTileInstance,
+] {
   ldtk_world_store().ldtk_spawned_tile_instances
 }
 
 ///|
-pub fn ldtk_spawned_entity_instances() -> Map[@entity.Entity, LdtkSpawnedEntityInstance] {
+pub fn ldtk_spawned_entity_instances() -> Map[
+  @entity.Entity,
+  LdtkSpawnedEntityInstance,
+] {
   ldtk_world_store().ldtk_spawned_entity_instances
 }
 
 ///|
-pub fn ldtk_spawned_int_grid_cells() -> Map[@entity.Entity, LdtkSpawnedIntGridCell] {
+pub fn ldtk_spawned_int_grid_cells() -> Map[
+  @entity.Entity,
+  LdtkSpawnedIntGridCell,
+] {
   ldtk_world_store().ldtk_spawned_int_grid_cells
 }
 
 ///|
-pub fn ldtk_entity_spawn_hooks() -> Map[String, (LdtkEntitySpawnedEvent) -> Unit] {
+pub fn ldtk_entity_spawn_hooks() -> Map[
+  String,
+  (LdtkEntitySpawnedEvent) -> Unit,
+] {
   ldtk_world_store().ldtk_entity_spawn_hooks
 }
 
@@ -1122,7 +1137,9 @@ pub fn set_ldtk_level_set(
   world_entity : @entity.Entity,
   level_set : LdtkLevelSet,
 ) -> Unit {
-  guard ldtk_world_instances().get(world_entity) is Some(instance) else { return }
+  guard ldtk_world_instances().get(world_entity) is Some(instance) else {
+    return
+  }
   instance.level_set = level_set
   instance.settings = { ..instance.settings, follow_level_selection: false }
 }
@@ -1132,7 +1149,9 @@ pub fn set_ldtk_world_follow_level_selection(
   world_entity : @entity.Entity,
   follow : Bool,
 ) -> Unit {
-  guard ldtk_world_instances().get(world_entity) is Some(instance) else { return }
+  guard ldtk_world_instances().get(world_entity) is Some(instance) else {
+    return
+  }
   instance.settings = { ..instance.settings, follow_level_selection: follow }
 }
 
@@ -1253,7 +1272,9 @@ fn spawn_ldtk_world_root(
 
 ///|
 fn ldtk_world_apply_level_set(world_entity : @entity.Entity) -> Unit {
-  guard ldtk_world_instances().get(world_entity) is Some(instance) else { return }
+  guard ldtk_world_instances().get(world_entity) is Some(instance) else {
+    return
+  }
   let desired_iids = instance.level_set.iids
   for iid in desired_iids {
     if instance.spawned_levels.contains(iid) {
@@ -1765,7 +1786,8 @@ fn ldtk_spawn_layer_entities(
       is Some(entity_hook) {
       entity_hook(entity_event)
     }
-    if ldtk_entity_layer_spawn_hooks().get(layer.identifier) is Some(entity_hook) {
+    if ldtk_entity_layer_spawn_hooks().get(layer.identifier)
+      is Some(entity_hook) {
       entity_hook(entity_event)
     }
     if ldtk_entity_spawn_hooks().get(entity_instance.identifier)
@@ -1805,7 +1827,9 @@ fn ldtk_despawn_level(
 
 ///|
 fn ldtk_force_world_respawn(world_entity : @entity.Entity) -> Unit {
-  guard ldtk_world_instances().get(world_entity) is Some(instance) else { return }
+  guard ldtk_world_instances().get(world_entity) is Some(instance) else {
+    return
+  }
   for pair in instance.spawned_levels.to_array() {
     ldtk_despawn_level(world_entity, pair.0, pair.1)
     instance.spawned_levels.remove(pair.0)
@@ -1823,7 +1847,9 @@ fn ldtk_force_world_respawn(world_entity : @entity.Entity) -> Unit {
 
 ///|
 fn ldtk_force_level_respawns(world_entity : @entity.Entity) -> Unit {
-  guard ldtk_world_instances().get(world_entity) is Some(instance) else { return }
+  guard ldtk_world_instances().get(world_entity) is Some(instance) else {
+    return
+  }
   for pair in instance.spawned_levels.to_array() {
     let level_iid = pair.0
     let level_entity = pair.1

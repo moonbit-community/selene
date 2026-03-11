@@ -15,13 +15,13 @@ pub let audio_event_bus : @event.Events[AudioEvent]
 
 pub fn audio_event_playback_system(Double) -> Unit
 
-pub let audio_playback_settings : Map[@entity.Entity, PlaybackSettings]
+pub fn audio_playback_settings() -> Map[@entity.Entity, PlaybackSettings]
 
 pub fn audio_playback_system(Double) -> Unit
 
-pub let audio_players : Map[@entity.Entity, AudioPlayer]
+pub fn audio_players() -> Map[@entity.Entity, AudioPlayer]
 
-pub let audio_sinks : Map[@entity.Entity, AudioSink]
+pub fn audio_sinks() -> Map[@entity.Entity, AudioSink]
 
 pub fn global_volume() -> Double
 

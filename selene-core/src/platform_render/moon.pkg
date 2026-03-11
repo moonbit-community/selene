@@ -7,5 +7,5 @@ import {
 warnings = "-reserved_keyword"
 
 options(
-  virtual: { "has-default": true },
+  "virtual": { "has-default": true },
 )

@@ -407,7 +407,9 @@ fn push_background(entity : @entity.Entity) -> Unit {
 
 ///|
 fn push_material_node(entity : @entity.Entity) -> Bool {
-  guard material_nodes().get(entity) is Some(material_node) else { return false }
+  guard material_nodes().get(entity) is Some(material_node) else {
+    return false
+  }
   guard ui_material_asset(material_node.material) is Some(material) else {
     return false
   }

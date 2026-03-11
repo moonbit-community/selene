@@ -53,9 +53,10 @@ pub fn iter_entities() -> Iter[Entity] {
 
 ///|
 pub fn Entity::is_alive(e : Entity) -> Bool {
-  match entity_store().lifecycle_states.get(e).unwrap_or(
-    EntityLifecycleState::Destroyed,
-  ) {
+  match
+    entity_store().lifecycle_states
+    .get(e)
+    .unwrap_or(EntityLifecycleState::Destroyed) {
     Alive | PendingRespawn => true
     PendingSpawn | PendingDespawn | Destroyed => false
   }
@@ -86,7 +87,8 @@ pub fn Entity::reserve_spawn() -> Entity {
 ///|
 pub fn Entity::destroy(e : Entity) -> Unit {
   let store = entity_store()
-  match store.lifecycle_states.get(e).unwrap_or(EntityLifecycleState::Destroyed) {
+  match
+    store.lifecycle_states.get(e).unwrap_or(EntityLifecycleState::Destroyed) {
     Destroyed | PendingDespawn => ()
     Alive | PendingRespawn | PendingSpawn => {
       store.lifecycle_states.set(e, PendingDespawn)
@@ -103,7 +105,8 @@ pub fn Entity::destroy(e : Entity) -> Unit {
 ///|
 pub fn Entity::respawn(e : Entity) -> Unit {
   let store = entity_store()
-  match store.lifecycle_states.get(e).unwrap_or(EntityLifecycleState::Destroyed) {
+  match
+    store.lifecycle_states.get(e).unwrap_or(EntityLifecycleState::Destroyed) {
     Alive | PendingRespawn => ()
     Destroyed | PendingDespawn | PendingSpawn => {
       store.lifecycle_states.set(e, PendingRespawn)

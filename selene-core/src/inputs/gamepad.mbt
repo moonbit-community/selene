@@ -316,13 +316,19 @@ pub fn advanced_gamepad_system(_delta : Double) -> Unit {
   }
 
   just_pressed_gamepad_buttons().clear()
-  for input in pressed_gamepad_buttons().difference(last_pressed_gamepad_buttons()) {
+  for
+    input in pressed_gamepad_buttons().difference(
+      last_pressed_gamepad_buttons(),
+    ) {
     just_pressed_gamepad_buttons().add(input)
     gamepad_button_event_bus.send({ input, state: Pressed })
   }
 
   just_released_gamepad_buttons().clear()
-  for input in last_pressed_gamepad_buttons().difference(pressed_gamepad_buttons()) {
+  for
+    input in last_pressed_gamepad_buttons().difference(
+      pressed_gamepad_buttons(),
+    ) {
     just_released_gamepad_buttons().add(input)
     gamepad_button_event_bus.send({ input, state: Released })
   }
