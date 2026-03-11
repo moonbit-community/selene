@@ -26,13 +26,13 @@ let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = @event.EventReader:
 
 ///|
 fn set_ui_text(entity : @entity.Entity, content : String) -> Unit {
-  let text = @ui.texts.get_or_init(entity, fn() { @ui.Text::new(content) })
+  let text = @ui.texts().get_or_init(entity, fn() { @ui.Text::new(content) })
   text.content = content
 }
 
 ///|
 fn set_ui_text_color(entity : @entity.Entity, color : String) -> Unit {
-  @ui.text_colors.set(entity, @ui.TextColor::from_css(color))
+  @ui.text_colors().set(entity, @ui.TextColor::from_css(color))
 }
 
 ///|
@@ -46,12 +46,12 @@ fn configure_text_box(
   align? : @math.HAlign = @math.HAlign::Left,
   baseline? : @math.VAlign = @math.VAlign::Top,
 ) -> Unit {
-  @ui.nodes.set(entity, @ui.Node::absolute(offset, size~))
-  @ui.z_indexes.set(entity, @ui.ZIndex::new(HUD_ZINDEX))
+  @ui.nodes().set(entity, @ui.Node::absolute(offset, size~))
+  @ui.z_indexes().set(entity, @ui.ZIndex::new(HUD_ZINDEX))
   set_ui_text(entity, content)
-  @ui.text_fonts.set(entity, @ui.TextFont::from_css(font))
+  @ui.text_fonts().set(entity, @ui.TextFont::from_css(font))
   set_ui_text_color(entity, color)
-  @ui.text_layouts.set(entity, @ui.TextLayout::new(align~, baseline~))
+  @ui.text_layouts().set(entity, @ui.TextLayout::new(align~, baseline~))
 }
 
 ///|
@@ -105,16 +105,16 @@ fn volume_image(volume_on : Bool) -> @ui.UiImage {
 ///|
 fn add_volume_button() -> Unit {
   let button = game_state.volume_button
-  @ui.nodes.set(
+  @ui.nodes().set(
     button,
     @ui.Node::absolute(
       @math.Vec2D(VIEWPORT_WIDTH - 40.0, 18.0),
       size=@math.Vec2D(21.0, 22.0),
     ),
   )
-  @ui.z_indexes.set(button, @ui.ZIndex::new(BUTTON_ZINDEX))
-  @ui.buttons.set(button, @ui.Button::new())
-  @ui.ui_images.set(button, volume_image(game_state.volume_on))
+  @ui.z_indexes().set(button, @ui.ZIndex::new(BUTTON_ZINDEX))
+  @ui.buttons().set(button, @ui.Button::new())
+  @ui.ui_images().set(button, volume_image(game_state.volume_on))
 }
 
 ///|
@@ -122,7 +122,7 @@ fn volume_button_input_system(_delta : Double) -> Unit {
   for event in @ui.click_event_bus.read(ui_click_reader) {
     guard event.entity == game_state.volume_button else { continue }
     game_state.volume_on = !game_state.volume_on
-    @ui.ui_images.set(
+    @ui.ui_images().set(
       game_state.volume_button,
       volume_image(game_state.volume_on),
     )

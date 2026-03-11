@@ -21,11 +21,17 @@ priv struct DisplayState {
 }
 
 ///|
-let display_state : DisplayState = {
-  viewport_size: @math.Vec2D(512.0, 256.0),
-  screen_size: @math.Vec2D(512.0, 256.0),
-  zoom: 1.0,
-  render_alpha: 1.0,
+let display_world_states : Map[UInt, DisplayState] = Map::new()
+
+///|
+fn display_state() -> DisplayState {
+  let world_id = @ecs.require_current_world().id()
+  display_world_states.get_or_init(world_id, () => {
+    viewport_size: @math.Vec2D(512.0, 256.0),
+    screen_size: @math.Vec2D(512.0, 256.0),
+    zoom: 1.0,
+    render_alpha: 1.0,
+  })
 }
 
 ///|
@@ -43,49 +49,51 @@ pub fn configure_display(
   viewport_height : Double,
   zoom : Double,
 ) -> Unit {
+  let state = display_state()
   let zoom = positive_zoom(zoom)
-  display_state.viewport_size = @math.Vec2D(viewport_width, viewport_height)
-  display_state.screen_size = @math.Vec2D(
+  state.viewport_size = @math.Vec2D(viewport_width, viewport_height)
+  state.screen_size = @math.Vec2D(
     viewport_width * zoom,
     viewport_height * zoom,
   )
-  display_state.zoom = zoom
-  display_state.render_alpha = 1.0
+  state.zoom = zoom
+  state.render_alpha = 1.0
 }
 
 ///|
 pub fn get_viewport_size() -> @math.Vec2D {
-  display_state.viewport_size
+  display_state().viewport_size
 }
 
 ///|
 pub fn get_screen_size() -> @math.Vec2D {
-  display_state.screen_size
+  display_state().screen_size
 }
 
 ///|
 pub fn get_zoom() -> Double {
-  display_state.zoom
+  display_state().zoom
 }
 
 ///|
 pub fn set_render_alpha(alpha : Double) -> Unit {
-  display_state.render_alpha = @cmp.maximum(0.0, @cmp.minimum(1.0, alpha))
+  let state = display_state()
+  state.render_alpha = @cmp.maximum(0.0, @cmp.minimum(1.0, alpha))
 }
 
 ///|
 pub fn get_render_alpha() -> Double {
-  display_state.render_alpha
+  display_state().render_alpha
 }
 
 ///|
 pub fn scale_value(value : Double) -> Double {
-  value * display_state.zoom
+  value * display_state().zoom
 }
 
 ///|
 pub fn unscale_value(value : Double) -> Double {
-  value / display_state.zoom
+  value / display_state().zoom
 }
 
 ///|

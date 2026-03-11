@@ -121,31 +121,74 @@ pub fn TiledMapStorage::tile_entities(
 }
 
 ///|
-pub let tiled_map_instances : Map[@entity.Entity, TiledMapInstance] = Map::new()
+priv struct TiledEcsWorldStore {
+  tiled_map_instances : Map[@entity.Entity, TiledMapInstance]
+  tiled_layer_instances : Map[@entity.Entity, TiledLayerInstance]
+  tiled_tile_instances : Map[@entity.Entity, TiledTileInstance]
+  tiled_object_instances : Map[@entity.Entity, TiledObjectInstance]
+  tiled_image_layer_instances : Map[@entity.Entity, TiledImageLayerInstance]
+  tiled_properties : Map[@entity.Entity, TiledProperties]
+  tiled_map_storages : Map[@entity.Entity, TiledMapStorage]
+  tiled_parallax_layers : Map[@entity.Entity, TiledParallaxLayer]
+}
 
 ///|
-pub let tiled_layer_instances : Map[@entity.Entity, TiledLayerInstance] = Map::new()
+let tiled_ecs_world_stores : Map[UInt, TiledEcsWorldStore] = Map::new()
 
 ///|
-pub let tiled_tile_instances : Map[@entity.Entity, TiledTileInstance] = Map::new()
+fn tiled_ecs_world_store() -> TiledEcsWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  tiled_ecs_world_stores.get_or_init(world_id, () => {
+    tiled_map_instances: Map::new(),
+    tiled_layer_instances: Map::new(),
+    tiled_tile_instances: Map::new(),
+    tiled_object_instances: Map::new(),
+    tiled_image_layer_instances: Map::new(),
+    tiled_properties: Map::new(),
+    tiled_map_storages: Map::new(),
+    tiled_parallax_layers: Map::new(),
+  })
+}
 
 ///|
-pub let tiled_object_instances : Map[@entity.Entity, TiledObjectInstance] = Map::new()
+pub fn tiled_map_instances() -> Map[@entity.Entity, TiledMapInstance] {
+  tiled_ecs_world_store().tiled_map_instances
+}
 
 ///|
-pub let tiled_image_layer_instances : Map[
-  @entity.Entity,
-  TiledImageLayerInstance,
-] = Map::new()
+pub fn tiled_layer_instances() -> Map[@entity.Entity, TiledLayerInstance] {
+  tiled_ecs_world_store().tiled_layer_instances
+}
 
 ///|
-pub let tiled_properties : Map[@entity.Entity, TiledProperties] = Map::new()
+pub fn tiled_tile_instances() -> Map[@entity.Entity, TiledTileInstance] {
+  tiled_ecs_world_store().tiled_tile_instances
+}
 
 ///|
-pub let tiled_map_storages : Map[@entity.Entity, TiledMapStorage] = Map::new()
+pub fn tiled_object_instances() -> Map[@entity.Entity, TiledObjectInstance] {
+  tiled_ecs_world_store().tiled_object_instances
+}
 
 ///|
-pub let tiled_parallax_layers : Map[@entity.Entity, TiledParallaxLayer] = Map::new()
+pub fn tiled_image_layer_instances() -> Map[@entity.Entity, TiledImageLayerInstance] {
+  tiled_ecs_world_store().tiled_image_layer_instances
+}
+
+///|
+pub fn tiled_properties() -> Map[@entity.Entity, TiledProperties] {
+  tiled_ecs_world_store().tiled_properties
+}
+
+///|
+pub fn tiled_map_storages() -> Map[@entity.Entity, TiledMapStorage] {
+  tiled_ecs_world_store().tiled_map_storages
+}
+
+///|
+pub fn tiled_parallax_layers() -> Map[@entity.Entity, TiledParallaxLayer] {
+  tiled_ecs_world_store().tiled_parallax_layers
+}
 
 ///|
 pub fn default_tiled_spawn_settings() -> TiledSpawnSettings {
@@ -208,9 +251,9 @@ fn spawn_tiled_map_root(
   map : TiledMap,
   settings : TiledSpawnSettings,
 ) -> Unit {
-  @transform.positions.set(root, settings.position)
-  tiled_map_instances.set(root, { map, })
-  tiled_map_storages.set(root, empty_tiled_map_storage())
+  @transform.positions().set(root, settings.position)
+  tiled_map_instances().set(root, { map, })
+  tiled_map_storages().set(root, empty_tiled_map_storage())
   tiled_set_properties(root, map.properties)
   let map_event = { map_entity: root, map }
   tiled_map_spawned_event_bus.trigger(map_event, Some(root))
@@ -245,7 +288,7 @@ fn spawn_tiled_layers(
       offset=@math.Vec2D(layer.offset_x, layer.offset_y),
     )
     tiled_register_parallax_layer(layer_entity, layer)
-    tiled_layer_instances.set(layer_entity, {
+    tiled_layer_instances().set(layer_entity, {
       map_entity,
       layer,
       effective_visible,
@@ -311,7 +354,7 @@ fn spawn_tiled_tile_layer(
     let tile_entity = layer_entity.spawn_child(
       offset=tiled_cell_position(map, tileset, cell),
     )
-    tiled_tile_instances.set(tile_entity, {
+    tiled_tile_instances().set(tile_entity, {
       map_entity,
       layer_entity,
       gid: cell.gid,
@@ -338,7 +381,7 @@ fn spawn_tiled_tile_layer(
     }
     let sprite = @sprite.Sprite::from_animation(animation, zindex)
     sprite.visible = visible
-    @sprite.sprites.set(tile_entity, sprite)
+    @sprite.sprites().set(tile_entity, sprite)
   }
 }
 
@@ -363,7 +406,7 @@ fn spawn_tiled_object_layer(
       None => tiled_plain_object_position(object)
     }
     let object_entity = layer_entity.spawn_child(offset=object_offset)
-    tiled_object_instances.set(object_entity, {
+    tiled_object_instances().set(object_entity, {
       map_entity,
       layer_entity,
       layer,
@@ -397,7 +440,7 @@ fn spawn_tiled_object_layer(
     }
     let sprite = @sprite.Sprite::from_animation(animation, zindex)
     sprite.visible = visible && object.visible
-    @sprite.sprites.set(object_entity, sprite)
+    @sprite.sprites().set(object_entity, sprite)
   }
 }
 
@@ -413,7 +456,7 @@ fn spawn_tiled_image_layer(
   settings : TiledSpawnSettings,
 ) -> Unit {
   let resolved_image_path = image_layer.image.map(path => map.resolve_path(path))
-  tiled_image_layer_instances.set(layer_entity, {
+  tiled_image_layer_instances().set(layer_entity, {
     map_entity,
     layer,
     image_layer,
@@ -443,7 +486,7 @@ fn spawn_tiled_image_layer(
   )
   let sprite = @sprite.Sprite::from_picture(picture, zindex)
   sprite.visible = visible
-  @sprite.sprites.set(layer_entity, sprite)
+  @sprite.sprites().set(layer_entity, sprite)
 }
 
 ///|
@@ -842,7 +885,7 @@ fn load_tiled_image(path : String) -> @asset.ImageHandle {
 ///|
 pub fn tiled_parallax_system(_delta : Double) -> Unit {
   let camera_pos = @camera.get_position()
-  for pair in tiled_parallax_layers.to_array() {
+  for pair in tiled_parallax_layers().to_array() {
     let layer_entity = pair.0
     if !layer_entity.is_alive() {
       continue
@@ -869,7 +912,7 @@ fn tiled_set_properties(
   for property in properties {
     values.set(property.name, property.value)
   }
-  tiled_properties.set(entity, { values, })
+  tiled_properties().set(entity, { values, })
 }
 
 ///|
@@ -878,7 +921,7 @@ fn tiled_register_layer_entity(
   layer_id : Int,
   layer_entity : @entity.Entity,
 ) -> Unit {
-  guard tiled_map_storages.get(map_entity) is Some(storage) else { return }
+  guard tiled_map_storages().get(map_entity) is Some(storage) else { return }
   storage.layers.set(layer_id, layer_entity)
 }
 
@@ -888,7 +931,7 @@ fn tiled_register_object_entity(
   object_id : Int,
   object_entity : @entity.Entity,
 ) -> Unit {
-  guard tiled_map_storages.get(map_entity) is Some(storage) else { return }
+  guard tiled_map_storages().get(map_entity) is Some(storage) else { return }
   storage.objects.set(object_id, object_entity)
 }
 
@@ -899,7 +942,7 @@ fn tiled_register_tile_entity(
   tile_entity : @entity.Entity,
 ) -> Unit {
   guard global_tile_id > 0 else { return }
-  guard tiled_map_storages.get(map_entity) is Some(storage) else { return }
+  guard tiled_map_storages().get(map_entity) is Some(storage) else { return }
   match storage.tiles.get(global_tile_id) {
     Some(existing) => existing.push(tile_entity)
     None => storage.tiles.set(global_tile_id, [tile_entity])
@@ -928,7 +971,7 @@ fn tiled_register_parallax_layer(
   if layer.parallax_x == 1.0 && layer.parallax_y == 1.0 {
     return
   }
-  tiled_parallax_layers.set(layer_entity, {
+  tiled_parallax_layers().set(layer_entity, {
     base_offset: @math.Vec2D(layer.offset_x, layer.offset_y),
     parallax_x: layer.parallax_x,
     parallax_y: layer.parallax_y,

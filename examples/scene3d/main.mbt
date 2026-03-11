@@ -130,27 +130,27 @@ fn lit_cube_mesh(size : Double) -> @render3d.MeshAsset {
 
 ///|
 pub fn run() -> Unit {
-  @system.App::new()
+  @app.App::new()
   .with_viewport_width(VIEWPORT_WIDTH)
   .with_viewport_height(VIEWPORT_HEIGHT)
   .with_zoom(1.0)
   .with_fps(60)
   .add_plugin(@plugins.default_3d_plugin)
-  .add_system(setup_scene3d, schedule=Startup)
-  .add_system(rotate_cube_system, schedule=Update)
-  .add_system(animate_spotlight_system, schedule=Update)
+  .add_system(fn(_world, delta) { setup_scene3d(delta) }, schedule=Startup)
+  .add_system(fn(_world, delta) { rotate_cube_system(delta) }, schedule=Update)
+  .add_system(fn(_world, delta) { animate_spotlight_system(delta) }, schedule=Update)
   .run()
 }
 
 ///|
 fn setup_scene3d(_delta : Double) -> Unit {
   let camera = @entity.Entity::new()
-  @transform3d.transforms3d.set(camera, {
+  @transform3d.transforms3d().set(camera, {
     translation: vec3(0.0, 1.5, 8.0),
     rotation: @math.Quat::identity(),
     scale: @math.Vec3::one(),
   })
-  @camera3d.cameras3d.set(camera, {
+  @camera3d.cameras3d().set(camera, {
     ..@camera3d.Camera3DComponent::default(),
     clear_color: color(20U, 20U, 24U, 1.0),
   })
@@ -167,12 +167,12 @@ fn setup_scene3d(_delta : Double) -> Unit {
     roughness: 0.9,
   })
   let floor = @entity.Entity::new()
-  @transform3d.transforms3d.set(floor, {
+  @transform3d.transforms3d().set(floor, {
     translation: vec3(0.0, -0.01, 0.0),
     rotation: @math.Quat::identity(),
     scale: @math.Vec3::one(),
   })
-  @render3d.mesh3d_renderers.set(floor, {
+  @render3d.mesh3d_renderers().set(floor, {
     mesh: floor_mesh,
     material: floor_material,
     visible: true,
@@ -188,12 +188,12 @@ fn setup_scene3d(_delta : Double) -> Unit {
   })
 
   let cube = @entity.Entity::new()
-  @transform3d.transforms3d.set(cube, {
+  @transform3d.transforms3d().set(cube, {
     translation: vec3(0.0, 0.5, 0.0),
     rotation: @math.Quat::identity(),
     scale: @math.Vec3::one(),
   })
-  @render3d.mesh3d_renderers.set(cube, {
+  @render3d.mesh3d_renderers().set(cube, {
     mesh: cube_mesh,
     material: cube_material,
     visible: true,
@@ -209,12 +209,12 @@ fn setup_scene3d(_delta : Double) -> Unit {
     roughness: 0.25,
   })
   let target = @entity.Entity::new()
-  @transform3d.transforms3d.set(target, {
+  @transform3d.transforms3d().set(target, {
     translation: vec3(1.35, 1.55, -0.75),
     rotation: @math.Quat::identity(),
     scale: @math.Vec3::one(),
   })
-  @render3d.mesh3d_renderers.set(target, {
+  @render3d.mesh3d_renderers().set(target, {
     mesh: target_mesh,
     material: target_material,
     visible: true,
@@ -231,12 +231,12 @@ fn setup_scene3d(_delta : Double) -> Unit {
     roughness: 0.82,
   })
   let shadow_wall = @entity.Entity::new()
-  @transform3d.transforms3d.set(shadow_wall, {
+  @transform3d.transforms3d().set(shadow_wall, {
     translation: vec3(0.0, 1.6, -2.9),
     rotation: @math.Quat::identity(),
     scale: @math.Vec3::one(),
   })
-  @render3d.mesh3d_renderers.set(shadow_wall, {
+  @render3d.mesh3d_renderers().set(shadow_wall, {
     mesh: shadow_wall_mesh,
     material: shadow_wall_material,
     visible: true,
@@ -245,12 +245,12 @@ fn setup_scene3d(_delta : Double) -> Unit {
   })
 
   let off_axis_cube = @entity.Entity::new()
-  @transform3d.transforms3d.set(off_axis_cube, {
+  @transform3d.transforms3d().set(off_axis_cube, {
     translation: vec3(-2.2, 0.5, 1.8),
     rotation: @math.Quat::from_axis_angle(vec3(0.0, 1.0, 0.0), 0.45),
     scale: vec3(0.7, 0.7, 0.7),
   })
-  @render3d.mesh3d_renderers.set(off_axis_cube, {
+  @render3d.mesh3d_renderers().set(off_axis_cube, {
     mesh: cube_mesh,
     material: @render3d.register_material_asset({
       ..@render3d.default_standard_material3d(),
@@ -263,12 +263,12 @@ fn setup_scene3d(_delta : Double) -> Unit {
   })
 
   let spotlight = @entity.Entity::new()
-  @transform3d.transforms3d.set(spotlight, {
+  @transform3d.transforms3d().set(spotlight, {
     translation: vec3(3.2, 3.0, 0.0),
     rotation: @math.Quat::identity(),
     scale: @math.Vec3::one(),
   })
-  @render3d.spot_lights3d.set(spotlight, {
+  @render3d.spot_lights3d().set(spotlight, {
     ..@render3d.default_spot_light3d(),
     direction: vec3(-1.0, -1.2, 0.0).normalize(),
     color: color(255U, 236U, 186U, 1.0),
@@ -291,11 +291,11 @@ fn setup_scene3d(_delta : Double) -> Unit {
     roughness: 0.05,
   })
   let spotlight_marker = spotlight.spawn_child()
-  @transform3d.transforms3d.set(
+  @transform3d.transforms3d().set(
     spotlight_marker,
     @transform3d.Transform3D::identity(),
   )
-  @render3d.mesh3d_renderers.set(spotlight_marker, {
+  @render3d.mesh3d_renderers().set(spotlight_marker, {
     mesh: spotlight_marker_mesh,
     material: spotlight_marker_material,
     visible: true,
@@ -304,7 +304,7 @@ fn setup_scene3d(_delta : Double) -> Unit {
   })
 
   let dir_light = @entity.Entity::new()
-  @render3d.directional_lights3d.set(dir_light, {
+  @render3d.directional_lights3d().set(dir_light, {
     ..@render3d.default_directional_light3d(),
     direction: vec3(-0.72, -1.0, -0.42).normalize(),
     color: color(255U, 255U, 255U, 1.0),
@@ -318,26 +318,26 @@ fn setup_scene3d(_delta : Double) -> Unit {
   )
 
   let label = @entity.Entity::new()
-  @ui.nodes.set(
+  @ui.nodes().set(
     label,
     @ui.Node::absolute(@math.Vec2D(16.0, 16.0), size=@math.Vec2D(420.0, 28.0)),
   )
-  @ui.texts.set(
+  @ui.texts().set(
     label,
     @ui.Text::new("3d_scene: WebGPU directional + spot shadows"),
   )
-  @ui.text_fonts.set(label, @ui.TextFont::new(family="sans-serif", size=20.0))
-  @ui.text_colors.set(label, @ui.TextColor::new(color(245U, 245U, 245U, 1.0)))
-  @ui.z_indexes.set(label, @ui.ZIndex::new(100))
+  @ui.text_fonts().set(label, @ui.TextFont::new(family="sans-serif", size=20.0))
+  @ui.text_colors().set(label, @ui.TextColor::new(color(245U, 245U, 245U, 1.0)))
+  @ui.z_indexes().set(label, @ui.ZIndex::new(100))
   hud_label.val = Some(label)
 }
 
 ///|
 fn rotate_cube_system(delta : Double) -> Unit {
   guard rotating_cube.val is Some(cube) else { return }
-  guard @transform3d.transforms3d.get(cube) is Some(transform) else { return }
+  guard @transform3d.transforms3d().get(cube) is Some(transform) else { return }
   cube_rotation.val += delta
-  @transform3d.transforms3d.set(cube, {
+  @transform3d.transforms3d().set(cube, {
     ..transform,
     rotation: @math.Quat::from_axis_angle(
       vec3(0.0, 1.0, 0.0),
@@ -356,13 +356,13 @@ fn animate_spotlight_system(delta : Double) -> Unit {
   let position = vec3(x, y, z)
   let focus = vec3(0.0, 0.45, 0.0)
   let direction = (focus - position).normalize()
-  if @transform3d.transforms3d.get(spotlight) is Some(transform) {
-    @transform3d.transforms3d.set(spotlight, {
+  if @transform3d.transforms3d().get(spotlight) is Some(transform) {
+    @transform3d.transforms3d().set(spotlight, {
       ..transform,
       translation: position,
     })
   }
-  if @render3d.spot_lights3d.get(spotlight) is Some(light) {
-    @render3d.spot_lights3d.set(spotlight, { ..light, direction, })
+  if @render3d.spot_lights3d().get(spotlight) is Some(light) {
+    @render3d.spot_lights3d().set(spotlight, { ..light, direction, })
   }
 }

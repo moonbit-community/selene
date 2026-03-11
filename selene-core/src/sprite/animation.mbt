@@ -358,7 +358,7 @@ pub fn play_animation(
   transform? : @math.Transform,
   // backward~ : Bool = false,
 ) -> Unit {
-  guard sprites.get(entity)
+  guard sprites().get(entity)
     is Some(
       {
         sprite_type: Animation(current_anime, frame=current_frame),
@@ -383,7 +383,7 @@ pub fn play_animation(
     color: animation.color,
     id: animation.id,
   }
-  sprites.set(entity, {
+  sprites().set(entity, {
     sprite_type: SpriteType::Animation(new_anime, frame~),
     zindex,
     visible,
@@ -480,7 +480,7 @@ fn render_animation(
 /// ```
 ///
 pub fn is_animation_finished(entity : @entity.Entity) -> Bool {
-  guard sprites.get(entity)
+  guard sprites().get(entity)
     is Some({ sprite_type: Animation(anime, frame~), .. }) else {
     true
   }

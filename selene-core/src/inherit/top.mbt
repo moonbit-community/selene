@@ -32,11 +32,11 @@ pub fn inherit_position_system(delta : Double) -> Unit {
 fn adjust_children(entity : @entity.Entity) -> Unit {
   for c in entity.get_children() {
     guard c.is_alive() else { continue }
-    guard @transform.positions.get(entity) is Some(parent_position) else {
+    guard @transform.positions().get(entity) is Some(parent_position) else {
       continue
     }
     let offset = c.get_offset()
-    @transform.positions.set(c, parent_position.0 + offset)
+    @transform.positions().set(c, parent_position.0 + offset)
     adjust_children(c)
   }
 }

@@ -24,8 +24,24 @@ pub fn Pickable::new() -> Pickable {
 }
 
 ///|
+priv struct PickableWorldStore {
+  pickables : Map[@entity.Entity, Pickable]
+}
+
+///|
+let pickable_world_stores : Map[UInt, PickableWorldStore] = Map::new()
+
+///|
+fn pickable_world_store() -> PickableWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  pickable_world_stores.get_or_init(world_id, () => { pickables: Map::new() })
+}
+
+///|
 /// All pickable components.
-pub let pickables : Map[@entity.Entity, Pickable] = Map::new()
+pub fn pickables() -> Map[@entity.Entity, Pickable] {
+  pickable_world_store().pickables
+}
 
 ///|
 /// Pointer phase for frame events.
@@ -88,15 +104,15 @@ fn hit_test_pickable(
   mouse_world : @math.Vec2D,
   _mouse_virtual : @math.Vec2D,
 ) -> Bool {
-  if @ui.global_ui_nodes.get(entity) is Some(transform) {
+  if @ui.global_ui_nodes().get(entity) is Some(transform) {
     return point_in_rect(
       mouse_screen,
       transform.screen_rect.position,
       transform.screen_rect.size,
     )
   }
-  guard @position.positions.get(entity) is Some(position) else { return false }
-  guard shapes.get(entity) is Some(shape) else { return false }
+  guard @position.positions().get(entity) is Some(position) else { return false }
+  guard shapes().get(entity) is Some(shape) else { return false }
   guard shape is Rect(size~, offset~) else { return false }
   let shape_position = position.0 + offset
   let point = mouse_world
@@ -127,7 +143,7 @@ pub fn pickable_click_system(_delta : Double) -> Unit {
   let camera_pos = @camera.get_position()
   let mouse_world = @system.screen_to_world(mouse_screen, camera_pos)
   let mouse_virtual = @system.screen_to_ui_virtual(mouse_screen)
-  for entity, pickable in pickables {
+  for entity, pickable in pickables() {
     guard entity.is_alive() else { continue }
     guard pickable.active else { continue }
     if hit_test_pickable(entity, mouse_screen, mouse_world, mouse_virtual) {

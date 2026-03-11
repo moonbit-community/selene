@@ -1,20 +1,19 @@
 ///|
-let queued_commands : Array[() -> Unit] = []
-
-///|
 pub(all) struct Commands {
-  _tag : Unit
+  world : @ecs.World
 }
 
 ///|
-pub fn commands() -> Commands {
-  { _tag: () }
+pub fn commands(world : @ecs.World) -> Commands {
+  { world, }
 }
 
 ///|
-pub fn Commands::add(self : Commands, command : () -> Unit) -> Unit {
-  ignore(self)
-  queued_commands.push(command)
+pub fn Commands::add(
+  self : Commands,
+  command : (@ecs.World) -> Unit,
+) -> Unit {
+  self.world.queue_command(command)
 }
 
 ///|
@@ -25,7 +24,7 @@ pub fn Commands::spawn(self : Commands) -> @entity.Entity {
 
 ///|
 pub fn Commands::despawn(self : Commands, entity : @entity.Entity) -> Unit {
-  self.add(fn() { entity.destroy() })
+  self.add(fn(_world) { entity.destroy() })
 }
 
 ///|
@@ -35,7 +34,7 @@ pub fn[T] Commands::insert(
   entity : @entity.Entity,
   value : T,
 ) -> Unit {
-  self.add(fn() { storage.set(entity, value) })
+  self.add(fn(_world) { storage.set(entity, value) })
 }
 
 ///|
@@ -44,7 +43,7 @@ pub fn[T] Commands::remove(
   storage : Map[@entity.Entity, T],
   entity : @entity.Entity,
 ) -> Unit {
-  self.add(fn() { storage.remove(entity) })
+  self.add(fn(_world) { storage.remove(entity) })
 }
 
 ///|
@@ -53,7 +52,7 @@ pub fn[T] Commands::send(
   events : @event.Events[T],
   event : T,
 ) -> Unit {
-  self.add(fn() { events.send(event) })
+  self.add(fn(_world) { events.send(event) })
 }
 
 ///|
@@ -63,22 +62,15 @@ pub fn[T] Commands::trigger(
   event : T,
   target : @entity.Entity?,
 ) -> Unit {
-  self.add(fn() { events.trigger(event, target) })
+  self.add(fn(_world) { events.trigger(event, target) })
 }
 
 ///|
-pub fn has_pending_commands() -> Bool {
-  queued_commands.length() > 0
+pub fn has_pending_commands(world : @ecs.World) -> Bool {
+  world.has_pending_commands()
 }
 
 ///|
-pub fn commands_flush_system(_delta : Double) -> Unit {
-  if queued_commands.length() == 0 {
-    return
-  }
-  let commands = queued_commands.copy()
-  queued_commands.clear()
-  for command in commands {
-    command()
-  }
+pub fn commands_flush_system(world : @ecs.World, _delta : Double) -> Unit {
+  world.flush_commands()
 }

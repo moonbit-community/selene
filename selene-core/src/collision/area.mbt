@@ -26,8 +26,24 @@ pub fn Area::new(filter : CollisionFilter) -> Area {
 }
 
 ///|
+priv struct AreaWorldStore {
+  areas : Map[@entity.Entity, Area]
+}
+
+///|
+let area_world_stores : Map[UInt, AreaWorldStore] = Map::new()
+
+///|
+fn area_world_store() -> AreaWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  area_world_stores.get_or_init(world_id, () => { areas: Map::new() })
+}
+
+///|
 /// All area components.
-pub let areas : Map[@entity.Entity, Area] = Map::new()
+pub fn areas() -> Map[@entity.Entity, Area] {
+  area_world_store().areas
+}
 
 ///|
 /// Trigger event emitted by the fixed-step physics system.
@@ -53,5 +69,5 @@ fn push_trigger_event(event : TriggerEvent) -> Unit {
 
 ///|
 pub fn get_contains(area : @entity.Entity) -> Set[@entity.Entity] {
-  areas.get(area).map_or(Set::new(), fn(area) { area.contains })
+  areas().get(area).map_or(Set::new(), fn(area) { area.contains })
 }

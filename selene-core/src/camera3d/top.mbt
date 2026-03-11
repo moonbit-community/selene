@@ -45,15 +45,46 @@ pub fn Camera3DComponent::default() -> Camera3DComponent {
 }
 
 ///|
-pub let cameras3d : Map[@entity.Entity, Camera3DComponent] = Map::new()
+priv struct Camera3DWorldStore {
+  cameras3d : Map[@entity.Entity, Camera3DComponent]
+}
 
 ///|
-pub let active_camera3d : Ref[ActiveCamera3D?] = Ref::new(None)
+let camera3d_world_stores : Map[UInt, Camera3DWorldStore] = Map::new()
+
+///|
+fn camera3d_world_store() -> Camera3DWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  camera3d_world_stores.get_or_init(world_id, () => { cameras3d: Map::new() })
+}
+
+///|
+pub fn cameras3d() -> Map[@entity.Entity, Camera3DComponent] {
+  camera3d_world_store().cameras3d
+}
+
+///|
+let active_cameras3d_by_world : Map[UInt, ActiveCamera3D?] = Map::new()
+
+///|
+fn current_world_id() -> UInt {
+  @ecs.require_current_world().id()
+}
+
+///|
+pub fn get_active_camera3d() -> ActiveCamera3D? {
+  active_cameras3d_by_world.get(current_world_id()).unwrap_or(None)
+}
+
+///|
+pub fn set_active_camera3d(camera : ActiveCamera3D?) -> Unit {
+  active_cameras3d_by_world.set(current_world_id(), camera)
+}
 
 ///|
 pub fn camera3d_extract_system(_delta : Double) -> Unit {
   let mut selected : (@entity.Entity, Camera3DComponent)? = None
-  for entity, camera in cameras3d {
+  for entity, camera in cameras3d() {
     if !entity.is_alive() || !camera.enabled {
       continue
     }
@@ -65,13 +96,13 @@ pub fn camera3d_extract_system(_delta : Double) -> Unit {
   }
   match selected {
     Some((entity, camera)) => {
-      let global = @transform3d.global_transforms3d
+      let global = @transform3d.global_transforms3d()
         .get(entity)
         .unwrap_or_default()
       let position = global.translation
       let forward = global.rotation.rotate_vec3(@math.Vec3::new(0.0, 0.0, -1.0))
       let up = global.rotation.rotate_vec3(@math.Vec3::new(0.0, 1.0, 0.0))
-      active_camera3d.val = Some({
+      set_active_camera3d(Some({
         entity,
         camera: {
           position,
@@ -84,8 +115,8 @@ pub fn camera3d_extract_system(_delta : Double) -> Unit {
           far: camera.far,
           clear_color: camera.clear_color,
         },
-      })
+      }))
     }
-    None => active_camera3d.val = None
+    None => set_active_camera3d(None)
   }
 }

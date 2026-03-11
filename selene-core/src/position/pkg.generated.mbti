@@ -9,9 +9,9 @@ import {
 // Values
 pub fn capture_previous_positions() -> Unit
 
-pub let positions : Map[@entity.Entity, Position]
+pub fn positions() -> Map[@entity.Entity, Position]
 
-pub let previous_positions : Map[@entity.Entity, Position]
+pub fn previous_positions() -> Map[@entity.Entity, Position]
 
 pub fn sample_position(@entity.Entity, Double) -> @math.Vec2D
 

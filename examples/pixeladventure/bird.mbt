@@ -55,14 +55,14 @@ let contact_event_reader : @event.EventReader[@physics2d.ContactEvent] = @event.
 fn add_bird(pos : @math.Vec2D) -> Unit {
   let entity = @entity.Entity::new()
   let bird_sprite = @sprite.Sprite::from_animation(bird_fly_animation, 10)
-  @sprite.sprites.set(entity, bird_sprite)
-  @physics2d.linear_velocities.set(entity, @math.Vec2D(BIRD_SPEED, 0.0))
-  @transform.positions.set(entity, pos)
-  @physics2d.shapes.set(
+  @sprite.sprites().set(entity, bird_sprite)
+  @physics2d.linear_velocities().set(entity, @math.Vec2D(BIRD_SPEED, 0.0))
+  @transform.positions().set(entity, pos)
+  @physics2d.shapes().set(
     entity,
     Rect(size=@math.Vec2D(32.0, 32.0), offset=@math.Vec2D::zero()),
   )
-  @physics2d.colliders.set(
+  @physics2d.colliders().set(
     entity,
     @physics2d.Collider::new(
       @physics2d.CollisionFilter::new(enemy_collision_group, [
@@ -78,8 +78,8 @@ fn bird_ai_system(_ : Double) -> Unit {
   let contact_events = @physics2d.contact_event_bus.read(contact_event_reader)
   for e, bird in birds {
     guard e.is_alive() else { continue }
-    guard @physics2d.linear_velocities.get(e) is Some(_velocity)
-    let resolved_x = @physics2d.resolved_velocities
+    guard @physics2d.linear_velocities().get(e) is Some(_velocity)
+    let resolved_x = @physics2d.resolved_velocities()
       .get(e)
       .map_or(0.0, fn(v) { v.0[X] })
     if @sprite.is_animation_finished(e) {
@@ -87,8 +87,8 @@ fn bird_ai_system(_ : Double) -> Unit {
       continue
     }
     if bird.is_hurt {
-      @physics2d.linear_velocities[e] = @math.Vec2D::zero()
-      if @physics2d.colliders.get(e) is Some(collider) {
+      @physics2d.linear_velocities()[e] = @math.Vec2D::zero()
+      if @physics2d.colliders().get(e) is Some(collider) {
         collider.active = false
       }
       match bird.direction {
@@ -131,7 +131,7 @@ fn bird_ai_system(_ : Double) -> Unit {
     }
     match bird.direction {
       Left => {
-        @physics2d.linear_velocities[e] = @math.Vec2D(-BIRD_SPEED, 0.0)
+        @physics2d.linear_velocities()[e] = @math.Vec2D(-BIRD_SPEED, 0.0)
         @sprite.play_animation(
           e,
           bird_fly_animation,
@@ -139,7 +139,7 @@ fn bird_ai_system(_ : Double) -> Unit {
         )
       }
       Right => {
-        @physics2d.linear_velocities[e] = @math.Vec2D(BIRD_SPEED, 0.0)
+        @physics2d.linear_velocities()[e] = @math.Vec2D(BIRD_SPEED, 0.0)
         @sprite.play_animation(
           e,
           bird_fly_animation,

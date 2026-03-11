@@ -11,9 +11,9 @@ pub fn capture_previous_global_transforms3d() -> Unit
 
 pub fn capture_previous_global_transforms3d_system(Double) -> Unit
 
-pub let global_transforms3d : Map[@entity.Entity, Transform3D]
+pub fn global_transforms3d() -> Map[@entity.Entity, Transform3D]
 
-pub let previous_global_transforms3d : Map[@entity.Entity, Transform3D]
+pub fn previous_global_transforms3d() -> Map[@entity.Entity, Transform3D]
 
 pub fn sample_global_transform3d(@entity.Entity, Double) -> Transform3D
 
@@ -21,7 +21,7 @@ pub fn sample_global_translation3d(@entity.Entity, Double) -> @math.Vec3
 
 pub fn transform3d_propagate_system(Double) -> Unit
 
-pub let transforms3d : Map[@entity.Entity, Transform3D]
+pub fn transforms3d() -> Map[@entity.Entity, Transform3D]
 
 // Errors
 

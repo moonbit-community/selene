@@ -297,7 +297,7 @@ fn measure_node(
   _style : @moon_taffy.Style,
 ) -> @moon_taffy.Size[Double] {
   guard entity is Some(entity) else { return @moon_taffy.Size::zero() }
-  let (intrinsic_width, intrinsic_height) = if texts.get(entity) is Some(text) {
+  let (intrinsic_width, intrinsic_height) = if texts().get(entity) is Some(text) {
     let measured = @platform_render.measure_text(
       text_style_for(entity).unwrap_or({
         font: None,
@@ -310,7 +310,7 @@ fn measure_node(
       text.content,
     )
     (measured[X], measured[Y])
-  } else if ui_images.get(entity) is Some(image) {
+  } else if ui_images().get(entity) is Some(image) {
     (image.size[X], image.size[Y])
   } else {
     (0.0, 0.0)
@@ -327,7 +327,7 @@ fn build_taffy_tree(
   entity : @entity.Entity,
   entity_to_node_id : Map[@entity.Entity, Int],
 ) -> Int? {
-  guard nodes.get(entity) is Some(node) else { return None }
+  guard nodes().get(entity) is Some(node) else { return None }
   guard node.active else { return None }
   let child_ids : Array[Int] = []
   for child in ui_children(entity) {
@@ -432,139 +432,139 @@ fn screen_rect_for(
 
 ///|
 fn cleanup_dead_ui_state() -> Unit {
-  for pair in nodes.to_array() {
+  for pair in nodes().to_array() {
     if !pair.0.is_alive() {
-      nodes.remove(pair.0)
+      nodes().remove(pair.0)
     }
   }
-  for pair in computed_ui_nodes.to_array() {
+  for pair in computed_ui_nodes().to_array() {
     if !pair.0.is_alive() {
-      computed_ui_nodes.remove(pair.0)
+      computed_ui_nodes().remove(pair.0)
     }
   }
-  for pair in global_ui_nodes.to_array() {
+  for pair in global_ui_nodes().to_array() {
     if !pair.0.is_alive() {
-      global_ui_nodes.remove(pair.0)
+      global_ui_nodes().remove(pair.0)
     }
   }
-  for pair in z_indexes.to_array() {
+  for pair in z_indexes().to_array() {
     if !pair.0.is_alive() {
-      z_indexes.remove(pair.0)
+      z_indexes().remove(pair.0)
     }
   }
-  for pair in global_zindexes.to_array() {
+  for pair in global_zindexes().to_array() {
     if !pair.0.is_alive() {
-      global_zindexes.remove(pair.0)
+      global_zindexes().remove(pair.0)
     }
   }
-  for pair in scroll_positions.to_array() {
+  for pair in scroll_positions().to_array() {
     if !pair.0.is_alive() {
-      scroll_positions.remove(pair.0)
+      scroll_positions().remove(pair.0)
     }
   }
-  for pair in tab_indexes.to_array() {
+  for pair in tab_indexes().to_array() {
     if !pair.0.is_alive() {
-      tab_indexes.remove(pair.0)
+      tab_indexes().remove(pair.0)
     }
   }
-  for pair in focus_policies.to_array() {
+  for pair in focus_policies().to_array() {
     if !pair.0.is_alive() {
-      focus_policies.remove(pair.0)
+      focus_policies().remove(pair.0)
     }
   }
-  for pair in focusables.to_array() {
+  for pair in focusables().to_array() {
     if !pair.0.is_alive() {
-      focusables.remove(pair.0)
+      focusables().remove(pair.0)
     }
   }
-  for pair in focuseds.to_array() {
+  for pair in focuseds().to_array() {
     if !pair.0.is_alive() {
-      focuseds.remove(pair.0)
+      focuseds().remove(pair.0)
     }
   }
-  for pair in override_clips.to_array() {
+  for pair in override_clips().to_array() {
     if !pair.0.is_alive() {
-      override_clips.remove(pair.0)
+      override_clips().remove(pair.0)
     }
   }
-  for pair in relative_cursor_positions.to_array() {
+  for pair in relative_cursor_positions().to_array() {
     if !pair.0.is_alive() {
-      relative_cursor_positions.remove(pair.0)
+      relative_cursor_positions().remove(pair.0)
     }
   }
-  for pair in background_colors.to_array() {
+  for pair in background_colors().to_array() {
     if !pair.0.is_alive() {
-      background_colors.remove(pair.0)
+      background_colors().remove(pair.0)
     }
   }
-  for pair in border_colors.to_array() {
+  for pair in border_colors().to_array() {
     if !pair.0.is_alive() {
-      border_colors.remove(pair.0)
+      border_colors().remove(pair.0)
     }
   }
-  for pair in border_radii.to_array() {
+  for pair in border_radii().to_array() {
     if !pair.0.is_alive() {
-      border_radii.remove(pair.0)
+      border_radii().remove(pair.0)
     }
   }
-  for pair in outlines.to_array() {
+  for pair in outlines().to_array() {
     if !pair.0.is_alive() {
-      outlines.remove(pair.0)
+      outlines().remove(pair.0)
     }
   }
-  for pair in material_nodes.to_array() {
+  for pair in material_nodes().to_array() {
     if !pair.0.is_alive() {
-      material_nodes.remove(pair.0)
+      material_nodes().remove(pair.0)
     }
   }
-  for pair in ui_images.to_array() {
+  for pair in ui_images().to_array() {
     if !pair.0.is_alive() {
-      ui_images.remove(pair.0)
+      ui_images().remove(pair.0)
     }
   }
-  for pair in texts.to_array() {
+  for pair in texts().to_array() {
     if !pair.0.is_alive() {
-      texts.remove(pair.0)
+      texts().remove(pair.0)
     }
   }
-  for pair in text_fonts.to_array() {
+  for pair in text_fonts().to_array() {
     if !pair.0.is_alive() {
-      text_fonts.remove(pair.0)
+      text_fonts().remove(pair.0)
     }
   }
-  for pair in text_colors.to_array() {
+  for pair in text_colors().to_array() {
     if !pair.0.is_alive() {
-      text_colors.remove(pair.0)
+      text_colors().remove(pair.0)
     }
   }
-  for pair in text_layouts.to_array() {
+  for pair in text_layouts().to_array() {
     if !pair.0.is_alive() {
-      text_layouts.remove(pair.0)
+      text_layouts().remove(pair.0)
     }
   }
-  for pair in buttons.to_array() {
+  for pair in buttons().to_array() {
     if !pair.0.is_alive() {
-      buttons.remove(pair.0)
+      buttons().remove(pair.0)
     }
   }
-  for pair in interactions.to_array() {
+  for pair in interactions().to_array() {
     if !pair.0.is_alive() {
-      interactions.remove(pair.0)
+      interactions().remove(pair.0)
     }
   }
-  for pair in calculated_clips.to_array() {
+  for pair in calculated_clips().to_array() {
     if !pair.0.is_alive() {
-      calculated_clips.remove(pair.0)
+      calculated_clips().remove(pair.0)
     }
   }
-  for pair in layout_configs.to_array() {
+  for pair in layout_configs().to_array() {
     if !pair.0.is_alive() {
-      layout_configs.remove(pair.0)
+      layout_configs().remove(pair.0)
     }
   }
-  for pair in tree_orders.to_array() {
+  for pair in tree_orders().to_array() {
     if !pair.0.is_alive() {
-      tree_orders.remove(pair.0)
+      tree_orders().remove(pair.0)
     }
   }
 }
@@ -580,8 +580,8 @@ fn apply_layout_recursive(
   order_counter : Ref[Int],
 ) -> Unit {
   guard entity_to_node_id.get(entity) is Some(node_id) else { return }
-  guard nodes.get(entity) is Some(node) else { return }
-  let use_rounding = layout_configs
+  guard nodes().get(entity) is Some(node) else { return }
+  let use_rounding = layout_configs()
     .get(entity)
     .map(fn(config) { config.use_rounding })
     .unwrap_or(inherited_use_rounding)
@@ -622,7 +622,7 @@ fn apply_layout_recursive(
     size: content_size,
   }
 
-  computed_ui_nodes.set(entity, {
+  computed_ui_nodes().set(entity, {
     position: logical_pos,
     size: logical_size,
     content_position,
@@ -632,7 +632,7 @@ fn apply_layout_recursive(
   })
   let screen_rect = screen_rect_for(logical_rect, use_rounding)
   let screen_content_rect = screen_rect_for(logical_content_rect, use_rounding)
-  global_ui_nodes.set(entity, {
+  global_ui_nodes().set(entity, {
     logical_rect,
     screen_rect,
     logical_content_rect,
@@ -640,9 +640,9 @@ fn apply_layout_recursive(
   })
 
   order_counter.val += 1
-  tree_orders.set(entity, order_counter.val)
+  tree_orders().set(entity, order_counter.val)
 
-  let inherited_clip : @math.Rect? = if override_clips.contains(entity) {
+  let inherited_clip : @math.Rect? = if override_clips().contains(entity) {
     None
   } else {
     parent_clip
@@ -659,11 +659,11 @@ fn apply_layout_recursive(
     }
   }
   match current_clip {
-    Some(rect) => calculated_clips.set(entity, CalculatedClip::new(rect))
-    None => calculated_clips.remove(entity)
+    Some(rect) => calculated_clips().set(entity, CalculatedClip::new(rect))
+    None => calculated_clips().remove(entity)
   }
 
-  let scroll = scroll_positions.get(entity).unwrap_or(ScrollPosition::zero())
+  let scroll = scroll_positions().get(entity).unwrap_or(ScrollPosition::zero())
   let next_origin = @math.Vec2D(
     logical_content_rect.position[X] - scroll.x,
     logical_content_rect.position[Y] - scroll.y,
@@ -678,10 +678,10 @@ fn apply_layout_recursive(
 ///|
 pub fn ui_layout_system(_delta : Double) -> Unit {
   cleanup_dead_ui_state()
-  computed_ui_nodes.clear()
-  global_ui_nodes.clear()
-  calculated_clips.clear()
-  tree_orders.clear()
+  computed_ui_nodes().clear()
+  global_ui_nodes().clear()
+  calculated_clips().clear()
+  tree_orders().clear()
 
   let viewport = root_size()
   let order_counter : Ref[Int] = Ref::new(0)

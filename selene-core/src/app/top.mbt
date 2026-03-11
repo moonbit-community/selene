@@ -1,17 +1,3 @@
-// Copyright 2025 International Digital Economy Academy
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 ///|
 const DEFAULT_VIEWPORT_HEIGHT = 256.0
 
@@ -28,9 +14,18 @@ const DEFAULT_FIXED_HZ : UInt = 64
 const DEFAULT_MAX_FIXED_STEPS_PER_FRAME : UInt = 8
 
 ///|
+pub type System = (@ecs.World, Double) -> Unit
+
+///|
+pub type RunCondition = (@ecs.World) -> Bool
+
+///|
+pub type Plugin = (App) -> Unit
+
+///|
 pub(all) struct RegisteredSystem {
   system : System
-  schedule : Schedule
+  schedule : @system.Schedule
   name : String
   in_set : @system_set.SystemSet?
   before : Array[@system_set.SystemSet]
@@ -47,12 +42,14 @@ pub(all) struct App {
   fps : UInt
   fixed_hz : UInt
   max_fixed_steps_per_frame : UInt
+  world : @ecs.World
   systems : Array[RegisteredSystem]
   plugins : Array[Plugin]
 }
 
 ///|
 pub fn App::new() -> App {
+  let world = @ecs.current_world().unwrap_or(@ecs.bootstrap_world())
   {
     viewport_height: DEFAULT_VIEWPORT_HEIGHT,
     viewport_width: DEFAULT_VIEWPORT_WIDTH,
@@ -61,9 +58,20 @@ pub fn App::new() -> App {
     fps: DEFAULT_FPS,
     fixed_hz: DEFAULT_FIXED_HZ,
     max_fixed_steps_per_frame: DEFAULT_MAX_FIXED_STEPS_PER_FRAME,
+    world,
     systems: [],
     plugins: [],
   }
+}
+
+///|
+pub fn App::with_world(self : App, world : @ecs.World) -> App {
+  { ..self, world, }
+}
+
+///|
+pub fn App::world(self : App) -> @ecs.World {
+  self.world
 }
 
 ///|
@@ -112,7 +120,7 @@ pub fn App::add_plugin(self : App, plugin : Plugin) -> App {
 pub fn App::add_system(
   self : App,
   system : System,
-  schedule? : Schedule = Update,
+  schedule? : @system.Schedule = @system.Update,
   system_name? : String,
   in_set? : @system_set.SystemSet,
   before? : Array[@system_set.SystemSet] = [],
@@ -139,7 +147,7 @@ pub fn App::add_system(
 pub fn App::add_systems(
   self : App,
   systems_to_add : Array[System],
-  schedule? : Schedule = Update,
+  schedule? : @system.Schedule = @system.Update,
   in_set? : @system_set.SystemSet,
   before? : Array[@system_set.SystemSet] = [],
   after? : Array[@system_set.SystemSet] = [],
@@ -269,7 +277,7 @@ fn sort_systems_by_set(
 ///|
 fn collect_systems(
   systems : Array[RegisteredSystem],
-  matcher : (Schedule) -> Bool,
+  matcher : (@system.Schedule) -> Bool,
 ) -> Array[RegisteredSystem] {
   let selected : Array[RegisteredSystem] = []
   for system in systems {
@@ -281,26 +289,31 @@ fn collect_systems(
 }
 
 ///|
-fn should_run(system : RegisteredSystem) -> Bool {
+fn should_run(system : RegisteredSystem, world : @ecs.World) -> Bool {
   let schedule_allows = match system.schedule {
-    OnEnter(condition) => condition()
-    OnExit(condition) => condition()
+    @system.OnEnter(condition) => condition()
+    @system.OnExit(condition) => condition()
     _ => true
   }
   if !schedule_allows {
     return false
   }
   match system.run_if {
-    Some(condition) => condition()
+    Some(condition) => condition(world)
     None => true
   }
 }
 
 ///|
-fn run_stage(systems : Array[RegisteredSystem], delta : Double) -> Unit {
+fn run_stage(
+  systems : Array[RegisteredSystem],
+  world : @ecs.World,
+  delta : Double,
+) -> Unit {
+  @ecs.set_current_world(world)
   for system in systems {
-    if should_run(system) {
-      (system.system)(delta)
+    if should_run(system, world) {
+      (system.system)(world, delta)
     }
   }
 }
@@ -317,7 +330,8 @@ pub fn App::run(self : App) -> Unit {
     abort("App::with_max_fixed_steps_per_frame must be greater than 0")
   }
 
-  configure_display(self.viewport_width, self.viewport_height, self.zoom)
+  @ecs.set_current_world(self.world)
+  @system.configure_display(self.viewport_width, self.viewport_height, self.zoom)
   let screen_width = self.viewport_width * self.zoom
   let screen_height = self.viewport_height * self.zoom
   for plugin in self.plugins {
@@ -325,72 +339,76 @@ pub fn App::run(self : App) -> Unit {
   }
 
   let startup_systems = collect_systems(self.systems, fn(schedule) {
-    schedule is Startup
+    schedule is @system.Startup
   })
   let frame_first = collect_systems(self.systems, fn(schedule) {
-    schedule is First
+    schedule is @system.First
   })
   let frame_pre = collect_systems(self.systems, fn(schedule) {
-    schedule is PreUpdate
+    schedule is @system.PreUpdate
   })
   let frame_on_exit = collect_systems(self.systems, fn(schedule) {
-    schedule is OnExit(_)
+    schedule is @system.OnExit(_)
   })
   let frame_on_enter = collect_systems(self.systems, fn(schedule) {
-    schedule is OnEnter(_)
+    schedule is @system.OnEnter(_)
   })
   let frame_update = collect_systems(self.systems, fn(schedule) {
-    schedule is Update
+    schedule is @system.Update
   })
   let frame_post = collect_systems(self.systems, fn(schedule) {
-    schedule is PostUpdate
+    schedule is @system.PostUpdate
   })
   let frame_last = collect_systems(self.systems, fn(schedule) {
-    schedule is Last
+    schedule is @system.Last
   })
 
   let fixed_first = collect_systems(self.systems, fn(schedule) {
-    schedule is FixedFirst
+    schedule is @system.FixedFirst
   })
   let fixed_pre = collect_systems(self.systems, fn(schedule) {
-    schedule is FixedPreUpdate
+    schedule is @system.FixedPreUpdate
   })
   let fixed_update = collect_systems(self.systems, fn(schedule) {
-    schedule is FixedUpdate
+    schedule is @system.FixedUpdate
   })
   let fixed_post = collect_systems(self.systems, fn(schedule) {
-    schedule is FixedPostUpdate
+    schedule is @system.FixedPostUpdate
   })
   let fixed_last = collect_systems(self.systems, fn(schedule) {
-    schedule is FixedLast
+    schedule is @system.FixedLast
   })
 
   let render_extract = collect_systems(self.systems, fn(schedule) {
-    schedule is RenderExtract
+    schedule is @system.RenderExtract
   })
   let render_prepare = collect_systems(self.systems, fn(schedule) {
-    schedule is RenderPrepare
+    schedule is @system.RenderPrepare
   })
   let render_stage = collect_systems(self.systems, fn(schedule) {
-    schedule is Render
+    schedule is @system.Render
   })
   let render_cleanup = collect_systems(self.systems, fn(schedule) {
-    schedule is RenderCleanup
+    schedule is @system.RenderCleanup
   })
 
+  let world = self.world
+
   fn startup() {
-    run_stage(startup_systems, 0.0)
-    @commands.commands_flush_system(0.0)
+    @ecs.set_current_world(world)
+    run_stage(startup_systems, world, 0.0)
+    @commands.commands_flush_system(world, 0.0)
     @entity.entity_flush_system(0.0)
   }
 
   fn render_loop(_raw_delta : Double) {
+    @ecs.set_current_world(world)
     let delta = @time.delta()
     @event.event_render_update_system(delta)
-    run_stage(render_extract, delta)
-    run_stage(render_prepare, delta)
-    run_stage(render_stage, delta)
-    run_stage(render_cleanup, delta)
+    run_stage(render_extract, world, delta)
+    run_stage(render_prepare, world, delta)
+    run_stage(render_stage, world, delta)
+    run_stage(render_cleanup, world, delta)
     @platform_audio.tick()
   }
 
@@ -399,34 +417,37 @@ pub fn App::run(self : App) -> Unit {
   let accumulator : Ref[Double] = { val: 0.0 }
 
   fn game_loop(raw_delta : Double) {
+    @ecs.set_current_world(world)
+    world.advance_frame()
     @time.begin_frame(raw_delta)
     @inputs.apply_input_snapshot(@platform_input.poll_input())
     let delta = @time.delta()
     @state.state_transition_system(delta)
     @event.event_frame_update_system(delta)
 
-    run_stage(frame_first, delta)
-    run_stage(frame_pre, delta)
-    run_stage(frame_on_exit, delta)
-    run_stage(frame_on_enter, delta)
-    run_stage(frame_update, delta)
-    run_stage(frame_post, delta)
+    run_stage(frame_first, world, delta)
+    run_stage(frame_pre, world, delta)
+    run_stage(frame_on_exit, world, delta)
+    run_stage(frame_on_enter, world, delta)
+    run_stage(frame_update, world, delta)
+    run_stage(frame_post, world, delta)
 
     @event.event_observer_dispatch_system(delta)
-    run_stage(frame_last, delta)
-    @commands.commands_flush_system(delta)
+    run_stage(frame_last, world, delta)
+    @commands.commands_flush_system(world, delta)
     @entity.entity_flush_system(delta)
 
     accumulator.val += delta
     let mut fixed_steps = 0
     while accumulator.val >= fixed_dt && fixed_steps < max_fixed_steps {
+      world.advance_fixed_step()
       @event.event_fixed_update_system(fixed_dt)
-      run_stage(fixed_first, fixed_dt)
-      run_stage(fixed_pre, fixed_dt)
-      run_stage(fixed_update, fixed_dt)
-      run_stage(fixed_post, fixed_dt)
-      run_stage(fixed_last, fixed_dt)
-      @commands.commands_flush_system(fixed_dt)
+      run_stage(fixed_first, world, fixed_dt)
+      run_stage(fixed_pre, world, fixed_dt)
+      run_stage(fixed_update, world, fixed_dt)
+      run_stage(fixed_post, world, fixed_dt)
+      run_stage(fixed_last, world, fixed_dt)
+      @commands.commands_flush_system(world, fixed_dt)
       @entity.entity_flush_system(fixed_dt)
       accumulator.val -= fixed_dt
       fixed_steps += 1
@@ -436,7 +457,7 @@ pub fn App::run(self : App) -> Unit {
     }
 
     let alpha = @cmp.maximum(0.0, @cmp.minimum(1.0, accumulator.val / fixed_dt))
-    set_render_alpha(alpha)
+    @system.set_render_alpha(alpha)
   }
 
   let run_game = @platform_window.initialize(

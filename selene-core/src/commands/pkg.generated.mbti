@@ -2,24 +2,25 @@
 package "Milky2018/selene/commands"
 
 import {
+  "Milky2018/selene/ecs",
   "Milky2018/selene/entity",
   "Milky2018/selene/event",
 }
 
 // Values
-pub fn commands() -> Commands
+pub fn commands(@ecs.World) -> Commands
 
-pub fn commands_flush_system(Double) -> Unit
+pub fn commands_flush_system(@ecs.World, Double) -> Unit
 
-pub fn has_pending_commands() -> Bool
+pub fn has_pending_commands(@ecs.World) -> Bool
 
 // Errors
 
 // Types and methods
 pub(all) struct Commands {
-  _tag : Unit
+  world : @ecs.World
 }
-pub fn Commands::add(Self, () -> Unit) -> Unit
+pub fn Commands::add(Self, (@ecs.World) -> Unit) -> Unit
 pub fn Commands::despawn(Self, @entity.Entity) -> Unit
 pub fn[T] Commands::insert(Self, Map[@entity.Entity, T], @entity.Entity, T) -> Unit
 pub fn[T] Commands::remove(Self, Map[@entity.Entity, T], @entity.Entity) -> Unit

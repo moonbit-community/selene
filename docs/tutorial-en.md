@@ -95,15 +95,15 @@ options(
 
 ```moonbit
 pub fn run() -> Unit {
-  @system.App::new()
+  @app.App::new()
   .with_viewport_width(480.0)
   .with_viewport_height(320.0)
   .with_image_smooth(false)
   .with_zoom(2.0)
   .with_fps(60)
   .add_plugin(@plugins.default_plugin)
-  .add_system(game_start, schedule=Startup)
-  .add_system(gameplay_system)
+  .add_system(fn(_world, delta) { game_start(delta) }, schedule=Startup)
+  .add_system(fn(_world, delta) { gameplay_system(delta) })
   .run()
 }
 ```

@@ -8,12 +8,18 @@ priv struct TimeState {
 }
 
 ///|
-let state : TimeState = {
-  raw_delta: 0.0,
-  delta: 0.0,
-  elapsed_raw: 0.0,
-  elapsed: 0.0,
-  scale: 1.0,
+let time_world_states : Map[UInt, TimeState] = Map::new()
+
+///|
+fn time_state() -> TimeState {
+  let world_id = @ecs.require_current_world().id()
+  time_world_states.get_or_init(world_id, () => {
+    raw_delta: 0.0,
+    delta: 0.0,
+    elapsed_raw: 0.0,
+    elapsed: 0.0,
+    scale: 1.0,
+  })
 }
 
 ///|
@@ -27,6 +33,7 @@ fn non_negative(value : Double) -> Double {
 
 ///|
 pub fn begin_frame(raw_delta : Double) -> Unit {
+  let state = time_state()
   let safe_raw = non_negative(raw_delta)
   state.raw_delta = safe_raw
   state.delta = safe_raw * state.scale
@@ -36,30 +43,31 @@ pub fn begin_frame(raw_delta : Double) -> Unit {
 
 ///|
 pub fn delta() -> Double {
-  state.delta
+  time_state().delta
 }
 
 ///|
 pub fn raw_delta() -> Double {
-  state.raw_delta
+  time_state().raw_delta
 }
 
 ///|
 pub fn elapsed() -> Double {
-  state.elapsed
+  time_state().elapsed
 }
 
 ///|
 pub fn elapsed_raw() -> Double {
-  state.elapsed_raw
+  time_state().elapsed_raw
 }
 
 ///|
 pub fn set_scale(scale : Double) -> Unit {
+  let state = time_state()
   state.scale = @cmp.maximum(0.0, scale)
 }
 
 ///|
 pub fn scale() -> Double {
-  state.scale
+  time_state().scale
 }

@@ -1,15 +1,9 @@
 import {
-  "Milky2018/selene/commands",
-  "Milky2018/selene/entity",
-  "Milky2018/selene/event",
+  "Milky2018/selene/ecs",
   "Milky2018/selene/inputs",
-  "Milky2018/selene/platform_audio",
   "Milky2018/selene/platform_input",
   "Milky2018/selene/platform_window",
-  "Milky2018/selene/state",
-  "Milky2018/selene/system_set",
   "Milky2018/selene/math",
   "Milky2018/selene/time",
   "moonbitlang/core/cmp",
-  "moonbitlang/core/set",
 }

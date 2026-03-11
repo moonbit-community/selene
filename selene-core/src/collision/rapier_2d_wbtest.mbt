@@ -11,16 +11,16 @@ fn collision_test_shape() -> CollisionShape {
 ///|
 fn collision_test_cleanup(entities : Array[@entity.Entity]) -> Unit {
   for entity in entities {
-    colliders.remove(entity)
-    areas.remove(entity)
-    shapes.remove(entity)
-    rigid_bodies.remove(entity)
-    joints.remove(entity)
-    multibody_joints.remove(entity)
-    @velocity.velocities.remove(entity)
-    resolved_velocities.remove(entity)
-    grounded_entities.remove(entity)
-    @position.positions.remove(entity)
+    colliders().remove(entity)
+    areas().remove(entity)
+    shapes().remove(entity)
+    rigid_bodies().remove(entity)
+    joints().remove(entity)
+    multibody_joints().remove(entity)
+    @velocity.velocities().remove(entity)
+    resolved_velocities().remove(entity)
+    grounded_entities().remove(entity)
+    @position.positions().remove(entity)
     entity.destroy()
   }
   rapier_fixed_step(0.016)
@@ -47,9 +47,9 @@ test "explicit rigid body syncs material and rapier handles" {
   let entity = @entity.Entity::new()
   defer collision_test_cleanup([entity])
 
-  @position.positions.set(entity, @math.Vec2D::zero())
-  shapes.set(entity, collision_test_shape())
-  colliders.set(
+  @position.positions().set(entity, @math.Vec2D::zero())
+  shapes().set(entity, collision_test_shape())
+  colliders().set(
     entity,
     Collider::with_material(
       collision_test_filter(),
@@ -57,7 +57,7 @@ test "explicit rigid body syncs material and rapier handles" {
       restitution=0.75,
     ),
   )
-  rigid_bodies.set(entity, {
+  rigid_bodies().set(entity, {
     ..RigidBody::dynamic(),
     gravity_scale: 2.0,
     linear_damping: 1.5,
@@ -78,11 +78,11 @@ test "explicit rigid body syncs material and rapier handles" {
     inspect("missing", content="true")
     return
   }
-  guard world.bodies.get(body_handle) is Some(body) else {
+  guard world().bodies.get(body_handle) is Some(body) else {
     inspect("missing", content="true")
     return
   }
-  guard world.colliders.get(collider_handle) is Some(collider) else {
+  guard world().colliders.get(collider_handle) is Some(collider) else {
     inspect("missing", content="true")
     return
   }
@@ -125,16 +125,16 @@ test "dynamic rigid body moves under gravity without legacy velocity component" 
   let entity = @entity.Entity::new()
   defer collision_test_cleanup([entity])
 
-  @position.positions.set(entity, @math.Vec2D::zero())
-  shapes.set(entity, collision_test_shape())
-  colliders.set(entity, Collider::new(collision_test_filter()))
-  rigid_bodies.set(entity, RigidBody::dynamic())
+  @position.positions().set(entity, @math.Vec2D::zero())
+  shapes().set(entity, collision_test_shape())
+  colliders().set(entity, Collider::new(collision_test_filter()))
+  rigid_bodies().set(entity, RigidBody::dynamic())
 
   rapier_fixed_step(0.1)
 
-  inspect(@position.positions.get(entity).unwrap().0[Y] > 0.0, content="true")
+  inspect(@position.positions().get(entity).unwrap().0[Y] > 0.0, content="true")
   inspect(
-    resolved_velocities
+    resolved_velocities()
     .get(entity)
     .map_or(false, fn(velocity) { velocity.0[Y] > 0.0 }),
     content="true",
@@ -153,26 +153,26 @@ test "explicit body type overrides legacy velocity heuristic" {
   defer collision_test_cleanup([fixed_entity, kinematic_entity])
 
   for entity in [fixed_entity, kinematic_entity] {
-    @position.positions.set(entity, @math.Vec2D::zero())
-    shapes.set(entity, collision_test_shape())
-    colliders.set(entity, Collider::new(collision_test_filter()))
-    @velocity.velocities.set(entity, @math.Vec2D(120.0, 0.0))
+    @position.positions().set(entity, @math.Vec2D::zero())
+    shapes().set(entity, collision_test_shape())
+    colliders().set(entity, Collider::new(collision_test_filter()))
+    @velocity.velocities().set(entity, @math.Vec2D(120.0, 0.0))
   }
-  rigid_bodies.set(fixed_entity, RigidBody::fixed())
-  rigid_bodies.set(kinematic_entity, RigidBody::kinematic_velocity_based())
+  rigid_bodies().set(fixed_entity, RigidBody::fixed())
+  rigid_bodies().set(kinematic_entity, RigidBody::kinematic_velocity_based())
 
   rapier_fixed_step(0.25)
 
   inspect(
-    @position.positions.get(fixed_entity).unwrap().0[X].abs() <= 0.001,
+    @position.positions().get(fixed_entity).unwrap().0[X].abs() <= 0.001,
     content="true",
   )
   inspect(
-    @position.positions.get(kinematic_entity).unwrap().0[X] > 20.0,
+    @position.positions().get(kinematic_entity).unwrap().0[X] > 20.0,
     content="true",
   )
   inspect(
-    resolved_velocities
+    resolved_velocities()
     .get(kinematic_entity)
     .map_or(false, fn(velocity) { velocity.0[X] > 20.0 }),
     content="true",
@@ -191,29 +191,29 @@ test "spatial queries resolve hits, overlaps, and body filters" {
   let kinematic_entity = @entity.Entity::new()
   defer collision_test_cleanup([fixed_entity, dynamic_entity, kinematic_entity])
 
-  @position.positions.set(fixed_entity, @math.Vec2D(120.0, 80.0))
-  shapes.set(
+  @position.positions().set(fixed_entity, @math.Vec2D(120.0, 80.0))
+  shapes().set(
     fixed_entity,
     Rect(size=@math.Vec2D(40.0, 40.0), offset=@math.Vec2D::zero()),
   )
-  colliders.set(fixed_entity, Collider::new(collision_test_filter()))
-  rigid_bodies.set(fixed_entity, RigidBody::fixed())
+  colliders().set(fixed_entity, Collider::new(collision_test_filter()))
+  rigid_bodies().set(fixed_entity, RigidBody::fixed())
 
-  @position.positions.set(dynamic_entity, @math.Vec2D(220.0, 80.0))
-  shapes.set(
+  @position.positions().set(dynamic_entity, @math.Vec2D(220.0, 80.0))
+  shapes().set(
     dynamic_entity,
     Rect(size=@math.Vec2D(40.0, 40.0), offset=@math.Vec2D::zero()),
   )
-  colliders.set(dynamic_entity, Collider::new(collision_test_filter()))
-  rigid_bodies.set(dynamic_entity, RigidBody::dynamic())
+  colliders().set(dynamic_entity, Collider::new(collision_test_filter()))
+  rigid_bodies().set(dynamic_entity, RigidBody::dynamic())
 
-  @position.positions.set(kinematic_entity, @math.Vec2D(320.0, 80.0))
-  shapes.set(
+  @position.positions().set(kinematic_entity, @math.Vec2D(320.0, 80.0))
+  shapes().set(
     kinematic_entity,
     Rect(size=@math.Vec2D(40.0, 40.0), offset=@math.Vec2D::zero()),
   )
-  colliders.set(kinematic_entity, Collider::new(collision_test_filter()))
-  rigid_bodies.set(kinematic_entity, RigidBody::kinematic_position_based())
+  colliders().set(kinematic_entity, Collider::new(collision_test_filter()))
+  rigid_bodies().set(kinematic_entity, RigidBody::kinematic_position_based())
 
   rapier_fixed_step(0.016)
 
@@ -293,10 +293,10 @@ test "rigid body setters and getters work before insertion" {
   let entity = @entity.Entity::new()
   defer collision_test_cleanup([entity])
 
-  @position.positions.set(entity, @math.Vec2D::zero())
-  shapes.set(entity, collision_test_shape())
-  colliders.set(entity, Collider::new(collision_test_filter()))
-  rigid_bodies.set(entity, { ..RigidBody::dynamic(), lock_rotation: false })
+  @position.positions().set(entity, @math.Vec2D::zero())
+  shapes().set(entity, collision_test_shape())
+  colliders().set(entity, Collider::new(collision_test_filter()))
+  rigid_bodies().set(entity, { ..RigidBody::dynamic(), lock_rotation: false })
 
   set_rigid_body_translation(entity, @math.Vec2D(32.0, 12.0))
   set_rigid_body_rotation(entity, 0.25)
@@ -351,10 +351,10 @@ test "force and impulse helpers apply before and after body creation" {
   let entity = @entity.Entity::new()
   defer collision_test_cleanup([entity])
 
-  @position.positions.set(entity, @math.Vec2D::zero())
-  shapes.set(entity, collision_test_shape())
-  colliders.set(entity, Collider::new(collision_test_filter()))
-  rigid_bodies.set(entity, { ..RigidBody::dynamic(), lock_rotation: false })
+  @position.positions().set(entity, @math.Vec2D::zero())
+  shapes().set(entity, collision_test_shape())
+  colliders().set(entity, Collider::new(collision_test_filter()))
+  rigid_bodies().set(entity, { ..RigidBody::dynamic(), lock_rotation: false })
 
   apply_impulse(entity, @math.Vec2D(200.0, 0.0))
   apply_torque_impulse(entity, 1.0)
@@ -399,22 +399,22 @@ test "impulse joints insert and accept all supported joint kinds" {
   let joint_entity = @entity.Entity::new()
   defer collision_test_cleanup([body_a, body_b, joint_entity])
 
-  @position.positions.set(body_a, @math.Vec2D::zero())
-  shapes.set(body_a, collision_test_shape())
-  colliders.set(body_a, Collider::new(collision_test_filter()))
-  rigid_bodies.set(body_a, RigidBody::fixed())
+  @position.positions().set(body_a, @math.Vec2D::zero())
+  shapes().set(body_a, collision_test_shape())
+  colliders().set(body_a, Collider::new(collision_test_filter()))
+  rigid_bodies().set(body_a, RigidBody::fixed())
 
-  @position.positions.set(body_b, @math.Vec2D(32.0, 0.0))
-  shapes.set(body_b, collision_test_shape())
-  colliders.set(body_b, Collider::new(collision_test_filter()))
-  rigid_bodies.set(body_b, { ..RigidBody::dynamic(), lock_rotation: false })
+  @position.positions().set(body_b, @math.Vec2D(32.0, 0.0))
+  shapes().set(body_b, collision_test_shape())
+  colliders().set(body_b, Collider::new(collision_test_filter()))
+  rigid_bodies().set(body_b, { ..RigidBody::dynamic(), lock_rotation: false })
 
-  joints.set(joint_entity, Joint::fixed(body_a, body_b))
+  joints().set(joint_entity, Joint::fixed(body_a, body_b))
   rapier_fixed_step(0.016)
   inspect(joint_handle(joint_entity) is Some(_), content="true")
-  inspect(world.impulse_joints.len() == 1, content="true")
+  inspect(world().impulse_joints.len() == 1, content="true")
 
-  joints.set(
+  joints().set(
     joint_entity,
     Joint::revolute(
       body_a,
@@ -426,9 +426,9 @@ test "impulse joints insert and accept all supported joint kinds" {
   )
   rapier_fixed_step(0.016)
   inspect(joint_handle(joint_entity) is Some(_), content="true")
-  inspect(world.impulse_joints.len() == 1, content="true")
+  inspect(world().impulse_joints.len() == 1, content="true")
 
-  joints.set(
+  joints().set(
     joint_entity,
     Joint::prismatic(
       body_a,
@@ -440,11 +440,11 @@ test "impulse joints insert and accept all supported joint kinds" {
   rapier_fixed_step(0.016)
   inspect(joint_handle(joint_entity) is Some(_), content="true")
 
-  joints.set(joint_entity, Joint::rope(body_a, body_b, 48.0))
+  joints().set(joint_entity, Joint::rope(body_a, body_b, 48.0))
   rapier_fixed_step(0.016)
   inspect(joint_handle(joint_entity) is Some(_), content="true")
 
-  joints.set(
+  joints().set(
     joint_entity,
     Joint::spring(
       body_a,
@@ -464,7 +464,7 @@ test "impulse joints insert and accept all supported joint kinds" {
     return
   }
   inspect(
-    world.impulse_joints
+    world().impulse_joints
     .get(handle)
     .map_or(false, fn(joint) { !joint.is_enabled() }),
     content="true",
@@ -484,25 +484,25 @@ test "impulse joints are removed when endpoints disappear" {
   defer collision_test_cleanup([body_a, body_b, joint_entity])
 
   for entry in [(body_a, @math.Vec2D::zero()), (body_b, @math.Vec2D(32.0, 0.0))] {
-    @position.positions.set(entry.0, entry.1)
-    shapes.set(entry.0, collision_test_shape())
-    colliders.set(entry.0, Collider::new(collision_test_filter()))
-    rigid_bodies.set(entry.0, RigidBody::dynamic())
+    @position.positions().set(entry.0, entry.1)
+    shapes().set(entry.0, collision_test_shape())
+    colliders().set(entry.0, Collider::new(collision_test_filter()))
+    rigid_bodies().set(entry.0, RigidBody::dynamic())
   }
-  joints.set(joint_entity, Joint::fixed(body_a, body_b))
+  joints().set(joint_entity, Joint::fixed(body_a, body_b))
 
   rapier_fixed_step(0.016)
   inspect(joint_handle(joint_entity) is Some(_), content="true")
 
-  colliders.remove(body_b)
-  shapes.remove(body_b)
-  rigid_bodies.remove(body_b)
-  @position.positions.remove(body_b)
+  colliders().remove(body_b)
+  shapes().remove(body_b)
+  rigid_bodies().remove(body_b)
+  @position.positions().remove(body_b)
 
   rapier_fixed_step(0.016)
 
   inspect(joint_handle(joint_entity) is None, content="true")
-  inspect(world.impulse_joints.len() == 0, content="true")
+  inspect(world().impulse_joints.len() == 0, content="true")
 }
 
 ///|
@@ -523,13 +523,13 @@ test "multibody joints insert, expose handles, and rebuild chains" {
       (child, @math.Vec2D(32.0, 0.0)),
       (grandchild, @math.Vec2D(64.0, 0.0)),
     ] {
-    @position.positions.set(entry.0, entry.1)
-    shapes.set(entry.0, collision_test_shape())
-    colliders.set(entry.0, Collider::new(collision_test_filter()))
-    rigid_bodies.set(entry.0, { ..RigidBody::dynamic(), lock_rotation: false })
+    @position.positions().set(entry.0, entry.1)
+    shapes().set(entry.0, collision_test_shape())
+    colliders().set(entry.0, Collider::new(collision_test_filter()))
+    rigid_bodies().set(entry.0, { ..RigidBody::dynamic(), lock_rotation: false })
   }
 
-  multibody_joints.set(
+  multibody_joints().set(
     child,
     MultibodyJoint::revolute(
       parent,
@@ -540,7 +540,7 @@ test "multibody joints insert, expose handles, and rebuild chains" {
       softness=JointSoftness::new(0.8, 6.0),
     ),
   )
-  multibody_joints.set(
+  multibody_joints().set(
     grandchild,
     MultibodyJoint::revolute(
       child,
@@ -555,7 +555,7 @@ test "multibody joints insert, expose handles, and rebuild chains" {
   inspect(multibody_joint_handle(grandchild) is Some(_), content="true")
   inspect(multibody_link(child) is Some(_), content="true")
   inspect(
-    world.multibody_joints.revolute_joint_descriptors().length() == 2,
+    world().multibody_joints.revolute_joint_descriptors().length() == 2,
     content="true",
   )
 
@@ -576,7 +576,7 @@ test "multibody joints insert, expose handles, and rebuild chains" {
   let grandchild_key = body_handle_parts(grandchild_handle)
   let mut found_child_joint = false
   let mut found_grandchild_joint = false
-  for descriptor in world.multibody_joints.revolute_joint_descriptors() {
+  for descriptor in world().multibody_joints.revolute_joint_descriptors() {
     if body_handle_parts(descriptor.parent) == parent_key &&
       body_handle_parts(descriptor.child) == child_key {
       found_child_joint = descriptor.joint
@@ -609,15 +609,15 @@ test "multibody joints insert, expose handles, and rebuild chains" {
   inspect(found_child_joint, content="true")
   inspect(found_grandchild_joint, content="true")
 
-  multibody_joints.set(child, MultibodyJoint::revolute(parent, active=false))
+  multibody_joints().set(child, MultibodyJoint::revolute(parent, active=false))
   rapier_fixed_step(0.016)
   inspect(multibody_joint_handle(child) is None, content="true")
   inspect(
-    world.multibody_joints.revolute_joint_descriptors().length() == 1,
+    world().multibody_joints.revolute_joint_descriptors().length() == 1,
     content="true",
   )
 
-  multibody_joints.set(
+  multibody_joints().set(
     child,
     MultibodyJoint::revolute(
       parent,
@@ -628,7 +628,7 @@ test "multibody joints insert, expose handles, and rebuild chains" {
   rapier_fixed_step(0.016)
   inspect(multibody_joint_handle(child) is Some(_), content="true")
   inspect(
-    world.multibody_joints.revolute_joint_descriptors().length() == 2,
+    world().multibody_joints.revolute_joint_descriptors().length() == 2,
     content="true",
   )
 }
@@ -645,30 +645,30 @@ test "multibody joints are removed when endpoints disappear" {
   defer collision_test_cleanup([parent, child])
 
   for entry in [(parent, @math.Vec2D::zero()), (child, @math.Vec2D(32.0, 0.0))] {
-    @position.positions.set(entry.0, entry.1)
-    shapes.set(entry.0, collision_test_shape())
-    colliders.set(entry.0, Collider::new(collision_test_filter()))
-    rigid_bodies.set(entry.0, RigidBody::dynamic())
+    @position.positions().set(entry.0, entry.1)
+    shapes().set(entry.0, collision_test_shape())
+    colliders().set(entry.0, Collider::new(collision_test_filter()))
+    rigid_bodies().set(entry.0, RigidBody::dynamic())
   }
-  multibody_joints.set(child, MultibodyJoint::revolute(parent))
+  multibody_joints().set(child, MultibodyJoint::revolute(parent))
 
   rapier_fixed_step(0.016)
   inspect(multibody_joint_handle(child) is Some(_), content="true")
   inspect(
-    world.multibody_joints.revolute_joint_descriptors().length() == 1,
+    world().multibody_joints.revolute_joint_descriptors().length() == 1,
     content="true",
   )
 
-  colliders.remove(parent)
-  shapes.remove(parent)
-  rigid_bodies.remove(parent)
-  @position.positions.remove(parent)
+  colliders().remove(parent)
+  shapes().remove(parent)
+  rigid_bodies().remove(parent)
+  @position.positions().remove(parent)
 
   rapier_fixed_step(0.016)
 
   inspect(multibody_joint_handle(child) is None, content="true")
   inspect(
-    world.multibody_joints.revolute_joint_descriptors().length() == 0,
+    world().multibody_joints.revolute_joint_descriptors().length() == 0,
     content="true",
   )
 }

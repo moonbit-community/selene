@@ -2,15 +2,15 @@
 package "Milky2018/selene/plugins"
 
 import {
-  "Milky2018/selene/system",
+  "Milky2018/selene/app",
 }
 
 // Values
-pub fn debug_plugin(@system.App) -> Unit
+pub fn debug_plugin(@app.App) -> Unit
 
-pub fn default_3d_plugin(@system.App) -> Unit
+pub fn default_3d_plugin(@app.App) -> Unit
 
-pub fn default_plugin(@system.App) -> Unit
+pub fn default_plugin(@app.App) -> Unit
 
 // Errors
 

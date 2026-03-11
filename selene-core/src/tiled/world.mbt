@@ -63,10 +63,32 @@ pub struct TiledWorldSpawnSettings {
 }
 
 ///|
-pub let tiled_world_instances : Map[@entity.Entity, TiledWorldInstance] = Map::new()
+priv struct TiledWorldRuntimeStore {
+  tiled_world_instances : Map[@entity.Entity, TiledWorldInstance]
+  tiled_world_map_instances : Map[@entity.Entity, TiledWorldMapInstance]
+}
 
 ///|
-pub let tiled_world_map_instances : Map[@entity.Entity, TiledWorldMapInstance] = Map::new()
+let tiled_world_runtime_stores : Map[UInt, TiledWorldRuntimeStore] = Map::new()
+
+///|
+fn tiled_world_runtime_store() -> TiledWorldRuntimeStore {
+  let world_id = @ecs.require_current_world().id()
+  tiled_world_runtime_stores.get_or_init(world_id, () => {
+    tiled_world_instances: Map::new(),
+    tiled_world_map_instances: Map::new(),
+  })
+}
+
+///|
+pub fn tiled_world_instances() -> Map[@entity.Entity, TiledWorldInstance] {
+  tiled_world_runtime_store().tiled_world_instances
+}
+
+///|
+pub fn tiled_world_map_instances() -> Map[@entity.Entity, TiledWorldMapInstance] {
+  tiled_world_runtime_store().tiled_world_map_instances
+}
 
 ///|
 pub fn empty_tiled_world() -> TiledWorld {
@@ -151,7 +173,7 @@ fn spawn_tiled_world_root(
   world : TiledWorld,
   settings : TiledWorldSpawnSettings,
 ) -> Unit {
-  @transform.positions.set(world_entity, settings.position)
+  @transform.positions().set(world_entity, settings.position)
   let loaded_maps_raw = tiled_world_load_maps(world)
   let focus_path = settings.focus_map_path.map(path => {
     world.resolve_map_path(path)
@@ -169,7 +191,7 @@ fn spawn_tiled_world_root(
     })
   }
   let spawned_maps : Map[Int, @entity.Entity] = Map::new()
-  tiled_world_instances.set(world_entity, {
+  tiled_world_instances().set(world_entity, {
     world,
     settings,
     loaded_maps,
@@ -193,11 +215,11 @@ fn spawn_tiled_world_root(
 
 ///|
 pub fn tiled_world_chunking_system(_delta : Double) -> Unit {
-  for entity in tiled_world_instances.to_array().map(pair => pair.0) {
+  for entity in tiled_world_instances().to_array().map(pair => pair.0) {
     if !entity.is_alive() {
       continue
     }
-    guard tiled_world_instances.get(entity) is Some(instance) else { continue }
+    guard tiled_world_instances().get(entity) is Some(instance) else { continue }
     if instance.settings.chunking is Some(_) {
       tiled_world_update_chunking(entity)
     }
@@ -206,7 +228,7 @@ pub fn tiled_world_chunking_system(_delta : Double) -> Unit {
 
 ///|
 fn tiled_world_update_chunking(world_entity : @entity.Entity) -> Unit {
-  guard tiled_world_instances.get(world_entity) is Some(instance) else {
+  guard tiled_world_instances().get(world_entity) is Some(instance) else {
     return
   }
   guard instance.settings.chunking is Some(margin) else { return }
@@ -216,7 +238,7 @@ fn tiled_world_update_chunking(world_entity : @entity.Entity) -> Unit {
   let view_min = camera_pos - margin
   let view_max = camera_pos + viewport_size + margin
 
-  guard @transform.positions.get(world_entity) is Some(world_pos) else {
+  guard @transform.positions().get(world_entity) is Some(world_pos) else {
     return
   }
   let world_origin = world_pos.0
@@ -261,7 +283,7 @@ fn tiled_world_spawn_loaded_map(
   world_entity : @entity.Entity,
   index : Int,
 ) -> Unit {
-  guard tiled_world_instances.get(world_entity) is Some(instance) else {
+  guard tiled_world_instances().get(world_entity) is Some(instance) else {
     return
   }
   if index < 0 || index >= instance.loaded_maps.length() {
@@ -292,7 +314,7 @@ fn tiled_world_spawn_loaded_map(
     map: loaded_map.map,
     resolved_map_path: loaded_map.resolved_map_path,
   }
-  tiled_world_map_instances.set(map_entity, {
+  tiled_world_map_instances().set(map_entity, {
     world_entity,
     map_entity,
     world_map: loaded_map.world_map,

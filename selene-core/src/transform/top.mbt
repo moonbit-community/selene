@@ -27,23 +27,33 @@ pub type GlobalTransform = @position.Position
 
 ///|
 /// Local transforms.
-pub let transforms : Map[@entity.Entity, Transform] = @position.positions
+pub fn transforms() -> Map[@entity.Entity, Transform] {
+  @position.positions()
+}
 
 ///|
 /// Backward-compatible alias for transform storage.
-pub let positions : Map[@entity.Entity, Transform] = transforms
+pub fn positions() -> Map[@entity.Entity, Transform] {
+  transforms()
+}
 
 ///|
 /// Global transforms.
-pub let global_transforms : Map[@entity.Entity, GlobalTransform] = transforms
+pub fn global_transforms() -> Map[@entity.Entity, GlobalTransform] {
+  transforms()
+}
 
 ///|
 /// Previous-frame transform snapshot used for render interpolation.
-pub let previous_transforms : Map[@entity.Entity, Transform] = @position.previous_positions
+pub fn previous_transforms() -> Map[@entity.Entity, Transform] {
+  @position.previous_positions()
+}
 
 ///|
 /// Backward-compatible alias for previous transforms.
-pub let previous_positions : Map[@entity.Entity, Transform] = previous_transforms
+pub fn previous_positions() -> Map[@entity.Entity, Transform] {
+  previous_transforms()
+}
 
 ///|
 /// Copies current local transforms into previous-frame snapshot.

@@ -1,0 +1,37 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/ecs"
+
+// Values
+pub fn bootstrap_world() -> World
+
+pub fn clear_current_world() -> Unit
+
+pub fn current_world() -> World?
+
+pub fn require_current_world() -> World
+
+pub fn set_current_world(World) -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) struct World {
+  id : UInt
+  pending_commands : Array[(World) -> Unit]
+  mut frame_index : UInt
+  mut fixed_step_index : UInt
+}
+pub fn World::advance_fixed_step(Self) -> Unit
+pub fn World::advance_frame(Self) -> Unit
+pub fn World::fixed_step_index(Self) -> UInt
+pub fn World::flush_commands(Self) -> Unit
+pub fn World::frame_index(Self) -> UInt
+pub fn World::has_pending_commands(Self) -> Bool
+pub fn World::id(Self) -> UInt
+pub fn World::new() -> Self
+pub fn World::queue_command(Self, (Self) -> Unit) -> Unit
+
+// Type aliases
+
+// Traits
+

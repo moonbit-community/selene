@@ -25,36 +25,49 @@ enum EntityLifecycleState {
 } derive(Eq, Show)
 
 ///|
-let all_entities : @set.Set[Entity] = @set.Set::new()
+priv struct EntityWorldStore {
+  mut entity_generator : UInt
+  all_entities : @set.Set[Entity]
+  lifecycle_states : Map[Entity, EntityLifecycleState]
+  pending_state_changes : @set.Set[Entity]
+}
 
 ///|
-let lifecycle_states : Map[Entity, EntityLifecycleState] = Map::new()
+let entity_world_stores : Map[UInt, EntityWorldStore] = Map::new()
 
 ///|
-let pending_state_changes : @set.Set[Entity] = @set.Set::new()
+fn entity_store() -> EntityWorldStore {
+  let world = @ecs.require_current_world()
+  entity_world_stores.get_or_init(world.id(), () => {
+    entity_generator: 0U,
+    all_entities: @set.Set::new(),
+    lifecycle_states: Map::new(),
+    pending_state_changes: @set.Set::new(),
+  })
+}
 
 ///|
 pub fn iter_entities() -> Iter[Entity] {
-  all_entities.iter()
+  entity_store().all_entities.iter()
 }
 
 ///|
 pub fn Entity::is_alive(e : Entity) -> Bool {
-  match lifecycle_states.get(e).unwrap_or(EntityLifecycleState::Destroyed) {
+  match entity_store().lifecycle_states.get(e).unwrap_or(
+    EntityLifecycleState::Destroyed,
+  ) {
     Alive | PendingRespawn => true
     PendingSpawn | PendingDespawn | Destroyed => false
   }
 }
 
 ///|
-let entity_generator : Ref[UInt] = { val: 0 }
-
-///|
 pub fn Entity::new() -> Entity {
-  let entity = entity_generator.val
-  entity_generator.val += 1
-  all_entities.add(entity)
-  lifecycle_states.set(entity, Alive)
+  let store = entity_store()
+  let entity = store.entity_generator
+  store.entity_generator += 1U
+  store.all_entities.add(entity)
+  store.lifecycle_states.set(entity, Alive)
   entity
 }
 
@@ -62,21 +75,23 @@ pub fn Entity::new() -> Entity {
 /// Reserves an entity id that becomes alive on the next flush.
 /// This matches deferred-spawn semantics used by commands.
 pub fn Entity::reserve_spawn() -> Entity {
-  let entity = entity_generator.val
-  entity_generator.val += 1
-  lifecycle_states.set(entity, PendingSpawn)
-  pending_state_changes.add(entity)
+  let store = entity_store()
+  let entity = store.entity_generator
+  store.entity_generator += 1U
+  store.lifecycle_states.set(entity, PendingSpawn)
+  store.pending_state_changes.add(entity)
   entity
 }
 
 ///|
 pub fn Entity::destroy(e : Entity) -> Unit {
-  match lifecycle_states.get(e).unwrap_or(EntityLifecycleState::Destroyed) {
+  let store = entity_store()
+  match store.lifecycle_states.get(e).unwrap_or(EntityLifecycleState::Destroyed) {
     Destroyed | PendingDespawn => ()
     Alive | PendingRespawn | PendingSpawn => {
-      lifecycle_states.set(e, PendingDespawn)
-      pending_state_changes.add(e)
-      if parents.get(e) is Some(p) {
+      store.lifecycle_states.set(e, PendingDespawn)
+      store.pending_state_changes.add(e)
+      if hierarchy_parents().get(e) is Some(p) {
         for c in p.children {
           c.destroy()
         }
@@ -87,12 +102,13 @@ pub fn Entity::destroy(e : Entity) -> Unit {
 
 ///|
 pub fn Entity::respawn(e : Entity) -> Unit {
-  match lifecycle_states.get(e).unwrap_or(EntityLifecycleState::Destroyed) {
+  let store = entity_store()
+  match store.lifecycle_states.get(e).unwrap_or(EntityLifecycleState::Destroyed) {
     Alive | PendingRespawn => ()
     Destroyed | PendingDespawn | PendingSpawn => {
-      lifecycle_states.set(e, PendingRespawn)
-      pending_state_changes.add(e)
-      if parents.get(e) is Some(p) {
+      store.lifecycle_states.set(e, PendingRespawn)
+      store.pending_state_changes.add(e)
+      if hierarchy_parents().get(e) is Some(p) {
         for c in p.children {
           c.respawn()
         }
@@ -103,22 +119,23 @@ pub fn Entity::respawn(e : Entity) -> Unit {
 
 ///|
 pub fn entity_flush_system(_delta : Double) -> Unit {
-  for entity in pending_state_changes.to_array() {
-    match lifecycle_states.get(entity).unwrap_or(Destroyed) {
+  let store = entity_store()
+  for entity in store.pending_state_changes.to_array() {
+    match store.lifecycle_states.get(entity).unwrap_or(Destroyed) {
       PendingSpawn => {
-        all_entities.add(entity)
-        lifecycle_states.set(entity, Alive)
+        store.all_entities.add(entity)
+        store.lifecycle_states.set(entity, Alive)
       }
       PendingDespawn => {
-        all_entities.remove(entity)
-        lifecycle_states.set(entity, Destroyed)
+        store.all_entities.remove(entity)
+        store.lifecycle_states.set(entity, Destroyed)
       }
       PendingRespawn => {
-        all_entities.add(entity)
-        lifecycle_states.set(entity, Alive)
+        store.all_entities.add(entity)
+        store.lifecycle_states.set(entity, Alive)
       }
       Alive | Destroyed => ()
     }
-    pending_state_changes.remove(entity)
+    store.pending_state_changes.remove(entity)
   }
 }

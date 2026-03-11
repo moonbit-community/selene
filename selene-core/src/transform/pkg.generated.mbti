@@ -10,19 +10,19 @@ import {
 // Values
 pub fn capture_previous_transforms() -> Unit
 
-pub let global_transforms : Map[@entity.Entity, @position.Position]
+pub fn global_transforms() -> Map[@entity.Entity, @position.Position]
 
-pub let positions : Map[@entity.Entity, @position.Position]
+pub fn positions() -> Map[@entity.Entity, @position.Position]
 
-pub let previous_positions : Map[@entity.Entity, @position.Position]
+pub fn previous_positions() -> Map[@entity.Entity, @position.Position]
 
-pub let previous_transforms : Map[@entity.Entity, @position.Position]
+pub fn previous_transforms() -> Map[@entity.Entity, @position.Position]
 
 pub fn sample_position(@entity.Entity, Double) -> @math.Vec2D
 
 pub fn sample_translation(@entity.Entity, Double) -> @math.Vec2D
 
-pub let transforms : Map[@entity.Entity, @position.Position]
+pub fn transforms() -> Map[@entity.Entity, @position.Position]
 
 // Errors
 

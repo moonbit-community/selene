@@ -5,17 +5,17 @@ test "render3d extract preserves mesh shadow toggles" {
   let material = @render3d_types.MaterialHandle(9902U)
   meshes.set(mesh, cube_mesh(@math.Vec3::new(1.0, 1.0, 1.0)))
   materials.set(material, default_standard_material3d())
-  mesh3d_renderers.set(entity, {
+  mesh3d_renderers().set(entity, {
     mesh,
     material,
     visible: true,
     cast_shadows: false,
     receive_shadows: false,
   })
-  @transform3d.transforms3d.set(entity, @transform3d.Transform3D::identity())
-  @visibility.visibilities.set(entity, Visible)
-  @visibility.inherited_visibilities.set(entity, { visible: true })
-  @visibility.view_visibilities.set(entity, { visible: true })
+  @transform3d.transforms3d().set(entity, @transform3d.Transform3D::identity())
+  @visibility.visibilities().set(entity, Visible)
+  @visibility.inherited_visibilities().set(entity, { visible: true })
+  @visibility.view_visibilities().set(entity, { visible: true })
 
   render3d_extract_system(0.0)
 
@@ -24,15 +24,15 @@ test "render3d extract preserves mesh shadow toggles" {
   inspect(frame.items[0].cast_shadows, content="false")
   inspect(frame.items[0].receive_shadows, content="false")
 
-  mesh3d_renderers.remove(entity)
-  @transform3d.transforms3d.remove(entity)
-  @transform3d.global_transforms3d.remove(entity)
-  @visibility.visibilities.remove(entity)
-  @visibility.inherited_visibilities.remove(entity)
-  @visibility.view_visibilities.remove(entity)
+  mesh3d_renderers().remove(entity)
+  @transform3d.transforms3d().remove(entity)
+  @transform3d.global_transforms3d().remove(entity)
+  @visibility.visibilities().remove(entity)
+  @visibility.inherited_visibilities().remove(entity)
+  @visibility.view_visibilities().remove(entity)
   meshes.remove(mesh)
   materials.remove(material)
-  extracted_frame3d.val = empty_render_frame3d()
+  render3d_world_state().extracted_frame = empty_render_frame3d()
   entity.destroy()
 }
 
@@ -89,7 +89,7 @@ test "render3d extract preserves shadow map size resources" {
 
   set_directional_light_shadow_map3d(default_directional_light_shadow_map3d())
   set_point_light_shadow_map3d(default_point_light_shadow_map3d())
-  extracted_frame3d.val = empty_render_frame3d()
+  render3d_world_state().extracted_frame = empty_render_frame3d()
 }
 
 ///|

@@ -226,7 +226,7 @@ fn shoot_weapon_bullet(
     -bullet_visual_size / 2.0,
   )
   let bullet_entity = @entity.Entity::new()
-  @sprite.sprites.set(
+  @sprite.sprites().set(
     bullet_entity,
     @sprite.Sprite::from_animation(
       player_bullet_visual,
@@ -234,10 +234,10 @@ fn shoot_weapon_bullet(
       offset=bullet_visual_offset,
     ),
   )
-  @transform.positions.set(bullet_entity, bullet_spawn_pos)
+  @transform.positions().set(bullet_entity, bullet_spawn_pos)
   let vel = dir.scalar_mul(weapon_data.bullet_speed)
-  @physics2d.linear_velocities.set(bullet_entity, vel)
-  @physics2d.shapes.set(
+  @physics2d.linear_velocities().set(bullet_entity, vel)
+  @physics2d.shapes().set(
     bullet_entity,
     @physics2d.CollisionShape::Rect(
       size=@math.Vec2D(bullet_hitbox_size, bullet_hitbox_size),
@@ -249,7 +249,7 @@ fn shoot_weapon_bullet(
       enemy_collision_group, wall_collision_group,
     ]),
   )
-  @physics2d.areas.set(bullet_entity, area)
+  @physics2d.areas().set(bullet_entity, area)
   player_bullets.set(bullet_entity, {
     alive: true,
     penetration_count: 0,
@@ -273,8 +273,8 @@ fn start_bullet_despawn(bullet_entity : @entity.Entity) -> Unit {
     return
   }
   bullet.alive = false
-  @physics2d.linear_velocities.remove(bullet_entity)
-  @physics2d.areas.remove(bullet_entity)
+  @physics2d.linear_velocities().remove(bullet_entity)
+  @physics2d.areas().remove(bullet_entity)
   @system.timeout(0.2, fn() {
     bullet_entity.destroy()
     player_bullets.remove(bullet_entity)

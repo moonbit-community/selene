@@ -18,12 +18,25 @@
 pub(all) struct Position(@math.Vec2D) derive(Eq, Show)
 
 ///|
-/// Global mutable map that stores position components for entities in the ECS
-/// system.
-///
-/// This map associates each entity with its position in 2D space. The map is
-/// shared across the entire position system and is used to track which entities
-/// have position components and their current locations.
+priv struct PositionWorldStore {
+  positions : Map[@entity.Entity, Position]
+  previous_positions : Map[@entity.Entity, Position]
+}
+
+///|
+let position_world_stores : Map[UInt, PositionWorldStore] = Map::new()
+
+///|
+fn position_world_store() -> PositionWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  position_world_stores.get_or_init(world_id, () => {
+    positions: Map::new(),
+    previous_positions: Map::new(),
+  })
+}
+
+///|
+/// Returns the current world's mutable position component store.
 ///
 /// Example:
 ///
@@ -31,21 +44,25 @@ pub(all) struct Position(@math.Vec2D) derive(Eq, Show)
 /// let entity = @entity.Entity::new()
 /// defer entity.destroy()
 /// let pos = @math.Vec2D(10.0, 20.0)
-/// @position.positions[entity] = pos
+/// @position.positions().set(entity, pos)
 /// ```
 ///
-pub let positions : Map[@entity.Entity, Position] = Map::new()
+pub fn positions() -> Map[@entity.Entity, Position] {
+  position_world_store().positions
+}
 
 ///|
-/// Snapshot of positions from the previous fixed step, used for render
-/// interpolation.
-pub let previous_positions : Map[@entity.Entity, Position] = Map::new()
+/// Returns the current world's previous-position snapshot store.
+pub fn previous_positions() -> Map[@entity.Entity, Position] {
+  position_world_store().previous_positions
+}
 
 ///|
 /// Copies all current positions into the previous-position snapshot.
 pub fn capture_previous_positions() -> Unit {
+  let previous_positions = previous_positions()
   previous_positions.clear()
-  for entity, position in positions {
+  for entity, position in positions() {
     previous_positions.set(entity, position)
   }
 }
@@ -53,6 +70,8 @@ pub fn capture_previous_positions() -> Unit {
 ///|
 /// Returns an interpolated position between previous and current snapshots.
 pub fn sample_position(entity : @entity.Entity, alpha : Double) -> @math.Vec2D {
+  let positions = positions()
+  let previous_positions = previous_positions()
   guard positions.get(entity) is Some(current) else {
     return @math.Vec2D::zero()
   }

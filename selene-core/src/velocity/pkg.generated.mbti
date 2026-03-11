@@ -7,7 +7,7 @@ import {
 }
 
 // Values
-pub let velocities : Map[@entity.Entity, Velocity]
+pub fn velocities() -> Map[@entity.Entity, Velocity]
 
 // Errors
 

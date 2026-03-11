@@ -23,7 +23,7 @@ const VIEWPORT_HEIGHT : Double = 320.0
 
 ///|
 pub fn run() -> Unit {
-  @system.App::new()
+  @app.App::new()
   .with_viewport_width(VIEWPORT_WIDTH)
   .with_viewport_height(VIEWPORT_HEIGHT)
   .with_image_smooth(false)
@@ -31,18 +31,18 @@ pub fn run() -> Unit {
   .with_fps(60)
   .add_plugin(@plugins.default_plugin)
   // .add_plugin(@plugins.debug_plugin)
-  .add_system(game_start, schedule=Startup)
-  .add_system(player_state_system)
+  .add_system(fn(_world, delta) { game_start(delta) }, schedule=Startup)
+  .add_system(fn(_world, delta) { player_state_system(delta) })
   .add_system(
-    jump_audio_on_enter_system,
+    fn(_world, delta) { jump_audio_on_enter_system(delta) },
     schedule=OnEnter(
       @state.on_enter_eq(player_state_machine, PlayerState::Jump),
     ),
   )
-  .add_system(player_collision_system, schedule=FixedPostUpdate)
-  .add_system(bird_ai_system, schedule=FixedPostUpdate)
-  .add_system(map_trigger_system)
-  .add_system(volume_button_input_system, schedule=PostUpdate)
+  .add_system(fn(_world, delta) { player_collision_system(delta) }, schedule=FixedPostUpdate)
+  .add_system(fn(_world, delta) { bird_ai_system(delta) }, schedule=FixedPostUpdate)
+  .add_system(fn(_world, delta) { map_trigger_system(delta) })
+  .add_system(fn(_world, delta) { volume_button_input_system(delta) }, schedule=PostUpdate)
   .run()
 }
 

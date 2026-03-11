@@ -43,22 +43,32 @@ priv struct Parent {
 }
 
 ///|
-/// Global storage for all parent components in the entity hierarchy system.
-///
-/// This map stores the association between parent entities and their Parent
-/// components, which contain the list of child entities. Do not manually modify
-/// this map directly; use the Entity parent-child APIs instead.
-///
-let parents : Map[Entity, Parent] = Map::new()
+priv struct HierarchyWorldStore {
+  parents : Map[Entity, Parent]
+  children : Map[Entity, Child]
+}
 
 ///|
-/// Global storage for all child components in the entity hierarchy system.
-///
-/// This map stores the association between child entities and their Child
-/// components, which contain the parent reference and offset. Do not manually
-/// modify this map directly; use the Entity parent-child APIs instead.
-///
-let children : Map[Entity, Child] = Map::new()
+let hierarchy_world_stores : Map[UInt, HierarchyWorldStore] = Map::new()
+
+///|
+fn hierarchy_store() -> HierarchyWorldStore {
+  let world = @ecs.require_current_world()
+  hierarchy_world_stores.get_or_init(world.id(), () => {
+    parents: Map::new(),
+    children: Map::new(),
+  })
+}
+
+///|
+fn hierarchy_parents() -> Map[Entity, Parent] {
+  hierarchy_store().parents
+}
+
+///|
+fn hierarchy_children() -> Map[Entity, Child] {
+  hierarchy_store().children
+}
 
 ///|
 /// Creates a new child entity attached to the specified parent entity.
@@ -82,7 +92,7 @@ let children : Map[Entity, Child] = Map::new()
 ///
 /// ```moonbit nocheck
 /// let parent = @entity.Entity::new()
-/// @position.positions.set(parent, @math.Vec2D(100.0, 100.0))
+/// @position.positions().set(parent, @math.Vec2D(100.0, 100.0))
 ///
 /// let child = parent.spawn_child(offset=@math.Vec2D(10.0, 5.0))
 ///
@@ -96,6 +106,8 @@ let children : Map[Entity, Child] = Map::new()
 /// ```
 ///
 pub fn Entity::spawn_child(parent : Entity, offset? : @math.Vec2D) -> Entity {
+  let parents = hierarchy_parents()
+  let children = hierarchy_children()
   let child_entity = Entity::new()
   let p = parents.get_or_init(parent, () => {
     children: [],
@@ -132,6 +144,7 @@ pub fn Entity::spawn_child(parent : Entity, offset? : @math.Vec2D) -> Entity {
 /// ```
 ///
 pub fn Entity::get_children(parent : Entity) -> Array[Entity] {
+  let parents = hierarchy_parents()
   parents.get(parent).map_or([], p => p.children)
 }
 
@@ -159,6 +172,7 @@ pub fn Entity::get_children(parent : Entity) -> Array[Entity] {
 /// ```
 ///
 pub fn Entity::is_child(entity : Entity) -> Bool {
+  let children = hierarchy_children()
   children.contains(entity)
 }
 
@@ -185,6 +199,7 @@ pub fn Entity::is_child(entity : Entity) -> Bool {
 /// ```
 ///
 pub fn Entity::get_parent(child : Entity) -> Entity? {
+  let children = hierarchy_children()
   children.get(child).map(c => c.parent)
 }
 
@@ -204,7 +219,7 @@ pub fn Entity::get_parent(child : Entity) -> Entity? {
 ///
 /// ```moonbit nocheck
 /// let parent = @entity.Entity::new()
-/// @position.positions.set(parent, @math.Vec2D(100.0, 100.0))
+/// @position.positions().set(parent, @math.Vec2D(100.0, 100.0))
 ///
 /// let child = parent.spawn_child(offset=@math.Vec2D(10.0, 5.0))
 /// // Child will be at (110.0, 105.0) after inherit_position_system runs
@@ -216,6 +231,7 @@ pub fn Entity::get_parent(child : Entity) -> Entity? {
 /// ```
 ///
 pub fn Entity::set_offset(child : Entity, offset : @math.Vec2D) -> Unit {
+  let children = hierarchy_children()
   children.get(child).unwrap().offset = offset
 }
 
@@ -254,6 +270,7 @@ pub fn Entity::set_offset(child : Entity, offset : @math.Vec2D) -> Unit {
 /// ```
 ///
 pub fn get_roots() -> Iter[Entity] {
+  let parents = hierarchy_parents()
   parents.iter().filter(ep => ep.1.is_root && ep.0.is_alive()).map(ep => ep.0)
 }
 
@@ -280,5 +297,6 @@ pub fn get_roots() -> Iter[Entity] {
 /// ```
 ///
 pub fn Entity::get_offset(entity : Entity) -> @math.Vec2D {
+  let children = hierarchy_children()
   children.get(entity).unwrap().offset
 }

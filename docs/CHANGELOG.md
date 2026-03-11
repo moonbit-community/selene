@@ -2,6 +2,390 @@
 
 ## [Unreleased]
 
+### Added
+
+#### `selene/app` bevy-aligned runtime entrypoint package
+
+- Added `System` type alias: `(@ecs.World, Double) -> Unit`.
+- Added `RunCondition` type alias: `(@ecs.World) -> Bool`.
+- Added `Plugin` type alias: `(App) -> Unit`.
+- Added `RegisteredSystem` runtime descriptor (`system`, `schedule`, `name`, `in_set`, `before`, `after`, `run_if`).
+- Added `App` public struct in `selene/app` with world-owned runtime configuration and schedule registry.
+- Added `App::new()`.
+- Added `App::with_world(world)`.
+- Added `App::world()`.
+- Added `App::with_image_smooth(image_smooth)`.
+- Added `App::with_viewport_height(height)`.
+- Added `App::with_viewport_width(width)`.
+- Added `App::with_fps(fps)`.
+- Added `App::with_fixed_hz(fixed_hz)`.
+- Added `App::with_max_fixed_steps_per_frame(steps)`.
+- Added `App::with_zoom(zoom)`.
+- Added `App::add_plugin(plugin)`.
+- Added `App::add_system(system, schedule?, system_name?, in_set?, before?, after?, run_if?)`.
+- Added `App::add_systems(systems_to_add, schedule?, in_set?, before?, after?, run_if?)`.
+- Added `App::run()`.
+
+#### `selene/ecs` world container package
+
+- Added `World` public struct (`pending_commands`, `frame_index`, `fixed_step_index`).
+- Added `World::new()`.
+- Added `World::queue_command(command)`.
+- Added `World::has_pending_commands()`.
+- Added `World::flush_commands()`.
+- Added `World::advance_frame()`.
+- Added `World::advance_fixed_step()`.
+- Added `World::frame_index()`.
+- Added `World::fixed_step_index()`.
+- Added `World::id()`.
+- Added `bootstrap_world()`.
+- Added `current_world()`.
+- Added `require_current_world()`.
+- Added `set_current_world(world)`.
+- Added `clear_current_world()`.
+- Added `docs/bevy-api-mapping.md` to record legacy-to-bevy API mapping for this breaking migration wave.
+
+#### world-scoped runtime helper APIs
+
+- Added `camera3d.get_active_camera3d()`.
+- Added `camera3d.set_active_camera3d(camera)`.
+
+#### world-scoped component accessor APIs
+
+- Added `position.positions()`.
+- Added `position.previous_positions()`.
+- Added `velocity.velocities()`.
+- Added `transform.transforms()`.
+- Added `transform.positions()`.
+- Added `transform.global_transforms()`.
+- Added `transform.previous_transforms()`.
+- Added `transform.previous_positions()`.
+- Added `transform3d.transforms3d()`.
+- Added `transform3d.global_transforms3d()`.
+- Added `transform3d.previous_global_transforms3d()`.
+- Added `physics2d.linear_velocities()`.
+- Added `physics2d.velocities()`.
+- Added `sprite.sprites()`.
+- Added `visibility.visibilities()`.
+- Added `visibility.inherited_visibilities()`.
+- Added `visibility.view_visibilities()`.
+- Added `visibility.render_layers()`.
+- Added `collision.rigid_bodies()`.
+- Added `collision.colliders()`.
+- Added `collision.resolved_velocities()`.
+- Added `collision.grounded_entities()`.
+- Added `collision.areas()`.
+- Added `collision.shapes()`.
+- Added `collision.joints()`.
+- Added `collision.multibody_joints()`.
+- Added `collision.pickables()`.
+- Added `physics2d.colliders()`.
+- Added `physics2d.rigid_bodies()`.
+- Added `physics2d.joints()`.
+- Added `physics2d.multibody_joints()`.
+- Added `physics2d.sensors()`.
+- Added `physics2d.areas()`.
+- Added `physics2d.shapes()`.
+- Added `physics2d.resolved_velocities()`.
+- Added `physics2d.grounded_entities()`.
+- Added `physics2d.pickables()`.
+- Added `camera3d.cameras3d()`.
+- Added `render3d.mesh3d_renderers()`.
+- Added `render3d.directional_lights3d()`.
+- Added `render3d.point_lights3d()`.
+- Added `render3d.spot_lights3d()`.
+- Added `physics3d.rigid_bodies3d()`.
+- Added `physics3d.colliders3d()`.
+- Added `physics3d.sensors3d()`.
+- Added `physics3d.linear_velocities3d()`.
+- Added `physics3d.angular_velocities3d()`.
+- Added `animation3d.animation_players3d()`.
+- Added `audio.audio_players()`.
+- Added `audio.audio_playback_settings()`.
+- Added `audio.audio_sinks()`.
+- Added `a11y.a11ys()`.
+- Added `inputs.connected_gamepads()`.
+- Added `inputs.pressed_gamepad_buttons()`.
+- Added `inputs.gamepad_axis_values()`.
+- Added `inputs.just_connected_gamepads()`.
+- Added `inputs.just_disconnected_gamepads()`.
+- Added `inputs.just_pressed_gamepad_buttons()`.
+- Added `inputs.just_released_gamepad_buttons()`.
+- Added `tiled.tiled_map_instances()`.
+- Added `tiled.tiled_layer_instances()`.
+- Added `tiled.tiled_tile_instances()`.
+- Added `tiled.tiled_object_instances()`.
+- Added `tiled.tiled_image_layer_instances()`.
+- Added `tiled.tiled_properties()`.
+- Added `tiled.tiled_map_storages()`.
+- Added `tiled.tiled_parallax_layers()`.
+- Added `tiled.tiled_colliders()`.
+- Added `tiled.tiled_collider_origins()`.
+- Added `tiled.tiled_world_instances()`.
+- Added `tiled.tiled_world_map_instances()`.
+- Added `ldtk.ldtk_world_instances()`.
+- Added `ldtk.ldtk_level_instances()`.
+- Added `ldtk.ldtk_layer_metadata()`.
+- Added `ldtk.ldtk_level_backgrounds()`.
+- Added `ldtk.ldtk_level_iids()`.
+- Added `ldtk.ldtk_entity_iids()`.
+- Added `ldtk.ldtk_grid_coords()`.
+- Added `ldtk.ldtk_int_grid_cells()`.
+- Added `ldtk.ldtk_tile_metadata()`.
+- Added `ldtk.ldtk_int_grid_colliders()`.
+- Added `ldtk.ldtk_worldly_entities()`.
+- Added `ldtk.ldtk_respawns()`.
+- Added `ldtk.ldtk_spawned_layer_instances()`.
+- Added `ldtk.ldtk_spawned_tile_instances()`.
+- Added `ldtk.ldtk_spawned_entity_instances()`.
+- Added `ldtk.ldtk_spawned_int_grid_cells()`.
+- Added `ldtk.ldtk_entity_spawn_hooks()`.
+- Added `ldtk.ldtk_entity_layer_spawn_hooks()`.
+- Added `ldtk.ldtk_entity_layer_identifier_spawn_hooks()`.
+- Added `ldtk.ldtk_entity_default_spawn_hook()`.
+- Added `ldtk.ldtk_int_grid_layer_spawn_hooks()`.
+- Added `ldtk.ldtk_int_grid_cell_spawn_hooks()`.
+- Added `ldtk.ldtk_int_grid_value_spawn_hooks()`.
+- Added `ldtk.ldtk_int_grid_default_spawn_hook()`.
+- Added `ldtk.ldtk_entity_typed_registrations()`.
+- Added `ldtk.ldtk_int_cell_typed_registrations()`.
+- Added `ldtk.ldtk_pending_transformed_level_iids()`.
+- Added `ui.nodes()`.
+- Added `ui.computed_ui_nodes()`.
+- Added `ui.global_ui_nodes()`.
+- Added `ui.calculated_clips()`.
+- Added `ui.layout_configs()`.
+- Added `ui.z_indexes()`.
+- Added `ui.global_zindexes()`.
+- Added `ui.scroll_positions()`.
+- Added `ui.tab_indexes()`.
+- Added `ui.focus_policies()`.
+- Added `ui.focusables()`.
+- Added `ui.focuseds()`.
+- Added `ui.override_clips()`.
+- Added `ui.relative_cursor_positions()`.
+- Added `ui.background_colors()`.
+- Added `ui.border_colors()`.
+- Added `ui.border_radii()`.
+- Added `ui.box_shadows()`.
+- Added `ui.outlines()`.
+- Added `ui.ui_images()`.
+- Added `ui.material_nodes()`.
+- Added `ui.texts()`.
+- Added `ui.text_fonts()`.
+- Added `ui.text_colors()`.
+- Added `ui.text_layouts()`.
+- Added `ui.buttons()`.
+- Added `ui.interactions()`.
+
+### Changed
+
+- `selene/commands` was migrated to world-owned deferred execution:
+- `commands()` changed to `commands(world)`.
+- `Commands::add` changed from `() -> Unit` to `(@ecs.World) -> Unit`.
+- `has_pending_commands()` changed to `has_pending_commands(world)`.
+- `commands_flush_system(delta)` changed to `commands_flush_system(world, delta)`.
+- `selene/plugins` signatures now target the new app package:
+- `debug_plugin` changed from `(@system.App) -> Unit` to `(@app.App) -> Unit`.
+- `default_plugin` changed from `(@system.App) -> Unit` to `(@app.App) -> Unit`.
+- `default_3d_plugin` changed from `(@system.App) -> Unit` to `(@app.App) -> Unit`.
+- `selene/query` constructor and reader now require world context:
+- `query(storage)` changed to `query(world, storage)`.
+- `QueryReader::read(storage)` changed to `QueryReader::read(world, storage)`.
+- `selene/entity` runtime storage is now world-scoped (entity lifecycle and hierarchy stores are keyed by active world id instead of a single global singleton store).
+- `selene/state` transition runtime is now world-scoped (per-world frame serial and transition callback queues).
+- `selene/event` event queues, observer queues, and reader cursors are now world-scoped (isolated by active world id).
+- `selene/time` frame timing runtime (`raw_delta`, `delta`, `elapsed_raw`, `elapsed`, `scale`) is now world-scoped.
+- `selene/system` display runtime (`viewport_size`, `screen_size`, `zoom`, `render_alpha`) is now world-scoped.
+- `selene/camera` 2D camera runtime (`position/previous_position`, follow target, limits, axis-follow flags) is now world-scoped.
+- `selene/ui` runtime state is now world-scoped:
+- `hovered/pressed/focused` interaction markers moved to per-world runtime storage.
+- `UiScaleMode` moved to per-world runtime storage behind `set_ui_scale_mode/get_ui_scale_mode`.
+- `selene/render2d` frame command buffers are now world-scoped.
+- `selene/render3d` extracted frame and lighting resource state (`ambient_light`, shadow-map settings) are now world-scoped.
+- `selene/render3d_pipeline` prepared frame state is now world-scoped.
+- `selene/physics3d` rapier runtime world and handle maps are now world-scoped.
+- `selene/collision` 2D rapier runtime world, physics config-key caches, and pending force/impulse/joint sync queues are now world-scoped.
+- `selene/position` component stores are now world-scoped and resolved via accessor functions.
+- `selene/velocity` component store is now world-scoped and resolved via accessor function.
+- `selene/transform` 2D transform alias stores are now world-scoped and resolved via accessor functions.
+- `selene/transform3d` local/global/previous-global transform stores are now world-scoped and resolved via accessor functions.
+- `selene/physics2d` velocity alias exports now resolve via accessor functions bound to the active world.
+- `selene/sprite` component store is now world-scoped and resolved via accessor function.
+- `selene/visibility` component/render-layer stores are now world-scoped and resolved via accessor functions.
+- `selene/collision` authored 2D component stores (body/collider/area/shape/joint/pickable plus resolved/grounded caches) are now world-scoped and resolved via accessor functions.
+- `selene/physics2d` collider/body/joint/area/shape/pickable alias exports now resolve through active-world accessor functions.
+- `selene/camera3d` camera component store is now world-scoped and resolved via accessor function.
+- `selene/render3d` mesh/light component stores are now world-scoped and resolved via accessor functions.
+- `selene/physics3d` authored body/collider/sensor/velocity component stores are now world-scoped and resolved via accessor functions.
+- `selene/animation3d` player and runtime target/skinning/morph maps are now world-scoped.
+- `selene/audio` player/settings/sink component stores are now world-scoped and resolved via accessor functions.
+- `selene/a11y` authored accessibility component store is now world-scoped and resolved via accessor function.
+- `selene/inputs` gamepad runtime sets/maps (`connected`, `pressed`, axis cache and per-frame diffs) are now world-scoped and resolved via accessor functions.
+- `selene/tiled` ECS/physics/world runtime stores are now world-scoped and resolved via accessor functions.
+- `selene/ldtk` runtime component maps, spawned-instance maps, spawn-hook registries, typed-registration registries, and pending transformed-level cache are now world-scoped and resolved via accessor functions.
+- `selene/ui` model/visual component stores are now world-scoped and resolved via accessor functions.
+- Example entrypoints and tutorials now construct runtime through `@app.App::new()` and register systems as explicit world-aware closures.
+
+### Removed
+
+- Removed `system.App` and its methods from `selene/system`:
+- Removed `App::new`.
+- Removed `App::with_image_smooth`.
+- Removed `App::with_viewport_height`.
+- Removed `App::with_viewport_width`.
+- Removed `App::with_fps`.
+- Removed `App::with_fixed_hz`.
+- Removed `App::with_max_fixed_steps_per_frame`.
+- Removed `App::with_zoom`.
+- Removed `App::add_plugin`.
+- Removed `App::add_system`.
+- Removed `App::add_systems`.
+- Removed `App::run`.
+- Removed ECS runtime type aliases from `selene/system`:
+- Removed `type System = (Double) -> Unit`.
+- Removed `type RunCondition = () -> Bool`.
+- Removed `type Plugin = (App) -> Unit`.
+- Removed snapshot-style query public API from `selene/query`:
+- Removed `Snapshot[T]`.
+- Removed `Added[T]`.
+- Removed `Removed[T]`.
+- Removed `Changed[T]`.
+- Removed `snapshot_of(storage)`.
+- Removed `added_since(snapshot, storage)`.
+- Removed `removed_since(snapshot, storage)`.
+- Removed `changed_since(snapshot, storage)`.
+- Removed `Added::entities()`.
+- Removed `Removed::entities()`.
+- Removed `Changed::entities()`.
+- Removed `camera3d.active_camera3d : Ref[ActiveCamera3D?]`; use `get_active_camera3d()`/`set_active_camera3d(...)`.
+- Removed `ui.ui_scale_mode : Ref[UiScaleMode]`; use `get_ui_scale_mode()`/`set_ui_scale_mode(...)`.
+- Removed `position.positions : Map[Entity, Position]`; use `position.positions()`.
+- Removed `position.previous_positions : Map[Entity, Position]`; use `position.previous_positions()`.
+- Removed `velocity.velocities : Map[Entity, Velocity]`; use `velocity.velocities()`.
+- Removed `transform.transforms : Map[Entity, Transform]`; use `transform.transforms()`.
+- Removed `transform.positions : Map[Entity, Transform]`; use `transform.positions()`.
+- Removed `transform.global_transforms : Map[Entity, GlobalTransform]`; use `transform.global_transforms()`.
+- Removed `transform.previous_transforms : Map[Entity, Transform]`; use `transform.previous_transforms()`.
+- Removed `transform.previous_positions : Map[Entity, Transform]`; use `transform.previous_positions()`.
+- Removed `transform3d.transforms3d : Map[Entity, Transform3D]`; use `transform3d.transforms3d()`.
+- Removed `transform3d.global_transforms3d : Map[Entity, GlobalTransform3D]`; use `transform3d.global_transforms3d()`.
+- Removed `transform3d.previous_global_transforms3d : Map[Entity, GlobalTransform3D]`; use `transform3d.previous_global_transforms3d()`.
+- Removed `physics2d.linear_velocities : Map[Entity, LinearVelocity]`; use `physics2d.linear_velocities()`.
+- Removed `physics2d.velocities : Map[Entity, Velocity]`; use `physics2d.velocities()`.
+- Removed `sprite.sprites : Map[Entity, Sprite]`; use `sprite.sprites()`.
+- Removed `visibility.visibilities : Map[Entity, Visibility]`; use `visibility.visibilities()`.
+- Removed `visibility.inherited_visibilities : Map[Entity, InheritedVisibility]`; use `visibility.inherited_visibilities()`.
+- Removed `visibility.view_visibilities : Map[Entity, ViewVisibility]`; use `visibility.view_visibilities()`.
+- Removed `visibility.render_layers : Map[Entity, RenderLayers]`; use `visibility.render_layers()`.
+- Removed `collision.rigid_bodies : Map[Entity, RigidBody]`; use `collision.rigid_bodies()`.
+- Removed `collision.colliders : Map[Entity, Collider]`; use `collision.colliders()`.
+- Removed `collision.resolved_velocities : Map[Entity, Velocity]`; use `collision.resolved_velocities()`.
+- Removed `collision.grounded_entities : Set[Entity]`; use `collision.grounded_entities()`.
+- Removed `collision.areas : Map[Entity, Area]`; use `collision.areas()`.
+- Removed `collision.shapes : Map[Entity, CollisionShape]`; use `collision.shapes()`.
+- Removed `collision.joints : Map[Entity, Joint]`; use `collision.joints()`.
+- Removed `collision.multibody_joints : Map[Entity, MultibodyJoint]`; use `collision.multibody_joints()`.
+- Removed `collision.pickables : Map[Entity, Pickable]`; use `collision.pickables()`.
+- Removed `physics2d.colliders : Map[Entity, Collider]`; use `physics2d.colliders()`.
+- Removed `physics2d.rigid_bodies : Map[Entity, RigidBody]`; use `physics2d.rigid_bodies()`.
+- Removed `physics2d.joints : Map[Entity, Joint]`; use `physics2d.joints()`.
+- Removed `physics2d.multibody_joints : Map[Entity, MultibodyJoint]`; use `physics2d.multibody_joints()`.
+- Removed `physics2d.sensors : Map[Entity, Sensor]`; use `physics2d.sensors()`.
+- Removed `physics2d.areas : Map[Entity, Area]`; use `physics2d.areas()`.
+- Removed `physics2d.shapes : Map[Entity, ColliderShape]`; use `physics2d.shapes()`.
+- Removed `physics2d.resolved_velocities : Map[Entity, LinearVelocity]`; use `physics2d.resolved_velocities()`.
+- Removed `physics2d.grounded_entities : Set[Entity]`; use `physics2d.grounded_entities()`.
+- Removed `physics2d.pickables : Map[Entity, Pickable]`; use `physics2d.pickables()`.
+- Removed `camera3d.cameras3d : Map[Entity, Camera3DComponent]`; use `camera3d.cameras3d()`.
+- Removed `render3d.mesh3d_renderers : Map[Entity, Mesh3DRenderer]`; use `render3d.mesh3d_renderers()`.
+- Removed `render3d.directional_lights3d : Map[Entity, DirectionalLight3D]`; use `render3d.directional_lights3d()`.
+- Removed `render3d.point_lights3d : Map[Entity, PointLight3D]`; use `render3d.point_lights3d()`.
+- Removed `render3d.spot_lights3d : Map[Entity, SpotLight3D]`; use `render3d.spot_lights3d()`.
+- Removed `physics3d.rigid_bodies3d : Map[Entity, RigidBody3D]`; use `physics3d.rigid_bodies3d()`.
+- Removed `physics3d.colliders3d : Map[Entity, Collider3D]`; use `physics3d.colliders3d()`.
+- Removed `physics3d.sensors3d : Map[Entity, Sensor3D]`; use `physics3d.sensors3d()`.
+- Removed `physics3d.linear_velocities3d : Map[Entity, LinearVelocity3D]`; use `physics3d.linear_velocities3d()`.
+- Removed `physics3d.angular_velocities3d : Map[Entity, AngularVelocity3D]`; use `physics3d.angular_velocities3d()`.
+- Removed `animation3d.animation_players3d : Map[Entity, AnimationPlayer3D]`; use `animation3d.animation_players3d()`.
+- Removed `audio.audio_players : Map[Entity, AudioPlayer]`; use `audio.audio_players()`.
+- Removed `audio.audio_playback_settings : Map[Entity, PlaybackSettings]`; use `audio.audio_playback_settings()`.
+- Removed `audio.audio_sinks : Map[Entity, AudioSink]`; use `audio.audio_sinks()`.
+- Removed `a11y.a11ys : Map[Entity, A11y]`; use `a11y.a11ys()`.
+- Removed `inputs.connected_gamepads : Set[Gamepad]`; use `inputs.connected_gamepads()`.
+- Removed `inputs.pressed_gamepad_buttons : Set[GamepadButtonInput]`; use `inputs.pressed_gamepad_buttons()`.
+- Removed `inputs.gamepad_axis_values : Map[GamepadAxisInput, Double]`; use `inputs.gamepad_axis_values()`.
+- Removed `inputs.just_connected_gamepads : Set[Gamepad]`; use `inputs.just_connected_gamepads()`.
+- Removed `inputs.just_disconnected_gamepads : Set[Gamepad]`; use `inputs.just_disconnected_gamepads()`.
+- Removed `inputs.just_pressed_gamepad_buttons : Set[GamepadButtonInput]`; use `inputs.just_pressed_gamepad_buttons()`.
+- Removed `inputs.just_released_gamepad_buttons : Set[GamepadButtonInput]`; use `inputs.just_released_gamepad_buttons()`.
+- Removed `tiled.tiled_map_instances : Map[Entity, TiledMapInstance]`; use `tiled.tiled_map_instances()`.
+- Removed `tiled.tiled_layer_instances : Map[Entity, TiledLayerInstance]`; use `tiled.tiled_layer_instances()`.
+- Removed `tiled.tiled_tile_instances : Map[Entity, TiledTileInstance]`; use `tiled.tiled_tile_instances()`.
+- Removed `tiled.tiled_object_instances : Map[Entity, TiledObjectInstance]`; use `tiled.tiled_object_instances()`.
+- Removed `tiled.tiled_image_layer_instances : Map[Entity, TiledImageLayerInstance]`; use `tiled.tiled_image_layer_instances()`.
+- Removed `tiled.tiled_properties : Map[Entity, TiledProperties]`; use `tiled.tiled_properties()`.
+- Removed `tiled.tiled_map_storages : Map[Entity, TiledMapStorage]`; use `tiled.tiled_map_storages()`.
+- Removed `tiled.tiled_parallax_layers : Map[Entity, TiledParallaxLayer]`; use `tiled.tiled_parallax_layers()`.
+- Removed `tiled.tiled_colliders : Map[Entity, TiledColliders]`; use `tiled.tiled_colliders()`.
+- Removed `tiled.tiled_collider_origins : Map[Entity, TiledColliderOrigin]`; use `tiled.tiled_collider_origins()`.
+- Removed `tiled.tiled_world_instances : Map[Entity, TiledWorldInstance]`; use `tiled.tiled_world_instances()`.
+- Removed `tiled.tiled_world_map_instances : Map[Entity, TiledWorldMapInstance]`; use `tiled.tiled_world_map_instances()`.
+- Removed `ldtk.ldtk_world_instances : Map[Entity, LdtkWorldInstance]`; use `ldtk.ldtk_world_instances()`.
+- Removed `ldtk.ldtk_level_instances : Map[Entity, LdtkLevelInstance]`; use `ldtk.ldtk_level_instances()`.
+- Removed `ldtk.ldtk_layer_metadata : Map[Entity, LdtkLayerMetadata]`; use `ldtk.ldtk_layer_metadata()`.
+- Removed `ldtk.ldtk_level_backgrounds : Map[Entity, LdtkLevelBackground]`; use `ldtk.ldtk_level_backgrounds()`.
+- Removed `ldtk.ldtk_level_iids : Map[Entity, LdtkLevelIid]`; use `ldtk.ldtk_level_iids()`.
+- Removed `ldtk.ldtk_entity_iids : Map[Entity, LdtkEntityIid]`; use `ldtk.ldtk_entity_iids()`.
+- Removed `ldtk.ldtk_grid_coords : Map[Entity, LdtkGridCoords]`; use `ldtk.ldtk_grid_coords()`.
+- Removed `ldtk.ldtk_int_grid_cells : Map[Entity, LdtkIntGridCell]`; use `ldtk.ldtk_int_grid_cells()`.
+- Removed `ldtk.ldtk_tile_metadata : Map[Entity, LdtkTileMetadata]`; use `ldtk.ldtk_tile_metadata()`.
+- Removed `ldtk.ldtk_int_grid_colliders : Map[Entity, LdtkIntGridCollider]`; use `ldtk.ldtk_int_grid_colliders()`.
+- Removed `ldtk.ldtk_worldly_entities : Map[Entity, LdtkWorldly]`; use `ldtk.ldtk_worldly_entities()`.
+- Removed `ldtk.ldtk_respawns : Map[Entity, LdtkRespawn]`; use `ldtk.ldtk_respawns()`.
+- Removed `ldtk.ldtk_spawned_layer_instances : Map[Entity, LdtkSpawnedLayerInstance]`; use `ldtk.ldtk_spawned_layer_instances()`.
+- Removed `ldtk.ldtk_spawned_tile_instances : Map[Entity, LdtkSpawnedTileInstance]`; use `ldtk.ldtk_spawned_tile_instances()`.
+- Removed `ldtk.ldtk_spawned_entity_instances : Map[Entity, LdtkSpawnedEntityInstance]`; use `ldtk.ldtk_spawned_entity_instances()`.
+- Removed `ldtk.ldtk_spawned_int_grid_cells : Map[Entity, LdtkSpawnedIntGridCell]`; use `ldtk.ldtk_spawned_int_grid_cells()`.
+- Removed `ldtk.ldtk_entity_spawn_hooks : Map[String, (LdtkEntitySpawnedEvent) -> Unit]`; use `ldtk.ldtk_entity_spawn_hooks()`.
+- Removed `ldtk.ldtk_entity_layer_spawn_hooks : Map[String, (LdtkEntitySpawnedEvent) -> Unit]`; use `ldtk.ldtk_entity_layer_spawn_hooks()`.
+- Removed `ldtk.ldtk_entity_layer_identifier_spawn_hooks : Map[String, (LdtkEntitySpawnedEvent) -> Unit]`; use `ldtk.ldtk_entity_layer_identifier_spawn_hooks()`.
+- Removed `ldtk.ldtk_entity_default_spawn_hook : Ref[((LdtkEntitySpawnedEvent) -> Unit)?]`; use `ldtk.ldtk_entity_default_spawn_hook()`.
+- Removed `ldtk.ldtk_int_grid_layer_spawn_hooks : Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]`; use `ldtk.ldtk_int_grid_layer_spawn_hooks()`.
+- Removed `ldtk.ldtk_int_grid_cell_spawn_hooks : Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]`; use `ldtk.ldtk_int_grid_cell_spawn_hooks()`.
+- Removed `ldtk.ldtk_int_grid_value_spawn_hooks : Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]`; use `ldtk.ldtk_int_grid_value_spawn_hooks()`.
+- Removed `ldtk.ldtk_int_grid_default_spawn_hook : Ref[((LdtkIntGridCellSpawnedEvent) -> Unit)?]`; use `ldtk.ldtk_int_grid_default_spawn_hook()`.
+- Removed `ldtk.ldtk_entity_typed_registrations : Map[String, (LdtkEntitySpawnedEvent) -> Unit]`; use `ldtk.ldtk_entity_typed_registrations()`.
+- Removed `ldtk.ldtk_int_cell_typed_registrations : Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]`; use `ldtk.ldtk_int_cell_typed_registrations()`.
+- Removed `ldtk.ldtk_pending_transformed_level_iids : Map[String, Bool]`; use `ldtk.ldtk_pending_transformed_level_iids()`.
+- Removed `ui.nodes : Map[Entity, Node]`; use `ui.nodes()`.
+- Removed `ui.computed_ui_nodes : Map[Entity, ComputedUiNode]`; use `ui.computed_ui_nodes()`.
+- Removed `ui.global_ui_nodes : Map[Entity, GlobalUiNode]`; use `ui.global_ui_nodes()`.
+- Removed `ui.calculated_clips : Map[Entity, CalculatedClip]`; use `ui.calculated_clips()`.
+- Removed `ui.layout_configs : Map[Entity, LayoutConfig]`; use `ui.layout_configs()`.
+- Removed `ui.z_indexes : Map[Entity, ZIndex]`; use `ui.z_indexes()`.
+- Removed `ui.global_zindexes : Map[Entity, GlobalZIndex]`; use `ui.global_zindexes()`.
+- Removed `ui.scroll_positions : Map[Entity, ScrollPosition]`; use `ui.scroll_positions()`.
+- Removed `ui.tab_indexes : Map[Entity, TabIndex]`; use `ui.tab_indexes()`.
+- Removed `ui.focus_policies : Map[Entity, FocusPolicy]`; use `ui.focus_policies()`.
+- Removed `ui.focusables : Map[Entity, Focusable]`; use `ui.focusables()`.
+- Removed `ui.focuseds : Map[Entity, Focused]`; use `ui.focuseds()`.
+- Removed `ui.override_clips : Map[Entity, OverrideClip]`; use `ui.override_clips()`.
+- Removed `ui.relative_cursor_positions : Map[Entity, RelativeCursorPosition]`; use `ui.relative_cursor_positions()`.
+- Removed `ui.background_colors : Map[Entity, BackgroundColor]`; use `ui.background_colors()`.
+- Removed `ui.border_colors : Map[Entity, BorderColor]`; use `ui.border_colors()`.
+- Removed `ui.border_radii : Map[Entity, BorderRadius]`; use `ui.border_radii()`.
+- Removed `ui.box_shadows : Map[Entity, BoxShadow]`; use `ui.box_shadows()`.
+- Removed `ui.outlines : Map[Entity, Outline]`; use `ui.outlines()`.
+- Removed `ui.ui_images : Map[Entity, UiImage]`; use `ui.ui_images()`.
+- Removed `ui.material_nodes : Map[Entity, MaterialNode]`; use `ui.material_nodes()`.
+- Removed `ui.texts : Map[Entity, Text]`; use `ui.texts()`.
+- Removed `ui.text_fonts : Map[Entity, TextFont]`; use `ui.text_fonts()`.
+- Removed `ui.text_colors : Map[Entity, TextColor]`; use `ui.text_colors()`.
+- Removed `ui.text_layouts : Map[Entity, TextLayout]`; use `ui.text_layouts()`.
+- Removed `ui.buttons : Map[Entity, Button]`; use `ui.buttons()`.
+- Removed `ui.interactions : Map[Entity, Interaction]`; use `ui.interactions()`.
+
 ## [0.28.1] - 2026-03-11
 
 ### Added

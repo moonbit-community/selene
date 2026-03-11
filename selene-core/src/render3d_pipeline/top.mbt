@@ -13,16 +13,23 @@
 // limitations under the License.
 
 ///|
-let prepared_frame3d : Ref[@render3d.RenderFrame3D] = Ref::new(
-  @render3d.empty_render_frame3d(),
-)
+let prepared_frame3d_by_world : Map[UInt, @render3d.RenderFrame3D] = Map::new()
+
+///|
+fn prepared_frame3d() -> @render3d.RenderFrame3D {
+  let world_id = @ecs.require_current_world().id()
+  prepared_frame3d_by_world.get_or_init(world_id, @render3d.empty_render_frame3d)
+}
 
 ///|
 pub fn render3d_prepare_system(_delta : Double) -> Unit {
-  prepared_frame3d.val = @render3d.get_extracted_frame3d()
+  prepared_frame3d_by_world.set(
+    @ecs.require_current_world().id(),
+    @render3d.get_extracted_frame3d(),
+  )
 }
 
 ///|
 pub fn get_prepared_frame3d() -> @render3d.RenderFrame3D {
-  prepared_frame3d.val
+  prepared_frame3d()
 }

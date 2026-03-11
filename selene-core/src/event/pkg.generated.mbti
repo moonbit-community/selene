@@ -38,13 +38,13 @@ pub impl Eq for EventDomain
 pub impl Show for EventDomain
 
 pub(all) struct EventReader[T] {
-  mut last_seen_id : Int
+  last_seen_by_world : Map[UInt, Int]
   marker : T?
 }
 pub fn[T] EventReader::new() -> Self[T]
 pub fn[T] EventReader::read(Self[T], Events[T]) -> Array[T]
 
-type EventRecord[T]
+type EventWorldStore[T]
 
 pub(all) struct EventWriter[T] {
   events : Events[T]
@@ -54,13 +54,8 @@ pub fn[T] EventWriter::send(Self[T], T) -> Unit
 pub fn[T] EventWriter::trigger(Self[T], T, target? : @entity.Entity?) -> Unit
 
 pub struct Events[T] {
-  mut next_event_id : Int
-  mut next_observer_id : Int
   domain : EventDomain
-  mut older : Array[EventRecord[T]]
-  mut newer : Array[EventRecord[T]]
-  observers : Map[ObserverHandle, ObserverEntry[T]]
-  observer_queue : Array[Trigger[T]]
+  stores : Map[UInt, EventWorldStore[T]]
   marker : T?
 }
 pub fn[T] Events::clear(Self[T]) -> Unit
@@ -75,8 +70,6 @@ pub fn[T] Events::trigger(Self[T], T, @entity.Entity?) -> Unit
 pub fn[T] Events::unobserve(Self[T], ObserverHandle) -> Unit
 pub fn[T] Events::update(Self[T]) -> Unit
 pub fn[T] Events::writer(Self[T]) -> EventWriter[T]
-
-type ObserverEntry[T]
 
 pub(all) struct ObserverHandle(Int)
 #deprecated

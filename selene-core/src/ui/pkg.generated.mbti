@@ -8,7 +8,6 @@ import {
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
-  "moonbitlang/core/ref",
 }
 
 // Values
@@ -183,8 +182,6 @@ pub fn ui_layout_system(Double) -> Unit
 pub fn ui_material_asset(UiMaterialHandle) -> UiMaterialAsset?
 
 pub fn ui_prepare_system(Double) -> Unit
-
-pub let ui_scale_mode : @ref.Ref[UiScaleMode]
 
 pub fn update_ui_material_asset(UiMaterialHandle, UiMaterialAsset) -> Unit
 

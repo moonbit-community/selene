@@ -2,20 +2,13 @@
 package "Milky2018/selene/query"
 
 import {
+  "Milky2018/selene/ecs",
   "Milky2018/selene/entity",
   "moonbitlang/core/set",
 }
 
 // Values
-pub fn[T] added_since(Snapshot[T], Map[@entity.Entity, T]) -> Added[T]
-
-pub fn[T] changed_since(Snapshot[T], Map[@entity.Entity, T]) -> Changed[T]
-
-pub fn[T] query(Map[@entity.Entity, T]) -> Query[T]
-
-pub fn[T] removed_since(Snapshot[T], Map[@entity.Entity, T]) -> Removed[T]
-
-pub fn[T] snapshot_of(Map[@entity.Entity, T]) -> Snapshot[T]
+pub fn[T] query(@ecs.World, Map[@entity.Entity, T]) -> Query[T]
 
 pub fn[T] with_component(Map[@entity.Entity, T]) -> With[T]
 
@@ -24,24 +17,13 @@ pub fn[T] without_component(Map[@entity.Entity, T]) -> Without[T]
 // Errors
 
 // Types and methods
-pub(all) struct Added[T] {
-  snapshot : Snapshot[T]
-  storage : Map[@entity.Entity, T]
-}
-pub fn[T] Added::entities(Self[T]) -> Array[@entity.Entity]
-
-pub(all) struct Changed[T] {
-  snapshot : Snapshot[T]
-  storage : Map[@entity.Entity, T]
-}
-pub fn[T : Eq] Changed::entities(Self[T]) -> Array[@entity.Entity]
-
 pub(all) struct EntityFilter {
   predicate : (@entity.Entity) -> Bool
 }
 pub fn EntityFilter::passes(Self, @entity.Entity) -> Bool
 
 pub(all) struct Query[T] {
+  world : @ecs.World
   storage : Map[@entity.Entity, T]
 }
 pub fn[T] Query::iter(Self[T], require_filters? : Array[EntityFilter], reject_filters? : Array[EntityFilter]) -> Array[(@entity.Entity, T)]
@@ -55,22 +37,13 @@ pub(all) struct QueryDelta[T] {
 pub fn[T] QueryDelta::empty() -> Self[T]
 
 pub(all) struct QueryReader[T] {
-  mut snapshot : Snapshot[T]?
+  mut entities : @set.Set[@entity.Entity]
+  mut entries : Map[@entity.Entity, T]
+  mut initialized : Bool
 }
 pub fn[T] QueryReader::new() -> Self[T]
-pub fn[T : Eq] QueryReader::read(Self[T], Map[@entity.Entity, T]) -> QueryDelta[T]
+pub fn[T : Eq] QueryReader::read(Self[T], @ecs.World, Map[@entity.Entity, T]) -> QueryDelta[T]
 pub fn[T] QueryReader::reset(Self[T]) -> Unit
-
-pub(all) struct Removed[T] {
-  snapshot : Snapshot[T]
-  storage : Map[@entity.Entity, T]
-}
-pub fn[T] Removed::entities(Self[T]) -> Array[@entity.Entity]
-
-pub(all) struct Snapshot[T] {
-  entities : @set.Set[@entity.Entity]
-  entries : Map[@entity.Entity, T]
-}
 
 pub(all) struct With[T] {
   storage : Map[@entity.Entity, T]

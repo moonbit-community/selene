@@ -42,18 +42,18 @@ pub fn apply_input_snapshot(snapshot : InputSnapshot) -> Unit {
   mouse_movement.movement = snapshot.mouse_movement.movement
   mouse_wheel.delta = snapshot.mouse_wheel.delta
 
-  connected_gamepads.clear()
+  connected_gamepads().clear()
   for gamepad in snapshot.connected_gamepads {
-    connected_gamepads.add(gamepad)
+    connected_gamepads().add(gamepad)
   }
 
-  pressed_gamepad_buttons.clear()
+  pressed_gamepad_buttons().clear()
   for button in snapshot.pressed_gamepad_buttons {
-    pressed_gamepad_buttons.add(button)
+    pressed_gamepad_buttons().add(button)
   }
 
-  gamepad_axis_values.clear()
+  gamepad_axis_values().clear()
   for axis, value in snapshot.gamepad_axis_values {
-    gamepad_axis_values.set(axis, value)
+    gamepad_axis_values().set(axis, value)
   }
 }

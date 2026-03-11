@@ -47,13 +47,13 @@ let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = @event.EventReader:
 
 ///|
 fn set_ui_text(entity : @entity.Entity, content : String) -> Unit {
-  let text = @ui.texts.get_or_init(entity, fn() { @ui.Text::new(content) })
+  let text = @ui.texts().get_or_init(entity, fn() { @ui.Text::new(content) })
   text.content = content
 }
 
 ///|
 fn set_ui_text_color(entity : @entity.Entity, color : String) -> Unit {
-  @ui.text_colors.set(entity, @ui.TextColor::from_css(color))
+  @ui.text_colors().set(entity, @ui.TextColor::from_css(color))
 }
 
 ///|
@@ -68,15 +68,15 @@ fn configure_text_entity(
   baseline? : @math.VAlign = @math.VAlign::Top,
   zindex? : Int = HUD_LAYER_ZINDEX,
 ) -> Unit {
-  @ui.nodes.set(
+  @ui.nodes().set(
     entity,
     @ui.Node::absolute(offset, size~, border=@ui.UiRectValues::all(1.0)),
   )
-  @ui.z_indexes.set(entity, @ui.ZIndex::new(zindex))
+  @ui.z_indexes().set(entity, @ui.ZIndex::new(zindex))
   set_ui_text(entity, content)
-  @ui.text_fonts.set(entity, @ui.TextFont::from_css(font))
+  @ui.text_fonts().set(entity, @ui.TextFont::from_css(font))
   set_ui_text_color(entity, color)
-  @ui.text_layouts.set(entity, @ui.TextLayout::new(align~, baseline~))
+  @ui.text_layouts().set(entity, @ui.TextLayout::new(align~, baseline~))
 }
 
 ///|
@@ -87,14 +87,14 @@ fn configure_panel_box(
   background : String,
   border : String,
 ) -> Unit {
-  @ui.nodes.set(
+  @ui.nodes().set(
     entity,
     @ui.Node::absolute(offset, size~, border=@ui.UiRectValues::all(1.0)),
   )
-  @ui.z_indexes.set(entity, @ui.ZIndex::new(PANEL_LAYER_ZINDEX))
-  @ui.background_colors.set(entity, @ui.BackgroundColor::from_css(background))
-  @ui.border_colors.set(entity, @ui.BorderColor::from_css(border))
-  @ui.border_radii.set(entity, @ui.BorderRadius::all(@ui.Val::px(10.0)))
+  @ui.z_indexes().set(entity, @ui.ZIndex::new(PANEL_LAYER_ZINDEX))
+  @ui.background_colors().set(entity, @ui.BackgroundColor::from_css(background))
+  @ui.border_colors().set(entity, @ui.BorderColor::from_css(border))
+  @ui.border_radii().set(entity, @ui.BorderRadius::all(@ui.Val::px(10.0)))
 }
 
 ///|
@@ -107,17 +107,17 @@ fn configure_panel_button(
   label : String,
   tab_index : Int,
 ) -> Unit {
-  @ui.nodes.set(entity, @ui.Node::absolute(offset, size~))
-  @ui.z_indexes.set(entity, @ui.ZIndex::new(PANEL_TEXT_ZINDEX))
-  @ui.background_colors.set(entity, @ui.BackgroundColor::from_css(background))
-  @ui.border_colors.set(entity, @ui.BorderColor::from_css(border))
-  @ui.border_radii.set(entity, @ui.BorderRadius::all(@ui.Val::px(8.0)))
-  @ui.buttons.set(entity, @ui.Button::new())
-  @ui.tab_indexes.set(entity, @ui.TabIndex::new(tab_index))
+  @ui.nodes().set(entity, @ui.Node::absolute(offset, size~))
+  @ui.z_indexes().set(entity, @ui.ZIndex::new(PANEL_TEXT_ZINDEX))
+  @ui.background_colors().set(entity, @ui.BackgroundColor::from_css(background))
+  @ui.border_colors().set(entity, @ui.BorderColor::from_css(border))
+  @ui.border_radii().set(entity, @ui.BorderRadius::all(@ui.Val::px(8.0)))
+  @ui.buttons().set(entity, @ui.Button::new())
+  @ui.tab_indexes().set(entity, @ui.TabIndex::new(tab_index))
   set_ui_text(entity, label)
-  @ui.text_fonts.set(entity, @ui.TextFont::from_css("16px ThaleahFat"))
+  @ui.text_fonts().set(entity, @ui.TextFont::from_css("16px ThaleahFat"))
   set_ui_text_color(entity, "white")
-  @ui.text_layouts.set(
+  @ui.text_layouts().set(
     entity,
     @ui.TextLayout::new(
       align=@math.HAlign::Center,
@@ -258,14 +258,14 @@ fn update_selection_display(
 ) -> Unit {
   match selection {
     PowerupSelection(powerup) => {
-      @ui.background_colors.set(
+      @ui.background_colors().set(
         button_entity,
         @ui.BackgroundColor::from_css("rgba(13, 167, 170, 1)"),
       )
       set_ui_text(button_entity, powerup.name)
     }
     WeaponSelection(weapon_type) => {
-      @ui.background_colors.set(
+      @ui.background_colors().set(
         button_entity,
         @ui.BackgroundColor::from_css("rgba(255, 140, 0, 1)"),
       )
@@ -375,7 +375,7 @@ fn setup_game_over_ui() -> Unit {
     "RESTART",
     10,
   )
-  @ui.text_fonts.set(restart_button, @ui.TextFont::from_css("24px ThaleahFat"))
+  @ui.text_fonts().set(restart_button, @ui.TextFont::from_css("24px ThaleahFat"))
 
   hide_game_over_ui()
 }

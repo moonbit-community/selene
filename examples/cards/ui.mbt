@@ -26,7 +26,7 @@ let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = @event.EventReader:
 
 ///|
 fn set_text(entity : @entity.Entity, content : String) -> Unit {
-  let text = @ui.texts.get_or_init(entity, fn() { @ui.Text::new(content) })
+  let text = @ui.texts().get_or_init(entity, fn() { @ui.Text::new(content) })
   text.content = content
 }
 
@@ -63,9 +63,9 @@ fn with_display(node : @ui.Node, display : @ui.Display) -> @ui.Node {
 
 ///|
 fn set_display(entity : @entity.Entity, display : @ui.Display) -> Unit {
-  match @ui.nodes.get(entity) {
-    Some(node) => @ui.nodes.set(entity, with_display(node, display))
-    None => @ui.nodes.set(entity, @ui.Node::new(display~))
+  match @ui.nodes().get(entity) {
+    Some(node) => @ui.nodes().set(entity, with_display(node, display))
+    None => @ui.nodes().set(entity, @ui.Node::new(display~))
   }
 }
 
@@ -81,12 +81,12 @@ fn configure_text(
   baseline? : @math.VAlign = @math.VAlign::Top,
   zindex? : Int = HUD_ZINDEX,
 ) -> Unit {
-  @ui.nodes.set(entity, @ui.Node::absolute(offset, size~))
-  @ui.z_indexes.set(entity, @ui.ZIndex::new(zindex))
+  @ui.nodes().set(entity, @ui.Node::absolute(offset, size~))
+  @ui.z_indexes().set(entity, @ui.ZIndex::new(zindex))
   set_text(entity, content)
-  @ui.text_fonts.set(entity, @ui.TextFont::from_css(font))
-  @ui.text_colors.set(entity, @ui.TextColor::from_css(color))
-  @ui.text_layouts.set(entity, @ui.TextLayout::new(align~, baseline~))
+  @ui.text_fonts().set(entity, @ui.TextFont::from_css(font))
+  @ui.text_colors().set(entity, @ui.TextColor::from_css(color))
+  @ui.text_layouts().set(entity, @ui.TextLayout::new(align~, baseline~))
 }
 
 ///|
@@ -97,20 +97,20 @@ fn configure_button(
   background : String,
   tab_index : Int,
 ) -> Unit {
-  @ui.nodes.set(entity, @ui.Node::absolute(offset, size~))
-  @ui.z_indexes.set(entity, @ui.ZIndex::new(BUTTON_ZINDEX))
-  @ui.background_colors.set(entity, @ui.BackgroundColor::from_css(background))
-  @ui.border_radii.set(entity, @ui.BorderRadius::all(@ui.Val::px(6.0)))
-  @ui.buttons.set(entity, @ui.Button::new())
-  @ui.tab_indexes.set(entity, @ui.TabIndex::new(tab_index))
+  @ui.nodes().set(entity, @ui.Node::absolute(offset, size~))
+  @ui.z_indexes().set(entity, @ui.ZIndex::new(BUTTON_ZINDEX))
+  @ui.background_colors().set(entity, @ui.BackgroundColor::from_css(background))
+  @ui.border_radii().set(entity, @ui.BorderRadius::all(@ui.Val::px(6.0)))
+  @ui.buttons().set(entity, @ui.Button::new())
+  @ui.tab_indexes().set(entity, @ui.TabIndex::new(tab_index))
 }
 
 ///|
 /// Setup UI elements
 fn setup_ui() -> Unit {
   let table_entity = @entity.Entity::new()
-  @transform.positions.set(table_entity, @math.Vec2D(0.0, 0.0))
-  @sprite.sprites.set(
+  @transform.positions().set(table_entity, @math.Vec2D(0.0, 0.0))
+  @sprite.sprites().set(
     table_entity,
     @sprite.Sprite::from_color_rect(
       @sprite.ColorRect::new(
@@ -413,8 +413,8 @@ fn display_all_cards() -> Unit {
   for j, card in player.hole_cards {
     let card_x = x_base + (j.to_double() - 0.5) * 30.0 - 30
     let card_entity = @entity.Entity::new()
-    @transform.positions.set(card_entity, @math.Vec2D(card_x, y_base))
-    @sprite.sprites.set(card_entity, card.to_sprite(j))
+    @transform.positions().set(card_entity, @math.Vec2D(card_x, y_base))
+    @sprite.sprites().set(card_entity, card.to_sprite(j))
     game_state.hole_card_entities.push(card_entity)
   }
 
@@ -433,8 +433,8 @@ fn display_community_cards() -> Unit {
   for i, card in game_state.community_cards {
     let card_x = center_x + (i.to_double() - 2.5) * 30.0 - 15
     let card_entity = @entity.Entity::new()
-    @transform.positions.set(card_entity, @math.Vec2D(card_x, center_y))
-    @sprite.sprites.set(card_entity, card.to_sprite(10 + i))
+    @transform.positions().set(card_entity, @math.Vec2D(card_x, center_y))
+    @sprite.sprites().set(card_entity, card.to_sprite(10 + i))
     game_state.community_card_entities.push(card_entity)
   }
 }

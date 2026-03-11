@@ -73,7 +73,23 @@ pub fn A11y::on_click(self : A11y, callback : () -> Unit) -> Unit {
 }
 
 ///|
-pub let a11ys : Map[@entity.Entity, A11y] = Map::new()
+priv struct A11yWorldStore {
+  a11ys : Map[@entity.Entity, A11y]
+}
+
+///|
+let a11y_world_stores : Map[UInt, A11yWorldStore] = Map::new()
+
+///|
+fn a11y_world_store() -> A11yWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  a11y_world_stores.get_or_init(world_id, () => { a11ys: Map::new() })
+}
+
+///|
+pub fn a11ys() -> Map[@entity.Entity, A11y] {
+  a11y_world_store().a11ys
+}
 
 ///|
 let a11y_tree_id : @moon_accesskit.TreeId = @moon_accesskit.TreeId::root()
@@ -100,7 +116,7 @@ pub fn tree_id() -> @moon_accesskit.TreeId {
 
 ///|
 pub fn attach(entity : @entity.Entity, a11y : A11y) -> Unit {
-  a11ys.set(entity, a11y)
+  a11ys().set(entity, a11y)
 }
 
 ///|
@@ -161,11 +177,11 @@ fn to_accesskit_role(role : A11yRole) -> @moon_accesskit.Role {
 
 ///|
 fn auto_a11y(entity : @entity.Entity) -> A11y? {
-  if @ui.buttons.get(entity) is Some(button) {
+  if @ui.buttons().get(entity) is Some(button) {
     Some(A11y::new(role=Button, focusable=true, disabled=!button.enabled))
-  } else if @ui.texts.get(entity) is Some(_) {
+  } else if @ui.texts().get(entity) is Some(_) {
     Some(A11y::new(role=Label))
-  } else if @ui.ui_images.get(entity) is Some(_) {
+  } else if @ui.ui_images().get(entity) is Some(_) {
     Some(A11y::new(role=Image))
   } else {
     None
@@ -174,7 +190,7 @@ fn auto_a11y(entity : @entity.Entity) -> A11y? {
 
 ///|
 fn get_a11y(entity : @entity.Entity) -> A11y? {
-  if a11ys.get(entity) is Some(a11y) {
+  if a11ys().get(entity) is Some(a11y) {
     if a11y.hidden {
       None
     } else {
@@ -189,27 +205,27 @@ fn get_a11y(entity : @entity.Entity) -> A11y? {
 fn ui_children(entity : @entity.Entity) -> Array[@entity.Entity] {
   let children : Array[@entity.Entity] = []
   for child in entity.get_children() {
-    if child.is_alive() && @ui.nodes.contains(child) {
+    if child.is_alive() && @ui.nodes().contains(child) {
       children.push(child)
     }
   }
   children.sort_by(fn(lhs, rhs) {
-    let lg = @ui.global_zindexes
+    let lg = @ui.global_zindexes()
       .get(lhs)
       .map(fn(value) { value.value })
       .unwrap_or(0)
-    let rg = @ui.global_zindexes
+    let rg = @ui.global_zindexes()
       .get(rhs)
       .map(fn(value) { value.value })
       .unwrap_or(0)
     if lg != rg {
       lg - rg
     } else {
-      let lz = @ui.z_indexes
+      let lz = @ui.z_indexes()
         .get(lhs)
         .map(fn(value) { value.value })
         .unwrap_or(0)
-      let rz = @ui.z_indexes
+      let rz = @ui.z_indexes()
         .get(rhs)
         .map(fn(value) { value.value })
         .unwrap_or(0)
@@ -242,15 +258,15 @@ fn collect_semantic_descendants(
 fn collect_ordered_semantic_entities() -> Array[@entity.Entity] {
   let ordered : Array[@entity.Entity] = []
   let seen : Map[@entity.Entity, Bool] = Map::new()
-  for entity, _node in @ui.nodes {
+  for entity, _node in @ui.nodes() {
     guard entity.is_alive() else { continue }
     match entity.get_parent() {
-      Some(parent) => if @ui.nodes.contains(parent) { continue }
+      Some(parent) => if @ui.nodes().contains(parent) { continue }
       None => ()
     }
     collect_semantic_descendants(entity, ordered, seen)
   }
-  for entity, _ in a11ys {
+  for entity, _ in a11ys() {
     guard entity.is_alive() else { continue }
     guard get_a11y(entity) is Some(_) else { continue }
     if !seen.contains(entity) {
@@ -291,7 +307,7 @@ fn build_hierarchy(
 
 ///|
 fn resolve_bounds(entity : @entity.Entity) -> @moon_accesskit.Rect? {
-  guard @ui.global_ui_nodes.get(entity) is Some(node) else { return None }
+  guard @ui.global_ui_nodes().get(entity) is Some(node) else { return None }
   Some(
     @moon_accesskit.Rect::new(
       node.screen_rect.position[X],
@@ -307,7 +323,7 @@ fn effective_label(entity : @entity.Entity, a11y : A11y) -> String? {
   if a11y.label is Some(label) {
     return Some(label)
   }
-  if @ui.texts.get(entity) is Some(text) && text.content != "" {
+  if @ui.texts().get(entity) is Some(text) && text.content != "" {
     Some(text.content)
   } else {
     None
@@ -316,7 +332,7 @@ fn effective_label(entity : @entity.Entity, a11y : A11y) -> String? {
 
 ///|
 fn is_clickable(entity : @entity.Entity, a11y : A11y) -> Bool {
-  @ui.buttons.contains(entity) || a11y.action_callbacks.length() > 0
+  @ui.buttons().contains(entity) || a11y.action_callbacks.length() > 0
 }
 
 ///|
@@ -402,7 +418,7 @@ fn invoke_action_callbacks(
   action : @moon_accesskit.Action,
   data : @moon_accesskit.ActionData?,
 ) -> Unit {
-  guard a11ys.get(entity) is Some(a11y) else { return }
+  guard a11ys().get(entity) is Some(a11y) else { return }
   for callback in a11y.action_callbacks {
     callback(action, data)
   }

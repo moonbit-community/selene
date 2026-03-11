@@ -24,7 +24,7 @@ const INVINCIBLE_TIME : Double = 1.0
 ///|
 fn add_player() -> Unit {
   let entity = game_state.player_entity
-  @sprite.sprites.set(
+  @sprite.sprites().set(
     entity,
     @sprite.Sprite::from_animation(
       player_idle_right_animation,
@@ -32,10 +32,10 @@ fn add_player() -> Unit {
       offset=Vec2D(-PLAYER_SIZE / 2.0, -PLAYER_SIZE / 2.0),
     ),
   )
-  @transform.positions.set(entity, Vec2D(MAP_WIDTH / 2.0, MAP_HEIGHT / 2.0))
-  @physics2d.linear_velocities.set(entity, Vec2D(0.0, 0.0))
+  @transform.positions().set(entity, Vec2D(MAP_WIDTH / 2.0, MAP_HEIGHT / 2.0))
+  @physics2d.linear_velocities().set(entity, Vec2D(0.0, 0.0))
   @camera.attach_entity(entity, Vec2D(PLAYER_SIZE / 2.0, PLAYER_SIZE / 2.0))
-  @physics2d.colliders.set(
+  @physics2d.colliders().set(
     entity,
     @physics2d.Collider::new(
       @physics2d.CollisionFilter::new(player_collision_group, [
@@ -43,7 +43,7 @@ fn add_player() -> Unit {
       ]),
     ),
   )
-  @physics2d.shapes.set(
+  @physics2d.shapes().set(
     entity,
     @physics2d.CollisionShape::Rect(
       size=Vec2D(PLAYER_SIZE, PLAYER_SIZE),
@@ -66,7 +66,7 @@ fn player_update_system(delta : Double) -> Unit {
   let vel = @inputs.key_vector(KeyW, KeyS, KeyA, KeyD)
     .normalize()
     .scalar_mul(speed)
-  @physics2d.linear_velocities.set(entity, vel)
+  @physics2d.linear_velocities().set(entity, vel)
   if vel[X] > 0.0 {
     game_state.player_direction = Right
   } else if vel[X] < 0.0 {
@@ -93,7 +93,7 @@ fn player_shooting_system(delta : Double) -> Unit {
   if game_state.game_over {
     return
   }
-  guard @transform.positions.get(game_state.player_entity) is Some(player_pos)
+  guard @transform.positions().get(game_state.player_entity) is Some(player_pos)
 
   // Clamp stats to at least 0
   let attack_speed = if game_state.player_stats.attack_speed < 0.0 {
@@ -136,7 +136,7 @@ fn find_nearest_enemy_in_range(
   let mut res : @math.Vec2D? = None
   for e, _enemy in enemies {
     guard e.is_alive() else { continue }
-    guard @transform.positions.get(e) is Some(enemy_pos)
+    guard @transform.positions().get(e) is Some(enemy_pos)
     let dist = player_pos.distance_to(enemy_pos.0)
     if dist < min {
       min = dist

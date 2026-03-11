@@ -272,10 +272,10 @@ fn shadow_samples(blur : Double) -> Int {
 
 ///|
 fn push_box_shadow(entity : @entity.Entity) -> Unit {
-  guard box_shadows.get(entity) is Some(shadow) else { return }
-  guard global_ui_nodes.get(entity) is Some(global) else { return }
+  guard box_shadows().get(entity) is Some(shadow) else { return }
+  guard global_ui_nodes().get(entity) is Some(global) else { return }
   let base_radius = resolved_border_radius(
-    border_radii.get(entity).unwrap_or(BorderRadius::all(Val::px(0.0))),
+    border_radii().get(entity).unwrap_or(BorderRadius::all(Val::px(0.0))),
     global.screen_rect.size,
   )
   let spread_basis = @cmp.minimum(
@@ -320,8 +320,8 @@ fn push_box_shadow(entity : @entity.Entity) -> Unit {
 fn should_render_ui(entity : @entity.Entity) -> Bool {
   entity.is_alive() &&
   @visibility.is_visible(entity) &&
-  global_ui_nodes.contains(entity) &&
-  nodes
+  global_ui_nodes().contains(entity) &&
+  nodes()
   .get(entity)
   .map(fn(node) { node.active && node.display != None })
   .unwrap_or(false)
@@ -344,14 +344,14 @@ fn render_text_style(entity : @entity.Entity) -> @render2d_types.TextStyle2D? {
 
 ///|
 fn ui_material_context_for(entity : @entity.Entity) -> UiMaterialContext? {
-  global_ui_nodes
+  global_ui_nodes()
   .get(entity)
   .map(fn(transform) {
     UiMaterialContext::new(
       entity,
       transform.screen_rect,
       content_rect=transform.screen_content_rect,
-      border_radius=border_radii
+      border_radius=border_radii()
         .get(entity)
         .unwrap_or(BorderRadius::all(Val::px(0.0))),
     )
@@ -399,15 +399,15 @@ pub fn draw_ui_material_image(
 
 ///|
 fn push_background(entity : @entity.Entity) -> Unit {
-  guard !material_nodes.contains(entity) else { return }
-  guard background_colors.get(entity) is Some(background) else { return }
+  guard !material_nodes().contains(entity) else { return }
+  guard background_colors().get(entity) is Some(background) else { return }
   guard ui_material_context_for(entity) is Some(context) else { return }
   draw_ui_material_solid(context, background.color)
 }
 
 ///|
 fn push_material_node(entity : @entity.Entity) -> Bool {
-  guard material_nodes.get(entity) is Some(material_node) else { return false }
+  guard material_nodes().get(entity) is Some(material_node) else { return false }
   guard ui_material_asset(material_node.material) is Some(material) else {
     return false
   }
@@ -418,17 +418,17 @@ fn push_material_node(entity : @entity.Entity) -> Bool {
 
 ///|
 fn push_border(entity : @entity.Entity) -> Unit {
-  guard border_colors.get(entity) is Some(border_color) else { return }
-  guard global_ui_nodes.get(entity) is Some(global) else { return }
-  guard computed_ui_nodes.get(entity) is Some(computed) else { return }
+  guard border_colors().get(entity) is Some(border_color) else { return }
+  guard global_ui_nodes().get(entity) is Some(global) else { return }
+  guard computed_ui_nodes().get(entity) is Some(computed) else { return }
   let rect = global.screen_rect
   let border = computed.border
   let radius = resolved_border_radius(
-    border_radii.get(entity).unwrap_or(BorderRadius::all(Val::px(0.0))),
+    border_radii().get(entity).unwrap_or(BorderRadius::all(Val::px(0.0))),
     rect.size,
   )
   if has_rounded_corners(radius) {
-    match background_colors.get(entity) {
+    match background_colors().get(entity) {
       Some(background) => {
         push_rounded_rect(rect, radius, border_color.color)
         push_rounded_rect(
@@ -493,8 +493,8 @@ fn push_border(entity : @entity.Entity) -> Unit {
 
 ///|
 fn push_outline(entity : @entity.Entity) -> Unit {
-  guard outlines.get(entity) is Some(outline) else { return }
-  guard global_ui_nodes.get(entity) is Some(transform) else { return }
+  guard outlines().get(entity) is Some(outline) else { return }
+  guard global_ui_nodes().get(entity) is Some(transform) else { return }
   let width = resolve_val(outline.width, transform.screen_rect.size[X])
   let offset = resolve_val(outline.offset, transform.screen_rect.size[X])
   if width <= 0.0 || outline.color.a <= 0.0 {
@@ -503,7 +503,7 @@ fn push_outline(entity : @entity.Entity) -> Unit {
   let inner = inflate_rect(transform.screen_rect, offset)
   let outer = inflate_rect(transform.screen_rect, offset + width)
   let radius = resolved_border_radius(
-    border_radii.get(entity).unwrap_or(BorderRadius::all(Val::px(0.0))),
+    border_radii().get(entity).unwrap_or(BorderRadius::all(Val::px(0.0))),
     transform.screen_rect.size,
   )
   if has_rounded_corners(radius) {
@@ -619,9 +619,9 @@ fn fitted_image_rect(container : @math.Rect, image : UiImage) -> @math.Rect {
 
 ///|
 fn push_image(entity : @entity.Entity) -> Unit {
-  guard !material_nodes.contains(entity) else { return }
-  guard ui_images.get(entity) is Some(image) else { return }
-  guard global_ui_nodes.get(entity) is Some(transform) else { return }
+  guard !material_nodes().contains(entity) else { return }
+  guard ui_images().get(entity) is Some(image) else { return }
+  guard global_ui_nodes().get(entity) is Some(transform) else { return }
   @render2d.push_ui_image({
     image: image.image,
     destination: fitted_image_rect(transform.screen_content_rect, image),
@@ -710,7 +710,7 @@ fn prepared_text_lines(
   entity : @entity.Entity,
   content_rect : @math.Rect,
 ) -> Array[String] {
-  guard texts.get(entity) is Some(text) else { return [] }
+  guard texts().get(entity) is Some(text) else { return [] }
   let layout = text_layout(entity)
   let raw_lines : Array[String] = []
   for raw_line in text.content.split("\n") {
@@ -742,8 +742,8 @@ fn prepared_text_lines(
 
 ///|
 fn push_text(entity : @entity.Entity) -> Unit {
-  guard texts.get(entity) is Some(_) else { return }
-  guard global_ui_nodes.get(entity) is Some(transform) else { return }
+  guard texts().get(entity) is Some(_) else { return }
+  guard global_ui_nodes().get(entity) is Some(transform) else { return }
   guard render_text_style(entity) is Some(style) else { return }
   let layout = text_layout(entity)
   let lines = prepared_text_lines(entity, transform.screen_content_rect)
@@ -784,19 +784,19 @@ fn push_text(entity : @entity.Entity) -> Unit {
 
 ///|
 fn inherited_clip_for_entity(entity : @entity.Entity) -> @math.Rect? {
-  if override_clips.contains(entity) {
+  if override_clips().contains(entity) {
     return None
   }
   let mut current = entity.get_parent()
   let mut clip : @math.Rect? = None
   while current is Some(ancestor) {
-    if calculated_clips.get(ancestor) is Some(calculated) {
+    if calculated_clips().get(ancestor) is Some(calculated) {
       clip = match clip {
         Some(existing) => rect_intersection(existing, calculated.clip)
         None => Some(calculated.clip)
       }
     }
-    if override_clips.contains(ancestor) {
+    if override_clips().contains(ancestor) {
       break
     }
     current = ancestor.get_parent()
@@ -807,7 +807,7 @@ fn inherited_clip_for_entity(entity : @entity.Entity) -> @math.Rect? {
 ///|
 fn render_entity(entity : @entity.Entity) -> Unit {
   guard should_render_ui(entity) else { return }
-  guard nodes.get(entity) is Some(node) else { return }
+  guard nodes().get(entity) is Some(node) else { return }
   let effective_inherited_clip = inherited_clip_for_entity(entity)
 
   let mut pushed_inherited_clip = false
@@ -831,7 +831,7 @@ fn render_entity(entity : @entity.Entity) -> Unit {
 
   let needs_clip = node.overflow_x != Visible || node.overflow_y != Visible
   let content_clip = if needs_clip {
-    calculated_clips.get(entity).map(fn(value) { value.clip })
+    calculated_clips().get(entity).map(fn(value) { value.clip })
   } else {
     effective_inherited_clip
   }
@@ -860,7 +860,7 @@ fn render_entity(entity : @entity.Entity) -> Unit {
 ///|
 pub fn ui_extract_system(_delta : Double) -> Unit {
   extracted_ui_entities.clear()
-  for entity, _ in nodes {
+  for entity, _ in nodes() {
     if should_render_ui(entity) {
       extracted_ui_entities.push(entity)
     }

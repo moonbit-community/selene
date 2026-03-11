@@ -33,6 +33,7 @@ pub(all) struct NextState[T] {
 pub fn[T] NextState::set(Self[T], T) -> Unit
 
 pub(all) struct State[T] {
+  world_id : UInt
   current : @ref.Ref[T]
   next : @ref.Ref[T?]
   previous : @ref.Ref[T?]

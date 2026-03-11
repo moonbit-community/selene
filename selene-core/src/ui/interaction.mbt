@@ -79,13 +79,24 @@ pub let focus_in_event_bus : @event.Events[UiFocusInEvent] = @event.Events::new(
 pub let focus_out_event_bus : @event.Events[UiFocusOutEvent] = @event.Events::new()
 
 ///|
-let hovered_entity_ref : Ref[@entity.Entity?] = Ref::new(None)
+priv struct UiInteractionRuntime {
+  mut hovered_entity : @entity.Entity?
+  mut pressed_entity : @entity.Entity?
+  mut focused_entity : @entity.Entity?
+}
 
 ///|
-let pressed_entity_ref : Ref[@entity.Entity?] = Ref::new(None)
+let ui_interaction_runtimes : Map[UInt, UiInteractionRuntime] = Map::new()
 
 ///|
-let focused_entity_ref : Ref[@entity.Entity?] = Ref::new(None)
+fn ui_interaction_runtime() -> UiInteractionRuntime {
+  let world_id = @ecs.require_current_world().id()
+  ui_interaction_runtimes.get_or_init(world_id, () => {
+    hovered_entity: None,
+    pressed_entity: None,
+    focused_entity: None,
+  })
+}
 
 ///|
 fn init {
@@ -101,50 +112,52 @@ fn init {
 
 ///|
 pub fn hovered_entity() -> @entity.Entity? {
-  hovered_entity_ref.val
+  ui_interaction_runtime().hovered_entity
 }
 
 ///|
 pub fn focused_entity() -> @entity.Entity? {
-  focused_entity_ref.val
+  ui_interaction_runtime().focused_entity
 }
 
 ///|
 fn clear_focus_marker(entity : @entity.Entity) -> Unit {
-  focuseds.remove(entity)
+  focuseds().remove(entity)
 }
 
 ///|
 fn set_focus_marker(entity : @entity.Entity) -> Unit {
-  focuseds.set(entity, Focused::new())
+  focuseds().set(entity, Focused::new())
 }
 
 ///|
 pub fn focus(entity : @entity.Entity) -> Unit {
-  if focused_entity_ref.val is Some(current) && current == entity {
+  let runtime = ui_interaction_runtime()
+  if runtime.focused_entity is Some(current) && current == entity {
     return
   }
-  if focused_entity_ref.val is Some(current) {
+  if runtime.focused_entity is Some(current) {
     clear_focus_marker(current)
     focus_out_event_bus.send({ entity: current })
   }
-  focused_entity_ref.val = Some(entity)
+  runtime.focused_entity = Some(entity)
   set_focus_marker(entity)
   focus_in_event_bus.send({ entity, })
 }
 
 ///|
 pub fn blur() -> Unit {
-  if focused_entity_ref.val is Some(current) {
+  let runtime = ui_interaction_runtime()
+  if runtime.focused_entity is Some(current) {
     clear_focus_marker(current)
     focus_out_event_bus.send({ entity: current })
   }
-  focused_entity_ref.val = None
+  runtime.focused_entity = None
 }
 
 ///|
 fn is_interactive(entity : @entity.Entity) -> Bool {
-  buttons.get(entity).map(fn(button) { button.enabled }).unwrap_or(false)
+  buttons().get(entity).map(fn(button) { button.enabled }).unwrap_or(false)
 }
 
 ///|
@@ -152,13 +165,13 @@ fn is_focusable(entity : @entity.Entity) -> Bool {
   if is_interactive(entity) {
     true
   } else {
-    focusables.contains(entity)
+    focusables().contains(entity)
   }
 }
 
 ///|
 fn button_blocks_pointer(entity : @entity.Entity) -> Bool {
-  focus_policies.get(entity).unwrap_or(Block) == Block
+  focus_policies().get(entity).unwrap_or(Block) == Block
 }
 
 ///|
@@ -166,7 +179,8 @@ fn interaction_state(
   entity : @entity.Entity,
   hovered : @entity.Entity?,
 ) -> Interaction {
-  if pressed_entity_ref.val is Some(pressed) &&
+  let runtime = ui_interaction_runtime()
+  if runtime.pressed_entity is Some(pressed) &&
     pressed == entity &&
     @inputs.is_mouse_pressed(@inputs.MouseButton::Left) {
     Pressed
@@ -180,12 +194,12 @@ fn interaction_state(
 ///|
 fn sorted_ui_entities() -> Array[@entity.Entity] {
   let entities : Array[@entity.Entity] = []
-  for entity, node in nodes {
+  for entity, node in nodes() {
     if entity.is_alive() &&
       node.active &&
       node.display != None &&
       @visibility.is_visible(entity) &&
-      global_ui_nodes.contains(entity) {
+      global_ui_nodes().contains(entity) {
       entities.push(entity)
     }
   }
@@ -202,12 +216,12 @@ fn focusable_entities() -> Array[@entity.Entity] {
     }
   }
   entities.sort_by(fn(lhs, rhs) {
-    let lt = tab_indexes.get(lhs).map(fn(value) { value.value }).unwrap_or(0)
-    let rt = tab_indexes.get(rhs).map(fn(value) { value.value }).unwrap_or(0)
+    let lt = tab_indexes().get(lhs).map(fn(value) { value.value }).unwrap_or(0)
+    let rt = tab_indexes().get(rhs).map(fn(value) { value.value }).unwrap_or(0)
     if lt != rt {
       lt - rt
     } else {
-      tree_orders.get(lhs).unwrap_or(0) - tree_orders.get(rhs).unwrap_or(0)
+      tree_orders().get(lhs).unwrap_or(0) - tree_orders().get(rhs).unwrap_or(0)
     }
   })
   entities
@@ -254,13 +268,14 @@ fn move_focus(direction : UiNavigationDirection) -> Unit {
     blur()
     return
   }
-  let current = focused_entity_ref.val.unwrap_or(entities[0])
-  if !global_ui_nodes.contains(current) {
+  let runtime = ui_interaction_runtime()
+  let current = runtime.focused_entity.unwrap_or(entities[0])
+  if !global_ui_nodes().contains(current) {
     focus(entities[0])
     return
   }
   let current_center = rect_center(
-    global_ui_nodes.get(current).unwrap().screen_rect,
+    global_ui_nodes().get(current).unwrap().screen_rect,
   )
   let mut best_entity : @entity.Entity? = None
   let mut best_primary = 0.0
@@ -268,7 +283,7 @@ fn move_focus(direction : UiNavigationDirection) -> Unit {
   let mut has_best = false
   for entity in entities {
     guard entity != current else { continue }
-    guard global_ui_nodes.get(entity) is Some(transform) else { continue }
+    guard global_ui_nodes().get(entity) is Some(transform) else { continue }
     guard directional_score(
         current_center,
         rect_center(transform.screen_rect),
@@ -288,7 +303,7 @@ fn move_focus(direction : UiNavigationDirection) -> Unit {
   }
   match best_entity {
     Some(entity) => focus(entity)
-    None => if focused_entity_ref.val is None { focus(entities[0]) }
+    None => if runtime.focused_entity is None { focus(entities[0]) }
   }
 }
 
@@ -299,7 +314,8 @@ fn move_focus_by_tab(reverse : Bool) -> Unit {
     blur()
     return
   }
-  match focused_entity_ref.val {
+  let runtime = ui_interaction_runtime()
+  match runtime.focused_entity {
     Some(current) => {
       let mut index = 0
       for i in 0..<entities.length() {
@@ -335,7 +351,7 @@ fn point_in_rect(point : @math.Vec2D, rect : @math.Rect) -> Bool {
 
 ///|
 fn screen_clip_allows(entity : @entity.Entity, point : @math.Vec2D) -> Bool {
-  match calculated_clips.get(entity) {
+  match calculated_clips().get(entity) {
     Some(clip) => point_in_rect(point, clip.clip)
     None => true
   }
@@ -360,14 +376,14 @@ fn normalized_cursor_position(
 
 ///|
 fn update_relative_cursor_positions(position : @math.Vec2D) -> Unit {
-  for entity, relative in relative_cursor_positions {
+  for entity, relative in relative_cursor_positions() {
     guard entity.is_alive() else { continue }
-    guard nodes.get(entity) is Some(node) else {
+    guard nodes().get(entity) is Some(node) else {
       relative.normalized = None
       relative.cursor_over = false
       continue
     }
-    guard global_ui_nodes.get(entity) is Some(transform) else {
+    guard global_ui_nodes().get(entity) is Some(transform) else {
       relative.normalized = None
       relative.cursor_over = false
       continue
@@ -392,7 +408,7 @@ fn resolve_pointer_target(position : @math.Vec2D) -> @entity.Entity? {
   let mut index = candidates.length() - 1
   while index >= 0 {
     let entity = candidates[index]
-    guard global_ui_nodes.get(entity) is Some(transform) else {
+    guard global_ui_nodes().get(entity) is Some(transform) else {
       index -= 1
       continue
     }
@@ -418,12 +434,12 @@ fn update_scroll(position : @math.Vec2D) -> Unit {
   }
   let mut target = resolve_pointer_target(position)
   while target is Some(entity) {
-    guard nodes.get(entity) is Some(node) else {
+    guard nodes().get(entity) is Some(node) else {
       target = entity.get_parent()
       continue
     }
     if node.overflow_x == Scroll || node.overflow_y == Scroll {
-      let scroll = scroll_positions.get_or_init(entity, ScrollPosition::zero)
+      let scroll = scroll_positions().get_or_init(entity, ScrollPosition::zero)
       if node.overflow_x == Scroll {
         scroll.x = @cmp.maximum(0.0, scroll.x + delta[X] * 16.0)
       }
@@ -438,10 +454,10 @@ fn update_scroll(position : @math.Vec2D) -> Unit {
 
 ///|
 fn sanitize_focus() -> Unit {
-  match focused_entity_ref.val {
+  match ui_interaction_runtime().focused_entity {
     Some(entity) =>
       if !entity.is_alive() ||
-        !global_ui_nodes.contains(entity) ||
+        !global_ui_nodes().contains(entity) ||
         !is_focusable(entity) ||
         !@visibility.is_visible(entity) {
         blur()
@@ -452,24 +468,25 @@ fn sanitize_focus() -> Unit {
 
 ///|
 pub fn ui_interaction_system(_delta : Double) -> Unit {
+  let runtime = ui_interaction_runtime()
   sanitize_focus()
   let mouse_position = @inputs.mouse.pos
   update_relative_cursor_positions(mouse_position)
   update_scroll(mouse_position)
   let hovered = resolve_pointer_target(mouse_position)
-  if hovered_entity_ref.val != hovered {
-    if hovered_entity_ref.val is Some(previous) {
+  if runtime.hovered_entity != hovered {
+    if runtime.hovered_entity is Some(previous) {
       pointer_leave_event_bus.send({ entity: previous })
     }
     if hovered is Some(current) {
       pointer_enter_event_bus.send({ entity: current })
     }
-    hovered_entity_ref.val = hovered
+    runtime.hovered_entity = hovered
   }
 
   if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) &&
     hovered is Some(target) {
-    pressed_entity_ref.val = Some(target)
+    runtime.pressed_entity = Some(target)
     pointer_down_event_bus.send({
       entity: target,
       button: @inputs.MouseButton::Left,
@@ -483,7 +500,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
   }
 
   if @inputs.is_mouse_just_released(@inputs.MouseButton::Left) &&
-    pressed_entity_ref.val is Some(pressed) {
+    runtime.pressed_entity is Some(pressed) {
     pointer_up_event_bus.send({
       entity: pressed,
       button: @inputs.MouseButton::Left,
@@ -495,13 +512,13 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
         button: @inputs.MouseButton::Left,
       })
     }
-    pressed_entity_ref.val = None
+    runtime.pressed_entity = None
   }
 
   if @inputs.is_just_pressed(@inputs.Tab) {
     move_focus_by_tab(@inputs.is_pressed(@inputs.ShiftLeft))
     navigation_event_bus.send({
-      entity: focused_entity_ref.val,
+      entity: runtime.focused_entity,
       direction: if @inputs.is_pressed(@inputs.ShiftLeft) {
         Left
       } else {
@@ -516,7 +533,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
     ) {
     move_focus(Left)
     navigation_event_bus.send({
-      entity: focused_entity_ref.val,
+      entity: runtime.focused_entity,
       direction: Left,
     })
   }
@@ -527,7 +544,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
     ) {
     move_focus(Right)
     navigation_event_bus.send({
-      entity: focused_entity_ref.val,
+      entity: runtime.focused_entity,
       direction: Right,
     })
   }
@@ -537,7 +554,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
       @inputs.DPadUp,
     ) {
     move_focus(Up)
-    navigation_event_bus.send({ entity: focused_entity_ref.val, direction: Up })
+    navigation_event_bus.send({ entity: runtime.focused_entity, direction: Up })
   }
   if @inputs.is_just_pressed(@inputs.ArrowDown) ||
     @inputs.is_gamepad_button_just_pressed(
@@ -546,7 +563,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
     ) {
     move_focus(Down)
     navigation_event_bus.send({
-      entity: focused_entity_ref.val,
+      entity: runtime.focused_entity,
       direction: Down,
     })
   }
@@ -556,7 +573,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
       @inputs.East,
     ) {
     navigation_event_bus.send({
-      entity: focused_entity_ref.val,
+      entity: runtime.focused_entity,
       direction: Cancel,
     })
   }
@@ -568,15 +585,15 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
         @inputs.South,
       )
     ) &&
-    focused_entity_ref.val is Some(target) &&
+    runtime.focused_entity is Some(target) &&
     is_interactive(target) {
     click_event_bus.send({ entity: target, button: @inputs.MouseButton::Left })
     navigation_event_bus.send({ entity: Some(target), direction: Activate })
   }
 
-  for entity, _button in buttons {
+  for entity, _button in buttons() {
     if entity.is_alive() {
-      interactions.set(entity, interaction_state(entity, hovered))
+      interactions().set(entity, interaction_state(entity, hovered))
     }
   }
 }

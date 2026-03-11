@@ -65,8 +65,8 @@ fn add_background(size : @math.Vec2D) -> Unit {
     ),
     0,
   )
-  @sprite.sprites.set(background, background_sprite)
-  @transform.positions.set(background, @math.Vec2D(0, 0))
+  @sprite.sprites().set(background, background_sprite)
+  @transform.positions().set(background, @math.Vec2D(0, 0))
 }
 
 ///|
@@ -92,8 +92,8 @@ fn add_grass_visual(pos : @math.Vec2D, sprite_id : String) -> Unit {
     10,
   )
   let grass = @entity.Entity::new()
-  @sprite.sprites.set(grass, sprite)
-  @transform.positions.set(grass, pos)
+  @sprite.sprites().set(grass, sprite)
+  @transform.positions().set(grass, pos)
 }
 
 ///|
@@ -135,9 +135,9 @@ fn build_terrain_colliders(
 ///|
 fn add_terrain_collider(pos : @math.Vec2D, size : @math.Vec2D) -> Unit {
   let terrain = @entity.Entity::new()
-  @transform.positions.set(terrain, pos)
-  @physics2d.shapes.set(terrain, Rect(size~, offset=@math.Vec2D::zero()))
-  @physics2d.colliders.set(
+  @transform.positions().set(terrain, pos)
+  @physics2d.shapes().set(terrain, Rect(size~, offset=@math.Vec2D::zero()))
+  @physics2d.colliders().set(
     terrain,
     @physics2d.Collider::new(
       @physics2d.CollisionFilter::new(terrain_collision_group, [
@@ -157,9 +157,9 @@ fn add_flag(pos : @math.Vec2D) -> Unit {
     ),
     20,
   )
-  @sprite.sprites.set(flag, flag_sprite)
-  @transform.positions.set(flag, pos)
-  @physics2d.shapes.set(
+  @sprite.sprites().set(flag, flag_sprite)
+  @transform.positions().set(flag, pos)
+  @physics2d.shapes().set(
     flag,
     Rect(size=@math.Vec2D(64.0, 64.0), offset=@math.Vec2D::zero()),
   )
@@ -168,7 +168,7 @@ fn add_flag(pos : @math.Vec2D) -> Unit {
       player_collision_group,
     ]),
   )
-  @physics2d.areas.set(flag, area)
+  @physics2d.areas().set(flag, area)
   flags.add(flag)
 }
 
@@ -188,9 +188,9 @@ fn add_apple(pos : @math.Vec2D) -> Unit {
     ),
     20,
   )
-  @sprite.sprites.set(apple, apple_sprite)
-  @transform.positions.set(apple, pos)
-  @physics2d.shapes.set(
+  @sprite.sprites().set(apple, apple_sprite)
+  @transform.positions().set(apple, pos)
+  @physics2d.shapes().set(
     apple,
     Rect(size=@math.Vec2D(32.0, 32.0), offset=@math.Vec2D::zero()),
   )
@@ -199,7 +199,7 @@ fn add_apple(pos : @math.Vec2D) -> Unit {
       player_collision_group,
     ]),
   )
-  @physics2d.areas.set(apple, area)
+  @physics2d.areas().set(apple, area)
   apples.add(apple)
 }
 

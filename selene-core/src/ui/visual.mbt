@@ -386,25 +386,79 @@ pub(all) enum Interaction {
 } derive(Eq, Show)
 
 ///|
-pub let background_colors : Map[@entity.Entity, BackgroundColor] = Map::new()
+priv struct UiVisualWorldStore {
+  background_colors : Map[@entity.Entity, BackgroundColor]
+  border_colors : Map[@entity.Entity, BorderColor]
+  border_radii : Map[@entity.Entity, BorderRadius]
+  box_shadows : Map[@entity.Entity, BoxShadow]
+  outlines : Map[@entity.Entity, Outline]
+  ui_images : Map[@entity.Entity, UiImage]
+  material_nodes : Map[@entity.Entity, MaterialNode]
+  texts : Map[@entity.Entity, Text]
+  text_fonts : Map[@entity.Entity, TextFont]
+  text_colors : Map[@entity.Entity, TextColor]
+  text_layouts : Map[@entity.Entity, TextLayout]
+  buttons : Map[@entity.Entity, Button]
+  interactions : Map[@entity.Entity, Interaction]
+}
 
 ///|
-pub let border_colors : Map[@entity.Entity, BorderColor] = Map::new()
+let ui_visual_world_stores : Map[UInt, UiVisualWorldStore] = Map::new()
 
 ///|
-pub let border_radii : Map[@entity.Entity, BorderRadius] = Map::new()
+fn ui_visual_world_store() -> UiVisualWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  ui_visual_world_stores.get_or_init(world_id, () => {
+    background_colors: Map::new(),
+    border_colors: Map::new(),
+    border_radii: Map::new(),
+    box_shadows: Map::new(),
+    outlines: Map::new(),
+    ui_images: Map::new(),
+    material_nodes: Map::new(),
+    texts: Map::new(),
+    text_fonts: Map::new(),
+    text_colors: Map::new(),
+    text_layouts: Map::new(),
+    buttons: Map::new(),
+    interactions: Map::new(),
+  })
+}
 
 ///|
-pub let box_shadows : Map[@entity.Entity, BoxShadow] = Map::new()
+pub fn background_colors() -> Map[@entity.Entity, BackgroundColor] {
+  ui_visual_world_store().background_colors
+}
 
 ///|
-pub let outlines : Map[@entity.Entity, Outline] = Map::new()
+pub fn border_colors() -> Map[@entity.Entity, BorderColor] {
+  ui_visual_world_store().border_colors
+}
 
 ///|
-pub let ui_images : Map[@entity.Entity, UiImage] = Map::new()
+pub fn border_radii() -> Map[@entity.Entity, BorderRadius] {
+  ui_visual_world_store().border_radii
+}
 
 ///|
-pub let material_nodes : Map[@entity.Entity, MaterialNode] = Map::new()
+pub fn box_shadows() -> Map[@entity.Entity, BoxShadow] {
+  ui_visual_world_store().box_shadows
+}
+
+///|
+pub fn outlines() -> Map[@entity.Entity, Outline] {
+  ui_visual_world_store().outlines
+}
+
+///|
+pub fn ui_images() -> Map[@entity.Entity, UiImage] {
+  ui_visual_world_store().ui_images
+}
+
+///|
+pub fn material_nodes() -> Map[@entity.Entity, MaterialNode] {
+  ui_visual_world_store().material_nodes
+}
 
 ///|
 let ui_material_assets : Map[UiMaterialHandle, UiMaterialAsset] = Map::new()
@@ -413,22 +467,34 @@ let ui_material_assets : Map[UiMaterialHandle, UiMaterialAsset] = Map::new()
 let next_ui_material_id : Ref[UInt] = Ref::new(0)
 
 ///|
-pub let texts : Map[@entity.Entity, Text] = Map::new()
+pub fn texts() -> Map[@entity.Entity, Text] {
+  ui_visual_world_store().texts
+}
 
 ///|
-pub let text_fonts : Map[@entity.Entity, TextFont] = Map::new()
+pub fn text_fonts() -> Map[@entity.Entity, TextFont] {
+  ui_visual_world_store().text_fonts
+}
 
 ///|
-pub let text_colors : Map[@entity.Entity, TextColor] = Map::new()
+pub fn text_colors() -> Map[@entity.Entity, TextColor] {
+  ui_visual_world_store().text_colors
+}
 
 ///|
-pub let text_layouts : Map[@entity.Entity, TextLayout] = Map::new()
+pub fn text_layouts() -> Map[@entity.Entity, TextLayout] {
+  ui_visual_world_store().text_layouts
+}
 
 ///|
-pub let buttons : Map[@entity.Entity, Button] = Map::new()
+pub fn buttons() -> Map[@entity.Entity, Button] {
+  ui_visual_world_store().buttons
+}
 
 ///|
-pub let interactions : Map[@entity.Entity, Interaction] = Map::new()
+pub fn interactions() -> Map[@entity.Entity, Interaction] {
+  ui_visual_world_store().interactions
+}
 
 ///|
 pub fn register_ui_material_asset(
@@ -475,22 +541,22 @@ fn default_text_layout() -> TextLayout {
 
 ///|
 fn text_font(entity : @entity.Entity) -> TextFont {
-  text_fonts.get(entity).unwrap_or(default_text_font())
+  text_fonts().get(entity).unwrap_or(default_text_font())
 }
 
 ///|
 fn text_color(entity : @entity.Entity) -> TextColor {
-  text_colors.get(entity).unwrap_or(default_text_color())
+  text_colors().get(entity).unwrap_or(default_text_color())
 }
 
 ///|
 fn text_layout(entity : @entity.Entity) -> TextLayout {
-  text_layouts.get(entity).unwrap_or(default_text_layout())
+  text_layouts().get(entity).unwrap_or(default_text_layout())
 }
 
 ///|
 fn text_style_for(entity : @entity.Entity) -> @render2d_types.TextStyle2D? {
-  guard texts.get(entity) is Some(_) else { return None }
+  guard texts().get(entity) is Some(_) else { return None }
   let font = text_font(entity)
   let color = text_color(entity)
   let layout = text_layout(entity)

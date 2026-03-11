@@ -1,11 +1,29 @@
 ///|
-let transition_callbacks : Array[() -> Unit] = []
+priv struct StateWorldRuntime {
+  mut frame_serial : UInt
+  transition_callbacks : Array[() -> Unit]
+}
 
 ///|
-let frame_serial : Ref[UInt] = Ref::new(0)
+let state_world_runtimes : Map[UInt, StateWorldRuntime] = Map::new()
+
+///|
+fn state_runtime(world_id : UInt) -> StateWorldRuntime {
+  state_world_runtimes.get_or_init(world_id, () => {
+    frame_serial: 0U,
+    transition_callbacks: [],
+  })
+}
+
+///|
+fn current_state_runtime() -> StateWorldRuntime {
+  let world = @ecs.require_current_world()
+  state_runtime(world.id())
+}
 
 ///|
 pub(all) struct State[T] {
+  world_id : UInt
   current : Ref[T]
   next : Ref[T?]
   previous : Ref[T?]
@@ -19,19 +37,22 @@ pub(all) struct NextState[T] {
 
 ///|
 pub fn[T] State::new(initial : T) -> State[T] {
+  let world = @ecs.require_current_world()
+  let runtime = state_runtime(world.id())
   let state : State[T] = {
+    world_id: world.id(),
     current: Ref::new(initial),
     next: Ref::new(None),
     previous: Ref::new(None),
     changed_serial: Ref::new(0),
   }
-  transition_callbacks.push(fn() {
+  runtime.transition_callbacks.push(fn() {
     match state.next.val {
       Some(next) => {
         state.previous.val = Some(state.current.val)
         state.current.val = next
         state.next.val = None
-        state.changed_serial.val = frame_serial.val
+        state.changed_serial.val = runtime.frame_serial
       }
       None => ()
     }
@@ -72,7 +93,8 @@ pub fn[T : Eq] in_state_eq(state : State[T], value : T) -> () -> Bool {
 ///|
 pub fn[T] on_enter(state : State[T], predicate : (T) -> Bool) -> () -> Bool {
   fn() {
-    state.changed_serial.val == frame_serial.val && predicate(state.current.val)
+    let runtime = state_runtime(state.world_id)
+    state.changed_serial.val == runtime.frame_serial && predicate(state.current.val)
   }
 }
 
@@ -84,7 +106,8 @@ pub fn[T : Eq] on_enter_eq(state : State[T], value : T) -> () -> Bool {
 ///|
 pub fn[T] on_exit(state : State[T], predicate : (T) -> Bool) -> () -> Bool {
   fn() {
-    if state.changed_serial.val != frame_serial.val {
+    let runtime = state_runtime(state.world_id)
+    if state.changed_serial.val != runtime.frame_serial {
       return false
     }
     match state.previous.val {
@@ -101,13 +124,15 @@ pub fn[T : Eq] on_exit_eq(state : State[T], value : T) -> () -> Bool {
 
 ///|
 pub fn[T] transitioned_this_frame(state : State[T]) -> Bool {
-  state.changed_serial.val == frame_serial.val
+  let runtime = state_runtime(state.world_id)
+  state.changed_serial.val == runtime.frame_serial
 }
 
 ///|
 pub fn state_transition_system(_delta : Double) -> Unit {
-  frame_serial.val += 1
-  for callback in transition_callbacks {
+  let runtime = current_state_runtime()
+  runtime.frame_serial += 1U
+  for callback in runtime.transition_callbacks {
     callback()
   }
 }

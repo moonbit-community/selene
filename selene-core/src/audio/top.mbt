@@ -57,13 +57,39 @@ pub(all) struct AudioEvent {
 } derive(Eq, Show)
 
 ///|
-pub let audio_players : Map[@entity.Entity, AudioPlayer] = Map::new()
+priv struct AudioWorldStore {
+  audio_players : Map[@entity.Entity, AudioPlayer]
+  audio_playback_settings : Map[@entity.Entity, PlaybackSettings]
+  audio_sinks : Map[@entity.Entity, AudioSink]
+}
 
 ///|
-pub let audio_playback_settings : Map[@entity.Entity, PlaybackSettings] = Map::new()
+let audio_world_stores : Map[UInt, AudioWorldStore] = Map::new()
 
 ///|
-pub let audio_sinks : Map[@entity.Entity, AudioSink] = Map::new()
+fn audio_world_store() -> AudioWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  audio_world_stores.get_or_init(world_id, () => {
+    audio_players: Map::new(),
+    audio_playback_settings: Map::new(),
+    audio_sinks: Map::new(),
+  })
+}
+
+///|
+pub fn audio_players() -> Map[@entity.Entity, AudioPlayer] {
+  audio_world_store().audio_players
+}
+
+///|
+pub fn audio_playback_settings() -> Map[@entity.Entity, PlaybackSettings] {
+  audio_world_store().audio_playback_settings
+}
+
+///|
+pub fn audio_sinks() -> Map[@entity.Entity, AudioSink] {
+  audio_world_store().audio_sinks
+}
 
 ///|
 pub let audio_event_bus : @event.Events[AudioEvent] = @event.Events::new()
@@ -282,11 +308,11 @@ pub fn attach_audio(
   player : AudioPlayer,
   settings? : PlaybackSettings = PlaybackSettings::once(),
 ) -> Unit {
-  audio_players.set(entity, player)
-  audio_playback_settings.set(entity, normalize_settings(settings))
-  if audio_sinks.get(entity) is Some(sink) {
+  audio_players().set(entity, player)
+  audio_playback_settings().set(entity, normalize_settings(settings))
+  if audio_sinks().get(entity) is Some(sink) {
     @platform_audio.stop(instance=sink.instance)
-    audio_sinks.remove(entity)
+    audio_sinks().remove(entity)
   }
 }
 
@@ -319,38 +345,38 @@ pub fn play_one_shot(source : AudioHandle, volume? : Double = 1.0) -> Unit {
 
 ///|
 pub fn restart_audio(entity : @entity.Entity) -> Unit {
-  if audio_sinks.get(entity) is Some(sink) {
+  if audio_sinks().get(entity) is Some(sink) {
     @platform_audio.stop(instance=sink.instance)
-    audio_sinks.remove(entity)
+    audio_sinks().remove(entity)
   }
 }
 
 ///|
 pub fn stop_audio(entity : @entity.Entity) -> Unit {
-  if audio_sinks.get(entity) is Some(sink) {
+  if audio_sinks().get(entity) is Some(sink) {
     @platform_audio.stop(instance=sink.instance)
-    audio_sinks.remove(entity)
+    audio_sinks().remove(entity)
   }
-  audio_players.remove(entity)
-  audio_playback_settings.remove(entity)
+  audio_players().remove(entity)
+  audio_playback_settings().remove(entity)
 }
 
 ///|
 fn cleanup_orphaned_audio() -> Unit {
-  for pair in audio_sinks.to_array() {
-    if !pair.0.is_alive() || !audio_players.contains(pair.0) {
+  for pair in audio_sinks().to_array() {
+    if !pair.0.is_alive() || !audio_players().contains(pair.0) {
       @platform_audio.stop(instance=pair.1.instance)
-      audio_sinks.remove(pair.0)
+      audio_sinks().remove(pair.0)
     }
   }
-  for pair in audio_playback_settings.to_array() {
-    if !pair.0.is_alive() || !audio_players.contains(pair.0) {
-      audio_playback_settings.remove(pair.0)
+  for pair in audio_playback_settings().to_array() {
+    if !pair.0.is_alive() || !audio_players().contains(pair.0) {
+      audio_playback_settings().remove(pair.0)
     }
   }
-  for pair in audio_players.to_array() {
+  for pair in audio_players().to_array() {
     if !pair.0.is_alive() {
-      audio_players.remove(pair.0)
+      audio_players().remove(pair.0)
     }
   }
 }
@@ -382,17 +408,17 @@ fn start_audio_sink(
     stopped: false,
     finished: false,
   }
-  audio_sinks.set(entity, sink)
+  audio_sinks().set(entity, sink)
 }
 
 ///|
 fn finish_audio_sink(entity : @entity.Entity) -> Unit {
-  guard audio_sinks.get(entity) is Some(sink) else { return }
+  guard audio_sinks().get(entity) is Some(sink) else { return }
   match sink.mode {
     Once => sink.finished = true
     Loop => {
       @platform_audio.stop(instance=sink.instance)
-      audio_sinks.remove(entity)
+      audio_sinks().remove(entity)
     }
     Remove => stop_audio(entity)
     Despawn => {
@@ -444,17 +470,17 @@ pub fn audio_event_playback_system(_delta : Double) -> Unit {
 ///|
 pub fn audio_playback_system(_delta : Double) -> Unit {
   cleanup_orphaned_audio()
-  for entity, player in audio_players {
+  for entity, player in audio_players() {
     if !entity.is_alive() {
       continue
     }
-    if audio_sinks.get(entity) is Some(sink) {
+    if audio_sinks().get(entity) is Some(sink) {
       sync_audio_sink(entity, sink)
     } else {
       let settings = normalize_settings(
-        audio_playback_settings.get(entity).unwrap_or(PlaybackSettings::once()),
+        audio_playback_settings().get(entity).unwrap_or(PlaybackSettings::once()),
       )
-      audio_playback_settings.set(entity, settings)
+      audio_playback_settings().set(entity, settings)
       start_audio_sink(entity, player, settings)
     }
   }

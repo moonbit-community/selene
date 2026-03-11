@@ -136,16 +136,46 @@ let next_clip_id : Ref[UInt] = Ref::new(0)
 let animation_clips3d : Map[AnimationClipHandle, AnimationClip3D] = Map::new()
 
 ///|
-pub let animation_players3d : Map[@entity.Entity, AnimationPlayer3D] = Map::new()
+priv struct Animation3DWorldStore {
+  animation_players3d : Map[@entity.Entity, AnimationPlayer3D]
+  animation_targets3d : Map[@entity.Entity, AnimationTargets3D]
+  skinned_meshes3d : Map[@entity.Entity, SkinnedMeshBinding3D]
+  morphed_meshes3d : Map[@entity.Entity, MorphMeshBinding3D]
+}
 
 ///|
-let animation_targets3d : Map[@entity.Entity, AnimationTargets3D] = Map::new()
+let animation3d_world_stores : Map[UInt, Animation3DWorldStore] = Map::new()
 
 ///|
-let skinned_meshes3d : Map[@entity.Entity, SkinnedMeshBinding3D] = Map::new()
+fn animation3d_world_store() -> Animation3DWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  animation3d_world_stores.get_or_init(world_id, () => {
+    animation_players3d: Map::new(),
+    animation_targets3d: Map::new(),
+    skinned_meshes3d: Map::new(),
+    morphed_meshes3d: Map::new(),
+  })
+}
 
 ///|
-let morphed_meshes3d : Map[@entity.Entity, MorphMeshBinding3D] = Map::new()
+pub fn animation_players3d() -> Map[@entity.Entity, AnimationPlayer3D] {
+  animation3d_world_store().animation_players3d
+}
+
+///|
+fn animation_targets3d() -> Map[@entity.Entity, AnimationTargets3D] {
+  animation3d_world_store().animation_targets3d
+}
+
+///|
+fn skinned_meshes3d() -> Map[@entity.Entity, SkinnedMeshBinding3D] {
+  animation3d_world_store().skinned_meshes3d
+}
+
+///|
+fn morphed_meshes3d() -> Map[@entity.Entity, MorphMeshBinding3D] {
+  animation3d_world_store().morphed_meshes3d
+}
 
 ///|
 pub fn register_animation_clip(clip : AnimationClip3D) -> AnimationClipHandle {
@@ -226,7 +256,7 @@ pub fn attach_animation_player(
   entity : @entity.Entity,
   player : AnimationPlayer3D,
 ) -> Unit {
-  animation_players3d.set(entity, player)
+  animation_players3d().set(entity, player)
 }
 
 ///|
@@ -235,10 +265,10 @@ pub fn set_animation_graph(
   graph : AnimationGraph3D,
   repeat? : Bool = true,
 ) -> Unit {
-  let player = animation_players3d
+  let player = animation_players3d()
     .get(entity)
     .unwrap_or(AnimationPlayer3D::new())
-  animation_players3d.set(entity, {
+  animation_players3d().set(entity, {
     ..player,
     graph: Some(graph),
     current_state: None,
@@ -255,10 +285,10 @@ pub fn play_clip(
   clip : AnimationClipHandle,
   repeat? : Bool = true,
 ) -> Unit {
-  let player = animation_players3d
+  let player = animation_players3d()
     .get(entity)
     .unwrap_or(AnimationPlayer3D::new())
-  animation_players3d.set(entity, {
+  animation_players3d().set(entity, {
     ..player,
     graph: None,
     current_state: None,
@@ -275,10 +305,10 @@ pub fn play_state(
   state : String,
   repeat? : Bool = true,
 ) -> Bool {
-  guard animation_players3d.get(entity) is Some(player) else { return false }
+  guard animation_players3d().get(entity) is Some(player) else { return false }
   guard player.graph is Some(graph) else { return false }
   guard graph.states.get(state) is Some(clip) else { return false }
-  animation_players3d.set(entity, {
+  animation_players3d().set(entity, {
     ..player,
     current_state: Some(state),
     clip: Some(clip),
@@ -291,7 +321,7 @@ pub fn play_state(
 
 ///|
 pub fn trigger_animation(entity : @entity.Entity, trigger : String) -> Unit {
-  guard animation_players3d.get(entity) is Some(player) else { return }
+  guard animation_players3d().get(entity) is Some(player) else { return }
   player.pending_triggers.push(trigger)
 }
 
@@ -301,7 +331,7 @@ pub fn bind_animation_targets(
   nodes : Map[Int, @entity.Entity],
   clips_by_name : Map[String, AnimationClipHandle],
 ) -> Unit {
-  animation_targets3d.set(entity, { nodes, clips_by_name })
+  animation_targets3d().set(entity, { nodes, clips_by_name })
 }
 
 ///|
@@ -309,7 +339,7 @@ pub fn bind_skinned_mesh(
   entity : @entity.Entity,
   binding : SkinnedMeshBinding3D,
 ) -> Unit {
-  skinned_meshes3d.set(entity, binding)
+  skinned_meshes3d().set(entity, binding)
 }
 
 ///|
@@ -317,17 +347,17 @@ pub fn bind_morph_mesh(
   entity : @entity.Entity,
   binding : MorphMeshBinding3D,
 ) -> Unit {
-  morphed_meshes3d.set(entity, binding)
+  morphed_meshes3d().set(entity, binding)
 }
 
 ///|
 pub fn clear_skinned_mesh(entity : @entity.Entity) -> Unit {
-  skinned_meshes3d.remove(entity)
+  skinned_meshes3d().remove(entity)
 }
 
 ///|
 pub fn clear_morph_mesh(entity : @entity.Entity) -> Unit {
-  morphed_meshes3d.remove(entity)
+  morphed_meshes3d().remove(entity)
 }
 
 ///|
@@ -699,18 +729,18 @@ fn set_target_morph_weights(
   target_entity : @entity.Entity,
   weights : Array[Double],
 ) -> Unit {
-  for _, pair in morphed_meshes3d.to_array() {
+  for _, pair in morphed_meshes3d().to_array() {
     let (entity, binding) = pair
     if binding.target_entity == target_entity {
       binding.morph_weights = weights.copy()
-      morphed_meshes3d.set(entity, binding)
+      morphed_meshes3d().set(entity, binding)
     }
   }
-  for _, pair in skinned_meshes3d.to_array() {
+  for _, pair in skinned_meshes3d().to_array() {
     let (entity, binding) = pair
     if binding.target_entity == target_entity {
       binding.morph_weights = weights.copy()
-      skinned_meshes3d.set(entity, binding)
+      skinned_meshes3d().set(entity, binding)
     }
   }
 }
@@ -723,7 +753,7 @@ fn apply_clip(
 ) -> Unit {
   for channel in clip.channels {
     guard targets.nodes.get(channel.node) is Some(entity) else { continue }
-    let transform = @transform3d.transforms3d.get(entity).unwrap_or_default()
+    let transform = @transform3d.transforms3d().get(entity).unwrap_or_default()
     let translation = if channel.translations.length() == 0 {
       transform.translation
     } else {
@@ -739,7 +769,7 @@ fn apply_clip(
     } else {
       sample_vec3(channel.scales, time, channel.interpolation)
     }
-    @transform3d.transforms3d.set(entity, { translation, rotation, scale })
+    @transform3d.transforms3d().set(entity, { translation, rotation, scale })
     if channel.weights.length() > 0 {
       set_target_morph_weights(
         entity,
@@ -819,24 +849,24 @@ fn weighted_skin_matrix(
 
 ///|
 pub fn animation3d_player_system(delta : Double) -> Unit {
-  for _, pair in animation_players3d.to_array() {
+  for _, pair in animation_players3d().to_array() {
     let (entity, current) = pair
     if !entity.is_alive() {
-      animation_players3d.remove(entity)
-      animation_targets3d.remove(entity)
+      animation_players3d().remove(entity)
+      animation_targets3d().remove(entity)
       continue
     }
-    guard animation_targets3d.get(entity) is Some(targets) else { continue }
+    guard animation_targets3d().get(entity) is Some(targets) else { continue }
 
     let mut player = resolve_graph_clip(current)
     guard player.clip is Some(clip_handle) else {
       player.pending_triggers.clear()
-      animation_players3d.set(entity, player)
+      animation_players3d().set(entity, player)
       continue
     }
     guard animation_clips3d.get(clip_handle) is Some(clip) else {
       player.pending_triggers.clear()
-      animation_players3d.set(entity, player)
+      animation_players3d().set(entity, player)
       continue
     }
 
@@ -870,16 +900,16 @@ pub fn animation3d_player_system(delta : Double) -> Unit {
       animation_clips3d.get(active_clip_handle) is Some(active_clip) {
       apply_clip(active_clip, player.time, targets)
     }
-    animation_players3d.set(entity, player)
+    animation_players3d().set(entity, player)
   }
 }
 
 ///|
 pub fn animation3d_skinning_system(_delta : Double) -> Unit {
-  for _, pair in morphed_meshes3d.to_array() {
+  for _, pair in morphed_meshes3d().to_array() {
     let (entity, binding) = pair
     if !entity.is_alive() {
-      morphed_meshes3d.remove(entity)
+      morphed_meshes3d().remove(entity)
       continue
     }
     let (morphed_positions, morphed_normals) = apply_morph_targets(
@@ -897,10 +927,10 @@ pub fn animation3d_skinning_system(_delta : Double) -> Unit {
       binding.colors,
     )
   }
-  for _, pair in skinned_meshes3d.to_array() {
+  for _, pair in skinned_meshes3d().to_array() {
     let (entity, binding) = pair
     if !entity.is_alive() {
-      skinned_meshes3d.remove(entity)
+      skinned_meshes3d().remove(entity)
       continue
     }
     if binding.base_positions.length() != binding.influences.length() {
@@ -908,7 +938,7 @@ pub fn animation3d_skinning_system(_delta : Double) -> Unit {
     }
     let joint_matrices : Array[@math.Mat4] = []
     for joint_index, joint_entity in binding.joint_entities {
-      let global = @transform3d.global_transforms3d
+      let global = @transform3d.global_transforms3d()
         .get(joint_entity)
         .unwrap_or_default()
       let world = @math.Mat4::from_trs(

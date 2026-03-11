@@ -52,7 +52,23 @@ pub(all) struct Sprite {
 }
 
 ///|
-pub let sprites : Map[@entity.Entity, Sprite] = Map::new()
+priv struct SpriteWorldStore {
+  sprites : Map[@entity.Entity, Sprite]
+}
+
+///|
+let sprite_world_stores : Map[UInt, SpriteWorldStore] = Map::new()
+
+///|
+fn sprite_world_store() -> SpriteWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  sprite_world_stores.get_or_init(world_id, () => { sprites: Map::new() })
+}
+
+///|
+pub fn sprites() -> Map[@entity.Entity, Sprite] {
+  sprite_world_store().sprites
+}
 
 ///|
 pub enum SpriteType {
@@ -214,18 +230,18 @@ pub fn Sprite::from_color_circle(
 /// Panics if an entity has a sprite but no position component.
 ///
 pub fn render_sprite_system(delta : Double) -> Unit {
-  let sprites = sprites
+  let sprite_entries = sprites()
     .to_array()
     .filter(fn(pair) { pair.0.is_alive() && @visibility.is_visible(pair.0) })
   let camera_pos = @camera.sample_position(@system.get_render_alpha())
-  sprites.sort_by(fn(sprite1, sprite2) {
+  sprite_entries.sort_by(fn(sprite1, sprite2) {
     if sprite1.1.zindex < sprite2.1.zindex {
       -1
     } else if sprite1.1.zindex > sprite2.1.zindex {
       1
     } else {
-      guard @transform.positions.get(sprite1.0) is Some(pos1) else { return 0 }
-      guard @transform.positions.get(sprite2.0) is Some(pos2) else { return 0 }
+      guard @transform.positions().get(sprite1.0) is Some(pos1) else { return 0 }
+      guard @transform.positions().get(sprite2.0) is Some(pos2) else { return 0 }
       if pos1.0[Y] < pos2.0[Y] {
         -1
       } else if pos1.0[Y] > pos2.0[Y] {
@@ -235,10 +251,10 @@ pub fn render_sprite_system(delta : Double) -> Unit {
       }
     }
   })
-  for sprite in sprites {
+  for sprite in sprite_entries {
     let e = sprite.0
     let sprite = sprite.1
-    guard @transform.positions.contains(e) else { continue }
+    guard @transform.positions().contains(e) else { continue }
     let raw_pos = @transform.sample_position(e, @system.get_render_alpha()) +
       sprite.offset
     let screen_pos = @system.world_to_screen(raw_pos, camera_pos)

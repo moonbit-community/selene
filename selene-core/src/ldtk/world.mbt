@@ -155,122 +155,252 @@ pub struct LdtkSpawnedIntGridCell {
 }
 
 ///|
-pub let ldtk_world_instances : Map[@entity.Entity, LdtkWorldInstance] = Map::new()
+priv struct LdtkWorldStore {
+  ldtk_world_instances : Map[@entity.Entity, LdtkWorldInstance]
+  ldtk_level_instances : Map[@entity.Entity, LdtkLevelInstance]
+  ldtk_layer_metadata : Map[@entity.Entity, LdtkLayerMetadata]
+  ldtk_level_backgrounds : Map[@entity.Entity, LdtkLevelBackground]
+  ldtk_level_iids : Map[@entity.Entity, LdtkLevelIid]
+  ldtk_entity_iids : Map[@entity.Entity, LdtkEntityIid]
+  ldtk_grid_coords : Map[@entity.Entity, LdtkGridCoords]
+  ldtk_int_grid_cells : Map[@entity.Entity, LdtkIntGridCell]
+  ldtk_tile_metadata : Map[@entity.Entity, LdtkTileMetadata]
+  ldtk_int_grid_colliders : Map[@entity.Entity, LdtkIntGridCollider]
+  ldtk_worldly_entities : Map[@entity.Entity, LdtkWorldly]
+  ldtk_respawns : Map[@entity.Entity, LdtkRespawn]
+  ldtk_spawned_layer_instances : Map[@entity.Entity, LdtkSpawnedLayerInstance]
+  ldtk_spawned_tile_instances : Map[@entity.Entity, LdtkSpawnedTileInstance]
+  ldtk_spawned_entity_instances : Map[@entity.Entity, LdtkSpawnedEntityInstance]
+  ldtk_spawned_int_grid_cells : Map[@entity.Entity, LdtkSpawnedIntGridCell]
+  ldtk_entity_spawn_hooks : Map[String, (LdtkEntitySpawnedEvent) -> Unit]
+  ldtk_entity_layer_spawn_hooks : Map[String, (LdtkEntitySpawnedEvent) -> Unit]
+  ldtk_entity_layer_identifier_spawn_hooks : Map[
+    String,
+    (LdtkEntitySpawnedEvent) -> Unit,
+  ]
+  ldtk_entity_default_spawn_hook : Ref[((LdtkEntitySpawnedEvent) -> Unit)?]
+  ldtk_int_grid_layer_spawn_hooks : Map[
+    String,
+    (LdtkIntGridCellSpawnedEvent) -> Unit,
+  ]
+  ldtk_int_grid_cell_spawn_hooks : Map[
+    String,
+    (LdtkIntGridCellSpawnedEvent) -> Unit,
+  ]
+  ldtk_int_grid_value_spawn_hooks : Map[
+    String,
+    (LdtkIntGridCellSpawnedEvent) -> Unit,
+  ]
+  ldtk_int_grid_default_spawn_hook : Ref[
+    ((LdtkIntGridCellSpawnedEvent) -> Unit)?,
+  ]
+  ldtk_entity_typed_registrations : Map[
+    String,
+    (LdtkEntitySpawnedEvent) -> Unit,
+  ]
+  ldtk_int_cell_typed_registrations : Map[
+    String,
+    (LdtkIntGridCellSpawnedEvent) -> Unit,
+  ]
+  ldtk_pending_transformed_level_iids : Map[String, Bool]
+}
 
 ///|
-pub let ldtk_level_instances : Map[@entity.Entity, LdtkLevelInstance] = Map::new()
+let ldtk_world_stores : Map[UInt, LdtkWorldStore] = Map::new()
 
 ///|
-pub let ldtk_layer_metadata : Map[@entity.Entity, LdtkLayerMetadata] = Map::new()
+fn ldtk_world_store() -> LdtkWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  ldtk_world_stores.get_or_init(world_id, () => {
+    ldtk_world_instances: Map::new(),
+    ldtk_level_instances: Map::new(),
+    ldtk_layer_metadata: Map::new(),
+    ldtk_level_backgrounds: Map::new(),
+    ldtk_level_iids: Map::new(),
+    ldtk_entity_iids: Map::new(),
+    ldtk_grid_coords: Map::new(),
+    ldtk_int_grid_cells: Map::new(),
+    ldtk_tile_metadata: Map::new(),
+    ldtk_int_grid_colliders: Map::new(),
+    ldtk_worldly_entities: Map::new(),
+    ldtk_respawns: Map::new(),
+    ldtk_spawned_layer_instances: Map::new(),
+    ldtk_spawned_tile_instances: Map::new(),
+    ldtk_spawned_entity_instances: Map::new(),
+    ldtk_spawned_int_grid_cells: Map::new(),
+    ldtk_entity_spawn_hooks: Map::new(),
+    ldtk_entity_layer_spawn_hooks: Map::new(),
+    ldtk_entity_layer_identifier_spawn_hooks: Map::new(),
+    ldtk_entity_default_spawn_hook: { val: None },
+    ldtk_int_grid_layer_spawn_hooks: Map::new(),
+    ldtk_int_grid_cell_spawn_hooks: Map::new(),
+    ldtk_int_grid_value_spawn_hooks: Map::new(),
+    ldtk_int_grid_default_spawn_hook: { val: None },
+    ldtk_entity_typed_registrations: Map::new(),
+    ldtk_int_cell_typed_registrations: Map::new(),
+    ldtk_pending_transformed_level_iids: Map::new(),
+  })
+}
 
 ///|
-pub let ldtk_level_backgrounds : Map[@entity.Entity, LdtkLevelBackground] = Map::new()
+pub fn ldtk_world_instances() -> Map[@entity.Entity, LdtkWorldInstance] {
+  ldtk_world_store().ldtk_world_instances
+}
 
 ///|
-pub let ldtk_level_iids : Map[@entity.Entity, LdtkLevelIid] = Map::new()
+pub fn ldtk_level_instances() -> Map[@entity.Entity, LdtkLevelInstance] {
+  ldtk_world_store().ldtk_level_instances
+}
 
 ///|
-pub let ldtk_entity_iids : Map[@entity.Entity, LdtkEntityIid] = Map::new()
+pub fn ldtk_layer_metadata() -> Map[@entity.Entity, LdtkLayerMetadata] {
+  ldtk_world_store().ldtk_layer_metadata
+}
 
 ///|
-pub let ldtk_grid_coords : Map[@entity.Entity, LdtkGridCoords] = Map::new()
+pub fn ldtk_level_backgrounds() -> Map[@entity.Entity, LdtkLevelBackground] {
+  ldtk_world_store().ldtk_level_backgrounds
+}
 
 ///|
-pub let ldtk_int_grid_cells : Map[@entity.Entity, LdtkIntGridCell] = Map::new()
+pub fn ldtk_level_iids() -> Map[@entity.Entity, LdtkLevelIid] {
+  ldtk_world_store().ldtk_level_iids
+}
 
 ///|
-pub let ldtk_tile_metadata : Map[@entity.Entity, LdtkTileMetadata] = Map::new()
+pub fn ldtk_entity_iids() -> Map[@entity.Entity, LdtkEntityIid] {
+  ldtk_world_store().ldtk_entity_iids
+}
 
 ///|
-pub let ldtk_int_grid_colliders : Map[@entity.Entity, LdtkIntGridCollider] = Map::new()
+pub fn ldtk_grid_coords() -> Map[@entity.Entity, LdtkGridCoords] {
+  ldtk_world_store().ldtk_grid_coords
+}
 
 ///|
-pub let ldtk_worldly_entities : Map[@entity.Entity, LdtkWorldly] = Map::new()
+pub fn ldtk_int_grid_cells() -> Map[@entity.Entity, LdtkIntGridCell] {
+  ldtk_world_store().ldtk_int_grid_cells
+}
 
 ///|
-pub let ldtk_respawns : Map[@entity.Entity, LdtkRespawn] = Map::new()
+pub fn ldtk_tile_metadata() -> Map[@entity.Entity, LdtkTileMetadata] {
+  ldtk_world_store().ldtk_tile_metadata
+}
 
 ///|
-pub let ldtk_spawned_layer_instances : Map[
-  @entity.Entity,
-  LdtkSpawnedLayerInstance,
-] = Map::new()
+pub fn ldtk_int_grid_colliders() -> Map[@entity.Entity, LdtkIntGridCollider] {
+  ldtk_world_store().ldtk_int_grid_colliders
+}
 
 ///|
-pub let ldtk_spawned_tile_instances : Map[
-  @entity.Entity,
-  LdtkSpawnedTileInstance,
-] = Map::new()
+pub fn ldtk_worldly_entities() -> Map[@entity.Entity, LdtkWorldly] {
+  ldtk_world_store().ldtk_worldly_entities
+}
 
 ///|
-pub let ldtk_spawned_entity_instances : Map[
-  @entity.Entity,
-  LdtkSpawnedEntityInstance,
-] = Map::new()
+pub fn ldtk_respawns() -> Map[@entity.Entity, LdtkRespawn] {
+  ldtk_world_store().ldtk_respawns
+}
 
 ///|
-pub let ldtk_spawned_int_grid_cells : Map[
-  @entity.Entity,
-  LdtkSpawnedIntGridCell,
-] = Map::new()
+pub fn ldtk_spawned_layer_instances() -> Map[@entity.Entity, LdtkSpawnedLayerInstance] {
+  ldtk_world_store().ldtk_spawned_layer_instances
+}
 
 ///|
-pub let ldtk_entity_spawn_hooks : Map[String, (LdtkEntitySpawnedEvent) -> Unit] = Map::new()
+pub fn ldtk_spawned_tile_instances() -> Map[@entity.Entity, LdtkSpawnedTileInstance] {
+  ldtk_world_store().ldtk_spawned_tile_instances
+}
 
 ///|
-pub let ldtk_entity_layer_spawn_hooks : Map[
+pub fn ldtk_spawned_entity_instances() -> Map[@entity.Entity, LdtkSpawnedEntityInstance] {
+  ldtk_world_store().ldtk_spawned_entity_instances
+}
+
+///|
+pub fn ldtk_spawned_int_grid_cells() -> Map[@entity.Entity, LdtkSpawnedIntGridCell] {
+  ldtk_world_store().ldtk_spawned_int_grid_cells
+}
+
+///|
+pub fn ldtk_entity_spawn_hooks() -> Map[String, (LdtkEntitySpawnedEvent) -> Unit] {
+  ldtk_world_store().ldtk_entity_spawn_hooks
+}
+
+///|
+pub fn ldtk_entity_layer_spawn_hooks() -> Map[
   String,
   (LdtkEntitySpawnedEvent) -> Unit,
-] = Map::new()
+] {
+  ldtk_world_store().ldtk_entity_layer_spawn_hooks
+}
 
 ///|
-pub let ldtk_entity_layer_identifier_spawn_hooks : Map[
+pub fn ldtk_entity_layer_identifier_spawn_hooks() -> Map[
   String,
   (LdtkEntitySpawnedEvent) -> Unit,
-] = Map::new()
+] {
+  ldtk_world_store().ldtk_entity_layer_identifier_spawn_hooks
+}
 
 ///|
-pub let ldtk_entity_default_spawn_hook : Ref[
+pub fn ldtk_entity_default_spawn_hook() -> Ref[
   ((LdtkEntitySpawnedEvent) -> Unit)?,
-] = { val: None }
+] {
+  ldtk_world_store().ldtk_entity_default_spawn_hook
+}
 
 ///|
-pub let ldtk_int_grid_layer_spawn_hooks : Map[
+pub fn ldtk_int_grid_layer_spawn_hooks() -> Map[
   String,
   (LdtkIntGridCellSpawnedEvent) -> Unit,
-] = Map::new()
+] {
+  ldtk_world_store().ldtk_int_grid_layer_spawn_hooks
+}
 
 ///|
-pub let ldtk_int_grid_cell_spawn_hooks : Map[
+pub fn ldtk_int_grid_cell_spawn_hooks() -> Map[
   String,
   (LdtkIntGridCellSpawnedEvent) -> Unit,
-] = Map::new()
+] {
+  ldtk_world_store().ldtk_int_grid_cell_spawn_hooks
+}
 
 ///|
-pub let ldtk_int_grid_value_spawn_hooks : Map[
+pub fn ldtk_int_grid_value_spawn_hooks() -> Map[
   String,
   (LdtkIntGridCellSpawnedEvent) -> Unit,
-] = Map::new()
+] {
+  ldtk_world_store().ldtk_int_grid_value_spawn_hooks
+}
 
 ///|
-pub let ldtk_int_grid_default_spawn_hook : Ref[
+pub fn ldtk_int_grid_default_spawn_hook() -> Ref[
   ((LdtkIntGridCellSpawnedEvent) -> Unit)?,
-] = { val: None }
+] {
+  ldtk_world_store().ldtk_int_grid_default_spawn_hook
+}
 
 ///|
-pub let ldtk_entity_typed_registrations : Map[
+pub fn ldtk_entity_typed_registrations() -> Map[
   String,
   (LdtkEntitySpawnedEvent) -> Unit,
-] = Map::new()
+] {
+  ldtk_world_store().ldtk_entity_typed_registrations
+}
 
 ///|
-pub let ldtk_int_cell_typed_registrations : Map[
+pub fn ldtk_int_cell_typed_registrations() -> Map[
   String,
   (LdtkIntGridCellSpawnedEvent) -> Unit,
-] = Map::new()
+] {
+  ldtk_world_store().ldtk_int_cell_typed_registrations
+}
 
 ///|
-pub let ldtk_pending_transformed_level_iids : Map[String, Bool] = Map::new()
+pub fn ldtk_pending_transformed_level_iids() -> Map[String, Bool] {
+  ldtk_world_store().ldtk_pending_transformed_level_iids
+}
 
 ///|
 pub fn default_ldtk_world_spawn_settings() -> LdtkWorldSpawnSettings {
@@ -294,12 +424,12 @@ pub fn default_ldtk_world_spawn_settings() -> LdtkWorldSpawnSettings {
 
 ///|
 pub fn mark_ldtk_respawn(entity : @entity.Entity) -> Unit {
-  ldtk_respawns.set(entity, { requested: true })
+  ldtk_respawns().set(entity, { requested: true })
 }
 
 ///|
 pub fn clear_ldtk_respawn(entity : @entity.Entity) -> Unit {
-  ldtk_respawns.remove(entity)
+  ldtk_respawns().remove(entity)
 }
 
 ///|
@@ -308,7 +438,7 @@ pub fn register_ldtk_entity_for_layer_optional(
   entity_identifier : String?,
   hook : (LdtkEntitySpawnedEvent) -> Unit,
 ) -> Unit {
-  ldtk_entity_typed_registrations.set(
+  ldtk_entity_typed_registrations().set(
     ldtk_entity_typed_registration_key(layer_identifier, entity_identifier),
     hook,
   )
@@ -355,7 +485,7 @@ pub fn unregister_ldtk_entity_for_layer_optional(
   layer_identifier : String?,
   entity_identifier : String?,
 ) -> Unit {
-  ldtk_entity_typed_registrations.remove(
+  ldtk_entity_typed_registrations().remove(
     ldtk_entity_typed_registration_key(layer_identifier, entity_identifier),
   )
 }
@@ -390,8 +520,8 @@ pub fn unregister_default_ldtk_entity() -> Unit {
 
 ///|
 pub fn clear_ldtk_entity_registrations() -> Unit {
-  for pair in ldtk_entity_typed_registrations.to_array() {
-    ldtk_entity_typed_registrations.remove(pair.0)
+  for pair in ldtk_entity_typed_registrations().to_array() {
+    ldtk_entity_typed_registrations().remove(pair.0)
   }
 }
 
@@ -401,7 +531,7 @@ pub fn register_ldtk_int_cell_for_layer_optional(
   value : Int?,
   hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
 ) -> Unit {
-  ldtk_int_cell_typed_registrations.set(
+  ldtk_int_cell_typed_registrations().set(
     ldtk_int_cell_typed_registration_key(layer_identifier, value),
     hook,
   )
@@ -448,7 +578,7 @@ pub fn unregister_ldtk_int_cell_for_layer_optional(
   layer_identifier : String?,
   value : Int?,
 ) -> Unit {
-  ldtk_int_cell_typed_registrations.remove(
+  ldtk_int_cell_typed_registrations().remove(
     ldtk_int_cell_typed_registration_key(layer_identifier, value),
   )
 }
@@ -483,8 +613,8 @@ pub fn unregister_default_ldtk_int_cell() -> Unit {
 
 ///|
 pub fn clear_ldtk_int_cell_registrations() -> Unit {
-  for pair in ldtk_int_cell_typed_registrations.to_array() {
-    ldtk_int_cell_typed_registrations.remove(pair.0)
+  for pair in ldtk_int_cell_typed_registrations().to_array() {
+    ldtk_int_cell_typed_registrations().remove(pair.0)
   }
 }
 
@@ -727,7 +857,7 @@ pub fn register_ldtk_entity_spawn_hook(
   identifier : String,
   hook : (LdtkEntitySpawnedEvent) -> Unit,
 ) -> Unit {
-  ldtk_entity_spawn_hooks.set(identifier, hook)
+  ldtk_entity_spawn_hooks().set(identifier, hook)
 }
 
 ///|
@@ -751,7 +881,7 @@ pub fn register_ldtk_entity_layer_spawn_hook(
   layer_identifier : String,
   hook : (LdtkEntitySpawnedEvent) -> Unit,
 ) -> Unit {
-  ldtk_entity_layer_spawn_hooks.set(layer_identifier, hook)
+  ldtk_entity_layer_spawn_hooks().set(layer_identifier, hook)
 }
 
 ///|
@@ -760,7 +890,7 @@ pub fn register_ldtk_entity_spawn_hook_for_layer(
   identifier : String,
   hook : (LdtkEntitySpawnedEvent) -> Unit,
 ) -> Unit {
-  ldtk_entity_layer_identifier_spawn_hooks.set(
+  ldtk_entity_layer_identifier_spawn_hooks().set(
     ldtk_entity_layer_identifier_spawn_hook_key(layer_identifier, identifier),
     hook,
   )
@@ -770,12 +900,12 @@ pub fn register_ldtk_entity_spawn_hook_for_layer(
 pub fn register_ldtk_entity_default_spawn_hook(
   hook : (LdtkEntitySpawnedEvent) -> Unit,
 ) -> Unit {
-  ldtk_entity_default_spawn_hook.val = Some(hook)
+  ldtk_entity_default_spawn_hook().val = Some(hook)
 }
 
 ///|
 pub fn unregister_ldtk_entity_spawn_hook(identifier : String) -> Unit {
-  ldtk_entity_spawn_hooks.remove(identifier)
+  ldtk_entity_spawn_hooks().remove(identifier)
 }
 
 ///|
@@ -797,7 +927,7 @@ pub fn unregister_ldtk_entity_spawn_hook_optional(
 pub fn unregister_ldtk_entity_layer_spawn_hook(
   layer_identifier : String,
 ) -> Unit {
-  ldtk_entity_layer_spawn_hooks.remove(layer_identifier)
+  ldtk_entity_layer_spawn_hooks().remove(layer_identifier)
 }
 
 ///|
@@ -805,28 +935,28 @@ pub fn unregister_ldtk_entity_spawn_hook_for_layer(
   layer_identifier : String,
   identifier : String,
 ) -> Unit {
-  ldtk_entity_layer_identifier_spawn_hooks.remove(
+  ldtk_entity_layer_identifier_spawn_hooks().remove(
     ldtk_entity_layer_identifier_spawn_hook_key(layer_identifier, identifier),
   )
 }
 
 ///|
 pub fn clear_ldtk_entity_default_spawn_hook() -> Unit {
-  ldtk_entity_default_spawn_hook.val = None
+  ldtk_entity_default_spawn_hook().val = None
 }
 
 ///|
 pub fn clear_ldtk_entity_spawn_hooks() -> Unit {
-  for pair in ldtk_entity_spawn_hooks.to_array() {
-    ldtk_entity_spawn_hooks.remove(pair.0)
+  for pair in ldtk_entity_spawn_hooks().to_array() {
+    ldtk_entity_spawn_hooks().remove(pair.0)
   }
-  for pair in ldtk_entity_layer_spawn_hooks.to_array() {
-    ldtk_entity_layer_spawn_hooks.remove(pair.0)
+  for pair in ldtk_entity_layer_spawn_hooks().to_array() {
+    ldtk_entity_layer_spawn_hooks().remove(pair.0)
   }
-  for pair in ldtk_entity_layer_identifier_spawn_hooks.to_array() {
-    ldtk_entity_layer_identifier_spawn_hooks.remove(pair.0)
+  for pair in ldtk_entity_layer_identifier_spawn_hooks().to_array() {
+    ldtk_entity_layer_identifier_spawn_hooks().remove(pair.0)
   }
-  ldtk_entity_default_spawn_hook.val = None
+  ldtk_entity_default_spawn_hook().val = None
 }
 
 ///|
@@ -834,7 +964,7 @@ pub fn register_ldtk_int_grid_layer_spawn_hook(
   layer_identifier : String,
   hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
 ) -> Unit {
-  ldtk_int_grid_layer_spawn_hooks.set(layer_identifier, hook)
+  ldtk_int_grid_layer_spawn_hooks().set(layer_identifier, hook)
 }
 
 ///|
@@ -858,7 +988,7 @@ pub fn register_ldtk_int_grid_value_spawn_hook(
   value : Int,
   hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
 ) -> Unit {
-  ldtk_int_grid_value_spawn_hooks.set(
+  ldtk_int_grid_value_spawn_hooks().set(
     ldtk_int_grid_value_spawn_hook_key(value),
     hook,
   )
@@ -868,14 +998,14 @@ pub fn register_ldtk_int_grid_value_spawn_hook(
 pub fn register_ldtk_int_grid_default_spawn_hook(
   hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
 ) -> Unit {
-  ldtk_int_grid_default_spawn_hook.val = Some(hook)
+  ldtk_int_grid_default_spawn_hook().val = Some(hook)
 }
 
 ///|
 pub fn unregister_ldtk_int_grid_layer_spawn_hook(
   layer_identifier : String,
 ) -> Unit {
-  ldtk_int_grid_layer_spawn_hooks.remove(layer_identifier)
+  ldtk_int_grid_layer_spawn_hooks().remove(layer_identifier)
 }
 
 ///|
@@ -895,20 +1025,20 @@ pub fn unregister_ldtk_int_grid_spawn_hook_optional(
 
 ///|
 pub fn unregister_ldtk_int_grid_value_spawn_hook(value : Int) -> Unit {
-  ldtk_int_grid_value_spawn_hooks.remove(
+  ldtk_int_grid_value_spawn_hooks().remove(
     ldtk_int_grid_value_spawn_hook_key(value),
   )
 }
 
 ///|
 pub fn clear_ldtk_int_grid_default_spawn_hook() -> Unit {
-  ldtk_int_grid_default_spawn_hook.val = None
+  ldtk_int_grid_default_spawn_hook().val = None
 }
 
 ///|
 pub fn clear_ldtk_int_grid_layer_spawn_hooks() -> Unit {
-  for pair in ldtk_int_grid_layer_spawn_hooks.to_array() {
-    ldtk_int_grid_layer_spawn_hooks.remove(pair.0)
+  for pair in ldtk_int_grid_layer_spawn_hooks().to_array() {
+    ldtk_int_grid_layer_spawn_hooks().remove(pair.0)
   }
 }
 
@@ -918,7 +1048,7 @@ pub fn register_ldtk_int_grid_cell_spawn_hook(
   value : Int,
   hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
 ) -> Unit {
-  ldtk_int_grid_cell_spawn_hooks.set(
+  ldtk_int_grid_cell_spawn_hooks().set(
     ldtk_int_grid_cell_spawn_hook_key(layer_identifier, value),
     hook,
   )
@@ -929,22 +1059,22 @@ pub fn unregister_ldtk_int_grid_cell_spawn_hook(
   layer_identifier : String,
   value : Int,
 ) -> Unit {
-  ldtk_int_grid_cell_spawn_hooks.remove(
+  ldtk_int_grid_cell_spawn_hooks().remove(
     ldtk_int_grid_cell_spawn_hook_key(layer_identifier, value),
   )
 }
 
 ///|
 pub fn clear_ldtk_int_grid_cell_spawn_hooks() -> Unit {
-  for pair in ldtk_int_grid_cell_spawn_hooks.to_array() {
-    ldtk_int_grid_cell_spawn_hooks.remove(pair.0)
+  for pair in ldtk_int_grid_cell_spawn_hooks().to_array() {
+    ldtk_int_grid_cell_spawn_hooks().remove(pair.0)
   }
 }
 
 ///|
 pub fn clear_ldtk_int_grid_value_spawn_hooks() -> Unit {
-  for pair in ldtk_int_grid_value_spawn_hooks.to_array() {
-    ldtk_int_grid_value_spawn_hooks.remove(pair.0)
+  for pair in ldtk_int_grid_value_spawn_hooks().to_array() {
+    ldtk_int_grid_value_spawn_hooks().remove(pair.0)
   }
 }
 
@@ -992,7 +1122,7 @@ pub fn set_ldtk_level_set(
   world_entity : @entity.Entity,
   level_set : LdtkLevelSet,
 ) -> Unit {
-  guard ldtk_world_instances.get(world_entity) is Some(instance) else { return }
+  guard ldtk_world_instances().get(world_entity) is Some(instance) else { return }
   instance.level_set = level_set
   instance.settings = { ..instance.settings, follow_level_selection: false }
 }
@@ -1002,7 +1132,7 @@ pub fn set_ldtk_world_follow_level_selection(
   world_entity : @entity.Entity,
   follow : Bool,
 ) -> Unit {
-  guard ldtk_world_instances.get(world_entity) is Some(instance) else { return }
+  guard ldtk_world_instances().get(world_entity) is Some(instance) else { return }
   instance.settings = { ..instance.settings, follow_level_selection: follow }
 }
 
@@ -1011,7 +1141,7 @@ pub fn ldtk_level_entity(
   world_entity : @entity.Entity,
   level_iid : String,
 ) -> @entity.Entity? {
-  guard ldtk_world_instances.get(world_entity) is Some(instance) else {
+  guard ldtk_world_instances().get(world_entity) is Some(instance) else {
     return None
   }
   instance.spawned_levels.get(level_iid)
@@ -1022,7 +1152,7 @@ pub fn ldtk_worldly_entity(
   world_entity : @entity.Entity,
   entity_iid : String,
 ) -> @entity.Entity? {
-  for pair in ldtk_worldly_entities.to_array() {
+  for pair in ldtk_worldly_entities().to_array() {
     if !pair.0.is_alive() {
       continue
     }
@@ -1039,14 +1169,14 @@ pub fn ldtk_entity_by_iid(
   world_entity : @entity.Entity,
   entity_iid : String,
 ) -> @entity.Entity? {
-  for pair in ldtk_entity_iids.to_array() {
+  for pair in ldtk_entity_iids().to_array() {
     if !pair.0.is_alive() {
       continue
     }
     if pair.1.iid != entity_iid {
       continue
     }
-    guard ldtk_spawned_entity_instances.get(pair.0) is Some(runtime) else {
+    guard ldtk_spawned_entity_instances().get(pair.0) is Some(runtime) else {
       continue
     }
     if runtime.world_entity == world_entity {
@@ -1060,19 +1190,19 @@ pub fn ldtk_entity_by_iid(
 pub fn ldtk_world_sync_system(_delta : Double) -> Unit {
   ldtk_emit_pending_transformed_events()
   ldtk_cleanup_dead_runtime_entries()
-  let world_entities = ldtk_world_instances.to_array().map(pair => pair.0)
+  let world_entities = ldtk_world_instances().to_array().map(pair => pair.0)
   for world_entity in world_entities {
     if !world_entity.is_alive() {
-      ldtk_world_instances.remove(world_entity)
+      ldtk_world_instances().remove(world_entity)
       continue
     }
-    guard ldtk_world_instances.get(world_entity) is Some(instance) else {
+    guard ldtk_world_instances().get(world_entity) is Some(instance) else {
       continue
     }
     ldtk_cleanup_dead_spawned_levels(instance)
-    if ldtk_respawns.contains(world_entity) {
+    if ldtk_respawns().contains(world_entity) {
       ldtk_force_world_respawn(world_entity)
-      ldtk_respawns.remove(world_entity)
+      ldtk_respawns().remove(world_entity)
     } else {
       ldtk_force_level_respawns(world_entity)
     }
@@ -1096,7 +1226,7 @@ fn spawn_ldtk_world_root(
   project : LdtkProject,
   settings : LdtkWorldSpawnSettings,
 ) -> Unit {
-  @transform.positions.set(world_entity, settings.position)
+  @transform.positions().set(world_entity, settings.position)
   let level_set = if settings.initial_level_set is Some(initial_level_set) {
     initial_level_set
   } else if settings.follow_level_selection {
@@ -1107,7 +1237,7 @@ fn spawn_ldtk_world_root(
   } else {
     empty_ldtk_level_set()
   }
-  ldtk_world_instances.set(world_entity, {
+  ldtk_world_instances().set(world_entity, {
     project,
     settings,
     level_set,
@@ -1123,7 +1253,7 @@ fn spawn_ldtk_world_root(
 
 ///|
 fn ldtk_world_apply_level_set(world_entity : @entity.Entity) -> Unit {
-  guard ldtk_world_instances.get(world_entity) is Some(instance) else { return }
+  guard ldtk_world_instances().get(world_entity) is Some(instance) else { return }
   let desired_iids = instance.level_set.iids
   for iid in desired_iids {
     if instance.spawned_levels.contains(iid) {
@@ -1160,13 +1290,13 @@ fn ldtk_spawn_level_entity(
     ldtk_world_spawn_behavior(instance.settings),
   )
   let level_entity = world_entity.spawn_child(offset=level_offset)
-  @transform.positions.set(level_entity, @math.Vec2D::zero())
-  ldtk_level_instances.set(level_entity, {
+  @transform.positions().set(level_entity, @math.Vec2D::zero())
+  ldtk_level_instances().set(level_entity, {
     world_entity,
     indices: indexed.indices,
     level: indexed.level,
   })
-  ldtk_level_iids.set(level_entity, { iid: indexed.level.iid })
+  ldtk_level_iids().set(level_entity, { iid: indexed.level.iid })
   let level_event = {
     world_entity,
     level_entity,
@@ -1191,7 +1321,7 @@ fn ldtk_spawn_level_entity(
     instance,
   )
   ldtk_level_event_bus.trigger(Spawned(indexed.level.iid), Some(level_entity))
-  ldtk_pending_transformed_level_iids.set(indexed.level.iid, true)
+  ldtk_pending_transformed_level_iids().set(indexed.level.iid, true)
   level_entity
 }
 
@@ -1211,12 +1341,12 @@ fn ldtk_spawn_level_background(
   let zindex = ldtk_level_zindex(level_entity, instance.settings) - 1
   if level.bg_color is Some(bg_color) {
     let background_entity = level_entity.spawn_child(offset=@math.Vec2D::zero())
-    @transform.positions.set(background_entity, @math.Vec2D::zero())
+    @transform.positions().set(background_entity, @math.Vec2D::zero())
     let rect = @sprite.ColorRect::new(size, bg_color)
     let sprite = @sprite.Sprite::from_color_rect(rect, zindex)
     sprite.visible = true
-    @sprite.sprites.set(background_entity, sprite)
-    ldtk_level_backgrounds.set(background_entity, {
+    @sprite.sprites().set(background_entity, sprite)
+    ldtk_level_backgrounds().set(background_entity, {
       world_entity,
       level_entity,
       level_iid: level.iid,
@@ -1227,7 +1357,7 @@ fn ldtk_spawn_level_background(
   }
   if level.bg_rel_path is Some(rel_path) && rel_path.length() > 0 {
     let background_entity = level_entity.spawn_child(offset=@math.Vec2D::zero())
-    @transform.positions.set(background_entity, @math.Vec2D::zero())
+    @transform.positions().set(background_entity, @math.Vec2D::zero())
     let image = @asset2.load_image(instance.project.resolve_path(rel_path))
     let mut image_size = size
     let mut image_offset = @math.Vec2D::zero()
@@ -1250,8 +1380,8 @@ fn ldtk_spawn_level_background(
     )
     let sprite = @sprite.Sprite::from_animation(animation, zindex)
     sprite.visible = true
-    @sprite.sprites.set(background_entity, sprite)
-    ldtk_level_backgrounds.set(background_entity, {
+    @sprite.sprites().set(background_entity, sprite)
+    ldtk_level_backgrounds().set(background_entity, {
       world_entity,
       level_entity,
       level_iid: level.iid,
@@ -1293,7 +1423,7 @@ fn ldtk_spawn_level_layers(
       layer.px_total_offset_y.to_double(),
     )
     let layer_entity = level_entity.spawn_child(offset=layer_offset)
-    @transform.positions.set(layer_entity, @math.Vec2D::zero())
+    @transform.positions().set(layer_entity, @math.Vec2D::zero())
     let layer_runtime : LdtkSpawnedLayerInstance = {
       world_entity,
       level_entity,
@@ -1301,8 +1431,8 @@ fn ldtk_spawn_level_layers(
       effective_visible,
       zindex: layer_zindex,
     }
-    ldtk_spawned_layer_instances.set(layer_entity, layer_runtime)
-    ldtk_layer_metadata.set(layer_entity, ldtk_build_layer_metadata(layer))
+    ldtk_spawned_layer_instances().set(layer_entity, layer_runtime)
+    ldtk_layer_metadata().set(layer_entity, ldtk_build_layer_metadata(layer))
     let layer_event : LdtkLayerSpawnedEvent = {
       world_entity: layer_runtime.world_entity,
       level_entity,
@@ -1383,7 +1513,7 @@ fn ldtk_spawn_layer_tiles(
     let tile_custom_data = ldtk_tile_custom_data(instance.project, layer, tile)
     let tile_enum_tags = ldtk_tile_enum_tags(instance.project, layer, tile)
     let tile_entity = layer_entity.spawn_child(offset=tile.px)
-    @transform.positions.set(tile_entity, @math.Vec2D::zero())
+    @transform.positions().set(tile_entity, @math.Vec2D::zero())
     let runtime : LdtkSpawnedTileInstance = {
       world_entity,
       level_entity,
@@ -1392,8 +1522,8 @@ fn ldtk_spawn_layer_tiles(
       tile,
       zindex,
     }
-    ldtk_spawned_tile_instances.set(tile_entity, runtime)
-    ldtk_tile_metadata.set(tile_entity, {
+    ldtk_spawned_tile_instances().set(tile_entity, runtime)
+    ldtk_tile_metadata().set(tile_entity, {
       tile_id: tile.tile_id,
       src: tile_src,
       flip_x: tile.flip_x,
@@ -1402,7 +1532,7 @@ fn ldtk_spawn_layer_tiles(
       custom_data: tile_custom_data,
       enum_tags: tile_enum_tags,
     })
-    ldtk_grid_coords.set(
+    ldtk_grid_coords().set(
       tile_entity,
       ldtk_grid_coords_from_px(tile.px, tile_size),
     )
@@ -1420,7 +1550,7 @@ fn ldtk_spawn_layer_tiles(
     )
     let sprite = @sprite.Sprite::from_animation(animation, zindex)
     sprite.visible = visible
-    @sprite.sprites.set(tile_entity, sprite)
+    @sprite.sprites().set(tile_entity, sprite)
     let tile_event : LdtkTileSpawnedEvent = {
       world_entity: runtime.world_entity,
       level_entity: runtime.level_entity,
@@ -1467,9 +1597,9 @@ fn ldtk_spawn_int_grid_cells(
         grid_y.to_double() * grid_size,
       ),
     )
-    @transform.positions.set(cell_entity, @math.Vec2D::zero())
-    ldtk_grid_coords.set(cell_entity, { x: grid_x, y: grid_y })
-    ldtk_int_grid_cells.set(cell_entity, { value, })
+    @transform.positions().set(cell_entity, @math.Vec2D::zero())
+    ldtk_grid_coords().set(cell_entity, { x: grid_x, y: grid_y })
+    ldtk_int_grid_cells().set(cell_entity, { value, })
     let runtime : LdtkSpawnedIntGridCell = {
       world_entity,
       level_entity,
@@ -1480,7 +1610,7 @@ fn ldtk_spawn_int_grid_cells(
       grid_y,
       zindex,
     }
-    ldtk_spawned_int_grid_cells.set(cell_entity, runtime)
+    ldtk_spawned_int_grid_cells().set(cell_entity, runtime)
     let int_grid_event : LdtkIntGridCellSpawnedEvent = {
       world_entity: runtime.world_entity,
       level_entity: runtime.level_entity,
@@ -1501,22 +1631,22 @@ fn ldtk_spawn_int_grid_cells(
     if instance.settings.int_grid_cell_hook is Some(int_grid_cell_hook) {
       int_grid_cell_hook(int_grid_event)
     }
-    if ldtk_int_grid_layer_spawn_hooks.get(layer.identifier) is Some(hook) {
+    if ldtk_int_grid_layer_spawn_hooks().get(layer.identifier) is Some(hook) {
       hook(int_grid_event)
     }
-    if ldtk_int_grid_cell_spawn_hooks.get(
+    if ldtk_int_grid_cell_spawn_hooks().get(
         ldtk_int_grid_cell_spawn_hook_key(layer.identifier, value),
       )
       is Some(hook) {
       hook(int_grid_event)
     }
-    if ldtk_int_grid_value_spawn_hooks.get(
+    if ldtk_int_grid_value_spawn_hooks().get(
         ldtk_int_grid_value_spawn_hook_key(value),
       )
       is Some(hook) {
       hook(int_grid_event)
     }
-    if ldtk_int_grid_default_spawn_hook.val is Some(default_hook) {
+    if ldtk_int_grid_default_spawn_hook().val is Some(default_hook) {
       default_hook(int_grid_event)
     }
     if ldtk_apply_int_grid_physics(
@@ -1559,7 +1689,7 @@ fn ldtk_spawn_int_grid_cells(
     )
     let sprite = @sprite.Sprite::from_color_rect(rect, zindex)
     sprite.visible = visible
-    @sprite.sprites.set(cell_entity, sprite)
+    @sprite.sprites().set(cell_entity, sprite)
   }
 }
 
@@ -1589,14 +1719,14 @@ fn ldtk_spawn_layer_entities(
       base_offset
     }
     let entity = parent_entity.spawn_child(offset=spawn_offset)
-    @transform.positions.set(entity, @math.Vec2D::zero())
-    ldtk_grid_coords.set(entity, {
+    @transform.positions().set(entity, @math.Vec2D::zero())
+    ldtk_grid_coords().set(entity, {
       x: entity_instance.grid[X].to_int(),
       y: entity_instance.grid[Y].to_int(),
     })
-    ldtk_entity_iids.set(entity, { iid: entity_instance.iid })
+    ldtk_entity_iids().set(entity, { iid: entity_instance.iid })
     if is_worldly {
-      ldtk_worldly_entities.set(entity, {
+      ldtk_worldly_entities().set(entity, {
         world_entity,
         level_iid: level.iid,
         entity_iid: entity_instance.iid,
@@ -1610,7 +1740,7 @@ fn ldtk_spawn_layer_entities(
       instance: entity_instance,
       zindex,
     }
-    ldtk_spawned_entity_instances.set(entity, runtime)
+    ldtk_spawned_entity_instances().set(entity, runtime)
     let entity_event : LdtkEntitySpawnedEvent = {
       world_entity: runtime.world_entity,
       level_entity: runtime.level_entity,
@@ -1626,7 +1756,7 @@ fn ldtk_spawn_layer_entities(
     if instance.settings.entity_hook is Some(entity_hook) {
       entity_hook(entity_event)
     }
-    if ldtk_entity_layer_identifier_spawn_hooks.get(
+    if ldtk_entity_layer_identifier_spawn_hooks().get(
         ldtk_entity_layer_identifier_spawn_hook_key(
           layer.identifier,
           entity_instance.identifier,
@@ -1635,14 +1765,14 @@ fn ldtk_spawn_layer_entities(
       is Some(entity_hook) {
       entity_hook(entity_event)
     }
-    if ldtk_entity_layer_spawn_hooks.get(layer.identifier) is Some(entity_hook) {
+    if ldtk_entity_layer_spawn_hooks().get(layer.identifier) is Some(entity_hook) {
       entity_hook(entity_event)
     }
-    if ldtk_entity_spawn_hooks.get(entity_instance.identifier)
+    if ldtk_entity_spawn_hooks().get(entity_instance.identifier)
       is Some(entity_hook) {
       entity_hook(entity_event)
     }
-    if ldtk_entity_default_spawn_hook.val is Some(default_hook) {
+    if ldtk_entity_default_spawn_hook().val is Some(default_hook) {
       default_hook(entity_event)
     }
   }
@@ -1654,11 +1784,11 @@ fn ldtk_despawn_level(
   level_iid : String,
   level_entity : @entity.Entity,
 ) -> Unit {
-  ldtk_pending_transformed_level_iids.remove(level_iid)
+  ldtk_pending_transformed_level_iids().remove(level_iid)
   ldtk_level_event_bus.trigger(Despawned(level_iid), Some(level_entity))
   despawn_ldtk_tree(level_entity)
-  ldtk_respawns.remove(level_entity)
-  for pair in ldtk_worldly_entities.to_array() {
+  ldtk_respawns().remove(level_entity)
+  for pair in ldtk_worldly_entities().to_array() {
     if pair.1.world_entity != world_entity {
       continue
     }
@@ -1666,7 +1796,7 @@ fn ldtk_despawn_level(
       continue
     }
     if !pair.0.is_alive() {
-      ldtk_worldly_entities.remove(pair.0)
+      ldtk_worldly_entities().remove(pair.0)
       continue
     }
     // Keep worldly entities alive across level despawn, matching bevy_ldtk behavior.
@@ -1675,34 +1805,34 @@ fn ldtk_despawn_level(
 
 ///|
 fn ldtk_force_world_respawn(world_entity : @entity.Entity) -> Unit {
-  guard ldtk_world_instances.get(world_entity) is Some(instance) else { return }
+  guard ldtk_world_instances().get(world_entity) is Some(instance) else { return }
   for pair in instance.spawned_levels.to_array() {
     ldtk_despawn_level(world_entity, pair.0, pair.1)
     instance.spawned_levels.remove(pair.0)
   }
-  for pair in ldtk_worldly_entities.to_array() {
+  for pair in ldtk_worldly_entities().to_array() {
     if pair.1.world_entity != world_entity {
       continue
     }
     if pair.0.is_alive() {
       despawn_ldtk_tree(pair.0)
     }
-    ldtk_worldly_entities.remove(pair.0)
+    ldtk_worldly_entities().remove(pair.0)
   }
 }
 
 ///|
 fn ldtk_force_level_respawns(world_entity : @entity.Entity) -> Unit {
-  guard ldtk_world_instances.get(world_entity) is Some(instance) else { return }
+  guard ldtk_world_instances().get(world_entity) is Some(instance) else { return }
   for pair in instance.spawned_levels.to_array() {
     let level_iid = pair.0
     let level_entity = pair.1
-    if !ldtk_respawns.contains(level_entity) {
+    if !ldtk_respawns().contains(level_entity) {
       continue
     }
     ldtk_despawn_level(world_entity, level_iid, level_entity)
     instance.spawned_levels.remove(level_iid)
-    ldtk_respawns.remove(level_entity)
+    ldtk_respawns().remove(level_entity)
   }
 }
 
@@ -1939,19 +2069,19 @@ fn ldtk_apply_int_grid_physics(
   let size = @math.Vec2D(grid_size, grid_size)
   let shape = @physics2d.CollisionShape::Rect(size~, offset=@math.Vec2D::zero())
   if physics_settings.as_sensor {
-    @physics2d.areas.set(
+    @physics2d.areas().set(
       cell_entity,
       @physics2d.new_sensor(physics_settings.sensor_filter),
     )
   } else {
-    @physics2d.colliders.set(
+    @physics2d.colliders().set(
       cell_entity,
       @physics2d.Collider::new(physics_settings.collision_filter),
     )
   }
-  @physics2d.shapes.set(cell_entity, shape)
+  @physics2d.shapes().set(cell_entity, shape)
   let collider = { sensor: physics_settings.as_sensor }
-  ldtk_int_grid_colliders.set(cell_entity, collider)
+  ldtk_int_grid_colliders().set(cell_entity, collider)
   Some(collider)
 }
 
@@ -1991,7 +2121,7 @@ fn ldtk_level_zindex(
   level_entity : @entity.Entity,
   settings : LdtkWorldSpawnSettings,
 ) -> Int {
-  guard ldtk_level_instances.get(level_entity) is Some(level_instance) else {
+  guard ldtk_level_instances().get(level_entity) is Some(level_instance) else {
     return settings.zindex
   }
   settings.zindex +
@@ -2030,10 +2160,10 @@ fn ldtk_project_indexed_level_by_iid(
 
 ///|
 fn ldtk_emit_pending_transformed_events() -> Unit {
-  for pair in ldtk_pending_transformed_level_iids.to_array() {
+  for pair in ldtk_pending_transformed_level_iids().to_array() {
     let iid = pair.0
     ldtk_level_event_bus.trigger(Transformed(iid), None)
-    ldtk_pending_transformed_level_iids.remove(iid)
+    ldtk_pending_transformed_level_iids().remove(iid)
   }
 }
 
@@ -2042,85 +2172,85 @@ fn ldtk_cleanup_dead_spawned_levels(instance : LdtkWorldInstance) -> Unit {
   for pair in instance.spawned_levels.to_array() {
     if !pair.1.is_alive() {
       instance.spawned_levels.remove(pair.0)
-      ldtk_pending_transformed_level_iids.remove(pair.0)
+      ldtk_pending_transformed_level_iids().remove(pair.0)
     }
   }
 }
 
 ///|
 fn ldtk_cleanup_dead_runtime_entries() -> Unit {
-  for pair in ldtk_respawns.to_array() {
+  for pair in ldtk_respawns().to_array() {
     if !pair.0.is_alive() {
-      ldtk_respawns.remove(pair.0)
+      ldtk_respawns().remove(pair.0)
     }
   }
-  for pair in ldtk_worldly_entities.to_array() {
+  for pair in ldtk_worldly_entities().to_array() {
     if !pair.0.is_alive() {
-      ldtk_worldly_entities.remove(pair.0)
+      ldtk_worldly_entities().remove(pair.0)
     }
   }
-  for pair in ldtk_layer_metadata.to_array() {
+  for pair in ldtk_layer_metadata().to_array() {
     if !pair.0.is_alive() {
-      ldtk_layer_metadata.remove(pair.0)
+      ldtk_layer_metadata().remove(pair.0)
     }
   }
-  for pair in ldtk_level_backgrounds.to_array() {
+  for pair in ldtk_level_backgrounds().to_array() {
     if !pair.0.is_alive() {
-      ldtk_level_backgrounds.remove(pair.0)
+      ldtk_level_backgrounds().remove(pair.0)
     }
   }
-  for pair in ldtk_level_iids.to_array() {
+  for pair in ldtk_level_iids().to_array() {
     if !pair.0.is_alive() {
-      ldtk_level_iids.remove(pair.0)
+      ldtk_level_iids().remove(pair.0)
     }
   }
-  for pair in ldtk_entity_iids.to_array() {
+  for pair in ldtk_entity_iids().to_array() {
     if !pair.0.is_alive() {
-      ldtk_entity_iids.remove(pair.0)
+      ldtk_entity_iids().remove(pair.0)
     }
   }
-  for pair in ldtk_grid_coords.to_array() {
+  for pair in ldtk_grid_coords().to_array() {
     if !pair.0.is_alive() {
-      ldtk_grid_coords.remove(pair.0)
+      ldtk_grid_coords().remove(pair.0)
     }
   }
-  for pair in ldtk_int_grid_cells.to_array() {
+  for pair in ldtk_int_grid_cells().to_array() {
     if !pair.0.is_alive() {
-      ldtk_int_grid_cells.remove(pair.0)
+      ldtk_int_grid_cells().remove(pair.0)
     }
   }
-  for pair in ldtk_tile_metadata.to_array() {
+  for pair in ldtk_tile_metadata().to_array() {
     if !pair.0.is_alive() {
-      ldtk_tile_metadata.remove(pair.0)
+      ldtk_tile_metadata().remove(pair.0)
     }
   }
-  for pair in ldtk_int_grid_colliders.to_array() {
+  for pair in ldtk_int_grid_colliders().to_array() {
     if !pair.0.is_alive() {
-      @physics2d.areas.remove(pair.0)
-      @physics2d.colliders.remove(pair.0)
-      @physics2d.shapes.remove(pair.0)
-      @physics2d.rigid_bodies.remove(pair.0)
-      ldtk_int_grid_colliders.remove(pair.0)
+      @physics2d.areas().remove(pair.0)
+      @physics2d.colliders().remove(pair.0)
+      @physics2d.shapes().remove(pair.0)
+      @physics2d.rigid_bodies().remove(pair.0)
+      ldtk_int_grid_colliders().remove(pair.0)
     }
   }
-  for pair in ldtk_spawned_layer_instances.to_array() {
+  for pair in ldtk_spawned_layer_instances().to_array() {
     if !pair.0.is_alive() {
-      ldtk_spawned_layer_instances.remove(pair.0)
+      ldtk_spawned_layer_instances().remove(pair.0)
     }
   }
-  for pair in ldtk_spawned_tile_instances.to_array() {
+  for pair in ldtk_spawned_tile_instances().to_array() {
     if !pair.0.is_alive() {
-      ldtk_spawned_tile_instances.remove(pair.0)
+      ldtk_spawned_tile_instances().remove(pair.0)
     }
   }
-  for pair in ldtk_spawned_entity_instances.to_array() {
+  for pair in ldtk_spawned_entity_instances().to_array() {
     if !pair.0.is_alive() {
-      ldtk_spawned_entity_instances.remove(pair.0)
+      ldtk_spawned_entity_instances().remove(pair.0)
     }
   }
-  for pair in ldtk_spawned_int_grid_cells.to_array() {
+  for pair in ldtk_spawned_int_grid_cells().to_array() {
     if !pair.0.is_alive() {
-      ldtk_spawned_int_grid_cells.remove(pair.0)
+      ldtk_spawned_int_grid_cells().remove(pair.0)
     }
   }
 }
@@ -2149,7 +2279,7 @@ fn ldtk_find_registered_entity_hook(
   layer_identifier : String,
   entity_identifier : String,
 ) -> ((LdtkEntitySpawnedEvent) -> Unit)? {
-  if ldtk_entity_typed_registrations.get(
+  if ldtk_entity_typed_registrations().get(
       ldtk_entity_typed_registration_key(
         Some(layer_identifier),
         Some(entity_identifier),
@@ -2158,19 +2288,19 @@ fn ldtk_find_registered_entity_hook(
     is Some(hook) {
     return Some(hook)
   }
-  if ldtk_entity_typed_registrations.get(
+  if ldtk_entity_typed_registrations().get(
       ldtk_entity_typed_registration_key(None, Some(entity_identifier)),
     )
     is Some(hook) {
     return Some(hook)
   }
-  if ldtk_entity_typed_registrations.get(
+  if ldtk_entity_typed_registrations().get(
       ldtk_entity_typed_registration_key(Some(layer_identifier), None),
     )
     is Some(hook) {
     return Some(hook)
   }
-  ldtk_entity_typed_registrations.get(
+  ldtk_entity_typed_registrations().get(
     ldtk_entity_typed_registration_key(None, None),
   )
 }
@@ -2180,25 +2310,25 @@ fn ldtk_find_registered_int_cell_hook(
   layer_identifier : String,
   value : Int,
 ) -> ((LdtkIntGridCellSpawnedEvent) -> Unit)? {
-  if ldtk_int_cell_typed_registrations.get(
+  if ldtk_int_cell_typed_registrations().get(
       ldtk_int_cell_typed_registration_key(Some(layer_identifier), Some(value)),
     )
     is Some(hook) {
     return Some(hook)
   }
-  if ldtk_int_cell_typed_registrations.get(
+  if ldtk_int_cell_typed_registrations().get(
       ldtk_int_cell_typed_registration_key(None, Some(value)),
     )
     is Some(hook) {
     return Some(hook)
   }
-  if ldtk_int_cell_typed_registrations.get(
+  if ldtk_int_cell_typed_registrations().get(
       ldtk_int_cell_typed_registration_key(Some(layer_identifier), None),
     )
     is Some(hook) {
     return Some(hook)
   }
-  ldtk_int_cell_typed_registrations.get(
+  ldtk_int_cell_typed_registrations().get(
     ldtk_int_cell_typed_registration_key(None, None),
   )
 }
@@ -2212,13 +2342,13 @@ fn ldtk_append_entity_typed_registration(
   let key = ldtk_entity_typed_registration_key(
     layer_identifier, entity_identifier,
   )
-  if ldtk_entity_typed_registrations.get(key) is Some(existing_hook) {
-    ldtk_entity_typed_registrations.set(key, fn(event) {
+  if ldtk_entity_typed_registrations().get(key) is Some(existing_hook) {
+    ldtk_entity_typed_registrations().set(key, fn(event) {
       existing_hook(event)
       hook(event)
     })
   } else {
-    ldtk_entity_typed_registrations.set(key, hook)
+    ldtk_entity_typed_registrations().set(key, hook)
   }
 }
 
@@ -2229,13 +2359,13 @@ fn ldtk_append_int_cell_typed_registration(
   hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
 ) -> Unit {
   let key = ldtk_int_cell_typed_registration_key(layer_identifier, value)
-  if ldtk_int_cell_typed_registrations.get(key) is Some(existing_hook) {
-    ldtk_int_cell_typed_registrations.set(key, fn(event) {
+  if ldtk_int_cell_typed_registrations().get(key) is Some(existing_hook) {
+    ldtk_int_cell_typed_registrations().set(key, fn(event) {
       existing_hook(event)
       hook(event)
     })
   } else {
-    ldtk_int_cell_typed_registrations.set(key, hook)
+    ldtk_int_cell_typed_registrations().set(key, hook)
   }
 }
 

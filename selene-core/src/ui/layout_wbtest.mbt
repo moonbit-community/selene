@@ -1,32 +1,32 @@
 ///|
 fn cleanup_layout_test_entity(entity : @entity.Entity) -> Unit {
-  nodes.remove(entity)
-  computed_ui_nodes.remove(entity)
-  global_ui_nodes.remove(entity)
-  calculated_clips.remove(entity)
-  layout_configs.remove(entity)
-  z_indexes.remove(entity)
-  global_zindexes.remove(entity)
-  scroll_positions.remove(entity)
-  focus_policies.remove(entity)
-  focusables.remove(entity)
-  focuseds.remove(entity)
-  override_clips.remove(entity)
-  relative_cursor_positions.remove(entity)
-  background_colors.remove(entity)
-  border_colors.remove(entity)
-  border_radii.remove(entity)
-  box_shadows.remove(entity)
-  outlines.remove(entity)
-  material_nodes.remove(entity)
-  ui_images.remove(entity)
-  texts.remove(entity)
-  text_fonts.remove(entity)
-  text_colors.remove(entity)
-  text_layouts.remove(entity)
-  buttons.remove(entity)
-  interactions.remove(entity)
-  tree_orders.remove(entity)
+  nodes().remove(entity)
+  computed_ui_nodes().remove(entity)
+  global_ui_nodes().remove(entity)
+  calculated_clips().remove(entity)
+  layout_configs().remove(entity)
+  z_indexes().remove(entity)
+  global_zindexes().remove(entity)
+  scroll_positions().remove(entity)
+  focus_policies().remove(entity)
+  focusables().remove(entity)
+  focuseds().remove(entity)
+  override_clips().remove(entity)
+  relative_cursor_positions().remove(entity)
+  background_colors().remove(entity)
+  border_colors().remove(entity)
+  border_radii().remove(entity)
+  box_shadows().remove(entity)
+  outlines().remove(entity)
+  material_nodes().remove(entity)
+  ui_images().remove(entity)
+  texts().remove(entity)
+  text_fonts().remove(entity)
+  text_colors().remove(entity)
+  text_layouts().remove(entity)
+  buttons().remove(entity)
+  interactions().remove(entity)
+  tree_orders().remove(entity)
   entity.destroy()
 }
 
@@ -221,7 +221,7 @@ test "ui nodes map style-only grid and flex fields into taffy style" {
 ///|
 test "ui layout uses overflow clip margins from the requested visual box" {
   let entity = @entity.Entity::new()
-  nodes.set(
+  nodes().set(
     entity,
     Node::absolute(
       @math.Vec2D(10.0, 20.0),
@@ -236,7 +236,7 @@ test "ui layout uses overflow clip margins from the requested visual box" {
 
   ui_layout_system(0.0)
 
-  let clip = calculated_clips.get(entity).unwrap().clip
+  let clip = calculated_clips().get(entity).unwrap().clip
   inspect(clip.position[X] == 11.0, content="true")
   inspect(clip.position[Y] == 21.0, content="true")
   inspect(clip.size[X] == 98.0, content="true")
@@ -287,7 +287,7 @@ test "ui override clip ignores inherited clipping rectangles" {
   let parent = @entity.Entity::new()
   let child = parent.spawn_child()
 
-  nodes.set(
+  nodes().set(
     parent,
     Node::absolute(
       @math.Vec2D(0.0, 0.0),
@@ -296,16 +296,16 @@ test "ui override clip ignores inherited clipping rectangles" {
       overflow_y=Overflow::Hidden,
     ),
   )
-  nodes.set(
+  nodes().set(
     child,
     Node::absolute(@math.Vec2D(90.0, 20.0), size=@math.Vec2D(80.0, 40.0)),
   )
-  override_clips.set(child, OverrideClip::new())
+  override_clips().set(child, OverrideClip::new())
 
   ui_layout_system(0.0)
 
-  inspect(calculated_clips.contains(parent), content="true")
-  inspect(calculated_clips.contains(child), content="false")
+  inspect(calculated_clips().contains(parent), content="true")
+  inspect(calculated_clips().contains(child), content="false")
 
   cleanup_layout_test_entity(child)
   cleanup_layout_test_entity(parent)

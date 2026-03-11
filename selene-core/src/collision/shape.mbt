@@ -22,23 +22,35 @@ pub(all) enum CollisionShape {
 } derive(Eq, Show)
 
 ///|
-/// Stores the collision shapes for all entities in the game world.
-///
-/// This is a global registry that maps each entity to its associated collision
-/// shape. The map allows for efficient lookup and management of collision
-/// shapes during collision detection and physics calculations. Each entity can
-/// have at most one collision shape associated with it.
+priv struct ShapeWorldStore {
+  shapes : Map[@entity.Entity, CollisionShape]
+}
+
+///|
+let shape_world_stores : Map[UInt, ShapeWorldStore] = Map::new()
+
+///|
+fn shape_world_store() -> ShapeWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  shape_world_stores.get_or_init(world_id, () => { shapes: Map::new() })
+}
+
+///|
+/// Stores collision shapes for entities in the current world.
 ///
 /// Example:
 ///
 /// ```moonbit nocheck
-/// // Register a rectangular collision shape for an entity
 /// let entity = @entity.Entity::new()
 /// defer entity.destroy()
-/// @collision.shapes[entity] = @collision.CollisionShape::Rect(
-///   size=@math.Vec2D(50.0, 30.0),
-///   offset=@math.Vec2D(0.0, 0.0)
+/// @collision.shapes().set(
+///   entity,
+///   @collision.CollisionShape::Rect(
+///     size=@math.Vec2D(50.0, 30.0),
+///     offset=@math.Vec2D(0.0, 0.0),
+///   ),
 /// )
 /// ```
-///
-pub let shapes : Map[@entity.Entity, CollisionShape] = Map::new()
+pub fn shapes() -> Map[@entity.Entity, CollisionShape] {
+  shape_world_store().shapes
+}

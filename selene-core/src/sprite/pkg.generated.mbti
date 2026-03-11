@@ -21,7 +21,7 @@ pub fn play_animation(@entity.Entity, Animation, from_start? : Bool, loop_? : Bo
 
 pub fn render_sprite_system(Double) -> Unit
 
-pub let sprites : Map[@entity.Entity, Sprite]
+pub fn sprites() -> Map[@entity.Entity, Sprite]
 
 // Errors
 

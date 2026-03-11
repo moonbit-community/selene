@@ -58,7 +58,7 @@ fn test_tile_cell(x : Int, y : Int) -> TiledCell {
 
 ///|
 fn animation_image_path(entity : @entity.Entity) -> String? {
-  guard @sprite.sprites.get(entity) is Some(sprite) else { return None }
+  guard @sprite.sprites().get(entity) is Some(sprite) else { return None }
   match sprite.sprite_type {
     Animation(animation, ..) =>
       if animation.frames.length() == 0 {
@@ -332,16 +332,16 @@ test "spawn_tiled_map creates tile object and image layer entities" {
     defer cleanup_spawned_tiled_tree(root)
 
     inspect(
-      vec2_snapshot(@transform.positions.get(root).unwrap().0),
+      vec2_snapshot(@transform.positions().get(root).unwrap().0),
       content="10,20",
     )
-    match tiled_properties.get(root).unwrap().get("world") {
+    match tiled_properties().get(root).unwrap().get("world") {
       Some(String(value)) => inspect(value, content="demo")
       _ => inspect("missing", content="demo")
     }
-    let storage = tiled_map_storages.get(root).unwrap()
+    let storage = tiled_map_storages().get(root).unwrap()
 
-    let layer_entities = tiled_layer_instances
+    let layer_entities = tiled_layer_instances()
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     inspect(layer_entities.length(), content="3")
@@ -351,12 +351,12 @@ test "spawn_tiled_map creates tile object and image layer entities" {
       })[0].0
     inspect(vec2_snapshot(ground_entity.get_offset()), content="2,3")
     inspect(storage.layer_entity(1).unwrap() == ground_entity, content="true")
-    match tiled_properties.get(ground_entity).unwrap().get("speed") {
+    match tiled_properties().get(ground_entity).unwrap().get("speed") {
       Some(Float(value)) => inspect(value.to_int(), content="2")
       _ => inspect("missing", content="2")
     }
 
-    let tile_entities = tiled_tile_instances
+    let tile_entities = tiled_tile_instances()
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     inspect(storage.tile_entities(1).length(), content="2")
@@ -372,13 +372,13 @@ test "spawn_tiled_map creates tile object and image layer entities" {
       content="Some(\"maps/terrain.png\")",
     )
     for pair in tile_entities {
-      match tiled_properties.get(pair.0).unwrap().get("solid") {
+      match tiled_properties().get(pair.0).unwrap().get("solid") {
         Some(Bool(true)) => ()
         _ => inspect("missing", content="missing")
       }
     }
 
-    let object_entities = tiled_object_instances
+    let object_entities = tiled_object_instances()
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     inspect(object_entities.length(), content="2")
@@ -397,7 +397,7 @@ test "spawn_tiled_map creates tile object and image layer entities" {
         pair.1.layer.name == "Backdrop"
       })[0].0
     inspect(
-      tiled_image_layer_instances.get(backdrop_entity).unwrap().resolved_image_path,
+      tiled_image_layer_instances().get(backdrop_entity).unwrap().resolved_image_path,
       content="Some(\"maps/bg.png\")",
     )
   })
@@ -432,7 +432,7 @@ test "respawn_tiled_map_into_entity replaces previous tiled children and metadat
       content="2",
     )
     inspect(
-      tiled_map_storages.get(root).unwrap().object_entity(7) is Some(_),
+      tiled_map_storages().get(root).unwrap().object_entity(7) is Some(_),
       content="true",
     )
 
@@ -442,25 +442,25 @@ test "respawn_tiled_map_into_entity replaces previous tiled children and metadat
     })
 
     inspect(
-      vec2_snapshot(@transform.positions.get(root).unwrap().0),
+      vec2_snapshot(@transform.positions().get(root).unwrap().0),
       content="3,4",
     )
     inspect(
       root.get_children().filter(fn(child) { child.is_alive() }).length(),
       content="1",
     )
-    match tiled_properties.get(root).unwrap().get("stage") {
+    match tiled_properties().get(root).unwrap().get("stage") {
       Some(String(value)) => inspect(value, content="two")
       _ => inspect("missing", content="two")
     }
-    let storage = tiled_map_storages.get(root).unwrap()
+    let storage = tiled_map_storages().get(root).unwrap()
     inspect(storage.object_entity(7) is None, content="true")
-    let layer_names = tiled_layer_instances
+    let layer_names = tiled_layer_instances()
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
       .map(fn(pair) { pair.1.layer.name })
     inspect(layer_names, content="[\"Backdrop\"]")
-    let image_layers = tiled_image_layer_instances
+    let image_layers = tiled_image_layer_instances()
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     inspect(image_layers.length(), content="1")
@@ -493,19 +493,19 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
     })
     defer cleanup_spawned_tiled_tree(root)
 
-    let storage = tiled_map_storages.get(root).unwrap()
+    let storage = tiled_map_storages().get(root).unwrap()
     let layer_entity = storage.layer_entity(1).unwrap()
-    let layer_colliders = tiled_colliders
+    let layer_colliders = tiled_colliders()
       .get(layer_entity)
       .unwrap()
       .alive_entities()
     inspect(layer_colliders.length(), content="1")
     inspect(
-      tiled_collider_origins.get(layer_colliders[0]).unwrap().source_kind ==
+      tiled_collider_origins().get(layer_colliders[0]).unwrap().source_kind ==
       TilesLayer,
       content="true",
     )
-    match @physics2d.shapes.get(layer_colliders[0]).unwrap() {
+    match @physics2d.shapes().get(layer_colliders[0]).unwrap() {
       Rect(size=@math.Vec2D(width, height), offset=@math.Vec2D(x, y)) =>
         inspect(
           "\{width.to_int()},\{height.to_int()}@\{x.to_int()},\{y.to_int()}",
@@ -515,32 +515,32 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
     }
 
     let sensor_object = storage.object_entity(7).unwrap()
-    let sensor_colliders = tiled_colliders
+    let sensor_colliders = tiled_colliders()
       .get(sensor_object)
       .unwrap()
       .alive_entities()
     inspect(sensor_colliders.length(), content="1")
     inspect(
-      @physics2d.areas.get(sensor_colliders[0]) is Some(_),
+      @physics2d.areas().get(sensor_colliders[0]) is Some(_),
       content="true",
     )
 
     let ellipse_object = storage.object_entity(8).unwrap()
-    let ellipse_collider = tiled_colliders
+    let ellipse_collider = tiled_colliders()
       .get(ellipse_object)
       .unwrap()
       .alive_entities()[0]
-    match @physics2d.shapes.get(ellipse_collider).unwrap() {
+    match @physics2d.shapes().get(ellipse_collider).unwrap() {
       Polygon(points~, ..) => inspect(points.length(), content="12")
       _ => inspect("wrong-shape", content="12")
     }
 
     let polyline_object = storage.object_entity(9).unwrap()
-    let polyline_collider = tiled_colliders
+    let polyline_collider = tiled_colliders()
       .get(polyline_object)
       .unwrap()
       .alive_entities()[0]
-    match @physics2d.shapes.get(polyline_collider).unwrap() {
+    match @physics2d.shapes().get(polyline_collider).unwrap() {
       Polyline(points~, closed~, ..) => {
         inspect(points.length(), content="3")
         inspect(closed, content="false")
@@ -552,21 +552,21 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
     }
 
     let polygon_object = storage.object_entity(10).unwrap()
-    let polygon_collider = tiled_colliders
+    let polygon_collider = tiled_colliders()
       .get(polygon_object)
       .unwrap()
       .alive_entities()[0]
-    match @physics2d.shapes.get(polygon_collider).unwrap() {
+    match @physics2d.shapes().get(polygon_collider).unwrap() {
       Polygon(points~, ..) => inspect(points.length(), content="3")
       _ => inspect("wrong-shape", content="3")
     }
 
     let point_object = storage.object_entity(11).unwrap()
-    let point_collider = tiled_colliders
+    let point_collider = tiled_colliders()
       .get(point_object)
       .unwrap()
       .alive_entities()[0]
-    match @physics2d.shapes.get(point_collider).unwrap() {
+    match @physics2d.shapes().get(point_collider).unwrap() {
       Ball(radius~, offset~) => {
         inspect(radius.to_int(), content="2")
         inspect(vec2_snapshot(offset), content="0,0")
@@ -578,17 +578,17 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
     }
 
     let tile_object = storage.object_entity(12).unwrap()
-    let tile_object_colliders = tiled_colliders
+    let tile_object_colliders = tiled_colliders()
       .get(tile_object)
       .unwrap()
       .alive_entities()
     inspect(tile_object_colliders.length(), content="1")
     inspect(
-      tiled_collider_origins.get(tile_object_colliders[0]).unwrap().source_kind ==
+      tiled_collider_origins().get(tile_object_colliders[0]).unwrap().source_kind ==
       Object,
       content="true",
     )
-    match @physics2d.shapes.get(tile_object_colliders[0]).unwrap() {
+    match @physics2d.shapes().get(tile_object_colliders[0]).unwrap() {
       Rect(size=@math.Vec2D(width, height), offset=@math.Vec2D(x, y)) =>
         inspect(
           "\{width.to_int()},\{height.to_int()}@\{x.to_int()},\{y.to_int()}",
@@ -615,57 +615,57 @@ test "spawn_tiled_map applies physics body and material properties" {
     })
     defer cleanup_spawned_tiled_tree(root)
 
-    let storage = tiled_map_storages.get(root).unwrap()
-    let dynamic_entity = tiled_colliders
+    let storage = tiled_map_storages().get(root).unwrap()
+    let dynamic_entity = tiled_colliders()
       .get(storage.object_entity(7).unwrap())
       .unwrap()
       .alive_entities()[0]
-    let sensor_entity = tiled_colliders
+    let sensor_entity = tiled_colliders()
       .get(storage.object_entity(8).unwrap())
       .unwrap()
       .alive_entities()[0]
 
     inspect(
-      @physics2d.colliders.get(dynamic_entity).unwrap().active,
+      @physics2d.colliders().get(dynamic_entity).unwrap().active,
       content="false",
     )
     inspect(
-      @physics2d.colliders.get(dynamic_entity).unwrap().friction == 0.2,
+      @physics2d.colliders().get(dynamic_entity).unwrap().friction == 0.2,
       content="true",
     )
     inspect(
-      @physics2d.colliders.get(dynamic_entity).unwrap().restitution == 0.6,
+      @physics2d.colliders().get(dynamic_entity).unwrap().restitution == 0.6,
       content="true",
     )
     inspect(
-      @physics2d.areas.get(sensor_entity).unwrap().active,
+      @physics2d.areas().get(sensor_entity).unwrap().active,
       content="false",
     )
     inspect(
-      @physics2d.rigid_bodies.get(dynamic_entity).unwrap().body_type
+      @physics2d.rigid_bodies().get(dynamic_entity).unwrap().body_type
       is @physics2d.RigidBodyType::Dynamic,
       content="true",
     )
     inspect(
-      @physics2d.rigid_bodies.get(dynamic_entity).unwrap().gravity_scale == 0.5,
+      @physics2d.rigid_bodies().get(dynamic_entity).unwrap().gravity_scale == 0.5,
       content="true",
     )
     inspect(
-      @physics2d.rigid_bodies.get(dynamic_entity).unwrap().linear_damping ==
+      @physics2d.rigid_bodies().get(dynamic_entity).unwrap().linear_damping ==
       1.25,
       content="true",
     )
     inspect(
-      @physics2d.rigid_bodies.get(dynamic_entity).unwrap().angular_damping ==
+      @physics2d.rigid_bodies().get(dynamic_entity).unwrap().angular_damping ==
       0.75,
       content="true",
     )
     inspect(
-      @physics2d.rigid_bodies.get(dynamic_entity).unwrap().ccd_enabled,
+      @physics2d.rigid_bodies().get(dynamic_entity).unwrap().ccd_enabled,
       content="true",
     )
     inspect(
-      @physics2d.rigid_bodies.get(dynamic_entity).unwrap().lock_rotation,
+      @physics2d.rigid_bodies().get(dynamic_entity).unwrap().lock_rotation,
       content="false",
     )
   })
@@ -714,7 +714,7 @@ test "spawn_tiled_world loads adjacent maps and emits world events" {
     defer cleanup_spawned_tiled_tree(root)
 
     inspect(
-      vec2_snapshot(@transform.positions.get(root).unwrap().0),
+      vec2_snapshot(@transform.positions().get(root).unwrap().0),
       content="5,7",
     )
     inspect(
@@ -731,7 +731,7 @@ test "spawn_tiled_world loads adjacent maps and emits world events" {
       content="[\"worlds/maps/a.tmj\", \"worlds/maps/b.tmj\"]",
     )
 
-    let map_entities = tiled_world_map_instances
+    let map_entities = tiled_world_map_instances()
       .to_array()
       .filter(fn(pair) { pair.1.world_entity == root })
       .map(fn(pair) {
@@ -793,7 +793,7 @@ test "respawn_tiled_world_into_entity replaces previous spawned maps" {
     })
 
     inspect(
-      vec2_snapshot(@transform.positions.get(root).unwrap().0),
+      vec2_snapshot(@transform.positions().get(root).unwrap().0),
       content="11,13",
     )
     inspect(
@@ -801,10 +801,10 @@ test "respawn_tiled_world_into_entity replaces previous spawned maps" {
       content="1",
     )
     inspect(
-      tiled_world_instances.get(root).unwrap().loaded_maps.length(),
+      tiled_world_instances().get(root).unwrap().loaded_maps.length(),
       content="1",
     )
-    let map_entities = tiled_world_map_instances
+    let map_entities = tiled_world_map_instances()
       .to_array()
       .filter(fn(pair) { pair.1.world_entity == root })
       .map(fn(pair) {
@@ -824,7 +824,7 @@ test "tiled world chunking spawns maps around camera view" {
 
   let camera_target = @entity.Entity::new()
   defer camera_target.destroy()
-  @transform.positions.set(camera_target, @math.Vec2D(50.0, 50.0))
+  @transform.positions().set(camera_target, @math.Vec2D(50.0, 50.0))
   @camera.attach_entity(camera_target, @math.Vec2D::zero())
   @camera.camera_system(0.0)
 
@@ -858,17 +858,17 @@ test "tiled world chunking spawns maps around camera view" {
     })
     defer cleanup_spawned_tiled_tree(root)
 
-    let first_spawned = tiled_world_map_instances
+    let first_spawned = tiled_world_map_instances()
       .to_array()
       .filter(fn(pair) { pair.1.world_entity == root })
     inspect(first_spawned.length(), content="1")
     inspect(first_spawned[0].1.resolved_map_path, content="worlds/maps/a.tmj")
 
-    @transform.positions.set(camera_target, @math.Vec2D(250.0, 50.0))
+    @transform.positions().set(camera_target, @math.Vec2D(250.0, 50.0))
     @camera.camera_system(0.0)
     tiled_world_chunking_system(0.0)
 
-    let second_spawned = tiled_world_map_instances
+    let second_spawned = tiled_world_map_instances()
       .to_array()
       .filter(fn(pair) { pair.1.world_entity == root })
     inspect(second_spawned.length(), content="1")
@@ -890,7 +890,7 @@ test "tiled parallax system adjusts layer offsets" {
 
   let camera_target = @entity.Entity::new()
   defer camera_target.destroy()
-  @transform.positions.set(camera_target, @math.Vec2D(50.0, 50.0))
+  @transform.positions().set(camera_target, @math.Vec2D(50.0, 50.0))
   @camera.attach_entity(camera_target, @math.Vec2D::zero())
   @camera.camera_system(0.0)
 
@@ -905,14 +905,14 @@ test "tiled parallax system adjusts layer offsets" {
     let root = load_and_spawn_tiled_map("maps/parallax.tmj")
     defer cleanup_spawned_tiled_tree(root)
 
-    let layer_entity = tiled_layer_instances
+    let layer_entity = tiled_layer_instances()
       .to_array()
       .filter(fn(pair) {
         pair.1.map_entity == root && pair.1.layer.name == "Background"
       })[0].0
     inspect(vec2_snapshot(layer_entity.get_offset()), content="2,3")
 
-    @transform.positions.set(camera_target, @math.Vec2D(250.0, 150.0))
+    @transform.positions().set(camera_target, @math.Vec2D(250.0, 150.0))
     @camera.camera_system(0.0)
     tiled_parallax_system(0.0)
 
@@ -961,11 +961,11 @@ test "spawn_tiled_map reads TMX tile object and image layers" {
     defer cleanup_spawned_tiled_tree(root)
 
     inspect(
-      vec2_snapshot(@transform.positions.get(root).unwrap().0),
+      vec2_snapshot(@transform.positions().get(root).unwrap().0),
       content="10,20",
     )
 
-    let layer_entities = tiled_layer_instances
+    let layer_entities = tiled_layer_instances()
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     inspect(layer_entities.length(), content="3")
@@ -975,7 +975,7 @@ test "spawn_tiled_map reads TMX tile object and image layers" {
       })[0].0
     inspect(vec2_snapshot(ground_entity.get_offset()), content="2,3")
 
-    let tile_entities = tiled_tile_instances
+    let tile_entities = tiled_tile_instances()
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     let tile_positions = tile_entities.map(fn(pair) {
@@ -990,7 +990,7 @@ test "spawn_tiled_map reads TMX tile object and image layers" {
       content="Some(\"maps/terrain.png\")",
     )
 
-    let object_entities = tiled_object_instances
+    let object_entities = tiled_object_instances()
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     inspect(object_entities.length(), content="2")
@@ -1007,7 +1007,7 @@ test "spawn_tiled_map reads TMX tile object and image layers" {
         pair.1.layer.name == "Backdrop"
       })[0].0
     inspect(
-      tiled_image_layer_instances.get(backdrop_entity).unwrap().resolved_image_path,
+      tiled_image_layer_instances().get(backdrop_entity).unwrap().resolved_image_path,
       content="Some(\"maps/bg.png\")",
     )
   })
@@ -1027,12 +1027,12 @@ test "spawn_tiled_map expands tiled animated tiles into frame timelines" {
     let root = load_and_spawn_tiled_map("maps/animated.tmj")
     defer cleanup_spawned_tiled_tree(root)
 
-    let tile_entities = tiled_tile_instances
+    let tile_entities = tiled_tile_instances()
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     inspect(tile_entities.length(), content="1")
 
-    guard @sprite.sprites.get(tile_entities[0].0) is Some(sprite) else {
+    guard @sprite.sprites().get(tile_entities[0].0) is Some(sprite) else {
       inspect("missing-sprite", content="missing-sprite")
       return
     }
@@ -1065,7 +1065,7 @@ test "spawn_tiled_map creates tile entities for isometric maps" {
     let root = load_and_spawn_tiled_map("maps/isometric.tmj")
     defer cleanup_spawned_tiled_tree(root)
 
-    let tile_entities = tiled_tile_instances
+    let tile_entities = tiled_tile_instances()
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     inspect(tile_entities.length(), content="1")

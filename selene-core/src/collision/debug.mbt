@@ -37,11 +37,11 @@ fn rgba(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
 ///
 pub fn debug_collide_system(_delta : Double) -> Unit {
   let camera_pos = @camera.get_position()
-  for e, collide in colliders {
+  for e, collide in colliders() {
     guard e.is_alive() else { continue }
     guard collide.active else { continue }
-    guard @position.positions.get(e) is Some(pos) else { continue }
-    guard shapes.get(e) is Some(shape)
+    guard @position.positions().get(e) is Some(pos) else { continue }
+    guard shapes().get(e) is Some(shape)
     guard shape is Rect(size=Vec2D(width, height), offset~)
     let rect = to_screen_rect(
       e,
@@ -55,11 +55,11 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
       stroke_color: None,
     })
   }
-  for e, area in areas {
+  for e, area in areas() {
     guard e.is_alive() else { continue }
     guard area.active else { continue }
-    guard @position.positions.get(e) is Some(pos) else { continue }
-    guard shapes.get(e) is Some(shape) else { continue }
+    guard @position.positions().get(e) is Some(pos) else { continue }
+    guard shapes().get(e) is Some(shape) else { continue }
     guard shape is Rect(size=Vec2D(width, height), offset~)
     let rect = to_screen_rect(
       e,
@@ -73,10 +73,10 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
       stroke_color: None,
     })
   }
-  for e, _pickable in pickables {
+  for e, _pickable in pickables() {
     guard e.is_alive() else { continue }
-    guard @position.positions.get(e) is Some(pos) else { continue }
-    guard shapes.get(e) is Some(shape) else { continue }
+    guard @position.positions().get(e) is Some(pos) else { continue }
+    guard shapes().get(e) is Some(shape) else { continue }
     guard shape is Rect(size=Vec2D(width, height), offset~)
     let rect = to_screen_rect(
       e,
@@ -99,7 +99,7 @@ fn to_screen_rect(
   size : @math.Vec2D,
   camera_pos : @math.Vec2D,
 ) -> @math.Rect {
-  if @ui.global_ui_nodes.get(entity) is Some(transform) {
+  if @ui.global_ui_nodes().get(entity) is Some(transform) {
     transform.screen_rect
   } else {
     @math.Rect::{

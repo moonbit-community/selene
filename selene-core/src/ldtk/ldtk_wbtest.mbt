@@ -21,92 +21,92 @@ fn with_fake_asset_io(
 
 ///|
 fn reset_ldtk_runtime() -> Unit {
-  for pair in ldtk_world_instances.to_array() {
-    ldtk_world_instances.remove(pair.0)
+  for pair in ldtk_world_instances().to_array() {
+    ldtk_world_instances().remove(pair.0)
   }
-  for pair in ldtk_level_instances.to_array() {
-    ldtk_level_instances.remove(pair.0)
+  for pair in ldtk_level_instances().to_array() {
+    ldtk_level_instances().remove(pair.0)
   }
-  for pair in ldtk_layer_metadata.to_array() {
-    ldtk_layer_metadata.remove(pair.0)
+  for pair in ldtk_layer_metadata().to_array() {
+    ldtk_layer_metadata().remove(pair.0)
   }
-  for pair in ldtk_level_backgrounds.to_array() {
-    ldtk_level_backgrounds.remove(pair.0)
+  for pair in ldtk_level_backgrounds().to_array() {
+    ldtk_level_backgrounds().remove(pair.0)
   }
-  for pair in ldtk_level_iids.to_array() {
-    ldtk_level_iids.remove(pair.0)
+  for pair in ldtk_level_iids().to_array() {
+    ldtk_level_iids().remove(pair.0)
   }
-  for pair in ldtk_entity_iids.to_array() {
-    ldtk_entity_iids.remove(pair.0)
+  for pair in ldtk_entity_iids().to_array() {
+    ldtk_entity_iids().remove(pair.0)
   }
-  for pair in ldtk_grid_coords.to_array() {
-    ldtk_grid_coords.remove(pair.0)
+  for pair in ldtk_grid_coords().to_array() {
+    ldtk_grid_coords().remove(pair.0)
   }
-  for pair in ldtk_int_grid_cells.to_array() {
+  for pair in ldtk_int_grid_cells().to_array() {
     let entity = pair.0
-    @physics2d.areas.remove(entity)
-    @physics2d.colliders.remove(entity)
-    @physics2d.shapes.remove(entity)
-    @physics2d.rigid_bodies.remove(entity)
-    ldtk_int_grid_cells.remove(entity)
+    @physics2d.areas().remove(entity)
+    @physics2d.colliders().remove(entity)
+    @physics2d.shapes().remove(entity)
+    @physics2d.rigid_bodies().remove(entity)
+    ldtk_int_grid_cells().remove(entity)
   }
-  for pair in ldtk_tile_metadata.to_array() {
-    ldtk_tile_metadata.remove(pair.0)
+  for pair in ldtk_tile_metadata().to_array() {
+    ldtk_tile_metadata().remove(pair.0)
   }
-  for pair in ldtk_int_grid_colliders.to_array() {
+  for pair in ldtk_int_grid_colliders().to_array() {
     let entity = pair.0
-    @physics2d.areas.remove(entity)
-    @physics2d.colliders.remove(entity)
-    @physics2d.shapes.remove(entity)
-    @physics2d.rigid_bodies.remove(entity)
-    ldtk_int_grid_colliders.remove(entity)
+    @physics2d.areas().remove(entity)
+    @physics2d.colliders().remove(entity)
+    @physics2d.shapes().remove(entity)
+    @physics2d.rigid_bodies().remove(entity)
+    ldtk_int_grid_colliders().remove(entity)
   }
-  for pair in ldtk_worldly_entities.to_array() {
-    ldtk_worldly_entities.remove(pair.0)
+  for pair in ldtk_worldly_entities().to_array() {
+    ldtk_worldly_entities().remove(pair.0)
   }
-  for pair in ldtk_respawns.to_array() {
-    ldtk_respawns.remove(pair.0)
+  for pair in ldtk_respawns().to_array() {
+    ldtk_respawns().remove(pair.0)
   }
-  for pair in ldtk_spawned_layer_instances.to_array() {
-    ldtk_spawned_layer_instances.remove(pair.0)
+  for pair in ldtk_spawned_layer_instances().to_array() {
+    ldtk_spawned_layer_instances().remove(pair.0)
   }
-  for pair in ldtk_spawned_tile_instances.to_array() {
-    ldtk_spawned_tile_instances.remove(pair.0)
+  for pair in ldtk_spawned_tile_instances().to_array() {
+    ldtk_spawned_tile_instances().remove(pair.0)
   }
-  for pair in ldtk_spawned_entity_instances.to_array() {
-    ldtk_spawned_entity_instances.remove(pair.0)
+  for pair in ldtk_spawned_entity_instances().to_array() {
+    ldtk_spawned_entity_instances().remove(pair.0)
   }
-  for pair in ldtk_spawned_int_grid_cells.to_array() {
-    ldtk_spawned_int_grid_cells.remove(pair.0)
+  for pair in ldtk_spawned_int_grid_cells().to_array() {
+    ldtk_spawned_int_grid_cells().remove(pair.0)
   }
-  for pair in ldtk_pending_transformed_level_iids.to_array() {
-    ldtk_pending_transformed_level_iids.remove(pair.0)
+  for pair in ldtk_pending_transformed_level_iids().to_array() {
+    ldtk_pending_transformed_level_iids().remove(pair.0)
   }
-  for pair in ldtk_entity_spawn_hooks.to_array() {
-    ldtk_entity_spawn_hooks.remove(pair.0)
+  for pair in ldtk_entity_spawn_hooks().to_array() {
+    ldtk_entity_spawn_hooks().remove(pair.0)
   }
-  for pair in ldtk_entity_layer_spawn_hooks.to_array() {
-    ldtk_entity_layer_spawn_hooks.remove(pair.0)
+  for pair in ldtk_entity_layer_spawn_hooks().to_array() {
+    ldtk_entity_layer_spawn_hooks().remove(pair.0)
   }
-  for pair in ldtk_entity_layer_identifier_spawn_hooks.to_array() {
-    ldtk_entity_layer_identifier_spawn_hooks.remove(pair.0)
+  for pair in ldtk_entity_layer_identifier_spawn_hooks().to_array() {
+    ldtk_entity_layer_identifier_spawn_hooks().remove(pair.0)
   }
-  ldtk_entity_default_spawn_hook.val = None
-  for pair in ldtk_int_grid_layer_spawn_hooks.to_array() {
-    ldtk_int_grid_layer_spawn_hooks.remove(pair.0)
+  ldtk_entity_default_spawn_hook().val = None
+  for pair in ldtk_int_grid_layer_spawn_hooks().to_array() {
+    ldtk_int_grid_layer_spawn_hooks().remove(pair.0)
   }
-  for pair in ldtk_int_grid_cell_spawn_hooks.to_array() {
-    ldtk_int_grid_cell_spawn_hooks.remove(pair.0)
+  for pair in ldtk_int_grid_cell_spawn_hooks().to_array() {
+    ldtk_int_grid_cell_spawn_hooks().remove(pair.0)
   }
-  for pair in ldtk_int_grid_value_spawn_hooks.to_array() {
-    ldtk_int_grid_value_spawn_hooks.remove(pair.0)
+  for pair in ldtk_int_grid_value_spawn_hooks().to_array() {
+    ldtk_int_grid_value_spawn_hooks().remove(pair.0)
   }
-  ldtk_int_grid_default_spawn_hook.val = None
-  for pair in ldtk_entity_typed_registrations.to_array() {
-    ldtk_entity_typed_registrations.remove(pair.0)
+  ldtk_int_grid_default_spawn_hook().val = None
+  for pair in ldtk_entity_typed_registrations().to_array() {
+    ldtk_entity_typed_registrations().remove(pair.0)
   }
-  for pair in ldtk_int_cell_typed_registrations.to_array() {
-    ldtk_int_cell_typed_registrations.remove(pair.0)
+  for pair in ldtk_int_cell_typed_registrations().to_array() {
+    ldtk_int_cell_typed_registrations().remove(pair.0)
   }
   ldtk_world_spawned_event_bus.clear()
   ldtk_level_spawned_event_bus.clear()
@@ -255,7 +255,7 @@ fn spawned_entity_by_iid_in_level(
   iid : String,
   level_entity : @entity.Entity,
 ) -> @entity.Entity? {
-  for pair in ldtk_spawned_entity_instances.to_array() {
+  for pair in ldtk_spawned_entity_instances().to_array() {
     let runtime = pair.1
     if runtime.instance.iid == iid && runtime.level_entity == level_entity {
       return Some(pair.0)
@@ -267,7 +267,7 @@ fn spawned_entity_by_iid_in_level(
 ///|
 fn worldly_count(world_entity : @entity.Entity) -> Int {
   let mut count = 0
-  for pair in ldtk_worldly_entities.to_array() {
+  for pair in ldtk_worldly_entities().to_array() {
     if pair.1.world_entity == world_entity {
       count += 1
     }
@@ -278,7 +278,7 @@ fn worldly_count(world_entity : @entity.Entity) -> Int {
 ///|
 fn level_background_count(level_iid : String) -> Int {
   let mut count = 0
-  for pair in ldtk_level_backgrounds.to_array() {
+  for pair in ldtk_level_backgrounds().to_array() {
     if pair.1.level_iid == level_iid {
       count += 1
     }
@@ -289,7 +289,7 @@ fn level_background_count(level_iid : String) -> Int {
 ///|
 fn level_background_image_count(level_iid : String) -> Int {
   let mut count = 0
-  for pair in ldtk_level_backgrounds.to_array() {
+  for pair in ldtk_level_backgrounds().to_array() {
     if pair.1.level_iid == level_iid && pair.1.rel_path is Some(_) {
       count += 1
     }
@@ -539,8 +539,8 @@ test "ldtk_world_sync_system updates spawned levels from selection" {
   })
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
-  inspect(ldtk_world_instances.contains(world), content="true")
-  let world_instance = ldtk_world_instances.get(world).unwrap()
+  inspect(ldtk_world_instances().contains(world), content="true")
+  let world_instance = ldtk_world_instances().get(world).unwrap()
   inspect(world_instance.spawned_levels.contains("iid-a"), content="true")
   inspect(world_instance.spawned_levels.contains("iid-b"), content="false")
   let spawned_a = world_instance.spawned_levels.get("iid-a").unwrap()
@@ -548,7 +548,7 @@ test "ldtk_world_sync_system updates spawned levels from selection" {
 
   set_ldtk_level_selection(ldtk_level_selection_index(1))
   ldtk_world_sync_system(0.0)
-  let updated = ldtk_world_instances.get(world).unwrap()
+  let updated = ldtk_world_instances().get(world).unwrap()
   inspect(updated.spawned_levels.contains("iid-a"), content="false")
   inspect(updated.spawned_levels.contains("iid-b"), content="true")
   let spawned_b = updated.spawned_levels.get("iid-b").unwrap()
@@ -598,18 +598,18 @@ test "spawn_ldtk_world spawns level backgrounds from bg color and image" {
     let world = spawn_ldtk_world(project)
     inspect(level_background_count("level-main"), content="2")
     inspect(level_background_image_count("level-main"), content="1")
-    inspect(ldtk_level_backgrounds.to_array().length(), content="2")
-    for pair in ldtk_level_backgrounds.to_array() {
-      inspect(@sprite.sprites.contains(pair.0), content="true")
+    inspect(ldtk_level_backgrounds().to_array().length(), content="2")
+    for pair in ldtk_level_backgrounds().to_array() {
+      inspect(@sprite.sprites().contains(pair.0), content="true")
     }
     let mut image_background_entity : @entity.Entity? = None
-    for pair in ldtk_level_backgrounds.to_array() {
+    for pair in ldtk_level_backgrounds().to_array() {
       if pair.1.level_iid == "level-main" && pair.1.rel_path is Some(_) {
         image_background_entity = Some(pair.0)
       }
     }
     let background_entity = image_background_entity.unwrap()
-    let background_sprite = @sprite.sprites.get(background_entity).unwrap()
+    let background_sprite = @sprite.sprites().get(background_entity).unwrap()
     match background_sprite.sprite_type {
       Animation(animation, frame=_) => {
         inspect(animation.frames[0].offset, content="Vec2D(3, 5)")
@@ -621,7 +621,7 @@ test "spawn_ldtk_world spawns level backgrounds from bg color and image" {
       _ => fail("expected level background image to use animation sprite")
     }
     cleanup_ldtk_entity(world)
-    inspect(ldtk_level_backgrounds.to_array().length(), content="0")
+    inspect(ldtk_level_backgrounds().to_array().length(), content="0")
   })
 }
 
@@ -782,34 +782,34 @@ test "spawn_ldtk_world spawns layer tiles entities and intgrid cells" {
     set_ldtk_settings(default_ldtk_settings())
     set_ldtk_level_selection(ldtk_level_selection_index(0))
     let world = spawn_ldtk_world(project)
-    let world_instance = ldtk_world_instances.get(world).unwrap()
+    let world_instance = ldtk_world_instances().get(world).unwrap()
     let level_entity = world_instance.spawned_levels.get("level-main").unwrap()
     inspect(world_instance.spawned_levels.length(), content="1")
-    inspect(ldtk_level_iids.contains(level_entity), content="true")
+    inspect(ldtk_level_iids().contains(level_entity), content="true")
     inspect(
       ldtk_level_entity(world, "level-main").unwrap() == level_entity,
       content="true",
     )
-    inspect(ldtk_spawned_layer_instances.to_array().length(), content="3")
-    inspect(ldtk_spawned_tile_instances.to_array().length(), content="1")
-    inspect(ldtk_spawned_int_grid_cells.to_array().length(), content="1")
-    inspect(ldtk_spawned_entity_instances.to_array().length(), content="1")
-    inspect(ldtk_entity_iids.to_array().length(), content="1")
-    inspect(ldtk_tile_metadata.to_array().length(), content="1")
-    inspect(ldtk_int_grid_cells.to_array().length(), content="1")
-    inspect(ldtk_int_grid_colliders.to_array().length(), content="0")
-    let tile_entity = ldtk_spawned_tile_instances.to_array()[0].0
-    inspect(@sprite.sprites.contains(tile_entity), content="true")
-    inspect(ldtk_tile_metadata.get(tile_entity).unwrap().tile_id, content="0")
-    let int_grid_entity = ldtk_spawned_int_grid_cells.to_array()[0].0
-    inspect(@sprite.sprites.contains(int_grid_entity), content="true")
+    inspect(ldtk_spawned_layer_instances().to_array().length(), content="3")
+    inspect(ldtk_spawned_tile_instances().to_array().length(), content="1")
+    inspect(ldtk_spawned_int_grid_cells().to_array().length(), content="1")
+    inspect(ldtk_spawned_entity_instances().to_array().length(), content="1")
+    inspect(ldtk_entity_iids().to_array().length(), content="1")
+    inspect(ldtk_tile_metadata().to_array().length(), content="1")
+    inspect(ldtk_int_grid_cells().to_array().length(), content="1")
+    inspect(ldtk_int_grid_colliders().to_array().length(), content="0")
+    let tile_entity = ldtk_spawned_tile_instances().to_array()[0].0
+    inspect(@sprite.sprites().contains(tile_entity), content="true")
+    inspect(ldtk_tile_metadata().get(tile_entity).unwrap().tile_id, content="0")
+    let int_grid_entity = ldtk_spawned_int_grid_cells().to_array()[0].0
+    inspect(@sprite.sprites().contains(int_grid_entity), content="true")
     inspect(
-      ldtk_int_grid_cells.get(int_grid_entity).unwrap().value,
+      ldtk_int_grid_cells().get(int_grid_entity).unwrap().value,
       content="1",
     )
     let spawned_enemy = ldtk_entity_by_iid(world, "entity-1").unwrap()
     inspect(
-      ldtk_entity_iids.get(spawned_enemy).unwrap().iid,
+      ldtk_entity_iids().get(spawned_enemy).unwrap().iid,
       content="entity-1",
     )
     cleanup_ldtk_entity(world)
@@ -901,9 +901,9 @@ test "ldtk tile source uses tileset spacing and padding" {
     set_ldtk_settings(default_ldtk_settings())
     set_ldtk_level_selection(ldtk_level_selection_index(0))
     let world = spawn_ldtk_world(project)
-    let tile_entity = ldtk_spawned_tile_instances.to_array()[0].0
+    let tile_entity = ldtk_spawned_tile_instances().to_array()[0].0
     inspect(
-      ldtk_tile_metadata.get(tile_entity).unwrap().src,
+      ldtk_tile_metadata().get(tile_entity).unwrap().src,
       content="Vec2D(19, 19)",
     )
     cleanup_ldtk_entity(world)
@@ -995,8 +995,8 @@ test "ldtk tile render alpha multiplies layer opacity and tile alpha" {
     set_ldtk_settings(default_ldtk_settings())
     set_ldtk_level_selection(ldtk_level_selection_index(0))
     let world = spawn_ldtk_world(project)
-    let tile_entity = ldtk_spawned_tile_instances.to_array()[0].0
-    let sprite = @sprite.sprites.get(tile_entity).unwrap()
+    let tile_entity = ldtk_spawned_tile_instances().to_array()[0].0
+    let sprite = @sprite.sprites().get(tile_entity).unwrap()
     match sprite.sprite_type {
       Animation(animation, frame=_) => inspect(animation.color.a, content="0.2")
       _ => fail("expected animation sprite for LDtk tile")
@@ -1136,8 +1136,8 @@ test "ldtk spawned tile metadata includes custom data and enum tags" {
     set_ldtk_settings(default_ldtk_settings())
     set_ldtk_level_selection(ldtk_level_selection_index(0))
     let world = spawn_ldtk_world(project)
-    let tile_entity = ldtk_spawned_tile_instances.to_array()[0].0
-    let metadata = ldtk_tile_metadata.get(tile_entity).unwrap()
+    let tile_entity = ldtk_spawned_tile_instances().to_array()[0].0
+    let metadata = ldtk_tile_metadata().get(tile_entity).unwrap()
     inspect(metadata.custom_data.unwrap(), content="spawn")
     inspect(metadata.enum_tags.length(), content="1")
     inspect(metadata.enum_tags[0], content="Solid")
@@ -1179,7 +1179,7 @@ test "ldtk entity spawn hook applies by identifier" {
     ]),
   ])
   register_ldtk_entity_spawn_hook("Enemy", fn(event) {
-    ldtk_respawns.set(event.entity, { requested: true })
+    ldtk_respawns().set(event.entity, { requested: true })
   })
 
   set_ldtk_settings(default_ldtk_settings())
@@ -1187,8 +1187,8 @@ test "ldtk entity spawn hook applies by identifier" {
   let world = spawn_ldtk_world(project)
   let enemy = ldtk_entity_by_iid(world, "entity-enemy").unwrap()
   let npc = ldtk_entity_by_iid(world, "entity-npc").unwrap()
-  inspect(ldtk_respawns.contains(enemy), content="true")
-  inspect(ldtk_respawns.contains(npc), content="false")
+  inspect(ldtk_respawns().contains(enemy), content="true")
+  inspect(ldtk_respawns().contains(npc), content="false")
 
   cleanup_ldtk_entity(world)
 }
@@ -1335,12 +1335,12 @@ test "ldtk entity optional hook registration routes by scope" {
   unregister_ldtk_entity_spawn_hook_optional(None, Some("Enemy"))
   unregister_ldtk_entity_spawn_hook_optional(None, None)
   inspect(
-    ldtk_entity_layer_identifier_spawn_hooks.to_array().length(),
+    ldtk_entity_layer_identifier_spawn_hooks().to_array().length(),
     content="0",
   )
-  inspect(ldtk_entity_layer_spawn_hooks.to_array().length(), content="0")
-  inspect(ldtk_entity_spawn_hooks.to_array().length(), content="0")
-  inspect(ldtk_entity_default_spawn_hook.val is None, content="true")
+  inspect(ldtk_entity_layer_spawn_hooks().to_array().length(), content="0")
+  inspect(ldtk_entity_spawn_hooks().to_array().length(), content="0")
+  inspect(ldtk_entity_default_spawn_hook().val is None, content="true")
 
   cleanup_ldtk_entity(world)
 }
@@ -1420,7 +1420,7 @@ test "ldtk typed entity registrations use most specific scope" {
   unregister_ldtk_entity("Enemy")
   unregister_default_ldtk_entity_for_layer("LayerA")
   unregister_default_ldtk_entity()
-  inspect(ldtk_entity_typed_registrations.to_array().length(), content="0")
+  inspect(ldtk_entity_typed_registrations().to_array().length(), content="0")
 
   cleanup_ldtk_entity(world)
 }
@@ -1525,10 +1525,10 @@ test "ldtk intgrid spawn hooks apply by layer and cell value" {
     test_int_grid_layer("Collision", 2, 1, [1, 2]),
   ])
   register_ldtk_int_grid_layer_spawn_hook("Collision", fn(event) {
-    ldtk_int_grid_colliders.set(event.cell_entity, { sensor: false })
+    ldtk_int_grid_colliders().set(event.cell_entity, { sensor: false })
   })
   register_ldtk_int_grid_cell_spawn_hook("Collision", 2, fn(event) {
-    ldtk_int_grid_colliders.set(event.cell_entity, { sensor: true })
+    ldtk_int_grid_colliders().set(event.cell_entity, { sensor: true })
   })
 
   set_ldtk_settings(default_ldtk_settings())
@@ -1537,7 +1537,7 @@ test "ldtk intgrid spawn hooks apply by layer and cell value" {
 
   let mut cell_value_1 : @entity.Entity? = None
   let mut cell_value_2 : @entity.Entity? = None
-  for pair in ldtk_spawned_int_grid_cells.to_array() {
+  for pair in ldtk_spawned_int_grid_cells().to_array() {
     let cell_entity = pair.0
     let runtime = pair.1
     if runtime.value == 1 {
@@ -1549,11 +1549,11 @@ test "ldtk intgrid spawn hooks apply by layer and cell value" {
   let value_1_entity = cell_value_1.unwrap()
   let value_2_entity = cell_value_2.unwrap()
   inspect(
-    ldtk_int_grid_colliders.get(value_1_entity).unwrap().sensor,
+    ldtk_int_grid_colliders().get(value_1_entity).unwrap().sensor,
     content="false",
   )
   inspect(
-    ldtk_int_grid_colliders.get(value_2_entity).unwrap().sensor,
+    ldtk_int_grid_colliders().get(value_2_entity).unwrap().sensor,
     content="true",
   )
 
@@ -1594,7 +1594,7 @@ test "ldtk typed int cell registrations use most specific scope" {
   unregister_ldtk_int_cell(2)
   unregister_default_ldtk_int_cell_for_layer("Collision")
   unregister_default_ldtk_int_cell()
-  inspect(ldtk_int_cell_typed_registrations.to_array().length(), content="0")
+  inspect(ldtk_int_cell_typed_registrations().to_array().length(), content="0")
 
   cleanup_ldtk_entity(world)
 }
@@ -1617,7 +1617,7 @@ test "ldtk add int cell component helpers can compose per scope" {
 
   let mut value_1_entity : @entity.Entity? = None
   let mut value_2_entity : @entity.Entity? = None
-  for pair in ldtk_spawned_int_grid_cells.to_array() {
+  for pair in ldtk_spawned_int_grid_cells().to_array() {
     if pair.1.value == 1 {
       value_1_entity = Some(pair.0)
     } else if pair.1.value == 2 {
@@ -1674,10 +1674,10 @@ test "ldtk intgrid optional hook registration routes by scope" {
   unregister_ldtk_int_grid_spawn_hook_optional(Some("Collision"), None)
   unregister_ldtk_int_grid_spawn_hook_optional(None, Some(2))
   unregister_ldtk_int_grid_spawn_hook_optional(None, None)
-  inspect(ldtk_int_grid_cell_spawn_hooks.to_array().length(), content="0")
-  inspect(ldtk_int_grid_layer_spawn_hooks.to_array().length(), content="0")
-  inspect(ldtk_int_grid_value_spawn_hooks.to_array().length(), content="0")
-  inspect(ldtk_int_grid_default_spawn_hook.val is None, content="true")
+  inspect(ldtk_int_grid_cell_spawn_hooks().to_array().length(), content="0")
+  inspect(ldtk_int_grid_layer_spawn_hooks().to_array().length(), content="0")
+  inspect(ldtk_int_grid_value_spawn_hooks().to_array().length(), content="0")
+  inspect(ldtk_int_grid_default_spawn_hook().val is None, content="true")
 
   cleanup_ldtk_entity(world)
 }
@@ -1793,7 +1793,7 @@ test "ldtk layer display order uses LDtk top-most first ordering" {
   let world = spawn_ldtk_world(project)
   let mut top_zindex = 0
   let mut bottom_zindex = 0
-  for pair in ldtk_spawned_layer_instances.to_array() {
+  for pair in ldtk_spawned_layer_instances().to_array() {
     let runtime = pair.1
     if runtime.layer.identifier == "Top" {
       top_zindex = runtime.zindex
@@ -1910,14 +1910,14 @@ test "ldtk intgrid with tileset skips colorful fallback sprites" {
     set_ldtk_settings(default_ldtk_settings())
     set_ldtk_level_selection(ldtk_level_selection_index(0))
     let world = spawn_ldtk_world(project)
-    let int_grid_cell = ldtk_spawned_int_grid_cells.to_array()[0].0
-    inspect(@sprite.sprites.contains(int_grid_cell), content="false")
-    inspect(ldtk_spawned_tile_instances.to_array().length(), content="2")
+    let int_grid_cell = ldtk_spawned_int_grid_cells().to_array()[0].0
+    inspect(@sprite.sprites().contains(int_grid_cell), content="false")
+    inspect(ldtk_spawned_tile_instances().to_array().length(), content="2")
     let mut min_zindex = 999999
     let mut max_zindex = -999999
-    for pair in ldtk_spawned_tile_instances.to_array() {
+    for pair in ldtk_spawned_tile_instances().to_array() {
       let visual_tile = pair.0
-      inspect(@sprite.sprites.contains(visual_tile), content="true")
+      inspect(@sprite.sprites().contains(visual_tile), content="true")
       let zindex = pair.1.zindex
       if zindex < min_zindex {
         min_zindex = zindex
@@ -2058,10 +2058,10 @@ test "ldtk settings intgrid invisible and layer exclusion apply at spawn" {
     })
     set_ldtk_level_selection(ldtk_level_selection_index(0))
     let world = spawn_ldtk_world(project)
-    inspect(ldtk_spawned_entity_instances.to_array().length(), content="0")
-    inspect(ldtk_spawned_int_grid_cells.to_array().length(), content="1")
-    let int_grid_entity = ldtk_spawned_int_grid_cells.to_array()[0].0
-    inspect(@sprite.sprites.contains(int_grid_entity), content="false")
+    inspect(ldtk_spawned_entity_instances().to_array().length(), content="0")
+    inspect(ldtk_spawned_int_grid_cells().to_array().length(), content="1")
+    let int_grid_entity = ldtk_spawned_int_grid_cells().to_array()[0].0
+    inspect(@sprite.sprites().contains(int_grid_entity), content="false")
     cleanup_ldtk_entity(world)
   })
 }
@@ -2129,7 +2129,7 @@ test "ldtk level respawn keeps worldly entities and respawns level entities" {
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
 
-  let world_instance = ldtk_world_instances.get(world).unwrap()
+  let world_instance = ldtk_world_instances().get(world).unwrap()
   let level_entity_before = world_instance.spawned_levels
     .get("level-main")
     .unwrap()
@@ -2146,7 +2146,7 @@ test "ldtk level respawn keeps worldly entities and respawns level entities" {
   mark_ldtk_respawn(level_entity_before)
   ldtk_world_sync_system(0.0)
 
-  let updated_world_instance = ldtk_world_instances.get(world).unwrap()
+  let updated_world_instance = ldtk_world_instances().get(world).unwrap()
   let level_entity_after = updated_world_instance.spawned_levels
     .get("level-main")
     .unwrap()
@@ -2237,11 +2237,11 @@ test "ldtk intgrid physics spawns collider from matching cells" {
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
 
-  let cell_entity = ldtk_spawned_int_grid_cells.to_array()[0].0
-  inspect(ldtk_int_grid_colliders.contains(cell_entity), content="true")
-  inspect(@physics2d.colliders.contains(cell_entity), content="true")
-  inspect(@physics2d.shapes.contains(cell_entity), content="true")
-  inspect(@physics2d.areas.contains(cell_entity), content="false")
+  let cell_entity = ldtk_spawned_int_grid_cells().to_array()[0].0
+  inspect(ldtk_int_grid_colliders().contains(cell_entity), content="true")
+  inspect(@physics2d.colliders().contains(cell_entity), content="true")
+  inspect(@physics2d.shapes().contains(cell_entity), content="true")
+  inspect(@physics2d.areas().contains(cell_entity), content="false")
   let collider_events = ldtk_int_grid_collider_spawned_event_bus.read(
     collider_reader,
   )
@@ -2267,11 +2267,11 @@ test "ldtk intgrid physics supports sensor mode" {
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
 
-  let cell_entity = ldtk_spawned_int_grid_cells.to_array()[0].0
-  inspect(ldtk_int_grid_colliders.contains(cell_entity), content="true")
-  inspect(@physics2d.areas.contains(cell_entity), content="true")
-  inspect(@physics2d.shapes.contains(cell_entity), content="true")
-  inspect(@physics2d.colliders.contains(cell_entity), content="false")
+  let cell_entity = ldtk_spawned_int_grid_cells().to_array()[0].0
+  inspect(ldtk_int_grid_colliders().contains(cell_entity), content="true")
+  inspect(@physics2d.areas().contains(cell_entity), content="true")
+  inspect(@physics2d.shapes().contains(cell_entity), content="true")
+  inspect(@physics2d.colliders().contains(cell_entity), content="false")
   let collider_events = ldtk_int_grid_collider_spawned_event_bus.read(
     collider_reader,
   )
@@ -2320,7 +2320,7 @@ test "despawn_ldtk_tree clears pending transformed levels before sync" {
   let world = spawn_ldtk_world(project)
 
   inspect(
-    ldtk_pending_transformed_level_iids.contains("level-main"),
+    ldtk_pending_transformed_level_iids().contains("level-main"),
     content="true",
   )
   let immediate_events = ldtk_level_event_bus.read(reader)
@@ -2329,7 +2329,7 @@ test "despawn_ldtk_tree clears pending transformed levels before sync" {
   despawn_ldtk_tree(world)
   @entity.entity_flush_system(0.0)
   inspect(
-    ldtk_pending_transformed_level_iids.contains("level-main"),
+    ldtk_pending_transformed_level_iids().contains("level-main"),
     content="false",
   )
 
@@ -2357,24 +2357,24 @@ test "despawn_ldtk_tree clears intgrid runtime maps and physics components" {
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
   let level_entity = ldtk_level_entity(world, "level-main").unwrap()
-  let layer_entity = ldtk_spawned_layer_instances.to_array()[0].0
-  let cell_entity = ldtk_spawned_int_grid_cells.to_array()[0].0
-  inspect(ldtk_int_grid_colliders.contains(cell_entity), content="true")
-  inspect(@physics2d.colliders.contains(cell_entity), content="true")
+  let layer_entity = ldtk_spawned_layer_instances().to_array()[0].0
+  let cell_entity = ldtk_spawned_int_grid_cells().to_array()[0].0
+  inspect(ldtk_int_grid_colliders().contains(cell_entity), content="true")
+  inspect(@physics2d.colliders().contains(cell_entity), content="true")
 
   despawn_ldtk_tree(world)
   @entity.entity_flush_system(0.0)
 
-  inspect(ldtk_world_instances.contains(world), content="false")
-  inspect(ldtk_level_instances.contains(level_entity), content="false")
-  inspect(ldtk_level_iids.contains(level_entity), content="false")
-  inspect(ldtk_spawned_layer_instances.contains(layer_entity), content="false")
-  inspect(ldtk_grid_coords.contains(cell_entity), content="false")
-  inspect(ldtk_int_grid_cells.contains(cell_entity), content="false")
-  inspect(ldtk_int_grid_colliders.contains(cell_entity), content="false")
-  inspect(@physics2d.colliders.contains(cell_entity), content="false")
-  inspect(@physics2d.shapes.contains(cell_entity), content="false")
-  inspect(@physics2d.areas.contains(cell_entity), content="false")
+  inspect(ldtk_world_instances().contains(world), content="false")
+  inspect(ldtk_level_instances().contains(level_entity), content="false")
+  inspect(ldtk_level_iids().contains(level_entity), content="false")
+  inspect(ldtk_spawned_layer_instances().contains(layer_entity), content="false")
+  inspect(ldtk_grid_coords().contains(cell_entity), content="false")
+  inspect(ldtk_int_grid_cells().contains(cell_entity), content="false")
+  inspect(ldtk_int_grid_colliders().contains(cell_entity), content="false")
+  inspect(@physics2d.colliders().contains(cell_entity), content="false")
+  inspect(@physics2d.shapes().contains(cell_entity), content="false")
+  inspect(@physics2d.areas().contains(cell_entity), content="false")
 
   reset_ldtk_runtime()
 }
@@ -2392,45 +2392,45 @@ test "reset_ldtk_runtime clears runtime maps and intgrid physics components" {
   })
   set_ldtk_level_selection(ldtk_level_selection_index(0))
   let world = spawn_ldtk_world(project)
-  let cell_entity = ldtk_spawned_int_grid_cells.to_array()[0].0
-  inspect(@physics2d.colliders.contains(cell_entity), content="true")
+  let cell_entity = ldtk_spawned_int_grid_cells().to_array()[0].0
+  inspect(@physics2d.colliders().contains(cell_entity), content="true")
 
   reset_ldtk_runtime()
 
-  inspect(ldtk_world_instances.to_array().length(), content="0")
-  inspect(ldtk_level_instances.to_array().length(), content="0")
-  inspect(ldtk_layer_metadata.to_array().length(), content="0")
-  inspect(ldtk_level_backgrounds.to_array().length(), content="0")
-  inspect(ldtk_level_iids.to_array().length(), content="0")
-  inspect(ldtk_entity_iids.to_array().length(), content="0")
-  inspect(ldtk_grid_coords.to_array().length(), content="0")
-  inspect(ldtk_int_grid_cells.to_array().length(), content="0")
-  inspect(ldtk_tile_metadata.to_array().length(), content="0")
-  inspect(ldtk_int_grid_colliders.to_array().length(), content="0")
-  inspect(ldtk_worldly_entities.to_array().length(), content="0")
-  inspect(ldtk_respawns.to_array().length(), content="0")
-  inspect(ldtk_spawned_layer_instances.to_array().length(), content="0")
-  inspect(ldtk_spawned_tile_instances.to_array().length(), content="0")
-  inspect(ldtk_spawned_entity_instances.to_array().length(), content="0")
-  inspect(ldtk_spawned_int_grid_cells.to_array().length(), content="0")
-  inspect(ldtk_entity_spawn_hooks.to_array().length(), content="0")
-  inspect(ldtk_entity_layer_spawn_hooks.to_array().length(), content="0")
+  inspect(ldtk_world_instances().to_array().length(), content="0")
+  inspect(ldtk_level_instances().to_array().length(), content="0")
+  inspect(ldtk_layer_metadata().to_array().length(), content="0")
+  inspect(ldtk_level_backgrounds().to_array().length(), content="0")
+  inspect(ldtk_level_iids().to_array().length(), content="0")
+  inspect(ldtk_entity_iids().to_array().length(), content="0")
+  inspect(ldtk_grid_coords().to_array().length(), content="0")
+  inspect(ldtk_int_grid_cells().to_array().length(), content="0")
+  inspect(ldtk_tile_metadata().to_array().length(), content="0")
+  inspect(ldtk_int_grid_colliders().to_array().length(), content="0")
+  inspect(ldtk_worldly_entities().to_array().length(), content="0")
+  inspect(ldtk_respawns().to_array().length(), content="0")
+  inspect(ldtk_spawned_layer_instances().to_array().length(), content="0")
+  inspect(ldtk_spawned_tile_instances().to_array().length(), content="0")
+  inspect(ldtk_spawned_entity_instances().to_array().length(), content="0")
+  inspect(ldtk_spawned_int_grid_cells().to_array().length(), content="0")
+  inspect(ldtk_entity_spawn_hooks().to_array().length(), content="0")
+  inspect(ldtk_entity_layer_spawn_hooks().to_array().length(), content="0")
   inspect(
-    ldtk_entity_layer_identifier_spawn_hooks.to_array().length(),
+    ldtk_entity_layer_identifier_spawn_hooks().to_array().length(),
     content="0",
   )
-  inspect(ldtk_entity_default_spawn_hook.val is None, content="true")
-  inspect(ldtk_int_grid_layer_spawn_hooks.to_array().length(), content="0")
-  inspect(ldtk_int_grid_cell_spawn_hooks.to_array().length(), content="0")
-  inspect(ldtk_int_grid_value_spawn_hooks.to_array().length(), content="0")
-  inspect(ldtk_int_grid_default_spawn_hook.val is None, content="true")
-  inspect(ldtk_entity_typed_registrations.to_array().length(), content="0")
-  inspect(ldtk_int_cell_typed_registrations.to_array().length(), content="0")
-  inspect(ldtk_pending_transformed_level_iids.to_array().length(), content="0")
-  inspect(@physics2d.colliders.contains(cell_entity), content="false")
-  inspect(@physics2d.shapes.contains(cell_entity), content="false")
-  inspect(@physics2d.areas.contains(cell_entity), content="false")
-  inspect(@physics2d.rigid_bodies.contains(cell_entity), content="false")
+  inspect(ldtk_entity_default_spawn_hook().val is None, content="true")
+  inspect(ldtk_int_grid_layer_spawn_hooks().to_array().length(), content="0")
+  inspect(ldtk_int_grid_cell_spawn_hooks().to_array().length(), content="0")
+  inspect(ldtk_int_grid_value_spawn_hooks().to_array().length(), content="0")
+  inspect(ldtk_int_grid_default_spawn_hook().val is None, content="true")
+  inspect(ldtk_entity_typed_registrations().to_array().length(), content="0")
+  inspect(ldtk_int_cell_typed_registrations().to_array().length(), content="0")
+  inspect(ldtk_pending_transformed_level_iids().to_array().length(), content="0")
+  inspect(@physics2d.colliders().contains(cell_entity), content="false")
+  inspect(@physics2d.shapes().contains(cell_entity), content="false")
+  inspect(@physics2d.areas().contains(cell_entity), content="false")
+  inspect(@physics2d.rigid_bodies().contains(cell_entity), content="false")
 
   cleanup_ldtk_entity(world)
 }

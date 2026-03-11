@@ -162,51 +162,75 @@ pub type PointerEvent = @collision.PointerEvent
 
 ///|
 /// Linear velocities in world space.
-pub let linear_velocities : Map[@entity.Entity, LinearVelocity] = @velocity.velocities
+pub fn linear_velocities() -> Map[@entity.Entity, LinearVelocity] {
+  @velocity.velocities()
+}
 
 ///|
 /// Backward-compatible velocity store alias.
-pub let velocities : Map[@entity.Entity, Velocity] = @velocity.velocities
+pub fn velocities() -> Map[@entity.Entity, Velocity] {
+  @velocity.velocities()
+}
 
 ///|
 /// Collider components.
-pub let colliders : Map[@entity.Entity, Collider] = @collision.colliders
+pub fn colliders() -> Map[@entity.Entity, Collider] {
+  @collision.colliders()
+}
 
 ///|
 /// Explicit rigid-body descriptors.
-pub let rigid_bodies : Map[@entity.Entity, RigidBody] = @collision.rigid_bodies
+pub fn rigid_bodies() -> Map[@entity.Entity, RigidBody] {
+  @collision.rigid_bodies()
+}
 
 ///|
 /// Authored 2D joint descriptors.
-pub let joints : Map[@entity.Entity, Joint] = @collision.joints
+pub fn joints() -> Map[@entity.Entity, Joint] {
+  @collision.joints()
+}
 
 ///|
 /// Authored 2D multibody joint descriptors keyed by the child rigid-body entity.
-pub let multibody_joints : Map[@entity.Entity, MultibodyJoint] = @collision.multibody_joints
+pub fn multibody_joints() -> Map[@entity.Entity, MultibodyJoint] {
+  @collision.multibody_joints()
+}
 
 ///|
 /// Sensor/area components.
-pub let sensors : Map[@entity.Entity, Sensor] = @collision.areas
+pub fn sensors() -> Map[@entity.Entity, Sensor] {
+  @collision.areas()
+}
 
 ///|
 /// Backward-compatible area store alias.
-pub let areas : Map[@entity.Entity, Area] = @collision.areas
+pub fn areas() -> Map[@entity.Entity, Area] {
+  @collision.areas()
+}
 
 ///|
 /// Collider shape components.
-pub let shapes : Map[@entity.Entity, ColliderShape] = @collision.shapes
+pub fn shapes() -> Map[@entity.Entity, ColliderShape] {
+  @collision.shapes()
+}
 
 ///|
 /// Frame-local resolved velocities after physics step.
-pub let resolved_velocities : Map[@entity.Entity, LinearVelocity] = @collision.resolved_velocities
+pub fn resolved_velocities() -> Map[@entity.Entity, LinearVelocity] {
+  @collision.resolved_velocities()
+}
 
 ///|
 /// Grounded entities from latest fixed step.
-pub let grounded_entities : @set.Set[@entity.Entity] = @collision.grounded_entities
+pub fn grounded_entities() -> @set.Set[@entity.Entity] {
+  @collision.grounded_entities()
+}
 
 ///|
 /// Pointer-interactive components.
-pub let pickables : Map[@entity.Entity, Pickable] = @collision.pickables
+pub fn pickables() -> Map[@entity.Entity, Pickable] {
+  @collision.pickables()
+}
 
 ///|
 /// Physics world config.

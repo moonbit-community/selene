@@ -56,7 +56,7 @@ pub fn joint_handle(@entity.Entity) -> @dynamics.ImpulseJointHandle?
 
 pub let joints : Map[@entity.Entity, @Milky2018/selene/collision.Joint]
 
-pub let linear_velocities : Map[@entity.Entity, @velocity.Velocity]
+pub fn linear_velocities() -> Map[@entity.Entity, @velocity.Velocity]
 
 pub fn make_linear_velocity(@math.Vec2D) -> @velocity.Velocity
 
@@ -120,7 +120,7 @@ pub let shapes : Map[@entity.Entity, @Milky2018/selene/collision.CollisionShape]
 
 pub let trigger_event_bus : @event.Events[@Milky2018/selene/collision.TriggerEvent]
 
-pub let velocities : Map[@entity.Entity, @velocity.Velocity]
+pub fn velocities() -> Map[@entity.Entity, @velocity.Velocity]
 
 // Errors
 

@@ -1,4 +1,5 @@
 import {
+  "Milky2018/selene/app",
   "Milky2018/selene/audio",
   "Milky2018/selene/system",
   "Milky2018/selene/state",

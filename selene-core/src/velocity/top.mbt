@@ -29,12 +29,21 @@
 pub(all) struct Velocity(@math.Vec2D) derive(Eq, Show)
 
 ///|
-/// Stores velocity components for all entities in the game world.
-///
-/// This is a global map that associates each entity with its velocity vector.
-/// The velocity determines how fast and in which direction an entity moves per
-/// frame. Entities without an entry in this map are considered to have zero
-/// velocity.
+priv struct VelocityWorldStore {
+  velocities : Map[@entity.Entity, Velocity]
+}
+
+///|
+let velocity_world_stores : Map[UInt, VelocityWorldStore] = Map::new()
+
+///|
+fn velocity_world_store() -> VelocityWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  velocity_world_stores.get_or_init(world_id, () => { velocities: Map::new() })
+}
+
+///|
+/// Returns the current world's velocity component store.
 ///
 /// Example:
 ///
@@ -43,12 +52,14 @@ pub(all) struct Velocity(@math.Vec2D) derive(Eq, Show)
 /// let entity = @entity.Entity::new()
 /// defer entity.destroy()
 ///
-/// @velocity.velocities[entity] = @math.Vec2D(10.0, 5.0)
+/// @velocity.velocities().set(entity, @math.Vec2D(10.0, 5.0))
 ///
 /// // Get velocity for an entity
-/// let entity_vel = @velocity.velocities.get(entity)
+/// let entity_vel = @velocity.velocities().get(entity)
 ///
 /// inspect(entity_vel, content="Some(Velocity(Vec2D(10, 5)))")
 /// ```
 ///
-pub let velocities : Map[@entity.Entity, Velocity] = Map::new()
+pub fn velocities() -> Map[@entity.Entity, Velocity] {
+  velocity_world_store().velocities
+}

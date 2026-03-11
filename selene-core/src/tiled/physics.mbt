@@ -73,10 +73,32 @@ pub struct TiledColliderSpawnedEvent {
 }
 
 ///|
-pub let tiled_colliders : Map[@entity.Entity, TiledColliders] = Map::new()
+priv struct TiledPhysicsWorldStore {
+  tiled_colliders : Map[@entity.Entity, TiledColliders]
+  tiled_collider_origins : Map[@entity.Entity, TiledColliderOrigin]
+}
 
 ///|
-pub let tiled_collider_origins : Map[@entity.Entity, TiledColliderOrigin] = Map::new()
+let tiled_physics_world_stores : Map[UInt, TiledPhysicsWorldStore] = Map::new()
+
+///|
+fn tiled_physics_world_store() -> TiledPhysicsWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  tiled_physics_world_stores.get_or_init(world_id, () => {
+    tiled_colliders: Map::new(),
+    tiled_collider_origins: Map::new(),
+  })
+}
+
+///|
+pub fn tiled_colliders() -> Map[@entity.Entity, TiledColliders] {
+  tiled_physics_world_store().tiled_colliders
+}
+
+///|
+pub fn tiled_collider_origins() -> Map[@entity.Entity, TiledColliderOrigin] {
+  tiled_physics_world_store().tiled_collider_origins
+}
 
 ///|
 pub let tiled_collider_spawned_event_bus : @event.Events[
@@ -133,7 +155,7 @@ fn spawn_tiled_physics_layers(
   layers : Array[TiledLayer],
   settings : TiledPhysicsSettings,
 ) -> Unit {
-  guard tiled_map_storages.get(map_entity) is Some(storage) else { return }
+  guard tiled_map_storages().get(map_entity) is Some(storage) else { return }
   for layer in layers {
     match layer.kind {
       TileLayer(tile_layer) => {
@@ -444,12 +466,12 @@ fn spawn_tiled_physics_spec(
     settings.collision_filter
   }
   if spec.sensor {
-    @physics2d.areas.set(collider_entity, @physics2d.new_sensor(filter))
+    @physics2d.areas().set(collider_entity, @physics2d.new_sensor(filter))
   } else {
-    @physics2d.colliders.set(collider_entity, @physics2d.Collider::new(filter))
+    @physics2d.colliders().set(collider_entity, @physics2d.Collider::new(filter))
   }
   tiled_apply_physics_properties(collider_entity, spec.sensor, spec.properties)
-  @physics2d.shapes.set(collider_entity, spec.shape)
+  @physics2d.shapes().set(collider_entity, spec.shape)
   tiled_set_properties(collider_entity, spec.properties)
   let origin : TiledColliderOrigin = {
     map_entity,
@@ -458,8 +480,8 @@ fn spawn_tiled_physics_spec(
     source_kind: spec.source_kind,
     layer: spec.layer,
   }
-  tiled_collider_origins.set(collider_entity, origin)
-  let colliders = tiled_colliders.get_or_init(spec.source_entity, () => {
+  tiled_collider_origins().set(collider_entity, origin)
+  let colliders = tiled_colliders().get_or_init(spec.source_entity, () => {
     entities: [],
   })
   colliders.entities.push(collider_entity)
@@ -486,10 +508,10 @@ fn tiled_apply_physics_properties(
     tiled_property_bool(properties, "active").unwrap_or(true),
   )
   if sensor {
-    if @physics2d.areas.get(collider_entity) is Some(area) {
+    if @physics2d.areas().get(collider_entity) is Some(area) {
       area.active = active
     }
-  } else if @physics2d.colliders.get(collider_entity) is Some(collider) {
+  } else if @physics2d.colliders().get(collider_entity) is Some(collider) {
     collider.active = active
     if tiled_property_number(properties, "physics_friction") is Some(friction) {
       collider.friction = friction
@@ -505,7 +527,7 @@ fn tiled_apply_physics_properties(
     }
   }
   if tiled_physics_body(properties) is Some(body) {
-    @physics2d.rigid_bodies.set(collider_entity, body)
+    @physics2d.rigid_bodies().set(collider_entity, body)
   }
 }
 

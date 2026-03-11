@@ -27,6 +27,31 @@ priv struct Camera {
 }
 
 ///|
+fn default_camera() -> Camera {
+  {
+    position: @math.Vec2D::zero(),
+    previous_position: @math.Vec2D::zero(),
+    limit_bottom: None,
+    limit_left: None,
+    limit_top: None,
+    limit_right: None,
+    attached_entity: None,
+    offset: @math.Vec2D::zero(),
+    follow_x: true,
+    follow_y: true,
+  }
+}
+
+///|
+let camera_world_states : Map[UInt, Camera] = Map::new()
+
+///|
+fn camera_state() -> Camera {
+  let world_id = @ecs.require_current_world().id()
+  camera_world_states.get_or_init(world_id, default_camera)
+}
+
+///|
 /// Retrieves the current position of the camera in the 2D coordinate system.
 ///
 /// Returns the current camera position as a 2D vector.
@@ -39,11 +64,12 @@ priv struct Camera {
 /// ```
 ///
 pub fn get_position() -> @math.Vec2D {
-  camera.position
+  camera_state().position
 }
 
 ///|
 pub fn sample_position(alpha : Double) -> @math.Vec2D {
+  let camera = camera_state()
   camera.previous_position.scalar_mul(1.0 - alpha) +
   camera.position.scalar_mul(alpha)
 }
@@ -82,6 +108,7 @@ pub fn set_limits(
   left? : Double,
   right? : Double,
 ) -> Unit {
+  let camera = camera_state()
   camera.limit_top = top
   camera.limit_bottom = bottom
   camera.limit_left = left
@@ -108,6 +135,7 @@ pub fn set_limits(
 /// ```
 ///
 pub fn attach_entity(entity : @entity.Entity, offset : @math.Vec2D) -> Unit {
+  let camera = camera_state()
   camera.attached_entity = Some(entity)
   camera.offset = offset
 }
@@ -135,6 +163,7 @@ pub fn attach_entity(entity : @entity.Entity, offset : @math.Vec2D) -> Unit {
 /// ```
 ///
 pub fn set_follow_x(follow : Bool) -> Unit {
+  let camera = camera_state()
   camera.follow_x = follow
 }
 
@@ -161,21 +190,8 @@ pub fn set_follow_x(follow : Bool) -> Unit {
 /// ```
 ///
 pub fn set_follow_y(follow : Bool) -> Unit {
+  let camera = camera_state()
   camera.follow_y = follow
-}
-
-///|
-let camera : Camera = {
-  position: @math.Vec2D::zero(),
-  previous_position: @math.Vec2D::zero(),
-  limit_bottom: None,
-  limit_left: None,
-  limit_top: None,
-  limit_right: None,
-  attached_entity: None,
-  offset: @math.Vec2D::zero(),
-  follow_x: true,
-  follow_y: true,
 }
 
 ///|
@@ -202,8 +218,9 @@ let camera : Camera = {
 /// ```
 ///
 pub fn camera_system(_delta : Double) -> Unit {
+  let camera = camera_state()
   guard camera.attached_entity is Some(e) else { return }
-  guard @transform.positions.get(e) is Some(pos) else { return }
+  guard @transform.positions().get(e) is Some(pos) else { return }
   camera.previous_position = camera.position
   let viewport_size = @system.get_viewport_size()
   let target_position = pos.0 -

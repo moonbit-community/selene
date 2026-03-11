@@ -209,7 +209,7 @@ pub fn instantiate_scene_instance(
   root_transform : @transform3d.Transform3D,
 ) -> SceneInstance {
   let root = @entity.Entity::new()
-  @transform3d.transforms3d.set(root, root_transform)
+  @transform3d.transforms3d().set(root, root_transform)
   let parts : Map[String, @entity.Entity] = Map::new()
   guard scene_templates.get(scene) is Some(template) else {
     return { root, parts, animations: Map::new() }
@@ -402,18 +402,18 @@ fn instantiate_scene_node(
   }
   parts.set(entity_path, entity)
   node_entities.set(node_index, entity)
-  @transform3d.transforms3d.set(entity, node.transform)
+  @transform3d.transforms3d().set(entity, node.transform)
   if node.camera is Some(camera) {
-    @camera3d.cameras3d.set(entity, camera)
+    @camera3d.cameras3d().set(entity, camera)
   }
   if node.directional_light is Some(light) {
-    @render3d.directional_lights3d.set(entity, light)
+    @render3d.directional_lights3d().set(entity, light)
   }
   if node.point_light is Some(light) {
-    @render3d.point_lights3d.set(entity, light)
+    @render3d.point_lights3d().set(entity, light)
   }
   if node.spot_light is Some(light) {
-    @render3d.spot_lights3d.set(entity, light)
+    @render3d.spot_lights3d().set(entity, light)
   }
   if node.renderers.length() == 1 {
     let template_renderer = node.renderers[0]
@@ -425,7 +425,7 @@ fn instantiate_scene_node(
         }
       None => template_renderer.renderer
     }
-    @render3d.mesh3d_renderers.set(entity, renderer)
+    @render3d.mesh3d_renderers().set(entity, renderer)
     if node.skin_index is Some(skin_index) &&
       template_renderer.skinned is Some(skinned) &&
       skinned.influences.length() > 0 {
@@ -449,7 +449,7 @@ fn instantiate_scene_node(
   } else if node.renderers.length() > 1 {
     for primitive_index, template_renderer in node.renderers {
       let primitive_entity = entity.spawn_child()
-      @transform3d.transforms3d.set(
+      @transform3d.transforms3d().set(
         primitive_entity,
         @transform3d.Transform3D::identity(),
       )
@@ -461,7 +461,7 @@ fn instantiate_scene_node(
           }
         None => template_renderer.renderer
       }
-      @render3d.mesh3d_renderers.set(primitive_entity, renderer)
+      @render3d.mesh3d_renderers().set(primitive_entity, renderer)
       parts.set("\{entity_path}/primitive\{primitive_index}", primitive_entity)
       if node.skin_index is Some(skin_index) &&
         template_renderer.skinned is Some(skinned) &&

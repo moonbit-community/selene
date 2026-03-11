@@ -7,7 +7,7 @@ pub(all) enum EventDomain {
 
 ///|
 pub(all) struct EventReader[T] {
-  mut last_seen_id : Int
+  last_seen_by_world : Map[UInt, Int]
   marker : T?
 }
 
@@ -26,26 +26,31 @@ pub(all) struct Trigger[T] {
 }
 
 ///|
-struct EventRecord[T] {
+priv struct EventRecord[T] {
   id : Int
   event : T
 }
 
 ///|
-struct ObserverEntry[T] {
+priv struct ObserverEntry[T] {
   target : @entity.Entity?
   callback : (Trigger[T]) -> Unit
 }
 
 ///|
-pub struct Events[T] {
+struct EventWorldStore[T] {
   mut next_event_id : Int
   mut next_observer_id : Int
-  domain : EventDomain
   mut older : Array[EventRecord[T]]
   mut newer : Array[EventRecord[T]]
   observers : Map[ObserverHandle, ObserverEntry[T]]
   observer_queue : Array[Trigger[T]]
+}
+
+///|
+pub struct Events[T] {
+  domain : EventDomain
+  stores : Map[UInt, EventWorldStore[T]]
   marker : T?
 }
 
@@ -60,8 +65,26 @@ priv struct RegisteredBus {
 let registered_buses : Array[RegisteredBus] = []
 
 ///|
+fn current_world_id() -> UInt {
+  @ecs.require_current_world().id()
+}
+
+///|
+fn[T] world_store(events : Events[T]) -> EventWorldStore[T] {
+  let world_id = current_world_id()
+  events.stores.get_or_init(world_id, () => {
+    next_event_id: 0,
+    next_observer_id: 0,
+    older: [],
+    newer: [],
+    observers: Map::new(),
+    observer_queue: [],
+  })
+}
+
+///|
 pub fn[T] EventReader::new() -> EventReader[T] {
-  { last_seen_id: -1, marker: None }
+  { last_seen_by_world: Map::new(), marker: None }
 }
 
 ///|
@@ -69,21 +92,24 @@ pub fn[T] EventReader::read(
   self : EventReader[T],
   events : Events[T],
 ) -> Array[T] {
+  let world_id = current_world_id()
+  let last_seen = self.last_seen_by_world.get(world_id).unwrap_or(-1)
+  let store = world_store(events)
   let values : Array[T] = []
-  let mut latest_id = self.last_seen_id
-  for record in events.older {
-    if record.id > self.last_seen_id {
+  let mut latest_id = last_seen
+  for record in store.older {
+    if record.id > last_seen {
       values.push(record.event)
       latest_id = record.id
     }
   }
-  for record in events.newer {
-    if record.id > self.last_seen_id {
+  for record in store.newer {
+    if record.id > last_seen {
       values.push(record.event)
       latest_id = record.id
     }
   }
-  self.last_seen_id = latest_id
+  self.last_seen_by_world.set(world_id, latest_id)
   values
 }
 
@@ -109,13 +135,8 @@ pub fn[T] EventWriter::trigger(
 ///|
 pub fn[T] Events::new(domain? : EventDomain = EventDomain::Frame) -> Events[T] {
   {
-    next_event_id: 0,
-    next_observer_id: 0,
     domain,
-    older: [],
-    newer: [],
-    observers: Map::new(),
-    observer_queue: [],
+    stores: Map::new(),
     marker: None,
   }
 }
@@ -142,9 +163,10 @@ pub fn[T] Events::read(self : Events[T], reader : EventReader[T]) -> Array[T] {
 
 ///|
 pub fn[T] Events::send(self : Events[T], event : T) -> Unit {
-  let id = self.next_event_id
-  self.next_event_id += 1
-  self.newer.push({ id, event })
+  let store = world_store(self)
+  let id = store.next_event_id
+  store.next_event_id += 1
+  store.newer.push({ id, event })
 }
 
 ///|
@@ -153,8 +175,9 @@ pub fn[T] Events::trigger(
   event : T,
   target : @entity.Entity?,
 ) -> Unit {
+  let store = world_store(self)
   self.send(event)
-  self.observer_queue.push({ event, target })
+  store.observer_queue.push({ event, target })
 }
 
 ///|
@@ -162,9 +185,10 @@ pub fn[T] Events::observe_global(
   self : Events[T],
   callback : (Trigger[T]) -> Unit,
 ) -> ObserverHandle {
-  let handle = ObserverHandle(self.next_observer_id)
-  self.next_observer_id += 1
-  self.observers.set(handle, { target: None, callback })
+  let store = world_store(self)
+  let handle = ObserverHandle(store.next_observer_id)
+  store.next_observer_id += 1
+  store.observers.set(handle, { target: None, callback })
   handle
 }
 
@@ -174,34 +198,39 @@ pub fn[T] Events::observe_entity(
   entity : @entity.Entity,
   callback : (Trigger[T]) -> Unit,
 ) -> ObserverHandle {
-  let handle = ObserverHandle(self.next_observer_id)
-  self.next_observer_id += 1
-  self.observers.set(handle, { target: Some(entity), callback })
+  let store = world_store(self)
+  let handle = ObserverHandle(store.next_observer_id)
+  store.next_observer_id += 1
+  store.observers.set(handle, { target: Some(entity), callback })
   handle
 }
 
 ///|
 pub fn[T] Events::unobserve(self : Events[T], handle : ObserverHandle) -> Unit {
-  self.observers.remove(handle)
+  let store = world_store(self)
+  store.observers.remove(handle)
 }
 
 ///|
 pub fn[T] Events::clear(self : Events[T]) -> Unit {
-  self.older.clear()
-  self.newer.clear()
-  self.observer_queue.clear()
+  let store = world_store(self)
+  store.older.clear()
+  store.newer.clear()
+  store.observer_queue.clear()
 }
 
 ///|
 pub fn[T] Events::update(self : Events[T]) -> Unit {
-  self.older = self.newer
-  self.newer = []
+  let store = world_store(self)
+  store.older = store.newer
+  store.newer = []
 }
 
 ///|
 pub fn[T] Events::dispatch_observers(self : Events[T]) -> Unit {
-  for item in self.observer_queue {
-    for _handle, observer in self.observers {
+  let store = world_store(self)
+  for item in store.observer_queue {
+    for _handle, observer in store.observers {
       let deliver = match observer.target {
         None => true
         Some(entity) =>
@@ -215,7 +244,7 @@ pub fn[T] Events::dispatch_observers(self : Events[T]) -> Unit {
       }
     }
   }
-  self.observer_queue.clear()
+  store.observer_queue.clear()
 }
 
 ///|

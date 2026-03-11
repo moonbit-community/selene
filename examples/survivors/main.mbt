@@ -32,7 +32,7 @@ const FPS : Double = 60
 
 ///|
 pub fn run() -> Unit {
-  @system.App::new()
+  @app.App::new()
   .with_viewport_width(VIEWPORT_WIDTH)
   .with_viewport_height(VIEWPORT_HEIGHT)
   .with_image_smooth(false)
@@ -40,18 +40,18 @@ pub fn run() -> Unit {
   .with_fps(FPS.to_uint())
   .add_plugin(@plugins.default_plugin)
   // .add_plugin(@plugins.debug_plugin)
-  .add_system(game_start, schedule=Startup)
-  .add_system(spawn_enemy_system, schedule=Startup)
-  .add_system(player_update_system)
-  .add_system(player_shooting_system)
-  .add_system(enemy_ai_system)
-  .add_system(enemy_collision_system)
-  .add_system(devil_shooting_system)
-  .add_system(player_bullet_trigger_system)
-  .add_system(survivors_ui_pointer_system, schedule=PostUpdate)
-  .add_system(check_victory_system)
-  .add_system(game_timer_system)
-  .add_system(score_blink_system)
+  .add_system(fn(_world, delta) { game_start(delta) }, schedule=Startup)
+  .add_system(fn(_world, delta) { spawn_enemy_system(delta) }, schedule=Startup)
+  .add_system(fn(_world, delta) { player_update_system(delta) })
+  .add_system(fn(_world, delta) { player_shooting_system(delta) })
+  .add_system(fn(_world, delta) { enemy_ai_system(delta) })
+  .add_system(fn(_world, delta) { enemy_collision_system(delta) })
+  .add_system(fn(_world, delta) { devil_shooting_system(delta) })
+  .add_system(fn(_world, delta) { player_bullet_trigger_system(delta) })
+  .add_system(fn(_world, delta) { survivors_ui_pointer_system(delta) }, schedule=PostUpdate)
+  .add_system(fn(_world, delta) { check_victory_system(delta) })
+  .add_system(fn(_world, delta) { game_timer_system(delta) })
+  .add_system(fn(_world, delta) { score_blink_system(delta) })
   .run()
 }
 
@@ -121,38 +121,38 @@ priv struct GameOverPanel {
 ///|
 fn create_level_up_panel_entity() -> @entity.Entity {
   let panel = @entity.Entity::new()
-  @ui.nodes.set(
+  @ui.nodes().set(
     panel,
     @ui.Node::absolute(
       @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 80.0, VIEWPORT_HEIGHT / 2.0 - 120.0),
       size=@math.Vec2D(160.0, 250.0),
     ),
   )
-  @ui.z_indexes.set(panel, @ui.ZIndex::new(HUD_ZINDEX + 10))
-  @ui.background_colors.set(
+  @ui.z_indexes().set(panel, @ui.ZIndex::new(HUD_ZINDEX + 10))
+  @ui.background_colors().set(
     panel,
     @ui.BackgroundColor::from_css("rgba(13, 170, 26, 1)"),
   )
-  @ui.border_colors.set(panel, @ui.BorderColor::from_css("black"))
+  @ui.border_colors().set(panel, @ui.BorderColor::from_css("black"))
   panel
 }
 
 ///|
 fn create_game_over_panel_entity() -> @entity.Entity {
   let panel = @entity.Entity::new()
-  @ui.nodes.set(
+  @ui.nodes().set(
     panel,
     @ui.Node::absolute(
       @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 100.0, VIEWPORT_HEIGHT / 2.0 - 60.0),
       size=@math.Vec2D(200.0, 120.0),
     ),
   )
-  @ui.z_indexes.set(panel, @ui.ZIndex::new(HUD_ZINDEX + 10))
-  @ui.background_colors.set(
+  @ui.z_indexes().set(panel, @ui.ZIndex::new(HUD_ZINDEX + 10))
+  @ui.background_colors().set(
     panel,
     @ui.BackgroundColor::from_css("rgba(0, 0, 0, 0.8)"),
   )
-  @ui.border_colors.set(panel, @ui.BorderColor::from_css("white"))
+  @ui.border_colors().set(panel, @ui.BorderColor::from_css("white"))
   panel
 }
 
@@ -585,11 +585,11 @@ fn restart_game() -> Unit {
   reset_wave_state()
 
   // Reset player position
-  @transform.positions.set(
+  @transform.positions().set(
     game_state.player_entity,
     @math.Vec2D(MAP_WIDTH / 2.0, MAP_HEIGHT / 2.0),
   )
-  @physics2d.linear_velocities.set(
+  @physics2d.linear_velocities().set(
     game_state.player_entity,
     @math.Vec2D::zero(),
   )

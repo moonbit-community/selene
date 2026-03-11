@@ -75,14 +75,14 @@ let player_hit_animation : @sprite.Animation = @sprite.Animation::new(
 ///|
 fn add_player(pos : @math.Vec2D) -> Unit {
   let player_sprite = @sprite.Sprite::from_animation(player_idle_animation, 10)
-  @sprite.sprites.set(game_state.player, player_sprite)
-  @physics2d.linear_velocities.set(game_state.player, @math.Vec2D::zero())
-  @transform.positions.set(game_state.player, pos)
-  @physics2d.shapes.set(
+  @sprite.sprites().set(game_state.player, player_sprite)
+  @physics2d.linear_velocities().set(game_state.player, @math.Vec2D::zero())
+  @transform.positions().set(game_state.player, pos)
+  @physics2d.shapes().set(
     game_state.player,
     Rect(size=@math.Vec2D(24.0, 32.0), offset=@math.Vec2D(4.0, 0.0)),
   )
-  @physics2d.colliders.set(
+  @physics2d.colliders().set(
     game_state.player,
     @physics2d.Collider::new(
       @physics2d.CollisionFilter::new(player_collision_group, [
@@ -133,11 +133,12 @@ priv enum BirdContactOutcome {
 
 ///|
 fn entity_rect(entity : @entity.Entity) -> @math.Rect? {
-  guard @transform.positions.get(entity) is Some(position) else { return None }
-  guard @physics2d.shapes.get(entity) is Some(shape) else { return None }
+  guard @transform.positions().get(entity) is Some(position) else { return None }
+  guard @physics2d.shapes().get(entity) is Some(shape) else { return None }
   match shape {
     Rect(size~, offset~) =>
       Some(@math.Rect::{ position: position.0 + offset, size })
+    _ => None
   }
 }
 
@@ -205,19 +206,19 @@ fn apply_stomp_bounce(player_rect : @math.Rect, bird_rect : @math.Rect) -> Unit 
   let snap_delta_y = bird_rect.position[Y] -
     (player_rect.position[Y] + player_rect.size[Y])
   if snap_delta_y < 0.0 {
-    guard @transform.positions.get(game_state.player) is Some(player_position)
-    @transform.positions[game_state.player] = player_position.0.update(
+    guard @transform.positions().get(game_state.player) is Some(player_position)
+    @transform.positions()[game_state.player] = player_position.0.update(
       Y,
       player_position.0[Y] + snap_delta_y,
     )
   }
   game_state.pending_bounce_velocity_y = Some(-BUMP_V)
-  let bounce_velocity = @physics2d.linear_velocities
+  let bounce_velocity = @physics2d.linear_velocities()
     .get(game_state.player)
     .map_or(@math.Vec2D(0.0, -BUMP_V), fn(velocity) {
       velocity.0.update(Y, -BUMP_V)
     })
-  @physics2d.linear_velocities[game_state.player] = bounce_velocity
+  @physics2d.linear_velocities()[game_state.player] = bounce_velocity
 }
 
 ///|
@@ -237,7 +238,7 @@ fn player_collision_system(delta : Double) -> Unit {
     game_state.hurt_timer -= 1.0
   }
   guard entity_rect(game_state.player) is Some(player_rect) else { return }
-  let player_resolved_velocity = @physics2d.resolved_velocities
+  let player_resolved_velocity = @physics2d.resolved_velocities()
     .get(game_state.player)
     .map_or(@math.Vec2D::zero(), fn(v) { v.0 })
   let player_prev_rect = player_rect.shift(
@@ -247,7 +248,7 @@ fn player_collision_system(delta : Double) -> Unit {
     guard bird_entity.is_alive() else { continue }
     guard !bird.is_hurt else { continue }
     guard entity_rect(bird_entity) is Some(bird_rect) else { continue }
-    let bird_resolved_velocity = @physics2d.resolved_velocities
+    let bird_resolved_velocity = @physics2d.resolved_velocities()
       .get(bird_entity)
       .map_or(@math.Vec2D::zero(), fn(v) { v.0 })
     let bird_prev_rect = bird_rect.shift(
@@ -276,7 +277,7 @@ fn player_collision_system(delta : Double) -> Unit {
 ///|
 fn player_state_system(delta : Double) -> Unit {
   let player_state = player_state_machine.get()
-  let resolved_velocity = @physics2d.resolved_velocities
+  let resolved_velocity = @physics2d.resolved_velocities()
     .get(game_state.player)
     .unwrap_or(@math.Vec2D::zero())
   let velocity = player_motion_base_velocity(
@@ -377,7 +378,7 @@ fn player_state_system(delta : Double) -> Unit {
   if new_velocity_y > MAX_FALL_V {
     new_velocity_y = MAX_FALL_V
   }
-  @physics2d.linear_velocities[game_state.player] = @math.Vec2D(
+  @physics2d.linear_velocities()[game_state.player] = @math.Vec2D(
     new_velocity_x, new_velocity_y,
   )
 }

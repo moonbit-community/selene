@@ -20,16 +20,46 @@ pub(all) struct RenderLayers {
 } derive(Eq, Show)
 
 ///|
-pub let visibilities : Map[@entity.Entity, Visibility] = Map::new()
+priv struct VisibilityWorldStore {
+  visibilities : Map[@entity.Entity, Visibility]
+  inherited_visibilities : Map[@entity.Entity, InheritedVisibility]
+  view_visibilities : Map[@entity.Entity, ViewVisibility]
+  render_layers : Map[@entity.Entity, RenderLayers]
+}
 
 ///|
-pub let inherited_visibilities : Map[@entity.Entity, InheritedVisibility] = Map::new()
+let visibility_world_stores : Map[UInt, VisibilityWorldStore] = Map::new()
 
 ///|
-pub let view_visibilities : Map[@entity.Entity, ViewVisibility] = Map::new()
+fn visibility_world_store() -> VisibilityWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  visibility_world_stores.get_or_init(world_id, () => {
+    visibilities: Map::new(),
+    inherited_visibilities: Map::new(),
+    view_visibilities: Map::new(),
+    render_layers: Map::new(),
+  })
+}
 
 ///|
-pub let render_layers : Map[@entity.Entity, RenderLayers] = Map::new()
+pub fn visibilities() -> Map[@entity.Entity, Visibility] {
+  visibility_world_store().visibilities
+}
+
+///|
+pub fn inherited_visibilities() -> Map[@entity.Entity, InheritedVisibility] {
+  visibility_world_store().inherited_visibilities
+}
+
+///|
+pub fn view_visibilities() -> Map[@entity.Entity, ViewVisibility] {
+  visibility_world_store().view_visibilities
+}
+
+///|
+pub fn render_layers() -> Map[@entity.Entity, RenderLayers] {
+  visibility_world_store().render_layers
+}
 
 ///|
 pub fn default_render_layers() -> RenderLayers {
@@ -57,7 +87,7 @@ pub fn matches(lhs : RenderLayers, rhs : RenderLayers) -> Bool {
 
 ///|
 pub fn entity_render_layers(entity : @entity.Entity) -> RenderLayers {
-  render_layers.get(entity).unwrap_or(default_render_layers())
+  render_layers().get(entity).unwrap_or(default_render_layers())
 }
 
 ///|
@@ -68,7 +98,7 @@ fn compute_inherited_visibility(
   if cache.get(entity) is Some(visible) {
     return visible
   }
-  let own_visible = visibilities.get(entity).unwrap_or(Visible) is Visible
+  let own_visible = visibilities().get(entity).unwrap_or(Visible) is Visible
   let parent_visible = match entity.get_parent() {
     Some(parent) => compute_inherited_visibility(parent, cache)
     None => true
@@ -80,6 +110,10 @@ fn compute_inherited_visibility(
 
 ///|
 pub fn visibility_propagate_system(_delta : Double) -> Unit {
+  let inherited_visibilities = inherited_visibilities()
+  let view_visibilities = view_visibilities()
+  let render_layers = render_layers()
+  let visibilities = visibilities()
   let cache : Map[@entity.Entity, Bool] = Map::new()
   for entity in @entity.iter_entities() {
     let visible = compute_inherited_visibility(entity, cache)
@@ -114,5 +148,5 @@ pub fn visibility_propagate_system(_delta : Double) -> Unit {
 
 ///|
 pub fn is_visible(entity : @entity.Entity) -> Bool {
-  view_visibilities.get(entity).map(fn(v) { v.visible }).unwrap_or(true)
+  view_visibilities().get(entity).map(fn(v) { v.visible }).unwrap_or(true)
 }

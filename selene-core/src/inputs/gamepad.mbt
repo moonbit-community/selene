@@ -115,41 +115,95 @@ pub fn GamepadAxisInput::new(
 }
 
 ///|
+priv struct GamepadWorldStore {
+  connected_gamepads : Set[Gamepad]
+  pressed_gamepad_buttons : Set[GamepadButtonInput]
+  gamepad_axis_values : Map[GamepadAxisInput, Double]
+  just_connected_gamepads : Set[Gamepad]
+  just_disconnected_gamepads : Set[Gamepad]
+  just_pressed_gamepad_buttons : Set[GamepadButtonInput]
+  just_released_gamepad_buttons : Set[GamepadButtonInput]
+  last_connected_gamepads : Set[Gamepad]
+  last_pressed_gamepad_buttons : Set[GamepadButtonInput]
+  last_gamepad_axis_values : Map[GamepadAxisInput, Double]
+}
+
+///|
+let gamepad_world_stores : Map[UInt, GamepadWorldStore] = Map::new()
+
+///|
+fn gamepad_world_store() -> GamepadWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  gamepad_world_stores.get_or_init(world_id, () => {
+    connected_gamepads: Set::new(),
+    pressed_gamepad_buttons: Set::new(),
+    gamepad_axis_values: Map::new(),
+    just_connected_gamepads: Set::new(),
+    just_disconnected_gamepads: Set::new(),
+    just_pressed_gamepad_buttons: Set::new(),
+    just_released_gamepad_buttons: Set::new(),
+    last_connected_gamepads: Set::new(),
+    last_pressed_gamepad_buttons: Set::new(),
+    last_gamepad_axis_values: Map::new(),
+  })
+}
+
+///|
 /// Connected gamepads in the current frame.
-pub let connected_gamepads : Set[Gamepad] = Set::new()
+pub fn connected_gamepads() -> Set[Gamepad] {
+  gamepad_world_store().connected_gamepads
+}
 
 ///|
 /// Buttons currently pressed in the current frame.
-pub let pressed_gamepad_buttons : Set[GamepadButtonInput] = Set::new()
+pub fn pressed_gamepad_buttons() -> Set[GamepadButtonInput] {
+  gamepad_world_store().pressed_gamepad_buttons
+}
 
 ///|
 /// Current axis values in the current frame.
-pub let gamepad_axis_values : Map[GamepadAxisInput, Double] = Map::new()
+pub fn gamepad_axis_values() -> Map[GamepadAxisInput, Double] {
+  gamepad_world_store().gamepad_axis_values
+}
 
 ///|
 /// Gamepads that became connected in this frame.
-pub let just_connected_gamepads : Set[Gamepad] = Set::new()
+pub fn just_connected_gamepads() -> Set[Gamepad] {
+  gamepad_world_store().just_connected_gamepads
+}
 
 ///|
 /// Gamepads that became disconnected in this frame.
-pub let just_disconnected_gamepads : Set[Gamepad] = Set::new()
+pub fn just_disconnected_gamepads() -> Set[Gamepad] {
+  gamepad_world_store().just_disconnected_gamepads
+}
 
 ///|
 /// Buttons that transitioned to pressed in this frame.
-pub let just_pressed_gamepad_buttons : Set[GamepadButtonInput] = Set::new()
+pub fn just_pressed_gamepad_buttons() -> Set[GamepadButtonInput] {
+  gamepad_world_store().just_pressed_gamepad_buttons
+}
 
 ///|
 /// Buttons that transitioned to released in this frame.
-pub let just_released_gamepad_buttons : Set[GamepadButtonInput] = Set::new()
+pub fn just_released_gamepad_buttons() -> Set[GamepadButtonInput] {
+  gamepad_world_store().just_released_gamepad_buttons
+}
 
 ///|
-let last_connected_gamepads : Set[Gamepad] = Set::new()
+fn last_connected_gamepads() -> Set[Gamepad] {
+  gamepad_world_store().last_connected_gamepads
+}
 
 ///|
-let last_pressed_gamepad_buttons : Set[GamepadButtonInput] = Set::new()
+fn last_pressed_gamepad_buttons() -> Set[GamepadButtonInput] {
+  gamepad_world_store().last_pressed_gamepad_buttons
+}
 
 ///|
-let last_gamepad_axis_values : Map[GamepadAxisInput, Double] = Map::new()
+fn last_gamepad_axis_values() -> Map[GamepadAxisInput, Double] {
+  gamepad_world_store().last_gamepad_axis_values
+}
 
 ///|
 pub let gamepad_connection_event_bus : @event.Events[GamepadConnectionEvent] = @event.Events::new()
@@ -169,17 +223,17 @@ fn init {
 
 ///|
 pub fn is_gamepad_connected(gamepad : Gamepad) -> Bool {
-  connected_gamepads.contains(gamepad)
+  connected_gamepads().contains(gamepad)
 }
 
 ///|
 pub fn is_gamepad_just_connected(gamepad : Gamepad) -> Bool {
-  just_connected_gamepads.contains(gamepad)
+  just_connected_gamepads().contains(gamepad)
 }
 
 ///|
 pub fn is_gamepad_just_disconnected(gamepad : Gamepad) -> Bool {
-  just_disconnected_gamepads.contains(gamepad)
+  just_disconnected_gamepads().contains(gamepad)
 }
 
 ///|
@@ -187,7 +241,7 @@ pub fn is_gamepad_button_pressed(
   gamepad : Gamepad,
   button : GamepadButton,
 ) -> Bool {
-  pressed_gamepad_buttons.contains(GamepadButtonInput::new(gamepad, button))
+  pressed_gamepad_buttons().contains(GamepadButtonInput::new(gamepad, button))
 }
 
 ///|
@@ -203,7 +257,7 @@ pub fn is_gamepad_button_just_pressed(
   gamepad : Gamepad,
   button : GamepadButton,
 ) -> Bool {
-  just_pressed_gamepad_buttons.contains(
+  just_pressed_gamepad_buttons().contains(
     GamepadButtonInput::new(gamepad, button),
   )
 }
@@ -213,14 +267,14 @@ pub fn is_gamepad_button_just_released(
   gamepad : Gamepad,
   button : GamepadButton,
 ) -> Bool {
-  just_released_gamepad_buttons.contains(
+  just_released_gamepad_buttons().contains(
     GamepadButtonInput::new(gamepad, button),
   )
 }
 
 ///|
 pub fn gamepad_axis_value(gamepad : Gamepad, axis : GamepadAxis) -> Double {
-  gamepad_axis_values.get(GamepadAxisInput::new(gamepad, axis)).unwrap_or(0.0)
+  gamepad_axis_values().get(GamepadAxisInput::new(gamepad, axis)).unwrap_or(0.0)
 }
 
 ///|
@@ -249,57 +303,57 @@ pub fn gamepad_triggers(gamepad : Gamepad) -> @math.Vec2D {
 
 ///|
 pub fn advanced_gamepad_system(_delta : Double) -> Unit {
-  just_connected_gamepads.clear()
-  for gamepad in connected_gamepads.difference(last_connected_gamepads) {
-    just_connected_gamepads.add(gamepad)
+  just_connected_gamepads().clear()
+  for gamepad in connected_gamepads().difference(last_connected_gamepads()) {
+    just_connected_gamepads().add(gamepad)
     gamepad_connection_event_bus.send({ gamepad, connected: true })
   }
 
-  just_disconnected_gamepads.clear()
-  for gamepad in last_connected_gamepads.difference(connected_gamepads) {
-    just_disconnected_gamepads.add(gamepad)
+  just_disconnected_gamepads().clear()
+  for gamepad in last_connected_gamepads().difference(connected_gamepads()) {
+    just_disconnected_gamepads().add(gamepad)
     gamepad_connection_event_bus.send({ gamepad, connected: false })
   }
 
-  just_pressed_gamepad_buttons.clear()
-  for input in pressed_gamepad_buttons.difference(last_pressed_gamepad_buttons) {
-    just_pressed_gamepad_buttons.add(input)
+  just_pressed_gamepad_buttons().clear()
+  for input in pressed_gamepad_buttons().difference(last_pressed_gamepad_buttons()) {
+    just_pressed_gamepad_buttons().add(input)
     gamepad_button_event_bus.send({ input, state: Pressed })
   }
 
-  just_released_gamepad_buttons.clear()
-  for input in last_pressed_gamepad_buttons.difference(pressed_gamepad_buttons) {
-    just_released_gamepad_buttons.add(input)
+  just_released_gamepad_buttons().clear()
+  for input in last_pressed_gamepad_buttons().difference(pressed_gamepad_buttons()) {
+    just_released_gamepad_buttons().add(input)
     gamepad_button_event_bus.send({ input, state: Released })
   }
 
   let stale_axes : Array[GamepadAxisInput] = []
-  for axis_input, _value in gamepad_axis_values {
-    if !connected_gamepads.contains(axis_input.gamepad) {
+  for axis_input, _value in gamepad_axis_values() {
+    if !connected_gamepads().contains(axis_input.gamepad) {
       stale_axes.push(axis_input)
     }
   }
   for axis_input in stale_axes {
-    gamepad_axis_values.remove(axis_input)
-    last_gamepad_axis_values.remove(axis_input)
+    gamepad_axis_values().remove(axis_input)
+    last_gamepad_axis_values().remove(axis_input)
   }
 
-  for axis_input, value in gamepad_axis_values {
-    let previous = last_gamepad_axis_values.get(axis_input).unwrap_or(0.0)
+  for axis_input, value in gamepad_axis_values() {
+    let previous = last_gamepad_axis_values().get(axis_input).unwrap_or(0.0)
     let delta = value - previous
     if delta.abs() > 0.00001 {
       gamepad_axis_event_bus.send({ input: axis_input, value, delta })
     }
-    last_gamepad_axis_values.set(axis_input, value)
+    last_gamepad_axis_values().set(axis_input, value)
   }
 
-  last_connected_gamepads.clear()
-  for gamepad in connected_gamepads {
-    last_connected_gamepads.add(gamepad)
+  last_connected_gamepads().clear()
+  for gamepad in connected_gamepads() {
+    last_connected_gamepads().add(gamepad)
   }
 
-  last_pressed_gamepad_buttons.clear()
-  for input in pressed_gamepad_buttons {
-    last_pressed_gamepad_buttons.add(input)
+  last_pressed_gamepad_buttons().clear()
+  for input in pressed_gamepad_buttons() {
+    last_pressed_gamepad_buttons().add(input)
   }
 }

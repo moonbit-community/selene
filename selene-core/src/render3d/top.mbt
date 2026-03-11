@@ -103,29 +103,69 @@ pub(all) struct Mesh3DRenderer {
 } derive(Eq, Show)
 
 ///|
-pub let mesh3d_renderers : Map[@entity.Entity, Mesh3DRenderer] = Map::new()
+priv struct Render3DComponentWorldStore {
+  mesh3d_renderers : Map[@entity.Entity, Mesh3DRenderer]
+  directional_lights3d : Map[@entity.Entity, DirectionalLight3D]
+  point_lights3d : Map[@entity.Entity, PointLight3D]
+  spot_lights3d : Map[@entity.Entity, SpotLight3D]
+}
 
 ///|
-pub let directional_lights3d : Map[@entity.Entity, DirectionalLight3D] = Map::new()
+let render3d_component_world_stores : Map[UInt, Render3DComponentWorldStore] =
+  Map::new()
 
 ///|
-pub let point_lights3d : Map[@entity.Entity, PointLight3D] = Map::new()
+fn render3d_component_world_store() -> Render3DComponentWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  render3d_component_world_stores.get_or_init(world_id, () => {
+    mesh3d_renderers: Map::new(),
+    directional_lights3d: Map::new(),
+    point_lights3d: Map::new(),
+    spot_lights3d: Map::new(),
+  })
+}
 
 ///|
-pub let spot_lights3d : Map[@entity.Entity, SpotLight3D] = Map::new()
+pub fn mesh3d_renderers() -> Map[@entity.Entity, Mesh3DRenderer] {
+  render3d_component_world_store().mesh3d_renderers
+}
 
 ///|
-let ambient_light3d : Ref[AmbientLight3D?] = Ref::new(None)
+pub fn directional_lights3d() -> Map[@entity.Entity, DirectionalLight3D] {
+  render3d_component_world_store().directional_lights3d
+}
 
 ///|
-let directional_light_shadow_map3d : Ref[DirectionalLightShadowMap3D] = Ref::new(
-  @render3d_types.default_directional_light_shadow_map3d(),
-)
+pub fn point_lights3d() -> Map[@entity.Entity, PointLight3D] {
+  render3d_component_world_store().point_lights3d
+}
 
 ///|
-let point_light_shadow_map3d : Ref[PointLightShadowMap3D] = Ref::new(
-  @render3d_types.default_point_light_shadow_map3d(),
-)
+pub fn spot_lights3d() -> Map[@entity.Entity, SpotLight3D] {
+  render3d_component_world_store().spot_lights3d
+}
+
+///|
+priv struct Render3DWorldState {
+  mut ambient_light : AmbientLight3D?
+  mut directional_shadow_map : DirectionalLightShadowMap3D
+  mut point_shadow_map : PointLightShadowMap3D
+  mut extracted_frame : RenderFrame3D
+}
+
+///|
+let render3d_world_states : Map[UInt, Render3DWorldState] = Map::new()
+
+///|
+fn render3d_world_state() -> Render3DWorldState {
+  let world_id = @ecs.require_current_world().id()
+  render3d_world_states.get_or_init(world_id, () => {
+    ambient_light: None,
+    directional_shadow_map: @render3d_types.default_directional_light_shadow_map3d(),
+    point_shadow_map: @render3d_types.default_point_light_shadow_map3d(),
+    extracted_frame: empty_render_frame3d(),
+  })
+}
 
 ///|
 let meshes : Map[MeshHandle, MeshAsset] = Map::new()
@@ -168,9 +208,6 @@ let released_material_assets : Array[MaterialHandle] = []
 
 ///|
 let released_image_assets : Array[ImageHandle] = []
-
-///|
-let extracted_frame3d : Ref[RenderFrame3D] = Ref::new(empty_render_frame3d())
 
 ///|
 pub fn empty_render_frame3d() -> RenderFrame3D {
@@ -398,19 +435,20 @@ pub fn get_scene_path(handle : SceneHandle) -> String? {
 
 ///|
 pub fn set_ambient_light3d(light : AmbientLight3D?) -> Unit {
-  ambient_light3d.val = light
+  render3d_world_state().ambient_light = light
 }
 
 ///|
 pub fn get_ambient_light3d() -> AmbientLight3D? {
-  ambient_light3d.val
+  render3d_world_state().ambient_light
 }
 
 ///|
 pub fn set_directional_light_shadow_map3d(
   resource : DirectionalLightShadowMap3D,
 ) -> Unit {
-  directional_light_shadow_map3d.val = {
+  let state = render3d_world_state()
+  state.directional_shadow_map = {
     size: if resource.size < 1 {
       1
     } else {
@@ -421,12 +459,13 @@ pub fn set_directional_light_shadow_map3d(
 
 ///|
 pub fn get_directional_light_shadow_map3d() -> DirectionalLightShadowMap3D {
-  directional_light_shadow_map3d.val
+  render3d_world_state().directional_shadow_map
 }
 
 ///|
 pub fn set_point_light_shadow_map3d(resource : PointLightShadowMap3D) -> Unit {
-  point_light_shadow_map3d.val = {
+  let state = render3d_world_state()
+  state.point_shadow_map = {
     size: if resource.size < 1 {
       1
     } else {
@@ -437,7 +476,7 @@ pub fn set_point_light_shadow_map3d(resource : PointLightShadowMap3D) -> Unit {
 
 ///|
 pub fn get_point_light_shadow_map3d() -> PointLightShadowMap3D {
-  point_light_shadow_map3d.val
+  render3d_world_state().point_shadow_map
 }
 
 ///|
@@ -567,19 +606,20 @@ fn is_visible_in_camera_frustum(
 
 ///|
 pub fn render3d_extract_system(_delta : Double) -> Unit {
+  let state = render3d_world_state()
   let frame = empty_render_frame3d()
   let mut active_camera_layers = @visibility.default_render_layers()
-  if @camera3d.active_camera3d.val is Some(camera) {
+  if @camera3d.get_active_camera3d() is Some(camera) {
     frame.camera = Some(camera.camera)
     frame.clear_color = camera.camera.clear_color
     active_camera_layers = @visibility.entity_render_layers(camera.entity)
   }
-  frame.ambient_light = ambient_light3d.val
-  frame.directional_shadow_map_size = directional_light_shadow_map3d.val.size
-  frame.point_shadow_map_size = point_light_shadow_map3d.val.size
+  frame.ambient_light = state.ambient_light
+  frame.directional_shadow_map_size = state.directional_shadow_map.size
+  frame.point_shadow_map_size = state.point_shadow_map.size
 
   let items : Array[RenderItem3D] = []
-  for entity, renderer in mesh3d_renderers {
+  for entity, renderer in mesh3d_renderers() {
     if !entity.is_alive() ||
       !renderer.visible ||
       !@visibility.is_visible(entity) {
@@ -593,9 +633,9 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
     }
     guard meshes.get(renderer.mesh) is Some(_) else { continue }
     guard materials.get(renderer.material) is Some(_) else { continue }
-    let transform = @transform3d.global_transforms3d
+    let transform = @transform3d.global_transforms3d()
       .get(entity)
-      .unwrap_or(@transform3d.transforms3d.get(entity).unwrap_or_default())
+      .unwrap_or(@transform3d.transforms3d().get(entity).unwrap_or_default())
     if frame.camera is Some(camera) {
       if !is_visible_in_camera_frustum(camera, meshes[renderer.mesh], transform) {
         continue
@@ -615,11 +655,11 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
   }
 
   let dir_lights : Array[DirectionalLight3D] = []
-  for entity, light in directional_lights3d {
+  for entity, light in directional_lights3d() {
     if entity.is_alive() {
-      let transform = @transform3d.global_transforms3d
+      let transform = @transform3d.global_transforms3d()
         .get(entity)
-        .unwrap_or(@transform3d.transforms3d.get(entity).unwrap_or_default())
+        .unwrap_or(@transform3d.transforms3d().get(entity).unwrap_or_default())
       let local_direction = if light.direction.length_squared() <= 0.0000001 {
         @math.Vec3::new(0.0, 0.0, -1.0)
       } else {
@@ -637,11 +677,11 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
     }
   }
   let point_lights : Array[FramePointLight3D] = []
-  for entity, light in point_lights3d {
+  for entity, light in point_lights3d() {
     if entity.is_alive() {
-      let transform = @transform3d.global_transforms3d
+      let transform = @transform3d.global_transforms3d()
         .get(entity)
-        .unwrap_or(@transform3d.transforms3d.get(entity).unwrap_or_default())
+        .unwrap_or(@transform3d.transforms3d().get(entity).unwrap_or_default())
       point_lights.push({
         position: transform.translation,
         color: light.color,
@@ -655,11 +695,11 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
     }
   }
   let spot_lights : Array[FrameSpotLight3D] = []
-  for entity, light in spot_lights3d {
+  for entity, light in spot_lights3d() {
     if entity.is_alive() {
-      let transform = @transform3d.global_transforms3d
+      let transform = @transform3d.global_transforms3d()
         .get(entity)
-        .unwrap_or(@transform3d.transforms3d.get(entity).unwrap_or_default())
+        .unwrap_or(@transform3d.transforms3d().get(entity).unwrap_or_default())
       let local_direction = if light.direction.length_squared() <= 0.0000001 {
         @math.Vec3::new(0.0, -1.0, 0.0)
       } else {
@@ -688,12 +728,12 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
   frame.directional_lights = dir_lights
   frame.point_lights = point_lights
   frame.spot_lights = spot_lights
-  extracted_frame3d.val = frame
+  state.extracted_frame = frame
 }
 
 ///|
 pub fn get_extracted_frame3d() -> RenderFrame3D {
-  extracted_frame3d.val
+  render3d_world_state().extracted_frame
 }
 
 ///|

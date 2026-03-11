@@ -1,0 +1,60 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/app"
+
+import {
+  "Milky2018/selene/ecs",
+  "Milky2018/selene/system",
+  "Milky2018/selene/system_set",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct App {
+  viewport_height : Double
+  viewport_width : Double
+  zoom : Double
+  image_smooth : Bool
+  fps : UInt
+  fixed_hz : UInt
+  max_fixed_steps_per_frame : UInt
+  world : @ecs.World
+  systems : Array[RegisteredSystem]
+  plugins : Array[(App) -> Unit]
+}
+pub fn App::add_plugin(Self, (Self) -> Unit) -> Self
+pub fn App::add_system(Self, (@ecs.World, Double) -> Unit, schedule? : @system.Schedule, system_name? : String, in_set? : @system_set.SystemSet, before? : Array[@system_set.SystemSet], after? : Array[@system_set.SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
+pub fn App::add_systems(Self, Array[(@ecs.World, Double) -> Unit], schedule? : @system.Schedule, in_set? : @system_set.SystemSet, before? : Array[@system_set.SystemSet], after? : Array[@system_set.SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
+pub fn App::new() -> Self
+pub fn App::run(Self) -> Unit
+pub fn App::with_fixed_hz(Self, UInt) -> Self
+pub fn App::with_fps(Self, UInt) -> Self
+pub fn App::with_image_smooth(Self, Bool) -> Self
+pub fn App::with_max_fixed_steps_per_frame(Self, UInt) -> Self
+pub fn App::with_viewport_height(Self, Double) -> Self
+pub fn App::with_viewport_width(Self, Double) -> Self
+pub fn App::with_world(Self, @ecs.World) -> Self
+pub fn App::with_zoom(Self, Double) -> Self
+pub fn App::world(Self) -> @ecs.World
+
+pub(all) struct RegisteredSystem {
+  system : (@ecs.World, Double) -> Unit
+  schedule : @system.Schedule
+  name : String
+  in_set : @system_set.SystemSet?
+  before : Array[@system_set.SystemSet]
+  after : Array[@system_set.SystemSet]
+  run_if : ((@ecs.World) -> Bool)?
+}
+
+// Type aliases
+pub type Plugin = (App) -> Unit
+
+pub type RunCondition = (@ecs.World) -> Bool
+
+pub type System = (@ecs.World, Double) -> Unit
+
+// Traits
+

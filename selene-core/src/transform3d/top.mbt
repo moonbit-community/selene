@@ -53,16 +53,44 @@ pub fn Transform3D::compose(
 }
 
 ///|
-pub let transforms3d : Map[@entity.Entity, Transform3D] = Map::new()
+priv struct Transform3DWorldStore {
+  transforms3d : Map[@entity.Entity, Transform3D]
+  global_transforms3d : Map[@entity.Entity, GlobalTransform3D]
+  previous_global_transforms3d : Map[@entity.Entity, GlobalTransform3D]
+}
 
 ///|
-pub let global_transforms3d : Map[@entity.Entity, GlobalTransform3D] = Map::new()
+let transform3d_world_stores : Map[UInt, Transform3DWorldStore] = Map::new()
 
 ///|
-pub let previous_global_transforms3d : Map[@entity.Entity, GlobalTransform3D] = Map::new()
+fn transform3d_world_store() -> Transform3DWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  transform3d_world_stores.get_or_init(world_id, () => {
+    transforms3d: Map::new(),
+    global_transforms3d: Map::new(),
+    previous_global_transforms3d: Map::new(),
+  })
+}
+
+///|
+pub fn transforms3d() -> Map[@entity.Entity, Transform3D] {
+  transform3d_world_store().transforms3d
+}
+
+///|
+pub fn global_transforms3d() -> Map[@entity.Entity, GlobalTransform3D] {
+  transform3d_world_store().global_transforms3d
+}
+
+///|
+pub fn previous_global_transforms3d() -> Map[@entity.Entity, GlobalTransform3D] {
+  transform3d_world_store().previous_global_transforms3d
+}
 
 ///|
 pub fn capture_previous_global_transforms3d() -> Unit {
+  let previous_global_transforms3d = previous_global_transforms3d()
+  let global_transforms3d = global_transforms3d()
   previous_global_transforms3d.clear()
   for entity, global in global_transforms3d {
     if entity.is_alive() {
@@ -81,6 +109,8 @@ pub fn sample_global_transform3d(
   entity : @entity.Entity,
   alpha : Double,
 ) -> GlobalTransform3D {
+  let global_transforms3d = global_transforms3d()
+  let previous_global_transforms3d = previous_global_transforms3d()
   guard global_transforms3d.get(entity) is Some(current) else {
     return Transform3D::identity()
   }
@@ -105,6 +135,8 @@ pub fn sample_global_translation3d(
 
 ///|
 pub fn transform3d_propagate_system(_delta : Double) -> Unit {
+  let global_transforms3d = global_transforms3d()
+  let transforms3d = transforms3d()
   global_transforms3d.clear()
   for entity, local_transform in transforms3d {
     if !entity.is_alive() {
@@ -133,6 +165,8 @@ fn propagate_from(entity : @entity.Entity, parent_global : Transform3D) -> Unit 
   if !entity.is_alive() {
     return
   }
+  let transforms3d = transforms3d()
+  let global_transforms3d = global_transforms3d()
   let local_transform = transforms3d.get(entity).unwrap_or_default()
   let global = parent_global.compose(local_transform)
   global_transforms3d.set(entity, global)

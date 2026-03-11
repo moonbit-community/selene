@@ -5,16 +5,22 @@ pub(all) enum UiScaleMode {
 } derive(Eq, Show)
 
 ///|
-pub let ui_scale_mode : Ref[UiScaleMode] = { val: Screen }
+let ui_scale_modes : Map[UInt, UiScaleMode] = Map::new()
+
+///|
+fn ui_scale_mode() -> UiScaleMode {
+  let world_id = @ecs.require_current_world().id()
+  ui_scale_modes.get_or_init(world_id, fn() { Screen })
+}
 
 ///|
 pub fn set_ui_scale_mode(mode : UiScaleMode) -> Unit {
-  ui_scale_mode.val = mode
+  ui_scale_modes.set(@ecs.require_current_world().id(), mode)
 }
 
 ///|
 pub fn get_ui_scale_mode() -> UiScaleMode {
-  ui_scale_mode.val
+  ui_scale_mode()
 }
 
 ///|
@@ -714,58 +720,132 @@ pub fn RelativeCursorPosition::mouse_over(
 }
 
 ///|
-pub let nodes : Map[@entity.Entity, Node] = Map::new()
+priv struct UiModelWorldStore {
+  nodes : Map[@entity.Entity, Node]
+  computed_ui_nodes : Map[@entity.Entity, ComputedUiNode]
+  global_ui_nodes : Map[@entity.Entity, GlobalUiNode]
+  calculated_clips : Map[@entity.Entity, CalculatedClip]
+  layout_configs : Map[@entity.Entity, LayoutConfig]
+  z_indexes : Map[@entity.Entity, ZIndex]
+  global_zindexes : Map[@entity.Entity, GlobalZIndex]
+  scroll_positions : Map[@entity.Entity, ScrollPosition]
+  tab_indexes : Map[@entity.Entity, TabIndex]
+  focus_policies : Map[@entity.Entity, FocusPolicy]
+  focusables : Map[@entity.Entity, Focusable]
+  focuseds : Map[@entity.Entity, Focused]
+  override_clips : Map[@entity.Entity, OverrideClip]
+  relative_cursor_positions : Map[@entity.Entity, RelativeCursorPosition]
+  tree_orders : Map[@entity.Entity, Int]
+}
 
 ///|
-pub let computed_ui_nodes : Map[@entity.Entity, ComputedUiNode] = Map::new()
+let ui_model_world_stores : Map[UInt, UiModelWorldStore] = Map::new()
 
 ///|
-pub let global_ui_nodes : Map[@entity.Entity, GlobalUiNode] = Map::new()
+fn ui_model_world_store() -> UiModelWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  ui_model_world_stores.get_or_init(world_id, () => {
+    nodes: Map::new(),
+    computed_ui_nodes: Map::new(),
+    global_ui_nodes: Map::new(),
+    calculated_clips: Map::new(),
+    layout_configs: Map::new(),
+    z_indexes: Map::new(),
+    global_zindexes: Map::new(),
+    scroll_positions: Map::new(),
+    tab_indexes: Map::new(),
+    focus_policies: Map::new(),
+    focusables: Map::new(),
+    focuseds: Map::new(),
+    override_clips: Map::new(),
+    relative_cursor_positions: Map::new(),
+    tree_orders: Map::new(),
+  })
+}
 
 ///|
-pub let calculated_clips : Map[@entity.Entity, CalculatedClip] = Map::new()
+pub fn nodes() -> Map[@entity.Entity, Node] {
+  ui_model_world_store().nodes
+}
 
 ///|
-pub let layout_configs : Map[@entity.Entity, LayoutConfig] = Map::new()
+pub fn computed_ui_nodes() -> Map[@entity.Entity, ComputedUiNode] {
+  ui_model_world_store().computed_ui_nodes
+}
 
 ///|
-pub let z_indexes : Map[@entity.Entity, ZIndex] = Map::new()
+pub fn global_ui_nodes() -> Map[@entity.Entity, GlobalUiNode] {
+  ui_model_world_store().global_ui_nodes
+}
 
 ///|
-pub let global_zindexes : Map[@entity.Entity, GlobalZIndex] = Map::new()
+pub fn calculated_clips() -> Map[@entity.Entity, CalculatedClip] {
+  ui_model_world_store().calculated_clips
+}
 
 ///|
-pub let scroll_positions : Map[@entity.Entity, ScrollPosition] = Map::new()
+pub fn layout_configs() -> Map[@entity.Entity, LayoutConfig] {
+  ui_model_world_store().layout_configs
+}
 
 ///|
-pub let tab_indexes : Map[@entity.Entity, TabIndex] = Map::new()
+pub fn z_indexes() -> Map[@entity.Entity, ZIndex] {
+  ui_model_world_store().z_indexes
+}
 
 ///|
-pub let focus_policies : Map[@entity.Entity, FocusPolicy] = Map::new()
+pub fn global_zindexes() -> Map[@entity.Entity, GlobalZIndex] {
+  ui_model_world_store().global_zindexes
+}
 
 ///|
-pub let focusables : Map[@entity.Entity, Focusable] = Map::new()
+pub fn scroll_positions() -> Map[@entity.Entity, ScrollPosition] {
+  ui_model_world_store().scroll_positions
+}
 
 ///|
-pub let focuseds : Map[@entity.Entity, Focused] = Map::new()
+pub fn tab_indexes() -> Map[@entity.Entity, TabIndex] {
+  ui_model_world_store().tab_indexes
+}
 
 ///|
-pub let override_clips : Map[@entity.Entity, OverrideClip] = Map::new()
+pub fn focus_policies() -> Map[@entity.Entity, FocusPolicy] {
+  ui_model_world_store().focus_policies
+}
 
 ///|
-pub let relative_cursor_positions : Map[@entity.Entity, RelativeCursorPosition] = Map::new()
+pub fn focusables() -> Map[@entity.Entity, Focusable] {
+  ui_model_world_store().focusables
+}
 
 ///|
-let tree_orders : Map[@entity.Entity, Int] = Map::new()
+pub fn focuseds() -> Map[@entity.Entity, Focused] {
+  ui_model_world_store().focuseds
+}
+
+///|
+pub fn override_clips() -> Map[@entity.Entity, OverrideClip] {
+  ui_model_world_store().override_clips
+}
+
+///|
+pub fn relative_cursor_positions() -> Map[@entity.Entity, RelativeCursorPosition] {
+  ui_model_world_store().relative_cursor_positions
+}
+
+///|
+fn tree_orders() -> Map[@entity.Entity, Int] {
+  ui_model_world_store().tree_orders
+}
 
 ///|
 fn global_zindex_value(entity : @entity.Entity) -> Int {
-  global_zindexes.get(entity).map(fn(value) { value.value }).unwrap_or(0)
+  global_zindexes().get(entity).map(fn(value) { value.value }).unwrap_or(0)
 }
 
 ///|
 fn zindex_value(entity : @entity.Entity) -> Int {
-  z_indexes.get(entity).map(fn(value) { value.value }).unwrap_or(0)
+  z_indexes().get(entity).map(fn(value) { value.value }).unwrap_or(0)
 }
 
 ///|
@@ -780,8 +860,8 @@ fn compare_ui_stacking(lhs : @entity.Entity, rhs : @entity.Entity) -> Int {
   if lz != rz {
     return lz - rz
   }
-  let lt = tree_orders.get(lhs).unwrap_or(0)
-  let rt = tree_orders.get(rhs).unwrap_or(0)
+  let lt = tree_orders().get(lhs).unwrap_or(0)
+  let rt = tree_orders().get(rhs).unwrap_or(0)
   if lt != rt {
     lt - rt
   } else {
@@ -807,7 +887,7 @@ fn compare_ui_root_order(lhs : @entity.Entity, rhs : @entity.Entity) -> Int {
 
 ///|
 pub fn is_ui_entity(entity : @entity.Entity) -> Bool {
-  nodes.contains(entity)
+  nodes().contains(entity)
 }
 
 ///|
@@ -837,11 +917,11 @@ fn to_screen_rect(rect : @math.Rect) -> @math.Rect {
 ///|
 fn top_level_ui_nodes() -> Array[@entity.Entity] {
   let roots : Array[@entity.Entity] = []
-  for entity, node in nodes {
+  for entity, node in nodes() {
     guard entity.is_alive() else { continue }
     guard node.active && node.display != None else { continue }
     match entity.get_parent() {
-      Some(parent) => if !nodes.contains(parent) { roots.push(entity) }
+      Some(parent) => if !nodes().contains(parent) { roots.push(entity) }
       None => roots.push(entity)
     }
   }
@@ -853,7 +933,7 @@ fn top_level_ui_nodes() -> Array[@entity.Entity] {
 fn ui_children(entity : @entity.Entity) -> Array[@entity.Entity] {
   let children : Array[@entity.Entity] = []
   for child in entity.get_children() {
-    if child.is_alive() && nodes.contains(child) {
+    if child.is_alive() && nodes().contains(child) {
       children.push(child)
     }
   }

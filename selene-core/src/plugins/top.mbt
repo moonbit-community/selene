@@ -14,7 +14,7 @@
 
 ///|
 fn add_system(
-  app : @system.App,
+  app : @app.App,
   system : (Double) -> Unit,
   schedule : @system.Schedule,
   name : String,
@@ -23,7 +23,7 @@ fn add_system(
   after? : Array[@system_set.SystemSet] = [],
 ) -> Unit {
   app.systems.push({
-    system,
+    system: fn(_world, delta) { system(delta) },
     schedule,
     name,
     in_set,
@@ -34,7 +34,7 @@ fn add_system(
 }
 
 ///|
-pub fn debug_plugin(app : @system.App) -> Unit {
+pub fn debug_plugin(app : @app.App) -> Unit {
   let render_prepare = @system_set.named("render_prepare")
   add_system(
     app,
@@ -46,7 +46,7 @@ pub fn debug_plugin(app : @system.App) -> Unit {
 }
 
 ///|
-pub fn default_plugin(app : @system.App) -> Unit {
+pub fn default_plugin(app : @app.App) -> Unit {
   let input = @system_set.named("input")
   let physics = @system_set.named("physics")
   let gameplay = @system_set.named("gameplay")
@@ -260,7 +260,7 @@ pub fn default_plugin(app : @system.App) -> Unit {
 }
 
 ///|
-pub fn default_3d_plugin(app : @system.App) -> Unit {
+pub fn default_3d_plugin(app : @app.App) -> Unit {
   let input = @system_set.named("input")
   let physics = @system_set.named("physics3d")
   let transform = @system_set.named("transform3d")

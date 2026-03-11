@@ -17,16 +17,16 @@ const ZOOM : Double = 2.0
 
 ///|
 pub fn run() -> Unit {
-  @system.App::new()
+  @app.App::new()
   .with_viewport_width(VIEWPORT_WIDTH)
   .with_viewport_height(VIEWPORT_HEIGHT)
   .with_zoom(ZOOM)
   .with_fps(60)
   .add_plugin(@plugins.default_plugin)
   // .add_plugin(@plugins.debug_plugin)
-  .add_system(game_start, schedule=Startup)
-  .add_system(cards_ui_pointer_system, schedule=PostUpdate)
-  .add_system(game_update_system)
+  .add_system(fn(_world, delta) { game_start(delta) }, schedule=Startup)
+  .add_system(fn(_world, delta) { cards_ui_pointer_system(delta) }, schedule=PostUpdate)
+  .add_system(fn(_world, delta) { game_update_system(delta) })
   .run()
 }
 
