@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.28.2] - 2026-03-11
+
 ### Added
 
 #### `selene/app` bevy-aligned runtime entrypoint package
@@ -225,6 +227,7 @@
 - `selene/tiled` ECS/physics/world runtime stores are now world-scoped and resolved via accessor functions.
 - `selene/ldtk` runtime component maps, spawned-instance maps, spawn-hook registries, typed-registration registries, and pending transformed-level cache are now world-scoped and resolved via accessor functions.
 - `selene/ui` model/visual component stores are now world-scoped and resolved via accessor functions.
+- `selene-raylib` text rendering now uses `moon_cosmic` first (for shaping/layout/rasterization) and falls back to raylib native `draw_text_ex` when cosmic font bytes are unavailable.
 - Example entrypoints and tutorials now construct runtime through `@app.App::new()` and register systems as explicit world-aware closures.
 
 ### Removed

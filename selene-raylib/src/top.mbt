@@ -105,6 +105,20 @@ priv struct MaterialTextureSource3D {
 }
 
 ///|
+priv struct CosmicRasterImage {
+  width : Int
+  height : Int
+  pixels : Array[Int]
+}
+
+///|
+priv struct CosmicTextTexture {
+  texture : @raylib.Texture
+  width : Int
+  height : Int
+}
+
+///|
 priv struct RaylibBackend {
   mut time_scale : Double
   mut image_smooth : Bool
@@ -128,6 +142,8 @@ priv struct RaylibBackend {
   mut next_audio_instance : UInt
   font_alias : Map[String, String]
   fonts_by_path : Map[String, @raylib.Font]
+  cosmic_loaded_families : Set[String]
+  cosmic_textures : Map[String, CosmicTextTexture]
   mut embedded_asset_cache : Map[String, Bytes]
   meshes3d : Map[@render3d_types.MeshHandle, @render3d_types.MeshAsset]
   materials3d : Map[
@@ -194,6 +210,8 @@ let backend : RaylibBackend = {
   next_audio_instance: 1U,
   font_alias: Map::new(),
   fonts_by_path: Map::new(),
+  cosmic_loaded_families: Set::new(),
+  cosmic_textures: Map::new(),
   embedded_asset_cache: Map::new(),
   meshes3d: Map::new(),
   materials3d: Map::new(),
@@ -217,6 +235,16 @@ let backend : RaylibBackend = {
 
 ///|
 let clip_stack : Array[@smath.Rect] = []
+
+///|
+let cosmic_font_system : Ref[@cosmic.FontSystem] = Ref::new(
+  @cosmic.FontSystem::new(),
+)
+
+///|
+let cosmic_swash_cache : Ref[@cosmic.SwashCache] = Ref::new(
+  @cosmic.SwashCache::new(),
+)
 
 ///|
 const MAX_DIRECTIONAL_LIGHTS : Int = 4
@@ -2219,6 +2247,275 @@ fn get_font_by_family(family : String) -> @raylib.Font {
 }
 
 ///|
+fn reset_cosmic_runtime() -> Unit {
+  backend.cosmic_loaded_families.clear()
+  for _key, entry in backend.cosmic_textures {
+    @raylib.unload_texture(entry.texture)
+  }
+  backend.cosmic_textures.clear()
+  cosmic_font_system.val = @cosmic.FontSystem::new()
+  cosmic_swash_cache.val = @cosmic.SwashCache::new()
+}
+
+///|
+fn ensure_cosmic_font_loaded(family : String) -> Bool {
+  if backend.cosmic_loaded_families.contains(family) {
+    return true
+  }
+  guard backend.font_alias.get(family) is Some(path) else { return false }
+  guard get_asset_bytes(path) is Some(bytes) else { return false }
+  cosmic_font_system.val = cosmic_font_system.val.load_font_data(bytes)
+  backend.cosmic_loaded_families.add(family)
+  true
+}
+
+///|
+fn cosmic_text_cache_key(
+  text : String,
+  style : @render2d_types.TextStyle2D,
+) -> String {
+  let color = style.color
+  let alpha = clamp_u8((color.a * 255.0).round().to_int())
+  "t:" +
+  text.length().to_string() +
+  ":" +
+  text +
+  "|f:" +
+  style.family.length().to_string() +
+  ":" +
+  style.family +
+  "|s:" +
+  style.size.to_string() +
+  "|r:" +
+  color.r.to_string() +
+  "|g:" +
+  color.g.to_string() +
+  "|b:" +
+  color.b.to_string() +
+  "|a:" +
+  alpha.to_string()
+}
+
+///|
+fn cosmic_font_size(size : Double) -> Double {
+  if size <= 0.0 {
+    1.0
+  } else {
+    size
+  }
+}
+
+///|
+fn rasterize_with_cosmic(
+  text : String,
+  style : @render2d_types.TextStyle2D,
+) -> CosmicRasterImage? {
+  guard text != "" else { return None }
+  guard ensure_cosmic_font_loaded(style.family) else { return None }
+  let font_size = cosmic_font_size(style.size)
+  let metrics = @cosmic.Metrics::new(
+    Float::from_double(font_size),
+    Float::from_double(font_size * 1.25),
+  )
+  let attrs = @cosmic.Attrs::new().family(@cosmic.Family::Name(style.family))
+  let attrs_list = @cosmic.AttrsList::new(attrs)
+  let buffer = @cosmic.Buffer::new(metrics)
+    .set_wrap(@cosmic.Wrap::None)
+    .set_text(text, attrs_list, @cosmic.Shaping::Advanced)
+    .set_size(None, None)
+
+  let mut min_x = 0
+  let mut min_y = 0
+  let mut max_x = -1
+  let mut max_y = -1
+  let fills : Array[(Int, Int, Int, Int, Int, Int, Int, Int)] = []
+  let (drawn_buffer, swash_cache) = buffer.draw(
+    cosmic_font_system.val,
+    cosmic_swash_cache.val,
+    @cosmic.Color::rgba(
+      style.color.r.to_byte(),
+      style.color.g.to_byte(),
+      style.color.b.to_byte(),
+      clamp_u8((style.color.a * 255.0).round().to_int()).to_byte(),
+    ),
+    fn(x, y, width, height, color) {
+      let w = width.reinterpret_as_int()
+      let h = height.reinterpret_as_int()
+      guard w > 0 && h > 0 else { return }
+      let (r, g, b, a) = color.as_rgba()
+      fills.push((x, y, w, h, r.to_int(), g.to_int(), b.to_int(), a.to_int()))
+      let right = x + w - 1
+      let bottom = y + h - 1
+      if max_x < min_x {
+        min_x = x
+        min_y = y
+        max_x = right
+        max_y = bottom
+      } else {
+        if x < min_x {
+          min_x = x
+        }
+        if y < min_y {
+          min_y = y
+        }
+        if right > max_x {
+          max_x = right
+        }
+        if bottom > max_y {
+          max_y = bottom
+        }
+      }
+    },
+  )
+  ignore(drawn_buffer)
+  cosmic_swash_cache.val = swash_cache
+  guard !fills.is_empty() else { return None }
+  let width = max_x - min_x + 1
+  let height = max_y - min_y + 1
+  let pixels = Array::make(width * height * 4, 0)
+  for fill in fills {
+    let x = fill.0
+    let y = fill.1
+    let w = fill.2
+    let h = fill.3
+    let r = fill.4
+    let g = fill.5
+    let b = fill.6
+    let a = fill.7
+    for local_y in 0..<h {
+      let py = y + local_y - min_y
+      if py < 0 || py >= height {
+        continue
+      }
+      for local_x in 0..<w {
+        let px = x + local_x - min_x
+        if px < 0 || px >= width {
+          continue
+        }
+        let idx = (py * width + px) * 4
+        pixels[idx] = r
+        pixels[idx + 1] = g
+        pixels[idx + 2] = b
+        pixels[idx + 3] = a
+      }
+    }
+  }
+  Some({ width, height, pixels })
+}
+
+///|
+fn texture_from_cosmic_raster(raster : CosmicRasterImage) -> CosmicTextTexture? {
+  guard raster.width > 0 && raster.height > 0 else { return None }
+  let image = @raylib.gen_image_color(
+    raster.width,
+    raster.height,
+    @raylib.Color::new(0, 0, 0, 0),
+  )
+  let texture = @raylib.load_texture_from_image(image)
+  @raylib.unload_image(image)
+  @raylib.update_texture(
+    texture,
+    Bytes::from_iter(
+      raster.pixels.iter().map(fn(value) { clamp_u8(value).to_byte() }),
+    ),
+  )
+  @raylib.set_texture_filter(texture, configured_filter())
+  Some({ texture, width: raster.width, height: raster.height })
+}
+
+///|
+fn cosmic_texture_for_text(
+  text : String,
+  style : @render2d_types.TextStyle2D,
+) -> CosmicTextTexture? {
+  let key = cosmic_text_cache_key(text, style)
+  if backend.cosmic_textures.get(key) is Some(cached) {
+    return Some(cached)
+  }
+  guard rasterize_with_cosmic(text, style) is Some(raster) else { return None }
+  guard texture_from_cosmic_raster(raster) is Some(created) else { return None }
+  backend.cosmic_textures.set(key, created)
+  Some(created)
+}
+
+///|
+fn measure_text_with_cosmic(
+  style : @render2d_types.TextStyle2D,
+  text : String,
+) -> @smath.Vec2D? {
+  guard ensure_cosmic_font_loaded(style.family) else { return None }
+  let font_size = cosmic_font_size(style.size)
+  let metrics = @cosmic.Metrics::new(
+    Float::from_double(font_size),
+    Float::from_double(font_size * 1.25),
+  )
+  let attrs = @cosmic.Attrs::new().family(@cosmic.Family::Name(style.family))
+  let attrs_list = @cosmic.AttrsList::new(attrs)
+  let buffer = @cosmic.Buffer::new(metrics)
+    .set_wrap(@cosmic.Wrap::None)
+    .set_text(text, attrs_list, @cosmic.Shaping::Advanced)
+    .set_size(None, None)
+    .layout_all_with_font_system(cosmic_font_system.val)
+  let mut width = 0.0
+  let mut height = 0.0
+  for run in buffer.layout_runs() {
+    width = @cmp.maximum(width, run.line_w.to_double())
+    height = @cmp.maximum(height, (run.line_top + run.line_height).to_double())
+  }
+  if height <= 0.0 {
+    height = font_size
+  }
+  Some(@smath.Vec2D(width, height))
+}
+
+///|
+fn draw_text_with_cosmic(command : @render2d_types.TextDrawCommand2D) -> Bool {
+  guard command.text != "" else { return true }
+  guard command.style.color.a > 0.0 else { return true }
+  guard cosmic_texture_for_text(command.text, command.style)
+    is Some(cached_texture) else {
+    return false
+  }
+  let measured = measure_text_with_cosmic(command.style, command.text).unwrap_or(
+    @smath.Vec2D(
+      cached_texture.width.to_double(),
+      cached_texture.height.to_double(),
+    ),
+  )
+  let mut x = command.position[X]
+  let mut y = command.position[Y]
+  match command.style.align {
+    Left => ()
+    Center => x -= measured[X] / 2.0
+    Right => x -= measured[X]
+  }
+  match command.style.baseline {
+    Top => ()
+    Center => y -= measured[Y] / 2.0
+    Bottom => y -= measured[Y]
+  }
+  @raylib.draw_texture_pro(
+    cached_texture.texture,
+    to_ray_rect(
+      0.0,
+      0.0,
+      cached_texture.width.to_double(),
+      cached_texture.height.to_double(),
+    ),
+    to_ray_rect(
+      x,
+      y,
+      cached_texture.width.to_double(),
+      cached_texture.height.to_double(),
+    ),
+    to_ray_vector2(0.0, 0.0),
+    0.0,
+    to_ray_color(white_render_color()),
+  )
+  true
+}
+
+///|
 fn key_to_raylib(code : @inputs.Code) -> Int {
   match code {
     KeyA => @raylib.KeyA
@@ -2470,6 +2767,7 @@ fn cleanup_resources() -> Unit {
   }
   backend.fonts_by_path.clear()
   backend.font_alias.clear()
+  reset_cosmic_runtime()
   backend.embedded_asset_cache.clear()
   for _key, mesh in backend.primitive_meshes {
     @raylib.unload_mesh(mesh)
@@ -2666,6 +2964,9 @@ pub fn lock_mouse(locked : Ref[Bool]) -> Unit {
 ///|
 pub fn draw_text(command : @render2d_types.TextDrawCommand2D) -> Unit {
   mark_frame_drawn()
+  if draw_text_with_cosmic(command) {
+    return
+  }
   let font = get_font_by_family(command.style.family)
   let measured = measure_text(command.style, command.text)
   let text_width = measured[X]
@@ -2697,6 +2998,12 @@ pub fn measure_text(
   style : @render2d_types.TextStyle2D,
   text : String,
 ) -> @smath.Vec2D {
+  if text == "" {
+    return @smath.Vec2D(0.0, cosmic_font_size(style.size))
+  }
+  if measure_text_with_cosmic(style, text) is Some(measured) {
+    return measured
+  }
   let font = get_font_by_family(style.family)
   let measured = @raylib.measure_text_ex(font, text, to_float(style.size), 0.0)
   @smath.Vec2D(vector2_x(measured), vector2_y(measured))
@@ -3689,6 +3996,7 @@ pub fn load_font(font : String, path : String) -> Unit {
   }
   ignore(loaded)
   backend.font_alias.set(font, path)
+  reset_cosmic_runtime()
 }
 
 ///|

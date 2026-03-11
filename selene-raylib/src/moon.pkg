@@ -1,4 +1,5 @@
 import {
+  "Milky2018/moon_cosmic" @cosmic,
   "Milky2018/selene/inputs",
   "Milky2018/selene/math" @smath,
   "Milky2018/selene/platform_runtime" @runtime,

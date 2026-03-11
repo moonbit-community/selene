@@ -5,7 +5,8 @@
     "Milky2018/selene": {
       "path": "../selene-core"
     },
-    "tonyfettes/raylib": "0.2.3"
+    "tonyfettes/raylib": "0.2.3",
+    "Milky2018/moon_cosmic": "0.1.5"
   },
   "readme": "README.md",
   "repository": "https://github.com/moonbit-community/selene.git",
