@@ -14,7 +14,11 @@ pub fn clear_ldtk_children(@entity.Entity) -> Unit
 
 pub fn clear_ldtk_entity_default_spawn_hook() -> Unit
 
+pub fn clear_ldtk_entity_registrations() -> Unit
+
 pub fn clear_ldtk_entity_spawn_hooks() -> Unit
+
+pub fn clear_ldtk_int_cell_registrations() -> Unit
 
 pub fn clear_ldtk_int_grid_cell_spawn_hooks() -> Unit
 
@@ -64,6 +68,8 @@ pub let ldtk_entity_spawn_hooks : Map[String, (LdtkEntitySpawnedEvent) -> Unit]
 
 pub let ldtk_entity_spawned_event_bus : @event.Events[LdtkEntitySpawnedEvent]
 
+pub let ldtk_entity_typed_registrations : Map[String, (LdtkEntitySpawnedEvent) -> Unit]
+
 pub fn ldtk_field_bool(Array[LdtkFieldInstance], String) -> Bool?
 
 pub fn ldtk_field_bool_array(Array[LdtkFieldInstance], String) -> Array[Bool]?
@@ -111,6 +117,8 @@ pub fn ldtk_field_vec2(Array[LdtkFieldInstance], String) -> @math.Vec2D?
 pub fn ldtk_field_vec2_array(Array[LdtkFieldInstance], String) -> Array[@math.Vec2D]?
 
 pub let ldtk_grid_coords : Map[@entity.Entity, LdtkGridCoords]
+
+pub let ldtk_int_cell_typed_registrations : Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]
 
 pub let ldtk_int_grid_cell_spawn_hooks : Map[String, (LdtkIntGridCellSpawnedEvent) -> Unit]
 
@@ -200,7 +208,21 @@ pub fn load_ldtk_project_raw(String) -> LdtkProject
 
 pub fn mark_ldtk_respawn(@entity.Entity) -> Unit
 
+pub fn register_default_ldtk_entity((LdtkEntitySpawnedEvent) -> Unit) -> Unit
+
+pub fn register_default_ldtk_entity_for_layer(String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+
+pub fn register_default_ldtk_int_cell((LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+
+pub fn register_default_ldtk_int_cell_for_layer(String, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+
+pub fn register_ldtk_entity(String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+
 pub fn register_ldtk_entity_default_spawn_hook((LdtkEntitySpawnedEvent) -> Unit) -> Unit
+
+pub fn register_ldtk_entity_for_layer(String, String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+
+pub fn register_ldtk_entity_for_layer_optional(String?, String?, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
 pub fn register_ldtk_entity_layer_spawn_hook(String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
@@ -209,6 +231,12 @@ pub fn register_ldtk_entity_spawn_hook(String, (LdtkEntitySpawnedEvent) -> Unit)
 pub fn register_ldtk_entity_spawn_hook_for_layer(String, String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
 pub fn register_ldtk_entity_spawn_hook_optional(String?, String?, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+
+pub fn register_ldtk_int_cell(Int, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+
+pub fn register_ldtk_int_cell_for_layer(String, Int, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+
+pub fn register_ldtk_int_cell_for_layer_optional(String?, Int?, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
 pub fn register_ldtk_int_grid_cell_spawn_hook(String, Int, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
@@ -236,6 +264,20 @@ pub fn spawn_ldtk_world(LdtkProject, settings? : LdtkWorldSpawnSettings) -> @ent
 
 pub fn spawn_ldtk_world_into_entity(@entity.Entity, LdtkProject, settings? : LdtkWorldSpawnSettings) -> Unit
 
+pub fn unregister_default_ldtk_entity() -> Unit
+
+pub fn unregister_default_ldtk_entity_for_layer(String) -> Unit
+
+pub fn unregister_default_ldtk_int_cell() -> Unit
+
+pub fn unregister_default_ldtk_int_cell_for_layer(String) -> Unit
+
+pub fn unregister_ldtk_entity(String) -> Unit
+
+pub fn unregister_ldtk_entity_for_layer(String, String) -> Unit
+
+pub fn unregister_ldtk_entity_for_layer_optional(String?, String?) -> Unit
+
 pub fn unregister_ldtk_entity_layer_spawn_hook(String) -> Unit
 
 pub fn unregister_ldtk_entity_spawn_hook(String) -> Unit
@@ -243,6 +285,12 @@ pub fn unregister_ldtk_entity_spawn_hook(String) -> Unit
 pub fn unregister_ldtk_entity_spawn_hook_for_layer(String, String) -> Unit
 
 pub fn unregister_ldtk_entity_spawn_hook_optional(String?, String?) -> Unit
+
+pub fn unregister_ldtk_int_cell(Int) -> Unit
+
+pub fn unregister_ldtk_int_cell_for_layer(String, Int) -> Unit
+
+pub fn unregister_ldtk_int_cell_for_layer_optional(String?, Int?) -> Unit
 
 pub fn unregister_ldtk_int_grid_cell_spawn_hook(String, Int) -> Unit
 

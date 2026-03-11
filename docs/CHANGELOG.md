@@ -2,6 +2,40 @@
 
 ## [Unreleased]
 
+### Added
+
+#### `selene/ldtk` typed registration APIs (bevy-style optional scope + priority lookup)
+
+- `ldtk_entity_typed_registrations`: typed LDtk entity registration map keyed by optional `(layer_identifier, entity_identifier)` scope.
+- `ldtk_int_cell_typed_registrations`: typed LDtk int-cell registration map keyed by optional `(layer_identifier, value)` scope.
+- `register_ldtk_entity_for_layer_optional(layer_identifier?, entity_identifier?, hook)`: registers typed LDtk entity handler with optional layer/entity scope.
+- `register_ldtk_entity_for_layer(layer_identifier, entity_identifier, hook)`: registers typed LDtk entity handler for a specific layer+entity scope.
+- `register_ldtk_entity(entity_identifier, hook)`: registers typed LDtk entity handler for an entity identifier across layers.
+- `register_default_ldtk_entity_for_layer(layer_identifier, hook)`: registers typed LDtk entity handler for all entities on a layer.
+- `register_default_ldtk_entity(hook)`: registers typed LDtk entity fallback handler for all layers/entities.
+- `unregister_ldtk_entity_for_layer_optional(layer_identifier?, entity_identifier?)`: removes typed LDtk entity handler by optional scope.
+- `unregister_ldtk_entity_for_layer(layer_identifier, entity_identifier)`: removes typed LDtk entity handler for a specific layer+entity scope.
+- `unregister_ldtk_entity(entity_identifier)`: removes typed LDtk entity handler for an entity identifier across layers.
+- `unregister_default_ldtk_entity_for_layer(layer_identifier)`: removes typed LDtk entity layer-default handler.
+- `unregister_default_ldtk_entity()`: removes typed LDtk entity global-default handler.
+- `clear_ldtk_entity_registrations()`: clears all typed LDtk entity registrations.
+- `register_ldtk_int_cell_for_layer_optional(layer_identifier?, value?, hook)`: registers typed LDtk int-cell handler with optional layer/value scope.
+- `register_ldtk_int_cell_for_layer(layer_identifier, value, hook)`: registers typed LDtk int-cell handler for a specific layer+value scope.
+- `register_ldtk_int_cell(value, hook)`: registers typed LDtk int-cell handler for a value across layers.
+- `register_default_ldtk_int_cell_for_layer(layer_identifier, hook)`: registers typed LDtk int-cell handler for all values on a layer.
+- `register_default_ldtk_int_cell(hook)`: registers typed LDtk int-cell fallback handler for all layers/values.
+- `unregister_ldtk_int_cell_for_layer_optional(layer_identifier?, value?)`: removes typed LDtk int-cell handler by optional scope.
+- `unregister_ldtk_int_cell_for_layer(layer_identifier, value)`: removes typed LDtk int-cell handler for a specific layer+value scope.
+- `unregister_ldtk_int_cell(value)`: removes typed LDtk int-cell handler for a value across layers.
+- `unregister_default_ldtk_int_cell_for_layer(layer_identifier)`: removes typed LDtk int-cell layer-default handler.
+- `unregister_default_ldtk_int_cell()`: removes typed LDtk int-cell global-default handler.
+- `clear_ldtk_int_cell_registrations()`: clears all typed LDtk int-cell registrations.
+
+### Changed
+
+- `spawn_ldtk_world(...)` typed registration behavior now mirrors bevy optional-scope precedence for both entities and int-cells: `(layer+identifier/value) -> (identifier/value) -> (layer) -> (default)`, with only the highest-priority match executed.
+- `spawn_ldtk_world(...)` int-grid tileset rendering now combines `gridTiles` and `autoLayerTiles`, filters out-of-bounds tiles, and renders overlapping tiles in deterministic stacked sublayers (higher sublayer gets higher z-index), aligning with bevy_ecs_ldtk layer splitting behavior.
+
 ## [0.28.0] - 2026-03-11
 
 ### Added

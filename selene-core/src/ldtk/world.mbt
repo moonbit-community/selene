@@ -258,6 +258,18 @@ pub let ldtk_int_grid_default_spawn_hook : Ref[
 ] = { val: None }
 
 ///|
+pub let ldtk_entity_typed_registrations : Map[
+  String,
+  (LdtkEntitySpawnedEvent) -> Unit,
+] = Map::new()
+
+///|
+pub let ldtk_int_cell_typed_registrations : Map[
+  String,
+  (LdtkIntGridCellSpawnedEvent) -> Unit,
+] = Map::new()
+
+///|
 pub let ldtk_pending_transformed_level_iids : Map[String, Bool] = Map::new()
 
 ///|
@@ -288,6 +300,192 @@ pub fn mark_ldtk_respawn(entity : @entity.Entity) -> Unit {
 ///|
 pub fn clear_ldtk_respawn(entity : @entity.Entity) -> Unit {
   ldtk_respawns.remove(entity)
+}
+
+///|
+pub fn register_ldtk_entity_for_layer_optional(
+  layer_identifier : String?,
+  entity_identifier : String?,
+  hook : (LdtkEntitySpawnedEvent) -> Unit,
+) -> Unit {
+  ldtk_entity_typed_registrations.set(
+    ldtk_entity_typed_registration_key(layer_identifier, entity_identifier),
+    hook,
+  )
+}
+
+///|
+pub fn register_ldtk_entity_for_layer(
+  layer_identifier : String,
+  entity_identifier : String,
+  hook : (LdtkEntitySpawnedEvent) -> Unit,
+) -> Unit {
+  register_ldtk_entity_for_layer_optional(
+    Some(layer_identifier),
+    Some(entity_identifier),
+    hook,
+  )
+}
+
+///|
+pub fn register_ldtk_entity(
+  entity_identifier : String,
+  hook : (LdtkEntitySpawnedEvent) -> Unit,
+) -> Unit {
+  register_ldtk_entity_for_layer_optional(None, Some(entity_identifier), hook)
+}
+
+///|
+pub fn register_default_ldtk_entity_for_layer(
+  layer_identifier : String,
+  hook : (LdtkEntitySpawnedEvent) -> Unit,
+) -> Unit {
+  register_ldtk_entity_for_layer_optional(Some(layer_identifier), None, hook)
+}
+
+///|
+pub fn register_default_ldtk_entity(
+  hook : (LdtkEntitySpawnedEvent) -> Unit,
+) -> Unit {
+  register_ldtk_entity_for_layer_optional(None, None, hook)
+}
+
+///|
+pub fn unregister_ldtk_entity_for_layer_optional(
+  layer_identifier : String?,
+  entity_identifier : String?,
+) -> Unit {
+  ldtk_entity_typed_registrations.remove(
+    ldtk_entity_typed_registration_key(layer_identifier, entity_identifier),
+  )
+}
+
+///|
+pub fn unregister_ldtk_entity_for_layer(
+  layer_identifier : String,
+  entity_identifier : String,
+) -> Unit {
+  unregister_ldtk_entity_for_layer_optional(
+    Some(layer_identifier),
+    Some(entity_identifier),
+  )
+}
+
+///|
+pub fn unregister_ldtk_entity(entity_identifier : String) -> Unit {
+  unregister_ldtk_entity_for_layer_optional(None, Some(entity_identifier))
+}
+
+///|
+pub fn unregister_default_ldtk_entity_for_layer(
+  layer_identifier : String,
+) -> Unit {
+  unregister_ldtk_entity_for_layer_optional(Some(layer_identifier), None)
+}
+
+///|
+pub fn unregister_default_ldtk_entity() -> Unit {
+  unregister_ldtk_entity_for_layer_optional(None, None)
+}
+
+///|
+pub fn clear_ldtk_entity_registrations() -> Unit {
+  for pair in ldtk_entity_typed_registrations.to_array() {
+    ldtk_entity_typed_registrations.remove(pair.0)
+  }
+}
+
+///|
+pub fn register_ldtk_int_cell_for_layer_optional(
+  layer_identifier : String?,
+  value : Int?,
+  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+) -> Unit {
+  ldtk_int_cell_typed_registrations.set(
+    ldtk_int_cell_typed_registration_key(layer_identifier, value),
+    hook,
+  )
+}
+
+///|
+pub fn register_ldtk_int_cell_for_layer(
+  layer_identifier : String,
+  value : Int,
+  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+) -> Unit {
+  register_ldtk_int_cell_for_layer_optional(
+    Some(layer_identifier),
+    Some(value),
+    hook,
+  )
+}
+
+///|
+pub fn register_ldtk_int_cell(
+  value : Int,
+  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+) -> Unit {
+  register_ldtk_int_cell_for_layer_optional(None, Some(value), hook)
+}
+
+///|
+pub fn register_default_ldtk_int_cell_for_layer(
+  layer_identifier : String,
+  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+) -> Unit {
+  register_ldtk_int_cell_for_layer_optional(Some(layer_identifier), None, hook)
+}
+
+///|
+pub fn register_default_ldtk_int_cell(
+  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+) -> Unit {
+  register_ldtk_int_cell_for_layer_optional(None, None, hook)
+}
+
+///|
+pub fn unregister_ldtk_int_cell_for_layer_optional(
+  layer_identifier : String?,
+  value : Int?,
+) -> Unit {
+  ldtk_int_cell_typed_registrations.remove(
+    ldtk_int_cell_typed_registration_key(layer_identifier, value),
+  )
+}
+
+///|
+pub fn unregister_ldtk_int_cell_for_layer(
+  layer_identifier : String,
+  value : Int,
+) -> Unit {
+  unregister_ldtk_int_cell_for_layer_optional(
+    Some(layer_identifier),
+    Some(value),
+  )
+}
+
+///|
+pub fn unregister_ldtk_int_cell(value : Int) -> Unit {
+  unregister_ldtk_int_cell_for_layer_optional(None, Some(value))
+}
+
+///|
+pub fn unregister_default_ldtk_int_cell_for_layer(
+  layer_identifier : String,
+) -> Unit {
+  unregister_ldtk_int_cell_for_layer_optional(Some(layer_identifier), None)
+}
+
+///|
+pub fn unregister_default_ldtk_int_cell() -> Unit {
+  unregister_ldtk_int_cell_for_layer_optional(None, None)
+}
+
+///|
+pub fn clear_ldtk_int_cell_registrations() -> Unit {
+  for pair in ldtk_int_cell_typed_registrations.to_array() {
+    ldtk_int_cell_typed_registrations.remove(pair.0)
+  }
 }
 
 ///|
@@ -900,7 +1098,11 @@ fn ldtk_spawn_level_layers(
         world_entity, level_entity, layer_entity, level, instance, layer, layer_zindex,
         effective_visible,
       )
-      if layer.auto_layer_tiles.length() > 0 {
+      let layered_int_grid_tiles = ldtk_layered_int_grid_tiles(layer)
+      for tile_layer_index, int_grid_tiles in layered_int_grid_tiles {
+        if int_grid_tiles.length() == 0 {
+          continue
+        }
         ldtk_spawn_layer_tiles(
           world_entity,
           level_entity,
@@ -908,21 +1110,8 @@ fn ldtk_spawn_level_layers(
           level,
           instance,
           layer,
-          layer.auto_layer_tiles,
-          layer_zindex,
-          effective_visible,
-        )
-      }
-      if layer.grid_tiles.length() > 0 {
-        ldtk_spawn_layer_tiles(
-          world_entity,
-          level_entity,
-          layer_entity,
-          level,
-          instance,
-          layer,
-          layer.grid_tiles,
-          layer_zindex,
+          int_grid_tiles,
+          layer_zindex + tile_layer_index,
           effective_visible,
         )
       }
@@ -1070,6 +1259,7 @@ fn ldtk_spawn_int_grid_cells(
       grid_y,
       zindex,
     }
+    ldtk_apply_registered_int_cell(int_grid_event)
     ldtk_int_grid_cell_spawned_event_bus.trigger(
       int_grid_event,
       Some(cell_entity),
@@ -1197,6 +1387,7 @@ fn ldtk_spawn_layer_entities(
       instance: entity_instance,
       zindex,
     }
+    ldtk_apply_registered_entity(entity_event)
     ldtk_entity_spawned_event_bus.trigger(entity_event, Some(entity))
     if instance.settings.entity_hook is Some(entity_hook) {
       entity_hook(entity_event)
@@ -1353,6 +1544,75 @@ fn ldtk_layer_tileset_image(
   guard project.tileset_by_uid(uid) is Some(tileset) else { return None }
   guard tileset.rel_path is Some(path) else { return None }
   Some(@asset2.load_image(project.resolve_path(path)))
+}
+
+///|
+fn ldtk_layered_int_grid_tiles(
+  layer : LdtkLayerInstance,
+) -> Array[Array[LdtkTileInstance]] {
+  let merged_tiles : Array[LdtkTileInstance] = []
+  for tile in layer.grid_tiles {
+    if ldtk_tile_in_layer_bounds(tile, layer) {
+      merged_tiles.push(tile)
+    }
+  }
+  for tile in layer.auto_layer_tiles {
+    if ldtk_tile_in_layer_bounds(tile, layer) {
+      merged_tiles.push(tile)
+    }
+  }
+  ldtk_layer_grid_tiles(merged_tiles)
+}
+
+///|
+fn ldtk_layer_grid_tiles(
+  tiles : Array[LdtkTileInstance],
+) -> Array[Array[LdtkTileInstance]] {
+  if tiles.length() == 0 {
+    return []
+  }
+  let layer_tiles : Array[LdtkTileInstance] = []
+  let overflow_tiles : Array[LdtkTileInstance] = []
+  for tile in tiles {
+    if ldtk_tile_exists_at_px(layer_tiles, tile.px) {
+      overflow_tiles.push(tile)
+    } else {
+      layer_tiles.push(tile)
+    }
+  }
+  let layered_tiles : Array[Array[LdtkTileInstance]] = [layer_tiles]
+  if overflow_tiles.length() > 0 {
+    for overflow_layer in ldtk_layer_grid_tiles(overflow_tiles) {
+      layered_tiles.push(overflow_layer)
+    }
+  }
+  layered_tiles
+}
+
+///|
+fn ldtk_tile_exists_at_px(
+  tiles : Array[LdtkTileInstance],
+  px : @math.Vec2D,
+) -> Bool {
+  for tile in tiles {
+    if tile.px[X] == px[X] && tile.px[Y] == px[Y] {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn ldtk_tile_in_layer_bounds(
+  tile : LdtkTileInstance,
+  layer : LdtkLayerInstance,
+) -> Bool {
+  let max_x = (layer.c_wid * layer.grid_size).to_double()
+  let max_y = (layer.c_hei * layer.grid_size).to_double()
+  tile.px[X] >= 0.0 &&
+  tile.px[Y] >= 0.0 &&
+  tile.px[X] < max_x &&
+  tile.px[Y] < max_y
 }
 
 ///|
@@ -1632,6 +1892,84 @@ fn ldtk_cleanup_dead_runtime_entries() -> Unit {
 }
 
 ///|
+fn ldtk_apply_registered_entity(event : LdtkEntitySpawnedEvent) -> Unit {
+  if ldtk_find_registered_entity_hook(
+      event.layer.identifier,
+      event.instance.identifier,
+    )
+    is Some(hook) {
+    hook(event)
+  }
+}
+
+///|
+fn ldtk_apply_registered_int_cell(event : LdtkIntGridCellSpawnedEvent) -> Unit {
+  if ldtk_find_registered_int_cell_hook(event.layer.identifier, event.value)
+    is Some(hook) {
+    hook(event)
+  }
+}
+
+///|
+fn ldtk_find_registered_entity_hook(
+  layer_identifier : String,
+  entity_identifier : String,
+) -> ((LdtkEntitySpawnedEvent) -> Unit)? {
+  if ldtk_entity_typed_registrations.get(
+      ldtk_entity_typed_registration_key(
+        Some(layer_identifier),
+        Some(entity_identifier),
+      ),
+    )
+    is Some(hook) {
+    return Some(hook)
+  }
+  if ldtk_entity_typed_registrations.get(
+      ldtk_entity_typed_registration_key(None, Some(entity_identifier)),
+    )
+    is Some(hook) {
+    return Some(hook)
+  }
+  if ldtk_entity_typed_registrations.get(
+      ldtk_entity_typed_registration_key(Some(layer_identifier), None),
+    )
+    is Some(hook) {
+    return Some(hook)
+  }
+  ldtk_entity_typed_registrations.get(
+    ldtk_entity_typed_registration_key(None, None),
+  )
+}
+
+///|
+fn ldtk_find_registered_int_cell_hook(
+  layer_identifier : String,
+  value : Int,
+) -> ((LdtkIntGridCellSpawnedEvent) -> Unit)? {
+  if ldtk_int_cell_typed_registrations.get(
+      ldtk_int_cell_typed_registration_key(Some(layer_identifier), Some(value)),
+    )
+    is Some(hook) {
+    return Some(hook)
+  }
+  if ldtk_int_cell_typed_registrations.get(
+      ldtk_int_cell_typed_registration_key(None, Some(value)),
+    )
+    is Some(hook) {
+    return Some(hook)
+  }
+  if ldtk_int_cell_typed_registrations.get(
+      ldtk_int_cell_typed_registration_key(Some(layer_identifier), None),
+    )
+    is Some(hook) {
+    return Some(hook)
+  }
+  ldtk_int_cell_typed_registrations.get(
+    ldtk_int_cell_typed_registration_key(None, None),
+  )
+}
+
+///|
 fn ldtk_int_grid_cell_spawn_hook_key(
   layer_identifier : String,
   value : Int,
@@ -1650,6 +1988,38 @@ fn ldtk_entity_layer_identifier_spawn_hook_key(
   identifier : String,
 ) -> String {
   "\{layer_identifier}#\{identifier}"
+}
+
+///|
+fn ldtk_entity_typed_registration_key(
+  layer_identifier : String?,
+  entity_identifier : String?,
+) -> String {
+  "L(\{ldtk_optional_string_registration_key(layer_identifier)})|E(\{ldtk_optional_string_registration_key(entity_identifier)})"
+}
+
+///|
+fn ldtk_int_cell_typed_registration_key(
+  layer_identifier : String?,
+  value : Int?,
+) -> String {
+  "L(\{ldtk_optional_string_registration_key(layer_identifier)})|V(\{ldtk_optional_int_registration_key(value)})"
+}
+
+///|
+fn ldtk_optional_string_registration_key(value : String?) -> String {
+  match value {
+    Some(content) => "S\{content.length()}:\{content}"
+    None => "N"
+  }
+}
+
+///|
+fn ldtk_optional_int_registration_key(value : Int?) -> String {
+  match value {
+    Some(number) => "I\{number}"
+    None => "N"
+  }
 }
 
 ///|

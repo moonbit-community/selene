@@ -102,6 +102,12 @@ fn reset_ldtk_runtime() -> Unit {
     ldtk_int_grid_value_spawn_hooks.remove(pair.0)
   }
   ldtk_int_grid_default_spawn_hook.val = None
+  for pair in ldtk_entity_typed_registrations.to_array() {
+    ldtk_entity_typed_registrations.remove(pair.0)
+  }
+  for pair in ldtk_int_cell_typed_registrations.to_array() {
+    ldtk_int_cell_typed_registrations.remove(pair.0)
+  }
   ldtk_world_spawned_event_bus.clear()
   ldtk_level_spawned_event_bus.clear()
   ldtk_layer_spawned_event_bus.clear()
@@ -1340,6 +1346,86 @@ test "ldtk entity optional hook registration routes by scope" {
 }
 
 ///|
+test "ldtk typed entity registrations use most specific scope" {
+  reset_ldtk_runtime()
+  let project = test_project_with_layers("level-main", [
+    test_entity_layer_with_identifier("LayerA", [
+      {
+        iid: "entity-enemy-a",
+        identifier: "Enemy",
+        def_uid: 1,
+        width: 16,
+        height: 16,
+        px: @math.Vec2D(0.0, 0.0),
+        grid: @math.Vec2D(0.0, 0.0),
+        pivot: @math.Vec2D::zero(),
+        smart_color: None,
+        tags: [],
+        field_instances: [],
+      },
+      {
+        iid: "entity-npc-a",
+        identifier: "Npc",
+        def_uid: 2,
+        width: 16,
+        height: 16,
+        px: @math.Vec2D(16.0, 0.0),
+        grid: @math.Vec2D(1.0, 0.0),
+        pivot: @math.Vec2D::zero(),
+        smart_color: None,
+        tags: [],
+        field_instances: [],
+      },
+    ]),
+    test_entity_layer_with_identifier("LayerB", [
+      {
+        iid: "entity-enemy-b",
+        identifier: "Enemy",
+        def_uid: 3,
+        width: 16,
+        height: 16,
+        px: @math.Vec2D(32.0, 0.0),
+        grid: @math.Vec2D(2.0, 0.0),
+        pivot: @math.Vec2D::zero(),
+        smart_color: None,
+        tags: [],
+        field_instances: [],
+      },
+    ]),
+  ])
+  let scoped_hits = Ref::new(0)
+  let identifier_hits = Ref::new(0)
+  let layer_hits = Ref::new(0)
+  let default_hits = Ref::new(0)
+
+  register_ldtk_entity_for_layer("LayerA", "Enemy", fn(_event) {
+    scoped_hits.val += 1
+  })
+  register_ldtk_entity("Enemy", fn(_event) { identifier_hits.val += 1 })
+  register_default_ldtk_entity_for_layer("LayerA", fn(_event) {
+    layer_hits.val += 1
+  })
+  register_default_ldtk_entity(fn(_event) { default_hits.val += 1 })
+
+  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_level_selection(ldtk_level_selection_index(0))
+  let world = spawn_ldtk_world(project)
+
+  inspect(scoped_hits.val, content="1")
+  inspect(identifier_hits.val, content="1")
+  inspect(layer_hits.val, content="1")
+  inspect(default_hits.val, content="0")
+
+  unregister_ldtk_entity_for_layer("LayerA", "Enemy")
+  unregister_ldtk_entity("Enemy")
+  unregister_default_ldtk_entity_for_layer("LayerA")
+  unregister_default_ldtk_entity()
+  inspect(ldtk_entity_typed_registrations.to_array().length(), content="0")
+
+  cleanup_ldtk_entity(world)
+}
+
+///|
 test "ldtk intgrid spawn hooks apply by layer and cell value" {
   reset_ldtk_runtime()
   let project = test_project_with_layers("level-main", [
@@ -1377,6 +1463,45 @@ test "ldtk intgrid spawn hooks apply by layer and cell value" {
     ldtk_int_grid_colliders.get(value_2_entity).unwrap().sensor,
     content="true",
   )
+
+  cleanup_ldtk_entity(world)
+}
+
+///|
+test "ldtk typed int cell registrations use most specific scope" {
+  reset_ldtk_runtime()
+  let project = test_project_with_layers("level-main", [
+    test_int_grid_layer("Collision", 2, 1, [1, 2]),
+    test_int_grid_layer("Water", 1, 1, [2]),
+  ])
+  let scoped_hits = Ref::new(0)
+  let value_hits = Ref::new(0)
+  let layer_hits = Ref::new(0)
+  let default_hits = Ref::new(0)
+
+  register_ldtk_int_cell_for_layer("Collision", 2, fn(_event) {
+    scoped_hits.val += 1
+  })
+  register_ldtk_int_cell(2, fn(_event) { value_hits.val += 1 })
+  register_default_ldtk_int_cell_for_layer("Collision", fn(_event) {
+    layer_hits.val += 1
+  })
+  register_default_ldtk_int_cell(fn(_event) { default_hits.val += 1 })
+
+  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_level_selection(ldtk_level_selection_index(0))
+  let world = spawn_ldtk_world(project)
+
+  inspect(scoped_hits.val, content="1")
+  inspect(value_hits.val, content="1")
+  inspect(layer_hits.val, content="1")
+  inspect(default_hits.val, content="0")
+
+  unregister_ldtk_int_cell_for_layer("Collision", 2)
+  unregister_ldtk_int_cell(2)
+  unregister_default_ldtk_int_cell_for_layer("Collision")
+  unregister_default_ldtk_int_cell()
+  inspect(ldtk_int_cell_typed_registrations.to_array().length(), content="0")
 
   cleanup_ldtk_entity(world)
 }
@@ -1636,7 +1761,17 @@ test "ldtk intgrid with tileset skips colorful fallback sprites" {
                   data: [],
                 },
               ],
-              grid_tiles: [],
+              grid_tiles: [
+                {
+                  tile_id: 1,
+                  src: @math.Vec2D(16.0, 0.0),
+                  px: @math.Vec2D::zero(),
+                  flip_x: false,
+                  flip_y: false,
+                  alpha: 1.0,
+                  data: [],
+                },
+              ],
               entity_instances: [],
             },
           ],
@@ -1649,9 +1784,21 @@ test "ldtk intgrid with tileset skips colorful fallback sprites" {
     let world = spawn_ldtk_world(project)
     let int_grid_cell = ldtk_spawned_int_grid_cells.to_array()[0].0
     inspect(@sprite.sprites.contains(int_grid_cell), content="false")
-    inspect(ldtk_spawned_tile_instances.to_array().length(), content="1")
-    let visual_tile = ldtk_spawned_tile_instances.to_array()[0].0
-    inspect(@sprite.sprites.contains(visual_tile), content="true")
+    inspect(ldtk_spawned_tile_instances.to_array().length(), content="2")
+    let mut min_zindex = 999999
+    let mut max_zindex = -999999
+    for pair in ldtk_spawned_tile_instances.to_array() {
+      let visual_tile = pair.0
+      inspect(@sprite.sprites.contains(visual_tile), content="true")
+      let zindex = pair.1.zindex
+      if zindex < min_zindex {
+        min_zindex = zindex
+      }
+      if zindex > max_zindex {
+        max_zindex = zindex
+      }
+    }
+    inspect(max_zindex > min_zindex, content="true")
     cleanup_ldtk_entity(world)
   })
 }
@@ -2149,6 +2296,8 @@ test "reset_ldtk_runtime clears runtime maps and intgrid physics components" {
   inspect(ldtk_int_grid_cell_spawn_hooks.to_array().length(), content="0")
   inspect(ldtk_int_grid_value_spawn_hooks.to_array().length(), content="0")
   inspect(ldtk_int_grid_default_spawn_hook.val is None, content="true")
+  inspect(ldtk_entity_typed_registrations.to_array().length(), content="0")
+  inspect(ldtk_int_cell_typed_registrations.to_array().length(), content="0")
   inspect(ldtk_pending_transformed_level_iids.to_array().length(), content="0")
   inspect(@physics2d.colliders.contains(cell_entity), content="false")
   inspect(@physics2d.shapes.contains(cell_entity), content="false")
