@@ -10,6 +10,46 @@ import {
 }
 
 // Values
+pub fn[T] add_default_ldtk_entity_component(Map[@entity.Entity, T], (LdtkEntitySpawnedEvent) -> T) -> Unit
+
+pub fn[T] add_default_ldtk_entity_component_for_layer(String, Map[@entity.Entity, T], (LdtkEntitySpawnedEvent) -> T) -> Unit
+
+pub fn add_default_ldtk_entity_registration((LdtkEntitySpawnedEvent) -> Unit) -> Unit
+
+pub fn add_default_ldtk_entity_registration_for_layer(String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+
+pub fn[T] add_default_ldtk_int_cell_component(Map[@entity.Entity, T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
+
+pub fn[T] add_default_ldtk_int_cell_component_for_layer(String, Map[@entity.Entity, T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
+
+pub fn add_default_ldtk_int_cell_registration((LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+
+pub fn add_default_ldtk_int_cell_registration_for_layer(String, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+
+pub fn[T] add_ldtk_entity_component(String, Map[@entity.Entity, T], (LdtkEntitySpawnedEvent) -> T) -> Unit
+
+pub fn[T] add_ldtk_entity_component_for_layer(String, String, Map[@entity.Entity, T], (LdtkEntitySpawnedEvent) -> T) -> Unit
+
+pub fn[T] add_ldtk_entity_component_for_layer_optional(String?, String?, Map[@entity.Entity, T], (LdtkEntitySpawnedEvent) -> T) -> Unit
+
+pub fn add_ldtk_entity_registration(String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+
+pub fn add_ldtk_entity_registration_for_layer(String, String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+
+pub fn add_ldtk_entity_registration_for_layer_optional(String?, String?, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+
+pub fn[T] add_ldtk_int_cell_component(Int, Map[@entity.Entity, T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
+
+pub fn[T] add_ldtk_int_cell_component_for_layer(String, Int, Map[@entity.Entity, T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
+
+pub fn[T] add_ldtk_int_cell_component_for_layer_optional(String?, Int?, Map[@entity.Entity, T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
+
+pub fn add_ldtk_int_cell_registration(Int, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+
+pub fn add_ldtk_int_cell_registration_for_layer(String, Int, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+
+pub fn add_ldtk_int_cell_registration_for_layer_optional(String?, Int?, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
+
 pub fn clear_ldtk_children(@entity.Entity) -> Unit
 
 pub fn clear_ldtk_entity_default_spawn_hook() -> Unit

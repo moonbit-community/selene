@@ -31,6 +31,29 @@
 - `unregister_default_ldtk_int_cell()`: removes typed LDtk int-cell global-default handler.
 - `clear_ldtk_int_cell_registrations()`: clears all typed LDtk int-cell registrations.
 
+#### `selene/ldtk` bundle-like additive registration helpers (derive alternative)
+
+- `add_ldtk_entity_registration_for_layer_optional(layer_identifier?, entity_identifier?, hook)`: appends an entity typed handler for a scope; if the scope already has a handler, both handlers run in registration order.
+- `add_ldtk_entity_registration_for_layer(layer_identifier, entity_identifier, hook)`: appends an entity typed handler for a specific layer+entity scope.
+- `add_ldtk_entity_registration(entity_identifier, hook)`: appends an entity typed handler for an entity identifier across layers.
+- `add_default_ldtk_entity_registration_for_layer(layer_identifier, hook)`: appends an entity typed handler for all entities on a layer.
+- `add_default_ldtk_entity_registration(hook)`: appends an entity typed fallback handler for all layers/entities.
+- `add_ldtk_entity_component_for_layer_optional(layer_identifier?, entity_identifier?, storage, make)`: appends a scope-matched entity handler that inserts a generated component value into a component map.
+- `add_ldtk_entity_component_for_layer(layer_identifier, entity_identifier, storage, make)`: appends component insertion for a specific layer+entity scope.
+- `add_ldtk_entity_component(entity_identifier, storage, make)`: appends component insertion for an entity identifier across layers.
+- `add_default_ldtk_entity_component_for_layer(layer_identifier, storage, make)`: appends component insertion for all entities on a layer.
+- `add_default_ldtk_entity_component(storage, make)`: appends component insertion for all entities/layers.
+- `add_ldtk_int_cell_registration_for_layer_optional(layer_identifier?, value?, hook)`: appends an int-cell typed handler for a scope; if the scope already has a handler, both handlers run in registration order.
+- `add_ldtk_int_cell_registration_for_layer(layer_identifier, value, hook)`: appends an int-cell typed handler for a specific layer+value scope.
+- `add_ldtk_int_cell_registration(value, hook)`: appends an int-cell typed handler for a value across layers.
+- `add_default_ldtk_int_cell_registration_for_layer(layer_identifier, hook)`: appends an int-cell typed handler for all values on a layer.
+- `add_default_ldtk_int_cell_registration(hook)`: appends an int-cell typed fallback handler for all layers/values.
+- `add_ldtk_int_cell_component_for_layer_optional(layer_identifier?, value?, storage, make)`: appends a scope-matched int-cell handler that inserts a generated component value into a component map.
+- `add_ldtk_int_cell_component_for_layer(layer_identifier, value, storage, make)`: appends component insertion for a specific layer+value scope.
+- `add_ldtk_int_cell_component(value, storage, make)`: appends component insertion for a value across layers.
+- `add_default_ldtk_int_cell_component_for_layer(layer_identifier, storage, make)`: appends component insertion for all values on a layer.
+- `add_default_ldtk_int_cell_component(storage, make)`: appends component insertion for all values/layers.
+
 ### Changed
 
 - `spawn_ldtk_world(...)` typed registration behavior now mirrors bevy optional-scope precedence for both entities and int-cells: `(layer+identifier/value) -> (identifier/value) -> (layer) -> (default)`, with only the highest-priority match executed.

@@ -489,6 +489,240 @@ pub fn clear_ldtk_int_cell_registrations() -> Unit {
 }
 
 ///|
+pub fn add_ldtk_entity_registration_for_layer_optional(
+  layer_identifier : String?,
+  entity_identifier : String?,
+  hook : (LdtkEntitySpawnedEvent) -> Unit,
+) -> Unit {
+  ldtk_append_entity_typed_registration(
+    layer_identifier, entity_identifier, hook,
+  )
+}
+
+///|
+pub fn add_ldtk_entity_registration_for_layer(
+  layer_identifier : String,
+  entity_identifier : String,
+  hook : (LdtkEntitySpawnedEvent) -> Unit,
+) -> Unit {
+  add_ldtk_entity_registration_for_layer_optional(
+    Some(layer_identifier),
+    Some(entity_identifier),
+    hook,
+  )
+}
+
+///|
+pub fn add_ldtk_entity_registration(
+  entity_identifier : String,
+  hook : (LdtkEntitySpawnedEvent) -> Unit,
+) -> Unit {
+  add_ldtk_entity_registration_for_layer_optional(
+    None,
+    Some(entity_identifier),
+    hook,
+  )
+}
+
+///|
+pub fn add_default_ldtk_entity_registration_for_layer(
+  layer_identifier : String,
+  hook : (LdtkEntitySpawnedEvent) -> Unit,
+) -> Unit {
+  add_ldtk_entity_registration_for_layer_optional(
+    Some(layer_identifier),
+    None,
+    hook,
+  )
+}
+
+///|
+pub fn add_default_ldtk_entity_registration(
+  hook : (LdtkEntitySpawnedEvent) -> Unit,
+) -> Unit {
+  add_ldtk_entity_registration_for_layer_optional(None, None, hook)
+}
+
+///|
+pub fn[T] add_ldtk_entity_component_for_layer_optional(
+  layer_identifier : String?,
+  entity_identifier : String?,
+  storage : Map[@entity.Entity, T],
+  make : (LdtkEntitySpawnedEvent) -> T,
+) -> Unit {
+  add_ldtk_entity_registration_for_layer_optional(
+    layer_identifier,
+    entity_identifier,
+    fn(event) { storage.set(event.entity, make(event)) },
+  )
+}
+
+///|
+pub fn[T] add_ldtk_entity_component_for_layer(
+  layer_identifier : String,
+  entity_identifier : String,
+  storage : Map[@entity.Entity, T],
+  make : (LdtkEntitySpawnedEvent) -> T,
+) -> Unit {
+  add_ldtk_entity_component_for_layer_optional(
+    Some(layer_identifier),
+    Some(entity_identifier),
+    storage,
+    make,
+  )
+}
+
+///|
+pub fn[T] add_ldtk_entity_component(
+  entity_identifier : String,
+  storage : Map[@entity.Entity, T],
+  make : (LdtkEntitySpawnedEvent) -> T,
+) -> Unit {
+  add_ldtk_entity_component_for_layer_optional(
+    None,
+    Some(entity_identifier),
+    storage,
+    make,
+  )
+}
+
+///|
+pub fn[T] add_default_ldtk_entity_component_for_layer(
+  layer_identifier : String,
+  storage : Map[@entity.Entity, T],
+  make : (LdtkEntitySpawnedEvent) -> T,
+) -> Unit {
+  add_ldtk_entity_component_for_layer_optional(
+    Some(layer_identifier),
+    None,
+    storage,
+    make,
+  )
+}
+
+///|
+pub fn[T] add_default_ldtk_entity_component(
+  storage : Map[@entity.Entity, T],
+  make : (LdtkEntitySpawnedEvent) -> T,
+) -> Unit {
+  add_ldtk_entity_component_for_layer_optional(None, None, storage, make)
+}
+
+///|
+pub fn add_ldtk_int_cell_registration_for_layer_optional(
+  layer_identifier : String?,
+  value : Int?,
+  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+) -> Unit {
+  ldtk_append_int_cell_typed_registration(layer_identifier, value, hook)
+}
+
+///|
+pub fn add_ldtk_int_cell_registration_for_layer(
+  layer_identifier : String,
+  value : Int,
+  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+) -> Unit {
+  add_ldtk_int_cell_registration_for_layer_optional(
+    Some(layer_identifier),
+    Some(value),
+    hook,
+  )
+}
+
+///|
+pub fn add_ldtk_int_cell_registration(
+  value : Int,
+  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+) -> Unit {
+  add_ldtk_int_cell_registration_for_layer_optional(None, Some(value), hook)
+}
+
+///|
+pub fn add_default_ldtk_int_cell_registration_for_layer(
+  layer_identifier : String,
+  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+) -> Unit {
+  add_ldtk_int_cell_registration_for_layer_optional(
+    Some(layer_identifier),
+    None,
+    hook,
+  )
+}
+
+///|
+pub fn add_default_ldtk_int_cell_registration(
+  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+) -> Unit {
+  add_ldtk_int_cell_registration_for_layer_optional(None, None, hook)
+}
+
+///|
+pub fn[T] add_ldtk_int_cell_component_for_layer_optional(
+  layer_identifier : String?,
+  value : Int?,
+  storage : Map[@entity.Entity, T],
+  make : (LdtkIntGridCellSpawnedEvent) -> T,
+) -> Unit {
+  add_ldtk_int_cell_registration_for_layer_optional(layer_identifier, value, fn(
+    event,
+  ) {
+    storage.set(event.cell_entity, make(event))
+  })
+}
+
+///|
+pub fn[T] add_ldtk_int_cell_component_for_layer(
+  layer_identifier : String,
+  value : Int,
+  storage : Map[@entity.Entity, T],
+  make : (LdtkIntGridCellSpawnedEvent) -> T,
+) -> Unit {
+  add_ldtk_int_cell_component_for_layer_optional(
+    Some(layer_identifier),
+    Some(value),
+    storage,
+    make,
+  )
+}
+
+///|
+pub fn[T] add_ldtk_int_cell_component(
+  value : Int,
+  storage : Map[@entity.Entity, T],
+  make : (LdtkIntGridCellSpawnedEvent) -> T,
+) -> Unit {
+  add_ldtk_int_cell_component_for_layer_optional(
+    None,
+    Some(value),
+    storage,
+    make,
+  )
+}
+
+///|
+pub fn[T] add_default_ldtk_int_cell_component_for_layer(
+  layer_identifier : String,
+  storage : Map[@entity.Entity, T],
+  make : (LdtkIntGridCellSpawnedEvent) -> T,
+) -> Unit {
+  add_ldtk_int_cell_component_for_layer_optional(
+    Some(layer_identifier),
+    None,
+    storage,
+    make,
+  )
+}
+
+///|
+pub fn[T] add_default_ldtk_int_cell_component(
+  storage : Map[@entity.Entity, T],
+  make : (LdtkIntGridCellSpawnedEvent) -> T,
+) -> Unit {
+  add_ldtk_int_cell_component_for_layer_optional(None, None, storage, make)
+}
+
+///|
 pub fn register_ldtk_entity_spawn_hook(
   identifier : String,
   hook : (LdtkEntitySpawnedEvent) -> Unit,
@@ -1967,6 +2201,42 @@ fn ldtk_find_registered_int_cell_hook(
   ldtk_int_cell_typed_registrations.get(
     ldtk_int_cell_typed_registration_key(None, None),
   )
+}
+
+///|
+fn ldtk_append_entity_typed_registration(
+  layer_identifier : String?,
+  entity_identifier : String?,
+  hook : (LdtkEntitySpawnedEvent) -> Unit,
+) -> Unit {
+  let key = ldtk_entity_typed_registration_key(
+    layer_identifier, entity_identifier,
+  )
+  if ldtk_entity_typed_registrations.get(key) is Some(existing_hook) {
+    ldtk_entity_typed_registrations.set(key, fn(event) {
+      existing_hook(event)
+      hook(event)
+    })
+  } else {
+    ldtk_entity_typed_registrations.set(key, hook)
+  }
+}
+
+///|
+fn ldtk_append_int_cell_typed_registration(
+  layer_identifier : String?,
+  value : Int?,
+  hook : (LdtkIntGridCellSpawnedEvent) -> Unit,
+) -> Unit {
+  let key = ldtk_int_cell_typed_registration_key(layer_identifier, value)
+  if ldtk_int_cell_typed_registrations.get(key) is Some(existing_hook) {
+    ldtk_int_cell_typed_registrations.set(key, fn(event) {
+      existing_hook(event)
+      hook(event)
+    })
+  } else {
+    ldtk_int_cell_typed_registrations.set(key, hook)
+  }
 }
 
 ///|

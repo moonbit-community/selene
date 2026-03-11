@@ -1426,6 +1426,99 @@ test "ldtk typed entity registrations use most specific scope" {
 }
 
 ///|
+test "ldtk add entity registration composes handlers in same scope" {
+  reset_ldtk_runtime()
+  let project = test_project_with_layers("level-main", [
+    test_entity_layer_with_identifier("LayerA", [
+      {
+        iid: "entity-enemy-a",
+        identifier: "Enemy",
+        def_uid: 1,
+        width: 16,
+        height: 16,
+        px: @math.Vec2D(0.0, 0.0),
+        grid: @math.Vec2D(0.0, 0.0),
+        pivot: @math.Vec2D::zero(),
+        smart_color: None,
+        tags: [],
+        field_instances: [],
+      },
+    ]),
+  ])
+  let first_hits = Ref::new(0)
+  let second_hits = Ref::new(0)
+  add_ldtk_entity_registration_for_layer("LayerA", "Enemy", fn(_event) {
+    first_hits.val += 1
+  })
+  add_ldtk_entity_registration_for_layer("LayerA", "Enemy", fn(_event) {
+    second_hits.val += 1
+  })
+
+  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_level_selection(ldtk_level_selection_index(0))
+  let world = spawn_ldtk_world(project)
+  inspect(first_hits.val, content="1")
+  inspect(second_hits.val, content="1")
+
+  cleanup_ldtk_entity(world)
+}
+
+///|
+test "ldtk add entity component helpers can build bundle-like sets" {
+  reset_ldtk_runtime()
+  let project = test_project_with_layers("level-main", [
+    test_entity_layer_with_identifier("LayerA", [
+      {
+        iid: "entity-enemy-a",
+        identifier: "Enemy",
+        def_uid: 1,
+        width: 16,
+        height: 16,
+        px: @math.Vec2D(0.0, 0.0),
+        grid: @math.Vec2D(0.0, 0.0),
+        pivot: @math.Vec2D::zero(),
+        smart_color: None,
+        tags: [],
+        field_instances: [],
+      },
+      {
+        iid: "entity-npc-a",
+        identifier: "Npc",
+        def_uid: 2,
+        width: 16,
+        height: 16,
+        px: @math.Vec2D(16.0, 0.0),
+        grid: @math.Vec2D(1.0, 0.0),
+        pivot: @math.Vec2D::zero(),
+        smart_color: None,
+        tags: [],
+        field_instances: [],
+      },
+    ]),
+  ])
+  let entity_scores : Map[@entity.Entity, Int] = Map::new()
+  let entity_kinds : Map[@entity.Entity, String] = Map::new()
+
+  add_ldtk_entity_component("Enemy", entity_scores, fn(_event) { 99 })
+  add_ldtk_entity_component("Enemy", entity_kinds, fn(event) {
+    event.instance.identifier
+  })
+
+  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_level_selection(ldtk_level_selection_index(0))
+  let world = spawn_ldtk_world(project)
+
+  let enemy = ldtk_entity_by_iid(world, "entity-enemy-a").unwrap()
+  let npc = ldtk_entity_by_iid(world, "entity-npc-a").unwrap()
+  inspect(entity_scores.get(enemy).unwrap(), content="99")
+  inspect(entity_kinds.get(enemy).unwrap(), content="Enemy")
+  inspect(entity_scores.get(npc) is None, content="true")
+  inspect(entity_kinds.get(npc) is None, content="true")
+
+  cleanup_ldtk_entity(world)
+}
+
+///|
 test "ldtk intgrid spawn hooks apply by layer and cell value" {
   reset_ldtk_runtime()
   let project = test_project_with_layers("level-main", [
@@ -1502,6 +1595,41 @@ test "ldtk typed int cell registrations use most specific scope" {
   unregister_default_ldtk_int_cell_for_layer("Collision")
   unregister_default_ldtk_int_cell()
   inspect(ldtk_int_cell_typed_registrations.to_array().length(), content="0")
+
+  cleanup_ldtk_entity(world)
+}
+
+///|
+test "ldtk add int cell component helpers can compose per scope" {
+  reset_ldtk_runtime()
+  let project = test_project_with_layers("level-main", [
+    test_int_grid_layer("Collision", 2, 1, [1, 2]),
+  ])
+  let cell_labels : Map[@entity.Entity, String] = Map::new()
+  let cell_values_x2 : Map[@entity.Entity, Int] = Map::new()
+
+  add_ldtk_int_cell_component(2, cell_labels, fn(_event) { "solid" })
+  add_ldtk_int_cell_component(2, cell_values_x2, fn(event) { event.value * 2 })
+
+  set_ldtk_settings(default_ldtk_settings())
+  set_ldtk_level_selection(ldtk_level_selection_index(0))
+  let world = spawn_ldtk_world(project)
+
+  let mut value_1_entity : @entity.Entity? = None
+  let mut value_2_entity : @entity.Entity? = None
+  for pair in ldtk_spawned_int_grid_cells.to_array() {
+    if pair.1.value == 1 {
+      value_1_entity = Some(pair.0)
+    } else if pair.1.value == 2 {
+      value_2_entity = Some(pair.0)
+    }
+  }
+  let cell_1 = value_1_entity.unwrap()
+  let cell_2 = value_2_entity.unwrap()
+  inspect(cell_labels.get(cell_2).unwrap(), content="solid")
+  inspect(cell_values_x2.get(cell_2).unwrap(), content="4")
+  inspect(cell_labels.get(cell_1) is None, content="true")
+  inspect(cell_values_x2.get(cell_1) is None, content="true")
 
   cleanup_ldtk_entity(world)
 }
