@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.28.0] - 2026-03-11
+
 ### Added
 
 #### `selene/ldtk` project data and selection APIs
