@@ -639,6 +639,8 @@ pub fn LdtkProject::level_by_iid(Self, String) -> LdtkLevel?
 pub fn LdtkProject::level_set_for_selection(Self, LdtkLevelSelection, LdtkLevelSpawnBehavior) -> LdtkLevelSet
 pub fn LdtkProject::resolve_path(Self, String) -> String
 pub fn LdtkProject::tileset_by_uid(Self, Int) -> LdtkTilesetDefinition?
+pub fn LdtkProject::tileset_tile_custom_data(Self, Int, Int) -> String?
+pub fn LdtkProject::tileset_tile_enum_tags(Self, Int, Int) -> Array[String]
 
 pub struct LdtkProjectDefinitions {
   tilesets : Array[LdtkTilesetDefinition]
@@ -715,6 +717,8 @@ pub struct LdtkTileMetadata {
   flip_x : Bool
   flip_y : Bool
   alpha : Double
+  custom_data : String?
+  enum_tags : Array[String]
 }
 
 pub struct LdtkTileSpawnedEvent {
@@ -728,6 +732,11 @@ pub struct LdtkTileSpawnedEvent {
   zindex : Int
 }
 
+pub struct LdtkTilesetCustomData {
+  data : String
+  tile_id : Int
+}
+
 pub struct LdtkTilesetDefinition {
   uid : Int
   identifier : String
@@ -737,6 +746,17 @@ pub struct LdtkTilesetDefinition {
   px_hei : Int
   spacing : Int
   padding : Int
+  custom_data : Array[LdtkTilesetCustomData]
+  enum_tags : Array[LdtkTilesetEnumTag]
+  tags : Array[String]
+  tags_source_enum_uid : Int?
+}
+pub fn LdtkTilesetDefinition::tile_custom_data(Self, Int) -> String?
+pub fn LdtkTilesetDefinition::tile_enum_tags(Self, Int) -> Array[String]
+
+pub struct LdtkTilesetEnumTag {
+  enum_value_id : String
+  tile_ids : Array[Int]
 }
 
 pub struct LdtkTilesetRect {

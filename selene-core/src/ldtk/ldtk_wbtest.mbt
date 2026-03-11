@@ -690,6 +690,10 @@ test "spawn_ldtk_world spawns layer tiles entities and intgrid cells" {
             px_hei: 16,
             spacing: 0,
             padding: 0,
+            custom_data: [],
+            enum_tags: [],
+            tags: [],
+            tags_source_enum_uid: None,
           },
         ],
         layers: [
@@ -793,6 +797,10 @@ test "ldtk tile source uses tileset spacing and padding" {
             px_hei: 55,
             spacing: 2,
             padding: 1,
+            custom_data: [],
+            enum_tags: [],
+            tags: [],
+            tags_source_enum_uid: None,
           },
         ],
         layers: [],
@@ -879,6 +887,10 @@ test "ldtk tile render alpha multiplies layer opacity and tile alpha" {
             px_hei: 16,
             spacing: 0,
             padding: 0,
+            custom_data: [],
+            enum_tags: [],
+            tags: [],
+            tags_source_enum_uid: None,
           },
         ],
         layers: [],
@@ -941,6 +953,145 @@ test "ldtk tile render alpha multiplies layer opacity and tile alpha" {
       Animation(animation, frame=_) => inspect(animation.color.a, content="0.2")
       _ => fail("expected animation sprite for LDtk tile")
     }
+    cleanup_ldtk_entity(world)
+  })
+}
+
+///|
+test "ldtk tileset custom data and enum tags resolve by tile id" {
+  let project : LdtkProject = {
+    source_path: None,
+    external_levels: false,
+    world_layout: None,
+    bg_color: None,
+    default_level_width: Some(1),
+    default_level_height: Some(1),
+    defs: {
+      tilesets: [
+        {
+          uid: 1,
+          identifier: "main",
+          rel_path: Some("assets/tiles.png"),
+          tile_grid_size: 16,
+          px_wid: 32,
+          px_hei: 32,
+          spacing: 0,
+          padding: 0,
+          custom_data: [{ data: "spawn", tile_id: 4 }],
+          enum_tags: [
+            { enum_value_id: "Solid", tile_ids: [4, 7] },
+            { enum_value_id: "Danger", tile_ids: [7] },
+          ],
+          tags: [],
+          tags_source_enum_uid: None,
+        },
+      ],
+      layers: [],
+      entities: [],
+      enums: [],
+      external_enums: [],
+    },
+    levels: [],
+    worlds: [],
+  }
+  inspect(project.tileset_tile_custom_data(1, 4).unwrap(), content="spawn")
+  inspect(project.tileset_tile_custom_data(1, 3) is None, content="true")
+  inspect(project.tileset_tile_enum_tags(1, 4).length(), content="1")
+  inspect(project.tileset_tile_enum_tags(1, 4)[0], content="Solid")
+  inspect(project.tileset_tile_enum_tags(1, 7).length(), content="2")
+  inspect(project.tileset_tile_enum_tags(1, 7)[0], content="Solid")
+  inspect(project.tileset_tile_enum_tags(1, 7)[1], content="Danger")
+}
+
+///|
+test "ldtk spawned tile metadata includes custom data and enum tags" {
+  reset_ldtk_runtime()
+  let files : Map[String, Bytes] = Map::new()
+  files.set("assets/tiles.png", ascii_bytes("png"))
+  with_fake_asset_io(files, fn() raise {
+    let project : LdtkProject = {
+      source_path: Some("project.ldtk"),
+      external_levels: false,
+      world_layout: None,
+      bg_color: None,
+      default_level_width: Some(1),
+      default_level_height: Some(1),
+      defs: {
+        tilesets: [
+          {
+            uid: 1,
+            identifier: "main",
+            rel_path: Some("assets/tiles.png"),
+            tile_grid_size: 16,
+            px_wid: 32,
+            px_hei: 32,
+            spacing: 0,
+            padding: 0,
+            custom_data: [{ data: "spawn", tile_id: 4 }],
+            enum_tags: [{ enum_value_id: "Solid", tile_ids: [4] }],
+            tags: [],
+            tags_source_enum_uid: None,
+          },
+        ],
+        layers: [],
+        entities: [],
+        enums: [],
+        external_enums: [],
+      },
+      levels: [
+        {
+          ..empty_ldtk_level(),
+          identifier: "Main",
+          iid: "level-main",
+          uid: 1,
+          layer_instances: [
+            {
+              iid: "layer-tiles",
+              identifier: "Tiles",
+              layer_type: "Tiles",
+              level_id: 1,
+              layer_def_uid: 0,
+              c_wid: 1,
+              c_hei: 1,
+              grid_size: 16,
+              opacity: 1.0,
+              visible: true,
+              optional_rules: [],
+              override_tileset_uid: None,
+              px_offset_x: 0,
+              px_offset_y: 0,
+              px_total_offset_x: 0,
+              px_total_offset_y: 0,
+              seed: 0,
+              tileset_def_uid: Some(1),
+              tileset_rel_path: None,
+              int_grid_csv: [],
+              auto_layer_tiles: [],
+              grid_tiles: [
+                {
+                  tile_id: 4,
+                  src: @math.Vec2D::zero(),
+                  px: @math.Vec2D::zero(),
+                  flip_x: false,
+                  flip_y: false,
+                  alpha: 1.0,
+                },
+              ],
+              entity_instances: [],
+            },
+          ],
+        },
+      ],
+      worlds: [],
+    }
+    set_ldtk_settings(default_ldtk_settings())
+    set_ldtk_level_selection(ldtk_level_selection_index(0))
+    let world = spawn_ldtk_world(project)
+    let tile_entity = ldtk_spawned_tile_instances.to_array()[0].0
+    let metadata = ldtk_tile_metadata.get(tile_entity).unwrap()
+    inspect(metadata.custom_data.unwrap(), content="spawn")
+    inspect(metadata.enum_tags.length(), content="1")
+    inspect(metadata.enum_tags[0], content="Solid")
     cleanup_ldtk_entity(world)
   })
 }
@@ -1236,6 +1387,108 @@ test "ldtk layer display order uses LDtk top-most first ordering" {
 }
 
 ///|
+test "ldtk intgrid with tileset skips colorful fallback sprites" {
+  reset_ldtk_runtime()
+  let files : Map[String, Bytes] = Map::new()
+  files.set("assets/tiles.png", ascii_bytes("png"))
+  with_fake_asset_io(files, fn() raise {
+    let project : LdtkProject = {
+      source_path: Some("project.ldtk"),
+      external_levels: false,
+      world_layout: None,
+      bg_color: None,
+      default_level_width: Some(1),
+      default_level_height: Some(1),
+      defs: {
+        tilesets: [
+          {
+            uid: 1,
+            identifier: "main",
+            rel_path: Some("assets/tiles.png"),
+            tile_grid_size: 16,
+            px_wid: 16,
+            px_hei: 16,
+            spacing: 0,
+            padding: 0,
+            custom_data: [],
+            enum_tags: [],
+            tags: [],
+            tags_source_enum_uid: None,
+          },
+        ],
+        layers: [
+          {
+            uid: 10,
+            identifier: "Collision",
+            layer_type: Some("IntGrid"),
+            int_grid_values: [
+              { value: 1, color: Some("#00ff00"), identifier: Some("Solid") },
+            ],
+          },
+        ],
+        entities: [],
+        enums: [],
+        external_enums: [],
+      },
+      levels: [
+        {
+          ..empty_ldtk_level(),
+          identifier: "Main",
+          iid: "level-main",
+          uid: 1,
+          layer_instances: [
+            {
+              iid: "layer-int",
+              identifier: "Collision",
+              layer_type: "IntGrid",
+              level_id: 1,
+              layer_def_uid: 10,
+              c_wid: 1,
+              c_hei: 1,
+              grid_size: 16,
+              opacity: 1.0,
+              visible: true,
+              optional_rules: [],
+              override_tileset_uid: None,
+              px_offset_x: 0,
+              px_offset_y: 0,
+              px_total_offset_x: 0,
+              px_total_offset_y: 0,
+              seed: 0,
+              tileset_def_uid: Some(1),
+              tileset_rel_path: None,
+              int_grid_csv: [1],
+              auto_layer_tiles: [
+                {
+                  tile_id: 0,
+                  src: @math.Vec2D::zero(),
+                  px: @math.Vec2D::zero(),
+                  flip_x: false,
+                  flip_y: false,
+                  alpha: 1.0,
+                },
+              ],
+              grid_tiles: [],
+              entity_instances: [],
+            },
+          ],
+        },
+      ],
+      worlds: [],
+    }
+    set_ldtk_settings(default_ldtk_settings())
+    set_ldtk_level_selection(ldtk_level_selection_index(0))
+    let world = spawn_ldtk_world(project)
+    let int_grid_cell = ldtk_spawned_int_grid_cells.to_array()[0].0
+    inspect(@sprite.sprites.contains(int_grid_cell), content="false")
+    inspect(ldtk_spawned_tile_instances.to_array().length(), content="1")
+    let visual_tile = ldtk_spawned_tile_instances.to_array()[0].0
+    inspect(@sprite.sprites.contains(visual_tile), content="true")
+    cleanup_ldtk_entity(world)
+  })
+}
+
+///|
 test "ldtk settings intgrid invisible and layer exclusion apply at spawn" {
   reset_ldtk_runtime()
   let files : Map[String, Bytes] = Map::new()
@@ -1259,6 +1512,10 @@ test "ldtk settings intgrid invisible and layer exclusion apply at spawn" {
             px_hei: 16,
             spacing: 0,
             padding: 0,
+            custom_data: [],
+            enum_tags: [],
+            tags: [],
+            tags_source_enum_uid: None,
           },
         ],
         layers: [

@@ -144,7 +144,9 @@
 - `LdtkLevel::field_tile(identifier)`: reads a level field as typed `LdtkTilesetRect`.
 - `LdtkLevel::field_tiles(identifier)`: reads a level field as typed `Array[LdtkTilesetRect]`.
 - `LdtkWorld`: parsed world payload.
-- `LdtkTilesetDefinition`: parsed tileset definition payload.
+- `LdtkTilesetDefinition`: parsed tileset definition payload (atlas metrics + spacing/padding + tileset tags + per-tile custom data + per-tile enum tags metadata).
+- `LdtkTilesetCustomData`: parsed per-tile custom metadata payload (`tile_id`, `data`) from tileset `customData`.
+- `LdtkTilesetEnumTag`: parsed tileset enum-tag payload (`enum_value_id`, `tile_ids`) from tileset `enumTags`.
 - `LdtkIntGridValueDefinition`: parsed int-grid value definition payload (`value`, `color`, `identifier`).
 - `LdtkLayerDefinition`: parsed layer-definition payload (`uid`, `identifier`, `type`, `int_grid_values`).
 - `LdtkFieldDefinition`: parsed entity-field definition payload (`uid`, `identifier`, field type, nullability, default override).
@@ -166,6 +168,10 @@
 - `LdtkProject::level_by_iid(iid)`: finds level by level IID.
 - `LdtkProject::level_set_for_selection(selection, behavior)`: computes target level set (including neighbor expansion when enabled).
 - `LdtkProject::tileset_by_uid(uid)`: resolves a tileset definition by UID.
+- `LdtkTilesetDefinition::tile_custom_data(tile_id)`: resolves tileset `customData` payload for a tile ID.
+- `LdtkTilesetDefinition::tile_enum_tags(tile_id)`: resolves all enum-tag identifiers attached to a tile ID.
+- `LdtkProject::tileset_tile_custom_data(tileset_uid, tile_id)`: resolves tileset custom metadata by `(tileset_uid, tile_id)`.
+- `LdtkProject::tileset_tile_enum_tags(tileset_uid, tile_id)`: resolves tileset enum-tag identifiers by `(tileset_uid, tile_id)`.
 - `LdtkProject::layer_definition_by_identifier(identifier)`: resolves layer definitions by identifier.
 - `LdtkProject::entity_definition_by_identifier(identifier)`: resolves entity definitions by identifier.
 - `LdtkProject::entity_definition_by_uid(uid)`: resolves entity definitions by UID.
@@ -186,7 +192,7 @@
 - `LdtkEntityIid`: per-spawned-entity IID payload.
 - `LdtkGridCoords`: grid coordinate payload (`x`, `y`) for spawned tile/entity/int-grid cell entities.
 - `LdtkIntGridCell`: int-grid value payload (`value`) for spawned int-grid cell entities.
-- `LdtkTileMetadata`: per-spawned-tile metadata payload (`tile_id`, `src`, flip flags, alpha).
+- `LdtkTileMetadata`: per-spawned-tile metadata payload (`tile_id`, `src`, flip flags, alpha, `custom_data`, `enum_tags`).
 - `LdtkIntGridCollider`: marker payload for int-grid cell entities with generated 2D collider/area components.
 - `LdtkWorldly`: runtime payload describing a worldly LDtk entity bound to a world root.
 - `LdtkRespawn`: respawn marker payload used by `ldtk_world_sync_system`.
@@ -281,11 +287,13 @@
 - `LdtkLayerInstance` parsed payload now includes LDtk layer-definition metadata fields (`layer_def_uid`, `optional_rules`, `override_tileset_uid`, `px_offset_x`, `px_offset_y`, `seed`) in addition to existing render/runtime offsets.
 - `spawn_ldtk_world(...)` runtime behavior: spawned levels/entities/tiles/int-grid cells now also populate dedicated lookup/metadata maps (`ldtk_level_iids`, `ldtk_entity_iids`, `ldtk_tile_metadata`, `ldtk_int_grid_cells`) for direct IID/value queries.
 - `spawn_ldtk_world(...)` runtime behavior: when `ldtk_int_grid_physics_settings.enabled` is true, matching int-grid cells now automatically get `physics2d` collider/area+shape components with optional sensor mode and layer/value filtering.
+- `spawn_ldtk_world(...)` IntGrid rendering behavior now matches LDtk/bevy semantics: IntGrid layers with tileset/auto-layer data spawn tile visuals from `autoLayerTiles`/`gridTiles`, and colorful fallback rendering is only used for IntGrid layers without tileset visuals.
 - `spawn_ldtk_world(...)` runtime behavior: worldly entities (`worldly`/`Worldly` field) now spawn under the world root and persist across individual level respawns; full world respawn recreates worldly entities.
 - `ldtk_world_sync_system(...)` runtime behavior: `LdtkLevelEvent::Transformed` is now emitted on the next sync tick after spawn (matching delayed transform timing), rather than in the same spawn tick.
 - `LdtkProject::enum_definition_by_identifier(...)` / `LdtkProject::enum_definition_by_uid(...)` now resolve both internal `defs.enums` and `defs.external_enums`.
 - `LdtkFieldInstance` parsing now preserves `defUid` into `def_uid` for direct field-definition UID lookups.
 - `spawn_ldtk_world(...)` tile rendering now resolves sprite-atlas source offsets using LDtk tileset `padding` and `spacing`; this resolved source is also stored in `ldtk_tile_metadata.src`.
+- `spawn_ldtk_world(...)` tile metadata now carries LDtk tileset per-tile metadata (`customData` and `enumTags`) into `ldtk_tile_metadata.custom_data` and `ldtk_tile_metadata.enum_tags`.
 - `spawn_ldtk_world(...)` tile rendering now applies LDtk tile opacity by multiplying `layer.opacity * tile.alpha` into sprite animation draw alpha.
 - `spawn_ldtk_world(...)` level background-image rendering now applies LDtk `__bgPos` crop/scale/offset when present.
 - `spawn_ldtk_world(...)` layer z-ordering now follows LDtk display order semantics (`layerInstances[0]` is top-most), matching bevy_ecs_ldtk expectations.

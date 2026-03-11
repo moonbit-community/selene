@@ -1199,6 +1199,18 @@ pub struct LdtkWorld {
 }
 
 ///|
+pub struct LdtkTilesetCustomData {
+  data : String
+  tile_id : Int
+}
+
+///|
+pub struct LdtkTilesetEnumTag {
+  enum_value_id : String
+  tile_ids : Array[Int]
+}
+
+///|
 pub struct LdtkTilesetDefinition {
   uid : Int
   identifier : String
@@ -1208,6 +1220,10 @@ pub struct LdtkTilesetDefinition {
   px_hei : Int
   spacing : Int
   padding : Int
+  custom_data : Array[LdtkTilesetCustomData]
+  enum_tags : Array[LdtkTilesetEnumTag]
+  tags : Array[String]
+  tags_source_enum_uid : Int?
 }
 
 ///|
@@ -1462,6 +1478,56 @@ pub fn LdtkProject::tileset_by_uid(
 }
 
 ///|
+pub fn LdtkTilesetDefinition::tile_custom_data(
+  self : LdtkTilesetDefinition,
+  tile_id : Int,
+) -> String? {
+  for custom_data in self.custom_data {
+    if custom_data.tile_id == tile_id {
+      return Some(custom_data.data)
+    }
+  }
+  None
+}
+
+///|
+pub fn LdtkTilesetDefinition::tile_enum_tags(
+  self : LdtkTilesetDefinition,
+  tile_id : Int,
+) -> Array[String] {
+  let tags : Array[String] = []
+  for enum_tag in self.enum_tags {
+    for tagged_tile_id in enum_tag.tile_ids {
+      if tagged_tile_id == tile_id {
+        tags.push(enum_tag.enum_value_id)
+        break
+      }
+    }
+  }
+  tags
+}
+
+///|
+pub fn LdtkProject::tileset_tile_custom_data(
+  self : LdtkProject,
+  tileset_uid : Int,
+  tile_id : Int,
+) -> String? {
+  guard self.tileset_by_uid(tileset_uid) is Some(tileset) else { return None }
+  tileset.tile_custom_data(tile_id)
+}
+
+///|
+pub fn LdtkProject::tileset_tile_enum_tags(
+  self : LdtkProject,
+  tileset_uid : Int,
+  tile_id : Int,
+) -> Array[String] {
+  guard self.tileset_by_uid(tileset_uid) is Some(tileset) else { return [] }
+  tileset.tile_enum_tags(tile_id)
+}
+
+///|
 pub fn LdtkProject::layer_definition_by_identifier(
   self : LdtkProject,
   identifier : String,
@@ -1669,9 +1735,44 @@ fn parse_ldtk_tilesets(tilesets_json : Json?) -> Array[LdtkTilesetDefinition] {
       px_hei: field_int(object, "pxHei").unwrap_or(0),
       spacing: field_int(object, "spacing").unwrap_or(0),
       padding: field_int(object, "padding").unwrap_or(0),
+      custom_data: parse_ldtk_tileset_custom_data(field_json(object, "customData")),
+      enum_tags: parse_ldtk_tileset_enum_tags(field_json(object, "enumTags")),
+      tags: parse_ldtk_string_array(field_json(object, "tags")),
+      tags_source_enum_uid: field_int(object, "tagsSourceEnumUid"),
     })
   }
   tilesets
+}
+
+///|
+fn parse_ldtk_tileset_custom_data(
+  custom_data_json : Json?,
+) -> Array[LdtkTilesetCustomData] {
+  let custom_data : Array[LdtkTilesetCustomData] = []
+  for object in json_object_array(custom_data_json) {
+    custom_data.push({
+      data: field_string(object, "data").unwrap_or(""),
+      tile_id: field_int_any(object, ["tileId", "tileID"]).unwrap_or(0),
+    })
+  }
+  custom_data
+}
+
+///|
+fn parse_ldtk_tileset_enum_tags(
+  enum_tags_json : Json?,
+) -> Array[LdtkTilesetEnumTag] {
+  let enum_tags : Array[LdtkTilesetEnumTag] = []
+  for object in json_object_array(enum_tags_json) {
+    enum_tags.push({
+      enum_value_id: field_string_any(object, [
+        "enumValueId",
+        "enumValueID",
+      ]).unwrap_or(""),
+      tile_ids: parse_ldtk_int_array(field_json_any(object, ["tileIds", "tileIDs"])),
+    })
+  }
+  enum_tags
 }
 
 ///|

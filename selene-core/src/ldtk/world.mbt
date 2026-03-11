@@ -92,6 +92,8 @@ pub struct LdtkTileMetadata {
   flip_x : Bool
   flip_y : Bool
   alpha : Double
+  custom_data : String?
+  enum_tags : Array[String]
 }
 
 ///|
@@ -844,6 +846,32 @@ fn ldtk_spawn_level_layers(
         layer_zindex,
         effective_visible,
       )
+      if layer.auto_layer_tiles.length() > 0 {
+        ldtk_spawn_layer_tiles(
+          world_entity,
+          level_entity,
+          layer_entity,
+          level,
+          instance,
+          layer,
+          layer.auto_layer_tiles,
+          layer_zindex,
+          effective_visible,
+        )
+      }
+      if layer.grid_tiles.length() > 0 {
+        ldtk_spawn_layer_tiles(
+          world_entity,
+          level_entity,
+          layer_entity,
+          level,
+          instance,
+          layer,
+          layer.grid_tiles,
+          layer_zindex,
+          effective_visible,
+        )
+      }
     } else if layer_type == "entities" {
       ldtk_spawn_layer_entities(
         world_entity,
@@ -882,6 +910,8 @@ fn ldtk_spawn_layer_tiles(
   for tile in tiles {
     let render_alpha = ldtk_clamp_alpha(layer.opacity * tile.alpha)
     let tile_src = ldtk_tile_source(instance.project, layer, tile)
+    let tile_custom_data = ldtk_tile_custom_data(instance.project, layer, tile)
+    let tile_enum_tags = ldtk_tile_enum_tags(instance.project, layer, tile)
     let tile_entity = layer_entity.spawn_child(offset=tile.px)
     @transform.positions.set(tile_entity, @math.Vec2D::zero())
     let runtime : LdtkSpawnedTileInstance = {
@@ -899,6 +929,8 @@ fn ldtk_spawn_layer_tiles(
       flip_x: tile.flip_x,
       flip_y: tile.flip_y,
       alpha: tile.alpha,
+      custom_data: tile_custom_data,
+      enum_tags: tile_enum_tags,
     })
     ldtk_grid_coords.set(
       tile_entity,
@@ -949,6 +981,7 @@ fn ldtk_spawn_int_grid_cells(
 ) -> Unit {
   let width = layer.c_wid
   let grid_size = ldtk_layer_grid_size(instance.project, layer)
+  let should_render_color = ldtk_layer_tileset_uid(layer) is None
   if width <= 0 || grid_size <= 0.0 {
     return
   }
@@ -1034,7 +1067,9 @@ fn ldtk_spawn_int_grid_cells(
         Some(cell_entity),
       )
     }
-    if ldtk_settings.val.int_grid_rendering == Invisible || !visible {
+    if !should_render_color ||
+      ldtk_settings.val.int_grid_rendering == Invisible ||
+      !visible {
       continue
     }
     let color = instance.project.int_grid_color(layer.identifier, value).unwrap_or(
@@ -1297,6 +1332,28 @@ fn ldtk_tile_source(
     (tileset.padding + tile_x * stride).to_double(),
     (tileset.padding + tile_y * stride).to_double(),
   )
+}
+
+///|
+fn ldtk_tile_custom_data(
+  project : LdtkProject,
+  layer : LdtkLayerInstance,
+  tile : LdtkTileInstance,
+) -> String? {
+  guard tile.tile_id >= 0 else { return None }
+  guard ldtk_layer_tileset_uid(layer) is Some(uid) else { return None }
+  project.tileset_tile_custom_data(uid, tile.tile_id)
+}
+
+///|
+fn ldtk_tile_enum_tags(
+  project : LdtkProject,
+  layer : LdtkLayerInstance,
+  tile : LdtkTileInstance,
+) -> Array[String] {
+  guard tile.tile_id >= 0 else { return [] }
+  guard ldtk_layer_tileset_uid(layer) is Some(uid) else { return [] }
+  project.tileset_tile_enum_tags(uid, tile.tile_id)
 }
 
 ///|
