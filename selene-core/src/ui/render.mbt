@@ -776,10 +776,13 @@ fn push_text(entity : @entity.Entity) -> Unit {
         transform.screen_content_rect.size[X] -
         measured[X]
     }
+    // `x`/`y` are already fully resolved in UI layout space.
+    // Force renderer-local alignment to top-left to avoid applying alignment twice.
+    let style_for_draw = { ..style, align: Left, baseline: Top }
     @render2d.push_ui_text({
       text: line,
       position: @math.Vec2D(x, start_y + index.to_double() * line_height),
-      style,
+      style: style_for_draw,
     })
   }
 }

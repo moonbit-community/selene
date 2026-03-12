@@ -171,7 +171,7 @@ fn is_focusable(entity : @entity.Entity) -> Bool {
 
 ///|
 fn button_blocks_pointer(entity : @entity.Entity) -> Bool {
-  focus_policies().get(entity).unwrap_or(Block) == Block
+  focus_policies().get(entity).unwrap_or(Pass) == Block
 }
 
 ///|

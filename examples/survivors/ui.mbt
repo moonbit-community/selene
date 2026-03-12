@@ -31,7 +31,46 @@ const LEVELUP_PANEL_BUTTON_START_Y = 76.0
 const LEVELUP_PANEL_BUTTON_GAP_Y = 20.0
 
 ///|
+const LEVELUP_BUTTON_ICON_SIZE = 24.0
+
+///|
+const LEVELUP_BUTTON_ICON_OFFSET_X = 8.0
+
+///|
+const LEVELUP_BUTTON_ICON_OFFSET_Y = 6.0
+
+///|
+const POWERUP_ATTACK_ICON_PATH = "assets/survivors/icon/powerup_attack.png"
+
+///|
+const POWERUP_RANGE_ICON_PATH = "assets/survivors/icon/powerup_range.png"
+
+///|
+const POWERUP_SPEED_ICON_PATH = "assets/survivors/icon/powerup_speed.png"
+
+///|
+const POWERUP_COOLDOWN_ICON_PATH = "assets/survivors/icon/powerup_cooldown.png"
+
+///|
+const POWERUP_BANDANA_ICON_PATH = "assets/survivors/icon/powerup_bandana.png"
+
+///|
+const WEAPON_PISTOL_ICON_PATH = "assets/survivors/icon/weapon_pistol.png"
+
+///|
+const WEAPON_MINIGUN_ICON_PATH = "assets/survivors/icon/weapon_minigun.png"
+
+///|
+const WEAPON_SNIPERRIFLE_ICON_PATH = "assets/survivors/icon/weapon_sniperrifle.png"
+
+///|
+const WEAPON_SWORD_ICON_PATH = "assets/survivors/icon/weapon_sword.png"
+
+///|
 let levelup_buttons : Array[@entity.Entity] = []
+
+///|
+let levelup_button_icons : Array[@entity.Entity] = []
 
 ///|
 let levelup_title_ref : Ref[@entity.Entity?] = { val: None }
@@ -137,48 +176,105 @@ fn game_over_panel_origin() -> @math.Vec2D {
 }
 
 ///|
+fn set_ui_active(entity : @entity.Entity, active : Bool) -> Unit {
+  if @ui.nodes().get(entity) is Some(node) {
+    @ui.nodes().set(entity, { ..node, active })
+  }
+}
+
+///|
+fn set_button_enabled(entity : @entity.Entity, enabled : Bool) -> Unit {
+  if @ui.buttons().get(entity) is Some(_) {
+    @ui.buttons().set(entity, @ui.Button::new(enabled~))
+  }
+}
+
+///|
+fn set_icon_image(entity : @entity.Entity, path : String) -> Unit {
+  @ui.ui_images().set(
+    entity,
+    @ui.UiImage::new(
+      @math.Vec2D(LEVELUP_BUTTON_ICON_SIZE, LEVELUP_BUTTON_ICON_SIZE),
+      path,
+      fit=@ui.ImageFit::Contain,
+    ),
+  )
+}
+
+///|
+fn powerup_icon_path(powerup_type : PowerupType) -> String {
+  match powerup_type {
+    AttackLv1 | AttackLv2 | AttackLv3 => POWERUP_ATTACK_ICON_PATH
+    RangeLv1 | RangeLv2 => POWERUP_RANGE_ICON_PATH
+    SpeedLv1 | SpeedLv2 => POWERUP_SPEED_ICON_PATH
+    CooldownLv1 | CooldownLv2 => POWERUP_COOLDOWN_ICON_PATH
+    Bandana => POWERUP_BANDANA_ICON_PATH
+  }
+}
+
+///|
+fn weapon_icon_path(weapon_type : WeaponType) -> String {
+  match weapon_type {
+    Pistol => WEAPON_PISTOL_ICON_PATH
+    Minigun => WEAPON_MINIGUN_ICON_PATH
+    SniperRifle => WEAPON_SNIPERRIFLE_ICON_PATH
+    Sword => WEAPON_SWORD_ICON_PATH
+  }
+}
+
+///|
 fn hide_level_up_ui() -> Unit {
-  game_state.level_up_panel.panel_entity.destroy()
+  set_ui_active(game_state.level_up_panel.panel_entity, false)
   if levelup_title_ref.val is Some(title) {
-    title.destroy()
+    set_ui_active(title, false)
   }
   for button in levelup_buttons {
-    button.destroy()
+    set_ui_active(button, false)
+    set_button_enabled(button, false)
+  }
+  for icon in levelup_button_icons {
+    set_ui_active(icon, false)
   }
 }
 
 ///|
 fn show_level_up_ui() -> Unit {
-  game_state.level_up_panel.panel_entity.respawn()
+  set_ui_active(game_state.level_up_panel.panel_entity, true)
   if levelup_title_ref.val is Some(title) {
-    title.respawn()
+    set_ui_active(title, true)
   }
   for button in levelup_buttons {
-    button.respawn()
+    set_ui_active(button, true)
+    set_button_enabled(button, true)
+  }
+  for icon in levelup_button_icons {
+    set_ui_active(icon, true)
   }
 }
 
 ///|
 fn hide_game_over_ui() -> Unit {
-  game_state.game_over_panel.panel_entity.destroy()
-  game_state.game_over_box.destroy()
+  set_ui_active(game_state.game_over_panel.panel_entity, false)
+  set_ui_active(game_state.game_over_box, false)
   if game_over_title_ref.val is Some(title) {
-    title.destroy()
+    set_ui_active(title, false)
   }
   if restart_button_ref.val is Some(button) {
-    button.destroy()
+    set_ui_active(button, false)
+    set_button_enabled(button, false)
   }
 }
 
 ///|
 fn show_game_over_ui() -> Unit {
-  game_state.game_over_panel.panel_entity.respawn()
-  game_state.game_over_box.respawn()
+  set_ui_active(game_state.game_over_panel.panel_entity, true)
+  set_ui_active(game_state.game_over_box, true)
   if game_over_title_ref.val is Some(title) {
-    title.respawn()
+    set_ui_active(title, true)
   }
   if restart_button_ref.val is Some(button) {
-    button.respawn()
+    set_ui_active(button, true)
+    set_button_enabled(button, true)
   }
 }
 
@@ -198,6 +294,7 @@ fn add_score_box() -> Unit {
 ///|
 fn setup_level_up_ui() -> Unit {
   levelup_buttons.clear()
+  levelup_button_icons.clear()
   configure_panel_box(
     game_state.level_up_panel.panel_entity,
     levelup_panel_origin(),
@@ -233,6 +330,22 @@ fn setup_level_up_ui() -> Unit {
       i,
     )
     levelup_buttons.push(button)
+
+    let icon = @entity.Entity::new()
+    @ui.nodes().set(
+      icon,
+      @ui.Node::absolute(
+        levelup_panel_origin() +
+        @math.Vec2D(
+          LEVELUP_BUTTON_ICON_OFFSET_X,
+          button_y + LEVELUP_BUTTON_ICON_OFFSET_Y,
+        ),
+        size=@math.Vec2D(LEVELUP_BUTTON_ICON_SIZE, LEVELUP_BUTTON_ICON_SIZE),
+      ),
+    )
+    @ui.z_indexes().set(icon, @ui.ZIndex::new(PANEL_TEXT_ZINDEX))
+    set_icon_image(icon, POWERUP_RANGE_ICON_PATH)
+    levelup_button_icons.push(icon)
   }
 
   hide_level_up_ui()
@@ -247,7 +360,11 @@ fn level_up(level : Int) -> Unit {
   show_level_up_ui()
 
   for i in 0..<3 {
-    update_selection_display(panel.available_selections[i], levelup_buttons[i])
+    update_selection_display(
+      panel.available_selections[i],
+      levelup_buttons[i],
+      levelup_button_icons[i],
+    )
   }
 }
 
@@ -255,6 +372,7 @@ fn level_up(level : Int) -> Unit {
 fn update_selection_display(
   selection : LevelUpSelection,
   button_entity : @entity.Entity,
+  icon_entity : @entity.Entity,
 ) -> Unit {
   match selection {
     PowerupSelection(powerup) => {
@@ -263,6 +381,7 @@ fn update_selection_display(
         @ui.BackgroundColor::from_css("rgba(13, 167, 170, 1)"),
       )
       set_ui_text(button_entity, powerup.name)
+      set_icon_image(icon_entity, powerup_icon_path(powerup.powerup_type))
     }
     WeaponSelection(weapon_type) => {
       @ui.background_colors().set(
@@ -270,6 +389,7 @@ fn update_selection_display(
         @ui.BackgroundColor::from_css("rgba(255, 140, 0, 1)"),
       )
       set_ui_text(button_entity, get_weapon_name(weapon_type))
+      set_icon_image(icon_entity, weapon_icon_path(weapon_type))
     }
   }
 }

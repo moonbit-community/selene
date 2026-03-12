@@ -12,6 +12,10 @@
 - Added `use_frame_delta()` to switch current schedule delta context to frame-step delta.
 - Added `use_fixed_delta(delta)` to switch current schedule delta context to fixed-step delta.
 
+#### examples/survivors
+
+- Added `examples/survivors/levelup_wbtest.mbt` regression tests covering level-up panel activation and click-to-resume behavior.
+
 ### Changed
 
 #### `selene/app`
@@ -25,6 +29,24 @@
 
 - Changed `examples/scene3d`, `examples/survivors`, `examples/pixeladventure`, and `examples/cards` to use schedule-first registration style (`add_system` / `add_systems`) with explicit time access.
 - Changed registered system function signatures in all example packages from `(Double) -> Unit` to `(@ecs.World) -> Unit` (for example `setup_scene3d` / `game_start` / `player_state_system`), and migrated delta reads to `@time.delta()` inside systems.
+
+### Fixed
+
+#### `selene/ui`
+
+- Fixed UI text alignment drift caused by applying `align/baseline` in both UI layout and renderer draw paths; renderer now draws pre-aligned UI text in top-left local mode to prevent double offsets.
+- Fixed default UI hit-testing behavior so non-interactive nodes now pass pointer events by default (`FocusPolicy::Pass`) unless explicitly configured to block.
+
+#### examples/survivors
+
+- Fixed level-up freeze where gameplay paused at upgrade time but the powerup panel never appeared; level-up/game-over overlays now toggle visibility via `@ui.Node.active` and `@ui.Button.enabled` instead of `destroy/respawn`, preserving UI components across runtime cleanup.
+- Fixed survivors pause-resume flow so selecting a level-up option consistently restores gameplay after UI interaction.
+- Fixed missing level-up option icons after UI migration by restoring powerup/weapon icon rendering on upgrade buttons via `@ui.UiImage`.
+
+#### examples/cards
+
+- Fixed cards action buttons not responding to pointer clicks by setting text UI entities to `FocusPolicy::Pass`, so label layers no longer block pointer hit testing for underlying button entities.
+- Fixed cards hand-strength multiplier text rendering by replacing unsupported `×` glyph with ASCII `x` for font-compatibility.
 
 ### Removed
 

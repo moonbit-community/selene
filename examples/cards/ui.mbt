@@ -504,7 +504,7 @@ fn update_hand_strength() -> Unit {
     let magnification = game_state.magnification
     set_text(
       game_state.hand_strength_label,
-      "Hand: " + hand_name + " × " + magnification.to_string(),
+      "Hand: " + hand_name + " x " + magnification.to_string(),
     )
   }
 }
