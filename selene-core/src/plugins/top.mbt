@@ -23,7 +23,7 @@ fn add_system(
   after? : Array[@system_set.SystemSet] = [],
 ) -> Unit {
   app.systems.push({
-    system: fn(_world, delta) { system(delta) },
+    system: fn(_world) { system(@time.delta()) },
     schedule,
     name,
     in_set,

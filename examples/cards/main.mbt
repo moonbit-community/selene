@@ -24,9 +24,9 @@ pub fn run() -> Unit {
   .with_fps(60)
   .add_plugin(@plugins.default_plugin)
   // .add_plugin(@plugins.debug_plugin)
-  .add_system(fn(_world, delta) { game_start(delta) }, schedule=Startup)
-  .add_system(fn(_world, delta) { cards_ui_pointer_system(delta) }, schedule=PostUpdate)
-  .add_system(fn(_world, delta) { game_update_system(delta) })
+  .add_system(Startup, fn(_world) { game_start(@time.delta()) })
+  .add_system(PostUpdate, fn(_world) { cards_ui_pointer_system(@time.delta()) })
+  .add_system(Update, fn(_world) { game_update_system(@time.delta()) })
   .run()
 }
 

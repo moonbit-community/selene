@@ -14,7 +14,7 @@ const DEFAULT_FIXED_HZ : UInt = 64
 const DEFAULT_MAX_FIXED_STEPS_PER_FRAME : UInt = 8
 
 ///|
-pub type System = (@ecs.World, Double) -> Unit
+pub type System = (@ecs.World) -> Unit
 
 ///|
 pub type RunCondition = (@ecs.World) -> Bool
@@ -119,8 +119,8 @@ pub fn App::add_plugin(self : App, plugin : Plugin) -> App {
 ///|
 pub fn App::add_system(
   self : App,
+  schedule : @system.Schedule,
   system : System,
-  schedule? : @system.Schedule = @system.Update,
   system_name? : String,
   in_set? : @system_set.SystemSet,
   before? : Array[@system_set.SystemSet] = [],
@@ -146,8 +146,8 @@ pub fn App::add_system(
 ///|
 pub fn App::add_systems(
   self : App,
+  schedule : @system.Schedule,
   systems_to_add : Array[System],
-  schedule? : @system.Schedule = @system.Update,
   in_set? : @system_set.SystemSet,
   before? : Array[@system_set.SystemSet] = [],
   after? : Array[@system_set.SystemSet] = [],
@@ -305,15 +305,11 @@ fn should_run(system : RegisteredSystem, world : @ecs.World) -> Bool {
 }
 
 ///|
-fn run_stage(
-  systems : Array[RegisteredSystem],
-  world : @ecs.World,
-  delta : Double,
-) -> Unit {
+fn run_stage(systems : Array[RegisteredSystem], world : @ecs.World) -> Unit {
   @ecs.set_current_world(world)
   for system in systems {
     if should_run(system, world) {
-      (system.system)(world, delta)
+      (system.system)(world)
     }
   }
 }
@@ -400,19 +396,21 @@ pub fn App::run(self : App) -> Unit {
 
   fn startup() {
     @ecs.set_current_world(world)
-    run_stage(startup_systems, world, 0.0)
+    @time.set_delta(0.0)
+    run_stage(startup_systems, world)
     @commands.commands_flush_system(world, 0.0)
     @entity.entity_flush_system(0.0)
   }
 
   fn render_loop(_raw_delta : Double) {
     @ecs.set_current_world(world)
+    @time.use_frame_delta()
     let delta = @time.delta()
     @event.event_render_update_system(delta)
-    run_stage(render_extract, world, delta)
-    run_stage(render_prepare, world, delta)
-    run_stage(render_stage, world, delta)
-    run_stage(render_cleanup, world, delta)
+    run_stage(render_extract, world)
+    run_stage(render_prepare, world)
+    run_stage(render_stage, world)
+    run_stage(render_cleanup, world)
     @platform_audio.tick()
   }
 
@@ -429,15 +427,15 @@ pub fn App::run(self : App) -> Unit {
     @state.state_transition_system(delta)
     @event.event_frame_update_system(delta)
 
-    run_stage(frame_first, world, delta)
-    run_stage(frame_pre, world, delta)
-    run_stage(frame_on_exit, world, delta)
-    run_stage(frame_on_enter, world, delta)
-    run_stage(frame_update, world, delta)
-    run_stage(frame_post, world, delta)
+    run_stage(frame_first, world)
+    run_stage(frame_pre, world)
+    run_stage(frame_on_exit, world)
+    run_stage(frame_on_enter, world)
+    run_stage(frame_update, world)
+    run_stage(frame_post, world)
 
     @event.event_observer_dispatch_system(delta)
-    run_stage(frame_last, world, delta)
+    run_stage(frame_last, world)
     @commands.commands_flush_system(world, delta)
     @entity.entity_flush_system(delta)
 
@@ -445,20 +443,23 @@ pub fn App::run(self : App) -> Unit {
     let mut fixed_steps = 0
     while accumulator.val >= fixed_dt && fixed_steps < max_fixed_steps {
       world.advance_fixed_step()
-      @event.event_fixed_update_system(fixed_dt)
-      run_stage(fixed_first, world, fixed_dt)
-      run_stage(fixed_pre, world, fixed_dt)
-      run_stage(fixed_update, world, fixed_dt)
-      run_stage(fixed_post, world, fixed_dt)
-      run_stage(fixed_last, world, fixed_dt)
-      @commands.commands_flush_system(world, fixed_dt)
-      @entity.entity_flush_system(fixed_dt)
+      @time.use_fixed_delta(fixed_dt)
+      let fixed_delta = @time.delta()
+      @event.event_fixed_update_system(fixed_delta)
+      run_stage(fixed_first, world)
+      run_stage(fixed_pre, world)
+      run_stage(fixed_update, world)
+      run_stage(fixed_post, world)
+      run_stage(fixed_last, world)
+      @commands.commands_flush_system(world, fixed_delta)
+      @entity.entity_flush_system(fixed_delta)
       accumulator.val -= fixed_dt
       fixed_steps += 1
     }
     if fixed_steps >= max_fixed_steps {
       accumulator.val = 0.0
     }
+    @time.use_frame_delta()
 
     let alpha = @cmp.maximum(0.0, @cmp.minimum(1.0, accumulator.val / fixed_dt))
     @system.set_render_alpha(alpha)

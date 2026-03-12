@@ -435,7 +435,8 @@ fn devil_shooting_system(delta : Double) -> Unit {
       continue
     }
     guard @transform.positions().get(e) is Some(enemy_pos)
-    guard @transform.positions().get(game_state.player_entity) is Some(player_pos)
+    guard @transform.positions().get(game_state.player_entity)
+      is Some(player_pos)
 
     // Update shoot timer
     if state.shoot_timer > 0.0 {

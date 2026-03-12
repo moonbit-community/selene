@@ -375,7 +375,10 @@ fn setup_game_over_ui() -> Unit {
     "RESTART",
     10,
   )
-  @ui.text_fonts().set(restart_button, @ui.TextFont::from_css("24px ThaleahFat"))
+  @ui.text_fonts().set(
+    restart_button,
+    @ui.TextFont::from_css("24px ThaleahFat"),
+  )
 
   hide_game_over_ui()
 }

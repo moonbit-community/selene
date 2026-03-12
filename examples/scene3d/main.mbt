@@ -136,9 +136,9 @@ pub fn run() -> Unit {
   .with_zoom(1.0)
   .with_fps(60)
   .add_plugin(@plugins.default_3d_plugin)
-  .add_system(fn(_world, delta) { setup_scene3d(delta) }, schedule=Startup)
-  .add_system(fn(_world, delta) { rotate_cube_system(delta) }, schedule=Update)
-  .add_system(fn(_world, delta) { animate_spotlight_system(delta) }, schedule=Update)
+  .add_system(Startup, fn(_world) { setup_scene3d(@time.delta()) })
+  .add_system(Update, fn(_world) { rotate_cube_system(@time.delta()) })
+  .add_system(Update, fn(_world) { animate_spotlight_system(@time.delta()) })
   .run()
 }
 

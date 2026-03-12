@@ -40,18 +40,24 @@ pub fn run() -> Unit {
   .with_fps(FPS.to_uint())
   .add_plugin(@plugins.default_plugin)
   // .add_plugin(@plugins.debug_plugin)
-  .add_system(fn(_world, delta) { game_start(delta) }, schedule=Startup)
-  .add_system(fn(_world, delta) { spawn_enemy_system(delta) }, schedule=Startup)
-  .add_system(fn(_world, delta) { player_update_system(delta) })
-  .add_system(fn(_world, delta) { player_shooting_system(delta) })
-  .add_system(fn(_world, delta) { enemy_ai_system(delta) })
-  .add_system(fn(_world, delta) { enemy_collision_system(delta) })
-  .add_system(fn(_world, delta) { devil_shooting_system(delta) })
-  .add_system(fn(_world, delta) { player_bullet_trigger_system(delta) })
-  .add_system(fn(_world, delta) { survivors_ui_pointer_system(delta) }, schedule=PostUpdate)
-  .add_system(fn(_world, delta) { check_victory_system(delta) })
-  .add_system(fn(_world, delta) { game_timer_system(delta) })
-  .add_system(fn(_world, delta) { score_blink_system(delta) })
+  .add_systems(Startup, [
+    fn(_world) { game_start(@time.delta()) },
+    fn(_world) { spawn_enemy_system(@time.delta()) },
+  ])
+  .add_systems(Update, [
+    fn(_world) { player_update_system(@time.delta()) },
+    fn(_world) { player_shooting_system(@time.delta()) },
+    fn(_world) { enemy_ai_system(@time.delta()) },
+    fn(_world) { enemy_collision_system(@time.delta()) },
+    fn(_world) { devil_shooting_system(@time.delta()) },
+    fn(_world) { player_bullet_trigger_system(@time.delta()) },
+    fn(_world) { check_victory_system(@time.delta()) },
+    fn(_world) { game_timer_system(@time.delta()) },
+    fn(_world) { score_blink_system(@time.delta()) },
+  ])
+  .add_system(PostUpdate, fn(_world) {
+    survivors_ui_pointer_system(@time.delta())
+  })
   .run()
 }
 

@@ -25,8 +25,8 @@ pub(all) struct App {
   plugins : Array[(App) -> Unit]
 }
 pub fn App::add_plugin(Self, (Self) -> Unit) -> Self
-pub fn App::add_system(Self, (@ecs.World, Double) -> Unit, schedule? : @system.Schedule, system_name? : String, in_set? : @system_set.SystemSet, before? : Array[@system_set.SystemSet], after? : Array[@system_set.SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
-pub fn App::add_systems(Self, Array[(@ecs.World, Double) -> Unit], schedule? : @system.Schedule, in_set? : @system_set.SystemSet, before? : Array[@system_set.SystemSet], after? : Array[@system_set.SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
+pub fn App::add_system(Self, @system.Schedule, (@ecs.World) -> Unit, system_name? : String, in_set? : @system_set.SystemSet, before? : Array[@system_set.SystemSet], after? : Array[@system_set.SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
+pub fn App::add_systems(Self, @system.Schedule, Array[(@ecs.World) -> Unit], in_set? : @system_set.SystemSet, before? : Array[@system_set.SystemSet], after? : Array[@system_set.SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
 pub fn App::new() -> Self
 pub fn App::run(Self) -> Unit
 pub fn App::with_fixed_hz(Self, UInt) -> Self
@@ -40,7 +40,7 @@ pub fn App::with_zoom(Self, Double) -> Self
 pub fn App::world(Self) -> @ecs.World
 
 pub(all) struct RegisteredSystem {
-  system : (@ecs.World, Double) -> Unit
+  system : (@ecs.World) -> Unit
   schedule : @system.Schedule
   name : String
   in_set : @system_set.SystemSet?
@@ -54,7 +54,7 @@ pub type Plugin = (App) -> Unit
 
 pub type RunCondition = (@ecs.World) -> Bool
 
-pub type System = (@ecs.World, Double) -> Unit
+pub type System = (@ecs.World) -> Unit
 
 // Traits
 

@@ -2,6 +2,39 @@
 
 ## [Unreleased]
 
+### Added
+
+#### `selene/time`
+
+- Added `frame_delta()` to read frame-step delta regardless of current running schedule.
+- Added `fixed_delta()` to read the currently configured fixed-step delta.
+- Added `set_delta(delta)` to set the current schedule delta context explicitly.
+- Added `use_frame_delta()` to switch current schedule delta context to frame-step delta.
+- Added `use_fixed_delta(delta)` to switch current schedule delta context to fixed-step delta.
+
+### Changed
+
+#### `selene/app`
+
+- Changed `System` type alias from `(@ecs.World, Double) -> Unit` to `(@ecs.World) -> Unit`.
+- Changed `App::add_system(...)` signature to Bevy-style schedule-first form: `add_system(schedule, system, system_name?, in_set?, before?, after?, run_if?)`.
+- Changed `App::add_systems(...)` signature to Bevy-style schedule-first form: `add_systems(schedule, systems_to_add, in_set?, before?, after?, run_if?)`.
+- Changed `App::run()` stage execution to bind schedule-specific delta context through `selene/time` (`frame` vs `fixed`) before running systems.
+
+#### examples
+
+- Changed `examples/scene3d`, `examples/survivors`, `examples/pixeladventure`, and `examples/cards` to use schedule-first registration style (`add_system` / `add_systems`) with explicit time access.
+
+### Removed
+
+#### `selene/app`
+
+- Removed `App::add_system(system, schedule?, system_name?, in_set?, before?, after?, run_if?)`.
+- Removed `App::add_systems(systems_to_add, schedule?, in_set?, before?, after?, run_if?)`.
+- Removed `DeltaSystem` / `WorldDeltaSystem` / `SimpleRunCondition` public type aliases.
+- Removed `delta_system(system)` / `world_delta_system(system)` / `simple_run_condition(condition)` public adapters.
+- Removed `App::add_delta_system(...)` and `App::add_delta_systems(...)` public registration APIs.
+
 ## [0.28.2] - 2026-03-11
 
 ### Added

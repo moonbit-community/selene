@@ -10,11 +10,21 @@ pub fn elapsed() -> Double
 
 pub fn elapsed_raw() -> Double
 
+pub fn fixed_delta() -> Double
+
+pub fn frame_delta() -> Double
+
 pub fn raw_delta() -> Double
 
 pub fn scale() -> Double
 
+pub fn set_delta(Double) -> Unit
+
 pub fn set_scale(Double) -> Unit
+
+pub fn use_fixed_delta(Double) -> Unit
+
+pub fn use_frame_delta() -> Unit
 
 // Errors
 

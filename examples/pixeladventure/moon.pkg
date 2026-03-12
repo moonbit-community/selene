@@ -8,6 +8,7 @@ import {
   "Milky2018/selene/sprite",
   "Milky2018/selene/physics2d",
   "Milky2018/selene/plugins",
+  "Milky2018/selene/time",
   "Milky2018/selene/transform",
   "Milky2018/selene/camera",
   "Milky2018/selene/ui",

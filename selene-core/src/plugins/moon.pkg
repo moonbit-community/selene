@@ -23,4 +23,5 @@ import {
   "Milky2018/selene/ui",
   "Milky2018/selene/ldtk",
   "Milky2018/selene/tiled",
+  "Milky2018/selene/time",
 }

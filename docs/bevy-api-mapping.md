@@ -7,8 +7,9 @@ This document captures the first breaking migration pass from legacy Selene ECS 
 | Legacy Selene | New Selene | Notes |
 | --- | --- | --- |
 | `@system.App::new()` | `@app.App::new()` | Runtime entrypoint moved out of `selene/system`. |
-| `System = (Double) -> Unit` | `System = (@ecs.World, Double) -> Unit` | Systems now receive world context. |
+| `System = (Double) -> Unit` | `System = (@ecs.World) -> Unit` | Systems are now world-first; delta is resolved from `@time.delta()` when needed. |
 | `RunCondition = () -> Bool` | `RunCondition = (@ecs.World) -> Bool` | Conditions are world-aware. |
+| `app.add_system(system, schedule=Startup)` | `app.add_system(Startup, system)` | Schedule registration is now schedule-first to match Bevy-style ordering. |
 
 ## Commands
 

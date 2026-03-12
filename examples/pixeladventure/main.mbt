@@ -31,18 +31,20 @@ pub fn run() -> Unit {
   .with_fps(60)
   .add_plugin(@plugins.default_plugin)
   // .add_plugin(@plugins.debug_plugin)
-  .add_system(fn(_world, delta) { game_start(delta) }, schedule=Startup)
-  .add_system(fn(_world, delta) { player_state_system(delta) })
+  .add_system(Startup, fn(_world) { game_start(@time.delta()) })
+  .add_system(Update, fn(_world) { player_state_system(@time.delta()) })
   .add_system(
-    fn(_world, delta) { jump_audio_on_enter_system(delta) },
-    schedule=OnEnter(
-      @state.on_enter_eq(player_state_machine, PlayerState::Jump),
-    ),
+    OnEnter(@state.on_enter_eq(player_state_machine, PlayerState::Jump)),
+    fn(_world) { jump_audio_on_enter_system(@time.delta()) },
   )
-  .add_system(fn(_world, delta) { player_collision_system(delta) }, schedule=FixedPostUpdate)
-  .add_system(fn(_world, delta) { bird_ai_system(delta) }, schedule=FixedPostUpdate)
-  .add_system(fn(_world, delta) { map_trigger_system(delta) })
-  .add_system(fn(_world, delta) { volume_button_input_system(delta) }, schedule=PostUpdate)
+  .add_system(FixedPostUpdate, fn(_world) {
+    player_collision_system(@time.delta())
+  })
+  .add_system(FixedPostUpdate, fn(_world) { bird_ai_system(@time.delta()) })
+  .add_system(Update, fn(_world) { map_trigger_system(@time.delta()) })
+  .add_system(PostUpdate, fn(_world) {
+    volume_button_input_system(@time.delta())
+  })
   .run()
 }
 

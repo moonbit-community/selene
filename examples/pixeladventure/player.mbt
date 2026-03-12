@@ -133,7 +133,9 @@ priv enum BirdContactOutcome {
 
 ///|
 fn entity_rect(entity : @entity.Entity) -> @math.Rect? {
-  guard @transform.positions().get(entity) is Some(position) else { return None }
+  guard @transform.positions().get(entity) is Some(position) else {
+    return None
+  }
   guard @physics2d.shapes().get(entity) is Some(shape) else { return None }
   match shape {
     Rect(size~, offset~) =>

@@ -102,8 +102,8 @@ pub fn run() -> Unit {
   .with_zoom(2.0)
   .with_fps(60)
   .add_plugin(@plugins.default_plugin)
-  .add_system(fn(_world, delta) { game_start(delta) }, schedule=Startup)
-  .add_system(fn(_world, delta) { gameplay_system(delta) })
+  .add_system(Startup, game_start)
+  .add_system(Update, gameplay_system)
   .run()
 }
 ```
