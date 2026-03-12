@@ -275,10 +275,8 @@ fn start_bullet_despawn(bullet_entity : @entity.Entity) -> Unit {
   bullet.alive = false
   @physics2d.linear_velocities().remove(bullet_entity)
   @physics2d.areas().remove(bullet_entity)
-  @system.timeout(0.2, fn() {
-    bullet_entity.destroy()
-    player_bullets.remove(bullet_entity)
-  })
+  bullet_entity.destroy()
+  player_bullets.remove(bullet_entity)
 }
 
 ///|

@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.28.3] - 2026-03-12
+
 ### Added
 
 #### `selene/time`
@@ -42,6 +44,7 @@
 - Fixed level-up freeze where gameplay paused at upgrade time but the powerup panel never appeared; level-up/game-over overlays now toggle visibility via `@ui.Node.active` and `@ui.Button.enabled` instead of `destroy/respawn`, preserving UI components across runtime cleanup.
 - Fixed survivors pause-resume flow so selecting a level-up option consistently restores gameplay after UI interaction.
 - Fixed missing level-up option icons after UI migration by restoring powerup/weapon icon rendering on upgrade buttons via `@ui.UiImage`.
+- Fixed bullet hit/despawn behavior in `survivors` so projectile sprites are removed immediately on despawn instead of lingering for an extra timeout window.
 
 #### examples/cards
 
