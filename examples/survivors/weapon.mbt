@@ -282,7 +282,7 @@ fn start_bullet_despawn(bullet_entity : @entity.Entity) -> Unit {
 }
 
 ///|
-fn player_bullet_trigger_system(_delta : Double) -> Unit {
+fn player_bullet_trigger_system(_world : @ecs.World) -> Unit {
   for
     event in @physics2d.trigger_event_bus.read(
       player_bullet_trigger_event_reader,

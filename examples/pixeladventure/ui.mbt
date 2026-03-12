@@ -118,7 +118,7 @@ fn add_volume_button() -> Unit {
 }
 
 ///|
-fn volume_button_input_system(_delta : Double) -> Unit {
+fn volume_button_input_system(_world : @ecs.World) -> Unit {
   for event in @ui.click_event_bus.read(ui_click_reader) {
     guard event.entity == game_state.volume_button else { continue }
     game_state.volume_on = !game_state.volume_on

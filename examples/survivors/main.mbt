@@ -40,24 +40,13 @@ pub fn run() -> Unit {
   .with_fps(FPS.to_uint())
   .add_plugin(@plugins.default_plugin)
   // .add_plugin(@plugins.debug_plugin)
-  .add_systems(Startup, [
-    fn(_world) { game_start(@time.delta()) },
-    fn(_world) { spawn_enemy_system(@time.delta()) },
-  ])
+  .add_systems(Startup, [game_start, spawn_enemy_system])
   .add_systems(Update, [
-    fn(_world) { player_update_system(@time.delta()) },
-    fn(_world) { player_shooting_system(@time.delta()) },
-    fn(_world) { enemy_ai_system(@time.delta()) },
-    fn(_world) { enemy_collision_system(@time.delta()) },
-    fn(_world) { devil_shooting_system(@time.delta()) },
-    fn(_world) { player_bullet_trigger_system(@time.delta()) },
-    fn(_world) { check_victory_system(@time.delta()) },
-    fn(_world) { game_timer_system(@time.delta()) },
-    fn(_world) { score_blink_system(@time.delta()) },
+    player_update_system, player_shooting_system, enemy_ai_system, enemy_collision_system,
+    devil_shooting_system, player_bullet_trigger_system, check_victory_system, game_timer_system,
+    score_blink_system,
   ])
-  .add_system(PostUpdate, fn(_world) {
-    survivors_ui_pointer_system(@time.delta())
-  })
+  .add_system(PostUpdate, survivors_ui_pointer_system)
   .run()
 }
 
@@ -432,7 +421,7 @@ fn apply_selection(selection : LevelUpSelection) -> Unit {
 }
 
 ///|
-fn game_start(_delta : Double) -> Unit {
+fn game_start(_world : @ecs.World) -> Unit {
   ignore(
     @asset2.load_font(
       "assets/survivors/fonts/ThaleahFat.ttf",
@@ -456,7 +445,8 @@ fn game_start(_delta : Double) -> Unit {
 
 ///|
 ///powerup_cooldown_icon
-fn game_timer_system(delta : Double) -> Unit {
+fn game_timer_system(_world : @ecs.World) -> Unit {
+  let delta = @time.delta()
   if game_state.game_over {
     if not(game_state.game_over_displayed) {
       game_state.game_over_displayed = true
@@ -510,7 +500,8 @@ fn game_timer_system(delta : Double) -> Unit {
 }
 
 ///|
-fn score_blink_system(delta : Double) -> Unit {
+fn score_blink_system(_world : @ecs.World) -> Unit {
+  let delta = @time.delta()
   if game_state.score_blink_timer > 0.0 {
     game_state.score_blink_timer -= delta
 

@@ -376,7 +376,7 @@ fn on_raise_click() -> Unit {
 }
 
 ///|
-fn cards_ui_pointer_system(_delta : Double) -> Unit {
+fn cards_ui_pointer_system(_world : @ecs.World) -> Unit {
   for event in @ui.click_event_bus.read(ui_click_reader) {
     if event.entity == game_state.fold_button {
       on_fold_click()

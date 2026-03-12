@@ -78,7 +78,7 @@ fn set_player_state(next : PlayerState) -> Unit {
 }
 
 ///|
-fn jump_audio_on_enter_system(_delta : Double) -> Unit {
+fn jump_audio_on_enter_system(_world : @ecs.World) -> Unit {
   if game_state.volume_on {
     play_sfx(jump_sound)
   }

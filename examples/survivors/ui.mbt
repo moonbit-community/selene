@@ -400,7 +400,7 @@ fn add_level_box() -> Unit {
 }
 
 ///|
-fn survivors_ui_pointer_system(_delta : Double) -> Unit {
+fn survivors_ui_pointer_system(_world : @ecs.World) -> Unit {
   for event in @ui.click_event_bus.read(ui_click_reader) {
     if restart_button_ref.val is Some(restart_button) &&
       event.entity == restart_button {

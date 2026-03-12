@@ -204,7 +204,7 @@ fn add_apple(pos : @math.Vec2D) -> Unit {
 }
 
 ///|
-fn map_trigger_system(_delta : Double) -> Unit {
+fn map_trigger_system(_world : @ecs.World) -> Unit {
   for flag in flags.to_array() {
     if @physics2d.get_contains(flag).contains(game_state.player) {
       set_score(game_state.score + 100)

@@ -24,15 +24,15 @@ pub fn run() -> Unit {
   .with_fps(60)
   .add_plugin(@plugins.default_plugin)
   // .add_plugin(@plugins.debug_plugin)
-  .add_system(Startup, fn(_world) { game_start(@time.delta()) })
-  .add_system(PostUpdate, fn(_world) { cards_ui_pointer_system(@time.delta()) })
-  .add_system(Update, fn(_world) { game_update_system(@time.delta()) })
+  .add_system(Startup, game_start)
+  .add_system(PostUpdate, cards_ui_pointer_system)
+  .add_system(Update, game_update_system)
   .run()
 }
 
 ///|
 /// Game initialization
-fn game_start(_delta : Double) -> Unit {
+fn game_start(_world : @ecs.World) -> Unit {
   // Load font
   ignore(@asset2.load_font("assets/cards/ThaleahFat.ttf", family="ThaleahFat"))
   @ui.set_ui_scale_mode(@ui.UiScaleMode::Viewport)
@@ -46,7 +46,7 @@ fn game_start(_delta : Double) -> Unit {
 
 ///|
 /// Main game update system
-fn game_update_system(_delta : Double) -> Unit {
+fn game_update_system(_world : @ecs.World) -> Unit {
   match game_state.phase {
     PreFlop | Flop | Turn | River => handle_betting_round()
     Showdown => handle_showdown()

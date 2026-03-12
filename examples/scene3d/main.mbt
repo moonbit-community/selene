@@ -136,14 +136,14 @@ pub fn run() -> Unit {
   .with_zoom(1.0)
   .with_fps(60)
   .add_plugin(@plugins.default_3d_plugin)
-  .add_system(Startup, fn(_world) { setup_scene3d(@time.delta()) })
-  .add_system(Update, fn(_world) { rotate_cube_system(@time.delta()) })
-  .add_system(Update, fn(_world) { animate_spotlight_system(@time.delta()) })
+  .add_system(Startup, setup_scene3d)
+  .add_system(Update, rotate_cube_system)
+  .add_system(Update, animate_spotlight_system)
   .run()
 }
 
 ///|
-fn setup_scene3d(_delta : Double) -> Unit {
+fn setup_scene3d(_world : @ecs.World) -> Unit {
   let camera = @entity.Entity::new()
   @transform3d.transforms3d().set(camera, {
     translation: vec3(0.0, 1.5, 8.0),
@@ -333,7 +333,8 @@ fn setup_scene3d(_delta : Double) -> Unit {
 }
 
 ///|
-fn rotate_cube_system(delta : Double) -> Unit {
+fn rotate_cube_system(_world : @ecs.World) -> Unit {
+  let delta = @time.delta()
   guard rotating_cube.val is Some(cube) else { return }
   guard @transform3d.transforms3d().get(cube) is Some(transform) else { return }
   cube_rotation.val += delta
@@ -347,7 +348,8 @@ fn rotate_cube_system(delta : Double) -> Unit {
 }
 
 ///|
-fn animate_spotlight_system(delta : Double) -> Unit {
+fn animate_spotlight_system(_world : @ecs.World) -> Unit {
+  let delta = @time.delta()
   guard spotlight_entity.val is Some(spotlight) else { return }
   spotlight_phase.val += delta * 0.9
   let x = @cmath.cos(spotlight_phase.val) * 3.2

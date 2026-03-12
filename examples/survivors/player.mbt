@@ -53,7 +53,8 @@ fn add_player() -> Unit {
 }
 
 ///|
-fn player_update_system(delta : Double) -> Unit {
+fn player_update_system(_world : @ecs.World) -> Unit {
+  let delta = @time.delta()
   if game_state.game_over || delta == 0 {
     return
   }
@@ -89,7 +90,8 @@ fn player_update_system(delta : Double) -> Unit {
 }
 
 ///|
-fn player_shooting_system(delta : Double) -> Unit {
+fn player_shooting_system(_world : @ecs.World) -> Unit {
+  let delta = @time.delta()
   if game_state.game_over {
     return
   }

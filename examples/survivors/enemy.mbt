@@ -244,7 +244,7 @@ let spawners : Array[@math.Vec2D] = [
 ]
 
 ///|
-fn spawn_enemy_system(_delta : Double) -> Unit {
+fn spawn_enemy_system(_world : @ecs.World) -> Unit {
   fn spawn_enemy() -> Unit {
     if game_state.game_over {
       return
@@ -400,7 +400,7 @@ fn select_enemy_type_for_wave(rand : @random.Rand) -> EnemyType? {
 }
 
 ///|
-fn enemy_ai_system(_delta : Double) -> Unit {
+fn enemy_ai_system(_world : @ecs.World) -> Unit {
   if game_state.game_over {
     return
   }
@@ -424,7 +424,8 @@ fn enemy_ai_system(_delta : Double) -> Unit {
 }
 
 ///|
-fn devil_shooting_system(delta : Double) -> Unit {
+fn devil_shooting_system(_world : @ecs.World) -> Unit {
+  let delta = @time.delta()
   if game_state.game_over {
     return
   }
@@ -501,7 +502,7 @@ fn apply_player_damage() -> Unit {
 }
 
 ///|
-fn enemy_collision_system(_delta : Double) -> Unit {
+fn enemy_collision_system(_world : @ecs.World) -> Unit {
   for event in @physics2d.contact_event_bus.read(enemy_contact_event_reader) {
     guard event.started else { continue }
     guard event.entity == game_state.player_entity else { continue }
@@ -521,7 +522,7 @@ fn enemy_collision_system(_delta : Double) -> Unit {
 }
 
 ///|
-fn check_victory_system(_delta : Double) -> Unit {
+fn check_victory_system(_world : @ecs.World) -> Unit {
   // Don't check if already game over
   if game_state.game_over {
     return

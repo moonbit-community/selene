@@ -155,7 +155,7 @@ let sensor = @physics2d.Sensor::new(
 
 let trigger_reader : @event.EventReader[@physics2d.TriggerEvent] = @event.EventReader::new()
 
-fn trigger_system(_delta : Double) -> Unit {
+fn trigger_system(_world : @ecs.World) -> Unit {
   for event in @physics2d.trigger_event_bus.read(trigger_reader) {
     if event.entered && event.area == apple && event.other == player {
       @entity.Entity::destroy(apple)
@@ -171,7 +171,7 @@ fn trigger_system(_delta : Double) -> Unit {
 
 let pointer_reader : @event.EventReader[@physics2d.PointerEvent] = @event.EventReader::new()
 
-fn ui_input_system(_delta : Double) -> Unit {
+fn ui_input_system(_world : @ecs.World) -> Unit {
   for event in @physics2d.pointer_event_bus.read(pointer_reader) {
     if event.entity == button &&
       event.phase is @physics2d.PointerPhase::JustReleased &&

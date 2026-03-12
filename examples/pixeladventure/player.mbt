@@ -235,7 +235,8 @@ fn player_motion_base_velocity(
 }
 
 ///|
-fn player_collision_system(delta : Double) -> Unit {
+fn player_collision_system(_world : @ecs.World) -> Unit {
+  let delta = @time.delta()
   if game_state.hurt_timer > 0.0 {
     game_state.hurt_timer -= 1.0
   }
@@ -277,7 +278,8 @@ fn player_collision_system(delta : Double) -> Unit {
 }
 
 ///|
-fn player_state_system(delta : Double) -> Unit {
+fn player_state_system(_world : @ecs.World) -> Unit {
+  let delta = @time.delta()
   let player_state = player_state_machine.get()
   let resolved_velocity = @physics2d.resolved_velocities()
     .get(game_state.player)

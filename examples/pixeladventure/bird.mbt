@@ -74,7 +74,7 @@ fn add_bird(pos : @math.Vec2D) -> Unit {
 }
 
 ///|
-fn bird_ai_system(_ : Double) -> Unit {
+fn bird_ai_system(_world : @ecs.World) -> Unit {
   let contact_events = @physics2d.contact_event_bus.read(contact_event_reader)
   for e, bird in birds {
     guard e.is_alive() else { continue }

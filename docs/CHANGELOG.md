@@ -24,6 +24,7 @@
 #### examples
 
 - Changed `examples/scene3d`, `examples/survivors`, `examples/pixeladventure`, and `examples/cards` to use schedule-first registration style (`add_system` / `add_systems`) with explicit time access.
+- Changed registered system function signatures in all example packages from `(Double) -> Unit` to `(@ecs.World) -> Unit` (for example `setup_scene3d` / `game_start` / `player_state_system`), and migrated delta reads to `@time.delta()` inside systems.
 
 ### Removed
 
