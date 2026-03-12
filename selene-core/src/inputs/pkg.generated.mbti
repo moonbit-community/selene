@@ -143,10 +143,12 @@ pub impl Eq for Code
 pub impl Hash for Code
 pub impl Show for Code
 
-pub(all) struct Gamepad(Int)
+pub(all) struct Gamepad {
+  id : Int
+
+  fn new(Int) -> Gamepad
+}
 pub fn Gamepad::id(Self) -> Int
-#deprecated
-pub fn Gamepad::inner(Self) -> Int
 pub fn Gamepad::new(Int) -> Self
 pub impl Eq for Gamepad
 pub impl Hash for Gamepad
@@ -173,6 +175,8 @@ pub struct GamepadAxisEvent {
 pub(all) struct GamepadAxisInput {
   gamepad : Gamepad
   axis : GamepadAxis
+
+  fn new(Gamepad, GamepadAxis) -> GamepadAxisInput
 }
 pub fn GamepadAxisInput::new(Gamepad, GamepadAxis) -> Self
 pub impl Eq for GamepadAxisInput
@@ -212,6 +216,8 @@ pub struct GamepadButtonEvent {
 pub(all) struct GamepadButtonInput {
   gamepad : Gamepad
   button : GamepadButton
+
+  fn new(Gamepad, GamepadButton) -> GamepadButtonInput
 }
 pub fn GamepadButtonInput::new(Gamepad, GamepadButton) -> Self
 pub impl Eq for GamepadButtonInput

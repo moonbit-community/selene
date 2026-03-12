@@ -38,6 +38,8 @@ pub(all) struct State[T] {
   next : @ref.Ref[T?]
   previous : @ref.Ref[T?]
   changed_serial : @ref.Ref[UInt]
+
+  fn[T] new(T) -> State[T]
 }
 pub fn[T] State::get(Self[T]) -> T
 pub fn[T] State::new(T) -> Self[T]

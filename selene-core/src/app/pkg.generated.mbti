@@ -23,6 +23,8 @@ pub(all) struct App {
   world : @ecs.World
   systems : Array[RegisteredSystem]
   plugins : Array[(App) -> Unit]
+
+  fn new() -> App
 }
 pub fn App::add_plugin(Self, (Self) -> Unit) -> Self
 pub fn App::add_system(Self, @system.Schedule, (@ecs.World) -> Unit, system_name? : String, in_set? : @system_set.SystemSet, before? : Array[@system_set.SystemSet], after? : Array[@system_set.SystemSet], run_if? : (@ecs.World) -> Bool) -> Self

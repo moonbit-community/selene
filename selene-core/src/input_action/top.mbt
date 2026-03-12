@@ -1,6 +1,8 @@
 ///|
 pub(all) struct InputAction {
   name : String
+
+  fn new(name : String) -> InputAction
 } derive(Eq, Show, Hash)
 
 ///|

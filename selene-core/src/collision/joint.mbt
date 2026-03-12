@@ -34,6 +34,8 @@ pub fn JointMotorModel::force_based() -> JointMotorModel {
 pub struct JointLimits {
   min : Double
   max : Double
+
+  fn new(min : Double, max : Double) -> JointLimits
 } derive(Eq, Show)
 
 ///|
@@ -46,6 +48,8 @@ pub fn JointLimits::new(min : Double, max : Double) -> JointLimits {
 pub struct JointSoftness {
   damping_ratio : Double
   natural_frequency : Double
+
+  fn new(damping_ratio : Double, natural_frequency : Double) -> JointSoftness
 } derive(Eq, Show)
 
 ///|

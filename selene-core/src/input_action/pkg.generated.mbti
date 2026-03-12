@@ -55,6 +55,8 @@ pub impl Show for ActionState
 
 pub(all) struct InputAction {
   name : String
+
+  fn new(String) -> InputAction
 }
 pub fn InputAction::new(String) -> Self
 pub impl Eq for InputAction

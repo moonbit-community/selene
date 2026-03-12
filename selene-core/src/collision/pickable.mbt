@@ -16,6 +16,8 @@
 /// Marker component for pointer-interactive entities.
 pub(all) struct Pickable {
   mut active : Bool
+
+  fn new() -> Pickable
 }
 
 ///|

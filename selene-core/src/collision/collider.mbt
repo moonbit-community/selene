@@ -19,6 +19,8 @@ pub(all) struct Collider {
   filter : CollisionFilter
   mut friction : Double
   mut restitution : Double
+
+  fn new(filter : CollisionFilter) -> Collider
 } derive(Eq)
 
 ///|

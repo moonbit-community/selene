@@ -18,6 +18,8 @@ pub(all) struct Area {
   mut active : Bool
   filter : CollisionFilter
   mut contains : Set[@entity.Entity]
+
+  fn new(filter : CollisionFilter) -> Area
 } derive(Eq)
 
 ///|

@@ -26,6 +26,15 @@ pub(all) struct Transform {
   d : Double // scale_y * cos(rotation)
   tx : Double // translation_x
   ty : Double // translation_y
+
+  fn new(
+    a? : Double,
+    b? : Double,
+    c? : Double,
+    d? : Double,
+    tx? : Double,
+    ty? : Double,
+  ) -> Transform
 }
 
 ///|

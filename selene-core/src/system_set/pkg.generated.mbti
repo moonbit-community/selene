@@ -26,6 +26,8 @@ pub fn SystemOrdering::with_set(Self, SystemSet) -> Self
 
 pub(all) struct SystemSet {
   name : String
+
+  fn new(String) -> SystemSet
 }
 pub fn SystemSet::new(String) -> Self
 pub impl Eq for SystemSet

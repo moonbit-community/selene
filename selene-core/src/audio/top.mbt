@@ -35,6 +35,8 @@ pub(all) struct PlaybackSettings {
 ///|
 pub(all) struct AudioPlayer {
   source : AudioHandle
+
+  fn new(source : AudioHandle) -> AudioPlayer
 } derive(Eq, Show)
 
 ///|

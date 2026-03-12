@@ -1,6 +1,8 @@
 ///|
 pub(all) struct BackgroundColor {
   color : @render.Color
+
+  fn new(color : @render.Color) -> BackgroundColor
 }
 
 ///|
@@ -16,6 +18,8 @@ pub fn BackgroundColor::from_css(color : String) -> BackgroundColor {
 ///|
 pub(all) struct BorderColor {
   color : @render.Color
+
+  fn new(color : @render.Color) -> BorderColor
 }
 
 ///|
@@ -34,6 +38,13 @@ pub(all) struct BorderRadius {
   top_right : Val
   bottom_right : Val
   bottom_left : Val
+
+  fn new(
+    top_left? : Val,
+    top_right? : Val,
+    bottom_right? : Val,
+    bottom_left? : Val,
+  ) -> BorderRadius
 } derive(Eq, Show)
 
 ///|
@@ -56,6 +67,8 @@ pub(all) struct Outline {
   width : Val
   offset : Val
   color : @render.Color
+
+  fn new(width : Val, color : @render.Color, offset? : Val) -> Outline
 }
 
 ///|
@@ -74,6 +87,14 @@ pub(all) struct ShadowStyle {
   y_offset : Val
   spread_radius : Val
   blur_radius : Val
+
+  fn new(
+    color : @render.Color,
+    x_offset? : Val,
+    y_offset? : Val,
+    spread_radius? : Val,
+    blur_radius? : Val,
+  ) -> ShadowStyle
 } derive(Eq, Show)
 
 ///|
@@ -90,6 +111,8 @@ pub fn ShadowStyle::new(
 ///|
 pub(all) struct BoxShadow {
   layers : Array[ShadowStyle]
+
+  fn new(layers : Array[ShadowStyle]) -> BoxShadow
 } derive(Eq, Show)
 
 ///|
@@ -124,6 +147,13 @@ pub(all) struct UiImage {
   image : @asset.ImageHandle
   tint : @render.Color
   fit : ImageFit
+
+  fn new(
+    size : @math.Vec2D,
+    path : String,
+    tint? : @render.Color,
+    fit? : ImageFit,
+  ) -> UiImage
 } derive(Eq, Show)
 
 ///|
@@ -152,6 +182,8 @@ pub(all) struct UiMaterialHandle(UInt) derive(Eq, Show, Hash)
 ///|
 pub(all) struct MaterialNode {
   material : UiMaterialHandle
+
+  fn new(material : UiMaterialHandle) -> MaterialNode
 } derive(Eq, Show)
 
 ///|
@@ -163,6 +195,8 @@ pub fn MaterialNode::new(material : UiMaterialHandle) -> MaterialNode {
 pub(all) struct UiGradient {
   color_start : @render.Color
   color_end : @render.Color
+
+  fn new(color_start : @render.Color, color_end : @render.Color) -> UiGradient
 } derive(Eq, Show)
 
 ///|
@@ -179,6 +213,13 @@ pub(all) struct UiMaterialContext {
   rect : @math.Rect
   content_rect : @math.Rect
   border_radius : BorderRadius
+
+  fn new(
+    entity : @entity.Entity,
+    rect : @math.Rect,
+    content_rect? : @math.Rect,
+    border_radius? : BorderRadius,
+  ) -> UiMaterialContext
 }
 
 ///|
@@ -194,6 +235,13 @@ pub fn UiMaterialContext::new(
 ///|
 pub(all) struct UiMaterialAsset {
   draw : (UiMaterialContext) -> Unit
+
+  fn new(
+    size : @math.Vec2D,
+    path : String,
+    tint? : @render.Color,
+    fit? : ImageFit,
+  ) -> UiMaterialAsset
 }
 
 ///|
@@ -251,6 +299,8 @@ pub fn UiMaterialAsset::new(
 ///|
 pub(all) struct Text {
   mut content : String
+
+  fn new(content : String) -> Text
 }
 
 ///|
@@ -263,6 +313,8 @@ pub(all) struct TextFont {
   mut family : String
   mut size : Double
   mut font_handle : @asset.FontHandle?
+
+  fn new(family? : String, size? : Double) -> TextFont
 }
 
 ///|
@@ -324,6 +376,8 @@ pub fn TextFont::from_css(font : String) -> TextFont {
 ///|
 pub(all) struct TextColor {
   mut color : @render.Color
+
+  fn new(color : @render.Color) -> TextColor
 }
 
 ///|
@@ -355,6 +409,14 @@ pub(all) struct TextLayout {
   mut line_height : Double
   mut wrap : TextWrap
   mut overflow : TextOverflow
+
+  fn new(
+    align? : @math.HAlign,
+    baseline? : @math.VAlign,
+    line_height? : Double,
+    wrap? : TextWrap,
+    overflow? : TextOverflow,
+  ) -> TextLayout
 }
 
 ///|
@@ -371,6 +433,8 @@ pub fn TextLayout::new(
 ///|
 pub(all) struct Button {
   enabled : Bool
+
+  fn new(enabled? : Bool) -> Button
 } derive(Eq, Show)
 
 ///|

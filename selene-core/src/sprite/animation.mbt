@@ -55,6 +55,14 @@ pub struct Animation {
   fps : Double
   color : @render.Color
   id : Int
+
+  fn new(
+    frames : Array[AnimationFrame],
+    loop_? : Bool,
+    fps? : Double,
+    transform? : @math.Transform,
+    color? : @render.Color,
+  ) -> Animation
 }
 
 ///|

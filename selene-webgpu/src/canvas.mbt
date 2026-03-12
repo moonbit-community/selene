@@ -22,6 +22,8 @@ struct WebGpuBackend {
   mut gamepad_axes : Map[@inputs.GamepadAxisInput, Double]?
   mut close_requested : Bool
   mut stop_loop : (() -> Unit)?
+
+  fn new() -> WebGpuBackend
 }
 
 ///|
@@ -44,7 +46,7 @@ pub fn WebGpuBackend::new() -> WebGpuBackend {
 }
 
 ///|
-let canvas_backend : WebGpuBackend = WebGpuBackend::new()
+let canvas_backend : WebGpuBackend = WebGpuBackend()
 
 ///|
 fn default_embedded_asset_lookup(_path : String) -> Bytes? {

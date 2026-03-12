@@ -1,6 +1,8 @@
 ///|
 pub(all) struct SystemSet {
   name : String
+
+  fn new(name : String) -> SystemSet
 } derive(Eq, Show, Hash)
 
 ///|

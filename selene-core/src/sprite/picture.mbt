@@ -41,6 +41,14 @@ pub(all) struct Picture {
   transform : @math.Transform
   repeat : @math.RepeatMode
   mut color : @render.Color
+
+  fn new(
+    size : @math.Vec2D,
+    tile_path : String,
+    transform? : @math.Transform,
+    repeat? : @math.RepeatMode,
+    color? : @render.Color,
+  ) -> Picture
 }
 
 ///|

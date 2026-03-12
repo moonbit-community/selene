@@ -28,6 +28,8 @@ pub(all) struct State[T] {
   next : Ref[T?]
   previous : Ref[T?]
   changed_serial : Ref[UInt]
+
+  fn[T] new(initial : T) -> State[T]
 }
 
 ///|

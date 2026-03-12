@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+### Changed
+
+#### struct custom constructor migration
+
+- Changed `selene-core` struct APIs to declare `fn new(...)` constructors in struct bodies (MoonBit custom constructor form) for:
+  `SystemSet`, `InputAction`, `World`, `App`, `Vec3`, `Quat`, `Transform`, `ColorRect`, `ColorCircle`, `sprite.Text`, `Picture`, `Animation`, `CollisionGroup`, `CollisionFilter`, `Pickable`, `Collider`, `Area`, `JointLimits`, `JointSoftness`, `AudioPlayer`, `A11y`, `AnimationGraph3D`, `AnimationPlayer3D`, `BackgroundColor`, `BorderColor`, `BorderRadius`, `Outline`, `ShadowStyle`, `BoxShadow`, `UiImage`, `MaterialNode`, `UiGradient`, `UiMaterialContext`, `UiMaterialAsset`, `ui.Text`, `TextFont`, `TextColor`, `TextLayout`, `Button`, `UiRectValues`, `GridLine`, `Node`, `CalculatedClip`, `LayoutConfig`, `ZIndex`, `GlobalZIndex`, `TabIndex`, `Focused`, `Focusable`, `OverrideClip`, `RelativeCursorPosition`, `GamepadButtonInput`, `GamepadAxisInput`, and `Entity`.
+- Changed generic constructor declarations to explicit generic constructor form in struct bodies:
+  `State[T]::new`, `QueryReader[T]::new`, `EventReader[T]::new`, `EventWriter[T]::new`, `Events[T]::new`.
+- Changed `selene-webgpu` backend struct `WebGpuBackend` to declare a struct constructor and use constructor call syntax during singleton initialization.
+- Changed `entity.Entity` representation from tuple struct to named-field struct to support struct-constructor declaration while preserving allocation semantics of `Entity::new()` / `Entity::reserve_spawn()`.
+- Changed `inputs.Gamepad` representation from tuple struct to named-field struct to support struct-constructor declaration while preserving `Gamepad::new(id)` / `Gamepad::id()` behavior.
+
 ## [0.28.3] - 2026-03-12
 
 ### Added

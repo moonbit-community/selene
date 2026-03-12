@@ -17,6 +17,8 @@ pub(all) struct Vec3 {
   x : Double
   y : Double
   z : Double
+
+  fn new(x : Double, y : Double, z : Double) -> Vec3
 } derive(Eq, Show)
 
 ///|
@@ -128,6 +130,8 @@ pub(all) struct Quat {
   y : Double
   z : Double
   w : Double
+
+  fn new(x : Double, y : Double, z : Double, w : Double) -> Quat
 } derive(Eq, Show)
 
 ///|

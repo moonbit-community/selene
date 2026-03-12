@@ -45,6 +45,8 @@ pub(all) struct App {
   world : @ecs.World
   systems : Array[RegisteredSystem]
   plugins : Array[Plugin]
+
+  fn new() -> App
 }
 
 ///|

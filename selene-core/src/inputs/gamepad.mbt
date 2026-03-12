@@ -14,16 +14,20 @@
 
 ///|
 /// Stable gamepad identifier.
-pub(all) struct Gamepad(Int) derive(Eq, Show, Hash)
+pub(all) struct Gamepad {
+  id : Int
+
+  fn new(id : Int) -> Gamepad
+} derive(Eq, Show, Hash)
 
 ///|
 pub fn Gamepad::new(id : Int) -> Gamepad {
-  Gamepad(id)
+  { id, }
 }
 
 ///|
 pub fn Gamepad::id(self : Gamepad) -> Int {
-  self.0
+  self.id
 }
 
 ///|
@@ -90,6 +94,8 @@ pub struct GamepadAxisEvent {
 pub(all) struct GamepadButtonInput {
   gamepad : Gamepad
   button : GamepadButton
+
+  fn new(gamepad : Gamepad, button : GamepadButton) -> GamepadButtonInput
 } derive(Eq, Show, Hash)
 
 ///|
@@ -104,6 +110,8 @@ pub fn GamepadButtonInput::new(
 pub(all) struct GamepadAxisInput {
   gamepad : Gamepad
   axis : GamepadAxis
+
+  fn new(gamepad : Gamepad, axis : GamepadAxis) -> GamepadAxisInput
 } derive(Eq, Show, Hash)
 
 ///|

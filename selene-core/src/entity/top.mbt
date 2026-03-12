@@ -13,7 +13,11 @@
 // limitations under the License.
 
 ///|
-struct Entity(UInt) derive(Eq, Show, Hash)
+struct Entity {
+  value : UInt
+
+  fn new() -> Entity
+} derive(Eq, Show, Hash)
 
 ///|
 enum EntityLifecycleState {
@@ -65,7 +69,7 @@ pub fn Entity::is_alive(e : Entity) -> Bool {
 ///|
 pub fn Entity::new() -> Entity {
   let store = entity_store()
-  let entity = store.entity_generator
+  let entity = { value: store.entity_generator }
   store.entity_generator += 1U
   store.all_entities.add(entity)
   store.lifecycle_states.set(entity, Alive)
@@ -77,7 +81,7 @@ pub fn Entity::new() -> Entity {
 /// This matches deferred-spawn semantics used by commands.
 pub fn Entity::reserve_spawn() -> Entity {
   let store = entity_store()
-  let entity = store.entity_generator
+  let entity = { value: store.entity_generator }
   store.entity_generator += 1U
   store.lifecycle_states.set(entity, PendingSpawn)
   store.pending_state_changes.add(entity)

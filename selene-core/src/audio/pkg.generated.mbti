@@ -50,6 +50,8 @@ pub impl Show for AudioEvent
 
 pub(all) struct AudioPlayer {
   source : @asset_types.AudioHandle
+
+  fn new(@asset_types.AudioHandle) -> AudioPlayer
 }
 pub fn AudioPlayer::from_path(String) -> Self
 pub fn AudioPlayer::new(@asset_types.AudioHandle) -> Self

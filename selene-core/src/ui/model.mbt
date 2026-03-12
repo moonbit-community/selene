@@ -46,6 +46,8 @@ pub(all) struct UiRectValues {
   right : Val
   top : Val
   bottom : Val
+
+  fn new(left? : Val, right? : Val, top? : Val, bottom? : Val) -> UiRectValues
 } derive(Eq, Show)
 
 ///|
@@ -172,6 +174,8 @@ pub(all) enum GridPlacement {
 pub(all) struct GridLine {
   start : GridPlacement
   end : GridPlacement
+
+  fn new(start? : GridPlacement, end? : GridPlacement) -> GridLine
 } derive(Eq, Show)
 
 ///|
@@ -452,6 +456,50 @@ pub(all) struct Node {
   grid_row : GridLine
   grid_column : GridLine
   active : Bool
+
+  fn new(
+    width? : Val,
+    height? : Val,
+    min_width? : Val,
+    min_height? : Val,
+    max_width? : Val,
+    max_height? : Val,
+    left? : Val,
+    right? : Val,
+    top? : Val,
+    bottom? : Val,
+    margin? : UiRectValues,
+    padding? : UiRectValues,
+    border? : UiRectValues,
+    display? : Display,
+    position_type? : PositionType,
+    flex_direction? : FlexDirection,
+    justify_content? : JustifyContent,
+    align_items? : AlignItems,
+    row_gap? : Double,
+    column_gap? : Double,
+    overflow_x? : Overflow,
+    overflow_y? : Overflow,
+    overflow_clip_margin? : OverflowClipMargin,
+    flex_grow? : Double,
+    flex_shrink? : Double,
+    active? : Bool,
+    align_content? : AlignContent?,
+    align_self? : AlignItems?,
+    justify_items? : AlignItems?,
+    justify_self? : AlignItems?,
+    flex_wrap? : FlexWrap,
+    flex_basis? : Val,
+    aspect_ratio? : Double?,
+    scrollbar_width? : Double,
+    grid_template_rows? : Array[GridTrack],
+    grid_template_columns? : Array[GridTrack],
+    grid_auto_rows? : Array[GridTrack],
+    grid_auto_columns? : Array[GridTrack],
+    grid_auto_flow? : GridAutoFlow,
+    grid_row? : GridLine,
+    grid_column? : GridLine,
+  ) -> Node
 } derive(Eq, Show)
 
 ///|
@@ -607,6 +655,8 @@ pub(all) struct GlobalUiNode {
 ///|
 pub(all) struct CalculatedClip {
   clip : @math.Rect
+
+  fn new(clip : @math.Rect) -> CalculatedClip
 }
 
 ///|
@@ -617,6 +667,8 @@ pub fn CalculatedClip::new(clip : @math.Rect) -> CalculatedClip {
 ///|
 pub(all) struct LayoutConfig {
   use_rounding : Bool
+
+  fn new(use_rounding? : Bool) -> LayoutConfig
 } derive(Eq, Show)
 
 ///|
@@ -627,6 +679,8 @@ pub fn LayoutConfig::new(use_rounding? : Bool = true) -> LayoutConfig {
 ///|
 pub(all) struct ZIndex {
   value : Int
+
+  fn new(value : Int) -> ZIndex
 } derive(Eq, Show)
 
 ///|
@@ -637,6 +691,8 @@ pub fn ZIndex::new(value : Int) -> ZIndex {
 ///|
 pub(all) struct GlobalZIndex {
   value : Int
+
+  fn new(value : Int) -> GlobalZIndex
 } derive(Eq, Show)
 
 ///|
@@ -658,6 +714,8 @@ pub fn ScrollPosition::zero() -> ScrollPosition {
 ///|
 pub(all) struct TabIndex {
   value : Int
+
+  fn new(value : Int) -> TabIndex
 } derive(Eq, Show)
 
 ///|
@@ -674,6 +732,8 @@ pub(all) enum FocusPolicy {
 ///|
 pub(all) struct Focused {
   _tag : Unit
+
+  fn new() -> Focused
 }
 
 ///|
@@ -684,6 +744,8 @@ pub fn Focused::new() -> Focused {
 ///|
 pub(all) struct Focusable {
   _tag : Unit
+
+  fn new() -> Focusable
 }
 
 ///|
@@ -694,6 +756,8 @@ pub fn Focusable::new() -> Focusable {
 ///|
 pub(all) struct OverrideClip {
   _tag : Unit
+
+  fn new() -> OverrideClip
 } derive(Eq, Show)
 
 ///|
@@ -705,6 +769,8 @@ pub fn OverrideClip::new() -> OverrideClip {
 pub(all) struct RelativeCursorPosition {
   mut normalized : @math.Vec2D?
   mut cursor_over : Bool
+
+  fn new() -> RelativeCursorPosition
 } derive(Eq, Show)
 
 ///|

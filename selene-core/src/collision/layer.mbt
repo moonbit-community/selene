@@ -18,6 +18,8 @@
 /// Groups are used by `CollisionFilter` to decide which entities can interact.
 pub struct CollisionGroup {
   value : UInt
+
+  fn new() -> CollisionGroup
 } derive(Eq)
 
 ///|
@@ -29,6 +31,11 @@ pub struct CollisionFilter {
   group : CollisionGroup
   mask : Array[CollisionGroup]
   match_all : Bool
+
+  fn new(
+    group : CollisionGroup,
+    mask : Array[CollisionGroup],
+  ) -> CollisionFilter
 } derive(Eq)
 
 ///|

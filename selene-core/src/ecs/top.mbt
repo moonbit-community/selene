@@ -4,6 +4,8 @@ pub(all) struct World {
   pending_commands : Array[(World) -> Unit]
   mut frame_index : UInt
   mut fixed_step_index : UInt
+
+  fn new() -> World
 }
 
 ///|

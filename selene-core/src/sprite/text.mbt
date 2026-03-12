@@ -41,6 +41,14 @@ pub(all) struct Text {
   mut font_handle : @asset.FontHandle?
   mut baseline : @math.VAlign
   mut align : @math.HAlign
+
+  fn new(
+    content : String,
+    color? : String,
+    font? : String,
+    baseline? : @math.VAlign,
+    align? : @math.HAlign,
+  ) -> Text
 }
 
 ///|

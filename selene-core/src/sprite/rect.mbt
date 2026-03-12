@@ -17,6 +17,12 @@ pub(all) struct ColorRect {
   size : @math.Vec2D
   color : String
   stroke_color : String
+
+  fn new(
+    size : @math.Vec2D,
+    color : String,
+    stroke_color? : String,
+  ) -> ColorRect
 }
 
 ///|

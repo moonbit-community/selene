@@ -9,11 +9,15 @@ pub(all) enum EventDomain {
 pub(all) struct EventReader[T] {
   last_seen_by_world : Map[UInt, Int]
   marker : T?
+
+  fn[T] new() -> EventReader[T]
 }
 
 ///|
 pub(all) struct EventWriter[T] {
   events : Events[T]
+
+  fn[T] new(events : Events[T]) -> EventWriter[T]
 }
 
 ///|
@@ -52,6 +56,8 @@ pub struct Events[T] {
   domain : EventDomain
   stores : Map[UInt, EventWorldStore[T]]
   marker : T?
+
+  fn[T] new(domain? : EventDomain) -> Events[T]
 }
 
 ///|

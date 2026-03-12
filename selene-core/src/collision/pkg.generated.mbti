@@ -109,6 +109,8 @@ pub(all) struct Area {
   mut active : Bool
   filter : CollisionFilter
   mut contains : @set.Set[@entity.Entity]
+
+  fn new(CollisionFilter) -> Area
 }
 pub fn Area::new(CollisionFilter) -> Self
 pub impl Eq for Area
@@ -118,6 +120,8 @@ pub(all) struct Collider {
   filter : CollisionFilter
   mut friction : Double
   mut restitution : Double
+
+  fn new(CollisionFilter) -> Collider
 }
 pub fn Collider::new(CollisionFilter) -> Self
 pub fn Collider::with_material(CollisionFilter, friction? : Double, restitution? : Double, active? : Bool) -> Self
@@ -127,6 +131,8 @@ pub struct CollisionFilter {
   group : CollisionGroup
   mask : Array[CollisionGroup]
   match_all : Bool
+
+  fn new(CollisionGroup, Array[CollisionGroup]) -> CollisionFilter
 }
 pub fn CollisionFilter::all(CollisionGroup) -> Self
 pub fn CollisionFilter::empty(CollisionGroup) -> Self
@@ -135,6 +141,8 @@ pub impl Eq for CollisionFilter
 
 pub struct CollisionGroup {
   value : UInt
+
+  fn new() -> CollisionGroup
 }
 pub fn CollisionGroup::new() -> Self
 pub impl Eq for CollisionGroup
@@ -183,6 +191,8 @@ pub impl Show for JointKind
 pub struct JointLimits {
   min : Double
   max : Double
+
+  fn new(Double, Double) -> JointLimits
 }
 pub fn JointLimits::new(Double, Double) -> Self
 pub impl Eq for JointLimits
@@ -209,6 +219,8 @@ pub impl Show for JointMotorModel
 pub struct JointSoftness {
   damping_ratio : Double
   natural_frequency : Double
+
+  fn new(Double, Double) -> JointSoftness
 }
 pub fn JointSoftness::new(Double, Double) -> Self
 pub impl Eq for JointSoftness
@@ -237,6 +249,8 @@ pub(all) struct PhysicsConfig {
 
 pub(all) struct Pickable {
   mut active : Bool
+
+  fn new() -> Pickable
 }
 pub fn Pickable::new() -> Self
 

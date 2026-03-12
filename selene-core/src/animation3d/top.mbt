@@ -62,6 +62,8 @@ pub(all) struct AnimationGraph3D {
   entry : String
   states : Map[String, AnimationClipHandle]
   transitions : Array[AnimationTransition3D]
+
+  fn new(entry : String) -> AnimationGraph3D
 }
 
 ///|
@@ -74,6 +76,8 @@ pub(all) struct AnimationPlayer3D {
   mut repeat : Bool
   mut playing : Bool
   mut pending_triggers : Array[String]
+
+  fn new() -> AnimationPlayer3D
 }
 
 ///|

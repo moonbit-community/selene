@@ -36,6 +36,8 @@ pub(all) struct ColorCircle {
   radius : Double
   color : String
   stroke_color : String
+
+  fn new(radius : Double, color : String, stroke_color? : String) -> ColorCircle
 }
 
 ///|

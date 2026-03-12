@@ -59,6 +59,8 @@ pub(all) struct Quat {
   y : Double
   z : Double
   w : Double
+
+  fn new(Double, Double, Double, Double) -> Quat
 }
 pub fn Quat::conjugate(Self) -> Self
 pub fn Quat::from_axis_angle(Vec3, Double) -> Self
@@ -95,6 +97,8 @@ pub(all) struct Transform {
   d : Double
   tx : Double
   ty : Double
+
+  fn new(a? : Double, b? : Double, c? : Double, d? : Double, tx? : Double, ty? : Double) -> Transform
 }
 pub fn Transform::append(Self, Self) -> Self
 pub fn Transform::append_rotation_deg(Self, Double) -> Self
@@ -160,6 +164,8 @@ pub(all) struct Vec3 {
   x : Double
   y : Double
   z : Double
+
+  fn new(Double, Double, Double) -> Vec3
 }
 pub fn Vec3::cross(Self, Self) -> Self
 pub fn Vec3::dot(Self, Self) -> Double

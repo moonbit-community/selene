@@ -178,7 +178,7 @@ fn game_over_panel_origin() -> @math.Vec2D {
 ///|
 fn set_ui_active(entity : @entity.Entity, active : Bool) -> Unit {
   if @ui.nodes().get(entity) is Some(node) {
-    @ui.nodes().set(entity, { ..node, active })
+    @ui.nodes().set(entity, { ..node, active, })
   }
 }
 

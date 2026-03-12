@@ -108,7 +108,7 @@ fn hierarchy_children() -> Map[Entity, Child] {
 pub fn Entity::spawn_child(parent : Entity, offset? : @math.Vec2D) -> Entity {
   let parents = hierarchy_parents()
   let children = hierarchy_children()
-  let child_entity = Entity::new()
+  let child_entity = Entity()
   let p = parents.get_or_init(parent, () => {
     children: [],
     is_root: !children.contains(parent),

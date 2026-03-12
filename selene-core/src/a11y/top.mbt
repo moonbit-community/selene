@@ -35,6 +35,16 @@ pub(all) struct A11y {
   action_callbacks : Array[
     (@moon_accesskit.Action, @moon_accesskit.ActionData?) -> Unit,
   ]
+
+  fn new(
+    role? : A11yRole,
+    label? : String?,
+    value? : String?,
+    focusable? : Bool,
+    disabled? : Bool,
+    selected? : Bool?,
+    hidden? : Bool,
+  ) -> A11y
 }
 
 ///|

@@ -33,6 +33,8 @@ pub struct Animation {
   fps : Double
   color : @render.Color
   id : Int
+
+  fn new(Array[AnimationFrame], loop_? : Bool, fps? : Double, transform? : @math.Transform, color? : @render.Color) -> Animation
 }
 pub fn Animation::new(Array[AnimationFrame], loop_? : Bool, fps? : Double, transform? : @math.Transform, color? : @render.Color) -> Self
 pub fn Animation::single_frame(String, @math.Vec2D, transform? : @math.Transform, offset? : @math.Vec2D, color? : @render.Color) -> Self
@@ -48,6 +50,8 @@ pub(all) struct ColorCircle {
   radius : Double
   color : String
   stroke_color : String
+
+  fn new(Double, String, stroke_color? : String) -> ColorCircle
 }
 pub fn ColorCircle::new(Double, String, stroke_color? : String) -> Self
 
@@ -55,6 +59,8 @@ pub(all) struct ColorRect {
   size : @math.Vec2D
   color : String
   stroke_color : String
+
+  fn new(@math.Vec2D, String, stroke_color? : String) -> ColorRect
 }
 pub fn ColorRect::new(@math.Vec2D, String, stroke_color? : String) -> Self
 
@@ -64,6 +70,8 @@ pub(all) struct Picture {
   transform : @math.Transform
   repeat : @math.RepeatMode
   mut color : @render.Color
+
+  fn new(@math.Vec2D, String, transform? : @math.Transform, repeat? : @math.RepeatMode, color? : @render.Color) -> Picture
 }
 pub fn Picture::from_image(@math.Vec2D, @asset_types.ImageHandle, transform? : @math.Transform, repeat? : @math.RepeatMode, color? : @render.Color) -> Self
 pub fn Picture::new(@math.Vec2D, String, transform? : @math.Transform, repeat? : @math.RepeatMode, color? : @render.Color) -> Self
@@ -95,6 +103,8 @@ pub(all) struct Text {
   mut font_handle : @asset_types.FontHandle?
   mut baseline : @math.VAlign
   mut align : @math.HAlign
+
+  fn new(String, color? : String, font? : String, baseline? : @math.VAlign, align? : @math.HAlign) -> Text
 }
 pub fn Text::from_font(String, @asset_types.FontHandle, size? : Double, color? : String, baseline? : @math.VAlign, align? : @math.HAlign) -> Self
 pub fn Text::new(String, color? : String, font? : String, baseline? : @math.VAlign, align? : @math.HAlign) -> Self
