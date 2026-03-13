@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.28.4] - 2026-03-13
+
 ### Changed
 
 #### struct custom constructor migration
@@ -13,6 +15,7 @@
 - Changed `selene-webgpu` backend struct `WebGpuBackend` to declare a struct constructor and use constructor call syntax during singleton initialization.
 - Changed `entity.Entity` representation from tuple struct to named-field struct to support struct-constructor declaration while preserving allocation semantics of `Entity::new()` / `Entity::reserve_spawn()`.
 - Changed `inputs.Gamepad` representation from tuple struct to named-field struct to support struct-constructor declaration while preserving `Gamepad::new(id)` / `Gamepad::id()` behavior.
+- Changed target-specific package metadata to declare `supported-targets` for `selene_webgpu` (`js`), `selene_raylib` (`native`), and the `examples/*/web` main packages (`js`).
 
 ## [0.28.3] - 2026-03-12
 

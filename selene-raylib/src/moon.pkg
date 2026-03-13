@@ -15,4 +15,5 @@ import {
 
 options(
   "native-stub": [ "material_cleanup_native.c" ],
+  "supported-targets": "native",
 )

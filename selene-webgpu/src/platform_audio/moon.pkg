@@ -4,4 +4,5 @@ import {
 
 options(
   implement: "Milky2018/selene/platform_audio",
+  "supported-targets": "js",
 )

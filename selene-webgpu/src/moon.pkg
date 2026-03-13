@@ -10,3 +10,7 @@ import {
   "Milky2018/selene/inputs",
   "moonbitlang/core/math",
 }
+
+options(
+  "supported-targets": "js",
+)

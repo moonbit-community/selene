@@ -4,4 +4,5 @@ import {
 
 options(
   implement: "Milky2018/selene/platform_asset_io",
+  "supported-targets": "native",
 )
