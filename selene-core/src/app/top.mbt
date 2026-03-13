@@ -20,7 +20,7 @@ pub type System = (@ecs.World) -> Unit
 pub type RunCondition = (@ecs.World) -> Bool
 
 ///|
-pub type Plugin = (App) -> Unit
+pub type Plugin = (App) -> App
 
 ///|
 pub(all) struct RegisteredSystem {
@@ -45,7 +45,6 @@ pub(all) struct App {
   world : @ecs.World
   event_registrations : Array[(@ecs.World) -> Unit]
   systems : Array[RegisteredSystem]
-  plugins : Array[Plugin]
 
   fn new() -> App
 }
@@ -64,7 +63,6 @@ pub fn App::new() -> App {
     world,
     event_registrations: [],
     systems: [],
-    plugins: [],
   }
 }
 
@@ -115,13 +113,20 @@ pub fn App::with_zoom(self : App, zoom : Double) -> App {
 
 ///|
 pub fn App::add_plugin(self : App, plugin : Plugin) -> App {
-  let plugins = self.plugins
-  plugins.push(plugin)
-  { ..self, plugins, }
+  plugin(self)
 }
 
 ///|
-pub fn[T] App::add_event(self : App, events : @event.Events[T]) -> App {
+pub fn App::add_plugins(self : App, plugins : Array[Plugin]) -> App {
+  let mut app = self
+  for plugin in plugins {
+    app = app.add_plugin(plugin)
+  }
+  app
+}
+
+///|
+pub fn[T] App::add_message(self : App, events : @event.Events[T]) -> App {
   let registrations = self.event_registrations
   registrations.push(fn(world) { events.register_to_world(world) })
   { ..self, event_registrations: registrations }
@@ -345,9 +350,6 @@ pub fn App::run(self : App) -> Unit {
   )
   let screen_width = self.viewport_width * self.zoom
   let screen_height = self.viewport_height * self.zoom
-  for plugin in self.plugins {
-    plugin(self)
-  }
   for register_event in self.event_registrations {
     register_event(self.world)
   }

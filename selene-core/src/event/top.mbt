@@ -177,12 +177,6 @@ pub fn[T] Events::register_to_world(
 }
 
 ///|
-pub fn[T] Events::register(self : Events[T]) -> Unit {
-  let world = @ecs.current_world().unwrap_or(@ecs.bootstrap_world())
-  self.register_to_world(world)
-}
-
-///|
 pub fn[T] Events::writer(self : Events[T]) -> EventWriter[T] {
   EventWriter::new(self)
 }

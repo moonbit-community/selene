@@ -6,11 +6,11 @@ import {
 }
 
 // Values
-pub fn debug_plugin(@app.App) -> Unit
+pub fn debug_plugin(@app.App) -> @app.App
 
-pub fn default_3d_plugin(@app.App) -> Unit
+pub fn default_3d_plugin(@app.App) -> @app.App
 
-pub fn default_plugin(@app.App) -> Unit
+pub fn default_plugin(@app.App) -> @app.App
 
 // Errors
 

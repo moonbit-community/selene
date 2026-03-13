@@ -72,7 +72,6 @@ pub fn[T] Events::new(domain? : EventDomain) -> Self[T]
 pub fn[T] Events::observe_entity(Self[T], @entity.Entity, (Trigger[T]) -> Unit) -> ObserverHandle
 pub fn[T] Events::observe_global(Self[T], (Trigger[T]) -> Unit) -> ObserverHandle
 pub fn[T] Events::read(Self[T], EventReader[T]) -> Array[T]
-pub fn[T] Events::register(Self[T]) -> Unit
 pub fn[T] Events::register_to_world(Self[T], @ecs.World) -> Unit
 pub fn[T] Events::send(Self[T], T) -> Unit
 pub fn[T] Events::trigger(Self[T], T, @entity.Entity?) -> Unit

@@ -20,12 +20,21 @@
 - Added `add_default_ldtk_entity_tile_sprite_for_layer(layer_identifier, zindex_offset?)`.
 - Added `add_default_ldtk_entity_tile_sprite(zindex_offset?)`.
 
-#### `selene/app` + `selene/event`
+#### `selene/app`
 
-- Added `App::add_event(events)` for explicit event bus registration in app build flow.
+- Added `App::add_plugins(plugins : Array[Plugin]) -> App` for in-order plugin batch registration.
+- Added `App::add_message(events)` for explicit message bus registration in app build flow.
+
+#### `selene/event`
+
 - Added `Events::register_to_world(world)` for world-scoped event bus registration without module `fn init`.
 
 ### Changed
+
+#### `selene/app`
+
+- Changed `Plugin` alias from `(App) -> Unit` to `(App) -> App`.
+- Changed `App::add_plugin(plugin)` to apply plugin immediately instead of deferring plugin build to `App::run()`.
 
 #### `selene/event`
 
@@ -33,7 +42,8 @@
 
 #### `selene/plugins`
 
-- Changed `default_plugin` and `default_3d_plugin` to explicitly register built-in event buses via `app.add_event(...)`.
+- Changed `default_plugin`, `default_3d_plugin`, and `debug_plugin` to return `App` and compose through chain-style app builders.
+- Changed built-in bus registration flow to call `app.add_message(...)`.
 
 ### Fixed
 
@@ -42,6 +52,11 @@
 - Fixed LDtk entity parsing to preserve `__tile` source rectangle data for runtime registrations and placeholder sprite insertion flows.
 
 ### Removed
+
+#### `selene/app` + `selene/event`
+
+- Removed `App::add_event`; use `App::add_message`.
+- Removed `Events::register()`; use `Events::register_to_world(world)`.
 
 #### runtime auto-init
 
@@ -367,7 +382,7 @@
 - Removed ECS runtime type aliases from `selene/system`:
 - Removed `type System = (Double) -> Unit`.
 - Removed `type RunCondition = () -> Bool`.
-- Removed `type Plugin = (App) -> Unit`.
+- Removed the legacy `Plugin` alias with `Unit` return type.
 - Removed snapshot-style query public API from `selene/query`:
 - Removed `Snapshot[T]`.
 - Removed `Added[T]`.
