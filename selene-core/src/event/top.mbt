@@ -53,6 +53,7 @@ struct EventWorldStore[T] {
 
 ///|
 pub struct Events[T] {
+  id : UInt
   domain : EventDomain
   stores : Map[UInt, EventWorldStore[T]]
   marker : T?
@@ -62,13 +63,24 @@ pub struct Events[T] {
 
 ///|
 priv struct RegisteredBus {
+  id : UInt
   domain : EventDomain
   update : () -> Unit
   dispatch : () -> Unit
 }
 
 ///|
-let registered_buses : Array[RegisteredBus] = []
+let registered_buses_by_world : Map[UInt, Array[RegisteredBus]] = Map::new()
+
+///|
+let next_event_bus_id : Ref[UInt] = { val: 1U }
+
+///|
+fn allocate_event_bus_id() -> UInt {
+  let id = next_event_bus_id.val
+  next_event_bus_id.val += 1U
+  id
+}
 
 ///|
 fn current_world_id() -> UInt {
@@ -140,17 +152,34 @@ pub fn[T] EventWriter::trigger(
 
 ///|
 pub fn[T] Events::new(domain? : EventDomain = EventDomain::Frame) -> Events[T] {
-  { domain, stores: Map::new(), marker: None }
+  { id: allocate_event_bus_id(), domain, stores: Map::new(), marker: None }
+}
+
+///|
+pub fn[T] Events::register_to_world(
+  self : Events[T],
+  world : @ecs.World,
+) -> Unit {
+  let world_id = world.id()
+  let buses = registered_buses_by_world.get(world_id).unwrap_or([])
+  for bus in buses {
+    if bus.id == self.id {
+      return
+    }
+  }
+  buses.push({
+    id: self.id,
+    domain: self.domain,
+    update: fn() { self.update() },
+    dispatch: fn() { self.dispatch_observers() },
+  })
+  registered_buses_by_world.set(world_id, buses)
 }
 
 ///|
 pub fn[T] Events::register(self : Events[T]) -> Unit {
-  let bus = {
-    domain: self.domain,
-    update: fn() { self.update() },
-    dispatch: fn() { self.dispatch_observers() },
-  }
-  registered_buses.push(bus)
+  let world = @ecs.current_world().unwrap_or(@ecs.bootstrap_world())
+  self.register_to_world(world)
 }
 
 ///|
@@ -292,7 +321,8 @@ pub fn[T] unobserve(events : Events[T], handle : ObserverHandle) -> Unit {
 
 ///|
 fn update_domain(domain : EventDomain) -> Unit {
-  for bus in registered_buses {
+  let world_id = current_world_id()
+  for bus in registered_buses_by_world.get(world_id).unwrap_or([]) {
     if bus.domain == domain {
       (bus.update)()
     }
@@ -316,7 +346,8 @@ pub fn event_render_update_system(_delta : Double) -> Unit {
 
 ///|
 pub fn event_observer_dispatch_system(_delta : Double) -> Unit {
-  for bus in registered_buses {
+  let world_id = current_world_id()
+  for bus in registered_buses_by_world.get(world_id).unwrap_or([]) {
     (bus.dispatch)()
   }
 }

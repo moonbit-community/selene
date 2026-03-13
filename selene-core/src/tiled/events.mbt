@@ -81,14 +81,3 @@ pub let tiled_object_spawned_event_bus : @event.Events[TiledObjectSpawnedEvent] 
 pub let tiled_image_layer_spawned_event_bus : @event.Events[
   TiledImageLayerSpawnedEvent,
 ] = @event.Events::new()
-
-///|
-fn init {
-  tiled_world_spawned_event_bus.register()
-  tiled_world_map_spawned_event_bus.register()
-  tiled_map_spawned_event_bus.register()
-  tiled_layer_spawned_event_bus.register()
-  tiled_tile_spawned_event_bus.register()
-  tiled_object_spawned_event_bus.register()
-  tiled_image_layer_spawned_event_bus.register()
-}

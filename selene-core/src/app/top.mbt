@@ -43,6 +43,7 @@ pub(all) struct App {
   fixed_hz : UInt
   max_fixed_steps_per_frame : UInt
   world : @ecs.World
+  event_registrations : Array[(@ecs.World) -> Unit]
   systems : Array[RegisteredSystem]
   plugins : Array[Plugin]
 
@@ -61,6 +62,7 @@ pub fn App::new() -> App {
     fixed_hz: DEFAULT_FIXED_HZ,
     max_fixed_steps_per_frame: DEFAULT_MAX_FIXED_STEPS_PER_FRAME,
     world,
+    event_registrations: [],
     systems: [],
     plugins: [],
   }
@@ -116,6 +118,13 @@ pub fn App::add_plugin(self : App, plugin : Plugin) -> App {
   let plugins = self.plugins
   plugins.push(plugin)
   { ..self, plugins, }
+}
+
+///|
+pub fn[T] App::add_event(self : App, events : @event.Events[T]) -> App {
+  let registrations = self.event_registrations
+  registrations.push(fn(world) { events.register_to_world(world) })
+  { ..self, event_registrations: registrations }
 }
 
 ///|
@@ -338,6 +347,9 @@ pub fn App::run(self : App) -> Unit {
   let screen_height = self.viewport_height * self.zoom
   for plugin in self.plugins {
     plugin(self)
+  }
+  for register_event in self.event_registrations {
+    register_event(self.world)
   }
 
   let startup_systems = collect_systems(self.systems, fn(schedule) {

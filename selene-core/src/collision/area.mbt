@@ -60,11 +60,6 @@ pub struct TriggerEvent {
 pub let trigger_event_bus : @event.Events[TriggerEvent] = @event.Events::new()
 
 ///|
-fn init {
-  trigger_event_bus.register()
-}
-
-///|
 fn push_trigger_event(event : TriggerEvent) -> Unit {
   trigger_event_bus.send(event)
 }

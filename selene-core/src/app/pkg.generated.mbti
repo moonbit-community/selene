@@ -3,6 +3,7 @@ package "Milky2018/selene/app"
 
 import {
   "Milky2018/selene/ecs",
+  "Milky2018/selene/event",
   "Milky2018/selene/system",
   "Milky2018/selene/system_set",
 }
@@ -21,11 +22,13 @@ pub(all) struct App {
   fixed_hz : UInt
   max_fixed_steps_per_frame : UInt
   world : @ecs.World
+  event_registrations : Array[(@ecs.World) -> Unit]
   systems : Array[RegisteredSystem]
   plugins : Array[(App) -> Unit]
 
   fn new() -> App
 }
+pub fn[T] App::add_event(Self, @event.Events[T]) -> Self
 pub fn App::add_plugin(Self, (Self) -> Unit) -> Self
 pub fn App::add_system(Self, @system.Schedule, (@ecs.World) -> Unit, system_name? : String, in_set? : @system_set.SystemSet, before? : Array[@system_set.SystemSet], after? : Array[@system_set.SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
 pub fn App::add_systems(Self, @system.Schedule, Array[(@ecs.World) -> Unit], in_set? : @system_set.SystemSet, before? : Array[@system_set.SystemSet], after? : Array[@system_set.SystemSet], run_if? : (@ecs.World) -> Bool) -> Self

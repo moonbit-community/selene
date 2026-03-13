@@ -112,15 +112,3 @@ pub let ldtk_int_grid_collider_spawned_event_bus : @event.Events[
 
 ///|
 pub let ldtk_level_event_bus : @event.Events[LdtkLevelEvent] = @event.Events::new()
-
-///|
-fn init {
-  ldtk_world_spawned_event_bus.register()
-  ldtk_level_spawned_event_bus.register()
-  ldtk_layer_spawned_event_bus.register()
-  ldtk_tile_spawned_event_bus.register()
-  ldtk_entity_spawned_event_bus.register()
-  ldtk_int_grid_cell_spawned_event_bus.register()
-  ldtk_int_grid_collider_spawned_event_bus.register()
-  ldtk_level_event_bus.register()
-}

@@ -20,11 +20,32 @@
 - Added `add_default_ldtk_entity_tile_sprite_for_layer(layer_identifier, zindex_offset?)`.
 - Added `add_default_ldtk_entity_tile_sprite(zindex_offset?)`.
 
+#### `selene/app` + `selene/event`
+
+- Added `App::add_event(events)` for explicit event bus registration in app build flow.
+- Added `Events::register_to_world(world)` for world-scoped event bus registration without module `fn init`.
+
+### Changed
+
+#### `selene/event`
+
+- Changed event update and observer dispatch systems to process only buses registered for the current `World`, replacing the previous global bus list behavior.
+
+#### `selene/plugins`
+
+- Changed `default_plugin` and `default_3d_plugin` to explicitly register built-in event buses via `app.add_event(...)`.
+
 ### Fixed
 
 #### `selene/ldtk`
 
 - Fixed LDtk entity parsing to preserve `__tile` source rectangle data for runtime registrations and placeholder sprite insertion flows.
+
+### Removed
+
+#### runtime auto-init
+
+- Removed all module-level `fn init { ...event_bus.register()... }` auto-registration blocks from `selene-core`; event bus registration is now explicit at app build time.
 
 ## [0.28.4] - 2026-03-13
 

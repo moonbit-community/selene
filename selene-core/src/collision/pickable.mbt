@@ -66,11 +66,6 @@ pub struct PointerEvent {
 pub let pointer_event_bus : @event.Events[PointerEvent] = @event.Events::new()
 
 ///|
-fn init {
-  pointer_event_bus.register()
-}
-
-///|
 fn push_pointer_event(
   entity : @entity.Entity,
   button : @inputs.MouseButton,

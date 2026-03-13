@@ -34,6 +34,58 @@ fn add_system(
 }
 
 ///|
+fn register_builtin_events(app : @app.App) -> Unit {
+  ignore(app.add_event(@inputs.key_input_event_bus))
+  ignore(app.add_event(@inputs.mouse_button_event_bus))
+  ignore(app.add_event(@inputs.mouse_motion_event_bus))
+  ignore(app.add_event(@inputs.mouse_wheel_event_bus))
+  ignore(app.add_event(@inputs.gamepad_connection_event_bus))
+  ignore(app.add_event(@inputs.gamepad_button_event_bus))
+  ignore(app.add_event(@inputs.gamepad_axis_event_bus))
+
+  ignore(app.add_event(@input_action.input_action_event_bus))
+  ignore(app.add_event(@audio.audio_event_bus))
+  ignore(app.add_event(@scene.scene_instance_ready_events))
+
+  ignore(app.add_event(@collision.contact_event_bus))
+  ignore(app.add_event(@collision.trigger_event_bus))
+  ignore(app.add_event(@collision.pointer_event_bus))
+  ignore(app.add_event(@physics3d.contact_event_bus3d))
+  ignore(app.add_event(@physics3d.trigger_event_bus3d))
+
+  ignore(app.add_event(@ui.pointer_enter_event_bus))
+  ignore(app.add_event(@ui.pointer_leave_event_bus))
+  ignore(app.add_event(@ui.pointer_down_event_bus))
+  ignore(app.add_event(@ui.pointer_up_event_bus))
+  ignore(app.add_event(@ui.click_event_bus))
+  ignore(app.add_event(@ui.navigation_event_bus))
+  ignore(app.add_event(@ui.focus_in_event_bus))
+  ignore(app.add_event(@ui.focus_out_event_bus))
+
+  ignore(app.add_event(@ldtk.ldtk_world_spawned_event_bus))
+  ignore(app.add_event(@ldtk.ldtk_level_spawned_event_bus))
+  ignore(app.add_event(@ldtk.ldtk_layer_spawned_event_bus))
+  ignore(app.add_event(@ldtk.ldtk_tile_spawned_event_bus))
+  ignore(app.add_event(@ldtk.ldtk_entity_spawned_event_bus))
+  ignore(app.add_event(@ldtk.ldtk_int_grid_cell_spawned_event_bus))
+  ignore(app.add_event(@ldtk.ldtk_int_grid_collider_spawned_event_bus))
+  ignore(app.add_event(@ldtk.ldtk_level_event_bus))
+
+  ignore(app.add_event(@tiled.tiled_world_spawned_event_bus))
+  ignore(app.add_event(@tiled.tiled_world_map_spawned_event_bus))
+  ignore(app.add_event(@tiled.tiled_map_spawned_event_bus))
+  ignore(app.add_event(@tiled.tiled_layer_spawned_event_bus))
+  ignore(app.add_event(@tiled.tiled_tile_spawned_event_bus))
+  ignore(app.add_event(@tiled.tiled_object_spawned_event_bus))
+  ignore(app.add_event(@tiled.tiled_image_layer_spawned_event_bus))
+  ignore(app.add_event(@tiled.tiled_collider_spawned_event_bus))
+
+  ignore(app.add_event(@asset2.image_asset_events))
+  ignore(app.add_event(@asset2.audio_asset_events))
+  ignore(app.add_event(@asset2.font_asset_events))
+}
+
+///|
 pub fn debug_plugin(app : @app.App) -> Unit {
   let render_prepare = @system_set.named("render_prepare")
   add_system(
@@ -47,6 +99,7 @@ pub fn debug_plugin(app : @app.App) -> Unit {
 
 ///|
 pub fn default_plugin(app : @app.App) -> Unit {
+  register_builtin_events(app)
   let input = @system_set.named("input")
   let physics = @system_set.named("physics")
   let gameplay = @system_set.named("gameplay")
@@ -261,6 +314,7 @@ pub fn default_plugin(app : @app.App) -> Unit {
 
 ///|
 pub fn default_3d_plugin(app : @app.App) -> Unit {
+  register_builtin_events(app)
   let input = @system_set.named("input")
   let physics = @system_set.named("physics3d")
   let transform = @system_set.named("transform3d")

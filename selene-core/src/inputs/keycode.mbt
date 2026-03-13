@@ -176,11 +176,6 @@ pub let pressed_keys : Set[Code] = @set.Set::new()
 pub let key_input_event_bus : @event.Events[KeyInputEvent] = @event.Events::new()
 
 ///|
-fn init {
-  key_input_event_bus.register()
-}
-
-///|
 /// Checks if a keyboard key is currently being pressed.
 ///
 /// Parameters:

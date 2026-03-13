@@ -40,13 +40,6 @@ pub let audio_asset_events : @event.Events[AssetEvent[@asset.AudioHandle]] = @ev
 pub let font_asset_events : @event.Events[AssetEvent[@asset.FontHandle]] = @event.Events::new()
 
 ///|
-fn init {
-  image_asset_events.register()
-  audio_asset_events.register()
-  font_asset_events.register()
-}
-
-///|
 pub fn read_bytes(path : String) -> Bytes? {
   @asset.read_bytes(path)
 }

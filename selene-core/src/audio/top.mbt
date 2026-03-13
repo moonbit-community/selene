@@ -100,11 +100,6 @@ pub let audio_event_bus : @event.Events[AudioEvent] = @event.Events::new()
 let audio_event_reader : @event.EventReader[AudioEvent] = @event.EventReader::new()
 
 ///|
-fn init {
-  audio_event_bus.register()
-}
-
-///|
 let global_volume_ref : Ref[Double] = Ref::new(1.0)
 
 ///|

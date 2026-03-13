@@ -223,13 +223,6 @@ pub let gamepad_button_event_bus : @event.Events[GamepadButtonEvent] = @event.Ev
 pub let gamepad_axis_event_bus : @event.Events[GamepadAxisEvent] = @event.Events::new()
 
 ///|
-fn init {
-  gamepad_connection_event_bus.register()
-  gamepad_button_event_bus.register()
-  gamepad_axis_event_bus.register()
-}
-
-///|
 pub fn is_gamepad_connected(gamepad : Gamepad) -> Bool {
   connected_gamepads().contains(gamepad)
 }

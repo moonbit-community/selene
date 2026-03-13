@@ -78,11 +78,6 @@ pub struct ContactEvent {
 pub let contact_event_bus : @event.Events[ContactEvent] = @event.Events::new()
 
 ///|
-fn init {
-  contact_event_bus.register()
-}
-
-///|
 /// Effective post-solve velocities from the latest fixed step.
 pub fn resolved_velocities() -> Map[@entity.Entity, @velocity.Velocity] {
   collider_world_store().resolved_velocities

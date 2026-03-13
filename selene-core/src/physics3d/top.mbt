@@ -279,12 +279,6 @@ pub let contact_event_bus3d : @event.Events[ContactEvent3D] = @event.Events::new
 pub let trigger_event_bus3d : @event.Events[TriggerEvent3D] = @event.Events::new()
 
 ///|
-fn init {
-  contact_event_bus3d.register()
-  trigger_event_bus3d.register()
-}
-
-///|
 pub fn set_gravity(gravity : @math.Vec3) -> Unit {
   config.gravity = gravity
 }

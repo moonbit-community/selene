@@ -22,11 +22,6 @@ let scene_instances : Map[@entity.Entity, SceneHandle] = Map::new()
 pub let scene_instance_ready_events : @event.Events[SceneInstanceReadyEvent] = @event.Events::new()
 
 ///|
-fn init {
-  scene_instance_ready_events.register()
-}
-
-///|
 pub fn spawner() -> SceneSpawner {
   { _tag: () }
 }

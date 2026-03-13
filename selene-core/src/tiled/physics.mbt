@@ -124,11 +124,6 @@ pub fn default_tiled_physics_settings() -> TiledPhysicsSettings {
 }
 
 ///|
-fn init {
-  tiled_collider_spawned_event_bus.register()
-}
-
-///|
 priv struct TiledPhysicsSpawnSpec {
   source_entity : @entity.Entity
   layer_entity : @entity.Entity

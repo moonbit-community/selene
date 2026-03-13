@@ -89,3 +89,27 @@ test "events: unobserve removes callback" {
   events.dispatch_observers()
   inspect(received, content="[]")
 }
+
+///|
+test "events: frame update systems are world-scoped and require explicit registration" {
+  let events : Events[Int] = Events::new()
+  let world_a = @ecs.World::new()
+  let world_b = @ecs.World::new()
+  let reader_a : EventReader[Int] = EventReader::new()
+  let reader_b : EventReader[Int] = EventReader::new()
+
+  events.register_to_world(world_a)
+
+  @ecs.set_current_world(world_a)
+  events.send(1)
+  event_frame_update_system(0.0)
+  event_frame_update_system(0.0)
+  inspect(events.read(reader_a), content="[]")
+
+  @ecs.set_current_world(world_b)
+  events.send(2)
+  event_frame_update_system(0.0)
+  event_frame_update_system(0.0)
+  inspect(events.read(reader_b), content="[2]")
+  @ecs.set_current_world(@ecs.bootstrap_world())
+}

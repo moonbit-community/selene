@@ -99,18 +99,6 @@ fn ui_interaction_runtime() -> UiInteractionRuntime {
 }
 
 ///|
-fn init {
-  pointer_enter_event_bus.register()
-  pointer_leave_event_bus.register()
-  pointer_down_event_bus.register()
-  pointer_up_event_bus.register()
-  click_event_bus.register()
-  navigation_event_bus.register()
-  focus_in_event_bus.register()
-  focus_out_event_bus.register()
-}
-
-///|
 pub fn hovered_entity() -> @entity.Entity? {
   ui_interaction_runtime().hovered_entity
 }

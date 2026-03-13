@@ -50,11 +50,6 @@ let action_states : Map[InputAction, ActionState] = Map::new()
 pub let input_action_event_bus : @event.Events[ActionEvent] = @event.Events::new()
 
 ///|
-fn init {
-  input_action_event_bus.register()
-}
-
-///|
 pub fn InputAction::new(name : String) -> InputAction {
   { name, }
 }

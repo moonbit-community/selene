@@ -2,6 +2,7 @@
 package "Milky2018/selene/event"
 
 import {
+  "Milky2018/selene/ecs",
   "Milky2018/selene/entity",
 }
 
@@ -58,6 +59,7 @@ pub fn[T] EventWriter::send(Self[T], T) -> Unit
 pub fn[T] EventWriter::trigger(Self[T], T, target? : @entity.Entity?) -> Unit
 
 pub struct Events[T] {
+  id : UInt
   domain : EventDomain
   stores : Map[UInt, EventWorldStore[T]]
   marker : T?
@@ -71,6 +73,7 @@ pub fn[T] Events::observe_entity(Self[T], @entity.Entity, (Trigger[T]) -> Unit) 
 pub fn[T] Events::observe_global(Self[T], (Trigger[T]) -> Unit) -> ObserverHandle
 pub fn[T] Events::read(Self[T], EventReader[T]) -> Array[T]
 pub fn[T] Events::register(Self[T]) -> Unit
+pub fn[T] Events::register_to_world(Self[T], @ecs.World) -> Unit
 pub fn[T] Events::send(Self[T], T) -> Unit
 pub fn[T] Events::trigger(Self[T], T, @entity.Entity?) -> Unit
 pub fn[T] Events::unobserve(Self[T], ObserverHandle) -> Unit

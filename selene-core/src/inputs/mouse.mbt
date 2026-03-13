@@ -176,13 +176,6 @@ pub let mouse_motion_event_bus : @event.Events[MouseMotionEvent] = @event.Events
 pub let mouse_wheel_event_bus : @event.Events[MouseWheelEvent] = @event.Events::new()
 
 ///|
-fn init {
-  mouse_button_event_bus.register()
-  mouse_motion_event_bus.register()
-  mouse_wheel_event_bus.register()
-}
-
-///|
 let last_mouse : Mouse = {
   pos: @math.Vec2D(0.0, 0.0),
   left_button: false,
