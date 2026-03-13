@@ -76,3 +76,25 @@ pub fn setup_ldtk_bindings() -> Unit {
 - Remove one scope:
   - `unregister_ldtk_entity_for_layer_optional(...)`
   - `unregister_ldtk_int_cell_for_layer_optional(...)`
+
+## Entity Tile Placeholder Sprite (`__tile`)
+
+To mirror bevy's `#[sprite_sheet]` flow without derive macros, Selene now
+provides explicit helper APIs that read `entity.instance.tile` (`__tile`) and
+insert a sprite automatically:
+
+- One-shot insertion in your own hook:
+  - `insert_ldtk_entity_tile_sprite(event, zindex=...)`
+  - `ldtk_entity_tile_sprite(event, zindex=...)`
+- Registration helpers with the same scope model:
+  - `register_ldtk_entity_tile_sprite_for_layer_optional(...)`
+  - `add_ldtk_entity_tile_sprite_for_layer_optional(...)`
+  - plus layer/default convenience wrappers.
+
+These helpers:
+
+- Resolve the tileset image from `__tile.tilesetUid` (or layer tileset fallback).
+- Use the `__tile` source rectangle as sprite atlas source.
+- Scale to `entity.width/height`.
+- Apply LDtk pivot offset so the rendered sprite occupies the expected entity
+  area.

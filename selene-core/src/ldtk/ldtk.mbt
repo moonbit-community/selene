@@ -785,6 +785,7 @@ pub struct LdtkEntityInstance {
   grid : @math.Vec2D
   pivot : @math.Vec2D
   smart_color : String?
+  tile : LdtkTilesetRect?
   tags : Array[String]
   field_instances : Array[LdtkFieldInstance]
 }
@@ -2215,6 +2216,10 @@ fn parse_ldtk_entity_instances(
       grid: json_vec2_from_int_array(field_json(object, "__grid")),
       pivot: json_vec2_from_number_array(field_json(object, "__pivot")),
       smart_color: field_string_any(object, ["__smartColor", "smartColor"]),
+      tile: match field_json(object, "__tile") {
+        Some(value) => json_tileset_rect(value)
+        None => None
+      },
       tags: parse_ldtk_string_array(field_json_any(object, ["__tags", "tags"])),
       field_instances: parse_ldtk_field_instances(
         field_json(object, "fieldInstances"),

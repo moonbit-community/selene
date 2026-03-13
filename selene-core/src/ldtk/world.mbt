@@ -754,6 +754,188 @@ pub fn[T] add_default_ldtk_entity_component(
 }
 
 ///|
+pub fn ldtk_entity_tile_sprite(
+  event : LdtkEntitySpawnedEvent,
+  zindex? : Int = event.zindex,
+) -> @sprite.Sprite? {
+  guard event.instance.tile is Some(tile) else { return None }
+  guard ldtk_entity_tile_image(event, tile) is Some(image) else { return None }
+  let source_width = if tile.w > 0 {
+    tile.w.to_double()
+  } else {
+    event.instance.width.to_double()
+  }
+  let source_height = if tile.h > 0 {
+    tile.h.to_double()
+  } else {
+    event.instance.height.to_double()
+  }
+  if source_width <= 0.0 || source_height <= 0.0 {
+    return None
+  }
+  let target_width = if event.instance.width > 0 {
+    event.instance.width.to_double()
+  } else {
+    source_width
+  }
+  let target_height = if event.instance.height > 0 {
+    event.instance.height.to_double()
+  } else {
+    source_height
+  }
+  let scale_x = target_width / source_width
+  let scale_y = target_height / source_height
+  let animation = @sprite.Animation::single_frame_from_image(
+    image,
+    @math.Vec2D(source_width, source_height),
+    transform=@math.Transform::from_scale(scale_x, scale_y),
+    offset=@math.Vec2D(tile.x.to_double(), tile.y.to_double()),
+  )
+  let pivot_offset = @math.Vec2D(
+    target_width * (event.instance.pivot[X] - 0.5),
+    target_height * (event.instance.pivot[Y] - 0.5),
+  )
+  Some(@sprite.Sprite::from_animation(animation, zindex, offset=pivot_offset))
+}
+
+///|
+pub fn insert_ldtk_entity_tile_sprite(
+  event : LdtkEntitySpawnedEvent,
+  zindex? : Int = event.zindex,
+) -> Bool {
+  guard ldtk_entity_tile_sprite(event, zindex~) is Some(sprite) else {
+    return false
+  }
+  @sprite.sprites().set(event.entity, sprite)
+  true
+}
+
+///|
+pub fn register_ldtk_entity_tile_sprite_for_layer_optional(
+  layer_identifier : String?,
+  entity_identifier : String?,
+  zindex_offset? : Int = 0,
+) -> Unit {
+  register_ldtk_entity_for_layer_optional(layer_identifier, entity_identifier, fn(
+    event,
+  ) {
+    ignore(
+      insert_ldtk_entity_tile_sprite(event, zindex=event.zindex + zindex_offset),
+    )
+  })
+}
+
+///|
+pub fn register_ldtk_entity_tile_sprite_for_layer(
+  layer_identifier : String,
+  entity_identifier : String,
+  zindex_offset? : Int = 0,
+) -> Unit {
+  register_ldtk_entity_tile_sprite_for_layer_optional(
+    Some(layer_identifier),
+    Some(entity_identifier),
+    zindex_offset~,
+  )
+}
+
+///|
+pub fn register_ldtk_entity_tile_sprite(
+  entity_identifier : String,
+  zindex_offset? : Int = 0,
+) -> Unit {
+  register_ldtk_entity_tile_sprite_for_layer_optional(
+    None,
+    Some(entity_identifier),
+    zindex_offset~,
+  )
+}
+
+///|
+pub fn register_default_ldtk_entity_tile_sprite_for_layer(
+  layer_identifier : String,
+  zindex_offset? : Int = 0,
+) -> Unit {
+  register_ldtk_entity_tile_sprite_for_layer_optional(
+    Some(layer_identifier),
+    None,
+    zindex_offset~,
+  )
+}
+
+///|
+pub fn register_default_ldtk_entity_tile_sprite(
+  zindex_offset? : Int = 0,
+) -> Unit {
+  register_ldtk_entity_tile_sprite_for_layer_optional(
+    None,
+    None,
+    zindex_offset~,
+  )
+}
+
+///|
+pub fn add_ldtk_entity_tile_sprite_for_layer_optional(
+  layer_identifier : String?,
+  entity_identifier : String?,
+  zindex_offset? : Int = 0,
+) -> Unit {
+  add_ldtk_entity_registration_for_layer_optional(
+    layer_identifier,
+    entity_identifier,
+    fn(event) {
+      ignore(
+        insert_ldtk_entity_tile_sprite(
+          event,
+          zindex=event.zindex + zindex_offset,
+        ),
+      )
+    },
+  )
+}
+
+///|
+pub fn add_ldtk_entity_tile_sprite_for_layer(
+  layer_identifier : String,
+  entity_identifier : String,
+  zindex_offset? : Int = 0,
+) -> Unit {
+  add_ldtk_entity_tile_sprite_for_layer_optional(
+    Some(layer_identifier),
+    Some(entity_identifier),
+    zindex_offset~,
+  )
+}
+
+///|
+pub fn add_ldtk_entity_tile_sprite(
+  entity_identifier : String,
+  zindex_offset? : Int = 0,
+) -> Unit {
+  add_ldtk_entity_tile_sprite_for_layer_optional(
+    None,
+    Some(entity_identifier),
+    zindex_offset~,
+  )
+}
+
+///|
+pub fn add_default_ldtk_entity_tile_sprite_for_layer(
+  layer_identifier : String,
+  zindex_offset? : Int = 0,
+) -> Unit {
+  add_ldtk_entity_tile_sprite_for_layer_optional(
+    Some(layer_identifier),
+    None,
+    zindex_offset~,
+  )
+}
+
+///|
+pub fn add_default_ldtk_entity_tile_sprite(zindex_offset? : Int = 0) -> Unit {
+  add_ldtk_entity_tile_sprite_for_layer_optional(None, None, zindex_offset~)
+}
+
+///|
 pub fn add_ldtk_int_cell_registration_for_layer_optional(
   layer_identifier : String?,
   value : Int?,
@@ -1934,6 +2116,24 @@ fn ldtk_layer_tileset_image(
   guard project.tileset_by_uid(uid) is Some(tileset) else { return None }
   guard tileset.rel_path is Some(path) else { return None }
   Some(@asset2.load_image(project.resolve_path(path)))
+}
+
+///|
+fn ldtk_entity_tile_image(
+  event : LdtkEntitySpawnedEvent,
+  tile : LdtkTilesetRect,
+) -> @asset.ImageHandle? {
+  guard ldtk_world_instances().get(event.world_entity) is Some(instance) else {
+    return None
+  }
+  if tile.tileset_uid is Some(uid) {
+    guard instance.project.tileset_by_uid(uid) is Some(tileset) else {
+      return None
+    }
+    guard tileset.rel_path is Some(path) else { return None }
+    return Some(@asset2.load_image(instance.project.resolve_path(path)))
+  }
+  ldtk_layer_tileset_image(instance.project, event.layer)
 }
 
 ///|

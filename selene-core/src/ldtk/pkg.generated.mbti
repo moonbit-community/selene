@@ -6,6 +6,7 @@ import {
   "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/math",
+  "Milky2018/selene/sprite",
   "moonbitlang/core/ref",
 }
 
@@ -17,6 +18,10 @@ pub fn[T] add_default_ldtk_entity_component_for_layer(String, Map[@entity.Entity
 pub fn add_default_ldtk_entity_registration((LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
 pub fn add_default_ldtk_entity_registration_for_layer(String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+
+pub fn add_default_ldtk_entity_tile_sprite(zindex_offset? : Int) -> Unit
+
+pub fn add_default_ldtk_entity_tile_sprite_for_layer(String, zindex_offset? : Int) -> Unit
 
 pub fn[T] add_default_ldtk_int_cell_component(Map[@entity.Entity, T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
 
@@ -37,6 +42,12 @@ pub fn add_ldtk_entity_registration(String, (LdtkEntitySpawnedEvent) -> Unit) ->
 pub fn add_ldtk_entity_registration_for_layer(String, String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
 pub fn add_ldtk_entity_registration_for_layer_optional(String?, String?, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+
+pub fn add_ldtk_entity_tile_sprite(String, zindex_offset? : Int) -> Unit
+
+pub fn add_ldtk_entity_tile_sprite_for_layer(String, String, zindex_offset? : Int) -> Unit
+
+pub fn add_ldtk_entity_tile_sprite_for_layer_optional(String?, String?, zindex_offset? : Int) -> Unit
 
 pub fn[T] add_ldtk_int_cell_component(Int, Map[@entity.Entity, T], (LdtkIntGridCellSpawnedEvent) -> T) -> Unit
 
@@ -94,6 +105,8 @@ pub fn empty_ldtk_project_definitions() -> LdtkProjectDefinitions
 
 pub fn empty_ldtk_tileset_rect() -> LdtkTilesetRect
 
+pub fn insert_ldtk_entity_tile_sprite(LdtkEntitySpawnedEvent, zindex? : Int) -> Bool
+
 pub fn ldtk_entity_by_iid(@entity.Entity, String) -> @entity.Entity?
 
 pub fn ldtk_entity_default_spawn_hook() -> @ref.Ref[((LdtkEntitySpawnedEvent) -> Unit)?]
@@ -107,6 +120,8 @@ pub fn ldtk_entity_layer_spawn_hooks() -> Map[String, (LdtkEntitySpawnedEvent) -
 pub fn ldtk_entity_spawn_hooks() -> Map[String, (LdtkEntitySpawnedEvent) -> Unit]
 
 pub let ldtk_entity_spawned_event_bus : @event.Events[LdtkEntitySpawnedEvent]
+
+pub fn ldtk_entity_tile_sprite(LdtkEntitySpawnedEvent, zindex? : Int) -> @sprite.Sprite?
 
 pub fn ldtk_entity_typed_registrations() -> Map[String, (LdtkEntitySpawnedEvent) -> Unit]
 
@@ -252,6 +267,10 @@ pub fn register_default_ldtk_entity((LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
 pub fn register_default_ldtk_entity_for_layer(String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
+pub fn register_default_ldtk_entity_tile_sprite(zindex_offset? : Int) -> Unit
+
+pub fn register_default_ldtk_entity_tile_sprite_for_layer(String, zindex_offset? : Int) -> Unit
+
 pub fn register_default_ldtk_int_cell((LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
 pub fn register_default_ldtk_int_cell_for_layer(String, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
@@ -271,6 +290,12 @@ pub fn register_ldtk_entity_spawn_hook(String, (LdtkEntitySpawnedEvent) -> Unit)
 pub fn register_ldtk_entity_spawn_hook_for_layer(String, String, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
 
 pub fn register_ldtk_entity_spawn_hook_optional(String?, String?, (LdtkEntitySpawnedEvent) -> Unit) -> Unit
+
+pub fn register_ldtk_entity_tile_sprite(String, zindex_offset? : Int) -> Unit
+
+pub fn register_ldtk_entity_tile_sprite_for_layer(String, String, zindex_offset? : Int) -> Unit
+
+pub fn register_ldtk_entity_tile_sprite_for_layer_optional(String?, String?, zindex_offset? : Int) -> Unit
 
 pub fn register_ldtk_int_cell(Int, (LdtkIntGridCellSpawnedEvent) -> Unit) -> Unit
 
@@ -367,6 +392,7 @@ pub struct LdtkEntityInstance {
   grid : @math.Vec2D
   pivot : @math.Vec2D
   smart_color : String?
+  tile : LdtkTilesetRect?
   tags : Array[String]
   field_instances : Array[LdtkFieldInstance]
 }

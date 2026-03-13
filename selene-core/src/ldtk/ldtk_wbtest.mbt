@@ -407,7 +407,7 @@ test "load_ldtk_project parses entity instance tags" {
   files.set(
     "levels/world.ldtk",
     ascii_bytes(
-      "{\"externalLevels\":false,\"defs\":{\"tilesets\":[]},\"levels\":[{\"identifier\":\"Main\",\"iid\":\"level-main\",\"uid\":1,\"worldX\":0,\"worldY\":0,\"pxWid\":64,\"pxHei\":64,\"layerInstances\":[{\"iid\":\"layer-entities\",\"__identifier\":\"Entities\",\"__type\":\"Entities\",\"__gridSize\":16,\"__cWid\":4,\"__cHei\":4,\"visible\":true,\"intGridCsv\":[],\"autoLayerTiles\":[],\"gridTiles\":[],\"entityInstances\":[{\"iid\":\"enemy-1\",\"__identifier\":\"Enemy\",\"defUid\":10,\"width\":16,\"height\":16,\"px\":[16,16],\"__grid\":[1,1],\"__pivot\":[0,0],\"__tags\":[\"Hostile\",\"Flying\"],\"fieldInstances\":[]}]}]}],\"worlds\":[]}",
+      "{\"externalLevels\":false,\"defs\":{\"tilesets\":[]},\"levels\":[{\"identifier\":\"Main\",\"iid\":\"level-main\",\"uid\":1,\"worldX\":0,\"worldY\":0,\"pxWid\":64,\"pxHei\":64,\"layerInstances\":[{\"iid\":\"layer-entities\",\"__identifier\":\"Entities\",\"__type\":\"Entities\",\"__gridSize\":16,\"__cWid\":4,\"__cHei\":4,\"visible\":true,\"intGridCsv\":[],\"autoLayerTiles\":[],\"gridTiles\":[],\"entityInstances\":[{\"iid\":\"enemy-1\",\"__identifier\":\"Enemy\",\"defUid\":10,\"width\":16,\"height\":16,\"px\":[16,16],\"__grid\":[1,1],\"__pivot\":[0,0],\"__tile\":{\"tilesetUid\":7,\"x\":16,\"y\":32,\"w\":16,\"h\":16},\"__tags\":[\"Hostile\",\"Flying\"],\"fieldInstances\":[]}]}]}],\"worlds\":[]}",
     ),
   )
   with_fake_asset_io(files, fn() raise {
@@ -417,6 +417,9 @@ test "load_ldtk_project parses entity instance tags" {
     inspect(entity.tags[0], content="Hostile")
     inspect(entity.has_tag("Flying"), content="true")
     inspect(entity.has_tag("Boss"), content="false")
+    inspect(entity.tile is Some(_), content="true")
+    inspect(entity.tile.unwrap().tileset_uid.unwrap(), content="7")
+    inspect(entity.tile.unwrap().x, content="16")
   })
 }
 
@@ -725,6 +728,7 @@ test "spawn_ldtk_world spawns layer tiles entities and intgrid cells" {
           grid: @math.Vec2D(2.0, 1.0),
           pivot: @math.Vec2D(0.5, 1.0),
           smart_color: Some("#ff0000"),
+          tile: None,
           tags: [],
           field_instances: [],
         },
@@ -812,6 +816,114 @@ test "spawn_ldtk_world spawns layer tiles entities and intgrid cells" {
       ldtk_entity_iids().get(spawned_enemy).unwrap().iid,
       content="entity-1",
     )
+    cleanup_ldtk_entity(world)
+  })
+}
+
+///|
+test "ldtk entity tile sprite registration inserts placeholder sprite from __tile" {
+  reset_ldtk_runtime()
+  let files : Map[String, Bytes] = Map::new()
+  files.set("assets/entity_tiles.png", ascii_bytes("png"))
+  with_fake_asset_io(files, fn() raise {
+    add_ldtk_entity_tile_sprite("Enemy")
+    let entity_layer : LdtkLayerInstance = {
+      iid: "layer-entities",
+      identifier: "Entities",
+      layer_type: "Entities",
+      level_id: 1,
+      layer_def_uid: 0,
+      c_wid: 2,
+      c_hei: 2,
+      grid_size: 16,
+      opacity: 1.0,
+      visible: true,
+      optional_rules: [],
+      override_tileset_uid: None,
+      px_offset_x: 0,
+      px_offset_y: 0,
+      px_total_offset_x: 0,
+      px_total_offset_y: 0,
+      seed: 0,
+      tileset_def_uid: None,
+      tileset_rel_path: None,
+      int_grid_csv: [],
+      auto_layer_tiles: [],
+      grid_tiles: [],
+      entity_instances: [
+        {
+          iid: "enemy-1",
+          identifier: "Enemy",
+          def_uid: 1,
+          width: 32,
+          height: 16,
+          px: @math.Vec2D(16.0, 16.0),
+          grid: @math.Vec2D(1.0, 1.0),
+          pivot: @math.Vec2D(0.5, 1.0),
+          smart_color: None,
+          tile: Some({ tileset_uid: Some(1), x: 16, y: 24, w: 16, h: 8 }),
+          tags: [],
+          field_instances: [],
+        },
+      ],
+    }
+    let project : LdtkProject = {
+      source_path: Some("project.ldtk"),
+      external_levels: false,
+      world_layout: None,
+      bg_color: None,
+      default_level_width: Some(2),
+      default_level_height: Some(2),
+      defs: {
+        tilesets: [
+          {
+            uid: 1,
+            identifier: "entities",
+            rel_path: Some("assets/entity_tiles.png"),
+            tile_grid_size: 16,
+            px_wid: 64,
+            px_hei: 64,
+            spacing: 0,
+            padding: 0,
+            custom_data: [],
+            enum_tags: [],
+            tags: [],
+            tags_source_enum_uid: None,
+          },
+        ],
+        layers: [],
+        entities: [],
+        enums: [],
+        external_enums: [],
+      },
+      levels: [
+        {
+          ..empty_ldtk_level(),
+          identifier: "Main",
+          iid: "level-main",
+          uid: 1,
+          layer_instances: [entity_layer],
+        },
+      ],
+      worlds: [],
+    }
+    set_ldtk_settings(default_ldtk_settings())
+    set_ldtk_level_selection(ldtk_level_selection_index(0))
+    let world = spawn_ldtk_world(project)
+    let enemy = ldtk_entity_by_iid(world, "enemy-1").unwrap()
+    inspect(@sprite.sprites().contains(enemy), content="true")
+    let sprite = @sprite.sprites().get(enemy).unwrap()
+    inspect(sprite.offset, content="Vec2D(0, 8)")
+    match sprite.sprite_type {
+      Animation(animation, frame~) => {
+        inspect(frame.to_int(), content="0")
+        inspect(animation.frames[0].offset, content="Vec2D(16, 24)")
+        inspect(animation.frames[0].size, content="Vec2D(16, 8)")
+        inspect(animation.transform.a, content="2")
+        inspect(animation.transform.d, content="2")
+      }
+      _ => fail("expected entity tile sprite animation")
+    }
     cleanup_ldtk_entity(world)
   })
 }
@@ -1160,6 +1272,7 @@ test "ldtk entity spawn hook applies by identifier" {
         grid: @math.Vec2D(0.0, 0.0),
         pivot: @math.Vec2D::zero(),
         smart_color: None,
+        tile: None,
         tags: [],
         field_instances: [],
       },
@@ -1173,6 +1286,7 @@ test "ldtk entity spawn hook applies by identifier" {
         grid: @math.Vec2D(1.0, 0.0),
         pivot: @math.Vec2D::zero(),
         smart_color: None,
+        tile: None,
         tags: [],
         field_instances: [],
       },
@@ -1208,6 +1322,7 @@ test "ldtk entity spawn hooks support layer and default scopes" {
         grid: @math.Vec2D(0.0, 0.0),
         pivot: @math.Vec2D::zero(),
         smart_color: None,
+        tile: None,
         tags: [],
         field_instances: [],
       },
@@ -1221,6 +1336,7 @@ test "ldtk entity spawn hooks support layer and default scopes" {
         grid: @math.Vec2D(1.0, 0.0),
         pivot: @math.Vec2D::zero(),
         smart_color: None,
+        tile: None,
         tags: [],
         field_instances: [],
       },
@@ -1236,6 +1352,7 @@ test "ldtk entity spawn hooks support layer and default scopes" {
         grid: @math.Vec2D(2.0, 0.0),
         pivot: @math.Vec2D::zero(),
         smart_color: None,
+        tile: None,
         tags: [],
         field_instances: [],
       },
@@ -1284,6 +1401,7 @@ test "ldtk entity optional hook registration routes by scope" {
         grid: @math.Vec2D(0.0, 0.0),
         pivot: @math.Vec2D::zero(),
         smart_color: None,
+        tile: None,
         tags: [],
         field_instances: [],
       },
@@ -1297,6 +1415,7 @@ test "ldtk entity optional hook registration routes by scope" {
         grid: @math.Vec2D(1.0, 0.0),
         pivot: @math.Vec2D::zero(),
         smart_color: None,
+        tile: None,
         tags: [],
         field_instances: [],
       },
@@ -1360,6 +1479,7 @@ test "ldtk typed entity registrations use most specific scope" {
         grid: @math.Vec2D(0.0, 0.0),
         pivot: @math.Vec2D::zero(),
         smart_color: None,
+        tile: None,
         tags: [],
         field_instances: [],
       },
@@ -1373,6 +1493,7 @@ test "ldtk typed entity registrations use most specific scope" {
         grid: @math.Vec2D(1.0, 0.0),
         pivot: @math.Vec2D::zero(),
         smart_color: None,
+        tile: None,
         tags: [],
         field_instances: [],
       },
@@ -1388,6 +1509,7 @@ test "ldtk typed entity registrations use most specific scope" {
         grid: @math.Vec2D(2.0, 0.0),
         pivot: @math.Vec2D::zero(),
         smart_color: None,
+        tile: None,
         tags: [],
         field_instances: [],
       },
@@ -1440,6 +1562,7 @@ test "ldtk add entity registration composes handlers in same scope" {
         grid: @math.Vec2D(0.0, 0.0),
         pivot: @math.Vec2D::zero(),
         smart_color: None,
+        tile: None,
         tags: [],
         field_instances: [],
       },
@@ -1478,6 +1601,7 @@ test "ldtk add entity component helpers can build bundle-like sets" {
         grid: @math.Vec2D(0.0, 0.0),
         pivot: @math.Vec2D::zero(),
         smart_color: None,
+        tile: None,
         tags: [],
         field_instances: [],
       },
@@ -1491,6 +1615,7 @@ test "ldtk add entity component helpers can build bundle-like sets" {
         grid: @math.Vec2D(1.0, 0.0),
         pivot: @math.Vec2D::zero(),
         smart_color: None,
+        tile: None,
         tags: [],
         field_instances: [],
       },
@@ -2041,6 +2166,7 @@ test "ldtk settings intgrid invisible and layer exclusion apply at spawn" {
                   grid: @math.Vec2D(0.0, 0.0),
                   pivot: @math.Vec2D::zero(),
                   smart_color: None,
+                  tile: None,
                   tags: [],
                   field_instances: [],
                 },
@@ -2100,6 +2226,7 @@ test "ldtk level respawn keeps worldly entities and respawns level entities" {
         grid: @math.Vec2D(1.0, 1.0),
         pivot: @math.Vec2D::zero(),
         smart_color: None,
+        tile: None,
         tags: [],
         field_instances: [],
       },
@@ -2113,6 +2240,7 @@ test "ldtk level respawn keeps worldly entities and respawns level entities" {
         grid: @math.Vec2D(2.0, 1.0),
         pivot: @math.Vec2D::zero(),
         smart_color: None,
+        tile: None,
         tags: [],
         field_instances: [
           {
@@ -2186,6 +2314,7 @@ test "ldtk world respawn recreates worldly entities" {
         grid: @math.Vec2D(2.0, 1.0),
         pivot: @math.Vec2D::zero(),
         smart_color: None,
+        tile: None,
         tags: [],
         field_instances: [
           {

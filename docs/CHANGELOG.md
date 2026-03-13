@@ -2,6 +2,30 @@
 
 ## [Unreleased]
 
+### Added
+
+#### `selene/ldtk`
+
+- Added `LdtkEntityInstance.tile : LdtkTilesetRect?`, populated from LDtk entity `__tile`.
+- Added `ldtk_entity_tile_sprite(event, zindex?) -> @sprite.Sprite?` to build a placeholder sprite from entity `__tile` metadata and project tilesets.
+- Added `insert_ldtk_entity_tile_sprite(event, zindex?) -> Bool` to insert the generated placeholder sprite into `@sprite.sprites()`.
+- Added `register_ldtk_entity_tile_sprite_for_layer_optional(layer_identifier?, entity_identifier?, zindex_offset?)`.
+- Added `register_ldtk_entity_tile_sprite_for_layer(layer_identifier, entity_identifier, zindex_offset?)`.
+- Added `register_ldtk_entity_tile_sprite(entity_identifier, zindex_offset?)`.
+- Added `register_default_ldtk_entity_tile_sprite_for_layer(layer_identifier, zindex_offset?)`.
+- Added `register_default_ldtk_entity_tile_sprite(zindex_offset?)`.
+- Added `add_ldtk_entity_tile_sprite_for_layer_optional(layer_identifier?, entity_identifier?, zindex_offset?)`.
+- Added `add_ldtk_entity_tile_sprite_for_layer(layer_identifier, entity_identifier, zindex_offset?)`.
+- Added `add_ldtk_entity_tile_sprite(entity_identifier, zindex_offset?)`.
+- Added `add_default_ldtk_entity_tile_sprite_for_layer(layer_identifier, zindex_offset?)`.
+- Added `add_default_ldtk_entity_tile_sprite(zindex_offset?)`.
+
+### Fixed
+
+#### `selene/ldtk`
+
+- Fixed LDtk entity parsing to preserve `__tile` source rectangle data for runtime registrations and placeholder sprite insertion flows.
+
 ## [0.28.4] - 2026-03-13
 
 ### Changed
