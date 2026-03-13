@@ -4,3 +4,7 @@ page/examples/
 page/preload-assets.js
 page/assets/
 todo.md
+
+.mooncakes/
+_build/
+target
