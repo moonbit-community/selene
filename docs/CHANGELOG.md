@@ -4,6 +4,32 @@
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.28.6] - 2026-03-13
+
+### Added
+
+### Changed
+
+- Changed local internal dependencies in `selene-webgpu/moon.mod.json`, `selene-raylib/moon.mod.json`, and `examples/moon.mod.json` to `path + version` form, so workspace development keeps local path resolution while enforcing version constraints.
+- Changed `publish.py` release manifest rewrite to preserve local `path` and update internal Selene dependency `version` fields (instead of replacing them with plain version strings).
+- Changed `publish.py` release flow to sync `examples/moon.mod.json` internal Selene dependency versions during releases.
+- Changed `publish.py` post-publish behavior to run final `moon update` sync instead of restoring pre-release dependency snapshots.
+- Changed GitHub Actions build workflow to remove OS-specific `moon.mod.json` `sed` rewrites for `selene-webgpu` and use direct `moon update/check/build`.
+
+### Fixed
+
+### Removed
+
+## [0.28.5] - 2026-03-13
+
+### Added
+
 #### `selene/ldtk`
 
 - Added `LdtkEntityInstance.tile : LdtkTilesetRect?`, populated from LDtk entity `__tile`.

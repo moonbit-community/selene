@@ -3,10 +3,12 @@
   "version": "0.21.2",
   "deps": {
     "Milky2018/selene": {
-      "path": "../selene-core"
+      "path": "../selene-core",
+      "version": "0.28.6"
     },
     "Milky2018/selene_webgpu": {
-      "path": "../selene-webgpu"
+      "path": "../selene-webgpu",
+      "version": "0.28.6"
     }
   },
   "readme": "README.md",

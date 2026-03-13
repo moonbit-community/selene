@@ -11,9 +11,9 @@
 - Release order is fixed: `selene-core -> selene-webgpu -> selene-raylib -> selene-tools`, all checks must be warning-free.
 
 ## Release Manifest Behavior
-- Publish flow rewrites each release module `moon.mod.json` version and internal Selene deps to `x.y.z`.
-- Cleanup restores only `deps` and runs `moon update`.
-- Cleanup does not revert the `version` field.
+- Publish flow rewrites each release module `moon.mod.json` version and internal Selene deps to `path + version` with `version=x.y.z`.
+- Publish flow also syncs `examples/moon.mod.json` internal Selene deps to `path + version` with `version=x.y.z`.
+- Release pipeline finishes with `moon update` for release modules and `examples`; it does not restore old deps.
 
 ## Scope
 - `examples` is for demos/pages only and is not a published package.

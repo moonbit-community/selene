@@ -450,7 +450,7 @@ def run_module_quality_checks(module: ModuleConfig):
 
 
 def rewrite_module_for_release(module: ModuleConfig, version: str):
-    """Set module version and convert internal deps path refs to release versions."""
+    """Set module version and update internal deps to path+version form."""
     manifest_path = module.path / "moon.mod.json"
     manifest = load_json(manifest_path)
     manifest["version"] = version
@@ -461,7 +461,9 @@ def rewrite_module_for_release(module: ModuleConfig, version: str):
             continue
         dep_val = deps[dep_name]
         if isinstance(dep_val, dict):
-            deps[dep_name] = version
+            rewritten = dict(dep_val)
+            rewritten["version"] = version
+            deps[dep_name] = rewritten
         elif isinstance(dep_val, str):
             deps[dep_name] = version
         else:
@@ -470,29 +472,27 @@ def rewrite_module_for_release(module: ModuleConfig, version: str):
     manifest["deps"] = deps
     write_json(manifest_path, manifest)
 
+def sync_examples_internal_deps(version: str):
+    """Keep examples local deps in path+version form for the current Selene version."""
+    manifest_path = EXAMPLES_DIR / "moon.mod.json"
+    manifest = load_json(manifest_path)
+    deps = manifest.get("deps", {})
 
-def snapshot_module_deps() -> dict[Path, dict | None]:
-    snapshots: dict[Path, dict | None] = {}
-    for module in RELEASE_MODULES:
-        manifest_path = module.path / "moon.mod.json"
-        manifest = load_json(manifest_path)
-        deps = manifest.get("deps")
-        if deps is None:
-            snapshots[manifest_path] = None
+    for dep_name in INTERNAL_MODULES:
+        if dep_name not in deps:
+            continue
+        dep_val = deps[dep_name]
+        if isinstance(dep_val, dict):
+            rewritten = dict(dep_val)
+            rewritten["version"] = version
+            deps[dep_name] = rewritten
+        elif isinstance(dep_val, str):
+            deps[dep_name] = version
         else:
-            # Detach mutable dict from loaded manifest.
-            snapshots[manifest_path] = json.loads(json.dumps(deps))
-    return snapshots
+            raise RuntimeError(f"Unsupported dep value for {dep_name} in {manifest_path}")
 
-
-def restore_module_deps(snapshots: dict[Path, dict | None]):
-    for manifest_path, deps in snapshots.items():
-        manifest = load_json(manifest_path)
-        if deps is None:
-            manifest.pop("deps", None)
-        else:
-            manifest["deps"] = deps
-        write_json(manifest_path, manifest)
+    manifest["deps"] = deps
+    write_json(manifest_path, manifest)
 
 
 def run_release_pipeline(version: str):
@@ -503,60 +503,49 @@ def run_release_pipeline(version: str):
     print("=" * 60)
     print()
 
-    snapshots = snapshot_module_deps()
-    pipeline_error = None
-    try:
-        print("[0/5] Checking for legacy UI references...")
-        ensure_no_legacy_ui_references()
+    print("[0/5] Checking for legacy UI references...")
+    ensure_no_legacy_ui_references()
 
-        print("\n[1/5] Running fmt/info/check on all modules...")
-        for module in RELEASE_MODULES:
-            print(f"\n==> Quality checks: {module.name}")
-            run_module_quality_checks(module)
+    print("\n[1/5] Running fmt/info/check on all modules...")
+    for module in RELEASE_MODULES:
+        print(f"\n==> Quality checks: {module.name}")
+        run_module_quality_checks(module)
 
-        print("\n[2/5] Rewriting module versions and internal deps...")
-        for module in RELEASE_MODULES:
-            rewrite_module_for_release(module, version)
-            print(f"✓ Updated {module.name}/moon.mod.json")
+    print("\n[2/5] Rewriting module versions and internal deps...")
+    for module in RELEASE_MODULES:
+        rewrite_module_for_release(module, version)
+        print(f"✓ Updated {module.name}/moon.mod.json")
+    sync_examples_internal_deps(version)
+    print("✓ Updated examples/moon.mod.json internal deps")
 
-        print("\n[3/5] Running moon update after manifest rewrites...")
-        for module in RELEASE_MODULES:
-            print(f"==> moon update: {module.name}")
-            run_cmd(["moon", "update"], module.path, fail_on_warning=True)
+    print("\n[3/5] Running moon update after manifest rewrites...")
+    for module in RELEASE_MODULES:
+        print(f"==> moon update: {module.name}")
+        run_cmd(["moon", "update"], module.path, fail_on_warning=True)
+    print("==> moon update: examples")
+    run_cmd(["moon", "update"], EXAMPLES_DIR, fail_on_warning=True)
 
-        print("\n[4/5] Publishing modules in order...")
-        for idx, module_name in enumerate(PUBLISH_ORDER):
-            module = module_by_name(module_name)
-            print(f"==> moon publish: {module.name}")
-            run_cmd(["moon", "publish"], module.path, fail_on_warning=True)
-            if idx < len(PUBLISH_ORDER) - 1:
-                print("==> moon update for remaining modules...")
-                for next_module_name in PUBLISH_ORDER[idx + 1:]:
-                    next_module = module_by_name(next_module_name)
-                    run_cmd(["moon", "update"], next_module.path, fail_on_warning=True)
+    print("\n[4/5] Publishing modules in order...")
+    for idx, module_name in enumerate(PUBLISH_ORDER):
+        module = module_by_name(module_name)
+        print(f"==> moon publish: {module.name}")
+        run_cmd(["moon", "publish"], module.path, fail_on_warning=True)
+        if idx < len(PUBLISH_ORDER) - 1:
+            print("==> moon update for remaining modules...")
+            for next_module_name in PUBLISH_ORDER[idx + 1:]:
+                next_module = module_by_name(next_module_name)
+                run_cmd(["moon", "update"], next_module.path, fail_on_warning=True)
 
-        print("\n" + "=" * 60)
-        print(f"✓ Release publish pipeline completed for {version}")
-        print("=" * 60)
-    except Exception as exc:
-        pipeline_error = exc
-    finally:
-        print("\n[cleanup] Restoring module deps to pre-publish state...")
-        restore_module_deps(snapshots)
-        print("[cleanup] Running moon update for restored deps...")
-        restore_error = None
-        for module in RELEASE_MODULES:
-            try:
-                run_cmd(["moon", "update"], module.path, fail_on_warning=False)
-            except Exception as exc:
-                print(f"⚠ Warning: moon update failed during cleanup for {module.name}: {exc}")
-                if restore_error is None:
-                    restore_error = exc
-        if pipeline_error is None and restore_error is not None:
-            raise restore_error
+    print("\n[5/5] Running final moon update to sync local workspace...")
+    for module in RELEASE_MODULES:
+        print(f"==> moon update: {module.name}")
+        run_cmd(["moon", "update"], module.path, fail_on_warning=True)
+    print("==> moon update: examples")
+    run_cmd(["moon", "update"], EXAMPLES_DIR, fail_on_warning=True)
 
-    if pipeline_error is not None:
-        raise pipeline_error
+    print("\n" + "=" * 60)
+    print(f"✓ Release publish pipeline completed for {version}")
+    print("=" * 60)
 
 def main():
     args = sys.argv[1:]

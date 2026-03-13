@@ -37,32 +37,12 @@ jobs:
           moon check --deny-warn
           moon build
       
-      - name: selene-webgpu on Ubuntu
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+      - name: selene-webgpu
         run: |
           cd selene-webgpu
-          sed -E -i 's#("Milky2018/selene": )"[^"]+"#\1{ "path": "../selene-core" }#' moon.mod.json
           moon update
-          moon check --deny-warn
-          moon build
-
-      - name: selene-webgpu on MacOS
-        if: ${{ matrix.os == 'macos-latest' }}
-        run: |
-          cd selene-webgpu
-          sed -E -i '' 's#("Milky2018/selene": )"[^"]+"#\1{ "path": "../selene-core" }#' moon.mod.json
-          moon update
-          moon check --deny-warn
-          moon build
-
-      - name: selene-webgpu on Windows
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: |
-          cd selene-webgpu
-          (Get-Content moon.mod.json) -replace '("Milky2018/selene": )"[^"]+"', '${1}{ "path": "../selene-core" }' | Set-Content moon.mod.json
-          moon update
-          moon check --deny-warn
-          moon build
+          moon check --target js --deny-warn
+          moon build --target js
 
       - name: selene-examples
         if: ${{ matrix.os == 'ubuntu-latest' }}
