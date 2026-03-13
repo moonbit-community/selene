@@ -3,9 +3,7 @@
   "version": "0.28.1",
   "deps": {
     "Yoorkin/rabbit-tea": "0.10.11",
-    "Milky2018/selene": {
-      "path": "../selene-core"
-    },
+    "Milky2018/selene": "0.28.1",
     "rami3l/js-ffi": "0.4.0",
     "Milky2018/moon_cosmic": "0.1.5",
     "Milky2018/moon_swash": "0.1.3"
@@ -18,5 +16,6 @@
   ],
   "description": "Default backend for Selene game engine.",
   "source": "src",
-  "preferred-target": "js"
+  "preferred-target": "js",
+  "supported-targets": "js"
 }
