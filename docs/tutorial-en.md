@@ -1,81 +1,134 @@
 # Selene Tutorial (English)
 
-## 1. Quick Start
+This tutorial helps you quickly experience the Selene game engine.
 
-### 1.1 Web (Canvas)
+## Understanding Selene
 
-```bash
+Selene is an experimental engine that encourages users to unleash creativity based on fundamental programming building blocks.
+
+Selene has the following characteristics:
+
+- Free and open source
+- Simple: streamlined core code, implemented in MoonBit (platform backends provided by backend modules)
+- Modular: import only what you need, select backend through wrapper packages
+- Efficient: benefits from MoonBit performance and ECS architecture
+
+Selene already supports 2D/3D rendering, input, UI, physics, and Tiled/LDtk integration, and contributions are always welcome.
+
+## Running the Example
+
+Make sure you have installed the [MoonBit toolchain](https://www.moonbitlang.com/download/) and learned basic usage.
+
+Clone this repository:
+
+```shell
+git clone https://github.com/moonbit-community/selene.git
+```
+
+Enter the examples directory and build the web sample:
+
+```shell
 cd examples
 moon update
 moon build ./pixeladventure/web --target js --target-dir _build --release
-python3 -m http.server 8000
 ```
 
-Open `http://localhost:8000/pixeladventure/`.
+Run with any web server, for example Python:
 
-### 1.2 Native (raylib) with embedded assets (optional)
+```shell
+python -m http.server 8000
+```
 
-This is an optional optimization and packaging flow for native release builds.
-By default, you can skip it and load assets from the filesystem.
+After startup, open `http://localhost:8000/pixeladventure/` in your browser.
 
-Install the CLI:
+Next, try changing a few source values (viewport size, zoom, FPS), then rebuild and rerun. This gives a quick practical understanding of both the sample and the engine.
+
+## Making Your First Game
+
+This chapter shows how to build a complete platformer-style game with Selene and learn the core workflow through real implementation steps.
+
+### Example Game Showcase
+
+The game we will build looks like this:
+
+![](../examples/pixeladventure/screenshot.png)
+
+In the following process, we will build:
+
+- Green grass tiles
+- A controllable character
+- A camera that follows the player
+- Collectible apples
+- A score display
+- A volume toggle button
+
+Players use arrow keys to move and jump. Collecting apples increases score. The volume button toggles game audio.
+
+### Project Creation and Configuration
+
+First install MoonBit CLI. If you use VS Code, install the MoonBit extension for better diagnostics and navigation.
+
+After creating a new project with `moon new`, use a structure similar to `examples/pixeladventure`:
+
+- `pixeladventure`: shared gameplay package
+- `pixeladventure/web`: web wrapper package (selects webgpu backend by overrides)
+
+### Asset Preparation
+
+The image and audio assets can be downloaded from:
+
+- [Image assets](https://pixelfrog-assets.itch.io/pixel-adventure-1)
+- [Audio assets](https://brackeysgames.itch.io/brackeys-platformer-bundle)
+
+Place assets under paths such as `assets/pixeladventure/...`.
+
+### Engine Dependency Installation
+
+Add Selene dependencies:
 
 ```bash
-moon install Milky2018/selene_tools/cmd/selene-embed-assets
+moon add Milky2018/selene
+moon add Milky2018/selene_webgpu
 ```
 
-Add pre-build to your native game wrapper `moon.pkg`:
+If you also need native backend:
 
-```moonbit
-options(
-  "is-main": true,
-  overrides: [ "Milky2018/selene_raylib" ],
-  "pre-build": [
-    {
-      "input": "<assets-dir>",
-      "output": "_embedded_assets.pack",
-      "command": "selene-embed-assets --assets-dir $input --pack-out $output --path-prefix <runtime-prefix>",
-    },
-    {
-      "input": "<assets-dir>",
-      "output": "embedded_assets_index.mbt",
-      "command": "selene-embed-assets --assets-dir $input --index-out $output --path-prefix <runtime-prefix> --blob-name embedded_assets_blob --lookup-fn get_embedded_asset",
-    },
-    {
-      "input": "_embedded_assets.pack",
-      "output": "embedded_assets_blob.mbt",
-      "command": ":embed --binary -i $input -o $output --name embedded_assets_blob",
-    },
-  ],
-)
+```bash
+moon add Milky2018/selene_raylib
 ```
 
-Use the same `<assets-dir>` in both pre-build steps, and set `<runtime-prefix>` to match your runtime asset paths.
-
-When embedding is enabled, call this before `app.run()`:
-
-```moonbit
-@asset.set_io(get_embedded_asset)
-```
-
-If embedding is not enabled, do not call this API.
-
-## 2. Example Layout
-
-```text
-examples/
-  pixeladventure/            # game logic + web entry + assets
-    assets/pixeladventure/
-    web/                     # override selene-webgpu
-```
-
-## 3. Backend Wrapper (`moon.pkg`)
-
-### 3.1 Web wrapper
+Core gameplay package imports are module-based. Example from `examples/pixeladventure/moon.pkg`:
 
 ```moonbit
 import {
-  "Milky2018/selene-examples/pixeladventure",
+  "Milky2018/selene/app",
+  "Milky2018/selene/audio",
+  "Milky2018/selene/system",
+  "Milky2018/selene/state",
+  "Milky2018/selene/ecs",
+  "Milky2018/selene/entity",
+  "Milky2018/selene/math",
+  "Milky2018/selene/sprite",
+  "Milky2018/selene/physics2d",
+  "Milky2018/selene/plugins",
+  "Milky2018/selene/time",
+  "Milky2018/selene/transform",
+  "Milky2018/selene/camera",
+  "Milky2018/selene/ui",
+  "Milky2018/selene/event",
+  "Milky2018/selene/inputs",
+  "Milky2018/selene/asset2",
+  "moonbitlang/core/json",
+  "moonbitlang/core/random",
+  "moonbitlang/core/set",
+}
+```
+
+Web wrapper example (`examples/pixeladventure/web/moon.pkg`):
+
+```moonbit
+import {
+  "Milky2018/selene-examples/pixeladventure" @pixeladventure_game,
 }
 
 options(
@@ -87,11 +140,20 @@ options(
     "Milky2018/selene_webgpu/platform_audio",
     "Milky2018/selene_webgpu/platform_asset_io",
   ],
+  "supported-targets": "js",
   targets: { "main.mbt": [ "js" ] },
 )
 ```
 
-## 4. App Bootstrap
+Web wrapper `main.mbt`:
+
+```moonbit
+fn main {
+  @pixeladventure_game.run()
+}
+```
+
+The App object is the runtime entrypoint. Example app bootstrap:
 
 ```moonbit
 pub fn run() -> Unit {
@@ -103,100 +165,246 @@ pub fn run() -> Unit {
   .with_fps(60)
   .add_plugin(@plugins.default_plugin)
   .add_system(Startup, game_start)
-  .add_system(Update, gameplay_system)
+  .add_system(Update, player_state_system)
+  .add_system(FixedPostUpdate, player_collision_system)
+  .add_system(Update, map_trigger_system)
   .run()
 }
 ```
 
-## 5. System Stages
+Systems are executed by schedule, and each system owns a specific responsibility (input, collision, UI, rendering, etc).
 
-- Frame: `First -> PreUpdate -> Update -> PostUpdate -> Last`
-- Fixed: `FixedFirst -> FixedPreUpdate -> FixedUpdate -> FixedPostUpdate -> FixedLast`
-- Render: `RenderExtract -> RenderPrepare -> Render -> RenderCleanup`
+### Game State Management
 
-## 6. Core Runtime API
+Global game state can store player references, score, volume status, and UI entities:
 
-### 6.1 Transform + velocity
+```moonbit
+struct GameState {
+  player : @entity.Entity
+  mut direction : Direction2
+  mut score : Int
+  result_box : @entity.Entity
+  score_box : @entity.Entity
+  health_box : @entity.Entity
+  volume_button : @entity.Entity
+  mut volume_on : Bool
+  mut health : Int
+  mut hurt_timer : Double
+  mut pending_bounce_velocity_y : Double?
+}
+```
+
+### Entities and Components
+
+Game objects are represented by Entity + Component data. Example:
 
 ```moonbit
 let player = @entity.Entity::new()
-@transform.transforms.set(player, @math.Vec2D(100.0, 100.0))
-@physics2d.linear_velocities.set(player, @math.Vec2D::zero())
+@transform.positions().set(player, @math.Vec2D(100.0, 100.0))
+@physics2d.linear_velocities().set(player, @math.Vec2D::zero())
 ```
 
-### 6.2 Collision layers + collider
+This does three things:
+
+1. Create an entity
+2. Attach position
+3. Attach velocity
+
+Components are stored in maps such as `@transform.positions()` and `@sprite.sprites()`, keyed by entity ID.
+
+Initialization behavior should run once in `Startup` systems.
+
+### Player Character Implementation
+
+Player usually has multiple animation states (idle/run/jump/fall). Idle example:
 
 ```moonbit
-let player_group = @physics2d.CollisionGroup::new()
-let terrain_group = @physics2d.CollisionGroup::new()
+let player_idle_animation : @sprite.Animation = @sprite.Animation::new(
+  @sprite.frames_from_atlas(
+    "assets/pixeladventure/Main Characters/Mask Dude/Idle (32x32).png",
+    11,
+    width=32.0,
+    height=32.0,
+  ),
+  loop_=true,
+  fps=12,
+)
+```
 
-@physics2d.shapes.set(
-  player,
+`loop_` controls looping; `fps` controls playback speed.
+
+Play animation with:
+
+```moonbit
+@sprite.play_animation(game_state.player, player_idle_animation)
+```
+
+Input handling uses `@inputs`:
+
+```moonbit
+if @inputs.is_pressed(@inputs.ArrowLeft) {
+  // move left
+} else if @inputs.is_pressed(@inputs.ArrowRight) {
+  // move right
+}
+
+if @inputs.is_just_pressed(ArrowUp) && @physics2d.is_grounded(game_state.player) {
+  // jump
+}
+```
+
+`is_pressed` is continuous; `is_just_pressed` is edge-triggered.
+
+### Obstacles and Collision
+
+Configure collision groups, shape, and collider to block terrain penetration:
+
+```moonbit
+let terrain_collision_group = @physics2d.CollisionGroup::new()
+let player_collision_group = @physics2d.CollisionGroup::new()
+
+@physics2d.shapes().set(
+  game_state.player,
   Rect(size=@math.Vec2D(24.0, 32.0), offset=@math.Vec2D(4.0, 0.0)),
 )
-@physics2d.colliders.set(
-  player,
+@physics2d.colliders().set(
+  game_state.player,
   @physics2d.Collider::new(
-    @physics2d.CollisionLayers::new(player_group, [terrain_group]),
+    @physics2d.CollisionFilter::new(player_collision_group, [
+      terrain_collision_group,
+    ]),
   ),
 )
 ```
 
-The event examples below assume `Milky2018/selene/event` is imported as `@event`.
+Only allowed collision-filter pairs will interact.
 
-### 6.3 Sensor events
+### Tile Map Creation
+
+Writing full maps directly in code is inconvenient. You can design maps in [Sprite Fusion](https://www.spritefusion.com/) and export JSON.
+
+The example defines local `TileMap` parsing in `spritefusion_tilemap.mbt`, then spawns entities in `generate_map`:
 
 ```moonbit
-let trigger_group = @physics2d.CollisionGroup::new()
-let sensor = @physics2d.Sensor::new(
-  @physics2d.CollisionLayers::new(trigger_group, [player_group]),
+fn generate_map() -> Unit {
+  let tile_map = TileMap::from_json(tilemap)
+  let grasses = tile_map.get_tiles("Grass")
+  for grass in grasses {
+    add_grass_visual(tile_to_vec2d(grass, tile_map.tile_size), grass.id)
+  }
+}
+```
+
+### Camera
+
+When world size is larger than viewport, set camera limits and follow target:
+
+```moonbit
+@camera.set_limits(top=0.0, bottom=world_height, left=0.0, right=world_width)
+@camera.attach_entity(game_state.player, @math.Vec2D(16.0, 16.0))
+```
+
+The attach offset is typically near the player center.
+
+### Areas and Audio
+
+Apples should not block movement, but should trigger collection behavior. Add `Area` and detect contain state in system:
+
+```moonbit
+let area = @physics2d.Area::new(
+  @physics2d.CollisionFilter::new(trigger_collision_group, [
+    player_collision_group,
+  ]),
 )
-@physics2d.sensors.set(apple, sensor)
+@physics2d.areas().set(apple, area)
 
-let trigger_reader : @event.EventReader[@physics2d.TriggerEvent] = @event.EventReader::new()
-
-fn trigger_system(_world : @ecs.World) -> Unit {
-  for event in @physics2d.trigger_event_bus.read(trigger_reader) {
-    if event.entered && event.area == apple && event.other == player {
-      @entity.Entity::destroy(apple)
+fn map_trigger_system(_world : @ecs.World) -> Unit {
+  for apple in apples.to_array() {
+    if @physics2d.get_contains(apple).contains(game_state.player) {
+      set_score(game_state.score + 10)
+      if game_state.volume_on {
+        play_sfx(coin_sound)
+      }
+      apple.destroy()
+      apples.remove(apple)
     }
   }
 }
 ```
 
-### 6.4 Pointer events
+Sound effects are sent as audio events:
 
 ```moonbit
-@physics2d.pickables.set(button, @physics2d.Pickable::new())
+fn play_sfx(sound : @audio.AudioHandle) -> Unit {
+  @audio.send_audio_event(sound, settings=@audio.PlaybackSettings::remove())
+}
+```
 
-let pointer_reader : @event.EventReader[@physics2d.PointerEvent] = @event.EventReader::new()
+### User Interface
 
-fn ui_input_system(_world : @ecs.World) -> Unit {
-  for event in @physics2d.pointer_event_bus.read(pointer_reader) {
-    if event.entity == button &&
-      event.phase is @physics2d.PointerPhase::JustReleased &&
-      event.button == @inputs.MouseButton::Left {
-      // handle click
-    }
+Current UI uses `@ui` component stores for text/buttons/images. Example score text:
+
+```moonbit
+fn add_score_box() -> Unit {
+  @ui.nodes().set(
+    game_state.score_box,
+    @ui.Node::absolute(
+      @math.Vec2D(48.0, 16.0),
+      size=@math.Vec2D(432.0, 24.0),
+    ),
+  )
+  @ui.z_indexes().set(game_state.score_box, @ui.ZIndex::new(100))
+  @ui.texts().set(game_state.score_box, @ui.Text::new("Score: 0"))
+  @ui.text_fonts().set(game_state.score_box, @ui.TextFont::from_css("20px ThaleahFat"))
+}
+```
+
+Volume button click handling:
+
+```moonbit
+let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = @event.EventReader::new()
+
+fn volume_button_input_system(_world : @ecs.World) -> Unit {
+  for event in @ui.click_event_bus.read(ui_click_reader) {
+    guard event.entity == game_state.volume_button else { continue }
+    game_state.volume_on = !game_state.volume_on
   }
 }
 ```
 
-## 7. Web HTML Script Path
+### Build & Play
+
+Build command:
+
+```shell
+cd examples
+moon build ./pixeladventure/web --target js --target-dir _build --release
+```
+
+Then use `examples/pixeladventure/index.html`, which references:
 
 ```html
 <script src="../preload-assets.js"></script>
 <script src="../_build/js/release/build/pixeladventure/web/web.js" defer></script>
 ```
 
-## 8. Common Commands
+Run local server:
 
-```bash
-# Web
-cd examples
-moon check ./pixeladventure/web --target js
-moon build ./pixeladventure/web --target js --target-dir _build --release
-
-# Build all web examples
-moon build --release
+```shell
+python3 -m http.server 8000
 ```
+
+Open `http://localhost:8000/pixeladventure/` to play.
+
+Complete source: [Selene Example](https://github.com/moonbit-community/selene/tree/main/examples/pixeladventure)
+
+## Next Steps
+
+Congratulations on completing your first Selene game. You now have the core workflow in place. Next, you can:
+
+- Extend gameplay: add more levels, enemies, items, or mechanics
+- Improve game feel: polish animation, audio, and visual feedback
+- Contribute to the community: report issues or submit improvements on [GitHub](https://github.com/moonbit-community/selene)
+- Build original projects: apply this architecture to your own game ideas
+
+Selene can be used not only for games, but also for graphical interactive applications. Build something great with MoonBit and Selene.

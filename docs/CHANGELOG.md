@@ -6,6 +6,8 @@
 
 ### Changed
 
+- Changed `docs/tutorial-zh.md` and `docs/tutorial-en.md` to keep pre-`b94e8d44` narrative teaching style while updating all tutorial code/API references to current Selene runtime (`@app.App`, schedule-first `add_system`, `store()` accessors, `@inputs`, `@physics2d`, `@ui`, and wrapper-based backend overrides).
+
 ### Fixed
 
 ### Removed
