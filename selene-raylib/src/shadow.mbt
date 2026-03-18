@@ -895,20 +895,17 @@ fn upload_shadow_uniforms(
   set_shader_uniform(
     shader,
     state.material_has_texture_loc,
-    bytes_from_int(if base_source is Some(_) { 1 } else { 0 }),
-    @raylib.ShaderUniformInt,
+    uniform_int(if base_source is Some(_) { 1 } else { 0 }),
   )
   set_shader_uniform(
     shader,
     state.material_alpha_mode_loc,
-    bytes_from_int(alpha_mode_to_int(material.alpha_mode)),
-    @raylib.ShaderUniformInt,
+    uniform_int(alpha_mode_to_int(material.alpha_mode)),
   )
   set_shader_uniform(
     shader,
     state.material_alpha_cutoff_loc,
-    bytes_from_float(material.alpha_cutoff),
-    @raylib.ShaderUniformFloat,
+    uniform_float(material.alpha_cutoff),
   )
   let transform = base_source.map_or(
     @render3d_types.default_texture_transform3d(),
@@ -1055,7 +1052,7 @@ fn draw_shadow_triangle_mesh(
   if base_source is Some(source) {
     @rl.active_texture_slot(0)
     @rl.enable_texture(
-      @raylib.get_texture_id(source.texture).reinterpret_as_uint(),
+      @raylib.get_texture_id(source.texture),
     )
     @rl.active_texture_slot(0)
   }

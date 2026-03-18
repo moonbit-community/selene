@@ -80,13 +80,15 @@ fn make_shadow_atlas_rect(
 }
 
 ///|
-fn bytes_from_shadow_atlas_rect(rect : ShadowAtlasRect) -> Bytes {
-  let out : Array[Byte] = []
-  append_f32_le(out, rect.offset[X])
-  append_f32_le(out, rect.offset[Y])
-  append_f32_le(out, rect.scale[X])
-  append_f32_le(out, rect.scale[Y])
-  Bytes::from_array(out)
+fn uniform_shadow_atlas_rect(rect : ShadowAtlasRect) -> @raylib.ShaderUniformData {
+  @raylib.ShaderUniformData::Vec4(
+    @raylib.Vector4::new(
+      to_float(rect.offset[X]),
+      to_float(rect.offset[Y]),
+      to_float(rect.scale[X]),
+      to_float(rect.scale[Y]),
+    ),
+  )
 }
 
 ///|

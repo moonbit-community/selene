@@ -813,42 +813,39 @@ fn append_vec3_le(out : Array[Byte], value : @smath.Vec3) -> Unit {
 }
 
 ///|
-fn bytes_from_int(value : Int) -> Bytes {
-  let out : Array[Byte] = []
-  append_i32_le(out, value)
-  Bytes::from_array(out)
+fn uniform_int(value : Int) -> @raylib.ShaderUniformData {
+  @raylib.ShaderUniformData::Int(value)
 }
 
 ///|
-fn bytes_from_float(value : Double) -> Bytes {
-  let out : Array[Byte] = []
-  append_f32_le(out, value)
-  Bytes::from_array(out)
+fn uniform_float(value : Double) -> @raylib.ShaderUniformData {
+  @raylib.ShaderUniformData::Float(to_float(value))
 }
 
 ///|
-fn bytes_from_vec2(value : @smath.Vec2D) -> Bytes {
-  let out : Array[Byte] = []
-  append_f32_le(out, value[X])
-  append_f32_le(out, value[Y])
-  Bytes::from_array(out)
+fn uniform_vec2(value : @smath.Vec2D) -> @raylib.ShaderUniformData {
+  @raylib.ShaderUniformData::Vec2(
+    @raylib.Vector2::new(to_float(value[X]), to_float(value[Y])),
+  )
 }
 
 ///|
-fn bytes_from_vec3(value : @smath.Vec3) -> Bytes {
-  let out : Array[Byte] = []
-  append_vec3_le(out, value)
-  Bytes::from_array(out)
+fn uniform_vec3(value : @smath.Vec3) -> @raylib.ShaderUniformData {
+  @raylib.ShaderUniformData::Vec3(
+    @raylib.Vector3::new(to_float(value.x), to_float(value.y), to_float(value.z)),
+  )
 }
 
 ///|
-fn bytes_from_color4(color : @render.Color) -> Bytes {
-  let out : Array[Byte] = []
-  append_f32_le(out, color.r.to_double() / 255.0)
-  append_f32_le(out, color.g.to_double() / 255.0)
-  append_f32_le(out, color.b.to_double() / 255.0)
-  append_f32_le(out, color.a)
-  Bytes::from_array(out)
+fn uniform_color4(color : @render.Color) -> @raylib.ShaderUniformData {
+  @raylib.ShaderUniformData::Vec4(
+    @raylib.Vector4::new(
+      to_float(color.r.to_double() / 255.0),
+      to_float(color.g.to_double() / 255.0),
+      to_float(color.b.to_double() / 255.0),
+      to_float(color.a),
+    ),
+  )
 }
 
 ///|
@@ -878,25 +875,27 @@ fn texture_transform_rotation_sin_cos(
 }
 
 ///|
-fn bytes_from_texture_transform_offset_scale(
+fn uniform_texture_transform_offset_scale(
   transform : @render3d_types.TextureTransform3D,
-) -> Bytes {
+) -> @raylib.ShaderUniformData {
   let (offset_x, offset_y, scale_x, scale_y) = texture_transform_offset_scale(
     transform,
   )
-  let out : Array[Byte] = []
-  append_f32_le(out, offset_x)
-  append_f32_le(out, offset_y)
-  append_f32_le(out, scale_x)
-  append_f32_le(out, scale_y)
-  Bytes::from_array(out)
+  @raylib.ShaderUniformData::Vec4(
+    @raylib.Vector4::new(
+      to_float(offset_x),
+      to_float(offset_y),
+      to_float(scale_x),
+      to_float(scale_y),
+    ),
+  )
 }
 
 ///|
-fn bytes_from_texture_transform_rotation(
+fn uniform_texture_transform_rotation(
   transform : @render3d_types.TextureTransform3D,
-) -> Bytes {
-  bytes_from_vec2(texture_transform_rotation_sin_cos(transform))
+) -> @raylib.ShaderUniformData {
+  uniform_vec2(texture_transform_rotation_sin_cos(transform))
 }
 
 ///|
@@ -921,13 +920,12 @@ fn pack_float_array(values : Array[Double], count : Int) -> Bytes {
 fn set_shader_uniform(
   shader : @raylib.Shader,
   loc : Int,
-  value : Bytes,
-  uniform_type : Int,
+  value : @raylib.ShaderUniformData,
 ) -> Unit {
   if loc == -1 {
     return
   }
-  @raylib.set_shader_value(shader, loc, value, uniform_type)
+  @raylib.set_shader_value(shader, loc, value)
 }
 
 ///|
@@ -1062,8 +1060,7 @@ fn create_lighting_shader_state() -> LightingShaderState {
     set_shader_uniform(
       shader,
       @raylib.get_shader_location(shader, "shadowMap\{index}"),
-      bytes_from_int(shadow_texture_slot(index)),
-      @raylib.ShaderUniformInt,
+      uniform_int(shadow_texture_slot(index)),
     )
   }
   for index in 0..<(MAX_DIRECTIONAL_LIGHTS * MAX_DIRECTIONAL_CASCADES) {
@@ -1097,8 +1094,7 @@ fn create_lighting_shader_state() -> LightingShaderState {
   set_shader_uniform(
     shader,
     @raylib.get_shader_location(shader, "spotShadowAtlas"),
-    bytes_from_int(SPOT_SHADOW_TEXTURE_SLOT),
-    @raylib.ShaderUniformInt,
+    uniform_int(SPOT_SHADOW_TEXTURE_SLOT),
   )
   for index in 0..<MAX_POINT_LIGHTS {
     point_shadow_enabled_locs.push(
@@ -1122,8 +1118,7 @@ fn create_lighting_shader_state() -> LightingShaderState {
   set_shader_uniform(
     shader,
     @raylib.get_shader_location(shader, "pointShadowAtlas"),
-    bytes_from_int(POINT_SHADOW_TEXTURE_SLOT),
-    @raylib.ShaderUniformInt,
+    uniform_int(POINT_SHADOW_TEXTURE_SLOT),
   )
   {
     shader,
@@ -1399,14 +1394,12 @@ fn upload_texture_transform_uniforms(
   set_shader_uniform(
     shader,
     offset_scale_loc,
-    bytes_from_texture_transform_offset_scale(transform),
-    @raylib.ShaderUniformVec4,
+    uniform_texture_transform_offset_scale(transform),
   )
   set_shader_uniform(
     shader,
     rotation_loc,
-    bytes_from_texture_transform_rotation(transform),
-    @raylib.ShaderUniformVec2,
+    uniform_texture_transform_rotation(transform),
   )
 }
 
@@ -1431,14 +1424,12 @@ fn upload_lighting_uniforms(
   set_shader_uniform(
     shader,
     state.ambient_light_loc,
-    bytes_from_vec3(ambient),
-    @raylib.ShaderUniformVec3,
+    uniform_vec3(ambient),
   )
   set_shader_uniform(
     shader,
     state.view_position_loc,
-    bytes_from_vec3(camera_position),
-    @raylib.ShaderUniformVec3,
+    uniform_vec3(camera_position),
   )
   let camera_forward = frame.camera.map_or(@smath.Vec3::new(0.0, 0.0, -1.0), fn(
     active_camera,
@@ -1451,8 +1442,7 @@ fn upload_lighting_uniforms(
   set_shader_uniform(
     shader,
     state.view_forward_loc,
-    bytes_from_vec3(camera_forward),
-    @raylib.ShaderUniformVec3,
+    uniform_vec3(camera_forward),
   )
 
   let directional_count = @cmp.minimum(
@@ -1471,8 +1461,7 @@ fn upload_lighting_uniforms(
   set_shader_uniform(
     shader,
     state.directional_count_loc,
-    bytes_from_int(directional_count),
-    @raylib.ShaderUniformInt,
+    uniform_int(directional_count),
   )
   set_shader_uniform_v(
     shader,
@@ -1496,26 +1485,22 @@ fn upload_lighting_uniforms(
     set_shader_uniform(
       shader,
       state.shadow_enabled_locs[index],
-      bytes_from_int(if shadow is Some(_) { 1 } else { 0 }),
-      @raylib.ShaderUniformInt,
+      uniform_int(if shadow is Some(_) { 1 } else { 0 }),
     )
     set_shader_uniform(
       shader,
       state.shadow_cascade_count_locs[index],
-      bytes_from_int(shadow.map_or(0, fn(value) { value.cascades.length() })),
-      @raylib.ShaderUniformInt,
+      uniform_int(shadow.map_or(0, fn(value) { value.cascades.length() })),
     )
     set_shader_uniform(
       shader,
       state.shadow_depth_bias_locs[index],
-      bytes_from_float(shadow.map_or(0.0, fn(value) { value.depth_bias })),
-      @raylib.ShaderUniformFloat,
+      uniform_float(shadow.map_or(0.0, fn(value) { value.depth_bias })),
     )
     set_shader_uniform(
       shader,
       state.shadow_normal_bias_locs[index],
-      bytes_from_float(shadow.map_or(0.0, fn(value) { value.normal_bias })),
-      @raylib.ShaderUniformFloat,
+      uniform_float(shadow.map_or(0.0, fn(value) { value.normal_bias })),
     )
     let base_index = index * MAX_DIRECTIONAL_CASCADES
     for cascade_index in 0..<MAX_DIRECTIONAL_CASCADES {
@@ -1531,32 +1516,29 @@ fn upload_lighting_uniforms(
       set_shader_uniform(
         shader,
         state.shadow_rect_locs[matrix_index],
-        cascade.map_or(bytes_from_shadow_atlas_rect(default_shadow_rect), fn(
+        cascade.map_or(uniform_shadow_atlas_rect(default_shadow_rect), fn(
           value,
         ) {
-          bytes_from_shadow_atlas_rect(value.atlas_rect)
+          uniform_shadow_atlas_rect(value.atlas_rect)
         }),
-        @raylib.ShaderUniformVec4,
       )
       set_shader_uniform(
         shader,
         state.shadow_bound_locs[matrix_index],
-        cascade.map_or(bytes_from_vec2(@smath.Vec2D(0.0, 0.0)), fn(value) {
-          bytes_from_vec2(@smath.Vec2D(value.near_bound, value.far_bound))
+        cascade.map_or(uniform_vec2(@smath.Vec2D(0.0, 0.0)), fn(value) {
+          uniform_vec2(@smath.Vec2D(value.near_bound, value.far_bound))
         }),
-        @raylib.ShaderUniformVec2,
       )
     }
   }
   set_shader_uniform(
     shader,
     state.directional_shadow_texel_size_loc,
-    bytes_from_vec2(
+    uniform_vec2(
       shadow_state.map_or(@smath.Vec2D(0.0, 0.0), fn(value) {
         value.directional_texel_size
       }),
     ),
-    @raylib.ShaderUniformVec2,
   )
 
   let point_count = @cmp.minimum(frame.point_lights.length(), MAX_POINT_LIGHTS)
@@ -1572,8 +1554,7 @@ fn upload_lighting_uniforms(
   set_shader_uniform(
     shader,
     state.point_count_loc,
-    bytes_from_int(point_count),
-    @raylib.ShaderUniformInt,
+    uniform_int(point_count),
   )
   set_shader_uniform_v(
     shader,
@@ -1622,8 +1603,7 @@ fn upload_lighting_uniforms(
   set_shader_uniform(
     shader,
     state.spot_count_loc,
-    bytes_from_int(spot_count),
-    @raylib.ShaderUniformInt,
+    uniform_int(spot_count),
   )
   set_shader_uniform_v(
     shader,
@@ -1661,8 +1641,7 @@ fn upload_lighting_uniforms(
     set_shader_uniform(
       shader,
       state.spot_shadow_enabled_locs[index],
-      bytes_from_int(if shadow is Some(_) { 1 } else { 0 }),
-      @raylib.ShaderUniformInt,
+      uniform_int(if shadow is Some(_) { 1 } else { 0 }),
     )
     @raylib.set_shader_value_matrix(
       shader,
@@ -1674,33 +1653,29 @@ fn upload_lighting_uniforms(
     set_shader_uniform(
       shader,
       state.spot_shadow_rect_locs[index],
-      bytes_from_shadow_atlas_rect(
+      uniform_shadow_atlas_rect(
         shadow.map_or(default_shadow_rect, fn(value) { value.atlas_rect }),
       ),
-      @raylib.ShaderUniformVec4,
     )
     set_shader_uniform(
       shader,
       state.spot_shadow_depth_bias_locs[index],
-      bytes_from_float(shadow.map_or(0.0, fn(value) { value.depth_bias })),
-      @raylib.ShaderUniformFloat,
+      uniform_float(shadow.map_or(0.0, fn(value) { value.depth_bias })),
     )
     set_shader_uniform(
       shader,
       state.spot_shadow_normal_bias_locs[index],
-      bytes_from_float(shadow.map_or(0.0, fn(value) { value.normal_bias })),
-      @raylib.ShaderUniformFloat,
+      uniform_float(shadow.map_or(0.0, fn(value) { value.normal_bias })),
     )
   }
   set_shader_uniform(
     shader,
     state.spot_shadow_texel_size_loc,
-    bytes_from_vec2(
+    uniform_vec2(
       shadow_state.map_or(@smath.Vec2D(0.0, 0.0), fn(value) {
         value.spot_texel_size
       }),
     ),
-    @raylib.ShaderUniformVec2,
   )
   for index in 0..<MAX_POINT_LIGHTS {
     let shadow = match shadow_state {
@@ -1710,20 +1685,17 @@ fn upload_lighting_uniforms(
     set_shader_uniform(
       shader,
       state.point_shadow_enabled_locs[index],
-      bytes_from_int(if shadow is Some(_) { 1 } else { 0 }),
-      @raylib.ShaderUniformInt,
+      uniform_int(if shadow is Some(_) { 1 } else { 0 }),
     )
     set_shader_uniform(
       shader,
       state.point_shadow_depth_bias_locs[index],
-      bytes_from_float(shadow.map_or(0.0, fn(value) { value.depth_bias })),
-      @raylib.ShaderUniformFloat,
+      uniform_float(shadow.map_or(0.0, fn(value) { value.depth_bias })),
     )
     set_shader_uniform(
       shader,
       state.point_shadow_normal_bias_locs[index],
-      bytes_from_float(shadow.map_or(0.0, fn(value) { value.normal_bias })),
-      @raylib.ShaderUniformFloat,
+      uniform_float(shadow.map_or(0.0, fn(value) { value.normal_bias })),
     )
     for face_index in 0..<POINT_SHADOW_FACE_COUNT {
       let matrix_index = index * POINT_SHADOW_FACE_COUNT + face_index
@@ -1737,78 +1709,68 @@ fn upload_lighting_uniforms(
       set_shader_uniform(
         shader,
         state.point_shadow_rect_locs[matrix_index],
-        bytes_from_shadow_atlas_rect(
+        uniform_shadow_atlas_rect(
           shadow
           .bind(fn(value) { value.face_rects.get(face_index) })
           .unwrap_or(default_shadow_rect),
         ),
-        @raylib.ShaderUniformVec4,
       )
     }
   }
   set_shader_uniform(
     shader,
     state.point_shadow_texel_size_loc,
-    bytes_from_vec2(
+    uniform_vec2(
       shadow_state.map_or(@smath.Vec2D(0.0, 0.0), fn(value) {
         value.point_texel_size
       }),
     ),
-    @raylib.ShaderUniformVec2,
   )
 
   set_shader_uniform(
     shader,
     state.material_base_color_loc,
-    bytes_from_color4(material.base_color),
-    @raylib.ShaderUniformVec4,
+    uniform_color4(material.base_color),
   )
   set_shader_uniform(
     shader,
     state.material_emissive_color_loc,
-    bytes_from_vec3(color_to_vec3(material.emissive_color)),
-    @raylib.ShaderUniformVec3,
+    uniform_vec3(color_to_vec3(material.emissive_color)),
   )
   set_shader_uniform(
     shader,
     state.material_normal_scale_loc,
-    bytes_from_float(material.normal_scale),
-    @raylib.ShaderUniformFloat,
+    uniform_float(material.normal_scale),
   )
   set_shader_uniform(
     shader,
     state.material_occlusion_strength_loc,
-    bytes_from_float(material.occlusion_strength),
-    @raylib.ShaderUniformFloat,
+    uniform_float(material.occlusion_strength),
   )
   set_shader_uniform(
     shader,
     state.material_metallic_loc,
-    bytes_from_float(material.metallic),
-    @raylib.ShaderUniformFloat,
+    uniform_float(material.metallic),
   )
   set_shader_uniform(
     shader,
     state.material_roughness_loc,
-    bytes_from_float(material.roughness),
-    @raylib.ShaderUniformFloat,
+    uniform_float(material.roughness),
   )
   set_shader_uniform(
     shader,
     state.material_alpha_mode_loc,
-    bytes_from_int(alpha_mode_to_int(material.alpha_mode)),
-    @raylib.ShaderUniformInt,
+    uniform_int(alpha_mode_to_int(material.alpha_mode)),
   )
   set_shader_uniform(
     shader,
     state.material_alpha_cutoff_loc,
-    bytes_from_float(material.alpha_cutoff),
-    @raylib.ShaderUniformFloat,
+    uniform_float(material.alpha_cutoff),
   )
   set_shader_uniform(
     shader,
     state.material_has_base_texture_loc,
-    bytes_from_int(
+    uniform_int(
       texture_bundle.map_or(0, fn(bundle) {
         if bundle.has_base_texture {
           1
@@ -1817,12 +1779,11 @@ fn upload_lighting_uniforms(
         }
       }),
     ),
-    @raylib.ShaderUniformInt,
   )
   set_shader_uniform(
     shader,
     state.material_has_emissive_texture_loc,
-    bytes_from_int(
+    uniform_int(
       texture_bundle.map_or(0, fn(bundle) {
         if bundle.has_emissive_texture {
           1
@@ -1831,12 +1792,11 @@ fn upload_lighting_uniforms(
         }
       }),
     ),
-    @raylib.ShaderUniformInt,
   )
   set_shader_uniform(
     shader,
     state.material_has_metallic_roughness_texture_loc,
-    bytes_from_int(
+    uniform_int(
       texture_bundle.map_or(0, fn(bundle) {
         if bundle.has_metallic_roughness_texture {
           1
@@ -1845,12 +1805,11 @@ fn upload_lighting_uniforms(
         }
       }),
     ),
-    @raylib.ShaderUniformInt,
   )
   set_shader_uniform(
     shader,
     state.material_has_occlusion_texture_loc,
-    bytes_from_int(
+    uniform_int(
       texture_bundle.map_or(0, fn(bundle) {
         if bundle.has_occlusion_texture {
           1
@@ -1859,12 +1818,11 @@ fn upload_lighting_uniforms(
         }
       }),
     ),
-    @raylib.ShaderUniformInt,
   )
   set_shader_uniform(
     shader,
     state.material_has_normal_texture_loc,
-    bytes_from_int(
+    uniform_int(
       texture_bundle.map_or(0, fn(bundle) {
         if bundle.has_normal_texture {
           1
@@ -1873,19 +1831,16 @@ fn upload_lighting_uniforms(
         }
       }),
     ),
-    @raylib.ShaderUniformInt,
   )
   set_shader_uniform(
     shader,
     state.material_unlit_loc,
-    bytes_from_int(if material.unlit { 1 } else { 0 }),
-    @raylib.ShaderUniformInt,
+    uniform_int(if material.unlit { 1 } else { 0 }),
   )
   set_shader_uniform(
     shader,
     state.material_receive_shadows_loc,
-    bytes_from_int(if receive_shadows { 1 } else { 0 }),
-    @raylib.ShaderUniformInt,
+    uniform_int(if receive_shadows { 1 } else { 0 }),
   )
   let default_transform = @render3d_types.default_texture_transform3d()
   upload_texture_transform_uniforms(
@@ -3769,27 +3724,27 @@ fn draw_triangle_vertices(
   @raylib.begin_shader_mode(state.shader)
   @rl.active_texture_slot(0)
   @rl.enable_texture(
-    @raylib.get_texture_id(effective_bundle.base_texture).reinterpret_as_uint(),
+    @raylib.get_texture_id(effective_bundle.base_texture),
   )
   @rl.active_texture_slot(1)
   @rl.enable_texture(
-    @raylib.get_texture_id(effective_bundle.metallic_roughness_texture).reinterpret_as_uint(),
+    @raylib.get_texture_id(effective_bundle.metallic_roughness_texture),
   )
   @rl.active_texture_slot(2)
   @rl.enable_texture(
-    @raylib.get_texture_id(effective_bundle.normal_texture).reinterpret_as_uint(),
+    @raylib.get_texture_id(effective_bundle.normal_texture),
   )
   @rl.active_texture_slot(3)
   @rl.enable_texture(
-    @raylib.get_texture_id(effective_bundle.metallic_roughness_texture).reinterpret_as_uint(),
+    @raylib.get_texture_id(effective_bundle.metallic_roughness_texture),
   )
   @rl.active_texture_slot(4)
   @rl.enable_texture(
-    @raylib.get_texture_id(effective_bundle.occlusion_texture).reinterpret_as_uint(),
+    @raylib.get_texture_id(effective_bundle.occlusion_texture),
   )
   @rl.active_texture_slot(5)
   @rl.enable_texture(
-    @raylib.get_texture_id(effective_bundle.emissive_texture).reinterpret_as_uint(),
+    @raylib.get_texture_id(effective_bundle.emissive_texture),
   )
   @rl.active_texture_slot(0)
   bind_shadow_textures(shadow_state)
