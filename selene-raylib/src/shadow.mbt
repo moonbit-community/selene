@@ -707,23 +707,19 @@ fn build_directional_shadow_setup_for_light(
 
 ///|
 fn configure_shadow_shader_locations(shader : @raylib.Shader) -> Unit {
-  @raylib.set_shader_location(
-    shader,
+  shader.set_locs(
     @raylib.ShaderLocVertexPosition,
     @raylib.get_shader_location_attrib(shader, "vertexPosition"),
   )
-  @raylib.set_shader_location(
-    shader,
+  shader.set_locs(
     @raylib.ShaderLocVertexTexcoord01,
     @raylib.get_shader_location_attrib(shader, "vertexTexCoord"),
   )
-  @raylib.set_shader_location(
-    shader,
+  shader.set_locs(
     @raylib.ShaderLocMatrixModel,
     @raylib.get_shader_location(shader, "matModel"),
   )
-  @raylib.set_shader_location(
-    shader,
+  shader.set_locs(
     @raylib.ShaderLocMapAlbedo,
     @raylib.get_shader_location(shader, "texture0"),
   )
@@ -771,7 +767,7 @@ fn get_shadow_material() -> @raylib.Material {
   if backend.shadow_material is Some(material) {
     return material
   }
-  let material = @raylib.load_material_default()
+  let material = @raylib.Material::default()
   @raylib.set_material_shader(material, get_shadow_shader_state().shader)
   @raylib.set_material_map_color(
     material,
@@ -791,16 +787,20 @@ fn create_directional_shadow_render_texture(
 ) -> @raylib.RenderTexture? {
   let width = tile_size * atlas_columns
   let height = tile_size * atlas_rows
-  let render_texture = @raylib.load_shadowmap_render_texture(width, height)
+  let fbo_id = @rl.load_framebuffer()
+  let depth_tex_id = @rl.load_texture_depth(width, height, false)
+  @rl.framebuffer_attach(fbo_id, depth_tex_id, 100, 100, 0)
+  ignore(@rl.framebuffer_complete(fbo_id))
+  let render_texture = @raylib.RenderTexture::new(fbo_id, @raylib.Texture::new(0U, width, height, 1, 7), @raylib.Texture::new(depth_tex_id, width, height, 1, 19))
   let depth_id = @raylib.get_render_texture_depth_id(render_texture)
-  if @raylib.get_render_texture_fbo_id(render_texture) == 0U || depth_id == 0U {
+  if render_texture.id() == 0U || depth_id == 0U {
     warn_texture_issue(
       warn_key, "raylib shadow-map framebuffer could not be created; directional cascaded shadows are disabled for one light",
     )
-    @raylib.unload_shadowmap_render_texture(render_texture)
+    render_texture.unload()
     return None
   }
-  let depth_texture = @raylib.texture_from_id(depth_id, width, height)
+  let depth_texture = @raylib.Texture::new(depth_id, width, height, 1, @raylib.PixelformatUncompressedR8g8b8a8)
   @raylib.set_texture_filter(depth_texture, @raylib.TextureFilterPoint)
   @raylib.set_texture_wrap(depth_texture, @raylib.TextureWrapClamp)
   Some(render_texture)
@@ -852,10 +852,10 @@ fn get_shadow_render_texture(
   let needs_recreate = existing_tile_size != tile_size ||
     existing_columns != atlas_columns ||
     existing_rows != atlas_rows ||
-    @raylib.get_render_texture_fbo_id(existing) == 0U ||
+    existing.id() == 0U ||
     @raylib.get_render_texture_depth_id(existing) == 0U
   if needs_recreate {
-    @raylib.unload_shadowmap_render_texture(existing)
+    existing.unload()
     guard create_directional_shadow_render_texture(
         tile_size,
         atlas_columns,
@@ -895,20 +895,17 @@ fn upload_shadow_uniforms(
   set_shader_uniform(
     shader,
     state.material_has_texture_loc,
-    bytes_from_int(if base_source is Some(_) { 1 } else { 0 }),
-    @raylib.ShaderUniformInt,
+    uniform_int(if base_source is Some(_) { 1 } else { 0 }),
   )
   set_shader_uniform(
     shader,
     state.material_alpha_mode_loc,
-    bytes_from_int(alpha_mode_to_int(material.alpha_mode)),
-    @raylib.ShaderUniformInt,
+    uniform_int(alpha_mode_to_int(material.alpha_mode)),
   )
   set_shader_uniform(
     shader,
     state.material_alpha_cutoff_loc,
-    bytes_from_float(material.alpha_cutoff),
-    @raylib.ShaderUniformFloat,
+    uniform_float(material.alpha_cutoff),
   )
   let transform = base_source.map_or(
     @render3d_types.default_texture_transform3d(),
@@ -1055,7 +1052,7 @@ fn draw_shadow_triangle_mesh(
   if base_source is Some(source) {
     @rl.active_texture_slot(0)
     @rl.enable_texture(
-      @raylib.get_texture_id(source.texture).reinterpret_as_uint(),
+      @raylib.get_texture_id(source.texture),
     )
     @rl.active_texture_slot(0)
   }
