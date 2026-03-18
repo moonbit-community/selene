@@ -824,11 +824,18 @@ fn uniform_color4(color : @render.Color) -> @raylib.ShaderUniformData {
 }
 
 ///|
-#borrow(target, source)
-extern "c" fn reset_material_from_material(
+fn reset_material_from_material(
   target : @raylib.Material,
   source : @raylib.Material,
-) = "selene_raylib_reset_material_from_material"
+) -> Unit {
+  target.set_shader(source.shader())
+  let target_maps = target.maps()
+  let source_maps = source.maps()
+  let count = @cmp.minimum(target_maps.count(), source_maps.count())
+  for i in 0..<count {
+    target_maps[i] = source_maps[i]
+  }
+}
 
 ///|
 fn texture_transform_offset_scale(
