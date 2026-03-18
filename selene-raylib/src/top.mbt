@@ -788,31 +788,6 @@ fn light_rgb(color : @render.Color, intensity : Double) -> @smath.Vec3 {
 }
 
 ///|
-fn append_u32_le(out : Array[Byte], value : UInt) -> Unit {
-  out.push(value.to_byte())
-  out.push((value >> 8).to_byte())
-  out.push((value >> 16).to_byte())
-  out.push((value >> 24).to_byte())
-}
-
-///|
-fn append_i32_le(out : Array[Byte], value : Int) -> Unit {
-  append_u32_le(out, value.reinterpret_as_uint())
-}
-
-///|
-fn append_f32_le(out : Array[Byte], value : Double) -> Unit {
-  append_i32_le(out, to_float(value).reinterpret_as_int())
-}
-
-///|
-fn append_vec3_le(out : Array[Byte], value : @smath.Vec3) -> Unit {
-  append_f32_le(out, value.x)
-  append_f32_le(out, value.y)
-  append_f32_le(out, value.z)
-}
-
-///|
 fn uniform_int(value : Int) -> @raylib.ShaderUniformData {
   @raylib.ShaderUniformData::Int(value)
 }
@@ -899,21 +874,22 @@ fn uniform_texture_transform_rotation(
 }
 
 ///|
-fn pack_vec3_array(values : Array[@smath.Vec3], count : Int) -> Bytes {
-  let out : Array[Byte] = []
+fn to_ray_vec3_array(values : Array[@smath.Vec3], count : Int) -> Array[@raylib.Vector3] {
+  let out : Array[@raylib.Vector3] = []
   for index in 0..<count {
-    append_vec3_le(out, values[index])
+    let v = values[index]
+    out.push(@raylib.Vector3::new(to_float(v.x), to_float(v.y), to_float(v.z)))
   }
-  Bytes::from_array(out)
+  out
 }
 
 ///|
-fn pack_float_array(values : Array[Double], count : Int) -> Bytes {
-  let out : Array[Byte] = []
+fn to_float_array(values : Array[Double], count : Int) -> Array[Float] {
+  let out : Array[Float] = []
   for index in 0..<count {
-    append_f32_le(out, values[index])
+    out.push(to_float(values[index]))
   }
-  Bytes::from_array(out)
+  out
 }
 
 ///|
@@ -925,97 +901,80 @@ fn set_shader_uniform(
   if loc == -1 {
     return
   }
-  @raylib.set_shader_value(shader, loc, value)
+  shader.set_value(loc, value)
 }
 
 ///|
 fn set_shader_uniform_v(
   shader : @raylib.Shader,
   loc : Int,
-  value : Bytes,
-  uniform_type : Int,
-  count : Int,
+  data : @raylib.ShaderUniformDataV,
 ) -> Unit {
-  if loc == -1 || count <= 0 {
+  if loc == -1 {
     return
   }
-  @raylib.set_shader_value_v(shader, loc, value, uniform_type, count)
+  shader.set_value_v(loc, data)
 }
 
 ///|
 fn configure_lighting_shader_locations(shader : @raylib.Shader) -> Unit {
-  @raylib.set_shader_location(
-    shader,
+  shader.set_locs(
     @raylib.ShaderLocVertexPosition,
     @raylib.get_shader_location_attrib(shader, "vertexPosition"),
   )
-  @raylib.set_shader_location(
-    shader,
+  shader.set_locs(
     @raylib.ShaderLocVertexTexcoord01,
     @raylib.get_shader_location_attrib(shader, "vertexTexCoord"),
   )
-  @raylib.set_shader_location(
-    shader,
+  shader.set_locs(
     @raylib.ShaderLocVertexNormal,
     @raylib.get_shader_location_attrib(shader, "vertexNormal"),
   )
-  @raylib.set_shader_location(
-    shader,
+  shader.set_locs(
     @raylib.ShaderLocVertexColor,
     @raylib.get_shader_location_attrib(shader, "vertexColor"),
   )
-  @raylib.set_shader_location(
-    shader,
+  shader.set_locs(
     @raylib.ShaderLocMatrixMvp,
     @raylib.get_shader_location(shader, "mvp"),
   )
-  @raylib.set_shader_location(
-    shader,
+  shader.set_locs(
     @raylib.ShaderLocMatrixView,
     @raylib.get_shader_location(shader, "matView"),
   )
-  @raylib.set_shader_location(
-    shader,
+  shader.set_locs(
     @raylib.ShaderLocMatrixProjection,
     @raylib.get_shader_location(shader, "matProjection"),
   )
-  @raylib.set_shader_location(
-    shader,
+  shader.set_locs(
     @raylib.ShaderLocMatrixModel,
     @raylib.get_shader_location(shader, "matModel"),
   )
-  @raylib.set_shader_location(
-    shader,
+  shader.set_locs(
     @raylib.ShaderLocMatrixNormal,
     @raylib.get_shader_location(shader, "matNormal"),
   )
-  @raylib.set_shader_location(
-    shader,
+  shader.set_locs(
     @raylib.ShaderLocMapAlbedo,
     @raylib.get_shader_location(shader, "texture0"),
   )
-  @raylib.set_shader_location(
-    shader,
+  shader.set_locs(
     @raylib.ShaderLocMapMetalness,
     @raylib.get_shader_location(shader, "texture1"),
   )
-  @raylib.set_shader_location(
-    shader,
+  shader.set_locs(
     @raylib.ShaderLocMapNormal,
     @raylib.get_shader_location(shader, "texture2"),
   )
-  @raylib.set_shader_location(
-    shader,
+  shader.set_locs(
     @raylib.ShaderLocMapRoughness,
     @raylib.get_shader_location(shader, "texture3"),
   )
-  @raylib.set_shader_location(
-    shader,
+  shader.set_locs(
     @raylib.ShaderLocMapOcclusion,
     @raylib.get_shader_location(shader, "texture4"),
   )
-  @raylib.set_shader_location(
-    shader,
+  shader.set_locs(
     @raylib.ShaderLocMapEmission,
     @raylib.get_shader_location(shader, "texture5"),
   )
@@ -1329,7 +1288,7 @@ fn get_lit_material(textured : Bool) -> @raylib.Material {
   if existing is Some(material) {
     return material
   }
-  let material = @raylib.load_material_default()
+  let material = @raylib.Material::default()
   @raylib.set_material_shader(material, get_lighting_shader_state().shader)
   @raylib.set_material_map_color(
     material,
@@ -1466,16 +1425,12 @@ fn upload_lighting_uniforms(
   set_shader_uniform_v(
     shader,
     state.directional_directions_loc,
-    pack_vec3_array(directional_directions, directional_count),
-    @raylib.ShaderUniformVec3,
-    directional_count,
+    @raylib.ShaderUniformDataV::Vec3(to_ray_vec3_array(directional_directions, directional_count)),
   )
   set_shader_uniform_v(
     shader,
     state.directional_colors_loc,
-    pack_vec3_array(directional_colors, directional_count),
-    @raylib.ShaderUniformVec3,
-    directional_count,
+    @raylib.ShaderUniformDataV::Vec3(to_ray_vec3_array(directional_colors, directional_count)),
   )
   for index in 0..<MAX_DIRECTIONAL_LIGHTS {
     let shadow = match shadow_state {
@@ -1559,23 +1514,17 @@ fn upload_lighting_uniforms(
   set_shader_uniform_v(
     shader,
     state.point_positions_loc,
-    pack_vec3_array(point_positions, point_count),
-    @raylib.ShaderUniformVec3,
-    point_count,
+    @raylib.ShaderUniformDataV::Vec3(to_ray_vec3_array(point_positions, point_count)),
   )
   set_shader_uniform_v(
     shader,
     state.point_colors_loc,
-    pack_vec3_array(point_colors, point_count),
-    @raylib.ShaderUniformVec3,
-    point_count,
+    @raylib.ShaderUniformDataV::Vec3(to_ray_vec3_array(point_colors, point_count)),
   )
   set_shader_uniform_v(
     shader,
     state.point_ranges_loc,
-    pack_float_array(point_ranges, point_count),
-    @raylib.ShaderUniformFloat,
-    point_count,
+    @raylib.ShaderUniformDataV::Float(to_float_array(point_ranges, point_count)),
   )
 
   let spot_count = @cmp.minimum(frame.spot_lights.length(), MAX_SPOT_LIGHTS)
@@ -1608,30 +1557,22 @@ fn upload_lighting_uniforms(
   set_shader_uniform_v(
     shader,
     state.spot_positions_loc,
-    pack_vec3_array(spot_positions, spot_count),
-    @raylib.ShaderUniformVec3,
-    spot_count,
+    @raylib.ShaderUniformDataV::Vec3(to_ray_vec3_array(spot_positions, spot_count)),
   )
   set_shader_uniform_v(
     shader,
     state.spot_directions_loc,
-    pack_vec3_array(spot_directions, spot_count),
-    @raylib.ShaderUniformVec3,
-    spot_count,
+    @raylib.ShaderUniformDataV::Vec3(to_ray_vec3_array(spot_directions, spot_count)),
   )
   set_shader_uniform_v(
     shader,
     state.spot_colors_loc,
-    pack_vec3_array(spot_colors, spot_count),
-    @raylib.ShaderUniformVec3,
-    spot_count,
+    @raylib.ShaderUniformDataV::Vec3(to_ray_vec3_array(spot_colors, spot_count)),
   )
   set_shader_uniform_v(
     shader,
     state.spot_params_loc,
-    pack_vec3_array(spot_params, spot_count),
-    @raylib.ShaderUniformVec3,
-    spot_count,
+    @raylib.ShaderUniformDataV::Vec3(to_ray_vec3_array(spot_params, spot_count)),
   )
   for index in 0..<MAX_SPOT_LIGHTS {
     let shadow = match shadow_state {
@@ -2198,7 +2139,7 @@ fn get_font_by_family(family : String) -> @raylib.Font {
       return font
     }
   }
-  @raylib.get_font_default()
+  @raylib.Font::default()
 }
 
 ///|
@@ -2731,7 +2672,7 @@ fn cleanup_resources() -> Unit {
   let cleanup_default_material = if backend.lit_material is Some(_) ||
     backend.lit_textured_material is Some(_) ||
     backend.shadow_material is Some(_) {
-    Some(@raylib.load_material_default())
+    Some(@raylib.Material::default())
   } else {
     None
   }
@@ -2772,19 +2713,19 @@ fn cleanup_resources() -> Unit {
   }
   backend.textures.clear()
   for render_texture in backend.shadow_render_textures {
-    @raylib.unload_shadowmap_render_texture(render_texture)
+    render_texture.unload()
   }
   backend.shadow_render_textures.clear()
   backend.directional_shadow_tile_sizes.clear()
   backend.directional_shadow_atlas_columns.clear()
   backend.directional_shadow_atlas_rows.clear()
   if backend.spot_shadow_render_texture is Some(render_texture) {
-    @raylib.unload_shadowmap_render_texture(render_texture)
+    render_texture.unload()
   }
   backend.spot_shadow_render_texture = None
   backend.spot_shadow_map_size = 0
   if backend.point_shadow_render_texture is Some(render_texture) {
-    @raylib.unload_shadowmap_render_texture(render_texture)
+    render_texture.unload()
   }
   backend.point_shadow_render_texture = None
   backend.point_shadow_map_size = 0

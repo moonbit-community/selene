@@ -6,7 +6,7 @@
       "path": "../selene-core",
       "version": "0.28.7"
     },
-    "tonyfettes/raylib": "0.3.0",
+    "tonyfettes/raylib": "0.3.1",
     "Milky2018/moon_cosmic": "0.1.5"
   },
   "readme": "README.md",
