@@ -1,0 +1,9 @@
+{
+  "use": [
+    "./selene-core",
+    "./selene-raylib",
+    "./selene-tools",
+    "./selene-webgpu",
+    "./examples"
+  ]
+}
