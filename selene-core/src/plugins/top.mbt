@@ -155,13 +155,6 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @camera.camera_system,
-    FixedPostUpdate,
-    "Camera System",
-    after=[physics],
-  )
-  let app = add_system(
-    app,
     @physics2d.pickable_click_system,
     Update,
     "Pickable Click System",
@@ -222,7 +215,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @inherit.transform_propagate_system,
+    @transform.transform_propagate_system,
     PostUpdate,
     "Transform Propagation System",
     in_set=transform,
@@ -254,7 +247,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @inherit.transform_propagate_system,
+    @transform.transform_propagate_system,
     PostUpdate,
     "Transform Propagation System (UI)",
     in_set=ui,
@@ -321,7 +314,7 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   let app = register_builtin_messages(app)
   let input = @system_set.named("input")
   let physics = @system_set.named("physics3d")
-  let transform = @system_set.named("transform3d")
+  let transform = @system_set.named("transform")
   let render_extract = @system_set.named("render_extract")
   let render_prepare = @system_set.named("render_prepare")
   let render_submit = @system_set.named("render_submit")
@@ -372,16 +365,16 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @transform3d.capture_previous_global_transforms3d_system,
+    @transform.capture_previous_global_transforms_system,
     FixedFirst,
-    "Capture Previous Transform3D System",
+    "Capture Previous Transform System",
     in_set=transform,
   )
   let app = add_system(
     app,
-    @transform3d.transform3d_propagate_system,
+    @transform.transform_propagate_system,
     FixedPostUpdate,
-    "Transform3D Propagation System",
+    "Transform Propagation System",
     in_set=transform,
     after=[physics],
   )
@@ -394,9 +387,9 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @transform3d.transform3d_propagate_system,
+    @transform.transform_propagate_system,
     PostUpdate,
-    "Transform3D Propagation System (Frame)",
+    "Transform Propagation System (Frame)",
     in_set=transform,
     after=[transform],
   )

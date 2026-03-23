@@ -153,6 +153,7 @@ let player_bullet_trigger_event_reader : @event.EventReader[
 let player_bullet_visual : @sprite.Animation = @sprite.Animation::single_frame(
   "assets/survivors/icon/bullet.png",
   Vec2D(12.0, 12.0),
+  transform=@math.Transform::from_translation(-6.0, -6.0),
 )
 
 ///|
@@ -212,7 +213,6 @@ fn shoot_weapon_bullet(
   damage : Double,
   total_penetration : Int,
 ) -> Unit {
-  let bullet_visual_size = 12.0
   let bullet_hitbox_size = 6.0
   let direction = target_pos - player_pos
   let dir = if direction.distance() <= 0.0000001 {
@@ -221,20 +221,19 @@ fn shoot_weapon_bullet(
     direction.normalize()
   }
   let bullet_spawn_pos = player_pos + dir.scalar_mul(14.0)
-  let bullet_visual_offset = @math.Vec2D(
-    -bullet_visual_size / 2.0,
-    -bullet_visual_size / 2.0,
-  )
   let bullet_entity = @entity.Entity::new()
   @sprite.sprites().set(
     bullet_entity,
-    @sprite.Sprite::from_animation(
-      player_bullet_visual,
-      BULLET_ZINDEX,
-      offset=bullet_visual_offset,
+    @sprite.Sprite::from_animation(player_bullet_visual),
+  )
+  @transform.transforms().set(
+    bullet_entity,
+    @transform.Transform::from_xyz(
+      bullet_spawn_pos[X],
+      bullet_spawn_pos[Y],
+      BULLET_ZINDEX.to_double(),
     ),
   )
-  @transform.positions().set(bullet_entity, bullet_spawn_pos)
   let vel = dir.scalar_mul(weapon_data.bullet_speed)
   @physics2d.linear_velocities().set(bullet_entity, vel)
   @physics2d.shapes().set(

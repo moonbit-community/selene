@@ -20,6 +20,12 @@ fn with_fake_asset_io(
 }
 
 ///|
+fn ldtk_test_entity_translation_2d(entity : @entity.Entity) -> @math.Vec2D {
+  let transform = @transform.transforms().get(entity).unwrap_or_default()
+  @math.Vec2D(transform.translation.x, transform.translation.y)
+}
+
+///|
 fn reset_ldtk_runtime() -> Unit {
   for pair in ldtk_world_instances().to_array() {
     ldtk_world_instances().remove(pair.0)
@@ -547,7 +553,7 @@ test "ldtk_world_sync_system updates spawned levels from selection" {
   inspect(world_instance.spawned_levels.contains("iid-a"), content="true")
   inspect(world_instance.spawned_levels.contains("iid-b"), content="false")
   let spawned_a = world_instance.spawned_levels.get("iid-a").unwrap()
-  inspect(spawned_a.get_offset(), content="Vec2D(10, 20)")
+  inspect(ldtk_test_entity_translation_2d(spawned_a), content="Vec2D(10, 20)")
 
   set_ldtk_level_selection(ldtk_level_selection_index(1))
   ldtk_world_sync_system(0.0)
@@ -555,7 +561,7 @@ test "ldtk_world_sync_system updates spawned levels from selection" {
   inspect(updated.spawned_levels.contains("iid-a"), content="false")
   inspect(updated.spawned_levels.contains("iid-b"), content="true")
   let spawned_b = updated.spawned_levels.get("iid-b").unwrap()
-  inspect(spawned_b.get_offset(), content="Vec2D(110, 220)")
+  inspect(ldtk_test_entity_translation_2d(spawned_b), content="Vec2D(110, 220)")
 
   cleanup_ldtk_entity(world)
 }
@@ -913,12 +919,13 @@ test "ldtk entity tile sprite registration inserts placeholder sprite from __til
     let enemy = ldtk_entity_by_iid(world, "enemy-1").unwrap()
     inspect(@sprite.sprites().contains(enemy), content="true")
     let sprite = @sprite.sprites().get(enemy).unwrap()
-    inspect(sprite.offset, content="Vec2D(0, 8)")
     match sprite.sprite_type {
       Animation(animation, frame~) => {
         inspect(frame.to_int(), content="0")
         inspect(animation.frames[0].offset, content="Vec2D(16, 24)")
         inspect(animation.frames[0].size, content="Vec2D(16, 8)")
+        inspect(animation.transform.tx, content="0")
+        inspect(animation.transform.ty, content="8")
         inspect(animation.transform.a, content="2")
         inspect(animation.transform.d, content="2")
       }

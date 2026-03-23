@@ -1,10 +1,6 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/entity"
 
-import {
-  "Milky2018/selene/math",
-}
-
 // Values
 pub fn entity_flush_system(Double) -> Unit
 
@@ -18,15 +14,13 @@ pub fn iter_entities() -> Iter[Entity]
 type Entity
 pub fn Entity::destroy(Self) -> Unit
 pub fn Entity::get_children(Self) -> Array[Self]
-pub fn Entity::get_offset(Self) -> @math.Vec2D
 pub fn Entity::get_parent(Self) -> Self?
 pub fn Entity::is_alive(Self) -> Bool
 pub fn Entity::is_child(Self) -> Bool
 pub fn Entity::new() -> Self
 pub fn Entity::reserve_spawn() -> Self
 pub fn Entity::respawn(Self) -> Unit
-pub fn Entity::set_offset(Self, @math.Vec2D) -> Unit
-pub fn Entity::spawn_child(Self, offset? : @math.Vec2D) -> Self
+pub fn Entity::spawn_child(Self) -> Self
 pub impl Eq for Entity
 pub impl Hash for Entity
 pub impl Show for Entity

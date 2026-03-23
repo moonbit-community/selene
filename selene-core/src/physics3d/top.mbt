@@ -400,8 +400,8 @@ pub fn character_controller3d_move(
   desired_delta : @math.Vec3,
 ) -> @math.Vec3 {
   guard rigid_bodies3d().get(entity) is Some(body_desc) else {
-    let transform = @transform3d.transforms3d().get(entity).unwrap_or_default()
-    @transform3d.transforms3d().set(entity, {
+    let transform = @transform.transforms().get(entity).unwrap_or_default()
+    @transform.transforms().set(entity, {
       ..transform,
       translation: transform.translation + desired_delta,
     })
@@ -412,15 +412,10 @@ pub fn character_controller3d_move(
   guard world.bodies.get_mut(handle) is Some(body) else { return desired_delta }
   match body_desc.body_type {
     KinematicPositionBased => {
-      let transform = @transform3d.transforms3d()
-        .get(entity)
-        .unwrap_or_default()
+      let transform = @transform.transforms().get(entity).unwrap_or_default()
       let target = transform.translation + desired_delta
       body.set_next_kinematic_translation(target.to_rapier())
-      @transform3d.transforms3d().set(entity, {
-        ..transform,
-        translation: target,
-      })
+      @transform.transforms().set(entity, { ..transform, translation: target })
       desired_delta
     }
     Dynamic | KinematicVelocityBased => {
@@ -475,12 +470,12 @@ fn sync_components_to_rapier() -> Unit {
 
     match body_desc.body_type {
       KinematicPositionBased =>
-        if @transform3d.transforms3d().get(entity) is Some(transform) {
+        if @transform.transforms().get(entity) is Some(transform) {
           body.set_next_kinematic_translation(transform.translation.to_rapier())
           body.set_next_kinematic_rotation(transform.rotation.to_rapier())
         }
       Fixed =>
-        if @transform3d.transforms3d().get(entity) is Some(transform) {
+        if @transform.transforms().get(entity) is Some(transform) {
           body.set_translation(transform.translation.to_rapier())
           body.set_rotation(transform.rotation.to_rapier())
         }
@@ -497,8 +492,8 @@ fn sync_rapier_to_components() -> Unit {
       continue
     }
     guard world.bodies.get(handle) is Some(body) else { continue }
-    let transform = @transform3d.transforms3d().get(entity).unwrap_or_default()
-    @transform3d.transforms3d().set(entity, {
+    let transform = @transform.transforms().get(entity).unwrap_or_default()
+    @transform.transforms().set(entity, {
       ..transform,
       translation: @math.vec3_from_rapier(body.translation()),
       rotation: @math.quat_from_rapier(body.rotation()),
@@ -526,7 +521,7 @@ fn ensure_rigid_body(entity : @entity.Entity) -> @dynamics.RigidBodyHandle {
   }
 
   let body_desc = rigid_bodies3d().get(entity).unwrap_or(RigidBody3D::dynamic())
-  let transform = @transform3d.transforms3d().get(entity).unwrap_or_default()
+  let transform = @transform.transforms().get(entity).unwrap_or_default()
   let mut builder = match body_desc.body_type {
     Dynamic => @dynamics.RigidBodyBuilder3D::dynamic()
     Fixed => @dynamics.RigidBodyBuilder3D::fixed()
@@ -577,7 +572,7 @@ fn ensure_collider(
   }
 
   let mut builder = collider_builder_from_desc(collider_desc)
-  if @transform3d.transforms3d().get(entity) is Some(transform) {
+  if @transform.transforms().get(entity) is Some(transform) {
     builder = builder
       .translation(transform.translation.to_rapier())
       .rotation(transform.rotation.to_rapier())

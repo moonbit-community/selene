@@ -12,7 +12,7 @@ pub fn despawn_tiled_tree(root : @entity.Entity) -> Unit {
     @physics2d.resolved_velocities().remove(entity)
     @physics2d.grounded_entities().remove(entity)
     @sprite.sprites().remove(entity)
-    @transform.positions().remove(entity)
+    @transform.transforms().remove(entity)
     entity.destroy()
   }
 }

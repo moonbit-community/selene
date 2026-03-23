@@ -200,7 +200,7 @@ struct GameState {
 
 ```moonbit
 let player = @entity.Entity::new()
-@transform.positions().set(player, @math.Vec2D(100.0, 100.0))
+@transform.transforms().set(player, @transform.Transform::from_xyz(100.0, 100.0, 0.0))
 @physics2d.linear_velocities().set(player, @math.Vec2D::zero())
 ```
 
@@ -210,7 +210,7 @@ let player = @entity.Entity::new()
 2. 设置位置组件
 3. 设置速度组件
 
-Entity 类似引用，组件通过 `Map[K, V]::set` 关联到实体上。`@transform.positions()` 和 `@sprite.sprites()` 都是组件存储映射。
+Entity 类似引用，组件通过 `Map[K, V]::set` 关联到实体上。`@transform.transforms()` 和 `@sprite.sprites()` 都是组件存储映射。
 
 这类初始化逻辑应放在 `Startup` 阶段系统中执行一次。
 

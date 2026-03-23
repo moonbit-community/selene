@@ -26,15 +26,17 @@ fn add_player() -> Unit {
   let entity = game_state.player_entity
   @sprite.sprites().set(
     entity,
-    @sprite.Sprite::from_animation(
-      player_idle_right_animation,
-      PLAYER_ZINDEX,
-      offset=Vec2D(-PLAYER_SIZE / 2.0, -PLAYER_SIZE / 2.0),
+    @sprite.Sprite::from_animation(player_idle_right_animation),
+  )
+  @transform.transforms().set(
+    entity,
+    @transform.Transform::from_xyz(
+      MAP_WIDTH / 2.0,
+      MAP_HEIGHT / 2.0,
+      PLAYER_ZINDEX.to_double(),
     ),
   )
-  @transform.positions().set(entity, Vec2D(MAP_WIDTH / 2.0, MAP_HEIGHT / 2.0))
   @physics2d.linear_velocities().set(entity, Vec2D(0.0, 0.0))
-  @camera.attach_entity(entity, Vec2D(PLAYER_SIZE / 2.0, PLAYER_SIZE / 2.0))
   @physics2d.colliders().set(
     entity,
     @physics2d.Collider::new(
@@ -95,7 +97,12 @@ fn player_shooting_system(_world : @ecs.World) -> Unit {
   if game_state.game_over {
     return
   }
-  guard @transform.positions().get(game_state.player_entity) is Some(player_pos)
+  guard @transform.transforms().get(game_state.player_entity)
+    is Some(player_transform)
+  let player_pos = @math.Vec2D(
+    player_transform.translation.x,
+    player_transform.translation.y,
+  )
 
   // Clamp stats to at least 0
   let attack_speed = if game_state.player_stats.attack_speed < 0.0 {
@@ -125,7 +132,7 @@ fn player_shooting_system(_world : @ecs.World) -> Unit {
     attack,
     range,
     penetration,
-    player_pos.0,
+    player_pos,
   )
 }
 
@@ -138,11 +145,15 @@ fn find_nearest_enemy_in_range(
   let mut res : @math.Vec2D? = None
   for e, _enemy in enemies {
     guard e.is_alive() else { continue }
-    guard @transform.positions().get(e) is Some(enemy_pos)
-    let dist = player_pos.distance_to(enemy_pos.0)
+    guard @transform.transforms().get(e) is Some(enemy_transform)
+    let enemy_pos = @math.Vec2D(
+      enemy_transform.translation.x,
+      enemy_transform.translation.y,
+    )
+    let dist = player_pos.distance_to(enemy_pos)
     if dist < min {
       min = dist
-      res = Some(enemy_pos.0)
+      res = Some(enemy_pos)
     }
   }
   res

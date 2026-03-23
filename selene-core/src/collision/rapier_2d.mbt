@@ -410,7 +410,7 @@ pub fn rigid_body_translation(entity : @entity.Entity) -> @math.Vec2D? {
     world().bodies.get(handle) is Some(body) {
     Some(from_physics_vec2(body.translation()))
   } else {
-    @position.positions().get(entity).map(fn(position) { position.0 })
+    entity_translation(entity)
   }
 }
 
@@ -419,7 +419,7 @@ pub fn set_rigid_body_translation(
   entity : @entity.Entity,
   translation : @math.Vec2D,
 ) -> Unit {
-  @position.positions().set(entity, translation)
+  set_entity_translation(entity, translation)
   if world().entity_bodies.get(entity) is Some(handle) &&
     world().bodies.get_mut(handle) is Some(body) {
     match entity_rigid_body(entity).body_type {
@@ -443,6 +443,7 @@ pub fn set_rigid_body_rotation(
   entity : @entity.Entity,
   rotation : Double,
 ) -> Unit {
+  set_entity_rotation(entity, rotation)
   if world().entity_bodies.get(entity) is Some(handle) &&
     world().bodies.get_mut(handle) is Some(body) {
     match entity_rigid_body(entity).body_type {
@@ -710,6 +711,51 @@ fn rotate_vec2(value : @math.Vec2D, rotation : Double) -> @math.Vec2D {
 }
 
 ///|
+fn quat_rotation_z(rotation : @math.Quat) -> Double {
+  @cmath.atan2(
+    2.0 * (rotation.w * rotation.z + rotation.x * rotation.y),
+    1.0 - 2.0 * (rotation.y * rotation.y + rotation.z * rotation.z),
+  )
+}
+
+///|
+fn entity_transform(entity : @entity.Entity) -> @transform.Transform? {
+  @transform.transforms().get(entity)
+}
+
+///|
+fn entity_translation(entity : @entity.Entity) -> @math.Vec2D? {
+  entity_transform(entity).map(fn(transform) {
+    @math.Vec2D(transform.translation.x, transform.translation.y)
+  })
+}
+
+///|
+fn set_entity_translation(
+  entity : @entity.Entity,
+  translation : @math.Vec2D,
+) -> Unit {
+  let current = @transform.transforms().get(entity).unwrap_or_default()
+  @transform.transforms().set(entity, {
+    ..current,
+    translation: @math.Vec3::new(
+      translation[X],
+      translation[Y],
+      current.translation.z,
+    ),
+  })
+}
+
+///|
+fn set_entity_rotation(entity : @entity.Entity, rotation : Double) -> Unit {
+  let current = @transform.transforms().get(entity).unwrap_or_default()
+  @transform.transforms().set(entity, {
+    ..current,
+    rotation: @math.Quat::from_axis_angle(@math.Vec3::z_axis(), rotation),
+  })
+}
+
+///|
 fn vec2_length_squared(value : @math.Vec2D) -> Double {
   value[X] * value[X] + value[Y] * value[Y]
 }
@@ -774,6 +820,8 @@ fn entity_rotation(entity : @entity.Entity) -> Double {
   } else if world().entity_bodies.get(entity) is Some(handle) &&
     world().bodies.get(handle) is Some(body) {
     from_physics_rotation(body.rotation())
+  } else if entity_transform(entity) is Some(transform) {
+    quat_rotation_z(transform.rotation)
   } else {
     0.0
   }
@@ -864,12 +912,12 @@ fn entity_has_command_angular_velocity(
 
 ///|
 fn entity_physics_snapshot(entity : @entity.Entity) -> EntityPhysicsSnapshot? {
-  guard @position.positions().get(entity) is Some(position) else { return None }
+  guard entity_translation(entity) is Some(position) else { return None }
   guard entity_collision_shape(entity) is Some(shape) else { return None }
   guard entity_collision_config(entity) is Some(collision) else { return None }
   let body = entity_rigid_body(entity)
   Some({
-    position: position.0,
+    position,
     rotation: entity_rotation(entity),
     shape,
     collision,
@@ -2160,9 +2208,9 @@ fn estimate_direction(
   from : @entity.Entity,
   to : @entity.Entity,
 ) -> @math.Vec2D {
-  if @position.positions().get(from) is Some(from_pos) &&
-    @position.positions().get(to) is Some(to_pos) {
-    let delta = to_pos.0 - from_pos.0
+  if entity_translation(from) is Some(from_pos) &&
+    entity_translation(to) is Some(to_pos) {
+    let delta = to_pos - from_pos
     if delta[X].abs() >= delta[Y].abs() {
       @math.Vec2D(if delta[X] >= 0.0 { 1.0 } else { -1.0 }, 0.0)
     } else {
@@ -2179,9 +2227,9 @@ fn move_without_collision(
   displacement : @math.Vec2D,
   delta : Double,
 ) -> Unit {
-  if @position.positions().get(entity) is Some(position) {
-    let new_position = position.0 + displacement
-    @position.positions().set(entity, new_position)
+  if entity_translation(entity) is Some(position) {
+    let new_position = position + displacement
+    set_entity_translation(entity, new_position)
     if world().entity_bodies.get(entity) is Some(body_handle) {
       if world().bodies.get_mut(body_handle) is Some(body) {
         body.set_translation(to_physics_vec2(new_position), true) |> ignore
@@ -2204,7 +2252,7 @@ fn move_with_kinematic_controller(
   delta : Double,
   query_base : @rapier_collision.QueryPipeline,
 ) -> Unit {
-  guard @position.positions().get(entity) is Some(position) else { return }
+  guard entity_translation(entity) is Some(position) else { return }
   guard entity_collision_shape(entity) is Some(shape) else {
     move_without_collision(entity, velocity.scalar_mul(delta), delta)
     return
@@ -2235,7 +2283,7 @@ fn move_with_kinematic_controller(
     world().colliders,
     rapier_shape,
     @rapier_full.Isometry2::from_translation(
-      to_physics_vec2(position.0 + translation),
+      to_physics_vec2(position + translation),
     ),
     to_physics_vec2(displacement),
     fn(_collision) {  },
@@ -2244,8 +2292,8 @@ fn move_with_kinematic_controller(
   if effective.is_grounded() && applied_displacement[Y].abs() < 0.05 {
     applied_displacement = applied_displacement.update(Y, 0.0)
   }
-  let new_position = position.0 + applied_displacement
-  @position.positions().set(entity, new_position)
+  let new_position = position + applied_displacement
+  set_entity_translation(entity, new_position)
   if world().entity_bodies.get(entity) is Some(body_handle) {
     if world().bodies.get_mut(body_handle) is Some(body) {
       body.set_next_kinematic_translation(to_physics_vec2(new_position))
@@ -2400,12 +2448,13 @@ fn process_trigger_events() -> Unit {
 ///|
 fn sync_body_outputs() -> Unit {
   for entity, handle in world().entity_bodies {
-    guard @position.positions().get(entity) is Some(_) else { continue }
+    guard entity_translation(entity) is Some(_) else { continue }
     if world().bodies.get(handle) is Some(body) {
       let body_type = body.body_type()
       if body_type is @rapier_dynamics.RigidBodyType::Dynamic ||
         body_type is @rapier_dynamics.RigidBodyType::KinematicVelocityBased {
-        @position.positions().set(entity, from_physics_vec2(body.translation()))
+        set_entity_translation(entity, from_physics_vec2(body.translation()))
+        set_entity_rotation(entity, from_physics_rotation(body.rotation()))
         resolved_velocities().set(entity, from_physics_vec2(body.linvel()))
         set_grounded(entity, false)
       }

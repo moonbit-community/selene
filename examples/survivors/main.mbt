@@ -46,6 +46,7 @@ pub fn run() -> Unit {
     devil_shooting_system, player_bullet_trigger_system, check_victory_system, game_timer_system,
     score_blink_system,
   ])
+  .add_system(PostUpdate, survivors_camera_follow_system)
   .add_system(PostUpdate, survivors_ui_pointer_system)
   .run()
 }
@@ -53,6 +54,7 @@ pub fn run() -> Unit {
 ///|
 priv struct GameState {
   player_entity : @entity.Entity
+  camera_entity : @entity.Entity
   mut player_direction : Dir4
   rand : @random.Rand
   mut score : Int
@@ -154,6 +156,7 @@ fn create_game_over_panel_entity() -> @entity.Entity {
 ///|
 let game_state : GameState = {
   player_entity: @entity.Entity::new(),
+  camera_entity: @entity.Entity::new(),
   player_direction: Down,
   rand: @random.Rand::new(),
   score: 0,
@@ -429,8 +432,8 @@ fn game_start(_world : @ecs.World) -> Unit {
     ),
   )
   @ui.set_ui_scale_mode(@ui.UiScaleMode::Viewport)
-  @camera.set_limits(top=0.0, bottom=MAP_HEIGHT, left=0.0, right=MAP_WIDTH)
   add_player()
+  setup_survivors_camera()
   add_border(Vec2D(MAP_WIDTH, MAP_HEIGHT))
   add_background(Vec2D(MAP_WIDTH, MAP_HEIGHT))
   add_grass()
@@ -441,6 +444,49 @@ fn game_start(_world : @ecs.World) -> Unit {
   add_exp_box()
   setup_level_up_ui()
   setup_game_over_ui()
+}
+
+///|
+fn setup_survivors_camera() -> Unit {
+  @camera.cameras().set(game_state.camera_entity, @camera.Camera::new())
+  @camera.camera2ds().set(game_state.camera_entity, @camera.Camera2d::new())
+  @camera.orthographic_projections().set(
+    game_state.camera_entity,
+    @camera.OrthographicProjection::new(),
+  )
+  survivors_camera_follow_system(@ecs.require_current_world())
+}
+
+///|
+fn survivors_camera_follow_system(_world : @ecs.World) -> Unit {
+  guard @transform.transforms().get(game_state.player_entity)
+    is Some(player_transform)
+  let half_width = VIEWPORT_WIDTH * 0.5
+  let half_height = VIEWPORT_HEIGHT * 0.5
+  let target_x = player_transform.translation.x
+  let target_y = player_transform.translation.y
+  let center_x = if MAP_WIDTH <= VIEWPORT_WIDTH {
+    MAP_WIDTH * 0.5
+  } else if target_x < half_width {
+    half_width
+  } else if target_x > MAP_WIDTH - half_width {
+    MAP_WIDTH - half_width
+  } else {
+    target_x
+  }
+  let center_y = if MAP_HEIGHT <= VIEWPORT_HEIGHT {
+    MAP_HEIGHT * 0.5
+  } else if target_y < half_height {
+    half_height
+  } else if target_y > MAP_HEIGHT - half_height {
+    MAP_HEIGHT - half_height
+  } else {
+    target_y
+  }
+  @transform.transforms().set(
+    game_state.camera_entity,
+    @transform.Transform::from_xyz(center_x, center_y, 0.0),
+  )
 }
 
 ///|
@@ -582,9 +628,9 @@ fn restart_game() -> Unit {
   reset_wave_state()
 
   // Reset player position
-  @transform.positions().set(
+  @transform.transforms().set(
     game_state.player_entity,
-    @math.Vec2D(MAP_WIDTH / 2.0, MAP_HEIGHT / 2.0),
+    @transform.Transform::from_xyz(MAP_WIDTH / 2.0, MAP_HEIGHT / 2.0, 0.0),
   )
   @physics2d.linear_velocities().set(
     game_state.player_entity,

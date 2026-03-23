@@ -15,7 +15,7 @@
 ///|
 priv struct SceneNodeTemplate {
   name : String?
-  transform : @transform3d.Transform3D
+  transform : @transform.Transform
   renderers : Array[MeshRendererTemplate]
   skin_index : Int?
   morph_weights : Array[Double]
@@ -173,7 +173,11 @@ fn empty_scene_template() -> SceneTemplate {
 fn default_scene_node_template() -> SceneNodeTemplate {
   {
     name: None,
-    transform: @transform3d.Transform3D::identity(),
+    transform: {
+      translation: @math.Vec3::zero(),
+      rotation: @math.Quat::identity(),
+      scale: @math.Vec3::one(),
+    },
     renderers: [],
     skin_index: None,
     morph_weights: [],
@@ -198,7 +202,7 @@ pub fn load_scene_gltf(path : String) -> @render3d.SceneHandle {
 /// Instantiates a scene root entity with the requested root transform.
 pub fn instantiate_scene(
   scene : @render3d.SceneHandle,
-  root_transform : @transform3d.Transform3D,
+  root_transform : @transform.Transform,
 ) -> @entity.Entity {
   instantiate_scene_instance(scene, root_transform).root
 }
@@ -206,10 +210,10 @@ pub fn instantiate_scene(
 ///|
 pub fn instantiate_scene_instance(
   scene : @render3d.SceneHandle,
-  root_transform : @transform3d.Transform3D,
+  root_transform : @transform.Transform,
 ) -> SceneInstance {
   let root = @entity.Entity::new()
-  @transform3d.transforms3d().set(root, root_transform)
+  @transform.transforms().set(root, root_transform)
   let parts : Map[String, @entity.Entity] = Map::new()
   guard scene_templates.get(scene) is Some(template) else {
     return { root, parts, animations: Map::new() }
@@ -402,7 +406,7 @@ fn instantiate_scene_node(
   }
   parts.set(entity_path, entity)
   node_entities.set(node_index, entity)
-  @transform3d.transforms3d().set(entity, node.transform)
+  @transform.transforms().set(entity, node.transform)
   if node.camera is Some(camera) {
     @camera3d.cameras3d().set(entity, camera)
   }
@@ -449,10 +453,11 @@ fn instantiate_scene_node(
   } else if node.renderers.length() > 1 {
     for primitive_index, template_renderer in node.renderers {
       let primitive_entity = entity.spawn_child()
-      @transform3d.transforms3d().set(
-        primitive_entity,
-        @transform3d.Transform3D::identity(),
-      )
+      @transform.transforms().set(primitive_entity, {
+        translation: @math.Vec3::zero(),
+        rotation: @math.Quat::identity(),
+        scale: @math.Vec3::one(),
+      })
       let renderer = match template_renderer.skinned {
         Some(_) =>
           {
@@ -3907,7 +3912,7 @@ fn parse_node_templates(
 ///|
 fn parse_node_transform(
   node_object : Map[String, Json],
-) -> @transform3d.Transform3D {
+) -> @transform.Transform {
   if field_array(node_object, "matrix") is Some(matrix_json) {
     if parse_matrix_transform(matrix_json) is Some(matrix_transform) {
       return matrix_transform
@@ -3921,7 +3926,7 @@ fn parse_node_transform(
 }
 
 ///|
-fn parse_matrix_transform(values : Array[Json]) -> @transform3d.Transform3D? {
+fn parse_matrix_transform(values : Array[Json]) -> @transform.Transform? {
   if values.length() < 16 {
     return None
   }

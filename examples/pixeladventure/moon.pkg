@@ -1,8 +1,6 @@
 import {
   "Milky2018/selene/app",
   "Milky2018/selene/audio",
-  "Milky2018/selene/system",
-  "Milky2018/selene/state",
   "Milky2018/selene/ecs",
   "Milky2018/selene/entity",
   "Milky2018/selene/math",
@@ -17,6 +15,4 @@ import {
   "Milky2018/selene/inputs",
   "Milky2018/selene/asset2",
   "moonbitlang/core/json",
-  "moonbitlang/core/random",
-  "moonbitlang/core/set",
 }

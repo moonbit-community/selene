@@ -145,7 +145,7 @@ pub fn run() -> Unit {
 ///|
 fn setup_scene3d(_world : @ecs.World) -> Unit {
   let camera = @entity.Entity::new()
-  @transform3d.transforms3d().set(camera, {
+  @transform.transforms().set(camera, {
     translation: vec3(0.0, 1.5, 8.0),
     rotation: @math.Quat::identity(),
     scale: @math.Vec3::one(),
@@ -156,7 +156,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
   })
 
   let scene = @scene.load_scene_gltf("assets/scene3d/scene3d.gltf")
-  ignore(@scene.instantiate_scene(scene, @transform3d.Transform3D::identity()))
+  ignore(@scene.instantiate_scene(scene, @transform.Transform::identity()))
 
   let floor_mesh = @render3d.register_mesh_asset(
     @render3d.plane_mesh(vec3(10.0, 0.02, 10.0)),
@@ -167,7 +167,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     roughness: 0.9,
   })
   let floor = @entity.Entity::new()
-  @transform3d.transforms3d().set(floor, {
+  @transform.transforms().set(floor, {
     translation: vec3(0.0, -0.01, 0.0),
     rotation: @math.Quat::identity(),
     scale: @math.Vec3::one(),
@@ -188,7 +188,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
   })
 
   let cube = @entity.Entity::new()
-  @transform3d.transforms3d().set(cube, {
+  @transform.transforms().set(cube, {
     translation: vec3(0.0, 0.5, 0.0),
     rotation: @math.Quat::identity(),
     scale: @math.Vec3::one(),
@@ -209,7 +209,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     roughness: 0.25,
   })
   let target = @entity.Entity::new()
-  @transform3d.transforms3d().set(target, {
+  @transform.transforms().set(target, {
     translation: vec3(1.35, 1.55, -0.75),
     rotation: @math.Quat::identity(),
     scale: @math.Vec3::one(),
@@ -231,7 +231,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     roughness: 0.82,
   })
   let shadow_wall = @entity.Entity::new()
-  @transform3d.transforms3d().set(shadow_wall, {
+  @transform.transforms().set(shadow_wall, {
     translation: vec3(0.0, 1.6, -2.9),
     rotation: @math.Quat::identity(),
     scale: @math.Vec3::one(),
@@ -245,7 +245,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
   })
 
   let off_axis_cube = @entity.Entity::new()
-  @transform3d.transforms3d().set(off_axis_cube, {
+  @transform.transforms().set(off_axis_cube, {
     translation: vec3(-2.2, 0.5, 1.8),
     rotation: @math.Quat::from_axis_angle(vec3(0.0, 1.0, 0.0), 0.45),
     scale: vec3(0.7, 0.7, 0.7),
@@ -263,7 +263,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
   })
 
   let spotlight = @entity.Entity::new()
-  @transform3d.transforms3d().set(spotlight, {
+  @transform.transforms().set(spotlight, {
     translation: vec3(3.2, 3.0, 0.0),
     rotation: @math.Quat::identity(),
     scale: @math.Vec3::one(),
@@ -291,9 +291,9 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     roughness: 0.05,
   })
   let spotlight_marker = spotlight.spawn_child()
-  @transform3d.transforms3d().set(
+  @transform.transforms().set(
     spotlight_marker,
-    @transform3d.Transform3D::identity(),
+    @transform.Transform::identity(),
   )
   @render3d.mesh3d_renderers().set(spotlight_marker, {
     mesh: spotlight_marker_mesh,
@@ -336,9 +336,9 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
 fn rotate_cube_system(_world : @ecs.World) -> Unit {
   let delta = @time.delta()
   guard rotating_cube.val is Some(cube) else { return }
-  guard @transform3d.transforms3d().get(cube) is Some(transform) else { return }
+  guard @transform.transforms().get(cube) is Some(transform) else { return }
   cube_rotation.val += delta
-  @transform3d.transforms3d().set(cube, {
+  @transform.transforms().set(cube, {
     ..transform,
     rotation: @math.Quat::from_axis_angle(
       vec3(0.0, 1.0, 0.0),
@@ -358,8 +358,8 @@ fn animate_spotlight_system(_world : @ecs.World) -> Unit {
   let position = vec3(x, y, z)
   let focus = vec3(0.0, 0.45, 0.0)
   let direction = (focus - position).normalize()
-  if @transform3d.transforms3d().get(spotlight) is Some(transform) {
-    @transform3d.transforms3d().set(spotlight, {
+  if @transform.transforms().get(spotlight) is Some(transform) {
+    @transform.transforms().set(spotlight, {
       ..transform,
       translation: position,
     })

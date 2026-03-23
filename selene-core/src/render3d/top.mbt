@@ -518,7 +518,7 @@ fn mesh_local_radius(mesh : MeshAsset) -> Double {
 fn is_visible_in_camera_frustum(
   camera : @render3d_types.FrameCamera3D,
   mesh : MeshAsset,
-  transform : @transform3d.GlobalTransform3D,
+  transform : @transform.Transform,
 ) -> Bool {
   let scale = transform.scale
   let max_scale_xy = if abs_double(scale.x) > abs_double(scale.y) {
@@ -632,9 +632,10 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
     }
     guard meshes.get(renderer.mesh) is Some(_) else { continue }
     guard materials.get(renderer.material) is Some(_) else { continue }
-    let transform = @transform3d.global_transforms3d()
+    let transform = @transform.global_transforms()
       .get(entity)
-      .unwrap_or(@transform3d.transforms3d().get(entity).unwrap_or_default())
+      .map(fn(global) { global.compute_transform() })
+      .unwrap_or(@transform.transforms().get(entity).unwrap_or_default())
     if frame.camera is Some(camera) {
       if !is_visible_in_camera_frustum(camera, meshes[renderer.mesh], transform) {
         continue
@@ -656,9 +657,10 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
   let dir_lights : Array[DirectionalLight3D] = []
   for entity, light in directional_lights3d() {
     if entity.is_alive() {
-      let transform = @transform3d.global_transforms3d()
+      let transform = @transform.global_transforms()
         .get(entity)
-        .unwrap_or(@transform3d.transforms3d().get(entity).unwrap_or_default())
+        .map(fn(global) { global.compute_transform() })
+        .unwrap_or(@transform.transforms().get(entity).unwrap_or_default())
       let local_direction = if light.direction.length_squared() <= 0.0000001 {
         @math.Vec3::new(0.0, 0.0, -1.0)
       } else {
@@ -678,9 +680,10 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
   let point_lights : Array[FramePointLight3D] = []
   for entity, light in point_lights3d() {
     if entity.is_alive() {
-      let transform = @transform3d.global_transforms3d()
+      let transform = @transform.global_transforms()
         .get(entity)
-        .unwrap_or(@transform3d.transforms3d().get(entity).unwrap_or_default())
+        .map(fn(global) { global.compute_transform() })
+        .unwrap_or(@transform.transforms().get(entity).unwrap_or_default())
       point_lights.push({
         position: transform.translation,
         color: light.color,
@@ -696,9 +699,10 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
   let spot_lights : Array[FrameSpotLight3D] = []
   for entity, light in spot_lights3d() {
     if entity.is_alive() {
-      let transform = @transform3d.global_transforms3d()
+      let transform = @transform.global_transforms()
         .get(entity)
-        .unwrap_or(@transform3d.transforms3d().get(entity).unwrap_or_default())
+        .map(fn(global) { global.compute_transform() })
+        .unwrap_or(@transform.transforms().get(entity).unwrap_or_default())
       let local_direction = if light.direction.length_squared() <= 0.0000001 {
         @math.Vec3::new(0.0, -1.0, 0.0)
       } else {

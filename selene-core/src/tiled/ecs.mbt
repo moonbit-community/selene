@@ -13,6 +13,35 @@
 // limitations under the License.
 
 ///|
+fn tiled_ecs_set_entity_translation_2d(
+  entity : @entity.Entity,
+  position : @math.Vec2D,
+) -> Unit {
+  let current = @transform.transforms().get(entity).unwrap_or_default()
+  @transform.transforms().set(entity, {
+    ..current,
+    translation: @math.Vec3::new(
+      position[X],
+      position[Y],
+      current.translation.z,
+    ),
+  })
+}
+
+///|
+fn tiled_ecs_set_entity_depth(entity : @entity.Entity, z : Int) -> Unit {
+  let current = @transform.transforms().get(entity).unwrap_or_default()
+  @transform.transforms().set(entity, {
+    ..current,
+    translation: @math.Vec3::new(
+      current.translation.x,
+      current.translation.y,
+      z.to_double(),
+    ),
+  })
+}
+
+///|
 pub struct TiledSpawnSettings {
   position : @math.Vec2D
   zindex : Int
@@ -254,7 +283,7 @@ fn spawn_tiled_map_root(
   map : TiledMap,
   settings : TiledSpawnSettings,
 ) -> Unit {
-  @transform.positions().set(root, settings.position)
+  tiled_ecs_set_entity_translation_2d(root, settings.position)
   tiled_map_instances().set(root, { map, })
   tiled_map_storages().set(root, empty_tiled_map_storage())
   tiled_set_properties(root, map.properties)
@@ -287,8 +316,10 @@ fn spawn_tiled_layers(
     }
     let layer_zindex = settings.zindex + layer_index * settings.layer_z_step
     layer_index += 1
-    let layer_entity = parent_entity.spawn_child(
-      offset=@math.Vec2D(layer.offset_x, layer.offset_y),
+    let layer_entity = parent_entity.spawn_child()
+    tiled_ecs_set_entity_translation_2d(
+      layer_entity,
+      @math.Vec2D(layer.offset_x, layer.offset_y),
     )
     tiled_register_parallax_layer(layer_entity, layer)
     tiled_layer_instances().set(layer_entity, {
@@ -354,9 +385,10 @@ fn spawn_tiled_tile_layer(
     guard map.tileset_for_gid(cell.gid.tile_id) is Some(tileset) else {
       continue
     }
-    let tile_entity = layer_entity.spawn_child(
-      offset=tiled_cell_position(map, tileset, cell),
-    )
+    let tile_position = tiled_cell_position(map, tileset, cell)
+    let tile_entity = layer_entity.spawn_child()
+    tiled_ecs_set_entity_translation_2d(tile_entity, tile_position)
+    tiled_ecs_set_entity_depth(tile_entity, zindex)
     tiled_tile_instances().set(tile_entity, {
       map_entity,
       layer_entity,
@@ -382,7 +414,7 @@ fn spawn_tiled_tile_layer(
     guard build_tiled_tile_animation(map, tileset, cell.gid) is Some(animation) else {
       continue
     }
-    let sprite = @sprite.Sprite::from_animation(animation, zindex)
+    let sprite = @sprite.Sprite::from_animation(animation)
     sprite.visible = visible
     @sprite.sprites().set(tile_entity, sprite)
   }
@@ -408,7 +440,9 @@ fn spawn_tiled_object_layer(
         }
       None => tiled_plain_object_position(object)
     }
-    let object_entity = layer_entity.spawn_child(offset=object_offset)
+    let object_entity = layer_entity.spawn_child()
+    tiled_ecs_set_entity_translation_2d(object_entity, object_offset)
+    tiled_ecs_set_entity_depth(object_entity, zindex)
     tiled_object_instances().set(object_entity, {
       map_entity,
       layer_entity,
@@ -441,7 +475,7 @@ fn spawn_tiled_object_layer(
       is Some(animation) else {
       continue
     }
-    let sprite = @sprite.Sprite::from_animation(animation, zindex)
+    let sprite = @sprite.Sprite::from_animation(animation)
     sprite.visible = visible && object.visible
     @sprite.sprites().set(object_entity, sprite)
   }
@@ -480,6 +514,7 @@ fn spawn_tiled_image_layer(
     image_layer_hook(image_layer_event)
   }
   guard resolved_image_path is Some(image_path) else { return }
+  tiled_ecs_set_entity_depth(layer_entity, zindex)
   let repeat = tiled_image_repeat_mode(image_layer)
   let picture = @sprite.Picture::from_image(
     tiled_map_world_size(map),
@@ -487,7 +522,7 @@ fn spawn_tiled_image_layer(
     repeat~,
     color={ r: 255U, g: 255U, b: 255U, a: layer.opacity },
   )
-  let sprite = @sprite.Sprite::from_picture(picture, zindex)
+  let sprite = @sprite.Sprite::from_picture(picture)
   sprite.visible = visible
   @sprite.sprites().set(layer_entity, sprite)
 }
@@ -887,7 +922,7 @@ fn load_tiled_image(path : String) -> @asset.ImageHandle {
 
 ///|
 pub fn tiled_parallax_system(_delta : Double) -> Unit {
-  let camera_pos = @camera.get_position()
+  let camera_view_origin = tiled_camera_view_origin()
   for pair in tiled_parallax_layers().to_array() {
     let layer_entity = pair.0
     if !layer_entity.is_alive() {
@@ -896,10 +931,67 @@ pub fn tiled_parallax_system(_delta : Double) -> Unit {
     let data = pair.1
     let offset = data.base_offset +
       @math.Vec2D(
-        camera_pos[X] * (1.0 - data.parallax_x),
-        camera_pos[Y] * (1.0 - data.parallax_y),
+        camera_view_origin[X] * (1.0 - data.parallax_x),
+        camera_view_origin[Y] * (1.0 - data.parallax_y),
       )
-    layer_entity.set_offset(offset)
+    tiled_ecs_set_entity_translation_2d(layer_entity, offset)
+  }
+}
+
+///|
+fn tiled_camera_view_origin() -> @math.Vec2D {
+  match tiled_ecs_active_camera2d_view() {
+    Some((camera, camera_transform, projection)) =>
+      camera.viewport_to_world_2d(
+        camera_transform,
+        projection,
+        @math.Vec2D(0.0, 0.0),
+      )
+    None => @math.Vec2D::zero()
+  }
+}
+
+///|
+fn tiled_entity_global_transform(
+  entity : @entity.Entity,
+) -> @transform.GlobalTransform {
+  if @transform.global_transforms().get(entity) is Some(global) {
+    global
+  } else {
+    @transform.GlobalTransform::from_transform(
+      @transform.transforms().get(entity).unwrap_or_default(),
+    )
+  }
+}
+
+///|
+fn tiled_ecs_active_camera2d_view() -> (
+  @camera.Camera,
+  @transform.GlobalTransform,
+  @camera.OrthographicProjection,
+)? {
+  let mut selected : (
+    @camera.Camera,
+    @transform.GlobalTransform,
+    @camera.OrthographicProjection,
+    Int,
+  )? = None
+  for entity, camera in @camera.cameras() {
+    guard entity.is_alive() else { continue }
+    guard camera.is_active else { continue }
+    guard @camera.camera2ds().contains(entity) else { continue }
+    let projection = @camera.orthographic_projections()
+      .get(entity)
+      .unwrap_or_default()
+    let global = tiled_entity_global_transform(entity)
+    match selected {
+      Some((_, _, _, order)) if order >= camera.order => ()
+      _ => selected = Some((camera, global, projection, camera.order))
+    }
+  }
+  match selected {
+    Some((camera, global, projection, _)) => Some((camera, global, projection))
+    None => None
   }
 }
 

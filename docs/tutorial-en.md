@@ -200,7 +200,7 @@ Game objects are represented by Entity + Component data. Example:
 
 ```moonbit
 let player = @entity.Entity::new()
-@transform.positions().set(player, @math.Vec2D(100.0, 100.0))
+@transform.transforms().set(player, @transform.Transform::from_xyz(100.0, 100.0, 0.0))
 @physics2d.linear_velocities().set(player, @math.Vec2D::zero())
 ```
 
@@ -210,7 +210,7 @@ This does three things:
 2. Attach position
 3. Attach velocity
 
-Components are stored in maps such as `@transform.positions()` and `@sprite.sprites()`, keyed by entity ID.
+Components are stored in maps such as `@transform.transforms()` and `@sprite.sprites()`, keyed by entity ID.
 
 Initialization behavior should run once in `Startup` systems.
 

@@ -36,6 +36,21 @@ fn game_start(_world : @ecs.World) -> Unit {
   // Load font
   ignore(@asset2.load_font("assets/cards/ThaleahFat.ttf", family="ThaleahFat"))
   @ui.set_ui_scale_mode(@ui.UiScaleMode::Viewport)
+  let camera_entity = @entity.Entity::new()
+  @camera.cameras().set(camera_entity, @camera.Camera::new())
+  @camera.camera2ds().set(camera_entity, @camera.Camera2d::new())
+  @camera.orthographic_projections().set(
+    camera_entity,
+    @camera.OrthographicProjection::new(),
+  )
+  @transform.transforms().set(
+    camera_entity,
+    @transform.Transform::from_xyz(
+      VIEWPORT_WIDTH / 2.0,
+      VIEWPORT_HEIGHT / 2.0,
+      0.0,
+    ),
+  )
 
   // Setup UI
   setup_ui()

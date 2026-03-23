@@ -4,11 +4,52 @@
 
 ### Added
 
+- Added `@math.Vec3::x_axis()`, `@math.Vec3::y_axis()`, and `@math.Vec3::z_axis()` for transform/camera basis construction.
+- Added `@math.Quat::inverse()`, `@math.Quat::dot()`, `@math.Quat::nlerp(alpha)`, and `@math.Quat::from_basis(x_axis, y_axis, z_axis)`.
+- Added `@math.Affine3` plus `Affine3::identity()`, `Affine3::from_scale_rotation_translation(scale, rotation, translation)`, `Affine3::transform_vector3(vec)`, `Affine3::transform_point3(point)`, `Affine3::inverse()`, and `Affine3` multiplication.
+- Added `@camera.Camera` component with `Camera::new(is_active?, order?)`, `Camera::world_to_viewport(camera_transform, projection, world_position)`, and `Camera::viewport_to_world_2d(camera_transform, projection, viewport_position)`.
+- Added `@camera.Camera2d` marker component with `Camera2d::new()`.
+- Added `@camera.OrthographicProjection` component with `OrthographicProjection::new(scale?, near?, far?)`.
+- Added `@camera.cameras()`, `@camera.camera2ds()`, and `@camera.orthographic_projections()` world stores.
+
 ### Changed
+
+- Changed `@transform.Transform` to Bevy-style TRS storage with `translation : @math.Vec3`, `rotation : @math.Quat`, and `scale : @math.Vec3`.
+- Changed `@transform.GlobalTransform` from a position-like 2D helper into affine world-transform storage backed by `@math.Affine3`.
+- Changed `@transform.Transform::identity()`, `from_translation(...)`, `from_xyz(...)`, `from_rotation(...)`, `from_scale(...)`, `with_translation(...)`, `with_rotation(...)`, and `with_scale(...)` to operate on the unified 2D/3D transform type.
+- Changed `@transform.global_transforms()` / `previous_global_transforms()` sampling to interpolate translation, rotation, and scale instead of position only.
+- Changed transform propagation to write world-space affine globals for both 2D and 3D entity hierarchies.
+- Changed `Entity::spawn_child()` to create only the hierarchy relation; child local placement now comes from the child entity's own `@transform.Transform` instead of a separate offset channel.
+- Changed `@physics2d` rigid-body translation/rotation sync to read from and write back to `@transform.transforms()` instead of the removed position-only store.
+- Changed world-sprite rendering to sample `@transform.GlobalTransform`, apply entity rotation/scale to picture, animation, text, color-rect, and color-circle sprites, and consume active `Camera2d + OrthographicProjection` view transforms when present.
+- Changed world 2D sprite depth ordering to come from `Transform.translation.z`; `examples/cards`, `examples/pixeladventure`, `examples/survivors`, LDtk runtime spawns, and Tiled runtime spawns now write depth into entity transforms instead of per-sprite z-index fields.
+- Changed `@sprite.Sprite::from_animation(...)`, `from_picture(...)`, `from_text(...)`, `from_color_rect(...)`, and `from_color_circle(...)` to construct only sprite content/visibility; local visual offsets now belong in the picture/animation transform, and render depth belongs in entity `Transform.translation.z`.
+- Changed `@scene`, `@scene3d`, `@camera3d`, `@render3d`, `@physics3d`, `@animation3d`, and `examples/scene3d` to read unified `@transform.Transform` / `@transform.GlobalTransform` stores directly instead of the `@transform3d` bridge package.
+- Changed `@plugins.default_plugin` and `@plugins.default_3d_plugin` to register unified `@transform.transform_propagate_system` scheduling directly instead of going through the removed `@inherit` bridge.
+- Changed pickable hit-testing to evaluate rectangle shapes in entity-local space derived from `GlobalTransform`, so rotated colliders follow the rendered sprite transform.
+- Changed tiled world chunking and parallax logic to read visible bounds from `Camera::viewport_to_world_2d(...)` instead of the removed global 2D camera singleton.
+- Changed `examples/cards`, `examples/pixeladventure`, and `examples/survivors` to write world-space positions through `@transform.Transform::from_xyz(...)`; `pixeladventure` and `survivors` now spawn explicit camera entities and run follow/clamp logic in example systems instead of using engine-global camera helpers.
+- Changed `@plugins.default_plugin` to stop installing the removed legacy 2D camera follow system.
+- Changed `examples/pixeladventure` to a small pure-ECS example split into `model.mbt`, `spawn.mbt`, and `systems.mbt`, replacing the old module-global `game_state` / `birds` / `apples` / `flags` state and removing the example's dependency on `@state.State`.
 
 ### Fixed
 
+- Fixed 2D rigid-body rotation so Rapier body angle changes now reach world picture/animation sprite rendering through the unified `Transform -> GlobalTransform -> sprite` chain.
+- Fixed world-space text, colored rectangles, colored circles, and gradient rectangles so they now follow the same affine transform path as image-based world sprites.
+- Fixed collision debug drawing and pickable world hit-testing to use transformed world-space shape data instead of raw position-only offsets.
+- Fixed Tiled world-child placement after the hierarchy migration so spawned world maps keep their configured local translation instead of snapping back to the origin.
+- Fixed `examples/pixeladventure` gameplay flow so player movement, bird stomp-vs-hurt resolution, apple/flag triggers, HUD sync, volume toggling, and camera follow now run through one session-driven ECS state model instead of split global state.
+
 ### Removed
+
+- Removed `@camera.get_position()`, `@camera.sample_position(alpha)`, `@camera.set_limits(...)`, `@camera.attach_entity(entity, offset)`, `@camera.set_follow_x(follow)`, `@camera.set_follow_y(follow)`, and `@camera.camera_system(delta)`.
+- Removed `@system.world_to_screen(world_pos, camera_pos)` and `@system.screen_to_world(screen_pos, camera_pos)`.
+- Removed `@transform.positions()`, `@transform.previous_positions()`, and `@transform.sample_position(entity, alpha)` from the unified transform package.
+- Removed `Entity::spawn_child(offset=...)`, `Entity::set_offset(...)`, and `Entity::get_offset()`; child local offsets are now stored only in the child entity's `@transform.Transform`.
+- Removed `Sprite.zindex` and `Sprite.offset`, along with the old `zindex` / `offset` constructor parameters on `Sprite::from_animation(...)`, `from_picture(...)`, `from_text(...)`, `from_color_rect(...)`, and `from_color_circle(...)`.
+- Removed the `transform3d` package and its alias APIs (`Transform3D`, `GlobalTransform3D`, `transforms3d()`, `global_transforms3d()`, `previous_global_transforms3d()`, `capture_previous_global_transforms3d*`, `sample_global_*3d`, and `transform3d_propagate_system`).
+- Removed the `inherit` package and its bridge APIs (`transform_propagate_system` and `inherit_position_system`).
+- Removed the `position` package and its legacy 2D position APIs (`Position`, `positions()`, `previous_positions()`, `capture_previous_positions()`, and `sample_position()`).
 
 ## [0.28.7] - 2026-03-16
 

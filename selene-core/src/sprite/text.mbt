@@ -87,6 +87,7 @@ fn render_text(
   text : Text,
   position : @math.Vec2D,
   scale_with_zoom : Bool,
+  external_transform? : @math.Transform = @math.Transform::identity(),
 ) -> Unit {
   let style = parse_text_style(
     text.font,
@@ -103,6 +104,7 @@ fn render_text(
   let command : @render2d_types.TextDrawCommand2D = {
     text: text.content,
     position,
+    transform: external_transform,
     style,
   }
   @render2d.push_text(command)

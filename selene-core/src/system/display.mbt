@@ -111,22 +111,6 @@ pub fn scale_transform_translation(
 }
 
 ///|
-pub fn world_to_screen(
-  world_pos : @math.Vec2D,
-  camera_pos : @math.Vec2D,
-) -> @math.Vec2D {
-  scale_vec2(world_pos - camera_pos)
-}
-
-///|
-pub fn screen_to_world(
-  screen_pos : @math.Vec2D,
-  camera_pos : @math.Vec2D,
-) -> @math.Vec2D {
-  unscale_vec2(screen_pos) + camera_pos
-}
-
-///|
 pub fn ui_virtual_to_screen(pos : @math.Vec2D) -> @math.Vec2D {
   scale_vec2(pos)
 }
@@ -134,17 +118,6 @@ pub fn ui_virtual_to_screen(pos : @math.Vec2D) -> @math.Vec2D {
 ///|
 pub fn screen_to_ui_virtual(pos : @math.Vec2D) -> @math.Vec2D {
   unscale_vec2(pos)
-}
-
-///|
-test "display transform roundtrip world-screen-world" {
-  configure_display(480.0, 320.0, 2.0)
-  let world = @math.Vec2D(132.5, 64.0)
-  let camera = @math.Vec2D(100.0, 50.0)
-  let screen = world_to_screen(world, camera)
-  let world2 = screen_to_world(screen, camera)
-  assert_eq(world2[X], world[X])
-  assert_eq(world2[Y], world[Y])
 }
 
 ///|

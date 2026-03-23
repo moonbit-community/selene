@@ -13,42 +13,34 @@
 // limitations under the License.
 
 ///|
-/// Visual element that can be rendered to the screen with depth ordering and
-/// positioning.
+/// Visual element that can be rendered to the screen.
 ///
 /// Fields:
 ///
 /// * `sprite_type` : The visual content of the sprite (picture, animation, or
 ///   text).
-/// * `zindex` : Rendering order priority, where higher values render on top of
-///   lower values.
 /// * `visible` : Whether the sprite should be rendered to the screen.
-/// * `offset` : Position offset applied relative to the entity's position.
 ///
 /// Examples:
 ///
 /// ```notest
 /// // Create an animation sprite
 /// let animation = @sprite.Animation::new([frame1, frame2])
-/// let sprite = @sprite.Sprite::new_animation(animation, zindex=10)
+/// let sprite = @sprite.Sprite::from_animation(animation)
 /// sprite.visible = false // Hide the sprite
 ///
-/// // Create a picture sprite with offset
+/// // Create a picture sprite
 /// let picture = @sprite.Picture::new(size, "path/to/image.png")
-/// let sprite = @sprite.Sprite::new_picture(picture, zindex=5, offset=@math.Vec2D(10.0, 20.0))
-/// inspect(sprite.zindex, content="5")
+/// let sprite = @sprite.Sprite::from_picture(picture)
 ///
 /// // Create a text sprite
 /// let text = @sprite.Text::new("Hello World", color="red")
-/// let sprite = @sprite.Sprite::new_text(text, zindex=1)
-/// inspect(sprite.offset.x, content="0.0") // Default offset is zero
+/// let sprite = @sprite.Sprite::from_text(text)
 /// ```
 ///
 pub(all) struct Sprite {
   sprite_type : SpriteType
-  zindex : Int
   mut visible : Bool
-  offset : @math.Vec2D
 }
 
 ///|
@@ -80,42 +72,23 @@ pub enum SpriteType {
 }
 
 ///|
-/// Make an animation sprite with default animation and zindex.
-pub fn Sprite::from_animation(
-  animation : Animation,
-  zindex : Int,
-  offset? : @math.Vec2D = @math.Vec2D::zero(),
-) -> Sprite {
-  {
-    sprite_type: SpriteType::Animation(animation, frame=0),
-    zindex,
-    offset,
-    visible: true,
-  }
+/// Make an animation sprite with default animation state.
+pub fn Sprite::from_animation(animation : Animation) -> Sprite {
+  { sprite_type: SpriteType::Animation(animation, frame=0), visible: true }
 }
 
 ///|
-/// Creates a sprite from a picture with specified rendering priority and
-/// position offset.
+/// Creates a sprite from a picture.
 ///
 /// Parameters:
 ///
 /// * `picture` : The `Picture` object containing the image data and dimensions
 ///   to be rendered.
-/// * `zindex` : Rendering order priority, where higher values render on top of
-///   lower values.
-/// * `offset` : Optional position offset applied relative to the entity's
-///   position. Defaults to zero vector if not specified.
-///
 /// Returns a new `Sprite` with the picture as its visual content, initially set
 /// to visible.
 ///
-pub fn Sprite::from_picture(
-  picture : Picture,
-  zindex : Int,
-  offset? : @math.Vec2D = @math.Vec2D::zero(),
-) -> Sprite {
-  { sprite_type: SpriteType::Picture(picture), zindex, offset, visible: true }
+pub fn Sprite::from_picture(picture : Picture) -> Sprite {
+  { sprite_type: SpriteType::Picture(picture), visible: true }
 }
 
 ///|
@@ -125,11 +98,6 @@ pub fn Sprite::from_picture(
 ///
 /// * `text` : The `Text` object containing the text content, styling, and
 ///   formatting information.
-/// * `zindex` : Rendering order priority. Higher values render on top of lower
-///   values.
-/// * `offset` : Optional position offset relative to the entity's position.
-///   Defaults to zero vector if not specified.
-///
 /// Returns a new `Sprite` with the text as its visual content, initially
 /// visible.
 ///
@@ -137,17 +105,12 @@ pub fn Sprite::from_picture(
 ///
 /// ```moonbit nocheck
 /// let text = @sprite.Text::new("Hello World", color="red")
-/// let sprite = @sprite.Sprite::from_text(text, 1)
-/// inspect(sprite.zindex, content="1")
+/// let sprite = @sprite.Sprite::from_text(text)
 /// inspect(sprite.visible, content="true")
 /// ```
 ///
-pub fn Sprite::from_text(
-  text : Text,
-  zindex : Int,
-  offset? : @math.Vec2D = @math.Vec2D::zero(),
-) -> Sprite {
-  { sprite_type: SpriteType::Text(text), zindex, offset, visible: true }
+pub fn Sprite::from_text(text : Text) -> Sprite {
+  { sprite_type: SpriteType::Text(text), visible: true }
 }
 
 ///|
@@ -156,33 +119,18 @@ pub fn Sprite::from_text(
 /// Parameters:
 ///
 /// * `color_rect` : The `ColorRect` to use as the sprite content.
-/// * `zindex` : Rendering order priority. Higher values render on top of lower
-///   values.
-/// * `offset` : Optional position offset relative to the entity's position.
-///   Defaults to zero vector if not specified.
-///
 /// Returns a new `Sprite` with the color rectangle as its visual content.
 ///
 /// Example:
 ///
 /// ```moonbit nocheck
 /// let rect = @sprite.ColorRect::new(Vec2D(100.0, 50.0), "blue")
-/// let sprite = @sprite.Sprite::from_color_rect(rect, 3)
-/// inspect(sprite.zindex, content="3")
+/// let sprite = @sprite.Sprite::from_color_rect(rect)
 /// inspect(sprite.visible, content="true")
 /// ```
 ///
-pub fn Sprite::from_color_rect(
-  color_rect : ColorRect,
-  zindex : Int,
-  offset? : @math.Vec2D = @math.Vec2D::zero(),
-) -> Sprite {
-  {
-    sprite_type: SpriteType::ColorRect(color_rect),
-    zindex,
-    offset,
-    visible: true,
-  }
+pub fn Sprite::from_color_rect(color_rect : ColorRect) -> Sprite {
+  { sprite_type: SpriteType::ColorRect(color_rect), visible: true }
 }
 
 ///|
@@ -191,32 +139,18 @@ pub fn Sprite::from_color_rect(
 /// Parameters:
 ///
 /// * `color_circle` : The `ColorCircle` to use as the sprite content.
-/// * `zindex` : Rendering order priority. Higher values render on top.
-/// * `offset` : Optional position offset relative to the entity's position.
-///   Defaults to zero vector if not specified.
-///
 /// Returns a new `Sprite` with the color circle as its visual content.
 ///
 /// Example:
 ///
 /// ```moonbit nocheck
 /// let circle = @sprite.ColorCircle::new(20.0, "green")
-/// let sprite = @sprite.Sprite::from_color_circle(circle, 5)
-/// inspect(sprite.zindex, content="5")
+/// let sprite = @sprite.Sprite::from_color_circle(circle)
 /// inspect(sprite.visible, content="true")
 /// ```
 ///
-pub fn Sprite::from_color_circle(
-  color_circle : ColorCircle,
-  zindex : Int,
-  offset? : @math.Vec2D = @math.Vec2D::zero(),
-) -> Sprite {
-  {
-    sprite_type: SpriteType::ColorCircle(color_circle),
-    zindex,
-    offset,
-    visible: true,
-  }
+pub fn Sprite::from_color_circle(color_circle : ColorCircle) -> Sprite {
+  { sprite_type: SpriteType::ColorCircle(color_circle), visible: true }
 }
 
 ///|
@@ -233,56 +167,190 @@ pub fn render_sprite_system(delta : Double) -> Unit {
   let sprite_entries = sprites()
     .to_array()
     .filter(fn(pair) { pair.0.is_alive() && @visibility.is_visible(pair.0) })
-  let camera_pos = @camera.sample_position(@system.get_render_alpha())
+  let render_alpha = @system.get_render_alpha()
+  let camera_view = active_camera2d_view(render_alpha)
   sprite_entries.sort_by(fn(sprite1, sprite2) {
-    if sprite1.1.zindex < sprite2.1.zindex {
+    let pos1 = @transform.sample_global_translation(sprite1.0, render_alpha)
+    let pos2 = @transform.sample_global_translation(sprite2.0, render_alpha)
+    if pos1.z < pos2.z {
       -1
-    } else if sprite1.1.zindex > sprite2.1.zindex {
+    } else if pos1.z > pos2.z {
       1
     } else {
-      guard @transform.positions().get(sprite1.0) is Some(pos1) else {
-        return 0
-      }
-      guard @transform.positions().get(sprite2.0) is Some(pos2) else {
-        return 0
-      }
-      if pos1.0[Y] < pos2.0[Y] {
-        -1
-      } else if pos1.0[Y] > pos2.0[Y] {
-        1
-      } else {
-        0
-      }
+      0
     }
   })
   for sprite in sprite_entries {
     let e = sprite.0
     let sprite = sprite.1
-    guard @transform.positions().contains(e) else { continue }
-    let raw_pos = @transform.sample_position(e, @system.get_render_alpha()) +
-      sprite.offset
-    let screen_pos = @system.world_to_screen(raw_pos, camera_pos)
+    guard @transform.global_transforms().contains(e) ||
+      @transform.transforms().contains(e) else {
+      continue
+    }
+    let sampled_global = sampled_entity_global_transform(e, render_alpha)
+    let sampled = sampled_global.compute_transform()
+    let raw_pos = @math.Vec2D(sampled.translation.x, sampled.translation.y)
+    let screen_pos = match camera_view {
+      Some((camera, camera_global, projection)) =>
+        camera.world_to_viewport(camera_global, projection, raw_pos)
+      None => @system.scale_vec2(raw_pos)
+    }
+    let sprite_transform = sprite_screen_transform(sampled_global, camera_view)
     match sprite.sprite_type {
       SpriteType::Picture(picture) if sprite.visible =>
-        render_picture(picture, screen_pos, true)
+        render_picture(
+          picture,
+          screen_pos,
+          false,
+          external_transform=sprite_transform,
+        )
       SpriteType::Animation(anime, frame~) as animation_sprite => {
         let new_frame = render_animation(
           anime,
           frame,
           screen_pos,
-          true,
+          false,
           sprite.visible,
           delta,
+          external_transform=sprite_transform,
         )
         animation_sprite.frame = new_frame
       }
       SpriteType::Text(text) if sprite.visible =>
-        render_text(text, screen_pos, true)
+        render_text(
+          text,
+          screen_pos,
+          false,
+          external_transform=sprite_transform,
+        )
       SpriteType::ColorRect(color_rect) if sprite.visible =>
-        render_color_rect(color_rect, screen_pos, true)
+        render_color_rect(
+          color_rect,
+          screen_pos,
+          false,
+          external_transform=sprite_transform,
+        )
       SpriteType::ColorCircle(color_circle) if sprite.visible =>
-        render_color_circle(color_circle, screen_pos, true)
+        render_color_circle(
+          color_circle,
+          screen_pos,
+          false,
+          external_transform=sprite_transform,
+        )
       _ => ()
     }
   }
+}
+
+///|
+fn sampled_entity_global_transform(
+  entity : @entity.Entity,
+  alpha : Double,
+) -> @transform.GlobalTransform {
+  if @transform.global_transforms().contains(entity) ||
+    @transform.previous_global_transforms().contains(entity) {
+    @transform.sample_global_transform(entity, alpha)
+  } else {
+    @transform.GlobalTransform::from_transform(
+      @transform.transforms().get(entity).unwrap_or_default(),
+    )
+  }
+}
+
+///|
+fn active_camera2d_view(
+  alpha : Double,
+) -> (
+  @camera.Camera,
+  @transform.GlobalTransform,
+  @camera.OrthographicProjection,
+)? {
+  let mut selected : (
+    @camera.Camera,
+    @transform.GlobalTransform,
+    @camera.OrthographicProjection,
+    Int,
+  )? = None
+  for entity, camera in @camera.cameras() {
+    guard entity.is_alive() else { continue }
+    guard camera.is_active else { continue }
+    guard @camera.camera2ds().contains(entity) else { continue }
+    let projection = @camera.orthographic_projections()
+      .get(entity)
+      .unwrap_or_default()
+    let global = sampled_entity_global_transform(entity, alpha)
+    match selected {
+      Some((_, _, _, order)) if order >= camera.order => ()
+      _ => selected = Some((camera, global, projection, camera.order))
+    }
+  }
+  match selected {
+    Some((camera, global, projection, _)) => Some((camera, global, projection))
+    None => None
+  }
+}
+
+///|
+fn screen_space_transform(
+  transform : @transform.Transform,
+) -> @transform.Transform {
+  transform.with_scale(
+    @math.Vec3::new(
+      transform.scale.x * @system.get_zoom(),
+      transform.scale.y * @system.get_zoom(),
+      transform.scale.z,
+    ),
+  )
+}
+
+///|
+fn camera_relative_transform(
+  global_transform : @transform.GlobalTransform,
+  camera_transform : @transform.GlobalTransform,
+  projection : @camera.OrthographicProjection,
+) -> @transform.Transform {
+  let relative_global = match camera_transform.affine.inverse() {
+    Some(inverse_camera) =>
+      @transform.GlobalTransform::{
+        affine: inverse_camera * global_transform.affine,
+      }
+    None => global_transform
+  }
+  let relative = relative_global.compute_transform()
+  let projection_scale = if projection.scale <= 0.0 {
+    1.0
+  } else {
+    projection.scale
+  }
+  let pixels_per_world_unit = @system.get_zoom() / projection_scale
+  relative.with_scale(
+    @math.Vec3::new(
+      relative.scale.x * pixels_per_world_unit,
+      relative.scale.y * pixels_per_world_unit,
+      relative.scale.z,
+    ),
+  )
+}
+
+///|
+fn sprite_screen_transform(
+  global_transform : @transform.GlobalTransform,
+  camera_view : (
+    @camera.Camera,
+    @transform.GlobalTransform,
+    @camera.OrthographicProjection,
+  )?,
+) -> @math.Transform {
+  let transform = match camera_view {
+    Some((_, camera_transform, projection)) =>
+      camera_relative_transform(global_transform, camera_transform, projection)
+    None => screen_space_transform(global_transform.compute_transform())
+  }
+  let x_axis = transform.rotation.rotate_vec3(
+    @math.Vec3::x_axis().scalar_mul(transform.scale.x),
+  )
+  let y_axis = transform.rotation.rotate_vec3(
+    @math.Vec3::y_axis().scalar_mul(transform.scale.y),
+  )
+  @math.Transform::new(a=x_axis.x, b=x_axis.y, c=y_axis.x, d=y_axis.y)
 }

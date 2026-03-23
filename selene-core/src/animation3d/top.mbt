@@ -757,7 +757,7 @@ fn apply_clip(
 ) -> Unit {
   for channel in clip.channels {
     guard targets.nodes.get(channel.node) is Some(entity) else { continue }
-    let transform = @transform3d.transforms3d().get(entity).unwrap_or_default()
+    let transform = @transform.transforms().get(entity).unwrap_or_default()
     let translation = if channel.translations.length() == 0 {
       transform.translation
     } else {
@@ -773,7 +773,7 @@ fn apply_clip(
     } else {
       sample_vec3(channel.scales, time, channel.interpolation)
     }
-    @transform3d.transforms3d().set(entity, { translation, rotation, scale })
+    @transform.transforms().set(entity, { translation, rotation, scale })
     if channel.weights.length() > 0 {
       set_target_morph_weights(
         entity,
@@ -942,9 +942,10 @@ pub fn animation3d_skinning_system(_delta : Double) -> Unit {
     }
     let joint_matrices : Array[@math.Mat4] = []
     for joint_index, joint_entity in binding.joint_entities {
-      let global = @transform3d.global_transforms3d()
+      let global = @transform.global_transforms()
         .get(joint_entity)
         .unwrap_or_default()
+        .compute_transform()
       let world = @math.Mat4::from_trs(
         global.translation,
         global.rotation,

@@ -2962,8 +2962,120 @@ pub fn lock_mouse(locked : Ref[Bool]) -> Unit {
 }
 
 ///|
+fn transform_is_identity_2d(transform : @smath.Transform) -> Bool {
+  (transform.a - 1.0).abs() < 0.000001 &&
+  transform.b.abs() < 0.000001 &&
+  transform.c.abs() < 0.000001 &&
+  (transform.d - 1.0).abs() < 0.000001 &&
+  transform.tx.abs() < 0.000001 &&
+  transform.ty.abs() < 0.000001
+}
+
+///|
+fn draw_colored_quad(
+  p0 : (Float, Float),
+  p1 : (Float, Float),
+  p2 : (Float, Float),
+  p3 : (Float, Float),
+  c0 : @render.Color,
+  c1 : @render.Color,
+  c2 : @render.Color,
+  c3 : @render.Color,
+) -> Unit {
+  ignore(@rl.check_render_batch_limit(4))
+  @rl.set_texture(0U)
+  @rl.begin(@rl.Quads)
+  @rl.normal3f(0.0, 0.0, 1.0)
+  let (r0, g0, b0, a0) = to_ray_color_bytes(c0)
+  @rl.color4ub(r0, g0, b0, a0)
+  @rl.vertex2f(p0.0, p0.1)
+  let (r1, g1, b1, a1) = to_ray_color_bytes(c1)
+  @rl.color4ub(r1, g1, b1, a1)
+  @rl.vertex2f(p1.0, p1.1)
+  let (r2, g2, b2, a2) = to_ray_color_bytes(c2)
+  @rl.color4ub(r2, g2, b2, a2)
+  @rl.vertex2f(p2.0, p2.1)
+  let (r3, g3, b3, a3) = to_ray_color_bytes(c3)
+  @rl.color4ub(r3, g3, b3, a3)
+  @rl.vertex2f(p3.0, p3.1)
+  @rl.end_()
+}
+
+///|
+fn draw_line_loop(points : Array[(Float, Float)], color : @render.Color) -> Unit {
+  if points.length() < 2 {
+    return
+  }
+  let (r, g, b, a) = to_ray_color_bytes(color)
+  ignore(@rl.check_render_batch_limit(points.length() * 2))
+  @rl.set_texture(0U)
+  @rl.begin(@rl.Lines)
+  @rl.color4ub(r, g, b, a)
+  for index in 0..<points.length() {
+    let current = points[index]
+    let next = points[(index + 1) % points.length()]
+    @rl.vertex2f(current.0, current.1)
+    @rl.vertex2f(next.0, next.1)
+  }
+  @rl.end_()
+}
+
+///|
+fn draw_text_with_cosmic_transform(
+  command : @render2d_types.TextDrawCommand2D,
+) -> Bool {
+  guard command.text != "" else { return true }
+  guard command.style.color.a > 0.0 else { return true }
+  guard cosmic_texture_for_text(command.text, command.style)
+    is Some(cached_texture) else {
+    return false
+  }
+  let measured = measure_text_with_cosmic(command.style, command.text).unwrap_or(
+    @smath.Vec2D(
+      cached_texture.width.to_double(),
+      cached_texture.height.to_double(),
+    ),
+  )
+  let mut x = command.position[X]
+  let mut y = command.position[Y]
+  match command.style.align {
+    Left => ()
+    Center => x -= measured[X] / 2.0
+    Right => x -= measured[X]
+  }
+  match command.style.baseline {
+    Top => ()
+    Center => y -= measured[Y] / 2.0
+    Bottom => y -= measured[Y]
+  }
+  draw_textured_quad(
+    cached_texture.texture,
+    cached_texture.width.to_double(),
+    cached_texture.height.to_double(),
+    0.0,
+    0.0,
+    cached_texture.width.to_double(),
+    cached_texture.height.to_double(),
+    0.0,
+    0.0,
+    cached_texture.width.to_double(),
+    cached_texture.height.to_double(),
+    x,
+    y,
+    command.transform,
+    white_render_color(),
+  )
+  true
+}
+
+///|
 pub fn draw_text(command : @render2d_types.TextDrawCommand2D) -> Unit {
   mark_frame_drawn()
+  if !transform_is_identity_2d(command.transform) {
+    if draw_text_with_cosmic_transform(command) {
+      return
+    }
+  }
   if draw_text_with_cosmic(command) {
     return
   }
@@ -3012,6 +3124,50 @@ pub fn measure_text(
 ///|
 pub fn draw_rect(command : @render2d_types.RectDrawCommand2D) -> Unit {
   mark_frame_drawn()
+  if !transform_is_identity_2d(command.transform) {
+    let p0 = transform_image_point(
+      command.rect.position[X],
+      command.rect.position[Y],
+      command.transform,
+      0.0,
+      0.0,
+    )
+    let p1 = transform_image_point(
+      command.rect.position[X],
+      command.rect.position[Y],
+      command.transform,
+      command.rect.size[X],
+      0.0,
+    )
+    let p2 = transform_image_point(
+      command.rect.position[X],
+      command.rect.position[Y],
+      command.transform,
+      command.rect.size[X],
+      command.rect.size[Y],
+    )
+    let p3 = transform_image_point(
+      command.rect.position[X],
+      command.rect.position[Y],
+      command.transform,
+      0.0,
+      command.rect.size[Y],
+    )
+    draw_colored_quad(
+      p0,
+      p1,
+      p2,
+      p3,
+      command.fill_color,
+      command.fill_color,
+      command.fill_color,
+      command.fill_color,
+    )
+    if command.stroke_color is Some(stroke_color) {
+      draw_line_loop([p0, p1, p2, p3], stroke_color)
+    }
+    return
+  }
   let rect = to_ray_rect(
     command.rect.position[X],
     command.rect.position[Y],
@@ -3027,6 +3183,51 @@ pub fn draw_rect(command : @render2d_types.RectDrawCommand2D) -> Unit {
 ///|
 pub fn draw_circle(command : @render2d_types.CircleDrawCommand2D) -> Unit {
   mark_frame_drawn()
+  if !transform_is_identity_2d(command.transform) {
+    let center = transform_image_point(
+      command.center[X],
+      command.center[Y],
+      command.transform,
+      0.0,
+      0.0,
+    )
+    let fill = command.fill_color
+    let outline : Array[(Float, Float)] = []
+    let segments = 40
+    ignore(@rl.check_render_batch_limit(segments * 3))
+    @rl.set_texture(0U)
+    @rl.begin(@rl.Triangles)
+    let (fr, fg, fb, fa) = to_ray_color_bytes(fill)
+    @rl.color4ub(fr, fg, fb, fa)
+    @rl.normal3f(0.0, 0.0, 1.0)
+    for index in 0..<segments {
+      let angle0 = index.to_double() * 2.0 * @cmath.PI / segments.to_double()
+      let angle1 = (index + 1).to_double() * 2.0 * @cmath.PI / segments.to_double()
+      let point0 = transform_image_point(
+        command.center[X],
+        command.center[Y],
+        command.transform,
+        @cmath.cos(angle0) * command.radius,
+        @cmath.sin(angle0) * command.radius,
+      )
+      let point1 = transform_image_point(
+        command.center[X],
+        command.center[Y],
+        command.transform,
+        @cmath.cos(angle1) * command.radius,
+        @cmath.sin(angle1) * command.radius,
+      )
+      outline.push(point0)
+      @rl.vertex2f(center.0, center.1)
+      @rl.vertex2f(point0.0, point0.1)
+      @rl.vertex2f(point1.0, point1.1)
+    }
+    @rl.end_()
+    if command.stroke_color is Some(stroke_color) {
+      draw_line_loop(outline, stroke_color)
+    }
+    return
+  }
   let center = to_ray_vector2(command.center[X], command.center[Y])
   let radius = to_float(command.radius)
   @raylib.draw_circle_v(center, radius, to_ray_color(command.fill_color))
@@ -3040,6 +3241,47 @@ pub fn draw_gradient_rect(
   command : @render2d_types.GradientRectDrawCommand2D,
 ) -> Unit {
   mark_frame_drawn()
+  if !transform_is_identity_2d(command.transform) {
+    let p0 = transform_image_point(
+      command.rect.position[X],
+      command.rect.position[Y],
+      command.transform,
+      0.0,
+      0.0,
+    )
+    let p1 = transform_image_point(
+      command.rect.position[X],
+      command.rect.position[Y],
+      command.transform,
+      command.rect.size[X],
+      0.0,
+    )
+    let p2 = transform_image_point(
+      command.rect.position[X],
+      command.rect.position[Y],
+      command.transform,
+      command.rect.size[X],
+      command.rect.size[Y],
+    )
+    let p3 = transform_image_point(
+      command.rect.position[X],
+      command.rect.position[Y],
+      command.transform,
+      0.0,
+      command.rect.size[Y],
+    )
+    draw_colored_quad(
+      p0,
+      p1,
+      p2,
+      p3,
+      command.color_start,
+      command.color_start,
+      command.color_end,
+      command.color_end,
+    )
+    return
+  }
   let rect = to_ray_rect(
     command.rect.position[X],
     command.rect.position[Y],

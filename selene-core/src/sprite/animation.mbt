@@ -368,12 +368,7 @@ pub fn play_animation(
 ) -> Unit {
   guard sprites().get(entity)
     is Some(
-      {
-        sprite_type: Animation(current_anime, frame=current_frame),
-        zindex,
-        visible,
-        offset,
-      }
+      { sprite_type: Animation(current_anime, frame=current_frame), visible }
     )
   let loop_ = loop_.unwrap_or(animation.loop_)
   let rate = rate.unwrap_or(animation.fps)
@@ -393,9 +388,7 @@ pub fn play_animation(
   }
   sprites().set(entity, {
     sprite_type: SpriteType::Animation(new_anime, frame~),
-    zindex,
     visible,
-    offset,
   })
 }
 
@@ -417,6 +410,7 @@ fn render_animation(
   scale_with_zoom : Bool,
   visible : Bool,
   delta : Double,
+  external_transform? : @math.Transform = @math.Transform::identity(),
 ) -> Double {
   let frame = animation.frames[current_frame.to_int()]
   if visible {
@@ -425,11 +419,12 @@ fn render_animation(
     } else {
       frame.size
     }
-    let transform = if scale_with_zoom {
+    let animation_transform = if scale_with_zoom {
       @system.scale_transform_translation(animation.transform)
     } else {
       animation.transform
     }
+    let transform = external_transform * animation_transform
     let command : @render2d_types.ImageDrawCommand2D = {
       image: frame.image,
       destination: @math.Rect::{ position: pos, size },

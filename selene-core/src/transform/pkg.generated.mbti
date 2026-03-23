@@ -4,34 +4,60 @@ package "Milky2018/selene/transform"
 import {
   "Milky2018/selene/entity",
   "Milky2018/selene/math",
-  "Milky2018/selene/position",
 }
 
 // Values
-pub fn capture_previous_transforms() -> Unit
+pub fn capture_previous_global_transforms() -> Unit
 
-pub fn global_transforms() -> Map[@entity.Entity, @position.Position]
+pub fn capture_previous_global_transforms_system(Double) -> Unit
 
-pub fn positions() -> Map[@entity.Entity, @position.Position]
+pub fn global_transforms() -> Map[@entity.Entity, GlobalTransform]
 
-pub fn previous_positions() -> Map[@entity.Entity, @position.Position]
+pub fn previous_global_transforms() -> Map[@entity.Entity, GlobalTransform]
 
-pub fn previous_transforms() -> Map[@entity.Entity, @position.Position]
+pub fn sample_global_transform(@entity.Entity, Double) -> GlobalTransform
 
-pub fn sample_position(@entity.Entity, Double) -> @math.Vec2D
+pub fn sample_global_translation(@entity.Entity, Double) -> @math.Vec3
 
-pub fn sample_translation(@entity.Entity, Double) -> @math.Vec2D
+pub fn transform_propagate_system(Double) -> Unit
 
-pub fn transforms() -> Map[@entity.Entity, @position.Position]
+pub fn transforms() -> Map[@entity.Entity, Transform]
 
 // Errors
 
 // Types and methods
+pub(all) struct GlobalTransform {
+  affine : @math.Affine3
+}
+pub fn GlobalTransform::compute_transform(Self) -> Transform
+pub fn GlobalTransform::from_transform(Transform) -> Self
+pub fn GlobalTransform::identity() -> Self
+pub fn GlobalTransform::reparented_to(Self, Self) -> Transform
+pub fn GlobalTransform::transform_point(Self, @math.Vec3) -> @math.Vec3
+pub fn GlobalTransform::translation(Self) -> @math.Vec3
+pub impl Default for GlobalTransform
+pub impl Eq for GlobalTransform
+pub impl Show for GlobalTransform
+
+pub(all) struct Transform {
+  translation : @math.Vec3
+  rotation : @math.Quat
+  scale : @math.Vec3
+}
+pub fn Transform::compute_affine(Self) -> @math.Affine3
+pub fn Transform::from_rotation(@math.Quat) -> Self
+pub fn Transform::from_scale(@math.Vec3) -> Self
+pub fn Transform::from_translation(@math.Vec3) -> Self
+pub fn Transform::from_xyz(Double, Double, Double) -> Self
+pub fn Transform::identity() -> Self
+pub fn Transform::with_rotation(Self, @math.Quat) -> Self
+pub fn Transform::with_scale(Self, @math.Vec3) -> Self
+pub fn Transform::with_translation(Self, @math.Vec3) -> Self
+pub impl Default for Transform
+pub impl Eq for Transform
+pub impl Show for Transform
 
 // Type aliases
-pub using @position {type Position as GlobalTransform}
-
-pub using @position {type Position as Transform}
 
 // Traits
 

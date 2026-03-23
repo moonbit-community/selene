@@ -13,244 +13,186 @@
 // limitations under the License.
 
 ///|
-priv struct Camera {
-  mut position : @math.Vec2D
-  mut previous_position : @math.Vec2D
-  mut limit_top : Double?
-  mut limit_bottom : Double?
-  mut limit_left : Double?
-  mut limit_right : Double?
-  mut attached_entity : @entity.Entity?
-  mut offset : @math.Vec2D
-  mut follow_x : Bool
-  mut follow_y : Bool
+pub(all) struct Camera {
+  mut is_active : Bool
+  order : Int
+
+  fn new(is_active? : Bool, order? : Int) -> Camera
+} derive(Eq, Show)
+
+///|
+pub fn Camera::new(is_active? : Bool = true, order? : Int = 0) -> Camera {
+  { is_active, order }
 }
 
 ///|
-fn default_camera() -> Camera {
-  {
-    position: @math.Vec2D::zero(),
-    previous_position: @math.Vec2D::zero(),
-    limit_bottom: None,
-    limit_left: None,
-    limit_top: None,
-    limit_right: None,
-    attached_entity: None,
-    offset: @math.Vec2D::zero(),
-    follow_x: true,
-    follow_y: true,
-  }
+pub impl Default for Camera with default() -> Camera {
+  Camera::new()
 }
 
 ///|
-let camera_world_states : Map[UInt, Camera] = Map::new()
+pub(all) struct Camera2d {
+
+  fn new() -> Camera2d
+} derive(Eq, Show)
 
 ///|
-fn camera_state() -> Camera {
+pub fn Camera2d::new() -> Camera2d {
+  Camera2d::{  }
+}
+
+///|
+pub impl Default for Camera2d with default() -> Camera2d {
+  Camera2d::new()
+}
+
+///|
+pub(all) struct OrthographicProjection {
+  near : Double
+  far : Double
+  scale : Double
+
+  fn new(
+    scale? : Double,
+    near? : Double,
+    far? : Double,
+  ) -> OrthographicProjection
+} derive(Eq, Show)
+
+///|
+pub fn OrthographicProjection::new(
+  scale? : Double = 1.0,
+  near? : Double = -1000.0,
+  far? : Double = 1000.0,
+) -> OrthographicProjection {
+  { near, far, scale: projection_scale(scale) }
+}
+
+///|
+pub impl Default for OrthographicProjection with default() -> OrthographicProjection {
+  OrthographicProjection::new()
+}
+
+///|
+priv struct CameraWorldStore {
+  cameras : Map[@entity.Entity, Camera]
+  camera2ds : Map[@entity.Entity, Camera2d]
+  orthographic_projections : Map[@entity.Entity, OrthographicProjection]
+}
+
+///|
+let camera_world_stores : Map[UInt, CameraWorldStore] = Map::new()
+
+///|
+fn camera_world_store() -> CameraWorldStore {
   let world_id = @ecs.require_current_world().id()
-  camera_world_states.get_or_init(world_id, default_camera)
+  camera_world_stores.get_or_init(world_id, () => {
+    cameras: Map::new(),
+    camera2ds: Map::new(),
+    orthographic_projections: Map::new(),
+  })
 }
 
 ///|
-/// Retrieves the current position of the camera in the 2D coordinate system.
-///
-/// Returns the current camera position as a 2D vector.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// let current_pos = @camera.get_position()
-/// inspect(current_pos, content="Vec2D(0, 0)")
-/// ```
-///
-pub fn get_position() -> @math.Vec2D {
-  camera_state().position
+pub fn cameras() -> Map[@entity.Entity, Camera] {
+  camera_world_store().cameras
 }
 
 ///|
-pub fn sample_position(alpha : Double) -> @math.Vec2D {
-  let camera = camera_state()
-  camera.previous_position.scalar_mul(1.0 - alpha) +
-  camera.position.scalar_mul(alpha)
+pub fn camera2ds() -> Map[@entity.Entity, Camera2d] {
+  camera_world_store().camera2ds
 }
 
 ///|
-/// Sets the camera's movement boundaries to constrain its position within
-/// specified limits.
-///
-/// Parameters:
-///
-/// * `top` : The topmost Y coordinate the camera can reach. If `None`, no top
-///   limit is applied.
-/// * `bottom` : The bottommost Y coordinate the camera can reach. If `None`, no
-///   bottom limit is applied.
-/// * `left` : The leftmost X coordinate the camera can reach. If `None`, no
-///   left limit is applied.
-/// * `right` : The rightmost X coordinate the camera can reach. If `None`, no
-///   right limit is applied.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// // Set boundaries to keep camera within a level area
-/// @camera.set_limits(top=0.0, bottom=500.0, left=0.0, right=800.0)
-///
-/// // Set only horizontal limits, allowing unlimited vertical movement
-/// @camera.set_limits(left=0.0, right=1000.0)
-///
-/// // Remove all limits
-/// @camera.set_limits()
-/// ```
-///
-pub fn set_limits(
-  top? : Double,
-  bottom? : Double,
-  left? : Double,
-  right? : Double,
-) -> Unit {
-  let camera = camera_state()
-  camera.limit_top = top
-  camera.limit_bottom = bottom
-  camera.limit_left = left
-  camera.limit_right = right
+pub fn orthographic_projections() -> Map[@entity.Entity, OrthographicProjection] {
+  camera_world_store().orthographic_projections
 }
 
 ///|
-/// Attaches an entity to the camera for automatic following with a specified
-/// offset.
-///
-/// Parameters:
-///
-/// * `entity` : The entity that the camera should follow.
-/// * `offset` : The positional offset from the entity's position where the
-///   camera should be positioned.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// let player_entity = @entity.Entity::new()
-/// @camera.attach_entity(player_entity, @math.Vec2D(32.0, 32.0))
-///
-/// player_entity.destroy()
-/// ```
-///
-pub fn attach_entity(entity : @entity.Entity, offset : @math.Vec2D) -> Unit {
-  let camera = camera_state()
-  camera.attached_entity = Some(entity)
-  camera.offset = offset
-}
-
-///|
-/// Configures whether the camera should follow the attached entity along the
-/// X-axis.
-///
-/// Parameters:
-///
-/// * `follow` : Whether to enable X-axis following. When `true`, the camera
-///   will automatically update its X position to follow the attached entity
-///   horizontally. When `false`, the camera's X position remains fixed
-///   regardless of the entity's horizontal movement.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// // Enable horizontal following
-/// @camera.set_follow_x(true)
-///
-/// // Disable horizontal following while keeping vertical following
-/// @camera.set_follow_x(false)
-/// @camera.set_follow_y(true)
-/// ```
-///
-pub fn set_follow_x(follow : Bool) -> Unit {
-  let camera = camera_state()
-  camera.follow_x = follow
-}
-
-///|
-/// Configures whether the camera should follow the attached entity along the
-/// Y-axis.
-///
-/// Parameters:
-///
-/// * `follow` : Whether to enable Y-axis following. When `true`, the camera
-///   will automatically update its Y position to follow the attached entity
-///   vertically. When `false`, the camera's Y position remains fixed regardless
-///   of the entity's vertical movement.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// // Enable vertical following
-/// @camera.set_follow_y(true)
-///
-/// // Disable vertical following while keeping horizontal following
-/// @camera.set_follow_y(false)
-/// @camera.set_follow_x(true)
-/// ```
-///
-pub fn set_follow_y(follow : Bool) -> Unit {
-  let camera = camera_state()
-  camera.follow_y = follow
-}
-
-///|
-/// Updates the camera position to follow an attached entity while respecting
-/// movement boundaries and axis constraints.
-///
-/// Parameters:
-///
-/// * `delta` : The time elapsed since the last frame update (currently unused
-///   but typically used for frame-rate independent updates).
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// // This function is typically called automatically by the game engine's update loop
-/// // Set up camera to follow a player entity
-/// let player = @entity.Entity::new()
-/// defer player.destroy()
-/// @camera.attach_entity(player, @math.Vec2D(0.0, 0.0))
-/// @camera.set_limits(top=0.0, bottom=1000.0, left=0.0, right=1200.0)
-///
-/// // The camera system will automatically update the camera position each frame
-/// @camera.camera_system(0.016) // Called with delta time
-/// ```
-///
-pub fn camera_system(_delta : Double) -> Unit {
-  let camera = camera_state()
-  guard camera.attached_entity is Some(e) else { return }
-  guard @transform.positions().get(e) is Some(pos) else { return }
-  camera.previous_position = camera.position
-  let viewport_size = @system.get_viewport_size()
-  let target_position = pos.0 -
-    viewport_size * @math.Vec2D(0.5, 0.5) +
-    camera.offset
-
-  // Apply axis constraints for following
-  let new_x = if camera.follow_x {
-    target_position[X]
+fn projection_scale(scale : Double) -> Double {
+  if scale <= 0.0 {
+    1.0
   } else {
-    camera.position[X]
+    scale
   }
-  let new_y = if camera.follow_y {
-    target_position[Y]
-  } else {
-    camera.position[Y]
+}
+
+///|
+pub fn Camera::world_to_viewport(
+  _self : Camera,
+  camera_transform : @transform.GlobalTransform,
+  projection : OrthographicProjection,
+  world_position : @math.Vec2D,
+) -> @math.Vec2D {
+  let world_point = @math.Vec3::new(world_position[X], world_position[Y], 0.0)
+  let view_point = match camera_transform.affine.inverse() {
+    Some(inverse_camera) => inverse_camera.transform_point3(world_point)
+    None => world_point
   }
-  camera.position = @math.Vec2D(new_x, new_y)
-  if camera.limit_top is Some(top) && camera.position[Y] < top {
-    camera.position = @math.Vec2D(camera.position[X], top)
-  }
-  if camera.limit_bottom is Some(bottom) &&
-    camera.position[Y] > bottom - viewport_size[Y] {
-    camera.position = @math.Vec2D(camera.position[X], bottom - viewport_size[Y])
-  }
-  if camera.limit_left is Some(left) && camera.position[X] < left {
-    camera.position = @math.Vec2D(left, camera.position[Y])
-  }
-  if camera.limit_right is Some(right) &&
-    camera.position[X] > right - viewport_size[X] {
-    camera.position = @math.Vec2D(right - viewport_size[X], camera.position[Y])
-  }
+  let pixels_per_world_unit = @system.get_zoom() /
+    projection_scale(projection.scale)
+  let viewport_center = @system.get_screen_size().scalar_mul(0.5)
+  @math.Vec2D(
+    viewport_center[X] + view_point.x * pixels_per_world_unit,
+    viewport_center[Y] + view_point.y * pixels_per_world_unit,
+  )
+}
+
+///|
+pub fn Camera::viewport_to_world_2d(
+  _self : Camera,
+  camera_transform : @transform.GlobalTransform,
+  projection : OrthographicProjection,
+  viewport_position : @math.Vec2D,
+) -> @math.Vec2D {
+  let pixels_per_world_unit = @system.get_zoom() /
+    projection_scale(projection.scale)
+  let viewport_center = @system.get_screen_size().scalar_mul(0.5)
+  let view_point = @math.Vec3::new(
+    (viewport_position[X] - viewport_center[X]) / pixels_per_world_unit,
+    (viewport_position[Y] - viewport_center[Y]) / pixels_per_world_unit,
+    0.0,
+  )
+  let world_point = camera_transform.transform_point(view_point)
+  @math.Vec2D(world_point.x, world_point.y)
+}
+
+///|
+test "camera world_to_viewport roundtrip" {
+  @system.configure_display(480.0, 320.0, 2.0)
+  let camera = Camera::new()
+  let projection = OrthographicProjection::new()
+  let camera_transform = @transform.GlobalTransform::from_transform(
+    @transform.Transform::from_xyz(100.0, 50.0, 0.0),
+  )
+  let world = @math.Vec2D(132.5, 64.0)
+  let viewport = camera.world_to_viewport(camera_transform, projection, world)
+  let world2 = camera.viewport_to_world_2d(
+    camera_transform, projection, viewport,
+  )
+  assert_eq(world2[X], world[X])
+  assert_eq(world2[Y], world[Y])
+}
+
+///|
+test "camera world_to_viewport respects camera rotation" {
+  @system.configure_display(100.0, 100.0, 1.0)
+  let camera = Camera::new()
+  let projection = OrthographicProjection::new()
+  let quarter_turn = @math.Quat::from_axis_angle(
+    @math.Vec3::z_axis(),
+    1.5707963267948966,
+  )
+  let camera_transform = @transform.GlobalTransform::from_transform({
+    translation: @math.Vec3::new(0.0, 0.0, 0.0),
+    rotation: quarter_turn,
+    scale: @math.Vec3::one(),
+  })
+  let viewport = camera.world_to_viewport(
+    camera_transform,
+    projection,
+    @math.Vec2D(0.0, 10.0),
+  )
+  assert_eq(viewport[X], 60.0)
+  assert_eq(viewport[Y], 50.0)
 }

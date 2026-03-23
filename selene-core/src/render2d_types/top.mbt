@@ -28,12 +28,14 @@ pub(all) struct TextStyle2D {
 pub(all) struct TextDrawCommand2D {
   text : String
   position : @math.Vec2D
+  transform : @math.Transform
   style : TextStyle2D
 }
 
 ///|
 pub(all) struct RectDrawCommand2D {
   rect : @math.Rect
+  transform : @math.Transform
   fill_color : @render.Color
   stroke_color : @render.Color?
 }
@@ -42,6 +44,7 @@ pub(all) struct RectDrawCommand2D {
 pub(all) struct CircleDrawCommand2D {
   center : @math.Vec2D
   radius : Double
+  transform : @math.Transform
   fill_color : @render.Color
   stroke_color : @render.Color?
 }
@@ -49,6 +52,7 @@ pub(all) struct CircleDrawCommand2D {
 ///|
 pub(all) struct GradientRectDrawCommand2D {
   rect : @math.Rect
+  transform : @math.Transform
   color_start : @render.Color
   color_end : @render.Color
 }

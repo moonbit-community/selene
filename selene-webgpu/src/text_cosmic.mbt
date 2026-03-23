@@ -215,10 +215,17 @@ fn draw_text_with_cosmic(command : @render2d_types.TextDrawCommand2D) -> Bool {
     }
   }
   if cosmic_text_cache.contains(key) {
+    let transform = command.transform
     webgpu_draw_cached_text(
       key,
       command.position[X],
       command.position[Y],
+      transform.a,
+      transform.b,
+      transform.c,
+      transform.d,
+      transform.tx,
+      transform.ty,
       h_align_to_code(command.style.align),
       v_align_to_code(command.style.baseline),
     )

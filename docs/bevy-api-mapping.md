@@ -45,19 +45,21 @@ This document captures the first breaking migration pass from legacy Selene ECS 
 
 ## Core Component Stores
 
+Rows in this table may reference removed legacy packages or aliases. They are kept only as migration guidance from older Selene APIs to the current Bevy-aligned surface.
+
 | Legacy Selene | New Selene | Notes |
 | --- | --- | --- |
-| `@position.positions` | `@position.positions()` | Position store is now resolved from the active world. |
-| `@position.previous_positions` | `@position.previous_positions()` | Previous-position snapshot store is now resolved from the active world. |
+| `@position.positions` | `@transform.transforms()` | Author local translation now lives in `Transform.translation` on the unified transform store. |
+| `@position.previous_positions` | `@transform.previous_global_transforms()` | Previous world-space interpolation data now lives in unified previous-global transforms. |
 | `@velocity.velocities` | `@velocity.velocities()` | Velocity store is now resolved from the active world. |
-| `@transform.transforms` | `@transform.transforms()` | 2D transform alias store is now resolved from the active world. |
-| `@transform.positions` | `@transform.positions()` | 2D transform alias store is now resolved from the active world. |
-| `@transform.global_transforms` | `@transform.global_transforms()` | 2D global transform alias store is now resolved from the active world. |
-| `@transform.previous_transforms` | `@transform.previous_transforms()` | 2D previous-transform alias store is now resolved from the active world. |
-| `@transform.previous_positions` | `@transform.previous_positions()` | 2D previous-transform alias store is now resolved from the active world. |
-| `@transform3d.transforms3d` | `@transform3d.transforms3d()` | 3D local transform store is now resolved from the active world. |
-| `@transform3d.global_transforms3d` | `@transform3d.global_transforms3d()` | 3D global transform store is now resolved from the active world. |
-| `@transform3d.previous_global_transforms3d` | `@transform3d.previous_global_transforms3d()` | 3D previous-global snapshot store is now resolved from the active world. |
+| `@transform.transforms` | `@transform.transforms()` | Unified local transform store for authored 2D and 3D entity TRS data. |
+| `@transform.positions` | `@transform.transforms()` | Removed alias; use `Transform.translation` on the unified transform store. |
+| `@transform.global_transforms` | `@transform.global_transforms()` | Unified world-space affine transform store for 2D and 3D entities. |
+| `@transform.previous_transforms` | `@transform.previous_global_transforms()` | Removed alias; previous interpolation data is stored as global transforms. |
+| `@transform.previous_positions` | `@transform.previous_global_transforms()` | Removed alias; read previous world-space translation from `GlobalTransform.translation()`. |
+| `@transform3d.transforms3d` | `@transform.transforms()` | 3D and 2D now share the unified local transform store. |
+| `@transform3d.global_transforms3d` | `@transform.global_transforms()` | 3D and 2D now share the unified global transform store. |
+| `@transform3d.previous_global_transforms3d` | `@transform.previous_global_transforms()` | 3D and 2D now share the unified previous-global snapshot store. |
 | `@physics2d.linear_velocities` | `@physics2d.linear_velocities()` | Physics2D velocity alias now resolves through active world storage. |
 | `@physics2d.velocities` | `@physics2d.velocities()` | Physics2D velocity alias now resolves through active world storage. |
 | `@sprite.sprites` | `@sprite.sprites()` | Sprite component store is now resolved from the active world. |

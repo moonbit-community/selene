@@ -12,7 +12,11 @@ test "render3d extract preserves mesh shadow toggles" {
     cast_shadows: false,
     receive_shadows: false,
   })
-  @transform3d.transforms3d().set(entity, @transform3d.Transform3D::identity())
+  @transform.transforms().set(entity, {
+    translation: @math.Vec3::zero(),
+    rotation: @math.Quat::identity(),
+    scale: @math.Vec3::one(),
+  })
   @visibility.visibilities().set(entity, Visible)
   @visibility.inherited_visibilities().set(entity, { visible: true })
   @visibility.view_visibilities().set(entity, { visible: true })
@@ -25,8 +29,8 @@ test "render3d extract preserves mesh shadow toggles" {
   inspect(frame.items[0].receive_shadows, content="false")
 
   mesh3d_renderers().remove(entity)
-  @transform3d.transforms3d().remove(entity)
-  @transform3d.global_transforms3d().remove(entity)
+  @transform.transforms().remove(entity)
+  @transform.global_transforms().remove(entity)
   @visibility.visibilities().remove(entity)
   @visibility.inherited_visibilities().remove(entity)
   @visibility.view_visibilities().remove(entity)

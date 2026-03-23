@@ -7,7 +7,7 @@ import {
   "Milky2018/selene/event",
   "Milky2018/selene/render3d_types",
   "Milky2018/selene/scene3d",
-  "Milky2018/selene/transform3d",
+  "Milky2018/selene/transform",
 }
 
 // Values
@@ -15,7 +15,7 @@ pub fn despawn_all_scenes() -> Unit
 
 pub fn despawn_scene(@entity.Entity) -> Unit
 
-pub fn instantiate_scene(@render3d_types.SceneHandle, @transform3d.Transform3D) -> @scene3d.SceneInstance
+pub fn instantiate_scene(@render3d_types.SceneHandle, @transform.Transform) -> @scene3d.SceneInstance
 
 pub fn load_scene_gltf(String) -> @render3d_types.SceneHandle
 
@@ -48,7 +48,7 @@ pub impl Show for SceneInstanceReadyEvent
 pub(all) struct SceneSpawner {
   _tag : Unit
 }
-pub fn SceneSpawner::spawn(Self, @render3d_types.SceneHandle, @transform3d.Transform3D) -> @scene3d.SceneInstance
+pub fn SceneSpawner::spawn(Self, @render3d_types.SceneHandle, @transform.Transform) -> @scene3d.SceneInstance
 
 // Type aliases
 pub using @render3d_types {type SceneHandle}

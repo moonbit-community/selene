@@ -108,14 +108,17 @@ fn hit_test_pickable(
       transform.screen_rect.size,
     )
   }
-  guard @position.positions().get(entity) is Some(position) else {
-    return false
-  }
+  let transform = pickable_entity_global_transform(entity)
   guard shapes().get(entity) is Some(shape) else { return false }
   guard shape is Rect(size~, offset~) else { return false }
-  let shape_position = position.0 + offset
-  let point = mouse_world
-  point_in_rect(point, shape_position, size)
+  let local_point = match transform.affine.inverse() {
+    Some(inverse_transform) =>
+      inverse_transform.transform_point3(
+        @math.Vec3::new(mouse_world[X], mouse_world[Y], 0.0),
+      )
+    None => @math.Vec3::new(mouse_world[X], mouse_world[Y], 0.0)
+  }
+  point_in_rect(@math.Vec2D(local_point.x, local_point.y), offset, size)
 }
 
 ///|
@@ -139,8 +142,11 @@ fn dispatch_pointer_events(entity : @entity.Entity) -> Unit {
 ///|
 pub fn pickable_click_system(_delta : Double) -> Unit {
   let mouse_screen = @inputs.mouse.pos
-  let camera_pos = @camera.get_position()
-  let mouse_world = @system.screen_to_world(mouse_screen, camera_pos)
+  let mouse_world = match pickable_active_camera2d_view() {
+    Some((camera, camera_transform, projection)) =>
+      camera.viewport_to_world_2d(camera_transform, projection, mouse_screen)
+    None => @system.unscale_vec2(mouse_screen)
+  }
   let mouse_virtual = @system.screen_to_ui_virtual(mouse_screen)
   for entity, pickable in pickables() {
     guard entity.is_alive() else { continue }
@@ -148,5 +154,49 @@ pub fn pickable_click_system(_delta : Double) -> Unit {
     if hit_test_pickable(entity, mouse_screen, mouse_world, mouse_virtual) {
       dispatch_pointer_events(entity)
     }
+  }
+}
+
+///|
+fn pickable_entity_global_transform(
+  entity : @entity.Entity,
+) -> @transform.GlobalTransform {
+  if @transform.global_transforms().get(entity) is Some(global) {
+    global
+  } else {
+    @transform.GlobalTransform::from_transform(
+      @transform.transforms().get(entity).unwrap_or_default(),
+    )
+  }
+}
+
+///|
+fn pickable_active_camera2d_view() -> (
+  @camera.Camera,
+  @transform.GlobalTransform,
+  @camera.OrthographicProjection,
+)? {
+  let mut selected : (
+    @camera.Camera,
+    @transform.GlobalTransform,
+    @camera.OrthographicProjection,
+    Int,
+  )? = None
+  for entity, camera in @camera.cameras() {
+    guard entity.is_alive() else { continue }
+    guard camera.is_active else { continue }
+    guard @camera.camera2ds().contains(entity) else { continue }
+    let projection = @camera.orthographic_projections()
+      .get(entity)
+      .unwrap_or_default()
+    let global = pickable_entity_global_transform(entity)
+    match selected {
+      Some((_, _, _, order)) if order >= camera.order => ()
+      _ => selected = Some((camera, global, projection, camera.order))
+    }
+  }
+  match selected {
+    Some((camera, global, projection, _)) => Some((camera, global, projection))
+    None => None
   }
 }

@@ -37,6 +37,21 @@ pub fn Vec3::one() -> Vec3 {
 }
 
 ///|
+pub fn Vec3::x_axis() -> Vec3 {
+  Vec3::new(1.0, 0.0, 0.0)
+}
+
+///|
+pub fn Vec3::y_axis() -> Vec3 {
+  Vec3::new(0.0, 1.0, 0.0)
+}
+
+///|
+pub fn Vec3::z_axis() -> Vec3 {
+  Vec3::new(0.0, 0.0, 1.0)
+}
+
+///|
 pub impl Default for Vec3 with default() -> Vec3 {
   Vec3::zero()
 }
@@ -169,6 +184,22 @@ pub fn Quat::conjugate(self : Quat) -> Quat {
 }
 
 ///|
+pub fn Quat::inverse(self : Quat) -> Quat {
+  let len_sq = self.length_squared()
+  if len_sq <= 0.000000001 {
+    Quat::identity()
+  } else {
+    let conjugate = self.conjugate()
+    Quat::new(
+      conjugate.x / len_sq,
+      conjugate.y / len_sq,
+      conjugate.z / len_sq,
+      conjugate.w / len_sq,
+    )
+  }
+}
+
+///|
 pub fn Quat::length_squared(self : Quat) -> Double {
   self.x * self.x + self.y * self.y + self.z * self.z + self.w * self.w
 }
@@ -194,6 +225,11 @@ pub fn Quat::multiply(self : Quat, other : Quat) -> Quat {
 }
 
 ///|
+pub fn Quat::dot(self : Quat, other : Quat) -> Double {
+  self.x * other.x + self.y * other.y + self.z * other.z + self.w * other.w
+}
+
+///|
 pub impl Mul for Quat with mul(self, other) {
   self.multiply(other)
 }
@@ -204,6 +240,48 @@ pub fn Quat::rotate_vec3(self : Quat, vec : Vec3) -> Vec3 {
   let qv = Quat::new(vec.x, vec.y, vec.z, 0.0)
   let rotated = q * qv * q.conjugate()
   Vec3::new(rotated.x, rotated.y, rotated.z)
+}
+
+///|
+pub fn Quat::nlerp(self : Quat, other : Quat, alpha : Double) -> Quat {
+  let rhs = if self.dot(other) < 0.0 {
+    Quat::new(-other.x, -other.y, -other.z, -other.w)
+  } else {
+    other
+  }
+  Quat::new(
+    self.x * (1.0 - alpha) + rhs.x * alpha,
+    self.y * (1.0 - alpha) + rhs.y * alpha,
+    self.z * (1.0 - alpha) + rhs.z * alpha,
+    self.w * (1.0 - alpha) + rhs.w * alpha,
+  ).normalize()
+}
+
+///|
+pub fn Quat::from_basis(x_axis : Vec3, y_axis : Vec3, z_axis : Vec3) -> Quat {
+  let m00 = x_axis.x
+  let m01 = y_axis.x
+  let m02 = z_axis.x
+  let m10 = x_axis.y
+  let m11 = y_axis.y
+  let m12 = z_axis.y
+  let m20 = x_axis.z
+  let m21 = y_axis.z
+  let m22 = z_axis.z
+  let trace = m00 + m11 + m22
+  if trace > 0.0 {
+    let s = (trace + 1.0).sqrt() * 2.0
+    Quat::new((m21 - m12) / s, (m02 - m20) / s, (m10 - m01) / s, 0.25 * s).normalize()
+  } else if m00 > m11 && m00 > m22 {
+    let s = (1.0 + m00 - m11 - m22).sqrt() * 2.0
+    Quat::new(0.25 * s, (m01 + m10) / s, (m02 + m20) / s, (m21 - m12) / s).normalize()
+  } else if m11 > m22 {
+    let s = (1.0 + m11 - m00 - m22).sqrt() * 2.0
+    Quat::new((m01 + m10) / s, 0.25 * s, (m12 + m21) / s, (m02 - m20) / s).normalize()
+  } else {
+    let s = (1.0 + m22 - m00 - m11).sqrt() * 2.0
+    Quat::new((m02 + m20) / s, (m12 + m21) / s, 0.25 * s, (m10 - m01) / s).normalize()
+  }
 }
 
 ///|
@@ -389,4 +467,103 @@ pub fn Mat4::transform_point(self : Mat4, point : Vec3) -> Vec3 {
     self.m10 * point.x + self.m11 * point.y + self.m12 * point.z + self.m13,
     self.m20 * point.x + self.m21 * point.y + self.m22 * point.z + self.m23,
   )
+}
+
+///|
+pub(all) struct Affine3 {
+  x_axis : Vec3
+  y_axis : Vec3
+  z_axis : Vec3
+  translation : Vec3
+} derive(Eq, Show)
+
+///|
+pub fn Affine3::identity() -> Affine3 {
+  {
+    x_axis: Vec3::x_axis(),
+    y_axis: Vec3::y_axis(),
+    z_axis: Vec3::z_axis(),
+    translation: Vec3::zero(),
+  }
+}
+
+///|
+pub impl Default for Affine3 with default() -> Affine3 {
+  Affine3::identity()
+}
+
+///|
+pub fn Affine3::from_scale_rotation_translation(
+  scale : Vec3,
+  rotation : Quat,
+  translation : Vec3,
+) -> Affine3 {
+  {
+    x_axis: rotation.rotate_vec3(Vec3::x_axis().scalar_mul(scale.x)),
+    y_axis: rotation.rotate_vec3(Vec3::y_axis().scalar_mul(scale.y)),
+    z_axis: rotation.rotate_vec3(Vec3::z_axis().scalar_mul(scale.z)),
+    translation,
+  }
+}
+
+///|
+pub fn Affine3::transform_vector3(self : Affine3, value : Vec3) -> Vec3 {
+  self.x_axis.scalar_mul(value.x) +
+  self.y_axis.scalar_mul(value.y) +
+  self.z_axis.scalar_mul(value.z)
+}
+
+///|
+pub fn Affine3::transform_point3(self : Affine3, value : Vec3) -> Vec3 {
+  self.translation + self.transform_vector3(value)
+}
+
+///|
+pub fn Affine3::mul(self : Affine3, other : Affine3) -> Affine3 {
+  {
+    x_axis: self.transform_vector3(other.x_axis),
+    y_axis: self.transform_vector3(other.y_axis),
+    z_axis: self.transform_vector3(other.z_axis),
+    translation: self.transform_point3(other.translation),
+  }
+}
+
+///|
+pub impl Mul for Affine3 with mul(self, other) {
+  self.mul(other)
+}
+
+///|
+pub fn Affine3::inverse(self : Affine3) -> Affine3? {
+  let a00 = self.x_axis.x
+  let a10 = self.x_axis.y
+  let a20 = self.x_axis.z
+  let a01 = self.y_axis.x
+  let a11 = self.y_axis.y
+  let a21 = self.y_axis.z
+  let a02 = self.z_axis.x
+  let a12 = self.z_axis.y
+  let a22 = self.z_axis.z
+
+  let c00 = a11 * a22 - a12 * a21
+  let c01 = a02 * a21 - a01 * a22
+  let c02 = a01 * a12 - a02 * a11
+  let c10 = a12 * a20 - a10 * a22
+  let c11 = a00 * a22 - a02 * a20
+  let c12 = a02 * a10 - a00 * a12
+  let c20 = a10 * a21 - a11 * a20
+  let c21 = a01 * a20 - a00 * a21
+  let c22 = a00 * a11 - a01 * a10
+  let det = a00 * c00 + a01 * c10 + a02 * c20
+  if det.abs() <= 0.000000001 {
+    return None
+  }
+  let inv_det = 1.0 / det
+  let inverse = {
+    x_axis: Vec3::new(c00 * inv_det, c10 * inv_det, c20 * inv_det),
+    y_axis: Vec3::new(c01 * inv_det, c11 * inv_det, c21 * inv_det),
+    z_axis: Vec3::new(c02 * inv_det, c12 * inv_det, c22 * inv_det),
+    translation: Vec3::zero(),
+  }
+  Some({ ..inverse, translation: inverse.transform_vector3(-self.translation) })
 }

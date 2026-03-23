@@ -15,6 +15,23 @@ pub fn vec3_from_rapier(@core.Vec3) -> Vec3
 // Errors
 
 // Types and methods
+pub(all) struct Affine3 {
+  x_axis : Vec3
+  y_axis : Vec3
+  z_axis : Vec3
+  translation : Vec3
+}
+pub fn Affine3::from_scale_rotation_translation(Vec3, Quat, Vec3) -> Self
+pub fn Affine3::identity() -> Self
+pub fn Affine3::inverse(Self) -> Self?
+pub fn Affine3::mul(Self, Self) -> Self
+pub fn Affine3::transform_point3(Self, Vec3) -> Vec3
+pub fn Affine3::transform_vector3(Self, Vec3) -> Vec3
+pub impl Default for Affine3
+pub impl Eq for Affine3
+pub impl Mul for Affine3
+pub impl Show for Affine3
+
 pub(all) enum Axis {
   X
   Y
@@ -63,11 +80,15 @@ pub(all) struct Quat {
   fn new(Double, Double, Double, Double) -> Quat
 }
 pub fn Quat::conjugate(Self) -> Self
+pub fn Quat::dot(Self, Self) -> Double
 pub fn Quat::from_axis_angle(Vec3, Double) -> Self
+pub fn Quat::from_basis(Vec3, Vec3, Vec3) -> Self
 pub fn Quat::identity() -> Self
+pub fn Quat::inverse(Self) -> Self
 pub fn Quat::length_squared(Self) -> Double
 pub fn Quat::multiply(Self, Self) -> Self
 pub fn Quat::new(Double, Double, Double, Double) -> Self
+pub fn Quat::nlerp(Self, Self, Double) -> Self
 pub fn Quat::normalize(Self) -> Self
 pub fn Quat::rotate_vec3(Self, Vec3) -> Vec3
 pub fn Quat::to_rapier(Self) -> @core.Quat
@@ -178,6 +199,9 @@ pub fn Vec3::one() -> Self
 pub fn Vec3::scalar_div(Self, Double) -> Self
 pub fn Vec3::scalar_mul(Self, Double) -> Self
 pub fn Vec3::to_rapier(Self) -> @core.Vec3
+pub fn Vec3::x_axis() -> Self
+pub fn Vec3::y_axis() -> Self
+pub fn Vec3::z_axis() -> Self
 pub fn Vec3::zero() -> Self
 pub impl Add for Vec3
 pub impl Default for Vec3

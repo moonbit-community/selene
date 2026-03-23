@@ -30,32 +30,13 @@ pub fn run() -> Unit {
   .with_zoom(ZOOM)
   .with_fps(60)
   .add_plugin(@plugins.default_plugin)
-  // .add_plugin(@plugins.debug_plugin)
   .add_system(Startup, game_start)
-  .add_system(Update, player_state_system)
-  .add_system(
-    OnEnter(@state.on_enter_eq(player_state_machine, PlayerState::Jump)),
-    jump_audio_on_enter_system,
-  )
-  .add_system(FixedPostUpdate, player_collision_system)
-  .add_system(FixedPostUpdate, bird_ai_system)
-  .add_system(Update, map_trigger_system)
-  .add_system(PostUpdate, volume_button_input_system)
+  .add_system(Update, player_controller_system)
+  .add_system(Update, trigger_system)
+  .add_system(FixedPostUpdate, player_bird_contact_system)
+  .add_system(FixedPostUpdate, bird_patrol_system)
+  .add_system(PostUpdate, volume_button_system)
+  .add_system(PostUpdate, pixeladventure_camera_follow_system)
+  .add_system(PostUpdate, hud_sync_system)
   .run()
-}
-
-///|
-fn game_start(_world : @ecs.World) -> Unit {
-  ignore(
-    @asset2.load_font(
-      "assets/pixeladventure/Fonts/ThaleahFat.ttf",
-      family="ThaleahFat",
-    ),
-  )
-  @ui.set_ui_scale_mode(@ui.UiScaleMode::Viewport)
-  generate_map()
-  add_result_box()
-  add_score_box()
-  add_health_box()
-  add_volume_button()
 }

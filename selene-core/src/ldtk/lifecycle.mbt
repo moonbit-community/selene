@@ -5,7 +5,7 @@ pub fn despawn_ldtk_tree(root : @entity.Entity) -> Unit {
   for entity in entities {
     clear_ldtk_root_components(entity)
     @sprite.sprites().remove(entity)
-    @transform.positions().remove(entity)
+    @transform.transforms().remove(entity)
     entity.destroy()
   }
 }

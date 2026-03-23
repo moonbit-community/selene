@@ -34,7 +34,7 @@ pub fn load_scene_gltf(path : String) -> SceneHandle {
 ///|
 pub fn instantiate_scene(
   scene : SceneHandle,
-  root_transform : @transform3d.Transform3D,
+  root_transform : @transform.Transform,
 ) -> SceneInstance {
   let instance = @scene3d.instantiate_scene_instance(scene, root_transform)
   scene_instances.set(instance.root, scene)
@@ -46,7 +46,7 @@ pub fn instantiate_scene(
 pub fn SceneSpawner::spawn(
   self : SceneSpawner,
   scene : SceneHandle,
-  root_transform : @transform3d.Transform3D,
+  root_transform : @transform.Transform,
 ) -> SceneInstance {
   ignore(self)
   instantiate_scene(scene, root_transform)

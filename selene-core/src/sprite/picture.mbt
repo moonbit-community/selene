@@ -122,17 +122,19 @@ fn render_picture(
   picture : Picture,
   pos : @math.Vec2D,
   scale_with_zoom : Bool,
+  external_transform? : @math.Transform = @math.Transform::identity(),
 ) -> Unit {
   let size = if scale_with_zoom {
     @system.scale_vec2(picture.size)
   } else {
     picture.size
   }
-  let transform = if scale_with_zoom {
+  let picture_transform = if scale_with_zoom {
     @system.scale_transform_translation(picture.transform)
   } else {
     picture.transform
   }
+  let transform = external_transform * picture_transform
   let command : @render2d_types.ImageDrawCommand2D = {
     image: picture.image,
     destination: @math.Rect::{ position: pos, size },

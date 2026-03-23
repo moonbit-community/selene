@@ -31,6 +31,28 @@ fn vec2_snapshot(vec : @math.Vec2D) -> String {
 }
 
 ///|
+fn tiled_test_set_entity_translation_2d(
+  entity : @entity.Entity,
+  position : @math.Vec2D,
+) -> Unit {
+  let current = @transform.transforms().get(entity).unwrap_or_default()
+  @transform.transforms().set(entity, {
+    ..current,
+    translation: @math.Vec3::new(
+      position[X],
+      position[Y],
+      current.translation.z,
+    ),
+  })
+}
+
+///|
+fn tiled_test_entity_translation_2d(entity : @entity.Entity) -> @math.Vec2D {
+  let transform = @transform.transforms().get(entity).unwrap_or_default()
+  @math.Vec2D(transform.translation.x, transform.translation.y)
+}
+
+///|
 fn test_tileset_16x16() -> TiledTileset {
   {
     first_gid: 1,
@@ -332,7 +354,7 @@ test "spawn_tiled_map creates tile object and image layer entities" {
     defer cleanup_spawned_tiled_tree(root)
 
     inspect(
-      vec2_snapshot(@transform.positions().get(root).unwrap().0),
+      vec2_snapshot(tiled_test_entity_translation_2d(root)),
       content="10,20",
     )
     match tiled_properties().get(root).unwrap().get("world") {
@@ -349,7 +371,10 @@ test "spawn_tiled_map creates tile object and image layer entities" {
     let ground_entity = layer_entities.filter(fn(pair) {
         pair.1.layer.name == "Ground"
       })[0].0
-    inspect(vec2_snapshot(ground_entity.get_offset()), content="2,3")
+    inspect(
+      vec2_snapshot(tiled_test_entity_translation_2d(ground_entity)),
+      content="2,3",
+    )
     inspect(storage.layer_entity(1).unwrap() == ground_entity, content="true")
     match tiled_properties().get(ground_entity).unwrap().get("speed") {
       Some(Float(value)) => inspect(value.to_int(), content="2")
@@ -361,8 +386,10 @@ test "spawn_tiled_map creates tile object and image layer entities" {
       .filter(fn(pair) { pair.1.map_entity == root })
     inspect(storage.tile_entities(1).length(), content="2")
     let tile_positions = tile_entities.map(fn(pair) {
-      let tile_offset = pair.0.get_offset()
-      let layer_offset = pair.0.get_parent().unwrap().get_offset()
+      let tile_offset = tiled_test_entity_translation_2d(pair.0)
+      let layer_offset = tiled_test_entity_translation_2d(
+        pair.0.get_parent().unwrap(),
+      )
       vec2_snapshot(tile_offset + layer_offset)
     })
     tile_positions.sort()
@@ -386,8 +413,10 @@ test "spawn_tiled_map creates tile object and image layer entities" {
     inspect(storage.object_entity(8) is Some(_), content="true")
     let named_positions = object_entities.map(fn(pair) {
       let name = pair.1.object.name
-      let object_offset = pair.0.get_offset()
-      let layer_offset = pair.0.get_parent().unwrap().get_offset()
+      let object_offset = tiled_test_entity_translation_2d(pair.0)
+      let layer_offset = tiled_test_entity_translation_2d(
+        pair.0.get_parent().unwrap(),
+      )
       "\{name}@\{vec2_snapshot(object_offset + layer_offset)}"
     })
     named_positions.sort()
@@ -442,7 +471,7 @@ test "respawn_tiled_map_into_entity replaces previous tiled children and metadat
     })
 
     inspect(
-      vec2_snapshot(@transform.positions().get(root).unwrap().0),
+      vec2_snapshot(tiled_test_entity_translation_2d(root)),
       content="3,4",
     )
     inspect(
@@ -715,7 +744,7 @@ test "spawn_tiled_world loads adjacent maps and emits world events" {
     defer cleanup_spawned_tiled_tree(root)
 
     inspect(
-      vec2_snapshot(@transform.positions().get(root).unwrap().0),
+      vec2_snapshot(tiled_test_entity_translation_2d(root)),
       content="5,7",
     )
     inspect(
@@ -737,7 +766,7 @@ test "spawn_tiled_world loads adjacent maps and emits world events" {
       .filter(fn(pair) { pair.1.world_entity == root })
       .map(fn(pair) {
         let path = pair.1.resolved_map_path
-        let offset = pair.0.get_offset()
+        let offset = tiled_test_entity_translation_2d(pair.0)
         "\{path}@\{vec2_snapshot(offset)}"
       })
     map_entities.sort()
@@ -794,7 +823,7 @@ test "respawn_tiled_world_into_entity replaces previous spawned maps" {
     })
 
     inspect(
-      vec2_snapshot(@transform.positions().get(root).unwrap().0),
+      vec2_snapshot(tiled_test_entity_translation_2d(root)),
       content="11,13",
     )
     inspect(
@@ -810,7 +839,7 @@ test "respawn_tiled_world_into_entity replaces previous spawned maps" {
       .filter(fn(pair) { pair.1.world_entity == root })
       .map(fn(pair) {
         let path = pair.1.resolved_map_path
-        let offset = pair.0.get_offset()
+        let offset = tiled_test_entity_translation_2d(pair.0)
         "\{path}@\{vec2_snapshot(offset)}"
       })
     inspect(map_entities, content="[\"worlds/maps/b.tmj@64,0\"]")
@@ -823,11 +852,15 @@ test "tiled world chunking spawns maps around camera view" {
   let previous_zoom = @system.get_zoom()
   @system.configure_display(100.0, 100.0, 1.0)
 
-  let camera_target = @entity.Entity::new()
-  defer camera_target.destroy()
-  @transform.positions().set(camera_target, @math.Vec2D(50.0, 50.0))
-  @camera.attach_entity(camera_target, @math.Vec2D::zero())
-  @camera.camera_system(0.0)
+  let camera_entity = @entity.Entity::new()
+  defer camera_entity.destroy()
+  @camera.cameras().set(camera_entity, @camera.Camera::new())
+  @camera.camera2ds().set(camera_entity, @camera.Camera2d::new())
+  @camera.orthographic_projections().set(
+    camera_entity,
+    @camera.OrthographicProjection::new(),
+  )
+  tiled_test_set_entity_translation_2d(camera_entity, @math.Vec2D(50.0, 50.0))
 
   let files : Map[String, Bytes] = Map::new()
   files.set(
@@ -865,8 +898,10 @@ test "tiled world chunking spawns maps around camera view" {
     inspect(first_spawned.length(), content="1")
     inspect(first_spawned[0].1.resolved_map_path, content="worlds/maps/a.tmj")
 
-    @transform.positions().set(camera_target, @math.Vec2D(250.0, 50.0))
-    @camera.camera_system(0.0)
+    tiled_test_set_entity_translation_2d(
+      camera_entity,
+      @math.Vec2D(250.0, 50.0),
+    )
     tiled_world_chunking_system(0.0)
 
     let second_spawned = tiled_world_map_instances()
@@ -889,11 +924,15 @@ test "tiled parallax system adjusts layer offsets" {
   let previous_zoom = @system.get_zoom()
   @system.configure_display(100.0, 100.0, 1.0)
 
-  let camera_target = @entity.Entity::new()
-  defer camera_target.destroy()
-  @transform.positions().set(camera_target, @math.Vec2D(50.0, 50.0))
-  @camera.attach_entity(camera_target, @math.Vec2D::zero())
-  @camera.camera_system(0.0)
+  let camera_entity = @entity.Entity::new()
+  defer camera_entity.destroy()
+  @camera.cameras().set(camera_entity, @camera.Camera::new())
+  @camera.camera2ds().set(camera_entity, @camera.Camera2d::new())
+  @camera.orthographic_projections().set(
+    camera_entity,
+    @camera.OrthographicProjection::new(),
+  )
+  tiled_test_set_entity_translation_2d(camera_entity, @math.Vec2D(50.0, 50.0))
 
   let files : Map[String, Bytes] = Map::new()
   files.set(
@@ -911,13 +950,21 @@ test "tiled parallax system adjusts layer offsets" {
       .filter(fn(pair) {
         pair.1.map_entity == root && pair.1.layer.name == "Background"
       })[0].0
-    inspect(vec2_snapshot(layer_entity.get_offset()), content="2,3")
+    inspect(
+      vec2_snapshot(tiled_test_entity_translation_2d(layer_entity)),
+      content="2,3",
+    )
 
-    @transform.positions().set(camera_target, @math.Vec2D(250.0, 150.0))
-    @camera.camera_system(0.0)
+    tiled_test_set_entity_translation_2d(
+      camera_entity,
+      @math.Vec2D(250.0, 150.0),
+    )
     tiled_parallax_system(0.0)
 
-    inspect(vec2_snapshot(layer_entity.get_offset()), content="102,103")
+    inspect(
+      vec2_snapshot(tiled_test_entity_translation_2d(layer_entity)),
+      content="102,103",
+    )
   })
 
   @system.configure_display(
@@ -962,7 +1009,7 @@ test "spawn_tiled_map reads TMX tile object and image layers" {
     defer cleanup_spawned_tiled_tree(root)
 
     inspect(
-      vec2_snapshot(@transform.positions().get(root).unwrap().0),
+      vec2_snapshot(tiled_test_entity_translation_2d(root)),
       content="10,20",
     )
 
@@ -974,14 +1021,19 @@ test "spawn_tiled_map reads TMX tile object and image layers" {
     let ground_entity = layer_entities.filter(fn(pair) {
         pair.1.layer.name == "Ground"
       })[0].0
-    inspect(vec2_snapshot(ground_entity.get_offset()), content="2,3")
+    inspect(
+      vec2_snapshot(tiled_test_entity_translation_2d(ground_entity)),
+      content="2,3",
+    )
 
     let tile_entities = tiled_tile_instances()
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
     let tile_positions = tile_entities.map(fn(pair) {
-      let tile_offset = pair.0.get_offset()
-      let layer_offset = pair.0.get_parent().unwrap().get_offset()
+      let tile_offset = tiled_test_entity_translation_2d(pair.0)
+      let layer_offset = tiled_test_entity_translation_2d(
+        pair.0.get_parent().unwrap(),
+      )
       vec2_snapshot(tile_offset + layer_offset)
     })
     tile_positions.sort()
@@ -997,8 +1049,10 @@ test "spawn_tiled_map reads TMX tile object and image layers" {
     inspect(object_entities.length(), content="2")
     let named_positions = object_entities.map(fn(pair) {
       let name = pair.1.object.name
-      let object_offset = pair.0.get_offset()
-      let layer_offset = pair.0.get_parent().unwrap().get_offset()
+      let object_offset = tiled_test_entity_translation_2d(pair.0)
+      let layer_offset = tiled_test_entity_translation_2d(
+        pair.0.get_parent().unwrap(),
+      )
       "\{name}@\{vec2_snapshot(object_offset + layer_offset)}"
     })
     named_positions.sort()

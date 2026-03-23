@@ -452,9 +452,7 @@ fn spawn_tiled_physics_spec(
   spec : TiledPhysicsSpawnSpec,
   settings : TiledPhysicsSettings,
 ) -> Unit {
-  let collider_entity = spec.source_entity.spawn_child(
-    offset=@math.Vec2D::zero(),
-  )
+  let collider_entity = spec.source_entity.spawn_child()
   let filter = if spec.sensor {
     settings.sensor_filter
   } else {

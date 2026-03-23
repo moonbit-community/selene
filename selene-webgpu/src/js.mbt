@@ -818,7 +818,7 @@ extern "js" fn webgpu_initialize(
   #|       }
   #|     };
   #|
-  #|     rt.pushCachedText = (key, x, y, align, baseline) => {
+  #|     rt.pushCachedText = (key, x, y, ma, mb, mc, md, tx, ty, align, baseline) => {
   #|       const rec = rt.textCache.get(key);
   #|       if (!rec) return false;
   #|       let ox = x;
@@ -827,17 +827,21 @@ extern "js" fn webgpu_initialize(
   #|       else if (align === 2) ox -= rec.width;
   #|       if (baseline === 1) oy -= rec.height / 2;
   #|       else if (baseline === 2) oy -= rec.height;
-  #|       const x0 = ox;
-  #|       const y0 = oy;
-  #|       const x1 = ox + rec.width;
-  #|       const y1 = oy + rec.height;
+  #|       const p0x = ma * 0 + mc * 0 + tx + ox;
+  #|       const p0y = mb * 0 + md * 0 + ty + oy;
+  #|       const p1x = ma * rec.width + mc * 0 + tx + ox;
+  #|       const p1y = mb * rec.width + md * 0 + ty + oy;
+  #|       const p2x = ma * rec.width + mc * rec.height + tx + ox;
+  #|       const p2y = mb * rec.width + md * rec.height + ty + oy;
+  #|       const p3x = ma * 0 + mc * rec.height + tx + ox;
+  #|       const p3y = mb * 0 + md * rec.height + ty + oy;
   #|       const verts = new Float32Array([
-  #|         x0, y0, 0, 0, 1, 1, 1, 1,
-  #|         x1, y0, 1, 0, 1, 1, 1, 1,
-  #|         x1, y1, 1, 1, 1, 1, 1, 1,
-  #|         x0, y0, 0, 0, 1, 1, 1, 1,
-  #|         x1, y1, 1, 1, 1, 1, 1, 1,
-  #|         x0, y1, 0, 1, 1, 1, 1, 1,
+  #|         p0x, p0y, 0, 0, 1, 1, 1, 1,
+  #|         p1x, p1y, 1, 0, 1, 1, 1, 1,
+  #|         p2x, p2y, 1, 1, 1, 1, 1, 1,
+  #|         p0x, p0y, 0, 0, 1, 1, 1, 1,
+  #|         p2x, p2y, 1, 1, 1, 1, 1, 1,
+  #|         p3x, p3y, 0, 1, 1, 1, 1, 1,
   #|       ]);
   #|       rt.pushTex2d(0, rec, verts);
   #|       return true;
@@ -855,30 +859,38 @@ extern "js" fn webgpu_initialize(
   #|       });
   #|     };
   #|
-  #|     rt.pushRect = (x, y, w, h, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
-  #|       const c = colorNorm(fr, fg, fb, fa);
+  #|     rt.pushRect = (x, y, w, h, ma, mb, mc, md, tx, ty, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
+  #|       const fill = colorNorm(fr, fg, fb, fa);
+  #|       const p0x = ma * 0 + mc * 0 + tx + x;
+  #|       const p0y = mb * 0 + md * 0 + ty + y;
+  #|       const p1x = ma * w + mc * 0 + tx + x;
+  #|       const p1y = mb * w + md * 0 + ty + y;
+  #|       const p2x = ma * w + mc * h + tx + x;
+  #|       const p2y = mb * w + md * h + ty + y;
+  #|       const p3x = ma * 0 + mc * h + tx + x;
+  #|       const p3y = mb * 0 + md * h + ty + y;
   #|       const verts = new Float32Array([
-  #|         x, y, c[0], c[1], c[2], c[3],
-  #|         x + w, y, c[0], c[1], c[2], c[3],
-  #|         x + w, y + h, c[0], c[1], c[2], c[3],
-  #|         x, y, c[0], c[1], c[2], c[3],
-  #|         x + w, y + h, c[0], c[1], c[2], c[3],
-  #|         x, y + h, c[0], c[1], c[2], c[3],
+  #|         p0x, p0y, fill[0], fill[1], fill[2], fill[3],
+  #|         p1x, p1y, fill[0], fill[1], fill[2], fill[3],
+  #|         p2x, p2y, fill[0], fill[1], fill[2], fill[3],
+  #|         p0x, p0y, fill[0], fill[1], fill[2], fill[3],
+  #|         p2x, p2y, fill[0], fill[1], fill[2], fill[3],
+  #|         p3x, p3y, fill[0], fill[1], fill[2], fill[3],
   #|       ]);
   #|       rt.pushColor2d('triangle', verts);
   #|       if (hasStroke) {
   #|         const s = colorNorm(sr, sg, sb, sa);
   #|         const line = new Float32Array([
-  #|           x, y, s[0], s[1], s[2], s[3], x + w, y, s[0], s[1], s[2], s[3],
-  #|           x + w, y, s[0], s[1], s[2], s[3], x + w, y + h, s[0], s[1], s[2], s[3],
-  #|           x + w, y + h, s[0], s[1], s[2], s[3], x, y + h, s[0], s[1], s[2], s[3],
-  #|           x, y + h, s[0], s[1], s[2], s[3], x, y, s[0], s[1], s[2], s[3],
+  #|           p0x, p0y, s[0], s[1], s[2], s[3], p1x, p1y, s[0], s[1], s[2], s[3],
+  #|           p1x, p1y, s[0], s[1], s[2], s[3], p2x, p2y, s[0], s[1], s[2], s[3],
+  #|           p2x, p2y, s[0], s[1], s[2], s[3], p3x, p3y, s[0], s[1], s[2], s[3],
+  #|           p3x, p3y, s[0], s[1], s[2], s[3], p0x, p0y, s[0], s[1], s[2], s[3],
   #|         ]);
   #|         rt.pushColor2d('line', line);
   #|       }
   #|     };
   #|
-  #|     rt.pushGradientRect = (x, y, w, h, sr, sg, sb, sa, er, eg, eb, ea) => {
+  #|     rt.pushGradientRect = (x, y, w, h, ma, mb, mc, md, tx, ty, sr, sg, sb, sa, er, eg, eb, ea) => {
   #|       const c0 = colorNorm(sr, sg, sb, sa);
   #|       const c1 = colorNorm(er, eg, eb, ea);
   #|       const cm = [
@@ -887,30 +899,42 @@ extern "js" fn webgpu_initialize(
   #|         (c0[2] + c1[2]) * 0.5,
   #|         (c0[3] + c1[3]) * 0.5,
   #|       ];
+  #|       const p0x = ma * 0 + mc * 0 + tx + x;
+  #|       const p0y = mb * 0 + md * 0 + ty + y;
+  #|       const p1x = ma * w + mc * 0 + tx + x;
+  #|       const p1y = mb * w + md * 0 + ty + y;
+  #|       const p2x = ma * w + mc * h + tx + x;
+  #|       const p2y = mb * w + md * h + ty + y;
+  #|       const p3x = ma * 0 + mc * h + tx + x;
+  #|       const p3y = mb * 0 + md * h + ty + y;
   #|       const verts = new Float32Array([
-  #|         x, y, c0[0], c0[1], c0[2], c0[3],
-  #|         x + w, y, cm[0], cm[1], cm[2], cm[3],
-  #|         x + w, y + h, c1[0], c1[1], c1[2], c1[3],
-  #|         x, y, c0[0], c0[1], c0[2], c0[3],
-  #|         x + w, y + h, c1[0], c1[1], c1[2], c1[3],
-  #|         x, y + h, cm[0], cm[1], cm[2], cm[3],
+  #|         p0x, p0y, c0[0], c0[1], c0[2], c0[3],
+  #|         p1x, p1y, cm[0], cm[1], cm[2], cm[3],
+  #|         p2x, p2y, c1[0], c1[1], c1[2], c1[3],
+  #|         p0x, p0y, c0[0], c0[1], c0[2], c0[3],
+  #|         p2x, p2y, c1[0], c1[1], c1[2], c1[3],
+  #|         p3x, p3y, cm[0], cm[1], cm[2], cm[3],
   #|       ]);
   #|       rt.pushColor2d('triangle', verts);
   #|     };
   #|
-  #|     rt.pushCircle = (cx, cy, radius, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
+  #|     rt.pushCircle = (cx, cy, radius, ma, mb, mc, md, tx, ty, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
   #|       const n = 40;
   #|       const fill = colorNorm(fr, fg, fb, fa);
   #|       const tri = [];
   #|       for (let i = 0; i < n; i += 1) {
   #|         const a0 = (i / n) * Math.PI * 2.0;
   #|         const a1 = ((i + 1) / n) * Math.PI * 2.0;
-  #|         const x0 = cx + Math.cos(a0) * radius;
-  #|         const y0 = cy + Math.sin(a0) * radius;
-  #|         const x1 = cx + Math.cos(a1) * radius;
-  #|         const y1 = cy + Math.sin(a1) * radius;
+  #|         const lx0 = Math.cos(a0) * radius;
+  #|         const ly0 = Math.sin(a0) * radius;
+  #|         const lx1 = Math.cos(a1) * radius;
+  #|         const ly1 = Math.sin(a1) * radius;
+  #|         const x0 = ma * lx0 + mc * ly0 + tx + cx;
+  #|         const y0 = mb * lx0 + md * ly0 + ty + cy;
+  #|         const x1 = ma * lx1 + mc * ly1 + tx + cx;
+  #|         const y1 = mb * lx1 + md * ly1 + ty + cy;
   #|         tri.push(
-  #|           cx, cy, fill[0], fill[1], fill[2], fill[3],
+  #|           tx + cx, ty + cy, fill[0], fill[1], fill[2], fill[3],
   #|           x0, y0, fill[0], fill[1], fill[2], fill[3],
   #|           x1, y1, fill[0], fill[1], fill[2], fill[3],
   #|         );
@@ -922,10 +946,14 @@ extern "js" fn webgpu_initialize(
   #|         for (let i = 0; i < n; i += 1) {
   #|           const a0 = (i / n) * Math.PI * 2.0;
   #|           const a1 = ((i + 1) / n) * Math.PI * 2.0;
-  #|           const x0 = cx + Math.cos(a0) * radius;
-  #|           const y0 = cy + Math.sin(a0) * radius;
-  #|           const x1 = cx + Math.cos(a1) * radius;
-  #|           const y1 = cy + Math.sin(a1) * radius;
+  #|           const lx0 = Math.cos(a0) * radius;
+  #|           const ly0 = Math.sin(a0) * radius;
+  #|           const lx1 = Math.cos(a1) * radius;
+  #|           const ly1 = Math.sin(a1) * radius;
+  #|           const x0 = ma * lx0 + mc * ly0 + tx + cx;
+  #|           const y0 = mb * lx0 + md * ly0 + ty + cy;
+  #|           const x1 = ma * lx1 + mc * ly1 + tx + cx;
+  #|           const y1 = mb * lx1 + md * ly1 + ty + cy;
   #|           lines.push(
   #|             x0, y0, stroke[0], stroke[1], stroke[2], stroke[3],
   #|             x1, y1, stroke[0], stroke[1], stroke[2], stroke[3],
@@ -992,8 +1020,8 @@ extern "js" fn webgpu_initialize(
   #|       rt.pushTex2d(samplerCode, rec, verts);
   #|     };
   #|
-  #|     rt.pushText = (text, x, y, family, size, align, baseline, r, g, b, a) => {
-  #|       const rec = rt.ensureTextTexture(text, family, size, r, g, b, a);
+  #|     rt.pushText = (text, x, y, ma, mb, mc, md, tx, ty, family, size, align, baseline, r, g, b, alpha) => {
+  #|       const rec = rt.ensureTextTexture(text, family, size, r, g, b, alpha);
   #|       if (!rec) return;
   #|       let ox = x;
   #|       let oy = y;
@@ -1001,17 +1029,21 @@ extern "js" fn webgpu_initialize(
   #|       else if (align === 2) ox -= rec.width;
   #|       if (baseline === 1) oy -= rec.height / 2;
   #|       else if (baseline === 2) oy -= rec.height;
-  #|       const x0 = ox;
-  #|       const y0 = oy;
-  #|       const x1 = ox + rec.width;
-  #|       const y1 = oy + rec.height;
+  #|       const p0x = ma * 0 + mc * 0 + tx + ox;
+  #|       const p0y = mb * 0 + md * 0 + ty + oy;
+  #|       const p1x = ma * rec.width + mc * 0 + tx + ox;
+  #|       const p1y = mb * rec.width + md * 0 + ty + oy;
+  #|       const p2x = ma * rec.width + mc * rec.height + tx + ox;
+  #|       const p2y = mb * rec.width + md * rec.height + ty + oy;
+  #|       const p3x = ma * 0 + mc * rec.height + tx + ox;
+  #|       const p3y = mb * 0 + md * rec.height + ty + oy;
   #|       const verts = new Float32Array([
-  #|         x0, y0, 0, 0, 1, 1, 1, 1,
-  #|         x1, y0, 1, 0, 1, 1, 1, 1,
-  #|         x1, y1, 1, 1, 1, 1, 1, 1,
-  #|         x0, y0, 0, 0, 1, 1, 1, 1,
-  #|         x1, y1, 1, 1, 1, 1, 1, 1,
-  #|         x0, y1, 0, 1, 1, 1, 1, 1,
+  #|         p0x, p0y, 0, 0, 1, 1, 1, 1,
+  #|         p1x, p1y, 1, 0, 1, 1, 1, 1,
+  #|         p2x, p2y, 1, 1, 1, 1, 1, 1,
+  #|         p0x, p0y, 0, 0, 1, 1, 1, 1,
+  #|         p2x, p2y, 1, 1, 1, 1, 1, 1,
+  #|         p3x, p3y, 0, 1, 1, 1, 1, 1,
   #|       ]);
   #|       rt.pushTex2d(0, rec, verts);
   #|     };
@@ -3125,19 +3157,25 @@ extern "js" fn webgpu_draw_text(
   text : String,
   x : Double,
   y : Double,
+  transform_a : Double,
+  transform_b : Double,
+  transform_c : Double,
+  transform_d : Double,
+  transform_tx : Double,
+  transform_ty : Double,
   family : String,
   size : Double,
   align : Int,
   baseline : Int,
-  r : Double,
-  g : Double,
-  b : Double,
-  a : Double,
+  color_r : Double,
+  color_g : Double,
+  color_b : Double,
+  color_a : Double,
 ) -> Unit =
-  #| (text, x, y, family, size, align, baseline, r, g, b, a) => {
+  #| (text, x, y, a, b, c, d, tx, ty, family, size, align, baseline, r, g, bcol, alpha) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushText(text, x, y, family, size, align, baseline, r, g, b, a);
+  #|     rt.pushText(text, x, y, a, b, c, d, tx, ty, family, size, align, baseline, r, g, bcol, alpha);
   #|   }
   #| }
 
@@ -3163,13 +3201,19 @@ extern "js" fn webgpu_draw_cached_text(
   key : String,
   x : Double,
   y : Double,
+  transform_a : Double,
+  transform_b : Double,
+  transform_c : Double,
+  transform_d : Double,
+  transform_tx : Double,
+  transform_ty : Double,
   align : Int,
   baseline : Int,
 ) -> Unit =
-  #| (key, x, y, align, baseline) => {
+  #| (key, x, y, a, b, c, d, tx, ty, align, baseline) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushCachedText?.(key, x, y, align, baseline);
+  #|     rt.pushCachedText?.(key, x, y, a, b, c, d, tx, ty, align, baseline);
   #|   }
   #| }
 
@@ -3179,6 +3223,12 @@ extern "js" fn webgpu_draw_rect(
   y : Double,
   width : Double,
   height : Double,
+  transform_a : Double,
+  transform_b : Double,
+  transform_c : Double,
+  transform_d : Double,
+  transform_tx : Double,
+  transform_ty : Double,
   fill_r : Double,
   fill_g : Double,
   fill_b : Double,
@@ -3189,10 +3239,10 @@ extern "js" fn webgpu_draw_rect(
   stroke_b : Double,
   stroke_a : Double,
 ) -> Unit =
-  #| (x, y, w, h, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
+  #| (x, y, w, h, a, b, c, d, tx, ty, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushRect(x, y, w, h, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa);
+  #|     rt.pushRect(x, y, w, h, a, b, c, d, tx, ty, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa);
   #|   }
   #| }
 
@@ -3201,6 +3251,12 @@ extern "js" fn webgpu_draw_circle(
   center_x : Double,
   center_y : Double,
   radius : Double,
+  transform_a : Double,
+  transform_b : Double,
+  transform_c : Double,
+  transform_d : Double,
+  transform_tx : Double,
+  transform_ty : Double,
   fill_r : Double,
   fill_g : Double,
   fill_b : Double,
@@ -3211,10 +3267,10 @@ extern "js" fn webgpu_draw_circle(
   stroke_b : Double,
   stroke_a : Double,
 ) -> Unit =
-  #| (cx, cy, radius, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
+  #| (cx, cy, radius, a, b, c, d, tx, ty, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushCircle(cx, cy, radius, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa);
+  #|     rt.pushCircle(cx, cy, radius, a, b, c, d, tx, ty, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa);
   #|   }
   #| }
 
@@ -3224,6 +3280,12 @@ extern "js" fn webgpu_draw_gradient_rect(
   y : Double,
   width : Double,
   height : Double,
+  transform_a : Double,
+  transform_b : Double,
+  transform_c : Double,
+  transform_d : Double,
+  transform_tx : Double,
+  transform_ty : Double,
   start_r : Double,
   start_g : Double,
   start_b : Double,
@@ -3233,10 +3295,10 @@ extern "js" fn webgpu_draw_gradient_rect(
   end_b : Double,
   end_a : Double,
 ) -> Unit =
-  #| (x, y, w, h, sr, sg, sb, sa, er, eg, eb, ea) => {
+  #| (x, y, w, h, a, b, c, d, tx, ty, sr, sg, sb, sa, er, eg, eb, ea) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushGradientRect(x, y, w, h, sr, sg, sb, sa, er, eg, eb, ea);
+  #|     rt.pushGradientRect(x, y, w, h, a, b, c, d, tx, ty, sr, sg, sb, sa, er, eg, eb, ea);
   #|   }
   #| }
 

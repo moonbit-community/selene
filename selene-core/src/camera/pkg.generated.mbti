@@ -4,26 +4,51 @@ package "Milky2018/selene/camera"
 import {
   "Milky2018/selene/entity",
   "Milky2018/selene/math",
+  "Milky2018/selene/transform",
 }
 
 // Values
-pub fn attach_entity(@entity.Entity, @math.Vec2D) -> Unit
+pub fn camera2ds() -> Map[@entity.Entity, Camera2d]
 
-pub fn camera_system(Double) -> Unit
+pub fn cameras() -> Map[@entity.Entity, Camera]
 
-pub fn get_position() -> @math.Vec2D
-
-pub fn sample_position(Double) -> @math.Vec2D
-
-pub fn set_follow_x(Bool) -> Unit
-
-pub fn set_follow_y(Bool) -> Unit
-
-pub fn set_limits(top? : Double, bottom? : Double, left? : Double, right? : Double) -> Unit
+pub fn orthographic_projections() -> Map[@entity.Entity, OrthographicProjection]
 
 // Errors
 
 // Types and methods
+pub(all) struct Camera {
+  mut is_active : Bool
+  order : Int
+
+  fn new(is_active? : Bool, order? : Int) -> Camera
+}
+pub fn Camera::new(is_active? : Bool, order? : Int) -> Self
+pub fn Camera::viewport_to_world_2d(Self, @transform.GlobalTransform, OrthographicProjection, @math.Vec2D) -> @math.Vec2D
+pub fn Camera::world_to_viewport(Self, @transform.GlobalTransform, OrthographicProjection, @math.Vec2D) -> @math.Vec2D
+pub impl Default for Camera
+pub impl Eq for Camera
+pub impl Show for Camera
+
+pub(all) struct Camera2d {
+  fn new() -> Camera2d
+}
+pub fn Camera2d::new() -> Self
+pub impl Default for Camera2d
+pub impl Eq for Camera2d
+pub impl Show for Camera2d
+
+pub(all) struct OrthographicProjection {
+  near : Double
+  far : Double
+  scale : Double
+
+  fn new(scale? : Double, near? : Double, far? : Double) -> OrthographicProjection
+}
+pub fn OrthographicProjection::new(scale? : Double, near? : Double, far? : Double) -> Self
+pub impl Default for OrthographicProjection
+pub impl Eq for OrthographicProjection
+pub impl Show for OrthographicProjection
 
 // Type aliases
 

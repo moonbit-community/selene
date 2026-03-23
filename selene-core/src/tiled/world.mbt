@@ -1,4 +1,29 @@
 ///|
+fn tiled_world_set_entity_translation_2d(
+  entity : @entity.Entity,
+  position : @math.Vec2D,
+) -> Unit {
+  let current = @transform.transforms().get(entity).unwrap_or_default()
+  @transform.transforms().set(entity, {
+    ..current,
+    translation: @math.Vec3::new(
+      position[X],
+      position[Y],
+      current.translation.z,
+    ),
+  })
+}
+
+///|
+fn tiled_world_entity_translation_2d(entity : @entity.Entity) -> @math.Vec2D? {
+  @transform.transforms()
+  .get(entity)
+  .map(fn(transform) {
+    @math.Vec2D(transform.translation.x, transform.translation.y)
+  })
+}
+
+///|
 pub struct TiledWorldMap {
   file_name : String
   x : Int
@@ -173,7 +198,7 @@ fn spawn_tiled_world_root(
   world : TiledWorld,
   settings : TiledWorldSpawnSettings,
 ) -> Unit {
-  @transform.positions().set(world_entity, settings.position)
+  tiled_world_set_entity_translation_2d(world_entity, settings.position)
   let loaded_maps_raw = tiled_world_load_maps(world)
   let focus_path = settings.focus_map_path.map(path => {
     world.resolve_map_path(path)
@@ -234,16 +259,14 @@ fn tiled_world_update_chunking(world_entity : @entity.Entity) -> Unit {
     return
   }
   guard instance.settings.chunking is Some(margin) else { return }
+  let (view_min, view_max) = tiled_camera_view_bounds()
+  let view_min = view_min - margin
+  let view_max = view_max + margin
 
-  let camera_pos = @camera.get_position()
-  let viewport_size = @system.get_viewport_size()
-  let view_min = camera_pos - margin
-  let view_max = camera_pos + viewport_size + margin
-
-  guard @transform.positions().get(world_entity) is Some(world_pos) else {
+  guard tiled_world_entity_translation_2d(world_entity) is Some(world_pos) else {
     return
   }
-  let world_origin = world_pos.0
+  let world_origin = world_pos
   let map_offset = instance.settings.map_settings.position
 
   let visible : Array[Int] = []
@@ -281,6 +304,111 @@ fn tiled_world_update_chunking(world_entity : @entity.Entity) -> Unit {
 }
 
 ///|
+fn tiled_camera_view_bounds() -> (@math.Vec2D, @math.Vec2D) {
+  match tiled_world_active_camera2d_view() {
+    Some((camera, camera_transform, projection)) => {
+      let screen_size = @system.get_screen_size()
+      let corners = [
+        camera.viewport_to_world_2d(
+          camera_transform,
+          projection,
+          @math.Vec2D(0.0, 0.0),
+        ),
+        camera.viewport_to_world_2d(
+          camera_transform,
+          projection,
+          @math.Vec2D(screen_size[X], 0.0),
+        ),
+        camera.viewport_to_world_2d(
+          camera_transform,
+          projection,
+          @math.Vec2D(0.0, screen_size[Y]),
+        ),
+        camera.viewport_to_world_2d(
+          camera_transform,
+          projection,
+          @math.Vec2D(screen_size[X], screen_size[Y]),
+        ),
+      ]
+      let min_x = corners.fold(init=corners[0][X], fn(acc, corner) {
+        if corner[X] < acc {
+          corner[X]
+        } else {
+          acc
+        }
+      })
+      let min_y = corners.fold(init=corners[0][Y], fn(acc, corner) {
+        if corner[Y] < acc {
+          corner[Y]
+        } else {
+          acc
+        }
+      })
+      let max_x = corners.fold(init=corners[0][X], fn(acc, corner) {
+        if corner[X] > acc {
+          corner[X]
+        } else {
+          acc
+        }
+      })
+      let max_y = corners.fold(init=corners[0][Y], fn(acc, corner) {
+        if corner[Y] > acc {
+          corner[Y]
+        } else {
+          acc
+        }
+      })
+      (@math.Vec2D(min_x, min_y), @math.Vec2D(max_x, max_y))
+    }
+    None => (@math.Vec2D::zero(), @system.get_viewport_size())
+  }
+}
+
+///|
+fn tiled_world_entity_global_transform(
+  entity : @entity.Entity,
+) -> @transform.GlobalTransform {
+  if @transform.global_transforms().get(entity) is Some(global) {
+    global
+  } else {
+    @transform.GlobalTransform::from_transform(
+      @transform.transforms().get(entity).unwrap_or_default(),
+    )
+  }
+}
+
+///|
+fn tiled_world_active_camera2d_view() -> (
+  @camera.Camera,
+  @transform.GlobalTransform,
+  @camera.OrthographicProjection,
+)? {
+  let mut selected : (
+    @camera.Camera,
+    @transform.GlobalTransform,
+    @camera.OrthographicProjection,
+    Int,
+  )? = None
+  for entity, camera in @camera.cameras() {
+    guard entity.is_alive() else { continue }
+    guard camera.is_active else { continue }
+    guard @camera.camera2ds().contains(entity) else { continue }
+    let projection = @camera.orthographic_projections()
+      .get(entity)
+      .unwrap_or_default()
+    let global = tiled_world_entity_global_transform(entity)
+    match selected {
+      Some((_, _, _, order)) if order >= camera.order => ()
+      _ => selected = Some((camera, global, projection, camera.order))
+    }
+  }
+  match selected {
+    Some((camera, global, projection, _)) => Some((camera, global, projection))
+    None => None
+  }
+}
+
+///|
 fn tiled_world_spawn_loaded_map(
   world_entity : @entity.Entity,
   index : Int,
@@ -301,10 +429,10 @@ fn tiled_world_spawn_loaded_map(
     loaded_map.world_map.y.to_double() +
     instance.settings.map_settings.position[Y],
   )
-  let map_entity = world_entity.spawn_child(offset=child_offset)
+  let map_entity = world_entity.spawn_child()
   let map_settings = {
     ..instance.settings.map_settings,
-    position: @math.Vec2D::zero(),
+    position: child_offset,
     zindex: instance.settings.map_settings.zindex +
     index * instance.settings.map_z_step,
   }

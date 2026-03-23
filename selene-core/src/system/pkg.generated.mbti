@@ -32,8 +32,6 @@ pub fn scale_vec2(@math.Vec2D) -> @math.Vec2D
 
 pub fn screen_to_ui_virtual(@math.Vec2D) -> @math.Vec2D
 
-pub fn screen_to_world(@math.Vec2D, @math.Vec2D) -> @math.Vec2D
-
 pub fn set_render_alpha(Double) -> Unit
 
 pub fn sync_mouse_lock_system(Double) -> Unit
@@ -47,8 +45,6 @@ pub fn ui_virtual_to_screen(@math.Vec2D) -> @math.Vec2D
 pub fn unscale_value(Double) -> Double
 
 pub fn unscale_vec2(@math.Vec2D) -> @math.Vec2D
-
-pub fn world_to_screen(@math.Vec2D, @math.Vec2D) -> @math.Vec2D
 
 // Errors
 

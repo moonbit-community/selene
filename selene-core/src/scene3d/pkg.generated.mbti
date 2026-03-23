@@ -5,13 +5,13 @@ import {
   "Milky2018/selene/animation3d",
   "Milky2018/selene/entity",
   "Milky2018/selene/render3d_types",
-  "Milky2018/selene/transform3d",
+  "Milky2018/selene/transform",
 }
 
 // Values
-pub fn instantiate_scene(@render3d_types.SceneHandle, @transform3d.Transform3D) -> @entity.Entity
+pub fn instantiate_scene(@render3d_types.SceneHandle, @transform.Transform) -> @entity.Entity
 
-pub fn instantiate_scene_instance(@render3d_types.SceneHandle, @transform3d.Transform3D) -> SceneInstance
+pub fn instantiate_scene_instance(@render3d_types.SceneHandle, @transform.Transform) -> SceneInstance
 
 pub fn load_scene_gltf(String) -> @render3d_types.SceneHandle
 

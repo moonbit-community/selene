@@ -264,16 +264,19 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
       Some(enemy_type) => {
         let enemy = @entity.Entity::new()
         let pos = spawners[rand.int(limit=spawners.length())]
-        @transform.positions().set(enemy, pos)
+        @transform.transforms().set(
+          enemy,
+          @transform.Transform::from_xyz(
+            pos[X],
+            pos[Y],
+            ENEMY_ZINDEX.to_double(),
+          ),
+        )
         @physics2d.linear_velocities().set(enemy, @math.Vec2D::zero())
         let data = get_enemy_data(enemy_type)
 
         // Create sprite and enemy state using data structure
-        let sprite = @sprite.Sprite::from_animation(
-          data.right_animation,
-          ENEMY_ZINDEX,
-          offset=Vec2D(-8.0, -12.0),
-        )
+        let sprite = @sprite.Sprite::from_animation(data.right_animation)
         let enemy_state = {
           enemy_type,
           speed: data.speed,
@@ -406,11 +409,19 @@ fn enemy_ai_system(_world : @ecs.World) -> Unit {
   }
   for e, state in enemies {
     guard e.is_alive() else { continue }
-    guard @transform.positions().get(game_state.player_entity)
-      is Some(player_position)
-    guard @transform.positions().get(e) is Some(position)
+    guard @transform.transforms().get(game_state.player_entity)
+      is Some(player_transform)
+    guard @transform.transforms().get(e) is Some(enemy_transform)
     let data = get_enemy_data(state.enemy_type)
-    let dir = player_position.0 - position.0
+    let player_position = @math.Vec2D(
+      player_transform.translation.x,
+      player_transform.translation.y,
+    )
+    let position = @math.Vec2D(
+      enemy_transform.translation.x,
+      enemy_transform.translation.y,
+    )
+    let dir = player_position - position
     let vel = dir.normalize().scalar_mul(state.speed)
     @physics2d.linear_velocities().set(e, vel)
 
@@ -435,9 +446,17 @@ fn devil_shooting_system(_world : @ecs.World) -> Unit {
     if state.enemy_type != Devil {
       continue
     }
-    guard @transform.positions().get(e) is Some(enemy_pos)
-    guard @transform.positions().get(game_state.player_entity)
-      is Some(player_pos)
+    guard @transform.transforms().get(e) is Some(enemy_transform)
+    guard @transform.transforms().get(game_state.player_entity)
+      is Some(player_transform)
+    let enemy_pos = @math.Vec2D(
+      enemy_transform.translation.x,
+      enemy_transform.translation.y,
+    )
+    let player_pos = @math.Vec2D(
+      player_transform.translation.x,
+      player_transform.translation.y,
+    )
 
     // Update shoot timer
     if state.shoot_timer > 0.0 {
@@ -447,7 +466,7 @@ fn devil_shooting_system(_world : @ecs.World) -> Unit {
     // Shoot when timer expires
     if state.shoot_timer <= 0.0 {
       state.shoot_timer = 5.0 // Reset cooldown
-      shoot_enemy_bullet(enemy_pos.0, player_pos.0)
+      shoot_enemy_bullet(enemy_pos, player_pos)
     }
   }
 }
@@ -462,10 +481,16 @@ fn shoot_enemy_bullet(
     bullet_entity,
     @sprite.Sprite::from_color_rect(
       @sprite.ColorRect::new(Vec2D(4.0, 4.0), "red"),
-      BULLET_ZINDEX,
     ),
   )
-  @transform.positions().set(bullet_entity, enemy_pos)
+  @transform.transforms().set(
+    bullet_entity,
+    @transform.Transform::from_xyz(
+      enemy_pos[X],
+      enemy_pos[Y],
+      BULLET_ZINDEX.to_double(),
+    ),
+  )
   let vel = (player_pos - enemy_pos).normalize().scalar_mul(120.0)
   @physics2d.linear_velocities().set(bullet_entity, vel)
   @physics2d.shapes().set(

@@ -13,6 +13,23 @@
 // limitations under the License.
 
 ///|
+let player_visual_offset : @math.Vec2D = Vec2D(
+  -PLAYER_SIZE / 2.0,
+  -PLAYER_SIZE / 2.0,
+)
+
+///|
+let enemy_visual_offset : @math.Vec2D = Vec2D(-8.0, -12.0)
+
+///|
+fn visual_transform(
+  offset : @math.Vec2D,
+  base? : @math.Transform = @math.Transform::identity(),
+) -> @math.Transform {
+  @math.Transform::from_translation(offset[X], offset[Y]) * base
+}
+
+///|
 let player_idle_right_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
     "assets/survivors/whiteboy/idle.png",
@@ -24,6 +41,7 @@ let player_idle_right_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
+  transform=visual_transform(player_visual_offset),
 )
 
 ///|
@@ -38,7 +56,10 @@ let player_idle_left_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   loop_=true,
   fps=12,
-  transform=@math.Transform::flip_x(PLAYER_SIZE),
+  transform=visual_transform(
+    player_visual_offset,
+    base=@math.Transform::flip_x(PLAYER_SIZE),
+  ),
 )
 
 ///|
@@ -53,6 +74,7 @@ let player_idle_up_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
+  transform=visual_transform(player_visual_offset),
 )
 
 ///|
@@ -67,6 +89,7 @@ let player_idle_down_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
+  transform=visual_transform(player_visual_offset),
 )
 
 ///|
@@ -81,6 +104,7 @@ let player_run_right_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
+  transform=visual_transform(player_visual_offset),
 )
 
 ///|
@@ -95,7 +119,10 @@ let player_run_left_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
-  transform=@math.Transform::flip_x(PLAYER_SIZE),
+  transform=visual_transform(
+    player_visual_offset,
+    base=@math.Transform::flip_x(PLAYER_SIZE),
+  ),
 )
 
 ///|
@@ -110,6 +137,7 @@ let player_run_down_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
+  transform=visual_transform(player_visual_offset),
 )
 
 ///|
@@ -124,6 +152,7 @@ let player_run_up_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
+  transform=visual_transform(player_visual_offset),
 )
 
 ///|
@@ -152,7 +181,7 @@ let creeper_right_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
-  transform=@math.Transform::new(),
+  transform=visual_transform(enemy_visual_offset),
 )
 
 ///|
@@ -167,7 +196,10 @@ let creeper_left_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
-  transform=@math.Transform::flip_x(16),
+  transform=visual_transform(
+    enemy_visual_offset,
+    base=@math.Transform::flip_x(16),
+  ),
 )
 
 ///|
@@ -182,7 +214,7 @@ let icecream_right_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
-  transform=@math.Transform::new(),
+  transform=visual_transform(enemy_visual_offset),
 )
 
 ///|
@@ -197,7 +229,10 @@ let icecream_left_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
-  transform=@math.Transform::flip_x(16),
+  transform=visual_transform(
+    enemy_visual_offset,
+    base=@math.Transform::flip_x(16),
+  ),
 )
 
 ///|
@@ -212,7 +247,7 @@ let orc_right_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
-  transform=@math.Transform::new(),
+  transform=visual_transform(enemy_visual_offset),
 )
 
 ///|
@@ -227,7 +262,10 @@ let orc_left_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
-  transform=@math.Transform::flip_x(16),
+  transform=visual_transform(
+    enemy_visual_offset,
+    base=@math.Transform::flip_x(16),
+  ),
 )
 
 ///|
@@ -242,7 +280,7 @@ let skull_right_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
-  transform=@math.Transform::new(),
+  transform=visual_transform(enemy_visual_offset),
 )
 
 ///|
@@ -257,7 +295,10 @@ let skull_left_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
-  transform=@math.Transform::flip_x(16),
+  transform=visual_transform(
+    enemy_visual_offset,
+    base=@math.Transform::flip_x(16),
+  ),
 )
 
 ///|
@@ -272,7 +313,7 @@ let devil_right_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
-  transform=@math.Transform::new(),
+  transform=visual_transform(enemy_visual_offset),
 )
 
 ///|
@@ -287,7 +328,10 @@ let devil_left_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
-  transform=@math.Transform::flip_x(16),
+  transform=visual_transform(
+    enemy_visual_offset,
+    base=@math.Transform::flip_x(16),
+  ),
 )
 
 ///|
@@ -302,7 +346,7 @@ let pirate_right_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
-  transform=@math.Transform::new(),
+  transform=visual_transform(enemy_visual_offset),
 )
 
 ///|
@@ -317,7 +361,10 @@ let pirate_left_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
-  transform=@math.Transform::flip_x(16),
+  transform=visual_transform(
+    enemy_visual_offset,
+    base=@math.Transform::flip_x(16),
+  ),
 )
 
 ///|
@@ -332,7 +379,7 @@ let teleman_right_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
-  transform=@math.Transform::new(),
+  transform=visual_transform(enemy_visual_offset),
 )
 
 ///|
@@ -347,5 +394,8 @@ let teleman_left_animation : @sprite.Animation = @sprite.Animation::new(
   ),
   fps=12,
   loop_=true,
-  transform=@math.Transform::flip_x(16),
+  transform=visual_transform(
+    enemy_visual_offset,
+    base=@math.Transform::flip_x(16),
+  ),
 )

@@ -8,6 +8,13 @@ fn bird_contact_outcome_name(outcome : BirdContactOutcome) -> String {
 }
 
 ///|
+test "player freezes after any game result" {
+  inspect(player_is_frozen(Some(Win)), content="true")
+  inspect(player_is_frozen(Some(GameOver)), content="true")
+  inspect(player_is_frozen(None), content="false")
+}
+
+///|
 test "touching edges count as player/bird contact" {
   let player_rect = @math.Rect::{
     position: @math.Vec2D(32.0, 0.0),
@@ -96,4 +103,15 @@ test "pending stomp bounce overrides downward Y velocity" {
     player_motion_base_velocity(@math.Vec2D(120.0, 480.0), Some(-BUMP_V)).to_string(),
     content=@math.Vec2D(120.0, -BUMP_V).to_string(),
   )
+}
+
+///|
+test "level data contains player flag and terrain" {
+  let parsed_tilemap = TileMap::from_json(tilemap)
+  inspect(
+    parsed_tilemap.get_tiles_first("MaskDude").length() > 0,
+    content="true",
+  )
+  inspect(parsed_tilemap.get_tiles_first("Flag").length() > 0, content="true")
+  inspect(parsed_tilemap.get_tiles("Grass").length() > 0, content="true")
 }

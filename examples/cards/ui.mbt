@@ -109,7 +109,10 @@ fn configure_button(
 /// Setup UI elements
 fn setup_ui() -> Unit {
   let table_entity = @entity.Entity::new()
-  @transform.positions().set(table_entity, @math.Vec2D(0.0, 0.0))
+  @transform.transforms().set(
+    table_entity,
+    @transform.Transform::from_xyz(0.0, 0.0, 0.0),
+  )
   @sprite.sprites().set(
     table_entity,
     @sprite.Sprite::from_color_rect(
@@ -117,7 +120,6 @@ fn setup_ui() -> Unit {
         @math.Vec2D(VIEWPORT_WIDTH, VIEWPORT_HEIGHT),
         "#2d5016",
       ),
-      0,
     ),
   )
 
@@ -413,8 +415,11 @@ fn display_all_cards() -> Unit {
   for j, card in player.hole_cards {
     let card_x = x_base + (j.to_double() - 0.5) * 30.0 - 30
     let card_entity = @entity.Entity::new()
-    @transform.positions().set(card_entity, @math.Vec2D(card_x, y_base))
-    @sprite.sprites().set(card_entity, card.to_sprite(j))
+    @transform.transforms().set(
+      card_entity,
+      @transform.Transform::from_xyz(card_x, y_base, j.to_double()),
+    )
+    @sprite.sprites().set(card_entity, card.to_sprite())
     game_state.hole_card_entities.push(card_entity)
   }
 
@@ -433,8 +438,11 @@ fn display_community_cards() -> Unit {
   for i, card in game_state.community_cards {
     let card_x = center_x + (i.to_double() - 2.5) * 30.0 - 15
     let card_entity = @entity.Entity::new()
-    @transform.positions().set(card_entity, @math.Vec2D(card_x, center_y))
-    @sprite.sprites().set(card_entity, card.to_sprite(10 + i))
+    @transform.transforms().set(
+      card_entity,
+      @transform.Transform::from_xyz(card_x, center_y, (10 + i).to_double()),
+    )
+    @sprite.sprites().set(card_entity, card.to_sprite())
     game_state.community_card_entities.push(card_entity)
   }
 }

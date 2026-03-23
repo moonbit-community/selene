@@ -6,7 +6,12 @@ fn push_ui_rect_fill(rect : @math.Rect, color : @render.Color) -> Unit {
   if rect.size[X] <= 0.0 || rect.size[Y] <= 0.0 || color.a <= 0.0 {
     return
   }
-  @render2d.push_ui_rect({ rect, fill_color: color, stroke_color: None })
+  @render2d.push_ui_rect({
+    rect,
+    transform: @math.Transform::identity(),
+    fill_color: color,
+    stroke_color: None,
+  })
 }
 
 ///|
@@ -21,6 +26,7 @@ fn push_ui_circle_fill(
   @render2d.push_ui_circle({
     center,
     radius,
+    transform: @math.Transform::identity(),
     fill_color: color,
     stroke_color: None,
   })
@@ -377,6 +383,7 @@ pub fn draw_ui_material_gradient(
 ) -> Unit {
   @render2d.push_ui_gradient_rect({
     rect: context.rect,
+    transform: @math.Transform::identity(),
     color_start: gradient.color_start,
     color_end: gradient.color_end,
   })
@@ -782,6 +789,7 @@ fn push_text(entity : @entity.Entity) -> Unit {
     @render2d.push_ui_text({
       text: line,
       position: @math.Vec2D(x, start_y + index.to_double() * line_height),
+      transform: @math.Transform::identity(),
       style: style_for_draw,
     })
   }
