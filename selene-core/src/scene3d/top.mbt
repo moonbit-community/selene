@@ -248,21 +248,13 @@ pub fn instantiate_scene_instance(
   let animation_nodes : Map[String, @animation.AnimationNodeIndex] = Map::new()
   if template.animations.length() > 0 {
     let graph = @animation.AnimationGraph::new()
-    let mut first_node : @animation.AnimationNodeIndex? = None
     for name, clip in template.animations {
       let node = graph.add_clip(clip)
       animation_nodes.set(name, node)
-      if first_node is None {
-        first_node = Some(node)
-      }
     }
-    let graph_handle = @animation.register_animation_graph(graph)
+    let graph_handle = @animation.register_animation_graph_asset(graph)
     @animation.animation_graph_handles().set(root, graph_handle)
-    let player = @animation.AnimationPlayer::new()
-    if first_node is Some(node) {
-      player.play(node)
-    }
-    @animation.animation_players().set(root, player)
+    @animation.animation_players().set(root, @animation.AnimationPlayer::new())
     @animation.animation_transitions().set(
       root,
       @animation.AnimationTransitions::new(),
@@ -277,14 +269,6 @@ pub fn scene_instance_part(
   path : String,
 ) -> @entity.Entity? {
   instance.parts.get(path)
-}
-
-///|
-pub fn scene_instance_animation(
-  instance : SceneInstance,
-  name : String,
-) -> @animation.AnimationNodeIndex? {
-  instance.animations.get(name)
 }
 
 ///|
@@ -794,7 +778,7 @@ fn parse_animation_clips(
         )
       }
     }
-    let clip_handle = @animation.register_animation_clip(clip)
+    let clip_handle = @animation.register_animation_clip_asset(clip)
     animations.set(name, clip_handle)
   }
   animations

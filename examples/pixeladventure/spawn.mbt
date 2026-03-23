@@ -194,7 +194,7 @@ fn register_sprite_animation_node(
   graph : @animation.AnimationGraph,
   animation : @sprite.Animation,
 ) -> @animation.AnimationNodeIndex {
-  graph.add_clip(@animation.register_sprite_animation_clip(animation))
+  graph.add_clip(build_sprite_animation_clip_asset(animation))
 }
 
 ///|
@@ -220,7 +220,7 @@ fn build_player_animation_nodes(
     hit_left: register_sprite_animation_node(graph, player_hit_left_animation),
     hit_right: register_sprite_animation_node(graph, player_hit_right_animation),
   }
-  let graph_handle = @animation.register_animation_graph(graph)
+  let graph_handle = @animation.register_animation_graph_asset(graph)
   ensure_sprite_animation_binding(entity)
   @animation.animation_graph_handles().set(entity, graph_handle)
   nodes
@@ -235,7 +235,7 @@ fn build_bird_animation_nodes(entity : @entity.Entity) -> BirdAnimationNodes {
     hit_left: register_sprite_animation_node(graph, bird_hit_left_animation),
     hit_right: register_sprite_animation_node(graph, bird_hit_right_animation),
   }
-  let graph_handle = @animation.register_animation_graph(graph)
+  let graph_handle = @animation.register_animation_graph_asset(graph)
   ensure_sprite_animation_binding(entity)
   @animation.animation_graph_handles().set(entity, graph_handle)
   nodes
@@ -463,7 +463,7 @@ fn spawn_apple(pos : @math.Vec2D) -> Unit {
     fps=12,
   )
   @sprite.sprites().set(entity, @sprite.Sprite::from_animation(animation))
-  ignore(@animation.attach_sprite_animation_player(entity, animation))
+  ignore(install_sprite_animation_player(entity, animation))
   @transform.transforms().set(
     entity,
     @transform.Transform::from_xyz(pos[X], pos[Y], ITEM_Z),

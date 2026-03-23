@@ -42,6 +42,74 @@ fn tiled_ecs_set_entity_depth(entity : @entity.Entity, z : Int) -> Unit {
 }
 
 ///|
+fn tiled_sprite_animation_clip_asset(
+  animation : @sprite.Animation,
+) -> @animation.AnimationClipHandle {
+  let clip = @animation.AnimationClip::new("sprite/\{animation.id.to_string()}")
+  let keys : Array[@animation.ScalarKeyframe] = []
+  let frame_duration = if animation.fps <= 0.0 {
+    1.0
+  } else {
+    1.0 / animation.fps
+  }
+  for index in 0..<animation.frames.length() {
+    keys.push({
+      time: index.to_double() * frame_duration,
+      value: index.to_double(),
+      in_tangent: None,
+      out_tangent: None,
+    })
+  }
+  clip.add_curve_to_target(
+    @animation.AnimationTargetId::new("self"),
+    @animation.VariableCurve::scalar(
+      @animation.sprite_frame_index_field(),
+      keys,
+      interpolation=@animation.ChannelInterpolation::Step,
+    ),
+  )
+  if animation.frames.length() > 0 && !animation.loop_ {
+    clip.duration = (animation.frames.length() - 1).to_double() * frame_duration
+  } else if animation.frames.length() > 0 {
+    clip.duration = animation.frames.length().to_double() * frame_duration
+  }
+  @animation.register_animation_clip_asset(clip)
+}
+
+///|
+fn tiled_install_sprite_animation(
+  entity : @entity.Entity,
+  animation : @sprite.Animation,
+) -> Unit {
+  ignore(
+    @animation.animation_players().get_or_init(entity, fn() {
+      @animation.AnimationPlayer::new()
+    }),
+  )
+  ignore(
+    @animation.animation_transitions().get_or_init(entity, fn() {
+      @animation.AnimationTransitions::new()
+    }),
+  )
+  @animation.animation_target_ids().set(
+    entity,
+    @animation.AnimationTargetId::new("self"),
+  )
+  @animation.animated_bys().set(entity, @animation.AnimatedBy::new(entity))
+  ignore(
+    @sprite.sprite_frame_indices().get_or_init(entity, fn() { { frame: 0.0 } }),
+  )
+  let (graph, nodes) = @animation.AnimationGraph::from_clips([
+    tiled_sprite_animation_clip_asset(animation),
+  ])
+  @animation.animation_graph_handles().set(
+    entity,
+    @animation.register_animation_graph_asset(graph),
+  )
+  ignore(@animation.animation_players().get(entity).unwrap().play(nodes[0]))
+}
+
+///|
 pub struct TiledSpawnSettings {
   position : @math.Vec2D
   zindex : Int
@@ -417,7 +485,7 @@ fn spawn_tiled_tile_layer(
     let sprite = @sprite.Sprite::from_animation(animation)
     sprite.visible = visible
     @sprite.sprites().set(tile_entity, sprite)
-    ignore(@animation.attach_sprite_animation_player(tile_entity, animation))
+    tiled_install_sprite_animation(tile_entity, animation)
   }
 }
 
@@ -479,7 +547,7 @@ fn spawn_tiled_object_layer(
     let sprite = @sprite.Sprite::from_animation(animation)
     sprite.visible = visible && object.visible
     @sprite.sprites().set(object_entity, sprite)
-    ignore(@animation.attach_sprite_animation_player(object_entity, animation))
+    tiled_install_sprite_animation(object_entity, animation)
   }
 }
 

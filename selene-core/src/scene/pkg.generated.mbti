@@ -2,7 +2,6 @@
 package "Milky2018/selene/scene"
 
 import {
-  "Milky2018/selene/animation",
   "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/render3d_types",
@@ -18,8 +17,6 @@ pub fn despawn_scene(@entity.Entity) -> Unit
 pub fn instantiate_scene(@render3d_types.SceneHandle, @transform.Transform) -> @scene3d.SceneInstance
 
 pub fn load_scene_gltf(String) -> @render3d_types.SceneHandle
-
-pub fn scene_animation(@scene3d.SceneInstance, String) -> @animation.AnimationNodeIndex?
 
 pub let scene_instance_ready_events : @event.Events[SceneInstanceReadyEvent]
 

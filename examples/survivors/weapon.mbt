@@ -226,11 +226,7 @@ fn shoot_weapon_bullet(
     bullet_entity,
     @sprite.Sprite::from_animation(player_bullet_visual),
   )
-  ignore(
-    @animation.attach_sprite_animation_player(
-      bullet_entity, player_bullet_visual,
-    ),
-  )
+  ignore(install_sprite_animation_player(bullet_entity, player_bullet_visual))
   @transform.transforms().set(
     bullet_entity,
     @transform.Transform::from_xyz(

@@ -233,14 +233,52 @@ let player_idle_animation : @sprite.Animation = @sprite.Animation::new(
 
 `loop_` 表示是否循环，`fps` 表示动画播放速度。
 
-通过动画运行时把 sprite 动画挂到实体上：
+通过 clip / graph / player 把 sprite 动画挂到实体上：
 
 ```moonbit
 @sprite.sprites().set(
   game_state.player,
   @sprite.Sprite::from_animation(player_idle_animation),
 )
-ignore(@animation.attach_sprite_animation_player(game_state.player, player_idle_animation))
+let clip = @animation.AnimationClip::new("player_idle")
+let frame_keys : Array[@animation.ScalarKeyframe] = []
+for index in 0..<player_idle_animation.frames.length() {
+  frame_keys.push({
+    time: index.to_double() / player_idle_animation.fps,
+    value: index.to_double(),
+    in_tangent: None,
+    out_tangent: None,
+  })
+}
+clip.add_curve_to_target(
+  @animation.AnimationTargetId::new("self"),
+  @animation.VariableCurve::scalar(
+    @animation.sprite_frame_index_field(),
+    frame_keys,
+    interpolation=@animation.ChannelInterpolation::Step,
+  ),
+)
+let (graph, nodes) = @animation.AnimationGraph::from_clips([
+  @animation.register_animation_clip_asset(clip),
+])
+@animation.animation_graph_handles().set(
+  game_state.player,
+  @animation.register_animation_graph_asset(graph),
+)
+@animation.animation_players().set(
+  game_state.player,
+  @animation.AnimationPlayer::new(),
+)
+@animation.animation_target_ids().set(
+  game_state.player,
+  @animation.AnimationTargetId::new("self"),
+)
+@animation.animated_bys().set(
+  game_state.player,
+  @animation.AnimatedBy::new(game_state.player),
+)
+@sprite.sprite_frame_indices().set(game_state.player, { frame: 0.0 })
+ignore(@animation.animation_players().get(game_state.player).unwrap().play(nodes[0]))
 ```
 
 玩家状态机可根据速度和地面接触切换动画状态。输入处理使用 `@inputs` 模块：

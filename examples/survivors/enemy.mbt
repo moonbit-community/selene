@@ -364,7 +364,7 @@ fn create_enemy_animation_nodes(
   ensure_sprite_animation_binding(entity)
   @animation.animation_graph_handles().set(
     entity,
-    @animation.register_animation_graph(graph),
+    @animation.register_animation_graph_asset(graph),
   )
   (left_node, right_node)
 }
@@ -383,7 +383,7 @@ fn play_enemy_animation_state(
   let player = @animation.animation_players().get(entity).unwrap()
   let transitions = @animation.animation_transitions().get(entity).unwrap()
   let duration = if state.current_node is Some(_) { 0.05 } else { 0.0 }
-  transitions.play(player, node, duration)
+  ignore(transitions.play(player, node, duration))
   state.current_node = Some(node)
 }
 

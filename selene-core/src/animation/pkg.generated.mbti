@@ -2,12 +2,12 @@
 package "Milky2018/selene/animation"
 
 import {
+  "Milky2018/selene/asset2",
   "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
   "Milky2018/selene/render3d_types",
-  "Milky2018/selene/sprite",
 }
 
 // Values
@@ -17,15 +17,15 @@ pub fn animated_field(AnimatedFieldHandle) -> AnimatedField?
 
 pub fn animation_apply_system(Double) -> Unit
 
-pub fn animation_clip(AnimationClipHandle) -> AnimationClip?
+pub fn animation_clip_asset(AnimationClipHandle) -> AnimationClip?
 
-pub let animation_event_bus : @event.Events[AnimationEvent]
+pub let animation_clip_asset_events : @event.Events[@asset2.AssetEvent[AnimationClipHandle]]
 
-pub fn animation_graph(AnimationGraphHandle) -> AnimationGraph?
+pub fn animation_graph_asset(AnimationGraphHandle) -> AnimationGraph?
+
+pub let animation_graph_asset_events : @event.Events[@asset2.AssetEvent[AnimationGraphHandle]]
 
 pub fn animation_graph_handles() -> Map[@entity.Entity, AnimationGraphHandle]
-
-pub fn animation_masks() -> Map[@entity.Entity, AnimationMask]
 
 pub fn animation_player_system(Double) -> Unit
 
@@ -41,8 +41,6 @@ pub fn animation_transition_system(Double) -> Unit
 
 pub fn animation_transitions() -> Map[@entity.Entity, AnimationTransitions]
 
-pub fn attach_sprite_animation_player(@entity.Entity, @sprite.Animation, repeat? : RepeatAnimation) -> (AnimationGraphHandle, AnimationNodeIndex)
-
 pub fn bind_morph_mesh(@entity.Entity, MorphMeshBinding3D) -> Unit
 
 pub fn bind_skinned_mesh(@entity.Entity, SkinnedMeshBinding3D) -> Unit
@@ -55,19 +53,35 @@ pub fn morph_weights_field() -> AnimatedFieldHandle
 
 pub fn register_animated_field(AnimatedField) -> AnimatedFieldHandle
 
-pub fn register_animation_clip(AnimationClip) -> AnimationClipHandle
+pub fn register_animation_clip_asset(AnimationClip) -> AnimationClipHandle
 
-pub fn register_animation_graph(AnimationGraph) -> AnimationGraphHandle
+pub fn[T] register_animation_event_descriptor(@event.Events[T], (AnimationEventContext) -> T) -> AnimationEventDescriptorHandle
 
-pub fn register_sprite_animation_clip(@sprite.Animation) -> AnimationClipHandle
+pub fn register_animation_graph_asset(AnimationGraph) -> AnimationGraphHandle
+
+pub fn release_animation_clip_asset(AnimationClipHandle) -> Unit
+
+pub fn release_animation_graph_asset(AnimationGraphHandle) -> Unit
 
 pub fn sprite_frame_index_field() -> AnimatedFieldHandle
+
+pub fn take_dirty_animation_clip_assets() -> Array[(AnimationClipHandle, AnimationClip)]
+
+pub fn take_dirty_animation_graph_assets() -> Array[(AnimationGraphHandle, AnimationGraph)]
+
+pub fn take_released_animation_clip_assets() -> Array[AnimationClipHandle]
+
+pub fn take_released_animation_graph_assets() -> Array[AnimationGraphHandle]
 
 pub fn transform_rotation_field() -> AnimatedFieldHandle
 
 pub fn transform_scale_field() -> AnimatedFieldHandle
 
 pub fn transform_translation_field() -> AnimatedFieldHandle
+
+pub fn update_animation_clip_asset(AnimationClipHandle, AnimationClip) -> Unit
+
+pub fn update_animation_graph_asset(AnimationGraphHandle, AnimationGraph) -> Unit
 
 // Errors
 
@@ -82,6 +96,24 @@ pub(all) struct ActiveAnimation {
   mut finished : Bool
   mut completed_repeats : UInt
 }
+pub fn ActiveAnimation::completions(Self) -> UInt
+pub fn ActiveAnimation::elapsed(Self) -> Double
+pub fn ActiveAnimation::is_finished(Self) -> Bool
+pub fn ActiveAnimation::is_paused(Self) -> Bool
+pub fn ActiveAnimation::pause(Self) -> Self
+pub fn ActiveAnimation::repeat(Self) -> Self
+pub fn ActiveAnimation::repeat_mode(Self) -> RepeatAnimation
+pub fn ActiveAnimation::replay(Self) -> Self
+pub fn ActiveAnimation::rewind(Self) -> Self
+pub fn ActiveAnimation::seek_time(Self) -> Double
+pub fn ActiveAnimation::seek_to(Self, Double) -> Self
+pub fn ActiveAnimation::set_repeat(Self, RepeatAnimation) -> Self
+pub fn ActiveAnimation::set_seek_time(Self, Double) -> Self
+pub fn ActiveAnimation::set_speed(Self, Double) -> Self
+pub fn ActiveAnimation::set_weight(Self, Double) -> Self
+pub fn ActiveAnimation::speed(Self) -> Double
+pub fn ActiveAnimation::unpause(Self) -> Self
+pub fn ActiveAnimation::weight(Self) -> Double
 
 pub(all) struct AnimatedBy {
   player : @entity.Entity
@@ -120,7 +152,7 @@ pub(all) struct AnimationClip {
   fn new(String) -> AnimationClip
 }
 pub fn AnimationClip::add_curve_to_target(Self, AnimationTargetId, VariableCurve) -> Unit
-pub fn AnimationClip::add_event(Self, Double, String, dispatch? : AnimationClipEventDispatch) -> Unit
+pub fn AnimationClip::add_event(Self, Double, AnimationEventDescriptorHandle, dispatch? : AnimationClipEventDispatch) -> Unit
 pub fn AnimationClip::new(String) -> Self
 
 pub(all) struct AnimationClipEventDispatch {
@@ -131,7 +163,7 @@ pub impl Show for AnimationClipEventDispatch
 
 pub(all) struct AnimationClipEventKeyframe {
   time : Double
-  name : String
+  descriptor : AnimationEventDescriptorHandle
   dispatch : AnimationClipEventDispatch
 }
 pub impl Eq for AnimationClipEventKeyframe
@@ -144,29 +176,41 @@ pub impl Eq for AnimationClipHandle
 pub impl Hash for AnimationClipHandle
 pub impl Show for AnimationClipHandle
 
-pub(all) struct AnimationEvent {
+pub(all) struct AnimationEventContext {
   clip : AnimationClipHandle
   player : @entity.Entity
   target : @entity.Entity?
-  name : String
   time : Double
 }
-pub impl Eq for AnimationEvent
-pub impl Show for AnimationEvent
+pub impl Eq for AnimationEventContext
+pub impl Show for AnimationEventContext
+
+pub(all) struct AnimationEventDescriptorHandle(UInt)
+#deprecated
+pub fn AnimationEventDescriptorHandle::inner(Self) -> UInt
+pub impl Eq for AnimationEventDescriptorHandle
+pub impl Hash for AnimationEventDescriptorHandle
+pub impl Show for AnimationEventDescriptorHandle
 
 pub(all) struct AnimationGraph {
   root : AnimationNodeIndex
   nodes : Map[AnimationNodeIndex, AnimationGraphNode]
+  mask_groups : Map[AnimationTargetId, UInt]
   mut next_node : UInt
 
   fn new() -> AnimationGraph
 }
-pub fn AnimationGraph::add_add(Self, parent? : AnimationNodeIndex, weight? : Double) -> AnimationNodeIndex
+pub fn AnimationGraph::add_additive_blend(Self, parent? : AnimationNodeIndex, weight? : Double) -> AnimationNodeIndex
+pub fn AnimationGraph::add_additive_blend_with_mask(Self, Array[Int], parent? : AnimationNodeIndex, weight? : Double) -> AnimationNodeIndex
 pub fn AnimationGraph::add_blend(Self, parent? : AnimationNodeIndex, weight? : Double) -> AnimationNodeIndex
-pub fn AnimationGraph::add_clip(Self, AnimationClipHandle, parent? : AnimationNodeIndex, weight? : Double, mask_groups? : Array[Int]) -> AnimationNodeIndex
-pub fn AnimationGraph::connect(Self, AnimationNodeIndex, AnimationNodeIndex, weight? : Double) -> Unit
+pub fn AnimationGraph::add_blend_with_mask(Self, Array[Int], parent? : AnimationNodeIndex, weight? : Double) -> AnimationNodeIndex
+pub fn AnimationGraph::add_clip(Self, AnimationClipHandle, parent? : AnimationNodeIndex, weight? : Double) -> AnimationNodeIndex
+pub fn AnimationGraph::add_clip_with_mask(Self, AnimationClipHandle, Array[Int], parent? : AnimationNodeIndex, weight? : Double) -> AnimationNodeIndex
+pub fn AnimationGraph::add_edge(Self, AnimationNodeIndex, AnimationNodeIndex, weight? : Double) -> Unit
+pub fn AnimationGraph::add_target_to_mask_group(Self, AnimationTargetId, Int) -> Unit
+pub fn AnimationGraph::from_clip(AnimationClipHandle) -> (Self, AnimationNodeIndex)
+pub fn AnimationGraph::from_clips(Array[AnimationClipHandle]) -> (Self, Array[AnimationNodeIndex])
 pub fn AnimationGraph::new() -> Self
-pub fn AnimationGraph::root_node(Self) -> AnimationNodeIndex
 pub fn AnimationGraph::set_edge_weight(Self, AnimationNodeIndex, AnimationNodeIndex, Double) -> Unit
 
 pub(all) struct AnimationGraphEdge {
@@ -183,23 +227,15 @@ pub impl Show for AnimationGraphHandle
 
 pub(all) struct AnimationGraphNode {
   node_type : AnimationGraphNodeType
+  mask : UInt
   children : Array[AnimationGraphEdge]
 }
 
 pub(all) enum AnimationGraphNodeType {
   Blend
-  Add
-  Clip(AnimationClipHandle, UInt)
+  AdditiveBlend
+  Clip(AnimationClipHandle)
 }
-
-pub(all) struct AnimationMask {
-  mask : UInt
-
-  fn new(Array[Int]) -> AnimationMask
-}
-pub fn AnimationMask::new(Array[Int]) -> Self
-pub impl Eq for AnimationMask
-pub impl Show for AnimationMask
 
 pub(all) struct AnimationNodeIndex(UInt)
 #deprecated
@@ -213,16 +249,21 @@ pub(all) struct AnimationPlayer {
 
   fn new() -> AnimationPlayer
 }
-pub fn AnimationPlayer::active(Self, AnimationNodeIndex) -> ActiveAnimation?
+pub fn AnimationPlayer::all_finished(Self) -> Bool
+pub fn AnimationPlayer::all_paused(Self) -> Bool
+pub fn AnimationPlayer::animation(Self, AnimationNodeIndex) -> ActiveAnimation?
+pub fn AnimationPlayer::animation_mut(Self, AnimationNodeIndex) -> ActiveAnimation?
+pub fn AnimationPlayer::is_playing_animation(Self, AnimationNodeIndex) -> Bool
 pub fn AnimationPlayer::new() -> Self
-pub fn AnimationPlayer::pause(Self, AnimationNodeIndex) -> Unit
-pub fn AnimationPlayer::play(Self, AnimationNodeIndex, repeat? : RepeatAnimation) -> Unit
-pub fn AnimationPlayer::seek_to(Self, AnimationNodeIndex, Double) -> Unit
-pub fn AnimationPlayer::set_repeat(Self, AnimationNodeIndex, RepeatAnimation) -> Unit
-pub fn AnimationPlayer::set_speed(Self, AnimationNodeIndex, Double) -> Unit
-pub fn AnimationPlayer::set_weight(Self, AnimationNodeIndex, Double) -> Unit
-pub fn AnimationPlayer::stop(Self, AnimationNodeIndex) -> Unit
-pub fn AnimationPlayer::unpause(Self, AnimationNodeIndex) -> Unit
+pub fn AnimationPlayer::pause_all(Self) -> Self
+pub fn AnimationPlayer::play(Self, AnimationNodeIndex, repeat? : RepeatAnimation) -> ActiveAnimation
+pub fn AnimationPlayer::playing_animations(Self) -> Array[(AnimationNodeIndex, ActiveAnimation)]
+pub fn AnimationPlayer::resume_all(Self) -> Self
+pub fn AnimationPlayer::rewind_all(Self) -> Self
+pub fn AnimationPlayer::seek_all_by(Self, Double) -> Self
+pub fn AnimationPlayer::start(Self, AnimationNodeIndex, repeat? : RepeatAnimation) -> ActiveAnimation
+pub fn AnimationPlayer::stop(Self, AnimationNodeIndex) -> Self
+pub fn AnimationPlayer::stop_all(Self) -> Self
 
 pub(all) struct AnimationTargetId(String)
 pub fn AnimationTargetId::from_names(Array[String]) -> Self
@@ -240,8 +281,9 @@ pub(all) struct AnimationTransitions {
 
   fn new() -> AnimationTransitions
 }
+pub fn AnimationTransitions::get_main_animation(Self) -> AnimationNodeIndex?
 pub fn AnimationTransitions::new() -> Self
-pub fn AnimationTransitions::play(Self, AnimationPlayer, AnimationNodeIndex, Double, repeat? : RepeatAnimation) -> Unit
+pub fn AnimationTransitions::play(Self, AnimationPlayer, AnimationNodeIndex, Double, repeat? : RepeatAnimation) -> ActiveAnimation
 
 pub(all) enum AnimationValueKind {
   Scalar

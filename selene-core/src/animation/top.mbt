@@ -83,11 +83,15 @@ pub(all) struct AnimatedBy {
 }
 
 ///|
-pub(all) struct AnimationMask {
-  mask : UInt
-
-  fn new(groups : Array[Int]) -> AnimationMask
+pub(all) struct AnimationEventContext {
+  clip : AnimationClipHandle
+  player : @entity.Entity
+  target : @entity.Entity?
+  time : Double
 } derive(Eq, Show)
+
+///|
+pub(all) struct AnimationEventDescriptorHandle(UInt) derive(Eq, Show, Hash)
 
 ///|
 pub(all) struct AnimationClipEventDispatch {
@@ -97,7 +101,7 @@ pub(all) struct AnimationClipEventDispatch {
 ///|
 pub(all) struct AnimationClipEventKeyframe {
   time : Double
-  name : String
+  descriptor : AnimationEventDescriptorHandle
   dispatch : AnimationClipEventDispatch
 } derive(Eq, Show)
 
@@ -120,8 +124,8 @@ pub(all) struct AnimationNodeIndex(UInt) derive(Eq, Show, Hash)
 ///|
 pub(all) enum AnimationGraphNodeType {
   Blend
-  Add
-  Clip(AnimationClipHandle, UInt)
+  AdditiveBlend
+  Clip(AnimationClipHandle)
 }
 
 ///|
@@ -133,6 +137,7 @@ pub(all) struct AnimationGraphEdge {
 ///|
 pub(all) struct AnimationGraphNode {
   node_type : AnimationGraphNodeType
+  mask : UInt
   children : Array[AnimationGraphEdge]
 }
 
@@ -140,6 +145,7 @@ pub(all) struct AnimationGraphNode {
 pub(all) struct AnimationGraph {
   root : AnimationNodeIndex
   nodes : Map[AnimationNodeIndex, AnimationGraphNode]
+  mask_groups : Map[AnimationTargetId, UInt]
   mut next_node : UInt
 
   fn new() -> AnimationGraph
@@ -188,15 +194,6 @@ pub(all) struct AnimationTransitions {
 
   fn new() -> AnimationTransitions
 }
-
-///|
-pub(all) struct AnimationEvent {
-  clip : AnimationClipHandle
-  player : @entity.Entity
-  target : @entity.Entity?
-  name : String
-  time : Double
-} derive(Eq, Show)
 
 ///|
 pub(all) struct MorphTargetBinding3D {
@@ -252,7 +249,6 @@ priv struct AnimationWorldStore {
   animation_transitions : Map[@entity.Entity, AnimationTransitions]
   animation_target_ids : Map[@entity.Entity, AnimationTargetId]
   animated_bys : Map[@entity.Entity, AnimatedBy]
-  animation_masks : Map[@entity.Entity, AnimationMask]
   skinned_meshes : Map[@entity.Entity, SkinnedMeshBinding3D]
   morphed_meshes : Map[@entity.Entity, MorphMeshBinding3D]
 }
@@ -269,7 +265,6 @@ fn animation_world_store() -> AnimationWorldStore {
     animation_transitions: Map::new(),
     animation_target_ids: Map::new(),
     animated_bys: Map::new(),
-    animation_masks: Map::new(),
     skinned_meshes: Map::new(),
     morphed_meshes: Map::new(),
   })
@@ -285,6 +280,9 @@ let next_graph_id : Ref[UInt] = Ref::new(0U)
 let next_field_id : Ref[UInt] = Ref::new(0U)
 
 ///|
+let next_event_descriptor_id : Ref[UInt] = Ref::new(0U)
+
+///|
 let animation_clips : Map[AnimationClipHandle, AnimationClip] = Map::new()
 
 ///|
@@ -294,7 +292,37 @@ let animation_graphs : Map[AnimationGraphHandle, AnimationGraph] = Map::new()
 let animated_fields : Map[AnimatedFieldHandle, AnimatedField] = Map::new()
 
 ///|
-pub let animation_event_bus : @event.Events[AnimationEvent] = @event.Events::new()
+priv struct AnimationEventDescriptor {
+  dispatch : (AnimationEventContext, @entity.Entity?) -> Unit
+}
+
+///|
+let animation_event_descriptors : Map[
+  AnimationEventDescriptorHandle,
+  AnimationEventDescriptor,
+] = Map::new()
+
+///|
+let dirty_animation_clip_assets : Map[AnimationClipHandle, AnimationClip] = Map::new()
+
+///|
+let dirty_animation_graph_assets : Map[AnimationGraphHandle, AnimationGraph] = Map::new()
+
+///|
+let released_animation_clip_assets : Array[AnimationClipHandle] = []
+
+///|
+let released_animation_graph_assets : Array[AnimationGraphHandle] = []
+
+///|
+pub let animation_clip_asset_events : @event.Events[
+  @asset2.AssetEvent[AnimationClipHandle],
+] = @event.Events::new()
+
+///|
+pub let animation_graph_asset_events : @event.Events[
+  @asset2.AssetEvent[AnimationGraphHandle],
+] = @event.Events::new()
 
 ///|
 pub fn animation_players() -> Map[@entity.Entity, AnimationPlayer] {
@@ -319,11 +347,6 @@ pub fn animation_target_ids() -> Map[@entity.Entity, AnimationTargetId] {
 ///|
 pub fn animated_bys() -> Map[@entity.Entity, AnimatedBy] {
   animation_world_store().animated_bys
-}
-
-///|
-pub fn animation_masks() -> Map[@entity.Entity, AnimationMask] {
-  animation_world_store().animation_masks
 }
 
 ///|
@@ -353,11 +376,6 @@ fn mask_from_groups(groups : Array[Int]) -> UInt {
 }
 
 ///|
-pub fn AnimationMask::new(groups : Array[Int]) -> AnimationMask {
-  { mask: mask_from_groups(groups) }
-}
-
-///|
 pub fn AnimationClip::new(name : String) -> AnimationClip {
   { name, duration: 0.0, curves: Map::new(), events: [] }
 }
@@ -366,8 +384,8 @@ pub fn AnimationClip::new(name : String) -> AnimationClip {
 pub fn AnimationGraph::new() -> AnimationGraph {
   let root = AnimationNodeIndex(0U)
   let nodes : Map[AnimationNodeIndex, AnimationGraphNode] = Map::new()
-  nodes.set(root, { node_type: Blend, children: [] })
-  { root, nodes, next_node: 1U }
+  nodes.set(root, { node_type: Blend, mask: 0U, children: [] })
+  { root, nodes, mask_groups: Map::new(), next_node: 1U }
 }
 
 ///|
@@ -407,12 +425,12 @@ pub fn AnimationTargetId::from_names(
 }
 
 ///|
-pub fn animation_clip(handle : AnimationClipHandle) -> AnimationClip? {
+pub fn animation_clip_asset(handle : AnimationClipHandle) -> AnimationClip? {
   animation_clips.get(handle)
 }
 
 ///|
-pub fn animation_graph(handle : AnimationGraphHandle) -> AnimationGraph? {
+pub fn animation_graph_asset(handle : AnimationGraphHandle) -> AnimationGraph? {
   animation_graphs.get(handle)
 }
 
@@ -422,19 +440,95 @@ pub fn animated_field(handle : AnimatedFieldHandle) -> AnimatedField? {
 }
 
 ///|
-pub fn register_animation_clip(clip : AnimationClip) -> AnimationClipHandle {
+pub fn register_animation_clip_asset(
+  clip : AnimationClip,
+) -> AnimationClipHandle {
   let handle = AnimationClipHandle(next_clip_id.val)
   next_clip_id.val += 1U
   animation_clips.set(handle, clip)
+  dirty_animation_clip_assets.set(handle, clip)
+  animation_clip_asset_events.send({ handle, kind: Added })
   handle
 }
 
 ///|
-pub fn register_animation_graph(graph : AnimationGraph) -> AnimationGraphHandle {
+pub fn update_animation_clip_asset(
+  handle : AnimationClipHandle,
+  clip : AnimationClip,
+) -> Unit {
+  animation_clips.set(handle, clip)
+  dirty_animation_clip_assets.set(handle, clip)
+  animation_clip_asset_events.send({ handle, kind: Modified })
+}
+
+///|
+pub fn release_animation_clip_asset(handle : AnimationClipHandle) -> Unit {
+  animation_clips.remove(handle)
+  dirty_animation_clip_assets.remove(handle)
+  released_animation_clip_assets.push(handle)
+  animation_clip_asset_events.send({ handle, kind: Removed })
+}
+
+///|
+pub fn take_dirty_animation_clip_assets() -> Array[
+  (AnimationClipHandle, AnimationClip),
+] {
+  let values = dirty_animation_clip_assets.to_array()
+  dirty_animation_clip_assets.clear()
+  values
+}
+
+///|
+pub fn take_released_animation_clip_assets() -> Array[AnimationClipHandle] {
+  let values = released_animation_clip_assets.copy()
+  released_animation_clip_assets.clear()
+  values
+}
+
+///|
+pub fn register_animation_graph_asset(
+  graph : AnimationGraph,
+) -> AnimationGraphHandle {
   let handle = AnimationGraphHandle(next_graph_id.val)
   next_graph_id.val += 1U
   animation_graphs.set(handle, graph)
+  dirty_animation_graph_assets.set(handle, graph)
+  animation_graph_asset_events.send({ handle, kind: Added })
   handle
+}
+
+///|
+pub fn update_animation_graph_asset(
+  handle : AnimationGraphHandle,
+  graph : AnimationGraph,
+) -> Unit {
+  animation_graphs.set(handle, graph)
+  dirty_animation_graph_assets.set(handle, graph)
+  animation_graph_asset_events.send({ handle, kind: Modified })
+}
+
+///|
+pub fn release_animation_graph_asset(handle : AnimationGraphHandle) -> Unit {
+  animation_graphs.remove(handle)
+  dirty_animation_graph_assets.remove(handle)
+  released_animation_graph_assets.push(handle)
+  animation_graph_asset_events.send({ handle, kind: Removed })
+}
+
+///|
+pub fn take_dirty_animation_graph_assets() -> Array[
+  (AnimationGraphHandle, AnimationGraph),
+] {
+  let values = dirty_animation_graph_assets.to_array()
+  dirty_animation_graph_assets.clear()
+  values
+}
+
+///|
+pub fn take_released_animation_graph_assets() -> Array[AnimationGraphHandle] {
+  let values = released_animation_graph_assets.copy()
+  released_animation_graph_assets.clear()
+  values
 }
 
 ///|
@@ -446,23 +540,34 @@ pub fn register_animated_field(field : AnimatedField) -> AnimatedFieldHandle {
 }
 
 ///|
+pub fn[T] register_animation_event_descriptor(
+  events : @event.Events[T],
+  build : (AnimationEventContext) -> T,
+) -> AnimationEventDescriptorHandle {
+  let handle = AnimationEventDescriptorHandle(next_event_descriptor_id.val)
+  next_event_descriptor_id.val += 1U
+  animation_event_descriptors.set(handle, {
+    dispatch: fn(context, observer_target) {
+      events.trigger(build(context), observer_target)
+    },
+  })
+  handle
+}
+
+///|
 fn allocate_node(
   graph : AnimationGraph,
   node_type : AnimationGraphNodeType,
+  mask : UInt,
 ) -> AnimationNodeIndex {
   let node = AnimationNodeIndex(graph.next_node)
   graph.next_node += 1U
-  graph.nodes.set(node, { node_type, children: [] })
+  graph.nodes.set(node, { node_type, mask, children: [] })
   node
 }
 
 ///|
-pub fn AnimationGraph::root_node(self : AnimationGraph) -> AnimationNodeIndex {
-  self.root
-}
-
-///|
-pub fn AnimationGraph::connect(
+pub fn AnimationGraph::add_edge(
   self : AnimationGraph,
   parent : AnimationNodeIndex,
   child : AnimationNodeIndex,
@@ -478,19 +583,43 @@ pub fn AnimationGraph::add_blend(
   parent? : AnimationNodeIndex,
   weight? : Double = 1.0,
 ) -> AnimationNodeIndex {
-  let node = allocate_node(self, Blend)
-  self.connect(parent.unwrap_or(self.root), node, weight~)
+  let node = allocate_node(self, Blend, 0U)
+  self.add_edge(parent.unwrap_or(self.root), node, weight~)
   node
 }
 
 ///|
-pub fn AnimationGraph::add_add(
+pub fn AnimationGraph::add_blend_with_mask(
+  self : AnimationGraph,
+  groups : Array[Int],
+  parent? : AnimationNodeIndex,
+  weight? : Double = 1.0,
+) -> AnimationNodeIndex {
+  let node = allocate_node(self, Blend, mask_from_groups(groups))
+  self.add_edge(parent.unwrap_or(self.root), node, weight~)
+  node
+}
+
+///|
+pub fn AnimationGraph::add_additive_blend(
   self : AnimationGraph,
   parent? : AnimationNodeIndex,
   weight? : Double = 1.0,
 ) -> AnimationNodeIndex {
-  let node = allocate_node(self, Add)
-  self.connect(parent.unwrap_or(self.root), node, weight~)
+  let node = allocate_node(self, AdditiveBlend, 0U)
+  self.add_edge(parent.unwrap_or(self.root), node, weight~)
+  node
+}
+
+///|
+pub fn AnimationGraph::add_additive_blend_with_mask(
+  self : AnimationGraph,
+  groups : Array[Int],
+  parent? : AnimationNodeIndex,
+  weight? : Double = 1.0,
+) -> AnimationNodeIndex {
+  let node = allocate_node(self, AdditiveBlend, mask_from_groups(groups))
+  self.add_edge(parent.unwrap_or(self.root), node, weight~)
   node
 }
 
@@ -500,11 +629,57 @@ pub fn AnimationGraph::add_clip(
   clip : AnimationClipHandle,
   parent? : AnimationNodeIndex,
   weight? : Double = 1.0,
-  mask_groups? : Array[Int] = [],
 ) -> AnimationNodeIndex {
-  let node = allocate_node(self, Clip(clip, mask_from_groups(mask_groups)))
-  self.connect(parent.unwrap_or(self.root), node, weight~)
+  let node = allocate_node(self, Clip(clip), 0U)
+  self.add_edge(parent.unwrap_or(self.root), node, weight~)
   node
+}
+
+///|
+pub fn AnimationGraph::add_clip_with_mask(
+  self : AnimationGraph,
+  clip : AnimationClipHandle,
+  groups : Array[Int],
+  parent? : AnimationNodeIndex,
+  weight? : Double = 1.0,
+) -> AnimationNodeIndex {
+  let node = allocate_node(self, Clip(clip), mask_from_groups(groups))
+  self.add_edge(parent.unwrap_or(self.root), node, weight~)
+  node
+}
+
+///|
+pub fn AnimationGraph::add_target_to_mask_group(
+  self : AnimationGraph,
+  target : AnimationTargetId,
+  group : Int,
+) -> Unit {
+  if group < 0 || group >= 63 {
+    return
+  }
+  let current = self.mask_groups.get(target).unwrap_or(0U)
+  self.mask_groups.set(target, current | (1U << group))
+}
+
+///|
+pub fn AnimationGraph::from_clip(
+  clip : AnimationClipHandle,
+) -> (AnimationGraph, AnimationNodeIndex) {
+  let graph = AnimationGraph::new()
+  let node = graph.add_clip(clip)
+  (graph, node)
+}
+
+///|
+pub fn AnimationGraph::from_clips(
+  clips : Array[AnimationClipHandle],
+) -> (AnimationGraph, Array[AnimationNodeIndex]) {
+  let graph = AnimationGraph::new()
+  let nodes : Array[AnimationNodeIndex] = []
+  for clip in clips {
+    nodes.push(graph.add_clip(clip))
+  }
+  (graph, nodes)
 }
 
 ///|
@@ -541,10 +716,10 @@ pub fn AnimationClip::add_curve_to_target(
 pub fn AnimationClip::add_event(
   self : AnimationClip,
   time : Double,
-  name : String,
+  descriptor : AnimationEventDescriptorHandle,
   dispatch? : AnimationClipEventDispatch = { target: None },
 ) -> Unit {
-  self.events.push({ time, name, dispatch })
+  self.events.push({ time, descriptor, dispatch })
   if time > self.duration {
     self.duration = time
   }
@@ -587,12 +762,8 @@ pub fn VariableCurve::weights(
 }
 
 ///|
-pub fn AnimationPlayer::play(
-  self : AnimationPlayer,
-  node : AnimationNodeIndex,
-  repeat? : RepeatAnimation = Forever,
-) -> Unit {
-  self.active_animations.set(node, {
+fn active_animation_default(repeat : RepeatAnimation) -> ActiveAnimation {
+  {
     time: 0.0,
     last_time: 0.0,
     speed: 1.0,
@@ -601,11 +772,157 @@ pub fn AnimationPlayer::play(
     paused: false,
     finished: false,
     completed_repeats: 0U,
-  })
+  }
 }
 
 ///|
-pub fn AnimationPlayer::active(
+pub fn ActiveAnimation::is_finished(self : ActiveAnimation) -> Bool {
+  self.finished
+}
+
+///|
+pub fn ActiveAnimation::is_paused(self : ActiveAnimation) -> Bool {
+  self.paused
+}
+
+///|
+pub fn ActiveAnimation::weight(self : ActiveAnimation) -> Double {
+  self.weight
+}
+
+///|
+pub fn ActiveAnimation::speed(self : ActiveAnimation) -> Double {
+  self.speed
+}
+
+///|
+pub fn ActiveAnimation::repeat_mode(self : ActiveAnimation) -> RepeatAnimation {
+  self.repeat
+}
+
+///|
+pub fn ActiveAnimation::completions(self : ActiveAnimation) -> UInt {
+  self.completed_repeats
+}
+
+///|
+pub fn ActiveAnimation::elapsed(self : ActiveAnimation) -> Double {
+  self.time
+}
+
+///|
+pub fn ActiveAnimation::seek_time(self : ActiveAnimation) -> Double {
+  self.time
+}
+
+///|
+pub fn ActiveAnimation::pause(self : ActiveAnimation) -> ActiveAnimation {
+  self.paused = true
+  self
+}
+
+///|
+pub fn ActiveAnimation::unpause(self : ActiveAnimation) -> ActiveAnimation {
+  self.paused = false
+  self
+}
+
+///|
+pub fn ActiveAnimation::set_speed(
+  self : ActiveAnimation,
+  speed : Double,
+) -> ActiveAnimation {
+  self.speed = @cmp.maximum(0.0, speed)
+  self
+}
+
+///|
+pub fn ActiveAnimation::set_weight(
+  self : ActiveAnimation,
+  weight : Double,
+) -> ActiveAnimation {
+  self.weight = @cmp.maximum(0.0, weight)
+  self
+}
+
+///|
+pub fn ActiveAnimation::set_repeat(
+  self : ActiveAnimation,
+  repeat : RepeatAnimation,
+) -> ActiveAnimation {
+  self.repeat = repeat
+  self
+}
+
+///|
+pub fn ActiveAnimation::repeat(self : ActiveAnimation) -> ActiveAnimation {
+  self.repeat = Forever
+  self
+}
+
+///|
+pub fn ActiveAnimation::replay(self : ActiveAnimation) -> ActiveAnimation {
+  self.time = 0.0
+  self.last_time = 0.0
+  self.finished = false
+  self.completed_repeats = 0U
+  self
+}
+
+///|
+pub fn ActiveAnimation::rewind(self : ActiveAnimation) -> ActiveAnimation {
+  self.time = 0.0
+  self.last_time = 0.0
+  self.finished = false
+  self
+}
+
+///|
+pub fn ActiveAnimation::set_seek_time(
+  self : ActiveAnimation,
+  time : Double,
+) -> ActiveAnimation {
+  let clamped = @cmp.maximum(0.0, time)
+  self.time = clamped
+  self.last_time = clamped
+  self
+}
+
+///|
+pub fn ActiveAnimation::seek_to(
+  self : ActiveAnimation,
+  time : Double,
+) -> ActiveAnimation {
+  let clamped = @cmp.maximum(0.0, time)
+  self.time = clamped
+  self.last_time = clamped
+  self
+}
+
+///|
+pub fn AnimationPlayer::play(
+  self : AnimationPlayer,
+  node : AnimationNodeIndex,
+  repeat? : RepeatAnimation = Forever,
+) -> ActiveAnimation {
+  match self.active_animations.get(node) {
+    Some(active) => active
+    None => self.start(node, repeat~)
+  }
+}
+
+///|
+pub fn AnimationPlayer::start(
+  self : AnimationPlayer,
+  node : AnimationNodeIndex,
+  repeat? : RepeatAnimation = Forever,
+) -> ActiveAnimation {
+  self.active_animations.set(node, active_animation_default(repeat))
+  self.active_animations.get(node).unwrap()
+}
+
+///|
+pub fn AnimationPlayer::animation(
   self : AnimationPlayer,
   node : AnimationNodeIndex,
 ) -> ActiveAnimation? {
@@ -613,77 +930,96 @@ pub fn AnimationPlayer::active(
 }
 
 ///|
+pub fn AnimationPlayer::animation_mut(
+  self : AnimationPlayer,
+  node : AnimationNodeIndex,
+) -> ActiveAnimation? {
+  self.active_animations.get(node)
+}
+
+///|
+pub fn AnimationPlayer::playing_animations(
+  self : AnimationPlayer,
+) -> Array[(AnimationNodeIndex, ActiveAnimation)] {
+  self.active_animations.to_array()
+}
+
+///|
+pub fn AnimationPlayer::is_playing_animation(
+  self : AnimationPlayer,
+  node : AnimationNodeIndex,
+) -> Bool {
+  self.active_animations.contains(node)
+}
+
+///|
 pub fn AnimationPlayer::stop(
   self : AnimationPlayer,
   node : AnimationNodeIndex,
-) -> Unit {
+) -> AnimationPlayer {
   self.active_animations.remove(node)
+  self
 }
 
 ///|
-pub fn AnimationPlayer::pause(
-  self : AnimationPlayer,
-  node : AnimationNodeIndex,
-) -> Unit {
-  if self.active_animations.get(node) is Some(active) {
-    active.paused = true
-  }
+pub fn AnimationPlayer::stop_all(self : AnimationPlayer) -> AnimationPlayer {
+  self.active_animations.clear()
+  self
 }
 
 ///|
-pub fn AnimationPlayer::unpause(
-  self : AnimationPlayer,
-  node : AnimationNodeIndex,
-) -> Unit {
-  if self.active_animations.get(node) is Some(active) {
-    active.paused = false
+pub fn AnimationPlayer::pause_all(self : AnimationPlayer) -> AnimationPlayer {
+  for _, active in self.active_animations {
+    ignore(active.pause())
   }
+  self
 }
 
 ///|
-pub fn AnimationPlayer::seek_to(
-  self : AnimationPlayer,
-  node : AnimationNodeIndex,
-  time : Double,
-) -> Unit {
-  if self.active_animations.get(node) is Some(active) {
-    let clamped = @cmp.maximum(0.0, time)
-    active.time = clamped
-    active.last_time = clamped
+pub fn AnimationPlayer::resume_all(self : AnimationPlayer) -> AnimationPlayer {
+  for _, active in self.active_animations {
+    ignore(active.unpause())
   }
+  self
 }
 
 ///|
-pub fn AnimationPlayer::set_speed(
-  self : AnimationPlayer,
-  node : AnimationNodeIndex,
-  speed : Double,
-) -> Unit {
-  if self.active_animations.get(node) is Some(active) {
-    active.speed = @cmp.maximum(0.0, speed)
+pub fn AnimationPlayer::rewind_all(self : AnimationPlayer) -> AnimationPlayer {
+  for _, active in self.active_animations {
+    ignore(active.rewind())
   }
+  self
 }
 
 ///|
-pub fn AnimationPlayer::set_weight(
+pub fn AnimationPlayer::seek_all_by(
   self : AnimationPlayer,
-  node : AnimationNodeIndex,
-  weight : Double,
-) -> Unit {
-  if self.active_animations.get(node) is Some(active) {
-    active.weight = @cmp.maximum(0.0, weight)
+  amount : Double,
+) -> AnimationPlayer {
+  for _, active in self.active_animations {
+    ignore(active.seek_to(active.time + amount))
   }
+  self
 }
 
 ///|
-pub fn AnimationPlayer::set_repeat(
-  self : AnimationPlayer,
-  node : AnimationNodeIndex,
-  repeat : RepeatAnimation,
-) -> Unit {
-  if self.active_animations.get(node) is Some(active) {
-    active.repeat = repeat
+pub fn AnimationPlayer::all_finished(self : AnimationPlayer) -> Bool {
+  for _, active in self.active_animations {
+    if !active.is_finished() {
+      return false
+    }
   }
+  true
+}
+
+///|
+pub fn AnimationPlayer::all_paused(self : AnimationPlayer) -> Bool {
+  for _, active in self.active_animations {
+    if !active.is_paused() {
+      return false
+    }
+  }
+  true
 }
 
 ///|
@@ -693,22 +1029,35 @@ pub fn AnimationTransitions::play(
   node : AnimationNodeIndex,
   duration : Double,
   repeat? : RepeatAnimation = Forever,
-) -> Unit {
+) -> ActiveAnimation {
   let safe_duration = @cmp.maximum(0.0, duration)
+  if self.main == Some(node) && player.animation(node) is Some(active) {
+    if safe_duration <= 0.0 {
+      active.weight = 1.0
+    }
+    return active
+  }
   if self.main is Some(current) &&
     current != node &&
-    player.active_animations.get(current) is Some(active) {
+    player.animation(current) is Some(active) {
     self.fading.set(current, {
       remaining: safe_duration,
       total: safe_duration,
       start_weight: active.weight,
     })
   }
-  player.play(node, repeat~)
-  if player.active_animations.get(node) is Some(active) {
-    active.weight = if safe_duration > 0.0 { 0.0 } else { 1.0 }
-  }
+  self.fading.remove(node)
+  let active = player.play(node, repeat~)
+  active.weight = if safe_duration > 0.0 { 0.0 } else { 1.0 }
   self.main = Some(node)
+  active
+}
+
+///|
+pub fn AnimationTransitions::get_main_animation(
+  self : AnimationTransitions,
+) -> AnimationNodeIndex? {
+  self.main
 }
 
 ///|
@@ -968,58 +1317,6 @@ pub fn sprite_frame_index_field() -> AnimatedFieldHandle {
 }
 
 ///|
-pub fn register_sprite_animation_clip(
-  animation : @sprite.Animation,
-) -> AnimationClipHandle {
-  let clip = AnimationClip::new("sprite/\{animation.id.to_string()}")
-  let keys : Array[ScalarKeyframe] = []
-  let frame_duration = if animation.fps <= 0.0 {
-    1.0
-  } else {
-    1.0 / animation.fps
-  }
-  for index in 0..<animation.frames.length() {
-    keys.push({
-      time: index.to_double() * frame_duration,
-      value: index.to_double(),
-      in_tangent: None,
-      out_tangent: None,
-    })
-  }
-  clip.add_curve_to_target(
-    AnimationTargetId::new("self"),
-    VariableCurve::scalar(sprite_frame_index_field(), keys, interpolation=Step),
-  )
-  if animation.frames.length() > 0 && !animation.loop_ {
-    clip.duration = (animation.frames.length() - 1).to_double() * frame_duration
-  } else if animation.frames.length() > 0 {
-    clip.duration = animation.frames.length().to_double() * frame_duration
-  }
-  register_animation_clip(clip)
-}
-
-///|
-pub fn attach_sprite_animation_player(
-  entity : @entity.Entity,
-  animation : @sprite.Animation,
-  repeat? : RepeatAnimation = Forever,
-) -> (AnimationGraphHandle, AnimationNodeIndex) {
-  let clip = register_sprite_animation_clip(animation)
-  let graph = AnimationGraph::new()
-  let node = graph.add_clip(clip)
-  let graph_handle = register_animation_graph(graph)
-  animation_graph_handles().set(entity, graph_handle)
-  let player = animation_players().get_or_init(entity, fn() {
-    AnimationPlayer::new()
-  })
-  player.play(node, repeat~)
-  animation_target_ids().set(entity, AnimationTargetId::new("self"))
-  animated_bys().set(entity, AnimatedBy::new(entity))
-  @sprite.sprite_frame_indices().set(entity, { frame: 0.0 })
-  (graph_handle, node)
-}
-
-///|
 fn entity_name_path(entity : @entity.Entity) -> Array[String]? {
   let segments : Array[String] = []
   let mut current : @entity.Entity? = Some(entity)
@@ -1043,16 +1340,6 @@ pub fn animation_target_id_of(entity : @entity.Entity) -> AnimationTargetId? {
     return Some(target)
   }
   entity_name_path(entity).map(AnimationTargetId::from_names)
-}
-
-///|
-fn matches_mask(entity : @entity.Entity, clip_mask : UInt) -> Bool {
-  if clip_mask == 0U {
-    return true
-  }
-  animation_masks()
-  .get(entity)
-  .map_or(false, fn(mask) { (mask.mask & clip_mask) != 0U })
 }
 
 ///|
@@ -1555,8 +1842,8 @@ fn graph_node_duration(
 ) -> Double {
   guard graph.nodes.get(node_index) is Some(node) else { return 0.0 }
   match node.node_type {
-    Clip(handle, _) =>
-      animation_clip(handle).map_or(0.0, fn(clip) { clip.duration })
+    Clip(handle) =>
+      animation_clip_asset(handle).map_or(0.0, fn(clip) { clip.duration })
     _ => {
       let mut duration = 0.0
       for edge in node.children {
@@ -1576,6 +1863,7 @@ fn evaluate_graph_node(
   node_index : AnimationNodeIndex,
   time : Double,
   weight : Double,
+  inherited_mask : UInt,
   additive : Bool,
   targets : Map[AnimationTargetId, @entity.Entity],
   buffers : Map[AnimationPropertyKey, AnimationSampleBuffer],
@@ -1584,6 +1872,7 @@ fn evaluate_graph_node(
     return
   }
   guard graph.nodes.get(node_index) is Some(node) else { return }
+  let combined_mask = inherited_mask | node.mask
   match node.node_type {
     Blend =>
       for edge in node.children {
@@ -1592,28 +1881,31 @@ fn evaluate_graph_node(
           edge.child,
           time,
           weight * edge.weight,
+          combined_mask,
           additive,
           targets,
           buffers,
         )
       }
-    Add =>
+    AdditiveBlend =>
       for edge in node.children {
         evaluate_graph_node(
           graph,
           edge.child,
           time,
           weight * edge.weight,
+          combined_mask,
           true,
           targets,
           buffers,
         )
       }
-    Clip(handle, mask) =>
-      if animation_clip(handle) is Some(clip) {
+    Clip(handle) =>
+      if animation_clip_asset(handle) is Some(clip) {
         for target_id, curves in clip.curves {
           guard targets.get(target_id) is Some(entity) else { continue }
-          if !matches_mask(entity, mask) {
+          let target_groups = graph.mask_groups.get(target_id).unwrap_or(0U)
+          if (combined_mask & target_groups) != 0U {
             continue
           }
           for curve in curves {
@@ -1633,7 +1925,7 @@ fn collect_clip_nodes(
 ) -> Unit {
   guard graph.nodes.get(node_index) is Some(node) else { return }
   match node.node_type {
-    Clip(_, _) => output.push(node_index)
+    Clip(_) => output.push(node_index)
     _ =>
       for edge in node.children {
         collect_clip_nodes(graph, edge.child, output)
@@ -1663,13 +1955,17 @@ fn emit_clip_events_between(
     let target = event.dispatch.target.bind(fn(target_id) {
       targets.get(target_id)
     })
-    animation_event_bus.send({
-      clip: clip_handle,
-      player: player_entity,
-      target,
-      name: event.name,
-      time: event.time,
-    })
+    let observer_target = match target {
+      Some(entity) => Some(entity)
+      None => Some(player_entity)
+    }
+    guard animation_event_descriptors.get(event.descriptor) is Some(descriptor) else {
+      continue
+    }
+    (descriptor.dispatch)(
+      { clip: clip_handle, player: player_entity, target, time: event.time },
+      observer_target,
+    )
   }
 }
 
@@ -1687,7 +1983,7 @@ pub fn animation_player_system(delta : Double) -> Unit {
     guard animation_graph_handles().get(entity) is Some(graph_handle) else {
       continue
     }
-    guard animation_graph(graph_handle) is Some(graph) else { continue }
+    guard animation_graph_asset(graph_handle) is Some(graph) else { continue }
     let targets = targets_by_player.get_or_init(entity, fn() { Map::new() })
     for node_index, active in player.active_animations {
       if active.paused || active.finished {
@@ -1731,8 +2027,8 @@ pub fn animation_player_system(delta : Double) -> Unit {
       collect_clip_nodes(graph, node_index, clip_nodes)
       for clip_node in clip_nodes {
         guard graph.nodes.get(clip_node) is Some(node) else { continue }
-        guard node.node_type is Clip(clip_handle, _) else { continue }
-        guard animation_clip(clip_handle) is Some(clip) else { continue }
+        guard node.node_type is Clip(clip_handle) else { continue }
+        guard animation_clip_asset(clip_handle) is Some(clip) else { continue }
         emit_clip_events_between(
           clip_handle,
           clip,
@@ -1801,7 +2097,7 @@ pub fn animation_apply_system(_delta : Double) -> Unit {
     guard animation_graph_handles().get(player_entity) is Some(graph_handle) else {
       continue
     }
-    guard animation_graph(graph_handle) is Some(graph) else { continue }
+    guard animation_graph_asset(graph_handle) is Some(graph) else { continue }
     let targets = targets_by_player.get_or_init(player_entity, fn() {
       Map::new()
     })
@@ -1815,6 +2111,7 @@ pub fn animation_apply_system(_delta : Double) -> Unit {
         node_index,
         active.time,
         active.weight,
+        0U,
         false,
         targets,
         buffers,

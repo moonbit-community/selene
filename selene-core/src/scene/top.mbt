@@ -73,14 +73,6 @@ pub fn scene_of(root : @entity.Entity) -> SceneHandle? {
 }
 
 ///|
-pub fn scene_animation(
-  instance : SceneInstance,
-  name : String,
-) -> @animation.AnimationNodeIndex? {
-  @scene3d.scene_instance_animation(instance, name)
-}
-
-///|
 pub fn scene_spawner_cleanup_system(_delta : Double) -> Unit {
   for pair in scene_instances.to_array() {
     let root = pair.0

@@ -59,7 +59,7 @@ fn add_grass() -> Unit {
         let grass = @entity.Entity::new()
         let sprite = @sprite.Sprite::from_animation(grass_sprite)
         @sprite.sprites().set(grass, sprite)
-        ignore(@animation.attach_sprite_animation_player(grass, grass_sprite))
+        ignore(install_sprite_animation_player(grass, grass_sprite))
         @transform.transforms().set(
           grass,
           @transform.Transform::from_xyz(

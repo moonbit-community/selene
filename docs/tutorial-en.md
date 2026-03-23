@@ -233,14 +233,52 @@ let player_idle_animation : @sprite.Animation = @sprite.Animation::new(
 
 `loop_` controls looping; `fps` controls playback speed.
 
-Attach a sprite animation player with:
+Build a clip/graph pair and attach an animation player with:
 
 ```moonbit
 @sprite.sprites().set(
   game_state.player,
   @sprite.Sprite::from_animation(player_idle_animation),
 )
-ignore(@animation.attach_sprite_animation_player(game_state.player, player_idle_animation))
+let clip = @animation.AnimationClip::new("player_idle")
+let frame_keys : Array[@animation.ScalarKeyframe] = []
+for index in 0..<player_idle_animation.frames.length() {
+  frame_keys.push({
+    time: index.to_double() / player_idle_animation.fps,
+    value: index.to_double(),
+    in_tangent: None,
+    out_tangent: None,
+  })
+}
+clip.add_curve_to_target(
+  @animation.AnimationTargetId::new("self"),
+  @animation.VariableCurve::scalar(
+    @animation.sprite_frame_index_field(),
+    frame_keys,
+    interpolation=@animation.ChannelInterpolation::Step,
+  ),
+)
+let (graph, nodes) = @animation.AnimationGraph::from_clips([
+  @animation.register_animation_clip_asset(clip),
+])
+@animation.animation_graph_handles().set(
+  game_state.player,
+  @animation.register_animation_graph_asset(graph),
+)
+@animation.animation_players().set(
+  game_state.player,
+  @animation.AnimationPlayer::new(),
+)
+@animation.animation_target_ids().set(
+  game_state.player,
+  @animation.AnimationTargetId::new("self"),
+)
+@animation.animated_bys().set(
+  game_state.player,
+  @animation.AnimatedBy::new(game_state.player),
+)
+@sprite.sprite_frame_indices().set(game_state.player, { frame: 0.0 })
+ignore(@animation.animation_players().get(game_state.player).unwrap().play(nodes[0]))
 ```
 
 Input handling uses `@inputs`:

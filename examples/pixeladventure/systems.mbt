@@ -112,6 +112,60 @@ fn ensure_sprite_animation_binding(entity : @entity.Entity) -> Unit {
 }
 
 ///|
+fn build_sprite_animation_clip_asset(
+  animation : @sprite.Animation,
+) -> @animation.AnimationClipHandle {
+  let clip = @animation.AnimationClip::new("sprite/\{animation.id.to_string()}")
+  let keys : Array[@animation.ScalarKeyframe] = []
+  let frame_duration = if animation.fps <= 0.0 {
+    1.0
+  } else {
+    1.0 / animation.fps
+  }
+  for index in 0..<animation.frames.length() {
+    keys.push({
+      time: index.to_double() * frame_duration,
+      value: index.to_double(),
+      in_tangent: None,
+      out_tangent: None,
+    })
+  }
+  clip.add_curve_to_target(
+    @animation.AnimationTargetId::new("self"),
+    @animation.VariableCurve::scalar(
+      @animation.sprite_frame_index_field(),
+      keys,
+      interpolation=@animation.ChannelInterpolation::Step,
+    ),
+  )
+  if animation.frames.length() > 0 && !animation.loop_ {
+    clip.duration = (animation.frames.length() - 1).to_double() * frame_duration
+  } else if animation.frames.length() > 0 {
+    clip.duration = animation.frames.length().to_double() * frame_duration
+  }
+  @animation.register_animation_clip_asset(clip)
+}
+
+///|
+fn install_sprite_animation_player(
+  entity : @entity.Entity,
+  animation : @sprite.Animation,
+  repeat? : @animation.RepeatAnimation = @animation.RepeatAnimation::Forever,
+) -> (@animation.AnimationGraphHandle, @animation.AnimationNodeIndex) {
+  ensure_sprite_animation_binding(entity)
+  let (graph, nodes) = @animation.AnimationGraph::from_clips([
+    build_sprite_animation_clip_asset(animation),
+  ])
+  let node = nodes[0]
+  let graph_handle = @animation.register_animation_graph_asset(graph)
+  @animation.animation_graph_handles().set(entity, graph_handle)
+  ignore(
+    @animation.animation_players().get(entity).unwrap().play(node, repeat~),
+  )
+  (graph_handle, node)
+}
+
+///|
 fn play_player_animation(
   entity : @entity.Entity,
   controller : PlayerController,
@@ -197,7 +251,7 @@ fn play_player_animation(
   let player = @animation.animation_players().get(entity).unwrap()
   let transitions = @animation.animation_transitions().get(entity).unwrap()
   let duration = if controller.active_animation is Some(_) { 0.08 } else { 0.0 }
-  transitions.play(player, node, duration, repeat~)
+  ignore(transitions.play(player, node, duration, repeat~))
   controller.active_animation = Some(key)
 }
 
@@ -241,7 +295,7 @@ fn play_bird_animation(entity : @entity.Entity, bird : BirdController) -> Unit {
   let player = @animation.animation_players().get(entity).unwrap()
   let transitions = @animation.animation_transitions().get(entity).unwrap()
   let duration = if bird.active_animation is Some(_) { 0.06 } else { 0.0 }
-  transitions.play(player, node, duration, repeat~)
+  ignore(transitions.play(player, node, duration, repeat~))
   bird.active_animation = Some(key)
 }
 

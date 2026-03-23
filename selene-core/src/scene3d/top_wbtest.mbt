@@ -334,6 +334,35 @@ test "parse_material_asset preserves glTF material factors, bindings, and textur
 }
 
 ///|
+test "instantiate_scene_instance installs animation components without autoplay" {
+  let scene = @render3d.register_scene_path("wbtest://animation-scene")
+  let clip = @animation.AnimationClip::new("idle")
+  let clip_handle = @animation.register_animation_clip_asset(clip)
+  let template = empty_scene_template()
+  template.animations.set("idle", clip_handle)
+  scene_templates.set(scene, template)
+  scene_paths.set(scene, "wbtest://animation-scene")
+
+  let instance = instantiate_scene_instance(
+    scene,
+    @transform.Transform::default(),
+  )
+  inspect(instance.animations.contains("idle"), content="true")
+  inspect(
+    @animation.animation_players().contains(instance.root),
+    content="true",
+  )
+  inspect(
+    @animation.animation_players()
+    .get(instance.root)
+    .unwrap()
+    .playing_animations()
+    .length(),
+    content="0",
+  )
+}
+
+///|
 test "apply_texture_transform3d matches glTF offset-rotate-scale order" {
   let uv = @render3d.apply_texture_transform3d(
     {
