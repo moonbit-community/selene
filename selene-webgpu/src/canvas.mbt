@@ -206,10 +206,10 @@ fn schedule_with_fixed_interval(
     lastTime.val = time
     accumulator.val = accumulator.val + delta
 
-    // Run callback for each complete interval
-    while accumulator.val >= interval {
-      callback(delta)
-      accumulator.val = accumulator.val - interval
+    if accumulator.val >= interval {
+      let elapsed = accumulator.val
+      accumulator.val = 0.0
+      callback(elapsed)
       if canvas_backend.close_requested {
         lastId.val = 0.0
         return

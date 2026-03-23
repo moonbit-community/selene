@@ -43,6 +43,7 @@
 - Fixed `examples/pixeladventure` web runtime stalls caused by rebuilding HUD text and reloading the volume button image every frame; HUD sync now writes only when values actually change and reuses cached UI images.
 - Fixed `examples/pixeladventure/index.html` to stop preloading the entire Pixel Adventure asset pack before startup; the page now lets the game load only the assets it actually uses.
 - Fixed `examples/preload-assets.js` to preload example assets during browser idle time with limited concurrency instead of issuing one `fetch` per asset through a single `Promise.all(...)`, which previously overwhelmed large examples such as `pixeladventure`.
+- Fixed the `selene-webgpu` browser frame scheduler to deliver one accumulated frame delta per animation frame instead of replaying multiple full `game_loop` / `render_loop` iterations inside a single `requestAnimationFrame`, which previously caused severe lag and frame-delta amplification in web examples such as `pixeladventure`.
 
 ### Removed
 
