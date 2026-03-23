@@ -205,6 +205,20 @@ let hurt_sound : @audio.AudioHandle = @asset2.load_audio(
 )
 
 ///|
+let volume_on_ui_image : @ui.UiImage = @ui.UiImage::new(
+  @math.Vec2D(21.0, 22.0),
+  "assets/pixeladventure/Menu/Buttons/Volume.png",
+  fit=@ui.ImageFit::Contain,
+)
+
+///|
+let volume_off_ui_image : @ui.UiImage = @ui.UiImage::new(
+  @math.Vec2D(21.0, 22.0),
+  "assets/pixeladventure/Menu/Buttons/VolumeOff.png",
+  fit=@ui.ImageFit::Contain,
+)
+
+///|
 let player_idle_animation : @sprite.Animation = @sprite.Animation::new(
   @sprite.frames_from_atlas(
     "assets/pixeladventure/Main Characters/Mask Dude/Idle (32x32).png",

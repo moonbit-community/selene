@@ -31,6 +31,7 @@
 - Changed `examples/cards`, `examples/pixeladventure`, and `examples/survivors` to write world-space positions through `@transform.Transform::from_xyz(...)`; `pixeladventure` and `survivors` now spawn explicit camera entities and run follow/clamp logic in example systems instead of using engine-global camera helpers.
 - Changed `@plugins.default_plugin` to stop installing the removed legacy 2D camera follow system.
 - Changed `examples/pixeladventure` to a small pure-ECS example split into `model.mbt`, `spawn.mbt`, and `systems.mbt`, replacing the old module-global `game_state` / `birds` / `apples` / `flags` state and removing the example's dependency on `@state.State`.
+- Changed `examples/pixeladventure/assets/pixeladventure` to keep only the runtime assets used by the rewritten example, removing the rest of the unused source art pack from the repository copy.
 
 ### Fixed
 
@@ -39,6 +40,9 @@
 - Fixed collision debug drawing and pickable world hit-testing to use transformed world-space shape data instead of raw position-only offsets.
 - Fixed Tiled world-child placement after the hierarchy migration so spawned world maps keep their configured local translation instead of snapping back to the origin.
 - Fixed `examples/pixeladventure` gameplay flow so player movement, bird stomp-vs-hurt resolution, apple/flag triggers, HUD sync, volume toggling, and camera follow now run through one session-driven ECS state model instead of split global state.
+- Fixed `examples/pixeladventure` web runtime stalls caused by rebuilding HUD text and reloading the volume button image every frame; HUD sync now writes only when values actually change and reuses cached UI images.
+- Fixed `examples/pixeladventure/index.html` to stop preloading the entire Pixel Adventure asset pack before startup; the page now lets the game load only the assets it actually uses.
+- Fixed `examples/preload-assets.js` to preload example assets during browser idle time with limited concurrency instead of issuing one `fetch` per asset through a single `Promise.all(...)`, which previously overwhelmed large examples such as `pixeladventure`.
 
 ### Removed
 

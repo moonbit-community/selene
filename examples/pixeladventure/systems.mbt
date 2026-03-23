@@ -34,12 +34,32 @@ fn player_is_frozen(result : GameResult?) -> Bool {
 ///|
 fn set_ui_text(entity : @entity.Entity, content : String) -> Unit {
   let text = @ui.texts().get_or_init(entity, fn() { @ui.Text::new(content) })
-  text.content = content
+  if text.content != content {
+    text.content = content
+  }
 }
 
 ///|
 fn set_ui_text_color(entity : @entity.Entity, color : String) -> Unit {
-  @ui.text_colors().set(entity, @ui.TextColor::from_css(color))
+  let next_color = @ui.TextColor::from_css(color)
+  if @ui.text_colors().get(entity) is Some(current) {
+    if current.color != next_color.color {
+      current.color = next_color.color
+    }
+  } else {
+    @ui.text_colors().set(entity, next_color)
+  }
+}
+
+///|
+fn set_ui_image(entity : @entity.Entity, image : @ui.UiImage) -> Unit {
+  if @ui.ui_images().get(entity) is Some(current) {
+    if current != image {
+      @ui.ui_images().set(entity, image)
+    }
+  } else {
+    @ui.ui_images().set(entity, image)
+  }
 }
 
 ///|
@@ -62,12 +82,11 @@ fn result_color(result : GameResult?) -> String {
 
 ///|
 fn volume_image(volume_on : Bool) -> @ui.UiImage {
-  let path = if volume_on {
-    "assets/pixeladventure/Menu/Buttons/Volume.png"
+  if volume_on {
+    volume_on_ui_image
   } else {
-    "assets/pixeladventure/Menu/Buttons/VolumeOff.png"
+    volume_off_ui_image
   }
-  @ui.UiImage::new(@math.Vec2D(21.0, 22.0), path, fit=@ui.ImageFit::Contain)
 }
 
 ///|
@@ -557,5 +576,5 @@ fn hud_sync_system(_world : @ecs.World) -> Unit {
   set_ui_text_color(session.result_box, result_color(session.result))
   set_ui_text(session.score_box, "Score: " + session.score.to_string())
   set_ui_text(session.health_box, "HP: " + session.health.to_string())
-  @ui.ui_images().set(session.volume_button, volume_image(session.volume_on))
+  set_ui_image(session.volume_button, volume_image(session.volume_on))
 }
