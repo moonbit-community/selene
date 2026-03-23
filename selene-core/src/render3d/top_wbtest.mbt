@@ -20,6 +20,7 @@ test "render3d extract preserves mesh shadow toggles" {
   @visibility.visibilities().set(entity, Visible)
   @visibility.inherited_visibilities().set(entity, { visible: true })
   @visibility.view_visibilities().set(entity, { visible: true })
+  @transform.transform_propagate_system(0.0)
 
   render3d_extract_system(0.0)
 

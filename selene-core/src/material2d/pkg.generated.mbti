@@ -1,0 +1,66 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/material2d"
+
+import {
+  "Milky2018/selene/asset_types",
+  "Milky2018/selene/entity",
+  "Milky2018/selene/math",
+  "Milky2018/selene/render",
+}
+
+// Values
+pub fn color_material(ColorMaterialHandle) -> ColorMaterial?
+
+pub fn mesh_material2ds() -> Map[@entity.Entity, MeshMaterial2d]
+
+pub fn register_color_material(ColorMaterial) -> ColorMaterialHandle
+
+pub fn release_color_material(ColorMaterialHandle) -> Unit
+
+pub fn take_dirty_color_materials() -> Array[(ColorMaterialHandle, ColorMaterial)]
+
+pub fn take_released_color_materials() -> Array[ColorMaterialHandle]
+
+pub fn update_color_material(ColorMaterialHandle, ColorMaterial) -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) enum AlphaMode2D {
+  Opaque
+  Blend
+}
+pub impl Eq for AlphaMode2D
+pub impl Show for AlphaMode2D
+
+pub(all) struct ColorMaterial {
+  color : @render.Color
+  texture : @asset_types.ImageHandle?
+  uv_transform : @math.Transform
+  alpha_mode : AlphaMode2D
+
+  fn new(color? : @render.Color, texture? : @asset_types.ImageHandle?, uv_transform? : @math.Transform, alpha_mode? : AlphaMode2D) -> ColorMaterial
+}
+pub fn ColorMaterial::from_color(@render.Color) -> Self
+pub fn ColorMaterial::new(color? : @render.Color, texture? : @asset_types.ImageHandle?, uv_transform? : @math.Transform, alpha_mode? : AlphaMode2D) -> Self
+
+pub(all) struct ColorMaterialHandle(UInt)
+#deprecated
+pub fn ColorMaterialHandle::inner(Self) -> UInt
+pub impl Eq for ColorMaterialHandle
+pub impl Hash for ColorMaterialHandle
+pub impl Show for ColorMaterialHandle
+
+pub(all) struct MeshMaterial2d {
+  material : ColorMaterialHandle
+
+  fn new(ColorMaterialHandle) -> MeshMaterial2d
+}
+pub fn MeshMaterial2d::new(ColorMaterialHandle) -> Self
+pub impl Eq for MeshMaterial2d
+pub impl Show for MeshMaterial2d
+
+// Type aliases
+
+// Traits
+

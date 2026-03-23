@@ -15,13 +15,23 @@ pub fn pop_ui_clip() -> Unit
 
 pub fn push_circle(@render2d_types.CircleDrawCommand2D) -> Unit
 
+pub fn push_circle_with_depth(Double, @render2d_types.CircleDrawCommand2D) -> Unit
+
 pub fn push_gradient_rect(@render2d_types.GradientRectDrawCommand2D) -> Unit
+
+pub fn push_gradient_rect_with_depth(Double, @render2d_types.GradientRectDrawCommand2D) -> Unit
 
 pub fn push_image(@render2d_types.ImageDrawCommand2D) -> Unit
 
+pub fn push_image_with_depth(Double, @render2d_types.ImageDrawCommand2D) -> Unit
+
 pub fn push_rect(@render2d_types.RectDrawCommand2D) -> Unit
 
+pub fn push_rect_with_depth(Double, @render2d_types.RectDrawCommand2D) -> Unit
+
 pub fn push_text(@render2d_types.TextDrawCommand2D) -> Unit
+
+pub fn push_text_with_depth(Double, @render2d_types.TextDrawCommand2D) -> Unit
 
 pub fn push_ui_circle(@render2d_types.CircleDrawCommand2D) -> Unit
 

@@ -33,10 +33,10 @@ pub fn run() -> Unit {
   .add_system(Startup, game_start)
   .add_system(Update, player_controller_system)
   .add_system(Update, trigger_system)
+  .add_system(Update, pixeladventure_camera_follow_system)
   .add_system(FixedPostUpdate, player_bird_contact_system)
   .add_system(FixedPostUpdate, bird_patrol_system)
   .add_system(PostUpdate, volume_button_system)
-  .add_system(PostUpdate, pixeladventure_camera_follow_system)
   .add_system(PostUpdate, hud_sync_system)
   .run()
 }

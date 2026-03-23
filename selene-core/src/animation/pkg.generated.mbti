@@ -63,8 +63,6 @@ pub fn release_animation_clip_asset(AnimationClipHandle) -> Unit
 
 pub fn release_animation_graph_asset(AnimationGraphHandle) -> Unit
 
-pub fn sprite_frame_index_field() -> AnimatedFieldHandle
-
 pub fn take_dirty_animation_clip_assets() -> Array[(AnimationClipHandle, AnimationClip)]
 
 pub fn take_dirty_animation_graph_assets() -> Array[(AnimationGraphHandle, AnimationGraph)]
@@ -72,6 +70,8 @@ pub fn take_dirty_animation_graph_assets() -> Array[(AnimationGraphHandle, Anima
 pub fn take_released_animation_clip_assets() -> Array[AnimationClipHandle]
 
 pub fn take_released_animation_graph_assets() -> Array[AnimationGraphHandle]
+
+pub fn texture_atlas_index_field() -> AnimatedFieldHandle
 
 pub fn transform_rotation_field() -> AnimatedFieldHandle
 

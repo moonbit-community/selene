@@ -150,10 +150,9 @@ let player_bullet_trigger_event_reader : @event.EventReader[
 ] = @event.EventReader::new()
 
 ///|
-let player_bullet_visual : @sprite.Animation = @sprite.Animation::single_frame(
-  "assets/survivors/icon/bullet.png",
-  Vec2D(12.0, 12.0),
-  transform=@math.Transform::from_translation(-6.0, -6.0),
+let player_bullet_visual : @sprite.Sprite = @sprite.Sprite::new(
+  image=Some(@asset2.load_image("assets/survivors/icon/bullet.png")),
+  custom_size=Some(Vec2D(12.0, 12.0)),
 )
 
 ///|
@@ -222,11 +221,7 @@ fn shoot_weapon_bullet(
   }
   let bullet_spawn_pos = player_pos + dir.scalar_mul(14.0)
   let bullet_entity = @entity.Entity::new()
-  @sprite.sprites().set(
-    bullet_entity,
-    @sprite.Sprite::from_animation(player_bullet_visual),
-  )
-  ignore(install_sprite_animation_player(bullet_entity, player_bullet_visual))
+  @sprite.sprites().set(bullet_entity, player_bullet_visual)
   @transform.transforms().set(
     bullet_entity,
     @transform.Transform::from_xyz(

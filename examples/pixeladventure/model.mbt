@@ -126,6 +126,19 @@ priv struct BirdAnimationNodes {
 }
 
 ///|
+priv struct SpriteAnimationDef {
+  name : String
+  image : @asset.ImageHandle
+  layout : @sprite.TextureAtlasLayoutHandle
+  fps : Double
+  loop_ : Bool
+  size : @math.Vec2D
+  anchor : @sprite.Anchor
+  flip_x : Bool
+  flip_y : Bool
+}
+
+///|
 priv struct GameSession {
   player : @entity.Entity
   camera : @entity.Entity
@@ -236,13 +249,33 @@ fn sprite_clip(
   frame_count : Int,
   loop_? : Bool = true,
   fps? : Double = 12.0,
-  transform? : @math.Transform = @math.Transform::new(),
-) -> @sprite.Animation {
-  @sprite.Animation::new(
-    @sprite.frames_from_atlas(path, frame_count, width=32.0, height=32.0),
-    loop_~,
-    fps~,
-    transform~,
+  flip_x? : Bool = false,
+) -> SpriteAnimationDef {
+  let size = @math.Vec2D(32.0, 32.0)
+  {
+    name: path,
+    image: @asset2.load_image(path),
+    layout: @sprite.register_texture_atlas_layout(
+      @sprite.TextureAtlasLayout::from_grid(size, frame_count, 1),
+    ),
+    fps,
+    loop_,
+    size,
+    anchor: @sprite.TopLeft,
+    flip_x,
+    flip_y: false,
+  }
+}
+
+///|
+fn sprite_animation_sprite(animation : SpriteAnimationDef) -> @sprite.Sprite {
+  @sprite.Sprite::new(
+    image=Some(animation.image),
+    texture_atlas=Some(@sprite.TextureAtlas::new(animation.layout)),
+    custom_size=Some(animation.size),
+    anchor=animation.anchor,
+    flip_x=animation.flip_x,
+    flip_y=animation.flip_y,
   )
 }
 
@@ -276,93 +309,98 @@ let volume_off_ui_image : @ui.UiImage = @ui.UiImage::new(
 )
 
 ///|
-let player_idle_right_animation : @sprite.Animation = sprite_clip(
+let player_idle_right_animation : SpriteAnimationDef = sprite_clip(
   "assets/pixeladventure/Main Characters/Mask Dude/Idle (32x32).png", 11,
 )
 
 ///|
-let player_idle_left_animation : @sprite.Animation = sprite_clip(
+let player_idle_left_animation : SpriteAnimationDef = sprite_clip(
   "assets/pixeladventure/Main Characters/Mask Dude/Idle (32x32).png",
   11,
-  transform=@math.Transform::flip_x(32.0),
+  flip_x=true,
 )
 
 ///|
-let player_run_right_animation : @sprite.Animation = sprite_clip(
+let player_run_right_animation : SpriteAnimationDef = sprite_clip(
   "assets/pixeladventure/Main Characters/Mask Dude/Run (32x32).png", 12,
 )
 
 ///|
-let player_run_left_animation : @sprite.Animation = sprite_clip(
+let player_run_left_animation : SpriteAnimationDef = sprite_clip(
   "assets/pixeladventure/Main Characters/Mask Dude/Run (32x32).png",
   12,
-  transform=@math.Transform::flip_x(32.0),
+  flip_x=true,
 )
 
 ///|
-let player_fall_right_animation : @sprite.Animation = sprite_clip(
+let player_fall_right_animation : SpriteAnimationDef = sprite_clip(
   "assets/pixeladventure/Main Characters/Mask Dude/Fall (32x32).png", 1,
 )
 
 ///|
-let player_fall_left_animation : @sprite.Animation = sprite_clip(
+let player_fall_left_animation : SpriteAnimationDef = sprite_clip(
   "assets/pixeladventure/Main Characters/Mask Dude/Fall (32x32).png",
   1,
-  transform=@math.Transform::flip_x(32.0),
+  flip_x=true,
 )
 
 ///|
-let player_jump_right_animation : @sprite.Animation = sprite_clip(
+let player_jump_right_animation : SpriteAnimationDef = sprite_clip(
   "assets/pixeladventure/Main Characters/Mask Dude/Jump (32x32).png", 1,
 )
 
 ///|
-let player_jump_left_animation : @sprite.Animation = sprite_clip(
+let player_jump_left_animation : SpriteAnimationDef = sprite_clip(
   "assets/pixeladventure/Main Characters/Mask Dude/Jump (32x32).png",
   1,
-  transform=@math.Transform::flip_x(32.0),
+  flip_x=true,
 )
 
 ///|
-let player_hit_right_animation : @sprite.Animation = sprite_clip(
+let player_hit_right_animation : SpriteAnimationDef = sprite_clip(
   "assets/pixeladventure/Main Characters/Mask Dude/Hit (32x32).png",
   7,
   loop_=false,
 )
 
 ///|
-let player_hit_left_animation : @sprite.Animation = sprite_clip(
+let player_hit_left_animation : SpriteAnimationDef = sprite_clip(
   "assets/pixeladventure/Main Characters/Mask Dude/Hit (32x32).png",
   7,
   loop_=false,
-  transform=@math.Transform::flip_x(32.0),
+  flip_x=true,
 )
 
 ///|
-let bird_fly_right_animation : @sprite.Animation = sprite_clip(
+let bird_fly_right_animation : SpriteAnimationDef = sprite_clip(
+  "assets/pixeladventure/Enemies/BlueBird/Flying (32x32).png",
+  9,
+  flip_x=true,
+)
+
+///|
+let bird_fly_left_animation : SpriteAnimationDef = sprite_clip(
   "assets/pixeladventure/Enemies/BlueBird/Flying (32x32).png", 9,
 )
 
 ///|
-let bird_fly_left_animation : @sprite.Animation = sprite_clip(
-  "assets/pixeladventure/Enemies/BlueBird/Flying (32x32).png",
-  9,
-  transform=@math.Transform::flip_x(32.0),
+let bird_hit_right_animation : SpriteAnimationDef = sprite_clip(
+  "assets/pixeladventure/Enemies/BlueBird/Hit (32x32).png",
+  5,
+  loop_=false,
+  flip_x=true,
 )
 
 ///|
-let bird_hit_right_animation : @sprite.Animation = sprite_clip(
+let bird_hit_left_animation : SpriteAnimationDef = sprite_clip(
   "assets/pixeladventure/Enemies/BlueBird/Hit (32x32).png",
   5,
   loop_=false,
 )
 
 ///|
-let bird_hit_left_animation : @sprite.Animation = sprite_clip(
-  "assets/pixeladventure/Enemies/BlueBird/Hit (32x32).png",
-  5,
-  loop_=false,
-  transform=@math.Transform::flip_x(32.0),
+let apple_spin_animation : SpriteAnimationDef = sprite_clip(
+  "assets/pixeladventure/Items/Fruits/Apple.png", 17,
 )
 
 ///|

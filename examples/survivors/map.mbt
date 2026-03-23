@@ -15,8 +15,11 @@
 ///|
 fn add_background(size : @math.Vec2D) -> Unit {
   let background = @entity.Entity::new()
-  let background_sprite = @sprite.Sprite::from_picture(
-    @sprite.Picture::new(size, background_picture, repeat=Repeat),
+  let background_sprite = @sprite.Sprite::new(
+    image=Some(@asset2.load_image(background_picture)),
+    custom_size=Some(size),
+    anchor=@sprite.TopLeft,
+    image_mode=@sprite.Tiled(Repeat),
   )
   @sprite.sprites().set(background, background_sprite)
   @transform.transforms().set(
@@ -57,9 +60,8 @@ fn add_grass() -> Unit {
     for y in 0..<(MAP_HEIGHT / 16.0).to_int() {
       if rand.double() < density {
         let grass = @entity.Entity::new()
-        let sprite = @sprite.Sprite::from_animation(grass_sprite)
+        let sprite = grass_sprite()
         @sprite.sprites().set(grass, sprite)
-        ignore(install_sprite_animation_player(grass, grass_sprite))
         @transform.transforms().set(
           grass,
           @transform.Transform::from_xyz(

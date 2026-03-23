@@ -8,6 +8,7 @@ import {
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
+  "Milky2018/selene/render2d_types",
 }
 
 // Values
@@ -166,6 +167,8 @@ pub fn text_colors() -> Map[@entity.Entity, TextColor]
 pub fn text_fonts() -> Map[@entity.Entity, TextFont]
 
 pub fn text_layouts() -> Map[@entity.Entity, TextLayout]
+
+pub fn text_style_for(@entity.Entity) -> @render2d_types.TextStyle2D?
 
 pub fn texts() -> Map[@entity.Entity, Text]
 

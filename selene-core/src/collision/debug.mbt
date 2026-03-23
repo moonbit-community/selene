@@ -42,9 +42,10 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
     guard collide.active else { continue }
     guard shapes().get(e) is Some(shape)
     guard shape is Rect(size=Vec2D(width, height), offset~)
+    guard debug_entity_global_transform(e) is Some(global) else { continue }
     let rect = to_screen_rect(
       e,
-      debug_entity_global_transform(e),
+      global,
       offset,
       @math.Vec2D(width, height),
       camera_view,
@@ -61,9 +62,10 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
     guard area.active else { continue }
     guard shapes().get(e) is Some(shape) else { continue }
     guard shape is Rect(size=Vec2D(width, height), offset~)
+    guard debug_entity_global_transform(e) is Some(global) else { continue }
     let rect = to_screen_rect(
       e,
-      debug_entity_global_transform(e),
+      global,
       offset,
       @math.Vec2D(width, height),
       camera_view,
@@ -79,9 +81,10 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
     guard e.is_alive() else { continue }
     guard shapes().get(e) is Some(shape) else { continue }
     guard shape is Rect(size=Vec2D(width, height), offset~)
+    guard debug_entity_global_transform(e) is Some(global) else { continue }
     let rect = to_screen_rect(
       e,
-      debug_entity_global_transform(e),
+      global,
       offset,
       @math.Vec2D(width, height),
       camera_view,
@@ -193,14 +196,8 @@ fn screen_point(
 ///|
 fn debug_entity_global_transform(
   entity : @entity.Entity,
-) -> @transform.GlobalTransform {
-  if @transform.global_transforms().get(entity) is Some(global) {
-    global
-  } else {
-    @transform.GlobalTransform::from_transform(
-      @transform.transforms().get(entity).unwrap_or_default(),
-    )
-  }
+) -> @transform.GlobalTransform? {
+  @transform.global_transforms().get(entity)
 }
 
 ///|
@@ -222,7 +219,9 @@ fn debug_active_camera2d_view() -> (
     let projection = @camera.orthographic_projections()
       .get(entity)
       .unwrap_or_default()
-    let global = debug_entity_global_transform(entity)
+    guard debug_entity_global_transform(entity) is Some(global) else {
+      continue
+    }
     match selected {
       Some((_, _, _, order)) if order >= camera.order => ()
       _ => selected = Some((camera, global, projection, camera.order))

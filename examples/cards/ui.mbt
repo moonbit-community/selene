@@ -115,11 +115,10 @@ fn setup_ui() -> Unit {
   )
   @sprite.sprites().set(
     table_entity,
-    @sprite.Sprite::from_color_rect(
-      @sprite.ColorRect::new(
-        @math.Vec2D(VIEWPORT_WIDTH, VIEWPORT_HEIGHT),
-        "#2d5016",
-      ),
+    @sprite.Sprite::new(
+      color=@sprite.color_from_css("#2d5016"),
+      custom_size=Some(@math.Vec2D(VIEWPORT_WIDTH, VIEWPORT_HEIGHT)),
+      anchor=@sprite.TopLeft,
     ),
   )
 

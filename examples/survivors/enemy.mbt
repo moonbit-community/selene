@@ -17,8 +17,8 @@ priv struct EnemyData {
   health : Double
   speed : Double
   points : Int
-  right_animation : @sprite.Animation
-  left_animation : @sprite.Animation
+  right_animation : SpriteAnimationDef
+  left_animation : SpriteAnimationDef
 }
 
 ///|
@@ -277,7 +277,7 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
         let (left_node, right_node) = create_enemy_animation_nodes(enemy, data)
 
         // Create sprite and enemy state using data structure
-        let sprite = @sprite.Sprite::from_animation(data.right_animation)
+        let sprite = sprite_animation_sprite(data.right_animation)
         let enemy_state = {
           enemy_type,
           speed: data.speed,
@@ -373,16 +373,16 @@ fn create_enemy_animation_nodes(
 fn play_enemy_animation_state(
   entity : @entity.Entity,
   state : Enemy,
-  animation : @sprite.Animation,
+  animation : SpriteAnimationDef,
   node : @animation.AnimationNodeIndex,
 ) -> Unit {
   if state.current_node == Some(node) {
     return
   }
-  @sprite.sprites().set(entity, @sprite.Sprite::from_animation(animation))
+  @sprite.sprites().set(entity, sprite_animation_sprite(animation))
   let player = @animation.animation_players().get(entity).unwrap()
   let transitions = @animation.animation_transitions().get(entity).unwrap()
-  let duration = if state.current_node is Some(_) { 0.05 } else { 0.0 }
+  let duration = 0.0
   ignore(transitions.play(player, node, duration))
   state.current_node = Some(node)
 }
@@ -531,8 +531,9 @@ fn shoot_enemy_bullet(
   let bullet_entity = @entity.Entity::new()
   @sprite.sprites().set(
     bullet_entity,
-    @sprite.Sprite::from_color_rect(
-      @sprite.ColorRect::new(Vec2D(4.0, 4.0), "red"),
+    @sprite.Sprite::new(
+      color=@sprite.color_from_css("red"),
+      custom_size=Some(Vec2D(4.0, 4.0)),
     ),
   )
   @transform.transforms().set(

@@ -42,17 +42,56 @@ fn tiled_ecs_set_entity_depth(entity : @entity.Entity, z : Int) -> Unit {
 }
 
 ///|
+priv struct TiledSpriteAnimation {
+  image : @asset.ImageHandle
+  layout : @sprite.TextureAtlasLayoutHandle
+  fps : Double
+  loop_ : Bool
+  color : @render.Color
+  custom_size : @math.Vec2D?
+  anchor : @sprite.Anchor
+}
+
+///|
+fn tiled_transform_from_2d_affine(
+  affine : @math.Transform,
+) -> @transform.Transform {
+  let x_axis = @math.Vec3::new(affine.a, affine.b, 0.0)
+  let y_axis = @math.Vec3::new(affine.c, affine.d, 0.0)
+  let mut scale_x = x_axis.length()
+  let mut scale_y = y_axis.length()
+  if scale_x <= 0.000000001 {
+    scale_x = 1.0
+  }
+  if scale_y <= 0.000000001 {
+    scale_y = 1.0
+  }
+  let basis_x = x_axis.scalar_div(scale_x)
+  let mut basis_y = y_axis.scalar_div(scale_y)
+  if basis_x.cross(basis_y).dot(@math.Vec3::z_axis()) < 0.0 {
+    scale_y = -scale_y
+    basis_y = -basis_y
+  }
+  {
+    translation: @math.Vec3::new(affine.tx, affine.ty, 0.0),
+    rotation: @math.Quat::from_basis(basis_x, basis_y, @math.Vec3::z_axis()),
+    scale: @math.Vec3::new(scale_x, scale_y, 1.0),
+  }
+}
+
+///|
 fn tiled_sprite_animation_clip_asset(
-  animation : @sprite.Animation,
+  animation : TiledSpriteAnimation,
 ) -> @animation.AnimationClipHandle {
-  let clip = @animation.AnimationClip::new("sprite/\{animation.id.to_string()}")
+  let clip = @animation.AnimationClip::new("sprite/tiled")
+  let layout = @sprite.texture_atlas_layout(animation.layout).unwrap()
   let keys : Array[@animation.ScalarKeyframe] = []
   let frame_duration = if animation.fps <= 0.0 {
     1.0
   } else {
     1.0 / animation.fps
   }
-  for index in 0..<animation.frames.length() {
+  for index in 0..<layout.rects.length() {
     keys.push({
       time: index.to_double() * frame_duration,
       value: index.to_double(),
@@ -63,23 +102,38 @@ fn tiled_sprite_animation_clip_asset(
   clip.add_curve_to_target(
     @animation.AnimationTargetId::new("self"),
     @animation.VariableCurve::scalar(
-      @animation.sprite_frame_index_field(),
+      @animation.texture_atlas_index_field(),
       keys,
       interpolation=@animation.ChannelInterpolation::Step,
     ),
   )
-  if animation.frames.length() > 0 && !animation.loop_ {
-    clip.duration = (animation.frames.length() - 1).to_double() * frame_duration
-  } else if animation.frames.length() > 0 {
-    clip.duration = animation.frames.length().to_double() * frame_duration
+  if layout.rects.length() > 0 && !animation.loop_ {
+    clip.duration = (layout.rects.length() - 1).to_double() * frame_duration
+  } else if layout.rects.length() > 0 {
+    clip.duration = layout.rects.length().to_double() * frame_duration
   }
   @animation.register_animation_clip_asset(clip)
 }
 
 ///|
+fn tiled_sprite_from_animation(
+  animation : TiledSpriteAnimation,
+  visible : Bool,
+) -> @sprite.Sprite {
+  @sprite.Sprite::new(
+    image=Some(animation.image),
+    texture_atlas=Some(@sprite.TextureAtlas::new(animation.layout)),
+    color=animation.color,
+    custom_size=animation.custom_size,
+    anchor=animation.anchor,
+    visible~,
+  )
+}
+
+///|
 fn tiled_install_sprite_animation(
   entity : @entity.Entity,
-  animation : @sprite.Animation,
+  animation : TiledSpriteAnimation,
 ) -> Unit {
   ignore(
     @animation.animation_players().get_or_init(entity, fn() {
@@ -96,9 +150,6 @@ fn tiled_install_sprite_animation(
     @animation.AnimationTargetId::new("self"),
   )
   @animation.animated_bys().set(entity, @animation.AnimatedBy::new(entity))
-  ignore(
-    @sprite.sprite_frame_indices().get_or_init(entity, fn() { { frame: 0.0 } }),
-  )
   let (graph, nodes) = @animation.AnimationGraph::from_clips([
     tiled_sprite_animation_clip_asset(animation),
   ])
@@ -455,7 +506,15 @@ fn spawn_tiled_tile_layer(
     }
     let tile_position = tiled_cell_position(map, tileset, cell)
     let tile_entity = layer_entity.spawn_child()
-    tiled_ecs_set_entity_translation_2d(tile_entity, tile_position)
+    let local_transform = tiled_transform_from_2d_affine(
+      tiled_gid_transform(cell.gid, tiled_tileset_tile_size(map, tileset)),
+    )
+    @transform.transforms().set(tile_entity, local_transform)
+    tiled_ecs_set_entity_translation_2d(
+      tile_entity,
+      tile_position +
+      @math.Vec2D(local_transform.translation.x, local_transform.translation.y),
+    )
     tiled_ecs_set_entity_depth(tile_entity, zindex)
     tiled_tile_instances().set(tile_entity, {
       map_entity,
@@ -482,10 +541,16 @@ fn spawn_tiled_tile_layer(
     guard build_tiled_tile_animation(map, tileset, cell.gid) is Some(animation) else {
       continue
     }
-    let sprite = @sprite.Sprite::from_animation(animation)
-    sprite.visible = visible
-    @sprite.sprites().set(tile_entity, sprite)
-    tiled_install_sprite_animation(tile_entity, animation)
+    @sprite.sprites().set(
+      tile_entity,
+      tiled_sprite_from_animation(animation, visible),
+    )
+    if animation.fps > 0.0 &&
+      @sprite.texture_atlas_layout(animation.layout).map_or(false, fn(layout) {
+        layout.rects.length() > 1
+      }) {
+      tiled_install_sprite_animation(tile_entity, animation)
+    }
   }
 }
 
@@ -534,20 +599,30 @@ fn spawn_tiled_object_layer(
     guard object.gid is Some(gid) else { continue }
     guard map.tileset_for_gid(gid.tile_id) is Some(tileset) else { continue }
     let object_size = tiled_object_size(map, tileset, object)
-    guard build_tiled_tile_animation(
-        map,
-        tileset,
-        gid,
-        size=object_size,
-        extra_transform=tiled_object_rotation_transform(object, object_size),
-      )
+    let local_transform = tiled_transform_from_2d_affine(
+      tiled_object_rotation_transform(object, object_size) *
+      tiled_gid_transform(gid, object_size),
+    )
+    @transform.transforms().set(object_entity, local_transform)
+    tiled_ecs_set_entity_translation_2d(
+      object_entity,
+      object_offset +
+      @math.Vec2D(local_transform.translation.x, local_transform.translation.y),
+    )
+    guard build_tiled_tile_animation(map, tileset, gid, size=object_size)
       is Some(animation) else {
       continue
     }
-    let sprite = @sprite.Sprite::from_animation(animation)
-    sprite.visible = visible && object.visible
-    @sprite.sprites().set(object_entity, sprite)
-    tiled_install_sprite_animation(object_entity, animation)
+    @sprite.sprites().set(
+      object_entity,
+      tiled_sprite_from_animation(animation, visible && object.visible),
+    )
+    if animation.fps > 0.0 &&
+      @sprite.texture_atlas_layout(animation.layout).map_or(false, fn(layout) {
+        layout.rects.length() > 1
+      }) {
+      tiled_install_sprite_animation(object_entity, animation)
+    }
   }
 }
 
@@ -586,15 +661,17 @@ fn spawn_tiled_image_layer(
   guard resolved_image_path is Some(image_path) else { return }
   tiled_ecs_set_entity_depth(layer_entity, zindex)
   let repeat = tiled_image_repeat_mode(image_layer)
-  let picture = @sprite.Picture::from_image(
-    tiled_map_world_size(map),
-    load_tiled_image(image_path),
-    repeat~,
-    color={ r: 255U, g: 255U, b: 255U, a: layer.opacity },
+  @sprite.sprites().set(
+    layer_entity,
+    @sprite.Sprite::new(
+      image=Some(load_tiled_image(image_path)),
+      custom_size=Some(tiled_map_world_size(map)),
+      color=@render.Color::{ r: 255U, g: 255U, b: 255U, a: layer.opacity },
+      anchor=@sprite.TopLeft,
+      visible~,
+      image_mode=@sprite.Tiled(repeat),
+    ),
   )
-  let sprite = @sprite.Sprite::from_picture(picture)
-  sprite.visible = visible
-  @sprite.sprites().set(layer_entity, sprite)
 }
 
 ///|
@@ -603,8 +680,7 @@ fn build_tiled_tile_animation(
   tileset : TiledTileset,
   gid : TiledGid,
   size? : @math.Vec2D,
-  extra_transform? : @math.Transform = @math.Transform::identity(),
-) -> @sprite.Animation? {
+) -> TiledSpriteAnimation? {
   let local_id = gid.tile_id - tileset.first_gid
   if local_id < 0 {
     return None
@@ -613,26 +689,48 @@ fn build_tiled_tile_animation(
   if tile_size[X] <= 0.0 || tile_size[Y] <= 0.0 {
     return None
   }
-  let transform = extra_transform * tiled_gid_transform(gid, tile_size)
   if tileset.tile_definition(local_id) is Some(tile) &&
     tile.animation.length() > 0 {
-    let (frames, fps) = tiled_animation_frames_from_definition(
+    let (image, rects, fps) = tiled_animation_frames_from_definition(
       map,
       tileset,
       tile.animation,
       tile_size,
     )
-    if frames.length() > 0 {
-      return Some(@sprite.Animation::new(frames, loop_=true, fps~, transform~))
+    if rects.length() > 0 && image is Some(image) {
+      return Some({
+        image,
+        layout: @sprite.register_texture_atlas_layout({
+          size: tiled_layout_size(rects),
+          rects,
+        }),
+        fps,
+        loop_: true,
+        color: @render.Color::{ r: 255U, g: 255U, b: 255U, a: 1.0 },
+        custom_size: Some(tile_size),
+        anchor: @sprite.TopLeft,
+      })
     }
   }
-  let frames = tiled_visual_frames_for_local_tile(
+  let visuals = tiled_visual_regions_for_local_tile(
     map, tileset, local_id, tile_size,
   )
-  if frames.length() == 0 {
+  if visuals.length() == 0 {
     return None
   }
-  Some(@sprite.Animation::new(frames, loop_=false, fps=0.0, transform~))
+  let first = visuals[0]
+  Some({
+    image: first.0,
+    layout: @sprite.register_texture_atlas_layout({
+      size: tiled_layout_size([first.1]),
+      rects: [first.1],
+    }),
+    fps: 0.0,
+    loop_: false,
+    color: @render.Color::{ r: 255U, g: 255U, b: 255U, a: 1.0 },
+    custom_size: Some(tile_size),
+    anchor: @sprite.TopLeft,
+  })
 }
 
 ///|
@@ -641,8 +739,8 @@ fn tiled_animation_frames_from_definition(
   tileset : TiledTileset,
   animation : Array[TiledAnimationFrame],
   frame_size : @math.Vec2D,
-) -> (Array[@sprite.AnimationFrame], Double) {
-  let frames : Array[@sprite.AnimationFrame] = []
+) -> (@asset.ImageHandle?, Array[@math.Rect], Double) {
+  let visuals : Array[(@asset.ImageHandle, @math.Rect)] = []
   let step_ms = tiled_animation_step_ms(animation)
   for animated_frame in animation {
     let duration_ms = if animated_frame.duration_ms > 0 {
@@ -655,7 +753,7 @@ fn tiled_animation_frames_from_definition(
     } else {
       (duration_ms + step_ms - 1) / step_ms
     }
-    let visual_frames = tiled_visual_frames_for_local_tile(
+    let visual_frames = tiled_visual_regions_for_local_tile(
       map,
       tileset,
       animated_frame.tile_id,
@@ -666,10 +764,23 @@ fn tiled_animation_frames_from_definition(
     }
     let visual = visual_frames[0]
     for _ in 0..<repeat_count {
-      frames.push(visual)
+      visuals.push(visual)
     }
   }
-  (frames, 1000.0 / step_ms.to_double())
+  if visuals.length() == 0 {
+    return (None, [], 1000.0 / step_ms.to_double())
+  }
+  let first_image = visuals[0].0
+  let rects : Array[@math.Rect] = []
+  for visual in visuals {
+    if visual.0 != first_image {
+      rects.clear()
+      rects.push(visuals[0].1)
+      return (Some(first_image), rects, 0.0)
+    }
+    rects.push(visual.1)
+  }
+  (Some(first_image), rects, 1000.0 / step_ms.to_double())
 }
 
 ///|
@@ -707,24 +818,24 @@ fn tiled_gcd(left : Int, right : Int) -> Int {
 }
 
 ///|
-fn tiled_visual_frames_for_local_tile(
+fn tiled_visual_regions_for_local_tile(
   map : TiledMap,
   tileset : TiledTileset,
   local_id : Int,
   frame_size : @math.Vec2D,
-) -> Array[@sprite.AnimationFrame] {
+) -> Array[(@asset.ImageHandle, @math.Rect)] {
   if local_id < 0 || frame_size[X] <= 0.0 || frame_size[Y] <= 0.0 {
     return []
   }
   if tileset.tile_definition(local_id) is Some(tile) {
     if tile.image is Some(image_path) {
       let resolved_path = map.resolve_tileset_asset_path(tileset, image_path)
-      return @sprite.frames_from_image_atlas(
-        load_tiled_image(resolved_path),
-        1,
-        width=frame_size[X],
-        height=frame_size[Y],
-      )
+      return [
+        (
+          load_tiled_image(resolved_path),
+          { position: @math.Vec2D::zero(), size: frame_size },
+        ),
+      ]
     }
   }
   guard tileset.image is Some(image_path) else { return [] }
@@ -733,13 +844,29 @@ fn tiled_visual_frames_for_local_tile(
     return []
   }
   let resolved_path = map.resolve_tileset_asset_path(tileset, image_path)
-  @sprite.frames_from_image_atlas(
-    load_tiled_image(resolved_path),
-    1,
-    width=frame_size[X],
-    height=frame_size[Y],
-    offset=source_offset,
-  )
+  [
+    (
+      load_tiled_image(resolved_path),
+      { position: source_offset, size: frame_size },
+    ),
+  ]
+}
+
+///|
+fn tiled_layout_size(rects : Array[@math.Rect]) -> @math.Vec2D {
+  let mut max_x = 0.0
+  let mut max_y = 0.0
+  for rect in rects {
+    let right = rect.position[X] + rect.size[X]
+    let bottom = rect.position[Y] + rect.size[Y]
+    if right > max_x {
+      max_x = right
+    }
+    if bottom > max_y {
+      max_y = bottom
+    }
+  }
+  @math.Vec2D(max_x, max_y)
 }
 
 ///|
@@ -1024,14 +1151,8 @@ fn tiled_camera_view_origin() -> @math.Vec2D {
 ///|
 fn tiled_entity_global_transform(
   entity : @entity.Entity,
-) -> @transform.GlobalTransform {
-  if @transform.global_transforms().get(entity) is Some(global) {
-    global
-  } else {
-    @transform.GlobalTransform::from_transform(
-      @transform.transforms().get(entity).unwrap_or_default(),
-    )
-  }
+) -> @transform.GlobalTransform? {
+  @transform.compute_global_transform(entity)
 }
 
 ///|
@@ -1053,7 +1174,9 @@ fn tiled_ecs_active_camera2d_view() -> (
     let projection = @camera.orthographic_projections()
       .get(entity)
       .unwrap_or_default()
-    let global = tiled_entity_global_transform(entity)
+    guard tiled_entity_global_transform(entity) is Some(global) else {
+      continue
+    }
     match selected {
       Some((_, _, _, order)) if order >= camera.order => ()
       _ => selected = Some((camera, global, projection, camera.order))

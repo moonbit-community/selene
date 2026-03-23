@@ -20,6 +20,15 @@ This document captures the first breaking migration pass from legacy Selene ECS 
 | `has_pending_commands()` | `has_pending_commands(world)` | Queue inspection is world-scoped. |
 | `commands_flush_system(delta)` | `commands_flush_system(world, delta)` | Flush step is world-scoped. |
 
+## Hierarchy
+
+| Bevy | Selene | Notes |
+| --- | --- | --- |
+| `EntityCommands::set_parent(parent)` | `child.set_parent(parent)` | Reparents while preserving the child's local transform. |
+| `EntityCommands::remove_parent()` | `child.remove_parent()` | Detaches while preserving the child's local transform. |
+| `EntityCommands::set_parent_in_place(parent)` | `@transform.set_parent_in_place(child, parent)` | Reparents while preserving world space. |
+| `EntityCommands::remove_parent_in_place()` | `@transform.remove_parent_in_place(child)` | Detaches while preserving world space. |
+
 ## Query
 
 | Legacy Selene | New Selene | Notes |
@@ -36,6 +45,18 @@ This document captures the first breaking migration pass from legacy Selene ECS 
 | `default_plugin(@system.App)` | `default_plugin(@app.App)` | Plugin surface follows new app module. |
 | `default_3d_plugin(@system.App)` | `default_3d_plugin(@app.App)` | Plugin surface follows new app module. |
 
+## 2D Rendering Surface
+
+| Legacy Selene | New Selene | Notes |
+| --- | --- | --- |
+| `SpriteType::Picture` / `@sprite.Picture` | `@sprite.Sprite { image, rect?, custom_size, anchor, flip_x, flip_y, color, image_mode }` | Static images now use the same Bevy-style sprite component as every other textured quad. |
+| `SpriteType::Animation` / `@sprite.Animation` | `@sprite.Sprite + @sprite.TextureAtlas + @animation.AnimationPlayer` | 2D flipbooks now animate `TextureAtlas.index` instead of storing frames inside the sprite component. |
+| `@animation.sprite_frame_index_field()` | `@animation.texture_atlas_index_field()` | Built-in 2D animation target now points at the atlas index. |
+| `@sprite.SpriteFrameIndex` / `@sprite.sprite_frame_indices()` | Removed | 2D frame playback no longer uses a sidecar runtime component. |
+| `SpriteType::ColorRect` / `@sprite.ColorRect` | `@sprite.Sprite::from_color(color, size)` or `@sprite.Sprite::new(color, custom_size, ...)` | Pure-color quads now share the same sprite path as textured quads. |
+| `SpriteType::ColorCircle` / `@sprite.ColorCircle` | `@mesh2d.Mesh2d(circle) + @material2d.MeshMaterial2d(ColorMaterial)` | World circles now follow Bevy's mesh/material direction instead of sprite content enums. |
+| `SpriteType::Text` / `@sprite.Text` | `@ui.Text + @ui.TextFont + @ui.TextColor + @ui.TextLayout + @text2d.Text2d` | World text now uses a dedicated `Text2d` extraction path, separate from sprite quads. |
+
 ## Runtime Resources
 
 | Legacy Selene | New Selene | Notes |
@@ -50,19 +71,24 @@ Rows in this table may reference removed legacy packages or aliases. They are ke
 | Legacy Selene | New Selene | Notes |
 | --- | --- | --- |
 | `@position.positions` | `@transform.transforms()` | Author local translation now lives in `Transform.translation` on the unified transform store. |
-| `@position.previous_positions` | `@transform.previous_global_transforms()` | Previous world-space interpolation data now lives in unified previous-global transforms. |
+| `@position.previous_positions` | Removed | Bevy-aligned Selene no longer exposes transform-core previous-world snapshots. |
 | `@velocity.velocities` | `@velocity.velocities()` | Velocity store is now resolved from the active world. |
 | `@transform.transforms` | `@transform.transforms()` | Unified local transform store for authored 2D and 3D entity TRS data. |
 | `@transform.positions` | `@transform.transforms()` | Removed alias; use `Transform.translation` on the unified transform store. |
 | `@transform.global_transforms` | `@transform.global_transforms()` | Unified world-space affine transform store for 2D and 3D entities. |
-| `@transform.previous_transforms` | `@transform.previous_global_transforms()` | Removed alias; previous interpolation data is stored as global transforms. |
-| `@transform.previous_positions` | `@transform.previous_global_transforms()` | Removed alias; read previous world-space translation from `GlobalTransform.translation()`. |
+| `TransformHelper::compute_global_transform(entity)` | `@transform.compute_global_transform(entity)` | Use this helper when a system needs the current world transform before `PostUpdate` propagation has refreshed the stored `@transform.global_transforms()`. |
+| `@transform.previous_transforms` | Removed | Bevy-aligned Selene no longer exposes transform-core previous-world snapshots. |
+| `@transform.previous_positions` | Removed | Bevy-aligned Selene no longer exposes transform-core previous-world snapshots. |
 | `@transform3d.transforms3d` | `@transform.transforms()` | 3D and 2D now share the unified local transform store. |
 | `@transform3d.global_transforms3d` | `@transform.global_transforms()` | 3D and 2D now share the unified global transform store. |
-| `@transform3d.previous_global_transforms3d` | `@transform.previous_global_transforms()` | 3D and 2D now share the unified previous-global snapshot store. |
+| `@transform3d.previous_global_transforms3d` | Removed | Bevy-aligned Selene no longer exposes transform-core previous-world snapshots. |
 | `@physics2d.linear_velocities` | `@physics2d.linear_velocities()` | Physics2D velocity alias now resolves through active world storage. |
 | `@physics2d.velocities` | `@physics2d.velocities()` | Physics2D velocity alias now resolves through active world storage. |
 | `@sprite.sprites` | `@sprite.sprites()` | Sprite component store is now resolved from the active world. |
+| `@sprite.texture_atlas_layouts` | `@sprite.texture_atlas_layout(handle)` | Atlas layouts are now handle-based assets instead of implicit frame arrays on sprite animations. |
+| `@mesh2d.mesh2ds` | `@mesh2d.mesh2ds()` | Mesh2d component store is now resolved from the active world. |
+| `@material2d.mesh_material2ds` | `@material2d.mesh_material2ds()` | World 2D material bindings are resolved from the active world. |
+| `@text2d.text2ds` | `@text2d.text2ds()` | World text marker store is now resolved from the active world. |
 | `@visibility.visibilities` | `@visibility.visibilities()` | Visibility component store is now resolved from the active world. |
 | `@visibility.inherited_visibilities` | `@visibility.inherited_visibilities()` | Inherited visibility store is now resolved from the active world. |
 | `@visibility.view_visibilities` | `@visibility.view_visibilities()` | View visibility store is now resolved from the active world. |

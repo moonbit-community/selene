@@ -1,57 +1,39 @@
-// Copyright 2025 International Digital Economy Academy
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 ///|
-/// Visual element that can be rendered to the screen.
-///
-/// Fields:
-///
-/// * `sprite_type` : The visual content of the sprite (picture, animation, or
-///   text).
-/// * `visible` : Whether the sprite should be rendered to the screen.
-///
-/// Examples:
-///
-/// ```notest
-/// // Create an animation sprite
-/// let animation = @sprite.Animation::new([frame1, frame2])
-/// let sprite = @sprite.Sprite::from_animation(animation)
-/// sprite.visible = false // Hide the sprite
-///
-/// // Create a picture sprite
-/// let picture = @sprite.Picture::new(size, "path/to/image.png")
-/// let sprite = @sprite.Sprite::from_picture(picture)
-///
-/// // Create a text sprite
-/// let text = @sprite.Text::new("Hello World", color="red")
-/// let sprite = @sprite.Sprite::from_text(text)
-/// ```
-///
-pub(all) struct Sprite {
-  sprite_type : SpriteType
-  mut visible : Bool
+pub(all) enum SpriteImageMode {
+  Auto
+  Tiled(@math.RepeatMode)
 }
 
 ///|
-pub(all) struct SpriteFrameIndex {
-  mut frame : Double
+pub(all) struct Sprite {
+  image : @asset.ImageHandle?
+  mut texture_atlas : TextureAtlas?
+  mut rect : @math.Rect?
+  mut color : @render.Color
+  mut custom_size : @math.Vec2D?
+  mut anchor : Anchor
+  mut flip_x : Bool
+  mut flip_y : Bool
+  mut visible : Bool
+  mut image_mode : SpriteImageMode
+
+  fn new(
+    image? : @asset.ImageHandle?,
+    texture_atlas? : TextureAtlas?,
+    rect? : @math.Rect?,
+    color? : @render.Color,
+    custom_size? : @math.Vec2D?,
+    anchor? : Anchor,
+    flip_x? : Bool,
+    flip_y? : Bool,
+    visible? : Bool,
+    image_mode? : SpriteImageMode,
+  ) -> Sprite
 }
 
 ///|
 priv struct SpriteWorldStore {
   sprites : Map[@entity.Entity, Sprite]
-  sprite_frame_indices : Map[@entity.Entity, SpriteFrameIndex]
 }
 
 ///|
@@ -60,10 +42,7 @@ let sprite_world_stores : Map[UInt, SpriteWorldStore] = Map::new()
 ///|
 fn sprite_world_store() -> SpriteWorldStore {
   let world_id = @ecs.require_current_world().id()
-  sprite_world_stores.get_or_init(world_id, () => {
-    sprites: Map::new(),
-    sprite_frame_indices: Map::new(),
-  })
+  sprite_world_stores.get_or_init(world_id, fn() { { sprites: Map::new() } })
 }
 
 ///|
@@ -72,211 +51,198 @@ pub fn sprites() -> Map[@entity.Entity, Sprite] {
 }
 
 ///|
-pub fn sprite_frame_indices() -> Map[@entity.Entity, SpriteFrameIndex] {
-  sprite_world_store().sprite_frame_indices
+fn white_sprite_color() -> @render.Color {
+  color_from_css("white")
 }
 
 ///|
-pub enum SpriteType {
-  Picture(Picture)
-  Animation(Animation)
-  Text(Text)
-  ColorRect(ColorRect)
-  ColorCircle(ColorCircle)
+pub fn Sprite::new(
+  image? : @asset.ImageHandle? = None,
+  texture_atlas? : TextureAtlas? = None,
+  rect? : @math.Rect? = None,
+  color? : @render.Color = white_sprite_color(),
+  custom_size? : @math.Vec2D? = None,
+  anchor? : Anchor = default_anchor(),
+  flip_x? : Bool = false,
+  flip_y? : Bool = false,
+  visible? : Bool = true,
+  image_mode? : SpriteImageMode = Auto,
+) -> Sprite {
+  {
+    image,
+    texture_atlas,
+    rect,
+    color,
+    custom_size,
+    anchor,
+    flip_x,
+    flip_y,
+    visible,
+    image_mode,
+  }
 }
 
 ///|
-/// Make an animation sprite with default animation state.
-pub fn Sprite::from_animation(animation : Animation) -> Sprite {
-  { sprite_type: SpriteType::Animation(animation), visible: true }
+pub fn Sprite::from_image(
+  image : @asset.ImageHandle,
+  custom_size? : @math.Vec2D? = None,
+) -> Sprite {
+  Sprite::new(image=Some(image), custom_size~)
 }
 
 ///|
-/// Creates a sprite from a picture.
-///
-/// Parameters:
-///
-/// * `picture` : The `Picture` object containing the image data and dimensions
-///   to be rendered.
-/// Returns a new `Sprite` with the picture as its visual content, initially set
-/// to visible.
-///
-pub fn Sprite::from_picture(picture : Picture) -> Sprite {
-  { sprite_type: SpriteType::Picture(picture), visible: true }
+pub fn Sprite::from_atlas_image(
+  image : @asset.ImageHandle,
+  texture_atlas : TextureAtlas,
+) -> Sprite {
+  let custom_size = texture_atlas_rect(texture_atlas).map(fn(rect) { rect.size })
+  Sprite::new(
+    image=Some(image),
+    texture_atlas=Some(texture_atlas),
+    custom_size~,
+  )
 }
 
 ///|
-/// Creates a sprite from text content.
-///
-/// Parameters:
-///
-/// * `text` : The `Text` object containing the text content, styling, and
-///   formatting information.
-/// Returns a new `Sprite` with the text as its visual content, initially
-/// visible.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// let text = @sprite.Text::new("Hello World", color="red")
-/// let sprite = @sprite.Sprite::from_text(text)
-/// inspect(sprite.visible, content="true")
-/// ```
-///
-pub fn Sprite::from_text(text : Text) -> Sprite {
-  { sprite_type: SpriteType::Text(text), visible: true }
+pub fn Sprite::from_color(
+  color : @render.Color,
+  custom_size : @math.Vec2D,
+) -> Sprite {
+  Sprite::new(color~, custom_size=Some(custom_size))
 }
 
 ///|
-/// Creates a sprite from a color rectangle.
-///
-/// Parameters:
-///
-/// * `color_rect` : The `ColorRect` to use as the sprite content.
-/// Returns a new `Sprite` with the color rectangle as its visual content.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// let rect = @sprite.ColorRect::new(Vec2D(100.0, 50.0), "blue")
-/// let sprite = @sprite.Sprite::from_color_rect(rect)
-/// inspect(sprite.visible, content="true")
-/// ```
-///
-pub fn Sprite::from_color_rect(color_rect : ColorRect) -> Sprite {
-  { sprite_type: SpriteType::ColorRect(color_rect), visible: true }
-}
-
-///|
-/// Creates a sprite from a color circle.
-///
-/// Parameters:
-///
-/// * `color_circle` : The `ColorCircle` to use as the sprite content.
-/// Returns a new `Sprite` with the color circle as its visual content.
-///
-/// Example:
-///
-/// ```moonbit nocheck
-/// let circle = @sprite.ColorCircle::new(20.0, "green")
-/// let sprite = @sprite.Sprite::from_color_circle(circle)
-/// inspect(sprite.visible, content="true")
-/// ```
-///
-pub fn Sprite::from_color_circle(color_circle : ColorCircle) -> Sprite {
-  { sprite_type: SpriteType::ColorCircle(color_circle), visible: true }
-}
-
-///|
-/// Renders all sprites in the game world through the provided backend, handling
-/// world-space and UI-space positioning.
-///
-/// Parameters:
-///
-/// * `backend` : The rendering backend used to draw sprites to the screen.
-///
-/// Panics if an entity has a sprite but no position component.
-///
 pub fn render_sprite_system(delta : Double) -> Unit {
   ignore(delta)
-  let sprite_entries = sprites()
-    .to_array()
-    .filter(fn(pair) { pair.0.is_alive() && @visibility.is_visible(pair.0) })
-  let render_alpha = @system.get_render_alpha()
-  let camera_view = active_camera2d_view(render_alpha)
-  sprite_entries.sort_by(fn(sprite1, sprite2) {
-    let pos1 = @transform.sample_global_translation(sprite1.0, render_alpha)
-    let pos2 = @transform.sample_global_translation(sprite2.0, render_alpha)
-    if pos1.z < pos2.z {
-      -1
-    } else if pos1.z > pos2.z {
-      1
-    } else {
-      0
-    }
-  })
-  for sprite in sprite_entries {
-    let e = sprite.0
-    let sprite = sprite.1
-    guard @transform.global_transforms().contains(e) ||
-      @transform.transforms().contains(e) else {
+  let camera_view = active_camera2d_view()
+  for entity, sprite in sprites() {
+    guard entity.is_alive() else { continue }
+    guard sprite.visible else { continue }
+    guard @visibility.is_visible(entity) else { continue }
+    guard @transform.global_transforms().get(entity) is Some(global_transform) else {
       continue
     }
-    let sampled_global = sampled_entity_global_transform(e, render_alpha)
-    let sampled = sampled_global.compute_transform()
-    let raw_pos = @math.Vec2D(sampled.translation.x, sampled.translation.y)
+    let depth = global_transform.translation().z
+    let transform = global_transform.compute_transform()
+    let raw_pos = @math.Vec2D(transform.translation.x, transform.translation.y)
     let screen_pos = match camera_view {
       Some((camera, camera_global, projection)) =>
         camera.world_to_viewport(camera_global, projection, raw_pos)
       None => @system.scale_vec2(raw_pos)
     }
-    let sprite_transform = sprite_screen_transform(sampled_global, camera_view)
-    match sprite.sprite_type {
-      SpriteType::Picture(picture) if sprite.visible =>
-        render_picture(
-          picture,
-          screen_pos,
-          false,
-          external_transform=sprite_transform,
-        )
-      SpriteType::Animation(anime) => {
-        let current_frame = sprite_frame_indices()
-          .get(e)
-          .map_or(0.0, fn(index) { index.frame })
-        render_animation(
-          anime,
-          current_frame,
-          screen_pos,
-          false,
-          sprite.visible,
-          external_transform=sprite_transform,
-        )
+    let sprite_transform = sprite_screen_transform(
+      global_transform, camera_view,
+    )
+    guard sprite_size(sprite) is Some(size) else { continue }
+    let local_transform = sprite_local_transform(sprite, size)
+    let external_transform = sprite_transform * local_transform
+    let snapped_pos = pixel_snapped_position(screen_pos)
+    match sprite.image {
+      Some(image) => {
+        let command : @render2d_types.ImageDrawCommand2D = {
+          image,
+          destination: { position: snapped_pos, size },
+          source: sprite_image_region(sprite),
+          transform: external_transform,
+          repeat: sprite_repeat_mode(sprite),
+          color: sprite.color,
+        }
+        @render2d.push_image_with_depth(depth, command)
       }
-      SpriteType::Text(text) if sprite.visible =>
-        render_text(
-          text,
-          screen_pos,
-          false,
-          external_transform=sprite_transform,
-        )
-      SpriteType::ColorRect(color_rect) if sprite.visible =>
-        render_color_rect(
-          color_rect,
-          screen_pos,
-          false,
-          external_transform=sprite_transform,
-        )
-      SpriteType::ColorCircle(color_circle) if sprite.visible =>
-        render_color_circle(
-          color_circle,
-          screen_pos,
-          false,
-          external_transform=sprite_transform,
-        )
-      _ => ()
+      None => {
+        let command : @render2d_types.RectDrawCommand2D = {
+          rect: { position: snapped_pos, size },
+          transform: external_transform,
+          fill_color: sprite.color,
+          stroke_color: None,
+        }
+        @render2d.push_rect_with_depth(depth, command)
+      }
     }
   }
 }
 
 ///|
-fn sampled_entity_global_transform(
-  entity : @entity.Entity,
-  alpha : Double,
-) -> @transform.GlobalTransform {
-  if @transform.global_transforms().contains(entity) ||
-    @transform.previous_global_transforms().contains(entity) {
-    @transform.sample_global_transform(entity, alpha)
-  } else {
-    @transform.GlobalTransform::from_transform(
-      @transform.transforms().get(entity).unwrap_or_default(),
-    )
+fn sprite_repeat_mode(sprite : Sprite) -> @math.RepeatMode {
+  match sprite.image_mode {
+    Auto => NoRepeat
+    Tiled(repeat) => repeat
   }
 }
 
 ///|
-fn active_camera2d_view(
-  alpha : Double,
-) -> (
+fn sprite_image_region(sprite : Sprite) -> @render2d_types.ImageRegion2D? {
+  match sprite.texture_atlas {
+    Some(texture_atlas) =>
+      texture_atlas_rect(texture_atlas).map(fn(rect) {
+        { position: rect.position, size: rect.size }
+      })
+    None =>
+      sprite.rect.map(fn(rect) { { position: rect.position, size: rect.size } })
+  }
+}
+
+///|
+fn sprite_source_size(sprite : Sprite) -> @math.Vec2D? {
+  sprite_image_region(sprite).map(fn(region) { region.size })
+}
+
+///|
+fn sprite_size(sprite : Sprite) -> @math.Vec2D? {
+  match sprite.custom_size {
+    Some(size) => Some(size)
+    None =>
+      match sprite.image {
+        Some(_) => sprite_source_size(sprite)
+        None => sprite.rect.map(fn(rect) { rect.size })
+      }
+  }
+}
+
+///|
+fn sprite_local_transform(
+  sprite : Sprite,
+  size : @math.Vec2D,
+) -> @math.Transform {
+  let anchor_offset = anchor_translation(sprite.anchor, size)
+  let anchor_transform = @math.Transform::from_translation(
+    anchor_offset[X],
+    anchor_offset[Y],
+  )
+  let flip_transform = @math.Transform::from_translation(
+      if sprite.flip_x {
+        size[X]
+      } else {
+        0.0
+      },
+      if sprite.flip_y {
+        size[Y]
+      } else {
+        0.0
+      },
+    ) *
+    @math.Transform::from_scale(
+      if sprite.flip_x {
+        -1.0
+      } else {
+        1.0
+      },
+      if sprite.flip_y {
+        -1.0
+      } else {
+        1.0
+      },
+    )
+  anchor_transform * flip_transform
+}
+
+///|
+fn pixel_snapped_position(position : @math.Vec2D) -> @math.Vec2D {
+  @math.Vec2D(position[X].round(), position[Y].round())
+}
+
+///|
+fn active_camera2d_view() -> (
   @camera.Camera,
   @transform.GlobalTransform,
   @camera.OrthographicProjection,
@@ -294,7 +260,9 @@ fn active_camera2d_view(
     let projection = @camera.orthographic_projections()
       .get(entity)
       .unwrap_or_default()
-    let global = sampled_entity_global_transform(entity, alpha)
+    guard @transform.global_transforms().get(entity) is Some(global) else {
+      continue
+    }
     match selected {
       Some((_, _, _, order)) if order >= camera.order => ()
       _ => selected = Some((camera, global, projection, camera.order))

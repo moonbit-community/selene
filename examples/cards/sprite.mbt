@@ -22,13 +22,10 @@ fn Card::to_path(self : Card) -> String {
 
 ///|
 fn Card::to_sprite(self : Card) -> @sprite.Sprite {
-  let transform = @math.Transform::from_scale(0.2, 0.2)
-  let anime = @sprite.Animation::single_frame(
-    self.to_path(),
-    Vec2D(295, 420),
-    transform~,
+  @sprite.Sprite::new(
+    image=Some(@asset2.load_image(self.to_path())),
+    custom_size=Some(Vec2D(59.0, 84.0)),
   )
-  @sprite.Sprite::from_animation(anime)
 }
 
 ///|

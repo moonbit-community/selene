@@ -57,23 +57,25 @@ fn ensure_sprite_animation_binding(entity : @entity.Entity) -> Unit {
     @animation.AnimationTargetId::new("self"),
   )
   @animation.animated_bys().set(entity, @animation.AnimatedBy::new(entity))
-  ignore(
-    @sprite.sprite_frame_indices().get_or_init(entity, fn() { { frame: 0.0 } }),
-  )
 }
 
 ///|
 fn build_sprite_animation_clip_asset(
-  animation : @sprite.Animation,
+  animation : SpriteAnimationDef,
 ) -> @animation.AnimationClipHandle {
-  let clip = @animation.AnimationClip::new("sprite/\{animation.id.to_string()}")
+  let clip = @animation.AnimationClip::new(animation.name)
   let keys : Array[@animation.ScalarKeyframe] = []
   let frame_duration = if animation.fps <= 0.0 {
     1.0
   } else {
     1.0 / animation.fps
   }
-  for index in 0..<animation.frames.length() {
+  let frame_count = @sprite.texture_atlas_layout(animation.layout).map_or(0, fn(
+    layout,
+  ) {
+    layout.rects.length()
+  })
+  for index in 0..<frame_count {
     keys.push({
       time: index.to_double() * frame_duration,
       value: index.to_double(),
@@ -84,42 +86,23 @@ fn build_sprite_animation_clip_asset(
   clip.add_curve_to_target(
     @animation.AnimationTargetId::new("self"),
     @animation.VariableCurve::scalar(
-      @animation.sprite_frame_index_field(),
+      @animation.texture_atlas_index_field(),
       keys,
       interpolation=@animation.ChannelInterpolation::Step,
     ),
   )
-  if animation.frames.length() > 0 && !animation.loop_ {
-    clip.duration = (animation.frames.length() - 1).to_double() * frame_duration
-  } else if animation.frames.length() > 0 {
-    clip.duration = animation.frames.length().to_double() * frame_duration
+  if frame_count > 0 && !animation.loop_ {
+    clip.duration = (frame_count - 1).to_double() * frame_duration
+  } else if frame_count > 0 {
+    clip.duration = frame_count.to_double() * frame_duration
   }
   @animation.register_animation_clip_asset(clip)
 }
 
 ///|
-fn install_sprite_animation_player(
-  entity : @entity.Entity,
-  animation : @sprite.Animation,
-  repeat? : @animation.RepeatAnimation = @animation.RepeatAnimation::Forever,
-) -> (@animation.AnimationGraphHandle, @animation.AnimationNodeIndex) {
-  ensure_sprite_animation_binding(entity)
-  let (graph, nodes) = @animation.AnimationGraph::from_clips([
-    build_sprite_animation_clip_asset(animation),
-  ])
-  let node = nodes[0]
-  let graph_handle = @animation.register_animation_graph_asset(graph)
-  @animation.animation_graph_handles().set(entity, graph_handle)
-  ignore(
-    @animation.animation_players().get(entity).unwrap().play(node, repeat~),
-  )
-  (graph_handle, node)
-}
-
-///|
 fn register_sprite_animation_node(
   graph : @animation.AnimationGraph,
-  animation : @sprite.Animation,
+  animation : SpriteAnimationDef,
 ) -> @animation.AnimationNodeIndex {
   graph.add_clip(build_sprite_animation_clip_asset(animation))
 }
@@ -153,7 +136,7 @@ fn create_player_animation_controller(
 ///|
 fn play_player_animation_state(
   entity : @entity.Entity,
-  animation : @sprite.Animation,
+  animation : SpriteAnimationDef,
   node : @animation.AnimationNodeIndex,
 ) -> Unit {
   guard player_animation_controllers.get(entity) is Some(controller) else {
@@ -162,10 +145,10 @@ fn play_player_animation_state(
   if controller.current == Some(node) {
     return
   }
-  @sprite.sprites().set(entity, @sprite.Sprite::from_animation(animation))
+  @sprite.sprites().set(entity, sprite_animation_sprite(animation))
   let player = @animation.animation_players().get(entity).unwrap()
   let transitions = @animation.animation_transitions().get(entity).unwrap()
-  let duration = if controller.current is Some(_) { 0.05 } else { 0.0 }
+  let duration = 0.0
   ignore(transitions.play(player, node, duration))
   controller.current = Some(node)
 }
@@ -177,7 +160,7 @@ fn add_player() -> Unit {
   player_animation_controllers.set(entity, animation_controller)
   @sprite.sprites().set(
     entity,
-    @sprite.Sprite::from_animation(player_idle_right_animation),
+    sprite_animation_sprite(player_idle_right_animation),
   )
   @transform.transforms().set(
     entity,

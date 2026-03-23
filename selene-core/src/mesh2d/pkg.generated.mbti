@@ -1,0 +1,75 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/mesh2d"
+
+import {
+  "Milky2018/selene/entity",
+  "Milky2018/selene/math",
+}
+
+// Values
+pub fn circle(Double) -> Mesh2dHandle
+
+pub fn mesh2d_asset(Mesh2dHandle) -> Mesh2dAsset?
+
+pub fn mesh2d_storage() -> Mesh2dStorage
+
+pub fn mesh2ds() -> Map[@entity.Entity, Mesh2d]
+
+pub fn rectangle(@math.Vec2D) -> Mesh2dHandle
+
+pub fn register_mesh2d_asset(Mesh2dAsset) -> Mesh2dHandle
+
+pub fn release_mesh2d_asset(Mesh2dHandle) -> Unit
+
+pub fn render_mesh2d_system(Double) -> Unit
+
+pub fn take_dirty_mesh2d_assets() -> Array[(Mesh2dHandle, Mesh2dAsset)]
+
+pub fn take_released_mesh2d_assets() -> Array[Mesh2dHandle]
+
+pub fn update_mesh2d_asset(Mesh2dHandle, Mesh2dAsset) -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) struct Mesh2d {
+  mesh : Mesh2dHandle
+
+  fn new(Mesh2dHandle) -> Mesh2d
+}
+pub fn Mesh2d::new(Mesh2dHandle) -> Self
+pub impl Eq for Mesh2d
+pub impl Show for Mesh2d
+
+pub(all) struct Mesh2dAsset {
+  primitive : Mesh2dPrimitive
+}
+pub fn Mesh2dAsset::circle(Double) -> Self
+pub fn Mesh2dAsset::rectangle(@math.Vec2D) -> Self
+pub impl Eq for Mesh2dAsset
+pub impl Show for Mesh2dAsset
+
+pub(all) struct Mesh2dHandle(UInt)
+#deprecated
+pub fn Mesh2dHandle::inner(Self) -> UInt
+pub impl Eq for Mesh2dHandle
+pub impl Hash for Mesh2dHandle
+pub impl Show for Mesh2dHandle
+
+pub(all) enum Mesh2dPrimitive {
+  Rectangle(@math.Vec2D)
+  Circle(Double)
+}
+pub impl Eq for Mesh2dPrimitive
+pub impl Show for Mesh2dPrimitive
+
+pub(all) struct Mesh2dStorage {
+  meshes : Map[Mesh2dHandle, Mesh2dAsset]
+  dirty_meshes : Map[Mesh2dHandle, Mesh2dAsset]
+  released_meshes : Array[Mesh2dHandle]
+}
+
+// Type aliases
+
+// Traits
+

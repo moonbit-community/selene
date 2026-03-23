@@ -192,7 +192,7 @@ fn spawn_level(player_entity : @entity.Entity) -> @math.Vec2D {
 ///|
 fn register_sprite_animation_node(
   graph : @animation.AnimationGraph,
-  animation : @sprite.Animation,
+  animation : SpriteAnimationDef,
 ) -> @animation.AnimationNodeIndex {
   graph.add_clip(build_sprite_animation_clip_asset(animation))
 }
@@ -246,7 +246,7 @@ fn spawn_player(entity : @entity.Entity, pos : @math.Vec2D) -> Unit {
   let animation_nodes = build_player_animation_nodes(entity)
   @sprite.sprites().set(
     entity,
-    @sprite.Sprite::from_animation(player_idle_right_animation),
+    sprite_animation_sprite(player_idle_right_animation),
   )
   @physics2d.linear_velocities().set(entity, @math.Vec2D::zero())
   @transform.transforms().set(
@@ -283,7 +283,7 @@ fn spawn_bird(pos : @math.Vec2D) -> Unit {
   let animation_nodes = build_bird_animation_nodes(entity)
   @sprite.sprites().set(
     entity,
-    @sprite.Sprite::from_animation(bird_fly_right_animation),
+    sprite_animation_sprite(bird_fly_right_animation),
   )
   @physics2d.linear_velocities().set(entity, @math.Vec2D(BIRD_SPEED, 0.0))
   @transform.transforms().set(
@@ -317,12 +317,13 @@ fn spawn_background(size : @math.Vec2D) -> Unit {
   let background = @entity.Entity::new()
   @sprite.sprites().set(
     background,
-    @sprite.Sprite::from_picture(
-      @sprite.Picture::new(
-        size,
-        "assets/pixeladventure/Background/Gray.png",
-        repeat=Repeat,
+    @sprite.Sprite::new(
+      image=Some(
+        @asset2.load_image("assets/pixeladventure/Background/Gray.png"),
       ),
+      custom_size=Some(size),
+      anchor=@sprite.TopLeft,
+      image_mode=@sprite.Tiled(Repeat),
     ),
   )
   @transform.transforms().set(
@@ -348,12 +349,13 @@ fn spawn_grass_visual(pos : @math.Vec2D, sprite_id : String) -> Unit {
   let grass = @entity.Entity::new()
   @sprite.sprites().set(
     grass,
-    @sprite.Sprite::from_animation(
-      @sprite.Animation::single_frame(
-        "assets/pixeladventure/Terrain/Terrain (16x16).png",
-        @math.Vec2D(16.0, 16.0),
-        offset=src_pos,
+    @sprite.Sprite::new(
+      image=Some(
+        @asset2.load_image("assets/pixeladventure/Terrain/Terrain (16x16).png"),
       ),
+      rect=Some({ position: src_pos, size: @math.Vec2D(16.0, 16.0) }),
+      custom_size=Some(@math.Vec2D(16.0, 16.0)),
+      anchor=@sprite.TopLeft,
     ),
   )
   @transform.transforms().set(
@@ -423,11 +425,14 @@ fn spawn_flag(pos : @math.Vec2D) -> Unit {
   let entity = @entity.Entity::new()
   @sprite.sprites().set(
     entity,
-    @sprite.Sprite::from_animation(
-      @sprite.Animation::single_frame(
-        "assets/pixeladventure/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png",
-        @math.Vec2D(64.0, 64.0),
+    @sprite.Sprite::new(
+      image=Some(
+        @asset2.load_image(
+          "assets/pixeladventure/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png",
+        ),
       ),
+      custom_size=Some(@math.Vec2D(64.0, 64.0)),
+      anchor=@sprite.TopLeft,
     ),
   )
   @transform.transforms().set(
@@ -452,18 +457,8 @@ fn spawn_flag(pos : @math.Vec2D) -> Unit {
 ///|
 fn spawn_apple(pos : @math.Vec2D) -> Unit {
   let entity = @entity.Entity::new()
-  let animation = @sprite.Animation::new(
-    @sprite.frames_from_atlas(
-      "assets/pixeladventure/Items/Fruits/Apple.png",
-      17,
-      width=32.0,
-      height=32.0,
-    ),
-    loop_=true,
-    fps=12,
-  )
-  @sprite.sprites().set(entity, @sprite.Sprite::from_animation(animation))
-  ignore(install_sprite_animation_player(entity, animation))
+  @sprite.sprites().set(entity, sprite_animation_sprite(apple_spin_animation))
+  ignore(install_sprite_animation_player(entity, apple_spin_animation))
   @transform.transforms().set(
     entity,
     @transform.Transform::from_xyz(pos[X], pos[Y], ITEM_Z),

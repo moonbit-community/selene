@@ -6,6 +6,7 @@ import {
   "Milky2018/selene/event",
   "Milky2018/selene/math",
   "Milky2018/selene/physics2d",
+  "Milky2018/selene/render",
   "Milky2018/selene/sprite",
   "Milky2018/selene/transform",
   "moonbitlang/core/json",

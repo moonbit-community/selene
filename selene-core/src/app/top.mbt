@@ -439,23 +439,7 @@ pub fn App::run(self : App) -> Unit {
     world.advance_frame()
     @time.begin_frame(raw_delta)
     @inputs.apply_input_snapshot(@platform_input.poll_input())
-    let delta = @time.delta()
-    @state.state_transition_system(delta)
-    @event.event_frame_update_system(delta)
-
-    run_stage(frame_first, world)
-    run_stage(frame_pre, world)
-    run_stage(frame_on_exit, world)
-    run_stage(frame_on_enter, world)
-    run_stage(frame_update, world)
-    run_stage(frame_post, world)
-
-    @event.event_observer_dispatch_system(delta)
-    run_stage(frame_last, world)
-    @commands.commands_flush_system(world, delta)
-    @entity.entity_flush_system(delta)
-
-    accumulator.val += delta
+    accumulator.val += @time.delta()
     let mut fixed_steps = 0
     while accumulator.val >= fixed_dt && fixed_steps < max_fixed_steps {
       world.advance_fixed_step()
@@ -476,6 +460,21 @@ pub fn App::run(self : App) -> Unit {
       accumulator.val = 0.0
     }
     @time.use_frame_delta()
+    let delta = @time.delta()
+    @state.state_transition_system(delta)
+    @event.event_frame_update_system(delta)
+
+    run_stage(frame_first, world)
+    run_stage(frame_pre, world)
+    run_stage(frame_on_exit, world)
+    run_stage(frame_on_enter, world)
+    run_stage(frame_update, world)
+    run_stage(frame_post, world)
+
+    @event.event_observer_dispatch_system(delta)
+    run_stage(frame_last, world)
+    @commands.commands_flush_system(world, delta)
+    @entity.entity_flush_system(delta)
 
     let alpha = @cmp.maximum(0.0, @cmp.minimum(1.0, accumulator.val / fixed_dt))
     @system.set_render_alpha(alpha)

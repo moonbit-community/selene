@@ -367,14 +367,8 @@ fn tiled_camera_view_bounds() -> (@math.Vec2D, @math.Vec2D) {
 ///|
 fn tiled_world_entity_global_transform(
   entity : @entity.Entity,
-) -> @transform.GlobalTransform {
-  if @transform.global_transforms().get(entity) is Some(global) {
-    global
-  } else {
-    @transform.GlobalTransform::from_transform(
-      @transform.transforms().get(entity).unwrap_or_default(),
-    )
-  }
+) -> @transform.GlobalTransform? {
+  @transform.compute_global_transform(entity)
 }
 
 ///|
@@ -396,7 +390,9 @@ fn tiled_world_active_camera2d_view() -> (
     let projection = @camera.orthographic_projections()
       .get(entity)
       .unwrap_or_default()
-    let global = tiled_world_entity_global_transform(entity)
+    guard tiled_world_entity_global_transform(entity) is Some(global) else {
+      continue
+    }
     match selected {
       Some((_, _, _, order)) if order >= camera.order => ()
       _ => selected = Some((camera, global, projection, camera.order))

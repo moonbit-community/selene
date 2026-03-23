@@ -7,17 +7,13 @@ import {
 }
 
 // Values
-pub fn capture_previous_global_transforms() -> Unit
-
-pub fn capture_previous_global_transforms_system(Double) -> Unit
+pub fn compute_global_transform(@entity.Entity) -> GlobalTransform?
 
 pub fn global_transforms() -> Map[@entity.Entity, GlobalTransform]
 
-pub fn previous_global_transforms() -> Map[@entity.Entity, GlobalTransform]
+pub fn remove_parent_in_place(@entity.Entity) -> Unit
 
-pub fn sample_global_transform(@entity.Entity, Double) -> GlobalTransform
-
-pub fn sample_global_translation(@entity.Entity, Double) -> @math.Vec3
+pub fn set_parent_in_place(@entity.Entity, @entity.Entity) -> Unit
 
 pub fn transform_propagate_system(Double) -> Unit
 

@@ -619,16 +619,13 @@ test "spawn_ldtk_world spawns level backgrounds from bg color and image" {
     }
     let background_entity = image_background_entity.unwrap()
     let background_sprite = @sprite.sprites().get(background_entity).unwrap()
-    match background_sprite.sprite_type {
-      Animation(animation) => {
-        inspect(animation.frames[0].offset, content="Vec2D(3, 5)")
-        inspect(animation.frames[0].size, content="Vec2D(20, 10)")
-        let (scale_x, scale_y) = animation.transform.get_scale()
-        inspect(scale_x, content="2")
-        inspect(scale_y, content="3")
-      }
-      _ => fail("expected level background image to use animation sprite")
+    guard background_sprite.rect is Some(background_rect) else {
+      fail("expected level background rect")
     }
+    inspect(background_rect.position, content="Vec2D(3, 5)")
+    inspect(background_rect.size, content="Vec2D(20, 10)")
+    inspect(background_sprite.custom_size, content="Some(Vec2D(40, 30))")
+    inspect(background_sprite.anchor, content="TopLeft")
     cleanup_ldtk_entity(world)
     inspect(ldtk_level_backgrounds().to_array().length(), content="0")
   })
@@ -919,17 +916,13 @@ test "ldtk entity tile sprite registration inserts placeholder sprite from __til
     let enemy = ldtk_entity_by_iid(world, "enemy-1").unwrap()
     inspect(@sprite.sprites().contains(enemy), content="true")
     let sprite = @sprite.sprites().get(enemy).unwrap()
-    match sprite.sprite_type {
-      Animation(animation) => {
-        inspect(animation.frames[0].offset, content="Vec2D(16, 24)")
-        inspect(animation.frames[0].size, content="Vec2D(16, 8)")
-        inspect(animation.transform.tx, content="0")
-        inspect(animation.transform.ty, content="8")
-        inspect(animation.transform.a, content="2")
-        inspect(animation.transform.d, content="2")
-      }
-      _ => fail("expected entity tile sprite animation")
+    guard sprite.rect is Some(tile_rect) else {
+      fail("expected entity tile rect")
     }
+    inspect(tile_rect.position, content="Vec2D(16, 24)")
+    inspect(tile_rect.size, content="Vec2D(16, 8)")
+    inspect(sprite.custom_size, content="Some(Vec2D(32, 16))")
+    inspect(sprite.anchor, content="Custom(Vec2D(-0.5, 1))")
     cleanup_ldtk_entity(world)
   })
 }
@@ -1115,10 +1108,7 @@ test "ldtk tile render alpha multiplies layer opacity and tile alpha" {
     let world = spawn_ldtk_world(project)
     let tile_entity = ldtk_spawned_tile_instances().to_array()[0].0
     let sprite = @sprite.sprites().get(tile_entity).unwrap()
-    match sprite.sprite_type {
-      Animation(animation) => inspect(animation.color.a, content="0.2")
-      _ => fail("expected animation sprite for LDtk tile")
-    }
+    inspect(sprite.color.a, content="0.2")
     cleanup_ldtk_entity(world)
   })
 }

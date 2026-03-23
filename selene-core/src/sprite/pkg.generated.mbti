@@ -9,107 +9,95 @@ import {
 }
 
 // Values
-pub fn frames_from_atlas(String, Int, width~ : Double, height~ : Double, offset? : @math.Vec2D, space_x? : Double) -> Array[AnimationFrame]
+pub fn color_from_css(String) -> @render.Color
 
-pub fn frames_from_image_atlas(@asset_types.ImageHandle, Int, width~ : Double, height~ : Double, offset? : @math.Vec2D, space_x? : Double) -> Array[AnimationFrame]
+pub fn default_anchor() -> Anchor
 
-pub fn is_animation_finished(@entity.Entity) -> Bool
+pub fn register_texture_atlas_layout(TextureAtlasLayout) -> TextureAtlasLayoutHandle
 
-pub fn measure_text_size(Text) -> @math.Vec2D
+pub fn release_texture_atlas_layout(TextureAtlasLayoutHandle) -> Unit
 
 pub fn render_sprite_system(Double) -> Unit
 
-pub fn sprite_frame_indices() -> Map[@entity.Entity, SpriteFrameIndex]
-
 pub fn sprites() -> Map[@entity.Entity, Sprite]
+
+pub fn take_dirty_texture_atlas_layouts() -> Array[(TextureAtlasLayoutHandle, TextureAtlasLayout)]
+
+pub fn take_released_texture_atlas_layouts() -> Array[TextureAtlasLayoutHandle]
+
+pub fn texture_atlas_layout(TextureAtlasLayoutHandle) -> TextureAtlasLayout?
+
+pub fn texture_atlas_rect(TextureAtlas) -> @math.Rect?
+
+pub fn update_texture_atlas_layout(TextureAtlasLayoutHandle, TextureAtlasLayout) -> Unit
 
 // Errors
 
 // Types and methods
-pub struct Animation {
-  frames : Array[AnimationFrame]
-  transform : @math.Transform
-  loop_ : Bool
-  fps : Double
-  color : @render.Color
-  id : Int
-
-  fn new(Array[AnimationFrame], loop_? : Bool, fps? : Double, transform? : @math.Transform, color? : @render.Color) -> Animation
+pub(all) enum Anchor {
+  Center
+  BottomLeft
+  BottomCenter
+  BottomRight
+  CenterLeft
+  CenterRight
+  TopLeft
+  TopCenter
+  TopRight
+  Custom(@math.Vec2D)
 }
-pub fn Animation::new(Array[AnimationFrame], loop_? : Bool, fps? : Double, transform? : @math.Transform, color? : @render.Color) -> Self
-pub fn Animation::single_frame(String, @math.Vec2D, transform? : @math.Transform, offset? : @math.Vec2D, color? : @render.Color) -> Self
-pub fn Animation::single_frame_from_image(@asset_types.ImageHandle, @math.Vec2D, transform? : @math.Transform, offset? : @math.Vec2D, color? : @render.Color) -> Self
-
-pub(all) struct AnimationFrame {
-  image : @asset_types.ImageHandle
-  size : @math.Vec2D
-  offset : @math.Vec2D
-}
-
-pub(all) struct ColorCircle {
-  radius : Double
-  color : String
-  stroke_color : String
-
-  fn new(Double, String, stroke_color? : String) -> ColorCircle
-}
-pub fn ColorCircle::new(Double, String, stroke_color? : String) -> Self
-
-pub(all) struct ColorRect {
-  size : @math.Vec2D
-  color : String
-  stroke_color : String
-
-  fn new(@math.Vec2D, String, stroke_color? : String) -> ColorRect
-}
-pub fn ColorRect::new(@math.Vec2D, String, stroke_color? : String) -> Self
-
-pub(all) struct Picture {
-  size : @math.Vec2D
-  image : @asset_types.ImageHandle
-  transform : @math.Transform
-  repeat : @math.RepeatMode
-  mut color : @render.Color
-
-  fn new(@math.Vec2D, String, transform? : @math.Transform, repeat? : @math.RepeatMode, color? : @render.Color) -> Picture
-}
-pub fn Picture::from_image(@math.Vec2D, @asset_types.ImageHandle, transform? : @math.Transform, repeat? : @math.RepeatMode, color? : @render.Color) -> Self
-pub fn Picture::new(@math.Vec2D, String, transform? : @math.Transform, repeat? : @math.RepeatMode, color? : @render.Color) -> Self
+pub impl Eq for Anchor
+pub impl Show for Anchor
 
 pub(all) struct Sprite {
-  sprite_type : SpriteType
+  image : @asset_types.ImageHandle?
+  mut texture_atlas : TextureAtlas?
+  mut rect : @math.Rect?
+  mut color : @render.Color
+  mut custom_size : @math.Vec2D?
+  mut anchor : Anchor
+  mut flip_x : Bool
+  mut flip_y : Bool
   mut visible : Bool
-}
-pub fn Sprite::from_animation(Animation) -> Self
-pub fn Sprite::from_color_circle(ColorCircle) -> Self
-pub fn Sprite::from_color_rect(ColorRect) -> Self
-pub fn Sprite::from_picture(Picture) -> Self
-pub fn Sprite::from_text(Text) -> Self
+  mut image_mode : SpriteImageMode
 
-pub(all) struct SpriteFrameIndex {
-  mut frame : Double
+  fn new(image? : @asset_types.ImageHandle?, texture_atlas? : TextureAtlas?, rect? : @math.Rect?, color? : @render.Color, custom_size? : @math.Vec2D?, anchor? : Anchor, flip_x? : Bool, flip_y? : Bool, visible? : Bool, image_mode? : SpriteImageMode) -> Sprite
 }
+pub fn Sprite::from_atlas_image(@asset_types.ImageHandle, TextureAtlas) -> Self
+pub fn Sprite::from_color(@render.Color, @math.Vec2D) -> Self
+pub fn Sprite::from_image(@asset_types.ImageHandle, custom_size? : @math.Vec2D?) -> Self
+pub fn Sprite::new(image? : @asset_types.ImageHandle?, texture_atlas? : TextureAtlas?, rect? : @math.Rect?, color? : @render.Color, custom_size? : @math.Vec2D?, anchor? : Anchor, flip_x? : Bool, flip_y? : Bool, visible? : Bool, image_mode? : SpriteImageMode) -> Self
 
-pub enum SpriteType {
-  Picture(Picture)
-  Animation(Animation)
-  Text(Text)
-  ColorRect(ColorRect)
-  ColorCircle(ColorCircle)
+pub(all) enum SpriteImageMode {
+  Auto
+  Tiled(@math.RepeatMode)
 }
 
-pub(all) struct Text {
-  mut content : String
-  mut color : String
-  mut font : String
-  mut font_handle : @asset_types.FontHandle?
-  mut baseline : @math.VAlign
-  mut align : @math.HAlign
+pub(all) struct TextureAtlas {
+  layout : TextureAtlasLayoutHandle
+  mut index : Int
 
-  fn new(String, color? : String, font? : String, baseline? : @math.VAlign, align? : @math.HAlign) -> Text
+  fn new(TextureAtlasLayoutHandle, index? : Int) -> TextureAtlas
 }
-pub fn Text::from_font(String, @asset_types.FontHandle, size? : Double, color? : String, baseline? : @math.VAlign, align? : @math.HAlign) -> Self
-pub fn Text::new(String, color? : String, font? : String, baseline? : @math.VAlign, align? : @math.HAlign) -> Self
+pub fn TextureAtlas::new(TextureAtlasLayoutHandle, index? : Int) -> Self
+pub impl Eq for TextureAtlas
+pub impl Show for TextureAtlas
+
+pub(all) struct TextureAtlasLayout {
+  size : @math.Vec2D
+  rects : Array[@math.Rect]
+
+  fn new(@math.Vec2D, Array[@math.Rect]) -> TextureAtlasLayout
+}
+pub fn TextureAtlasLayout::from_grid(@math.Vec2D, Int, Int, padding? : @math.Vec2D?, offset? : @math.Vec2D?) -> Self
+pub fn TextureAtlasLayout::new(@math.Vec2D, Array[@math.Rect]) -> Self
+
+pub(all) struct TextureAtlasLayoutHandle(UInt)
+#deprecated
+pub fn TextureAtlasLayoutHandle::inner(Self) -> UInt
+pub impl Eq for TextureAtlasLayoutHandle
+pub impl Hash for TextureAtlasLayoutHandle
+pub impl Show for TextureAtlasLayoutHandle
 
 // Type aliases
 

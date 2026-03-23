@@ -7,24 +7,30 @@
 - Added `@math.Vec3::x_axis()`, `@math.Vec3::y_axis()`, and `@math.Vec3::z_axis()` for transform/camera basis construction.
 - Added `@math.Quat::inverse()`, `@math.Quat::dot()`, `@math.Quat::nlerp(alpha)`, and `@math.Quat::from_basis(x_axis, y_axis, z_axis)`.
 - Added `@math.Affine3` plus `Affine3::identity()`, `Affine3::from_scale_rotation_translation(scale, rotation, translation)`, `Affine3::transform_vector3(vec)`, `Affine3::transform_point3(point)`, `Affine3::inverse()`, and `Affine3` multiplication.
+- Added `@transform.compute_global_transform(entity)` as the Bevy-style current-frame world-transform helper for systems that need an up-to-date global transform before the stored `GlobalTransform` propagation pass runs.
+- Added `Entity::set_parent(parent)` / `Entity::remove_parent()` plus `@transform.set_parent_in_place(child, parent)` / `@transform.remove_parent_in_place(child)` so hierarchy changes can either preserve local space or preserve world space, matching Bevy-style reparent semantics.
 - Added `@camera.Camera` component with `Camera::new(is_active?, order?)`, `Camera::world_to_viewport(camera_transform, projection, world_position)`, and `Camera::viewport_to_world_2d(camera_transform, projection, viewport_position)`.
 - Added `@camera.Camera2d` marker component with `Camera2d::new()`.
 - Added `@camera.OrthographicProjection` component with `OrthographicProjection::new(scale?, near?, far?)`.
 - Added `@camera.cameras()`, `@camera.camera2ds()`, and `@camera.orthographic_projections()` world stores.
 - Added `selene/name` with `Name::new(value)`, `@name.names()`, and `@name.name_of(entity)` for stable animation target path resolution.
 - Added unified `selene/animation` with `AnimationClip`, `AnimationClipHandle`, `AnimationGraph`, `AnimationGraphHandle`, `AnimationNodeIndex`, `AnimationPlayer`, `ActiveAnimation`, `AnimationTransitions`, `RepeatAnimation`, `AnimationTargetId`, `AnimatedBy`, `AnimationEventContext`, `AnimationEventDescriptorHandle`, `VariableCurve`, `AnimatedField`, and the corresponding world stores/systems.
-- Added `@animation.transform_translation_field()`, `transform_rotation_field()`, `transform_scale_field()`, `morph_weights_field()`, and `sprite_frame_index_field()` as the built-in animatable fields for transform, morph, and 2D flipbook playback.
+- Added `@animation.transform_translation_field()`, `transform_rotation_field()`, `transform_scale_field()`, `morph_weights_field()`, and `texture_atlas_index_field()` as the built-in animatable fields for transform, morph, and 2D flipbook playback.
 - Added `@animation.register_animation_clip_asset(...)`, `animation_clip_asset(...)`, `update_animation_clip_asset(...)`, `release_animation_clip_asset(...)`, `take_dirty_animation_clip_assets()`, and `take_released_animation_clip_assets()`.
 - Added `@animation.register_animation_graph_asset(...)`, `animation_graph_asset(...)`, `update_animation_graph_asset(...)`, `release_animation_graph_asset(...)`, `take_dirty_animation_graph_assets()`, and `take_released_animation_graph_assets()`.
 - Added `@animation.animation_clip_asset_events`, `@animation.animation_graph_asset_events`, and `register_animation_event_descriptor(events, build)` for handle-based animation assets and typed clip-event dispatch.
-- Added `@sprite.SpriteFrameIndex` and `@sprite.sprite_frame_indices()` so 2D sprite frame playback lives in animation runtime state instead of inside `SpriteType::Animation`.
+- Added Bevy-style 2D rendering surface types: `@sprite.Anchor`, `TextureAtlasLayout`, `TextureAtlasLayoutHandle`, `TextureAtlas`, `SpriteImageMode`, `Sprite::new(...)`, `Sprite::from_image(...)`, `Sprite::from_atlas_image(...)`, `Sprite::from_color(...)`, `texture_atlas_layout(...)`, and `texture_atlas_rect(...)`.
+- Added `selene/mesh2d` with `Mesh2dPrimitive`, `Mesh2dAsset`, `Mesh2dHandle`, `Mesh2d`, `mesh2ds()`, `register_mesh2d_asset(...)`, `update_mesh2d_asset(...)`, `release_mesh2d_asset(...)`, `take_dirty_mesh2d_assets()`, `take_released_mesh2d_assets()`, `rectangle(...)`, and `circle(...)`.
+- Added `selene/material2d` with `AlphaMode2D`, `ColorMaterial`, `ColorMaterialHandle`, `MeshMaterial2d`, `mesh_material2ds()`, `register_color_material(...)`, `update_color_material(...)`, `release_color_material(...)`, `take_dirty_color_materials()`, and `take_released_color_materials()`.
+- Added `selene/text2d` with `Text2d`, `Text2d::new()`, `text2ds()`, and `render_text2d_system(...)` for world-space text extraction independent of `selene/sprite`.
+- Added depth-aware world 2D submission helpers in `selene/render2d`: `push_image_with_depth(...)`, `push_text_with_depth(...)`, `push_rect_with_depth(...)`, `push_circle_with_depth(...)`, and `push_gradient_rect_with_depth(...)`.
 
 ### Changed
 
 - Changed `@transform.Transform` to Bevy-style TRS storage with `translation : @math.Vec3`, `rotation : @math.Quat`, and `scale : @math.Vec3`.
 - Changed `@transform.GlobalTransform` from a position-like 2D helper into affine world-transform storage backed by `@math.Affine3`.
 - Changed `@transform.Transform::identity()`, `from_translation(...)`, `from_xyz(...)`, `from_rotation(...)`, `from_scale(...)`, `with_translation(...)`, `with_rotation(...)`, and `with_scale(...)` to operate on the unified 2D/3D transform type.
-- Changed `@transform.global_transforms()` / `previous_global_transforms()` sampling to interpolate translation, rotation, and scale instead of position only.
+- Changed `@app.App::run()` fixed-step ordering to match Bevy-style main-loop semantics: fixed schedules now run before frame `Update`/`PostUpdate`, so frame systems observe the latest fixed-step transform results before the single propagation pass.
 - Changed transform propagation to write world-space affine globals for both 2D and 3D entity hierarchies.
 - Changed `Entity::spawn_child()` to create only the hierarchy relation; child local placement now comes from the child entity's own `@transform.Transform` instead of a separate offset channel.
 - Changed `@physics2d` rigid-body translation/rotation sync to read from and write back to `@transform.transforms()` instead of the removed position-only store.
@@ -49,6 +55,15 @@
 - Changed `AnimationGraph` to Bevy-style construction helpers with `from_clip(...)`, `from_clips(...)`, `add_edge(...)`, `add_blend_with_mask(...)`, `add_additive_blend(...)`, `add_additive_blend_with_mask(...)`, `add_clip_with_mask(...)`, and `add_target_to_mask_group(...)`.
 - Changed clip-event dispatch from string names on a global bus to typed descriptor handles registered against explicit `@event.Events[T]` buses.
 - Changed Tiled animated tiles, `examples/pixeladventure`, and `examples/survivors` to build local 2D flipbook clip/graph assets explicitly and drive playback through `AnimationPlayer`/`AnimationTransitions`.
+- Changed `@plugins.default_plugin` and `@plugins.default_3d_plugin` to keep `@transform.transform_propagate_system` as the single `PostUpdate` world-transform propagation pass, instead of running extra fixed-stage propagation workarounds.
+- Changed `@collision.pickable`, `@tiled`, and other pre-propagation camera/view helpers to compute current world transforms through `@transform.compute_global_transform(...)` instead of reading stale stored globals during `Update`.
+- Changed `@sprite.Sprite` from a `SpriteType` content enum wrapper into a Bevy-style single component that directly stores `image`, `texture_atlas`, `rect`, `color`, `custom_size`, `anchor`, `flip_x`, `flip_y`, `visible`, and `image_mode`.
+- Changed 2D flipbook playback to animate `TextureAtlas.index`; `pixeladventure`, `survivors`, Tiled animated tiles, and LDtk tile/entity/background visuals now render through `Sprite + TextureAtlas` instead of `SpriteType::Animation`.
+- Changed pure-color world rectangles to render as plain `Sprite` quads (`Sprite::from_color(...)` / `Sprite::new(color, custom_size, ...)`) instead of `SpriteType::ColorRect`.
+- Changed world-space circles to render through `Mesh2d(circle) + MeshMaterial2d(ColorMaterial)` instead of `SpriteType::ColorCircle`.
+- Changed world-space text extraction to use shared `@ui.Text / TextFont / TextColor / TextLayout` data plus the `@text2d.Text2d` marker, instead of `sprite.Text`.
+- Changed `@plugins.default_plugin` and `@plugins.default_3d_plugin` 2D render extraction to run three independent Bevy-style world paths: sprite quads, mesh2d/material2d, and text2d.
+- Changed `examples/cards`, `examples/pixeladventure`, and `examples/survivors` to the new Bevy-style 2D surface: static images use `Sprite`, flipbooks use `Sprite + TextureAtlas`, colored quads use `Sprite::from_color(...)`, and world text no longer goes through `selene/sprite`.
 
 ### Fixed
 
@@ -63,6 +78,11 @@
 - Fixed the `selene-webgpu` browser frame scheduler to deliver one accumulated frame delta per animation frame instead of replaying multiple full `game_loop` / `render_loop` iterations inside a single `requestAnimationFrame`, which previously caused severe lag and frame-delta amplification in web examples such as `pixeladventure`.
 - Fixed 2D sprite animations so frame advancement, non-loop completion, and state transitions now run through the same unified runtime as 3D animation clips.
 - Fixed `examples/pixeladventure` and `examples/survivors` so player/enemy flipbooks no longer restart every frame; state changes now switch graph nodes only when the desired animation actually changes.
+- Fixed 2D flipbook animation application so `Sprite.frame_index` is resolved as a discrete animation value instead of a weighted blend during graph transitions.
+- Fixed world-space picture and animation sprites to snap their screen-space positions to whole pixels before drawing, reducing continuous shimmer for moving pixel-art characters.
+- Fixed `examples/pixeladventure` and `examples/survivors` flipbook state switches to avoid cross-fading sprite-sheet frame indices during character animation changes.
+- Fixed `examples/pixeladventure` and `examples/survivors` camera follow systems to run in the frame `Update` phase, after fixed-step physics has already written the latest player transforms and before the unified `PostUpdate` transform propagation pass.
+- Fixed `examples/pixeladventure` blue-bird animation bindings so left/right movement now uses the correct visual facing.
 - Fixed animation graph mask evaluation so masked nodes now exclude only the target groups registered on the graph, matching Bevy-style graph-owned mask semantics instead of relying on a target-side mask component.
 - Fixed scene animation roots so instantiation no longer starts the first imported clip automatically.
 
@@ -71,6 +91,7 @@
 - Removed `@camera.get_position()`, `@camera.sample_position(alpha)`, `@camera.set_limits(...)`, `@camera.attach_entity(entity, offset)`, `@camera.set_follow_x(follow)`, `@camera.set_follow_y(follow)`, and `@camera.camera_system(delta)`.
 - Removed `@system.world_to_screen(world_pos, camera_pos)` and `@system.screen_to_world(screen_pos, camera_pos)`.
 - Removed `@transform.positions()`, `@transform.previous_positions()`, and `@transform.sample_position(entity, alpha)` from the unified transform package.
+- Removed `@transform.previous_global_transforms()`, `@transform.capture_previous_global_transforms()`, `@transform.capture_previous_global_transforms_system(...)`, `@transform.sample_global_transform(...)`, and `@transform.sample_global_translation(...)`; transform-core interpolation snapshots are no longer part of the Bevy-aligned surface.
 - Removed `Entity::spawn_child(offset=...)`, `Entity::set_offset(...)`, and `Entity::get_offset()`; child local offsets are now stored only in the child entity's `@transform.Transform`.
 - Removed `Sprite.zindex` and `Sprite.offset`, along with the old `zindex` / `offset` constructor parameters on `Sprite::from_animation(...)`, `from_picture(...)`, `from_text(...)`, `from_color_rect(...)`, and `from_color_circle(...)`.
 - Removed `selene/animation3d` and its legacy graph/player API surface (`AnimationGraph3D`, `AnimationPlayer3D`, `animation_players3d()`, `play_clip`, `play_state`, `set_animation_graph`, `trigger_animation`, `attach_animation_player`, `bind_animation_targets`, `animation3d_player_system`, and `animation3d_skinning_system`).
@@ -81,6 +102,8 @@
 - Removed the `transform3d` package and its alias APIs (`Transform3D`, `GlobalTransform3D`, `transforms3d()`, `global_transforms3d()`, `previous_global_transforms3d()`, `capture_previous_global_transforms3d*`, `sample_global_*3d`, and `transform3d_propagate_system`).
 - Removed the `inherit` package and its bridge APIs (`transform_propagate_system` and `inherit_position_system`).
 - Removed the `position` package and its legacy 2D position APIs (`Position`, `positions()`, `previous_positions()`, `capture_previous_positions()`, and `sample_position()`).
+- Removed `SpriteType::{Picture, Animation, Text, ColorRect, ColorCircle}`, `Sprite::from_picture(...)`, `Sprite::from_animation(...)`, `Sprite::from_text(...)`, `Sprite::from_color_rect(...)`, `Sprite::from_color_circle(...)`, `@sprite.Picture`, `@sprite.Animation`, `@sprite.AnimationFrame`, `@sprite.ColorRect`, `@sprite.ColorCircle`, `@sprite.Text`, `@sprite.frames_from_atlas(...)`, `@sprite.Animation::single_frame(...)`, and `@sprite.Animation::single_frame_from_image(...)`.
+- Removed `@sprite.SpriteFrameIndex`, `@sprite.sprite_frame_indices()`, and the old `@animation.sprite_frame_index_field()` surface; 2D animation now targets `TextureAtlas.index`.
 
 ## [0.28.7] - 2026-03-16
 

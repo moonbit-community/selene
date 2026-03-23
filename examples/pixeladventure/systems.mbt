@@ -106,23 +106,25 @@ fn ensure_sprite_animation_binding(entity : @entity.Entity) -> Unit {
     @animation.AnimationTargetId::new("self"),
   )
   @animation.animated_bys().set(entity, @animation.AnimatedBy::new(entity))
-  ignore(
-    @sprite.sprite_frame_indices().get_or_init(entity, fn() { { frame: 0.0 } }),
-  )
 }
 
 ///|
 fn build_sprite_animation_clip_asset(
-  animation : @sprite.Animation,
+  animation : SpriteAnimationDef,
 ) -> @animation.AnimationClipHandle {
-  let clip = @animation.AnimationClip::new("sprite/\{animation.id.to_string()}")
+  let clip = @animation.AnimationClip::new(animation.name)
   let keys : Array[@animation.ScalarKeyframe] = []
   let frame_duration = if animation.fps <= 0.0 {
     1.0
   } else {
     1.0 / animation.fps
   }
-  for index in 0..<animation.frames.length() {
+  let frame_count = @sprite.texture_atlas_layout(animation.layout).map_or(0, fn(
+    layout,
+  ) {
+    layout.rects.length()
+  })
+  for index in 0..<frame_count {
     keys.push({
       time: index.to_double() * frame_duration,
       value: index.to_double(),
@@ -133,15 +135,15 @@ fn build_sprite_animation_clip_asset(
   clip.add_curve_to_target(
     @animation.AnimationTargetId::new("self"),
     @animation.VariableCurve::scalar(
-      @animation.sprite_frame_index_field(),
+      @animation.texture_atlas_index_field(),
       keys,
       interpolation=@animation.ChannelInterpolation::Step,
     ),
   )
-  if animation.frames.length() > 0 && !animation.loop_ {
-    clip.duration = (animation.frames.length() - 1).to_double() * frame_duration
-  } else if animation.frames.length() > 0 {
-    clip.duration = animation.frames.length().to_double() * frame_duration
+  if frame_count > 0 && !animation.loop_ {
+    clip.duration = (frame_count - 1).to_double() * frame_duration
+  } else if frame_count > 0 {
+    clip.duration = frame_count.to_double() * frame_duration
   }
   @animation.register_animation_clip_asset(clip)
 }
@@ -149,7 +151,7 @@ fn build_sprite_animation_clip_asset(
 ///|
 fn install_sprite_animation_player(
   entity : @entity.Entity,
-  animation : @sprite.Animation,
+  animation : SpriteAnimationDef,
   repeat? : @animation.RepeatAnimation = @animation.RepeatAnimation::Forever,
 ) -> (@animation.AnimationGraphHandle, @animation.AnimationNodeIndex) {
   ensure_sprite_animation_binding(entity)
@@ -247,10 +249,10 @@ fn play_player_animation(
     return
   }
   ensure_sprite_animation_binding(entity)
-  @sprite.sprites().set(entity, @sprite.Sprite::from_animation(animation))
+  @sprite.sprites().set(entity, sprite_animation_sprite(animation))
   let player = @animation.animation_players().get(entity).unwrap()
   let transitions = @animation.animation_transitions().get(entity).unwrap()
-  let duration = if controller.active_animation is Some(_) { 0.08 } else { 0.0 }
+  let duration = 0.0
   ignore(transitions.play(player, node, duration, repeat~))
   controller.active_animation = Some(key)
 }
@@ -291,12 +293,19 @@ fn play_bird_animation(entity : @entity.Entity, bird : BirdController) -> Unit {
     return
   }
   ensure_sprite_animation_binding(entity)
-  @sprite.sprites().set(entity, @sprite.Sprite::from_animation(animation))
+  @sprite.sprites().set(entity, sprite_animation_sprite(animation))
   let player = @animation.animation_players().get(entity).unwrap()
   let transitions = @animation.animation_transitions().get(entity).unwrap()
-  let duration = if bird.active_animation is Some(_) { 0.06 } else { 0.0 }
+  let duration = 0.0
   ignore(transitions.play(player, node, duration, repeat~))
   bird.active_animation = Some(key)
+}
+
+///|
+fn sprite_animation_finished(entity : @entity.Entity) -> Bool {
+  @animation.animation_players()
+  .get(entity)
+  .map_or(false, fn(player) { player.all_finished() })
 }
 
 ///|
@@ -475,7 +484,7 @@ fn player_controller_system(_world : @ecs.World) -> Unit {
     if grounded {
       new_velocity_x = 0.0
     }
-    if @sprite.is_animation_finished(session.player) {
+    if sprite_animation_finished(session.player) {
       controller.state = if grounded {
         Idle
       } else if velocity[Y] > 0.0 {
@@ -595,7 +604,7 @@ fn bird_patrol_system(_world : @ecs.World) -> Unit {
         collider.active = false
       }
       play_bird_animation(bird_entity, bird)
-      if @sprite.is_animation_finished(bird_entity) {
+      if sprite_animation_finished(bird_entity) {
         bird_entity.destroy()
         birds().remove(bird_entity)
       }

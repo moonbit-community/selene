@@ -274,14 +274,6 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @transform.transform_propagate_system,
-    PostUpdate,
-    "Transform Propagation System (UI)",
-    in_set=ui,
-    after=[ui],
-  )
-  let app = add_system(
-    app,
     @ui.ui_interaction_system,
     PostUpdate,
     "UI Interaction System",
@@ -315,6 +307,22 @@ pub fn default_plugin(app : @app.App) -> @app.App {
     @sprite.render_sprite_system,
     RenderPrepare,
     "Render Sprite System",
+    in_set=render_prepare,
+    after=[render_extract],
+  )
+  let app = add_system(
+    app,
+    @mesh2d.render_mesh2d_system,
+    RenderPrepare,
+    "Render Mesh2d System",
+    in_set=render_prepare,
+    after=[render_extract],
+  )
+  let app = add_system(
+    app,
+    @text2d.render_text2d_system,
+    RenderPrepare,
+    "Render Text2d System",
     in_set=render_prepare,
     after=[render_extract],
   )
@@ -390,21 +398,6 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
     FixedUpdate,
     "Physics3D Step System",
     in_set=physics,
-  )
-  let app = add_system(
-    app,
-    @transform.capture_previous_global_transforms_system,
-    FixedFirst,
-    "Capture Previous Transform System",
-    in_set=transform,
-  )
-  let app = add_system(
-    app,
-    @transform.transform_propagate_system,
-    FixedPostUpdate,
-    "Transform Propagation System",
-    in_set=transform,
-    after=[physics],
   )
   let app = add_system(
     app,
@@ -508,6 +501,22 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
     @sprite.render_sprite_system,
     RenderPrepare,
     "Render Sprite System",
+    in_set=render_prepare,
+    after=[render_extract],
+  )
+  let app = add_system(
+    app,
+    @mesh2d.render_mesh2d_system,
+    RenderPrepare,
+    "Render Mesh2d System",
+    in_set=render_prepare,
+    after=[render_extract],
+  )
+  let app = add_system(
+    app,
+    @text2d.render_text2d_system,
+    RenderPrepare,
+    "Render Text2d System",
     in_set=render_prepare,
     after=[render_extract],
   )

@@ -15,6 +15,5 @@
 ///|
 /// Runs one fixed-step Rapier physics update and synchronizes ECS state.
 pub fn move_system(delta : Double) -> Unit {
-  @transform.capture_previous_global_transforms()
   rapier_fixed_step(delta)
 }

@@ -619,7 +619,7 @@ fn text_layout(entity : @entity.Entity) -> TextLayout {
 }
 
 ///|
-fn text_style_for(entity : @entity.Entity) -> @render2d_types.TextStyle2D? {
+pub fn text_style_for(entity : @entity.Entity) -> @render2d_types.TextStyle2D? {
   guard texts().get(entity) is Some(_) else { return None }
   let font = text_font(entity)
   let color = text_color(entity)

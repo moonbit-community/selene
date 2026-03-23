@@ -68,6 +68,76 @@ fn hierarchy_children() -> Map[Entity, Child] {
 }
 
 ///|
+fn hierarchy_would_create_cycle(child : Entity, parent : Entity) -> Bool {
+  let children = hierarchy_children()
+  let mut current : Entity? = Some(parent)
+  while current is Some(entity) {
+    if entity == child {
+      return true
+    }
+    current = children.get(entity).map(rel => rel.parent)
+  }
+  false
+}
+
+///|
+fn detach_parent_link(child : Entity) -> Unit {
+  let parents = hierarchy_parents()
+  let children = hierarchy_children()
+  match children.get(child) {
+    Some(rel) => {
+      children.remove(child)
+      match parents.get(rel.parent) {
+        Some(parent_record) => {
+          let updated_children = parent_record.children.filter(fn(entity) {
+            entity != child
+          })
+          if updated_children.length() == 0 {
+            parents.remove(rel.parent)
+          } else {
+            parents.set(rel.parent, {
+              ..parent_record,
+              children: updated_children,
+            })
+          }
+        }
+        None => ()
+      }
+    }
+    None => ()
+  }
+  match parents.get(child) {
+    Some(parent_record) =>
+      parents.set(child, { ..parent_record, is_root: true })
+    None => ()
+  }
+}
+
+///|
+fn attach_parent_link(child : Entity, parent : Entity) -> Unit {
+  let parents = hierarchy_parents()
+  let children = hierarchy_children()
+  let parent_record = parents.get_or_init(parent, () => {
+    children: [],
+    is_root: !children.contains(parent),
+  })
+  if !parent_record.children.contains(child) {
+    let updated_children : Array[Entity] = []
+    for entity in parent_record.children {
+      updated_children.push(entity)
+    }
+    updated_children.push(child)
+    parents.set(parent, { ..parent_record, children: updated_children })
+  }
+  children.set(child, { parent, })
+  match parents.get(child) {
+    Some(child_parent_record) =>
+      parents.set(child, { ..child_parent_record, is_root: false })
+    None => ()
+  }
+}
+
+///|
 /// Creates a new child entity attached to the specified parent entity.
 ///
 /// The child entity is automatically registered in the entity system and linked
@@ -96,15 +166,8 @@ fn hierarchy_children() -> Map[Entity, Child] {
 /// ```
 ///
 pub fn Entity::spawn_child(parent : Entity) -> Entity {
-  let parents = hierarchy_parents()
-  let children = hierarchy_children()
   let child_entity = Entity()
-  let p = parents.get_or_init(parent, () => {
-    children: [],
-    is_root: !children.contains(parent),
-  })
-  p.children.push(child_entity)
-  children.set(child_entity, { parent, })
+  attach_parent_link(child_entity, parent)
   child_entity
 }
 
@@ -191,6 +254,20 @@ pub fn Entity::is_child(entity : Entity) -> Bool {
 pub fn Entity::get_parent(child : Entity) -> Entity? {
   let children = hierarchy_children()
   children.get(child).map(c => c.parent)
+}
+
+///|
+pub fn Entity::set_parent(child : Entity, parent : Entity) -> Unit {
+  guard child != parent else { return }
+  guard !hierarchy_would_create_cycle(child, parent) else { return }
+  guard child.get_parent() != Some(parent) else { return }
+  detach_parent_link(child)
+  attach_parent_link(child, parent)
+}
+
+///|
+pub fn Entity::remove_parent(child : Entity) -> Unit {
+  detach_parent_link(child)
 }
 
 ///|

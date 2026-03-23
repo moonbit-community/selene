@@ -88,6 +88,38 @@ test "animation transitions track the main animation and return the active anima
 }
 
 ///|
+test "texture atlas index field resolves as a discrete value instead of a weighted blend" {
+  with_animation_test_world(fn() raise {
+    let entity = @entity.Entity::new()
+    let image = @asset2.load_image("animation/test.png")
+    let layout = @sprite.register_texture_atlas_layout(
+      @sprite.TextureAtlasLayout::from_grid(@math.Vec2D(16.0, 16.0), 6, 1),
+    )
+    @sprite.sprites().set(
+      entity,
+      @sprite.Sprite::from_atlas_image(
+        image,
+        @sprite.TextureAtlas::new(layout, index=1),
+      ),
+    )
+    let handle = texture_atlas_index_field()
+    let field = animated_field(handle).unwrap()
+    let resolved = resolve_sample_value(handle, field, entity, {
+      normal: [
+        (AnimatedValue::Scalar(0.0), 0.25),
+        (AnimatedValue::Scalar(5.0), 0.75),
+      ],
+      additive: [(AnimatedValue::Scalar(3.0), 1.0)],
+    })
+    let frame = match resolved {
+      AnimatedValue::Scalar(value) => value
+      _ => -1.0
+    }
+    inspect(frame, content="5")
+  })
+}
+
+///|
 test "animation graph mask groups exclude masked targets during apply" {
   with_animation_test_world(fn() raise {
     let player_entity = @entity.Entity::new()

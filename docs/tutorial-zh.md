@@ -219,32 +219,31 @@ Entity 类似引用，组件通过 `Map[K, V]::set` 关联到实体上。`@trans
 玩家角色通常有多个动画状态：空闲、跑步、跳跃和下落。以空闲动画为例：
 
 ```moonbit
-let player_idle_animation : @sprite.Animation = @sprite.Animation::new(
-  @sprite.frames_from_atlas(
-    "assets/pixeladventure/Main Characters/Mask Dude/Idle (32x32).png",
-    11,
-    width=32.0,
-    height=32.0,
-  ),
-  loop_=true,
-  fps=12,
+let player_idle_layout = @sprite.register_texture_atlas_layout(
+  @sprite.TextureAtlasLayout::from_grid(@math.Vec2D(32.0, 32.0), 11, 1),
+)
+let player_idle_image = @asset2.load_image(
+  "assets/pixeladventure/Main Characters/Mask Dude/Idle (32x32).png",
 )
 ```
 
-`loop_` 表示是否循环，`fps` 表示动画播放速度。
+`TextureAtlasLayout` 用来描述 atlas 中每一帧的矩形区域，运行时真正被动画系统修改的是 `TextureAtlas.index`。
 
 通过 clip / graph / player 把 sprite 动画挂到实体上：
 
 ```moonbit
 @sprite.sprites().set(
   game_state.player,
-  @sprite.Sprite::from_animation(player_idle_animation),
+  @sprite.Sprite::from_atlas_image(
+    player_idle_image,
+    @sprite.TextureAtlas::new(player_idle_layout),
+  ),
 )
 let clip = @animation.AnimationClip::new("player_idle")
 let frame_keys : Array[@animation.ScalarKeyframe] = []
-for index in 0..<player_idle_animation.frames.length() {
+for index in 0..<11 {
   frame_keys.push({
-    time: index.to_double() / player_idle_animation.fps,
+    time: index.to_double() / 12.0,
     value: index.to_double(),
     in_tangent: None,
     out_tangent: None,
@@ -253,7 +252,7 @@ for index in 0..<player_idle_animation.frames.length() {
 clip.add_curve_to_target(
   @animation.AnimationTargetId::new("self"),
   @animation.VariableCurve::scalar(
-    @animation.sprite_frame_index_field(),
+    @animation.texture_atlas_index_field(),
     frame_keys,
     interpolation=@animation.ChannelInterpolation::Step,
   ),
@@ -277,7 +276,6 @@ let (graph, nodes) = @animation.AnimationGraph::from_clips([
   game_state.player,
   @animation.AnimatedBy::new(game_state.player),
 )
-@sprite.sprite_frame_indices().set(game_state.player, { frame: 0.0 })
 ignore(@animation.animation_players().get(game_state.player).unwrap().play(nodes[0]))
 ```
 

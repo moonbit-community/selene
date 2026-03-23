@@ -292,6 +292,9 @@ let animation_graphs : Map[AnimationGraphHandle, AnimationGraph] = Map::new()
 let animated_fields : Map[AnimatedFieldHandle, AnimatedField] = Map::new()
 
 ///|
+let discrete_animated_fields : Set[AnimatedFieldHandle] = Set::new()
+
+///|
 priv struct AnimationEventDescriptor {
   dispatch : (AnimationEventContext, @entity.Entity?) -> Unit
 }
@@ -1141,7 +1144,7 @@ let scale_field_ref : Ref[AnimatedFieldHandle?] = Ref::new(None)
 let morph_weights_field_ref : Ref[AnimatedFieldHandle?] = Ref::new(None)
 
 ///|
-let sprite_frame_field_ref : Ref[AnimatedFieldHandle?] = Ref::new(None)
+let texture_atlas_index_field_ref : Ref[AnimatedFieldHandle?] = Ref::new(None)
 
 ///|
 pub fn transform_translation_field() -> AnimatedFieldHandle {
@@ -1289,28 +1292,38 @@ pub fn morph_weights_field() -> AnimatedFieldHandle {
 }
 
 ///|
-pub fn sprite_frame_index_field() -> AnimatedFieldHandle {
-  match sprite_frame_field_ref.val {
+pub fn texture_atlas_index_field() -> AnimatedFieldHandle {
+  match texture_atlas_index_field_ref.val {
     Some(handle) => handle
     None => {
       let handle = register_animated_field({
-        name: "Sprite.frame_index",
+        name: "Sprite.texture_atlas.index",
         kind: Scalar,
         sample: fn(entity) {
-          let frame = @sprite.sprite_frame_indices()
+          let index = @sprite.sprites()
             .get(entity)
-            .map_or(0.0, fn(index) { index.frame })
-          AnimatedValue::Scalar(frame)
+            .bind(fn(sprite) {
+              sprite.texture_atlas.map(fn(texture_atlas) {
+                texture_atlas.index.to_double()
+              })
+            })
+            .unwrap_or(0.0)
+          AnimatedValue::Scalar(index)
         },
         apply: fn(entity, value) {
           guard value is AnimatedValue::Scalar(frame)
-          let index = @sprite.sprite_frame_indices().get_or_init(entity, fn() {
-            { frame: 0.0 }
+          guard @sprite.sprites().get(entity) is Some(sprite) else { return }
+          guard sprite.texture_atlas is Some(texture_atlas) else { return }
+          let next_index = if frame < 0.0 { 0 } else { frame.round().to_int() }
+          let updated_atlas = { ..texture_atlas, index: next_index }
+          @sprite.sprites().set(entity, {
+            ..sprite,
+            texture_atlas: Some(updated_atlas),
           })
-          index.frame = frame
         },
       })
-      sprite_frame_field_ref.val = Some(handle)
+      discrete_animated_fields.add(handle) |> ignore
+      texture_atlas_index_field_ref.val = Some(handle)
       handle
     }
   }
@@ -1698,6 +1711,25 @@ fn blend_weights(
 }
 
 ///|
+fn select_discrete_value(
+  values : Array[(AnimatedValue, Double)],
+  fallback : AnimatedValue,
+) -> AnimatedValue {
+  if values.length() == 0 {
+    return fallback
+  }
+  let mut selected = fallback
+  let mut selected_weight = -1.0
+  for pair in values {
+    if pair.1 > selected_weight {
+      selected = pair.0
+      selected_weight = pair.1
+    }
+  }
+  selected
+}
+
+///|
 fn apply_additive_value(
   base : AnimatedValue,
   values : Array[(AnimatedValue, Double)],
@@ -1756,11 +1788,15 @@ fn apply_additive_value(
 
 ///|
 fn resolve_sample_value(
+  field_handle : AnimatedFieldHandle,
   field : AnimatedField,
   entity : @entity.Entity,
   buffer : AnimationSampleBuffer,
 ) -> AnimatedValue {
   let base = (field.sample)(entity)
+  if discrete_animated_fields.contains(field_handle) {
+    return select_discrete_value(buffer.normal, base)
+  }
   let normal = match field.kind {
     Scalar =>
       AnimatedValue::Scalar(
@@ -2119,7 +2155,7 @@ pub fn animation_apply_system(_delta : Double) -> Unit {
     }
     for key, buffer in buffers {
       guard animated_field(key.field) is Some(field) else { continue }
-      let value = resolve_sample_value(field, key.entity, buffer)
+      let value = resolve_sample_value(key.field, field, key.entity, buffer)
       (field.apply)(key.entity, value)
     }
   }
@@ -2353,11 +2389,14 @@ pub fn animation_skinning_system(_delta : Double) -> Unit {
       continue
     }
     let joint_matrices : Array[@math.Mat4] = []
+    let mut missing_joint_transform = false
     for joint_index, joint_entity in binding.joint_entities {
-      let global = @transform.global_transforms()
-        .get(joint_entity)
-        .unwrap_or_default()
-        .compute_transform()
+      guard @transform.global_transforms().get(joint_entity)
+        is Some(global_transform) else {
+        missing_joint_transform = true
+        break
+      }
+      let global = global_transform.compute_transform()
       let world = @math.Mat4::from_trs(
         global.translation,
         global.rotation,
@@ -2368,7 +2407,7 @@ pub fn animation_skinning_system(_delta : Double) -> Unit {
         .unwrap_or(@math.Mat4::identity())
       joint_matrices.push(world.mul(inverse_bind))
     }
-    if joint_matrices.length() == 0 {
+    if missing_joint_transform || joint_matrices.length() == 0 {
       continue
     }
     let (morphed_positions, morphed_normals) = apply_morph_targets(

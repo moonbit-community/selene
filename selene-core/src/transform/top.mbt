@@ -165,7 +165,6 @@ pub fn GlobalTransform::reparented_to(
 priv struct TransformWorldStore {
   transforms : Map[@entity.Entity, Transform]
   global_transforms : Map[@entity.Entity, GlobalTransform]
-  previous_global_transforms : Map[@entity.Entity, GlobalTransform]
 }
 
 ///|
@@ -177,7 +176,6 @@ fn transform_world_store() -> TransformWorldStore {
   transform_world_stores.get_or_init(world_id, () => {
     transforms: Map::new(),
     global_transforms: Map::new(),
-    previous_global_transforms: Map::new(),
   })
 }
 
@@ -192,61 +190,49 @@ pub fn global_transforms() -> Map[@entity.Entity, GlobalTransform] {
 }
 
 ///|
-pub fn previous_global_transforms() -> Map[@entity.Entity, GlobalTransform] {
-  transform_world_store().previous_global_transforms
-}
-
-///|
-pub fn capture_previous_global_transforms() -> Unit {
-  let previous = previous_global_transforms()
-  previous.clear()
-  for entity, global in global_transforms() {
-    if entity.is_alive() {
-      previous.set(entity, global)
-    }
+pub fn compute_global_transform(entity : @entity.Entity) -> GlobalTransform? {
+  guard entity.is_alive() else { None }
+  let local_global = GlobalTransform::from_transform(
+    transforms().get(entity).unwrap_or_default(),
+  )
+  match entity.get_parent() {
+    Some(parent) if parent.is_alive() =>
+      match compute_global_transform(parent) {
+        Some(parent_global) =>
+          Some({ affine: parent_global.affine * local_global.affine })
+        None => Some(local_global)
+      }
+    _ => Some(local_global)
   }
 }
 
 ///|
-pub fn capture_previous_global_transforms_system(_delta : Double) -> Unit {
-  capture_previous_global_transforms()
-}
-
-///|
-pub fn sample_global_transform(
-  entity : @entity.Entity,
-  alpha : Double,
-) -> GlobalTransform {
-  let globals = global_transforms()
-  let previous = previous_global_transforms()
-  guard globals.get(entity) is Some(current) else {
-    return GlobalTransform::identity()
-  }
-  if previous.get(entity) is Some(previous_global) {
-    let current_transform = current.compute_transform()
-    let previous_transform = previous_global.compute_transform()
-    GlobalTransform::from_transform({
-      translation: previous_transform.translation.lerp(
-        current_transform.translation,
-        alpha,
-      ),
-      rotation: previous_transform.rotation.nlerp(
-        current_transform.rotation,
-        alpha,
-      ),
-      scale: previous_transform.scale.lerp(current_transform.scale, alpha),
-    })
-  } else {
-    current
+pub fn set_parent_in_place(
+  child : @entity.Entity,
+  parent : @entity.Entity,
+) -> Unit {
+  guard child != parent else { return }
+  let current_global = compute_global_transform(child)
+  let parent_global = compute_global_transform(parent)
+  child.set_parent(parent)
+  match (current_global, parent_global) {
+    (Some(child_global), Some(parent_world)) =>
+      transforms().set(child, child_global.reparented_to(parent_world))
+    (Some(child_global), None) =>
+      transforms().set(child, child_global.compute_transform())
+    _ => ()
   }
 }
 
 ///|
-pub fn sample_global_translation(
-  entity : @entity.Entity,
-  alpha : Double,
-) -> @math.Vec3 {
-  sample_global_transform(entity, alpha).translation()
+pub fn remove_parent_in_place(child : @entity.Entity) -> Unit {
+  let current_global = compute_global_transform(child)
+  child.remove_parent()
+  match current_global {
+    Some(world_transform) =>
+      transforms().set(child, world_transform.compute_transform())
+    None => ()
+  }
 }
 
 ///|

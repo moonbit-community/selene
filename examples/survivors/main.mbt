@@ -46,7 +46,7 @@ pub fn run() -> Unit {
     devil_shooting_system, player_bullet_trigger_system, check_victory_system, game_timer_system,
     score_blink_system,
   ])
-  .add_system(PostUpdate, survivors_camera_follow_system)
+  .add_system(Update, survivors_camera_follow_system)
   .add_system(PostUpdate, survivors_ui_pointer_system)
   .run()
 }
