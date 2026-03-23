@@ -76,34 +76,8 @@ pub fn scene_of(root : @entity.Entity) -> SceneHandle? {
 pub fn scene_animation(
   instance : SceneInstance,
   name : String,
-) -> @animation3d.AnimationClipHandle? {
+) -> @animation.AnimationNodeIndex? {
   @scene3d.scene_instance_animation(instance, name)
-}
-
-///|
-pub fn play_scene_animation(
-  instance : SceneInstance,
-  name : String,
-  repeat? : Bool = true,
-) -> Bool {
-  @scene3d.play_scene_animation(instance, name, repeat~)
-}
-
-///|
-pub fn set_scene_animation_graph(
-  instance : SceneInstance,
-  graph : @animation3d.AnimationGraph3D,
-  repeat? : Bool = true,
-) -> Unit {
-  @scene3d.set_scene_animation_graph(instance, graph, repeat~)
-}
-
-///|
-pub fn trigger_scene_animation(
-  instance : SceneInstance,
-  trigger : String,
-) -> Unit {
-  @scene3d.trigger_scene_animation(instance, trigger)
 }
 
 ///|

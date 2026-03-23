@@ -233,10 +233,14 @@ let player_idle_animation : @sprite.Animation = @sprite.Animation::new(
 
 `loop_` 表示是否循环，`fps` 表示动画播放速度。
 
-通过 `@sprite.play_animation` 为实体播放动画：
+通过动画运行时把 sprite 动画挂到实体上：
 
 ```moonbit
-@sprite.play_animation(game_state.player, player_idle_animation)
+@sprite.sprites().set(
+  game_state.player,
+  @sprite.Sprite::from_animation(player_idle_animation),
+)
+ignore(@animation.attach_sprite_animation_player(game_state.player, player_idle_animation))
 ```
 
 玩家状态机可根据速度和地面接触切换动画状态。输入处理使用 `@inputs` 模块：

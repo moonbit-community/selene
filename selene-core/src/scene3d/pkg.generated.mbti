@@ -2,7 +2,7 @@
 package "Milky2018/selene/scene3d"
 
 import {
-  "Milky2018/selene/animation3d",
+  "Milky2018/selene/animation",
   "Milky2018/selene/entity",
   "Milky2018/selene/render3d_types",
   "Milky2018/selene/transform",
@@ -15,15 +15,9 @@ pub fn instantiate_scene_instance(@render3d_types.SceneHandle, @transform.Transf
 
 pub fn load_scene_gltf(String) -> @render3d_types.SceneHandle
 
-pub fn play_scene_animation(SceneInstance, String, repeat? : Bool) -> Bool
-
-pub fn scene_instance_animation(SceneInstance, String) -> @animation3d.AnimationClipHandle?
+pub fn scene_instance_animation(SceneInstance, String) -> @animation.AnimationNodeIndex?
 
 pub fn scene_instance_part(SceneInstance, String) -> @entity.Entity?
-
-pub fn set_scene_animation_graph(SceneInstance, @animation3d.AnimationGraph3D, repeat? : Bool) -> Unit
-
-pub fn trigger_scene_animation(SceneInstance, String) -> Unit
 
 // Errors
 
@@ -31,7 +25,7 @@ pub fn trigger_scene_animation(SceneInstance, String) -> Unit
 pub(all) struct SceneInstance {
   root : @entity.Entity
   parts : Map[String, @entity.Entity]
-  animations : Map[String, @animation3d.AnimationClipHandle]
+  animations : Map[String, @animation.AnimationNodeIndex]
 }
 
 // Type aliases

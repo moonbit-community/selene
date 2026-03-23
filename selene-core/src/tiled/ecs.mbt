@@ -417,6 +417,7 @@ fn spawn_tiled_tile_layer(
     let sprite = @sprite.Sprite::from_animation(animation)
     sprite.visible = visible
     @sprite.sprites().set(tile_entity, sprite)
+    ignore(@animation.attach_sprite_animation_player(tile_entity, animation))
   }
 }
 
@@ -478,6 +479,7 @@ fn spawn_tiled_object_layer(
     let sprite = @sprite.Sprite::from_animation(animation)
     sprite.visible = visible && object.visible
     @sprite.sprites().set(object_entity, sprite)
+    ignore(@animation.attach_sprite_animation_player(object_entity, animation))
   }
 }
 

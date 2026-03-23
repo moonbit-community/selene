@@ -190,10 +190,63 @@ fn spawn_level(player_entity : @entity.Entity) -> @math.Vec2D {
 }
 
 ///|
+fn register_sprite_animation_node(
+  graph : @animation.AnimationGraph,
+  animation : @sprite.Animation,
+) -> @animation.AnimationNodeIndex {
+  graph.add_clip(@animation.register_sprite_animation_clip(animation))
+}
+
+///|
+fn build_player_animation_nodes(
+  entity : @entity.Entity,
+) -> PlayerAnimationNodes {
+  let graph = @animation.AnimationGraph::new()
+  let nodes = {
+    idle_left: register_sprite_animation_node(graph, player_idle_left_animation),
+    idle_right: register_sprite_animation_node(
+      graph, player_idle_right_animation,
+    ),
+    run_left: register_sprite_animation_node(graph, player_run_left_animation),
+    run_right: register_sprite_animation_node(graph, player_run_right_animation),
+    fall_left: register_sprite_animation_node(graph, player_fall_left_animation),
+    fall_right: register_sprite_animation_node(
+      graph, player_fall_right_animation,
+    ),
+    jump_left: register_sprite_animation_node(graph, player_jump_left_animation),
+    jump_right: register_sprite_animation_node(
+      graph, player_jump_right_animation,
+    ),
+    hit_left: register_sprite_animation_node(graph, player_hit_left_animation),
+    hit_right: register_sprite_animation_node(graph, player_hit_right_animation),
+  }
+  let graph_handle = @animation.register_animation_graph(graph)
+  ensure_sprite_animation_binding(entity)
+  @animation.animation_graph_handles().set(entity, graph_handle)
+  nodes
+}
+
+///|
+fn build_bird_animation_nodes(entity : @entity.Entity) -> BirdAnimationNodes {
+  let graph = @animation.AnimationGraph::new()
+  let nodes = {
+    fly_left: register_sprite_animation_node(graph, bird_fly_left_animation),
+    fly_right: register_sprite_animation_node(graph, bird_fly_right_animation),
+    hit_left: register_sprite_animation_node(graph, bird_hit_left_animation),
+    hit_right: register_sprite_animation_node(graph, bird_hit_right_animation),
+  }
+  let graph_handle = @animation.register_animation_graph(graph)
+  ensure_sprite_animation_binding(entity)
+  @animation.animation_graph_handles().set(entity, graph_handle)
+  nodes
+}
+
+///|
 fn spawn_player(entity : @entity.Entity, pos : @math.Vec2D) -> Unit {
+  let animation_nodes = build_player_animation_nodes(entity)
   @sprite.sprites().set(
     entity,
-    @sprite.Sprite::from_animation(player_idle_animation),
+    @sprite.Sprite::from_animation(player_idle_right_animation),
   )
   @physics2d.linear_velocities().set(entity, @math.Vec2D::zero())
   @transform.transforms().set(
@@ -217,15 +270,20 @@ fn spawn_player(entity : @entity.Entity, pos : @math.Vec2D) -> Unit {
     state: Idle,
     hurt_cooldown: 0.0,
     pending_bounce_velocity_y: None,
+    animations: animation_nodes,
+    active_animation: None,
   })
+  guard players().get(entity) is Some(controller)
+  play_player_animation(entity, controller)
 }
 
 ///|
 fn spawn_bird(pos : @math.Vec2D) -> Unit {
   let entity = @entity.Entity::new()
+  let animation_nodes = build_bird_animation_nodes(entity)
   @sprite.sprites().set(
     entity,
-    @sprite.Sprite::from_animation(bird_fly_animation),
+    @sprite.Sprite::from_animation(bird_fly_right_animation),
   )
   @physics2d.linear_velocities().set(entity, @math.Vec2D(BIRD_SPEED, 0.0))
   @transform.transforms().set(
@@ -244,7 +302,14 @@ fn spawn_bird(pos : @math.Vec2D) -> Unit {
       ]),
     ),
   )
-  birds().set(entity, { direction: Right, is_hurt: false })
+  birds().set(entity, {
+    direction: Right,
+    is_hurt: false,
+    animations: animation_nodes,
+    active_animation: None,
+  })
+  guard birds().get(entity) is Some(bird)
+  play_bird_animation(entity, bird)
 }
 
 ///|
@@ -387,21 +452,18 @@ fn spawn_flag(pos : @math.Vec2D) -> Unit {
 ///|
 fn spawn_apple(pos : @math.Vec2D) -> Unit {
   let entity = @entity.Entity::new()
-  @sprite.sprites().set(
-    entity,
-    @sprite.Sprite::from_animation(
-      @sprite.Animation::new(
-        @sprite.frames_from_atlas(
-          "assets/pixeladventure/Items/Fruits/Apple.png",
-          17,
-          width=32.0,
-          height=32.0,
-        ),
-        loop_=true,
-        fps=12,
-      ),
+  let animation = @sprite.Animation::new(
+    @sprite.frames_from_atlas(
+      "assets/pixeladventure/Items/Fruits/Apple.png",
+      17,
+      width=32.0,
+      height=32.0,
     ),
+    loop_=true,
+    fps=12,
   )
+  @sprite.sprites().set(entity, @sprite.Sprite::from_animation(animation))
+  ignore(@animation.attach_sprite_animation_player(entity, animation))
   @transform.transforms().set(
     entity,
     @transform.Transform::from_xyz(pos[X], pos[Y], ITEM_Z),

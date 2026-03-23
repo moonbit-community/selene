@@ -11,13 +11,6 @@ pub fn run() -> Unit
 // Errors
 
 // Types and methods
-type Direction2
-pub impl Eq for Direction2
-
-type PlayerState
-pub impl Eq for PlayerState
-pub impl Show for PlayerState
-
 type Tile
 pub impl @json.FromJson for Tile
 

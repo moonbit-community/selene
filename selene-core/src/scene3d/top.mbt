@@ -31,14 +31,14 @@ priv struct SceneTemplate {
   roots : Array[Int]
   nodes : Array[SceneNodeTemplate]
   skins : Array[SkinTemplate]
-  animations : Map[String, @animation3d.AnimationClipHandle]
+  animations : Map[String, @animation.AnimationClipHandle]
 }
 
 ///|
 pub(all) struct SceneInstance {
   root : @entity.Entity
   parts : Map[String, @entity.Entity]
-  animations : Map[String, @animation3d.AnimationClipHandle]
+  animations : Map[String, @animation.AnimationNodeIndex]
 }
 
 ///|
@@ -75,7 +75,7 @@ priv struct SkinnedPrimitiveTemplate {
   tangents : Array[@render3d.Tangent3D]?
   morph_targets : Array[MorphTargetTemplate]
   morph_weights : Array[Double]
-  influences : Array[@animation3d.SkinVertexInfluence3D]
+  influences : Array[@animation.SkinVertexInfluence3D]
 }
 
 ///|
@@ -97,7 +97,17 @@ priv struct ParsedMeshAsset {
 priv struct AnimationSamplerTemplate {
   times : Array[Double]
   output_accessor : Int
-  interpolation : @animation3d.ChannelInterpolation3D
+  interpolation : @animation.ChannelInterpolation
+}
+
+///|
+priv struct ParsedAnimationChannel {
+  target : @animation.AnimationTargetId
+  translations : Array[@animation.Vec3Keyframe]
+  rotations : Array[@animation.QuatKeyframe]
+  scales : Array[@animation.Vec3Keyframe]
+  weights : Array[@animation.WeightKeyframe]
+  interpolation : @animation.ChannelInterpolation
 }
 
 ///|
@@ -214,6 +224,7 @@ pub fn instantiate_scene_instance(
 ) -> SceneInstance {
   let root = @entity.Entity::new()
   @transform.transforms().set(root, root_transform)
+  @name.names().set(root, @name.Name::new("scene_root"))
   let parts : Map[String, @entity.Entity] = Map::new()
   guard scene_templates.get(scene) is Some(template) else {
     return { root, parts, animations: Map::new() }
@@ -225,6 +236,7 @@ pub fn instantiate_scene_instance(
       template,
       node_index,
       root,
+      root,
       node_entities,
       pending_skin_bindings,
       parts,
@@ -233,17 +245,30 @@ pub fn instantiate_scene_instance(
     )
   }
   resolve_scene_skin_bindings(template, node_entities, pending_skin_bindings)
-  @animation3d.bind_animation_targets(root, node_entities, template.animations)
+  let animation_nodes : Map[String, @animation.AnimationNodeIndex] = Map::new()
   if template.animations.length() > 0 {
-    let first_clip = template.animations.values().next()
-    if first_clip is Some(handle) {
-      @animation3d.attach_animation_player(
-        root,
-        @animation3d.AnimationPlayer3D::from_clip(handle),
-      )
+    let graph = @animation.AnimationGraph::new()
+    let mut first_node : @animation.AnimationNodeIndex? = None
+    for name, clip in template.animations {
+      let node = graph.add_clip(clip)
+      animation_nodes.set(name, node)
+      if first_node is None {
+        first_node = Some(node)
+      }
     }
+    let graph_handle = @animation.register_animation_graph(graph)
+    @animation.animation_graph_handles().set(root, graph_handle)
+    let player = @animation.AnimationPlayer::new()
+    if first_node is Some(node) {
+      player.play(node)
+    }
+    @animation.animation_players().set(root, player)
+    @animation.animation_transitions().set(
+      root,
+      @animation.AnimationTransitions::new(),
+    )
   }
-  { root, parts, animations: template.animations.copy() }
+  { root, parts, animations: animation_nodes }
 }
 
 ///|
@@ -258,36 +283,8 @@ pub fn scene_instance_part(
 pub fn scene_instance_animation(
   instance : SceneInstance,
   name : String,
-) -> @animation3d.AnimationClipHandle? {
+) -> @animation.AnimationNodeIndex? {
   instance.animations.get(name)
-}
-
-///|
-pub fn play_scene_animation(
-  instance : SceneInstance,
-  name : String,
-  repeat? : Bool = true,
-) -> Bool {
-  guard instance.animations.get(name) is Some(handle) else { return false }
-  @animation3d.play_clip(instance.root, handle, repeat~)
-  true
-}
-
-///|
-pub fn set_scene_animation_graph(
-  instance : SceneInstance,
-  graph : @animation3d.AnimationGraph3D,
-  repeat? : Bool = true,
-) -> Unit {
-  @animation3d.set_animation_graph(instance.root, graph, repeat~)
-}
-
-///|
-pub fn trigger_scene_animation(
-  instance : SceneInstance,
-  trigger : String,
-) -> Unit {
-  @animation3d.trigger_animation(instance.root, trigger)
 }
 
 ///|
@@ -314,7 +311,7 @@ fn resolve_scene_skin_bindings(
     if joint_entities.length() == 0 || !complete {
       continue
     }
-    @animation3d.bind_skinned_mesh(pending.entity, {
+    @animation.bind_skinned_mesh(pending.entity, {
       target_entity: pending.target_entity,
       mesh: pending.mesh,
       base_positions: pending.skinned.base_positions,
@@ -345,8 +342,8 @@ fn clone_mesh_handle(handle : @render3d.MeshHandle) -> @render3d.MeshHandle {
 ///|
 fn to_animation_morph_targets(
   targets : Array[MorphTargetTemplate],
-) -> Array[@animation3d.MorphTargetBinding3D] {
-  let output : Array[@animation3d.MorphTargetBinding3D] = []
+) -> Array[@animation.MorphTargetBinding3D] {
+  let output : Array[@animation.MorphTargetBinding3D] = []
   for target in targets {
     output.push({
       position_deltas: target.position_deltas,
@@ -364,7 +361,7 @@ fn bind_instantiated_morph_mesh(
   binding : SkinnedPrimitiveTemplate,
   morph_weights : Array[Double],
 ) -> Unit {
-  @animation3d.bind_morph_mesh(entity, {
+  @animation.bind_morph_mesh(entity, {
     target_entity,
     mesh,
     base_positions: binding.base_positions,
@@ -385,6 +382,7 @@ fn instantiate_scene_node(
   template : SceneTemplate,
   node_index : Int,
   parent : @entity.Entity,
+  root_entity : @entity.Entity,
   node_entities : Map[Int, @entity.Entity],
   pending_skin_bindings : Array[PendingSkinBinding],
   parts : Map[String, @entity.Entity],
@@ -399,13 +397,24 @@ fn instantiate_scene_node(
   let entity = parent.spawn_child()
   let base_name = node.name.unwrap_or("node\{node_index}")
   let path_base = "\{parent_path}/\{base_name}"
+  let entity_name = if parts.contains(path_base) {
+    "\{base_name}#\{node_index}"
+  } else {
+    base_name
+  }
   let entity_path = if parts.contains(path_base) {
-    "\{path_base}#\{node_index}"
+    "\{parent_path}/\{entity_name}"
   } else {
     path_base
   }
   parts.set(entity_path, entity)
   node_entities.set(node_index, entity)
+  @name.names().set(entity, @name.Name::new(entity_name))
+  @animation.animation_target_ids().set(
+    entity,
+    @animation.AnimationTargetId::new(entity_path),
+  )
+  @animation.animated_bys().set(entity, @animation.AnimatedBy::new(root_entity))
   @transform.transforms().set(entity, node.transform)
   if node.camera is Some(camera) {
     @camera3d.cameras3d().set(entity, camera)
@@ -495,6 +504,7 @@ fn instantiate_scene_node(
       template,
       child_index,
       entity,
+      root_entity,
       node_entities,
       pending_skin_bindings,
       parts,
@@ -609,7 +619,7 @@ fn parse_scene_template(path : String, source : GltfSource) -> SceneTemplate {
   let nodes = parse_node_templates(root_object, mesh_templates, cameras, lights)
   let roots = parse_root_nodes(root_object, nodes.length())
   let animations = parse_animation_clips(
-    root_object, buffers, buffer_views, accessors,
+    root_object, buffers, buffer_views, accessors, nodes, roots,
   )
   { roots, nodes, skins, animations }
 }
@@ -658,64 +668,133 @@ fn parse_skin_templates(
 }
 
 ///|
+fn assign_scene_node_target_ids(
+  nodes : Array[SceneNodeTemplate],
+  node_index : Int,
+  parent_path : String,
+  seen_paths : Set[String],
+  output : Map[Int, @animation.AnimationTargetId],
+  depth : Int,
+) -> Unit {
+  if depth > 512 || node_index < 0 || node_index >= nodes.length() {
+    return
+  }
+  let node = nodes[node_index]
+  let base_name = node.name.unwrap_or("node\{node_index}")
+  let path_base = "\{parent_path}/\{base_name}"
+  let path = if seen_paths.contains(path_base) {
+    "\{path_base}#\{node_index}"
+  } else {
+    path_base
+  }
+  seen_paths.add(path)
+  output.set(node_index, @animation.AnimationTargetId::new(path))
+  for child_index in node.children {
+    assign_scene_node_target_ids(
+      nodes,
+      child_index,
+      path,
+      seen_paths,
+      output,
+      depth + 1,
+    )
+  }
+}
+
+///|
+fn compute_scene_node_target_ids(
+  nodes : Array[SceneNodeTemplate],
+  roots : Array[Int],
+) -> Map[Int, @animation.AnimationTargetId] {
+  let output : Map[Int, @animation.AnimationTargetId] = Map::new()
+  let seen_paths : Set[String] = Set::new()
+  for root_order, node_index in roots {
+    assign_scene_node_target_ids(
+      nodes,
+      node_index,
+      "root\{root_order}",
+      seen_paths,
+      output,
+      0,
+    )
+  }
+  output
+}
+
+///|
 fn parse_animation_clips(
   root_object : Map[String, Json],
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
-) -> Map[String, @animation3d.AnimationClipHandle] {
-  let animations : Map[String, @animation3d.AnimationClipHandle] = Map::new()
+  nodes : Array[SceneNodeTemplate],
+  roots : Array[Int],
+) -> Map[String, @animation.AnimationClipHandle] {
+  let animations : Map[String, @animation.AnimationClipHandle] = Map::new()
   guard root_object.get("animations") is Some(animations_json) else {
     return animations
   }
   guard json_array(animations_json) is Some(animation_items) else {
     return animations
   }
+  let target_ids = compute_scene_node_target_ids(nodes, roots)
   for animation_index, animation_json in animation_items {
     guard json_object(animation_json) is Some(animation_object) else {
       continue
     }
     let channels = parse_animation_channels(
-      animation_object, buffers, buffer_views, accessors,
+      animation_object, buffers, buffer_views, accessors, target_ids,
     )
     if channels.length() == 0 {
       continue
     }
-    let mut duration = 0.0
-    for channel in channels {
-      if channel.translations.length() > 0 {
-        let end = channel.translations[channel.translations.length() - 1].time
-        if end > duration {
-          duration = end
-        }
-      }
-      if channel.rotations.length() > 0 {
-        let end = channel.rotations[channel.rotations.length() - 1].time
-        if end > duration {
-          duration = end
-        }
-      }
-      if channel.scales.length() > 0 {
-        let end = channel.scales[channel.scales.length() - 1].time
-        if end > duration {
-          duration = end
-        }
-      }
-      if channel.weights.length() > 0 {
-        let end = channel.weights[channel.weights.length() - 1].time
-        if end > duration {
-          duration = end
-        }
-      }
-    }
     let name = field_string(animation_object, "name").unwrap_or(
       "animation_\{animation_index}",
     )
-    let clip_handle = @animation3d.register_animation_clip({
-      name,
-      duration,
-      channels,
-    })
+    let clip = @animation.AnimationClip::new(name)
+    for channel in channels {
+      if channel.translations.length() > 0 {
+        clip.add_curve_to_target(
+          channel.target,
+          @animation.VariableCurve::vec3(
+            @animation.transform_translation_field(),
+            channel.translations,
+            interpolation=channel.interpolation,
+          ),
+        )
+      }
+      if channel.rotations.length() > 0 {
+        clip.add_curve_to_target(
+          channel.target,
+          @animation.VariableCurve::quat(
+            @animation.transform_rotation_field(),
+            channel.rotations,
+            interpolation=channel.interpolation,
+          ),
+        )
+      }
+      if channel.scales.length() > 0 {
+        clip.add_curve_to_target(
+          channel.target,
+          @animation.VariableCurve::vec3(
+            @animation.transform_scale_field(),
+            channel.scales,
+            interpolation=channel.interpolation,
+          ),
+        )
+      }
+      if channel.weights.length() > 0 {
+        clip.add_curve_to_target(
+          channel.target,
+          @animation.VariableCurve::weights(
+            @animation.morph_weights_field(),
+            channel.weights,
+            interpolation=channel.interpolation,
+          ),
+        )
+      }
+    }
+    let clip_handle = @animation.register_animation_clip(clip)
     animations.set(name, clip_handle)
   }
   animations
@@ -727,7 +806,8 @@ fn parse_animation_channels(
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
-) -> Array[@animation3d.AnimationChannel3D] {
+  target_ids : Map[Int, @animation.AnimationTargetId],
+) -> Array[ParsedAnimationChannel] {
   guard field_array(animation_object, "samplers") is Some(samplers_json) else {
     return []
   }
@@ -762,14 +842,14 @@ fn parse_animation_channels(
       field_string(sampler_object, "interpolation").map_or("LINEAR", fn(v) {
         v.to_upper()
       }) {
-      "STEP" => @animation3d.ChannelInterpolation3D::Step
-      "CUBICSPLINE" => @animation3d.ChannelInterpolation3D::CubicSpline
-      _ => @animation3d.ChannelInterpolation3D::Linear
+      "STEP" => @animation.ChannelInterpolation::Step
+      "CUBICSPLINE" => @animation.ChannelInterpolation::CubicSpline
+      _ => @animation.ChannelInterpolation::Linear
     }
     samplers.push(Some({ times, output_accessor, interpolation }))
   }
 
-  let output : Array[@animation3d.AnimationChannel3D] = []
+  let output : Array[ParsedAnimationChannel] = []
   for channel_json in channels_json {
     guard json_object(channel_json) is Some(channel_object) else { continue }
     guard field_int(channel_object, "sampler") is Some(sampler_index) else {
@@ -780,16 +860,17 @@ fn parse_animation_channels(
       continue
     }
     guard field_int(target_object, "node") is Some(node_index) else { continue }
+    guard target_ids.get(node_index) is Some(target_id) else { continue }
     let path = field_string(target_object, "path").map_or("", fn(v) {
       v.to_lower()
     })
     let times = sampler.times
     let output_accessor = sampler.output_accessor
     let interpolation = sampler.interpolation
-    let translations : Array[@animation3d.Vec3Keyframe3D] = []
-    let rotations : Array[@animation3d.QuatKeyframe3D] = []
-    let scales : Array[@animation3d.Vec3Keyframe3D] = []
-    let weights : Array[@animation3d.WeightKeyframe3D] = []
+    let translations : Array[@animation.Vec3Keyframe] = []
+    let rotations : Array[@animation.QuatKeyframe] = []
+    let scales : Array[@animation.Vec3Keyframe] = []
+    let weights : Array[@animation.WeightKeyframe] = []
     match path {
       "translation" =>
         if read_accessor_vec3(output_accessor, buffers, buffer_views, accessors)
@@ -830,7 +911,7 @@ fn parse_animation_channels(
       continue
     }
     output.push({
-      node: node_index,
+      target: target_id,
       translations,
       rotations,
       scales,
@@ -845,10 +926,10 @@ fn parse_animation_channels(
 fn parse_vec3_keyframes(
   times : Array[Double],
   values : Array[@math.Vec3],
-  interpolation : @animation3d.ChannelInterpolation3D,
-) -> Array[@animation3d.Vec3Keyframe3D] {
-  let output : Array[@animation3d.Vec3Keyframe3D] = []
-  if interpolation is @animation3d.ChannelInterpolation3D::CubicSpline {
+  interpolation : @animation.ChannelInterpolation,
+) -> Array[@animation.Vec3Keyframe] {
+  let output : Array[@animation.Vec3Keyframe] = []
+  if interpolation is @animation.ChannelInterpolation::CubicSpline {
     let key_count = times.length()
     if key_count <= 0 || values.length() < key_count * 3 {
       return output
@@ -884,10 +965,10 @@ fn parse_vec3_keyframes(
 fn parse_quat_keyframes(
   times : Array[Double],
   values : Array[@math.Quat],
-  interpolation : @animation3d.ChannelInterpolation3D,
-) -> Array[@animation3d.QuatKeyframe3D] {
-  let output : Array[@animation3d.QuatKeyframe3D] = []
-  if interpolation is @animation3d.ChannelInterpolation3D::CubicSpline {
+  interpolation : @animation.ChannelInterpolation,
+) -> Array[@animation.QuatKeyframe] {
+  let output : Array[@animation.QuatKeyframe] = []
+  if interpolation is @animation.ChannelInterpolation::CubicSpline {
     let key_count = times.length()
     if key_count <= 0 || values.length() < key_count * 3 {
       return output
@@ -923,15 +1004,15 @@ fn parse_quat_keyframes(
 fn parse_weight_keyframes(
   times : Array[Double],
   values : Array[Double],
-  interpolation : @animation3d.ChannelInterpolation3D,
-) -> Array[@animation3d.WeightKeyframe3D] {
-  let output : Array[@animation3d.WeightKeyframe3D] = []
+  interpolation : @animation.ChannelInterpolation,
+) -> Array[@animation.WeightKeyframe] {
+  let output : Array[@animation.WeightKeyframe] = []
   let key_count = times.length()
   if key_count <= 0 || values.length() < key_count {
     return output
   }
   let lanes_per_key = match interpolation {
-    @animation3d.ChannelInterpolation3D::CubicSpline => 3
+    @animation.ChannelInterpolation::CubicSpline => 3
     _ => 1
   }
   if values.length() < key_count * lanes_per_key {
@@ -944,7 +1025,7 @@ fn parse_weight_keyframes(
   for index in 0..<key_count {
     let base = index * lane_count * lanes_per_key
     let value_index = if interpolation
-      is @animation3d.ChannelInterpolation3D::CubicSpline {
+      is @animation.ChannelInterpolation::CubicSpline {
       base + lane_count
     } else {
       base
@@ -953,7 +1034,7 @@ fn parse_weight_keyframes(
     let in_tangent : Array[Double] = []
     let out_tangent : Array[Double] = []
     for lane in 0..<lane_count {
-      if interpolation is @animation3d.ChannelInterpolation3D::CubicSpline {
+      if interpolation is @animation.ChannelInterpolation::CubicSpline {
         in_tangent.push(values[base + lane])
         weight_values.push(values[value_index + lane])
         out_tangent.push(values[value_index + lane_count + lane])
@@ -965,13 +1046,13 @@ fn parse_weight_keyframes(
       time: times[index],
       value: weight_values,
       in_tangent: if interpolation
-        is @animation3d.ChannelInterpolation3D::CubicSpline {
+        is @animation.ChannelInterpolation::CubicSpline {
         Some(in_tangent)
       } else {
         None
       },
       out_tangent: if interpolation
-        is @animation3d.ChannelInterpolation3D::CubicSpline {
+        is @animation.ChannelInterpolation::CubicSpline {
         Some(out_tangent)
       } else {
         None
@@ -1809,7 +1890,7 @@ fn parse_triangle_binding(
   if triangle_influences is None && morph_targets.length() == 0 {
     return None
   }
-  let influences : Array[@animation3d.SkinVertexInfluence3D] = []
+  let influences : Array[@animation.SkinVertexInfluence3D] = []
   if triangle_influences is Some(mapped_influences) {
     for influence in mapped_influences {
       influences.push(influence)
@@ -1897,7 +1978,7 @@ fn parse_triangle_influences(
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
-) -> Array[@animation3d.SkinVertexInfluence3D]? {
+) -> Array[@animation.SkinVertexInfluence3D]? {
   guard field_int(attributes_object, "JOINTS_0") is Some(joints0_accessor) else {
     return None
   }
@@ -1944,7 +2025,7 @@ fn parse_triangle_influences(
       )
     None => None
   }
-  let output : Array[@animation3d.SkinVertexInfluence3D] = []
+  let output : Array[@animation.SkinVertexInfluence3D] = []
   for index in 0..<triangle_joints0.length() {
     let joints4 = triangle_joints0[index]
     let weights4 = triangle_weights0[index]
@@ -1963,10 +2044,13 @@ fn select_skin_influences(
   weights0 : (Double, Double, Double, Double),
   joints1 : (Int, Int, Int, Int)?,
   weights1 : (Double, Double, Double, Double)?,
-) -> @animation3d.SkinVertexInfluence3D {
-  let best_joints = [-1, -1, -1, -1]
-  let best_weights = [0.0, 0.0, 0.0, 0.0]
-  let insert_candidate = fn(joint : Int, weight : Double) {
+) -> @animation.SkinVertexInfluence3D {
+  let best_joints : Array[Int] = [-1, -1, -1, -1]
+  let best_weights : Array[Double] = [0.0, 0.0, 0.0, 0.0]
+  let insert_candidate : (Int, Double) -> Unit = fn(
+    joint : Int,
+    weight : Double,
+  ) {
     if weight <= 0.0 {
       return
     }
@@ -1998,7 +2082,7 @@ fn select_skin_influences(
     best_weights[1] +
     best_weights[2] +
     best_weights[3]
-  let normalized = if weight_sum > 0.000001 {
+  let normalized : Array[Double] = if weight_sum > 0.000001 {
     [
       best_weights[0] / weight_sum,
       best_weights[1] / weight_sum,

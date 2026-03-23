@@ -1,0 +1,372 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/animation"
+
+import {
+  "Milky2018/selene/entity",
+  "Milky2018/selene/event",
+  "Milky2018/selene/math",
+  "Milky2018/selene/render",
+  "Milky2018/selene/render3d_types",
+  "Milky2018/selene/sprite",
+}
+
+// Values
+pub fn animated_bys() -> Map[@entity.Entity, AnimatedBy]
+
+pub fn animated_field(AnimatedFieldHandle) -> AnimatedField?
+
+pub fn animation_apply_system(Double) -> Unit
+
+pub fn animation_clip(AnimationClipHandle) -> AnimationClip?
+
+pub let animation_event_bus : @event.Events[AnimationEvent]
+
+pub fn animation_graph(AnimationGraphHandle) -> AnimationGraph?
+
+pub fn animation_graph_handles() -> Map[@entity.Entity, AnimationGraphHandle]
+
+pub fn animation_masks() -> Map[@entity.Entity, AnimationMask]
+
+pub fn animation_player_system(Double) -> Unit
+
+pub fn animation_players() -> Map[@entity.Entity, AnimationPlayer]
+
+pub fn animation_skinning_system(Double) -> Unit
+
+pub fn animation_target_id_of(@entity.Entity) -> AnimationTargetId?
+
+pub fn animation_target_ids() -> Map[@entity.Entity, AnimationTargetId]
+
+pub fn animation_transition_system(Double) -> Unit
+
+pub fn animation_transitions() -> Map[@entity.Entity, AnimationTransitions]
+
+pub fn attach_sprite_animation_player(@entity.Entity, @sprite.Animation, repeat? : RepeatAnimation) -> (AnimationGraphHandle, AnimationNodeIndex)
+
+pub fn bind_morph_mesh(@entity.Entity, MorphMeshBinding3D) -> Unit
+
+pub fn bind_skinned_mesh(@entity.Entity, SkinnedMeshBinding3D) -> Unit
+
+pub fn clear_morph_mesh(@entity.Entity) -> Unit
+
+pub fn clear_skinned_mesh(@entity.Entity) -> Unit
+
+pub fn morph_weights_field() -> AnimatedFieldHandle
+
+pub fn register_animated_field(AnimatedField) -> AnimatedFieldHandle
+
+pub fn register_animation_clip(AnimationClip) -> AnimationClipHandle
+
+pub fn register_animation_graph(AnimationGraph) -> AnimationGraphHandle
+
+pub fn register_sprite_animation_clip(@sprite.Animation) -> AnimationClipHandle
+
+pub fn sprite_frame_index_field() -> AnimatedFieldHandle
+
+pub fn transform_rotation_field() -> AnimatedFieldHandle
+
+pub fn transform_scale_field() -> AnimatedFieldHandle
+
+pub fn transform_translation_field() -> AnimatedFieldHandle
+
+// Errors
+
+// Types and methods
+pub(all) struct ActiveAnimation {
+  mut time : Double
+  mut last_time : Double
+  mut speed : Double
+  mut weight : Double
+  mut repeat : RepeatAnimation
+  mut paused : Bool
+  mut finished : Bool
+  mut completed_repeats : UInt
+}
+
+pub(all) struct AnimatedBy {
+  player : @entity.Entity
+
+  fn new(@entity.Entity) -> AnimatedBy
+}
+pub fn AnimatedBy::new(@entity.Entity) -> Self
+
+pub(all) struct AnimatedField {
+  name : String
+  kind : AnimationValueKind
+  sample : (@entity.Entity) -> AnimatedValue
+  apply : (@entity.Entity, AnimatedValue) -> Unit
+}
+
+pub(all) struct AnimatedFieldHandle(UInt)
+#deprecated
+pub fn AnimatedFieldHandle::inner(Self) -> UInt
+pub impl Eq for AnimatedFieldHandle
+pub impl Hash for AnimatedFieldHandle
+pub impl Show for AnimatedFieldHandle
+
+pub(all) enum AnimatedValue {
+  Scalar(Double)
+  Vec3(@math.Vec3)
+  Quat(@math.Quat)
+  Weights(Array[Double])
+}
+
+pub(all) struct AnimationClip {
+  name : String
+  mut duration : Double
+  curves : Map[AnimationTargetId, Array[VariableCurve]]
+  events : Array[AnimationClipEventKeyframe]
+
+  fn new(String) -> AnimationClip
+}
+pub fn AnimationClip::add_curve_to_target(Self, AnimationTargetId, VariableCurve) -> Unit
+pub fn AnimationClip::add_event(Self, Double, String, dispatch? : AnimationClipEventDispatch) -> Unit
+pub fn AnimationClip::new(String) -> Self
+
+pub(all) struct AnimationClipEventDispatch {
+  target : AnimationTargetId?
+}
+pub impl Eq for AnimationClipEventDispatch
+pub impl Show for AnimationClipEventDispatch
+
+pub(all) struct AnimationClipEventKeyframe {
+  time : Double
+  name : String
+  dispatch : AnimationClipEventDispatch
+}
+pub impl Eq for AnimationClipEventKeyframe
+pub impl Show for AnimationClipEventKeyframe
+
+pub(all) struct AnimationClipHandle(UInt)
+#deprecated
+pub fn AnimationClipHandle::inner(Self) -> UInt
+pub impl Eq for AnimationClipHandle
+pub impl Hash for AnimationClipHandle
+pub impl Show for AnimationClipHandle
+
+pub(all) struct AnimationEvent {
+  clip : AnimationClipHandle
+  player : @entity.Entity
+  target : @entity.Entity?
+  name : String
+  time : Double
+}
+pub impl Eq for AnimationEvent
+pub impl Show for AnimationEvent
+
+pub(all) struct AnimationGraph {
+  root : AnimationNodeIndex
+  nodes : Map[AnimationNodeIndex, AnimationGraphNode]
+  mut next_node : UInt
+
+  fn new() -> AnimationGraph
+}
+pub fn AnimationGraph::add_add(Self, parent? : AnimationNodeIndex, weight? : Double) -> AnimationNodeIndex
+pub fn AnimationGraph::add_blend(Self, parent? : AnimationNodeIndex, weight? : Double) -> AnimationNodeIndex
+pub fn AnimationGraph::add_clip(Self, AnimationClipHandle, parent? : AnimationNodeIndex, weight? : Double, mask_groups? : Array[Int]) -> AnimationNodeIndex
+pub fn AnimationGraph::connect(Self, AnimationNodeIndex, AnimationNodeIndex, weight? : Double) -> Unit
+pub fn AnimationGraph::new() -> Self
+pub fn AnimationGraph::root_node(Self) -> AnimationNodeIndex
+pub fn AnimationGraph::set_edge_weight(Self, AnimationNodeIndex, AnimationNodeIndex, Double) -> Unit
+
+pub(all) struct AnimationGraphEdge {
+  child : AnimationNodeIndex
+  mut weight : Double
+}
+
+pub(all) struct AnimationGraphHandle(UInt)
+#deprecated
+pub fn AnimationGraphHandle::inner(Self) -> UInt
+pub impl Eq for AnimationGraphHandle
+pub impl Hash for AnimationGraphHandle
+pub impl Show for AnimationGraphHandle
+
+pub(all) struct AnimationGraphNode {
+  node_type : AnimationGraphNodeType
+  children : Array[AnimationGraphEdge]
+}
+
+pub(all) enum AnimationGraphNodeType {
+  Blend
+  Add
+  Clip(AnimationClipHandle, UInt)
+}
+
+pub(all) struct AnimationMask {
+  mask : UInt
+
+  fn new(Array[Int]) -> AnimationMask
+}
+pub fn AnimationMask::new(Array[Int]) -> Self
+pub impl Eq for AnimationMask
+pub impl Show for AnimationMask
+
+pub(all) struct AnimationNodeIndex(UInt)
+#deprecated
+pub fn AnimationNodeIndex::inner(Self) -> UInt
+pub impl Eq for AnimationNodeIndex
+pub impl Hash for AnimationNodeIndex
+pub impl Show for AnimationNodeIndex
+
+pub(all) struct AnimationPlayer {
+  active_animations : Map[AnimationNodeIndex, ActiveAnimation]
+
+  fn new() -> AnimationPlayer
+}
+pub fn AnimationPlayer::active(Self, AnimationNodeIndex) -> ActiveAnimation?
+pub fn AnimationPlayer::new() -> Self
+pub fn AnimationPlayer::pause(Self, AnimationNodeIndex) -> Unit
+pub fn AnimationPlayer::play(Self, AnimationNodeIndex, repeat? : RepeatAnimation) -> Unit
+pub fn AnimationPlayer::seek_to(Self, AnimationNodeIndex, Double) -> Unit
+pub fn AnimationPlayer::set_repeat(Self, AnimationNodeIndex, RepeatAnimation) -> Unit
+pub fn AnimationPlayer::set_speed(Self, AnimationNodeIndex, Double) -> Unit
+pub fn AnimationPlayer::set_weight(Self, AnimationNodeIndex, Double) -> Unit
+pub fn AnimationPlayer::stop(Self, AnimationNodeIndex) -> Unit
+pub fn AnimationPlayer::unpause(Self, AnimationNodeIndex) -> Unit
+
+pub(all) struct AnimationTargetId(String)
+pub fn AnimationTargetId::from_names(Array[String]) -> Self
+#deprecated
+pub fn AnimationTargetId::inner(Self) -> String
+pub fn AnimationTargetId::new(String) -> Self
+pub fn AnimationTargetId::path(Self) -> String
+pub impl Eq for AnimationTargetId
+pub impl Hash for AnimationTargetId
+pub impl Show for AnimationTargetId
+
+pub(all) struct AnimationTransitions {
+  mut main : AnimationNodeIndex?
+  fading : Map[AnimationNodeIndex, TransitionEntry]
+
+  fn new() -> AnimationTransitions
+}
+pub fn AnimationTransitions::new() -> Self
+pub fn AnimationTransitions::play(Self, AnimationPlayer, AnimationNodeIndex, Double, repeat? : RepeatAnimation) -> Unit
+
+pub(all) enum AnimationValueKind {
+  Scalar
+  Vec3
+  Quat
+  Weights
+}
+pub impl Eq for AnimationValueKind
+pub impl Show for AnimationValueKind
+
+pub(all) enum ChannelInterpolation {
+  Step
+  Linear
+  CubicSpline
+}
+pub impl Eq for ChannelInterpolation
+pub impl Show for ChannelInterpolation
+
+pub(all) struct MorphMeshBinding3D {
+  target_entity : @entity.Entity
+  mesh : @render3d_types.MeshHandle
+  base_positions : Array[@math.Vec3]
+  base_normals : Array[@math.Vec3]
+  uv_sets : Array[Array[@math.Vec2D]]
+  colors : Array[@render.Color]?
+  tangents : Array[@render3d_types.Tangent3D]?
+  morph_targets : Array[MorphTargetBinding3D]
+  mut morph_weights : Array[Double]
+}
+
+pub(all) struct MorphTargetBinding3D {
+  position_deltas : Array[@math.Vec3]?
+  normal_deltas : Array[@math.Vec3]?
+}
+pub impl Eq for MorphTargetBinding3D
+pub impl Show for MorphTargetBinding3D
+
+pub(all) struct QuatKeyframe {
+  time : Double
+  value : @math.Quat
+  in_tangent : @math.Quat?
+  out_tangent : @math.Quat?
+}
+pub impl Eq for QuatKeyframe
+pub impl Show for QuatKeyframe
+
+pub(all) enum RepeatAnimation {
+  Never
+  Forever
+  Count(UInt)
+}
+pub impl Eq for RepeatAnimation
+pub impl Show for RepeatAnimation
+
+pub(all) struct ScalarKeyframe {
+  time : Double
+  value : Double
+  in_tangent : Double?
+  out_tangent : Double?
+}
+pub impl Eq for ScalarKeyframe
+pub impl Show for ScalarKeyframe
+
+pub(all) struct SkinVertexInfluence3D {
+  joint0 : Int
+  joint1 : Int
+  joint2 : Int
+  joint3 : Int
+  weight0 : Double
+  weight1 : Double
+  weight2 : Double
+  weight3 : Double
+}
+
+pub(all) struct SkinnedMeshBinding3D {
+  target_entity : @entity.Entity
+  mesh : @render3d_types.MeshHandle
+  base_positions : Array[@math.Vec3]
+  base_normals : Array[@math.Vec3]
+  uv_sets : Array[Array[@math.Vec2D]]
+  colors : Array[@render.Color]?
+  tangents : Array[@render3d_types.Tangent3D]?
+  morph_targets : Array[MorphTargetBinding3D]
+  mut morph_weights : Array[Double]
+  influences : Array[SkinVertexInfluence3D]
+  joint_entities : Array[@entity.Entity]
+  inverse_bind_matrices : Array[@math.Mat4]
+}
+
+pub(all) struct TransitionEntry {
+  mut remaining : Double
+  total : Double
+  start_weight : Double
+}
+
+pub(all) enum VariableCurve {
+  Scalar(AnimatedFieldHandle, Array[ScalarKeyframe], ChannelInterpolation)
+  Vec3(AnimatedFieldHandle, Array[Vec3Keyframe], ChannelInterpolation)
+  Quat(AnimatedFieldHandle, Array[QuatKeyframe], ChannelInterpolation)
+  Weights(AnimatedFieldHandle, Array[WeightKeyframe], ChannelInterpolation)
+}
+pub fn VariableCurve::quat(AnimatedFieldHandle, Array[QuatKeyframe], interpolation? : ChannelInterpolation) -> Self
+pub fn VariableCurve::scalar(AnimatedFieldHandle, Array[ScalarKeyframe], interpolation? : ChannelInterpolation) -> Self
+pub fn VariableCurve::vec3(AnimatedFieldHandle, Array[Vec3Keyframe], interpolation? : ChannelInterpolation) -> Self
+pub fn VariableCurve::weights(AnimatedFieldHandle, Array[WeightKeyframe], interpolation? : ChannelInterpolation) -> Self
+
+pub(all) struct Vec3Keyframe {
+  time : Double
+  value : @math.Vec3
+  in_tangent : @math.Vec3?
+  out_tangent : @math.Vec3?
+}
+pub impl Eq for Vec3Keyframe
+pub impl Show for Vec3Keyframe
+
+pub(all) struct WeightKeyframe {
+  time : Double
+  value : Array[Double]
+  in_tangent : Array[Double]?
+  out_tangent : Array[Double]?
+}
+pub impl Eq for WeightKeyframe
+pub impl Show for WeightKeyframe
+
+// Type aliases
+
+// Traits
+

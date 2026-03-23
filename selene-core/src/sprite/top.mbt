@@ -44,8 +44,14 @@ pub(all) struct Sprite {
 }
 
 ///|
+pub(all) struct SpriteFrameIndex {
+  mut frame : Double
+}
+
+///|
 priv struct SpriteWorldStore {
   sprites : Map[@entity.Entity, Sprite]
+  sprite_frame_indices : Map[@entity.Entity, SpriteFrameIndex]
 }
 
 ///|
@@ -54,7 +60,10 @@ let sprite_world_stores : Map[UInt, SpriteWorldStore] = Map::new()
 ///|
 fn sprite_world_store() -> SpriteWorldStore {
   let world_id = @ecs.require_current_world().id()
-  sprite_world_stores.get_or_init(world_id, () => { sprites: Map::new() })
+  sprite_world_stores.get_or_init(world_id, () => {
+    sprites: Map::new(),
+    sprite_frame_indices: Map::new(),
+  })
 }
 
 ///|
@@ -63,9 +72,14 @@ pub fn sprites() -> Map[@entity.Entity, Sprite] {
 }
 
 ///|
+pub fn sprite_frame_indices() -> Map[@entity.Entity, SpriteFrameIndex] {
+  sprite_world_store().sprite_frame_indices
+}
+
+///|
 pub enum SpriteType {
   Picture(Picture)
-  Animation(Animation, mut frame~ : Double)
+  Animation(Animation)
   Text(Text)
   ColorRect(ColorRect)
   ColorCircle(ColorCircle)
@@ -74,7 +88,7 @@ pub enum SpriteType {
 ///|
 /// Make an animation sprite with default animation state.
 pub fn Sprite::from_animation(animation : Animation) -> Sprite {
-  { sprite_type: SpriteType::Animation(animation, frame=0), visible: true }
+  { sprite_type: SpriteType::Animation(animation), visible: true }
 }
 
 ///|
@@ -164,6 +178,7 @@ pub fn Sprite::from_color_circle(color_circle : ColorCircle) -> Sprite {
 /// Panics if an entity has a sprite but no position component.
 ///
 pub fn render_sprite_system(delta : Double) -> Unit {
+  ignore(delta)
   let sprite_entries = sprites()
     .to_array()
     .filter(fn(pair) { pair.0.is_alive() && @visibility.is_visible(pair.0) })
@@ -204,17 +219,18 @@ pub fn render_sprite_system(delta : Double) -> Unit {
           false,
           external_transform=sprite_transform,
         )
-      SpriteType::Animation(anime, frame~) as animation_sprite => {
-        let new_frame = render_animation(
+      SpriteType::Animation(anime) => {
+        let current_frame = sprite_frame_indices()
+          .get(e)
+          .map_or(0.0, fn(index) { index.frame })
+        render_animation(
           anime,
-          frame,
+          current_frame,
           screen_pos,
           false,
           sprite.visible,
-          delta,
           external_transform=sprite_transform,
         )
-        animation_sprite.frame = new_frame
       }
       SpriteType::Text(text) if sprite.visible =>
         render_text(

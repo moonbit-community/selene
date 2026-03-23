@@ -17,9 +17,9 @@ pub fn is_animation_finished(@entity.Entity) -> Bool
 
 pub fn measure_text_size(Text) -> @math.Vec2D
 
-pub fn play_animation(@entity.Entity, Animation, from_start? : Bool, loop_? : Bool, rate? : Double, transform? : @math.Transform) -> Unit
-
 pub fn render_sprite_system(Double) -> Unit
+
+pub fn sprite_frame_indices() -> Map[@entity.Entity, SpriteFrameIndex]
 
 pub fn sprites() -> Map[@entity.Entity, Sprite]
 
@@ -86,9 +86,13 @@ pub fn Sprite::from_color_rect(ColorRect) -> Self
 pub fn Sprite::from_picture(Picture) -> Self
 pub fn Sprite::from_text(Text) -> Self
 
+pub(all) struct SpriteFrameIndex {
+  mut frame : Double
+}
+
 pub enum SpriteType {
   Picture(Picture)
-  Animation(Animation, mut frame~ : Double)
+  Animation(Animation)
   Text(Text)
   ColorRect(ColorRect)
   ColorCircle(ColorCircle)

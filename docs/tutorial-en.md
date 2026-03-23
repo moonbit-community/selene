@@ -233,10 +233,14 @@ let player_idle_animation : @sprite.Animation = @sprite.Animation::new(
 
 `loop_` controls looping; `fps` controls playback speed.
 
-Play animation with:
+Attach a sprite animation player with:
 
 ```moonbit
-@sprite.play_animation(game_state.player, player_idle_animation)
+@sprite.sprites().set(
+  game_state.player,
+  @sprite.Sprite::from_animation(player_idle_animation),
+)
+ignore(@animation.attach_sprite_animation_player(game_state.player, player_idle_animation))
 ```
 
 Input handling uses `@inputs`:

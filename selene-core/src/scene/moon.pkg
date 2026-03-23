@@ -1,5 +1,5 @@
 import {
-  "Milky2018/selene/animation3d",
+  "Milky2018/selene/animation",
   "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/render3d",

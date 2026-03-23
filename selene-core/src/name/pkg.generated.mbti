@@ -1,0 +1,28 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/name"
+
+import {
+  "Milky2018/selene/entity",
+}
+
+// Values
+pub fn name_of(@entity.Entity) -> String?
+
+pub fn names() -> Map[@entity.Entity, Name]
+
+// Errors
+
+// Types and methods
+pub(all) struct Name {
+  value : String
+
+  fn new(String) -> Name
+}
+pub fn Name::new(String) -> Self
+pub impl Eq for Name
+pub impl Show for Name
+
+// Type aliases
+
+// Traits
+

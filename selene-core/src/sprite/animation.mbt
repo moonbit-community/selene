@@ -306,101 +306,12 @@ pub fn frames_from_image_atlas(
 }
 
 ///|
-/// Starts or updates an animation for the specified entity with customizable
-/// playback settings.
+/// Renders a specific animation frame to the backend.
 ///
 /// Parameters:
 ///
-/// * `entity` : The entity to attach the animation to.
-/// * `animation` : The animation configuration containing frames, timing, and
-///   transform data.
-/// * `from_start` : Whether to restart the animation from the first frame, even
-///   if the same animation is already playing (default: `false`).
-/// * `loop_` : Whether the animation should loop continuously. If not
-///   specified, uses the animation's default loop setting.
-/// * `rate` : The playback speed in frames per second. If not specified, uses
-///   the animation's default FPS.
-/// * `transform` : The transformation matrix for position, rotation, and scale.
-///   If not specified, uses the animation's default transform.
-///
-/// Panics if the entity does not have an existing sprite component with an
-/// animation.
-///
-/// Example:
-///
-/// ```moonbit skip
-/// let entity = @entity.Entity::new()
-/// defer entity.destroy()
-/// // Create an animation
-/// let frames = @sprite.frames_from_atlas(
-///   "player_walk.png",
-///   8,
-///   width=32.0,
-///   height=32.0
-/// )
-/// let walk_animation = @sprite.Animation::new(
-///   frames,
-///   loop_=true,
-///   fps=12.0
-/// )
-///
-/// // Play the animation on an entity
-/// @sprite.play_animation(entity, walk_animation)
-///
-/// // Play with custom settings
-/// @sprite.play_animation(
-///   entity,
-///   walk_animation,
-///   from_start=true,
-///   rate=24.0,
-///   transform=@math.Transform::from_translation(100.0, 200.0)
-/// )
-/// ```
-///
-pub fn play_animation(
-  entity : @entity.Entity,
-  animation : Animation,
-  from_start? : Bool = false,
-  loop_? : Bool,
-  rate? : Double,
-  transform? : @math.Transform,
-  // backward~ : Bool = false,
-) -> Unit {
-  guard sprites().get(entity)
-    is Some(
-      { sprite_type: Animation(current_anime, frame=current_frame), visible }
-    )
-  let loop_ = loop_.unwrap_or(animation.loop_)
-  let rate = rate.unwrap_or(animation.fps)
-  let transform = transform.unwrap_or(animation.transform)
-  let frame = if !from_start && animation.id == current_anime.id {
-    current_frame
-  } else {
-    0.0
-  }
-  let new_anime = {
-    frames: animation.frames,
-    transform,
-    loop_,
-    fps: rate,
-    color: animation.color,
-    id: animation.id,
-  }
-  sprites().set(entity, {
-    sprite_type: SpriteType::Animation(new_anime, frame~),
-    visible,
-  })
-}
-
-///|
-/// Renders an animation frame to the backend and advances the animation to the
-/// next frame.
-///
-/// Parameters:
-///
-/// * `backend` : The rendering backend used to draw the sprite frame.
 /// * `animation` : The animation configuration containing sprite sheet
-///   information, current frame state, and playback settings.
+///   information and local transform data.
 /// * `pos` : The screen position where the animation should be rendered.
 ///
 fn render_animation(
@@ -409,10 +320,26 @@ fn render_animation(
   pos : @math.Vec2D,
   scale_with_zoom : Bool,
   visible : Bool,
-  delta : Double,
   external_transform? : @math.Transform = @math.Transform::identity(),
-) -> Double {
-  let frame = animation.frames[current_frame.to_int()]
+) -> Unit {
+  let max_frame = animation.frames.length().to_double()
+  let clamped_frame = if max_frame <= 1.0 {
+    0.0
+  } else if animation.loop_ {
+    let wrapped = current_frame % max_frame
+    if wrapped < 0.0 {
+      wrapped + max_frame
+    } else {
+      wrapped
+    }
+  } else if current_frame < 0.0 {
+    0.0
+  } else if current_frame >= max_frame {
+    max_frame - 0.01
+  } else {
+    current_frame
+  }
+  let frame = animation.frames[clamped_frame.to_int()]
   if visible {
     let size = if scale_with_zoom {
       @system.scale_vec2(frame.size)
@@ -435,15 +362,6 @@ fn render_animation(
     }
     @render2d.push_image(command)
   }
-  let mut new_frame = current_frame + animation.fps * delta
-  if new_frame.to_int() >= animation.frames.length() {
-    if animation.loop_ {
-      new_frame = 0
-    } else {
-      new_frame = animation.frames.length().to_double() - 0.01
-    }
-  }
-  new_frame
 }
 
 ///|
@@ -475,18 +393,17 @@ fn render_animation(
 ///   fps=12.0
 /// )
 ///
-/// // Play the animation on an entity
-/// @sprite.play_animation(entity, explosion_animation)
-///
 /// // Check if the explosion animation has finished
 /// inspect(@sprite.is_animation_finished(entity))
 /// ```
 ///
 pub fn is_animation_finished(entity : @entity.Entity) -> Bool {
-  guard sprites().get(entity)
-    is Some({ sprite_type: Animation(anime, frame~), .. }) else {
+  guard sprites().get(entity) is Some({ sprite_type: Animation(anime), .. }) else {
     true
   }
+  let frame = sprite_frame_indices()
+    .get(entity)
+    .map_or(0.0, fn(value) { value.frame })
   if anime.loop_ {
     return false
   }

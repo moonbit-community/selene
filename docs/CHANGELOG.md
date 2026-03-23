@@ -11,6 +11,11 @@
 - Added `@camera.Camera2d` marker component with `Camera2d::new()`.
 - Added `@camera.OrthographicProjection` component with `OrthographicProjection::new(scale?, near?, far?)`.
 - Added `@camera.cameras()`, `@camera.camera2ds()`, and `@camera.orthographic_projections()` world stores.
+- Added `selene/name` with `Name::new(value)`, `@name.names()`, and `@name.name_of(entity)` for stable animation target path resolution.
+- Added unified `selene/animation` with `AnimationClip`, `AnimationClipHandle`, `AnimationGraph`, `AnimationGraphHandle`, `AnimationNodeIndex`, `AnimationPlayer`, `ActiveAnimation`, `AnimationTransitions`, `RepeatAnimation`, `AnimationTargetId`, `AnimatedBy`, `AnimationMask`, `AnimationEvent`, `VariableCurve`, `AnimatedField`, and the corresponding world stores/systems.
+- Added `@animation.transform_translation_field()`, `transform_rotation_field()`, `transform_scale_field()`, `morph_weights_field()`, and `sprite_frame_index_field()` as the built-in animatable fields for transform, morph, and 2D flipbook playback.
+- Added `@animation.register_animation_clip(...)`, `register_animation_graph(...)`, `register_animated_field(...)`, `register_sprite_animation_clip(...)`, and `attach_sprite_animation_player(...)`.
+- Added `@sprite.SpriteFrameIndex` and `@sprite.sprite_frame_indices()` so 2D sprite frame playback lives in animation runtime state instead of inside `SpriteType::Animation`.
 
 ### Changed
 
@@ -26,12 +31,18 @@
 - Changed `@sprite.Sprite::from_animation(...)`, `from_picture(...)`, `from_text(...)`, `from_color_rect(...)`, and `from_color_circle(...)` to construct only sprite content/visibility; local visual offsets now belong in the picture/animation transform, and render depth belongs in entity `Transform.translation.z`.
 - Changed `@scene`, `@scene3d`, `@camera3d`, `@render3d`, `@physics3d`, `@animation3d`, and `examples/scene3d` to read unified `@transform.Transform` / `@transform.GlobalTransform` stores directly instead of the `@transform3d` bridge package.
 - Changed `@plugins.default_plugin` and `@plugins.default_3d_plugin` to register unified `@transform.transform_propagate_system` scheduling directly instead of going through the removed `@inherit` bridge.
+- Changed `@plugins.default_plugin` and `@plugins.default_3d_plugin` to install the unified animation schedule (`animation_player_system`, `animation_transition_system`, `animation_apply_system`, and `animation_skinning_system`) and to register `@animation.animation_event_bus`.
 - Changed pickable hit-testing to evaluate rectangle shapes in entity-local space derived from `GlobalTransform`, so rotated colliders follow the rendered sprite transform.
 - Changed tiled world chunking and parallax logic to read visible bounds from `Camera::viewport_to_world_2d(...)` instead of the removed global 2D camera singleton.
 - Changed `examples/cards`, `examples/pixeladventure`, and `examples/survivors` to write world-space positions through `@transform.Transform::from_xyz(...)`; `pixeladventure` and `survivors` now spawn explicit camera entities and run follow/clamp logic in example systems instead of using engine-global camera helpers.
 - Changed `@plugins.default_plugin` to stop installing the removed legacy 2D camera follow system.
 - Changed `examples/pixeladventure` to a small pure-ECS example split into `model.mbt`, `spawn.mbt`, and `systems.mbt`, replacing the old module-global `game_state` / `birds` / `apples` / `flags` state and removing the example's dependency on `@state.State`.
 - Changed `examples/pixeladventure/assets/pixeladventure` to keep only the runtime assets used by the rewritten example, removing the rest of the unused source art pack from the repository copy.
+- Changed `@scene3d.SceneInstance.animations` and `@scene3d.scene_instance_animation(...)` to expose `@animation.AnimationNodeIndex` values instead of 3D clip handles.
+- Changed `@scene.scene_animation(...)` to return `@animation.AnimationNodeIndex?`.
+- Changed glTF scene import to build unified `AnimationClip` assets and per-scene `AnimationGraph` nodes, attach `AnimationPlayer + AnimationTransitions` to animated roots, and bind descendants through `Name`-based `AnimationTargetId` / `AnimatedBy`.
+- Changed `SpriteType::Animation` to store only the animation asset; frame advancement now comes from `@animation` writing `@sprite.SpriteFrameIndex`.
+- Changed Tiled animated tiles, `examples/pixeladventure`, and `examples/survivors` to drive sprite flipbooks through `AnimationPlayer`/`AnimationTransitions` instead of the removed `@sprite.play_animation(...)`.
 
 ### Fixed
 
@@ -44,6 +55,8 @@
 - Fixed `examples/pixeladventure/index.html` to stop preloading the entire Pixel Adventure asset pack before startup; the page now lets the game load only the assets it actually uses.
 - Fixed `examples/preload-assets.js` to preload example assets during browser idle time with limited concurrency instead of issuing one `fetch` per asset through a single `Promise.all(...)`, which previously overwhelmed large examples such as `pixeladventure`.
 - Fixed the `selene-webgpu` browser frame scheduler to deliver one accumulated frame delta per animation frame instead of replaying multiple full `game_loop` / `render_loop` iterations inside a single `requestAnimationFrame`, which previously caused severe lag and frame-delta amplification in web examples such as `pixeladventure`.
+- Fixed 2D sprite animations so frame advancement, non-loop completion, and state transitions now run through the same unified runtime as 3D animation clips.
+- Fixed `examples/pixeladventure` and `examples/survivors` so player/enemy flipbooks no longer restart every frame; state changes now switch graph nodes only when the desired animation actually changes.
 
 ### Removed
 
@@ -52,6 +65,8 @@
 - Removed `@transform.positions()`, `@transform.previous_positions()`, and `@transform.sample_position(entity, alpha)` from the unified transform package.
 - Removed `Entity::spawn_child(offset=...)`, `Entity::set_offset(...)`, and `Entity::get_offset()`; child local offsets are now stored only in the child entity's `@transform.Transform`.
 - Removed `Sprite.zindex` and `Sprite.offset`, along with the old `zindex` / `offset` constructor parameters on `Sprite::from_animation(...)`, `from_picture(...)`, `from_text(...)`, `from_color_rect(...)`, and `from_color_circle(...)`.
+- Removed `selene/animation3d` and its legacy graph/player API surface (`AnimationGraph3D`, `AnimationPlayer3D`, `animation_players3d()`, `play_clip`, `play_state`, `set_animation_graph`, `trigger_animation`, `attach_animation_player`, `bind_animation_targets`, `animation3d_player_system`, and `animation3d_skinning_system`).
+- Removed `@sprite.play_animation(...)`; 2D sprite playback now requires `@animation.AnimationPlayer` / `AnimationTransitions` over `Sprite.frame_index`.
 - Removed the `transform3d` package and its alias APIs (`Transform3D`, `GlobalTransform3D`, `transforms3d()`, `global_transforms3d()`, `previous_global_transforms3d()`, `capture_previous_global_transforms3d*`, `sample_global_*3d`, and `transform3d_propagate_system`).
 - Removed the `inherit` package and its bridge APIs (`transform_propagate_system` and `inherit_position_system`).
 - Removed the `position` package and its legacy 2D position APIs (`Position`, `positions()`, `previous_positions()`, `capture_previous_positions()`, and `sample_position()`).

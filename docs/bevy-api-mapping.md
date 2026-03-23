@@ -96,7 +96,7 @@ Rows in this table may reference removed legacy packages or aliases. They are ke
 | `@physics3d.sensors3d` | `@physics3d.sensors3d()` | 3D sensor authored store is now resolved from the active world. |
 | `@physics3d.linear_velocities3d` | `@physics3d.linear_velocities3d()` | 3D linear-velocity authored store is now resolved from the active world. |
 | `@physics3d.angular_velocities3d` | `@physics3d.angular_velocities3d()` | 3D angular-velocity authored store is now resolved from the active world. |
-| `@animation3d.animation_players3d` | `@animation3d.animation_players3d()` | 3D animation player component store is now resolved from the active world. |
+| `@animation.animation_players` | `@animation.animation_players()` | Unified animation player component store is now resolved from the active world. |
 | `@audio.audio_players` | `@audio.audio_players()` | Audio player component store is now resolved from the active world. |
 | `@audio.audio_playback_settings` | `@audio.audio_playback_settings()` | Audio playback-settings store is now resolved from the active world. |
 | `@audio.audio_sinks` | `@audio.audio_sinks()` | Audio sink component store is now resolved from the active world. |
@@ -213,6 +213,6 @@ Rows in this table may reference removed legacy packages or aliases. They are ke
 - `camera3d` authored camera store is stored per `world.id`.
 - `render3d` authored mesh/light component stores are stored per `world.id`.
 - `physics3d` authored component stores are stored per `world.id`.
-- `animation3d` player/target/skinning/morph runtime maps are stored per `world.id`.
+- `animation` player/graph/transition/target/skinning/morph runtime maps are stored per `world.id`.
 - `audio` player/settings/sink component stores are stored per `world.id`.
 - `a11y` authored component store is stored per `world.id`.

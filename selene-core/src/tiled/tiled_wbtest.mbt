@@ -82,7 +82,7 @@ fn test_tile_cell(x : Int, y : Int) -> TiledCell {
 fn animation_image_path(entity : @entity.Entity) -> String? {
   guard @sprite.sprites().get(entity) is Some(sprite) else { return None }
   match sprite.sprite_type {
-    Animation(animation, ..) =>
+    Animation(animation) =>
       if animation.frames.length() == 0 {
         None
       } else {
@@ -1092,7 +1092,7 @@ test "spawn_tiled_map expands tiled animated tiles into frame timelines" {
       return
     }
     match sprite.sprite_type {
-      Animation(animation, ..) => {
+      Animation(animation) => {
         inspect(animation.loop_, content="true")
         inspect(animation.fps.to_int(), content="10")
         inspect(animation.frames.length(), content="3")

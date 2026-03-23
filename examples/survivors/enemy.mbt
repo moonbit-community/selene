@@ -274,6 +274,7 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
         )
         @physics2d.linear_velocities().set(enemy, @math.Vec2D::zero())
         let data = get_enemy_data(enemy_type)
+        let (left_node, right_node) = create_enemy_animation_nodes(enemy, data)
 
         // Create sprite and enemy state using data structure
         let sprite = @sprite.Sprite::from_animation(data.right_animation)
@@ -282,6 +283,9 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
           speed: data.speed,
           health: data.health,
           shoot_timer: 0.0,
+          left_node,
+          right_node,
+          current_node: None,
         }
         @sprite.sprites().set(enemy, sprite)
         @physics2d.shapes().set(
@@ -300,6 +304,12 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
           ),
         )
         enemies.set(enemy, enemy_state)
+        play_enemy_animation_state(
+          enemy,
+          enemy_state,
+          data.right_animation,
+          right_node,
+        )
       }
       None => () // No more enemies to spawn in this wave
     }
@@ -315,6 +325,9 @@ priv struct Enemy {
   speed : Double
   mut health : Double
   mut shoot_timer : Double // Timer for Devil shooting
+  left_node : @animation.AnimationNodeIndex
+  right_node : @animation.AnimationNodeIndex
+  mut current_node : @animation.AnimationNodeIndex?
 }
 
 ///|
@@ -339,6 +352,40 @@ let enemy_contact_event_reader : @event.EventReader[@physics2d.ContactEvent] = @
 
 ///|
 let enemy_trigger_event_reader : @event.EventReader[@physics2d.TriggerEvent] = @event.EventReader::new()
+
+///|
+fn create_enemy_animation_nodes(
+  entity : @entity.Entity,
+  data : EnemyData,
+) -> (@animation.AnimationNodeIndex, @animation.AnimationNodeIndex) {
+  let graph = @animation.AnimationGraph::new()
+  let right_node = register_sprite_animation_node(graph, data.right_animation)
+  let left_node = register_sprite_animation_node(graph, data.left_animation)
+  ensure_sprite_animation_binding(entity)
+  @animation.animation_graph_handles().set(
+    entity,
+    @animation.register_animation_graph(graph),
+  )
+  (left_node, right_node)
+}
+
+///|
+fn play_enemy_animation_state(
+  entity : @entity.Entity,
+  state : Enemy,
+  animation : @sprite.Animation,
+  node : @animation.AnimationNodeIndex,
+) -> Unit {
+  if state.current_node == Some(node) {
+    return
+  }
+  @sprite.sprites().set(entity, @sprite.Sprite::from_animation(animation))
+  let player = @animation.animation_players().get(entity).unwrap()
+  let transitions = @animation.animation_transitions().get(entity).unwrap()
+  let duration = if state.current_node is Some(_) { 0.05 } else { 0.0 }
+  transitions.play(player, node, duration)
+  state.current_node = Some(node)
+}
 
 ///|
 fn get_enemy_data(enemy_type : EnemyType) -> EnemyData {
@@ -427,9 +474,14 @@ fn enemy_ai_system(_world : @ecs.World) -> Unit {
 
     // Use the appropriate animation based on direction
     if vel[X] >= 0.0 {
-      @sprite.play_animation(e, data.right_animation)
+      play_enemy_animation_state(
+        e,
+        state,
+        data.right_animation,
+        state.right_node,
+      )
     } else {
-      @sprite.play_animation(e, data.left_animation)
+      play_enemy_animation_state(e, state, data.left_animation, state.left_node)
     }
   }
 }

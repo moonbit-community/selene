@@ -50,6 +50,7 @@ fn register_builtin_messages(app : @app.App) -> @app.App {
   .add_message(@inputs.gamepad_axis_event_bus)
   .add_message(@input_action.input_action_event_bus)
   .add_message(@audio.audio_event_bus)
+  .add_message(@animation.animation_event_bus)
   .add_message(@scene.scene_instance_ready_events)
   .add_message(@collision.contact_event_bus)
   .add_message(@collision.trigger_event_bus)
@@ -105,6 +106,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   let gameplay = @system_set.named("gameplay")
   let audio = @system_set.named("audio")
   let time = @system_set.named("time")
+  let animation = @system_set.named("animation")
   let transform = @system_set.named("transform")
   let ui = @system_set.named("ui")
   let render_extract = @system_set.named("render_extract")
@@ -215,11 +217,35 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
+    @animation.animation_player_system,
+    PostUpdate,
+    "Animation Player System",
+    in_set=animation,
+    after=[gameplay],
+  )
+  let app = add_system(
+    app,
+    @animation.animation_transition_system,
+    PostUpdate,
+    "Animation Transition System",
+    in_set=animation,
+    after=[animation],
+  )
+  let app = add_system(
+    app,
+    @animation.animation_apply_system,
+    PostUpdate,
+    "Animation Apply System",
+    in_set=animation,
+    after=[animation],
+  )
+  let app = add_system(
+    app,
     @transform.transform_propagate_system,
     PostUpdate,
     "Transform Propagation System",
     in_set=transform,
-    after=[gameplay],
+    after=[animation],
   )
   let app = add_system(
     app,
@@ -314,6 +340,7 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   let app = register_builtin_messages(app)
   let input = @system_set.named("input")
   let physics = @system_set.named("physics3d")
+  let animation = @system_set.named("animation")
   let transform = @system_set.named("transform")
   let render_extract = @system_set.named("render_extract")
   let render_prepare = @system_set.named("render_prepare")
@@ -380,10 +407,26 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @animation3d.animation3d_player_system,
+    @animation.animation_player_system,
     PostUpdate,
-    "Animation3D Player System",
-    in_set=transform,
+    "Animation Player System",
+    in_set=animation,
+  )
+  let app = add_system(
+    app,
+    @animation.animation_transition_system,
+    PostUpdate,
+    "Animation Transition System",
+    in_set=animation,
+    after=[animation],
+  )
+  let app = add_system(
+    app,
+    @animation.animation_apply_system,
+    PostUpdate,
+    "Animation Apply System",
+    in_set=animation,
+    after=[animation],
   )
   let app = add_system(
     app,
@@ -391,13 +434,13 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
     PostUpdate,
     "Transform Propagation System (Frame)",
     in_set=transform,
-    after=[transform],
+    after=[animation],
   )
   let app = add_system(
     app,
-    @animation3d.animation3d_skinning_system,
+    @animation.animation_skinning_system,
     PostUpdate,
-    "Animation3D Skinning System",
+    "Animation Skinning System",
     in_set=transform,
     after=[transform],
   )
