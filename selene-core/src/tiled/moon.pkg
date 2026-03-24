@@ -2,7 +2,7 @@ import {
   "Milky2018/zstd",
   "Milky2018/selene/animation",
   "Milky2018/selene/asset",
-  "Milky2018/selene/asset2",
+  "Milky2018/selene/asset",
   "Milky2018/selene/camera",
   "Milky2018/selene/ecs",
   "Milky2018/selene/entity",

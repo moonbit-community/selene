@@ -16,7 +16,7 @@
 fn add_background(size : @math.Vec2D) -> Unit {
   let background = @entity.Entity::new()
   let background_sprite = @sprite.Sprite::new(
-    image=Some(@asset2.load_image(background_picture)),
+    image=Some(@asset.load_image(background_picture)),
     custom_size=Some(size),
     anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
     image_mode=@sprite.Tiled(Repeat),

@@ -426,7 +426,7 @@ fn apply_selection(selection : LevelUpSelection) -> Unit {
 ///|
 fn game_start(_world : @ecs.World) -> Unit {
   ignore(
-    @asset2.load_font(
+    @asset.load_font(
       "assets/survivors/fonts/ThaleahFat.ttf",
       family="ThaleahFat",
     ),

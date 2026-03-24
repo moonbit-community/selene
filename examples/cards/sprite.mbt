@@ -23,7 +23,7 @@ fn Card::to_path(self : Card) -> String {
 ///|
 fn Card::to_sprite(self : Card) -> @sprite.Sprite {
   @sprite.Sprite::new(
-    image=Some(@asset2.load_image(self.to_path())),
+    image=Some(@asset.load_image(self.to_path())),
     custom_size=Some(Vec2D(59.0, 84.0)),
   )
 }

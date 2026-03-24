@@ -14,7 +14,7 @@
 
 ///|
 fn game_start(_world : @ecs.World) -> Unit {
-  ignore(@asset2.load_font(FONT_PATH, family=FONT_FAMILY))
+  ignore(@asset.load_font(FONT_PATH, family=FONT_FAMILY))
   @ui.set_ui_scale_mode(@ui.UiScaleMode::Viewport)
   reset_pixeladventure_world_store()
 
@@ -318,9 +318,7 @@ fn spawn_background(size : @math.Vec2D) -> Unit {
   @sprite.sprites().set(
     background,
     @sprite.Sprite::new(
-      image=Some(
-        @asset2.load_image("assets/pixeladventure/Background/Gray.png"),
-      ),
+      image=Some(@asset.load_image("assets/pixeladventure/Background/Gray.png")),
       custom_size=Some(size),
       anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
       image_mode=@sprite.Tiled(Repeat),
@@ -351,7 +349,7 @@ fn spawn_grass_visual(pos : @math.Vec2D, sprite_id : String) -> Unit {
     grass,
     @sprite.Sprite::new(
       image=Some(
-        @asset2.load_image("assets/pixeladventure/Terrain/Terrain (16x16).png"),
+        @asset.load_image("assets/pixeladventure/Terrain/Terrain (16x16).png"),
       ),
       rect=Some({ position: src_pos, size: @math.Vec2D(16.0, 16.0) }),
       custom_size=Some(@math.Vec2D(16.0, 16.0)),
@@ -427,7 +425,7 @@ fn spawn_flag(pos : @math.Vec2D) -> Unit {
     entity,
     @sprite.Sprite::new(
       image=Some(
-        @asset2.load_image(
+        @asset.load_image(
           "assets/pixeladventure/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png",
         ),
       ),

@@ -81,7 +81,7 @@ fn test_tile_cell(x : Int, y : Int) -> TiledCell {
 ///|
 fn animation_image_path(entity : @entity.Entity) -> String? {
   guard @sprite.sprites().get(entity) is Some(sprite) else { return None }
-  let expected_image = @asset2.load_image("maps/terrain.png")
+  let expected_image = @asset.load_image("maps/terrain.png")
   if sprite.image == Some(expected_image) {
     Some("maps/terrain.png")
   } else {

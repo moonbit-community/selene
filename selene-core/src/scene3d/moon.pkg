@@ -1,6 +1,6 @@
 import {
   "Milky2018/selene/animation",
-  "Milky2018/selene/asset2",
+  "Milky2018/selene/asset",
   "Milky2018/selene/camera3d",
   "Milky2018/selene/entity",
   "Milky2018/selene/math",

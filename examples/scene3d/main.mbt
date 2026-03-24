@@ -34,6 +34,26 @@ let spotlight_phase : Ref[Double] = Ref::new(0.0)
 let hud_label : Ref[@entity.Entity?] = Ref::new(None)
 
 ///|
+let physics_label : Ref[@entity.Entity?] = Ref::new(None)
+
+///|
+let dynamic_ball_entity : Ref[@entity.Entity?] = Ref::new(None)
+
+///|
+let joint_ball_entity : Ref[@entity.Entity?] = Ref::new(None)
+
+///|
+let controller_entity : Ref[@entity.Entity?] = Ref::new(None)
+
+///|
+let contact_force_reader : Ref[@event.EventReader[@physics3d.ContactForceEvent]] = Ref::new(
+  @event.EventReader::new(),
+)
+
+///|
+let last_contact_force : Ref[Double] = Ref::new(0.0)
+
+///|
 fn color(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
   @render.Color::{ r, g, b, a }
 }
@@ -41,6 +61,55 @@ fn color(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
 ///|
 fn vec3(x : Double, y : Double, z : Double) -> @math.Vec3 {
   @math.Vec3::new(x, y, z)
+}
+
+///|
+fn update_transform(
+  entity : @entity.Entity,
+  transform : @transform.Transform,
+) -> Unit {
+  @transform.transforms().set(entity, transform)
+}
+
+///|
+fn spawn_sphere(
+  radius : Double,
+  translation : @math.Vec3,
+  base_color : @render.Color,
+) -> @entity.Entity {
+  let mesh = @render3d.register_mesh_asset(@render3d.sphere_mesh(radius))
+  let material = @render3d.register_material_asset({
+    ..@render3d.default_standard_material3d(),
+    base_color,
+    roughness: 0.3,
+  })
+  let entity = @entity.Entity::new()
+  update_transform(entity, {
+    translation,
+    rotation: @math.Quat::identity(),
+    scale: @math.Vec3::one(),
+  })
+  @render3d.mesh3d_renderers().set(entity, {
+    mesh,
+    material,
+    visible: true,
+    cast_shadows: true,
+    receive_shadows: true,
+  })
+  entity
+}
+
+///|
+fn physics_name(entity : @entity.Entity) -> String {
+  if dynamic_ball_entity.val == Some(entity) {
+    "ball"
+  } else if joint_ball_entity.val == Some(entity) {
+    "joint"
+  } else if controller_entity.val == Some(entity) {
+    "controller"
+  } else {
+    "other"
+  }
 }
 
 ///|
@@ -139,6 +208,8 @@ pub fn run() -> Unit {
   .add_system(Startup, setup_scene3d)
   .add_system(Update, rotate_cube_system)
   .add_system(Update, animate_spotlight_system)
+  .add_system(Update, drive_character_controller_system)
+  .add_system(Update, update_physics_overlay_system)
   .run()
 }
 
@@ -179,6 +250,10 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     cast_shadows: false,
     receive_shadows: true,
   })
+  @physics3d.colliders().set(
+    floor,
+    @physics3d.Collider::cuboid(vec3(5.0, 0.02, 5.0)),
+  )
 
   let cube_mesh = @render3d.register_mesh_asset(lit_cube_mesh(1.0))
   let cube_material = @render3d.register_material_asset({
@@ -262,6 +337,110 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     receive_shadows: true,
   })
 
+  let dynamic_ball = spawn_sphere(
+    0.35,
+    vec3(-0.8, 2.7, 1.2),
+    color(224U, 123U, 94U, 1.0),
+  )
+  @physics3d.rigid_bodies().set(dynamic_ball, Dynamic)
+  @physics3d.colliders().set(dynamic_ball, @physics3d.Collider::ball(0.35))
+  @physics3d.velocities().set(dynamic_ball, {
+    linvel: vec3(0.9, 0.0, -0.4),
+    angvel: vec3(0.0, 0.0, 0.0),
+  })
+  @physics3d.contact_force_event_thresholds().set(
+    dynamic_ball,
+    ContactForceEventThreshold(0.0),
+  )
+  @physics3d.active_events().set(
+    dynamic_ball,
+    @collision.ActiveEvents::collision_events().union(
+      @collision.ActiveEvents::contact_force_events(),
+    ),
+  )
+  dynamic_ball_entity.val = Some(dynamic_ball)
+
+  let compound_body = @entity.Entity::new()
+  update_transform(compound_body, {
+    translation: vec3(-3.0, 0.45, -0.8),
+    rotation: @math.Quat::identity(),
+    scale: @math.Vec3::one(),
+  })
+  @render3d.mesh3d_renderers().set(compound_body, {
+    mesh: cube_mesh,
+    material: @render3d.register_material_asset({
+      ..@render3d.default_standard_material3d(),
+      base_color: color(122U, 199U, 156U, 1.0),
+      roughness: 0.5,
+    }),
+    visible: true,
+    cast_shadows: true,
+    receive_shadows: true,
+  })
+  @physics3d.rigid_bodies().set(compound_body, Fixed)
+  @physics3d.colliders().set(
+    compound_body,
+    @physics3d.Collider::cuboid(vec3(0.35, 0.35, 0.35)),
+  )
+
+  let child_collider = compound_body.spawn_child()
+  update_transform(child_collider, {
+    translation: vec3(0.0, 0.75, 0.0),
+    rotation: @math.Quat::identity(),
+    scale: @math.Vec3::one(),
+  })
+  @render3d.mesh3d_renderers().set(child_collider, {
+    mesh: @render3d.register_mesh_asset(@render3d.sphere_mesh(0.22)),
+    material: @render3d.register_material_asset({
+      ..@render3d.default_standard_material3d(),
+      base_color: color(178U, 240U, 212U, 1.0),
+      roughness: 0.3,
+    }),
+    visible: true,
+    cast_shadows: true,
+    receive_shadows: true,
+  })
+  @physics3d.colliders().set(child_collider, @physics3d.Collider::ball(0.22))
+
+  let joint_anchor = spawn_sphere(
+    0.14,
+    vec3(3.25, 2.7, 1.2),
+    color(245U, 245U, 245U, 1.0),
+  )
+  @physics3d.rigid_bodies().set(joint_anchor, Fixed)
+  @physics3d.colliders().set(joint_anchor, @physics3d.Collider::ball(0.14))
+
+  let joint_ball = spawn_sphere(
+    0.28,
+    vec3(3.8, 1.5, 1.2),
+    color(234U, 196U, 102U, 1.0),
+  )
+  @physics3d.rigid_bodies().set(joint_ball, Dynamic)
+  @physics3d.colliders().set(joint_ball, @physics3d.Collider::ball(0.28))
+  @physics3d.impulse_joints().set(joint_ball, {
+    parent: joint_anchor,
+    data: Spherical({
+      ..@physics3d.SphericalJoint::new(),
+      local_anchor1: vec3(0.0, 0.0, 0.0),
+      local_anchor2: vec3(-0.55, 1.2, 0.0),
+    }),
+    contacts_enabled: false,
+  })
+  joint_ball_entity.val = Some(joint_ball)
+
+  let controller = spawn_sphere(
+    0.3,
+    vec3(0.0, 0.35, -2.1),
+    color(110U, 182U, 255U, 1.0),
+  )
+  @physics3d.rigid_bodies().set(controller, KinematicPositionBased)
+  @physics3d.colliders().set(controller, @physics3d.Collider::ball(0.3))
+  @physics3d.kinematic_character_controllers().set(
+    controller,
+    @physics3d.KinematicCharacterController::default(),
+  )
+  controller_entity.val = Some(controller)
+
   let spotlight = @entity.Entity::new()
   @transform.transforms().set(spotlight, {
     translation: vec3(3.2, 3.0, 0.0),
@@ -330,6 +509,28 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
   @ui.text_colors().set(label, @ui.TextColor::new(color(245U, 245U, 245U, 1.0)))
   @ui.z_indexes().set(label, @ui.ZIndex::new(100))
   hud_label.val = Some(label)
+
+  let physics_text = @entity.Entity::new()
+  @ui.nodes().set(
+    physics_text,
+    @ui.Node::absolute(@math.Vec2D(16.0, 46.0), size=@math.Vec2D(620.0, 28.0)),
+  )
+  @ui.texts().set(
+    physics_text,
+    @ui.Text::new(
+      "physics: ball, child collider, joint, controller, raycast, contact force",
+    ),
+  )
+  @ui.text_fonts().set(
+    physics_text,
+    @ui.TextFont::new(family="sans-serif", size=18.0),
+  )
+  @ui.text_colors().set(
+    physics_text,
+    @ui.TextColor::new(color(214U, 224U, 235U, 1.0)),
+  )
+  @ui.z_indexes().set(physics_text, @ui.ZIndex::new(100))
+  physics_label.val = Some(physics_text)
 }
 
 ///|
@@ -367,4 +568,61 @@ fn animate_spotlight_system(_world : @ecs.World) -> Unit {
   if @render3d.spot_lights3d().get(spotlight) is Some(light) {
     @render3d.spot_lights3d().set(spotlight, { ..light, direction, })
   }
+}
+
+///|
+fn drive_character_controller_system(_world : @ecs.World) -> Unit {
+  guard controller_entity.val is Some(controller) else { return }
+  guard @physics3d.kinematic_character_controllers().get(controller)
+    is Some(config) else {
+    return
+  }
+  let delta = @time.delta()
+  let input = @inputs.key_vector(KeyW, KeyS, KeyA, KeyD)
+  let movement = if input == @math.Vec2D::zero() {
+    vec3(0.0, 0.0, 0.0)
+  } else {
+    let planar = input.normalize().scalar_mul(2.4 * delta)
+    vec3(planar[X], 0.0, planar[Y])
+  }
+  @physics3d.kinematic_character_controllers().set(controller, {
+    ..config,
+    translation: Some(movement),
+  })
+}
+
+///|
+fn update_physics_overlay_system(_world : @ecs.World) -> Unit {
+  let mut strongest_force = last_contact_force.val * 0.88
+  for event in contact_force_reader.val.read(@physics3d.contact_force_event_bus) {
+    strongest_force = Double::max(strongest_force, event.total_force_magnitude)
+  }
+  last_contact_force.val = strongest_force
+
+  let ray_hit = @physics3d.context().cast_ray(
+    vec3(0.0, 5.0, 1.2),
+    vec3(0.0, -1.0, 0.0),
+    query_filter=@physics3d.QueryFilter::only_dynamic(),
+  )
+  let ray_label = match ray_hit {
+    Some(hit) => physics_name(hit.entity)
+    None => "none"
+  }
+  let controller_status = match controller_entity.val {
+    Some(controller) =>
+      match
+        @physics3d.kinematic_character_controller_outputs().get(controller) {
+        Some(output) => if output.grounded { "grounded" } else { "airborne" }
+        None => "pending"
+      }
+    None => "missing"
+  }
+
+  guard physics_label.val is Some(label) else { return }
+  @ui.texts().set(
+    label,
+    @ui.Text::new(
+      "physics: ray=\{ray_label}  contact=\{strongest_force}  controller=\{controller_status}",
+    ),
+  )
 }

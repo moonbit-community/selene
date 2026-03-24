@@ -151,7 +151,7 @@ let player_bullet_trigger_event_reader : @event.EventReader[
 
 ///|
 let player_bullet_visual : @sprite.Sprite = @sprite.Sprite::new(
-  image=Some(@asset2.load_image("assets/survivors/icon/bullet.png")),
+  image=Some(@asset.load_image("assets/survivors/icon/bullet.png")),
   custom_size=Some(Vec2D(12.0, 12.0)),
 )
 

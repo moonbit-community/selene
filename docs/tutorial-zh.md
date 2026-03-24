@@ -117,7 +117,7 @@ import {
   "Milky2018/selene/ui",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
-  "Milky2018/selene/asset2",
+  "Milky2018/selene/asset",
   "moonbitlang/core/json",
   "moonbitlang/core/random",
   "moonbitlang/core/set",
@@ -222,7 +222,7 @@ Entity 类似引用，组件通过 `Map[K, V]::set` 关联到实体上。`@trans
 let player_idle_layout = @sprite.register_texture_atlas_layout(
   @sprite.TextureAtlasLayout::from_grid(@math.Vec2D(32.0, 32.0), 11, 1),
 )
-let player_idle_image = @asset2.load_image(
+let player_idle_image = @asset.load_image(
   "assets/pixeladventure/Main Characters/Mask Dude/Idle (32x32).png",
 )
 ```

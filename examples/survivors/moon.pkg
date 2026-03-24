@@ -12,7 +12,6 @@ import {
   "Milky2018/selene/transform",
   "Milky2018/selene/camera",
   "Milky2018/selene/inputs",
-  "Milky2018/selene/asset2",
   "Milky2018/selene/time",
   "Milky2018/selene/ui",
   "Milky2018/selene/event",
