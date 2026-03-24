@@ -80,13 +80,15 @@ fn make_shadow_atlas_rect(
 }
 
 ///|
-fn bytes_from_shadow_atlas_rect(rect : ShadowAtlasRect) -> Bytes {
-  let out : Array[Byte] = []
-  append_f32_le(out, rect.offset[X])
-  append_f32_le(out, rect.offset[Y])
-  append_f32_le(out, rect.scale[X])
-  append_f32_le(out, rect.scale[Y])
-  Bytes::from_array(out)
+fn uniform_shadow_atlas_rect(rect : ShadowAtlasRect) -> @raylib.ShaderUniformData {
+  @raylib.ShaderUniformData::Vec4(
+    @raylib.Vector4::new(
+      to_float(rect.offset[X]),
+      to_float(rect.offset[Y]),
+      to_float(rect.scale[X]),
+      to_float(rect.scale[Y]),
+    ),
+  )
 }
 
 ///|
@@ -187,13 +189,13 @@ fn get_spot_shadow_render_texture(
   let shadow_map_size = @cmp.maximum(1, shadow_map_size)
   if backend.spot_shadow_map_size != shadow_map_size {
     if backend.spot_shadow_render_texture is Some(render_texture) {
-      @raylib.unload_shadowmap_render_texture(render_texture)
+      render_texture.unload()
     }
     backend.spot_shadow_render_texture = None
     backend.spot_shadow_map_size = shadow_map_size
   }
   if backend.spot_shadow_render_texture is Some(existing) {
-    if @raylib.get_render_texture_fbo_id(existing) > 0U &&
+    if existing.id() > 0U &&
       @raylib.get_render_texture_depth_id(existing) > 0U {
       return Some(existing)
     }
@@ -201,16 +203,20 @@ fn get_spot_shadow_render_texture(
   }
   let width = shadow_map_size * SPOT_SHADOW_ATLAS_COLUMNS
   let height = shadow_map_size * SPOT_SHADOW_ATLAS_ROWS
-  let render_texture = @raylib.load_shadowmap_render_texture(width, height)
+  let fbo_id = @rl.load_framebuffer()
+  let depth_tex_id = @rl.load_texture_depth(width, height, false)
+  @rl.framebuffer_attach(fbo_id, depth_tex_id, 100, 100, 0)
+  ignore(@rl.framebuffer_complete(fbo_id))
+  let render_texture = @raylib.RenderTexture::new(fbo_id, @raylib.Texture::new(0U, width, height, 1, 7), @raylib.Texture::new(depth_tex_id, width, height, 1, 19))
   let depth_id = @raylib.get_render_texture_depth_id(render_texture)
-  if @raylib.get_render_texture_fbo_id(render_texture) == 0U || depth_id == 0U {
+  if render_texture.id() == 0U || depth_id == 0U {
     warn_texture_issue(
       "spot_shadow_atlas_unavailable", "raylib spot-light shadow atlas framebuffer could not be created; spot shadows are disabled",
     )
-    @raylib.unload_shadowmap_render_texture(render_texture)
+    render_texture.unload()
     return None
   }
-  let depth_texture = @raylib.texture_from_id(depth_id, width, height)
+  let depth_texture = @raylib.Texture::new(depth_id, width, height, 1, @raylib.PixelformatUncompressedR8g8b8a8)
   @raylib.set_texture_filter(depth_texture, @raylib.TextureFilterPoint)
   @raylib.set_texture_wrap(depth_texture, @raylib.TextureWrapClamp)
   backend.spot_shadow_render_texture = Some(render_texture)
@@ -222,13 +228,13 @@ fn get_point_shadow_render_texture(face_size : Int) -> @raylib.RenderTexture? {
   let face_size = @cmp.maximum(1, face_size)
   if backend.point_shadow_map_size != face_size {
     if backend.point_shadow_render_texture is Some(render_texture) {
-      @raylib.unload_shadowmap_render_texture(render_texture)
+      render_texture.unload()
     }
     backend.point_shadow_render_texture = None
     backend.point_shadow_map_size = face_size
   }
   if backend.point_shadow_render_texture is Some(existing) {
-    if @raylib.get_render_texture_fbo_id(existing) > 0U &&
+    if existing.id() > 0U &&
       @raylib.get_render_texture_depth_id(existing) > 0U {
       return Some(existing)
     }
@@ -236,16 +242,20 @@ fn get_point_shadow_render_texture(face_size : Int) -> @raylib.RenderTexture? {
   }
   let width = face_size * POINT_SHADOW_ATLAS_COLUMNS
   let height = face_size * POINT_SHADOW_ATLAS_ROWS
-  let render_texture = @raylib.load_shadowmap_render_texture(width, height)
+  let fbo_id = @rl.load_framebuffer()
+  let depth_tex_id = @rl.load_texture_depth(width, height, false)
+  @rl.framebuffer_attach(fbo_id, depth_tex_id, 100, 100, 0)
+  ignore(@rl.framebuffer_complete(fbo_id))
+  let render_texture = @raylib.RenderTexture::new(fbo_id, @raylib.Texture::new(0U, width, height, 1, 7), @raylib.Texture::new(depth_tex_id, width, height, 1, 19))
   let depth_id = @raylib.get_render_texture_depth_id(render_texture)
-  if @raylib.get_render_texture_fbo_id(render_texture) == 0U || depth_id == 0U {
+  if render_texture.id() == 0U || depth_id == 0U {
     warn_texture_issue(
       "point_shadow_atlas_unavailable", "raylib point-light shadow atlas framebuffer could not be created; point shadows are disabled",
     )
-    @raylib.unload_shadowmap_render_texture(render_texture)
+    render_texture.unload()
     return None
   }
-  let depth_texture = @raylib.texture_from_id(depth_id, width, height)
+  let depth_texture = @raylib.Texture::new(depth_id, width, height, 1, @raylib.PixelformatUncompressedR8g8b8a8)
   @raylib.set_texture_filter(depth_texture, @raylib.TextureFilterPoint)
   @raylib.set_texture_wrap(depth_texture, @raylib.TextureWrapClamp)
   backend.point_shadow_render_texture = Some(render_texture)

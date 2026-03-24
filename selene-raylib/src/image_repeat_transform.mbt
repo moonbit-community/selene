@@ -113,7 +113,7 @@ fn draw_affine_textured_quad(
   let p11 = transform_image_point(base_x, base_y, transform, local_x1, local_y1)
   let p01 = transform_image_point(base_x, base_y, transform, local_x0, local_y1)
   ignore(@rl.check_render_batch_limit(4))
-  @rl.set_texture(@raylib.get_texture_id(texture).reinterpret_as_uint())
+  @rl.set_texture(@raylib.get_texture_id(texture))
   @rl.begin(@rl.Quads)
   let (r, g, b, a) = to_ray_color_bytes(tint)
   @rl.color4ub(r, g, b, a)
