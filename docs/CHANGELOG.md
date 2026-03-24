@@ -8,6 +8,9 @@
 
 ### Fixed
 
+- Fixed `examples/survivors` player atlas extraction by restoring the historical `space_x` padding semantics for the local sprite-sheet helper, so `whiteboy` frames are cut at the original x offsets instead of a regressed 64-pixel stride.
+- Fixed step-interpolated animation sampling at interior keyframe boundaries so `TextureAtlas.index` and other discrete animation targets switch on the exact next keyframe instead of lingering one frame behind.
+
 ### Removed
 
 ## [0.29.0] - 2026-03-24

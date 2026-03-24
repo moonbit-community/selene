@@ -1385,7 +1385,13 @@ fn sample_scalar(
     if time < lhs.time || time > rhs.time {
       continue
     }
-    if interpolation is Step || rhs.time <= lhs.time {
+    if interpolation is Step {
+      if rhs.time <= lhs.time || time < rhs.time {
+        return lhs.value
+      }
+      continue
+    }
+    if rhs.time <= lhs.time {
       return lhs.value
     }
     let alpha = @cmp.maximum(
@@ -1429,7 +1435,13 @@ fn sample_vec3(
     if time < lhs.time || time > rhs.time {
       continue
     }
-    if interpolation is Step || rhs.time <= lhs.time {
+    if interpolation is Step {
+      if rhs.time <= lhs.time || time < rhs.time {
+        return lhs.value
+      }
+      continue
+    }
+    if rhs.time <= lhs.time {
       return lhs.value
     }
     let alpha = @cmp.maximum(
@@ -1473,7 +1485,13 @@ fn sample_quat(
     if time < lhs.time || time > rhs.time {
       continue
     }
-    if interpolation is Step || rhs.time <= lhs.time {
+    if interpolation is Step {
+      if rhs.time <= lhs.time || time < rhs.time {
+        return lhs.value
+      }
+      continue
+    }
+    if rhs.time <= lhs.time {
       return lhs.value
     }
     let alpha = @cmp.maximum(
@@ -1536,7 +1554,13 @@ fn sample_weights(
     if time < lhs.time || time > rhs.time {
       continue
     }
-    if interpolation is Step || rhs.time <= lhs.time {
+    if interpolation is Step {
+      if rhs.time <= lhs.time || time < rhs.time {
+        return lhs.value.copy()
+      }
+      continue
+    }
+    if rhs.time <= lhs.time {
       return lhs.value.copy()
     }
     let alpha = @cmp.maximum(

@@ -31,14 +31,13 @@ fn atlas_animation(
   frame_count : Int,
   size : @math.Vec2D,
   offset? : @math.Vec2D = @math.Vec2D::zero(),
-  step_x? : Double = size[X],
+  space_x? : Double = 0.0,
   fps? : Double = 12.0,
   loop_? : Bool = true,
   anchor? : @sprite.Anchor = @sprite.Anchor(@math.Vec2D(0.0, 0.0)),
   flip_x? : Bool = false,
   flip_y? : Bool = false,
 ) -> SpriteAnimationDef {
-  let padding_x = if step_x > size[X] { step_x - size[X] } else { 0.0 }
   {
     name: path,
     image: @asset2.load_image(path),
@@ -47,7 +46,7 @@ fn atlas_animation(
         size,
         frame_count,
         1,
-        padding=Some(@math.Vec2D(padding_x, 0.0)),
+        padding=Some(@math.Vec2D(space_x, 0.0)),
         offset=Some(offset),
       ),
     ),
@@ -93,7 +92,7 @@ let player_idle_right_animation : SpriteAnimationDef = atlas_animation(
   4,
   Vec2D(PLAYER_SIZE, PLAYER_SIZE),
   offset=Vec2D(32.0, 32.0),
-  step_x=64.0,
+  space_x=64.0,
 )
 
 ///|
@@ -102,7 +101,7 @@ let player_idle_left_animation : SpriteAnimationDef = atlas_animation(
   4,
   Vec2D(PLAYER_SIZE, PLAYER_SIZE),
   offset=Vec2D(32.0, 32.0),
-  step_x=64.0,
+  space_x=64.0,
   flip_x=true,
 )
 
@@ -112,7 +111,7 @@ let player_idle_up_animation : SpriteAnimationDef = atlas_animation(
   4,
   Vec2D(PLAYER_SIZE, PLAYER_SIZE),
   offset=Vec2D(32.0, 192.0),
-  step_x=64.0,
+  space_x=64.0,
 )
 
 ///|
@@ -121,7 +120,7 @@ let player_idle_down_animation : SpriteAnimationDef = atlas_animation(
   4,
   Vec2D(PLAYER_SIZE, PLAYER_SIZE),
   offset=Vec2D(32.0, 112.0),
-  step_x=64.0,
+  space_x=64.0,
 )
 
 ///|
@@ -130,7 +129,7 @@ let player_run_right_animation : SpriteAnimationDef = atlas_animation(
   8,
   Vec2D(PLAYER_SIZE, PLAYER_SIZE),
   offset=Vec2D(32.0, 32.0),
-  step_x=64.0,
+  space_x=64.0,
 )
 
 ///|
@@ -139,7 +138,7 @@ let player_run_left_animation : SpriteAnimationDef = atlas_animation(
   8,
   Vec2D(PLAYER_SIZE, PLAYER_SIZE),
   offset=Vec2D(32.0, 32.0),
-  step_x=64.0,
+  space_x=64.0,
   flip_x=true,
 )
 
@@ -149,7 +148,7 @@ let player_run_down_animation : SpriteAnimationDef = atlas_animation(
   8,
   Vec2D(PLAYER_SIZE, PLAYER_SIZE),
   offset=Vec2D(32.0, 112.0),
-  step_x=64.0,
+  space_x=64.0,
 )
 
 ///|
@@ -158,7 +157,7 @@ let player_run_up_animation : SpriteAnimationDef = atlas_animation(
   8,
   Vec2D(PLAYER_SIZE, PLAYER_SIZE),
   offset=Vec2D(32.0, 192.0),
-  step_x=64.0,
+  space_x=64.0,
 )
 
 ///|
