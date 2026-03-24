@@ -34,7 +34,7 @@ pub fn run() -> Unit {
 /// Game initialization
 fn game_start(_world : @ecs.World) -> Unit {
   // Load font
-  ignore(@asset2.load_font("assets/cards/ThaleahFat.ttf", family="ThaleahFat"))
+  ignore(@asset.load_font("assets/cards/ThaleahFat.ttf", family="ThaleahFat"))
   @ui.set_ui_scale_mode(@ui.UiScaleMode::Viewport)
   let camera_entity = @entity.Entity::new()
   @camera.cameras().set(camera_entity, @camera.Camera::new())

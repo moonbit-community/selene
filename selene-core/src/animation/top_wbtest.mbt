@@ -91,7 +91,7 @@ test "animation transitions track the main animation and return the active anima
 test "texture atlas index field resolves as a discrete value instead of a weighted blend" {
   with_animation_test_world(fn() raise {
     let entity = @entity.Entity::new()
-    let image = @asset2.load_image("animation/test.png")
+    let image = @asset.load_image("animation/test.png")
     let layout = @sprite.register_texture_atlas_layout(
       @sprite.TextureAtlasLayout::from_grid(@math.Vec2D(16.0, 16.0), 6, 1),
     )

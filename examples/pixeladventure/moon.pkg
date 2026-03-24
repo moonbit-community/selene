@@ -15,6 +15,5 @@ import {
   "Milky2018/selene/ui",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
-  "Milky2018/selene/asset2",
   "moonbitlang/core/json",
 }

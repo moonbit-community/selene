@@ -56,8 +56,9 @@ fn register_builtin_messages(app : @app.App) -> @app.App {
   .add_message(@collision.contact_event_bus)
   .add_message(@collision.trigger_event_bus)
   .add_message(@collision.pointer_event_bus)
-  .add_message(@physics3d.contact_event_bus3d)
-  .add_message(@physics3d.trigger_event_bus3d)
+  .add_message(@physics3d.collision_event_bus)
+  .add_message(@physics3d.contact_force_event_bus)
+  .add_message(@physics3d.sensor_event_bus)
   .add_message(@ui.pointer_enter_event_bus)
   .add_message(@ui.pointer_leave_event_bus)
   .add_message(@ui.pointer_down_event_bus)
@@ -82,9 +83,9 @@ fn register_builtin_messages(app : @app.App) -> @app.App {
   .add_message(@tiled.tiled_object_spawned_event_bus)
   .add_message(@tiled.tiled_image_layer_spawned_event_bus)
   .add_message(@tiled.tiled_collider_spawned_event_bus)
-  .add_message(@asset2.image_asset_events)
-  .add_message(@asset2.audio_asset_events)
-  .add_message(@asset2.font_asset_events)
+  .add_message(@asset.image_asset_events)
+  .add_message(@asset.audio_asset_events)
+  .add_message(@asset.font_asset_events)
 }
 
 ///|

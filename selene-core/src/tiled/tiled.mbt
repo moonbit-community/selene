@@ -562,7 +562,7 @@ fn parse_layers(layers_json : Json?) -> Array[TiledLayer] {
 
 ///|
 fn load_tiled_text_document(path : String) -> String? {
-  guard @asset2.read_bytes(path) is Some(bytes) else { return None }
+  guard @asset.read_bytes(path) is Some(bytes) else { return None }
   Some(bytes.to_unchecked_string())
 }
 

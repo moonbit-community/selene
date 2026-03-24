@@ -2,7 +2,7 @@
 package "Milky2018/selene/animation"
 
 import {
-  "Milky2018/selene/asset2",
+  "Milky2018/selene/asset",
   "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/math",
@@ -19,11 +19,11 @@ pub fn animation_apply_system(Double) -> Unit
 
 pub fn animation_clip_asset(AnimationClipHandle) -> AnimationClip?
 
-pub let animation_clip_asset_events : @event.Events[@asset2.AssetEvent[AnimationClipHandle]]
+pub let animation_clip_asset_events : @event.Events[@asset.AssetEvent[AnimationClipHandle]]
 
 pub fn animation_graph_asset(AnimationGraphHandle) -> AnimationGraph?
 
-pub let animation_graph_asset_events : @event.Events[@asset2.AssetEvent[AnimationGraphHandle]]
+pub let animation_graph_asset_events : @event.Events[@asset.AssetEvent[AnimationGraphHandle]]
 
 pub fn animation_graph_handles() -> Map[@entity.Entity, AnimationGraphHandle]
 

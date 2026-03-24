@@ -45,6 +45,16 @@ This document captures the first breaking migration pass from legacy Selene ECS 
 | `default_plugin(@system.App)` | `default_plugin(@app.App)` | Plugin surface follows new app module. |
 | `default_3d_plugin(@system.App)` | `default_3d_plugin(@app.App)` | Plugin surface follows new app module. |
 
+## Assets
+
+| Legacy Selene | New Selene | Notes |
+| --- | --- | --- |
+| `@asset.load_image/load_audio/load_font` + `@asset2.*` lifecycle APIs | `@asset.load_image/load_audio/load_font` + `@asset.image_asset_events/audio_asset_events/font_asset_events` + `@asset.image_load_state/audio_load_state/font_load_state` | The split `asset` / `asset2` surface is gone. Handle allocation, cached load-state tracking, reload/remove, and typed asset events now live on the single `selene/asset` package. |
+| `@asset2.read_bytes(path)` | `@asset.read_bytes(path)` | Runtime bytes loading is now owned solely by `selene/asset`. |
+| `@asset2.reload_*` / `@asset2.remove_*` | `@asset.reload_*` / `@asset.remove_*` | Asset lifecycle management moved into the primary asset package. |
+| `@asset2.AssetState` | `@asset.LoadState` | Asset lifecycle state is now exposed directly from `selene/asset`, closer to Bevy's load-state terminology. |
+| `@asset2.AssetEvent[T]` | `@asset.AssetEvent[T]` | Typed asset events no longer require a second package. |
+
 ## 2D Rendering Surface
 
 | Legacy Selene | New Selene | Notes |
@@ -118,11 +128,18 @@ Rows in this table may reference removed legacy packages or aliases. They are ke
 | `@render3d.directional_lights3d` | `@render3d.directional_lights3d()` | 3D directional-light store is now resolved from the active world. |
 | `@render3d.point_lights3d` | `@render3d.point_lights3d()` | 3D point-light store is now resolved from the active world. |
 | `@render3d.spot_lights3d` | `@render3d.spot_lights3d()` | 3D spot-light store is now resolved from the active world. |
-| `@physics3d.rigid_bodies3d` | `@physics3d.rigid_bodies3d()` | 3D rigid-body authored store is now resolved from the active world. |
-| `@physics3d.colliders3d` | `@physics3d.colliders3d()` | 3D collider authored store is now resolved from the active world. |
-| `@physics3d.sensors3d` | `@physics3d.sensors3d()` | 3D sensor authored store is now resolved from the active world. |
-| `@physics3d.linear_velocities3d` | `@physics3d.linear_velocities3d()` | 3D linear-velocity authored store is now resolved from the active world. |
-| `@physics3d.angular_velocities3d` | `@physics3d.angular_velocities3d()` | 3D angular-velocity authored store is now resolved from the active world. |
+| `@physics3d.rigid_bodies3d` | `@physics3d.rigid_bodies()` | 3D rigid bodies now use the Bevy/Rapier `RigidBody` component store. |
+| `@physics3d.colliders3d` | `@physics3d.colliders()` | 3D colliders now use the Bevy/Rapier `Collider` component store. |
+| `@physics3d.sensors3d` | `@physics3d.sensors()` | Sensor state is now a standalone marker/component store. |
+| `@physics3d.linear_velocities3d` + `@physics3d.angular_velocities3d` | `@physics3d.velocities()` | Linear and angular velocity now live on the unified `Velocity { linvel, angvel }` component. |
+| `bevy_rapier3d::RigidBody / Velocity / Damping / GravityScale / LockedAxes / Ccd / Collider / Sensor / Friction / Restitution / CollisionGroups / SolverGroups / QueryFilter / ImpulseJoint / KinematicCharacterController` | `@physics3d.RigidBody / Velocity / Damping / GravityScale / LockedAxes / Ccd / Collider / Sensor / Friction / Restitution / CollisionGroups / SolverGroups / QueryFilter / ImpulseJoint / KinematicCharacterController` | `selene/physics3d` now mirrors Bevy/Rapier's componentized 3D authored surface instead of exposing legacy `*3d` descriptor types. |
+| `RapierContext::cast_ray / cast_shape / intersections_with_point / intersections_with_shape / project_point` | `@physics3d.context().cast_ray(...) / cast_shape(...) / intersections_with_point(...) / intersections_with_shape(...) / project_point(...)` | 3D spatial queries are now world-scoped through `RapierContext`, matching the Bevy/Rapier query direction more closely than the removed free helper functions. |
+| `CollisionEvent / SensorEvent / ContactForceEvent` | `@physics3d.collision_event_bus / sensor_event_bus / contact_force_event_bus` | 3D Rapier messages now use Bevy-style event names instead of the old `contact/trigger/*3d` aliases. |
+
+## 3D Physics Notes
+
+- `selene/physics3d` now attaches colliders to the nearest rigid-body ancestor, matching Bevy Rapier child-collider semantics instead of only supporting same-entity bodies.
+- 3D rigid-body synchronization now reads authored world transforms via `@transform.compute_global_transform(...)` and writes results back to local `Transform` when the rigid body entity is parented.
 | `@animation.animation_players` | `@animation.animation_players()` | Unified animation player component store is now resolved from the active world. |
 | `@audio.audio_players` | `@audio.audio_players()` | Audio player component store is now resolved from the active world. |
 | `@audio.audio_playback_settings` | `@audio.audio_playback_settings()` | Audio playback-settings store is now resolved from the active world. |

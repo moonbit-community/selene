@@ -4,11 +4,35 @@
 
 ### Added
 
+- Added Bevy-style asset lifecycle surface to `selene/asset`: `LoadState`, `AssetEventKind`, `AssetEvent[T]`, `image_asset_events`, `audio_asset_events`, `font_asset_events`, `image_load_state(...)`, `audio_load_state(...)`, `font_load_state(...)`, `reload_image(...)`, `reload_audio(...)`, `reload_font(...)`, `remove_image(...)`, `remove_audio(...)`, and `remove_font(...)`.
+- Added Bevy/Rapier-style componentized 3D physics surface to `selene/physics3d`: `RigidBody`, `Velocity`, `Damping`, `GravityScale`, `LockedAxes`, `Ccd`, `Dominance`, `AdditionalMassProperties`, `Collider`, `Sensor`, `Friction`, `Restitution`, `CollisionGroups`, `SolverGroups`, `ContactForceEventThreshold`, `ColliderMassProperties`, `ImpulseJoint`, `MultibodyJoint`, `FixedJoint`, `RevoluteJoint`, `PrismaticJoint`, `RopeJoint`, `SpringJoint`, `SphericalJoint`, `JointAxis`, `JointAxesMask`, `MotorModel`, `KinematicCharacterController`, `KinematicCharacterControllerOutput`, `KinematicCharacterControllerCollisions`, `RapierContext`, `CollisionEvent`, `SensorEvent`, `ContactForceEvent`, `RapierRigidBodyHandle`, `RapierColliderHandle`, `RapierImpulseJointHandle`, and `RapierMultibodyJointHandle`.
+- Added Bevy/Rapier-style 3D physics stores and queries: `rigid_bodies()`, `velocities()`, `dampings()`, `gravity_scales()`, `locked_axes()`, `ccds()`, `dominances()`, `additional_mass_properties()`, `colliders()`, `sensors()`, `frictions()`, `restitutions()`, `collision_groups()`, `solver_groups()`, `active_collision_types()`, `active_events()`, `active_hooks()`, `contact_force_event_thresholds()`, `collider_mass_properties()`, `impulse_joints()`, `multibody_joints()`, `kinematic_character_controllers()`, `kinematic_character_controller_outputs()`, `kinematic_character_controller_collisions()`, `context().cast_ray(...)`, `context().cast_shape(...)`, `context().intersections_with_point(...)`, `context().intersections_with_shape(...)`, and `context().project_point(...)`.
+- Added extra 3D collider constructors to `@physics3d.Collider`: `capsule_x(...)`, `capsule_y(...)`, `capsule_z(...)`, `cylinder(...)`, `cone(...)`, `round_cylinder(...)`, `halfspace(...)`, `convex_hull(...)`, `trimesh(...)`, and `heightfield(...)`.
+- Added 3D rigid-body state accessors `rigid_body_handle(...)`, `collider_handle(...)`, `impulse_joint_handle(...)`, `multibody_joint_handle(...)`, `rigid_body_translation(...)`, `set_rigid_body_translation(...)`, `rigid_body_rotation(...)`, `set_rigid_body_rotation(...)`, `rigid_body_linear_velocity(...)`, `set_rigid_body_linear_velocity(...)`, `rigid_body_angular_velocity(...)`, and `set_rigid_body_angular_velocity(...)`.
+- Added `examples/scene3d` coverage for the new 3D physics surface: dynamic rigid body, child collider, impulse joint, kinematic character controller, raycast query, and contact-force HUD feedback.
+
 ### Changed
+
+- Changed `@asset.load_image(...)`, `load_audio(...)`, and `load_font(...)` to own cached handle registration, load-state tracking, and typed lifecycle event dispatch directly instead of splitting those responsibilities across `selene/asset` and `selene/asset2`.
+- Changed `scene3d`, `tiled`, `ldtk`, `animation`, built-in plugins, tutorials, and example packages to use the unified `selene/asset` surface for bytes loading, lifecycle events, and typed asset handles.
+- Changed `selene/physics3d` from single-descriptor `RigidBody3D` / `Collider3D` storage plus free query helpers into a Bevy/Rapier-style componentized surface centered on `RigidBody`, `Velocity`, `Collider`, `ImpulseJoint`, `KinematicCharacterController`, and `RapierContext`.
+- Changed 3D rigid-body sync to read authored world transforms through `@transform.compute_global_transform(...)` and to write Rapier results back into local `Transform` when the rigid body entity is parented.
+- Changed 3D collider attachment semantics to follow Bevy Rapier child-collider behavior: colliders now attach to the nearest rigid-body ancestor and use relative transforms instead of only supporting same-entity rigid bodies.
+- Changed built-in 3D plugin setup to register `collision_event_bus`, `sensor_event_bus`, and `contact_force_event_bus`, and to run the new component-driven 3D physics pipeline around body/collider/joint/controller synchronization.
 
 ### Fixed
 
+- Fixed repeated cached asset loads so they no longer emit duplicate `Added` / `Loaded` events once an asset handle is already in the loaded state.
+- Fixed `selene/physics3d` so impulse-joint `contacts_enabled` is now forwarded for fixed/revolute/prismatic/spherical joints, and spherical-joint motor targets are forwarded to Rapier's 3D spherical motor path.
+- Fixed same-entity 3D colliders being double-transformed when inserted with a rigid body.
+- Fixed parented 3D colliders so scene queries and physics synchronization now respect their relative transform to the owning rigid body.
+- Fixed 3D contact-force event collection so explicitly enabled colliders now dispatch `ContactForceEvent` through Selene's message bus.
+- Fixed `RapierContext::intersections_with_shape(...)` so ball/cuboid/capsule/cylinder/cone/trimesh/heightfield overlap queries use public Rapier shape-pair contact routines instead of unreliable convex fallback for primitive pairs.
+
 ### Removed
+
+- Removed the legacy `selene/asset2` package; asset lifecycle state and typed asset events now live directly in `selene/asset`.
+- Removed the legacy 3D physics surface: `RigidBody3D`, `Collider3D`, `Sensor3D`, `LinearVelocity3D`, `AngularVelocity3D`, `CollisionLayers3D`, `SpatialQueryBodyFilter3D`, `SpatialQueryFilter3D`, `raycast3d(...)`, `shape_cast3d(...)`, `intersect_point3d(...)`, `character_controller3d_move(...)`, `contact_event_bus3d`, `trigger_event_bus3d`, and `contact_force_event_bus3d`.
 
 ## [0.29.0] - 2026-03-24
 

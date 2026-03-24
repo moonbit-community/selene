@@ -41,7 +41,7 @@ fn atlas_animation(
   let padding_x = if step_x > size[X] { step_x - size[X] } else { 0.0 }
   {
     name: path,
-    image: @asset2.load_image(path),
+    image: @asset.load_image(path),
     layout: @sprite.register_texture_atlas_layout(
       @sprite.TextureAtlasLayout::from_grid(
         size,
@@ -80,7 +80,7 @@ fn static_region_sprite(
   anchor? : @sprite.Anchor = @sprite.Anchor(@math.Vec2D(0.0, 0.0)),
 ) -> @sprite.Sprite {
   @sprite.Sprite::new(
-    image=Some(@asset2.load_image(path)),
+    image=Some(@asset.load_image(path)),
     rect~,
     custom_size=Some(size),
     anchor~,

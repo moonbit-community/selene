@@ -1620,7 +1620,7 @@ fn ldtk_spawn_level_background(
   if level.bg_rel_path is Some(rel_path) && rel_path.length() > 0 {
     let background_entity = level_entity.spawn_child()
     set_entity_depth(background_entity, zindex)
-    let image = @asset2.load_image(instance.project.resolve_path(rel_path))
+    let image = @asset.load_image(instance.project.resolve_path(rel_path))
     let mut image_size = size
     let mut image_offset = @math.Vec2D::zero()
     let mut image_transform = @math.Transform::identity()
@@ -2177,12 +2177,12 @@ fn ldtk_layer_tileset_image(
   layer : LdtkLayerInstance,
 ) -> @asset.ImageHandle? {
   if layer.tileset_rel_path is Some(path) {
-    return Some(@asset2.load_image(project.resolve_path(path)))
+    return Some(@asset.load_image(project.resolve_path(path)))
   }
   guard ldtk_layer_tileset_uid(layer) is Some(uid) else { return None }
   guard project.tileset_by_uid(uid) is Some(tileset) else { return None }
   guard tileset.rel_path is Some(path) else { return None }
-  Some(@asset2.load_image(project.resolve_path(path)))
+  Some(@asset.load_image(project.resolve_path(path)))
 }
 
 ///|
@@ -2198,7 +2198,7 @@ fn ldtk_entity_tile_image(
       return None
     }
     guard tileset.rel_path is Some(path) else { return None }
-    return Some(@asset2.load_image(instance.project.resolve_path(path)))
+    return Some(@asset.load_image(instance.project.resolve_path(path)))
   }
   ldtk_layer_tileset_image(instance.project, event.layer)
 }

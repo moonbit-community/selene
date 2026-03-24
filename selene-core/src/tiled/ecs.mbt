@@ -1112,7 +1112,7 @@ fn tiled_map_world_size(map : TiledMap) -> @math.Vec2D {
 
 ///|
 fn load_tiled_image(path : String) -> @asset.ImageHandle {
-  let image = @asset2.load_image(path)
+  let image = @asset.load_image(path)
   ignore(@asset.image_path(image))
   image
 }

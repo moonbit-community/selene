@@ -319,12 +319,12 @@ let released_animation_graph_assets : Array[AnimationGraphHandle] = []
 
 ///|
 pub let animation_clip_asset_events : @event.Events[
-  @asset2.AssetEvent[AnimationClipHandle],
+  @asset.AssetEvent[AnimationClipHandle],
 ] = @event.Events::new()
 
 ///|
 pub let animation_graph_asset_events : @event.Events[
-  @asset2.AssetEvent[AnimationGraphHandle],
+  @asset.AssetEvent[AnimationGraphHandle],
 ] = @event.Events::new()
 
 ///|

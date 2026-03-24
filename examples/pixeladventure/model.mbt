@@ -254,7 +254,7 @@ fn sprite_clip(
   let size = @math.Vec2D(32.0, 32.0)
   {
     name: path,
-    image: @asset2.load_image(path),
+    image: @asset.load_image(path),
     layout: @sprite.register_texture_atlas_layout(
       @sprite.TextureAtlasLayout::from_grid(size, frame_count, 1),
     ),
@@ -280,17 +280,17 @@ fn sprite_animation_sprite(animation : SpriteAnimationDef) -> @sprite.Sprite {
 }
 
 ///|
-let jump_sound : @audio.AudioHandle = @asset2.load_audio(
+let jump_sound : @audio.AudioHandle = @asset.load_audio(
   "assets/pixeladventure/sounds/jump.wav",
 )
 
 ///|
-let coin_sound : @audio.AudioHandle = @asset2.load_audio(
+let coin_sound : @audio.AudioHandle = @asset.load_audio(
   "assets/pixeladventure/sounds/coin.wav",
 )
 
 ///|
-let hurt_sound : @audio.AudioHandle = @asset2.load_audio(
+let hurt_sound : @audio.AudioHandle = @asset.load_audio(
   "assets/pixeladventure/sounds/hurt.wav",
 )
 

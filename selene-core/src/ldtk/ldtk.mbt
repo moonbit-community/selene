@@ -1762,7 +1762,7 @@ fn unique_ldtk_iids(iids : Array[String]) -> Array[String] {
 
 ///|
 fn load_ldtk_text_document(path : String) -> String? {
-  if @asset2.read_bytes(path) is Some(bytes) {
+  if @asset.read_bytes(path) is Some(bytes) {
     return Some(bytes.to_unchecked_string())
   }
   @asset.read_bytes(path).map(bytes => bytes.to_unchecked_string())

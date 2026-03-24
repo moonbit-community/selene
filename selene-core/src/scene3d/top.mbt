@@ -555,7 +555,7 @@ fn parse_glb_source(bytes : Bytes) -> GltfSource? {
 
 ///|
 fn load_scene_template(path : String) -> SceneTemplate {
-  guard @asset2.read_bytes(path) is Some(bytes) else {
+  guard @asset.read_bytes(path) is Some(bytes) else {
     return empty_scene_template()
   }
   match parse_gltf_source(bytes) {
@@ -1465,7 +1465,7 @@ fn parse_buffer_blobs(
         blobs.push(decode_data_uri_base64(uri))
       } else {
         let resolved = resolve_relative_asset_path(scene_path, uri)
-        blobs.push(@asset2.read_bytes(resolved))
+        blobs.push(@asset.read_bytes(resolved))
       }
       continue
     }

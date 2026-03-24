@@ -3,16 +3,29 @@ package "Milky2018/selene/asset"
 
 import {
   "Milky2018/selene/asset_types",
+  "Milky2018/selene/event",
 }
 
 // Values
+pub let audio_asset_events : @event.Events[AssetEvent[@asset_types.AudioHandle]]
+
+pub fn audio_load_state(@asset_types.AudioHandle) -> LoadState
+
 pub fn audio_path(@asset_types.AudioHandle) -> String?
+
+pub let font_asset_events : @event.Events[AssetEvent[@asset_types.FontHandle]]
 
 pub fn font_by_family(String) -> @asset_types.FontHandle?
 
 pub fn font_family(@asset_types.FontHandle) -> String?
 
+pub fn font_load_state(@asset_types.FontHandle) -> LoadState
+
 pub fn font_path(@asset_types.FontHandle) -> String?
+
+pub let image_asset_events : @event.Events[AssetEvent[@asset_types.ImageHandle]]
+
+pub fn image_load_state(@asset_types.ImageHandle) -> LoadState
 
 pub fn image_path(@asset_types.ImageHandle) -> String?
 
@@ -24,11 +37,48 @@ pub fn load_image(String) -> @asset_types.ImageHandle
 
 pub fn read_bytes(String) -> Bytes?
 
+pub fn reload_audio(@asset_types.AudioHandle) -> Unit
+
+pub fn reload_font(@asset_types.FontHandle) -> Unit
+
+pub fn reload_image(@asset_types.ImageHandle) -> Unit
+
+pub fn remove_audio(@asset_types.AudioHandle) -> Unit
+
+pub fn remove_font(@asset_types.FontHandle) -> Unit
+
+pub fn remove_image(@asset_types.ImageHandle) -> Unit
+
 pub fn set_io((String) -> Bytes?) -> Unit
 
 // Errors
 
 // Types and methods
+pub(all) struct AssetEvent[T] {
+  handle : T
+  kind : AssetEventKind
+}
+pub impl[T : Eq] Eq for AssetEvent[T]
+pub impl[T : Show] Show for AssetEvent[T]
+
+pub(all) enum AssetEventKind {
+  Added
+  Modified
+  Removed
+  Loaded
+  Failed(String)
+}
+pub impl Eq for AssetEventKind
+pub impl Show for AssetEventKind
+
+pub(all) enum LoadState {
+  NotLoaded
+  Loading
+  Loaded
+  Failed(String)
+}
+pub impl Eq for LoadState
+pub impl Show for LoadState
 
 // Type aliases
 pub using @asset_types {type AudioHandle}
