@@ -3002,7 +3002,10 @@ fn draw_colored_quad(
 }
 
 ///|
-fn draw_line_loop(points : Array[(Float, Float)], color : @render.Color) -> Unit {
+fn draw_line_loop(
+  points : Array[(Float, Float)],
+  color : @render.Color,
+) -> Unit {
   if points.length() < 2 {
     return
   }
@@ -3202,7 +3205,10 @@ pub fn draw_circle(command : @render2d_types.CircleDrawCommand2D) -> Unit {
     @rl.normal3f(0.0, 0.0, 1.0)
     for index in 0..<segments {
       let angle0 = index.to_double() * 2.0 * @cmath.PI / segments.to_double()
-      let angle1 = (index + 1).to_double() * 2.0 * @cmath.PI / segments.to_double()
+      let angle1 = (index + 1).to_double() *
+        2.0 *
+        @cmath.PI /
+        segments.to_double()
       let point0 = transform_image_point(
         command.center[X],
         command.center[Y],

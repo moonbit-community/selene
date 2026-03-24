@@ -4,6 +4,16 @@
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.29.0] - 2026-03-24
+
+### Added
+
 - Added `@math.Vec3::x_axis()`, `@math.Vec3::y_axis()`, and `@math.Vec3::z_axis()` for transform/camera basis construction.
 - Added `@math.Quat::inverse()`, `@math.Quat::dot()`, `@math.Quat::nlerp(alpha)`, and `@math.Quat::from_basis(x_axis, y_axis, z_axis)`.
 - Added `@math.Affine3` plus `Affine3::identity()`, `Affine3::from_scale_rotation_translation(scale, rotation, translation)`, `Affine3::transform_vector3(vec)`, `Affine3::transform_point3(point)`, `Affine3::inverse()`, and `Affine3` multiplication.
