@@ -42,6 +42,14 @@ fn tiled_ecs_set_entity_depth(entity : @entity.Entity, z : Int) -> Unit {
 }
 
 ///|
+fn tiled_ecs_set_entity_visibility(
+  entity : @entity.Entity,
+  visible : Bool,
+) -> Unit {
+  @visibility.visibilities().set(entity, if visible { Visible } else { Hidden })
+}
+
+///|
 priv struct TiledSpriteAnimation {
   image : @asset.ImageHandle
   layout : @sprite.TextureAtlasLayoutHandle
@@ -118,7 +126,6 @@ fn tiled_sprite_animation_clip_asset(
 ///|
 fn tiled_sprite_from_animation(
   animation : TiledSpriteAnimation,
-  visible : Bool,
 ) -> @sprite.Sprite {
   @sprite.Sprite::new(
     image=Some(animation.image),
@@ -126,7 +133,6 @@ fn tiled_sprite_from_animation(
     color=animation.color,
     custom_size=animation.custom_size,
     anchor=animation.anchor,
-    visible~,
   )
 }
 
@@ -440,6 +446,7 @@ fn spawn_tiled_layers(
       layer_entity,
       @math.Vec2D(layer.offset_x, layer.offset_y),
     )
+    tiled_ecs_set_entity_visibility(layer_entity, effective_visible)
     tiled_register_parallax_layer(layer_entity, layer)
     tiled_layer_instances().set(layer_entity, {
       map_entity,
@@ -463,8 +470,7 @@ fn spawn_tiled_layers(
     match layer.kind {
       TileLayer(tile_layer) =>
         spawn_tiled_tile_layer(
-          map_entity, layer_entity, map, layer, tile_layer, layer_zindex, effective_visible,
-          settings,
+          map_entity, layer_entity, map, layer, tile_layer, layer_zindex, settings,
         )
       ObjectLayer(object_layer) =>
         spawn_tiled_object_layer(
@@ -494,7 +500,6 @@ fn spawn_tiled_tile_layer(
   layer : TiledLayer,
   tile_layer : TiledTileLayer,
   zindex : Int,
-  visible : Bool,
   settings : TiledSpawnSettings,
 ) -> Unit {
   for cell in tile_layer.tile_cells() {
@@ -541,10 +546,7 @@ fn spawn_tiled_tile_layer(
     guard build_tiled_tile_animation(map, tileset, cell.gid) is Some(animation) else {
       continue
     }
-    @sprite.sprites().set(
-      tile_entity,
-      tiled_sprite_from_animation(animation, visible),
-    )
+    @sprite.sprites().set(tile_entity, tiled_sprite_from_animation(animation))
     if animation.fps > 0.0 &&
       @sprite.texture_atlas_layout(animation.layout).map_or(false, fn(layout) {
         layout.rects.length() > 1
@@ -577,6 +579,7 @@ fn spawn_tiled_object_layer(
     let object_entity = layer_entity.spawn_child()
     tiled_ecs_set_entity_translation_2d(object_entity, object_offset)
     tiled_ecs_set_entity_depth(object_entity, zindex)
+    tiled_ecs_set_entity_visibility(object_entity, visible && object.visible)
     tiled_object_instances().set(object_entity, {
       map_entity,
       layer_entity,
@@ -613,10 +616,7 @@ fn spawn_tiled_object_layer(
       is Some(animation) else {
       continue
     }
-    @sprite.sprites().set(
-      object_entity,
-      tiled_sprite_from_animation(animation, visible && object.visible),
-    )
+    @sprite.sprites().set(object_entity, tiled_sprite_from_animation(animation))
     if animation.fps > 0.0 &&
       @sprite.texture_atlas_layout(animation.layout).map_or(false, fn(layout) {
         layout.rects.length() > 1
@@ -660,6 +660,7 @@ fn spawn_tiled_image_layer(
   }
   guard resolved_image_path is Some(image_path) else { return }
   tiled_ecs_set_entity_depth(layer_entity, zindex)
+  tiled_ecs_set_entity_visibility(layer_entity, visible)
   let repeat = tiled_image_repeat_mode(image_layer)
   @sprite.sprites().set(
     layer_entity,
@@ -667,8 +668,7 @@ fn spawn_tiled_image_layer(
       image=Some(load_tiled_image(image_path)),
       custom_size=Some(tiled_map_world_size(map)),
       color=@render.Color::{ r: 255U, g: 255U, b: 255U, a: layer.opacity },
-      anchor=@sprite.TopLeft,
-      visible~,
+      anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
       image_mode=@sprite.Tiled(repeat),
     ),
   )
@@ -708,7 +708,7 @@ fn build_tiled_tile_animation(
         loop_: true,
         color: @render.Color::{ r: 255U, g: 255U, b: 255U, a: 1.0 },
         custom_size: Some(tile_size),
-        anchor: @sprite.TopLeft,
+        anchor: @sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
       })
     }
   }
@@ -729,7 +729,7 @@ fn build_tiled_tile_animation(
     loop_: false,
     color: @render.Color::{ r: 255U, g: 255U, b: 255U, a: 1.0 },
     custom_size: Some(tile_size),
-    anchor: @sprite.TopLeft,
+    anchor: @sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
   })
 }
 

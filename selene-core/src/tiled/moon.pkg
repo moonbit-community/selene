@@ -13,6 +13,7 @@ import {
   "Milky2018/selene/system",
   "Milky2018/selene/sprite",
   "Milky2018/selene/transform",
+  "Milky2018/selene/visibility",
   "Milky2018/xml",
   "gmlewis/base64",
   "gmlewis/flate",

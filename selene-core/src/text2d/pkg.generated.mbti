@@ -3,12 +3,17 @@ package "Milky2018/selene/text2d"
 
 import {
   "Milky2018/selene/entity",
+  "Milky2018/selene/sprite",
 }
 
 // Values
 pub fn render_text2d_system(Double) -> Unit
 
 pub fn text2ds() -> Map[@entity.Entity, Text2d]
+
+pub fn text_anchors() -> Map[@entity.Entity, @sprite.Anchor]
+
+pub fn text_bounds() -> Map[@entity.Entity, TextBounds]
 
 // Errors
 
@@ -19,6 +24,16 @@ pub(all) struct Text2d {
 pub fn Text2d::new() -> Self
 pub impl Eq for Text2d
 pub impl Show for Text2d
+
+pub(all) struct TextBounds {
+  width : Double
+  height : Double
+
+  fn new(Double, Double) -> TextBounds
+}
+pub fn TextBounds::new(Double, Double) -> Self
+pub impl Eq for TextBounds
+pub impl Show for TextBounds
 
 // Type aliases
 

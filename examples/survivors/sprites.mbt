@@ -34,7 +34,7 @@ fn atlas_animation(
   step_x? : Double = size[X],
   fps? : Double = 12.0,
   loop_? : Bool = true,
-  anchor? : @sprite.Anchor = @sprite.Center,
+  anchor? : @sprite.Anchor = @sprite.Anchor(@math.Vec2D(0.0, 0.0)),
   flip_x? : Bool = false,
   flip_y? : Bool = false,
 ) -> SpriteAnimationDef {
@@ -77,7 +77,7 @@ fn static_region_sprite(
   path : String,
   size : @math.Vec2D,
   rect? : @math.Rect? = None,
-  anchor? : @sprite.Anchor = @sprite.Center,
+  anchor? : @sprite.Anchor = @sprite.Anchor(@math.Vec2D(0.0, 0.0)),
 ) -> @sprite.Sprite {
   @sprite.Sprite::new(
     image=Some(@asset2.load_image(path)),
@@ -167,7 +167,7 @@ fn grass_sprite() -> @sprite.Sprite {
     "assets/survivors/tilesets/decor_16x16.png",
     Vec2D(16.0, 16.0),
     rect=Some({ position: Vec2D(0.0, 0.0), size: Vec2D(16.0, 16.0) }),
-    anchor=@sprite.TopLeft,
+    anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
   )
 }
 

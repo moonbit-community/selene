@@ -28,14 +28,19 @@ fn set_entity_depth(entity : @entity.Entity, z : Int) -> Unit {
 }
 
 ///|
+fn set_entity_visibility(entity : @entity.Entity, visible : Bool) -> Unit {
+  @visibility.visibilities().set(entity, if visible { Visible } else { Hidden })
+}
+
+///|
 fn ldtk_sprite_anchor_for_pixel_offset(
   offset : @math.Vec2D,
   size : @math.Vec2D,
 ) -> @sprite.Anchor {
   if size[X].abs() <= 0.000000001 || size[Y].abs() <= 0.000000001 {
-    return @sprite.TopLeft
+    return @sprite.Anchor(@math.Vec2D(-0.5, 0.5))
   }
-  @sprite.Custom(
+  @sprite.Anchor(
     @math.Vec2D(-(offset[X] / size[X]) - 0.5, offset[Y] / size[Y] + 0.5),
   )
 }
@@ -843,7 +848,6 @@ pub fn ldtk_entity_tile_sprite(
       color=@render.Color::{ r: 255U, g: 255U, b: 255U, a: 1.0 },
       custom_size=Some(target_size),
       anchor=ldtk_sprite_anchor_for_pixel_offset(pivot_offset, target_size),
-      visible=true,
     ),
   )
 }
@@ -1601,8 +1605,7 @@ fn ldtk_spawn_level_background(
       @sprite.Sprite::new(
         color=@sprite.color_from_css(bg_color),
         custom_size=Some(size),
-        anchor=@sprite.TopLeft,
-        visible=true,
+        anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
       ),
     )
     ldtk_level_backgrounds().set(background_entity, {
@@ -1642,8 +1645,7 @@ fn ldtk_spawn_level_background(
         rect=Some({ position: image_offset, size: image_size }),
         color=@render.Color::{ r: 255U, g: 255U, b: 255U, a: 1.0 },
         custom_size=Some(scaled_size),
-        anchor=@sprite.TopLeft,
-        visible=true,
+        anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
       ),
     )
     ldtk_level_backgrounds().set(background_entity, {
@@ -1690,6 +1692,7 @@ fn ldtk_spawn_level_layers(
     let layer_entity = level_entity.spawn_child()
     set_entity_translation_2d(layer_entity, layer_offset)
     set_entity_depth(layer_entity, 0)
+    set_entity_visibility(layer_entity, effective_visible)
     let layer_runtime : LdtkSpawnedLayerInstance = {
       world_entity,
       level_entity,
@@ -1721,12 +1724,11 @@ fn ldtk_spawn_level_layers(
       }
       ldtk_spawn_layer_tiles(
         world_entity, level_entity, layer_entity, level, instance, layer, tiles,
-        layer_zindex, effective_visible,
+        layer_zindex,
       )
     } else if layer_type == "intgrid" {
       ldtk_spawn_int_grid_cells(
         world_entity, level_entity, layer_entity, level, instance, layer, layer_zindex,
-        effective_visible,
       )
       let layered_int_grid_tiles = ldtk_layered_int_grid_tiles(layer)
       for tile_layer_index, int_grid_tiles in layered_int_grid_tiles {
@@ -1742,7 +1744,6 @@ fn ldtk_spawn_level_layers(
           layer,
           int_grid_tiles,
           layer_zindex + tile_layer_index,
-          effective_visible,
         )
       }
     } else if layer_type == "entities" {
@@ -1764,7 +1765,6 @@ fn ldtk_spawn_layer_tiles(
   layer : LdtkLayerInstance,
   tiles : Array[LdtkTileInstance],
   zindex : Int,
-  visible : Bool,
 ) -> Unit {
   guard ldtk_layer_tileset_image(instance.project, layer) is Some(image) else {
     return
@@ -1813,10 +1813,9 @@ fn ldtk_spawn_layer_tiles(
         }),
         color=@render.Color::{ r: 255U, g: 255U, b: 255U, a: render_alpha },
         custom_size=Some(@math.Vec2D(tile_size, tile_size)),
-        anchor=@sprite.TopLeft,
+        anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
         flip_x=tile.flip_x,
         flip_y=tile.flip_y,
-        visible~,
       ),
     )
     let tile_event : LdtkTileSpawnedEvent = {
@@ -1845,7 +1844,6 @@ fn ldtk_spawn_int_grid_cells(
   instance : LdtkWorldInstance,
   layer : LdtkLayerInstance,
   zindex : Int,
-  visible : Bool,
 ) -> Unit {
   let width = layer.c_wid
   let grid_size = ldtk_layer_grid_size(instance.project, layer)
@@ -1946,7 +1944,7 @@ fn ldtk_spawn_int_grid_cells(
     }
     if !should_render_color ||
       ldtk_settings.val.int_grid_rendering == Invisible ||
-      !visible {
+      !@visibility.is_visible(cell_entity) {
       continue
     }
     let color = instance.project
@@ -1958,8 +1956,7 @@ fn ldtk_spawn_int_grid_cells(
       @sprite.Sprite::new(
         color=@sprite.color_from_css(render_color),
         custom_size=Some(@math.Vec2D(grid_size, grid_size)),
-        anchor=@sprite.TopLeft,
-        visible~,
+        anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
       ),
     )
   }

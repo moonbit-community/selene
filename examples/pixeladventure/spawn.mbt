@@ -322,7 +322,7 @@ fn spawn_background(size : @math.Vec2D) -> Unit {
         @asset2.load_image("assets/pixeladventure/Background/Gray.png"),
       ),
       custom_size=Some(size),
-      anchor=@sprite.TopLeft,
+      anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
       image_mode=@sprite.Tiled(Repeat),
     ),
   )
@@ -355,7 +355,7 @@ fn spawn_grass_visual(pos : @math.Vec2D, sprite_id : String) -> Unit {
       ),
       rect=Some({ position: src_pos, size: @math.Vec2D(16.0, 16.0) }),
       custom_size=Some(@math.Vec2D(16.0, 16.0)),
-      anchor=@sprite.TopLeft,
+      anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
     ),
   )
   @transform.transforms().set(
@@ -432,7 +432,7 @@ fn spawn_flag(pos : @math.Vec2D) -> Unit {
         ),
       ),
       custom_size=Some(@math.Vec2D(64.0, 64.0)),
-      anchor=@sprite.TopLeft,
+      anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
     ),
   )
   @transform.transforms().set(

@@ -19,10 +19,10 @@
 - Added `@animation.register_animation_clip_asset(...)`, `animation_clip_asset(...)`, `update_animation_clip_asset(...)`, `release_animation_clip_asset(...)`, `take_dirty_animation_clip_assets()`, and `take_released_animation_clip_assets()`.
 - Added `@animation.register_animation_graph_asset(...)`, `animation_graph_asset(...)`, `update_animation_graph_asset(...)`, `release_animation_graph_asset(...)`, `take_dirty_animation_graph_assets()`, and `take_released_animation_graph_assets()`.
 - Added `@animation.animation_clip_asset_events`, `@animation.animation_graph_asset_events`, and `register_animation_event_descriptor(events, build)` for handle-based animation assets and typed clip-event dispatch.
-- Added Bevy-style 2D rendering surface types: `@sprite.Anchor`, `TextureAtlasLayout`, `TextureAtlasLayoutHandle`, `TextureAtlas`, `SpriteImageMode`, `Sprite::new(...)`, `Sprite::from_image(...)`, `Sprite::from_atlas_image(...)`, `Sprite::from_color(...)`, `texture_atlas_layout(...)`, and `texture_atlas_rect(...)`.
+- Added Bevy-style 2D rendering surface types: tuple-struct `@sprite.Anchor(@math.Vec2D)`, `Anchor::as_vec()`, `TextureAtlasLayout`, `TextureAtlasLayoutHandle`, `TextureAtlas`, `SpriteImageMode`, `Sprite::new(...)`, `Sprite::from_image(...)`, `Sprite::from_atlas_image(...)`, `Sprite::from_color(...)`, `texture_atlas_layout(...)`, and `texture_atlas_rect(...)`.
 - Added `selene/mesh2d` with `Mesh2dPrimitive`, `Mesh2dAsset`, `Mesh2dHandle`, `Mesh2d`, `mesh2ds()`, `register_mesh2d_asset(...)`, `update_mesh2d_asset(...)`, `release_mesh2d_asset(...)`, `take_dirty_mesh2d_assets()`, `take_released_mesh2d_assets()`, `rectangle(...)`, and `circle(...)`.
-- Added `selene/material2d` with `AlphaMode2D`, `ColorMaterial`, `ColorMaterialHandle`, `MeshMaterial2d`, `mesh_material2ds()`, `register_color_material(...)`, `update_color_material(...)`, `release_color_material(...)`, `take_dirty_color_materials()`, and `take_released_color_materials()`.
-- Added `selene/text2d` with `Text2d`, `Text2d::new()`, `text2ds()`, and `render_text2d_system(...)` for world-space text extraction independent of `selene/sprite`.
+- Added `selene/material2d` with `AlphaMode2D`, `ColorMaterial`, `ColorMaterialHandle`, `Material2dHandle`, `MeshMaterial2d`, `MeshMaterial2d::from_color_material(...)`, `mesh_material2ds()`, `register_color_material(...)`, `update_color_material(...)`, `release_color_material(...)`, `take_dirty_color_materials()`, and `take_released_color_materials()`.
+- Added `selene/text2d` with `Text2d`, `TextBounds`, `Text2d::new()`, `TextBounds::new(width, height)`, `text2ds()`, `text_bounds()`, `text_anchors()`, and `render_text2d_system(...)` for world-space text extraction independent of `selene/sprite`.
 - Added depth-aware world 2D submission helpers in `selene/render2d`: `push_image_with_depth(...)`, `push_text_with_depth(...)`, `push_rect_with_depth(...)`, `push_circle_with_depth(...)`, and `push_gradient_rect_with_depth(...)`.
 
 ### Changed
@@ -57,11 +57,14 @@
 - Changed Tiled animated tiles, `examples/pixeladventure`, and `examples/survivors` to build local 2D flipbook clip/graph assets explicitly and drive playback through `AnimationPlayer`/`AnimationTransitions`.
 - Changed `@plugins.default_plugin` and `@plugins.default_3d_plugin` to keep `@transform.transform_propagate_system` as the single `PostUpdate` world-transform propagation pass, instead of running extra fixed-stage propagation workarounds.
 - Changed `@collision.pickable`, `@tiled`, and other pre-propagation camera/view helpers to compute current world transforms through `@transform.compute_global_transform(...)` instead of reading stale stored globals during `Update`.
-- Changed `@sprite.Sprite` from a `SpriteType` content enum wrapper into a Bevy-style single component that directly stores `image`, `texture_atlas`, `rect`, `color`, `custom_size`, `anchor`, `flip_x`, `flip_y`, `visible`, and `image_mode`.
+- Changed `@sprite.Sprite` from a `SpriteType` content enum wrapper into a Bevy-style single component that directly stores `image`, `texture_atlas`, `rect`, `color`, `custom_size`, `anchor`, `flip_x`, `flip_y`, and `image_mode`.
 - Changed 2D flipbook playback to animate `TextureAtlas.index`; `pixeladventure`, `survivors`, Tiled animated tiles, and LDtk tile/entity/background visuals now render through `Sprite + TextureAtlas` instead of `SpriteType::Animation`.
 - Changed pure-color world rectangles to render as plain `Sprite` quads (`Sprite::from_color(...)` / `Sprite::new(color, custom_size, ...)`) instead of `SpriteType::ColorRect`.
-- Changed world-space circles to render through `Mesh2d(circle) + MeshMaterial2d(ColorMaterial)` instead of `SpriteType::ColorCircle`.
-- Changed world-space text extraction to use shared `@ui.Text / TextFont / TextColor / TextLayout` data plus the `@text2d.Text2d` marker, instead of `sprite.Text`.
+- Changed world-space circles to render through `Mesh2d(circle) + MeshMaterial2d(Material2dHandle::Color(...))` instead of `SpriteType::ColorCircle`.
+- Changed `MeshMaterial2d` to wrap a generic-style `Material2dHandle` enum instead of exposing `ColorMaterialHandle` directly on the component.
+- Changed world-space text extraction to use shared `@ui.Text / TextFont / TextColor / TextLayout` data plus `@text2d.Text2d`, optional `@text2d.TextBounds`, and optional `@text2d.text_anchors()` instead of `sprite.Text`.
+- Changed world-space `Text2d` placement so `Anchor` now controls block anchoring and `TextLayout` only controls alignment within the text block/bounds, matching Bevy's text layout split more closely.
+- Changed world 2D sprite visibility to rely solely on `@visibility.Visibility` / inherited visibility propagation, instead of storing per-sprite visibility inside `@sprite.Sprite`.
 - Changed `@plugins.default_plugin` and `@plugins.default_3d_plugin` 2D render extraction to run three independent Bevy-style world paths: sprite quads, mesh2d/material2d, and text2d.
 - Changed `examples/cards`, `examples/pixeladventure`, and `examples/survivors` to the new Bevy-style 2D surface: static images use `Sprite`, flipbooks use `Sprite + TextureAtlas`, colored quads use `Sprite::from_color(...)`, and world text no longer goes through `selene/sprite`.
 
@@ -104,6 +107,7 @@
 - Removed the `position` package and its legacy 2D position APIs (`Position`, `positions()`, `previous_positions()`, `capture_previous_positions()`, and `sample_position()`).
 - Removed `SpriteType::{Picture, Animation, Text, ColorRect, ColorCircle}`, `Sprite::from_picture(...)`, `Sprite::from_animation(...)`, `Sprite::from_text(...)`, `Sprite::from_color_rect(...)`, `Sprite::from_color_circle(...)`, `@sprite.Picture`, `@sprite.Animation`, `@sprite.AnimationFrame`, `@sprite.ColorRect`, `@sprite.ColorCircle`, `@sprite.Text`, `@sprite.frames_from_atlas(...)`, `@sprite.Animation::single_frame(...)`, and `@sprite.Animation::single_frame_from_image(...)`.
 - Removed `@sprite.SpriteFrameIndex`, `@sprite.sprite_frame_indices()`, and the old `@animation.sprite_frame_index_field()` surface; 2D animation now targets `TextureAtlas.index`.
+- Removed `Sprite.visible` and the `visible?` argument from `Sprite::new(...)`; world-space 2D visibility now comes from `@visibility.visibilities()`.
 
 ## [0.28.7] - 2026-03-16
 

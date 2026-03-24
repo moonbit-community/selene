@@ -51,12 +51,19 @@ pub impl Eq for ColorMaterialHandle
 pub impl Hash for ColorMaterialHandle
 pub impl Show for ColorMaterialHandle
 
-pub(all) struct MeshMaterial2d {
-  material : ColorMaterialHandle
-
-  fn new(ColorMaterialHandle) -> MeshMaterial2d
+pub(all) enum Material2dHandle {
+  Color(ColorMaterialHandle)
 }
-pub fn MeshMaterial2d::new(ColorMaterialHandle) -> Self
+pub impl Eq for Material2dHandle
+pub impl Show for Material2dHandle
+
+pub(all) struct MeshMaterial2d {
+  material : Material2dHandle
+
+  fn new(Material2dHandle) -> MeshMaterial2d
+}
+pub fn MeshMaterial2d::from_color_material(ColorMaterialHandle) -> Self
+pub fn MeshMaterial2d::new(Material2dHandle) -> Self
 pub impl Eq for MeshMaterial2d
 pub impl Show for MeshMaterial2d
 

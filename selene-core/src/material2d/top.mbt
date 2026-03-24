@@ -23,10 +23,15 @@ pub(all) struct ColorMaterial {
 pub(all) struct ColorMaterialHandle(UInt) derive(Eq, Show, Hash)
 
 ///|
-pub(all) struct MeshMaterial2d {
-  material : ColorMaterialHandle
+pub(all) enum Material2dHandle {
+  Color(ColorMaterialHandle)
+} derive(Eq, Show)
 
-  fn new(material : ColorMaterialHandle) -> MeshMaterial2d
+///|
+pub(all) struct MeshMaterial2d {
+  material : Material2dHandle
+
+  fn new(material : Material2dHandle) -> MeshMaterial2d
 } derive(Eq, Show)
 
 ///|
@@ -83,8 +88,15 @@ pub fn ColorMaterial::from_color(color : @render.Color) -> ColorMaterial {
 }
 
 ///|
-pub fn MeshMaterial2d::new(material : ColorMaterialHandle) -> MeshMaterial2d {
+pub fn MeshMaterial2d::new(material : Material2dHandle) -> MeshMaterial2d {
   { material, }
+}
+
+///|
+pub fn MeshMaterial2d::from_color_material(
+  material : ColorMaterialHandle,
+) -> MeshMaterial2d {
+  MeshMaterial2d::new(Color(material))
 }
 
 ///|

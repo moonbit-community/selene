@@ -625,7 +625,7 @@ test "spawn_ldtk_world spawns level backgrounds from bg color and image" {
     inspect(background_rect.position, content="Vec2D(3, 5)")
     inspect(background_rect.size, content="Vec2D(20, 10)")
     inspect(background_sprite.custom_size, content="Some(Vec2D(40, 30))")
-    inspect(background_sprite.anchor, content="TopLeft")
+    inspect(background_sprite.anchor, content="Anchor(Vec2D(-0.5, 0.5))")
     cleanup_ldtk_entity(world)
     inspect(ldtk_level_backgrounds().to_array().length(), content="0")
   })
@@ -922,7 +922,7 @@ test "ldtk entity tile sprite registration inserts placeholder sprite from __til
     inspect(tile_rect.position, content="Vec2D(16, 24)")
     inspect(tile_rect.size, content="Vec2D(16, 8)")
     inspect(sprite.custom_size, content="Some(Vec2D(32, 16))")
-    inspect(sprite.anchor, content="Custom(Vec2D(-0.5, 1))")
+    inspect(sprite.anchor, content="Anchor(Vec2D(-0.5, 1))")
     cleanup_ldtk_entity(world)
   })
 }

@@ -49,13 +49,13 @@ This document captures the first breaking migration pass from legacy Selene ECS 
 
 | Legacy Selene | New Selene | Notes |
 | --- | --- | --- |
-| `SpriteType::Picture` / `@sprite.Picture` | `@sprite.Sprite { image, rect?, custom_size, anchor, flip_x, flip_y, color, image_mode }` | Static images now use the same Bevy-style sprite component as every other textured quad. |
+| `SpriteType::Picture` / `@sprite.Picture` | `@sprite.Sprite { image, rect?, custom_size, anchor, flip_x, flip_y, color, image_mode } + @visibility.Visibility` | Static images now use the same Bevy-style sprite component as every other textured quad, and visibility is no longer embedded in the sprite component. `Anchor` is a tuple struct (`Anchor(Vec2D)`) rather than a Selene-specific enum. |
 | `SpriteType::Animation` / `@sprite.Animation` | `@sprite.Sprite + @sprite.TextureAtlas + @animation.AnimationPlayer` | 2D flipbooks now animate `TextureAtlas.index` instead of storing frames inside the sprite component. |
 | `@animation.sprite_frame_index_field()` | `@animation.texture_atlas_index_field()` | Built-in 2D animation target now points at the atlas index. |
 | `@sprite.SpriteFrameIndex` / `@sprite.sprite_frame_indices()` | Removed | 2D frame playback no longer uses a sidecar runtime component. |
 | `SpriteType::ColorRect` / `@sprite.ColorRect` | `@sprite.Sprite::from_color(color, size)` or `@sprite.Sprite::new(color, custom_size, ...)` | Pure-color quads now share the same sprite path as textured quads. |
-| `SpriteType::ColorCircle` / `@sprite.ColorCircle` | `@mesh2d.Mesh2d(circle) + @material2d.MeshMaterial2d(ColorMaterial)` | World circles now follow Bevy's mesh/material direction instead of sprite content enums. |
-| `SpriteType::Text` / `@sprite.Text` | `@ui.Text + @ui.TextFont + @ui.TextColor + @ui.TextLayout + @text2d.Text2d` | World text now uses a dedicated `Text2d` extraction path, separate from sprite quads. |
+| `SpriteType::ColorCircle` / `@sprite.ColorCircle` | `@mesh2d.Mesh2d(circle) + @material2d.MeshMaterial2d(Material2dHandle::Color(...))` | World circles now follow Bevy's mesh/material direction instead of sprite content enums. `MeshMaterial2d` now wraps a material-handle enum instead of exposing a color-material handle directly. |
+| `SpriteType::Text` / `@sprite.Text` | `@ui.Text + @ui.TextFont + @ui.TextColor + @ui.TextLayout + @text2d.Text2d (+ @text2d.TextBounds, + @text2d.text_anchors())` | World text now uses a dedicated `Text2d` extraction path, separate from sprite quads, with optional bounds and anchor data like Bevy's `TextBounds` + `Anchor` split. |
 
 ## Runtime Resources
 
@@ -89,6 +89,7 @@ Rows in this table may reference removed legacy packages or aliases. They are ke
 | `@mesh2d.mesh2ds` | `@mesh2d.mesh2ds()` | Mesh2d component store is now resolved from the active world. |
 | `@material2d.mesh_material2ds` | `@material2d.mesh_material2ds()` | World 2D material bindings are resolved from the active world. |
 | `@text2d.text2ds` | `@text2d.text2ds()` | World text marker store is now resolved from the active world. |
+| `@text2d.text_anchors` | `@text2d.text_anchors()` | World text anchor store is now resolved from the active world. |
 | `@visibility.visibilities` | `@visibility.visibilities()` | Visibility component store is now resolved from the active world. |
 | `@visibility.inherited_visibilities` | `@visibility.inherited_visibilities()` | Inherited visibility store is now resolved from the active world. |
 | `@visibility.view_visibilities` | `@visibility.view_visibilities()` | View visibility store is now resolved from the active world. |

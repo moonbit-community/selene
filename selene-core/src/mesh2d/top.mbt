@@ -248,9 +248,10 @@ pub fn render_mesh2d_system(delta : Double) -> Unit {
     guard @material2d.mesh_material2ds().get(entity) is Some(material_node) else {
       continue
     }
-    guard @material2d.color_material(material_node.material) is Some(material) else {
-      continue
+    let material = match material_node.material {
+      Color(handle) => @material2d.color_material(handle)
     }
+    guard material is Some(material) else { continue }
     let depth = global_transform.translation().z
     let transform = global_transform.compute_transform()
     let raw_pos = @math.Vec2D(transform.translation.x, transform.translation.y)

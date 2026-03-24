@@ -118,7 +118,7 @@ fn setup_ui() -> Unit {
     @sprite.Sprite::new(
       color=@sprite.color_from_css("#2d5016"),
       custom_size=Some(@math.Vec2D(VIEWPORT_WIDTH, VIEWPORT_HEIGHT)),
-      anchor=@sprite.TopLeft,
+      anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
     ),
   )
 

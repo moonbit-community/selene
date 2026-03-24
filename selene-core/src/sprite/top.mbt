@@ -14,7 +14,6 @@ pub(all) struct Sprite {
   mut anchor : Anchor
   mut flip_x : Bool
   mut flip_y : Bool
-  mut visible : Bool
   mut image_mode : SpriteImageMode
 
   fn new(
@@ -26,7 +25,6 @@ pub(all) struct Sprite {
     anchor? : Anchor,
     flip_x? : Bool,
     flip_y? : Bool,
-    visible? : Bool,
     image_mode? : SpriteImageMode,
   ) -> Sprite
 }
@@ -65,7 +63,6 @@ pub fn Sprite::new(
   anchor? : Anchor = default_anchor(),
   flip_x? : Bool = false,
   flip_y? : Bool = false,
-  visible? : Bool = true,
   image_mode? : SpriteImageMode = Auto,
 ) -> Sprite {
   {
@@ -77,7 +74,6 @@ pub fn Sprite::new(
     anchor,
     flip_x,
     flip_y,
-    visible,
     image_mode,
   }
 }
@@ -117,7 +113,6 @@ pub fn render_sprite_system(delta : Double) -> Unit {
   let camera_view = active_camera2d_view()
   for entity, sprite in sprites() {
     guard entity.is_alive() else { continue }
-    guard sprite.visible else { continue }
     guard @visibility.is_visible(entity) else { continue }
     guard @transform.global_transforms().get(entity) is Some(global_transform) else {
       continue

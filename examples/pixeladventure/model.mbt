@@ -261,7 +261,7 @@ fn sprite_clip(
     fps,
     loop_,
     size,
-    anchor: @sprite.TopLeft,
+    anchor: @sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
     flip_x,
     flip_y: false,
   }
