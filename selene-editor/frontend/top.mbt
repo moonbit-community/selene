@@ -164,7 +164,7 @@ fn update(
 ///|
 fn tree_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
-  scene : @shared.SceneDocument,
+  scene : @editor_bridge.SceneDocument,
   parent : String?,
   selected : String?,
   depth : Int,
@@ -209,7 +209,7 @@ fn selected_transform_view(
 ) -> @rabbita.Html {
   match model.selected_entity() {
     Some(entity) => {
-      let transform : @shared.Transform2dComponent? = @app.component_of(
+      let transform : @editor_bridge.Transform2dComponent? = @app.component_of(
         entity, "Transform2d",
       )
       match transform {
@@ -242,7 +242,7 @@ fn selected_text_view(
 ) -> @rabbita.Html {
   match model.selected_entity() {
     Some(entity) => {
-      let text_component : @shared.Text2dComponent? = @app.component_of(
+      let text_component : @editor_bridge.Text2dComponent? = @app.component_of(
         entity, "Text2d",
       )
       match text_component {
@@ -264,7 +264,7 @@ fn selected_text_view(
 fn selected_sprite_view(model : @app.Model) -> @rabbita.Html {
   match model.selected_entity() {
     Some(entity) => {
-      let sprite_component : @shared.SpriteComponent? = @app.component_of(
+      let sprite_component : @editor_bridge.SpriteComponent? = @app.component_of(
         entity, "Sprite",
       )
       match sprite_component {
@@ -297,7 +297,7 @@ fn selected_visibility_view(
 ) -> @rabbita.Html {
   match model.selected_entity() {
     Some(entity) => {
-      let visibility_component : @shared.VisibilityComponent? = @app.component_of(
+      let visibility_component : @editor_bridge.VisibilityComponent? = @app.component_of(
         entity, "Visibility",
       )
       match visibility_component {

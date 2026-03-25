@@ -64,13 +64,13 @@ fn EditorService::public_path(self : EditorService, child : String) -> String {
 }
 
 ///|
-fn EditorService::frontend_bundle_path(self : EditorService) -> String {
-  path_join(self.module_root, "_build/js/release/build/frontend/web/web.js")
+fn EditorService::editor_script_path(self : EditorService) -> String {
+  self.public_path("editor.js")
 }
 
 ///|
 fn project_manifest_path(root : String, project_name : String) -> String {
-  path_join(root, @shared.project_manifest_file_name(project_name))
+  path_join(root, @editor_bridge.project_manifest_file_name(project_name))
 }
 
 ///|

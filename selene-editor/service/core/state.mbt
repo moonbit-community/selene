@@ -10,7 +10,7 @@ priv suberror EditorServiceError {
 ///|
 struct ProjectSession {
   root : String
-  manifest : @shared.ProjectManifest
+  manifest : @editor_bridge.ProjectManifest
   mut snapshot : Map[String, String]
 }
 
@@ -47,7 +47,7 @@ fn EditorService::current_project_root(self : EditorService) -> String raise {
 ///|
 fn EditorService::current_manifest(
   self : EditorService,
-) -> @shared.ProjectManifest raise {
+) -> @editor_bridge.ProjectManifest raise {
   match self.current_project {
     Some(project) => project.manifest
     None => raise ProjectNotOpen

@@ -1,4 +1,5 @@
 import {
+  "Milky2018/selene/editor_bridge",
   "Milky2018/selene_editor/frontend/app",
   "Milky2018/selene_editor/preview/bridge",
   "Milky2018/selene_editor/service/core",

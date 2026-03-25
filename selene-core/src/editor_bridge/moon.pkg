@@ -1,0 +1,20 @@
+import {
+  "Milky2018/selene/asset",
+  "Milky2018/selene/camera",
+  "Milky2018/selene/entity",
+  "Milky2018/selene/material2d",
+  "Milky2018/selene/math",
+  "Milky2018/selene/mesh2d",
+  "Milky2018/selene/render",
+  "Milky2018/selene/sprite",
+  "Milky2018/selene/text2d",
+  "Milky2018/selene/transform",
+  "Milky2018/selene/ui",
+  "Milky2018/selene/visibility",
+  "moonbitlang/core/json",
+  "moonbitlang/x/fs",
+}
+
+options(
+  "supported-targets": "all",
+)

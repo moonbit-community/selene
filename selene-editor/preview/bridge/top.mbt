@@ -4,7 +4,7 @@ pub enum PreviewEvent {
   HoverChanged(String?)
   TransformChanged(
     id~ : String,
-    translation~ : @shared.Vec2Doc,
+    translation~ : @editor_bridge.Vec2Doc,
     rotation~ : Double
   )
 } derive(Show, Eq)
@@ -13,7 +13,7 @@ pub enum PreviewEvent {
 pub enum PreviewCommand {
   Bootstrap
   ClearScene
-  LoadScene(@shared.SceneDocument)
+  LoadScene(@editor_bridge.SceneDocument)
   SelectEntity(String?)
   SetTool(@shared.PreviewTool)
   FrameSelection
@@ -32,7 +32,7 @@ pub fn preview_event_hover_changed(id : String?) -> PreviewEvent {
 ///|
 pub fn preview_event_transform_changed(
   id : String,
-  translation : @shared.Vec2Doc,
+  translation : @editor_bridge.Vec2Doc,
   rotation : Double,
 ) -> PreviewEvent {
   TransformChanged(id~, translation~, rotation~)
@@ -50,7 +50,7 @@ pub fn preview_command_clear_scene() -> PreviewCommand {
 
 ///|
 pub fn preview_command_load_scene(
-  scene : @shared.SceneDocument,
+  scene : @editor_bridge.SceneDocument,
 ) -> PreviewCommand {
   LoadScene(scene)
 }

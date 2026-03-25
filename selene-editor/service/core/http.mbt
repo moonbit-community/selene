@@ -99,7 +99,7 @@ async fn EditorService::handle_static_request(
       true
     }
     "/editor.js" => {
-      send_file(conn, self.frontend_bundle_path()) catch {
+      send_file(conn, self.editor_script_path()) catch {
         err =>
           send_text(
             conn,
@@ -151,14 +151,14 @@ async fn EditorService::open_project(
   let manifest = load_project_manifest(root) catch {
     MissingProjectManifest(_) => {
       ensure_project_layout(root)
-      let created = @shared.ProjectManifest::default(
+      let created = @editor_bridge.ProjectManifest::default(
         inferred_project_name(root),
       )
       save_project_manifest(root, created)
       save_scene_document(
         root,
         created.startup_scene,
-        @shared.SceneDocument::default_main(),
+        @editor_bridge.SceneDocument::default_main(),
       )
       created
     }
@@ -187,14 +187,35 @@ async fn EditorService::create_project(
   name : String,
 ) -> Json {
   ensure_project_layout(root)
-  let manifest = @shared.ProjectManifest::default(name)
+  let manifest = @editor_bridge.ProjectManifest::default(name)
   save_project_manifest(root, manifest)
   save_scene_document(
     root,
     manifest.startup_scene,
-    @shared.SceneDocument::default_main(),
+    @editor_bridge.SceneDocument::default_main(),
   )
   self.open_project(root)
+}
+
+///|
+fn require_project_root(root : String) -> String raise {
+  let normalized = root.trim().to_string()
+  if normalized == "" {
+    raise Failure("Project root is required")
+  }
+  normalized
+}
+
+///|
+fn request_error_message(err : Error) -> String {
+  match err {
+    Failure(message) => message
+    InvalidEditorPath(path) => "Invalid editor path: " + path
+    MissingProjectManifest(path) => "Missing project manifest: " + path
+    SceneNotFound(path) => "Scene not found: " + path
+    ProjectNotOpen => "No project is open"
+    _ => err.to_string()
+  }
 }
 
 ///|
@@ -220,15 +241,31 @@ pub async fn EditorService::handle_rpc(
               "manifest": Json::null(),
               "recent_projects": self.recent_projects.to_json(),
             })
-        }
+      }
       "project.open" => {
         let params : Map[String, Json] = @json.from_json(request.params)
-        let root : String = @json.from_json(params["root"])
+        let root = require_project_root(@json.from_json(params["root"])) catch {
+          err =>
+            return @shared.rpc_failure(
+              Some(id),
+              "invalid_request",
+              request_error_message(err),
+              details=request.params,
+            )
+        }
         @shared.rpc_success(id, self.open_project(root))
       }
       "project.create" => {
         let params : Map[String, Json] = @json.from_json(request.params)
-        let root : String = @json.from_json(params["root"])
+        let root = require_project_root(@json.from_json(params["root"])) catch {
+          err =>
+            return @shared.rpc_failure(
+              Some(id),
+              "invalid_request",
+              request_error_message(err),
+              details=request.params,
+            )
+        }
         let name : String = @json.from_json(params["name"])
         @shared.rpc_success(id, self.create_project(root, name))
       }
@@ -260,7 +297,9 @@ pub async fn EditorService::handle_rpc(
       "scene.save" => {
         let params : Map[String, Json] = @json.from_json(request.params)
         let relative_path : String = @json.from_json(params["path"])
-        let scene : @shared.SceneDocument = @json.from_json(params["scene"])
+        let scene : @editor_bridge.SceneDocument = @json.from_json(
+          params["scene"],
+        )
         let root = self.current_project_root()
         save_scene_document(root, relative_path, scene)
         self.broadcast(
@@ -273,7 +312,7 @@ pub async fn EditorService::handle_rpc(
       "scene.patch" => {
         let params : Map[String, Json] = @json.from_json(request.params)
         let relative_path : String = @json.from_json(params["path"])
-        let patch : @shared.ScenePatch = @json.from_json(params["patch"])
+        let patch : @editor_bridge.ScenePatch = @json.from_json(params["patch"])
         let root = self.current_project_root()
         let scene = load_scene_document(root, relative_path)
         let next_scene = scene.apply_patch(patch)
@@ -315,9 +354,9 @@ pub async fn EditorService::handle_rpc(
         ensure_dir(path_join(root, asset_root))
         let data = @fs.read_file(source_path)
         @fs.write_file(target_path, data, create=0o644)
-        let asset = @shared.asset_document(
+        let asset = @editor_bridge.asset_document(
           target_relative,
-          @shared.infer_asset_kind(target_relative),
+          @editor_bridge.infer_asset_kind(target_relative),
         )
         self.broadcast(
           @shared.event_envelope("asset.imported", asset.to_json()),

@@ -4,11 +4,17 @@
 
 ### Added
 
+- Added an initial product requirements document for `selene-editor` at `prds/selene-editor/PRD.md`, defining the intended project entry flow, open/create behavior, editing model, preview contract, and acceptance criteria for the editor as a product.
+- Added `selene/editor_bridge`, a public scene-document bridge package that owns Selene Editor JSON schema/types, validation, patching, project/scene file IO, and scene-document-to-world runtime instantiation for shared use by editor preview and game/runtime code.
 - Added behavior-driven `selene-editor` scenarios with an in-process harness that drives `shared`, `service/core`, `frontend/app`, and the preview bridge without a browser.
 - Added a native directory-picker RPC for `selene-editor`, so the browser page can ask the local service to open the system folder chooser and fill the project root field without CLI path arguments.
 
 ### Changed
 
+- Changed `selene-editor` frontend asset delivery to serve a concrete `public/editor.js` bundle instead of dynamically mapping `/editor.js` to `_build/.../web.js`; source builds now generate the static runtime asset directly from `just build`.
+- Changed `selene-editor` source workflow to use a local `justfile` as the only documented entrypoint for `build`, `run`, `dev`, `check`, and `test`, removing the redundant frontend build shell script.
+- Changed `selene-editor` service startup to accept a configurable listening port via `--port`, and wired `just run` / `just dev` to forward an optional custom port argument without requiring users to free the default port first.
+- Changed `selene-editor` to import `Milky2018/selene/editor_bridge` for project/scene JSON documents, validation, patching, file IO, and preview scene instantiation instead of keeping its own duplicated scene-loading and scene-compilation logic.
 - Changed `selene-editor` runtime so it no longer invokes `moon` to build itself or to operate on user projects; the editor now treats projects purely as JSON documents plus referenced assets.
 - Changed `selene-editor` package imports and published module name from `Milky2018/selene-editor` to `Milky2018/selene_editor`, while keeping the workspace directory name unchanged.
 - Changed `selene-editor` frontend architecture to split the pure `frontend/app` state machine from the Rabbita/JS adapter.
@@ -18,6 +24,7 @@
 
 ### Removed
 
+- Removed the private `selene-editor/shared` document/schema implementation (`documents`, `validation`, `patch`, and `version`) in favor of the shared `selene/editor_bridge` package.
 - Removed `selene-editor` build/toolchain RPCs (`build.check`, `build.run_preview`) and the service-side `moon` command execution path; editing and preview now only depend on the editor runtime and JSON project files.
 
 ### Added
@@ -46,6 +53,7 @@
 
 ### Fixed
 
+- Fixed `selene-editor` project open/create flows so an empty `Project root` no longer triggers filesystem write attempts; the frontend now blocks those actions until a folder is chosen, and the service returns a clear `Project root is required` error for invalid requests.
 - Fixed `examples/survivors` player atlas extraction by restoring the historical `space_x` padding semantics for the local sprite-sheet helper, so `whiteboy` frames are cut at the original x offsets instead of a regressed 64-pixel stride.
 - Fixed step-interpolated animation sampling at interior keyframe boundaries so `TextureAtlas.index` and other discrete animation targets switch on the exact next keyframe instead of lingering one frame behind.
 - Fixed repeated cached asset loads so they no longer emit duplicate `Added` / `Loaded` events once an asset handle is already in the loaded state.

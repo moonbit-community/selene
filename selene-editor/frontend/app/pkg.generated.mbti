@@ -2,15 +2,16 @@
 package "Milky2018/selene_editor/frontend/app"
 
 import {
+  "Milky2018/selene/editor_bridge",
   "Milky2018/selene_editor/preview/bridge",
   "Milky2018/selene_editor/shared",
   "moonbitlang/core/json",
 }
 
 // Values
-pub fn[T : @json.FromJson] component_of(@shared.EntityDocument, String) -> T?
+pub fn[T : @json.FromJson] component_of(@editor_bridge.EntityDocument, String) -> T?
 
-pub fn entity_label(@shared.EntityDocument) -> String
+pub fn entity_label(@editor_bridge.EntityDocument) -> String
 
 pub fn msg_add_sprite_entity() -> Msg
 
@@ -74,7 +75,7 @@ pub fn update(Msg, Model) -> (Array[Effect], Model)
 
 // Types and methods
 pub struct AssetsListResponse {
-  assets : Array[@shared.AssetDocument]
+  assets : Array[@editor_bridge.AssetDocument]
 }
 pub impl Eq for AssetsListResponse
 pub impl Show for AssetsListResponse
@@ -100,17 +101,17 @@ pub struct Model {
   project_root_input : String
   project_name_input : String
   current_root : String?
-  manifest : @shared.ProjectManifest?
+  manifest : @editor_bridge.ProjectManifest?
   scene_path : String
-  scene : @shared.SceneDocument?
-  assets : Array[@shared.AssetDocument]
+  scene : @editor_bridge.SceneDocument?
+  assets : Array[@editor_bridge.AssetDocument]
   selected_entity_id : String?
   recent_projects : Array[String]
   logs : Array[String]
   status : String
   active_tool : @shared.PreviewTool
 }
-pub fn Model::selected_entity(Self) -> @shared.EntityDocument?
+pub fn Model::selected_entity(Self) -> @editor_bridge.EntityDocument?
 pub impl Eq for Model
 pub impl Show for Model
 
@@ -146,7 +147,7 @@ pub enum Msg {
 
 pub struct ProjectStateResponse {
   root : String?
-  manifest : @shared.ProjectManifest?
+  manifest : @editor_bridge.ProjectManifest?
   recent_projects : Array[String]
 }
 pub impl Eq for ProjectStateResponse
@@ -165,7 +166,7 @@ pub impl Show for RpcTarget
 
 pub struct SceneLoadResponse {
   path : String
-  scene : @shared.SceneDocument
+  scene : @editor_bridge.SceneDocument
 }
 pub impl Eq for SceneLoadResponse
 pub impl Show for SceneLoadResponse

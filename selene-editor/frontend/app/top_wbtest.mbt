@@ -9,3 +9,19 @@ test "pick project root result updates the root input" {
   )
   inspect(next.project_root_input, content="/tmp/demo-project")
 }
+
+///|
+test "open project requires a chosen root" {
+  let (effects, model) = update(msg_open_project(), new_model())
+  inspect(effects.length(), content="0")
+  inspect(model.status, content="Choose a project folder first")
+  inspect(model.logs.length(), content="1")
+}
+
+///|
+test "create project requires a chosen root" {
+  let (effects, model) = update(msg_create_project(), new_model())
+  inspect(effects.length(), content="0")
+  inspect(model.status, content="Choose a project folder first")
+  inspect(model.logs.length(), content="1")
+}

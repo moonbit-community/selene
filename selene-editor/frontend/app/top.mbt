@@ -1,19 +1,19 @@
 ///|
 pub struct ProjectStateResponse {
   root : String?
-  manifest : @shared.ProjectManifest?
+  manifest : @editor_bridge.ProjectManifest?
   recent_projects : Array[String]
 } derive(FromJson, Show, Eq)
 
 ///|
 pub struct SceneLoadResponse {
   path : String
-  scene : @shared.SceneDocument
+  scene : @editor_bridge.SceneDocument
 } derive(FromJson, Show, Eq)
 
 ///|
 pub struct AssetsListResponse {
-  assets : Array[@shared.AssetDocument]
+  assets : Array[@editor_bridge.AssetDocument]
 } derive(FromJson, Show, Eq)
 
 ///|
@@ -26,10 +26,10 @@ pub struct Model {
   project_root_input : String
   project_name_input : String
   current_root : String?
-  manifest : @shared.ProjectManifest?
+  manifest : @editor_bridge.ProjectManifest?
   scene_path : String
-  scene : @shared.SceneDocument?
-  assets : Array[@shared.AssetDocument]
+  scene : @editor_bridge.SceneDocument?
+  assets : Array[@editor_bridge.AssetDocument]
   selected_entity_id : String?
   recent_projects : Array[String]
   logs : Array[String]
@@ -93,11 +93,11 @@ pub fn new_model() -> Model {
     current_root: None,
     manifest: None,
     recent_projects: [],
-    scene_path: @shared.startup_scene_path_for_name("main"),
+    scene_path: @editor_bridge.startup_scene_path_for_name("main"),
     scene: None,
     assets: [],
     selected_entity_id: None,
-    status: "Ready",
+    status: "Choose a project folder to open or create a project",
     logs: [],
     active_tool: @shared.preview_tool_select(),
   }
@@ -261,6 +261,11 @@ fn rpc_effect(
 }
 
 ///|
+fn normalized_project_root(root : String) -> String {
+  root.trim().to_string()
+}
+
+///|
 fn sync_preview_effects(model : Model) -> Array[Effect] {
   let effects : Array[Effect] = [
     Preview(@bridge.preview_command_set_tool(model.active_tool)),
@@ -276,7 +281,7 @@ fn sync_preview_effects(model : Model) -> Array[Effect] {
 
 ///|
 fn refresh_project_effects(
-  manifest : @shared.ProjectManifest?,
+  manifest : @editor_bridge.ProjectManifest?,
   scene_path : String,
 ) -> Array[Effect] {
   match manifest {
@@ -306,14 +311,14 @@ fn parse_double_or(current : Double, input : String) -> Double {
 }
 
 ///|
-pub fn entity_label(entity : @shared.EntityDocument) -> String {
+pub fn entity_label(entity : @editor_bridge.EntityDocument) -> String {
   entity.name + " (" + entity.id + ")"
 }
 
 ///|
 fn selected_after_load(
   previous : String?,
-  scene : @shared.SceneDocument,
+  scene : @editor_bridge.SceneDocument,
 ) -> String? {
   match previous {
     Some(id) if scene.entity(id) is Some(_) => Some(id)
@@ -335,7 +340,7 @@ fn text_or_fallback(json : Json, fallback : String) -> String {
 }
 
 ///|
-pub fn Model::selected_entity(self : Model) -> @shared.EntityDocument? {
+pub fn Model::selected_entity(self : Model) -> @editor_bridge.EntityDocument? {
   match (self.scene, self.selected_entity_id) {
     (Some(scene), Some(id)) => scene.entity(id)
     _ => None
@@ -344,7 +349,7 @@ pub fn Model::selected_entity(self : Model) -> @shared.EntityDocument? {
 
 ///|
 pub fn[T : FromJson] component_of(
-  entity : @shared.EntityDocument,
+  entity : @editor_bridge.EntityDocument,
   kind : String,
 ) -> T? {
   match entity.component(kind) {
@@ -356,7 +361,7 @@ pub fn[T : FromJson] component_of(
 ///|
 fn update_selected_entity(
   model : Model,
-  updater : (@shared.EntityDocument) -> @shared.EntityDocument,
+  updater : (@editor_bridge.EntityDocument) -> @editor_bridge.EntityDocument,
 ) -> Model {
   match (model.scene, model.selected_entity_id) {
     (Some(scene), Some(id)) =>
@@ -372,7 +377,7 @@ fn update_selected_entity(
 ///|
 fn update_selected_component(
   model : Model,
-  component : @shared.ComponentDocument,
+  component : @editor_bridge.ComponentDocument,
 ) -> Model {
   update_selected_entity(model, fn(entity) { entity.with_component(component) })
 }
@@ -404,30 +409,48 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         { ..model, status: "Choosing project folder..." },
       )
     OpenProject =>
-      (
-        [
-          rpc_effect(
-            ProjectLoaded,
-            "project.open",
-            { "root": model.project_root_input.to_json() }.to_json(),
-          ),
-        ],
-        { ..model, status: "Opening project..." },
-      )
+      {
+        let root = normalized_project_root(model.project_root_input)
+        if root == "" {
+          let message = "Choose a project folder first"
+          let next = push_log(model, message)
+          ([], { ..next, status: message })
+        } else {
+          (
+            [
+              rpc_effect(
+                ProjectLoaded,
+                "project.open",
+                { "root": root.to_json() }.to_json(),
+              ),
+            ],
+            { ..model, project_root_input: root, status: "Opening project..." },
+          )
+        }
+      }
     CreateProject =>
-      (
-        [
-          rpc_effect(
-            ProjectLoaded,
-            "project.create",
-            {
-              "root": model.project_root_input.to_json(),
-              "name": model.project_name_input.to_json(),
-            }.to_json(),
-          ),
-        ],
-        { ..model, status: "Creating project..." },
-      )
+      {
+        let root = normalized_project_root(model.project_root_input)
+        if root == "" {
+          let message = "Choose a project folder first"
+          let next = push_log(model, message)
+          ([], { ..next, status: message })
+        } else {
+          (
+            [
+              rpc_effect(
+                ProjectLoaded,
+                "project.create",
+                {
+                  "root": root.to_json(),
+                  "name": model.project_name_input.to_json(),
+                }.to_json(),
+              ),
+            ],
+            { ..model, project_root_input: root, status: "Creating project..." },
+          )
+        }
+      }
     ProjectRootPicked(result) =>
       match result {
         Ok(response) =>
@@ -571,12 +594,12 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         @bridge.TransformChanged(id~, translation~, rotation~) =>
           match model.selected_entity() {
             Some(entity) if model.selected_entity_id == Some(id) => {
-              let transform : @shared.Transform2dComponent = component_of(
+              let transform : @editor_bridge.Transform2dComponent = component_of(
                 entity, "Transform2d",
-              ).unwrap_or(@shared.transform2d_value())
+              ).unwrap_or(@editor_bridge.transform2d_value())
               let next = update_selected_component(
                 model,
-                @shared.transform2d_component(
+                @editor_bridge.transform2d_component(
                   translation~,
                   rotation~,
                   scale=transform.scale,
@@ -600,14 +623,14 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     UpdateSelectedTranslateX(value) =>
       match model.selected_entity() {
         Some(entity) => {
-          let transform : @shared.Transform2dComponent? = component_of(
+          let transform : @editor_bridge.Transform2dComponent? = component_of(
             entity, "Transform2d",
           )
           match transform {
             Some(transform) => {
               let next = update_selected_component(
                 model,
-                @shared.transform2d_component(
+                @editor_bridge.transform2d_component(
                   translation=transform.translation.with_x(
                     parse_double_or(transform.translation.x, value),
                   ),
@@ -625,14 +648,14 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     UpdateSelectedTranslateY(value) =>
       match model.selected_entity() {
         Some(entity) => {
-          let transform : @shared.Transform2dComponent? = component_of(
+          let transform : @editor_bridge.Transform2dComponent? = component_of(
             entity, "Transform2d",
           )
           match transform {
             Some(transform) => {
               let next = update_selected_component(
                 model,
-                @shared.transform2d_component(
+                @editor_bridge.transform2d_component(
                   translation=transform.translation.with_y(
                     parse_double_or(transform.translation.y, value),
                   ),
@@ -650,14 +673,14 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     UpdateSelectedRotation(value) =>
       match model.selected_entity() {
         Some(entity) => {
-          let transform : @shared.Transform2dComponent? = component_of(
+          let transform : @editor_bridge.Transform2dComponent? = component_of(
             entity, "Transform2d",
           )
           match transform {
             Some(transform) => {
               let next = update_selected_component(
                 model,
-                @shared.transform2d_component(
+                @editor_bridge.transform2d_component(
                   translation=transform.translation,
                   rotation=parse_double_or(transform.rotation, value),
                   scale=transform.scale,
@@ -673,14 +696,14 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     UpdateSelectedText(value) =>
       match model.selected_entity() {
         Some(entity) => {
-          let text_component : @shared.Text2dComponent? = component_of(
+          let text_component : @editor_bridge.Text2dComponent? = component_of(
             entity, "Text2d",
           )
           match text_component {
             Some(text_component) => {
               let next = update_selected_component(
                 model,
-                @shared.text2d_component(
+                @editor_bridge.text2d_component(
                   value,
                   font_path=text_component.font_path,
                   font_size=text_component.font_size,
@@ -699,14 +722,14 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     ToggleSelectedVisibility =>
       match model.selected_entity() {
         Some(entity) => {
-          let visibility_component : @shared.VisibilityComponent? = component_of(
+          let visibility_component : @editor_bridge.VisibilityComponent? = component_of(
             entity, "Visibility",
           )
           match visibility_component {
             Some(visibility_component) => {
               let next = update_selected_component(
                 model,
-                @shared.visibility_component(
+                @editor_bridge.visibility_component(
                   visible=!visibility_component.visible,
                 ),
               )
@@ -741,11 +764,11 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       match model.scene {
         Some(scene) => {
           let id = "entity-\{scene.entities.length()}"
-          let entity = @shared.entity_document(id, "Sprite", components=[
-            @shared.transform2d_component(),
-            @shared.visibility_component(),
-            @shared.sprite_component(
-              custom_size=Some(@shared.vec2_doc(64.0, 64.0)),
+          let entity = @editor_bridge.entity_document(id, "Sprite", components=[
+            @editor_bridge.transform2d_component(),
+            @editor_bridge.visibility_component(),
+            @editor_bridge.sprite_component(
+              custom_size=Some(@editor_bridge.vec2_doc(64.0, 64.0)),
             ),
           ])
           let next = {
@@ -761,10 +784,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       match model.scene {
         Some(scene) => {
           let id = "entity-\{scene.entities.length()}"
-          let entity = @shared.entity_document(id, "Text", components=[
-            @shared.transform2d_component(),
-            @shared.visibility_component(),
-            @shared.text2d_component("Text"),
+          let entity = @editor_bridge.entity_document(id, "Text", components=[
+            @editor_bridge.transform2d_component(),
+            @editor_bridge.visibility_component(),
+            @editor_bridge.text2d_component("Text"),
           ])
           let next = {
             ..model,

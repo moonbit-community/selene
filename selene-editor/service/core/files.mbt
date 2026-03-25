@@ -1,16 +1,4 @@
 ///|
-async fn[T : FromJson] read_json_file(path : String) -> T {
-  let content = @fs.read_file(path).text()
-  let json = @json.parse(content)
-  @json.from_json(json)
-}
-
-///|
-async fn write_json_file(path : String, value : &ToJson) -> Unit {
-  @fs.write_file(path, value.to_json().stringify(indent=2) + "\n", create=0o644)
-}
-
-///|
 async fn ensure_dir(path : String) -> Unit {
   if !@fs.exists(path) {
     @fs.mkdir(path, permission=0o755, recursive=true)
@@ -18,12 +6,8 @@ async fn ensure_dir(path : String) -> Unit {
 }
 
 ///|
-async fn ensure_project_layout(root : String) -> Unit {
-  ensure_dir(root)
-  ensure_dir(path_join(root, "scenes"))
-  ensure_dir(path_join(root, "assets"))
-  ensure_dir(path_join(root, ".selene-editor"))
-  ensure_dir(path_join(root, ".selene-editor/cache"))
+fn ensure_project_layout(root : String) -> Unit raise {
+  @editor_bridge.ensure_project_layout(root)
 }
 
 ///|
@@ -70,55 +54,44 @@ async fn project_manifest_path_to_load(root : String) -> String? {
 }
 
 ///|
-async fn load_project_manifest(root : String) -> @shared.ProjectManifest {
+async fn load_project_manifest(root : String) -> @editor_bridge.ProjectManifest {
   let maybe_path = project_manifest_path_to_load(root)
   guard maybe_path is Some(path) else {
     raise MissingProjectManifest(root + "/*.project.json")
   }
-  let manifest : @shared.ProjectManifest = read_json_file(path)
-  let errors = @shared.validate_project_manifest(manifest)
-  guard errors.is_empty() else {
-    raise Failure("Invalid project manifest: " + errors.to_json().stringify())
-  }
-  manifest
+  @editor_bridge.read_project_manifest(path)
 }
 
 ///|
-async fn save_project_manifest(
+fn save_project_manifest(
   root : String,
-  manifest : @shared.ProjectManifest,
-) -> Unit {
-  write_json_file(project_manifest_path(root, manifest.name), manifest)
+  manifest : @editor_bridge.ProjectManifest,
+) -> Unit raise {
+  @editor_bridge.write_project_manifest(
+    project_manifest_path(root, manifest.name),
+    manifest,
+  )
 }
 
 ///|
 async fn load_scene_document(
   root : String,
   relative_path : String,
-) -> @shared.SceneDocument {
+) -> @editor_bridge.SceneDocument {
   let path = scene_path(root, relative_path)
   guard @fs.exists(path) else { raise SceneNotFound(relative_path) }
-  let scene : @shared.SceneDocument = read_json_file(path)
-  let errors = @shared.validate_scene_document(scene)
-  guard errors.is_empty() else {
-    raise Failure("Invalid scene document: " + errors.to_json().stringify())
-  }
-  scene
+  @editor_bridge.read_scene_document(path)
 }
 
 ///|
 async fn save_scene_document(
   root : String,
   relative_path : String,
-  scene : @shared.SceneDocument,
+  scene : @editor_bridge.SceneDocument,
 ) -> Unit {
   let path = scene_path(root, relative_path)
-  let errors = @shared.validate_scene_document(scene)
-  guard errors.is_empty() else {
-    raise Failure("Invalid scene document: " + errors.to_json().stringify())
-  }
   ensure_dir(path_join(root, "scenes"))
-  write_json_file(path, scene)
+  @editor_bridge.write_scene_document(path, scene)
 }
 
 ///|
@@ -149,41 +122,17 @@ async fn list_files_recursive(root : String) -> Array[String] {
 }
 
 ///|
-async fn collect_assets(
+fn collect_assets(
   root : String,
-  manifest : @shared.ProjectManifest,
-) -> Array[@shared.AssetDocument] {
-  let assets : Array[@shared.AssetDocument] = []
-  for asset_root in manifest.asset_roots {
-    let root_path = path_join(root, asset_root)
-    if !@fs.exists(root_path) {
-      continue
-    }
-    let files = list_files_recursive(root_path)
-    for relative in files {
-      let full_relative = path_join(asset_root, relative)
-      let meta_relative = full_relative + ".meta.json"
-      assets.push(
-        @shared.asset_document(
-          full_relative,
-          @shared.infer_asset_kind(full_relative),
-          meta_path=if @fs.exists(path_join(root, meta_relative)) {
-            Some(meta_relative)
-          } else {
-            None
-          },
-        ),
-      )
-    }
-  }
-  assets.sort_by(fn(left, right) { left.path.compare(right.path) })
-  assets
+  manifest : @editor_bridge.ProjectManifest,
+) -> Array[@editor_bridge.AssetDocument] raise {
+  @editor_bridge.collect_asset_documents(root, manifest.asset_roots)
 }
 
 ///|
 async fn snapshot_project_files(
   root : String,
-  manifest : @shared.ProjectManifest,
+  manifest : @editor_bridge.ProjectManifest,
 ) -> Map[String, String] {
   let snapshot : Map[String, String] = {}
   let tracked_roots = [".", "scenes"] + manifest.asset_roots

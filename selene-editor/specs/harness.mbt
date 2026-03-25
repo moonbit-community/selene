@@ -1,7 +1,7 @@
 ///|
 pub struct FakePreviewBridge {
   mut commands : Array[@bridge.PreviewCommand]
-  mut current_scene : @shared.SceneDocument?
+  mut current_scene : @editor_bridge.SceneDocument?
   mut selected_entity_id : String?
   mut bootstrapped : Bool
 }
@@ -186,7 +186,9 @@ pub fn EditorHarness::current_root(self : EditorHarness) -> String? {
 }
 
 ///|
-pub fn EditorHarness::scene(self : EditorHarness) -> @shared.SceneDocument? {
+pub fn EditorHarness::scene(
+  self : EditorHarness,
+) -> @editor_bridge.SceneDocument? {
   self.model.scene
 }
 
@@ -199,7 +201,7 @@ pub fn EditorHarness::selected_entity_id(self : EditorHarness) -> String? {
 pub fn EditorHarness::entity(
   self : EditorHarness,
   id : String,
-) -> @shared.EntityDocument? {
+) -> @editor_bridge.EntityDocument? {
   match self.model.scene {
     Some(scene) => scene.entity(id)
     None => None
@@ -214,7 +216,7 @@ pub fn EditorHarness::preview_bootstrapped(self : EditorHarness) -> Bool {
 ///|
 pub fn EditorHarness::preview_scene(
   self : EditorHarness,
-) -> @shared.SceneDocument? {
+) -> @editor_bridge.SceneDocument? {
   self.preview.current_scene
 }
 

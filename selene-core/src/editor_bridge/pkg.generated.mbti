@@ -1,0 +1,403 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/editor_bridge"
+
+import {
+  "Milky2018/selene/entity",
+  "Milky2018/selene/material2d",
+  "Milky2018/selene/mesh2d",
+  "Milky2018/selene/sprite",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn asset_document(String, AssetKind, meta_path? : String?) -> AssetDocument
+
+pub fn camera2d_component(is_active? : Bool, order? : Int, scale? : Double) -> ComponentDocument
+
+pub fn collect_asset_documents(String, Array[String]) -> Array[AssetDocument] raise
+
+pub fn color_doc(Int, Int, Int, a? : Int) -> ColorDoc
+
+pub fn color_material_component(color? : ColorDoc) -> ComponentDocument
+
+pub fn component_document(String, Json) -> ComponentDocument
+
+pub fn[T : @json.FromJson] decode_component(ComponentDocument?) -> T?
+
+pub fn decoded_transform(EntityDocument) -> Transform2dComponent
+
+pub fn default_color() -> ColorDoc
+
+pub fn ensure_project_layout(String) -> Unit raise
+
+pub fn entity_document(String, String, parent? : String?, components? : Array[ComponentDocument]) -> EntityDocument
+
+pub fn identity_asset_path_resolver(String?) -> String?
+
+pub fn infer_asset_kind(String) -> AssetKind
+
+pub fn instantiate_scene_document(SceneDocument, (String?) -> String?) -> SceneRuntime
+
+pub fn ldtk_world_ref_component(String) -> ComponentDocument
+
+pub fn mesh2d_component(String, size? : Vec2Doc?, radius? : Double?) -> ComponentDocument
+
+pub fn normalized_document_stem(String) -> String
+
+pub fn physics_body2d_component(body_type? : String, linear_velocity? : Vec2Doc, angular_velocity? : Double) -> ComponentDocument
+
+pub fn physics_collider2d_component(shape? : String, size? : Vec2Doc?, radius? : Double?, sensor? : Bool) -> ComponentDocument
+
+pub fn project_manifest_candidates(String) -> Array[String] raise
+
+pub fn project_manifest_file_name(String) -> String
+
+pub let project_schema_version : Int
+
+pub fn read_project_manifest(String) -> ProjectManifest raise
+
+pub fn read_scene_document(String) -> SceneDocument raise
+
+pub fn rect_doc(Double, Double, Double, Double) -> RectDoc
+
+pub let scene_schema_version : Int
+
+pub fn sprite_component(image_path? : String?, color? : ColorDoc, custom_size? : Vec2Doc?, anchor? : Vec2Doc, flip_x? : Bool, flip_y? : Bool, rect? : RectDoc?, image_mode? : String) -> ComponentDocument
+
+pub fn sprite_doc_size(SpriteComponent, Vec2Doc?) -> Vec2Doc
+
+pub fn startup_scene_path_for_name(String) -> String
+
+pub fn text2d_component(String, font_path? : String?, font_size? : Double, color? : ColorDoc, bounds? : Vec2Doc?, anchor? : Vec2Doc) -> ComponentDocument
+
+pub fn texture_atlas_component(TextureAtlasLayoutDoc, index? : Int) -> ComponentDocument
+
+pub fn tiled_map_ref_component(String) -> ComponentDocument
+
+pub fn transform2d_component(translation? : Vec2Doc, rotation? : Double, scale? : Vec2Doc) -> ComponentDocument
+
+pub fn transform2d_value(translation? : Vec2Doc, rotation? : Double, scale? : Vec2Doc) -> Transform2dComponent
+
+pub fn validate_project_manifest(ProjectManifest) -> Array[ValidationError]
+
+pub fn validate_scene_document(SceneDocument) -> Array[ValidationError]
+
+pub fn vec2_doc(Double, Double) -> Vec2Doc
+
+pub fn visibility_component(visible? : Bool) -> ComponentDocument
+
+pub fn write_project_manifest(String, ProjectManifest) -> Unit raise
+
+pub fn write_scene_document(String, SceneDocument) -> Unit raise
+
+// Errors
+pub suberror EditorBridgeFileError {
+  InvalidProjectManifest(String)
+  InvalidSceneDocument(String)
+}
+
+// Types and methods
+pub struct AssetDocument {
+  path : String
+  kind : AssetKind
+  meta_path : String?
+}
+pub impl Eq for AssetDocument
+pub impl Show for AssetDocument
+pub impl ToJson for AssetDocument
+pub impl @json.FromJson for AssetDocument
+
+pub enum AssetKind {
+  Directory
+  Image
+  Audio
+  Font
+  TiledMap
+  LdtkWorld
+  Scene
+  Meta
+  Json
+  Unknown
+}
+pub impl Eq for AssetKind
+pub impl Show for AssetKind
+pub impl ToJson for AssetKind
+pub impl @json.FromJson for AssetKind
+
+pub struct AssetMetaDocument {
+  tags : Array[String]
+  importer : String?
+  source : String?
+}
+pub impl Eq for AssetMetaDocument
+pub impl Show for AssetMetaDocument
+pub impl ToJson for AssetMetaDocument
+pub impl @json.FromJson for AssetMetaDocument
+
+pub struct Camera2dComponent {
+  is_active : Bool
+  order : Int
+  scale : Double
+}
+pub impl Eq for Camera2dComponent
+pub impl Show for Camera2dComponent
+pub impl ToJson for Camera2dComponent
+pub impl @json.FromJson for Camera2dComponent
+
+pub struct ColorDoc {
+  r : Int
+  g : Int
+  b : Int
+  a : Int
+}
+pub impl Eq for ColorDoc
+pub impl Show for ColorDoc
+pub impl ToJson for ColorDoc
+pub impl @json.FromJson for ColorDoc
+
+pub struct ColorMaterialComponent {
+  color : ColorDoc
+}
+pub impl Eq for ColorMaterialComponent
+pub impl Show for ColorMaterialComponent
+pub impl ToJson for ColorMaterialComponent
+pub impl @json.FromJson for ColorMaterialComponent
+
+pub struct ComponentDocument {
+  kind : String
+  data : Json
+}
+pub impl Eq for ComponentDocument
+pub impl Show for ComponentDocument
+pub impl ToJson for ComponentDocument
+pub impl @json.FromJson for ComponentDocument
+
+pub struct EntityDocument {
+  id : String
+  name : String
+  parent : String?
+  components : Array[ComponentDocument]
+}
+pub fn EntityDocument::component(Self, String) -> ComponentDocument?
+pub fn EntityDocument::renamed(Self, String) -> Self
+pub fn EntityDocument::reparented(Self, String?) -> Self
+pub fn EntityDocument::with_component(Self, ComponentDocument) -> Self
+pub fn EntityDocument::without_component(Self, String) -> Self
+pub impl Eq for EntityDocument
+pub impl Show for EntityDocument
+pub impl ToJson for EntityDocument
+pub impl @json.FromJson for EntityDocument
+
+pub struct LdtkWorldRefComponent {
+  path : String
+}
+pub impl Eq for LdtkWorldRefComponent
+pub impl Show for LdtkWorldRefComponent
+pub impl ToJson for LdtkWorldRefComponent
+pub impl @json.FromJson for LdtkWorldRefComponent
+
+pub struct Mesh2dComponent {
+  primitive : String
+  size : Vec2Doc?
+  radius : Double?
+}
+pub impl Eq for Mesh2dComponent
+pub impl Show for Mesh2dComponent
+pub impl ToJson for Mesh2dComponent
+pub impl @json.FromJson for Mesh2dComponent
+
+pub struct PhysicsBody2dComponent {
+  body_type : String
+  linear_velocity : Vec2Doc
+  angular_velocity : Double
+}
+pub impl Eq for PhysicsBody2dComponent
+pub impl Show for PhysicsBody2dComponent
+pub impl ToJson for PhysicsBody2dComponent
+pub impl @json.FromJson for PhysicsBody2dComponent
+
+pub struct PhysicsCollider2dComponent {
+  shape : String
+  size : Vec2Doc?
+  radius : Double?
+  sensor : Bool
+}
+pub impl Eq for PhysicsCollider2dComponent
+pub impl Show for PhysicsCollider2dComponent
+pub impl ToJson for PhysicsCollider2dComponent
+pub impl @json.FromJson for PhysicsCollider2dComponent
+
+pub struct ProjectManifest {
+  version : Int
+  name : String
+  startup_scene : String
+  asset_roots : Array[String]
+}
+pub fn ProjectManifest::default(String, startup_scene? : String, asset_roots? : Array[String]) -> Self
+pub impl Eq for ProjectManifest
+pub impl Show for ProjectManifest
+pub impl ToJson for ProjectManifest
+pub impl @json.FromJson for ProjectManifest
+
+pub struct RectDoc {
+  x : Double
+  y : Double
+  width : Double
+  height : Double
+}
+pub impl Eq for RectDoc
+pub impl Show for RectDoc
+pub impl ToJson for RectDoc
+pub impl @json.FromJson for RectDoc
+
+pub struct SceneDocument {
+  version : Int
+  entities : Array[EntityDocument]
+}
+pub fn SceneDocument::apply_patch(Self, ScenePatch) -> Self
+pub fn SceneDocument::default_main() -> Self
+pub fn SceneDocument::empty() -> Self
+pub fn SceneDocument::entity(Self, String) -> EntityDocument?
+pub fn SceneDocument::with_entity(Self, EntityDocument) -> Self
+pub fn SceneDocument::without_entity(Self, String) -> Self
+pub impl Eq for SceneDocument
+pub impl Show for SceneDocument
+pub impl ToJson for SceneDocument
+pub impl @json.FromJson for SceneDocument
+
+pub struct ScenePatch {
+  ops : Array[ScenePatchOp]
+}
+pub fn ScenePatch::empty() -> Self
+pub impl Eq for ScenePatch
+pub impl Show for ScenePatch
+pub impl ToJson for ScenePatch
+pub impl @json.FromJson for ScenePatch
+
+pub enum ScenePatchOp {
+  PutEntity(EntityDocument)
+  DeleteEntity(String)
+  ReparentEntity(id~ : String, parent~ : String?)
+  RenameEntity(id~ : String, name~ : String)
+  PutComponent(entity_id~ : String, component~ : ComponentDocument)
+  RemoveComponent(entity_id~ : String, kind~ : String)
+}
+pub impl Eq for ScenePatchOp
+pub impl Show for ScenePatchOp
+pub impl ToJson for ScenePatchOp
+pub impl @json.FromJson for ScenePatchOp
+
+pub struct SceneRuntime {
+  entity_ids : Map[String, @entity.Entity]
+  tracked_entities : Array[@entity.Entity]
+  atlas_layouts : Array[@sprite.TextureAtlasLayoutHandle]
+  material_handles : Array[@material2d.ColorMaterialHandle]
+  mesh_handles : Array[@mesh2d.Mesh2dHandle]
+}
+pub fn SceneRuntime::destroy(Self) -> Unit
+pub fn SceneRuntime::entity(Self, String) -> @entity.Entity?
+
+pub struct SpriteComponent {
+  image_path : String?
+  color : ColorDoc
+  custom_size : Vec2Doc?
+  anchor : Vec2Doc
+  flip_x : Bool
+  flip_y : Bool
+  rect : RectDoc?
+  image_mode : String
+}
+pub impl Eq for SpriteComponent
+pub impl Show for SpriteComponent
+pub impl ToJson for SpriteComponent
+pub impl @json.FromJson for SpriteComponent
+
+pub struct Text2dComponent {
+  content : String
+  font_path : String?
+  font_size : Double
+  color : ColorDoc
+  bounds : Vec2Doc?
+  anchor : Vec2Doc
+}
+pub fn Text2dComponent::with_content(Self, String) -> Self
+pub impl Eq for Text2dComponent
+pub impl Show for Text2dComponent
+pub impl ToJson for Text2dComponent
+pub impl @json.FromJson for Text2dComponent
+
+pub struct TextureAtlasComponent {
+  layout : TextureAtlasLayoutDoc
+  index : Int
+}
+pub impl Eq for TextureAtlasComponent
+pub impl Show for TextureAtlasComponent
+pub impl ToJson for TextureAtlasComponent
+pub impl @json.FromJson for TextureAtlasComponent
+
+pub struct TextureAtlasLayoutDoc {
+  tile_size : Vec2Doc
+  columns : Int
+  rows : Int
+  padding : Vec2Doc
+  offset : Vec2Doc
+}
+pub impl Eq for TextureAtlasLayoutDoc
+pub impl Show for TextureAtlasLayoutDoc
+pub impl ToJson for TextureAtlasLayoutDoc
+pub impl @json.FromJson for TextureAtlasLayoutDoc
+
+pub struct TiledMapRefComponent {
+  path : String
+}
+pub impl Eq for TiledMapRefComponent
+pub impl Show for TiledMapRefComponent
+pub impl ToJson for TiledMapRefComponent
+pub impl @json.FromJson for TiledMapRefComponent
+
+pub struct Transform2dComponent {
+  translation : Vec2Doc
+  rotation : Double
+  scale : Vec2Doc
+}
+pub fn Transform2dComponent::with_rotation(Self, Double) -> Self
+pub fn Transform2dComponent::with_scale(Self, Vec2Doc) -> Self
+pub fn Transform2dComponent::with_translation(Self, Vec2Doc) -> Self
+pub impl Eq for Transform2dComponent
+pub impl Show for Transform2dComponent
+pub impl ToJson for Transform2dComponent
+pub impl @json.FromJson for Transform2dComponent
+
+pub struct ValidationError {
+  path : String
+  message : String
+}
+pub impl Eq for ValidationError
+pub impl Show for ValidationError
+pub impl ToJson for ValidationError
+pub impl @json.FromJson for ValidationError
+
+pub struct Vec2Doc {
+  x : Double
+  y : Double
+}
+pub fn Vec2Doc::with_x(Self, Double) -> Self
+pub fn Vec2Doc::with_y(Self, Double) -> Self
+pub impl Eq for Vec2Doc
+pub impl Show for Vec2Doc
+pub impl ToJson for Vec2Doc
+pub impl @json.FromJson for Vec2Doc
+
+pub struct VisibilityComponent {
+  visible : Bool
+}
+pub fn VisibilityComponent::toggled(Self) -> Self
+pub impl Eq for VisibilityComponent
+pub impl Show for VisibilityComponent
+pub impl ToJson for VisibilityComponent
+pub impl @json.FromJson for VisibilityComponent
+
+// Type aliases
+
+// Traits
+

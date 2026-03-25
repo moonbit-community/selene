@@ -18,7 +18,7 @@ async test "bdd project flow creates a startup scene and syncs preview" {
       @fs.exists(
         harness.project_root_path() +
         "/" +
-        @shared.project_manifest_file_name("BDD Demo"),
+        @editor_bridge.project_manifest_file_name("BDD Demo"),
       ),
       content="true",
     )
@@ -108,13 +108,13 @@ async test "bdd inspector edits persist after save and reopen" {
     reopened.when_project_opened()
 
     let entity = reopened.entity(entity_id).unwrap()
-    let transform : @shared.Transform2dComponent = @app.component_of(
+    let transform : @editor_bridge.Transform2dComponent = @app.component_of(
       entity, "Transform2d",
-    ).unwrap_or(@shared.transform2d_value())
-    let text_value : @shared.Text2dComponent? = @app.component_of(
+    ).unwrap_or(@editor_bridge.transform2d_value())
+    let text_value : @editor_bridge.Text2dComponent? = @app.component_of(
       entity, "Text2d",
     )
-    let visibility_value : @shared.VisibilityComponent? = @app.component_of(
+    let visibility_value : @editor_bridge.VisibilityComponent? = @app.component_of(
       entity, "Visibility",
     )
 

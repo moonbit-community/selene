@@ -1,0 +1,22 @@
+default_port := "47142"
+
+build:
+    moon build frontend/web --target js --release
+    mkdir -p public
+    cp _build/js/release/build/frontend/web/web.js public/editor.js
+
+run port=default_port:
+    moon run service --target native -- --port {{port}}
+
+dev port=default_port:
+    moon build frontend/web --target js --release
+    mkdir -p public
+    cp _build/js/release/build/frontend/web/web.js public/editor.js
+    moon run service --target native -- --port {{port}}
+
+check:
+    moon info
+    moon check --target all
+
+test:
+    moon test

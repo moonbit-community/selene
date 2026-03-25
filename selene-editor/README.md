@@ -12,18 +12,18 @@ V1 focuses on:
 ## Run
 
 ```bash
-moon build frontend/web --target js
-moon run service --target native
+just build
+just run
 ```
 
-To open an existing project immediately:
+To use a different port:
 
 ```bash
-moon run service --target native -- /absolute/project/path
+just run 48143
 ```
 
 The service hosts the editor on `http://127.0.0.1:47142` and tries to open the browser automatically.
 
-If the target path does not already contain a `*.project.json` manifest, `selene-editor` will initialize a new project there automatically using the directory name.
+The frontend bundle is generated into `public/editor.js`, and the service serves that static file directly.
 
-Inside the editor page, use `Choose Folder` to select a project directory from the local filesystem instead of typing the path manually.
+Inside the editor page, use `Choose Folder` to select a project directory from the local filesystem. If the chosen directory does not already contain a `*.project.json` manifest, `selene-editor` will initialize a new project there automatically using the directory name.
