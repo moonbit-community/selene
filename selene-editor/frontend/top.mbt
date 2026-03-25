@@ -2,7 +2,14 @@
 fn[T : FromJson] decode_rpc_payload(payload : Json) -> Result[T, String] {
   try {
     let success : @shared.RpcSuccess = @json.from_json(payload)
-    Ok(@json.from_json(success.result))
+    try {
+      Ok(@json.from_json(success.result))
+    } catch {
+      err => {
+        let message = "RpcSuccess decode failed: \{err.to_string()} result=\{success.result.stringify()}"
+        Err(message)
+      }
+    }
   } catch {
     _ =>
       try {
@@ -43,6 +50,63 @@ extern "js" fn subscribe_events_forever(
 ///|
 #cfg(target="js")
 extern "js" fn schedule_cmd(scheduler : &@cmd.Scheduler, cmd : @rabbita.Cmd) = "(scheduler, cmd) => scheduler.add(cmd)"
+
+///|
+let dragged_asset_path : Ref[String] = Ref::new("")
+
+///|
+fn begin_dragged_asset(path : String) -> Unit {
+  dragged_asset_path.val = path
+}
+
+///|
+fn clear_dragged_asset() -> Unit {
+  dragged_asset_path.val = ""
+}
+
+///|
+fn current_dragged_asset() -> String? {
+  if dragged_asset_path.val == "" {
+    None
+  } else {
+    Some(dragged_asset_path.val)
+  }
+}
+
+///|
+#cfg(target="js")
+extern "js" fn drag_event_canvas_metrics(event : @dom.DragEvent) -> Array[Double] =
+  #| (event) => {
+  #|   const rect = event.currentTarget.getBoundingClientRect();
+  #|   return [
+  #|     event.clientX - rect.left,
+  #|     event.clientY - rect.top,
+  #|     rect.width,
+  #|     rect.height,
+  #|   ];
+  #| }
+
+///|
+#cfg(target="js")
+extern "js" fn image_event_natural_metrics(event : @dom.Event) -> Array[Double] =
+  #| (event) => {
+  #|   const image = event.currentTarget;
+  #|   return [
+  #|     image?.naturalWidth || 0,
+  #|     image?.naturalHeight || 0,
+  #|   ];
+  #| }
+
+///|
+fn drag_drop_translation(
+  event : @dom.DragEvent,
+) -> @editor_bridge.Vec2Doc? {
+  let metrics = drag_event_canvas_metrics(event)
+  if metrics.length() < 4 {
+    return None
+  }
+  @preview.viewport_to_world(metrics[0], metrics[1], metrics[2], metrics[3])
+}
 
 ///|
 fn subscribe_events_cmd(dispatch : @rabbita.Dispatch[@app.Msg]) -> @rabbita.Cmd {
@@ -118,6 +182,10 @@ fn rpc_effect_cmd(
       rpc_cmd(method_name, params, fn(result) {
         dispatch(@app.msg_scene_loaded(result))
       })
+    @app.AssetsLoaded =>
+      rpc_cmd(method_name, params, fn(result) {
+        dispatch(@app.msg_assets_loaded(result))
+      })
     @app.SceneSaved =>
       rpc_cmd(method_name, params, fn(result : Result[Json, String]) {
         dispatch(@app.msg_scene_saved(result))
@@ -184,6 +252,127 @@ fn tree_view(
     )
   }
   nodes
+}
+
+///|
+fn project_asset_url(asset : @editor_bridge.AssetDocument) -> String {
+  "/project/" + asset.path
+}
+
+///|
+fn asset_drag_attrs(
+  asset_path : String,
+) -> @html.Attrs {
+  @html.Attrs::build()
+  .draggable("true")
+  .handler("dragstart", fn(event, _scheduler) {
+    ignore(event)
+    begin_dragged_asset(asset_path)
+  })
+  .handler("dragend", fn(event, _scheduler) {
+    ignore(event)
+    clear_dragged_asset()
+  })
+}
+
+///|
+fn asset_image_attrs(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  asset_path : String,
+) -> @html.Attrs {
+  @html.Attrs::build()
+  .handler("load", fn(event, scheduler) {
+    let metrics = image_event_natural_metrics(event)
+    if metrics.length() < 2 {
+      return
+    }
+    schedule_cmd(
+      scheduler,
+      dispatch(@app.msg_asset_size_resolved(asset_path, metrics[0], metrics[1])),
+    )
+  })
+}
+
+///|
+fn asset_display_name(asset : @editor_bridge.AssetDocument) -> String {
+  asset_display_name_from_path(asset.path)
+}
+
+///|
+fn asset_display_name_from_path(path : String) -> String {
+  let normalized = path.replace(old="\\", new="/")
+  if normalized.rev_find("/") is Some(index) {
+    normalized[index + 1:].to_string()
+  } else {
+    normalized
+  }
+}
+
+///|
+fn asset_panel_view(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  model : @app.Model,
+) -> @rabbita.Html {
+  let assets = model.image_assets()
+  if assets.is_empty() {
+    return @html.div(
+      class="panel-body empty",
+      "No image assets found under assets/",
+    )
+  }
+  let cards : Array[@rabbita.Html] = []
+  for asset in assets {
+    let is_selected = model.selected_asset_path == Some(asset.path)
+    cards.push(
+      @html.div(
+        class=if is_selected { "asset-card selected" } else { "asset-card" },
+        on_click=dispatch(@app.msg_select_asset(Some(asset.path))),
+        attrs=asset_drag_attrs(asset.path),
+        [
+          @html.img(
+            class="asset-thumb",
+            src=project_asset_url(asset),
+            alt=asset.path,
+            loading="lazy",
+            attrs=asset_image_attrs(dispatch, asset.path),
+            @html.nothing,
+          ),
+          @html.div(class="asset-name", asset_display_name(asset)),
+        ],
+      ),
+    )
+  }
+  @html.div(class="panel-body asset-grid", cards)
+}
+
+///|
+fn viewport_drop_attrs(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+) -> @html.Attrs {
+  @html.Attrs::build()
+  .handler("dragover", fn(event, _scheduler) {
+    event.prevent_default()
+  })
+  .handler("drop", fn(event, scheduler) {
+    event.prevent_default()
+    let cmd = match current_dragged_asset() {
+      Some(asset_path) =>
+        match event.to_drag_event() {
+          Some(drag_event) =>
+            match drag_drop_translation(drag_event) {
+              Some(translation) =>
+                dispatch(
+                  @app.msg_add_sprite_from_asset_at(asset_path, translation),
+                )
+              None => @cmd.none
+            }
+          None => @cmd.none
+        }
+      None => @cmd.none
+    }
+    clear_dragged_asset()
+    schedule_cmd(scheduler, cmd)
+  })
 }
 
 ///|
@@ -323,11 +512,37 @@ fn toolbar_button(
   current : @shared.PreviewTool,
   tool : @shared.PreviewTool,
   label : String,
+  icon : String,
 ) -> @rabbita.Html {
   @html.button(
-    class=if current == tool { "small-button active" } else { "small-button" },
+    class=if current == tool {
+      "small-button icon-button active"
+    } else {
+      "small-button icon-button"
+    },
     on_click=dispatch(@app.msg_set_tool(tool)),
-    label,
+    attrs=@html.Attrs::build().title(label),
+    @html.span(class="icon-glyph", icon),
+  )
+}
+
+///|
+fn action_button(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  label : String,
+  icon : String,
+  msg : @app.Msg,
+  primary? : Bool = false,
+) -> @rabbita.Html {
+  @html.button(
+    class=if primary {
+      "small-button icon-button primary-button"
+    } else {
+      "small-button icon-button"
+    },
+    on_click=dispatch(msg),
+    attrs=@html.Attrs::build().title(label),
+    @html.span(class="icon-glyph", icon),
   )
 }
 
@@ -377,72 +592,92 @@ fn view(
   }
   @html.div(class="editor-root", [
     @html.div(class="topbar", [
-      @html.button(
-        class="small-button",
-        on_click=dispatch(@app.msg_pick_project_root()),
-        "Choose Folder",
-      ),
-      @html.button(
-        class="small-button",
-        on_click=dispatch(@app.msg_save_scene()),
-        "Save",
-      ),
-      @html.button(
-        class="small-button",
-        on_click=dispatch(@app.msg_add_sprite_entity()),
-        "Add Sprite",
-      ),
-      @html.button(
-        class="small-button",
-        on_click=dispatch(@app.msg_add_text_entity()),
-        "Add Text",
-      ),
-      @html.button(
-        class="small-button",
-        on_click=dispatch(@app.msg_delete_selected()),
-        "Delete",
-      ),
-      @html.button(
-        class="small-button",
-        on_click=dispatch(@app.msg_frame_selection()),
-        "Frame",
-      ),
-      toolbar_button(
-        dispatch,
-        model.active_tool,
-        @shared.preview_tool_select(),
-        "Select",
-      ),
-      toolbar_button(
-        dispatch,
-        model.active_tool,
-        @shared.preview_tool_translate(),
-        "Move",
-      ),
-      toolbar_button(
-        dispatch,
-        model.active_tool,
-        @shared.preview_tool_rotate(),
-        "Rotate",
-      ),
-      toolbar_button(
-        dispatch,
-        model.active_tool,
-        @shared.preview_tool_scale(),
-        "Scale",
-      ),
+      @html.div(class="topbar-section", [
+        @html.div(class="topbar-section-label", "Project"),
+        @html.div(class="topbar-group", [
+          action_button(
+            dispatch,
+            "Choose Folder",
+            "📁",
+            @app.msg_pick_project_root(),
+            primary=true,
+          ),
+          action_button(dispatch, "Save Scene", "💾", @app.msg_save_scene()),
+        ]),
+      ]),
+      @html.div(class="topbar-section", [
+        @html.div(class="topbar-section-label", "Scene"),
+        @html.div(class="topbar-group", [
+          action_button(dispatch, "Add Sprite", "🖼", @app.msg_add_sprite_entity()),
+          action_button(dispatch, "Add Text", "T", @app.msg_add_text_entity()),
+          action_button(dispatch, "Delete Selected", "⌫", @app.msg_delete_selected()),
+          action_button(dispatch, "Frame Selection", "⛶", @app.msg_frame_selection()),
+        ]),
+      ]),
+      @html.div(class="topbar-section topbar-tools", [
+        @html.div(class="topbar-section-label", "Tools"),
+        @html.div(class="topbar-group", [
+        toolbar_button(
+          dispatch,
+          model.active_tool,
+          @shared.preview_tool_select(),
+          "Select",
+          "↖",
+        ),
+        toolbar_button(
+          dispatch,
+          model.active_tool,
+          @shared.preview_tool_translate(),
+          "Move",
+          "✥",
+        ),
+        toolbar_button(
+          dispatch,
+          model.active_tool,
+          @shared.preview_tool_rotate(),
+          "Rotate",
+          "⟳",
+        ),
+        toolbar_button(
+          dispatch,
+          model.active_tool,
+          @shared.preview_tool_scale(),
+          "Scale",
+          "⬚",
+        ),
+        ]),
+      ]),
       @html.div(class="status", model.status),
     ]),
     @html.div(class="content", [
-      @html.div(class="panel tree-panel", [
-        @html.h2("Scene Tree"),
-        @html.div(class="panel-body", scene_tree),
+      @html.div(class="sidebar-column", [
+        @html.div(class="panel assets-panel", [
+          @html.h2("Assets"),
+          asset_panel_view(dispatch, model),
+        ]),
+        @html.div(class="panel tree-panel", [
+          @html.h2("Scene Tree"),
+          @html.div(class="panel-body", scene_tree),
+        ]),
       ]),
       @html.div(class="panel viewport-panel", [
         @html.h2("Viewport"),
-        @html.div(class="viewport-toolbar", "Selene preview"),
+        @html.div(
+          class="viewport-toolbar",
+          match model.selected_asset_path {
+            Some(path) =>
+              "Drag the selected image into the scene: " +
+              asset_display_name_from_path(path)
+            None => "Select an image asset, then drag it into the scene"
+          }
+        ),
         @html.div(class="viewport-frame", [
-          @html.canvas(id="canvas", class="viewport-canvas", @html.nothing),
+          @html.canvas(
+            id="canvas",
+            class="viewport-canvas",
+            attrs=viewport_drop_attrs(dispatch),
+            @html.nothing,
+          ),
         ]),
       ]),
       @html.div(class="panel inspector-panel", [

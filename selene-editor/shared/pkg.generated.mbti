@@ -6,6 +6,8 @@ import {
 }
 
 // Values
+pub fn directory_pick_result(String?) -> DirectoryPickResult
+
 pub fn event_envelope(String, Json) -> EventEnvelope
 
 pub fn preview_tool_rotate() -> PreviewTool
@@ -25,6 +27,14 @@ pub fn rpc_success(Int, Json) -> Json
 // Errors
 
 // Types and methods
+pub struct DirectoryPickResult {
+  path : String?
+}
+pub impl Eq for DirectoryPickResult
+pub impl Show for DirectoryPickResult
+pub impl ToJson for DirectoryPickResult
+pub impl @json.FromJson for DirectoryPickResult
+
 pub struct EventEnvelope {
   kind : String
   data : Json

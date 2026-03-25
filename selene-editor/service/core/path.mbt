@@ -21,8 +21,49 @@ fn strip_leading_slash(path : String) -> String {
 }
 
 ///|
+fn hex_nibble(char : Char) -> Int? {
+  let code = char.to_int()
+  if code >= '0'.to_int() && code <= '9'.to_int() {
+    Some(code - '0'.to_int())
+  } else if code >= 'a'.to_int() && code <= 'f'.to_int() {
+    Some(10 + code - 'a'.to_int())
+  } else if code >= 'A'.to_int() && code <= 'F'.to_int() {
+    Some(10 + code - 'A'.to_int())
+  } else {
+    None
+  }
+}
+
+///|
+fn percent_decode_path(path : String) -> String raise {
+  let decoded = StringBuilder::new()
+  let chars = path.to_array()
+  let mut index = 0
+  while index < chars.length() {
+    let ch = chars[index]
+    if ch == '%' {
+      guard index + 2 < chars.length() else { raise InvalidEditorPath(path) }
+      guard hex_nibble(chars[index + 1]) is Some(high) else {
+        raise InvalidEditorPath(path)
+      }
+      guard hex_nibble(chars[index + 2]) is Some(low) else {
+        raise InvalidEditorPath(path)
+      }
+      decoded.write_char((high * 16 + low).unsafe_to_char())
+      index += 3
+    } else {
+      decoded.write_char(ch)
+      index += 1
+    }
+  }
+  decoded.to_string()
+}
+
+///|
 fn normalize_relative_path(path : String) -> String raise {
-  let normalized = strip_leading_slash(path.replace(old="\\", new="/"))
+  let normalized = strip_leading_slash(
+    percent_decode_path(path).replace(old="\\", new="/"),
+  )
   if normalized.contains("..") {
     raise InvalidEditorPath(path)
   }

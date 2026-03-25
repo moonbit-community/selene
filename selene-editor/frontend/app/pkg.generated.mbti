@@ -15,6 +15,10 @@ pub fn entity_label(@editor_bridge.EntityDocument) -> String
 
 pub fn msg_add_sprite_entity() -> Msg
 
+pub fn msg_add_sprite_from_asset(String) -> Msg
+
+pub fn msg_add_sprite_from_asset_at(String, @editor_bridge.Vec2Doc) -> Msg
+
 pub fn msg_add_text_entity() -> Msg
 
 pub fn msg_assets_loaded(Result[AssetsListResponse, String]) -> Msg
@@ -35,7 +39,7 @@ pub fn msg_preview_event(@bridge.PreviewEvent) -> Msg
 
 pub fn msg_project_loaded(Result[ProjectStateResponse, String]) -> Msg
 
-pub fn msg_project_root_picked(Result[DirectoryPickResponse, String]) -> Msg
+pub fn msg_project_root_picked(Result[@shared.DirectoryPickResult, String]) -> Msg
 
 pub fn msg_reload_scene() -> Msg
 
@@ -81,13 +85,6 @@ pub impl Eq for AssetsListResponse
 pub impl Show for AssetsListResponse
 pub impl @json.FromJson for AssetsListResponse
 
-pub struct DirectoryPickResponse {
-  path : String?
-}
-pub impl Eq for DirectoryPickResponse
-pub impl Show for DirectoryPickResponse
-pub impl @json.FromJson for DirectoryPickResponse
-
 pub enum Effect {
   Rpc(target~ : RpcTarget, method_name~ : String, params~ : Json)
   SubscribeServiceEvents
@@ -111,6 +108,7 @@ pub struct Model {
   status : String
   active_tool : @shared.PreviewTool
 }
+pub fn Model::image_assets(Self) -> Array[@editor_bridge.AssetDocument]
 pub fn Model::selected_entity(Self) -> @editor_bridge.EntityDocument?
 pub impl Eq for Model
 pub impl Show for Model
@@ -122,7 +120,7 @@ pub enum Msg {
   PickProjectRoot
   OpenProject
   CreateProject
-  ProjectRootPicked(Result[DirectoryPickResponse, String])
+  ProjectRootPicked(Result[@shared.DirectoryPickResult, String])
   ProjectLoaded(Result[ProjectStateResponse, String])
   SceneLoaded(Result[SceneLoadResponse, String])
   AssetsLoaded(Result[AssetsListResponse, String])
@@ -139,6 +137,8 @@ pub enum Msg {
   SaveScene
   ReloadScene
   AddSpriteEntity
+  AddSpriteFromAsset(String)
+  AddSpriteFromAssetAt(String, @editor_bridge.Vec2Doc)
   AddTextEntity
   DeleteSelected
   SetTool(@shared.PreviewTool)

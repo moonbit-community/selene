@@ -46,17 +46,56 @@ input {
 
 .topbar {
   display: flex;
-  align-items: end;
-  gap: 8px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: nowrap;
   padding: 8px;
   border: 1px solid var(--border);
   background: var(--panel);
+  overflow: hidden;
+}
+
+.topbar-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.topbar-section + .topbar-section {
+  padding-left: 16px;
+  border-left: 1px solid var(--border);
+}
+
+.topbar-section-label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.topbar-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.topbar-tools {
+  padding-left: 20px;
+  border-left: 1px solid var(--border);
 }
 
 .content {
   display: grid;
-  grid-template-columns: 280px 1fr 320px;
+  grid-template-columns: 320px 1fr 320px;
+  gap: 8px;
+  min-height: 0;
+}
+
+.sidebar-column {
+  display: grid;
+  grid-template-rows: minmax(220px, 0.9fr) minmax(220px, 1fr);
   gap: 8px;
   min-height: 0;
 }
@@ -137,6 +176,20 @@ input {
   cursor: pointer;
 }
 
+.icon-button {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-glyph {
+  font-size: 20px;
+  line-height: 1;
+}
+
 .primary-button {
   border-color: var(--accent);
   color: var(--accent);
@@ -150,6 +203,11 @@ input {
 .status {
   margin-left: auto;
   color: var(--warn);
+  min-width: 220px;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tree-item,
@@ -157,6 +215,52 @@ input {
 .log-line {
   padding: 6px 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.asset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap: 10px;
+  align-content: start;
+}
+
+.asset-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  padding: 8px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  cursor: grab;
+}
+
+.asset-card.selected {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px rgba(88, 166, 255, 0.3);
+}
+
+.asset-card:active {
+  cursor: grabbing;
+}
+
+.asset-thumb {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%) 0
+      0 / 16px 16px,
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%) 0
+      0 / 16px 16px,
+    var(--bg);
+}
+
+.asset-name {
+  font-size: 12px;
+  color: var(--text);
+  word-break: break-word;
 }
 
 .tree-item {

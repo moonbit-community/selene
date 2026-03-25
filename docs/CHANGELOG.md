@@ -7,6 +7,7 @@
 - Added `selene/editor_bridge`, a public scene-document bridge package that owns Selene Editor JSON schema/types, validation, patching, project/scene file IO, and scene-document-to-world runtime instantiation for shared use by editor preview and game/runtime code.
 - Added behavior-driven `selene-editor` scenarios with an in-process harness that drives `shared`, `service/core`, `frontend/app`, and the preview bridge without a browser.
 - Added a native directory-picker RPC for `selene-editor`, so the browser page can ask the local service to open the system folder chooser and fill the project root field without CLI path arguments.
+- Added the first real `selene-editor` scene-authoring workflow for image assets: the editor now lists image files from project `assets/`, lets users select an asset in the sidebar, and supports dragging an asset onto the viewport to place a sprite at the drop position.
 
 ### Changed
 
@@ -22,6 +23,13 @@
 - Changed `selene-editor` service architecture to expose `service/core` RPC and event entrypoints for integration-style testing.
 - Changed `selene-editor` project/scene file naming to use the fixed manifest path `selene.project.json` and the fixed startup scene path `scenes/main.scene.json`, and removed support for the old `selene-editor.json` manifest path.
 - Changed `selene-editor` so opening a directory without `selene.project.json` now auto-initializes a new JSON project in that directory.
+- Changed `selene-editor`'s single-scene editing shell so project actions, scene actions, and transform tools are split into separate toolbar sections and exposed as icon buttons with hover titles instead of one undifferentiated row of text buttons.
+
+### Fixed
+
+- Fixed `selene-editor` image-asset placement so dragged sprites use each asset's resolved image dimensions instead of always forcing new sprite entities to `64x64`.
+- Fixed `selene-editor` project asset serving to percent-decode `/project/...` request paths before resolving files on disk, so image assets with spaces and similar URL-escaped characters now load correctly in the asset sidebar.
+- Fixed `selene-editor` asset selection behavior so clicking an asset card no longer creates a new scene entity; image assets are now inserted only by dragging them into the viewport.
 
 ### Removed
 
@@ -55,7 +63,10 @@
 
 ### Fixed
 
+- Fixed `selene-editor` folder-picker RPC to use a typed shared response payload and preserved success-payload decode errors in the frontend, so the first-run directory chooser now reports actionable failures instead of a misleading generic `JsonDecodeError`.
+- Fixed `selene-editor` project auto-open on existing directories without `selene.project.json`; manifest discovery now checks file existence before probing file kind, so opening an example folder correctly auto-initializes a new editor project instead of raising `OSError(... No such file or directory)`.
 - Fixed `selene-editor` project open/create flows so an empty `Project root` no longer triggers filesystem write attempts; the frontend now blocks those actions until a folder is chosen, and the service returns a clear `Project root is required` error for invalid requests.
+- Fixed `selene-editor` top toolbar spacing by grouping project actions separately from viewport tools and reserving room for the status text on the right.
 - Fixed `examples/survivors` player atlas extraction by restoring the historical `space_x` padding semantics for the local sprite-sheet helper, so `whiteboy` frames are cut at the original x offsets instead of a regressed 64-pixel stride.
 - Fixed step-interpolated animation sampling at interior keyframe boundaries so `TextureAtlas.index` and other discrete animation targets switch on the exact next keyframe instead of lingering one frame behind.
 - Fixed repeated cached asset loads so they no longer emit duplicate `Added` / `Loaded` events once an asset handle is already in the loaded state.

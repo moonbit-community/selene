@@ -31,6 +31,16 @@ pub struct EventEnvelope {
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
+pub struct DirectoryPickResult {
+  path : String?
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
+pub fn directory_pick_result(path : String?) -> DirectoryPickResult {
+  { path, }
+}
+
+///|
 pub enum PreviewTool {
   Select
   Translate

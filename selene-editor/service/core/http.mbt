@@ -55,13 +55,17 @@ async fn send_text(
 }
 
 ///|
-async fn send_file(conn : @http.ServerConnection, path : String) -> Unit {
+async fn send_file(
+  conn : @http.ServerConnection,
+  path : String,
+  cache_control? : String = "no-cache",
+) -> Unit {
   let file = @fs.open(path, mode=ReadOnly)
   defer file.close()
   conn
   ..send_response(200, "OK", extra_headers={
     "Content-Type": content_type_for(path),
-    "Cache-Control": "no-cache",
+    "Cache-Control": cache_control,
   })
   ..write_reader(file)
   .end_response()
@@ -75,7 +79,7 @@ async fn EditorService::handle_static_request(
 ) -> Bool {
   match request.path {
     "/" => {
-      send_file(conn, self.public_path("index.html")) catch {
+      send_file(conn, self.public_path("index.html"), cache_control="no-store") catch {
         err =>
           send_text(
             conn,
@@ -87,7 +91,7 @@ async fn EditorService::handle_static_request(
       true
     }
     "/editor.css" => {
-      send_file(conn, self.public_path("editor.css")) catch {
+      send_file(conn, self.public_path("editor.css"), cache_control="no-store") catch {
         err =>
           send_text(
             conn,
@@ -99,7 +103,7 @@ async fn EditorService::handle_static_request(
       true
     }
     "/editor.js" => {
-      send_file(conn, self.editor_script_path()) catch {
+      send_file(conn, self.editor_script_path(), cache_control="no-store") catch {
         err =>
           send_text(
             conn,
@@ -277,7 +281,7 @@ pub async fn EditorService::handle_rpc(
           "Choose a project folder"
         }
         let path = pick_directory_dialog(prompt)
-        @shared.rpc_success(id, { "path": path.to_json() })
+        @shared.rpc_success(id, @shared.directory_pick_result(path).to_json())
       }
       "scene.load" => {
         let manifest = self.current_manifest()

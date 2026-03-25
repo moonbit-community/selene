@@ -12,8 +12,8 @@ pub struct SceneLoadResponse {
 } derive(FromJson, Show, Eq)
 
 ///|
-pub struct DirectoryPickResponse {
-  path : String?
+pub struct AssetsListResponse {
+  assets : Array[@editor_bridge.AssetDocument]
 } derive(FromJson, Show, Eq)
 
 ///|
@@ -24,6 +24,9 @@ pub struct Model {
   manifest : @editor_bridge.ProjectManifest?
   scene_path : String
   scene : @editor_bridge.SceneDocument?
+  assets : Array[@editor_bridge.AssetDocument]
+  asset_sizes : Map[String, @editor_bridge.Vec2Doc]
+  selected_asset_path : String?
   selected_entity_id : String?
   recent_projects : Array[String]
   logs : Array[String]
@@ -39,12 +42,15 @@ pub enum Msg {
   PickProjectRoot
   OpenProject
   CreateProject
-  ProjectRootPicked(Result[DirectoryPickResponse, String])
+  ProjectRootPicked(Result[@shared.DirectoryPickResult, String])
   ProjectLoaded(Result[ProjectStateResponse, String])
   SceneLoaded(Result[SceneLoadResponse, String])
+  AssetsLoaded(Result[AssetsListResponse, String])
+  AssetSizeResolved(String, Double, Double)
   SceneSaved(Result[Json, String])
   ServiceEvent(Result[@shared.EventEnvelope, String])
   PreviewEvent(@bridge.PreviewEvent)
+  SelectAsset(String?)
   SelectEntity(String?)
   RenameSelected(String)
   UpdateSelectedTranslateX(String)
@@ -55,6 +61,8 @@ pub enum Msg {
   SaveScene
   ReloadScene
   AddSpriteEntity
+  AddSpriteFromAsset(String)
+  AddSpriteFromAssetAt(String, @editor_bridge.Vec2Doc)
   AddTextEntity
   DeleteSelected
   SetTool(@shared.PreviewTool)
@@ -66,6 +74,7 @@ pub enum RpcTarget {
   ProjectLoaded
   ProjectRootPicked
   SceneLoaded
+  AssetsLoaded
   SceneSaved
 } derive(Show, Eq)
 
@@ -87,6 +96,9 @@ pub fn new_model() -> Model {
     recent_projects: [],
     scene_path: @editor_bridge.startup_scene_path_for_name("main"),
     scene: None,
+    assets: [],
+    asset_sizes: {},
+    selected_asset_path: None,
     selected_entity_id: None,
     status: "Choose a project folder to begin",
     logs: [],
@@ -126,7 +138,7 @@ pub fn msg_create_project() -> Msg {
 
 ///|
 pub fn msg_project_root_picked(
-  result : Result[DirectoryPickResponse, String],
+  result : Result[@shared.DirectoryPickResult, String],
 ) -> Msg {
   ProjectRootPicked(result)
 }
@@ -142,6 +154,20 @@ pub fn msg_scene_loaded(result : Result[SceneLoadResponse, String]) -> Msg {
 }
 
 ///|
+pub fn msg_assets_loaded(result : Result[AssetsListResponse, String]) -> Msg {
+  AssetsLoaded(result)
+}
+
+///|
+pub fn msg_asset_size_resolved(
+  path : String,
+  width : Double,
+  height : Double,
+) -> Msg {
+  AssetSizeResolved(path, width, height)
+}
+
+///|
 pub fn msg_scene_saved(result : Result[Json, String]) -> Msg {
   SceneSaved(result)
 }
@@ -154,6 +180,11 @@ pub fn msg_service_event(result : Result[@shared.EventEnvelope, String]) -> Msg 
 ///|
 pub fn msg_preview_event(event : @bridge.PreviewEvent) -> Msg {
   PreviewEvent(event)
+}
+
+///|
+pub fn msg_select_asset(path : String?) -> Msg {
+  SelectAsset(path)
 }
 
 ///|
@@ -207,6 +238,19 @@ pub fn msg_add_sprite_entity() -> Msg {
 }
 
 ///|
+pub fn msg_add_sprite_from_asset(path : String) -> Msg {
+  AddSpriteFromAsset(path)
+}
+
+///|
+pub fn msg_add_sprite_from_asset_at(
+  path : String,
+  translation : @editor_bridge.Vec2Doc,
+) -> Msg {
+  AddSpriteFromAssetAt(path, translation)
+}
+
+///|
 pub fn msg_add_text_entity() -> Msg {
   AddTextEntity
 }
@@ -252,6 +296,34 @@ fn normalized_project_root(root : String) -> String {
 }
 
 ///|
+fn next_entity_id(scene : @editor_bridge.SceneDocument) -> String {
+  let mut index = scene.entities.length()
+  for ;; {
+    let candidate = "entity-\{index}"
+    if scene.entity(candidate) is None {
+      return candidate
+    }
+    index += 1
+  }
+  "entity"
+}
+
+///|
+fn asset_basename(path : String) -> String {
+  let normalized = path.replace(old="\\", new="/")
+  let base = if normalized.rev_find("/") is Some(index) {
+    normalized[index + 1:].to_string()
+  } else {
+    normalized
+  }
+  if base.rev_find(".") is Some(index) {
+    base[:index].to_string()
+  } else {
+    base
+  }
+}
+
+///|
 fn sync_preview_effects(model : Model) -> Array[Effect] {
   let effects : Array[Effect] = [
     Preview(@bridge.preview_command_set_tool(model.active_tool)),
@@ -278,6 +350,7 @@ fn refresh_project_effects(
           "scene.load",
           { "path": scene_path.to_json() }.to_json(),
         ),
+        rpc_effect(AssetsLoaded, "assets.list", Json::null()),
       ]
     None => []
   }
@@ -325,11 +398,66 @@ fn text_or_fallback(json : Json, fallback : String) -> String {
 }
 
 ///|
+fn asset_path_exists(
+  assets : Array[@editor_bridge.AssetDocument],
+  path : String,
+) -> Bool {
+  for asset in assets {
+    if asset.path == path {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn add_sprite_asset_to_scene(
+  asset_size : @editor_bridge.Vec2Doc?,
+  scene : @editor_bridge.SceneDocument,
+  asset_path : String,
+  translation : @editor_bridge.Vec2Doc,
+) -> (@editor_bridge.SceneDocument, String) {
+  let id = next_entity_id(scene)
+  let entity = @editor_bridge.entity_document(
+    id,
+    asset_basename(asset_path),
+    components=[
+      @editor_bridge.transform2d_component(translation~),
+      @editor_bridge.visibility_component(),
+      @editor_bridge.sprite_component(
+        image_path=Some(asset_path),
+        custom_size=asset_size,
+      ),
+    ],
+  )
+  (scene.with_entity(entity), id)
+}
+
+///|
 pub fn Model::selected_entity(self : Model) -> @editor_bridge.EntityDocument? {
   match (self.scene, self.selected_entity_id) {
     (Some(scene), Some(id)) => scene.entity(id)
     _ => None
   }
+}
+
+///|
+pub fn Model::image_assets(self : Model) -> Array[@editor_bridge.AssetDocument] {
+  let images : Array[@editor_bridge.AssetDocument] = []
+  for asset in self.assets {
+    if asset.kind is @editor_bridge.Image {
+      images.push(asset)
+    }
+  }
+  images
+}
+
+///|
+pub fn Model::asset_size(
+  self : Model,
+  path : String,
+) -> @editor_bridge.Vec2Doc? {
+  self.asset_sizes.get(path)
 }
 
 ///|
@@ -522,6 +650,37 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           ([], { ..next, status: "Scene load failed: " + message })
         }
       }
+    AssetsLoaded(result) =>
+      match result {
+        Ok(response) =>
+          (
+            [],
+            {
+              ..model,
+              assets: response.assets,
+              selected_asset_path: match model.selected_asset_path {
+                Some(path) if asset_path_exists(response.assets, path) =>
+                  Some(path)
+                _ => None
+              },
+            },
+          )
+        Err(message) => {
+          let next = push_log(model, "Assets load failed: " + message)
+          ([], { ..next, status: "Assets load failed: " + message })
+        }
+      }
+    AssetSizeResolved(path, width, height) =>
+      if width > 0.0 && height > 0.0 {
+        let asset_sizes = model.asset_sizes
+        asset_sizes.set(path, @editor_bridge.vec2_doc(width, height))
+        (
+          [],
+          { ..model, asset_sizes },
+        )
+      } else {
+        ([], model)
+      }
     SceneSaved(result) =>
       match result {
         Ok(_) => ([], { ..model, status: "Scene saved" })
@@ -591,6 +750,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             _ => ([], model)
           }
       }
+    SelectAsset(path) => ([], { ..model, selected_asset_path: path })
     SelectEntity(id) => {
       let next = { ..model, selected_entity_id: id }
       (sync_preview_effects(next), next)
@@ -744,7 +904,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     AddSpriteEntity =>
       match model.scene {
         Some(scene) => {
-          let id = "entity-\{scene.entities.length()}"
+          let id = next_entity_id(scene)
           let entity = @editor_bridge.entity_document(id, "Sprite", components=[
             @editor_bridge.transform2d_component(),
             @editor_bridge.visibility_component(),
@@ -761,10 +921,46 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         }
         None => ([], model)
       }
+    AddSpriteFromAsset(path) =>
+      match model.scene {
+        Some(scene) => {
+          let (next_scene, id) = add_sprite_asset_to_scene(
+            model.asset_size(path),
+            scene,
+            path,
+            @editor_bridge.vec2_doc(0.0, 0.0),
+          )
+          let next = {
+            ..model,
+            scene: Some(next_scene),
+            selected_entity_id: Some(id),
+          }
+          normalize_scene_after_change(next)
+        }
+        None => ([], model)
+      }
+    AddSpriteFromAssetAt(path, translation) =>
+      match model.scene {
+        Some(scene) => {
+          let (next_scene, id) = add_sprite_asset_to_scene(
+            model.asset_size(path),
+            scene,
+            path,
+            translation,
+          )
+          let next = {
+            ..model,
+            scene: Some(next_scene),
+            selected_entity_id: Some(id),
+          }
+          normalize_scene_after_change(next)
+        }
+        None => ([], model)
+      }
     AddTextEntity =>
       match model.scene {
         Some(scene) => {
-          let id = "entity-\{scene.entities.length()}"
+          let id = next_entity_id(scene)
           let entity = @editor_bridge.entity_document(id, "Text", components=[
             @editor_bridge.transform2d_component(),
             @editor_bridge.visibility_component(),

@@ -17,8 +17,10 @@ async fn project_manifest_candidates(root : String) -> Array[String] {
     return candidates
   }
   let path = project_manifest_path(root, "")
-  if @fs.exists(path) && @fs.kind(path) != Directory {
-    candidates.push(path)
+  if @fs.exists(path) {
+    if @fs.kind(path) != Directory {
+      candidates.push(path)
+    }
   }
   candidates
 }

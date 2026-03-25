@@ -56,7 +56,14 @@ pub struct EditorHarness {
 fn[T : FromJson] decode_rpc_payload(payload : Json) -> Result[T, String] {
   try {
     let success : @shared.RpcSuccess = @json.from_json(payload)
-    Ok(@json.from_json(success.result))
+    try {
+      Ok(@json.from_json(success.result))
+    } catch {
+      err => {
+        let message = "RpcSuccess decode failed: \{err.to_string()} result=\{success.result.stringify()}"
+        Err(message)
+      }
+    }
   } catch {
     _ =>
       try {
@@ -75,6 +82,7 @@ fn msg_for_rpc_target(target : @app.RpcTarget, payload : Json) -> @app.Msg {
       @app.msg_project_root_picked(decode_rpc_payload(payload))
     @app.ProjectLoaded => @app.msg_project_loaded(decode_rpc_payload(payload))
     @app.SceneLoaded => @app.msg_scene_loaded(decode_rpc_payload(payload))
+    @app.AssetsLoaded => @app.msg_assets_loaded(decode_rpc_payload(payload))
     @app.SceneSaved => @app.msg_scene_saved(decode_rpc_payload(payload))
   }
 }
@@ -143,7 +151,7 @@ async fn EditorHarness::process_effect(
       let payload = if method_name == "project.pick_directory" {
         @shared.rpc_success(
           request_id,
-          { "path": self.project_root.to_json() }.to_json(),
+          @shared.directory_pick_result(Some(self.project_root)).to_json(),
         )
       } else {
         let request = @shared.rpc_request(request_id, method_name, params)
@@ -198,6 +206,13 @@ pub fn EditorHarness::scene(
   self : EditorHarness,
 ) -> @editor_bridge.SceneDocument? {
   self.model.scene
+}
+
+///|
+pub fn EditorHarness::assets(
+  self : EditorHarness,
+) -> Array[@editor_bridge.AssetDocument] {
+  self.model.assets
 }
 
 ///|
@@ -266,6 +281,23 @@ pub async fn EditorHarness::when_project_opened(self : EditorHarness) -> Unit {
 }
 
 ///|
+pub async fn EditorHarness::given_image_asset(
+  self : EditorHarness,
+  relative_path : String,
+) -> Unit {
+  let full_path = self.project_root + "/" + relative_path
+  let parent = if full_path.rev_find("/") is Some(index) {
+    full_path[:index].to_string()
+  } else {
+    self.project_root
+  }
+  if !@fs.exists(parent) {
+    @fs.mkdir(parent, permission=0o755, recursive=true)
+  }
+  @fs.write_file(full_path, b"fake-image", create=0o644)
+}
+
+///|
 pub async fn EditorHarness::when_scene_tree_selects_entity(
   self : EditorHarness,
   id : String?,
@@ -310,6 +342,29 @@ pub async fn EditorHarness::when_selected_visibility_is_toggled(
   self : EditorHarness,
 ) -> Unit {
   self.dispatch(@app.msg_toggle_selected_visibility())
+}
+
+///|
+pub async fn EditorHarness::when_sprite_asset_is_added(
+  self : EditorHarness,
+  asset_path : String,
+) -> Unit {
+  self.dispatch(@app.msg_add_sprite_from_asset(asset_path))
+}
+
+///|
+pub async fn EditorHarness::when_sprite_asset_is_dropped(
+  self : EditorHarness,
+  asset_path : String,
+  x : Double,
+  y : Double,
+) -> Unit {
+  self.dispatch(
+    @app.msg_add_sprite_from_asset_at(
+      asset_path,
+      @editor_bridge.vec2_doc(x, y),
+    ),
+  )
 }
 
 ///|

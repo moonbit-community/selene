@@ -67,8 +67,10 @@ pub fn project_manifest_candidates(root : String) -> Array[String] raise {
     return candidates
   }
   let path = root + "/" + project_manifest_file_name("")
-  if @fs.path_exists(path) && @fs.is_file(path) {
-    candidates.push(path)
+  if @fs.path_exists(path) {
+    if @fs.is_file(path) {
+      candidates.push(path)
+    }
   }
   candidates
 }

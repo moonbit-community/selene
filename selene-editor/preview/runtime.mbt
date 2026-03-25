@@ -36,6 +36,12 @@ fn PreviewState::new() -> PreviewState {
 let preview_state : PreviewState = PreviewState::new()
 
 ///|
+let editor_viewport_width = 960.0
+
+///|
+let editor_viewport_height = 540.0
+
+///|
 fn resolve_project_asset_path(path : String?) -> String? {
   path.map(fn(value) {
     if value.has_prefix("/") ||
@@ -245,6 +251,39 @@ fn world_point_from_mouse() -> @math.Vec2D? {
     return None
   }
   Some(camera_.viewport_to_world_2d(global, projection, @inputs.mouse.pos))
+}
+
+///|
+pub fn viewport_to_world(
+  x : Double,
+  y : Double,
+  viewport_width : Double,
+  viewport_height : Double,
+) -> @editor_bridge.Vec2Doc? {
+  if viewport_width <= 0.0 || viewport_height <= 0.0 {
+    return None
+  }
+  guard editor_camera_entity() is Some(camera_entity) else { return None }
+  guard @camera.cameras().get(camera_entity) is Some(camera_) else {
+    return None
+  }
+  guard @camera.orthographic_projections().get(camera_entity)
+    is Some(projection) else {
+    return None
+  }
+  guard @transform.compute_global_transform(camera_entity) is Some(global) else {
+    return None
+  }
+  let viewport_point = @math.Vec2D(
+    x * editor_viewport_width / viewport_width,
+    y * editor_viewport_height / viewport_height,
+  )
+  let world_point = camera_.viewport_to_world_2d(
+    global,
+    projection,
+    viewport_point,
+  )
+  Some(@editor_bridge.vec2_doc(world_point[X], world_point[Y]))
 }
 
 ///|
@@ -460,8 +499,8 @@ pub fn bootstrap() -> Unit {
   }
   preview_state.bootstrapped = true
   @app.App::new()
-  .with_viewport_width(960.0)
-  .with_viewport_height(540.0)
+  .with_viewport_width(editor_viewport_width)
+  .with_viewport_height(editor_viewport_height)
   .with_image_smooth(false)
   .add_plugin(@plugins.default_plugin)
   .add_system(@system.Startup, preview_startup_system)

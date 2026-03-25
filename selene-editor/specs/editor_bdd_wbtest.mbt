@@ -142,3 +142,38 @@ async test "bdd adding and deleting entities updates scene and selection" {
     inspect(harness.preview_selected_entity_id() is None, content="true")
   })
 }
+
+///|
+async test "bdd image assets can be added into the scene" {
+  @async.with_task_group(group => {
+    let harness = given_editor_harness()
+    group.add_defer(() => harness.cleanup())
+
+    harness.given_image_asset("assets/hero.png")
+    harness.when_editor_initialized()
+
+    inspect(harness.assets().length(), content="1")
+    inspect(harness.assets()[0].path, content="assets/hero.png")
+
+    harness.when_sprite_asset_is_dropped("assets/hero.png", 96.0, 144.0)
+
+    let entity_id = harness.selected_entity_id().unwrap_or("")
+    let entity = harness.entity(entity_id).unwrap()
+    let sprite : @editor_bridge.SpriteComponent = @app.component_of(
+      entity,
+      "Sprite",
+    ).unwrap()
+    let transform : @editor_bridge.Transform2dComponent = @app.component_of(
+      entity,
+      "Transform2d",
+    ).unwrap()
+
+    inspect(sprite.image_path, content="Some(\"assets/hero.png\")")
+    inspect(transform.translation.x, content="96")
+    inspect(transform.translation.y, content="144")
+    inspect(
+      harness.preview_selected_entity_id() == Some(entity_id),
+      content="true",
+    )
+  })
+}
