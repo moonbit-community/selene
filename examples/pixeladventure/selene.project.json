@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "Selene Project",
+  "startup_scene": "scenes/main.scene.json",
+  "asset_roots": [
+    "assets"
+  ]
+}

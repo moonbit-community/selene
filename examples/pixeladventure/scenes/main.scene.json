@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "entities": [
+    {
+      "id": "camera",
+      "name": "Camera2d",
+      "components": [
+        {
+          "kind": "Transform2d",
+          "data": {
+            "translation": {
+              "x": 0,
+              "y": 0
+            },
+            "rotation": 0,
+            "scale": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        },
+        {
+          "kind": "Camera2d",
+          "data": {
+            "is_active": true,
+            "order": 0,
+            "scale": 1
+          }
+        },
+        {
+          "kind": "Visibility",
+          "data": {
+            "visible": true
+          }
+        }
+      ]
+    }
+  ]
+}
