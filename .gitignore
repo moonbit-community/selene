@@ -1,7 +1,4 @@
 .DS_Store
-_build/
-.mooncakes/
-.moon/
 __pycache__/
 page/examples/
 page/preload-assets.js

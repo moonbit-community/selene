@@ -17,6 +17,8 @@
 
 ### Changed
 
+- Changed `selene-editor` to own its local ignore rules via `selene-editor/.gitignore`, mirroring the established MoonBit ignore layout used by `selene-core`, and removed the corresponding MoonBit build-cache entries from the repository root `.gitignore`.
+- Changed `publish.py` so `selene-editor` now participates in the release pipeline alongside the core Selene modules, including version rewriting, `moon update`, warning-free quality checks, and ordered `moon publish`.
 - Changed `@asset.load_image(...)`, `load_audio(...)`, and `load_font(...)` to own cached handle registration, load-state tracking, and typed lifecycle event dispatch directly instead of splitting those responsibilities across `selene/asset` and `selene/asset2`.
 - Changed `scene3d`, `tiled`, `ldtk`, `animation`, built-in plugins, tutorials, and example packages to use the unified `selene/asset` surface for bytes loading, lifecycle events, and typed asset handles.
 - Changed `selene/physics3d` from single-descriptor `RigidBody3D` / `Collider3D` storage plus free query helpers into a Bevy/Rapier-style componentized surface centered on `RigidBody`, `Velocity`, `Collider`, `ImpulseJoint`, `KinematicCharacterController`, and `RapierContext`.

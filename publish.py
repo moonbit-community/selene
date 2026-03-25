@@ -31,6 +31,7 @@ INTERNAL_MODULES = {
     "Milky2018/selene_webgpu",
     "Milky2018/selene_raylib",
     "Milky2018/selene_tools",
+    "Milky2018/selene-editor",
 }
 
 
@@ -45,9 +46,16 @@ RELEASE_MODULES = [
     ModuleConfig("selene-webgpu", ROOT_DIR / "selene-webgpu"),
     ModuleConfig("selene-raylib", ROOT_DIR / "selene-raylib"),
     ModuleConfig("selene-tools", ROOT_DIR / "selene-tools"),
+    ModuleConfig("selene-editor", ROOT_DIR / "selene-editor"),
 ]
 
-PUBLISH_ORDER = ["selene-core", "selene-webgpu", "selene-raylib", "selene-tools"]
+PUBLISH_ORDER = [
+    "selene-core",
+    "selene-webgpu",
+    "selene-raylib",
+    "selene-tools",
+    "selene-editor",
+]
 LEGACY_UI_CHECK_REL_PATH = Path("scripts/check_no_legacy_ui.sh")
 LEGACY_UI_CHECK_PATH = ROOT_DIR / LEGACY_UI_CHECK_REL_PATH
 
@@ -444,6 +452,11 @@ def run_module_quality_checks(module: ModuleConfig):
     if module.name == "selene-tools":
         run_cmd(["moon", "info"], module.path, fail_on_warning=True)
         run_cmd(["moon", "check", "--target", "native", "--deny-warn"], module.path, fail_on_warning=True)
+        return
+
+    if module.name == "selene-editor":
+        run_cmd(["moon", "info"], module.path, fail_on_warning=True)
+        run_cmd(["moon", "check", "--target", "all", "--deny-warn"], module.path, fail_on_warning=True)
         return
 
     raise RuntimeError(f"Unknown module for quality checks: {module.name}")
