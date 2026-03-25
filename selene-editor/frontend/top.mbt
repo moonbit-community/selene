@@ -88,6 +88,37 @@ extern "js" fn drag_event_canvas_metrics(event : @dom.DragEvent) -> Array[Double
 
 ///|
 #cfg(target="js")
+extern "js" fn drag_event_set_asset_payload(
+  event : @dom.DragEvent,
+  path : String,
+) =
+  #| (event, path) => {
+  #|   const transfer = event.dataTransfer;
+  #|   if (!transfer) return;
+  #|   transfer.setData("text/plain", path);
+  #|   transfer.effectAllowed = "copy";
+  #| }
+
+///|
+#cfg(target="js")
+extern "js" fn drag_event_get_asset_payload(event : @dom.DragEvent) -> String =
+  #| (event) => {
+  #|   const transfer = event.dataTransfer;
+  #|   if (!transfer) return "";
+  #|   return transfer.getData("text/plain") || "";
+  #| }
+
+///|
+#cfg(target="js")
+extern "js" fn drag_event_set_drop_copy(event : @dom.DragEvent) =
+  #| (event) => {
+  #|   const transfer = event.dataTransfer;
+  #|   if (!transfer) return;
+  #|   transfer.dropEffect = "copy";
+  #| }
+
+///|
+#cfg(target="js")
 extern "js" fn image_event_natural_metrics(event : @dom.Event) -> Array[Double] =
   #| (event) => {
   #|   const image = event.currentTarget;
@@ -266,8 +297,11 @@ fn asset_drag_attrs(
   @html.Attrs::build()
   .draggable("true")
   .handler("dragstart", fn(event, _scheduler) {
-    ignore(event)
     begin_dragged_asset(asset_path)
+    match event.to_drag_event() {
+      Some(drag_event) => drag_event_set_asset_payload(drag_event, asset_path)
+      None => ()
+    }
   })
   .handler("dragend", fn(event, _scheduler) {
     ignore(event)
@@ -291,6 +325,11 @@ fn asset_image_attrs(
       dispatch(@app.msg_asset_size_resolved(asset_path, metrics[0], metrics[1])),
     )
   })
+}
+
+///|
+fn tooltip_attrs(label : String) -> @html.Attrs {
+  @html.Attrs::build().title(label).data_set("tooltip", label)
 }
 
 ///|
@@ -323,6 +362,10 @@ fn asset_panel_view(
   let cards : Array[@rabbita.Html] = []
   for asset in assets {
     let is_selected = model.selected_asset_path == Some(asset.path)
+    let size_label = match model.asset_size(asset.path) {
+      Some(size) => "\{size.x.to_int()}×\{size.y.to_int()}"
+      None => "image"
+    }
     cards.push(
       @html.div(
         class=if is_selected { "asset-card selected" } else { "asset-card" },
@@ -337,12 +380,30 @@ fn asset_panel_view(
             attrs=asset_image_attrs(dispatch, asset.path),
             @html.nothing,
           ),
-          @html.div(class="asset-name", asset_display_name(asset)),
+          @html.div(class="asset-meta", [
+            @html.div(class="asset-name", asset_display_name(asset)),
+            @html.div(class="asset-subtitle", asset.path),
+            @html.div(class="asset-badge", size_label),
+          ]),
         ],
       ),
     )
   }
-  @html.div(class="panel-body asset-grid", cards)
+  @html.div(class="panel-body asset-grid", [
+    match model.selected_asset_path {
+      Some(path) =>
+        @html.div(class="asset-selection-banner", [
+          @html.span(class="asset-selection-label", "Selected"),
+          @html.span(class="asset-selection-value", asset_display_name_from_path(path)),
+        ])
+      None =>
+        @html.div(
+          class="asset-selection-banner empty",
+          "Select an asset, then drag it into the viewport",
+        )
+    },
+    @html.div(class="asset-list", cards),
+  ])
 }
 
 ///|
@@ -352,23 +413,43 @@ fn viewport_drop_attrs(
   @html.Attrs::build()
   .handler("dragover", fn(event, _scheduler) {
     event.prevent_default()
+    match event.to_drag_event() {
+      Some(drag_event) => drag_event_set_drop_copy(drag_event)
+      None => ()
+    }
   })
   .handler("drop", fn(event, scheduler) {
     event.prevent_default()
     let cmd = match current_dragged_asset() {
-      Some(asset_path) =>
+      Some(asset_path) => match event.to_drag_event() {
+        Some(drag_event) =>
+          match drag_drop_translation(drag_event) {
+            Some(translation) =>
+              dispatch(
+                @app.msg_add_sprite_from_asset_at(asset_path, translation),
+              )
+            None => @cmd.none
+          }
+        None => @cmd.none
+      }
+      None =>
         match event.to_drag_event() {
-          Some(drag_event) =>
-            match drag_drop_translation(drag_event) {
-              Some(translation) =>
-                dispatch(
-                  @app.msg_add_sprite_from_asset_at(asset_path, translation),
-                )
-              None => @cmd.none
+          Some(drag_event) => {
+            let asset_path = drag_event_get_asset_payload(drag_event)
+            if asset_path == "" {
+              @cmd.none
+            } else {
+              match drag_drop_translation(drag_event) {
+                Some(translation) =>
+                  dispatch(
+                    @app.msg_add_sprite_from_asset_at(asset_path, translation),
+                  )
+                None => @cmd.none
+              }
             }
+          }
           None => @cmd.none
         }
-      None => @cmd.none
     }
     clear_dragged_asset()
     schedule_cmd(scheduler, cmd)
@@ -521,7 +602,7 @@ fn toolbar_button(
       "small-button icon-button"
     },
     on_click=dispatch(@app.msg_set_tool(tool)),
-    attrs=@html.Attrs::build().title(label),
+    attrs=tooltip_attrs(label),
     @html.span(class="icon-glyph", icon),
   )
 }
@@ -541,7 +622,7 @@ fn action_button(
       "small-button icon-button"
     },
     on_click=dispatch(msg),
-    attrs=@html.Attrs::build().title(label),
+    attrs=tooltip_attrs(label),
     @html.span(class="icon-glyph", icon),
   )
 }
@@ -664,12 +745,7 @@ fn view(
         @html.h2("Viewport"),
         @html.div(
           class="viewport-toolbar",
-          match model.selected_asset_path {
-            Some(path) =>
-              "Drag the selected image into the scene: " +
-              asset_display_name_from_path(path)
-            None => "Select an image asset, then drag it into the scene"
-          }
+          "Drag the selected asset from the sidebar into the scene",
         ),
         @html.div(class="viewport-frame", [
           @html.canvas(
