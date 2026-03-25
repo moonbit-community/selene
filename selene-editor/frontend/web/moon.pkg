@@ -1,0 +1,8 @@
+import {
+  "Milky2018/selene-editor/frontend",
+}
+
+options(
+  is_main: true,
+  "supported-targets": "js",
+)

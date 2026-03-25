@@ -1,0 +1,17 @@
+import {
+  "Milky2018/selene-editor/shared",
+  "moonbitlang/async",
+  "moonbitlang/async/aqueue",
+  "moonbitlang/async/fs",
+  "moonbitlang/async/http",
+  "moonbitlang/async/io",
+  "moonbitlang/async/process",
+  "moonbitlang/async/socket",
+  "moonbitlang/core/env",
+  "moonbitlang/core/json",
+}
+
+options(
+  is_main: true,
+  "supported-targets": "native",
+)

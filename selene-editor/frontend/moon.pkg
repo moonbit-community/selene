@@ -1,0 +1,14 @@
+import {
+  "Milky2018/selene-editor/preview",
+  "Milky2018/selene-editor/shared",
+  "moonbit-community/rabbita",
+  "moonbit-community/rabbita/cmd",
+  "moonbit-community/rabbita/html",
+  "moonbit-community/rabbita/http",
+  "moonbitlang/core/json",
+  "moonbitlang/core/strconv",
+}
+
+options(
+  "supported-targets": "js",
+)
