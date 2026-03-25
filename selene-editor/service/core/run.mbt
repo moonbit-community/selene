@@ -19,7 +19,9 @@ async fn EditorService::ensure_runtime_assets(self : EditorService) -> Unit {
     }
   }
   if !missing.is_empty() {
-    let message = "Missing editor runtime assets: " + missing.join(", ") + ". Build the frontend when developing from source, or use a release bundle."
+    let message = "Missing editor runtime assets: " +
+      missing.join(", ") +
+      ". Build the frontend when developing from source, or use a release bundle."
     raise Failure(message)
   }
 }

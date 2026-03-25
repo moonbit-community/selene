@@ -257,6 +257,55 @@ fn asset_kind_extension(path : String) -> String? {
 }
 
 ///|
+fn sanitized_document_name(name : String) -> String {
+  let normalized = name
+    .trim()
+    .to_string()
+    .to_lower()
+    .replace(old="\\", new="-")
+    .replace(old="/", new="-")
+    .replace(old=":", new="-")
+    .replace(old="*", new="-")
+    .replace(old="?", new="-")
+    .replace(old="\"", new="-")
+    .replace(old="<", new="-")
+    .replace(old=">", new="-")
+    .replace(old="|", new="-")
+    .replace(old=".", new="-")
+    .replace(old="\t", new=" ")
+    .replace(old="\n", new=" ")
+    .replace(old="\r", new=" ")
+  let parts : Array[String] = []
+  for part in normalized.split(" ") {
+    let token = part.trim().to_string()
+    if token != "" {
+      parts.push(token)
+    }
+  }
+  let stem = parts.join("-")
+  if stem == "" {
+    "project"
+  } else {
+    stem
+  }
+}
+
+///|
+pub fn normalized_document_stem(name : String) -> String {
+  sanitized_document_name(name)
+}
+
+///|
+pub fn project_manifest_file_name(name : String) -> String {
+  normalized_document_stem(name) + ".project.json"
+}
+
+///|
+pub fn startup_scene_path_for_name(name : String) -> String {
+  "scenes/" + normalized_document_stem(name) + ".scene.json"
+}
+
+///|
 pub fn infer_asset_kind(path : String) -> AssetKind {
   if path.has_suffix(".meta.json") {
     return Meta
@@ -278,7 +327,7 @@ pub fn infer_asset_kind(path : String) -> AssetKind {
 ///|
 pub fn ProjectManifest::default(
   name : String,
-  startup_scene? : String = default_startup_scene,
+  startup_scene? : String = startup_scene_path_for_name(name),
   asset_roots? : Array[String] = ["assets"],
 ) -> ProjectManifest {
   { version: project_schema_version, name, startup_scene, asset_roots }

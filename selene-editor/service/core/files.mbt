@@ -27,9 +27,59 @@ async fn ensure_project_layout(root : String) -> Unit {
 }
 
 ///|
+async fn project_manifest_candidates(root : String) -> Array[String] {
+  let candidates : Array[String] = []
+  if !@fs.exists(root) {
+    return candidates
+  }
+  for entry in @fs.readdir(root, sort=true) {
+    if !entry.has_suffix(".project.json") {
+      continue
+    }
+    let path = path_join(root, entry)
+    if @fs.kind(path) == Directory {
+      continue
+    }
+    candidates.push(path)
+  }
+  candidates
+}
+
+///|
+async fn newer_path_by_mtime(left : String, right : String) -> String {
+  let (left_sec, left_nano) = @fs.mtime(left)
+  let (right_sec, right_nano) = @fs.mtime(right)
+  if right_sec > left_sec || (right_sec == left_sec && right_nano > left_nano) {
+    right
+  } else {
+    left
+  }
+}
+
+///|
+async fn project_manifest_path_to_load(root : String) -> String? {
+  let candidates = project_manifest_candidates(root)
+  if !candidates.is_empty() {
+    let mut latest = candidates[0]
+    for current in candidates[1:] {
+      latest = newer_path_by_mtime(latest, current)
+    }
+    return Some(latest)
+  }
+  let legacy = legacy_project_manifest_path(root)
+  if @fs.exists(legacy) {
+    Some(legacy)
+  } else {
+    None
+  }
+}
+
+///|
 async fn load_project_manifest(root : String) -> @shared.ProjectManifest {
-  let path = project_manifest_path(root)
-  guard @fs.exists(path) else { raise MissingProjectManifest(path) }
+  let maybe_path = project_manifest_path_to_load(root)
+  guard maybe_path is Some(path) else {
+    raise MissingProjectManifest(legacy_project_manifest_path(root))
+  }
   let manifest : @shared.ProjectManifest = read_json_file(path)
   let errors = @shared.validate_project_manifest(manifest)
   guard errors.is_empty() else {
@@ -43,7 +93,7 @@ async fn save_project_manifest(
   root : String,
   manifest : @shared.ProjectManifest,
 ) -> Unit {
-  write_json_file(project_manifest_path(root), manifest)
+  write_json_file(project_manifest_path(root, manifest.name), manifest)
 }
 
 ///|

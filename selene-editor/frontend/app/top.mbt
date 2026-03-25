@@ -85,7 +85,7 @@ pub fn new_model() -> Model {
     current_root: None,
     manifest: None,
     recent_projects: [],
-    scene_path: "scenes/main.scene.json",
+    scene_path: @shared.startup_scene_path_for_name("main"),
     scene: None,
     assets: [],
     selected_entity_id: None,

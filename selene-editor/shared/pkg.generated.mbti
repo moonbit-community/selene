@@ -18,8 +18,6 @@ pub fn component_document(String, Json) -> ComponentDocument
 
 pub fn default_color() -> ColorDoc
 
-pub let default_startup_scene : String
-
 pub let editor_protocol_version : Int
 
 pub fn entity_document(String, String, parent? : String?, components? : Array[ComponentDocument]) -> EntityDocument
@@ -32,6 +30,8 @@ pub fn ldtk_world_ref_component(String) -> ComponentDocument
 
 pub fn mesh2d_component(String, size? : Vec2Doc?, radius? : Double?) -> ComponentDocument
 
+pub fn normalized_document_stem(String) -> String
+
 pub fn physics_body2d_component(body_type? : String, linear_velocity? : Vec2Doc, angular_velocity? : Double) -> ComponentDocument
 
 pub fn physics_collider2d_component(shape? : String, size? : Vec2Doc?, radius? : Double?, sensor? : Bool) -> ComponentDocument
@@ -43,6 +43,8 @@ pub fn preview_tool_scale() -> PreviewTool
 pub fn preview_tool_select() -> PreviewTool
 
 pub fn preview_tool_translate() -> PreviewTool
+
+pub fn project_manifest_file_name(String) -> String
 
 pub let project_schema_version : Int
 
@@ -57,6 +59,8 @@ pub fn rpc_success(Int, Json) -> Json
 pub let scene_schema_version : Int
 
 pub fn sprite_component(image_path? : String?, color? : ColorDoc, custom_size? : Vec2Doc?, anchor? : Vec2Doc, flip_x? : Bool, flip_y? : Bool, rect? : RectDoc?, image_mode? : String) -> ComponentDocument
+
+pub fn startup_scene_path_for_name(String) -> String
 
 pub fn text2d_component(String, font_path? : String?, font_size? : Double, color? : ColorDoc, bounds? : Vec2Doc?, anchor? : Vec2Doc) -> ComponentDocument
 

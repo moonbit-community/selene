@@ -13,7 +13,15 @@ async test "bdd project flow creates a startup scene and syncs preview" {
       harness.current_root() == Some(harness.project_root_path()),
       content="true",
     )
-    inspect(harness.scene_path(), content="scenes/main.scene.json")
+    inspect(harness.scene_path(), content="scenes/bdd-demo.scene.json")
+    inspect(
+      @fs.exists(
+        harness.project_root_path() +
+        "/" +
+        @shared.project_manifest_file_name("BDD Demo"),
+      ),
+      content="true",
+    )
     inspect(harness.selected_entity_id() == Some("camera"), content="true")
     inspect(harness.preview_bootstrapped(), content="true")
     inspect(harness.preview_scene() == harness.scene(), content="true")

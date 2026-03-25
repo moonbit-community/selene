@@ -59,8 +59,13 @@ fn EditorService::frontend_bundle_path(self : EditorService) -> String {
 }
 
 ///|
-fn project_manifest_path(root : String) -> String {
+fn legacy_project_manifest_path(root : String) -> String {
   path_join(root, "selene-editor.json")
+}
+
+///|
+fn project_manifest_path(root : String, project_name : String) -> String {
+  path_join(root, @shared.project_manifest_file_name(project_name))
 }
 
 ///|

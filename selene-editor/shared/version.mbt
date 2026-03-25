@@ -6,6 +6,3 @@ pub let scene_schema_version = 1
 
 ///|
 pub let editor_protocol_version = 1
-
-///|
-pub let default_startup_scene = "scenes/main.scene.json"
