@@ -23,3 +23,7 @@ moon run service --target native -- /absolute/project/path
 ```
 
 The service hosts the editor on `http://127.0.0.1:47142` and tries to open the browser automatically.
+
+If the target path does not already contain a `*.project.json` manifest, `selene-editor` will initialize a new project there automatically using the directory name.
+
+Inside the editor page, use `Choose Folder` to select a project directory from the local filesystem instead of typing the path manually.

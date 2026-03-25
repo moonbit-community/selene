@@ -17,6 +17,11 @@ pub struct AssetsListResponse {
 } derive(FromJson, Show, Eq)
 
 ///|
+pub struct DirectoryPickResponse {
+  path : String?
+} derive(FromJson, Show, Eq)
+
+///|
 pub struct Model {
   project_root_input : String
   project_name_input : String
@@ -37,8 +42,10 @@ pub enum Msg {
   Initialize
   SetProjectRootInput(String)
   SetProjectNameInput(String)
+  PickProjectRoot
   OpenProject
   CreateProject
+  ProjectRootPicked(Result[DirectoryPickResponse, String])
   ProjectLoaded(Result[ProjectStateResponse, String])
   SceneLoaded(Result[SceneLoadResponse, String])
   AssetsLoaded(Result[AssetsListResponse, String])
@@ -64,6 +71,7 @@ pub enum Msg {
 ///|
 pub enum RpcTarget {
   ProjectLoaded
+  ProjectRootPicked
   SceneLoaded
   AssetsLoaded
   SceneSaved
@@ -111,6 +119,11 @@ pub fn msg_set_project_name_input(value : String) -> Msg {
 }
 
 ///|
+pub fn msg_pick_project_root() -> Msg {
+  PickProjectRoot
+}
+
+///|
 pub fn msg_open_project() -> Msg {
   OpenProject
 }
@@ -118,6 +131,13 @@ pub fn msg_open_project() -> Msg {
 ///|
 pub fn msg_create_project() -> Msg {
   CreateProject
+}
+
+///|
+pub fn msg_project_root_picked(
+  result : Result[DirectoryPickResponse, String],
+) -> Msg {
+  ProjectRootPicked(result)
 }
 
 ///|
@@ -372,6 +392,17 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       )
     SetProjectRootInput(value) => ([], { ..model, project_root_input: value })
     SetProjectNameInput(value) => ([], { ..model, project_name_input: value })
+    PickProjectRoot =>
+      (
+        [
+          rpc_effect(
+            ProjectRootPicked,
+            "project.pick_directory",
+            { "prompt": "Choose a project folder".to_json() }.to_json(),
+          ),
+        ],
+        { ..model, status: "Choosing project folder..." },
+      )
     OpenProject =>
       (
         [
@@ -397,6 +428,26 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         ],
         { ..model, status: "Creating project..." },
       )
+    ProjectRootPicked(result) =>
+      match result {
+        Ok(response) =>
+          match response.path {
+            Some(path) =>
+              (
+                [],
+                {
+                  ..model,
+                  project_root_input: path,
+                  status: "Selected " + path,
+                },
+              )
+            None => ([], { ..model, status: "Folder selection cancelled" })
+          }
+        Err(message) => {
+          let next = push_log(model, "Folder picker failed: " + message)
+          ([], { ..next, status: "Folder picker failed: " + message })
+        }
+      }
     ProjectLoaded(result) =>
       match result {
         Ok(response) => {

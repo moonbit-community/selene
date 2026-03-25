@@ -28,9 +28,13 @@ pub fn msg_initialize() -> Msg
 
 pub fn msg_open_project() -> Msg
 
+pub fn msg_pick_project_root() -> Msg
+
 pub fn msg_preview_event(@bridge.PreviewEvent) -> Msg
 
 pub fn msg_project_loaded(Result[ProjectStateResponse, String]) -> Msg
+
+pub fn msg_project_root_picked(Result[DirectoryPickResponse, String]) -> Msg
 
 pub fn msg_reload_scene() -> Msg
 
@@ -76,6 +80,13 @@ pub impl Eq for AssetsListResponse
 pub impl Show for AssetsListResponse
 pub impl @json.FromJson for AssetsListResponse
 
+pub struct DirectoryPickResponse {
+  path : String?
+}
+pub impl Eq for DirectoryPickResponse
+pub impl Show for DirectoryPickResponse
+pub impl @json.FromJson for DirectoryPickResponse
+
 pub enum Effect {
   Rpc(target~ : RpcTarget, method_name~ : String, params~ : Json)
   SubscribeServiceEvents
@@ -107,8 +118,10 @@ pub enum Msg {
   Initialize
   SetProjectRootInput(String)
   SetProjectNameInput(String)
+  PickProjectRoot
   OpenProject
   CreateProject
+  ProjectRootPicked(Result[DirectoryPickResponse, String])
   ProjectLoaded(Result[ProjectStateResponse, String])
   SceneLoaded(Result[SceneLoadResponse, String])
   AssetsLoaded(Result[AssetsListResponse, String])
@@ -142,6 +155,7 @@ pub impl @json.FromJson for ProjectStateResponse
 
 pub enum RpcTarget {
   ProjectLoaded
+  ProjectRootPicked
   SceneLoaded
   AssetsLoaded
   SceneSaved

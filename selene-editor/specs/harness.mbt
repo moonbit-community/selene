@@ -71,6 +71,8 @@ fn[T : FromJson] decode_rpc_payload(payload : Json) -> Result[T, String] {
 ///|
 fn msg_for_rpc_target(target : @app.RpcTarget, payload : Json) -> @app.Msg {
   match target {
+    @app.ProjectRootPicked =>
+      @app.msg_project_root_picked(decode_rpc_payload(payload))
     @app.ProjectLoaded => @app.msg_project_loaded(decode_rpc_payload(payload))
     @app.SceneLoaded => @app.msg_scene_loaded(decode_rpc_payload(payload))
     @app.AssetsLoaded => @app.msg_assets_loaded(decode_rpc_payload(payload))

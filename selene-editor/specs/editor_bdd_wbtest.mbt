@@ -33,6 +33,30 @@ async test "bdd project flow creates a startup scene and syncs preview" {
 }
 
 ///|
+async test "bdd opening an empty folder auto-creates a project" {
+  @async.with_task_group(group => {
+    let harness = given_editor_harness()
+    group.add_defer(() => harness.cleanup())
+
+    harness.when_editor_initialized()
+    ignore(harness.take_preview_commands())
+
+    harness.when_project_opened()
+
+    inspect(
+      harness.current_root() == Some(harness.project_root_path()),
+      content="true",
+    )
+    inspect(harness.scene_path().has_suffix(".scene.json"), content="true")
+    inspect(harness.preview_scene() == harness.scene(), content="true")
+    inspect(
+      harness.preview_selected_entity_id() == Some("camera"),
+      content="true",
+    )
+  })
+}
+
+///|
 async test "bdd selection syncs between scene tree and preview" {
   @async.with_task_group(group => {
     let harness = given_editor_harness()

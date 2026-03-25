@@ -49,6 +49,16 @@ fn basename_of(path : String) -> String {
 }
 
 ///|
+fn inferred_project_name(root : String) -> String {
+  let base = basename_of(root).trim().to_string()
+  if base == "" {
+    "Selene Project"
+  } else {
+    base
+  }
+}
+
+///|
 fn EditorService::public_path(self : EditorService, child : String) -> String {
   path_join(self.module_root, path_join("public", child))
 }

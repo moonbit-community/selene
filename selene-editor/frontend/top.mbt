@@ -106,6 +106,10 @@ fn rpc_effect_cmd(
   params : Json,
 ) -> @rabbita.Cmd {
   match target {
+    @app.ProjectRootPicked =>
+      rpc_cmd(method_name, params, fn(result) {
+        dispatch(@app.msg_project_root_picked(result))
+      })
     @app.ProjectLoaded =>
       rpc_cmd(method_name, params, fn(result) {
         dispatch(@app.msg_project_loaded(result))
@@ -379,6 +383,11 @@ fn view(
       labeled_input("Project root", model.project_root_input, fn(value) {
         dispatch(@app.msg_set_project_root_input(value))
       }),
+      @html.button(
+        class="small-button",
+        on_click=dispatch(@app.msg_pick_project_root()),
+        "Choose Folder",
+      ),
       labeled_input("Project name", model.project_name_input, fn(value) {
         dispatch(@app.msg_set_project_name_input(value))
       }),

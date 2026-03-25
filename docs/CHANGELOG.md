@@ -5,6 +5,7 @@
 ### Added
 
 - Added behavior-driven `selene-editor` scenarios with an in-process harness that drives `shared`, `service/core`, `frontend/app`, and the preview bridge without a browser.
+- Added a native directory-picker RPC for `selene-editor`, so the browser page can ask the local service to open the system folder chooser and fill the project root field without CLI path arguments.
 
 ### Changed
 
@@ -13,6 +14,7 @@
 - Changed `selene-editor` frontend architecture to split the pure `frontend/app` state machine from the Rabbita/JS adapter.
 - Changed `selene-editor` service architecture to expose `service/core` RPC and event entrypoints for integration-style testing.
 - Changed `selene-editor` project/scene file naming to normalize new projects as `<name>.project.json` and `scenes/<name>.scene.json`, and removed support for the old `selene-editor.json` manifest path.
+- Changed `selene-editor` so opening a directory without a `*.project.json` manifest now auto-initializes a new JSON project using the directory name.
 
 ### Removed
 

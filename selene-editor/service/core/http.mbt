@@ -148,7 +148,22 @@ async fn EditorService::open_project(
   self : EditorService,
   root : String,
 ) -> Json {
-  let manifest = load_project_manifest(root)
+  let manifest = load_project_manifest(root) catch {
+    MissingProjectManifest(_) => {
+      ensure_project_layout(root)
+      let created = @shared.ProjectManifest::default(
+        inferred_project_name(root),
+      )
+      save_project_manifest(root, created)
+      save_scene_document(
+        root,
+        created.startup_scene,
+        @shared.SceneDocument::default_main(),
+      )
+      created
+    }
+    err => raise err
+  }
   let snapshot = snapshot_project_files(root, manifest)
   self.current_project = Some({ root, manifest, snapshot })
   self.add_recent_project(root)
@@ -216,6 +231,16 @@ pub async fn EditorService::handle_rpc(
         let root : String = @json.from_json(params["root"])
         let name : String = @json.from_json(params["name"])
         @shared.rpc_success(id, self.create_project(root, name))
+      }
+      "project.pick_directory" => {
+        let params : Map[String, Json] = @json.from_json(request.params)
+        let prompt = if params.contains("prompt") {
+          @json.from_json(params["prompt"])
+        } else {
+          "Choose a project folder"
+        }
+        let path = pick_directory_dialog(prompt)
+        @shared.rpc_success(id, { "path": path.to_json() })
       }
       "scene.load" => {
         let manifest = self.current_manifest()
