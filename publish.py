@@ -31,7 +31,7 @@ INTERNAL_MODULES = {
     "Milky2018/selene_webgpu",
     "Milky2018/selene_raylib",
     "Milky2018/selene_tools",
-    "Milky2018/selene-editor",
+    "Milky2018/selene_editor",
 }
 
 

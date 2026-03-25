@@ -9,7 +9,7 @@ pub struct RpcRequest {
 pub struct RpcErrorDocument {
   code : String
   message : String
-  details : Json?
+  details : Json
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
@@ -73,7 +73,7 @@ pub fn rpc_failure(
   id : Int?,
   code : String,
   message : String,
-  details? : Json? = None,
+  details? : Json = Json::null(),
 ) -> Json {
   RpcFailure::{ id, error: { code, message, details } }.to_json()
 }

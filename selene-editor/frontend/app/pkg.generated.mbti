@@ -1,0 +1,163 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene_editor/frontend/app"
+
+import {
+  "Milky2018/selene_editor/preview/bridge",
+  "Milky2018/selene_editor/shared",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn[T : @json.FromJson] component_of(@shared.EntityDocument, String) -> T?
+
+pub fn entity_label(@shared.EntityDocument) -> String
+
+pub fn msg_add_sprite_entity() -> Msg
+
+pub fn msg_add_text_entity() -> Msg
+
+pub fn msg_assets_loaded(Result[AssetsListResponse, String]) -> Msg
+
+pub fn msg_create_project() -> Msg
+
+pub fn msg_delete_selected() -> Msg
+
+pub fn msg_frame_selection() -> Msg
+
+pub fn msg_initialize() -> Msg
+
+pub fn msg_open_project() -> Msg
+
+pub fn msg_preview_event(@bridge.PreviewEvent) -> Msg
+
+pub fn msg_project_loaded(Result[ProjectStateResponse, String]) -> Msg
+
+pub fn msg_reload_scene() -> Msg
+
+pub fn msg_rename_selected(String) -> Msg
+
+pub fn msg_save_scene() -> Msg
+
+pub fn msg_scene_loaded(Result[SceneLoadResponse, String]) -> Msg
+
+pub fn msg_scene_saved(Result[Json, String]) -> Msg
+
+pub fn msg_select_entity(String?) -> Msg
+
+pub fn msg_service_event(Result[@shared.EventEnvelope, String]) -> Msg
+
+pub fn msg_set_project_name_input(String) -> Msg
+
+pub fn msg_set_project_root_input(String) -> Msg
+
+pub fn msg_set_tool(@shared.PreviewTool) -> Msg
+
+pub fn msg_toggle_selected_visibility() -> Msg
+
+pub fn msg_update_selected_rotation(String) -> Msg
+
+pub fn msg_update_selected_text(String) -> Msg
+
+pub fn msg_update_selected_translate_x(String) -> Msg
+
+pub fn msg_update_selected_translate_y(String) -> Msg
+
+pub fn new_model() -> Model
+
+pub fn update(Msg, Model) -> (Array[Effect], Model)
+
+// Errors
+
+// Types and methods
+pub struct AssetsListResponse {
+  assets : Array[@shared.AssetDocument]
+}
+pub impl Eq for AssetsListResponse
+pub impl Show for AssetsListResponse
+pub impl @json.FromJson for AssetsListResponse
+
+pub enum Effect {
+  Rpc(target~ : RpcTarget, method_name~ : String, params~ : Json)
+  SubscribeServiceEvents
+  SubscribePreviewEvents
+  Preview(@bridge.PreviewCommand)
+}
+pub impl Eq for Effect
+pub impl Show for Effect
+
+pub struct Model {
+  project_root_input : String
+  project_name_input : String
+  current_root : String?
+  manifest : @shared.ProjectManifest?
+  scene_path : String
+  scene : @shared.SceneDocument?
+  assets : Array[@shared.AssetDocument]
+  selected_entity_id : String?
+  recent_projects : Array[String]
+  logs : Array[String]
+  status : String
+  active_tool : @shared.PreviewTool
+}
+pub fn Model::selected_entity(Self) -> @shared.EntityDocument?
+pub impl Eq for Model
+pub impl Show for Model
+
+pub enum Msg {
+  Initialize
+  SetProjectRootInput(String)
+  SetProjectNameInput(String)
+  OpenProject
+  CreateProject
+  ProjectLoaded(Result[ProjectStateResponse, String])
+  SceneLoaded(Result[SceneLoadResponse, String])
+  AssetsLoaded(Result[AssetsListResponse, String])
+  SceneSaved(Result[Json, String])
+  ServiceEvent(Result[@shared.EventEnvelope, String])
+  PreviewEvent(@bridge.PreviewEvent)
+  SelectEntity(String?)
+  RenameSelected(String)
+  UpdateSelectedTranslateX(String)
+  UpdateSelectedTranslateY(String)
+  UpdateSelectedRotation(String)
+  UpdateSelectedText(String)
+  ToggleSelectedVisibility
+  SaveScene
+  ReloadScene
+  AddSpriteEntity
+  AddTextEntity
+  DeleteSelected
+  SetTool(@shared.PreviewTool)
+  FrameSelection
+}
+
+pub struct ProjectStateResponse {
+  root : String?
+  manifest : @shared.ProjectManifest?
+  recent_projects : Array[String]
+}
+pub impl Eq for ProjectStateResponse
+pub impl Show for ProjectStateResponse
+pub impl @json.FromJson for ProjectStateResponse
+
+pub enum RpcTarget {
+  ProjectLoaded
+  SceneLoaded
+  AssetsLoaded
+  SceneSaved
+}
+pub impl Eq for RpcTarget
+pub impl Show for RpcTarget
+
+pub struct SceneLoadResponse {
+  path : String
+  scene : @shared.SceneDocument
+}
+pub impl Eq for SceneLoadResponse
+pub impl Show for SceneLoadResponse
+pub impl @json.FromJson for SceneLoadResponse
+
+// Type aliases
+
+// Traits
+

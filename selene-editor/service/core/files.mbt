@@ -7,7 +7,7 @@ async fn[T : FromJson] read_json_file(path : String) -> T {
 
 ///|
 async fn write_json_file(path : String, value : &ToJson) -> Unit {
-  @fs.write_file(path, value.to_json().stringify(indent=2) + "\n")
+  @fs.write_file(path, value.to_json().stringify(indent=2) + "\n", create=0o644)
 }
 
 ///|

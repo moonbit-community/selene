@@ -1,15 +1,4 @@
 ///|
-pub enum PreviewEvent {
-  EntityPicked(String?)
-  HoverChanged(String?)
-  TransformChanged(
-    id~ : String,
-    translation~ : @shared.Vec2Doc,
-    rotation~ : Double
-  )
-} derive(Show, Eq)
-
-///|
 priv struct PreviewState {
   mut bootstrapped : Bool
   mut pending_scene : @shared.SceneDocument?
@@ -26,7 +15,7 @@ priv struct PreviewState {
   mut selection_overlay : @entity.Entity?
   mut pending_frame_selection : Bool
   mut drag_anchor : (@math.Vec2D, String)?
-  mut event_sink : ((PreviewEvent) -> Unit)?
+  mut event_sink : ((@bridge.PreviewEvent) -> Unit)?
 }
 
 ///|
@@ -142,7 +131,7 @@ fn resolve_project_asset_path(path : String?) -> String? {
 }
 
 ///|
-fn emit_preview_event(event : PreviewEvent) -> Unit {
+fn emit_preview_event(event : @bridge.PreviewEvent) -> Unit {
   match preview_state.event_sink {
     Some(sink) => sink(event)
     None => ()
@@ -150,13 +139,18 @@ fn emit_preview_event(event : PreviewEvent) -> Unit {
 }
 
 ///|
-pub fn set_event_sink(sink : ((PreviewEvent) -> Unit)?) -> Unit {
+pub fn set_event_sink(sink : ((@bridge.PreviewEvent) -> Unit)?) -> Unit {
   preview_state.event_sink = sink
 }
 
 ///|
 pub fn load_scene(scene : @shared.SceneDocument) -> Unit {
   preview_state.pending_scene = Some(scene)
+}
+
+///|
+pub fn clear_scene() -> Unit {
+  preview_state.pending_scene = Some(@shared.SceneDocument::empty())
 }
 
 ///|
@@ -696,7 +690,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
   let hovered = pick_entity_id_at(world_point)
   if hovered != preview_state.hovered_entity_id {
     preview_state.hovered_entity_id = hovered
-    emit_preview_event(HoverChanged(hovered))
+    emit_preview_event(@bridge.preview_event_hover_changed(hovered))
   }
   if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) {
     match preview_state.active_tool {
@@ -706,11 +700,11 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
           preview_state.drag_anchor = Some((world_point, selected))
         } else {
           preview_state.selected_entity_id = hovered
-          emit_preview_event(EntityPicked(hovered))
+          emit_preview_event(@bridge.preview_event_entity_picked(hovered))
         }
       _ => {
         preview_state.selected_entity_id = hovered
-        emit_preview_event(EntityPicked(hovered))
+        emit_preview_event(@bridge.preview_event_entity_picked(hovered))
       }
     }
   }
@@ -730,11 +724,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
     )
     preview_state.drag_anchor = Some((world_point, entity_id))
     emit_preview_event(
-      TransformChanged(
-        id=entity_id,
-        translation=next,
-        rotation=current.rotation,
-      ),
+      @bridge.preview_event_transform_changed(entity_id, next, current.rotation),
     )
   }
 }

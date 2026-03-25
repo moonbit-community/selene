@@ -1,8 +1,8 @@
 ///|
-let default_host = "127.0.0.1"
+pub let default_host = "127.0.0.1"
 
 ///|
-let default_port = 47142
+pub let default_port = 47142
 
 ///|
 fn content_type_for(path : String) -> String {
@@ -183,7 +183,7 @@ async fn EditorService::create_project(
 }
 
 ///|
-async fn EditorService::handle_rpc_request(
+pub async fn EditorService::handle_rpc(
   self : EditorService,
   request : @shared.RpcRequest,
 ) -> Json {
@@ -289,7 +289,7 @@ async fn EditorService::handle_rpc_request(
         let target_path = path_join(root, target_relative)
         ensure_dir(path_join(root, asset_root))
         let data = @fs.read_file(source_path)
-        @fs.write_file(target_path, data)
+        @fs.write_file(target_path, data, create=0o644)
         let asset = @shared.asset_document(
           target_relative,
           @shared.infer_asset_kind(target_relative),
@@ -298,24 +298,6 @@ async fn EditorService::handle_rpc_request(
           @shared.event_envelope("asset.imported", asset.to_json()),
         )
         @shared.rpc_success(id, asset.to_json())
-      }
-      "build.check" => {
-        let root = self.current_project_root()
-        let result = self.run_moon_command(root, "build.check", [
-          "check", "--target", "all",
-        ])
-        @shared.rpc_success(id, result)
-      }
-      "build.run_preview" => {
-        let root = self.current_project_root()
-        let params : Map[String, Json] = @json.from_json(request.params)
-        let args : Array[String] = if params.contains("args") {
-          @json.from_json(params["args"])
-        } else {
-          ["build", "--target", "js"]
-        }
-        let result = self.run_moon_command(root, "build.run_preview", args)
-        @shared.rpc_success(id, result)
       }
       _ =>
         @shared.rpc_failure(
@@ -330,7 +312,7 @@ async fn EditorService::handle_rpc_request(
         Some(id),
         "internal_error",
         err.to_string(),
-        details=Some(request.params),
+        details=request.params,
       )
   }
 }
@@ -360,7 +342,7 @@ async fn EditorService::handle_events(
 }
 
 ///|
-async fn EditorService::handle_http_request(
+pub async fn EditorService::handle_http_request(
   self : EditorService,
   request : @http.Request,
   body : &@io.Reader,
@@ -376,7 +358,7 @@ async fn EditorService::handle_http_request(
       let request_doc : @shared.RpcRequest = @json.from_json(
         @json.parse(payload),
       )
-      let response = self.handle_rpc_request(request_doc)
+      let response = self.handle_rpc(request_doc)
       send_json(conn, response)
     }
     _ => send_text(conn, "Not Found", code=404, reason="Not Found")
@@ -384,7 +366,7 @@ async fn EditorService::handle_http_request(
 }
 
 ///|
-async fn EditorService::watch_loop(self : EditorService) -> Unit {
+pub async fn EditorService::watch_loop(self : EditorService) -> Unit {
   for ;; {
     if self.current_project is Some(project) {
       let next_snapshot = snapshot_project_files(project.root, project.manifest) catch {
@@ -412,12 +394,5 @@ async fn EditorService::watch_loop(self : EditorService) -> Unit {
       }
     }
     @async.sleep(1000)
-  }
-}
-
-///|
-async fn maybe_open_browser(url : String) -> Unit {
-  ignore(@process.spawn_orphan("open", [url])) catch {
-    _ => ()
   }
 }

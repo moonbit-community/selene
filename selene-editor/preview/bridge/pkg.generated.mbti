@@ -1,0 +1,52 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene_editor/preview/bridge"
+
+import {
+  "Milky2018/selene_editor/shared",
+}
+
+// Values
+pub fn preview_command_bootstrap() -> PreviewCommand
+
+pub fn preview_command_clear_scene() -> PreviewCommand
+
+pub fn preview_command_frame_selection() -> PreviewCommand
+
+pub fn preview_command_load_scene(@shared.SceneDocument) -> PreviewCommand
+
+pub fn preview_command_select_entity(String?) -> PreviewCommand
+
+pub fn preview_command_set_tool(@shared.PreviewTool) -> PreviewCommand
+
+pub fn preview_event_entity_picked(String?) -> PreviewEvent
+
+pub fn preview_event_hover_changed(String?) -> PreviewEvent
+
+pub fn preview_event_transform_changed(String, @shared.Vec2Doc, Double) -> PreviewEvent
+
+// Errors
+
+// Types and methods
+pub enum PreviewCommand {
+  Bootstrap
+  ClearScene
+  LoadScene(@shared.SceneDocument)
+  SelectEntity(String?)
+  SetTool(@shared.PreviewTool)
+  FrameSelection
+}
+pub impl Eq for PreviewCommand
+pub impl Show for PreviewCommand
+
+pub enum PreviewEvent {
+  EntityPicked(String?)
+  HoverChanged(String?)
+  TransformChanged(id~ : String, translation~ : @shared.Vec2Doc, rotation~ : Double)
+}
+pub impl Eq for PreviewEvent
+pub impl Show for PreviewEvent
+
+// Type aliases
+
+// Traits
+

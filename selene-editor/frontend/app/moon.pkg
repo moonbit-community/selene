@@ -1,0 +1,10 @@
+import {
+  "Milky2018/selene_editor/preview/bridge",
+  "Milky2018/selene_editor/shared",
+  "moonbitlang/core/json",
+  "moonbitlang/core/strconv",
+}
+
+options(
+  "supported-targets": "all",
+)

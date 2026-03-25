@@ -1,6 +1,8 @@
 import {
-  "Milky2018/selene-editor/preview",
-  "Milky2018/selene-editor/shared",
+  "Milky2018/selene_editor/frontend/app",
+  "Milky2018/selene_editor/preview/bridge",
+  "Milky2018/selene_editor/preview",
+  "Milky2018/selene_editor/shared",
   "moonbit-community/rabbita",
   "moonbit-community/rabbita/cmd",
   "moonbit-community/rabbita/html",

@@ -1,5 +1,5 @@
 ///|
-suberror EditorServiceError {
+priv suberror EditorServiceError {
   InvalidEditorPath(String)
   ProjectNotOpen
   MissingProjectManifest(String)
@@ -15,11 +15,12 @@ struct ProjectSession {
 }
 
 ///|
-struct EditorService {
+pub struct EditorService {
   module_root : String
   mut current_project : ProjectSession?
   mut next_subscriber_id : Int
   mut recent_projects : Array[String]
+  mut event_log : Array[@shared.EventEnvelope]
   subscribers : Map[Int, @async.Queue[@shared.EventEnvelope]]
 }
 
@@ -30,6 +31,7 @@ pub fn EditorService::new(module_root : String) -> EditorService {
     current_project: None,
     next_subscriber_id: 0,
     recent_projects: [],
+    event_log: [],
     subscribers: {},
   }
 }
@@ -95,6 +97,7 @@ fn EditorService::broadcast(
   self : EditorService,
   event : @shared.EventEnvelope,
 ) -> Unit {
+  self.event_log.push(event)
   let stale : Array[Int] = []
   for id, queue in self.subscribers {
     ignore(queue.try_put(event)) catch {
@@ -102,4 +105,13 @@ fn EditorService::broadcast(
     }
   }
   stale.each(fn(id) { self.remove_subscriber(id) })
+}
+
+///|
+pub fn EditorService::drain_events(
+  self : EditorService,
+) -> Array[@shared.EventEnvelope] {
+  let events = self.event_log
+  self.event_log = []
+  events
 }

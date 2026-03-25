@@ -1,0 +1,14 @@
+import {
+  "Milky2018/selene_editor/frontend/app",
+  "Milky2018/selene_editor/preview/bridge",
+  "Milky2018/selene_editor/service/core",
+  "Milky2018/selene_editor/shared",
+  "moonbitlang/async",
+  "moonbitlang/async/fs",
+  "moonbitlang/core/env",
+  "moonbitlang/core/json",
+}
+
+options(
+  "supported-targets": "native",
+)

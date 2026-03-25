@@ -4,6 +4,21 @@
 
 ### Added
 
+- Added behavior-driven `selene-editor` scenarios with an in-process harness that drives `shared`, `service/core`, `frontend/app`, and the preview bridge without a browser.
+
+### Changed
+
+- Changed `selene-editor` runtime so it no longer invokes `moon` to build itself or to operate on user projects; the editor now treats projects purely as JSON documents plus referenced assets.
+- Changed `selene-editor` package imports and published module name from `Milky2018/selene-editor` to `Milky2018/selene_editor`, while keeping the workspace directory name unchanged.
+- Changed `selene-editor` frontend architecture to split the pure `frontend/app` state machine from the Rabbita/JS adapter.
+- Changed `selene-editor` service architecture to expose `service/core` RPC and event entrypoints for integration-style testing.
+
+### Removed
+
+- Removed `selene-editor` build/toolchain RPCs (`build.check`, `build.run_preview`) and the service-side `moon` command execution path; editing and preview now only depend on the editor runtime and JSON project files.
+
+### Added
+
 - Added an initial `selene-editor/` workspace outside the publish pipeline, with shared JSON project/scene document models, RPC/event protocol types, validation helpers, and whitebox coverage for round-tripping editor documents.
 - Added a native `selene-editor/service` daemon built on `moonbitlang/async` that serves static editor assets, exposes JSON-RPC and SSE endpoints, manages project/scene load-save flows, indexes/imports assets, watches project files, and runs `moon check` / `moon build` commands for local editor workflows.
 - Added a JS `selene-editor/preview` package that boots a Selene 2D preview canvas, compiles `SceneDocument` data into runtime entities, supports viewport selection, camera pan/zoom, frame-selection, and translate-tool drag feedback, and reports preview events back to the editor shell.

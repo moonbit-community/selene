@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "Milky2018/selene-editor/shared"
+package "Milky2018/selene_editor/shared"
 
 import {
   "moonbitlang/core/json",
@@ -48,7 +48,7 @@ pub let project_schema_version : Int
 
 pub fn rect_doc(Double, Double, Double, Double) -> RectDoc
 
-pub fn rpc_failure(Int?, String, String, details? : Json?) -> Json
+pub fn rpc_failure(Int?, String, String, details? : Json) -> Json
 
 pub fn rpc_request(Int, String, Json) -> RpcRequest
 
@@ -255,7 +255,7 @@ pub impl @json.FromJson for RectDoc
 pub struct RpcErrorDocument {
   code : String
   message : String
-  details : Json?
+  details : Json
 }
 pub impl Eq for RpcErrorDocument
 pub impl Show for RpcErrorDocument
