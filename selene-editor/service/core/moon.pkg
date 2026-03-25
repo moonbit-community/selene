@@ -7,7 +7,6 @@ import {
   "moonbitlang/async/io",
   "moonbitlang/async/process",
   "moonbitlang/async/socket",
-  "moonbitlang/core/env",
   "moonbitlang/core/json",
 }
 

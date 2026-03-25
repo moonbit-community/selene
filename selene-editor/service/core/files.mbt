@@ -66,19 +66,14 @@ async fn project_manifest_path_to_load(root : String) -> String? {
     }
     return Some(latest)
   }
-  let legacy = legacy_project_manifest_path(root)
-  if @fs.exists(legacy) {
-    Some(legacy)
-  } else {
-    None
-  }
+  None
 }
 
 ///|
 async fn load_project_manifest(root : String) -> @shared.ProjectManifest {
   let maybe_path = project_manifest_path_to_load(root)
   guard maybe_path is Some(path) else {
-    raise MissingProjectManifest(legacy_project_manifest_path(root))
+    raise MissingProjectManifest(root + "/*.project.json")
   }
   let manifest : @shared.ProjectManifest = read_json_file(path)
   let errors = @shared.validate_project_manifest(manifest)

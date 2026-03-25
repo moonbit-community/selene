@@ -12,7 +12,7 @@
 - Changed `selene-editor` package imports and published module name from `Milky2018/selene-editor` to `Milky2018/selene_editor`, while keeping the workspace directory name unchanged.
 - Changed `selene-editor` frontend architecture to split the pure `frontend/app` state machine from the Rabbita/JS adapter.
 - Changed `selene-editor` service architecture to expose `service/core` RPC and event entrypoints for integration-style testing.
-- Changed `selene-editor` project/scene file naming to normalize new projects as `<name>.project.json` and `scenes/<name>.scene.json`, while keeping legacy `selene-editor.json` manifests readable.
+- Changed `selene-editor` project/scene file naming to normalize new projects as `<name>.project.json` and `scenes/<name>.scene.json`, and removed support for the old `selene-editor.json` manifest path.
 
 ### Removed
 

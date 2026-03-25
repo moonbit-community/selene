@@ -4,7 +4,7 @@ async fn write_json_fixture(path : String, value : &ToJson) -> Unit {
 }
 
 ///|
-async test "legacy selene-editor.json manifests still open" {
+async test "legacy selene-editor.json manifests are rejected" {
   @async.with_task_group(group => {
     let root = @fs.tmpdir(prefix="selene-editor-core")
     group.add_defer(() => {
@@ -21,13 +21,13 @@ async test "legacy selene-editor.json manifests still open" {
       "Legacy Demo",
       startup_scene="scenes/legacy.scene.json",
     )
-    write_json_fixture(legacy_project_manifest_path(root), manifest)
+    write_json_fixture(path_join(root, "selene-editor.json"), manifest)
     write_json_fixture(
       scene_path(root, manifest.startup_scene),
       @shared.SceneDocument::default_main(),
     )
 
-    let service = EditorService::new(@env.current_dir().unwrap_or("."))
+    let service = EditorService::new(".")
     let payload = service.handle_rpc(
       @shared.rpc_request(
         1,
@@ -35,11 +35,9 @@ async test "legacy selene-editor.json manifests still open" {
         { "root": root.to_json() }.to_json(),
       ),
     )
-    let success : @shared.RpcSuccess = @json.from_json(payload)
-    let result : Map[String, Json] = @json.from_json(success.result)
-    let loaded : @shared.ProjectManifest = @json.from_json(result["manifest"])
+    let failure : @shared.RpcFailure = @json.from_json(payload)
 
-    inspect(loaded.name, content="Legacy Demo")
-    inspect(loaded.startup_scene, content="scenes/legacy.scene.json")
+    inspect(failure.error.code, content="internal_error")
+    inspect(failure.error.message.contains("*.project.json"), content="true")
   })
 }
