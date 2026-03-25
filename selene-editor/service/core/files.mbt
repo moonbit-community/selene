@@ -16,14 +16,8 @@ async fn project_manifest_candidates(root : String) -> Array[String] {
   if !@fs.exists(root) {
     return candidates
   }
-  for entry in @fs.readdir(root, sort=true) {
-    if !entry.has_suffix(".project.json") {
-      continue
-    }
-    let path = path_join(root, entry)
-    if @fs.kind(path) == Directory {
-      continue
-    }
+  let path = project_manifest_path(root, "")
+  if @fs.exists(path) && @fs.kind(path) != Directory {
     candidates.push(path)
   }
   candidates
@@ -57,7 +51,7 @@ async fn project_manifest_path_to_load(root : String) -> String? {
 async fn load_project_manifest(root : String) -> @editor_bridge.ProjectManifest {
   let maybe_path = project_manifest_path_to_load(root)
   guard maybe_path is Some(path) else {
-    raise MissingProjectManifest(root + "/*.project.json")
+    raise MissingProjectManifest(project_manifest_path(root, ""))
   }
   @editor_bridge.read_project_manifest(path)
 }

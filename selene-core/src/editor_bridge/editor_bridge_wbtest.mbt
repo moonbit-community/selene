@@ -13,15 +13,11 @@ test "project manifest round trip" {
 test "document file names are normalized from project names" {
   inspect(
     project_manifest_file_name("BDD Demo"),
-    content="bdd-demo.project.json",
+    content="selene.project.json",
   )
   inspect(
     startup_scene_path_for_name("BDD Demo"),
-    content="scenes/bdd-demo.scene.json",
-  )
-  inspect(
-    project_manifest_file_name("  项目 A  "),
-    content="项目-a.project.json",
+    content="scenes/main.scene.json",
   )
 }
 

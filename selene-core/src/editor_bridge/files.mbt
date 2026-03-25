@@ -66,14 +66,8 @@ pub fn project_manifest_candidates(root : String) -> Array[String] raise {
   if !@fs.path_exists(root) {
     return candidates
   }
-  let entries = @fs.read_dir(root)
-  entries.sort()
-  for entry in entries {
-    if !entry.has_suffix(".project.json") {
-      continue
-    }
-    let path = root + "/" + entry
-    guard @fs.is_file(path) else { continue }
+  let path = root + "/" + project_manifest_file_name("")
+  if @fs.path_exists(path) && @fs.is_file(path) {
     candidates.push(path)
   }
   candidates

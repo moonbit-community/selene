@@ -5,20 +5,17 @@ async test "bdd project flow creates a startup scene and syncs preview" {
     group.add_defer(() => harness.cleanup())
 
     harness.when_editor_initialized()
-    ignore(harness.take_preview_commands())
-
-    harness.when_project_created("BDD Demo")
 
     inspect(
       harness.current_root() == Some(harness.project_root_path()),
       content="true",
     )
-    inspect(harness.scene_path(), content="scenes/bdd-demo.scene.json")
+    inspect(harness.scene_path(), content="scenes/main.scene.json")
     inspect(
       @fs.exists(
         harness.project_root_path() +
         "/" +
-        @editor_bridge.project_manifest_file_name("BDD Demo"),
+        @editor_bridge.project_manifest_file_name("anything"),
       ),
       content="true",
     )
@@ -39,15 +36,12 @@ async test "bdd opening an empty folder auto-creates a project" {
     group.add_defer(() => harness.cleanup())
 
     harness.when_editor_initialized()
-    ignore(harness.take_preview_commands())
-
-    harness.when_project_opened()
 
     inspect(
       harness.current_root() == Some(harness.project_root_path()),
       content="true",
     )
-    inspect(harness.scene_path().has_suffix(".scene.json"), content="true")
+    inspect(harness.scene_path(), content="scenes/main.scene.json")
     inspect(harness.preview_scene() == harness.scene(), content="true")
     inspect(
       harness.preview_selected_entity_id() == Some("camera"),
@@ -63,7 +57,6 @@ async test "bdd selection syncs between scene tree and preview" {
     group.add_defer(() => harness.cleanup())
 
     harness.when_editor_initialized()
-    harness.when_project_created("Selection Demo")
     ignore(harness.take_preview_commands())
 
     harness.when_text_entity_is_added()
@@ -86,13 +79,12 @@ async test "bdd selection syncs between scene tree and preview" {
 }
 
 ///|
-async test "bdd inspector edits persist after save and reopen" {
+async test "bdd inspector edits persist after save" {
   @async.with_task_group(group => {
     let harness = given_editor_harness()
     group.add_defer(() => harness.cleanup())
 
     harness.when_editor_initialized()
-    harness.when_project_created("Persistence Demo")
     harness.when_text_entity_is_added()
     let entity_id = harness.selected_entity_id().unwrap_or("")
 
@@ -102,12 +94,10 @@ async test "bdd inspector edits persist after save and reopen" {
     harness.when_selected_visibility_is_toggled()
     harness.when_scene_is_saved()
 
-    let reopened = given_editor_harness_at(harness.project_root_path())
-    reopened.when_editor_initialized()
-    ignore(reopened.take_preview_commands())
-    reopened.when_project_opened()
-
-    let entity = reopened.entity(entity_id).unwrap()
+    let persisted = @editor_bridge.read_scene_document(
+      harness.project_root_path() + "/" + harness.scene_path(),
+    )
+    let entity = persisted.entity(entity_id).unwrap()
     let transform : @editor_bridge.Transform2dComponent = @app.component_of(
       entity, "Transform2d",
     ).unwrap_or(@editor_bridge.transform2d_value())
@@ -124,7 +114,6 @@ async test "bdd inspector edits persist after save and reopen" {
     inspect(transform.translation.y, content="72")
     inspect(text_value.unwrap().content, content="Hello from BDD")
     inspect(visibility_value.unwrap().visible, content="false")
-    inspect(reopened.preview_scene() == reopened.scene(), content="true")
   })
 }
 
@@ -135,7 +124,6 @@ async test "bdd adding and deleting entities updates scene and selection" {
     group.add_defer(() => harness.cleanup())
 
     harness.when_editor_initialized()
-    harness.when_project_created("Mutation Demo")
     ignore(harness.take_preview_commands())
 
     harness.when_sprite_entity_is_added()

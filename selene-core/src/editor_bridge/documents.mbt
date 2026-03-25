@@ -296,13 +296,13 @@ pub fn normalized_document_stem(name : String) -> String {
 }
 
 ///|
-pub fn project_manifest_file_name(name : String) -> String {
-  normalized_document_stem(name) + ".project.json"
+pub fn project_manifest_file_name(_name : String) -> String {
+  "selene.project.json"
 }
 
 ///|
-pub fn startup_scene_path_for_name(name : String) -> String {
-  "scenes/" + normalized_document_stem(name) + ".scene.json"
+pub fn startup_scene_path_for_name(_name : String) -> String {
+  "scenes/main.scene.json"
 }
 
 ///|

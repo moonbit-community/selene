@@ -75,7 +75,6 @@ fn msg_for_rpc_target(target : @app.RpcTarget, payload : Json) -> @app.Msg {
       @app.msg_project_root_picked(decode_rpc_payload(payload))
     @app.ProjectLoaded => @app.msg_project_loaded(decode_rpc_payload(payload))
     @app.SceneLoaded => @app.msg_scene_loaded(decode_rpc_payload(payload))
-    @app.AssetsLoaded => @app.msg_assets_loaded(decode_rpc_payload(payload))
     @app.SceneSaved => @app.msg_scene_saved(decode_rpc_payload(payload))
   }
 }
@@ -102,7 +101,8 @@ pub fn given_editor_harness_at(project_root : String) -> EditorHarness {
 pub async fn given_editor_harness() -> EditorHarness {
   @async.with_task_group(group => ignore(group))
   let module_root = @env.current_dir().unwrap_or(".")
-  let project_root = @fs.tmpdir(prefix="selene-editor-bdd")
+  let temp_root = @fs.tmpdir(prefix="selene-editor-bdd")
+  let project_root = temp_root + "/project"
   editor_harness(module_root, project_root)
 }
 
@@ -138,9 +138,17 @@ async fn EditorHarness::process_effect(
 ) -> Unit {
   match effect {
     @app.Rpc(target~, method_name~, params~) => {
-      let request = @shared.rpc_request(self.next_rpc_id, method_name, params)
+      let request_id = self.next_rpc_id
       self.next_rpc_id += 1
-      let payload = self.service.handle_rpc(request)
+      let payload = if method_name == "project.pick_directory" {
+        @shared.rpc_success(
+          request_id,
+          { "path": self.project_root.to_json() }.to_json(),
+        )
+      } else {
+        let request = @shared.rpc_request(request_id, method_name, params)
+        self.service.handle_rpc(request)
+      }
       self.dispatch(msg_for_rpc_target(target, payload))
     }
     @app.SubscribeServiceEvents => self.service_events_subscribed = true

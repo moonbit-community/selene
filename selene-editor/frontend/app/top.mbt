@@ -12,11 +12,6 @@ pub struct SceneLoadResponse {
 } derive(FromJson, Show, Eq)
 
 ///|
-pub struct AssetsListResponse {
-  assets : Array[@editor_bridge.AssetDocument]
-} derive(FromJson, Show, Eq)
-
-///|
 pub struct DirectoryPickResponse {
   path : String?
 } derive(FromJson, Show, Eq)
@@ -29,7 +24,6 @@ pub struct Model {
   manifest : @editor_bridge.ProjectManifest?
   scene_path : String
   scene : @editor_bridge.SceneDocument?
-  assets : Array[@editor_bridge.AssetDocument]
   selected_entity_id : String?
   recent_projects : Array[String]
   logs : Array[String]
@@ -48,7 +42,6 @@ pub enum Msg {
   ProjectRootPicked(Result[DirectoryPickResponse, String])
   ProjectLoaded(Result[ProjectStateResponse, String])
   SceneLoaded(Result[SceneLoadResponse, String])
-  AssetsLoaded(Result[AssetsListResponse, String])
   SceneSaved(Result[Json, String])
   ServiceEvent(Result[@shared.EventEnvelope, String])
   PreviewEvent(@bridge.PreviewEvent)
@@ -73,7 +66,6 @@ pub enum RpcTarget {
   ProjectLoaded
   ProjectRootPicked
   SceneLoaded
-  AssetsLoaded
   SceneSaved
 } derive(Show, Eq)
 
@@ -95,9 +87,8 @@ pub fn new_model() -> Model {
     recent_projects: [],
     scene_path: @editor_bridge.startup_scene_path_for_name("main"),
     scene: None,
-    assets: [],
     selected_entity_id: None,
-    status: "Choose a project folder to open or create a project",
+    status: "Choose a project folder to begin",
     logs: [],
     active_tool: @shared.preview_tool_select(),
   }
@@ -148,11 +139,6 @@ pub fn msg_project_loaded(result : Result[ProjectStateResponse, String]) -> Msg 
 ///|
 pub fn msg_scene_loaded(result : Result[SceneLoadResponse, String]) -> Msg {
   SceneLoaded(result)
-}
-
-///|
-pub fn msg_assets_loaded(result : Result[AssetsListResponse, String]) -> Msg {
-  AssetsLoaded(result)
 }
 
 ///|
@@ -292,7 +278,6 @@ fn refresh_project_effects(
           "scene.load",
           { "path": scene_path.to_json() }.to_json(),
         ),
-        rpc_effect(AssetsLoaded, "assets.list", Json::null()),
       ]
     None => []
   }
@@ -388,10 +373,14 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     Initialize =>
       (
         [
-          rpc_effect(ProjectLoaded, "project.current", Json::null()),
           SubscribeServiceEvents,
           SubscribePreviewEvents,
           Preview(@bridge.preview_command_bootstrap()),
+          rpc_effect(
+            ProjectRootPicked,
+            "project.pick_directory",
+            { "prompt": "Choose a project folder".to_json() }.to_json(),
+          ),
         ],
         model,
       )
@@ -455,16 +444,28 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       match result {
         Ok(response) =>
           match response.path {
-            Some(path) =>
+            Some(path) => {
+              let root = normalized_project_root(path)
               (
-                [],
+                [
+                  rpc_effect(
+                    ProjectLoaded,
+                    "project.open",
+                    { "root": root.to_json() }.to_json(),
+                  ),
+                ],
                 {
                   ..model,
-                  project_root_input: path,
-                  status: "Selected " + path,
+                  project_root_input: root,
+                  status: "Opening project...",
                 },
               )
-            None => ([], { ..model, status: "Folder selection cancelled" })
+            }
+            None =>
+              (
+                [],
+                { ..model, status: "Choose a project folder to begin" },
+              )
           }
         Err(message) => {
           let next = push_log(model, "Folder picker failed: " + message)
@@ -480,7 +481,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           }
           let status = match response.root {
             Some(root) => "Project: " + root
-            None => "No project open"
+            None => "Choose a project folder to begin"
           }
           let project_root_input = response.root.unwrap_or(
             model.project_root_input,
@@ -521,22 +522,6 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           ([], { ..next, status: "Scene load failed: " + message })
         }
       }
-    AssetsLoaded(result) =>
-      match result {
-        Ok(response) =>
-          (
-            [],
-            {
-              ..model,
-              assets: response.assets,
-              status: "Indexed \{response.assets.length()} assets",
-            },
-          )
-        Err(message) => {
-          let next = push_log(model, "Assets load failed: " + message)
-          ([], { ..next, status: "Assets load failed: " + message })
-        }
-      }
     SceneSaved(result) =>
       match result {
         Ok(_) => ([], { ..model, status: "Scene saved" })
@@ -572,11 +557,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             | "scene.patched"
             | "asset.imported" =>
               (refresh_project_effects(model.manifest, model.scene_path), model)
-            "project.opened" =>
-              (
-                [rpc_effect(ProjectLoaded, "project.current", Json::null())],
-                model,
-              )
+            "project.opened" => ([], model)
             _ => ([], model)
           }
         Err(message) => {

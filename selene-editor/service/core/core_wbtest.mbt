@@ -24,9 +24,9 @@ async test "project.open auto-initializes a missing project manifest" {
     )
 
     inspect(loaded.name, content="Auto Open Demo")
-    inspect(loaded.startup_scene, content="scenes/auto-open-demo.scene.json")
+    inspect(loaded.startup_scene, content="scenes/main.scene.json")
     inspect(
-      @fs.exists(path_join(root, "auto-open-demo.project.json")),
+      @fs.exists(path_join(root, "selene.project.json")),
       content="true",
     )
     inspect(@fs.exists(path_join(root, loaded.startup_scene)), content="true")

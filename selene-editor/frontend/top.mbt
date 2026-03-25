@@ -118,10 +118,6 @@ fn rpc_effect_cmd(
       rpc_cmd(method_name, params, fn(result) {
         dispatch(@app.msg_scene_loaded(result))
       })
-    @app.AssetsLoaded =>
-      rpc_cmd(method_name, params, fn(result) {
-        dispatch(@app.msg_assets_loaded(result))
-      })
     @app.SceneSaved =>
       rpc_cmd(method_name, params, fn(result : Result[Json, String]) {
         dispatch(@app.msg_scene_saved(result))
@@ -336,22 +332,20 @@ fn toolbar_button(
 }
 
 ///|
-fn project_summary_view(model : @app.Model) -> @rabbita.Html {
-  @html.div(class="panel-body", [
-    @html.div(class="kv", [
-      @html.span(class="kv-key", "Root"),
-      @html.span(class="kv-value", model.current_root.unwrap_or("(none)")),
-    ]),
-    @html.div(class="kv", [
-      @html.span(class="kv-key", "Recent"),
-      @html.span(
-        class="kv-value",
-        if model.recent_projects.is_empty() {
-          "(none)"
-        } else {
-          model.recent_projects.join(", ")
-        },
+fn entry_view(dispatch : @rabbita.Dispatch[@app.Msg], model : @app.Model) -> @rabbita.Html {
+  @html.div(class="editor-root entry-root", [
+    @html.div(class="welcome", [
+      @html.h1(class="welcome-title", "Open a folder"),
+      @html.p(
+        class="welcome-copy",
+        "selene-editor works on a single scene inside one local project directory.",
       ),
+      @html.button(
+        class="small-button primary-button",
+        on_click=dispatch(@app.msg_pick_project_root()),
+        "Choose Folder",
+      ),
+      @html.div(class="welcome-status", model.status),
     ]),
   ])
 }
@@ -361,6 +355,9 @@ fn view(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.Model,
 ) -> @rabbita.Html {
+  if model.current_root is None || model.scene is None {
+    return entry_view(dispatch, model)
+  }
   let scene_tree = match model.scene {
     Some(scene) => tree_view(dispatch, scene, None, model.selected_entity_id, 0)
     None => [@html.div(class="empty", "No scene loaded")]
@@ -380,36 +377,15 @@ fn view(
   }
   @html.div(class="editor-root", [
     @html.div(class="topbar", [
-      labeled_input("Project root", model.project_root_input, fn(value) {
-        dispatch(@app.msg_set_project_root_input(value))
-      }),
       @html.button(
         class="small-button",
         on_click=dispatch(@app.msg_pick_project_root()),
         "Choose Folder",
       ),
-      labeled_input("Project name", model.project_name_input, fn(value) {
-        dispatch(@app.msg_set_project_name_input(value))
-      }),
-      @html.button(
-        class="small-button",
-        on_click=dispatch(@app.msg_open_project()),
-        "Open",
-      ),
-      @html.button(
-        class="small-button",
-        on_click=dispatch(@app.msg_create_project()),
-        "Create",
-      ),
       @html.button(
         class="small-button",
         on_click=dispatch(@app.msg_save_scene()),
         "Save",
-      ),
-      @html.button(
-        class="small-button",
-        on_click=dispatch(@app.msg_reload_scene()),
-        "Reload",
       ),
       @html.button(
         class="small-button",
@@ -458,16 +434,6 @@ fn view(
       @html.div(class="status", model.status),
     ]),
     @html.div(class="content", [
-      @html.div(class="panel asset-panel", [
-        @html.h2("Assets"),
-        project_summary_view(model),
-        @html.div(
-          class="panel-body",
-          model.assets.map(fn(asset) {
-            @html.div(class="asset-row", asset.path)
-          }),
-        ),
-      ]),
       @html.div(class="panel tree-panel", [
         @html.h2("Scene Tree"),
         @html.div(class="panel-body", scene_tree),
@@ -483,13 +449,6 @@ fn view(
         @html.h2("Inspector"),
         inspector,
       ]),
-    ]),
-    @html.div(class="panel logs-panel", [
-      @html.h2("Logs"),
-      @html.div(
-        class="panel-body logs",
-        model.logs.map(fn(line) { @html.div(class="log-line", line) }),
-      ),
     ]),
   ])
 }
