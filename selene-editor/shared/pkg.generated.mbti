@@ -2,13 +2,38 @@
 package "Milky2018/selene_editor/shared"
 
 import {
+  "Milky2018/selene/editor_bridge",
   "moonbitlang/core/json",
 }
 
 // Values
+pub fn animation_load_response(String, @editor_bridge.AnimationAssetDocument) -> AnimationLoadResponse
+
+pub fn assets_list_response(Array[@editor_bridge.AssetDocument]) -> AssetsListResponse
+
+pub fn atlas_load_response(String, @editor_bridge.AtlasAssetDocument) -> AtlasLoadResponse
+
 pub fn directory_pick_result(String?) -> DirectoryPickResult
 
-pub fn event_envelope(String, Json) -> EventEnvelope
+pub fn editor_event_asset_imported(@editor_bridge.AssetDocument) -> EditorEvent
+
+pub fn editor_event_files_changed(Array[String]) -> EditorEvent
+
+pub fn editor_event_log(String, String) -> EditorEvent
+
+pub fn editor_event_project_opened(String, @editor_bridge.ProjectManifest) -> EditorEvent
+
+pub fn editor_event_ready() -> EditorEvent
+
+pub fn editor_event_scene_created(String) -> EditorEvent
+
+pub fn editor_event_scene_deleted(String) -> EditorEvent
+
+pub fn editor_event_scene_saved(String) -> EditorEvent
+
+pub fn event_envelope(EditorEvent) -> EventEnvelope
+
+pub fn prefab_load_response(String, @editor_bridge.PrefabDocument) -> PrefabLoadResponse
 
 pub fn preview_tool_rotate() -> PreviewTool
 
@@ -18,15 +43,107 @@ pub fn preview_tool_select() -> PreviewTool
 
 pub fn preview_tool_translate() -> PreviewTool
 
-pub fn rpc_failure(Int?, String, String, details? : Json) -> Json
+pub fn project_state_response(String?, @editor_bridge.ProjectManifest?, Array[@editor_bridge.SceneRef], Array[@editor_bridge.PrefabRef], Array[@editor_bridge.AssetRef], Array[@editor_bridge.AssetRef], @editor_bridge.WorkspaceDocument?, Array[String]) -> ProjectStateResponse
 
-pub fn rpc_request(Int, String, Json) -> RpcRequest
+pub fn rpc_error_response(Int, String, String, details? : Json) -> RpcResponseEnvelope
 
-pub fn rpc_success(Int, Json) -> Json
+pub fn rpc_request_animation_load(String) -> RpcRequest
+
+pub fn rpc_request_animation_save(String, @editor_bridge.AnimationAssetDocument) -> RpcRequest
+
+pub fn rpc_request_assets_list() -> RpcRequest
+
+pub fn rpc_request_atlas_load(String) -> RpcRequest
+
+pub fn rpc_request_atlas_save(String, @editor_bridge.AtlasAssetDocument) -> RpcRequest
+
+pub fn rpc_request_envelope(Int, RpcRequest) -> RpcRequestEnvelope
+
+pub fn rpc_request_prefab_load(String) -> RpcRequest
+
+pub fn rpc_request_prefab_save(String, @editor_bridge.PrefabDocument) -> RpcRequest
+
+pub fn rpc_request_project_current() -> RpcRequest
+
+pub fn rpc_request_project_open(String) -> RpcRequest
+
+pub fn rpc_request_project_pick_directory(String) -> RpcRequest
+
+pub fn rpc_request_project_set_startup_scene(String) -> RpcRequest
+
+pub fn rpc_request_scene_create(String) -> RpcRequest
+
+pub fn rpc_request_scene_delete(String) -> RpcRequest
+
+pub fn rpc_request_scene_list() -> RpcRequest
+
+pub fn rpc_request_scene_load(String) -> RpcRequest
+
+pub fn rpc_request_scene_migrate(String) -> RpcRequest
+
+pub fn rpc_request_scene_save(String, @editor_bridge.SceneDocument) -> RpcRequest
+
+pub fn rpc_response_animation_loaded(AnimationLoadResponse) -> RpcResponse
+
+pub fn rpc_response_assets_listed(AssetsListResponse) -> RpcResponse
+
+pub fn rpc_response_atlas_loaded(AtlasLoadResponse) -> RpcResponse
+
+pub fn rpc_response_directory_picked(DirectoryPickResult) -> RpcResponse
+
+pub fn rpc_response_envelope(Int, RpcResponse) -> RpcResponseEnvelope
+
+pub fn rpc_response_prefab_loaded(PrefabLoadResponse) -> RpcResponse
+
+pub fn rpc_response_project_state(ProjectStateResponse) -> RpcResponse
+
+pub fn rpc_response_saved_ok() -> RpcResponse
+
+pub fn rpc_response_scene_listed(SceneListResponse) -> RpcResponse
+
+pub fn rpc_response_scene_loaded(SceneLoadResponse) -> RpcResponse
+
+pub fn rpc_response_scene_migration_required(@editor_bridge.SceneMigrationPreview) -> RpcResponse
+
+pub fn rpc_response_startup_scene_updated(@editor_bridge.ProjectManifest) -> RpcResponse
+
+pub fn scene_list_response(Array[@editor_bridge.SceneRef], String) -> SceneListResponse
+
+pub fn scene_load_outcome_loaded(SceneLoadResponse) -> SceneLoadOutcome
+
+pub fn scene_load_outcome_migration_required(@editor_bridge.SceneMigrationPreview) -> SceneLoadOutcome
+
+pub fn scene_load_response(String, @editor_bridge.SceneDocument) -> SceneLoadResponse
 
 // Errors
 
 // Types and methods
+pub struct AnimationLoadResponse {
+  path : String
+  animation : @editor_bridge.AnimationAssetDocument
+}
+pub impl Eq for AnimationLoadResponse
+pub impl Show for AnimationLoadResponse
+pub impl ToJson for AnimationLoadResponse
+pub impl @json.FromJson for AnimationLoadResponse
+
+pub struct AssetsListResponse {
+  assets : Array[@editor_bridge.AssetDocument]
+}
+pub impl Eq for AssetsListResponse
+pub impl Show for AssetsListResponse
+pub impl ToJson for AssetsListResponse
+pub impl @json.FromJson for AssetsListResponse
+
+pub struct AtlasLoadResponse {
+  path : String
+  atlas : @editor_bridge.AtlasAssetDocument
+}
+pub impl Eq for AtlasLoadResponse
+pub impl Show for AtlasLoadResponse
+pub impl ToJson for AtlasLoadResponse
+pub impl @json.FromJson for AtlasLoadResponse
+
 pub struct DirectoryPickResult {
   path : String?
 }
@@ -35,14 +152,37 @@ pub impl Show for DirectoryPickResult
 pub impl ToJson for DirectoryPickResult
 pub impl @json.FromJson for DirectoryPickResult
 
+pub enum EditorEvent {
+  Ready
+  Log(label~ : String, message~ : String)
+  ProjectOpened(root~ : String, manifest~ : @editor_bridge.ProjectManifest)
+  FilesChanged(paths~ : Array[String])
+  SceneCreated(path~ : String)
+  SceneSaved(path~ : String)
+  SceneDeleted(path~ : String)
+  AssetImported(asset~ : @editor_bridge.AssetDocument)
+}
+pub impl Eq for EditorEvent
+pub impl Show for EditorEvent
+pub impl ToJson for EditorEvent
+pub impl @json.FromJson for EditorEvent
+
 pub struct EventEnvelope {
-  kind : String
-  data : Json
+  event : EditorEvent
 }
 pub impl Eq for EventEnvelope
 pub impl Show for EventEnvelope
 pub impl ToJson for EventEnvelope
 pub impl @json.FromJson for EventEnvelope
+
+pub struct PrefabLoadResponse {
+  path : String
+  prefab : @editor_bridge.PrefabDocument
+}
+pub impl Eq for PrefabLoadResponse
+pub impl Show for PrefabLoadResponse
+pub impl ToJson for PrefabLoadResponse
+pub impl @json.FromJson for PrefabLoadResponse
 
 pub enum PreviewTool {
   Select
@@ -55,6 +195,21 @@ pub impl Show for PreviewTool
 pub impl ToJson for PreviewTool
 pub impl @json.FromJson for PreviewTool
 
+pub struct ProjectStateResponse {
+  root : String?
+  manifest : @editor_bridge.ProjectManifest?
+  scenes : Array[@editor_bridge.SceneRef]
+  prefabs : Array[@editor_bridge.PrefabRef]
+  atlases : Array[@editor_bridge.AssetRef]
+  animations : Array[@editor_bridge.AssetRef]
+  workspace : @editor_bridge.WorkspaceDocument?
+  recent_projects : Array[String]
+}
+pub impl Eq for ProjectStateResponse
+pub impl Show for ProjectStateResponse
+pub impl ToJson for ProjectStateResponse
+pub impl @json.FromJson for ProjectStateResponse
+
 pub struct RpcErrorDocument {
   code : String
   message : String
@@ -65,33 +220,91 @@ pub impl Show for RpcErrorDocument
 pub impl ToJson for RpcErrorDocument
 pub impl @json.FromJson for RpcErrorDocument
 
-pub struct RpcFailure {
-  id : Int?
-  error : RpcErrorDocument
-}
-pub impl Eq for RpcFailure
-pub impl Show for RpcFailure
-pub impl ToJson for RpcFailure
-pub impl @json.FromJson for RpcFailure
-
-pub struct RpcRequest {
-  id : Int
-  method_name : String
-  params : Json
+pub enum RpcRequest {
+  ProjectCurrent
+  ProjectOpen(root~ : String)
+  ProjectPickDirectory(prompt~ : String)
+  ProjectSetStartupScene(path~ : String)
+  SceneLoad(path~ : String)
+  SceneMigrate(path~ : String)
+  SceneList
+  SceneCreate(name~ : String)
+  SceneSave(path~ : String, scene~ : @editor_bridge.SceneDocument)
+  SceneDelete(path~ : String)
+  AssetsList
+  PrefabLoad(path~ : String)
+  PrefabSave(path~ : String, prefab~ : @editor_bridge.PrefabDocument)
+  AtlasLoad(path~ : String)
+  AtlasSave(path~ : String, atlas~ : @editor_bridge.AtlasAssetDocument)
+  AnimationLoad(path~ : String)
+  AnimationSave(path~ : String, animation~ : @editor_bridge.AnimationAssetDocument)
 }
 pub impl Eq for RpcRequest
 pub impl Show for RpcRequest
 pub impl ToJson for RpcRequest
 pub impl @json.FromJson for RpcRequest
 
-pub struct RpcSuccess {
+pub struct RpcRequestEnvelope {
   id : Int
-  result : Json
+  request : RpcRequest
 }
-pub impl Eq for RpcSuccess
-pub impl Show for RpcSuccess
-pub impl ToJson for RpcSuccess
-pub impl @json.FromJson for RpcSuccess
+pub impl Eq for RpcRequestEnvelope
+pub impl Show for RpcRequestEnvelope
+pub impl ToJson for RpcRequestEnvelope
+pub impl @json.FromJson for RpcRequestEnvelope
+
+pub enum RpcResponse {
+  ProjectState(state~ : ProjectStateResponse)
+  DirectoryPicked(result~ : DirectoryPickResult)
+  SceneLoaded(scene~ : SceneLoadResponse)
+  SceneMigrationRequired(preview~ : @editor_bridge.SceneMigrationPreview)
+  SceneListed(list~ : SceneListResponse)
+  AssetsListed(list~ : AssetsListResponse)
+  PrefabLoaded(prefab~ : PrefabLoadResponse)
+  AtlasLoaded(atlas~ : AtlasLoadResponse)
+  AnimationLoaded(animation~ : AnimationLoadResponse)
+  StartupSceneUpdated(manifest~ : @editor_bridge.ProjectManifest)
+  SavedOk
+  Error(error~ : RpcErrorDocument)
+}
+pub impl Eq for RpcResponse
+pub impl Show for RpcResponse
+pub impl ToJson for RpcResponse
+pub impl @json.FromJson for RpcResponse
+
+pub struct RpcResponseEnvelope {
+  id : Int
+  response : RpcResponse
+}
+pub impl Eq for RpcResponseEnvelope
+pub impl Show for RpcResponseEnvelope
+pub impl ToJson for RpcResponseEnvelope
+pub impl @json.FromJson for RpcResponseEnvelope
+
+pub struct SceneListResponse {
+  scenes : Array[@editor_bridge.SceneRef]
+  startup_scene : String
+}
+pub impl Eq for SceneListResponse
+pub impl Show for SceneListResponse
+pub impl ToJson for SceneListResponse
+pub impl @json.FromJson for SceneListResponse
+
+pub enum SceneLoadOutcome {
+  Loaded(SceneLoadResponse)
+  MigrationRequired(@editor_bridge.SceneMigrationPreview)
+}
+pub impl Eq for SceneLoadOutcome
+pub impl Show for SceneLoadOutcome
+
+pub struct SceneLoadResponse {
+  path : String
+  scene : @editor_bridge.SceneDocument
+}
+pub impl Eq for SceneLoadResponse
+pub impl Show for SceneLoadResponse
+pub impl ToJson for SceneLoadResponse
+pub impl @json.FromJson for SceneLoadResponse
 
 // Type aliases
 

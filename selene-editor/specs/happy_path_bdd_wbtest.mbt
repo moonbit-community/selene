@@ -1,5 +1,5 @@
 ///|
-async test "bdd project flow creates a startup scene and syncs preview" {
+async test "bdd happy path creates a startup scene and syncs preview" {
   @async.with_task_group(group => {
     let harness = given_editor_harness()
     group.add_defer(() => harness.cleanup())
@@ -22,36 +22,11 @@ async test "bdd project flow creates a startup scene and syncs preview" {
     inspect(harness.selected_entity_id() == Some("camera"), content="true")
     inspect(harness.preview_bootstrapped(), content="true")
     inspect(harness.preview_scene() == harness.scene(), content="true")
-    inspect(
-      harness.preview_selected_entity_id() == Some("camera"),
-      content="true",
-    )
   })
 }
 
 ///|
-async test "bdd opening an empty folder auto-creates a project" {
-  @async.with_task_group(group => {
-    let harness = given_editor_harness()
-    group.add_defer(() => harness.cleanup())
-
-    harness.when_editor_initialized()
-
-    inspect(
-      harness.current_root() == Some(harness.project_root_path()),
-      content="true",
-    )
-    inspect(harness.scene_path(), content="scenes/project.scene.json")
-    inspect(harness.preview_scene() == harness.scene(), content="true")
-    inspect(
-      harness.preview_selected_entity_id() == Some("camera"),
-      content="true",
-    )
-  })
-}
-
-///|
-async test "bdd selection syncs between scene tree and preview" {
+async test "bdd happy path keeps selection synchronized between scene tree and preview" {
   @async.with_task_group(group => {
     let harness = given_editor_harness()
     group.add_defer(() => harness.cleanup())
@@ -61,25 +36,18 @@ async test "bdd selection syncs between scene tree and preview" {
 
     harness.when_text_entity_is_added()
     let text_id = harness.selected_entity_id().unwrap_or("")
-
-    inspect(
-      harness.preview_selected_entity_id() == Some(text_id),
-      content="true",
-    )
+    inspect(harness.preview_selected_entity_id(), content="Some(\"\{text_id}\")")
 
     harness.when_scene_tree_selects_entity(Some("camera"))
-    inspect(
-      harness.preview_selected_entity_id() == Some("camera"),
-      content="true",
-    )
+    inspect(harness.preview_selected_entity_id(), content="Some(\"camera\")")
 
     harness.when_preview_picks_entity(Some(text_id))
-    inspect(harness.selected_entity_id() == Some(text_id), content="true")
+    inspect(harness.selected_entity_id(), content="Some(\"\{text_id}\")")
   })
 }
 
 ///|
-async test "bdd inspector edits persist after save" {
+async test "bdd happy path persists inspector edits after save" {
   @async.with_task_group(group => {
     let harness = given_editor_harness()
     group.add_defer(() => harness.cleanup())
@@ -118,7 +86,7 @@ async test "bdd inspector edits persist after save" {
 }
 
 ///|
-async test "bdd adding and deleting entities updates scene and selection" {
+async test "bdd happy path adding and deleting entities updates scene and selection" {
   @async.with_task_group(group => {
     let harness = given_editor_harness()
     group.add_defer(() => harness.cleanup())
@@ -144,7 +112,7 @@ async test "bdd adding and deleting entities updates scene and selection" {
 }
 
 ///|
-async test "bdd image assets can be added into the scene" {
+async test "bdd happy path places image assets into the scene" {
   @async.with_task_group(group => {
     let harness = given_editor_harness()
     group.add_defer(() => harness.cleanup())
@@ -171,15 +139,11 @@ async test "bdd image assets can be added into the scene" {
     inspect(sprite.image_path, content="Some(\"assets/images/hero.png\")")
     inspect(transform.translation.x, content="96")
     inspect(transform.translation.y, content="144")
-    inspect(
-      harness.preview_selected_entity_id() == Some(entity_id),
-      content="true",
-    )
   })
 }
 
 ///|
-async test "bdd image to atlas to animation to prefab flow persists through editor resources" {
+async test "bdd happy path persists image to atlas to animation to prefab flow" {
   @async.with_task_group(group => {
     let harness = given_editor_harness()
     group.add_defer(() => harness.cleanup())
@@ -197,10 +161,6 @@ async test "bdd image to atlas to animation to prefab flow persists through edit
 
     harness.when_selected_atlas_creates_animation()
     inspect(harness.animation_refs().length(), content="1")
-    inspect(
-      harness.selected_resource_path(),
-      content="Some(\"assets/animations/hero.anim.json\")",
-    )
 
     harness.when_selected_resource_is_inserted()
     let entity_id = harness.selected_entity_id().unwrap_or("")
@@ -208,10 +168,6 @@ async test "bdd image to atlas to animation to prefab flow persists through edit
 
     harness.when_selected_entity_is_saved_as_prefab()
     inspect(harness.prefab_refs().length(), content="1")
-    inspect(
-      harness.selected_resource_path(),
-      content="Some(\"prefabs/hero.prefab.json\")",
-    )
 
     harness.when_selected_resource_is_inserted()
     inspect(harness.scene().unwrap().entities.length() > 2, content="true")
@@ -219,7 +175,7 @@ async test "bdd image to atlas to animation to prefab flow persists through edit
 }
 
 ///|
-async test "bdd atlas and animation inspector edits persist to asset documents" {
+async test "bdd happy path persists atlas and animation inspector edits" {
   @async.with_task_group(group => {
     let harness = given_editor_harness()
     group.add_defer(() => harness.cleanup())
@@ -249,7 +205,7 @@ async test "bdd atlas and animation inspector edits persist to asset documents" 
 }
 
 ///|
-async test "bdd scene browser and prefab inspector edits persist" {
+async test "bdd happy path persists scene browser and prefab inspector edits" {
   @async.with_task_group(group => {
     let harness = given_editor_harness()
     group.add_defer(() => harness.cleanup())

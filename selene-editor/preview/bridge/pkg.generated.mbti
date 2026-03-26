@@ -7,13 +7,17 @@ import {
 }
 
 // Values
+pub fn animation_asset_entry(String, @editor_bridge.AnimationAssetDocument) -> AnimationAssetEntry
+
+pub fn atlas_asset_entry(String, @editor_bridge.AtlasAssetDocument) -> AtlasAssetEntry
+
 pub fn preview_command_bootstrap() -> PreviewCommand
 
 pub fn preview_command_clear_scene() -> PreviewCommand
 
 pub fn preview_command_frame_selection() -> PreviewCommand
 
-pub fn preview_command_load_scene(@editor_bridge.SceneDocument) -> PreviewCommand
+pub fn preview_command_load_scene(PreviewScenePayload) -> PreviewCommand
 
 pub fn preview_command_select_entity(String?) -> PreviewCommand
 
@@ -25,13 +29,29 @@ pub fn preview_event_hover_changed(String?) -> PreviewEvent
 
 pub fn preview_event_transform_changed(String, @editor_bridge.Vec2Doc, Double) -> PreviewEvent
 
+pub fn preview_scene_payload(@editor_bridge.SceneDocument, Array[AtlasAssetEntry], Array[AnimationAssetEntry]) -> PreviewScenePayload
+
 // Errors
 
 // Types and methods
+pub struct AnimationAssetEntry {
+  path : String
+  animation : @editor_bridge.AnimationAssetDocument
+}
+pub impl Eq for AnimationAssetEntry
+pub impl Show for AnimationAssetEntry
+
+pub struct AtlasAssetEntry {
+  path : String
+  atlas : @editor_bridge.AtlasAssetDocument
+}
+pub impl Eq for AtlasAssetEntry
+pub impl Show for AtlasAssetEntry
+
 pub enum PreviewCommand {
   Bootstrap
   ClearScene
-  LoadScene(@editor_bridge.SceneDocument)
+  LoadScene(PreviewScenePayload)
   SelectEntity(String?)
   SetTool(@shared.PreviewTool)
   FrameSelection
@@ -46,6 +66,14 @@ pub enum PreviewEvent {
 }
 pub impl Eq for PreviewEvent
 pub impl Show for PreviewEvent
+
+pub struct PreviewScenePayload {
+  scene : @editor_bridge.SceneDocument
+  atlases : Array[AtlasAssetEntry]
+  animations : Array[AnimationAssetEntry]
+}
+pub impl Eq for PreviewScenePayload
+pub impl Show for PreviewScenePayload
 
 // Type aliases
 

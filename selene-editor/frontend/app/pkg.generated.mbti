@@ -21,9 +21,25 @@ pub fn msg_add_sprite_from_asset_at(String, @editor_bridge.Vec2Doc) -> Msg
 
 pub fn msg_add_text_entity() -> Msg
 
-pub fn msg_assets_loaded(Result[AssetsListResponse, String]) -> Msg
+pub fn msg_animation_loaded(Result[@shared.AnimationLoadResponse, String]) -> Msg
 
-pub fn msg_create_project() -> Msg
+pub fn msg_asset_size_resolved(String, Double, Double) -> Msg
+
+pub fn msg_assets_loaded(Result[@shared.AssetsListResponse, String]) -> Msg
+
+pub fn msg_atlas_loaded(Result[@shared.AtlasLoadResponse, String]) -> Msg
+
+pub fn msg_cancel_scene_migration() -> Msg
+
+pub fn msg_confirm_scene_migration() -> Msg
+
+pub fn msg_create_animation_from_selected_atlas() -> Msg
+
+pub fn msg_create_atlas_from_selected_image() -> Msg
+
+pub fn msg_create_scene(String) -> Msg
+
+pub fn msg_delete_current_scene() -> Msg
 
 pub fn msg_delete_selected() -> Msg
 
@@ -31,29 +47,51 @@ pub fn msg_frame_selection() -> Msg
 
 pub fn msg_initialize() -> Msg
 
+pub fn msg_insert_selected_resource() -> Msg
+
 pub fn msg_open_project() -> Msg
+
+pub fn msg_open_scene(String) -> Msg
 
 pub fn msg_pick_project_root() -> Msg
 
+pub fn msg_prefab_loaded(Result[@shared.PrefabLoadResponse, String]) -> Msg
+
 pub fn msg_preview_event(@bridge.PreviewEvent) -> Msg
 
-pub fn msg_project_loaded(Result[ProjectStateResponse, String]) -> Msg
+pub fn msg_project_loaded(Result[@shared.ProjectStateResponse, String]) -> Msg
 
 pub fn msg_project_root_picked(Result[@shared.DirectoryPickResult, String]) -> Msg
 
 pub fn msg_reload_scene() -> Msg
 
+pub fn msg_rename_current_scene(String) -> Msg
+
 pub fn msg_rename_selected(String) -> Msg
 
 pub fn msg_save_scene() -> Msg
 
-pub fn msg_scene_loaded(Result[SceneLoadResponse, String]) -> Msg
+pub fn msg_save_selected_animation() -> Msg
 
-pub fn msg_scene_saved(Result[Json, String]) -> Msg
+pub fn msg_save_selected_as_prefab() -> Msg
+
+pub fn msg_save_selected_atlas() -> Msg
+
+pub fn msg_save_selected_prefab() -> Msg
+
+pub fn msg_scene_list_loaded(Result[@shared.SceneListResponse, String]) -> Msg
+
+pub fn msg_scene_loaded(Result[@shared.SceneLoadOutcome, String]) -> Msg
+
+pub fn msg_scene_saved(Result[Unit, String]) -> Msg
 
 pub fn msg_select_entity(String?) -> Msg
 
-pub fn msg_service_event(Result[@shared.EventEnvelope, String]) -> Msg
+pub fn msg_select_resource(ResourceSelection?) -> Msg
+
+pub fn msg_service_event(Result[@shared.EditorEvent, String]) -> Msg
+
+pub fn msg_set_current_scene_as_startup() -> Msg
 
 pub fn msg_set_project_name_input(String) -> Msg
 
@@ -61,7 +99,43 @@ pub fn msg_set_project_root_input(String) -> Msg
 
 pub fn msg_set_tool(@shared.PreviewTool) -> Msg
 
+pub fn msg_toggle_selected_animation_clip_looping() -> Msg
+
 pub fn msg_toggle_selected_visibility() -> Msg
+
+pub fn msg_update_selected_animation_clip_fps(String) -> Msg
+
+pub fn msg_update_selected_animation_clip_frames(String) -> Msg
+
+pub fn msg_update_selected_animation_clip_name(String) -> Msg
+
+pub fn msg_update_selected_animation_default_clip(String) -> Msg
+
+pub fn msg_update_selected_animation_name(String) -> Msg
+
+pub fn msg_update_selected_atlas_anchor_x(String) -> Msg
+
+pub fn msg_update_selected_atlas_anchor_y(String) -> Msg
+
+pub fn msg_update_selected_atlas_columns(String) -> Msg
+
+pub fn msg_update_selected_atlas_margin_x(String) -> Msg
+
+pub fn msg_update_selected_atlas_margin_y(String) -> Msg
+
+pub fn msg_update_selected_atlas_name(String) -> Msg
+
+pub fn msg_update_selected_atlas_rows(String) -> Msg
+
+pub fn msg_update_selected_atlas_spacing_x(String) -> Msg
+
+pub fn msg_update_selected_atlas_spacing_y(String) -> Msg
+
+pub fn msg_update_selected_atlas_tile_height(String) -> Msg
+
+pub fn msg_update_selected_atlas_tile_width(String) -> Msg
+
+pub fn msg_update_selected_prefab_name(String) -> Msg
 
 pub fn msg_update_selected_rotation(String) -> Msg
 
@@ -73,20 +147,21 @@ pub fn msg_update_selected_translate_y(String) -> Msg
 
 pub fn new_model() -> Model
 
+pub fn resource_selection_animation(String) -> ResourceSelection
+
+pub fn resource_selection_atlas(String) -> ResourceSelection
+
+pub fn resource_selection_image(String) -> ResourceSelection
+
+pub fn resource_selection_prefab(String) -> ResourceSelection
+
 pub fn update(Msg, Model) -> (Array[Effect], Model)
 
 // Errors
 
 // Types and methods
-pub struct AssetsListResponse {
-  assets : Array[@editor_bridge.AssetDocument]
-}
-pub impl Eq for AssetsListResponse
-pub impl Show for AssetsListResponse
-pub impl @json.FromJson for AssetsListResponse
-
 pub enum Effect {
-  Rpc(target~ : RpcTarget, method_name~ : String, params~ : Json)
+  Rpc(target~ : RpcTarget, request~ : @shared.RpcRequestEnvelope)
   SubscribeServiceEvents
   SubscribePreviewEvents
   Preview(@bridge.PreviewCommand)
@@ -99,17 +174,34 @@ pub struct Model {
   project_name_input : String
   current_root : String?
   manifest : @editor_bridge.ProjectManifest?
+  scene_refs : Array[@editor_bridge.SceneRef]
+  prefab_refs : Array[@editor_bridge.PrefabRef]
+  atlas_refs : Array[@editor_bridge.AssetRef]
+  animation_refs : Array[@editor_bridge.AssetRef]
   scene_path : String
   scene : @editor_bridge.SceneDocument?
   assets : Array[@editor_bridge.AssetDocument]
+  asset_sizes : Map[String, @editor_bridge.Vec2Doc]
+  prefab_documents : Map[String, @editor_bridge.PrefabDocument]
+  atlas_documents : Map[String, @editor_bridge.AtlasAssetDocument]
+  animation_documents : Map[String, @editor_bridge.AnimationAssetDocument]
+  workspace : @editor_bridge.WorkspaceDocument
+  selected_resource : ResourceSelection?
   selected_entity_id : String?
+  pending_scene_migration : @editor_bridge.SceneMigrationPreview?
   recent_projects : Array[String]
   logs : Array[String]
   status : String
   active_tool : @shared.PreviewTool
 }
+pub fn Model::asset_size(Self, String) -> @editor_bridge.Vec2Doc?
 pub fn Model::image_assets(Self) -> Array[@editor_bridge.AssetDocument]
+pub fn Model::selected_animation_document(Self) -> (String, @editor_bridge.AnimationAssetDocument)?
+pub fn Model::selected_atlas_document(Self) -> (String, @editor_bridge.AtlasAssetDocument)?
 pub fn Model::selected_entity(Self) -> @editor_bridge.EntityDocument?
+pub fn Model::selected_image_asset(Self) -> @editor_bridge.AssetDocument?
+pub fn Model::selected_prefab_document(Self) -> (String, @editor_bridge.PrefabDocument)?
+pub fn Model::selected_resource_path(Self) -> String?
 pub impl Eq for Model
 pub impl Show for Model
 
@@ -119,15 +211,52 @@ pub enum Msg {
   SetProjectNameInput(String)
   PickProjectRoot
   OpenProject
-  CreateProject
   ProjectRootPicked(Result[@shared.DirectoryPickResult, String])
-  ProjectLoaded(Result[ProjectStateResponse, String])
-  SceneLoaded(Result[SceneLoadResponse, String])
-  AssetsLoaded(Result[AssetsListResponse, String])
-  SceneSaved(Result[Json, String])
-  ServiceEvent(Result[@shared.EventEnvelope, String])
+  ProjectLoaded(Result[@shared.ProjectStateResponse, String])
+  SceneLoaded(Result[@shared.SceneLoadOutcome, String])
+  ConfirmSceneMigration
+  CancelSceneMigration
+  SceneListLoaded(Result[@shared.SceneListResponse, String])
+  AssetsLoaded(Result[@shared.AssetsListResponse, String])
+  PrefabLoaded(Result[@shared.PrefabLoadResponse, String])
+  AtlasLoaded(Result[@shared.AtlasLoadResponse, String])
+  AnimationLoaded(Result[@shared.AnimationLoadResponse, String])
+  AssetSizeResolved(String, Double, Double)
+  SceneSaved(Result[Unit, String])
+  ServiceEvent(Result[@shared.EditorEvent, String])
   PreviewEvent(@bridge.PreviewEvent)
+  OpenScene(String)
+  SelectResource(ResourceSelection?)
   SelectEntity(String?)
+  CreateScene(String)
+  DeleteCurrentScene
+  SetCurrentSceneAsStartup
+  RenameCurrentScene(String)
+  CreateAtlasFromSelectedImage
+  CreateAnimationFromSelectedAtlas
+  SaveSelectedAsPrefab
+  InsertSelectedResource
+  UpdateSelectedPrefabName(String)
+  SaveSelectedPrefab
+  UpdateSelectedAtlasName(String)
+  UpdateSelectedAtlasTileWidth(String)
+  UpdateSelectedAtlasTileHeight(String)
+  UpdateSelectedAtlasColumns(String)
+  UpdateSelectedAtlasRows(String)
+  UpdateSelectedAtlasSpacingX(String)
+  UpdateSelectedAtlasSpacingY(String)
+  UpdateSelectedAtlasMarginX(String)
+  UpdateSelectedAtlasMarginY(String)
+  UpdateSelectedAtlasAnchorX(String)
+  UpdateSelectedAtlasAnchorY(String)
+  SaveSelectedAtlas
+  UpdateSelectedAnimationName(String)
+  UpdateSelectedAnimationDefaultClip(String)
+  UpdateSelectedAnimationClipName(String)
+  UpdateSelectedAnimationClipFps(String)
+  ToggleSelectedAnimationClipLooping
+  UpdateSelectedAnimationClipFrames(String)
+  SaveSelectedAnimation
   RenameSelected(String)
   UpdateSelectedTranslateX(String)
   UpdateSelectedTranslateY(String)
@@ -145,32 +274,28 @@ pub enum Msg {
   FrameSelection
 }
 
-pub struct ProjectStateResponse {
-  root : String?
-  manifest : @editor_bridge.ProjectManifest?
-  recent_projects : Array[String]
+pub enum ResourceSelection {
+  Image(String)
+  Atlas(String)
+  Animation(String)
+  Prefab(String)
 }
-pub impl Eq for ProjectStateResponse
-pub impl Show for ProjectStateResponse
-pub impl @json.FromJson for ProjectStateResponse
+pub impl Eq for ResourceSelection
+pub impl Show for ResourceSelection
 
 pub enum RpcTarget {
   ProjectLoaded
   ProjectRootPicked
   SceneLoaded
+  SceneListLoaded
   AssetsLoaded
+  PrefabLoaded
+  AtlasLoaded
+  AnimationLoaded
   SceneSaved
 }
 pub impl Eq for RpcTarget
 pub impl Show for RpcTarget
-
-pub struct SceneLoadResponse {
-  path : String
-  scene : @editor_bridge.SceneDocument
-}
-pub impl Eq for SceneLoadResponse
-pub impl Show for SceneLoadResponse
-pub impl @json.FromJson for SceneLoadResponse
 
 // Type aliases
 

@@ -4,6 +4,9 @@ priv suberror EditorServiceError {
   ProjectNotOpen
   MissingProjectManifest(String)
   SceneNotFound(String)
+  PrefabNotFound(String)
+  AtlasNotFound(String)
+  AnimationNotFound(String)
   Failure(String)
 }
 

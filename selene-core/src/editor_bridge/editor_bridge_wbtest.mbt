@@ -129,6 +129,96 @@ test "scene runtime instantiates camera and mesh entities" {
 }
 
 ///|
+test "legacy scene documents can be probed and migrated" {
+  let temp_root = "_build/editor-bridge-migration"
+  if !@fs.path_exists("_build") {
+    @fs.create_dir("_build")
+  }
+  if !@fs.path_exists(temp_root) {
+    @fs.create_dir(temp_root)
+  }
+  let path = temp_root + "/main.scene.json"
+  @fs.write_string_to_file(
+    path,
+    "{\n  \"version\": 1,\n  \"entities\": [\n    {\n      \"id\": \"camera\",\n      \"name\": \"Camera2d\",\n      \"components\": [\n        {\n          \"kind\": \"Transform2d\",\n          \"data\": {\n            \"translation\": {\n              \"x\": 0,\n              \"y\": 0\n            },\n            \"rotation\": 0,\n            \"scale\": {\n              \"x\": 1,\n              \"y\": 1\n            }\n          }\n        },\n        {\n          \"kind\": \"Camera2d\",\n          \"data\": {\n            \"is_active\": true,\n            \"order\": 0,\n            \"scale\": 1\n          }\n        },\n        {\n          \"kind\": \"Visibility\",\n          \"data\": {\n            \"visible\": true\n          }\n        }\n      ]\n    }\n  ]\n}\n",
+  )
+  match read_scene_document_status(path) {
+    MigrationRequired(preview) => {
+      inspect(preview.path.has_suffix("main.scene.json"), content="true")
+      inspect(preview.scene.name, content="Main")
+      inspect(preview.scene.entities[0].parent, content="None")
+      inspect(preview.changes.length(), content="2")
+    }
+    _ => fail("expected migration preview")
+  }
+  let migrated = migrate_scene_document(path)
+  inspect(migrated.name, content="Main")
+  inspect(read_scene_document(path).name, content="Main")
+}
+
+///|
+test "invalid scene documents raise stable editor bridge errors" {
+  let temp_root = "_build/editor-bridge-invalid-scene"
+  if !@fs.path_exists("_build") {
+    @fs.create_dir("_build")
+  }
+  if !@fs.path_exists(temp_root) {
+    @fs.create_dir(temp_root)
+  }
+  let path = temp_root + "/broken.scene.json"
+  @fs.write_string_to_file(path, "{\"version\":1,\"entities\":")
+  let result : Result[SceneDocumentLoadStatus, Error] = try? read_scene_document_status(path)
+  match result {
+    Err(InvalidSceneDocument(_)) => inspect(true, content="true")
+    _ => fail("expected InvalidSceneDocument")
+  }
+}
+
+///|
+test "invalid prefab, atlas, and animation documents raise stable editor bridge errors" {
+  let temp_root = "_build/editor-bridge-invalid-assets"
+  if !@fs.path_exists("_build") {
+    @fs.create_dir("_build")
+  }
+  if !@fs.path_exists(temp_root) {
+    @fs.create_dir(temp_root)
+  }
+
+  let prefab_path = temp_root + "/broken.prefab.json"
+  @fs.write_string_to_file(
+    prefab_path,
+    "{\n  \"version\": 1,\n  \"name\": \"\",\n  \"entities\": []\n}\n",
+  )
+  let atlas_path = temp_root + "/broken.atlas.json"
+  @fs.write_string_to_file(
+    atlas_path,
+    "{\n  \"version\": 1,\n  \"name\": \"Broken\",\n  \"source_image\": \"assets/images/hero.png\",\n  \"tile_size\": {\"x\": 0, \"y\": 0},\n  \"columns\": 0,\n  \"rows\": 0,\n  \"spacing\": {\"x\": 0, \"y\": 0},\n  \"margin\": {\"x\": 0, \"y\": 0},\n  \"default_anchor\": {\"x\": 0.5, \"y\": 0.5},\n  \"regions\": []\n}\n",
+  )
+  let animation_path = temp_root + "/broken.anim.json"
+  @fs.write_string_to_file(
+    animation_path,
+    "{\n  \"version\": 1,\n  \"name\": \"Broken\",\n  \"atlas_asset_path\": \"assets/atlases/hero.atlas.json\",\n  \"clips\": [],\n  \"default_clip\": \"missing\"\n}\n",
+  )
+
+  let prefab_result : Result[PrefabDocument, Error] = try? read_prefab_document(prefab_path)
+  let atlas_result : Result[AtlasAssetDocument, Error] = try? read_atlas_asset_document(atlas_path)
+  let animation_result : Result[AnimationAssetDocument, Error] = try? read_animation_asset_document(animation_path)
+
+  match prefab_result {
+    Err(InvalidPrefabDocument(_)) => inspect(true, content="true")
+    _ => fail("expected InvalidPrefabDocument")
+  }
+  match atlas_result {
+    Err(InvalidAtlasAssetDocument(_)) => inspect(true, content="true")
+    _ => fail("expected InvalidAtlasAssetDocument")
+  }
+  match animation_result {
+    Err(InvalidAnimationAssetDocument(_)) => inspect(true, content="true")
+    _ => fail("expected InvalidAnimationAssetDocument")
+  }
+}
+
+///|
 test "prefab, atlas, and animation documents round trip" {
   let prefab = PrefabDocument::empty("Enemy").with_entity(
     entity_document(

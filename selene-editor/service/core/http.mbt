@@ -209,6 +209,9 @@ fn request_error_message(err : Error) -> String {
     InvalidEditorPath(path) => "Invalid editor path: " + path
     MissingProjectManifest(path) => "Missing project manifest: " + path
     SceneNotFound(path) => "Scene not found: " + path
+    PrefabNotFound(path) => "Prefab not found: " + path
+    AtlasNotFound(path) => "Atlas not found: " + path
+    AnimationNotFound(path) => "Animation not found: " + path
     ProjectNotOpen => "No project is open"
     _ => err.to_string()
   }
@@ -278,7 +281,29 @@ pub async fn EditorService::handle_rpc(
         let manifest = self.current_manifest()
         let relative_path = if path == "" { manifest.startup_scene } else { path }
         let root = self.current_project_root()
-        let scene = load_scene_document(root, relative_path)
+        match load_scene_document(root, relative_path) {
+          @editor_bridge.Ready(scene) =>
+            @shared.rpc_response_scene_loaded(
+              @shared.scene_load_response(relative_path, scene),
+            )
+          @editor_bridge.MigrationRequired(preview) =>
+            @shared.rpc_response_scene_migration_required(
+              @editor_bridge.scene_migration_preview(
+                relative_path,
+                preview.scene,
+                preview.changes,
+              ),
+            )
+        }
+      }
+      @shared.SceneMigrate(path~) => {
+        let manifest = self.current_manifest()
+        let relative_path = if path == "" { manifest.startup_scene } else { path }
+        let root = self.current_project_root()
+        let scene = migrate_scene_document(root, relative_path)
+        self.broadcast(
+          @shared.event_envelope(@shared.editor_event_scene_saved(relative_path)),
+        )
         @shared.rpc_response_scene_loaded(
           @shared.scene_load_response(relative_path, scene),
         )
@@ -386,7 +411,7 @@ pub async fn EditorService::handle_rpc(
       @shared.rpc_error_response(
         id,
         "internal_error",
-        err.to_string(),
+        request_error_message(err),
         details=envelope.request.to_json(),
       )
       .to_json()

@@ -15,6 +15,7 @@
 
 ### Changed
 
+- Changed `selene-editor` behavior coverage from a single happy-path BDD file into split happy-path, migration/recovery, and error-UX scenario suites, and expanded the supporting frontend/service/shared whitebox tests to cover typed protocol failures, invalid documents, missing files, and user-cancel flows.
 - Changed `selene-editor` transport protocol to use shared typed ADTs for all retained `/rpc` requests/responses and `/events` payloads, removing scattered string method names and SSE kind dispatch from the frontend/service boundary.
 - Changed `selene-editor` from a single-scene JSON editor toward a Selene-native workspace model: project state now includes scene refs, prefab refs, atlas refs, animation refs, and editor workspace data, and preview loading now carries atlas/animation asset documents into `editor_bridge` instead of instantiating scenes in isolation.
 - Changed `selene-editor` UI layout to introduce a real `Scene Browser` beside the `Asset Browser`, and changed asset inspection from image-only cards to Selene-native resource sections for images, atlases, animations, and prefabs.
@@ -35,6 +36,9 @@
 
 ### Fixed
 
+- Fixed `selene/editor_bridge` and `selene-editor` document loading so unrecoverable project/scene/prefab/atlas/animation JSON errors now surface as stable user-facing invalid-document failures instead of leaking raw decode exceptions, and invalid editor workspace files now fall back to defaults instead of blocking project open.
+- Fixed `selene-editor` legacy-scene migration flow to keep migration previews on relative scene paths, so confirming a legacy startup-scene migration now writes back and reloads correctly through the typed `scene.migrate` RPC path.
+- Fixed `selene-editor` startup scene loading for legacy scene documents: opening an older `*.scene.json` no longer fails with a raw `JsonDecodeError`; the editor now detects recoverable missing fields, shows a migration confirmation dialog, and writes the migrated scene back only after explicit user confirmation.
 - Fixed `selene-editor` image-asset placement so dragged sprites use each asset's resolved image dimensions instead of always forcing new sprite entities to `64x64`.
 - Fixed `selene-editor` project asset serving to percent-decode `/project/...` request paths before resolving files on disk, so image assets with spaces and similar URL-escaped characters now load correctly in the asset sidebar.
 - Fixed `selene-editor` asset selection behavior so clicking an asset card no longer creates a new scene entity; image assets are now inserted only by dragging them into the viewport.

@@ -55,7 +55,11 @@ async fn load_project_manifest(root : String) -> @editor_bridge.ProjectManifest 
   guard maybe_path is Some(path) else {
     raise MissingProjectManifest(project_manifest_path(root, ""))
   }
-  @editor_bridge.read_project_manifest(path)
+  @editor_bridge.read_project_manifest(path) catch {
+    @editor_bridge.InvalidProjectManifest(_) =>
+      raise Failure("Project manifest is invalid: selene.project.json")
+    err => raise err
+  }
 }
 
 ///|
@@ -73,10 +77,28 @@ fn save_project_manifest(
 async fn load_scene_document(
   root : String,
   relative_path : String,
+) -> @editor_bridge.SceneDocumentLoadStatus {
+  let path = scene_path(root, relative_path)
+  guard @fs.exists(path) else { raise SceneNotFound(relative_path) }
+  @editor_bridge.read_scene_document_status(path) catch {
+    @editor_bridge.InvalidSceneDocument(_) =>
+      raise Failure("Scene document is invalid: " + relative_path)
+    err => raise err
+  }
+}
+
+///|
+async fn migrate_scene_document(
+  root : String,
+  relative_path : String,
 ) -> @editor_bridge.SceneDocument {
   let path = scene_path(root, relative_path)
   guard @fs.exists(path) else { raise SceneNotFound(relative_path) }
-  @editor_bridge.read_scene_document(path)
+  @editor_bridge.migrate_scene_document(path) catch {
+    @editor_bridge.InvalidSceneDocument(_) =>
+      raise Failure("Scene document is invalid: " + relative_path)
+    err => raise err
+  }
 }
 
 ///|
@@ -103,8 +125,12 @@ async fn load_prefab_document(
   relative_path : String,
 ) -> @editor_bridge.PrefabDocument {
   let path = prefab_path(root, relative_path)
-  guard @fs.exists(path) else { raise SceneNotFound(relative_path) }
-  @editor_bridge.read_prefab_document(path)
+  guard @fs.exists(path) else { raise PrefabNotFound(relative_path) }
+  @editor_bridge.read_prefab_document(path) catch {
+    @editor_bridge.InvalidPrefabDocument(_) =>
+      raise Failure("Prefab document is invalid: " + relative_path)
+    err => raise err
+  }
 }
 
 ///|
@@ -131,8 +157,12 @@ async fn load_atlas_asset_document(
   relative_path : String,
 ) -> @editor_bridge.AtlasAssetDocument {
   let path = atlas_asset_path(root, relative_path)
-  guard @fs.exists(path) else { raise SceneNotFound(relative_path) }
-  @editor_bridge.read_atlas_asset_document(path)
+  guard @fs.exists(path) else { raise AtlasNotFound(relative_path) }
+  @editor_bridge.read_atlas_asset_document(path) catch {
+    @editor_bridge.InvalidAtlasAssetDocument(_) =>
+      raise Failure("Atlas document is invalid: " + relative_path)
+    err => raise err
+  }
 }
 
 ///|
@@ -159,8 +189,12 @@ async fn load_animation_asset_document(
   relative_path : String,
 ) -> @editor_bridge.AnimationAssetDocument {
   let path = animation_asset_path(root, relative_path)
-  guard @fs.exists(path) else { raise SceneNotFound(relative_path) }
-  @editor_bridge.read_animation_asset_document(path)
+  guard @fs.exists(path) else { raise AnimationNotFound(relative_path) }
+  @editor_bridge.read_animation_asset_document(path) catch {
+    @editor_bridge.InvalidAnimationAssetDocument(_) =>
+      raise Failure("Animation document is invalid: " + relative_path)
+    err => raise err
+  }
 }
 
 ///|
@@ -187,7 +221,11 @@ async fn load_workspace_document(root : String) -> @editor_bridge.WorkspaceDocum
   if !@fs.exists(path) {
     return @editor_bridge.WorkspaceDocument::default()
   }
-  @editor_bridge.read_workspace_document(path)
+  @editor_bridge.read_workspace_document(path) catch {
+    @editor_bridge.InvalidWorkspaceDocument(_) =>
+      @editor_bridge.WorkspaceDocument::default()
+    err => raise err
+  }
 }
 
 async fn list_files_recursive(root : String) -> Array[String] {

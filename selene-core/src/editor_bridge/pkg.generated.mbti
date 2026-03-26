@@ -2,6 +2,7 @@
 package "Milky2018/selene/editor_bridge"
 
 import {
+  "Milky2018/selene/animation",
   "Milky2018/selene/entity",
   "Milky2018/selene/material2d",
   "Milky2018/selene/mesh2d",
@@ -10,7 +11,33 @@ import {
 }
 
 // Values
+pub fn animation_asset_document(String, String, Array[AnimationClipDocument], String?) -> AnimationAssetDocument
+
+pub fn animation_asset_document_from_frames(String, String, Array[String], default_clip? : String) -> AnimationAssetDocument
+
+pub fn animation_asset_file_name(String) -> String
+
+pub let animation_asset_schema_version : Int
+
+pub fn animation_clip_document(String, Double, Bool, Array[String]) -> AnimationClipDocument
+
+pub fn animation_player_component(animation_asset_path? : String?, default_clip? : String?, autoplay? : Bool, repeat_mode? : String, speed? : Double) -> ComponentDocument
+
+pub fn animation_transitions_component(duration? : Double) -> ComponentDocument
+
 pub fn asset_document(String, AssetKind, meta_path? : String?) -> AssetDocument
+
+pub fn asset_instantiation_context(asset_path_resolver? : (String?) -> String?, atlas_assets? : Map[String, AtlasAssetDocument], animation_assets? : Map[String, AnimationAssetDocument], custom_component_appliers? : Map[String, (@entity.Entity, ComponentDocument, AssetInstantiationContext) -> Unit]) -> AssetInstantiationContext
+
+pub fn asset_ref(String) -> AssetRef
+
+pub fn atlas_asset_document_from_image(String, String, Vec2Doc) -> AtlasAssetDocument
+
+pub fn atlas_asset_file_name(String) -> String
+
+pub let atlas_asset_schema_version : Int
+
+pub fn atlas_region_document(String, Int, RectDoc) -> AtlasRegionDocument
 
 pub fn camera2d_component(is_active? : Bool, order? : Int, scale? : Double) -> ComponentDocument
 
@@ -36,17 +63,41 @@ pub fn identity_asset_path_resolver(String?) -> String?
 
 pub fn infer_asset_kind(String) -> AssetKind
 
+pub fn instantiate_prefab_document(PrefabDocument, parent? : @entity.Entity?, context? : AssetInstantiationContext) -> SceneRuntime
+
 pub fn instantiate_scene_document(SceneDocument, (String?) -> String?) -> SceneRuntime
 
-pub fn ldtk_world_ref_component(String) -> ComponentDocument
+pub fn instantiate_scene_document_with_context(SceneDocument, AssetInstantiationContext) -> SceneRuntime
+
+pub fn list_animation_assets(String) -> Array[AssetRef] raise
+
+pub fn list_atlas_assets(String) -> Array[AssetRef] raise
+
+pub fn list_prefab_documents(String) -> Array[PrefabRef] raise
+
+pub fn list_scene_documents(String) -> Array[SceneRef] raise
 
 pub fn mesh2d_component(String, size? : Vec2Doc?, radius? : Double?) -> ComponentDocument
 
+pub fn migrate_scene_document(String) -> SceneDocument raise
+
+pub fn migration_field_change(String, String, String) -> MigrationFieldChange
+
+pub fn name_component(String) -> ComponentDocument
+
 pub fn normalized_document_stem(String) -> String
 
-pub fn physics_body2d_component(body_type? : String, linear_velocity? : Vec2Doc, angular_velocity? : Double) -> ComponentDocument
+pub fn physics_body2d_component(body_type? : String, linear_velocity? : Vec2Doc, angular_velocity? : Double, gravity_scale? : Double, linear_damping? : Double, angular_damping? : Double, lock_rotation? : Bool, ccd_enabled? : Bool) -> ComponentDocument
 
-pub fn physics_collider2d_component(shape? : String, size? : Vec2Doc?, radius? : Double?, sensor? : Bool) -> ComponentDocument
+pub fn physics_collider2d_component(shape? : String, size? : Vec2Doc?, radius? : Double?, sensor? : Bool, friction? : Double, restitution? : Double) -> ComponentDocument
+
+pub fn prefab_document(String, Array[EntityDocument]) -> PrefabDocument
+
+pub fn prefab_file_name(String) -> String
+
+pub fn prefab_ref(String) -> PrefabRef
+
+pub let prefab_schema_version : Int
 
 pub fn project_manifest_candidates(String) -> Array[String] raise
 
@@ -54,11 +105,29 @@ pub fn project_manifest_file_name(String) -> String
 
 pub let project_schema_version : Int
 
+pub fn read_animation_asset_document(String) -> AnimationAssetDocument raise
+
+pub fn read_atlas_asset_document(String) -> AtlasAssetDocument raise
+
+pub fn read_prefab_document(String) -> PrefabDocument raise
+
 pub fn read_project_manifest(String) -> ProjectManifest raise
 
 pub fn read_scene_document(String) -> SceneDocument raise
 
+pub fn read_scene_document_status(String) -> SceneDocumentLoadStatus raise
+
+pub fn read_workspace_document(String) -> WorkspaceDocument raise
+
 pub fn rect_doc(Double, Double, Double, Double) -> RectDoc
+
+pub fn register_custom_component(String, (@entity.Entity, ComponentDocument, AssetInstantiationContext) -> Unit) -> Unit
+
+pub fn scene_file_name(String) -> String
+
+pub fn scene_migration_preview(String, SceneDocument, Array[MigrationFieldChange]) -> SceneMigrationPreview
+
+pub fn scene_ref(String) -> SceneRef
 
 pub let scene_schema_version : Int
 
@@ -70,33 +139,104 @@ pub fn startup_scene_path_for_name(String) -> String
 
 pub fn text2d_component(String, font_path? : String?, font_size? : Double, color? : ColorDoc, bounds? : Vec2Doc?, anchor? : Vec2Doc) -> ComponentDocument
 
-pub fn texture_atlas_component(TextureAtlasLayoutDoc, index? : Int) -> ComponentDocument
-
-pub fn tiled_map_ref_component(String) -> ComponentDocument
+pub fn texture_atlas_component(atlas_asset_path? : String?, region_name? : String?, layout? : TextureAtlasLayoutDoc?, index? : Int) -> ComponentDocument
 
 pub fn transform2d_component(translation? : Vec2Doc, rotation? : Double, scale? : Vec2Doc) -> ComponentDocument
 
 pub fn transform2d_value(translation? : Vec2Doc, rotation? : Double, scale? : Vec2Doc) -> Transform2dComponent
 
+pub fn validate_animation_asset_document(AnimationAssetDocument) -> Array[ValidationError]
+
+pub fn validate_atlas_asset_document(AtlasAssetDocument) -> Array[ValidationError]
+
+pub fn validate_prefab_document(PrefabDocument) -> Array[ValidationError]
+
 pub fn validate_project_manifest(ProjectManifest) -> Array[ValidationError]
 
 pub fn validate_scene_document(SceneDocument) -> Array[ValidationError]
+
+pub fn validate_workspace_document(WorkspaceDocument) -> Array[ValidationError]
 
 pub fn vec2_doc(Double, Double) -> Vec2Doc
 
 pub fn visibility_component(visible? : Bool) -> ComponentDocument
 
+pub let workspace_schema_version : Int
+
+pub fn write_animation_asset_document(String, AnimationAssetDocument) -> Unit raise
+
+pub fn write_atlas_asset_document(String, AtlasAssetDocument) -> Unit raise
+
+pub fn write_prefab_document(String, PrefabDocument) -> Unit raise
+
 pub fn write_project_manifest(String, ProjectManifest) -> Unit raise
 
 pub fn write_scene_document(String, SceneDocument) -> Unit raise
+
+pub fn write_workspace_document(String, WorkspaceDocument) -> Unit raise
 
 // Errors
 pub suberror EditorBridgeFileError {
   InvalidProjectManifest(String)
   InvalidSceneDocument(String)
+  InvalidPrefabDocument(String)
+  InvalidAtlasAssetDocument(String)
+  InvalidAnimationAssetDocument(String)
+  InvalidWorkspaceDocument(String)
 }
 
 // Types and methods
+pub struct AnimationAssetDocument {
+  version : Int
+  name : String
+  atlas_asset_path : String
+  clips : Array[AnimationClipDocument]
+  default_clip : String?
+}
+pub fn AnimationAssetDocument::default(String, String) -> Self
+pub fn AnimationAssetDocument::with_clips(Self, Array[AnimationClipDocument]) -> Self
+pub fn AnimationAssetDocument::with_default_clip(Self, String?) -> Self
+pub fn AnimationAssetDocument::with_name(Self, String) -> Self
+pub impl Eq for AnimationAssetDocument
+pub impl Show for AnimationAssetDocument
+pub impl ToJson for AnimationAssetDocument
+pub impl @json.FromJson for AnimationAssetDocument
+
+pub struct AnimationClipDocument {
+  name : String
+  fps : Double
+  looping : Bool
+  frames : Array[String]
+}
+pub fn AnimationClipDocument::with_fps(Self, Double) -> Self
+pub fn AnimationClipDocument::with_frames(Self, Array[String]) -> Self
+pub fn AnimationClipDocument::with_looping(Self, Bool) -> Self
+pub fn AnimationClipDocument::with_name(Self, String) -> Self
+pub impl Eq for AnimationClipDocument
+pub impl Show for AnimationClipDocument
+pub impl ToJson for AnimationClipDocument
+pub impl @json.FromJson for AnimationClipDocument
+
+pub struct AnimationPlayerComponent {
+  animation_asset_path : String?
+  default_clip : String?
+  autoplay : Bool
+  repeat_mode : String
+  speed : Double
+}
+pub impl Eq for AnimationPlayerComponent
+pub impl Show for AnimationPlayerComponent
+pub impl ToJson for AnimationPlayerComponent
+pub impl @json.FromJson for AnimationPlayerComponent
+
+pub struct AnimationTransitionsComponent {
+  duration : Double
+}
+pub impl Eq for AnimationTransitionsComponent
+pub impl Show for AnimationTransitionsComponent
+pub impl ToJson for AnimationTransitionsComponent
+pub impl @json.FromJson for AnimationTransitionsComponent
+
 pub struct AssetDocument {
   path : String
   kind : AssetKind
@@ -107,14 +247,23 @@ pub impl Show for AssetDocument
 pub impl ToJson for AssetDocument
 pub impl @json.FromJson for AssetDocument
 
+pub struct AssetInstantiationContext {
+  asset_path_resolver : (String?) -> String?
+  atlas_assets : Map[String, AtlasAssetDocument]
+  animation_assets : Map[String, AnimationAssetDocument]
+  custom_component_appliers : Map[String, (@entity.Entity, ComponentDocument, AssetInstantiationContext) -> Unit]
+}
+
 pub enum AssetKind {
   Directory
   Image
   Audio
   Font
-  TiledMap
-  LdtkWorld
+  Atlas
+  Animation
   Scene
+  Prefab
+  Project
   Meta
   Json
   Unknown
@@ -133,6 +282,50 @@ pub impl Eq for AssetMetaDocument
 pub impl Show for AssetMetaDocument
 pub impl ToJson for AssetMetaDocument
 pub impl @json.FromJson for AssetMetaDocument
+
+pub struct AssetRef {
+  path : String
+}
+pub impl Eq for AssetRef
+pub impl Show for AssetRef
+pub impl ToJson for AssetRef
+pub impl @json.FromJson for AssetRef
+
+pub struct AtlasAssetDocument {
+  version : Int
+  name : String
+  source_image : String
+  tile_size : Vec2Doc
+  columns : Int
+  rows : Int
+  spacing : Vec2Doc
+  margin : Vec2Doc
+  default_anchor : Vec2Doc
+  regions : Array[AtlasRegionDocument]
+}
+pub fn AtlasAssetDocument::default(String, String) -> Self
+pub fn AtlasAssetDocument::with_columns(Self, Int) -> Self
+pub fn AtlasAssetDocument::with_default_anchor(Self, Vec2Doc) -> Self
+pub fn AtlasAssetDocument::with_margin(Self, Vec2Doc) -> Self
+pub fn AtlasAssetDocument::with_name(Self, String) -> Self
+pub fn AtlasAssetDocument::with_regions(Self, Array[AtlasRegionDocument]) -> Self
+pub fn AtlasAssetDocument::with_rows(Self, Int) -> Self
+pub fn AtlasAssetDocument::with_spacing(Self, Vec2Doc) -> Self
+pub fn AtlasAssetDocument::with_tile_size(Self, Vec2Doc) -> Self
+pub impl Eq for AtlasAssetDocument
+pub impl Show for AtlasAssetDocument
+pub impl ToJson for AtlasAssetDocument
+pub impl @json.FromJson for AtlasAssetDocument
+
+pub struct AtlasRegionDocument {
+  name : String
+  index : Int
+  rect : RectDoc
+}
+pub impl Eq for AtlasRegionDocument
+pub impl Show for AtlasRegionDocument
+pub impl ToJson for AtlasRegionDocument
+pub impl @json.FromJson for AtlasRegionDocument
 
 pub struct Camera2dComponent {
   is_active : Bool
@@ -188,13 +381,11 @@ pub impl Show for EntityDocument
 pub impl ToJson for EntityDocument
 pub impl @json.FromJson for EntityDocument
 
-pub struct LdtkWorldRefComponent {
-  path : String
-}
-pub impl Eq for LdtkWorldRefComponent
-pub impl Show for LdtkWorldRefComponent
-pub impl ToJson for LdtkWorldRefComponent
-pub impl @json.FromJson for LdtkWorldRefComponent
+type LegacyEntityDocument
+pub impl @json.FromJson for LegacyEntityDocument
+
+type LegacySceneDocument
+pub impl @json.FromJson for LegacySceneDocument
 
 pub struct Mesh2dComponent {
   primitive : String
@@ -206,10 +397,33 @@ pub impl Show for Mesh2dComponent
 pub impl ToJson for Mesh2dComponent
 pub impl @json.FromJson for Mesh2dComponent
 
+pub struct MigrationFieldChange {
+  path : String
+  reason : String
+  migrated_value : String
+}
+pub impl Eq for MigrationFieldChange
+pub impl Show for MigrationFieldChange
+pub impl ToJson for MigrationFieldChange
+pub impl @json.FromJson for MigrationFieldChange
+
+pub struct NameComponent {
+  value : String
+}
+pub impl Eq for NameComponent
+pub impl Show for NameComponent
+pub impl ToJson for NameComponent
+pub impl @json.FromJson for NameComponent
+
 pub struct PhysicsBody2dComponent {
   body_type : String
   linear_velocity : Vec2Doc
   angular_velocity : Double
+  gravity_scale : Double
+  linear_damping : Double
+  angular_damping : Double
+  lock_rotation : Bool
+  ccd_enabled : Bool
 }
 pub impl Eq for PhysicsBody2dComponent
 pub impl Show for PhysicsBody2dComponent
@@ -221,19 +435,46 @@ pub struct PhysicsCollider2dComponent {
   size : Vec2Doc?
   radius : Double?
   sensor : Bool
+  friction : Double
+  restitution : Double
 }
 pub impl Eq for PhysicsCollider2dComponent
 pub impl Show for PhysicsCollider2dComponent
 pub impl ToJson for PhysicsCollider2dComponent
 pub impl @json.FromJson for PhysicsCollider2dComponent
 
+pub struct PrefabDocument {
+  version : Int
+  name : String
+  entities : Array[EntityDocument]
+}
+pub fn PrefabDocument::empty(String) -> Self
+pub fn PrefabDocument::entity(Self, String) -> EntityDocument?
+pub fn PrefabDocument::with_entity(Self, EntityDocument) -> Self
+pub fn PrefabDocument::with_name(Self, String) -> Self
+pub fn PrefabDocument::without_entity(Self, String) -> Self
+pub impl Eq for PrefabDocument
+pub impl Show for PrefabDocument
+pub impl ToJson for PrefabDocument
+pub impl @json.FromJson for PrefabDocument
+
+pub struct PrefabRef {
+  path : String
+}
+pub impl Eq for PrefabRef
+pub impl Show for PrefabRef
+pub impl ToJson for PrefabRef
+pub impl @json.FromJson for PrefabRef
+
 pub struct ProjectManifest {
   version : Int
   name : String
   startup_scene : String
   asset_roots : Array[String]
+  editor_min_version : String?
 }
-pub fn ProjectManifest::default(String, startup_scene? : String, asset_roots? : Array[String]) -> Self
+pub fn ProjectManifest::default(String, startup_scene? : String, asset_roots? : Array[String], editor_min_version? : String?) -> Self
+pub fn ProjectManifest::with_startup_scene(Self, String) -> Self
 pub impl Eq for ProjectManifest
 pub impl Show for ProjectManifest
 pub impl ToJson for ProjectManifest
@@ -252,18 +493,37 @@ pub impl @json.FromJson for RectDoc
 
 pub struct SceneDocument {
   version : Int
+  name : String
   entities : Array[EntityDocument]
 }
 pub fn SceneDocument::apply_patch(Self, ScenePatch) -> Self
 pub fn SceneDocument::default_main() -> Self
-pub fn SceneDocument::empty() -> Self
+pub fn SceneDocument::empty(name? : String) -> Self
 pub fn SceneDocument::entity(Self, String) -> EntityDocument?
 pub fn SceneDocument::with_entity(Self, EntityDocument) -> Self
+pub fn SceneDocument::with_name(Self, String) -> Self
 pub fn SceneDocument::without_entity(Self, String) -> Self
 pub impl Eq for SceneDocument
 pub impl Show for SceneDocument
 pub impl ToJson for SceneDocument
 pub impl @json.FromJson for SceneDocument
+
+pub enum SceneDocumentLoadStatus {
+  Ready(SceneDocument)
+  MigrationRequired(SceneMigrationPreview)
+}
+pub impl Eq for SceneDocumentLoadStatus
+pub impl Show for SceneDocumentLoadStatus
+
+pub struct SceneMigrationPreview {
+  path : String
+  scene : SceneDocument
+  changes : Array[MigrationFieldChange]
+}
+pub impl Eq for SceneMigrationPreview
+pub impl Show for SceneMigrationPreview
+pub impl ToJson for SceneMigrationPreview
+pub impl @json.FromJson for SceneMigrationPreview
 
 pub struct ScenePatch {
   ops : Array[ScenePatchOp]
@@ -287,12 +547,22 @@ pub impl Show for ScenePatchOp
 pub impl ToJson for ScenePatchOp
 pub impl @json.FromJson for ScenePatchOp
 
+pub struct SceneRef {
+  path : String
+}
+pub impl Eq for SceneRef
+pub impl Show for SceneRef
+pub impl ToJson for SceneRef
+pub impl @json.FromJson for SceneRef
+
 pub struct SceneRuntime {
   entity_ids : Map[String, @entity.Entity]
   tracked_entities : Array[@entity.Entity]
   atlas_layouts : Array[@sprite.TextureAtlasLayoutHandle]
   material_handles : Array[@material2d.ColorMaterialHandle]
   mesh_handles : Array[@mesh2d.Mesh2dHandle]
+  animation_clip_handles : Array[@animation.AnimationClipHandle]
+  animation_graph_handles : Array[@animation.AnimationGraphHandle]
 }
 pub fn SceneRuntime::destroy(Self) -> Unit
 pub fn SceneRuntime::entity(Self, String) -> @entity.Entity?
@@ -327,7 +597,9 @@ pub impl ToJson for Text2dComponent
 pub impl @json.FromJson for Text2dComponent
 
 pub struct TextureAtlasComponent {
-  layout : TextureAtlasLayoutDoc
+  atlas_asset_path : String?
+  region_name : String?
+  layout : TextureAtlasLayoutDoc?
   index : Int
 }
 pub impl Eq for TextureAtlasComponent
@@ -346,14 +618,6 @@ pub impl Eq for TextureAtlasLayoutDoc
 pub impl Show for TextureAtlasLayoutDoc
 pub impl ToJson for TextureAtlasLayoutDoc
 pub impl @json.FromJson for TextureAtlasLayoutDoc
-
-pub struct TiledMapRefComponent {
-  path : String
-}
-pub impl Eq for TiledMapRefComponent
-pub impl Show for TiledMapRefComponent
-pub impl ToJson for TiledMapRefComponent
-pub impl @json.FromJson for TiledMapRefComponent
 
 pub struct Transform2dComponent {
   translation : Vec2Doc
@@ -397,7 +661,23 @@ pub impl Show for VisibilityComponent
 pub impl ToJson for VisibilityComponent
 pub impl @json.FromJson for VisibilityComponent
 
+pub struct WorkspaceDocument {
+  version : Int
+  last_scene : String?
+  selected_entity_id : String?
+}
+pub fn WorkspaceDocument::default() -> Self
+pub fn WorkspaceDocument::with_last_scene(Self, String?) -> Self
+pub fn WorkspaceDocument::with_selected_entity_id(Self, String?) -> Self
+pub impl Eq for WorkspaceDocument
+pub impl Show for WorkspaceDocument
+pub impl ToJson for WorkspaceDocument
+pub impl @json.FromJson for WorkspaceDocument
+
 // Type aliases
+pub type AssetPathResolver = (String?) -> String?
+
+pub type CustomComponentApplier = (@entity.Entity, ComponentDocument, AssetInstantiationContext) -> Unit
 
 // Traits
 

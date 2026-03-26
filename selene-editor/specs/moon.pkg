@@ -6,6 +6,7 @@ import {
   "Milky2018/selene_editor/shared",
   "moonbitlang/async",
   "moonbitlang/async/fs",
+  "moonbitlang/core/encoding/utf8",
   "moonbitlang/core/env",
   "moonbitlang/core/json",
 }

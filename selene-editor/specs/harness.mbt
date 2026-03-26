@@ -104,7 +104,9 @@ fn msg_for_rpc_target(
     @app.SceneLoaded =>
       @app.msg_scene_loaded(
         match response {
-          @shared.SceneLoaded(scene~) => Ok(scene)
+          @shared.SceneLoaded(scene~) => Ok(@shared.scene_load_outcome_loaded(scene))
+          @shared.SceneMigrationRequired(preview~) =>
+            Ok(@shared.scene_load_outcome_migration_required(preview))
           @shared.Error(error~) => Err(error.message)
           _ => Err("Unexpected RPC response for scene")
         },
@@ -279,6 +281,13 @@ pub fn EditorHarness::current_root(self : EditorHarness) -> String? {
 }
 
 ///|
+pub fn EditorHarness::manifest(
+  self : EditorHarness,
+) -> @editor_bridge.ProjectManifest? {
+  self.model.manifest
+}
+
+///|
 pub fn EditorHarness::scene(
   self : EditorHarness,
 ) -> @editor_bridge.SceneDocument? {
@@ -286,10 +295,34 @@ pub fn EditorHarness::scene(
 }
 
 ///|
+pub fn EditorHarness::pending_scene_migration(
+  self : EditorHarness,
+) -> @editor_bridge.SceneMigrationPreview? {
+  self.model.pending_scene_migration
+}
+
+///|
 pub fn EditorHarness::assets(
   self : EditorHarness,
 ) -> Array[@editor_bridge.AssetDocument] {
   self.model.assets
+}
+
+///|
+pub fn EditorHarness::scene_refs(
+  self : EditorHarness,
+) -> Array[@editor_bridge.SceneRef] {
+  self.model.scene_refs
+}
+
+///|
+pub fn EditorHarness::status(self : EditorHarness) -> String {
+  self.model.status
+}
+
+///|
+pub fn EditorHarness::logs(self : EditorHarness) -> Array[String] {
+  self.model.logs
 }
 
 ///|
@@ -374,6 +407,31 @@ pub async fn EditorHarness::when_project_opened(self : EditorHarness) -> Unit {
 }
 
 ///|
+pub async fn EditorHarness::when_project_folder_pick_is_cancelled(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(
+    @app.msg_project_root_picked(
+      Ok(@shared.directory_pick_result(None)),
+    ),
+  )
+}
+
+///|
+pub async fn EditorHarness::when_pending_scene_migration_is_confirmed(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(@app.msg_confirm_scene_migration())
+}
+
+///|
+pub async fn EditorHarness::when_pending_scene_migration_is_cancelled(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(@app.msg_cancel_scene_migration())
+}
+
+///|
 pub async fn EditorHarness::given_image_asset(
   self : EditorHarness,
   relative_path : String,
@@ -388,6 +446,85 @@ pub async fn EditorHarness::given_image_asset(
     @fs.mkdir(parent, permission=0o755, recursive=true)
   }
   @fs.write_file(full_path, b"fake-image", create=0o644)
+}
+
+///|
+pub async fn EditorHarness::given_text_file(
+  self : EditorHarness,
+  relative_path : String,
+  content : String,
+) -> Unit {
+  let full_path = self.project_root + "/" + relative_path
+  let parent = if full_path.rev_find("/") is Some(index) {
+    full_path[:index].to_string()
+  } else {
+    self.project_root
+  }
+  if !@fs.exists(parent) {
+    @fs.mkdir(parent, permission=0o755, recursive=true)
+  }
+  @fs.write_file(full_path, content |> @utf8.encode, create=0o644)
+}
+
+///|
+pub fn EditorHarness::given_project_manifest(
+  self : EditorHarness,
+  manifest : @editor_bridge.ProjectManifest,
+) -> Unit raise {
+  @editor_bridge.ensure_project_layout(self.project_root)
+  @editor_bridge.write_project_manifest(
+    self.project_root + "/selene.project.json",
+    manifest,
+  )
+}
+
+///|
+pub fn EditorHarness::given_scene_document(
+  self : EditorHarness,
+  relative_path : String,
+  scene : @editor_bridge.SceneDocument,
+) -> Unit raise {
+  @editor_bridge.ensure_project_layout(self.project_root)
+  @editor_bridge.write_scene_document(self.project_root + "/" + relative_path, scene)
+}
+
+///|
+pub fn EditorHarness::given_prefab_document(
+  self : EditorHarness,
+  relative_path : String,
+  prefab : @editor_bridge.PrefabDocument,
+) -> Unit raise {
+  @editor_bridge.ensure_project_layout(self.project_root)
+  @editor_bridge.write_prefab_document(
+    self.project_root + "/" + relative_path,
+    prefab,
+  )
+}
+
+///|
+pub fn EditorHarness::given_atlas_document(
+  self : EditorHarness,
+  relative_path : String,
+  atlas : @editor_bridge.AtlasAssetDocument,
+) -> Unit raise {
+  @editor_bridge.ensure_project_layout(self.project_root)
+  @editor_bridge.write_atlas_asset_document(
+    self.project_root + "/" + relative_path,
+    atlas,
+  )
+}
+
+///|
+pub fn EditorHarness::given_animation_document(
+  self : EditorHarness,
+  relative_path : String,
+  animation : @editor_bridge.AnimationAssetDocument,
+) -> Unit raise {
+  @editor_bridge.ensure_project_layout(self.project_root)
+  @editor_bridge.write_animation_asset_document(
+    self.project_root + "/" + relative_path,
+    animation,
+  )
 }
 
 ///|
@@ -492,6 +629,36 @@ pub async fn EditorHarness::when_current_scene_is_renamed(
 }
 
 ///|
+pub async fn EditorHarness::when_scene_is_created(
+  self : EditorHarness,
+  value : String,
+) -> Unit {
+  self.dispatch(@app.msg_create_scene(value))
+}
+
+///|
+pub async fn EditorHarness::when_current_scene_is_deleted(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(@app.msg_delete_current_scene())
+}
+
+///|
+pub async fn EditorHarness::when_current_scene_is_marked_as_startup(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(@app.msg_set_current_scene_as_startup())
+}
+
+///|
+pub async fn EditorHarness::when_scene_is_opened(
+  self : EditorHarness,
+  path : String,
+) -> Unit {
+  self.dispatch(@app.msg_open_scene(path))
+}
+
+///|
 pub async fn EditorHarness::when_selected_prefab_name_is_edited(
   self : EditorHarness,
   value : String,
@@ -519,6 +686,38 @@ pub async fn EditorHarness::when_preview_picks_entity(
   id : String?,
 ) -> Unit {
   self.emit_preview_event(@bridge.preview_event_entity_picked(id))
+}
+
+///|
+pub async fn EditorHarness::when_service_event_fails(
+  self : EditorHarness,
+  message : String,
+) -> Unit {
+  self.dispatch(@app.msg_service_event(Err(message)))
+}
+
+///|
+pub async fn EditorHarness::when_prefab_load_fails(
+  self : EditorHarness,
+  message : String,
+) -> Unit {
+  self.dispatch(@app.msg_prefab_loaded(Err(message)))
+}
+
+///|
+pub async fn EditorHarness::when_atlas_load_fails(
+  self : EditorHarness,
+  message : String,
+) -> Unit {
+  self.dispatch(@app.msg_atlas_loaded(Err(message)))
+}
+
+///|
+pub async fn EditorHarness::when_animation_load_fails(
+  self : EditorHarness,
+  message : String,
+) -> Unit {
+  self.dispatch(@app.msg_animation_loaded(Err(message)))
 }
 
 ///|

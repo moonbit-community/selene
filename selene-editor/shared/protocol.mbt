@@ -29,6 +29,12 @@ pub struct SceneLoadResponse {
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
+pub enum SceneLoadOutcome {
+  Loaded(SceneLoadResponse)
+  MigrationRequired(@editor_bridge.SceneMigrationPreview)
+} derive(Show, Eq)
+
+///|
 pub struct SceneListResponse {
   scenes : Array[@editor_bridge.SceneRef]
   startup_scene : String
@@ -64,6 +70,7 @@ pub enum RpcRequest {
   ProjectPickDirectory(prompt~ : String)
   ProjectSetStartupScene(path~ : String)
   SceneLoad(path~ : String)
+  SceneMigrate(path~ : String)
   SceneList
   SceneCreate(name~ : String)
   SceneSave(path~ : String, scene~ : @editor_bridge.SceneDocument)
@@ -85,6 +92,7 @@ pub enum RpcResponse {
   ProjectState(state~ : ProjectStateResponse)
   DirectoryPicked(result~ : DirectoryPickResult)
   SceneLoaded(scene~ : SceneLoadResponse)
+  SceneMigrationRequired(preview~ : @editor_bridge.SceneMigrationPreview)
   SceneListed(list~ : SceneListResponse)
   AssetsListed(list~ : AssetsListResponse)
   PrefabLoaded(prefab~ : PrefabLoadResponse)
@@ -158,6 +166,20 @@ pub fn scene_load_response(
   scene : @editor_bridge.SceneDocument,
 ) -> SceneLoadResponse {
   { path, scene }
+}
+
+///|
+pub fn scene_load_outcome_loaded(
+  scene : SceneLoadResponse,
+) -> SceneLoadOutcome {
+  Loaded(scene)
+}
+
+///|
+pub fn scene_load_outcome_migration_required(
+  preview : @editor_bridge.SceneMigrationPreview,
+) -> SceneLoadOutcome {
+  MigrationRequired(preview)
 }
 
 ///|
@@ -250,6 +272,11 @@ pub fn rpc_request_project_set_startup_scene(path : String) -> RpcRequest {
 ///|
 pub fn rpc_request_scene_load(path : String) -> RpcRequest {
   SceneLoad(path=path)
+}
+
+///|
+pub fn rpc_request_scene_migrate(path : String) -> RpcRequest {
+  SceneMigrate(path=path)
 }
 
 ///|
@@ -354,6 +381,13 @@ pub fn rpc_response_scene_loaded(
   scene : SceneLoadResponse,
 ) -> RpcResponse {
   SceneLoaded(scene=scene)
+}
+
+///|
+pub fn rpc_response_scene_migration_required(
+  preview : @editor_bridge.SceneMigrationPreview,
+) -> RpcResponse {
+  SceneMigrationRequired(preview=preview)
 }
 
 ///|

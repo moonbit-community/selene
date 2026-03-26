@@ -34,9 +34,11 @@ fn project_loaded_of_response(
 ///|
 fn scene_loaded_of_response(
   response : @shared.RpcResponse,
-) -> Result[@shared.SceneLoadResponse, String] {
+) -> Result[@shared.SceneLoadOutcome, String] {
   match response {
-    @shared.SceneLoaded(scene~) => Ok(scene)
+    @shared.SceneLoaded(scene~) => Ok(@shared.scene_load_outcome_loaded(scene))
+    @shared.SceneMigrationRequired(preview~) =>
+      Ok(@shared.scene_load_outcome_migration_required(preview))
     @shared.Error(error~) => Err(error.message)
     _ => Err("Unexpected RPC response for scene")
   }
@@ -1206,11 +1208,51 @@ fn entry_view(dispatch : @rabbita.Dispatch[@app.Msg], model : @app.Model) -> @ra
 }
 
 ///|
+fn scene_migration_dialog_view(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  preview : @editor_bridge.SceneMigrationPreview,
+) -> @rabbita.Html {
+  let items = preview.changes.map(fn(change) {
+    @html.li(class="migration-change-item", [
+      @html.div(class="migration-change-path", change.path),
+      @html.div(class="migration-change-reason", change.reason),
+      @html.div(class="migration-change-value", "Use: " + change.migrated_value),
+    ])
+  })
+  @html.div(class="modal-backdrop", [
+    @html.div(class="modal-card", [
+      @html.h2(class="modal-title", "Legacy Scene Detected"),
+      @html.p(
+        class="modal-copy",
+        "This scene uses an older Selene Editor schema. Review the planned migration before loading it.",
+      ),
+      @html.div(class="migration-summary", [
+        @html.div(class="migration-label", "File"),
+        @html.div(class="migration-value", preview.path),
+      ]),
+      @html.ul(class="migration-change-list", items),
+      @html.div(class="modal-actions", [
+        @html.button(
+          class="small-button",
+          on_click=dispatch(@app.msg_cancel_scene_migration()),
+          "Cancel",
+        ),
+        @html.button(
+          class="small-button primary-button",
+          on_click=dispatch(@app.msg_confirm_scene_migration()),
+          "Migrate and Load",
+        ),
+      ]),
+    ]),
+  ])
+}
+
+///|
 fn view(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.Model,
 ) -> @rabbita.Html {
-  if model.current_root is None || model.scene is None {
+  if model.current_root is None {
     return entry_view(dispatch, model)
   }
   let scene_tree = match model.scene {
@@ -1237,7 +1279,7 @@ fn view(
       ])
     None => selected_asset_view(dispatch, model)
   }
-  @html.div(class="editor-root", [
+  let body = @html.div(class="editor-root", [
     @html.div(class="topbar", [
       @html.div(class="topbar-section", [
         @html.div(class="topbar-section-label", "Project"),
@@ -1332,6 +1374,10 @@ fn view(
       ]),
     ]),
   ])
+  match model.pending_scene_migration {
+    Some(preview) => @html.div(class="editor-shell", [body, scene_migration_dialog_view(dispatch, preview)])
+    None => body
+  }
 }
 
 ///|

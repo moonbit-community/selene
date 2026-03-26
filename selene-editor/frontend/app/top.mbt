@@ -45,6 +45,7 @@ pub struct Model {
   workspace : @editor_bridge.WorkspaceDocument
   selected_resource : ResourceSelection?
   selected_entity_id : String?
+  pending_scene_migration : @editor_bridge.SceneMigrationPreview?
   recent_projects : Array[String]
   logs : Array[String]
   status : String
@@ -60,7 +61,9 @@ pub enum Msg {
   OpenProject
   ProjectRootPicked(Result[@shared.DirectoryPickResult, String])
   ProjectLoaded(Result[@shared.ProjectStateResponse, String])
-  SceneLoaded(Result[@shared.SceneLoadResponse, String])
+  SceneLoaded(Result[@shared.SceneLoadOutcome, String])
+  ConfirmSceneMigration
+  CancelSceneMigration
   SceneListLoaded(Result[@shared.SceneListResponse, String])
   AssetsLoaded(Result[@shared.AssetsListResponse, String])
   PrefabLoaded(Result[@shared.PrefabLoadResponse, String])
@@ -162,6 +165,7 @@ pub fn new_model() -> Model {
     workspace: @editor_bridge.WorkspaceDocument::default(),
     selected_resource: None,
     selected_entity_id: None,
+    pending_scene_migration: None,
     status: "Choose a project folder to begin",
     logs: [],
     active_tool: @shared.preview_tool_select(),
@@ -209,9 +213,19 @@ pub fn msg_project_loaded(
 
 ///|
 pub fn msg_scene_loaded(
-  result : Result[@shared.SceneLoadResponse, String],
+  result : Result[@shared.SceneLoadOutcome, String],
 ) -> Msg {
   SceneLoaded(result)
+}
+
+///|
+pub fn msg_confirm_scene_migration() -> Msg {
+  ConfirmSceneMigration
+}
+
+///|
+pub fn msg_cancel_scene_migration() -> Msg {
+  CancelSceneMigration
 }
 
 ///|
@@ -1411,6 +1425,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             recent_projects: response.recent_projects,
             scene_path,
             project_root_input,
+            pending_scene_migration: None,
             status,
           }
           (refresh_project_effects(next), next)
@@ -1422,7 +1437,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       }
     SceneLoaded(result) =>
       match result {
-        Ok(response) => {
+        Ok(@shared.Loaded(response)) => {
           let workspace = model.workspace
           .with_last_scene(Some(response.path))
           .with_selected_entity_id(
@@ -1434,15 +1449,61 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             scene: Some(response.scene),
             workspace,
             selected_entity_id: workspace.selected_entity_id,
+            pending_scene_migration: None,
             status: "Loaded " + response.path,
           }
           (sync_preview_effects(next), next)
+        }
+        Ok(@shared.MigrationRequired(preview)) => {
+          let next = {
+            ..model,
+            scene_path: preview.path,
+            scene: None,
+            selected_entity_id: None,
+            pending_scene_migration: Some(preview),
+            status: "Legacy scene requires migration",
+          }
+          let cleared = next.workspace
+            .with_last_scene(Some(preview.path))
+            .with_selected_entity_id(None)
+          (
+            [Preview(@bridge.preview_command_clear_scene())],
+            { ..next, workspace: cleared },
+          )
         }
         Err(message) => {
           let next = push_log(model, "Scene load failed: " + message)
           ([], { ..next, status: "Scene load failed: " + message })
         }
       }
+    ConfirmSceneMigration =>
+      match model.pending_scene_migration {
+        Some(preview) =>
+          (
+            [
+              rpc_effect(
+                SceneLoaded,
+                @shared.rpc_request_scene_migrate(preview.path),
+              ),
+            ],
+            { ..model, status: "Migrating " + preview.path + "..." },
+          )
+        None => ([], model)
+      }
+    CancelSceneMigration => {
+      let workspace = model.workspace.with_selected_entity_id(None)
+      (
+        [Preview(@bridge.preview_command_clear_scene())],
+        {
+          ..model,
+          scene: None,
+          selected_entity_id: None,
+          pending_scene_migration: None,
+          workspace,
+          status: "Scene migration cancelled",
+        },
+      )
+    }
     SceneListLoaded(result) =>
       match result {
         Ok(response) => {

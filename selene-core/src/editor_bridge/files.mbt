@@ -9,10 +9,184 @@ pub suberror EditorBridgeFileError {
 }
 
 ///|
-fn[T : FromJson] read_json_file(path : String) -> T raise {
+fn parse_json_file(path : String) -> Json raise {
   let content = @fs.read_file_to_string(path)
-  let json = @json.parse(content)
+  @json.parse(content)
+}
+
+///|
+struct LegacyEntityDocument {
+  id : String
+  name : String?
+  parent : String?
+  components : Array[ComponentDocument]?
+} derive(FromJson)
+
+///|
+struct LegacySceneDocument {
+  version : Int
+  name : String?
+  entities : Array[LegacyEntityDocument]
+} derive(FromJson)
+
+///|
+fn decode_scene_document(json : Json) -> SceneDocument raise {
+  let scene : SceneDocument = try {
+    @json.from_json(json)
+  } catch {
+    err => raise InvalidSceneDocument(err.to_string())
+  }
+  let errors = validate_scene_document(scene)
+  guard errors.is_empty() else {
+    raise InvalidSceneDocument(errors.to_json().stringify())
+  }
+  scene
+}
+
+///|
+fn decode_legacy_scene_document(json : Json) -> LegacySceneDocument raise {
   @json.from_json(json)
+}
+
+///|
+fn file_name_of_path(path : String) -> String {
+  let normalized = path.replace(old="\\", new="/")
+  if normalized.rev_find("/") is Some(index) {
+    normalized[index + 1:].to_string()
+  } else {
+    normalized
+  }
+}
+
+///|
+fn display_name_of_scene_path(path : String) -> String {
+  let file_name = file_name_of_path(path)
+  let stem = if file_name.has_suffix(".scene.json") {
+    file_name[:file_name.length() - ".scene.json".length()].to_string()
+  } else {
+    file_name
+  }
+  let normalized = stem.replace(old="-", new=" ").replace(old="_", new=" ").trim().to_string()
+  if normalized == "" {
+    return "Scene"
+  }
+  let parts : Array[String] = []
+  for raw in normalized.split(" ") {
+    let token = raw.trim().to_string()
+    if token == "" {
+      continue
+    }
+    let head = token[:1].to_string().to_upper()
+    let tail = if token.length() > 1 {
+      token[1:].to_string()
+    } else {
+      ""
+    }
+    parts.push(head + tail)
+  }
+  if parts.is_empty() {
+    "Scene"
+  } else {
+    parts.join(" ")
+  }
+}
+
+///|
+fn legacy_scene_preview(
+  path : String,
+  legacy : LegacySceneDocument,
+) -> SceneMigrationPreview {
+  let changes : Array[MigrationFieldChange] = []
+  let scene_name = match legacy.name {
+    Some(name) => {
+      let trimmed = name.trim().to_string()
+      if trimmed == "" {
+        let migrated_value = display_name_of_scene_path(path)
+        changes.push(
+          migration_field_change(
+            "name",
+            "Missing required scene name",
+            migrated_value,
+          ),
+        )
+        migrated_value
+      } else {
+        name
+      }
+    }
+    None => {
+      let migrated_value = display_name_of_scene_path(path)
+      changes.push(
+        migration_field_change(
+          "name",
+          "Missing required scene name",
+          migrated_value,
+        ),
+      )
+      migrated_value
+    }
+  }
+  let entities = legacy.entities.map(fn(entity) {
+    let entity_name = match entity.name {
+      Some(name) => {
+        let trimmed = name.trim().to_string()
+        if trimmed == "" {
+          changes.push(
+            migration_field_change(
+              "entities[\{entity.id}].name",
+              "Missing required entity name",
+              entity.id,
+            ),
+          )
+          entity.id
+        } else {
+          name
+        }
+      }
+      None => {
+        changes.push(
+          migration_field_change(
+            "entities[\{entity.id}].name",
+            "Missing required entity name",
+            entity.id,
+          ),
+        )
+        entity.id
+      }
+    }
+    let parent = match entity.parent {
+      Some(parent) => Some(parent)
+      None => {
+        changes.push(
+          migration_field_change(
+            "entities[\{entity.id}].parent",
+            "Missing parent field",
+            "null",
+          ),
+        )
+        None
+      }
+    }
+    let components = match entity.components {
+      Some(components) => components
+      None => {
+        changes.push(
+          migration_field_change(
+            "entities[\{entity.id}].components",
+            "Missing components array",
+            "[]",
+          ),
+        )
+        []
+      }
+    }
+    EntityDocument::{ id: entity.id, name: entity_name, parent, components }
+  })
+  scene_migration_preview(
+    path,
+    SceneDocument::{ version: legacy.version, name: scene_name, entities },
+    changes,
+  )
 }
 
 ///|
@@ -92,7 +266,14 @@ pub fn project_manifest_candidates(root : String) -> Array[String] raise {
 
 ///|
 pub fn read_project_manifest(path : String) -> ProjectManifest raise {
-  let manifest : ProjectManifest = read_json_file(path)
+  let json = parse_json_file(path) catch {
+    err => raise InvalidProjectManifest(err.to_string())
+  }
+  let manifest : ProjectManifest = try {
+    @json.from_json(json)
+  } catch {
+    err => raise InvalidProjectManifest(err.to_string())
+  }
   let errors = validate_project_manifest(manifest)
   guard errors.is_empty() else {
     raise InvalidProjectManifest(errors.to_json().stringify())
@@ -115,12 +296,53 @@ pub fn write_project_manifest(
 
 ///|
 pub fn read_scene_document(path : String) -> SceneDocument raise {
-  let scene : SceneDocument = read_json_file(path)
-  let errors = validate_scene_document(scene)
-  guard errors.is_empty() else {
-    raise InvalidSceneDocument(errors.to_json().stringify())
+  let json = parse_json_file(path) catch {
+    err => raise InvalidSceneDocument(err.to_string())
   }
-  scene
+  decode_scene_document(json)
+}
+
+///|
+pub fn read_scene_document_status(
+  path : String,
+) -> SceneDocumentLoadStatus raise {
+  let json = parse_json_file(path) catch {
+    err => raise InvalidSceneDocument(err.to_string())
+  }
+  let current : Result[SceneDocument, Error] = try? decode_scene_document(json)
+  match current {
+    Ok(scene) => Ready(scene)
+    Err(err) => {
+      let legacy : Result[LegacySceneDocument, Error] = try? decode_legacy_scene_document(
+        json,
+      )
+      match legacy {
+        Ok(legacy) => {
+          let preview = legacy_scene_preview(path, legacy)
+          if preview.changes.is_empty() {
+            raise err
+          }
+          let errors = validate_scene_document(preview.scene)
+          guard errors.is_empty() else {
+            raise err
+          }
+          MigrationRequired(preview)
+        }
+        Err(_) => raise err
+      }
+    }
+  }
+}
+
+///|
+pub fn migrate_scene_document(path : String) -> SceneDocument raise {
+  match read_scene_document_status(path) {
+    Ready(scene) => scene
+    MigrationRequired(preview) => {
+      write_scene_document(path, preview.scene)
+      preview.scene
+    }
+  }
 }
 
 ///|
@@ -135,7 +357,14 @@ pub fn write_scene_document(path : String, scene : SceneDocument) -> Unit raise 
 
 ///|
 pub fn read_prefab_document(path : String) -> PrefabDocument raise {
-  let prefab : PrefabDocument = read_json_file(path)
+  let json = parse_json_file(path) catch {
+    err => raise InvalidPrefabDocument(err.to_string())
+  }
+  let prefab : PrefabDocument = try {
+    @json.from_json(json)
+  } catch {
+    err => raise InvalidPrefabDocument(err.to_string())
+  }
   let errors = validate_prefab_document(prefab)
   guard errors.is_empty() else {
     raise InvalidPrefabDocument(errors.to_json().stringify())
@@ -158,7 +387,14 @@ pub fn write_prefab_document(
 
 ///|
 pub fn read_atlas_asset_document(path : String) -> AtlasAssetDocument raise {
-  let atlas : AtlasAssetDocument = read_json_file(path)
+  let json = parse_json_file(path) catch {
+    err => raise InvalidAtlasAssetDocument(err.to_string())
+  }
+  let atlas : AtlasAssetDocument = try {
+    @json.from_json(json)
+  } catch {
+    err => raise InvalidAtlasAssetDocument(err.to_string())
+  }
   let errors = validate_atlas_asset_document(atlas)
   guard errors.is_empty() else {
     raise InvalidAtlasAssetDocument(errors.to_json().stringify())
@@ -183,7 +419,14 @@ pub fn write_atlas_asset_document(
 pub fn read_animation_asset_document(
   path : String,
 ) -> AnimationAssetDocument raise {
-  let animation : AnimationAssetDocument = read_json_file(path)
+  let json = parse_json_file(path) catch {
+    err => raise InvalidAnimationAssetDocument(err.to_string())
+  }
+  let animation : AnimationAssetDocument = try {
+    @json.from_json(json)
+  } catch {
+    err => raise InvalidAnimationAssetDocument(err.to_string())
+  }
   let errors = validate_animation_asset_document(animation)
   guard errors.is_empty() else {
     raise InvalidAnimationAssetDocument(errors.to_json().stringify())
@@ -206,7 +449,14 @@ pub fn write_animation_asset_document(
 
 ///|
 pub fn read_workspace_document(path : String) -> WorkspaceDocument raise {
-  let workspace : WorkspaceDocument = read_json_file(path)
+  let json = parse_json_file(path) catch {
+    err => raise InvalidWorkspaceDocument(err.to_string())
+  }
+  let workspace : WorkspaceDocument = try {
+    @json.from_json(json)
+  } catch {
+    err => raise InvalidWorkspaceDocument(err.to_string())
+  }
   let errors = validate_workspace_document(workspace)
   guard errors.is_empty() else {
     raise InvalidWorkspaceDocument(errors.to_json().stringify())

@@ -1,5 +1,5 @@
 ///|
-test "initialize immediately requests a project folder" {
+test "initialize subscribes to service and preview channels" {
   let (effects, _) = update(msg_initialize(), new_model())
   inspect(effects.length(), content="3")
 }
@@ -56,6 +56,57 @@ test "project load refreshes both scene and asset list" {
   )
   inspect(effects.length(), content="3")
   inspect(next.current_root, content="Some(\"/tmp/demo\")")
+}
+
+///|
+test "scene migration confirmation gates legacy scene loading" {
+  let preview = @editor_bridge.scene_migration_preview(
+    "scenes/main.scene.json",
+    @editor_bridge.SceneDocument::default_main(),
+    [
+      @editor_bridge.migration_field_change(
+        "name",
+        "Missing required scene name",
+        "Main",
+      ),
+    ],
+  )
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+  }
+  let (effects, gated) = update(
+    msg_scene_loaded(Ok(@shared.scene_load_outcome_migration_required(preview))),
+    model,
+  )
+  inspect(effects.length(), content="1")
+  inspect(gated.pending_scene_migration is Some(_), content="true")
+  inspect(gated.scene is None, content="true")
+
+  let (confirm_effects, confirming) = update(msg_confirm_scene_migration(), gated)
+  inspect(confirm_effects.length(), content="1")
+  inspect(confirming.status, content="Migrating scenes/main.scene.json...")
+}
+
+///|
+test "cancelling scene migration keeps the scene unloaded" {
+  let preview = @editor_bridge.scene_migration_preview(
+    "scenes/main.scene.json",
+    @editor_bridge.SceneDocument::default_main(),
+    [],
+  )
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    pending_scene_migration: Some(preview),
+  }
+  let (effects, next) = update(msg_cancel_scene_migration(), model)
+  inspect(effects.length(), content="1")
+  inspect(next.scene is None, content="true")
+  inspect(next.pending_scene_migration is None, content="true")
+  inspect(next.status, content="Scene migration cancelled")
 }
 
 ///|
@@ -193,6 +244,73 @@ test "renaming the current scene updates the scene document and save emits rpc" 
   inspect(effects.length() > 0, content="true")
   inspect(next.status, content="Renaming scene...")
   inspect(next.scene.unwrap().name, content="Gameplay")
+}
+
+///|
+test "project and scene load errors update status and logs" {
+  let (_, project_error) = update(msg_project_loaded(Err("Project manifest is invalid: selene.project.json")), new_model())
+  inspect(project_error.status, content="Project error: Project manifest is invalid: selene.project.json")
+  inspect(project_error.logs.length(), content="1")
+
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+  }
+  let (_, scene_error) = update(msg_scene_loaded(Err("Scene document is invalid: scenes/main.scene.json")), model)
+  inspect(scene_error.status, content="Scene load failed: Scene document is invalid: scenes/main.scene.json")
+  inspect(scene_error.logs.length(), content="1")
+}
+
+///|
+test "delete current scene rejects deleting the last scene" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene_refs: [@editor_bridge.scene_ref("scenes/main.scene.json")],
+    scene_path: "scenes/main.scene.json",
+  }
+  let (effects, next) = update(msg_delete_current_scene(), model)
+  inspect(effects.length(), content="0")
+  inspect(next.status, content="Cannot delete the last scene")
+  inspect(next.logs.length(), content="1")
+}
+
+///|
+test "asset and resource load errors remain user-facing and non-fatal" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(@editor_bridge.SceneDocument::default_main()),
+  }
+  let (_, assets_error) = update(msg_assets_loaded(Err("Asset scan failed")), model)
+  inspect(assets_error.status, content="Assets load failed: Asset scan failed")
+
+  let (_, prefab_error) = update(msg_prefab_loaded(Err("Prefab document is invalid: prefabs/hero.prefab.json")), assets_error)
+  inspect(prefab_error.status, content="Prefab load failed: Prefab document is invalid: prefabs/hero.prefab.json")
+
+  let (_, atlas_error) = update(msg_atlas_loaded(Err("Atlas document is invalid: assets/atlases/hero.atlas.json")), prefab_error)
+  inspect(atlas_error.status, content="Atlas load failed: Atlas document is invalid: assets/atlases/hero.atlas.json")
+
+  let (_, animation_error) = update(msg_animation_loaded(Err("Animation document is invalid: assets/animations/hero.anim.json")), atlas_error)
+  inspect(animation_error.status, content="Animation load failed: Animation document is invalid: assets/animations/hero.anim.json")
+  inspect(animation_error.scene is Some(_), content="true")
+}
+
+///|
+test "service event stream errors do not destroy editor state" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(@editor_bridge.SceneDocument::default_main()),
+  }
+  let (_, next) = update(msg_service_event(Err("connection dropped")), model)
+  inspect(next.status, content="SSE error")
+  inspect(next.scene is Some(_), content="true")
+  inspect(next.logs.length(), content="1")
 }
 
 ///|
