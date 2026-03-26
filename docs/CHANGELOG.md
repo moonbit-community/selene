@@ -4,6 +4,7 @@
 
 ### Added
 
+- Added `examples/pixeladventure/scene_runtime_wbtest.mbt` to verify that editor-scene placement, terrain-collider coverage, and custom gameplay component registration match the legacy tilemap baseline.
 - Added a shared `Migration` trait to `selene/editor_bridge` and extended document migration support beyond scenes, with typed probe/migrate status APIs for prefab, atlas, and animation documents.
 - Added editable `Atlas Inspector` and `Animation Inspector` flows to `selene-editor`, with field-level editing and save actions mapped directly onto `selene/editor_bridge` atlas and animation asset documents instead of editor-private resource state.
 - Added editable `Prefab Inspector` and expanded `Scene Browser` controls to `selene-editor`, so prefab documents can now be renamed/saved from the inspector and the current scene can be renamed, created, deleted, and marked as the startup scene from the workspace UI.
@@ -16,6 +17,8 @@
 
 ### Changed
 
+- Changed `examples/pixeladventure` runtime startup to load `selene.project.json` + startup scene through `Milky2018/selene/editor_bridge`, instantiate scene entities directly, and apply gameplay setup via custom component appliers instead of using `sprite_fusion/map.json` as the runtime placement source.
+- Changed `examples/pixeladventure` package metadata to declare `"supported-targets": "all"` after adding the `selene/editor_bridge` dependency.
 - Changed `selene-editor` behavior coverage from a single happy-path BDD file into split happy-path, migration/recovery, and error-UX scenario suites, and expanded the supporting frontend/service/shared whitebox tests to cover typed protocol failures, invalid documents, missing files, and user-cancel flows.
 - Changed `selene-editor` transport protocol to use shared typed ADTs for all retained `/rpc` requests/responses and `/events` payloads, removing scattered string method names and SSE kind dispatch from the frontend/service boundary.
 - Changed `selene-editor` from a single-scene JSON editor toward a Selene-native workspace model: project state now includes scene refs, prefab refs, atlas refs, animation refs, and editor workspace data, and preview loading now carries atlas/animation asset documents into `editor_bridge` instead of instantiating scenes in isolation.
@@ -37,6 +40,8 @@
 
 ### Fixed
 
+- Fixed `selene/editor_bridge` scene/prefab validation so custom component kinds are accepted (empty kinds are still rejected), enabling Selene game-specific JSON components to be loaded and instantiated through the custom component registry.
+- Fixed `examples/pixeladventure/scenes/main.scene.json` decoding compatibility by removing `null` option fields from the generated scene document payload.
 - Fixed the `selene-editor` source workflow so `just run` now rebuilds `public/editor.js` before starting the local service, preventing stale frontend bundles from masking newer RPC and migration behavior.
 - Fixed `selene/editor_bridge` and `selene-editor` document loading so unrecoverable project/scene/prefab/atlas/animation JSON errors now surface as stable user-facing invalid-document failures instead of leaking raw decode exceptions, and invalid editor workspace files now fall back to defaults instead of blocking project open.
 - Fixed `selene-editor` legacy-scene migration flow to keep migration previews on relative scene paths, so confirming a legacy startup-scene migration now writes back and reloads correctly through the typed `scene.migrate` RPC path.

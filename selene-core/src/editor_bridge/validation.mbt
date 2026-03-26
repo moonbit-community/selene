@@ -5,23 +5,6 @@ pub struct ValidationError {
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
-let supported_component_kinds : Array[String] = [
-  "Name",
-  "Transform2d",
-  "Visibility",
-  "Sprite",
-  "TextureAtlas",
-  "Text2d",
-  "Mesh2d",
-  "ColorMaterial",
-  "Camera2d",
-  "PhysicsBody2d",
-  "PhysicsCollider2d",
-  "AnimationPlayer",
-  "AnimationTransitions",
-]
-
-///|
 fn push_version_error(
   errors : Array[ValidationError],
   path : String,
@@ -65,10 +48,10 @@ fn validate_entity_documents(
       seen_ids.set(entity.id, true)
     }
     entity.components.each(fn(component) {
-      if !supported_component_kinds.contains(component.kind) {
+      if component.kind == "" {
         errors.push({
-          path: path_prefix + "[\{entity.id}].components[\{component.kind}]",
-          message: "Unsupported component kind",
+          path: path_prefix + "[\{entity.id}].components[]",
+          message: "Component kind must not be empty",
         })
       }
     })

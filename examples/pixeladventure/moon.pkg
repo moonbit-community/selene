@@ -3,6 +3,7 @@ import {
   "Milky2018/selene/animation",
   "Milky2018/selene/asset",
   "Milky2018/selene/audio",
+  "Milky2018/selene/editor_bridge",
   "Milky2018/selene/ecs",
   "Milky2018/selene/entity",
   "Milky2018/selene/math",
@@ -11,9 +12,12 @@ import {
   "Milky2018/selene/plugins",
   "Milky2018/selene/time",
   "Milky2018/selene/transform",
-  "Milky2018/selene/camera",
   "Milky2018/selene/ui",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
   "moonbitlang/core/json",
 }
+
+options(
+  "supported-targets": "all",
+)

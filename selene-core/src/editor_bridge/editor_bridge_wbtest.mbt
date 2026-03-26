@@ -71,7 +71,7 @@ test "scene patch applies in document space" {
 }
 
 ///|
-test "validation rejects unsupported scene version and parent" {
+test "validation rejects unsupported scene version and missing parent" {
   let scene = SceneDocument::{
     version: 999,
     name: "Broken",
@@ -87,7 +87,7 @@ test "validation rejects unsupported scene version and parent" {
     ],
   }
   let errors = validate_scene_document(scene)
-  inspect(errors.length(), content="3")
+  inspect(errors.length(), content="2")
 }
 
 ///|

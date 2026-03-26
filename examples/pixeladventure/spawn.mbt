@@ -17,22 +17,20 @@ fn game_start(_world : @ecs.World) -> Unit {
   ignore(@asset.load_font(FONT_PATH, family=FONT_FAMILY))
   @ui.set_ui_scale_mode(@ui.UiScaleMode::Viewport)
   reset_pixeladventure_world_store()
+  let loaded_level = load_level_scene()
 
   let session_entity = @entity.Entity::new()
-  let player_entity = @entity.Entity::new()
-  let camera_entity = @entity.Entity::new()
   let result_box = @entity.Entity::new()
   let score_box = @entity.Entity::new()
   let health_box = @entity.Entity::new()
   let volume_button = @entity.Entity::new()
 
-  spawn_camera(camera_entity)
+  spawn_background(loaded_level.world_size)
   spawn_hud(result_box, score_box, health_box, volume_button)
-  let world_size = spawn_level(player_entity)
 
   sessions().set(session_entity, {
-    player: player_entity,
-    camera: camera_entity,
+    player: loaded_level.player_entity,
+    camera: loaded_level.camera_entity,
     result_box,
     score_box,
     health_box,
@@ -41,7 +39,7 @@ fn game_start(_world : @ecs.World) -> Unit {
     health: 3,
     volume_on: true,
     result: None,
-    world_size,
+    world_size: loaded_level.world_size,
   })
 
   hud_sync_system(@ecs.require_current_world())
@@ -113,83 +111,6 @@ fn spawn_hud(
 }
 
 ///|
-fn spawn_camera(camera_entity : @entity.Entity) -> Unit {
-  @camera.cameras().set(camera_entity, @camera.Camera::new())
-  @camera.camera2ds().set(camera_entity, @camera.Camera2d::new())
-  @camera.orthographic_projections().set(
-    camera_entity,
-    @camera.OrthographicProjection::new(),
-  )
-  @transform.transforms().set(
-    camera_entity,
-    @transform.Transform::from_xyz(
-      VIEWPORT_WIDTH / 2.0,
-      VIEWPORT_HEIGHT / 2.0,
-      0.0,
-    ),
-  )
-}
-
-///|
-fn tile_to_vec2d(tile : Tile, tile_size : Int) -> @math.Vec2D {
-  @math.Vec2D(
-    tile.x.to_double() * tile_size.to_double(),
-    tile.y.to_double() * tile_size.to_double(),
-  )
-}
-
-///|
-fn spawn_level(player_entity : @entity.Entity) -> @math.Vec2D {
-  let parsed_tilemap = TileMap::from_json(tilemap)
-  let world_width = parsed_tilemap.map_width.to_double() *
-    parsed_tilemap.tile_size.to_double()
-  let world_height = parsed_tilemap.map_height.to_double() *
-    parsed_tilemap.tile_size.to_double()
-  let world_size = @math.Vec2D(world_width, world_height)
-
-  spawn_background(world_size)
-
-  let player_tile = parsed_tilemap
-    .get_tiles_first("MaskDude")
-    .get(0)
-    .unwrap_or_else(fn() { panic() })
-  spawn_player(
-    player_entity,
-    tile_to_vec2d(player_tile, parsed_tilemap.tile_size),
-  )
-
-  let flag_tile = parsed_tilemap
-    .get_tiles_first("Flag")
-    .get(0)
-    .unwrap_or_else(fn() { panic() })
-  spawn_flag(
-    tile_to_vec2d(flag_tile, parsed_tilemap.tile_size) - @math.Vec2D(16.0, 16.0),
-  )
-
-  for apple in parsed_tilemap.get_tiles_first("Apple") {
-    spawn_apple(tile_to_vec2d(apple, parsed_tilemap.tile_size))
-  }
-
-  let grasses = parsed_tilemap.get_tiles("Grass")
-  for grass in grasses {
-    spawn_grass_visual(tile_to_vec2d(grass, parsed_tilemap.tile_size), grass.id)
-  }
-  build_terrain_colliders(
-    grasses,
-    parsed_tilemap.tile_size,
-    parsed_tilemap.map_width,
-  )
-
-  for bird in parsed_tilemap.get_tiles_first("Bird") {
-    spawn_bird(
-      tile_to_vec2d(bird, parsed_tilemap.tile_size) + @math.Vec2D(0.0, 2.0),
-    )
-  }
-
-  world_size
-}
-
-///|
 fn register_sprite_animation_node(
   graph : @animation.AnimationGraph,
   animation : SpriteAnimationDef,
@@ -242,17 +163,14 @@ fn build_bird_animation_nodes(entity : @entity.Entity) -> BirdAnimationNodes {
 }
 
 ///|
-fn spawn_player(entity : @entity.Entity, pos : @math.Vec2D) -> Unit {
+fn configure_player_entity(entity : @entity.Entity) -> Unit {
   let animation_nodes = build_player_animation_nodes(entity)
   @sprite.sprites().set(
     entity,
     sprite_animation_sprite(player_idle_right_animation),
   )
+  set_entity_z(entity, PLAYER_Z)
   @physics2d.linear_velocities().set(entity, @math.Vec2D::zero())
-  @transform.transforms().set(
-    entity,
-    @transform.Transform::from_xyz(pos[X], pos[Y], PLAYER_Z),
-  )
   @physics2d.shapes().set(
     entity,
     Rect(size=@math.Vec2D(24.0, 32.0), offset=@math.Vec2D(4.0, 0.0)),
@@ -277,19 +195,14 @@ fn spawn_player(entity : @entity.Entity, pos : @math.Vec2D) -> Unit {
   play_player_animation(entity, controller)
 }
 
-///|
-fn spawn_bird(pos : @math.Vec2D) -> Unit {
-  let entity = @entity.Entity::new()
+fn configure_bird_entity(entity : @entity.Entity) -> Unit {
   let animation_nodes = build_bird_animation_nodes(entity)
   @sprite.sprites().set(
     entity,
     sprite_animation_sprite(bird_fly_right_animation),
   )
   @physics2d.linear_velocities().set(entity, @math.Vec2D(BIRD_SPEED, 0.0))
-  @transform.transforms().set(
-    entity,
-    @transform.Transform::from_xyz(pos[X], pos[Y], PLAYER_Z),
-  )
+  set_entity_z(entity, PLAYER_Z)
   @physics2d.shapes().set(
     entity,
     Rect(size=@math.Vec2D(32.0, 32.0), offset=@math.Vec2D::zero()),
@@ -312,7 +225,6 @@ fn spawn_bird(pos : @math.Vec2D) -> Unit {
   play_bird_animation(entity, bird)
 }
 
-///|
 fn spawn_background(size : @math.Vec2D) -> Unit {
   let background = @entity.Entity::new()
   @sprite.sprites().set(
@@ -326,78 +238,8 @@ fn spawn_background(size : @math.Vec2D) -> Unit {
   )
   @transform.transforms().set(
     background,
-    @transform.Transform::from_xyz(0.0, 0.0, 0.0),
+    @transform.Transform::from_xyz(0.0, 0.0, -100.0),
   )
-}
-
-///|
-fn spawn_grass_visual(pos : @math.Vec2D, sprite_id : String) -> Unit {
-  let src_pos = match sprite_id {
-    "15" => @math.Vec2D(96.0, 0.0)
-    "9" => @math.Vec2D(112.0, 0.0)
-    "16" => @math.Vec2D(128.0, 0.0)
-    "11" => @math.Vec2D(96.0, 16.0)
-    "13" => @math.Vec2D(112.0, 16.0)
-    "10" => @math.Vec2D(128.0, 16.0)
-    "14" => @math.Vec2D(96.0, 32.0)
-    "8" => @math.Vec2D(112.0, 32.0)
-    "12" => @math.Vec2D(128.0, 32.0)
-    _ => panic()
-  }
-  let grass = @entity.Entity::new()
-  @sprite.sprites().set(
-    grass,
-    @sprite.Sprite::new(
-      image=Some(
-        @asset.load_image("assets/pixeladventure/Terrain/Terrain (16x16).png"),
-      ),
-      rect=Some({ position: src_pos, size: @math.Vec2D(16.0, 16.0) }),
-      custom_size=Some(@math.Vec2D(16.0, 16.0)),
-      anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
-    ),
-  )
-  @transform.transforms().set(
-    grass,
-    @transform.Transform::from_xyz(pos[X], pos[Y], PLAYER_Z),
-  )
-}
-
-///|
-fn build_terrain_colliders(
-  grasses : Array[Tile],
-  tile_size : Int,
-  map_width : Int,
-) -> Unit {
-  let rows : Map[Int, Array[Int]] = Map::new()
-  for grass in grasses {
-    rows.get_or_init(grass.y, () => []).push(grass.x)
-  }
-  let tile_size_d = tile_size.to_double()
-  for y, columns in rows {
-    columns.sort()
-    let mut cursor = 0
-    while cursor < columns.length() {
-      let start_x = columns[cursor]
-      let mut end_x = start_x
-      cursor += 1
-      while cursor < columns.length() && columns[cursor] == end_x + 1 {
-        end_x = columns[cursor]
-        cursor += 1
-      }
-      if start_x < map_width {
-        spawn_terrain_collider(
-          @math.Vec2D(
-            start_x.to_double() * tile_size_d,
-            y.to_double() * tile_size_d,
-          ),
-          @math.Vec2D(
-            (end_x - start_x + 1).to_double() * tile_size_d,
-            tile_size_d,
-          ),
-        )
-      }
-    }
-  }
 }
 
 ///|
@@ -419,8 +261,7 @@ fn spawn_terrain_collider(pos : @math.Vec2D, size : @math.Vec2D) -> Unit {
 }
 
 ///|
-fn spawn_flag(pos : @math.Vec2D) -> Unit {
-  let entity = @entity.Entity::new()
+fn configure_flag_entity(entity : @entity.Entity) -> Unit {
   @sprite.sprites().set(
     entity,
     @sprite.Sprite::new(
@@ -433,10 +274,7 @@ fn spawn_flag(pos : @math.Vec2D) -> Unit {
       anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
     ),
   )
-  @transform.transforms().set(
-    entity,
-    @transform.Transform::from_xyz(pos[X], pos[Y], ITEM_Z),
-  )
+  set_entity_z(entity, ITEM_Z)
   @physics2d.shapes().set(
     entity,
     Rect(size=@math.Vec2D(64.0, 64.0), offset=@math.Vec2D::zero()),
@@ -452,15 +290,10 @@ fn spawn_flag(pos : @math.Vec2D) -> Unit {
   flags().set(entity, ())
 }
 
-///|
-fn spawn_apple(pos : @math.Vec2D) -> Unit {
-  let entity = @entity.Entity::new()
+fn configure_apple_entity(entity : @entity.Entity) -> Unit {
   @sprite.sprites().set(entity, sprite_animation_sprite(apple_spin_animation))
   ignore(install_sprite_animation_player(entity, apple_spin_animation))
-  @transform.transforms().set(
-    entity,
-    @transform.Transform::from_xyz(pos[X], pos[Y], ITEM_Z),
-  )
+  set_entity_z(entity, ITEM_Z)
   @physics2d.shapes().set(
     entity,
     Rect(size=@math.Vec2D(32.0, 32.0), offset=@math.Vec2D::zero()),
