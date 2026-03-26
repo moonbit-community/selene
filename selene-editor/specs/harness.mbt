@@ -25,7 +25,7 @@ fn FakePreviewBridge::apply(
   match command {
     @bridge.Bootstrap => self.bootstrapped = true
     @bridge.ClearScene => self.current_scene = None
-    @bridge.LoadScene(scene) => self.current_scene = Some(scene)
+    @bridge.LoadScene(payload) => self.current_scene = Some(payload.scene)
     @bridge.SelectEntity(id) => self.selected_entity_id = id
     @bridge.SetTool(_) => ()
     @bridge.FrameSelection => ()
@@ -82,7 +82,11 @@ fn msg_for_rpc_target(target : @app.RpcTarget, payload : Json) -> @app.Msg {
       @app.msg_project_root_picked(decode_rpc_payload(payload))
     @app.ProjectLoaded => @app.msg_project_loaded(decode_rpc_payload(payload))
     @app.SceneLoaded => @app.msg_scene_loaded(decode_rpc_payload(payload))
+    @app.SceneListLoaded => @app.msg_scene_list_loaded(decode_rpc_payload(payload))
     @app.AssetsLoaded => @app.msg_assets_loaded(decode_rpc_payload(payload))
+    @app.PrefabLoaded => @app.msg_prefab_loaded(decode_rpc_payload(payload))
+    @app.AtlasLoaded => @app.msg_atlas_loaded(decode_rpc_payload(payload))
+    @app.AnimationLoaded => @app.msg_animation_loaded(decode_rpc_payload(payload))
     @app.SceneSaved => @app.msg_scene_saved(decode_rpc_payload(payload))
   }
 }

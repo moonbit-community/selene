@@ -1,7 +1,7 @@
 ///|
 priv struct PreviewState {
   mut bootstrapped : Bool
-  mut pending_scene : @editor_bridge.SceneDocument?
+  mut pending_scene : @bridge.PreviewScenePayload?
   mut current_scene : @editor_bridge.SceneDocument?
   mut runtime_scene : @editor_bridge.SceneRuntime?
   mut selected_entity_id : String?
@@ -68,13 +68,15 @@ pub fn set_event_sink(sink : ((@bridge.PreviewEvent) -> Unit)?) -> Unit {
 }
 
 ///|
-pub fn load_scene(scene : @editor_bridge.SceneDocument) -> Unit {
-  preview_state.pending_scene = Some(scene)
+pub fn load_scene(payload : @bridge.PreviewScenePayload) -> Unit {
+  preview_state.pending_scene = Some(payload)
 }
 
 ///|
 pub fn clear_scene() -> Unit {
-  preview_state.pending_scene = Some(@editor_bridge.SceneDocument::empty())
+  preview_state.pending_scene = Some(
+    @bridge.preview_scene_payload(@editor_bridge.SceneDocument::empty(), [], []),
+  )
 }
 
 ///|
@@ -102,10 +104,25 @@ fn clear_runtime_scene() -> Unit {
 }
 
 ///|
-fn spawn_scene_entities(scene : @editor_bridge.SceneDocument) -> Unit {
+fn spawn_scene_entities(payload : @bridge.PreviewScenePayload) -> Unit {
   clear_runtime_scene()
+  let atlas_assets : Map[String, @editor_bridge.AtlasAssetDocument] = {}
+  let animation_assets : Map[String, @editor_bridge.AnimationAssetDocument] = {}
+  for entry in payload.atlases {
+    atlas_assets.set(entry.path, entry.atlas)
+  }
+  for entry in payload.animations {
+    animation_assets.set(entry.path, entry.animation)
+  }
   preview_state.runtime_scene = Some(
-    @editor_bridge.instantiate_scene_document(scene, resolve_project_asset_path),
+    @editor_bridge.instantiate_scene_document_with_context(
+      payload.scene,
+      @editor_bridge.asset_instantiation_context(
+        asset_path_resolver=resolve_project_asset_path,
+        atlas_assets=atlas_assets,
+        animation_assets=animation_assets,
+      ),
+    ),
   )
 }
 
@@ -153,7 +170,10 @@ fn overlay_bounds() -> (@math.Vec2D, @math.Vec2D)? {
     let atlas_data = @editor_bridge.decode_component(
       document.component("TextureAtlas"),
     ).map(fn(atlas : @editor_bridge.TextureAtlasComponent) {
-      atlas.layout.tile_size
+      match atlas.layout {
+        Some(layout) => layout.tile_size
+        None => @editor_bridge.vec2_doc(32.0, 32.0)
+      }
     })
     let size = @editor_bridge.sprite_doc_size(sprite_data, atlas_data)
     let anchor = sprite_data.anchor
@@ -300,7 +320,10 @@ fn pick_entity_id_at(point : @math.Vec2D) -> String? {
       let atlas_size = @editor_bridge.decode_component(
         document.component("TextureAtlas"),
       ).map(fn(atlas : @editor_bridge.TextureAtlasComponent) {
-        atlas.layout.tile_size
+        match atlas.layout {
+          Some(layout) => layout.tile_size
+          None => @editor_bridge.vec2_doc(32.0, 32.0)
+        }
       })
       let size = @editor_bridge.sprite_doc_size(sprite_data, atlas_size)
       let anchor = sprite_data.anchor
@@ -401,9 +424,9 @@ fn preview_startup_system(_world : @ecs.World) -> Unit {
 
 ///|
 fn preview_scene_sync_system(_world : @ecs.World) -> Unit {
-  if preview_state.pending_scene is Some(scene) {
-    spawn_scene_entities(scene)
-    preview_state.current_scene = Some(scene)
+  if preview_state.pending_scene is Some(payload) {
+    spawn_scene_entities(payload)
+    preview_state.current_scene = Some(payload.scene)
     preview_state.pending_scene = None
   }
   apply_selection_overlay()

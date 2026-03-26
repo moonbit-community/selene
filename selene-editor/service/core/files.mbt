@@ -91,6 +91,114 @@ async fn save_scene_document(
 }
 
 ///|
+fn list_scene_documents(
+  root : String,
+) -> Array[@editor_bridge.SceneRef] raise {
+  @editor_bridge.list_scene_documents(root)
+}
+
+///|
+async fn load_prefab_document(
+  root : String,
+  relative_path : String,
+) -> @editor_bridge.PrefabDocument {
+  let path = prefab_path(root, relative_path)
+  guard @fs.exists(path) else { raise SceneNotFound(relative_path) }
+  @editor_bridge.read_prefab_document(path)
+}
+
+///|
+async fn save_prefab_document(
+  root : String,
+  relative_path : String,
+  prefab : @editor_bridge.PrefabDocument,
+) -> Unit {
+  let path = prefab_path(root, relative_path)
+  ensure_dir(path_join(root, "prefabs"))
+  @editor_bridge.write_prefab_document(path, prefab)
+}
+
+///|
+fn list_prefab_documents(
+  root : String,
+) -> Array[@editor_bridge.PrefabRef] raise {
+  @editor_bridge.list_prefab_documents(root)
+}
+
+///|
+async fn load_atlas_asset_document(
+  root : String,
+  relative_path : String,
+) -> @editor_bridge.AtlasAssetDocument {
+  let path = atlas_asset_path(root, relative_path)
+  guard @fs.exists(path) else { raise SceneNotFound(relative_path) }
+  @editor_bridge.read_atlas_asset_document(path)
+}
+
+///|
+async fn save_atlas_asset_document(
+  root : String,
+  relative_path : String,
+  atlas : @editor_bridge.AtlasAssetDocument,
+) -> Unit {
+  let path = atlas_asset_path(root, relative_path)
+  ensure_dir(path_join(root, "assets/atlases"))
+  @editor_bridge.write_atlas_asset_document(path, atlas)
+}
+
+///|
+fn list_atlas_asset_documents(
+  root : String,
+) -> Array[@editor_bridge.AssetRef] raise {
+  @editor_bridge.list_atlas_assets(root)
+}
+
+///|
+async fn load_animation_asset_document(
+  root : String,
+  relative_path : String,
+) -> @editor_bridge.AnimationAssetDocument {
+  let path = animation_asset_path(root, relative_path)
+  guard @fs.exists(path) else { raise SceneNotFound(relative_path) }
+  @editor_bridge.read_animation_asset_document(path)
+}
+
+///|
+async fn save_animation_asset_document(
+  root : String,
+  relative_path : String,
+  animation : @editor_bridge.AnimationAssetDocument,
+) -> Unit {
+  let path = animation_asset_path(root, relative_path)
+  ensure_dir(path_join(root, "assets/animations"))
+  @editor_bridge.write_animation_asset_document(path, animation)
+}
+
+///|
+fn list_animation_asset_documents(
+  root : String,
+) -> Array[@editor_bridge.AssetRef] raise {
+  @editor_bridge.list_animation_assets(root)
+}
+
+///|
+async fn load_workspace_document(root : String) -> @editor_bridge.WorkspaceDocument {
+  let path = workspace_path(root)
+  if !@fs.exists(path) {
+    return @editor_bridge.WorkspaceDocument::default()
+  }
+  @editor_bridge.read_workspace_document(path)
+}
+
+///|
+fn save_workspace_document(
+  root : String,
+  workspace : @editor_bridge.WorkspaceDocument,
+) -> Unit raise {
+  @editor_bridge.write_workspace_document(workspace_path(root), workspace)
+}
+
+///|
 async fn list_files_recursive(root : String) -> Array[String] {
   let files : Array[String] = []
   if !@fs.exists(root) {

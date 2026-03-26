@@ -1,15 +1,70 @@
 ///|
+pub type AssetPathResolver = (String?) -> String?
+
+///|
+pub type CustomComponentApplier = (
+  @entity.Entity,
+  ComponentDocument,
+  AssetInstantiationContext,
+) -> Unit
+
+///|
+pub struct AssetInstantiationContext {
+  asset_path_resolver : AssetPathResolver
+  atlas_assets : Map[String, AtlasAssetDocument]
+  animation_assets : Map[String, AnimationAssetDocument]
+  custom_component_appliers : Map[String, CustomComponentApplier]
+}
+
+///|
 pub struct SceneRuntime {
   entity_ids : Map[String, @entity.Entity]
   tracked_entities : Array[@entity.Entity]
   atlas_layouts : Array[@sprite.TextureAtlasLayoutHandle]
   material_handles : Array[@material2d.ColorMaterialHandle]
   mesh_handles : Array[@mesh2d.Mesh2dHandle]
+  animation_clip_handles : Array[@animation.AnimationClipHandle]
+  animation_graph_handles : Array[@animation.AnimationGraphHandle]
 }
+
+///|
+priv struct PreparedAtlas {
+  image_path : String?
+  texture_atlas : @sprite.TextureAtlas?
+  default_size : Vec2Doc?
+  default_anchor : Vec2Doc?
+}
+
+///|
+let registered_custom_component_appliers : Map[String, CustomComponentApplier] =
+  {}
 
 ///|
 pub fn identity_asset_path_resolver(path : String?) -> String? {
   path
+}
+
+///|
+pub fn register_custom_component(
+  kind : String,
+  applier : CustomComponentApplier,
+) -> Unit {
+  registered_custom_component_appliers.set(kind, applier)
+}
+
+///|
+pub fn asset_instantiation_context(
+  asset_path_resolver? : AssetPathResolver = identity_asset_path_resolver,
+  atlas_assets? : Map[String, AtlasAssetDocument] = {},
+  animation_assets? : Map[String, AnimationAssetDocument] = {},
+  custom_component_appliers? : Map[String, CustomComponentApplier] = registered_custom_component_appliers,
+) -> AssetInstantiationContext {
+  {
+    asset_path_resolver,
+    atlas_assets,
+    animation_assets,
+    custom_component_appliers,
+  }
 }
 
 ///|
@@ -51,6 +106,126 @@ fn basename_of(path : String) -> String {
 }
 
 ///|
+fn texture_atlas_layout_doc_from_asset(
+  atlas : AtlasAssetDocument,
+) -> TextureAtlasLayoutDoc {
+  {
+    tile_size: atlas.tile_size,
+    columns: atlas.columns,
+    rows: atlas.rows,
+    padding: atlas.spacing,
+    offset: atlas.margin,
+  }
+}
+
+///|
+fn register_layout_handle(
+  layout_doc : TextureAtlasLayoutDoc,
+  atlas_layouts : Array[@sprite.TextureAtlasLayoutHandle],
+) -> @sprite.TextureAtlasLayoutHandle {
+  let handle = @sprite.register_texture_atlas_layout(
+    @sprite.TextureAtlasLayout::from_grid(
+      vec2_of(layout_doc.tile_size),
+      layout_doc.columns,
+      layout_doc.rows,
+      padding=Some(vec2_of(layout_doc.padding)),
+      offset=Some(vec2_of(layout_doc.offset)),
+    ),
+  )
+  atlas_layouts.push(handle)
+  handle
+}
+
+///|
+fn region_by_name_or_index(
+  atlas : AtlasAssetDocument,
+  region_name : String?,
+  index : Int,
+) -> AtlasRegionDocument? {
+  if region_name is Some(name) {
+    for region in atlas.regions {
+      if region.name == name {
+        return Some(region)
+      }
+    }
+  }
+  for region in atlas.regions {
+    if region.index == index {
+      return Some(region)
+    }
+  }
+  None
+}
+
+///|
+fn prepared_atlas(
+  atlas_doc : TextureAtlasComponent?,
+  context : AssetInstantiationContext,
+  atlas_layouts : Array[@sprite.TextureAtlasLayoutHandle],
+) -> PreparedAtlas? {
+  match atlas_doc {
+    Some(atlas_data) =>
+      match atlas_data.atlas_asset_path {
+        Some(path) =>
+          match context.atlas_assets.get(path) {
+            Some(atlas_asset) => {
+              let layout = register_layout_handle(
+                texture_atlas_layout_doc_from_asset(atlas_asset),
+                atlas_layouts,
+              )
+              let region = region_by_name_or_index(
+                atlas_asset,
+                atlas_data.region_name,
+                atlas_data.index,
+              )
+              Some({
+                image_path: (context.asset_path_resolver)(
+                  Some(atlas_asset.source_image),
+                ),
+                texture_atlas: Some(
+                  @sprite.TextureAtlas::new(
+                    layout,
+                    index=region.map_or(atlas_data.index, fn(it) { it.index }),
+                  ),
+                ),
+                default_size: match region {
+                  Some(it) => Some(vec2_doc(it.rect.width, it.rect.height))
+                  None => Some(atlas_asset.tile_size)
+                },
+                default_anchor: Some(atlas_asset.default_anchor),
+              })
+            }
+            None => None
+          }
+        None =>
+          match atlas_data.layout {
+            Some(layout_doc) => {
+              let layout = register_layout_handle(layout_doc, atlas_layouts)
+              Some({
+                image_path: None,
+                texture_atlas: Some(
+                  @sprite.TextureAtlas::new(layout, index=atlas_data.index),
+                ),
+                default_size: Some(layout_doc.tile_size),
+                default_anchor: None,
+              })
+            }
+            None => None
+          }
+      }
+    None => None
+  }
+}
+
+///|
+fn repeat_animation_of(mode : String) -> @animation.RepeatAnimation {
+  match mode.to_lower() {
+    "never" | "once" => @animation.Never
+    _ => @animation.Forever
+  }
+}
+
+///|
 pub fn[T : FromJson] decode_component(component : ComponentDocument?) -> T? {
   match component {
     Some(value) => Some(@json.from_json(value.data)) catch { _ => None }
@@ -86,6 +261,7 @@ pub fn sprite_doc_size(
 
 ///|
 fn clear_entity_components(entity : @entity.Entity) -> Unit {
+  @name.names().remove(entity) |> ignore
   @transform.transforms().remove(entity) |> ignore
   @transform.global_transforms().remove(entity) |> ignore
   @visibility.visibilities().remove(entity) |> ignore
@@ -102,6 +278,16 @@ fn clear_entity_components(entity : @entity.Entity) -> Unit {
   @camera.cameras().remove(entity) |> ignore
   @camera.camera2ds().remove(entity) |> ignore
   @camera.orthographic_projections().remove(entity) |> ignore
+  @physics2d.rigid_bodies().remove(entity) |> ignore
+  @physics2d.colliders().remove(entity) |> ignore
+  @physics2d.sensors().remove(entity) |> ignore
+  @physics2d.shapes().remove(entity) |> ignore
+  @physics2d.velocities().remove(entity) |> ignore
+  @animation.animation_players().remove(entity) |> ignore
+  @animation.animation_transitions().remove(entity) |> ignore
+  @animation.animation_graph_handles().remove(entity) |> ignore
+  @animation.animation_target_ids().remove(entity) |> ignore
+  @animation.animated_bys().remove(entity) |> ignore
   entity.remove_parent()
   entity.destroy()
 }
@@ -120,6 +306,12 @@ pub fn SceneRuntime::destroy(self : SceneRuntime) -> Unit {
   for handle in self.mesh_handles {
     @mesh2d.release_mesh2d_asset(handle)
   }
+  for handle in self.animation_clip_handles {
+    @animation.release_animation_clip_asset(handle)
+  }
+  for handle in self.animation_graph_handles {
+    @animation.release_animation_graph_asset(handle)
+  }
 }
 
 ///|
@@ -135,26 +327,136 @@ pub fn SceneRuntime::entity(
 }
 
 ///|
+fn apply_animation_components(
+  entity : @entity.Entity,
+  document : EntityDocument,
+  animation_doc : AnimationPlayerComponent,
+  transitions_doc : AnimationTransitionsComponent?,
+  context : AssetInstantiationContext,
+  animation_clip_handles : Array[@animation.AnimationClipHandle],
+  animation_graph_handles : Array[@animation.AnimationGraphHandle],
+) -> Unit {
+  guard animation_doc.animation_asset_path is Some(asset_path) else { return }
+  guard context.animation_assets.get(asset_path) is Some(animation_asset) else {
+    return
+  }
+  guard context.atlas_assets.get(animation_asset.atlas_asset_path) is Some(
+    atlas_asset,
+  ) else {
+    return
+  }
+  let target_id = @animation.AnimationTargetId::new(document.id)
+  @animation.animation_target_ids().set(entity, target_id)
+  let clip_nodes : Map[String, @animation.AnimationNodeIndex] = {}
+  let clip_handles : Array[@animation.AnimationClipHandle] = []
+  for clip_doc in animation_asset.clips {
+    let clip = @animation.AnimationClip::new(clip_doc.name)
+    let keyframes : Array[@animation.ScalarKeyframe] = []
+    for index, frame_name in clip_doc.frames {
+      if region_by_name_or_index(atlas_asset, Some(frame_name), index) is Some(
+        region,
+      ) {
+        keyframes.push({
+          time: index.to_double() / clip_doc.fps,
+          value: region.index.to_double(),
+          in_tangent: None,
+          out_tangent: None,
+        })
+      }
+    }
+    if !keyframes.is_empty() {
+      clip.add_curve_to_target(
+        target_id,
+        @animation.VariableCurve::scalar(
+          @animation.texture_atlas_index_field(),
+          keyframes,
+          interpolation=@animation.Step,
+        ),
+      )
+    }
+    let handle = @animation.register_animation_clip_asset(clip)
+    animation_clip_handles.push(handle)
+    clip_handles.push(handle)
+  }
+  guard !clip_handles.is_empty() else { return }
+  let (graph, nodes) = @animation.AnimationGraph::from_clips(clip_handles)
+  for index, clip_doc in animation_asset.clips {
+    if index < nodes.length() {
+      clip_nodes.set(clip_doc.name, nodes[index])
+    }
+  }
+  let graph_handle = @animation.register_animation_graph_asset(graph)
+  animation_graph_handles.push(graph_handle)
+  @animation.animation_graph_handles().set(entity, graph_handle)
+  let player = @animation.AnimationPlayer::new()
+  let default_clip_name = match animation_doc.default_clip {
+    Some(name) => Some(name)
+    None => animation_asset.default_clip
+  }
+  let default_node : @animation.AnimationNodeIndex? = match default_clip_name {
+    Some(name) =>
+      match clip_nodes.get(name) {
+        Some(node) => Some(node)
+        None => Some(nodes[0])
+      }
+    None => Some(nodes[0])
+  }
+  if transitions_doc is Some(transitions_data) {
+    let transitions = @animation.AnimationTransitions::new()
+    if animation_doc.autoplay && default_node is Some(node) {
+      let active = transitions.play(
+        player,
+        node,
+        transitions_data.duration,
+        repeat=repeat_animation_of(animation_doc.repeat_mode),
+      )
+      ignore(active.set_speed(animation_doc.speed))
+    }
+    @animation.animation_transitions().set(entity, transitions)
+  } else if animation_doc.autoplay && default_node is Some(node) {
+    let active = player.play(
+      node,
+      repeat=repeat_animation_of(animation_doc.repeat_mode),
+    )
+    ignore(active.set_speed(animation_doc.speed))
+  }
+  @animation.animation_players().set(entity, player)
+}
+
+///|
 fn apply_document_components(
   entity : @entity.Entity,
   document : EntityDocument,
   atlas_layouts : Array[@sprite.TextureAtlasLayoutHandle],
   material_handles : Array[@material2d.ColorMaterialHandle],
   mesh_handles : Array[@mesh2d.Mesh2dHandle],
-  asset_path_resolver : (String?) -> String?,
+  animation_clip_handles : Array[@animation.AnimationClipHandle],
+  animation_graph_handles : Array[@animation.AnimationGraphHandle],
+  context : AssetInstantiationContext,
 ) -> Unit {
   let atlas_doc : TextureAtlasComponent? = decode_component(
     document.component("TextureAtlas"),
   )
-  let mesh_doc : Mesh2dComponent? = decode_component(
-    document.component("Mesh2d"),
-  )
+  let mesh_doc : Mesh2dComponent? = decode_component(document.component("Mesh2d"))
   let material_doc : ColorMaterialComponent? = decode_component(
     document.component("ColorMaterial"),
+  )
+  let animation_doc : AnimationPlayerComponent? = decode_component(
+    document.component("AnimationPlayer"),
+  )
+  let transitions_doc : AnimationTransitionsComponent? = decode_component(
+    document.component("AnimationTransitions"),
   )
 
   for component in document.components {
     match component.kind {
+      "Name" => {
+        let data : NameComponent = match decode_component(Some(component)) {
+          Some(data) => data
+          None => continue
+        }
+        @name.names().set(entity, @name.Name::new(data.value))
+      }
       "Transform2d" => {
         let data : Transform2dComponent = match
           decode_component(Some(component)) {
@@ -182,11 +484,7 @@ fn apply_document_components(
         }
         @visibility.visibilities().set(
           entity,
-          if data.visible {
-            @visibility.Visible
-          } else {
-            @visibility.Hidden
-          },
+          if data.visible { @visibility.Visible } else { @visibility.Hidden },
         )
       }
       "Sprite" => {
@@ -194,31 +492,41 @@ fn apply_document_components(
           Some(data) => data
           None => continue
         }
-        let atlas = atlas_doc.map(fn(atlas_data) {
-          let layout = @sprite.register_texture_atlas_layout(
-            @sprite.TextureAtlasLayout::from_grid(
-              vec2_of(atlas_data.layout.tile_size),
-              atlas_data.layout.columns,
-              atlas_data.layout.rows,
-              padding=Some(vec2_of(atlas_data.layout.padding)),
-              offset=Some(vec2_of(atlas_data.layout.offset)),
-            ),
-          )
-          atlas_layouts.push(layout)
-          @sprite.TextureAtlas::new(layout, index=atlas_data.index)
-        })
-        let image = asset_path_resolver(data.image_path).map(fn(path) {
+        let prepared = prepared_atlas(atlas_doc, context, atlas_layouts)
+        let resolved_sprite_image = match prepared {
+          Some(value) =>
+            match value.image_path {
+              Some(path) => Some(path)
+              None => (context.asset_path_resolver)(data.image_path)
+            }
+          None => (context.asset_path_resolver)(data.image_path)
+        }
+        let image = resolved_sprite_image.map(fn(path) {
           @asset.load_image(path)
         })
         @sprite.sprites().set(
           entity,
           @sprite.Sprite::new(
             image~,
-            texture_atlas=atlas,
-            rect=data.rect.map(rect_of),
+            texture_atlas=prepared.bind(fn(value) { value.texture_atlas }),
+            rect=match prepared {
+              Some(_) => None
+              None => data.rect.map(rect_of)
+            },
             color=color_of(data.color),
-            custom_size=data.custom_size.map(vec2_of),
-            anchor=anchor_of(data.anchor),
+            custom_size=Some(
+              vec2_of(
+                sprite_doc_size(
+                  data,
+                  prepared.bind(fn(value) { value.default_size }),
+                ),
+              ),
+            ),
+            anchor=anchor_of(
+              prepared.map_or(data.anchor, fn(value) {
+                value.default_anchor.unwrap_or(data.anchor)
+              }),
+            ),
             flip_x=data.flip_x,
             flip_y=data.flip_y,
           ),
@@ -241,7 +549,7 @@ fn apply_document_components(
         }
         @ui.texts().set(entity, @ui.Text::new(data.content))
         @ui.text_colors().set(entity, @ui.TextColor::new(color_of(data.color)))
-        let font = match asset_path_resolver(data.font_path) {
+        let font = match (context.asset_path_resolver)(data.font_path) {
           Some(path) =>
             @ui.TextFont::from_font(
               @asset.load_font(path, family=basename_of(path)),
@@ -295,8 +603,115 @@ fn apply_document_components(
           @camera.OrthographicProjection::new(scale=data.scale),
         )
       }
-      _ => ()
+      "PhysicsBody2d" => {
+        let data : PhysicsBody2dComponent = match
+          decode_component(Some(component)) {
+          Some(data) => data
+          None => continue
+        }
+        let body = match data.body_type.to_lower() {
+          "fixed" =>
+            {
+              ..@physics2d.RigidBody::fixed(),
+              gravity_scale: data.gravity_scale,
+              linear_damping: data.linear_damping,
+              angular_damping: data.angular_damping,
+              ccd_enabled: data.ccd_enabled,
+              lock_rotation: data.lock_rotation,
+            }
+          "kinematic_position_based" =>
+            {
+              ..@physics2d.RigidBody::kinematic_position_based(),
+              gravity_scale: data.gravity_scale,
+              linear_damping: data.linear_damping,
+              angular_damping: data.angular_damping,
+              ccd_enabled: data.ccd_enabled,
+              lock_rotation: data.lock_rotation,
+            }
+          "kinematic_velocity_based" =>
+            {
+              ..@physics2d.RigidBody::kinematic_velocity_based(),
+              gravity_scale: data.gravity_scale,
+              linear_damping: data.linear_damping,
+              angular_damping: data.angular_damping,
+              ccd_enabled: data.ccd_enabled,
+              lock_rotation: data.lock_rotation,
+            }
+          _ =>
+            {
+              ..@physics2d.RigidBody::dynamic(),
+              gravity_scale: data.gravity_scale,
+              linear_damping: data.linear_damping,
+              angular_damping: data.angular_damping,
+              ccd_enabled: data.ccd_enabled,
+              lock_rotation: data.lock_rotation,
+            }
+        }
+        @physics2d.rigid_bodies().set(entity, body)
+        @physics2d.set_rigid_body_linear_velocity(
+          entity,
+          vec2_of(data.linear_velocity),
+        )
+        @physics2d.set_rigid_body_angular_velocity(entity, data.angular_velocity)
+      }
+      "PhysicsCollider2d" => {
+        let data : PhysicsCollider2dComponent = match
+          decode_component(Some(component)) {
+          Some(data) => data
+          None => continue
+        }
+        let filter = @physics2d.all_collision_layers(
+          @physics2d.CollisionGroup::new(),
+        )
+        let size = data.size.unwrap_or(vec2_doc(32.0, 32.0))
+        let shape = match data.shape.to_lower() {
+          "circle" =>
+            @physics2d.ColliderShape::Ball(
+              radius=data.radius.unwrap_or(size.x / 2.0),
+              offset=@math.Vec2D::zero(),
+            )
+          _ =>
+            @physics2d.ColliderShape::Rect(
+              size=vec2_of(size),
+              offset=@math.Vec2D::zero(),
+            )
+        }
+        @physics2d.shapes().set(entity, shape)
+        if data.sensor {
+          @physics2d.sensors().set(entity, @physics2d.Area::new(filter))
+        } else {
+          @physics2d.colliders().set(
+            entity,
+            @physics2d.Collider::with_material(
+              filter,
+              friction=data.friction,
+              restitution=data.restitution,
+              active=true,
+            ),
+          )
+        }
+      }
+      "AnimationPlayer" => ()
+      "AnimationTransitions" => ()
+      _ =>
+        if context.custom_component_appliers.get(component.kind) is Some(applier) {
+          applier(entity, component, context)
+        }
     }
+  }
+  if animation_doc is Some(player_doc) {
+    apply_animation_components(
+      entity,
+      document,
+      player_doc,
+      transitions_doc,
+      context,
+      animation_clip_handles,
+      animation_graph_handles,
+    )
+  }
+  if !@name.names().contains(entity) {
+    @name.names().set(entity, @name.Name::new(document.name))
   }
   if !@transform.transforms().contains(entity) {
     @transform.transforms().set(entity, @transform.Transform::identity())
@@ -307,34 +722,47 @@ fn apply_document_components(
 }
 
 ///|
-pub fn instantiate_scene_document(
-  scene : SceneDocument,
-  asset_path_resolver : (String?) -> String?,
+fn instantiate_entity_documents(
+  documents : Array[EntityDocument],
+  context : AssetInstantiationContext,
+  parent_entity : @entity.Entity?,
 ) -> SceneRuntime {
   let entity_ids : Map[String, @entity.Entity] = {}
   let tracked_entities : Array[@entity.Entity] = []
   let atlas_layouts : Array[@sprite.TextureAtlasLayoutHandle] = []
   let material_handles : Array[@material2d.ColorMaterialHandle] = []
   let mesh_handles : Array[@mesh2d.Mesh2dHandle] = []
+  let animation_clip_handles : Array[@animation.AnimationClipHandle] = []
+  let animation_graph_handles : Array[@animation.AnimationGraphHandle] = []
 
-  for document in scene.entities {
+  for document in documents {
     let entity = @entity.Entity::new()
     entity_ids.set(document.id, entity)
     tracked_entities.push(entity)
   }
-  for document in scene.entities {
+  for document in documents {
     match document.parent {
       Some(parent_id) =>
         if entity_ids.contains(parent_id) {
           entity_ids[document.id].set_parent(entity_ids[parent_id])
         }
-      None => ()
+      None =>
+        if parent_entity is Some(parent) {
+          entity_ids[document.id].set_parent(parent)
+        }
     }
   }
-  for document in scene.entities {
+  for document in documents {
     let entity = entity_ids[document.id]
     apply_document_components(
-      entity, document, atlas_layouts, material_handles, mesh_handles, asset_path_resolver,
+      entity,
+      document,
+      atlas_layouts,
+      material_handles,
+      mesh_handles,
+      animation_clip_handles,
+      animation_graph_handles,
+      context,
     )
   }
   {
@@ -343,5 +771,35 @@ pub fn instantiate_scene_document(
     atlas_layouts,
     material_handles,
     mesh_handles,
+    animation_clip_handles,
+    animation_graph_handles,
   }
+}
+
+///|
+pub fn instantiate_scene_document_with_context(
+  scene : SceneDocument,
+  context : AssetInstantiationContext,
+) -> SceneRuntime {
+  instantiate_entity_documents(scene.entities, context, None)
+}
+
+///|
+pub fn instantiate_scene_document(
+  scene : SceneDocument,
+  asset_path_resolver : AssetPathResolver,
+) -> SceneRuntime {
+  instantiate_scene_document_with_context(
+    scene,
+    asset_instantiation_context(asset_path_resolver~),
+  )
+}
+
+///|
+pub fn instantiate_prefab_document(
+  prefab : PrefabDocument,
+  parent? : @entity.Entity? = None,
+  context? : AssetInstantiationContext = asset_instantiation_context(),
+) -> SceneRuntime {
+  instantiate_entity_documents(prefab.entities, context, parent)
 }

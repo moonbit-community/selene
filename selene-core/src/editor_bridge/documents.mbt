@@ -21,17 +21,48 @@ pub struct ColorDoc {
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
+pub struct AssetRef {
+  path : String
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
+pub struct SceneRef {
+  path : String
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
+pub struct PrefabRef {
+  path : String
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
 pub struct ProjectManifest {
   version : Int
   name : String
   startup_scene : String
   asset_roots : Array[String]
+  editor_min_version : String?
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
 pub struct SceneDocument {
   version : Int
+  name : String
   entities : Array[EntityDocument]
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
+pub struct PrefabDocument {
+  version : Int
+  name : String
+  entities : Array[EntityDocument]
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
+pub struct WorkspaceDocument {
+  version : Int
+  last_scene : String?
+  selected_entity_id : String?
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
@@ -46,6 +77,11 @@ pub struct EntityDocument {
 pub struct ComponentDocument {
   kind : String
   data : Json
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
+pub struct NameComponent {
+  value : String
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
@@ -71,7 +107,9 @@ pub struct TextureAtlasLayoutDoc {
 
 ///|
 pub struct TextureAtlasComponent {
-  layout : TextureAtlasLayoutDoc
+  atlas_asset_path : String?
+  region_name : String?
+  layout : TextureAtlasLayoutDoc?
   index : Int
 } derive(Show, Eq, ToJson, FromJson)
 
@@ -121,6 +159,11 @@ pub struct PhysicsBody2dComponent {
   body_type : String
   linear_velocity : Vec2Doc
   angular_velocity : Double
+  gravity_scale : Double
+  linear_damping : Double
+  angular_damping : Double
+  lock_rotation : Bool
+  ccd_enabled : Bool
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
@@ -129,16 +172,60 @@ pub struct PhysicsCollider2dComponent {
   size : Vec2Doc?
   radius : Double?
   sensor : Bool
+  friction : Double
+  restitution : Double
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
-pub struct TiledMapRefComponent {
-  path : String
+pub struct AnimationPlayerComponent {
+  animation_asset_path : String?
+  default_clip : String?
+  autoplay : Bool
+  repeat_mode : String
+  speed : Double
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
-pub struct LdtkWorldRefComponent {
-  path : String
+pub struct AnimationTransitionsComponent {
+  duration : Double
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
+pub struct AtlasRegionDocument {
+  name : String
+  index : Int
+  rect : RectDoc
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
+pub struct AtlasAssetDocument {
+  version : Int
+  name : String
+  source_image : String
+  tile_size : Vec2Doc
+  columns : Int
+  rows : Int
+  spacing : Vec2Doc
+  margin : Vec2Doc
+  default_anchor : Vec2Doc
+  regions : Array[AtlasRegionDocument]
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
+pub struct AnimationClipDocument {
+  name : String
+  fps : Double
+  looping : Bool
+  frames : Array[String]
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
+pub struct AnimationAssetDocument {
+  version : Int
+  name : String
+  atlas_asset_path : String
+  clips : Array[AnimationClipDocument]
+  default_clip : String?
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
@@ -147,9 +234,11 @@ pub enum AssetKind {
   Image
   Audio
   Font
-  TiledMap
-  LdtkWorld
+  Atlas
+  Animation
   Scene
+  Prefab
+  Project
   Meta
   Json
   Unknown
@@ -187,6 +276,21 @@ pub fn rect_doc(
 ///|
 pub fn color_doc(r : Int, g : Int, b : Int, a? : Int = 255) -> ColorDoc {
   { r, g, b, a }
+}
+
+///|
+pub fn asset_ref(path : String) -> AssetRef {
+  { path, }
+}
+
+///|
+pub fn scene_ref(path : String) -> SceneRef {
+  { path, }
+}
+
+///|
+pub fn prefab_ref(path : String) -> PrefabRef {
+  { path, }
 }
 
 ///|
@@ -301,8 +405,28 @@ pub fn project_manifest_file_name(_name : String) -> String {
 }
 
 ///|
-pub fn startup_scene_path_for_name(_name : String) -> String {
-  "scenes/main.scene.json"
+pub fn startup_scene_path_for_name(name : String) -> String {
+  "scenes/" + normalized_document_stem(name) + ".scene.json"
+}
+
+///|
+pub fn scene_file_name(name : String) -> String {
+  normalized_document_stem(name) + ".scene.json"
+}
+
+///|
+pub fn prefab_file_name(name : String) -> String {
+  normalized_document_stem(name) + ".prefab.json"
+}
+
+///|
+pub fn atlas_asset_file_name(name : String) -> String {
+  normalized_document_stem(name) + ".atlas.json"
+}
+
+///|
+pub fn animation_asset_file_name(name : String) -> String {
+  normalized_document_stem(name) + ".anim.json"
 }
 
 ///|
@@ -313,12 +437,22 @@ pub fn infer_asset_kind(path : String) -> AssetKind {
   if path.has_suffix(".scene.json") {
     return Scene
   }
+  if path.has_suffix(".prefab.json") {
+    return Prefab
+  }
+  if path.has_suffix(".atlas.json") {
+    return Atlas
+  }
+  if path.has_suffix(".anim.json") {
+    return Animation
+  }
+  if path.has_suffix("selene.project.json") {
+    return Project
+  }
   match asset_kind_extension(path) {
     Some("png") | Some("jpg") | Some("jpeg") | Some("webp") => Image
     Some("wav") | Some("ogg") | Some("mp3") => Audio
     Some("ttf") | Some("otf") => Font
-    Some("tmx") | Some("tsx") => TiledMap
-    Some("ldtk") => LdtkWorld
     Some("json") => Json
     _ => Unknown
   }
@@ -328,29 +462,106 @@ pub fn infer_asset_kind(path : String) -> AssetKind {
 pub fn ProjectManifest::default(
   name : String,
   startup_scene? : String = startup_scene_path_for_name(name),
-  asset_roots? : Array[String] = ["assets"],
+  asset_roots? : Array[String] = ["assets/images", "assets/audio", "assets/fonts", "assets/atlases", "assets/animations"],
+  editor_min_version? : String? = None,
 ) -> ProjectManifest {
-  { version: project_schema_version, name, startup_scene, asset_roots }
+  { version: project_schema_version, name, startup_scene, asset_roots, editor_min_version }
 }
 
 ///|
-pub fn SceneDocument::empty() -> SceneDocument {
-  { version: scene_schema_version, entities: [] }
+pub fn ProjectManifest::with_startup_scene(
+  self : ProjectManifest,
+  startup_scene : String,
+) -> ProjectManifest {
+  {
+    version: self.version,
+    name: self.name,
+    startup_scene,
+    asset_roots: self.asset_roots,
+    editor_min_version: self.editor_min_version,
+  }
+}
+
+///|
+pub fn SceneDocument::empty(name? : String = "Main") -> SceneDocument {
+  { version: scene_schema_version, name, entities: [] }
+}
+
+///|
+pub fn PrefabDocument::empty(name : String) -> PrefabDocument {
+  { version: prefab_schema_version, name, entities: [] }
+}
+
+///|
+pub fn WorkspaceDocument::default() -> WorkspaceDocument {
+  { version: workspace_schema_version, last_scene: None, selected_entity_id: None }
+}
+
+///|
+pub fn WorkspaceDocument::with_last_scene(
+  self : WorkspaceDocument,
+  path : String?,
+) -> WorkspaceDocument {
+  { ..self, last_scene: path }
+}
+
+///|
+pub fn WorkspaceDocument::with_selected_entity_id(
+  self : WorkspaceDocument,
+  id : String?,
+) -> WorkspaceDocument {
+  { ..self, selected_entity_id: id }
+}
+
+///|
+pub fn AtlasAssetDocument::default(name : String, source_image : String) -> AtlasAssetDocument {
+  {
+    version: atlas_asset_schema_version,
+    name,
+    source_image,
+    tile_size: vec2_doc(32.0, 32.0),
+    columns: 1,
+    rows: 1,
+    spacing: vec2_doc(0.0, 0.0),
+    margin: vec2_doc(0.0, 0.0),
+    default_anchor: vec2_doc(0.5, 0.5),
+    regions: [
+      {
+        name: "frame_0",
+        index: 0,
+        rect: rect_doc(0.0, 0.0, 32.0, 32.0),
+      },
+    ],
+  }
+}
+
+///|
+pub fn AnimationAssetDocument::default(
+  name : String,
+  atlas_asset_path : String,
+) -> AnimationAssetDocument {
+  {
+    version: animation_asset_schema_version,
+    name,
+    atlas_asset_path,
+    clips: [{ name: "default", fps: 8.0, looping: true, frames: ["frame_0"] }],
+    default_clip: Some("default"),
+  }
 }
 
 ///|
 pub fn SceneDocument::default_main() -> SceneDocument {
-  let camera = EntityDocument::{
-    id: "camera",
-    name: "Camera2d",
-    parent: None,
-    components: [
+  let camera = entity_document(
+    "camera",
+    "Camera2d",
+    components=[
+      name_component("Camera2d"),
       transform2d_component(translation=Vec2Doc::{ x: 0.0, y: 0.0 }),
       camera2d_component(),
       visibility_component(),
     ],
-  }
-  { version: scene_schema_version, entities: [camera] }
+  )
+  { version: scene_schema_version, name: "Main", entities: [camera] }
 }
 
 ///|
@@ -434,10 +645,33 @@ pub fn SceneDocument::entity(
 }
 
 ///|
+pub fn PrefabDocument::entity(
+  self : PrefabDocument,
+  id : String,
+) -> EntityDocument? {
+  for entity in self.entities {
+    if entity.id == id {
+      return Some(entity)
+    }
+  }
+  None
+}
+
+///|
 pub fn SceneDocument::with_entity(
   self : SceneDocument,
   entity : EntityDocument,
 ) -> SceneDocument {
+  let entities = self.entities.filter(fn(existing) { existing.id != entity.id })
+  entities.push(entity)
+  { ..self, entities, }
+}
+
+///|
+pub fn PrefabDocument::with_entity(
+  self : PrefabDocument,
+  entity : EntityDocument,
+) -> PrefabDocument {
   let entities = self.entities.filter(fn(existing) { existing.id != entity.id })
   entities.push(entity)
   { ..self, entities, }
@@ -455,8 +689,24 @@ pub fn SceneDocument::without_entity(
 }
 
 ///|
+pub fn PrefabDocument::without_entity(
+  self : PrefabDocument,
+  id : String,
+) -> PrefabDocument {
+  let entities = self.entities.filter(fn(entity) {
+    entity.id != id && entity.parent != Some(id)
+  })
+  { ..self, entities, }
+}
+
+///|
 pub fn default_color() -> ColorDoc {
   { r: 255, g: 255, b: 255, a: 255 }
+}
+
+///|
+pub fn name_component(value : String) -> ComponentDocument {
+  { kind: "Name", data: NameComponent::{ value }.to_json() }
 }
 
 ///|
@@ -473,7 +723,7 @@ pub fn transform2d_component(
 
 ///|
 pub fn visibility_component(visible? : Bool = true) -> ComponentDocument {
-  { kind: "Visibility", data: VisibilityComponent::{ visible, }.to_json() }
+  { kind: "Visibility", data: VisibilityComponent::{ visible }.to_json() }
 }
 
 ///|
@@ -504,12 +754,14 @@ pub fn sprite_component(
 
 ///|
 pub fn texture_atlas_component(
-  layout : TextureAtlasLayoutDoc,
+  atlas_asset_path? : String? = None,
+  region_name? : String? = None,
+  layout? : TextureAtlasLayoutDoc? = None,
   index? : Int = 0,
 ) -> ComponentDocument {
   {
     kind: "TextureAtlas",
-    data: TextureAtlasComponent::{ layout, index }.to_json(),
+    data: TextureAtlasComponent::{ atlas_asset_path, region_name, layout, index }.to_json(),
   }
 }
 
@@ -551,7 +803,7 @@ pub fn mesh2d_component(
 pub fn color_material_component(
   color? : ColorDoc = default_color(),
 ) -> ComponentDocument {
-  { kind: "ColorMaterial", data: ColorMaterialComponent::{ color, }.to_json() }
+  { kind: "ColorMaterial", data: ColorMaterialComponent::{ color }.to_json() }
 }
 
 ///|
@@ -571,6 +823,11 @@ pub fn physics_body2d_component(
   body_type? : String = "dynamic",
   linear_velocity? : Vec2Doc = { x: 0.0, y: 0.0 },
   angular_velocity? : Double = 0.0,
+  gravity_scale? : Double = 1.0,
+  linear_damping? : Double = 0.0,
+  angular_damping? : Double = 0.0,
+  lock_rotation? : Bool = false,
+  ccd_enabled? : Bool = false,
 ) -> ComponentDocument {
   {
     kind: "PhysicsBody2d",
@@ -578,6 +835,11 @@ pub fn physics_body2d_component(
       body_type,
       linear_velocity,
       angular_velocity,
+      gravity_scale,
+      linear_damping,
+      angular_damping,
+      lock_rotation,
+      ccd_enabled,
     }.to_json(),
   }
 }
@@ -588,21 +850,59 @@ pub fn physics_collider2d_component(
   size? : Vec2Doc? = None,
   radius? : Double? = None,
   sensor? : Bool = false,
+  friction? : Double = 0.7,
+  restitution? : Double = 0.0,
 ) -> ComponentDocument {
   {
     kind: "PhysicsCollider2d",
-    data: PhysicsCollider2dComponent::{ shape, size, radius, sensor }.to_json(),
+    data: PhysicsCollider2dComponent::{
+      shape,
+      size,
+      radius,
+      sensor,
+      friction,
+      restitution,
+    }.to_json(),
   }
 }
 
 ///|
-pub fn tiled_map_ref_component(path : String) -> ComponentDocument {
-  { kind: "TiledMapRef", data: TiledMapRefComponent::{ path, }.to_json() }
+pub fn animation_player_component(
+  animation_asset_path? : String? = None,
+  default_clip? : String? = None,
+  autoplay? : Bool = false,
+  repeat_mode? : String = "forever",
+  speed? : Double = 1.0,
+) -> ComponentDocument {
+  {
+    kind: "AnimationPlayer",
+    data: AnimationPlayerComponent::{
+      animation_asset_path,
+      default_clip,
+      autoplay,
+      repeat_mode,
+      speed,
+    }.to_json(),
+  }
 }
 
 ///|
-pub fn ldtk_world_ref_component(path : String) -> ComponentDocument {
-  { kind: "LdtkWorldRef", data: LdtkWorldRefComponent::{ path, }.to_json() }
+pub fn animation_transitions_component(
+  duration? : Double = 0.1,
+) -> ComponentDocument {
+  {
+    kind: "AnimationTransitions",
+    data: AnimationTransitionsComponent::{ duration }.to_json(),
+  }
+}
+
+///|
+pub fn atlas_region_document(
+  name : String,
+  index : Int,
+  rect : RectDoc,
+) -> AtlasRegionDocument {
+  { name, index, rect }
 }
 
 ///|

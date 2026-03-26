@@ -169,6 +169,11 @@ async fn EditorService::open_project(
     err => raise err
   }
   let snapshot = snapshot_project_files(root, manifest)
+  let scenes = list_scene_documents(root)
+  let prefabs = list_prefab_documents(root)
+  let atlases = list_atlas_asset_documents(root)
+  let animations = list_animation_asset_documents(root)
+  let workspace = load_workspace_document(root)
   self.current_project = Some({ root, manifest, snapshot })
   self.add_recent_project(root)
   self.broadcast(
@@ -180,6 +185,11 @@ async fn EditorService::open_project(
   {
     "root": root.to_json(),
     "manifest": manifest.to_json(),
+    "scenes": scenes.to_json(),
+    "prefabs": prefabs.to_json(),
+    "atlases": atlases.to_json(),
+    "animations": animations.to_json(),
+    "workspace": workspace.to_json(),
     "recent_projects": self.recent_projects.to_json(),
   }
 }
@@ -233,18 +243,38 @@ pub async fn EditorService::handle_rpc(
     match method_name {
       "project.current" =>
         match self.current_project {
-          Some(project) =>
+          Some(project) => {
+            let scenes = list_scene_documents(project.root)
+            let prefabs = list_prefab_documents(project.root)
+            let atlases = list_atlas_asset_documents(project.root)
+            let animations = list_animation_asset_documents(project.root)
+            let workspace = load_workspace_document(project.root)
             @shared.rpc_success(id, {
               "root": project.root.to_json(),
               "manifest": project.manifest.to_json(),
+              "scenes": scenes.to_json(),
+              "prefabs": prefabs.to_json(),
+              "atlases": atlases.to_json(),
+              "animations": animations.to_json(),
+              "workspace": workspace.to_json(),
               "recent_projects": self.recent_projects.to_json(),
             })
-          None =>
+          }
+          None => {
+            let empty_scenes : Array[@editor_bridge.SceneRef] = []
+            let empty_prefabs : Array[@editor_bridge.PrefabRef] = []
+            let empty_assets : Array[@editor_bridge.AssetRef] = []
             @shared.rpc_success(id, {
               "root": Json::null(),
               "manifest": Json::null(),
+              "scenes": empty_scenes.to_json(),
+              "prefabs": empty_prefabs.to_json(),
+              "atlases": empty_assets.to_json(),
+              "animations": empty_assets.to_json(),
+              "workspace": Json::null(),
               "recent_projects": self.recent_projects.to_json(),
             })
+          }
       }
       "project.open" => {
         let params : Map[String, Json] = @json.from_json(request.params)
@@ -298,6 +328,31 @@ pub async fn EditorService::handle_rpc(
           "scene": scene.to_json(),
         })
       }
+      "scene.list" => {
+        let root = self.current_project_root()
+        @shared.rpc_success(id, {
+          "scenes": list_scene_documents(root).to_json(),
+          "startup_scene": self.current_manifest().startup_scene.to_json(),
+        })
+      }
+      "scene.create" => {
+        let params : Map[String, Json] = @json.from_json(request.params)
+        let name : String = @json.from_json(params["name"])
+        let path = "scenes/" + @editor_bridge.scene_file_name(name)
+        let root = self.current_project_root()
+        let scene = @editor_bridge.SceneDocument::empty(name=name)
+        save_scene_document(root, path, scene)
+        self.broadcast(
+          @shared.event_envelope("scene.created", {
+            "path": path.to_json(),
+          }),
+        )
+        @shared.rpc_success(id, {
+          "path": path.to_json(),
+          "scene": scene.to_json(),
+          "scenes": list_scene_documents(root).to_json(),
+        })
+      }
       "scene.save" => {
         let params : Map[String, Json] = @json.from_json(request.params)
         let relative_path : String = @json.from_json(params["path"])
@@ -332,11 +387,143 @@ pub async fn EditorService::handle_rpc(
           "scene": next_scene.to_json(),
         })
       }
+      "scene.delete" => {
+        let params : Map[String, Json] = @json.from_json(request.params)
+        let relative_path : String = @json.from_json(params["path"])
+        let root = self.current_project_root()
+        let path = scene_path(root, relative_path)
+        if @fs.exists(path) {
+          @fs.remove(path)
+        }
+        self.broadcast(
+          @shared.event_envelope("scene.deleted", {
+            "path": relative_path.to_json(),
+          }),
+        )
+        @shared.rpc_success(id, {
+          "ok": true.to_json(),
+          "scenes": list_scene_documents(root).to_json(),
+        })
+      }
+      "project.set_startup_scene" => {
+        let params : Map[String, Json] = @json.from_json(request.params)
+        let startup_scene : String = @json.from_json(params["path"])
+        let root = self.current_project_root()
+        let manifest = self.current_manifest()
+        let next_manifest = manifest.with_startup_scene(startup_scene)
+        save_project_manifest(root, next_manifest)
+        if self.current_project is Some(project) {
+          project.manifest = next_manifest
+        }
+        @shared.rpc_success(id, { "manifest": next_manifest.to_json() })
+      }
       "assets.list" => {
         let root = self.current_project_root()
         let manifest = self.current_manifest()
         let assets = collect_assets(root, manifest)
         @shared.rpc_success(id, { "assets": assets.to_json() })
+      }
+      "prefab.list" => {
+        let root = self.current_project_root()
+        @shared.rpc_success(id, {
+          "prefabs": list_prefab_documents(root).to_json(),
+        })
+      }
+      "prefab.load" => {
+        let params : Map[String, Json] = @json.from_json(request.params)
+        let relative_path : String = @json.from_json(params["path"])
+        let root = self.current_project_root()
+        let prefab = load_prefab_document(root, relative_path)
+        @shared.rpc_success(id, {
+          "path": relative_path.to_json(),
+          "prefab": prefab.to_json(),
+        })
+      }
+      "prefab.save" => {
+        let params : Map[String, Json] = @json.from_json(request.params)
+        let relative_path : String = @json.from_json(params["path"])
+        let prefab : @editor_bridge.PrefabDocument = @json.from_json(
+          params["prefab"],
+        )
+        let root = self.current_project_root()
+        save_prefab_document(root, relative_path, prefab)
+        @shared.rpc_success(id, {
+          "path": relative_path.to_json(),
+          "prefab": prefab.to_json(),
+        })
+      }
+      "atlas.list" => {
+        let root = self.current_project_root()
+        @shared.rpc_success(id, {
+          "atlases": list_atlas_asset_documents(root).to_json(),
+        })
+      }
+      "atlas.load" => {
+        let params : Map[String, Json] = @json.from_json(request.params)
+        let relative_path : String = @json.from_json(params["path"])
+        let root = self.current_project_root()
+        let atlas = load_atlas_asset_document(root, relative_path)
+        @shared.rpc_success(id, {
+          "path": relative_path.to_json(),
+          "atlas": atlas.to_json(),
+        })
+      }
+      "atlas.save" => {
+        let params : Map[String, Json] = @json.from_json(request.params)
+        let relative_path : String = @json.from_json(params["path"])
+        let atlas : @editor_bridge.AtlasAssetDocument = @json.from_json(
+          params["atlas"],
+        )
+        let root = self.current_project_root()
+        save_atlas_asset_document(root, relative_path, atlas)
+        @shared.rpc_success(id, {
+          "path": relative_path.to_json(),
+          "atlas": atlas.to_json(),
+        })
+      }
+      "animation.list" => {
+        let root = self.current_project_root()
+        @shared.rpc_success(id, {
+          "animations": list_animation_asset_documents(root).to_json(),
+        })
+      }
+      "animation.load" => {
+        let params : Map[String, Json] = @json.from_json(request.params)
+        let relative_path : String = @json.from_json(params["path"])
+        let root = self.current_project_root()
+        let animation = load_animation_asset_document(root, relative_path)
+        @shared.rpc_success(id, {
+          "path": relative_path.to_json(),
+          "animation": animation.to_json(),
+        })
+      }
+      "animation.save" => {
+        let params : Map[String, Json] = @json.from_json(request.params)
+        let relative_path : String = @json.from_json(params["path"])
+        let animation : @editor_bridge.AnimationAssetDocument = @json.from_json(
+          params["animation"],
+        )
+        let root = self.current_project_root()
+        save_animation_asset_document(root, relative_path, animation)
+        @shared.rpc_success(id, {
+          "path": relative_path.to_json(),
+          "animation": animation.to_json(),
+        })
+      }
+      "workspace.load" => {
+        let root = self.current_project_root()
+        @shared.rpc_success(id, {
+          "workspace": load_workspace_document(root).to_json(),
+        })
+      }
+      "workspace.save" => {
+        let params : Map[String, Json] = @json.from_json(request.params)
+        let workspace : @editor_bridge.WorkspaceDocument = @json.from_json(
+          params["workspace"],
+        )
+        let root = self.current_project_root()
+        save_workspace_document(root, workspace)
+        @shared.rpc_success(id, { "workspace": workspace.to_json() })
       }
       "assets.import" => {
         let params : Map[String, Json] = @json.from_json(request.params)

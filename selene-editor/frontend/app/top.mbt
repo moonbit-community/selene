@@ -2,6 +2,11 @@
 pub struct ProjectStateResponse {
   root : String?
   manifest : @editor_bridge.ProjectManifest?
+  scenes : Array[@editor_bridge.SceneRef]?
+  prefabs : Array[@editor_bridge.PrefabRef]?
+  atlases : Array[@editor_bridge.AssetRef]?
+  animations : Array[@editor_bridge.AssetRef]?
+  workspace : @editor_bridge.WorkspaceDocument?
   recent_projects : Array[String]
 } derive(FromJson, Show, Eq)
 
@@ -17,16 +22,76 @@ pub struct AssetsListResponse {
 } derive(FromJson, Show, Eq)
 
 ///|
+pub struct PrefabLoadResponse {
+  path : String
+  prefab : @editor_bridge.PrefabDocument
+} derive(FromJson, Show, Eq)
+
+///|
+pub struct AtlasLoadResponse {
+  path : String
+  atlas : @editor_bridge.AtlasAssetDocument
+} derive(FromJson, Show, Eq)
+
+///|
+pub struct AnimationLoadResponse {
+  path : String
+  animation : @editor_bridge.AnimationAssetDocument
+} derive(FromJson, Show, Eq)
+
+///|
+pub struct SceneListResponse {
+  scenes : Array[@editor_bridge.SceneRef]
+  startup_scene : String
+} derive(FromJson, Show, Eq)
+
+///|
+pub enum ResourceSelection {
+  Image(String)
+  Atlas(String)
+  Animation(String)
+  Prefab(String)
+} derive(Show, Eq)
+
+///|
+pub fn resource_selection_image(path : String) -> ResourceSelection {
+  Image(path)
+}
+
+///|
+pub fn resource_selection_atlas(path : String) -> ResourceSelection {
+  Atlas(path)
+}
+
+///|
+pub fn resource_selection_animation(path : String) -> ResourceSelection {
+  Animation(path)
+}
+
+///|
+pub fn resource_selection_prefab(path : String) -> ResourceSelection {
+  Prefab(path)
+}
+
+///|
 pub struct Model {
   project_root_input : String
   project_name_input : String
   current_root : String?
   manifest : @editor_bridge.ProjectManifest?
+  scene_refs : Array[@editor_bridge.SceneRef]
+  prefab_refs : Array[@editor_bridge.PrefabRef]
+  atlas_refs : Array[@editor_bridge.AssetRef]
+  animation_refs : Array[@editor_bridge.AssetRef]
   scene_path : String
   scene : @editor_bridge.SceneDocument?
   assets : Array[@editor_bridge.AssetDocument]
   asset_sizes : Map[String, @editor_bridge.Vec2Doc]
-  selected_asset_path : String?
+  prefab_documents : Map[String, @editor_bridge.PrefabDocument]
+  atlas_documents : Map[String, @editor_bridge.AtlasAssetDocument]
+  animation_documents : Map[String, @editor_bridge.AnimationAssetDocument]
+  workspace : @editor_bridge.WorkspaceDocument
+  selected_resource : ResourceSelection?
   selected_entity_id : String?
   recent_projects : Array[String]
   logs : Array[String]
@@ -45,13 +110,21 @@ pub enum Msg {
   ProjectRootPicked(Result[@shared.DirectoryPickResult, String])
   ProjectLoaded(Result[ProjectStateResponse, String])
   SceneLoaded(Result[SceneLoadResponse, String])
+  SceneListLoaded(Result[SceneListResponse, String])
   AssetsLoaded(Result[AssetsListResponse, String])
+  PrefabLoaded(Result[PrefabLoadResponse, String])
+  AtlasLoaded(Result[AtlasLoadResponse, String])
+  AnimationLoaded(Result[AnimationLoadResponse, String])
   AssetSizeResolved(String, Double, Double)
   SceneSaved(Result[Json, String])
   ServiceEvent(Result[@shared.EventEnvelope, String])
   PreviewEvent(@bridge.PreviewEvent)
-  SelectAsset(String?)
+  OpenScene(String)
+  SelectResource(ResourceSelection?)
   SelectEntity(String?)
+  CreateScene(String)
+  DeleteCurrentScene
+  SetCurrentSceneAsStartup
   RenameSelected(String)
   UpdateSelectedTranslateX(String)
   UpdateSelectedTranslateY(String)
@@ -74,7 +147,11 @@ pub enum RpcTarget {
   ProjectLoaded
   ProjectRootPicked
   SceneLoaded
+  SceneListLoaded
   AssetsLoaded
+  PrefabLoaded
+  AtlasLoaded
+  AnimationLoaded
   SceneSaved
 } derive(Show, Eq)
 
@@ -94,11 +171,19 @@ pub fn new_model() -> Model {
     current_root: None,
     manifest: None,
     recent_projects: [],
+    scene_refs: [],
+    prefab_refs: [],
+    atlas_refs: [],
+    animation_refs: [],
     scene_path: @editor_bridge.startup_scene_path_for_name("main"),
     scene: None,
     assets: [],
     asset_sizes: {},
-    selected_asset_path: None,
+    prefab_documents: {},
+    atlas_documents: {},
+    animation_documents: {},
+    workspace: @editor_bridge.WorkspaceDocument::default(),
+    selected_resource: None,
     selected_entity_id: None,
     status: "Choose a project folder to begin",
     logs: [],
@@ -154,8 +239,30 @@ pub fn msg_scene_loaded(result : Result[SceneLoadResponse, String]) -> Msg {
 }
 
 ///|
+pub fn msg_scene_list_loaded(result : Result[SceneListResponse, String]) -> Msg {
+  SceneListLoaded(result)
+}
+
+///|
 pub fn msg_assets_loaded(result : Result[AssetsListResponse, String]) -> Msg {
   AssetsLoaded(result)
+}
+
+///|
+pub fn msg_prefab_loaded(result : Result[PrefabLoadResponse, String]) -> Msg {
+  PrefabLoaded(result)
+}
+
+///|
+pub fn msg_atlas_loaded(result : Result[AtlasLoadResponse, String]) -> Msg {
+  AtlasLoaded(result)
+}
+
+///|
+pub fn msg_animation_loaded(
+  result : Result[AnimationLoadResponse, String],
+) -> Msg {
+  AnimationLoaded(result)
 }
 
 ///|
@@ -183,13 +290,33 @@ pub fn msg_preview_event(event : @bridge.PreviewEvent) -> Msg {
 }
 
 ///|
-pub fn msg_select_asset(path : String?) -> Msg {
-  SelectAsset(path)
+pub fn msg_open_scene(path : String) -> Msg {
+  OpenScene(path)
+}
+
+///|
+pub fn msg_select_resource(resource : ResourceSelection?) -> Msg {
+  SelectResource(resource)
 }
 
 ///|
 pub fn msg_select_entity(id : String?) -> Msg {
   SelectEntity(id)
+}
+
+///|
+pub fn msg_create_scene(name : String) -> Msg {
+  CreateScene(name)
+}
+
+///|
+pub fn msg_delete_current_scene() -> Msg {
+  DeleteCurrentScene
+}
+
+///|
+pub fn msg_set_current_scene_as_startup() -> Msg {
+  SetCurrentSceneAsStartup
 }
 
 ///|
@@ -330,28 +457,77 @@ fn sync_preview_effects(model : Model) -> Array[Effect] {
     Preview(@bridge.preview_command_select_entity(model.selected_entity_id)),
   ]
   match model.scene {
-    Some(scene) =>
-      effects.push(Preview(@bridge.preview_command_load_scene(scene)))
+    Some(scene) => {
+      let atlases : Array[@bridge.AtlasAssetEntry] = []
+      let animations : Array[@bridge.AnimationAssetEntry] = []
+      for path, atlas in model.atlas_documents {
+        atlases.push(@bridge.atlas_asset_entry(path, atlas))
+      }
+      for path, animation in model.animation_documents {
+        animations.push(@bridge.animation_asset_entry(path, animation))
+      }
+      effects.push(
+        Preview(
+          @bridge.preview_command_load_scene(
+            @bridge.preview_scene_payload(scene, atlases, animations),
+          ),
+        ),
+      )
+    }
     None => effects.push(Preview(@bridge.preview_command_clear_scene()))
   }
   effects
 }
 
 ///|
-fn refresh_project_effects(
-  manifest : @editor_bridge.ProjectManifest?,
-  scene_path : String,
-) -> Array[Effect] {
-  match manifest {
-    Some(_) =>
-      [
+fn load_supporting_resource_effects(model : Model) -> Array[Effect] {
+  let effects : Array[Effect] = []
+  for prefab_ref in model.prefab_refs {
+    effects.push(
+      rpc_effect(
+        PrefabLoaded,
+        "prefab.load",
+        { "path": prefab_ref.path.to_json() }.to_json(),
+      ),
+    )
+  }
+  for atlas_ref in model.atlas_refs {
+    effects.push(
+      rpc_effect(
+        AtlasLoaded,
+        "atlas.load",
+        { "path": atlas_ref.path.to_json() }.to_json(),
+      ),
+    )
+  }
+  for animation_ref in model.animation_refs {
+    effects.push(
+      rpc_effect(
+        AnimationLoaded,
+        "animation.load",
+        { "path": animation_ref.path.to_json() }.to_json(),
+      ),
+    )
+  }
+  effects
+}
+
+///|
+fn refresh_project_effects(model : Model) -> Array[Effect] {
+  match model.manifest {
+    Some(_) => {
+      let effects : Array[Effect] = [
         rpc_effect(
           SceneLoaded,
           "scene.load",
-          { "path": scene_path.to_json() }.to_json(),
+          { "path": model.scene_path.to_json() }.to_json(),
         ),
+        rpc_effect(SceneListLoaded, "scene.list", Json::null()),
         rpc_effect(AssetsLoaded, "assets.list", Json::null()),
       ]
+      effects.push_iter(load_supporting_resource_effects(model).iter())
+      effects
+    }
     None => []
   }
 }
@@ -398,16 +574,88 @@ fn text_or_fallback(json : Json, fallback : String) -> String {
 }
 
 ///|
-fn asset_path_exists(
-  assets : Array[@editor_bridge.AssetDocument],
+fn scene_path_exists(
+  scene_refs : Array[@editor_bridge.SceneRef],
   path : String,
 ) -> Bool {
-  for asset in assets {
-    if asset.path == path {
+  for scene_ref in scene_refs {
+    if scene_ref.path == path {
       return true
     }
   }
   false
+}
+
+///|
+fn resource_exists(model : Model, selection : ResourceSelection) -> Bool {
+  match selection {
+    Image(path) => {
+      for asset in model.assets {
+        if asset.kind is @editor_bridge.Image && asset.path == path {
+          return true
+        }
+      }
+      false
+    }
+    Atlas(path) => {
+      for asset_ref in model.atlas_refs {
+        if asset_ref.path == path {
+          return true
+        }
+      }
+      false
+    }
+    Animation(path) => {
+      for asset_ref in model.animation_refs {
+        if asset_ref.path == path {
+          return true
+        }
+      }
+      false
+    }
+    Prefab(path) => {
+      for prefab_ref in model.prefab_refs {
+        if prefab_ref.path == path {
+          return true
+        }
+      }
+      false
+    }
+  }
+}
+
+///|
+fn fallback_scene_path(model : Model) -> String {
+  match model.manifest {
+    Some(manifest) => manifest.startup_scene
+    None => @editor_bridge.startup_scene_path_for_name("main")
+  }
+}
+
+///|
+fn preferred_scene_path(
+  manifest : @editor_bridge.ProjectManifest?,
+  scene_refs : Array[@editor_bridge.SceneRef],
+  workspace : @editor_bridge.WorkspaceDocument,
+  current : String,
+) -> String {
+  if workspace.last_scene is Some(path) && scene_path_exists(scene_refs, path) {
+    return path
+  }
+  if scene_path_exists(scene_refs, current) {
+    return current
+  }
+  match manifest {
+    Some(value) if scene_path_exists(scene_refs, value.startup_scene) =>
+      value.startup_scene
+    Some(value) => value.startup_scene
+    None =>
+      if scene_refs.is_empty() {
+        current
+      } else {
+        scene_refs[0].path
+      }
+  }
 }
 
 ///|
@@ -453,11 +701,81 @@ pub fn Model::image_assets(self : Model) -> Array[@editor_bridge.AssetDocument] 
 }
 
 ///|
+pub fn Model::selected_image_asset(
+  self : Model,
+) -> @editor_bridge.AssetDocument? {
+  match self.selected_resource {
+    Some(Image(path)) => {
+      for asset in self.assets {
+        if asset.kind is @editor_bridge.Image && asset.path == path {
+          return Some(asset)
+        }
+      }
+      None
+    }
+    _ => None
+  }
+}
+
+///|
+pub fn Model::selected_atlas_document(
+  self : Model,
+) -> (String, @editor_bridge.AtlasAssetDocument)? {
+  match self.selected_resource {
+    Some(Atlas(path)) =>
+      match self.atlas_documents.get(path) {
+        Some(atlas) => Some((path, atlas))
+        None => None
+      }
+    _ => None
+  }
+}
+
+///|
+pub fn Model::selected_animation_document(
+  self : Model,
+) -> (String, @editor_bridge.AnimationAssetDocument)? {
+  match self.selected_resource {
+    Some(Animation(path)) =>
+      match self.animation_documents.get(path) {
+        Some(animation) => Some((path, animation))
+        None => None
+      }
+    _ => None
+  }
+}
+
+///|
+pub fn Model::selected_prefab_document(
+  self : Model,
+) -> (String, @editor_bridge.PrefabDocument)? {
+  match self.selected_resource {
+    Some(Prefab(path)) =>
+      match self.prefab_documents.get(path) {
+        Some(prefab) => Some((path, prefab))
+        None => None
+      }
+    _ => None
+  }
+}
+
+///|
 pub fn Model::asset_size(
   self : Model,
   path : String,
 ) -> @editor_bridge.Vec2Doc? {
   self.asset_sizes.get(path)
+}
+
+///|
+pub fn Model::selected_resource_path(self : Model) -> String? {
+  match self.selected_resource {
+    Some(Image(path)) => Some(path)
+    Some(Atlas(path)) => Some(path)
+    Some(Animation(path)) => Some(path)
+    Some(Prefab(path)) => Some(path)
+    None => None
+  }
 }
 
 ///|
@@ -603,10 +921,19 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     ProjectLoaded(result) =>
       match result {
         Ok(response) => {
-          let scene_path = match response.manifest {
-            Some(manifest) => manifest.startup_scene
-            None => model.scene_path
-          }
+          let scene_refs = response.scenes.unwrap_or([])
+          let prefab_refs = response.prefabs.unwrap_or([])
+          let atlas_refs = response.atlases.unwrap_or([])
+          let animation_refs = response.animations.unwrap_or([])
+          let workspace = response.workspace.unwrap_or(
+            @editor_bridge.WorkspaceDocument::default(),
+          )
+          let scene_path = preferred_scene_path(
+            response.manifest,
+            scene_refs,
+            workspace,
+            model.scene_path,
+          )
           let status = match response.root {
             Some(root) => "Project: " + root
             None => "Choose a project folder to begin"
@@ -618,12 +945,17 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             ..model,
             current_root: response.root,
             manifest: response.manifest,
+            scene_refs,
+            prefab_refs,
+            atlas_refs,
+            animation_refs,
+            workspace,
             recent_projects: response.recent_projects,
             scene_path,
             project_root_input,
             status,
           }
-          (refresh_project_effects(next.manifest, next.scene_path), next)
+          (refresh_project_effects(next), next)
         }
         Err(message) => {
           let next = push_log(model, "Project error: " + message)
@@ -633,14 +965,17 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     SceneLoaded(result) =>
       match result {
         Ok(response) => {
+          let workspace = model.workspace
+          .with_last_scene(Some(response.path))
+          .with_selected_entity_id(
+            selected_after_load(model.selected_entity_id, response.scene),
+          )
           let next = {
             ..model,
             scene_path: response.path,
             scene: Some(response.scene),
-            selected_entity_id: selected_after_load(
-              model.selected_entity_id,
-              response.scene,
-            ),
+            workspace,
+            selected_entity_id: workspace.selected_entity_id,
             status: "Loaded " + response.path,
           }
           (sync_preview_effects(next), next)
@@ -648,6 +983,30 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         Err(message) => {
           let next = push_log(model, "Scene load failed: " + message)
           ([], { ..next, status: "Scene load failed: " + message })
+        }
+      }
+    SceneListLoaded(result) =>
+      match result {
+        Ok(response) => {
+          let manifest = model.manifest.map(fn(value) {
+            value.with_startup_scene(response.startup_scene)
+          })
+          let next_scene_path = if scene_path_exists(response.scenes, model.scene_path) {
+            model.scene_path
+          } else {
+            preferred_scene_path(manifest, response.scenes, model.workspace, model.scene_path)
+          }
+          let next = {
+            ..model,
+            manifest,
+            scene_refs: response.scenes,
+            scene_path: next_scene_path,
+          }
+          ([], next)
+        }
+        Err(message) => {
+          let next = push_log(model, "Scene list failed: " + message)
+          ([], { ..next, status: "Scene list failed: " + message })
         }
       }
     AssetsLoaded(result) =>
@@ -658,9 +1017,9 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             {
               ..model,
               assets: response.assets,
-              selected_asset_path: match model.selected_asset_path {
-                Some(path) if asset_path_exists(response.assets, path) =>
-                  Some(path)
+              selected_resource: match model.selected_resource {
+                Some(selection) if resource_exists({ ..model, assets: response.assets }, selection) =>
+                  Some(selection)
                 _ => None
               },
             },
@@ -668,6 +1027,44 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         Err(message) => {
           let next = push_log(model, "Assets load failed: " + message)
           ([], { ..next, status: "Assets load failed: " + message })
+        }
+      }
+    PrefabLoaded(result) =>
+      match result {
+        Ok(response) => {
+          let prefab_documents = model.prefab_documents
+          prefab_documents.set(response.path, response.prefab)
+          ([], { ..model, prefab_documents })
+        }
+        Err(message) => {
+          let next = push_log(model, "Prefab load failed: " + message)
+          ([], { ..next, status: "Prefab load failed: " + message })
+        }
+      }
+    AtlasLoaded(result) =>
+      match result {
+        Ok(response) => {
+          let atlas_documents = model.atlas_documents
+          atlas_documents.set(response.path, response.atlas)
+          let next = { ..model, atlas_documents }
+          (sync_preview_effects(next), next)
+        }
+        Err(message) => {
+          let next = push_log(model, "Atlas load failed: " + message)
+          ([], { ..next, status: "Atlas load failed: " + message })
+        }
+      }
+    AnimationLoaded(result) =>
+      match result {
+        Ok(response) => {
+          let animation_documents = model.animation_documents
+          animation_documents.set(response.path, response.animation)
+          let next = { ..model, animation_documents }
+          (sync_preview_effects(next), next)
+        }
+        Err(message) => {
+          let next = push_log(model, "Animation load failed: " + message)
+          ([], { ..next, status: "Animation load failed: " + message })
         }
       }
     AssetSizeResolved(path, width, height) =>
@@ -715,7 +1112,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             | "scene.saved"
             | "scene.patched"
             | "asset.imported" =>
-              (refresh_project_effects(model.manifest, model.scene_path), model)
+              (
+                [rpc_effect(ProjectLoaded, "project.current", Json::null())],
+                model,
+              )
             "project.opened" => ([], model)
             _ => ([], model)
           }
@@ -750,11 +1150,97 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             _ => ([], model)
           }
       }
-    SelectAsset(path) => ([], { ..model, selected_asset_path: path })
+    OpenScene(path) =>
+      (
+        [
+          rpc_effect(
+            SceneLoaded,
+            "scene.load",
+            { "path": path.to_json() }.to_json(),
+          ),
+        ],
+        { ..model, scene_path: path, status: "Loading " + path + "..." },
+      )
+    SelectResource(resource) =>
+      (
+        [],
+        {
+          ..model,
+          selected_resource: resource,
+          selected_entity_id: None,
+        },
+      )
     SelectEntity(id) => {
-      let next = { ..model, selected_entity_id: id }
+      let next = {
+        ..model,
+        selected_entity_id: id,
+        selected_resource: if id is Some(_) {
+          None
+        } else {
+          model.selected_resource
+        },
+      }
       (sync_preview_effects(next), next)
     }
+    CreateScene(name) => {
+      let trimmed = name.trim().to_string()
+      if trimmed == "" {
+        let next = push_log(model, "Scene name is required")
+        ([], { ..next, status: "Scene name is required" })
+      } else {
+        (
+          [
+            rpc_effect(
+              SceneLoaded,
+              "scene.create",
+              { "name": trimmed.to_json() }.to_json(),
+            ),
+            rpc_effect(SceneListLoaded, "scene.list", Json::null()),
+          ],
+          { ..model, status: "Creating scene..." },
+        )
+      }
+    }
+    DeleteCurrentScene =>
+      if model.scene_refs.length() <= 1 {
+        let next = push_log(model, "Cannot delete the last scene")
+        ([], { ..next, status: "Cannot delete the last scene" })
+      } else {
+        let fallback = fallback_scene_path(model)
+        let next_scene_path = if model.scene_path == fallback && model.scene_refs.length() > 1 {
+          model.scene_refs[1].path
+        } else {
+          fallback
+        }
+        (
+          [
+            rpc_effect(
+              SceneSaved,
+              "scene.delete",
+              { "path": model.scene_path.to_json() }.to_json(),
+            ),
+            rpc_effect(SceneListLoaded, "scene.list", Json::null()),
+            rpc_effect(
+              SceneLoaded,
+              "scene.load",
+              { "path": next_scene_path.to_json() }.to_json(),
+            ),
+          ],
+          { ..model, scene_path: next_scene_path, status: "Deleting scene..." },
+        )
+      }
+    SetCurrentSceneAsStartup =>
+      (
+        [
+          rpc_effect(
+            SceneSaved,
+            "project.set_startup_scene",
+            { "path": model.scene_path.to_json() }.to_json(),
+          ),
+          rpc_effect(SceneListLoaded, "scene.list", Json::null()),
+        ],
+        { ..model, status: "Updating startup scene..." },
+      )
     RenameSelected(value) => {
       let next = update_selected_entity(model, fn(entity) {
         entity.renamed(value)
@@ -898,7 +1384,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       }
     ReloadScene =>
       (
-        refresh_project_effects(model.manifest, model.scene_path),
+        refresh_project_effects(model),
         { ..model, status: "Reloading..." },
       )
     AddSpriteEntity =>

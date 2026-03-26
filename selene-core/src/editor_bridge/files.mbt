@@ -2,6 +2,10 @@
 pub suberror EditorBridgeFileError {
   InvalidProjectManifest(String)
   InvalidSceneDocument(String)
+  InvalidPrefabDocument(String)
+  InvalidAtlasAssetDocument(String)
+  InvalidAnimationAssetDocument(String)
+  InvalidWorkspaceDocument(String)
 }
 
 ///|
@@ -52,10 +56,23 @@ fn ensure_dir(path : String) -> Unit raise {
 }
 
 ///|
+fn ensure_parent_dir(path : String) -> Unit raise {
+  if parent_dir(path) is Some(parent) {
+    ensure_dir(parent)
+  }
+}
+
+///|
 pub fn ensure_project_layout(root : String) -> Unit raise {
   ensure_dir(root)
   ensure_dir(root + "/scenes")
+  ensure_dir(root + "/prefabs")
   ensure_dir(root + "/assets")
+  ensure_dir(root + "/assets/images")
+  ensure_dir(root + "/assets/audio")
+  ensure_dir(root + "/assets/fonts")
+  ensure_dir(root + "/assets/atlases")
+  ensure_dir(root + "/assets/animations")
   ensure_dir(root + "/.selene-editor")
   ensure_dir(root + "/.selene-editor/cache")
 }
@@ -67,10 +84,8 @@ pub fn project_manifest_candidates(root : String) -> Array[String] raise {
     return candidates
   }
   let path = root + "/" + project_manifest_file_name("")
-  if @fs.path_exists(path) {
-    if @fs.is_file(path) {
-      candidates.push(path)
-    }
+  if @fs.path_exists(path) && @fs.is_file(path) {
+    candidates.push(path)
   }
   candidates
 }
@@ -94,6 +109,7 @@ pub fn write_project_manifest(
   guard errors.is_empty() else {
     raise InvalidProjectManifest(errors.to_json().stringify())
   }
+  ensure_parent_dir(path)
   write_json_file(path, manifest)
 }
 
@@ -113,7 +129,102 @@ pub fn write_scene_document(path : String, scene : SceneDocument) -> Unit raise 
   guard errors.is_empty() else {
     raise InvalidSceneDocument(errors.to_json().stringify())
   }
+  ensure_parent_dir(path)
   write_json_file(path, scene)
+}
+
+///|
+pub fn read_prefab_document(path : String) -> PrefabDocument raise {
+  let prefab : PrefabDocument = read_json_file(path)
+  let errors = validate_prefab_document(prefab)
+  guard errors.is_empty() else {
+    raise InvalidPrefabDocument(errors.to_json().stringify())
+  }
+  prefab
+}
+
+///|
+pub fn write_prefab_document(
+  path : String,
+  prefab : PrefabDocument,
+) -> Unit raise {
+  let errors = validate_prefab_document(prefab)
+  guard errors.is_empty() else {
+    raise InvalidPrefabDocument(errors.to_json().stringify())
+  }
+  ensure_parent_dir(path)
+  write_json_file(path, prefab)
+}
+
+///|
+pub fn read_atlas_asset_document(path : String) -> AtlasAssetDocument raise {
+  let atlas : AtlasAssetDocument = read_json_file(path)
+  let errors = validate_atlas_asset_document(atlas)
+  guard errors.is_empty() else {
+    raise InvalidAtlasAssetDocument(errors.to_json().stringify())
+  }
+  atlas
+}
+
+///|
+pub fn write_atlas_asset_document(
+  path : String,
+  atlas : AtlasAssetDocument,
+) -> Unit raise {
+  let errors = validate_atlas_asset_document(atlas)
+  guard errors.is_empty() else {
+    raise InvalidAtlasAssetDocument(errors.to_json().stringify())
+  }
+  ensure_parent_dir(path)
+  write_json_file(path, atlas)
+}
+
+///|
+pub fn read_animation_asset_document(
+  path : String,
+) -> AnimationAssetDocument raise {
+  let animation : AnimationAssetDocument = read_json_file(path)
+  let errors = validate_animation_asset_document(animation)
+  guard errors.is_empty() else {
+    raise InvalidAnimationAssetDocument(errors.to_json().stringify())
+  }
+  animation
+}
+
+///|
+pub fn write_animation_asset_document(
+  path : String,
+  animation : AnimationAssetDocument,
+) -> Unit raise {
+  let errors = validate_animation_asset_document(animation)
+  guard errors.is_empty() else {
+    raise InvalidAnimationAssetDocument(errors.to_json().stringify())
+  }
+  ensure_parent_dir(path)
+  write_json_file(path, animation)
+}
+
+///|
+pub fn read_workspace_document(path : String) -> WorkspaceDocument raise {
+  let workspace : WorkspaceDocument = read_json_file(path)
+  let errors = validate_workspace_document(workspace)
+  guard errors.is_empty() else {
+    raise InvalidWorkspaceDocument(errors.to_json().stringify())
+  }
+  workspace
+}
+
+///|
+pub fn write_workspace_document(
+  path : String,
+  workspace : WorkspaceDocument,
+) -> Unit raise {
+  let errors = validate_workspace_document(workspace)
+  guard errors.is_empty() else {
+    raise InvalidWorkspaceDocument(errors.to_json().stringify())
+  }
+  ensure_parent_dir(path)
+  write_json_file(path, workspace)
 }
 
 ///|
@@ -147,6 +258,58 @@ fn list_files_recursive(root : String) -> Array[String] raise {
   }
   visit(root, "")
   files
+}
+
+///|
+pub fn list_scene_documents(root : String) -> Array[SceneRef] raise {
+  let refs : Array[SceneRef] = []
+  let scenes_root = root + "/scenes"
+  for relative in list_files_recursive(scenes_root) {
+    if infer_asset_kind(relative) == Scene {
+      refs.push(scene_ref("scenes/" + relative))
+    }
+  }
+  refs.sort_by(fn(left, right) { left.path.compare(right.path) })
+  refs
+}
+
+///|
+pub fn list_prefab_documents(root : String) -> Array[PrefabRef] raise {
+  let refs : Array[PrefabRef] = []
+  let prefabs_root = root + "/prefabs"
+  for relative in list_files_recursive(prefabs_root) {
+    if infer_asset_kind(relative) == Prefab {
+      refs.push(prefab_ref("prefabs/" + relative))
+    }
+  }
+  refs.sort_by(fn(left, right) { left.path.compare(right.path) })
+  refs
+}
+
+///|
+pub fn list_atlas_assets(root : String) -> Array[AssetRef] raise {
+  let refs : Array[AssetRef] = []
+  let assets_root = root + "/assets/atlases"
+  for relative in list_files_recursive(assets_root) {
+    if infer_asset_kind(relative) == Atlas {
+      refs.push(asset_ref("assets/atlases/" + relative))
+    }
+  }
+  refs.sort_by(fn(left, right) { left.path.compare(right.path) })
+  refs
+}
+
+///|
+pub fn list_animation_assets(root : String) -> Array[AssetRef] raise {
+  let refs : Array[AssetRef] = []
+  let assets_root = root + "/assets/animations"
+  for relative in list_files_recursive(assets_root) {
+    if infer_asset_kind(relative) == Animation {
+      refs.push(asset_ref("assets/animations/" + relative))
+    }
+  }
+  refs.sort_by(fn(left, right) { left.path.compare(right.path) })
+  refs
 }
 
 ///|

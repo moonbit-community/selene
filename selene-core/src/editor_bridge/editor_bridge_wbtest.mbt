@@ -17,7 +17,7 @@ test "document file names are normalized from project names" {
   )
   inspect(
     startup_scene_path_for_name("BDD Demo"),
-    content="scenes/main.scene.json",
+    content="scenes/bdd-demo.scene.json",
   )
 }
 
@@ -25,6 +25,7 @@ test "document file names are normalized from project names" {
 test "scene document round trip" {
   let scene = SceneDocument::{
     version: scene_schema_version,
+    name: "Main",
     entities: [
       EntityDocument::{
         id: "hero",
@@ -73,6 +74,7 @@ test "scene patch applies in document space" {
 test "validation rejects unsupported scene version and parent" {
   let scene = SceneDocument::{
     version: 999,
+    name: "Broken",
     entities: [
       EntityDocument::{
         id: "child",
@@ -92,6 +94,7 @@ test "validation rejects unsupported scene version and parent" {
 test "scene runtime instantiates camera and mesh entities" {
   let scene = SceneDocument::{
     version: scene_schema_version,
+    name: "Runtime",
     entities: [
       EntityDocument::{
         id: "camera",
@@ -123,4 +126,28 @@ test "scene runtime instantiates camera and mesh entities" {
   inspect(@camera.cameras().contains(camera_entity), content="true")
   inspect(@mesh2d.mesh2ds().contains(shape_entity), content="true")
   runtime.destroy()
+}
+
+///|
+test "prefab, atlas, and animation documents round trip" {
+  let prefab = PrefabDocument::empty("Enemy").with_entity(
+    entity_document(
+      "enemy",
+      "Enemy",
+      components=[name_component("Enemy"), transform2d_component()],
+    ),
+  )
+  let atlas = AtlasAssetDocument::default("Hero Atlas", "assets/images/hero.png")
+  let animation = AnimationAssetDocument::default(
+    "Hero Animation",
+    "assets/atlases/hero.atlas.json",
+  )
+  let decoded_prefab : PrefabDocument = @json.from_json(prefab.to_json())
+  let decoded_atlas : AtlasAssetDocument = @json.from_json(atlas.to_json())
+  let decoded_animation : AnimationAssetDocument = @json.from_json(
+    animation.to_json(),
+  )
+  inspect(decoded_prefab == prefab, content="true")
+  inspect(decoded_atlas == atlas, content="true")
+  inspect(decoded_animation == animation, content="true")
 }

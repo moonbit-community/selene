@@ -1,4 +1,48 @@
 ///|
+pub struct AtlasAssetEntry {
+  path : String
+  atlas : @editor_bridge.AtlasAssetDocument
+} derive(Show, Eq)
+
+///|
+pub struct AnimationAssetEntry {
+  path : String
+  animation : @editor_bridge.AnimationAssetDocument
+} derive(Show, Eq)
+
+///|
+pub struct PreviewScenePayload {
+  scene : @editor_bridge.SceneDocument
+  atlases : Array[AtlasAssetEntry]
+  animations : Array[AnimationAssetEntry]
+} derive(Show, Eq)
+
+///|
+pub fn atlas_asset_entry(
+  path : String,
+  atlas : @editor_bridge.AtlasAssetDocument,
+) -> AtlasAssetEntry {
+  { path, atlas }
+}
+
+///|
+pub fn animation_asset_entry(
+  path : String,
+  animation : @editor_bridge.AnimationAssetDocument,
+) -> AnimationAssetEntry {
+  { path, animation }
+}
+
+///|
+pub fn preview_scene_payload(
+  scene : @editor_bridge.SceneDocument,
+  atlases : Array[AtlasAssetEntry],
+  animations : Array[AnimationAssetEntry],
+) -> PreviewScenePayload {
+  { scene, atlases, animations }
+}
+
+///|
 pub enum PreviewEvent {
   EntityPicked(String?)
   HoverChanged(String?)
@@ -13,7 +57,7 @@ pub enum PreviewEvent {
 pub enum PreviewCommand {
   Bootstrap
   ClearScene
-  LoadScene(@editor_bridge.SceneDocument)
+  LoadScene(PreviewScenePayload)
   SelectEntity(String?)
   SetTool(@shared.PreviewTool)
   FrameSelection
@@ -50,9 +94,9 @@ pub fn preview_command_clear_scene() -> PreviewCommand {
 
 ///|
 pub fn preview_command_load_scene(
-  scene : @editor_bridge.SceneDocument,
+  payload : PreviewScenePayload,
 ) -> PreviewCommand {
-  LoadScene(scene)
+  LoadScene(payload)
 }
 
 ///|

@@ -24,7 +24,7 @@ async test "project.open auto-initializes a missing project manifest" {
     )
 
     inspect(loaded.name, content="Auto Open Demo")
-    inspect(loaded.startup_scene, content="scenes/main.scene.json")
+    inspect(loaded.startup_scene, content="scenes/auto-open-demo.scene.json")
     inspect(
       @fs.exists(path_join(root, "selene.project.json")),
       content="true",
@@ -60,6 +60,10 @@ async test "project.open auto-initializes when the directory already exists" {
     )
 
     inspect(loaded.name, content="Existing Dir Demo")
+    inspect(
+      loaded.startup_scene,
+      content="scenes/existing-dir-demo.scene.json",
+    )
     inspect(
       @fs.exists(path_join(root, "selene.project.json")),
       content="true",
@@ -124,4 +128,114 @@ test "normalize_relative_path decodes url-escaped asset paths" {
     content=
       "assets/pixeladventure/Main Characters/Mask Dude/Fall (32x32).png",
   )
+}
+
+///|
+async test "service lists scenes and saves prefabs and asset docs" {
+  @async.with_task_group(group => {
+    let temp_root = @fs.tmpdir(prefix="selene-editor-structure")
+    let root = path_join(temp_root, "Structure Demo")
+    group.add_defer(() => {
+      if @fs.exists(temp_root) {
+        @fs.rmdir(temp_root, recursive=true)
+      }
+    })
+
+    let service = EditorService::new(".")
+    ignore(
+      service.handle_rpc(
+        @shared.rpc_request(
+          1,
+          "project.open",
+          { "root": root.to_json() }.to_json(),
+        ),
+      ),
+    )
+
+    let create_scene_payload = service.handle_rpc(
+      @shared.rpc_request(
+        2,
+        "scene.create",
+        { "name": "Battlefield".to_json() }.to_json(),
+      ),
+    )
+    let create_scene_success : @shared.RpcSuccess = @json.from_json(
+      create_scene_payload,
+    )
+    let create_scene_result : Map[String, Json] = @json.from_json(
+      create_scene_success.result,
+    )
+    let created_scene_path : String = @json.from_json(create_scene_result["path"])
+    inspect(
+      created_scene_path,
+      content="scenes/battlefield.scene.json",
+    )
+
+    let prefab = @editor_bridge.PrefabDocument::empty("Enemy").with_entity(
+      @editor_bridge.entity_document(
+        "enemy",
+        "Enemy",
+        components=[@editor_bridge.name_component("Enemy")],
+      ),
+    )
+    ignore(
+      service.handle_rpc(
+        @shared.rpc_request(
+          3,
+          "prefab.save",
+          {
+            "path": "prefabs/enemy.prefab.json".to_json(),
+            "prefab": prefab.to_json(),
+          }.to_json(),
+        ),
+      ),
+    )
+
+    let atlas = @editor_bridge.AtlasAssetDocument::default(
+      "Hero Atlas",
+      "assets/images/hero.png",
+    )
+    ignore(
+      service.handle_rpc(
+        @shared.rpc_request(
+          4,
+          "atlas.save",
+          {
+            "path": "assets/atlases/hero.atlas.json".to_json(),
+            "atlas": atlas.to_json(),
+          }.to_json(),
+        ),
+      ),
+    )
+
+    let animation = @editor_bridge.AnimationAssetDocument::default(
+      "Hero Animation",
+      "assets/atlases/hero.atlas.json",
+    )
+    ignore(
+      service.handle_rpc(
+        @shared.rpc_request(
+          5,
+          "animation.save",
+          {
+            "path": "assets/animations/hero.anim.json".to_json(),
+            "animation": animation.to_json(),
+          }.to_json(),
+        ),
+      ),
+    )
+
+    inspect(
+      @fs.exists(path_join(root, "prefabs/enemy.prefab.json")),
+      content="true",
+    )
+    inspect(
+      @fs.exists(path_join(root, "assets/atlases/hero.atlas.json")),
+      content="true",
+    )
+    inspect(
+      @fs.exists(path_join(root, "assets/animations/hero.anim.json")),
+      content="true",
+    )
+  })
 }

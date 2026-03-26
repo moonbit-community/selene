@@ -10,7 +10,7 @@ priv suberror EditorServiceError {
 ///|
 struct ProjectSession {
   root : String
-  manifest : @editor_bridge.ProjectManifest
+  mut manifest : @editor_bridge.ProjectManifest
   mut snapshot : Map[String, String]
 }
 

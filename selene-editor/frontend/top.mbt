@@ -52,6 +52,11 @@ extern "js" fn subscribe_events_forever(
 extern "js" fn schedule_cmd(scheduler : &@cmd.Scheduler, cmd : @rabbita.Cmd) = "(scheduler, cmd) => scheduler.add(cmd)"
 
 ///|
+#cfg(target="js")
+extern "js" fn prompt_text(message : String, initial : String) -> String =
+  #| (message, initial) => window.prompt(message, initial) || ""
+
+///|
 let dragged_asset_path : Ref[String] = Ref::new("")
 
 ///|
@@ -213,9 +218,25 @@ fn rpc_effect_cmd(
       rpc_cmd(method_name, params, fn(result) {
         dispatch(@app.msg_scene_loaded(result))
       })
+    @app.SceneListLoaded =>
+      rpc_cmd(method_name, params, fn(result) {
+        dispatch(@app.msg_scene_list_loaded(result))
+      })
     @app.AssetsLoaded =>
       rpc_cmd(method_name, params, fn(result) {
         dispatch(@app.msg_assets_loaded(result))
+      })
+    @app.PrefabLoaded =>
+      rpc_cmd(method_name, params, fn(result) {
+        dispatch(@app.msg_prefab_loaded(result))
+      })
+    @app.AtlasLoaded =>
+      rpc_cmd(method_name, params, fn(result) {
+        dispatch(@app.msg_atlas_loaded(result))
+      })
+    @app.AnimationLoaded =>
+      rpc_cmd(method_name, params, fn(result) {
+        dispatch(@app.msg_animation_loaded(result))
       })
     @app.SceneSaved =>
       rpc_cmd(method_name, params, fn(result : Result[Json, String]) {
@@ -348,49 +369,142 @@ fn asset_display_name_from_path(path : String) -> String {
 }
 
 ///|
+fn resource_card(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  selected : Bool,
+  selection : @app.ResourceSelection,
+  title : String,
+  subtitle : String,
+  badge : String,
+  preview : @rabbita.Html,
+  attrs? : @html.Attrs = @html.Attrs::build(),
+) -> @rabbita.Html {
+  @html.div(
+    class=if selected { "asset-card selected" } else { "asset-card" },
+    on_click=dispatch(@app.msg_select_resource(Some(selection))),
+    attrs=attrs,
+    [
+      preview,
+      @html.div(class="asset-meta", [
+        @html.div(class="asset-name", title),
+        @html.div(class="asset-subtitle", subtitle),
+        @html.div(class="asset-badge", badge),
+      ]),
+    ],
+  )
+}
+
+///|
+fn asset_section(
+  title : String,
+  items : Array[@rabbita.Html],
+) -> @rabbita.Html {
+  @html.div(class="asset-section", [
+    @html.div(class="asset-section-title", title),
+    if items.is_empty() {
+      @html.div(class="asset-section-empty", "None")
+    } else {
+      @html.div(class="asset-list", items)
+    },
+  ])
+}
+
+///|
 fn asset_panel_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.Model,
 ) -> @rabbita.Html {
-  let assets = model.image_assets()
-  if assets.is_empty() {
-    return @html.div(
-      class="panel-body empty",
-      "No image assets found under assets/",
-    )
-  }
-  let cards : Array[@rabbita.Html] = []
-  for asset in assets {
-    let is_selected = model.selected_asset_path == Some(asset.path)
+  let image_cards : Array[@rabbita.Html] = []
+  for asset in model.image_assets() {
+    let selection = @app.resource_selection_image(asset.path)
+    let is_selected = model.selected_resource == Some(selection)
     let size_label = match model.asset_size(asset.path) {
       Some(size) => "\{size.x.to_int()}×\{size.y.to_int()}"
       None => "image"
     }
-    cards.push(
-      @html.div(
-        class=if is_selected { "asset-card selected" } else { "asset-card" },
-        on_click=dispatch(@app.msg_select_asset(Some(asset.path))),
+    image_cards.push(
+      resource_card(
+        dispatch,
+        is_selected,
+        selection,
+        asset_display_name(asset),
+        asset.path,
+        size_label,
+        @html.img(
+          class="asset-thumb",
+          src=project_asset_url(asset),
+          alt=asset.path,
+          loading="lazy",
+          attrs=asset_image_attrs(dispatch, asset.path),
+          @html.nothing,
+        ),
         attrs=asset_drag_attrs(asset.path),
-        [
-          @html.img(
-            class="asset-thumb",
-            src=project_asset_url(asset),
-            alt=asset.path,
-            loading="lazy",
-            attrs=asset_image_attrs(dispatch, asset.path),
-            @html.nothing,
-          ),
-          @html.div(class="asset-meta", [
-            @html.div(class="asset-name", asset_display_name(asset)),
-            @html.div(class="asset-subtitle", asset.path),
-            @html.div(class="asset-badge", size_label),
-          ]),
-        ],
       ),
     )
   }
+
+  let atlas_cards : Array[@rabbita.Html] = []
+  for atlas_ref in model.atlas_refs {
+    let selection = @app.resource_selection_atlas(atlas_ref.path)
+    let atlas_name = match model.atlas_documents.get(atlas_ref.path) {
+      Some(atlas) => atlas.name
+      None => asset_display_name_from_path(atlas_ref.path)
+    }
+    atlas_cards.push(
+      resource_card(
+        dispatch,
+        model.selected_resource == Some(selection),
+        selection,
+        atlas_name,
+        atlas_ref.path,
+        "atlas",
+        @html.div(class="asset-thumb asset-thumb-glyph", "▦"),
+      ),
+    )
+  }
+
+  let animation_cards : Array[@rabbita.Html] = []
+  for animation_ref in model.animation_refs {
+    let selection = @app.resource_selection_animation(animation_ref.path)
+    let animation_name = match model.animation_documents.get(animation_ref.path) {
+      Some(animation) => animation.name
+      None => asset_display_name_from_path(animation_ref.path)
+    }
+    animation_cards.push(
+      resource_card(
+        dispatch,
+        model.selected_resource == Some(selection),
+        selection,
+        animation_name,
+        animation_ref.path,
+        "anim",
+        @html.div(class="asset-thumb asset-thumb-glyph", "▶"),
+      ),
+    )
+  }
+
+  let prefab_cards : Array[@rabbita.Html] = []
+  for prefab_ref in model.prefab_refs {
+    let selection = @app.resource_selection_prefab(prefab_ref.path)
+    let prefab_name = match model.prefab_documents.get(prefab_ref.path) {
+      Some(prefab) => prefab.name
+      None => asset_display_name_from_path(prefab_ref.path)
+    }
+    prefab_cards.push(
+      resource_card(
+        dispatch,
+        model.selected_resource == Some(selection),
+        selection,
+        prefab_name,
+        prefab_ref.path,
+        "prefab",
+        @html.div(class="asset-thumb asset-thumb-glyph", "◆"),
+      ),
+    )
+  }
+
   @html.div(class="panel-body asset-grid", [
-    match model.selected_asset_path {
+    match model.selected_resource_path() {
       Some(path) =>
         @html.div(class="asset-selection-banner", [
           @html.span(class="asset-selection-label", "Selected"),
@@ -399,10 +513,74 @@ fn asset_panel_view(
       None =>
         @html.div(
           class="asset-selection-banner empty",
-          "Select an asset, then drag it into the viewport",
+          "Select an asset or resource, then use the scene tools or drag images into the viewport",
         )
     },
-    @html.div(class="asset-list", cards),
+    asset_section("Images", image_cards),
+    asset_section("Atlases", atlas_cards),
+    asset_section("Animations", animation_cards),
+    asset_section("Prefabs", prefab_cards),
+  ])
+}
+
+///|
+fn scene_browser_view(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  model : @app.Model,
+) -> @rabbita.Html {
+  let items : Array[@rabbita.Html] = []
+  for scene_ref in model.scene_refs {
+    let is_selected = model.scene_path == scene_ref.path
+    let is_startup = match model.manifest {
+      Some(manifest) => manifest.startup_scene == scene_ref.path
+      None => false
+    }
+    items.push(
+      @html.div(
+        class=if is_selected { "tree-item selected" } else { "tree-item" },
+        on_click=dispatch(@app.msg_open_scene(scene_ref.path)),
+        [
+          @html.span(scene_ref.path),
+          if is_startup {
+            @html.span(class="scene-pill", "startup")
+          } else {
+            @html.nothing
+          },
+        ],
+      ),
+    )
+  }
+  @html.div(class="panel-body scene-browser-body", [
+    @html.div(class="scene-browser-actions", [
+      @html.button(
+        class="small-button",
+        attrs=tooltip_attrs("Create Scene"),
+        on_click=@cmd.raw_effect(fn(scheduler) {
+          let name = prompt_text("Scene name", "scene")
+          if name.trim() != "" {
+            schedule_cmd(scheduler, dispatch(@app.msg_create_scene(name)))
+          }
+        }),
+        "+",
+      ),
+      @html.button(
+        class="small-button",
+        attrs=tooltip_attrs("Delete Current Scene"),
+        on_click=dispatch(@app.msg_delete_current_scene()),
+        "−",
+      ),
+      @html.button(
+        class="small-button",
+        attrs=tooltip_attrs("Set Current As Startup"),
+        on_click=dispatch(@app.msg_set_current_scene_as_startup()),
+        "★",
+      ),
+    ]),
+    if items.is_empty() {
+      @html.div(class="empty", "No scenes in this project")
+    } else {
+      @html.div(class="scene-browser-list", items)
+    },
   ])
 }
 
@@ -557,6 +735,122 @@ fn selected_sprite_view(model : @app.Model) -> @rabbita.Html {
 }
 
 ///|
+fn selected_asset_view(model : @app.Model) -> @rabbita.Html {
+  match model.selected_resource {
+    Some(@app.Image(path)) =>
+      match model.selected_image_asset() {
+        Some(asset) =>
+          @html.div(class="panel-body", [
+            @html.div(class="inspector-block", [
+              @html.h3("Image"),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Name"),
+                @html.span(class="kv-value", asset_display_name(asset)),
+              ]),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Path"),
+                @html.span(class="kv-value", asset.path),
+              ]),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Size"),
+                @html.span(
+                  class="kv-value",
+                  match model.asset_size(path) {
+                    Some(size) => "\{size.x.to_int()}×\{size.y.to_int()}"
+                    None => "Unknown"
+                  }
+                ),
+              ]),
+            ]),
+          ])
+        None => @html.div(class="empty", "No resource selected")
+      }
+    Some(@app.Atlas(_)) =>
+      match model.selected_atlas_document() {
+        Some((path, atlas)) =>
+          @html.div(class="panel-body", [
+            @html.div(class="inspector-block", [
+              @html.h3("Atlas"),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Name"),
+                @html.span(class="kv-value", atlas.name),
+              ]),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Path"),
+                @html.span(class="kv-value", path),
+              ]),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Source"),
+                @html.span(class="kv-value", atlas.source_image),
+              ]),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Grid"),
+                @html.span(
+                  class="kv-value",
+                  "\{atlas.columns} × \{atlas.rows} @ \{atlas.tile_size.x.to_int()}×\{atlas.tile_size.y.to_int()}",
+                ),
+              ]),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Regions"),
+                @html.span(class="kv-value", atlas.regions.length().to_string()),
+              ]),
+            ]),
+          ])
+        None => @html.div(class="empty", "Atlas is still loading")
+      }
+    Some(@app.Animation(_)) =>
+      match model.selected_animation_document() {
+        Some((path, animation)) =>
+          @html.div(class="panel-body", [
+            @html.div(class="inspector-block", [
+              @html.h3("Animation"),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Name"),
+                @html.span(class="kv-value", animation.name),
+              ]),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Path"),
+                @html.span(class="kv-value", path),
+              ]),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Atlas"),
+                @html.span(class="kv-value", animation.atlas_asset_path),
+              ]),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Clips"),
+                @html.span(class="kv-value", animation.clips.length().to_string()),
+              ]),
+            ]),
+          ])
+        None => @html.div(class="empty", "Animation is still loading")
+      }
+    Some(@app.Prefab(_)) =>
+      match model.selected_prefab_document() {
+        Some((path, prefab)) =>
+          @html.div(class="panel-body", [
+            @html.div(class="inspector-block", [
+              @html.h3("Prefab"),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Name"),
+                @html.span(class="kv-value", prefab.name),
+              ]),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Path"),
+                @html.span(class="kv-value", path),
+              ]),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Entities"),
+                @html.span(class="kv-value", prefab.entities.length().to_string()),
+              ]),
+            ]),
+          ])
+        None => @html.div(class="empty", "Prefab is still loading")
+      }
+    None => @html.div(class="empty", "No entity or resource selected")
+  }
+}
+
+///|
 fn selected_visibility_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.Model,
@@ -669,7 +963,7 @@ fn view(
         selected_sprite_view(model),
         selected_text_view(dispatch, model),
       ])
-    None => @html.div(class="empty", "No entity selected")
+    None => selected_asset_view(model)
   }
   @html.div(class="editor-root", [
     @html.div(class="topbar", [
@@ -732,6 +1026,10 @@ fn view(
     ]),
     @html.div(class="content", [
       @html.div(class="sidebar-column", [
+        @html.div(class="panel scene-browser-panel", [
+          @html.h2("Scenes"),
+          scene_browser_view(dispatch, model),
+        ]),
         @html.div(class="panel assets-panel", [
           @html.h2("Assets"),
           asset_panel_view(dispatch, model),

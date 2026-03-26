@@ -35,12 +35,17 @@ test "project load refreshes both scene and asset list" {
       Ok({
         root: Some("/tmp/demo"),
         manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+        scenes: None,
+        prefabs: None,
+        atlases: None,
+        animations: None,
+        workspace: None,
         recent_projects: [],
       }),
     ),
     model,
   )
-  inspect(effects.length(), content="2")
+  inspect(effects.length(), content="3")
   inspect(next.current_root, content="Some(\"/tmp/demo\")")
 }
 
@@ -54,10 +59,10 @@ test "selecting an asset does not create a scene entity" {
     scene: Some(scene),
   }
   let (_effects, next) = update(
-    msg_select_asset(Some("assets/hero.png")),
+    msg_select_resource(Some(Image("assets/hero.png"))),
     model,
   )
-  inspect(next.selected_asset_path, content="Some(\"assets/hero.png\")")
+  inspect(next.selected_resource, content="Some(Image(\"assets/hero.png\"))")
   inspect(next.scene.unwrap().entities.length(), content="1")
 }
 

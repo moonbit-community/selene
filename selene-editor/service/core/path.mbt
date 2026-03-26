@@ -118,3 +118,23 @@ fn project_manifest_path(root : String, project_name : String) -> String {
 fn scene_path(root : String, relative_path : String) -> String raise {
   path_join(root, normalize_relative_path(relative_path))
 }
+
+///|
+fn prefab_path(root : String, relative_path : String) -> String raise {
+  path_join(root, normalize_relative_path(relative_path))
+}
+
+///|
+fn atlas_asset_path(root : String, relative_path : String) -> String raise {
+  path_join(root, normalize_relative_path(relative_path))
+}
+
+///|
+fn animation_asset_path(root : String, relative_path : String) -> String raise {
+  path_join(root, normalize_relative_path(relative_path))
+}
+
+///|
+fn workspace_path(root : String) -> String {
+  path_join(root, ".selene-editor/workspace.json")
+}
