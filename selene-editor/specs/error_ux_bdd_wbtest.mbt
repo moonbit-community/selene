@@ -18,10 +18,8 @@ async test "bdd error ux invalid project manifest surfaces a clear project error
     let harness = given_editor_harness()
     group.add_defer(() => harness.cleanup())
 
-    @editor_bridge.ensure_project_layout(harness.project_root_path())
     harness.given_text_file(
-      "selene.project.json",
-      "{\n  \"version\": 1,\n  \"startup_scene\": \"scenes/main.scene.json\",\n  \"asset_roots\": [\"assets/images\"]\n}\n",
+      "selene.project.json", "{\n  \"version\": 1,\n  \"startup_scene\": \"scenes/main.scene.json\",\n  \"asset_roots\": [\"assets/images\"]\n}\n",
     )
 
     harness.when_editor_initialized()
@@ -69,7 +67,9 @@ async test "bdd error ux unrecoverable bad startup scene never leaks raw json de
         startup_scene="scenes/main.scene.json",
       ),
     )
-    harness.given_text_file("scenes/main.scene.json", "{\"version\":1,\"entities\":")
+    harness.given_text_file(
+      "scenes/main.scene.json", "{\"version\":1,\"entities\":",
+    )
 
     harness.when_editor_initialized()
 
@@ -108,22 +108,21 @@ async test "bdd error ux invalid resource documents do not prevent opening the c
     let harness = given_editor_harness()
     group.add_defer(() => harness.cleanup())
 
-    harness.given_project_manifest(@editor_bridge.ProjectManifest::default("Project"))
+    harness.given_project_manifest(
+      @editor_bridge.ProjectManifest::default("Project"),
+    )
     harness.given_scene_document(
       "scenes/project.scene.json",
       @editor_bridge.SceneDocument::default_main(),
     )
     harness.given_text_file(
-      "prefabs/broken.prefab.json",
-      "{\n  \"version\": 1,\n  \"name\": \"\",\n  \"entities\": []\n}\n",
+      "prefabs/broken.prefab.json", "{\n  \"version\": 1,\n  \"name\": \"\",\n  \"entities\": []\n}\n",
     )
     harness.given_text_file(
-      "assets/atlases/broken.atlas.json",
-      "{\n  \"version\": 1,\n  \"name\": \"Broken\",\n  \"source_image\": \"assets/images/hero.png\",\n  \"tile_size\": {\"x\": 0, \"y\": 0},\n  \"columns\": 0,\n  \"rows\": 0,\n  \"spacing\": {\"x\": 0, \"y\": 0},\n  \"margin\": {\"x\": 0, \"y\": 0},\n  \"default_anchor\": {\"x\": 0.5, \"y\": 0.5},\n  \"regions\": []\n}\n",
+      "assets/atlases/broken.atlas.json", "{\n  \"version\": 1,\n  \"name\": \"Broken\",\n  \"source_image\": \"assets/images/hero.png\",\n  \"tile_size\": {\"x\": 0, \"y\": 0},\n  \"columns\": 0,\n  \"rows\": 0,\n  \"spacing\": {\"x\": 0, \"y\": 0},\n  \"margin\": {\"x\": 0, \"y\": 0},\n  \"default_anchor\": {\"x\": 0.5, \"y\": 0.5},\n  \"regions\": []\n}\n",
     )
     harness.given_text_file(
-      "assets/animations/broken.anim.json",
-      "{\n  \"version\": 1,\n  \"name\": \"Broken\",\n  \"atlas_asset_path\": \"assets/atlases/broken.atlas.json\",\n  \"clips\": [],\n  \"default_clip\": \"missing\"\n}\n",
+      "assets/animations/broken.anim.json", "{\n  \"version\": 1,\n  \"name\": \"Broken\",\n  \"atlas_asset_path\": \"assets/atlases/broken.atlas.json\",\n  \"clips\": [],\n  \"default_clip\": \"missing\"\n}\n",
     )
 
     harness.when_editor_initialized()
@@ -144,17 +143,17 @@ async test "bdd error ux scenes with missing image references still open" {
     group.add_defer(() => harness.cleanup())
 
     let scene = @editor_bridge.SceneDocument::default_main().with_entity(
-      @editor_bridge.entity_document(
-        "hero",
-        "Hero",
-        components=[
-          @editor_bridge.transform2d_component(),
-          @editor_bridge.visibility_component(),
-          @editor_bridge.sprite_component(image_path=Some("assets/images/missing.png")),
-        ],
-      ),
+      @editor_bridge.entity_document("hero", "Hero", components=[
+        @editor_bridge.transform2d_component(),
+        @editor_bridge.visibility_component(),
+        @editor_bridge.sprite_component(
+          image_path=Some("assets/images/missing.png"),
+        ),
+      ]),
     )
-    harness.given_project_manifest(@editor_bridge.ProjectManifest::default("Project"))
+    harness.given_project_manifest(
+      @editor_bridge.ProjectManifest::default("Project"),
+    )
     harness.given_scene_document("scenes/project.scene.json", scene)
 
     harness.when_editor_initialized()

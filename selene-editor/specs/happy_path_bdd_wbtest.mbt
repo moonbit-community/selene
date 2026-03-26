@@ -36,7 +36,10 @@ async test "bdd happy path keeps selection synchronized between scene tree and p
 
     harness.when_text_entity_is_added()
     let text_id = harness.selected_entity_id().unwrap_or("")
-    inspect(harness.preview_selected_entity_id(), content="Some(\"\{text_id}\")")
+    inspect(
+      harness.preview_selected_entity_id(),
+      content="Some(\"\{text_id}\")",
+    )
 
     harness.when_scene_tree_selects_entity(Some("camera"))
     inspect(harness.preview_selected_entity_id(), content="Some(\"camera\")")
@@ -62,9 +65,7 @@ async test "bdd happy path persists inspector edits after save" {
     harness.when_selected_visibility_is_toggled()
     harness.when_scene_is_saved()
 
-    let persisted = @editor_bridge.read_scene_document(
-      harness.project_root_path() + "/" + harness.scene_path(),
-    )
+    let persisted = harness.read_scene_document(harness.scene_path())
     let entity = persisted.entity(entity_id).unwrap()
     let transform : @editor_bridge.Transform2dComponent = @app.component_of(
       entity, "Transform2d",
@@ -128,12 +129,10 @@ async test "bdd happy path places image assets into the scene" {
     let entity_id = harness.selected_entity_id().unwrap_or("")
     let entity = harness.entity(entity_id).unwrap()
     let sprite : @editor_bridge.SpriteComponent = @app.component_of(
-      entity,
-      "Sprite",
+      entity, "Sprite",
     ).unwrap()
     let transform : @editor_bridge.Transform2dComponent = @app.component_of(
-      entity,
-      "Transform2d",
+      entity, "Transform2d",
     ).unwrap()
 
     inspect(sprite.image_path, content="Some(\"assets/images/hero.png\")")
@@ -187,9 +186,7 @@ async test "bdd happy path persists atlas and animation inspector edits" {
     harness.when_selected_atlas_columns_are_edited("2")
     harness.when_selected_atlas_is_saved()
 
-    let atlas = @editor_bridge.read_atlas_asset_document(
-      harness.project_root_path() + "/assets/atlases/hero.atlas.json",
-    )
+    let atlas = harness.read_atlas_document("assets/atlases/hero.atlas.json")
     inspect(atlas.columns, content="2")
     inspect(atlas.regions.length(), content="2")
 
@@ -197,8 +194,8 @@ async test "bdd happy path persists atlas and animation inspector edits" {
     harness.when_selected_animation_frames_are_edited("run_0, run_1")
     harness.when_selected_animation_is_saved()
 
-    let animation = @editor_bridge.read_animation_asset_document(
-      harness.project_root_path() + "/assets/animations/hero.anim.json",
+    let animation = harness.read_animation_document(
+      "assets/animations/hero.anim.json",
     )
     inspect(animation.clips[0].frames.join(","), content="run_0,run_1")
   })
@@ -212,9 +209,7 @@ async test "bdd happy path persists scene browser and prefab inspector edits" {
 
     harness.when_editor_initialized()
     harness.when_current_scene_is_renamed("Gameplay")
-    let scene = @editor_bridge.read_scene_document(
-      harness.project_root_path() + "/" + harness.scene_path(),
-    )
+    let scene = harness.read_scene_document(harness.scene_path())
     inspect(scene.name, content="Gameplay")
 
     harness.when_text_entity_is_added()
@@ -222,9 +217,7 @@ async test "bdd happy path persists scene browser and prefab inspector edits" {
     harness.when_selected_prefab_name_is_edited("dialog_text")
     harness.when_selected_prefab_is_saved()
 
-    let prefab = @editor_bridge.read_prefab_document(
-      harness.project_root_path() + "/prefabs/text.prefab.json",
-    )
+    let prefab = harness.read_prefab_document("prefabs/text.prefab.json")
     inspect(prefab.name, content="dialog_text")
   })
 }

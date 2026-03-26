@@ -13,10 +13,10 @@ import {
   "Milky2018/selene/time",
   "Milky2018/selene/transform",
   "Milky2018/selene/ui",
-  "moonbitlang/core/env",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
   "moonbitlang/core/json",
+  "moonbitlang/x/fs",
 }
 
 options(

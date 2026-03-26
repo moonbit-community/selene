@@ -1,8 +1,16 @@
 {
-  "version": 1,
+  "version": 2,
   "name": "Selene Project",
   "startup_scene": "scenes/main.scene.json",
   "asset_roots": [
     "assets"
-  ]
+  ],
+  "scene_index": [
+    {
+      "path": "scenes/main.scene.json"
+    }
+  ],
+  "prefab_index": [],
+  "atlas_index": [],
+  "animation_index": []
 }

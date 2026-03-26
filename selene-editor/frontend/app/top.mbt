@@ -1,3 +1,4 @@
+///|
 pub enum ResourceSelection {
   Image(String)
   Atlas(String)
@@ -537,10 +538,7 @@ fn push_log(model : Model, line : String) -> Model {
 }
 
 ///|
-fn rpc_effect(
-  target : RpcTarget,
-  request : @shared.RpcRequest,
-) -> Effect {
+fn rpc_effect(target : RpcTarget, request : @shared.RpcRequest) -> Effect {
   Rpc(target~, request=@shared.rpc_request_envelope(1, request))
 }
 
@@ -631,28 +629,24 @@ fn add_atlas_asset_to_scene(
   } else {
     Some(atlas.regions[0])
   }
-  let entity = @editor_bridge.entity_document(
-    id,
-    atlas.name,
-    components=[
-      @editor_bridge.name_component(atlas.name),
-      @editor_bridge.transform2d_component(translation~),
-      @editor_bridge.visibility_component(),
-      @editor_bridge.sprite_component(
-        custom_size=Some(
-          first_region.map_or(atlas.tile_size, fn(region) {
-            @editor_bridge.vec2_doc(region.rect.width, region.rect.height)
-          }),
-        ),
-        anchor=atlas.default_anchor,
+  let entity = @editor_bridge.entity_document(id, atlas.name, components=[
+    @editor_bridge.name_component(atlas.name),
+    @editor_bridge.transform2d_component(translation~),
+    @editor_bridge.visibility_component(),
+    @editor_bridge.sprite_component(
+      custom_size=Some(
+        first_region.map_or(atlas.tile_size, fn(region) {
+          @editor_bridge.vec2_doc(region.rect.width, region.rect.height)
+        }),
       ),
-      @editor_bridge.texture_atlas_component(
-        atlas_asset_path=Some(atlas_path),
-        region_name=first_region.map(fn(region) { region.name }),
-        index=first_region.map_or(0, fn(region) { region.index }),
-      ),
-    ],
-  )
+      anchor=atlas.default_anchor,
+    ),
+    @editor_bridge.texture_atlas_component(
+      atlas_asset_path=Some(atlas_path),
+      region_name=first_region.map(fn(region) { region.name }),
+      index=first_region.map_or(0, fn(region) { region.index }),
+    ),
+  ])
   (scene.with_entity(entity), id)
 }
 
@@ -683,34 +677,30 @@ fn add_animation_asset_to_scene(
   if first_region is None && !atlas.regions.is_empty() {
     first_region = Some(atlas.regions[0])
   }
-  let entity = @editor_bridge.entity_document(
-    id,
-    animation.name,
-    components=[
-      @editor_bridge.name_component(animation.name),
-      @editor_bridge.transform2d_component(translation~),
-      @editor_bridge.visibility_component(),
-      @editor_bridge.sprite_component(
-        custom_size=Some(
-          first_region.map_or(atlas.tile_size, fn(region) {
-            @editor_bridge.vec2_doc(region.rect.width, region.rect.height)
-          }),
-        ),
-        anchor=atlas.default_anchor,
+  let entity = @editor_bridge.entity_document(id, animation.name, components=[
+    @editor_bridge.name_component(animation.name),
+    @editor_bridge.transform2d_component(translation~),
+    @editor_bridge.visibility_component(),
+    @editor_bridge.sprite_component(
+      custom_size=Some(
+        first_region.map_or(atlas.tile_size, fn(region) {
+          @editor_bridge.vec2_doc(region.rect.width, region.rect.height)
+        }),
       ),
-      @editor_bridge.texture_atlas_component(
-        atlas_asset_path=Some(animation.atlas_asset_path),
-        region_name=first_region.map(fn(region) { region.name }),
-        index=first_region.map_or(0, fn(region) { region.index }),
-      ),
-      @editor_bridge.animation_player_component(
-        animation_asset_path=Some(animation_path),
-        default_clip=Some(default_clip_name),
-        autoplay=true,
-      ),
-      @editor_bridge.animation_transitions_component(),
-    ],
-  )
+      anchor=atlas.default_anchor,
+    ),
+    @editor_bridge.texture_atlas_component(
+      atlas_asset_path=Some(animation.atlas_asset_path),
+      region_name=first_region.map(fn(region) { region.name }),
+      index=first_region.map_or(0, fn(region) { region.index }),
+    ),
+    @editor_bridge.animation_player_component(
+      animation_asset_path=Some(animation_path),
+      default_clip=Some(default_clip_name),
+      autoplay=true,
+    ),
+    @editor_bridge.animation_transitions_component(),
+  ])
   (scene.with_entity(entity), id)
 }
 
@@ -745,9 +735,13 @@ fn prefab_from_scene_selection(
   entity_id : String,
 ) -> @editor_bridge.PrefabDocument? {
   match scene.entity(entity_id) {
-    Some(entity) => Some(
-      @editor_bridge.prefab_document(entity.name, subtree_entities(scene, entity_id)),
-    )
+    Some(entity) =>
+      Some(
+        @editor_bridge.prefab_document(
+          entity.name,
+          subtree_entities(scene, entity_id),
+        ),
+      )
     None => None
   }
 }
@@ -778,8 +772,7 @@ fn instantiate_prefab_into_scene(
     if is_root {
       root_id = Some(new_id)
       let transform : @editor_bridge.Transform2dComponent = component_of(
-        entity,
-        "Transform2d",
+        entity, "Transform2d",
       ).unwrap_or(@editor_bridge.transform2d_value())
       next_entity = next_entity.with_component(
         @editor_bridge.transform2d_component(
@@ -831,18 +824,12 @@ fn load_supporting_resource_effects(model : Model) -> Array[Effect] {
   let effects : Array[Effect] = []
   for prefab_ref in model.prefab_refs {
     effects.push(
-      rpc_effect(
-        PrefabLoaded,
-        @shared.rpc_request_prefab_load(prefab_ref.path),
-      ),
+      rpc_effect(PrefabLoaded, @shared.rpc_request_prefab_load(prefab_ref.path)),
     )
   }
   for atlas_ref in model.atlas_refs {
     effects.push(
-      rpc_effect(
-        AtlasLoaded,
-        @shared.rpc_request_atlas_load(atlas_ref.path),
-      ),
+      rpc_effect(AtlasLoaded, @shared.rpc_request_atlas_load(atlas_ref.path)),
     )
   }
   for animation_ref in model.animation_refs {
@@ -898,17 +885,28 @@ fn parse_int_or(current : Int, input : String) -> Int {
 ///|
 fn parse_positive_double_or(current : Double, input : String) -> Double {
   let parsed = parse_double_or(current, input)
-  if parsed <= 0.0 { current } else { parsed }
+  if parsed <= 0.0 {
+    current
+  } else {
+    parsed
+  }
 }
 
 ///|
 fn parse_positive_int_or(current : Int, input : String) -> Int {
   let parsed = parse_int_or(current, input)
-  if parsed <= 0 { current } else { parsed }
+  if parsed <= 0 {
+    current
+  } else {
+    parsed
+  }
 }
 
 ///|
-fn atlas_region_name(existing : Array[@editor_bridge.AtlasRegionDocument], index : Int) -> String {
+fn atlas_region_name(
+  existing : Array[@editor_bridge.AtlasRegionDocument],
+  index : Int,
+) -> String {
   for region in existing {
     if region.index == index {
       return region.name
@@ -927,16 +925,18 @@ fn rebuild_atlas_regions(
   for row = 0; row < atlas.rows; row = row + 1 {
     for column = 0; column < atlas.columns; column = column + 1 {
       let index = row * atlas.columns + column
-      regions.push(@editor_bridge.atlas_region_document(
-        atlas_region_name(atlas.regions, index),
-        index,
-        @editor_bridge.rect_doc(
-          atlas.margin.x + step_x * column.to_double(),
-          atlas.margin.y + step_y * row.to_double(),
-          atlas.tile_size.x,
-          atlas.tile_size.y,
+      regions.push(
+        @editor_bridge.atlas_region_document(
+          atlas_region_name(atlas.regions, index),
+          index,
+          @editor_bridge.rect_doc(
+            atlas.margin.x + step_x * column.to_double(),
+            atlas.margin.y + step_y * row.to_double(),
+            atlas.tile_size.x,
+            atlas.tile_size.y,
+          ),
         ),
-      ))
+      )
     }
   }
   regions
@@ -965,10 +965,8 @@ fn primary_animation_clip(
   }
 }
 
-fn parse_clip_frames(
-  current : Array[String],
-  input : String,
-) -> Array[String] {
+///|
+fn parse_clip_frames(current : Array[String], input : String) -> Array[String] {
   let frames : Array[String] = []
   for raw in input.split(",") {
     let frame = raw.trim().to_string()
@@ -976,7 +974,11 @@ fn parse_clip_frames(
       frames.push(frame)
     }
   }
-  if frames.is_empty() { current } else { frames }
+  if frames.is_empty() {
+    current
+  } else {
+    frames
+  }
 }
 
 ///|
@@ -1010,6 +1012,7 @@ fn selected_after_load(
   }
 }
 
+///|
 fn scene_path_exists(
   scene_refs : Array[@editor_bridge.SceneRef],
   path : String,
@@ -1111,12 +1114,7 @@ fn preferred_scene_path(
     Some(value) if scene_path_exists(scene_refs, value.startup_scene) =>
       value.startup_scene
     Some(value) => value.startup_scene
-    None =>
-      if scene_refs.is_empty() {
-        current
-      } else {
-        scene_refs[0].path
-      }
+    None => if scene_refs.is_empty() { current } else { scene_refs[0].path }
   }
 }
 
@@ -1128,18 +1126,14 @@ fn add_sprite_asset_to_scene(
   translation : @editor_bridge.Vec2Doc,
 ) -> (@editor_bridge.SceneDocument, String) {
   let id = next_entity_id(scene)
-  let entity = @editor_bridge.entity_document(
-    id,
-    asset_basename(asset_path),
-    components=[
-      @editor_bridge.transform2d_component(translation~),
-      @editor_bridge.visibility_component(),
-      @editor_bridge.sprite_component(
-        image_path=Some(asset_path),
-        custom_size=asset_size,
-      ),
-    ],
-  )
+  let entity = @editor_bridge.entity_document(id, asset_basename(asset_path), components=[
+    @editor_bridge.transform2d_component(translation~),
+    @editor_bridge.visibility_component(),
+    @editor_bridge.sprite_component(
+      image_path=Some(asset_path),
+      custom_size=asset_size,
+    ),
+  ])
   (scene.with_entity(entity), id)
 }
 
@@ -1284,7 +1278,7 @@ fn update_selected_atlas_document(
     Some((path, atlas)) => {
       let atlas_documents = model.atlas_documents
       atlas_documents.set(path, updater(atlas))
-      { ..model, atlas_documents }
+      { ..model, atlas_documents, }
     }
     None => model
   }
@@ -1293,15 +1287,13 @@ fn update_selected_atlas_document(
 ///|
 fn update_selected_animation_document(
   model : Model,
-  updater : (
-    @editor_bridge.AnimationAssetDocument,
-  ) -> @editor_bridge.AnimationAssetDocument,
+  updater : (@editor_bridge.AnimationAssetDocument) -> @editor_bridge.AnimationAssetDocument,
 ) -> Model {
   match model.selected_animation_document() {
     Some((path, animation)) => {
       let animation_documents = model.animation_documents
       animation_documents.set(path, updater(animation))
-      { ..model, animation_documents }
+      { ..model, animation_documents, }
     }
     None => model
   }
@@ -1316,7 +1308,7 @@ fn update_selected_prefab_document(
     Some((path, prefab)) => {
       let prefab_documents = model.prefab_documents
       prefab_documents.set(path, updater(prefab))
-      { ..model, prefab_documents }
+      { ..model, prefab_documents, }
     }
     None => model
   }
@@ -1353,9 +1345,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         [
           rpc_effect(
             ProjectRootPicked,
-            @shared.rpc_request_project_pick_directory(
-              "Open a Selene project",
-            ),
+            @shared.rpc_request_project_pick_directory("Open a Selene project"),
           ),
         ],
         { ..model, status: "Choose a project folder..." },
@@ -1380,11 +1370,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                 },
               )
             }
-            None =>
-              (
-                [],
-                { ..model, status: "Open a project to begin" },
-              )
+            None => ([], { ..model, status: "Open a project to begin" })
           }
         Err(message) => {
           let next = push_log(model, "Folder picker failed: " + message)
@@ -1439,16 +1425,36 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     SceneLoaded(result) =>
       match result {
         Ok(@shared.Loaded(response)) => {
+          let atlas_documents = model.atlas_documents
+          let atlas_refs = model.atlas_refs
+          for entry in response.atlas_assets {
+            atlas_documents.set(entry.path, entry.atlas)
+            if !asset_ref_exists(atlas_refs, entry.path) {
+              atlas_refs.push(@editor_bridge.asset_ref(entry.path))
+            }
+          }
+          let animation_documents = model.animation_documents
+          let animation_refs = model.animation_refs
+          for entry in response.animation_assets {
+            animation_documents.set(entry.path, entry.animation)
+            if !asset_ref_exists(animation_refs, entry.path) {
+              animation_refs.push(@editor_bridge.asset_ref(entry.path))
+            }
+          }
           let workspace = model.workspace
-          .with_last_scene(Some(response.path))
-          .with_selected_entity_id(
-            selected_after_load(model.selected_entity_id, response.scene),
-          )
+            .with_last_scene(Some(response.path))
+            .with_selected_entity_id(
+              selected_after_load(model.selected_entity_id, response.scene),
+            )
           let next = {
             ..model,
             scene_path: response.path,
             scene: Some(response.scene),
             workspace,
+            atlas_documents,
+            atlas_refs,
+            animation_documents,
+            animation_refs,
             selected_entity_id: workspace.selected_entity_id,
             pending_scene_migration: None,
             status: "Loaded " + response.path,
@@ -1511,10 +1517,18 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           let manifest = model.manifest.map(fn(value) {
             value.with_startup_scene(response.startup_scene)
           })
-          let next_scene_path = if scene_path_exists(response.scenes, model.scene_path) {
+          let next_scene_path = if scene_path_exists(
+              response.scenes,
+              model.scene_path,
+            ) {
             model.scene_path
           } else {
-            preferred_scene_path(manifest, response.scenes, model.workspace, model.scene_path)
+            preferred_scene_path(
+              manifest,
+              response.scenes,
+              model.workspace,
+              model.scene_path,
+            )
           }
           let next = {
             ..model,
@@ -1538,8 +1552,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
               ..model,
               assets: response.assets,
               selected_resource: match model.selected_resource {
-                Some(selection) if resource_exists({ ..model, assets: response.assets }, selection) =>
-                  Some(selection)
+                Some(selection) if resource_exists(
+                    { ..model, assets: response.assets },
+                    selection,
+                  ) => Some(selection)
                 _ => None
               },
             },
@@ -1554,7 +1570,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         Ok(response) => {
           let prefab_documents = model.prefab_documents
           prefab_documents.set(response.path, response.prefab)
-          ([], { ..model, prefab_documents })
+          ([], { ..model, prefab_documents, })
         }
         Err(message) => {
           let next = push_log(model, "Prefab load failed: " + message)
@@ -1566,7 +1582,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         Ok(response) => {
           let atlas_documents = model.atlas_documents
           atlas_documents.set(response.path, response.atlas)
-          let next = { ..model, atlas_documents }
+          let next = { ..model, atlas_documents, }
           (sync_preview_effects(next), next)
         }
         Err(message) => {
@@ -1579,7 +1595,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         Ok(response) => {
           let animation_documents = model.animation_documents
           animation_documents.set(response.path, response.animation)
-          let next = { ..model, animation_documents }
+          let next = { ..model, animation_documents, }
           (sync_preview_effects(next), next)
         }
         Err(message) => {
@@ -1591,10 +1607,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       if width > 0.0 && height > 0.0 {
         let asset_sizes = model.asset_sizes
         asset_sizes.set(path, @editor_bridge.vec2_doc(width, height))
-        (
-          [],
-          { ..model, asset_sizes },
-        )
+        ([], { ..model, asset_sizes, })
       } else {
         ([], model)
       }
@@ -1617,13 +1630,17 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             | @shared.SceneSaved(_)
             | @shared.AssetImported(_) =>
               (
-                [rpc_effect(ProjectLoaded, @shared.rpc_request_project_current())],
+                [
+                  rpc_effect(
+                    ProjectLoaded,
+                    @shared.rpc_request_project_current(),
+                  ),
+                ],
                 model,
               )
             @shared.ProjectOpened(..)
             | @shared.SceneCreated(..)
-            | @shared.SceneDeleted(..) =>
-              ([], model)
+            | @shared.SceneDeleted(..) => ([], model)
           }
         Err(message) => {
           let next = push_log(model, "SSE error: " + message)
@@ -1658,23 +1675,11 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       }
     OpenScene(path) =>
       (
-        [
-          rpc_effect(
-            SceneLoaded,
-            @shared.rpc_request_scene_load(path),
-          ),
-        ],
+        [rpc_effect(SceneLoaded, @shared.rpc_request_scene_load(path))],
         { ..model, scene_path: path, status: "Loading " + path + "..." },
       )
     SelectResource(resource) =>
-      (
-        [],
-        {
-          ..model,
-          selected_resource: resource,
-          selected_entity_id: None,
-        },
-      )
+      ([], { ..model, selected_resource: resource, selected_entity_id: None })
     SelectEntity(id) => {
       let next = {
         ..model,
@@ -1695,10 +1700,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       } else {
         (
           [
-            rpc_effect(
-              SceneLoaded,
-              @shared.rpc_request_scene_create(trimmed),
-            ),
+            rpc_effect(SceneLoaded, @shared.rpc_request_scene_create(trimmed)),
             rpc_effect(SceneListLoaded, @shared.rpc_request_scene_list()),
           ],
           { ..model, status: "Creating scene..." },
@@ -1711,7 +1713,8 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         ([], { ..next, status: "Cannot delete the last scene" })
       } else {
         let fallback = fallback_scene_path(model)
-        let next_scene_path = if model.scene_path == fallback && model.scene_refs.length() > 1 {
+        let next_scene_path = if model.scene_path == fallback &&
+          model.scene_refs.length() > 1 {
           model.scene_refs[1].path
         } else {
           fallback
@@ -1751,14 +1754,19 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             ([], { ..next, status: "Scene name is required" })
           } else {
             let next_scene = scene.with_name(trimmed)
-            let next = { ..model, scene: Some(next_scene), status: "Renaming scene..." }
+            let next = {
+              ..model,
+              scene: Some(next_scene),
+              status: "Renaming scene...",
+            }
             (
               [
                 rpc_effect(
                   SceneSaved,
                   @shared.rpc_request_scene_save(model.scene_path, next_scene),
                 ),
-              ] + sync_preview_effects(next),
+              ] +
+              sync_preview_effects(next),
               next,
             )
           }
@@ -1768,10 +1776,12 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     CreateAtlasFromSelectedImage =>
       match model.selected_image_asset() {
         Some(asset) => {
-          let atlas = atlas_document_from_image(asset.path, model.asset_size(asset.path))
-          let path = "assets/atlases/" + @editor_bridge.atlas_asset_file_name(
-            atlas.name,
+          let atlas = atlas_document_from_image(
+            asset.path,
+            model.asset_size(asset.path),
           )
+          let path = "assets/atlases/" +
+            @editor_bridge.atlas_asset_file_name(atlas.name)
           let atlas_documents = model.atlas_documents
           atlas_documents.set(path, atlas)
           let atlas_refs = model.atlas_refs
@@ -1813,7 +1823,9 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             ..model,
             animation_documents,
             animation_refs,
-            selected_resource: Some(resource_selection_animation(animation_path)),
+            selected_resource: Some(
+              resource_selection_animation(animation_path),
+            ),
             status: "Created animation " + animation.name,
           }
           (
@@ -1833,7 +1845,8 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         (Some(scene), Some(entity_id)) =>
           match prefab_from_scene_selection(scene, entity_id) {
             Some(prefab) => {
-              let path = "prefabs/" + @editor_bridge.prefab_file_name(prefab.name)
+              let path = "prefabs/" +
+                @editor_bridge.prefab_file_name(prefab.name)
               let prefab_documents = model.prefab_documents
               prefab_documents.set(path, prefab)
               let prefab_refs = model.prefab_refs
@@ -1945,15 +1958,16 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     }
     SaveSelectedPrefab =>
       match model.selected_prefab_document() {
-        Some((path, prefab)) => (
-          [
-            rpc_effect(
-              SceneSaved,
-              @shared.rpc_request_prefab_save(path, prefab),
-            ),
-          ],
-          { ..model, status: "Saving prefab..." },
-        )
+        Some((path, prefab)) =>
+          (
+            [
+              rpc_effect(
+                SceneSaved,
+                @shared.rpc_request_prefab_save(path, prefab),
+              ),
+            ],
+            { ..model, status: "Saving prefab..." },
+          )
         None => ([], model)
       }
     UpdateSelectedAtlasName(value) => {
@@ -2064,15 +2078,16 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     }
     SaveSelectedAtlas =>
       match model.selected_atlas_document() {
-        Some((path, atlas)) => (
-          [
-            rpc_effect(
-              SceneSaved,
-              @shared.rpc_request_atlas_save(path, atlas),
-            ),
-          ],
-          { ..model, status: "Saving atlas..." },
-        )
+        Some((path, atlas)) =>
+          (
+            [
+              rpc_effect(
+                SceneSaved,
+                @shared.rpc_request_atlas_save(path, atlas),
+              ),
+            ],
+            { ..model, status: "Saving atlas..." },
+          )
         None => ([], model)
       }
     UpdateSelectedAnimationName(value) => {
@@ -2085,7 +2100,11 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       let next = update_selected_animation_document(model, fn(animation) {
         let next_default = value.trim().to_string()
         animation.with_default_clip(
-          if next_default == "" { None } else { Some(next_default) },
+          if next_default == "" {
+            None
+          } else {
+            Some(next_default)
+          },
         )
       })
       (sync_preview_effects(next), next)
@@ -2130,15 +2149,16 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     }
     SaveSelectedAnimation =>
       match model.selected_animation_document() {
-        Some((path, animation)) => (
-          [
-            rpc_effect(
-              SceneSaved,
-              @shared.rpc_request_animation_save(path, animation),
-            ),
-          ],
-          { ..model, status: "Saving animation..." },
-        )
+        Some((path, animation)) =>
+          (
+            [
+              rpc_effect(
+                SceneSaved,
+                @shared.rpc_request_animation_save(path, animation),
+              ),
+            ],
+            { ..model, status: "Saving animation..." },
+          )
         None => ([], model)
       }
     RenameSelected(value) => {
@@ -2282,10 +2302,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         None => ([], model)
       }
     ReloadScene =>
-      (
-        refresh_project_effects(model),
-        { ..model, status: "Reloading..." },
-      )
+      (refresh_project_effects(model), { ..model, status: "Reloading..." })
     AddSpriteEntity =>
       match model.scene {
         Some(scene) => {

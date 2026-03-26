@@ -195,6 +195,7 @@ fn configure_player_entity(entity : @entity.Entity) -> Unit {
   play_player_animation(entity, controller)
 }
 
+///|
 fn configure_bird_entity(entity : @entity.Entity) -> Unit {
   let animation_nodes = build_bird_animation_nodes(entity)
   @sprite.sprites().set(
@@ -225,6 +226,7 @@ fn configure_bird_entity(entity : @entity.Entity) -> Unit {
   play_bird_animation(entity, bird)
 }
 
+///|
 fn spawn_background(size : @math.Vec2D) -> Unit {
   let background = @entity.Entity::new()
   @sprite.sprites().set(
@@ -290,6 +292,7 @@ fn configure_flag_entity(entity : @entity.Entity) -> Unit {
   flags().set(entity, ())
 }
 
+///|
 fn configure_apple_entity(entity : @entity.Entity) -> Unit {
   @sprite.sprites().set(entity, sprite_animation_sprite(apple_spin_animation))
   ignore(install_sprite_animation_player(entity, apple_spin_animation))

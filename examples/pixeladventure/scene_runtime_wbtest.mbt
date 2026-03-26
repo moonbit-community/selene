@@ -57,9 +57,7 @@ fn collapse_terrain_rows(rows : Map[Int, Array[Int]]) -> Array[String] {
         end_x = columns[cursor]
         cursor += 1
       }
-      segments.push(
-        "\{y}:\{start_x}:\{end_x - start_x + 1}",
-      )
+      segments.push("\{y}:\{start_x}:\{end_x - start_x + 1}")
     }
   }
   segments.sort()
@@ -68,97 +66,90 @@ fn collapse_terrain_rows(rows : Map[Int, Array[Int]]) -> Array[String] {
 
 ///|
 test "editor scene includes required gameplay markers" {
-  let scene = pixeladventure_startup_scene_document()
-  inspect(
-    scene_component_count_for_compare(
-      scene,
-      pixeladventure_player_component_kind,
-    ),
-    content="1",
-  )
-  inspect(
-    scene_component_count_for_compare(
-      scene,
-      pixeladventure_flag_component_kind,
-    ),
-    content="1",
-  )
-  inspect(
-    scene_component_count_for_compare(
-      scene,
-      pixeladventure_apple_component_kind,
-    ),
-    content="7",
-  )
-  inspect(
-    scene_component_count_for_compare(
-      scene,
-      pixeladventure_bird_component_kind,
-    ),
-    content="2",
-  )
-  inspect(
-    scene_component_count_for_compare(
-      scene,
-      pixeladventure_terrain_component_kind,
-    ),
-    content="702",
-  )
-  inspect(
-    scene_terrain_segments(scene).is_empty(),
-    content="false",
-  )
+  with_pixeladventure_test_asset_io(fn() raise {
+    let scene = pixeladventure_startup_scene_document()
+    inspect(
+      scene_component_count_for_compare(
+        scene, pixeladventure_player_component_kind,
+      ),
+      content="1",
+    )
+    inspect(
+      scene_component_count_for_compare(
+        scene, pixeladventure_flag_component_kind,
+      ),
+      content="1",
+    )
+    inspect(
+      scene_component_count_for_compare(
+        scene, pixeladventure_apple_component_kind,
+      ),
+      content="7",
+    )
+    inspect(
+      scene_component_count_for_compare(
+        scene, pixeladventure_bird_component_kind,
+      ),
+      content="2",
+    )
+    inspect(
+      scene_component_count_for_compare(
+        scene, pixeladventure_terrain_component_kind,
+      ),
+      content="702",
+    )
+    inspect(scene_terrain_segments(scene).is_empty(), content="false")
+  })
 }
 
 ///|
 test "editor scene runtime registers gameplay entities through custom components" {
-  with_pixeladventure_test_world(fn () raise {
-    reset_pixeladventure_world_store()
-    let scene = pixeladventure_startup_scene_document()
-    let loaded = load_level_scene()
-    inspect(
-      players().to_array().length() ==
+  with_pixeladventure_test_asset_io(fn() raise {
+    with_pixeladventure_test_world(fn() raise {
+      reset_pixeladventure_world_store()
+      let scene = pixeladventure_startup_scene_document()
+      let loaded = load_level_scene()
+      inspect(
+        players().to_array().length() ==
         scene_component_count_for_compare(
-          scene,
-          pixeladventure_player_component_kind,
+          scene, pixeladventure_player_component_kind,
         ),
-      content="true",
-    )
-    inspect(
-      birds().to_array().length() ==
+        content="true",
+      )
+      inspect(
+        birds().to_array().length() ==
         scene_component_count_for_compare(
-          scene,
-          pixeladventure_bird_component_kind,
+          scene, pixeladventure_bird_component_kind,
         ),
-      content="true",
-    )
-    inspect(
-      apples().to_array().length() ==
+        content="true",
+      )
+      inspect(
+        apples().to_array().length() ==
         scene_component_count_for_compare(
-          scene,
-          pixeladventure_apple_component_kind,
+          scene, pixeladventure_apple_component_kind,
         ),
-      content="true",
-    )
-    inspect(
-      flags().to_array().length() ==
+        content="true",
+      )
+      inspect(
+        flags().to_array().length() ==
         scene_component_count_for_compare(
-          scene,
-          pixeladventure_flag_component_kind,
+          scene, pixeladventure_flag_component_kind,
         ),
-      content="true",
-    )
-    inspect(
-      loaded.world_size.to_string(),
-      content=expected_scene_world_size().to_string(),
-    )
-    inspect(
-      @transform.transforms().get(loaded.player_entity).unwrap().translation.z == PLAYER_Z,
-      content="true",
-    )
-    inspect(
-      @transform.transforms().get(loaded.camera_entity) is Some(_),
-      content="true",
-    )
+        content="true",
+      )
+      inspect(
+        loaded.world_size.to_string(),
+        content=expected_scene_world_size().to_string(),
+      )
+      inspect(
+        @transform.transforms().get(loaded.player_entity).unwrap().translation.z ==
+        PLAYER_Z,
+        content="true",
+      )
+      inspect(
+        @transform.transforms().get(loaded.camera_entity) is Some(_),
+        content="true",
+      )
+    })
   })
 }

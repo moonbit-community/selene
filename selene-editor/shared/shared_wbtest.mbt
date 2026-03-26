@@ -3,30 +3,49 @@ test "all retained rpc requests round trip through typed envelopes" {
   let scene = @editor_bridge.SceneDocument::default_main()
   let prefab = @editor_bridge.PrefabDocument::empty("Hero")
   let atlas = @editor_bridge.AtlasAssetDocument::default(
-    "Hero Atlas",
-    "assets/images/hero.png",
+    "Hero Atlas", "assets/images/hero.png",
   )
   let animation = @editor_bridge.AnimationAssetDocument::default(
-    "Hero Animation",
-    "assets/atlases/hero.atlas.json",
+    "Hero Animation", "assets/atlases/hero.atlas.json",
   )
   let requests : Array[RpcRequestEnvelope] = [
     rpc_request_envelope(1, rpc_request_project_current()),
     rpc_request_envelope(2, rpc_request_project_open("/tmp/demo")),
     rpc_request_envelope(3, rpc_request_project_pick_directory("Choose folder")),
-    rpc_request_envelope(4, rpc_request_project_set_startup_scene("scenes/main.scene.json")),
+    rpc_request_envelope(
+      4,
+      rpc_request_project_set_startup_scene("scenes/main.scene.json"),
+    ),
     rpc_request_envelope(5, rpc_request_scene_load("scenes/main.scene.json")),
     rpc_request_envelope(6, rpc_request_scene_migrate("scenes/main.scene.json")),
     rpc_request_envelope(7, rpc_request_scene_list()),
     rpc_request_envelope(8, rpc_request_scene_create("Main")),
-    rpc_request_envelope(9, rpc_request_scene_save("scenes/main.scene.json", scene)),
+    rpc_request_envelope(
+      9,
+      rpc_request_scene_save("scenes/main.scene.json", scene),
+    ),
     rpc_request_envelope(10, rpc_request_scene_delete("scenes/main.scene.json")),
     rpc_request_envelope(11, rpc_request_assets_list()),
-    rpc_request_envelope(12, rpc_request_prefab_load("prefabs/hero.prefab.json")),
-    rpc_request_envelope(13, rpc_request_prefab_save("prefabs/hero.prefab.json", prefab)),
-    rpc_request_envelope(14, rpc_request_atlas_load("assets/atlases/hero.atlas.json")),
-    rpc_request_envelope(15, rpc_request_atlas_save("assets/atlases/hero.atlas.json", atlas)),
-    rpc_request_envelope(16, rpc_request_animation_load("assets/animations/hero.anim.json")),
+    rpc_request_envelope(
+      12,
+      rpc_request_prefab_load("prefabs/hero.prefab.json"),
+    ),
+    rpc_request_envelope(
+      13,
+      rpc_request_prefab_save("prefabs/hero.prefab.json", prefab),
+    ),
+    rpc_request_envelope(
+      14,
+      rpc_request_atlas_load("assets/atlases/hero.atlas.json"),
+    ),
+    rpc_request_envelope(
+      15,
+      rpc_request_atlas_save("assets/atlases/hero.atlas.json", atlas),
+    ),
+    rpc_request_envelope(
+      16,
+      rpc_request_animation_load("assets/animations/hero.anim.json"),
+    ),
     rpc_request_envelope(
       17,
       rpc_request_animation_save("assets/animations/hero.anim.json", animation),
@@ -45,9 +64,7 @@ test "all retained rpc responses and editor events round trip through typed enve
     @editor_bridge.SceneDocument::default_main(),
     [
       @editor_bridge.migration_field_change(
-        "name",
-        "Missing required scene name",
-        "Main",
+        "name", "Missing required scene name", "Main",
       ),
     ],
   )
@@ -70,7 +87,27 @@ test "all retained rpc responses and editor events round trip through typed enve
     rpc_response_envelope(
       3,
       rpc_response_scene_loaded(
-        scene_load_response("scenes/main.scene.json", @editor_bridge.SceneDocument::default_main()),
+        scene_bundle_response(
+          "scenes/main.scene.json",
+          @editor_bridge.SceneDocument::default_main(),
+        ).with_assets(
+          [
+            scene_bundle_atlas_entry(
+              "assets/atlases/hero.atlas.json",
+              @editor_bridge.AtlasAssetDocument::default(
+                "Hero Atlas", "assets/images/hero.png",
+              ),
+            ),
+          ],
+          [
+            scene_bundle_animation_entry(
+              "assets/animations/hero.anim.json",
+              @editor_bridge.AnimationAssetDocument::default(
+                "Hero Animation", "assets/atlases/hero.atlas.json",
+              ),
+            ),
+          ],
+        ),
       ),
     ),
     rpc_response_envelope(4, rpc_response_scene_migration_required(preview)),
@@ -109,8 +146,7 @@ test "all retained rpc responses and editor events round trip through typed enve
         atlas_load_response(
           "assets/atlases/hero.atlas.json",
           @editor_bridge.AtlasAssetDocument::default(
-            "Hero Atlas",
-            "assets/images/hero.png",
+            "Hero Atlas", "assets/images/hero.png",
           ),
         ),
       ),
@@ -121,15 +157,16 @@ test "all retained rpc responses and editor events round trip through typed enve
         animation_load_response(
           "assets/animations/hero.anim.json",
           @editor_bridge.AnimationAssetDocument::default(
-            "Hero Animation",
-            "assets/atlases/hero.atlas.json",
+            "Hero Animation", "assets/atlases/hero.atlas.json",
           ),
         ),
       ),
     ),
     rpc_response_envelope(
       10,
-      rpc_response_startup_scene_updated(@editor_bridge.ProjectManifest::default("Demo")),
+      rpc_response_startup_scene_updated(
+        @editor_bridge.ProjectManifest::default("Demo"),
+      ),
     ),
     rpc_response_envelope(11, rpc_response_saved_ok()),
     rpc_error_response(12, "broken", "Something failed"),

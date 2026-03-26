@@ -152,34 +152,38 @@ async fn EditorService::open_project(
   self : EditorService,
   root : String,
 ) -> @shared.ProjectStateResponse {
-  let manifest = load_project_manifest(root) catch {
+  let loaded_manifest = load_project_manifest(root) catch {
     MissingProjectManifest(_) => {
       ensure_project_layout(root)
       let created = @editor_bridge.ProjectManifest::default(
         inferred_project_name(root),
       )
-      save_project_manifest(root, created)
       save_scene_document(
         root,
         created.startup_scene,
         @editor_bridge.SceneDocument::default_main(),
       )
+      save_project_manifest(root, created)
       created
     }
     err => raise err
   }
-  let snapshot = snapshot_project_files(root, manifest)
   let scenes = list_scene_documents(root)
   let prefabs = list_prefab_documents(root)
   let atlases = list_atlas_asset_documents(root)
   let animations = list_animation_asset_documents(root)
+  let manifest = loaded_manifest.with_indexes(
+    scenes, prefabs, atlases, animations,
+  )
+  if manifest != loaded_manifest {
+    save_project_manifest(root, manifest)
+  }
+  let snapshot = snapshot_project_files(root, manifest)
   let workspace = load_workspace_document(root)
   self.current_project = Some({ root, manifest, snapshot })
   self.add_recent_project(root)
   self.broadcast(
-    @shared.event_envelope(
-      @shared.editor_event_project_opened(root, manifest),
-    ),
+    @shared.event_envelope(@shared.editor_event_project_opened(root, manifest)),
   )
   @shared.project_state_response(
     Some(root),
@@ -266,8 +270,7 @@ pub async fn EditorService::handle_rpc(
               "invalid_request",
               request_error_message(err),
               details=envelope.request.to_json(),
-            )
-            .to_json()
+            ).to_json()
         }
         @shared.rpc_response_project_state(self.open_project(root))
       }
@@ -279,12 +282,16 @@ pub async fn EditorService::handle_rpc(
       }
       @shared.SceneLoad(path~) => {
         let manifest = self.current_manifest()
-        let relative_path = if path == "" { manifest.startup_scene } else { path }
+        let relative_path = if path == "" {
+          manifest.startup_scene
+        } else {
+          path
+        }
         let root = self.current_project_root()
         match load_scene_document(root, relative_path) {
-          @editor_bridge.Ready(scene) =>
+          @editor_bridge.Ready(_) =>
             @shared.rpc_response_scene_loaded(
-              @shared.scene_load_response(relative_path, scene),
+              load_scene_bundle(root, relative_path),
             )
           @editor_bridge.MigrationRequired(preview) =>
             @shared.rpc_response_scene_migration_required(
@@ -298,14 +305,20 @@ pub async fn EditorService::handle_rpc(
       }
       @shared.SceneMigrate(path~) => {
         let manifest = self.current_manifest()
-        let relative_path = if path == "" { manifest.startup_scene } else { path }
+        let relative_path = if path == "" {
+          manifest.startup_scene
+        } else {
+          path
+        }
         let root = self.current_project_root()
-        let scene = migrate_scene_document(root, relative_path)
+        ignore(migrate_scene_document(root, relative_path))
         self.broadcast(
-          @shared.event_envelope(@shared.editor_event_scene_saved(relative_path)),
+          @shared.event_envelope(
+            @shared.editor_event_scene_saved(relative_path),
+          ),
         )
         @shared.rpc_response_scene_loaded(
-          @shared.scene_load_response(relative_path, scene),
+          load_scene_bundle(root, relative_path),
         )
       }
       @shared.SceneList => {
@@ -320,13 +333,13 @@ pub async fn EditorService::handle_rpc(
       @shared.SceneCreate(name~) => {
         let path = "scenes/" + @editor_bridge.scene_file_name(name)
         let root = self.current_project_root()
-        let scene = @editor_bridge.SceneDocument::empty(name=name)
+        let scene = @editor_bridge.SceneDocument::empty(name~)
         save_scene_document(root, path, scene)
         self.broadcast(
           @shared.event_envelope(@shared.editor_event_scene_created(path)),
         )
         @shared.rpc_response_scene_loaded(
-          @shared.scene_load_response(path, scene),
+          @shared.scene_bundle_response(path, scene),
         )
       }
       @shared.SceneSave(path~, scene~) => {
@@ -344,9 +357,7 @@ pub async fn EditorService::handle_rpc(
           @fs.remove(absolute_path)
         }
         self.broadcast(
-          @shared.event_envelope(
-            @shared.editor_event_scene_deleted(path),
-          ),
+          @shared.event_envelope(@shared.editor_event_scene_deleted(path)),
         )
         @shared.rpc_response_saved_ok()
       }
@@ -364,9 +375,7 @@ pub async fn EditorService::handle_rpc(
         let root = self.current_project_root()
         let manifest = self.current_manifest()
         let assets = collect_assets(root, manifest)
-        @shared.rpc_response_assets_listed(
-          @shared.assets_list_response(assets),
-        )
+        @shared.rpc_response_assets_listed(@shared.assets_list_response(assets))
       }
       @shared.PrefabLoad(path~) => {
         let root = self.current_project_root()
@@ -413,8 +422,7 @@ pub async fn EditorService::handle_rpc(
         "internal_error",
         request_error_message(err),
         details=envelope.request.to_json(),
-      )
-      .to_json()
+      ).to_json()
   }
 }
 

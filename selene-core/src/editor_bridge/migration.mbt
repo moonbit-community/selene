@@ -142,7 +142,11 @@ fn display_name_of_document_path(
   } else {
     file_name
   }
-  let normalized = stem.replace(old="-", new=" ").replace(old="_", new=" ").trim().to_string()
+  let normalized = stem
+    .replace(old="-", new=" ")
+    .replace(old="_", new=" ")
+    .trim()
+    .to_string()
   if normalized == "" {
     return fallback
   }
@@ -153,34 +157,13 @@ fn display_name_of_document_path(
       continue
     }
     let head = token[:1].to_string().to_upper()
-    let tail = if token.length() > 1 {
-      token[1:].to_string()
-    } else {
-      ""
-    }
+    let tail = if token.length() > 1 { token[1:].to_string() } else { "" }
     parts.push(head + tail)
   }
   if parts.is_empty() {
     fallback
   } else {
     parts.join(" ")
-  }
-}
-
-///|
-fn push_version_migration_change(
-  changes : Array[MigrationFieldChange],
-  actual : Int,
-  expected : Int,
-) -> Unit {
-  if actual != expected {
-    changes.push(
-      migration_field_change(
-        "version",
-        "Unsupported schema version",
-        expected.to_string(),
-      ),
-    )
   }
 }
 
@@ -367,9 +350,7 @@ fn migrate_animation_clips_from_legacy(
     _ => {
       changes.push(
         migration_field_change(
-          "clips",
-          "Missing animation clips",
-          "[default clip]",
+          "clips", "Missing animation clips", "[default clip]",
         ),
       )
       [animation_clip_document("default", 8.0, true, ["frame_0"])]
@@ -441,7 +422,9 @@ fn decode_legacy_prefab_document(json : Json) -> LegacyPrefabDocument raise {
 }
 
 ///|
-fn decode_legacy_atlas_asset_document(json : Json) -> LegacyAtlasAssetDocument raise {
+fn decode_legacy_atlas_asset_document(
+  json : Json,
+) -> LegacyAtlasAssetDocument raise {
   @json.from_json(json)
 }
 
@@ -453,28 +436,28 @@ fn decode_legacy_animation_asset_document(
 }
 
 ///|
-impl Migration for SceneDocumentMigrator with migration_changes(self, path, json) {
+impl Migration for SceneDocumentMigrator with migration_changes(
+  self,
+  path,
+  json,
+) {
   ignore(self)
   let legacy = decode_legacy_scene_document(json)
+  if legacy.version != scene_schema_version {
+    return None
+  }
   let changes : Array[MigrationFieldChange] = []
-  push_version_migration_change(
-    changes,
-    legacy.version,
-    scene_schema_version,
-  )
-  ignore(
-    SceneDocument::{
-      version: scene_schema_version,
-      name: migrate_name_or_default(
-        "name",
-        legacy.name,
-        display_name_of_document_path(path, ".scene.json", "Scene"),
-        "Missing required scene name",
-        changes,
-      ),
-      entities: migrate_entities_from_legacy(legacy.entities, changes),
-    },
-  )
+  ignore(SceneDocument::{
+    version: scene_schema_version,
+    name: migrate_name_or_default(
+      "name",
+      legacy.name,
+      display_name_of_document_path(path, ".scene.json", "Scene"),
+      "Missing required scene name",
+      changes,
+    ),
+    entities: migrate_entities_from_legacy(legacy.entities, changes),
+  })
   if changes.is_empty() {
     None
   } else {
@@ -486,6 +469,11 @@ impl Migration for SceneDocumentMigrator with migration_changes(self, path, json
 impl Migration for SceneDocumentMigrator with migrate_json(self, path, json) {
   ignore(self)
   let legacy = decode_legacy_scene_document(json)
+  guard legacy.version == scene_schema_version else {
+    raise InvalidSceneDocument(
+      "Scene document schema version \{legacy.version} is not migratable",
+    )
+  }
   let ignored_changes : Array[MigrationFieldChange] = []
   SceneDocument::{
     version: scene_schema_version,
@@ -501,28 +489,28 @@ impl Migration for SceneDocumentMigrator with migrate_json(self, path, json) {
 }
 
 ///|
-impl Migration for PrefabDocumentMigrator with migration_changes(self, path, json) {
+impl Migration for PrefabDocumentMigrator with migration_changes(
+  self,
+  path,
+  json,
+) {
   ignore(self)
   let legacy = decode_legacy_prefab_document(json)
+  if legacy.version != prefab_schema_version {
+    return None
+  }
   let changes : Array[MigrationFieldChange] = []
-  push_version_migration_change(
-    changes,
-    legacy.version,
-    prefab_schema_version,
-  )
-  ignore(
-    PrefabDocument::{
-      version: prefab_schema_version,
-      name: migrate_name_or_default(
-        "name",
-        legacy.name,
-        display_name_of_document_path(path, ".prefab.json", "Prefab"),
-        "Missing required prefab name",
-        changes,
-      ),
-      entities: migrate_entities_from_legacy(legacy.entities, changes),
-    },
-  )
+  ignore(PrefabDocument::{
+    version: prefab_schema_version,
+    name: migrate_name_or_default(
+      "name",
+      legacy.name,
+      display_name_of_document_path(path, ".prefab.json", "Prefab"),
+      "Missing required prefab name",
+      changes,
+    ),
+    entities: migrate_entities_from_legacy(legacy.entities, changes),
+  })
   if changes.is_empty() {
     None
   } else {
@@ -534,6 +522,11 @@ impl Migration for PrefabDocumentMigrator with migration_changes(self, path, jso
 impl Migration for PrefabDocumentMigrator with migrate_json(self, path, json) {
   ignore(self)
   let legacy = decode_legacy_prefab_document(json)
+  guard legacy.version == prefab_schema_version else {
+    raise InvalidPrefabDocument(
+      "Prefab document schema version \{legacy.version} is not migratable",
+    )
+  }
   let ignored_changes : Array[MigrationFieldChange] = []
   PrefabDocument::{
     version: prefab_schema_version,
@@ -549,15 +542,17 @@ impl Migration for PrefabDocumentMigrator with migrate_json(self, path, json) {
 }
 
 ///|
-impl Migration for AtlasAssetDocumentMigrator with migration_changes(self, path, json) {
+impl Migration for AtlasAssetDocumentMigrator with migration_changes(
+  self,
+  path,
+  json,
+) {
   ignore(self)
   let legacy = decode_legacy_atlas_asset_document(json)
+  if legacy.version != atlas_asset_schema_version {
+    return None
+  }
   let changes : Array[MigrationFieldChange] = []
-  push_version_migration_change(
-    changes,
-    legacy.version,
-    atlas_asset_schema_version,
-  )
   let spacing = migrate_optional_vec2_or_default(
     "spacing",
     legacy.spacing,
@@ -584,41 +579,38 @@ impl Migration for AtlasAssetDocumentMigrator with migration_changes(self, path,
     _ =>
       changes.push(
         migration_field_change(
-          "regions",
-          "Missing atlas regions",
-          "Generated from atlas grid",
+          "regions", "Missing atlas regions", "Generated from atlas grid",
         ),
       )
   }
-  ignore(
-    AtlasAssetDocument::{
-      version: atlas_asset_schema_version,
-      name: migrate_name_or_default(
-        "name",
-        legacy.name,
-        display_name_of_document_path(path, ".atlas.json", "Atlas"),
-        "Missing required atlas name",
-        changes,
-      ),
-      source_image: legacy.source_image,
-      tile_size: legacy.tile_size,
-      columns: legacy.columns,
-      rows: legacy.rows,
-      spacing,
-      margin,
-      default_anchor,
-      regions: match legacy.regions {
-        Some(regions) if !regions.is_empty() => regions
-        _ => generated_atlas_regions(
+  ignore(AtlasAssetDocument::{
+    version: atlas_asset_schema_version,
+    name: migrate_name_or_default(
+      "name",
+      legacy.name,
+      display_name_of_document_path(path, ".atlas.json", "Atlas"),
+      "Missing required atlas name",
+      changes,
+    ),
+    source_image: legacy.source_image,
+    tile_size: legacy.tile_size,
+    columns: legacy.columns,
+    rows: legacy.rows,
+    spacing,
+    margin,
+    default_anchor,
+    regions: match legacy.regions {
+      Some(regions) if !regions.is_empty() => regions
+      _ =>
+        generated_atlas_regions(
           legacy.tile_size,
           legacy.columns,
           legacy.rows,
           spacing,
           margin,
         )
-      },
     },
-  )
+  })
   if changes.is_empty() {
     None
   } else {
@@ -627,9 +619,18 @@ impl Migration for AtlasAssetDocumentMigrator with migration_changes(self, path,
 }
 
 ///|
-impl Migration for AtlasAssetDocumentMigrator with migrate_json(self, path, json) {
+impl Migration for AtlasAssetDocumentMigrator with migrate_json(
+  self,
+  path,
+  json,
+) {
   ignore(self)
   let legacy = decode_legacy_atlas_asset_document(json)
+  guard legacy.version == atlas_asset_schema_version else {
+    raise InvalidAtlasAssetDocument(
+      "Atlas document schema version \{legacy.version} is not migratable",
+    )
+  }
   let spacing = match legacy.spacing {
     Some(spacing) => spacing
     None => vec2_doc(0.0, 0.0)
@@ -659,13 +660,14 @@ impl Migration for AtlasAssetDocumentMigrator with migrate_json(self, path, json
     },
     regions: match legacy.regions {
       Some(regions) if !regions.is_empty() => regions
-      _ => generated_atlas_regions(
-        legacy.tile_size,
-        legacy.columns,
-        legacy.rows,
-        spacing,
-        margin,
-      )
+      _ =>
+        generated_atlas_regions(
+          legacy.tile_size,
+          legacy.columns,
+          legacy.rows,
+          spacing,
+          margin,
+        )
     },
   }.to_json()
 }
@@ -678,12 +680,10 @@ impl Migration for AnimationAssetDocumentMigrator with migration_changes(
 ) {
   ignore(self)
   let legacy = decode_legacy_animation_asset_document(json)
+  if legacy.version != animation_asset_schema_version {
+    return None
+  }
   let changes : Array[MigrationFieldChange] = []
-  push_version_migration_change(
-    changes,
-    legacy.version,
-    animation_asset_schema_version,
-  )
   let clips = migrate_animation_clips_from_legacy(legacy.clips, changes)
   let default_clip = match legacy.default_clip {
     Some(name) => {
@@ -692,9 +692,7 @@ impl Migration for AnimationAssetDocumentMigrator with migration_changes(
         let fallback = clips[0].name
         changes.push(
           migration_field_change(
-            "default_clip",
-            "Missing animation default clip",
-            fallback,
+            "default_clip", "Missing animation default clip", fallback,
           ),
         )
         Some(fallback)
@@ -706,29 +704,25 @@ impl Migration for AnimationAssetDocumentMigrator with migration_changes(
       let fallback = clips[0].name
       changes.push(
         migration_field_change(
-          "default_clip",
-          "Missing animation default clip",
-          fallback,
+          "default_clip", "Missing animation default clip", fallback,
         ),
       )
       Some(fallback)
     }
   }
-  ignore(
-    AnimationAssetDocument::{
-      version: animation_asset_schema_version,
-      name: migrate_name_or_default(
-        "name",
-        legacy.name,
-        display_name_of_document_path(path, ".anim.json", "Animation"),
-        "Missing required animation name",
-        changes,
-      ),
-      atlas_asset_path: legacy.atlas_asset_path,
-      clips,
-      default_clip,
-    },
-  )
+  ignore(AnimationAssetDocument::{
+    version: animation_asset_schema_version,
+    name: migrate_name_or_default(
+      "name",
+      legacy.name,
+      display_name_of_document_path(path, ".anim.json", "Animation"),
+      "Missing required animation name",
+      changes,
+    ),
+    atlas_asset_path: legacy.atlas_asset_path,
+    clips,
+    default_clip,
+  })
   if changes.is_empty() {
     None
   } else {
@@ -744,6 +738,11 @@ impl Migration for AnimationAssetDocumentMigrator with migrate_json(
 ) {
   ignore(self)
   let legacy = decode_legacy_animation_asset_document(json)
+  guard legacy.version == animation_asset_schema_version else {
+    raise InvalidAnimationAssetDocument(
+      "Animation document schema version \{legacy.version} is not migratable",
+    )
+  }
   let ignored_changes : Array[MigrationFieldChange] = []
   let clips = migrate_animation_clips_from_legacy(legacy.clips, ignored_changes)
   AnimationAssetDocument::{

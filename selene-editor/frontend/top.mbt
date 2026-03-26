@@ -2,9 +2,7 @@
 fn decode_rpc_payload(
   payload : Json,
 ) -> Result[@shared.RpcResponseEnvelope, String] {
-  try {
-    Ok(@json.from_json(payload))
-  } catch {
+  Ok(@json.from_json(payload)) catch {
     err => Err(err.to_string())
   }
 }
@@ -100,9 +98,7 @@ fn animation_loaded_of_response(
 }
 
 ///|
-fn save_ack_of_response(
-  response : @shared.RpcResponse,
-) -> Result[Unit, String] {
+fn save_ack_of_response(response : @shared.RpcResponse) -> Result[Unit, String] {
   match response {
     @shared.SavedOk | @shared.StartupSceneUpdated(_) => Ok(())
     @shared.Error(error~) => Err(error.message)
@@ -142,6 +138,7 @@ extern "js" fn subscribe_events_forever(
   #| }
 
 ///|
+
 ///|
 #cfg(target="js")
 extern "js" fn schedule_cmd(scheduler : &@cmd.Scheduler, cmd : @rabbita.Cmd) =
@@ -176,7 +173,9 @@ fn current_dragged_asset() -> String? {
 
 ///|
 #cfg(target="js")
-extern "js" fn drag_event_canvas_metrics(event : @dom.DragEvent) -> Array[Double] =
+extern "js" fn drag_event_canvas_metrics(
+  event : @dom.DragEvent,
+) -> Array[Double] =
   #| (event) => {
   #|   const rect = event.currentTarget.getBoundingClientRect();
   #|   return [
@@ -230,9 +229,7 @@ extern "js" fn image_event_natural_metrics(event : @dom.Event) -> Array[Double] 
   #| }
 
 ///|
-fn drag_drop_translation(
-  event : @dom.DragEvent,
-) -> @editor_bridge.Vec2Doc? {
+fn drag_drop_translation(event : @dom.DragEvent) -> @editor_bridge.Vec2Doc? {
   let metrics = drag_event_canvas_metrics(event)
   if metrics.length() < 4 {
     return None
@@ -346,8 +343,7 @@ fn effect_to_cmd(
   effect : @app.Effect,
 ) -> @rabbita.Cmd {
   match effect {
-    @app.Rpc(target~, request~) =>
-      rpc_effect_cmd(dispatch, target, request)
+    @app.Rpc(target~, request~) => rpc_effect_cmd(dispatch, target, request)
     @app.SubscribeServiceEvents => subscribe_events_cmd(dispatch)
     @app.SubscribePreviewEvents => subscribe_preview_events_cmd(dispatch)
     @app.Preview(command) => preview_cmd(command)
@@ -407,9 +403,7 @@ fn project_asset_url(asset : @editor_bridge.AssetDocument) -> String {
 }
 
 ///|
-fn asset_drag_attrs(
-  asset_path : String,
-) -> @html.Attrs {
+fn asset_drag_attrs(asset_path : String) -> @html.Attrs {
   @html.Attrs::build()
   .draggable("true")
   .handler("dragstart", fn(event, _scheduler) {
@@ -430,8 +424,7 @@ fn asset_image_attrs(
   dispatch : @rabbita.Dispatch[@app.Msg],
   asset_path : String,
 ) -> @html.Attrs {
-  @html.Attrs::build()
-  .handler("load", fn(event, scheduler) {
+  @html.Attrs::build().handler("load", fn(event, scheduler) {
     let metrics = image_event_natural_metrics(event)
     if metrics.length() < 2 {
       return
@@ -492,7 +485,7 @@ fn resource_card(
   @html.div(
     class=if selected { "asset-card selected" } else { "asset-card" },
     on_click=dispatch(@app.msg_select_resource(Some(selection))),
-    attrs=attrs,
+    attrs~,
     [
       preview,
       @html.div(class="asset-meta", [
@@ -505,10 +498,7 @@ fn resource_card(
 }
 
 ///|
-fn asset_section(
-  title : String,
-  items : Array[@rabbita.Html],
-) -> @rabbita.Html {
+fn asset_section(title : String, items : Array[@rabbita.Html]) -> @rabbita.Html {
   @html.div(class="asset-section", [
     @html.div(class="asset-section-title", title),
     if items.is_empty() {
@@ -576,7 +566,8 @@ fn asset_panel_view(
   let animation_cards : Array[@rabbita.Html] = []
   for animation_ref in model.animation_refs {
     let selection = @app.resource_selection_animation(animation_ref.path)
-    let animation_name = match model.animation_documents.get(animation_ref.path) {
+    let animation_name = match
+      model.animation_documents.get(animation_ref.path) {
       Some(animation) => animation.name
       None => asset_display_name_from_path(animation_ref.path)
     }
@@ -618,7 +609,10 @@ fn asset_panel_view(
       Some(path) =>
         @html.div(class="asset-selection-banner", [
           @html.span(class="asset-selection-label", "Selected"),
-          @html.span(class="asset-selection-value", asset_display_name_from_path(path)),
+          @html.span(
+            class="asset-selection-value",
+            asset_display_name_from_path(path),
+          ),
         ])
       None =>
         @html.div(
@@ -700,7 +694,10 @@ fn scene_browser_view(
           }
           let name = prompt_text("Scene name", current_name)
           if name.trim() != "" {
-            schedule_cmd(scheduler, dispatch(@app.msg_rename_current_scene(name)))
+            schedule_cmd(
+              scheduler,
+              dispatch(@app.msg_rename_current_scene(name)),
+            )
           }
         }),
         "✎",
@@ -727,9 +724,7 @@ fn scene_browser_view(
 }
 
 ///|
-fn viewport_drop_attrs(
-  dispatch : @rabbita.Dispatch[@app.Msg],
-) -> @html.Attrs {
+fn viewport_drop_attrs(dispatch : @rabbita.Dispatch[@app.Msg]) -> @html.Attrs {
   @html.Attrs::build()
   .handler("dragover", fn(event, _scheduler) {
     event.prevent_default()
@@ -741,17 +736,18 @@ fn viewport_drop_attrs(
   .handler("drop", fn(event, scheduler) {
     event.prevent_default()
     let cmd = match current_dragged_asset() {
-      Some(asset_path) => match event.to_drag_event() {
-        Some(drag_event) =>
-          match drag_drop_translation(drag_event) {
-            Some(translation) =>
-              dispatch(
-                @app.msg_add_sprite_from_asset_at(asset_path, translation),
-              )
-            None => @cmd.none
-          }
-        None => @cmd.none
-      }
+      Some(asset_path) =>
+        match event.to_drag_event() {
+          Some(drag_event) =>
+            match drag_drop_translation(drag_event) {
+              Some(translation) =>
+                dispatch(
+                  @app.msg_add_sprite_from_asset_at(asset_path, translation),
+                )
+              None => @cmd.none
+            }
+          None => @cmd.none
+        }
       None =>
         match event.to_drag_event() {
           Some(drag_event) => {
@@ -903,7 +899,7 @@ fn selected_asset_view(
                   match model.asset_size(path) {
                     Some(size) => "\{size.x.to_int()}×\{size.y.to_int()}"
                     None => "Unknown"
-                  }
+                  },
                 ),
               ]),
               @html.div(class="inspector-actions", [
@@ -939,10 +935,14 @@ fn selected_asset_view(
                 @html.span(class="kv-key", "Source"),
                 @html.span(class="kv-value", atlas.source_image),
               ]),
-              labeled_input("Tile Width", atlas.tile_size.x.to_string(), fn(value) {
+              labeled_input("Tile Width", atlas.tile_size.x.to_string(), fn(
+                value,
+              ) {
                 dispatch(@app.msg_update_selected_atlas_tile_width(value))
               }),
-              labeled_input("Tile Height", atlas.tile_size.y.to_string(), fn(value) {
+              labeled_input("Tile Height", atlas.tile_size.y.to_string(), fn(
+                value,
+              ) {
                 dispatch(@app.msg_update_selected_atlas_tile_height(value))
               }),
               labeled_input("Columns", atlas.columns.to_string(), fn(value) {
@@ -951,10 +951,14 @@ fn selected_asset_view(
               labeled_input("Rows", atlas.rows.to_string(), fn(value) {
                 dispatch(@app.msg_update_selected_atlas_rows(value))
               }),
-              labeled_input("Spacing X", atlas.spacing.x.to_string(), fn(value) {
+              labeled_input("Spacing X", atlas.spacing.x.to_string(), fn(
+                value,
+              ) {
                 dispatch(@app.msg_update_selected_atlas_spacing_x(value))
               }),
-              labeled_input("Spacing Y", atlas.spacing.y.to_string(), fn(value) {
+              labeled_input("Spacing Y", atlas.spacing.y.to_string(), fn(
+                value,
+              ) {
                 dispatch(@app.msg_update_selected_atlas_spacing_y(value))
               }),
               labeled_input("Margin X", atlas.margin.x.to_string(), fn(value) {
@@ -963,10 +967,14 @@ fn selected_asset_view(
               labeled_input("Margin Y", atlas.margin.y.to_string(), fn(value) {
                 dispatch(@app.msg_update_selected_atlas_margin_y(value))
               }),
-              labeled_input("Anchor X", atlas.default_anchor.x.to_string(), fn(value) {
+              labeled_input("Anchor X", atlas.default_anchor.x.to_string(), fn(
+                value,
+              ) {
                 dispatch(@app.msg_update_selected_atlas_anchor_x(value))
               }),
-              labeled_input("Anchor Y", atlas.default_anchor.y.to_string(), fn(value) {
+              labeled_input("Anchor Y", atlas.default_anchor.y.to_string(), fn(
+                value,
+              ) {
                 dispatch(@app.msg_update_selected_atlas_anchor_y(value))
               }),
               @html.div(class="kv", [
@@ -990,7 +998,9 @@ fn selected_asset_view(
                 ),
                 @html.button(
                   class="small-button",
-                  on_click=dispatch(@app.msg_create_animation_from_selected_atlas()),
+                  on_click=dispatch(
+                    @app.msg_create_animation_from_selected_atlas(),
+                  ),
                   "Create Animation",
                 ),
               ]),
@@ -1000,74 +1010,86 @@ fn selected_asset_view(
       }
     Some(@app.Animation(_)) =>
       match model.selected_animation_document() {
-        Some((path, animation)) =>
-          {
-            let primary_clip = if animation.clips.is_empty() {
-              @editor_bridge.animation_clip_document("default", 8.0, true, ["frame_0"])
-            } else {
-              animation.clips[0]
-            }
-            @html.div(class="panel-body", [
-              @html.div(class="inspector-block", [
-                @html.h3("Animation"),
-                labeled_input("Name", animation.name, fn(value) {
-                  dispatch(@app.msg_update_selected_animation_name(value))
-                }),
-                @html.div(class="kv", [
-                  @html.span(class="kv-key", "Path"),
-                  @html.span(class="kv-value", path),
-                ]),
-                @html.div(class="kv", [
-                  @html.span(class="kv-key", "Atlas"),
-                  @html.span(class="kv-value", animation.atlas_asset_path),
-                ]),
-                labeled_input(
-                  "Default Clip",
-                  animation.default_clip.unwrap_or(""),
-                  fn(value) {
-                    dispatch(@app.msg_update_selected_animation_default_clip(value))
-                  },
-                ),
-                labeled_input("Clip Name", primary_clip.name, fn(value) {
-                  dispatch(@app.msg_update_selected_animation_clip_name(value))
-                }),
-                labeled_input("Clip FPS", primary_clip.fps.to_string(), fn(value) {
-                  dispatch(@app.msg_update_selected_animation_clip_fps(value))
-                }),
-                @html.label(class="field", [
-                  @html.span(class="field-label", "Looping"),
-                  @html.button(
-                    class="small-button",
-                    on_click=dispatch(@app.msg_toggle_selected_animation_clip_looping()),
-                    if primary_clip.looping { "Enabled" } else { "Disabled" },
-                  ),
-                ]),
-                labeled_input(
-                  "Frames",
-                  primary_clip.frames.join(", "),
-                  fn(value) {
-                    dispatch(@app.msg_update_selected_animation_clip_frames(value))
-                  },
-                ),
-                @html.div(class="kv", [
-                  @html.span(class="kv-key", "Clip Count"),
-                  @html.span(class="kv-value", animation.clips.length().to_string()),
-                ]),
-                @html.div(class="inspector-actions", [
-                  @html.button(
-                    class="small-button",
-                    on_click=dispatch(@app.msg_save_selected_animation()),
-                    "Save Animation",
-                  ),
-                  @html.button(
-                    class="small-button",
-                    on_click=dispatch(@app.msg_insert_selected_resource()),
-                    "Add Animated Sprite",
-                  ),
-                ]),
-              ]),
+        Some((path, animation)) => {
+          let primary_clip = if animation.clips.is_empty() {
+            @editor_bridge.animation_clip_document("default", 8.0, true, [
+              "frame_0",
             ])
+          } else {
+            animation.clips[0]
           }
+          @html.div(class="panel-body", [
+            @html.div(class="inspector-block", [
+              @html.h3("Animation"),
+              labeled_input("Name", animation.name, fn(value) {
+                dispatch(@app.msg_update_selected_animation_name(value))
+              }),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Path"),
+                @html.span(class="kv-value", path),
+              ]),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Atlas"),
+                @html.span(class="kv-value", animation.atlas_asset_path),
+              ]),
+              labeled_input(
+                "Default Clip",
+                animation.default_clip.unwrap_or(""),
+                fn(value) {
+                  dispatch(
+                    @app.msg_update_selected_animation_default_clip(value),
+                  )
+                },
+              ),
+              labeled_input("Clip Name", primary_clip.name, fn(value) {
+                dispatch(@app.msg_update_selected_animation_clip_name(value))
+              }),
+              labeled_input("Clip FPS", primary_clip.fps.to_string(), fn(
+                value,
+              ) {
+                dispatch(@app.msg_update_selected_animation_clip_fps(value))
+              }),
+              @html.label(class="field", [
+                @html.span(class="field-label", "Looping"),
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(
+                    @app.msg_toggle_selected_animation_clip_looping(),
+                  ),
+                  if primary_clip.looping {
+                    "Enabled"
+                  } else {
+                    "Disabled"
+                  },
+                ),
+              ]),
+              labeled_input("Frames", primary_clip.frames.join(", "), fn(
+                value,
+              ) {
+                dispatch(@app.msg_update_selected_animation_clip_frames(value))
+              }),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Clip Count"),
+                @html.span(
+                  class="kv-value",
+                  animation.clips.length().to_string(),
+                ),
+              ]),
+              @html.div(class="inspector-actions", [
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_save_selected_animation()),
+                  "Save Animation",
+                ),
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_insert_selected_resource()),
+                  "Add Animated Sprite",
+                ),
+              ]),
+            ]),
+          ])
+        }
         None => @html.div(class="empty", "Animation is still loading")
       }
     Some(@app.Prefab(_)) =>
@@ -1085,7 +1107,10 @@ fn selected_asset_view(
               ]),
               @html.div(class="kv", [
                 @html.span(class="kv-key", "Entities"),
-                @html.span(class="kv-value", prefab.entities.length().to_string()),
+                @html.span(
+                  class="kv-value",
+                  prefab.entities.length().to_string(),
+                ),
               ]),
               @html.div(
                 class="kv-value",
@@ -1185,14 +1210,20 @@ fn action_button(
 }
 
 ///|
-fn entry_view(dispatch : @rabbita.Dispatch[@app.Msg], model : @app.Model) -> @rabbita.Html {
+fn entry_view(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  model : @app.Model,
+) -> @rabbita.Html {
   @html.div(class="editor-root entry-root", [
     @html.div(class="welcome", [
       @html.div(class="welcome-logo", [
         @html.div(class="welcome-logo-mark", "S"),
         @html.div(class="welcome-logo-text", [
           @html.h1(class="welcome-title", "Selene Editor"),
-          @html.p(class="welcome-tagline", "Build Selene-native 2D scenes, atlases, animations, and prefabs"),
+          @html.p(
+            class="welcome-tagline",
+            "Build Selene-native 2D scenes, atlases, animations, and prefabs",
+          ),
         ]),
       ]),
       @html.p(
@@ -1299,43 +1330,58 @@ fn view(
       @html.div(class="topbar-section", [
         @html.div(class="topbar-section-label", "Scene"),
         @html.div(class="topbar-group", [
-          action_button(dispatch, "Add Sprite", "🖼", @app.msg_add_sprite_entity()),
+          action_button(
+            dispatch,
+            "Add Sprite",
+            "🖼",
+            @app.msg_add_sprite_entity(),
+          ),
           action_button(dispatch, "Add Text", "T", @app.msg_add_text_entity()),
-          action_button(dispatch, "Delete Selected", "⌫", @app.msg_delete_selected()),
-          action_button(dispatch, "Frame Selection", "⛶", @app.msg_frame_selection()),
+          action_button(
+            dispatch,
+            "Delete Selected",
+            "⌫",
+            @app.msg_delete_selected(),
+          ),
+          action_button(
+            dispatch,
+            "Frame Selection",
+            "⛶",
+            @app.msg_frame_selection(),
+          ),
         ]),
       ]),
       @html.div(class="topbar-section topbar-tools", [
         @html.div(class="topbar-section-label", "Tools"),
         @html.div(class="topbar-group", [
-        toolbar_button(
-          dispatch,
-          model.active_tool,
-          @shared.preview_tool_select(),
-          "Select",
-          "↖",
-        ),
-        toolbar_button(
-          dispatch,
-          model.active_tool,
-          @shared.preview_tool_translate(),
-          "Move",
-          "✥",
-        ),
-        toolbar_button(
-          dispatch,
-          model.active_tool,
-          @shared.preview_tool_rotate(),
-          "Rotate",
-          "⟳",
-        ),
-        toolbar_button(
-          dispatch,
-          model.active_tool,
-          @shared.preview_tool_scale(),
-          "Scale",
-          "⬚",
-        ),
+          toolbar_button(
+            dispatch,
+            model.active_tool,
+            @shared.preview_tool_select(),
+            "Select",
+            "↖",
+          ),
+          toolbar_button(
+            dispatch,
+            model.active_tool,
+            @shared.preview_tool_translate(),
+            "Move",
+            "✥",
+          ),
+          toolbar_button(
+            dispatch,
+            model.active_tool,
+            @shared.preview_tool_rotate(),
+            "Rotate",
+            "⟳",
+          ),
+          toolbar_button(
+            dispatch,
+            model.active_tool,
+            @shared.preview_tool_scale(),
+            "Scale",
+            "⬚",
+          ),
         ]),
       ]),
       @html.div(class="status", model.status),
@@ -1377,7 +1423,11 @@ fn view(
     ]),
   ])
   match model.pending_scene_migration {
-    Some(preview) => @html.div(class="editor-shell", [body, scene_migration_dialog_view(dispatch, preview)])
+    Some(preview) =>
+      @html.div(class="editor-shell", [
+        body,
+        scene_migration_dialog_view(dispatch, preview),
+      ])
     None => body
   }
 }

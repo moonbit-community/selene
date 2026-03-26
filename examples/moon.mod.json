@@ -10,7 +10,8 @@
     "Milky2018/selene_webgpu": {
       "path": "../selene-webgpu",
       "version": "0.29.0"
-    }
+    },
+    "moonbitlang/x": "0.4.40"
   },
   "readme": "README.md",
   "repository": "https://github.com/moonbit-community/selene.git",

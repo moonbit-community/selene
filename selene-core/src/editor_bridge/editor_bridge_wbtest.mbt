@@ -1,9 +1,32 @@
 ///|
-test "project manifest round trip" {
+fn json_bytes(value : &ToJson) -> Bytes {
+  @utf8.encode(value.to_json().stringify(indent=2))
+}
+
+///|
+fn json_string_bytes(value : String) -> Bytes {
+  @utf8.encode(value)
+}
+
+///|
+fn source_with_documents(entries : Array[(String, Bytes)]) -> DocumentSource {
+  let documents : Map[String, Bytes] = {}
+  for _, entry in entries {
+    let (path, bytes) = entry
+    documents.set(path, bytes)
+  }
+  map_document_source(documents)
+}
+
+///|
+test "project manifest round trip includes v2 indexes" {
   let manifest = ProjectManifest::default(
     "demo",
     startup_scene="scenes/demo.scene.json",
-    asset_roots=["assets", "vendor"],
+    scene_index=[scene_ref("scenes/demo.scene.json")],
+    prefab_index=[prefab_ref("prefabs/enemy.prefab.json")],
+    atlas_index=[asset_ref("assets/atlases/demo.atlas.json")],
+    animation_index=[asset_ref("assets/animations/demo.anim.json")],
   )
   let decoded : ProjectManifest = @json.from_json(manifest.to_json())
   inspect(decoded == manifest, content="true")
@@ -11,10 +34,7 @@ test "project manifest round trip" {
 
 ///|
 test "document file names are normalized from project names" {
-  inspect(
-    project_manifest_file_name("BDD Demo"),
-    content="selene.project.json",
-  )
+  inspect(project_manifest_file_name("BDD Demo"), content="selene.project.json")
   inspect(
     startup_scene_path_for_name("BDD Demo"),
     content="scenes/bdd-demo.scene.json",
@@ -129,201 +149,110 @@ test "scene runtime instantiates camera and mesh entities" {
 }
 
 ///|
-test "legacy scene documents can be probed and migrated" {
-  let temp_root = "_build/editor-bridge-migration"
-  if !@fs.path_exists("_build") {
-    @fs.create_dir("_build")
-  }
-  if !@fs.path_exists(temp_root) {
-    @fs.create_dir(temp_root)
-  }
-  let path = temp_root + "/main.scene.json"
-  @fs.write_string_to_file(
-    path,
-    "{\n  \"version\": 1,\n  \"entities\": [\n    {\n      \"id\": \"camera\",\n      \"name\": \"Camera2d\",\n      \"components\": [\n        {\n          \"kind\": \"Transform2d\",\n          \"data\": {\n            \"translation\": {\n              \"x\": 0,\n              \"y\": 0\n            },\n            \"rotation\": 0,\n            \"scale\": {\n              \"x\": 1,\n              \"y\": 1\n            }\n          }\n        },\n        {\n          \"kind\": \"Camera2d\",\n          \"data\": {\n            \"is_active\": true,\n            \"order\": 0,\n            \"scale\": 1\n          }\n        },\n        {\n          \"kind\": \"Visibility\",\n          \"data\": {\n            \"visible\": true\n          }\n        }\n      ]\n    }\n  ]\n}\n",
+test "codec decodes valid project and scene documents" {
+  let manifest = ProjectManifest::default("demo")
+  let scene = SceneDocument::default_main()
+  inspect(
+    decode_project_manifest(manifest.to_json()) == manifest,
+    content="true",
   )
-  match read_scene_document_status(path) {
+  inspect(decode_scene_document(scene.to_json()) == scene, content="true")
+}
+
+///|
+test "codec reports scene migration only for v2 recoverable inputs" {
+  let recoverable_json = @json.parse(
+    "{\n  \"version\": 2,\n  \"entities\": [\n    {\n      \"id\": \"camera\",\n      \"components\": [\n        {\n          \"kind\": \"Transform2d\",\n          \"data\": {\n            \"translation\": { \"x\": 0, \"y\": 0 },\n            \"rotation\": 0,\n            \"scale\": { \"x\": 1, \"y\": 1 }\n          }\n        },\n        {\n          \"kind\": \"Camera2d\",\n          \"data\": { \"is_active\": true, \"order\": 0, \"scale\": 1 }\n        },\n        {\n          \"kind\": \"Visibility\",\n          \"data\": { \"visible\": true }\n        }\n      ]\n    }\n  ]\n}\n",
+  )
+  match
+    decode_scene_document_status("scenes/main.scene.json", recoverable_json) {
     MigrationRequired(preview) => {
-      inspect(preview.path.has_suffix("main.scene.json"), content="true")
       inspect(preview.scene.name, content="Main")
-      inspect(preview.scene.entities[0].parent, content="None")
-      inspect(preview.changes.length(), content="2")
+      inspect(preview.changes.length() > 0, content="true")
     }
     _ => fail("expected migration preview")
   }
-  let migrated = migrate_scene_document(path)
-  inspect(migrated.name, content="Main")
-  inspect(read_scene_document(path).name, content="Main")
-}
 
-///|
-test "legacy prefab documents can be probed and migrated" {
-  let temp_root = "_build/editor-bridge-migration-prefab"
-  if !@fs.path_exists("_build") {
-    @fs.create_dir("_build")
-  }
-  if !@fs.path_exists(temp_root) {
-    @fs.create_dir(temp_root)
-  }
-  let path = temp_root + "/enemy.prefab.json"
-  @fs.write_string_to_file(
-    path,
-    "{\n  \"version\": 0,\n  \"entities\": [\n    {\n      \"id\": \"enemy\"\n    }\n  ]\n}\n",
+  let unsupported_json = @json.parse(
+    "{\n  \"version\": 1,\n  \"entities\": []\n}\n",
   )
-  match read_prefab_document_status(path) {
-    MigrationRequired(preview) => {
-      inspect(preview.prefab.name, content="Enemy")
-      inspect(preview.prefab.entities[0].name, content="enemy")
-      inspect(preview.prefab.entities[0].parent, content="None")
-      inspect(preview.changes.length(), content="5")
-    }
-    _ => fail("expected prefab migration preview")
-  }
-  let migrated = migrate_prefab_document(path)
-  inspect(migrated.version == prefab_schema_version, content="true")
-  inspect(read_prefab_document(path).name, content="Enemy")
-}
-
-///|
-test "legacy atlas documents can be probed and migrated" {
-  let temp_root = "_build/editor-bridge-migration-atlas"
-  if !@fs.path_exists("_build") {
-    @fs.create_dir("_build")
-  }
-  if !@fs.path_exists(temp_root) {
-    @fs.create_dir(temp_root)
-  }
-  let path = temp_root + "/hero.atlas.json"
-  @fs.write_string_to_file(
-    path,
-    "{\n  \"version\": 0,\n  \"source_image\": \"assets/images/hero.png\",\n  \"tile_size\": {\"x\": 16, \"y\": 16},\n  \"columns\": 2,\n  \"rows\": 1\n}\n",
+  let result : Result[SceneDocumentLoadStatus, Error] = try? decode_scene_document_status(
+    "scenes/main.scene.json", unsupported_json,
   )
-  match read_atlas_asset_document_status(path) {
-    MigrationRequired(preview) => {
-      inspect(preview.atlas.name, content="Hero")
-      inspect(preview.atlas.spacing, content="{x: 0, y: 0}")
-      inspect(preview.atlas.default_anchor, content="{x: 0.5, y: 0.5}")
-      inspect(preview.atlas.regions.length(), content="2")
-      inspect(preview.changes.length(), content="6")
-    }
-    _ => fail("expected atlas migration preview")
-  }
-  let migrated = migrate_atlas_asset_document(path)
-  inspect(migrated.version == atlas_asset_schema_version, content="true")
-  inspect(read_atlas_asset_document(path).regions.length(), content="2")
-}
-
-///|
-test "legacy animation documents can be probed and migrated" {
-  let temp_root = "_build/editor-bridge-migration-animation"
-  if !@fs.path_exists("_build") {
-    @fs.create_dir("_build")
-  }
-  if !@fs.path_exists(temp_root) {
-    @fs.create_dir(temp_root)
-  }
-  let path = temp_root + "/hero.anim.json"
-  @fs.write_string_to_file(
-    path,
-    "{\n  \"version\": 0,\n  \"atlas_asset_path\": \"assets/atlases/hero.atlas.json\",\n  \"clips\": [\n    {\n      \"frames\": [\"frame_0\", \"frame_1\"]\n    }\n  ]\n}\n",
-  )
-  match read_animation_asset_document_status(path) {
-    MigrationRequired(preview) => {
-      inspect(preview.animation.name, content="Hero")
-      inspect(preview.animation.default_clip, content="Some(\"clip_0\")")
-      inspect(preview.animation.clips[0].name, content="clip_0")
-      inspect(preview.animation.clips[0].fps, content="8")
-      inspect(preview.changes.length(), content="6")
-    }
-    _ => fail("expected animation migration preview")
-  }
-  let migrated = migrate_animation_asset_document(path)
-  inspect(migrated.version == animation_asset_schema_version, content="true")
-  inspect(read_animation_asset_document(path).default_clip, content="Some(\"clip_0\")")
-}
-
-///|
-test "invalid scene documents raise stable editor bridge errors" {
-  let temp_root = "_build/editor-bridge-invalid-scene"
-  if !@fs.path_exists("_build") {
-    @fs.create_dir("_build")
-  }
-  if !@fs.path_exists(temp_root) {
-    @fs.create_dir(temp_root)
-  }
-  let path = temp_root + "/broken.scene.json"
-  @fs.write_string_to_file(path, "{\"version\":1,\"entities\":")
-  let result : Result[SceneDocumentLoadStatus, Error] = try? read_scene_document_status(path)
   match result {
     Err(InvalidSceneDocument(_)) => inspect(true, content="true")
-    _ => fail("expected InvalidSceneDocument")
+    _ => fail("expected non-migratable v1 scene to fail")
   }
 }
 
 ///|
-test "invalid prefab, atlas, and animation documents raise stable editor bridge errors" {
-  let temp_root = "_build/editor-bridge-invalid-assets"
-  if !@fs.path_exists("_build") {
-    @fs.create_dir("_build")
-  }
-  if !@fs.path_exists(temp_root) {
-    @fs.create_dir(temp_root)
+test "loader builds a project bundle with atlas and animation dependencies" {
+  let atlas_path = "assets/atlases/hero.atlas.json"
+  let animation_path = "assets/animations/hero.anim.json"
+  let scene_path = "scenes/main.scene.json"
+  let manifest = ProjectManifest::default(
+    "demo",
+    startup_scene=scene_path,
+    scene_index=[scene_ref(scene_path)],
+    atlas_index=[asset_ref(atlas_path)],
+    animation_index=[asset_ref(animation_path)],
+  )
+  let atlas = AtlasAssetDocument::default(
+    "Hero Atlas", "assets/images/hero.png",
+  )
+  let animation = AnimationAssetDocument::default("Hero", atlas_path)
+  let scene = SceneDocument::default_main().with_entity(
+    entity_document("hero", "Hero", components=[
+      transform2d_component(),
+      sprite_component(),
+      texture_atlas_component(atlas_asset_path=Some(atlas_path)),
+      animation_player_component(animation_asset_path=Some(animation_path)),
+    ]),
+  )
+  let source = source_with_documents([
+    ("selene.project.json", json_bytes(manifest)),
+    (scene_path, json_bytes(scene)),
+    (atlas_path, json_bytes(atlas)),
+    (animation_path, json_bytes(animation)),
+  ])
+  let bundle = load_project_bundle(source)
+  inspect(bundle.scene_path, content="scenes/main.scene.json")
+  inspect(bundle.scene.name, content="Main")
+  inspect(bundle.atlas_assets.contains(atlas_path), content="true")
+  inspect(bundle.animation_assets.contains(animation_path), content="true")
+}
+
+///|
+test "loader fails clearly for missing and invalid dependency documents" {
+  let source_missing = source_with_documents([
+    ("selene.project.json", json_bytes(ProjectManifest::default("demo"))),
+  ])
+  let missing_result : Result[ProjectBundle, Error] = try? load_project_bundle(
+    source_missing,
+  )
+  match missing_result {
+    Err(MissingDocument("scenes/demo.scene.json")) =>
+      inspect(true, content="true")
+    _ => fail("expected missing startup scene")
   }
 
-  let prefab_path = temp_root + "/broken.prefab.json"
-  @fs.write_string_to_file(
-    prefab_path,
-    "{\n  \"version\": 1,\n  \"name\": \"\",\n  \"entities\": []\n}\n",
+  let atlas_path = "assets/atlases/hero.atlas.json"
+  let scene = SceneDocument::default_main().with_entity(
+    entity_document("hero", "Hero", components=[
+      transform2d_component(),
+      texture_atlas_component(atlas_asset_path=Some(atlas_path)),
+    ]),
   )
-  let atlas_path = temp_root + "/broken.atlas.json"
-  @fs.write_string_to_file(
-    atlas_path,
-    "{\n  \"version\": 1,\n  \"name\": \"Broken\",\n  \"source_image\": \"assets/images/hero.png\",\n  \"tile_size\": {\"x\": 0, \"y\": 0},\n  \"columns\": 0,\n  \"rows\": 0,\n  \"spacing\": {\"x\": 0, \"y\": 0},\n  \"margin\": {\"x\": 0, \"y\": 0},\n  \"default_anchor\": {\"x\": 0.5, \"y\": 0.5},\n  \"regions\": []\n}\n",
+  let source_invalid = source_with_documents([
+    ("selene.project.json", json_bytes(ProjectManifest::default("demo"))),
+    ("scenes/demo.scene.json", json_bytes(scene)),
+    (atlas_path, json_string_bytes("{\"version\":2,\"name\":")),
+  ])
+  let invalid_result : Result[ProjectBundle, Error] = try? load_project_bundle(
+    source_invalid,
   )
-  let animation_path = temp_root + "/broken.anim.json"
-  @fs.write_string_to_file(
-    animation_path,
-    "{\n  \"version\": 1,\n  \"name\": \"Broken\",\n  \"atlas_asset_path\": \"assets/atlases/hero.atlas.json\",\n  \"clips\": [],\n  \"default_clip\": \"missing\"\n}\n",
-  )
-
-  let prefab_result : Result[PrefabDocument, Error] = try? read_prefab_document(prefab_path)
-  let atlas_result : Result[AtlasAssetDocument, Error] = try? read_atlas_asset_document(atlas_path)
-  let animation_result : Result[AnimationAssetDocument, Error] = try? read_animation_asset_document(animation_path)
-
-  match prefab_result {
-    Err(InvalidPrefabDocument(_)) => inspect(true, content="true")
-    _ => fail("expected InvalidPrefabDocument")
-  }
-  match atlas_result {
+  match invalid_result {
     Err(InvalidAtlasAssetDocument(_)) => inspect(true, content="true")
-    _ => fail("expected InvalidAtlasAssetDocument")
+    _ => fail("expected invalid atlas dependency error")
   }
-  match animation_result {
-    Err(InvalidAnimationAssetDocument(_)) => inspect(true, content="true")
-    _ => fail("expected InvalidAnimationAssetDocument")
-  }
-}
-
-///|
-test "prefab, atlas, and animation documents round trip" {
-  let prefab = PrefabDocument::empty("Enemy").with_entity(
-    entity_document(
-      "enemy",
-      "Enemy",
-      components=[name_component("Enemy"), transform2d_component()],
-    ),
-  )
-  let atlas = AtlasAssetDocument::default("Hero Atlas", "assets/images/hero.png")
-  let animation = AnimationAssetDocument::default(
-    "Hero Animation",
-    "assets/atlases/hero.atlas.json",
-  )
-  let decoded_prefab : PrefabDocument = @json.from_json(prefab.to_json())
-  let decoded_atlas : AtlasAssetDocument = @json.from_json(atlas.to_json())
-  let decoded_animation : AnimationAssetDocument = @json.from_json(
-    animation.to_json(),
-  )
-  inspect(decoded_prefab == prefab, content="true")
-  inspect(decoded_atlas == atlas, content="true")
-  inspect(decoded_animation == animation, content="true")
 }

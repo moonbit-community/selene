@@ -14,8 +14,8 @@ import {
   "Milky2018/selene/transform",
   "Milky2018/selene/ui",
   "Milky2018/selene/visibility",
+  "moonbitlang/core/encoding/utf8",
   "moonbitlang/core/json",
-  "moonbitlang/x/fs",
 }
 
 options(

@@ -41,6 +41,10 @@ pub struct ProjectManifest {
   name : String
   startup_scene : String
   asset_roots : Array[String]
+  scene_index : Array[SceneRef]
+  prefab_index : Array[PrefabRef]
+  atlas_index : Array[AssetRef]
+  animation_index : Array[AssetRef]
   editor_min_version : String?
 } derive(Show, Eq, ToJson, FromJson)
 
@@ -273,6 +277,7 @@ pub fn rect_doc(
   { x, y, width, height }
 }
 
+///|
 pub fn color_doc(r : Int, g : Int, b : Int, a? : Int = 255) -> ColorDoc {
   { r, g, b, a }
 }
@@ -461,10 +466,26 @@ pub fn infer_asset_kind(path : String) -> AssetKind {
 pub fn ProjectManifest::default(
   name : String,
   startup_scene? : String = startup_scene_path_for_name(name),
-  asset_roots? : Array[String] = ["assets/images", "assets/audio", "assets/fonts", "assets/atlases", "assets/animations"],
+  asset_roots? : Array[String] = [
+    "assets/images", "assets/audio", "assets/fonts", "assets/atlases", "assets/animations",
+  ],
+  scene_index? : Array[SceneRef] = [],
+  prefab_index? : Array[PrefabRef] = [],
+  atlas_index? : Array[AssetRef] = [],
+  animation_index? : Array[AssetRef] = [],
   editor_min_version? : String? = None,
 ) -> ProjectManifest {
-  { version: project_schema_version, name, startup_scene, asset_roots, editor_min_version }
+  {
+    version: project_schema_version,
+    name,
+    startup_scene,
+    asset_roots,
+    scene_index,
+    prefab_index,
+    atlas_index,
+    animation_index,
+    editor_min_version,
+  }
 }
 
 ///|
@@ -472,13 +493,18 @@ pub fn ProjectManifest::with_startup_scene(
   self : ProjectManifest,
   startup_scene : String,
 ) -> ProjectManifest {
-  {
-    version: self.version,
-    name: self.name,
-    startup_scene,
-    asset_roots: self.asset_roots,
-    editor_min_version: self.editor_min_version,
-  }
+  { ..self, startup_scene, }
+}
+
+///|
+pub fn ProjectManifest::with_indexes(
+  self : ProjectManifest,
+  scene_index : Array[SceneRef],
+  prefab_index : Array[PrefabRef],
+  atlas_index : Array[AssetRef],
+  animation_index : Array[AssetRef],
+) -> ProjectManifest {
+  { ..self, scene_index, prefab_index, atlas_index, animation_index }
 }
 
 ///|
@@ -491,7 +517,7 @@ pub fn SceneDocument::with_name(
   self : SceneDocument,
   name : String,
 ) -> SceneDocument {
-  { ..self, name }
+  { ..self, name, }
 }
 
 ///|
@@ -512,12 +538,16 @@ pub fn PrefabDocument::with_name(
   self : PrefabDocument,
   name : String,
 ) -> PrefabDocument {
-  { ..self, name }
+  { ..self, name, }
 }
 
 ///|
 pub fn WorkspaceDocument::default() -> WorkspaceDocument {
-  { version: workspace_schema_version, last_scene: None, selected_entity_id: None }
+  {
+    version: workspace_schema_version,
+    last_scene: None,
+    selected_entity_id: None,
+  }
 }
 
 ///|
@@ -541,7 +571,7 @@ pub fn AtlasAssetDocument::with_name(
   self : AtlasAssetDocument,
   name : String,
 ) -> AtlasAssetDocument {
-  { ..self, name }
+  { ..self, name, }
 }
 
 ///|
@@ -549,7 +579,7 @@ pub fn AtlasAssetDocument::with_tile_size(
   self : AtlasAssetDocument,
   tile_size : Vec2Doc,
 ) -> AtlasAssetDocument {
-  { ..self, tile_size }
+  { ..self, tile_size, }
 }
 
 ///|
@@ -557,7 +587,7 @@ pub fn AtlasAssetDocument::with_columns(
   self : AtlasAssetDocument,
   columns : Int,
 ) -> AtlasAssetDocument {
-  { ..self, columns }
+  { ..self, columns, }
 }
 
 ///|
@@ -565,7 +595,7 @@ pub fn AtlasAssetDocument::with_rows(
   self : AtlasAssetDocument,
   rows : Int,
 ) -> AtlasAssetDocument {
-  { ..self, rows }
+  { ..self, rows, }
 }
 
 ///|
@@ -573,7 +603,7 @@ pub fn AtlasAssetDocument::with_spacing(
   self : AtlasAssetDocument,
   spacing : Vec2Doc,
 ) -> AtlasAssetDocument {
-  { ..self, spacing }
+  { ..self, spacing, }
 }
 
 ///|
@@ -581,7 +611,7 @@ pub fn AtlasAssetDocument::with_margin(
   self : AtlasAssetDocument,
   margin : Vec2Doc,
 ) -> AtlasAssetDocument {
-  { ..self, margin }
+  { ..self, margin, }
 }
 
 ///|
@@ -589,7 +619,7 @@ pub fn AtlasAssetDocument::with_default_anchor(
   self : AtlasAssetDocument,
   default_anchor : Vec2Doc,
 ) -> AtlasAssetDocument {
-  { ..self, default_anchor }
+  { ..self, default_anchor, }
 }
 
 ///|
@@ -597,7 +627,7 @@ pub fn AtlasAssetDocument::with_regions(
   self : AtlasAssetDocument,
   regions : Array[AtlasRegionDocument],
 ) -> AtlasAssetDocument {
-  { ..self, regions }
+  { ..self, regions, }
 }
 
 ///|
@@ -621,7 +651,7 @@ pub fn AnimationClipDocument::with_name(
   self : AnimationClipDocument,
   name : String,
 ) -> AnimationClipDocument {
-  { ..self, name }
+  { ..self, name, }
 }
 
 ///|
@@ -629,7 +659,7 @@ pub fn AnimationClipDocument::with_fps(
   self : AnimationClipDocument,
   fps : Double,
 ) -> AnimationClipDocument {
-  { ..self, fps }
+  { ..self, fps, }
 }
 
 ///|
@@ -637,7 +667,7 @@ pub fn AnimationClipDocument::with_looping(
   self : AnimationClipDocument,
   looping : Bool,
 ) -> AnimationClipDocument {
-  { ..self, looping }
+  { ..self, looping, }
 }
 
 ///|
@@ -645,7 +675,7 @@ pub fn AnimationClipDocument::with_frames(
   self : AnimationClipDocument,
   frames : Array[String],
 ) -> AnimationClipDocument {
-  { ..self, frames }
+  { ..self, frames, }
 }
 
 ///|
@@ -653,7 +683,7 @@ pub fn AnimationAssetDocument::with_name(
   self : AnimationAssetDocument,
   name : String,
 ) -> AnimationAssetDocument {
-  { ..self, name }
+  { ..self, name, }
 }
 
 ///|
@@ -661,7 +691,7 @@ pub fn AnimationAssetDocument::with_default_clip(
   self : AnimationAssetDocument,
   default_clip : String?,
 ) -> AnimationAssetDocument {
-  { ..self, default_clip }
+  { ..self, default_clip, }
 }
 
 ///|
@@ -669,11 +699,14 @@ pub fn AnimationAssetDocument::with_clips(
   self : AnimationAssetDocument,
   clips : Array[AnimationClipDocument],
 ) -> AnimationAssetDocument {
-  { ..self, clips }
+  { ..self, clips, }
 }
 
 ///|
-pub fn AtlasAssetDocument::default(name : String, source_image : String) -> AtlasAssetDocument {
+pub fn AtlasAssetDocument::default(
+  name : String,
+  source_image : String,
+) -> AtlasAssetDocument {
   {
     version: atlas_asset_schema_version,
     name,
@@ -685,11 +718,7 @@ pub fn AtlasAssetDocument::default(name : String, source_image : String) -> Atla
     margin: vec2_doc(0.0, 0.0),
     default_anchor: vec2_doc(0.5, 0.5),
     regions: [
-      {
-        name: "frame_0",
-        index: 0,
-        rect: rect_doc(0.0, 0.0, 32.0, 32.0),
-      },
+      { name: "frame_0", index: 0, rect: rect_doc(0.0, 0.0, 32.0, 32.0) },
     ],
   }
 }
@@ -762,16 +791,12 @@ pub fn animation_asset_document_from_frames(
 
 ///|
 pub fn SceneDocument::default_main() -> SceneDocument {
-  let camera = entity_document(
-    "camera",
-    "Camera2d",
-    components=[
-      name_component("Camera2d"),
-      transform2d_component(translation=Vec2Doc::{ x: 0.0, y: 0.0 }),
-      camera2d_component(),
-      visibility_component(),
-    ],
-  )
+  let camera = entity_document("camera", "Camera2d", components=[
+    name_component("Camera2d"),
+    transform2d_component(translation=Vec2Doc::{ x: 0.0, y: 0.0 }),
+    camera2d_component(),
+    visibility_component(),
+  ])
   { version: scene_schema_version, name: "Main", entities: [camera] }
 }
 
@@ -917,7 +942,7 @@ pub fn default_color() -> ColorDoc {
 
 ///|
 pub fn name_component(value : String) -> ComponentDocument {
-  { kind: "Name", data: NameComponent::{ value }.to_json() }
+  { kind: "Name", data: NameComponent::{ value, }.to_json() }
 }
 
 ///|
@@ -934,7 +959,7 @@ pub fn transform2d_component(
 
 ///|
 pub fn visibility_component(visible? : Bool = true) -> ComponentDocument {
-  { kind: "Visibility", data: VisibilityComponent::{ visible }.to_json() }
+  { kind: "Visibility", data: VisibilityComponent::{ visible, }.to_json() }
 }
 
 ///|
@@ -972,7 +997,12 @@ pub fn texture_atlas_component(
 ) -> ComponentDocument {
   {
     kind: "TextureAtlas",
-    data: TextureAtlasComponent::{ atlas_asset_path, region_name, layout, index }.to_json(),
+    data: TextureAtlasComponent::{
+      atlas_asset_path,
+      region_name,
+      layout,
+      index,
+    }.to_json(),
   }
 }
 
@@ -1014,7 +1044,7 @@ pub fn mesh2d_component(
 pub fn color_material_component(
   color? : ColorDoc = default_color(),
 ) -> ComponentDocument {
-  { kind: "ColorMaterial", data: ColorMaterialComponent::{ color }.to_json() }
+  { kind: "ColorMaterial", data: ColorMaterialComponent::{ color, }.to_json() }
 }
 
 ///|
@@ -1103,7 +1133,7 @@ pub fn animation_transitions_component(
 ) -> ComponentDocument {
   {
     kind: "AnimationTransitions",
-    data: AnimationTransitionsComponent::{ duration }.to_json(),
+    data: AnimationTransitionsComponent::{ duration, }.to_json(),
   }
 }
 

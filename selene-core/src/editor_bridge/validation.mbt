@@ -68,6 +68,40 @@ fn validate_entity_documents(
 }
 
 ///|
+fn validate_ref_index(
+  errors : Array[ValidationError],
+  paths : Array[String],
+  field : String,
+  required_suffix : String,
+) -> Unit {
+  let seen : Map[String, Bool] = {}
+  let mut index = 0
+  for path in paths {
+    if path.trim() == "" {
+      errors.push({
+        path: "\{field}[\{index}]",
+        message: "Path must not be empty",
+      })
+    }
+    if !path.has_suffix(required_suffix) {
+      errors.push({
+        path: "\{field}[\{index}]",
+        message: "Path must end with " + required_suffix,
+      })
+    }
+    if seen.contains(path) {
+      errors.push({
+        path: "\{field}[\{index}]",
+        message: "Duplicated path in index",
+      })
+    } else {
+      seen.set(path, true)
+    }
+    index += 1
+  }
+}
+
+///|
 pub fn validate_project_manifest(
   manifest : ProjectManifest,
 ) -> Array[ValidationError] {
@@ -99,6 +133,30 @@ pub fn validate_project_manifest(
       message: "At least one asset root is required",
     })
   }
+  validate_ref_index(
+    errors,
+    manifest.scene_index.map(fn(ref_) { ref_.path }),
+    "scene_index",
+    ".scene.json",
+  )
+  validate_ref_index(
+    errors,
+    manifest.prefab_index.map(fn(ref_) { ref_.path }),
+    "prefab_index",
+    ".prefab.json",
+  )
+  validate_ref_index(
+    errors,
+    manifest.atlas_index.map(fn(ref_) { ref_.path }),
+    "atlas_index",
+    ".atlas.json",
+  )
+  validate_ref_index(
+    errors,
+    manifest.animation_index.map(fn(ref_) { ref_.path }),
+    "animation_index",
+    ".anim.json",
+  )
   errors
 }
 
@@ -117,12 +175,7 @@ pub fn validate_prefab_document(
   prefab : PrefabDocument,
 ) -> Array[ValidationError] {
   let errors : Array[ValidationError] = []
-  push_version_error(
-    errors,
-    "version",
-    prefab.version,
-    prefab_schema_version,
-  )
+  push_version_error(errors, "version", prefab.version, prefab_schema_version)
   if prefab.name == "" {
     errors.push({ path: "name", message: "Prefab name must not be empty" })
   }

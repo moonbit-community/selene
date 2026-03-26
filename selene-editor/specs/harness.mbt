@@ -56,24 +56,18 @@ pub struct EditorHarness {
 fn decode_rpc_payload(
   payload : Json,
 ) -> Result[@shared.RpcResponseEnvelope, String] {
-  try {
-    Ok(@json.from_json(payload))
-  } catch {
+  Ok(@json.from_json(payload)) catch {
     err => Err(err.to_string())
   }
 }
 
 ///|
-fn msg_for_rpc_target(
-  target : @app.RpcTarget,
-  payload : Json,
-) -> @app.Msg {
+fn msg_for_rpc_target(target : @app.RpcTarget, payload : Json) -> @app.Msg {
   let response = match decode_rpc_payload(payload) {
     Ok(envelope) => envelope.response
     Err(message) =>
       return match target {
-        @app.ProjectRootPicked =>
-          @app.msg_project_root_picked(Err(message))
+        @app.ProjectRootPicked => @app.msg_project_root_picked(Err(message))
         @app.ProjectLoaded => @app.msg_project_loaded(Err(message))
         @app.SceneLoaded => @app.msg_scene_loaded(Err(message))
         @app.SceneListLoaded => @app.msg_scene_list_loaded(Err(message))
@@ -104,7 +98,8 @@ fn msg_for_rpc_target(
     @app.SceneLoaded =>
       @app.msg_scene_loaded(
         match response {
-          @shared.SceneLoaded(scene~) => Ok(@shared.scene_load_outcome_loaded(scene))
+          @shared.SceneLoaded(scene~) =>
+            Ok(@shared.scene_load_outcome_loaded(scene))
           @shared.SceneMigrationRequired(preview~) =>
             Ok(@shared.scene_load_outcome_migration_required(preview))
           @shared.Error(error~) => Err(error.message)
@@ -229,8 +224,7 @@ async fn EditorHarness::process_effect(
           @shared.rpc_response_directory_picked(
             @shared.directory_pick_result(Some(self.project_root)),
           ),
-        )
-        .to_json()
+        ).to_json()
       } else {
         self.service.handle_rpc(
           @shared.rpc_request_envelope(request_id, request.request),
@@ -411,9 +405,7 @@ pub async fn EditorHarness::when_project_folder_pick_is_cancelled(
   self : EditorHarness,
 ) -> Unit {
   self.dispatch(
-    @app.msg_project_root_picked(
-      Ok(@shared.directory_pick_result(None)),
-    ),
+    @app.msg_project_root_picked(Ok(@shared.directory_pick_result(None))),
   )
 }
 
@@ -467,64 +459,149 @@ pub async fn EditorHarness::given_text_file(
 }
 
 ///|
-pub fn EditorHarness::given_project_manifest(
-  self : EditorHarness,
-  manifest : @editor_bridge.ProjectManifest,
-) -> Unit raise {
-  @editor_bridge.ensure_project_layout(self.project_root)
-  @editor_bridge.write_project_manifest(
-    self.project_root + "/selene.project.json",
-    manifest,
+async fn ensure_dir(path : String) -> Unit {
+  if !@fs.exists(path) {
+    @fs.mkdir(path, permission=0o755, recursive=true)
+  }
+}
+
+///|
+async fn ensure_parent_dir(path : String) -> Unit {
+  if path.rev_find("/") is Some(index) {
+    let parent = path[:index].to_string()
+    if parent != "" {
+      ensure_dir(parent)
+    }
+  }
+}
+
+///|
+async fn ensure_project_layout(root : String) -> Unit {
+  ensure_dir(root)
+  ensure_dir(root + "/scenes")
+  ensure_dir(root + "/prefabs")
+  ensure_dir(root + "/assets")
+  ensure_dir(root + "/assets/images")
+  ensure_dir(root + "/assets/audio")
+  ensure_dir(root + "/assets/fonts")
+  ensure_dir(root + "/assets/atlases")
+  ensure_dir(root + "/assets/animations")
+  ensure_dir(root + "/.selene-editor")
+  ensure_dir(root + "/.selene-editor/cache")
+}
+
+///|
+async fn write_json_file(path : String, value : &ToJson) -> Unit {
+  ensure_parent_dir(path)
+  @fs.write_file(
+    path,
+    @utf8.encode(value.to_json().stringify(indent=2) + "\n"),
+    create=0o644,
   )
 }
 
 ///|
-pub fn EditorHarness::given_scene_document(
+async fn parse_json_file(path : String) -> Json {
+  @json.parse(@fs.read_file(path).text())
+}
+
+///|
+pub async fn EditorHarness::read_scene_document(
+  self : EditorHarness,
+  relative_path : String,
+) -> @editor_bridge.SceneDocument {
+  let json = parse_json_file(self.project_root + "/" + relative_path)
+  @editor_bridge.decode_scene_document(json)
+}
+
+///|
+pub async fn EditorHarness::read_scene_document_status(
+  self : EditorHarness,
+  relative_path : String,
+) -> @editor_bridge.SceneDocumentLoadStatus {
+  let json = parse_json_file(self.project_root + "/" + relative_path)
+  @editor_bridge.decode_scene_document_status(relative_path, json)
+}
+
+///|
+pub async fn EditorHarness::read_prefab_document(
+  self : EditorHarness,
+  relative_path : String,
+) -> @editor_bridge.PrefabDocument {
+  let json = parse_json_file(self.project_root + "/" + relative_path)
+  @editor_bridge.decode_prefab_document(json)
+}
+
+///|
+pub async fn EditorHarness::read_atlas_document(
+  self : EditorHarness,
+  relative_path : String,
+) -> @editor_bridge.AtlasAssetDocument {
+  let json = parse_json_file(self.project_root + "/" + relative_path)
+  @editor_bridge.decode_atlas_asset_document(json)
+}
+
+///|
+pub async fn EditorHarness::read_animation_document(
+  self : EditorHarness,
+  relative_path : String,
+) -> @editor_bridge.AnimationAssetDocument {
+  let json = parse_json_file(self.project_root + "/" + relative_path)
+  @editor_bridge.decode_animation_asset_document(json)
+}
+
+///|
+pub async fn EditorHarness::given_project_manifest(
+  self : EditorHarness,
+  manifest : @editor_bridge.ProjectManifest,
+) -> Unit {
+  ensure_project_layout(self.project_root)
+  ignore(@editor_bridge.decode_project_manifest(manifest.to_json()))
+  write_json_file(self.project_root + "/selene.project.json", manifest)
+}
+
+///|
+pub async fn EditorHarness::given_scene_document(
   self : EditorHarness,
   relative_path : String,
   scene : @editor_bridge.SceneDocument,
-) -> Unit raise {
-  @editor_bridge.ensure_project_layout(self.project_root)
-  @editor_bridge.write_scene_document(self.project_root + "/" + relative_path, scene)
+) -> Unit {
+  ensure_project_layout(self.project_root)
+  ignore(@editor_bridge.decode_scene_document(scene.to_json()))
+  write_json_file(self.project_root + "/" + relative_path, scene)
 }
 
 ///|
-pub fn EditorHarness::given_prefab_document(
+pub async fn EditorHarness::given_prefab_document(
   self : EditorHarness,
   relative_path : String,
   prefab : @editor_bridge.PrefabDocument,
-) -> Unit raise {
-  @editor_bridge.ensure_project_layout(self.project_root)
-  @editor_bridge.write_prefab_document(
-    self.project_root + "/" + relative_path,
-    prefab,
-  )
+) -> Unit {
+  ensure_project_layout(self.project_root)
+  ignore(@editor_bridge.decode_prefab_document(prefab.to_json()))
+  write_json_file(self.project_root + "/" + relative_path, prefab)
 }
 
 ///|
-pub fn EditorHarness::given_atlas_document(
+pub async fn EditorHarness::given_atlas_document(
   self : EditorHarness,
   relative_path : String,
   atlas : @editor_bridge.AtlasAssetDocument,
-) -> Unit raise {
-  @editor_bridge.ensure_project_layout(self.project_root)
-  @editor_bridge.write_atlas_asset_document(
-    self.project_root + "/" + relative_path,
-    atlas,
-  )
+) -> Unit {
+  ensure_project_layout(self.project_root)
+  ignore(@editor_bridge.decode_atlas_asset_document(atlas.to_json()))
+  write_json_file(self.project_root + "/" + relative_path, atlas)
 }
 
 ///|
-pub fn EditorHarness::given_animation_document(
+pub async fn EditorHarness::given_animation_document(
   self : EditorHarness,
   relative_path : String,
   animation : @editor_bridge.AnimationAssetDocument,
-) -> Unit raise {
-  @editor_bridge.ensure_project_layout(self.project_root)
-  @editor_bridge.write_animation_asset_document(
-    self.project_root + "/" + relative_path,
-    animation,
-  )
+) -> Unit {
+  ensure_project_layout(self.project_root)
+  ignore(@editor_bridge.decode_animation_asset_document(animation.to_json()))
+  write_json_file(self.project_root + "/" + relative_path, animation)
 }
 
 ///|
@@ -540,7 +617,9 @@ pub async fn EditorHarness::when_image_resource_is_selected(
   self : EditorHarness,
   path : String,
 ) -> Unit {
-  self.dispatch(@app.msg_select_resource(Some(@app.resource_selection_image(path))))
+  self.dispatch(
+    @app.msg_select_resource(Some(@app.resource_selection_image(path))),
+  )
 }
 
 ///|
@@ -548,7 +627,9 @@ pub async fn EditorHarness::when_atlas_resource_is_selected(
   self : EditorHarness,
   path : String,
 ) -> Unit {
-  self.dispatch(@app.msg_select_resource(Some(@app.resource_selection_atlas(path))))
+  self.dispatch(
+    @app.msg_select_resource(Some(@app.resource_selection_atlas(path))),
+  )
 }
 
 ///|
@@ -566,7 +647,9 @@ pub async fn EditorHarness::when_prefab_resource_is_selected(
   self : EditorHarness,
   path : String,
 ) -> Unit {
-  self.dispatch(@app.msg_select_resource(Some(@app.resource_selection_prefab(path))))
+  self.dispatch(
+    @app.msg_select_resource(Some(@app.resource_selection_prefab(path))),
+  )
 }
 
 ///|
@@ -767,10 +850,7 @@ pub async fn EditorHarness::when_sprite_asset_is_dropped(
   y : Double,
 ) -> Unit {
   self.dispatch(
-    @app.msg_add_sprite_from_asset_at(
-      asset_path,
-      @editor_bridge.vec2_doc(x, y),
-    ),
+    @app.msg_add_sprite_from_asset_at(asset_path, @editor_bridge.vec2_doc(x, y)),
   )
 }
 

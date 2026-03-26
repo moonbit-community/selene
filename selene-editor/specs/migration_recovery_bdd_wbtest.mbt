@@ -9,7 +9,6 @@ async test "bdd recovery legacy startup scene asks for confirmation and cancel k
     let harness = given_editor_harness()
     group.add_defer(() => harness.cleanup())
 
-    @editor_bridge.ensure_project_layout(harness.project_root_path())
     harness.given_project_manifest(
       @editor_bridge.ProjectManifest::default(
         "Project",
@@ -29,9 +28,8 @@ async test "bdd recovery legacy startup scene asks for confirmation and cancel k
     inspect(harness.pending_scene_migration() is None, content="true")
     inspect(harness.preview_scene() is None, content="true")
     inspect(
-      @editor_bridge.read_scene_document_status(
-        harness.project_root_path() + "/scenes/main.scene.json",
-      ) is @editor_bridge.MigrationRequired(_),
+      harness.read_scene_document_status("scenes/main.scene.json")
+      is @editor_bridge.MigrationRequired(_),
       content="true",
     )
   })
@@ -43,7 +41,6 @@ async test "bdd recovery legacy startup scene can be confirmed migrated and load
     let harness = given_editor_harness()
     group.add_defer(() => harness.cleanup())
 
-    @editor_bridge.ensure_project_layout(harness.project_root_path())
     harness.given_project_manifest(
       @editor_bridge.ProjectManifest::default(
         "Project",
@@ -61,9 +58,7 @@ async test "bdd recovery legacy startup scene can be confirmed migrated and load
     inspect(harness.pending_scene_migration() is None, content="true")
     inspect(harness.preview_scene() == harness.scene(), content="true")
     inspect(
-      @editor_bridge.read_scene_document(
-        harness.project_root_path() + "/scenes/main.scene.json",
-      ).name,
+      harness.read_scene_document("scenes/main.scene.json").name,
       content="Main",
     )
   })
@@ -75,8 +70,9 @@ async test "bdd recovery invalid workspace falls back to defaults and still open
     let harness = given_editor_harness()
     group.add_defer(() => harness.cleanup())
 
-    @editor_bridge.ensure_project_layout(harness.project_root_path())
-    harness.given_project_manifest(@editor_bridge.ProjectManifest::default("Project"))
+    harness.given_project_manifest(
+      @editor_bridge.ProjectManifest::default("Project"),
+    )
     harness.given_scene_document(
       "scenes/project.scene.json",
       @editor_bridge.SceneDocument::default_main(),

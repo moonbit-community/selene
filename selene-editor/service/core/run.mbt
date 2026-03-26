@@ -37,7 +37,8 @@ fn parse_cli_options(args : Array[String]) -> CliOptions raise {
         port = parse_port(args[index + 1])
         index += 2
       }
-      value if value.has_prefix("--") => raise Failure("Unknown option: " + value)
+      value if value.has_prefix("--") =>
+        raise Failure("Unknown option: " + value)
       value => {
         if project_root is Some(_) {
           raise Failure("Unexpected extra argument: " + value)

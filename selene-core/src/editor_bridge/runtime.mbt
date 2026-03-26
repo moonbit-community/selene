@@ -36,8 +36,7 @@ priv struct PreparedAtlas {
 }
 
 ///|
-let registered_custom_component_appliers : Map[String, CustomComponentApplier] =
-  {}
+let registered_custom_component_appliers : Map[String, CustomComponentApplier] = {}
 
 ///|
 pub fn identity_asset_path_resolver(path : String?) -> String? {
@@ -340,9 +339,8 @@ fn apply_animation_components(
   guard context.animation_assets.get(asset_path) is Some(animation_asset) else {
     return
   }
-  guard context.atlas_assets.get(animation_asset.atlas_asset_path) is Some(
-    atlas_asset,
-  ) else {
+  guard context.atlas_assets.get(animation_asset.atlas_asset_path)
+    is Some(atlas_asset) else {
     return
   }
   let target_id = @animation.AnimationTargetId::new(document.id)
@@ -353,9 +351,8 @@ fn apply_animation_components(
     let clip = @animation.AnimationClip::new(clip_doc.name)
     let keyframes : Array[@animation.ScalarKeyframe] = []
     for index, frame_name in clip_doc.frames {
-      if region_by_name_or_index(atlas_asset, Some(frame_name), index) is Some(
-        region,
-      ) {
+      if region_by_name_or_index(atlas_asset, Some(frame_name), index)
+        is Some(region) {
         keyframes.push({
           time: index.to_double() / clip_doc.fps,
           value: region.index.to_double(),
@@ -437,7 +434,9 @@ fn apply_document_components(
   let atlas_doc : TextureAtlasComponent? = decode_component(
     document.component("TextureAtlas"),
   )
-  let mesh_doc : Mesh2dComponent? = decode_component(document.component("Mesh2d"))
+  let mesh_doc : Mesh2dComponent? = decode_component(
+    document.component("Mesh2d"),
+  )
   let material_doc : ColorMaterialComponent? = decode_component(
     document.component("ColorMaterial"),
   )
@@ -484,7 +483,11 @@ fn apply_document_components(
         }
         @visibility.visibilities().set(
           entity,
-          if data.visible { @visibility.Visible } else { @visibility.Hidden },
+          if data.visible {
+            @visibility.Visible
+          } else {
+            @visibility.Hidden
+          },
         )
       }
       "Sprite" => {
@@ -652,7 +655,10 @@ fn apply_document_components(
           entity,
           vec2_of(data.linear_velocity),
         )
-        @physics2d.set_rigid_body_angular_velocity(entity, data.angular_velocity)
+        @physics2d.set_rigid_body_angular_velocity(
+          entity,
+          data.angular_velocity,
+        )
       }
       "PhysicsCollider2d" => {
         let data : PhysicsCollider2dComponent = match
@@ -694,19 +700,15 @@ fn apply_document_components(
       "AnimationPlayer" => ()
       "AnimationTransitions" => ()
       _ =>
-        if context.custom_component_appliers.get(component.kind) is Some(applier) {
+        if context.custom_component_appliers.get(component.kind)
+          is Some(applier) {
           applier(entity, component, context)
         }
     }
   }
   if animation_doc is Some(player_doc) {
     apply_animation_components(
-      entity,
-      document,
-      player_doc,
-      transitions_doc,
-      context,
-      animation_clip_handles,
+      entity, document, player_doc, transitions_doc, context, animation_clip_handles,
       animation_graph_handles,
     )
   }
@@ -755,14 +757,8 @@ fn instantiate_entity_documents(
   for document in documents {
     let entity = entity_ids[document.id]
     apply_document_components(
-      entity,
-      document,
-      atlas_layouts,
-      material_handles,
-      mesh_handles,
-      animation_clip_handles,
-      animation_graph_handles,
-      context,
+      entity, document, atlas_layouts, material_handles, mesh_handles, animation_clip_handles,
+      animation_graph_handles, context,
     )
   }
   {

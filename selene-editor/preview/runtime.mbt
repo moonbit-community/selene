@@ -129,8 +129,8 @@ fn spawn_scene_entities(payload : @bridge.PreviewScenePayload) -> Unit {
     payload.scene,
     @editor_bridge.asset_instantiation_context(
       asset_path_resolver=resolve_project_asset_path,
-      atlas_assets=atlas_assets,
-      animation_assets=animation_assets,
+      atlas_assets~,
+      animation_assets~,
     ),
   )
   deactivate_runtime_scene_cameras(runtime_scene)
@@ -310,9 +310,7 @@ pub fn viewport_to_world(
     y * editor_viewport_height / viewport_height,
   )
   let world_point = camera_.viewport_to_world_2d(
-    global,
-    projection,
-    viewport_point,
+    global, projection, viewport_point,
   )
   Some(@editor_bridge.vec2_doc(world_point[X], world_point[Y]))
 }

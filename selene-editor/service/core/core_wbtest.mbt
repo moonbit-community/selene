@@ -25,6 +25,14 @@ fn expect_error_response(
 }
 
 ///|
+async fn read_scene_document_from_file(
+  path : String,
+) -> @editor_bridge.SceneDocument {
+  let json = @json.parse(@fs.read_file(path).text())
+  @editor_bridge.decode_scene_document(json)
+}
+
+///|
 async test "project.open auto-initializes a missing project manifest" {
   @async.with_task_group(group => {
     let temp_root = @fs.tmpdir(prefix="selene-editor-core")
@@ -37,10 +45,7 @@ async test "project.open auto-initializes a missing project manifest" {
 
     let service = EditorService::new(".")
     let payload = service.handle_rpc(
-      @shared.rpc_request_envelope(
-        1,
-        @shared.rpc_request_project_open(root),
-      ),
+      @shared.rpc_request_envelope(1, @shared.rpc_request_project_open(root)),
     )
     let response = response_envelope(payload).response
     let loaded = match response {
@@ -50,10 +55,7 @@ async test "project.open auto-initializes a missing project manifest" {
 
     inspect(loaded.name, content="Auto Open Demo")
     inspect(loaded.startup_scene, content="scenes/auto-open-demo.scene.json")
-    inspect(
-      @fs.exists(path_join(root, "selene.project.json")),
-      content="true",
-    )
+    inspect(@fs.exists(path_join(root, "selene.project.json")), content="true")
     inspect(@fs.exists(path_join(root, loaded.startup_scene)), content="true")
   })
 }
@@ -72,10 +74,7 @@ async test "project.open auto-initializes when the directory already exists" {
 
     let service = EditorService::new(".")
     let payload = service.handle_rpc(
-      @shared.rpc_request_envelope(
-        1,
-        @shared.rpc_request_project_open(root),
-      ),
+      @shared.rpc_request_envelope(1, @shared.rpc_request_project_open(root)),
     )
     let response = response_envelope(payload).response
     let loaded = match response {
@@ -84,14 +83,8 @@ async test "project.open auto-initializes when the directory already exists" {
     }
 
     inspect(loaded.name, content="Existing Dir Demo")
-    inspect(
-      loaded.startup_scene,
-      content="scenes/existing-dir-demo.scene.json",
-    )
-    inspect(
-      @fs.exists(path_join(root, "selene.project.json")),
-      content="true",
-    )
+    inspect(loaded.startup_scene, content="scenes/existing-dir-demo.scene.json")
+    inspect(@fs.exists(path_join(root, "selene.project.json")), content="true")
     inspect(@fs.exists(path_join(root, loaded.startup_scene)), content="true")
   })
 }
@@ -133,10 +126,7 @@ test "parse_cli_options defaults to the editor port" {
 ///|
 test "parse_cli_options accepts --port and project root" {
   let options = parse_cli_options([
-    "selene-editor",
-    "--port",
-    "48123",
-    "/tmp/demo-project",
+    "selene-editor", "--port", "48123", "/tmp/demo-project",
   ])
   inspect(options.port, content="48123")
   inspect(options.project_root, content="Some(\"/tmp/demo-project\")")
@@ -145,9 +135,7 @@ test "parse_cli_options accepts --port and project root" {
 ///|
 test "parse_cli_options rejects an invalid port" {
   let result : Result[CliOptions, Error] = try? parse_cli_options([
-    "selene-editor",
-    "--port",
-    "70000",
+    "selene-editor", "--port", "70000",
   ])
   match result {
     Err(Failure(message)) => inspect(message, content="Invalid port: 70000")
@@ -161,8 +149,7 @@ test "normalize_relative_path decodes url-escaped asset paths" {
     normalize_relative_path(
       "assets/pixeladventure/Main%20Characters/Mask%20Dude/Fall%20(32x32).png",
     ),
-    content=
-      "assets/pixeladventure/Main Characters/Mask Dude/Fall (32x32).png",
+    content="assets/pixeladventure/Main Characters/Mask Dude/Fall (32x32).png",
   )
 }
 
@@ -180,10 +167,7 @@ async test "service lists scenes and saves prefabs and asset docs" {
     let service = EditorService::new(".")
     ignore(
       service.handle_rpc(
-        @shared.rpc_request_envelope(
-          1,
-          @shared.rpc_request_project_open(root),
-        ),
+        @shared.rpc_request_envelope(1, @shared.rpc_request_project_open(root)),
       ),
     )
 
@@ -193,21 +177,17 @@ async test "service lists scenes and saves prefabs and asset docs" {
         @shared.rpc_request_scene_create("Battlefield"),
       ),
     )
-    let created_scene_path = match response_envelope(create_scene_payload).response {
+    let created_scene_path = match
+      response_envelope(create_scene_payload).response {
       @shared.SceneLoaded(scene~) => scene.path
       _ => fail("expected scene load response")
     }
-    inspect(
-      created_scene_path,
-      content="scenes/battlefield.scene.json",
-    )
+    inspect(created_scene_path, content="scenes/battlefield.scene.json")
 
     let prefab = @editor_bridge.PrefabDocument::empty("Enemy").with_entity(
-      @editor_bridge.entity_document(
-        "enemy",
-        "Enemy",
-        components=[@editor_bridge.name_component("Enemy")],
-      ),
+      @editor_bridge.entity_document("enemy", "Enemy", components=[
+        @editor_bridge.name_component("Enemy"),
+      ]),
     )
     ignore(
       service.handle_rpc(
@@ -219,29 +199,28 @@ async test "service lists scenes and saves prefabs and asset docs" {
     )
 
     let atlas = @editor_bridge.AtlasAssetDocument::default(
-      "Hero Atlas",
-      "assets/images/hero.png",
+      "Hero Atlas", "assets/images/hero.png",
     )
     ignore(
       service.handle_rpc(
         @shared.rpc_request_envelope(
           4,
-          @shared.rpc_request_atlas_save("assets/atlases/hero.atlas.json", atlas),
+          @shared.rpc_request_atlas_save(
+            "assets/atlases/hero.atlas.json", atlas,
+          ),
         ),
       ),
     )
 
     let animation = @editor_bridge.AnimationAssetDocument::default(
-      "Hero Animation",
-      "assets/atlases/hero.atlas.json",
+      "Hero Animation", "assets/atlases/hero.atlas.json",
     )
     ignore(
       service.handle_rpc(
         @shared.rpc_request_envelope(
           5,
           @shared.rpc_request_animation_save(
-            "assets/animations/hero.anim.json",
-            animation,
+            "assets/animations/hero.anim.json", animation,
           ),
         ),
       ),
@@ -276,10 +255,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
     let service = EditorService::new(".")
     ignore(
       service.handle_rpc(
-        @shared.rpc_request_envelope(
-          1,
-          @shared.rpc_request_project_open(root),
-        ),
+        @shared.rpc_request_envelope(1, @shared.rpc_request_project_open(root)),
       ),
     )
     @fs.write_file(
@@ -292,7 +268,8 @@ async test "service typed rpc surface succeeds across current workspace actions"
       @shared.rpc_request_envelope(2, @shared.rpc_request_project_current()),
     )
     match response_envelope(current_payload).response {
-      @shared.ProjectState(state~) => inspect(state.root, content="Some(\"" + root + "\")")
+      @shared.ProjectState(state~) =>
+        inspect(state.root, content="Some(\"" + root + "\")")
       _ => fail("expected project state")
     }
 
@@ -311,11 +288,14 @@ async test "service typed rpc surface succeeds across current workspace actions"
       ),
     )
     match response_envelope(load_payload).response {
-      @shared.SceneLoaded(scene~) => inspect(scene.path, content="scenes/rpc-demo.scene.json")
+      @shared.SceneLoaded(scene~) =>
+        inspect(scene.path, content="scenes/rpc-demo.scene.json")
       _ => fail("expected scene load response")
     }
 
-    let save_scene = @editor_bridge.SceneDocument::default_main().with_name("Gameplay")
+    let save_scene = @editor_bridge.SceneDocument::default_main().with_name(
+      "Gameplay",
+    )
     let save_payload = service.handle_rpc(
       @shared.rpc_request_envelope(
         5,
@@ -330,7 +310,8 @@ async test "service typed rpc surface succeeds across current workspace actions"
         @shared.rpc_request_scene_create("Battlefield"),
       ),
     )
-    let created_scene_path = match response_envelope(create_scene_payload).response {
+    let created_scene_path = match
+      response_envelope(create_scene_payload).response {
       @shared.SceneLoaded(scene~) => scene.path
       _ => fail("expected created scene response")
     }
@@ -357,11 +338,9 @@ async test "service typed rpc surface succeeds across current workspace actions"
     }
 
     let prefab = @editor_bridge.PrefabDocument::empty("Enemy").with_entity(
-      @editor_bridge.entity_document(
-        "enemy",
-        "Enemy",
-        components=[@editor_bridge.name_component("Enemy")],
-      ),
+      @editor_bridge.entity_document("enemy", "Enemy", components=[
+        @editor_bridge.name_component("Enemy"),
+      ]),
     )
     ignore(
       service.handle_rpc(
@@ -378,19 +357,21 @@ async test "service typed rpc surface succeeds across current workspace actions"
       ),
     )
     match response_envelope(prefab_payload).response {
-      @shared.PrefabLoaded(prefab~) => inspect(prefab.prefab.name, content="Enemy")
+      @shared.PrefabLoaded(prefab~) =>
+        inspect(prefab.prefab.name, content="Enemy")
       _ => fail("expected prefab load response")
     }
 
     let atlas = @editor_bridge.AtlasAssetDocument::default(
-      "Hero Atlas",
-      "assets/images/hero.png",
+      "Hero Atlas", "assets/images/hero.png",
     )
     ignore(
       service.handle_rpc(
         @shared.rpc_request_envelope(
           11,
-          @shared.rpc_request_atlas_save("assets/atlases/hero.atlas.json", atlas),
+          @shared.rpc_request_atlas_save(
+            "assets/atlases/hero.atlas.json", atlas,
+          ),
         ),
       ),
     )
@@ -401,21 +382,20 @@ async test "service typed rpc surface succeeds across current workspace actions"
       ),
     )
     match response_envelope(atlas_payload).response {
-      @shared.AtlasLoaded(atlas~) => inspect(atlas.atlas.name, content="Hero Atlas")
+      @shared.AtlasLoaded(atlas~) =>
+        inspect(atlas.atlas.name, content="Hero Atlas")
       _ => fail("expected atlas load response")
     }
 
     let animation = @editor_bridge.AnimationAssetDocument::default(
-      "Hero Animation",
-      "assets/atlases/hero.atlas.json",
+      "Hero Animation", "assets/atlases/hero.atlas.json",
     )
     ignore(
       service.handle_rpc(
         @shared.rpc_request_envelope(
           13,
           @shared.rpc_request_animation_save(
-            "assets/animations/hero.anim.json",
-            animation,
+            "assets/animations/hero.anim.json", animation,
           ),
         ),
       ),
@@ -476,22 +456,22 @@ async test "service typed rpc surface returns stable errors for missing or inval
       @shared.rpc_request_atlas_save(
         "assets/atlases/test.atlas.json",
         @editor_bridge.AtlasAssetDocument::default(
-          "Test Atlas",
-          "assets/images/test.png",
+          "Test Atlas", "assets/images/test.png",
         ),
       ),
       @shared.rpc_request_animation_load("assets/animations/missing.anim.json"),
       @shared.rpc_request_animation_save(
         "assets/animations/test.anim.json",
         @editor_bridge.AnimationAssetDocument::default(
-          "Test Animation",
-          "assets/atlases/test.atlas.json",
+          "Test Animation", "assets/atlases/test.atlas.json",
         ),
       ),
     ]
     let mut request_id = 1
     for request in not_open_requests {
-      let payload = service.handle_rpc(@shared.rpc_request_envelope(request_id, request))
+      let payload = service.handle_rpc(
+        @shared.rpc_request_envelope(request_id, request),
+      )
       request_id += 1
       expect_error_response(
         response_envelope(payload).response,
@@ -511,7 +491,11 @@ async test "service typed rpc surface returns stable errors for missing or inval
     request_id += 1
 
     let invalid_scene_path = path_join(root, "scenes/rpc-errors.scene.json")
-    @fs.write_file(invalid_scene_path, "{\"version\":1,\"entities\":" |> @utf8.encode, create=0o644)
+    @fs.write_file(
+      invalid_scene_path,
+      "{\"version\":1,\"entities\":" |> @utf8.encode,
+      create=0o644,
+    )
     let invalid_scene_payload = service.handle_rpc(
       @shared.rpc_request_envelope(
         request_id,
@@ -540,7 +524,8 @@ async test "service typed rpc surface returns stable errors for missing or inval
 
     @fs.write_file(
       path_join(root, "prefabs/broken.prefab.json"),
-      "{\n  \"version\": 1,\n  \"name\": \"\",\n  \"entities\": []\n}\n" |> @utf8.encode,
+      "{\n  \"version\": 1,\n  \"name\": \"\",\n  \"entities\": []\n}\n"
+      |> @utf8.encode,
       create=0o644,
     )
     let invalid_prefab_payload = service.handle_rpc(
@@ -558,7 +543,8 @@ async test "service typed rpc surface returns stable errors for missing or inval
 
     @fs.write_file(
       path_join(root, "assets/atlases/broken.atlas.json"),
-      "{\n  \"version\": 1,\n  \"name\": \"Broken\",\n  \"source_image\": \"assets/images/hero.png\",\n  \"tile_size\": {\"x\": 0, \"y\": 0},\n  \"columns\": 0,\n  \"rows\": 0,\n  \"spacing\": {\"x\": 0, \"y\": 0},\n  \"margin\": {\"x\": 0, \"y\": 0},\n  \"default_anchor\": {\"x\": 0.5, \"y\": 0.5},\n  \"regions\": []\n}\n" |> @utf8.encode,
+      "{\n  \"version\": 1,\n  \"name\": \"Broken\",\n  \"source_image\": \"assets/images/hero.png\",\n  \"tile_size\": {\"x\": 0, \"y\": 0},\n  \"columns\": 0,\n  \"rows\": 0,\n  \"spacing\": {\"x\": 0, \"y\": 0},\n  \"margin\": {\"x\": 0, \"y\": 0},\n  \"default_anchor\": {\"x\": 0.5, \"y\": 0.5},\n  \"regions\": []\n}\n"
+      |> @utf8.encode,
       create=0o644,
     )
     let invalid_atlas_payload = service.handle_rpc(
@@ -576,7 +562,8 @@ async test "service typed rpc surface returns stable errors for missing or inval
 
     @fs.write_file(
       path_join(root, "assets/animations/broken.anim.json"),
-      "{\n  \"version\": 1,\n  \"name\": \"Broken\",\n  \"atlas_asset_path\": \"assets/atlases/hero.atlas.json\",\n  \"clips\": [],\n  \"default_clip\": \"missing\"\n}\n" |> @utf8.encode,
+      "{\n  \"version\": 1,\n  \"name\": \"Broken\",\n  \"atlas_asset_path\": \"assets/atlases/hero.atlas.json\",\n  \"clips\": [],\n  \"default_clip\": \"missing\"\n}\n"
+      |> @utf8.encode,
       create=0o644,
     )
     let invalid_animation_payload = service.handle_rpc(
@@ -601,18 +588,23 @@ async test "scene.load can require migration and scene.migrate writes back the m
     @fs.mkdir(path_join(root, "scenes"), permission=0o755, recursive=true)
     @fs.write_file(
       path_join(root, "selene.project.json"),
-      (
-        @editor_bridge.ProjectManifest::default(
-          "Legacy Demo",
-          startup_scene="scenes/main.scene.json",
-          asset_roots=["assets/images", "assets/audio", "assets/fonts", "assets/atlases", "assets/animations"],
-        ).to_json().stringify(indent=2) + "\n"
-      ) |> @utf8.encode,
+      (@editor_bridge.ProjectManifest::default(
+        "Legacy Demo",
+        startup_scene="scenes/main.scene.json",
+        asset_roots=[
+          "assets/images", "assets/audio", "assets/fonts", "assets/atlases", "assets/animations",
+        ],
+      )
+      .to_json()
+      .stringify(indent=2) +
+      "\n")
+      |> @utf8.encode,
       create=0o644,
     )
     @fs.write_file(
       path_join(root, "scenes/main.scene.json"),
-      "{\n  \"version\": 1,\n  \"entities\": [\n    {\n      \"id\": \"camera\",\n      \"name\": \"Camera2d\",\n      \"components\": [\n        {\n          \"kind\": \"Transform2d\",\n          \"data\": {\n            \"translation\": {\n              \"x\": 0,\n              \"y\": 0\n            },\n            \"rotation\": 0,\n            \"scale\": {\n              \"x\": 1,\n              \"y\": 1\n            }\n          }\n        },\n        {\n          \"kind\": \"Camera2d\",\n          \"data\": {\n            \"is_active\": true,\n            \"order\": 0,\n            \"scale\": 1\n          }\n        },\n        {\n          \"kind\": \"Visibility\",\n          \"data\": {\n            \"visible\": true\n          }\n        }\n      ]\n    }\n  ]\n}\n" |> @utf8.encode,
+      "{\n  \"version\": 1,\n  \"entities\": [\n    {\n      \"id\": \"camera\",\n      \"name\": \"Camera2d\",\n      \"components\": [\n        {\n          \"kind\": \"Transform2d\",\n          \"data\": {\n            \"translation\": {\n              \"x\": 0,\n              \"y\": 0\n            },\n            \"rotation\": 0,\n            \"scale\": {\n              \"x\": 1,\n              \"y\": 1\n            }\n          }\n        },\n        {\n          \"kind\": \"Camera2d\",\n          \"data\": {\n            \"is_active\": true,\n            \"order\": 0,\n            \"scale\": 1\n          }\n        },\n        {\n          \"kind\": \"Visibility\",\n          \"data\": {\n            \"visible\": true\n          }\n        }\n      ]\n    }\n  ]\n}\n"
+      |> @utf8.encode,
       create=0o644,
     )
     group.add_defer(() => {
@@ -656,7 +648,7 @@ async test "scene.load can require migration and scene.migrate writes back the m
     }
 
     inspect(
-      @editor_bridge.read_scene_document(path_join(root, "scenes/main.scene.json")).name,
+      read_scene_document_from_file(path_join(root, "scenes/main.scene.json")).name,
       content="Main",
     )
   })

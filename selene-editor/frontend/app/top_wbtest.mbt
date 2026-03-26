@@ -8,7 +8,9 @@ test "initialize subscribes to service and preview channels" {
 test "pick project root result auto-opens the chosen directory" {
   let (_, model) = update(msg_pick_project_root(), new_model())
   let (effects, next) = update(
-    msg_project_root_picked(Ok(@shared.directory_pick_result(Some("/tmp/demo-project")))),
+    msg_project_root_picked(
+      Ok(@shared.directory_pick_result(Some("/tmp/demo-project"))),
+    ),
     model,
   )
   inspect(effects.length(), content="1")
@@ -65,9 +67,7 @@ test "scene migration confirmation gates legacy scene loading" {
     @editor_bridge.SceneDocument::default_main(),
     [
       @editor_bridge.migration_field_change(
-        "name",
-        "Missing required scene name",
-        "Main",
+        "name", "Missing required scene name", "Main",
       ),
     ],
   )
@@ -84,7 +84,10 @@ test "scene migration confirmation gates legacy scene loading" {
   inspect(gated.pending_scene_migration is Some(_), content="true")
   inspect(gated.scene is None, content="true")
 
-  let (confirm_effects, confirming) = update(msg_confirm_scene_migration(), gated)
+  let (confirm_effects, confirming) = update(
+    msg_confirm_scene_migration(),
+    gated,
+  )
   inspect(confirm_effects.length(), content="1")
   inspect(confirming.status, content="Migrating scenes/main.scene.json...")
 }
@@ -144,8 +147,7 @@ test "adding a sprite from an asset uses the resolved asset size" {
   let entity = next.scene.unwrap().entity("entity-1").unwrap()
   let sprite : @editor_bridge.SpriteComponent = component_of(entity, "Sprite").unwrap()
   let transform : @editor_bridge.Transform2dComponent = component_of(
-    entity,
-    "Transform2d",
+    entity, "Transform2d",
   ).unwrap()
   inspect(sprite.image_path, content="Some(\"assets/hero.png\")")
   inspect(sprite.custom_size, content="Some({x: 32, y: 48})")
@@ -192,10 +194,14 @@ test "editing a selected atlas updates the atlas document and save emits rpc" {
     manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
     atlas_refs: [@editor_bridge.asset_ref("assets/atlases/hero.atlas.json")],
     atlas_documents: { "assets/atlases/hero.atlas.json": atlas },
-    selected_resource: Some(resource_selection_atlas("assets/atlases/hero.atlas.json")),
+    selected_resource: Some(
+      resource_selection_atlas("assets/atlases/hero.atlas.json"),
+    ),
   }
   let (_, edited) = update(msg_update_selected_atlas_columns("2"), model)
-  let updated = edited.atlas_documents.get("assets/atlases/hero.atlas.json").unwrap()
+  let updated = edited.atlas_documents
+    .get("assets/atlases/hero.atlas.json")
+    .unwrap()
   inspect(updated.columns, content="2")
   inspect(updated.regions.length(), content="2")
 
@@ -215,14 +221,21 @@ test "editing a selected animation updates the animation document and save emits
     ..new_model(),
     current_root: Some("/tmp/demo"),
     manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
-    animation_refs: [@editor_bridge.asset_ref("assets/animations/hero.anim.json")],
+    animation_refs: [
+      @editor_bridge.asset_ref("assets/animations/hero.anim.json"),
+    ],
     animation_documents: { "assets/animations/hero.anim.json": animation },
     selected_resource: Some(
       resource_selection_animation("assets/animations/hero.anim.json"),
     ),
   }
-  let (_, edited) = update(msg_update_selected_animation_clip_frames("run_0, run_1"), model)
-  let updated = edited.animation_documents.get("assets/animations/hero.anim.json").unwrap()
+  let (_, edited) = update(
+    msg_update_selected_animation_clip_frames("run_0, run_1"),
+    model,
+  )
+  let updated = edited.animation_documents
+    .get("assets/animations/hero.anim.json")
+    .unwrap()
   inspect(updated.clips[0].frames.join(","), content="run_0,run_1")
 
   let (effects, saving) = update(msg_save_selected_animation(), edited)
@@ -248,8 +261,14 @@ test "renaming the current scene updates the scene document and save emits rpc" 
 
 ///|
 test "project and scene load errors update status and logs" {
-  let (_, project_error) = update(msg_project_loaded(Err("Project manifest is invalid: selene.project.json")), new_model())
-  inspect(project_error.status, content="Project error: Project manifest is invalid: selene.project.json")
+  let (_, project_error) = update(
+    msg_project_loaded(Err("Project manifest is invalid: selene.project.json")),
+    new_model(),
+  )
+  inspect(
+    project_error.status,
+    content="Project error: Project manifest is invalid: selene.project.json",
+  )
   inspect(project_error.logs.length(), content="1")
 
   let model = {
@@ -257,8 +276,14 @@ test "project and scene load errors update status and logs" {
     current_root: Some("/tmp/demo"),
     manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
   }
-  let (_, scene_error) = update(msg_scene_loaded(Err("Scene document is invalid: scenes/main.scene.json")), model)
-  inspect(scene_error.status, content="Scene load failed: Scene document is invalid: scenes/main.scene.json")
+  let (_, scene_error) = update(
+    msg_scene_loaded(Err("Scene document is invalid: scenes/main.scene.json")),
+    model,
+  )
+  inspect(
+    scene_error.status,
+    content="Scene load failed: Scene document is invalid: scenes/main.scene.json",
+  )
   inspect(scene_error.logs.length(), content="1")
 }
 
@@ -285,17 +310,44 @@ test "asset and resource load errors remain user-facing and non-fatal" {
     manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
     scene: Some(@editor_bridge.SceneDocument::default_main()),
   }
-  let (_, assets_error) = update(msg_assets_loaded(Err("Asset scan failed")), model)
+  let (_, assets_error) = update(
+    msg_assets_loaded(Err("Asset scan failed")),
+    model,
+  )
   inspect(assets_error.status, content="Assets load failed: Asset scan failed")
 
-  let (_, prefab_error) = update(msg_prefab_loaded(Err("Prefab document is invalid: prefabs/hero.prefab.json")), assets_error)
-  inspect(prefab_error.status, content="Prefab load failed: Prefab document is invalid: prefabs/hero.prefab.json")
+  let (_, prefab_error) = update(
+    msg_prefab_loaded(
+      Err("Prefab document is invalid: prefabs/hero.prefab.json"),
+    ),
+    assets_error,
+  )
+  inspect(
+    prefab_error.status,
+    content="Prefab load failed: Prefab document is invalid: prefabs/hero.prefab.json",
+  )
 
-  let (_, atlas_error) = update(msg_atlas_loaded(Err("Atlas document is invalid: assets/atlases/hero.atlas.json")), prefab_error)
-  inspect(atlas_error.status, content="Atlas load failed: Atlas document is invalid: assets/atlases/hero.atlas.json")
+  let (_, atlas_error) = update(
+    msg_atlas_loaded(
+      Err("Atlas document is invalid: assets/atlases/hero.atlas.json"),
+    ),
+    prefab_error,
+  )
+  inspect(
+    atlas_error.status,
+    content="Atlas load failed: Atlas document is invalid: assets/atlases/hero.atlas.json",
+  )
 
-  let (_, animation_error) = update(msg_animation_loaded(Err("Animation document is invalid: assets/animations/hero.anim.json")), atlas_error)
-  inspect(animation_error.status, content="Animation load failed: Animation document is invalid: assets/animations/hero.anim.json")
+  let (_, animation_error) = update(
+    msg_animation_loaded(
+      Err("Animation document is invalid: assets/animations/hero.anim.json"),
+    ),
+    atlas_error,
+  )
+  inspect(
+    animation_error.status,
+    content="Animation load failed: Animation document is invalid: assets/animations/hero.anim.json",
+  )
   inspect(animation_error.scene is Some(_), content="true")
 }
 
@@ -315,28 +367,23 @@ test "service event stream errors do not destroy editor state" {
 
 ///|
 test "editing a selected prefab updates the prefab document and save emits rpc" {
-  let prefab = @editor_bridge.prefab_document(
-    "hero",
-    [
-      @editor_bridge.entity_document(
-        "camera",
-        "Camera2d",
-        components=[
-          @editor_bridge.name_component("Camera2d"),
-          @editor_bridge.transform2d_component(),
-          @editor_bridge.camera2d_component(),
-          @editor_bridge.visibility_component(),
-        ],
-      ),
-    ],
-  )
+  let prefab = @editor_bridge.prefab_document("hero", [
+    @editor_bridge.entity_document("camera", "Camera2d", components=[
+      @editor_bridge.name_component("Camera2d"),
+      @editor_bridge.transform2d_component(),
+      @editor_bridge.camera2d_component(),
+      @editor_bridge.visibility_component(),
+    ]),
+  ])
   let model = {
     ..new_model(),
     current_root: Some("/tmp/demo"),
     manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
     prefab_refs: [@editor_bridge.prefab_ref("prefabs/hero.prefab.json")],
     prefab_documents: { "prefabs/hero.prefab.json": prefab },
-    selected_resource: Some(resource_selection_prefab("prefabs/hero.prefab.json")),
+    selected_resource: Some(
+      resource_selection_prefab("prefabs/hero.prefab.json"),
+    ),
   }
   let (_, edited) = update(msg_update_selected_prefab_name("hero-copy"), model)
   let updated = edited.prefab_documents.get("prefabs/hero.prefab.json").unwrap()
