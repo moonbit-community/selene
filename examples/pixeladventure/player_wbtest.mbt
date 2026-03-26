@@ -8,6 +8,20 @@ fn bird_contact_outcome_name(outcome : BirdContactOutcome) -> String {
 }
 
 ///|
+fn test_scene_component_count(
+  scene : @editor_bridge.SceneDocument,
+  kind : String,
+) -> Int {
+  let mut count = 0
+  for entity in scene.entities {
+    if entity.component(kind) is Some(_) {
+      count += 1
+    }
+  }
+  count
+}
+
+///|
 test "player freezes after any game result" {
   inspect(player_is_frozen(Some(Win)), content="true")
   inspect(player_is_frozen(Some(GameOver)), content="true")
@@ -106,12 +120,18 @@ test "pending stomp bounce overrides downward Y velocity" {
 }
 
 ///|
-test "level data contains player flag and terrain" {
-  let parsed_tilemap = TileMap::from_json(tilemap)
+test "scene data contains player flag and terrain" {
+  let scene = pixeladventure_startup_scene_document()
   inspect(
-    parsed_tilemap.get_tiles_first("MaskDude").length() > 0,
+    test_scene_component_count(scene, pixeladventure_player_component_kind) > 0,
     content="true",
   )
-  inspect(parsed_tilemap.get_tiles_first("Flag").length() > 0, content="true")
-  inspect(parsed_tilemap.get_tiles("Grass").length() > 0, content="true")
+  inspect(
+    test_scene_component_count(scene, pixeladventure_flag_component_kind) > 0,
+    content="true",
+  )
+  inspect(
+    test_scene_component_count(scene, pixeladventure_terrain_component_kind) > 0,
+    content="true",
+  )
 }

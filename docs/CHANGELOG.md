@@ -4,7 +4,7 @@
 
 ### Added
 
-- Added `examples/pixeladventure/scene_runtime_wbtest.mbt` to verify that editor-scene placement, terrain-collider coverage, and custom gameplay component registration match the legacy tilemap baseline.
+- Added `examples/pixeladventure/scene_runtime_wbtest.mbt` to verify editor-scene gameplay marker counts, terrain segment generation, and custom gameplay component registration directly from Selene editor scene documents.
 - Added a shared `Migration` trait to `selene/editor_bridge` and extended document migration support beyond scenes, with typed probe/migrate status APIs for prefab, atlas, and animation documents.
 - Added editable `Atlas Inspector` and `Animation Inspector` flows to `selene-editor`, with field-level editing and save actions mapped directly onto `selene/editor_bridge` atlas and animation asset documents instead of editor-private resource state.
 - Added editable `Prefab Inspector` and expanded `Scene Browser` controls to `selene-editor`, so prefab documents can now be renamed/saved from the inspector and the current scene can be renamed, created, deleted, and marked as the startup scene from the workspace UI.
@@ -40,6 +40,7 @@
 
 ### Fixed
 
+- Fixed `examples/pixeladventure` web startup so scene/project/asset document loading now uses `@asset.read_bytes` first and no longer requires Node `fs` on browser runtime.
 - Fixed `selene/editor_bridge` scene/prefab validation so custom component kinds are accepted (empty kinds are still rejected), enabling Selene game-specific JSON components to be loaded and instantiated through the custom component registry.
 - Fixed `examples/pixeladventure/scenes/main.scene.json` decoding compatibility by removing `null` option fields from the generated scene document payload.
 - Fixed the `selene-editor` source workflow so `just run` now rebuilds `public/editor.js` before starting the local service, preventing stale frontend bundles from masking newer RPC and migration behavior.
@@ -52,6 +53,7 @@
 
 ### Removed
 
+- Removed `examples/pixeladventure` legacy tilemap fixtures and SpriteFusion map artifacts (`legacy_*_wbtest.mbt` and `sprite_fusion/*.json`) now that scene documents are the only placement source.
 - Removed the draft `prds/selene-editor` product requirements document so `selene-editor` requirements can be driven directly from the live discussion instead of a checked-in PRD.
 - Removed the private `selene-editor/shared` document/schema implementation (`documents`, `validation`, `patch`, and `version`) in favor of the shared `selene/editor_bridge` package.
 - Removed `selene-editor` build/toolchain RPCs (`build.check`, `build.run_preview`) and the service-side `moon` command execution path; editing and preview now only depend on the editor runtime and JSON project files.

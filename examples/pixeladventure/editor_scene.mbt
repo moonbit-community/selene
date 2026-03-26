@@ -67,6 +67,22 @@ fn path_join(base : String, child : String) -> String {
   }
 }
 
+fn read_json_asset(path : String) -> Json? {
+  guard @asset.read_bytes(path) is Some(bytes) else {
+    return None
+  }
+  let source = bytes.to_unchecked_string()
+  let parsed : Result[Json, @json.ParseError] = try? @json.parse(source.view())
+  match parsed {
+    Ok(json) => Some(json)
+    Err(_) => None
+  }
+}
+
+fn validation_error_string(errors : Array[@editor_bridge.ValidationError]) -> String {
+  errors.to_json().stringify()
+}
+
 fn pixeladventure_project_root_candidates() -> Array[String] {
   let suffixes = ["", "pixeladventure", "examples/pixeladventure"]
   let roots : Array[String] = []
@@ -95,27 +111,40 @@ fn load_pixeladventure_project_context() -> PixelAdventureProjectContext {
   let manifest_name = @editor_bridge.project_manifest_file_name("")
   let roots = pixeladventure_project_root_candidates()
   for root in roots {
-    let candidates = try {
-      @editor_bridge.project_manifest_candidates(root)
-    } catch {
-      _ => []
-    }
-    if candidates.is_empty() {
+    let manifest_path = path_join(root, manifest_name)
+    guard read_json_asset(manifest_path) is Some(json) else {
       continue
     }
-    let manifest_path = path_join(root, manifest_name)
-    let manifest = try {
-      @editor_bridge.read_project_manifest(manifest_path)
+    let manifest : @editor_bridge.ProjectManifest = try {
+      @json.from_json(json)
     } catch {
       err =>
         abort(
-          "Failed to read pixeladventure project manifest at " +
+          "Failed to decode pixeladventure project manifest at " +
           manifest_path + ": " + err.to_string(),
         )
+    }
+    let errors = @editor_bridge.validate_project_manifest(manifest)
+    guard errors.is_empty() else {
+      abort(
+        "Failed to validate pixeladventure project manifest at " +
+        manifest_path + ": " + validation_error_string(errors),
+      )
     }
     return {
       root,
       manifest,
+    }
+  }
+  if @env.current_dir() is Some(_) {
+    for root in roots {
+      let manifest_path = path_join(root, manifest_name)
+      let manifest_result : Result[@editor_bridge.ProjectManifest, Error] = try?
+        @editor_bridge.read_project_manifest(manifest_path)
+      match manifest_result {
+        Ok(manifest) => return { root, manifest }
+        Err(_) => ()
+      }
     }
   }
   abort(
@@ -124,39 +153,167 @@ fn load_pixeladventure_project_context() -> PixelAdventureProjectContext {
   )
 }
 
-///|
-fn pixeladventure_startup_scene_document() -> @editor_bridge.SceneDocument {
-  let context = load_pixeladventure_project_context()
-  let scene_path = path_join(context.root, context.manifest.startup_scene)
-  try {
-    @editor_bridge.read_scene_document(scene_path)
-  } catch {
-    err => abort("Failed to read pixeladventure startup scene: " + err.to_string())
+fn load_pixeladventure_scene_document(
+  project : PixelAdventureProjectContext,
+) -> @editor_bridge.SceneDocument {
+  let scene_path = path_join(project.root, project.manifest.startup_scene)
+  if read_json_asset(scene_path) is Some(json) {
+    let scene : @editor_bridge.SceneDocument = try {
+      @json.from_json(json)
+    } catch {
+      err => abort("Failed to decode pixeladventure startup scene: " + err.to_string())
+    }
+    let errors = @editor_bridge.validate_scene_document(scene)
+    guard errors.is_empty() else {
+      abort(
+        "Failed to validate pixeladventure startup scene " + scene_path + ": " +
+        validation_error_string(errors),
+      )
+    }
+    return scene
   }
+  if @env.current_dir() is Some(_) {
+    let fallback : Result[@editor_bridge.SceneDocument, Error] = try?
+      @editor_bridge.read_scene_document(scene_path)
+    match fallback {
+      Ok(scene) => return scene
+      Err(_) => ()
+    }
+  }
+  abort("Failed to read pixeladventure startup scene bytes: " + scene_path)
+}
+
+fn decode_atlas_asset_document(
+  path : String,
+  json : Json,
+) -> @editor_bridge.AtlasAssetDocument {
+  let atlas : @editor_bridge.AtlasAssetDocument = try {
+    @json.from_json(json)
+  } catch {
+    err => abort("Failed to decode atlas asset " + path + ": " + err.to_string())
+  }
+  let errors = @editor_bridge.validate_atlas_asset_document(atlas)
+  guard errors.is_empty() else {
+    abort(
+      "Failed to validate atlas asset " + path + ": " +
+      validation_error_string(errors),
+    )
+  }
+  atlas
+}
+
+fn decode_animation_asset_document(
+  path : String,
+  json : Json,
+) -> @editor_bridge.AnimationAssetDocument {
+  let animation : @editor_bridge.AnimationAssetDocument = try {
+    @json.from_json(json)
+  } catch {
+    err => abort("Failed to decode animation asset " + path + ": " + err.to_string())
+  }
+  let errors = @editor_bridge.validate_animation_asset_document(animation)
+  guard errors.is_empty() else {
+    abort(
+      "Failed to validate animation asset " + path + ": " +
+      validation_error_string(errors),
+    )
+  }
+  animation
+}
+
+///|
+pub fn pixeladventure_startup_scene_document() -> @editor_bridge.SceneDocument {
+  load_pixeladventure_scene_document(load_pixeladventure_project_context())
+}
+
+fn push_unique_path(paths : Array[String], path : String?) -> Unit {
+  guard path is Some(value) else {
+    return
+  }
+  guard value != "" && !paths.contains(value) else {
+    return
+  }
+  paths.push(value)
+}
+
+fn scene_referenced_animation_assets(
+  scene : @editor_bridge.SceneDocument,
+) -> Array[String] {
+  let paths : Array[String] = []
+  for entity in scene.entities {
+    if entity.component("AnimationPlayer") is Some(component) {
+      let decoded : @editor_bridge.AnimationPlayerComponent? =
+        @editor_bridge.decode_component(Some(component))
+      match decoded {
+        Some(data) => push_unique_path(paths, data.animation_asset_path)
+        None => ()
+      }
+    }
+  }
+  paths
+}
+
+fn scene_referenced_atlas_assets(
+  scene : @editor_bridge.SceneDocument,
+) -> Array[String] {
+  let paths : Array[String] = []
+  for entity in scene.entities {
+    if entity.component("TextureAtlas") is Some(component) {
+      let decoded : @editor_bridge.TextureAtlasComponent? =
+        @editor_bridge.decode_component(Some(component))
+      match decoded {
+        Some(data) => push_unique_path(paths, data.atlas_asset_path)
+        None => ()
+      }
+    }
+  }
+  paths
+}
+
+fn animation_referenced_atlas_assets(
+  animations : Map[String, @editor_bridge.AnimationAssetDocument],
+) -> Array[String] {
+  let paths : Array[String] = []
+  for _, animation in animations {
+    if animation.atlas_asset_path != "" &&
+      !paths.contains(animation.atlas_asset_path) {
+      paths.push(animation.atlas_asset_path)
+    }
+  }
+  paths
 }
 
 ///|
 fn load_pixeladventure_atlas_assets(
   root : String,
+  scene : @editor_bridge.SceneDocument,
+  animations : Map[String, @editor_bridge.AnimationAssetDocument],
 ) -> Map[String, @editor_bridge.AtlasAssetDocument] {
   let assets : Map[String, @editor_bridge.AtlasAssetDocument] = {}
-  let refs = try {
-    @editor_bridge.list_atlas_assets(root)
-  } catch {
-    err => abort("Failed to list atlas assets: " + err.to_string())
-  }
-  for atlas_ref in refs {
-    let atlas_path = path_join(root, atlas_ref.path)
-    let asset = try {
-      @editor_bridge.read_atlas_asset_document(atlas_path)
-    } catch {
-      err =>
-        abort(
-          "Failed to read atlas asset " + atlas_ref.path + ": " +
-          err.to_string(),
-        )
+  let paths = scene_referenced_atlas_assets(scene)
+  for path in animation_referenced_atlas_assets(animations) {
+    if !paths.contains(path) {
+      paths.push(path)
     }
-    assets.set(atlas_ref.path, asset)
+  }
+  for relative_path in paths {
+    let atlas_path = path_join(root, relative_path)
+    if read_json_asset(atlas_path) is Some(json) {
+      assets.set(relative_path, decode_atlas_asset_document(atlas_path, json))
+      continue
+    }
+    if @env.current_dir() is Some(_) {
+      let fallback : Result[@editor_bridge.AtlasAssetDocument, Error] = try?
+        @editor_bridge.read_atlas_asset_document(atlas_path)
+      match fallback {
+        Ok(atlas) => {
+          assets.set(relative_path, atlas)
+          continue
+        }
+        Err(_) => ()
+      }
+    }
+    abort("Failed to read atlas asset bytes: " + atlas_path)
   }
   assets
 }
@@ -164,25 +321,31 @@ fn load_pixeladventure_atlas_assets(
 ///|
 fn load_pixeladventure_animation_assets(
   root : String,
+  scene : @editor_bridge.SceneDocument,
 ) -> Map[String, @editor_bridge.AnimationAssetDocument] {
   let assets : Map[String, @editor_bridge.AnimationAssetDocument] = {}
-  let refs = try {
-    @editor_bridge.list_animation_assets(root)
-  } catch {
-    err => abort("Failed to list animation assets: " + err.to_string())
-  }
-  for animation_ref in refs {
-    let animation_path = path_join(root, animation_ref.path)
-    let asset = try {
-      @editor_bridge.read_animation_asset_document(animation_path)
-    } catch {
-      err =>
-        abort(
-          "Failed to read animation asset " + animation_ref.path + ": " +
-          err.to_string(),
-        )
+  let paths = scene_referenced_animation_assets(scene)
+  for relative_path in paths {
+    let animation_path = path_join(root, relative_path)
+    if read_json_asset(animation_path) is Some(json) {
+      assets.set(
+        relative_path,
+        decode_animation_asset_document(animation_path, json),
+      )
+      continue
     }
-    assets.set(animation_ref.path, asset)
+    if @env.current_dir() is Some(_) {
+      let fallback : Result[@editor_bridge.AnimationAssetDocument, Error] = try?
+        @editor_bridge.read_animation_asset_document(animation_path)
+      match fallback {
+        Ok(animation) => {
+          assets.set(relative_path, animation)
+          continue
+        }
+        Err(_) => ()
+      }
+    }
+    abort("Failed to read animation asset bytes: " + animation_path)
   }
   assets
 }
@@ -425,10 +588,16 @@ fn build_terrain_colliders_from_scene(scene : @editor_bridge.SceneDocument) -> U
 fn load_level_scene() -> LoadedLevelScene {
   let project = load_pixeladventure_project_context()
   let root = project.root
-  let scene = pixeladventure_startup_scene_document()
+  let scene = load_pixeladventure_scene_document(project)
+  let animation_assets = load_pixeladventure_animation_assets(root, scene)
+  let atlas_assets = load_pixeladventure_atlas_assets(
+    root,
+    scene,
+    animation_assets,
+  )
   let context = @editor_bridge.asset_instantiation_context(
-    atlas_assets=load_pixeladventure_atlas_assets(root),
-    animation_assets=load_pixeladventure_animation_assets(root),
+    atlas_assets=atlas_assets,
+    animation_assets=animation_assets,
     custom_component_appliers=pixeladventure_custom_component_appliers(),
   )
   let runtime = @editor_bridge.instantiate_scene_document_with_context(
