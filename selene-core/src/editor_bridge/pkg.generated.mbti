@@ -17,6 +17,8 @@ pub fn animation_asset_document_from_frames(String, String, Array[String], defau
 
 pub fn animation_asset_file_name(String) -> String
 
+pub fn animation_asset_migration_preview(String, AnimationAssetDocument, Array[MigrationFieldChange]) -> AnimationAssetMigrationPreview
+
 pub let animation_asset_schema_version : Int
 
 pub fn animation_clip_document(String, Double, Bool, Array[String]) -> AnimationClipDocument
@@ -34,6 +36,8 @@ pub fn asset_ref(String) -> AssetRef
 pub fn atlas_asset_document_from_image(String, String, Vec2Doc) -> AtlasAssetDocument
 
 pub fn atlas_asset_file_name(String) -> String
+
+pub fn atlas_asset_migration_preview(String, AtlasAssetDocument, Array[MigrationFieldChange]) -> AtlasAssetMigrationPreview
 
 pub let atlas_asset_schema_version : Int
 
@@ -79,6 +83,12 @@ pub fn list_scene_documents(String) -> Array[SceneRef] raise
 
 pub fn mesh2d_component(String, size? : Vec2Doc?, radius? : Double?) -> ComponentDocument
 
+pub fn migrate_animation_asset_document(String) -> AnimationAssetDocument raise
+
+pub fn migrate_atlas_asset_document(String) -> AtlasAssetDocument raise
+
+pub fn migrate_prefab_document(String) -> PrefabDocument raise
+
 pub fn migrate_scene_document(String) -> SceneDocument raise
 
 pub fn migration_field_change(String, String, String) -> MigrationFieldChange
@@ -95,6 +105,8 @@ pub fn prefab_document(String, Array[EntityDocument]) -> PrefabDocument
 
 pub fn prefab_file_name(String) -> String
 
+pub fn prefab_migration_preview(String, PrefabDocument, Array[MigrationFieldChange]) -> PrefabMigrationPreview
+
 pub fn prefab_ref(String) -> PrefabRef
 
 pub let prefab_schema_version : Int
@@ -107,9 +119,15 @@ pub let project_schema_version : Int
 
 pub fn read_animation_asset_document(String) -> AnimationAssetDocument raise
 
+pub fn read_animation_asset_document_status(String) -> AnimationAssetDocumentLoadStatus raise
+
 pub fn read_atlas_asset_document(String) -> AtlasAssetDocument raise
 
+pub fn read_atlas_asset_document_status(String) -> AtlasAssetDocumentLoadStatus raise
+
 pub fn read_prefab_document(String) -> PrefabDocument raise
+
+pub fn read_prefab_document_status(String) -> PrefabDocumentLoadStatus raise
 
 pub fn read_project_manifest(String) -> ProjectManifest raise
 
@@ -201,6 +219,26 @@ pub impl Eq for AnimationAssetDocument
 pub impl Show for AnimationAssetDocument
 pub impl ToJson for AnimationAssetDocument
 pub impl @json.FromJson for AnimationAssetDocument
+
+pub enum AnimationAssetDocumentLoadStatus {
+  Ready(AnimationAssetDocument)
+  MigrationRequired(AnimationAssetMigrationPreview)
+}
+pub impl Eq for AnimationAssetDocumentLoadStatus
+pub impl Show for AnimationAssetDocumentLoadStatus
+
+pub struct AnimationAssetDocumentMigrator {
+}
+
+pub struct AnimationAssetMigrationPreview {
+  path : String
+  animation : AnimationAssetDocument
+  changes : Array[MigrationFieldChange]
+}
+pub impl Eq for AnimationAssetMigrationPreview
+pub impl Show for AnimationAssetMigrationPreview
+pub impl ToJson for AnimationAssetMigrationPreview
+pub impl @json.FromJson for AnimationAssetMigrationPreview
 
 pub struct AnimationClipDocument {
   name : String
@@ -317,6 +355,26 @@ pub impl Show for AtlasAssetDocument
 pub impl ToJson for AtlasAssetDocument
 pub impl @json.FromJson for AtlasAssetDocument
 
+pub enum AtlasAssetDocumentLoadStatus {
+  Ready(AtlasAssetDocument)
+  MigrationRequired(AtlasAssetMigrationPreview)
+}
+pub impl Eq for AtlasAssetDocumentLoadStatus
+pub impl Show for AtlasAssetDocumentLoadStatus
+
+pub struct AtlasAssetDocumentMigrator {
+}
+
+pub struct AtlasAssetMigrationPreview {
+  path : String
+  atlas : AtlasAssetDocument
+  changes : Array[MigrationFieldChange]
+}
+pub impl Eq for AtlasAssetMigrationPreview
+pub impl Show for AtlasAssetMigrationPreview
+pub impl ToJson for AtlasAssetMigrationPreview
+pub impl @json.FromJson for AtlasAssetMigrationPreview
+
 pub struct AtlasRegionDocument {
   name : String
   index : Int
@@ -381,8 +439,20 @@ pub impl Show for EntityDocument
 pub impl ToJson for EntityDocument
 pub impl @json.FromJson for EntityDocument
 
+type LegacyAnimationAssetDocument
+pub impl @json.FromJson for LegacyAnimationAssetDocument
+
+type LegacyAnimationClipDocument
+pub impl @json.FromJson for LegacyAnimationClipDocument
+
+type LegacyAtlasAssetDocument
+pub impl @json.FromJson for LegacyAtlasAssetDocument
+
 type LegacyEntityDocument
 pub impl @json.FromJson for LegacyEntityDocument
+
+type LegacyPrefabDocument
+pub impl @json.FromJson for LegacyPrefabDocument
 
 type LegacySceneDocument
 pub impl @json.FromJson for LegacySceneDocument
@@ -458,6 +528,26 @@ pub impl Show for PrefabDocument
 pub impl ToJson for PrefabDocument
 pub impl @json.FromJson for PrefabDocument
 
+pub enum PrefabDocumentLoadStatus {
+  Ready(PrefabDocument)
+  MigrationRequired(PrefabMigrationPreview)
+}
+pub impl Eq for PrefabDocumentLoadStatus
+pub impl Show for PrefabDocumentLoadStatus
+
+pub struct PrefabDocumentMigrator {
+}
+
+pub struct PrefabMigrationPreview {
+  path : String
+  prefab : PrefabDocument
+  changes : Array[MigrationFieldChange]
+}
+pub impl Eq for PrefabMigrationPreview
+pub impl Show for PrefabMigrationPreview
+pub impl ToJson for PrefabMigrationPreview
+pub impl @json.FromJson for PrefabMigrationPreview
+
 pub struct PrefabRef {
   path : String
 }
@@ -514,6 +604,9 @@ pub enum SceneDocumentLoadStatus {
 }
 pub impl Eq for SceneDocumentLoadStatus
 pub impl Show for SceneDocumentLoadStatus
+
+pub struct SceneDocumentMigrator {
+}
 
 pub struct SceneMigrationPreview {
   path : String
@@ -680,4 +773,8 @@ pub type AssetPathResolver = (String?) -> String?
 pub type CustomComponentApplier = (@entity.Entity, ComponentDocument, AssetInstantiationContext) -> Unit
 
 // Traits
+pub trait Migration {
+  migration_changes(Self, String, Json) -> Array[MigrationFieldChange]? raise
+  migrate_json(Self, String, Json) -> Json raise
+}
 

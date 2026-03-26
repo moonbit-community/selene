@@ -257,6 +257,8 @@ extern "js" fn webgpu_initialize(
   #|       bindGroups: null,
   #|       depthTexture: null,
   #|       depthView: null,
+  #|       depthWidth: 0,
+  #|       depthHeight: 0,
   #|       shadowTextures: {
   #|         directional: [null, null, null, null],
   #|         spot: null,
@@ -667,7 +669,7 @@ extern "js" fn webgpu_initialize(
   #|     rt.ensureDepth = () => {
   #|       if (!rt.device || !rt.canvas) return;
   #|       const [w, h] = toCanvasSize();
-  #|       if (rt.depthTexture && rt.depthTexture.width === w && rt.depthTexture.height === h) {
+  #|       if (rt.depthTexture && rt.depthWidth === w && rt.depthHeight === h) {
   #|         return;
   #|       }
   #|       if (rt.depthTexture) {
@@ -678,8 +680,8 @@ extern "js" fn webgpu_initialize(
   #|         format: 'depth24plus',
   #|         usage: GPUTextureUsage.RENDER_ATTACHMENT,
   #|       });
-  #|       rt.depthTexture.width = w;
-  #|       rt.depthTexture.height = h;
+  #|       rt.depthWidth = w;
+  #|       rt.depthHeight = h;
   #|       rt.depthView = rt.depthTexture.createView();
   #|     };
   #|

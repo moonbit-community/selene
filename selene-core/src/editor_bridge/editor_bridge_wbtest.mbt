@@ -157,6 +157,92 @@ test "legacy scene documents can be probed and migrated" {
 }
 
 ///|
+test "legacy prefab documents can be probed and migrated" {
+  let temp_root = "_build/editor-bridge-migration-prefab"
+  if !@fs.path_exists("_build") {
+    @fs.create_dir("_build")
+  }
+  if !@fs.path_exists(temp_root) {
+    @fs.create_dir(temp_root)
+  }
+  let path = temp_root + "/enemy.prefab.json"
+  @fs.write_string_to_file(
+    path,
+    "{\n  \"version\": 0,\n  \"entities\": [\n    {\n      \"id\": \"enemy\"\n    }\n  ]\n}\n",
+  )
+  match read_prefab_document_status(path) {
+    MigrationRequired(preview) => {
+      inspect(preview.prefab.name, content="Enemy")
+      inspect(preview.prefab.entities[0].name, content="enemy")
+      inspect(preview.prefab.entities[0].parent, content="None")
+      inspect(preview.changes.length(), content="5")
+    }
+    _ => fail("expected prefab migration preview")
+  }
+  let migrated = migrate_prefab_document(path)
+  inspect(migrated.version == prefab_schema_version, content="true")
+  inspect(read_prefab_document(path).name, content="Enemy")
+}
+
+///|
+test "legacy atlas documents can be probed and migrated" {
+  let temp_root = "_build/editor-bridge-migration-atlas"
+  if !@fs.path_exists("_build") {
+    @fs.create_dir("_build")
+  }
+  if !@fs.path_exists(temp_root) {
+    @fs.create_dir(temp_root)
+  }
+  let path = temp_root + "/hero.atlas.json"
+  @fs.write_string_to_file(
+    path,
+    "{\n  \"version\": 0,\n  \"source_image\": \"assets/images/hero.png\",\n  \"tile_size\": {\"x\": 16, \"y\": 16},\n  \"columns\": 2,\n  \"rows\": 1\n}\n",
+  )
+  match read_atlas_asset_document_status(path) {
+    MigrationRequired(preview) => {
+      inspect(preview.atlas.name, content="Hero")
+      inspect(preview.atlas.spacing, content="{x: 0, y: 0}")
+      inspect(preview.atlas.default_anchor, content="{x: 0.5, y: 0.5}")
+      inspect(preview.atlas.regions.length(), content="2")
+      inspect(preview.changes.length(), content="6")
+    }
+    _ => fail("expected atlas migration preview")
+  }
+  let migrated = migrate_atlas_asset_document(path)
+  inspect(migrated.version == atlas_asset_schema_version, content="true")
+  inspect(read_atlas_asset_document(path).regions.length(), content="2")
+}
+
+///|
+test "legacy animation documents can be probed and migrated" {
+  let temp_root = "_build/editor-bridge-migration-animation"
+  if !@fs.path_exists("_build") {
+    @fs.create_dir("_build")
+  }
+  if !@fs.path_exists(temp_root) {
+    @fs.create_dir(temp_root)
+  }
+  let path = temp_root + "/hero.anim.json"
+  @fs.write_string_to_file(
+    path,
+    "{\n  \"version\": 0,\n  \"atlas_asset_path\": \"assets/atlases/hero.atlas.json\",\n  \"clips\": [\n    {\n      \"frames\": [\"frame_0\", \"frame_1\"]\n    }\n  ]\n}\n",
+  )
+  match read_animation_asset_document_status(path) {
+    MigrationRequired(preview) => {
+      inspect(preview.animation.name, content="Hero")
+      inspect(preview.animation.default_clip, content="Some(\"clip_0\")")
+      inspect(preview.animation.clips[0].name, content="clip_0")
+      inspect(preview.animation.clips[0].fps, content="8")
+      inspect(preview.changes.length(), content="6")
+    }
+    _ => fail("expected animation migration preview")
+  }
+  let migrated = migrate_animation_asset_document(path)
+  inspect(migrated.version == animation_asset_schema_version, content="true")
+  inspect(read_animation_asset_document(path).default_clip, content="Some(\"clip_0\")")
+}
+
+///|
 test "invalid scene documents raise stable editor bridge errors" {
   let temp_root = "_build/editor-bridge-invalid-scene"
   if !@fs.path_exists("_build") {

@@ -14,7 +14,7 @@
 
 ///|
 struct WebGpuBackend {
-  canvas : @dom.HTMLCanvasElement
+  mut canvas : @dom.HTMLCanvasElement?
   mut time_scale : Double
   mouse_movement : Ref[@inputs.MouseMovement?]
   mut gamepads : Set[@inputs.Gamepad]?
@@ -28,13 +28,8 @@ struct WebGpuBackend {
 
 ///|
 pub fn WebGpuBackend::new() -> WebGpuBackend {
-  let canvas = @dom.document()
-    .get_element_by_id("canvas")
-    .unwrap()
-    .to_html_canvas_element()
-    .unwrap()
   {
-    canvas,
+    canvas: None,
     time_scale: 1.0,
     mouse_movement: Ref::new(None),
     gamepads: None,
@@ -47,6 +42,22 @@ pub fn WebGpuBackend::new() -> WebGpuBackend {
 
 ///|
 let canvas_backend : WebGpuBackend = WebGpuBackend()
+
+///|
+fn require_canvas() -> @dom.HTMLCanvasElement {
+  match canvas_backend.canvas {
+    Some(canvas) => canvas
+    None => {
+      let canvas = @dom.document()
+        .get_element_by_id("canvas")
+        .unwrap()
+        .to_html_canvas_element()
+        .unwrap()
+      canvas_backend.canvas = Some(canvas)
+      canvas
+    }
+  }
+}
 
 ///|
 fn default_embedded_asset_lookup(_path : String) -> Bytes? {
@@ -150,10 +161,11 @@ pub fn initialize(
   }
   canvas_backend.stop_loop = None
   canvas_backend.close_requested = false
-  set_viewport_height(canvas_backend.canvas, screen_height)
-  set_viewport_width(canvas_backend.canvas, screen_width)
+  let canvas = require_canvas()
+  set_viewport_height(canvas, screen_height)
+  set_viewport_width(canvas, screen_width)
   webgpu_initialize(
-    canvas_backend.canvas,
+    canvas,
     screen_width,
     screen_height,
     image_smooth,

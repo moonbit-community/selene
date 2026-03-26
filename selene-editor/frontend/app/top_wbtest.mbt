@@ -54,7 +54,7 @@ test "project load refreshes both scene and asset list" {
     ),
     model,
   )
-  inspect(effects.length(), content="3")
+  inspect(effects.length(), content="4")
   inspect(next.current_root, content="Some(\"/tmp/demo\")")
 }
 

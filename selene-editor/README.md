@@ -13,9 +13,10 @@ The current architecture is:
 ## Run
 
 ```bash
-just build
 just run
 ```
+
+`just run` now rebuilds `public/editor.js` before starting the local service, so the browser cannot accidentally boot against a stale frontend bundle after source changes.
 
 To use a different port:
 

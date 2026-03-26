@@ -104,6 +104,17 @@ fn clear_runtime_scene() -> Unit {
 }
 
 ///|
+fn deactivate_runtime_scene_cameras(
+  runtime_scene : @editor_bridge.SceneRuntime,
+) -> Unit {
+  for _, entity in runtime_scene.entity_ids {
+    if @camera.cameras().contains(entity) {
+      @camera.cameras().set(entity, @camera.Camera::new(is_active=false))
+    }
+  }
+}
+
+///|
 fn spawn_scene_entities(payload : @bridge.PreviewScenePayload) -> Unit {
   clear_runtime_scene()
   let atlas_assets : Map[String, @editor_bridge.AtlasAssetDocument] = {}
@@ -114,16 +125,16 @@ fn spawn_scene_entities(payload : @bridge.PreviewScenePayload) -> Unit {
   for entry in payload.animations {
     animation_assets.set(entry.path, entry.animation)
   }
-  preview_state.runtime_scene = Some(
-    @editor_bridge.instantiate_scene_document_with_context(
-      payload.scene,
-      @editor_bridge.asset_instantiation_context(
-        asset_path_resolver=resolve_project_asset_path,
-        atlas_assets=atlas_assets,
-        animation_assets=animation_assets,
-      ),
+  let runtime_scene = @editor_bridge.instantiate_scene_document_with_context(
+    payload.scene,
+    @editor_bridge.asset_instantiation_context(
+      asset_path_resolver=resolve_project_asset_path,
+      atlas_assets=atlas_assets,
+      animation_assets=animation_assets,
     ),
   )
+  deactivate_runtime_scene_cameras(runtime_scene)
+  preview_state.runtime_scene = Some(runtime_scene)
 }
 
 ///|

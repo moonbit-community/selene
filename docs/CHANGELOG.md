@@ -4,6 +4,7 @@
 
 ### Added
 
+- Added a shared `Migration` trait to `selene/editor_bridge` and extended document migration support beyond scenes, with typed probe/migrate status APIs for prefab, atlas, and animation documents.
 - Added editable `Atlas Inspector` and `Animation Inspector` flows to `selene-editor`, with field-level editing and save actions mapped directly onto `selene/editor_bridge` atlas and animation asset documents instead of editor-private resource state.
 - Added editable `Prefab Inspector` and expanded `Scene Browser` controls to `selene-editor`, so prefab documents can now be renamed/saved from the inspector and the current scene can be renamed, created, deleted, and marked as the startup scene from the workspace UI.
 - Added first-class multi-scene, prefab, atlas, animation, and workspace document support to `selene/editor_bridge`, including file IO, validation, versioned schema, and shared runtime instantiation context for Selene-native editor resources.
@@ -36,6 +37,7 @@
 
 ### Fixed
 
+- Fixed the `selene-editor` source workflow so `just run` now rebuilds `public/editor.js` before starting the local service, preventing stale frontend bundles from masking newer RPC and migration behavior.
 - Fixed `selene/editor_bridge` and `selene-editor` document loading so unrecoverable project/scene/prefab/atlas/animation JSON errors now surface as stable user-facing invalid-document failures instead of leaking raw decode exceptions, and invalid editor workspace files now fall back to defaults instead of blocking project open.
 - Fixed `selene-editor` legacy-scene migration flow to keep migration previews on relative scene paths, so confirming a legacy startup-scene migration now writes back and reloads correctly through the typed `scene.migrate` RPC path.
 - Fixed `selene-editor` startup scene loading for legacy scene documents: opening an older `*.scene.json` no longer fails with a raw `JsonDecodeError`; the editor now detects recoverable missing fields, shows a migration confirmation dialog, and writes the migrated scene back only after explicit user confirmation.
@@ -75,6 +77,7 @@
 
 ### Fixed
 
+- Fixed `selene-editor` web preview boot so the JS bundle now overrides Selene's platform modules with `selene_webgpu/platform_*`, `selene_webgpu` lazily acquires the `#canvas` element instead of panicking before the workspace view exists, and the WebGPU depth-texture setup no longer mutates native `GPUTexture` objects with ad-hoc `width` / `height` fields; editor viewports now initialize WebGPU correctly and render inserted sprites instead of staying black.
 - Fixed `selene-editor` folder-picker RPC to use a typed shared response payload and preserved success-payload decode errors in the frontend, so the first-run directory chooser now reports actionable failures instead of a misleading generic `JsonDecodeError`.
 - Fixed `selene-editor` project auto-open on existing directories without `selene.project.json`; manifest discovery now checks file existence before probing file kind, so opening an example folder correctly auto-initializes a new editor project instead of raising `OSError(... No such file or directory)`.
 - Fixed `selene-editor` project open/create flows so an empty `Project root` no longer triggers filesystem write attempts; the frontend now blocks those actions until a folder is chosen, and the service returns a clear `Project root is required` error for invalid requests.

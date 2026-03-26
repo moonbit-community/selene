@@ -861,6 +861,7 @@ fn refresh_project_effects(model : Model) -> Array[Effect] {
   match model.manifest {
     Some(_) => {
       let effects : Array[Effect] = [
+        Preview(@bridge.preview_command_bootstrap()),
         rpc_effect(
           SceneLoaded,
           @shared.rpc_request_scene_load(model.scene_path),
@@ -1329,7 +1330,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         [
           SubscribeServiceEvents,
           SubscribePreviewEvents,
-          Preview(@bridge.preview_command_bootstrap()),
+          rpc_effect(ProjectLoaded, @shared.rpc_request_project_current()),
         ],
         model,
       )

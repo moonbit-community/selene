@@ -15,21 +15,6 @@ fn parse_json_file(path : String) -> Json raise {
 }
 
 ///|
-struct LegacyEntityDocument {
-  id : String
-  name : String?
-  parent : String?
-  components : Array[ComponentDocument]?
-} derive(FromJson)
-
-///|
-struct LegacySceneDocument {
-  version : Int
-  name : String?
-  entities : Array[LegacyEntityDocument]
-} derive(FromJson)
-
-///|
 fn decode_scene_document(json : Json) -> SceneDocument raise {
   let scene : SceneDocument = try {
     @json.from_json(json)
@@ -44,149 +29,84 @@ fn decode_scene_document(json : Json) -> SceneDocument raise {
 }
 
 ///|
-fn decode_legacy_scene_document(json : Json) -> LegacySceneDocument raise {
-  @json.from_json(json)
+fn decode_prefab_document(json : Json) -> PrefabDocument raise {
+  let prefab : PrefabDocument = try {
+    @json.from_json(json)
+  } catch {
+    err => raise InvalidPrefabDocument(err.to_string())
+  }
+  let errors = validate_prefab_document(prefab)
+  guard errors.is_empty() else {
+    raise InvalidPrefabDocument(errors.to_json().stringify())
+  }
+  prefab
 }
 
 ///|
-fn file_name_of_path(path : String) -> String {
-  let normalized = path.replace(old="\\", new="/")
-  if normalized.rev_find("/") is Some(index) {
-    normalized[index + 1:].to_string()
-  } else {
-    normalized
+fn decode_atlas_asset_document(json : Json) -> AtlasAssetDocument raise {
+  let atlas : AtlasAssetDocument = try {
+    @json.from_json(json)
+  } catch {
+    err => raise InvalidAtlasAssetDocument(err.to_string())
   }
+  let errors = validate_atlas_asset_document(atlas)
+  guard errors.is_empty() else {
+    raise InvalidAtlasAssetDocument(errors.to_json().stringify())
+  }
+  atlas
 }
 
 ///|
-fn display_name_of_scene_path(path : String) -> String {
-  let file_name = file_name_of_path(path)
-  let stem = if file_name.has_suffix(".scene.json") {
-    file_name[:file_name.length() - ".scene.json".length()].to_string()
-  } else {
-    file_name
+fn decode_animation_asset_document(json : Json) -> AnimationAssetDocument raise {
+  let animation : AnimationAssetDocument = try {
+    @json.from_json(json)
+  } catch {
+    err => raise InvalidAnimationAssetDocument(err.to_string())
   }
-  let normalized = stem.replace(old="-", new=" ").replace(old="_", new=" ").trim().to_string()
-  if normalized == "" {
-    return "Scene"
+  let errors = validate_animation_asset_document(animation)
+  guard errors.is_empty() else {
+    raise InvalidAnimationAssetDocument(errors.to_json().stringify())
   }
-  let parts : Array[String] = []
-  for raw in normalized.split(" ") {
-    let token = raw.trim().to_string()
-    if token == "" {
-      continue
-    }
-    let head = token[:1].to_string().to_upper()
-    let tail = if token.length() > 1 {
-      token[1:].to_string()
-    } else {
-      ""
-    }
-    parts.push(head + tail)
-  }
-  if parts.is_empty() {
-    "Scene"
-  } else {
-    parts.join(" ")
-  }
+  animation
 }
 
 ///|
-fn legacy_scene_preview(
+fn[T, Preview, Status, M : Migration] migration_status_for(
   path : String,
-  legacy : LegacySceneDocument,
-) -> SceneMigrationPreview {
-  let changes : Array[MigrationFieldChange] = []
-  let scene_name = match legacy.name {
-    Some(name) => {
-      let trimmed = name.trim().to_string()
-      if trimmed == "" {
-        let migrated_value = display_name_of_scene_path(path)
-        changes.push(
-          migration_field_change(
-            "name",
-            "Missing required scene name",
-            migrated_value,
-          ),
-        )
-        migrated_value
-      } else {
-        name
+  json : Json,
+  decode_current : (Json) -> T raise,
+  build_preview : (String, T, Array[MigrationFieldChange]) -> Preview,
+  ready : (T) -> Status,
+  required : (Preview) -> Status,
+  migrator : M,
+) -> Status raise {
+  let current : Result[T, Error] = try? decode_current(json)
+  match current {
+    Ok(document) => ready(document)
+    Err(err) => {
+      let changes_result : Result[Array[MigrationFieldChange]?, Error] = try?
+        migrator.migration_changes(path, json)
+      match changes_result {
+        Ok(Some(changes)) => {
+          let migrated_json_result : Result[Json, Error] = try? migrator.migrate_json(
+            path,
+            json,
+          )
+          match migrated_json_result {
+            Ok(migrated_json) => {
+              let migrated_result : Result[T, Error] = try? decode_current(migrated_json)
+              match migrated_result {
+                Ok(document) => required(build_preview(path, document, changes))
+                Err(_) => raise err
+              }
+            }
+            Err(_) => raise err
+          }
+        }
+        _ => raise err
       }
-    }
-    None => {
-      let migrated_value = display_name_of_scene_path(path)
-      changes.push(
-        migration_field_change(
-          "name",
-          "Missing required scene name",
-          migrated_value,
-        ),
-      )
-      migrated_value
     }
   }
-  let entities = legacy.entities.map(fn(entity) {
-    let entity_name = match entity.name {
-      Some(name) => {
-        let trimmed = name.trim().to_string()
-        if trimmed == "" {
-          changes.push(
-            migration_field_change(
-              "entities[\{entity.id}].name",
-              "Missing required entity name",
-              entity.id,
-            ),
-          )
-          entity.id
-        } else {
-          name
-        }
-      }
-      None => {
-        changes.push(
-          migration_field_change(
-            "entities[\{entity.id}].name",
-            "Missing required entity name",
-            entity.id,
-          ),
-        )
-        entity.id
-      }
-    }
-    let parent = match entity.parent {
-      Some(parent) => Some(parent)
-      None => {
-        changes.push(
-          migration_field_change(
-            "entities[\{entity.id}].parent",
-            "Missing parent field",
-            "null",
-          ),
-        )
-        None
-      }
-    }
-    let components = match entity.components {
-      Some(components) => components
-      None => {
-        changes.push(
-          migration_field_change(
-            "entities[\{entity.id}].components",
-            "Missing components array",
-            "[]",
-          ),
-        )
-        []
-      }
-    }
-    EntityDocument::{ id: entity.id, name: entity_name, parent, components }
-  })
-  scene_migration_preview(
-    path,
-    SceneDocument::{ version: legacy.version, name: scene_name, entities },
-    changes,
-  )
 }
 
 ///|
@@ -309,29 +229,15 @@ pub fn read_scene_document_status(
   let json = parse_json_file(path) catch {
     err => raise InvalidSceneDocument(err.to_string())
   }
-  let current : Result[SceneDocument, Error] = try? decode_scene_document(json)
-  match current {
-    Ok(scene) => Ready(scene)
-    Err(err) => {
-      let legacy : Result[LegacySceneDocument, Error] = try? decode_legacy_scene_document(
-        json,
-      )
-      match legacy {
-        Ok(legacy) => {
-          let preview = legacy_scene_preview(path, legacy)
-          if preview.changes.is_empty() {
-            raise err
-          }
-          let errors = validate_scene_document(preview.scene)
-          guard errors.is_empty() else {
-            raise err
-          }
-          MigrationRequired(preview)
-        }
-        Err(_) => raise err
-      }
-    }
-  }
+  migration_status_for(
+    path,
+    json,
+    decode_scene_document,
+    scene_migration_preview,
+    fn(scene) { Ready(scene) },
+    fn(preview) { MigrationRequired(preview) },
+    SceneDocumentMigrator::{},
+  )
 }
 
 ///|
@@ -360,16 +266,36 @@ pub fn read_prefab_document(path : String) -> PrefabDocument raise {
   let json = parse_json_file(path) catch {
     err => raise InvalidPrefabDocument(err.to_string())
   }
-  let prefab : PrefabDocument = try {
-    @json.from_json(json)
-  } catch {
+  decode_prefab_document(json)
+}
+
+///|
+pub fn read_prefab_document_status(
+  path : String,
+) -> PrefabDocumentLoadStatus raise {
+  let json = parse_json_file(path) catch {
     err => raise InvalidPrefabDocument(err.to_string())
   }
-  let errors = validate_prefab_document(prefab)
-  guard errors.is_empty() else {
-    raise InvalidPrefabDocument(errors.to_json().stringify())
+  migration_status_for(
+    path,
+    json,
+    decode_prefab_document,
+    prefab_migration_preview,
+    fn(prefab) { Ready(prefab) },
+    fn(preview) { MigrationRequired(preview) },
+    PrefabDocumentMigrator::{},
+  )
+}
+
+///|
+pub fn migrate_prefab_document(path : String) -> PrefabDocument raise {
+  match read_prefab_document_status(path) {
+    Ready(prefab) => prefab
+    MigrationRequired(preview) => {
+      write_prefab_document(path, preview.prefab)
+      preview.prefab
+    }
   }
-  prefab
 }
 
 ///|
@@ -390,16 +316,36 @@ pub fn read_atlas_asset_document(path : String) -> AtlasAssetDocument raise {
   let json = parse_json_file(path) catch {
     err => raise InvalidAtlasAssetDocument(err.to_string())
   }
-  let atlas : AtlasAssetDocument = try {
-    @json.from_json(json)
-  } catch {
+  decode_atlas_asset_document(json)
+}
+
+///|
+pub fn read_atlas_asset_document_status(
+  path : String,
+) -> AtlasAssetDocumentLoadStatus raise {
+  let json = parse_json_file(path) catch {
     err => raise InvalidAtlasAssetDocument(err.to_string())
   }
-  let errors = validate_atlas_asset_document(atlas)
-  guard errors.is_empty() else {
-    raise InvalidAtlasAssetDocument(errors.to_json().stringify())
+  migration_status_for(
+    path,
+    json,
+    decode_atlas_asset_document,
+    atlas_asset_migration_preview,
+    fn(atlas) { Ready(atlas) },
+    fn(preview) { MigrationRequired(preview) },
+    AtlasAssetDocumentMigrator::{},
+  )
+}
+
+///|
+pub fn migrate_atlas_asset_document(path : String) -> AtlasAssetDocument raise {
+  match read_atlas_asset_document_status(path) {
+    Ready(atlas) => atlas
+    MigrationRequired(preview) => {
+      write_atlas_asset_document(path, preview.atlas)
+      preview.atlas
+    }
   }
-  atlas
 }
 
 ///|
@@ -422,16 +368,38 @@ pub fn read_animation_asset_document(
   let json = parse_json_file(path) catch {
     err => raise InvalidAnimationAssetDocument(err.to_string())
   }
-  let animation : AnimationAssetDocument = try {
-    @json.from_json(json)
-  } catch {
+  decode_animation_asset_document(json)
+}
+
+///|
+pub fn read_animation_asset_document_status(
+  path : String,
+) -> AnimationAssetDocumentLoadStatus raise {
+  let json = parse_json_file(path) catch {
     err => raise InvalidAnimationAssetDocument(err.to_string())
   }
-  let errors = validate_animation_asset_document(animation)
-  guard errors.is_empty() else {
-    raise InvalidAnimationAssetDocument(errors.to_json().stringify())
+  migration_status_for(
+    path,
+    json,
+    decode_animation_asset_document,
+    animation_asset_migration_preview,
+    fn(animation) { Ready(animation) },
+    fn(preview) { MigrationRequired(preview) },
+    AnimationAssetDocumentMigrator::{},
+  )
+}
+
+///|
+pub fn migrate_animation_asset_document(
+  path : String,
+) -> AnimationAssetDocument raise {
+  match read_animation_asset_document_status(path) {
+    Ready(animation) => animation
+    MigrationRequired(preview) => {
+      write_animation_asset_document(path, preview.animation)
+      preview.animation
+    }
   }
-  animation
 }
 
 ///|

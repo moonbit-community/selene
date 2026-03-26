@@ -142,8 +142,10 @@ extern "js" fn subscribe_events_forever(
   #| }
 
 ///|
+///|
 #cfg(target="js")
-extern "js" fn schedule_cmd(scheduler : &@cmd.Scheduler, cmd : @rabbita.Cmd) = "(scheduler, cmd) => scheduler.add(cmd)"
+extern "js" fn schedule_cmd(scheduler : &@cmd.Scheduler, cmd : @rabbita.Cmd) =
+  #| (scheduler, cmd) => scheduler.method_table.method_0(scheduler.self, cmd)
 
 ///|
 #cfg(target="js")
