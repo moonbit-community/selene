@@ -15,6 +15,7 @@
 
 ### Changed
 
+- Changed `selene-editor` transport protocol to use shared typed ADTs for all retained `/rpc` requests/responses and `/events` payloads, removing scattered string method names and SSE kind dispatch from the frontend/service boundary.
 - Changed `selene-editor` from a single-scene JSON editor toward a Selene-native workspace model: project state now includes scene refs, prefab refs, atlas refs, animation refs, and editor workspace data, and preview loading now carries atlas/animation asset documents into `editor_bridge` instead of instantiating scenes in isolation.
 - Changed `selene-editor` UI layout to introduce a real `Scene Browser` beside the `Asset Browser`, and changed asset inspection from image-only cards to Selene-native resource sections for images, atlases, animations, and prefabs.
 - Changed `selene-editor` startup UX so the browser opens on a dedicated main menu with the Selene Editor mark and an explicit `Open Project` action; folder selection no longer happens automatically on page load.

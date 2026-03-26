@@ -1,51 +1,3 @@
-///|
-pub struct ProjectStateResponse {
-  root : String?
-  manifest : @editor_bridge.ProjectManifest?
-  scenes : Array[@editor_bridge.SceneRef]?
-  prefabs : Array[@editor_bridge.PrefabRef]?
-  atlases : Array[@editor_bridge.AssetRef]?
-  animations : Array[@editor_bridge.AssetRef]?
-  workspace : @editor_bridge.WorkspaceDocument?
-  recent_projects : Array[String]
-} derive(FromJson, Show, Eq)
-
-///|
-pub struct SceneLoadResponse {
-  path : String
-  scene : @editor_bridge.SceneDocument
-} derive(FromJson, Show, Eq)
-
-///|
-pub struct AssetsListResponse {
-  assets : Array[@editor_bridge.AssetDocument]
-} derive(FromJson, Show, Eq)
-
-///|
-pub struct PrefabLoadResponse {
-  path : String
-  prefab : @editor_bridge.PrefabDocument
-} derive(FromJson, Show, Eq)
-
-///|
-pub struct AtlasLoadResponse {
-  path : String
-  atlas : @editor_bridge.AtlasAssetDocument
-} derive(FromJson, Show, Eq)
-
-///|
-pub struct AnimationLoadResponse {
-  path : String
-  animation : @editor_bridge.AnimationAssetDocument
-} derive(FromJson, Show, Eq)
-
-///|
-pub struct SceneListResponse {
-  scenes : Array[@editor_bridge.SceneRef]
-  startup_scene : String
-} derive(FromJson, Show, Eq)
-
-///|
 pub enum ResourceSelection {
   Image(String)
   Atlas(String)
@@ -106,18 +58,17 @@ pub enum Msg {
   SetProjectNameInput(String)
   PickProjectRoot
   OpenProject
-  CreateProject
   ProjectRootPicked(Result[@shared.DirectoryPickResult, String])
-  ProjectLoaded(Result[ProjectStateResponse, String])
-  SceneLoaded(Result[SceneLoadResponse, String])
-  SceneListLoaded(Result[SceneListResponse, String])
-  AssetsLoaded(Result[AssetsListResponse, String])
-  PrefabLoaded(Result[PrefabLoadResponse, String])
-  AtlasLoaded(Result[AtlasLoadResponse, String])
-  AnimationLoaded(Result[AnimationLoadResponse, String])
+  ProjectLoaded(Result[@shared.ProjectStateResponse, String])
+  SceneLoaded(Result[@shared.SceneLoadResponse, String])
+  SceneListLoaded(Result[@shared.SceneListResponse, String])
+  AssetsLoaded(Result[@shared.AssetsListResponse, String])
+  PrefabLoaded(Result[@shared.PrefabLoadResponse, String])
+  AtlasLoaded(Result[@shared.AtlasLoadResponse, String])
+  AnimationLoaded(Result[@shared.AnimationLoadResponse, String])
   AssetSizeResolved(String, Double, Double)
-  SceneSaved(Result[Json, String])
-  ServiceEvent(Result[@shared.EventEnvelope, String])
+  SceneSaved(Result[Unit, String])
+  ServiceEvent(Result[@shared.EditorEvent, String])
   PreviewEvent(@bridge.PreviewEvent)
   OpenScene(String)
   SelectResource(ResourceSelection?)
@@ -183,7 +134,7 @@ pub enum RpcTarget {
 
 ///|
 pub enum Effect {
-  Rpc(target~ : RpcTarget, method_name~ : String, params~ : Json)
+  Rpc(target~ : RpcTarget, request~ : @shared.RpcRequestEnvelope)
   SubscribeServiceEvents
   SubscribePreviewEvents
   Preview(@bridge.PreviewCommand)
@@ -243,11 +194,6 @@ pub fn msg_open_project() -> Msg {
 }
 
 ///|
-pub fn msg_create_project() -> Msg {
-  CreateProject
-}
-
-///|
 pub fn msg_project_root_picked(
   result : Result[@shared.DirectoryPickResult, String],
 ) -> Msg {
@@ -255,38 +201,50 @@ pub fn msg_project_root_picked(
 }
 
 ///|
-pub fn msg_project_loaded(result : Result[ProjectStateResponse, String]) -> Msg {
+pub fn msg_project_loaded(
+  result : Result[@shared.ProjectStateResponse, String],
+) -> Msg {
   ProjectLoaded(result)
 }
 
 ///|
-pub fn msg_scene_loaded(result : Result[SceneLoadResponse, String]) -> Msg {
+pub fn msg_scene_loaded(
+  result : Result[@shared.SceneLoadResponse, String],
+) -> Msg {
   SceneLoaded(result)
 }
 
 ///|
-pub fn msg_scene_list_loaded(result : Result[SceneListResponse, String]) -> Msg {
+pub fn msg_scene_list_loaded(
+  result : Result[@shared.SceneListResponse, String],
+) -> Msg {
   SceneListLoaded(result)
 }
 
 ///|
-pub fn msg_assets_loaded(result : Result[AssetsListResponse, String]) -> Msg {
+pub fn msg_assets_loaded(
+  result : Result[@shared.AssetsListResponse, String],
+) -> Msg {
   AssetsLoaded(result)
 }
 
 ///|
-pub fn msg_prefab_loaded(result : Result[PrefabLoadResponse, String]) -> Msg {
+pub fn msg_prefab_loaded(
+  result : Result[@shared.PrefabLoadResponse, String],
+) -> Msg {
   PrefabLoaded(result)
 }
 
 ///|
-pub fn msg_atlas_loaded(result : Result[AtlasLoadResponse, String]) -> Msg {
+pub fn msg_atlas_loaded(
+  result : Result[@shared.AtlasLoadResponse, String],
+) -> Msg {
   AtlasLoaded(result)
 }
 
 ///|
 pub fn msg_animation_loaded(
-  result : Result[AnimationLoadResponse, String],
+  result : Result[@shared.AnimationLoadResponse, String],
 ) -> Msg {
   AnimationLoaded(result)
 }
@@ -301,12 +259,12 @@ pub fn msg_asset_size_resolved(
 }
 
 ///|
-pub fn msg_scene_saved(result : Result[Json, String]) -> Msg {
+pub fn msg_scene_saved(result : Result[Unit, String]) -> Msg {
   SceneSaved(result)
 }
 
 ///|
-pub fn msg_service_event(result : Result[@shared.EventEnvelope, String]) -> Msg {
+pub fn msg_service_event(result : Result[@shared.EditorEvent, String]) -> Msg {
   ServiceEvent(result)
 }
 
@@ -567,10 +525,9 @@ fn push_log(model : Model, line : String) -> Model {
 ///|
 fn rpc_effect(
   target : RpcTarget,
-  method_name : String,
-  params : Json,
+  request : @shared.RpcRequest,
 ) -> Effect {
-  Rpc(target~, method_name~, params~)
+  Rpc(target~, request=@shared.rpc_request_envelope(1, request))
 }
 
 ///|
@@ -862,8 +819,7 @@ fn load_supporting_resource_effects(model : Model) -> Array[Effect] {
     effects.push(
       rpc_effect(
         PrefabLoaded,
-        "prefab.load",
-        { "path": prefab_ref.path.to_json() }.to_json(),
+        @shared.rpc_request_prefab_load(prefab_ref.path),
       ),
     )
   }
@@ -871,8 +827,7 @@ fn load_supporting_resource_effects(model : Model) -> Array[Effect] {
     effects.push(
       rpc_effect(
         AtlasLoaded,
-        "atlas.load",
-        { "path": atlas_ref.path.to_json() }.to_json(),
+        @shared.rpc_request_atlas_load(atlas_ref.path),
       ),
     )
   }
@@ -880,8 +835,7 @@ fn load_supporting_resource_effects(model : Model) -> Array[Effect] {
     effects.push(
       rpc_effect(
         AnimationLoaded,
-        "animation.load",
-        { "path": animation_ref.path.to_json() }.to_json(),
+        @shared.rpc_request_animation_load(animation_ref.path),
       ),
     )
   }
@@ -895,11 +849,10 @@ fn refresh_project_effects(model : Model) -> Array[Effect] {
       let effects : Array[Effect] = [
         rpc_effect(
           SceneLoaded,
-          "scene.load",
-          { "path": model.scene_path.to_json() }.to_json(),
+          @shared.rpc_request_scene_load(model.scene_path),
         ),
-        rpc_effect(SceneListLoaded, "scene.list", Json::null()),
-        rpc_effect(AssetsLoaded, "assets.list", Json::null()),
+        rpc_effect(SceneListLoaded, @shared.rpc_request_scene_list()),
+        rpc_effect(AssetsLoaded, @shared.rpc_request_assets_list()),
       ]
       effects.push_iter(load_supporting_resource_effects(model).iter())
       effects
@@ -1042,15 +995,6 @@ fn selected_after_load(
   }
 }
 
-///|
-fn text_or_fallback(json : Json, fallback : String) -> String {
-  match json {
-    Json::String(value) => value
-    _ => fallback
-  }
-}
-
-///|
 fn scene_path_exists(
   scene_refs : Array[@editor_bridge.SceneRef],
   path : String,
@@ -1382,8 +1326,9 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         [
           rpc_effect(
             ProjectRootPicked,
-            "project.pick_directory",
-            { "prompt": "Choose a project folder".to_json() }.to_json(),
+            @shared.rpc_request_project_pick_directory(
+              "Choose a project folder",
+            ),
           ),
         ],
         { ..model, status: "Choosing project folder..." },
@@ -1393,35 +1338,13 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         [
           rpc_effect(
             ProjectRootPicked,
-            "project.pick_directory",
-            { "prompt": "Open a Selene project".to_json() }.to_json(),
+            @shared.rpc_request_project_pick_directory(
+              "Open a Selene project",
+            ),
           ),
         ],
         { ..model, status: "Choose a project folder..." },
       )
-    CreateProject =>
-      {
-        let root = normalized_project_root(model.project_root_input)
-        if root == "" {
-          let message = "Choose a project folder first"
-          let next = push_log(model, message)
-          ([], { ..next, status: message })
-        } else {
-          (
-            [
-              rpc_effect(
-                ProjectLoaded,
-                "project.create",
-                {
-                  "root": root.to_json(),
-                  "name": model.project_name_input.to_json(),
-                }.to_json(),
-              ),
-            ],
-            { ..model, project_root_input: root, status: "Creating project..." },
-          )
-        }
-      }
     ProjectRootPicked(result) =>
       match result {
         Ok(response) =>
@@ -1432,8 +1355,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                 [
                   rpc_effect(
                     ProjectLoaded,
-                    "project.open",
-                    { "root": root.to_json() }.to_json(),
+                    @shared.rpc_request_project_open(root),
                   ),
                 ],
                 {
@@ -1457,10 +1379,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     ProjectLoaded(result) =>
       match result {
         Ok(response) => {
-          let scene_refs = response.scenes.unwrap_or([])
-          let prefab_refs = response.prefabs.unwrap_or([])
-          let atlas_refs = response.atlases.unwrap_or([])
-          let animation_refs = response.animations.unwrap_or([])
+          let scene_refs = response.scenes
+          let prefab_refs = response.prefabs
+          let atlas_refs = response.atlases
+          let animation_refs = response.animations
           let workspace = response.workspace.unwrap_or(
             @editor_bridge.WorkspaceDocument::default(),
           )
@@ -1625,35 +1547,21 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     ServiceEvent(result) =>
       match result {
         Ok(event) =>
-          match event.kind {
-            "ready" => ([], model)
-            "log" =>
-              match event.data {
-                Json::Object(payload) => {
-                  let label = if payload.contains("label") {
-                    text_or_fallback(payload["label"], "log")
-                  } else {
-                    "log"
-                  }
-                  let message = if payload.contains("message") {
-                    text_or_fallback(payload["message"], "")
-                  } else {
-                    ""
-                  }
-                  ([], push_log(model, "[\{label}] \{message}"))
-                }
-                _ => ([], model)
-              }
-            "files.changed"
-            | "scene.saved"
-            | "scene.patched"
-            | "asset.imported" =>
+          match event {
+            @shared.Ready => ([], model)
+            @shared.Log(label~, message~) =>
+              ([], push_log(model, "[\{label}] \{message}"))
+            @shared.FilesChanged(_)
+            | @shared.SceneSaved(_)
+            | @shared.AssetImported(_) =>
               (
-                [rpc_effect(ProjectLoaded, "project.current", Json::null())],
+                [rpc_effect(ProjectLoaded, @shared.rpc_request_project_current())],
                 model,
               )
-            "project.opened" => ([], model)
-            _ => ([], model)
+            @shared.ProjectOpened(..)
+            | @shared.SceneCreated(..)
+            | @shared.SceneDeleted(..) =>
+              ([], model)
           }
         Err(message) => {
           let next = push_log(model, "SSE error: " + message)
@@ -1691,8 +1599,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         [
           rpc_effect(
             SceneLoaded,
-            "scene.load",
-            { "path": path.to_json() }.to_json(),
+            @shared.rpc_request_scene_load(path),
           ),
         ],
         { ..model, scene_path: path, status: "Loading " + path + "..." },
@@ -1728,10 +1635,9 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           [
             rpc_effect(
               SceneLoaded,
-              "scene.create",
-              { "name": trimmed.to_json() }.to_json(),
+              @shared.rpc_request_scene_create(trimmed),
             ),
-            rpc_effect(SceneListLoaded, "scene.list", Json::null()),
+            rpc_effect(SceneListLoaded, @shared.rpc_request_scene_list()),
           ],
           { ..model, status: "Creating scene..." },
         )
@@ -1752,14 +1658,12 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           [
             rpc_effect(
               SceneSaved,
-              "scene.delete",
-              { "path": model.scene_path.to_json() }.to_json(),
+              @shared.rpc_request_scene_delete(model.scene_path),
             ),
-            rpc_effect(SceneListLoaded, "scene.list", Json::null()),
+            rpc_effect(SceneListLoaded, @shared.rpc_request_scene_list()),
             rpc_effect(
               SceneLoaded,
-              "scene.load",
-              { "path": next_scene_path.to_json() }.to_json(),
+              @shared.rpc_request_scene_load(next_scene_path),
             ),
           ],
           { ..model, scene_path: next_scene_path, status: "Deleting scene..." },
@@ -1770,10 +1674,9 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         [
           rpc_effect(
             SceneSaved,
-            "project.set_startup_scene",
-            { "path": model.scene_path.to_json() }.to_json(),
+            @shared.rpc_request_project_set_startup_scene(model.scene_path),
           ),
-          rpc_effect(SceneListLoaded, "scene.list", Json::null()),
+          rpc_effect(SceneListLoaded, @shared.rpc_request_scene_list()),
         ],
         { ..model, status: "Updating startup scene..." },
       )
@@ -1791,11 +1694,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
               [
                 rpc_effect(
                   SceneSaved,
-                  "scene.save",
-                  {
-                    "path": model.scene_path.to_json(),
-                    "scene": next_scene.to_json(),
-                  }.to_json(),
+                  @shared.rpc_request_scene_save(model.scene_path, next_scene),
                 ),
               ] + sync_preview_effects(next),
               next,
@@ -1828,8 +1727,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             [
               rpc_effect(
                 SceneSaved,
-                "atlas.save",
-                { "path": path.to_json(), "atlas": atlas.to_json() }.to_json(),
+                @shared.rpc_request_atlas_save(path, atlas),
               ),
             ],
             next,
@@ -1860,11 +1758,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             [
               rpc_effect(
                 SceneSaved,
-                "animation.save",
-                {
-                  "path": animation_path.to_json(),
-                  "animation": animation.to_json(),
-                }.to_json(),
+                @shared.rpc_request_animation_save(animation_path, animation),
               ),
             ],
             next,
@@ -1895,8 +1789,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                 [
                   rpc_effect(
                     SceneSaved,
-                    "prefab.save",
-                    { "path": path.to_json(), "prefab": prefab.to_json() }.to_json(),
+                    @shared.rpc_request_prefab_save(path, prefab),
                   ),
                 ],
                 next,
@@ -1994,8 +1887,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           [
             rpc_effect(
               SceneSaved,
-              "prefab.save",
-              { "path": path.to_json(), "prefab": prefab.to_json() }.to_json(),
+              @shared.rpc_request_prefab_save(path, prefab),
             ),
           ],
           { ..model, status: "Saving prefab..." },
@@ -2114,8 +2006,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           [
             rpc_effect(
               SceneSaved,
-              "atlas.save",
-              { "path": path.to_json(), "atlas": atlas.to_json() }.to_json(),
+              @shared.rpc_request_atlas_save(path, atlas),
             ),
           ],
           { ..model, status: "Saving atlas..." },
@@ -2181,11 +2072,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           [
             rpc_effect(
               SceneSaved,
-              "animation.save",
-              {
-                "path": path.to_json(),
-                "animation": animation.to_json(),
-              }.to_json(),
+              @shared.rpc_request_animation_save(path, animation),
             ),
           ],
           { ..model, status: "Saving animation..." },
@@ -2325,8 +2212,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             [
               rpc_effect(
                 SceneSaved,
-                "scene.save",
-                { "path": model.scene_path.to_json(), "scene": scene.to_json() }.to_json(),
+                @shared.rpc_request_scene_save(model.scene_path, scene),
               ),
             ],
             { ..model, status: "Saving scene..." },

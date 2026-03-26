@@ -39,16 +39,18 @@ test "project load refreshes both scene and asset list" {
   let (_, model) = update(msg_initialize(), new_model())
   let (effects, next) = update(
     msg_project_loaded(
-      Ok({
-        root: Some("/tmp/demo"),
-        manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
-        scenes: None,
-        prefabs: None,
-        atlases: None,
-        animations: None,
-        workspace: None,
-        recent_projects: [],
-      }),
+      Ok(
+        @shared.project_state_response(
+          Some("/tmp/demo"),
+          Some(@editor_bridge.ProjectManifest::default("demo")),
+          [],
+          [],
+          [],
+          [],
+          None,
+          [],
+        ),
+      ),
     ),
     model,
   )

@@ -1,17 +1,30 @@
 ///|
-test "rpc success and failure round trip" {
-  let success : RpcSuccess = @json.from_json(
-    rpc_success(7, { "ok": true.to_json() }),
+test "rpc request, response, and event round trip" {
+  let request : RpcRequestEnvelope = @json.from_json(
+    rpc_request_envelope(
+      7,
+      ProjectOpen(root="/tmp/demo"),
+    ).to_json(),
   )
-  let failure : RpcFailure = @json.from_json(
-    rpc_failure(Some(9), "broken", "Something failed"),
+  let response : RpcResponseEnvelope = @json.from_json(
+    rpc_response_envelope(
+      7,
+      SavedOk,
+    ).to_json(),
   )
-  let ok = match success.result {
-    Json::Object(fields) => fields["ok"]
-    _ => Json::null()
-  }
-  inspect(success.id, content="7")
-  inspect(ok, content="True")
-  inspect(failure.id, content="Some(9)")
-  inspect(failure.error.details, content="Null")
+  let failure : RpcResponseEnvelope = @json.from_json(
+    rpc_error_response(9, "broken", "Something failed").to_json(),
+  )
+  let event : EventEnvelope = @json.from_json(
+    event_envelope(Log(label="core", message="ready")).to_json(),
+  )
+  inspect(request.id, content="7")
+  inspect(request.request, content="ProjectOpen(root=\"/tmp/demo\")")
+  inspect(response.response, content="SavedOk")
+  inspect(
+    failure.response,
+    content=
+      "Error(error={code: \"broken\", message: \"Something failed\", details: Null})",
+  )
+  inspect(event.event, content="Log(label=\"core\", message=\"ready\")")
 }

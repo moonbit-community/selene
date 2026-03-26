@@ -190,15 +190,6 @@ async fn load_workspace_document(root : String) -> @editor_bridge.WorkspaceDocum
   @editor_bridge.read_workspace_document(path)
 }
 
-///|
-fn save_workspace_document(
-  root : String,
-  workspace : @editor_bridge.WorkspaceDocument,
-) -> Unit raise {
-  @editor_bridge.write_workspace_document(workspace_path(root), workspace)
-}
-
-///|
 async fn list_files_recursive(root : String) -> Array[String] {
   let files : Array[String] = []
   if !@fs.exists(root) {

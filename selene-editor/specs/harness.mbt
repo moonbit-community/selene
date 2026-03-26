@@ -53,41 +53,110 @@ pub struct EditorHarness {
 }
 
 ///|
-fn[T : FromJson] decode_rpc_payload(payload : Json) -> Result[T, String] {
+fn decode_rpc_payload(
+  payload : Json,
+) -> Result[@shared.RpcResponseEnvelope, String] {
   try {
-    let success : @shared.RpcSuccess = @json.from_json(payload)
-    try {
-      Ok(@json.from_json(success.result))
-    } catch {
-      err => {
-        let message = "RpcSuccess decode failed: \{err.to_string()} result=\{success.result.stringify()}"
-        Err(message)
-      }
-    }
+    Ok(@json.from_json(payload))
   } catch {
-    _ =>
-      try {
-        let failure : @shared.RpcFailure = @json.from_json(payload)
-        Err(failure.error.message)
-      } catch {
-        err => Err(err.to_string())
-      }
+    err => Err(err.to_string())
   }
 }
 
 ///|
-fn msg_for_rpc_target(target : @app.RpcTarget, payload : Json) -> @app.Msg {
+fn msg_for_rpc_target(
+  target : @app.RpcTarget,
+  payload : Json,
+) -> @app.Msg {
+  let response = match decode_rpc_payload(payload) {
+    Ok(envelope) => envelope.response
+    Err(message) =>
+      return match target {
+        @app.ProjectRootPicked =>
+          @app.msg_project_root_picked(Err(message))
+        @app.ProjectLoaded => @app.msg_project_loaded(Err(message))
+        @app.SceneLoaded => @app.msg_scene_loaded(Err(message))
+        @app.SceneListLoaded => @app.msg_scene_list_loaded(Err(message))
+        @app.AssetsLoaded => @app.msg_assets_loaded(Err(message))
+        @app.PrefabLoaded => @app.msg_prefab_loaded(Err(message))
+        @app.AtlasLoaded => @app.msg_atlas_loaded(Err(message))
+        @app.AnimationLoaded => @app.msg_animation_loaded(Err(message))
+        @app.SceneSaved => @app.msg_scene_saved(Err(message))
+      }
+  }
   match target {
     @app.ProjectRootPicked =>
-      @app.msg_project_root_picked(decode_rpc_payload(payload))
-    @app.ProjectLoaded => @app.msg_project_loaded(decode_rpc_payload(payload))
-    @app.SceneLoaded => @app.msg_scene_loaded(decode_rpc_payload(payload))
-    @app.SceneListLoaded => @app.msg_scene_list_loaded(decode_rpc_payload(payload))
-    @app.AssetsLoaded => @app.msg_assets_loaded(decode_rpc_payload(payload))
-    @app.PrefabLoaded => @app.msg_prefab_loaded(decode_rpc_payload(payload))
-    @app.AtlasLoaded => @app.msg_atlas_loaded(decode_rpc_payload(payload))
-    @app.AnimationLoaded => @app.msg_animation_loaded(decode_rpc_payload(payload))
-    @app.SceneSaved => @app.msg_scene_saved(decode_rpc_payload(payload))
+      @app.msg_project_root_picked(
+        match response {
+          @shared.DirectoryPicked(result~) => Ok(result)
+          @shared.Error(error~) => Err(error.message)
+          _ => Err("Unexpected RPC response for project root picker")
+        },
+      )
+    @app.ProjectLoaded =>
+      @app.msg_project_loaded(
+        match response {
+          @shared.ProjectState(state~) => Ok(state)
+          @shared.Error(error~) => Err(error.message)
+          _ => Err("Unexpected RPC response for project state")
+        },
+      )
+    @app.SceneLoaded =>
+      @app.msg_scene_loaded(
+        match response {
+          @shared.SceneLoaded(scene~) => Ok(scene)
+          @shared.Error(error~) => Err(error.message)
+          _ => Err("Unexpected RPC response for scene")
+        },
+      )
+    @app.SceneListLoaded =>
+      @app.msg_scene_list_loaded(
+        match response {
+          @shared.SceneListed(list~) => Ok(list)
+          @shared.Error(error~) => Err(error.message)
+          _ => Err("Unexpected RPC response for scene list")
+        },
+      )
+    @app.AssetsLoaded =>
+      @app.msg_assets_loaded(
+        match response {
+          @shared.AssetsListed(list~) => Ok(list)
+          @shared.Error(error~) => Err(error.message)
+          _ => Err("Unexpected RPC response for assets")
+        },
+      )
+    @app.PrefabLoaded =>
+      @app.msg_prefab_loaded(
+        match response {
+          @shared.PrefabLoaded(prefab~) => Ok(prefab)
+          @shared.Error(error~) => Err(error.message)
+          _ => Err("Unexpected RPC response for prefab")
+        },
+      )
+    @app.AtlasLoaded =>
+      @app.msg_atlas_loaded(
+        match response {
+          @shared.AtlasLoaded(atlas~) => Ok(atlas)
+          @shared.Error(error~) => Err(error.message)
+          _ => Err("Unexpected RPC response for atlas")
+        },
+      )
+    @app.AnimationLoaded =>
+      @app.msg_animation_loaded(
+        match response {
+          @shared.AnimationLoaded(animation~) => Ok(animation)
+          @shared.Error(error~) => Err(error.message)
+          _ => Err("Unexpected RPC response for animation")
+        },
+      )
+    @app.SceneSaved =>
+      @app.msg_scene_saved(
+        match response {
+          @shared.SavedOk | @shared.StartupSceneUpdated(_) => Ok(())
+          @shared.Error(error~) => Err(error.message)
+          _ => Err("Unexpected RPC response for save")
+        },
+      )
   }
 }
 
@@ -149,17 +218,21 @@ async fn EditorHarness::process_effect(
   effect : @app.Effect,
 ) -> Unit {
   match effect {
-    @app.Rpc(target~, method_name~, params~) => {
+    @app.Rpc(target~, request~) => {
       let request_id = self.next_rpc_id
       self.next_rpc_id += 1
-      let payload = if method_name == "project.pick_directory" {
-        @shared.rpc_success(
+      let payload = if request.request is @shared.ProjectPickDirectory(_) {
+        @shared.rpc_response_envelope(
           request_id,
-          @shared.directory_pick_result(Some(self.project_root)).to_json(),
+          @shared.rpc_response_directory_picked(
+            @shared.directory_pick_result(Some(self.project_root)),
+          ),
         )
+        .to_json()
       } else {
-        let request = @shared.rpc_request(request_id, method_name, params)
-        self.service.handle_rpc(request)
+        self.service.handle_rpc(
+          @shared.rpc_request_envelope(request_id, request.request),
+        )
       }
       self.dispatch(msg_for_rpc_target(target, payload))
     }
@@ -176,7 +249,7 @@ async fn EditorHarness::flush_service_events(self : EditorHarness) -> Unit {
   }
   let events = self.service.drain_events()
   for event in events {
-    self.dispatch(@app.msg_service_event(Ok(event)))
+    self.dispatch(@app.msg_service_event(Ok(event.event)))
   }
 }
 
@@ -293,16 +366,6 @@ pub async fn EditorHarness::when_editor_initialized(
 ) -> Unit {
   self.dispatch(@app.msg_initialize())
   self.dispatch(@app.msg_open_project())
-}
-
-///|
-pub async fn EditorHarness::when_project_created(
-  self : EditorHarness,
-  name : String,
-) -> Unit {
-  self.dispatch(@app.msg_set_project_root_input(self.project_root))
-  self.dispatch(@app.msg_set_project_name_input(name))
-  self.dispatch(@app.msg_create_project())
 }
 
 ///|

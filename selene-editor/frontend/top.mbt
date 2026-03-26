@@ -1,36 +1,128 @@
 ///|
-fn[T : FromJson] decode_rpc_payload(payload : Json) -> Result[T, String] {
+fn decode_rpc_payload(
+  payload : Json,
+) -> Result[@shared.RpcResponseEnvelope, String] {
   try {
-    let success : @shared.RpcSuccess = @json.from_json(payload)
-    try {
-      Ok(@json.from_json(success.result))
-    } catch {
-      err => {
-        let message = "RpcSuccess decode failed: \{err.to_string()} result=\{success.result.stringify()}"
-        Err(message)
-      }
-    }
+    Ok(@json.from_json(payload))
   } catch {
-    _ =>
-      try {
-        let failure : @shared.RpcFailure = @json.from_json(payload)
-        Err(failure.error.message)
-      } catch {
-        err => Err(err.to_string())
-      }
+    err => Err(err.to_string())
   }
 }
 
 ///|
-fn[T : FromJson] rpc_cmd(
-  method_name : String,
-  params : Json,
+fn project_root_picked_of_response(
+  response : @shared.RpcResponse,
+) -> Result[@shared.DirectoryPickResult, String] {
+  match response {
+    @shared.DirectoryPicked(result~) => Ok(result)
+    @shared.Error(error~) => Err(error.message)
+    _ => Err("Unexpected RPC response for project root picker")
+  }
+}
+
+///|
+fn project_loaded_of_response(
+  response : @shared.RpcResponse,
+) -> Result[@shared.ProjectStateResponse, String] {
+  match response {
+    @shared.ProjectState(state~) => Ok(state)
+    @shared.Error(error~) => Err(error.message)
+    _ => Err("Unexpected RPC response for project state")
+  }
+}
+
+///|
+fn scene_loaded_of_response(
+  response : @shared.RpcResponse,
+) -> Result[@shared.SceneLoadResponse, String] {
+  match response {
+    @shared.SceneLoaded(scene~) => Ok(scene)
+    @shared.Error(error~) => Err(error.message)
+    _ => Err("Unexpected RPC response for scene")
+  }
+}
+
+///|
+fn scene_list_of_response(
+  response : @shared.RpcResponse,
+) -> Result[@shared.SceneListResponse, String] {
+  match response {
+    @shared.SceneListed(list~) => Ok(list)
+    @shared.Error(error~) => Err(error.message)
+    _ => Err("Unexpected RPC response for scene list")
+  }
+}
+
+///|
+fn assets_list_of_response(
+  response : @shared.RpcResponse,
+) -> Result[@shared.AssetsListResponse, String] {
+  match response {
+    @shared.AssetsListed(list~) => Ok(list)
+    @shared.Error(error~) => Err(error.message)
+    _ => Err("Unexpected RPC response for assets")
+  }
+}
+
+///|
+fn prefab_loaded_of_response(
+  response : @shared.RpcResponse,
+) -> Result[@shared.PrefabLoadResponse, String] {
+  match response {
+    @shared.PrefabLoaded(prefab~) => Ok(prefab)
+    @shared.Error(error~) => Err(error.message)
+    _ => Err("Unexpected RPC response for prefab")
+  }
+}
+
+///|
+fn atlas_loaded_of_response(
+  response : @shared.RpcResponse,
+) -> Result[@shared.AtlasLoadResponse, String] {
+  match response {
+    @shared.AtlasLoaded(atlas~) => Ok(atlas)
+    @shared.Error(error~) => Err(error.message)
+    _ => Err("Unexpected RPC response for atlas")
+  }
+}
+
+///|
+fn animation_loaded_of_response(
+  response : @shared.RpcResponse,
+) -> Result[@shared.AnimationLoadResponse, String] {
+  match response {
+    @shared.AnimationLoaded(animation~) => Ok(animation)
+    @shared.Error(error~) => Err(error.message)
+    _ => Err("Unexpected RPC response for animation")
+  }
+}
+
+///|
+fn save_ack_of_response(
+  response : @shared.RpcResponse,
+) -> Result[Unit, String] {
+  match response {
+    @shared.SavedOk | @shared.StartupSceneUpdated(_) => Ok(())
+    @shared.Error(error~) => Err(error.message)
+    _ => Err("Unexpected RPC response for save")
+  }
+}
+
+///|
+fn[T] rpc_cmd(
+  request : @shared.RpcRequestEnvelope,
+  decode : (@shared.RpcResponse) -> Result[T, String],
   on_result : (Result[T, String]) -> @rabbita.Cmd,
 ) -> @rabbita.Cmd {
   @http.post(
     "/rpc",
-    @http.Body::Json(@shared.rpc_request(1, method_name, params).to_json()),
-    expect=@http.Json(on_result, decode_rpc_payload),
+    @http.Body::Json(request.to_json()),
+    expect=@http.Json(on_result, fn(payload) {
+      match decode_rpc_payload(payload) {
+        Ok(envelope) => decode(envelope.response)
+        Err(message) => Err(message)
+      }
+    }),
   )
 }
 
@@ -152,7 +244,7 @@ fn subscribe_events_cmd(dispatch : @rabbita.Dispatch[@app.Msg]) -> @rabbita.Cmd 
       fn(data) {
         let result = try {
           let event : @shared.EventEnvelope = @json.from_json(@json.parse(data))
-          Ok(event)
+          Ok(event.event)
         } catch {
           err => Err(err.to_string())
         }
@@ -202,44 +294,43 @@ fn preview_cmd(command : @bridge.PreviewCommand) -> @rabbita.Cmd {
 fn rpc_effect_cmd(
   dispatch : @rabbita.Dispatch[@app.Msg],
   target : @app.RpcTarget,
-  method_name : String,
-  params : Json,
+  request : @shared.RpcRequestEnvelope,
 ) -> @rabbita.Cmd {
   match target {
     @app.ProjectRootPicked =>
-      rpc_cmd(method_name, params, fn(result) {
+      rpc_cmd(request, project_root_picked_of_response, fn(result) {
         dispatch(@app.msg_project_root_picked(result))
       })
     @app.ProjectLoaded =>
-      rpc_cmd(method_name, params, fn(result) {
+      rpc_cmd(request, project_loaded_of_response, fn(result) {
         dispatch(@app.msg_project_loaded(result))
       })
     @app.SceneLoaded =>
-      rpc_cmd(method_name, params, fn(result) {
+      rpc_cmd(request, scene_loaded_of_response, fn(result) {
         dispatch(@app.msg_scene_loaded(result))
       })
     @app.SceneListLoaded =>
-      rpc_cmd(method_name, params, fn(result) {
+      rpc_cmd(request, scene_list_of_response, fn(result) {
         dispatch(@app.msg_scene_list_loaded(result))
       })
     @app.AssetsLoaded =>
-      rpc_cmd(method_name, params, fn(result) {
+      rpc_cmd(request, assets_list_of_response, fn(result) {
         dispatch(@app.msg_assets_loaded(result))
       })
     @app.PrefabLoaded =>
-      rpc_cmd(method_name, params, fn(result) {
+      rpc_cmd(request, prefab_loaded_of_response, fn(result) {
         dispatch(@app.msg_prefab_loaded(result))
       })
     @app.AtlasLoaded =>
-      rpc_cmd(method_name, params, fn(result) {
+      rpc_cmd(request, atlas_loaded_of_response, fn(result) {
         dispatch(@app.msg_atlas_loaded(result))
       })
     @app.AnimationLoaded =>
-      rpc_cmd(method_name, params, fn(result) {
+      rpc_cmd(request, animation_loaded_of_response, fn(result) {
         dispatch(@app.msg_animation_loaded(result))
       })
     @app.SceneSaved =>
-      rpc_cmd(method_name, params, fn(result : Result[Json, String]) {
+      rpc_cmd(request, save_ack_of_response, fn(result) {
         dispatch(@app.msg_scene_saved(result))
       })
   }
@@ -251,8 +342,8 @@ fn effect_to_cmd(
   effect : @app.Effect,
 ) -> @rabbita.Cmd {
   match effect {
-    @app.Rpc(target~, method_name~, params~) =>
-      rpc_effect_cmd(dispatch, target, method_name, params)
+    @app.Rpc(target~, request~) =>
+      rpc_effect_cmd(dispatch, target, request)
     @app.SubscribeServiceEvents => subscribe_events_cmd(dispatch)
     @app.SubscribePreviewEvents => subscribe_preview_events_cmd(dispatch)
     @app.Preview(command) => preview_cmd(command)

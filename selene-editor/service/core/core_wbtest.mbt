@@ -1,4 +1,15 @@
 ///|
+fn response_envelope(payload : Json) -> @shared.RpcResponseEnvelope {
+  let result : Result[@shared.RpcResponseEnvelope, Error] = try? @json.from_json(
+    payload,
+  )
+  match result {
+    Ok(envelope) => envelope
+    Err(_) => abort("Failed to decode rpc response envelope")
+  }
+}
+
+///|
 async test "project.open auto-initializes a missing project manifest" {
   @async.with_task_group(group => {
     let temp_root = @fs.tmpdir(prefix="selene-editor-core")
@@ -11,17 +22,16 @@ async test "project.open auto-initializes a missing project manifest" {
 
     let service = EditorService::new(".")
     let payload = service.handle_rpc(
-      @shared.rpc_request(
+      @shared.rpc_request_envelope(
         1,
-        "project.open",
-        { "root": root.to_json() }.to_json(),
+        @shared.rpc_request_project_open(root),
       ),
     )
-    let success : @shared.RpcSuccess = @json.from_json(payload)
-    let result : Map[String, Json] = @json.from_json(success.result)
-    let loaded : @editor_bridge.ProjectManifest = @json.from_json(
-      result["manifest"],
-    )
+    let response = response_envelope(payload).response
+    let loaded = match response {
+      @shared.ProjectState(state~) => state.manifest.unwrap()
+      _ => fail("expected project state")
+    }
 
     inspect(loaded.name, content="Auto Open Demo")
     inspect(loaded.startup_scene, content="scenes/auto-open-demo.scene.json")
@@ -47,17 +57,16 @@ async test "project.open auto-initializes when the directory already exists" {
 
     let service = EditorService::new(".")
     let payload = service.handle_rpc(
-      @shared.rpc_request(
+      @shared.rpc_request_envelope(
         1,
-        "project.open",
-        { "root": root.to_json() }.to_json(),
+        @shared.rpc_request_project_open(root),
       ),
     )
-    let success : @shared.RpcSuccess = @json.from_json(payload)
-    let result : Map[String, Json] = @json.from_json(success.result)
-    let loaded : @editor_bridge.ProjectManifest = @json.from_json(
-      result["manifest"],
-    )
+    let response = response_envelope(payload).response
+    let loaded = match response {
+      @shared.ProjectState(state~) => state.manifest.unwrap()
+      _ => fail("expected project state")
+    }
 
     inspect(loaded.name, content="Existing Dir Demo")
     inspect(
@@ -76,15 +85,16 @@ async test "project.open auto-initializes when the directory already exists" {
 async test "project.open rejects an empty root" {
   let service = EditorService::new(".")
   let payload = service.handle_rpc(
-    @shared.rpc_request(
-      1,
-      "project.open",
-      { "root": "".to_json() }.to_json(),
-    ),
+    @shared.rpc_request_envelope(1, @shared.rpc_request_project_open("")),
   )
-  let failure : @shared.RpcFailure = @json.from_json(payload)
-  inspect(failure.error.code, content="invalid_request")
-  inspect(failure.error.message, content="Project root is required")
+  let response = response_envelope(payload).response
+  match response {
+    @shared.Error(error~) => {
+      inspect(error.code, content="invalid_request")
+      inspect(error.message, content="Project root is required")
+    }
+    _ => fail("expected rpc error")
+  }
 }
 
 ///|
@@ -144,28 +154,23 @@ async test "service lists scenes and saves prefabs and asset docs" {
     let service = EditorService::new(".")
     ignore(
       service.handle_rpc(
-        @shared.rpc_request(
+        @shared.rpc_request_envelope(
           1,
-          "project.open",
-          { "root": root.to_json() }.to_json(),
+          @shared.rpc_request_project_open(root),
         ),
       ),
     )
 
     let create_scene_payload = service.handle_rpc(
-      @shared.rpc_request(
+      @shared.rpc_request_envelope(
         2,
-        "scene.create",
-        { "name": "Battlefield".to_json() }.to_json(),
+        @shared.rpc_request_scene_create("Battlefield"),
       ),
     )
-    let create_scene_success : @shared.RpcSuccess = @json.from_json(
-      create_scene_payload,
-    )
-    let create_scene_result : Map[String, Json] = @json.from_json(
-      create_scene_success.result,
-    )
-    let created_scene_path : String = @json.from_json(create_scene_result["path"])
+    let created_scene_path = match response_envelope(create_scene_payload).response {
+      @shared.SceneLoaded(scene~) => scene.path
+      _ => fail("expected scene load response")
+    }
     inspect(
       created_scene_path,
       content="scenes/battlefield.scene.json",
@@ -180,13 +185,9 @@ async test "service lists scenes and saves prefabs and asset docs" {
     )
     ignore(
       service.handle_rpc(
-        @shared.rpc_request(
+        @shared.rpc_request_envelope(
           3,
-          "prefab.save",
-          {
-            "path": "prefabs/enemy.prefab.json".to_json(),
-            "prefab": prefab.to_json(),
-          }.to_json(),
+          @shared.rpc_request_prefab_save("prefabs/enemy.prefab.json", prefab),
         ),
       ),
     )
@@ -197,13 +198,9 @@ async test "service lists scenes and saves prefabs and asset docs" {
     )
     ignore(
       service.handle_rpc(
-        @shared.rpc_request(
+        @shared.rpc_request_envelope(
           4,
-          "atlas.save",
-          {
-            "path": "assets/atlases/hero.atlas.json".to_json(),
-            "atlas": atlas.to_json(),
-          }.to_json(),
+          @shared.rpc_request_atlas_save("assets/atlases/hero.atlas.json", atlas),
         ),
       ),
     )
@@ -214,13 +211,12 @@ async test "service lists scenes and saves prefabs and asset docs" {
     )
     ignore(
       service.handle_rpc(
-        @shared.rpc_request(
+        @shared.rpc_request_envelope(
           5,
-          "animation.save",
-          {
-            "path": "assets/animations/hero.anim.json".to_json(),
-            "animation": animation.to_json(),
-          }.to_json(),
+          @shared.rpc_request_animation_save(
+            "assets/animations/hero.anim.json",
+            animation,
+          ),
         ),
       ),
     )
