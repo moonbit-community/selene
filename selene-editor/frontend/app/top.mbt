@@ -125,10 +125,32 @@ pub enum Msg {
   CreateScene(String)
   DeleteCurrentScene
   SetCurrentSceneAsStartup
+  RenameCurrentScene(String)
   CreateAtlasFromSelectedImage
   CreateAnimationFromSelectedAtlas
   SaveSelectedAsPrefab
   InsertSelectedResource
+  UpdateSelectedPrefabName(String)
+  SaveSelectedPrefab
+  UpdateSelectedAtlasName(String)
+  UpdateSelectedAtlasTileWidth(String)
+  UpdateSelectedAtlasTileHeight(String)
+  UpdateSelectedAtlasColumns(String)
+  UpdateSelectedAtlasRows(String)
+  UpdateSelectedAtlasSpacingX(String)
+  UpdateSelectedAtlasSpacingY(String)
+  UpdateSelectedAtlasMarginX(String)
+  UpdateSelectedAtlasMarginY(String)
+  UpdateSelectedAtlasAnchorX(String)
+  UpdateSelectedAtlasAnchorY(String)
+  SaveSelectedAtlas
+  UpdateSelectedAnimationName(String)
+  UpdateSelectedAnimationDefaultClip(String)
+  UpdateSelectedAnimationClipName(String)
+  UpdateSelectedAnimationClipFps(String)
+  ToggleSelectedAnimationClipLooping
+  UpdateSelectedAnimationClipFrames(String)
+  SaveSelectedAnimation
   RenameSelected(String)
   UpdateSelectedTranslateX(String)
   UpdateSelectedTranslateY(String)
@@ -324,6 +346,11 @@ pub fn msg_set_current_scene_as_startup() -> Msg {
 }
 
 ///|
+pub fn msg_rename_current_scene(value : String) -> Msg {
+  RenameCurrentScene(value)
+}
+
+///|
 pub fn msg_create_atlas_from_selected_image() -> Msg {
   CreateAtlasFromSelectedImage
 }
@@ -341,6 +368,111 @@ pub fn msg_save_selected_as_prefab() -> Msg {
 ///|
 pub fn msg_insert_selected_resource() -> Msg {
   InsertSelectedResource
+}
+
+///|
+pub fn msg_update_selected_prefab_name(value : String) -> Msg {
+  UpdateSelectedPrefabName(value)
+}
+
+///|
+pub fn msg_save_selected_prefab() -> Msg {
+  SaveSelectedPrefab
+}
+
+///|
+pub fn msg_update_selected_atlas_name(value : String) -> Msg {
+  UpdateSelectedAtlasName(value)
+}
+
+///|
+pub fn msg_update_selected_atlas_tile_width(value : String) -> Msg {
+  UpdateSelectedAtlasTileWidth(value)
+}
+
+///|
+pub fn msg_update_selected_atlas_tile_height(value : String) -> Msg {
+  UpdateSelectedAtlasTileHeight(value)
+}
+
+///|
+pub fn msg_update_selected_atlas_columns(value : String) -> Msg {
+  UpdateSelectedAtlasColumns(value)
+}
+
+///|
+pub fn msg_update_selected_atlas_rows(value : String) -> Msg {
+  UpdateSelectedAtlasRows(value)
+}
+
+///|
+pub fn msg_update_selected_atlas_spacing_x(value : String) -> Msg {
+  UpdateSelectedAtlasSpacingX(value)
+}
+
+///|
+pub fn msg_update_selected_atlas_spacing_y(value : String) -> Msg {
+  UpdateSelectedAtlasSpacingY(value)
+}
+
+///|
+pub fn msg_update_selected_atlas_margin_x(value : String) -> Msg {
+  UpdateSelectedAtlasMarginX(value)
+}
+
+///|
+pub fn msg_update_selected_atlas_margin_y(value : String) -> Msg {
+  UpdateSelectedAtlasMarginY(value)
+}
+
+///|
+pub fn msg_update_selected_atlas_anchor_x(value : String) -> Msg {
+  UpdateSelectedAtlasAnchorX(value)
+}
+
+///|
+pub fn msg_update_selected_atlas_anchor_y(value : String) -> Msg {
+  UpdateSelectedAtlasAnchorY(value)
+}
+
+///|
+pub fn msg_save_selected_atlas() -> Msg {
+  SaveSelectedAtlas
+}
+
+///|
+pub fn msg_update_selected_animation_name(value : String) -> Msg {
+  UpdateSelectedAnimationName(value)
+}
+
+///|
+pub fn msg_update_selected_animation_default_clip(value : String) -> Msg {
+  UpdateSelectedAnimationDefaultClip(value)
+}
+
+///|
+pub fn msg_update_selected_animation_clip_name(value : String) -> Msg {
+  UpdateSelectedAnimationClipName(value)
+}
+
+///|
+pub fn msg_update_selected_animation_clip_fps(value : String) -> Msg {
+  UpdateSelectedAnimationClipFps(value)
+}
+
+///|
+pub fn msg_toggle_selected_animation_clip_looping() -> Msg {
+  ToggleSelectedAnimationClipLooping
+}
+
+///|
+pub fn msg_update_selected_animation_clip_frames(value : String) -> Msg {
+  UpdateSelectedAnimationClipFrames(value)
+}
+
+///|
+pub fn msg_save_selected_animation() -> Msg {
+  SaveSelectedAnimation
 }
 
 ///|
@@ -789,6 +921,107 @@ fn parse_double_or(current : Double, input : String) -> Double {
 }
 
 ///|
+fn parse_int_or(current : Int, input : String) -> Int {
+  @strconv.parse_int(input) catch {
+    _ => current
+  }
+}
+
+///|
+fn parse_positive_double_or(current : Double, input : String) -> Double {
+  let parsed = parse_double_or(current, input)
+  if parsed <= 0.0 { current } else { parsed }
+}
+
+///|
+fn parse_positive_int_or(current : Int, input : String) -> Int {
+  let parsed = parse_int_or(current, input)
+  if parsed <= 0 { current } else { parsed }
+}
+
+///|
+fn atlas_region_name(existing : Array[@editor_bridge.AtlasRegionDocument], index : Int) -> String {
+  for region in existing {
+    if region.index == index {
+      return region.name
+    }
+  }
+  "frame_\{index}"
+}
+
+///|
+fn rebuild_atlas_regions(
+  atlas : @editor_bridge.AtlasAssetDocument,
+) -> Array[@editor_bridge.AtlasRegionDocument] {
+  let regions : Array[@editor_bridge.AtlasRegionDocument] = []
+  let step_x = atlas.tile_size.x + atlas.spacing.x
+  let step_y = atlas.tile_size.y + atlas.spacing.y
+  for row = 0; row < atlas.rows; row = row + 1 {
+    for column = 0; column < atlas.columns; column = column + 1 {
+      let index = row * atlas.columns + column
+      regions.push(@editor_bridge.atlas_region_document(
+        atlas_region_name(atlas.regions, index),
+        index,
+        @editor_bridge.rect_doc(
+          atlas.margin.x + step_x * column.to_double(),
+          atlas.margin.y + step_y * row.to_double(),
+          atlas.tile_size.x,
+          atlas.tile_size.y,
+        ),
+      ))
+    }
+  }
+  regions
+}
+
+///|
+fn with_rebuilt_regions(
+  atlas : @editor_bridge.AtlasAssetDocument,
+) -> @editor_bridge.AtlasAssetDocument {
+  atlas.with_regions(rebuild_atlas_regions(atlas))
+}
+
+///|
+fn primary_animation_clip(
+  animation : @editor_bridge.AnimationAssetDocument,
+) -> @editor_bridge.AnimationClipDocument {
+  if animation.clips.is_empty() {
+    @editor_bridge.animation_clip_document(
+      animation.default_clip.unwrap_or("default"),
+      8.0,
+      true,
+      ["frame_0"],
+    )
+  } else {
+    animation.clips[0]
+  }
+}
+
+fn parse_clip_frames(
+  current : Array[String],
+  input : String,
+) -> Array[String] {
+  let frames : Array[String] = []
+  for raw in input.split(",") {
+    let frame = raw.trim().to_string()
+    if frame != "" {
+      frames.push(frame)
+    }
+  }
+  if frames.is_empty() { current } else { frames }
+}
+
+///|
+fn save_success_status(model : Model) -> String {
+  match model.status {
+    "Saving prefab..." => "Prefab saved"
+    "Saving atlas..." => "Atlas saved"
+    "Saving animation..." => "Animation saved"
+    _ => "Scene saved"
+  }
+}
+
+///|
 pub fn entity_label(entity : @editor_bridge.EntityDocument) -> String {
   entity.name + " (" + entity.id + ")"
 }
@@ -1084,6 +1317,53 @@ fn update_selected_component(
 }
 
 ///|
+fn update_selected_atlas_document(
+  model : Model,
+  updater : (@editor_bridge.AtlasAssetDocument) -> @editor_bridge.AtlasAssetDocument,
+) -> Model {
+  match model.selected_atlas_document() {
+    Some((path, atlas)) => {
+      let atlas_documents = model.atlas_documents
+      atlas_documents.set(path, updater(atlas))
+      { ..model, atlas_documents }
+    }
+    None => model
+  }
+}
+
+///|
+fn update_selected_animation_document(
+  model : Model,
+  updater : (
+    @editor_bridge.AnimationAssetDocument,
+  ) -> @editor_bridge.AnimationAssetDocument,
+) -> Model {
+  match model.selected_animation_document() {
+    Some((path, animation)) => {
+      let animation_documents = model.animation_documents
+      animation_documents.set(path, updater(animation))
+      { ..model, animation_documents }
+    }
+    None => model
+  }
+}
+
+///|
+fn update_selected_prefab_document(
+  model : Model,
+  updater : (@editor_bridge.PrefabDocument) -> @editor_bridge.PrefabDocument,
+) -> Model {
+  match model.selected_prefab_document() {
+    Some((path, prefab)) => {
+      let prefab_documents = model.prefab_documents
+      prefab_documents.set(path, updater(prefab))
+      { ..model, prefab_documents }
+    }
+    None => model
+  }
+}
+
+///|
 pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
   match msg {
     Initialize =>
@@ -1336,7 +1616,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       }
     SceneSaved(result) =>
       match result {
-        Ok(_) => ([], { ..model, status: "Scene saved" })
+        Ok(_) => ([], { ..model, status: save_success_status(model) })
         Err(message) => {
           let next = push_log(model, "Save failed: " + message)
           ([], { ..next, status: "Save failed: " + message })
@@ -1497,6 +1777,33 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         ],
         { ..model, status: "Updating startup scene..." },
       )
+    RenameCurrentScene(value) =>
+      match model.scene {
+        Some(scene) => {
+          let trimmed = value.trim().to_string()
+          if trimmed == "" {
+            let next = push_log(model, "Scene name is required")
+            ([], { ..next, status: "Scene name is required" })
+          } else {
+            let next_scene = scene.with_name(trimmed)
+            let next = { ..model, scene: Some(next_scene), status: "Renaming scene..." }
+            (
+              [
+                rpc_effect(
+                  SceneSaved,
+                  "scene.save",
+                  {
+                    "path": model.scene_path.to_json(),
+                    "scene": next_scene.to_json(),
+                  }.to_json(),
+                ),
+              ] + sync_preview_effects(next),
+              next,
+            )
+          }
+        }
+        None => ([], model)
+      }
     CreateAtlasFromSelectedImage =>
       match model.selected_image_asset() {
         Some(asset) => {
@@ -1674,6 +1981,216 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             None => ([], model)
           }
         _ => ([], model)
+      }
+    UpdateSelectedPrefabName(value) => {
+      let next = update_selected_prefab_document(model, fn(prefab) {
+        prefab.with_name(value)
+      })
+      ([], next)
+    }
+    SaveSelectedPrefab =>
+      match model.selected_prefab_document() {
+        Some((path, prefab)) => (
+          [
+            rpc_effect(
+              SceneSaved,
+              "prefab.save",
+              { "path": path.to_json(), "prefab": prefab.to_json() }.to_json(),
+            ),
+          ],
+          { ..model, status: "Saving prefab..." },
+        )
+        None => ([], model)
+      }
+    UpdateSelectedAtlasName(value) => {
+      let next = update_selected_atlas_document(model, fn(atlas) {
+        atlas.with_name(value)
+      })
+      (sync_preview_effects(next), next)
+    }
+    UpdateSelectedAtlasTileWidth(value) => {
+      let next = update_selected_atlas_document(model, fn(atlas) {
+        with_rebuilt_regions(
+          atlas.with_tile_size(
+            atlas.tile_size.with_x(
+              parse_positive_double_or(atlas.tile_size.x, value),
+            ),
+          ),
+        )
+      })
+      (sync_preview_effects(next), next)
+    }
+    UpdateSelectedAtlasTileHeight(value) => {
+      let next = update_selected_atlas_document(model, fn(atlas) {
+        with_rebuilt_regions(
+          atlas.with_tile_size(
+            atlas.tile_size.with_y(
+              parse_positive_double_or(atlas.tile_size.y, value),
+            ),
+          ),
+        )
+      })
+      (sync_preview_effects(next), next)
+    }
+    UpdateSelectedAtlasColumns(value) => {
+      let next = update_selected_atlas_document(model, fn(atlas) {
+        with_rebuilt_regions(
+          atlas.with_columns(parse_positive_int_or(atlas.columns, value)),
+        )
+      })
+      (sync_preview_effects(next), next)
+    }
+    UpdateSelectedAtlasRows(value) => {
+      let next = update_selected_atlas_document(model, fn(atlas) {
+        with_rebuilt_regions(
+          atlas.with_rows(parse_positive_int_or(atlas.rows, value)),
+        )
+      })
+      (sync_preview_effects(next), next)
+    }
+    UpdateSelectedAtlasSpacingX(value) => {
+      let next = update_selected_atlas_document(model, fn(atlas) {
+        with_rebuilt_regions(
+          atlas.with_spacing(
+            atlas.spacing.with_x(parse_double_or(atlas.spacing.x, value)),
+          ),
+        )
+      })
+      (sync_preview_effects(next), next)
+    }
+    UpdateSelectedAtlasSpacingY(value) => {
+      let next = update_selected_atlas_document(model, fn(atlas) {
+        with_rebuilt_regions(
+          atlas.with_spacing(
+            atlas.spacing.with_y(parse_double_or(atlas.spacing.y, value)),
+          ),
+        )
+      })
+      (sync_preview_effects(next), next)
+    }
+    UpdateSelectedAtlasMarginX(value) => {
+      let next = update_selected_atlas_document(model, fn(atlas) {
+        with_rebuilt_regions(
+          atlas.with_margin(
+            atlas.margin.with_x(parse_double_or(atlas.margin.x, value)),
+          ),
+        )
+      })
+      (sync_preview_effects(next), next)
+    }
+    UpdateSelectedAtlasMarginY(value) => {
+      let next = update_selected_atlas_document(model, fn(atlas) {
+        with_rebuilt_regions(
+          atlas.with_margin(
+            atlas.margin.with_y(parse_double_or(atlas.margin.y, value)),
+          ),
+        )
+      })
+      (sync_preview_effects(next), next)
+    }
+    UpdateSelectedAtlasAnchorX(value) => {
+      let next = update_selected_atlas_document(model, fn(atlas) {
+        atlas.with_default_anchor(
+          atlas.default_anchor.with_x(
+            parse_double_or(atlas.default_anchor.x, value),
+          ),
+        )
+      })
+      (sync_preview_effects(next), next)
+    }
+    UpdateSelectedAtlasAnchorY(value) => {
+      let next = update_selected_atlas_document(model, fn(atlas) {
+        atlas.with_default_anchor(
+          atlas.default_anchor.with_y(
+            parse_double_or(atlas.default_anchor.y, value),
+          ),
+        )
+      })
+      (sync_preview_effects(next), next)
+    }
+    SaveSelectedAtlas =>
+      match model.selected_atlas_document() {
+        Some((path, atlas)) => (
+          [
+            rpc_effect(
+              SceneSaved,
+              "atlas.save",
+              { "path": path.to_json(), "atlas": atlas.to_json() }.to_json(),
+            ),
+          ],
+          { ..model, status: "Saving atlas..." },
+        )
+        None => ([], model)
+      }
+    UpdateSelectedAnimationName(value) => {
+      let next = update_selected_animation_document(model, fn(animation) {
+        animation.with_name(value)
+      })
+      (sync_preview_effects(next), next)
+    }
+    UpdateSelectedAnimationDefaultClip(value) => {
+      let next = update_selected_animation_document(model, fn(animation) {
+        let next_default = value.trim().to_string()
+        animation.with_default_clip(
+          if next_default == "" { None } else { Some(next_default) },
+        )
+      })
+      (sync_preview_effects(next), next)
+    }
+    UpdateSelectedAnimationClipName(value) => {
+      let next = update_selected_animation_document(model, fn(animation) {
+        let clip = primary_animation_clip(animation)
+        let next_default = match animation.default_clip {
+          Some(current) if current == clip.name => Some(value)
+          _ => animation.default_clip
+        }
+        animation
+        .with_default_clip(next_default)
+        .with_clips([clip.with_name(value)])
+      })
+      (sync_preview_effects(next), next)
+    }
+    UpdateSelectedAnimationClipFps(value) => {
+      let next = update_selected_animation_document(model, fn(animation) {
+        let clip = primary_animation_clip(animation)
+        animation.with_clips([
+          clip.with_fps(parse_positive_double_or(clip.fps, value)),
+        ])
+      })
+      (sync_preview_effects(next), next)
+    }
+    ToggleSelectedAnimationClipLooping => {
+      let next = update_selected_animation_document(model, fn(animation) {
+        let clip = primary_animation_clip(animation)
+        animation.with_clips([clip.with_looping(!clip.looping)])
+      })
+      (sync_preview_effects(next), next)
+    }
+    UpdateSelectedAnimationClipFrames(value) => {
+      let next = update_selected_animation_document(model, fn(animation) {
+        let clip = primary_animation_clip(animation)
+        animation.with_clips([
+          clip.with_frames(parse_clip_frames(clip.frames, value)),
+        ])
+      })
+      (sync_preview_effects(next), next)
+    }
+    SaveSelectedAnimation =>
+      match model.selected_animation_document() {
+        Some((path, animation)) => (
+          [
+            rpc_effect(
+              SceneSaved,
+              "animation.save",
+              {
+                "path": path.to_json(),
+                "animation": animation.to_json(),
+              }.to_json(),
+            ),
+          ],
+          { ..model, status: "Saving animation..." },
+        )
+        None => ([], model)
       }
     RenameSelected(value) => {
       let next = update_selected_entity(model, fn(entity) {

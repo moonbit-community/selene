@@ -369,6 +369,21 @@ fn asset_display_name_from_path(path : String) -> String {
 }
 
 ///|
+fn atlas_region_preview_names(
+  regions : Array[@editor_bridge.AtlasRegionDocument],
+) -> String {
+  if regions.is_empty() {
+    return "No regions generated"
+  }
+  let names : Array[String] = []
+  let limit = if regions.length() < 8 { regions.length() } else { 8 }
+  for index = 0; index < limit; index = index + 1 {
+    names.push(regions[index].name)
+  }
+  names.join(", ")
+}
+
+///|
 fn resource_card(
   dispatch : @rabbita.Dispatch[@app.Msg],
   selected : Bool,
@@ -551,6 +566,23 @@ fn scene_browser_view(
     )
   }
   @html.div(class="panel-body scene-browser-body", [
+    @html.div(class="inspector-block", [
+      @html.h3("Current Scene"),
+      @html.div(class="kv", [
+        @html.span(class="kv-key", "Name"),
+        @html.span(
+          class="kv-value",
+          match model.scene {
+            Some(scene) => scene.name
+            None => "(none)"
+          },
+        ),
+      ]),
+      @html.div(class="kv", [
+        @html.span(class="kv-key", "Path"),
+        @html.span(class="kv-value", model.scene_path),
+      ]),
+    ]),
     @html.div(class="scene-browser-actions", [
       @html.button(
         class="small-button",
@@ -562,6 +594,21 @@ fn scene_browser_view(
           }
         }),
         "+",
+      ),
+      @html.button(
+        class="small-button",
+        attrs=tooltip_attrs("Rename Current Scene"),
+        on_click=@cmd.raw_effect(fn(scheduler) {
+          let current_name = match model.scene {
+            Some(scene) => scene.name
+            None => "scene"
+          }
+          let name = prompt_text("Scene name", current_name)
+          if name.trim() != "" {
+            schedule_cmd(scheduler, dispatch(@app.msg_rename_current_scene(name)))
+          }
+        }),
+        "✎",
       ),
       @html.button(
         class="small-button",
@@ -786,10 +833,9 @@ fn selected_asset_view(
           @html.div(class="panel-body", [
             @html.div(class="inspector-block", [
               @html.h3("Atlas"),
-              @html.div(class="kv", [
-                @html.span(class="kv-key", "Name"),
-                @html.span(class="kv-value", atlas.name),
-              ]),
+              labeled_input("Name", atlas.name, fn(value) {
+                dispatch(@app.msg_update_selected_atlas_name(value))
+              }),
               @html.div(class="kv", [
                 @html.span(class="kv-key", "Path"),
                 @html.span(class="kv-value", path),
@@ -798,18 +844,50 @@ fn selected_asset_view(
                 @html.span(class="kv-key", "Source"),
                 @html.span(class="kv-value", atlas.source_image),
               ]),
-              @html.div(class="kv", [
-                @html.span(class="kv-key", "Grid"),
-                @html.span(
-                  class="kv-value",
-                  "\{atlas.columns} × \{atlas.rows} @ \{atlas.tile_size.x.to_int()}×\{atlas.tile_size.y.to_int()}",
-                ),
-              ]),
+              labeled_input("Tile Width", atlas.tile_size.x.to_string(), fn(value) {
+                dispatch(@app.msg_update_selected_atlas_tile_width(value))
+              }),
+              labeled_input("Tile Height", atlas.tile_size.y.to_string(), fn(value) {
+                dispatch(@app.msg_update_selected_atlas_tile_height(value))
+              }),
+              labeled_input("Columns", atlas.columns.to_string(), fn(value) {
+                dispatch(@app.msg_update_selected_atlas_columns(value))
+              }),
+              labeled_input("Rows", atlas.rows.to_string(), fn(value) {
+                dispatch(@app.msg_update_selected_atlas_rows(value))
+              }),
+              labeled_input("Spacing X", atlas.spacing.x.to_string(), fn(value) {
+                dispatch(@app.msg_update_selected_atlas_spacing_x(value))
+              }),
+              labeled_input("Spacing Y", atlas.spacing.y.to_string(), fn(value) {
+                dispatch(@app.msg_update_selected_atlas_spacing_y(value))
+              }),
+              labeled_input("Margin X", atlas.margin.x.to_string(), fn(value) {
+                dispatch(@app.msg_update_selected_atlas_margin_x(value))
+              }),
+              labeled_input("Margin Y", atlas.margin.y.to_string(), fn(value) {
+                dispatch(@app.msg_update_selected_atlas_margin_y(value))
+              }),
+              labeled_input("Anchor X", atlas.default_anchor.x.to_string(), fn(value) {
+                dispatch(@app.msg_update_selected_atlas_anchor_x(value))
+              }),
+              labeled_input("Anchor Y", atlas.default_anchor.y.to_string(), fn(value) {
+                dispatch(@app.msg_update_selected_atlas_anchor_y(value))
+              }),
               @html.div(class="kv", [
                 @html.span(class="kv-key", "Regions"),
                 @html.span(class="kv-value", atlas.regions.length().to_string()),
               ]),
+              @html.div(
+                class="kv-value",
+                atlas_region_preview_names(atlas.regions),
+              ),
               @html.div(class="inspector-actions", [
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_save_selected_atlas()),
+                  "Save Atlas",
+                ),
                 @html.button(
                   class="small-button",
                   on_click=dispatch(@app.msg_insert_selected_resource()),
@@ -828,34 +906,73 @@ fn selected_asset_view(
     Some(@app.Animation(_)) =>
       match model.selected_animation_document() {
         Some((path, animation)) =>
-          @html.div(class="panel-body", [
-            @html.div(class="inspector-block", [
-              @html.h3("Animation"),
-              @html.div(class="kv", [
-                @html.span(class="kv-key", "Name"),
-                @html.span(class="kv-value", animation.name),
-              ]),
-              @html.div(class="kv", [
-                @html.span(class="kv-key", "Path"),
-                @html.span(class="kv-value", path),
-              ]),
-              @html.div(class="kv", [
-                @html.span(class="kv-key", "Atlas"),
-                @html.span(class="kv-value", animation.atlas_asset_path),
-              ]),
-              @html.div(class="kv", [
-                @html.span(class="kv-key", "Clips"),
-                @html.span(class="kv-value", animation.clips.length().to_string()),
-              ]),
-              @html.div(class="inspector-actions", [
-                @html.button(
-                  class="small-button",
-                  on_click=dispatch(@app.msg_insert_selected_resource()),
-                  "Add Animated Sprite",
+          {
+            let primary_clip = if animation.clips.is_empty() {
+              @editor_bridge.animation_clip_document("default", 8.0, true, ["frame_0"])
+            } else {
+              animation.clips[0]
+            }
+            @html.div(class="panel-body", [
+              @html.div(class="inspector-block", [
+                @html.h3("Animation"),
+                labeled_input("Name", animation.name, fn(value) {
+                  dispatch(@app.msg_update_selected_animation_name(value))
+                }),
+                @html.div(class="kv", [
+                  @html.span(class="kv-key", "Path"),
+                  @html.span(class="kv-value", path),
+                ]),
+                @html.div(class="kv", [
+                  @html.span(class="kv-key", "Atlas"),
+                  @html.span(class="kv-value", animation.atlas_asset_path),
+                ]),
+                labeled_input(
+                  "Default Clip",
+                  animation.default_clip.unwrap_or(""),
+                  fn(value) {
+                    dispatch(@app.msg_update_selected_animation_default_clip(value))
+                  },
                 ),
+                labeled_input("Clip Name", primary_clip.name, fn(value) {
+                  dispatch(@app.msg_update_selected_animation_clip_name(value))
+                }),
+                labeled_input("Clip FPS", primary_clip.fps.to_string(), fn(value) {
+                  dispatch(@app.msg_update_selected_animation_clip_fps(value))
+                }),
+                @html.label(class="field", [
+                  @html.span(class="field-label", "Looping"),
+                  @html.button(
+                    class="small-button",
+                    on_click=dispatch(@app.msg_toggle_selected_animation_clip_looping()),
+                    if primary_clip.looping { "Enabled" } else { "Disabled" },
+                  ),
+                ]),
+                labeled_input(
+                  "Frames",
+                  primary_clip.frames.join(", "),
+                  fn(value) {
+                    dispatch(@app.msg_update_selected_animation_clip_frames(value))
+                  },
+                ),
+                @html.div(class="kv", [
+                  @html.span(class="kv-key", "Clip Count"),
+                  @html.span(class="kv-value", animation.clips.length().to_string()),
+                ]),
+                @html.div(class="inspector-actions", [
+                  @html.button(
+                    class="small-button",
+                    on_click=dispatch(@app.msg_save_selected_animation()),
+                    "Save Animation",
+                  ),
+                  @html.button(
+                    class="small-button",
+                    on_click=dispatch(@app.msg_insert_selected_resource()),
+                    "Add Animated Sprite",
+                  ),
+                ]),
               ]),
-            ]),
-          ])
+            ])
+          }
         None => @html.div(class="empty", "Animation is still loading")
       }
     Some(@app.Prefab(_)) =>
@@ -864,10 +981,9 @@ fn selected_asset_view(
           @html.div(class="panel-body", [
             @html.div(class="inspector-block", [
               @html.h3("Prefab"),
-              @html.div(class="kv", [
-                @html.span(class="kv-key", "Name"),
-                @html.span(class="kv-value", prefab.name),
-              ]),
+              labeled_input("Name", prefab.name, fn(value) {
+                dispatch(@app.msg_update_selected_prefab_name(value))
+              }),
               @html.div(class="kv", [
                 @html.span(class="kv-key", "Path"),
                 @html.span(class="kv-value", path),
@@ -876,7 +992,18 @@ fn selected_asset_view(
                 @html.span(class="kv-key", "Entities"),
                 @html.span(class="kv-value", prefab.entities.length().to_string()),
               ]),
+              @html.div(
+                class="kv-value",
+                prefab.entities
+                .map(fn(entity) { entity.name + " (" + entity.id + ")" })
+                .join(", "),
+              ),
               @html.div(class="inspector-actions", [
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_save_selected_prefab()),
+                  "Save Prefab",
+                ),
                 @html.button(
                   class="small-button",
                   on_click=dispatch(@app.msg_insert_selected_resource()),

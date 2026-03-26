@@ -384,10 +384,63 @@ pub async fn EditorHarness::when_selected_atlas_creates_animation(
 }
 
 ///|
+pub async fn EditorHarness::when_selected_atlas_columns_are_edited(
+  self : EditorHarness,
+  value : String,
+) -> Unit {
+  self.dispatch(@app.msg_update_selected_atlas_columns(value))
+}
+
+///|
+pub async fn EditorHarness::when_selected_atlas_is_saved(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(@app.msg_save_selected_atlas())
+}
+
+///|
+pub async fn EditorHarness::when_selected_animation_frames_are_edited(
+  self : EditorHarness,
+  value : String,
+) -> Unit {
+  self.dispatch(@app.msg_update_selected_animation_clip_frames(value))
+}
+
+///|
+pub async fn EditorHarness::when_selected_animation_is_saved(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(@app.msg_save_selected_animation())
+}
+
+///|
 pub async fn EditorHarness::when_selected_entity_is_saved_as_prefab(
   self : EditorHarness,
 ) -> Unit {
   self.dispatch(@app.msg_save_selected_as_prefab())
+}
+
+///|
+pub async fn EditorHarness::when_current_scene_is_renamed(
+  self : EditorHarness,
+  value : String,
+) -> Unit {
+  self.dispatch(@app.msg_rename_current_scene(value))
+}
+
+///|
+pub async fn EditorHarness::when_selected_prefab_name_is_edited(
+  self : EditorHarness,
+  value : String,
+) -> Unit {
+  self.dispatch(@app.msg_update_selected_prefab_name(value))
+}
+
+///|
+pub async fn EditorHarness::when_selected_prefab_is_saved(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(@app.msg_save_selected_prefab())
 }
 
 ///|

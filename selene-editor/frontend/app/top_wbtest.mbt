@@ -125,3 +125,104 @@ test "creating an atlas from a selected image updates resource state" {
     content="Some(Atlas(\"assets/atlases/hero.atlas.json\"))",
   )
 }
+
+///|
+test "editing a selected atlas updates the atlas document and save emits rpc" {
+  let atlas = @editor_bridge.atlas_asset_document_from_image(
+    "hero",
+    "assets/images/hero.png",
+    @editor_bridge.vec2_doc(32.0, 48.0),
+  )
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    atlas_refs: [@editor_bridge.asset_ref("assets/atlases/hero.atlas.json")],
+    atlas_documents: { "assets/atlases/hero.atlas.json": atlas },
+    selected_resource: Some(resource_selection_atlas("assets/atlases/hero.atlas.json")),
+  }
+  let (_, edited) = update(msg_update_selected_atlas_columns("2"), model)
+  let updated = edited.atlas_documents.get("assets/atlases/hero.atlas.json").unwrap()
+  inspect(updated.columns, content="2")
+  inspect(updated.regions.length(), content="2")
+
+  let (effects, saving) = update(msg_save_selected_atlas(), edited)
+  inspect(effects.length(), content="1")
+  inspect(saving.status, content="Saving atlas...")
+}
+
+///|
+test "editing a selected animation updates the animation document and save emits rpc" {
+  let animation = @editor_bridge.animation_asset_document_from_frames(
+    "hero",
+    "assets/atlases/hero.atlas.json",
+    ["idle_0", "idle_1"],
+  )
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    animation_refs: [@editor_bridge.asset_ref("assets/animations/hero.anim.json")],
+    animation_documents: { "assets/animations/hero.anim.json": animation },
+    selected_resource: Some(
+      resource_selection_animation("assets/animations/hero.anim.json"),
+    ),
+  }
+  let (_, edited) = update(msg_update_selected_animation_clip_frames("run_0, run_1"), model)
+  let updated = edited.animation_documents.get("assets/animations/hero.anim.json").unwrap()
+  inspect(updated.clips[0].frames.join(","), content="run_0,run_1")
+
+  let (effects, saving) = update(msg_save_selected_animation(), edited)
+  inspect(effects.length(), content="1")
+  inspect(saving.status, content="Saving animation...")
+}
+
+///|
+test "renaming the current scene updates the scene document and save emits rpc" {
+  let scene = @editor_bridge.SceneDocument::default_main()
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene_path: "scenes/demo.scene.json",
+    scene: Some(scene),
+  }
+  let (effects, next) = update(msg_rename_current_scene("Gameplay"), model)
+  inspect(effects.length() > 0, content="true")
+  inspect(next.status, content="Renaming scene...")
+  inspect(next.scene.unwrap().name, content="Gameplay")
+}
+
+///|
+test "editing a selected prefab updates the prefab document and save emits rpc" {
+  let prefab = @editor_bridge.prefab_document(
+    "hero",
+    [
+      @editor_bridge.entity_document(
+        "camera",
+        "Camera2d",
+        components=[
+          @editor_bridge.name_component("Camera2d"),
+          @editor_bridge.transform2d_component(),
+          @editor_bridge.camera2d_component(),
+          @editor_bridge.visibility_component(),
+        ],
+      ),
+    ],
+  )
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    prefab_refs: [@editor_bridge.prefab_ref("prefabs/hero.prefab.json")],
+    prefab_documents: { "prefabs/hero.prefab.json": prefab },
+    selected_resource: Some(resource_selection_prefab("prefabs/hero.prefab.json")),
+  }
+  let (_, edited) = update(msg_update_selected_prefab_name("hero-copy"), model)
+  let updated = edited.prefab_documents.get("prefabs/hero.prefab.json").unwrap()
+  inspect(updated.name, content="hero-copy")
+
+  let (effects, saving) = update(msg_save_selected_prefab(), edited)
+  inspect(effects.length(), content="1")
+  inspect(saving.status, content="Saving prefab...")
+}

@@ -273,7 +273,6 @@ pub fn rect_doc(
   { x, y, width, height }
 }
 
-///|
 pub fn color_doc(r : Int, g : Int, b : Int, a? : Int = 255) -> ColorDoc {
   { r, g, b, a }
 }
@@ -488,6 +487,14 @@ pub fn SceneDocument::empty(name? : String = "Main") -> SceneDocument {
 }
 
 ///|
+pub fn SceneDocument::with_name(
+  self : SceneDocument,
+  name : String,
+) -> SceneDocument {
+  { ..self, name }
+}
+
+///|
 pub fn PrefabDocument::empty(name : String) -> PrefabDocument {
   { version: prefab_schema_version, name, entities: [] }
 }
@@ -498,6 +505,14 @@ pub fn prefab_document(
   entities : Array[EntityDocument],
 ) -> PrefabDocument {
   { version: prefab_schema_version, name, entities }
+}
+
+///|
+pub fn PrefabDocument::with_name(
+  self : PrefabDocument,
+  name : String,
+) -> PrefabDocument {
+  { ..self, name }
 }
 
 ///|
@@ -519,6 +534,142 @@ pub fn WorkspaceDocument::with_selected_entity_id(
   id : String?,
 ) -> WorkspaceDocument {
   { ..self, selected_entity_id: id }
+}
+
+///|
+pub fn AtlasAssetDocument::with_name(
+  self : AtlasAssetDocument,
+  name : String,
+) -> AtlasAssetDocument {
+  { ..self, name }
+}
+
+///|
+pub fn AtlasAssetDocument::with_tile_size(
+  self : AtlasAssetDocument,
+  tile_size : Vec2Doc,
+) -> AtlasAssetDocument {
+  { ..self, tile_size }
+}
+
+///|
+pub fn AtlasAssetDocument::with_columns(
+  self : AtlasAssetDocument,
+  columns : Int,
+) -> AtlasAssetDocument {
+  { ..self, columns }
+}
+
+///|
+pub fn AtlasAssetDocument::with_rows(
+  self : AtlasAssetDocument,
+  rows : Int,
+) -> AtlasAssetDocument {
+  { ..self, rows }
+}
+
+///|
+pub fn AtlasAssetDocument::with_spacing(
+  self : AtlasAssetDocument,
+  spacing : Vec2Doc,
+) -> AtlasAssetDocument {
+  { ..self, spacing }
+}
+
+///|
+pub fn AtlasAssetDocument::with_margin(
+  self : AtlasAssetDocument,
+  margin : Vec2Doc,
+) -> AtlasAssetDocument {
+  { ..self, margin }
+}
+
+///|
+pub fn AtlasAssetDocument::with_default_anchor(
+  self : AtlasAssetDocument,
+  default_anchor : Vec2Doc,
+) -> AtlasAssetDocument {
+  { ..self, default_anchor }
+}
+
+///|
+pub fn AtlasAssetDocument::with_regions(
+  self : AtlasAssetDocument,
+  regions : Array[AtlasRegionDocument],
+) -> AtlasAssetDocument {
+  { ..self, regions }
+}
+
+///|
+pub fn animation_asset_document(
+  name : String,
+  atlas_asset_path : String,
+  clips : Array[AnimationClipDocument],
+  default_clip : String?,
+) -> AnimationAssetDocument {
+  {
+    version: animation_asset_schema_version,
+    name,
+    atlas_asset_path,
+    clips,
+    default_clip,
+  }
+}
+
+///|
+pub fn AnimationClipDocument::with_name(
+  self : AnimationClipDocument,
+  name : String,
+) -> AnimationClipDocument {
+  { ..self, name }
+}
+
+///|
+pub fn AnimationClipDocument::with_fps(
+  self : AnimationClipDocument,
+  fps : Double,
+) -> AnimationClipDocument {
+  { ..self, fps }
+}
+
+///|
+pub fn AnimationClipDocument::with_looping(
+  self : AnimationClipDocument,
+  looping : Bool,
+) -> AnimationClipDocument {
+  { ..self, looping }
+}
+
+///|
+pub fn AnimationClipDocument::with_frames(
+  self : AnimationClipDocument,
+  frames : Array[String],
+) -> AnimationClipDocument {
+  { ..self, frames }
+}
+
+///|
+pub fn AnimationAssetDocument::with_name(
+  self : AnimationAssetDocument,
+  name : String,
+) -> AnimationAssetDocument {
+  { ..self, name }
+}
+
+///|
+pub fn AnimationAssetDocument::with_default_clip(
+  self : AnimationAssetDocument,
+  default_clip : String?,
+) -> AnimationAssetDocument {
+  { ..self, default_clip }
+}
+
+///|
+pub fn AnimationAssetDocument::with_clips(
+  self : AnimationAssetDocument,
+  clips : Array[AnimationClipDocument],
+) -> AnimationAssetDocument {
+  { ..self, clips }
 }
 
 ///|

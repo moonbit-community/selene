@@ -4,6 +4,8 @@
 
 ### Added
 
+- Added editable `Atlas Inspector` and `Animation Inspector` flows to `selene-editor`, with field-level editing and save actions mapped directly onto `selene/editor_bridge` atlas and animation asset documents instead of editor-private resource state.
+- Added editable `Prefab Inspector` and expanded `Scene Browser` controls to `selene-editor`, so prefab documents can now be renamed/saved from the inspector and the current scene can be renamed, created, deleted, and marked as the startup scene from the workspace UI.
 - Added first-class multi-scene, prefab, atlas, animation, and workspace document support to `selene/editor_bridge`, including file IO, validation, versioned schema, and shared runtime instantiation context for Selene-native editor resources.
 - Added first-pass Selene-native resource actions to `selene-editor`: selected images can now create atlas documents, selected atlases can now create animation documents, selected entities can now be saved as prefabs, and selected image/atlas/animation/prefab resources can now be inserted into the active scene.
 - Added `selene/editor_bridge`, a public scene-document bridge package that owns Selene Editor JSON schema/types, validation, patching, project/scene file IO, and scene-document-to-world runtime instantiation for shared use by editor preview and game/runtime code.

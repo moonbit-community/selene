@@ -217,3 +217,58 @@ async test "bdd image to atlas to animation to prefab flow persists through edit
     inspect(harness.scene().unwrap().entities.length() > 2, content="true")
   })
 }
+
+///|
+async test "bdd atlas and animation inspector edits persist to asset documents" {
+  @async.with_task_group(group => {
+    let harness = given_editor_harness()
+    group.add_defer(() => harness.cleanup())
+
+    harness.given_image_asset("assets/images/hero.png")
+    harness.when_editor_initialized()
+    harness.when_image_resource_is_selected("assets/images/hero.png")
+    harness.when_selected_image_creates_atlas()
+    harness.when_selected_atlas_columns_are_edited("2")
+    harness.when_selected_atlas_is_saved()
+
+    let atlas = @editor_bridge.read_atlas_asset_document(
+      harness.project_root_path() + "/assets/atlases/hero.atlas.json",
+    )
+    inspect(atlas.columns, content="2")
+    inspect(atlas.regions.length(), content="2")
+
+    harness.when_selected_atlas_creates_animation()
+    harness.when_selected_animation_frames_are_edited("run_0, run_1")
+    harness.when_selected_animation_is_saved()
+
+    let animation = @editor_bridge.read_animation_asset_document(
+      harness.project_root_path() + "/assets/animations/hero.anim.json",
+    )
+    inspect(animation.clips[0].frames.join(","), content="run_0,run_1")
+  })
+}
+
+///|
+async test "bdd scene browser and prefab inspector edits persist" {
+  @async.with_task_group(group => {
+    let harness = given_editor_harness()
+    group.add_defer(() => harness.cleanup())
+
+    harness.when_editor_initialized()
+    harness.when_current_scene_is_renamed("Gameplay")
+    let scene = @editor_bridge.read_scene_document(
+      harness.project_root_path() + "/" + harness.scene_path(),
+    )
+    inspect(scene.name, content="Gameplay")
+
+    harness.when_text_entity_is_added()
+    harness.when_selected_entity_is_saved_as_prefab()
+    harness.when_selected_prefab_name_is_edited("dialog_text")
+    harness.when_selected_prefab_is_saved()
+
+    let prefab = @editor_bridge.read_prefab_document(
+      harness.project_root_path() + "/prefabs/text.prefab.json",
+    )
+    inspect(prefab.name, content="dialog_text")
+  })
+}
