@@ -43,6 +43,8 @@
 
 ### Fixed
 
+- Fixed `selene-webgpu` synchronous asset byte loading on browser documents: `webgpu_load_file_bytes_sync(...)` now uses `x-user-defined` text mode byte extraction instead of setting `responseType="arraybuffer"` on sync XHR, so `@asset.read_bytes(...)` can load editor/project JSON files on web runtime and `examples/pixeladventure` no longer panics at startup with `MissingDocument`.
+- Fixed `examples/pixeladventure` checkpoint-flag rendering so the `PixelAdventureFlag` runtime path now respects the flag strip frame layout (`64x64` frames on a `640x64` sheet) and installs a looping sprite-atlas animation; this removes the strip-compression artifact and restores the expected waving flag animation.
 - Fixed `selene/editor_bridge` loader text decoding by switching JSON document parsing from unchecked byte-to-string casts to explicit UTF-8 decoding before JSON parse.
 - Fixed `examples/pixeladventure` editor-scene documents to the `v2` manifest/scene shape expected by the new loader (`version: 2` + manifest index fields + optional-field omission rules), and added test-time asset-IO setup so runtime scene-loading wbtests pass across `native/js/wasm`.
 - Fixed `examples/pixeladventure` web startup so scene/project/asset document loading now uses `@asset.read_bytes` first and no longer requires Node `fs` on browser runtime.

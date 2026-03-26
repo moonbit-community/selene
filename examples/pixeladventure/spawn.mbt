@@ -262,20 +262,67 @@ fn spawn_terrain_collider(pos : @math.Vec2D, size : @math.Vec2D) -> Unit {
   )
 }
 
+let flag_idle_frame_size : @math.Vec2D = @math.Vec2D(64.0, 64.0)
+
+///|
+fn flag_idle_frame_rect() -> @math.Rect {
+  { position: @math.Vec2D::zero(), size: flag_idle_frame_size }
+}
+
+///|
+fn default_flag_sprite() -> @sprite.Sprite {
+  @sprite.Sprite::new(
+    image=Some(@asset.load_image(FLAG_IDLE_PATH)),
+    rect=Some(flag_idle_frame_rect()),
+    custom_size=Some(flag_idle_frame_size),
+    anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
+  )
+}
+
+///|
+fn normalized_flag_sprite(sprite : @sprite.Sprite) -> @sprite.Sprite {
+  let resolved_image = match sprite.image {
+    Some(image) => Some(image)
+    None => Some(@asset.load_image(FLAG_IDLE_PATH))
+  }
+  // Checkpoint flag asset is a horizontal strip (640x64). If no rect is set,
+  // force the first 64x64 frame so we do not sample the entire strip.
+  let resolved_rect = match sprite.rect {
+    Some(rect) => Some(rect)
+    None =>
+      match resolved_image.bind(@asset.image_path) {
+        Some(path) if path == FLAG_IDLE_PATH => Some(flag_idle_frame_rect())
+        _ => None
+      }
+  }
+  let resolved_custom_size = match sprite.custom_size {
+    Some(size) => Some(size)
+    None => Some(flag_idle_frame_size)
+  }
+  @sprite.Sprite::new(
+    image=resolved_image,
+    texture_atlas=sprite.texture_atlas,
+    rect=resolved_rect,
+    color=sprite.color,
+    custom_size=resolved_custom_size,
+    anchor=sprite.anchor,
+    flip_x=sprite.flip_x,
+    flip_y=sprite.flip_y,
+    image_mode=sprite.image_mode,
+  )
+}
+
 ///|
 fn configure_flag_entity(entity : @entity.Entity) -> Unit {
-  @sprite.sprites().set(
-    entity,
-    @sprite.Sprite::new(
-      image=Some(
-        @asset.load_image(
-          "assets/pixeladventure/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png",
-        ),
-      ),
-      custom_size=Some(@math.Vec2D(64.0, 64.0)),
-      anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
-    ),
-  )
+  let flag_sprite = match @sprite.sprites().get(entity) {
+    Some(sprite) => normalized_flag_sprite(sprite)
+    None => default_flag_sprite()
+  }
+  @sprite.sprites().set(entity, flag_sprite)
+  if flag_sprite.image.bind(@asset.image_path) == Some(FLAG_IDLE_PATH) {
+    @sprite.sprites().set(entity, sprite_animation_sprite(flag_idle_animation))
+    ignore(install_sprite_animation_player(entity, flag_idle_animation))
+  }
   set_entity_z(entity, ITEM_Z)
   @physics2d.shapes().set(
     entity,

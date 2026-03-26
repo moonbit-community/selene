@@ -28,6 +28,10 @@ const BUTTON_ZINDEX : Int = 110
 const PLAYFIELD_LEFT_INSET : Double = 48.0
 
 ///|
+const FLAG_IDLE_PATH : String =
+  "assets/pixeladventure/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png"
+
+///|
 const PLAYER_Z : Double = 10.0
 
 ///|
@@ -250,8 +254,9 @@ fn sprite_clip(
   loop_? : Bool = true,
   fps? : Double = 12.0,
   flip_x? : Bool = false,
+  size? : @math.Vec2D = @math.Vec2D(32.0, 32.0),
+  anchor? : @sprite.Anchor = @sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
 ) -> SpriteAnimationDef {
-  let size = @math.Vec2D(32.0, 32.0)
   {
     name: path,
     image: @asset.load_image(path),
@@ -261,7 +266,7 @@ fn sprite_clip(
     fps,
     loop_,
     size,
-    anchor: @sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
+    anchor,
     flip_x,
     flip_y: false,
   }
@@ -401,6 +406,13 @@ let bird_hit_left_animation : SpriteAnimationDef = sprite_clip(
 ///|
 let apple_spin_animation : SpriteAnimationDef = sprite_clip(
   "assets/pixeladventure/Items/Fruits/Apple.png", 17,
+)
+
+///|
+let flag_idle_animation : SpriteAnimationDef = sprite_clip(
+  FLAG_IDLE_PATH,
+  10,
+  size=@math.Vec2D(64.0, 64.0),
 )
 
 ///|

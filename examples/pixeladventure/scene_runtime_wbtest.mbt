@@ -137,6 +137,31 @@ test "editor scene runtime registers gameplay entities through custom components
         ),
         content="true",
       )
+      let runtime_flags = flags().to_array()
+      inspect(runtime_flags.length() > 0, content="true")
+      let flag_entity = runtime_flags[0].0
+      let flag_sprite = @sprite.sprites().get(flag_entity).unwrap()
+      inspect(
+        flag_sprite.image.bind(@asset.image_path) == Some(
+          "assets/pixeladventure/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png",
+        ),
+        content="true",
+      )
+      inspect(
+        match flag_sprite.texture_atlas {
+          Some(atlas) =>
+            match @sprite.texture_atlas_layout(atlas.layout) {
+              Some(layout) => layout.rects.length() == 10
+              None => false
+            }
+          None => false
+        },
+        content="true",
+      )
+      inspect(
+        @animation.animation_players().get(flag_entity) is Some(_),
+        content="true",
+      )
       inspect(
         loaded.world_size.to_string(),
         content=expected_scene_world_size().to_string(),

@@ -133,10 +133,18 @@ extern "js" fn webgpu_load_file_bytes_sync(path : String) -> Array[Int] =
   #|   try {
   #|     const xhr = new XMLHttpRequest();
   #|     xhr.open('GET', path, false);
-  #|     xhr.responseType = 'arraybuffer';
+  #|     // Browsers reject `responseType = "arraybuffer"` for synchronous XHR
+  #|     // on document contexts. Use x-user-defined text decoding to preserve
+  #|     // raw byte values for sync file reads.
+  #|     xhr.overrideMimeType('text/plain; charset=x-user-defined');
   #|     xhr.send(null);
-  #|     if (xhr.status >= 200 && xhr.status < 300 && xhr.response) {
-  #|       return Array.from(new Uint8Array(xhr.response));
+  #|     if (xhr.status >= 200 && xhr.status < 300) {
+  #|       const text = xhr.responseText || '';
+  #|       const out = new Array(text.length);
+  #|       for (let i = 0; i < text.length; i += 1) {
+  #|         out[i] = text.charCodeAt(i) & 0xff;
+  #|       }
+  #|       return out;
   #|     }
   #|   } catch (_err) {
   #|     return [];
