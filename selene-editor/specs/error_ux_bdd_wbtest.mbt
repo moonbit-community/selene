@@ -26,7 +26,7 @@ async test "bdd error ux invalid project manifest surfaces a clear project error
 
     inspect(
       harness.status(),
-      content="Project error: Project manifest is invalid: selene.project.json",
+      content="Project open failed. Check browser console for details.",
     )
     inspect(harness.scene() is None, content="true")
   })
@@ -49,7 +49,7 @@ async test "bdd error ux missing startup scene surfaces a stable not found messa
 
     inspect(
       harness.status(),
-      content="Scene load failed: Scene not found: scenes/main.scene.json",
+      content="Scene load failed. Check browser console for details.",
     )
     inspect(harness.scene() is None, content="true")
   })
@@ -75,7 +75,7 @@ async test "bdd error ux unrecoverable bad startup scene never leaks raw json de
 
     inspect(
       harness.status(),
-      content="Scene load failed: Scene document is invalid: scenes/main.scene.json",
+      content="Scene load failed. Check browser console for details.",
     )
     inspect(
       harness.status().contains("JsonDecodeError") == false,

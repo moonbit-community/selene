@@ -538,6 +538,21 @@ fn push_log(model : Model, line : String) -> Model {
 }
 
 ///|
+fn project_open_failed_message() -> String {
+  "Project open failed. Check browser console for details."
+}
+
+///|
+fn scene_load_failed_message() -> String {
+  "Scene load failed. Check browser console for details."
+}
+
+///|
+fn folder_picker_failed_message() -> String {
+  "Folder picker failed. Check browser console for details."
+}
+
+///|
 fn rpc_effect(target : RpcTarget, request : @shared.RpcRequest) -> Effect {
   Rpc(target~, request=@shared.rpc_request_envelope(1, request))
 }
@@ -1373,8 +1388,9 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             None => ([], { ..model, status: "Open a project to begin" })
           }
         Err(message) => {
-          let next = push_log(model, "Folder picker failed: " + message)
-          ([], { ..next, status: "Folder picker failed: " + message })
+          ignore(message)
+          let next = push_log(model, folder_picker_failed_message())
+          ([], { ..next, status: folder_picker_failed_message() })
         }
       }
     ProjectLoaded(result) =>
@@ -1418,8 +1434,9 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           (refresh_project_effects(next), next)
         }
         Err(message) => {
-          let next = push_log(model, "Project error: " + message)
-          ([], { ..next, status: "Project error: " + message })
+          ignore(message)
+          let next = push_log(model, project_open_failed_message())
+          ([], { ..next, status: project_open_failed_message() })
         }
       }
     SceneLoaded(result) =>
@@ -1479,8 +1496,9 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           )
         }
         Err(message) => {
-          let next = push_log(model, "Scene load failed: " + message)
-          ([], { ..next, status: "Scene load failed: " + message })
+          ignore(message)
+          let next = push_log(model, scene_load_failed_message())
+          ([], { ..next, status: scene_load_failed_message() })
         }
       }
     ConfirmSceneMigration =>

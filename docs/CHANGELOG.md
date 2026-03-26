@@ -43,6 +43,8 @@
 
 ### Fixed
 
+- Fixed `selene-editor` project-open compatibility for legacy `v2` manifests missing index arrays (`scene_index`, `prefab_index`, `atlas_index`, `animation_index`) by auto-migrating and rewriting `selene.project.json` on open.
+- Fixed `selene-editor` frontend error UX so low-level decode traces (for example `JsonDecodeError(.../response/...)`) are no longer shown directly in status/log text; detailed diagnostics now go to browser console.
 - Fixed `selene-webgpu` synchronous asset byte loading on browser documents: `webgpu_load_file_bytes_sync(...)` now uses `x-user-defined` text mode byte extraction instead of setting `responseType="arraybuffer"` on sync XHR, so `@asset.read_bytes(...)` can load editor/project JSON files on web runtime and `examples/pixeladventure` no longer panics at startup with `MissingDocument`.
 - Fixed `examples/pixeladventure` checkpoint-flag rendering so the `PixelAdventureFlag` runtime path now respects the flag strip frame layout (`64x64` frames on a `640x64` sheet) and installs a looping sprite-atlas animation; this removes the strip-compression artifact and restores the expected waving flag animation.
 - Fixed `selene/editor_bridge` loader text decoding by switching JSON document parsing from unchecked byte-to-string casts to explicit UTF-8 decoding before JSON parse.

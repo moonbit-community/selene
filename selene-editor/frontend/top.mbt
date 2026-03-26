@@ -3,9 +3,17 @@ fn decode_rpc_payload(
   payload : Json,
 ) -> Result[@shared.RpcResponseEnvelope, String] {
   Ok(@json.from_json(payload)) catch {
-    err => Err(err.to_string())
+    err => {
+      console_error("RPC response decode failed: " + err.to_string())
+      Err("Invalid server response")
+    }
   }
 }
+
+///|
+#cfg(target="js")
+extern "js" fn console_error(message : String) =
+  #| (message) => console.error(message)
 
 ///|
 fn project_root_picked_of_response(
@@ -122,6 +130,14 @@ fn[T] rpc_cmd(
       }
     }),
   )
+}
+
+///|
+fn[T] log_rpc_result_error(scope : String, result : Result[T, String]) -> Unit {
+  match result {
+    Ok(_) => ()
+    Err(message) => console_error("RPC " + scope + " failed: " + message)
+  }
 }
 
 ///|
@@ -247,11 +263,15 @@ fn subscribe_events_cmd(dispatch : @rabbita.Dispatch[@app.Msg]) -> @rabbita.Cmd 
           let event : @shared.EventEnvelope = @json.from_json(@json.parse(data))
           Ok(event.event)
         } catch {
-          err => Err(err.to_string())
+          err => {
+            console_error("SSE decode failed: " + err.to_string())
+            Err("Invalid event payload")
+          }
         }
         schedule_cmd(scheduler, dispatch(@app.msg_service_event(result)))
       },
       fn(message) {
+        console_error("SSE stream failed: " + message)
         schedule_cmd(scheduler, dispatch(@app.msg_service_event(Err(message))))
       },
     )
@@ -300,38 +320,47 @@ fn rpc_effect_cmd(
   match target {
     @app.ProjectRootPicked =>
       rpc_cmd(request, project_root_picked_of_response, fn(result) {
+        log_rpc_result_error("project.pick_directory", result)
         dispatch(@app.msg_project_root_picked(result))
       })
     @app.ProjectLoaded =>
       rpc_cmd(request, project_loaded_of_response, fn(result) {
+        log_rpc_result_error("project.open", result)
         dispatch(@app.msg_project_loaded(result))
       })
     @app.SceneLoaded =>
       rpc_cmd(request, scene_loaded_of_response, fn(result) {
+        log_rpc_result_error("scene.load", result)
         dispatch(@app.msg_scene_loaded(result))
       })
     @app.SceneListLoaded =>
       rpc_cmd(request, scene_list_of_response, fn(result) {
+        log_rpc_result_error("scene.list", result)
         dispatch(@app.msg_scene_list_loaded(result))
       })
     @app.AssetsLoaded =>
       rpc_cmd(request, assets_list_of_response, fn(result) {
+        log_rpc_result_error("assets.list", result)
         dispatch(@app.msg_assets_loaded(result))
       })
     @app.PrefabLoaded =>
       rpc_cmd(request, prefab_loaded_of_response, fn(result) {
+        log_rpc_result_error("prefab.load", result)
         dispatch(@app.msg_prefab_loaded(result))
       })
     @app.AtlasLoaded =>
       rpc_cmd(request, atlas_loaded_of_response, fn(result) {
+        log_rpc_result_error("atlas.load", result)
         dispatch(@app.msg_atlas_loaded(result))
       })
     @app.AnimationLoaded =>
       rpc_cmd(request, animation_loaded_of_response, fn(result) {
+        log_rpc_result_error("animation.load", result)
         dispatch(@app.msg_animation_loaded(result))
       })
     @app.SceneSaved =>
       rpc_cmd(request, save_ack_of_response, fn(result) {
+        log_rpc_result_error("scene.save", result)
         dispatch(@app.msg_scene_saved(result))
       })
   }

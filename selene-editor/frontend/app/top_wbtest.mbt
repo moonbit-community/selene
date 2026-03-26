@@ -267,7 +267,7 @@ test "project and scene load errors update status and logs" {
   )
   inspect(
     project_error.status,
-    content="Project error: Project manifest is invalid: selene.project.json",
+    content="Project open failed. Check browser console for details.",
   )
   inspect(project_error.logs.length(), content="1")
 
@@ -282,7 +282,7 @@ test "project and scene load errors update status and logs" {
   )
   inspect(
     scene_error.status,
-    content="Scene load failed: Scene document is invalid: scenes/main.scene.json",
+    content="Scene load failed. Check browser console for details.",
   )
   inspect(scene_error.logs.length(), content="1")
 }

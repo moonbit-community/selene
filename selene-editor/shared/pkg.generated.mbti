@@ -101,19 +101,23 @@ pub fn rpc_response_saved_ok() -> RpcResponse
 
 pub fn rpc_response_scene_listed(SceneListResponse) -> RpcResponse
 
-pub fn rpc_response_scene_loaded(SceneLoadResponse) -> RpcResponse
+pub fn rpc_response_scene_loaded(SceneBundleResponse) -> RpcResponse
 
 pub fn rpc_response_scene_migration_required(@editor_bridge.SceneMigrationPreview) -> RpcResponse
 
 pub fn rpc_response_startup_scene_updated(@editor_bridge.ProjectManifest) -> RpcResponse
 
+pub fn scene_bundle_animation_entry(String, @editor_bridge.AnimationAssetDocument) -> SceneBundleAnimationEntry
+
+pub fn scene_bundle_atlas_entry(String, @editor_bridge.AtlasAssetDocument) -> SceneBundleAtlasEntry
+
+pub fn scene_bundle_response(String, @editor_bridge.SceneDocument) -> SceneBundleResponse
+
 pub fn scene_list_response(Array[@editor_bridge.SceneRef], String) -> SceneListResponse
 
-pub fn scene_load_outcome_loaded(SceneLoadResponse) -> SceneLoadOutcome
+pub fn scene_load_outcome_loaded(SceneBundleResponse) -> SceneLoadOutcome
 
 pub fn scene_load_outcome_migration_required(@editor_bridge.SceneMigrationPreview) -> SceneLoadOutcome
-
-pub fn scene_load_response(String, @editor_bridge.SceneDocument) -> SceneLoadResponse
 
 // Errors
 
@@ -256,7 +260,7 @@ pub impl @json.FromJson for RpcRequestEnvelope
 pub enum RpcResponse {
   ProjectState(state~ : ProjectStateResponse)
   DirectoryPicked(result~ : DirectoryPickResult)
-  SceneLoaded(scene~ : SceneLoadResponse)
+  SceneLoaded(scene~ : SceneBundleResponse)
   SceneMigrationRequired(preview~ : @editor_bridge.SceneMigrationPreview)
   SceneListed(list~ : SceneListResponse)
   AssetsListed(list~ : AssetsListResponse)
@@ -281,6 +285,36 @@ pub impl Show for RpcResponseEnvelope
 pub impl ToJson for RpcResponseEnvelope
 pub impl @json.FromJson for RpcResponseEnvelope
 
+pub struct SceneBundleAnimationEntry {
+  path : String
+  animation : @editor_bridge.AnimationAssetDocument
+}
+pub impl Eq for SceneBundleAnimationEntry
+pub impl Show for SceneBundleAnimationEntry
+pub impl ToJson for SceneBundleAnimationEntry
+pub impl @json.FromJson for SceneBundleAnimationEntry
+
+pub struct SceneBundleAtlasEntry {
+  path : String
+  atlas : @editor_bridge.AtlasAssetDocument
+}
+pub impl Eq for SceneBundleAtlasEntry
+pub impl Show for SceneBundleAtlasEntry
+pub impl ToJson for SceneBundleAtlasEntry
+pub impl @json.FromJson for SceneBundleAtlasEntry
+
+pub struct SceneBundleResponse {
+  path : String
+  scene : @editor_bridge.SceneDocument
+  atlas_assets : Array[SceneBundleAtlasEntry]
+  animation_assets : Array[SceneBundleAnimationEntry]
+}
+pub fn SceneBundleResponse::with_assets(Self, Array[SceneBundleAtlasEntry], Array[SceneBundleAnimationEntry]) -> Self
+pub impl Eq for SceneBundleResponse
+pub impl Show for SceneBundleResponse
+pub impl ToJson for SceneBundleResponse
+pub impl @json.FromJson for SceneBundleResponse
+
 pub struct SceneListResponse {
   scenes : Array[@editor_bridge.SceneRef]
   startup_scene : String
@@ -291,20 +325,11 @@ pub impl ToJson for SceneListResponse
 pub impl @json.FromJson for SceneListResponse
 
 pub enum SceneLoadOutcome {
-  Loaded(SceneLoadResponse)
+  Loaded(SceneBundleResponse)
   MigrationRequired(@editor_bridge.SceneMigrationPreview)
 }
 pub impl Eq for SceneLoadOutcome
 pub impl Show for SceneLoadOutcome
-
-pub struct SceneLoadResponse {
-  path : String
-  scene : @editor_bridge.SceneDocument
-}
-pub impl Eq for SceneLoadResponse
-pub impl Show for SceneLoadResponse
-pub impl ToJson for SceneLoadResponse
-pub impl @json.FromJson for SceneLoadResponse
 
 // Type aliases
 

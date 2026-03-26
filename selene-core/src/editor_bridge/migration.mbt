@@ -12,6 +12,19 @@ pub trait Migration {
 }
 
 ///|
+pub struct ProjectManifestMigrationPreview {
+  path : String
+  manifest : ProjectManifest
+  changes : Array[MigrationFieldChange]
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
+pub enum ProjectManifestLoadStatus {
+  Ready(ProjectManifest)
+  MigrationRequired(ProjectManifestMigrationPreview)
+} derive(Show, Eq)
+
+///|
 pub struct SceneMigrationPreview {
   path : String
   scene : SceneDocument
@@ -64,6 +77,9 @@ pub enum AnimationAssetDocumentLoadStatus {
 } derive(Show, Eq)
 
 ///|
+pub struct ProjectManifestMigrator {}
+
+///|
 pub struct SceneDocumentMigrator {}
 
 ///|
@@ -82,6 +98,15 @@ pub fn migration_field_change(
   migrated_value : String,
 ) -> MigrationFieldChange {
   { path, reason, migrated_value }
+}
+
+///|
+pub fn project_manifest_migration_preview(
+  path : String,
+  manifest : ProjectManifest,
+  changes : Array[MigrationFieldChange],
+) -> ProjectManifestMigrationPreview {
+  { path, manifest, changes }
 }
 
 ///|
@@ -412,6 +437,19 @@ struct LegacyAnimationAssetDocument {
 } derive(FromJson)
 
 ///|
+struct LegacyProjectManifest {
+  version : Int
+  name : String
+  startup_scene : String
+  asset_roots : Array[String]
+  scene_index : Array[SceneRef]?
+  prefab_index : Array[PrefabRef]?
+  atlas_index : Array[AssetRef]?
+  animation_index : Array[AssetRef]?
+  editor_min_version : String?
+} derive(FromJson)
+
+///|
 fn decode_legacy_scene_document(json : Json) -> LegacySceneDocument raise {
   @json.from_json(json)
 }
@@ -433,6 +471,152 @@ fn decode_legacy_animation_asset_document(
   json : Json,
 ) -> LegacyAnimationAssetDocument raise {
   @json.from_json(json)
+}
+
+///|
+fn decode_legacy_project_manifest(json : Json) -> LegacyProjectManifest raise {
+  @json.from_json(json)
+}
+
+///|
+fn migrated_manifest_scene_index(
+  legacy : LegacyProjectManifest,
+  changes : Array[MigrationFieldChange],
+) -> Array[SceneRef] {
+  match legacy.scene_index {
+    Some(index) => index
+    None => {
+      let fallback = if legacy.startup_scene.trim() == "" {
+        []
+      } else {
+        [scene_ref(legacy.startup_scene)]
+      }
+      changes.push(
+        migration_field_change(
+          "scene_index",
+          "Missing scene index",
+          fallback.to_json().stringify(),
+        ),
+      )
+      fallback
+    }
+  }
+}
+
+///|
+fn migrated_manifest_prefab_index(
+  legacy : LegacyProjectManifest,
+  changes : Array[MigrationFieldChange],
+) -> Array[PrefabRef] {
+  match legacy.prefab_index {
+    Some(index) => index
+    None => {
+      let fallback : Array[PrefabRef] = []
+      changes.push(
+        migration_field_change(
+          "prefab_index",
+          "Missing prefab index",
+          fallback.to_json().stringify(),
+        ),
+      )
+      fallback
+    }
+  }
+}
+
+///|
+fn migrated_manifest_atlas_index(
+  legacy : LegacyProjectManifest,
+  changes : Array[MigrationFieldChange],
+) -> Array[AssetRef] {
+  match legacy.atlas_index {
+    Some(index) => index
+    None => {
+      let fallback : Array[AssetRef] = []
+      changes.push(
+        migration_field_change(
+          "atlas_index",
+          "Missing atlas index",
+          fallback.to_json().stringify(),
+        ),
+      )
+      fallback
+    }
+  }
+}
+
+///|
+fn migrated_manifest_animation_index(
+  legacy : LegacyProjectManifest,
+  changes : Array[MigrationFieldChange],
+) -> Array[AssetRef] {
+  match legacy.animation_index {
+    Some(index) => index
+    None => {
+      let fallback : Array[AssetRef] = []
+      changes.push(
+        migration_field_change(
+          "animation_index",
+          "Missing animation index",
+          fallback.to_json().stringify(),
+        ),
+      )
+      fallback
+    }
+  }
+}
+
+///|
+impl Migration for ProjectManifestMigrator with migration_changes(
+  self,
+  _path,
+  json,
+) {
+  ignore(self)
+  let legacy = decode_legacy_project_manifest(json)
+  if legacy.version != project_schema_version {
+    return None
+  }
+  let changes : Array[MigrationFieldChange] = []
+  ignore(ProjectManifest::{
+    version: project_schema_version,
+    name: legacy.name,
+    startup_scene: legacy.startup_scene,
+    asset_roots: legacy.asset_roots,
+    scene_index: migrated_manifest_scene_index(legacy, changes),
+    prefab_index: migrated_manifest_prefab_index(legacy, changes),
+    atlas_index: migrated_manifest_atlas_index(legacy, changes),
+    animation_index: migrated_manifest_animation_index(legacy, changes),
+    editor_min_version: legacy.editor_min_version,
+  })
+  if changes.is_empty() {
+    None
+  } else {
+    Some(changes)
+  }
+}
+
+///|
+impl Migration for ProjectManifestMigrator with migrate_json(self, _path, json) {
+  ignore(self)
+  let legacy = decode_legacy_project_manifest(json)
+  guard legacy.version == project_schema_version else {
+    raise InvalidProjectManifest(
+      "Project manifest schema version \{legacy.version} is not migratable",
+    )
+  }
+  let ignored_changes : Array[MigrationFieldChange] = []
+  ProjectManifest::{
+    version: project_schema_version,
+    name: legacy.name,
+    startup_scene: legacy.startup_scene,
+    asset_roots: legacy.asset_roots,
+    scene_index: migrated_manifest_scene_index(legacy, ignored_changes),
+    prefab_index: migrated_manifest_prefab_index(legacy, ignored_changes),
+    atlas_index: migrated_manifest_atlas_index(legacy, ignored_changes),
+    animation_index: migrated_manifest_animation_index(legacy, ignored_changes),
+    editor_min_version: legacy.editor_min_version,
+  }.to_json()
 }
 
 ///|

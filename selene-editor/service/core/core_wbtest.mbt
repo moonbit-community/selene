@@ -33,6 +33,14 @@ async fn read_scene_document_from_file(
 }
 
 ///|
+async fn read_project_manifest_from_file(
+  path : String,
+) -> @editor_bridge.ProjectManifest {
+  let json = @json.parse(@fs.read_file(path).text())
+  @editor_bridge.decode_project_manifest(json)
+}
+
+///|
 async test "project.open auto-initializes a missing project manifest" {
   @async.with_task_group(group => {
     let temp_root = @fs.tmpdir(prefix="selene-editor-core")
@@ -86,6 +94,52 @@ async test "project.open auto-initializes when the directory already exists" {
     inspect(loaded.startup_scene, content="scenes/existing-dir-demo.scene.json")
     inspect(@fs.exists(path_join(root, "selene.project.json")), content="true")
     inspect(@fs.exists(path_join(root, loaded.startup_scene)), content="true")
+  })
+}
+
+///|
+async test "project.open auto-migrates legacy v2 project manifests missing indexes" {
+  @async.with_task_group(group => {
+    let temp_root = @fs.tmpdir(prefix="selene-editor-core")
+    let root = path_join(temp_root, "Legacy Manifest Demo")
+    @fs.mkdir(path_join(root, "scenes"), permission=0o755, recursive=true)
+    @fs.write_file(
+      path_join(root, "selene.project.json"),
+      "{\n  \"version\": 2,\n  \"name\": \"Legacy\",\n  \"startup_scene\": \"scenes/main.scene.json\",\n  \"asset_roots\": [\"assets/images\"]\n}\n"
+      |> @utf8.encode,
+      create=0o644,
+    )
+    @fs.write_file(
+      path_join(root, "scenes/main.scene.json"),
+      (@editor_bridge.SceneDocument::default_main()
+      .to_json()
+      .stringify(indent=2) +
+      "\n")
+      |> @utf8.encode,
+      create=0o644,
+    )
+    group.add_defer(() => {
+      if @fs.exists(temp_root) {
+        @fs.rmdir(temp_root, recursive=true)
+      }
+    })
+
+    let service = EditorService::new(".")
+    let payload = service.handle_rpc(
+      @shared.rpc_request_envelope(1, @shared.rpc_request_project_open(root)),
+    )
+    let response = response_envelope(payload).response
+    let manifest = match response {
+      @shared.ProjectState(state~) => state.manifest.unwrap()
+      _ => fail("expected project state")
+    }
+
+    inspect(manifest.scene_index.length(), content="1")
+    inspect(manifest.prefab_index.length(), content="0")
+    inspect(
+      read_project_manifest_from_file(path_join(root, "selene.project.json")).scene_index.length(),
+      content="1",
+    )
   })
 }
 

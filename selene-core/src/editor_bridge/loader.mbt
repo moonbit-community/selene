@@ -30,10 +30,14 @@ fn load_project_manifest_from_source(
   let json = parse_json_document(source, path, fn(message) {
     InvalidProjectManifest(message)
   })
-  decode_project_manifest(json) catch {
+  let status = decode_project_manifest_status(path, json) catch {
     InvalidProjectManifest(message) =>
       raise InvalidProjectManifest(path + ": " + message)
     err => raise err
+  }
+  match status {
+    Ready(manifest) => manifest
+    MigrationRequired(preview) => preview.manifest
   }
 }
 

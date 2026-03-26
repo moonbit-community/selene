@@ -27,6 +27,22 @@ pub fn decode_project_manifest(json : Json) -> ProjectManifest raise {
 }
 
 ///|
+pub fn decode_project_manifest_status(
+  path : String,
+  json : Json,
+) -> ProjectManifestLoadStatus raise {
+  migration_status_for(
+    path,
+    json,
+    decode_project_manifest,
+    project_manifest_migration_preview,
+    fn(manifest) { Ready(manifest) },
+    fn(preview) { MigrationRequired(preview) },
+    ProjectManifestMigrator::{  },
+  )
+}
+
+///|
 pub fn decode_scene_document(json : Json) -> SceneDocument raise {
   let scene : SceneDocument = @json.from_json(json) catch {
     err => raise InvalidSceneDocument(err.to_string())
@@ -201,6 +217,17 @@ pub fn migrate_scene_document_json(
   match decode_scene_document_status(path, json) {
     Ready(scene) => scene
     MigrationRequired(preview) => preview.scene
+  }
+}
+
+///|
+pub fn migrate_project_manifest_json(
+  path : String,
+  json : Json,
+) -> ProjectManifest raise {
+  match decode_project_manifest_status(path, json) {
+    Ready(manifest) => manifest
+    MigrationRequired(preview) => preview.manifest
   }
 }
 

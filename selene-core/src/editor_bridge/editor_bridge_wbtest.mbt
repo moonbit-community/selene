@@ -160,6 +160,25 @@ test "codec decodes valid project and scene documents" {
 }
 
 ///|
+test "codec reports project manifest migration for missing v2 indexes" {
+  let legacy_json = @json.parse(
+    "{\n  \"version\": 2,\n  \"name\": \"Demo\",\n  \"startup_scene\": \"scenes/main.scene.json\",\n  \"asset_roots\": [\"assets/images\"]\n}\n",
+  )
+  match decode_project_manifest_status("selene.project.json", legacy_json) {
+    MigrationRequired(preview) => {
+      inspect(preview.manifest.scene_index.length(), content="1")
+      inspect(
+        preview.manifest.scene_index[0].path,
+        content="scenes/main.scene.json",
+      )
+      inspect(preview.manifest.prefab_index.length(), content="0")
+      inspect(preview.changes.length(), content="4")
+    }
+    _ => fail("expected project manifest migration preview")
+  }
+}
+
+///|
 test "codec reports scene migration only for v2 recoverable inputs" {
   let recoverable_json = @json.parse(
     "{\n  \"version\": 2,\n  \"entities\": [\n    {\n      \"id\": \"camera\",\n      \"components\": [\n        {\n          \"kind\": \"Transform2d\",\n          \"data\": {\n            \"translation\": { \"x\": 0, \"y\": 0 },\n            \"rotation\": 0,\n            \"scale\": { \"x\": 1, \"y\": 1 }\n          }\n        },\n        {\n          \"kind\": \"Camera2d\",\n          \"data\": { \"is_active\": true, \"order\": 0, \"scale\": 1 }\n        },\n        {\n          \"kind\": \"Visibility\",\n          \"data\": { \"visible\": true }\n        }\n      ]\n    }\n  ]\n}\n",
@@ -183,6 +202,23 @@ test "codec reports scene migration only for v2 recoverable inputs" {
     Err(InvalidSceneDocument(_)) => inspect(true, content="true")
     _ => fail("expected non-migratable v1 scene to fail")
   }
+}
+
+///|
+test "loader accepts legacy v2 project manifest by auto-migrating indexes" {
+  let scene = SceneDocument::default_main()
+  let source = source_with_documents([
+    (
+      "selene.project.json",
+      json_string_bytes(
+        "{\n  \"version\": 2,\n  \"name\": \"demo\",\n  \"startup_scene\": \"scenes/demo.scene.json\",\n  \"asset_roots\": [\"assets/images\"]\n}\n",
+      ),
+    ),
+    ("scenes/demo.scene.json", json_bytes(scene)),
+  ])
+  let bundle = load_project_bundle(source)
+  inspect(bundle.manifest.scene_index.length(), content="1")
+  inspect(bundle.manifest.scene_index[0].path, content="scenes/demo.scene.json")
 }
 
 ///|

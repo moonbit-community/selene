@@ -45,21 +45,39 @@ pub fn atlas_region_document(String, Int, RectDoc) -> AtlasRegionDocument
 
 pub fn camera2d_component(is_active? : Bool, order? : Int, scale? : Double) -> ComponentDocument
 
-pub fn collect_asset_documents(String, Array[String]) -> Array[AssetDocument] raise
-
 pub fn color_doc(Int, Int, Int, a? : Int) -> ColorDoc
 
 pub fn color_material_component(color? : ColorDoc) -> ComponentDocument
 
 pub fn component_document(String, Json) -> ComponentDocument
 
+pub fn decode_animation_asset_document(Json) -> AnimationAssetDocument raise
+
+pub fn decode_animation_asset_document_status(String, Json) -> AnimationAssetDocumentLoadStatus raise
+
+pub fn decode_atlas_asset_document(Json) -> AtlasAssetDocument raise
+
+pub fn decode_atlas_asset_document_status(String, Json) -> AtlasAssetDocumentLoadStatus raise
+
 pub fn[T : @json.FromJson] decode_component(ComponentDocument?) -> T?
+
+pub fn decode_prefab_document(Json) -> PrefabDocument raise
+
+pub fn decode_prefab_document_status(String, Json) -> PrefabDocumentLoadStatus raise
+
+pub fn decode_project_manifest(Json) -> ProjectManifest raise
+
+pub fn decode_project_manifest_status(String, Json) -> ProjectManifestLoadStatus raise
+
+pub fn decode_scene_document(Json) -> SceneDocument raise
+
+pub fn decode_scene_document_status(String, Json) -> SceneDocumentLoadStatus raise
+
+pub fn decode_workspace_document(Json) -> WorkspaceDocument raise
 
 pub fn decoded_transform(EntityDocument) -> Transform2dComponent
 
 pub fn default_color() -> ColorDoc
-
-pub fn ensure_project_layout(String) -> Unit raise
 
 pub fn entity_document(String, String, parent? : String?, components? : Array[ComponentDocument]) -> EntityDocument
 
@@ -73,23 +91,21 @@ pub fn instantiate_scene_document(SceneDocument, (String?) -> String?) -> SceneR
 
 pub fn instantiate_scene_document_with_context(SceneDocument, AssetInstantiationContext) -> SceneRuntime
 
-pub fn list_animation_assets(String) -> Array[AssetRef] raise
+pub fn load_project_bundle((String) -> Bytes?, manifest_path? : String, scene_path? : String?) -> ProjectBundle raise
 
-pub fn list_atlas_assets(String) -> Array[AssetRef] raise
-
-pub fn list_prefab_documents(String) -> Array[PrefabRef] raise
-
-pub fn list_scene_documents(String) -> Array[SceneRef] raise
+pub fn map_document_source(Map[String, Bytes]) -> (String) -> Bytes?
 
 pub fn mesh2d_component(String, size? : Vec2Doc?, radius? : Double?) -> ComponentDocument
 
-pub fn migrate_animation_asset_document(String) -> AnimationAssetDocument raise
+pub fn migrate_animation_asset_document_json(String, Json) -> AnimationAssetDocument raise
 
-pub fn migrate_atlas_asset_document(String) -> AtlasAssetDocument raise
+pub fn migrate_atlas_asset_document_json(String, Json) -> AtlasAssetDocument raise
 
-pub fn migrate_prefab_document(String) -> PrefabDocument raise
+pub fn migrate_prefab_document_json(String, Json) -> PrefabDocument raise
 
-pub fn migrate_scene_document(String) -> SceneDocument raise
+pub fn migrate_project_manifest_json(String, Json) -> ProjectManifest raise
+
+pub fn migrate_scene_document_json(String, Json) -> SceneDocument raise
 
 pub fn migration_field_change(String, String, String) -> MigrationFieldChange
 
@@ -111,31 +127,11 @@ pub fn prefab_ref(String) -> PrefabRef
 
 pub let prefab_schema_version : Int
 
-pub fn project_manifest_candidates(String) -> Array[String] raise
-
 pub fn project_manifest_file_name(String) -> String
 
+pub fn project_manifest_migration_preview(String, ProjectManifest, Array[MigrationFieldChange]) -> ProjectManifestMigrationPreview
+
 pub let project_schema_version : Int
-
-pub fn read_animation_asset_document(String) -> AnimationAssetDocument raise
-
-pub fn read_animation_asset_document_status(String) -> AnimationAssetDocumentLoadStatus raise
-
-pub fn read_atlas_asset_document(String) -> AtlasAssetDocument raise
-
-pub fn read_atlas_asset_document_status(String) -> AtlasAssetDocumentLoadStatus raise
-
-pub fn read_prefab_document(String) -> PrefabDocument raise
-
-pub fn read_prefab_document_status(String) -> PrefabDocumentLoadStatus raise
-
-pub fn read_project_manifest(String) -> ProjectManifest raise
-
-pub fn read_scene_document(String) -> SceneDocument raise
-
-pub fn read_scene_document_status(String) -> SceneDocumentLoadStatus raise
-
-pub fn read_workspace_document(String) -> WorkspaceDocument raise
 
 pub fn rect_doc(Double, Double, Double, Double) -> RectDoc
 
@@ -181,20 +177,9 @@ pub fn visibility_component(visible? : Bool) -> ComponentDocument
 
 pub let workspace_schema_version : Int
 
-pub fn write_animation_asset_document(String, AnimationAssetDocument) -> Unit raise
-
-pub fn write_atlas_asset_document(String, AtlasAssetDocument) -> Unit raise
-
-pub fn write_prefab_document(String, PrefabDocument) -> Unit raise
-
-pub fn write_project_manifest(String, ProjectManifest) -> Unit raise
-
-pub fn write_scene_document(String, SceneDocument) -> Unit raise
-
-pub fn write_workspace_document(String, WorkspaceDocument) -> Unit raise
-
 // Errors
-pub suberror EditorBridgeFileError {
+pub suberror EditorBridgeDecodeError {
+  MissingDocument(String)
   InvalidProjectManifest(String)
   InvalidSceneDocument(String)
   InvalidPrefabDocument(String)
@@ -454,6 +439,9 @@ pub impl @json.FromJson for LegacyEntityDocument
 type LegacyPrefabDocument
 pub impl @json.FromJson for LegacyPrefabDocument
 
+type LegacyProjectManifest
+pub impl @json.FromJson for LegacyProjectManifest
+
 type LegacySceneDocument
 pub impl @json.FromJson for LegacySceneDocument
 
@@ -556,19 +544,56 @@ pub impl Show for PrefabRef
 pub impl ToJson for PrefabRef
 pub impl @json.FromJson for PrefabRef
 
+pub struct ProjectBundle {
+  manifest : ProjectManifest
+  scene_path : String
+  scene : SceneDocument
+  atlas_assets : Map[String, AtlasAssetDocument]
+  animation_assets : Map[String, AnimationAssetDocument]
+}
+pub impl Eq for ProjectBundle
+pub impl Show for ProjectBundle
+pub impl ToJson for ProjectBundle
+pub impl @json.FromJson for ProjectBundle
+
 pub struct ProjectManifest {
   version : Int
   name : String
   startup_scene : String
   asset_roots : Array[String]
+  scene_index : Array[SceneRef]
+  prefab_index : Array[PrefabRef]
+  atlas_index : Array[AssetRef]
+  animation_index : Array[AssetRef]
   editor_min_version : String?
 }
-pub fn ProjectManifest::default(String, startup_scene? : String, asset_roots? : Array[String], editor_min_version? : String?) -> Self
+pub fn ProjectManifest::default(String, startup_scene? : String, asset_roots? : Array[String], scene_index? : Array[SceneRef], prefab_index? : Array[PrefabRef], atlas_index? : Array[AssetRef], animation_index? : Array[AssetRef], editor_min_version? : String?) -> Self
+pub fn ProjectManifest::with_indexes(Self, Array[SceneRef], Array[PrefabRef], Array[AssetRef], Array[AssetRef]) -> Self
 pub fn ProjectManifest::with_startup_scene(Self, String) -> Self
 pub impl Eq for ProjectManifest
 pub impl Show for ProjectManifest
 pub impl ToJson for ProjectManifest
 pub impl @json.FromJson for ProjectManifest
+
+pub enum ProjectManifestLoadStatus {
+  Ready(ProjectManifest)
+  MigrationRequired(ProjectManifestMigrationPreview)
+}
+pub impl Eq for ProjectManifestLoadStatus
+pub impl Show for ProjectManifestLoadStatus
+
+pub struct ProjectManifestMigrationPreview {
+  path : String
+  manifest : ProjectManifest
+  changes : Array[MigrationFieldChange]
+}
+pub impl Eq for ProjectManifestMigrationPreview
+pub impl Show for ProjectManifestMigrationPreview
+pub impl ToJson for ProjectManifestMigrationPreview
+pub impl @json.FromJson for ProjectManifestMigrationPreview
+
+pub struct ProjectManifestMigrator {
+}
 
 pub struct RectDoc {
   x : Double
@@ -771,6 +796,8 @@ pub impl @json.FromJson for WorkspaceDocument
 pub type AssetPathResolver = (String?) -> String?
 
 pub type CustomComponentApplier = (@entity.Entity, ComponentDocument, AssetInstantiationContext) -> Unit
+
+pub type DocumentSource = (String) -> Bytes?
 
 // Traits
 pub trait Migration {

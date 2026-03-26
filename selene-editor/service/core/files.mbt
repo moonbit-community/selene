@@ -106,10 +106,20 @@ async fn load_project_manifest(root : String) -> @editor_bridge.ProjectManifest 
   let json = parse_json_file(path) catch {
     _ => raise Failure("Project manifest is invalid: selene.project.json")
   }
-  @editor_bridge.decode_project_manifest(json) catch {
+  let status = @editor_bridge.decode_project_manifest_status(
+    @editor_bridge.project_manifest_file_name(""),
+    json,
+  ) catch {
     @editor_bridge.InvalidProjectManifest(_) =>
       raise Failure("Project manifest is invalid: selene.project.json")
     err => raise err
+  }
+  match status {
+    @editor_bridge.Ready(manifest) => manifest
+    @editor_bridge.MigrationRequired(preview) => {
+      write_json_file(path, preview.manifest)
+      preview.manifest
+    }
   }
 }
 

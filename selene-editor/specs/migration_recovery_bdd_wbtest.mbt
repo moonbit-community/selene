@@ -86,3 +86,33 @@ async test "bdd recovery invalid workspace falls back to defaults and still open
     inspect(harness.status(), content="Loaded scenes/project.scene.json")
   })
 }
+
+///|
+async test "bdd recovery legacy project manifest missing indexes is auto-migrated on open" {
+  @async.with_task_group(group => {
+    let harness = given_editor_harness()
+    group.add_defer(() => harness.cleanup())
+
+    harness.given_text_file(
+      "selene.project.json", "{\n  \"version\": 2,\n  \"name\": \"Project\",\n  \"startup_scene\": \"scenes/main.scene.json\",\n  \"asset_roots\": [\"assets/images\"]\n}\n",
+    )
+    harness.given_scene_document(
+      "scenes/main.scene.json",
+      @editor_bridge.SceneDocument::default_main(),
+    )
+
+    harness.when_editor_initialized()
+
+    inspect(harness.scene() is Some(_), content="true")
+    let manifest = harness.manifest().unwrap()
+    inspect(manifest.scene_index.length(), content="1")
+    inspect(
+      @editor_bridge.decode_project_manifest(
+        @json.parse(
+          @fs.read_file(harness.project_root_path() + "/selene.project.json").text(),
+        ),
+      ).scene_index.length(),
+      content="1",
+    )
+  })
+}
