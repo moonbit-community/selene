@@ -95,7 +95,7 @@ input {
 
 .sidebar-column {
   display: grid;
-  grid-template-rows: minmax(220px, 0.9fr) minmax(220px, 1fr);
+  grid-template-rows: minmax(140px, 0.45fr) minmax(240px, 1fr) minmax(220px, 0.85fr);
   gap: 8px;
   min-height: 0;
 }
@@ -282,6 +282,25 @@ input {
   gap: 10px;
 }
 
+.asset-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.asset-section-title {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.asset-section-empty {
+  color: var(--muted);
+  font-size: 12px;
+  padding: 4px 0 0;
+}
+
 .asset-thumb {
   width: 92px;
   height: 92px;
@@ -294,6 +313,14 @@ input {
     linear-gradient(-45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%) 0
       0 / 16px 16px,
     var(--bg);
+}
+
+.asset-thumb-glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-size: 28px;
 }
 
 .asset-meta {
@@ -359,6 +386,32 @@ input {
   background: rgba(88, 166, 255, 0.16);
 }
 
+.scene-browser-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.scene-browser-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.scene-browser-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.scene-pill {
+  margin-left: auto;
+  padding: 2px 6px;
+  border: 1px solid rgba(88, 166, 255, 0.22);
+  color: var(--accent);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 .kv {
   display: grid;
   grid-template-columns: 72px 1fr;
@@ -382,18 +435,49 @@ input {
 
 .welcome {
   margin: auto;
-  width: min(520px, 100%);
-  padding: 24px;
+  width: min(640px, 100%);
+  padding: 28px;
   border: 1px solid var(--border);
   background: var(--panel);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 18px;
+}
+
+.welcome-logo {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.welcome-logo-mark {
+  width: 72px;
+  height: 72px;
+  border: 1px solid var(--accent);
+  background:
+    linear-gradient(135deg, rgba(88, 166, 255, 0.22), rgba(88, 166, 255, 0.06)),
+    var(--panel-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: var(--accent);
+}
+
+.welcome-logo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .welcome-title {
   margin: 0;
-  font-size: 28px;
+  font-size: 30px;
+}
+
+.welcome-tagline {
+  margin: 0;
+  color: var(--text);
 }
 
 .welcome-copy {
@@ -404,4 +488,11 @@ input {
 
 .welcome-status {
   color: var(--warn);
+}
+
+.inspector-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
 }

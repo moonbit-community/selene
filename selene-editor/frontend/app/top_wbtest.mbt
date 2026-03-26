@@ -1,7 +1,7 @@
 ///|
 test "initialize immediately requests a project folder" {
   let (effects, _) = update(msg_initialize(), new_model())
-  inspect(effects.length(), content="4")
+  inspect(effects.length(), content="3")
 }
 
 ///|
@@ -24,7 +24,14 @@ test "cancelled folder picker keeps the editor in entry state" {
     model,
   )
   inspect(effects.length(), content="0")
-  inspect(next.status, content="Choose a project folder to begin")
+  inspect(next.status, content="Open a project to begin")
+}
+
+///|
+test "open project asks the service for a directory" {
+  let (effects, next) = update(msg_open_project(), new_model())
+  inspect(effects.length(), content="1")
+  inspect(next.status, content="Choose a project folder...")
 }
 
 ///|
@@ -91,4 +98,30 @@ test "adding a sprite from an asset uses the resolved asset size" {
   inspect(sprite.custom_size, content="Some({x: 32, y: 48})")
   inspect(transform.translation.x, content="0")
   inspect(transform.translation.y, content="0")
+}
+
+///|
+test "creating an atlas from a selected image updates resource state" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    assets: [
+      @editor_bridge.asset_document(
+        "assets/images/hero.png",
+        @editor_bridge.infer_asset_kind("assets/images/hero.png"),
+      ),
+    ],
+    asset_sizes: {
+      "assets/images/hero.png": @editor_bridge.vec2_doc(32.0, 48.0),
+    },
+    selected_resource: Some(resource_selection_image("assets/images/hero.png")),
+  }
+  let (effects, next) = update(msg_create_atlas_from_selected_image(), model)
+  inspect(effects.length(), content="1")
+  inspect(next.atlas_refs.length(), content="1")
+  inspect(
+    next.selected_resource,
+    content="Some(Atlas(\"assets/atlases/hero.atlas.json\"))",
+  )
 }

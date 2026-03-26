@@ -125,6 +125,10 @@ pub enum Msg {
   CreateScene(String)
   DeleteCurrentScene
   SetCurrentSceneAsStartup
+  CreateAtlasFromSelectedImage
+  CreateAnimationFromSelectedAtlas
+  SaveSelectedAsPrefab
+  InsertSelectedResource
   RenameSelected(String)
   UpdateSelectedTranslateX(String)
   UpdateSelectedTranslateY(String)
@@ -320,6 +324,26 @@ pub fn msg_set_current_scene_as_startup() -> Msg {
 }
 
 ///|
+pub fn msg_create_atlas_from_selected_image() -> Msg {
+  CreateAtlasFromSelectedImage
+}
+
+///|
+pub fn msg_create_animation_from_selected_atlas() -> Msg {
+  CreateAnimationFromSelectedAtlas
+}
+
+///|
+pub fn msg_save_selected_as_prefab() -> Msg {
+  SaveSelectedAsPrefab
+}
+
+///|
+pub fn msg_insert_selected_resource() -> Msg {
+  InsertSelectedResource
+}
+
+///|
 pub fn msg_rename_selected(value : String) -> Msg {
   RenameSelected(value)
 }
@@ -448,6 +472,226 @@ fn asset_basename(path : String) -> String {
   } else {
     base
   }
+}
+
+///|
+fn resource_stem(path : String) -> String {
+  asset_basename(path)
+}
+
+///|
+fn next_resource_entity_translation() -> @editor_bridge.Vec2Doc {
+  @editor_bridge.vec2_doc(0.0, 0.0)
+}
+
+///|
+fn atlas_document_from_image(
+  image_path : String,
+  image_size : @editor_bridge.Vec2Doc?,
+) -> @editor_bridge.AtlasAssetDocument {
+  @editor_bridge.atlas_asset_document_from_image(
+    resource_stem(image_path),
+    image_path,
+    image_size.unwrap_or(@editor_bridge.vec2_doc(32.0, 32.0)),
+  )
+}
+
+///|
+fn animation_document_from_atlas(
+  atlas_path : String,
+  atlas : @editor_bridge.AtlasAssetDocument,
+) -> @editor_bridge.AnimationAssetDocument {
+  let mut frames : Array[String] = []
+  for region in atlas.regions {
+    frames.push(region.name)
+  }
+  if frames.is_empty() {
+    frames = ["frame_0"]
+  }
+  @editor_bridge.animation_asset_document_from_frames(
+    atlas.name,
+    atlas_path,
+    frames,
+  )
+}
+
+///|
+fn add_atlas_asset_to_scene(
+  scene : @editor_bridge.SceneDocument,
+  atlas_path : String,
+  atlas : @editor_bridge.AtlasAssetDocument,
+  translation : @editor_bridge.Vec2Doc,
+) -> (@editor_bridge.SceneDocument, String) {
+  let id = next_entity_id(scene)
+  let first_region = if atlas.regions.is_empty() {
+    None
+  } else {
+    Some(atlas.regions[0])
+  }
+  let entity = @editor_bridge.entity_document(
+    id,
+    atlas.name,
+    components=[
+      @editor_bridge.name_component(atlas.name),
+      @editor_bridge.transform2d_component(translation~),
+      @editor_bridge.visibility_component(),
+      @editor_bridge.sprite_component(
+        custom_size=Some(
+          first_region.map_or(atlas.tile_size, fn(region) {
+            @editor_bridge.vec2_doc(region.rect.width, region.rect.height)
+          }),
+        ),
+        anchor=atlas.default_anchor,
+      ),
+      @editor_bridge.texture_atlas_component(
+        atlas_asset_path=Some(atlas_path),
+        region_name=first_region.map(fn(region) { region.name }),
+        index=first_region.map_or(0, fn(region) { region.index }),
+      ),
+    ],
+  )
+  (scene.with_entity(entity), id)
+}
+
+///|
+fn add_animation_asset_to_scene(
+  scene : @editor_bridge.SceneDocument,
+  animation_path : String,
+  animation : @editor_bridge.AnimationAssetDocument,
+  atlas : @editor_bridge.AtlasAssetDocument,
+  translation : @editor_bridge.Vec2Doc,
+) -> (@editor_bridge.SceneDocument, String) {
+  let id = next_entity_id(scene)
+  let default_clip_name = animation.default_clip.unwrap_or("default")
+  let mut default_frame_name = "frame_0"
+  for clip in animation.clips {
+    if clip.name == default_clip_name && !clip.frames.is_empty() {
+      default_frame_name = clip.frames[0]
+      break
+    }
+  }
+  let mut first_region : @editor_bridge.AtlasRegionDocument? = None
+  for region in atlas.regions {
+    if region.name == default_frame_name {
+      first_region = Some(region)
+      break
+    }
+  }
+  if first_region is None && !atlas.regions.is_empty() {
+    first_region = Some(atlas.regions[0])
+  }
+  let entity = @editor_bridge.entity_document(
+    id,
+    animation.name,
+    components=[
+      @editor_bridge.name_component(animation.name),
+      @editor_bridge.transform2d_component(translation~),
+      @editor_bridge.visibility_component(),
+      @editor_bridge.sprite_component(
+        custom_size=Some(
+          first_region.map_or(atlas.tile_size, fn(region) {
+            @editor_bridge.vec2_doc(region.rect.width, region.rect.height)
+          }),
+        ),
+        anchor=atlas.default_anchor,
+      ),
+      @editor_bridge.texture_atlas_component(
+        atlas_asset_path=Some(animation.atlas_asset_path),
+        region_name=first_region.map(fn(region) { region.name }),
+        index=first_region.map_or(0, fn(region) { region.index }),
+      ),
+      @editor_bridge.animation_player_component(
+        animation_asset_path=Some(animation_path),
+        default_clip=Some(default_clip_name),
+        autoplay=true,
+      ),
+      @editor_bridge.animation_transitions_component(),
+    ],
+  )
+  (scene.with_entity(entity), id)
+}
+
+///|
+fn subtree_entities(
+  scene : @editor_bridge.SceneDocument,
+  root_id : String,
+) -> Array[@editor_bridge.EntityDocument] {
+  let entities : Array[@editor_bridge.EntityDocument] = []
+  fn visit(
+    scene : @editor_bridge.SceneDocument,
+    id : String,
+    entities : Array[@editor_bridge.EntityDocument],
+  ) -> Unit {
+    match scene.entity(id) {
+      Some(entity) => entities.push(entity)
+      None => return
+    }
+    for child in scene.entities {
+      if child.parent == Some(id) {
+        visit(scene, child.id, entities)
+      }
+    }
+  }
+  visit(scene, root_id, entities)
+  entities
+}
+
+///|
+fn prefab_from_scene_selection(
+  scene : @editor_bridge.SceneDocument,
+  entity_id : String,
+) -> @editor_bridge.PrefabDocument? {
+  match scene.entity(entity_id) {
+    Some(entity) => Some(
+      @editor_bridge.prefab_document(entity.name, subtree_entities(scene, entity_id)),
+    )
+    None => None
+  }
+}
+
+///|
+fn instantiate_prefab_into_scene(
+  scene : @editor_bridge.SceneDocument,
+  prefab : @editor_bridge.PrefabDocument,
+  translation : @editor_bridge.Vec2Doc,
+) -> (@editor_bridge.SceneDocument, String?) {
+  let mut next_scene = scene
+  let id_map : Map[String, String] = {}
+  let mut root_id : String? = None
+  for entity in prefab.entities {
+    let new_id = next_entity_id(next_scene)
+    id_map.set(entity.id, new_id)
+    let is_root = entity.parent is None
+    let next_parent = match entity.parent {
+      Some(parent) => id_map.get(parent)
+      None => None
+    }
+    let mut next_entity = @editor_bridge.entity_document(
+      new_id,
+      entity.name,
+      parent=next_parent,
+      components=entity.components,
+    )
+    if is_root {
+      root_id = Some(new_id)
+      let transform : @editor_bridge.Transform2dComponent = component_of(
+        entity,
+        "Transform2d",
+      ).unwrap_or(@editor_bridge.transform2d_value())
+      next_entity = next_entity.with_component(
+        @editor_bridge.transform2d_component(
+          translation=@editor_bridge.vec2_doc(
+            transform.translation.x + translation.x,
+            transform.translation.y + translation.y,
+          ),
+          rotation=transform.rotation,
+          scale=transform.scale,
+        ),
+      )
+    }
+    next_scene = next_scene.with_entity(next_entity)
+  }
+  (next_scene, root_id)
 }
 
 ///|
@@ -580,6 +824,32 @@ fn scene_path_exists(
 ) -> Bool {
   for scene_ref in scene_refs {
     if scene_ref.path == path {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn asset_ref_exists(
+  refs : Array[@editor_bridge.AssetRef],
+  path : String,
+) -> Bool {
+  for asset_ref in refs {
+    if asset_ref.path == path {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn prefab_ref_exists(
+  refs : Array[@editor_bridge.PrefabRef],
+  path : String,
+) -> Bool {
+  for prefab_ref in refs {
+    if prefab_ref.path == path {
       return true
     }
   }
@@ -822,11 +1092,6 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           SubscribeServiceEvents,
           SubscribePreviewEvents,
           Preview(@bridge.preview_command_bootstrap()),
-          rpc_effect(
-            ProjectRootPicked,
-            "project.pick_directory",
-            { "prompt": "Choose a project folder".to_json() }.to_json(),
-          ),
         ],
         model,
       )
@@ -844,25 +1109,16 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         { ..model, status: "Choosing project folder..." },
       )
     OpenProject =>
-      {
-        let root = normalized_project_root(model.project_root_input)
-        if root == "" {
-          let message = "Choose a project folder first"
-          let next = push_log(model, message)
-          ([], { ..next, status: message })
-        } else {
-          (
-            [
-              rpc_effect(
-                ProjectLoaded,
-                "project.open",
-                { "root": root.to_json() }.to_json(),
-              ),
-            ],
-            { ..model, project_root_input: root, status: "Opening project..." },
-          )
-        }
-      }
+      (
+        [
+          rpc_effect(
+            ProjectRootPicked,
+            "project.pick_directory",
+            { "prompt": "Open a Selene project".to_json() }.to_json(),
+          ),
+        ],
+        { ..model, status: "Choose a project folder..." },
+      )
     CreateProject =>
       {
         let root = normalized_project_root(model.project_root_input)
@@ -910,7 +1166,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             None =>
               (
                 [],
-                { ..model, status: "Choose a project folder to begin" },
+                { ..model, status: "Open a project to begin" },
               )
           }
         Err(message) => {
@@ -1241,6 +1497,184 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         ],
         { ..model, status: "Updating startup scene..." },
       )
+    CreateAtlasFromSelectedImage =>
+      match model.selected_image_asset() {
+        Some(asset) => {
+          let atlas = atlas_document_from_image(asset.path, model.asset_size(asset.path))
+          let path = "assets/atlases/" + @editor_bridge.atlas_asset_file_name(
+            atlas.name,
+          )
+          let atlas_documents = model.atlas_documents
+          atlas_documents.set(path, atlas)
+          let atlas_refs = model.atlas_refs
+          if !asset_ref_exists(atlas_refs, path) {
+            atlas_refs.push(@editor_bridge.asset_ref(path))
+          }
+          let next = {
+            ..model,
+            atlas_documents,
+            atlas_refs,
+            selected_resource: Some(resource_selection_atlas(path)),
+            status: "Created atlas " + atlas.name,
+          }
+          (
+            [
+              rpc_effect(
+                SceneSaved,
+                "atlas.save",
+                { "path": path.to_json(), "atlas": atlas.to_json() }.to_json(),
+              ),
+            ],
+            next,
+          )
+        }
+        None => ([], model)
+      }
+    CreateAnimationFromSelectedAtlas =>
+      match model.selected_atlas_document() {
+        Some((path, atlas)) => {
+          let animation = animation_document_from_atlas(path, atlas)
+          let animation_path = "assets/animations/" +
+            @editor_bridge.animation_asset_file_name(animation.name)
+          let animation_documents = model.animation_documents
+          animation_documents.set(animation_path, animation)
+          let animation_refs = model.animation_refs
+          if !asset_ref_exists(animation_refs, animation_path) {
+            animation_refs.push(@editor_bridge.asset_ref(animation_path))
+          }
+          let next = {
+            ..model,
+            animation_documents,
+            animation_refs,
+            selected_resource: Some(resource_selection_animation(animation_path)),
+            status: "Created animation " + animation.name,
+          }
+          (
+            [
+              rpc_effect(
+                SceneSaved,
+                "animation.save",
+                {
+                  "path": animation_path.to_json(),
+                  "animation": animation.to_json(),
+                }.to_json(),
+              ),
+            ],
+            next,
+          )
+        }
+        None => ([], model)
+      }
+    SaveSelectedAsPrefab =>
+      match (model.scene, model.selected_entity_id) {
+        (Some(scene), Some(entity_id)) =>
+          match prefab_from_scene_selection(scene, entity_id) {
+            Some(prefab) => {
+              let path = "prefabs/" + @editor_bridge.prefab_file_name(prefab.name)
+              let prefab_documents = model.prefab_documents
+              prefab_documents.set(path, prefab)
+              let prefab_refs = model.prefab_refs
+              if !prefab_ref_exists(prefab_refs, path) {
+                prefab_refs.push(@editor_bridge.prefab_ref(path))
+              }
+              let next = {
+                ..model,
+                prefab_documents,
+                prefab_refs,
+                selected_resource: Some(resource_selection_prefab(path)),
+                status: "Saved prefab " + prefab.name,
+              }
+              (
+                [
+                  rpc_effect(
+                    SceneSaved,
+                    "prefab.save",
+                    { "path": path.to_json(), "prefab": prefab.to_json() }.to_json(),
+                  ),
+                ],
+                next,
+              )
+            }
+            None => ([], model)
+          }
+        _ => ([], model)
+      }
+    InsertSelectedResource =>
+      match (model.scene, model.selected_resource) {
+        (Some(scene), Some(Image(path))) => {
+          let (next_scene, id) = add_sprite_asset_to_scene(
+            model.asset_size(path),
+            scene,
+            path,
+            next_resource_entity_translation(),
+          )
+          let next = {
+            ..model,
+            scene: Some(next_scene),
+            selected_entity_id: Some(id),
+          }
+          normalize_scene_after_change(next)
+        }
+        (Some(scene), Some(Atlas(path))) =>
+          match model.atlas_documents.get(path) {
+            Some(atlas) => {
+              let (next_scene, id) = add_atlas_asset_to_scene(
+                scene,
+                path,
+                atlas,
+                next_resource_entity_translation(),
+              )
+              let next = {
+                ..model,
+                scene: Some(next_scene),
+                selected_entity_id: Some(id),
+              }
+              normalize_scene_after_change(next)
+            }
+            None => ([], model)
+          }
+        (Some(scene), Some(Animation(path))) =>
+          match model.animation_documents.get(path) {
+            Some(animation) =>
+              match model.atlas_documents.get(animation.atlas_asset_path) {
+                Some(atlas) => {
+                  let (next_scene, id) = add_animation_asset_to_scene(
+                    scene,
+                    path,
+                    animation,
+                    atlas,
+                    next_resource_entity_translation(),
+                  )
+                  let next = {
+                    ..model,
+                    scene: Some(next_scene),
+                    selected_entity_id: Some(id),
+                  }
+                  normalize_scene_after_change(next)
+                }
+                None => ([], model)
+              }
+            None => ([], model)
+          }
+        (Some(scene), Some(Prefab(path))) =>
+          match model.prefab_documents.get(path) {
+            Some(prefab) => {
+              let (next_scene, id) = instantiate_prefab_into_scene(
+                scene,
+                prefab,
+                next_resource_entity_translation(),
+              )
+              let next = {
+                ..model,
+                scene: Some(next_scene),
+                selected_entity_id: id,
+              }
+              normalize_scene_after_change(next)
+            }
+            None => ([], model)
+          }
+        _ => ([], model)
+      }
     RenameSelected(value) => {
       let next = update_selected_entity(model, fn(entity) {
         entity.renamed(value)
@@ -1414,7 +1848,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             model.asset_size(path),
             scene,
             path,
-            @editor_bridge.vec2_doc(0.0, 0.0),
+            next_resource_entity_translation(),
           )
           let next = {
             ..model,

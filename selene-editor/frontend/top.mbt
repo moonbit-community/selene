@@ -735,7 +735,10 @@ fn selected_sprite_view(model : @app.Model) -> @rabbita.Html {
 }
 
 ///|
-fn selected_asset_view(model : @app.Model) -> @rabbita.Html {
+fn selected_asset_view(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  model : @app.Model,
+) -> @rabbita.Html {
   match model.selected_resource {
     Some(@app.Image(path)) =>
       match model.selected_image_asset() {
@@ -759,6 +762,18 @@ fn selected_asset_view(model : @app.Model) -> @rabbita.Html {
                     Some(size) => "\{size.x.to_int()}×\{size.y.to_int()}"
                     None => "Unknown"
                   }
+                ),
+              ]),
+              @html.div(class="inspector-actions", [
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_insert_selected_resource()),
+                  "Add Sprite To Scene",
+                ),
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_create_atlas_from_selected_image()),
+                  "Create Atlas",
                 ),
               ]),
             ]),
@@ -794,6 +809,18 @@ fn selected_asset_view(model : @app.Model) -> @rabbita.Html {
                 @html.span(class="kv-key", "Regions"),
                 @html.span(class="kv-value", atlas.regions.length().to_string()),
               ]),
+              @html.div(class="inspector-actions", [
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_insert_selected_resource()),
+                  "Add Atlas Sprite",
+                ),
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_create_animation_from_selected_atlas()),
+                  "Create Animation",
+                ),
+              ]),
             ]),
           ])
         None => @html.div(class="empty", "Atlas is still loading")
@@ -820,6 +847,13 @@ fn selected_asset_view(model : @app.Model) -> @rabbita.Html {
                 @html.span(class="kv-key", "Clips"),
                 @html.span(class="kv-value", animation.clips.length().to_string()),
               ]),
+              @html.div(class="inspector-actions", [
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_insert_selected_resource()),
+                  "Add Animated Sprite",
+                ),
+              ]),
             ]),
           ])
         None => @html.div(class="empty", "Animation is still loading")
@@ -841,6 +875,13 @@ fn selected_asset_view(model : @app.Model) -> @rabbita.Html {
               @html.div(class="kv", [
                 @html.span(class="kv-key", "Entities"),
                 @html.span(class="kv-value", prefab.entities.length().to_string()),
+              ]),
+              @html.div(class="inspector-actions", [
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_insert_selected_resource()),
+                  "Instantiate Prefab",
+                ),
               ]),
             ]),
           ])
@@ -925,15 +966,21 @@ fn action_button(
 fn entry_view(dispatch : @rabbita.Dispatch[@app.Msg], model : @app.Model) -> @rabbita.Html {
   @html.div(class="editor-root entry-root", [
     @html.div(class="welcome", [
-      @html.h1(class="welcome-title", "Open a folder"),
+      @html.div(class="welcome-logo", [
+        @html.div(class="welcome-logo-mark", "S"),
+        @html.div(class="welcome-logo-text", [
+          @html.h1(class="welcome-title", "Selene Editor"),
+          @html.p(class="welcome-tagline", "Build Selene-native 2D scenes, atlases, animations, and prefabs"),
+        ]),
+      ]),
       @html.p(
         class="welcome-copy",
-        "selene-editor works on a single scene inside one local project directory.",
+        "Open a local Selene project directory to start editing scenes and resources.",
       ),
       @html.button(
         class="small-button primary-button",
-        on_click=dispatch(@app.msg_pick_project_root()),
-        "Choose Folder",
+        on_click=dispatch(@app.msg_open_project()),
+        "Open Project",
       ),
       @html.div(class="welcome-status", model.status),
     ]),
@@ -958,12 +1005,19 @@ fn view(
         labeled_input("Name", entity.name, fn(value) {
           dispatch(@app.msg_rename_selected(value))
         }),
+        @html.div(class="inspector-actions", [
+          @html.button(
+            class="small-button",
+            on_click=dispatch(@app.msg_save_selected_as_prefab()),
+            "Save As Prefab",
+          ),
+        ]),
         selected_transform_view(dispatch, model),
         selected_visibility_view(dispatch, model),
         selected_sprite_view(model),
         selected_text_view(dispatch, model),
       ])
-    None => selected_asset_view(model)
+    None => selected_asset_view(dispatch, model)
   }
   @html.div(class="editor-root", [
     @html.div(class="topbar", [
@@ -972,9 +1026,9 @@ fn view(
         @html.div(class="topbar-group", [
           action_button(
             dispatch,
-            "Choose Folder",
+            "Open Project",
             "📁",
-            @app.msg_pick_project_root(),
+            @app.msg_open_project(),
             primary=true,
           ),
           action_button(dispatch, "Save Scene", "💾", @app.msg_save_scene()),

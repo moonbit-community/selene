@@ -10,7 +10,7 @@ async test "bdd project flow creates a startup scene and syncs preview" {
       harness.current_root() == Some(harness.project_root_path()),
       content="true",
     )
-    inspect(harness.scene_path(), content="scenes/main.scene.json")
+    inspect(harness.scene_path(), content="scenes/project.scene.json")
     inspect(
       @fs.exists(
         harness.project_root_path() +
@@ -41,7 +41,7 @@ async test "bdd opening an empty folder auto-creates a project" {
       harness.current_root() == Some(harness.project_root_path()),
       content="true",
     )
-    inspect(harness.scene_path(), content="scenes/main.scene.json")
+    inspect(harness.scene_path(), content="scenes/project.scene.json")
     inspect(harness.preview_scene() == harness.scene(), content="true")
     inspect(
       harness.preview_selected_entity_id() == Some("camera"),
@@ -149,13 +149,13 @@ async test "bdd image assets can be added into the scene" {
     let harness = given_editor_harness()
     group.add_defer(() => harness.cleanup())
 
-    harness.given_image_asset("assets/hero.png")
+    harness.given_image_asset("assets/images/hero.png")
     harness.when_editor_initialized()
 
     inspect(harness.assets().length(), content="1")
-    inspect(harness.assets()[0].path, content="assets/hero.png")
+    inspect(harness.assets()[0].path, content="assets/images/hero.png")
 
-    harness.when_sprite_asset_is_dropped("assets/hero.png", 96.0, 144.0)
+    harness.when_sprite_asset_is_dropped("assets/images/hero.png", 96.0, 144.0)
 
     let entity_id = harness.selected_entity_id().unwrap_or("")
     let entity = harness.entity(entity_id).unwrap()
@@ -168,12 +168,52 @@ async test "bdd image assets can be added into the scene" {
       "Transform2d",
     ).unwrap()
 
-    inspect(sprite.image_path, content="Some(\"assets/hero.png\")")
+    inspect(sprite.image_path, content="Some(\"assets/images/hero.png\")")
     inspect(transform.translation.x, content="96")
     inspect(transform.translation.y, content="144")
     inspect(
       harness.preview_selected_entity_id() == Some(entity_id),
       content="true",
     )
+  })
+}
+
+///|
+async test "bdd image to atlas to animation to prefab flow persists through editor resources" {
+  @async.with_task_group(group => {
+    let harness = given_editor_harness()
+    group.add_defer(() => harness.cleanup())
+
+    harness.given_image_asset("assets/images/hero.png")
+    harness.when_editor_initialized()
+    harness.when_image_resource_is_selected("assets/images/hero.png")
+    harness.when_selected_image_creates_atlas()
+
+    inspect(harness.atlas_refs().length(), content="1")
+    inspect(
+      harness.selected_resource_path(),
+      content="Some(\"assets/atlases/hero.atlas.json\")",
+    )
+
+    harness.when_selected_atlas_creates_animation()
+    inspect(harness.animation_refs().length(), content="1")
+    inspect(
+      harness.selected_resource_path(),
+      content="Some(\"assets/animations/hero.anim.json\")",
+    )
+
+    harness.when_selected_resource_is_inserted()
+    let entity_id = harness.selected_entity_id().unwrap_or("")
+    inspect(harness.entity(entity_id) is Some(_), content="true")
+
+    harness.when_selected_entity_is_saved_as_prefab()
+    inspect(harness.prefab_refs().length(), content="1")
+    inspect(
+      harness.selected_resource_path(),
+      content="Some(\"prefabs/hero.prefab.json\")",
+    )
+
+    harness.when_selected_resource_is_inserted()
+    inspect(harness.scene().unwrap().entities.length() > 2, content="true")
   })
 }

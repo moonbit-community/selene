@@ -47,7 +47,7 @@ The service hosts the editor on `http://127.0.0.1:47142` and tries to open the b
     cache/**
 ```
 
-When the page opens, `selene-editor` immediately prompts for a local folder. After you choose one:
+When the page opens, `selene-editor` starts on a simple main menu with the Selene Editor mark and an explicit `Open Project` action. After you choose a local folder:
 
 - if `selene.project.json` already exists, the editor opens it
 - if it does not exist, the editor creates a new empty Selene project in that directory
@@ -61,6 +61,13 @@ The current shell is organized around:
 - `Viewport`
 - `Scene Tree`
 - `Inspector`
+
+The current first-pass authoring actions are:
+
+- create atlas assets from selected images
+- create animation assets from selected atlases
+- save the selected entity subtree as a prefab
+- insert selected image / atlas / animation / prefab resources into the active scene
 
 The current resource chain is:
 

@@ -493,6 +493,14 @@ pub fn PrefabDocument::empty(name : String) -> PrefabDocument {
 }
 
 ///|
+pub fn prefab_document(
+  name : String,
+  entities : Array[EntityDocument],
+) -> PrefabDocument {
+  { version: prefab_schema_version, name, entities }
+}
+
+///|
 pub fn WorkspaceDocument::default() -> WorkspaceDocument {
   { version: workspace_schema_version, last_scene: None, selected_entity_id: None }
 }
@@ -536,6 +544,32 @@ pub fn AtlasAssetDocument::default(name : String, source_image : String) -> Atla
 }
 
 ///|
+pub fn atlas_asset_document_from_image(
+  name : String,
+  source_image : String,
+  tile_size : Vec2Doc,
+) -> AtlasAssetDocument {
+  {
+    version: atlas_asset_schema_version,
+    name,
+    source_image,
+    tile_size,
+    columns: 1,
+    rows: 1,
+    spacing: vec2_doc(0.0, 0.0),
+    margin: vec2_doc(0.0, 0.0),
+    default_anchor: vec2_doc(0.5, 0.5),
+    regions: [
+      atlas_region_document(
+        "frame_0",
+        0,
+        rect_doc(0.0, 0.0, tile_size.x, tile_size.y),
+      ),
+    ],
+  }
+}
+
+///|
 pub fn AnimationAssetDocument::default(
   name : String,
   atlas_asset_path : String,
@@ -546,6 +580,32 @@ pub fn AnimationAssetDocument::default(
     atlas_asset_path,
     clips: [{ name: "default", fps: 8.0, looping: true, frames: ["frame_0"] }],
     default_clip: Some("default"),
+  }
+}
+
+///|
+pub fn animation_clip_document(
+  name : String,
+  fps : Double,
+  looping : Bool,
+  frames : Array[String],
+) -> AnimationClipDocument {
+  { name, fps, looping, frames }
+}
+
+///|
+pub fn animation_asset_document_from_frames(
+  name : String,
+  atlas_asset_path : String,
+  frames : Array[String],
+  default_clip? : String = "default",
+) -> AnimationAssetDocument {
+  {
+    version: animation_asset_schema_version,
+    name,
+    atlas_asset_path,
+    clips: [animation_clip_document(default_clip, 8.0, true, frames)],
+    default_clip: Some(default_clip),
   }
 }
 

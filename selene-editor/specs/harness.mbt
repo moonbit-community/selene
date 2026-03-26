@@ -220,6 +220,32 @@ pub fn EditorHarness::assets(
 }
 
 ///|
+pub fn EditorHarness::selected_resource_path(self : EditorHarness) -> String? {
+  self.model.selected_resource_path()
+}
+
+///|
+pub fn EditorHarness::atlas_refs(
+  self : EditorHarness,
+) -> Array[@editor_bridge.AssetRef] {
+  self.model.atlas_refs
+}
+
+///|
+pub fn EditorHarness::animation_refs(
+  self : EditorHarness,
+) -> Array[@editor_bridge.AssetRef] {
+  self.model.animation_refs
+}
+
+///|
+pub fn EditorHarness::prefab_refs(
+  self : EditorHarness,
+) -> Array[@editor_bridge.PrefabRef] {
+  self.model.prefab_refs
+}
+
+///|
 pub fn EditorHarness::selected_entity_id(self : EditorHarness) -> String? {
   self.model.selected_entity_id
 }
@@ -266,6 +292,7 @@ pub async fn EditorHarness::when_editor_initialized(
   self : EditorHarness,
 ) -> Unit {
   self.dispatch(@app.msg_initialize())
+  self.dispatch(@app.msg_open_project())
 }
 
 ///|
@@ -280,7 +307,6 @@ pub async fn EditorHarness::when_project_created(
 
 ///|
 pub async fn EditorHarness::when_project_opened(self : EditorHarness) -> Unit {
-  self.dispatch(@app.msg_set_project_root_input(self.project_root))
   self.dispatch(@app.msg_open_project())
 }
 
@@ -307,6 +333,68 @@ pub async fn EditorHarness::when_scene_tree_selects_entity(
   id : String?,
 ) -> Unit {
   self.dispatch(@app.msg_select_entity(id))
+}
+
+///|
+pub async fn EditorHarness::when_image_resource_is_selected(
+  self : EditorHarness,
+  path : String,
+) -> Unit {
+  self.dispatch(@app.msg_select_resource(Some(@app.resource_selection_image(path))))
+}
+
+///|
+pub async fn EditorHarness::when_atlas_resource_is_selected(
+  self : EditorHarness,
+  path : String,
+) -> Unit {
+  self.dispatch(@app.msg_select_resource(Some(@app.resource_selection_atlas(path))))
+}
+
+///|
+pub async fn EditorHarness::when_animation_resource_is_selected(
+  self : EditorHarness,
+  path : String,
+) -> Unit {
+  self.dispatch(
+    @app.msg_select_resource(Some(@app.resource_selection_animation(path))),
+  )
+}
+
+///|
+pub async fn EditorHarness::when_prefab_resource_is_selected(
+  self : EditorHarness,
+  path : String,
+) -> Unit {
+  self.dispatch(@app.msg_select_resource(Some(@app.resource_selection_prefab(path))))
+}
+
+///|
+pub async fn EditorHarness::when_selected_image_creates_atlas(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(@app.msg_create_atlas_from_selected_image())
+}
+
+///|
+pub async fn EditorHarness::when_selected_atlas_creates_animation(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(@app.msg_create_animation_from_selected_atlas())
+}
+
+///|
+pub async fn EditorHarness::when_selected_entity_is_saved_as_prefab(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(@app.msg_save_selected_as_prefab())
+}
+
+///|
+pub async fn EditorHarness::when_selected_resource_is_inserted(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(@app.msg_insert_selected_resource())
 }
 
 ///|

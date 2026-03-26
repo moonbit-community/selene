@@ -5,6 +5,7 @@
 ### Added
 
 - Added first-class multi-scene, prefab, atlas, animation, and workspace document support to `selene/editor_bridge`, including file IO, validation, versioned schema, and shared runtime instantiation context for Selene-native editor resources.
+- Added first-pass Selene-native resource actions to `selene-editor`: selected images can now create atlas documents, selected atlases can now create animation documents, selected entities can now be saved as prefabs, and selected image/atlas/animation/prefab resources can now be inserted into the active scene.
 - Added `selene/editor_bridge`, a public scene-document bridge package that owns Selene Editor JSON schema/types, validation, patching, project/scene file IO, and scene-document-to-world runtime instantiation for shared use by editor preview and game/runtime code.
 - Added behavior-driven `selene-editor` scenarios with an in-process harness that drives `shared`, `service/core`, `frontend/app`, and the preview bridge without a browser.
 - Added a native directory-picker RPC for `selene-editor`, so the browser page can ask the local service to open the system folder chooser and fill the project root field without CLI path arguments.
@@ -14,6 +15,7 @@
 
 - Changed `selene-editor` from a single-scene JSON editor toward a Selene-native workspace model: project state now includes scene refs, prefab refs, atlas refs, animation refs, and editor workspace data, and preview loading now carries atlas/animation asset documents into `editor_bridge` instead of instantiating scenes in isolation.
 - Changed `selene-editor` UI layout to introduce a real `Scene Browser` beside the `Asset Browser`, and changed asset inspection from image-only cards to Selene-native resource sections for images, atlases, animations, and prefabs.
+- Changed `selene-editor` startup UX so the browser opens on a dedicated main menu with the Selene Editor mark and an explicit `Open Project` action; folder selection no longer happens automatically on page load.
 - Changed `selene-editor` to a folder-first single-scene workflow: on startup it immediately prompts for a local directory, opens `selene.project.json` if present, otherwise auto-initializes a new project there, and then shows only the scene editing interface.
 - Changed `selene/editor_bridge` and `selene-editor` project naming conventions to use the fixed manifest path `selene.project.json` and the fixed startup scene path `scenes/main.scene.json`.
 - Changed `selene-editor` frontend asset delivery to serve a concrete `public/editor.js` bundle instead of dynamically mapping `/editor.js` to `_build/.../web.js`; source builds now generate the static runtime asset directly from `just build`.
