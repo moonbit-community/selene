@@ -166,6 +166,43 @@ extern "js" fn prompt_text(message : String, initial : String) -> String =
   #| (message, initial) => window.prompt(message, initial) || ""
 
 ///|
+#cfg(target="js")
+extern "js" fn encode_path_for_url(path : String) -> String =
+  #| (path) => path
+  #|   .split("/")
+  #|   .map((segment) => {
+  #|     try {
+  #|       return encodeURIComponent(decodeURIComponent(segment));
+  #|     } catch (_error) {
+  #|       return encodeURIComponent(segment);
+  #|     }
+  #|   })
+  #|   .join("/")
+
+///|
+#cfg(target="js")
+extern "js" fn subscribe_shortcuts_forever(
+  on_undo : () -> Unit,
+  on_redo : () -> Unit,
+) =
+  #| (onUndo, onRedo) => {
+  #|   window.addEventListener("keydown", (event) => {
+  #|     if (!(event.metaKey || event.ctrlKey)) return;
+  #|     const key = (event.key || "").toLowerCase();
+  #|     if (key === "z") {
+  #|       event.preventDefault();
+  #|       if (event.shiftKey) onRedo();
+  #|       else onUndo();
+  #|       return;
+  #|     }
+  #|     if (key === "y") {
+  #|       event.preventDefault();
+  #|       onRedo();
+  #|     }
+  #|   });
+  #| }
+
+///|
 let dragged_asset_path : Ref[String] = Ref::new("")
 
 ///|
@@ -292,6 +329,18 @@ fn subscribe_preview_events_cmd(
 }
 
 ///|
+fn subscribe_shortcuts_cmd(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+) -> @rabbita.Cmd {
+  @cmd.raw_effect(fn(scheduler : &@cmd.Scheduler) {
+    subscribe_shortcuts_forever(
+      fn() { schedule_cmd(scheduler, dispatch(@app.msg_undo_scene())) },
+      fn() { schedule_cmd(scheduler, dispatch(@app.msg_redo_scene())) },
+    )
+  })
+}
+
+///|
 fn run_preview_command(command : @bridge.PreviewCommand) -> Unit {
   match command {
     @bridge.PreviewCommand::Bootstrap => @preview.bootstrap()
@@ -375,6 +424,7 @@ fn effect_to_cmd(
     @app.Rpc(target~, request~) => rpc_effect_cmd(dispatch, target, request)
     @app.SubscribeServiceEvents => subscribe_events_cmd(dispatch)
     @app.SubscribePreviewEvents => subscribe_preview_events_cmd(dispatch)
+    @app.SubscribeKeyboardShortcuts => subscribe_shortcuts_cmd(dispatch)
     @app.Preview(command) => preview_cmd(command)
   }
 }
@@ -428,7 +478,7 @@ fn tree_view(
 
 ///|
 fn project_asset_url(asset : @editor_bridge.AssetDocument) -> String {
-  "/project/" + asset.path
+  "/project/" + encode_path_for_url(asset.path)
 }
 
 ///|
@@ -453,7 +503,8 @@ fn asset_image_attrs(
   dispatch : @rabbita.Dispatch[@app.Msg],
   asset_path : String,
 ) -> @html.Attrs {
-  @html.Attrs::build().handler("load", fn(event, scheduler) {
+  @html.Attrs::build()
+  .handler("load", fn(event, scheduler) {
     let metrics = image_event_natural_metrics(event)
     if metrics.length() < 2 {
       return
@@ -463,11 +514,26 @@ fn asset_image_attrs(
       dispatch(@app.msg_asset_size_resolved(asset_path, metrics[0], metrics[1])),
     )
   })
+  .handler("error", fn(_event, scheduler) {
+    schedule_cmd(
+      scheduler,
+      dispatch(@app.msg_asset_image_load_failed(asset_path)),
+    )
+  })
 }
 
 ///|
-fn tooltip_attrs(label : String) -> @html.Attrs {
-  @html.Attrs::build().title(label).data_set("tooltip", label)
+fn hint_attrs(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  label : String,
+) -> @html.Attrs {
+  @html.Attrs::build()
+  .handler("mouseenter", fn(_event, scheduler) {
+    schedule_cmd(scheduler, dispatch(@app.msg_set_hover_hint(Some(label))))
+  })
+  .handler("mouseleave", fn(_event, scheduler) {
+    schedule_cmd(scheduler, dispatch(@app.msg_set_hover_hint(None)))
+  })
 }
 
 ///|
@@ -527,13 +593,31 @@ fn resource_card(
 }
 
 ///|
-fn asset_section(title : String, items : Array[@rabbita.Html]) -> @rabbita.Html {
+fn asset_section(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  title : String,
+  count : Int,
+  expanded : Bool,
+  toggle_msg : @app.Msg,
+  items : Array[@rabbita.Html],
+) -> @rabbita.Html {
   @html.div(class="asset-section", [
-    @html.div(class="asset-section-title", title),
-    if items.is_empty() {
-      @html.div(class="asset-section-empty", "None")
-    } else {
+    @html.button(class="asset-section-toggle", on_click=dispatch(toggle_msg), [
+      @html.span(
+        class="asset-section-caret",
+        if expanded {
+          "▾"
+        } else {
+          "▸"
+        },
+      ),
+      @html.span(class="asset-section-title", title),
+      @html.span(class="asset-section-count", count.to_string()),
+    ]),
+    if expanded && !items.is_empty() {
       @html.div(class="asset-list", items)
+    } else {
+      @html.nothing
     },
   ])
 }
@@ -545,28 +629,37 @@ fn asset_panel_view(
 ) -> @rabbita.Html {
   let image_cards : Array[@rabbita.Html] = []
   for asset in model.image_assets() {
+    let title = asset_display_name(asset)
+    if !model.asset_matches_query(title, asset.path) {
+      continue
+    }
     let selection = @app.resource_selection_image(asset.path)
     let is_selected = model.selected_resource == Some(selection)
     let size_label = match model.asset_size(asset.path) {
       Some(size) => "\{size.x.to_int()}×\{size.y.to_int()}"
       None => "image"
     }
+    let preview = if model.failed_image_assets.contains(asset.path) {
+      @html.div(class="asset-thumb asset-thumb-glyph asset-thumb-failed", "IMG")
+    } else {
+      @html.img(
+        class="asset-thumb",
+        src=project_asset_url(asset),
+        alt=asset.path,
+        loading="lazy",
+        attrs=asset_image_attrs(dispatch, asset.path),
+        @html.nothing,
+      )
+    }
     image_cards.push(
       resource_card(
         dispatch,
         is_selected,
         selection,
-        asset_display_name(asset),
+        title,
         asset.path,
         size_label,
-        @html.img(
-          class="asset-thumb",
-          src=project_asset_url(asset),
-          alt=asset.path,
-          loading="lazy",
-          attrs=asset_image_attrs(dispatch, asset.path),
-          @html.nothing,
-        ),
+        preview,
         attrs=asset_drag_attrs(asset.path),
       ),
     )
@@ -579,6 +672,9 @@ fn asset_panel_view(
       Some(atlas) => atlas.name
       None => asset_display_name_from_path(atlas_ref.path)
     }
+    if !model.asset_matches_query(atlas_name, atlas_ref.path) {
+      continue
+    }
     atlas_cards.push(
       resource_card(
         dispatch,
@@ -587,7 +683,7 @@ fn asset_panel_view(
         atlas_name,
         atlas_ref.path,
         "atlas",
-        @html.div(class="asset-thumb asset-thumb-glyph", "▦"),
+        @html.div(class="asset-thumb asset-thumb-glyph", "AT"),
       ),
     )
   }
@@ -600,6 +696,9 @@ fn asset_panel_view(
       Some(animation) => animation.name
       None => asset_display_name_from_path(animation_ref.path)
     }
+    if !model.asset_matches_query(animation_name, animation_ref.path) {
+      continue
+    }
     animation_cards.push(
       resource_card(
         dispatch,
@@ -608,7 +707,7 @@ fn asset_panel_view(
         animation_name,
         animation_ref.path,
         "anim",
-        @html.div(class="asset-thumb asset-thumb-glyph", "▶"),
+        @html.div(class="asset-thumb asset-thumb-glyph", "AN"),
       ),
     )
   }
@@ -620,6 +719,9 @@ fn asset_panel_view(
       Some(prefab) => prefab.name
       None => asset_display_name_from_path(prefab_ref.path)
     }
+    if !model.asset_matches_query(prefab_name, prefab_ref.path) {
+      continue
+    }
     prefab_cards.push(
       resource_card(
         dispatch,
@@ -628,12 +730,12 @@ fn asset_panel_view(
         prefab_name,
         prefab_ref.path,
         "prefab",
-        @html.div(class="asset-thumb asset-thumb-glyph", "◆"),
+        @html.div(class="asset-thumb asset-thumb-glyph", "PF"),
       ),
     )
   }
 
-  @html.div(class="panel-body asset-grid", [
+  let content : Array[@rabbita.Html] = [
     match model.selected_resource_path() {
       Some(path) =>
         @html.div(class="asset-selection-banner", [
@@ -649,11 +751,69 @@ fn asset_panel_view(
           "Select an asset or resource, then use the scene tools or drag images into the viewport",
         )
     },
-    asset_section("Images", image_cards),
-    asset_section("Atlases", atlas_cards),
-    asset_section("Animations", animation_cards),
-    asset_section("Prefabs", prefab_cards),
-  ])
+    @html.input(
+      class="field-input asset-search-input",
+      value=model.asset_query,
+      placeholder="Filter assets...",
+      on_input=fn(value) { dispatch(@app.msg_set_asset_query(value)) },
+      @html.nothing,
+    ),
+  ]
+  if !image_cards.is_empty() {
+    content.push(
+      asset_section(
+        dispatch,
+        "Images",
+        image_cards.length(),
+        model.images_section_expanded,
+        @app.msg_toggle_images_section(),
+        image_cards,
+      ),
+    )
+  }
+  if !atlas_cards.is_empty() {
+    content.push(
+      asset_section(
+        dispatch,
+        "Atlases",
+        atlas_cards.length(),
+        model.atlases_section_expanded,
+        @app.msg_toggle_atlases_section(),
+        atlas_cards,
+      ),
+    )
+  }
+  if !animation_cards.is_empty() {
+    content.push(
+      asset_section(
+        dispatch,
+        "Animations",
+        animation_cards.length(),
+        model.animations_section_expanded,
+        @app.msg_toggle_animations_section(),
+        animation_cards,
+      ),
+    )
+  }
+  if !prefab_cards.is_empty() {
+    content.push(
+      asset_section(
+        dispatch,
+        "Prefabs",
+        prefab_cards.length(),
+        model.prefabs_section_expanded,
+        @app.msg_toggle_prefabs_section(),
+        prefab_cards,
+      ),
+    )
+  }
+  if image_cards.is_empty() &&
+    atlas_cards.is_empty() &&
+    animation_cards.is_empty() &&
+    prefab_cards.is_empty() {
+    content.push(@html.div(class="empty", "No assets match this filter"))
+  }
+  @html.div(class="panel-body asset-grid", content)
 }
 
 ///|
@@ -704,7 +864,7 @@ fn scene_browser_view(
     @html.div(class="scene-browser-actions", [
       @html.button(
         class="small-button",
-        attrs=tooltip_attrs("Create Scene"),
+        attrs=hint_attrs(dispatch, "Create Scene"),
         on_click=@cmd.raw_effect(fn(scheduler) {
           let name = prompt_text("Scene name", "scene")
           if name.trim() != "" {
@@ -715,7 +875,7 @@ fn scene_browser_view(
       ),
       @html.button(
         class="small-button",
-        attrs=tooltip_attrs("Rename Current Scene"),
+        attrs=hint_attrs(dispatch, "Rename Current Scene"),
         on_click=@cmd.raw_effect(fn(scheduler) {
           let current_name = match model.scene {
             Some(scene) => scene.name
@@ -733,13 +893,13 @@ fn scene_browser_view(
       ),
       @html.button(
         class="small-button",
-        attrs=tooltip_attrs("Delete Current Scene"),
+        attrs=hint_attrs(dispatch, "Delete Current Scene"),
         on_click=dispatch(@app.msg_delete_current_scene()),
         "−",
       ),
       @html.button(
         class="small-button",
-        attrs=tooltip_attrs("Set Current As Startup"),
+        attrs=hint_attrs(dispatch, "Set Current As Startup"),
         on_click=dispatch(@app.msg_set_current_scene_as_startup()),
         "★",
       ),
@@ -1213,7 +1373,7 @@ fn toolbar_button(
       "small-button icon-button"
     },
     on_click=dispatch(@app.msg_set_tool(tool)),
-    attrs=tooltip_attrs(label),
+    attrs=hint_attrs(dispatch, label),
     @html.span(class="icon-glyph", icon),
   )
 }
@@ -1233,9 +1393,14 @@ fn action_button(
       "small-button icon-button"
     },
     on_click=dispatch(msg),
-    attrs=tooltip_attrs(label),
+    attrs=hint_attrs(dispatch, label),
     @html.span(class="icon-glyph", icon),
   )
+}
+
+///|
+fn info_message(model : @app.Model) -> String {
+  model.hover_hint.unwrap_or(model.status)
 }
 
 ///|
@@ -1349,11 +1514,11 @@ fn view(
           action_button(
             dispatch,
             "Open Project",
-            "📁",
+            "O",
             @app.msg_open_project(),
             primary=true,
           ),
-          action_button(dispatch, "Save Scene", "💾", @app.msg_save_scene()),
+          action_button(dispatch, "Save Scene", "S", @app.msg_save_scene()),
         ]),
       ]),
       @html.div(class="topbar-section", [
@@ -1361,8 +1526,20 @@ fn view(
         @html.div(class="topbar-group", [
           action_button(
             dispatch,
+            "Undo (Cmd/Ctrl+Z)",
+            "U",
+            @app.msg_undo_scene(),
+          ),
+          action_button(
+            dispatch,
+            "Redo (Shift+Cmd/Ctrl+Z)",
+            "R",
+            @app.msg_redo_scene(),
+          ),
+          action_button(
+            dispatch,
             "Add Sprite",
-            "🖼",
+            "+",
             @app.msg_add_sprite_entity(),
           ),
           action_button(dispatch, "Add Text", "T", @app.msg_add_text_entity()),
@@ -1413,7 +1590,6 @@ fn view(
           ),
         ]),
       ]),
-      @html.div(class="status", model.status),
     ]),
     @html.div(class="content", [
       @html.div(class="sidebar-column", [
@@ -1450,6 +1626,7 @@ fn view(
         inspector,
       ]),
     ]),
+    @html.div(class="info-bar", info_message(model)),
   ])
   match model.pending_scene_migration {
     Some(preview) =>

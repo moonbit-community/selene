@@ -11,6 +11,8 @@ priv struct PreviewState {
   mut selection_overlay : @entity.Entity?
   mut pending_frame_selection : Bool
   mut drag_anchor : (@math.Vec2D, String)?
+  mut drag_pointer_anchor : @math.Vec2D?
+  mut camera_pan_anchor : @math.Vec2D?
   mut event_sink : ((@bridge.PreviewEvent) -> Unit)?
 }
 
@@ -28,6 +30,8 @@ fn PreviewState::new() -> PreviewState {
     selection_overlay: None,
     pending_frame_selection: false,
     drag_anchor: None,
+    drag_pointer_anchor: None,
+    camera_pan_anchor: None,
     event_sink: None,
   }
 }
@@ -40,6 +44,57 @@ let editor_viewport_width = 960.0
 
 ///|
 let editor_viewport_height = 540.0
+
+///|
+#cfg(target="js")
+extern "js" fn canvas_client_size() -> Array[Double] =
+  #| () => {
+  #|   const canvas = document.getElementById("canvas");
+  #|   if (!canvas) return [960, 540];
+  #|   const rect = canvas.getBoundingClientRect();
+  #|   return [
+  #|     Math.max(1, rect.width || canvas.clientWidth || canvas.width || 960),
+  #|     Math.max(1, rect.height || canvas.clientHeight || canvas.height || 540),
+  #|   ];
+  #| }
+
+///|
+fn normalized_mouse_position() -> @math.Vec2D {
+  let size = canvas_client_size()
+  let client_width = if size.length() > 0 && size[0] > 0.0 {
+    size[0]
+  } else {
+    editor_viewport_width
+  }
+  let client_height = if size.length() > 1 && size[1] > 0.0 {
+    size[1]
+  } else {
+    editor_viewport_height
+  }
+  @math.Vec2D(
+    @inputs.mouse.pos[X] * editor_viewport_width / client_width,
+    @inputs.mouse.pos[Y] * editor_viewport_height / client_height,
+  )
+}
+
+///|
+fn mouse_to_viewport_delta(delta : @math.Vec2D) -> @math.Vec2D {
+  let size = canvas_client_size()
+  let client_width = if size.length() > 0 && size[0] > 0.0 {
+    size[0]
+  } else {
+    editor_viewport_width
+  }
+  let client_height = if size.length() > 1 && size[1] > 0.0 {
+    size[1]
+  } else {
+    editor_viewport_height
+  }
+  @math.Vec2D(
+    delta[X] * editor_viewport_width / client_width,
+    delta[Y] * editor_viewport_height / client_height,
+  )
+}
 
 ///|
 fn resolve_project_asset_path(path : String?) -> String? {
@@ -281,7 +336,13 @@ fn world_point_from_mouse() -> @math.Vec2D? {
   guard @transform.compute_global_transform(camera_entity) is Some(global) else {
     return None
   }
-  Some(camera_.viewport_to_world_2d(global, projection, @inputs.mouse.pos))
+  Some(
+    camera_.viewport_to_world_2d(
+      global,
+      projection,
+      normalized_mouse_position(),
+    ),
+  )
 }
 
 ///|
@@ -455,9 +516,18 @@ fn preview_camera_control_system(_world : @ecs.World) -> Unit {
       scale: next_scale,
     })
   }
-  if @inputs.mouse.middle_button {
-    let movement = @inputs.mouse_movement.movement
-    if movement != @math.Vec2D::zero() {
+  if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Middle) {
+    preview_state.camera_pan_anchor = Some(@inputs.mouse.pos)
+  }
+  if @inputs.is_mouse_just_released(@inputs.MouseButton::Middle) ||
+    !@inputs.mouse.middle_button {
+    preview_state.camera_pan_anchor = None
+  }
+  if @inputs.mouse.middle_button &&
+    preview_state.camera_pan_anchor is Some(anchor) {
+    let current = @inputs.mouse.pos
+    let movement = mouse_to_viewport_delta(current - anchor)
+    if movement[X].abs() >= 1.0 || movement[Y].abs() >= 1.0 {
       let projection = @camera.orthographic_projections()
         .get(camera_entity)
         .unwrap_or(@camera.OrthographicProjection::new())
@@ -469,11 +539,12 @@ fn preview_camera_control_system(_world : @ecs.World) -> Unit {
         transform.with_translation(
           @math.Vec3::new(
             transform.translation.x - movement[X] * projection.scale,
-            transform.translation.y + movement[Y] * projection.scale,
+            transform.translation.y - movement[Y] * projection.scale,
             transform.translation.z,
           ),
         ),
       )
+      preview_state.camera_pan_anchor = Some(current)
     }
   }
 }
@@ -492,6 +563,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
         if preview_state.selected_entity_id is Some(selected) &&
           hovered == Some(selected) {
           preview_state.drag_anchor = Some((world_point, selected))
+          preview_state.drag_pointer_anchor = Some(@inputs.mouse.pos)
         } else {
           preview_state.selected_entity_id = hovered
           emit_preview_event(@bridge.preview_event_entity_picked(hovered))
@@ -504,12 +576,18 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
   }
   if @inputs.is_mouse_just_released(@inputs.MouseButton::Left) {
     preview_state.drag_anchor = None
+    preview_state.drag_pointer_anchor = None
   }
   if preview_state.active_tool is @shared.Translate &&
     @inputs.mouse.left_button &&
     preview_state.drag_anchor is Some((anchor_point, entity_id)) &&
+    preview_state.drag_pointer_anchor is Some(pointer_anchor) &&
     preview_state.runtime_scene is Some(scene) &&
     scene.entity_ids.contains(entity_id) {
+    let pointer_delta = @inputs.mouse.pos - pointer_anchor
+    if pointer_delta[X].abs() < 1.0 && pointer_delta[Y].abs() < 1.0 {
+      return
+    }
     let entity = scene.entity_ids[entity_id]
     let current = entity_transform2d(entity)
     let delta = world_point - anchor_point
@@ -518,6 +596,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
       current.translation.y + delta[Y],
     )
     preview_state.drag_anchor = Some((world_point, entity_id))
+    preview_state.drag_pointer_anchor = Some(@inputs.mouse.pos)
     emit_preview_event(
       @bridge.preview_event_transform_changed(entity_id, next, current.rotation),
     )

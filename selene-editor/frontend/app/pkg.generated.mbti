@@ -63,6 +63,8 @@ pub fn msg_project_loaded(Result[@shared.ProjectStateResponse, String]) -> Msg
 
 pub fn msg_project_root_picked(Result[@shared.DirectoryPickResult, String]) -> Msg
 
+pub fn msg_redo_scene() -> Msg
+
 pub fn msg_reload_scene() -> Msg
 
 pub fn msg_rename_current_scene(String) -> Msg
@@ -93,15 +95,27 @@ pub fn msg_service_event(Result[@shared.EditorEvent, String]) -> Msg
 
 pub fn msg_set_current_scene_as_startup() -> Msg
 
+pub fn msg_set_hover_hint(String?) -> Msg
+
 pub fn msg_set_project_name_input(String) -> Msg
 
 pub fn msg_set_project_root_input(String) -> Msg
 
 pub fn msg_set_tool(@shared.PreviewTool) -> Msg
 
+pub fn msg_toggle_animations_section() -> Msg
+
+pub fn msg_toggle_atlases_section() -> Msg
+
+pub fn msg_toggle_images_section() -> Msg
+
+pub fn msg_toggle_prefabs_section() -> Msg
+
 pub fn msg_toggle_selected_animation_clip_looping() -> Msg
 
 pub fn msg_toggle_selected_visibility() -> Msg
+
+pub fn msg_undo_scene() -> Msg
 
 pub fn msg_update_selected_animation_clip_fps(String) -> Msg
 
@@ -164,6 +178,7 @@ pub enum Effect {
   Rpc(target~ : RpcTarget, request~ : @shared.RpcRequestEnvelope)
   SubscribeServiceEvents
   SubscribePreviewEvents
+  SubscribeKeyboardShortcuts
   Preview(@bridge.PreviewCommand)
 }
 pub impl Eq for Effect
@@ -189,6 +204,13 @@ pub struct Model {
   selected_resource : ResourceSelection?
   selected_entity_id : String?
   pending_scene_migration : @editor_bridge.SceneMigrationPreview?
+  undo_stack : Array[@editor_bridge.SceneDocument]
+  redo_stack : Array[@editor_bridge.SceneDocument]
+  hover_hint : String?
+  images_section_expanded : Bool
+  atlases_section_expanded : Bool
+  animations_section_expanded : Bool
+  prefabs_section_expanded : Bool
   recent_projects : Array[String]
   logs : Array[String]
   status : String
@@ -225,6 +247,13 @@ pub enum Msg {
   SceneSaved(Result[Unit, String])
   ServiceEvent(Result[@shared.EditorEvent, String])
   PreviewEvent(@bridge.PreviewEvent)
+  SetHoverHint(String?)
+  ToggleImagesSection
+  ToggleAtlasesSection
+  ToggleAnimationsSection
+  TogglePrefabsSection
+  UndoScene
+  RedoScene
   OpenScene(String)
   SelectResource(ResourceSelection?)
   SelectEntity(String?)

@@ -40,6 +40,8 @@ pub struct Model {
   scene : @editor_bridge.SceneDocument?
   assets : Array[@editor_bridge.AssetDocument]
   asset_sizes : Map[String, @editor_bridge.Vec2Doc]
+  asset_query : String
+  failed_image_assets : Map[String, Bool]
   prefab_documents : Map[String, @editor_bridge.PrefabDocument]
   atlas_documents : Map[String, @editor_bridge.AtlasAssetDocument]
   animation_documents : Map[String, @editor_bridge.AnimationAssetDocument]
@@ -47,6 +49,13 @@ pub struct Model {
   selected_resource : ResourceSelection?
   selected_entity_id : String?
   pending_scene_migration : @editor_bridge.SceneMigrationPreview?
+  undo_stack : Array[@editor_bridge.SceneDocument]
+  redo_stack : Array[@editor_bridge.SceneDocument]
+  hover_hint : String?
+  images_section_expanded : Bool
+  atlases_section_expanded : Bool
+  animations_section_expanded : Bool
+  prefabs_section_expanded : Bool
   recent_projects : Array[String]
   logs : Array[String]
   status : String
@@ -71,9 +80,18 @@ pub enum Msg {
   AtlasLoaded(Result[@shared.AtlasLoadResponse, String])
   AnimationLoaded(Result[@shared.AnimationLoadResponse, String])
   AssetSizeResolved(String, Double, Double)
+  AssetImageLoadFailed(String)
+  SetAssetQuery(String)
   SceneSaved(Result[Unit, String])
   ServiceEvent(Result[@shared.EditorEvent, String])
   PreviewEvent(@bridge.PreviewEvent)
+  SetHoverHint(String?)
+  ToggleImagesSection
+  ToggleAtlasesSection
+  ToggleAnimationsSection
+  TogglePrefabsSection
+  UndoScene
+  RedoScene
   OpenScene(String)
   SelectResource(ResourceSelection?)
   SelectEntity(String?)
@@ -141,6 +159,7 @@ pub enum Effect {
   Rpc(target~ : RpcTarget, request~ : @shared.RpcRequestEnvelope)
   SubscribeServiceEvents
   SubscribePreviewEvents
+  SubscribeKeyboardShortcuts
   Preview(@bridge.PreviewCommand)
 } derive(Show, Eq)
 
@@ -160,6 +179,8 @@ pub fn new_model() -> Model {
     scene: None,
     assets: [],
     asset_sizes: {},
+    asset_query: "",
+    failed_image_assets: {},
     prefab_documents: {},
     atlas_documents: {},
     animation_documents: {},
@@ -167,6 +188,13 @@ pub fn new_model() -> Model {
     selected_resource: None,
     selected_entity_id: None,
     pending_scene_migration: None,
+    undo_stack: [],
+    redo_stack: [],
+    hover_hint: None,
+    images_section_expanded: true,
+    atlases_section_expanded: true,
+    animations_section_expanded: true,
+    prefabs_section_expanded: true,
     status: "Choose a project folder to begin",
     logs: [],
     active_tool: @shared.preview_tool_select(),
@@ -262,6 +290,16 @@ pub fn msg_animation_loaded(
   result : Result[@shared.AnimationLoadResponse, String],
 ) -> Msg {
   AnimationLoaded(result)
+}
+
+///|
+pub fn msg_asset_image_load_failed(path : String) -> Msg {
+  AssetImageLoadFailed(path)
+}
+
+///|
+pub fn msg_set_asset_query(value : String) -> Msg {
+  SetAssetQuery(value)
 }
 
 ///|
@@ -527,6 +565,41 @@ pub fn msg_frame_selection() -> Msg {
 }
 
 ///|
+pub fn msg_set_hover_hint(hint : String?) -> Msg {
+  SetHoverHint(hint)
+}
+
+///|
+pub fn msg_toggle_images_section() -> Msg {
+  ToggleImagesSection
+}
+
+///|
+pub fn msg_toggle_atlases_section() -> Msg {
+  ToggleAtlasesSection
+}
+
+///|
+pub fn msg_toggle_animations_section() -> Msg {
+  ToggleAnimationsSection
+}
+
+///|
+pub fn msg_toggle_prefabs_section() -> Msg {
+  TogglePrefabsSection
+}
+
+///|
+pub fn msg_undo_scene() -> Msg {
+  UndoScene
+}
+
+///|
+pub fn msg_redo_scene() -> Msg {
+  RedoScene
+}
+
+///|
 fn push_log(model : Model, line : String) -> Model {
   let next_logs = model.logs + [line]
   let logs = if next_logs.length() > 200 {
@@ -535,6 +608,35 @@ fn push_log(model : Model, line : String) -> Model {
     next_logs
   }
   { ..model, logs, }
+}
+
+///|
+let scene_history_limit = 200
+
+///|
+fn bounded_history(
+  history : Array[@editor_bridge.SceneDocument],
+) -> Array[@editor_bridge.SceneDocument] {
+  if history.length() > scene_history_limit {
+    history[history.length() - scene_history_limit:].to_array()
+  } else {
+    history
+  }
+}
+
+///|
+fn with_recorded_scene_change(previous : Model, next : Model) -> Model {
+  match (previous.scene, next.scene) {
+    (Some(before), Some(after)) if before != after => {
+      let undo_stack = bounded_history(previous.undo_stack + [before])
+      { ..next, undo_stack, redo_stack: [] }
+    }
+    (Some(before), None) => {
+      let undo_stack = bounded_history(previous.undo_stack + [before])
+      { ..next, undo_stack, redo_stack: [] }
+    }
+    _ => next
+  }
 }
 
 ///|
@@ -881,6 +983,11 @@ fn refresh_project_effects(model : Model) -> Array[Effect] {
 ///|
 fn normalize_scene_after_change(model : Model) -> (Array[Effect], Model) {
   (sync_preview_effects(model), model)
+}
+
+///|
+fn apply_scene_change(previous : Model, next : Model) -> (Array[Effect], Model) {
+  normalize_scene_after_change(with_recorded_scene_change(previous, next))
 }
 
 ///|
@@ -1239,6 +1346,25 @@ pub fn Model::asset_size(
 }
 
 ///|
+pub fn Model::asset_query_normalized(self : Model) -> String {
+  self.asset_query.trim().to_string().to_lower()
+}
+
+///|
+pub fn Model::asset_matches_query(
+  self : Model,
+  name : String,
+  path : String,
+) -> Bool {
+  let query = self.asset_query_normalized()
+  if query == "" {
+    true
+  } else {
+    name.to_lower().contains(query) || path.to_lower().contains(query)
+  }
+}
+
+///|
 pub fn Model::selected_resource_path(self : Model) -> String? {
   match self.selected_resource {
     Some(Image(path)) => Some(path)
@@ -1337,6 +1463,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         [
           SubscribeServiceEvents,
           SubscribePreviewEvents,
+          SubscribeKeyboardShortcuts,
           rpc_effect(ProjectLoaded, @shared.rpc_request_project_current()),
         ],
         model,
@@ -1429,6 +1556,8 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             scene_path,
             project_root_input,
             pending_scene_migration: None,
+            undo_stack: [],
+            redo_stack: [],
             status,
           }
           (refresh_project_effects(next), next)
@@ -1474,6 +1603,8 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             animation_refs,
             selected_entity_id: workspace.selected_entity_id,
             pending_scene_migration: None,
+            undo_stack: [],
+            redo_stack: [],
             status: "Loaded " + response.path,
           }
           (sync_preview_effects(next), next)
@@ -1485,6 +1616,8 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             scene: None,
             selected_entity_id: None,
             pending_scene_migration: Some(preview),
+            undo_stack: [],
+            redo_stack: [],
             status: "Legacy scene requires migration",
           }
           let cleared = next.workspace
@@ -1524,6 +1657,8 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           scene: None,
           selected_entity_id: None,
           pending_scene_migration: None,
+          undo_stack: [],
+          redo_stack: [],
           workspace,
           status: "Scene migration cancelled",
         },
@@ -1625,10 +1760,18 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       if width > 0.0 && height > 0.0 {
         let asset_sizes = model.asset_sizes
         asset_sizes.set(path, @editor_bridge.vec2_doc(width, height))
-        ([], { ..model, asset_sizes, })
+        let failed_image_assets = model.failed_image_assets
+        failed_image_assets.remove(path) |> ignore
+        ([], { ..model, asset_sizes, failed_image_assets })
       } else {
         ([], model)
       }
+    AssetImageLoadFailed(path) => {
+      let failed_image_assets = model.failed_image_assets
+      failed_image_assets.set(path, true)
+      ([], { ..model, failed_image_assets, })
+    }
+    SetAssetQuery(value) => ([], { ..model, asset_query: value })
     SceneSaved(result) =>
       match result {
         Ok(_) => ([], { ..model, status: save_success_status(model) })
@@ -1686,10 +1829,89 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                   scale=transform.scale,
                 ),
               )
-              normalize_scene_after_change(next)
+              apply_scene_change(model, next)
             }
             _ => ([], model)
           }
+      }
+    SetHoverHint(hint) => ([], { ..model, hover_hint: hint })
+    ToggleImagesSection =>
+      ([], { ..model, images_section_expanded: !model.images_section_expanded })
+    ToggleAtlasesSection =>
+      (
+        [],
+        { ..model, atlases_section_expanded: !model.atlases_section_expanded },
+      )
+    ToggleAnimationsSection =>
+      (
+        [],
+        {
+          ..model,
+          animations_section_expanded: !model.animations_section_expanded,
+        },
+      )
+    TogglePrefabsSection =>
+      (
+        [],
+        { ..model, prefabs_section_expanded: !model.prefabs_section_expanded },
+      )
+    UndoScene =>
+      match (model.scene, model.undo_stack.length()) {
+        (Some(current), count) if count > 0 => {
+          let previous_scene = model.undo_stack[count - 1]
+          let undo_stack = model.undo_stack[:count - 1].to_array()
+          let redo_stack = bounded_history(model.redo_stack + [current])
+          let selected_entity_id = selected_after_load(
+            model.selected_entity_id,
+            previous_scene,
+          )
+          let workspace = model.workspace.with_selected_entity_id(
+            selected_entity_id,
+          )
+          let next = {
+            ..model,
+            scene: Some(previous_scene),
+            selected_entity_id,
+            workspace,
+            undo_stack,
+            redo_stack,
+            status: "Undid last change",
+          }
+          normalize_scene_after_change(next)
+        }
+        _ => {
+          let next = push_log(model, "Nothing to undo")
+          ([], { ..next, status: "Nothing to undo" })
+        }
+      }
+    RedoScene =>
+      match (model.scene, model.redo_stack.length()) {
+        (Some(current), count) if count > 0 => {
+          let next_scene = model.redo_stack[count - 1]
+          let redo_stack = model.redo_stack[:count - 1].to_array()
+          let undo_stack = bounded_history(model.undo_stack + [current])
+          let selected_entity_id = selected_after_load(
+            model.selected_entity_id,
+            next_scene,
+          )
+          let workspace = model.workspace.with_selected_entity_id(
+            selected_entity_id,
+          )
+          let next = {
+            ..model,
+            scene: Some(next_scene),
+            selected_entity_id,
+            workspace,
+            undo_stack,
+            redo_stack,
+            status: "Redid last change",
+          }
+          normalize_scene_after_change(next)
+        }
+        _ => {
+          let next = push_log(model, "Nothing to redo")
+          ([], { ..next, status: "Nothing to redo" })
+        }
       }
     OpenScene(path) =>
       (
@@ -1777,6 +1999,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
               scene: Some(next_scene),
               status: "Renaming scene...",
             }
+            let with_history = with_recorded_scene_change(model, next)
             (
               [
                 rpc_effect(
@@ -1784,8 +2007,8 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                   @shared.rpc_request_scene_save(model.scene_path, next_scene),
                 ),
               ] +
-              sync_preview_effects(next),
-              next,
+              sync_preview_effects(with_history),
+              with_history,
             )
           }
         }
@@ -1906,7 +2129,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             scene: Some(next_scene),
             selected_entity_id: Some(id),
           }
-          normalize_scene_after_change(next)
+          apply_scene_change(model, next)
         }
         (Some(scene), Some(Atlas(path))) =>
           match model.atlas_documents.get(path) {
@@ -1922,7 +2145,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                 scene: Some(next_scene),
                 selected_entity_id: Some(id),
               }
-              normalize_scene_after_change(next)
+              apply_scene_change(model, next)
             }
             None => ([], model)
           }
@@ -1943,7 +2166,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                     scene: Some(next_scene),
                     selected_entity_id: Some(id),
                   }
-                  normalize_scene_after_change(next)
+                  apply_scene_change(model, next)
                 }
                 None => ([], model)
               }
@@ -1962,7 +2185,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                 scene: Some(next_scene),
                 selected_entity_id: id,
               }
-              normalize_scene_after_change(next)
+              apply_scene_change(model, next)
             }
             None => ([], model)
           }
@@ -2183,7 +2406,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       let next = update_selected_entity(model, fn(entity) {
         entity.renamed(value)
       })
-      normalize_scene_after_change(next)
+      apply_scene_change(model, next)
     }
     UpdateSelectedTranslateX(value) =>
       match model.selected_entity() {
@@ -2203,7 +2426,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                   scale=transform.scale,
                 ),
               )
-              normalize_scene_after_change(next)
+              apply_scene_change(model, next)
             }
             None => ([], model)
           }
@@ -2228,7 +2451,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                   scale=transform.scale,
                 ),
               )
-              normalize_scene_after_change(next)
+              apply_scene_change(model, next)
             }
             None => ([], model)
           }
@@ -2251,7 +2474,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                   scale=transform.scale,
                 ),
               )
-              normalize_scene_after_change(next)
+              apply_scene_change(model, next)
             }
             None => ([], model)
           }
@@ -2277,7 +2500,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                   anchor=text_component.anchor,
                 ),
               )
-              normalize_scene_after_change(next)
+              apply_scene_change(model, next)
             }
             None => ([], model)
           }
@@ -2298,7 +2521,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                   visible=!visibility_component.visible,
                 ),
               )
-              normalize_scene_after_change(next)
+              apply_scene_change(model, next)
             }
             None => ([], model)
           }
@@ -2337,7 +2560,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             scene: Some(scene.with_entity(entity)),
             selected_entity_id: Some(id),
           }
-          normalize_scene_after_change(next)
+          apply_scene_change(model, next)
         }
         None => ([], model)
       }
@@ -2355,7 +2578,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             scene: Some(next_scene),
             selected_entity_id: Some(id),
           }
-          normalize_scene_after_change(next)
+          apply_scene_change(model, next)
         }
         None => ([], model)
       }
@@ -2373,7 +2596,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             scene: Some(next_scene),
             selected_entity_id: Some(id),
           }
-          normalize_scene_after_change(next)
+          apply_scene_change(model, next)
         }
         None => ([], model)
       }
@@ -2391,7 +2614,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             scene: Some(scene.with_entity(entity)),
             selected_entity_id: Some(id),
           }
-          normalize_scene_after_change(next)
+          apply_scene_change(model, next)
         }
         None => ([], model)
       }
@@ -2403,7 +2626,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             scene: Some(scene.without_entity(id)),
             selected_entity_id: None,
           }
-          normalize_scene_after_change(next)
+          apply_scene_change(model, next)
         }
         _ => ([], model)
       }

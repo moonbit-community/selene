@@ -234,6 +234,7 @@ async fn EditorHarness::process_effect(
     }
     @app.SubscribeServiceEvents => self.service_events_subscribed = true
     @app.SubscribePreviewEvents => self.preview_events_subscribed = true
+    @app.SubscribeKeyboardShortcuts => ()
     @app.Preview(command) => self.preview.apply(command)
   }
 }

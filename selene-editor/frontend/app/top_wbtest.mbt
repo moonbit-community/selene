@@ -1,7 +1,7 @@
 ///|
 test "initialize subscribes to service and preview channels" {
   let (effects, _) = update(msg_initialize(), new_model())
-  inspect(effects.length(), content="3")
+  inspect(effects.length(), content="4")
 }
 
 ///|
@@ -34,6 +34,14 @@ test "open project asks the service for a directory" {
   let (effects, next) = update(msg_open_project(), new_model())
   inspect(effects.length(), content="1")
   inspect(next.status, content="Choose a project folder...")
+}
+
+///|
+test "hover hint updates the shared info bar state" {
+  let (_, hinted) = update(msg_set_hover_hint(Some("Save Scene")), new_model())
+  inspect(hinted.hover_hint, content="Some(\"Save Scene\")")
+  let (_, cleared) = update(msg_set_hover_hint(None), hinted)
+  inspect(cleared.hover_hint, content="None")
 }
 
 ///|
@@ -392,4 +400,25 @@ test "editing a selected prefab updates the prefab document and save emits rpc" 
   let (effects, saving) = update(msg_save_selected_prefab(), edited)
   inspect(effects.length(), content="1")
   inspect(saving.status, content="Saving prefab...")
+}
+
+///|
+test "undo and redo restore scene document changes" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(@editor_bridge.SceneDocument::default_main()),
+    selected_entity_id: Some("camera"),
+  }
+  let (_, added) = update(msg_add_sprite_entity(), model)
+  inspect(added.scene.unwrap().entities.length(), content="2")
+
+  let (_, undone) = update(msg_undo_scene(), added)
+  inspect(undone.scene.unwrap().entities.length(), content="1")
+  inspect(undone.redo_stack.length(), content="1")
+
+  let (_, redone) = update(msg_redo_scene(), undone)
+  inspect(redone.scene.unwrap().entities.length(), content="2")
+  inspect(redone.undo_stack.length() > 0, content="true")
 }

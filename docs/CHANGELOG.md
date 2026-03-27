@@ -4,6 +4,7 @@
 
 ### Added
 
+- Added scene history undo/redo in `selene-editor` with toolbar actions and keyboard shortcuts (`Cmd/Ctrl+Z`, `Shift+Cmd/Ctrl+Z`, and `Cmd/Ctrl+Y`).
 - Added a new `selene/editor_bridge` source+codec+loader stack (`DocumentSource`, typed `decode_*` APIs, and `load_project_bundle(...)`) so project/scene/dependency document loading is unified and runtime-safe across editor and examples.
 - Added `examples/pixeladventure/scene_runtime_wbtest.mbt` to verify editor-scene gameplay marker counts, terrain segment generation, and custom gameplay component registration directly from Selene editor scene documents.
 - Added a shared `Migration` trait to `selene/editor_bridge` and extended document migration support beyond scenes, with typed probe/migrate status APIs for prefab, atlas, and animation documents.
@@ -43,6 +44,19 @@
 
 ### Fixed
 
+- Fixed `selene-editor` viewport interaction mapping by normalizing mouse position/movement to the runtime viewport size, so viewport picking, transform dragging, and camera pan behave consistently when the canvas is CSS-scaled.
+- Fixed `selene-editor` camera pan behavior so middle-button click no longer causes an immediate pan jump; panning now starts from an explicit press anchor and only moves while dragging.
+- Fixed `selene-editor` camera middle-drag pan direction consistency on both axes in the preview runtime.
+- Fixed `selene-editor` viewport rendering distortion by enforcing a stable 16:9 canvas aspect layout instead of stretching the canvas to arbitrary panel proportions.
+- Fixed `selene-editor` asset thumbnail URL generation by encoding project-relative path segments, improving image loading reliability for asset paths containing spaces and special characters.
+- Fixed `selene-editor` project asset URL encoding to avoid double-encoding already escaped path segments, preventing thumbnail breakage in mixed encoded/unencoded asset paths.
+- Fixed unsupported-glyph regressions in `selene-editor` resource/tool icon rendering by switching key icon labels to text-safe glyphs.
+- Fixed `selene-editor` toolbar UX by removing top-floating hover tooltip bubbles and routing hover hints into a single bottom info bar shared with status/error messages.
+- Fixed `selene-editor` asset browser UX by replacing static empty placeholders with collapsible resource sections and per-section counts (`Images`, `Atlases`, `Animations`, `Prefabs`).
+- Fixed `selene-editor` asset browser filtering flow so empty resource groups are hidden and the panel shows a single explicit empty-filter state instead of noisy placeholder rows.
+- Fixed `selene-editor` sidebar/inspector panel overflow behavior by rebalancing sidebar row sizing and tightening panel scroll handling to reduce unnecessary scrollbars.
+- Fixed `selene-editor` preview mouse interactions by adding movement deadzones for middle-button camera pan and translate-tool dragging, preventing single-click jitter from moving the viewport or entities.
+- Fixed `selene-editor` scene browser list sizing by removing forced internal scrolling for small scene sets, aligning with expected desktop panel behavior.
 - Fixed `selene-editor` project-open compatibility for legacy `v2` manifests missing index arrays (`scene_index`, `prefab_index`, `atlas_index`, `animation_index`) by auto-migrating and rewriting `selene.project.json` on open.
 - Fixed `selene-editor` frontend error UX so low-level decode traces (for example `JsonDecodeError(.../response/...)`) are no longer shown directly in status/log text; detailed diagnostics now go to browser console.
 - Fixed `selene-webgpu` synchronous asset byte loading on browser documents: `webgpu_load_file_bytes_sync(...)` now uses `x-user-defined` text mode byte extraction instead of setting `responseType="arraybuffer"` on sync XHR, so `@asset.read_bytes(...)` can load editor/project JSON files on web runtime and `examples/pixeladventure` no longer panics at startup with `MissingDocument`.
