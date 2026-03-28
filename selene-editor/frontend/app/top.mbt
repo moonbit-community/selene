@@ -60,6 +60,7 @@ pub struct Model {
   logs : Array[String]
   status : String
   active_tool : @shared.PreviewTool
+  pivot_mode : @shared.PreviewPivotMode
 } derive(Show, Eq)
 
 ///|
@@ -138,6 +139,7 @@ pub enum Msg {
   AddTextEntity
   DeleteSelected
   SetTool(@shared.PreviewTool)
+  SetPivotMode(@shared.PreviewPivotMode)
   FrameSelection
 }
 
@@ -198,6 +200,7 @@ pub fn new_model() -> Model {
     status: "Choose a project folder to begin",
     logs: [],
     active_tool: @shared.preview_tool_select(),
+    pivot_mode: @shared.preview_pivot_mode_transform_origin(),
   }
 }
 
@@ -560,6 +563,11 @@ pub fn msg_set_tool(tool : @shared.PreviewTool) -> Msg {
 }
 
 ///|
+pub fn msg_set_pivot_mode(mode : @shared.PreviewPivotMode) -> Msg {
+  SetPivotMode(mode)
+}
+
+///|
 pub fn msg_frame_selection() -> Msg {
   FrameSelection
 }
@@ -911,6 +919,7 @@ fn instantiate_prefab_into_scene(
 fn sync_preview_effects(model : Model) -> Array[Effect] {
   let effects : Array[Effect] = [
     Preview(@bridge.preview_command_set_tool(model.active_tool)),
+    Preview(@bridge.preview_command_set_pivot_mode(model.pivot_mode)),
     Preview(@bridge.preview_command_select_entity(model.selected_entity_id)),
   ]
   match model.scene {
@@ -1815,18 +1824,15 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           (sync_preview_effects(next), next)
         }
         @bridge.HoverChanged(_) => ([], model)
-        @bridge.TransformChanged(id~, translation~, rotation~) =>
+        @bridge.TransformChanged(id~, translation~, rotation~, scale~) =>
           match model.selected_entity() {
-            Some(entity) if model.selected_entity_id == Some(id) => {
-              let transform : @editor_bridge.Transform2dComponent = component_of(
-                entity, "Transform2d",
-              ).unwrap_or(@editor_bridge.transform2d_value())
+            Some(_) if model.selected_entity_id == Some(id) => {
               let next = update_selected_component(
                 model,
                 @editor_bridge.transform2d_component(
                   translation~,
                   rotation~,
-                  scale=transform.scale,
+                  scale~,
                 ),
               )
               apply_scene_change(model, next)
@@ -2632,6 +2638,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       }
     SetTool(tool) => {
       let next = { ..model, active_tool: tool }
+      (sync_preview_effects(next), next)
+    }
+    SetPivotMode(mode) => {
+      let next = { ..model, pivot_mode: mode }
       (sync_preview_effects(next), next)
     }
     FrameSelection =>

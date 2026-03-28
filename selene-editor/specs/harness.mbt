@@ -28,6 +28,7 @@ fn FakePreviewBridge::apply(
     @bridge.LoadScene(payload) => self.current_scene = Some(payload.scene)
     @bridge.SelectEntity(id) => self.selected_entity_id = id
     @bridge.SetTool(_) => ()
+    @bridge.SetPivotMode(_) => ()
     @bridge.FrameSelection => ()
   }
 }

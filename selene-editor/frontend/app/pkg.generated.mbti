@@ -23,6 +23,8 @@ pub fn msg_add_text_entity() -> Msg
 
 pub fn msg_animation_loaded(Result[@shared.AnimationLoadResponse, String]) -> Msg
 
+pub fn msg_asset_image_load_failed(String) -> Msg
+
 pub fn msg_asset_size_resolved(String, Double, Double) -> Msg
 
 pub fn msg_assets_loaded(Result[@shared.AssetsListResponse, String]) -> Msg
@@ -93,9 +95,13 @@ pub fn msg_select_resource(ResourceSelection?) -> Msg
 
 pub fn msg_service_event(Result[@shared.EditorEvent, String]) -> Msg
 
+pub fn msg_set_asset_query(String) -> Msg
+
 pub fn msg_set_current_scene_as_startup() -> Msg
 
 pub fn msg_set_hover_hint(String?) -> Msg
+
+pub fn msg_set_pivot_mode(@shared.PreviewPivotMode) -> Msg
 
 pub fn msg_set_project_name_input(String) -> Msg
 
@@ -197,6 +203,8 @@ pub struct Model {
   scene : @editor_bridge.SceneDocument?
   assets : Array[@editor_bridge.AssetDocument]
   asset_sizes : Map[String, @editor_bridge.Vec2Doc]
+  asset_query : String
+  failed_image_assets : Map[String, Bool]
   prefab_documents : Map[String, @editor_bridge.PrefabDocument]
   atlas_documents : Map[String, @editor_bridge.AtlasAssetDocument]
   animation_documents : Map[String, @editor_bridge.AnimationAssetDocument]
@@ -215,7 +223,10 @@ pub struct Model {
   logs : Array[String]
   status : String
   active_tool : @shared.PreviewTool
+  pivot_mode : @shared.PreviewPivotMode
 }
+pub fn Model::asset_matches_query(Self, String, String) -> Bool
+pub fn Model::asset_query_normalized(Self) -> String
 pub fn Model::asset_size(Self, String) -> @editor_bridge.Vec2Doc?
 pub fn Model::image_assets(Self) -> Array[@editor_bridge.AssetDocument]
 pub fn Model::selected_animation_document(Self) -> (String, @editor_bridge.AnimationAssetDocument)?
@@ -244,6 +255,8 @@ pub enum Msg {
   AtlasLoaded(Result[@shared.AtlasLoadResponse, String])
   AnimationLoaded(Result[@shared.AnimationLoadResponse, String])
   AssetSizeResolved(String, Double, Double)
+  AssetImageLoadFailed(String)
+  SetAssetQuery(String)
   SceneSaved(Result[Unit, String])
   ServiceEvent(Result[@shared.EditorEvent, String])
   PreviewEvent(@bridge.PreviewEvent)
@@ -300,6 +313,7 @@ pub enum Msg {
   AddTextEntity
   DeleteSelected
   SetTool(@shared.PreviewTool)
+  SetPivotMode(@shared.PreviewPivotMode)
   FrameSelection
 }
 

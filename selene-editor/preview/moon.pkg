@@ -1,6 +1,7 @@
 import {
   "Milky2018/selene/editor_bridge",
   "Milky2018/selene_editor/preview/bridge",
+  "moonbitlang/core/math" @cmath,
   "Milky2018/selene/app",
   "Milky2018/selene/camera",
   "Milky2018/selene/ecs",

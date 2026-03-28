@@ -49,7 +49,8 @@ pub enum PreviewEvent {
   TransformChanged(
     id~ : String,
     translation~ : @editor_bridge.Vec2Doc,
-    rotation~ : Double
+    rotation~ : Double,
+    scale~ : @editor_bridge.Vec2Doc
   )
 } derive(Show, Eq)
 
@@ -60,6 +61,7 @@ pub enum PreviewCommand {
   LoadScene(PreviewScenePayload)
   SelectEntity(String?)
   SetTool(@shared.PreviewTool)
+  SetPivotMode(@shared.PreviewPivotMode)
   FrameSelection
 } derive(Show, Eq)
 
@@ -78,8 +80,9 @@ pub fn preview_event_transform_changed(
   id : String,
   translation : @editor_bridge.Vec2Doc,
   rotation : Double,
+  scale : @editor_bridge.Vec2Doc,
 ) -> PreviewEvent {
-  TransformChanged(id~, translation~, rotation~)
+  TransformChanged(id~, translation~, rotation~, scale~)
 }
 
 ///|
@@ -107,6 +110,13 @@ pub fn preview_command_select_entity(id : String?) -> PreviewCommand {
 ///|
 pub fn preview_command_set_tool(tool : @shared.PreviewTool) -> PreviewCommand {
   SetTool(tool)
+}
+
+///|
+pub fn preview_command_set_pivot_mode(
+  mode : @shared.PreviewPivotMode,
+) -> PreviewCommand {
+  SetPivotMode(mode)
 }
 
 ///|

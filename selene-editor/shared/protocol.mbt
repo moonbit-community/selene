@@ -269,6 +269,12 @@ pub enum PreviewTool {
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
+pub enum PreviewPivotMode {
+  TransformOrigin
+  BoundsCenter
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
 pub fn preview_tool_select() -> PreviewTool {
   Select
 }
@@ -286,6 +292,16 @@ pub fn preview_tool_rotate() -> PreviewTool {
 ///|
 pub fn preview_tool_scale() -> PreviewTool {
   Scale
+}
+
+///|
+pub fn preview_pivot_mode_transform_origin() -> PreviewPivotMode {
+  TransformOrigin
+}
+
+///|
+pub fn preview_pivot_mode_bounds_center() -> PreviewPivotMode {
+  BoundsCenter
 }
 
 ///|

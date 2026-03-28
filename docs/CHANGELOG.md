@@ -34,7 +34,9 @@
 - Changed `selene-editor` source workflow to use a local `justfile` as the only documented entrypoint for `build`, `run`, `dev`, `check`, and `test`, removing the redundant frontend build shell script.
 - Changed `selene-editor` service startup to accept a configurable listening port via `--port`, and wired `just run` / `just dev` to forward an optional custom port argument without requiring users to free the default port first.
 - Changed `selene-editor` to import `Milky2018/selene/editor_bridge` for project/scene JSON documents, validation, patching, file IO, and preview scene instantiation instead of keeping its own duplicated scene-loading and scene-compilation logic.
+- Changed `selene-editor` preview transform event payloads to carry full `Transform2d` data (`translation`, `rotation`, `scale`), so viewport tool edits no longer need frontend-side scale inference.
 - Changed `selene-editor` runtime so it no longer invokes `moon` to build itself or to operate on user projects; the editor now treats projects purely as JSON documents plus referenced assets.
+- Changed `selene-editor` viewport editing state to include explicit pivot mode (`Transform Origin` / `Bounds Center`) and synchronize that mode through preview commands.
 - Changed `selene-editor` package imports and published module name from `Milky2018/selene-editor` to `Milky2018/selene_editor`, while keeping the workspace directory name unchanged.
 - Changed `selene-editor` frontend architecture to split the pure `frontend/app` state machine from the Rabbita/JS adapter.
 - Changed `selene-editor` service architecture to expose `service/core` RPC and event entrypoints for integration-style testing.
@@ -45,6 +47,9 @@
 ### Fixed
 
 - Fixed `selene-editor` viewport interaction mapping by normalizing mouse position/movement to the runtime viewport size, so viewport picking, transform dragging, and camera pan behave consistently when the canvas is CSS-scaled.
+- Fixed `selene-editor` viewport tools so `Rotate` and `Scale` now perform direct drag editing in preview runtime (instead of only toggling button state), and `Translate`/`Rotate`/`Scale` all share a stable drag deadzone model.
+- Fixed `selene-editor` preview hit-testing and selection overlay bounds to account for `Transform2d.scale`, improving picking accuracy after scale edits.
+- Fixed `selene-editor` rotate tool UX by adding `Shift`-based 15° snapping and a visible pivot marker overlay in the viewport during selection/editing.
 - Fixed `selene-editor` camera pan behavior so middle-button click no longer causes an immediate pan jump; panning now starts from an explicit press anchor and only moves while dragging.
 - Fixed `selene-editor` camera middle-drag pan direction consistency on both axes in the preview runtime.
 - Fixed `selene-editor` viewport rendering distortion by enforcing a stable 16:9 canvas aspect layout instead of stretching the canvas to arbitrary panel proportions.

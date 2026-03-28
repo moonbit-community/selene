@@ -348,6 +348,7 @@ fn run_preview_command(command : @bridge.PreviewCommand) -> Unit {
     @bridge.PreviewCommand::LoadScene(scene) => @preview.load_scene(scene)
     @bridge.PreviewCommand::SelectEntity(id) => @preview.select_entity(id)
     @bridge.PreviewCommand::SetTool(tool) => @preview.set_tool(tool)
+    @bridge.PreviewCommand::SetPivotMode(mode) => @preview.set_pivot_mode(mode)
     @bridge.PreviewCommand::FrameSelection => @preview.frame_selection()
   }
 }
@@ -1379,6 +1380,26 @@ fn toolbar_button(
 }
 
 ///|
+fn pivot_mode_button(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  current : @shared.PreviewPivotMode,
+  mode : @shared.PreviewPivotMode,
+  label : String,
+  icon : String,
+) -> @rabbita.Html {
+  @html.button(
+    class=if current == mode {
+      "small-button icon-button active"
+    } else {
+      "small-button icon-button"
+    },
+    on_click=dispatch(@app.msg_set_pivot_mode(mode)),
+    attrs=hint_attrs(dispatch, label),
+    @html.span(class="icon-glyph", icon),
+  )
+}
+
+///|
 fn action_button(
   dispatch : @rabbita.Dispatch[@app.Msg],
   label : String,
@@ -1578,7 +1599,7 @@ fn view(
             dispatch,
             model.active_tool,
             @shared.preview_tool_rotate(),
-            "Rotate",
+            "Rotate (Hold Shift for 15° snap)",
             "⟳",
           ),
           toolbar_button(
@@ -1587,6 +1608,20 @@ fn view(
             @shared.preview_tool_scale(),
             "Scale",
             "⬚",
+          ),
+          pivot_mode_button(
+            dispatch,
+            model.pivot_mode,
+            @shared.preview_pivot_mode_transform_origin(),
+            "Pivot: Transform Origin",
+            "◎",
+          ),
+          pivot_mode_button(
+            dispatch,
+            model.pivot_mode,
+            @shared.preview_pivot_mode_bounds_center(),
+            "Pivot: Bounds Center",
+            "◫",
           ),
         ]),
       ]),

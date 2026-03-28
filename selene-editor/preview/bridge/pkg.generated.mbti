@@ -21,13 +21,15 @@ pub fn preview_command_load_scene(PreviewScenePayload) -> PreviewCommand
 
 pub fn preview_command_select_entity(String?) -> PreviewCommand
 
+pub fn preview_command_set_pivot_mode(@shared.PreviewPivotMode) -> PreviewCommand
+
 pub fn preview_command_set_tool(@shared.PreviewTool) -> PreviewCommand
 
 pub fn preview_event_entity_picked(String?) -> PreviewEvent
 
 pub fn preview_event_hover_changed(String?) -> PreviewEvent
 
-pub fn preview_event_transform_changed(String, @editor_bridge.Vec2Doc, Double) -> PreviewEvent
+pub fn preview_event_transform_changed(String, @editor_bridge.Vec2Doc, Double, @editor_bridge.Vec2Doc) -> PreviewEvent
 
 pub fn preview_scene_payload(@editor_bridge.SceneDocument, Array[AtlasAssetEntry], Array[AnimationAssetEntry]) -> PreviewScenePayload
 
@@ -54,6 +56,7 @@ pub enum PreviewCommand {
   LoadScene(PreviewScenePayload)
   SelectEntity(String?)
   SetTool(@shared.PreviewTool)
+  SetPivotMode(@shared.PreviewPivotMode)
   FrameSelection
 }
 pub impl Eq for PreviewCommand
@@ -62,7 +65,7 @@ pub impl Show for PreviewCommand
 pub enum PreviewEvent {
   EntityPicked(String?)
   HoverChanged(String?)
-  TransformChanged(id~ : String, translation~ : @editor_bridge.Vec2Doc, rotation~ : Double)
+  TransformChanged(id~ : String, translation~ : @editor_bridge.Vec2Doc, rotation~ : Double, scale~ : @editor_bridge.Vec2Doc)
 }
 pub impl Eq for PreviewEvent
 pub impl Show for PreviewEvent

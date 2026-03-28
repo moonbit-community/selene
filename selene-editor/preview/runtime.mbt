@@ -1,4 +1,14 @@
 ///|
+priv struct ToolDragState {
+  entity_id : String
+  tool : @shared.PreviewTool
+  anchor_world : @math.Vec2D
+  anchor_pointer : @math.Vec2D
+  pivot_world : @math.Vec2D
+  start_transform : @editor_bridge.Transform2dComponent
+}
+
+///|
 priv struct PreviewState {
   mut bootstrapped : Bool
   mut pending_scene : @bridge.PreviewScenePayload?
@@ -7,11 +17,12 @@ priv struct PreviewState {
   mut selected_entity_id : String?
   mut hovered_entity_id : String?
   mut active_tool : @shared.PreviewTool
+  mut pivot_mode : @shared.PreviewPivotMode
   mut camera_entity : @entity.Entity?
   mut selection_overlay : @entity.Entity?
+  mut pivot_overlay : @entity.Entity?
   mut pending_frame_selection : Bool
-  mut drag_anchor : (@math.Vec2D, String)?
-  mut drag_pointer_anchor : @math.Vec2D?
+  mut tool_drag : ToolDragState?
   mut camera_pan_anchor : @math.Vec2D?
   mut event_sink : ((@bridge.PreviewEvent) -> Unit)?
 }
@@ -26,11 +37,12 @@ fn PreviewState::new() -> PreviewState {
     selected_entity_id: None,
     hovered_entity_id: None,
     active_tool: @shared.preview_tool_select(),
+    pivot_mode: @shared.preview_pivot_mode_transform_origin(),
     camera_entity: None,
     selection_overlay: None,
+    pivot_overlay: None,
     pending_frame_selection: false,
-    drag_anchor: None,
-    drag_pointer_anchor: None,
+    tool_drag: None,
     camera_pan_anchor: None,
     event_sink: None,
   }
@@ -97,6 +109,45 @@ fn mouse_to_viewport_delta(delta : @math.Vec2D) -> @math.Vec2D {
 }
 
 ///|
+fn pointer_drag_started(anchor : @math.Vec2D) -> Bool {
+  let delta = @inputs.mouse.pos - anchor
+  delta[X].abs() >= 1.0 || delta[Y].abs() >= 1.0
+}
+
+///|
+fn point_angle(center : @math.Vec2D, point : @math.Vec2D) -> Double {
+  @cmath.atan2(point[Y] - center[Y], point[X] - center[X])
+}
+
+///|
+fn shortest_angle_delta(start : Double, current : Double) -> Double {
+  let raw = current - start
+  if raw > @cmath.PI {
+    raw - @cmath.PI * 2.0
+  } else if raw < -@cmath.PI {
+    raw + @cmath.PI * 2.0
+  } else {
+    raw
+  }
+}
+
+///|
+fn distance_between(a : @math.Vec2D, b : @math.Vec2D) -> Double {
+  a.distance_to(b)
+}
+
+///|
+fn clamp_scale_value(value : Double) -> Double {
+  if value < 0.05 {
+    0.05
+  } else if value > 4096.0 {
+    4096.0
+  } else {
+    value
+  }
+}
+
+///|
 fn resolve_project_asset_path(path : String?) -> String? {
   path.map(fn(value) {
     if value.has_prefix("/") ||
@@ -145,6 +196,11 @@ pub fn set_tool(tool : @shared.PreviewTool) -> Unit {
 }
 
 ///|
+pub fn set_pivot_mode(mode : @shared.PreviewPivotMode) -> Unit {
+  preview_state.pivot_mode = mode
+}
+
+///|
 pub fn frame_selection() -> Unit {
   preview_state.pending_frame_selection = true
 }
@@ -156,6 +212,7 @@ fn clear_runtime_scene() -> Unit {
     None => ()
   }
   preview_state.runtime_scene = None
+  preview_state.tool_drag = None
 }
 
 ///|
@@ -242,10 +299,14 @@ fn overlay_bounds() -> (@math.Vec2D, @math.Vec2D)? {
       }
     })
     let size = @editor_bridge.sprite_doc_size(sprite_data, atlas_data)
+    let scaled_width = size.x * transform.scale.x.abs()
+    let scaled_height = size.y * transform.scale.y.abs()
     let anchor = sprite_data.anchor
-    let min_x = transform.translation.x - size.x * (anchor.x + 0.5)
-    let min_y = transform.translation.y - size.y * (0.5 - anchor.y)
-    return Some((@math.Vec2D(min_x, min_y), @math.Vec2D(size.x, size.y)))
+    let min_x = transform.translation.x - scaled_width * (anchor.x + 0.5)
+    let min_y = transform.translation.y - scaled_height * (0.5 - anchor.y)
+    return Some(
+      (@math.Vec2D(min_x, min_y), @math.Vec2D(scaled_width, scaled_height)),
+    )
   }
   if document.component("Text2d") is Some(component) {
     let text_data : @editor_bridge.Text2dComponent = match
@@ -264,9 +325,15 @@ fn overlay_bounds() -> (@math.Vec2D, @math.Vec2D)? {
         text_data.font_size * 1.4,
       ),
     )
-    let min_x = transform.translation.x - size.x * (text_data.anchor.x + 0.5)
-    let min_y = transform.translation.y - size.y * (0.5 - text_data.anchor.y)
-    return Some((@math.Vec2D(min_x, min_y), @math.Vec2D(size.x, size.y)))
+    let scaled_width = size.x * transform.scale.x.abs()
+    let scaled_height = size.y * transform.scale.y.abs()
+    let min_x = transform.translation.x -
+      scaled_width * (text_data.anchor.x + 0.5)
+    let min_y = transform.translation.y -
+      scaled_height * (0.5 - text_data.anchor.y)
+    return Some(
+      (@math.Vec2D(min_x, min_y), @math.Vec2D(scaled_width, scaled_height)),
+    )
   }
   if document.component("Mesh2d") is Some(component) {
     let mesh_data : @editor_bridge.Mesh2dComponent = match
@@ -285,11 +352,39 @@ fn overlay_bounds() -> (@math.Vec2D, @math.Vec2D)? {
           mesh_data.size.unwrap_or(@editor_bridge.vec2_doc(32.0, 32.0)).y,
         )
     }
-    let min_x = transform.translation.x - size[X] * 0.5
-    let min_y = transform.translation.y - size[Y] * 0.5
-    return Some((@math.Vec2D(min_x, min_y), size))
+    let scaled_width = size[X] * transform.scale.x.abs()
+    let scaled_height = size[Y] * transform.scale.y.abs()
+    let min_x = transform.translation.x - scaled_width * 0.5
+    let min_y = transform.translation.y - scaled_height * 0.5
+    return Some(
+      (@math.Vec2D(min_x, min_y), @math.Vec2D(scaled_width, scaled_height)),
+    )
   }
   None
+}
+
+///|
+fn selected_pivot_world() -> @math.Vec2D? {
+  guard preview_state.current_scene is Some(scene) else { return None }
+  guard preview_state.selected_entity_id is Some(id) else { return None }
+  guard scene.entity(id) is Some(document) else { return None }
+  let transform = @editor_bridge.decoded_transform(document)
+  match preview_state.pivot_mode {
+    @shared.TransformOrigin =>
+      Some(@math.Vec2D(transform.translation.x, transform.translation.y))
+    @shared.BoundsCenter =>
+      match overlay_bounds() {
+        Some((position, size)) =>
+          Some(
+            @math.Vec2D(
+              position[X] + size[X] * 0.5,
+              position[Y] + size[Y] * 0.5,
+            ),
+          )
+        None =>
+          Some(@math.Vec2D(transform.translation.x, transform.translation.y))
+      }
+  }
 }
 
 ///|
@@ -310,6 +405,30 @@ fn apply_selection_overlay() -> Unit {
         overlay,
         @sprite.Sprite::from_color(
           @render.Color::{ r: 255U, g: 220U, b: 64U, a: 0.18 },
+          @math.Vec2D(1.0, 1.0),
+        ),
+      )
+    }
+    None => @visibility.visibilities().set(overlay, @visibility.Hidden)
+  }
+}
+
+///|
+fn apply_pivot_overlay() -> Unit {
+  guard preview_state.pivot_overlay is Some(overlay) else { return }
+  match selected_pivot_world() {
+    Some(position) => {
+      @visibility.visibilities().set(overlay, @visibility.Visible)
+      @transform.transforms().set(
+        overlay,
+        @transform.Transform::from_xyz(position[X], position[Y], 12.0).with_scale(
+          @math.Vec3::new(8.0, 8.0, 1.0),
+        ),
+      )
+      @sprite.sprites().set(
+        overlay,
+        @sprite.Sprite::from_color(
+          @render.Color::{ r: 96U, g: 220U, b: 255U, a: 0.9 },
           @math.Vec2D(1.0, 1.0),
         ),
       )
@@ -396,13 +515,15 @@ fn pick_entity_id_at(point : @math.Vec2D) -> String? {
         }
       })
       let size = @editor_bridge.sprite_doc_size(sprite_data, atlas_size)
+      let scaled_width = size.x * transform.scale.x.abs()
+      let scaled_height = size.y * transform.scale.y.abs()
       let anchor = sprite_data.anchor
-      let min_x = transform.translation.x - size.x * (anchor.x + 0.5)
-      let min_y = transform.translation.y - size.y * (0.5 - anchor.y)
+      let min_x = transform.translation.x - scaled_width * (anchor.x + 0.5)
+      let min_y = transform.translation.y - scaled_height * (0.5 - anchor.y)
       if point[X] >= min_x &&
-        point[X] <= min_x + size.x &&
+        point[X] <= min_x + scaled_width &&
         point[Y] >= min_y &&
-        point[Y] <= min_y + size.y {
+        point[Y] <= min_y + scaled_height {
         return Some(document.id)
       }
     } else if document.component("Mesh2d") is Some(component) {
@@ -413,7 +534,8 @@ fn pick_entity_id_at(point : @math.Vec2D) -> String? {
       }
       match mesh_data.primitive {
         "circle" => {
-          let radius = mesh_data.radius.unwrap_or(16.0)
+          let radius = mesh_data.radius.unwrap_or(16.0) *
+            transform.scale.x.abs()
           let center = @math.Vec2D(
             transform.translation.x,
             transform.translation.y,
@@ -426,12 +548,14 @@ fn pick_entity_id_at(point : @math.Vec2D) -> String? {
           let size = mesh_data.size.unwrap_or(
             @editor_bridge.vec2_doc(32.0, 32.0),
           )
-          let min_x = transform.translation.x - size.x * 0.5
-          let min_y = transform.translation.y - size.y * 0.5
+          let scaled_width = size.x * transform.scale.x.abs()
+          let scaled_height = size.y * transform.scale.y.abs()
+          let min_x = transform.translation.x - scaled_width * 0.5
+          let min_y = transform.translation.y - scaled_height * 0.5
           if point[X] >= min_x &&
-            point[X] <= min_x + size.x &&
+            point[X] <= min_x + scaled_width &&
             point[Y] >= min_y &&
-            point[Y] <= min_y + size.y {
+            point[Y] <= min_y + scaled_height {
             return Some(document.id)
           }
         }
@@ -490,6 +614,20 @@ fn preview_startup_system(_world : @ecs.World) -> Unit {
       @math.Vec2D(1.0, 1.0),
     ),
   )
+  let pivot_overlay = @entity.Entity::new()
+  preview_state.pivot_overlay = Some(pivot_overlay)
+  @transform.transforms().set(
+    pivot_overlay,
+    @transform.Transform::from_xyz(0.0, 0.0, 12.0),
+  )
+  @visibility.visibilities().set(pivot_overlay, @visibility.Hidden)
+  @sprite.sprites().set(
+    pivot_overlay,
+    @sprite.Sprite::from_color(
+      @render.Color::{ r: 96U, g: 220U, b: 255U, a: 0.9 },
+      @math.Vec2D(1.0, 1.0),
+    ),
+  )
 }
 
 ///|
@@ -498,8 +636,10 @@ fn preview_scene_sync_system(_world : @ecs.World) -> Unit {
     spawn_scene_entities(payload)
     preview_state.current_scene = Some(payload.scene)
     preview_state.pending_scene = None
+    preview_state.tool_drag = None
   }
   apply_selection_overlay()
+  apply_pivot_overlay()
   frame_selection_impl()
 }
 
@@ -561,9 +701,72 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
     match preview_state.active_tool {
       @shared.Translate =>
         if preview_state.selected_entity_id is Some(selected) &&
-          hovered == Some(selected) {
-          preview_state.drag_anchor = Some((world_point, selected))
-          preview_state.drag_pointer_anchor = Some(@inputs.mouse.pos)
+          hovered == Some(selected) &&
+          preview_state.runtime_scene is Some(scene) &&
+          scene.entity_ids.contains(selected) {
+          let start_transform = entity_transform2d(scene.entity_ids[selected])
+          let pivot_world = selected_pivot_world().unwrap_or(
+            @math.Vec2D(
+              start_transform.translation.x,
+              start_transform.translation.y,
+            ),
+          )
+          preview_state.tool_drag = Some({
+            entity_id: selected,
+            tool: @shared.preview_tool_translate(),
+            anchor_world: world_point,
+            anchor_pointer: @inputs.mouse.pos,
+            pivot_world,
+            start_transform,
+          })
+        } else {
+          preview_state.selected_entity_id = hovered
+          emit_preview_event(@bridge.preview_event_entity_picked(hovered))
+        }
+      @shared.Rotate =>
+        if preview_state.selected_entity_id is Some(selected) &&
+          hovered == Some(selected) &&
+          preview_state.runtime_scene is Some(scene) &&
+          scene.entity_ids.contains(selected) {
+          let start_transform = entity_transform2d(scene.entity_ids[selected])
+          let pivot_world = selected_pivot_world().unwrap_or(
+            @math.Vec2D(
+              start_transform.translation.x,
+              start_transform.translation.y,
+            ),
+          )
+          preview_state.tool_drag = Some({
+            entity_id: selected,
+            tool: @shared.preview_tool_rotate(),
+            anchor_world: world_point,
+            anchor_pointer: @inputs.mouse.pos,
+            pivot_world,
+            start_transform,
+          })
+        } else {
+          preview_state.selected_entity_id = hovered
+          emit_preview_event(@bridge.preview_event_entity_picked(hovered))
+        }
+      @shared.Scale =>
+        if preview_state.selected_entity_id is Some(selected) &&
+          hovered == Some(selected) &&
+          preview_state.runtime_scene is Some(scene) &&
+          scene.entity_ids.contains(selected) {
+          let start_transform = entity_transform2d(scene.entity_ids[selected])
+          let pivot_world = selected_pivot_world().unwrap_or(
+            @math.Vec2D(
+              start_transform.translation.x,
+              start_transform.translation.y,
+            ),
+          )
+          preview_state.tool_drag = Some({
+            entity_id: selected,
+            tool: @shared.preview_tool_scale(),
+            anchor_world: world_point,
+            anchor_pointer: @inputs.mouse.pos,
+            pivot_world,
+            start_transform,
+          })
         } else {
           preview_state.selected_entity_id = hovered
           emit_preview_event(@bridge.preview_event_entity_picked(hovered))
@@ -574,31 +777,82 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
       }
     }
   }
-  if @inputs.is_mouse_just_released(@inputs.MouseButton::Left) {
-    preview_state.drag_anchor = None
-    preview_state.drag_pointer_anchor = None
+  if @inputs.is_mouse_just_released(@inputs.MouseButton::Left) ||
+    !@inputs.mouse.left_button {
+    preview_state.tool_drag = None
   }
-  if preview_state.active_tool is @shared.Translate &&
-    @inputs.mouse.left_button &&
-    preview_state.drag_anchor is Some((anchor_point, entity_id)) &&
-    preview_state.drag_pointer_anchor is Some(pointer_anchor) &&
+  if @inputs.mouse.left_button &&
+    preview_state.tool_drag is Some(drag_state) &&
     preview_state.runtime_scene is Some(scene) &&
-    scene.entity_ids.contains(entity_id) {
-    let pointer_delta = @inputs.mouse.pos - pointer_anchor
-    if pointer_delta[X].abs() < 1.0 && pointer_delta[Y].abs() < 1.0 {
+    scene.entity_ids.contains(drag_state.entity_id) {
+    if !pointer_drag_started(drag_state.anchor_pointer) {
       return
     }
-    let entity = scene.entity_ids[entity_id]
-    let current = entity_transform2d(entity)
-    let delta = world_point - anchor_point
-    let next = @editor_bridge.vec2_doc(
-      current.translation.x + delta[X],
-      current.translation.y + delta[Y],
-    )
-    preview_state.drag_anchor = Some((world_point, entity_id))
-    preview_state.drag_pointer_anchor = Some(@inputs.mouse.pos)
+    let start = drag_state.start_transform
+    let next_transform = match drag_state.tool {
+      @shared.Translate => {
+        let delta = world_point - drag_state.anchor_world
+        @editor_bridge.transform2d_value(
+          translation=@editor_bridge.vec2_doc(
+            start.translation.x + delta[X],
+            start.translation.y + delta[Y],
+          ),
+          rotation=start.rotation,
+          scale=start.scale,
+        )
+      }
+      @shared.Rotate => {
+        let start_angle = point_angle(
+          drag_state.pivot_world,
+          drag_state.anchor_world,
+        )
+        let current_angle = point_angle(drag_state.pivot_world, world_point)
+        let rotation_delta = shortest_angle_delta(start_angle, current_angle)
+        let snapped_delta = if @inputs.is_pressed(@inputs.ShiftLeft) {
+          let step = @cmath.PI / 12.0
+          (rotation_delta / step).round() * step
+        } else {
+          rotation_delta
+        }
+        @editor_bridge.transform2d_value(
+          translation=start.translation,
+          rotation=start.rotation + snapped_delta,
+          scale=start.scale,
+        )
+      }
+      @shared.Scale => {
+        let start_distance = distance_between(
+          drag_state.pivot_world,
+          drag_state.anchor_world,
+        )
+        let current_distance = distance_between(
+          drag_state.pivot_world,
+          world_point,
+        )
+        let factor = if start_distance <= 0.001 {
+          1.0 + (@inputs.mouse.pos[X] - drag_state.anchor_pointer[X]) * 0.01
+        } else {
+          current_distance / start_distance
+        }
+        let clamped_factor = if factor < 0.05 { 0.05 } else { factor }
+        @editor_bridge.transform2d_value(
+          translation=start.translation,
+          rotation=start.rotation,
+          scale=@editor_bridge.vec2_doc(
+            clamp_scale_value(start.scale.x * clamped_factor),
+            clamp_scale_value(start.scale.y * clamped_factor),
+          ),
+        )
+      }
+      _ => start
+    }
     emit_preview_event(
-      @bridge.preview_event_transform_changed(entity_id, next, current.rotation),
+      @bridge.preview_event_transform_changed(
+        drag_state.entity_id,
+        next_transform.translation,
+        next_transform.rotation,
+        next_transform.scale,
+      ),
     )
   }
 }

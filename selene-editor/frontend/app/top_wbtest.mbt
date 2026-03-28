@@ -422,3 +422,50 @@ test "undo and redo restore scene document changes" {
   inspect(redone.scene.unwrap().entities.length(), content="2")
   inspect(redone.undo_stack.length() > 0, content="true")
 }
+
+///|
+test "preview transform events apply translation, rotation, and scale" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(@editor_bridge.SceneDocument::default_main()),
+    selected_entity_id: Some("camera"),
+  }
+  let (_, next) = update(
+    msg_preview_event(
+      @bridge.preview_event_transform_changed(
+        "camera",
+        @editor_bridge.vec2_doc(12.0, -8.0),
+        1.2,
+        @editor_bridge.vec2_doc(2.0, 3.0),
+      ),
+    ),
+    model,
+  )
+  let camera = next.scene.unwrap().entity("camera").unwrap()
+  let transform : @editor_bridge.Transform2dComponent = component_of(
+    camera, "Transform2d",
+  ).unwrap()
+  inspect(transform.translation.x, content="12")
+  inspect(transform.translation.y, content="-8")
+  inspect(transform.rotation, content="1.2")
+  inspect(transform.scale.x, content="2")
+  inspect(transform.scale.y, content="3")
+}
+
+///|
+test "setting pivot mode updates editor state and emits preview sync effects" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(@editor_bridge.SceneDocument::default_main()),
+  }
+  let (effects, next) = update(
+    msg_set_pivot_mode(@shared.preview_pivot_mode_bounds_center()),
+    model,
+  )
+  inspect(next.pivot_mode, content="BoundsCenter")
+  inspect(effects.length() > 0, content="true")
+}
