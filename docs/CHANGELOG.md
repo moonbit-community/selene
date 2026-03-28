@@ -4,6 +4,16 @@
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.30.0] - 2026-03-28
+
+### Added
+
 - Added scene history undo/redo in `selene-editor` with toolbar actions and keyboard shortcuts (`Cmd/Ctrl+Z`, `Shift+Cmd/Ctrl+Z`, and `Cmd/Ctrl+Y`).
 - Added a new `selene/editor_bridge` source+codec+loader stack (`DocumentSource`, typed `decode_*` APIs, and `load_project_bundle(...)`) so project/scene/dependency document loading is unified and runtime-safe across editor and examples.
 - Added `examples/pixeladventure/scene_runtime_wbtest.mbt` to verify editor-scene gameplay marker counts, terrain segment generation, and custom gameplay component registration directly from Selene editor scene documents.

@@ -807,7 +807,11 @@ fn uniform_vec2(value : @smath.Vec2D) -> @raylib.ShaderUniformData {
 ///|
 fn uniform_vec3(value : @smath.Vec3) -> @raylib.ShaderUniformData {
   @raylib.ShaderUniformData::Vec3(
-    @raylib.Vector3::new(to_float(value.x), to_float(value.y), to_float(value.z)),
+    @raylib.Vector3::new(
+      to_float(value.x),
+      to_float(value.y),
+      to_float(value.z),
+    ),
   )
 }
 
@@ -881,7 +885,10 @@ fn uniform_texture_transform_rotation(
 }
 
 ///|
-fn to_ray_vec3_array(values : Array[@smath.Vec3], count : Int) -> Array[@raylib.Vector3] {
+fn to_ray_vec3_array(
+  values : Array[@smath.Vec3],
+  count : Int,
+) -> Array[@raylib.Vector3] {
   let out : Array[@raylib.Vector3] = []
   for index in 0..<count {
     let v = values[index]
@@ -1387,11 +1394,7 @@ fn upload_lighting_uniforms(
   let ambient = frame.ambient_light
     .map(fn(light) { light_rgb(light.color, light.intensity) })
     .unwrap_or(@smath.Vec3::zero())
-  set_shader_uniform(
-    shader,
-    state.ambient_light_loc,
-    uniform_vec3(ambient),
-  )
+  set_shader_uniform(shader, state.ambient_light_loc, uniform_vec3(ambient))
   set_shader_uniform(
     shader,
     state.view_position_loc,
@@ -1432,12 +1435,16 @@ fn upload_lighting_uniforms(
   set_shader_uniform_v(
     shader,
     state.directional_directions_loc,
-    @raylib.ShaderUniformDataV::Vec3(to_ray_vec3_array(directional_directions, directional_count)),
+    @raylib.ShaderUniformDataV::Vec3(
+      to_ray_vec3_array(directional_directions, directional_count),
+    ),
   )
   set_shader_uniform_v(
     shader,
     state.directional_colors_loc,
-    @raylib.ShaderUniformDataV::Vec3(to_ray_vec3_array(directional_colors, directional_count)),
+    @raylib.ShaderUniformDataV::Vec3(
+      to_ray_vec3_array(directional_colors, directional_count),
+    ),
   )
   for index in 0..<MAX_DIRECTIONAL_LIGHTS {
     let shadow = match shadow_state {
@@ -1513,20 +1520,20 @@ fn upload_lighting_uniforms(
     point_colors.push(light_rgb(light.color, light.intensity))
     point_ranges.push(light.range)
   }
-  set_shader_uniform(
-    shader,
-    state.point_count_loc,
-    uniform_int(point_count),
-  )
+  set_shader_uniform(shader, state.point_count_loc, uniform_int(point_count))
   set_shader_uniform_v(
     shader,
     state.point_positions_loc,
-    @raylib.ShaderUniformDataV::Vec3(to_ray_vec3_array(point_positions, point_count)),
+    @raylib.ShaderUniformDataV::Vec3(
+      to_ray_vec3_array(point_positions, point_count),
+    ),
   )
   set_shader_uniform_v(
     shader,
     state.point_colors_loc,
-    @raylib.ShaderUniformDataV::Vec3(to_ray_vec3_array(point_colors, point_count)),
+    @raylib.ShaderUniformDataV::Vec3(
+      to_ray_vec3_array(point_colors, point_count),
+    ),
   )
   set_shader_uniform_v(
     shader,
@@ -1556,20 +1563,20 @@ fn upload_lighting_uniforms(
       ),
     )
   }
-  set_shader_uniform(
-    shader,
-    state.spot_count_loc,
-    uniform_int(spot_count),
-  )
+  set_shader_uniform(shader, state.spot_count_loc, uniform_int(spot_count))
   set_shader_uniform_v(
     shader,
     state.spot_positions_loc,
-    @raylib.ShaderUniformDataV::Vec3(to_ray_vec3_array(spot_positions, spot_count)),
+    @raylib.ShaderUniformDataV::Vec3(
+      to_ray_vec3_array(spot_positions, spot_count),
+    ),
   )
   set_shader_uniform_v(
     shader,
     state.spot_directions_loc,
-    @raylib.ShaderUniformDataV::Vec3(to_ray_vec3_array(spot_directions, spot_count)),
+    @raylib.ShaderUniformDataV::Vec3(
+      to_ray_vec3_array(spot_directions, spot_count),
+    ),
   )
   set_shader_uniform_v(
     shader,
@@ -3919,29 +3926,21 @@ fn draw_triangle_vertices(
   }
   @raylib.begin_shader_mode(state.shader)
   @rl.active_texture_slot(0)
-  @rl.enable_texture(
-    @raylib.get_texture_id(effective_bundle.base_texture),
-  )
+  @rl.enable_texture(@raylib.get_texture_id(effective_bundle.base_texture))
   @rl.active_texture_slot(1)
   @rl.enable_texture(
     @raylib.get_texture_id(effective_bundle.metallic_roughness_texture),
   )
   @rl.active_texture_slot(2)
-  @rl.enable_texture(
-    @raylib.get_texture_id(effective_bundle.normal_texture),
-  )
+  @rl.enable_texture(@raylib.get_texture_id(effective_bundle.normal_texture))
   @rl.active_texture_slot(3)
   @rl.enable_texture(
     @raylib.get_texture_id(effective_bundle.metallic_roughness_texture),
   )
   @rl.active_texture_slot(4)
-  @rl.enable_texture(
-    @raylib.get_texture_id(effective_bundle.occlusion_texture),
-  )
+  @rl.enable_texture(@raylib.get_texture_id(effective_bundle.occlusion_texture))
   @rl.active_texture_slot(5)
-  @rl.enable_texture(
-    @raylib.get_texture_id(effective_bundle.emissive_texture),
-  )
+  @rl.enable_texture(@raylib.get_texture_id(effective_bundle.emissive_texture))
   @rl.active_texture_slot(0)
   bind_shadow_textures(shadow_state)
   @rl.begin(@rl.Triangles)

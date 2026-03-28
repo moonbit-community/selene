@@ -791,7 +791,11 @@ fn create_directional_shadow_render_texture(
   let depth_tex_id = @rl.load_texture_depth(width, height, false)
   @rl.framebuffer_attach(fbo_id, depth_tex_id, 100, 100, 0)
   ignore(@rl.framebuffer_complete(fbo_id))
-  let render_texture = @raylib.RenderTexture::new(fbo_id, @raylib.Texture::new(0U, width, height, 1, 7), @raylib.Texture::new(depth_tex_id, width, height, 1, 19))
+  let render_texture = @raylib.RenderTexture::new(
+    fbo_id,
+    @raylib.Texture::new(0U, width, height, 1, 7),
+    @raylib.Texture::new(depth_tex_id, width, height, 1, 19),
+  )
   let depth_id = @raylib.get_render_texture_depth_id(render_texture)
   if render_texture.id() == 0U || depth_id == 0U {
     warn_texture_issue(
@@ -800,7 +804,13 @@ fn create_directional_shadow_render_texture(
     render_texture.unload()
     return None
   }
-  let depth_texture = @raylib.Texture::new(depth_id, width, height, 1, @raylib.PixelformatUncompressedR8g8b8a8)
+  let depth_texture = @raylib.Texture::new(
+    depth_id,
+    width,
+    height,
+    1,
+    @raylib.PixelformatUncompressedR8g8b8a8,
+  )
   @raylib.set_texture_filter(depth_texture, @raylib.TextureFilterPoint)
   @raylib.set_texture_wrap(depth_texture, @raylib.TextureWrapClamp)
   Some(render_texture)
@@ -1051,9 +1061,7 @@ fn draw_shadow_triangle_mesh(
   @raylib.begin_shader_mode(state.shader)
   if base_source is Some(source) {
     @rl.active_texture_slot(0)
-    @rl.enable_texture(
-      @raylib.get_texture_id(source.texture),
-    )
+    @rl.enable_texture(@raylib.get_texture_id(source.texture))
     @rl.active_texture_slot(0)
   }
   @rl.begin(@rl.Triangles)
