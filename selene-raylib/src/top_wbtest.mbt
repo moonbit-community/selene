@@ -59,6 +59,30 @@ test "raylib lighting shader falls back to scalar factors when no textures are b
     content="true",
   )
   inspect(
+    raylib_lighting_fragment_shader.contains("uniform sampler2D texture3;"),
+    content="true",
+  )
+  inspect(
+    !raylib_lighting_fragment_shader.contains("materialHasRoughnessTexture"),
+    content="true",
+  )
+  inspect(
+    raylib_lighting_fragment_shader.contains(
+      "vec4 roughnessSample = texture(texture3, metallicRoughnessUv);",
+    ),
+    content="true",
+  )
+  inspect(
+    raylib_lighting_fragment_shader.contains(
+      "float roughness = clamp(materialRoughness * roughnessSample.g, 0.089, 1.0);",
+    ),
+    content="true",
+  )
+  inspect(
+    !raylib_lighting_fragment_shader.contains("roughnessUv"),
+    content="true",
+  )
+  inspect(
     raylib_lighting_fragment_shader.contains(
       "if (materialHasNormalTexture != 0) normal = applyNormalMap(normal, fragPosition, normalUv);",
     ),
@@ -85,6 +109,51 @@ test "raylib lighting texture units upload as int uniforms for raylib compatibil
     @raylib.ShaderUniformData::Int(slot) => inspect(slot, content="3")
     _ => fail("expected int uniform data for texture unit")
   }
+}
+
+///|
+test "raylib material texture slot bindings stay complete for texture0..texture5" {
+  let bindings = material_texture_slot_bindings()
+  inspect(bindings.length(), content="6")
+  inspect(bindings[0].uniform_name, content="texture0")
+  inspect(bindings[0].slot, content="0")
+  inspect(bindings[0].shader_loc == @raylib.ShaderLocMapAlbedo, content="true")
+  inspect(bindings[0].material_map == @raylib.MaterialMapAlbedo, content="true")
+  inspect(bindings[1].uniform_name, content="texture1")
+  inspect(bindings[1].slot, content="1")
+  inspect(
+    bindings[1].shader_loc == @raylib.ShaderLocMapMetalness,
+    content="true",
+  )
+  inspect(
+    bindings[1].material_map == @raylib.MaterialMapMetalness,
+    content="true",
+  )
+  inspect(bindings[2].uniform_name, content="texture2")
+  inspect(bindings[2].slot, content="2")
+  inspect(bindings[2].shader_loc == @raylib.ShaderLocMapNormal, content="true")
+  inspect(bindings[2].material_map == @raylib.MaterialMapNormal, content="true")
+  inspect(bindings[3].uniform_name, content="texture3")
+  inspect(bindings[3].slot, content="3")
+  inspect(
+    bindings[3].shader_loc == @raylib.ShaderLocMapRoughness,
+    content="true",
+  )
+  inspect(bindings[3].material_map == @raylib.MaterialMapRoughness, content="true")
+  inspect(bindings[4].uniform_name, content="texture4")
+  inspect(bindings[4].slot, content="4")
+  inspect(
+    bindings[4].shader_loc == @raylib.ShaderLocMapOcclusion,
+    content="true",
+  )
+  inspect(bindings[4].material_map == @raylib.MaterialMapOcclusion, content="true")
+  inspect(bindings[5].uniform_name, content="texture5")
+  inspect(bindings[5].slot, content="5")
+  inspect(
+    bindings[5].shader_loc == @raylib.ShaderLocMapEmission,
+    content="true",
+  )
+  inspect(bindings[5].material_map == @raylib.MaterialMapEmission, content="true")
 }
 
 ///|

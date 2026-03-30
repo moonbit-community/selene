@@ -8,6 +8,9 @@
 
 ### Fixed
 
+- Fixed `selene-raylib` texture sampler completeness for 3D materials by moving mipmap generation into texture-preparation (`sync_image_asset` + internal fallback textures), so draw-time sampler application no longer mutates GPU texture state.
+- Fixed `selene-raylib` 3D material slot wiring so `texture0..texture5` is driven by one slot table across shader locations, sampler units, and material-map uploads; roughness now samples `texture3` as a packed metallic-roughness alias and stays aligned with Bevy-style `metallic_roughness_texture.g` semantics.
+
 ### Removed
 
 ## [0.30.3] - 2026-03-30

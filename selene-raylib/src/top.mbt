@@ -115,6 +115,14 @@ priv struct MaterialTextureSource3D {
 }
 
 ///|
+priv struct MaterialTextureSlotBinding {
+  shader_loc : Int
+  uniform_name : String
+  slot : Int
+  material_map : Int
+}
+
+///|
 priv struct CosmicRasterImage {
   width : Int
   height : Int
@@ -605,13 +613,14 @@ let raylib_lighting_fragment_shader : String = "#version 330\n" +
   "    return;\n" +
   "  }\n" +
   "  vec4 metallicRoughnessSample = materialHasMetallicRoughnessTexture != 0 ? texture(texture1, metallicRoughnessUv) : vec4(1.0);\n" +
+  "  vec4 roughnessSample = texture(texture3, metallicRoughnessUv);\n" +
   "  vec3 normal = normalize(fragNormal);\n" +
   "  if (length(normal) <= 0.00001) normal = vec3(0.0, 1.0, 0.0);\n" +
   "  vec3 geometricNormal = normal;\n" +
   "  if (materialHasNormalTexture != 0) normal = applyNormalMap(normal, fragPosition, normalUv);\n" +
   "  vec3 viewDir = normalize(viewPosition - fragPosition);\n" +
   "  if (length(viewDir) <= 0.00001) viewDir = vec3(0.0, 0.0, 1.0);\n" +
-  "  float roughness = clamp(materialRoughness * metallicRoughnessSample.g, 0.0, 1.0);\n" +
+  "  float roughness = clamp(materialRoughness * roughnessSample.g, 0.089, 1.0);\n" +
   "  float metallic = clamp(materialMetallic * metallicRoughnessSample.b, 0.0, 1.0);\n" +
   "  float shininess = mix(96.0, 8.0, roughness);\n" +
   "  float specularStrength = mix(0.04, 1.0, metallic);\n" +
@@ -861,6 +870,48 @@ fn uniform_vec3(value : @smath.Vec3) -> @raylib.ShaderUniformData {
 }
 
 ///|
+fn material_texture_slot_bindings() -> Array[MaterialTextureSlotBinding] {
+  [
+    {
+      shader_loc: @raylib.ShaderLocMapAlbedo,
+      uniform_name: "texture0",
+      slot: 0,
+      material_map: @raylib.MaterialMapAlbedo,
+    },
+    {
+      shader_loc: @raylib.ShaderLocMapMetalness,
+      uniform_name: "texture1",
+      slot: 1,
+      material_map: @raylib.MaterialMapMetalness,
+    },
+    {
+      shader_loc: @raylib.ShaderLocMapNormal,
+      uniform_name: "texture2",
+      slot: 2,
+      material_map: @raylib.MaterialMapNormal,
+    },
+    {
+      shader_loc: @raylib.ShaderLocMapRoughness,
+      uniform_name: "texture3",
+      slot: 3,
+      material_map: @raylib.MaterialMapRoughness,
+    },
+    {
+      shader_loc: @raylib.ShaderLocMapOcclusion,
+      uniform_name: "texture4",
+      slot: 4,
+      material_map: @raylib.MaterialMapOcclusion,
+    },
+    {
+      shader_loc: @raylib.ShaderLocMapEmission,
+      uniform_name: "texture5",
+      slot: 5,
+      material_map: @raylib.MaterialMapEmission,
+    },
+  ]
+}
+
+///|
 fn uniform_color4(color : @render.Color) -> @raylib.ShaderUniformData {
   @raylib.ShaderUniformData::Vec4(
     @raylib.Vector4::new(
@@ -1021,30 +1072,12 @@ fn configure_lighting_shader_locations(shader : @raylib.Shader) -> Unit {
     @raylib.ShaderLocMatrixNormal,
     @raylib.get_shader_location(shader, "matNormal"),
   )
-  shader.set_locs(
-    @raylib.ShaderLocMapAlbedo,
-    @raylib.get_shader_location(shader, "texture0"),
-  )
-  shader.set_locs(
-    @raylib.ShaderLocMapMetalness,
-    @raylib.get_shader_location(shader, "texture1"),
-  )
-  shader.set_locs(
-    @raylib.ShaderLocMapNormal,
-    @raylib.get_shader_location(shader, "texture2"),
-  )
-  shader.set_locs(
-    @raylib.ShaderLocMapRoughness,
-    @raylib.get_shader_location(shader, "texture3"),
-  )
-  shader.set_locs(
-    @raylib.ShaderLocMapOcclusion,
-    @raylib.get_shader_location(shader, "texture4"),
-  )
-  shader.set_locs(
-    @raylib.ShaderLocMapEmission,
-    @raylib.get_shader_location(shader, "texture5"),
-  )
+  for binding in material_texture_slot_bindings() {
+    shader.set_locs(
+      binding.shader_loc,
+      @raylib.get_shader_location(shader, binding.uniform_name),
+    )
+  }
 }
 
 ///|
@@ -1055,36 +1088,13 @@ fn create_lighting_shader_state() -> LightingShaderState {
   configure_lighting_shader_locations(shader)
   // Keep sampler-unit mapping explicit for both draw_mesh() and immediate rlgl paths.
   // Without this, texture samplers may all alias unit 0 on some drivers.
-  set_shader_uniform(
-    shader,
-    @raylib.get_shader_location(shader, "texture0"),
-    uniform_texture_unit(0),
-  )
-  set_shader_uniform(
-    shader,
-    @raylib.get_shader_location(shader, "texture1"),
-    uniform_texture_unit(1),
-  )
-  set_shader_uniform(
-    shader,
-    @raylib.get_shader_location(shader, "texture2"),
-    uniform_texture_unit(2),
-  )
-  set_shader_uniform(
-    shader,
-    @raylib.get_shader_location(shader, "texture3"),
-    uniform_texture_unit(3),
-  )
-  set_shader_uniform(
-    shader,
-    @raylib.get_shader_location(shader, "texture4"),
-    uniform_texture_unit(4),
-  )
-  set_shader_uniform(
-    shader,
-    @raylib.get_shader_location(shader, "texture5"),
-    uniform_texture_unit(5),
-  )
+  for binding in material_texture_slot_bindings() {
+    set_shader_uniform(
+      shader,
+      @raylib.get_shader_location(shader, binding.uniform_name),
+      uniform_texture_unit(binding.slot),
+    )
+  }
   let shadow_enabled_locs : Array[Int] = []
   let shadow_cascade_count_locs : Array[Int] = []
   let shadow_matrix_locs : Array[Int] = []
@@ -1337,6 +1347,13 @@ const INTERNAL_WHITE_TEXTURE_KEY : String = "__selene_internal:white_1x1"
 const INTERNAL_FLAT_NORMAL_TEXTURE_KEY : String = "__selene_internal:flat_normal_1x1"
 
 ///|
+fn ensure_texture_mipmaps(texture : @raylib.Texture) -> Unit {
+  if texture.mipmaps() < 2 {
+    texture.gen_mipmaps()
+  }
+}
+
+///|
 fn get_solid_texture(key : String, color : @render.Color) -> @raylib.Texture {
   if backend.textures.get(key) is Some(texture) {
     return texture
@@ -1344,6 +1361,7 @@ fn get_solid_texture(key : String, color : @render.Color) -> @raylib.Texture {
   let image = @raylib.gen_image_color(1, 1, to_ray_color(color))
   let texture = @raylib.load_texture_from_image(image)
   @raylib.unload_image(image)
+  ensure_texture_mipmaps(texture)
   @raylib.set_texture_filter(texture, @raylib.TextureFilterPoint)
   backend.textures.set(key, texture)
   texture
@@ -2545,6 +2563,27 @@ fn create_uploaded_triangle_mesh(
 }
 
 ///|
+fn material_texture_for_slot(
+  bundle : MaterialTextureBundle3D,
+  slot : Int,
+) -> @raylib.Texture {
+  match slot {
+    0 => bundle.base_texture
+    1 => bundle.metallic_roughness_texture
+    2 => bundle.normal_texture
+    3 =>
+      if bundle.has_metallic_roughness_texture {
+        bundle.metallic_roughness_texture
+      } else {
+        get_white_texture()
+      }
+    4 => bundle.occlusion_texture
+    5 => bundle.emissive_texture
+    _ => get_white_texture()
+  }
+}
+
+///|
 fn draw_lit_mesh_with_material(
   mesh : @raylib.Mesh,
   frame : @render3d_types.RenderFrame3D,
@@ -2565,36 +2604,13 @@ fn draw_lit_mesh_with_material(
     fallback_lighting_texture_bundle(),
   )
   let ray_material = get_lit_material(texture_bundle is Some(_))
-  @raylib.set_material_texture(
-    ray_material,
-    @raylib.MaterialMapAlbedo,
-    effective_bundle.base_texture,
-  )
-  @raylib.set_material_texture(
-    ray_material,
-    @raylib.MaterialMapEmission,
-    effective_bundle.emissive_texture,
-  )
-  @raylib.set_material_texture(
-    ray_material,
-    @raylib.MaterialMapMetalness,
-    effective_bundle.metallic_roughness_texture,
-  )
-  @raylib.set_material_texture(
-    ray_material,
-    @raylib.MaterialMapRoughness,
-    effective_bundle.metallic_roughness_texture,
-  )
-  @raylib.set_material_texture(
-    ray_material,
-    @raylib.MaterialMapOcclusion,
-    effective_bundle.occlusion_texture,
-  )
-  @raylib.set_material_texture(
-    ray_material,
-    @raylib.MaterialMapNormal,
-    effective_bundle.normal_texture,
-  )
+  for binding in material_texture_slot_bindings() {
+    @raylib.set_material_texture(
+      ray_material,
+      binding.material_map,
+      material_texture_for_slot(effective_bundle, binding.slot),
+    )
+  }
   if material.double_sided {
     @rl.disable_backface_culling()
   } else {
@@ -3827,6 +3843,7 @@ pub fn sync_material_asset(
   material : @render3d_types.StandardMaterial3D,
 ) -> Unit {
   backend.materials3d.set(handle, material)
+  ensure_material_mipmaps(material)
 }
 
 ///|
@@ -3835,6 +3852,9 @@ pub fn sync_image_asset(
   image : @render3d_types.ImageAsset,
 ) -> Unit {
   backend.images3d.set(handle, image)
+  if image_handle_requires_mipmaps(handle) {
+    ensure_texture_mipmaps(get_texture(image.path))
+  }
 }
 
 ///|
@@ -4182,6 +4202,94 @@ fn texture_filter_to_raylib(sampler : @render3d_types.TextureSampler3D) -> Int {
         @raylib.TextureFilterBilinear
       }
   }
+}
+
+///|
+fn sampler_requests_generated_mipmaps(
+  sampler : @render3d_types.TextureSampler3D,
+) -> Bool {
+  sampler.mipmap_filter is Some(_) &&
+  texture_filter_to_raylib(sampler) == @raylib.TextureFilterTrilinear
+}
+
+///|
+fn maybe_ensure_binding_mipmaps(
+  binding : @render3d_types.TextureBinding3D,
+) -> Unit {
+  if !sampler_requests_generated_mipmaps(binding.sampler) {
+    return
+  }
+  if backend.images3d.get(binding.image) is Some(image_asset) {
+    ensure_texture_mipmaps(get_texture(image_asset.path))
+  }
+}
+
+///|
+fn ensure_material_mipmaps(
+  material : @render3d_types.StandardMaterial3D,
+) -> Unit {
+  if material.base_color_texture is Some(binding) {
+    maybe_ensure_binding_mipmaps(binding)
+  }
+  if material.normal_texture is Some(binding) {
+    maybe_ensure_binding_mipmaps(binding)
+  }
+  if material.emissive_texture is Some(binding) {
+    maybe_ensure_binding_mipmaps(binding)
+  }
+  if material.metallic_roughness_texture is Some(binding) {
+    maybe_ensure_binding_mipmaps(binding)
+  }
+  if material.occlusion_texture is Some(binding) {
+    maybe_ensure_binding_mipmaps(binding)
+  }
+}
+
+///|
+fn material_uses_image_with_mipmaps(
+  material : @render3d_types.StandardMaterial3D,
+  image : @render3d_types.ImageHandle,
+) -> Bool {
+  let binding_matches = fn(binding : @render3d_types.TextureBinding3D) -> Bool {
+    binding.image == image &&
+    sampler_requests_generated_mipmaps(binding.sampler)
+  }
+  let uses_base = match material.base_color_texture {
+    Some(binding) => binding_matches(binding)
+    None => false
+  }
+  let uses_normal = match material.normal_texture {
+    Some(binding) => binding_matches(binding)
+    None => false
+  }
+  let uses_emissive = match material.emissive_texture {
+    Some(binding) => binding_matches(binding)
+    None => false
+  }
+  let uses_metallic_roughness = match material.metallic_roughness_texture {
+    Some(binding) => binding_matches(binding)
+    None => false
+  }
+  let uses_occlusion = match material.occlusion_texture {
+    Some(binding) => binding_matches(binding)
+    None => false
+  }
+  uses_base ||
+  uses_normal ||
+  uses_emissive ||
+  uses_metallic_roughness ||
+  uses_occlusion
+}
+
+///|
+fn image_handle_requires_mipmaps(image : @render3d_types.ImageHandle) -> Bool {
+  for material_handle, material in backend.materials3d {
+    ignore(material_handle)
+    if material_uses_image_with_mipmaps(material, image) {
+      return true
+    }
+  }
+  false
 }
 
 ///|
