@@ -1,14 +1,14 @@
 {
   "name": "Milky2018/selene_editor",
-  "version": "0.30.2",
+  "version": "0.30.3",
   "deps": {
     "Milky2018/selene": {
       "path": "../selene-core",
-      "version": "0.30.2"
+      "version": "0.30.3"
     },
     "Milky2018/selene_webgpu": {
       "path": "../selene-webgpu",
-      "version": "0.30.2"
+      "version": "0.30.3"
     },
     "moonbit-community/rabbita": "0.11.5",
     "moonbitlang/async": "0.16.8",

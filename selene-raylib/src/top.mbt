@@ -831,8 +831,10 @@ fn uniform_int(value : Int) -> @raylib.ShaderUniformData {
 }
 
 ///|
-fn uniform_sampler2d(value : Int) -> @raylib.ShaderUniformData {
-  @raylib.ShaderUniformData::Sampler2D(value)
+fn uniform_texture_unit(value : Int) -> @raylib.ShaderUniformData {
+  // NOTE: Keep texture samplers on Int uniforms for raylib 0.3.1 compatibility.
+  // Some drivers/backend paths interpret SHADER_UNIFORM_SAMPLER2D inconsistently.
+  @raylib.ShaderUniformData::Int(value)
 }
 
 ///|
@@ -1056,32 +1058,32 @@ fn create_lighting_shader_state() -> LightingShaderState {
   set_shader_uniform(
     shader,
     @raylib.get_shader_location(shader, "texture0"),
-    uniform_sampler2d(0),
+    uniform_texture_unit(0),
   )
   set_shader_uniform(
     shader,
     @raylib.get_shader_location(shader, "texture1"),
-    uniform_sampler2d(1),
+    uniform_texture_unit(1),
   )
   set_shader_uniform(
     shader,
     @raylib.get_shader_location(shader, "texture2"),
-    uniform_sampler2d(2),
+    uniform_texture_unit(2),
   )
   set_shader_uniform(
     shader,
     @raylib.get_shader_location(shader, "texture3"),
-    uniform_sampler2d(3),
+    uniform_texture_unit(3),
   )
   set_shader_uniform(
     shader,
     @raylib.get_shader_location(shader, "texture4"),
-    uniform_sampler2d(4),
+    uniform_texture_unit(4),
   )
   set_shader_uniform(
     shader,
     @raylib.get_shader_location(shader, "texture5"),
-    uniform_sampler2d(5),
+    uniform_texture_unit(5),
   )
   let shadow_enabled_locs : Array[Int] = []
   let shadow_cascade_count_locs : Array[Int] = []
@@ -1116,7 +1118,7 @@ fn create_lighting_shader_state() -> LightingShaderState {
     set_shader_uniform(
       shader,
       @raylib.get_shader_location(shader, "shadowMap\{index}"),
-      uniform_sampler2d(shadow_texture_slot(index)),
+      uniform_texture_unit(shadow_texture_slot(index)),
     )
   }
   for index in 0..<(MAX_DIRECTIONAL_LIGHTS * MAX_DIRECTIONAL_CASCADES) {
@@ -1150,7 +1152,7 @@ fn create_lighting_shader_state() -> LightingShaderState {
   set_shader_uniform(
     shader,
     @raylib.get_shader_location(shader, "spotShadowAtlas"),
-    uniform_sampler2d(SPOT_SHADOW_TEXTURE_SLOT),
+    uniform_texture_unit(SPOT_SHADOW_TEXTURE_SLOT),
   )
   for index in 0..<MAX_POINT_LIGHTS {
     point_shadow_enabled_locs.push(
@@ -1174,7 +1176,7 @@ fn create_lighting_shader_state() -> LightingShaderState {
   set_shader_uniform(
     shader,
     @raylib.get_shader_location(shader, "pointShadowAtlas"),
-    uniform_sampler2d(POINT_SHADOW_TEXTURE_SLOT),
+    uniform_texture_unit(POINT_SHADOW_TEXTURE_SLOT),
   )
   {
     shader,
