@@ -307,7 +307,13 @@ fn render_shadow_casters_for_setup(
     let material = backend.materials3d
       .get(item.material)
       .unwrap_or(@render3d_types.default_standard_material3d())
-    draw_shadow_mesh3d_instance(mesh_asset, material, item.transform, setup)
+    draw_shadow_mesh3d_instance(
+      item.mesh,
+      mesh_asset,
+      material,
+      item.transform,
+      setup,
+    )
   }
   end_3d()
 }

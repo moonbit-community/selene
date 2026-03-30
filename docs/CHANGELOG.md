@@ -6,7 +6,14 @@
 
 ### Changed
 
+- Changed `selene/render3d_types::TriangleMesh3D` and `selene/render3d::triangle_mesh(...)` to carry explicit triangle topology (`TriangleList` / `TriangleStrip` / `TriangleFan`) and optional index buffers, and propagated this data through `scene3d` parsing and animation skin/morph mesh rebinding.
+- Changed `selene-webgpu` triangle submission to consume indexed/topology triangle meshes by triangulating index streams before packing vertex payloads.
+
 ### Fixed
+
+- Fixed `selene-raylib` lit triangle rendering to support per-texture UV-set selection (`TEXCOORD_0` / `TEXCOORD_1`) instead of forcing all material maps onto one shared UV channel.
+- Fixed `selene-raylib` normal mapping path to consume authored tangent attributes when available, with derivative-frame fallback only when tangents are unavailable.
+- Fixed `selene-raylib` triangle shadow rendering to use the uploaded mesh path (shared cached triangle meshes) instead of immediate `rl.Triangles`, aligning shadow and main-pass triangle geometry submission.
 
 ### Removed
 

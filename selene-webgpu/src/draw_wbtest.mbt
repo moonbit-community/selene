@@ -26,6 +26,8 @@ fn webgpu_test_mesh(
       @smath.Vec3::new(1.0, 0.0, 0.0),
       @smath.Vec3::new(0.0, 1.0, 0.0),
     ],
+    indices: None,
+    topology: TriangleList,
     uv_sets,
     normals: None,
     tangents: None,
@@ -255,6 +257,7 @@ test "flatten_colored_vertices3d packs unlit material metadata" {
   ])
   let values = flatten_colored_vertices3d(
     mesh.positions,
+    [0, 1, 2],
     [
       @smath.Vec3::new(0.0, 0.0, 1.0),
       @smath.Vec3::new(0.0, 0.0, 1.0),
@@ -289,6 +292,7 @@ test "flatten_textured_vertices3d packs unlit surface metadata" {
   ])
   let values = flatten_textured_vertices3d(
     mesh.positions,
+    [0, 1, 2],
     mesh.uv_sets[0],
     mesh.uv_sets[0],
     mesh.uv_sets[0],
@@ -320,4 +324,27 @@ test "flatten_textured_vertices3d packs unlit surface metadata" {
   inspect(values[32], content="0.75")
   inspect(values[33], content="1")
   inspect(values[34], content="0")
+}
+
+///|
+test "resolve_triangle_indices supports strip and fan topology" {
+  let mesh : @render3d_types.TriangleMesh3D = {
+    positions: [
+      @smath.Vec3::new(0.0, 0.0, 0.0),
+      @smath.Vec3::new(1.0, 0.0, 0.0),
+      @smath.Vec3::new(0.0, 1.0, 0.0),
+      @smath.Vec3::new(1.0, 1.0, 0.0),
+    ],
+    indices: Some([0, 1, 2, 3]),
+    topology: TriangleStrip,
+    uv_sets: [],
+    normals: None,
+    tangents: None,
+    colors: None,
+  }
+  inspect(resolve_triangle_indices(mesh), content="Some([0, 1, 2, 2, 1, 3])")
+  inspect(
+    resolve_triangle_indices({ ..mesh, topology: TriangleFan }),
+    content="Some([0, 1, 2, 0, 2, 3])",
+  )
 }

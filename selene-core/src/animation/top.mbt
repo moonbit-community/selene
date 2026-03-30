@@ -218,6 +218,8 @@ pub(all) struct SkinnedMeshBinding3D {
   target_entity : @entity.Entity
   mesh : @render3d.MeshHandle
   base_positions : Array[@math.Vec3]
+  indices : Array[Int]?
+  topology : @render3d.TriangleTopology3D
   base_normals : Array[@math.Vec3]
   uv_sets : Array[Array[@math.Vec2D]]
   colors : Array[@render.Color]?
@@ -234,6 +236,8 @@ pub(all) struct MorphMeshBinding3D {
   target_entity : @entity.Entity
   mesh : @render3d.MeshHandle
   base_positions : Array[@math.Vec3]
+  indices : Array[Int]?
+  topology : @render3d.TriangleTopology3D
   base_normals : Array[@math.Vec3]
   uv_sets : Array[Array[@math.Vec2D]]
   colors : Array[@render.Color]?
@@ -2362,6 +2366,8 @@ fn weighted_skin_matrix(
 fn update_bound_mesh(
   mesh : @render3d.MeshHandle,
   positions : Array[@math.Vec3],
+  indices : Array[Int]?,
+  topology : @render3d.TriangleTopology3D,
   normals : Array[@math.Vec3],
   uv_sets : Array[Array[@math.Vec2D]],
   tangents : Array[@render3d.Tangent3D]?,
@@ -2375,6 +2381,8 @@ fn update_bound_mesh(
       tangents~,
       colors~,
       uv_sets~,
+      indices~,
+      topology~,
     ),
   )
 }
@@ -2396,6 +2404,8 @@ pub fn animation_skinning_system(_delta : Double) -> Unit {
     update_bound_mesh(
       binding.mesh,
       positions,
+      binding.indices,
+      binding.topology,
       normals,
       binding.uv_sets,
       binding.tangents,
@@ -2467,6 +2477,8 @@ pub fn animation_skinning_system(_delta : Double) -> Unit {
     update_bound_mesh(
       binding.mesh,
       deformed_positions,
+      binding.indices,
+      binding.topology,
       deformed_normals,
       binding.uv_sets,
       if deformed_tangents.is_empty() {

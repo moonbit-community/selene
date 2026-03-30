@@ -21,6 +21,7 @@ priv struct ShadowShaderState {
   material_alpha_cutoff_loc : Int
   base_uv_offset_scale_loc : Int
   base_uv_rotation_loc : Int
+  base_uv_set_loc : Int
 }
 
 ///|
@@ -100,24 +101,33 @@ fn shadow_texture_slot(index : Int) -> Int {
 let raylib_shadow_vertex_shader : String = "#version 330\n" +
   "in vec3 vertexPosition;\n" +
   "in vec2 vertexTexCoord;\n" +
+  "in vec2 vertexTexCoord2;\n" +
   "uniform mat4 matModel;\n" +
   "uniform mat4 lightViewProjection;\n" +
   "out vec2 fragTexCoord;\n" +
+  "out vec2 fragTexCoord2;\n" +
   "void main() {\n" +
   "  vec4 worldPosition = matModel * vec4(vertexPosition, 1.0);\n" +
   "  fragTexCoord = vertexTexCoord;\n" +
+  "  fragTexCoord2 = vertexTexCoord2;\n" +
   "  gl_Position = lightViewProjection * worldPosition;\n" +
   "}\n"
 
 ///|
 let raylib_shadow_fragment_shader : String = "#version 330\n" +
   "in vec2 fragTexCoord;\n" +
+  "in vec2 fragTexCoord2;\n" +
   "uniform sampler2D texture0;\n" +
   "uniform int materialHasTexture;\n" +
   "uniform int materialAlphaMode;\n" +
   "uniform float materialAlphaCutoff;\n" +
   "uniform vec4 baseUvOffsetScale;\n" +
   "uniform vec2 baseUvRotation;\n" +
+  "uniform int baseUvSet;\n" +
+  "vec2 selectUv(int setIndex) {\n" +
+  "  if (setIndex == 1) return fragTexCoord2;\n" +
+  "  return fragTexCoord;\n" +
+  "}\n" +
   "vec2 applyTextureTransform(vec2 uv, vec4 offsetScale, vec2 rotationSinCos) {\n" +
   "  vec2 scaled = uv * offsetScale.zw;\n" +
   "  return vec2(\n" +
@@ -128,7 +138,7 @@ let raylib_shadow_fragment_shader : String = "#version 330\n" +
   "void main() {\n" +
   "  if (materialAlphaMode == 2) discard;\n" +
   "  if (materialAlphaMode == 1 && materialHasTexture != 0) {\n" +
-  "    vec2 uv = applyTextureTransform(fragTexCoord, baseUvOffsetScale, baseUvRotation);\n" +
+  "    vec2 uv = applyTextureTransform(selectUv(baseUvSet), baseUvOffsetScale, baseUvRotation);\n" +
   "    if (texture(texture0, uv).a < materialAlphaCutoff) discard;\n" +
   "  }\n" +
   "}\n"
@@ -716,6 +726,10 @@ fn configure_shadow_shader_locations(shader : @raylib.Shader) -> Unit {
     @raylib.get_shader_location_attrib(shader, "vertexTexCoord"),
   )
   shader.set_locs(
+    @raylib.ShaderLocVertexTexcoord02,
+    @raylib.get_shader_location_attrib(shader, "vertexTexCoord2"),
+  )
+  shader.set_locs(
     @raylib.ShaderLocMatrixModel,
     @raylib.get_shader_location(shader, "matModel"),
   )
@@ -749,6 +763,7 @@ fn create_shadow_shader_state() -> ShadowShaderState {
       shader, "baseUvOffsetScale",
     ),
     base_uv_rotation_loc: @raylib.get_shader_location(shader, "baseUvRotation"),
+    base_uv_set_loc: @raylib.get_shader_location(shader, "baseUvSet"),
   }
 }
 
@@ -888,6 +903,7 @@ fn get_shadow_render_texture(
 fn upload_shadow_uniforms(
   material : @render3d_types.StandardMaterial3D,
   base_source : MaterialTextureSource3D?,
+  base_uv_set : Int,
   setup : DirectionalShadowSetup,
 ) -> ShadowShaderState {
   ignore(setup.half_extent)
@@ -927,6 +943,7 @@ fn upload_shadow_uniforms(
     state.base_uv_rotation_loc,
     transform,
   )
+  set_shader_uniform(shader, state.base_uv_set_loc, uniform_int(base_uv_set))
   state
 }
 
@@ -935,12 +952,13 @@ fn draw_shadow_mesh_with_material(
   mesh : @raylib.Mesh,
   material : @render3d_types.StandardMaterial3D,
   base_source : MaterialTextureSource3D?,
+  base_uv_set : Int,
   setup : DirectionalShadowSetup,
 ) -> Unit {
   if material.alpha_mode == Blend {
     return
   }
-  ignore(upload_shadow_uniforms(material, base_source, setup))
+  ignore(upload_shadow_uniforms(material, base_source, base_uv_set, setup))
   let shadow_material = get_shadow_material()
   @raylib.set_material_texture(
     shadow_material,
@@ -957,6 +975,14 @@ fn draw_shadow_mesh_with_material(
 }
 
 ///|
+fn shadow_base_uv_set(base_source : MaterialTextureSource3D?) -> Int {
+  match base_source {
+    Some(source) => if source.texcoord_set == 1 { 1 } else { 0 }
+    None => 0
+  }
+}
+
+///|
 fn draw_shadow_cuboid(
   size : @smath.Vec3,
   material : @render3d_types.StandardMaterial3D,
@@ -967,7 +993,13 @@ fn draw_shadow_cuboid(
   let mesh = get_or_create_primitive_mesh(key, fn() {
     @raylib.gen_mesh_cube(to_float(size.x), to_float(size.y), to_float(size.z))
   })
-  draw_shadow_mesh_with_material(mesh, material, base_source, setup)
+  draw_shadow_mesh_with_material(
+    mesh,
+    material,
+    base_source,
+    shadow_base_uv_set(base_source),
+    setup,
+  )
 }
 
 ///|
@@ -985,11 +1017,18 @@ fn draw_shadow_sphere(
       TEXTURED_SPHERE_STACKS,
     )
   })
-  draw_shadow_mesh_with_material(mesh, material, base_source, setup)
+  draw_shadow_mesh_with_material(
+    mesh,
+    material,
+    base_source,
+    shadow_base_uv_set(base_source),
+    setup,
+  )
 }
 
 ///|
 fn draw_shadow_cylinder(
+  mesh_handle : @render3d_types.MeshHandle,
   radius_top : Double,
   radius_bottom : Double,
   height : Double,
@@ -1003,15 +1042,24 @@ fn draw_shadow_cylinder(
     let mesh = get_or_create_primitive_mesh(key, fn() {
       @raylib.gen_mesh_cylinder(to_float(radius_top), to_float(height), slices)
     })
-    draw_shadow_mesh_with_material(mesh, material, base_source, setup)
+    draw_shadow_mesh_with_material(
+      mesh,
+      material,
+      base_source,
+      shadow_base_uv_set(base_source),
+      setup,
+    )
     return
   }
   let (vertices, uvs, _normals) = build_cylinder_mesh(
     radius_top, radius_bottom, height, slices,
   )
   draw_shadow_triangle_mesh(
+    mesh_handle,
     {
       positions: vertices,
+      indices: None,
+      topology: TriangleList,
       uv_sets: [uvs],
       normals: None,
       tangents: None,
@@ -1025,6 +1073,7 @@ fn draw_shadow_cylinder(
 
 ///|
 fn draw_shadow_triangle_mesh(
+  mesh_handle : @render3d_types.MeshHandle,
   mesh : @render3d_types.TriangleMesh3D,
   material : @render3d_types.StandardMaterial3D,
   base_source : MaterialTextureSource3D?,
@@ -1033,57 +1082,81 @@ fn draw_shadow_triangle_mesh(
   if material.alpha_mode == Blend || mesh.positions.length() < 3 {
     return
   }
-  let vertices = mesh.positions
-  let uvs = base_source.bind(fn(source) {
-    guard mesh.uv_sets.get(source.texcoord_set) is Some(values) else {
-      warn_texture_issue(
-        "shadow_triangles_missing_uvs:\{source.texcoord_set}",
-        "triangle mesh shadow pass is missing the base-color UV set; fallback to solid caster",
-      )
-      return None
-    }
-    if values.length() != vertices.length() {
-      warn_texture_issue(
-        "shadow_triangles_uv_mismatch:\{values.length()}:\{vertices.length()}",
-        "triangle mesh shadow UV count mismatched the vertex count; fallback to solid caster",
-      )
-      return None
-    }
-    Some(values)
+  guard resolve_triangle_indices(mesh_handle, mesh) is Some(triangle_indices) else {
+    return
+  }
+  guard expand_vec3_with_indices(mesh.positions, triangle_indices)
+    is Some(expanded_vertices) else {
+    return
+  }
+  let normals = resolve_triangle_normals(mesh, triangle_indices)
+  guard expand_vec3_with_indices(normals, triangle_indices)
+    is Some(expanded_normals) else {
+    return
+  }
+  let uv0 = mesh.uv_sets
+    .get(0)
+    .filter(fn(values) { values.length() == mesh.positions.length() })
+  let uv1 = mesh.uv_sets
+    .get(1)
+    .filter(fn(values) { values.length() == mesh.positions.length() })
+  let expanded_uv0 = uv0.bind(fn(values) {
+    expand_vec2_with_indices(values, triangle_indices)
   })
-  let state = upload_shadow_uniforms(material, base_source, setup)
-  ignore(@rl.check_render_batch_limit(vertices.length()))
-  if material.double_sided {
-    @rl.disable_backface_culling()
+  let expanded_uv1 = uv1.bind(fn(values) {
+    expand_vec2_with_indices(values, triangle_indices)
+  })
+  let expanded_colors = mesh.colors.bind(fn(values) {
+    if values.length() != mesh.positions.length() {
+      None
+    } else {
+      expand_color_with_indices(values, triangle_indices)
+    }
+  })
+  let expanded_tangents = mesh.tangents.bind(fn(values) {
+    if values.length() != mesh.positions.length() {
+      None
+    } else {
+      expand_tangent_with_indices(values, triangle_indices)
+    }
+  })
+  let cache_key = triangle_mesh_cache_key(mesh_handle)
+  let ray_mesh = if backend.triangle_mesh_cache.get(cache_key) is Some(cached) {
+    cached
   } else {
-    @rl.enable_backface_culling()
+    guard create_uploaded_triangle_mesh(
+        expanded_vertices, expanded_uv0, expanded_uv1, expanded_normals, expanded_tangents,
+        expanded_colors,
+      )
+      is Some(created) else {
+      return
+    }
+    backend.triangle_mesh_cache.set(cache_key, created)
+    created
   }
-  @raylib.begin_shader_mode(state.shader)
-  if base_source is Some(source) {
-    @rl.active_texture_slot(0)
-    @rl.enable_texture(@raylib.get_texture_id(source.texture))
-    @rl.active_texture_slot(0)
+  let base_uv_set = match base_source {
+    Some(source) => if source.texcoord_set == 1 { 1 } else { 0 }
+    None => 0
   }
-  @rl.begin(@rl.Triangles)
-  for index in 0..<vertices.length() {
-    let vertex = vertices[index]
-    let uv = uvs
-      .map(fn(values) { values[index] })
-      .unwrap_or(@smath.Vec2D(0.0, 0.0))
-    @rl.tex_coord2f(to_float(uv[X]), to_float(uv[Y]))
-    @rl.vertex3f(to_float(vertex.x), to_float(vertex.y), to_float(vertex.z))
+  let effective_base_source = match base_source {
+    Some(source) =>
+      if base_uv_set == 1 && expanded_uv1 is None {
+        None
+      } else if base_uv_set == 0 && expanded_uv0 is None {
+        None
+      } else {
+        Some(source)
+      }
+    None => None
   }
-  @rl.end_()
-  if base_source is Some(_) {
-    @rl.active_texture_slot(0)
-    @rl.disable_texture()
-  }
-  @raylib.end_shader_mode()
-  @rl.disable_backface_culling()
+  draw_shadow_mesh_with_material(
+    ray_mesh, material, effective_base_source, base_uv_set, setup,
+  )
 }
 
 ///|
 fn draw_shadow_mesh3d_instance(
+  mesh_handle : @render3d_types.MeshHandle,
   mesh_asset : @render3d_types.MeshAsset,
   material : @render3d_types.StandardMaterial3D,
   transform : @render3d_types.FrameTransform3D,
@@ -1109,7 +1182,8 @@ fn draw_shadow_mesh3d_instance(
     Sphere(radius) => draw_shadow_sphere(radius, material, base_source, setup)
     Cylinder(radius_top, radius_bottom, height, slices) =>
       draw_shadow_cylinder(
-        radius_top, radius_bottom, height, slices, material, base_source, setup,
+        mesh_handle, radius_top, radius_bottom, height, slices, material, base_source,
+        setup,
       )
     Plane(size) => {
       let thickness = if size.y.abs() < 0.0001 { 0.02 } else { size.y }
@@ -1121,7 +1195,7 @@ fn draw_shadow_mesh3d_instance(
       )
     }
     Triangles(mesh) =>
-      draw_shadow_triangle_mesh(mesh, material, base_source, setup)
+      draw_shadow_triangle_mesh(mesh_handle, mesh, material, base_source, setup)
   }
   @rl.pop_matrix()
 }

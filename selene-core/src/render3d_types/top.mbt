@@ -83,8 +83,17 @@ pub(all) struct Tangent3D {
 } derive(Eq, Show)
 
 ///|
+pub(all) enum TriangleTopology3D {
+  TriangleList
+  TriangleStrip
+  TriangleFan
+} derive(Eq, Show)
+
+///|
 pub(all) struct TriangleMesh3D {
   positions : Array[@math.Vec3]
+  indices : Array[Int]?
+  topology : TriangleTopology3D
   uv_sets : Array[Array[@math.Vec2D]]
   normals : Array[@math.Vec3]?
   tangents : Array[Tangent3D]?

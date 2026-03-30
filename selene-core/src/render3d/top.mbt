@@ -46,6 +46,9 @@ pub type TextureBinding3D = @render3d_types.TextureBinding3D
 pub type Tangent3D = @render3d_types.Tangent3D
 
 ///|
+pub type TriangleTopology3D = @render3d_types.TriangleTopology3D
+
+///|
 pub type MeshPrimitive3D = @render3d_types.MeshPrimitive3D
 
 ///|
@@ -321,6 +324,8 @@ pub fn triangle_mesh(
   tangents? : Array[Tangent3D]? = None,
   colors? : Array[@render.Color]? = None,
   uv_sets? : Array[Array[@math.Vec2D]] = [],
+  indices? : Array[Int]? = None,
+  topology? : TriangleTopology3D = TriangleList,
 ) -> MeshAsset {
   let resolved_uv_sets = uv_sets.copy()
   if resolved_uv_sets.length() == 0 {
@@ -337,6 +342,8 @@ pub fn triangle_mesh(
   {
     primitive: Triangles({
       positions,
+      indices,
+      topology,
       uv_sets: resolved_uv_sets,
       normals,
       tangents,

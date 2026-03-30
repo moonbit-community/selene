@@ -43,6 +43,7 @@ priv struct LightingShaderState {
   material_has_metallic_roughness_texture_loc : Int
   material_has_occlusion_texture_loc : Int
   material_has_normal_texture_loc : Int
+  material_has_tangents_loc : Int
   material_unlit_loc : Int
   material_receive_shadows_loc : Int
   shadow_enabled_locs : Array[Int]
@@ -67,14 +68,19 @@ priv struct LightingShaderState {
   point_shadow_texel_size_loc : Int
   base_uv_offset_scale_loc : Int
   base_uv_rotation_loc : Int
+  base_uv_set_loc : Int
   metallic_roughness_uv_offset_scale_loc : Int
   metallic_roughness_uv_rotation_loc : Int
+  metallic_roughness_uv_set_loc : Int
   normal_uv_offset_scale_loc : Int
   normal_uv_rotation_loc : Int
+  normal_uv_set_loc : Int
   occlusion_uv_offset_scale_loc : Int
   occlusion_uv_rotation_loc : Int
+  occlusion_uv_set_loc : Int
   emissive_uv_offset_scale_loc : Int
   emissive_uv_rotation_loc : Int
+  emissive_uv_set_loc : Int
 }
 
 ///|
@@ -94,7 +100,11 @@ priv struct MaterialTextureBundle3D {
   metallic_roughness_transform : @render3d_types.TextureTransform3D
   occlusion_transform : @render3d_types.TextureTransform3D
   normal_transform : @render3d_types.TextureTransform3D
-  texcoord_set : Int
+  base_texcoord_set : Int
+  emissive_texcoord_set : Int
+  metallic_roughness_texcoord_set : Int
+  occlusion_texcoord_set : Int
+  normal_texcoord_set : Int
 }
 
 ///|
@@ -264,20 +274,27 @@ const MAX_SPOT_LIGHTS : Int = 4
 let raylib_lighting_vertex_shader : String = "#version 330\n" +
   "in vec3 vertexPosition;\n" +
   "in vec2 vertexTexCoord;\n" +
+  "in vec2 vertexTexCoord2;\n" +
   "in vec3 vertexNormal;\n" +
+  "in vec4 vertexTangent;\n" +
   "in vec4 vertexColor;\n" +
   "uniform mat4 mvp;\n" +
   "uniform mat4 matModel;\n" +
   "uniform mat4 matNormal;\n" +
   "out vec3 fragPosition;\n" +
   "out vec2 fragTexCoord;\n" +
+  "out vec2 fragTexCoord2;\n" +
   "out vec3 fragNormal;\n" +
+  "out vec4 fragTangent;\n" +
   "out vec4 fragVertexColor;\n" +
   "void main() {\n" +
   "  vec4 worldPosition = matModel * vec4(vertexPosition, 1.0);\n" +
   "  fragPosition = worldPosition.xyz;\n" +
   "  fragTexCoord = vertexTexCoord;\n" +
+  "  fragTexCoord2 = vertexTexCoord2;\n" +
   "  fragNormal = normalize((matNormal * vec4(vertexNormal, 0.0)).xyz);\n" +
+  "  vec3 tangent = normalize((matNormal * vec4(vertexTangent.xyz, 0.0)).xyz);\n" +
+  "  fragTangent = vec4(tangent, vertexTangent.w);\n" +
   "  fragVertexColor = vertexColor;\n" +
   "  gl_Position = mvp * vec4(vertexPosition, 1.0);\n" +
   "}\n"
@@ -286,7 +303,9 @@ let raylib_lighting_vertex_shader : String = "#version 330\n" +
 let raylib_lighting_fragment_shader : String = "#version 330\n" +
   "in vec3 fragPosition;\n" +
   "in vec2 fragTexCoord;\n" +
+  "in vec2 fragTexCoord2;\n" +
   "in vec3 fragNormal;\n" +
+  "in vec4 fragTangent;\n" +
   "in vec4 fragVertexColor;\n" +
   "uniform sampler2D texture0;\n" +
   "uniform sampler2D texture1;\n" +
@@ -322,6 +341,7 @@ let raylib_lighting_fragment_shader : String = "#version 330\n" +
   "uniform int materialHasMetallicRoughnessTexture;\n" +
   "uniform int materialHasOcclusionTexture;\n" +
   "uniform int materialHasNormalTexture;\n" +
+  "uniform int materialHasTangents;\n" +
   "uniform int materialUnlit;\n" +
   "uniform int materialReceiveShadows;\n" +
   "uniform int shadowEnabled[4];\n" +
@@ -352,20 +372,29 @@ let raylib_lighting_fragment_shader : String = "#version 330\n" +
   "uniform vec2 pointShadowTexelSize;\n" +
   "uniform vec4 baseUvOffsetScale;\n" +
   "uniform vec2 baseUvRotation;\n" +
+  "uniform int baseUvSet;\n" +
   "uniform vec4 metallicRoughnessUvOffsetScale;\n" +
   "uniform vec2 metallicRoughnessUvRotation;\n" +
+  "uniform int metallicRoughnessUvSet;\n" +
   "uniform vec4 normalUvOffsetScale;\n" +
   "uniform vec2 normalUvRotation;\n" +
+  "uniform int normalUvSet;\n" +
   "uniform vec4 occlusionUvOffsetScale;\n" +
   "uniform vec2 occlusionUvRotation;\n" +
+  "uniform int occlusionUvSet;\n" +
   "uniform vec4 emissiveUvOffsetScale;\n" +
   "uniform vec2 emissiveUvRotation;\n" +
+  "uniform int emissiveUvSet;\n" +
   "out vec4 finalColor;\n" +
   "float rangeAttenuation(float distanceToLight, float lightRange) {\n" +
   "  if (lightRange <= 0.000001) return 1.0;\n" +
   "  if (distanceToLight >= lightRange) return 0.0;\n" +
   "  float t = 1.0 - distanceToLight / lightRange;\n" +
   "  return t * t;\n" +
+  "}\n" +
+  "vec2 selectUv(int setIndex) {\n" +
+  "  if (setIndex == 1) return fragTexCoord2;\n" +
+  "  return fragTexCoord;\n" +
   "}\n" +
   "vec2 applyTextureTransform(vec2 uv, vec4 offsetScale, vec2 rotationSinCos) {\n" +
   "  vec2 scaled = uv * offsetScale.zw;\n" +
@@ -402,6 +431,13 @@ let raylib_lighting_fragment_shader : String = "#version 330\n" +
   "  mapNormal.xy *= materialNormalScale;\n" +
   "  mapNormal = normalize(mapNormal);\n" +
   "  mat3 tbn = cotangentFrame(normal, worldPosition, uv);\n" +
+  "  if (materialHasTangents != 0) {\n" +
+  "    vec3 tangent = normalize(fragTangent.xyz);\n" +
+  "    vec3 bitangent = normalize(cross(normal, tangent) * fragTangent.w);\n" +
+  "    if (dot(tangent, tangent) > 0.000001 && dot(bitangent, bitangent) > 0.000001) {\n" +
+  "      tbn = mat3(tangent, bitangent, normal);\n" +
+  "    }\n" +
+  "  }\n" +
   "  return normalize(tbn * mapNormal);\n" +
   "}\n" +
   "void addLight(\n" +
@@ -551,11 +587,11 @@ let raylib_lighting_fragment_shader : String = "#version 330\n" +
   "  return totalWeight <= 0.00001 ? 1.0 : lit / totalWeight;\n" +
   "}\n" +
   "void main() {\n" +
-  "  vec2 baseUv = applyTextureTransform(fragTexCoord, baseUvOffsetScale, baseUvRotation);\n" +
-  "  vec2 metallicRoughnessUv = applyTextureTransform(fragTexCoord, metallicRoughnessUvOffsetScale, metallicRoughnessUvRotation);\n" +
-  "  vec2 normalUv = applyTextureTransform(fragTexCoord, normalUvOffsetScale, normalUvRotation);\n" +
-  "  vec2 occlusionUv = applyTextureTransform(fragTexCoord, occlusionUvOffsetScale, occlusionUvRotation);\n" +
-  "  vec2 emissiveUv = applyTextureTransform(fragTexCoord, emissiveUvOffsetScale, emissiveUvRotation);\n" +
+  "  vec2 baseUv = applyTextureTransform(selectUv(baseUvSet), baseUvOffsetScale, baseUvRotation);\n" +
+  "  vec2 metallicRoughnessUv = applyTextureTransform(selectUv(metallicRoughnessUvSet), metallicRoughnessUvOffsetScale, metallicRoughnessUvRotation);\n" +
+  "  vec2 normalUv = applyTextureTransform(selectUv(normalUvSet), normalUvOffsetScale, normalUvRotation);\n" +
+  "  vec2 occlusionUv = applyTextureTransform(selectUv(occlusionUvSet), occlusionUvOffsetScale, occlusionUvRotation);\n" +
+  "  vec2 emissiveUv = applyTextureTransform(selectUv(emissiveUvSet), emissiveUvOffsetScale, emissiveUvRotation);\n" +
   "  vec4 albedoSample = materialHasBaseTexture != 0 ? texture(texture0, baseUv) : vec4(1.0);\n" +
   "  vec4 albedo = albedoSample * fragVertexColor * materialBaseColor;\n" +
   "  if (materialAlphaMode == 0) {\n" +
@@ -948,8 +984,16 @@ fn configure_lighting_shader_locations(shader : @raylib.Shader) -> Unit {
     @raylib.get_shader_location_attrib(shader, "vertexTexCoord"),
   )
   shader.set_locs(
+    @raylib.ShaderLocVertexTexcoord02,
+    @raylib.get_shader_location_attrib(shader, "vertexTexCoord2"),
+  )
+  shader.set_locs(
     @raylib.ShaderLocVertexNormal,
     @raylib.get_shader_location_attrib(shader, "vertexNormal"),
+  )
+  shader.set_locs(
+    @raylib.ShaderLocVertexTangent,
+    @raylib.get_shader_location_attrib(shader, "vertexTangent"),
   )
   shader.set_locs(
     @raylib.ShaderLocVertexColor,
@@ -1198,6 +1242,9 @@ fn create_lighting_shader_state() -> LightingShaderState {
     material_has_normal_texture_loc: @raylib.get_shader_location(
       shader, "materialHasNormalTexture",
     ),
+    material_has_tangents_loc: @raylib.get_shader_location(
+      shader, "materialHasTangents",
+    ),
     material_unlit_loc: @raylib.get_shader_location(shader, "materialUnlit"),
     material_receive_shadows_loc: @raylib.get_shader_location(
       shader, "materialReceiveShadows",
@@ -1232,11 +1279,15 @@ fn create_lighting_shader_state() -> LightingShaderState {
       shader, "baseUvOffsetScale",
     ),
     base_uv_rotation_loc: @raylib.get_shader_location(shader, "baseUvRotation"),
+    base_uv_set_loc: @raylib.get_shader_location(shader, "baseUvSet"),
     metallic_roughness_uv_offset_scale_loc: @raylib.get_shader_location(
       shader, "metallicRoughnessUvOffsetScale",
     ),
     metallic_roughness_uv_rotation_loc: @raylib.get_shader_location(
       shader, "metallicRoughnessUvRotation",
+    ),
+    metallic_roughness_uv_set_loc: @raylib.get_shader_location(
+      shader, "metallicRoughnessUvSet",
     ),
     normal_uv_offset_scale_loc: @raylib.get_shader_location(
       shader, "normalUvOffsetScale",
@@ -1244,18 +1295,21 @@ fn create_lighting_shader_state() -> LightingShaderState {
     normal_uv_rotation_loc: @raylib.get_shader_location(
       shader, "normalUvRotation",
     ),
+    normal_uv_set_loc: @raylib.get_shader_location(shader, "normalUvSet"),
     occlusion_uv_offset_scale_loc: @raylib.get_shader_location(
       shader, "occlusionUvOffsetScale",
     ),
     occlusion_uv_rotation_loc: @raylib.get_shader_location(
       shader, "occlusionUvRotation",
     ),
+    occlusion_uv_set_loc: @raylib.get_shader_location(shader, "occlusionUvSet"),
     emissive_uv_offset_scale_loc: @raylib.get_shader_location(
       shader, "emissiveUvOffsetScale",
     ),
     emissive_uv_rotation_loc: @raylib.get_shader_location(
       shader, "emissiveUvRotation",
     ),
+    emissive_uv_set_loc: @raylib.get_shader_location(shader, "emissiveUvSet"),
   }
 }
 
@@ -1327,7 +1381,11 @@ fn fallback_lighting_texture_bundle() -> MaterialTextureBundle3D {
     metallic_roughness_transform: default_transform,
     occlusion_transform: default_transform,
     normal_transform: default_transform,
-    texcoord_set: 0,
+    base_texcoord_set: 0,
+    emissive_texcoord_set: 0,
+    metallic_roughness_texcoord_set: 0,
+    occlusion_texcoord_set: 0,
+    normal_texcoord_set: 0,
   }
 }
 
@@ -1421,6 +1479,7 @@ fn upload_lighting_uniforms(
   camera_position : @smath.Vec3,
   material : @render3d_types.StandardMaterial3D,
   texture_bundle : MaterialTextureBundle3D?,
+  mesh_has_tangents : Bool,
   receive_shadows : Bool,
   shadow_state : FrameShadowState?,
 ) -> LightingShaderState {
@@ -1828,6 +1887,11 @@ fn upload_lighting_uniforms(
   )
   set_shader_uniform(
     shader,
+    state.material_has_tangents_loc,
+    uniform_int(if mesh_has_tangents { 1 } else { 0 }),
+  )
+  set_shader_uniform(
+    shader,
     state.material_unlit_loc,
     uniform_int(if material.unlit { 1 } else { 0 }),
   )
@@ -1845,6 +1909,13 @@ fn upload_lighting_uniforms(
       bundle.base_transform
     }),
   )
+  set_shader_uniform(
+    shader,
+    state.base_uv_set_loc,
+    uniform_int(
+      texture_bundle.map_or(0, fn(bundle) { bundle.base_texcoord_set }),
+    ),
+  )
   upload_texture_transform_uniforms(
     shader,
     state.metallic_roughness_uv_offset_scale_loc,
@@ -1852,6 +1923,15 @@ fn upload_lighting_uniforms(
     texture_bundle.map_or(default_transform, fn(bundle) {
       bundle.metallic_roughness_transform
     }),
+  )
+  set_shader_uniform(
+    shader,
+    state.metallic_roughness_uv_set_loc,
+    uniform_int(
+      texture_bundle.map_or(0, fn(bundle) {
+        bundle.metallic_roughness_texcoord_set
+      }),
+    ),
   )
   upload_texture_transform_uniforms(
     shader,
@@ -1861,6 +1941,13 @@ fn upload_lighting_uniforms(
       bundle.normal_transform
     }),
   )
+  set_shader_uniform(
+    shader,
+    state.normal_uv_set_loc,
+    uniform_int(
+      texture_bundle.map_or(0, fn(bundle) { bundle.normal_texcoord_set }),
+    ),
+  )
   upload_texture_transform_uniforms(
     shader,
     state.occlusion_uv_offset_scale_loc,
@@ -1869,6 +1956,13 @@ fn upload_lighting_uniforms(
       bundle.occlusion_transform
     }),
   )
+  set_shader_uniform(
+    shader,
+    state.occlusion_uv_set_loc,
+    uniform_int(
+      texture_bundle.map_or(0, fn(bundle) { bundle.occlusion_texcoord_set }),
+    ),
+  )
   upload_texture_transform_uniforms(
     shader,
     state.emissive_uv_offset_scale_loc,
@@ -1876,6 +1970,13 @@ fn upload_lighting_uniforms(
     texture_bundle.map_or(default_transform, fn(bundle) {
       bundle.emissive_transform
     }),
+  )
+  set_shader_uniform(
+    shader,
+    state.emissive_uv_set_loc,
+    uniform_int(
+      texture_bundle.map_or(0, fn(bundle) { bundle.emissive_texcoord_set }),
+    ),
   )
   state
 }
@@ -2010,15 +2111,8 @@ fn triangle_mesh_cache_prefix(
 }
 
 ///|
-fn triangle_mesh_cache_key(
-  mesh_handle : @render3d_types.MeshHandle,
-  texcoord_set : Int?,
-) -> String {
-  let prefix = triangle_mesh_cache_prefix(mesh_handle)
-  match texcoord_set {
-    Some(set) => "\{prefix}uv\{set}"
-    None => "\{prefix}no_uv"
-  }
+fn triangle_mesh_cache_key(mesh_handle : @render3d_types.MeshHandle) -> String {
+  "\{triangle_mesh_cache_prefix(mesh_handle)}mesh"
 }
 
 ///|
@@ -2074,65 +2168,376 @@ fn to_fixed_color_array(values : Array[@render.Color]) -> FixedArray[Byte] {
 }
 
 ///|
-fn resolve_triangle_uv_set(
-  mesh : @render3d_types.TriangleMesh3D,
-  texture_bundle : MaterialTextureBundle3D?,
-) -> (MaterialTextureBundle3D?, Array[@smath.Vec2D]?, Int?) {
-  match texture_bundle {
-    Some(bundle) =>
-      match mesh.uv_sets.get(bundle.texcoord_set) {
-        Some(uvs) =>
-          if uvs.length() == mesh.positions.length() {
-            (Some(bundle), Some(uvs), Some(bundle.texcoord_set))
+fn to_fixed_tangent_array(
+  values : Array[@render3d_types.Tangent3D],
+) -> FixedArray[Float] {
+  let out = FixedArray::make(values.length() * 4, to_float(0.0))
+  for index in 0..<values.length() {
+    let base = index * 4
+    let tangent = values[index]
+    out[base] = to_float(tangent.x)
+    out[base + 1] = to_float(tangent.y)
+    out[base + 2] = to_float(tangent.z)
+    out[base + 3] = to_float(tangent.w)
+  }
+  out
+}
+
+///|
+fn default_mesh_indices(vertex_count : Int) -> Array[Int] {
+  let indices : Array[Int] = []
+  for index in 0..<vertex_count {
+    indices.push(index)
+  }
+  indices
+}
+
+///|
+fn triangulate_triangle_indices(
+  indices : Array[Int],
+  topology : @render3d_types.TriangleTopology3D,
+) -> Array[Int] {
+  let triangle_indices : Array[Int] = []
+  let push_index = fn(index : Int) { triangle_indices.push(index) }
+  match topology {
+    TriangleList => {
+      let tri_count = indices.length() / 3
+      for tri in 0..<tri_count {
+        let base = tri * 3
+        push_index(indices[base])
+        push_index(indices[base + 1])
+        push_index(indices[base + 2])
+      }
+    }
+    TriangleStrip =>
+      if indices.length() >= 3 {
+        for i in 0..<(indices.length() - 2) {
+          if i % 2 == 0 {
+            push_index(indices[i])
+            push_index(indices[i + 1])
+            push_index(indices[i + 2])
           } else {
-            warn_texture_issue(
-              "triangles_uv_mismatch:\{uvs.length()}:\{mesh.positions.length()}",
-              "triangle mesh UV count (\{uvs.length()}) != vertex count (\{mesh.positions.length()}); fallback to base_color",
-            )
-            (None, None, None)
+            push_index(indices[i + 1])
+            push_index(indices[i])
+            push_index(indices[i + 2])
           }
-        None => {
-          warn_texture_issue(
-            "triangles_missing_uvs:\{bundle.texcoord_set}",
-            "triangle mesh has material textures but no matching UV set; fallback to material factors only",
-          )
-          (None, None, None)
         }
       }
+    TriangleFan =>
+      if indices.length() >= 3 {
+        let head = indices[0]
+        for i in 1..<(indices.length() - 1) {
+          push_index(head)
+          push_index(indices[i])
+          push_index(indices[i + 1])
+        }
+      }
+  }
+  triangle_indices
+}
+
+///|
+fn resolve_triangle_indices(
+  mesh_handle : @render3d_types.MeshHandle,
+  mesh : @render3d_types.TriangleMesh3D,
+) -> Array[Int]? {
+  let base_indices = mesh.indices.unwrap_or(
+    default_mesh_indices(mesh.positions.length()),
+  )
+  if base_indices.length() == 0 {
+    return None
+  }
+  for index in base_indices {
+    if index < 0 || index >= mesh.positions.length() {
+      warn_texture_issue(
+        "triangles_invalid_index:\{mesh_handle}:\{index}",
+        "triangle mesh \{mesh_handle} contains out-of-range index \{index}; skipping draw",
+      )
+      return None
+    }
+  }
+  let triangle_indices = triangulate_triangle_indices(
+    base_indices,
+    mesh.topology,
+  )
+  if triangle_indices.length() < 3 || triangle_indices.length() % 3 != 0 {
+    return None
+  }
+  Some(triangle_indices)
+}
+
+///|
+fn sanitize_triangle_uv_set(
+  mesh_handle : @render3d_types.MeshHandle,
+  label : String,
+  set : Int,
+) -> Int {
+  if set == 0 || set == 1 {
+    set
+  } else {
+    warn_texture_issue(
+      "triangles_unsupported_uv_set:\{mesh_handle}:\{label}:\{set}",
+      "triangle mesh \{mesh_handle} uses unsupported \{label} UV set TEXCOORD_\{set}; fallback to TEXCOORD_0",
+    )
+    0
+  }
+}
+
+///|
+fn resolve_triangle_uv_sets(
+  mesh : @render3d_types.TriangleMesh3D,
+  mesh_handle : @render3d_types.MeshHandle,
+  texture_bundle : MaterialTextureBundle3D?,
+) -> (MaterialTextureBundle3D?, Array[@smath.Vec2D]?, Array[@smath.Vec2D]?) {
+  let vertex_count = mesh.positions.length()
+  match texture_bundle {
+    Some(bundle) => {
+      let base_set = sanitize_triangle_uv_set(
+        mesh_handle,
+        "base_color_texture",
+        bundle.base_texcoord_set,
+      )
+      let emissive_set = sanitize_triangle_uv_set(
+        mesh_handle,
+        "emissive_texture",
+        bundle.emissive_texcoord_set,
+      )
+      let metallic_set = sanitize_triangle_uv_set(
+        mesh_handle,
+        "metallic_roughness_texture",
+        bundle.metallic_roughness_texcoord_set,
+      )
+      let occlusion_set = sanitize_triangle_uv_set(
+        mesh_handle,
+        "occlusion_texture",
+        bundle.occlusion_texcoord_set,
+      )
+      let normal_set = sanitize_triangle_uv_set(
+        mesh_handle,
+        "normal_texture",
+        bundle.normal_texcoord_set,
+      )
+      let uv0 = mesh.uv_sets
+        .get(0)
+        .filter(fn(values) { values.length() == vertex_count })
+      let uv1 = mesh.uv_sets
+        .get(1)
+        .filter(fn(values) { values.length() == vertex_count })
+      let has_uv0 = uv0 is Some(_)
+      let has_uv1 = uv1 is Some(_)
+      let mut has_base = bundle.has_base_texture
+      let mut has_emissive = bundle.has_emissive_texture
+      let mut has_metallic = bundle.has_metallic_roughness_texture
+      let mut has_occlusion = bundle.has_occlusion_texture
+      let mut has_normal = bundle.has_normal_texture
+      if (has_base && base_set == 0 && !has_uv0) ||
+        (has_emissive && emissive_set == 0 && !has_uv0) ||
+        (has_metallic && metallic_set == 0 && !has_uv0) ||
+        (has_occlusion && occlusion_set == 0 && !has_uv0) ||
+        (has_normal && normal_set == 0 && !has_uv0) {
+        warn_texture_issue(
+          "triangles_missing_uv_set0:\{mesh_handle}",
+          "triangle mesh \{mesh_handle} is missing TEXCOORD_0; texture maps that require UV0 are disabled",
+        )
+        if base_set == 0 {
+          has_base = false
+        }
+        if emissive_set == 0 {
+          has_emissive = false
+        }
+        if metallic_set == 0 {
+          has_metallic = false
+        }
+        if occlusion_set == 0 {
+          has_occlusion = false
+        }
+        if normal_set == 0 {
+          has_normal = false
+        }
+      }
+      if (has_base && base_set == 1 && !has_uv1) ||
+        (has_emissive && emissive_set == 1 && !has_uv1) ||
+        (has_metallic && metallic_set == 1 && !has_uv1) ||
+        (has_occlusion && occlusion_set == 1 && !has_uv1) ||
+        (has_normal && normal_set == 1 && !has_uv1) {
+        warn_texture_issue(
+          "triangles_missing_uv_set1:\{mesh_handle}",
+          "triangle mesh \{mesh_handle} is missing TEXCOORD_1; texture maps that require UV1 are disabled",
+        )
+        if base_set == 1 {
+          has_base = false
+        }
+        if emissive_set == 1 {
+          has_emissive = false
+        }
+        if metallic_set == 1 {
+          has_metallic = false
+        }
+        if occlusion_set == 1 {
+          has_occlusion = false
+        }
+        if normal_set == 1 {
+          has_normal = false
+        }
+      }
+      if !has_base &&
+        !has_emissive &&
+        !has_metallic &&
+        !has_occlusion &&
+        !has_normal {
+        (None, uv0, uv1)
+      } else {
+        (
+          Some({
+            ..bundle,
+            has_base_texture: has_base,
+            has_emissive_texture: has_emissive,
+            has_metallic_roughness_texture: has_metallic,
+            has_occlusion_texture: has_occlusion,
+            has_normal_texture: has_normal,
+            base_texcoord_set: base_set,
+            emissive_texcoord_set: emissive_set,
+            metallic_roughness_texcoord_set: metallic_set,
+            occlusion_texcoord_set: occlusion_set,
+            normal_texcoord_set: normal_set,
+          }),
+          uv0,
+          uv1,
+        )
+      }
+    }
     None => (None, None, None)
   }
 }
 
 ///|
+fn expand_vec3_with_indices(
+  values : Array[@smath.Vec3],
+  indices : Array[Int],
+) -> Array[@smath.Vec3]? {
+  let output : Array[@smath.Vec3] = []
+  for index in indices {
+    guard values.get(index) is Some(value) else { return None }
+    output.push(value)
+  }
+  Some(output)
+}
+
+///|
+fn expand_vec2_with_indices(
+  values : Array[@smath.Vec2D],
+  indices : Array[Int],
+) -> Array[@smath.Vec2D]? {
+  let output : Array[@smath.Vec2D] = []
+  for index in indices {
+    guard values.get(index) is Some(value) else { return None }
+    output.push(value)
+  }
+  Some(output)
+}
+
+///|
+fn expand_color_with_indices(
+  values : Array[@render.Color],
+  indices : Array[Int],
+) -> Array[@render.Color]? {
+  let output : Array[@render.Color] = []
+  for index in indices {
+    guard values.get(index) is Some(value) else { return None }
+    output.push(value)
+  }
+  Some(output)
+}
+
+///|
+fn expand_tangent_with_indices(
+  values : Array[@render3d_types.Tangent3D],
+  indices : Array[Int],
+) -> Array[@render3d_types.Tangent3D]? {
+  let output : Array[@render3d_types.Tangent3D] = []
+  for index in indices {
+    guard values.get(index) is Some(value) else { return None }
+    output.push(value)
+  }
+  Some(output)
+}
+
+///|
 fn create_uploaded_triangle_mesh(
   vertices : Array[@smath.Vec3],
-  uvs : Array[@smath.Vec2D]?,
+  uv0 : Array[@smath.Vec2D]?,
+  uv1 : Array[@smath.Vec2D]?,
   normals : Array[@smath.Vec3],
+  tangents : Array[@render3d_types.Tangent3D]?,
   colors : Array[@render.Color]?,
 ) -> @raylib.Mesh? {
-  if vertices.length() < 3 || vertices.length() % 3 != 0 {
+  let vertex_count = vertices.length()
+  if vertex_count < 3 || vertex_count % 3 != 0 {
     return None
   }
-  if normals.length() != vertices.length() {
+  if normals.length() != vertex_count {
     return None
   }
-  let vertices = to_fixed_vec3_array(vertices)
-  let normals = to_fixed_vec3_array(normals)
-  let texcoords = uvs.map(to_fixed_vec2_array)
-  let colors = colors.bind(fn(values) {
-    if values.length() != vertices.length() / 3 {
-      None
-    } else {
-      Some(to_fixed_color_array(values))
-    }
-  })
-  let mesh = match (texcoords, colors) {
-    (Some(texcoords), Some(colors)) =>
-      @raylib.Mesh::new(vertices, texcoords~, normals~, colors~)
-    (Some(texcoords), None) => @raylib.Mesh::new(vertices, texcoords~, normals~)
-    (None, Some(colors)) => @raylib.Mesh::new(vertices, normals~, colors~)
-    (None, None) => @raylib.Mesh::new(vertices, normals~)
-  }
+  let fixed_vertices = to_fixed_vec3_array(vertices)
+  let fixed_normals = to_fixed_vec3_array(normals)
+  let texcoords = uv0.map_or(
+    FixedArray::make(vertex_count * 2, to_float(0.0)),
+    to_fixed_vec2_array,
+  )
+  let texcoords2 = uv1.map_or(
+    FixedArray::make(vertex_count * 2, to_float(0.0)),
+    to_fixed_vec2_array,
+  )
+  let tangents = tangents.map_or(
+    {
+      let defaults : Array[@render3d_types.Tangent3D] = []
+      for _ in 0..<vertex_count {
+        defaults.push({ x: 1.0, y: 0.0, z: 0.0, w: 1.0 })
+      }
+      to_fixed_tangent_array(defaults)
+    },
+    fn(values) {
+      if values.length() == vertex_count {
+        to_fixed_tangent_array(values)
+      } else {
+        let defaults : Array[@render3d_types.Tangent3D] = []
+        for _ in 0..<vertex_count {
+          defaults.push({ x: 1.0, y: 0.0, z: 0.0, w: 1.0 })
+        }
+        to_fixed_tangent_array(defaults)
+      }
+    },
+  )
+  let colors = colors.map_or(
+    {
+      let defaults : Array[@render.Color] = []
+      let white = white_render_color()
+      for _ in 0..<vertex_count {
+        defaults.push(white)
+      }
+      to_fixed_color_array(defaults)
+    },
+    fn(values) {
+      if values.length() == vertex_count {
+        to_fixed_color_array(values)
+      } else {
+        let defaults : Array[@render.Color] = []
+        let white = white_render_color()
+        for _ in 0..<vertex_count {
+          defaults.push(white)
+        }
+        to_fixed_color_array(defaults)
+      }
+    },
+  )
+  let mesh = @raylib.Mesh::new(
+    fixed_vertices,
+    texcoords~,
+    texcoords2~,
+    normals=fixed_normals,
+    tangents~,
+    colors~,
+  )
   mesh.upload(false)
   Some(mesh)
 }
@@ -2144,12 +2549,14 @@ fn draw_lit_mesh_with_material(
   camera_position : @smath.Vec3,
   material : @render3d_types.StandardMaterial3D,
   texture_bundle : MaterialTextureBundle3D?,
+  mesh_has_tangents : Bool,
   receive_shadows : Bool,
   shadow_state : FrameShadowState?,
 ) -> Unit {
   ignore(
     upload_lighting_uniforms(
-      frame, camera_position, material, texture_bundle, receive_shadows, shadow_state,
+      frame, camera_position, material, texture_bundle, mesh_has_tangents, receive_shadows,
+      shadow_state,
     ),
   )
   let effective_bundle = texture_bundle.unwrap_or(
@@ -3550,7 +3957,8 @@ fn draw_lit_cuboid(
     @raylib.gen_mesh_cube(to_float(size.x), to_float(size.y), to_float(size.z))
   })
   draw_lit_mesh_with_material(
-    mesh, frame, camera_position, material, texture_bundle, receive_shadows, shadow_state,
+    mesh, frame, camera_position, material, texture_bundle, false, receive_shadows,
+    shadow_state,
   )
 }
 
@@ -3573,7 +3981,8 @@ fn draw_lit_sphere(
     )
   })
   draw_lit_mesh_with_material(
-    mesh, frame, camera_position, material, texture_bundle, receive_shadows, shadow_state,
+    mesh, frame, camera_position, material, texture_bundle, false, receive_shadows,
+    shadow_state,
   )
 }
 
@@ -3601,7 +4010,8 @@ fn draw_lit_cylinder(
       )
     })
     draw_lit_mesh_with_material(
-      mesh, frame, camera_position, material, texture_bundle, receive_shadows, shadow_state,
+      mesh, frame, camera_position, material, texture_bundle, false, receive_shadows,
+      shadow_state,
     )
     return
   }
@@ -3610,7 +4020,14 @@ fn draw_lit_cylinder(
     let (vertices, uvs, normals) = build_cylinder_mesh(
       radius_top, radius_bottom, height, safe_slices,
     )
-    create_uploaded_triangle_mesh(vertices, Some(uvs), normals, None).unwrap_or(
+    create_uploaded_triangle_mesh(
+      vertices,
+      Some(uvs),
+      None,
+      normals,
+      None,
+      None,
+    ).unwrap_or(
       @raylib.gen_mesh_cylinder(
         to_float(radius_bottom),
         to_float(height),
@@ -3619,7 +4036,8 @@ fn draw_lit_cylinder(
     )
   })
   draw_lit_mesh_with_material(
-    mesh, frame, camera_position, material, texture_bundle, receive_shadows, shadow_state,
+    mesh, frame, camera_position, material, texture_bundle, false, receive_shadows,
+    shadow_state,
   )
 }
 
@@ -3672,52 +4090,13 @@ fn resolve_material_texture_bundle(
   let normal_source = material.normal_texture.bind(
     resolve_material_texture_source,
   )
-  let primary = match base_source {
-    Some(base) => Some(base)
-    None =>
-      match emissive_source {
-        Some(emissive) => Some(emissive)
-        None =>
-          match metallic_roughness_source {
-            Some(metallic_roughness) => Some(metallic_roughness)
-            None =>
-              match occlusion_source {
-                Some(occlusion) => Some(occlusion)
-                None => normal_source
-              }
-          }
-      }
+  if base_source is None &&
+    emissive_source is None &&
+    metallic_roughness_source is None &&
+    occlusion_source is None &&
+    normal_source is None {
+    return None
   }
-  guard primary is Some(primary_source) else { return None }
-  let resolve_aligned_source = fn(
-    label : String,
-    source : MaterialTextureSource3D?,
-  ) -> MaterialTextureSource3D? {
-    match source {
-      Some(source) =>
-        if source.texcoord_set == primary_source.texcoord_set {
-          Some(source)
-        } else {
-          warn_texture_issue(
-            "uv_set_mismatch:\{label}:\{primary_source.texcoord_set}:\{source.texcoord_set}",
-            "raylib backend currently requires glTF material textures to share one UV set; ignoring \{label} on TEXCOORD_\{source.texcoord_set} because the active stack uses TEXCOORD_\{primary_source.texcoord_set}",
-          )
-          None
-        }
-      None => None
-    }
-  }
-  let base_source = resolve_aligned_source("base_color_texture", base_source)
-  let emissive_source = resolve_aligned_source(
-    "emissive_texture", emissive_source,
-  )
-  let metallic_roughness_source = resolve_aligned_source(
-    "metallic_roughness_texture", metallic_roughness_source,
-  )
-  let occlusion_source = resolve_aligned_source(
-    "occlusion_texture", occlusion_source,
-  )
-  let normal_source = resolve_aligned_source("normal_texture", normal_source)
   let default_transform = @render3d_types.default_texture_transform3d()
   Some({
     base_texture: base_source.map_or(get_white_texture(), fn(source) {
@@ -3757,7 +4136,21 @@ fn resolve_material_texture_bundle(
     normal_transform: normal_source.map_or(default_transform, fn(source) {
       source.transform
     }),
-    texcoord_set: primary_source.texcoord_set,
+    base_texcoord_set: base_source.map_or(0, fn(source) { source.texcoord_set }),
+    emissive_texcoord_set: emissive_source.map_or(0, fn(source) {
+      source.texcoord_set
+    }),
+    metallic_roughness_texcoord_set: metallic_roughness_source.map_or(0, fn(
+      source,
+    ) {
+      source.texcoord_set
+    }),
+    occlusion_texcoord_set: occlusion_source.map_or(0, fn(source) {
+      source.texcoord_set
+    }),
+    normal_texcoord_set: normal_source.map_or(0, fn(source) {
+      source.texcoord_set
+    }),
   })
 }
 
@@ -3982,17 +4375,24 @@ fn draw_triangle_mesh(
   shadow_state : FrameShadowState?,
 ) -> Unit {
   let vertices = mesh.positions
-  if vertices.length() < 3 || vertices.length() % 3 != 0 {
+  if vertices.length() < 3 {
     warn_texture_issue(
       "triangles_invalid_positions:\{mesh_handle}:\{vertices.length()}",
-      "triangle mesh positions length must be >= 3 and divisible by 3; skipping draw for \{mesh_handle}",
+      "triangle mesh positions length must be >= 3; skipping draw for \{mesh_handle}",
     )
     return
   }
-  let (effective_bundle, uvs, texcoord_set) = resolve_triangle_uv_set(
-    mesh, texture_bundle,
+  guard resolve_triangle_indices(mesh_handle, mesh) is Some(triangle_indices) else {
+    warn_texture_issue(
+      "triangles_invalid_indices:\{mesh_handle}",
+      "triangle mesh \{mesh_handle} has invalid index/topology data; skipping draw",
+    )
+    return
+  }
+  let (effective_bundle, uv0, uv1) = resolve_triangle_uv_sets(
+    mesh, mesh_handle, texture_bundle,
   )
-  let mut normals = resolve_triangle_normals(mesh)
+  let mut normals = resolve_triangle_normals(mesh, triangle_indices)
   if normals.length() != vertices.length() {
     warn_texture_issue(
       "triangles_normals_mismatch:\{normals.length()}:\{vertices.length()}",
@@ -4014,11 +4414,45 @@ fn draw_triangle_mesh(
       None
     }
   })
-  let cache_key = triangle_mesh_cache_key(mesh_handle, texcoord_set)
+  let tangents = mesh.tangents.bind(fn(candidates) {
+    if candidates.length() == vertices.length() {
+      Some(candidates)
+    } else {
+      warn_texture_issue(
+        "triangles_tangent_mismatch:\{candidates.length()}:\{vertices.length()}",
+        "triangle mesh tangent count (\{candidates.length()}) != vertex count (\{vertices.length()}); ignoring vertex tangents",
+      )
+      None
+    }
+  })
+  guard expand_vec3_with_indices(vertices, triangle_indices)
+    is Some(expanded_vertices) else {
+    return
+  }
+  guard expand_vec3_with_indices(normals, triangle_indices)
+    is Some(expanded_normals) else {
+    return
+  }
+  let expanded_uv0 = uv0.bind(fn(values) {
+    expand_vec2_with_indices(values, triangle_indices)
+  })
+  let expanded_uv1 = uv1.bind(fn(values) {
+    expand_vec2_with_indices(values, triangle_indices)
+  })
+  let expanded_colors = colors.bind(fn(values) {
+    expand_color_with_indices(values, triangle_indices)
+  })
+  let expanded_tangents = tangents.bind(fn(values) {
+    expand_tangent_with_indices(values, triangle_indices)
+  })
+  let cache_key = triangle_mesh_cache_key(mesh_handle)
   let ray_mesh = if backend.triangle_mesh_cache.get(cache_key) is Some(cached) {
     cached
   } else {
-    guard create_uploaded_triangle_mesh(vertices, uvs, normals, colors)
+    guard create_uploaded_triangle_mesh(
+        expanded_vertices, expanded_uv0, expanded_uv1, expanded_normals, expanded_tangents,
+        expanded_colors,
+      )
       is Some(created) else {
       warn_texture_issue(
         "triangles_build_failed:\{mesh_handle}",
@@ -4030,7 +4464,13 @@ fn draw_triangle_mesh(
     created
   }
   draw_lit_mesh_with_material(
-    ray_mesh, frame, camera_position, material, effective_bundle, receive_shadows,
+    ray_mesh,
+    frame,
+    camera_position,
+    material,
+    effective_bundle,
+    expanded_tangents is Some(_),
+    receive_shadows,
     shadow_state,
   )
 }
@@ -4038,32 +4478,54 @@ fn draw_triangle_mesh(
 ///|
 fn resolve_triangle_normals(
   mesh : @render3d_types.TriangleMesh3D,
+  triangle_indices : Array[Int],
 ) -> Array[@smath.Vec3] {
   mesh.normals
   .filter(fn(candidates) { candidates.length() == mesh.positions.length() })
-  .unwrap_or(compute_flat_triangle_normals(mesh.positions))
+  .unwrap_or(compute_vertex_normals(mesh.positions, triangle_indices))
 }
 
 ///|
-fn compute_flat_triangle_normals(
+fn compute_vertex_normals(
   positions : Array[@smath.Vec3],
+  triangle_indices : Array[Int],
 ) -> Array[@smath.Vec3] {
   let normals : Array[@smath.Vec3] = []
-  let triangle_count = positions.length() / 3
+  for _ in 0..<positions.length() {
+    normals.push(@smath.Vec3::zero())
+  }
+  let triangle_count = triangle_indices.length() / 3
   for triangle in 0..<triangle_count {
     let base = triangle * 3
-    let a = positions[base]
-    let b = positions[base + 1]
-    let c = positions[base + 2]
+    let ia = triangle_indices[base]
+    let ib = triangle_indices[base + 1]
+    let ic = triangle_indices[base + 2]
+    if ia < 0 ||
+      ia >= positions.length() ||
+      ib < 0 ||
+      ib >= positions.length() ||
+      ic < 0 ||
+      ic >= positions.length() {
+      continue
+    }
+    let a = positions[ia]
+    let b = positions[ib]
+    let c = positions[ic]
     let mut normal = (b - a).cross(c - a)
     if normal.length_squared() <= 0.0000001 {
       normal = @smath.Vec3::new(0.0, 1.0, 0.0)
-    } else {
-      normal = normal.normalize()
     }
-    normals.push(normal)
-    normals.push(normal)
-    normals.push(normal)
+    normals[ia] = normals[ia] + normal
+    normals[ib] = normals[ib] + normal
+    normals[ic] = normals[ic] + normal
+  }
+  for index in 0..<normals.length() {
+    let normal = normals[index]
+    normals[index] = if normal.length_squared() <= 0.0000001 {
+      @smath.Vec3::new(0.0, 1.0, 0.0)
+    } else {
+      normal.normalize()
+    }
   }
   normals
 }

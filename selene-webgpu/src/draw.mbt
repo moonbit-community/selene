@@ -534,7 +534,8 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
         )
       }
       Triangles(mesh) =>
-        if mesh.positions.length() >= 3 {
+        if resolve_triangle_indices(mesh) is Some(triangle_indices) &&
+          triangle_indices.length() >= 3 {
           let normals = resolve_mesh_normals(mesh)
           let tangents = resolve_mesh_tangents(mesh)
           match resolve_material_texture_bundle(material) {
@@ -590,6 +591,7 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
                       normal_input.sampler_code,
                       flatten_textured_vertices3d(
                         mesh.positions,
+                        triangle_indices,
                         base_input.uvs,
                         emissive_input.uvs,
                         metallic_roughness_input.uvs,
@@ -618,6 +620,7 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
                     webgpu_draw_colored_triangles_3d(
                       flatten_colored_vertices3d(
                         mesh.positions,
+                        triangle_indices,
                         normals,
                         mesh.colors,
                         item.transform.scale,
@@ -641,6 +644,7 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
                   webgpu_draw_colored_triangles_3d(
                     flatten_colored_vertices3d(
                       mesh.positions,
+                      triangle_indices,
                       normals,
                       mesh.colors,
                       item.transform.scale,
@@ -664,6 +668,7 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
               webgpu_draw_colored_triangles_3d(
                 flatten_colored_vertices3d(
                   mesh.positions,
+                  triangle_indices,
                   normals,
                   mesh.colors,
                   item.transform.scale,
@@ -863,31 +868,131 @@ fn pack_spot_light_data(frame : @render3d_types.RenderFrame3D) -> Array[Double] 
 fn resolve_mesh_normals(
   mesh : @render3d_types.TriangleMesh3D,
 ) -> Array[@smath.Vec3] {
+  let triangle_indices = resolve_triangle_indices(mesh).unwrap_or([])
   mesh.normals
   .filter(fn(candidates) { candidates.length() == mesh.positions.length() })
-  .unwrap_or(compute_flat_triangle_normals(mesh.positions))
+  .unwrap_or(compute_vertex_normals(mesh.positions, triangle_indices))
 }
 
 ///|
-fn compute_flat_triangle_normals(
+fn resolve_triangle_indices(
+  mesh : @render3d_types.TriangleMesh3D,
+) -> Array[Int]? {
+  let base_indices = mesh.indices.unwrap_or(
+    default_mesh_indices(mesh.positions.length()),
+  )
+  if base_indices.length() == 0 {
+    return None
+  }
+  for index in base_indices {
+    if index < 0 || index >= mesh.positions.length() {
+      return None
+    }
+  }
+  let triangle_indices = triangulate_triangle_indices(
+    base_indices,
+    mesh.topology,
+  )
+  if triangle_indices.length() < 3 || triangle_indices.length() % 3 != 0 {
+    return None
+  }
+  Some(triangle_indices)
+}
+
+///|
+fn default_mesh_indices(vertex_count : Int) -> Array[Int] {
+  let indices : Array[Int] = []
+  for index in 0..<vertex_count {
+    indices.push(index)
+  }
+  indices
+}
+
+///|
+fn triangulate_triangle_indices(
+  indices : Array[Int],
+  topology : @render3d_types.TriangleTopology3D,
+) -> Array[Int] {
+  let triangle_indices : Array[Int] = []
+  let push_index = fn(index : Int) { triangle_indices.push(index) }
+  match topology {
+    TriangleList => {
+      let tri_count = indices.length() / 3
+      for tri in 0..<tri_count {
+        let base = tri * 3
+        push_index(indices[base])
+        push_index(indices[base + 1])
+        push_index(indices[base + 2])
+      }
+    }
+    TriangleStrip =>
+      if indices.length() >= 3 {
+        for i in 0..<(indices.length() - 2) {
+          if i % 2 == 0 {
+            push_index(indices[i])
+            push_index(indices[i + 1])
+            push_index(indices[i + 2])
+          } else {
+            push_index(indices[i + 1])
+            push_index(indices[i])
+            push_index(indices[i + 2])
+          }
+        }
+      }
+    TriangleFan =>
+      if indices.length() >= 3 {
+        let head = indices[0]
+        for i in 1..<(indices.length() - 1) {
+          push_index(head)
+          push_index(indices[i])
+          push_index(indices[i + 1])
+        }
+      }
+  }
+  triangle_indices
+}
+
+///|
+fn compute_vertex_normals(
   positions : Array[@smath.Vec3],
+  triangle_indices : Array[Int],
 ) -> Array[@smath.Vec3] {
   let normals : Array[@smath.Vec3] = []
-  let triangle_count = positions.length() / 3
+  for _ in 0..<positions.length() {
+    normals.push(@smath.Vec3::zero())
+  }
+  let triangle_count = triangle_indices.length() / 3
   for triangle in 0..<triangle_count {
     let base = triangle * 3
-    let a = positions[base]
-    let b = positions[base + 1]
-    let c = positions[base + 2]
+    let ia = triangle_indices[base]
+    let ib = triangle_indices[base + 1]
+    let ic = triangle_indices[base + 2]
+    if ia < 0 ||
+      ia >= positions.length() ||
+      ib < 0 ||
+      ib >= positions.length() ||
+      ic < 0 ||
+      ic >= positions.length() {
+      continue
+    }
+    let a = positions[ia]
+    let b = positions[ib]
+    let c = positions[ic]
     let mut normal = (b - a).cross(c - a)
     if normal.length_squared() <= 0.0000001 {
       normal = @smath.Vec3::new(0.0, 1.0, 0.0)
-    } else {
-      normal = normal.normalize()
     }
-    normals.push(normal)
-    normals.push(normal)
-    normals.push(normal)
+    normals[ia] = normals[ia] + normal
+    normals[ib] = normals[ib] + normal
+    normals[ic] = normals[ic] + normal
+  }
+  for index in 0..<normals.length() {
+    let normal = normals[index]
+    normals[index] = if normal.length_squared() <= 0.0000001 {
+      @smath.Vec3::new(0.0, 1.0, 0.0)
+    } else {
+      normal.normalize()
+    }
   }
   normals
 }
@@ -912,6 +1017,7 @@ fn resolve_mesh_tangents(
 ///|
 fn flatten_colored_vertices3d(
   positions : Array[@smath.Vec3],
+  triangle_indices : Array[Int],
   normals : Array[@smath.Vec3],
   vertex_colors : Array[@render.Color]?,
   scale : @smath.Vec3,
@@ -926,7 +1032,7 @@ fn flatten_colored_vertices3d(
   let alpha_mode = alpha_mode_code(material.alpha_mode)
   let alpha_cutoff = material.alpha_cutoff
   let unlit = material_unlit_code(material)
-  for index in 0..<positions.length() {
+  for index in triangle_indices {
     let position = positions[index]
     let normal = normals[index]
     let color = resolve_vertex_color(vertex_colors, index, base_color)
@@ -956,6 +1062,7 @@ fn flatten_colored_vertices3d(
 ///|
 fn flatten_textured_vertices3d(
   positions : Array[@smath.Vec3],
+  triangle_indices : Array[Int],
   base_uvs : Array[@smath.Vec2D],
   emissive_uvs : Array[@smath.Vec2D],
   metallic_roughness_uvs : Array[@smath.Vec2D],
@@ -980,7 +1087,7 @@ fn flatten_textured_vertices3d(
   let occlusion_strength = material.occlusion_strength
   let normal_scale = material.normal_scale
   let unlit = material_unlit_code(material)
-  for index in 0..<positions.length() {
+  for index in triangle_indices {
     let position = positions[index]
     let base_uv = base_uvs[index]
     let emissive_uv = emissive_uvs[index]

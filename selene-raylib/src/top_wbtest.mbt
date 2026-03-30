@@ -86,3 +86,49 @@ test "raylib lighting sampler uniforms use sampler2d uniform data type" {
     _ => fail("expected sampler2d uniform data")
   }
 }
+
+///|
+test "raylib triangle topology indices resolve strip and fan to triangle list" {
+  let strip_mesh : @render3d_types.TriangleMesh3D = {
+    positions: [
+      @smath.Vec3::new(0.0, 0.0, 0.0),
+      @smath.Vec3::new(1.0, 0.0, 0.0),
+      @smath.Vec3::new(0.0, 1.0, 0.0),
+      @smath.Vec3::new(1.0, 1.0, 0.0),
+    ],
+    indices: Some([0, 1, 2, 3]),
+    topology: TriangleStrip,
+    uv_sets: [],
+    normals: None,
+    tangents: None,
+    colors: None,
+  }
+  let fan_mesh : @render3d_types.TriangleMesh3D = {
+    ..strip_mesh,
+    topology: TriangleFan,
+  }
+  inspect(
+    resolve_triangle_indices(@render3d_types.MeshHandle(1U), strip_mesh),
+    content="Some([0, 1, 2, 2, 1, 3])",
+  )
+  inspect(
+    resolve_triangle_indices(@render3d_types.MeshHandle(2U), fan_mesh),
+    content="Some([0, 1, 2, 0, 2, 3])",
+  )
+}
+
+///|
+test "raylib lighting shader exposes secondary uv and tangent controls" {
+  inspect(
+    raylib_lighting_vertex_shader.contains("in vec2 vertexTexCoord2;"),
+    content="true",
+  )
+  inspect(
+    raylib_lighting_fragment_shader.contains("uniform int materialHasTangents;"),
+    content="true",
+  )
+  inspect(
+    raylib_lighting_fragment_shader.contains("vec2 selectUv(int setIndex) {"),
+    content="true",
+  )
+}

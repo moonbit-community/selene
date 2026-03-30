@@ -69,6 +69,8 @@ priv struct SkinTemplate {
 ///|
 priv struct SkinnedPrimitiveTemplate {
   base_positions : Array[@math.Vec3]
+  indices : Array[Int]?
+  topology : @render3d.TriangleTopology3D
   base_normals : Array[@math.Vec3]
   uv_sets : Array[Array[@math.Vec2D]]
   colors : Array[@render.Color]?
@@ -299,6 +301,8 @@ fn resolve_scene_skin_bindings(
       target_entity: pending.target_entity,
       mesh: pending.mesh,
       base_positions: pending.skinned.base_positions,
+      indices: pending.skinned.indices,
+      topology: pending.skinned.topology,
       base_normals: pending.skinned.base_normals,
       uv_sets: pending.skinned.uv_sets,
       colors: pending.skinned.colors,
@@ -349,6 +353,8 @@ fn bind_instantiated_morph_mesh(
     target_entity,
     mesh,
     base_positions: binding.base_positions,
+    indices: binding.indices,
+    topology: binding.topology,
     base_normals: binding.base_normals,
     uv_sets: binding.uv_sets,
     colors: binding.colors,
@@ -1795,20 +1801,25 @@ fn parse_triangle_mesh_asset(
   if positions.length() == 0 {
     return None
   }
-  let indices = match field_int(primitive_object, "indices") {
+  let mode = field_int(primitive_object, "mode").unwrap_or(4)
+  guard triangle_topology_from_gltf_mode(mode) is Some(topology) else {
+    return None
+  }
+  let explicit_indices = match field_int(primitive_object, "indices") {
     Some(indices_accessor_index) =>
       read_accessor_indices(
         indices_accessor_index, buffers, buffer_views, accessors,
-      ).unwrap_or(default_mesh_indices(positions.length()))
-    None => default_mesh_indices(positions.length())
+      )
+    None => None
   }
-  let mode = field_int(primitive_object, "mode").unwrap_or(4)
-  let triangle_indices = decode_triangle_indices(indices, mode)
-  if triangle_indices.length() < 3 {
+  let indices = explicit_indices.unwrap_or(
+    default_mesh_indices(positions.length()),
+  )
+  if !indices_in_bounds(indices, positions.length()) {
     return None
   }
-  guard map_indices_vec3(positions, triangle_indices)
-    is Some(triangle_positions) else {
+  let triangle_indices = triangulate_triangle_indices(indices, topology)
+  if triangle_indices.length() < 3 {
     return None
   }
   let triangle_normals = match field_int(attributes_object, "NORMAL") {
@@ -1817,35 +1828,51 @@ fn parse_triangle_mesh_asset(
         read_accessor_vec3(
           normal_accessor_index, buffers, buffer_views, accessors,
         ) {
-        Some(normals) =>
-          map_indices_vec3(normals, triangle_indices).unwrap_or(
-            compute_flat_triangle_normals(triangle_positions),
-          )
-        None => compute_flat_triangle_normals(triangle_positions)
+        Some(normals) if normals.length() == positions.length() => normals
+        _ => compute_vertex_normals(positions, indices, topology)
       }
-    None => compute_flat_triangle_normals(triangle_positions)
+    None => compute_vertex_normals(positions, indices, topology)
   }
   let triangle_uv_sets = parse_triangle_uv_sets(
-    attributes_object, triangle_indices, buffers, buffer_views, accessors,
+    attributes_object,
+    positions.length(),
+    buffers,
+    buffer_views,
+    accessors,
   )
   let triangle_colors = parse_triangle_colors(
-    attributes_object, triangle_indices, buffers, buffer_views, accessors,
+    attributes_object,
+    positions.length(),
+    buffers,
+    buffer_views,
+    accessors,
   )
   let triangle_tangents = parse_triangle_tangents(
-    attributes_object, triangle_indices, buffers, buffer_views, accessors,
+    attributes_object,
+    positions.length(),
+    buffers,
+    buffer_views,
+    accessors,
   )
   let skinned = parse_triangle_binding(
-    primitive_object, attributes_object, triangle_indices, triangle_positions, triangle_normals,
+    primitive_object, attributes_object, positions, explicit_indices, topology, triangle_normals,
     triangle_uv_sets, triangle_colors, triangle_tangents, buffers, buffer_views,
     accessors,
   )
+  let mesh_indices = match (explicit_indices, topology) {
+    (Some(explicit), _) => Some(explicit)
+    (None, TriangleList) => None
+    (None, _) => Some(indices)
+  }
   Some({
     mesh: @render3d.triangle_mesh(
-      triangle_positions,
+      positions,
       uv_sets=triangle_uv_sets,
       normals=Some(triangle_normals),
       tangents=triangle_tangents,
       colors=triangle_colors,
+      indices=mesh_indices,
+      topology~,
     ),
     skinned,
   })
@@ -1855,8 +1882,9 @@ fn parse_triangle_mesh_asset(
 fn parse_triangle_binding(
   primitive_object : Map[String, Json],
   attributes_object : Map[String, Json],
-  triangle_indices : Array[Int],
-  triangle_positions : Array[@math.Vec3],
+  positions : Array[@math.Vec3],
+  indices : Array[Int]?,
+  topology : @render3d.TriangleTopology3D,
   triangle_normals : Array[@math.Vec3],
   triangle_uv_sets : Array[Array[@math.Vec2D]],
   triangle_colors : Array[@render.Color]?,
@@ -1866,10 +1894,18 @@ fn parse_triangle_binding(
   accessors : Array[AccessorTemplate?],
 ) -> SkinnedPrimitiveTemplate? {
   let triangle_influences = parse_triangle_influences(
-    attributes_object, triangle_indices, buffers, buffer_views, accessors,
+    attributes_object,
+    positions.length(),
+    buffers,
+    buffer_views,
+    accessors,
   )
   let morph_targets = parse_triangle_morph_targets(
-    primitive_object, triangle_indices, buffers, buffer_views, accessors,
+    primitive_object,
+    positions.length(),
+    buffers,
+    buffer_views,
+    accessors,
   )
   if triangle_influences is None && morph_targets.length() == 0 {
     return None
@@ -1881,7 +1917,9 @@ fn parse_triangle_binding(
     }
   }
   Some({
-    base_positions: triangle_positions,
+    base_positions: positions,
+    indices,
+    topology,
     base_normals: triangle_normals,
     uv_sets: triangle_uv_sets,
     colors: triangle_colors,
@@ -1895,7 +1933,7 @@ fn parse_triangle_binding(
 ///|
 fn parse_triangle_uv_sets(
   attributes_object : Map[String, Json],
-  triangle_indices : Array[Int],
+  vertex_count : Int,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
@@ -1906,15 +1944,15 @@ fn parse_triangle_uv_sets(
   }
   let uv_sets : Array[Array[@math.Vec2D]] = []
   for set_index in 0..<(max_set + 1) {
-    let mapped_uvs = match
+    let resolved_uvs = match
       field_int(attributes_object, "TEXCOORD_\{set_index}") {
       Some(accessor_index) =>
         read_accessor_vec2(accessor_index, buffers, buffer_views, accessors)
-        .bind(fn(values) { map_indices_vec2(values, triangle_indices) })
+        .filter(fn(values) { values.length() == vertex_count })
         .unwrap_or([])
       None => []
     }
-    uv_sets.push(mapped_uvs)
+    uv_sets.push(resolved_uvs)
   }
   uv_sets
 }
@@ -1922,7 +1960,7 @@ fn parse_triangle_uv_sets(
 ///|
 fn parse_triangle_colors(
   attributes_object : Map[String, Json],
-  triangle_indices : Array[Int],
+  vertex_count : Int,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
@@ -1930,17 +1968,17 @@ fn parse_triangle_colors(
   guard field_int(attributes_object, "COLOR_0") is Some(accessor_index) else {
     return None
   }
-  read_accessor_color(accessor_index, buffers, buffer_views, accessors).bind(fn(
+  read_accessor_color(accessor_index, buffers, buffer_views, accessors).filter(fn(
     values,
   ) {
-    map_indices_color(values, triangle_indices)
+    values.length() == vertex_count
   })
 }
 
 ///|
 fn parse_triangle_tangents(
   attributes_object : Map[String, Json],
-  triangle_indices : Array[Int],
+  vertex_count : Int,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
@@ -1948,17 +1986,18 @@ fn parse_triangle_tangents(
   guard field_int(attributes_object, "TANGENT") is Some(accessor_index) else {
     return None
   }
-  read_accessor_tangent(accessor_index, buffers, buffer_views, accessors).bind(fn(
-    values,
-  ) {
-    map_indices_tangent(values, triangle_indices)
-  })
+  read_accessor_tangent(accessor_index, buffers, buffer_views, accessors).filter(fn(
+      values,
+    ) {
+      values.length() == vertex_count
+    },
+  )
 }
 
 ///|
 fn parse_triangle_influences(
   attributes_object : Map[String, Json],
-  triangle_indices : Array[Int],
+  vertex_count : Int,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
@@ -1979,40 +2018,33 @@ fn parse_triangle_influences(
     is Some(weights0) else {
     return None
   }
-  if joints0.length() == 0 || weights0.length() == 0 {
-    return None
-  }
-  guard map_indices_joint4(joints0, triangle_indices) is Some(triangle_joints0) else {
-    return None
-  }
-  guard map_indices_weight4(weights0, triangle_indices)
-    is Some(triangle_weights0) else {
+  if joints0.length() != vertex_count || weights0.length() != vertex_count {
     return None
   }
   let triangle_joints1 = match field_int(attributes_object, "JOINTS_1") {
     Some(joints1_accessor) =>
-      read_accessor_joint4(joints1_accessor, buffers, buffer_views, accessors).bind(fn(
+      read_accessor_joint4(joints1_accessor, buffers, buffer_views, accessors).filter(fn(
           values,
         ) {
-          map_indices_joint4(values, triangle_indices)
+          values.length() == vertex_count
         },
       )
     None => None
   }
   let triangle_weights1 = match field_int(attributes_object, "WEIGHTS_1") {
     Some(weights1_accessor) =>
-      read_accessor_weight4(weights1_accessor, buffers, buffer_views, accessors).bind(fn(
+      read_accessor_weight4(weights1_accessor, buffers, buffer_views, accessors).filter(fn(
           values,
         ) {
-          map_indices_weight4(values, triangle_indices)
+          values.length() == vertex_count
         },
       )
     None => None
   }
   let output : Array[@animation.SkinVertexInfluence3D] = []
-  for index in 0..<triangle_joints0.length() {
-    let joints4 = triangle_joints0[index]
-    let weights4 = triangle_weights0[index]
+  for index in 0..<vertex_count {
+    let joints4 = joints0[index]
+    let weights4 = weights0[index]
     let extra_joints = triangle_joints1.bind(fn(values) { values.get(index) })
     let extra_weights = triangle_weights1.bind(fn(values) { values.get(index) })
     output.push(
@@ -2091,7 +2123,7 @@ fn select_skin_influences(
 ///|
 fn parse_triangle_morph_targets(
   primitive_object : Map[String, Json],
-  triangle_indices : Array[Int],
+  vertex_count : Int,
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
@@ -2107,20 +2139,20 @@ fn parse_triangle_morph_targets(
     }
     let position_deltas = match field_int(target_object, "POSITION") {
       Some(accessor_index) =>
-        read_accessor_vec3(accessor_index, buffers, buffer_views, accessors).bind(fn(
+        read_accessor_vec3(accessor_index, buffers, buffer_views, accessors).filter(fn(
             values,
           ) {
-            map_indices_vec3(values, triangle_indices)
+            values.length() == vertex_count
           },
         )
       None => None
     }
     let normal_deltas = match field_int(target_object, "NORMAL") {
       Some(accessor_index) =>
-        read_accessor_vec3(accessor_index, buffers, buffer_views, accessors).bind(fn(
+        read_accessor_vec3(accessor_index, buffers, buffer_views, accessors).filter(fn(
             values,
           ) {
-            map_indices_vec3(values, triangle_indices)
+            values.length() == vertex_count
           },
         )
       None => None
@@ -3608,11 +3640,39 @@ fn default_mesh_indices(vertex_count : Int) -> Array[Int] {
 }
 
 ///|
-fn decode_triangle_indices(indices : Array[Int], mode : Int) -> Array[Int] {
+fn triangle_topology_from_gltf_mode(
+  mode : Int,
+) -> @render3d.TriangleTopology3D? {
+  match mode {
+    4 => Some(TriangleList)
+    5 => Some(TriangleStrip)
+    6 => Some(TriangleFan)
+    _ => None
+  }
+}
+
+///|
+fn indices_in_bounds(indices : Array[Int], vertex_count : Int) -> Bool {
+  if indices.length() == 0 {
+    return false
+  }
+  for index in indices {
+    if index < 0 || index >= vertex_count {
+      return false
+    }
+  }
+  true
+}
+
+///|
+fn triangulate_triangle_indices(
+  indices : Array[Int],
+  topology : @render3d.TriangleTopology3D,
+) -> Array[Int] {
   let triangle_indices : Array[Int] = []
   let push_index = fn(index : Int) { triangle_indices.push(index) }
-  match mode {
-    4 => {
+  match topology {
+    TriangleList => {
       let tri_count = indices.length() / 3
       for tri in 0..<tri_count {
         let base = tri * 3
@@ -3621,7 +3681,7 @@ fn decode_triangle_indices(indices : Array[Int], mode : Int) -> Array[Int] {
         push_index(indices[base + 2])
       }
     }
-    5 =>
+    TriangleStrip =>
       if indices.length() >= 3 {
         for i in 0..<(indices.length() - 2) {
           if i % 2 == 0 {
@@ -3635,7 +3695,7 @@ fn decode_triangle_indices(indices : Array[Int], mode : Int) -> Array[Int] {
           }
         }
       }
-    6 =>
+    TriangleFan =>
       if indices.length() >= 3 {
         let head = indices[0]
         for i in 1..<(indices.length() - 1) {
@@ -3644,121 +3704,53 @@ fn decode_triangle_indices(indices : Array[Int], mode : Int) -> Array[Int] {
           push_index(indices[i + 1])
         }
       }
-    _ => ()
   }
   triangle_indices
 }
 
 ///|
-fn map_indices_vec3(
-  values : Array[@math.Vec3],
-  indices : Array[Int],
-) -> Array[@math.Vec3]? {
-  let output : Array[@math.Vec3] = []
-  for index in indices {
-    if index < 0 || index >= values.length() {
-      return None
-    }
-    output.push(values[index])
-  }
-  Some(output)
-}
-
-///|
-fn map_indices_vec2(
-  values : Array[@math.Vec2D],
-  indices : Array[Int],
-) -> Array[@math.Vec2D]? {
-  let output : Array[@math.Vec2D] = []
-  for index in indices {
-    if index < 0 || index >= values.length() {
-      return None
-    }
-    output.push(values[index])
-  }
-  Some(output)
-}
-
-///|
-fn map_indices_tangent(
-  values : Array[@render3d.Tangent3D],
-  indices : Array[Int],
-) -> Array[@render3d.Tangent3D]? {
-  let output : Array[@render3d.Tangent3D] = []
-  for index in indices {
-    if index < 0 || index >= values.length() {
-      return None
-    }
-    output.push(values[index])
-  }
-  Some(output)
-}
-
-///|
-fn map_indices_color(
-  values : Array[@render.Color],
-  indices : Array[Int],
-) -> Array[@render.Color]? {
-  let output : Array[@render.Color] = []
-  for index in indices {
-    if index < 0 || index >= values.length() {
-      return None
-    }
-    output.push(values[index])
-  }
-  Some(output)
-}
-
-///|
-fn map_indices_joint4(
-  values : Array[(Int, Int, Int, Int)],
-  indices : Array[Int],
-) -> Array[(Int, Int, Int, Int)]? {
-  let output : Array[(Int, Int, Int, Int)] = []
-  for index in indices {
-    if index < 0 || index >= values.length() {
-      return None
-    }
-    output.push(values[index])
-  }
-  Some(output)
-}
-
-///|
-fn map_indices_weight4(
-  values : Array[(Double, Double, Double, Double)],
-  indices : Array[Int],
-) -> Array[(Double, Double, Double, Double)]? {
-  let output : Array[(Double, Double, Double, Double)] = []
-  for index in indices {
-    if index < 0 || index >= values.length() {
-      return None
-    }
-    output.push(values[index])
-  }
-  Some(output)
-}
-
-///|
-fn compute_flat_triangle_normals(
+fn compute_vertex_normals(
   positions : Array[@math.Vec3],
+  indices : Array[Int],
+  topology : @render3d.TriangleTopology3D,
 ) -> Array[@math.Vec3] {
   let normals : Array[@math.Vec3] = []
-  let triangle_count = positions.length() / 3
+  for _ in 0..<positions.length() {
+    normals.push(@math.Vec3::zero())
+  }
+  let triangle_indices = triangulate_triangle_indices(indices, topology)
+  let triangle_count = triangle_indices.length() / 3
   for triangle in 0..<triangle_count {
     let base = triangle * 3
-    let a = positions[base]
-    let b = positions[base + 1]
-    let c = positions[base + 2]
-    let mut normal = (b - a).cross(c - a)
-    if normal.length_squared() <= 0.0000001 {
-      normal = @math.Vec3::new(0.0, 1.0, 0.0)
-    } else {
-      normal = normal.normalize()
+    let ia = triangle_indices[base]
+    let ib = triangle_indices[base + 1]
+    let ic = triangle_indices[base + 2]
+    if ia < 0 ||
+      ia >= positions.length() ||
+      ib < 0 ||
+      ib >= positions.length() ||
+      ic < 0 ||
+      ic >= positions.length() {
+      continue
     }
-    normals.push(normal)
-    normals.push(normal)
-    normals.push(normal)
+    let a = positions[ia]
+    let b = positions[ib]
+    let c = positions[ic]
+    let mut face_normal = (b - a).cross(c - a)
+    if face_normal.length_squared() <= 0.0000001 {
+      face_normal = @math.Vec3::new(0.0, 1.0, 0.0)
+    }
+    normals[ia] = normals[ia] + face_normal
+    normals[ib] = normals[ib] + face_normal
+    normals[ic] = normals[ic] + face_normal
+  }
+  for index in 0..<normals.length() {
+    let normal = normals[index]
+    normals[index] = if normal.length_squared() <= 0.0000001 {
+      @math.Vec3::new(0.0, 1.0, 0.0)
+    } else {
+      normal.normalize()
+    }
   }
   normals
 }
