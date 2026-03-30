@@ -1813,14 +1813,6 @@ fn view(
             enabled=true,
             primary=model.move_snap_enabled,
           ),
-          @html.div(
-            class="option-chip",
-            if model.move_snap_enabled {
-              "Snap On"
-            } else {
-              "Snap Off"
-            },
-          ),
         ]),
       ]),
     ]),

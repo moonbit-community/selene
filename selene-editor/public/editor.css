@@ -92,21 +92,6 @@ input {
   border-left: 1px solid var(--border);
 }
 
-.option-chip {
-  min-width: 76px;
-  height: 42px;
-  padding: 0 10px;
-  border: 1px solid var(--border);
-  background: var(--panel-2);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--muted);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
 .topbar-tools {
   padding-left: 20px;
   border-left: 1px solid var(--border);
