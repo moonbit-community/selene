@@ -1689,8 +1689,6 @@ fn view(
       ])
     None => selected_asset_view(dispatch, model)
   }
-  let can_decrease_move_snap = model.move_snap_step > 1.0
-  let can_increase_move_snap = model.move_snap_step < 64.0
   let body = @html.div(class="editor-root", [
     @html.div(class="topbar", [
       @html.div(class="topbar-section", [
@@ -1798,38 +1796,31 @@ fn view(
             "Scale (R)",
             "⬚",
           ),
-          @html.div(class="snap-controls", [
-            action_button(
-              dispatch,
-              if model.move_snap_enabled {
-                "Disable Move Snap"
-              } else {
-                "Enable Move Snap"
-              },
-              "⌗",
-              @app.msg_toggle_move_snap(),
-              enabled=true,
-              primary=model.move_snap_enabled,
-            ),
-            action_button(
-              dispatch,
-              "Decrease Move Snap Step",
-              "−",
-              @app.msg_adjust_move_snap_step(-1),
-              enabled=can_decrease_move_snap,
-            ),
-            @html.div(
-              class="snap-step-chip",
-              "\{model.move_snap_step.to_int()}px",
-            ),
-            action_button(
-              dispatch,
-              "Increase Move Snap Step",
-              "+",
-              @app.msg_adjust_move_snap_step(1),
-              enabled=can_increase_move_snap,
-            ),
-          ]),
+        ]),
+      ]),
+      @html.div(class="topbar-section topbar-options", [
+        @html.div(class="topbar-section-label", "Options"),
+        @html.div(class="topbar-group", [
+          action_button(
+            dispatch,
+            if model.move_snap_enabled {
+              "Disable Move Snap"
+            } else {
+              "Enable Move Snap"
+            },
+            "⌗",
+            @app.msg_toggle_move_snap(),
+            enabled=true,
+            primary=model.move_snap_enabled,
+          ),
+          @html.div(
+            class="option-chip",
+            if model.move_snap_enabled {
+              "Snap On"
+            } else {
+              "Snap Off"
+            },
+          ),
         ]),
       ]),
     ]),
