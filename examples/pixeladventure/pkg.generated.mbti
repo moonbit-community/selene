@@ -2,23 +2,19 @@
 package "Milky2018/selene-examples/pixeladventure"
 
 import {
-  "moonbitlang/core/json",
+  "Milky2018/selene/editor_bridge",
 }
 
 // Values
+pub fn pixeladventure_startup_scene_document() -> @editor_bridge.SceneDocument
+
 pub fn run() -> Unit
+
+pub fn with_pixeladventure_test_asset_io(() -> Unit raise) -> Unit raise
 
 // Errors
 
 // Types and methods
-type Tile
-pub impl @json.FromJson for Tile
-
-type TileLayer
-pub impl @json.FromJson for TileLayer
-
-type TileMap
-pub impl @json.FromJson for TileMap
 
 // Type aliases
 

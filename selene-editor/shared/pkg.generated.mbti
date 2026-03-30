@@ -71,6 +71,8 @@ pub fn rpc_request_project_open(String) -> RpcRequest
 
 pub fn rpc_request_project_pick_directory(String) -> RpcRequest
 
+pub fn rpc_request_project_save_workspace(@editor_bridge.WorkspaceDocument) -> RpcRequest
+
 pub fn rpc_request_project_set_startup_scene(String) -> RpcRequest
 
 pub fn rpc_request_scene_create(String) -> RpcRequest
@@ -232,6 +234,7 @@ pub enum RpcRequest {
   ProjectOpen(root~ : String)
   ProjectPickDirectory(prompt~ : String)
   ProjectSetStartupScene(path~ : String)
+  ProjectSaveWorkspace(workspace~ : @editor_bridge.WorkspaceDocument)
   SceneLoad(path~ : String)
   SceneMigrate(path~ : String)
   SceneList
