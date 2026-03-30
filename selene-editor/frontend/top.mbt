@@ -355,6 +355,16 @@ extern "js" fn image_event_natural_metrics(event : @dom.Event) -> Array[Double] 
   #| }
 
 ///|
+#cfg(target="js")
+extern "js" fn input_event_is_enter_key(event : @dom.Event) -> Bool =
+  #| (event) => (event?.key || "").toLowerCase() === "enter"
+
+///|
+#cfg(target="js")
+extern "js" fn input_event_blur_target(event : @dom.Event) =
+  #| (event) => event?.target?.blur?.()
+
+///|
 fn drag_drop_translation(event : @dom.DragEvent) -> @editor_bridge.Vec2Doc? {
   let metrics = drag_event_canvas_metrics(event)
   if metrics.length() < 4 {
@@ -1086,9 +1096,16 @@ fn labeled_input_with_commit(
   on_change : (String) -> @rabbita.Cmd,
   on_commit : () -> @rabbita.Cmd,
 ) -> @rabbita.Html {
-  let attrs = @html.Attrs::build().handler("change", fn(_event, scheduler) {
-    schedule_cmd(scheduler, on_commit())
-  })
+  let attrs = @html.Attrs::build()
+    .handler("change", fn(_event, scheduler) {
+      schedule_cmd(scheduler, on_commit())
+    })
+    .handler("keydown", fn(event, scheduler) {
+      if input_event_is_enter_key(event) {
+        input_event_blur_target(event)
+        schedule_cmd(scheduler, on_commit())
+      }
+    })
   @html.label(class="field", [
     @html.span(class="field-label", label),
     @html.input(
@@ -1755,7 +1772,7 @@ fn view(
             dispatch,
             model.active_tool,
             @shared.preview_tool_translate(),
-            "Move (W)",
+            "Move (W, hold Shift to snap 16px)",
             "✥",
           ),
           toolbar_button(

@@ -16,6 +16,8 @@
 - Fixed `selene-editor` keyboard workflow by adding standard shortcuts for save/tool switching/frame/delete (`Cmd/Ctrl+S`, `V/H/W/E/R`, `F`, `Delete`) with input-focus guards.
 - Fixed `selene-editor` viewport affordance feedback by adding tool-aware cursor changes and stronger selection/pivot overlay highlights while hovering/dragging.
 - Fixed `selene-editor` Inspector edit history so continuous typing on entity name/transform/text is now coalesced into one undo entry after commit instead of polluting the history stack per keystroke.
+- Fixed `selene-editor` Move precision by adding optional 16px grid snapping while holding `Shift` during translate drag/click placement.
+- Fixed `selene-editor` Inspector commit flow so pressing `Enter` now commits the current text/transform/name edit transaction immediately.
 
 ### Removed
 

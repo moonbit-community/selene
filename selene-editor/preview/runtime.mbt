@@ -170,6 +170,29 @@ fn clamp_scale_value(value : Double) -> Double {
 }
 
 ///|
+fn move_grid_snap_active() -> Bool {
+  @inputs.is_pressed(@inputs.ShiftLeft)
+}
+
+///|
+fn snap_to_move_grid(point : @math.Vec2D) -> @math.Vec2D {
+  let grid = 16.0
+  @math.Vec2D(
+    (point[X] / grid).round() * grid,
+    (point[Y] / grid).round() * grid,
+  )
+}
+
+///|
+fn move_target_world_point(point : @math.Vec2D) -> @math.Vec2D {
+  if move_grid_snap_active() {
+    snap_to_move_grid(point)
+  } else {
+    point
+  }
+}
+
+///|
 fn resolve_project_asset_path(path : String?) -> String? {
   path.map(fn(value) {
     if value.has_prefix("/") ||
@@ -836,11 +859,9 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
                 @bridge.preview_event_entity_picked(Some(hovered_id)),
               )
             } else {
+              let target = move_target_world_point(world_point)
               let next_transform = @editor_bridge.transform2d_value(
-                translation=@editor_bridge.vec2_doc(
-                  world_point[X],
-                  world_point[Y],
-                ),
+                translation=@editor_bridge.vec2_doc(target[X], target[Y]),
                 rotation=start_transform.rotation,
                 scale=start_transform.scale,
               )
@@ -946,7 +967,9 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
     let start = drag_state.start_transform
     let next_transform = match drag_state.tool {
       @shared.Translate => {
-        let delta = world_point - drag_state.anchor_world
+        let target_world = move_target_world_point(world_point)
+        let anchor_world = move_target_world_point(drag_state.anchor_world)
+        let delta = target_world - anchor_world
         @editor_bridge.transform2d_value(
           translation=@editor_bridge.vec2_doc(
             start.translation.x + delta[X],
