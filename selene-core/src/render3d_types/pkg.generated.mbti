@@ -306,6 +306,8 @@ pub impl Show for TextureWrap3D
 
 pub(all) struct TriangleMesh3D {
   positions : Array[@math.Vec3]
+  indices : Array[Int]?
+  topology : TriangleTopology3D
   uv_sets : Array[Array[@math.Vec2D]]
   normals : Array[@math.Vec3]?
   tangents : Array[Tangent3D]?
@@ -313,6 +315,14 @@ pub(all) struct TriangleMesh3D {
 }
 pub impl Eq for TriangleMesh3D
 pub impl Show for TriangleMesh3D
+
+pub(all) enum TriangleTopology3D {
+  TriangleList
+  TriangleStrip
+  TriangleFan
+}
+pub impl Eq for TriangleTopology3D
+pub impl Show for TriangleTopology3D
 
 // Type aliases
 

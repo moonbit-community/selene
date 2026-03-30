@@ -306,6 +306,8 @@ pub(all) struct MorphMeshBinding3D {
   target_entity : @entity.Entity
   mesh : @render3d_types.MeshHandle
   base_positions : Array[@math.Vec3]
+  indices : Array[Int]?
+  topology : @render3d_types.TriangleTopology3D
   base_normals : Array[@math.Vec3]
   uv_sets : Array[Array[@math.Vec2D]]
   colors : Array[@render.Color]?
@@ -362,6 +364,8 @@ pub(all) struct SkinnedMeshBinding3D {
   target_entity : @entity.Entity
   mesh : @render3d_types.MeshHandle
   base_positions : Array[@math.Vec3]
+  indices : Array[Int]?
+  topology : @render3d_types.TriangleTopology3D
   base_normals : Array[@math.Vec3]
   uv_sets : Array[Array[@math.Vec2D]]
   colors : Array[@render.Color]?
