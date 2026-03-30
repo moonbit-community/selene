@@ -1,10 +1,10 @@
 {
   "name": "Milky2018/selene_raylib",
-  "version": "0.30.1",
+  "version": "0.30.2",
   "deps": {
     "Milky2018/selene": {
       "path": "../selene-core",
-      "version": "0.30.1"
+      "version": "0.30.2"
     },
     "tonyfettes/raylib": "0.3.1",
     "Milky2018/moon_cosmic": "0.1.5"
