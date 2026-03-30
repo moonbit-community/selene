@@ -208,6 +208,66 @@ test "impulse joint contacts_enabled disables body contact pairs" {
 }
 
 ///|
+test "multibody joint creates a rapier handle" {
+  with_physics3d_test_world(fn() raise {
+    let parent = @entity.Entity::new()
+    rigid_bodies().set(parent, Fixed)
+    colliders().set(parent, Collider::ball(0.5))
+
+    let child = @entity.Entity::new()
+    @transform.transforms().set(
+      child,
+      @transform.Transform::from_xyz(0.0, 1.0, 0.0),
+    )
+    rigid_bodies().set(child, Dynamic)
+    colliders().set(child, Collider::ball(0.5))
+    multibody_joints().set(child, {
+      parent,
+      data: Revolute(RevoluteJoint::new(@math.Vec3::z_axis())),
+      contacts_enabled: true,
+    })
+
+    step_physics(1)
+
+    inspect(multibody_joint_handle(child) is Some(_), content="true")
+  })
+}
+
+///|
+test "dominance is forwarded to rapier rigid body" {
+  with_physics3d_test_world(fn() raise {
+    let body_entity = @entity.Entity::new()
+    rigid_bodies().set(body_entity, Dynamic)
+    dominances().set(body_entity, Dominance::new(5))
+
+    step_physics(1)
+
+    let body = physics3d_world().bodies
+      .get(rigid_body_handle(body_entity).unwrap())
+      .unwrap()
+    inspect(body.dominance_group(), content="5")
+  })
+}
+
+///|
+test "solver groups are forwarded to rapier collider" {
+  with_physics3d_test_world(fn() raise {
+    let collider_entity = @entity.Entity::new()
+    colliders().set(collider_entity, Collider::ball(0.5))
+    solver_groups().set(collider_entity, SolverGroups::new(0x2, 0x4))
+
+    step_physics(1)
+
+    let collider = physics3d_world().colliders
+      .get(collider_handle(collider_entity).unwrap())
+      .unwrap()
+    let groups = collider.solver_groups()
+    inspect(groups.memberships().bits(), content="2")
+    inspect(groups.filter().bits(), content="4")
+  })
+}
+
+///|
 test "kinematic character controller writes output and clears consumed translation" {
   with_physics3d_test_world(fn() raise {
     let floor = @entity.Entity::new()

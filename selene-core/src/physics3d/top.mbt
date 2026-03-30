@@ -330,7 +330,7 @@ priv struct RigidBodyDesc {
   gravity_scale : GravityScale
   locked_axes : LockedAxes
   ccd_enabled : Bool
-  _dominance : Dominance?
+  dominance : Dominance?
   additional_mass_properties : AdditionalMassProperties?
 }
 
@@ -341,7 +341,7 @@ priv struct ColliderDesc {
   friction : Friction
   restitution : Restitution
   collision_groups : CollisionGroups
-  _solver_groups : SolverGroups?
+  solver_groups : SolverGroups?
   active_collision_types : @collision.ActiveCollisionTypes
   active_events : @collision.ActiveEvents
   active_hooks : @collision.ActiveHooks
@@ -880,6 +880,7 @@ priv struct Physics3DWorld {
   colliders : @collision.ColliderSet3D
   mut impulse_joints : @dynamics.JointSet3DReal
   mut rope_joints : @dynamics.RopeJointSet3DReal
+  mut multibody_joints : @dynamics.MultibodyJointSet3DReal
   event_handler : @pipeline.EventHandler3D
 }
 
@@ -910,6 +911,7 @@ fn physics3d_world_store() -> Physics3DWorldStore {
       colliders: @collision.ColliderSet3D::new(),
       impulse_joints: @dynamics.JointSet3DReal::new(),
       rope_joints: @dynamics.RopeJointSet3DReal::new(),
+      multibody_joints: @dynamics.MultibodyJointSet3DReal::new(),
       event_handler: @pipeline.EventHandler3D::new(),
     },
     body_handles: Map::new(),
@@ -1122,7 +1124,7 @@ fn rigid_body_desc(entity : @entity.Entity) -> RigidBodyDesc {
     .unwrap_or(GravityScale::default()),
     locked_axes: locked_axes().get(entity).unwrap_or(LockedAxes::default()),
     ccd_enabled: ccds().contains(entity),
-    _dominance: dominances().get(entity),
+    dominance: dominances().get(entity),
     additional_mass_properties: additional_mass_properties().get(entity),
   }
 }
@@ -1137,7 +1139,7 @@ fn collider_desc(entity : @entity.Entity, shape : Collider) -> ColliderDesc {
     collision_groups: collision_groups()
     .get(entity)
     .unwrap_or(CollisionGroups::all()),
-    _solver_groups: solver_groups().get(entity),
+    solver_groups: solver_groups().get(entity),
     active_collision_types: active_collision_types()
     .get(entity)
     .unwrap_or(@collision.ActiveCollisionTypes::default()),
@@ -1195,6 +1197,7 @@ pub fn physics_step_system(delta : Double) -> Unit {
   )
   world.impulse_joints.solve(world.bodies, Float::from_double(delta))
   world.rope_joints.solve(world.bodies, Float::from_double(delta))
+  world.multibody_joints.sync_rigid_bodies_from_multibodies(world.bodies)
 
   collect_events()
   sync_rapier_to_components()
@@ -1403,6 +1406,7 @@ fn sync_components_to_rapier() -> Unit {
 
     body.set_linvel(body_desc.velocity.linvel.to_rapier())
     body.set_angvel(body_desc.velocity.angvel.to_rapier())
+    body.set_dominance_group(body_desc.dominance.map(d => d.0).unwrap_or(0))
 
     match body_desc.body_type {
       KinematicPositionBased =>
@@ -1556,8 +1560,35 @@ fn sync_impulse_joints_to_rapier() -> Unit {
 
 ///|
 fn sync_multibody_joints_to_rapier() -> Unit {
+  let world = physics3d_world()
+  world.multibody_joints = @dynamics.MultibodyJointSet3DReal::new()
   for pair in multibody_joint_handles().to_array() {
     multibody_joint_handles().remove(pair.0)
+  }
+  for entity, multibody_joint in multibody_joints() {
+    if !entity.is_alive() || !multibody_joint.parent.is_alive() {
+      continue
+    }
+    guard body_handles().get(entity) is Some(child_handle) else { continue }
+    guard body_handles().get(multibody_joint.parent) is Some(parent_handle) else {
+      continue
+    }
+    if child_handle.into_raw_parts() == parent_handle.into_raw_parts() {
+      continue
+    }
+    guard multibody_joint_to_rapier(
+        multibody_joint.data,
+        contacts_enabled=multibody_joint.contacts_enabled,
+      )
+      is Some(rapier_joint) else {
+      continue
+    }
+    if world.multibody_joints.insert(
+        parent_handle, child_handle, rapier_joint, true,
+      )
+      is Some(handle) {
+      multibody_joint_handles().set(entity, handle)
+    }
   }
 }
 
@@ -1661,6 +1692,12 @@ fn sync_collider_to_rapier(
   let world = physics3d_world()
   guard collider_handles().get(entity) is Some(handle) else { return }
   guard world.colliders.get_mut(handle) is Some(collider) else { return }
+  let collision_groups = interaction_groups(
+    collider_desc.collision_groups.memberships,
+    collider_desc.collision_groups.filters,
+  )
+  let solver = collider_desc.solver_groups.unwrap_or(SolverGroups::all())
+  let solver_groups = interaction_groups(solver.memberships, solver.filters)
 
   match attached_rigid_body_entity(entity) {
     Some(body_entity) =>
@@ -1704,6 +1741,8 @@ fn sync_collider_to_rapier(
 
   ignore(
     collider
+    .set_collision_groups(collision_groups)
+    .set_solver_groups(solver_groups)
     .set_enabled(true)
     .set_active_collision_types(collider_desc.active_collision_types)
     .set_active_events(collider_desc.active_events)
@@ -1739,6 +1778,7 @@ fn ensure_rigid_body(entity : @entity.Entity) -> RapierRigidBodyHandle {
     .translation(transform.translation.to_rapier())
     .rotation(transform.rotation.to_rapier())
     .gravity_scale(Float::from_double(body_desc.gravity_scale.0))
+    .dominance_group(body_desc.dominance.map(d => d.0).unwrap_or(0))
     .linear_damping(Float::from_double(body_desc.damping.linear_damping))
     .angular_damping(Float::from_double(body_desc.damping.angular_damping))
     .ccd_enabled(body_desc.ccd_enabled)
@@ -1869,11 +1909,12 @@ fn collider_builder_from_desc(
       ).unwrap_or(@collision.ColliderBuilder3D::ball(0.0))
   }
 
-  let groups = @dynamics.InteractionGroups::new(
-    @dynamics.Group::new(collider_desc.collision_groups.memberships),
-    @dynamics.Group::new(collider_desc.collision_groups.filters),
-    And,
+  let groups = interaction_groups(
+    collider_desc.collision_groups.memberships,
+    collider_desc.collision_groups.filters,
   )
+  let solver = collider_desc.solver_groups.unwrap_or(SolverGroups::all())
+  let solver_groups = interaction_groups(solver.memberships, solver.filters)
   let mut active_events = @collision.ActiveEvents::collision_events().union(
     @collision.ActiveEvents::intersection_events(),
   )
@@ -1885,6 +1926,7 @@ fn collider_builder_from_desc(
 
   builder = builder
     .collision_groups(groups)
+    .solver_groups(solver_groups)
     .friction(Float::from_double(collider_desc.friction.0))
     .restitution(Float::from_double(collider_desc.restitution.0))
     .sensor(collider_desc.sensor)
@@ -1899,6 +1941,18 @@ fn collider_builder_from_desc(
     builder = builder.density(Float::from_double(density))
   }
   builder
+}
+
+///|
+fn interaction_groups(
+  memberships : Int,
+  filters : Int,
+) -> @dynamics.InteractionGroups {
+  @dynamics.InteractionGroups::new(
+    @dynamics.Group::new(memberships),
+    @dynamics.Group::new(filters),
+    And,
+  )
 }
 
 ///|
@@ -2127,6 +2181,172 @@ fn spherical_joint_to_rapier(
     .local_anchor1(joint.local_anchor1.to_rapier())
     .local_anchor2(joint.local_anchor2.to_rapier())
   builder.build()
+}
+
+///|
+fn multibody_joint_to_rapier(
+  joint : Joint,
+  contacts_enabled? : Bool = true,
+) -> @dynamics.GenericJoint? {
+  match joint {
+    Fixed(fixed_joint) => {
+      let anchor1 = fixed_joint.local_anchor1.to_rapier()
+      let anchor2 = fixed_joint.local_anchor2.to_rapier()
+      let frame1 = @core.Isometry2::new(
+        @core.Vec2::new(anchor1.x, anchor1.y),
+        @core.Rot2::from_angle(
+          fixed_joint.local_basis1.to_rapier().to_scaled_axis().z,
+        ),
+      )
+      let frame2 = @core.Isometry2::new(
+        @core.Vec2::new(anchor2.x, anchor2.y),
+        @core.Rot2::from_angle(
+          fixed_joint.local_basis2.to_rapier().to_scaled_axis().z,
+        ),
+      )
+      Some(
+        @dynamics.GenericJoint::default()
+        .set_local_frame1(frame1)
+        .set_local_frame2(frame2)
+        .set_locked_axes(@dynamics.JointAxesMask::all())
+        .set_contacts_enabled(contacts_enabled),
+      )
+    }
+    Revolute(revolute_joint) => {
+      let mut builder = @dynamics.RevoluteJointBuilder3::new(
+        revolute_joint.axis.to_rapier(),
+      )
+      builder = builder
+        .local_anchor1(revolute_joint.local_anchor1.to_rapier())
+        .local_anchor2(revolute_joint.local_anchor2.to_rapier())
+      if revolute_joint.limits is Some((min, max)) {
+        builder = builder.limits(
+          Float::from_double(min),
+          Float::from_double(max),
+        )
+      }
+      if revolute_joint.motor_position is Some((target, stiffness, damping)) {
+        builder = builder.motor_position(
+          Float::from_double(target),
+          Float::from_double(stiffness),
+          Float::from_double(damping),
+        )
+      }
+      if revolute_joint.motor_velocity is Some((target, factor)) {
+        builder = builder.motor_velocity(
+          Float::from_double(target),
+          Float::from_double(factor),
+        )
+      }
+      if revolute_joint.max_force is Some(max_force) {
+        builder = builder.motor_max_force(Float::from_double(max_force))
+      }
+      Some(
+        @dynamics.GenericJoint::from_revolute(builder.build()).set_contacts_enabled(
+          contacts_enabled,
+        ),
+      )
+    }
+    Prismatic(prismatic_joint) => {
+      let mut builder = @dynamics.PrismaticJointBuilder3::new(
+        prismatic_joint.axis.to_rapier(),
+      )
+      builder = builder
+        .local_anchor1(prismatic_joint.local_anchor1.to_rapier())
+        .local_anchor2(prismatic_joint.local_anchor2.to_rapier())
+      if prismatic_joint.limits is Some((min, max)) {
+        builder = builder.limits(
+          Float::from_double(min),
+          Float::from_double(max),
+        )
+      }
+      if prismatic_joint.motor_position is Some((target, stiffness, damping)) {
+        builder = builder.motor_position(
+          Float::from_double(target),
+          Float::from_double(stiffness),
+          Float::from_double(damping),
+        )
+      }
+      if prismatic_joint.motor_velocity is Some((target, factor)) {
+        builder = builder.motor_velocity(
+          Float::from_double(target),
+          Float::from_double(factor),
+        )
+      }
+      if prismatic_joint.max_force is Some(max_force) {
+        builder = builder.motor_max_force(Float::from_double(max_force))
+      }
+      Some(
+        @dynamics.GenericJoint::from_prismatic(builder.build()).set_contacts_enabled(
+          contacts_enabled,
+        ),
+      )
+    }
+    Rope(rope_joint) => {
+      let builder = @dynamics.RopeJointBuilder3::new(
+          Float::from_double(rope_joint.max_distance),
+        )
+        .local_anchor1(rope_joint.local_anchor1.to_rapier())
+        .local_anchor2(rope_joint.local_anchor2.to_rapier())
+      Some(
+        @dynamics.GenericJoint::from_rope(builder.build()).set_contacts_enabled(
+          contacts_enabled,
+        ),
+      )
+    }
+    Spherical(spherical_joint) => {
+      let anchor1 = spherical_joint.local_anchor1.to_rapier()
+      let anchor2 = spherical_joint.local_anchor2.to_rapier()
+      let mut data = @dynamics.GenericJoint::new(
+          @dynamics.JointAxesMask::locked_spherical_axes(),
+        )
+        .set_contacts_enabled(contacts_enabled)
+        .set_local_anchor1(@core.Vec2::new(anchor1.x, anchor1.y))
+        .set_local_anchor2(@core.Vec2::new(anchor2.x, anchor2.y))
+      if spherical_joint.motor_target is Some((target, stiffness, damping)) {
+        let axis = target.to_rapier().to_scaled_axis()
+        data = data
+          .set_motor_position(
+            @dynamics.JointAxis::AngX,
+            axis.x,
+            Float::from_double(stiffness),
+            Float::from_double(damping),
+          )
+          .set_motor_position(
+            @dynamics.JointAxis::AngY,
+            axis.y,
+            Float::from_double(stiffness),
+            Float::from_double(damping),
+          )
+          .set_motor_position(
+            @dynamics.JointAxis::AngZ,
+            axis.z,
+            Float::from_double(stiffness),
+            Float::from_double(damping),
+          )
+      }
+      Some(data)
+    }
+    Spring(spring_joint) => {
+      // Moon Rapier multibody insert expects GenericJoint; we map spring semantics
+      // to a rope joint with spring motor targeting the configured rest length.
+      let builder = @dynamics.RopeJointBuilder3::new(
+          Float::from_double(spring_joint.rest_length),
+        )
+        .local_anchor1(spring_joint.local_anchor1.to_rapier())
+        .local_anchor2(spring_joint.local_anchor2.to_rapier())
+        .motor_position(
+          Float::from_double(spring_joint.rest_length),
+          Float::from_double(spring_joint.stiffness),
+          Float::from_double(spring_joint.damping),
+        )
+      Some(
+        @dynamics.GenericJoint::from_rope(builder.build()).set_contacts_enabled(
+          contacts_enabled,
+        ),
+      )
+    }
+  }
 }
 
 ///|

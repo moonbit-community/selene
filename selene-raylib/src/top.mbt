@@ -1000,6 +1000,38 @@ fn create_lighting_shader_state() -> LightingShaderState {
     raylib_lighting_vertex_shader, raylib_lighting_fragment_shader,
   )
   configure_lighting_shader_locations(shader)
+  // Keep sampler-unit mapping explicit for both draw_mesh() and immediate rlgl paths.
+  // Without this, texture samplers may all alias unit 0 on some drivers.
+  set_shader_uniform(
+    shader,
+    @raylib.get_shader_location(shader, "texture0"),
+    uniform_int(0),
+  )
+  set_shader_uniform(
+    shader,
+    @raylib.get_shader_location(shader, "texture1"),
+    uniform_int(1),
+  )
+  set_shader_uniform(
+    shader,
+    @raylib.get_shader_location(shader, "texture2"),
+    uniform_int(2),
+  )
+  set_shader_uniform(
+    shader,
+    @raylib.get_shader_location(shader, "texture3"),
+    uniform_int(3),
+  )
+  set_shader_uniform(
+    shader,
+    @raylib.get_shader_location(shader, "texture4"),
+    uniform_int(4),
+  )
+  set_shader_uniform(
+    shader,
+    @raylib.get_shader_location(shader, "texture5"),
+    uniform_int(5),
+  )
   let shadow_enabled_locs : Array[Int] = []
   let shadow_cascade_count_locs : Array[Int] = []
   let shadow_matrix_locs : Array[Int] = []

@@ -1792,7 +1792,7 @@ fn entity_multibody_joint_config_key(
 ///|
 fn multibody_joint_to_rapier(
   joint : MultibodyJoint,
-) -> @rapier_dynamics.RevoluteJoint? {
+) -> @rapier_dynamics.GenericJoint? {
   if !joint.active {
     return None
   }
@@ -1837,7 +1837,7 @@ fn multibody_joint_to_rapier(
           }
         }
       }
-      Some(builder.build())
+      Some(@rapier_dynamics.GenericJoint::from_revolute(builder.build()))
     }
   }
 }
