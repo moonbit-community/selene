@@ -8,7 +8,37 @@
 
 ### Fixed
 
+- Fixed `selene-editor` Move tool behavior so `Translate` now supports click-to-place positioning and no longer gets interrupted by per-frame scene reloads during drag.
+- Fixed `selene-editor` viewport transform editing history by introducing preview transform gesture start/finish boundaries, so a full drag gesture records as one undoable scene edit.
+- Fixed `selene-editor` preview sync granularity by separating view-state sync (`tool`/`selection`) from scene-content sync, avoiding unnecessary `LoadScene` churn on simple selection/tool updates.
+- Fixed `selene-editor` Move tool click semantics so clicking another entity now selects it first, while clicking empty space moves the current selection to the cursor position.
+- Fixed `selene-editor` topbar action UX by adding disabled states for unavailable operations (`Undo`/`Redo`/`Delete`/`Frame`/scene-add/save when scene is unavailable).
+- Fixed `selene-editor` keyboard workflow by adding standard shortcuts for save/tool switching/frame/delete (`Cmd/Ctrl+S`, `V/H/W/E/R`, `F`, `Delete`) with input-focus guards.
+- Fixed `selene-editor` viewport affordance feedback by adding tool-aware cursor changes and stronger selection/pivot overlay highlights while hovering/dragging.
+- Fixed `selene-editor` Inspector edit history so continuous typing on entity name/transform/text is now coalesced into one undo entry after commit instead of polluting the history stack per keystroke.
+
 ### Removed
+
+## [0.30.1] - 2026-03-30
+
+### Added
+
+### Changed
+
+- Changed `selene-editor` viewport tooling to introduce explicit `DragCanvas` mode for left-drag camera panning, while keeping middle-drag and touchpad-scroll pan behavior.
+- Changed `selene-core` and `examples` to use `Milky2018/moon_rapier@0.3.0` via `moon add`, aligning the workspace with the latest Rapier MoonBit package surface.
+- Changed `selene/physics3d` 3D Rapier syncing to wire `Dominance` and `SolverGroups` into both creation and per-frame sync paths (`RigidBodyBuilder3D`/`RigidBody3D`, `ColliderBuilder3D`/`Collider3D`), and implemented `multibody_joints()` -> `MultibodyJointSet3DReal` insertion/handle mapping.
+
+### Fixed
+
+- Fixed `selene-editor` viewport navigation ergonomics by replacing the temporary `Space + left-drag` pan gesture with explicit `Drag Canvas` tool behavior and standard input controls: middle-button drag pan shortcut, touchpad two-finger scroll pan, and `Shift + scroll` zoom.
+- Fixed `selene-core` 2D multibody joint syncing against `moon_rapier@0.3.0` by adapting the revolute joint conversion path to the new `GenericJoint`-based insert API.
+- Fixed missing 3D alignment coverage for `moon_rapier@0.3.0` by adding whitebox tests for multibody joint handle creation, rigid-body dominance propagation, and collider solver-group propagation.
+- Fixed `selene_raylib` 3D lit shader sampler binding initialization by explicitly binding `texture0..texture5` to texture units `0..5`, preventing driver-dependent sampler aliasing in triangle-mesh immediate rendering.
+
+### Removed
+
+- Removed `PreviewPivotMode` and `PreviewCommand::SetPivotMode` from `selene-editor` shared/preview interfaces and deleted the corresponding frontend app state/messages, so pivot switching no longer exists as a configurable editor feature.
 
 ## [0.30.0] - 2026-03-28
 

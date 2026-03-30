@@ -21,8 +21,6 @@ pub fn preview_command_load_scene(PreviewScenePayload) -> PreviewCommand
 
 pub fn preview_command_select_entity(String?) -> PreviewCommand
 
-pub fn preview_command_set_pivot_mode(@shared.PreviewPivotMode) -> PreviewCommand
-
 pub fn preview_command_set_tool(@shared.PreviewTool) -> PreviewCommand
 
 pub fn preview_event_entity_picked(String?) -> PreviewEvent
@@ -56,7 +54,6 @@ pub enum PreviewCommand {
   LoadScene(PreviewScenePayload)
   SelectEntity(String?)
   SetTool(@shared.PreviewTool)
-  SetPivotMode(@shared.PreviewPivotMode)
   FrameSelection
 }
 pub impl Eq for PreviewCommand

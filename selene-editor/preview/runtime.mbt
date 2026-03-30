@@ -17,7 +17,6 @@ priv struct PreviewState {
   mut selected_entity_id : String?
   mut hovered_entity_id : String?
   mut active_tool : @shared.PreviewTool
-  mut pivot_mode : @shared.PreviewPivotMode
   mut camera_entity : @entity.Entity?
   mut selection_overlay : @entity.Entity?
   mut pivot_overlay : @entity.Entity?
@@ -37,7 +36,6 @@ fn PreviewState::new() -> PreviewState {
     selected_entity_id: None,
     hovered_entity_id: None,
     active_tool: @shared.preview_tool_select(),
-    pivot_mode: @shared.preview_pivot_mode_transform_origin(),
     camera_entity: None,
     selection_overlay: None,
     pivot_overlay: None,
@@ -69,6 +67,21 @@ extern "js" fn canvas_client_size() -> Array[Double] =
   #|     Math.max(1, rect.height || canvas.clientHeight || canvas.height || 540),
   #|   ];
   #| }
+
+///|
+#cfg(target="js")
+extern "js" fn set_canvas_cursor(cursor : String) =
+  #| (cursor) => {
+  #|   const canvas = document.getElementById("canvas");
+  #|   if (!canvas) return;
+  #|   canvas.style.cursor = cursor;
+  #| }
+
+///|
+#cfg(not(target="js"))
+fn set_canvas_cursor(_cursor : String) -> Unit {
+  ()
+}
 
 ///|
 fn normalized_mouse_position() -> @math.Vec2D {
@@ -112,6 +125,15 @@ fn mouse_to_viewport_delta(delta : @math.Vec2D) -> @math.Vec2D {
 fn pointer_drag_started(anchor : @math.Vec2D) -> Bool {
   let delta = @inputs.mouse.pos - anchor
   delta[X].abs() >= 1.0 || delta[Y].abs() >= 1.0
+}
+
+///|
+fn pointer_pan_active() -> Bool {
+  @inputs.mouse.middle_button ||
+  (
+    preview_state.active_tool == @shared.preview_tool_drag_canvas() &&
+    @inputs.mouse.left_button
+  )
 }
 
 ///|
@@ -193,11 +215,6 @@ pub fn select_entity(id : String?) -> Unit {
 ///|
 pub fn set_tool(tool : @shared.PreviewTool) -> Unit {
   preview_state.active_tool = tool
-}
-
-///|
-pub fn set_pivot_mode(mode : @shared.PreviewPivotMode) -> Unit {
-  preview_state.pivot_mode = mode
 }
 
 ///|
@@ -369,22 +386,52 @@ fn selected_pivot_world() -> @math.Vec2D? {
   guard preview_state.selected_entity_id is Some(id) else { return None }
   guard scene.entity(id) is Some(document) else { return None }
   let transform = @editor_bridge.decoded_transform(document)
-  match preview_state.pivot_mode {
-    @shared.TransformOrigin =>
-      Some(@math.Vec2D(transform.translation.x, transform.translation.y))
-    @shared.BoundsCenter =>
-      match overlay_bounds() {
-        Some((position, size)) =>
-          Some(
-            @math.Vec2D(
-              position[X] + size[X] * 0.5,
-              position[Y] + size[Y] * 0.5,
-            ),
-          )
-        None =>
-          Some(@math.Vec2D(transform.translation.x, transform.translation.y))
-      }
-  }
+  Some(@math.Vec2D(transform.translation.x, transform.translation.y))
+}
+
+///|
+fn update_current_scene_entity_transform(
+  entity_id : String,
+  next_transform : @editor_bridge.Transform2dComponent,
+) -> Unit {
+  guard preview_state.current_scene is Some(scene) else { return }
+  guard scene.entity(entity_id) is Some(document) else { return }
+  let next_scene = scene.with_entity(
+    document.with_component(
+      @editor_bridge.transform2d_component(
+        translation=next_transform.translation,
+        rotation=next_transform.rotation,
+        scale=next_transform.scale,
+      ),
+    ),
+  )
+  preview_state.current_scene = Some(next_scene)
+}
+
+///|
+fn apply_runtime_transform(
+  entity_id : String,
+  next_transform : @editor_bridge.Transform2dComponent,
+) -> Unit {
+  update_current_scene_entity_transform(entity_id, next_transform)
+  guard preview_state.runtime_scene is Some(scene) else { return }
+  guard scene.entity_ids.contains(entity_id) else { return }
+  let entity = scene.entity_ids[entity_id]
+  let current = @transform.transforms()
+    .get(entity)
+    .unwrap_or(@transform.Transform::identity())
+  let runtime_transform = @transform.Transform::from_xyz(
+      next_transform.translation.x,
+      next_transform.translation.y,
+      current.translation.z,
+    )
+    .with_rotation(
+      @math.Quat::from_axis_angle(@math.Vec3::z_axis(), next_transform.rotation),
+    )
+    .with_scale(
+      @math.Vec3::new(next_transform.scale.x, next_transform.scale.y, 1.0),
+    )
+  @transform.transforms().set(entity, runtime_transform)
 }
 
 ///|
@@ -392,6 +439,14 @@ fn apply_selection_overlay() -> Unit {
   guard preview_state.selection_overlay is Some(overlay) else { return }
   match overlay_bounds() {
     Some((position, size)) => {
+      let color = if preview_state.tool_drag is Some(_) {
+        @render.Color::{ r: 92U, g: 196U, b: 255U, a: 0.24 }
+      } else if preview_state.hovered_entity_id ==
+        preview_state.selected_entity_id {
+        @render.Color::{ r: 255U, g: 220U, b: 64U, a: 0.28 }
+      } else {
+        @render.Color::{ r: 255U, g: 220U, b: 64U, a: 0.18 }
+      }
       @visibility.visibilities().set(overlay, @visibility.Visible)
       @transform.transforms().set(
         overlay,
@@ -403,10 +458,7 @@ fn apply_selection_overlay() -> Unit {
       )
       @sprite.sprites().set(
         overlay,
-        @sprite.Sprite::from_color(
-          @render.Color::{ r: 255U, g: 220U, b: 64U, a: 0.18 },
-          @math.Vec2D(1.0, 1.0),
-        ),
+        @sprite.Sprite::from_color(color, @math.Vec2D(1.0, 1.0)),
       )
     }
     None => @visibility.visibilities().set(overlay, @visibility.Hidden)
@@ -418,6 +470,11 @@ fn apply_pivot_overlay() -> Unit {
   guard preview_state.pivot_overlay is Some(overlay) else { return }
   match selected_pivot_world() {
     Some(position) => {
+      let color = if preview_state.tool_drag is Some(_) {
+        @render.Color::{ r: 120U, g: 255U, b: 198U, a: 0.95 }
+      } else {
+        @render.Color::{ r: 96U, g: 220U, b: 255U, a: 0.9 }
+      }
       @visibility.visibilities().set(overlay, @visibility.Visible)
       @transform.transforms().set(
         overlay,
@@ -427,10 +484,7 @@ fn apply_pivot_overlay() -> Unit {
       )
       @sprite.sprites().set(
         overlay,
-        @sprite.Sprite::from_color(
-          @render.Color::{ r: 96U, g: 220U, b: 255U, a: 0.9 },
-          @math.Vec2D(1.0, 1.0),
-        ),
+        @sprite.Sprite::from_color(color, @math.Vec2D(1.0, 1.0)),
       )
     }
     None => @visibility.visibilities().set(overlay, @visibility.Hidden)
@@ -646,25 +700,45 @@ fn preview_scene_sync_system(_world : @ecs.World) -> Unit {
 ///|
 fn preview_camera_control_system(_world : @ecs.World) -> Unit {
   guard editor_camera_entity() is Some(camera_entity) else { return }
-  if @camera.orthographic_projections().get(camera_entity) is Some(projection) &&
-    @inputs.mouse_wheel.delta[Y] != 0.0 {
-    let raw_scale = projection.scale *
-      (1.0 - @inputs.mouse_wheel.delta[Y] * 0.1)
-    let next_scale = if raw_scale < 0.1 { 0.1 } else { raw_scale }
-    @camera.orthographic_projections().set(camera_entity, {
-      ..projection,
-      scale: next_scale,
-    })
+  if @camera.orthographic_projections().get(camera_entity) is Some(projection) {
+    let wheel_delta = @inputs.mouse_wheel.delta
+    if wheel_delta[X] != 0.0 || wheel_delta[Y] != 0.0 {
+      if @inputs.is_pressed(@inputs.ShiftLeft) {
+        let raw_scale = projection.scale * (1.0 - wheel_delta[Y] * 0.1)
+        let next_scale = if raw_scale < 0.1 { 0.1 } else { raw_scale }
+        @camera.orthographic_projections().set(camera_entity, {
+          ..projection,
+          scale: next_scale,
+        })
+      } else {
+        let transform = @transform.transforms()
+          .get(camera_entity)
+          .unwrap_or(@transform.Transform::identity())
+        @transform.transforms().set(
+          camera_entity,
+          transform.with_translation(
+            @math.Vec3::new(
+              transform.translation.x + wheel_delta[X] * projection.scale,
+              transform.translation.y + wheel_delta[Y] * projection.scale,
+              transform.translation.z,
+            ),
+          ),
+        )
+      }
+    }
   }
-  if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Middle) {
+  let pan_active = pointer_pan_active()
+  if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Middle) ||
+    (
+      @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) &&
+      preview_state.active_tool == @shared.preview_tool_drag_canvas()
+    ) {
     preview_state.camera_pan_anchor = Some(@inputs.mouse.pos)
   }
-  if @inputs.is_mouse_just_released(@inputs.MouseButton::Middle) ||
-    !@inputs.mouse.middle_button {
+  if !pan_active {
     preview_state.camera_pan_anchor = None
   }
-  if @inputs.mouse.middle_button &&
-    preview_state.camera_pan_anchor is Some(anchor) {
+  if pan_active && preview_state.camera_pan_anchor is Some(anchor) {
     let current = @inputs.mouse.pos
     let movement = mouse_to_viewport_delta(current - anchor)
     if movement[X].abs() >= 1.0 || movement[Y].abs() >= 1.0 {
@@ -697,31 +771,100 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
     preview_state.hovered_entity_id = hovered
     emit_preview_event(@bridge.preview_event_hover_changed(hovered))
   }
+  let cursor = if pointer_pan_active() {
+    "grabbing"
+  } else if preview_state.tool_drag is Some(drag_state) {
+    match drag_state.tool {
+      @shared.Translate => "grabbing"
+      @shared.Rotate => "crosshair"
+      @shared.Scale => "nwse-resize"
+      _ => "default"
+    }
+  } else {
+    match preview_state.active_tool {
+      @shared.Select => if hovered is Some(_) { "pointer" } else { "default" }
+      @shared.DragCanvas => "grab"
+      @shared.Translate =>
+        if preview_state.selected_entity_id is Some(selected) &&
+          hovered == Some(selected) {
+          "move"
+        } else if hovered is Some(_) {
+          "pointer"
+        } else if preview_state.selected_entity_id is Some(_) {
+          "crosshair"
+        } else {
+          "default"
+        }
+      @shared.Rotate => "crosshair"
+      @shared.Scale => "nwse-resize"
+    }
+  }
+  set_canvas_cursor(cursor)
+  if pointer_pan_active() {
+    preview_state.tool_drag = None
+    return
+  }
   if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) {
     match preview_state.active_tool {
       @shared.Translate =>
-        if preview_state.selected_entity_id is Some(selected) &&
-          hovered == Some(selected) &&
-          preview_state.runtime_scene is Some(scene) &&
-          scene.entity_ids.contains(selected) {
-          let start_transform = entity_transform2d(scene.entity_ids[selected])
-          let pivot_world = selected_pivot_world().unwrap_or(
-            @math.Vec2D(
-              start_transform.translation.x,
-              start_transform.translation.y,
-            ),
-          )
-          preview_state.tool_drag = Some({
-            entity_id: selected,
-            tool: @shared.preview_tool_translate(),
-            anchor_world: world_point,
-            anchor_pointer: @inputs.mouse.pos,
-            pivot_world,
-            start_transform,
-          })
-        } else {
-          preview_state.selected_entity_id = hovered
-          emit_preview_event(@bridge.preview_event_entity_picked(hovered))
+        match preview_state.selected_entity_id {
+          Some(selected) if preview_state.runtime_scene is Some(scene) &&
+            scene.entity_ids.contains(selected) => {
+            let selected_entity = scene.entity_ids[selected]
+            let start_transform = entity_transform2d(selected_entity)
+            if hovered == Some(selected) {
+              let pivot_world = selected_pivot_world().unwrap_or(
+                @math.Vec2D(
+                  start_transform.translation.x,
+                  start_transform.translation.y,
+                ),
+              )
+              preview_state.tool_drag = Some({
+                entity_id: selected,
+                tool: @shared.preview_tool_translate(),
+                anchor_world: world_point,
+                anchor_pointer: @inputs.mouse.pos,
+                pivot_world,
+                start_transform,
+              })
+              emit_preview_event(
+                @bridge.preview_event_transform_gesture_started(selected),
+              )
+            } else if hovered is Some(hovered_id) {
+              preview_state.selected_entity_id = Some(hovered_id)
+              emit_preview_event(
+                @bridge.preview_event_entity_picked(Some(hovered_id)),
+              )
+            } else {
+              let next_transform = @editor_bridge.transform2d_value(
+                translation=@editor_bridge.vec2_doc(
+                  world_point[X],
+                  world_point[Y],
+                ),
+                rotation=start_transform.rotation,
+                scale=start_transform.scale,
+              )
+              emit_preview_event(
+                @bridge.preview_event_transform_gesture_started(selected),
+              )
+              apply_runtime_transform(selected, next_transform)
+              emit_preview_event(
+                @bridge.preview_event_transform_changed(
+                  selected,
+                  next_transform.translation,
+                  next_transform.rotation,
+                  next_transform.scale,
+                ),
+              )
+              emit_preview_event(
+                @bridge.preview_event_transform_gesture_finished(selected),
+              )
+            }
+          }
+          _ => {
+            preview_state.selected_entity_id = hovered
+            emit_preview_event(@bridge.preview_event_entity_picked(hovered))
+          }
         }
       @shared.Rotate =>
         if preview_state.selected_entity_id is Some(selected) &&
@@ -743,6 +886,9 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
             pivot_world,
             start_transform,
           })
+          emit_preview_event(
+            @bridge.preview_event_transform_gesture_started(selected),
+          )
         } else {
           preview_state.selected_entity_id = hovered
           emit_preview_event(@bridge.preview_event_entity_picked(hovered))
@@ -767,6 +913,9 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
             pivot_world,
             start_transform,
           })
+          emit_preview_event(
+            @bridge.preview_event_transform_gesture_started(selected),
+          )
         } else {
           preview_state.selected_entity_id = hovered
           emit_preview_event(@bridge.preview_event_entity_picked(hovered))
@@ -777,8 +926,14 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
       }
     }
   }
-  if @inputs.is_mouse_just_released(@inputs.MouseButton::Left) ||
-    !@inputs.mouse.left_button {
+  if (
+      @inputs.is_mouse_just_released(@inputs.MouseButton::Left) ||
+      !@inputs.mouse.left_button
+    ) &&
+    preview_state.tool_drag is Some(drag_state) {
+    emit_preview_event(
+      @bridge.preview_event_transform_gesture_finished(drag_state.entity_id),
+    )
     preview_state.tool_drag = None
   }
   if @inputs.mouse.left_button &&
@@ -846,6 +1001,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
       }
       _ => start
     }
+    apply_runtime_transform(drag_state.entity_id, next_transform)
     emit_preview_event(
       @bridge.preview_event_transform_changed(
         drag_state.entity_id,

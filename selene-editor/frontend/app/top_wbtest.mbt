@@ -424,6 +424,32 @@ test "undo and redo restore scene document changes" {
 }
 
 ///|
+test "inspector transform typing is coalesced into one undo entry after commit" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(@editor_bridge.SceneDocument::default_main()),
+    selected_entity_id: Some("camera"),
+  }
+  let (_, x1) = update(msg_update_selected_translate_x("1"), model)
+  let (_, x2) = update(msg_update_selected_translate_x("12"), x1)
+  inspect(x2.undo_stack.length(), content="0")
+  inspect(x2.active_scene_edit_transaction is Some(_), content="true")
+
+  let (_, committed) = update(msg_commit_scene_edit_transaction(), x2)
+  inspect(committed.undo_stack.length(), content="1")
+  inspect(committed.active_scene_edit_transaction is Some(_), content="false")
+
+  let (_, undone) = update(msg_undo_scene(), committed)
+  let camera = undone.scene.unwrap().entity("camera").unwrap()
+  let transform : @editor_bridge.Transform2dComponent = component_of(
+    camera, "Transform2d",
+  ).unwrap()
+  inspect(transform.translation.x, content="0")
+}
+
+///|
 test "preview transform events apply translation, rotation, and scale" {
   let model = {
     ..new_model(),
@@ -455,7 +481,54 @@ test "preview transform events apply translation, rotation, and scale" {
 }
 
 ///|
-test "setting pivot mode updates editor state and emits preview sync effects" {
+test "preview transform gesture records a single undo entry" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(@editor_bridge.SceneDocument::default_main()),
+    selected_entity_id: Some("camera"),
+  }
+
+  let (_, started) = update(
+    msg_preview_event(@bridge.preview_event_transform_gesture_started("camera")),
+    model,
+  )
+  inspect(started.active_scene_edit_transaction is Some(_), content="true")
+
+  let (_, dragging) = update(
+    msg_preview_event(
+      @bridge.preview_event_transform_changed(
+        "camera",
+        @editor_bridge.vec2_doc(12.0, -8.0),
+        0.0,
+        @editor_bridge.vec2_doc(1.0, 1.0),
+      ),
+    ),
+    started,
+  )
+  inspect(dragging.undo_stack.length(), content="0")
+
+  let (_, finished) = update(
+    msg_preview_event(
+      @bridge.preview_event_transform_gesture_finished("camera"),
+    ),
+    dragging,
+  )
+  inspect(finished.undo_stack.length(), content="1")
+  inspect(finished.active_scene_edit_transaction is Some(_), content="false")
+
+  let (_, undone) = update(msg_undo_scene(), finished)
+  let camera = undone.scene.unwrap().entity("camera").unwrap()
+  let transform : @editor_bridge.Transform2dComponent = component_of(
+    camera, "Transform2d",
+  ).unwrap()
+  inspect(transform.translation.x, content="0")
+  inspect(transform.translation.y, content="0")
+}
+
+///|
+test "setting drag-canvas tool updates editor state and emits preview sync effects" {
   let model = {
     ..new_model(),
     current_root: Some("/tmp/demo"),
@@ -463,9 +536,32 @@ test "setting pivot mode updates editor state and emits preview sync effects" {
     scene: Some(@editor_bridge.SceneDocument::default_main()),
   }
   let (effects, next) = update(
-    msg_set_pivot_mode(@shared.preview_pivot_mode_bounds_center()),
+    msg_set_tool(@shared.preview_tool_drag_canvas()),
     model,
   )
-  inspect(next.pivot_mode, content="BoundsCenter")
+  inspect(next.active_tool, content="DragCanvas")
   inspect(effects.length() > 0, content="true")
+  inspect(next.status, content="Tool: Drag Canvas")
+}
+
+///|
+test "transform gesture without change does not push undo history" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(@editor_bridge.SceneDocument::default_main()),
+    selected_entity_id: Some("camera"),
+  }
+  let (_, started) = update(
+    msg_preview_event(@bridge.preview_event_transform_gesture_started("camera")),
+    model,
+  )
+  let (_, finished) = update(
+    msg_preview_event(
+      @bridge.preview_event_transform_gesture_finished("camera"),
+    ),
+    started,
+  )
+  inspect(finished.undo_stack.length(), content="0")
 }

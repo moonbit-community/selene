@@ -101,8 +101,6 @@ pub fn msg_set_current_scene_as_startup() -> Msg
 
 pub fn msg_set_hover_hint(String?) -> Msg
 
-pub fn msg_set_pivot_mode(@shared.PreviewPivotMode) -> Msg
-
 pub fn msg_set_project_name_input(String) -> Msg
 
 pub fn msg_set_project_root_input(String) -> Msg
@@ -223,7 +221,6 @@ pub struct Model {
   logs : Array[String]
   status : String
   active_tool : @shared.PreviewTool
-  pivot_mode : @shared.PreviewPivotMode
 }
 pub fn Model::asset_matches_query(Self, String, String) -> Bool
 pub fn Model::asset_query_normalized(Self) -> String
@@ -313,7 +310,6 @@ pub enum Msg {
   AddTextEntity
   DeleteSelected
   SetTool(@shared.PreviewTool)
-  SetPivotMode(@shared.PreviewPivotMode)
   FrameSelection
 }
 

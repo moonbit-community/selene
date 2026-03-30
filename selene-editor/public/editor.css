@@ -232,6 +232,13 @@ input {
   color: var(--accent);
 }
 
+.small-button.disabled {
+  opacity: 0.45;
+  cursor: default;
+  border-color: var(--border);
+  color: var(--muted);
+}
+
 .info-bar {
   min-height: 36px;
   display: flex;

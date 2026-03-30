@@ -184,20 +184,93 @@ extern "js" fn encode_path_for_url(path : String) -> String =
 extern "js" fn subscribe_shortcuts_forever(
   on_undo : () -> Unit,
   on_redo : () -> Unit,
+  on_save : () -> Unit,
+  on_delete : () -> Unit,
+  on_frame : () -> Unit,
+  on_select : () -> Unit,
+  on_drag_canvas : () -> Unit,
+  on_move : () -> Unit,
+  on_rotate : () -> Unit,
+  on_scale : () -> Unit,
 ) =
-  #| (onUndo, onRedo) => {
+  #| (
+  #|   onUndo,
+  #|   onRedo,
+  #|   onSave,
+  #|   onDelete,
+  #|   onFrame,
+  #|   onSelect,
+  #|   onDragCanvas,
+  #|   onMove,
+  #|   onRotate,
+  #|   onScale
+  #| ) => {
+  #|   const isEditable = (target) => {
+  #|     if (!target) return false;
+  #|     const tag = (target.tagName || "").toLowerCase();
+  #|     return (
+  #|       tag === "input" ||
+  #|       tag === "textarea" ||
+  #|       tag === "select" ||
+  #|       target.isContentEditable === true
+  #|     );
+  #|   };
   #|   window.addEventListener("keydown", (event) => {
-  #|     if (!(event.metaKey || event.ctrlKey)) return;
   #|     const key = (event.key || "").toLowerCase();
-  #|     if (key === "z") {
-  #|       event.preventDefault();
-  #|       if (event.shiftKey) onRedo();
-  #|       else onUndo();
+  #|     if (isEditable(event.target)) return;
+  #|     if (event.metaKey || event.ctrlKey) {
+  #|       if (key === "z") {
+  #|         event.preventDefault();
+  #|         if (event.shiftKey) onRedo();
+  #|         else onUndo();
+  #|         return;
+  #|       }
+  #|       if (key === "y") {
+  #|         event.preventDefault();
+  #|         onRedo();
+  #|         return;
+  #|       }
+  #|       if (key === "s") {
+  #|         event.preventDefault();
+  #|         onSave();
+  #|         return;
+  #|       }
   #|       return;
   #|     }
-  #|     if (key === "y") {
+  #|     if (key === "backspace" || key === "delete") {
   #|       event.preventDefault();
-  #|       onRedo();
+  #|       onDelete();
+  #|       return;
+  #|     }
+  #|     if (key === "f") {
+  #|       event.preventDefault();
+  #|       onFrame();
+  #|       return;
+  #|     }
+  #|     if (key === "v") {
+  #|       event.preventDefault();
+  #|       onSelect();
+  #|       return;
+  #|     }
+  #|     if (key === "h") {
+  #|       event.preventDefault();
+  #|       onDragCanvas();
+  #|       return;
+  #|     }
+  #|     if (key === "w") {
+  #|       event.preventDefault();
+  #|       onMove();
+  #|       return;
+  #|     }
+  #|     if (key === "e") {
+  #|       event.preventDefault();
+  #|       onRotate();
+  #|       return;
+  #|     }
+  #|     if (key === "r") {
+  #|       event.preventDefault();
+  #|       onScale();
+  #|       return;
   #|     }
   #|   });
   #| }
@@ -336,6 +409,39 @@ fn subscribe_shortcuts_cmd(
     subscribe_shortcuts_forever(
       fn() { schedule_cmd(scheduler, dispatch(@app.msg_undo_scene())) },
       fn() { schedule_cmd(scheduler, dispatch(@app.msg_redo_scene())) },
+      fn() { schedule_cmd(scheduler, dispatch(@app.msg_save_scene())) },
+      fn() { schedule_cmd(scheduler, dispatch(@app.msg_delete_selected())) },
+      fn() { schedule_cmd(scheduler, dispatch(@app.msg_frame_selection())) },
+      fn() {
+        schedule_cmd(
+          scheduler,
+          dispatch(@app.msg_set_tool(@shared.preview_tool_select())),
+        )
+      },
+      fn() {
+        schedule_cmd(
+          scheduler,
+          dispatch(@app.msg_set_tool(@shared.preview_tool_drag_canvas())),
+        )
+      },
+      fn() {
+        schedule_cmd(
+          scheduler,
+          dispatch(@app.msg_set_tool(@shared.preview_tool_translate())),
+        )
+      },
+      fn() {
+        schedule_cmd(
+          scheduler,
+          dispatch(@app.msg_set_tool(@shared.preview_tool_rotate())),
+        )
+      },
+      fn() {
+        schedule_cmd(
+          scheduler,
+          dispatch(@app.msg_set_tool(@shared.preview_tool_scale())),
+        )
+      },
     )
   })
 }
@@ -348,7 +454,6 @@ fn run_preview_command(command : @bridge.PreviewCommand) -> Unit {
     @bridge.PreviewCommand::LoadScene(scene) => @preview.load_scene(scene)
     @bridge.PreviewCommand::SelectEntity(id) => @preview.select_entity(id)
     @bridge.PreviewCommand::SetTool(tool) => @preview.set_tool(tool)
-    @bridge.PreviewCommand::SetPivotMode(mode) => @preview.set_pivot_mode(mode)
     @bridge.PreviewCommand::FrameSelection => @preview.frame_selection()
   }
 }
@@ -975,6 +1080,28 @@ fn labeled_input(
 }
 
 ///|
+fn labeled_input_with_commit(
+  label : String,
+  value : String,
+  on_change : (String) -> @rabbita.Cmd,
+  on_commit : () -> @rabbita.Cmd,
+) -> @rabbita.Html {
+  let attrs = @html.Attrs::build().handler("change", fn(_event, scheduler) {
+    schedule_cmd(scheduler, on_commit())
+  })
+  @html.label(class="field", [
+    @html.span(class="field-label", label),
+    @html.input(
+      value~,
+      class="field-input",
+      on_input=on_change,
+      attrs~,
+      @html.nothing,
+    ),
+  ])
+}
+
+///|
 fn selected_transform_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.Model,
@@ -988,17 +1115,28 @@ fn selected_transform_view(
         Some(transform) =>
           @html.div(class="inspector-block", [
             @html.h3("Transform2d"),
-            labeled_input("X", transform.translation.x.to_string(), fn(value) {
-              dispatch(@app.msg_update_selected_translate_x(value))
-            }),
-            labeled_input("Y", transform.translation.y.to_string(), fn(value) {
-              dispatch(@app.msg_update_selected_translate_y(value))
-            }),
-            labeled_input("Rotation", transform.rotation.to_string(), fn(
-              value,
-            ) {
-              dispatch(@app.msg_update_selected_rotation(value))
-            }),
+            labeled_input_with_commit(
+              "X",
+              transform.translation.x.to_string(),
+              fn(value) {
+                dispatch(@app.msg_update_selected_translate_x(value))
+              },
+              fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+            ),
+            labeled_input_with_commit(
+              "Y",
+              transform.translation.y.to_string(),
+              fn(value) {
+                dispatch(@app.msg_update_selected_translate_y(value))
+              },
+              fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+            ),
+            labeled_input_with_commit(
+              "Rotation",
+              transform.rotation.to_string(),
+              fn(value) { dispatch(@app.msg_update_selected_rotation(value)) },
+              fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+            ),
           ])
         None => @html.nothing
       }
@@ -1021,9 +1159,12 @@ fn selected_text_view(
         Some(text_component) =>
           @html.div(class="inspector-block", [
             @html.h3("Text2d"),
-            labeled_input("Content", text_component.content, fn(value) {
-              dispatch(@app.msg_update_selected_text(value))
-            }),
+            labeled_input_with_commit(
+              "Content",
+              text_component.content,
+              fn(value) { dispatch(@app.msg_update_selected_text(value)) },
+              fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+            ),
           ])
         None => @html.nothing
       }
@@ -1380,48 +1521,42 @@ fn toolbar_button(
 }
 
 ///|
-fn pivot_mode_button(
-  dispatch : @rabbita.Dispatch[@app.Msg],
-  current : @shared.PreviewPivotMode,
-  mode : @shared.PreviewPivotMode,
-  label : String,
-  icon : String,
-) -> @rabbita.Html {
-  @html.button(
-    class=if current == mode {
-      "small-button icon-button active"
-    } else {
-      "small-button icon-button"
-    },
-    on_click=dispatch(@app.msg_set_pivot_mode(mode)),
-    attrs=hint_attrs(dispatch, label),
-    @html.span(class="icon-glyph", icon),
-  )
-}
-
-///|
 fn action_button(
   dispatch : @rabbita.Dispatch[@app.Msg],
   label : String,
   icon : String,
   msg : @app.Msg,
+  enabled? : Bool = true,
   primary? : Bool = false,
 ) -> @rabbita.Html {
-  @html.button(
-    class=if primary {
+  let class = if primary {
+    if enabled {
       "small-button icon-button primary-button"
     } else {
-      "small-button icon-button"
+      "small-button icon-button primary-button disabled"
+    }
+  } else if enabled {
+    "small-button icon-button"
+  } else {
+    "small-button icon-button disabled"
+  }
+  @html.button(
+    class~,
+    on_click=if enabled { dispatch(msg) } else { @cmd.none },
+    attrs=if enabled {
+      hint_attrs(dispatch, label)
+    } else {
+      @html.Attrs::build()
     },
-    on_click=dispatch(msg),
-    attrs=hint_attrs(dispatch, label),
     @html.span(class="icon-glyph", icon),
   )
 }
 
 ///|
 fn info_message(model : @app.Model) -> String {
-  model.hover_hint.unwrap_or(model.status)
+  model.hover_hint.unwrap_or(
+    "Tool: " + @app.tool_label(model.active_tool) + " | " + model.status,
+  )
 }
 
 ///|
@@ -1510,9 +1645,12 @@ fn view(
   let inspector = match model.selected_entity() {
     Some(entity) =>
       @html.div(class="panel-body", [
-        labeled_input("Name", entity.name, fn(value) {
-          dispatch(@app.msg_rename_selected(value))
-        }),
+        labeled_input_with_commit(
+          "Name",
+          entity.name,
+          fn(value) { dispatch(@app.msg_rename_selected(value)) },
+          fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+        ),
         @html.div(class="inspector-actions", [
           @html.button(
             class="small-button",
@@ -1537,9 +1675,16 @@ fn view(
             "Open Project",
             "O",
             @app.msg_open_project(),
+            enabled=true,
             primary=true,
           ),
-          action_button(dispatch, "Save Scene", "S", @app.msg_save_scene()),
+          action_button(
+            dispatch,
+            "Save Scene (Cmd/Ctrl+S)",
+            "S",
+            @app.msg_save_scene(),
+            enabled=model.scene is Some(_),
+          ),
         ]),
       ]),
       @html.div(class="topbar-section", [
@@ -1550,31 +1695,42 @@ fn view(
             "Undo (Cmd/Ctrl+Z)",
             "U",
             @app.msg_undo_scene(),
+            enabled=model.can_undo(),
           ),
           action_button(
             dispatch,
             "Redo (Shift+Cmd/Ctrl+Z)",
             "R",
             @app.msg_redo_scene(),
+            enabled=model.can_redo(),
           ),
           action_button(
             dispatch,
             "Add Sprite",
             "+",
             @app.msg_add_sprite_entity(),
+            enabled=model.scene is Some(_),
           ),
-          action_button(dispatch, "Add Text", "T", @app.msg_add_text_entity()),
           action_button(
             dispatch,
-            "Delete Selected",
+            "Add Text",
+            "T",
+            @app.msg_add_text_entity(),
+            enabled=model.scene is Some(_),
+          ),
+          action_button(
+            dispatch,
+            "Delete Selected (Delete)",
             "⌫",
             @app.msg_delete_selected(),
+            enabled=model.selected_entity_id is Some(_),
           ),
           action_button(
             dispatch,
-            "Frame Selection",
+            "Frame Selection (F)",
             "⛶",
             @app.msg_frame_selection(),
+            enabled=model.selected_entity_id is Some(_),
           ),
         ]),
       ]),
@@ -1585,43 +1741,36 @@ fn view(
             dispatch,
             model.active_tool,
             @shared.preview_tool_select(),
-            "Select",
+            "Select (V)",
             "↖",
           ),
           toolbar_button(
             dispatch,
             model.active_tool,
+            @shared.preview_tool_drag_canvas(),
+            "Drag Canvas (H)",
+            "H",
+          ),
+          toolbar_button(
+            dispatch,
+            model.active_tool,
             @shared.preview_tool_translate(),
-            "Move",
+            "Move (W)",
             "✥",
           ),
           toolbar_button(
             dispatch,
             model.active_tool,
             @shared.preview_tool_rotate(),
-            "Rotate (Hold Shift for 15° snap)",
+            "Rotate (E, Hold Shift for 15° snap)",
             "⟳",
           ),
           toolbar_button(
             dispatch,
             model.active_tool,
             @shared.preview_tool_scale(),
-            "Scale",
+            "Scale (R)",
             "⬚",
-          ),
-          pivot_mode_button(
-            dispatch,
-            model.pivot_mode,
-            @shared.preview_pivot_mode_transform_origin(),
-            "Pivot: Transform Origin",
-            "◎",
-          ),
-          pivot_mode_button(
-            dispatch,
-            model.pivot_mode,
-            @shared.preview_pivot_mode_bounds_center(),
-            "Pivot: Bounds Center",
-            "◫",
           ),
         ]),
       ]),
@@ -1645,7 +1794,7 @@ fn view(
         @html.h2("Viewport"),
         @html.div(
           class="viewport-toolbar",
-          "Drag the selected asset from the sidebar into the scene",
+          "Drag selected assets into the scene. Pan with middle drag or Drag Canvas tool. Touchpad two-finger scroll pans; Shift + scroll zooms.",
         ),
         @html.div(class="viewport-frame", [
           @html.canvas(

@@ -27,6 +27,12 @@ pub fn resource_selection_prefab(path : String) -> ResourceSelection {
 }
 
 ///|
+pub struct SceneEditTransaction {
+  label : String
+  before : @editor_bridge.SceneDocument
+} derive(Show, Eq)
+
+///|
 pub struct Model {
   project_root_input : String
   project_name_input : String
@@ -51,6 +57,7 @@ pub struct Model {
   pending_scene_migration : @editor_bridge.SceneMigrationPreview?
   undo_stack : Array[@editor_bridge.SceneDocument]
   redo_stack : Array[@editor_bridge.SceneDocument]
+  active_scene_edit_transaction : SceneEditTransaction?
   hover_hint : String?
   images_section_expanded : Bool
   atlases_section_expanded : Bool
@@ -60,7 +67,6 @@ pub struct Model {
   logs : Array[String]
   status : String
   active_tool : @shared.PreviewTool
-  pivot_mode : @shared.PreviewPivotMode
 } derive(Show, Eq)
 
 ///|
@@ -91,6 +97,7 @@ pub enum Msg {
   ToggleAtlasesSection
   ToggleAnimationsSection
   TogglePrefabsSection
+  CommitSceneEditTransaction
   UndoScene
   RedoScene
   OpenScene(String)
@@ -139,7 +146,6 @@ pub enum Msg {
   AddTextEntity
   DeleteSelected
   SetTool(@shared.PreviewTool)
-  SetPivotMode(@shared.PreviewPivotMode)
   FrameSelection
 }
 
@@ -192,6 +198,7 @@ pub fn new_model() -> Model {
     pending_scene_migration: None,
     undo_stack: [],
     redo_stack: [],
+    active_scene_edit_transaction: None,
     hover_hint: None,
     images_section_expanded: true,
     atlases_section_expanded: true,
@@ -200,7 +207,6 @@ pub fn new_model() -> Model {
     status: "Choose a project folder to begin",
     logs: [],
     active_tool: @shared.preview_tool_select(),
-    pivot_mode: @shared.preview_pivot_mode_transform_origin(),
   }
 }
 
@@ -563,11 +569,6 @@ pub fn msg_set_tool(tool : @shared.PreviewTool) -> Msg {
 }
 
 ///|
-pub fn msg_set_pivot_mode(mode : @shared.PreviewPivotMode) -> Msg {
-  SetPivotMode(mode)
-}
-
-///|
 pub fn msg_frame_selection() -> Msg {
   FrameSelection
 }
@@ -595,6 +596,11 @@ pub fn msg_toggle_animations_section() -> Msg {
 ///|
 pub fn msg_toggle_prefabs_section() -> Msg {
   TogglePrefabsSection
+}
+
+///|
+pub fn msg_commit_scene_edit_transaction() -> Msg {
+  CommitSceneEditTransaction
 }
 
 ///|
@@ -637,13 +643,67 @@ fn with_recorded_scene_change(previous : Model, next : Model) -> Model {
   match (previous.scene, next.scene) {
     (Some(before), Some(after)) if before != after => {
       let undo_stack = bounded_history(previous.undo_stack + [before])
-      { ..next, undo_stack, redo_stack: [] }
+      {
+        ..next,
+        undo_stack,
+        redo_stack: [],
+        active_scene_edit_transaction: None,
+      }
     }
     (Some(before), None) => {
       let undo_stack = bounded_history(previous.undo_stack + [before])
-      { ..next, undo_stack, redo_stack: [] }
+      {
+        ..next,
+        undo_stack,
+        redo_stack: [],
+        active_scene_edit_transaction: None,
+      }
     }
     _ => next
+  }
+}
+
+///|
+fn with_started_scene_edit_transaction(model : Model, label : String) -> Model {
+  match (model.scene, model.active_scene_edit_transaction) {
+    (Some(before), None) => {
+      let transaction : SceneEditTransaction = { label, before }
+      { ..model, active_scene_edit_transaction: Some(transaction) }
+    }
+    _ => model
+  }
+}
+
+///|
+fn with_committed_scene_edit_transaction(model : Model) -> Model {
+  match (model.active_scene_edit_transaction, model.scene) {
+    (Some(transaction), Some(after)) if transaction.before != after => {
+      let undo_stack = bounded_history(model.undo_stack + [transaction.before])
+      {
+        ..model,
+        undo_stack,
+        redo_stack: [],
+        active_scene_edit_transaction: None,
+      }
+    }
+    (Some(_), _) => { ..model, active_scene_edit_transaction: None }
+    _ => model
+  }
+}
+
+///|
+fn is_scene_edit_continuation(msg : Msg) -> Bool {
+  match msg {
+    RenameSelected(_)
+    | UpdateSelectedTranslateX(_)
+    | UpdateSelectedTranslateY(_)
+    | UpdateSelectedRotation(_)
+    | UpdateSelectedText(_)
+    | CommitSceneEditTransaction
+    | PreviewEvent(@bridge.TransformGestureStarted(..))
+    | PreviewEvent(@bridge.TransformChanged(..))
+    | PreviewEvent(@bridge.TransformGestureFinished(..)) => true
+    _ => false
   }
 }
 
@@ -919,9 +979,13 @@ fn instantiate_prefab_into_scene(
 fn sync_preview_effects(model : Model) -> Array[Effect] {
   let effects : Array[Effect] = [
     Preview(@bridge.preview_command_set_tool(model.active_tool)),
-    Preview(@bridge.preview_command_set_pivot_mode(model.pivot_mode)),
     Preview(@bridge.preview_command_select_entity(model.selected_entity_id)),
   ]
+  effects
+}
+
+///|
+fn scene_preview_effect(model : Model) -> Effect {
   match model.scene {
     Some(scene) => {
       let atlases : Array[@bridge.AtlasAssetEntry] = []
@@ -932,16 +996,20 @@ fn sync_preview_effects(model : Model) -> Array[Effect] {
       for path, animation in model.animation_documents {
         animations.push(@bridge.animation_asset_entry(path, animation))
       }
-      effects.push(
-        Preview(
-          @bridge.preview_command_load_scene(
-            @bridge.preview_scene_payload(scene, atlases, animations),
-          ),
+      Preview(
+        @bridge.preview_command_load_scene(
+          @bridge.preview_scene_payload(scene, atlases, animations),
         ),
       )
     }
-    None => effects.push(Preview(@bridge.preview_command_clear_scene()))
+    None => Preview(@bridge.preview_command_clear_scene())
   }
+}
+
+///|
+fn sync_preview_effects_with_scene(model : Model) -> Array[Effect] {
+  let effects = sync_preview_effects(model)
+  effects.push(scene_preview_effect(model))
   effects
 }
 
@@ -991,12 +1059,35 @@ fn refresh_project_effects(model : Model) -> Array[Effect] {
 
 ///|
 fn normalize_scene_after_change(model : Model) -> (Array[Effect], Model) {
-  (sync_preview_effects(model), model)
+  (sync_preview_effects_with_scene(model), model)
+}
+
+///|
+fn normalize_scene_after_change_without_preview(
+  model : Model,
+) -> (Array[Effect], Model) {
+  ([], model)
 }
 
 ///|
 fn apply_scene_change(previous : Model, next : Model) -> (Array[Effect], Model) {
   normalize_scene_after_change(with_recorded_scene_change(previous, next))
+}
+
+///|
+fn apply_scene_change_without_history(
+  _previous : Model,
+  next : Model,
+) -> (Array[Effect], Model) {
+  normalize_scene_after_change(next)
+}
+
+///|
+fn apply_scene_change_without_history_or_preview(
+  _previous : Model,
+  next : Model,
+) -> (Array[Effect], Model) {
+  normalize_scene_after_change_without_preview(next)
 }
 
 ///|
@@ -1119,6 +1210,17 @@ fn save_success_status(model : Model) -> String {
     "Saving atlas..." => "Atlas saved"
     "Saving animation..." => "Animation saved"
     _ => "Scene saved"
+  }
+}
+
+///|
+pub fn tool_label(tool : @shared.PreviewTool) -> String {
+  match tool {
+    @shared.Select => "Select"
+    @shared.DragCanvas => "Drag Canvas"
+    @shared.Translate => "Move"
+    @shared.Rotate => "Rotate"
+    @shared.Scale => "Scale"
   }
 }
 
@@ -1385,6 +1487,16 @@ pub fn Model::selected_resource_path(self : Model) -> String? {
 }
 
 ///|
+pub fn Model::can_undo(self : Model) -> Bool {
+  self.undo_stack.length() > 0
+}
+
+///|
+pub fn Model::can_redo(self : Model) -> Bool {
+  self.redo_stack.length() > 0
+}
+
+///|
 pub fn[T : FromJson] component_of(
   entity : @editor_bridge.EntityDocument,
   kind : String,
@@ -1417,6 +1529,25 @@ fn update_selected_component(
   component : @editor_bridge.ComponentDocument,
 ) -> Model {
   update_selected_entity(model, fn(entity) { entity.with_component(component) })
+}
+
+///|
+fn update_entity_component(
+  model : Model,
+  entity_id : String,
+  component : @editor_bridge.ComponentDocument,
+) -> Model {
+  match model.scene {
+    Some(scene) =>
+      match scene.entity(entity_id) {
+        Some(entity) => {
+          let next_scene = scene.with_entity(entity.with_component(component))
+          { ..model, scene: Some(next_scene) }
+        }
+        None => model
+      }
+    None => model
+  }
 }
 
 ///|
@@ -1466,6 +1597,11 @@ fn update_selected_prefab_document(
 
 ///|
 pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
+  let model = if is_scene_edit_continuation(msg) {
+    model
+  } else {
+    with_committed_scene_edit_transaction(model)
+  }
   match msg {
     Initialize =>
       (
@@ -1567,6 +1703,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             pending_scene_migration: None,
             undo_stack: [],
             redo_stack: [],
+            active_scene_edit_transaction: None,
             status,
           }
           (refresh_project_effects(next), next)
@@ -1614,9 +1751,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             pending_scene_migration: None,
             undo_stack: [],
             redo_stack: [],
+            active_scene_edit_transaction: None,
             status: "Loaded " + response.path,
           }
-          (sync_preview_effects(next), next)
+          (sync_preview_effects_with_scene(next), next)
         }
         Ok(@shared.MigrationRequired(preview)) => {
           let next = {
@@ -1627,6 +1765,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             pending_scene_migration: Some(preview),
             undo_stack: [],
             redo_stack: [],
+            active_scene_edit_transaction: None,
             status: "Legacy scene requires migration",
           }
           let cleared = next.workspace
@@ -1668,6 +1807,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           pending_scene_migration: None,
           undo_stack: [],
           redo_stack: [],
+          active_scene_edit_transaction: None,
           workspace,
           status: "Scene migration cancelled",
         },
@@ -1745,7 +1885,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           let atlas_documents = model.atlas_documents
           atlas_documents.set(response.path, response.atlas)
           let next = { ..model, atlas_documents, }
-          (sync_preview_effects(next), next)
+          (sync_preview_effects_with_scene(next), next)
         }
         Err(message) => {
           let next = push_log(model, "Atlas load failed: " + message)
@@ -1758,7 +1898,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           let animation_documents = model.animation_documents
           animation_documents.set(response.path, response.animation)
           let next = { ..model, animation_documents, }
-          (sync_preview_effects(next), next)
+          (sync_preview_effects_with_scene(next), next)
         }
         Err(message) => {
           let next = push_log(model, "Animation load failed: " + message)
@@ -1820,25 +1960,54 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     PreviewEvent(event) =>
       match event {
         @bridge.EntityPicked(id) => {
-          let next = { ..model, selected_entity_id: id }
-          (sync_preview_effects(next), next)
+          let next = {
+            ..model,
+            selected_entity_id: id,
+            selected_resource: if id is Some(_) {
+              None
+            } else {
+              model.selected_resource
+            },
+          }
+          ([], next)
         }
         @bridge.HoverChanged(_) => ([], model)
+        @bridge.TransformGestureStarted(id~) => {
+          let next = with_started_scene_edit_transaction(
+            { ..model, selected_entity_id: Some(id), selected_resource: None },
+            "Transform",
+          )
+          ([], next)
+        }
         @bridge.TransformChanged(id~, translation~, rotation~, scale~) =>
-          match model.selected_entity() {
-            Some(_) if model.selected_entity_id == Some(id) => {
-              let next = update_selected_component(
+          match model.scene {
+            Some(_) => {
+              let next = update_entity_component(
                 model,
+                id,
                 @editor_bridge.transform2d_component(
                   translation~,
                   rotation~,
                   scale~,
                 ),
               )
-              apply_scene_change(model, next)
+              apply_scene_change_without_history_or_preview(model, {
+                ..next,
+                selected_entity_id: Some(id),
+                selected_resource: None,
+              })
             }
             _ => ([], model)
           }
+        @bridge.TransformGestureFinished(id~) => {
+          let committed = with_committed_scene_edit_transaction(model)
+          let status = match model.active_scene_edit_transaction {
+            Some(transaction) => transaction.label + " applied"
+            None => "Transform applied"
+          }
+          let next = { ..committed, selected_entity_id: Some(id), status }
+          (sync_preview_effects(next), next)
+        }
       }
     SetHoverHint(hint) => ([], { ..model, hover_hint: hint })
     ToggleImagesSection =>
@@ -1861,6 +2030,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         [],
         { ..model, prefabs_section_expanded: !model.prefabs_section_expanded },
       )
+    CommitSceneEditTransaction => {
+      let committed = with_committed_scene_edit_transaction(model)
+      ([], committed)
+    }
     UndoScene =>
       match (model.scene, model.undo_stack.length()) {
         (Some(current), count) if count > 0 => {
@@ -1881,6 +2054,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             workspace,
             undo_stack,
             redo_stack,
+            active_scene_edit_transaction: None,
             status: "Undid last change",
           }
           normalize_scene_after_change(next)
@@ -1910,6 +2084,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             workspace,
             undo_stack,
             redo_stack,
+            active_scene_edit_transaction: None,
             status: "Redid last change",
           }
           normalize_scene_after_change(next)
@@ -2013,7 +2188,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                   @shared.rpc_request_scene_save(model.scene_path, next_scene),
                 ),
               ] +
-              sync_preview_effects(with_history),
+              sync_preview_effects_with_scene(with_history),
               with_history,
             )
           }
@@ -2221,7 +2396,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       let next = update_selected_atlas_document(model, fn(atlas) {
         atlas.with_name(value)
       })
-      (sync_preview_effects(next), next)
+      (sync_preview_effects_with_scene(next), next)
     }
     UpdateSelectedAtlasTileWidth(value) => {
       let next = update_selected_atlas_document(model, fn(atlas) {
@@ -2233,7 +2408,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           ),
         )
       })
-      (sync_preview_effects(next), next)
+      (sync_preview_effects_with_scene(next), next)
     }
     UpdateSelectedAtlasTileHeight(value) => {
       let next = update_selected_atlas_document(model, fn(atlas) {
@@ -2245,7 +2420,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           ),
         )
       })
-      (sync_preview_effects(next), next)
+      (sync_preview_effects_with_scene(next), next)
     }
     UpdateSelectedAtlasColumns(value) => {
       let next = update_selected_atlas_document(model, fn(atlas) {
@@ -2253,7 +2428,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           atlas.with_columns(parse_positive_int_or(atlas.columns, value)),
         )
       })
-      (sync_preview_effects(next), next)
+      (sync_preview_effects_with_scene(next), next)
     }
     UpdateSelectedAtlasRows(value) => {
       let next = update_selected_atlas_document(model, fn(atlas) {
@@ -2261,7 +2436,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           atlas.with_rows(parse_positive_int_or(atlas.rows, value)),
         )
       })
-      (sync_preview_effects(next), next)
+      (sync_preview_effects_with_scene(next), next)
     }
     UpdateSelectedAtlasSpacingX(value) => {
       let next = update_selected_atlas_document(model, fn(atlas) {
@@ -2271,7 +2446,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           ),
         )
       })
-      (sync_preview_effects(next), next)
+      (sync_preview_effects_with_scene(next), next)
     }
     UpdateSelectedAtlasSpacingY(value) => {
       let next = update_selected_atlas_document(model, fn(atlas) {
@@ -2281,7 +2456,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           ),
         )
       })
-      (sync_preview_effects(next), next)
+      (sync_preview_effects_with_scene(next), next)
     }
     UpdateSelectedAtlasMarginX(value) => {
       let next = update_selected_atlas_document(model, fn(atlas) {
@@ -2291,7 +2466,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           ),
         )
       })
-      (sync_preview_effects(next), next)
+      (sync_preview_effects_with_scene(next), next)
     }
     UpdateSelectedAtlasMarginY(value) => {
       let next = update_selected_atlas_document(model, fn(atlas) {
@@ -2301,7 +2476,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           ),
         )
       })
-      (sync_preview_effects(next), next)
+      (sync_preview_effects_with_scene(next), next)
     }
     UpdateSelectedAtlasAnchorX(value) => {
       let next = update_selected_atlas_document(model, fn(atlas) {
@@ -2311,7 +2486,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           ),
         )
       })
-      (sync_preview_effects(next), next)
+      (sync_preview_effects_with_scene(next), next)
     }
     UpdateSelectedAtlasAnchorY(value) => {
       let next = update_selected_atlas_document(model, fn(atlas) {
@@ -2321,7 +2496,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           ),
         )
       })
-      (sync_preview_effects(next), next)
+      (sync_preview_effects_with_scene(next), next)
     }
     SaveSelectedAtlas =>
       match model.selected_atlas_document() {
@@ -2341,7 +2516,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       let next = update_selected_animation_document(model, fn(animation) {
         animation.with_name(value)
       })
-      (sync_preview_effects(next), next)
+      (sync_preview_effects_with_scene(next), next)
     }
     UpdateSelectedAnimationDefaultClip(value) => {
       let next = update_selected_animation_document(model, fn(animation) {
@@ -2354,7 +2529,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           },
         )
       })
-      (sync_preview_effects(next), next)
+      (sync_preview_effects_with_scene(next), next)
     }
     UpdateSelectedAnimationClipName(value) => {
       let next = update_selected_animation_document(model, fn(animation) {
@@ -2367,7 +2542,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         .with_default_clip(next_default)
         .with_clips([clip.with_name(value)])
       })
-      (sync_preview_effects(next), next)
+      (sync_preview_effects_with_scene(next), next)
     }
     UpdateSelectedAnimationClipFps(value) => {
       let next = update_selected_animation_document(model, fn(animation) {
@@ -2376,14 +2551,14 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           clip.with_fps(parse_positive_double_or(clip.fps, value)),
         ])
       })
-      (sync_preview_effects(next), next)
+      (sync_preview_effects_with_scene(next), next)
     }
     ToggleSelectedAnimationClipLooping => {
       let next = update_selected_animation_document(model, fn(animation) {
         let clip = primary_animation_clip(animation)
         animation.with_clips([clip.with_looping(!clip.looping)])
       })
-      (sync_preview_effects(next), next)
+      (sync_preview_effects_with_scene(next), next)
     }
     UpdateSelectedAnimationClipFrames(value) => {
       let next = update_selected_animation_document(model, fn(animation) {
@@ -2392,7 +2567,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           clip.with_frames(parse_clip_frames(clip.frames, value)),
         ])
       })
-      (sync_preview_effects(next), next)
+      (sync_preview_effects_with_scene(next), next)
     }
     SaveSelectedAnimation =>
       match model.selected_animation_document() {
@@ -2409,10 +2584,11 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         None => ([], model)
       }
     RenameSelected(value) => {
-      let next = update_selected_entity(model, fn(entity) {
+      let staged = with_started_scene_edit_transaction(model, "Rename Entity")
+      let next = update_selected_entity(staged, fn(entity) {
         entity.renamed(value)
       })
-      apply_scene_change(model, next)
+      apply_scene_change_without_history(staged, next)
     }
     UpdateSelectedTranslateX(value) =>
       match model.selected_entity() {
@@ -2422,8 +2598,11 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           )
           match transform {
             Some(transform) => {
+              let staged = with_started_scene_edit_transaction(
+                model, "Edit Transform",
+              )
               let next = update_selected_component(
-                model,
+                staged,
                 @editor_bridge.transform2d_component(
                   translation=transform.translation.with_x(
                     parse_double_or(transform.translation.x, value),
@@ -2432,7 +2611,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                   scale=transform.scale,
                 ),
               )
-              apply_scene_change(model, next)
+              apply_scene_change_without_history(staged, next)
             }
             None => ([], model)
           }
@@ -2447,8 +2626,11 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           )
           match transform {
             Some(transform) => {
+              let staged = with_started_scene_edit_transaction(
+                model, "Edit Transform",
+              )
               let next = update_selected_component(
-                model,
+                staged,
                 @editor_bridge.transform2d_component(
                   translation=transform.translation.with_y(
                     parse_double_or(transform.translation.y, value),
@@ -2457,7 +2639,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                   scale=transform.scale,
                 ),
               )
-              apply_scene_change(model, next)
+              apply_scene_change_without_history(staged, next)
             }
             None => ([], model)
           }
@@ -2472,15 +2654,18 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           )
           match transform {
             Some(transform) => {
+              let staged = with_started_scene_edit_transaction(
+                model, "Edit Transform",
+              )
               let next = update_selected_component(
-                model,
+                staged,
                 @editor_bridge.transform2d_component(
                   translation=transform.translation,
                   rotation=parse_double_or(transform.rotation, value),
                   scale=transform.scale,
                 ),
               )
-              apply_scene_change(model, next)
+              apply_scene_change_without_history(staged, next)
             }
             None => ([], model)
           }
@@ -2495,8 +2680,11 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           )
           match text_component {
             Some(text_component) => {
+              let staged = with_started_scene_edit_transaction(
+                model, "Edit Text",
+              )
               let next = update_selected_component(
-                model,
+                staged,
                 @editor_bridge.text2d_component(
                   value,
                   font_path=text_component.font_path,
@@ -2506,7 +2694,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                   anchor=text_component.anchor,
                 ),
               )
-              apply_scene_change(model, next)
+              apply_scene_change_without_history(staged, next)
             }
             None => ([], model)
           }
@@ -2637,11 +2825,11 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         _ => ([], model)
       }
     SetTool(tool) => {
-      let next = { ..model, active_tool: tool }
-      (sync_preview_effects(next), next)
-    }
-    SetPivotMode(mode) => {
-      let next = { ..model, pivot_mode: mode }
+      let next = {
+        ..model,
+        active_tool: tool,
+        status: "Tool: " + tool_label(tool),
+      }
       (sync_preview_effects(next), next)
     }
     FrameSelection =>
