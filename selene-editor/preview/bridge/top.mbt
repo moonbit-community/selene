@@ -63,6 +63,7 @@ pub enum PreviewCommand {
   LoadScene(PreviewScenePayload)
   SelectEntity(String?)
   SetTool(@shared.PreviewTool)
+  SetMoveSnap(enabled~ : Bool, step~ : Double)
   FrameSelection
 } derive(Show, Eq)
 
@@ -121,6 +122,14 @@ pub fn preview_command_select_entity(id : String?) -> PreviewCommand {
 ///|
 pub fn preview_command_set_tool(tool : @shared.PreviewTool) -> PreviewCommand {
   SetTool(tool)
+}
+
+///|
+pub fn preview_command_set_move_snap(
+  enabled : Bool,
+  step : Double,
+) -> PreviewCommand {
+  SetMoveSnap(enabled~, step~)
 }
 
 ///|

@@ -383,8 +383,24 @@ async test "service typed rpc surface succeeds across current workspace actions"
       _ => fail("expected startup scene response")
     }
 
+    let workspace = @editor_bridge.WorkspaceDocument::default()
+      .with_last_scene(Some("scenes/rpc-demo.scene.json"))
+      .with_selected_entity_id(Some("camera"))
+      .with_move_snap_enabled(true)
+      .with_move_snap_step(32.0)
+    let workspace_save_payload = service.handle_rpc(
+      @shared.rpc_request_envelope(
+        8,
+        @shared.rpc_request_project_save_workspace(workspace),
+      ),
+    )
+    inspect(
+      response_envelope(workspace_save_payload).response,
+      content="SavedOk",
+    )
+
     let assets_payload = service.handle_rpc(
-      @shared.rpc_request_envelope(8, @shared.rpc_request_assets_list()),
+      @shared.rpc_request_envelope(9, @shared.rpc_request_assets_list()),
     )
     match response_envelope(assets_payload).response {
       @shared.AssetsListed(list~) => inspect(list.assets.length(), content="1")
@@ -399,14 +415,14 @@ async test "service typed rpc surface succeeds across current workspace actions"
     ignore(
       service.handle_rpc(
         @shared.rpc_request_envelope(
-          9,
+          10,
           @shared.rpc_request_prefab_save("prefabs/enemy.prefab.json", prefab),
         ),
       ),
     )
     let prefab_payload = service.handle_rpc(
       @shared.rpc_request_envelope(
-        10,
+        11,
         @shared.rpc_request_prefab_load("prefabs/enemy.prefab.json"),
       ),
     )
@@ -422,7 +438,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
     ignore(
       service.handle_rpc(
         @shared.rpc_request_envelope(
-          11,
+          12,
           @shared.rpc_request_atlas_save(
             "assets/atlases/hero.atlas.json", atlas,
           ),
@@ -431,7 +447,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
     )
     let atlas_payload = service.handle_rpc(
       @shared.rpc_request_envelope(
-        12,
+        13,
         @shared.rpc_request_atlas_load("assets/atlases/hero.atlas.json"),
       ),
     )
@@ -447,7 +463,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
     ignore(
       service.handle_rpc(
         @shared.rpc_request_envelope(
-          13,
+          14,
           @shared.rpc_request_animation_save(
             "assets/animations/hero.anim.json", animation,
           ),
@@ -456,7 +472,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
     )
     let animation_payload = service.handle_rpc(
       @shared.rpc_request_envelope(
-        14,
+        15,
         @shared.rpc_request_animation_load("assets/animations/hero.anim.json"),
       ),
     )
@@ -468,11 +484,20 @@ async test "service typed rpc surface succeeds across current workspace actions"
 
     let delete_payload = service.handle_rpc(
       @shared.rpc_request_envelope(
-        15,
+        16,
         @shared.rpc_request_scene_delete(created_scene_path),
       ),
     )
     inspect(response_envelope(delete_payload).response, content="SavedOk")
+
+    let workspace_json = @json.parse(
+      @fs.read_file(path_join(root, ".selene-editor/workspace.json")).text(),
+    )
+    let loaded_workspace = @editor_bridge.decode_workspace_document(
+      workspace_json,
+    )
+    inspect(loaded_workspace.move_snap_enabled, content="Some(true)")
+    inspect(loaded_workspace.move_snap_step, content="Some(32)")
   })
 }
 
@@ -500,6 +525,9 @@ async test "service typed rpc surface returns stable errors for missing or inval
       ),
       @shared.rpc_request_scene_delete("scenes/main.scene.json"),
       @shared.rpc_request_project_set_startup_scene("scenes/main.scene.json"),
+      @shared.rpc_request_project_save_workspace(
+        @editor_bridge.WorkspaceDocument::default(),
+      ),
       @shared.rpc_request_assets_list(),
       @shared.rpc_request_prefab_load("prefabs/missing.prefab.json"),
       @shared.rpc_request_prefab_save(

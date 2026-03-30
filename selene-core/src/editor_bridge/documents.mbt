@@ -67,6 +67,8 @@ pub struct WorkspaceDocument {
   version : Int
   last_scene : String?
   selected_entity_id : String?
+  move_snap_enabled : Bool?
+  move_snap_step : Double?
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
@@ -547,6 +549,8 @@ pub fn WorkspaceDocument::default() -> WorkspaceDocument {
     version: workspace_schema_version,
     last_scene: None,
     selected_entity_id: None,
+    move_snap_enabled: None,
+    move_snap_step: None,
   }
 }
 
@@ -564,6 +568,39 @@ pub fn WorkspaceDocument::with_selected_entity_id(
   id : String?,
 ) -> WorkspaceDocument {
   { ..self, selected_entity_id: id }
+}
+
+///|
+pub fn WorkspaceDocument::with_move_snap_enabled(
+  self : WorkspaceDocument,
+  enabled : Bool,
+) -> WorkspaceDocument {
+  { ..self, move_snap_enabled: Some(enabled) }
+}
+
+///|
+pub fn WorkspaceDocument::with_move_snap_step(
+  self : WorkspaceDocument,
+  step : Double,
+) -> WorkspaceDocument {
+  { ..self, move_snap_step: Some(step) }
+}
+
+///|
+pub fn WorkspaceDocument::move_snap_enabled_or_default(
+  self : WorkspaceDocument,
+) -> Bool {
+  self.move_snap_enabled.unwrap_or(false)
+}
+
+///|
+pub fn WorkspaceDocument::move_snap_step_or_default(
+  self : WorkspaceDocument,
+) -> Double {
+  match self.move_snap_step {
+    Some(step) if step > 0.0 => step
+    _ => 16.0
+  }
 }
 
 ///|

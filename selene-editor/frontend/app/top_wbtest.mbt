@@ -69,6 +69,33 @@ test "project load refreshes both scene and asset list" {
 }
 
 ///|
+test "project load applies persisted move-snap workspace settings" {
+  let workspace = @editor_bridge.WorkspaceDocument::default()
+    .with_move_snap_enabled(true)
+    .with_move_snap_step(20.0)
+  let (effects, next) = update(
+    msg_project_loaded(
+      Ok(
+        @shared.project_state_response(
+          Some("/tmp/demo"),
+          Some(@editor_bridge.ProjectManifest::default("demo")),
+          [],
+          [],
+          [],
+          [],
+          Some(workspace),
+          [],
+        ),
+      ),
+    ),
+    new_model(),
+  )
+  inspect(effects.length(), content="4")
+  inspect(next.move_snap_enabled, content="true")
+  inspect(next.move_snap_step, content="16")
+}
+
+///|
 test "scene migration confirmation gates legacy scene loading" {
   let preview = @editor_bridge.scene_migration_preview(
     "scenes/main.scene.json",
@@ -542,6 +569,41 @@ test "setting drag-canvas tool updates editor state and emits preview sync effec
   inspect(next.active_tool, content="DragCanvas")
   inspect(effects.length() > 0, content="true")
   inspect(next.status, content="Tool: Drag Canvas")
+}
+
+///|
+test "toggling and adjusting move snap emits workspace save rpc" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(@editor_bridge.SceneDocument::default_main()),
+  }
+  let (toggle_effects, toggled) = update(msg_toggle_move_snap(), model)
+  let mut toggle_has_workspace_save = false
+  for effect in toggle_effects {
+    match effect {
+      Rpc(target~, ..) if target == WorkspaceSaved =>
+        toggle_has_workspace_save = true
+      _ => ()
+    }
+  }
+  inspect(toggle_has_workspace_save, content="true")
+  inspect(toggled.move_snap_enabled, content="true")
+  inspect(toggled.workspace.move_snap_enabled, content="Some(true)")
+
+  let (step_effects, stepped) = update(msg_adjust_move_snap_step(1), toggled)
+  let mut step_has_workspace_save = false
+  for effect in step_effects {
+    match effect {
+      Rpc(target~, ..) if target == WorkspaceSaved =>
+        step_has_workspace_save = true
+      _ => ()
+    }
+  }
+  inspect(step_has_workspace_save, content="true")
+  inspect(stepped.move_snap_step, content="32")
+  inspect(stepped.workspace.move_snap_step, content="Some(32)")
 }
 
 ///|

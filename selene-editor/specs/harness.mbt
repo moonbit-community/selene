@@ -28,7 +28,7 @@ fn FakePreviewBridge::apply(
     @bridge.LoadScene(payload) => self.current_scene = Some(payload.scene)
     @bridge.SelectEntity(id) => self.selected_entity_id = id
     @bridge.SetTool(_) => ()
-    @bridge.SetPivotMode(_) => ()
+    @bridge.SetMoveSnap(..) => ()
     @bridge.FrameSelection => ()
   }
 }
@@ -77,6 +77,7 @@ fn msg_for_rpc_target(target : @app.RpcTarget, payload : Json) -> @app.Msg {
         @app.AtlasLoaded => @app.msg_atlas_loaded(Err(message))
         @app.AnimationLoaded => @app.msg_animation_loaded(Err(message))
         @app.SceneSaved => @app.msg_scene_saved(Err(message))
+        @app.WorkspaceSaved => @app.msg_workspace_saved(Err(message))
       }
   }
   match target {
@@ -149,6 +150,14 @@ fn msg_for_rpc_target(target : @app.RpcTarget, payload : Json) -> @app.Msg {
       )
     @app.SceneSaved =>
       @app.msg_scene_saved(
+        match response {
+          @shared.SavedOk | @shared.StartupSceneUpdated(_) => Ok(())
+          @shared.Error(error~) => Err(error.message)
+          _ => Err("Unexpected RPC response for save")
+        },
+      )
+    @app.WorkspaceSaved =>
+      @app.msg_workspace_saved(
         match response {
           @shared.SavedOk | @shared.StartupSceneUpdated(_) => Ok(())
           @shared.Error(error~) => Err(error.message)

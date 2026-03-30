@@ -280,6 +280,11 @@ pub async fn EditorService::handle_rpc(
           @shared.directory_pick_result(path),
         )
       }
+      @shared.ProjectSaveWorkspace(workspace~) => {
+        let root = self.current_project_root()
+        save_workspace_document(root, workspace)
+        @shared.rpc_response_saved_ok()
+      }
       @shared.SceneLoad(path~) => {
         let manifest = self.current_manifest()
         let relative_path = if path == "" {

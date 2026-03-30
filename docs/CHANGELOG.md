@@ -6,6 +6,8 @@
 
 ### Changed
 
+- Changed `selene-editor` Move snap controls from a hardcoded `16px` modifier into a persistent workspace setting (`.selene-editor/workspace.json`) with explicit toolbar controls for enable/disable and step size (`1/2/4/8/16/32/64`).
+
 ### Fixed
 
 - Fixed `selene-editor` Move tool behavior so `Translate` now supports click-to-place positioning and no longer gets interrupted by per-frame scene reloads during drag.
@@ -18,6 +20,7 @@
 - Fixed `selene-editor` Inspector edit history so continuous typing on entity name/transform/text is now coalesced into one undo entry after commit instead of polluting the history stack per keystroke.
 - Fixed `selene-editor` Move precision by adding optional 16px grid snapping while holding `Shift` during translate drag/click placement.
 - Fixed `selene-editor` Inspector commit flow so pressing `Enter` now commits the current text/transform/name edit transaction immediately.
+- Fixed `selene-editor` preview/runtime snap consistency by synchronizing move-snap settings through typed preview commands instead of keeping runtime-only hardcoded grid values.
 
 ### Removed
 

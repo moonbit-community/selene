@@ -83,6 +83,7 @@ pub enum RpcRequest {
   ProjectOpen(root~ : String)
   ProjectPickDirectory(prompt~ : String)
   ProjectSetStartupScene(path~ : String)
+  ProjectSaveWorkspace(workspace~ : @editor_bridge.WorkspaceDocument)
   SceneLoad(path~ : String)
   SceneMigrate(path~ : String)
   SceneList
@@ -263,20 +264,20 @@ pub fn animation_load_response(
 ///|
 pub enum PreviewTool {
   Select
+  DragCanvas
   Translate
   Rotate
   Scale
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
-pub enum PreviewPivotMode {
-  TransformOrigin
-  BoundsCenter
-} derive(Show, Eq, ToJson, FromJson)
-
-///|
 pub fn preview_tool_select() -> PreviewTool {
   Select
+}
+
+///|
+pub fn preview_tool_drag_canvas() -> PreviewTool {
+  DragCanvas
 }
 
 ///|
@@ -292,16 +293,6 @@ pub fn preview_tool_rotate() -> PreviewTool {
 ///|
 pub fn preview_tool_scale() -> PreviewTool {
   Scale
-}
-
-///|
-pub fn preview_pivot_mode_transform_origin() -> PreviewPivotMode {
-  TransformOrigin
-}
-
-///|
-pub fn preview_pivot_mode_bounds_center() -> PreviewPivotMode {
-  BoundsCenter
 }
 
 ///|
@@ -322,6 +313,13 @@ pub fn rpc_request_project_pick_directory(prompt : String) -> RpcRequest {
 ///|
 pub fn rpc_request_project_set_startup_scene(path : String) -> RpcRequest {
   ProjectSetStartupScene(path~)
+}
+
+///|
+pub fn rpc_request_project_save_workspace(
+  workspace : @editor_bridge.WorkspaceDocument,
+) -> RpcRequest {
+  ProjectSaveWorkspace(workspace~)
 }
 
 ///|

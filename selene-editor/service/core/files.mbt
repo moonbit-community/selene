@@ -431,6 +431,16 @@ async fn load_workspace_document(
 }
 
 ///|
+async fn save_workspace_document(
+  root : String,
+  workspace : @editor_bridge.WorkspaceDocument,
+) -> Unit {
+  ignore(@editor_bridge.decode_workspace_document(workspace.to_json()))
+  ensure_dir(path_join(root, ".selene-editor"))
+  write_json_file(workspace_path(root), workspace)
+}
+
+///|
 async fn collect_assets(
   root : String,
   manifest : @editor_bridge.ProjectManifest,

@@ -35,9 +35,7 @@ pub fn event_envelope(EditorEvent) -> EventEnvelope
 
 pub fn prefab_load_response(String, @editor_bridge.PrefabDocument) -> PrefabLoadResponse
 
-pub fn preview_pivot_mode_bounds_center() -> PreviewPivotMode
-
-pub fn preview_pivot_mode_transform_origin() -> PreviewPivotMode
+pub fn preview_tool_drag_canvas() -> PreviewTool
 
 pub fn preview_tool_rotate() -> PreviewTool
 
@@ -192,17 +190,9 @@ pub impl Show for PrefabLoadResponse
 pub impl ToJson for PrefabLoadResponse
 pub impl @json.FromJson for PrefabLoadResponse
 
-pub enum PreviewPivotMode {
-  TransformOrigin
-  BoundsCenter
-}
-pub impl Eq for PreviewPivotMode
-pub impl Show for PreviewPivotMode
-pub impl ToJson for PreviewPivotMode
-pub impl @json.FromJson for PreviewPivotMode
-
 pub enum PreviewTool {
   Select
+  DragCanvas
   Translate
   Rotate
   Scale

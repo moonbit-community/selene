@@ -17,6 +17,8 @@ priv struct PreviewState {
   mut selected_entity_id : String?
   mut hovered_entity_id : String?
   mut active_tool : @shared.PreviewTool
+  mut move_snap_enabled : Bool
+  mut move_snap_step : Double
   mut camera_entity : @entity.Entity?
   mut selection_overlay : @entity.Entity?
   mut pivot_overlay : @entity.Entity?
@@ -36,6 +38,8 @@ fn PreviewState::new() -> PreviewState {
     selected_entity_id: None,
     hovered_entity_id: None,
     active_tool: @shared.preview_tool_select(),
+    move_snap_enabled: false,
+    move_snap_step: 16.0,
     camera_entity: None,
     selection_overlay: None,
     pivot_overlay: None,
@@ -171,12 +175,16 @@ fn clamp_scale_value(value : Double) -> Double {
 
 ///|
 fn move_grid_snap_active() -> Bool {
-  @inputs.is_pressed(@inputs.ShiftLeft)
+  preview_state.move_snap_enabled || @inputs.is_pressed(@inputs.ShiftLeft)
 }
 
 ///|
 fn snap_to_move_grid(point : @math.Vec2D) -> @math.Vec2D {
-  let grid = 16.0
+  let grid = if preview_state.move_snap_step > 0.0 {
+    preview_state.move_snap_step
+  } else {
+    16.0
+  }
   @math.Vec2D(
     (point[X] / grid).round() * grid,
     (point[Y] / grid).round() * grid,
@@ -238,6 +246,21 @@ pub fn select_entity(id : String?) -> Unit {
 ///|
 pub fn set_tool(tool : @shared.PreviewTool) -> Unit {
   preview_state.active_tool = tool
+}
+
+///|
+fn normalized_move_snap_step(step : Double) -> Double {
+  if step > 0.0 {
+    step
+  } else {
+    16.0
+  }
+}
+
+///|
+pub fn set_move_snap(enabled : Bool, step : Double) -> Unit {
+  preview_state.move_snap_enabled = enabled
+  preview_state.move_snap_step = normalized_move_snap_step(step)
 }
 
 ///|

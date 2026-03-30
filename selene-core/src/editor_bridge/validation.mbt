@@ -313,5 +313,11 @@ pub fn validate_workspace_document(
     workspace.version,
     workspace_schema_version,
   )
+  if workspace.move_snap_step is Some(step) && step <= 0.0 {
+    errors.push({
+      path: "move_snap_step",
+      message: "Move snap step must be positive when present",
+    })
+  }
   errors
 }

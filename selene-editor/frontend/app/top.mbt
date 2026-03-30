@@ -67,6 +67,8 @@ pub struct Model {
   logs : Array[String]
   status : String
   active_tool : @shared.PreviewTool
+  move_snap_enabled : Bool
+  move_snap_step : Double
 } derive(Show, Eq)
 
 ///|
@@ -90,6 +92,7 @@ pub enum Msg {
   AssetImageLoadFailed(String)
   SetAssetQuery(String)
   SceneSaved(Result[Unit, String])
+  WorkspaceSaved(Result[Unit, String])
   ServiceEvent(Result[@shared.EditorEvent, String])
   PreviewEvent(@bridge.PreviewEvent)
   SetHoverHint(String?)
@@ -97,6 +100,8 @@ pub enum Msg {
   ToggleAtlasesSection
   ToggleAnimationsSection
   TogglePrefabsSection
+  ToggleMoveSnap
+  AdjustMoveSnapStep(Int)
   CommitSceneEditTransaction
   UndoScene
   RedoScene
@@ -160,6 +165,7 @@ pub enum RpcTarget {
   AtlasLoaded
   AnimationLoaded
   SceneSaved
+  WorkspaceSaved
 } derive(Show, Eq)
 
 ///|
@@ -207,6 +213,8 @@ pub fn new_model() -> Model {
     status: "Choose a project folder to begin",
     logs: [],
     active_tool: @shared.preview_tool_select(),
+    move_snap_enabled: false,
+    move_snap_step: 16.0,
   }
 }
 
@@ -323,6 +331,11 @@ pub fn msg_asset_size_resolved(
 ///|
 pub fn msg_scene_saved(result : Result[Unit, String]) -> Msg {
   SceneSaved(result)
+}
+
+///|
+pub fn msg_workspace_saved(result : Result[Unit, String]) -> Msg {
+  WorkspaceSaved(result)
 }
 
 ///|
@@ -599,6 +612,16 @@ pub fn msg_toggle_prefabs_section() -> Msg {
 }
 
 ///|
+pub fn msg_toggle_move_snap() -> Msg {
+  ToggleMoveSnap
+}
+
+///|
+pub fn msg_adjust_move_snap_step(delta : Int) -> Msg {
+  AdjustMoveSnapStep(delta)
+}
+
+///|
 pub fn msg_commit_scene_edit_transaction() -> Msg {
   CommitSceneEditTransaction
 }
@@ -626,6 +649,51 @@ fn push_log(model : Model, line : String) -> Model {
 
 ///|
 let scene_history_limit = 200
+
+///|
+let move_snap_step_options : ReadOnlyArray[Double] = [
+  1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0,
+]
+
+///|
+fn nearest_move_snap_step(step : Double) -> Double {
+  let fallback = 16.0
+  let candidate = if step > 0.0 { step } else { fallback }
+  let mut best = move_snap_step_options[0]
+  let mut best_distance = (candidate - best).abs()
+  for option in move_snap_step_options {
+    let distance = (candidate - option).abs()
+    if distance < best_distance {
+      best = option
+      best_distance = distance
+    }
+  }
+  best
+}
+
+///|
+fn move_snap_step_index(step : Double) -> Int {
+  let normalized = nearest_move_snap_step(step)
+  for index = 0; index < move_snap_step_options.length(); index = index + 1 {
+    if move_snap_step_options[index] == normalized {
+      return index
+    }
+  }
+  4
+}
+
+///|
+fn adjusted_move_snap_step(current : Double, delta : Int) -> Double {
+  let index = move_snap_step_index(current)
+  let target = index + delta
+  if target < 0 {
+    move_snap_step_options[0]
+  } else if target >= move_snap_step_options.length() {
+    move_snap_step_options[move_snap_step_options.length() - 1]
+  } else {
+    move_snap_step_options[target]
+  }
+}
 
 ///|
 fn bounded_history(
@@ -725,6 +793,20 @@ fn folder_picker_failed_message() -> String {
 ///|
 fn rpc_effect(target : RpcTarget, request : @shared.RpcRequest) -> Effect {
   Rpc(target~, request=@shared.rpc_request_envelope(1, request))
+}
+
+///|
+fn save_workspace_effects(model : Model) -> Array[Effect] {
+  match model.current_root {
+    Some(_) =>
+      [
+        rpc_effect(
+          WorkspaceSaved,
+          @shared.rpc_request_project_save_workspace(model.workspace),
+        ),
+      ]
+    None => []
+  }
 }
 
 ///|
@@ -979,6 +1061,12 @@ fn instantiate_prefab_into_scene(
 fn sync_preview_effects(model : Model) -> Array[Effect] {
   let effects : Array[Effect] = [
     Preview(@bridge.preview_command_set_tool(model.active_tool)),
+    Preview(
+      @bridge.preview_command_set_move_snap(
+        model.move_snap_enabled,
+        model.move_snap_step,
+      ),
+    ),
     Preview(@bridge.preview_command_select_entity(model.selected_entity_id)),
   ]
   effects
@@ -1210,6 +1298,15 @@ fn save_success_status(model : Model) -> String {
     "Saving atlas..." => "Atlas saved"
     "Saving animation..." => "Animation saved"
     _ => "Scene saved"
+  }
+}
+
+///|
+fn move_snap_status(enabled : Bool, step : Double) -> String {
+  if enabled {
+    "Move snap: ON (\{step.to_int()}px)"
+  } else {
+    "Move snap: OFF (\{step.to_int()}px, hold Shift to snap)"
   }
 }
 
@@ -1672,9 +1769,16 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           let prefab_refs = response.prefabs
           let atlas_refs = response.atlases
           let animation_refs = response.animations
-          let workspace = response.workspace.unwrap_or(
+          let loaded_workspace = response.workspace.unwrap_or(
             @editor_bridge.WorkspaceDocument::default(),
           )
+          let move_snap_enabled = loaded_workspace.move_snap_enabled_or_default()
+          let move_snap_step = nearest_move_snap_step(
+            loaded_workspace.move_snap_step_or_default(),
+          )
+          let workspace = loaded_workspace
+            .with_move_snap_enabled(move_snap_enabled)
+            .with_move_snap_step(move_snap_step)
           let scene_path = preferred_scene_path(
             response.manifest,
             scene_refs,
@@ -1705,6 +1809,8 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             redo_stack: [],
             active_scene_edit_transaction: None,
             status,
+            move_snap_enabled,
+            move_snap_step,
           }
           (refresh_project_effects(next), next)
         }
@@ -1929,6 +2035,20 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           ([], { ..next, status: "Save failed: " + message })
         }
       }
+    WorkspaceSaved(result) =>
+      match result {
+        Ok(_) => ([], model)
+        Err(message) => {
+          let next = push_log(model, "Workspace save failed: " + message)
+          (
+            [],
+            {
+              ..next,
+              status: "Workspace save failed. Check browser console for details.",
+            },
+          )
+        }
+      }
     ServiceEvent(result) =>
       match result {
         Ok(event) =>
@@ -2030,6 +2150,32 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         [],
         { ..model, prefabs_section_expanded: !model.prefabs_section_expanded },
       )
+    ToggleMoveSnap => {
+      let enabled = !model.move_snap_enabled
+      let workspace = model.workspace.with_move_snap_enabled(enabled)
+      let next = {
+        ..model,
+        move_snap_enabled: enabled,
+        workspace,
+        status: move_snap_status(enabled, model.move_snap_step),
+      }
+      (sync_preview_effects(next) + save_workspace_effects(next), next)
+    }
+    AdjustMoveSnapStep(delta) => {
+      let next_step = adjusted_move_snap_step(model.move_snap_step, delta)
+      if next_step == model.move_snap_step {
+        ([], model)
+      } else {
+        let workspace = model.workspace.with_move_snap_step(next_step)
+        let next = {
+          ..model,
+          move_snap_step: next_step,
+          workspace,
+          status: move_snap_status(model.move_snap_enabled, next_step),
+        }
+        (sync_preview_effects(next) + save_workspace_effects(next), next)
+      }
+    }
     CommitSceneEditTransaction => {
       let committed = with_committed_scene_edit_transaction(model)
       ([], committed)

@@ -464,6 +464,8 @@ fn run_preview_command(command : @bridge.PreviewCommand) -> Unit {
     @bridge.PreviewCommand::LoadScene(scene) => @preview.load_scene(scene)
     @bridge.PreviewCommand::SelectEntity(id) => @preview.select_entity(id)
     @bridge.PreviewCommand::SetTool(tool) => @preview.set_tool(tool)
+    @bridge.PreviewCommand::SetMoveSnap(enabled~, step~) =>
+      @preview.set_move_snap(enabled, step)
     @bridge.PreviewCommand::FrameSelection => @preview.frame_selection()
   }
 }
@@ -527,6 +529,11 @@ fn rpc_effect_cmd(
       rpc_cmd(request, save_ack_of_response, fn(result) {
         log_rpc_result_error("scene.save", result)
         dispatch(@app.msg_scene_saved(result))
+      })
+    @app.WorkspaceSaved =>
+      rpc_cmd(request, save_ack_of_response, fn(result) {
+        log_rpc_result_error("project.save_workspace", result)
+        dispatch(@app.msg_workspace_saved(result))
       })
   }
 }
@@ -1682,6 +1689,8 @@ fn view(
       ])
     None => selected_asset_view(dispatch, model)
   }
+  let can_decrease_move_snap = model.move_snap_step > 1.0
+  let can_increase_move_snap = model.move_snap_step < 64.0
   let body = @html.div(class="editor-root", [
     @html.div(class="topbar", [
       @html.div(class="topbar-section", [
@@ -1772,7 +1781,7 @@ fn view(
             dispatch,
             model.active_tool,
             @shared.preview_tool_translate(),
-            "Move (W, hold Shift to snap 16px)",
+            "Move (W, hold Shift for temporary snap)",
             "✥",
           ),
           toolbar_button(
@@ -1789,6 +1798,38 @@ fn view(
             "Scale (R)",
             "⬚",
           ),
+          @html.div(class="snap-controls", [
+            action_button(
+              dispatch,
+              if model.move_snap_enabled {
+                "Disable Move Snap"
+              } else {
+                "Enable Move Snap"
+              },
+              "⌗",
+              @app.msg_toggle_move_snap(),
+              enabled=true,
+              primary=model.move_snap_enabled,
+            ),
+            action_button(
+              dispatch,
+              "Decrease Move Snap Step",
+              "−",
+              @app.msg_adjust_move_snap_step(-1),
+              enabled=can_decrease_move_snap,
+            ),
+            @html.div(
+              class="snap-step-chip",
+              "\{model.move_snap_step.to_int()}px",
+            ),
+            action_button(
+              dispatch,
+              "Increase Move Snap Step",
+              "+",
+              @app.msg_adjust_move_snap_step(1),
+              enabled=can_increase_move_snap,
+            ),
+          ]),
         ]),
       ]),
     ]),

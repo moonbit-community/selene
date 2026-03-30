@@ -8,6 +8,9 @@ test "all retained rpc requests round trip through typed envelopes" {
   let animation = @editor_bridge.AnimationAssetDocument::default(
     "Hero Animation", "assets/atlases/hero.atlas.json",
   )
+  let workspace = @editor_bridge.WorkspaceDocument::default()
+    .with_move_snap_enabled(true)
+    .with_move_snap_step(32.0)
   let requests : Array[RpcRequestEnvelope] = [
     rpc_request_envelope(1, rpc_request_project_current()),
     rpc_request_envelope(2, rpc_request_project_open("/tmp/demo")),
@@ -16,38 +19,39 @@ test "all retained rpc requests round trip through typed envelopes" {
       4,
       rpc_request_project_set_startup_scene("scenes/main.scene.json"),
     ),
-    rpc_request_envelope(5, rpc_request_scene_load("scenes/main.scene.json")),
-    rpc_request_envelope(6, rpc_request_scene_migrate("scenes/main.scene.json")),
-    rpc_request_envelope(7, rpc_request_scene_list()),
-    rpc_request_envelope(8, rpc_request_scene_create("Main")),
+    rpc_request_envelope(5, rpc_request_project_save_workspace(workspace)),
+    rpc_request_envelope(6, rpc_request_scene_load("scenes/main.scene.json")),
+    rpc_request_envelope(7, rpc_request_scene_migrate("scenes/main.scene.json")),
+    rpc_request_envelope(8, rpc_request_scene_list()),
+    rpc_request_envelope(9, rpc_request_scene_create("Main")),
     rpc_request_envelope(
-      9,
+      10,
       rpc_request_scene_save("scenes/main.scene.json", scene),
     ),
-    rpc_request_envelope(10, rpc_request_scene_delete("scenes/main.scene.json")),
-    rpc_request_envelope(11, rpc_request_assets_list()),
+    rpc_request_envelope(11, rpc_request_scene_delete("scenes/main.scene.json")),
+    rpc_request_envelope(12, rpc_request_assets_list()),
     rpc_request_envelope(
-      12,
+      13,
       rpc_request_prefab_load("prefabs/hero.prefab.json"),
     ),
     rpc_request_envelope(
-      13,
+      14,
       rpc_request_prefab_save("prefabs/hero.prefab.json", prefab),
     ),
     rpc_request_envelope(
-      14,
+      15,
       rpc_request_atlas_load("assets/atlases/hero.atlas.json"),
     ),
     rpc_request_envelope(
-      15,
+      16,
       rpc_request_atlas_save("assets/atlases/hero.atlas.json", atlas),
     ),
     rpc_request_envelope(
-      16,
+      17,
       rpc_request_animation_load("assets/animations/hero.anim.json"),
     ),
     rpc_request_envelope(
-      17,
+      18,
       rpc_request_animation_save("assets/animations/hero.anim.json", animation),
     ),
   ]
@@ -227,4 +231,11 @@ test "invalid protocol payloads fail to decode" {
     Err(_) => inspect(true, content="true")
     _ => fail("expected invalid event decode to fail")
   }
+}
+
+///|
+test "preview tool supports drag-canvas round trip" {
+  let tool = preview_tool_drag_canvas()
+  let decoded : PreviewTool = @json.from_json(tool.to_json())
+  inspect(decoded == tool, content="true")
 }
