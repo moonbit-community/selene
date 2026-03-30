@@ -6,11 +6,22 @@
 
 ### Changed
 
+### Fixed
+
+### Removed
+
+## [0.30.2] - 2026-03-30
+
+### Added
+
+### Changed
+
 - Changed `selene-editor` Move snap controls from a hardcoded `16px` modifier into a persistent workspace setting (`.selene-editor/workspace.json`) with explicit toolbar controls for enable/disable and step size (`1/2/4/8/16/32/64`).
 - Changed `selene-editor` topbar IA by moving Move Snap out of `Tools` into a dedicated `Options` section with a single explicit enable/disable toggle.
 
 ### Fixed
 
+- Fixed `selene-raylib` 3D triangle primitives and truncated cylinders to render through uploaded `Mesh::draw` path (with GPU mesh caching) instead of immediate `rlgl` triangle submission, eliminating sampler-slot instability from the manual multi-texture immediate path.
 - Fixed `selene-raylib` lighting shader sampler binding type by switching `texture0..texture5` and shadow sampler uniforms (`shadowMap*`, `spotShadowAtlas`, `pointShadowAtlas`) from integer uniform uploads to `Sampler2D` uploads, resolving sampler type mismatch warnings (`sampler type (Float)` / unloadable texture) in 3D textured materials.
 - Fixed `selene-editor` Move tool behavior so `Translate` now supports click-to-place positioning and no longer gets interrupted by per-frame scene reloads during drag.
 - Fixed `selene-editor` viewport transform editing history by introducing preview transform gesture start/finish boundaries, so a full drag gesture records as one undoable scene edit.

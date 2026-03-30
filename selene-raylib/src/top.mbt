@@ -152,6 +152,7 @@ priv struct RaylibBackend {
   ]
   images3d : Map[@render3d_types.ImageHandle, @render3d_types.ImageAsset]
   primitive_meshes : Map[String, @raylib.Mesh]
+  triangle_mesh_cache : Map[String, @raylib.Mesh]
   mut lighting_shader : LightingShaderState?
   mut lit_material : @raylib.Material?
   mut lit_textured_material : @raylib.Material?
@@ -217,6 +218,7 @@ let backend : RaylibBackend = {
   materials3d: Map::new(),
   images3d: Map::new(),
   primitive_meshes: Map::new(),
+  triangle_mesh_cache: Map::new(),
   lighting_shader: None,
   lit_material: None,
   lit_textured_material: None,
@@ -2001,6 +2003,141 @@ fn get_or_create_primitive_mesh(
 }
 
 ///|
+fn triangle_mesh_cache_prefix(
+  mesh_handle : @render3d_types.MeshHandle,
+) -> String {
+  "triangle_mesh:\{mesh_handle}:"
+}
+
+///|
+fn triangle_mesh_cache_key(
+  mesh_handle : @render3d_types.MeshHandle,
+  texcoord_set : Int?,
+) -> String {
+  let prefix = triangle_mesh_cache_prefix(mesh_handle)
+  match texcoord_set {
+    Some(set) => "\{prefix}uv\{set}"
+    None => "\{prefix}no_uv"
+  }
+}
+
+///|
+fn clear_triangle_mesh_cache_for_handle(
+  mesh_handle : @render3d_types.MeshHandle,
+) -> Unit {
+  let prefix = triangle_mesh_cache_prefix(mesh_handle)
+  for pair in backend.triangle_mesh_cache.to_array() {
+    if pair.0.has_prefix(prefix) {
+      @raylib.unload_mesh(pair.1)
+      backend.triangle_mesh_cache.remove(pair.0)
+    }
+  }
+}
+
+///|
+fn to_fixed_vec3_array(values : Array[@smath.Vec3]) -> FixedArray[Float] {
+  let out = FixedArray::make(values.length() * 3, to_float(0.0))
+  for index in 0..<values.length() {
+    let base = index * 3
+    let value = values[index]
+    out[base] = to_float(value.x)
+    out[base + 1] = to_float(value.y)
+    out[base + 2] = to_float(value.z)
+  }
+  out
+}
+
+///|
+fn to_fixed_vec2_array(values : Array[@smath.Vec2D]) -> FixedArray[Float] {
+  let out = FixedArray::make(values.length() * 2, to_float(0.0))
+  for index in 0..<values.length() {
+    let base = index * 2
+    let value = values[index]
+    out[base] = to_float(value[X])
+    out[base + 1] = to_float(value[Y])
+  }
+  out
+}
+
+///|
+fn to_fixed_color_array(values : Array[@render.Color]) -> FixedArray[Byte] {
+  let out = FixedArray::make(values.length() * 4, b'\x00')
+  for index in 0..<values.length() {
+    let base = index * 4
+    let (r, g, b, a) = to_ray_color_bytes(values[index])
+    out[base] = r
+    out[base + 1] = g
+    out[base + 2] = b
+    out[base + 3] = a
+  }
+  out
+}
+
+///|
+fn resolve_triangle_uv_set(
+  mesh : @render3d_types.TriangleMesh3D,
+  texture_bundle : MaterialTextureBundle3D?,
+) -> (MaterialTextureBundle3D?, Array[@smath.Vec2D]?, Int?) {
+  match texture_bundle {
+    Some(bundle) =>
+      match mesh.uv_sets.get(bundle.texcoord_set) {
+        Some(uvs) =>
+          if uvs.length() == mesh.positions.length() {
+            (Some(bundle), Some(uvs), Some(bundle.texcoord_set))
+          } else {
+            warn_texture_issue(
+              "triangles_uv_mismatch:\{uvs.length()}:\{mesh.positions.length()}",
+              "triangle mesh UV count (\{uvs.length()}) != vertex count (\{mesh.positions.length()}); fallback to base_color",
+            )
+            (None, None, None)
+          }
+        None => {
+          warn_texture_issue(
+            "triangles_missing_uvs:\{bundle.texcoord_set}",
+            "triangle mesh has material textures but no matching UV set; fallback to material factors only",
+          )
+          (None, None, None)
+        }
+      }
+    None => (None, None, None)
+  }
+}
+
+///|
+fn create_uploaded_triangle_mesh(
+  vertices : Array[@smath.Vec3],
+  uvs : Array[@smath.Vec2D]?,
+  normals : Array[@smath.Vec3],
+  colors : Array[@render.Color]?,
+) -> @raylib.Mesh? {
+  if vertices.length() < 3 || vertices.length() % 3 != 0 {
+    return None
+  }
+  if normals.length() != vertices.length() {
+    return None
+  }
+  let vertices = to_fixed_vec3_array(vertices)
+  let normals = to_fixed_vec3_array(normals)
+  let texcoords = uvs.map(to_fixed_vec2_array)
+  let colors = colors.bind(fn(values) {
+    if values.length() != vertices.length() / 3 {
+      None
+    } else {
+      Some(to_fixed_color_array(values))
+    }
+  })
+  let mesh = match (texcoords, colors) {
+    (Some(texcoords), Some(colors)) =>
+      @raylib.Mesh::new(vertices, texcoords~, normals~, colors~)
+    (Some(texcoords), None) => @raylib.Mesh::new(vertices, texcoords~, normals~)
+    (None, Some(colors)) => @raylib.Mesh::new(vertices, normals~, colors~)
+    (None, None) => @raylib.Mesh::new(vertices, normals~)
+  }
+  mesh.upload(false)
+  Some(mesh)
+}
+
+///|
 fn draw_lit_mesh_with_material(
   mesh : @raylib.Mesh,
   frame : @render3d_types.RenderFrame3D,
@@ -2720,6 +2857,10 @@ fn cleanup_resources() -> Unit {
     @raylib.unload_mesh(mesh)
   }
   backend.primitive_meshes.clear()
+  for _key, mesh in backend.triangle_mesh_cache {
+    @raylib.unload_mesh(mesh)
+  }
+  backend.triangle_mesh_cache.clear()
   let cleanup_default_material = if backend.lit_material is Some(_) ||
     backend.lit_textured_material is Some(_) ||
     backend.shadow_material is Some(_) {
@@ -3265,6 +3406,9 @@ pub fn sync_mesh_asset(
   handle : @render3d_types.MeshHandle,
   mesh : @render3d_types.MeshAsset,
 ) -> Unit {
+  if backend.meshes3d.get(handle) is Some(existing) && existing != mesh {
+    clear_triangle_mesh_cache_for_handle(handle)
+  }
   backend.meshes3d.set(handle, mesh)
 }
 
@@ -3286,6 +3430,7 @@ pub fn sync_image_asset(
 
 ///|
 pub fn release_mesh_asset(handle : @render3d_types.MeshHandle) -> Unit {
+  clear_triangle_mesh_cache_for_handle(handle)
   backend.meshes3d.remove(handle)
 }
 
@@ -3314,6 +3459,7 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
       .get(item.material)
       .unwrap_or(@render3d_types.default_standard_material3d())
     draw_mesh3d_instance(
+      item.mesh,
       mesh_asset,
       material,
       item.transform,
@@ -3328,6 +3474,7 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
 
 ///|
 fn draw_mesh3d_instance(
+  mesh_handle : @render3d_types.MeshHandle,
   mesh_asset : @render3d_types.MeshAsset,
   material : @render3d_types.StandardMaterial3D,
   transform : @render3d_types.FrameTransform3D,
@@ -3375,7 +3522,7 @@ fn draw_mesh3d_instance(
     }
     Triangles(mesh) =>
       draw_triangle_mesh(
-        mesh, material, frame, camera_position, texture_bundle, receive_shadows,
+        mesh_handle, mesh, material, frame, camera_position, texture_bundle, receive_shadows,
         shadow_state,
       )
   }
@@ -3443,33 +3590,36 @@ fn draw_lit_cylinder(
   receive_shadows : Bool,
   shadow_state : FrameShadowState?,
 ) -> Unit {
+  let safe_slices = @cmp.maximum(3, slices)
   if (radius_top - radius_bottom).abs() <= 0.000001 {
-    let key = "cylinder:\{radius_top}:\{height}:\{slices}"
+    let key = "cylinder:\{radius_top}:\{height}:\{safe_slices}"
     let mesh = get_or_create_primitive_mesh(key, fn() {
-      @raylib.gen_mesh_cylinder(to_float(radius_top), to_float(height), slices)
+      @raylib.gen_mesh_cylinder(
+        to_float(radius_top),
+        to_float(height),
+        safe_slices,
+      )
     })
     draw_lit_mesh_with_material(
       mesh, frame, camera_position, material, texture_bundle, receive_shadows, shadow_state,
     )
     return
   }
-  let (vertices, uvs, normals) = build_cylinder_mesh(
-    radius_top, radius_bottom, height, slices,
-  )
-  if vertices.length() < 3 {
-    return
-  }
-  draw_triangle_vertices(
-    vertices,
-    Some(uvs),
-    normals,
-    None,
-    texture_bundle,
-    material,
-    frame,
-    camera_position,
-    receive_shadows,
-    shadow_state,
+  let key = "truncated_cylinder:\{radius_top}:\{radius_bottom}:\{height}:\{safe_slices}"
+  let mesh = get_or_create_primitive_mesh(key, fn() {
+    let (vertices, uvs, normals) = build_cylinder_mesh(
+      radius_top, radius_bottom, height, safe_slices,
+    )
+    create_uploaded_triangle_mesh(vertices, Some(uvs), normals, None).unwrap_or(
+      @raylib.gen_mesh_cylinder(
+        to_float(radius_bottom),
+        to_float(height),
+        safe_slices,
+      ),
+    )
+  })
+  draw_lit_mesh_with_material(
+    mesh, frame, camera_position, material, texture_bundle, receive_shadows, shadow_state,
   )
 }
 
@@ -3822,6 +3972,7 @@ fn apply_quat_rotation(quat : @smath.Quat) -> Unit {
 
 ///|
 fn draw_triangle_mesh(
+  mesh_handle : @render3d_types.MeshHandle,
   mesh : @render3d_types.TriangleMesh3D,
   material : @render3d_types.StandardMaterial3D,
   frame : @render3d_types.RenderFrame3D,
@@ -3831,74 +3982,55 @@ fn draw_triangle_mesh(
   shadow_state : FrameShadowState?,
 ) -> Unit {
   let vertices = mesh.positions
-  if vertices.length() < 3 {
-    return
-  }
-  let normals = resolve_triangle_normals(mesh)
-  let colors = mesh.colors
-  if texture_bundle is Some(bundle) {
-    guard mesh.uv_sets.get(bundle.texcoord_set) is Some(uvs) else {
-      warn_texture_issue(
-        "triangles_missing_uvs:\{bundle.texcoord_set}",
-        "triangle mesh has material textures but no matching UV set; fallback to material factors only",
-      )
-      draw_triangle_vertices(
-        vertices,
-        None,
-        normals,
-        colors,
-        None,
-        material,
-        frame,
-        camera_position,
-        receive_shadows,
-        shadow_state,
-      )
-      return
-    }
-    if uvs.length() != vertices.length() {
-      warn_texture_issue(
-        "triangles_uv_mismatch:\{uvs.length()}:\{vertices.length()}",
-        "triangle mesh UV count (\{uvs.length()}) != vertex count (\{vertices.length()}); fallback to base_color",
-      )
-      draw_triangle_vertices(
-        vertices,
-        None,
-        normals,
-        colors,
-        None,
-        material,
-        frame,
-        camera_position,
-        receive_shadows,
-        shadow_state,
-      )
-      return
-    }
-    draw_triangle_vertices(
-      vertices,
-      Some(uvs),
-      normals,
-      colors,
-      Some(bundle),
-      material,
-      frame,
-      camera_position,
-      receive_shadows,
-      shadow_state,
+  if vertices.length() < 3 || vertices.length() % 3 != 0 {
+    warn_texture_issue(
+      "triangles_invalid_positions:\{mesh_handle}:\{vertices.length()}",
+      "triangle mesh positions length must be >= 3 and divisible by 3; skipping draw for \{mesh_handle}",
     )
     return
   }
-  draw_triangle_vertices(
-    vertices,
-    None,
-    normals,
-    colors,
-    None,
-    material,
-    frame,
-    camera_position,
-    receive_shadows,
+  let (effective_bundle, uvs, texcoord_set) = resolve_triangle_uv_set(
+    mesh, texture_bundle,
+  )
+  let mut normals = resolve_triangle_normals(mesh)
+  if normals.length() != vertices.length() {
+    warn_texture_issue(
+      "triangles_normals_mismatch:\{normals.length()}:\{vertices.length()}",
+      "triangle mesh normal count (\{normals.length()}) != vertex count (\{vertices.length()}); fallback to default normals",
+    )
+    normals = []
+    for _ in 0..<vertices.length() {
+      normals.push(@smath.Vec3::new(0.0, 1.0, 0.0))
+    }
+  }
+  let colors = mesh.colors.bind(fn(candidates) {
+    if candidates.length() == vertices.length() {
+      Some(candidates)
+    } else {
+      warn_texture_issue(
+        "triangles_color_mismatch:\{candidates.length()}:\{vertices.length()}",
+        "triangle mesh color count (\{candidates.length()}) != vertex count (\{vertices.length()}); ignoring vertex colors",
+      )
+      None
+    }
+  })
+  let cache_key = triangle_mesh_cache_key(mesh_handle, texcoord_set)
+  let ray_mesh = if backend.triangle_mesh_cache.get(cache_key) is Some(cached) {
+    cached
+  } else {
+    guard create_uploaded_triangle_mesh(vertices, uvs, normals, colors)
+      is Some(created) else {
+      warn_texture_issue(
+        "triangles_build_failed:\{mesh_handle}",
+        "failed to build GPU mesh from triangle primitive \{mesh_handle}; skipping draw",
+      )
+      return
+    }
+    backend.triangle_mesh_cache.set(cache_key, created)
+    created
+  }
+  draw_lit_mesh_with_material(
+    ray_mesh, frame, camera_position, material, effective_bundle, receive_shadows,
     shadow_state,
   )
 }
@@ -3934,84 +4066,6 @@ fn compute_flat_triangle_normals(
     normals.push(normal)
   }
   normals
-}
-
-///|
-fn draw_triangle_vertices(
-  vertices : Array[@smath.Vec3],
-  uvs : Array[@smath.Vec2D]?,
-  normals : Array[@smath.Vec3],
-  colors : Array[@render.Color]?,
-  texture_bundle : MaterialTextureBundle3D?,
-  material : @render3d_types.StandardMaterial3D,
-  frame : @render3d_types.RenderFrame3D,
-  camera_position : @smath.Vec3,
-  receive_shadows : Bool,
-  shadow_state : FrameShadowState?,
-) -> Unit {
-  let state = upload_lighting_uniforms(
-    frame, camera_position, material, texture_bundle, receive_shadows, shadow_state,
-  )
-  let effective_bundle = texture_bundle.unwrap_or(
-    fallback_lighting_texture_bundle(),
-  )
-  ignore(@rl.check_render_batch_limit(vertices.length()))
-  if material.double_sided {
-    @rl.disable_backface_culling()
-  } else {
-    @rl.enable_backface_culling()
-  }
-  @raylib.begin_shader_mode(state.shader)
-  @rl.active_texture_slot(0)
-  @rl.enable_texture(@raylib.get_texture_id(effective_bundle.base_texture))
-  @rl.active_texture_slot(1)
-  @rl.enable_texture(
-    @raylib.get_texture_id(effective_bundle.metallic_roughness_texture),
-  )
-  @rl.active_texture_slot(2)
-  @rl.enable_texture(@raylib.get_texture_id(effective_bundle.normal_texture))
-  @rl.active_texture_slot(3)
-  @rl.enable_texture(
-    @raylib.get_texture_id(effective_bundle.metallic_roughness_texture),
-  )
-  @rl.active_texture_slot(4)
-  @rl.enable_texture(@raylib.get_texture_id(effective_bundle.occlusion_texture))
-  @rl.active_texture_slot(5)
-  @rl.enable_texture(@raylib.get_texture_id(effective_bundle.emissive_texture))
-  @rl.active_texture_slot(0)
-  bind_shadow_textures(shadow_state)
-  @rl.begin(@rl.Triangles)
-  for index in 0..<vertices.length() {
-    let vertex = vertices[index]
-    let uv = uvs
-      .map(fn(values) { values[index] })
-      .unwrap_or(@smath.Vec2D(0.0, 0.0))
-    let normal = normals[index]
-    let color = colors
-      .bind(fn(values) { values.get(index) })
-      .unwrap_or({ r: 255U, g: 255U, b: 255U, a: 1.0 })
-    @rl.color4ub(
-      color.r.to_byte(),
-      color.g.to_byte(),
-      color.b.to_byte(),
-      (@cmp.maximum(0.0, @cmp.minimum(1.0, color.a)) * 255.0)
-      .to_int()
-      .reinterpret_as_uint()
-      .to_byte(),
-    )
-    @rl.normal3f(to_float(normal.x), to_float(normal.y), to_float(normal.z))
-    @rl.tex_coord2f(to_float(uv[X]), to_float(uv[Y]))
-    @rl.vertex3f(to_float(vertex.x), to_float(vertex.y), to_float(vertex.z))
-  }
-  @rl.end_()
-  for slot in 0..<6 {
-    @rl.active_texture_slot(slot)
-    @rl.disable_texture()
-  }
-  @rl.active_texture_slot(0)
-  unbind_shadow_textures(shadow_state)
-  @raylib.end_shader_mode()
-  @rl.disable_backface_culling()
 }
 
 ///|
