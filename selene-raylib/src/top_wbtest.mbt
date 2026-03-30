@@ -77,3 +77,12 @@ test "raylib lighting shader falls back to scalar factors when no textures are b
     content="true",
   )
 }
+
+///|
+test "raylib lighting sampler uniforms use sampler2d uniform data type" {
+  let data = uniform_sampler2d(3)
+  match data {
+    @raylib.ShaderUniformData::Sampler2D(slot) => inspect(slot, content="3")
+    _ => fail("expected sampler2d uniform data")
+  }
+}
