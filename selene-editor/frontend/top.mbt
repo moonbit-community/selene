@@ -1307,9 +1307,9 @@ fn asset_panel_view(
     @html.div(
       class="asset-tree-summary",
       if model.asset_query_normalized() == "" {
-        "\{visible_count} items"
+        "\{visible_count} items · \{image_paths.length()} img · \{atlas_paths.length()} atlas · \{animation_paths.length()} anim · \{prefab_paths.length()} prefab"
       } else {
-        "\{visible_count} filtered items"
+        "\{visible_count} filtered · \{image_paths.length()} img · \{atlas_paths.length()} atlas · \{animation_paths.length()} anim · \{prefab_paths.length()} prefab"
       },
     ),
   ])
