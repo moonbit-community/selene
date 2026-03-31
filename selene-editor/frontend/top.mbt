@@ -726,6 +726,7 @@ fn tree_folder_row(
   dispatch : @rabbita.Dispatch[@app.Msg],
   depth : Int,
   label : String,
+  hover_label : String,
   expanded : Bool,
   toggle_enabled : Bool,
   folder_key : String,
@@ -764,6 +765,7 @@ fn tree_folder_row(
     } else {
       @cmd.none
     },
+    attrs=hint_attrs(dispatch, hover_label),
     children,
   )
 }
@@ -892,11 +894,16 @@ fn build_asset_tree_rows(
       } else {
         model.asset_tree_folder_expanded(key)
       }
+      let folder_path = match drop_root {
+        Some(root) => root + "/" + folders[:index + 1].join("/")
+        None => folders[:index + 1].join("/")
+      }
       rows.push(
         tree_folder_row(
           dispatch,
           index,
           folders[index],
+          folder_path,
           expanded,
           !force_expand,
           key,
