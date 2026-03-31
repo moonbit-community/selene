@@ -266,6 +266,7 @@ test "selecting an asset does not create a scene entity" {
   let scene = @editor_bridge.SceneDocument::default_main()
   let model = {
     ..new_model(),
+    images_section_expanded: false,
     current_root: Some("/tmp/demo"),
     manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
     scene: Some(scene),
@@ -277,6 +278,7 @@ test "selecting an asset does not create a scene entity" {
   inspect(next.selected_resource, content="Some(Image(\"assets/hero.png\"))")
   inspect(next.scene.unwrap().entities.length(), content="1")
   inspect(next.status, content="Selected resource: hero")
+  inspect(next.images_section_expanded, content="true")
 }
 
 ///|
@@ -377,6 +379,7 @@ test "move selected resource respects section visibility" {
     next.selected_resource,
     content="Some(Atlas(\"assets/atlases/hero.atlas.json\"))",
   )
+  inspect(next.atlases_section_expanded, content="true")
 }
 
 ///|
@@ -409,6 +412,7 @@ test "adding a sprite from an asset uses the resolved asset size" {
 test "creating an atlas from a selected image updates resource state" {
   let model = {
     ..new_model(),
+    atlases_section_expanded: false,
     current_root: Some("/tmp/demo"),
     manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
     assets: [
@@ -429,6 +433,7 @@ test "creating an atlas from a selected image updates resource state" {
     next.selected_resource,
     content="Some(Atlas(\"assets/atlases/hero.atlas.json\"))",
   )
+  inspect(next.atlases_section_expanded, content="true")
 }
 
 ///|

@@ -32,6 +32,7 @@
 - Changed `selene-editor` asset keyboard navigation to add `PageUp/PageDown` stepped traversal and added a dedicated `Clear Filter` control in the Assets toolbar.
 - Changed `selene-editor` empty-filter state UX to show a one-click `Reset Filter` action when no assets match the current query.
 - Changed `selene-editor` Assets summary line to include per-type counts (`img/atlas/anim/prefab`) for both full and filtered views.
+- Changed `selene-editor` resource-selection UX to auto-expand the matching Assets section (`Images`/`Atlases`/`Animations`/`Prefabs`) when selection is driven by editor actions.
 
 ### Fixed
 

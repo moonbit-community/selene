@@ -1623,6 +1623,20 @@ fn resource_index(
 }
 
 ///|
+fn with_expanded_section_for_selection(
+  model : Model,
+  selection : ResourceSelection?,
+) -> Model {
+  match selection {
+    Some(Image(_)) => { ..model, images_section_expanded: true }
+    Some(Atlas(_)) => { ..model, atlases_section_expanded: true }
+    Some(Animation(_)) => { ..model, animations_section_expanded: true }
+    Some(Prefab(_)) => { ..model, prefabs_section_expanded: true }
+    None => model
+  }
+}
+
+///|
 fn fallback_scene_path(model : Model) -> String {
   match model.manifest {
     Some(manifest) => manifest.startup_scene
@@ -2920,8 +2934,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           "Selected resource: " + resource_selection_name(selection)
         None => "Selection cleared"
       }
-      (
-        [],
+      let next = with_expanded_section_for_selection(
         {
           ..model,
           selected_resource: resource,
@@ -2935,7 +2948,9 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           open_component_menu_kind: None,
           status,
         },
+        resource,
       )
+      ([], next)
     }
     SelectEntity(id) => {
       let next = {
@@ -3068,6 +3083,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             ),
             status: "Created atlas " + atlas.name,
           }
+          let next = with_expanded_section_for_selection(
+            next,
+            next.selected_resource,
+          )
           (
             [
               rpc_effect(
@@ -3105,6 +3124,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             ),
             status: "Created animation " + animation.name,
           }
+          let next = with_expanded_section_for_selection(
+            next,
+            next.selected_resource,
+          )
           (
             [
               rpc_effect(
@@ -3141,6 +3164,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                 ),
                 status: "Saved prefab " + prefab.name,
               }
+              let next = with_expanded_section_for_selection(
+                next,
+                next.selected_resource,
+              )
               (
                 [
                   rpc_effect(
@@ -3257,8 +3284,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             None => if delta > 0 { 0 } else { resources.length() - 1 }
           }
           let selected_resource = Some(resources[target_index])
-          (
-            [],
+          let next = with_expanded_section_for_selection(
             {
               ..model,
               selected_resource,
@@ -3273,7 +3299,9 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
               status: "Selected resource \{target_index + 1}/\{resources.length()}: " +
               resource_selection_name(resources[target_index]),
             },
+            selected_resource,
           )
+          ([], next)
         }
       }
     OpenAddComponentPanel =>
