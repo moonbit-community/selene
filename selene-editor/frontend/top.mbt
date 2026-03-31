@@ -415,6 +415,11 @@ extern "js" fn input_event_is_enter_key(event : @dom.Event) -> Bool =
 
 ///|
 #cfg(target="js")
+extern "js" fn input_event_is_escape_key(event : @dom.Event) -> Bool =
+  #| (event) => (event?.key || "").toLowerCase() === "escape"
+
+///|
+#cfg(target="js")
 extern "js" fn input_event_blur_target(event : @dom.Event) =
   #| (event) => event?.target?.blur?.()
 
@@ -1173,6 +1178,16 @@ fn asset_panel_view(
     atlas_paths.length() +
     animation_paths.length() +
     prefab_paths.length()
+  let asset_search_attrs = @html.Attrs::build().handler("keydown", fn(
+    event,
+    scheduler,
+  ) {
+    if input_event_is_escape_key(event) {
+      event.prevent_default()
+      input_event_blur_target(event)
+      schedule_cmd(scheduler, dispatch(@app.msg_set_asset_query("")))
+    }
+  })
 
   let toolbar = @html.div(class="asset-toolbar", [
     match model.selected_resource_path() {
@@ -1195,6 +1210,7 @@ fn asset_panel_view(
       value=model.asset_query,
       placeholder="Filter assets... (⌘/Ctrl+F or /)",
       on_input=fn(value) { dispatch(@app.msg_set_asset_query(value)) },
+      attrs=asset_search_attrs,
       @html.nothing,
     ),
     @html.div(class="asset-tree-actions", [

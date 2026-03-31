@@ -28,6 +28,7 @@
 - Changed `selene-editor` selection feedback UX so asset/resource selection updates the bottom status bar with current focus context (including keyboard traversal index), improving orientation during keyboard-first editing.
 - Changed `selene-editor` keyboard asset navigation to support `Home`/`End` first/last jumps and auto-scroll the Assets tree to keep the current keyboard-selected resource visible.
 - Changed `selene-editor` Assets search discoverability by adding `/` quick-focus (in addition to `Cmd/Ctrl+F`) and surfacing both shortcuts in the search placeholder text.
+- Changed `selene-editor` Assets search keyboard flow so pressing `Esc` inside the search input clears the filter and blurs the field for immediate return to global editor shortcuts.
 
 ### Fixed
 
