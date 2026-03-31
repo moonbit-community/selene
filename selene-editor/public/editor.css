@@ -570,6 +570,20 @@ input {
   margin-bottom: 4px;
 }
 
+.asset-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: linear-gradient(
+    to bottom,
+    rgba(17, 27, 40, 0.98),
+    rgba(17, 27, 40, 0.94)
+  );
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
 .asset-tree-actions {
   display: flex;
   flex-wrap: wrap;

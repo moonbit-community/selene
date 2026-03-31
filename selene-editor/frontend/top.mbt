@@ -1065,7 +1065,7 @@ fn asset_panel_view(
     fn(_path) { None },
   )
 
-  let content : Array[@rabbita.Html] = [
+  let toolbar = @html.div(class="asset-toolbar", [
     match model.selected_resource_path() {
       Some(path) =>
         @html.div(class="asset-selection-banner", [
@@ -1141,7 +1141,8 @@ fn asset_panel_view(
         "Clear",
       ),
     ]),
-  ]
+  ])
+  let content : Array[@rabbita.Html] = [toolbar]
   if !image_rows.is_empty() {
     content.push(
       asset_section(

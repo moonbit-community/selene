@@ -20,6 +20,7 @@
 - Changed `selene-editor` Assets panel action affordance by adding `Insert Selected` and `Clear` controls and resource-type glyphs (`I/A/N/P`) on tree file rows.
 - Changed `selene-editor` keyboard UX to add `I` for inserting the currently selected asset resource into the scene.
 - Changed `selene-editor` viewport help copy to document asset-tree shortcuts (`I`, `]`, `[`), reducing hidden-key discoverability issues.
+- Changed `selene-editor` Assets panel ergonomics by making selection/search/action controls sticky at panel top while scrolling long asset trees.
 
 ### Fixed
 
