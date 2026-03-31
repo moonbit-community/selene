@@ -402,8 +402,8 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
       roughness: 0.3,
     }),
     visible: true,
-    cast_shadows: true,
-    receive_shadows: true,
+    cast_shadows: false,
+    receive_shadows: false,
   })
   @physics3d.colliders().set(child_collider, @physics3d.Collider::ball(0.22))
 
@@ -431,8 +431,8 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     parent: joint_anchor,
     data: Spherical({
       ..@physics3d.SphericalJoint::new(),
-      local_anchor1: vec3(0.0, 0.0, 0.0),
-      local_anchor2: vec3(-0.55, 1.2, 0.0),
+      local_anchor1: vec3(-0.55, 1.2, 0.0),
+      local_anchor2: vec3(0.0, 0.0, 0.0),
     }),
     contacts_enabled: false,
   })
