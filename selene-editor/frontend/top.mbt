@@ -332,6 +332,11 @@ extern "js" fn subscribe_shortcuts_forever(
   #|       onClearSelection();
   #|       return;
   #|     }
+  #|     if (key === "/") {
+  #|       event.preventDefault();
+  #|       focusAssetSearch();
+  #|       return;
+  #|     }
   #|   });
   #| }
 
@@ -1188,7 +1193,7 @@ fn asset_panel_view(
     @html.input(
       class="field-input asset-search-input",
       value=model.asset_query,
-      placeholder="Filter assets...",
+      placeholder="Filter assets... (⌘/Ctrl+F or /)",
       on_input=fn(value) { dispatch(@app.msg_set_asset_query(value)) },
       @html.nothing,
     ),
