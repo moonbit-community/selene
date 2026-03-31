@@ -549,9 +549,7 @@ pub fn LdtkIntGridPhysicsSettings::matches(Self, String, Int) -> Bool
 pub enum LdtkIntGridRendering {
   Colorful
   Invisible
-}
-pub impl Eq for LdtkIntGridRendering
-pub impl Show for LdtkIntGridRendering
+} derive(Eq, Show)
 
 pub struct LdtkIntGridValueDefinition {
   value : Int

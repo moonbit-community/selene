@@ -129,12 +129,9 @@ pub(all) struct AnimatedField {
   apply : (@entity.Entity, AnimatedValue) -> Unit
 }
 
-pub(all) struct AnimatedFieldHandle(UInt)
+pub(all) struct AnimatedFieldHandle(UInt) derive(Eq, Hash, Show)
 #deprecated
 pub fn AnimatedFieldHandle::inner(Self) -> UInt
-pub impl Eq for AnimatedFieldHandle
-pub impl Hash for AnimatedFieldHandle
-pub impl Show for AnimatedFieldHandle
 
 pub(all) enum AnimatedValue {
   Scalar(Double)
@@ -157,40 +154,28 @@ pub fn AnimationClip::new(String) -> Self
 
 pub(all) struct AnimationClipEventDispatch {
   target : AnimationTargetId?
-}
-pub impl Eq for AnimationClipEventDispatch
-pub impl Show for AnimationClipEventDispatch
+} derive(Eq, Show)
 
 pub(all) struct AnimationClipEventKeyframe {
   time : Double
   descriptor : AnimationEventDescriptorHandle
   dispatch : AnimationClipEventDispatch
-}
-pub impl Eq for AnimationClipEventKeyframe
-pub impl Show for AnimationClipEventKeyframe
+} derive(Eq, Show)
 
-pub(all) struct AnimationClipHandle(UInt)
+pub(all) struct AnimationClipHandle(UInt) derive(Eq, Hash, Show)
 #deprecated
 pub fn AnimationClipHandle::inner(Self) -> UInt
-pub impl Eq for AnimationClipHandle
-pub impl Hash for AnimationClipHandle
-pub impl Show for AnimationClipHandle
 
 pub(all) struct AnimationEventContext {
   clip : AnimationClipHandle
   player : @entity.Entity
   target : @entity.Entity?
   time : Double
-}
-pub impl Eq for AnimationEventContext
-pub impl Show for AnimationEventContext
+} derive(Eq, Show)
 
-pub(all) struct AnimationEventDescriptorHandle(UInt)
+pub(all) struct AnimationEventDescriptorHandle(UInt) derive(Eq, Hash, Show)
 #deprecated
 pub fn AnimationEventDescriptorHandle::inner(Self) -> UInt
-pub impl Eq for AnimationEventDescriptorHandle
-pub impl Hash for AnimationEventDescriptorHandle
-pub impl Show for AnimationEventDescriptorHandle
 
 pub(all) struct AnimationGraph {
   root : AnimationNodeIndex
@@ -218,12 +203,9 @@ pub(all) struct AnimationGraphEdge {
   mut weight : Double
 }
 
-pub(all) struct AnimationGraphHandle(UInt)
+pub(all) struct AnimationGraphHandle(UInt) derive(Eq, Hash, Show)
 #deprecated
 pub fn AnimationGraphHandle::inner(Self) -> UInt
-pub impl Eq for AnimationGraphHandle
-pub impl Hash for AnimationGraphHandle
-pub impl Show for AnimationGraphHandle
 
 pub(all) struct AnimationGraphNode {
   node_type : AnimationGraphNodeType
@@ -237,12 +219,9 @@ pub(all) enum AnimationGraphNodeType {
   Clip(AnimationClipHandle)
 }
 
-pub(all) struct AnimationNodeIndex(UInt)
+pub(all) struct AnimationNodeIndex(UInt) derive(Eq, Hash, Show)
 #deprecated
 pub fn AnimationNodeIndex::inner(Self) -> UInt
-pub impl Eq for AnimationNodeIndex
-pub impl Hash for AnimationNodeIndex
-pub impl Show for AnimationNodeIndex
 
 pub(all) struct AnimationPlayer {
   active_animations : Map[AnimationNodeIndex, ActiveAnimation]
@@ -265,15 +244,12 @@ pub fn AnimationPlayer::start(Self, AnimationNodeIndex, repeat? : RepeatAnimatio
 pub fn AnimationPlayer::stop(Self, AnimationNodeIndex) -> Self
 pub fn AnimationPlayer::stop_all(Self) -> Self
 
-pub(all) struct AnimationTargetId(String)
+pub(all) struct AnimationTargetId(String) derive(Eq, Hash, Show)
 pub fn AnimationTargetId::from_names(Array[String]) -> Self
 #deprecated
 pub fn AnimationTargetId::inner(Self) -> String
 pub fn AnimationTargetId::new(String) -> Self
 pub fn AnimationTargetId::path(Self) -> String
-pub impl Eq for AnimationTargetId
-pub impl Hash for AnimationTargetId
-pub impl Show for AnimationTargetId
 
 pub(all) struct AnimationTransitions {
   mut main : AnimationNodeIndex?
@@ -290,17 +266,13 @@ pub(all) enum AnimationValueKind {
   Vec3
   Quat
   Weights
-}
-pub impl Eq for AnimationValueKind
-pub impl Show for AnimationValueKind
+} derive(Eq, Show)
 
 pub(all) enum ChannelInterpolation {
   Step
   Linear
   CubicSpline
-}
-pub impl Eq for ChannelInterpolation
-pub impl Show for ChannelInterpolation
+} derive(Eq, Show)
 
 pub(all) struct MorphMeshBinding3D {
   target_entity : @entity.Entity
@@ -319,35 +291,27 @@ pub(all) struct MorphMeshBinding3D {
 pub(all) struct MorphTargetBinding3D {
   position_deltas : Array[@math.Vec3]?
   normal_deltas : Array[@math.Vec3]?
-}
-pub impl Eq for MorphTargetBinding3D
-pub impl Show for MorphTargetBinding3D
+} derive(Eq, Show)
 
 pub(all) struct QuatKeyframe {
   time : Double
   value : @math.Quat
   in_tangent : @math.Quat?
   out_tangent : @math.Quat?
-}
-pub impl Eq for QuatKeyframe
-pub impl Show for QuatKeyframe
+} derive(Eq, Show)
 
 pub(all) enum RepeatAnimation {
   Never
   Forever
   Count(UInt)
-}
-pub impl Eq for RepeatAnimation
-pub impl Show for RepeatAnimation
+} derive(Eq, Show)
 
 pub(all) struct ScalarKeyframe {
   time : Double
   value : Double
   in_tangent : Double?
   out_tangent : Double?
-}
-pub impl Eq for ScalarKeyframe
-pub impl Show for ScalarKeyframe
+} derive(Eq, Show)
 
 pub(all) struct SkinVertexInfluence3D {
   joint0 : Int
@@ -399,18 +363,14 @@ pub(all) struct Vec3Keyframe {
   value : @math.Vec3
   in_tangent : @math.Vec3?
   out_tangent : @math.Vec3?
-}
-pub impl Eq for Vec3Keyframe
-pub impl Show for Vec3Keyframe
+} derive(Eq, Show)
 
 pub(all) struct WeightKeyframe {
   time : Double
   value : Array[Double]
   in_tangent : Array[Double]?
   out_tangent : Array[Double]?
-}
-pub impl Eq for WeightKeyframe
-pub impl Show for WeightKeyframe
+} derive(Eq, Show)
 
 // Type aliases
 

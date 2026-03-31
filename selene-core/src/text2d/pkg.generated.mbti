@@ -20,20 +20,16 @@ pub fn text_bounds() -> Map[@entity.Entity, TextBounds]
 // Types and methods
 pub(all) struct Text2d {
   fn new() -> Text2d
-}
+} derive(Eq, Show)
 pub fn Text2d::new() -> Self
-pub impl Eq for Text2d
-pub impl Show for Text2d
 
 pub(all) struct TextBounds {
   width : Double
   height : Double
 
   fn new(Double, Double) -> TextBounds
-}
+} derive(Eq, Show)
 pub fn TextBounds::new(Double, Double) -> Self
-pub impl Eq for TextBounds
-pub impl Show for TextBounds
 
 // Type aliases
 

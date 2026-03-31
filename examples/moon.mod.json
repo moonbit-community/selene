@@ -3,12 +3,12 @@
   "version": "0.21.2",
   "deps": {
     "Milky2018/selene": {
-      "version": "0.30.3",
+      "version": "0.30.4",
       "path": "../selene-core"
     },
     "Milky2018/moon_rapier": "0.3.0",
     "Milky2018/selene_webgpu": {
-      "version": "0.30.3",
+      "version": "0.30.4",
       "path": "../selene-webgpu"
     },
     "moonbitlang/x": "0.4.40"

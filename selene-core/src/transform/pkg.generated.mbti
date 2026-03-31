@@ -24,7 +24,7 @@ pub fn transforms() -> Map[@entity.Entity, Transform]
 // Types and methods
 pub(all) struct GlobalTransform {
   affine : @math.Affine3
-}
+} derive(Eq, Show)
 pub fn GlobalTransform::compute_transform(Self) -> Transform
 pub fn GlobalTransform::from_transform(Transform) -> Self
 pub fn GlobalTransform::identity() -> Self
@@ -32,14 +32,12 @@ pub fn GlobalTransform::reparented_to(Self, Self) -> Transform
 pub fn GlobalTransform::transform_point(Self, @math.Vec3) -> @math.Vec3
 pub fn GlobalTransform::translation(Self) -> @math.Vec3
 pub impl Default for GlobalTransform
-pub impl Eq for GlobalTransform
-pub impl Show for GlobalTransform
 
 pub(all) struct Transform {
   translation : @math.Vec3
   rotation : @math.Quat
   scale : @math.Vec3
-}
+} derive(Eq, Show)
 pub fn Transform::compute_affine(Self) -> @math.Affine3
 pub fn Transform::from_rotation(@math.Quat) -> Self
 pub fn Transform::from_scale(@math.Vec3) -> Self
@@ -50,8 +48,6 @@ pub fn Transform::with_rotation(Self, @math.Quat) -> Self
 pub fn Transform::with_scale(Self, @math.Vec3) -> Self
 pub fn Transform::with_translation(Self, @math.Vec3) -> Self
 pub impl Default for Transform
-pub impl Eq for Transform
-pub impl Show for Transform
 
 // Type aliases
 

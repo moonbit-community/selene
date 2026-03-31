@@ -7,23 +7,15 @@ pub fn run() -> Unit
 // Errors
 
 // Types and methods
-type Card
-pub impl Eq for Card
-pub impl Hash for Card
+type Card derive(Eq, Hash)
 
-type CardNum
-pub impl Eq for CardNum
-pub impl Hash for CardNum
+type CardNum derive(Eq, Hash)
 
-type CardSuit
-pub impl Eq for CardSuit
-pub impl Hash for CardSuit
+type CardSuit derive(Eq, Hash)
 
-type GamePhase
-pub impl Eq for GamePhase
+type GamePhase derive(Eq)
 
-type HandRank
-pub impl Show for HandRank
+type HandRank derive(Show)
 
 // Type aliases
 

@@ -116,9 +116,7 @@ pub(all) struct Mesh3DRenderer {
   mut visible : Bool
   mut cast_shadows : Bool
   mut receive_shadows : Bool
-}
-pub impl Eq for Mesh3DRenderer
-pub impl Show for Mesh3DRenderer
+} derive(Eq, Show)
 
 // Type aliases
 pub using @render3d_types {type AlphaMode3D}

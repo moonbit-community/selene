@@ -32,36 +32,27 @@ pub(all) struct ActionEvent {
   action : InputAction
   kind : ActionEventKind
   value : Double
-}
-pub impl Eq for ActionEvent
-pub impl Show for ActionEvent
+} derive(Eq, Show)
 
 pub(all) enum ActionEventKind {
   Pressed
   Released
   ValueChanged
-}
-pub impl Eq for ActionEventKind
-pub impl Show for ActionEventKind
+} derive(Eq, Show)
 
 pub(all) struct ActionState {
   mut pressed : Bool
   mut just_pressed : Bool
   mut just_released : Bool
   mut value : Double
-}
-pub impl Eq for ActionState
-pub impl Show for ActionState
+} derive(Eq, Show)
 
 pub(all) struct InputAction {
   name : String
 
   fn new(String) -> InputAction
-}
+} derive(Eq, Hash, Show)
 pub fn InputAction::new(String) -> Self
-pub impl Eq for InputAction
-pub impl Hash for InputAction
-pub impl Show for InputAction
 
 pub(all) enum InputBinding {
   Key(@inputs.Code)

@@ -28,11 +28,8 @@ pub(all) struct SystemSet {
   name : String
 
   fn new(String) -> SystemSet
-}
+} derive(Eq, Hash, Show)
 pub fn SystemSet::new(String) -> Self
-pub impl Eq for SystemSet
-pub impl Hash for SystemSet
-pub impl Show for SystemSet
 
 // Type aliases
 

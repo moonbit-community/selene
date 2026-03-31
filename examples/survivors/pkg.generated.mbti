@@ -7,15 +7,11 @@ pub fn run() -> Unit
 // Errors
 
 // Types and methods
-type EnemyType
-pub impl Eq for EnemyType
-pub impl Hash for EnemyType
+type EnemyType derive(Eq, Hash)
 
-type PowerupType
-pub impl Eq for PowerupType
+type PowerupType derive(Eq)
 
-type WeaponType
-pub impl Eq for WeaponType
+type WeaponType derive(Eq)
 
 // Type aliases
 

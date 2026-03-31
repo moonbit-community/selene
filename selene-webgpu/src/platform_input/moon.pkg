@@ -3,7 +3,8 @@ import {
   "Milky2018/selene_webgpu" @impl,
 }
 
+supported_targets = "js"
+
 options(
   implement: "Milky2018/selene/platform_input",
-  "supported_targets": "js",
 )

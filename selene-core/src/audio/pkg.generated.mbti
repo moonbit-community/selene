@@ -44,19 +44,15 @@ pub(all) struct AudioEvent {
   source : @asset_types.AudioHandle
   settings : PlaybackSettings
   target : @entity.Entity?
-}
-pub impl Eq for AudioEvent
-pub impl Show for AudioEvent
+} derive(Eq, Show)
 
 pub(all) struct AudioPlayer {
   source : @asset_types.AudioHandle
 
   fn new(@asset_types.AudioHandle) -> AudioPlayer
-}
+} derive(Eq, Show)
 pub fn AudioPlayer::from_path(String) -> Self
 pub fn AudioPlayer::new(@asset_types.AudioHandle) -> Self
-pub impl Eq for AudioPlayer
-pub impl Show for AudioPlayer
 
 pub(all) struct AudioSink {
   instance : @platform_audio.AudioInstance
@@ -88,9 +84,7 @@ pub(all) enum PlaybackMode {
   Loop
   Remove
   Despawn
-}
-pub impl Eq for PlaybackMode
-pub impl Show for PlaybackMode
+} derive(Eq, Show)
 
 pub(all) struct PlaybackSettings {
   mode : PlaybackMode
@@ -98,7 +92,7 @@ pub(all) struct PlaybackSettings {
   speed : Double
   paused : Bool
   muted : Bool
-}
+} derive(Eq, Show)
 pub fn PlaybackSettings::despawn() -> Self
 pub fn PlaybackSettings::looped() -> Self
 pub fn PlaybackSettings::once() -> Self
@@ -108,8 +102,6 @@ pub fn PlaybackSettings::with_muted(Self, Bool) -> Self
 pub fn PlaybackSettings::with_paused(Self, Bool) -> Self
 pub fn PlaybackSettings::with_speed(Self, Double) -> Self
 pub fn PlaybackSettings::with_volume(Self, Double) -> Self
-pub impl Eq for PlaybackSettings
-pub impl Show for PlaybackSettings
 
 // Type aliases
 pub using @asset_types {type AudioHandle}

@@ -11,9 +11,7 @@ pub(all) struct Color {
   g : UInt
   b : UInt
   a : Double
-}
-pub impl Eq for Color
-pub impl Show for Color
+} derive(Eq, Show)
 
 // Type aliases
 

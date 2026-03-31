@@ -32,9 +32,7 @@ pub fn spawner() -> SceneSpawner
 pub(all) struct SceneInstanceReadyEvent {
   scene : @render3d_types.SceneHandle
   root : @entity.Entity
-}
-pub impl Eq for SceneInstanceReadyEvent
-pub impl Show for SceneInstanceReadyEvent
+} derive(Eq, Show)
 
 pub(all) struct SceneSpawner {
   _tag : Unit

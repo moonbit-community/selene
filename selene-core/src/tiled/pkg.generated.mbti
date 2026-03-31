@@ -128,8 +128,7 @@ pub struct TiledColliderOrigin {
 pub enum TiledColliderSourceKind {
   TilesLayer
   Object
-}
-pub impl Eq for TiledColliderSourceKind
+} derive(Eq)
 
 pub struct TiledColliderSpawnedEvent {
   collider_entity : @entity.Entity

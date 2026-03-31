@@ -42,9 +42,7 @@ pub(all) enum AlphaMode3D {
   Opaque
   Mask
   Blend
-}
-pub impl Eq for AlphaMode3D
-pub impl Show for AlphaMode3D
+} derive(Eq, Show)
 
 pub(all) struct AmbientLight3D {
   color : @render.Color
@@ -54,16 +52,13 @@ pub(all) struct AmbientLight3D {
 pub(all) enum CameraProjection3D {
   Perspective
   Orthographic
-}
-pub impl Eq for CameraProjection3D
-pub impl Show for CameraProjection3D
+} derive(Eq, Show)
 
 pub(all) struct CascadeShadowConfig3D {
   bounds : Array[Double]
   minimum_distance : Double
   overlap_proportion : Double
-}
-pub impl Show for CascadeShadowConfig3D
+} derive(Show)
 
 pub(all) struct CascadeShadowConfigBuilder3D {
   num_cascades : Int
@@ -71,9 +66,7 @@ pub(all) struct CascadeShadowConfigBuilder3D {
   maximum_distance : Double
   first_cascade_far_bound : Double
   overlap_proportion : Double
-}
-pub impl Eq for CascadeShadowConfigBuilder3D
-pub impl Show for CascadeShadowConfigBuilder3D
+} derive(Eq, Show)
 
 pub(all) struct DirectionalLight3D {
   direction : @math.Vec3
@@ -87,9 +80,7 @@ pub(all) struct DirectionalLight3D {
 
 pub(all) struct DirectionalLightShadowMap3D {
   size : Int
-}
-pub impl Eq for DirectionalLightShadowMap3D
-pub impl Show for DirectionalLightShadowMap3D
+} derive(Eq, Show)
 
 pub(all) struct FrameCamera3D {
   position : @math.Vec3
@@ -132,42 +123,27 @@ pub(all) struct FrameTransform3D {
   translation : @math.Vec3
   rotation : @math.Quat
   scale : @math.Vec3
-}
-pub impl Eq for FrameTransform3D
-pub impl Show for FrameTransform3D
+} derive(Eq, Show)
 
 pub(all) struct ImageAsset {
   path : String
-}
-pub impl Eq for ImageAsset
-pub impl Show for ImageAsset
+} derive(Eq, Show)
 
-pub(all) struct ImageHandle(UInt)
+pub(all) struct ImageHandle(UInt) derive(Eq, Hash, Show)
 #deprecated
 pub fn ImageHandle::inner(Self) -> UInt
-pub impl Eq for ImageHandle
-pub impl Hash for ImageHandle
-pub impl Show for ImageHandle
 
-pub(all) struct MaterialHandle(UInt)
+pub(all) struct MaterialHandle(UInt) derive(Eq, Hash, Show)
 #deprecated
 pub fn MaterialHandle::inner(Self) -> UInt
-pub impl Eq for MaterialHandle
-pub impl Hash for MaterialHandle
-pub impl Show for MaterialHandle
 
 pub(all) struct MeshAsset {
   primitive : MeshPrimitive3D
-}
-pub impl Eq for MeshAsset
-pub impl Show for MeshAsset
+} derive(Eq, Show)
 
-pub(all) struct MeshHandle(UInt)
+pub(all) struct MeshHandle(UInt) derive(Eq, Hash, Show)
 #deprecated
 pub fn MeshHandle::inner(Self) -> UInt
-pub impl Eq for MeshHandle
-pub impl Hash for MeshHandle
-pub impl Show for MeshHandle
 
 pub(all) enum MeshPrimitive3D {
   Cube(@math.Vec3)
@@ -175,9 +151,7 @@ pub(all) enum MeshPrimitive3D {
   Cylinder(Double, Double, Double, Int)
   Plane(@math.Vec3)
   Triangles(TriangleMesh3D)
-}
-pub impl Eq for MeshPrimitive3D
-pub impl Show for MeshPrimitive3D
+} derive(Eq, Show)
 
 pub(all) struct PointLight3D {
   color : @render.Color
@@ -191,9 +165,7 @@ pub(all) struct PointLight3D {
 
 pub(all) struct PointLightShadowMap3D {
   size : Int
-}
-pub impl Eq for PointLightShadowMap3D
-pub impl Show for PointLightShadowMap3D
+} derive(Eq, Show)
 
 pub(all) struct RenderFrame3D {
   mut camera : FrameCamera3D?
@@ -215,12 +187,9 @@ pub(all) struct RenderItem3D {
   receive_shadows : Bool
 }
 
-pub(all) struct SceneHandle(UInt)
+pub(all) struct SceneHandle(UInt) derive(Eq, Hash, Show)
 #deprecated
 pub fn SceneHandle::inner(Self) -> UInt
-pub impl Eq for SceneHandle
-pub impl Hash for SceneHandle
-pub impl Show for SceneHandle
 
 pub(all) struct SpotLight3D {
   direction : @math.Vec3
@@ -258,25 +227,19 @@ pub(all) struct Tangent3D {
   y : Double
   z : Double
   w : Double
-}
-pub impl Eq for Tangent3D
-pub impl Show for Tangent3D
+} derive(Eq, Show)
 
 pub(all) struct TextureBinding3D {
   image : ImageHandle
   sampler : TextureSampler3D
   texcoord_set : Int
   transform : TextureTransform3D
-}
-pub impl Eq for TextureBinding3D
-pub impl Show for TextureBinding3D
+} derive(Eq, Show)
 
 pub(all) enum TextureFilter3D {
   Nearest
   Linear
-}
-pub impl Eq for TextureFilter3D
-pub impl Show for TextureFilter3D
+} derive(Eq, Show)
 
 pub(all) struct TextureSampler3D {
   wrap_u : TextureWrap3D
@@ -284,25 +247,19 @@ pub(all) struct TextureSampler3D {
   min_filter : TextureFilter3D
   mag_filter : TextureFilter3D
   mipmap_filter : TextureFilter3D?
-}
-pub impl Eq for TextureSampler3D
-pub impl Show for TextureSampler3D
+} derive(Eq, Show)
 
 pub(all) struct TextureTransform3D {
   offset : @math.Vec2D
   scale : @math.Vec2D
   rotation : Double
-}
-pub impl Eq for TextureTransform3D
-pub impl Show for TextureTransform3D
+} derive(Eq, Show)
 
 pub(all) enum TextureWrap3D {
   ClampToEdge
   Repeat
   MirroredRepeat
-}
-pub impl Eq for TextureWrap3D
-pub impl Show for TextureWrap3D
+} derive(Eq, Show)
 
 pub(all) struct TriangleMesh3D {
   positions : Array[@math.Vec3]
@@ -312,17 +269,13 @@ pub(all) struct TriangleMesh3D {
   normals : Array[@math.Vec3]?
   tangents : Array[Tangent3D]?
   colors : Array[@render.Color]?
-}
-pub impl Eq for TriangleMesh3D
-pub impl Show for TriangleMesh3D
+} derive(Eq, Show)
 
 pub(all) enum TriangleTopology3D {
   TriangleList
   TriangleStrip
   TriangleFan
-}
-pub impl Eq for TriangleTopology3D
-pub impl Show for TriangleTopology3D
+} derive(Eq, Show)
 
 // Type aliases
 

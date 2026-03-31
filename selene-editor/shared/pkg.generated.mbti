@@ -129,36 +129,20 @@ pub fn scene_load_outcome_migration_required(@editor_bridge.SceneMigrationPrevie
 pub struct AnimationLoadResponse {
   path : String
   animation : @editor_bridge.AnimationAssetDocument
-}
-pub impl Eq for AnimationLoadResponse
-pub impl Show for AnimationLoadResponse
-pub impl ToJson for AnimationLoadResponse
-pub impl @json.FromJson for AnimationLoadResponse
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct AssetsListResponse {
   assets : Array[@editor_bridge.AssetDocument]
-}
-pub impl Eq for AssetsListResponse
-pub impl Show for AssetsListResponse
-pub impl ToJson for AssetsListResponse
-pub impl @json.FromJson for AssetsListResponse
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct AtlasLoadResponse {
   path : String
   atlas : @editor_bridge.AtlasAssetDocument
-}
-pub impl Eq for AtlasLoadResponse
-pub impl Show for AtlasLoadResponse
-pub impl ToJson for AtlasLoadResponse
-pub impl @json.FromJson for AtlasLoadResponse
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct DirectoryPickResult {
   path : String?
-}
-pub impl Eq for DirectoryPickResult
-pub impl Show for DirectoryPickResult
-pub impl ToJson for DirectoryPickResult
-pub impl @json.FromJson for DirectoryPickResult
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub enum EditorEvent {
   Ready
@@ -169,28 +153,16 @@ pub enum EditorEvent {
   SceneSaved(path~ : String)
   SceneDeleted(path~ : String)
   AssetImported(asset~ : @editor_bridge.AssetDocument)
-}
-pub impl Eq for EditorEvent
-pub impl Show for EditorEvent
-pub impl ToJson for EditorEvent
-pub impl @json.FromJson for EditorEvent
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct EventEnvelope {
   event : EditorEvent
-}
-pub impl Eq for EventEnvelope
-pub impl Show for EventEnvelope
-pub impl ToJson for EventEnvelope
-pub impl @json.FromJson for EventEnvelope
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct PrefabLoadResponse {
   path : String
   prefab : @editor_bridge.PrefabDocument
-}
-pub impl Eq for PrefabLoadResponse
-pub impl Show for PrefabLoadResponse
-pub impl ToJson for PrefabLoadResponse
-pub impl @json.FromJson for PrefabLoadResponse
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub enum PreviewTool {
   Select
@@ -198,11 +170,7 @@ pub enum PreviewTool {
   Translate
   Rotate
   Scale
-}
-pub impl Eq for PreviewTool
-pub impl Show for PreviewTool
-pub impl ToJson for PreviewTool
-pub impl @json.FromJson for PreviewTool
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct ProjectStateResponse {
   root : String?
@@ -213,21 +181,13 @@ pub struct ProjectStateResponse {
   animations : Array[@editor_bridge.AssetRef]
   workspace : @editor_bridge.WorkspaceDocument?
   recent_projects : Array[String]
-}
-pub impl Eq for ProjectStateResponse
-pub impl Show for ProjectStateResponse
-pub impl ToJson for ProjectStateResponse
-pub impl @json.FromJson for ProjectStateResponse
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct RpcErrorDocument {
   code : String
   message : String
   details : Json
-}
-pub impl Eq for RpcErrorDocument
-pub impl Show for RpcErrorDocument
-pub impl ToJson for RpcErrorDocument
-pub impl @json.FromJson for RpcErrorDocument
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub enum RpcRequest {
   ProjectCurrent
@@ -248,20 +208,12 @@ pub enum RpcRequest {
   AtlasSave(path~ : String, atlas~ : @editor_bridge.AtlasAssetDocument)
   AnimationLoad(path~ : String)
   AnimationSave(path~ : String, animation~ : @editor_bridge.AnimationAssetDocument)
-}
-pub impl Eq for RpcRequest
-pub impl Show for RpcRequest
-pub impl ToJson for RpcRequest
-pub impl @json.FromJson for RpcRequest
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct RpcRequestEnvelope {
   id : Int
   request : RpcRequest
-}
-pub impl Eq for RpcRequestEnvelope
-pub impl Show for RpcRequestEnvelope
-pub impl ToJson for RpcRequestEnvelope
-pub impl @json.FromJson for RpcRequestEnvelope
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub enum RpcResponse {
   ProjectState(state~ : ProjectStateResponse)
@@ -276,66 +228,40 @@ pub enum RpcResponse {
   StartupSceneUpdated(manifest~ : @editor_bridge.ProjectManifest)
   SavedOk
   Error(error~ : RpcErrorDocument)
-}
-pub impl Eq for RpcResponse
-pub impl Show for RpcResponse
-pub impl ToJson for RpcResponse
-pub impl @json.FromJson for RpcResponse
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct RpcResponseEnvelope {
   id : Int
   response : RpcResponse
-}
-pub impl Eq for RpcResponseEnvelope
-pub impl Show for RpcResponseEnvelope
-pub impl ToJson for RpcResponseEnvelope
-pub impl @json.FromJson for RpcResponseEnvelope
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct SceneBundleAnimationEntry {
   path : String
   animation : @editor_bridge.AnimationAssetDocument
-}
-pub impl Eq for SceneBundleAnimationEntry
-pub impl Show for SceneBundleAnimationEntry
-pub impl ToJson for SceneBundleAnimationEntry
-pub impl @json.FromJson for SceneBundleAnimationEntry
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct SceneBundleAtlasEntry {
   path : String
   atlas : @editor_bridge.AtlasAssetDocument
-}
-pub impl Eq for SceneBundleAtlasEntry
-pub impl Show for SceneBundleAtlasEntry
-pub impl ToJson for SceneBundleAtlasEntry
-pub impl @json.FromJson for SceneBundleAtlasEntry
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct SceneBundleResponse {
   path : String
   scene : @editor_bridge.SceneDocument
   atlas_assets : Array[SceneBundleAtlasEntry]
   animation_assets : Array[SceneBundleAnimationEntry]
-}
+} derive(Eq, Show, ToJson, @json.FromJson)
 pub fn SceneBundleResponse::with_assets(Self, Array[SceneBundleAtlasEntry], Array[SceneBundleAnimationEntry]) -> Self
-pub impl Eq for SceneBundleResponse
-pub impl Show for SceneBundleResponse
-pub impl ToJson for SceneBundleResponse
-pub impl @json.FromJson for SceneBundleResponse
 
 pub struct SceneListResponse {
   scenes : Array[@editor_bridge.SceneRef]
   startup_scene : String
-}
-pub impl Eq for SceneListResponse
-pub impl Show for SceneListResponse
-pub impl ToJson for SceneListResponse
-pub impl @json.FromJson for SceneListResponse
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub enum SceneLoadOutcome {
   Loaded(SceneBundleResponse)
   MigrationRequired(@editor_bridge.SceneMigrationPreview)
-}
-pub impl Eq for SceneLoadOutcome
-pub impl Show for SceneLoadOutcome
+} derive(Eq, Show)
 
 // Type aliases
 

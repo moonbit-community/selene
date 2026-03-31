@@ -195,22 +195,16 @@ pub struct AnimationAssetDocument {
   atlas_asset_path : String
   clips : Array[AnimationClipDocument]
   default_clip : String?
-}
+} derive(Eq, Show, ToJson, @json.FromJson)
 pub fn AnimationAssetDocument::default(String, String) -> Self
 pub fn AnimationAssetDocument::with_clips(Self, Array[AnimationClipDocument]) -> Self
 pub fn AnimationAssetDocument::with_default_clip(Self, String?) -> Self
 pub fn AnimationAssetDocument::with_name(Self, String) -> Self
-pub impl Eq for AnimationAssetDocument
-pub impl Show for AnimationAssetDocument
-pub impl ToJson for AnimationAssetDocument
-pub impl @json.FromJson for AnimationAssetDocument
 
 pub enum AnimationAssetDocumentLoadStatus {
   Ready(AnimationAssetDocument)
   MigrationRequired(AnimationAssetMigrationPreview)
-}
-pub impl Eq for AnimationAssetDocumentLoadStatus
-pub impl Show for AnimationAssetDocumentLoadStatus
+} derive(Eq, Show)
 
 pub struct AnimationAssetDocumentMigrator {
 }
@@ -219,26 +213,18 @@ pub struct AnimationAssetMigrationPreview {
   path : String
   animation : AnimationAssetDocument
   changes : Array[MigrationFieldChange]
-}
-pub impl Eq for AnimationAssetMigrationPreview
-pub impl Show for AnimationAssetMigrationPreview
-pub impl ToJson for AnimationAssetMigrationPreview
-pub impl @json.FromJson for AnimationAssetMigrationPreview
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct AnimationClipDocument {
   name : String
   fps : Double
   looping : Bool
   frames : Array[String]
-}
+} derive(Eq, Show, ToJson, @json.FromJson)
 pub fn AnimationClipDocument::with_fps(Self, Double) -> Self
 pub fn AnimationClipDocument::with_frames(Self, Array[String]) -> Self
 pub fn AnimationClipDocument::with_looping(Self, Bool) -> Self
 pub fn AnimationClipDocument::with_name(Self, String) -> Self
-pub impl Eq for AnimationClipDocument
-pub impl Show for AnimationClipDocument
-pub impl ToJson for AnimationClipDocument
-pub impl @json.FromJson for AnimationClipDocument
 
 pub struct AnimationPlayerComponent {
   animation_asset_path : String?
@@ -246,29 +232,17 @@ pub struct AnimationPlayerComponent {
   autoplay : Bool
   repeat_mode : String
   speed : Double
-}
-pub impl Eq for AnimationPlayerComponent
-pub impl Show for AnimationPlayerComponent
-pub impl ToJson for AnimationPlayerComponent
-pub impl @json.FromJson for AnimationPlayerComponent
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct AnimationTransitionsComponent {
   duration : Double
-}
-pub impl Eq for AnimationTransitionsComponent
-pub impl Show for AnimationTransitionsComponent
-pub impl ToJson for AnimationTransitionsComponent
-pub impl @json.FromJson for AnimationTransitionsComponent
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct AssetDocument {
   path : String
   kind : AssetKind
   meta_path : String?
-}
-pub impl Eq for AssetDocument
-pub impl Show for AssetDocument
-pub impl ToJson for AssetDocument
-pub impl @json.FromJson for AssetDocument
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct AssetInstantiationContext {
   asset_path_resolver : (String?) -> String?
@@ -290,29 +264,17 @@ pub enum AssetKind {
   Meta
   Json
   Unknown
-}
-pub impl Eq for AssetKind
-pub impl Show for AssetKind
-pub impl ToJson for AssetKind
-pub impl @json.FromJson for AssetKind
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct AssetMetaDocument {
   tags : Array[String]
   importer : String?
   source : String?
-}
-pub impl Eq for AssetMetaDocument
-pub impl Show for AssetMetaDocument
-pub impl ToJson for AssetMetaDocument
-pub impl @json.FromJson for AssetMetaDocument
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct AssetRef {
   path : String
-}
-pub impl Eq for AssetRef
-pub impl Show for AssetRef
-pub impl ToJson for AssetRef
-pub impl @json.FromJson for AssetRef
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct AtlasAssetDocument {
   version : Int
@@ -325,7 +287,7 @@ pub struct AtlasAssetDocument {
   margin : Vec2Doc
   default_anchor : Vec2Doc
   regions : Array[AtlasRegionDocument]
-}
+} derive(Eq, Show, ToJson, @json.FromJson)
 pub fn AtlasAssetDocument::default(String, String) -> Self
 pub fn AtlasAssetDocument::with_columns(Self, Int) -> Self
 pub fn AtlasAssetDocument::with_default_anchor(Self, Vec2Doc) -> Self
@@ -335,17 +297,11 @@ pub fn AtlasAssetDocument::with_regions(Self, Array[AtlasRegionDocument]) -> Sel
 pub fn AtlasAssetDocument::with_rows(Self, Int) -> Self
 pub fn AtlasAssetDocument::with_spacing(Self, Vec2Doc) -> Self
 pub fn AtlasAssetDocument::with_tile_size(Self, Vec2Doc) -> Self
-pub impl Eq for AtlasAssetDocument
-pub impl Show for AtlasAssetDocument
-pub impl ToJson for AtlasAssetDocument
-pub impl @json.FromJson for AtlasAssetDocument
 
 pub enum AtlasAssetDocumentLoadStatus {
   Ready(AtlasAssetDocument)
   MigrationRequired(AtlasAssetMigrationPreview)
-}
-pub impl Eq for AtlasAssetDocumentLoadStatus
-pub impl Show for AtlasAssetDocumentLoadStatus
+} derive(Eq, Show)
 
 pub struct AtlasAssetDocumentMigrator {
 }
@@ -354,124 +310,77 @@ pub struct AtlasAssetMigrationPreview {
   path : String
   atlas : AtlasAssetDocument
   changes : Array[MigrationFieldChange]
-}
-pub impl Eq for AtlasAssetMigrationPreview
-pub impl Show for AtlasAssetMigrationPreview
-pub impl ToJson for AtlasAssetMigrationPreview
-pub impl @json.FromJson for AtlasAssetMigrationPreview
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct AtlasRegionDocument {
   name : String
   index : Int
   rect : RectDoc
-}
-pub impl Eq for AtlasRegionDocument
-pub impl Show for AtlasRegionDocument
-pub impl ToJson for AtlasRegionDocument
-pub impl @json.FromJson for AtlasRegionDocument
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct Camera2dComponent {
   is_active : Bool
   order : Int
   scale : Double
-}
-pub impl Eq for Camera2dComponent
-pub impl Show for Camera2dComponent
-pub impl ToJson for Camera2dComponent
-pub impl @json.FromJson for Camera2dComponent
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct ColorDoc {
   r : Int
   g : Int
   b : Int
   a : Int
-}
-pub impl Eq for ColorDoc
-pub impl Show for ColorDoc
-pub impl ToJson for ColorDoc
-pub impl @json.FromJson for ColorDoc
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct ColorMaterialComponent {
   color : ColorDoc
-}
-pub impl Eq for ColorMaterialComponent
-pub impl Show for ColorMaterialComponent
-pub impl ToJson for ColorMaterialComponent
-pub impl @json.FromJson for ColorMaterialComponent
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct ComponentDocument {
   kind : String
   data : Json
-}
-pub impl Eq for ComponentDocument
-pub impl Show for ComponentDocument
-pub impl ToJson for ComponentDocument
-pub impl @json.FromJson for ComponentDocument
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct EntityDocument {
   id : String
   name : String
   parent : String?
   components : Array[ComponentDocument]
-}
+} derive(Eq, Show, ToJson, @json.FromJson)
 pub fn EntityDocument::component(Self, String) -> ComponentDocument?
 pub fn EntityDocument::renamed(Self, String) -> Self
 pub fn EntityDocument::reparented(Self, String?) -> Self
 pub fn EntityDocument::with_component(Self, ComponentDocument) -> Self
 pub fn EntityDocument::without_component(Self, String) -> Self
-pub impl Eq for EntityDocument
-pub impl Show for EntityDocument
-pub impl ToJson for EntityDocument
-pub impl @json.FromJson for EntityDocument
 
-type LegacyAnimationAssetDocument
-pub impl @json.FromJson for LegacyAnimationAssetDocument
+type LegacyAnimationAssetDocument derive(@json.FromJson)
 
-type LegacyAnimationClipDocument
-pub impl @json.FromJson for LegacyAnimationClipDocument
+type LegacyAnimationClipDocument derive(@json.FromJson)
 
-type LegacyAtlasAssetDocument
-pub impl @json.FromJson for LegacyAtlasAssetDocument
+type LegacyAtlasAssetDocument derive(@json.FromJson)
 
-type LegacyEntityDocument
-pub impl @json.FromJson for LegacyEntityDocument
+type LegacyEntityDocument derive(@json.FromJson)
 
-type LegacyPrefabDocument
-pub impl @json.FromJson for LegacyPrefabDocument
+type LegacyPrefabDocument derive(@json.FromJson)
 
-type LegacyProjectManifest
-pub impl @json.FromJson for LegacyProjectManifest
+type LegacyProjectManifest derive(@json.FromJson)
 
-type LegacySceneDocument
-pub impl @json.FromJson for LegacySceneDocument
+type LegacySceneDocument derive(@json.FromJson)
 
 pub struct Mesh2dComponent {
   primitive : String
   size : Vec2Doc?
   radius : Double?
-}
-pub impl Eq for Mesh2dComponent
-pub impl Show for Mesh2dComponent
-pub impl ToJson for Mesh2dComponent
-pub impl @json.FromJson for Mesh2dComponent
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct MigrationFieldChange {
   path : String
   reason : String
   migrated_value : String
-}
-pub impl Eq for MigrationFieldChange
-pub impl Show for MigrationFieldChange
-pub impl ToJson for MigrationFieldChange
-pub impl @json.FromJson for MigrationFieldChange
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct NameComponent {
   value : String
-}
-pub impl Eq for NameComponent
-pub impl Show for NameComponent
-pub impl ToJson for NameComponent
-pub impl @json.FromJson for NameComponent
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct PhysicsBody2dComponent {
   body_type : String
@@ -482,11 +391,7 @@ pub struct PhysicsBody2dComponent {
   angular_damping : Double
   lock_rotation : Bool
   ccd_enabled : Bool
-}
-pub impl Eq for PhysicsBody2dComponent
-pub impl Show for PhysicsBody2dComponent
-pub impl ToJson for PhysicsBody2dComponent
-pub impl @json.FromJson for PhysicsBody2dComponent
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct PhysicsCollider2dComponent {
   shape : String
@@ -495,33 +400,23 @@ pub struct PhysicsCollider2dComponent {
   sensor : Bool
   friction : Double
   restitution : Double
-}
-pub impl Eq for PhysicsCollider2dComponent
-pub impl Show for PhysicsCollider2dComponent
-pub impl ToJson for PhysicsCollider2dComponent
-pub impl @json.FromJson for PhysicsCollider2dComponent
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct PrefabDocument {
   version : Int
   name : String
   entities : Array[EntityDocument]
-}
+} derive(Eq, Show, ToJson, @json.FromJson)
 pub fn PrefabDocument::empty(String) -> Self
 pub fn PrefabDocument::entity(Self, String) -> EntityDocument?
 pub fn PrefabDocument::with_entity(Self, EntityDocument) -> Self
 pub fn PrefabDocument::with_name(Self, String) -> Self
 pub fn PrefabDocument::without_entity(Self, String) -> Self
-pub impl Eq for PrefabDocument
-pub impl Show for PrefabDocument
-pub impl ToJson for PrefabDocument
-pub impl @json.FromJson for PrefabDocument
 
 pub enum PrefabDocumentLoadStatus {
   Ready(PrefabDocument)
   MigrationRequired(PrefabMigrationPreview)
-}
-pub impl Eq for PrefabDocumentLoadStatus
-pub impl Show for PrefabDocumentLoadStatus
+} derive(Eq, Show)
 
 pub struct PrefabDocumentMigrator {
 }
@@ -530,19 +425,11 @@ pub struct PrefabMigrationPreview {
   path : String
   prefab : PrefabDocument
   changes : Array[MigrationFieldChange]
-}
-pub impl Eq for PrefabMigrationPreview
-pub impl Show for PrefabMigrationPreview
-pub impl ToJson for PrefabMigrationPreview
-pub impl @json.FromJson for PrefabMigrationPreview
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct PrefabRef {
   path : String
-}
-pub impl Eq for PrefabRef
-pub impl Show for PrefabRef
-pub impl ToJson for PrefabRef
-pub impl @json.FromJson for PrefabRef
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct ProjectBundle {
   manifest : ProjectManifest
@@ -550,11 +437,7 @@ pub struct ProjectBundle {
   scene : SceneDocument
   atlas_assets : Map[String, AtlasAssetDocument]
   animation_assets : Map[String, AnimationAssetDocument]
-}
-pub impl Eq for ProjectBundle
-pub impl Show for ProjectBundle
-pub impl ToJson for ProjectBundle
-pub impl @json.FromJson for ProjectBundle
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct ProjectManifest {
   version : Int
@@ -566,31 +449,21 @@ pub struct ProjectManifest {
   atlas_index : Array[AssetRef]
   animation_index : Array[AssetRef]
   editor_min_version : String?
-}
+} derive(Eq, Show, ToJson, @json.FromJson)
 pub fn ProjectManifest::default(String, startup_scene? : String, asset_roots? : Array[String], scene_index? : Array[SceneRef], prefab_index? : Array[PrefabRef], atlas_index? : Array[AssetRef], animation_index? : Array[AssetRef], editor_min_version? : String?) -> Self
 pub fn ProjectManifest::with_indexes(Self, Array[SceneRef], Array[PrefabRef], Array[AssetRef], Array[AssetRef]) -> Self
 pub fn ProjectManifest::with_startup_scene(Self, String) -> Self
-pub impl Eq for ProjectManifest
-pub impl Show for ProjectManifest
-pub impl ToJson for ProjectManifest
-pub impl @json.FromJson for ProjectManifest
 
 pub enum ProjectManifestLoadStatus {
   Ready(ProjectManifest)
   MigrationRequired(ProjectManifestMigrationPreview)
-}
-pub impl Eq for ProjectManifestLoadStatus
-pub impl Show for ProjectManifestLoadStatus
+} derive(Eq, Show)
 
 pub struct ProjectManifestMigrationPreview {
   path : String
   manifest : ProjectManifest
   changes : Array[MigrationFieldChange]
-}
-pub impl Eq for ProjectManifestMigrationPreview
-pub impl Show for ProjectManifestMigrationPreview
-pub impl ToJson for ProjectManifestMigrationPreview
-pub impl @json.FromJson for ProjectManifestMigrationPreview
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct ProjectManifestMigrator {
 }
@@ -600,17 +473,13 @@ pub struct RectDoc {
   y : Double
   width : Double
   height : Double
-}
-pub impl Eq for RectDoc
-pub impl Show for RectDoc
-pub impl ToJson for RectDoc
-pub impl @json.FromJson for RectDoc
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct SceneDocument {
   version : Int
   name : String
   entities : Array[EntityDocument]
-}
+} derive(Eq, Show, ToJson, @json.FromJson)
 pub fn SceneDocument::apply_patch(Self, ScenePatch) -> Self
 pub fn SceneDocument::default_main() -> Self
 pub fn SceneDocument::empty(name? : String) -> Self
@@ -618,17 +487,11 @@ pub fn SceneDocument::entity(Self, String) -> EntityDocument?
 pub fn SceneDocument::with_entity(Self, EntityDocument) -> Self
 pub fn SceneDocument::with_name(Self, String) -> Self
 pub fn SceneDocument::without_entity(Self, String) -> Self
-pub impl Eq for SceneDocument
-pub impl Show for SceneDocument
-pub impl ToJson for SceneDocument
-pub impl @json.FromJson for SceneDocument
 
 pub enum SceneDocumentLoadStatus {
   Ready(SceneDocument)
   MigrationRequired(SceneMigrationPreview)
-}
-pub impl Eq for SceneDocumentLoadStatus
-pub impl Show for SceneDocumentLoadStatus
+} derive(Eq, Show)
 
 pub struct SceneDocumentMigrator {
 }
@@ -637,20 +500,12 @@ pub struct SceneMigrationPreview {
   path : String
   scene : SceneDocument
   changes : Array[MigrationFieldChange]
-}
-pub impl Eq for SceneMigrationPreview
-pub impl Show for SceneMigrationPreview
-pub impl ToJson for SceneMigrationPreview
-pub impl @json.FromJson for SceneMigrationPreview
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct ScenePatch {
   ops : Array[ScenePatchOp]
-}
+} derive(Eq, Show, ToJson, @json.FromJson)
 pub fn ScenePatch::empty() -> Self
-pub impl Eq for ScenePatch
-pub impl Show for ScenePatch
-pub impl ToJson for ScenePatch
-pub impl @json.FromJson for ScenePatch
 
 pub enum ScenePatchOp {
   PutEntity(EntityDocument)
@@ -659,19 +514,11 @@ pub enum ScenePatchOp {
   RenameEntity(id~ : String, name~ : String)
   PutComponent(entity_id~ : String, component~ : ComponentDocument)
   RemoveComponent(entity_id~ : String, kind~ : String)
-}
-pub impl Eq for ScenePatchOp
-pub impl Show for ScenePatchOp
-pub impl ToJson for ScenePatchOp
-pub impl @json.FromJson for ScenePatchOp
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct SceneRef {
   path : String
-}
-pub impl Eq for SceneRef
-pub impl Show for SceneRef
-pub impl ToJson for SceneRef
-pub impl @json.FromJson for SceneRef
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct SceneRuntime {
   entity_ids : Map[String, @entity.Entity]
@@ -694,11 +541,7 @@ pub struct SpriteComponent {
   flip_y : Bool
   rect : RectDoc?
   image_mode : String
-}
-pub impl Eq for SpriteComponent
-pub impl Show for SpriteComponent
-pub impl ToJson for SpriteComponent
-pub impl @json.FromJson for SpriteComponent
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct Text2dComponent {
   content : String
@@ -707,23 +550,15 @@ pub struct Text2dComponent {
   color : ColorDoc
   bounds : Vec2Doc?
   anchor : Vec2Doc
-}
+} derive(Eq, Show, ToJson, @json.FromJson)
 pub fn Text2dComponent::with_content(Self, String) -> Self
-pub impl Eq for Text2dComponent
-pub impl Show for Text2dComponent
-pub impl ToJson for Text2dComponent
-pub impl @json.FromJson for Text2dComponent
 
 pub struct TextureAtlasComponent {
   atlas_asset_path : String?
   region_name : String?
   layout : TextureAtlasLayoutDoc?
   index : Int
-}
-pub impl Eq for TextureAtlasComponent
-pub impl Show for TextureAtlasComponent
-pub impl ToJson for TextureAtlasComponent
-pub impl @json.FromJson for TextureAtlasComponent
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct TextureAtlasLayoutDoc {
   tile_size : Vec2Doc
@@ -731,53 +566,33 @@ pub struct TextureAtlasLayoutDoc {
   rows : Int
   padding : Vec2Doc
   offset : Vec2Doc
-}
-pub impl Eq for TextureAtlasLayoutDoc
-pub impl Show for TextureAtlasLayoutDoc
-pub impl ToJson for TextureAtlasLayoutDoc
-pub impl @json.FromJson for TextureAtlasLayoutDoc
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct Transform2dComponent {
   translation : Vec2Doc
   rotation : Double
   scale : Vec2Doc
-}
+} derive(Eq, Show, ToJson, @json.FromJson)
 pub fn Transform2dComponent::with_rotation(Self, Double) -> Self
 pub fn Transform2dComponent::with_scale(Self, Vec2Doc) -> Self
 pub fn Transform2dComponent::with_translation(Self, Vec2Doc) -> Self
-pub impl Eq for Transform2dComponent
-pub impl Show for Transform2dComponent
-pub impl ToJson for Transform2dComponent
-pub impl @json.FromJson for Transform2dComponent
 
 pub struct ValidationError {
   path : String
   message : String
-}
-pub impl Eq for ValidationError
-pub impl Show for ValidationError
-pub impl ToJson for ValidationError
-pub impl @json.FromJson for ValidationError
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct Vec2Doc {
   x : Double
   y : Double
-}
+} derive(Eq, Show, ToJson, @json.FromJson)
 pub fn Vec2Doc::with_x(Self, Double) -> Self
 pub fn Vec2Doc::with_y(Self, Double) -> Self
-pub impl Eq for Vec2Doc
-pub impl Show for Vec2Doc
-pub impl ToJson for Vec2Doc
-pub impl @json.FromJson for Vec2Doc
 
 pub struct VisibilityComponent {
   visible : Bool
-}
+} derive(Eq, Show, ToJson, @json.FromJson)
 pub fn VisibilityComponent::toggled(Self) -> Self
-pub impl Eq for VisibilityComponent
-pub impl Show for VisibilityComponent
-pub impl ToJson for VisibilityComponent
-pub impl @json.FromJson for VisibilityComponent
 
 pub struct WorkspaceDocument {
   version : Int
@@ -785,7 +600,7 @@ pub struct WorkspaceDocument {
   selected_entity_id : String?
   move_snap_enabled : Bool?
   move_snap_step : Double?
-}
+} derive(Eq, Show, ToJson, @json.FromJson)
 pub fn WorkspaceDocument::default() -> Self
 pub fn WorkspaceDocument::move_snap_enabled_or_default(Self) -> Bool
 pub fn WorkspaceDocument::move_snap_step_or_default(Self) -> Double
@@ -793,10 +608,6 @@ pub fn WorkspaceDocument::with_last_scene(Self, String?) -> Self
 pub fn WorkspaceDocument::with_move_snap_enabled(Self, Bool) -> Self
 pub fn WorkspaceDocument::with_move_snap_step(Self, Double) -> Self
 pub fn WorkspaceDocument::with_selected_entity_id(Self, String?) -> Self
-pub impl Eq for WorkspaceDocument
-pub impl Show for WorkspaceDocument
-pub impl ToJson for WorkspaceDocument
-pub impl @json.FromJson for WorkspaceDocument
 
 // Type aliases
 pub type AssetPathResolver = (String?) -> String?

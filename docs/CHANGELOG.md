@@ -6,6 +6,16 @@
 
 ### Changed
 
+### Fixed
+
+### Removed
+
+## [0.30.4] - 2026-03-31
+
+### Added
+
+### Changed
+
 - Changed `selene-raylib` capability fallback log tag from `capability-warning` to `capability-note` to avoid mixing feature-degradation notices with runtime warning diagnostics.
 
 ### Fixed

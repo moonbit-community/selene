@@ -29,9 +29,7 @@ pub fn update_color_material(ColorMaterialHandle, ColorMaterial) -> Unit
 pub(all) enum AlphaMode2D {
   Opaque
   Blend
-}
-pub impl Eq for AlphaMode2D
-pub impl Show for AlphaMode2D
+} derive(Eq, Show)
 
 pub(all) struct ColorMaterial {
   color : @render.Color
@@ -44,28 +42,21 @@ pub(all) struct ColorMaterial {
 pub fn ColorMaterial::from_color(@render.Color) -> Self
 pub fn ColorMaterial::new(color? : @render.Color, texture? : @asset_types.ImageHandle?, uv_transform? : @math.Transform, alpha_mode? : AlphaMode2D) -> Self
 
-pub(all) struct ColorMaterialHandle(UInt)
+pub(all) struct ColorMaterialHandle(UInt) derive(Eq, Hash, Show)
 #deprecated
 pub fn ColorMaterialHandle::inner(Self) -> UInt
-pub impl Eq for ColorMaterialHandle
-pub impl Hash for ColorMaterialHandle
-pub impl Show for ColorMaterialHandle
 
 pub(all) enum Material2dHandle {
   Color(ColorMaterialHandle)
-}
-pub impl Eq for Material2dHandle
-pub impl Show for Material2dHandle
+} derive(Eq, Show)
 
 pub(all) struct MeshMaterial2d {
   material : Material2dHandle
 
   fn new(Material2dHandle) -> MeshMaterial2d
-}
+} derive(Eq, Show)
 pub fn MeshMaterial2d::from_color_material(ColorMaterialHandle) -> Self
 pub fn MeshMaterial2d::new(Material2dHandle) -> Self
-pub impl Eq for MeshMaterial2d
-pub impl Show for MeshMaterial2d
 
 // Type aliases
 

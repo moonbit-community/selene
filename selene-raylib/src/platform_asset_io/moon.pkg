@@ -2,7 +2,8 @@ import {
   "Milky2018/selene_raylib" @impl,
 }
 
+supported_targets = "native"
+
 options(
   implement: "Milky2018/selene/platform_asset_io",
-  "supported_targets": "native",
 )

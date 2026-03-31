@@ -33,28 +33,20 @@ pub fn visibility_propagate_system(Double) -> Unit
 // Types and methods
 pub(all) struct InheritedVisibility {
   visible : Bool
-}
-pub impl Eq for InheritedVisibility
-pub impl Show for InheritedVisibility
+} derive(Eq, Show)
 
 pub(all) struct RenderLayers {
   mask : UInt
-}
-pub impl Eq for RenderLayers
-pub impl Show for RenderLayers
+} derive(Eq, Show)
 
 pub(all) struct ViewVisibility {
   visible : Bool
-}
-pub impl Eq for ViewVisibility
-pub impl Show for ViewVisibility
+} derive(Eq, Show)
 
 pub(all) enum Visibility {
   Visible
   Hidden
-}
-pub impl Eq for Visibility
-pub impl Show for Visibility
+} derive(Eq, Show)
 
 // Type aliases
 

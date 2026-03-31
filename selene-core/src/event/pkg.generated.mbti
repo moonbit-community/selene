@@ -34,9 +34,7 @@ pub(all) enum EventDomain {
   Frame
   Fixed
   Render
-}
-pub impl Eq for EventDomain
-pub impl Show for EventDomain
+} derive(Eq, Show)
 
 pub(all) struct EventReader[T] {
   last_seen_by_world : Map[UInt, Int]
@@ -79,12 +77,9 @@ pub fn[T] Events::unobserve(Self[T], ObserverHandle) -> Unit
 pub fn[T] Events::update(Self[T]) -> Unit
 pub fn[T] Events::writer(Self[T]) -> EventWriter[T]
 
-pub(all) struct ObserverHandle(Int)
+pub(all) struct ObserverHandle(Int) derive(Eq, Hash, Show)
 #deprecated
 pub fn ObserverHandle::inner(Self) -> Int
-pub impl Eq for ObserverHandle
-pub impl Hash for ObserverHandle
-pub impl Show for ObserverHandle
 
 pub(all) struct Trigger[T] {
   event : T

@@ -34,12 +34,10 @@ pub fn update_texture_atlas_layout(TextureAtlasLayoutHandle, TextureAtlasLayout)
 // Errors
 
 // Types and methods
-pub(all) struct Anchor(@math.Vec2D)
+pub(all) struct Anchor(@math.Vec2D) derive(Eq, Show)
 pub fn Anchor::as_vec(Self) -> @math.Vec2D
 #deprecated
 pub fn Anchor::inner(Self) -> @math.Vec2D
-pub impl Eq for Anchor
-pub impl Show for Anchor
 
 pub(all) struct Sprite {
   image : @asset_types.ImageHandle?
@@ -69,10 +67,8 @@ pub(all) struct TextureAtlas {
   mut index : Int
 
   fn new(TextureAtlasLayoutHandle, index? : Int) -> TextureAtlas
-}
+} derive(Eq, Show)
 pub fn TextureAtlas::new(TextureAtlasLayoutHandle, index? : Int) -> Self
-pub impl Eq for TextureAtlas
-pub impl Show for TextureAtlas
 
 pub(all) struct TextureAtlasLayout {
   size : @math.Vec2D
@@ -83,12 +79,9 @@ pub(all) struct TextureAtlasLayout {
 pub fn TextureAtlasLayout::from_grid(@math.Vec2D, Int, Int, padding? : @math.Vec2D?, offset? : @math.Vec2D?) -> Self
 pub fn TextureAtlasLayout::new(@math.Vec2D, Array[@math.Rect]) -> Self
 
-pub(all) struct TextureAtlasLayoutHandle(UInt)
+pub(all) struct TextureAtlasLayoutHandle(UInt) derive(Eq, Hash, Show)
 #deprecated
 pub fn TextureAtlasLayoutHandle::inner(Self) -> UInt
-pub impl Eq for TextureAtlasLayoutHandle
-pub impl Hash for TextureAtlasLayoutHandle
-pub impl Show for TextureAtlasLayoutHandle
 
 // Type aliases
 

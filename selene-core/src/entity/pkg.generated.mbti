@@ -11,7 +11,7 @@ pub fn iter_entities() -> Iter[Entity]
 // Errors
 
 // Types and methods
-type Entity
+type Entity derive(Eq, Hash, Show)
 pub fn Entity::destroy(Self) -> Unit
 pub fn Entity::get_children(Self) -> Array[Self]
 pub fn Entity::get_parent(Self) -> Self?
@@ -23,13 +23,8 @@ pub fn Entity::reserve_spawn() -> Self
 pub fn Entity::respawn(Self) -> Unit
 pub fn Entity::set_parent(Self, Self) -> Unit
 pub fn Entity::spawn_child(Self) -> Self
-pub impl Eq for Entity
-pub impl Hash for Entity
-pub impl Show for Entity
 
-type EntityLifecycleState
-pub impl Eq for EntityLifecycleState
-pub impl Show for EntityLifecycleState
+type EntityLifecycleState derive(Eq, Show)
 
 // Type aliases
 

@@ -194,9 +194,7 @@ pub enum Effect {
   SubscribePreviewEvents
   SubscribeKeyboardShortcuts
   Preview(@bridge.PreviewCommand)
-}
-pub impl Eq for Effect
-pub impl Show for Effect
+} derive(Eq, Show)
 
 pub struct Model {
   project_root_input : String
@@ -234,7 +232,7 @@ pub struct Model {
   active_tool : @shared.PreviewTool
   move_snap_enabled : Bool
   move_snap_step : Double
-}
+} derive(Eq, Show)
 pub fn Model::asset_matches_query(Self, String, String) -> Bool
 pub fn Model::asset_query_normalized(Self) -> String
 pub fn Model::asset_size(Self, String) -> @editor_bridge.Vec2Doc?
@@ -247,8 +245,6 @@ pub fn Model::selected_entity(Self) -> @editor_bridge.EntityDocument?
 pub fn Model::selected_image_asset(Self) -> @editor_bridge.AssetDocument?
 pub fn Model::selected_prefab_document(Self) -> (String, @editor_bridge.PrefabDocument)?
 pub fn Model::selected_resource_path(Self) -> String?
-pub impl Eq for Model
-pub impl Show for Model
 
 pub enum Msg {
   Initialize
@@ -337,9 +333,7 @@ pub enum ResourceSelection {
   Atlas(String)
   Animation(String)
   Prefab(String)
-}
-pub impl Eq for ResourceSelection
-pub impl Show for ResourceSelection
+} derive(Eq, Show)
 
 pub enum RpcTarget {
   ProjectLoaded
@@ -352,16 +346,12 @@ pub enum RpcTarget {
   AnimationLoaded
   SceneSaved
   WorkspaceSaved
-}
-pub impl Eq for RpcTarget
-pub impl Show for RpcTarget
+} derive(Eq, Show)
 
 pub struct SceneEditTransaction {
   label : String
   before : @editor_bridge.SceneDocument
-}
-pub impl Eq for SceneEditTransaction
-pub impl Show for SceneEditTransaction
+} derive(Eq, Show)
 
 // Type aliases
 

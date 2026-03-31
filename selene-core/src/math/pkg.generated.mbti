@@ -20,7 +20,7 @@ pub(all) struct Affine3 {
   y_axis : Vec3
   z_axis : Vec3
   translation : Vec3
-}
+} derive(Eq, Show)
 pub fn Affine3::from_scale_rotation_translation(Vec3, Quat, Vec3) -> Self
 pub fn Affine3::identity() -> Self
 pub fn Affine3::inverse(Self) -> Self?
@@ -28,16 +28,12 @@ pub fn Affine3::mul(Self, Self) -> Self
 pub fn Affine3::transform_point3(Self, Vec3) -> Vec3
 pub fn Affine3::transform_vector3(Self, Vec3) -> Vec3
 pub impl Default for Affine3
-pub impl Eq for Affine3
 pub impl Mul for Affine3
-pub impl Show for Affine3
 
 pub(all) enum Axis {
   X
   Y
-}
-pub impl Eq for Axis
-pub impl Show for Axis
+} derive(Eq, Show)
 
 pub(all) enum HAlign {
   Left
@@ -62,14 +58,12 @@ pub(all) struct Mat4 {
   m31 : Double
   m32 : Double
   m33 : Double
-}
+} derive(Eq, Show)
 pub fn Mat4::from_trs(Vec3, Quat, Vec3) -> Self
 pub fn Mat4::identity() -> Self
 pub fn Mat4::mul(Self, Self) -> Self
 pub fn Mat4::transform_point(Self, Vec3) -> Vec3
 pub impl Default for Mat4
-pub impl Eq for Mat4
-pub impl Show for Mat4
 
 pub(all) struct Quat {
   x : Double
@@ -78,7 +72,7 @@ pub(all) struct Quat {
   w : Double
 
   fn new(Double, Double, Double, Double) -> Quat
-}
+} derive(Eq, Show)
 pub fn Quat::conjugate(Self) -> Self
 pub fn Quat::dot(Self, Self) -> Double
 pub fn Quat::from_axis_angle(Vec3, Double) -> Self
@@ -93,9 +87,7 @@ pub fn Quat::normalize(Self) -> Self
 pub fn Quat::rotate_vec3(Self, Vec3) -> Vec3
 pub fn Quat::to_rapier(Self) -> @core.Quat
 pub impl Default for Quat
-pub impl Eq for Quat
 pub impl Mul for Quat
-pub impl Show for Quat
 
 pub(all) struct Rect {
   position : Vec2D
@@ -162,7 +154,7 @@ pub(all) enum VAlign {
   Bottom
 }
 
-pub(all) struct Vec2D(Double, Double)
+pub(all) struct Vec2D(Double, Double) derive(Eq, Show)
 pub fn Vec2D::clone(Self) -> Self
 pub fn Vec2D::distance(Self) -> Double
 pub fn Vec2D::distance_to(Self, Self) -> Double
@@ -175,10 +167,8 @@ pub fn Vec2D::update(Self, Axis, Double) -> Self
 pub fn Vec2D::zero() -> Self
 pub impl Add for Vec2D
 pub impl Default for Vec2D
-pub impl Eq for Vec2D
 pub impl Mul for Vec2D
 pub impl Neg for Vec2D
-pub impl Show for Vec2D
 pub impl Sub for Vec2D
 
 pub(all) struct Vec3 {
@@ -187,7 +177,7 @@ pub(all) struct Vec3 {
   z : Double
 
   fn new(Double, Double, Double) -> Vec3
-}
+} derive(Eq, Show)
 pub fn Vec3::cross(Self, Self) -> Self
 pub fn Vec3::dot(Self, Self) -> Double
 pub fn Vec3::length(Self) -> Double
@@ -205,10 +195,8 @@ pub fn Vec3::z_axis() -> Self
 pub fn Vec3::zero() -> Self
 pub impl Add for Vec3
 pub impl Default for Vec3
-pub impl Eq for Vec3
 pub impl Mul for Vec3
 pub impl Neg for Vec3
-pub impl Show for Vec3
 pub impl Sub for Vec3
 
 // Type aliases

@@ -36,32 +36,23 @@ pub(all) struct Mesh2d {
   mesh : Mesh2dHandle
 
   fn new(Mesh2dHandle) -> Mesh2d
-}
+} derive(Eq, Show)
 pub fn Mesh2d::new(Mesh2dHandle) -> Self
-pub impl Eq for Mesh2d
-pub impl Show for Mesh2d
 
 pub(all) struct Mesh2dAsset {
   primitive : Mesh2dPrimitive
-}
+} derive(Eq, Show)
 pub fn Mesh2dAsset::circle(Double) -> Self
 pub fn Mesh2dAsset::rectangle(@math.Vec2D) -> Self
-pub impl Eq for Mesh2dAsset
-pub impl Show for Mesh2dAsset
 
-pub(all) struct Mesh2dHandle(UInt)
+pub(all) struct Mesh2dHandle(UInt) derive(Eq, Hash, Show)
 #deprecated
 pub fn Mesh2dHandle::inner(Self) -> UInt
-pub impl Eq for Mesh2dHandle
-pub impl Hash for Mesh2dHandle
-pub impl Show for Mesh2dHandle
 
 pub(all) enum Mesh2dPrimitive {
   Rectangle(@math.Vec2D)
   Circle(Double)
-}
-pub impl Eq for Mesh2dPrimitive
-pub impl Show for Mesh2dPrimitive
+} derive(Eq, Show)
 
 pub(all) struct Mesh2dStorage {
   meshes : Map[Mesh2dHandle, Mesh2dAsset]

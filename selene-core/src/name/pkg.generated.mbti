@@ -17,10 +17,8 @@ pub(all) struct Name {
   value : String
 
   fn new(String) -> Name
-}
+} derive(Eq, Show)
 pub fn Name::new(String) -> Self
-pub impl Eq for Name
-pub impl Show for Name
 
 // Type aliases
 

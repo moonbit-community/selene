@@ -203,9 +203,7 @@ pub(all) enum AlignContent {
   SpaceBetween
   SpaceAround
   SpaceEvenly
-}
-pub impl Eq for AlignContent
-pub impl Show for AlignContent
+} derive(Eq, Show)
 
 pub(all) enum AlignItems {
   Start
@@ -215,9 +213,7 @@ pub(all) enum AlignItems {
   Center
   Baseline
   Stretch
-}
-pub impl Eq for AlignItems
-pub impl Show for AlignItems
+} derive(Eq, Show)
 
 pub(all) struct BackgroundColor {
   color : @render.Color
@@ -242,30 +238,24 @@ pub(all) struct BorderRadius {
   bottom_left : Val
 
   fn new(top_left? : Val, top_right? : Val, bottom_right? : Val, bottom_left? : Val) -> BorderRadius
-}
+} derive(Eq, Show)
 pub fn BorderRadius::all(Val) -> Self
 pub fn BorderRadius::new(top_left? : Val, top_right? : Val, bottom_right? : Val, bottom_left? : Val) -> Self
-pub impl Eq for BorderRadius
-pub impl Show for BorderRadius
 
 pub(all) struct BoxShadow {
   layers : Array[ShadowStyle]
 
   fn new(Array[ShadowStyle]) -> BoxShadow
-}
+} derive(Eq, Show)
 pub fn BoxShadow::new(Array[ShadowStyle]) -> Self
 pub fn BoxShadow::single(@render.Color, x_offset? : Val, y_offset? : Val, spread_radius? : Val, blur_radius? : Val) -> Self
-pub impl Eq for BoxShadow
-pub impl Show for BoxShadow
 
 pub(all) struct Button {
   enabled : Bool
 
   fn new(enabled? : Bool) -> Button
-}
+} derive(Eq, Show)
 pub fn Button::new(enabled? : Bool) -> Self
-pub impl Eq for Button
-pub impl Show for Button
 
 pub(all) struct CalculatedClip {
   clip : @math.Rect
@@ -288,33 +278,25 @@ pub(all) enum Display {
   Flex
   Grid
   None
-}
-pub impl Eq for Display
-pub impl Show for Display
+} derive(Eq, Show)
 
 pub(all) enum FlexDirection {
   Row
   RowReverse
   Column
   ColumnReverse
-}
-pub impl Eq for FlexDirection
-pub impl Show for FlexDirection
+} derive(Eq, Show)
 
 pub(all) enum FlexWrap {
   NoWrap
   Wrap
   WrapReverse
-}
-pub impl Eq for FlexWrap
-pub impl Show for FlexWrap
+} derive(Eq, Show)
 
 pub(all) enum FocusPolicy {
   Block
   Pass
-}
-pub impl Eq for FocusPolicy
-pub impl Show for FocusPolicy
+} derive(Eq, Show)
 
 pub(all) struct Focusable {
   _tag : Unit
@@ -341,37 +323,29 @@ pub(all) struct GlobalZIndex {
   value : Int
 
   fn new(Int) -> GlobalZIndex
-}
+} derive(Eq, Show)
 pub fn GlobalZIndex::new(Int) -> Self
-pub impl Eq for GlobalZIndex
-pub impl Show for GlobalZIndex
 
 pub(all) enum GridAutoFlow {
   Row
   Column
   RowDense
   ColumnDense
-}
-pub impl Eq for GridAutoFlow
-pub impl Show for GridAutoFlow
+} derive(Eq, Show)
 
 pub(all) struct GridLine {
   start : GridPlacement
   end : GridPlacement
 
   fn new(start? : GridPlacement, end? : GridPlacement) -> GridLine
-}
+} derive(Eq, Show)
 pub fn GridLine::new(start? : GridPlacement, end? : GridPlacement) -> Self
-pub impl Eq for GridLine
-pub impl Show for GridLine
 
 pub(all) enum GridPlacement {
   Auto
   Line(Int)
   Span(Int)
-}
-pub impl Eq for GridPlacement
-pub impl Show for GridPlacement
+} derive(Eq, Show)
 
 pub(all) enum GridTrack {
   Auto
@@ -383,34 +357,26 @@ pub(all) enum GridTrack {
   FitContent(GridTrack)
   MinMax(GridTrack, GridTrack)
   Repeat(GridTrackRepetition, Array[GridTrack])
-}
-pub impl Eq for GridTrack
-pub impl Show for GridTrack
+} derive(Eq, Show)
 
 pub(all) enum GridTrackRepetition {
   Count(Int)
   AutoFill
   AutoFit
-}
-pub impl Eq for GridTrackRepetition
-pub impl Show for GridTrackRepetition
+} derive(Eq, Show)
 
 pub(all) enum ImageFit {
   Stretch
   Contain
   Cover
   None
-}
-pub impl Eq for ImageFit
-pub impl Show for ImageFit
+} derive(Eq, Show)
 
 pub(all) enum Interaction {
   None
   Hovered
   Pressed
-}
-pub impl Eq for Interaction
-pub impl Show for Interaction
+} derive(Eq, Show)
 
 pub(all) enum JustifyContent {
   Start
@@ -422,27 +388,21 @@ pub(all) enum JustifyContent {
   SpaceBetween
   SpaceAround
   SpaceEvenly
-}
-pub impl Eq for JustifyContent
-pub impl Show for JustifyContent
+} derive(Eq, Show)
 
 pub(all) struct LayoutConfig {
   use_rounding : Bool
 
   fn new(use_rounding? : Bool) -> LayoutConfig
-}
+} derive(Eq, Show)
 pub fn LayoutConfig::new(use_rounding? : Bool) -> Self
-pub impl Eq for LayoutConfig
-pub impl Show for LayoutConfig
 
 pub(all) struct MaterialNode {
   material : UiMaterialHandle
 
   fn new(UiMaterialHandle) -> MaterialNode
-}
+} derive(Eq, Show)
 pub fn MaterialNode::new(UiMaterialHandle) -> Self
-pub impl Eq for MaterialNode
-pub impl Show for MaterialNode
 
 pub(all) struct Node {
   width : Val
@@ -488,11 +448,9 @@ pub(all) struct Node {
   active : Bool
 
   fn new(width? : Val, height? : Val, min_width? : Val, min_height? : Val, max_width? : Val, max_height? : Val, left? : Val, right? : Val, top? : Val, bottom? : Val, margin? : UiRectValues, padding? : UiRectValues, border? : UiRectValues, display? : Display, position_type? : PositionType, flex_direction? : FlexDirection, justify_content? : JustifyContent, align_items? : AlignItems, row_gap? : Double, column_gap? : Double, overflow_x? : Overflow, overflow_y? : Overflow, overflow_clip_margin? : OverflowClipMargin, flex_grow? : Double, flex_shrink? : Double, active? : Bool, align_content? : AlignContent?, align_self? : AlignItems?, justify_items? : AlignItems?, justify_self? : AlignItems?, flex_wrap? : FlexWrap, flex_basis? : Val, aspect_ratio? : Double?, scrollbar_width? : Double, grid_template_rows? : Array[GridTrack], grid_template_columns? : Array[GridTrack], grid_auto_rows? : Array[GridTrack], grid_auto_columns? : Array[GridTrack], grid_auto_flow? : GridAutoFlow, grid_row? : GridLine, grid_column? : GridLine) -> Node
-}
+} derive(Eq, Show)
 pub fn Node::absolute(@math.Vec2D, size? : @math.Vec2D, padding? : UiRectValues, border? : UiRectValues, display? : Display, flex_direction? : FlexDirection, justify_content? : JustifyContent, align_items? : AlignItems, row_gap? : Double, column_gap? : Double, overflow_x? : Overflow, overflow_y? : Overflow, overflow_clip_margin? : OverflowClipMargin, active? : Bool) -> Self
 pub fn Node::new(width? : Val, height? : Val, min_width? : Val, min_height? : Val, max_width? : Val, max_height? : Val, left? : Val, right? : Val, top? : Val, bottom? : Val, margin? : UiRectValues, padding? : UiRectValues, border? : UiRectValues, display? : Display, position_type? : PositionType, flex_direction? : FlexDirection, justify_content? : JustifyContent, align_items? : AlignItems, row_gap? : Double, column_gap? : Double, overflow_x? : Overflow, overflow_y? : Overflow, overflow_clip_margin? : OverflowClipMargin, flex_grow? : Double, flex_shrink? : Double, active? : Bool, align_content? : AlignContent?, align_self? : AlignItems?, justify_items? : AlignItems?, justify_self? : AlignItems?, flex_wrap? : FlexWrap, flex_basis? : Val, aspect_ratio? : Double?, scrollbar_width? : Double, grid_template_rows? : Array[GridTrack], grid_template_columns? : Array[GridTrack], grid_auto_rows? : Array[GridTrack], grid_auto_columns? : Array[GridTrack], grid_auto_flow? : GridAutoFlow, grid_row? : GridLine, grid_column? : GridLine) -> Self
-pub impl Eq for Node
-pub impl Show for Node
 
 pub(all) struct Outline {
   width : Val
@@ -508,63 +466,49 @@ pub(all) enum Overflow {
   Clip
   Hidden
   Scroll
-}
-pub impl Eq for Overflow
-pub impl Show for Overflow
+} derive(Eq, Show)
 
 pub(all) enum OverflowClipBox {
   ContentBox
   PaddingBox
   BorderBox
-}
-pub impl Eq for OverflowClipBox
-pub impl Show for OverflowClipBox
+} derive(Eq, Show)
 
 pub(all) struct OverflowClipMargin {
   visual_box : OverflowClipBox
   margin : Double
-}
+} derive(Eq, Show)
 pub fn OverflowClipMargin::border_box() -> Self
 pub fn OverflowClipMargin::content_box() -> Self
 pub fn OverflowClipMargin::padding_box() -> Self
 pub fn OverflowClipMargin::with_margin(Self, Double) -> Self
-pub impl Eq for OverflowClipMargin
-pub impl Show for OverflowClipMargin
 
 pub(all) struct OverrideClip {
   _tag : Unit
 
   fn new() -> OverrideClip
-}
+} derive(Eq, Show)
 pub fn OverrideClip::new() -> Self
-pub impl Eq for OverrideClip
-pub impl Show for OverrideClip
 
 pub(all) enum PositionType {
   Relative
   Absolute
-}
-pub impl Eq for PositionType
-pub impl Show for PositionType
+} derive(Eq, Show)
 
 pub(all) struct RelativeCursorPosition {
   mut normalized : @math.Vec2D?
   mut cursor_over : Bool
 
   fn new() -> RelativeCursorPosition
-}
+} derive(Eq, Show)
 pub fn RelativeCursorPosition::mouse_over(Self) -> Bool
 pub fn RelativeCursorPosition::new() -> Self
-pub impl Eq for RelativeCursorPosition
-pub impl Show for RelativeCursorPosition
 
 pub(all) struct ScrollPosition {
   mut x : Double
   mut y : Double
-}
+} derive(Eq, Show)
 pub fn ScrollPosition::zero() -> Self
-pub impl Eq for ScrollPosition
-pub impl Show for ScrollPosition
 
 pub(all) struct ShadowStyle {
   color : @render.Color
@@ -574,19 +518,15 @@ pub(all) struct ShadowStyle {
   blur_radius : Val
 
   fn new(@render.Color, x_offset? : Val, y_offset? : Val, spread_radius? : Val, blur_radius? : Val) -> ShadowStyle
-}
+} derive(Eq, Show)
 pub fn ShadowStyle::new(@render.Color, x_offset? : Val, y_offset? : Val, spread_radius? : Val, blur_radius? : Val) -> Self
-pub impl Eq for ShadowStyle
-pub impl Show for ShadowStyle
 
 pub(all) struct TabIndex {
   value : Int
 
   fn new(Int) -> TabIndex
-}
+} derive(Eq, Show)
 pub fn TabIndex::new(Int) -> Self
-pub impl Eq for TabIndex
-pub impl Show for TabIndex
 
 pub(all) struct Text {
   mut content : String
@@ -628,16 +568,12 @@ pub fn TextLayout::new(align? : @math.HAlign, baseline? : @math.VAlign, line_hei
 pub(all) enum TextOverflow {
   Clip
   Ellipsis
-}
-pub impl Eq for TextOverflow
-pub impl Show for TextOverflow
+} derive(Eq, Show)
 
 pub(all) enum TextWrap {
   NoWrap
   WordWrap
-}
-pub impl Eq for TextWrap
-pub impl Show for TextWrap
+} derive(Eq, Show)
 
 pub(all) struct UiClickEvent {
   entity : @entity.Entity
@@ -657,10 +593,8 @@ pub(all) struct UiGradient {
   color_end : @render.Color
 
   fn new(@render.Color, @render.Color) -> UiGradient
-}
+} derive(Eq, Show)
 pub fn UiGradient::new(@render.Color, @render.Color) -> Self
-pub impl Eq for UiGradient
-pub impl Show for UiGradient
 
 pub(all) struct UiImage {
   size : @math.Vec2D
@@ -669,21 +603,17 @@ pub(all) struct UiImage {
   fit : ImageFit
 
   fn new(@math.Vec2D, String, tint? : @render.Color, fit? : ImageFit) -> UiImage
-}
+} derive(Eq, Show)
 pub fn UiImage::from_image(@math.Vec2D, @asset_types.ImageHandle, tint? : @render.Color, fit? : ImageFit) -> Self
 pub fn UiImage::new(@math.Vec2D, String, tint? : @render.Color, fit? : ImageFit) -> Self
-pub impl Eq for UiImage
-pub impl Show for UiImage
 
 pub(all) struct UiInsets {
   left : Double
   right : Double
   top : Double
   bottom : Double
-}
+} derive(Eq, Show)
 pub fn UiInsets::zero() -> Self
-pub impl Eq for UiInsets
-pub impl Show for UiInsets
 
 pub(all) struct UiMaterialAsset {
   draw : (UiMaterialContext) -> Unit
@@ -707,12 +637,9 @@ pub(all) struct UiMaterialContext {
 }
 pub fn UiMaterialContext::new(@entity.Entity, @math.Rect, content_rect? : @math.Rect, border_radius? : BorderRadius) -> Self
 
-pub(all) struct UiMaterialHandle(UInt)
+pub(all) struct UiMaterialHandle(UInt) derive(Eq, Hash, Show)
 #deprecated
 pub fn UiMaterialHandle::inner(Self) -> UInt
-pub impl Eq for UiMaterialHandle
-pub impl Hash for UiMaterialHandle
-pub impl Show for UiMaterialHandle
 
 pub(all) enum UiNavigationDirection {
   Up
@@ -721,9 +648,7 @@ pub(all) enum UiNavigationDirection {
   Right
   Activate
   Cancel
-}
-pub impl Eq for UiNavigationDirection
-pub impl Show for UiNavigationDirection
+} derive(Eq, Show)
 
 pub(all) struct UiNavigationEvent {
   entity : @entity.Entity?
@@ -757,38 +682,30 @@ pub(all) struct UiRectValues {
   bottom : Val
 
   fn new(left? : Val, right? : Val, top? : Val, bottom? : Val) -> UiRectValues
-}
+} derive(Eq, Show)
 pub fn UiRectValues::all(Double) -> Self
 pub fn UiRectValues::new(left? : Val, right? : Val, top? : Val, bottom? : Val) -> Self
 pub fn UiRectValues::px(left? : Double, right? : Double, top? : Double, bottom? : Double) -> Self
-pub impl Eq for UiRectValues
-pub impl Show for UiRectValues
 
 pub(all) enum UiScaleMode {
   Screen
   Viewport
-}
-pub impl Eq for UiScaleMode
-pub impl Show for UiScaleMode
+} derive(Eq, Show)
 
 pub(all) enum Val {
   Auto
   Px(Double)
   Percent(Double)
-}
+} derive(Eq, Show)
 pub fn Val::percent(Double) -> Self
 pub fn Val::px(Double) -> Self
-pub impl Eq for Val
-pub impl Show for Val
 
 pub(all) struct ZIndex {
   value : Int
 
   fn new(Int) -> ZIndex
-}
+} derive(Eq, Show)
 pub fn ZIndex::new(Int) -> Self
-pub impl Eq for ZIndex
-pub impl Show for ZIndex
 
 // Type aliases
 

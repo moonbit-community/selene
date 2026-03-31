@@ -1,6 +1,6 @@
 {
   "name": "Milky2018/selene_tools",
-  "version": "0.30.3",
+  "version": "0.30.4",
   "deps": {
     "moonbitlang/x": "0.4.40"
   },

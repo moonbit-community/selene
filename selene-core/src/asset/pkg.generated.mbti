@@ -57,9 +57,7 @@ pub fn set_io((String) -> Bytes?) -> Unit
 pub(all) struct AssetEvent[T] {
   handle : T
   kind : AssetEventKind
-}
-pub impl[T : Eq] Eq for AssetEvent[T]
-pub impl[T : Show] Show for AssetEvent[T]
+} derive(Eq, Show)
 
 pub(all) enum AssetEventKind {
   Added
@@ -67,18 +65,14 @@ pub(all) enum AssetEventKind {
   Removed
   Loaded
   Failed(String)
-}
-pub impl Eq for AssetEventKind
-pub impl Show for AssetEventKind
+} derive(Eq, Show)
 
 pub(all) enum LoadState {
   NotLoaded
   Loading
   Loaded
   Failed(String)
-}
-pub impl Eq for LoadState
-pub impl Show for LoadState
+} derive(Eq, Show)
 
 // Type aliases
 pub using @asset_types {type AudioHandle}

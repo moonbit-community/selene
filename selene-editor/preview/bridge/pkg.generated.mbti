@@ -43,16 +43,12 @@ pub fn preview_scene_payload(@editor_bridge.SceneDocument, Array[AtlasAssetEntry
 pub struct AnimationAssetEntry {
   path : String
   animation : @editor_bridge.AnimationAssetDocument
-}
-pub impl Eq for AnimationAssetEntry
-pub impl Show for AnimationAssetEntry
+} derive(Eq, Show)
 
 pub struct AtlasAssetEntry {
   path : String
   atlas : @editor_bridge.AtlasAssetDocument
-}
-pub impl Eq for AtlasAssetEntry
-pub impl Show for AtlasAssetEntry
+} derive(Eq, Show)
 
 pub enum PreviewCommand {
   Bootstrap
@@ -62,9 +58,7 @@ pub enum PreviewCommand {
   SetTool(@shared.PreviewTool)
   SetMoveSnap(enabled~ : Bool, step~ : Double)
   FrameSelection
-}
-pub impl Eq for PreviewCommand
-pub impl Show for PreviewCommand
+} derive(Eq, Show)
 
 pub enum PreviewEvent {
   EntityPicked(String?)
@@ -72,17 +66,13 @@ pub enum PreviewEvent {
   TransformGestureStarted(id~ : String)
   TransformChanged(id~ : String, translation~ : @editor_bridge.Vec2Doc, rotation~ : Double, scale~ : @editor_bridge.Vec2Doc)
   TransformGestureFinished(id~ : String)
-}
-pub impl Eq for PreviewEvent
-pub impl Show for PreviewEvent
+} derive(Eq, Show)
 
 pub struct PreviewScenePayload {
   scene : @editor_bridge.SceneDocument
   atlases : Array[AtlasAssetEntry]
   animations : Array[AnimationAssetEntry]
-}
-pub impl Eq for PreviewScenePayload
-pub impl Show for PreviewScenePayload
+} derive(Eq, Show)
 
 // Type aliases
 
