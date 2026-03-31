@@ -768,6 +768,19 @@ input {
   gap: 8px;
 }
 
+.component-add-search-meta {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.component-add-empty {
+  padding: 8px 10px;
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+  color: var(--muted);
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
 .component-add-group {
   display: flex;
   flex-direction: column;
@@ -794,6 +807,10 @@ input {
 .component-add-item.existing {
   border-style: dashed;
   opacity: 0.82;
+}
+
+.component-add-item.existing.disabled {
+  cursor: default;
 }
 
 .custom-json-editor {

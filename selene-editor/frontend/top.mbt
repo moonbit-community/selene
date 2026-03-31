@@ -1888,13 +1888,22 @@ fn add_component_group(
     buttons.push(
       @html.button(
         class=if exists {
-          "small-button component-add-item existing"
+          "small-button component-add-item existing disabled"
         } else {
           "small-button component-add-item"
         },
-        on_click=dispatch(@app.msg_add_builtin_component(kind)),
+        attrs=if exists {
+          hint_attrs(dispatch, kind_name + " is already on this entity")
+        } else {
+          hint_attrs(dispatch, "Add " + kind_name + " component")
+        },
+        on_click=if exists {
+          @cmd.none
+        } else {
+          dispatch(@app.msg_add_builtin_component(kind))
+        },
         if exists {
-          kind_name + " (Added)"
+          kind_name + " (Existing)"
         } else {
           kind_name
         },
@@ -1909,6 +1918,17 @@ fn add_component_group(
       @html.div(class="component-add-list", buttons),
     ])
   }
+}
+
+///|
+fn matching_builtin_component_count(model : @app.Model) -> Int {
+  let matched : Array[@editor_bridge.BuiltinComponentKind] = []
+  for kind in @editor_bridge.builtin_component_kinds() {
+    if model.builtin_component_matches_query(kind) {
+      matched.push(kind)
+    }
+  }
+  matched.length()
 }
 
 ///|
@@ -1949,6 +1969,8 @@ fn add_component_panel(
   model : @app.Model,
   entity : @editor_bridge.EntityDocument,
 ) -> @rabbita.Html {
+  let matches_count = matching_builtin_component_count(model)
+  let has_query = model.component_search_query_normalized() != ""
   let groups = [
     add_component_group(
       dispatch,
@@ -1998,6 +2020,22 @@ fn add_component_panel(
       attrs=close_add_component_panel_on_escape_attrs(dispatch),
       @html.nothing,
     ),
+    @html.div(
+      class="component-add-search-meta",
+      if has_query {
+        "\{matches_count} matching built-in components"
+      } else {
+        "Browse by category or type to filter"
+      },
+    ),
+    if has_query && matches_count == 0 {
+      @html.div(
+        class="component-add-empty",
+        "No built-in components match this search",
+      )
+    } else {
+      @html.nothing
+    },
     @html.div(class="component-add-groups", groups),
     @html.div(class="component-add-group custom", [
       @html.div(class="component-add-group-title", "Custom"),
