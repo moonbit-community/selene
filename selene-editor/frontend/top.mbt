@@ -1877,6 +1877,25 @@ fn close_add_component_panel_on_escape_attrs(
 }
 
 ///|
+fn custom_component_kind_input_attrs(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  value : String,
+) -> @html.Attrs {
+  @html.Attrs::build().handler("keydown", fn(event, scheduler) {
+    if input_event_is_escape_key(event) {
+      event.prevent_default()
+      input_event_blur_target(event)
+      schedule_cmd(scheduler, dispatch(@app.msg_close_add_component_panel()))
+      return
+    }
+    if input_event_is_enter_key(event) {
+      event.prevent_default()
+      schedule_cmd(scheduler, dispatch(@app.msg_add_custom_component(value)))
+    }
+  })
+}
+
+///|
 fn add_component_panel(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.Model,
@@ -1941,7 +1960,10 @@ fn add_component_panel(
         on_input=fn(value) {
           dispatch(@app.msg_update_add_custom_component_kind(value))
         },
-        attrs=close_add_component_panel_on_escape_attrs(dispatch),
+        attrs=custom_component_kind_input_attrs(
+          dispatch,
+          model.add_custom_component_kind,
+        ),
         @html.nothing,
       ),
       @html.button(

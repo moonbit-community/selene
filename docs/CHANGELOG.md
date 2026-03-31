@@ -38,6 +38,7 @@
 - Changed `selene-editor` global `Esc` behavior to close Inspector transient UI (component panel/menu) before clearing entity/resource selection, reducing accidental focus loss.
 - Changed `selene-editor` entity selection feedback to surface `Selected entity: ...` in the status bar when selecting from Scene Tree/Viewport.
 - Changed `selene-editor` Add Component panel keyboard UX so pressing `Esc` in component search/custom-kind inputs closes the panel immediately.
+- Changed `selene-editor` Add Component custom-kind input so pressing `Enter` submits `Add custom component` directly without requiring a button click.
 
 ### Fixed
 
