@@ -22,6 +22,7 @@
 - Changed `selene-editor` viewport help copy to document asset-tree shortcuts (`I`, `]`, `[`), reducing hidden-key discoverability issues.
 - Changed `selene-editor` Assets panel ergonomics by making selection/search/action controls sticky at panel top while scrolling long asset trees.
 - Changed `selene-editor` Assets tree folder rows to publish full folder paths to the bottom info bar on hover (matching file-row discoverability).
+- Changed `selene-editor` Assets toolbar to show visible resource counts (`items` / `filtered items`) so filter impact is immediately observable.
 
 ### Fixed
 

@@ -1071,6 +1071,8 @@ fn asset_panel_view(
     fn(_path) { "prefab" },
     fn(_path) { None },
   )
+  let visible_count = image_paths.length() + atlas_paths.length() +
+    animation_paths.length() + prefab_paths.length()
 
   let toolbar = @html.div(class="asset-toolbar", [
     match model.selected_resource_path() {
@@ -1148,6 +1150,14 @@ fn asset_panel_view(
         "Clear",
       ),
     ]),
+    @html.div(
+      class="asset-tree-summary",
+      if model.asset_query_normalized() == "" {
+        "\{visible_count} items"
+      } else {
+        "\{visible_count} filtered items"
+      },
+    ),
   ])
   let content : Array[@rabbita.Html] = [toolbar]
   if !image_rows.is_empty() {

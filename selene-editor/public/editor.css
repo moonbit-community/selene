@@ -591,6 +591,12 @@ input {
   margin-bottom: 4px;
 }
 
+.asset-tree-summary {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
 .asset-thumb-failed {
   border-color: rgba(246, 193, 119, 0.35);
   color: var(--warn);
