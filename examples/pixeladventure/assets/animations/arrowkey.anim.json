@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "name": "arrowkey",
+  "atlas_asset_path": "assets/atlases/arrowkey.atlas.json",
+  "clips": [
+    {
+      "name": "default",
+      "fps": 8,
+      "looping": true,
+      "frames": [
+        "frame_0"
+      ]
+    }
+  ],
+  "default_clip": "default"
+}
