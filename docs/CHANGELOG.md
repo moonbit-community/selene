@@ -33,6 +33,7 @@
 - Changed `selene-editor` empty-filter state UX to show a one-click `Reset Filter` action when no assets match the current query.
 - Changed `selene-editor` Assets summary line to include per-type counts (`img/atlas/anim/prefab`) for both full and filtered views.
 - Changed `selene-editor` resource-selection UX to auto-expand the matching Assets section (`Images`/`Atlases`/`Animations`/`Prefabs`) when selection is driven by editor actions.
+- Changed `selene-editor` Assets filter feedback so entering a query updates status with the active filter term, while clearing the query reports `Asset filter cleared`.
 
 ### Fixed
 

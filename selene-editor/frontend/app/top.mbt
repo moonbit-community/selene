@@ -2657,7 +2657,21 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       failed_image_assets.set(path, true)
       ([], { ..model, failed_image_assets, })
     }
-    SetAssetQuery(value) => ([], { ..model, asset_query: value })
+    SetAssetQuery(value) => {
+      let trimmed = value.trim().to_string()
+      (
+        [],
+        {
+          ..model,
+          asset_query: value,
+          status: if trimmed == "" {
+            "Asset filter cleared"
+          } else {
+            "Filtering assets: " + trimmed
+          },
+        },
+      )
+    }
     SceneSaved(result) =>
       match result {
         Ok(_) => ([], { ..model, status: save_success_status(model) })

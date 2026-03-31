@@ -88,6 +88,17 @@ test "asset tree folder toggle is state-driven" {
 }
 
 ///|
+test "asset query updates status feedback" {
+  let (_, filtering) = update(msg_set_asset_query("apple"), new_model())
+  inspect(filtering.asset_query, content="apple")
+  inspect(filtering.status, content="Filtering assets: apple")
+
+  let (_, cleared) = update(msg_set_asset_query("   "), filtering)
+  inspect(cleared.asset_query, content="   ")
+  inspect(cleared.status, content="Asset filter cleared")
+}
+
+///|
 test "selecting nested asset auto-expands ancestor folders" {
   let model = {
     ..new_model(),
