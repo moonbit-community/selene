@@ -477,6 +477,166 @@ test "inspector transform typing is coalesced into one undo entry after commit" 
 }
 
 ///|
+test "adding an existing built-in component is a no-op" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(@editor_bridge.SceneDocument::default_main()),
+    selected_entity_id: Some("camera"),
+  }
+  let (effects, next) = update(
+    msg_add_builtin_component(
+      @editor_bridge.builtin_component_kind_from_string("Transform2d").unwrap(),
+    ),
+    model,
+  )
+  inspect(effects.length(), content="0")
+  inspect(next.undo_stack.length(), content="0")
+  inspect(next.status, content="Transform2d already exists on this entity")
+}
+
+///|
+test "adding animation transitions auto-adds required dependency chain" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(@editor_bridge.SceneDocument::default_main()),
+    selected_entity_id: Some("camera"),
+  }
+  let (_effects, next) = update(
+    msg_add_builtin_component(
+      @editor_bridge.builtin_component_kind_from_string("AnimationTransitions").unwrap(),
+    ),
+    model,
+  )
+  let camera = next.scene.unwrap().entity("camera").unwrap()
+  inspect(camera.component("Sprite") is Some(_), content="true")
+  inspect(camera.component("TextureAtlas") is Some(_), content="true")
+  inspect(camera.component("AnimationPlayer") is Some(_), content="true")
+  inspect(camera.component("AnimationTransitions") is Some(_), content="true")
+  inspect(next.undo_stack.length(), content="1")
+}
+
+///|
+test "removing a required built-in component is blocked with a stable message" {
+  let seeded = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(@editor_bridge.SceneDocument::default_main()),
+    selected_entity_id: Some("camera"),
+  }
+  let (_effects, with_animation) = update(
+    msg_add_builtin_component(
+      @editor_bridge.builtin_component_kind_from_string("AnimationTransitions").unwrap(),
+    ),
+    seeded,
+  )
+  let (_remove_effects, blocked) = update(
+    msg_remove_component("Sprite"),
+    with_animation,
+  )
+  let camera = blocked.scene.unwrap().entity("camera").unwrap()
+  inspect(camera.component("Sprite") is Some(_), content="true")
+  inspect(blocked.status.contains("Cannot remove Sprite"), content="true")
+}
+
+///|
+test "removing a built-in component supports undo and redo" {
+  let seeded = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(@editor_bridge.SceneDocument::default_main()),
+    selected_entity_id: Some("camera"),
+  }
+  let (_effects, with_text) = update(
+    msg_add_builtin_component(
+      @editor_bridge.builtin_component_kind_from_string("Text2d").unwrap(),
+    ),
+    seeded,
+  )
+  let (_remove_effects, removed) = update(
+    msg_remove_component("Text2d"),
+    with_text,
+  )
+  inspect(
+    removed.scene.unwrap().entity("camera").unwrap().component("Text2d") is None,
+    content="true",
+  )
+
+  let (_undo_effects, undone) = update(msg_undo_scene(), removed)
+  inspect(
+    undone.scene.unwrap().entity("camera").unwrap().component("Text2d")
+    is Some(_),
+    content="true",
+  )
+
+  let (_redo_effects, redone) = update(msg_redo_scene(), undone)
+  inspect(
+    redone.scene.unwrap().entity("camera").unwrap().component("Text2d") is None,
+    content="true",
+  )
+}
+
+///|
+test "custom component add and commit validates kind and json" {
+  let seeded = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(@editor_bridge.SceneDocument::default_main()),
+    selected_entity_id: Some("camera"),
+  }
+  let (_conflict_effects, conflict) = update(
+    msg_add_custom_component("Transform2d"),
+    seeded,
+  )
+  inspect(
+    conflict.status,
+    content="Custom kind conflicts with a built-in component",
+  )
+
+  let (_add_effects, added) = update(
+    msg_add_custom_component("GameplayTag"),
+    conflict,
+  )
+  inspect(
+    added.scene.unwrap().entity("camera").unwrap().component("GameplayTag")
+    is Some(_),
+    content="true",
+  )
+
+  let (_invalid_edit_effects, invalid_draft) = update(
+    msg_update_custom_component_json("GameplayTag", "{\"hp\":"),
+    added,
+  )
+  let (_invalid_commit_effects, invalid_commit) = update(
+    msg_commit_custom_component_json("GameplayTag"),
+    invalid_draft,
+  )
+  inspect(invalid_commit.status.contains("Invalid JSON"), content="true")
+
+  let (_valid_edit_effects, valid_draft) = update(
+    msg_update_custom_component_json("GameplayTag", "{\"hp\":10}"),
+    invalid_commit,
+  )
+  let (_valid_commit_effects, committed) = update(
+    msg_commit_custom_component_json("GameplayTag"),
+    valid_draft,
+  )
+  let component = committed.scene
+    .unwrap()
+    .entity("camera")
+    .unwrap()
+    .component("GameplayTag")
+    .unwrap()
+  inspect(component.data == @json.parse("{\"hp\":10}"), content="true")
+}
+
+///|
 test "preview transform events apply translation, rotation, and scale" {
   let model = {
     ..new_model(),

@@ -54,6 +54,13 @@ pub struct Model {
   workspace : @editor_bridge.WorkspaceDocument
   selected_resource : ResourceSelection?
   selected_entity_id : String?
+  add_component_panel_open : Bool
+  component_search_query : String
+  open_component_menu_kind : String?
+  collapsed_component_cards : Map[String, Bool]
+  add_custom_component_kind : String
+  custom_component_json_drafts : Map[String, String]
+  custom_component_json_errors : Map[String, String]
   pending_scene_migration : @editor_bridge.SceneMigrationPreview?
   undo_stack : Array[@editor_bridge.SceneDocument]
   redo_stack : Array[@editor_bridge.SceneDocument]
@@ -116,6 +123,17 @@ pub enum Msg {
   CreateAnimationFromSelectedAtlas
   SaveSelectedAsPrefab
   InsertSelectedResource
+  OpenAddComponentPanel
+  CloseAddComponentPanel
+  SetComponentSearchQuery(String)
+  ToggleComponentCollapsed(String)
+  ToggleComponentMenu(String?)
+  AddBuiltinComponent(@editor_bridge.BuiltinComponentKind)
+  RemoveComponent(String)
+  UpdateAddCustomComponentKind(String)
+  AddCustomComponent(String)
+  UpdateCustomComponentJson(String, String)
+  CommitCustomComponentJson(String)
   UpdateSelectedPrefabName(String)
   SaveSelectedPrefab
   UpdateSelectedAtlasName(String)
@@ -201,6 +219,13 @@ pub fn new_model() -> Model {
     workspace: @editor_bridge.WorkspaceDocument::default(),
     selected_resource: None,
     selected_entity_id: None,
+    add_component_panel_open: false,
+    component_search_query: "",
+    open_component_menu_kind: None,
+    collapsed_component_cards: {},
+    add_custom_component_kind: "",
+    custom_component_json_drafts: {},
+    custom_component_json_errors: {},
     pending_scene_migration: None,
     undo_stack: [],
     redo_stack: [],
@@ -401,6 +426,63 @@ pub fn msg_save_selected_as_prefab() -> Msg {
 ///|
 pub fn msg_insert_selected_resource() -> Msg {
   InsertSelectedResource
+}
+
+///|
+pub fn msg_open_add_component_panel() -> Msg {
+  OpenAddComponentPanel
+}
+
+///|
+pub fn msg_close_add_component_panel() -> Msg {
+  CloseAddComponentPanel
+}
+
+///|
+pub fn msg_set_component_search_query(value : String) -> Msg {
+  SetComponentSearchQuery(value)
+}
+
+///|
+pub fn msg_toggle_component_collapsed(kind : String) -> Msg {
+  ToggleComponentCollapsed(kind)
+}
+
+///|
+pub fn msg_toggle_component_menu(kind : String?) -> Msg {
+  ToggleComponentMenu(kind)
+}
+
+///|
+pub fn msg_add_builtin_component(
+  kind : @editor_bridge.BuiltinComponentKind,
+) -> Msg {
+  AddBuiltinComponent(kind)
+}
+
+///|
+pub fn msg_remove_component(kind : String) -> Msg {
+  RemoveComponent(kind)
+}
+
+///|
+pub fn msg_update_add_custom_component_kind(value : String) -> Msg {
+  UpdateAddCustomComponentKind(value)
+}
+
+///|
+pub fn msg_add_custom_component(kind : String) -> Msg {
+  AddCustomComponent(kind)
+}
+
+///|
+pub fn msg_update_custom_component_json(kind : String, value : String) -> Msg {
+  UpdateCustomComponentJson(kind, value)
+}
+
+///|
+pub fn msg_commit_custom_component_json(kind : String) -> Msg {
+  CommitCustomComponentJson(kind)
 }
 
 ///|
@@ -1605,6 +1687,270 @@ pub fn[T : FromJson] component_of(
 }
 
 ///|
+fn component_state_key(entity_id : String, kind : String) -> String {
+  entity_id + "::" + kind
+}
+
+///|
+fn parse_custom_component_json(draft : String) -> Result[Json, String] {
+  let source = if draft.trim() == "" { "{}" } else { draft }
+  Ok(@json.parse(source)) catch {
+    err => Err("Invalid JSON: " + err.to_string())
+  }
+}
+
+///|
+fn collect_required_builtin_components(
+  kind : @editor_bridge.BuiltinComponentKind,
+  visited : Map[String, Bool],
+  ordered : Array[@editor_bridge.BuiltinComponentKind],
+) -> Unit {
+  let key = @editor_bridge.builtin_component_kind_to_string(kind)
+  if visited.contains(key) {
+    return
+  }
+  visited.set(key, true)
+  for dependency in @editor_bridge.required_builtin_components(kind) {
+    collect_required_builtin_components(dependency, visited, ordered)
+  }
+  ordered.push(kind)
+}
+
+///|
+fn ordered_required_builtin_components(
+  kind : @editor_bridge.BuiltinComponentKind,
+) -> Array[@editor_bridge.BuiltinComponentKind] {
+  let ordered : Array[@editor_bridge.BuiltinComponentKind] = []
+  collect_required_builtin_components(kind, {}, ordered)
+  ordered
+}
+
+///|
+fn builtin_requires_component(
+  candidate : @editor_bridge.BuiltinComponentKind,
+  target : @editor_bridge.BuiltinComponentKind,
+) -> Bool {
+  if candidate == target {
+    return false
+  }
+  let required = ordered_required_builtin_components(candidate)
+  for kind in required {
+    if kind == target {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn remove_component_block_reason_for_entity(
+  entity : @editor_bridge.EntityDocument,
+  kind : String,
+) -> String? {
+  match @editor_bridge.builtin_component_kind_from_string(kind) {
+    Some(builtin_kind) => {
+      if !@editor_bridge.removable_builtin_component(builtin_kind) {
+        return Some("\{kind} is required and cannot be removed")
+      }
+      let blocked_by : Array[String] = []
+      let blocked_kind_seen : Map[String, Bool] = {}
+      for component in entity.components {
+        if component.kind == kind {
+          continue
+        }
+        match
+          @editor_bridge.builtin_component_kind_from_string(component.kind) {
+          Some(candidate) if builtin_requires_component(candidate, builtin_kind) => {
+            let candidate_kind = @editor_bridge.builtin_component_kind_to_string(
+              candidate,
+            )
+            if !blocked_kind_seen.contains(candidate_kind) {
+              blocked_kind_seen.set(candidate_kind, true)
+              blocked_by.push(candidate_kind)
+            }
+          }
+          _ => ()
+        }
+      }
+      if blocked_by.length() > 0 {
+        Some("Required by " + blocked_by.join(", "))
+      } else {
+        None
+      }
+    }
+    None => None
+  }
+}
+
+///|
+fn with_component_card_collapsed(
+  model : Model,
+  entity_id : String,
+  kind : String,
+) -> Model {
+  let key = component_state_key(entity_id, kind)
+  let collapsed_component_cards = model.collapsed_component_cards
+  let is_collapsed = collapsed_component_cards.get(key).unwrap_or(false)
+  collapsed_component_cards.set(key, !is_collapsed)
+  { ..model, collapsed_component_cards, }
+}
+
+///|
+fn with_component_removed(
+  model : Model,
+  kind : String,
+) -> Result[Model, String] {
+  match model.selected_entity() {
+    Some(entity) => {
+      if entity.component(kind) is None {
+        return Err("\{kind} is not on this entity")
+      }
+      match remove_component_block_reason_for_entity(entity, kind) {
+        Some(reason) => Err("Cannot remove \{kind}: \{reason}")
+        None => {
+          let next = update_selected_entity(model, fn(selected) {
+            selected.without_component(kind)
+          })
+          let component_key = component_state_key(entity.id, kind)
+          let collapsed_component_cards = next.collapsed_component_cards
+          collapsed_component_cards.remove(component_key) |> ignore
+          let custom_component_json_drafts = next.custom_component_json_drafts
+          custom_component_json_drafts.remove(component_key) |> ignore
+          let custom_component_json_errors = next.custom_component_json_errors
+          custom_component_json_errors.remove(component_key) |> ignore
+          Ok({
+            ..next,
+            collapsed_component_cards,
+            custom_component_json_drafts,
+            custom_component_json_errors,
+            open_component_menu_kind: if next.open_component_menu_kind ==
+              Some(kind) {
+              None
+            } else {
+              next.open_component_menu_kind
+            },
+          })
+        }
+      }
+    }
+    None => Err("Select an entity first")
+  }
+}
+
+///|
+fn with_builtin_component_added(
+  model : Model,
+  kind : @editor_bridge.BuiltinComponentKind,
+) -> (Model, Array[String]) {
+  match model.selected_entity() {
+    Some(entity) => {
+      let mut next_entity = entity
+      let added : Array[String] = []
+      for current_kind in ordered_required_builtin_components(kind) {
+        let kind_name = @editor_bridge.builtin_component_kind_to_string(
+          current_kind,
+        )
+        if next_entity.component(kind_name) is None {
+          next_entity = next_entity.with_component(
+            @editor_bridge.default_component_document(current_kind),
+          )
+          added.push(kind_name)
+        }
+      }
+      (
+        {
+          ..update_selected_entity(model, fn(_) { next_entity }),
+          add_component_panel_open: true,
+        },
+        added,
+      )
+    }
+    None => (model, [])
+  }
+}
+
+///|
+fn validated_custom_component_kind(raw_kind : String) -> Result[String, String] {
+  let kind = raw_kind.trim().to_string()
+  if kind == "" {
+    return Err("Component kind is required")
+  }
+  if @editor_bridge.builtin_component_kind_from_string(kind) is Some(_) {
+    return Err("Custom kind conflicts with a built-in component")
+  }
+  Ok(kind)
+}
+
+///|
+pub fn Model::component_search_query_normalized(self : Model) -> String {
+  self.component_search_query.trim().to_string().to_lower()
+}
+
+///|
+pub fn Model::builtin_component_matches_query(
+  self : Model,
+  kind : @editor_bridge.BuiltinComponentKind,
+) -> Bool {
+  let query = self.component_search_query_normalized()
+  if query == "" {
+    true
+  } else {
+    @editor_bridge.builtin_component_kind_to_string(kind)
+    .to_lower()
+    .contains(query) ||
+    @editor_bridge.builtin_component_category(kind).to_lower().contains(query)
+  }
+}
+
+///|
+pub fn Model::component_card_collapsed(
+  self : Model,
+  entity_id : String,
+  kind : String,
+) -> Bool {
+  self.collapsed_component_cards
+  .get(component_state_key(entity_id, kind))
+  .unwrap_or(false)
+}
+
+///|
+pub fn Model::component_menu_is_open(self : Model, kind : String) -> Bool {
+  self.open_component_menu_kind == Some(kind)
+}
+
+///|
+pub fn Model::selected_component_remove_block_reason(
+  self : Model,
+  kind : String,
+) -> String? {
+  match self.selected_entity() {
+    Some(entity) => remove_component_block_reason_for_entity(entity, kind)
+    None => None
+  }
+}
+
+///|
+pub fn Model::custom_component_json_draft(
+  self : Model,
+  entity_id : String,
+  kind : String,
+  fallback : Json,
+) -> String {
+  self.custom_component_json_drafts
+  .get(component_state_key(entity_id, kind))
+  .unwrap_or(fallback.stringify(indent=2))
+}
+
+///|
+pub fn Model::custom_component_json_error(
+  self : Model,
+  entity_id : String,
+  kind : String,
+) -> String? {
+  self.custom_component_json_errors.get(component_state_key(entity_id, kind))
+}
+
+///|
 fn update_selected_entity(
   model : Model,
   updater : (@editor_bridge.EntityDocument) -> @editor_bridge.EntityDocument,
@@ -1805,6 +2151,9 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             scene_path,
             project_root_input,
             pending_scene_migration: None,
+            add_component_panel_open: false,
+            component_search_query: "",
+            open_component_menu_kind: None,
             undo_stack: [],
             redo_stack: [],
             active_scene_edit_transaction: None,
@@ -1855,6 +2204,9 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             animation_refs,
             selected_entity_id: workspace.selected_entity_id,
             pending_scene_migration: None,
+            add_component_panel_open: false,
+            component_search_query: "",
+            open_component_menu_kind: None,
             undo_stack: [],
             redo_stack: [],
             active_scene_edit_transaction: None,
@@ -1869,6 +2221,9 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             scene: None,
             selected_entity_id: None,
             pending_scene_migration: Some(preview),
+            add_component_panel_open: false,
+            component_search_query: "",
+            open_component_menu_kind: None,
             undo_stack: [],
             redo_stack: [],
             active_scene_edit_transaction: None,
@@ -1911,6 +2266,9 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           scene: None,
           selected_entity_id: None,
           pending_scene_migration: None,
+          add_component_panel_open: false,
+          component_search_query: "",
+          open_component_menu_kind: None,
           undo_stack: [],
           redo_stack: [],
           active_scene_edit_transaction: None,
@@ -2243,14 +2601,42 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     OpenScene(path) =>
       (
         [rpc_effect(SceneLoaded, @shared.rpc_request_scene_load(path))],
-        { ..model, scene_path: path, status: "Loading " + path + "..." },
+        {
+          ..model,
+          scene_path: path,
+          add_component_panel_open: false,
+          component_search_query: "",
+          open_component_menu_kind: None,
+          status: "Loading " + path + "...",
+        },
       )
     SelectResource(resource) =>
-      ([], { ..model, selected_resource: resource, selected_entity_id: None })
+      (
+        [],
+        {
+          ..model,
+          selected_resource: resource,
+          selected_entity_id: None,
+          add_component_panel_open: false,
+          component_search_query: "",
+          open_component_menu_kind: None,
+        },
+      )
     SelectEntity(id) => {
       let next = {
         ..model,
         selected_entity_id: id,
+        add_component_panel_open: if id is Some(_) {
+          model.add_component_panel_open
+        } else {
+          false
+        },
+        component_search_query: if id is Some(_) {
+          model.component_search_query
+        } else {
+          ""
+        },
+        open_component_menu_kind: None,
         selected_resource: if id is Some(_) {
           None
         } else {
@@ -2517,6 +2903,208 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             None => ([], model)
           }
         _ => ([], model)
+      }
+    OpenAddComponentPanel =>
+      match model.selected_entity() {
+        Some(_) =>
+          (
+            [],
+            {
+              ..model,
+              add_component_panel_open: true,
+              component_search_query: "",
+              open_component_menu_kind: None,
+              add_custom_component_kind: "",
+            },
+          )
+        None => ([], model)
+      }
+    CloseAddComponentPanel =>
+      (
+        [],
+        {
+          ..model,
+          add_component_panel_open: false,
+          component_search_query: "",
+          open_component_menu_kind: None,
+          add_custom_component_kind: "",
+        },
+      )
+    SetComponentSearchQuery(value) =>
+      ([], { ..model, component_search_query: value })
+    ToggleComponentCollapsed(kind) =>
+      match model.selected_entity_id {
+        Some(entity_id) =>
+          ([], with_component_card_collapsed(model, entity_id, kind))
+        None => ([], model)
+      }
+    ToggleComponentMenu(kind) => {
+      let open_component_menu_kind = match
+        (kind, model.open_component_menu_kind) {
+        (Some(next), Some(current)) if next == current => None
+        _ => kind
+      }
+      ([], { ..model, open_component_menu_kind, })
+    }
+    AddBuiltinComponent(kind) =>
+      match model.selected_entity() {
+        Some(_) => {
+          let (next, added) = with_builtin_component_added(model, kind)
+          if added.is_empty() {
+            (
+              [],
+              {
+                ..next,
+                status: @editor_bridge.builtin_component_kind_to_string(kind) +
+                " already exists on this entity",
+              },
+            )
+          } else {
+            let summary = if added.length() == 1 {
+              "Added " + added[0]
+            } else {
+              "Added components: " + added.join(", ")
+            }
+            apply_scene_change(model, {
+              ..next,
+              open_component_menu_kind: None,
+              status: summary,
+            })
+          }
+        }
+        None => ([], model)
+      }
+    RemoveComponent(kind) =>
+      match with_component_removed(model, kind) {
+        Ok(next) =>
+          apply_scene_change(model, {
+            ..next,
+            open_component_menu_kind: None,
+            status: "Removed " + kind,
+          })
+        Err(message) => {
+          let next = push_log(model, message)
+          ([], { ..next, status: message, open_component_menu_kind: None })
+        }
+      }
+    UpdateAddCustomComponentKind(value) =>
+      ([], { ..model, add_custom_component_kind: value })
+    AddCustomComponent(raw_kind) =>
+      match model.selected_entity() {
+        Some(entity) =>
+          match validated_custom_component_kind(raw_kind) {
+            Ok(kind) =>
+              if entity.component(kind) is Some(_) {
+                (
+                  [],
+                  {
+                    ..model,
+                    status: kind + " already exists on this entity",
+                    add_custom_component_kind: kind,
+                  },
+                )
+              } else {
+                let default_data = match parse_custom_component_json("{}") {
+                  Ok(json) => json
+                  Err(_) => Json::null()
+                }
+                let next = update_selected_component(
+                  model,
+                  @editor_bridge.component_document(kind, default_data),
+                )
+                let key = component_state_key(entity.id, kind)
+                let custom_component_json_drafts = next.custom_component_json_drafts
+                custom_component_json_drafts.set(key, "{}")
+                let custom_component_json_errors = next.custom_component_json_errors
+                custom_component_json_errors.remove(key) |> ignore
+                apply_scene_change(model, {
+                  ..next,
+                  custom_component_json_drafts,
+                  custom_component_json_errors,
+                  add_component_panel_open: false,
+                  component_search_query: "",
+                  add_custom_component_kind: "",
+                  open_component_menu_kind: None,
+                  status: "Added " + kind,
+                })
+              }
+            Err(message) => {
+              let next = push_log(model, message)
+              (
+                [],
+                { ..next, status: message, add_custom_component_kind: raw_kind },
+              )
+            }
+          }
+        None => ([], model)
+      }
+    UpdateCustomComponentJson(kind, value) =>
+      match model.selected_entity_id {
+        Some(entity_id) => {
+          let key = component_state_key(entity_id, kind)
+          let custom_component_json_drafts = model.custom_component_json_drafts
+          custom_component_json_drafts.set(key, value)
+          let custom_component_json_errors = model.custom_component_json_errors
+          custom_component_json_errors.remove(key) |> ignore
+          (
+            [],
+            {
+              ..model,
+              custom_component_json_drafts,
+              custom_component_json_errors,
+            },
+          )
+        }
+        None => ([], model)
+      }
+    CommitCustomComponentJson(kind) =>
+      match model.selected_entity() {
+        Some(entity) =>
+          match entity.component(kind) {
+            Some(component) => {
+              let key = component_state_key(entity.id, kind)
+              let draft = model.custom_component_json_drafts
+                .get(key)
+                .unwrap_or(component.data.stringify(indent=2))
+              match parse_custom_component_json(draft) {
+                Ok(json) => {
+                  let next = update_selected_component(
+                    model,
+                    @editor_bridge.component_document(kind, json),
+                  )
+                  let custom_component_json_errors = next.custom_component_json_errors
+                  custom_component_json_errors.remove(key) |> ignore
+                  let custom_component_json_drafts = next.custom_component_json_drafts
+                  custom_component_json_drafts.set(
+                    key,
+                    json.stringify(indent=2),
+                  )
+                  apply_scene_change(model, {
+                    ..next,
+                    custom_component_json_errors,
+                    custom_component_json_drafts,
+                    status: "Updated " + kind,
+                  })
+                }
+                Err(message) => {
+                  let custom_component_json_errors = model.custom_component_json_errors
+                  custom_component_json_errors.set(key, message)
+                  (
+                    [],
+                    { ..model, custom_component_json_errors, status: message },
+                  )
+                }
+              }
+            }
+            None => {
+              let next = push_log(
+                model,
+                kind + " does not exist on this entity",
+              )
+              ([], { ..next, status: kind + " does not exist on this entity" })
+            }
+          }
+        None => ([], model)
       }
     UpdateSelectedPrefabName(value) => {
       let next = update_selected_prefab_document(model, fn(prefab) {
@@ -2965,6 +3553,9 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             ..model,
             scene: Some(scene.without_entity(id)),
             selected_entity_id: None,
+            add_component_panel_open: false,
+            component_search_query: "",
+            open_component_menu_kind: None,
           }
           apply_scene_change(model, next)
         }

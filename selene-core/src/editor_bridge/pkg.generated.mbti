@@ -43,6 +43,14 @@ pub let atlas_asset_schema_version : Int
 
 pub fn atlas_region_document(String, Int, RectDoc) -> AtlasRegionDocument
 
+pub fn builtin_component_category(BuiltinComponentKind) -> String
+
+pub fn builtin_component_kind_from_string(String) -> BuiltinComponentKind?
+
+pub fn builtin_component_kind_to_string(BuiltinComponentKind) -> String
+
+pub fn builtin_component_kinds() -> Array[BuiltinComponentKind]
+
 pub fn camera2d_component(is_active? : Bool, order? : Int, scale? : Double) -> ComponentDocument
 
 pub fn color_doc(Int, Int, Int, a? : Int) -> ColorDoc
@@ -78,6 +86,8 @@ pub fn decode_workspace_document(Json) -> WorkspaceDocument raise
 pub fn decoded_transform(EntityDocument) -> Transform2dComponent
 
 pub fn default_color() -> ColorDoc
+
+pub fn default_component_document(BuiltinComponentKind) -> ComponentDocument
 
 pub fn entity_document(String, String, parent? : String?, components? : Array[ComponentDocument]) -> EntityDocument
 
@@ -136,6 +146,10 @@ pub let project_schema_version : Int
 pub fn rect_doc(Double, Double, Double, Double) -> RectDoc
 
 pub fn register_custom_component(String, (@entity.Entity, ComponentDocument, AssetInstantiationContext) -> Unit) -> Unit
+
+pub fn removable_builtin_component(BuiltinComponentKind) -> Bool
+
+pub fn required_builtin_components(BuiltinComponentKind) -> Array[BuiltinComponentKind]
 
 pub fn scene_file_name(String) -> String
 
@@ -316,6 +330,22 @@ pub struct AtlasRegionDocument {
   name : String
   index : Int
   rect : RectDoc
+} derive(Eq, Show, ToJson, @json.FromJson)
+
+pub enum BuiltinComponentKind {
+  Name
+  Transform2d
+  Visibility
+  Sprite
+  TextureAtlas
+  Text2d
+  Mesh2d
+  ColorMaterial
+  Camera2d
+  PhysicsBody2d
+  PhysicsCollider2d
+  AnimationPlayer
+  AnimationTransitions
 } derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct Camera2dComponent {

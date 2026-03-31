@@ -86,6 +86,23 @@ pub struct ComponentDocument {
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
+pub enum BuiltinComponentKind {
+  Name
+  Transform2d
+  Visibility
+  Sprite
+  TextureAtlas
+  Text2d
+  Mesh2d
+  ColorMaterial
+  Camera2d
+  PhysicsBody2d
+  PhysicsCollider2d
+  AnimationPlayer
+  AnimationTransitions
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
 pub struct NameComponent {
   value : String
 } derive(Show, Eq, ToJson, FromJson)
@@ -970,6 +987,116 @@ pub fn PrefabDocument::without_entity(
     entity.id != id && entity.parent != Some(id)
   })
   { ..self, entities, }
+}
+
+///|
+pub fn builtin_component_kinds() -> Array[BuiltinComponentKind] {
+  [
+    Name,
+    Transform2d,
+    Visibility,
+    Sprite,
+    TextureAtlas,
+    Text2d,
+    Mesh2d,
+    ColorMaterial,
+    Camera2d,
+    PhysicsBody2d,
+    PhysicsCollider2d,
+    AnimationPlayer,
+    AnimationTransitions,
+  ]
+}
+
+///|
+pub fn builtin_component_kind_to_string(kind : BuiltinComponentKind) -> String {
+  match kind {
+    Name => "Name"
+    Transform2d => "Transform2d"
+    Visibility => "Visibility"
+    Sprite => "Sprite"
+    TextureAtlas => "TextureAtlas"
+    Text2d => "Text2d"
+    Mesh2d => "Mesh2d"
+    ColorMaterial => "ColorMaterial"
+    Camera2d => "Camera2d"
+    PhysicsBody2d => "PhysicsBody2d"
+    PhysicsCollider2d => "PhysicsCollider2d"
+    AnimationPlayer => "AnimationPlayer"
+    AnimationTransitions => "AnimationTransitions"
+  }
+}
+
+///|
+pub fn builtin_component_kind_from_string(
+  value : String,
+) -> BuiltinComponentKind? {
+  match value {
+    "Name" => Some(Name)
+    "Transform2d" => Some(Transform2d)
+    "Visibility" => Some(Visibility)
+    "Sprite" => Some(Sprite)
+    "TextureAtlas" => Some(TextureAtlas)
+    "Text2d" => Some(Text2d)
+    "Mesh2d" => Some(Mesh2d)
+    "ColorMaterial" => Some(ColorMaterial)
+    "Camera2d" => Some(Camera2d)
+    "PhysicsBody2d" => Some(PhysicsBody2d)
+    "PhysicsCollider2d" => Some(PhysicsCollider2d)
+    "AnimationPlayer" => Some(AnimationPlayer)
+    "AnimationTransitions" => Some(AnimationTransitions)
+    _ => None
+  }
+}
+
+///|
+pub fn builtin_component_category(kind : BuiltinComponentKind) -> String {
+  match kind {
+    Name | Transform2d | Visibility => "Common"
+    Sprite | TextureAtlas | Text2d | Mesh2d | ColorMaterial | Camera2d =>
+      "Rendering"
+    PhysicsBody2d | PhysicsCollider2d => "Physics2D"
+    AnimationPlayer | AnimationTransitions => "Animation"
+  }
+}
+
+///|
+pub fn required_builtin_components(
+  kind : BuiltinComponentKind,
+) -> Array[BuiltinComponentKind] {
+  match kind {
+    TextureAtlas => [Sprite]
+    AnimationPlayer => [TextureAtlas]
+    AnimationTransitions => [AnimationPlayer]
+    ColorMaterial => [Mesh2d]
+    _ => []
+  }
+}
+
+///|
+pub fn removable_builtin_component(kind : BuiltinComponentKind) -> Bool {
+  kind != Transform2d
+}
+
+///|
+pub fn default_component_document(
+  kind : BuiltinComponentKind,
+) -> ComponentDocument {
+  match kind {
+    Name => name_component("Entity")
+    Transform2d => transform2d_component()
+    Visibility => visibility_component()
+    Sprite => sprite_component()
+    TextureAtlas => texture_atlas_component()
+    Text2d => text2d_component("Text")
+    Mesh2d => mesh2d_component("rectangle", size=Some(vec2_doc(32.0, 32.0)))
+    ColorMaterial => color_material_component()
+    Camera2d => camera2d_component()
+    PhysicsBody2d => physics_body2d_component()
+    PhysicsCollider2d => physics_collider2d_component()
+    AnimationPlayer => animation_player_component()
+    AnimationTransitions => animation_transitions_component()
+  }
 }
 
 ///|

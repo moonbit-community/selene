@@ -890,3 +890,63 @@ pub async fn EditorHarness::when_selected_entity_is_deleted(
 ) -> Unit {
   self.dispatch(@app.msg_delete_selected())
 }
+
+///|
+pub async fn EditorHarness::when_add_component_panel_is_opened(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(@app.msg_open_add_component_panel())
+}
+
+///|
+pub async fn EditorHarness::when_builtin_component_is_added(
+  self : EditorHarness,
+  kind : @editor_bridge.BuiltinComponentKind,
+) -> Unit {
+  self.dispatch(@app.msg_add_builtin_component(kind))
+}
+
+///|
+pub async fn EditorHarness::when_component_is_removed(
+  self : EditorHarness,
+  kind : String,
+) -> Unit {
+  self.dispatch(@app.msg_remove_component(kind))
+}
+
+///|
+pub async fn EditorHarness::when_custom_component_is_added(
+  self : EditorHarness,
+  kind : String,
+) -> Unit {
+  self.dispatch(@app.msg_add_custom_component(kind))
+}
+
+///|
+pub async fn EditorHarness::when_custom_component_json_is_edited(
+  self : EditorHarness,
+  kind : String,
+  value : String,
+) -> Unit {
+  self.dispatch(@app.msg_update_custom_component_json(kind, value))
+}
+
+///|
+pub async fn EditorHarness::when_custom_component_json_is_committed(
+  self : EditorHarness,
+  kind : String,
+) -> Unit {
+  self.dispatch(@app.msg_commit_custom_component_json(kind))
+}
+
+///|
+pub fn EditorHarness::entity_has_component(
+  self : EditorHarness,
+  entity_id : String,
+  kind : String,
+) -> Bool {
+  match self.entity(entity_id) {
+    Some(entity) => entity.component(kind) is Some(_)
+    None => false
+  }
+}

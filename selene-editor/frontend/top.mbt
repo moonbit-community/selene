@@ -1126,105 +1126,369 @@ fn labeled_input_with_commit(
 }
 
 ///|
-fn selected_transform_view(
+fn transform_component_body(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  transform : @editor_bridge.Transform2dComponent,
+) -> @rabbita.Html {
+  @html.div(class="inspector-block", [
+    labeled_input_with_commit(
+      "X",
+      transform.translation.x.to_string(),
+      fn(value) { dispatch(@app.msg_update_selected_translate_x(value)) },
+      fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+    ),
+    labeled_input_with_commit(
+      "Y",
+      transform.translation.y.to_string(),
+      fn(value) { dispatch(@app.msg_update_selected_translate_y(value)) },
+      fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+    ),
+    labeled_input_with_commit(
+      "Rotation",
+      transform.rotation.to_string(),
+      fn(value) { dispatch(@app.msg_update_selected_rotation(value)) },
+      fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+    ),
+  ])
+}
+
+///|
+fn text_component_body(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  text_component : @editor_bridge.Text2dComponent,
+) -> @rabbita.Html {
+  @html.div(class="inspector-block", [
+    labeled_input_with_commit(
+      "Content",
+      text_component.content,
+      fn(value) { dispatch(@app.msg_update_selected_text(value)) },
+      fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+    ),
+  ])
+}
+
+///|
+fn sprite_component_body(
+  sprite_component : @editor_bridge.SpriteComponent,
+) -> @rabbita.Html {
+  @html.div(class="inspector-block", [
+    @html.div(class="kv", [
+      @html.span(class="kv-key", "Image"),
+      @html.span(
+        class="kv-value",
+        sprite_component.image_path.unwrap_or("(none)"),
+      ),
+    ]),
+    @html.div(class="kv", [
+      @html.span(class="kv-key", "Mode"),
+      @html.span(class="kv-value", sprite_component.image_mode),
+    ]),
+  ])
+}
+
+///|
+fn visibility_component_body(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  visibility_component : @editor_bridge.VisibilityComponent,
+) -> @rabbita.Html {
+  @html.div(class="inspector-block", [
+    @html.button(
+      class="small-button",
+      on_click=dispatch(@app.msg_toggle_selected_visibility()),
+      if visibility_component.visible {
+        "Visible"
+      } else {
+        "Hidden"
+      },
+    ),
+  ])
+}
+
+///|
+fn custom_component_body(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.Model,
+  entity : @editor_bridge.EntityDocument,
+  component : @editor_bridge.ComponentDocument,
 ) -> @rabbita.Html {
-  match model.selected_entity() {
-    Some(entity) => {
+  let draft = model.custom_component_json_draft(
+    entity.id,
+    component.kind,
+    component.data,
+  )
+  let error = model.custom_component_json_error(entity.id, component.kind)
+  @html.div(class="inspector-block", [
+    @html.div(class="kv", [
+      @html.span(class="kv-key", "Kind"),
+      @html.span(class="kv-value", component.kind),
+    ]),
+    @html.textarea(
+      class="field-input custom-json-editor",
+      value=draft,
+      placeholder="{\"hp\": 10}",
+      on_input=fn(value) {
+        dispatch(@app.msg_update_custom_component_json(component.kind, value))
+      },
+      @html.nothing,
+    ),
+    match error {
+      Some(message) => @html.div(class="component-error", message)
+      None => @html.nothing
+    },
+    @html.div(class="inspector-actions", [
+      @html.button(
+        class="small-button",
+        on_click=dispatch(@app.msg_commit_custom_component_json(component.kind)),
+        "Apply JSON",
+      ),
+    ]),
+  ])
+}
+
+///|
+fn component_body_view(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  model : @app.Model,
+  entity : @editor_bridge.EntityDocument,
+  component : @editor_bridge.ComponentDocument,
+) -> @rabbita.Html {
+  match component.kind {
+    "Transform2d" => {
       let transform : @editor_bridge.Transform2dComponent? = @app.component_of(
         entity, "Transform2d",
       )
       match transform {
-        Some(transform) =>
-          @html.div(class="inspector-block", [
-            @html.h3("Transform2d"),
-            labeled_input_with_commit(
-              "X",
-              transform.translation.x.to_string(),
-              fn(value) {
-                dispatch(@app.msg_update_selected_translate_x(value))
-              },
-              fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
-            ),
-            labeled_input_with_commit(
-              "Y",
-              transform.translation.y.to_string(),
-              fn(value) {
-                dispatch(@app.msg_update_selected_translate_y(value))
-              },
-              fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
-            ),
-            labeled_input_with_commit(
-              "Rotation",
-              transform.rotation.to_string(),
-              fn(value) { dispatch(@app.msg_update_selected_rotation(value)) },
-              fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
-            ),
-          ])
-        None => @html.nothing
+        Some(transform) => transform_component_body(dispatch, transform)
+        None => @html.div(class="component-error", "Invalid Transform2d data")
       }
     }
-    None => @html.nothing
-  }
-}
-
-///|
-fn selected_text_view(
-  dispatch : @rabbita.Dispatch[@app.Msg],
-  model : @app.Model,
-) -> @rabbita.Html {
-  match model.selected_entity() {
-    Some(entity) => {
-      let text_component : @editor_bridge.Text2dComponent? = @app.component_of(
-        entity, "Text2d",
+    "Visibility" => {
+      let visibility_component : @editor_bridge.VisibilityComponent? = @app.component_of(
+        entity, "Visibility",
       )
-      match text_component {
-        Some(text_component) =>
-          @html.div(class="inspector-block", [
-            @html.h3("Text2d"),
-            labeled_input_with_commit(
-              "Content",
-              text_component.content,
-              fn(value) { dispatch(@app.msg_update_selected_text(value)) },
-              fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
-            ),
-          ])
-        None => @html.nothing
+      match visibility_component {
+        Some(visibility_component) =>
+          visibility_component_body(dispatch, visibility_component)
+        None => @html.div(class="component-error", "Invalid Visibility data")
       }
     }
-    None => @html.nothing
-  }
-}
-
-///|
-fn selected_sprite_view(model : @app.Model) -> @rabbita.Html {
-  match model.selected_entity() {
-    Some(entity) => {
+    "Sprite" => {
       let sprite_component : @editor_bridge.SpriteComponent? = @app.component_of(
         entity, "Sprite",
       )
       match sprite_component {
-        Some(sprite_component) =>
-          @html.div(class="inspector-block", [
-            @html.h3("Sprite"),
-            @html.div(class="kv", [
-              @html.span(class="kv-key", "Image"),
-              @html.span(
-                class="kv-value",
-                sprite_component.image_path.unwrap_or("(none)"),
-              ),
-            ]),
-            @html.div(class="kv", [
-              @html.span(class="kv-key", "Mode"),
-              @html.span(class="kv-value", sprite_component.image_mode),
-            ]),
-          ])
-        None => @html.nothing
+        Some(sprite_component) => sprite_component_body(sprite_component)
+        None => @html.div(class="component-error", "Invalid Sprite data")
       }
     }
-    None => @html.nothing
+    "Text2d" => {
+      let text_component : @editor_bridge.Text2dComponent? = @app.component_of(
+        entity, "Text2d",
+      )
+      match text_component {
+        Some(text_component) => text_component_body(dispatch, text_component)
+        None => @html.div(class="component-error", "Invalid Text2d data")
+      }
+    }
+    _ =>
+      match @editor_bridge.builtin_component_kind_from_string(component.kind) {
+        Some(_) =>
+          @html.div(class="kv-value", component.data.stringify(indent=2))
+        None => custom_component_body(dispatch, model, entity, component)
+      }
   }
+}
+
+///|
+fn remove_component_menu_item(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  model : @app.Model,
+  component : @editor_bridge.ComponentDocument,
+) -> @rabbita.Html {
+  let reason = model.selected_component_remove_block_reason(component.kind)
+  @html.button(
+    class=if reason is Some(_) {
+      "small-button component-menu-item disabled"
+    } else {
+      "small-button component-menu-item"
+    },
+    on_click=if reason is Some(_) {
+      @cmd.none
+    } else {
+      dispatch(@app.msg_remove_component(component.kind))
+    },
+    attrs=if reason is Some(reason) {
+      hint_attrs(dispatch, reason)
+    } else {
+      hint_attrs(dispatch, "Remove Component")
+    },
+    "Remove Component",
+  )
+}
+
+///|
+fn component_card(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  model : @app.Model,
+  entity : @editor_bridge.EntityDocument,
+  component : @editor_bridge.ComponentDocument,
+) -> @rabbita.Html {
+  let collapsed = model.component_card_collapsed(entity.id, component.kind)
+  let menu_open = model.component_menu_is_open(component.kind)
+  @html.div(class="component-card", [
+    @html.div(class="component-card-header", [
+      @html.button(
+        class="component-card-toggle",
+        on_click=dispatch(@app.msg_toggle_component_collapsed(component.kind)),
+        if collapsed {
+          "▸"
+        } else {
+          "▾"
+        },
+      ),
+      @html.span(class="component-card-title", component.kind),
+      @html.button(
+        class="component-card-menu-toggle",
+        on_click=dispatch(@app.msg_toggle_component_menu(Some(component.kind))),
+        "⋮",
+      ),
+    ]),
+    if menu_open {
+      @html.div(class="component-card-menu", [
+        remove_component_menu_item(dispatch, model, component),
+      ])
+    } else {
+      @html.nothing
+    },
+    if collapsed {
+      @html.nothing
+    } else {
+      @html.div(class="component-card-body", [
+        component_body_view(dispatch, model, entity, component),
+      ])
+    },
+  ])
+}
+
+///|
+fn add_component_group(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  model : @app.Model,
+  entity : @editor_bridge.EntityDocument,
+  title : String,
+  kinds : Array[@editor_bridge.BuiltinComponentKind],
+) -> @rabbita.Html {
+  let buttons : Array[@rabbita.Html] = []
+  for kind in kinds {
+    if @editor_bridge.builtin_component_category(kind) != title {
+      continue
+    }
+    if !model.builtin_component_matches_query(kind) {
+      continue
+    }
+    let kind_name = @editor_bridge.builtin_component_kind_to_string(kind)
+    let exists = entity.component(kind_name) is Some(_)
+    buttons.push(
+      @html.button(
+        class=if exists {
+          "small-button component-add-item existing"
+        } else {
+          "small-button component-add-item"
+        },
+        on_click=dispatch(@app.msg_add_builtin_component(kind)),
+        if exists {
+          kind_name + " (Added)"
+        } else {
+          kind_name
+        },
+      ),
+    )
+  }
+  if buttons.is_empty() {
+    @html.nothing
+  } else {
+    @html.div(class="component-add-group", [
+      @html.div(class="component-add-group-title", title),
+      @html.div(class="component-add-list", buttons),
+    ])
+  }
+}
+
+///|
+fn add_component_panel(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  model : @app.Model,
+  entity : @editor_bridge.EntityDocument,
+) -> @rabbita.Html {
+  let groups = [
+    add_component_group(
+      dispatch,
+      model,
+      entity,
+      "Common",
+      @editor_bridge.builtin_component_kinds(),
+    ),
+    add_component_group(
+      dispatch,
+      model,
+      entity,
+      "Rendering",
+      @editor_bridge.builtin_component_kinds(),
+    ),
+    add_component_group(
+      dispatch,
+      model,
+      entity,
+      "Physics2D",
+      @editor_bridge.builtin_component_kinds(),
+    ),
+    add_component_group(
+      dispatch,
+      model,
+      entity,
+      "Animation",
+      @editor_bridge.builtin_component_kinds(),
+    ),
+  ]
+  @html.div(class="component-add-panel", [
+    @html.div(class="component-add-header", [
+      @html.span(class="component-add-title", "Add Component"),
+      @html.button(
+        class="small-button component-add-close",
+        on_click=dispatch(@app.msg_close_add_component_panel()),
+        "×",
+      ),
+    ]),
+    @html.input(
+      class="field-input component-search-input",
+      value=model.component_search_query,
+      placeholder="Search components...",
+      on_input=fn(value) {
+        dispatch(@app.msg_set_component_search_query(value))
+      },
+      @html.nothing,
+    ),
+    @html.div(class="component-add-groups", groups),
+    @html.div(class="component-add-group custom", [
+      @html.div(class="component-add-group-title", "Custom"),
+      @html.input(
+        class="field-input",
+        value=model.add_custom_component_kind,
+        placeholder="Custom component kind",
+        on_input=fn(value) {
+          dispatch(@app.msg_update_add_custom_component_kind(value))
+        },
+        @html.nothing,
+      ),
+      @html.button(
+        class="small-button component-add-item",
+        on_click=dispatch(
+          @app.msg_add_custom_component(model.add_custom_component_kind),
+        ),
+        "New Custom JSON Component",
+      ),
+    ]),
+  ])
 }
 
 ///|
@@ -1494,37 +1758,6 @@ fn selected_asset_view(
 }
 
 ///|
-fn selected_visibility_view(
-  dispatch : @rabbita.Dispatch[@app.Msg],
-  model : @app.Model,
-) -> @rabbita.Html {
-  match model.selected_entity() {
-    Some(entity) => {
-      let visibility_component : @editor_bridge.VisibilityComponent? = @app.component_of(
-        entity, "Visibility",
-      )
-      match visibility_component {
-        Some(visibility_component) =>
-          @html.div(class="inspector-block", [
-            @html.h3("Visibility"),
-            @html.button(
-              class="small-button",
-              on_click=dispatch(@app.msg_toggle_selected_visibility()),
-              if visibility_component.visible {
-                "Visible"
-              } else {
-                "Hidden"
-              },
-            ),
-          ])
-        None => @html.nothing
-      }
-    }
-    None => @html.nothing
-  }
-}
-
-///|
 fn toolbar_button(
   dispatch : @rabbita.Dispatch[@app.Msg],
   current : @shared.PreviewTool,
@@ -1667,7 +1900,10 @@ fn view(
     None => [@html.div(class="empty", "No scene loaded")]
   }
   let inspector = match model.selected_entity() {
-    Some(entity) =>
+    Some(entity) => {
+      let component_cards = entity.components.map(fn(component) {
+        component_card(dispatch, model, entity, component)
+      })
       @html.div(class="panel-body", [
         labeled_input_with_commit(
           "Name",
@@ -1681,12 +1917,20 @@ fn view(
             on_click=dispatch(@app.msg_save_selected_as_prefab()),
             "Save As Prefab",
           ),
+          @html.button(
+            class="small-button",
+            on_click=dispatch(@app.msg_open_add_component_panel()),
+            "Add Component",
+          ),
         ]),
-        selected_transform_view(dispatch, model),
-        selected_visibility_view(dispatch, model),
-        selected_sprite_view(model),
-        selected_text_view(dispatch, model),
+        @html.div(class="component-stack", component_cards),
+        if model.add_component_panel_open {
+          add_component_panel(dispatch, model, entity)
+        } else {
+          @html.nothing
+        },
       ])
+    }
     None => selected_asset_view(dispatch, model)
   }
   let body = @html.div(class="editor-root", [

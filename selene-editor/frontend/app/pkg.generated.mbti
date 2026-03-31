@@ -13,6 +13,10 @@ pub fn[T : @json.FromJson] component_of(@editor_bridge.EntityDocument, String) -
 
 pub fn entity_label(@editor_bridge.EntityDocument) -> String
 
+pub fn msg_add_builtin_component(@editor_bridge.BuiltinComponentKind) -> Msg
+
+pub fn msg_add_custom_component(String) -> Msg
+
 pub fn msg_add_sprite_entity() -> Msg
 
 pub fn msg_add_sprite_from_asset(String) -> Msg
@@ -35,6 +39,10 @@ pub fn msg_atlas_loaded(Result[@shared.AtlasLoadResponse, String]) -> Msg
 
 pub fn msg_cancel_scene_migration() -> Msg
 
+pub fn msg_close_add_component_panel() -> Msg
+
+pub fn msg_commit_custom_component_json(String) -> Msg
+
 pub fn msg_commit_scene_edit_transaction() -> Msg
 
 pub fn msg_confirm_scene_migration() -> Msg
@@ -55,6 +63,8 @@ pub fn msg_initialize() -> Msg
 
 pub fn msg_insert_selected_resource() -> Msg
 
+pub fn msg_open_add_component_panel() -> Msg
+
 pub fn msg_open_project() -> Msg
 
 pub fn msg_open_scene(String) -> Msg
@@ -72,6 +82,8 @@ pub fn msg_project_root_picked(Result[@shared.DirectoryPickResult, String]) -> M
 pub fn msg_redo_scene() -> Msg
 
 pub fn msg_reload_scene() -> Msg
+
+pub fn msg_remove_component(String) -> Msg
 
 pub fn msg_rename_current_scene(String) -> Msg
 
@@ -101,6 +113,8 @@ pub fn msg_service_event(Result[@shared.EditorEvent, String]) -> Msg
 
 pub fn msg_set_asset_query(String) -> Msg
 
+pub fn msg_set_component_search_query(String) -> Msg
+
 pub fn msg_set_current_scene_as_startup() -> Msg
 
 pub fn msg_set_hover_hint(String?) -> Msg
@@ -115,6 +129,10 @@ pub fn msg_toggle_animations_section() -> Msg
 
 pub fn msg_toggle_atlases_section() -> Msg
 
+pub fn msg_toggle_component_collapsed(String) -> Msg
+
+pub fn msg_toggle_component_menu(String?) -> Msg
+
 pub fn msg_toggle_images_section() -> Msg
 
 pub fn msg_toggle_move_snap() -> Msg
@@ -126,6 +144,10 @@ pub fn msg_toggle_selected_animation_clip_looping() -> Msg
 pub fn msg_toggle_selected_visibility() -> Msg
 
 pub fn msg_undo_scene() -> Msg
+
+pub fn msg_update_add_custom_component_kind(String) -> Msg
+
+pub fn msg_update_custom_component_json(String, String) -> Msg
 
 pub fn msg_update_selected_animation_clip_fps(String) -> Msg
 
@@ -217,6 +239,13 @@ pub struct Model {
   workspace : @editor_bridge.WorkspaceDocument
   selected_resource : ResourceSelection?
   selected_entity_id : String?
+  add_component_panel_open : Bool
+  component_search_query : String
+  open_component_menu_kind : String?
+  collapsed_component_cards : Map[String, Bool]
+  add_custom_component_kind : String
+  custom_component_json_drafts : Map[String, String]
+  custom_component_json_errors : Map[String, String]
   pending_scene_migration : @editor_bridge.SceneMigrationPreview?
   undo_stack : Array[@editor_bridge.SceneDocument]
   redo_stack : Array[@editor_bridge.SceneDocument]
@@ -236,11 +265,18 @@ pub struct Model {
 pub fn Model::asset_matches_query(Self, String, String) -> Bool
 pub fn Model::asset_query_normalized(Self) -> String
 pub fn Model::asset_size(Self, String) -> @editor_bridge.Vec2Doc?
+pub fn Model::builtin_component_matches_query(Self, @editor_bridge.BuiltinComponentKind) -> Bool
 pub fn Model::can_redo(Self) -> Bool
 pub fn Model::can_undo(Self) -> Bool
+pub fn Model::component_card_collapsed(Self, String, String) -> Bool
+pub fn Model::component_menu_is_open(Self, String) -> Bool
+pub fn Model::component_search_query_normalized(Self) -> String
+pub fn Model::custom_component_json_draft(Self, String, String, Json) -> String
+pub fn Model::custom_component_json_error(Self, String, String) -> String?
 pub fn Model::image_assets(Self) -> Array[@editor_bridge.AssetDocument]
 pub fn Model::selected_animation_document(Self) -> (String, @editor_bridge.AnimationAssetDocument)?
 pub fn Model::selected_atlas_document(Self) -> (String, @editor_bridge.AtlasAssetDocument)?
+pub fn Model::selected_component_remove_block_reason(Self, String) -> String?
 pub fn Model::selected_entity(Self) -> @editor_bridge.EntityDocument?
 pub fn Model::selected_image_asset(Self) -> @editor_bridge.AssetDocument?
 pub fn Model::selected_prefab_document(Self) -> (String, @editor_bridge.PrefabDocument)?
@@ -290,6 +326,17 @@ pub enum Msg {
   CreateAnimationFromSelectedAtlas
   SaveSelectedAsPrefab
   InsertSelectedResource
+  OpenAddComponentPanel
+  CloseAddComponentPanel
+  SetComponentSearchQuery(String)
+  ToggleComponentCollapsed(String)
+  ToggleComponentMenu(String?)
+  AddBuiltinComponent(@editor_bridge.BuiltinComponentKind)
+  RemoveComponent(String)
+  UpdateAddCustomComponentKind(String)
+  AddCustomComponent(String)
+  UpdateCustomComponentJson(String, String)
+  CommitCustomComponentJson(String)
   UpdateSelectedPrefabName(String)
   SaveSelectedPrefab
   UpdateSelectedAtlasName(String)

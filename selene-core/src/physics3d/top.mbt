@@ -1195,7 +1195,11 @@ pub fn physics_step_system(delta : Double) -> Unit {
     world.colliders,
     world.event_handler,
   )
-  world.impulse_joints.solve(world.bodies, Float::from_double(delta))
+  world.impulse_joints.solve(
+    world.bodies,
+    Float::from_double(delta),
+    world.integration.num_solver_iterations,
+  )
   world.rope_joints.solve(world.bodies, Float::from_double(delta))
   world.multibody_joints.sync_rigid_bodies_from_multibodies(world.bodies)
 
@@ -2187,150 +2191,59 @@ fn spherical_joint_to_rapier(
 fn multibody_joint_to_rapier(
   joint : Joint,
   contacts_enabled? : Bool = true,
-) -> @dynamics.GenericJoint? {
+) -> @dynamics.GenericJoint3DReal? {
   match joint {
-    Fixed(fixed_joint) => {
-      let anchor1 = fixed_joint.local_anchor1.to_rapier()
-      let anchor2 = fixed_joint.local_anchor2.to_rapier()
-      let frame1 = @core.Isometry2::new(
-        @core.Vec2::new(anchor1.x, anchor1.y),
-        @core.Rot2::from_angle(
-          fixed_joint.local_basis1.to_rapier().to_scaled_axis().z,
-        ),
-      )
-      let frame2 = @core.Isometry2::new(
-        @core.Vec2::new(anchor2.x, anchor2.y),
-        @core.Rot2::from_angle(
-          fixed_joint.local_basis2.to_rapier().to_scaled_axis().z,
-        ),
-      )
-      Some(
-        @dynamics.GenericJoint::default()
-        .set_local_frame1(frame1)
-        .set_local_frame2(frame2)
-        .set_locked_axes(@dynamics.JointAxesMask::all())
-        .set_contacts_enabled(contacts_enabled),
-      )
-    }
-    Revolute(revolute_joint) => {
-      let mut builder = @dynamics.RevoluteJointBuilder3::new(
-        revolute_joint.axis.to_rapier(),
-      )
-      builder = builder
-        .local_anchor1(revolute_joint.local_anchor1.to_rapier())
-        .local_anchor2(revolute_joint.local_anchor2.to_rapier())
-      if revolute_joint.limits is Some((min, max)) {
-        builder = builder.limits(
-          Float::from_double(min),
-          Float::from_double(max),
-        )
-      }
-      if revolute_joint.motor_position is Some((target, stiffness, damping)) {
-        builder = builder.motor_position(
-          Float::from_double(target),
-          Float::from_double(stiffness),
-          Float::from_double(damping),
-        )
-      }
-      if revolute_joint.motor_velocity is Some((target, factor)) {
-        builder = builder.motor_velocity(
-          Float::from_double(target),
-          Float::from_double(factor),
-        )
-      }
-      if revolute_joint.max_force is Some(max_force) {
-        builder = builder.motor_max_force(Float::from_double(max_force))
-      }
-      Some(
-        @dynamics.GenericJoint::from_revolute(builder.build()).set_contacts_enabled(
-          contacts_enabled,
-        ),
-      )
-    }
-    Prismatic(prismatic_joint) => {
-      let mut builder = @dynamics.PrismaticJointBuilder3::new(
-        prismatic_joint.axis.to_rapier(),
-      )
-      builder = builder
-        .local_anchor1(prismatic_joint.local_anchor1.to_rapier())
-        .local_anchor2(prismatic_joint.local_anchor2.to_rapier())
-      if prismatic_joint.limits is Some((min, max)) {
-        builder = builder.limits(
-          Float::from_double(min),
-          Float::from_double(max),
-        )
-      }
-      if prismatic_joint.motor_position is Some((target, stiffness, damping)) {
-        builder = builder.motor_position(
-          Float::from_double(target),
-          Float::from_double(stiffness),
-          Float::from_double(damping),
-        )
-      }
-      if prismatic_joint.motor_velocity is Some((target, factor)) {
-        builder = builder.motor_velocity(
-          Float::from_double(target),
-          Float::from_double(factor),
-        )
-      }
-      if prismatic_joint.max_force is Some(max_force) {
-        builder = builder.motor_max_force(Float::from_double(max_force))
-      }
-      Some(
-        @dynamics.GenericJoint::from_prismatic(builder.build()).set_contacts_enabled(
-          contacts_enabled,
-        ),
-      )
-    }
+    Fixed(fixed_joint) =>
+      Some(fixed_joint_to_rapier(fixed_joint, contacts_enabled~))
+    Revolute(revolute_joint) =>
+      Some(revolute_joint_to_rapier(revolute_joint, contacts_enabled~))
+    Prismatic(prismatic_joint) =>
+      Some(prismatic_joint_to_rapier(prismatic_joint, contacts_enabled~))
     Rope(rope_joint) => {
-      let builder = @dynamics.RopeJointBuilder3::new(
+      let generic = @dynamics.GenericJoint::from_rope(
+        @dynamics.RopeJointBuilder3::new(
           Float::from_double(rope_joint.max_distance),
         )
         .local_anchor1(rope_joint.local_anchor1.to_rapier())
         .local_anchor2(rope_joint.local_anchor2.to_rapier())
-      Some(
-        @dynamics.GenericJoint::from_rope(builder.build()).set_contacts_enabled(
-          contacts_enabled,
-        ),
-      )
+        .build(),
+      ).set_contacts_enabled(contacts_enabled)
+      Some(generic.to_3d_real())
     }
     Spherical(spherical_joint) => {
-      let anchor1 = spherical_joint.local_anchor1.to_rapier()
-      let anchor2 = spherical_joint.local_anchor2.to_rapier()
-      let mut data = @dynamics.GenericJoint::new(
-          @dynamics.JointAxesMask::locked_spherical_axes(),
+      let mut builder = @dynamics.GenericJoint3DRealBuilder::new(
+          @dynamics.JointAxesMask3DReal::lin_axes(),
         )
-        .set_contacts_enabled(contacts_enabled)
-        .set_local_anchor1(@core.Vec2::new(anchor1.x, anchor1.y))
-        .set_local_anchor2(@core.Vec2::new(anchor2.x, anchor2.y))
+        .contacts_enabled(contacts_enabled)
+        .local_anchor1(spherical_joint.local_anchor1.to_rapier())
+        .local_anchor2(spherical_joint.local_anchor2.to_rapier())
       if spherical_joint.motor_target is Some((target, stiffness, damping)) {
         let axis = target.to_rapier().to_scaled_axis()
-        data = data
-          .set_motor_position(
-            @dynamics.JointAxis::AngX,
+        builder = builder
+          .motor_position(
+            JointAxis::AngX,
             axis.x,
             Float::from_double(stiffness),
             Float::from_double(damping),
           )
-          .set_motor_position(
-            @dynamics.JointAxis::AngY,
+          .motor_position(
+            JointAxis::AngY,
             axis.y,
             Float::from_double(stiffness),
             Float::from_double(damping),
           )
-          .set_motor_position(
-            @dynamics.JointAxis::AngZ,
+          .motor_position(
+            JointAxis::AngZ,
             axis.z,
             Float::from_double(stiffness),
             Float::from_double(damping),
           )
       }
-      Some(data)
+      Some(builder.build())
     }
     Spring(spring_joint) => {
-      // Moon Rapier multibody insert expects GenericJoint; we map spring semantics
-      // to a rope joint with spring motor targeting the configured rest length.
-      let builder = @dynamics.RopeJointBuilder3::new(
+      let generic = @dynamics.GenericJoint::from_rope(
+        @dynamics.RopeJointBuilder3::new(
           Float::from_double(spring_joint.rest_length),
         )
         .local_anchor1(spring_joint.local_anchor1.to_rapier())
@@ -2340,11 +2253,9 @@ fn multibody_joint_to_rapier(
           Float::from_double(spring_joint.stiffness),
           Float::from_double(spring_joint.damping),
         )
-      Some(
-        @dynamics.GenericJoint::from_rope(builder.build()).set_contacts_enabled(
-          contacts_enabled,
-        ),
-      )
+        .build(),
+      ).set_contacts_enabled(contacts_enabled)
+      Some(generic.to_3d_real())
     }
   }
 }

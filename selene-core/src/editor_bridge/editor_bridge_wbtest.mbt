@@ -42,6 +42,63 @@ test "document file names are normalized from project names" {
 }
 
 ///|
+test "builtin component kind mapping and defaults stay aligned" {
+  let kinds = builtin_component_kinds()
+  let names = kinds.map(fn(kind) { builtin_component_kind_to_string(kind) })
+  inspect(
+    names.join(","),
+    content="Name,Transform2d,Visibility,Sprite,TextureAtlas,Text2d,Mesh2d,ColorMaterial,Camera2d,PhysicsBody2d,PhysicsCollider2d,AnimationPlayer,AnimationTransitions",
+  )
+  let mut round_trip_ok = true
+  let mut defaults_ok = true
+  for kind in kinds {
+    let kind_name = builtin_component_kind_to_string(kind)
+    if builtin_component_kind_from_string(kind_name) != Some(kind) {
+      round_trip_ok = false
+    }
+    let default_component = default_component_document(kind)
+    if default_component.kind != kind_name {
+      defaults_ok = false
+    }
+    if builtin_component_kind_from_string(default_component.kind) is None {
+      defaults_ok = false
+    }
+  }
+  inspect(round_trip_ok, content="true")
+  inspect(defaults_ok, content="true")
+}
+
+///|
+test "builtin component dependencies and removability follow the inspector rules" {
+  inspect(
+    required_builtin_components(TextureAtlas)
+    .map(fn(kind) { builtin_component_kind_to_string(kind) })
+    .join(","),
+    content="Sprite",
+  )
+  inspect(
+    required_builtin_components(AnimationPlayer)
+    .map(fn(kind) { builtin_component_kind_to_string(kind) })
+    .join(","),
+    content="TextureAtlas",
+  )
+  inspect(
+    required_builtin_components(AnimationTransitions)
+    .map(fn(kind) { builtin_component_kind_to_string(kind) })
+    .join(","),
+    content="AnimationPlayer",
+  )
+  inspect(
+    required_builtin_components(ColorMaterial)
+    .map(fn(kind) { builtin_component_kind_to_string(kind) })
+    .join(","),
+    content="Mesh2d",
+  )
+  inspect(removable_builtin_component(Transform2d), content="false")
+  inspect(removable_builtin_component(Sprite), content="true")
+}
+
+///|
 test "scene document round trip" {
   let scene = SceneDocument::{
     version: scene_schema_version,

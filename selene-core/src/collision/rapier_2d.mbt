@@ -57,7 +57,7 @@ priv struct PhysicsWorld {
   colliders : @rapier_collision.ColliderSet
   impulse_joints : @rapier_dynamics.ImpulseJointSet
   multibody_joints : @rapier_dynamics.MultibodyJointSet
-  ccd_solver : @rapier_dynamics.CCDSolver
+  ccd_solver : @rapier_dynamics_ccd.CCDSolver
   event_handler : @rapier_pipeline.EventHandler
   entity_bodies : Map[@entity.Entity, @rapier_dynamics.RigidBodyHandle]
   entity_colliders : Map[@entity.Entity, @rapier_collision.ColliderHandle]
@@ -109,7 +109,7 @@ fn physics_world_runtime() -> PhysicsWorldRuntime {
       colliders: @rapier_collision.ColliderSet::new(),
       impulse_joints: @rapier_dynamics.ImpulseJointSet::new(),
       multibody_joints: @rapier_dynamics.MultibodyJointSet::new(),
-      ccd_solver: @rapier_dynamics.CCDSolver::new(),
+      ccd_solver: @rapier_dynamics_ccd.CCDSolver::new(),
       event_handler: @rapier_pipeline.EventHandler::new(),
       entity_bodies: Map::new(),
       entity_colliders: Map::new(),

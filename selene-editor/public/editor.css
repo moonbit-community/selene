@@ -568,6 +568,133 @@ input {
   margin-bottom: 12px;
 }
 
+.component-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.component-card {
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+}
+
+.component-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.component-card-toggle,
+.component-card-menu-toggle {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.component-card-title {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.component-card-menu {
+  padding: 0 8px 8px;
+}
+
+.component-menu-item {
+  width: 100%;
+  text-align: left;
+}
+
+.component-card-body {
+  padding: 10px;
+}
+
+.component-card-body .inspector-block {
+  margin: 0;
+}
+
+.component-add-panel {
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.component-add-header {
+  display: flex;
+  align-items: center;
+}
+
+.component-add-title {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.component-add-close {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+.component-add-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.component-add-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.component-add-group-title {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.component-add-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.component-add-item {
+  min-height: 34px;
+}
+
+.component-add-item.existing {
+  border-style: dashed;
+  opacity: 0.82;
+}
+
+.custom-json-editor {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.component-error {
+  color: #ff8f8f;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
 .modal-backdrop {
   position: absolute;
   inset: 0;

@@ -4,11 +4,20 @@
 
 ### Added
 
+- Added `selene/editor_bridge` built-in component metadata APIs for editor-facing component workflows: `BuiltinComponentKind`, string/enum mapping helpers, category/dependency queries, removability checks, default component factories, and ordered built-in component enumeration.
+
 ### Changed
+
+- Changed `selene-core` and `examples` to use `Milky2018/moon_rapier@0.4.0`.
+- Changed `selene-editor` Entity Inspector to a Unity-style component stack with per-component cards, collapse state, card action menus, and an integrated `Add Component` search panel.
+- Changed `selene-editor` entity component editing flow to support built-in component add/remove with strong dependency rules (`auto-add required chain` + `block destructive removal`) and transactional undo/redo.
+- Changed `selene-editor` custom gameplay component authoring flow to support generic JSON components (`kind + data`) with draft validation and explicit commit to scene state.
 
 ### Fixed
 
 - Fixed `selene-raylib` fallback text rendering/measurement spacing to use raylib-compatible default spacing (`1.0`) instead of `0.0`, reducing compressed default-font appearance when cosmic text rendering is unavailable.
+- Fixed `selene/physics3d` moon_rapier `0.4.0` integration by updating multibody joint conversion to `GenericJoint3DReal` and driving `JointSet3DReal::solve` with `IntegrationParameters.num_solver_iterations`.
+- Fixed `selene/collision` moon_rapier `0.4.0` compatibility by switching 2D pipeline CCD solver wiring from `dynamics.CCDSolver` to `dynamics_ccd.CCDSolver`.
 
 ### Removed
 

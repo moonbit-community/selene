@@ -221,3 +221,80 @@ async test "bdd happy path persists scene browser and prefab inspector edits" {
     inspect(prefab.name, content="dialog_text")
   })
 }
+
+///|
+async test "bdd happy path add component auto-fills dependencies and survives reopen" {
+  @async.with_task_group(group => {
+    let harness = given_editor_harness()
+    group.add_defer(() => harness.cleanup())
+
+    harness.when_editor_initialized()
+    harness.when_scene_tree_selects_entity(Some("camera"))
+    harness.when_builtin_component_is_added(
+      @editor_bridge.builtin_component_kind_from_string("AnimationTransitions").unwrap(),
+    )
+
+    inspect(harness.entity_has_component("camera", "Sprite"), content="true")
+    inspect(
+      harness.entity_has_component("camera", "TextureAtlas"),
+      content="true",
+    )
+    inspect(
+      harness.entity_has_component("camera", "AnimationPlayer"),
+      content="true",
+    )
+    inspect(
+      harness.entity_has_component("camera", "AnimationTransitions"),
+      content="true",
+    )
+
+    harness.when_scene_is_saved()
+    harness.when_project_opened()
+
+    inspect(harness.entity_has_component("camera", "Sprite"), content="true")
+    inspect(
+      harness.entity_has_component("camera", "AnimationTransitions"),
+      content="true",
+    )
+  })
+}
+
+///|
+async test "bdd happy path remove component enforces dependency guardrails" {
+  @async.with_task_group(group => {
+    let harness = given_editor_harness()
+    group.add_defer(() => harness.cleanup())
+
+    harness.when_editor_initialized()
+    harness.when_scene_tree_selects_entity(Some("camera"))
+    harness.when_builtin_component_is_added(
+      @editor_bridge.builtin_component_kind_from_string("AnimationTransitions").unwrap(),
+    )
+
+    harness.when_component_is_removed("Sprite")
+
+    inspect(harness.entity_has_component("camera", "Sprite"), content="true")
+    inspect(harness.status().contains("Cannot remove Sprite"), content="true")
+  })
+}
+
+///|
+async test "bdd happy path custom json component persists after save and reopen" {
+  @async.with_task_group(group => {
+    let harness = given_editor_harness()
+    group.add_defer(() => harness.cleanup())
+
+    harness.when_editor_initialized()
+    harness.when_scene_tree_selects_entity(Some("camera"))
+    harness.when_custom_component_is_added("GameplayTag")
+    harness.when_custom_component_json_is_edited("GameplayTag", "{\"hp\":10}")
+    harness.when_custom_component_json_is_committed("GameplayTag")
+    harness.when_scene_is_saved()
+    harness.when_project_opened()
+
+    let scene = harness.read_scene_document(harness.scene_path())
+    let camera = scene.entity("camera").unwrap()
+    let gameplay_tag = camera.component("GameplayTag").unwrap()
+    inspect(gameplay_tag.data == @json.parse("{\"hp\":10}"), content="true")
+  })
+}
