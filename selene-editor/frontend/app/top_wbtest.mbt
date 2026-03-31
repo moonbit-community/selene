@@ -49,8 +49,14 @@ test "asset tree folder toggle is state-driven" {
   let model = new_model()
   inspect(model.asset_tree_folder_expanded("images:assets"), content="true")
 
-  let (_, collapsed) = update(msg_toggle_asset_tree_folder("images:assets"), model)
-  inspect(collapsed.asset_tree_folder_expanded("images:assets"), content="false")
+  let (_, collapsed) = update(
+    msg_toggle_asset_tree_folder("images:assets"),
+    model,
+  )
+  inspect(
+    collapsed.asset_tree_folder_expanded("images:assets"),
+    content="false",
+  )
 
   let (_, expanded) = update(
     msg_toggle_asset_tree_folder("images:assets"),
@@ -82,7 +88,10 @@ test "selecting nested asset auto-expands ancestor folders" {
     ),
     model,
   )
-  inspect(next.asset_tree_folder_expanded("images:pixeladventure"), content="true")
+  inspect(
+    next.asset_tree_folder_expanded("images:pixeladventure"),
+    content="true",
+  )
   inspect(
     next.asset_tree_folder_expanded("images:pixeladventure/Menu"),
     content="true",
@@ -245,6 +254,62 @@ test "selecting an asset does not create a scene entity" {
   )
   inspect(next.selected_resource, content="Some(Image(\"assets/hero.png\"))")
   inspect(next.scene.unwrap().entities.length(), content="1")
+}
+
+///|
+test "move selected resource follows visible asset ordering" {
+  let model = {
+    ..new_model(),
+    selected_entity_id: Some("camera"),
+    assets: [
+      @editor_bridge.asset_document(
+        "assets/images/zebra.png",
+        @editor_bridge.infer_asset_kind("assets/images/zebra.png"),
+      ),
+      @editor_bridge.asset_document(
+        "assets/images/apple.png",
+        @editor_bridge.infer_asset_kind("assets/images/apple.png"),
+      ),
+    ],
+  }
+  let (_, first) = update(msg_move_selected_resource(1), model)
+  inspect(
+    first.selected_resource,
+    content="Some(Image(\"assets/images/apple.png\"))",
+  )
+  inspect(first.selected_entity_id, content="None")
+
+  let (_, second) = update(msg_move_selected_resource(1), first)
+  inspect(
+    second.selected_resource,
+    content="Some(Image(\"assets/images/zebra.png\"))",
+  )
+
+  let (_, back) = update(msg_move_selected_resource(-1), second)
+  inspect(
+    back.selected_resource,
+    content="Some(Image(\"assets/images/apple.png\"))",
+  )
+}
+
+///|
+test "move selected resource respects section visibility" {
+  let atlas = @editor_bridge.atlas_asset_document_from_image(
+    "hero",
+    "assets/images/hero.png",
+    @editor_bridge.vec2_doc(32.0, 32.0),
+  )
+  let model = {
+    ..new_model(),
+    images_section_expanded: false,
+    atlas_refs: [@editor_bridge.asset_ref("assets/atlases/hero.atlas.json")],
+    atlas_documents: { "assets/atlases/hero.atlas.json": atlas },
+  }
+  let (_, next) = update(msg_move_selected_resource(1), model)
+  inspect(
+    next.selected_resource,
+    content="Some(Atlas(\"assets/atlases/hero.atlas.json\"))",
+  )
 }
 
 ///|
@@ -593,7 +658,10 @@ test "opening add component panel requires a selected entity" {
   )
   inspect(none_selected.add_component_panel_open, content="false")
 
-  let with_selection = { ..without_selection, selected_entity_id: Some("camera") }
+  let with_selection = {
+    ..without_selection,
+    selected_entity_id: Some("camera"),
+  }
   let (_open_effects, opened) = update(
     msg_open_add_component_panel(),
     with_selection,

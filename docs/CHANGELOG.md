@@ -23,6 +23,7 @@
 - Changed `selene-editor` Assets panel ergonomics by making selection/search/action controls sticky at panel top while scrolling long asset trees.
 - Changed `selene-editor` Assets tree folder rows to publish full folder paths to the bottom info bar on hover (matching file-row discoverability).
 - Changed `selene-editor` Assets toolbar to show visible resource counts (`items` / `filtered items`) so filter impact is immediately observable.
+- Changed `selene-editor` asset keyboard workflow to support `↑/↓` resource traversal and `Enter` insertion for the current selection, matching the Assets tree ordering and section visibility.
 
 ### Fixed
 

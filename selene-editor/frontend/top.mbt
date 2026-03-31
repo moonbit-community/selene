@@ -165,6 +165,7 @@ extern "js" fn schedule_cmd(scheduler : &@cmd.Scheduler, cmd : @rabbita.Cmd) =
 extern "js" fn prompt_text(message : String, initial : String) -> String =
   #| (message, initial) => window.prompt(message, initial) || ""
 
+///|
 #cfg(target="js")
 extern "js" fn subscribe_shortcuts_forever(
   on_undo : () -> Unit,
@@ -180,6 +181,8 @@ extern "js" fn subscribe_shortcuts_forever(
   on_expand_assets : () -> Unit,
   on_collapse_assets : () -> Unit,
   on_insert_selected_asset : () -> Unit,
+  on_select_previous_asset : () -> Unit,
+  on_select_next_asset : () -> Unit,
 ) =
   #| (
   #|   onUndo,
@@ -194,7 +197,9 @@ extern "js" fn subscribe_shortcuts_forever(
   #|   onScale,
   #|   onExpandAssets,
   #|   onCollapseAssets,
-  #|   onInsertSelectedAsset
+  #|   onInsertSelectedAsset,
+  #|   onSelectPreviousAsset,
+  #|   onSelectNextAsset
   #| ) => {
   #|   const isEditable = (target) => {
   #|     if (!target) return false;
@@ -278,6 +283,21 @@ extern "js" fn subscribe_shortcuts_forever(
   #|       onInsertSelectedAsset();
   #|       return;
   #|     }
+  #|     if (key === "enter") {
+  #|       event.preventDefault();
+  #|       onInsertSelectedAsset();
+  #|       return;
+  #|     }
+  #|     if (key === "arrowup") {
+  #|       event.preventDefault();
+  #|       onSelectPreviousAsset();
+  #|       return;
+  #|     }
+  #|     if (key === "arrowdown") {
+  #|       event.preventDefault();
+  #|       onSelectNextAsset();
+  #|       return;
+  #|     }
   #|   });
   #| }
 
@@ -349,6 +369,7 @@ extern "js" fn drag_event_set_drop_copy(event : @dom.DragEvent) =
   #|   transfer.dropEffect = "copy";
   #| }
 
+///|
 #cfg(target="js")
 extern "js" fn input_event_is_enter_key(event : @dom.Event) -> Bool =
   #| (event) => (event?.key || "").toLowerCase() === "enter"
@@ -454,6 +475,12 @@ fn subscribe_shortcuts_cmd(
       },
       fn() {
         schedule_cmd(scheduler, dispatch(@app.msg_insert_selected_resource()))
+      },
+      fn() {
+        schedule_cmd(scheduler, dispatch(@app.msg_move_selected_resource(-1)))
+      },
+      fn() {
+        schedule_cmd(scheduler, dispatch(@app.msg_move_selected_resource(1)))
       },
     )
   })
@@ -602,6 +629,7 @@ fn tree_view(
   nodes
 }
 
+///|
 fn hint_attrs(
   dispatch : @rabbita.Dispatch[@app.Msg],
   label : String,
@@ -656,9 +684,7 @@ fn tree_path_segments(path : String, drop_root : String?) -> Array[String] {
   }
   let mut start = 0
   match drop_root {
-    Some(root) if !segments.is_empty() && segments[0] == root => {
-      start = 1
-    }
+    Some(root) if !segments.is_empty() && segments[0] == root => start = 1
     _ => ()
   }
   let trimmed : Array[String] = []
@@ -697,7 +723,11 @@ fn tree_row_indents(depth : Int) -> Array[@rabbita.Html] {
 }
 
 ///|
-fn folder_chain_key(section_key : String, folders : Array[String], depth : Int) -> String {
+fn folder_chain_key(
+  section_key : String,
+  folders : Array[String],
+  depth : Int,
+) -> String {
   section_key + ":" + folders[:depth + 1].join("/")
 }
 
@@ -733,14 +763,7 @@ fn tree_folder_row(
 ) -> @rabbita.Html {
   let children = tree_row_indents(depth)
   children.push(
-    @html.span(
-      class="asset-tree-node",
-      if expanded {
-        "▾"
-      } else {
-        "▸"
-      },
-    ),
+    @html.span(class="asset-tree-node", if expanded { "▾" } else { "▸" }),
   )
   children.push(@html.span(class="asset-tree-label folder", label))
   let class = if toggle_enabled {
@@ -755,11 +778,7 @@ fn tree_folder_row(
     "asset-tree-row folder collapsed locked"
   }
   @html.button(
-    class=if expanded {
-      class
-    } else {
-      class
-    },
+    class=if expanded { class } else { class },
     on_click=if toggle_enabled {
       dispatch(@app.msg_toggle_asset_tree_folder(folder_key))
     } else {
@@ -803,10 +822,7 @@ fn tree_file_row(
     },
     on_click=dispatch(@app.msg_select_resource(Some(selection))),
     attrs=asset_tree_file_attrs(
-      dispatch,
-      selection,
-      full_path,
-      draggable_asset_path,
+      dispatch, selection, full_path, draggable_asset_path,
     ),
     children,
   )
@@ -821,13 +837,19 @@ fn asset_tree_file_attrs(
 ) -> @html.Attrs {
   let attrs = @html.Attrs::build()
     .handler("mouseenter", fn(_event, scheduler) {
-      schedule_cmd(scheduler, dispatch(@app.msg_set_hover_hint(Some(full_path))))
+      schedule_cmd(
+        scheduler,
+        dispatch(@app.msg_set_hover_hint(Some(full_path))),
+      )
     })
     .handler("mouseleave", fn(_event, scheduler) {
       schedule_cmd(scheduler, dispatch(@app.msg_set_hover_hint(None)))
     })
     .handler("dblclick", fn(_event, scheduler) {
-      schedule_cmd(scheduler, dispatch(@app.msg_select_resource(Some(selection))))
+      schedule_cmd(
+        scheduler,
+        dispatch(@app.msg_select_resource(Some(selection))),
+      )
       schedule_cmd(scheduler, dispatch(@app.msg_insert_selected_resource()))
     })
   match draggable_asset_path {
@@ -837,7 +859,8 @@ fn asset_tree_file_attrs(
       .handler("dragstart", fn(event, _scheduler) {
         begin_dragged_asset(asset_path)
         match event.to_drag_event() {
-          Some(drag_event) => drag_event_set_asset_payload(drag_event, asset_path)
+          Some(drag_event) =>
+            drag_event_set_asset_payload(drag_event, asset_path)
           None => ()
         }
       })
@@ -880,11 +903,7 @@ fn build_asset_tree_rows(
     let shared = common_prefix_len(previous_folders, folders)
     for index = shared; index < folders.length(); index = index + 1 {
       if !folder_ancestors_expanded(
-          model,
-          section_key,
-          folders,
-          force_expand,
-          index,
+          model, section_key, folders, force_expand, index,
         ) {
         break
       }
@@ -973,7 +992,8 @@ fn asset_panel_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.Model,
 ) -> @rabbita.Html {
-  let can_insert_selected = model.scene is Some(_) && model.selected_resource is Some(_)
+  let can_insert_selected = model.scene is Some(_) &&
+    model.selected_resource is Some(_)
   let can_clear_selected = model.selected_resource is Some(_)
   let force_expand_tree = model.asset_query_normalized() != ""
   let image_paths : Array[String] = []
@@ -1071,8 +1091,10 @@ fn asset_panel_view(
     fn(_path) { "prefab" },
     fn(_path) { None },
   )
-  let visible_count = image_paths.length() + atlas_paths.length() +
-    animation_paths.length() + prefab_paths.length()
+  let visible_count = image_paths.length() +
+    atlas_paths.length() +
+    animation_paths.length() +
+    prefab_paths.length()
 
   let toolbar = @html.div(class="asset-toolbar", [
     match model.selected_resource_path() {
@@ -1118,8 +1140,7 @@ fn asset_panel_view(
         },
         attrs=if can_insert_selected {
           hint_attrs(
-            dispatch,
-            "Insert selected resource into current scene (I, or double-click)",
+            dispatch, "Insert selected resource into current scene (Enter/I, or double-click; use ↑/↓ to change selection)",
           )
         } else {
           @html.Attrs::build()

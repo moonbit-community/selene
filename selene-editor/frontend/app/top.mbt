@@ -127,6 +127,7 @@ pub enum Msg {
   CreateAnimationFromSelectedAtlas
   SaveSelectedAsPrefab
   InsertSelectedResource
+  MoveSelectedResource(Int)
   OpenAddComponentPanel
   CloseAddComponentPanel
   SetComponentSearchQuery(String)
@@ -431,6 +432,11 @@ pub fn msg_save_selected_as_prefab() -> Msg {
 ///|
 pub fn msg_insert_selected_resource() -> Msg {
   InsertSelectedResource
+}
+
+///|
+pub fn msg_move_selected_resource(delta : Int) -> Msg {
+  MoveSelectedResource(delta)
 }
 
 ///|
@@ -1519,6 +1525,95 @@ fn resource_exists(model : Model, selection : ResourceSelection) -> Bool {
       false
     }
   }
+}
+
+///|
+fn sorted_strings(values : Array[String]) -> Array[String] {
+  let sorted : Array[String] = []
+  sorted.push_iter(values.iter())
+  sorted.sort_by(fn(left, right) { left.compare(right) })
+  sorted
+}
+
+///|
+fn visible_resources_in_order(model : Model) -> Array[ResourceSelection] {
+  let resources : Array[ResourceSelection] = []
+
+  if model.images_section_expanded {
+    let image_paths : Array[String] = []
+    for asset in model.image_assets() {
+      if model.asset_matches_query(asset_basename(asset.path), asset.path) {
+        image_paths.push(asset.path)
+      }
+    }
+    for path in sorted_strings(image_paths) {
+      resources.push(Image(path))
+    }
+  }
+
+  if model.atlases_section_expanded {
+    let atlas_paths : Array[String] = []
+    for atlas_ref in model.atlas_refs {
+      let atlas_name = match model.atlas_documents.get(atlas_ref.path) {
+        Some(atlas) => atlas.name
+        None => asset_basename(atlas_ref.path)
+      }
+      if model.asset_matches_query(atlas_name, atlas_ref.path) {
+        atlas_paths.push(atlas_ref.path)
+      }
+    }
+    for path in sorted_strings(atlas_paths) {
+      resources.push(Atlas(path))
+    }
+  }
+
+  if model.animations_section_expanded {
+    let animation_paths : Array[String] = []
+    for animation_ref in model.animation_refs {
+      let animation_name = match
+        model.animation_documents.get(animation_ref.path) {
+        Some(animation) => animation.name
+        None => asset_basename(animation_ref.path)
+      }
+      if model.asset_matches_query(animation_name, animation_ref.path) {
+        animation_paths.push(animation_ref.path)
+      }
+    }
+    for path in sorted_strings(animation_paths) {
+      resources.push(Animation(path))
+    }
+  }
+
+  if model.prefabs_section_expanded {
+    let prefab_paths : Array[String] = []
+    for prefab_ref in model.prefab_refs {
+      let prefab_name = match model.prefab_documents.get(prefab_ref.path) {
+        Some(prefab) => prefab.name
+        None => asset_basename(prefab_ref.path)
+      }
+      if model.asset_matches_query(prefab_name, prefab_ref.path) {
+        prefab_paths.push(prefab_ref.path)
+      }
+    }
+    for path in sorted_strings(prefab_paths) {
+      resources.push(Prefab(path))
+    }
+  }
+
+  resources
+}
+
+///|
+fn resource_index(
+  resources : Array[ResourceSelection],
+  target : ResourceSelection,
+) -> Int? {
+  for index = 0; index < resources.length(); index = index + 1 {
+    if resources[index] == target {
+      return Some(index)
+    }
+  }
+  None
 }
 
 ///|
@@ -2645,7 +2740,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       let asset_tree_expanded = model.asset_tree_expanded
       let next_value = !model.asset_tree_folder_expanded(key)
       asset_tree_expanded.set(key, next_value)
-      ([], { ..model, asset_tree_expanded })
+      ([], { ..model, asset_tree_expanded, })
     }
     ExpandAllAssetFolders =>
       (
@@ -2663,11 +2758,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       }
       (
         [],
-        {
-          ..model,
-          asset_tree_expanded,
-          status: "Collapsed all asset folders",
-        },
+        { ..model, asset_tree_expanded, status: "Collapsed all asset folders" },
       )
     }
     ToggleImagesSection =>
@@ -3101,6 +3192,49 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             None => ([], model)
           }
         _ => ([], model)
+      }
+    MoveSelectedResource(delta) =>
+      if delta == 0 {
+        ([], model)
+      } else {
+        let resources = visible_resources_in_order(model)
+        if resources.is_empty() {
+          ([], model)
+        } else {
+          let target_index = match model.selected_resource {
+            Some(current) =>
+              match resource_index(resources, current) {
+                Some(index) => {
+                  let shifted = index + delta
+                  if shifted < 0 {
+                    0
+                  } else if shifted >= resources.length() {
+                    resources.length() - 1
+                  } else {
+                    shifted
+                  }
+                }
+                None => if delta > 0 { 0 } else { resources.length() - 1 }
+              }
+            None => if delta > 0 { 0 } else { resources.length() - 1 }
+          }
+          let selected_resource = Some(resources[target_index])
+          (
+            [],
+            {
+              ..model,
+              selected_resource,
+              asset_tree_expanded: with_asset_tree_expanded_for_selection(
+                model.asset_tree_expanded,
+                selected_resource,
+              ),
+              selected_entity_id: None,
+              add_component_panel_open: false,
+              component_search_query: "",
+              open_component_menu_kind: None,
+            },
+          )
+        }
       }
     OpenAddComponentPanel =>
       match model.selected_entity() {
