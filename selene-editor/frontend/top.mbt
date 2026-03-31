@@ -780,7 +780,12 @@ fn tree_file_row(
       "asset-tree-row file"
     },
     on_click=dispatch(@app.msg_select_resource(Some(selection))),
-    attrs=asset_tree_file_attrs(dispatch, full_path, draggable_asset_path),
+    attrs=asset_tree_file_attrs(
+      dispatch,
+      selection,
+      full_path,
+      draggable_asset_path,
+    ),
     children,
   )
 }
@@ -788,6 +793,7 @@ fn tree_file_row(
 ///|
 fn asset_tree_file_attrs(
   dispatch : @rabbita.Dispatch[@app.Msg],
+  selection : @app.ResourceSelection,
   full_path : String,
   draggable_asset_path : String?,
 ) -> @html.Attrs {
@@ -797,6 +803,10 @@ fn asset_tree_file_attrs(
     })
     .handler("mouseleave", fn(_event, scheduler) {
       schedule_cmd(scheduler, dispatch(@app.msg_set_hover_hint(None)))
+    })
+    .handler("dblclick", fn(_event, scheduler) {
+      schedule_cmd(scheduler, dispatch(@app.msg_select_resource(Some(selection))))
+      schedule_cmd(scheduler, dispatch(@app.msg_insert_selected_resource()))
     })
   match draggable_asset_path {
     Some(asset_path) =>
