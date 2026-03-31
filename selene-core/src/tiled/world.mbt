@@ -1144,9 +1144,7 @@ fn tiled_world_is_word_char(ch : Char) -> Bool {
 
 ///|
 fn tiled_world_capture_int(source : String) -> Int? {
-  let parsed : Result[Int, @strconv.StrConvError] = try? @strconv.parse_int(
-    source[:],
-  )
+  let parsed : Result[Int, Error] = try? @string.parse_int(source[:])
   match parsed {
     Ok(value) => Some(value)
     Err(_) => None

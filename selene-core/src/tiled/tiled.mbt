@@ -887,7 +887,7 @@ fn parse_tiled_gid_csv(source : String) -> Array[TiledGid] {
     if ch == ',' || is_tiled_source_whitespace(ch) {
       let token_string = token.to_string()
       if token_string.length() > 0 {
-        let parsed : Result[Int, @strconv.StrConvError] = try? @strconv.parse_int(
+        let parsed : Result[Int, Error] = try? @string.parse_int(
           token_string[:],
         )
         match parsed {
@@ -902,9 +902,7 @@ fn parse_tiled_gid_csv(source : String) -> Array[TiledGid] {
   }
   let token_string = token.to_string()
   if token_string.length() > 0 {
-    let parsed : Result[Int, @strconv.StrConvError] = try? @strconv.parse_int(
-      token_string[:],
-    )
+    let parsed : Result[Int, Error] = try? @string.parse_int(token_string[:])
     match parsed {
       Ok(raw) => gids.push(decode_tiled_gid(raw))
       Err(_) => gids.push(empty_tiled_gid())

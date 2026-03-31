@@ -516,9 +516,7 @@ fn xml_bool_attr(node : TiledXmlNode, key : String) -> Bool? {
 
 ///|
 fn parse_xml_int_text(text : String) -> Int? {
-  let parsed : Result[Int, @strconv.StrConvError] = try? @strconv.parse_int(
-    text.trim(),
-  )
+  let parsed : Result[Int, Error] = try? @string.parse_int(text.trim())
   match parsed {
     Ok(value) => Some(value)
     Err(_) => None
@@ -527,9 +525,7 @@ fn parse_xml_int_text(text : String) -> Int? {
 
 ///|
 fn parse_xml_double_text(text : String) -> Double? {
-  let parsed : Result[Double, @strconv.StrConvError] = try? @strconv.parse_double(
-    text.trim(),
-  )
+  let parsed : Result[Double, Error] = try? @string.parse_double(text.trim())
   match parsed {
     Ok(value) => Some(value)
     Err(_) => None

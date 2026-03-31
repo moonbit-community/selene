@@ -1180,14 +1180,14 @@ fn apply_scene_change_without_history_or_preview(
 
 ///|
 fn parse_double_or(current : Double, input : String) -> Double {
-  @strconv.parse_double(input) catch {
+  @string.parse_double(input[:]) catch {
     _ => current
   }
 }
 
 ///|
 fn parse_int_or(current : Int, input : String) -> Int {
-  @strconv.parse_int(input) catch {
+  @string.parse_int(input[:]) catch {
     _ => current
   }
 }

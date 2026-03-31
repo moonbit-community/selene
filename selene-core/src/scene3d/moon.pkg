@@ -11,5 +11,5 @@ import {
   "moonbitlang/core/encoding/base64",
   "moonbitlang/core/json",
   "moonbitlang/core/cmp",
-  "moonbitlang/core/strconv",
+  "moonbitlang/core/string",
 }

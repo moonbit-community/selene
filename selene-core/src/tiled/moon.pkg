@@ -21,6 +21,6 @@ import {
   "gmlewis/io",
   "moonbitlang/core/json",
   "moonbitlang/core/math" @cmath,
-  "moonbitlang/core/strconv",
+  "moonbitlang/core/string",
   "moonbitlang/x/fs",
 }

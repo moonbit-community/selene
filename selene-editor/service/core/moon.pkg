@@ -10,9 +10,7 @@ import {
   "moonbitlang/async/socket",
   "moonbitlang/core/encoding/utf8",
   "moonbitlang/core/json",
-  "moonbitlang/core/strconv",
+  "moonbitlang/core/string",
 }
 
-options(
-  "supported-targets": "native",
-)
+supported_targets = "native"

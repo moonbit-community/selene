@@ -17,6 +17,4 @@ import {
   "Milky2018/selene_editor/shared",
 }
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"

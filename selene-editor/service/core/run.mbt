@@ -13,10 +13,7 @@ priv struct CliOptions {
 
 ///|
 fn parse_port(text : String) -> Int raise {
-  let parsed : Result[Int, @strconv.StrConvError] = try? @strconv.parse_int(
-    text.view(),
-    base=10,
-  )
+  let parsed : Result[Int, Error] = try? @string.parse_int(text.view(), base=10)
   match parsed {
     Ok(port) if port > 0 && port <= 65535 => port
     _ => raise Failure("Invalid port: " + text)

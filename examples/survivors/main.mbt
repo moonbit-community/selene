@@ -388,7 +388,7 @@ fn select_weighted_powerup(
         break
       }
     }
-    if not(already_has) {
+    if !already_has {
       let powerup = create_powerup(powerup_type)
       let weight = (powerup.weight_formula)(level)
       if weight > 0.0 {
@@ -494,7 +494,7 @@ fn survivors_camera_follow_system(_world : @ecs.World) -> Unit {
 fn game_timer_system(_world : @ecs.World) -> Unit {
   let delta = @time.delta()
   if game_state.game_over {
-    if not(game_state.game_over_displayed) {
+    if !game_state.game_over_displayed {
       game_state.game_over_displayed = true
       set_ui_text(
         game_state.game_over_box,

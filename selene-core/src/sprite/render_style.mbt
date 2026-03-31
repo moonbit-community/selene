@@ -46,7 +46,7 @@ fn rgba(r : Int, g : Int, b : Int, a : Double) -> @render.Color {
 
 ///|
 fn parse_uint(text : StringView, base : Int) -> UInt? {
-  let parsed = try? @strconv.parse_uint(text, base~)
+  let parsed = try? @string.parse_uint(text, base~)
   match parsed {
     Ok(value) => Some(value)
     Err(_) => None
@@ -55,7 +55,7 @@ fn parse_uint(text : StringView, base : Int) -> UInt? {
 
 ///|
 fn parse_int(text : StringView) -> Int? {
-  let parsed = try? @strconv.parse_int(text)
+  let parsed = try? @string.parse_int(text)
   match parsed {
     Ok(value) => Some(value)
     Err(_) => None
@@ -64,7 +64,7 @@ fn parse_int(text : StringView) -> Int? {
 
 ///|
 fn parse_double(text : StringView) -> Double? {
-  let parsed = try? @strconv.parse_double(text)
+  let parsed = try? @string.parse_double(text)
   match parsed {
     Ok(value) => Some(value)
     Err(_) => None

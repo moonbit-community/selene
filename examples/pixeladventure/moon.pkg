@@ -19,6 +19,4 @@ import {
   "moonbitlang/x/fs",
 }
 
-options(
-  "supported-targets": "all",
-)
+supported_targets = "all"

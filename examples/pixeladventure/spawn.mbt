@@ -262,6 +262,7 @@ fn spawn_terrain_collider(pos : @math.Vec2D, size : @math.Vec2D) -> Unit {
   )
 }
 
+///|
 let flag_idle_frame_size : @math.Vec2D = @math.Vec2D(64.0, 64.0)
 
 ///|

@@ -53,18 +53,21 @@ priv struct LightingShaderState {
   shadow_bound_locs : Array[Int]
   shadow_depth_bias_locs : Array[Int]
   shadow_normal_bias_locs : Array[Int]
+  shadow_sampler_locs : Array[Int]
   directional_shadow_texel_size_loc : Int
   spot_shadow_enabled_locs : Array[Int]
   spot_shadow_matrix_locs : Array[Int]
   spot_shadow_rect_locs : Array[Int]
   spot_shadow_depth_bias_locs : Array[Int]
   spot_shadow_normal_bias_locs : Array[Int]
+  spot_shadow_sampler_loc : Int
   spot_shadow_texel_size_loc : Int
   point_shadow_enabled_locs : Array[Int]
   point_shadow_depth_bias_locs : Array[Int]
   point_shadow_normal_bias_locs : Array[Int]
   point_shadow_matrix_locs : Array[Int]
   point_shadow_rect_locs : Array[Int]
+  point_shadow_sampler_loc : Int
   point_shadow_texel_size_loc : Int
   base_uv_offset_scale_loc : Int
   base_uv_rotation_loc : Int
@@ -318,7 +321,6 @@ let raylib_lighting_fragment_shader : String = "#version 330\n" +
   "uniform sampler2D texture0;\n" +
   "uniform sampler2D texture1;\n" +
   "uniform sampler2D texture2;\n" +
-  "uniform sampler2D texture3;\n" +
   "uniform sampler2D texture4;\n" +
   "uniform sampler2D texture5;\n" +
   "uniform vec3 ambientLight;\n" +
@@ -600,7 +602,8 @@ let raylib_lighting_fragment_shader : String = "#version 330\n" +
   "  vec2 normalUv = applyTextureTransform(selectUv(normalUvSet), normalUvOffsetScale, normalUvRotation);\n" +
   "  vec2 occlusionUv = applyTextureTransform(selectUv(occlusionUvSet), occlusionUvOffsetScale, occlusionUvRotation);\n" +
   "  vec2 emissiveUv = applyTextureTransform(selectUv(emissiveUvSet), emissiveUvOffsetScale, emissiveUvRotation);\n" +
-  "  vec4 albedoSample = materialHasBaseTexture != 0 ? texture(texture0, baseUv) : vec4(1.0);\n" +
+  "  vec4 albedoSample = vec4(1.0);\n" +
+  "  if (materialHasBaseTexture != 0) albedoSample = texture(texture0, baseUv);\n" +
   "  vec4 albedo = albedoSample * fragVertexColor * materialBaseColor;\n" +
   "  if (materialAlphaMode == 0) {\n" +
   "    albedo.a = 1.0;\n" +
@@ -612,15 +615,17 @@ let raylib_lighting_fragment_shader : String = "#version 330\n" +
   "    finalColor = vec4(albedo.rgb, albedo.a);\n" +
   "    return;\n" +
   "  }\n" +
-  "  vec4 metallicRoughnessSample = materialHasMetallicRoughnessTexture != 0 ? texture(texture1, metallicRoughnessUv) : vec4(1.0);\n" +
-  "  vec4 roughnessSample = texture(texture3, metallicRoughnessUv);\n" +
+  "  vec4 metallicRoughnessSample = vec4(1.0);\n" +
+  "  if (materialHasMetallicRoughnessTexture != 0) {\n" +
+  "    metallicRoughnessSample = texture(texture1, metallicRoughnessUv);\n" +
+  "  }\n" +
   "  vec3 normal = normalize(fragNormal);\n" +
   "  if (length(normal) <= 0.00001) normal = vec3(0.0, 1.0, 0.0);\n" +
   "  vec3 geometricNormal = normal;\n" +
   "  if (materialHasNormalTexture != 0) normal = applyNormalMap(normal, fragPosition, normalUv);\n" +
   "  vec3 viewDir = normalize(viewPosition - fragPosition);\n" +
   "  if (length(viewDir) <= 0.00001) viewDir = vec3(0.0, 0.0, 1.0);\n" +
-  "  float roughness = clamp(materialRoughness * roughnessSample.g, 0.089, 1.0);\n" +
+  "  float roughness = clamp(materialRoughness * metallicRoughnessSample.g, 0.089, 1.0);\n" +
   "  float metallic = clamp(materialMetallic * metallicRoughnessSample.b, 0.0, 1.0);\n" +
   "  float shininess = mix(96.0, 8.0, roughness);\n" +
   "  float specularStrength = mix(0.04, 1.0, metallic);\n" +
@@ -651,8 +656,14 @@ let raylib_lighting_fragment_shader : String = "#version 330\n" +
   "  if (directionalCount == 0 && pointCount == 0 && spotCount == 0 && dot(ambientLight, ambientLight) <= 0.000001) {\n" +
   "    diffuseLight = vec3(1.0);\n" +
   "  }\n" +
-  "  float occlusion = materialHasOcclusionTexture != 0 ? mix(1.0, texture(texture4, occlusionUv).r, clamp(materialOcclusionStrength, 0.0, 1.0)) : 1.0;\n" +
-  "  vec3 emissive = materialHasEmissiveTexture != 0 ? texture(texture5, emissiveUv).rgb * materialEmissiveColor : materialEmissiveColor;\n" +
+  "  float occlusion = 1.0;\n" +
+  "  if (materialHasOcclusionTexture != 0) {\n" +
+  "    occlusion = mix(1.0, texture(texture4, occlusionUv).r, clamp(materialOcclusionStrength, 0.0, 1.0));\n" +
+  "  }\n" +
+  "  vec3 emissive = materialEmissiveColor;\n" +
+  "  if (materialHasEmissiveTexture != 0) {\n" +
+  "    emissive = texture(texture5, emissiveUv).rgb * materialEmissiveColor;\n" +
+  "  }\n" +
   "  vec3 litColor = albedo.rgb * diffuseLight * occlusion + specularLight * occlusion + emissive;\n" +
   "  finalColor = vec4(litColor, albedo.a);\n" +
   "}\n"
@@ -891,12 +902,6 @@ fn material_texture_slot_bindings() -> Array[MaterialTextureSlotBinding] {
       material_map: @raylib.MaterialMapNormal,
     },
     {
-      shader_loc: @raylib.ShaderLocMapRoughness,
-      uniform_name: "texture3",
-      slot: 3,
-      material_map: @raylib.MaterialMapRoughness,
-    },
-    {
       shader_loc: @raylib.ShaderLocMapOcclusion,
       uniform_name: "texture4",
       slot: 4,
@@ -1086,15 +1091,6 @@ fn create_lighting_shader_state() -> LightingShaderState {
     raylib_lighting_vertex_shader, raylib_lighting_fragment_shader,
   )
   configure_lighting_shader_locations(shader)
-  // Keep sampler-unit mapping explicit for both draw_mesh() and immediate rlgl paths.
-  // Without this, texture samplers may all alias unit 0 on some drivers.
-  for binding in material_texture_slot_bindings() {
-    set_shader_uniform(
-      shader,
-      @raylib.get_shader_location(shader, binding.uniform_name),
-      uniform_texture_unit(binding.slot),
-    )
-  }
   let shadow_enabled_locs : Array[Int] = []
   let shadow_cascade_count_locs : Array[Int] = []
   let shadow_matrix_locs : Array[Int] = []
@@ -1102,6 +1098,7 @@ fn create_lighting_shader_state() -> LightingShaderState {
   let shadow_bound_locs : Array[Int] = []
   let shadow_depth_bias_locs : Array[Int] = []
   let shadow_normal_bias_locs : Array[Int] = []
+  let shadow_sampler_locs : Array[Int] = []
   let spot_shadow_enabled_locs : Array[Int] = []
   let spot_shadow_matrix_locs : Array[Int] = []
   let spot_shadow_rect_locs : Array[Int] = []
@@ -1125,10 +1122,8 @@ fn create_lighting_shader_state() -> LightingShaderState {
     shadow_normal_bias_locs.push(
       @raylib.get_shader_location(shader, "shadowNormalBiases[\{index}]"),
     )
-    set_shader_uniform(
-      shader,
+    shadow_sampler_locs.push(
       @raylib.get_shader_location(shader, "shadowMap\{index}"),
-      uniform_texture_unit(shadow_texture_slot(index)),
     )
   }
   for index in 0..<(MAX_DIRECTIONAL_LIGHTS * MAX_DIRECTIONAL_CASCADES) {
@@ -1159,10 +1154,8 @@ fn create_lighting_shader_state() -> LightingShaderState {
       @raylib.get_shader_location(shader, "spotShadowNormalBiases[\{index}]"),
     )
   }
-  set_shader_uniform(
-    shader,
-    @raylib.get_shader_location(shader, "spotShadowAtlas"),
-    uniform_texture_unit(SPOT_SHADOW_TEXTURE_SLOT),
+  let spot_shadow_sampler_loc = @raylib.get_shader_location(
+    shader, "spotShadowAtlas",
   )
   for index in 0..<MAX_POINT_LIGHTS {
     point_shadow_enabled_locs.push(
@@ -1183,10 +1176,8 @@ fn create_lighting_shader_state() -> LightingShaderState {
       @raylib.get_shader_location(shader, "pointShadowRects[\{index}]"),
     )
   }
-  set_shader_uniform(
-    shader,
-    @raylib.get_shader_location(shader, "pointShadowAtlas"),
-    uniform_texture_unit(POINT_SHADOW_TEXTURE_SLOT),
+  let point_shadow_sampler_loc = @raylib.get_shader_location(
+    shader, "pointShadowAtlas",
   )
   {
     shader,
@@ -1268,6 +1259,7 @@ fn create_lighting_shader_state() -> LightingShaderState {
     shadow_bound_locs,
     shadow_depth_bias_locs,
     shadow_normal_bias_locs,
+    shadow_sampler_locs,
     directional_shadow_texel_size_loc: @raylib.get_shader_location(
       shader, "directionalShadowTexelSize",
     ),
@@ -1276,6 +1268,7 @@ fn create_lighting_shader_state() -> LightingShaderState {
     spot_shadow_rect_locs,
     spot_shadow_depth_bias_locs,
     spot_shadow_normal_bias_locs,
+    spot_shadow_sampler_loc,
     spot_shadow_texel_size_loc: @raylib.get_shader_location(
       shader, "spotShadowTexelSize",
     ),
@@ -1284,6 +1277,7 @@ fn create_lighting_shader_state() -> LightingShaderState {
     point_shadow_normal_bias_locs,
     point_shadow_matrix_locs,
     point_shadow_rect_locs,
+    point_shadow_sampler_loc,
     point_shadow_texel_size_loc: @raylib.get_shader_location(
       shader, "pointShadowTexelSize",
     ),
@@ -1344,9 +1338,6 @@ fn white_render_color() -> @render.Color {
 const INTERNAL_WHITE_TEXTURE_KEY : String = "__selene_internal:white_1x1"
 
 ///|
-const INTERNAL_FLAT_NORMAL_TEXTURE_KEY : String = "__selene_internal:flat_normal_1x1"
-
-///|
 fn ensure_texture_mipmaps(texture : @raylib.Texture) -> Unit {
   if texture.mipmaps() < 2 {
     texture.gen_mipmaps()
@@ -1373,16 +1364,6 @@ fn get_white_texture() -> @raylib.Texture {
 }
 
 ///|
-fn get_flat_normal_texture() -> @raylib.Texture {
-  get_solid_texture(INTERNAL_FLAT_NORMAL_TEXTURE_KEY, {
-    r: 128U,
-    g: 128U,
-    b: 255U,
-    a: 1.0,
-  })
-}
-
-///|
 fn fallback_lighting_texture_bundle() -> MaterialTextureBundle3D {
   let default_transform = @render3d_types.default_texture_transform3d()
   {
@@ -1390,7 +1371,7 @@ fn fallback_lighting_texture_bundle() -> MaterialTextureBundle3D {
     emissive_texture: get_white_texture(),
     metallic_roughness_texture: get_white_texture(),
     occlusion_texture: get_white_texture(),
-    normal_texture: get_flat_normal_texture(),
+    normal_texture: null_texture(),
     has_base_texture: false,
     has_emissive_texture: false,
     has_metallic_roughness_texture: false,
@@ -2571,16 +2552,62 @@ fn material_texture_for_slot(
     0 => bundle.base_texture
     1 => bundle.metallic_roughness_texture
     2 => bundle.normal_texture
-    3 =>
-      if bundle.has_metallic_roughness_texture {
-        bundle.metallic_roughness_texture
-      } else {
-        get_white_texture()
-      }
     4 => bundle.occlusion_texture
     5 => bundle.emissive_texture
     _ => get_white_texture()
   }
+}
+
+///|
+fn null_texture() -> @raylib.Texture {
+  @raylib.Texture::new(0U, 0, 0, 0, 0)
+}
+
+///|
+fn sync_shadow_sampler_uniforms(
+  state : LightingShaderState,
+  shadow_state : FrameShadowState?,
+) -> Unit {
+  let shader = state.shader
+  for index in 0..<MAX_DIRECTIONAL_LIGHTS {
+    let unit = if shadow_state.bind(fn(value) {
+        value.directional_shadows.get(index)
+      })
+      is Some(_) {
+      shadow_texture_slot(index)
+    } else {
+      0
+    }
+    set_shader_uniform(
+      shader,
+      state.shadow_sampler_locs[index],
+      uniform_texture_unit(unit),
+    )
+  }
+  let spot_unit = if shadow_state.bind(fn(value) { value.spot_shadow_atlas_id })
+    is Some(_) {
+    SPOT_SHADOW_TEXTURE_SLOT
+  } else {
+    0
+  }
+  set_shader_uniform(
+    shader,
+    state.spot_shadow_sampler_loc,
+    uniform_texture_unit(spot_unit),
+  )
+  let point_unit = if shadow_state.bind(fn(value) {
+      value.point_shadow_atlas_id
+    })
+    is Some(_) {
+    POINT_SHADOW_TEXTURE_SLOT
+  } else {
+    0
+  }
+  set_shader_uniform(
+    shader,
+    state.point_shadow_sampler_loc,
+    uniform_texture_unit(point_unit),
+  )
 }
 
 ///|
@@ -2594,11 +2621,9 @@ fn draw_lit_mesh_with_material(
   receive_shadows : Bool,
   shadow_state : FrameShadowState?,
 ) -> Unit {
-  ignore(
-    upload_lighting_uniforms(
-      frame, camera_position, material, texture_bundle, mesh_has_tangents, receive_shadows,
-      shadow_state,
-    ),
+  let lighting_state = upload_lighting_uniforms(
+    frame, camera_position, material, texture_bundle, mesh_has_tangents, receive_shadows,
+    shadow_state,
   )
   let effective_bundle = texture_bundle.unwrap_or(
     fallback_lighting_texture_bundle(),
@@ -2611,12 +2636,18 @@ fn draw_lit_mesh_with_material(
       material_texture_for_slot(effective_bundle, binding.slot),
     )
   }
+  @raylib.set_material_texture(
+    ray_material,
+    @raylib.MaterialMapRoughness,
+    null_texture(),
+  )
   if material.double_sided {
     @rl.disable_backface_culling()
   } else {
     @rl.enable_backface_culling()
   }
   bind_shadow_textures(shadow_state)
+  sync_shadow_sampler_uniforms(lighting_state, shadow_state)
   @raylib.draw_mesh(mesh, ray_material, @raylib.Matrix::identity())
   unbind_shadow_textures(shadow_state)
   @rl.disable_backface_culling()
@@ -4134,7 +4165,7 @@ fn resolve_material_texture_bundle(
     occlusion_texture: occlusion_source.map_or(get_white_texture(), fn(source) {
       source.texture
     }),
-    normal_texture: normal_source.map_or(get_flat_normal_texture(), fn(source) {
+    normal_texture: normal_source.map_or(null_texture(), fn(source) {
       source.texture
     }),
     has_base_texture: base_source is Some(_),

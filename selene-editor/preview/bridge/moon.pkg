@@ -3,6 +3,4 @@ import {
   "Milky2018/selene_editor/shared",
 }
 
-options(
-  "supported-targets": "all",
-)
+supported_targets = "all"

@@ -3,9 +3,7 @@ import {
   "Milky2018/selene_editor/preview/bridge",
   "Milky2018/selene_editor/shared",
   "moonbitlang/core/json",
-  "moonbitlang/core/strconv",
+  "moonbitlang/core/string",
 }
 
-options(
-  "supported-targets": "all",
-)
+supported_targets = "all"

@@ -336,7 +336,7 @@ pub fn TextFont::from_font(
 
 ///|
 fn parse_font_size(size : StringView) -> Double {
-  try @strconv.parse_double(size.trim()) catch {
+  try @string.parse_double(size.trim()) catch {
     _ => 16.0
   } noraise {
     value => value

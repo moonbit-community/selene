@@ -4,7 +4,8 @@ import {
   "moonbitlang/core/env",
 }
 
+supported_targets = "native"
+
 options(
   is_main: true,
-  "supported-targets": "native",
 )

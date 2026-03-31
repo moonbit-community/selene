@@ -13,6 +13,4 @@ import {
   "moonbitlang/core/strconv",
 }
 
-options(
-  "supported-targets": "js",
-)
+supported_targets = "js"

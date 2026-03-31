@@ -28,8 +28,7 @@ const BUTTON_ZINDEX : Int = 110
 const PLAYFIELD_LEFT_INSET : Double = 48.0
 
 ///|
-const FLAG_IDLE_PATH : String =
-  "assets/pixeladventure/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png"
+const FLAG_IDLE_PATH : String = "assets/pixeladventure/Items/Checkpoints/Checkpoint/Checkpoint (Flag Idle)(64x64).png"
 
 ///|
 const PLAYER_Z : Double = 10.0

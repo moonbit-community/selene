@@ -6,10 +6,15 @@
 
 ### Changed
 
+- Changed `selene-raylib` capability fallback log tag from `capability-warning` to `capability-note` to avoid mixing feature-degradation notices with runtime warning diagnostics.
+
 ### Fixed
 
+- Fixed Moon package config deprecation warnings by migrating `options("supported-targets": ...)` to `options("supported_targets": ...)` across `selene-core`, `selene-webgpu`, `selene-raylib`, `selene-editor`, and example packages.
+- Fixed deprecated parsing and boolean syntax warnings by replacing `@strconv.parse_*` with `@string.parse_*`, adding explicit `moonbitlang/core/string` imports where required, and replacing `not(expr)` with `!expr` in examples.
 - Fixed `selene-raylib` texture sampler completeness for 3D materials by moving mipmap generation into texture-preparation (`sync_image_asset` + internal fallback textures), so draw-time sampler application no longer mutates GPU texture state.
-- Fixed `selene-raylib` 3D material slot wiring so `texture0..texture5` is driven by one slot table across shader locations, sampler units, and material-map uploads; roughness now samples `texture3` as a packed metallic-roughness alias and stays aligned with Bevy-style `metallic_roughness_texture.g` semantics.
+- Fixed `selene-raylib` 3D material slot wiring so active maps (`texture0/1/2/4/5`) are driven by one slot table across shader locations, sampler units, and material-map uploads; roughness now consistently samples `metallicRoughnessSample.g` without a separate roughness texture slot.
+- Fixed `selene-raylib` issue #23 sampler warning path by removing unconditional roughness-slot usage (`texture3`/`MaterialMapRoughness`), disabling fallback normal-map slot binding when no normal texture exists, and making shadow sampler uniforms bind to active shadow texture units only (fallback to unit `0` when absent), which removes `GLD_TEXTURE_INDEX_2D ... unloadable` warnings in the `cmd/min3dprobe` and `cmd/mooncraft` repro flows.
 
 ### Removed
 

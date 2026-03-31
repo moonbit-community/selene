@@ -13,5 +13,5 @@ import {
   "Milky2018/selene/visibility",
   "Milky2018/moon_taffy",
   "moonbitlang/core/cmp",
-  "moonbitlang/core/strconv",
+  "moonbitlang/core/string",
 }

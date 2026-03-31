@@ -47,19 +47,29 @@ test "raylib shader texture transform helpers preserve default identity uniforms
 ///|
 test "raylib lighting shader falls back to scalar factors when no textures are bound" {
   inspect(
+    raylib_lighting_fragment_shader.contains("vec4 albedoSample = vec4(1.0);"),
+    content="true",
+  )
+  inspect(
     raylib_lighting_fragment_shader.contains(
-      "vec4 albedoSample = materialHasBaseTexture != 0 ? texture(texture0, baseUv) : vec4(1.0);",
+      "if (materialHasBaseTexture != 0) albedoSample = texture(texture0, baseUv);",
     ),
     content="true",
   )
   inspect(
     raylib_lighting_fragment_shader.contains(
-      "vec4 metallicRoughnessSample = materialHasMetallicRoughnessTexture != 0 ? texture(texture1, metallicRoughnessUv) : vec4(1.0);",
+      "vec4 metallicRoughnessSample = vec4(1.0);",
     ),
     content="true",
   )
   inspect(
-    raylib_lighting_fragment_shader.contains("uniform sampler2D texture3;"),
+    raylib_lighting_fragment_shader.contains(
+      "if (materialHasMetallicRoughnessTexture != 0) {",
+    ),
+    content="true",
+  )
+  inspect(
+    !raylib_lighting_fragment_shader.contains("uniform sampler2D texture3;"),
     content="true",
   )
   inspect(
@@ -68,13 +78,7 @@ test "raylib lighting shader falls back to scalar factors when no textures are b
   )
   inspect(
     raylib_lighting_fragment_shader.contains(
-      "vec4 roughnessSample = texture(texture3, metallicRoughnessUv);",
-    ),
-    content="true",
-  )
-  inspect(
-    raylib_lighting_fragment_shader.contains(
-      "float roughness = clamp(materialRoughness * roughnessSample.g, 0.089, 1.0);",
+      "float roughness = clamp(materialRoughness * metallicRoughnessSample.g, 0.089, 1.0);",
     ),
     content="true",
   )
@@ -89,14 +93,24 @@ test "raylib lighting shader falls back to scalar factors when no textures are b
     content="true",
   )
   inspect(
+    raylib_lighting_fragment_shader.contains("float occlusion = 1.0;"),
+    content="true",
+  )
+  inspect(
     raylib_lighting_fragment_shader.contains(
-      "float occlusion = materialHasOcclusionTexture != 0 ? mix(1.0, texture(texture4, occlusionUv).r, clamp(materialOcclusionStrength, 0.0, 1.0)) : 1.0;",
+      "if (materialHasOcclusionTexture != 0) {",
     ),
     content="true",
   )
   inspect(
     raylib_lighting_fragment_shader.contains(
-      "vec3 emissive = materialHasEmissiveTexture != 0 ? texture(texture5, emissiveUv).rgb * materialEmissiveColor : materialEmissiveColor;",
+      "vec3 emissive = materialEmissiveColor;",
+    ),
+    content="true",
+  )
+  inspect(
+    raylib_lighting_fragment_shader.contains(
+      "if (materialHasEmissiveTexture != 0) {",
     ),
     content="true",
   )
@@ -112,9 +126,9 @@ test "raylib lighting texture units upload as int uniforms for raylib compatibil
 }
 
 ///|
-test "raylib material texture slot bindings stay complete for texture0..texture5" {
+test "raylib material texture slot bindings stay complete for active maps" {
   let bindings = material_texture_slot_bindings()
-  inspect(bindings.length(), content="6")
+  inspect(bindings.length(), content="5")
   inspect(bindings[0].uniform_name, content="texture0")
   inspect(bindings[0].slot, content="0")
   inspect(bindings[0].shader_loc == @raylib.ShaderLocMapAlbedo, content="true")
@@ -133,27 +147,26 @@ test "raylib material texture slot bindings stay complete for texture0..texture5
   inspect(bindings[2].slot, content="2")
   inspect(bindings[2].shader_loc == @raylib.ShaderLocMapNormal, content="true")
   inspect(bindings[2].material_map == @raylib.MaterialMapNormal, content="true")
-  inspect(bindings[3].uniform_name, content="texture3")
-  inspect(bindings[3].slot, content="3")
+  inspect(bindings[3].uniform_name, content="texture4")
+  inspect(bindings[3].slot, content="4")
   inspect(
-    bindings[3].shader_loc == @raylib.ShaderLocMapRoughness,
+    bindings[3].shader_loc == @raylib.ShaderLocMapOcclusion,
     content="true",
   )
-  inspect(bindings[3].material_map == @raylib.MaterialMapRoughness, content="true")
-  inspect(bindings[4].uniform_name, content="texture4")
-  inspect(bindings[4].slot, content="4")
   inspect(
-    bindings[4].shader_loc == @raylib.ShaderLocMapOcclusion,
+    bindings[3].material_map == @raylib.MaterialMapOcclusion,
     content="true",
   )
-  inspect(bindings[4].material_map == @raylib.MaterialMapOcclusion, content="true")
-  inspect(bindings[5].uniform_name, content="texture5")
-  inspect(bindings[5].slot, content="5")
+  inspect(bindings[4].uniform_name, content="texture5")
+  inspect(bindings[4].slot, content="5")
   inspect(
-    bindings[5].shader_loc == @raylib.ShaderLocMapEmission,
+    bindings[4].shader_loc == @raylib.ShaderLocMapEmission,
     content="true",
   )
-  inspect(bindings[5].material_map == @raylib.MaterialMapEmission, content="true")
+  inspect(
+    bindings[4].material_map == @raylib.MaterialMapEmission,
+    content="true",
+  )
 }
 
 ///|

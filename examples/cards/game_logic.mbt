@@ -86,7 +86,7 @@ fn deal_hole_cards() -> Unit {
 /// Handle a betting round - single player just chooses action
 fn handle_betting_round() -> Unit {
   // Show buttons for player to make choice
-  if not(game_state.waiting_for_player) {
+  if !game_state.waiting_for_player {
     show_action_buttons()
   }
 }

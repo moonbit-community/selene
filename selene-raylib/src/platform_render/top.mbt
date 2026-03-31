@@ -114,6 +114,6 @@ pub fn capability_warning(feature : String, fallback : String) -> Unit {
   }
   reported_capabilities.add(feature)
   println(
-    "[selene-raylib][capability-warning] \{feature} is not fully supported; fallback: \{fallback}",
+    "[selene-raylib][capability-note] \{feature} is not fully supported; fallback: \{fallback}",
   )
 }

@@ -2780,7 +2780,7 @@ fn ldtk_rgba_color_with_alpha(color : String, alpha : Double) -> String? {
 ///|
 fn ldtk_parse_color_channel(source : StringView) -> Int? {
   let trimmed = source.trim()
-  let parsed : Result[Int, Error] = try? @strconv.parse_int(trimmed, base=10)
+  let parsed : Result[Int, Error] = try? @string.parse_int(trimmed, base=10)
   match parsed {
     Ok(value) =>
       Some(if value < 0 { 0 } else if value > 255 { 255 } else { value })
@@ -2791,7 +2791,7 @@ fn ldtk_parse_color_channel(source : StringView) -> Int? {
 ///|
 fn ldtk_parse_alpha_channel(source : StringView) -> Double? {
   let trimmed = source.trim()
-  let parsed : Result[Double, Error] = try? @strconv.parse_double(trimmed)
+  let parsed : Result[Double, Error] = try? @string.parse_double(trimmed)
   match parsed {
     Ok(value) => Some(ldtk_clamp_alpha(value))
     Err(_) => None
@@ -2804,7 +2804,7 @@ fn ldtk_hex_pair_to_int(hex : String, index : Int) -> Int? {
     return None
   }
   let pair = hex.unsafe_substring(start=index, end=index + 2)
-  let parsed : Result[Int, Error] = try? @strconv.parse_int(pair, base=16)
+  let parsed : Result[Int, Error] = try? @string.parse_int(pair, base=16)
   match parsed {
     Ok(value) => Some(value)
     Err(_) => None

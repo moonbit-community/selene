@@ -4230,7 +4230,7 @@ fn max_attribute_set_index(
       continue
     }
     let suffix = key.unsafe_substring(start=prefix.length(), end=key.length())
-    let parsed = try? @strconv.parse_int(suffix.view())
+    let parsed = try? @string.parse_int(suffix.view())
     guard parsed is Ok(index) else { continue }
     if index > max_index {
       max_index = index

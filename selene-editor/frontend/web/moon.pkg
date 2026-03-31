@@ -2,6 +2,8 @@ import {
   "Milky2018/selene_editor/frontend",
 }
 
+supported_targets = "js"
+
 options(
   is_main: true,
   overrides: [
@@ -11,5 +13,4 @@ options(
     "Milky2018/selene_webgpu/platform_audio",
     "Milky2018/selene_webgpu/platform_asset_io",
   ],
-  "supported-targets": "js",
 )

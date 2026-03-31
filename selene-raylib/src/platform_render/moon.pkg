@@ -9,5 +9,5 @@ import {
 
 options(
   implement: "Milky2018/selene/platform_render",
-  "supported-targets": "native",
+  "supported_targets": "native",
 )

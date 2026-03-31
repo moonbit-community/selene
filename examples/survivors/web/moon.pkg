@@ -2,6 +2,8 @@ import {
   "Milky2018/selene-examples/survivors" @survivors_game,
 }
 
+supported_targets = "js"
+
 options(
   "is-main": true,
   overrides: [
@@ -11,6 +13,5 @@ options(
     "Milky2018/selene_webgpu/platform_audio",
     "Milky2018/selene_webgpu/platform_asset_io",
   ],
-  "supported-targets": "js",
   targets: { "main.mbt": [ "js" ] },
 )
