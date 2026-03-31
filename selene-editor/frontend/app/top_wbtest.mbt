@@ -319,6 +319,47 @@ test "move selected resource follows visible asset ordering" {
 }
 
 ///|
+test "move selected resource clamps to first and last for large deltas" {
+  let model = {
+    ..new_model(),
+    assets: [
+      @editor_bridge.asset_document(
+        "assets/images/c.png",
+        @editor_bridge.infer_asset_kind("assets/images/c.png"),
+      ),
+      @editor_bridge.asset_document(
+        "assets/images/a.png",
+        @editor_bridge.infer_asset_kind("assets/images/a.png"),
+      ),
+      @editor_bridge.asset_document(
+        "assets/images/b.png",
+        @editor_bridge.infer_asset_kind("assets/images/b.png"),
+      ),
+    ],
+  }
+  let (_, first) = update(msg_move_selected_resource(1000000), model)
+  inspect(
+    first.selected_resource,
+    content="Some(Image(\"assets/images/a.png\"))",
+  )
+  inspect(first.status, content="Selected resource 1/3: a")
+
+  let (_, still_first) = update(msg_move_selected_resource(-1000000), first)
+  inspect(
+    still_first.selected_resource,
+    content="Some(Image(\"assets/images/a.png\"))",
+  )
+  inspect(still_first.status, content="Selected resource 1/3: a")
+
+  let (_, last) = update(msg_move_selected_resource(-1000000), model)
+  inspect(
+    last.selected_resource,
+    content="Some(Image(\"assets/images/c.png\"))",
+  )
+  inspect(last.status, content="Selected resource 3/3: c")
+}
+
+///|
 test "move selected resource respects section visibility" {
   let atlas = @editor_bridge.atlas_asset_document_from_image(
     "hero",

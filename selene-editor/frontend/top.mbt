@@ -183,6 +183,8 @@ extern "js" fn subscribe_shortcuts_forever(
   on_insert_selected_asset : () -> Unit,
   on_select_previous_asset : () -> Unit,
   on_select_next_asset : () -> Unit,
+  on_select_first_asset : () -> Unit,
+  on_select_last_asset : () -> Unit,
   on_clear_selection : () -> Unit,
 ) =
   #| (
@@ -201,6 +203,8 @@ extern "js" fn subscribe_shortcuts_forever(
   #|   onInsertSelectedAsset,
   #|   onSelectPreviousAsset,
   #|   onSelectNextAsset,
+  #|   onSelectFirstAsset,
+  #|   onSelectLastAsset,
   #|   onClearSelection
   #| ) => {
   #|   const focusAssetSearch = () => {
@@ -313,6 +317,16 @@ extern "js" fn subscribe_shortcuts_forever(
   #|       onSelectNextAsset();
   #|       return;
   #|     }
+  #|     if (key === "home") {
+  #|       event.preventDefault();
+  #|       onSelectFirstAsset();
+  #|       return;
+  #|     }
+  #|     if (key === "end") {
+  #|       event.preventDefault();
+  #|       onSelectLastAsset();
+  #|       return;
+  #|     }
   #|     if (key === "escape") {
   #|       event.preventDefault();
   #|       onClearSelection();
@@ -398,6 +412,17 @@ extern "js" fn input_event_is_enter_key(event : @dom.Event) -> Bool =
 #cfg(target="js")
 extern "js" fn input_event_blur_target(event : @dom.Event) =
   #| (event) => event?.target?.blur?.()
+
+///|
+#cfg(target="js")
+extern "js" fn scroll_selected_asset_row_into_view() =
+  #| () => {
+  #|   requestAnimationFrame(() => {
+  #|     const row = document.querySelector(".asset-tree-row.file.selected");
+  #|     if (!row || typeof row.scrollIntoView !== "function") return;
+  #|     row.scrollIntoView({ block: "nearest", inline: "nearest" });
+  #|   });
+  #| }
 
 ///|
 fn drag_drop_translation(event : @dom.DragEvent) -> @editor_bridge.Vec2Doc? {
@@ -501,6 +526,18 @@ fn subscribe_shortcuts_cmd(
       },
       fn() {
         schedule_cmd(scheduler, dispatch(@app.msg_move_selected_resource(1)))
+      },
+      fn() {
+        schedule_cmd(
+          scheduler,
+          dispatch(@app.msg_move_selected_resource(-1000000)),
+        )
+      },
+      fn() {
+        schedule_cmd(
+          scheduler,
+          dispatch(@app.msg_move_selected_resource(1000000)),
+        )
       },
       fn() { schedule_cmd(scheduler, dispatch(@app.msg_clear_selection())) },
     )
@@ -612,13 +649,28 @@ fn effects_to_cmd(
 }
 
 ///|
+fn ensure_selected_asset_visible_cmd() -> @rabbita.Cmd {
+  @cmd.raw_effect(
+    fn(_scheduler) { scroll_selected_asset_row_into_view() },
+    kind=@cmd.after_render,
+  )
+}
+
+///|
 fn update(
   dispatch : @rabbita.Dispatch[@app.Msg],
   msg : @app.Msg,
   model : @app.Model,
 ) -> (@rabbita.Cmd, @app.Model) {
   let (effects, next) = @app.update(msg, model)
-  (effects_to_cmd(dispatch, effects), next)
+  let effects_cmd = effects_to_cmd(dispatch, effects)
+  let selection_sync_cmd = if next.selected_resource != model.selected_resource &&
+    next.selected_resource is Some(_) {
+    ensure_selected_asset_visible_cmd()
+  } else {
+    @cmd.none
+  }
+  (@cmd.batch([effects_cmd, selection_sync_cmd]), next)
 }
 
 ///|
@@ -1130,7 +1182,7 @@ fn asset_panel_view(
       None =>
         @html.div(
           class="asset-selection-banner empty",
-          "Select an asset/resource (↑/↓), insert with Enter, quick-search with Cmd/Ctrl+F, clear with Esc",
+          "Select an asset/resource (↑/↓/Home/End), insert with Enter, quick-search with Cmd/Ctrl+F, clear with Esc",
         )
     },
     @html.input(
@@ -1161,7 +1213,7 @@ fn asset_panel_view(
         },
         attrs=if can_insert_selected {
           hint_attrs(
-            dispatch, "Insert selected resource into current scene (Enter/I, or double-click; use ↑/↓ to change selection)",
+            dispatch, "Insert selected resource into current scene (Enter/I, or double-click; use ↑/↓/Home/End to change selection)",
           )
         } else {
           @html.Attrs::build()
