@@ -1923,12 +1923,12 @@ fn view(
             "Add Component",
           ),
         ]),
-        @html.div(class="component-stack", component_cards),
         if model.add_component_panel_open {
           add_component_panel(dispatch, model, entity)
         } else {
           @html.nothing
         },
+        @html.div(class="component-stack", component_cards),
       ])
     }
     None => selected_asset_view(dispatch, model)

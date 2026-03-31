@@ -11,7 +11,7 @@
       "version": "0.30.4",
       "path": "../selene-webgpu"
     },
-    "moonbitlang/x": "0.4.40"
+    "moonbitlang/x": "0.4.41"
   },
   "readme": "README.md",
   "repository": "https://github.com/moonbit-community/selene.git",

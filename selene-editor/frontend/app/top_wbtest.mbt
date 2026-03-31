@@ -497,6 +497,29 @@ test "adding an existing built-in component is a no-op" {
 }
 
 ///|
+test "opening add component panel requires a selected entity" {
+  let without_selection = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(@editor_bridge.SceneDocument::default_main()),
+  }
+  let (_none_effects, none_selected) = update(
+    msg_open_add_component_panel(),
+    without_selection,
+  )
+  inspect(none_selected.add_component_panel_open, content="false")
+
+  let with_selection = { ..without_selection, selected_entity_id: Some("camera") }
+  let (_open_effects, opened) = update(
+    msg_open_add_component_panel(),
+    with_selection,
+  )
+  inspect(opened.add_component_panel_open, content="true")
+  inspect(opened.component_search_query, content="")
+}
+
+///|
 test "adding animation transitions auto-adds required dependency chain" {
   let model = {
     ..new_model(),

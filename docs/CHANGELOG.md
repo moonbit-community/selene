@@ -18,6 +18,8 @@
 - Fixed `selene-raylib` fallback text rendering/measurement spacing to use raylib-compatible default spacing (`1.0`) instead of `0.0`, reducing compressed default-font appearance when cosmic text rendering is unavailable.
 - Fixed `selene/physics3d` moon_rapier `0.4.0` integration by updating multibody joint conversion to `GenericJoint3DReal` and driving `JointSet3DReal::solve` with `IntegrationParameters.num_solver_iterations`.
 - Fixed `selene/collision` moon_rapier `0.4.0` compatibility by switching 2D pipeline CCD solver wiring from `dynamics.CCDSolver` to `dynamics_ccd.CCDSolver`.
+- Fixed `selene-editor` selection stability so clicks outside the viewport canvas (for example inside Inspector panels) no longer trigger preview pick clearing and unexpectedly deselect the current entity.
+- Fixed `selene-editor` Inspector Add Component UX by rendering the add panel directly below Inspector actions (instead of after the full component stack), so opening the panel is immediately visible even on long component lists.
 
 ### Removed
 

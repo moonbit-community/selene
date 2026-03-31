@@ -82,9 +82,58 @@ extern "js" fn set_canvas_cursor(cursor : String) =
   #| }
 
 ///|
+#cfg(target="js")
+extern "js" fn pointer_over_canvas() -> Bool =
+  #| () => {
+  #|   const canvas = document.getElementById("canvas");
+  #|   return !!canvas && canvas.matches(":hover");
+  #| }
+
+///|
+#cfg(target="js")
+extern "js" fn preview_debug_enabled() -> Bool =
+  #| () => {
+  #|   try {
+  #|     return window.location.search.includes("preview_debug=1");
+  #|   } catch (_error) {
+  #|     return false;
+  #|   }
+  #| }
+
+///|
+#cfg(target="js")
+extern "js" fn preview_debug_log(message : String) =
+  #| (message) => console.debug("[selene-preview]", message)
+
+///|
+#cfg(not(target="js"))
+fn preview_debug_enabled() -> Bool {
+  false
+}
+
+///|
+#cfg(not(target="js"))
+fn preview_debug_log(_message : String) -> Unit {
+  ()
+}
+
+///|
+#cfg(not(target="js"))
+fn pointer_over_canvas() -> Bool {
+  true
+}
+
+///|
 #cfg(not(target="js"))
 fn set_canvas_cursor(_cursor : String) -> Unit {
   ()
+}
+
+///|
+fn preview_debug(message : String) -> Unit {
+  if preview_debug_enabled() {
+    preview_debug_log(message)
+  }
 }
 
 ///|
@@ -104,6 +153,14 @@ fn normalized_mouse_position() -> @math.Vec2D {
     @inputs.mouse.pos[X] * editor_viewport_width / client_width,
     @inputs.mouse.pos[Y] * editor_viewport_height / client_height,
   )
+}
+
+///|
+fn inside_editor_viewport(point : @math.Vec2D) -> Bool {
+  point[X] >= 0.0 &&
+  point[X] <= editor_viewport_width &&
+  point[Y] >= 0.0 &&
+  point[Y] <= editor_viewport_height
 }
 
 ///|
@@ -133,11 +190,15 @@ fn pointer_drag_started(anchor : @math.Vec2D) -> Bool {
 
 ///|
 fn pointer_pan_active() -> Bool {
-  @inputs.mouse.middle_button ||
-  (
-    preview_state.active_tool == @shared.preview_tool_drag_canvas() &&
-    @inputs.mouse.left_button
-  )
+  match preview_state.camera_pan_anchor {
+    Some(_) =>
+      @inputs.mouse.middle_button ||
+      (
+        preview_state.active_tool == @shared.preview_tool_drag_canvas() &&
+        @inputs.mouse.left_button
+      )
+    None => false
+  }
 }
 
 ///|
@@ -746,6 +807,7 @@ fn preview_scene_sync_system(_world : @ecs.World) -> Unit {
 ///|
 fn preview_camera_control_system(_world : @ecs.World) -> Unit {
   guard editor_camera_entity() is Some(camera_entity) else { return }
+  let pointer_inside_canvas = pointer_over_canvas()
   if @camera.orthographic_projections().get(camera_entity) is Some(projection) {
     let wheel_delta = @inputs.mouse_wheel.delta
     if wheel_delta[X] != 0.0 || wheel_delta[Y] != 0.0 {
@@ -773,15 +835,32 @@ fn preview_camera_control_system(_world : @ecs.World) -> Unit {
       }
     }
   }
-  let pan_active = pointer_pan_active()
-  if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Middle) ||
+  if (
+      @inputs.is_mouse_just_pressed(@inputs.MouseButton::Middle) &&
+      pointer_inside_canvas
+    ) ||
     (
       @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) &&
-      preview_state.active_tool == @shared.preview_tool_drag_canvas()
+      preview_state.active_tool == @shared.preview_tool_drag_canvas() &&
+      pointer_inside_canvas
     ) {
     preview_state.camera_pan_anchor = Some(@inputs.mouse.pos)
+  } else if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) &&
+    preview_state.active_tool == @shared.preview_tool_drag_canvas() &&
+    !pointer_inside_canvas {
+    preview_debug(
+      "ignored drag-canvas left press outside canvas, mouse=" +
+      @inputs.mouse.pos[X].to_string() +
+      "," +
+      @inputs.mouse.pos[Y].to_string(),
+    )
   }
-  if !pan_active {
+  let pan_active = pointer_pan_active()
+  if !@inputs.mouse.middle_button &&
+    !(
+      preview_state.active_tool == @shared.preview_tool_drag_canvas() &&
+      @inputs.mouse.left_button
+    ) {
     preview_state.camera_pan_anchor = None
   }
   if pan_active && preview_state.camera_pan_anchor is Some(anchor) {
@@ -812,7 +891,9 @@ fn preview_camera_control_system(_world : @ecs.World) -> Unit {
 ///|
 fn preview_pick_system(_world : @ecs.World) -> Unit {
   guard world_point_from_mouse() is Some(world_point) else { return }
-  let hovered = pick_entity_id_at(world_point)
+  let pointer_inside = pointer_over_canvas() &&
+    inside_editor_viewport(normalized_mouse_position())
+  let hovered = if pointer_inside { pick_entity_id_at(world_point) } else { None }
   if hovered != preview_state.hovered_entity_id {
     preview_state.hovered_entity_id = hovered
     emit_preview_event(@bridge.preview_event_hover_changed(hovered))
@@ -850,7 +931,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
     preview_state.tool_drag = None
     return
   }
-  if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) {
+  if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) && pointer_inside {
     match preview_state.active_tool {
       @shared.Translate =>
         match preview_state.selected_entity_id {
@@ -969,6 +1050,13 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
         emit_preview_event(@bridge.preview_event_entity_picked(hovered))
       }
     }
+  } else if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) {
+    preview_debug(
+      "ignored left pick outside canvas, mouse=" +
+      @inputs.mouse.pos[X].to_string() +
+      "," +
+      @inputs.mouse.pos[Y].to_string(),
+    )
   }
   if (
       @inputs.is_mouse_just_released(@inputs.MouseButton::Left) ||

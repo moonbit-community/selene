@@ -4,11 +4,11 @@
   "deps": {
     "Yoorkin/rabbit-tea": "0.10.11",
     "Milky2018/selene": {
-      "path": "../selene-core",
-      "version": "0.30.4"
+      "version": "0.30.4",
+      "path": "../selene-core"
     },
     "rami3l/js-ffi": "0.4.0",
-    "Milky2018/moon_cosmic": "0.1.5"
+    "Milky2018/moon_cosmic": "0.3.0"
   },
   "readme": "README.md",
   "repository": "https://github.com/moonbit-community/selene.git",
