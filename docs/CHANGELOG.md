@@ -15,6 +15,7 @@
 - Fixed `selene-raylib` texture sampler completeness for 3D materials by moving mipmap generation into texture-preparation (`sync_image_asset` + internal fallback textures), so draw-time sampler application no longer mutates GPU texture state.
 - Fixed `selene-raylib` 3D material slot wiring so active maps (`texture0/1/2/4/5`) are driven by one slot table across shader locations, sampler units, and material-map uploads; roughness now consistently samples `metallicRoughnessSample.g` without a separate roughness texture slot.
 - Fixed `selene-raylib` issue #23 sampler warning path by removing unconditional roughness-slot usage (`texture3`/`MaterialMapRoughness`), disabling fallback normal-map slot binding when no normal texture exists, and making shadow sampler uniforms bind to active shadow texture units only (fallback to unit `0` when absent), which removes `GLD_TEXTURE_INDEX_2D ... unloadable` warnings in the `cmd/min3dprobe` and `cmd/mooncraft` repro flows.
+- Fixed `examples/scene3d` dynamic sphere instability by reducing initial launch velocity and adding damping + CCD to both free and jointed physics balls, preventing energy blow-up that made balls fly erratically.
 
 ### Removed
 
