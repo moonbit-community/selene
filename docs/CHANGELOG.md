@@ -29,6 +29,7 @@
 - Changed `selene-editor` keyboard asset navigation to support `Home`/`End` first/last jumps and auto-scroll the Assets tree to keep the current keyboard-selected resource visible.
 - Changed `selene-editor` Assets search discoverability by adding `/` quick-focus (in addition to `Cmd/Ctrl+F`) and surfacing both shortcuts in the search placeholder text.
 - Changed `selene-editor` Assets search keyboard flow so pressing `Esc` inside the search input clears the filter and blurs the field for immediate return to global editor shortcuts.
+- Changed `selene-editor` asset keyboard navigation to add `PageUp/PageDown` stepped traversal and added a dedicated `Clear Filter` control in the Assets toolbar.
 
 ### Fixed
 

@@ -185,6 +185,8 @@ extern "js" fn subscribe_shortcuts_forever(
   on_select_next_asset : () -> Unit,
   on_select_first_asset : () -> Unit,
   on_select_last_asset : () -> Unit,
+  on_select_previous_asset_page : () -> Unit,
+  on_select_next_asset_page : () -> Unit,
   on_clear_selection : () -> Unit,
 ) =
   #| (
@@ -205,6 +207,8 @@ extern "js" fn subscribe_shortcuts_forever(
   #|   onSelectNextAsset,
   #|   onSelectFirstAsset,
   #|   onSelectLastAsset,
+  #|   onSelectPreviousAssetPage,
+  #|   onSelectNextAssetPage,
   #|   onClearSelection
   #| ) => {
   #|   const focusAssetSearch = () => {
@@ -325,6 +329,16 @@ extern "js" fn subscribe_shortcuts_forever(
   #|     if (key === "end") {
   #|       event.preventDefault();
   #|       onSelectLastAsset();
+  #|       return;
+  #|     }
+  #|     if (key === "pageup") {
+  #|       event.preventDefault();
+  #|       onSelectPreviousAssetPage();
+  #|       return;
+  #|     }
+  #|     if (key === "pagedown") {
+  #|       event.preventDefault();
+  #|       onSelectNextAssetPage();
   #|       return;
   #|     }
   #|     if (key === "escape") {
@@ -548,6 +562,12 @@ fn subscribe_shortcuts_cmd(
           scheduler,
           dispatch(@app.msg_move_selected_resource(1000000)),
         )
+      },
+      fn() {
+        schedule_cmd(scheduler, dispatch(@app.msg_move_selected_resource(-10)))
+      },
+      fn() {
+        schedule_cmd(scheduler, dispatch(@app.msg_move_selected_resource(10)))
       },
       fn() { schedule_cmd(scheduler, dispatch(@app.msg_clear_selection())) },
     )
@@ -1078,6 +1098,7 @@ fn asset_panel_view(
   let can_insert_selected = model.scene is Some(_) &&
     model.selected_resource is Some(_)
   let can_clear_selected = model.selected_resource is Some(_)
+  let has_asset_filter = model.asset_query_normalized() != ""
   let force_expand_tree = model.asset_query_normalized() != ""
   let image_paths : Array[String] = []
   let image_badges : Map[String, String] = {}
@@ -1202,7 +1223,7 @@ fn asset_panel_view(
       None =>
         @html.div(
           class="asset-selection-banner empty",
-          "Select an asset/resource (↑/↓/Home/End), insert with Enter, quick-search with Cmd/Ctrl+F, clear with Esc",
+          "Select an asset/resource (↑/↓/Home/End/PageUp/PageDown), insert with Enter, quick-search with Cmd/Ctrl+F, clear with Esc",
         )
     },
     @html.input(
@@ -1214,6 +1235,24 @@ fn asset_panel_view(
       @html.nothing,
     ),
     @html.div(class="asset-tree-actions", [
+      @html.button(
+        class=if has_asset_filter {
+          "small-button"
+        } else {
+          "small-button disabled"
+        },
+        attrs=if has_asset_filter {
+          hint_attrs(dispatch, "Clear asset search filter")
+        } else {
+          @html.Attrs::build()
+        },
+        on_click=if has_asset_filter {
+          dispatch(@app.msg_set_asset_query(""))
+        } else {
+          @cmd.none
+        },
+        "Clear Filter",
+      ),
       @html.button(
         class="small-button",
         attrs=hint_attrs(dispatch, "Expand all asset folders (])"),
@@ -1234,7 +1273,7 @@ fn asset_panel_view(
         },
         attrs=if can_insert_selected {
           hint_attrs(
-            dispatch, "Insert selected resource into current scene (Enter/I, or double-click; use ↑/↓/Home/End to change selection)",
+            dispatch, "Insert selected resource into current scene (Enter/I, or double-click; use ↑/↓/Home/End/PageUp/PageDown to change selection)",
           )
         } else {
           @html.Attrs::build()
