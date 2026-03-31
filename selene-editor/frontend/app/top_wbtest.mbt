@@ -45,6 +45,21 @@ test "hover hint updates the shared info bar state" {
 }
 
 ///|
+test "asset tree folder toggle is state-driven" {
+  let model = new_model()
+  inspect(model.asset_tree_folder_expanded("images:assets"), content="true")
+
+  let (_, collapsed) = update(msg_toggle_asset_tree_folder("images:assets"), model)
+  inspect(collapsed.asset_tree_folder_expanded("images:assets"), content="false")
+
+  let (_, expanded) = update(
+    msg_toggle_asset_tree_folder("images:assets"),
+    collapsed,
+  )
+  inspect(expanded.asset_tree_folder_expanded("images:assets"), content="true")
+}
+
+///|
 test "project load refreshes both scene and asset list" {
   let (_, model) = update(msg_initialize(), new_model())
   let (effects, next) = update(

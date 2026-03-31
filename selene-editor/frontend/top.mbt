@@ -165,21 +165,6 @@ extern "js" fn schedule_cmd(scheduler : &@cmd.Scheduler, cmd : @rabbita.Cmd) =
 extern "js" fn prompt_text(message : String, initial : String) -> String =
   #| (message, initial) => window.prompt(message, initial) || ""
 
-///|
-#cfg(target="js")
-extern "js" fn encode_path_for_url(path : String) -> String =
-  #| (path) => path
-  #|   .split("/")
-  #|   .map((segment) => {
-  #|     try {
-  #|       return encodeURIComponent(decodeURIComponent(segment));
-  #|     } catch (_error) {
-  #|       return encodeURIComponent(segment);
-  #|     }
-  #|   })
-  #|   .join("/")
-
-///|
 #cfg(target="js")
 extern "js" fn subscribe_shortcuts_forever(
   on_undo : () -> Unit,
@@ -343,18 +328,6 @@ extern "js" fn drag_event_set_drop_copy(event : @dom.DragEvent) =
   #|   transfer.dropEffect = "copy";
   #| }
 
-///|
-#cfg(target="js")
-extern "js" fn image_event_natural_metrics(event : @dom.Event) -> Array[Double] =
-  #| (event) => {
-  #|   const image = event.currentTarget;
-  #|   return [
-  #|     image?.naturalWidth || 0,
-  #|     image?.naturalHeight || 0,
-  #|   ];
-  #| }
-
-///|
 #cfg(target="js")
 extern "js" fn input_event_is_enter_key(event : @dom.Event) -> Bool =
   #| (event) => (event?.key || "").toLowerCase() === "enter"
@@ -600,11 +573,6 @@ fn tree_view(
 }
 
 ///|
-fn project_asset_url(asset : @editor_bridge.AssetDocument) -> String {
-  "/project/" + encode_path_for_url(asset.path)
-}
-
-///|
 fn asset_drag_attrs(asset_path : String) -> @html.Attrs {
   @html.Attrs::build()
   .draggable("true")
@@ -621,31 +589,6 @@ fn asset_drag_attrs(asset_path : String) -> @html.Attrs {
   })
 }
 
-///|
-fn asset_image_attrs(
-  dispatch : @rabbita.Dispatch[@app.Msg],
-  asset_path : String,
-) -> @html.Attrs {
-  @html.Attrs::build()
-  .handler("load", fn(event, scheduler) {
-    let metrics = image_event_natural_metrics(event)
-    if metrics.length() < 2 {
-      return
-    }
-    schedule_cmd(
-      scheduler,
-      dispatch(@app.msg_asset_size_resolved(asset_path, metrics[0], metrics[1])),
-    )
-  })
-  .handler("error", fn(_event, scheduler) {
-    schedule_cmd(
-      scheduler,
-      dispatch(@app.msg_asset_image_load_failed(asset_path)),
-    )
-  })
-}
-
-///|
 fn hint_attrs(
   dispatch : @rabbita.Dispatch[@app.Msg],
   label : String,
@@ -690,29 +633,199 @@ fn atlas_region_preview_names(
 }
 
 ///|
-fn resource_card(
+fn tree_path_segments(path : String, drop_root : String?) -> Array[String] {
+  let raw = path.split("/")
+  let segments : Array[String] = []
+  for segment in raw {
+    if segment != "" {
+      segments.push(segment.to_string())
+    }
+  }
+  let mut start = 0
+  match drop_root {
+    Some(root) if !segments.is_empty() && segments[0] == root => {
+      start = 1
+    }
+    _ => ()
+  }
+  let trimmed : Array[String] = []
+  for index = start; index < segments.length(); index = index + 1 {
+    trimmed.push(segments[index])
+  }
+  if trimmed.is_empty() {
+    [path]
+  } else {
+    trimmed
+  }
+}
+
+///|
+fn common_prefix_len(left : Array[String], right : Array[String]) -> Int {
+  let limit = if left.length() < right.length() {
+    left.length()
+  } else {
+    right.length()
+  }
+  for index = 0; index < limit; index = index + 1 {
+    if left[index] != right[index] {
+      return index
+    }
+  }
+  limit
+}
+
+///|
+fn tree_row_indents(depth : Int) -> Array[@rabbita.Html] {
+  let indents : Array[@rabbita.Html] = []
+  for _index = 0; _index < depth; _index = _index + 1 {
+    indents.push(@html.span(class="asset-tree-indent", @html.nothing))
+  }
+  indents
+}
+
+///|
+fn folder_chain_key(section_key : String, folders : Array[String], depth : Int) -> String {
+  section_key + ":" + folders[:depth + 1].join("/")
+}
+
+///|
+fn folder_ancestors_expanded(
+  model : @app.Model,
+  section_key : String,
+  folders : Array[String],
+  depth_exclusive : Int,
+) -> Bool {
+  for index = 0; index < depth_exclusive; index = index + 1 {
+    let key = folder_chain_key(section_key, folders, index)
+    if !model.asset_tree_folder_expanded(key) {
+      return false
+    }
+  }
+  true
+}
+
+///|
+fn tree_folder_row(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  depth : Int,
+  label : String,
+  expanded : Bool,
+  folder_key : String,
+) -> @rabbita.Html {
+  let children = tree_row_indents(depth)
+  children.push(
+    @html.span(
+      class="asset-tree-node",
+      if expanded {
+        "▾"
+      } else {
+        "▸"
+      },
+    ),
+  )
+  children.push(@html.span(class="asset-tree-label folder", label))
+  @html.button(
+    class=if expanded {
+      "asset-tree-row folder expanded"
+    } else {
+      "asset-tree-row folder collapsed"
+    },
+    on_click=dispatch(@app.msg_toggle_asset_tree_folder(folder_key)),
+    children,
+  )
+}
+
+///|
+fn tree_file_row(
   dispatch : @rabbita.Dispatch[@app.Msg],
   selected : Bool,
   selection : @app.ResourceSelection,
-  title : String,
-  subtitle : String,
+  depth : Int,
+  label : String,
   badge : String,
-  preview : @rabbita.Html,
-  attrs? : @html.Attrs = @html.Attrs::build(),
+  draggable_asset_path : String?,
 ) -> @rabbita.Html {
+  let children = tree_row_indents(depth)
+  children.push(@html.span(class="asset-tree-node", "•"))
+  children.push(@html.span(class="asset-tree-label", label))
+  children.push(@html.span(class="asset-tree-badge", badge))
   @html.div(
-    class=if selected { "asset-card selected" } else { "asset-card" },
+    class=if selected {
+      "asset-tree-row file selected"
+    } else {
+      "asset-tree-row file"
+    },
     on_click=dispatch(@app.msg_select_resource(Some(selection))),
-    attrs~,
-    [
-      preview,
-      @html.div(class="asset-meta", [
-        @html.div(class="asset-name", title),
-        @html.div(class="asset-subtitle", subtitle),
-        @html.div(class="asset-badge", badge),
-      ]),
-    ],
+    attrs=match draggable_asset_path {
+      Some(path) => asset_drag_attrs(path)
+      None => @html.Attrs::build()
+    },
+    children,
   )
+}
+
+///|
+fn build_asset_tree_rows(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  model : @app.Model,
+  paths : Array[String],
+  section_key : String,
+  drop_root : String?,
+  selection_of : (String) -> @app.ResourceSelection,
+  badge_of : (String) -> String,
+  draggable_path_of : (String) -> String?,
+) -> Array[@rabbita.Html] {
+  let rows : Array[@rabbita.Html] = []
+  let sorted_paths : Array[String] = []
+  sorted_paths.push_iter(paths.iter())
+  sorted_paths.sort_by(fn(left, right) { left.compare(right) })
+  let mut previous_folders : Array[String] = []
+  for path in sorted_paths {
+    let segments = tree_path_segments(path, drop_root)
+    if segments.is_empty() {
+      continue
+    }
+    let file_index = segments.length() - 1
+    let folders = if file_index > 0 {
+      segments[:file_index].to_array()
+    } else {
+      []
+    }
+    let shared = common_prefix_len(previous_folders, folders)
+    for index = shared; index < folders.length(); index = index + 1 {
+      if !folder_ancestors_expanded(model, section_key, folders, index) {
+        break
+      }
+      let key = folder_chain_key(section_key, folders, index)
+      rows.push(
+        tree_folder_row(
+          dispatch,
+          index,
+          folders[index],
+          model.asset_tree_folder_expanded(key),
+          key,
+        ),
+      )
+    }
+    if !folder_ancestors_expanded(model, section_key, folders, folders.length()) {
+      previous_folders = folders
+      continue
+    }
+    let selection = selection_of(path)
+    rows.push(
+      tree_file_row(
+        dispatch,
+        model.selected_resource == Some(selection),
+        selection,
+        file_index,
+        segments[file_index],
+        badge_of(path),
+        draggable_path_of(path),
+      ),
+    )
+    previous_folders = folders
+  }
+  rows
 }
 
 ///|
@@ -750,47 +863,33 @@ fn asset_panel_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.Model,
 ) -> @rabbita.Html {
-  let image_cards : Array[@rabbita.Html] = []
+  let image_paths : Array[String] = []
+  let image_badges : Map[String, String] = {}
   for asset in model.image_assets() {
     let title = asset_display_name(asset)
     if !model.asset_matches_query(title, asset.path) {
       continue
     }
-    let selection = @app.resource_selection_image(asset.path)
-    let is_selected = model.selected_resource == Some(selection)
     let size_label = match model.asset_size(asset.path) {
       Some(size) => "\{size.x.to_int()}×\{size.y.to_int()}"
       None => "image"
     }
-    let preview = if model.failed_image_assets.contains(asset.path) {
-      @html.div(class="asset-thumb asset-thumb-glyph asset-thumb-failed", "IMG")
-    } else {
-      @html.img(
-        class="asset-thumb",
-        src=project_asset_url(asset),
-        alt=asset.path,
-        loading="lazy",
-        attrs=asset_image_attrs(dispatch, asset.path),
-        @html.nothing,
-      )
-    }
-    image_cards.push(
-      resource_card(
-        dispatch,
-        is_selected,
-        selection,
-        title,
-        asset.path,
-        size_label,
-        preview,
-        attrs=asset_drag_attrs(asset.path),
-      ),
-    )
+    image_paths.push(asset.path)
+    image_badges.set(asset.path, size_label)
   }
+  let image_rows = build_asset_tree_rows(
+    dispatch,
+    model,
+    image_paths,
+    "images",
+    Some("assets"),
+    fn(path) { @app.resource_selection_image(path) },
+    fn(path) { image_badges.get(path).unwrap_or("image") },
+    fn(path) { Some(path) },
+  )
 
-  let atlas_cards : Array[@rabbita.Html] = []
+  let atlas_paths : Array[String] = []
   for atlas_ref in model.atlas_refs {
-    let selection = @app.resource_selection_atlas(atlas_ref.path)
     let atlas_name = match model.atlas_documents.get(atlas_ref.path) {
       Some(atlas) => atlas.name
       None => asset_display_name_from_path(atlas_ref.path)
@@ -798,22 +897,21 @@ fn asset_panel_view(
     if !model.asset_matches_query(atlas_name, atlas_ref.path) {
       continue
     }
-    atlas_cards.push(
-      resource_card(
-        dispatch,
-        model.selected_resource == Some(selection),
-        selection,
-        atlas_name,
-        atlas_ref.path,
-        "atlas",
-        @html.div(class="asset-thumb asset-thumb-glyph", "AT"),
-      ),
-    )
+    atlas_paths.push(atlas_ref.path)
   }
+  let atlas_rows = build_asset_tree_rows(
+    dispatch,
+    model,
+    atlas_paths,
+    "atlases",
+    Some("assets"),
+    fn(path) { @app.resource_selection_atlas(path) },
+    fn(_path) { "atlas" },
+    fn(_path) { None },
+  )
 
-  let animation_cards : Array[@rabbita.Html] = []
+  let animation_paths : Array[String] = []
   for animation_ref in model.animation_refs {
-    let selection = @app.resource_selection_animation(animation_ref.path)
     let animation_name = match
       model.animation_documents.get(animation_ref.path) {
       Some(animation) => animation.name
@@ -822,22 +920,21 @@ fn asset_panel_view(
     if !model.asset_matches_query(animation_name, animation_ref.path) {
       continue
     }
-    animation_cards.push(
-      resource_card(
-        dispatch,
-        model.selected_resource == Some(selection),
-        selection,
-        animation_name,
-        animation_ref.path,
-        "anim",
-        @html.div(class="asset-thumb asset-thumb-glyph", "AN"),
-      ),
-    )
+    animation_paths.push(animation_ref.path)
   }
+  let animation_rows = build_asset_tree_rows(
+    dispatch,
+    model,
+    animation_paths,
+    "animations",
+    Some("assets"),
+    fn(path) { @app.resource_selection_animation(path) },
+    fn(_path) { "anim" },
+    fn(_path) { None },
+  )
 
-  let prefab_cards : Array[@rabbita.Html] = []
+  let prefab_paths : Array[String] = []
   for prefab_ref in model.prefab_refs {
-    let selection = @app.resource_selection_prefab(prefab_ref.path)
     let prefab_name = match model.prefab_documents.get(prefab_ref.path) {
       Some(prefab) => prefab.name
       None => asset_display_name_from_path(prefab_ref.path)
@@ -845,18 +942,18 @@ fn asset_panel_view(
     if !model.asset_matches_query(prefab_name, prefab_ref.path) {
       continue
     }
-    prefab_cards.push(
-      resource_card(
-        dispatch,
-        model.selected_resource == Some(selection),
-        selection,
-        prefab_name,
-        prefab_ref.path,
-        "prefab",
-        @html.div(class="asset-thumb asset-thumb-glyph", "PF"),
-      ),
-    )
+    prefab_paths.push(prefab_ref.path)
   }
+  let prefab_rows = build_asset_tree_rows(
+    dispatch,
+    model,
+    prefab_paths,
+    "prefabs",
+    Some("prefabs"),
+    fn(path) { @app.resource_selection_prefab(path) },
+    fn(_path) { "prefab" },
+    fn(_path) { None },
+  )
 
   let content : Array[@rabbita.Html] = [
     match model.selected_resource_path() {
@@ -882,58 +979,58 @@ fn asset_panel_view(
       @html.nothing,
     ),
   ]
-  if !image_cards.is_empty() {
+  if !image_rows.is_empty() {
     content.push(
       asset_section(
         dispatch,
         "Images",
-        image_cards.length(),
+        image_paths.length(),
         model.images_section_expanded,
         @app.msg_toggle_images_section(),
-        image_cards,
+        image_rows,
       ),
     )
   }
-  if !atlas_cards.is_empty() {
+  if !atlas_rows.is_empty() {
     content.push(
       asset_section(
         dispatch,
         "Atlases",
-        atlas_cards.length(),
+        atlas_paths.length(),
         model.atlases_section_expanded,
         @app.msg_toggle_atlases_section(),
-        atlas_cards,
+        atlas_rows,
       ),
     )
   }
-  if !animation_cards.is_empty() {
+  if !animation_rows.is_empty() {
     content.push(
       asset_section(
         dispatch,
         "Animations",
-        animation_cards.length(),
+        animation_paths.length(),
         model.animations_section_expanded,
         @app.msg_toggle_animations_section(),
-        animation_cards,
+        animation_rows,
       ),
     )
   }
-  if !prefab_cards.is_empty() {
+  if !prefab_rows.is_empty() {
     content.push(
       asset_section(
         dispatch,
         "Prefabs",
-        prefab_cards.length(),
+        prefab_paths.length(),
         model.prefabs_section_expanded,
         @app.msg_toggle_prefabs_section(),
-        prefab_cards,
+        prefab_rows,
       ),
     )
   }
-  if image_cards.is_empty() &&
-    atlas_cards.is_empty() &&
-    animation_cards.is_empty() &&
-    prefab_cards.is_empty() {
+  if image_rows.is_empty() &&
+    atlas_rows.is_empty() &&
+    animation_rows.is_empty() &&
+    prefab_rows.is_empty() {
     content.push(@html.div(class="empty", "No assets match this filter"))
   }
   @html.div(class="panel-body asset-grid", content)

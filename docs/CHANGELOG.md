@@ -12,6 +12,7 @@
 - Changed `selene-editor` Entity Inspector to a Unity-style component stack with per-component cards, collapse state, card action menus, and an integrated `Add Component` search panel.
 - Changed `selene-editor` entity component editing flow to support built-in component add/remove with strong dependency rules (`auto-add required chain` + `block destructive removal`) and transactional undo/redo.
 - Changed `selene-editor` custom gameplay component authoring flow to support generic JSON components (`kind + data`) with draft validation and explicit commit to scene state.
+- Changed `selene-editor` Assets panel rendering to a Rabbita state-driven tree model: folder expand/collapse now flows through `Model/Msg/update` (`asset_tree_expanded` + `ToggleAssetTreeFolder`) instead of view-only flattening.
 
 ### Fixed
 
@@ -20,6 +21,7 @@
 - Fixed `selene/collision` moon_rapier `0.4.0` compatibility by switching 2D pipeline CCD solver wiring from `dynamics.CCDSolver` to `dynamics_ccd.CCDSolver`.
 - Fixed `selene-editor` selection stability so clicks outside the viewport canvas (for example inside Inspector panels) no longer trigger preview pick clearing and unexpectedly deselect the current entity.
 - Fixed `selene-editor` Inspector Add Component UX by rendering the add panel directly below Inspector actions (instead of after the full component stack), so opening the panel is immediately visible even on long component lists.
+- Fixed `selene-editor` Assets panel hierarchy readability by replacing the flat card list with a directory-preserving tree view (Explorer-style folder/file indentation), so scrolling no longer destroys path context.
 
 ### Removed
 

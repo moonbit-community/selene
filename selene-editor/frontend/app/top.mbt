@@ -66,6 +66,7 @@ pub struct Model {
   redo_stack : Array[@editor_bridge.SceneDocument]
   active_scene_edit_transaction : SceneEditTransaction?
   hover_hint : String?
+  asset_tree_expanded : Map[String, Bool]
   images_section_expanded : Bool
   atlases_section_expanded : Bool
   animations_section_expanded : Bool
@@ -103,6 +104,7 @@ pub enum Msg {
   ServiceEvent(Result[@shared.EditorEvent, String])
   PreviewEvent(@bridge.PreviewEvent)
   SetHoverHint(String?)
+  ToggleAssetTreeFolder(String)
   ToggleImagesSection
   ToggleAtlasesSection
   ToggleAnimationsSection
@@ -231,6 +233,7 @@ pub fn new_model() -> Model {
     redo_stack: [],
     active_scene_edit_transaction: None,
     hover_hint: None,
+    asset_tree_expanded: {},
     images_section_expanded: true,
     atlases_section_expanded: true,
     animations_section_expanded: true,
@@ -671,6 +674,11 @@ pub fn msg_frame_selection() -> Msg {
 ///|
 pub fn msg_set_hover_hint(hint : String?) -> Msg {
   SetHoverHint(hint)
+}
+
+///|
+pub fn msg_toggle_asset_tree_folder(key : String) -> Msg {
+  ToggleAssetTreeFolder(key)
 }
 
 ///|
@@ -1655,6 +1663,11 @@ pub fn Model::asset_matches_query(
 }
 
 ///|
+pub fn Model::asset_tree_folder_expanded(self : Model, key : String) -> Bool {
+  self.asset_tree_expanded.get(key).unwrap_or(true)
+}
+
+///|
 pub fn Model::selected_resource_path(self : Model) -> String? {
   match self.selected_resource {
     Some(Image(path)) => Some(path)
@@ -2488,6 +2501,12 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         }
       }
     SetHoverHint(hint) => ([], { ..model, hover_hint: hint })
+    ToggleAssetTreeFolder(key) => {
+      let asset_tree_expanded = model.asset_tree_expanded
+      let next_value = !model.asset_tree_folder_expanded(key)
+      asset_tree_expanded.set(key, next_value)
+      ([], { ..model, asset_tree_expanded })
+    }
     ToggleImagesSection =>
       ([], { ..model, images_section_expanded: !model.images_section_expanded })
     ToggleAtlasesSection =>
