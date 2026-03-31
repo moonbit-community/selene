@@ -44,6 +44,7 @@
 - Changed `selene-editor` Add Component panel UX so existing built-in components render as disabled (`Existing`) entries with explicit hover hints, and added search-result feedback (`matching count` + empty-state message) to reduce no-op clicks and unclear filter outcomes.
 - Changed `selene-editor` Scene Browser layout to keep current-scene controls fixed while the scene list scrolls independently, and added an explicit `All Scenes (N)` list header for better orientation in multi-scene projects.
 - Changed `selene-editor` top Options UX to make move-snap step first-class: added `- / +` controls with a visible step readout, wired matching keyboard shortcuts (`-` / `+`), and surfaced current snap mode/step in the bottom info bar default text.
+- Changed `selene-editor` Scene Tree interaction UX so rows are clearly interactive (`hover`/pointer affordance), publish entity hints to the bottom info bar, and support double-click-to-frame for faster camera navigation.
 
 ### Fixed
 

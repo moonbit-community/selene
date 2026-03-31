@@ -772,7 +772,7 @@ fn tree_view(
       @html.div(
         class=if is_selected { "tree-item selected" } else { "tree-item" },
         style=["padding-left: \{depth * 14}px"],
-        on_click=dispatch(@app.msg_select_entity(Some(entity.id))),
+        attrs=scene_tree_item_attrs(dispatch, entity),
         @app.entity_label(entity),
       ),
     )
@@ -781,6 +781,30 @@ fn tree_view(
     )
   }
   nodes
+}
+
+///|
+fn scene_tree_item_attrs(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  entity : @editor_bridge.EntityDocument,
+) -> @html.Attrs {
+  let hover_hint = "Entity: " +
+    @app.entity_label(entity) +
+    " (double-click to frame)"
+  @html.Attrs::build()
+  .handler("click", fn(_event, scheduler) {
+    schedule_cmd(scheduler, dispatch(@app.msg_select_entity(Some(entity.id))))
+  })
+  .handler("dblclick", fn(_event, scheduler) {
+    schedule_cmd(scheduler, dispatch(@app.msg_select_entity(Some(entity.id))))
+    schedule_cmd(scheduler, dispatch(@app.msg_frame_selection()))
+  })
+  .handler("mouseenter", fn(_event, scheduler) {
+    schedule_cmd(scheduler, dispatch(@app.msg_set_hover_hint(Some(hover_hint))))
+  })
+  .handler("mouseleave", fn(_event, scheduler) {
+    schedule_cmd(scheduler, dispatch(@app.msg_set_hover_hint(None)))
+  })
 }
 
 ///|

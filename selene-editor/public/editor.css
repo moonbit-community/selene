@@ -272,6 +272,14 @@ input {
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
+.tree-item {
+  cursor: pointer;
+}
+
+.tree-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
 .asset-grid {
   display: flex;
   flex-direction: column;
