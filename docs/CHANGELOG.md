@@ -17,6 +17,7 @@
 - Changed `selene-editor` Assets tree controls to include explicit `Expand All` / `Collapse All` actions for folder visibility management.
 - Changed `selene-editor` keyboard UX to add asset-tree folder shortcuts: `]` for expand-all and `[` for collapse-all.
 - Changed `selene-editor` asset-tree interaction so double-clicking a resource row inserts the resource into the current scene directly.
+- Changed `selene-editor` Assets panel action affordance by adding `Insert Selected` and `Clear` controls and resource-type glyphs (`I/A/N/P`) on tree file rows.
 
 ### Fixed
 

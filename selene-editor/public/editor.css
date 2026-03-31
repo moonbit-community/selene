@@ -360,6 +360,16 @@ input {
   margin-right: 6px;
 }
 
+.asset-tree-node.file {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 2px;
+  width: 14px;
+  height: 14px;
+  line-height: 14px;
+  font-size: 9px;
+  color: var(--accent);
+}
+
 .asset-tree-label {
   min-width: 0;
   flex: 1;
@@ -562,6 +572,7 @@ input {
 
 .asset-tree-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 4px;
 }

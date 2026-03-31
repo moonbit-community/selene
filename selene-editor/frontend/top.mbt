@@ -770,7 +770,17 @@ fn tree_file_row(
   draggable_asset_path : String?,
 ) -> @rabbita.Html {
   let children = tree_row_indents(depth)
-  children.push(@html.span(class="asset-tree-node", "•"))
+  children.push(
+    @html.span(
+      class="asset-tree-node file",
+      match selection {
+        @app.Image(_) => "I"
+        @app.Atlas(_) => "A"
+        @app.Animation(_) => "N"
+        @app.Prefab(_) => "P"
+      },
+    ),
+  )
   children.push(@html.span(class="asset-tree-label", label))
   children.push(@html.span(class="asset-tree-badge", badge))
   @html.div(
@@ -946,6 +956,8 @@ fn asset_panel_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.Model,
 ) -> @rabbita.Html {
+  let can_insert_selected = model.scene is Some(_) && model.selected_resource is Some(_)
+  let can_clear_selected = model.selected_resource is Some(_)
   let force_expand_tree = model.asset_query_normalized() != ""
   let image_paths : Array[String] = []
   let image_badges : Map[String, String] = {}
@@ -1078,6 +1090,45 @@ fn asset_panel_view(
         attrs=hint_attrs(dispatch, "Collapse all asset folders ([)"),
         on_click=dispatch(@app.msg_collapse_all_asset_folders()),
         "Collapse All",
+      ),
+      @html.button(
+        class=if can_insert_selected {
+          "small-button"
+        } else {
+          "small-button disabled"
+        },
+        attrs=if can_insert_selected {
+          hint_attrs(
+            dispatch,
+            "Insert selected resource into current scene (double-click also works)",
+          )
+        } else {
+          @html.Attrs::build()
+        },
+        on_click=if can_insert_selected {
+          dispatch(@app.msg_insert_selected_resource())
+        } else {
+          @cmd.none
+        },
+        "Insert Selected",
+      ),
+      @html.button(
+        class=if can_clear_selected {
+          "small-button"
+        } else {
+          "small-button disabled"
+        },
+        attrs=if can_clear_selected {
+          hint_attrs(dispatch, "Clear selected resource")
+        } else {
+          @html.Attrs::build()
+        },
+        on_click=if can_clear_selected {
+          dispatch(@app.msg_select_resource(None))
+        } else {
+          @cmd.none
+        },
+        "Clear",
       ),
     ]),
   ]
