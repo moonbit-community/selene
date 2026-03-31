@@ -449,6 +449,20 @@ extern "js" fn scroll_selected_asset_row_into_view() =
   #| }
 
 ///|
+#cfg(target="js")
+extern "js" fn focus_component_search_input() =
+  #| () => {
+  #|   requestAnimationFrame(() => {
+  #|     const input = document.querySelector(".component-search-input");
+  #|     if (!input || typeof input.focus !== "function") return;
+  #|     input.focus();
+  #|     if (typeof input.select === "function") {
+  #|       input.select();
+  #|     }
+  #|   });
+  #| }
+
+///|
 fn drag_drop_translation(event : @dom.DragEvent) -> @editor_bridge.Vec2Doc? {
   let metrics = drag_event_canvas_metrics(event)
   if metrics.length() < 4 {
@@ -687,6 +701,14 @@ fn ensure_selected_asset_visible_cmd() -> @rabbita.Cmd {
 }
 
 ///|
+fn focus_component_search_cmd() -> @rabbita.Cmd {
+  @cmd.raw_effect(
+    fn(_scheduler) { focus_component_search_input() },
+    kind=@cmd.after_render,
+  )
+}
+
+///|
 fn update(
   dispatch : @rabbita.Dispatch[@app.Msg],
   msg : @app.Msg,
@@ -700,7 +722,16 @@ fn update(
   } else {
     @cmd.none
   }
-  (@cmd.batch([effects_cmd, selection_sync_cmd]), next)
+  let component_search_focus_cmd = if next.add_component_panel_open &&
+    !model.add_component_panel_open {
+    focus_component_search_cmd()
+  } else {
+    @cmd.none
+  }
+  (
+    @cmd.batch([effects_cmd, selection_sync_cmd, component_search_focus_cmd]),
+    next,
+  )
 }
 
 ///|

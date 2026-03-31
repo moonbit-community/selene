@@ -40,6 +40,7 @@
 - Changed `selene-editor` Add Component panel keyboard UX so pressing `Esc` in component search/custom-kind inputs closes the panel immediately.
 - Changed `selene-editor` Add Component custom-kind input so pressing `Enter` submits `Add custom component` directly without requiring a button click.
 - Changed `selene-editor` filter mode behavior to ignore manual asset-section collapse state (`Images/Atlases/Animations/Prefabs`) so matching results remain visible and keyboard-selectable while filtering.
+- Changed `selene-editor` Add Component panel open behavior to autofocus the component search input automatically, reducing pointer-only interaction.
 
 ### Fixed
 
