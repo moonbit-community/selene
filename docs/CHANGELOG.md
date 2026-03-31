@@ -25,6 +25,7 @@
 - Changed `selene-editor` Assets toolbar to show visible resource counts (`items` / `filtered items`) so filter impact is immediately observable.
 - Changed `selene-editor` asset keyboard workflow to support `↑/↓` resource traversal and `Enter` insertion for the current selection, matching the Assets tree ordering and section visibility.
 - Changed `selene-editor` keyboard/navigation UX to add global `Esc` selection clear and `Cmd/Ctrl+F` asset-search focus, reducing pointer-only interaction overhead.
+- Changed `selene-editor` selection feedback UX so asset/resource selection updates the bottom status bar with current focus context (including keyboard traversal index), improving orientation during keyboard-first editing.
 
 ### Fixed
 

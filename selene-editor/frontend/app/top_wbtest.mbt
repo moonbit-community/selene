@@ -276,6 +276,7 @@ test "selecting an asset does not create a scene entity" {
   )
   inspect(next.selected_resource, content="Some(Image(\"assets/hero.png\"))")
   inspect(next.scene.unwrap().entities.length(), content="1")
+  inspect(next.status, content="Selected resource: hero")
 }
 
 ///|
@@ -300,18 +301,21 @@ test "move selected resource follows visible asset ordering" {
     content="Some(Image(\"assets/images/apple.png\"))",
   )
   inspect(first.selected_entity_id, content="None")
+  inspect(first.status, content="Selected resource 1/2: apple")
 
   let (_, second) = update(msg_move_selected_resource(1), first)
   inspect(
     second.selected_resource,
     content="Some(Image(\"assets/images/zebra.png\"))",
   )
+  inspect(second.status, content="Selected resource 2/2: zebra")
 
   let (_, back) = update(msg_move_selected_resource(-1), second)
   inspect(
     back.selected_resource,
     content="Some(Image(\"assets/images/apple.png\"))",
   )
+  inspect(back.status, content="Selected resource 1/2: apple")
 }
 
 ///|

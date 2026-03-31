@@ -1856,6 +1856,11 @@ fn resource_selection_path(selection : ResourceSelection) -> String {
 }
 
 ///|
+fn resource_selection_name(selection : ResourceSelection) -> String {
+  asset_basename(resource_selection_path(selection))
+}
+
+///|
 fn resource_tree_segments(path : String, root : String) -> Array[String] {
   let raw = path.split("/")
   let segments : Array[String] = []
@@ -2909,7 +2914,12 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           status: "Loading " + path + "...",
         },
       )
-    SelectResource(resource) =>
+    SelectResource(resource) => {
+      let status = match resource {
+        Some(selection) =>
+          "Selected resource: " + resource_selection_name(selection)
+        None => "Selection cleared"
+      }
       (
         [],
         {
@@ -2923,8 +2933,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           add_component_panel_open: false,
           component_search_query: "",
           open_component_menu_kind: None,
+          status,
         },
       )
+    }
     SelectEntity(id) => {
       let next = {
         ..model,
@@ -3258,6 +3270,8 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
               add_component_panel_open: false,
               component_search_query: "",
               open_component_menu_kind: None,
+              status: "Selected resource \{target_index + 1}/\{resources.length()}: " +
+              resource_selection_name(resources[target_index]),
             },
           )
         }
