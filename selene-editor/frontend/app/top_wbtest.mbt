@@ -99,6 +99,27 @@ test "asset query updates status feedback" {
 }
 
 ///|
+test "asset query clears selection when selected resource is filtered out" {
+  let model = {
+    ..new_model(),
+    assets: [
+      @editor_bridge.asset_document(
+        "assets/images/apple.png",
+        @editor_bridge.infer_asset_kind("assets/images/apple.png"),
+      ),
+      @editor_bridge.asset_document(
+        "assets/images/banana.png",
+        @editor_bridge.infer_asset_kind("assets/images/banana.png"),
+      ),
+    ],
+    selected_resource: Some(resource_selection_image("assets/images/apple.png")),
+  }
+  let (_, next) = update(msg_set_asset_query("banana"), model)
+  inspect(next.selected_resource, content="None")
+  inspect(next.status, content="Filtering assets: banana (selection cleared)")
+}
+
+///|
 test "selecting nested asset auto-expands ancestor folders" {
   let model = {
     ..new_model(),

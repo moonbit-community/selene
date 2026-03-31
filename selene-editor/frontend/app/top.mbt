@@ -2659,13 +2659,29 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     }
     SetAssetQuery(value) => {
       let trimmed = value.trim().to_string()
+      let next_selected_resource = match model.selected_resource {
+        Some(selection) => {
+          let preview_model = { ..model, asset_query: value }
+          let visible = visible_resources_in_order(preview_model)
+          if resource_index(visible, selection) is Some(_) {
+            Some(selection)
+          } else {
+            None
+          }
+        }
+        None => None
+      }
       (
         [],
         {
           ..model,
           asset_query: value,
+          selected_resource: next_selected_resource,
           status: if trimmed == "" {
             "Asset filter cleared"
+          } else if model.selected_resource is Some(_) &&
+            next_selected_resource is None {
+            "Filtering assets: " + trimmed + " (selection cleared)"
           } else {
             "Filtering assets: " + trimmed
           },
