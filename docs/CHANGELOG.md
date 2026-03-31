@@ -15,6 +15,7 @@
 - Changed `selene-editor` Assets panel rendering to a Rabbita state-driven tree model: folder expand/collapse now flows through `Model/Msg/update` (`asset_tree_expanded` + `ToggleAssetTreeFolder`) instead of view-only flattening.
 - Changed `selene-editor` Assets tree UX to auto-expand ancestor folders on resource selection, force-expand matches while search filtering, and surface full resource paths in the bottom info bar on tree row hover.
 - Changed `selene-editor` Assets tree controls to include explicit `Expand All` / `Collapse All` actions for folder visibility management.
+- Changed `selene-editor` keyboard UX to add asset-tree folder shortcuts: `]` for expand-all and `[` for collapse-all.
 
 ### Fixed
 

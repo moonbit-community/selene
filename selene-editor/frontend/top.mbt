@@ -177,6 +177,8 @@ extern "js" fn subscribe_shortcuts_forever(
   on_move : () -> Unit,
   on_rotate : () -> Unit,
   on_scale : () -> Unit,
+  on_expand_assets : () -> Unit,
+  on_collapse_assets : () -> Unit,
 ) =
   #| (
   #|   onUndo,
@@ -188,7 +190,9 @@ extern "js" fn subscribe_shortcuts_forever(
   #|   onDragCanvas,
   #|   onMove,
   #|   onRotate,
-  #|   onScale
+  #|   onScale,
+  #|   onExpandAssets,
+  #|   onCollapseAssets
   #| ) => {
   #|   const isEditable = (target) => {
   #|     if (!target) return false;
@@ -255,6 +259,16 @@ extern "js" fn subscribe_shortcuts_forever(
   #|     if (key === "r") {
   #|       event.preventDefault();
   #|       onScale();
+  #|       return;
+  #|     }
+  #|     if (key === "]") {
+  #|       event.preventDefault();
+  #|       onExpandAssets();
+  #|       return;
+  #|     }
+  #|     if (key === "[") {
+  #|       event.preventDefault();
+  #|       onCollapseAssets();
   #|       return;
   #|     }
   #|   });
@@ -424,6 +438,12 @@ fn subscribe_shortcuts_cmd(
           scheduler,
           dispatch(@app.msg_set_tool(@shared.preview_tool_scale())),
         )
+      },
+      fn() {
+        schedule_cmd(scheduler, dispatch(@app.msg_expand_all_asset_folders()))
+      },
+      fn() {
+        schedule_cmd(scheduler, dispatch(@app.msg_collapse_all_asset_folders()))
       },
     )
   })
@@ -1039,13 +1059,13 @@ fn asset_panel_view(
     @html.div(class="asset-tree-actions", [
       @html.button(
         class="small-button",
-        attrs=hint_attrs(dispatch, "Expand all asset folders"),
+        attrs=hint_attrs(dispatch, "Expand all asset folders (])"),
         on_click=dispatch(@app.msg_expand_all_asset_folders()),
         "Expand All",
       ),
       @html.button(
         class="small-button",
-        attrs=hint_attrs(dispatch, "Collapse all asset folders"),
+        attrs=hint_attrs(dispatch, "Collapse all asset folders ([)"),
         on_click=dispatch(@app.msg_collapse_all_asset_folders()),
         "Collapse All",
       ),
