@@ -179,6 +179,7 @@ extern "js" fn subscribe_shortcuts_forever(
   on_scale : () -> Unit,
   on_expand_assets : () -> Unit,
   on_collapse_assets : () -> Unit,
+  on_insert_selected_asset : () -> Unit,
 ) =
   #| (
   #|   onUndo,
@@ -192,7 +193,8 @@ extern "js" fn subscribe_shortcuts_forever(
   #|   onRotate,
   #|   onScale,
   #|   onExpandAssets,
-  #|   onCollapseAssets
+  #|   onCollapseAssets,
+  #|   onInsertSelectedAsset
   #| ) => {
   #|   const isEditable = (target) => {
   #|     if (!target) return false;
@@ -269,6 +271,11 @@ extern "js" fn subscribe_shortcuts_forever(
   #|     if (key === "[") {
   #|       event.preventDefault();
   #|       onCollapseAssets();
+  #|       return;
+  #|     }
+  #|     if (key === "i") {
+  #|       event.preventDefault();
+  #|       onInsertSelectedAsset();
   #|       return;
   #|     }
   #|   });
@@ -444,6 +451,9 @@ fn subscribe_shortcuts_cmd(
       },
       fn() {
         schedule_cmd(scheduler, dispatch(@app.msg_collapse_all_asset_folders()))
+      },
+      fn() {
+        schedule_cmd(scheduler, dispatch(@app.msg_insert_selected_resource()))
       },
     )
   })
@@ -1100,7 +1110,7 @@ fn asset_panel_view(
         attrs=if can_insert_selected {
           hint_attrs(
             dispatch,
-            "Insert selected resource into current scene (double-click also works)",
+            "Insert selected resource into current scene (I, or double-click)",
           )
         } else {
           @html.Attrs::build()
@@ -2329,7 +2339,7 @@ fn view(
         @html.h2("Viewport"),
         @html.div(
           class="viewport-toolbar",
-          "Drag selected assets into the scene. Pan with middle drag or Drag Canvas tool. Touchpad two-finger scroll pans; Shift + scroll zooms.",
+          "Drag selected assets into the scene. Pan with middle drag or Drag Canvas tool. Touchpad two-finger scroll pans; Shift + scroll zooms. Assets: I inserts selected, ] expands all, [ collapses all.",
         ),
         @html.div(class="viewport-frame", [
           @html.canvas(

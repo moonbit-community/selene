@@ -18,6 +18,8 @@
 - Changed `selene-editor` keyboard UX to add asset-tree folder shortcuts: `]` for expand-all and `[` for collapse-all.
 - Changed `selene-editor` asset-tree interaction so double-clicking a resource row inserts the resource into the current scene directly.
 - Changed `selene-editor` Assets panel action affordance by adding `Insert Selected` and `Clear` controls and resource-type glyphs (`I/A/N/P`) on tree file rows.
+- Changed `selene-editor` keyboard UX to add `I` for inserting the currently selected asset resource into the scene.
+- Changed `selene-editor` viewport help copy to document asset-tree shortcuts (`I`, `]`, `[`), reducing hidden-key discoverability issues.
 
 ### Fixed
 
