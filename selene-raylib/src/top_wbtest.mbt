@@ -214,3 +214,8 @@ test "raylib lighting shader exposes secondary uv and tangent controls" {
     content="true",
   )
 }
+
+///|
+test "raylib text fallback measurement matches default spacing behavior" {
+  inspect(RAYLIB_DEFAULT_TEXT_SPACING, content="1")
+}

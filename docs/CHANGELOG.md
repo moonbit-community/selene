@@ -8,6 +8,8 @@
 
 ### Fixed
 
+- Fixed `selene-raylib` fallback text rendering/measurement spacing to use raylib-compatible default spacing (`1.0`) instead of `0.0`, reducing compressed default-font appearance when cosmic text rendering is unavailable.
+
 ### Removed
 
 ## [0.30.4] - 2026-03-31

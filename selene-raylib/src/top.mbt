@@ -2787,6 +2787,9 @@ fn get_font_by_family(family : String) -> @raylib.Font {
 }
 
 ///|
+const RAYLIB_DEFAULT_TEXT_SPACING : Float = 1.0
+
+///|
 fn reset_cosmic_runtime() -> Unit {
   backend.cosmic_loaded_families.clear()
   for _key, entry in backend.cosmic_textures {
@@ -3647,7 +3650,7 @@ pub fn draw_text(command : @render2d_types.TextDrawCommand2D) -> Unit {
     command.text,
     to_ray_vector2(x, y),
     to_float(command.style.size),
-    0.0,
+    RAYLIB_DEFAULT_TEXT_SPACING,
     to_ray_color(command.style.color),
   )
 }
@@ -3664,7 +3667,12 @@ pub fn measure_text(
     return measured
   }
   let font = get_font_by_family(style.family)
-  let measured = @raylib.measure_text_ex(font, text, to_float(style.size), 0.0)
+  let measured = @raylib.measure_text_ex(
+    font,
+    text,
+    to_float(style.size),
+    RAYLIB_DEFAULT_TEXT_SPACING,
+  )
   @smath.Vec2D(vector2_x(measured), vector2_y(measured))
 }
 
