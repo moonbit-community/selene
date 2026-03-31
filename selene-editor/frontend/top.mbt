@@ -1464,70 +1464,78 @@ fn scene_browser_view(
     )
   }
   @html.div(class="panel-body scene-browser-body", [
-    @html.div(class="inspector-block", [
-      @html.h3("Current Scene"),
-      @html.div(class="kv", [
-        @html.span(class="kv-key", "Name"),
-        @html.span(
-          class="kv-value",
-          match model.scene {
-            Some(scene) => scene.name
-            None => "(none)"
-          },
+    @html.div(class="scene-browser-head", [
+      @html.div(class="inspector-block", [
+        @html.h3("Current Scene"),
+        @html.div(class="kv", [
+          @html.span(class="kv-key", "Name"),
+          @html.span(
+            class="kv-value",
+            match model.scene {
+              Some(scene) => scene.name
+              None => "(none)"
+            },
+          ),
+        ]),
+        @html.div(class="kv", [
+          @html.span(class="kv-key", "Path"),
+          @html.span(class="kv-value", model.scene_path),
+        ]),
+      ]),
+      @html.div(class="scene-browser-actions", [
+        @html.button(
+          class="small-button",
+          attrs=hint_attrs(dispatch, "Create Scene"),
+          on_click=@cmd.raw_effect(fn(scheduler) {
+            let name = prompt_text("Scene name", "scene")
+            if name.trim() != "" {
+              schedule_cmd(scheduler, dispatch(@app.msg_create_scene(name)))
+            }
+          }),
+          "+",
+        ),
+        @html.button(
+          class="small-button",
+          attrs=hint_attrs(dispatch, "Rename Current Scene"),
+          on_click=@cmd.raw_effect(fn(scheduler) {
+            let current_name = match model.scene {
+              Some(scene) => scene.name
+              None => "scene"
+            }
+            let name = prompt_text("Scene name", current_name)
+            if name.trim() != "" {
+              schedule_cmd(
+                scheduler,
+                dispatch(@app.msg_rename_current_scene(name)),
+              )
+            }
+          }),
+          "✎",
+        ),
+        @html.button(
+          class="small-button",
+          attrs=hint_attrs(dispatch, "Delete Current Scene"),
+          on_click=dispatch(@app.msg_delete_current_scene()),
+          "−",
+        ),
+        @html.button(
+          class="small-button",
+          attrs=hint_attrs(dispatch, "Set Current As Startup"),
+          on_click=dispatch(@app.msg_set_current_scene_as_startup()),
+          "★",
         ),
       ]),
-      @html.div(class="kv", [
-        @html.span(class="kv-key", "Path"),
-        @html.span(class="kv-value", model.scene_path),
-      ]),
-    ]),
-    @html.div(class="scene-browser-actions", [
-      @html.button(
-        class="small-button",
-        attrs=hint_attrs(dispatch, "Create Scene"),
-        on_click=@cmd.raw_effect(fn(scheduler) {
-          let name = prompt_text("Scene name", "scene")
-          if name.trim() != "" {
-            schedule_cmd(scheduler, dispatch(@app.msg_create_scene(name)))
-          }
-        }),
-        "+",
-      ),
-      @html.button(
-        class="small-button",
-        attrs=hint_attrs(dispatch, "Rename Current Scene"),
-        on_click=@cmd.raw_effect(fn(scheduler) {
-          let current_name = match model.scene {
-            Some(scene) => scene.name
-            None => "scene"
-          }
-          let name = prompt_text("Scene name", current_name)
-          if name.trim() != "" {
-            schedule_cmd(
-              scheduler,
-              dispatch(@app.msg_rename_current_scene(name)),
-            )
-          }
-        }),
-        "✎",
-      ),
-      @html.button(
-        class="small-button",
-        attrs=hint_attrs(dispatch, "Delete Current Scene"),
-        on_click=dispatch(@app.msg_delete_current_scene()),
-        "−",
-      ),
-      @html.button(
-        class="small-button",
-        attrs=hint_attrs(dispatch, "Set Current As Startup"),
-        on_click=dispatch(@app.msg_set_current_scene_as_startup()),
-        "★",
-      ),
     ]),
     if items.is_empty() {
       @html.div(class="empty", "No scenes in this project")
     } else {
-      @html.div(class="scene-browser-list", items)
+      @html.div(class="scene-browser-list", [
+        @html.div(
+          class="scene-browser-list-header",
+          "All Scenes (\{items.length()})",
+        ),
+        @html.div(class="scene-browser-list-body", items),
+      ])
     },
   ])
 }

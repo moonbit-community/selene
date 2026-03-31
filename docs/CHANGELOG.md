@@ -42,6 +42,7 @@
 - Changed `selene-editor` filter mode behavior to ignore manual asset-section collapse state (`Images/Atlases/Animations/Prefabs`) so matching results remain visible and keyboard-selectable while filtering.
 - Changed `selene-editor` Add Component panel open behavior to autofocus the component search input automatically, reducing pointer-only interaction.
 - Changed `selene-editor` Add Component panel UX so existing built-in components render as disabled (`Existing`) entries with explicit hover hints, and added search-result feedback (`matching count` + empty-state message) to reduce no-op clicks and unclear filter outcomes.
+- Changed `selene-editor` Scene Browser layout to keep current-scene controls fixed while the scene list scrolls independently, and added an explicit `All Scenes (N)` list header for better orientation in multi-scene projects.
 
 ### Fixed
 

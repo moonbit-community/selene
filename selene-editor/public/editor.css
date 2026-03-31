@@ -526,7 +526,15 @@ input {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-height: 0;
   overflow: hidden;
+}
+
+.scene-browser-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 0 0 auto;
 }
 
 .scene-browser-actions {
@@ -538,6 +546,31 @@ input {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  flex: 1;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.scene-browser-list-header {
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.scene-browser-list-body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.scene-browser-list-body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .scene-pill {
