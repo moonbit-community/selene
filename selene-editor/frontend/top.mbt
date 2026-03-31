@@ -189,6 +189,7 @@ extern "js" fn subscribe_shortcuts_forever(
   on_select_next_asset_page : () -> Unit,
   on_move_snap_step_down : () -> Unit,
   on_move_snap_step_up : () -> Unit,
+  on_open_add_component : () -> Unit,
   on_clear_selection : () -> Unit,
 ) =
   #| (
@@ -213,6 +214,7 @@ extern "js" fn subscribe_shortcuts_forever(
   #|   onSelectNextAssetPage,
   #|   onMoveSnapStepDown,
   #|   onMoveSnapStepUp,
+  #|   onOpenAddComponent,
   #|   onClearSelection
   #| ) => {
   #|   const focusAssetSearch = () => {
@@ -353,6 +355,11 @@ extern "js" fn subscribe_shortcuts_forever(
   #|     if (key === "=" || key === "+") {
   #|       event.preventDefault();
   #|       onMoveSnapStepUp();
+  #|       return;
+  #|     }
+  #|     if (key === "c") {
+  #|       event.preventDefault();
+  #|       onOpenAddComponent();
   #|       return;
   #|     }
   #|     if (key === "escape") {
@@ -602,6 +609,9 @@ fn subscribe_shortcuts_cmd(
       },
       fn() {
         schedule_cmd(scheduler, dispatch(@app.msg_adjust_move_snap_step(1)))
+      },
+      fn() {
+        schedule_cmd(scheduler, dispatch(@app.msg_open_add_component_panel()))
       },
       fn() { schedule_cmd(scheduler, dispatch(@app.msg_clear_selection())) },
     )
@@ -2554,7 +2564,7 @@ fn view(
           @html.button(
             class="small-button",
             on_click=dispatch(@app.msg_open_add_component_panel()),
-            "Add Component",
+            "Add Component (C)",
           ),
         ]),
         if model.add_component_panel_open {
