@@ -178,6 +178,10 @@ test "select entity updates status with entity name when available" {
 
   let (_, fallback) = update(msg_select_entity(Some("missing-entity")), model)
   inspect(fallback.status, content="Selected entity: missing-entity")
+
+  let (_, cleared) = update(msg_select_entity(None), selected)
+  inspect(cleared.status, content="Entity selection cleared")
+  inspect(cleared.selected_entity_id, content="None")
 }
 
 ///|

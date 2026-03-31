@@ -3006,7 +3006,12 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
               }
             None => "Selected entity: " + entity_id
           }
-        None => model.status
+        None =>
+          match model.selected_resource {
+            Some(selection) =>
+              "Selected resource: " + resource_selection_name(selection)
+            None => "Entity selection cleared"
+          }
       }
       let next = {
         ..model,

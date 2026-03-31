@@ -1864,6 +1864,19 @@ fn add_component_group(
 }
 
 ///|
+fn close_add_component_panel_on_escape_attrs(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+) -> @html.Attrs {
+  @html.Attrs::build().handler("keydown", fn(event, scheduler) {
+    if input_event_is_escape_key(event) {
+      event.prevent_default()
+      input_event_blur_target(event)
+      schedule_cmd(scheduler, dispatch(@app.msg_close_add_component_panel()))
+    }
+  })
+}
+
+///|
 fn add_component_panel(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.Model,
@@ -1915,6 +1928,7 @@ fn add_component_panel(
       on_input=fn(value) {
         dispatch(@app.msg_set_component_search_query(value))
       },
+      attrs=close_add_component_panel_on_escape_attrs(dispatch),
       @html.nothing,
     ),
     @html.div(class="component-add-groups", groups),
@@ -1927,6 +1941,7 @@ fn add_component_panel(
         on_input=fn(value) {
           dispatch(@app.msg_update_add_custom_component_kind(value))
         },
+        attrs=close_add_component_panel_on_escape_attrs(dispatch),
         @html.nothing,
       ),
       @html.button(
