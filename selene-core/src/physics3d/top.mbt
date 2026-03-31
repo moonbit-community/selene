@@ -1171,24 +1171,6 @@ fn clear_controller_outputs() -> Unit {
 }
 
 ///|
-fn finite_scalar(value : Double) -> Bool {
-  value == value && value < 1_000_000.0 && value > -1_000_000.0
-}
-
-///|
-fn finite_vec3(value : @math.Vec3) -> Bool {
-  finite_scalar(value.x) && finite_scalar(value.y) && finite_scalar(value.z)
-}
-
-///|
-fn finite_quat(value : @math.Quat) -> Bool {
-  finite_scalar(value.x) &&
-  finite_scalar(value.y) &&
-  finite_scalar(value.z) &&
-  finite_scalar(value.w)
-}
-
-///|
 pub fn physics_step_system(delta : Double) -> Unit {
   if delta <= 0.0 {
     return
@@ -1457,20 +1439,10 @@ fn sync_rapier_to_components() -> Unit {
       continue
     }
     guard world.bodies.get(handle) is Some(body) else { continue }
-    let translation = @math.vec3_from_rapier(body.translation())
-    let rotation = @math.quat_from_rapier(body.rotation())
-    let linvel = @math.vec3_from_rapier(body.linvel())
-    let angvel = @math.vec3_from_rapier(body.angvel())
-    if !finite_vec3(translation) ||
-      !finite_quat(rotation) ||
-      !finite_vec3(linvel) ||
-      !finite_vec3(angvel) {
-      continue
-    }
     let world_transform : @transform.Transform = {
       ..current_world_transform(entity).unwrap_or_default(),
-      translation,
-      rotation,
+      translation: @math.vec3_from_rapier(body.translation()),
+      rotation: @math.quat_from_rapier(body.rotation()),
     }
     let local_transform = match entity.get_parent() {
       Some(parent) =>
@@ -1484,7 +1456,10 @@ fn sync_rapier_to_components() -> Unit {
       None => world_transform
     }
     @transform.transforms().set(entity, local_transform)
-    velocities().set(entity, { linvel, angvel })
+    velocities().set(entity, {
+      linvel: @math.vec3_from_rapier(body.linvel()),
+      angvel: @math.vec3_from_rapier(body.angvel()),
+    })
   }
 }
 

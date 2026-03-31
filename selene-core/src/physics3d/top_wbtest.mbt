@@ -304,38 +304,3 @@ test "kinematic character controller writes output and clears consumed translati
     )
   })
 }
-
-///|
-test "finite guards reject nan and extreme values" {
-  let nan = 0.0 / 0.0
-  inspect(finite_scalar(0.0), content="true")
-  inspect(finite_scalar(nan), content="false")
-  inspect(finite_scalar(1_000_001.0), content="false")
-  inspect(finite_vec3(@math.Vec3::new(1.0, 2.0, 3.0)), content="true")
-  inspect(finite_vec3(@math.Vec3::new(nan, 0.0, 0.0)), content="false")
-}
-
-///|
-test "sync_rapier_to_components ignores invalid rapier transform writeback" {
-  with_physics3d_test_world(fn() raise {
-    let body_entity = @entity.Entity::new()
-    @transform.transforms().set(
-      body_entity,
-      @transform.Transform::from_xyz(1.0, 2.0, 3.0),
-    )
-    rigid_bodies().set(body_entity, Dynamic)
-    colliders().set(body_entity, Collider::ball(0.5))
-
-    step_physics(1)
-    let before = @transform.transforms().get(body_entity).unwrap().translation
-
-    let handle = rigid_body_handle(body_entity).unwrap()
-    let body = physics3d_world().bodies.get_mut(handle).unwrap()
-    body.set_translation(@math.Vec3::new(0.0 / 0.0, 0.0, 0.0).to_rapier())
-
-    sync_rapier_to_components()
-
-    let transform = @transform.transforms().get(body_entity).unwrap()
-    inspect(transform.translation, content="\{before}")
-  })
-}
