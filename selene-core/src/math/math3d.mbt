@@ -287,10 +287,10 @@ pub fn Quat::from_basis(x_axis : Vec3, y_axis : Vec3, z_axis : Vec3) -> Quat {
 ///|
 pub fn Quat::to_rapier(self : Quat) -> @rcore.Quat {
   @rcore.Quat::new(
-    Float::from_double(self.w),
     Float::from_double(self.x),
     Float::from_double(self.y),
     Float::from_double(self.z),
+    Float::from_double(self.w),
   )
 }
 

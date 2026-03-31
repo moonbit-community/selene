@@ -17,7 +17,7 @@
 - Fixed `selene-raylib` issue #23 sampler warning path by removing unconditional roughness-slot usage (`texture3`/`MaterialMapRoughness`), disabling fallback normal-map slot binding when no normal texture exists, and making shadow sampler uniforms bind to active shadow texture units only (fallback to unit `0` when absent), which removes `GLD_TEXTURE_INDEX_2D ... unloadable` warnings in the `cmd/min3dprobe` and `cmd/mooncraft` repro flows.
 - Fixed `examples/scene3d` dynamic sphere instability by reducing initial launch velocity and adding damping + CCD to both free and jointed physics balls, preventing energy blow-up that made balls fly erratically.
 - Fixed `examples/scene3d` spherical-joint anchor setup for the upper-right ball by correcting child/parent local anchor assignment (`local_anchor1` on child, `local_anchor2` on parent), eliminating large per-step constraint correction that caused visual flicker/jitter.
-- Fixed `examples/scene3d` lower-left small sphere flicker by disabling shadow casting/receiving on the tiny child collider visualization mesh, preventing shadow-pass shimmer artifacts.
+- Fixed `selene/math::Quat::to_rapier` 3D quaternion component order to match `moon_rapier/core.Quat(x, y, z, w)`, preventing invalid rigid-body rotation writeback that caused transform jitter/flicker in `examples/scene3d` (including the lower-left green sphere parent-child chain).
 
 ### Removed
 

@@ -402,8 +402,8 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
       roughness: 0.3,
     }),
     visible: true,
-    cast_shadows: false,
-    receive_shadows: false,
+    cast_shadows: true,
+    receive_shadows: true,
   })
   @physics3d.colliders().set(child_collider, @physics3d.Collider::ball(0.22))
 
