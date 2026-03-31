@@ -345,14 +345,9 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
   @physics3d.rigid_bodies().set(dynamic_ball, Dynamic)
   @physics3d.colliders().set(dynamic_ball, @physics3d.Collider::ball(0.35))
   @physics3d.velocities().set(dynamic_ball, {
-    linvel: vec3(0.2, 0.0, -0.1),
+    linvel: vec3(0.9, 0.0, -0.4),
     angvel: vec3(0.0, 0.0, 0.0),
   })
-  @physics3d.dampings().set(dynamic_ball, {
-    linear_damping: 1.8,
-    angular_damping: 1.2,
-  })
-  @physics3d.ccds().set(dynamic_ball, @physics3d.Ccd::{  })
   @physics3d.contact_force_event_thresholds().set(
     dynamic_ball,
     ContactForceEventThreshold(0.0),
@@ -422,11 +417,6 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
   )
   @physics3d.rigid_bodies().set(joint_ball, Dynamic)
   @physics3d.colliders().set(joint_ball, @physics3d.Collider::ball(0.28))
-  @physics3d.dampings().set(joint_ball, {
-    linear_damping: 2.2,
-    angular_damping: 1.6,
-  })
-  @physics3d.ccds().set(joint_ball, @physics3d.Ccd::{  })
   @physics3d.impulse_joints().set(joint_ball, {
     parent: joint_anchor,
     data: Spherical({
