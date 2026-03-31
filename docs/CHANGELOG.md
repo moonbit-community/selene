@@ -35,6 +35,7 @@
 - Changed `selene-editor` resource-selection UX to auto-expand the matching Assets section (`Images`/`Atlases`/`Animations`/`Prefabs`) when selection is driven by editor actions.
 - Changed `selene-editor` Assets filter feedback so entering a query updates status with the active filter term, while clearing the query reports `Asset filter cleared`.
 - Changed `selene-editor` filtering behavior to automatically clear an asset selection when the selected resource is no longer visible under the active filter, avoiding hidden stale selection state.
+- Changed `selene-editor` global `Esc` behavior to close Inspector transient UI (component panel/menu) before clearing entity/resource selection, reducing accidental focus loss.
 
 ### Fixed
 

@@ -2927,7 +2927,20 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         }
       }
     ClearSelection =>
-      if model.selected_entity_id is None &&
+      if model.add_component_panel_open ||
+        model.open_component_menu_kind is Some(_) {
+        (
+          [],
+          {
+            ..model,
+            add_component_panel_open: false,
+            component_search_query: "",
+            open_component_menu_kind: None,
+            add_custom_component_kind: "",
+            status: "Inspector panel closed",
+          },
+        )
+      } else if model.selected_entity_id is None &&
         model.selected_resource is None &&
         !model.add_component_panel_open &&
         model.open_component_menu_kind is None {

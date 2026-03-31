@@ -45,7 +45,7 @@ test "hover hint updates the shared info bar state" {
 }
 
 ///|
-test "clear selection resets active inspector context" {
+test "clear selection closes inspector panel before deselecting" {
   let model = {
     ..new_model(),
     selected_entity_id: Some("camera"),
@@ -56,7 +56,19 @@ test "clear selection resets active inspector context" {
       Some("camera"),
     ),
   }
-  let (effects, cleared) = update(msg_clear_selection(), model)
+  let (close_effects, closed_panel) = update(msg_clear_selection(), model)
+  inspect(close_effects.length(), content="0")
+  inspect(closed_panel.selected_entity_id, content="Some(\"camera\")")
+  inspect(
+    closed_panel.selected_resource,
+    content="Some(Image(\"assets/images/hero.png\"))",
+  )
+  inspect(closed_panel.add_component_panel_open, content="false")
+  inspect(closed_panel.open_component_menu_kind, content="None")
+  inspect(closed_panel.workspace.selected_entity_id, content="Some(\"camera\")")
+  inspect(closed_panel.status, content="Inspector panel closed")
+
+  let (effects, cleared) = update(msg_clear_selection(), closed_panel)
   inspect(effects.length(), content="3")
   inspect(cleared.selected_entity_id, content="None")
   inspect(cleared.selected_resource, content="None")
