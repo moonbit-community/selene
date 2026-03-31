@@ -36,6 +36,7 @@
 - Changed `selene-editor` Assets filter feedback so entering a query updates status with the active filter term, while clearing the query reports `Asset filter cleared`.
 - Changed `selene-editor` filtering behavior to automatically clear an asset selection when the selected resource is no longer visible under the active filter, avoiding hidden stale selection state.
 - Changed `selene-editor` global `Esc` behavior to close Inspector transient UI (component panel/menu) before clearing entity/resource selection, reducing accidental focus loss.
+- Changed `selene-editor` entity selection feedback to surface `Selected entity: ...` in the status bar when selecting from Scene Tree/Viewport.
 
 ### Fixed
 

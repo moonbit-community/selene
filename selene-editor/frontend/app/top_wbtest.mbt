@@ -169,6 +169,18 @@ test "selecting nested asset auto-expands ancestor folders" {
 }
 
 ///|
+test "select entity updates status with entity name when available" {
+  let scene = @editor_bridge.SceneDocument::default_main()
+  let model = { ..new_model(), scene: Some(scene), status: "Idle" }
+  let (_, selected) = update(msg_select_entity(Some("camera")), model)
+  inspect(selected.status, content="Selected entity: Camera2d")
+  inspect(selected.selected_entity_id, content="Some(\"camera\")")
+
+  let (_, fallback) = update(msg_select_entity(Some("missing-entity")), model)
+  inspect(fallback.status, content="Selected entity: missing-entity")
+}
+
+///|
 test "expand and collapse all asset folders update tree state" {
   let model = {
     ..new_model(),

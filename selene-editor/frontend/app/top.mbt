@@ -2996,6 +2996,18 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       ([], next)
     }
     SelectEntity(id) => {
+      let status = match id {
+        Some(entity_id) =>
+          match model.scene {
+            Some(scene) =>
+              match scene.entity(entity_id) {
+                Some(entity) => "Selected entity: " + entity.name
+                None => "Selected entity: " + entity_id
+              }
+            None => "Selected entity: " + entity_id
+          }
+        None => model.status
+      }
       let next = {
         ..model,
         selected_entity_id: id,
@@ -3015,6 +3027,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         } else {
           model.selected_resource
         },
+        status,
       }
       (sync_preview_effects(next), next)
     }
