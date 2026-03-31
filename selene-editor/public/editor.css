@@ -560,6 +560,12 @@ input {
   margin-bottom: 4px;
 }
 
+.asset-tree-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
 .asset-thumb-failed {
   border-color: rgba(246, 193, 119, 0.35);
   color: var(--warn);

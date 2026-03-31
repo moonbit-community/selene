@@ -105,6 +105,8 @@ pub enum Msg {
   PreviewEvent(@bridge.PreviewEvent)
   SetHoverHint(String?)
   ToggleAssetTreeFolder(String)
+  ExpandAllAssetFolders
+  CollapseAllAssetFolders
   ToggleImagesSection
   ToggleAtlasesSection
   ToggleAnimationsSection
@@ -679,6 +681,16 @@ pub fn msg_set_hover_hint(hint : String?) -> Msg {
 ///|
 pub fn msg_toggle_asset_tree_folder(key : String) -> Msg {
   ToggleAssetTreeFolder(key)
+}
+
+///|
+pub fn msg_expand_all_asset_folders() -> Msg {
+  ExpandAllAssetFolders
+}
+
+///|
+pub fn msg_collapse_all_asset_folders() -> Msg {
+  CollapseAllAssetFolders
 }
 
 ///|
@@ -1788,6 +1800,53 @@ fn with_asset_tree_expanded_for_selection(
 }
 
 ///|
+fn collect_folder_keys_for_path(
+  path : String,
+  section : String,
+  root : String,
+  seen : Map[String, Bool],
+  keys : Array[String],
+) -> Unit {
+  let segments = resource_tree_segments(path, root)
+  if segments.length() <= 1 {
+    return
+  }
+  for index = 0; index < segments.length() - 1; index = index + 1 {
+    let key = section + ":" + segments[:index + 1].join("/")
+    if seen.contains(key) {
+      continue
+    }
+    seen.set(key, true)
+    keys.push(key)
+  }
+}
+
+///|
+fn all_asset_tree_folder_keys(model : Model) -> Array[String] {
+  let seen : Map[String, Bool] = {}
+  let keys : Array[String] = []
+  for asset in model.image_assets() {
+    collect_folder_keys_for_path(asset.path, "images", "assets", seen, keys)
+  }
+  for atlas in model.atlas_refs {
+    collect_folder_keys_for_path(atlas.path, "atlases", "assets", seen, keys)
+  }
+  for animation in model.animation_refs {
+    collect_folder_keys_for_path(
+      animation.path,
+      "animations",
+      "assets",
+      seen,
+      keys,
+    )
+  }
+  for prefab in model.prefab_refs {
+    collect_folder_keys_for_path(prefab.path, "prefabs", "prefabs", seen, keys)
+  }
+  keys
+}
+
+///|
 fn collect_required_builtin_components(
   kind : @editor_bridge.BuiltinComponentKind,
   visited : Map[String, Bool],
@@ -2587,6 +2646,29 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       let next_value = !model.asset_tree_folder_expanded(key)
       asset_tree_expanded.set(key, next_value)
       ([], { ..model, asset_tree_expanded })
+    }
+    ExpandAllAssetFolders =>
+      (
+        [],
+        {
+          ..model,
+          asset_tree_expanded: {},
+          status: "Expanded all asset folders",
+        },
+      )
+    CollapseAllAssetFolders => {
+      let asset_tree_expanded : Map[String, Bool] = {}
+      for key in all_asset_tree_folder_keys(model) {
+        asset_tree_expanded.set(key, false)
+      }
+      (
+        [],
+        {
+          ..model,
+          asset_tree_expanded,
+          status: "Collapsed all asset folders",
+        },
+      )
     }
     ToggleImagesSection =>
       ([], { ..model, images_section_expanded: !model.images_section_expanded })

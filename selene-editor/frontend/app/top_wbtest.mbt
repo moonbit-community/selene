@@ -94,6 +94,40 @@ test "selecting nested asset auto-expands ancestor folders" {
 }
 
 ///|
+test "expand and collapse all asset folders update tree state" {
+  let model = {
+    ..new_model(),
+    assets: [
+      @editor_bridge.asset_document(
+        "assets/pixeladventure/Menu/Buttons/Volume.png",
+        @editor_bridge.infer_asset_kind(
+          "assets/pixeladventure/Menu/Buttons/Volume.png",
+        ),
+      ),
+    ],
+  }
+  let (_, collapsed) = update(msg_collapse_all_asset_folders(), model)
+  inspect(
+    collapsed.asset_tree_folder_expanded("images:pixeladventure"),
+    content="false",
+  )
+  inspect(
+    collapsed.asset_tree_folder_expanded("images:pixeladventure/Menu"),
+    content="false",
+  )
+
+  let (_, expanded) = update(msg_expand_all_asset_folders(), collapsed)
+  inspect(
+    expanded.asset_tree_folder_expanded("images:pixeladventure"),
+    content="true",
+  )
+  inspect(
+    expanded.asset_tree_folder_expanded("images:pixeladventure/Menu"),
+    content="true",
+  )
+}
+
+///|
 test "project load refreshes both scene and asset list" {
   let (_, model) = update(msg_initialize(), new_model())
   let (effects, next) = update(

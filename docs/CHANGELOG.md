@@ -14,6 +14,7 @@
 - Changed `selene-editor` custom gameplay component authoring flow to support generic JSON components (`kind + data`) with draft validation and explicit commit to scene state.
 - Changed `selene-editor` Assets panel rendering to a Rabbita state-driven tree model: folder expand/collapse now flows through `Model/Msg/update` (`asset_tree_expanded` + `ToggleAssetTreeFolder`) instead of view-only flattening.
 - Changed `selene-editor` Assets tree UX to auto-expand ancestor folders on resource selection, force-expand matches while search filtering, and surface full resource paths in the bottom info bar on tree row hover.
+- Changed `selene-editor` Assets tree controls to include explicit `Expand All` / `Collapse All` actions for folder visibility management.
 
 ### Fixed
 

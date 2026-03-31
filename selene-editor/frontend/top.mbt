@@ -1036,6 +1036,20 @@ fn asset_panel_view(
       on_input=fn(value) { dispatch(@app.msg_set_asset_query(value)) },
       @html.nothing,
     ),
+    @html.div(class="asset-tree-actions", [
+      @html.button(
+        class="small-button",
+        attrs=hint_attrs(dispatch, "Expand all asset folders"),
+        on_click=dispatch(@app.msg_expand_all_asset_folders()),
+        "Expand All",
+      ),
+      @html.button(
+        class="small-button",
+        attrs=hint_attrs(dispatch, "Collapse all asset folders"),
+        on_click=dispatch(@app.msg_collapse_all_asset_folders()),
+        "Collapse All",
+      ),
+    ]),
   ]
   if !image_rows.is_empty() {
     content.push(
