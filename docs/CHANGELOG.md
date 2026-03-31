@@ -30,6 +30,7 @@
 - Changed `selene-editor` Assets search discoverability by adding `/` quick-focus (in addition to `Cmd/Ctrl+F`) and surfacing both shortcuts in the search placeholder text.
 - Changed `selene-editor` Assets search keyboard flow so pressing `Esc` inside the search input clears the filter and blurs the field for immediate return to global editor shortcuts.
 - Changed `selene-editor` asset keyboard navigation to add `PageUp/PageDown` stepped traversal and added a dedicated `Clear Filter` control in the Assets toolbar.
+- Changed `selene-editor` empty-filter state UX to show a one-click `Reset Filter` action when no assets match the current query.
 
 ### Fixed
 

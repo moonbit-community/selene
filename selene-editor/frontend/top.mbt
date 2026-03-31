@@ -1366,7 +1366,24 @@ fn asset_panel_view(
     atlas_rows.is_empty() &&
     animation_rows.is_empty() &&
     prefab_rows.is_empty() {
-    content.push(@html.div(class="empty", "No assets match this filter"))
+    content.push(
+      @html.div(
+        class="empty",
+        if has_asset_filter {
+          [
+            @html.span("No assets match this filter"),
+            @html.button(
+              class="small-button",
+              attrs=hint_attrs(dispatch, "Clear asset search filter"),
+              on_click=dispatch(@app.msg_set_asset_query("")),
+              "Reset Filter",
+            ),
+          ]
+        } else {
+          [@html.span("No assets found")]
+        },
+      ),
+    )
   }
   @html.div(class="panel-body asset-grid", content)
 }
