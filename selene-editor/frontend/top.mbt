@@ -572,23 +572,6 @@ fn tree_view(
   nodes
 }
 
-///|
-fn asset_drag_attrs(asset_path : String) -> @html.Attrs {
-  @html.Attrs::build()
-  .draggable("true")
-  .handler("dragstart", fn(event, _scheduler) {
-    begin_dragged_asset(asset_path)
-    match event.to_drag_event() {
-      Some(drag_event) => drag_event_set_asset_payload(drag_event, asset_path)
-      None => ()
-    }
-  })
-  .handler("dragend", fn(event, _scheduler) {
-    ignore(event)
-    clear_dragged_asset()
-  })
-}
-
 fn hint_attrs(
   dispatch : @rabbita.Dispatch[@app.Msg],
   label : String,
@@ -693,8 +676,12 @@ fn folder_ancestors_expanded(
   model : @app.Model,
   section_key : String,
   folders : Array[String],
+  force_expand : Bool,
   depth_exclusive : Int,
 ) -> Bool {
+  if force_expand {
+    return true
+  }
   for index = 0; index < depth_exclusive; index = index + 1 {
     let key = folder_chain_key(section_key, folders, index)
     if !model.asset_tree_folder_expanded(key) {
@@ -710,6 +697,7 @@ fn tree_folder_row(
   depth : Int,
   label : String,
   expanded : Bool,
+  toggle_enabled : Bool,
   folder_key : String,
 ) -> @rabbita.Html {
   let children = tree_row_indents(depth)
@@ -724,13 +712,28 @@ fn tree_folder_row(
     ),
   )
   children.push(@html.span(class="asset-tree-label folder", label))
-  @html.button(
-    class=if expanded {
+  let class = if toggle_enabled {
+    if expanded {
       "asset-tree-row folder expanded"
     } else {
       "asset-tree-row folder collapsed"
+    }
+  } else if expanded {
+    "asset-tree-row folder expanded locked"
+  } else {
+    "asset-tree-row folder collapsed locked"
+  }
+  @html.button(
+    class=if expanded {
+      class
+    } else {
+      class
     },
-    on_click=dispatch(@app.msg_toggle_asset_tree_folder(folder_key)),
+    on_click=if toggle_enabled {
+      dispatch(@app.msg_toggle_asset_tree_folder(folder_key))
+    } else {
+      @cmd.none
+    },
     children,
   )
 }
@@ -740,6 +743,7 @@ fn tree_file_row(
   dispatch : @rabbita.Dispatch[@app.Msg],
   selected : Bool,
   selection : @app.ResourceSelection,
+  full_path : String,
   depth : Int,
   label : String,
   badge : String,
@@ -756,12 +760,41 @@ fn tree_file_row(
       "asset-tree-row file"
     },
     on_click=dispatch(@app.msg_select_resource(Some(selection))),
-    attrs=match draggable_asset_path {
-      Some(path) => asset_drag_attrs(path)
-      None => @html.Attrs::build()
-    },
+    attrs=asset_tree_file_attrs(dispatch, full_path, draggable_asset_path),
     children,
   )
+}
+
+///|
+fn asset_tree_file_attrs(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  full_path : String,
+  draggable_asset_path : String?,
+) -> @html.Attrs {
+  let attrs = @html.Attrs::build()
+    .handler("mouseenter", fn(_event, scheduler) {
+      schedule_cmd(scheduler, dispatch(@app.msg_set_hover_hint(Some(full_path))))
+    })
+    .handler("mouseleave", fn(_event, scheduler) {
+      schedule_cmd(scheduler, dispatch(@app.msg_set_hover_hint(None)))
+    })
+  match draggable_asset_path {
+    Some(asset_path) =>
+      attrs
+      .draggable("true")
+      .handler("dragstart", fn(event, _scheduler) {
+        begin_dragged_asset(asset_path)
+        match event.to_drag_event() {
+          Some(drag_event) => drag_event_set_asset_payload(drag_event, asset_path)
+          None => ()
+        }
+      })
+      .handler("dragend", fn(event, _scheduler) {
+        ignore(event)
+        clear_dragged_asset()
+      })
+    None => attrs
+  }
 }
 
 ///|
@@ -770,6 +803,7 @@ fn build_asset_tree_rows(
   model : @app.Model,
   paths : Array[String],
   section_key : String,
+  force_expand : Bool,
   drop_root : String?,
   selection_of : (String) -> @app.ResourceSelection,
   badge_of : (String) -> String,
@@ -793,21 +827,39 @@ fn build_asset_tree_rows(
     }
     let shared = common_prefix_len(previous_folders, folders)
     for index = shared; index < folders.length(); index = index + 1 {
-      if !folder_ancestors_expanded(model, section_key, folders, index) {
+      if !folder_ancestors_expanded(
+          model,
+          section_key,
+          folders,
+          force_expand,
+          index,
+        ) {
         break
       }
       let key = folder_chain_key(section_key, folders, index)
+      let expanded = if force_expand {
+        true
+      } else {
+        model.asset_tree_folder_expanded(key)
+      }
       rows.push(
         tree_folder_row(
           dispatch,
           index,
           folders[index],
-          model.asset_tree_folder_expanded(key),
+          expanded,
+          !force_expand,
           key,
         ),
       )
     }
-    if !folder_ancestors_expanded(model, section_key, folders, folders.length()) {
+    if !folder_ancestors_expanded(
+        model,
+        section_key,
+        folders,
+        force_expand,
+        folders.length(),
+      ) {
       previous_folders = folders
       continue
     }
@@ -817,6 +869,7 @@ fn build_asset_tree_rows(
         dispatch,
         model.selected_resource == Some(selection),
         selection,
+        path,
         file_index,
         segments[file_index],
         badge_of(path),
@@ -863,6 +916,7 @@ fn asset_panel_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.Model,
 ) -> @rabbita.Html {
+  let force_expand_tree = model.asset_query_normalized() != ""
   let image_paths : Array[String] = []
   let image_badges : Map[String, String] = {}
   for asset in model.image_assets() {
@@ -882,6 +936,7 @@ fn asset_panel_view(
     model,
     image_paths,
     "images",
+    force_expand_tree,
     Some("assets"),
     fn(path) { @app.resource_selection_image(path) },
     fn(path) { image_badges.get(path).unwrap_or("image") },
@@ -904,6 +959,7 @@ fn asset_panel_view(
     model,
     atlas_paths,
     "atlases",
+    force_expand_tree,
     Some("assets"),
     fn(path) { @app.resource_selection_atlas(path) },
     fn(_path) { "atlas" },
@@ -927,6 +983,7 @@ fn asset_panel_view(
     model,
     animation_paths,
     "animations",
+    force_expand_tree,
     Some("assets"),
     fn(path) { @app.resource_selection_animation(path) },
     fn(_path) { "anim" },
@@ -949,6 +1006,7 @@ fn asset_panel_view(
     model,
     prefab_paths,
     "prefabs",
+    force_expand_tree,
     Some("prefabs"),
     fn(path) { @app.resource_selection_prefab(path) },
     fn(_path) { "prefab" },

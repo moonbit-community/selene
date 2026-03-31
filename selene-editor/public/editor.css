@@ -327,6 +327,10 @@ input {
   background: rgba(255, 255, 255, 0.03);
 }
 
+.asset-tree-row.folder.locked {
+  cursor: default;
+}
+
 .asset-tree-row.file {
   cursor: pointer;
 }

@@ -1713,6 +1713,81 @@ fn parse_custom_component_json(draft : String) -> Result[Json, String] {
 }
 
 ///|
+fn resource_selection_section_key(selection : ResourceSelection) -> String {
+  match selection {
+    Image(_) => "images"
+    Atlas(_) => "atlases"
+    Animation(_) => "animations"
+    Prefab(_) => "prefabs"
+  }
+}
+
+///|
+fn resource_selection_root_folder(selection : ResourceSelection) -> String {
+  match selection {
+    Image(_) => "assets"
+    Atlas(_) => "assets"
+    Animation(_) => "assets"
+    Prefab(_) => "prefabs"
+  }
+}
+
+///|
+fn resource_selection_path(selection : ResourceSelection) -> String {
+  match selection {
+    Image(path) => path
+    Atlas(path) => path
+    Animation(path) => path
+    Prefab(path) => path
+  }
+}
+
+///|
+fn resource_tree_segments(path : String, root : String) -> Array[String] {
+  let raw = path.split("/")
+  let segments : Array[String] = []
+  for segment in raw {
+    if segment != "" {
+      segments.push(segment.to_string())
+    }
+  }
+  let mut start = 0
+  if !segments.is_empty() && segments[0] == root {
+    start = 1
+  }
+  let trimmed : Array[String] = []
+  for index = start; index < segments.length(); index = index + 1 {
+    trimmed.push(segments[index])
+  }
+  trimmed
+}
+
+///|
+fn with_asset_tree_expanded_for_selection(
+  expanded : Map[String, Bool],
+  selection : ResourceSelection?,
+) -> Map[String, Bool] {
+  let next = expanded
+  match selection {
+    Some(selection) => {
+      let section = resource_selection_section_key(selection)
+      let root = resource_selection_root_folder(selection)
+      let path = resource_selection_path(selection)
+      let segments = resource_tree_segments(path, root)
+      if segments.length() <= 1 {
+        return next
+      }
+      for index = 0; index < segments.length() - 1; index = index + 1 {
+        let key = section + ":" + segments[:index + 1].join("/")
+        next.set(key, true)
+      }
+      next
+    }
+    None => next
+  }
+}
+
+///|
 fn collect_required_builtin_components(
   kind : @editor_bridge.BuiltinComponentKind,
   visited : Map[String, Bool],
@@ -2324,21 +2399,27 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       }
     AssetsLoaded(result) =>
       match result {
-        Ok(response) =>
+        Ok(response) => {
+          let selected_resource = match model.selected_resource {
+            Some(selection) if resource_exists(
+                { ..model, assets: response.assets },
+                selection,
+              ) => Some(selection)
+            _ => None
+          }
           (
             [],
             {
               ..model,
               assets: response.assets,
-              selected_resource: match model.selected_resource {
-                Some(selection) if resource_exists(
-                    { ..model, assets: response.assets },
-                    selection,
-                  ) => Some(selection)
-                _ => None
-              },
+              selected_resource,
+              asset_tree_expanded: with_asset_tree_expanded_for_selection(
+                model.asset_tree_expanded,
+                selected_resource,
+              ),
             },
           )
+        }
         Err(message) => {
           let next = push_log(model, "Assets load failed: " + message)
           ([], { ..next, status: "Assets load failed: " + message })
@@ -2635,6 +2716,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         {
           ..model,
           selected_resource: resource,
+          asset_tree_expanded: with_asset_tree_expanded_for_selection(
+            model.asset_tree_expanded,
+            resource,
+          ),
           selected_entity_id: None,
           add_component_panel_open: false,
           component_search_query: "",
@@ -2766,6 +2851,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             atlas_documents,
             atlas_refs,
             selected_resource: Some(resource_selection_atlas(path)),
+            asset_tree_expanded: with_asset_tree_expanded_for_selection(
+              model.asset_tree_expanded,
+              Some(resource_selection_atlas(path)),
+            ),
             status: "Created atlas " + atlas.name,
           }
           (
@@ -2799,6 +2888,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             selected_resource: Some(
               resource_selection_animation(animation_path),
             ),
+            asset_tree_expanded: with_asset_tree_expanded_for_selection(
+              model.asset_tree_expanded,
+              Some(resource_selection_animation(animation_path)),
+            ),
             status: "Created animation " + animation.name,
           }
           (
@@ -2831,6 +2924,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                 prefab_documents,
                 prefab_refs,
                 selected_resource: Some(resource_selection_prefab(path)),
+                asset_tree_expanded: with_asset_tree_expanded_for_selection(
+                  model.asset_tree_expanded,
+                  Some(resource_selection_prefab(path)),
+                ),
                 status: "Saved prefab " + prefab.name,
               }
               (

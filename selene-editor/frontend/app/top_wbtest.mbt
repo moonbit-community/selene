@@ -60,6 +60,40 @@ test "asset tree folder toggle is state-driven" {
 }
 
 ///|
+test "selecting nested asset auto-expands ancestor folders" {
+  let model = {
+    ..new_model(),
+    assets: [
+      @editor_bridge.asset_document(
+        "assets/pixeladventure/Menu/Buttons/Volume.png",
+        @editor_bridge.infer_asset_kind(
+          "assets/pixeladventure/Menu/Buttons/Volume.png",
+        ),
+      ),
+    ],
+  }
+  let (_, next) = update(
+    msg_select_resource(
+      Some(
+        resource_selection_image(
+          "assets/pixeladventure/Menu/Buttons/Volume.png",
+        ),
+      ),
+    ),
+    model,
+  )
+  inspect(next.asset_tree_folder_expanded("images:pixeladventure"), content="true")
+  inspect(
+    next.asset_tree_folder_expanded("images:pixeladventure/Menu"),
+    content="true",
+  )
+  inspect(
+    next.asset_tree_folder_expanded("images:pixeladventure/Menu/Buttons"),
+    content="true",
+  )
+}
+
+///|
 test "project load refreshes both scene and asset list" {
   let (_, model) = update(msg_initialize(), new_model())
   let (effects, next) = update(
