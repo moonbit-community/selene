@@ -183,6 +183,7 @@ extern "js" fn subscribe_shortcuts_forever(
   on_insert_selected_asset : () -> Unit,
   on_select_previous_asset : () -> Unit,
   on_select_next_asset : () -> Unit,
+  on_clear_selection : () -> Unit,
 ) =
   #| (
   #|   onUndo,
@@ -199,8 +200,17 @@ extern "js" fn subscribe_shortcuts_forever(
   #|   onCollapseAssets,
   #|   onInsertSelectedAsset,
   #|   onSelectPreviousAsset,
-  #|   onSelectNextAsset
+  #|   onSelectNextAsset,
+  #|   onClearSelection
   #| ) => {
+  #|   const focusAssetSearch = () => {
+  #|     const input = document.querySelector(".asset-search-input");
+  #|     if (!input) return;
+  #|     input.focus();
+  #|     if (typeof input.select === "function") {
+  #|       input.select();
+  #|     }
+  #|   };
   #|   const isEditable = (target) => {
   #|     if (!target) return false;
   #|     const tag = (target.tagName || "").toLowerCase();
@@ -229,6 +239,11 @@ extern "js" fn subscribe_shortcuts_forever(
   #|       if (key === "s") {
   #|         event.preventDefault();
   #|         onSave();
+  #|         return;
+  #|       }
+  #|       if (key === "f") {
+  #|         event.preventDefault();
+  #|         focusAssetSearch();
   #|         return;
   #|       }
   #|       return;
@@ -296,6 +311,11 @@ extern "js" fn subscribe_shortcuts_forever(
   #|     if (key === "arrowdown") {
   #|       event.preventDefault();
   #|       onSelectNextAsset();
+  #|       return;
+  #|     }
+  #|     if (key === "escape") {
+  #|       event.preventDefault();
+  #|       onClearSelection();
   #|       return;
   #|     }
   #|   });
@@ -482,6 +502,7 @@ fn subscribe_shortcuts_cmd(
       fn() {
         schedule_cmd(scheduler, dispatch(@app.msg_move_selected_resource(1)))
       },
+      fn() { schedule_cmd(scheduler, dispatch(@app.msg_clear_selection())) },
     )
   })
 }
@@ -1109,7 +1130,7 @@ fn asset_panel_view(
       None =>
         @html.div(
           class="asset-selection-banner empty",
-          "Select an asset or resource, then use the scene tools or drag images into the viewport",
+          "Select an asset/resource (↑/↓), insert with Enter, quick-search with Cmd/Ctrl+F, clear with Esc",
         )
     },
     @html.input(

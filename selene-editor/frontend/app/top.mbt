@@ -116,6 +116,7 @@ pub enum Msg {
   CommitSceneEditTransaction
   UndoScene
   RedoScene
+  ClearSelection
   OpenScene(String)
   SelectResource(ResourceSelection?)
   SelectEntity(String?)
@@ -742,6 +743,11 @@ pub fn msg_undo_scene() -> Msg {
 ///|
 pub fn msg_redo_scene() -> Msg {
   RedoScene
+}
+
+///|
+pub fn msg_clear_selection() -> Msg {
+  ClearSelection
 }
 
 ///|
@@ -2870,6 +2876,26 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           let next = push_log(model, "Nothing to redo")
           ([], { ..next, status: "Nothing to redo" })
         }
+      }
+    ClearSelection =>
+      if model.selected_entity_id is None &&
+        model.selected_resource is None &&
+        !model.add_component_panel_open &&
+        model.open_component_menu_kind is None {
+        ([], model)
+      } else {
+        let workspace = model.workspace.with_selected_entity_id(None)
+        let next = {
+          ..model,
+          selected_entity_id: None,
+          selected_resource: None,
+          add_component_panel_open: false,
+          component_search_query: "",
+          open_component_menu_kind: None,
+          workspace,
+          status: "Selection cleared",
+        }
+        (sync_preview_effects(next), next)
       }
     OpenScene(path) =>
       (

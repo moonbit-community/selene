@@ -45,6 +45,28 @@ test "hover hint updates the shared info bar state" {
 }
 
 ///|
+test "clear selection resets active inspector context" {
+  let model = {
+    ..new_model(),
+    selected_entity_id: Some("camera"),
+    selected_resource: Some(resource_selection_image("assets/images/hero.png")),
+    add_component_panel_open: true,
+    open_component_menu_kind: Some("Transform2d"),
+    workspace: @editor_bridge.WorkspaceDocument::default().with_selected_entity_id(
+      Some("camera"),
+    ),
+  }
+  let (effects, cleared) = update(msg_clear_selection(), model)
+  inspect(effects.length(), content="3")
+  inspect(cleared.selected_entity_id, content="None")
+  inspect(cleared.selected_resource, content="None")
+  inspect(cleared.add_component_panel_open, content="false")
+  inspect(cleared.open_component_menu_kind, content="None")
+  inspect(cleared.workspace.selected_entity_id, content="None")
+  inspect(cleared.status, content="Selection cleared")
+}
+
+///|
 test "asset tree folder toggle is state-driven" {
   let model = new_model()
   inspect(model.asset_tree_folder_expanded("images:assets"), content="true")
