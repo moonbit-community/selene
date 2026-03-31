@@ -1544,8 +1544,9 @@ fn sorted_strings(values : Array[String]) -> Array[String] {
 ///|
 fn visible_resources_in_order(model : Model) -> Array[ResourceSelection] {
   let resources : Array[ResourceSelection] = []
+  let force_expand_sections = model.asset_query_normalized() != ""
 
-  if model.images_section_expanded {
+  if model.images_section_expanded || force_expand_sections {
     let image_paths : Array[String] = []
     for asset in model.image_assets() {
       if model.asset_matches_query(asset_basename(asset.path), asset.path) {
@@ -1557,7 +1558,7 @@ fn visible_resources_in_order(model : Model) -> Array[ResourceSelection] {
     }
   }
 
-  if model.atlases_section_expanded {
+  if model.atlases_section_expanded || force_expand_sections {
     let atlas_paths : Array[String] = []
     for atlas_ref in model.atlas_refs {
       let atlas_name = match model.atlas_documents.get(atlas_ref.path) {
@@ -1573,7 +1574,7 @@ fn visible_resources_in_order(model : Model) -> Array[ResourceSelection] {
     }
   }
 
-  if model.animations_section_expanded {
+  if model.animations_section_expanded || force_expand_sections {
     let animation_paths : Array[String] = []
     for animation_ref in model.animation_refs {
       let animation_name = match
@@ -1590,7 +1591,7 @@ fn visible_resources_in_order(model : Model) -> Array[ResourceSelection] {
     }
   }
 
-  if model.prefabs_section_expanded {
+  if model.prefabs_section_expanded || force_expand_sections {
     let prefab_paths : Array[String] = []
     for prefab_ref in model.prefab_refs {
       let prefab_name = match model.prefab_documents.get(prefab_ref.path) {

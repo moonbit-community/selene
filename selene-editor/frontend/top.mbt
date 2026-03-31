@@ -1100,6 +1100,7 @@ fn asset_panel_view(
   let can_clear_selected = model.selected_resource is Some(_)
   let has_asset_filter = model.asset_query_normalized() != ""
   let force_expand_tree = model.asset_query_normalized() != ""
+  let force_expand_sections = force_expand_tree
   let image_paths : Array[String] = []
   let image_badges : Map[String, String] = {}
   for asset in model.image_assets() {
@@ -1320,7 +1321,11 @@ fn asset_panel_view(
         dispatch,
         "Images",
         image_paths.length(),
-        model.images_section_expanded,
+        if force_expand_sections {
+          true
+        } else {
+          model.images_section_expanded
+        },
         @app.msg_toggle_images_section(),
         image_rows,
       ),
@@ -1332,7 +1337,11 @@ fn asset_panel_view(
         dispatch,
         "Atlases",
         atlas_paths.length(),
-        model.atlases_section_expanded,
+        if force_expand_sections {
+          true
+        } else {
+          model.atlases_section_expanded
+        },
         @app.msg_toggle_atlases_section(),
         atlas_rows,
       ),
@@ -1344,7 +1353,11 @@ fn asset_panel_view(
         dispatch,
         "Animations",
         animation_paths.length(),
-        model.animations_section_expanded,
+        if force_expand_sections {
+          true
+        } else {
+          model.animations_section_expanded
+        },
         @app.msg_toggle_animations_section(),
         animation_rows,
       ),
@@ -1356,7 +1369,11 @@ fn asset_panel_view(
         dispatch,
         "Prefabs",
         prefab_paths.length(),
-        model.prefabs_section_expanded,
+        if force_expand_sections {
+          true
+        } else {
+          model.prefabs_section_expanded
+        },
         @app.msg_toggle_prefabs_section(),
         prefab_rows,
       ),

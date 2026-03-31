@@ -39,6 +39,7 @@
 - Changed `selene-editor` entity selection feedback to surface `Selected entity: ...` in the status bar when selecting from Scene Tree/Viewport.
 - Changed `selene-editor` Add Component panel keyboard UX so pressing `Esc` in component search/custom-kind inputs closes the panel immediately.
 - Changed `selene-editor` Add Component custom-kind input so pressing `Enter` submits `Add custom component` directly without requiring a button click.
+- Changed `selene-editor` filter mode behavior to ignore manual asset-section collapse state (`Images/Atlases/Animations/Prefabs`) so matching results remain visible and keyboard-selectable while filtering.
 
 ### Fixed
 

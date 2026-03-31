@@ -132,6 +132,27 @@ test "asset query clears selection when selected resource is filtered out" {
 }
 
 ///|
+test "asset query keeps selected resource even when section is collapsed" {
+  let model = {
+    ..new_model(),
+    images_section_expanded: false,
+    assets: [
+      @editor_bridge.asset_document(
+        "assets/images/apple.png",
+        @editor_bridge.infer_asset_kind("assets/images/apple.png"),
+      ),
+    ],
+    selected_resource: Some(resource_selection_image("assets/images/apple.png")),
+  }
+  let (_, next) = update(msg_set_asset_query("apple"), model)
+  inspect(
+    next.selected_resource,
+    content="Some(Image(\"assets/images/apple.png\"))",
+  )
+  inspect(next.status, content="Filtering assets: apple")
+}
+
+///|
 test "selecting nested asset auto-expands ancestor folders" {
   let model = {
     ..new_model(),
