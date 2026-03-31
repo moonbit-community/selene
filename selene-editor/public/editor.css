@@ -87,6 +87,14 @@ input {
   flex-wrap: nowrap;
 }
 
+.topbar-option-readout {
+  min-width: 84px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
 .topbar-options {
   padding-left: 20px;
   border-left: 1px solid var(--border);

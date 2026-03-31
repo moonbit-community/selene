@@ -187,6 +187,8 @@ extern "js" fn subscribe_shortcuts_forever(
   on_select_last_asset : () -> Unit,
   on_select_previous_asset_page : () -> Unit,
   on_select_next_asset_page : () -> Unit,
+  on_move_snap_step_down : () -> Unit,
+  on_move_snap_step_up : () -> Unit,
   on_clear_selection : () -> Unit,
 ) =
   #| (
@@ -209,6 +211,8 @@ extern "js" fn subscribe_shortcuts_forever(
   #|   onSelectLastAsset,
   #|   onSelectPreviousAssetPage,
   #|   onSelectNextAssetPage,
+  #|   onMoveSnapStepDown,
+  #|   onMoveSnapStepUp,
   #|   onClearSelection
   #| ) => {
   #|   const focusAssetSearch = () => {
@@ -339,6 +343,16 @@ extern "js" fn subscribe_shortcuts_forever(
   #|     if (key === "pagedown") {
   #|       event.preventDefault();
   #|       onSelectNextAssetPage();
+  #|       return;
+  #|     }
+  #|     if (key === "-" || key === "_") {
+  #|       event.preventDefault();
+  #|       onMoveSnapStepDown();
+  #|       return;
+  #|     }
+  #|     if (key === "=" || key === "+") {
+  #|       event.preventDefault();
+  #|       onMoveSnapStepUp();
   #|       return;
   #|     }
   #|     if (key === "escape") {
@@ -582,6 +596,12 @@ fn subscribe_shortcuts_cmd(
       },
       fn() {
         schedule_cmd(scheduler, dispatch(@app.msg_move_selected_resource(10)))
+      },
+      fn() {
+        schedule_cmd(scheduler, dispatch(@app.msg_adjust_move_snap_step(-1)))
+      },
+      fn() {
+        schedule_cmd(scheduler, dispatch(@app.msg_adjust_move_snap_step(1)))
       },
       fn() { schedule_cmd(scheduler, dispatch(@app.msg_clear_selection())) },
     )
@@ -2391,8 +2411,18 @@ fn action_button(
 
 ///|
 fn info_message(model : @app.Model) -> String {
+  let move_snap = if model.move_snap_enabled {
+    "on (" + model.move_snap_step.to_string() + ")"
+  } else {
+    "off"
+  }
   model.hover_hint.unwrap_or(
-    "Tool: " + @app.tool_label(model.active_tool) + " | " + model.status,
+    "Tool: " +
+    @app.tool_label(model.active_tool) +
+    " | Move snap: " +
+    move_snap +
+    " | " +
+    model.status,
   )
 }
 
@@ -2637,6 +2667,24 @@ fn view(
             enabled=true,
             primary=model.move_snap_enabled,
           ),
+          action_button(
+            dispatch,
+            "Decrease Move Snap Step (-)",
+            "−",
+            @app.msg_adjust_move_snap_step(-1),
+            enabled=true,
+          ),
+          @html.span(
+            class="topbar-option-readout",
+            "Step \{model.move_snap_step.to_string()}",
+          ),
+          action_button(
+            dispatch,
+            "Increase Move Snap Step (+)",
+            "+",
+            @app.msg_adjust_move_snap_step(1),
+            enabled=true,
+          ),
         ]),
       ]),
     ]),
@@ -2659,7 +2707,7 @@ fn view(
         @html.h2("Viewport"),
         @html.div(
           class="viewport-toolbar",
-          "Drag selected assets into the scene. Pan with middle drag or Drag Canvas tool. Touchpad two-finger scroll pans; Shift + scroll zooms. Assets: I inserts selected, ] expands all, [ collapses all.",
+          "Drag selected assets into the scene. Pan with middle drag or Drag Canvas tool. Touchpad two-finger scroll pans; Shift + scroll zooms. Assets: I inserts selected, ] expands all, [ collapses all. Move snap step: - / +.",
         ),
         @html.div(class="viewport-frame", [
           @html.canvas(
