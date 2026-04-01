@@ -470,6 +470,102 @@ test "multibody joint creates a rapier handle" {
 }
 
 ///|
+test "impulse joints expose handles for generic variants and route rope to rope set" {
+  with_physics3d_test_world(fn() raise {
+    let parent = @entity.Entity::new()
+    rigid_bodies().set(parent, Fixed)
+    colliders().set(parent, Collider::ball(0.5))
+
+    let spawn_child = fn(y : Double, joint : Joint) -> @entity.Entity {
+      let child = @entity.Entity::new()
+      @transform.transforms().set(
+        child,
+        @transform.Transform::from_xyz(0.0, y, 0.0),
+      )
+      rigid_bodies().set(child, Dynamic)
+      colliders().set(child, Collider::ball(0.5))
+      impulse_joints().set(child, {
+        parent,
+        data: joint,
+        contacts_enabled: true,
+      })
+      child
+    }
+
+    let fixed_child = spawn_child(1.0, Fixed(FixedJoint::new()))
+    let revolute_child = spawn_child(
+      2.0,
+      Revolute(RevoluteJoint::new(@math.Vec3::z_axis())),
+    )
+    let prismatic_child = spawn_child(
+      3.0,
+      Prismatic(PrismaticJoint::new(@math.Vec3::x_axis())),
+    )
+    let rope_child = spawn_child(4.0, Rope(RopeJoint::new(2.0)))
+    let spring_child = spawn_child(5.0, Spring(SpringJoint::new(1.0, 8.0, 0.5)))
+    let spherical_child = spawn_child(6.0, Spherical(SphericalJoint::new()))
+
+    step_physics(1)
+
+    inspect(impulse_joint_handle(fixed_child) is Some(_), content="true")
+    inspect(impulse_joint_handle(revolute_child) is Some(_), content="true")
+    inspect(impulse_joint_handle(prismatic_child) is Some(_), content="true")
+    inspect(impulse_joint_handle(spring_child) is None, content="true")
+    inspect(impulse_joint_handle(spherical_child) is Some(_), content="true")
+    inspect(impulse_joint_handle(rope_child) is None, content="true")
+    inspect(physics3d_world().rope_joints.interaction_pairs().length(), content="1")
+  })
+}
+
+///|
+test "multibody joints expose generic handles for all 3d joint variants" {
+  with_physics3d_test_world(fn() raise {
+    let parent = @entity.Entity::new()
+    rigid_bodies().set(parent, Fixed)
+    colliders().set(parent, Collider::ball(0.5))
+
+    let spawn_child = fn(y : Double, joint : Joint) -> @entity.Entity {
+      let child = @entity.Entity::new()
+      @transform.transforms().set(
+        child,
+        @transform.Transform::from_xyz(0.0, y, 0.0),
+      )
+      rigid_bodies().set(child, Dynamic)
+      colliders().set(child, Collider::ball(0.5))
+      multibody_joints().set(child, {
+        parent,
+        data: joint,
+        contacts_enabled: true,
+      })
+      child
+    }
+
+    let fixed_child = spawn_child(1.0, Fixed(FixedJoint::new()))
+    let revolute_child = spawn_child(
+      2.0,
+      Revolute(RevoluteJoint::new(@math.Vec3::z_axis())),
+    )
+    let prismatic_child = spawn_child(
+      3.0,
+      Prismatic(PrismaticJoint::new(@math.Vec3::x_axis())),
+    )
+    let rope_child = spawn_child(4.0, Rope(RopeJoint::new(2.0)))
+    let spring_child = spawn_child(5.0, Spring(SpringJoint::new(1.0, 8.0, 0.5)))
+    let spherical_child = spawn_child(6.0, Spherical(SphericalJoint::new()))
+
+    step_physics(1)
+
+    inspect(multibody_joint_handle(fixed_child) is Some(_), content="true")
+    inspect(multibody_joint_handle(revolute_child) is Some(_), content="true")
+    inspect(multibody_joint_handle(prismatic_child) is Some(_), content="true")
+    inspect(multibody_joint_handle(spherical_child) is Some(_), content="true")
+    inspect(multibody_joint_handle(rope_child) is Some(_), content="true")
+    inspect(multibody_joint_handle(spring_child) is Some(_), content="true")
+    inspect(physics3d_world().rope_joints.interaction_pairs().length(), content="0")
+  })
+}
+
+///|
 test "dominance is forwarded to rapier rigid body" {
   with_physics3d_test_world(fn() raise {
     let body_entity = @entity.Entity::new()

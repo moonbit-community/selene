@@ -63,6 +63,7 @@
 - Changed `selene-editor` preview bridge payload to carry explicit `scene_path`, and changed preview runtime scene sync to distinguish `scene switch` from `same-scene update` without heuristic fallback.
 - Changed `selene-editor` project-load state handling to require typed workspace payloads; missing workspace state is now treated as a protocol failure instead of silently defaulting.
 - Changed `selene/physics3d` parity verification coverage by extending 3D wbtests to include `QueryFilter` body-type filtering (`dynamic/fixed/kinematic`), exclude-entity/exclude-sensors/exclude-solids behavior, `cast_shape` filtering behavior, and collision/intersection event-bus mapping.
+- Changed `selene/physics3d` joint parity verification coverage by adding 3D wbtests for all joint variants on both `ImpulseJoint` and `MultibodyJoint`, and documenting current rope/spring handle-routing semantics in the parity matrix.
 
 ### Fixed
 
