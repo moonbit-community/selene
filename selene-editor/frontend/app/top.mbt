@@ -1200,7 +1200,12 @@ fn scene_preview_effect(model : Model) -> Effect {
       }
       Preview(
         @bridge.preview_command_load_scene(
-          @bridge.preview_scene_payload(scene, atlases, animations),
+          @bridge.preview_scene_payload(
+            Some(model.scene_path),
+            scene,
+            atlases,
+            animations,
+          ),
         ),
       )
     }
@@ -2378,59 +2383,65 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       }
     ProjectLoaded(result) =>
       match result {
-        Ok(response) => {
-          let scene_refs = response.scenes
-          let prefab_refs = response.prefabs
-          let atlas_refs = response.atlases
-          let animation_refs = response.animations
-          let loaded_workspace = response.workspace.unwrap_or(
-            @editor_bridge.WorkspaceDocument::default(),
-          )
-          let move_snap_enabled = loaded_workspace.move_snap_enabled_or_default()
-          let move_snap_step = nearest_move_snap_step(
-            loaded_workspace.move_snap_step_or_default(),
-          )
-          let workspace = loaded_workspace
-            .with_move_snap_enabled(move_snap_enabled)
-            .with_move_snap_step(move_snap_step)
-          let scene_path = preferred_scene_path(
-            response.manifest,
-            scene_refs,
-            workspace,
-            model.scene_path,
-          )
-          let status = match response.root {
-            Some(root) => "Project: " + root
-            None => "Choose a project folder to begin"
+        Ok(response) =>
+          match response.workspace {
+            Some(loaded_workspace) => {
+              let scene_refs = response.scenes
+              let prefab_refs = response.prefabs
+              let atlas_refs = response.atlases
+              let animation_refs = response.animations
+              let move_snap_enabled = loaded_workspace.move_snap_enabled_or_default()
+              let move_snap_step = nearest_move_snap_step(
+                loaded_workspace.move_snap_step_or_default(),
+              )
+              let workspace = loaded_workspace
+                .with_move_snap_enabled(move_snap_enabled)
+                .with_move_snap_step(move_snap_step)
+              let scene_path = preferred_scene_path(
+                response.manifest,
+                scene_refs,
+                workspace,
+                model.scene_path,
+              )
+              let status = match response.root {
+                Some(root) => "Project: " + root
+                None => "Choose a project folder to begin"
+              }
+              let project_root_input = response.root.unwrap_or(
+                model.project_root_input,
+              )
+              let next = {
+                ..model,
+                current_root: response.root,
+                manifest: response.manifest,
+                scene_refs,
+                prefab_refs,
+                atlas_refs,
+                animation_refs,
+                workspace,
+                recent_projects: response.recent_projects,
+                scene_path,
+                project_root_input,
+                pending_scene_migration: None,
+                add_component_panel_open: false,
+                component_search_query: "",
+                open_component_menu_kind: None,
+                undo_stack: [],
+                redo_stack: [],
+                active_scene_edit_transaction: None,
+                status,
+                move_snap_enabled,
+                move_snap_step,
+              }
+              (refresh_project_effects(next), next)
+            }
+            None => {
+              let next = push_log(
+                model, "Project response is missing workspace state.",
+              )
+              ([], { ..next, status: project_open_failed_message() })
+            }
           }
-          let project_root_input = response.root.unwrap_or(
-            model.project_root_input,
-          )
-          let next = {
-            ..model,
-            current_root: response.root,
-            manifest: response.manifest,
-            scene_refs,
-            prefab_refs,
-            atlas_refs,
-            animation_refs,
-            workspace,
-            recent_projects: response.recent_projects,
-            scene_path,
-            project_root_input,
-            pending_scene_migration: None,
-            add_component_panel_open: false,
-            component_search_query: "",
-            open_component_menu_kind: None,
-            undo_stack: [],
-            redo_stack: [],
-            active_scene_edit_transaction: None,
-            status,
-            move_snap_enabled,
-            move_snap_step,
-          }
-          (refresh_project_effects(next), next)
-        }
         Err(message) => {
           ignore(message)
           let next = push_log(model, project_open_failed_message())

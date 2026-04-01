@@ -35,7 +35,7 @@ pub fn preview_event_transform_gesture_finished(String) -> PreviewEvent
 
 pub fn preview_event_transform_gesture_started(String) -> PreviewEvent
 
-pub fn preview_scene_payload(@editor_bridge.SceneDocument, Array[AtlasAssetEntry], Array[AnimationAssetEntry]) -> PreviewScenePayload
+pub fn preview_scene_payload(String?, @editor_bridge.SceneDocument, Array[AtlasAssetEntry], Array[AnimationAssetEntry]) -> PreviewScenePayload
 
 // Errors
 
@@ -69,6 +69,7 @@ pub enum PreviewEvent {
 } derive(Eq, Show)
 
 pub struct PreviewScenePayload {
+  scene_path : String?
   scene : @editor_bridge.SceneDocument
   atlases : Array[AtlasAssetEntry]
   animations : Array[AnimationAssetEntry]

@@ -144,6 +144,41 @@ async test "project.open auto-migrates legacy v2 project manifests missing index
 }
 
 ///|
+async test "project.open fails when workspace.json is invalid instead of silently defaulting" {
+  @async.with_task_group(group => {
+    let temp_root = @fs.tmpdir(prefix="selene-editor-core")
+    let root = path_join(temp_root, "Invalid Workspace Demo")
+    group.add_defer(() => {
+      if @fs.exists(temp_root) {
+        @fs.rmdir(temp_root, recursive=true)
+      }
+    })
+
+    let service = EditorService::new(".")
+    ignore(
+      service.handle_rpc(
+        @shared.rpc_request_envelope(1, @shared.rpc_request_project_open(root)),
+      ),
+    )
+
+    @fs.write_file(
+      path_join(root, ".selene-editor/workspace.json"),
+      "{\n  \"version\": 2,\n  \"move_snap_step\": 0\n}\n" |> @utf8.encode,
+      create=0o644,
+    )
+
+    let payload = service.handle_rpc(
+      @shared.rpc_request_envelope(2, @shared.rpc_request_project_open(root)),
+    )
+    expect_error_response(
+      response_envelope(payload).response,
+      "internal_error",
+      "Workspace document is invalid: .selene-editor/workspace.json",
+    )
+  })
+}
+
+///|
 async test "project.open rejects an empty root" {
   let service = EditorService::new(".")
   let payload = service.handle_rpc(

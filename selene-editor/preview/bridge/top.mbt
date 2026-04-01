@@ -12,6 +12,7 @@ pub struct AnimationAssetEntry {
 
 ///|
 pub struct PreviewScenePayload {
+  scene_path : String?
   scene : @editor_bridge.SceneDocument
   atlases : Array[AtlasAssetEntry]
   animations : Array[AnimationAssetEntry]
@@ -35,11 +36,12 @@ pub fn animation_asset_entry(
 
 ///|
 pub fn preview_scene_payload(
+  scene_path : String?,
   scene : @editor_bridge.SceneDocument,
   atlases : Array[AtlasAssetEntry],
   animations : Array[AnimationAssetEntry],
 ) -> PreviewScenePayload {
-  { scene, atlases, animations }
+  { scene_path, scene, atlases, animations }
 }
 
 ///|

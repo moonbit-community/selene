@@ -252,7 +252,7 @@ test "project load refreshes both scene and asset list" {
           [],
           [],
           [],
-          None,
+          Some(@editor_bridge.WorkspaceDocument::default()),
           [],
         ),
       ),
@@ -261,6 +261,33 @@ test "project load refreshes both scene and asset list" {
   )
   inspect(effects.length(), content="4")
   inspect(next.current_root, content="Some(\"/tmp/demo\")")
+}
+
+///|
+test "project load rejects missing workspace payload" {
+  let (_, model) = update(msg_initialize(), new_model())
+  let (effects, next) = update(
+    msg_project_loaded(
+      Ok(
+        @shared.project_state_response(
+          Some("/tmp/demo"),
+          Some(@editor_bridge.ProjectManifest::default("demo")),
+          [],
+          [],
+          [],
+          [],
+          None,
+          [],
+        ),
+      ),
+    ),
+    model,
+  )
+  inspect(effects.length(), content="0")
+  inspect(
+    next.status,
+    content="Project open failed. Check browser console for details.",
+  )
 }
 
 ///|

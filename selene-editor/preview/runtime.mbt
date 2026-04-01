@@ -12,6 +12,7 @@ priv struct ToolDragState {
 priv struct PreviewState {
   mut bootstrapped : Bool
   mut pending_scene : @bridge.PreviewScenePayload?
+  mut current_scene_path : String?
   mut current_scene : @editor_bridge.SceneDocument?
   mut runtime_scene : @editor_bridge.SceneRuntime?
   mut selected_entity_id : String?
@@ -26,6 +27,7 @@ priv struct PreviewState {
   mut tool_drag : ToolDragState?
   mut camera_pan_anchor : @math.Vec2D?
   mut event_sink : ((@bridge.PreviewEvent) -> Unit)?
+  mut initial_scene_aligned : Bool
 }
 
 ///|
@@ -33,6 +35,7 @@ fn PreviewState::new() -> PreviewState {
   {
     bootstrapped: false,
     pending_scene: None,
+    current_scene_path: None,
     current_scene: None,
     runtime_scene: None,
     selected_entity_id: None,
@@ -47,6 +50,7 @@ fn PreviewState::new() -> PreviewState {
     tool_drag: None,
     camera_pan_anchor: None,
     event_sink: None,
+    initial_scene_aligned: false,
   }
 }
 
@@ -295,7 +299,12 @@ pub fn load_scene(payload : @bridge.PreviewScenePayload) -> Unit {
 ///|
 pub fn clear_scene() -> Unit {
   preview_state.pending_scene = Some(
-    @bridge.preview_scene_payload(@editor_bridge.SceneDocument::empty(), [], []),
+    @bridge.preview_scene_payload(
+      None,
+      @editor_bridge.SceneDocument::empty(),
+      [],
+      [],
+    ),
   )
 }
 
@@ -549,17 +558,20 @@ fn scene_visual_bounds() -> (@math.Vec2D, @math.Vec2D)? {
 }
 
 ///|
-fn align_camera_to_scene_top_left() -> Unit {
-  guard editor_camera_entity() is Some(camera_entity) else { return }
-  guard scene_visual_bounds() is Some((position, _size)) else { return }
-  let projection = @camera.orthographic_projections()
-    .get(camera_entity)
-    .unwrap_or(@camera.OrthographicProjection::new(scale=1.0))
+fn align_camera_to_scene_top_left() -> Bool {
+  guard editor_camera_entity() is Some(camera_entity) else { return false }
+  guard scene_visual_bounds() is Some((position, _size)) else { return false }
+  guard @camera.orthographic_projections().get(camera_entity)
+    is Some(projection) else {
+    preview_debug("camera align skipped: missing orthographic projection")
+    return false
+  }
+  guard @transform.transforms().get(camera_entity) is Some(transform) else {
+    preview_debug("camera align skipped: missing camera transform")
+    return false
+  }
   let view_width = editor_viewport_width * projection.scale
   let view_height = editor_viewport_height * projection.scale
-  let transform = @transform.transforms()
-    .get(camera_entity)
-    .unwrap_or(@transform.Transform::identity())
   @transform.transforms().set(
     camera_entity,
     transform.with_translation(
@@ -570,6 +582,50 @@ fn align_camera_to_scene_top_left() -> Unit {
       ),
     ),
   )
+  true
+}
+
+///|
+fn align_camera_to_origin_top_left() -> Bool {
+  guard editor_camera_entity() is Some(camera_entity) else { return false }
+  guard @camera.orthographic_projections().get(camera_entity)
+    is Some(projection) else {
+    preview_debug("origin align skipped: missing orthographic projection")
+    return false
+  }
+  guard @transform.transforms().get(camera_entity) is Some(transform) else {
+    preview_debug("origin align skipped: missing camera transform")
+    return false
+  }
+  let view_width = editor_viewport_width * projection.scale
+  let view_height = editor_viewport_height * projection.scale
+  @transform.transforms().set(
+    camera_entity,
+    transform.with_translation(
+      @math.Vec3::new(
+        view_width * 0.5,
+        view_height * 0.5,
+        transform.translation.z,
+      ),
+    ),
+  )
+  true
+}
+
+///|
+fn try_align_initial_scene_camera() -> Unit {
+  if preview_state.initial_scene_aligned {
+    return
+  }
+  match preview_state.current_scene {
+    Some(scene) =>
+      preview_state.initial_scene_aligned = if scene.entities.is_empty() {
+        align_camera_to_origin_top_left()
+      } else {
+        align_camera_to_scene_top_left()
+      }
+    None => ()
+  }
 }
 
 ///|
@@ -879,15 +935,18 @@ fn preview_startup_system(_world : @ecs.World) -> Unit {
 ///|
 fn preview_scene_sync_system(_world : @ecs.World) -> Unit {
   if preview_state.pending_scene is Some(payload) {
-    let should_align_viewport = preview_state.current_scene is None
+    let previous_scene_path = preview_state.current_scene_path
+    let scene_switched = previous_scene_path != payload.scene_path
     spawn_scene_entities(payload)
+    preview_state.current_scene_path = payload.scene_path
     preview_state.current_scene = Some(payload.scene)
     preview_state.pending_scene = None
     preview_state.tool_drag = None
-    if should_align_viewport {
-      align_camera_to_scene_top_left()
+    if scene_switched || payload.scene.entities.is_empty() {
+      preview_state.initial_scene_aligned = false
     }
   }
+  try_align_initial_scene_camera()
   apply_selection_overlay()
   apply_pivot_overlay()
   frame_selection_impl()

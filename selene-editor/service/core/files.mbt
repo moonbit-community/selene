@@ -415,18 +415,18 @@ async fn load_workspace_document(
   if !@fs.exists(path) {
     return @editor_bridge.WorkspaceDocument::default()
   }
-  let json_result : Result[Json, Error] = try? parse_json_file(path)
-  match json_result {
-    Ok(json) => {
-      let decoded : Result[@editor_bridge.WorkspaceDocument, Error] = try? @editor_bridge.decode_workspace_document(
-        json,
+  let json = parse_json_file(path) catch {
+    _ =>
+      raise Failure(
+        "Workspace document is invalid: .selene-editor/workspace.json",
       )
-      match decoded {
-        Ok(workspace) => workspace
-        Err(_) => @editor_bridge.WorkspaceDocument::default()
-      }
-    }
-    Err(_) => @editor_bridge.WorkspaceDocument::default()
+  }
+  @editor_bridge.decode_workspace_document(json) catch {
+    @editor_bridge.InvalidWorkspaceDocument(_) =>
+      raise Failure(
+        "Workspace document is invalid: .selene-editor/workspace.json",
+      )
+    err => raise err
   }
 }
 

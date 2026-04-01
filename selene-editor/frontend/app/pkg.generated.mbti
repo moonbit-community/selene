@@ -39,7 +39,11 @@ pub fn msg_atlas_loaded(Result[@shared.AtlasLoadResponse, String]) -> Msg
 
 pub fn msg_cancel_scene_migration() -> Msg
 
+pub fn msg_clear_selection() -> Msg
+
 pub fn msg_close_add_component_panel() -> Msg
+
+pub fn msg_collapse_all_asset_folders() -> Msg
 
 pub fn msg_commit_custom_component_json(String) -> Msg
 
@@ -57,11 +61,15 @@ pub fn msg_delete_current_scene() -> Msg
 
 pub fn msg_delete_selected() -> Msg
 
+pub fn msg_expand_all_asset_folders() -> Msg
+
 pub fn msg_frame_selection() -> Msg
 
 pub fn msg_initialize() -> Msg
 
 pub fn msg_insert_selected_resource() -> Msg
+
+pub fn msg_move_selected_resource(Int) -> Msg
 
 pub fn msg_open_add_component_panel() -> Msg
 
@@ -126,6 +134,8 @@ pub fn msg_set_project_root_input(String) -> Msg
 pub fn msg_set_tool(@shared.PreviewTool) -> Msg
 
 pub fn msg_toggle_animations_section() -> Msg
+
+pub fn msg_toggle_asset_tree_folder(String) -> Msg
 
 pub fn msg_toggle_atlases_section() -> Msg
 
@@ -251,6 +261,7 @@ pub struct Model {
   redo_stack : Array[@editor_bridge.SceneDocument]
   active_scene_edit_transaction : SceneEditTransaction?
   hover_hint : String?
+  asset_tree_expanded : Map[String, Bool]
   images_section_expanded : Bool
   atlases_section_expanded : Bool
   animations_section_expanded : Bool
@@ -265,6 +276,7 @@ pub struct Model {
 pub fn Model::asset_matches_query(Self, String, String) -> Bool
 pub fn Model::asset_query_normalized(Self) -> String
 pub fn Model::asset_size(Self, String) -> @editor_bridge.Vec2Doc?
+pub fn Model::asset_tree_folder_expanded(Self, String) -> Bool
 pub fn Model::builtin_component_matches_query(Self, @editor_bridge.BuiltinComponentKind) -> Bool
 pub fn Model::can_redo(Self) -> Bool
 pub fn Model::can_undo(Self) -> Bool
@@ -306,6 +318,9 @@ pub enum Msg {
   ServiceEvent(Result[@shared.EditorEvent, String])
   PreviewEvent(@bridge.PreviewEvent)
   SetHoverHint(String?)
+  ToggleAssetTreeFolder(String)
+  ExpandAllAssetFolders
+  CollapseAllAssetFolders
   ToggleImagesSection
   ToggleAtlasesSection
   ToggleAnimationsSection
@@ -315,6 +330,7 @@ pub enum Msg {
   CommitSceneEditTransaction
   UndoScene
   RedoScene
+  ClearSelection
   OpenScene(String)
   SelectResource(ResourceSelection?)
   SelectEntity(String?)
@@ -326,6 +342,7 @@ pub enum Msg {
   CreateAnimationFromSelectedAtlas
   SaveSelectedAsPrefab
   InsertSelectedResource
+  MoveSelectedResource(Int)
   OpenAddComponentPanel
   CloseAddComponentPanel
   SetComponentSearchQuery(String)

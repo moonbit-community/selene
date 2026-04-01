@@ -48,6 +48,8 @@
 - Changed `selene-editor` component editing flow to add a direct `C` shortcut for opening the Inspector `Add Component` panel when an entity is selected, and updated button copy to advertise the shortcut.
 - Changed `selene-editor` Assets tree context retention to a VSCode-style sticky ancestor overlay: ancestors are derived from the first visible tree row and rendered in a dedicated sticky container, eliminating duplicate pseudo rows and preserving scroll context.
 - Changed `selene-editor` Image resource Inspector to render an inline preview image (loaded from `/project/...`) with load/error state handling, instead of text-only metadata.
+- Changed `selene-editor` preview bridge payload to carry explicit `scene_path`, and changed preview runtime scene sync to distinguish `scene switch` from `same-scene update` without heuristic fallback.
+- Changed `selene-editor` project-load state handling to require typed workspace payloads; missing workspace state is now treated as a protocol failure instead of silently defaulting.
 
 ### Fixed
 
@@ -61,6 +63,8 @@
 - Fixed `selene-editor` tree-row overflow with long resource names by enforcing truncation-safe flex constraints (`min-width: 0`, ellipsis labels, non-shrinking badges) across asset rows and scene browser rows.
 - Fixed `selene-editor` long-name overflow in Assets/Scene trees by enforcing right-boundary ellipsis truncation from container layout constraints (`min-width: 0` + `overflow: hidden` + `text-overflow: ellipsis`) and making row badges shrinkable; also reduced baseline UI text size to improve dense tree readability and prevent boundary overflow under long names.
 - Fixed `selene-editor` initial preview camera placement so first scene load aligns scene content to the viewport's top-left instead of leaving positive-coordinate scenes offset toward the center/right-bottom.
+- Fixed `selene-editor` initial viewport alignment race by making camera top-left alignment explicit and retryable until required camera/projection state is ready, preventing first-load misalignment when scene data arrives before full preview setup.
+- Fixed `selene-editor` workspace loading to stop silently falling back to defaults on invalid `.selene-editor/workspace.json`; project open now reports a deterministic error and preserves invalid-data visibility.
 
 ### Removed
 
