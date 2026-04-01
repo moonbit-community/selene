@@ -267,6 +267,47 @@ test "cast_shape respects body filter and exclude_entity in 3d" {
 }
 
 ///|
+test "query filter only_kinematic targets kinematic bodies in 3d" {
+  with_physics3d_test_world(fn() raise {
+    let kinematic_entity = @entity.Entity::new()
+    @transform.transforms().set(
+      kinematic_entity,
+      @transform.Transform::from_xyz(2.0, 0.0, 0.0),
+    )
+    rigid_bodies().set(kinematic_entity, KinematicPositionBased)
+    colliders().set(kinematic_entity, Collider::ball(0.5))
+
+    let dynamic_entity = @entity.Entity::new()
+    @transform.transforms().set(
+      dynamic_entity,
+      @transform.Transform::from_xyz(5.0, 0.0, 0.0),
+    )
+    rigid_bodies().set(dynamic_entity, Dynamic)
+    colliders().set(dynamic_entity, Collider::ball(0.5))
+
+    step_physics(1)
+
+    let kinematic_hit = context()
+      .cast_ray(
+        @math.Vec3::zero(),
+        @math.Vec3::x_axis(),
+        query_filter=QueryFilter::only_kinematic(),
+      )
+      .unwrap()
+    inspect(kinematic_hit.entity == kinematic_entity, content="true")
+
+    let dynamic_hit = context()
+      .cast_ray(
+        @math.Vec3::zero(),
+        @math.Vec3::x_axis(),
+        query_filter=QueryFilter::only_dynamic(),
+      )
+      .unwrap()
+    inspect(dynamic_hit.entity == dynamic_entity, content="true")
+  })
+}
+
+///|
 test "collision and intersection events map to selene event buses" {
   with_physics3d_test_world(fn() raise {
     let sensor_entity = @entity.Entity::new()
