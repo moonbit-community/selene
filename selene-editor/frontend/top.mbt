@@ -729,6 +729,12 @@ fn run_preview_command(command : @bridge.PreviewCommand) -> Unit {
     @bridge.PreviewCommand::SetTool(tool) => @preview.set_tool(tool)
     @bridge.PreviewCommand::SetMoveSnap(enabled~, step~) =>
       @preview.set_move_snap(enabled, step)
+    @bridge.PreviewCommand::SetAnimationPreviewPaused(paused) =>
+      @preview.set_animation_preview_paused(paused)
+    @bridge.PreviewCommand::SetAnimationPreviewSpeed(speed) =>
+      @preview.set_animation_preview_speed(speed)
+    @bridge.PreviewCommand::SeekAnimationPreview(seconds) =>
+      @preview.seek_animation_preview(seconds)
     @bridge.PreviewCommand::FrameSelection => @preview.frame_selection()
   }
 }
@@ -1917,33 +1923,21 @@ fn animation_player_component_body(
     ]),
     @html.div(class="inspector-actions", [
       @html.button(
-        class=if is_forever {
-          "small-button active"
-        } else {
-          "small-button"
-        },
+        class=if is_forever { "small-button active" } else { "small-button" },
         on_click=dispatch(
           @app.msg_update_selected_animation_player_repeat_mode("forever"),
         ),
         "Forever",
       ),
       @html.button(
-        class=if is_never {
-          "small-button active"
-        } else {
-          "small-button"
-        },
+        class=if is_never { "small-button active" } else { "small-button" },
         on_click=dispatch(
           @app.msg_update_selected_animation_player_repeat_mode("never"),
         ),
         "Never",
       ),
       @html.button(
-        class=if is_count {
-          "small-button active"
-        } else {
-          "small-button"
-        },
+        class=if is_count { "small-button active" } else { "small-button" },
         on_click=dispatch(
           @app.msg_update_selected_animation_player_repeat_mode("count"),
         ),
@@ -2803,6 +2797,43 @@ fn selected_asset_view(
                   }),
                 )
               },
+              @html.h3("Preview"),
+              @html.div(class="inspector-actions", [
+                @html.button(
+                  class=if model.animation_preview_paused {
+                    "small-button"
+                  } else {
+                    "small-button active"
+                  },
+                  on_click=dispatch(@app.msg_toggle_animation_preview_paused()),
+                  if model.animation_preview_paused {
+                    "Play"
+                  } else {
+                    "Pause"
+                  },
+                ),
+              ]),
+              labeled_input(
+                "Speed",
+                model.animation_preview_speed.to_string(),
+                fn(value) {
+                  dispatch(@app.msg_update_animation_preview_speed(value))
+                },
+              ),
+              labeled_input(
+                "Seek (seconds)",
+                model.animation_preview_seek_input,
+                fn(value) {
+                  dispatch(@app.msg_update_animation_preview_seek_input(value))
+                },
+              ),
+              @html.div(class="inspector-actions", [
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_apply_animation_preview_seek()),
+                  "Seek",
+                ),
+              ]),
               @html.div(class="inspector-actions", [
                 @html.button(
                   class="small-button",

@@ -92,6 +92,9 @@ pub struct Model {
   active_tool : @shared.PreviewTool
   move_snap_enabled : Bool
   move_snap_step : Double
+  animation_preview_paused : Bool
+  animation_preview_speed : Double
+  animation_preview_seek_input : String
 } derive(Show, Eq)
 
 ///|
@@ -187,6 +190,10 @@ pub enum Msg {
   RemoveSelectedAnimationGraphEdge(String, Int)
   UpdateSelectedAnimationGraphEdgeTarget(String, Int, String)
   UpdateSelectedAnimationGraphEdgeWeight(String, Int, String)
+  ToggleAnimationPreviewPaused
+  UpdateAnimationPreviewSpeed(String)
+  UpdateAnimationPreviewSeekInput(String)
+  ApplyAnimationPreviewSeek
   SaveSelectedAnimationClip
   SaveSelectedAnimationGraph
   RenameSelected(String)
@@ -285,6 +292,9 @@ pub fn new_model() -> Model {
     active_tool: @shared.preview_tool_select(),
     move_snap_enabled: false,
     move_snap_step: 16.0,
+    animation_preview_paused: false,
+    animation_preview_speed: 1.0,
+    animation_preview_seek_input: "0",
   }
 }
 
@@ -704,6 +714,26 @@ pub fn msg_update_selected_animation_graph_edge_weight(
   value : String,
 ) -> Msg {
   UpdateSelectedAnimationGraphEdgeWeight(node_id, edge_index, value)
+}
+
+///|
+pub fn msg_toggle_animation_preview_paused() -> Msg {
+  ToggleAnimationPreviewPaused
+}
+
+///|
+pub fn msg_update_animation_preview_speed(value : String) -> Msg {
+  UpdateAnimationPreviewSpeed(value)
+}
+
+///|
+pub fn msg_update_animation_preview_seek_input(value : String) -> Msg {
+  UpdateAnimationPreviewSeekInput(value)
+}
+
+///|
+pub fn msg_apply_animation_preview_seek() -> Msg {
+  ApplyAnimationPreviewSeek
 }
 
 ///|
@@ -4492,6 +4522,45 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         model, node_id, edge_index, value,
       )
       (sync_preview_effects_with_scene(next), next)
+    }
+    ToggleAnimationPreviewPaused => {
+      let paused = !model.animation_preview_paused
+      (
+        [Preview(@bridge.preview_command_set_animation_preview_paused(paused))],
+        {
+          ..model,
+          animation_preview_paused: paused,
+          status: if paused {
+            "Animation preview paused"
+          } else {
+            "Animation preview playing"
+          },
+        },
+      )
+    }
+    UpdateAnimationPreviewSpeed(value) => {
+      let speed = parse_double_or(model.animation_preview_speed, value)
+      (
+        [Preview(@bridge.preview_command_set_animation_preview_speed(speed))],
+        {
+          ..model,
+          animation_preview_speed: speed,
+          status: "Animation preview speed: \{speed.to_string()}",
+        },
+      )
+    }
+    UpdateAnimationPreviewSeekInput(value) =>
+      ([], { ..model, animation_preview_seek_input: value })
+    ApplyAnimationPreviewSeek => {
+      let seek_seconds = parse_double_or(
+        0.0,
+        model.animation_preview_seek_input,
+      )
+      let clamped = if seek_seconds < 0.0 { 0.0 } else { seek_seconds }
+      (
+        [Preview(@bridge.preview_command_seek_animation_preview(clamped))],
+        { ..model, status: "Animation preview seek: \{clamped.to_string()}s" },
+      )
     }
     SaveSelectedAnimationClip =>
       match model.selected_animation_clip_document() {

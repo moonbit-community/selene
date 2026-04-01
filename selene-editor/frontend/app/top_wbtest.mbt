@@ -1447,3 +1447,57 @@ test "removing graph edge deletes selected edge index" {
   inspect(updated.nodes[0].edges.length(), content="1")
   inspect(updated.nodes[0].edges[0].to, content="node-c")
 }
+
+///|
+test "toggle animation preview paused emits preview command" {
+  let (effects, next) = update(
+    msg_toggle_animation_preview_paused(),
+    new_model(),
+  )
+  let mut has_preview_command = false
+  for effect in effects {
+    match effect {
+      Preview(@bridge.SetAnimationPreviewPaused(true)) =>
+        has_preview_command = true
+      _ => ()
+    }
+  }
+  inspect(next.animation_preview_paused, content="true")
+  inspect(has_preview_command, content="true")
+}
+
+///|
+test "animation preview speed and seek emit preview commands" {
+  let (speed_effects, speed_updated) = update(
+    msg_update_animation_preview_speed("1.5"),
+    new_model(),
+  )
+  let mut has_speed_command = false
+  for effect in speed_effects {
+    match effect {
+      Preview(@bridge.SetAnimationPreviewSpeed(speed)) if speed == 1.5 =>
+        has_speed_command = true
+      _ => ()
+    }
+  }
+  inspect(speed_updated.animation_preview_speed, content="1.5")
+  inspect(has_speed_command, content="true")
+
+  let (_, seek_input_updated) = update(
+    msg_update_animation_preview_seek_input("2.25"),
+    speed_updated,
+  )
+  let (seek_effects, _) = update(
+    msg_apply_animation_preview_seek(),
+    seek_input_updated,
+  )
+  let mut has_seek_command = false
+  for effect in seek_effects {
+    match effect {
+      Preview(@bridge.SeekAnimationPreview(seconds)) if seconds == 2.25 =>
+        has_seek_command = true
+      _ => ()
+    }
+  }
+  inspect(has_seek_command, content="true")
+}

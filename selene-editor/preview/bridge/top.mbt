@@ -82,6 +82,9 @@ pub enum PreviewCommand {
   SelectEntity(String?)
   SetTool(@shared.PreviewTool)
   SetMoveSnap(enabled~ : Bool, step~ : Double)
+  SetAnimationPreviewPaused(Bool)
+  SetAnimationPreviewSpeed(Double)
+  SeekAnimationPreview(Double)
   FrameSelection
 } derive(Show, Eq)
 
@@ -148,6 +151,27 @@ pub fn preview_command_set_move_snap(
   step : Double,
 ) -> PreviewCommand {
   SetMoveSnap(enabled~, step~)
+}
+
+///|
+pub fn preview_command_set_animation_preview_paused(
+  paused : Bool,
+) -> PreviewCommand {
+  SetAnimationPreviewPaused(paused)
+}
+
+///|
+pub fn preview_command_set_animation_preview_speed(
+  speed : Double,
+) -> PreviewCommand {
+  SetAnimationPreviewSpeed(speed)
+}
+
+///|
+pub fn preview_command_seek_animation_preview(
+  seconds : Double,
+) -> PreviewCommand {
+  SeekAnimationPreview(seconds)
 }
 
 ///|

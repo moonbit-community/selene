@@ -335,6 +335,62 @@ pub fn set_move_snap(enabled : Bool, step : Double) -> Unit {
 }
 
 ///|
+fn selected_runtime_entity() -> @entity.Entity? {
+  guard preview_state.runtime_scene is Some(scene) else { return None }
+  guard preview_state.selected_entity_id is Some(id) else { return None }
+  scene.entity(id)
+}
+
+///|
+fn with_selected_animation_player(
+  updater : (@animation.AnimationPlayer) -> Unit,
+) -> Unit {
+  guard selected_runtime_entity() is Some(entity) else { return }
+  guard @animation.animation_players().get(entity) is Some(player) else {
+    return
+  }
+  updater(player)
+}
+
+///|
+pub fn set_animation_preview_paused(paused : Bool) -> Unit {
+  with_selected_animation_player(fn(player) {
+    if paused {
+      ignore(player.pause_all())
+    } else {
+      ignore(player.resume_all())
+    }
+  })
+}
+
+///|
+pub fn set_animation_preview_speed(speed : Double) -> Unit {
+  with_selected_animation_player(fn(player) {
+    for _, playing in player.playing_animations() {
+      let (node, _active) = playing
+      match player.animation_mut(node) {
+        Some(active) => ignore(active.set_speed(speed))
+        None => ()
+      }
+    }
+  })
+}
+
+///|
+pub fn seek_animation_preview(seconds : Double) -> Unit {
+  let clamped = if seconds < 0.0 { 0.0 } else { seconds }
+  with_selected_animation_player(fn(player) {
+    for _, playing in player.playing_animations() {
+      let (node, _active) = playing
+      match player.animation_mut(node) {
+        Some(active) => ignore(active.set_seek_time(clamped))
+        None => ()
+      }
+    }
+  })
+}
+
+///|
 pub fn frame_selection() -> Unit {
   preview_state.pending_frame_selection = true
 }

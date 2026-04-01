@@ -29,6 +29,9 @@ fn FakePreviewBridge::apply(
     @bridge.SelectEntity(id) => self.selected_entity_id = id
     @bridge.SetTool(_) => ()
     @bridge.SetMoveSnap(..) => ()
+    @bridge.SetAnimationPreviewPaused(_) => ()
+    @bridge.SetAnimationPreviewSpeed(_) => ()
+    @bridge.SeekAnimationPreview(_) => ()
     @bridge.FrameSelection => ()
   }
 }
