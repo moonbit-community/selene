@@ -990,6 +990,11 @@ input {
   box-shadow: 0 0 0 1px rgba(88, 166, 255, 0.25);
 }
 
+.graph-canvas-node.edge-source {
+  border-color: var(--warn);
+  box-shadow: 0 0 0 1px rgba(242, 201, 76, 0.22);
+}
+
 .graph-canvas-node:active {
   cursor: grabbing;
 }

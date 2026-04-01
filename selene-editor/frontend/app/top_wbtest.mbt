@@ -1566,6 +1566,81 @@ test "editing graph edge target and weight persists values" {
 }
 
 ///|
+test "graph canvas edge connect adds edge and clears pending source" {
+  let graph_path = "assets/animation_graphs/hero.graph.json"
+  let node_a = @editor_bridge.animation_graph_node_document(
+    "node-a",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let node_b = @editor_bridge.animation_graph_node_document(
+    "node-b",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let graph = @editor_bridge.animation_graph_asset_document(
+    "Hero Graph",
+    [node_a, node_b],
+    Some("node-a"),
+  )
+  let model = {
+    ..new_model(),
+    selected_resource: Some(resource_selection_animation_graph(graph_path)),
+    animation_graph_documents: {
+      "assets/animation_graphs/hero.graph.json": graph,
+    },
+  }
+  let (_, connecting) = update(
+    msg_begin_selected_animation_graph_edge_connect("node-a"),
+    model,
+  )
+  inspect(connecting.graph_edge_connect_source_node, content="Some(\"node-a\")")
+
+  let (_, connected) = update(
+    msg_complete_selected_animation_graph_edge_connect("node-b"),
+    connecting,
+  )
+  inspect(connected.graph_edge_connect_source_node, content="None")
+  inspect(connected.status, content="Connected graph edge: node-a -> node-b")
+  let updated = connected.animation_graph_documents.get(graph_path).unwrap()
+  inspect(updated.nodes[0].edges.length(), content="1")
+  inspect(updated.nodes[0].edges[0].to, content="node-b")
+}
+
+///|
+test "graph canvas edge connect does not duplicate existing edge" {
+  let graph_path = "assets/animation_graphs/hero.graph.json"
+  let node_a = @editor_bridge.animation_graph_node_document(
+    "node-a",
+    @editor_bridge.animation_graph_node_kind_blend(),
+    edges=[@editor_bridge.animation_graph_edge_document("node-b")],
+  )
+  let node_b = @editor_bridge.animation_graph_node_document(
+    "node-b",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let graph = @editor_bridge.animation_graph_asset_document(
+    "Hero Graph",
+    [node_a, node_b],
+    Some("node-a"),
+  )
+  let model = {
+    ..new_model(),
+    selected_resource: Some(resource_selection_animation_graph(graph_path)),
+    animation_graph_documents: {
+      "assets/animation_graphs/hero.graph.json": graph,
+    },
+    graph_edge_connect_source_node: Some("node-a"),
+  }
+  let (_, next) = update(
+    msg_complete_selected_animation_graph_edge_connect("node-b"),
+    model,
+  )
+  inspect(next.graph_edge_connect_source_node, content="None")
+  inspect(next.status, content="Graph edge already exists: node-a -> node-b")
+  let updated = next.animation_graph_documents.get(graph_path).unwrap()
+  inspect(updated.nodes[0].edges.length(), content="1")
+}
+
+///|
 test "removing graph edge deletes selected edge index" {
   let graph_path = "assets/animation_graphs/hero.graph.json"
   let node_a = @editor_bridge.animation_graph_node_document(

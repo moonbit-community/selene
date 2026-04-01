@@ -102,6 +102,7 @@ pub struct Model {
   animation_preview_paused : Bool
   animation_preview_speed : Double
   animation_preview_seek_input : String
+  graph_edge_connect_source_node : String?
 } derive(Show, Eq)
 
 ///|
@@ -201,6 +202,9 @@ pub enum Msg {
   RemoveSelectedAnimationGraphEdge(String, Int)
   UpdateSelectedAnimationGraphEdgeTarget(String, Int, String)
   UpdateSelectedAnimationGraphEdgeWeight(String, Int, String)
+  BeginSelectedAnimationGraphEdgeConnect(String)
+  CompleteSelectedAnimationGraphEdgeConnect(String)
+  CancelSelectedAnimationGraphEdgeConnect
   MoveSelectedAnimationGraphNode(String, Double, Double)
   ToggleAnimationPreviewPaused
   UpdateAnimationPreviewSpeed(String)
@@ -315,6 +319,7 @@ pub fn new_model() -> Model {
     animation_preview_paused: false,
     animation_preview_speed: 1.0,
     animation_preview_seek_input: "0",
+    graph_edge_connect_source_node: None,
   }
 }
 
@@ -754,6 +759,23 @@ pub fn msg_update_selected_animation_graph_edge_weight(
   value : String,
 ) -> Msg {
   UpdateSelectedAnimationGraphEdgeWeight(node_id, edge_index, value)
+}
+
+///|
+pub fn msg_begin_selected_animation_graph_edge_connect(node_id : String) -> Msg {
+  BeginSelectedAnimationGraphEdgeConnect(node_id)
+}
+
+///|
+pub fn msg_complete_selected_animation_graph_edge_connect(
+  node_id : String,
+) -> Msg {
+  CompleteSelectedAnimationGraphEdgeConnect(node_id)
+}
+
+///|
+pub fn msg_cancel_selected_animation_graph_edge_connect() -> Msg {
+  CancelSelectedAnimationGraphEdgeConnect
 }
 
 ///|
@@ -1899,6 +1921,57 @@ fn with_selected_animation_graph_edge_added(
     }
     graph.with_nodes(nodes)
   })
+}
+
+///|
+fn with_selected_animation_graph_edge_added_to_target(
+  model : Model,
+  source_node_id : String,
+  target_node_id : String,
+) -> (Model, Bool) {
+  if source_node_id == target_node_id {
+    return (model, false)
+  }
+  let mut changed = false
+  let next = update_selected_animation_graph_document(model, fn(graph) {
+    let mut target_exists = false
+    for node in graph.nodes {
+      if node.id == target_node_id {
+        target_exists = true
+        break
+      }
+    }
+    if !target_exists {
+      return graph
+    }
+    let nodes : Array[@editor_bridge.AnimationGraphNodeDocument] = []
+    for node in graph.nodes {
+      if node.id == source_node_id {
+        let mut exists = false
+        for edge in node.edges {
+          if edge.to == target_node_id {
+            exists = true
+            break
+          }
+        }
+        if exists {
+          nodes.push(node)
+        } else {
+          changed = true
+          nodes.push(
+            node.with_edges(
+              node.edges +
+              [@editor_bridge.animation_graph_edge_document(target_node_id)],
+            ),
+          )
+        }
+      } else {
+        nodes.push(node)
+      }
+    }
+    graph.with_nodes(nodes)
+  })
+  (next, changed)
 }
 
 ///|
@@ -3910,6 +3983,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           ..model,
           selected_entity_id: None,
           selected_resource: None,
+          graph_edge_connect_source_node: None,
           add_component_panel_open: false,
           component_search_query: "",
           open_component_menu_kind: None,
@@ -3940,6 +4014,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         {
           ..model,
           selected_resource: resource,
+          graph_edge_connect_source_node: None,
           asset_tree_expanded: with_asset_tree_expanded_for_selection(
             model.asset_tree_expanded,
             resource,
@@ -3975,6 +4050,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       let next = {
         ..model,
         selected_entity_id: id,
+        graph_edge_connect_source_node: None,
         add_component_panel_open: if id is Some(_) {
           model.add_component_panel_open
         } else {
@@ -4859,9 +4935,18 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     }
     RemoveSelectedAnimationGraphNode(id) => {
       let next = with_selected_animation_graph_node_removed(model, id)
+      let connect_source = if model.graph_edge_connect_source_node == Some(id) {
+        None
+      } else {
+        model.graph_edge_connect_source_node
+      }
       (
         sync_preview_effects_with_scene(next),
-        { ..next, status: "Removed graph node: \{id}" },
+        {
+          ..next,
+          graph_edge_connect_source_node: connect_source,
+          status: "Removed graph node: \{id}",
+        },
       )
     }
     UpdateSelectedAnimationGraphNodeClipPath(id, path) => {
@@ -4901,6 +4986,42 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       )
       (sync_preview_effects_with_scene(next), next)
     }
+    BeginSelectedAnimationGraphEdgeConnect(source_node_id) =>
+      (
+        [],
+        {
+          ..model,
+          graph_edge_connect_source_node: Some(source_node_id),
+          status: "Connect edge from \{source_node_id}: Alt+click target node",
+        },
+      )
+    CompleteSelectedAnimationGraphEdgeConnect(target_node_id) =>
+      match model.graph_edge_connect_source_node {
+        Some(source_node_id) => {
+          let (changed_model, changed) = with_selected_animation_graph_edge_added_to_target(
+            model, source_node_id, target_node_id,
+          )
+          let next = { ..changed_model, graph_edge_connect_source_node: None }
+          let status = if source_node_id == target_node_id {
+            "Edge connect canceled"
+          } else if changed {
+            "Connected graph edge: \{source_node_id} -> \{target_node_id}"
+          } else {
+            "Graph edge already exists: \{source_node_id} -> \{target_node_id}"
+          }
+          (sync_preview_effects_with_scene(next), { ..next, status, })
+        }
+        None => ([], model)
+      }
+    CancelSelectedAnimationGraphEdgeConnect =>
+      (
+        [],
+        {
+          ..model,
+          graph_edge_connect_source_node: None,
+          status: "Canceled graph edge connect",
+        },
+      )
     MoveSelectedAnimationGraphNode(node_id, normalized_x, normalized_y) =>
       match model.selected_animation_graph_document() {
         Some((_path, graph)) => {

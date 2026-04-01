@@ -485,6 +485,11 @@ extern "js" fn input_event_is_escape_key(event : @dom.Event) -> Bool =
 
 ///|
 #cfg(target="js")
+extern "js" fn event_alt_key(event : @dom.Event) -> Bool =
+  #| (event) => !!event?.altKey
+
+///|
+#cfg(target="js")
 extern "js" fn input_event_blur_target(event : @dom.Event) =
   #| (event) => event?.target?.blur?.()
 
@@ -2156,13 +2161,37 @@ fn animation_graph_canvas_project(
 }
 
 ///|
-fn graph_node_drag_attrs(node_id : String) -> @html.Attrs {
+fn graph_node_drag_attrs(
+  node_id : String,
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  graph_edge_connect_source_node : String?,
+) -> @html.Attrs {
   @html.Attrs::build()
   .draggable("true")
   .handler("dragstart", fn(event, _scheduler) {
     match event.to_drag_event() {
       Some(drag_event) => drag_event_set_graph_node_payload(drag_event, node_id)
       None => ()
+    }
+  })
+  .handler("click", fn(event, scheduler) {
+    if event_alt_key(event) {
+      event.prevent_default()
+      let connect_msg = match graph_edge_connect_source_node {
+        Some(source_node_id) =>
+          if source_node_id == node_id {
+            @app.msg_cancel_selected_animation_graph_edge_connect()
+          } else {
+            @app.msg_complete_selected_animation_graph_edge_connect(node_id)
+          }
+        None => @app.msg_begin_selected_animation_graph_edge_connect(node_id)
+      }
+      schedule_cmd(scheduler, dispatch(connect_msg))
+    } else {
+      schedule_cmd(
+        scheduler,
+        dispatch(@app.msg_update_selected_animation_graph_default_node(node_id)),
+      )
     }
   })
 }
@@ -2212,6 +2241,7 @@ fn graph_canvas_drop_attrs(
 fn animation_graph_canvas_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
   graph : @editor_bridge.AnimationGraphAssetDocument,
+  graph_edge_connect_source_node : String?,
 ) -> @rabbita.Html {
   if graph.nodes.is_empty() {
     return @html.div(class="graph-canvas-empty", "No nodes yet")
@@ -2225,10 +2255,15 @@ fn animation_graph_canvas_view(
     let left = animation_graph_canvas_project(node.position.x, min_x, max_x)
     let top = animation_graph_canvas_project(node.position.y, min_y, max_y)
     let is_default = graph.default_node == Some(node.id)
+    let is_connect_source = graph_edge_connect_source_node == Some(node.id)
     node_items.push(
       @html.button(
-        class=if is_default {
+        class=if is_default && is_connect_source {
+          "graph-canvas-node default edge-source"
+        } else if is_default {
           "graph-canvas-node default"
+        } else if is_connect_source {
+          "graph-canvas-node edge-source"
         } else {
           "graph-canvas-node"
         },
@@ -2236,9 +2271,10 @@ fn animation_graph_canvas_view(
           "left: \{(left * 100.0).to_string()}%",
           "top: \{(top * 100.0).to_string()}%",
         ],
-        attrs=graph_node_drag_attrs(node.id),
-        on_click=dispatch(
-          @app.msg_update_selected_animation_graph_default_node(node.id),
+        attrs=graph_node_drag_attrs(
+          node.id,
+          dispatch,
+          graph_edge_connect_source_node,
         ),
         [
           @html.span(class="graph-canvas-node-id", node.id),
@@ -3028,7 +3064,11 @@ fn selected_asset_view(
                 @html.span(class="kv-key", "Node Count"),
                 @html.span(class="kv-value", graph.nodes.length().to_string()),
               ]),
-              animation_graph_canvas_view(dispatch, graph),
+              animation_graph_canvas_view(
+                dispatch,
+                graph,
+                model.graph_edge_connect_source_node,
+              ),
               @html.div(class="inspector-actions", [
                 @html.button(
                   class="small-button",
