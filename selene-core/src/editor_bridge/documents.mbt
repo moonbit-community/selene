@@ -210,6 +210,13 @@ pub struct AnimationPlayerComponent {
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
+pub enum AnimationRepeatModeDoc {
+  Never
+  Forever
+  Count(Int)
+} derive(Show, Eq)
+
+///|
 pub struct AnimationTransitionsComponent {
   duration : Double
 } derive(Show, Eq, ToJson, FromJson)
@@ -397,6 +404,21 @@ pub fn VisibilityComponent::toggled(
   self : VisibilityComponent,
 ) -> VisibilityComponent {
   { visible: !self.visible }
+}
+
+///|
+pub fn AnimationPlayerComponent::repeat_mode_doc(
+  self : AnimationPlayerComponent,
+) -> AnimationRepeatModeDoc {
+  animation_repeat_mode_doc_from_string(self.repeat_mode)
+}
+
+///|
+pub fn AnimationPlayerComponent::with_repeat_mode_doc(
+  self : AnimationPlayerComponent,
+  repeat_mode : AnimationRepeatModeDoc,
+) -> AnimationPlayerComponent {
+  { ..self, repeat_mode: animation_repeat_mode_doc_to_string(repeat_mode) }
 }
 
 ///|
@@ -1414,11 +1436,79 @@ pub fn physics_collider2d_component(
 }
 
 ///|
+pub fn animation_repeat_mode_never() -> AnimationRepeatModeDoc {
+  Never
+}
+
+///|
+pub fn animation_repeat_mode_forever() -> AnimationRepeatModeDoc {
+  Forever
+}
+
+///|
+pub fn animation_repeat_mode_count(count : Int) -> AnimationRepeatModeDoc {
+  if count <= 0 {
+    Count(1)
+  } else {
+    Count(count)
+  }
+}
+
+///|
+pub fn animation_repeat_mode_doc_from_string(
+  repeat_mode : String,
+) -> AnimationRepeatModeDoc {
+  let normalized = repeat_mode.trim().to_lower()
+  if normalized == "" ||
+    normalized == "forever" ||
+    normalized == "loop" ||
+    normalized == "infinite" {
+    return Forever
+  }
+  if normalized == "never" || normalized == "once" {
+    return Never
+  }
+  if normalized == "count" {
+    return Count(1)
+  }
+  if normalized.has_prefix("count:") {
+    let count = @string.parse_int(normalized[6:]) catch { _ => 0 }
+    if count > 0 {
+      return Count(count)
+    }
+    return Forever
+  }
+  if normalized.has_prefix("count(") && normalized.has_suffix(")") {
+    let count = @string.parse_int(
+      normalized[6:normalized.length() - 1],
+    ) catch {
+      _ => 0
+    }
+    if count > 0 {
+      return Count(count)
+    }
+    return Forever
+  }
+  Forever
+}
+
+///|
+pub fn animation_repeat_mode_doc_to_string(
+  repeat_mode : AnimationRepeatModeDoc,
+) -> String {
+  match repeat_mode {
+    Never => "never"
+    Forever => "forever"
+    Count(count) => "count:\{count}"
+  }
+}
+
+///|
 pub fn animation_player_component(
   graph_asset_path? : String? = None,
   start_node? : String? = None,
   autoplay? : Bool = false,
-  repeat_mode? : String = "forever",
+  repeat_mode? : AnimationRepeatModeDoc = animation_repeat_mode_forever(),
   speed? : Double = 1.0,
 ) -> ComponentDocument {
   {
@@ -1427,7 +1517,7 @@ pub fn animation_player_component(
       graph_asset_path,
       start_node,
       autoplay,
-      repeat_mode,
+      repeat_mode: animation_repeat_mode_doc_to_string(repeat_mode),
       speed,
     }.to_json(),
   }

@@ -148,7 +148,9 @@ fn legacy_animation_preview_for_scene(
       graph_asset_path=Some(graph_path),
       start_node=legacy.default_clip,
       autoplay=legacy.autoplay.unwrap_or(false),
-      repeat_mode=legacy.repeat_mode.unwrap_or("forever"),
+      repeat_mode=@editor_bridge.animation_repeat_mode_doc_from_string(
+        legacy.repeat_mode.unwrap_or("forever"),
+      ),
       speed=legacy.speed.unwrap_or(1.0),
     )
     migrated_scene = migrated_scene.with_entity(

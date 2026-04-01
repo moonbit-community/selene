@@ -100,6 +100,31 @@ test "builtin component dependencies and removability follow the inspector rules
 }
 
 ///|
+test "animation repeat mode parsing and serialization stay stable" {
+  inspect(animation_repeat_mode_doc_from_string("forever"), content="Forever")
+  inspect(animation_repeat_mode_doc_from_string("never"), content="Never")
+  inspect(animation_repeat_mode_doc_from_string("once"), content="Never")
+  inspect(animation_repeat_mode_doc_from_string("count"), content="Count(1)")
+  inspect(animation_repeat_mode_doc_from_string("count:3"), content="Count(3)")
+  inspect(
+    animation_repeat_mode_doc_to_string(animation_repeat_mode_count(5)),
+    content="count:5",
+  )
+}
+
+///|
+test "animation player component constructor stores canonical repeat string" {
+  let component = animation_player_component(
+    graph_asset_path=Some("assets/animation_graphs/hero.graph.json"),
+    repeat_mode=animation_repeat_mode_count(2),
+    speed=-1.0,
+  )
+  let player : AnimationPlayerComponent = @json.from_json(component.data)
+  inspect(player.repeat_mode, content="count:2")
+  inspect(player.repeat_mode_doc(), content="Count(2)")
+}
+
+///|
 test "scene document round trip" {
   let scene = SceneDocument::{
     version: scene_schema_version,

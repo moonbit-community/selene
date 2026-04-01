@@ -1874,6 +1874,19 @@ fn animation_player_component_body(
   dispatch : @rabbita.Dispatch[@app.Msg],
   player : @editor_bridge.AnimationPlayerComponent,
 ) -> @rabbita.Html {
+  let repeat_mode = player.repeat_mode_doc()
+  let is_forever = match repeat_mode {
+    @editor_bridge.Forever => true
+    _ => false
+  }
+  let is_never = match repeat_mode {
+    @editor_bridge.Never => true
+    _ => false
+  }
+  let is_count = match repeat_mode {
+    @editor_bridge.Count(_) => true
+    _ => false
+  }
   @html.div(class="inspector-block", [
     labeled_input_with_commit(
       "Graph Asset Path",
@@ -1891,14 +1904,68 @@ fn animation_player_component_body(
       },
       fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
     ),
-    labeled_input_with_commit(
-      "Repeat Mode",
-      player.repeat_mode,
-      fn(value) {
-        dispatch(@app.msg_update_selected_animation_player_repeat_mode(value))
-      },
-      fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
-    ),
+    @html.div(class="kv", [
+      @html.span(class="kv-key", "Repeat Mode"),
+      @html.span(
+        class="kv-value",
+        match repeat_mode {
+          @editor_bridge.Never => "Never"
+          @editor_bridge.Forever => "Forever"
+          @editor_bridge.Count(count) => "Count (\{count})"
+        },
+      ),
+    ]),
+    @html.div(class="inspector-actions", [
+      @html.button(
+        class=if is_forever {
+          "small-button active"
+        } else {
+          "small-button"
+        },
+        on_click=dispatch(
+          @app.msg_update_selected_animation_player_repeat_mode("forever"),
+        ),
+        "Forever",
+      ),
+      @html.button(
+        class=if is_never {
+          "small-button active"
+        } else {
+          "small-button"
+        },
+        on_click=dispatch(
+          @app.msg_update_selected_animation_player_repeat_mode("never"),
+        ),
+        "Never",
+      ),
+      @html.button(
+        class=if is_count {
+          "small-button active"
+        } else {
+          "small-button"
+        },
+        on_click=dispatch(
+          @app.msg_update_selected_animation_player_repeat_mode("count"),
+        ),
+        "Count",
+      ),
+    ]),
+    match repeat_mode {
+      @editor_bridge.Count(count) =>
+        labeled_input_with_commit(
+          "Repeat Count",
+          count.to_string(),
+          fn(value) {
+            dispatch(
+              @app.msg_update_selected_animation_player_repeat_mode(
+                "count:" + value,
+              ),
+            )
+          },
+          fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+        )
+      _ => @html.nothing
+    },
     labeled_input_with_commit(
       "Speed",
       player.speed.to_string(),

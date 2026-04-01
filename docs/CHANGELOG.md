@@ -13,6 +13,7 @@
 - Changed `selene-editor` typed protocol and preview payloads to carry separate animation clip/graph resources (`AnimationClipLoad/Save`, `AnimationGraphLoad/Save`, `AnimationMigrate`) instead of the legacy single animation document RPC flow.
 - Changed `selene-editor` Animation Graph Inspector from summary-only form fields to node/edge authoring workflow (`add clip/blend/additive node`, `remove node`, `set default node`, clip-path editing, and edge target/weight editing).
 - Changed `selene-editor` Entity Inspector animation editing from generic JSON to typed controls for `AnimationPlayer` (`graph_asset_path`, `start_node`, `autoplay`, `repeat_mode`, `speed`) and `AnimationTransitions` (`duration`) with transactional scene edits.
+- Changed `selene/editor_bridge` animation repeat semantics from ad-hoc strings to typed `AnimationRepeatModeDoc` (`Never` / `Forever` / `Count`) for component construction and runtime bridge mapping, while keeping canonical on-disk string representation (`never`, `forever`, `count:N`).
 - Changed `selene-core` and `examples` to use `Milky2018/moon_rapier@0.4.0`.
 - Changed `selene-editor` Entity Inspector to a Unity-style component stack with per-component cards, collapse state, card action menus, and an integrated `Add Component` search panel.
 - Changed `selene-editor` entity component editing flow to support built-in component add/remove with strong dependency rules (`auto-add required chain` + `block destructive removal`) and transactional undo/redo.

@@ -4682,7 +4682,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                   },
                   start_node=player.start_node,
                   autoplay=player.autoplay,
-                  repeat_mode=player.repeat_mode,
+                  repeat_mode=player.repeat_mode_doc(),
                   speed=player.speed,
                 ),
               )
@@ -4715,7 +4715,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                     Some(start_node)
                   },
                   autoplay=player.autoplay,
-                  repeat_mode=player.repeat_mode,
+                  repeat_mode=player.repeat_mode_doc(),
                   speed=player.speed,
                 ),
               )
@@ -4740,7 +4740,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                   graph_asset_path=player.graph_asset_path,
                   start_node=player.start_node,
                   autoplay=!player.autoplay,
-                  repeat_mode=player.repeat_mode,
+                  repeat_mode=player.repeat_mode_doc(),
                   speed=player.speed,
                 ),
               )
@@ -4762,18 +4762,18 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
               let staged = with_started_scene_edit_transaction(
                 model, "Edit Animation Player",
               )
-              let repeat_mode = value.trim().to_string()
+              let repeat_mode = if value.trim() == "" {
+                player.repeat_mode_doc()
+              } else {
+                @editor_bridge.animation_repeat_mode_doc_from_string(value)
+              }
               let next = update_selected_component(
                 staged,
                 @editor_bridge.animation_player_component(
                   graph_asset_path=player.graph_asset_path,
                   start_node=player.start_node,
                   autoplay=player.autoplay,
-                  repeat_mode=if repeat_mode == "" {
-                    player.repeat_mode
-                  } else {
-                    repeat_mode
-                  },
+                  repeat_mode~,
                   speed=player.speed,
                 ),
               )
@@ -4801,7 +4801,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                   graph_asset_path=player.graph_asset_path,
                   start_node=player.start_node,
                   autoplay=player.autoplay,
-                  repeat_mode=player.repeat_mode,
+                  repeat_mode=player.repeat_mode_doc(),
                   speed=parse_double_or(player.speed, value),
                 ),
               )

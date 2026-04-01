@@ -928,7 +928,8 @@ test "animation player typed edits update component fields including negative sp
     content="Some(\"assets/animation_graphs/hero.graph.json\")",
   )
   inspect(player.start_node, content="Some(\"idle\")")
-  inspect(player.repeat_mode, content="count")
+  inspect(player.repeat_mode, content="count:1")
+  inspect(player.repeat_mode_doc(), content="Count(1)")
   inspect(player.speed, content="-1.5")
   inspect(player.autoplay, content="true")
   inspect(committed.undo_stack.length() > 0, content="true")

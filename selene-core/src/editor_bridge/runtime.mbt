@@ -220,10 +220,18 @@ fn prepared_atlas(
 }
 
 ///|
-fn repeat_animation_of(mode : String) -> @animation.RepeatAnimation {
-  match mode.to_lower() {
-    "never" | "once" => @animation.Never
-    _ => @animation.Forever
+fn repeat_animation_of(
+  repeat_mode : AnimationRepeatModeDoc,
+) -> @animation.RepeatAnimation {
+  match repeat_mode {
+    Never => @animation.Never
+    Forever => @animation.Forever
+    Count(count) =>
+      if count <= 0 {
+        @animation.Forever
+      } else {
+        @animation.Count(count.reinterpret_as_uint())
+      }
   }
 }
 
@@ -469,7 +477,7 @@ fn apply_animation_components(
         player,
         node,
         transitions_data.duration,
-        repeat=repeat_animation_of(animation_doc.repeat_mode),
+        repeat=repeat_animation_of(animation_doc.repeat_mode_doc()),
       )
       ignore(active.set_speed(animation_doc.speed))
     }
@@ -477,7 +485,7 @@ fn apply_animation_components(
   } else if animation_doc.autoplay && default_node is Some(node) {
     let active = player.play(
       node,
-      repeat=repeat_animation_of(animation_doc.repeat_mode),
+      repeat=repeat_animation_of(animation_doc.repeat_mode_doc()),
     )
     ignore(active.set_speed(animation_doc.speed))
   }
