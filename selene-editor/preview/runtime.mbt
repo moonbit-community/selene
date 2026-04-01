@@ -364,8 +364,14 @@ fn deactivate_runtime_scene_cameras(
 fn spawn_scene_entities(payload : @bridge.PreviewScenePayload) -> Unit {
   clear_runtime_scene()
   let atlas_assets : Map[String, @editor_bridge.AtlasAssetDocument] = {}
-  let animation_clip_assets : Map[String, @editor_bridge.AnimationClipAssetDocument] = {}
-  let animation_graph_assets : Map[String, @editor_bridge.AnimationGraphAssetDocument] = {}
+  let animation_clip_assets : Map[
+    String,
+    @editor_bridge.AnimationClipAssetDocument,
+  ] = {}
+  let animation_graph_assets : Map[
+    String,
+    @editor_bridge.AnimationGraphAssetDocument,
+  ] = {}
   for entry in payload.atlases {
     atlas_assets.set(entry.path, entry.atlas)
   }

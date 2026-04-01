@@ -519,11 +519,7 @@ pub fn ProjectManifest::default(
   name : String,
   startup_scene? : String = startup_scene_path_for_name(name),
   asset_roots? : Array[String] = [
-    "assets/images",
-    "assets/audio",
-    "assets/fonts",
-    "assets/atlases",
-    "assets/animation_clips",
+    "assets/images", "assets/audio", "assets/fonts", "assets/atlases", "assets/animation_clips",
     "assets/animation_graphs",
   ],
   scene_index? : Array[SceneRef] = [],
@@ -759,6 +755,23 @@ pub fn animation_graph_edge_document(
 }
 
 ///|
+pub fn animation_graph_node_kind_clip(
+  clip_asset_path : String,
+) -> AnimationGraphNodeKind {
+  Clip(clip_asset_path~)
+}
+
+///|
+pub fn animation_graph_node_kind_blend() -> AnimationGraphNodeKind {
+  Blend
+}
+
+///|
+pub fn animation_graph_node_kind_additive_blend() -> AnimationGraphNodeKind {
+  AdditiveBlend
+}
+
+///|
 pub fn animation_graph_node_document(
   id : String,
   kind : AnimationGraphNodeKind,
@@ -775,12 +788,7 @@ pub fn animation_graph_asset_document(
   nodes : Array[AnimationGraphNodeDocument],
   default_node : String?,
 ) -> AnimationGraphAssetDocument {
-  {
-    version: animation_graph_asset_schema_version,
-    name,
-    nodes,
-    default_node,
-  }
+  { version: animation_graph_asset_schema_version, name, nodes, default_node }
 }
 
 ///|
@@ -967,14 +975,14 @@ pub fn animation_graph_asset_document_from_clip(
   node_id? : String = "default",
 ) -> AnimationGraphAssetDocument {
   AnimationGraphAssetDocument::default(name, clip_asset_path)
-    .with_default_node(Some(node_id))
-    .with_nodes([
-      animation_graph_node_document(
-        node_id,
-        Clip(clip_asset_path~),
-        position=vec2_doc(160.0, 90.0),
-      ),
-    ])
+  .with_default_node(Some(node_id))
+  .with_nodes([
+    animation_graph_node_document(
+      node_id,
+      Clip(clip_asset_path~),
+      position=vec2_doc(160.0, 90.0),
+    ),
+  ])
 }
 
 ///|

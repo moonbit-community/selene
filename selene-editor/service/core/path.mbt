@@ -130,12 +130,18 @@ fn atlas_asset_path(root : String, relative_path : String) -> String raise {
 }
 
 ///|
-fn animation_clip_asset_path(root : String, relative_path : String) -> String raise {
+fn animation_clip_asset_path(
+  root : String,
+  relative_path : String,
+) -> String raise {
   path_join(root, normalize_relative_path(relative_path))
 }
 
 ///|
-fn animation_graph_asset_path(root : String, relative_path : String) -> String raise {
+fn animation_graph_asset_path(
+  root : String,
+  relative_path : String,
+) -> String raise {
   path_join(root, normalize_relative_path(relative_path))
 }
 

@@ -110,7 +110,9 @@ fn push_unique_path(paths : Array[String], path : String?) -> Unit {
 }
 
 ///|
-fn scene_referenced_animation_graph_assets(scene : SceneDocument) -> Array[String] {
+fn scene_referenced_animation_graph_assets(
+  scene : SceneDocument,
+) -> Array[String] {
   let paths : Array[String] = []
   for entity in scene.entities {
     if entity.component("AnimationPlayer") is Some(component) {
@@ -180,7 +182,10 @@ fn load_animation_graph_assets_for_scene(
 ) -> Map[String, AnimationGraphAssetDocument] raise {
   let assets : Map[String, AnimationGraphAssetDocument] = {}
   for path in scene_referenced_animation_graph_assets(scene) {
-    assets.set(path, load_animation_graph_asset_document_from_source(source, path))
+    assets.set(
+      path,
+      load_animation_graph_asset_document_from_source(source, path),
+    )
   }
   assets
 }
@@ -192,7 +197,10 @@ fn load_animation_clip_assets_for_scene(
 ) -> Map[String, AnimationClipAssetDocument] raise {
   let assets : Map[String, AnimationClipAssetDocument] = {}
   for path in graph_referenced_clip_assets(graphs) {
-    assets.set(path, load_animation_clip_asset_document_from_source(source, path))
+    assets.set(
+      path,
+      load_animation_clip_asset_document_from_source(source, path),
+    )
   }
   assets
 }
@@ -225,15 +233,14 @@ pub fn load_project_bundle(
   let manifest = load_project_manifest_from_source(source, manifest_path)
   let resolved_scene_path = scene_path.unwrap_or(manifest.startup_scene)
   let scene = load_scene_document_from_source(source, resolved_scene_path)
-  let animation_graph_assets = load_animation_graph_assets_for_scene(source, scene)
+  let animation_graph_assets = load_animation_graph_assets_for_scene(
+    source, scene,
+  )
   let animation_clip_assets = load_animation_clip_assets_for_scene(
-    source,
-    animation_graph_assets,
+    source, animation_graph_assets,
   )
   let atlas_assets = load_atlas_assets_for_scene(
-    source,
-    scene,
-    animation_clip_assets,
+    source, scene, animation_clip_assets,
   )
   {
     manifest,

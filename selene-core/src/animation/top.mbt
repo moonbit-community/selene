@@ -2015,12 +2015,10 @@ fn emit_clip_events_between(
       } else {
         event.time <= from_time || event.time >= to_time
       }
+    } else if forward {
+      event.time >= from_time && event.time <= to_time
     } else {
-      if forward {
-        event.time >= from_time && event.time <= to_time
-      } else {
-        event.time <= from_time && event.time >= to_time
-      }
+      event.time <= from_time && event.time >= to_time
     }
     if !triggered {
       continue
@@ -2072,7 +2070,7 @@ pub fn animation_player_system(delta : Double) -> Unit {
       let mut wrapped = false
       let forward = active.speed >= 0.0
       match active.repeat {
-        Never => {
+        Never =>
           if forward {
             if next_time >= duration {
               next_time = duration
@@ -2080,15 +2078,12 @@ pub fn animation_player_system(delta : Double) -> Unit {
             } else if next_time < 0.0 {
               next_time = 0.0
             }
-          } else {
-            if next_time <= 0.0 {
-              next_time = 0.0
-              active.finished = true
-            } else if next_time > duration {
-              next_time = duration
-            }
+          } else if next_time <= 0.0 {
+            next_time = 0.0
+            active.finished = true
+          } else if next_time > duration {
+            next_time = duration
           }
-        }
         Forever => {
           while next_time >= duration {
             next_time -= duration
@@ -2101,7 +2096,7 @@ pub fn animation_player_system(delta : Double) -> Unit {
             wrapped = true
           }
         }
-        Count(count) => {
+        Count(count) =>
           if count == 0U {
             active.finished = true
             next_time = if forward { duration } else { 0.0 }
@@ -2136,7 +2131,6 @@ pub fn animation_player_system(delta : Double) -> Unit {
               next_time = duration
             }
           }
-        }
       }
       let clip_nodes : Array[AnimationNodeIndex] = []
       collect_clip_nodes(graph, node_index, clip_nodes)

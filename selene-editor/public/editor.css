@@ -864,6 +864,12 @@ input {
   gap: 10px;
 }
 
+.component-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .component-card {
   border: 1px solid var(--border);
   background: var(--panel-2);

@@ -270,10 +270,7 @@ pub fn validate_animation_clip_asset_document(
     })
   }
   if clip.fps <= 0.0 {
-    errors.push({
-      path: "fps",
-      message: "Animation clip fps must be positive",
-    })
+    errors.push({ path: "fps", message: "Animation clip fps must be positive" })
   }
   if clip.frames.is_empty() {
     errors.push({

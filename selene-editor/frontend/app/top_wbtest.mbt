@@ -579,8 +579,7 @@ test "editing a selected atlas updates the atlas document and save emits rpc" {
 ///|
 test "editing a selected animation clip updates the clip document and save emits rpc" {
   let animation = @editor_bridge.AnimationClipAssetDocument::default(
-    "hero",
-    "assets/atlases/hero.atlas.json",
+    "hero", "assets/atlases/hero.atlas.json",
   ).with_frames(["idle_0", "idle_1"])
   let model = {
     ..new_model(),
@@ -1146,4 +1145,106 @@ test "transform gesture without change does not push undo history" {
     started,
   )
   inspect(finished.undo_stack.length(), content="0")
+}
+
+///|
+test "add clip node appends a new graph node using first clip asset path" {
+  let graph_path = "assets/animation_graphs/hero.graph.json"
+  let clip_path = "assets/animation_clips/hero.clip.json"
+  let model = {
+    ..new_model(),
+    selected_resource: Some(resource_selection_animation_graph(graph_path)),
+    animation_graph_documents: {
+      "assets/animation_graphs/hero.graph.json": @editor_bridge.AnimationGraphAssetDocument::default(
+        "Hero Graph", clip_path,
+      ),
+    },
+    animation_clip_refs: [@editor_bridge.asset_ref(clip_path)],
+  }
+  let (_, next) = update(msg_add_selected_animation_graph_clip_node(), model)
+  let graph = next.animation_graph_documents.get(graph_path).unwrap()
+  inspect(graph.nodes.length(), content="2")
+  match graph.nodes[1].kind {
+    @editor_bridge.Clip(clip_asset_path~) =>
+      inspect(clip_asset_path, content=clip_path)
+    _ => inspect(false, content="true")
+  }
+}
+
+///|
+test "remove graph node prunes incoming edges and reassigns default node" {
+  let graph_path = "assets/animation_graphs/hero.graph.json"
+  let clip_path = "assets/animation_clips/hero.clip.json"
+  let node_a = @editor_bridge.animation_graph_node_document(
+    "node-a",
+    @editor_bridge.animation_graph_node_kind_blend(),
+    edges=[@editor_bridge.animation_graph_edge_document("node-b", weight=1.0)],
+  )
+  let node_b = @editor_bridge.animation_graph_node_document(
+    "node-b",
+    @editor_bridge.animation_graph_node_kind_clip(clip_path),
+  )
+  let graph = @editor_bridge.animation_graph_asset_document(
+    "Hero Graph",
+    [node_a, node_b],
+    Some("node-b"),
+  )
+  let model = {
+    ..new_model(),
+    selected_resource: Some(resource_selection_animation_graph(graph_path)),
+    animation_graph_documents: {
+      "assets/animation_graphs/hero.graph.json": graph,
+    },
+  }
+  let (_, next) = update(
+    msg_remove_selected_animation_graph_node("node-b"),
+    model,
+  )
+  let updated = next.animation_graph_documents.get(graph_path).unwrap()
+  inspect(updated.nodes.length(), content="1")
+  inspect(updated.default_node, content="Some(\"node-a\")")
+  inspect(updated.nodes[0].edges.length(), content="0")
+}
+
+///|
+test "updating clip path only affects clip nodes" {
+  let graph_path = "assets/animation_graphs/hero.graph.json"
+  let old_clip_path = "assets/animation_clips/idle.clip.json"
+  let new_clip_path = "assets/animation_clips/run.clip.json"
+  let node_clip = @editor_bridge.animation_graph_node_document(
+    "node-clip",
+    @editor_bridge.animation_graph_node_kind_clip(old_clip_path),
+  )
+  let node_blend = @editor_bridge.animation_graph_node_document(
+    "node-blend",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let graph = @editor_bridge.animation_graph_asset_document(
+    "Hero Graph",
+    [node_clip, node_blend],
+    Some("node-clip"),
+  )
+  let model = {
+    ..new_model(),
+    selected_resource: Some(resource_selection_animation_graph(graph_path)),
+    animation_graph_documents: {
+      "assets/animation_graphs/hero.graph.json": graph,
+    },
+  }
+  let (_, next) = update(
+    msg_update_selected_animation_graph_node_clip_path(
+      "node-clip", new_clip_path,
+    ),
+    model,
+  )
+  let updated = next.animation_graph_documents.get(graph_path).unwrap()
+  match updated.nodes[0].kind {
+    @editor_bridge.Clip(clip_asset_path~) =>
+      inspect(clip_asset_path, content=new_clip_path)
+    _ => inspect(false, content="true")
+  }
+  match updated.nodes[1].kind {
+    @editor_bridge.Blend => inspect(true, content="true")
+    _ => inspect(false, content="true")
+  }
 }

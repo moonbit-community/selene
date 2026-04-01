@@ -51,15 +51,12 @@ test "all retained rpc requests round trip through typed envelopes" {
     ),
     rpc_request_envelope(
       17,
-      rpc_request_animation_clip_load(
-        "assets/animation_clips/hero.clip.json",
-      ),
+      rpc_request_animation_clip_load("assets/animation_clips/hero.clip.json"),
     ),
     rpc_request_envelope(
       18,
       rpc_request_animation_clip_save(
-        "assets/animation_clips/hero.clip.json",
-        clip,
+        "assets/animation_clips/hero.clip.json", clip,
       ),
     ),
     rpc_request_envelope(
@@ -71,15 +68,13 @@ test "all retained rpc requests round trip through typed envelopes" {
     rpc_request_envelope(
       20,
       rpc_request_animation_graph_save(
-        "assets/animation_graphs/hero.graph.json",
-        graph,
+        "assets/animation_graphs/hero.graph.json", graph,
       ),
     ),
     rpc_request_envelope(
       21,
       rpc_request_animation_migrate(
-        "assets/animations/hero.anim.json",
-        "scenes/main.scene.json",
+        "assets/animations/hero.anim.json", "scenes/main.scene.json",
       ),
     ),
   ]
@@ -144,8 +139,7 @@ test "all retained rpc responses and editor events round trip through typed enve
             scene_bundle_animation_graph_entry(
               "assets/animation_graphs/hero.graph.json",
               @editor_bridge.AnimationGraphAssetDocument::default(
-                "Hero Graph",
-                "assets/animation_clips/hero.clip.json",
+                "Hero Graph", "assets/animation_clips/hero.clip.json",
               ),
             ),
           ],
@@ -210,8 +204,7 @@ test "all retained rpc responses and editor events round trip through typed enve
         animation_graph_load_response(
           "assets/animation_graphs/hero.graph.json",
           @editor_bridge.AnimationGraphAssetDocument::default(
-            "Hero Graph",
-            "assets/animation_clips/hero.clip.json",
+            "Hero Graph", "assets/animation_clips/hero.clip.json",
           ),
         ),
       ),
@@ -244,9 +237,7 @@ test "all retained rpc responses and editor events round trip through typed enve
     event_envelope(editor_event_scene_saved("scenes/main.scene.json")),
     event_envelope(editor_event_scene_deleted("scenes/old.scene.json")),
     event_envelope(
-      editor_event_animation_clip_saved(
-        "assets/animation_clips/hero.clip.json",
-      ),
+      editor_event_animation_clip_saved("assets/animation_clips/hero.clip.json"),
     ),
     event_envelope(
       editor_event_animation_graph_saved(
@@ -255,8 +246,7 @@ test "all retained rpc responses and editor events round trip through typed enve
     ),
     event_envelope(
       editor_event_animation_migrated(
-        "scenes/main.scene.json",
-        "assets/animation_graphs/hero.graph.json",
+        "scenes/main.scene.json", "assets/animation_graphs/hero.graph.json",
       ),
     ),
     event_envelope(

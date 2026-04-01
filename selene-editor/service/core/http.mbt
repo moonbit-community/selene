@@ -174,11 +174,7 @@ async fn EditorService::open_project(
   let animation_clips = list_animation_clip_asset_documents(root)
   let animation_graphs = list_animation_graph_asset_documents(root)
   let manifest = loaded_manifest.with_indexes(
-    scenes,
-    prefabs,
-    atlases,
-    animation_clips,
-    animation_graphs,
+    scenes, prefabs, atlases, animation_clips, animation_graphs,
   )
   if manifest != loaded_manifest {
     save_project_manifest(root, manifest)
@@ -425,7 +421,9 @@ pub async fn EditorService::handle_rpc(
         let root = self.current_project_root()
         save_animation_clip_asset_document(root, path, clip)
         self.broadcast(
-          @shared.event_envelope(@shared.editor_event_animation_clip_saved(path)),
+          @shared.event_envelope(
+            @shared.editor_event_animation_clip_saved(path),
+          ),
         )
         @shared.rpc_response_saved_ok()
       }
@@ -440,7 +438,9 @@ pub async fn EditorService::handle_rpc(
         let root = self.current_project_root()
         save_animation_graph_asset_document(root, path, graph)
         self.broadcast(
-          @shared.event_envelope(@shared.editor_event_animation_graph_saved(path)),
+          @shared.event_envelope(
+            @shared.editor_event_animation_graph_saved(path),
+          ),
         )
         @shared.rpc_response_saved_ok()
       }

@@ -349,13 +349,16 @@ fn apply_animation_components(
   for node in graph_doc.nodes {
     match node.kind {
       Clip(clip_asset_path~) => {
-        if clip_asset_path == "" || clip_handles_by_path.contains(clip_asset_path) {
+        if clip_asset_path == "" ||
+          clip_handles_by_path.contains(clip_asset_path) {
           continue
         }
-        guard context.animation_clip_assets.get(clip_asset_path) is Some(clip_doc) else {
+        guard context.animation_clip_assets.get(clip_asset_path)
+          is Some(clip_doc) else {
           continue
         }
-        guard context.atlas_assets.get(clip_doc.atlas_asset_path) is Some(atlas_asset) else {
+        guard context.atlas_assets.get(clip_doc.atlas_asset_path)
+          is Some(atlas_asset) else {
           continue
         }
         let clip = @animation.AnimationClip::new(clip_doc.name)
@@ -438,7 +441,8 @@ fn apply_animation_components(
   animation_graph_handles.push(graph_handle)
   @animation.animation_graph_handles().set(entity, graph_handle)
   let player = @animation.AnimationPlayer::new()
-  let default_node : @animation.AnimationNodeIndex? = match animation_doc.start_node {
+  let default_node : @animation.AnimationNodeIndex? = match
+    animation_doc.start_node {
     Some(node_name) =>
       match graph_nodes.get(node_name) {
         Some(node) => Some(node)

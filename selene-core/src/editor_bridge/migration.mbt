@@ -519,7 +519,8 @@ fn migrated_manifest_animation_graph_index(
       stem
     }
     let normalized_stem = normalized_document_stem(file_stem)
-    "assets/animation_graphs/" + animation_graph_asset_file_name(normalized_stem)
+    "assets/animation_graphs/" +
+    animation_graph_asset_file_name(normalized_stem)
   }
   match legacy.animation_graph_index {
     Some(index) => index
@@ -528,7 +529,9 @@ fn migrated_manifest_animation_graph_index(
         Some(index) => {
           let migrated : Array[AssetRef] = []
           for ref_ in index {
-            migrated.push(asset_ref(migrated_graph_ref_path_from_legacy(ref_.path)))
+            migrated.push(
+              asset_ref(migrated_graph_ref_path_from_legacy(ref_.path)),
+            )
           }
           changes.push(
             migration_field_change(
@@ -574,8 +577,12 @@ impl Migration for ProjectManifestMigrator with migration_changes(
     scene_index: migrated_manifest_scene_index(legacy, changes),
     prefab_index: migrated_manifest_prefab_index(legacy, changes),
     atlas_index: migrated_manifest_atlas_index(legacy, changes),
-    animation_clip_index: migrated_manifest_animation_clip_index(legacy, changes),
-    animation_graph_index: migrated_manifest_animation_graph_index(legacy, changes),
+    animation_clip_index: migrated_manifest_animation_clip_index(
+      legacy, changes,
+    ),
+    animation_graph_index: migrated_manifest_animation_graph_index(
+      legacy, changes,
+    ),
     editor_min_version: legacy.editor_min_version,
   })
   if changes.is_empty() {
@@ -604,12 +611,10 @@ impl Migration for ProjectManifestMigrator with migrate_json(self, _path, json) 
     prefab_index: migrated_manifest_prefab_index(legacy, ignored_changes),
     atlas_index: migrated_manifest_atlas_index(legacy, ignored_changes),
     animation_clip_index: migrated_manifest_animation_clip_index(
-      legacy,
-      ignored_changes,
+      legacy, ignored_changes,
     ),
     animation_graph_index: migrated_manifest_animation_graph_index(
-      legacy,
-      ignored_changes,
+      legacy, ignored_changes,
     ),
     editor_min_version: legacy.editor_min_version,
   }.to_json()

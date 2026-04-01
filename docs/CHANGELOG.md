@@ -5,11 +5,13 @@
 ### Added
 
 - Added `selene/editor_bridge` built-in component metadata APIs for editor-facing component workflows: `BuiltinComponentKind`, string/enum mapping helpers, category/dependency queries, removability checks, default component factories, and ordered built-in component enumeration.
+- Added `docs/bevy-alignment-tracker.md` as the canonical markdown tracker for ongoing Bevy parity work (`BEVY-001...`) with explicit status and queue ownership.
 
 ### Changed
 
 - Changed `selene/editor_bridge` animation asset model from a single `.anim.json` document to Bevy-style split clip/graph assets (`AnimationClipAssetDocument` + `AnimationGraphAssetDocument`) and updated loader/runtime scene instantiation to resolve graph -> clip -> atlas dependencies.
 - Changed `selene-editor` typed protocol and preview payloads to carry separate animation clip/graph resources (`AnimationClipLoad/Save`, `AnimationGraphLoad/Save`, `AnimationMigrate`) instead of the legacy single animation document RPC flow.
+- Changed `selene-editor` Animation Graph Inspector from summary-only form fields to node-authoring workflow (`add clip/blend/additive node`, `remove node`, `set default node`, and per-clip-node clip-path editing).
 - Changed `selene-core` and `examples` to use `Milky2018/moon_rapier@0.4.0`.
 - Changed `selene-editor` Entity Inspector to a Unity-style component stack with per-component cards, collapse state, card action menus, and an integrated `Add Component` search panel.
 - Changed `selene-editor` entity component editing flow to support built-in component add/remove with strong dependency rules (`auto-add required chain` + `block destructive removal`) and transactional undo/redo.

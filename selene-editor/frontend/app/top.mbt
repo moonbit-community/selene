@@ -57,8 +57,14 @@ pub struct Model {
   failed_image_assets : Map[String, Bool]
   prefab_documents : Map[String, @editor_bridge.PrefabDocument]
   atlas_documents : Map[String, @editor_bridge.AtlasAssetDocument]
-  animation_clip_documents : Map[String, @editor_bridge.AnimationClipAssetDocument]
-  animation_graph_documents : Map[String, @editor_bridge.AnimationGraphAssetDocument]
+  animation_clip_documents : Map[
+    String,
+    @editor_bridge.AnimationClipAssetDocument,
+  ]
+  animation_graph_documents : Map[
+    String,
+    @editor_bridge.AnimationGraphAssetDocument,
+  ]
   workspace : @editor_bridge.WorkspaceDocument
   selected_resource : ResourceSelection?
   selected_entity_id : String?
@@ -172,6 +178,11 @@ pub enum Msg {
   UpdateSelectedAnimationClipFps(String)
   ToggleSelectedAnimationClipLooping
   UpdateSelectedAnimationClipFrames(String)
+  AddSelectedAnimationGraphClipNode
+  AddSelectedAnimationGraphBlendNode
+  AddSelectedAnimationGraphAdditiveBlendNode
+  RemoveSelectedAnimationGraphNode(String)
+  UpdateSelectedAnimationGraphNodeClipPath(String, String)
   SaveSelectedAnimationClip
   SaveSelectedAnimationGraph
   RenameSelected(String)
@@ -624,6 +635,34 @@ pub fn msg_toggle_selected_animation_clip_looping() -> Msg {
 ///|
 pub fn msg_update_selected_animation_clip_frames(value : String) -> Msg {
   UpdateSelectedAnimationClipFrames(value)
+}
+
+///|
+pub fn msg_add_selected_animation_graph_clip_node() -> Msg {
+  AddSelectedAnimationGraphClipNode
+}
+
+///|
+pub fn msg_add_selected_animation_graph_blend_node() -> Msg {
+  AddSelectedAnimationGraphBlendNode
+}
+
+///|
+pub fn msg_add_selected_animation_graph_additive_blend_node() -> Msg {
+  AddSelectedAnimationGraphAdditiveBlendNode
+}
+
+///|
+pub fn msg_remove_selected_animation_graph_node(id : String) -> Msg {
+  RemoveSelectedAnimationGraphNode(id)
+}
+
+///|
+pub fn msg_update_selected_animation_graph_node_clip_path(
+  id : String,
+  path : String,
+) -> Msg {
+  UpdateSelectedAnimationGraphNodeClipPath(id, path)
 }
 
 ///|
@@ -1461,6 +1500,7 @@ fn with_rebuilt_regions(
   atlas.with_regions(rebuild_atlas_regions(atlas))
 }
 
+///|
 fn parse_clip_frames(current : Array[String], input : String) -> Array[String] {
   let frames : Array[String] = []
   for raw in input.split(",") {
@@ -1474,6 +1514,135 @@ fn parse_clip_frames(current : Array[String], input : String) -> Array[String] {
   } else {
     frames
   }
+}
+
+///|
+fn animation_graph_has_node_id(
+  graph : @editor_bridge.AnimationGraphAssetDocument,
+  node_id : String,
+) -> Bool {
+  for node in graph.nodes {
+    if node.id == node_id {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn next_animation_graph_node_id(
+  graph : @editor_bridge.AnimationGraphAssetDocument,
+  prefix : String,
+) -> String {
+  let mut index = graph.nodes.length() + 1
+  for ;; {
+    let candidate = prefix + "-" + index.to_string()
+    if !animation_graph_has_node_id(graph, candidate) {
+      return candidate
+    }
+    index += 1
+  }
+  prefix + "-1"
+}
+
+///|
+fn first_animation_clip_path(model : Model) -> String? {
+  for clip_ref in model.animation_clip_refs {
+    return Some(clip_ref.path)
+  }
+  for path, _ in model.animation_clip_documents {
+    return Some(path)
+  }
+  None
+}
+
+///|
+fn with_selected_animation_graph_node_added(
+  model : Model,
+  kind : @editor_bridge.AnimationGraphNodeKind,
+) -> Model {
+  update_selected_animation_graph_document(model, fn(graph) {
+    let node_id = next_animation_graph_node_id(graph, "node")
+    let node = @editor_bridge.animation_graph_node_document(
+      node_id,
+      kind,
+      position=@editor_bridge.vec2_doc(
+        160.0 + graph.nodes.length().to_double() * 80.0,
+        120.0,
+      ),
+    )
+    let next_default = if graph.default_node is Some(_) {
+      graph.default_node
+    } else {
+      Some(node_id)
+    }
+    graph.with_nodes(graph.nodes + [node]).with_default_node(next_default)
+  })
+}
+
+///|
+fn with_selected_animation_graph_node_removed(
+  model : Model,
+  node_id : String,
+) -> Model {
+  update_selected_animation_graph_document(model, fn(graph) {
+    let nodes : Array[@editor_bridge.AnimationGraphNodeDocument] = []
+    let mut removed = false
+    for node in graph.nodes {
+      if node.id == node_id {
+        removed = true
+      } else {
+        let edges : Array[@editor_bridge.AnimationGraphEdgeDocument] = []
+        for edge in node.edges {
+          if edge.to != node_id {
+            edges.push(edge)
+          }
+        }
+        nodes.push(node.with_edges(edges))
+      }
+    }
+    let next_default = if graph.default_node == Some(node_id) {
+      if nodes.is_empty() {
+        None
+      } else {
+        Some(nodes[0].id)
+      }
+    } else {
+      graph.default_node
+    }
+    if removed {
+      graph.with_nodes(nodes).with_default_node(next_default)
+    } else {
+      graph
+    }
+  })
+}
+
+///|
+fn with_selected_animation_graph_clip_path_updated(
+  model : Model,
+  node_id : String,
+  clip_path : String,
+) -> Model {
+  update_selected_animation_graph_document(model, fn(graph) {
+    let nodes : Array[@editor_bridge.AnimationGraphNodeDocument] = []
+    for node in graph.nodes {
+      if node.id == node_id {
+        match node.kind {
+          @editor_bridge.Clip(..) =>
+            nodes.push(
+              node.with_kind(
+                @editor_bridge.animation_graph_node_kind_clip(clip_path),
+              ),
+            )
+          _ => nodes.push(node)
+        }
+      } else {
+        nodes.push(node)
+      }
+    }
+    graph.with_nodes(nodes)
+  })
 }
 
 ///|
@@ -1728,7 +1897,8 @@ fn with_expanded_section_for_selection(
   match selection {
     Some(Image(_)) => { ..model, images_section_expanded: true }
     Some(Atlas(_)) => { ..model, atlases_section_expanded: true }
-    Some(AnimationClip(_)) => { ..model, animation_clips_section_expanded: true }
+    Some(AnimationClip(_)) =>
+      { ..model, animation_clips_section_expanded: true }
     Some(AnimationGraph(_)) =>
       { ..model, animation_graphs_section_expanded: true }
     Some(Prefab(_)) => { ..model, prefabs_section_expanded: true }
@@ -3481,7 +3651,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             Some(clip) =>
               match model.atlas_documents.get(clip.atlas_asset_path) {
                 Some(atlas) => {
-                  let mut graph_pair : (String, @editor_bridge.AnimationGraphAssetDocument)? = None
+                  let mut graph_pair : (
+                    String,
+                    @editor_bridge.AnimationGraphAssetDocument,
+                  )? = None
                   for graph_path, graph in model.animation_graph_documents {
                     let selected_clip_path = animation_graph_default_clip_path(
                       graph,
@@ -3983,7 +4156,11 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       let next = update_selected_animation_graph_document(model, fn(animation) {
         let default_node = value.trim().to_string()
         animation.with_default_node(
-          if default_node == "" { None } else { Some(default_node) },
+          if default_node == "" {
+            None
+          } else {
+            Some(default_node)
+          },
         )
       })
       (sync_preview_effects_with_scene(next), next)
@@ -4010,6 +4187,56 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       let next = update_selected_animation_clip_document(model, fn(animation) {
         animation.with_frames(parse_clip_frames(animation.frames, value))
       })
+      (sync_preview_effects_with_scene(next), next)
+    }
+    AddSelectedAnimationGraphClipNode =>
+      match first_animation_clip_path(model) {
+        Some(clip_path) => {
+          let next = with_selected_animation_graph_node_added(
+            model,
+            @editor_bridge.animation_graph_node_kind_clip(clip_path),
+          )
+          (
+            sync_preview_effects_with_scene(next),
+            { ..next, status: "Added Clip node to animation graph" },
+          )
+        }
+        None => {
+          let next = { ..model, status: "Create an animation clip first" }
+          (sync_preview_effects(next), next)
+        }
+      }
+    AddSelectedAnimationGraphBlendNode => {
+      let next = with_selected_animation_graph_node_added(
+        model,
+        @editor_bridge.animation_graph_node_kind_blend(),
+      )
+      (
+        sync_preview_effects_with_scene(next),
+        { ..next, status: "Added Blend node to animation graph" },
+      )
+    }
+    AddSelectedAnimationGraphAdditiveBlendNode => {
+      let next = with_selected_animation_graph_node_added(
+        model,
+        @editor_bridge.animation_graph_node_kind_additive_blend(),
+      )
+      (
+        sync_preview_effects_with_scene(next),
+        { ..next, status: "Added Additive Blend node to animation graph" },
+      )
+    }
+    RemoveSelectedAnimationGraphNode(id) => {
+      let next = with_selected_animation_graph_node_removed(model, id)
+      (
+        sync_preview_effects_with_scene(next),
+        { ..next, status: "Removed graph node: \{id}" },
+      )
+    }
+    UpdateSelectedAnimationGraphNodeClipPath(id, path) => {
+      let next = with_selected_animation_graph_clip_path_updated(
+        model, id, path,
+      )
       (sync_preview_effects_with_scene(next), next)
     }
     SaveSelectedAnimationClip =>

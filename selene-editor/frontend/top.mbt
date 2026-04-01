@@ -1870,6 +1870,118 @@ fn visibility_component_body(
 }
 
 ///|
+fn animation_graph_node_kind_label(
+  kind : @editor_bridge.AnimationGraphNodeKind,
+) -> String {
+  match kind {
+    @editor_bridge.Clip(..) => "Clip"
+    @editor_bridge.Blend => "Blend"
+    @editor_bridge.AdditiveBlend => "AdditiveBlend"
+  }
+}
+
+///|
+fn animation_graph_node_clip_path(
+  kind : @editor_bridge.AnimationGraphNodeKind,
+) -> String? {
+  match kind {
+    @editor_bridge.Clip(clip_asset_path~) => Some(clip_asset_path)
+    _ => None
+  }
+}
+
+///|
+fn animation_graph_node_edges_label(
+  node : @editor_bridge.AnimationGraphNodeDocument,
+) -> String {
+  let labels : Array[String] = []
+  for edge in node.edges {
+    labels.push(edge.to + " (\{edge.weight.to_string()})")
+  }
+  labels.join(", ")
+}
+
+///|
+fn animation_graph_node_card(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  graph : @editor_bridge.AnimationGraphAssetDocument,
+  node : @editor_bridge.AnimationGraphNodeDocument,
+) -> @rabbita.Html {
+  let is_default = graph.default_node == Some(node.id)
+  @html.div(class="component-card", [
+    @html.div(class="component-card-header", [
+      @html.span(
+        class="component-card-title",
+        node.id + " • " + animation_graph_node_kind_label(node.kind),
+      ),
+      @html.button(
+        class="component-card-menu-toggle",
+        on_click=dispatch(
+          @app.msg_remove_selected_animation_graph_node(node.id),
+        ),
+        "✕",
+      ),
+    ]),
+    @html.div(class="component-card-body", [
+      @html.div(class="inspector-block", [
+        @html.div(class="kv", [
+          @html.span(class="kv-key", "Position"),
+          @html.span(
+            class="kv-value",
+            "\{node.position.x.to_string()}, \{node.position.y.to_string()}",
+          ),
+        ]),
+        @html.div(class="kv", [
+          @html.span(class="kv-key", "Edges"),
+          @html.span(class="kv-value", node.edges.length().to_string()),
+        ]),
+        if node.edges.is_empty() {
+          @html.nothing
+        } else {
+          @html.div(class="kv", [
+            @html.span(class="kv-key", "Targets"),
+            @html.span(class="kv-value", animation_graph_node_edges_label(node)),
+          ])
+        },
+        match animation_graph_node_clip_path(node.kind) {
+          Some(clip_path) =>
+            labeled_input("Clip Asset Path", clip_path, fn(value) {
+              dispatch(
+                @app.msg_update_selected_animation_graph_node_clip_path(
+                  node.id,
+                  value,
+                ),
+              )
+            })
+          None => @html.nothing
+        },
+        @html.div(class="inspector-actions", [
+          @html.button(
+            class=if is_default {
+              "small-button disabled"
+            } else {
+              "small-button"
+            },
+            on_click=if is_default {
+              @cmd.none
+            } else {
+              dispatch(
+                @app.msg_update_selected_animation_graph_default_node(node.id),
+              )
+            },
+            if is_default {
+              "Default Node"
+            } else {
+              "Set Default Node"
+            },
+          ),
+        ]),
+      ]),
+    ]),
+  ])
+}
+
+///|
 fn custom_component_body(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.Model,
@@ -2390,7 +2502,9 @@ fn selected_asset_view(
             @html.div(class="inspector-block", [
               @html.h3("Animation Clip"),
               labeled_input("Name", clip.name, fn(value) {
-                dispatch(@app.msg_update_selected_animation_clip_asset_name(value))
+                dispatch(
+                  @app.msg_update_selected_animation_clip_asset_name(value),
+                )
               }),
               @html.div(class="kv", [
                 @html.span(class="kv-key", "Path"),
@@ -2410,7 +2524,11 @@ fn selected_asset_view(
                   on_click=dispatch(
                     @app.msg_toggle_selected_animation_clip_looping(),
                   ),
-                  if clip.looping { "Enabled" } else { "Disabled" },
+                  if clip.looping {
+                    "Enabled"
+                  } else {
+                    "Disabled"
+                  },
                 ),
               ]),
               labeled_input("Frames", clip.frames.join(", "), fn(value) {
@@ -2450,12 +2568,47 @@ fn selected_asset_view(
               labeled_input("Default Node", graph.default_node.unwrap_or(""), fn(
                 value,
               ) {
-                dispatch(@app.msg_update_selected_animation_graph_default_node(value))
+                dispatch(
+                  @app.msg_update_selected_animation_graph_default_node(value),
+                )
               }),
               @html.div(class="kv", [
                 @html.span(class="kv-key", "Node Count"),
                 @html.span(class="kv-value", graph.nodes.length().to_string()),
               ]),
+              @html.div(class="inspector-actions", [
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(
+                    @app.msg_add_selected_animation_graph_clip_node(),
+                  ),
+                  "Add Clip Node",
+                ),
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(
+                    @app.msg_add_selected_animation_graph_blend_node(),
+                  ),
+                  "Add Blend Node",
+                ),
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(
+                    @app.msg_add_selected_animation_graph_additive_blend_node(),
+                  ),
+                  "Add Additive Node",
+                ),
+              ]),
+              if graph.nodes.is_empty() {
+                @html.div(class="empty", "No nodes yet")
+              } else {
+                @html.div(
+                  class="component-card-list",
+                  graph.nodes.map(fn(node) {
+                    animation_graph_node_card(dispatch, graph, node)
+                  }),
+                )
+              },
               @html.div(class="inspector-actions", [
                 @html.button(
                   class="small-button",

@@ -62,14 +62,21 @@ fn normalized_clip_name(name : String?, index : Int) -> String {
   match name {
     Some(name) => {
       let trimmed = name.trim().to_string()
-      if trimmed == "" { fallback } else { trimmed }
+      if trimmed == "" {
+        fallback
+      } else {
+        trimmed
+      }
     }
     None => fallback
   }
 }
 
 ///|
-fn graph_path_from_legacy_animation_path(path : String, fallback : String) -> String {
+fn graph_path_from_legacy_animation_path(
+  path : String,
+  fallback : String,
+) -> String {
   let normalized = path.replace(old="\\", new="/")
   let stem = if normalized.has_suffix(".anim.json") {
     normalized[:normalized.length() - ".anim.json".length()].to_string()
@@ -84,17 +91,29 @@ fn graph_path_from_legacy_animation_path(path : String, fallback : String) -> St
     stem
   }
   let base = @editor_bridge.normalized_document_stem(
-    if file_stem == "" { fallback } else { file_stem },
+    if file_stem == "" {
+      fallback
+    } else {
+      file_stem
+    },
   )
-  "assets/animation_graphs/" + @editor_bridge.animation_graph_asset_file_name(base)
+  "assets/animation_graphs/" +
+  @editor_bridge.animation_graph_asset_file_name(base)
 }
 
 ///|
-fn inferred_graph_name(legacy : LegacyAnimationAssetDocument, fallback : String) -> String {
+fn inferred_graph_name(
+  legacy : LegacyAnimationAssetDocument,
+  fallback : String,
+) -> String {
   match legacy.name {
     Some(name) => {
       let trimmed = name.trim().to_string()
-      if trimmed == "" { fallback } else { trimmed }
+      if trimmed == "" {
+        fallback
+      } else {
+        trimmed
+      }
     }
     None => fallback
   }
@@ -145,7 +164,11 @@ fn legacy_animation_preview_for_scene(
     touched = true
   }
   if touched {
-    Some(@editor_bridge.scene_migration_preview(scene_path, migrated_scene, changes))
+    Some(
+      @editor_bridge.scene_migration_preview(
+        scene_path, migrated_scene, changes,
+      ),
+    )
   } else {
     None
   }
@@ -170,7 +193,9 @@ async fn migrate_legacy_animation_document(
     legacy,
     @editor_bridge.normalized_document_stem(relative_path),
   )
-  let graph_path = graph_path_from_legacy_animation_path(relative_path, graph_name)
+  let graph_path = graph_path_from_legacy_animation_path(
+    relative_path, graph_name,
+  )
   let atlas_path = legacy.atlas_asset_path.unwrap_or("")
   let legacy_clips = legacy.clips.unwrap_or([])
   guard !legacy_clips.is_empty() else {
@@ -213,8 +238,7 @@ async fn migrate_legacy_animation_document(
     None => Some("default")
   }
   let graph_doc = @editor_bridge.AnimationGraphAssetDocument::default(
-    graph_name,
-    first_clip_path,
+    graph_name, first_clip_path,
   ).with_default_node(default_node)
   save_animation_graph_asset_document(root, graph_path, graph_doc)
 
@@ -402,9 +426,7 @@ fn scene_bundle_response_of_bundle(
     )
   }
   @shared.scene_bundle_response(bundle.scene_path, bundle.scene).with_assets(
-    atlas_assets,
-    animation_clip_assets,
-    animation_graph_assets,
+    atlas_assets, animation_clip_assets, animation_graph_assets,
   )
 }
 

@@ -309,8 +309,7 @@ async test "service lists scenes and saves prefabs and asset docs" {
         @shared.rpc_request_envelope(
           5,
           @shared.rpc_request_animation_clip_save(
-            "assets/animation_clips/hero.clip.json",
-            animation,
+            "assets/animation_clips/hero.clip.json", animation,
           ),
         ),
       ),
@@ -501,8 +500,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
         @shared.rpc_request_envelope(
           14,
           @shared.rpc_request_animation_clip_save(
-            "assets/animation_clips/hero.clip.json",
-            animation,
+            "assets/animation_clips/hero.clip.json", animation,
           ),
         ),
       ),
@@ -595,8 +593,7 @@ async test "service typed rpc surface returns stable errors for missing or inval
       @shared.rpc_request_animation_graph_save(
         "assets/animation_graphs/test.graph.json",
         @editor_bridge.AnimationGraphAssetDocument::default(
-          "Test Graph",
-          "assets/animation_clips/test.clip.json",
+          "Test Graph", "assets/animation_clips/test.clip.json",
         ),
       ),
     ]

@@ -622,7 +622,9 @@ pub async fn EditorHarness::given_animation_document(
   animation : @editor_bridge.AnimationClipAssetDocument,
 ) -> Unit {
   ensure_project_layout(self.project_root)
-  ignore(@editor_bridge.decode_animation_clip_asset_document(animation.to_json()))
+  ignore(
+    @editor_bridge.decode_animation_clip_asset_document(animation.to_json()),
+  )
   write_json_file(self.project_root + "/" + relative_path, animation)
 }
 

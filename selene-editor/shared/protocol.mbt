@@ -119,10 +119,7 @@ pub enum RpcRequest {
     path~ : String,
     graph~ : @editor_bridge.AnimationGraphAssetDocument
   )
-  AnimationMigrate(
-    path~ : String,
-    scene_path~ : String
-  )
+  AnimationMigrate(path~ : String, scene_path~ : String)
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
