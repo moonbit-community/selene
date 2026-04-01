@@ -76,6 +76,13 @@ pub struct Model {
   custom_component_json_drafts : Map[String, String]
   custom_component_json_errors : Map[String, String]
   pending_scene_migration : @editor_bridge.SceneMigrationPreview?
+  pending_animation_migration_paths : Array[String]
+  pending_animation_migration_scene_path : String?
+  animation_migration_in_progress : Bool
+  animation_migration_total : Int
+  animation_migration_completed : Int
+  animation_migration_failed : Int
+  animation_migration_prompt_dismissed : Bool
   undo_stack : Array[@editor_bridge.SceneDocument]
   redo_stack : Array[@editor_bridge.SceneDocument]
   active_scene_edit_transaction : SceneEditTransaction?
@@ -109,6 +116,8 @@ pub enum Msg {
   SceneLoaded(Result[@shared.SceneLoadOutcome, String])
   ConfirmSceneMigration
   CancelSceneMigration
+  ConfirmAnimationMigration
+  CancelAnimationMigration
   SceneListLoaded(Result[@shared.SceneListResponse, String])
   AssetsLoaded(Result[@shared.AssetsListResponse, String])
   PrefabLoaded(Result[@shared.PrefabLoadResponse, String])
@@ -119,6 +128,7 @@ pub enum Msg {
   AssetImageLoadFailed(String)
   SetAssetQuery(String)
   SceneSaved(Result[Unit, String])
+  AnimationMigrationSaved(Result[Unit, String])
   WorkspaceSaved(Result[Unit, String])
   ServiceEvent(Result[@shared.EditorEvent, String])
   PreviewEvent(@bridge.PreviewEvent)
@@ -231,6 +241,7 @@ pub enum RpcTarget {
   AnimationClipLoaded
   AnimationGraphLoaded
   SceneSaved
+  AnimationMigrationSaved
   WorkspaceSaved
 } derive(Show, Eq)
 
@@ -277,6 +288,13 @@ pub fn new_model() -> Model {
     custom_component_json_drafts: {},
     custom_component_json_errors: {},
     pending_scene_migration: None,
+    pending_animation_migration_paths: [],
+    pending_animation_migration_scene_path: None,
+    animation_migration_in_progress: false,
+    animation_migration_total: 0,
+    animation_migration_completed: 0,
+    animation_migration_failed: 0,
+    animation_migration_prompt_dismissed: false,
     undo_stack: [],
     redo_stack: [],
     active_scene_edit_transaction: None,
@@ -355,6 +373,16 @@ pub fn msg_cancel_scene_migration() -> Msg {
 }
 
 ///|
+pub fn msg_confirm_animation_migration() -> Msg {
+  ConfirmAnimationMigration
+}
+
+///|
+pub fn msg_cancel_animation_migration() -> Msg {
+  CancelAnimationMigration
+}
+
+///|
 pub fn msg_scene_list_loaded(
   result : Result[@shared.SceneListResponse, String],
 ) -> Msg {
@@ -418,6 +446,11 @@ pub fn msg_asset_size_resolved(
 ///|
 pub fn msg_scene_saved(result : Result[Unit, String]) -> Msg {
   SceneSaved(result)
+}
+
+///|
+pub fn msg_animation_migration_saved(result : Result[Unit, String]) -> Msg {
+  AnimationMigrationSaved(result)
 }
 
 ///|
@@ -1084,6 +1117,11 @@ fn scene_load_failed_message() -> String {
 fn folder_picker_failed_message() -> String {
   "Folder picker failed. Check browser console for details."
 }
+
+///|
+priv struct LegacyAnimationPlayerComponent {
+  animation_asset_path : String?
+} derive(FromJson)
 
 ///|
 fn rpc_effect(target : RpcTarget, request : @shared.RpcRequest) -> Effect {
@@ -2044,6 +2082,50 @@ fn sorted_strings(values : Array[String]) -> Array[String] {
 }
 
 ///|
+fn legacy_animation_paths_in_scene(
+  scene : @editor_bridge.SceneDocument,
+) -> Array[String] {
+  let paths : Array[String] = []
+  let seen : Map[String, Bool] = {}
+  for entity in scene.entities {
+    guard entity.component("AnimationPlayer") is Some(player_component) else {
+      continue
+    }
+    let legacy_result : Result[LegacyAnimationPlayerComponent, Error] = try? @json.from_json(
+      player_component.data,
+    )
+    guard legacy_result is Ok(legacy_player) else { continue }
+    guard legacy_player.animation_asset_path is Some(path) else { continue }
+    let normalized_path = path.trim().to_string()
+    if normalized_path == "" || seen.contains(normalized_path) {
+      continue
+    }
+    seen.set(normalized_path, true)
+    paths.push(normalized_path)
+  }
+  sorted_strings(paths)
+}
+
+///|
+fn legacy_animation_paths_in_assets(
+  assets : Array[@editor_bridge.AssetDocument],
+) -> Array[String] {
+  let paths : Array[String] = []
+  let seen : Map[String, Bool] = {}
+  for asset in assets {
+    if !asset.path.has_suffix(".anim.json") {
+      continue
+    }
+    if seen.contains(asset.path) {
+      continue
+    }
+    seen.set(asset.path, true)
+    paths.push(asset.path)
+  }
+  sorted_strings(paths)
+}
+
+///|
 fn visible_resources_in_order(model : Model) -> Array[ResourceSelection] {
   let resources : Array[ResourceSelection] = []
   let force_expand_sections = model.asset_query_normalized() != ""
@@ -2984,6 +3066,13 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                 scene_path,
                 project_root_input,
                 pending_scene_migration: None,
+                pending_animation_migration_paths: [],
+                pending_animation_migration_scene_path: None,
+                animation_migration_in_progress: false,
+                animation_migration_total: 0,
+                animation_migration_completed: 0,
+                animation_migration_failed: 0,
+                animation_migration_prompt_dismissed: false,
                 add_component_panel_open: false,
                 component_search_query: "",
                 open_component_menu_kind: None,
@@ -3041,6 +3130,25 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             .with_selected_entity_id(
               selected_after_load(model.selected_entity_id, response.scene),
             )
+          let legacy_animation_paths = legacy_animation_paths_in_scene(
+            response.scene,
+          )
+          let pending_animation_migration_paths = if legacy_animation_paths.is_empty() ||
+            model.animation_migration_prompt_dismissed {
+            []
+          } else {
+            legacy_animation_paths
+          }
+          let pending_animation_migration_scene_path = if pending_animation_migration_paths.is_empty() {
+            None
+          } else {
+            Some(response.path)
+          }
+          let status = if pending_animation_migration_paths.is_empty() {
+            "Loaded " + response.path
+          } else {
+            "Legacy animations detected. Migration required before use."
+          }
           let next = {
             ..model,
             scene_path: response.path,
@@ -3054,13 +3162,19 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             animation_graph_refs,
             selected_entity_id: workspace.selected_entity_id,
             pending_scene_migration: None,
+            pending_animation_migration_paths,
+            pending_animation_migration_scene_path,
+            animation_migration_in_progress: false,
+            animation_migration_total: pending_animation_migration_paths.length(),
+            animation_migration_completed: 0,
+            animation_migration_failed: 0,
             add_component_panel_open: false,
             component_search_query: "",
             open_component_menu_kind: None,
             undo_stack: [],
             redo_stack: [],
             active_scene_edit_transaction: None,
-            status: "Loaded " + response.path,
+            status,
           }
           (sync_preview_effects_with_scene(next), next)
         }
@@ -3071,6 +3185,13 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             scene: None,
             selected_entity_id: None,
             pending_scene_migration: Some(preview),
+            pending_animation_migration_paths: [],
+            pending_animation_migration_scene_path: None,
+            animation_migration_in_progress: false,
+            animation_migration_total: 0,
+            animation_migration_completed: 0,
+            animation_migration_failed: 0,
+            animation_migration_prompt_dismissed: false,
             add_component_panel_open: false,
             component_search_query: "",
             open_component_menu_kind: None,
@@ -3116,6 +3237,13 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           scene: None,
           selected_entity_id: None,
           pending_scene_migration: None,
+          pending_animation_migration_paths: [],
+          pending_animation_migration_scene_path: None,
+          animation_migration_in_progress: false,
+          animation_migration_total: 0,
+          animation_migration_completed: 0,
+          animation_migration_failed: 0,
+          animation_migration_prompt_dismissed: false,
           add_component_panel_open: false,
           component_search_query: "",
           open_component_menu_kind: None,
@@ -3127,6 +3255,129 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         },
       )
     }
+    ConfirmAnimationMigration =>
+      if model.animation_migration_in_progress {
+        ([], model)
+      } else if model.pending_animation_migration_paths.is_empty() {
+        ([], { ..model, status: "No legacy animation files to migrate" })
+      } else {
+        let scene_path = model.pending_animation_migration_scene_path.unwrap_or(
+          model.scene_path,
+        )
+        let first_path = model.pending_animation_migration_paths[0]
+        (
+          [
+            rpc_effect(
+              AnimationMigrationSaved,
+              @shared.rpc_request_animation_migrate(first_path, scene_path),
+            ),
+          ],
+          {
+            ..model,
+            animation_migration_in_progress: true,
+            animation_migration_total: model.pending_animation_migration_paths.length(),
+            animation_migration_completed: 0,
+            animation_migration_failed: 0,
+            animation_migration_prompt_dismissed: false,
+            status: "Migrating legacy animations (0/\{model.pending_animation_migration_paths.length()})...",
+          },
+        )
+      }
+    CancelAnimationMigration =>
+      if model.animation_migration_in_progress {
+        (
+          [],
+          {
+            ..model,
+            status: "Animation migration is running. Wait for completion.",
+          },
+        )
+      } else {
+        (
+          [],
+          {
+            ..model,
+            pending_animation_migration_paths: [],
+            pending_animation_migration_scene_path: None,
+            animation_migration_in_progress: false,
+            animation_migration_total: 0,
+            animation_migration_completed: 0,
+            animation_migration_failed: 0,
+            animation_migration_prompt_dismissed: true,
+            status: "Animation migration cancelled",
+          },
+        )
+      }
+    AnimationMigrationSaved(result) =>
+      if !model.animation_migration_in_progress ||
+        model.pending_animation_migration_paths.is_empty() {
+        ([], model)
+      } else {
+        let current_index = model.animation_migration_completed
+        let total = model.animation_migration_total
+        let current_path = if current_index <
+          model.pending_animation_migration_paths.length() {
+          model.pending_animation_migration_paths[current_index]
+        } else {
+          "(unknown)"
+        }
+        let failed = match result {
+          Ok(_) => model.animation_migration_failed
+          Err(_) => model.animation_migration_failed + 1
+        }
+        let completed = model.animation_migration_completed + 1
+        let with_log = match result {
+          Ok(_) => model
+          Err(message) =>
+            push_log(
+              model,
+              "Animation migration failed for \{current_path}: \{message}",
+            )
+        }
+        let in_progress = completed < total
+        if in_progress {
+          let scene_path = model.pending_animation_migration_scene_path.unwrap_or(
+            model.scene_path,
+          )
+          let next_path = model.pending_animation_migration_paths[completed]
+          (
+            [
+              rpc_effect(
+                AnimationMigrationSaved,
+                @shared.rpc_request_animation_migrate(next_path, scene_path),
+              ),
+            ],
+            {
+              ..with_log,
+              animation_migration_failed: failed,
+              animation_migration_completed: completed,
+              status: "Migrating legacy animations (\{completed}/\{total})...",
+            },
+          )
+        } else {
+          let next = {
+            ..with_log,
+            pending_animation_migration_paths: [],
+            pending_animation_migration_scene_path: None,
+            animation_migration_in_progress: false,
+            animation_migration_total: 0,
+            animation_migration_completed: 0,
+            animation_migration_failed: 0,
+            animation_migration_prompt_dismissed: false,
+            status: if failed == 0 {
+              "Legacy animation migration complete"
+            } else {
+              "Legacy animation migration finished with \{failed} failures"
+            },
+          }
+          let effects = if failed == 0 {
+            refresh_project_effects(next)
+          } else {
+            []
+          }
+          (effects, next)
+        }
+      }
     SceneListLoaded(result) =>
       match result {
         Ok(response) => {
@@ -3169,6 +3420,23 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
               ) => Some(selection)
             _ => None
           }
+          let legacy_animation_paths = legacy_animation_paths_in_assets(
+            response.assets,
+          )
+          let show_animation_migration_prompt = !model.animation_migration_in_progress &&
+            model.pending_animation_migration_paths.is_empty() &&
+            !model.animation_migration_prompt_dismissed &&
+            !legacy_animation_paths.is_empty()
+          let pending_animation_migration_paths = if show_animation_migration_prompt {
+            legacy_animation_paths
+          } else {
+            model.pending_animation_migration_paths
+          }
+          let pending_animation_migration_scene_path = if show_animation_migration_prompt {
+            Some(model.scene_path)
+          } else {
+            model.pending_animation_migration_scene_path
+          }
           (
             [],
             {
@@ -3179,6 +3447,28 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                 model.asset_tree_expanded,
                 selected_resource,
               ),
+              pending_animation_migration_paths,
+              pending_animation_migration_scene_path,
+              animation_migration_total: if show_animation_migration_prompt {
+                pending_animation_migration_paths.length()
+              } else {
+                model.animation_migration_total
+              },
+              animation_migration_completed: if show_animation_migration_prompt {
+                0
+              } else {
+                model.animation_migration_completed
+              },
+              animation_migration_failed: if show_animation_migration_prompt {
+                0
+              } else {
+                model.animation_migration_failed
+              },
+              status: if show_animation_migration_prompt {
+                "Legacy animations detected. Migration required before use."
+              } else {
+                model.status
+              },
             },
           )
         }

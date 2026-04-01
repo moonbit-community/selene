@@ -373,6 +373,99 @@ test "cancelling scene migration keeps the scene unloaded" {
 }
 
 ///|
+test "legacy animation references trigger migration prompt on scene load" {
+  let scene = @editor_bridge.SceneDocument::default_main()
+  let camera = scene.entity("camera").unwrap()
+  let legacy_player = @editor_bridge.component_document(
+    "AnimationPlayer",
+    @json.parse(
+      "{\"animation_asset_path\":\"assets/animations/hero.anim.json\",\"default_clip\":\"idle\",\"autoplay\":true,\"repeat_mode\":\"forever\",\"speed\":1}",
+    ),
+  )
+  let legacy_scene = scene.with_entity(camera.with_component(legacy_player))
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+  }
+  let (_effects, next) = update(
+    msg_scene_loaded(
+      Ok(
+        @shared.scene_load_outcome_loaded(
+          @shared.scene_bundle_response("scenes/main.scene.json", legacy_scene),
+        ),
+      ),
+    ),
+    model,
+  )
+  inspect(
+    next.pending_animation_migration_paths,
+    content="[\"assets/animations/hero.anim.json\"]",
+  )
+  inspect(
+    next.pending_animation_migration_scene_path,
+    content="Some(\"scenes/main.scene.json\")",
+  )
+  inspect(next.animation_migration_total, content="1")
+}
+
+///|
+test "animation migration confirm runs batch sequentially and reports failures" {
+  let base = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    pending_animation_migration_paths: [
+      "assets/animations/a.anim.json", "assets/animations/b.anim.json",
+    ],
+    pending_animation_migration_scene_path: Some("scenes/main.scene.json"),
+  }
+  let (confirm_effects, confirming) = update(
+    msg_confirm_animation_migration(),
+    base,
+  )
+  inspect(confirm_effects.length(), content="1")
+  inspect(confirming.animation_migration_in_progress, content="true")
+  inspect(confirming.animation_migration_total, content="2")
+  inspect(confirming.animation_migration_completed, content="0")
+  inspect(confirming.status, content="Migrating legacy animations (0/2)...")
+
+  let (first_effects, progressed) = update(
+    msg_animation_migration_saved(Ok(())),
+    confirming,
+  )
+  inspect(first_effects.length(), content="1")
+  inspect(progressed.animation_migration_completed, content="1")
+  inspect(progressed.animation_migration_failed, content="0")
+  inspect(progressed.status, content="Migrating legacy animations (1/2)...")
+
+  let (final_effects, finished) = update(
+    msg_animation_migration_saved(Err("decode failed")),
+    progressed,
+  )
+  inspect(final_effects.length(), content="0")
+  inspect(finished.animation_migration_in_progress, content="false")
+  inspect(finished.pending_animation_migration_paths.length(), content="0")
+  inspect(
+    finished.status,
+    content="Legacy animation migration finished with 1 failures",
+  )
+}
+
+///|
+test "cancelling animation migration dismisses prompt for current session" {
+  let model = {
+    ..new_model(),
+    pending_animation_migration_paths: ["assets/animations/hero.anim.json"],
+    pending_animation_migration_scene_path: Some("scenes/main.scene.json"),
+  }
+  let (_effects, next) = update(msg_cancel_animation_migration(), model)
+  inspect(next.pending_animation_migration_paths.length(), content="0")
+  inspect(next.animation_migration_prompt_dismissed, content="true")
+  inspect(next.status, content="Animation migration cancelled")
+}
+
+///|
 test "selecting an asset does not create a scene entity" {
   let scene = @editor_bridge.SceneDocument::default_main()
   let model = {

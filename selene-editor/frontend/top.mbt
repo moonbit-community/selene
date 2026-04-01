@@ -804,6 +804,11 @@ fn rpc_effect_cmd(
         log_rpc_result_error("scene.save", result)
         dispatch(@app.msg_scene_saved(result))
       })
+    @app.AnimationMigrationSaved =>
+      rpc_cmd(request, save_ack_of_response, fn(result) {
+        log_rpc_result_error("animation.migrate", result)
+        dispatch(@app.msg_animation_migration_saved(result))
+      })
     @app.WorkspaceSaved =>
       rpc_cmd(request, save_ack_of_response, fn(result) {
         log_rpc_result_error("project.save_workspace", result)
@@ -3037,6 +3042,77 @@ fn scene_migration_dialog_view(
 }
 
 ///|
+fn animation_migration_dialog_view(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  model : @app.Model,
+) -> @rabbita.Html {
+  let items = model.pending_animation_migration_paths.map(fn(path) {
+    @html.li(class="migration-change-item", [
+      @html.div(class="migration-change-path", path),
+      @html.div(class="migration-change-reason", "Legacy animation asset"),
+      @html.div(class="migration-change-value", "Will generate clip + graph"),
+    ])
+  })
+  let progress = if model.animation_migration_total <= 0 {
+    "0/0"
+  } else {
+    "\{model.animation_migration_completed}/\{model.animation_migration_total}"
+  }
+  let running = model.animation_migration_in_progress
+  @html.div(class="modal-backdrop", [
+    @html.div(class="modal-card", [
+      @html.h2(class="modal-title", "Legacy Animation Migration"),
+      @html.p(
+        class="modal-copy",
+        "Legacy .anim.json assets were found. Migrate them to Selene v3 clip/graph assets.",
+      ),
+      @html.div(class="migration-summary", [
+        @html.div(class="migration-label", "Progress"),
+        @html.div(class="migration-value", progress),
+      ]),
+      @html.div(class="migration-summary", [
+        @html.div(class="migration-label", "Scene"),
+        @html.div(
+          class="migration-value",
+          model.pending_animation_migration_scene_path.unwrap_or(
+            model.scene_path,
+          ),
+        ),
+      ]),
+      @html.ul(class="migration-change-list", items),
+      @html.div(class="modal-actions", [
+        @html.button(
+          class=if running { "small-button disabled" } else { "small-button" },
+          on_click=if running {
+            @cmd.none
+          } else {
+            dispatch(@app.msg_cancel_animation_migration())
+          },
+          "Cancel",
+        ),
+        @html.button(
+          class=if running {
+            "small-button primary-button disabled"
+          } else {
+            "small-button primary-button"
+          },
+          on_click=if running {
+            @cmd.none
+          } else {
+            dispatch(@app.msg_confirm_animation_migration())
+          },
+          if running {
+            "Migrating..."
+          } else {
+            "Migrate"
+          },
+        ),
+      ]),
+    ]),
+  ])
+}
+
+///|
 fn view(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.Model,
@@ -3266,7 +3342,15 @@ fn view(
         body,
         scene_migration_dialog_view(dispatch, preview),
       ])
-    None => body
+    None =>
+      if model.pending_animation_migration_paths.is_empty() {
+        body
+      } else {
+        @html.div(class="editor-shell", [
+          body,
+          animation_migration_dialog_view(dispatch, model),
+        ])
+      }
   }
 }
 

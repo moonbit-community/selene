@@ -82,6 +82,8 @@ fn msg_for_rpc_target(target : @app.RpcTarget, payload : Json) -> @app.Msg {
         @app.AnimationGraphLoaded =>
           @app.msg_animation_graph_loaded(Err(message))
         @app.SceneSaved => @app.msg_scene_saved(Err(message))
+        @app.AnimationMigrationSaved =>
+          @app.msg_animation_migration_saved(Err(message))
         @app.WorkspaceSaved => @app.msg_workspace_saved(Err(message))
       }
   }
@@ -163,6 +165,14 @@ fn msg_for_rpc_target(target : @app.RpcTarget, payload : Json) -> @app.Msg {
       )
     @app.SceneSaved =>
       @app.msg_scene_saved(
+        match response {
+          @shared.SavedOk | @shared.StartupSceneUpdated(_) => Ok(())
+          @shared.Error(error~) => Err(error.message)
+          _ => Err("Unexpected RPC response for save")
+        },
+      )
+    @app.AnimationMigrationSaved =>
+      @app.msg_animation_migration_saved(
         match response {
           @shared.SavedOk | @shared.StartupSceneUpdated(_) => Ok(())
           @shared.Error(error~) => Err(error.message)
