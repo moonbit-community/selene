@@ -66,6 +66,7 @@
 - Changed `selene/physics3d` parity verification coverage by extending 3D wbtests to include `QueryFilter` body-type filtering (`dynamic/fixed/kinematic`), exclude-entity/exclude-sensors/exclude-solids behavior, `cast_shape` filtering behavior, and collision/intersection event-bus mapping.
 - Changed `selene/physics3d` joint parity verification coverage by adding 3D wbtests for all joint variants on both `ImpulseJoint` and `MultibodyJoint`, and documenting current rope/spring handle-routing semantics in the parity matrix.
 - Changed `selene/physics3d` impulse `Rope/Spring` joint syncing to use generic-joint insertion (Bevy-style handle path), so these variants now expose stable impulse joint handles and share consistent `contacts_enabled` behavior with other impulse joint types.
+- Changed `selene/physics3d` collider sync to preserve threshold-derived contact-force active events during per-frame updates, and added wbtest coverage for default-vs-low `ContactForceEventThreshold` behavior.
 
 ### Fixed
 

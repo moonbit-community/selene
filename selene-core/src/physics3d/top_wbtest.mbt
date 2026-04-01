@@ -699,6 +699,51 @@ test "solver groups are forwarded to rapier collider" {
 }
 
 ///|
+test "contact force threshold toggles contact-force active events" {
+  with_physics3d_test_world(fn() raise {
+    let default_entity = @entity.Entity::new()
+    colliders().set(default_entity, Collider::ball(0.5))
+
+    let low_threshold_entity = @entity.Entity::new()
+    colliders().set(low_threshold_entity, Collider::ball(0.5))
+    contact_force_event_thresholds().set(
+      low_threshold_entity,
+      ContactForceEventThreshold(0.5),
+    )
+
+    step_physics(1)
+
+    let default_collider = physics3d_world().colliders
+      .get(collider_handle(default_entity).unwrap())
+      .unwrap()
+    inspect(
+      !default_collider
+      .active_events()
+      .contains(@collision.ActiveEvents::contact_force_events()),
+      content="true",
+    )
+    inspect(
+      default_collider.contact_force_event_threshold() > 1.0e29,
+      content="true",
+    )
+
+    let low_collider = physics3d_world().colliders
+      .get(collider_handle(low_threshold_entity).unwrap())
+      .unwrap()
+    inspect(
+      low_collider
+      .active_events()
+      .contains(@collision.ActiveEvents::contact_force_events()),
+      content="true",
+    )
+    inspect(
+      low_collider.contact_force_event_threshold() == 0.5F,
+      content="true",
+    )
+  })
+}
+
+///|
 test "kinematic character controller writes output and clears consumed translation" {
   with_physics3d_test_world(fn() raise {
     let floor = @entity.Entity::new()
@@ -734,4 +779,81 @@ test "kinematic character controller writes output and clears consumed translati
       content="true",
     )
   })
+}
+
+///|
+test "character controller options are forwarded to rapier controller" {
+  let autostep = CharacterAutostep::new(
+    CharacterLength::absolute(0.6),
+    CharacterLength::absolute(1.2),
+  ).with_include_dynamic_bodies(false)
+  let controller = {
+    ..KinematicCharacterController::default(),
+    offset: CharacterLength::absolute(0.02),
+    slide: false,
+    autostep: Some(autostep),
+    max_slope_climb_angle: 1.1,
+    min_slope_slide_angle: 0.4,
+    snap_to_ground: Some(CharacterLength::absolute(0.35)),
+    normal_nudge_factor: 0.015,
+    up: @math.Vec3::new(0.0, 0.0, 1.0),
+  }
+  let rapier_controller = controller_to_rapier(controller)
+  inspect(rapier_controller.slide, content="false")
+  inspect(
+    match rapier_controller.offset {
+      CharacterLength::Absolute(value) =>
+        value.to_double() > 0.019 && value.to_double() < 0.021
+      _ => false
+    },
+    content="true",
+  )
+  inspect(
+    match rapier_controller.autostep {
+      Some(actual_autostep) => {
+        let max_height_ok = match actual_autostep.max_height() {
+          CharacterLength::Absolute(value) =>
+            value.to_double() > 0.59 && value.to_double() < 0.61
+          _ => false
+        }
+        let min_width_ok = match actual_autostep.min_width() {
+          CharacterLength::Absolute(value) =>
+            value.to_double() > 1.19 && value.to_double() < 1.21
+          _ => false
+        }
+        actual_autostep.include_dynamic_bodies() == autostep.include_dynamic_bodies() &&
+        max_height_ok &&
+        min_width_ok
+      }
+      None => false
+    },
+    content="true",
+  )
+  inspect(
+    match rapier_controller.snap_to_ground {
+      Some(CharacterLength::Absolute(value)) =>
+        value.to_double() > 0.34 && value.to_double() < 0.36
+      _ => false
+    },
+    content="true",
+  )
+  inspect(
+    rapier_controller.max_slope_climb_angle.to_double() > 1.09 &&
+    rapier_controller.max_slope_climb_angle.to_double() < 1.11,
+    content="true",
+  )
+  inspect(
+    rapier_controller.min_slope_slide_angle.to_double() > 0.39 &&
+    rapier_controller.min_slope_slide_angle.to_double() < 0.41,
+    content="true",
+  )
+  inspect(
+    rapier_controller.normal_nudge_factor.to_double() > 0.014 &&
+    rapier_controller.normal_nudge_factor.to_double() < 0.016,
+    content="true",
+  )
+  inspect(
+    @math.vec3_from_rapier(rapier_controller.up),
+    content="{x: 0, y: 0, z: 1}",
+  )
 }

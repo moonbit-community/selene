@@ -1709,6 +1709,7 @@ fn sync_collider_to_rapier(
   )
   let solver = collider_desc.solver_groups.unwrap_or(SolverGroups::all())
   let solver_groups = interaction_groups(solver.memberships, solver.filters)
+  let active_events = effective_active_events(collider_desc)
 
   match attached_rigid_body_entity(entity) {
     Some(body_entity) =>
@@ -1756,7 +1757,7 @@ fn sync_collider_to_rapier(
     .set_solver_groups(solver_groups)
     .set_enabled(true)
     .set_active_collision_types(collider_desc.active_collision_types)
-    .set_active_events(collider_desc.active_events)
+    .set_active_events(active_events)
     .set_active_hooks(collider_desc.active_hooks)
     .set_contact_force_event_threshold(
       Float::from_double(collider_desc.contact_force_event_threshold.0),
@@ -1926,22 +1927,13 @@ fn collider_builder_from_desc(
   )
   let solver = collider_desc.solver_groups.unwrap_or(SolverGroups::all())
   let solver_groups = interaction_groups(solver.memberships, solver.filters)
-  let mut active_events = @collision.ActiveEvents::collision_events().union(
-    @collision.ActiveEvents::intersection_events(),
-  )
-  if collider_desc.contact_force_event_threshold.0 < 1.0e29 {
-    active_events = active_events.union(
-      @collision.ActiveEvents::contact_force_events(),
-    )
-  }
-
   builder = builder
     .collision_groups(groups)
     .solver_groups(solver_groups)
     .friction(Float::from_double(collider_desc.friction.0))
     .restitution(Float::from_double(collider_desc.restitution.0))
     .sensor(collider_desc.sensor)
-    .active_events(collider_desc.active_events.union(active_events))
+    .active_events(effective_active_events(collider_desc))
     .active_collision_types(collider_desc.active_collision_types)
     .active_hooks(collider_desc.active_hooks)
     .enabled(true)
@@ -1952,6 +1944,21 @@ fn collider_builder_from_desc(
     builder = builder.density(Float::from_double(density))
   }
   builder
+}
+
+///|
+fn effective_active_events(
+  collider_desc : ColliderDesc,
+) -> @collision.ActiveEvents {
+  let mut active_events = @collision.ActiveEvents::collision_events().union(
+    @collision.ActiveEvents::intersection_events(),
+  )
+  if collider_desc.contact_force_event_threshold.0 < 1.0e29 {
+    active_events = active_events.union(
+      @collision.ActiveEvents::contact_force_events(),
+    )
+  }
+  collider_desc.active_events.union(active_events)
 }
 
 ///|
