@@ -62,7 +62,7 @@
 - Changed `selene-editor` Image resource Inspector to render an inline preview image (loaded from `/project/...`) with load/error state handling, instead of text-only metadata.
 - Changed `selene-editor` preview bridge payload to carry explicit `scene_path`, and changed preview runtime scene sync to distinguish `scene switch` from `same-scene update` without heuristic fallback.
 - Changed `selene-editor` project-load state handling to require typed workspace payloads; missing workspace state is now treated as a protocol failure instead of silently defaulting.
-- Changed `selene/physics3d` parity verification coverage by extending 3D wbtests to include `QueryFilter` body-type/exclude-entity/exclude-sensors/exclude-solids behavior and collision/intersection event-bus mapping.
+- Changed `selene/physics3d` parity verification coverage by extending 3D wbtests to include `QueryFilter` body-type/exclude-entity/exclude-sensors/exclude-solids behavior, `cast_shape` filtering behavior, and collision/intersection event-bus mapping.
 
 ### Fixed
 

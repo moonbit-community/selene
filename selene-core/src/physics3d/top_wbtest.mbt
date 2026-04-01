@@ -212,6 +212,61 @@ test "query filter exclude_sensors and exclude_solids work in 3d" {
 }
 
 ///|
+test "cast_shape respects body filter and exclude_entity in 3d" {
+  with_physics3d_test_world(fn() raise {
+    let dynamic_entity = @entity.Entity::new()
+    @transform.transforms().set(
+      dynamic_entity,
+      @transform.Transform::from_xyz(2.0, 0.0, 0.0),
+    )
+    rigid_bodies().set(dynamic_entity, Dynamic)
+    colliders().set(dynamic_entity, Collider::ball(0.5))
+
+    let fixed_entity = @entity.Entity::new()
+    @transform.transforms().set(
+      fixed_entity,
+      @transform.Transform::from_xyz(5.0, 0.0, 0.0),
+    )
+    rigid_bodies().set(fixed_entity, Fixed)
+    colliders().set(fixed_entity, Collider::ball(0.5))
+
+    step_physics(1)
+
+    let first_hit = context()
+      .cast_shape(
+        Collider::ball(0.25),
+        @math.Vec3::zero(),
+        direction=@math.Vec3::x_axis(),
+      )
+      .unwrap()
+    inspect(first_hit.entity == dynamic_entity, content="true")
+
+    let fixed_hit = context()
+      .cast_shape(
+        Collider::ball(0.25),
+        @math.Vec3::zero(),
+        direction=@math.Vec3::x_axis(),
+        query_filter=QueryFilter::only_fixed(),
+      )
+      .unwrap()
+    inspect(fixed_hit.entity == fixed_entity, content="true")
+
+    let excluded_hit = context()
+      .cast_shape(
+        Collider::ball(0.25),
+        @math.Vec3::zero(),
+        direction=@math.Vec3::x_axis(),
+        query_filter={
+          ..QueryFilter::all(),
+          exclude_entity: Some(dynamic_entity),
+        },
+      )
+      .unwrap()
+    inspect(excluded_hit.entity == fixed_entity, content="true")
+  })
+}
+
+///|
 test "collision and intersection events map to selene event buses" {
   with_physics3d_test_world(fn() raise {
     let sensor_entity = @entity.Entity::new()
