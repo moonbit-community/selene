@@ -641,6 +641,70 @@ test "creating an atlas from a selected image updates resource state" {
 }
 
 ///|
+test "creating animation clip from selected atlas selects clip asset" {
+  let atlas = @editor_bridge.atlas_asset_document_from_image(
+    "hero",
+    "assets/images/hero.png",
+    @editor_bridge.vec2_doc(32.0, 32.0),
+  )
+  let model = {
+    ..new_model(),
+    animation_clips_section_expanded: false,
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    atlas_refs: [@editor_bridge.asset_ref("assets/atlases/hero.atlas.json")],
+    atlas_documents: { "assets/atlases/hero.atlas.json": atlas },
+    selected_resource: Some(
+      resource_selection_atlas("assets/atlases/hero.atlas.json"),
+    ),
+  }
+  let (effects, next) = update(
+    msg_create_animation_from_selected_atlas(),
+    model,
+  )
+  inspect(effects.length(), content="1")
+  inspect(next.animation_clip_refs.length(), content="1")
+  inspect(
+    next.selected_resource,
+    content="Some(AnimationClip(\"assets/animation_clips/hero-clip.clip.json\"))",
+  )
+  inspect(next.animation_clips_section_expanded, content="true")
+  inspect(next.status, content="Created animation clip hero Clip")
+}
+
+///|
+test "creating animation graph from selected clip selects graph asset" {
+  let clip = @editor_bridge.AnimationClipAssetDocument::default(
+    "hero", "assets/atlases/hero.atlas.json",
+  )
+  let model = {
+    ..new_model(),
+    animation_graphs_section_expanded: false,
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    animation_clip_refs: [
+      @editor_bridge.asset_ref("assets/animation_clips/hero.clip.json"),
+    ],
+    animation_clip_documents: { "assets/animation_clips/hero.clip.json": clip },
+    selected_resource: Some(
+      resource_selection_animation_clip("assets/animation_clips/hero.clip.json"),
+    ),
+  }
+  let (effects, next) = update(
+    msg_create_animation_graph_from_selected_clip(),
+    model,
+  )
+  inspect(effects.length(), content="1")
+  inspect(next.animation_graph_refs.length(), content="1")
+  inspect(
+    next.selected_resource,
+    content="Some(AnimationGraph(\"assets/animation_graphs/hero-graph.graph.json\"))",
+  )
+  inspect(next.animation_graphs_section_expanded, content="true")
+  inspect(next.status, content="Created animation graph hero Graph")
+}
+
+///|
 test "editing a selected atlas updates the atlas document and save emits rpc" {
   let atlas = @editor_bridge.atlas_asset_document_from_image(
     "hero",

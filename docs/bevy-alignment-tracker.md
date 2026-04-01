@@ -1,6 +1,6 @@
 # Selene Bevy Alignment Tracker
 
-Last updated: 2026-04-01 (animation migration confirmation pass)
+Last updated: 2026-04-01 (asset animation pipeline creation pass)
 
 ## Status Legend
 
@@ -19,10 +19,9 @@ Last updated: 2026-04-01 (animation migration confirmation pass)
 | BEVY-004 | internal audit (editor preview controls) | No graph-level playback preview controls (play/pause/seek/speed including reverse) in Animation Graph Inspector. | DONE | Added Animation Graph Inspector preview controls (play/pause, speed, seek) wired through typed preview commands; preview runtime now applies pause/resume, speed (including negative for reverse), and seek on selected animated entity. |
 | BEVY-005 | internal audit (migration UX) | Animation v2->v3 migration flow lacks a complete user-confirmed batch migration path in editor UI for all legacy animation files. | DONE | Added legacy animation detection (`.anim.json` and scene `animation_asset_path` references), modal confirmation/cancel UX, sequential `AnimationMigrate` batch execution with progress + failure counts, and frontend/spec harness coverage for confirm/cancel/error paths. |
 | BEVY-006 | internal audit (physics3d bevy_rapier parity) | 3D physics surface parity still needs a formal gap matrix against `bevy_rapier3d` latest stable usage patterns. | TODO | Build parity checklist (components/queries/events/joints/controller) and close remaining deltas iteratively. |
-| BEVY-007 | internal audit (asset taxonomy) | Asset browser grouping and creation flows are not fully Bevy-like for animation pipeline (image -> atlas -> clip -> graph). | TODO | Add dedicated creation entrypoints and structured inspector navigation for clip/graph assets. |
+| BEVY-007 | internal audit (asset taxonomy) | Asset browser grouping and creation flows are not fully Bevy-like for animation pipeline (image -> atlas -> clip -> graph). | DONE | Added explicit creation entrypoints in Assets toolbar (`New Atlas` / `New Clip` / `New Graph`), changed atlas creation flow to generate clip only, added clip->graph creation action in Clip Inspector, and verified pipeline state transitions in frontend app wbtests. |
 
 ## Current work queue
 
 - `BEVY-001` (`IN_PROGRESS`): replace form-only editing with visual graph canvas interactions.
 - `BEVY-006` (`TODO`): 3D physics parity matrix and follow-up fixes.
-- `BEVY-007` (`TODO`): asset browser and creation flow parity refinement.

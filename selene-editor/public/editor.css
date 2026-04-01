@@ -725,6 +725,18 @@ input {
   margin-bottom: 0;
 }
 
+.asset-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.asset-toolbar-actions .small-button {
+  flex: 1 1 92px;
+  min-width: 92px;
+}
+
 .asset-tree-actions {
   display: flex;
   flex-wrap: wrap;

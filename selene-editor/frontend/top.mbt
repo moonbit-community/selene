@@ -1480,6 +1480,18 @@ fn asset_panel_view(
     fn(_path) { "prefab" },
     fn(_path) { None },
   )
+  let selected_is_image = match model.selected_resource {
+    Some(@app.Image(_)) => true
+    _ => false
+  }
+  let selected_is_atlas = match model.selected_resource {
+    Some(@app.Atlas(_)) => true
+    _ => false
+  }
+  let selected_is_clip = match model.selected_resource {
+    Some(@app.AnimationClip(_)) => true
+    _ => false
+  }
   let toolbar = @html.div(class="asset-toolbar", [
     @html.input(
       class="field-input asset-search-input",
@@ -1488,6 +1500,47 @@ fn asset_panel_view(
       on_input=fn(value) { dispatch(@app.msg_set_asset_query(value)) },
       @html.nothing,
     ),
+    @html.div(class="asset-toolbar-actions", [
+      @html.button(
+        class=if selected_is_image {
+          "small-button"
+        } else {
+          "small-button disabled"
+        },
+        on_click=if selected_is_image {
+          dispatch(@app.msg_create_atlas_from_selected_image())
+        } else {
+          @cmd.none
+        },
+        "New Atlas",
+      ),
+      @html.button(
+        class=if selected_is_atlas {
+          "small-button"
+        } else {
+          "small-button disabled"
+        },
+        on_click=if selected_is_atlas {
+          dispatch(@app.msg_create_animation_from_selected_atlas())
+        } else {
+          @cmd.none
+        },
+        "New Clip",
+      ),
+      @html.button(
+        class=if selected_is_clip {
+          "small-button"
+        } else {
+          "small-button disabled"
+        },
+        on_click=if selected_is_clip {
+          dispatch(@app.msg_create_animation_graph_from_selected_clip())
+        } else {
+          @cmd.none
+        },
+        "New Graph",
+      ),
+    ]),
   ])
   let content : Array[@rabbita.Html] = []
   if !image_rows.is_empty() {
@@ -2681,7 +2734,7 @@ fn selected_asset_view(
                   on_click=dispatch(
                     @app.msg_create_animation_from_selected_atlas(),
                   ),
-                  "Create Animation",
+                  "Create Clip",
                 ),
               ]),
             ]),
@@ -2737,6 +2790,13 @@ fn selected_asset_view(
                   class="small-button",
                   on_click=dispatch(@app.msg_insert_selected_resource()),
                   "Add Clip Sprite",
+                ),
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(
+                    @app.msg_create_animation_graph_from_selected_clip(),
+                  ),
+                  "Create Graph",
                 ),
               ]),
             ]),

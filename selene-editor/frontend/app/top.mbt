@@ -156,6 +156,7 @@ pub enum Msg {
   RenameCurrentScene(String)
   CreateAtlasFromSelectedImage
   CreateAnimationFromSelectedAtlas
+  CreateAnimationGraphFromSelectedClip
   SaveSelectedAsPrefab
   InsertSelectedResource
   MoveSelectedResource(Int)
@@ -511,6 +512,11 @@ pub fn msg_create_atlas_from_selected_image() -> Msg {
 ///|
 pub fn msg_create_animation_from_selected_atlas() -> Msg {
   CreateAnimationFromSelectedAtlas
+}
+
+///|
+pub fn msg_create_animation_graph_from_selected_clip() -> Msg {
+  CreateAnimationGraphFromSelectedClip
 }
 
 ///|
@@ -4063,15 +4069,47 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           let clip = animation_clip_document_from_atlas(path, atlas)
           let clip_path = "assets/animation_clips/" +
             @editor_bridge.animation_clip_asset_file_name(clip.name)
-          let graph = animation_graph_document_for_clip(clip_path, clip)
-          let graph_path = "assets/animation_graphs/" +
-            @editor_bridge.animation_graph_asset_file_name(graph.name)
           let animation_clip_documents = model.animation_clip_documents
           animation_clip_documents.set(clip_path, clip)
           let animation_clip_refs = model.animation_clip_refs
           if !asset_ref_exists(animation_clip_refs, clip_path) {
             animation_clip_refs.push(@editor_bridge.asset_ref(clip_path))
           }
+          let next = {
+            ..model,
+            animation_clip_documents,
+            animation_clip_refs,
+            selected_resource: Some(
+              resource_selection_animation_clip(clip_path),
+            ),
+            asset_tree_expanded: with_asset_tree_expanded_for_selection(
+              model.asset_tree_expanded,
+              Some(resource_selection_animation_clip(clip_path)),
+            ),
+            status: "Created animation clip " + clip.name,
+          }
+          let next = with_expanded_section_for_selection(
+            next,
+            next.selected_resource,
+          )
+          (
+            [
+              rpc_effect(
+                SceneSaved,
+                @shared.rpc_request_animation_clip_save(clip_path, clip),
+              ),
+            ],
+            next,
+          )
+        }
+        None => ([], model)
+      }
+    CreateAnimationGraphFromSelectedClip =>
+      match model.selected_animation_clip_document() {
+        Some((clip_path, clip)) => {
+          let graph = animation_graph_document_for_clip(clip_path, clip)
+          let graph_path = "assets/animation_graphs/" +
+            @editor_bridge.animation_graph_asset_file_name(graph.name)
           let animation_graph_documents = model.animation_graph_documents
           animation_graph_documents.set(graph_path, graph)
           let animation_graph_refs = model.animation_graph_refs
@@ -4080,9 +4118,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           }
           let next = {
             ..model,
-            animation_clip_documents,
             animation_graph_documents,
-            animation_clip_refs,
             animation_graph_refs,
             selected_resource: Some(
               resource_selection_animation_graph(graph_path),
@@ -4099,10 +4135,6 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           )
           (
             [
-              rpc_effect(
-                SceneSaved,
-                @shared.rpc_request_animation_clip_save(clip_path, clip),
-              ),
               rpc_effect(
                 SceneSaved,
                 @shared.rpc_request_animation_graph_save(graph_path, graph),
