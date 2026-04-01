@@ -467,6 +467,34 @@ extern "js" fn focus_component_search_input() =
 
 ///|
 #cfg(target="js")
+extern "js" fn project_asset_src(path : String) -> String =
+  #| (path) => {
+  #|   const normalized = (path || "").replace(/^\/+/, "");
+  #|   if (!normalized) return "";
+  #|   const segments = normalized.split("/").map((segment) => {
+  #|     try {
+  #|       return encodeURIComponent(decodeURIComponent(segment));
+  #|     } catch (_error) {
+  #|       return encodeURIComponent(segment);
+  #|     }
+  #|   });
+  #|   return "/project/" + segments.join("/");
+  #| }
+
+///|
+#cfg(target="js")
+extern "js" fn image_event_natural_size(event : @dom.Event) -> Array[Double] =
+  #| (event) => {
+  #|   const target = event && event.target;
+  #|   if (!target) return [];
+  #|   const width = Number(target.naturalWidth || 0);
+  #|   const height = Number(target.naturalHeight || 0);
+  #|   if (width <= 0 || height <= 0) return [];
+  #|   return [width, height];
+  #| }
+
+///|
+#cfg(target="js")
 extern "js" fn sync_asset_tree_sticky_overlay() =
   #| () => {
   #|   const scroll = document.querySelector(".asset-tree-scroll");
@@ -917,6 +945,26 @@ fn asset_display_name_from_path(path : String) -> String {
   } else {
     normalized
   }
+}
+
+///|
+fn image_preview_attrs(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  path : String,
+) -> @html.Attrs {
+  @html.Attrs::build()
+  .handler("load", fn(event, scheduler) {
+    let size = image_event_natural_size(event)
+    if size.length() >= 2 {
+      schedule_cmd(
+        scheduler,
+        dispatch(@app.msg_asset_size_resolved(path, size[0], size[1])),
+      )
+    }
+  })
+  .handler("error", fn(_event, scheduler) {
+    schedule_cmd(scheduler, dispatch(@app.msg_asset_image_load_failed(path)))
+  })
 }
 
 ///|
@@ -2137,6 +2185,22 @@ fn selected_asset_view(
           @html.div(class="panel-body", [
             @html.div(class="inspector-block", [
               @html.h3("Image"),
+              if model.failed_image_assets.get(path).unwrap_or(false) {
+                @html.div(
+                  class="resource-preview-empty",
+                  "Image preview unavailable",
+                )
+              } else {
+                @html.div(class="resource-preview-frame", [
+                  @html.img(
+                    class="resource-preview-image",
+                    src=project_asset_src(path),
+                    alt=asset_display_name(asset),
+                    attrs=image_preview_attrs(dispatch, path),
+                    @html.nothing,
+                  ),
+                ])
+              },
               @html.div(class="kv", [
                 @html.span(class="kv-key", "Name"),
                 @html.span(class="kv-value", asset_display_name(asset)),

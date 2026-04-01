@@ -823,6 +823,41 @@ input {
   margin-bottom: 12px;
 }
 
+.resource-preview-frame {
+  width: 100%;
+  max-height: 220px;
+  min-height: 120px;
+  margin: 0 0 10px;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%) 0
+      0 / 16px 16px,
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%) 0
+      0 / 16px 16px,
+    var(--panel-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.resource-preview-image {
+  display: block;
+  max-width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.resource-preview-empty {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border: 1px dashed rgba(246, 193, 119, 0.35);
+  color: var(--warn);
+  background: rgba(246, 193, 119, 0.08);
+  font-size: 12px;
+}
+
 .component-stack {
   display: flex;
   flex-direction: column;

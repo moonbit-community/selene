@@ -47,6 +47,7 @@
 - Changed `selene-editor` Scene Tree interaction UX so rows are clearly interactive (`hover`/pointer affordance), publish entity hints to the bottom info bar, and support double-click-to-frame for faster camera navigation.
 - Changed `selene-editor` component editing flow to add a direct `C` shortcut for opening the Inspector `Add Component` panel when an entity is selected, and updated button copy to advertise the shortcut.
 - Changed `selene-editor` Assets tree context retention to a VSCode-style sticky ancestor overlay: ancestors are derived from the first visible tree row and rendered in a dedicated sticky container, eliminating duplicate pseudo rows and preserving scroll context.
+- Changed `selene-editor` Image resource Inspector to render an inline preview image (loaded from `/project/...`) with load/error state handling, instead of text-only metadata.
 
 ### Fixed
 
