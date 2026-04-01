@@ -18,6 +18,12 @@ fn step_physics(iterations : Int) -> Unit {
 }
 
 ///|
+fn near(actual : Double, expected : Double, tolerance : Double) -> Bool {
+  let delta = actual - expected
+  delta < tolerance && delta > -tolerance
+}
+
+///|
 test "same-entity collider uses body world transform only once" {
   with_physics3d_test_world(fn() raise {
     let body = @entity.Entity::new()
@@ -665,6 +671,99 @@ test "multibody joints expose generic handles for all 3d joint variants" {
 }
 
 ///|
+test "revolute joint forwards limits motor model and softness" {
+  let expected_softness = @dynamics.SpringCoefficients::new(0.35F, 6.0F)
+  let joint = {
+    ..RevoluteJoint::new(@math.Vec3::z_axis()),
+    limits: Some((-0.5, 0.75)),
+    motor_model: ForceBased,
+    motor_position: Some((0.2, 4.0, 0.7)),
+    motor_velocity: Some((1.3, 0.8)),
+    max_force: Some(25.0),
+    softness: Some(expected_softness),
+  }
+  let generic_joint = revolute_joint_to_generic(joint)
+  inspect(
+    match generic_joint.limits_axis(@dynamics.JointAxis::AngX) {
+      Some(limits) =>
+        near(limits.min().to_double(), -0.5, 0.0001) &&
+        near(limits.max().to_double(), 0.75, 0.0001)
+      None => false
+    },
+    content="true",
+  )
+  inspect(
+    match generic_joint.motor_model(@dynamics.JointAxis::AngX) {
+      Some(ForceBased) => true
+      _ => false
+    },
+    content="true",
+  )
+  inspect(
+    generic_joint.motor(@dynamics.JointAxis::AngX) is Some(_),
+    content="true",
+  )
+  let actual_softness = generic_joint.softness()
+  inspect(
+    near(
+      actual_softness.cfm_coeff(1.0F).to_double(),
+      expected_softness.cfm_coeff(1.0F).to_double(),
+      0.000001,
+    ),
+    content="true",
+  )
+  inspect(
+    near(
+      actual_softness.erp(1.0F).to_double(),
+      expected_softness.erp(1.0F).to_double(),
+      0.000001,
+    ),
+    content="true",
+  )
+  // The current 3d-real backend preserves limits and motor state, but not every generic-joint
+  // metadata field. Keep explicit round-trip coverage for what is currently retained.
+  let roundtrip_joint = revolute_joint_to_rapier(joint).to_generic_joint()
+  inspect(
+    match roundtrip_joint.limits_axis(@dynamics.JointAxis::AngX) {
+      Some(limits) =>
+        near(limits.min().to_double(), -0.5, 0.0001) &&
+        near(limits.max().to_double(), 0.75, 0.0001)
+      None => false
+    },
+    content="true",
+  )
+  inspect(
+    roundtrip_joint.motor(@dynamics.JointAxis::AngX) is Some(_),
+    content="true",
+  )
+}
+
+///|
+test "prismatic joint forwards limits and motor state" {
+  let joint = {
+    ..PrismaticJoint::new(@math.Vec3::x_axis()),
+    limits: Some((-2.0, 3.0)),
+    motor_position: Some((0.4, 2.0, 0.3)),
+    motor_velocity: Some((1.5, 0.2)),
+    max_force: Some(9.0),
+  }
+  let generic_joint = prismatic_joint_to_rapier(joint).to_generic_joint()
+  inspect(
+    match generic_joint.limits_axis(@dynamics.JointAxis::LinX) {
+      Some(limits) =>
+        near(limits.min().to_double(), -2.0, 0.0001) &&
+        near(limits.max().to_double(), 3.0, 0.0001)
+      None => false
+    },
+    content="true",
+  )
+  inspect(
+    generic_joint.motor(@dynamics.JointAxis::LinX) is Some(_),
+    content="true",
+  )
+}
+
+///|
 test "dominance is forwarded to rapier rigid body" {
   with_physics3d_test_world(fn() raise {
     let body_entity = @entity.Entity::new()
@@ -821,7 +920,8 @@ test "character controller options are forwarded to rapier controller" {
             value.to_double() > 1.19 && value.to_double() < 1.21
           _ => false
         }
-        actual_autostep.include_dynamic_bodies() == autostep.include_dynamic_bodies() &&
+        actual_autostep.include_dynamic_bodies() ==
+        autostep.include_dynamic_bodies() &&
         max_height_ok &&
         min_width_ok
       }

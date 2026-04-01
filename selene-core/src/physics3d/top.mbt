@@ -2100,6 +2100,14 @@ fn revolute_joint_to_rapier(
   joint : RevoluteJoint,
   contacts_enabled? : Bool = true,
 ) -> @dynamics.GenericJoint3DReal {
+  revolute_joint_to_generic(joint, contacts_enabled~).to_3d_real()
+}
+
+///|
+fn revolute_joint_to_generic(
+  joint : RevoluteJoint,
+  contacts_enabled? : Bool = true,
+) -> @dynamics.GenericJoint {
   let locked = @dynamics.JointAxesMask3DReal::lin_axes()
     .or(@dynamics.JointAxesMask3DReal::ang_y())
     .or(@dynamics.JointAxesMask3DReal::ang_z())
@@ -2138,7 +2146,14 @@ fn revolute_joint_to_rapier(
       Float::from_double(max_force),
     )
   }
-  builder.build()
+  let mut generic = builder
+    .build()
+    .to_generic_joint()
+    .set_motor_model(@dynamics.JointAxis::AngX, joint.motor_model)
+  if joint.softness is Some(softness) {
+    generic = generic.set_softness(softness)
+  }
+  generic
 }
 
 ///|

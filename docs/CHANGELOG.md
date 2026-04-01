@@ -67,6 +67,7 @@
 - Changed `selene/physics3d` joint parity verification coverage by adding 3D wbtests for all joint variants on both `ImpulseJoint` and `MultibodyJoint`, and documenting current rope/spring handle-routing semantics in the parity matrix.
 - Changed `selene/physics3d` impulse `Rope/Spring` joint syncing to use generic-joint insertion (Bevy-style handle path), so these variants now expose stable impulse joint handles and share consistent `contacts_enabled` behavior with other impulse joint types.
 - Changed `selene/physics3d` collider sync to preserve threshold-derived contact-force active events during per-frame updates, and added wbtest coverage for default-vs-low `ContactForceEventThreshold` behavior.
+- Changed `selene/physics3d` revolute joint conversion to route through a generic-joint mapping path that applies `motor_model` and optional `softness`, and extended 3D wbtests with revolute/prismatic joint behavior assertions (limits + motor state + softness mapping coverage on the generic-joint path).
 
 ### Fixed
 
