@@ -879,6 +879,92 @@ test "adding animation transitions auto-adds required dependency chain" {
 }
 
 ///|
+test "animation player typed edits update component fields including negative speed" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(@editor_bridge.SceneDocument::default_main()),
+    selected_entity_id: Some("camera"),
+  }
+  let (_, seeded) = update(
+    msg_add_builtin_component(
+      @editor_bridge.builtin_component_kind_from_string("AnimationTransitions").unwrap(),
+    ),
+    model,
+  )
+  let (_, graph_path_updated) = update(
+    msg_update_selected_animation_player_graph_path(
+      "assets/animation_graphs/hero.graph.json",
+    ),
+    seeded,
+  )
+  let (_, start_node_updated) = update(
+    msg_update_selected_animation_player_start_node("idle"),
+    graph_path_updated,
+  )
+  let (_, repeat_updated) = update(
+    msg_update_selected_animation_player_repeat_mode("count"),
+    start_node_updated,
+  )
+  let (_, speed_updated) = update(
+    msg_update_selected_animation_player_speed("-1.5"),
+    repeat_updated,
+  )
+  let (_, autoplay_toggled) = update(
+    msg_toggle_selected_animation_player_autoplay(),
+    speed_updated,
+  )
+  let (_, committed) = update(
+    msg_commit_scene_edit_transaction(),
+    autoplay_toggled,
+  )
+  let camera = committed.scene.unwrap().entity("camera").unwrap()
+  let player : @editor_bridge.AnimationPlayerComponent = component_of(
+    camera, "AnimationPlayer",
+  ).unwrap()
+  inspect(
+    player.graph_asset_path,
+    content="Some(\"assets/animation_graphs/hero.graph.json\")",
+  )
+  inspect(player.start_node, content="Some(\"idle\")")
+  inspect(player.repeat_mode, content="count")
+  inspect(player.speed, content="-1.5")
+  inspect(player.autoplay, content="true")
+  inspect(committed.undo_stack.length() > 0, content="true")
+}
+
+///|
+test "animation transitions typed edit updates duration" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(@editor_bridge.SceneDocument::default_main()),
+    selected_entity_id: Some("camera"),
+  }
+  let (_, seeded) = update(
+    msg_add_builtin_component(
+      @editor_bridge.builtin_component_kind_from_string("AnimationTransitions").unwrap(),
+    ),
+    model,
+  )
+  let (_, duration_updated) = update(
+    msg_update_selected_animation_transitions_duration("0.4"),
+    seeded,
+  )
+  let (_, committed) = update(
+    msg_commit_scene_edit_transaction(),
+    duration_updated,
+  )
+  let camera = committed.scene.unwrap().entity("camera").unwrap()
+  let transitions : @editor_bridge.AnimationTransitionsComponent = component_of(
+    camera, "AnimationTransitions",
+  ).unwrap()
+  inspect(transitions.duration, content="0.4")
+}
+
+///|
 test "removing a required built-in component is blocked with a stable message" {
   let seeded = {
     ..new_model(),

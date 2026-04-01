@@ -1870,6 +1870,73 @@ fn visibility_component_body(
 }
 
 ///|
+fn animation_player_component_body(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  player : @editor_bridge.AnimationPlayerComponent,
+) -> @rabbita.Html {
+  @html.div(class="inspector-block", [
+    labeled_input_with_commit(
+      "Graph Asset Path",
+      player.graph_asset_path.unwrap_or(""),
+      fn(value) {
+        dispatch(@app.msg_update_selected_animation_player_graph_path(value))
+      },
+      fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+    ),
+    labeled_input_with_commit(
+      "Start Node",
+      player.start_node.unwrap_or(""),
+      fn(value) {
+        dispatch(@app.msg_update_selected_animation_player_start_node(value))
+      },
+      fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+    ),
+    labeled_input_with_commit(
+      "Repeat Mode",
+      player.repeat_mode,
+      fn(value) {
+        dispatch(@app.msg_update_selected_animation_player_repeat_mode(value))
+      },
+      fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+    ),
+    labeled_input_with_commit(
+      "Speed",
+      player.speed.to_string(),
+      fn(value) {
+        dispatch(@app.msg_update_selected_animation_player_speed(value))
+      },
+      fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+    ),
+    @html.button(
+      class="small-button",
+      on_click=dispatch(@app.msg_toggle_selected_animation_player_autoplay()),
+      if player.autoplay {
+        "Autoplay: Enabled"
+      } else {
+        "Autoplay: Disabled"
+      },
+    ),
+  ])
+}
+
+///|
+fn animation_transitions_component_body(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  transitions : @editor_bridge.AnimationTransitionsComponent,
+) -> @rabbita.Html {
+  @html.div(class="inspector-block", [
+    labeled_input_with_commit(
+      "Duration",
+      transitions.duration.to_string(),
+      fn(value) {
+        dispatch(@app.msg_update_selected_animation_transitions_duration(value))
+      },
+      fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+    ),
+  ])
+}
+
+///|
 fn animation_graph_node_kind_label(
   kind : @editor_bridge.AnimationGraphNodeKind,
 ) -> String {
@@ -2065,6 +2132,30 @@ fn component_body_view(
       match text_component {
         Some(text_component) => text_component_body(dispatch, text_component)
         None => @html.div(class="component-error", "Invalid Text2d data")
+      }
+    }
+    "AnimationPlayer" => {
+      let player : @editor_bridge.AnimationPlayerComponent? = @app.component_of(
+        entity, "AnimationPlayer",
+      )
+      match player {
+        Some(player) => animation_player_component_body(dispatch, player)
+        None =>
+          @html.div(class="component-error", "Invalid AnimationPlayer data")
+      }
+    }
+    "AnimationTransitions" => {
+      let transitions : @editor_bridge.AnimationTransitionsComponent? = @app.component_of(
+        entity, "AnimationTransitions",
+      )
+      match transitions {
+        Some(transitions) =>
+          animation_transitions_component_body(dispatch, transitions)
+        None =>
+          @html.div(
+            class="component-error",
+            "Invalid AnimationTransitions data",
+          )
       }
     }
     _ =>

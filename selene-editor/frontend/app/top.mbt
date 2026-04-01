@@ -191,6 +191,12 @@ pub enum Msg {
   UpdateSelectedRotation(String)
   UpdateSelectedText(String)
   ToggleSelectedVisibility
+  UpdateSelectedAnimationPlayerGraphPath(String)
+  UpdateSelectedAnimationPlayerStartNode(String)
+  ToggleSelectedAnimationPlayerAutoplay
+  UpdateSelectedAnimationPlayerRepeatMode(String)
+  UpdateSelectedAnimationPlayerSpeed(String)
+  UpdateSelectedAnimationTransitionsDuration(String)
   SaveScene
   ReloadScene
   AddSpriteEntity
@@ -703,6 +709,38 @@ pub fn msg_update_selected_text(value : String) -> Msg {
 ///|
 pub fn msg_toggle_selected_visibility() -> Msg {
   ToggleSelectedVisibility
+}
+
+///|
+pub fn msg_update_selected_animation_player_graph_path(value : String) -> Msg {
+  UpdateSelectedAnimationPlayerGraphPath(value)
+}
+
+///|
+pub fn msg_update_selected_animation_player_start_node(value : String) -> Msg {
+  UpdateSelectedAnimationPlayerStartNode(value)
+}
+
+///|
+pub fn msg_toggle_selected_animation_player_autoplay() -> Msg {
+  ToggleSelectedAnimationPlayerAutoplay
+}
+
+///|
+pub fn msg_update_selected_animation_player_repeat_mode(value : String) -> Msg {
+  UpdateSelectedAnimationPlayerRepeatMode(value)
+}
+
+///|
+pub fn msg_update_selected_animation_player_speed(value : String) -> Msg {
+  UpdateSelectedAnimationPlayerSpeed(value)
+}
+
+///|
+pub fn msg_update_selected_animation_transitions_duration(
+  value : String,
+) -> Msg {
+  UpdateSelectedAnimationTransitionsDuration(value)
 }
 
 ///|
@@ -4400,6 +4438,182 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                 ),
               )
               apply_scene_change(model, next)
+            }
+            None => ([], model)
+          }
+        }
+        None => ([], model)
+      }
+    UpdateSelectedAnimationPlayerGraphPath(value) =>
+      match model.selected_entity() {
+        Some(entity) => {
+          let player : @editor_bridge.AnimationPlayerComponent? = component_of(
+            entity, "AnimationPlayer",
+          )
+          match player {
+            Some(player) => {
+              let staged = with_started_scene_edit_transaction(
+                model, "Edit Animation Player",
+              )
+              let graph_asset_path = value.trim().to_string()
+              let next = update_selected_component(
+                staged,
+                @editor_bridge.animation_player_component(
+                  graph_asset_path=if graph_asset_path == "" {
+                    None
+                  } else {
+                    Some(graph_asset_path)
+                  },
+                  start_node=player.start_node,
+                  autoplay=player.autoplay,
+                  repeat_mode=player.repeat_mode,
+                  speed=player.speed,
+                ),
+              )
+              apply_scene_change_without_history(staged, next)
+            }
+            None => ([], model)
+          }
+        }
+        None => ([], model)
+      }
+    UpdateSelectedAnimationPlayerStartNode(value) =>
+      match model.selected_entity() {
+        Some(entity) => {
+          let player : @editor_bridge.AnimationPlayerComponent? = component_of(
+            entity, "AnimationPlayer",
+          )
+          match player {
+            Some(player) => {
+              let staged = with_started_scene_edit_transaction(
+                model, "Edit Animation Player",
+              )
+              let start_node = value.trim().to_string()
+              let next = update_selected_component(
+                staged,
+                @editor_bridge.animation_player_component(
+                  graph_asset_path=player.graph_asset_path,
+                  start_node=if start_node == "" {
+                    None
+                  } else {
+                    Some(start_node)
+                  },
+                  autoplay=player.autoplay,
+                  repeat_mode=player.repeat_mode,
+                  speed=player.speed,
+                ),
+              )
+              apply_scene_change_without_history(staged, next)
+            }
+            None => ([], model)
+          }
+        }
+        None => ([], model)
+      }
+    ToggleSelectedAnimationPlayerAutoplay =>
+      match model.selected_entity() {
+        Some(entity) => {
+          let player : @editor_bridge.AnimationPlayerComponent? = component_of(
+            entity, "AnimationPlayer",
+          )
+          match player {
+            Some(player) => {
+              let next = update_selected_component(
+                model,
+                @editor_bridge.animation_player_component(
+                  graph_asset_path=player.graph_asset_path,
+                  start_node=player.start_node,
+                  autoplay=!player.autoplay,
+                  repeat_mode=player.repeat_mode,
+                  speed=player.speed,
+                ),
+              )
+              apply_scene_change(model, next)
+            }
+            None => ([], model)
+          }
+        }
+        None => ([], model)
+      }
+    UpdateSelectedAnimationPlayerRepeatMode(value) =>
+      match model.selected_entity() {
+        Some(entity) => {
+          let player : @editor_bridge.AnimationPlayerComponent? = component_of(
+            entity, "AnimationPlayer",
+          )
+          match player {
+            Some(player) => {
+              let staged = with_started_scene_edit_transaction(
+                model, "Edit Animation Player",
+              )
+              let repeat_mode = value.trim().to_string()
+              let next = update_selected_component(
+                staged,
+                @editor_bridge.animation_player_component(
+                  graph_asset_path=player.graph_asset_path,
+                  start_node=player.start_node,
+                  autoplay=player.autoplay,
+                  repeat_mode=if repeat_mode == "" {
+                    player.repeat_mode
+                  } else {
+                    repeat_mode
+                  },
+                  speed=player.speed,
+                ),
+              )
+              apply_scene_change_without_history(staged, next)
+            }
+            None => ([], model)
+          }
+        }
+        None => ([], model)
+      }
+    UpdateSelectedAnimationPlayerSpeed(value) =>
+      match model.selected_entity() {
+        Some(entity) => {
+          let player : @editor_bridge.AnimationPlayerComponent? = component_of(
+            entity, "AnimationPlayer",
+          )
+          match player {
+            Some(player) => {
+              let staged = with_started_scene_edit_transaction(
+                model, "Edit Animation Player",
+              )
+              let next = update_selected_component(
+                staged,
+                @editor_bridge.animation_player_component(
+                  graph_asset_path=player.graph_asset_path,
+                  start_node=player.start_node,
+                  autoplay=player.autoplay,
+                  repeat_mode=player.repeat_mode,
+                  speed=parse_double_or(player.speed, value),
+                ),
+              )
+              apply_scene_change_without_history(staged, next)
+            }
+            None => ([], model)
+          }
+        }
+        None => ([], model)
+      }
+    UpdateSelectedAnimationTransitionsDuration(value) =>
+      match model.selected_entity() {
+        Some(entity) => {
+          let transitions : @editor_bridge.AnimationTransitionsComponent? = component_of(
+            entity, "AnimationTransitions",
+          )
+          match transitions {
+            Some(transitions) => {
+              let staged = with_started_scene_edit_transaction(
+                model, "Edit Animation Transitions",
+              )
+              let next = update_selected_component(
+                staged,
+                @editor_bridge.animation_transitions_component(
+                  duration=parse_positive_double_or(transitions.duration, value),
+                ),
+              )
+              apply_scene_change_without_history(staged, next)
             }
             None => ([], model)
           }
