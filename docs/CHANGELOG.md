@@ -18,6 +18,7 @@
 - Changed `selene-editor` legacy animation migration UX to a user-confirmed batch workflow: detect `.anim.json`/legacy `animation_asset_path` usage, show modal `Migrate/Cancel`, run sequential `AnimationMigrate` RPCs with progress/failure reporting, and reload project resources automatically after successful completion.
 - Changed `selene-editor` animation asset authoring flow to an explicit pipeline (`image -> atlas -> clip -> graph`): atlas creation now produces clip assets only, graph creation is a dedicated action on selected clips, and Assets toolbar now exposes `New Atlas` / `New Clip` / `New Graph` entrypoints bound to current resource selection.
 - Changed `selene-editor` Animation Graph Inspector UX by adding a visual graph canvas panel (positioned node view + click-to-set-default) alongside structured node/edge form editing.
+- Changed `selene-editor` Animation Graph canvas interaction to support direct node drag repositioning on the visual graph panel, wired end-to-end through typed frontend messages with app-level wbtest coverage.
 - Changed `selene-core` and `examples` to use `Milky2018/moon_rapier@0.4.0`.
 - Changed `selene-editor` Entity Inspector to a Unity-style component stack with per-component cards, collapse state, card action menus, and an integrated `Add Component` search panel.
 - Changed `selene-editor` entity component editing flow to support built-in component add/remove with strong dependency rules (`auto-add required chain` + `block destructive removal`) and transactional undo/redo.

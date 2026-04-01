@@ -1606,6 +1606,40 @@ test "removing graph edge deletes selected edge index" {
 }
 
 ///|
+test "moving graph node updates its position from normalized canvas coordinates" {
+  let graph_path = "assets/animation_graphs/hero.graph.json"
+  let node_a = @editor_bridge.animation_graph_node_document(
+    "node-a",
+    @editor_bridge.animation_graph_node_kind_blend(),
+    position=@editor_bridge.vec2_doc(-10.0, -10.0),
+  )
+  let node_b = @editor_bridge.animation_graph_node_document(
+    "node-b",
+    @editor_bridge.animation_graph_node_kind_blend(),
+    position=@editor_bridge.vec2_doc(10.0, 10.0),
+  )
+  let graph = @editor_bridge.animation_graph_asset_document(
+    "Hero Graph",
+    [node_a, node_b],
+    Some("node-a"),
+  )
+  let model = {
+    ..new_model(),
+    selected_resource: Some(resource_selection_animation_graph(graph_path)),
+    animation_graph_documents: {
+      "assets/animation_graphs/hero.graph.json": graph,
+    },
+  }
+  let (_, next) = update(
+    msg_move_selected_animation_graph_node("node-a", 0.5, 0.25),
+    model,
+  )
+  let updated = next.animation_graph_documents.get(graph_path).unwrap()
+  inspect(updated.nodes[0].position.x, content="0")
+  inspect(updated.nodes[0].position.y, content="-5")
+}
+
+///|
 test "toggle animation preview paused emits preview command" {
   let (effects, next) = update(
     msg_toggle_animation_preview_paused(),

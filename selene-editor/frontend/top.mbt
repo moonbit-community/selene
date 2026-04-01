@@ -438,6 +438,43 @@ extern "js" fn drag_event_set_drop_copy(event : @dom.DragEvent) =
 
 ///|
 #cfg(target="js")
+extern "js" fn drag_event_set_graph_node_payload(
+  event : @dom.DragEvent,
+  node_id : String,
+) =
+  #| (event, nodeId) => {
+  #|   const transfer = event.dataTransfer;
+  #|   if (!transfer) return;
+  #|   transfer.setData("application/x-selene-graph-node", nodeId);
+  #|   transfer.setData("text/plain", `graph-node:${nodeId}`);
+  #|   transfer.effectAllowed = "move";
+  #| }
+
+///|
+#cfg(target="js")
+extern "js" fn drag_event_get_graph_node_payload(
+  event : @dom.DragEvent,
+) -> String =
+  #| (event) => {
+  #|   const transfer = event.dataTransfer;
+  #|   if (!transfer) return "";
+  #|   const custom = transfer.getData("application/x-selene-graph-node");
+  #|   if (custom) return custom;
+  #|   const text = transfer.getData("text/plain") || "";
+  #|   return text.startsWith("graph-node:") ? text.slice("graph-node:".length) : "";
+  #| }
+
+///|
+#cfg(target="js")
+extern "js" fn drag_event_set_drop_move(event : @dom.DragEvent) =
+  #| (event) => {
+  #|   const transfer = event.dataTransfer;
+  #|   if (!transfer) return;
+  #|   transfer.dropEffect = "move";
+  #| }
+
+///|
+#cfg(target="js")
 extern "js" fn input_event_is_enter_key(event : @dom.Event) -> Bool =
   #| (event) => (event?.key || "").toLowerCase() === "enter"
 
@@ -2099,14 +2136,76 @@ fn animation_graph_axis_bounds(values : Array[Double]) -> (Double, Double) {
 }
 
 ///|
+fn clamp01(value : Double) -> Double {
+  if value < 0.0 {
+    0.0
+  } else if value > 1.0 {
+    1.0
+  } else {
+    value
+  }
+}
+
+///|
 fn animation_graph_canvas_project(
   value : Double,
   min_value : Double,
   max_value : Double,
-  start : Double,
-  end_ : Double,
 ) -> Double {
-  start + (value - min_value) * (end_ - start) / (max_value - min_value)
+  clamp01((value - min_value) / (max_value - min_value))
+}
+
+///|
+fn graph_node_drag_attrs(node_id : String) -> @html.Attrs {
+  @html.Attrs::build()
+  .draggable("true")
+  .handler("dragstart", fn(event, _scheduler) {
+    match event.to_drag_event() {
+      Some(drag_event) => drag_event_set_graph_node_payload(drag_event, node_id)
+      None => ()
+    }
+  })
+}
+
+///|
+fn graph_canvas_drop_attrs(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+) -> @html.Attrs {
+  @html.Attrs::build()
+  .handler("dragover", fn(event, _scheduler) {
+    event.prevent_default()
+    match event.to_drag_event() {
+      Some(drag_event) =>
+        if drag_event_get_graph_node_payload(drag_event) != "" {
+          drag_event_set_drop_move(drag_event)
+        }
+      None => ()
+    }
+  })
+  .handler("drop", fn(event, scheduler) {
+    event.prevent_default()
+    match event.to_drag_event() {
+      Some(drag_event) => {
+        let node_id = drag_event_get_graph_node_payload(drag_event)
+        if node_id != "" {
+          let metrics = drag_event_canvas_metrics(drag_event)
+          if metrics.length() >= 4 && metrics[2] > 0.0 && metrics[3] > 0.0 {
+            let normalized_x = metrics[0] / metrics[2]
+            let normalized_y = metrics[1] / metrics[3]
+            schedule_cmd(
+              scheduler,
+              dispatch(
+                @app.msg_move_selected_animation_graph_node(
+                  node_id, normalized_x, normalized_y,
+                ),
+              ),
+            )
+          }
+        }
+      }
+      None => ()
+    }
+  })
 }
 
 ///|
@@ -2123,20 +2222,8 @@ fn animation_graph_canvas_view(
   let (min_y, max_y) = animation_graph_axis_bounds(y_values)
   let node_items : Array[@rabbita.Html] = []
   for node in graph.nodes {
-    let left = animation_graph_canvas_project(
-      node.position.x,
-      min_x,
-      max_x,
-      24.0,
-      336.0,
-    )
-    let top = animation_graph_canvas_project(
-      node.position.y,
-      min_y,
-      max_y,
-      24.0,
-      176.0,
-    )
+    let left = animation_graph_canvas_project(node.position.x, min_x, max_x)
+    let top = animation_graph_canvas_project(node.position.y, min_y, max_y)
     let is_default = graph.default_node == Some(node.id)
     node_items.push(
       @html.button(
@@ -2145,7 +2232,11 @@ fn animation_graph_canvas_view(
         } else {
           "graph-canvas-node"
         },
-        style=["left: \{left}px", "top: \{top}px"],
+        style=[
+          "left: \{(left * 100.0).to_string()}%",
+          "top: \{(top * 100.0).to_string()}%",
+        ],
+        attrs=graph_node_drag_attrs(node.id),
         on_click=dispatch(
           @app.msg_update_selected_animation_graph_default_node(node.id),
         ),
@@ -2171,7 +2262,11 @@ fn animation_graph_canvas_view(
     }
   }
   @html.div(class="graph-canvas-shell", [
-    @html.div(class="graph-canvas", node_items),
+    @html.div(
+      class="graph-canvas",
+      attrs=graph_canvas_drop_attrs(dispatch),
+      node_items,
+    ),
     if edge_rows.is_empty() {
       @html.div(class="graph-canvas-edge-empty", "No edges yet")
     } else {

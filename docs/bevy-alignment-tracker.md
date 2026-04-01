@@ -1,6 +1,6 @@
 # Selene Bevy Alignment Tracker
 
-Last updated: 2026-04-01 (asset animation pipeline creation pass)
+Last updated: 2026-04-01 (animation graph canvas node drag pass)
 
 ## Status Legend
 
@@ -13,7 +13,7 @@ Last updated: 2026-04-01 (asset animation pipeline creation pass)
 
 | ID | Source | Problem | Status | Notes |
 | --- | --- | --- | --- | --- |
-| BEVY-001 | internal audit (editor animation UX) | Animation Graph asset editor is still form-only; missing Bevy-style visual node graph editing for node/edge authoring. | IN_PROGRESS | Added node+edge authoring controls (add/remove node, set default, clip-path edit, add/remove edge, edge target/weight edit) and added a visual graph canvas panel in inspector (node layout by graph coordinates + click node to set default). Remaining gap: direct edge drawing/dragging and node drag interactions on canvas. |
+| BEVY-001 | internal audit (editor animation UX) | Animation Graph asset editor is still form-only; missing Bevy-style visual node graph editing for node/edge authoring. | IN_PROGRESS | Added node+edge authoring controls (add/remove node, set default, clip-path edit, add/remove edge, edge target/weight edit), visual graph canvas panel, and direct canvas node drag repositioning (with app wbtest coverage). Remaining gap: direct edge drawing interaction on the canvas. |
 | BEVY-002 | internal audit (entity inspector parity) | Entity Inspector lacks typed `AnimationPlayer` editing (`graph_asset_path`, `start_node`, `speed`, `repeat_mode`) and still relies on generic JSON editing for animation runtime setup. | DONE | Added typed `AnimationPlayer` + `AnimationTransitions` inspector forms (graph path/start node/autoplay/repeat/speed/duration) wired into scene transactions with undo commit coverage in frontend wbtests. |
 | BEVY-003 | internal audit (animation runtime API) | Animation repeat-mode is stringly typed in document/runtime bridge; not yet aligned to strongly typed repeat semantics. | DONE | Added `AnimationRepeatModeDoc` (`Never/Forever/Count`), canonical parse/serialize helpers, typed `animation_player_component` construction, runtime mapping to `@animation.RepeatAnimation` (including count), and editor typed repeat controls. |
 | BEVY-004 | internal audit (editor preview controls) | No graph-level playback preview controls (play/pause/seek/speed including reverse) in Animation Graph Inspector. | DONE | Added Animation Graph Inspector preview controls (play/pause, speed, seek) wired through typed preview commands; preview runtime now applies pause/resume, speed (including negative for reverse), and seek on selected animated entity. |

@@ -201,6 +201,7 @@ pub enum Msg {
   RemoveSelectedAnimationGraphEdge(String, Int)
   UpdateSelectedAnimationGraphEdgeTarget(String, Int, String)
   UpdateSelectedAnimationGraphEdgeWeight(String, Int, String)
+  MoveSelectedAnimationGraphNode(String, Double, Double)
   ToggleAnimationPreviewPaused
   UpdateAnimationPreviewSpeed(String)
   UpdateAnimationPreviewSeekInput(String)
@@ -753,6 +754,15 @@ pub fn msg_update_selected_animation_graph_edge_weight(
   value : String,
 ) -> Msg {
   UpdateSelectedAnimationGraphEdgeWeight(node_id, edge_index, value)
+}
+
+///|
+pub fn msg_move_selected_animation_graph_node(
+  node_id : String,
+  normalized_x : Double,
+  normalized_y : Double,
+) -> Msg {
+  MoveSelectedAnimationGraphNode(node_id, normalized_x, normalized_y)
 }
 
 ///|
@@ -1690,6 +1700,52 @@ fn next_animation_graph_node_id(
     index += 1
   }
   prefix + "-1"
+}
+
+///|
+fn clamp01(value : Double) -> Double {
+  if value < 0.0 {
+    0.0
+  } else if value > 1.0 {
+    1.0
+  } else {
+    value
+  }
+}
+
+///|
+fn animation_graph_axis_bounds(
+  graph : @editor_bridge.AnimationGraphAssetDocument,
+  axis : (@editor_bridge.AnimationGraphNodeDocument) -> Double,
+) -> (Double, Double) {
+  if graph.nodes.is_empty() {
+    return (-1.0, 1.0)
+  }
+  let mut min_value = axis(graph.nodes[0])
+  let mut max_value = min_value
+  for node in graph.nodes[1:] {
+    let value = axis(node)
+    if value < min_value {
+      min_value = value
+    }
+    if value > max_value {
+      max_value = value
+    }
+  }
+  if max_value - min_value < 0.001 {
+    (min_value - 1.0, max_value + 1.0)
+  } else {
+    (min_value, max_value)
+  }
+}
+
+///|
+fn animation_graph_axis_unproject(
+  normalized : Double,
+  min_value : Double,
+  max_value : Double,
+) -> Double {
+  min_value + clamp01(normalized) * (max_value - min_value)
 }
 
 ///|
@@ -4845,6 +4901,37 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       )
       (sync_preview_effects_with_scene(next), next)
     }
+    MoveSelectedAnimationGraphNode(node_id, normalized_x, normalized_y) =>
+      match model.selected_animation_graph_document() {
+        Some((_path, graph)) => {
+          let (min_x, max_x) = animation_graph_axis_bounds(graph, fn(node) {
+            node.position.x
+          })
+          let (min_y, max_y) = animation_graph_axis_bounds(graph, fn(node) {
+            node.position.y
+          })
+          let moved_position = @editor_bridge.vec2_doc(
+            animation_graph_axis_unproject(normalized_x, min_x, max_x),
+            animation_graph_axis_unproject(normalized_y, min_y, max_y),
+          )
+          let next = update_selected_animation_graph_document(model, fn(doc) {
+            let nodes : Array[@editor_bridge.AnimationGraphNodeDocument] = []
+            for node in doc.nodes {
+              if node.id == node_id {
+                nodes.push(node.with_position(moved_position))
+              } else {
+                nodes.push(node)
+              }
+            }
+            doc.with_nodes(nodes)
+          })
+          (
+            sync_preview_effects_with_scene(next),
+            { ..next, status: "Moved graph node: \{node_id}" },
+          )
+        }
+        None => ([], model)
+      }
     ToggleAnimationPreviewPaused => {
       let paused = !model.animation_preview_paused
       (
