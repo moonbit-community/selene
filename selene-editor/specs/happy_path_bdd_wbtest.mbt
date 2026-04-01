@@ -195,9 +195,9 @@ async test "bdd happy path persists atlas and animation inspector edits" {
     harness.when_selected_animation_is_saved()
 
     let animation = harness.read_animation_document(
-      "assets/animations/hero.anim.json",
+      "assets/animation_clips/hero-clip.clip.json",
     )
-    inspect(animation.clips[0].frames.join(","), content="run_0,run_1")
+    inspect(animation.frames.join(","), content="run_0,run_1")
   })
 }
 

@@ -153,9 +153,15 @@ pub fn validate_project_manifest(
   )
   validate_ref_index(
     errors,
-    manifest.animation_index.map(fn(ref_) { ref_.path }),
-    "animation_index",
-    ".anim.json",
+    manifest.animation_clip_index.map(fn(ref_) { ref_.path }),
+    "animation_clip_index",
+    ".clip.json",
+  )
+  validate_ref_index(
+    errors,
+    manifest.animation_graph_index.map(fn(ref_) { ref_.path }),
+    "animation_graph_index",
+    ".graph.json",
   )
   errors
 }
@@ -241,63 +247,128 @@ pub fn validate_atlas_asset_document(
 }
 
 ///|
-pub fn validate_animation_asset_document(
-  animation : AnimationAssetDocument,
+pub fn validate_animation_clip_asset_document(
+  clip : AnimationClipAssetDocument,
 ) -> Array[ValidationError] {
   let errors : Array[ValidationError] = []
   push_version_error(
     errors,
     "version",
-    animation.version,
-    animation_asset_schema_version,
+    clip.version,
+    animation_clip_asset_schema_version,
   )
-  if animation.name == "" {
+  if clip.name == "" {
     errors.push({
       path: "name",
-      message: "Animation asset name must not be empty",
+      message: "Animation clip name must not be empty",
     })
   }
-  if animation.atlas_asset_path == "" {
+  if clip.atlas_asset_path == "" {
     errors.push({
       path: "atlas_asset_path",
-      message: "Animation asset must reference an atlas asset",
+      message: "Animation clip must reference an atlas asset",
     })
   }
-  let seen_clip_names : Map[String, Bool] = {}
-  animation.clips.each(fn(clip) {
-    if clip.name == "" {
+  if clip.fps <= 0.0 {
+    errors.push({
+      path: "fps",
+      message: "Animation clip fps must be positive",
+    })
+  }
+  if clip.frames.is_empty() {
+    errors.push({
+      path: "frames",
+      message: "Animation clip must contain at least one frame",
+    })
+  }
+  errors
+}
+
+///|
+pub fn validate_animation_graph_asset_document(
+  graph : AnimationGraphAssetDocument,
+) -> Array[ValidationError] {
+  let errors : Array[ValidationError] = []
+  push_version_error(
+    errors,
+    "version",
+    graph.version,
+    animation_graph_asset_schema_version,
+  )
+  if graph.name == "" {
+    errors.push({
+      path: "name",
+      message: "Animation graph name must not be empty",
+    })
+  }
+  let seen_nodes : Map[String, Bool] = {}
+  for node in graph.nodes {
+    if node.id == "" {
       errors.push({
-        path: "clips[].name",
-        message: "Animation clip name must not be empty",
+        path: "nodes[].id",
+        message: "Animation graph node id must not be empty",
       })
     }
-    if seen_clip_names.contains(clip.name) {
+    if seen_nodes.contains(node.id) {
       errors.push({
-        path: "clips[\{clip.name}]",
-        message: "Duplicated animation clip name",
+        path: "nodes[\{node.id}]",
+        message: "Duplicated animation graph node id",
       })
     } else {
-      seen_clip_names.set(clip.name, true)
+      seen_nodes.set(node.id, true)
     }
-    if clip.fps <= 0.0 {
-      errors.push({
-        path: "clips[\{clip.name}].fps",
-        message: "Animation clip fps must be positive",
-      })
+    match node.kind {
+      Clip(clip_asset_path~) =>
+        if clip_asset_path.trim() == "" {
+          errors.push({
+            path: "nodes[\{node.id}].kind.clip_asset_path",
+            message: "Clip node must reference a clip asset path",
+          })
+        }
+      _ => ()
     }
-    if clip.frames.is_empty() {
-      errors.push({
-        path: "clips[\{clip.name}].frames",
-        message: "Animation clip must contain at least one frame",
-      })
+    for group in node.mask_groups {
+      if group < 0 || group >= 63 {
+        errors.push({
+          path: "nodes[\{node.id}].mask_groups",
+          message: "Mask group must be in [0, 62]",
+        })
+      }
     }
-  })
-  if animation.default_clip is Some(default_clip) &&
-    !seen_clip_names.contains(default_clip) {
+  }
+  if graph.nodes.is_empty() {
     errors.push({
-      path: "default_clip",
-      message: "Default clip must exist in clips",
+      path: "nodes",
+      message: "Animation graph must contain at least one node",
     })
+  }
+  if graph.default_node is Some(default_node) &&
+    !seen_nodes.contains(default_node) {
+    errors.push({
+      path: "default_node",
+      message: "Default node must exist in graph nodes",
+    })
+  }
+  for node in graph.nodes {
+    for edge in node.edges {
+      if edge.to.trim() == "" {
+        errors.push({
+          path: "nodes[\{node.id}].edges[].to",
+          message: "Edge target node id must not be empty",
+        })
+      } else if !seen_nodes.contains(edge.to) {
+        errors.push({
+          path: "nodes[\{node.id}].edges[\{edge.to}]",
+          message: "Edge target node does not exist",
+        })
+      }
+      if edge.weight < 0.0 {
+        errors.push({
+          path: "nodes[\{node.id}].edges[\{edge.to}].weight",
+          message: "Edge weight must be non-negative",
+        })
+      }
+    }
   }
   errors
 }

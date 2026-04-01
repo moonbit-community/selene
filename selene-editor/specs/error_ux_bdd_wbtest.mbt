@@ -122,7 +122,7 @@ async test "bdd error ux invalid resource documents do not prevent opening the c
       "assets/atlases/broken.atlas.json", "{\n  \"version\": 1,\n  \"name\": \"Broken\",\n  \"source_image\": \"assets/images/hero.png\",\n  \"tile_size\": {\"x\": 0, \"y\": 0},\n  \"columns\": 0,\n  \"rows\": 0,\n  \"spacing\": {\"x\": 0, \"y\": 0},\n  \"margin\": {\"x\": 0, \"y\": 0},\n  \"default_anchor\": {\"x\": 0.5, \"y\": 0.5},\n  \"regions\": []\n}\n",
     )
     harness.given_text_file(
-      "assets/animations/broken.anim.json", "{\n  \"version\": 1,\n  \"name\": \"Broken\",\n  \"atlas_asset_path\": \"assets/atlases/broken.atlas.json\",\n  \"clips\": [],\n  \"default_clip\": \"missing\"\n}\n",
+      "assets/animation_clips/broken.clip.json", "{\n  \"version\": 3,\n  \"name\": \"Broken\"\n}\n",
     )
 
     harness.when_editor_initialized()
@@ -130,7 +130,7 @@ async test "bdd error ux invalid resource documents do not prevent opening the c
     inspect(harness.scene() is Some(_), content="true")
     inspect(
       harness.status(),
-      content="Animation load failed: Animation document is invalid: assets/animations/broken.anim.json",
+      content="Animation clip load failed: Animation clip document is invalid: assets/animation_clips/broken.clip.json",
     )
     inspect(harness.logs().length(), content="3")
   })

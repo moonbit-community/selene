@@ -8,6 +8,8 @@
 
 ### Changed
 
+- Changed `selene/editor_bridge` animation asset model from a single `.anim.json` document to Bevy-style split clip/graph assets (`AnimationClipAssetDocument` + `AnimationGraphAssetDocument`) and updated loader/runtime scene instantiation to resolve graph -> clip -> atlas dependencies.
+- Changed `selene-editor` typed protocol and preview payloads to carry separate animation clip/graph resources (`AnimationClipLoad/Save`, `AnimationGraphLoad/Save`, `AnimationMigrate`) instead of the legacy single animation document RPC flow.
 - Changed `selene-core` and `examples` to use `Milky2018/moon_rapier@0.4.0`.
 - Changed `selene-editor` Entity Inspector to a Unity-style component stack with per-component cards, collapse state, card action menus, and an integrated `Add Component` search panel.
 - Changed `selene-editor` entity component editing flow to support built-in component add/remove with strong dependency rules (`auto-add required chain` + `block destructive removal`) and transactional undo/redo.
@@ -53,6 +55,9 @@
 
 ### Fixed
 
+- Fixed `selene/editor_bridge` project-manifest migration for legacy `animation_index` by mapping legacy `.anim.json` refs to v3 graph paths (`assets/animation_graphs/*.graph.json`) instead of copying invalid legacy paths into `animation_graph_index`.
+- Fixed `selene-core` animation runtime reverse-playback behavior by allowing negative speed in `ActiveAnimation::set_speed` and updating playback/repeat/completion logic in `animation_player_system`.
+- Fixed `selene-editor` project-open failure regression (`Project open failed. Check browser console for details.`) by completing clip/graph protocol migration across frontend/service/specs and ensuring project state + scene bundle decoding stays consistent.
 - Fixed `selene-raylib` fallback text rendering/measurement spacing to use raylib-compatible default spacing (`1.0`) instead of `0.0`, reducing compressed default-font appearance when cosmic text rendering is unavailable.
 - Fixed `selene/physics3d` moon_rapier `0.4.0` integration by updating multibody joint conversion to `GenericJoint3DReal` and driving `JointSet3DReal::solve` with `IntegrationParameters.num_solver_iterations`.
 - Fixed `selene/collision` moon_rapier `0.4.0` compatibility by switching 2D pipeline CCD solver wiring from `dynamics.CCDSolver` to `dynamics_ccd.CCDSolver`.

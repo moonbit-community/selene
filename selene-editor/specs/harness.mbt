@@ -75,7 +75,9 @@ fn msg_for_rpc_target(target : @app.RpcTarget, payload : Json) -> @app.Msg {
         @app.AssetsLoaded => @app.msg_assets_loaded(Err(message))
         @app.PrefabLoaded => @app.msg_prefab_loaded(Err(message))
         @app.AtlasLoaded => @app.msg_atlas_loaded(Err(message))
-        @app.AnimationLoaded => @app.msg_animation_loaded(Err(message))
+        @app.AnimationClipLoaded => @app.msg_animation_clip_loaded(Err(message))
+        @app.AnimationGraphLoaded =>
+          @app.msg_animation_graph_loaded(Err(message))
         @app.SceneSaved => @app.msg_scene_saved(Err(message))
         @app.WorkspaceSaved => @app.msg_workspace_saved(Err(message))
       }
@@ -140,12 +142,20 @@ fn msg_for_rpc_target(target : @app.RpcTarget, payload : Json) -> @app.Msg {
           _ => Err("Unexpected RPC response for atlas")
         },
       )
-    @app.AnimationLoaded =>
-      @app.msg_animation_loaded(
+    @app.AnimationClipLoaded =>
+      @app.msg_animation_clip_loaded(
         match response {
-          @shared.AnimationLoaded(animation~) => Ok(animation)
+          @shared.AnimationClipLoaded(clip~) => Ok(clip)
           @shared.Error(error~) => Err(error.message)
-          _ => Err("Unexpected RPC response for animation")
+          _ => Err("Unexpected RPC response for animation clip")
+        },
+      )
+    @app.AnimationGraphLoaded =>
+      @app.msg_animation_graph_loaded(
+        match response {
+          @shared.AnimationGraphLoaded(graph~) => Ok(graph)
+          @shared.Error(error~) => Err(error.message)
+          _ => Err("Unexpected RPC response for animation graph")
         },
       )
     @app.SceneSaved =>
@@ -346,7 +356,7 @@ pub fn EditorHarness::atlas_refs(
 pub fn EditorHarness::animation_refs(
   self : EditorHarness,
 ) -> Array[@editor_bridge.AssetRef] {
-  self.model.animation_refs
+  self.model.animation_graph_refs
 }
 
 ///|
@@ -496,7 +506,8 @@ async fn ensure_project_layout(root : String) -> Unit {
   ensure_dir(root + "/assets/audio")
   ensure_dir(root + "/assets/fonts")
   ensure_dir(root + "/assets/atlases")
-  ensure_dir(root + "/assets/animations")
+  ensure_dir(root + "/assets/animation_clips")
+  ensure_dir(root + "/assets/animation_graphs")
   ensure_dir(root + "/.selene-editor")
   ensure_dir(root + "/.selene-editor/cache")
 }
@@ -556,9 +567,9 @@ pub async fn EditorHarness::read_atlas_document(
 pub async fn EditorHarness::read_animation_document(
   self : EditorHarness,
   relative_path : String,
-) -> @editor_bridge.AnimationAssetDocument {
+) -> @editor_bridge.AnimationClipAssetDocument {
   let json = parse_json_file(self.project_root + "/" + relative_path)
-  @editor_bridge.decode_animation_asset_document(json)
+  @editor_bridge.decode_animation_clip_asset_document(json)
 }
 
 ///|
@@ -608,10 +619,10 @@ pub async fn EditorHarness::given_atlas_document(
 pub async fn EditorHarness::given_animation_document(
   self : EditorHarness,
   relative_path : String,
-  animation : @editor_bridge.AnimationAssetDocument,
+  animation : @editor_bridge.AnimationClipAssetDocument,
 ) -> Unit {
   ensure_project_layout(self.project_root)
-  ignore(@editor_bridge.decode_animation_asset_document(animation.to_json()))
+  ignore(@editor_bridge.decode_animation_clip_asset_document(animation.to_json()))
   write_json_file(self.project_root + "/" + relative_path, animation)
 }
 
@@ -649,7 +660,7 @@ pub async fn EditorHarness::when_animation_resource_is_selected(
   path : String,
 ) -> Unit {
   self.dispatch(
-    @app.msg_select_resource(Some(@app.resource_selection_animation(path))),
+    @app.msg_select_resource(Some(@app.resource_selection_animation_clip(path))),
   )
 }
 
@@ -697,6 +708,21 @@ pub async fn EditorHarness::when_selected_animation_frames_are_edited(
   self : EditorHarness,
   value : String,
 ) -> Unit {
+  match self.model.selected_resource {
+    Some(@app.AnimationClip(_)) => ()
+    _ =>
+      if self.model.animation_clip_refs.length() > 0 {
+        self.dispatch(
+          @app.msg_select_resource(
+            Some(
+              @app.resource_selection_animation_clip(
+                self.model.animation_clip_refs[0].path,
+              ),
+            ),
+          ),
+        )
+      }
+  }
   self.dispatch(@app.msg_update_selected_animation_clip_frames(value))
 }
 
@@ -704,7 +730,22 @@ pub async fn EditorHarness::when_selected_animation_frames_are_edited(
 pub async fn EditorHarness::when_selected_animation_is_saved(
   self : EditorHarness,
 ) -> Unit {
-  self.dispatch(@app.msg_save_selected_animation())
+  match self.model.selected_resource {
+    Some(@app.AnimationClip(_)) => ()
+    _ =>
+      if self.model.animation_clip_refs.length() > 0 {
+        self.dispatch(
+          @app.msg_select_resource(
+            Some(
+              @app.resource_selection_animation_clip(
+                self.model.animation_clip_refs[0].path,
+              ),
+            ),
+          ),
+        )
+      }
+  }
+  self.dispatch(@app.msg_save_selected_animation_clip())
 }
 
 ///|
@@ -811,7 +852,7 @@ pub async fn EditorHarness::when_animation_load_fails(
   self : EditorHarness,
   message : String,
 ) -> Unit {
-  self.dispatch(@app.msg_animation_loaded(Err(message)))
+  self.dispatch(@app.msg_animation_clip_loaded(Err(message)))
 }
 
 ///|

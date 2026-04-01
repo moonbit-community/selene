@@ -12,7 +12,8 @@ pub type CustomComponentApplier = (
 pub struct AssetInstantiationContext {
   asset_path_resolver : AssetPathResolver
   atlas_assets : Map[String, AtlasAssetDocument]
-  animation_assets : Map[String, AnimationAssetDocument]
+  animation_clip_assets : Map[String, AnimationClipAssetDocument]
+  animation_graph_assets : Map[String, AnimationGraphAssetDocument]
   custom_component_appliers : Map[String, CustomComponentApplier]
 }
 
@@ -55,13 +56,15 @@ pub fn register_custom_component(
 pub fn asset_instantiation_context(
   asset_path_resolver? : AssetPathResolver = identity_asset_path_resolver,
   atlas_assets? : Map[String, AtlasAssetDocument] = {},
-  animation_assets? : Map[String, AnimationAssetDocument] = {},
+  animation_clip_assets? : Map[String, AnimationClipAssetDocument] = {},
+  animation_graph_assets? : Map[String, AnimationGraphAssetDocument] = {},
   custom_component_appliers? : Map[String, CustomComponentApplier] = registered_custom_component_appliers,
 ) -> AssetInstantiationContext {
   {
     asset_path_resolver,
     atlas_assets,
-    animation_assets,
+    animation_clip_assets,
+    animation_graph_assets,
     custom_component_appliers,
   }
 }
@@ -335,68 +338,125 @@ fn apply_animation_components(
   animation_clip_handles : Array[@animation.AnimationClipHandle],
   animation_graph_handles : Array[@animation.AnimationGraphHandle],
 ) -> Unit {
-  guard animation_doc.animation_asset_path is Some(asset_path) else { return }
-  guard context.animation_assets.get(asset_path) is Some(animation_asset) else {
-    return
-  }
-  guard context.atlas_assets.get(animation_asset.atlas_asset_path)
-    is Some(atlas_asset) else {
+  guard animation_doc.graph_asset_path is Some(graph_path) else { return }
+  guard context.animation_graph_assets.get(graph_path) is Some(graph_doc) else {
     return
   }
   let target_id = @animation.AnimationTargetId::new(document.id)
   @animation.animation_target_ids().set(entity, target_id)
-  let clip_nodes : Map[String, @animation.AnimationNodeIndex] = {}
-  let clip_handles : Array[@animation.AnimationClipHandle] = []
-  for clip_doc in animation_asset.clips {
-    let clip = @animation.AnimationClip::new(clip_doc.name)
-    let keyframes : Array[@animation.ScalarKeyframe] = []
-    for index, frame_name in clip_doc.frames {
-      if region_by_name_or_index(atlas_asset, Some(frame_name), index)
-        is Some(region) {
-        keyframes.push({
-          time: index.to_double() / clip_doc.fps,
-          value: region.index.to_double(),
-          in_tangent: None,
-          out_tangent: None,
-        })
+
+  let clip_handles_by_path : Map[String, @animation.AnimationClipHandle] = {}
+  for node in graph_doc.nodes {
+    match node.kind {
+      Clip(clip_asset_path~) => {
+        if clip_asset_path == "" || clip_handles_by_path.contains(clip_asset_path) {
+          continue
+        }
+        guard context.animation_clip_assets.get(clip_asset_path) is Some(clip_doc) else {
+          continue
+        }
+        guard context.atlas_assets.get(clip_doc.atlas_asset_path) is Some(atlas_asset) else {
+          continue
+        }
+        let clip = @animation.AnimationClip::new(clip_doc.name)
+        let keyframes : Array[@animation.ScalarKeyframe] = []
+        for index, frame_name in clip_doc.frames {
+          if region_by_name_or_index(atlas_asset, Some(frame_name), index)
+            is Some(region) {
+            keyframes.push({
+              time: index.to_double() / clip_doc.fps,
+              value: region.index.to_double(),
+              in_tangent: None,
+              out_tangent: None,
+            })
+          }
+        }
+        if keyframes.is_empty() {
+          continue
+        }
+        clip.add_curve_to_target(
+          target_id,
+          @animation.VariableCurve::scalar(
+            @animation.texture_atlas_index_field(),
+            keyframes,
+            interpolation=@animation.Step,
+          ),
+        )
+        let handle = @animation.register_animation_clip_asset(clip)
+        animation_clip_handles.push(handle)
+        clip_handles_by_path.set(clip_asset_path, handle)
       }
-    }
-    if !keyframes.is_empty() {
-      clip.add_curve_to_target(
-        target_id,
-        @animation.VariableCurve::scalar(
-          @animation.texture_atlas_index_field(),
-          keyframes,
-          interpolation=@animation.Step,
-        ),
-      )
-    }
-    let handle = @animation.register_animation_clip_asset(clip)
-    animation_clip_handles.push(handle)
-    clip_handles.push(handle)
-  }
-  guard !clip_handles.is_empty() else { return }
-  let (graph, nodes) = @animation.AnimationGraph::from_clips(clip_handles)
-  for index, clip_doc in animation_asset.clips {
-    if index < nodes.length() {
-      clip_nodes.set(clip_doc.name, nodes[index])
+      _ => ()
     }
   }
+  guard !clip_handles_by_path.is_empty() else { return }
+
+  let graph = @animation.AnimationGraph::new()
+  let graph_nodes : Map[String, @animation.AnimationNodeIndex] = {}
+  let runtime_node_order : Array[@animation.AnimationNodeIndex] = []
+  for node in graph_doc.nodes {
+    let runtime_node : @animation.AnimationNodeIndex? = match node.kind {
+      Clip(clip_asset_path~) =>
+        match clip_handles_by_path.get(clip_asset_path) {
+          Some(handle) =>
+            if node.mask_groups.is_empty() {
+              Some(graph.add_clip(handle))
+            } else {
+              Some(graph.add_clip_with_mask(handle, node.mask_groups))
+            }
+          None => None
+        }
+      Blend =>
+        if node.mask_groups.is_empty() {
+          Some(graph.add_blend())
+        } else {
+          Some(graph.add_blend_with_mask(node.mask_groups))
+        }
+      AdditiveBlend =>
+        if node.mask_groups.is_empty() {
+          Some(graph.add_additive_blend())
+        } else {
+          Some(graph.add_additive_blend_with_mask(node.mask_groups))
+        }
+    }
+    if runtime_node is Some(index) {
+      graph_nodes.set(node.id, index)
+      runtime_node_order.push(index)
+    }
+  }
+  guard !runtime_node_order.is_empty() else { return }
+
+  for node in graph_doc.nodes {
+    guard graph_nodes.get(node.id) is Some(parent) else { continue }
+    for edge in node.edges {
+      guard graph_nodes.get(edge.to) is Some(child) else { continue }
+      graph.add_edge(parent, child, weight=edge.weight)
+    }
+  }
+
   let graph_handle = @animation.register_animation_graph_asset(graph)
   animation_graph_handles.push(graph_handle)
   @animation.animation_graph_handles().set(entity, graph_handle)
   let player = @animation.AnimationPlayer::new()
-  let default_clip_name = match animation_doc.default_clip {
-    Some(name) => Some(name)
-    None => animation_asset.default_clip
-  }
-  let default_node : @animation.AnimationNodeIndex? = match default_clip_name {
-    Some(name) =>
-      match clip_nodes.get(name) {
+  let default_node : @animation.AnimationNodeIndex? = match animation_doc.start_node {
+    Some(node_name) =>
+      match graph_nodes.get(node_name) {
         Some(node) => Some(node)
-        None => Some(nodes[0])
+        None =>
+          match graph_doc.default_node {
+            Some(default_name) => graph_nodes.get(default_name)
+            None => Some(runtime_node_order[0])
+          }
       }
-    None => Some(nodes[0])
+    None =>
+      match graph_doc.default_node {
+        Some(default_name) =>
+          match graph_nodes.get(default_name) {
+            Some(node) => Some(node)
+            None => Some(runtime_node_order[0])
+          }
+        None => Some(runtime_node_order[0])
+      }
   }
   if transitions_doc is Some(transitions_data) {
     let transitions = @animation.AnimationTransitions::new()

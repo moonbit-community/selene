@@ -839,7 +839,7 @@ pub fn ActiveAnimation::set_speed(
   self : ActiveAnimation,
   speed : Double,
 ) -> ActiveAnimation {
-  self.speed = @cmp.maximum(0.0, speed)
+  self.speed = speed
   self
 }
 
@@ -2006,12 +2006,21 @@ fn emit_clip_events_between(
   from_time : Double,
   to_time : Double,
   wrapped : Bool,
+  forward : Bool,
 ) -> Unit {
   for event in clip.events {
     let triggered = if wrapped {
-      event.time >= from_time || event.time <= to_time
+      if forward {
+        event.time >= from_time || event.time <= to_time
+      } else {
+        event.time <= from_time || event.time >= to_time
+      }
     } else {
-      event.time >= from_time && event.time <= to_time
+      if forward {
+        event.time >= from_time && event.time <= to_time
+      } else {
+        event.time <= from_time && event.time >= to_time
+      }
     }
     if !triggered {
       continue
@@ -2061,31 +2070,73 @@ pub fn animation_player_system(delta : Double) -> Unit {
       }
       let mut next_time = active.time + delta * active.speed
       let mut wrapped = false
+      let forward = active.speed >= 0.0
       match active.repeat {
-        Never =>
-          if next_time >= duration {
-            next_time = duration
-            active.finished = true
-            wrapped = false
+        Never => {
+          if forward {
+            if next_time >= duration {
+              next_time = duration
+              active.finished = true
+            } else if next_time < 0.0 {
+              next_time = 0.0
+            }
+          } else {
+            if next_time <= 0.0 {
+              next_time = 0.0
+              active.finished = true
+            } else if next_time > duration {
+              next_time = duration
+            }
           }
-        Forever =>
+        }
+        Forever => {
           while next_time >= duration {
             next_time -= duration
             active.completed_repeats += 1U
             wrapped = true
           }
-        Count(count) =>
-          while next_time >= duration {
-            if active.completed_repeats + 1U < count {
-              next_time -= duration
-              active.completed_repeats += 1U
-              wrapped = true
-            } else {
+          while next_time < 0.0 {
+            next_time += duration
+            active.completed_repeats += 1U
+            wrapped = true
+          }
+        }
+        Count(count) => {
+          if count == 0U {
+            active.finished = true
+            next_time = if forward { duration } else { 0.0 }
+          } else if forward {
+            while next_time >= duration {
+              if active.completed_repeats + 1U < count {
+                next_time -= duration
+                active.completed_repeats += 1U
+                wrapped = true
+              } else {
+                next_time = duration
+                active.finished = true
+                break
+              }
+            }
+            if next_time < 0.0 {
+              next_time = 0.0
+            }
+          } else {
+            while next_time < 0.0 {
+              if active.completed_repeats + 1U < count {
+                next_time += duration
+                active.completed_repeats += 1U
+                wrapped = true
+              } else {
+                next_time = 0.0
+                active.finished = true
+                break
+              }
+            }
+            if next_time > duration {
               next_time = duration
-              active.finished = true
-              break
             }
           }
+        }
       }
       let clip_nodes : Array[AnimationNodeIndex] = []
       collect_clip_nodes(graph, node_index, clip_nodes)
@@ -2101,6 +2152,7 @@ pub fn animation_player_system(delta : Double) -> Unit {
           active.last_time,
           next_time,
           wrapped,
+          forward,
         )
       }
       active.time = next_time

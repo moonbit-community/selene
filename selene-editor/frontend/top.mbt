@@ -95,13 +95,24 @@ fn atlas_loaded_of_response(
 }
 
 ///|
-fn animation_loaded_of_response(
+fn animation_clip_loaded_of_response(
   response : @shared.RpcResponse,
-) -> Result[@shared.AnimationLoadResponse, String] {
+) -> Result[@shared.AnimationClipLoadResponse, String] {
   match response {
-    @shared.AnimationLoaded(animation~) => Ok(animation)
+    @shared.AnimationClipLoaded(clip~) => Ok(clip)
     @shared.Error(error~) => Err(error.message)
-    _ => Err("Unexpected RPC response for animation")
+    _ => Err("Unexpected RPC response for animation clip")
+  }
+}
+
+///|
+fn animation_graph_loaded_of_response(
+  response : @shared.RpcResponse,
+) -> Result[@shared.AnimationGraphLoadResponse, String] {
+  match response {
+    @shared.AnimationGraphLoaded(graph~) => Ok(graph)
+    @shared.Error(error~) => Err(error.message)
+    _ => Err("Unexpected RPC response for animation graph")
   }
 }
 
@@ -772,10 +783,15 @@ fn rpc_effect_cmd(
         log_rpc_result_error("atlas.load", result)
         dispatch(@app.msg_atlas_loaded(result))
       })
-    @app.AnimationLoaded =>
-      rpc_cmd(request, animation_loaded_of_response, fn(result) {
-        log_rpc_result_error("animation.load", result)
-        dispatch(@app.msg_animation_loaded(result))
+    @app.AnimationClipLoaded =>
+      rpc_cmd(request, animation_clip_loaded_of_response, fn(result) {
+        log_rpc_result_error("animation.clip.load", result)
+        dispatch(@app.msg_animation_clip_loaded(result))
+      })
+    @app.AnimationGraphLoaded =>
+      rpc_cmd(request, animation_graph_loaded_of_response, fn(result) {
+        log_rpc_result_error("animation.graph.load", result)
+        dispatch(@app.msg_animation_graph_loaded(result))
       })
     @app.SceneSaved =>
       rpc_cmd(request, save_ack_of_response, fn(result) {
@@ -1135,7 +1151,8 @@ fn tree_file_row(
       match selection {
         @app.Image(_) => "I"
         @app.Atlas(_) => "A"
-        @app.Animation(_) => "N"
+        @app.AnimationClip(_) => "C"
+        @app.AnimationGraph(_) => "G"
         @app.Prefab(_) => "P"
       },
     ),
@@ -1382,27 +1399,51 @@ fn asset_panel_view(
     fn(_path) { None },
   )
 
-  let animation_paths : Array[String] = []
-  for animation_ref in model.animation_refs {
+  let animation_clip_paths : Array[String] = []
+  for animation_ref in model.animation_clip_refs {
     let animation_name = match
-      model.animation_documents.get(animation_ref.path) {
+      model.animation_clip_documents.get(animation_ref.path) {
       Some(animation) => animation.name
       None => asset_display_name_from_path(animation_ref.path)
     }
     if !model.asset_matches_query(animation_name, animation_ref.path) {
       continue
     }
-    animation_paths.push(animation_ref.path)
+    animation_clip_paths.push(animation_ref.path)
   }
-  let animation_rows = build_asset_tree_rows(
+  let animation_clip_rows = build_asset_tree_rows(
     dispatch,
     model,
-    animation_paths,
-    "animations",
+    animation_clip_paths,
+    "animation-clips",
     force_expand_tree,
     Some("assets"),
-    fn(path) { @app.resource_selection_animation(path) },
-    fn(_path) { "anim" },
+    fn(path) { @app.resource_selection_animation_clip(path) },
+    fn(_path) { "clip" },
+    fn(_path) { None },
+  )
+
+  let animation_graph_paths : Array[String] = []
+  for animation_ref in model.animation_graph_refs {
+    let animation_name = match
+      model.animation_graph_documents.get(animation_ref.path) {
+      Some(animation) => animation.name
+      None => asset_display_name_from_path(animation_ref.path)
+    }
+    if !model.asset_matches_query(animation_name, animation_ref.path) {
+      continue
+    }
+    animation_graph_paths.push(animation_ref.path)
+  }
+  let animation_graph_rows = build_asset_tree_rows(
+    dispatch,
+    model,
+    animation_graph_paths,
+    "animation-graphs",
+    force_expand_tree,
+    Some("assets"),
+    fn(path) { @app.resource_selection_animation_graph(path) },
+    fn(_path) { "graph" },
     fn(_path) { None },
   )
 
@@ -1470,19 +1511,35 @@ fn asset_panel_view(
       ),
     )
   }
-  if !animation_rows.is_empty() {
+  if !animation_clip_rows.is_empty() {
     content.push(
       asset_section(
         dispatch,
-        "Animations",
-        animation_paths.length(),
+        "Animation Clips",
+        animation_clip_paths.length(),
         if force_expand_sections {
           true
         } else {
-          model.animations_section_expanded
+          model.animation_clips_section_expanded
         },
-        @app.msg_toggle_animations_section(),
-        animation_rows,
+        @app.msg_toggle_animation_clips_section(),
+        animation_clip_rows,
+      ),
+    )
+  }
+  if !animation_graph_rows.is_empty() {
+    content.push(
+      asset_section(
+        dispatch,
+        "Animation Graphs",
+        animation_graph_paths.length(),
+        if force_expand_sections {
+          true
+        } else {
+          model.animation_graphs_section_expanded
+        },
+        @app.msg_toggle_animation_graphs_section(),
+        animation_graph_rows,
       ),
     )
   }
@@ -1504,7 +1561,8 @@ fn asset_panel_view(
   }
   if image_rows.is_empty() &&
     atlas_rows.is_empty() &&
-    animation_rows.is_empty() &&
+    animation_clip_rows.is_empty() &&
+    animation_graph_rows.is_empty() &&
     prefab_rows.is_empty() {
     content.push(
       @html.div(
@@ -2325,21 +2383,14 @@ fn selected_asset_view(
           ])
         None => @html.div(class="empty", "Atlas is still loading")
       }
-    Some(@app.Animation(_)) =>
-      match model.selected_animation_document() {
-        Some((path, animation)) => {
-          let primary_clip = if animation.clips.is_empty() {
-            @editor_bridge.animation_clip_document("default", 8.0, true, [
-              "frame_0",
-            ])
-          } else {
-            animation.clips[0]
-          }
+    Some(@app.AnimationClip(_)) =>
+      match model.selected_animation_clip_document() {
+        Some((path, clip)) =>
           @html.div(class="panel-body", [
             @html.div(class="inspector-block", [
-              @html.h3("Animation"),
-              labeled_input("Name", animation.name, fn(value) {
-                dispatch(@app.msg_update_selected_animation_name(value))
+              @html.h3("Animation Clip"),
+              labeled_input("Name", clip.name, fn(value) {
+                dispatch(@app.msg_update_selected_animation_clip_asset_name(value))
               }),
               @html.div(class="kv", [
                 @html.span(class="kv-key", "Path"),
@@ -2347,23 +2398,9 @@ fn selected_asset_view(
               ]),
               @html.div(class="kv", [
                 @html.span(class="kv-key", "Atlas"),
-                @html.span(class="kv-value", animation.atlas_asset_path),
+                @html.span(class="kv-value", clip.atlas_asset_path),
               ]),
-              labeled_input(
-                "Default Clip",
-                animation.default_clip.unwrap_or(""),
-                fn(value) {
-                  dispatch(
-                    @app.msg_update_selected_animation_default_clip(value),
-                  )
-                },
-              ),
-              labeled_input("Clip Name", primary_clip.name, fn(value) {
-                dispatch(@app.msg_update_selected_animation_clip_name(value))
-              }),
-              labeled_input("Clip FPS", primary_clip.fps.to_string(), fn(
-                value,
-              ) {
+              labeled_input("FPS", clip.fps.to_string(), fn(value) {
                 dispatch(@app.msg_update_selected_animation_clip_fps(value))
               }),
               @html.label(class="field", [
@@ -2373,30 +2410,57 @@ fn selected_asset_view(
                   on_click=dispatch(
                     @app.msg_toggle_selected_animation_clip_looping(),
                   ),
-                  if primary_clip.looping {
-                    "Enabled"
-                  } else {
-                    "Disabled"
-                  },
+                  if clip.looping { "Enabled" } else { "Disabled" },
                 ),
               ]),
-              labeled_input("Frames", primary_clip.frames.join(", "), fn(
-                value,
-              ) {
+              labeled_input("Frames", clip.frames.join(", "), fn(value) {
                 dispatch(@app.msg_update_selected_animation_clip_frames(value))
               }),
-              @html.div(class="kv", [
-                @html.span(class="kv-key", "Clip Count"),
-                @html.span(
-                  class="kv-value",
-                  animation.clips.length().to_string(),
+              @html.div(class="inspector-actions", [
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_save_selected_animation_clip()),
+                  "Save Clip",
                 ),
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_insert_selected_resource()),
+                  "Add Clip Sprite",
+                ),
+              ]),
+            ]),
+          ])
+        None => @html.div(class="empty", "Animation clip is still loading")
+      }
+    Some(@app.AnimationGraph(_)) =>
+      match model.selected_animation_graph_document() {
+        Some((path, graph)) =>
+          @html.div(class="panel-body", [
+            @html.div(class="inspector-block", [
+              @html.h3("Animation Graph"),
+              labeled_input("Name", graph.name, fn(value) {
+                dispatch(
+                  @app.msg_update_selected_animation_graph_asset_name(value),
+                )
+              }),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Path"),
+                @html.span(class="kv-value", path),
+              ]),
+              labeled_input("Default Node", graph.default_node.unwrap_or(""), fn(
+                value,
+              ) {
+                dispatch(@app.msg_update_selected_animation_graph_default_node(value))
+              }),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Node Count"),
+                @html.span(class="kv-value", graph.nodes.length().to_string()),
               ]),
               @html.div(class="inspector-actions", [
                 @html.button(
                   class="small-button",
-                  on_click=dispatch(@app.msg_save_selected_animation()),
-                  "Save Animation",
+                  on_click=dispatch(@app.msg_save_selected_animation_graph()),
+                  "Save Graph",
                 ),
                 @html.button(
                   class="small-button",
@@ -2406,8 +2470,7 @@ fn selected_asset_view(
               ]),
             ]),
           ])
-        }
-        None => @html.div(class="empty", "Animation is still loading")
+        None => @html.div(class="empty", "Animation graph is still loading")
       }
     Some(@app.Prefab(_)) =>
       match model.selected_prefab_document() {

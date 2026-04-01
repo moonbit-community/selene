@@ -64,16 +64,29 @@ pub enum AtlasAssetDocumentLoadStatus {
 } derive(Show, Eq)
 
 ///|
-pub struct AnimationAssetMigrationPreview {
+pub struct AnimationClipAssetMigrationPreview {
   path : String
-  animation : AnimationAssetDocument
+  clip : AnimationClipAssetDocument
   changes : Array[MigrationFieldChange]
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
-pub enum AnimationAssetDocumentLoadStatus {
-  Ready(AnimationAssetDocument)
-  MigrationRequired(AnimationAssetMigrationPreview)
+pub enum AnimationClipAssetDocumentLoadStatus {
+  Ready(AnimationClipAssetDocument)
+  MigrationRequired(AnimationClipAssetMigrationPreview)
+} derive(Show, Eq)
+
+///|
+pub struct AnimationGraphAssetMigrationPreview {
+  path : String
+  graph : AnimationGraphAssetDocument
+  changes : Array[MigrationFieldChange]
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
+pub enum AnimationGraphAssetDocumentLoadStatus {
+  Ready(AnimationGraphAssetDocument)
+  MigrationRequired(AnimationGraphAssetMigrationPreview)
 } derive(Show, Eq)
 
 ///|
@@ -89,7 +102,10 @@ pub struct PrefabDocumentMigrator {}
 pub struct AtlasAssetDocumentMigrator {}
 
 ///|
-pub struct AnimationAssetDocumentMigrator {}
+pub struct AnimationClipAssetDocumentMigrator {}
+
+///|
+pub struct AnimationGraphAssetDocumentMigrator {}
 
 ///|
 pub fn migration_field_change(
@@ -137,12 +153,21 @@ pub fn atlas_asset_migration_preview(
 }
 
 ///|
-pub fn animation_asset_migration_preview(
+pub fn animation_clip_asset_migration_preview(
   path : String,
-  animation : AnimationAssetDocument,
+  clip : AnimationClipAssetDocument,
   changes : Array[MigrationFieldChange],
-) -> AnimationAssetMigrationPreview {
-  { path, animation, changes }
+) -> AnimationClipAssetMigrationPreview {
+  { path, clip, changes }
+}
+
+///|
+pub fn animation_graph_asset_migration_preview(
+  path : String,
+  graph : AnimationGraphAssetDocument,
+  changes : Array[MigrationFieldChange],
+) -> AnimationGraphAssetMigrationPreview {
+  { path, graph, changes }
 }
 
 ///|
@@ -311,79 +336,6 @@ fn generated_atlas_regions(
 }
 
 ///|
-fn migrate_animation_clips_from_legacy(
-  clips : Array[LegacyAnimationClipDocument]?,
-  changes : Array[MigrationFieldChange],
-) -> Array[AnimationClipDocument] {
-  match clips {
-    Some(clips) if !clips.is_empty() => {
-      let migrated : Array[AnimationClipDocument] = []
-      let mut index = 0
-      for clip in clips {
-        let fallback_name = "clip_\{index}"
-        let name = migrate_name_or_default(
-          "clips[\{index}].name",
-          clip.name,
-          fallback_name,
-          "Missing animation clip name",
-          changes,
-        )
-        let fps = match clip.fps {
-          Some(fps) if fps > 0.0 => fps
-          _ => {
-            changes.push(
-              migration_field_change(
-                "clips[\{index}].fps",
-                "Missing animation clip fps",
-                "8",
-              ),
-            )
-            8.0
-          }
-        }
-        let looping = match clip.looping {
-          Some(looping) => looping
-          None => {
-            changes.push(
-              migration_field_change(
-                "clips[\{index}].looping",
-                "Missing animation clip looping flag",
-                "true",
-              ),
-            )
-            true
-          }
-        }
-        let frames = match clip.frames {
-          Some(frames) if !frames.is_empty() => frames
-          _ => {
-            changes.push(
-              migration_field_change(
-                "clips[\{index}].frames",
-                "Missing animation clip frames",
-                "[\"frame_0\"]",
-              ),
-            )
-            ["frame_0"]
-          }
-        }
-        migrated.push(animation_clip_document(name, fps, looping, frames))
-        index += 1
-      }
-      migrated
-    }
-    _ => {
-      changes.push(
-        migration_field_change(
-          "clips", "Missing animation clips", "[default clip]",
-        ),
-      )
-      [animation_clip_document("default", 8.0, true, ["frame_0"])]
-    }
-  }
-}
-
-///|
 struct LegacyEntityDocument {
   id : String
   name : String?
@@ -420,23 +372,6 @@ struct LegacyAtlasAssetDocument {
 } derive(FromJson)
 
 ///|
-struct LegacyAnimationClipDocument {
-  name : String?
-  fps : Double?
-  looping : Bool?
-  frames : Array[String]?
-} derive(FromJson)
-
-///|
-struct LegacyAnimationAssetDocument {
-  version : Int
-  name : String?
-  atlas_asset_path : String
-  clips : Array[LegacyAnimationClipDocument]?
-  default_clip : String?
-} derive(FromJson)
-
-///|
 struct LegacyProjectManifest {
   version : Int
   name : String
@@ -446,6 +381,8 @@ struct LegacyProjectManifest {
   prefab_index : Array[PrefabRef]?
   atlas_index : Array[AssetRef]?
   animation_index : Array[AssetRef]?
+  animation_clip_index : Array[AssetRef]?
+  animation_graph_index : Array[AssetRef]?
   editor_min_version : String?
 } derive(FromJson)
 
@@ -463,13 +400,6 @@ fn decode_legacy_prefab_document(json : Json) -> LegacyPrefabDocument raise {
 fn decode_legacy_atlas_asset_document(
   json : Json,
 ) -> LegacyAtlasAssetDocument raise {
-  @json.from_json(json)
-}
-
-///|
-fn decode_legacy_animation_asset_document(
-  json : Json,
-) -> LegacyAnimationAssetDocument raise {
   @json.from_json(json)
 }
 
@@ -546,23 +476,81 @@ fn migrated_manifest_atlas_index(
 }
 
 ///|
-fn migrated_manifest_animation_index(
+fn migrated_manifest_animation_clip_index(
   legacy : LegacyProjectManifest,
   changes : Array[MigrationFieldChange],
 ) -> Array[AssetRef] {
-  match legacy.animation_index {
+  match legacy.animation_clip_index {
     Some(index) => index
     None => {
       let fallback : Array[AssetRef] = []
       changes.push(
         migration_field_change(
-          "animation_index",
-          "Missing animation index",
+          "animation_clip_index",
+          "Missing animation clip index",
           fallback.to_json().stringify(),
         ),
       )
       fallback
     }
+  }
+}
+
+///|
+fn migrated_manifest_animation_graph_index(
+  legacy : LegacyProjectManifest,
+  changes : Array[MigrationFieldChange],
+) -> Array[AssetRef] {
+  fn migrated_graph_ref_path_from_legacy(path : String) -> String {
+    let normalized = path.replace(old="\\", new="/")
+    if normalized.has_suffix(".graph.json") {
+      return normalized
+    }
+    let stem = if normalized.has_suffix(".anim.json") {
+      normalized[:normalized.length() - ".anim.json".length()].to_string()
+    } else if normalized.has_suffix(".json") {
+      normalized[:normalized.length() - ".json".length()].to_string()
+    } else {
+      normalized
+    }
+    let file_stem = if stem.rev_find("/") is Some(index) {
+      stem[index + 1:].to_string()
+    } else {
+      stem
+    }
+    let normalized_stem = normalized_document_stem(file_stem)
+    "assets/animation_graphs/" + animation_graph_asset_file_name(normalized_stem)
+  }
+  match legacy.animation_graph_index {
+    Some(index) => index
+    None =>
+      match legacy.animation_index {
+        Some(index) => {
+          let migrated : Array[AssetRef] = []
+          for ref_ in index {
+            migrated.push(asset_ref(migrated_graph_ref_path_from_legacy(ref_.path)))
+          }
+          changes.push(
+            migration_field_change(
+              "animation_graph_index",
+              "Migrated legacy animation index to animation graph index",
+              migrated.to_json().stringify(),
+            ),
+          )
+          migrated
+        }
+        None => {
+          let fallback : Array[AssetRef] = []
+          changes.push(
+            migration_field_change(
+              "animation_graph_index",
+              "Missing animation graph index",
+              fallback.to_json().stringify(),
+            ),
+          )
+          fallback
+        }
+      }
   }
 }
 
@@ -586,7 +574,8 @@ impl Migration for ProjectManifestMigrator with migration_changes(
     scene_index: migrated_manifest_scene_index(legacy, changes),
     prefab_index: migrated_manifest_prefab_index(legacy, changes),
     atlas_index: migrated_manifest_atlas_index(legacy, changes),
-    animation_index: migrated_manifest_animation_index(legacy, changes),
+    animation_clip_index: migrated_manifest_animation_clip_index(legacy, changes),
+    animation_graph_index: migrated_manifest_animation_graph_index(legacy, changes),
     editor_min_version: legacy.editor_min_version,
   })
   if changes.is_empty() {
@@ -614,7 +603,14 @@ impl Migration for ProjectManifestMigrator with migrate_json(self, _path, json) 
     scene_index: migrated_manifest_scene_index(legacy, ignored_changes),
     prefab_index: migrated_manifest_prefab_index(legacy, ignored_changes),
     atlas_index: migrated_manifest_atlas_index(legacy, ignored_changes),
-    animation_index: migrated_manifest_animation_index(legacy, ignored_changes),
+    animation_clip_index: migrated_manifest_animation_clip_index(
+      legacy,
+      ignored_changes,
+    ),
+    animation_graph_index: migrated_manifest_animation_graph_index(
+      legacy,
+      ignored_changes,
+    ),
     editor_min_version: legacy.editor_min_version,
   }.to_json()
 }
@@ -857,99 +853,45 @@ impl Migration for AtlasAssetDocumentMigrator with migrate_json(
 }
 
 ///|
-impl Migration for AnimationAssetDocumentMigrator with migration_changes(
+impl Migration for AnimationClipAssetDocumentMigrator with migration_changes(
   self,
-  path,
-  json,
+  _path,
+  _json,
 ) {
   ignore(self)
-  let legacy = decode_legacy_animation_asset_document(json)
-  if legacy.version != animation_asset_schema_version {
-    return None
-  }
-  let changes : Array[MigrationFieldChange] = []
-  let clips = migrate_animation_clips_from_legacy(legacy.clips, changes)
-  let default_clip = match legacy.default_clip {
-    Some(name) => {
-      let trimmed = name.trim().to_string()
-      if trimmed == "" {
-        let fallback = clips[0].name
-        changes.push(
-          migration_field_change(
-            "default_clip", "Missing animation default clip", fallback,
-          ),
-        )
-        Some(fallback)
-      } else {
-        Some(name)
-      }
-    }
-    None => {
-      let fallback = clips[0].name
-      changes.push(
-        migration_field_change(
-          "default_clip", "Missing animation default clip", fallback,
-        ),
-      )
-      Some(fallback)
-    }
-  }
-  ignore(AnimationAssetDocument::{
-    version: animation_asset_schema_version,
-    name: migrate_name_or_default(
-      "name",
-      legacy.name,
-      display_name_of_document_path(path, ".anim.json", "Animation"),
-      "Missing required animation name",
-      changes,
-    ),
-    atlas_asset_path: legacy.atlas_asset_path,
-    clips,
-    default_clip,
-  })
-  if changes.is_empty() {
-    None
-  } else {
-    Some(changes)
-  }
+  None
 }
 
 ///|
-impl Migration for AnimationAssetDocumentMigrator with migrate_json(
+impl Migration for AnimationClipAssetDocumentMigrator with migrate_json(
   self,
-  path,
-  json,
+  _path,
+  _json,
 ) {
   ignore(self)
-  let legacy = decode_legacy_animation_asset_document(json)
-  guard legacy.version == animation_asset_schema_version else {
-    raise InvalidAnimationAssetDocument(
-      "Animation document schema version \{legacy.version} is not migratable",
-    )
-  }
-  let ignored_changes : Array[MigrationFieldChange] = []
-  let clips = migrate_animation_clips_from_legacy(legacy.clips, ignored_changes)
-  AnimationAssetDocument::{
-    version: animation_asset_schema_version,
-    name: migrate_name_or_default(
-      "name",
-      legacy.name,
-      display_name_of_document_path(path, ".anim.json", "Animation"),
-      "Missing required animation name",
-      ignored_changes,
-    ),
-    atlas_asset_path: legacy.atlas_asset_path,
-    clips,
-    default_clip: match legacy.default_clip {
-      Some(name) => {
-        let trimmed = name.trim().to_string()
-        if trimmed == "" {
-          Some(clips[0].name)
-        } else {
-          Some(name)
-        }
-      }
-      None => Some(clips[0].name)
-    },
-  }.to_json()
+  raise InvalidAnimationClipAssetDocument(
+    "Animation clip document is not migratable",
+  )
+}
+
+///|
+impl Migration for AnimationGraphAssetDocumentMigrator with migration_changes(
+  self,
+  _path,
+  _json,
+) {
+  ignore(self)
+  None
+}
+
+///|
+impl Migration for AnimationGraphAssetDocumentMigrator with migrate_json(
+  self,
+  _path,
+  _json,
+) {
+  ignore(self)
+  raise InvalidAnimationGraphAssetDocument(
+    "Animation graph document is not migratable",
+  )
 }

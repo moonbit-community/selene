@@ -252,6 +252,7 @@ test "project load refreshes both scene and asset list" {
           [],
           [],
           [],
+          [],
           Some(@editor_bridge.WorkspaceDocument::default()),
           [],
         ),
@@ -272,6 +273,7 @@ test "project load rejects missing workspace payload" {
         @shared.project_state_response(
           Some("/tmp/demo"),
           Some(@editor_bridge.ProjectManifest::default("demo")),
+          [],
           [],
           [],
           [],
@@ -301,6 +303,7 @@ test "project load applies persisted move-snap workspace settings" {
         @shared.project_state_response(
           Some("/tmp/demo"),
           Some(@editor_bridge.ProjectManifest::default("demo")),
+          [],
           [],
           [],
           [],
@@ -574,36 +577,37 @@ test "editing a selected atlas updates the atlas document and save emits rpc" {
 }
 
 ///|
-test "editing a selected animation updates the animation document and save emits rpc" {
-  let animation = @editor_bridge.animation_asset_document_from_frames(
+test "editing a selected animation clip updates the clip document and save emits rpc" {
+  let animation = @editor_bridge.AnimationClipAssetDocument::default(
     "hero",
     "assets/atlases/hero.atlas.json",
-    ["idle_0", "idle_1"],
-  )
+  ).with_frames(["idle_0", "idle_1"])
   let model = {
     ..new_model(),
     current_root: Some("/tmp/demo"),
     manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
-    animation_refs: [
-      @editor_bridge.asset_ref("assets/animations/hero.anim.json"),
+    animation_clip_refs: [
+      @editor_bridge.asset_ref("assets/animation_clips/hero.clip.json"),
     ],
-    animation_documents: { "assets/animations/hero.anim.json": animation },
+    animation_clip_documents: {
+      "assets/animation_clips/hero.clip.json": animation,
+    },
     selected_resource: Some(
-      resource_selection_animation("assets/animations/hero.anim.json"),
+      resource_selection_animation_clip("assets/animation_clips/hero.clip.json"),
     ),
   }
   let (_, edited) = update(
     msg_update_selected_animation_clip_frames("run_0, run_1"),
     model,
   )
-  let updated = edited.animation_documents
-    .get("assets/animations/hero.anim.json")
+  let updated = edited.animation_clip_documents
+    .get("assets/animation_clips/hero.clip.json")
     .unwrap()
-  inspect(updated.clips[0].frames.join(","), content="run_0,run_1")
+  inspect(updated.frames.join(","), content="run_0,run_1")
 
-  let (effects, saving) = update(msg_save_selected_animation(), edited)
+  let (effects, saving) = update(msg_save_selected_animation_clip(), edited)
   inspect(effects.length(), content="1")
-  inspect(saving.status, content="Saving animation...")
+  inspect(saving.status, content="Saving animation clip...")
 }
 
 ///|
@@ -702,14 +706,16 @@ test "asset and resource load errors remain user-facing and non-fatal" {
   )
 
   let (_, animation_error) = update(
-    msg_animation_loaded(
-      Err("Animation document is invalid: assets/animations/hero.anim.json"),
+    msg_animation_clip_loaded(
+      Err(
+        "Animation clip document is invalid: assets/animation_clips/hero.clip.json",
+      ),
     ),
     atlas_error,
   )
   inspect(
     animation_error.status,
-    content="Animation load failed: Animation document is invalid: assets/animations/hero.anim.json",
+    content="Animation clip load failed: Animation clip document is invalid: assets/animation_clips/hero.clip.json",
   )
   inspect(animation_error.scene is Some(_), content="true")
 }

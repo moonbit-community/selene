@@ -2,7 +2,8 @@
 pub enum ResourceSelection {
   Image(String)
   Atlas(String)
-  Animation(String)
+  AnimationClip(String)
+  AnimationGraph(String)
   Prefab(String)
 } derive(Show, Eq)
 
@@ -17,8 +18,13 @@ pub fn resource_selection_atlas(path : String) -> ResourceSelection {
 }
 
 ///|
-pub fn resource_selection_animation(path : String) -> ResourceSelection {
-  Animation(path)
+pub fn resource_selection_animation_clip(path : String) -> ResourceSelection {
+  AnimationClip(path)
+}
+
+///|
+pub fn resource_selection_animation_graph(path : String) -> ResourceSelection {
+  AnimationGraph(path)
 }
 
 ///|
@@ -41,7 +47,8 @@ pub struct Model {
   scene_refs : Array[@editor_bridge.SceneRef]
   prefab_refs : Array[@editor_bridge.PrefabRef]
   atlas_refs : Array[@editor_bridge.AssetRef]
-  animation_refs : Array[@editor_bridge.AssetRef]
+  animation_clip_refs : Array[@editor_bridge.AssetRef]
+  animation_graph_refs : Array[@editor_bridge.AssetRef]
   scene_path : String
   scene : @editor_bridge.SceneDocument?
   assets : Array[@editor_bridge.AssetDocument]
@@ -50,7 +57,8 @@ pub struct Model {
   failed_image_assets : Map[String, Bool]
   prefab_documents : Map[String, @editor_bridge.PrefabDocument]
   atlas_documents : Map[String, @editor_bridge.AtlasAssetDocument]
-  animation_documents : Map[String, @editor_bridge.AnimationAssetDocument]
+  animation_clip_documents : Map[String, @editor_bridge.AnimationClipAssetDocument]
+  animation_graph_documents : Map[String, @editor_bridge.AnimationGraphAssetDocument]
   workspace : @editor_bridge.WorkspaceDocument
   selected_resource : ResourceSelection?
   selected_entity_id : String?
@@ -69,7 +77,8 @@ pub struct Model {
   asset_tree_expanded : Map[String, Bool]
   images_section_expanded : Bool
   atlases_section_expanded : Bool
-  animations_section_expanded : Bool
+  animation_clips_section_expanded : Bool
+  animation_graphs_section_expanded : Bool
   prefabs_section_expanded : Bool
   recent_projects : Array[String]
   logs : Array[String]
@@ -95,7 +104,8 @@ pub enum Msg {
   AssetsLoaded(Result[@shared.AssetsListResponse, String])
   PrefabLoaded(Result[@shared.PrefabLoadResponse, String])
   AtlasLoaded(Result[@shared.AtlasLoadResponse, String])
-  AnimationLoaded(Result[@shared.AnimationLoadResponse, String])
+  AnimationClipLoaded(Result[@shared.AnimationClipLoadResponse, String])
+  AnimationGraphLoaded(Result[@shared.AnimationGraphLoadResponse, String])
   AssetSizeResolved(String, Double, Double)
   AssetImageLoadFailed(String)
   SetAssetQuery(String)
@@ -109,7 +119,8 @@ pub enum Msg {
   CollapseAllAssetFolders
   ToggleImagesSection
   ToggleAtlasesSection
-  ToggleAnimationsSection
+  ToggleAnimationClipsSection
+  ToggleAnimationGraphsSection
   TogglePrefabsSection
   ToggleMoveSnap
   AdjustMoveSnapStep(Int)
@@ -154,13 +165,15 @@ pub enum Msg {
   UpdateSelectedAtlasAnchorX(String)
   UpdateSelectedAtlasAnchorY(String)
   SaveSelectedAtlas
-  UpdateSelectedAnimationName(String)
-  UpdateSelectedAnimationDefaultClip(String)
+  UpdateSelectedAnimationClipAssetName(String)
+  UpdateSelectedAnimationGraphAssetName(String)
+  UpdateSelectedAnimationGraphDefaultNode(String)
   UpdateSelectedAnimationClipName(String)
   UpdateSelectedAnimationClipFps(String)
   ToggleSelectedAnimationClipLooping
   UpdateSelectedAnimationClipFrames(String)
-  SaveSelectedAnimation
+  SaveSelectedAnimationClip
+  SaveSelectedAnimationGraph
   RenameSelected(String)
   UpdateSelectedTranslateX(String)
   UpdateSelectedTranslateY(String)
@@ -187,7 +200,8 @@ pub enum RpcTarget {
   AssetsLoaded
   PrefabLoaded
   AtlasLoaded
-  AnimationLoaded
+  AnimationClipLoaded
+  AnimationGraphLoaded
   SceneSaved
   WorkspaceSaved
 } derive(Show, Eq)
@@ -212,7 +226,8 @@ pub fn new_model() -> Model {
     scene_refs: [],
     prefab_refs: [],
     atlas_refs: [],
-    animation_refs: [],
+    animation_clip_refs: [],
+    animation_graph_refs: [],
     scene_path: @editor_bridge.startup_scene_path_for_name("main"),
     scene: None,
     assets: [],
@@ -221,7 +236,8 @@ pub fn new_model() -> Model {
     failed_image_assets: {},
     prefab_documents: {},
     atlas_documents: {},
-    animation_documents: {},
+    animation_clip_documents: {},
+    animation_graph_documents: {},
     workspace: @editor_bridge.WorkspaceDocument::default(),
     selected_resource: None,
     selected_entity_id: None,
@@ -240,7 +256,8 @@ pub fn new_model() -> Model {
     asset_tree_expanded: {},
     images_section_expanded: true,
     atlases_section_expanded: true,
-    animations_section_expanded: true,
+    animation_clips_section_expanded: true,
+    animation_graphs_section_expanded: true,
     prefabs_section_expanded: true,
     status: "Choose a project folder to begin",
     logs: [],
@@ -335,10 +352,17 @@ pub fn msg_atlas_loaded(
 }
 
 ///|
-pub fn msg_animation_loaded(
-  result : Result[@shared.AnimationLoadResponse, String],
+pub fn msg_animation_clip_loaded(
+  result : Result[@shared.AnimationClipLoadResponse, String],
 ) -> Msg {
-  AnimationLoaded(result)
+  AnimationClipLoaded(result)
+}
+
+///|
+pub fn msg_animation_graph_loaded(
+  result : Result[@shared.AnimationGraphLoadResponse, String],
+) -> Msg {
+  AnimationGraphLoaded(result)
 }
 
 ///|
@@ -568,13 +592,18 @@ pub fn msg_save_selected_atlas() -> Msg {
 }
 
 ///|
-pub fn msg_update_selected_animation_name(value : String) -> Msg {
-  UpdateSelectedAnimationName(value)
+pub fn msg_update_selected_animation_clip_asset_name(value : String) -> Msg {
+  UpdateSelectedAnimationClipAssetName(value)
 }
 
 ///|
-pub fn msg_update_selected_animation_default_clip(value : String) -> Msg {
-  UpdateSelectedAnimationDefaultClip(value)
+pub fn msg_update_selected_animation_graph_asset_name(value : String) -> Msg {
+  UpdateSelectedAnimationGraphAssetName(value)
+}
+
+///|
+pub fn msg_update_selected_animation_graph_default_node(value : String) -> Msg {
+  UpdateSelectedAnimationGraphDefaultNode(value)
 }
 
 ///|
@@ -598,8 +627,13 @@ pub fn msg_update_selected_animation_clip_frames(value : String) -> Msg {
 }
 
 ///|
-pub fn msg_save_selected_animation() -> Msg {
-  SaveSelectedAnimation
+pub fn msg_save_selected_animation_clip() -> Msg {
+  SaveSelectedAnimationClip
+}
+
+///|
+pub fn msg_save_selected_animation_graph() -> Msg {
+  SaveSelectedAnimationGraph
 }
 
 ///|
@@ -711,8 +745,13 @@ pub fn msg_toggle_atlases_section() -> Msg {
 }
 
 ///|
-pub fn msg_toggle_animations_section() -> Msg {
-  ToggleAnimationsSection
+pub fn msg_toggle_animation_clips_section() -> Msg {
+  ToggleAnimationClipsSection
+}
+
+///|
+pub fn msg_toggle_animation_graphs_section() -> Msg {
+  ToggleAnimationGraphsSection
 }
 
 ///|
@@ -979,10 +1018,10 @@ fn atlas_document_from_image(
 }
 
 ///|
-fn animation_document_from_atlas(
+fn animation_clip_document_from_atlas(
   atlas_path : String,
   atlas : @editor_bridge.AtlasAssetDocument,
-) -> @editor_bridge.AnimationAssetDocument {
+) -> @editor_bridge.AnimationClipAssetDocument {
   let mut frames : Array[String] = []
   for region in atlas.regions {
     frames.push(region.name)
@@ -990,11 +1029,45 @@ fn animation_document_from_atlas(
   if frames.is_empty() {
     frames = ["frame_0"]
   }
-  @editor_bridge.animation_asset_document_from_frames(
-    atlas.name,
+  @editor_bridge.animation_clip_asset_document(
+    atlas.name + " Clip",
     atlas_path,
+    8.0,
+    true,
     frames,
   )
+}
+
+///|
+fn animation_graph_document_for_clip(
+  clip_path : String,
+  clip : @editor_bridge.AnimationClipAssetDocument,
+) -> @editor_bridge.AnimationGraphAssetDocument {
+  @editor_bridge.AnimationGraphAssetDocument::default(
+    clip.name + " Graph",
+    clip_path,
+  )
+}
+
+///|
+fn animation_graph_default_clip_path(
+  graph : @editor_bridge.AnimationGraphAssetDocument,
+) -> String? {
+  for node in graph.nodes {
+    if graph.default_node == Some(node.id) {
+      match node.kind {
+        @editor_bridge.Clip(clip_asset_path~) => return Some(clip_asset_path)
+        _ => ()
+      }
+    }
+  }
+  for node in graph.nodes {
+    match node.kind {
+      @editor_bridge.Clip(clip_asset_path~) => return Some(clip_asset_path)
+      _ => ()
+    }
+  }
+  None
 }
 
 ///|
@@ -1032,21 +1105,18 @@ fn add_atlas_asset_to_scene(
 }
 
 ///|
-fn add_animation_asset_to_scene(
+fn add_animation_graph_asset_to_scene(
   scene : @editor_bridge.SceneDocument,
-  animation_path : String,
-  animation : @editor_bridge.AnimationAssetDocument,
+  graph_path : String,
+  graph : @editor_bridge.AnimationGraphAssetDocument,
+  clip : @editor_bridge.AnimationClipAssetDocument,
   atlas : @editor_bridge.AtlasAssetDocument,
   translation : @editor_bridge.Vec2Doc,
 ) -> (@editor_bridge.SceneDocument, String) {
   let id = next_entity_id(scene)
-  let default_clip_name = animation.default_clip.unwrap_or("default")
   let mut default_frame_name = "frame_0"
-  for clip in animation.clips {
-    if clip.name == default_clip_name && !clip.frames.is_empty() {
-      default_frame_name = clip.frames[0]
-      break
-    }
+  if !clip.frames.is_empty() {
+    default_frame_name = clip.frames[0]
   }
   let mut first_region : @editor_bridge.AtlasRegionDocument? = None
   for region in atlas.regions {
@@ -1058,8 +1128,8 @@ fn add_animation_asset_to_scene(
   if first_region is None && !atlas.regions.is_empty() {
     first_region = Some(atlas.regions[0])
   }
-  let entity = @editor_bridge.entity_document(id, animation.name, components=[
-    @editor_bridge.name_component(animation.name),
+  let entity = @editor_bridge.entity_document(id, graph.name, components=[
+    @editor_bridge.name_component(graph.name),
     @editor_bridge.transform2d_component(translation~),
     @editor_bridge.visibility_component(),
     @editor_bridge.sprite_component(
@@ -1071,13 +1141,13 @@ fn add_animation_asset_to_scene(
       anchor=atlas.default_anchor,
     ),
     @editor_bridge.texture_atlas_component(
-      atlas_asset_path=Some(animation.atlas_asset_path),
+      atlas_asset_path=Some(clip.atlas_asset_path),
       region_name=first_region.map(fn(region) { region.name }),
       index=first_region.map_or(0, fn(region) { region.index }),
     ),
     @editor_bridge.animation_player_component(
-      animation_asset_path=Some(animation_path),
-      default_clip=Some(default_clip_name),
+      graph_asset_path=Some(graph_path),
+      start_node=graph.default_node,
       autoplay=true,
     ),
     @editor_bridge.animation_transitions_component(),
@@ -1191,12 +1261,16 @@ fn scene_preview_effect(model : Model) -> Effect {
   match model.scene {
     Some(scene) => {
       let atlases : Array[@bridge.AtlasAssetEntry] = []
-      let animations : Array[@bridge.AnimationAssetEntry] = []
+      let animation_clips : Array[@bridge.AnimationClipAssetEntry] = []
+      let animation_graphs : Array[@bridge.AnimationGraphAssetEntry] = []
       for path, atlas in model.atlas_documents {
         atlases.push(@bridge.atlas_asset_entry(path, atlas))
       }
-      for path, animation in model.animation_documents {
-        animations.push(@bridge.animation_asset_entry(path, animation))
+      for path, clip in model.animation_clip_documents {
+        animation_clips.push(@bridge.animation_clip_asset_entry(path, clip))
+      }
+      for path, graph in model.animation_graph_documents {
+        animation_graphs.push(@bridge.animation_graph_asset_entry(path, graph))
       }
       Preview(
         @bridge.preview_command_load_scene(
@@ -1204,7 +1278,8 @@ fn scene_preview_effect(model : Model) -> Effect {
             Some(model.scene_path),
             scene,
             atlases,
-            animations,
+            animation_clips,
+            animation_graphs,
           ),
         ),
       )
@@ -1233,11 +1308,19 @@ fn load_supporting_resource_effects(model : Model) -> Array[Effect] {
       rpc_effect(AtlasLoaded, @shared.rpc_request_atlas_load(atlas_ref.path)),
     )
   }
-  for animation_ref in model.animation_refs {
+  for animation_ref in model.animation_clip_refs {
     effects.push(
       rpc_effect(
-        AnimationLoaded,
-        @shared.rpc_request_animation_load(animation_ref.path),
+        AnimationClipLoaded,
+        @shared.rpc_request_animation_clip_load(animation_ref.path),
+      ),
+    )
+  }
+  for animation_ref in model.animation_graph_refs {
+    effects.push(
+      rpc_effect(
+        AnimationGraphLoaded,
+        @shared.rpc_request_animation_graph_load(animation_ref.path),
       ),
     )
   }
@@ -1378,23 +1461,6 @@ fn with_rebuilt_regions(
   atlas.with_regions(rebuild_atlas_regions(atlas))
 }
 
-///|
-fn primary_animation_clip(
-  animation : @editor_bridge.AnimationAssetDocument,
-) -> @editor_bridge.AnimationClipDocument {
-  if animation.clips.is_empty() {
-    @editor_bridge.animation_clip_document(
-      animation.default_clip.unwrap_or("default"),
-      8.0,
-      true,
-      ["frame_0"],
-    )
-  } else {
-    animation.clips[0]
-  }
-}
-
-///|
 fn parse_clip_frames(current : Array[String], input : String) -> Array[String] {
   let frames : Array[String] = []
   for raw in input.split(",") {
@@ -1415,7 +1481,8 @@ fn save_success_status(model : Model) -> String {
   match model.status {
     "Saving prefab..." => "Prefab saved"
     "Saving atlas..." => "Atlas saved"
-    "Saving animation..." => "Animation saved"
+    "Saving animation clip..." => "Animation clip saved"
+    "Saving animation graph..." => "Animation graph saved"
     _ => "Scene saved"
   }
 }
@@ -1519,8 +1586,16 @@ fn resource_exists(model : Model, selection : ResourceSelection) -> Bool {
       }
       false
     }
-    Animation(path) => {
-      for asset_ref in model.animation_refs {
+    AnimationClip(path) => {
+      for asset_ref in model.animation_clip_refs {
+        if asset_ref.path == path {
+          return true
+        }
+      }
+      false
+    }
+    AnimationGraph(path) => {
+      for asset_ref in model.animation_graph_refs {
         if asset_ref.path == path {
           return true
         }
@@ -1579,11 +1654,11 @@ fn visible_resources_in_order(model : Model) -> Array[ResourceSelection] {
     }
   }
 
-  if model.animations_section_expanded || force_expand_sections {
+  if model.animation_clips_section_expanded || force_expand_sections {
     let animation_paths : Array[String] = []
-    for animation_ref in model.animation_refs {
+    for animation_ref in model.animation_clip_refs {
       let animation_name = match
-        model.animation_documents.get(animation_ref.path) {
+        model.animation_clip_documents.get(animation_ref.path) {
         Some(animation) => animation.name
         None => asset_basename(animation_ref.path)
       }
@@ -1592,7 +1667,24 @@ fn visible_resources_in_order(model : Model) -> Array[ResourceSelection] {
       }
     }
     for path in sorted_strings(animation_paths) {
-      resources.push(Animation(path))
+      resources.push(AnimationClip(path))
+    }
+  }
+
+  if model.animation_graphs_section_expanded || force_expand_sections {
+    let animation_paths : Array[String] = []
+    for animation_ref in model.animation_graph_refs {
+      let animation_name = match
+        model.animation_graph_documents.get(animation_ref.path) {
+        Some(animation) => animation.name
+        None => asset_basename(animation_ref.path)
+      }
+      if model.asset_matches_query(animation_name, animation_ref.path) {
+        animation_paths.push(animation_ref.path)
+      }
+    }
+    for path in sorted_strings(animation_paths) {
+      resources.push(AnimationGraph(path))
     }
   }
 
@@ -1636,7 +1728,9 @@ fn with_expanded_section_for_selection(
   match selection {
     Some(Image(_)) => { ..model, images_section_expanded: true }
     Some(Atlas(_)) => { ..model, atlases_section_expanded: true }
-    Some(Animation(_)) => { ..model, animations_section_expanded: true }
+    Some(AnimationClip(_)) => { ..model, animation_clips_section_expanded: true }
+    Some(AnimationGraph(_)) =>
+      { ..model, animation_graphs_section_expanded: true }
     Some(Prefab(_)) => { ..model, prefabs_section_expanded: true }
     None => model
   }
@@ -1741,12 +1835,26 @@ pub fn Model::selected_atlas_document(
 }
 
 ///|
-pub fn Model::selected_animation_document(
+pub fn Model::selected_animation_clip_document(
   self : Model,
-) -> (String, @editor_bridge.AnimationAssetDocument)? {
+) -> (String, @editor_bridge.AnimationClipAssetDocument)? {
   match self.selected_resource {
-    Some(Animation(path)) =>
-      match self.animation_documents.get(path) {
+    Some(AnimationClip(path)) =>
+      match self.animation_clip_documents.get(path) {
+        Some(animation) => Some((path, animation))
+        None => None
+      }
+    _ => None
+  }
+}
+
+///|
+pub fn Model::selected_animation_graph_document(
+  self : Model,
+) -> (String, @editor_bridge.AnimationGraphAssetDocument)? {
+  match self.selected_resource {
+    Some(AnimationGraph(path)) =>
+      match self.animation_graph_documents.get(path) {
         Some(animation) => Some((path, animation))
         None => None
       }
@@ -1805,7 +1913,8 @@ pub fn Model::selected_resource_path(self : Model) -> String? {
   match self.selected_resource {
     Some(Image(path)) => Some(path)
     Some(Atlas(path)) => Some(path)
-    Some(Animation(path)) => Some(path)
+    Some(AnimationClip(path)) => Some(path)
+    Some(AnimationGraph(path)) => Some(path)
     Some(Prefab(path)) => Some(path)
     None => None
   }
@@ -1850,7 +1959,8 @@ fn resource_selection_section_key(selection : ResourceSelection) -> String {
   match selection {
     Image(_) => "images"
     Atlas(_) => "atlases"
-    Animation(_) => "animations"
+    AnimationClip(_) => "animation-clips"
+    AnimationGraph(_) => "animation-graphs"
     Prefab(_) => "prefabs"
   }
 }
@@ -1860,7 +1970,8 @@ fn resource_selection_root_folder(selection : ResourceSelection) -> String {
   match selection {
     Image(_) => "assets"
     Atlas(_) => "assets"
-    Animation(_) => "assets"
+    AnimationClip(_) => "assets"
+    AnimationGraph(_) => "assets"
     Prefab(_) => "prefabs"
   }
 }
@@ -1870,7 +1981,8 @@ fn resource_selection_path(selection : ResourceSelection) -> String {
   match selection {
     Image(path) => path
     Atlas(path) => path
-    Animation(path) => path
+    AnimationClip(path) => path
+    AnimationGraph(path) => path
     Prefab(path) => path
   }
 }
@@ -1957,10 +2069,19 @@ fn all_asset_tree_folder_keys(model : Model) -> Array[String] {
   for atlas in model.atlas_refs {
     collect_folder_keys_for_path(atlas.path, "atlases", "assets", seen, keys)
   }
-  for animation in model.animation_refs {
+  for animation in model.animation_clip_refs {
     collect_folder_keys_for_path(
       animation.path,
-      "animations",
+      "animation-clips",
+      "assets",
+      seen,
+      keys,
+    )
+  }
+  for animation in model.animation_graph_refs {
+    collect_folder_keys_for_path(
+      animation.path,
+      "animation-graphs",
       "assets",
       seen,
       keys,
@@ -2282,15 +2403,30 @@ fn update_selected_atlas_document(
 }
 
 ///|
-fn update_selected_animation_document(
+fn update_selected_animation_clip_document(
   model : Model,
-  updater : (@editor_bridge.AnimationAssetDocument) -> @editor_bridge.AnimationAssetDocument,
+  updater : (@editor_bridge.AnimationClipAssetDocument) -> @editor_bridge.AnimationClipAssetDocument,
 ) -> Model {
-  match model.selected_animation_document() {
+  match model.selected_animation_clip_document() {
     Some((path, animation)) => {
-      let animation_documents = model.animation_documents
-      animation_documents.set(path, updater(animation))
-      { ..model, animation_documents, }
+      let animation_clip_documents = model.animation_clip_documents
+      animation_clip_documents.set(path, updater(animation))
+      { ..model, animation_clip_documents, }
+    }
+    None => model
+  }
+}
+
+///|
+fn update_selected_animation_graph_document(
+  model : Model,
+  updater : (@editor_bridge.AnimationGraphAssetDocument) -> @editor_bridge.AnimationGraphAssetDocument,
+) -> Model {
+  match model.selected_animation_graph_document() {
+    Some((path, animation)) => {
+      let animation_graph_documents = model.animation_graph_documents
+      animation_graph_documents.set(path, updater(animation))
+      { ..model, animation_graph_documents, }
     }
     None => model
   }
@@ -2389,7 +2525,8 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
               let scene_refs = response.scenes
               let prefab_refs = response.prefabs
               let atlas_refs = response.atlases
-              let animation_refs = response.animations
+              let animation_clip_refs = response.animation_clips
+              let animation_graph_refs = response.animation_graphs
               let move_snap_enabled = loaded_workspace.move_snap_enabled_or_default()
               let move_snap_step = nearest_move_snap_step(
                 loaded_workspace.move_snap_step_or_default(),
@@ -2417,7 +2554,8 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                 scene_refs,
                 prefab_refs,
                 atlas_refs,
-                animation_refs,
+                animation_clip_refs,
+                animation_graph_refs,
                 workspace,
                 recent_projects: response.recent_projects,
                 scene_path,
@@ -2459,12 +2597,20 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
               atlas_refs.push(@editor_bridge.asset_ref(entry.path))
             }
           }
-          let animation_documents = model.animation_documents
-          let animation_refs = model.animation_refs
-          for entry in response.animation_assets {
-            animation_documents.set(entry.path, entry.animation)
-            if !asset_ref_exists(animation_refs, entry.path) {
-              animation_refs.push(@editor_bridge.asset_ref(entry.path))
+          let animation_clip_documents = model.animation_clip_documents
+          let animation_clip_refs = model.animation_clip_refs
+          for entry in response.animation_clip_assets {
+            animation_clip_documents.set(entry.path, entry.clip)
+            if !asset_ref_exists(animation_clip_refs, entry.path) {
+              animation_clip_refs.push(@editor_bridge.asset_ref(entry.path))
+            }
+          }
+          let animation_graph_documents = model.animation_graph_documents
+          let animation_graph_refs = model.animation_graph_refs
+          for entry in response.animation_graph_assets {
+            animation_graph_documents.set(entry.path, entry.graph)
+            if !asset_ref_exists(animation_graph_refs, entry.path) {
+              animation_graph_refs.push(@editor_bridge.asset_ref(entry.path))
             }
           }
           let workspace = model.workspace
@@ -2479,8 +2625,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             workspace,
             atlas_documents,
             atlas_refs,
-            animation_documents,
-            animation_refs,
+            animation_clip_documents,
+            animation_graph_documents,
+            animation_clip_refs,
+            animation_graph_refs,
             selected_entity_id: workspace.selected_entity_id,
             pending_scene_migration: None,
             add_component_panel_open: false,
@@ -2641,17 +2789,30 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           ([], { ..next, status: "Atlas load failed: " + message })
         }
       }
-    AnimationLoaded(result) =>
+    AnimationClipLoaded(result) =>
       match result {
         Ok(response) => {
-          let animation_documents = model.animation_documents
-          animation_documents.set(response.path, response.animation)
-          let next = { ..model, animation_documents, }
+          let animation_clip_documents = model.animation_clip_documents
+          animation_clip_documents.set(response.path, response.clip)
+          let next = { ..model, animation_clip_documents, }
           (sync_preview_effects_with_scene(next), next)
         }
         Err(message) => {
-          let next = push_log(model, "Animation load failed: " + message)
-          ([], { ..next, status: "Animation load failed: " + message })
+          let next = push_log(model, "Animation clip load failed: " + message)
+          ([], { ..next, status: "Animation clip load failed: " + message })
+        }
+      }
+    AnimationGraphLoaded(result) =>
+      match result {
+        Ok(response) => {
+          let animation_graph_documents = model.animation_graph_documents
+          animation_graph_documents.set(response.path, response.graph)
+          let next = { ..model, animation_graph_documents, }
+          (sync_preview_effects_with_scene(next), next)
+        }
+        Err(message) => {
+          let next = push_log(model, "Animation graph load failed: " + message)
+          ([], { ..next, status: "Animation graph load failed: " + message })
         }
       }
     AssetSizeResolved(path, width, height) =>
@@ -2731,6 +2892,9 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
               ([], push_log(model, "[\{label}] \{message}"))
             @shared.FilesChanged(_)
             | @shared.SceneSaved(_)
+            | @shared.AnimationClipSaved(_)
+            | @shared.AnimationGraphSaved(_)
+            | @shared.AnimationMigrated(..)
             | @shared.AssetImported(_) =>
               (
                 [
@@ -2835,12 +2999,20 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         [],
         { ..model, atlases_section_expanded: !model.atlases_section_expanded },
       )
-    ToggleAnimationsSection =>
+    ToggleAnimationClipsSection =>
       (
         [],
         {
           ..model,
-          animations_section_expanded: !model.animations_section_expanded,
+          animation_clips_section_expanded: !model.animation_clips_section_expanded,
+        },
+      )
+    ToggleAnimationGraphsSection =>
+      (
+        [],
+        {
+          ..model,
+          animation_graphs_section_expanded: !model.animation_graphs_section_expanded,
         },
       )
     TogglePrefabsSection =>
@@ -3175,27 +3347,38 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     CreateAnimationFromSelectedAtlas =>
       match model.selected_atlas_document() {
         Some((path, atlas)) => {
-          let animation = animation_document_from_atlas(path, atlas)
-          let animation_path = "assets/animations/" +
-            @editor_bridge.animation_asset_file_name(animation.name)
-          let animation_documents = model.animation_documents
-          animation_documents.set(animation_path, animation)
-          let animation_refs = model.animation_refs
-          if !asset_ref_exists(animation_refs, animation_path) {
-            animation_refs.push(@editor_bridge.asset_ref(animation_path))
+          let clip = animation_clip_document_from_atlas(path, atlas)
+          let clip_path = "assets/animation_clips/" +
+            @editor_bridge.animation_clip_asset_file_name(clip.name)
+          let graph = animation_graph_document_for_clip(clip_path, clip)
+          let graph_path = "assets/animation_graphs/" +
+            @editor_bridge.animation_graph_asset_file_name(graph.name)
+          let animation_clip_documents = model.animation_clip_documents
+          animation_clip_documents.set(clip_path, clip)
+          let animation_clip_refs = model.animation_clip_refs
+          if !asset_ref_exists(animation_clip_refs, clip_path) {
+            animation_clip_refs.push(@editor_bridge.asset_ref(clip_path))
+          }
+          let animation_graph_documents = model.animation_graph_documents
+          animation_graph_documents.set(graph_path, graph)
+          let animation_graph_refs = model.animation_graph_refs
+          if !asset_ref_exists(animation_graph_refs, graph_path) {
+            animation_graph_refs.push(@editor_bridge.asset_ref(graph_path))
           }
           let next = {
             ..model,
-            animation_documents,
-            animation_refs,
+            animation_clip_documents,
+            animation_graph_documents,
+            animation_clip_refs,
+            animation_graph_refs,
             selected_resource: Some(
-              resource_selection_animation(animation_path),
+              resource_selection_animation_graph(graph_path),
             ),
             asset_tree_expanded: with_asset_tree_expanded_for_selection(
               model.asset_tree_expanded,
-              Some(resource_selection_animation(animation_path)),
+              Some(resource_selection_animation_graph(graph_path)),
             ),
-            status: "Created animation " + animation.name,
+            status: "Created animation graph " + graph.name,
           }
           let next = with_expanded_section_for_selection(
             next,
@@ -3205,7 +3388,11 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             [
               rpc_effect(
                 SceneSaved,
-                @shared.rpc_request_animation_save(animation_path, animation),
+                @shared.rpc_request_animation_clip_save(clip_path, clip),
+              ),
+              rpc_effect(
+                SceneSaved,
+                @shared.rpc_request_animation_graph_save(graph_path, graph),
               ),
             ],
             next,
@@ -3289,25 +3476,86 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             }
             None => ([], model)
           }
-        (Some(scene), Some(Animation(path))) =>
-          match model.animation_documents.get(path) {
-            Some(animation) =>
-              match model.atlas_documents.get(animation.atlas_asset_path) {
+        (Some(scene), Some(AnimationClip(path))) =>
+          match model.animation_clip_documents.get(path) {
+            Some(clip) =>
+              match model.atlas_documents.get(clip.atlas_asset_path) {
                 Some(atlas) => {
-                  let (next_scene, id) = add_animation_asset_to_scene(
-                    scene,
-                    path,
-                    animation,
-                    atlas,
-                    next_resource_entity_translation(),
-                  )
-                  let next = {
-                    ..model,
-                    scene: Some(next_scene),
-                    selected_entity_id: Some(id),
+                  let mut graph_pair : (String, @editor_bridge.AnimationGraphAssetDocument)? = None
+                  for graph_path, graph in model.animation_graph_documents {
+                    let selected_clip_path = animation_graph_default_clip_path(
+                      graph,
+                    ).unwrap_or("")
+                    if selected_clip_path == path {
+                      graph_pair = Some((graph_path, graph))
+                      break
+                    }
                   }
-                  apply_scene_change(model, next)
+                  match graph_pair {
+                    Some((graph_path, graph)) => {
+                      let (next_scene, id) = add_animation_graph_asset_to_scene(
+                        scene,
+                        graph_path,
+                        graph,
+                        clip,
+                        atlas,
+                        next_resource_entity_translation(),
+                      )
+                      let next = {
+                        ..model,
+                        scene: Some(next_scene),
+                        selected_entity_id: Some(id),
+                      }
+                      apply_scene_change(model, next)
+                    }
+                    None => {
+                      let (next_scene, id) = add_atlas_asset_to_scene(
+                        scene,
+                        clip.atlas_asset_path,
+                        atlas,
+                        next_resource_entity_translation(),
+                      )
+                      let next = {
+                        ..model,
+                        scene: Some(next_scene),
+                        selected_entity_id: Some(id),
+                      }
+                      apply_scene_change(model, next)
+                    }
+                  }
                 }
+                None => ([], model)
+              }
+            None => ([], model)
+          }
+        (Some(scene), Some(AnimationGraph(path))) =>
+          match model.animation_graph_documents.get(path) {
+            Some(graph) =>
+              match animation_graph_default_clip_path(graph) {
+                Some(clip_path) =>
+                  match model.animation_clip_documents.get(clip_path) {
+                    Some(clip) =>
+                      match model.atlas_documents.get(clip.atlas_asset_path) {
+                        Some(atlas) => {
+                          let (next_scene, id) = add_animation_graph_asset_to_scene(
+                            scene,
+                            path,
+                            graph,
+                            clip,
+                            atlas,
+                            next_resource_entity_translation(),
+                          )
+                          let next = {
+                            ..model,
+                            scene: Some(next_scene),
+                            selected_entity_id: Some(id),
+                          }
+                          apply_scene_change(model, next)
+                        }
+                        None => ([], model)
+                      }
+                    None => ([], model)
+                  }
                 None => ([], model)
               }
             None => ([], model)
@@ -3719,74 +3967,76 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           )
         None => ([], model)
       }
-    UpdateSelectedAnimationName(value) => {
-      let next = update_selected_animation_document(model, fn(animation) {
+    UpdateSelectedAnimationClipAssetName(value) => {
+      let next = update_selected_animation_clip_document(model, fn(animation) {
         animation.with_name(value)
       })
       (sync_preview_effects_with_scene(next), next)
     }
-    UpdateSelectedAnimationDefaultClip(value) => {
-      let next = update_selected_animation_document(model, fn(animation) {
-        let next_default = value.trim().to_string()
-        animation.with_default_clip(
-          if next_default == "" {
-            None
-          } else {
-            Some(next_default)
-          },
+    UpdateSelectedAnimationGraphAssetName(value) => {
+      let next = update_selected_animation_graph_document(model, fn(animation) {
+        animation.with_name(value)
+      })
+      (sync_preview_effects_with_scene(next), next)
+    }
+    UpdateSelectedAnimationGraphDefaultNode(value) => {
+      let next = update_selected_animation_graph_document(model, fn(animation) {
+        let default_node = value.trim().to_string()
+        animation.with_default_node(
+          if default_node == "" { None } else { Some(default_node) },
         )
       })
       (sync_preview_effects_with_scene(next), next)
     }
     UpdateSelectedAnimationClipName(value) => {
-      let next = update_selected_animation_document(model, fn(animation) {
-        let clip = primary_animation_clip(animation)
-        let next_default = match animation.default_clip {
-          Some(current) if current == clip.name => Some(value)
-          _ => animation.default_clip
-        }
-        animation
-        .with_default_clip(next_default)
-        .with_clips([clip.with_name(value)])
+      let next = update_selected_animation_clip_document(model, fn(animation) {
+        animation.with_name(value)
       })
       (sync_preview_effects_with_scene(next), next)
     }
     UpdateSelectedAnimationClipFps(value) => {
-      let next = update_selected_animation_document(model, fn(animation) {
-        let clip = primary_animation_clip(animation)
-        animation.with_clips([
-          clip.with_fps(parse_positive_double_or(clip.fps, value)),
-        ])
+      let next = update_selected_animation_clip_document(model, fn(animation) {
+        animation.with_fps(parse_positive_double_or(animation.fps, value))
       })
       (sync_preview_effects_with_scene(next), next)
     }
     ToggleSelectedAnimationClipLooping => {
-      let next = update_selected_animation_document(model, fn(animation) {
-        let clip = primary_animation_clip(animation)
-        animation.with_clips([clip.with_looping(!clip.looping)])
+      let next = update_selected_animation_clip_document(model, fn(animation) {
+        animation.with_looping(!animation.looping)
       })
       (sync_preview_effects_with_scene(next), next)
     }
     UpdateSelectedAnimationClipFrames(value) => {
-      let next = update_selected_animation_document(model, fn(animation) {
-        let clip = primary_animation_clip(animation)
-        animation.with_clips([
-          clip.with_frames(parse_clip_frames(clip.frames, value)),
-        ])
+      let next = update_selected_animation_clip_document(model, fn(animation) {
+        animation.with_frames(parse_clip_frames(animation.frames, value))
       })
       (sync_preview_effects_with_scene(next), next)
     }
-    SaveSelectedAnimation =>
-      match model.selected_animation_document() {
-        Some((path, animation)) =>
+    SaveSelectedAnimationClip =>
+      match model.selected_animation_clip_document() {
+        Some((path, clip)) =>
           (
             [
               rpc_effect(
                 SceneSaved,
-                @shared.rpc_request_animation_save(path, animation),
+                @shared.rpc_request_animation_clip_save(path, clip),
               ),
             ],
-            { ..model, status: "Saving animation..." },
+            { ..model, status: "Saving animation clip..." },
+          )
+        None => ([], model)
+      }
+    SaveSelectedAnimationGraph =>
+      match model.selected_animation_graph_document() {
+        Some((path, graph)) =>
+          (
+            [
+              rpc_effect(
+                SceneSaved,
+                @shared.rpc_request_animation_graph_save(path, graph),
+              ),
+            ],
+            { ..model, status: "Saving animation graph..." },
           )
         None => ([], model)
       }

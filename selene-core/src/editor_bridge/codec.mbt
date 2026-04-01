@@ -5,7 +5,8 @@ pub suberror EditorBridgeDecodeError {
   InvalidSceneDocument(String)
   InvalidPrefabDocument(String)
   InvalidAtlasAssetDocument(String)
-  InvalidAnimationAssetDocument(String)
+  InvalidAnimationClipAssetDocument(String)
+  InvalidAnimationGraphAssetDocument(String)
   InvalidWorkspaceDocument(String)
 }
 
@@ -79,17 +80,31 @@ pub fn decode_atlas_asset_document(json : Json) -> AtlasAssetDocument raise {
 }
 
 ///|
-pub fn decode_animation_asset_document(
+pub fn decode_animation_clip_asset_document(
   json : Json,
-) -> AnimationAssetDocument raise {
-  let animation : AnimationAssetDocument = @json.from_json(json) catch {
-    err => raise InvalidAnimationAssetDocument(err.to_string())
+) -> AnimationClipAssetDocument raise {
+  let clip : AnimationClipAssetDocument = @json.from_json(json) catch {
+    err => raise InvalidAnimationClipAssetDocument(err.to_string())
   }
-  let errors = validate_animation_asset_document(animation)
+  let errors = validate_animation_clip_asset_document(clip)
   guard errors.is_empty() else {
-    raise InvalidAnimationAssetDocument(validation_error_message(errors))
+    raise InvalidAnimationClipAssetDocument(validation_error_message(errors))
   }
-  animation
+  clip
+}
+
+///|
+pub fn decode_animation_graph_asset_document(
+  json : Json,
+) -> AnimationGraphAssetDocument raise {
+  let graph : AnimationGraphAssetDocument = @json.from_json(json) catch {
+    err => raise InvalidAnimationGraphAssetDocument(err.to_string())
+  }
+  let errors = validate_animation_graph_asset_document(graph)
+  guard errors.is_empty() else {
+    raise InvalidAnimationGraphAssetDocument(validation_error_message(errors))
+  }
+  graph
 }
 
 ///|
@@ -194,18 +209,34 @@ pub fn decode_atlas_asset_document_status(
 }
 
 ///|
-pub fn decode_animation_asset_document_status(
+pub fn decode_animation_clip_asset_document_status(
   path : String,
   json : Json,
-) -> AnimationAssetDocumentLoadStatus raise {
+) -> AnimationClipAssetDocumentLoadStatus raise {
   migration_status_for(
     path,
     json,
-    decode_animation_asset_document,
-    animation_asset_migration_preview,
-    fn(animation) { Ready(animation) },
+    decode_animation_clip_asset_document,
+    animation_clip_asset_migration_preview,
+    fn(clip) { Ready(clip) },
     fn(preview) { MigrationRequired(preview) },
-    AnimationAssetDocumentMigrator::{  },
+    AnimationClipAssetDocumentMigrator::{  },
+  )
+}
+
+///|
+pub fn decode_animation_graph_asset_document_status(
+  path : String,
+  json : Json,
+) -> AnimationGraphAssetDocumentLoadStatus raise {
+  migration_status_for(
+    path,
+    json,
+    decode_animation_graph_asset_document,
+    animation_graph_asset_migration_preview,
+    fn(graph) { Ready(graph) },
+    fn(preview) { MigrationRequired(preview) },
+    AnimationGraphAssetDocumentMigrator::{  },
   )
 }
 
@@ -254,12 +285,23 @@ pub fn migrate_atlas_asset_document_json(
 }
 
 ///|
-pub fn migrate_animation_asset_document_json(
+pub fn migrate_animation_clip_asset_document_json(
   path : String,
   json : Json,
-) -> AnimationAssetDocument raise {
-  match decode_animation_asset_document_status(path, json) {
-    Ready(animation) => animation
-    MigrationRequired(preview) => preview.animation
+) -> AnimationClipAssetDocument raise {
+  match decode_animation_clip_asset_document_status(path, json) {
+    Ready(clip) => clip
+    MigrationRequired(preview) => preview.clip
+  }
+}
+
+///|
+pub fn migrate_animation_graph_asset_document_json(
+  path : String,
+  json : Json,
+) -> AnimationGraphAssetDocument raise {
+  match decode_animation_graph_asset_document_status(path, json) {
+    Ready(graph) => graph
+    MigrationRequired(preview) => preview.graph
   }
 }
