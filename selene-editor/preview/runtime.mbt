@@ -408,6 +408,14 @@ fn overlay_bounds() -> (@math.Vec2D, @math.Vec2D)? {
   guard preview_state.selected_entity_id is Some(id) else { return None }
   guard scene.entity(id) is Some(document) else { return None }
   let transform = @editor_bridge.decoded_transform(document)
+  document_visual_bounds(document, transform)
+}
+
+///|
+fn document_visual_bounds(
+  document : @editor_bridge.EntityDocument,
+  transform : @editor_bridge.Transform2dComponent,
+) -> (@math.Vec2D, @math.Vec2D)? {
   if document.component("Sprite") is Some(component) {
     let sprite_data : @editor_bridge.SpriteComponent = match
       @editor_bridge.decode_component(Some(component)) {
@@ -484,7 +492,84 @@ fn overlay_bounds() -> (@math.Vec2D, @math.Vec2D)? {
       (@math.Vec2D(min_x, min_y), @math.Vec2D(scaled_width, scaled_height)),
     )
   }
-  None
+  Some(
+    (
+      @math.Vec2D(transform.translation.x, transform.translation.y),
+      @math.Vec2D(0.0, 0.0),
+    ),
+  )
+}
+
+///|
+fn scene_visual_bounds() -> (@math.Vec2D, @math.Vec2D)? {
+  guard preview_state.current_scene is Some(scene) else { return None }
+  let mut has_bounds = false
+  let mut min_x = 0.0
+  let mut min_y = 0.0
+  let mut max_x = 0.0
+  let mut max_y = 0.0
+  for document in scene.entities {
+    if document.component("Camera2d") is Some(_) {
+      continue
+    }
+    let transform = @editor_bridge.decoded_transform(document)
+    guard document_visual_bounds(document, transform) is Some((position, size)) else {
+      continue
+    }
+    let left = position[X]
+    let top = position[Y]
+    let right = position[X] + size[X]
+    let bottom = position[Y] + size[Y]
+    if !has_bounds {
+      has_bounds = true
+      min_x = left
+      min_y = top
+      max_x = right
+      max_y = bottom
+    } else {
+      if left < min_x {
+        min_x = left
+      }
+      if top < min_y {
+        min_y = top
+      }
+      if right > max_x {
+        max_x = right
+      }
+      if bottom > max_y {
+        max_y = bottom
+      }
+    }
+  }
+  if !has_bounds {
+    None
+  } else {
+    Some((@math.Vec2D(min_x, min_y), @math.Vec2D(max_x - min_x, max_y - min_y)))
+  }
+}
+
+///|
+fn align_camera_to_scene_top_left() -> Unit {
+  guard editor_camera_entity() is Some(camera_entity) else { return }
+  guard scene_visual_bounds() is Some((position, _size)) else { return }
+  let projection = @camera.orthographic_projections()
+    .get(camera_entity)
+    .unwrap_or(@camera.OrthographicProjection::new(scale=1.0))
+  let view_width = editor_viewport_width * projection.scale
+  let view_height = editor_viewport_height * projection.scale
+  let transform = @transform.transforms()
+    .get(camera_entity)
+    .unwrap_or(@transform.Transform::identity())
+  @transform.transforms().set(
+    camera_entity,
+    transform.with_translation(
+      @math.Vec3::new(
+        position[X] + view_width * 0.5,
+        position[Y] + view_height * 0.5,
+        transform.translation.z,
+      ),
+    ),
+  )
 }
 
 ///|
@@ -794,10 +879,14 @@ fn preview_startup_system(_world : @ecs.World) -> Unit {
 ///|
 fn preview_scene_sync_system(_world : @ecs.World) -> Unit {
   if preview_state.pending_scene is Some(payload) {
+    let should_align_viewport = preview_state.current_scene is None
     spawn_scene_entities(payload)
     preview_state.current_scene = Some(payload.scene)
     preview_state.pending_scene = None
     preview_state.tool_drag = None
+    if should_align_viewport {
+      align_camera_to_scene_top_left()
+    }
   }
   apply_selection_overlay()
   apply_pivot_overlay()
@@ -857,10 +946,8 @@ fn preview_camera_control_system(_world : @ecs.World) -> Unit {
   }
   let pan_active = pointer_pan_active()
   if !@inputs.mouse.middle_button &&
-    !(
-      preview_state.active_tool == @shared.preview_tool_drag_canvas() &&
-      @inputs.mouse.left_button
-    ) {
+    !(preview_state.active_tool == @shared.preview_tool_drag_canvas() &&
+    @inputs.mouse.left_button) {
     preview_state.camera_pan_anchor = None
   }
   if pan_active && preview_state.camera_pan_anchor is Some(anchor) {
@@ -893,7 +980,11 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
   guard world_point_from_mouse() is Some(world_point) else { return }
   let pointer_inside = pointer_over_canvas() &&
     inside_editor_viewport(normalized_mouse_position())
-  let hovered = if pointer_inside { pick_entity_id_at(world_point) } else { None }
+  let hovered = if pointer_inside {
+    pick_entity_id_at(world_point)
+  } else {
+    None
+  }
   if hovered != preview_state.hovered_entity_id {
     preview_state.hovered_entity_id = hovered
     emit_preview_event(@bridge.preview_event_hover_changed(hovered))

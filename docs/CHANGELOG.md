@@ -59,6 +59,7 @@
 - Fixed `selene-editor` Assets panel overflow regressions by separating the fixed `Filter Assets` toolbar from the scrollable tree viewport and moving ancestor stickiness into a dedicated header layer, eliminating horizontal overdraw into the viewport.
 - Fixed `selene-editor` tree-row overflow with long resource names by enforcing truncation-safe flex constraints (`min-width: 0`, ellipsis labels, non-shrinking badges) across asset rows and scene browser rows.
 - Fixed `selene-editor` long-name overflow in Assets/Scene trees by enforcing right-boundary ellipsis truncation from container layout constraints (`min-width: 0` + `overflow: hidden` + `text-overflow: ellipsis`) and making row badges shrinkable; also reduced baseline UI text size to improve dense tree readability and prevent boundary overflow under long names.
+- Fixed `selene-editor` initial preview camera placement so first scene load aligns scene content to the viewport's top-left instead of leaving positive-coordinate scenes offset toward the center/right-bottom.
 
 ### Removed
 
