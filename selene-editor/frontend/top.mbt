@@ -2077,6 +2077,110 @@ fn animation_graph_node_clip_path(
 }
 
 ///|
+fn animation_graph_axis_bounds(values : Array[Double]) -> (Double, Double) {
+  if values.is_empty() {
+    return (0.0, 1.0)
+  }
+  let mut min_value = values[0]
+  let mut max_value = values[0]
+  for value in values[1:] {
+    if value < min_value {
+      min_value = value
+    }
+    if value > max_value {
+      max_value = value
+    }
+  }
+  if max_value - min_value < 0.001 {
+    (min_value - 1.0, max_value + 1.0)
+  } else {
+    (min_value, max_value)
+  }
+}
+
+///|
+fn animation_graph_canvas_project(
+  value : Double,
+  min_value : Double,
+  max_value : Double,
+  start : Double,
+  end_ : Double,
+) -> Double {
+  start + (value - min_value) * (end_ - start) / (max_value - min_value)
+}
+
+///|
+fn animation_graph_canvas_view(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  graph : @editor_bridge.AnimationGraphAssetDocument,
+) -> @rabbita.Html {
+  if graph.nodes.is_empty() {
+    return @html.div(class="graph-canvas-empty", "No nodes yet")
+  }
+  let x_values = graph.nodes.map(fn(node) { node.position.x })
+  let y_values = graph.nodes.map(fn(node) { node.position.y })
+  let (min_x, max_x) = animation_graph_axis_bounds(x_values)
+  let (min_y, max_y) = animation_graph_axis_bounds(y_values)
+  let node_items : Array[@rabbita.Html] = []
+  for node in graph.nodes {
+    let left = animation_graph_canvas_project(
+      node.position.x,
+      min_x,
+      max_x,
+      24.0,
+      336.0,
+    )
+    let top = animation_graph_canvas_project(
+      node.position.y,
+      min_y,
+      max_y,
+      24.0,
+      176.0,
+    )
+    let is_default = graph.default_node == Some(node.id)
+    node_items.push(
+      @html.button(
+        class=if is_default {
+          "graph-canvas-node default"
+        } else {
+          "graph-canvas-node"
+        },
+        style=["left: \{left}px", "top: \{top}px"],
+        on_click=dispatch(
+          @app.msg_update_selected_animation_graph_default_node(node.id),
+        ),
+        [
+          @html.span(class="graph-canvas-node-id", node.id),
+          @html.span(
+            class="graph-canvas-node-kind",
+            animation_graph_node_kind_label(node.kind),
+          ),
+        ],
+      ),
+    )
+  }
+  let edge_rows : Array[@rabbita.Html] = []
+  for node in graph.nodes {
+    for edge in node.edges {
+      edge_rows.push(
+        @html.div(
+          class="graph-canvas-edge-row",
+          node.id + " -> " + edge.to + "  (w=" + edge.weight.to_string() + ")",
+        ),
+      )
+    }
+  }
+  @html.div(class="graph-canvas-shell", [
+    @html.div(class="graph-canvas", node_items),
+    if edge_rows.is_empty() {
+      @html.div(class="graph-canvas-edge-empty", "No edges yet")
+    } else {
+      @html.div(class="graph-canvas-edge-list", edge_rows)
+    },
+  ])
+}
+
+///|
 fn animation_graph_edge_editor(
   dispatch : @rabbita.Dispatch[@app.Msg],
   node_id : String,
@@ -2829,6 +2933,7 @@ fn selected_asset_view(
                 @html.span(class="kv-key", "Node Count"),
                 @html.span(class="kv-value", graph.nodes.length().to_string()),
               ]),
+              animation_graph_canvas_view(dispatch, graph),
               @html.div(class="inspector-actions", [
                 @html.button(
                   class="small-button",

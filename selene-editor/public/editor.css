@@ -948,6 +948,83 @@ input {
   justify-self: start;
 }
 
+.graph-canvas-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.graph-canvas {
+  position: relative;
+  height: 200px;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(0deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px) 0 0 /
+      16px 16px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px) 0 0 /
+      16px 16px,
+    rgba(12, 22, 36, 0.75);
+  overflow: hidden;
+}
+
+.graph-canvas-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  min-width: 74px;
+  max-width: 120px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  cursor: pointer;
+}
+
+.graph-canvas-node.default {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(88, 166, 255, 0.25);
+}
+
+.graph-canvas-node-id {
+  font-size: 11px;
+  line-height: 1.1;
+}
+
+.graph-canvas-node-kind {
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.1;
+}
+
+.graph-canvas-edge-list {
+  border: 1px solid var(--border);
+  background: rgba(12, 22, 36, 0.55);
+  max-height: 112px;
+  overflow: auto;
+}
+
+.graph-canvas-edge-row {
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 11px;
+}
+
+.graph-canvas-edge-row:last-child {
+  border-bottom: none;
+}
+
+.graph-canvas-empty,
+.graph-canvas-edge-empty {
+  padding: 8px;
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+  color: var(--muted);
+  font-size: 11px;
+}
+
 .component-add-panel {
   border: 1px solid var(--border);
   background: var(--panel-2);
