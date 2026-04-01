@@ -124,6 +124,146 @@ test "query filter groups and contact force events work in 3d" {
 }
 
 ///|
+test "query filter exclude_entity and body filter work in 3d" {
+  with_physics3d_test_world(fn() raise {
+    let dynamic_entity = @entity.Entity::new()
+    @transform.transforms().set(
+      dynamic_entity,
+      @transform.Transform::from_xyz(2.0, 0.0, 0.0),
+    )
+    rigid_bodies().set(dynamic_entity, Dynamic)
+    colliders().set(dynamic_entity, Collider::ball(0.5))
+
+    let fixed_entity = @entity.Entity::new()
+    @transform.transforms().set(
+      fixed_entity,
+      @transform.Transform::from_xyz(5.0, 0.0, 0.0),
+    )
+    rigid_bodies().set(fixed_entity, Fixed)
+    colliders().set(fixed_entity, Collider::ball(0.5))
+
+    step_physics(1)
+
+    let all_hit = context()
+      .cast_ray(@math.Vec3::zero(), @math.Vec3::x_axis())
+      .unwrap()
+    inspect(all_hit.entity == dynamic_entity, content="true")
+
+    let fixed_hit = context()
+      .cast_ray(
+        @math.Vec3::zero(),
+        @math.Vec3::x_axis(),
+        query_filter=QueryFilter::only_fixed(),
+      )
+      .unwrap()
+    inspect(fixed_hit.entity == fixed_entity, content="true")
+
+    let excluded_hit = context()
+      .cast_ray(@math.Vec3::zero(), @math.Vec3::x_axis(), query_filter={
+        ..QueryFilter::all(),
+        exclude_entity: Some(dynamic_entity),
+      })
+      .unwrap()
+    inspect(excluded_hit.entity == fixed_entity, content="true")
+  })
+}
+
+///|
+test "query filter exclude_sensors and exclude_solids work in 3d" {
+  with_physics3d_test_world(fn() raise {
+    let sensor_entity = @entity.Entity::new()
+    @transform.transforms().set(
+      sensor_entity,
+      @transform.Transform::from_xyz(2.0, 0.0, 0.0),
+    )
+    colliders().set(sensor_entity, Collider::ball(0.5))
+    sensors().set(sensor_entity, Sensor::{  })
+
+    let solid_entity = @entity.Entity::new()
+    @transform.transforms().set(
+      solid_entity,
+      @transform.Transform::from_xyz(5.0, 0.0, 0.0),
+    )
+    colliders().set(solid_entity, Collider::ball(0.5))
+
+    step_physics(1)
+
+    let all_hit = context()
+      .cast_ray(@math.Vec3::zero(), @math.Vec3::x_axis())
+      .unwrap()
+    inspect(all_hit.entity == sensor_entity, content="true")
+
+    let no_sensor_hit = context()
+      .cast_ray(@math.Vec3::zero(), @math.Vec3::x_axis(), query_filter={
+        ..QueryFilter::all(),
+        exclude_sensors: true,
+      })
+      .unwrap()
+    inspect(no_sensor_hit.entity == solid_entity, content="true")
+
+    let no_solid_hit = context()
+      .cast_ray(@math.Vec3::zero(), @math.Vec3::x_axis(), query_filter={
+        ..QueryFilter::all(),
+        exclude_solids: true,
+      })
+      .unwrap()
+    inspect(no_solid_hit.entity == sensor_entity, content="true")
+  })
+}
+
+///|
+test "collision and intersection events map to selene event buses" {
+  with_physics3d_test_world(fn() raise {
+    let sensor_entity = @entity.Entity::new()
+    @transform.transforms().set(
+      sensor_entity,
+      @transform.Transform::from_xyz(10.0, 0.0, 0.0),
+    )
+    colliders().set(sensor_entity, Collider::ball(0.5))
+    sensors().set(sensor_entity, Sensor::{  })
+
+    let other_entity = @entity.Entity::new()
+    @transform.transforms().set(
+      other_entity,
+      @transform.Transform::from_xyz(20.0, 0.0, 0.0),
+    )
+    colliders().set(other_entity, Collider::ball(0.5))
+
+    step_physics(1)
+
+    let sensor_handle = collider_handle(sensor_entity).unwrap()
+    let other_handle = collider_handle(other_entity).unwrap()
+    let mut flags = @collision.CollisionEventFlags::empty()
+    flags = flags.insert(@collision.CollisionEventFlags::sensor())
+    physics3d_world().event_handler.push_collision_event(
+      @collision.CollisionEvent3D::Started(sensor_handle, other_handle, flags),
+    )
+    physics3d_world().event_handler.push_intersection_event(
+      @collision.IntersectionEvent3D::new(sensor_handle, other_handle, true),
+    )
+    collect_events()
+
+    let collision_reader : @event.EventReader[CollisionEvent] = @event.EventReader::new()
+    let collisions = collision_reader.read(collision_event_bus)
+    inspect(collisions.length(), content="1")
+    inspect(collisions[0].entity_a == sensor_entity, content="true")
+    inspect(collisions[0].entity_b == other_entity, content="true")
+    inspect(collisions[0].sensor, content="true")
+    inspect(collisions[0].started, content="true")
+
+    let sensor_reader : @event.EventReader[SensorEvent] = @event.EventReader::new()
+    let sensor_events = sensor_reader.read(sensor_event_bus)
+    inspect(sensor_events.length(), content="2")
+    inspect(sensor_events[0].sensor == sensor_entity, content="true")
+    inspect(sensor_events[0].other == other_entity, content="true")
+    inspect(sensor_events[0].entered, content="true")
+    inspect(sensor_events[1].sensor == sensor_entity, content="true")
+    inspect(sensor_events[1].other == other_entity, content="true")
+    inspect(sensor_events[1].entered, content="true")
+  })
+}
+
+///|
 test "rapier context project_point and intersections_with_shape work" {
   with_physics3d_test_world(fn() raise {
     let collider_entity = @entity.Entity::new()

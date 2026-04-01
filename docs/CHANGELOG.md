@@ -6,6 +6,7 @@
 
 - Added `selene/editor_bridge` built-in component metadata APIs for editor-facing component workflows: `BuiltinComponentKind`, string/enum mapping helpers, category/dependency queries, removability checks, default component factories, and ordered built-in component enumeration.
 - Added `docs/bevy-alignment-tracker.md` as the canonical markdown tracker for ongoing Bevy parity work (`BEVY-001...`) with explicit status and queue ownership.
+- Added `docs/bevy-rapier3d-parity-matrix.md` as the formal gap matrix for `selene/physics3d` vs `bevy_rapier3d`, with per-area status and explicit remaining closure steps.
 
 ### Changed
 
@@ -61,6 +62,7 @@
 - Changed `selene-editor` Image resource Inspector to render an inline preview image (loaded from `/project/...`) with load/error state handling, instead of text-only metadata.
 - Changed `selene-editor` preview bridge payload to carry explicit `scene_path`, and changed preview runtime scene sync to distinguish `scene switch` from `same-scene update` without heuristic fallback.
 - Changed `selene-editor` project-load state handling to require typed workspace payloads; missing workspace state is now treated as a protocol failure instead of silently defaulting.
+- Changed `selene/physics3d` parity verification coverage by extending 3D wbtests to include `QueryFilter` body-type/exclude-entity/exclude-sensors/exclude-solids behavior and collision/intersection event-bus mapping.
 
 ### Fixed
 
