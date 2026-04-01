@@ -917,6 +917,25 @@ input {
   margin: 0;
 }
 
+.graph-edge-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.graph-edge-row {
+  padding: 8px;
+  border: 1px solid var(--border);
+  background: rgba(12, 22, 36, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.graph-edge-remove {
+  justify-self: start;
+}
+
 .component-add-panel {
   border: 1px solid var(--border);
   background: var(--panel-2);

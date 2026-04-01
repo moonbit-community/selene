@@ -1958,14 +1958,35 @@ fn animation_graph_node_clip_path(
 }
 
 ///|
-fn animation_graph_node_edges_label(
-  node : @editor_bridge.AnimationGraphNodeDocument,
-) -> String {
-  let labels : Array[String] = []
-  for edge in node.edges {
-    labels.push(edge.to + " (\{edge.weight.to_string()})")
-  }
-  labels.join(", ")
+fn animation_graph_edge_editor(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  node_id : String,
+  edge_index : Int,
+  edge : @editor_bridge.AnimationGraphEdgeDocument,
+) -> @rabbita.Html {
+  @html.div(class="graph-edge-row", [
+    labeled_input("Target", edge.to, fn(value) {
+      dispatch(
+        @app.msg_update_selected_animation_graph_edge_target(
+          node_id, edge_index, value,
+        ),
+      )
+    }),
+    labeled_input("Weight", edge.weight.to_string(), fn(value) {
+      dispatch(
+        @app.msg_update_selected_animation_graph_edge_weight(
+          node_id, edge_index, value,
+        ),
+      )
+    }),
+    @html.button(
+      class="small-button graph-edge-remove",
+      on_click=dispatch(
+        @app.msg_remove_selected_animation_graph_edge(node_id, edge_index),
+      ),
+      "Remove Edge",
+    ),
+  ])
 }
 
 ///|
@@ -1975,6 +1996,19 @@ fn animation_graph_node_card(
   node : @editor_bridge.AnimationGraphNodeDocument,
 ) -> @rabbita.Html {
   let is_default = graph.default_node == Some(node.id)
+  let edge_editors : Array[@rabbita.Html] = []
+  for edge_index = 0
+      edge_index < node.edges.length()
+      edge_index = edge_index + 1 {
+    edge_editors.push(
+      animation_graph_edge_editor(
+        dispatch,
+        node.id,
+        edge_index,
+        node.edges[edge_index],
+      ),
+    )
+  }
   @html.div(class="component-card", [
     @html.div(class="component-card-header", [
       @html.span(
@@ -2002,13 +2036,15 @@ fn animation_graph_node_card(
           @html.span(class="kv-key", "Edges"),
           @html.span(class="kv-value", node.edges.length().to_string()),
         ]),
-        if node.edges.is_empty() {
-          @html.nothing
+        @html.button(
+          class="small-button",
+          on_click=dispatch(@app.msg_add_selected_animation_graph_edge(node.id)),
+          "Add Edge",
+        ),
+        if edge_editors.is_empty() {
+          @html.div(class="kv-value", "No edges yet")
         } else {
-          @html.div(class="kv", [
-            @html.span(class="kv-key", "Targets"),
-            @html.span(class="kv-value", animation_graph_node_edges_label(node)),
-          ])
+          @html.div(class="graph-edge-list", edge_editors)
         },
         match animation_graph_node_clip_path(node.kind) {
           Some(clip_path) =>

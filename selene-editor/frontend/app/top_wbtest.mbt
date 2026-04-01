@@ -1334,3 +1334,115 @@ test "updating clip path only affects clip nodes" {
     _ => inspect(false, content="true")
   }
 }
+
+///|
+test "adding graph edge links to another available node" {
+  let graph_path = "assets/animation_graphs/hero.graph.json"
+  let node_a = @editor_bridge.animation_graph_node_document(
+    "node-a",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let node_b = @editor_bridge.animation_graph_node_document(
+    "node-b",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let graph = @editor_bridge.animation_graph_asset_document(
+    "Hero Graph",
+    [node_a, node_b],
+    Some("node-a"),
+  )
+  let model = {
+    ..new_model(),
+    selected_resource: Some(resource_selection_animation_graph(graph_path)),
+    animation_graph_documents: {
+      "assets/animation_graphs/hero.graph.json": graph,
+    },
+  }
+  let (_, next) = update(msg_add_selected_animation_graph_edge("node-a"), model)
+  let updated = next.animation_graph_documents.get(graph_path).unwrap()
+  inspect(updated.nodes[0].edges.length(), content="1")
+  inspect(updated.nodes[0].edges[0].to, content="node-b")
+}
+
+///|
+test "editing graph edge target and weight persists values" {
+  let graph_path = "assets/animation_graphs/hero.graph.json"
+  let node_a = @editor_bridge.animation_graph_node_document(
+    "node-a",
+    @editor_bridge.animation_graph_node_kind_blend(),
+    edges=[@editor_bridge.animation_graph_edge_document("node-b")],
+  )
+  let node_b = @editor_bridge.animation_graph_node_document(
+    "node-b",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let node_c = @editor_bridge.animation_graph_node_document(
+    "node-c",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let graph = @editor_bridge.animation_graph_asset_document(
+    "Hero Graph",
+    [node_a, node_b, node_c],
+    Some("node-a"),
+  )
+  let model = {
+    ..new_model(),
+    selected_resource: Some(resource_selection_animation_graph(graph_path)),
+    animation_graph_documents: {
+      "assets/animation_graphs/hero.graph.json": graph,
+    },
+  }
+  let (_, target_updated) = update(
+    msg_update_selected_animation_graph_edge_target("node-a", 0, "node-c"),
+    model,
+  )
+  let (_, weight_updated) = update(
+    msg_update_selected_animation_graph_edge_weight("node-a", 0, "2.5"),
+    target_updated,
+  )
+  let updated = weight_updated.animation_graph_documents
+    .get(graph_path)
+    .unwrap()
+  inspect(updated.nodes[0].edges[0].to, content="node-c")
+  inspect(updated.nodes[0].edges[0].weight, content="2.5")
+}
+
+///|
+test "removing graph edge deletes selected edge index" {
+  let graph_path = "assets/animation_graphs/hero.graph.json"
+  let node_a = @editor_bridge.animation_graph_node_document(
+    "node-a",
+    @editor_bridge.animation_graph_node_kind_blend(),
+    edges=[
+      @editor_bridge.animation_graph_edge_document("node-b"),
+      @editor_bridge.animation_graph_edge_document("node-c"),
+    ],
+  )
+  let node_b = @editor_bridge.animation_graph_node_document(
+    "node-b",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let node_c = @editor_bridge.animation_graph_node_document(
+    "node-c",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let graph = @editor_bridge.animation_graph_asset_document(
+    "Hero Graph",
+    [node_a, node_b, node_c],
+    Some("node-a"),
+  )
+  let model = {
+    ..new_model(),
+    selected_resource: Some(resource_selection_animation_graph(graph_path)),
+    animation_graph_documents: {
+      "assets/animation_graphs/hero.graph.json": graph,
+    },
+  }
+  let (_, next) = update(
+    msg_remove_selected_animation_graph_edge("node-a", 0),
+    model,
+  )
+  let updated = next.animation_graph_documents.get(graph_path).unwrap()
+  inspect(updated.nodes[0].edges.length(), content="1")
+  inspect(updated.nodes[0].edges[0].to, content="node-c")
+}

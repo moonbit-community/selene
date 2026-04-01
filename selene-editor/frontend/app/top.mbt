@@ -183,6 +183,10 @@ pub enum Msg {
   AddSelectedAnimationGraphAdditiveBlendNode
   RemoveSelectedAnimationGraphNode(String)
   UpdateSelectedAnimationGraphNodeClipPath(String, String)
+  AddSelectedAnimationGraphEdge(String)
+  RemoveSelectedAnimationGraphEdge(String, Int)
+  UpdateSelectedAnimationGraphEdgeTarget(String, Int, String)
+  UpdateSelectedAnimationGraphEdgeWeight(String, Int, String)
   SaveSelectedAnimationClip
   SaveSelectedAnimationGraph
   RenameSelected(String)
@@ -669,6 +673,37 @@ pub fn msg_update_selected_animation_graph_node_clip_path(
   path : String,
 ) -> Msg {
   UpdateSelectedAnimationGraphNodeClipPath(id, path)
+}
+
+///|
+pub fn msg_add_selected_animation_graph_edge(node_id : String) -> Msg {
+  AddSelectedAnimationGraphEdge(node_id)
+}
+
+///|
+pub fn msg_remove_selected_animation_graph_edge(
+  node_id : String,
+  edge_index : Int,
+) -> Msg {
+  RemoveSelectedAnimationGraphEdge(node_id, edge_index)
+}
+
+///|
+pub fn msg_update_selected_animation_graph_edge_target(
+  node_id : String,
+  edge_index : Int,
+  target : String,
+) -> Msg {
+  UpdateSelectedAnimationGraphEdgeTarget(node_id, edge_index, target)
+}
+
+///|
+pub fn msg_update_selected_animation_graph_edge_weight(
+  node_id : String,
+  edge_index : Int,
+  value : String,
+) -> Msg {
+  UpdateSelectedAnimationGraphEdgeWeight(node_id, edge_index, value)
 }
 
 ///|
@@ -1675,6 +1710,156 @@ fn with_selected_animation_graph_clip_path_updated(
             )
           _ => nodes.push(node)
         }
+      } else {
+        nodes.push(node)
+      }
+    }
+    graph.with_nodes(nodes)
+  })
+}
+
+///|
+fn next_animation_graph_edge_target(
+  graph : @editor_bridge.AnimationGraphAssetDocument,
+  node_id : String,
+) -> String? {
+  for node in graph.nodes {
+    if node.id != node_id {
+      return Some(node.id)
+    }
+  }
+  None
+}
+
+///|
+fn with_selected_animation_graph_edge_added(
+  model : Model,
+  node_id : String,
+) -> Model {
+  update_selected_animation_graph_document(model, fn(graph) {
+    let nodes : Array[@editor_bridge.AnimationGraphNodeDocument] = []
+    let target = next_animation_graph_edge_target(graph, node_id)
+    for node in graph.nodes {
+      if node.id == node_id {
+        match target {
+          Some(target) => {
+            let mut exists = false
+            for edge in node.edges {
+              if edge.to == target {
+                exists = true
+                break
+              }
+            }
+            if exists {
+              nodes.push(node)
+            } else {
+              nodes.push(
+                node.with_edges(
+                  node.edges +
+                  [@editor_bridge.animation_graph_edge_document(target)],
+                ),
+              )
+            }
+          }
+          None => nodes.push(node)
+        }
+      } else {
+        nodes.push(node)
+      }
+    }
+    graph.with_nodes(nodes)
+  })
+}
+
+///|
+fn with_selected_animation_graph_edge_removed(
+  model : Model,
+  node_id : String,
+  edge_index : Int,
+) -> Model {
+  update_selected_animation_graph_document(model, fn(graph) {
+    let nodes : Array[@editor_bridge.AnimationGraphNodeDocument] = []
+    for node in graph.nodes {
+      if node.id == node_id {
+        let edges : Array[@editor_bridge.AnimationGraphEdgeDocument] = []
+        for index = 0; index < node.edges.length(); index = index + 1 {
+          if index != edge_index {
+            edges.push(node.edges[index])
+          }
+        }
+        nodes.push(node.with_edges(edges))
+      } else {
+        nodes.push(node)
+      }
+    }
+    graph.with_nodes(nodes)
+  })
+}
+
+///|
+fn with_selected_animation_graph_edge_target_updated(
+  model : Model,
+  node_id : String,
+  edge_index : Int,
+  target : String,
+) -> Model {
+  update_selected_animation_graph_document(model, fn(graph) {
+    let next_target = target.trim().to_string()
+    if next_target == "" {
+      return graph
+    }
+    let nodes : Array[@editor_bridge.AnimationGraphNodeDocument] = []
+    for node in graph.nodes {
+      if node.id == node_id {
+        let edges : Array[@editor_bridge.AnimationGraphEdgeDocument] = []
+        for index = 0; index < node.edges.length(); index = index + 1 {
+          let edge = node.edges[index]
+          if index == edge_index {
+            edges.push(
+              @editor_bridge.animation_graph_edge_document(
+                next_target,
+                weight=edge.weight,
+              ),
+            )
+          } else {
+            edges.push(edge)
+          }
+        }
+        nodes.push(node.with_edges(edges))
+      } else {
+        nodes.push(node)
+      }
+    }
+    graph.with_nodes(nodes)
+  })
+}
+
+///|
+fn with_selected_animation_graph_edge_weight_updated(
+  model : Model,
+  node_id : String,
+  edge_index : Int,
+  value : String,
+) -> Model {
+  update_selected_animation_graph_document(model, fn(graph) {
+    let nodes : Array[@editor_bridge.AnimationGraphNodeDocument] = []
+    for node in graph.nodes {
+      if node.id == node_id {
+        let edges : Array[@editor_bridge.AnimationGraphEdgeDocument] = []
+        for index = 0; index < node.edges.length(); index = index + 1 {
+          let edge = node.edges[index]
+          if index == edge_index {
+            edges.push(
+              @editor_bridge.animation_graph_edge_document(
+                edge.to,
+                weight=parse_positive_double_or(edge.weight, value),
+              ),
+            )
+          } else {
+            edges.push(edge)
+          }
+        }
+        nodes.push(node.with_edges(edges))
       } else {
         nodes.push(node)
       }
@@ -4274,6 +4459,37 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
     UpdateSelectedAnimationGraphNodeClipPath(id, path) => {
       let next = with_selected_animation_graph_clip_path_updated(
         model, id, path,
+      )
+      (sync_preview_effects_with_scene(next), next)
+    }
+    AddSelectedAnimationGraphEdge(node_id) => {
+      let next = with_selected_animation_graph_edge_added(model, node_id)
+      (
+        sync_preview_effects_with_scene(next),
+        { ..next, status: "Added edge for node: \{node_id}" },
+      )
+    }
+    RemoveSelectedAnimationGraphEdge(node_id, edge_index) => {
+      let next = with_selected_animation_graph_edge_removed(
+        model, node_id, edge_index,
+      )
+      (
+        sync_preview_effects_with_scene(next),
+        {
+          ..next,
+          status: "Removed edge #\{edge_index.to_string()} from \{node_id}",
+        },
+      )
+    }
+    UpdateSelectedAnimationGraphEdgeTarget(node_id, edge_index, target) => {
+      let next = with_selected_animation_graph_edge_target_updated(
+        model, node_id, edge_index, target,
+      )
+      (sync_preview_effects_with_scene(next), next)
+    }
+    UpdateSelectedAnimationGraphEdgeWeight(node_id, edge_index, value) => {
+      let next = with_selected_animation_graph_edge_weight_updated(
+        model, node_id, edge_index, value,
       )
       (sync_preview_effects_with_scene(next), next)
     }
