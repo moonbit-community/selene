@@ -22,6 +22,7 @@ body,
   height: 100%;
   overflow: hidden;
   font-family: "SF Mono", "Iosevka", "Menlo", monospace;
+  font-size: 12px;
   background: var(--bg);
   color: var(--text);
 }
@@ -117,12 +118,16 @@ input {
   grid-template-rows: auto minmax(220px, 1fr) minmax(200px, 0.85fr);
   gap: 8px;
   min-height: 0;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .panel {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  min-width: 0;
+  overflow: hidden;
   border: 1px solid var(--border);
   background: var(--panel);
 }
@@ -130,20 +135,26 @@ input {
 .panel h2 {
   margin: 0;
   padding: 10px 12px;
-  font-size: 14px;
+  font-size: 13px;
   border-bottom: 1px solid var(--border);
 }
 
 .panel-body {
   min-height: 0;
+  min-width: 0;
   overflow: hidden;
   padding: 12px;
 }
 
-.assets-panel .panel-body,
 .tree-panel .panel-body {
   overflow-y: auto;
   overflow-x: hidden;
+  position: relative;
+  contain: paint;
+}
+
+.assets-panel .panel-body {
+  overflow: hidden;
 }
 
 .inspector-panel .panel-body {
@@ -162,12 +173,6 @@ input {
     linear-gradient(135deg, rgba(88, 166, 255, 0.08), transparent 45%),
     linear-gradient(225deg, rgba(120, 255, 214, 0.06), transparent 50%),
     var(--panel);
-}
-
-.viewport-toolbar {
-  padding: 8px 12px;
-  color: var(--muted);
-  border-bottom: 1px solid var(--border);
 }
 
 .viewport-frame {
@@ -200,7 +205,7 @@ input {
 }
 
 .field-label {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted);
 }
 
@@ -230,7 +235,7 @@ input {
 }
 
 .icon-glyph {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   line-height: 1;
 }
@@ -273,7 +278,18 @@ input {
 }
 
 .tree-item {
+  display: block;
+  width: 100%;
+  inline-size: 100%;
+  max-inline-size: 100%;
   cursor: pointer;
+  min-width: 0;
+  max-width: 100%;
+  font-size: 12px;
+  line-height: 1.25;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .tree-item:hover {
@@ -285,6 +301,31 @@ input {
   flex-direction: column;
   gap: 12px;
   align-content: start;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.asset-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  min-width: 0;
+}
+
+.asset-tree-scroll {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  contain: paint;
+  padding-right: 2px;
 }
 
 .asset-card {
@@ -318,20 +359,32 @@ input {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .asset-tree-row {
   display: flex;
   align-items: center;
+  box-sizing: border-box;
+  inline-size: 100%;
+  max-inline-size: 100%;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   min-height: 26px;
   border: 1px solid transparent;
   border-radius: 0;
   padding: 2px 6px;
+  font-size: 12px;
+  line-height: 1.25;
   user-select: none;
   background: transparent;
   color: var(--text);
   text-align: left;
+  overflow: hidden;
 }
 
 .asset-tree-row.folder {
@@ -388,7 +441,9 @@ input {
 
 .asset-tree-label {
   min-width: 0;
-  flex: 1;
+  flex: 1 1 0;
+  display: block;
+  max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -399,12 +454,18 @@ input {
 }
 
 .asset-tree-badge {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 56px;
   margin-left: 8px;
   padding: 1px 5px;
   border: 1px solid rgba(88, 166, 255, 0.24);
   background: rgba(88, 166, 255, 0.08);
   color: var(--accent);
-  font-size: 10px;
+  font-size: 9px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .asset-section {
@@ -451,6 +512,29 @@ input {
   padding: 4px 0 0;
 }
 
+.asset-tree-sticky-ancestors {
+  position: sticky;
+  top: 0;
+  z-index: 24;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  background: var(--panel);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.asset-tree-row.sticky-header {
+  width: 100%;
+  max-width: 100%;
+  background: rgba(20, 31, 44, 0.98);
+  color: var(--muted);
+  cursor: default;
+  pointer-events: none;
+}
+
 .asset-thumb {
   width: 92px;
   height: 92px;
@@ -484,7 +568,7 @@ input {
 }
 
 .asset-name {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text);
   word-break: break-word;
@@ -503,31 +587,6 @@ input {
   background: rgba(88, 166, 255, 0.08);
   color: var(--accent);
   font-size: 11px;
-}
-
-.asset-selection-banner {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border: 1px solid var(--border);
-  background: var(--panel-2);
-}
-
-.asset-selection-banner.empty {
-  color: var(--muted);
-}
-
-.asset-selection-label {
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.asset-selection-value {
-  font-size: 13px;
-  color: var(--text);
 }
 
 .tree-item {
@@ -580,6 +639,7 @@ input {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  min-width: 0;
   overflow-y: auto;
   scrollbar-width: none;
 }
@@ -590,6 +650,9 @@ input {
 }
 
 .scene-pill {
+  flex: 0 0 auto;
+  min-width: 0;
+  max-width: 86px;
   margin-left: auto;
   padding: 2px 6px;
   border: 1px solid rgba(88, 166, 255, 0.22);
@@ -597,6 +660,24 @@ input {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scene-browser-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.scene-browser-path {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .kv {
@@ -616,21 +697,21 @@ input {
 }
 
 .asset-search-input {
-  margin-bottom: 4px;
+  margin-bottom: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .asset-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background: linear-gradient(
-    to bottom,
-    rgba(17, 27, 40, 0.98),
-    rgba(17, 27, 40, 0.94)
-  );
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 8px;
-  margin-bottom: 8px;
+  position: static;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+  flex: 0 0 auto;
+  background: transparent;
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
 }
 
 .asset-tree-actions {
@@ -642,7 +723,7 @@ input {
 
 .asset-tree-summary {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 0.04em;
 }
 

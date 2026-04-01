@@ -217,14 +217,6 @@ extern "js" fn subscribe_shortcuts_forever(
   #|   onOpenAddComponent,
   #|   onClearSelection
   #| ) => {
-  #|   const focusAssetSearch = () => {
-  #|     const input = document.querySelector(".asset-search-input");
-  #|     if (!input) return;
-  #|     input.focus();
-  #|     if (typeof input.select === "function") {
-  #|       input.select();
-  #|     }
-  #|   };
   #|   const isEditable = (target) => {
   #|     if (!target) return false;
   #|     const tag = (target.tagName || "").toLowerCase();
@@ -253,11 +245,6 @@ extern "js" fn subscribe_shortcuts_forever(
   #|       if (key === "s") {
   #|         event.preventDefault();
   #|         onSave();
-  #|         return;
-  #|       }
-  #|       if (key === "f") {
-  #|         event.preventDefault();
-  #|         focusAssetSearch();
   #|         return;
   #|       }
   #|       return;
@@ -365,11 +352,6 @@ extern "js" fn subscribe_shortcuts_forever(
   #|     if (key === "escape") {
   #|       event.preventDefault();
   #|       onClearSelection();
-  #|       return;
-  #|     }
-  #|     if (key === "/") {
-  #|       event.preventDefault();
-  #|       focusAssetSearch();
   #|       return;
   #|     }
   #|   });
@@ -887,6 +869,46 @@ fn tree_path_segments(path : String, drop_root : String?) -> Array[String] {
 }
 
 ///|
+fn selected_resource_tree_info(
+  selection : @app.ResourceSelection,
+) -> (String, String) {
+  match selection {
+    @app.Image(path) => ("assets", path)
+    @app.Atlas(path) => ("assets", path)
+    @app.Animation(path) => ("assets", path)
+    @app.Prefab(path) => ("prefabs", path)
+  }
+}
+
+///|
+fn sticky_asset_ancestor_row(depth : Int, label : String) -> @rabbita.Html {
+  let children = tree_row_indents(depth)
+  children.push(@html.span(class="asset-tree-node", "▾"))
+  children.push(@html.span(class="asset-tree-label folder", label))
+  @html.div(class="asset-tree-row sticky-header", children)
+}
+
+///|
+fn selected_resource_ancestor_rows(model : @app.Model) -> Array[@rabbita.Html] {
+  match model.selected_resource {
+    None => []
+    Some(selection) => {
+      let (root, path) = selected_resource_tree_info(selection)
+      let segments = tree_path_segments(path, Some(root))
+      if segments.length() <= 1 {
+        []
+      } else {
+        let rows : Array[@rabbita.Html] = []
+        for index = 0; index < segments.length() - 1; index = index + 1 {
+          rows.push(sticky_asset_ancestor_row(index, segments[index]))
+        }
+        rows
+      }
+    }
+  }
+}
+
+///|
 fn common_prefix_len(left : Array[String], right : Array[String]) -> Int {
   let limit = if left.length() < right.length() {
     left.length()
@@ -1180,9 +1202,6 @@ fn asset_panel_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.Model,
 ) -> @rabbita.Html {
-  let can_insert_selected = model.scene is Some(_) &&
-    model.selected_resource is Some(_)
-  let can_clear_selected = model.selected_resource is Some(_)
   let has_asset_filter = model.asset_query_normalized() != ""
   let force_expand_tree = model.asset_query_normalized() != ""
   let force_expand_sections = force_expand_tree
@@ -1281,125 +1300,17 @@ fn asset_panel_view(
     fn(_path) { "prefab" },
     fn(_path) { None },
   )
-  let visible_count = image_paths.length() +
-    atlas_paths.length() +
-    animation_paths.length() +
-    prefab_paths.length()
-  let asset_search_attrs = @html.Attrs::build().handler("keydown", fn(
-    event,
-    scheduler,
-  ) {
-    if input_event_is_escape_key(event) {
-      event.prevent_default()
-      input_event_blur_target(event)
-      schedule_cmd(scheduler, dispatch(@app.msg_set_asset_query("")))
-    }
-  })
-
   let toolbar = @html.div(class="asset-toolbar", [
-    match model.selected_resource_path() {
-      Some(path) =>
-        @html.div(class="asset-selection-banner", [
-          @html.span(class="asset-selection-label", "Selected"),
-          @html.span(
-            class="asset-selection-value",
-            asset_display_name_from_path(path),
-          ),
-        ])
-      None =>
-        @html.div(
-          class="asset-selection-banner empty",
-          "Select an asset/resource (↑/↓/Home/End/PageUp/PageDown), insert with Enter, quick-search with Cmd/Ctrl+F, clear with Esc",
-        )
-    },
     @html.input(
       class="field-input asset-search-input",
       value=model.asset_query,
-      placeholder="Filter assets... (⌘/Ctrl+F or /)",
+      placeholder="Filter Assets",
       on_input=fn(value) { dispatch(@app.msg_set_asset_query(value)) },
-      attrs=asset_search_attrs,
       @html.nothing,
     ),
-    @html.div(class="asset-tree-actions", [
-      @html.button(
-        class=if has_asset_filter {
-          "small-button"
-        } else {
-          "small-button disabled"
-        },
-        attrs=if has_asset_filter {
-          hint_attrs(dispatch, "Clear asset search filter")
-        } else {
-          @html.Attrs::build()
-        },
-        on_click=if has_asset_filter {
-          dispatch(@app.msg_set_asset_query(""))
-        } else {
-          @cmd.none
-        },
-        "Clear Filter",
-      ),
-      @html.button(
-        class="small-button",
-        attrs=hint_attrs(dispatch, "Expand all asset folders (])"),
-        on_click=dispatch(@app.msg_expand_all_asset_folders()),
-        "Expand All",
-      ),
-      @html.button(
-        class="small-button",
-        attrs=hint_attrs(dispatch, "Collapse all asset folders ([)"),
-        on_click=dispatch(@app.msg_collapse_all_asset_folders()),
-        "Collapse All",
-      ),
-      @html.button(
-        class=if can_insert_selected {
-          "small-button"
-        } else {
-          "small-button disabled"
-        },
-        attrs=if can_insert_selected {
-          hint_attrs(
-            dispatch, "Insert selected resource into current scene (Enter/I, or double-click; use ↑/↓/Home/End/PageUp/PageDown to change selection)",
-          )
-        } else {
-          @html.Attrs::build()
-        },
-        on_click=if can_insert_selected {
-          dispatch(@app.msg_insert_selected_resource())
-        } else {
-          @cmd.none
-        },
-        "Insert Selected",
-      ),
-      @html.button(
-        class=if can_clear_selected {
-          "small-button"
-        } else {
-          "small-button disabled"
-        },
-        attrs=if can_clear_selected {
-          hint_attrs(dispatch, "Clear selected resource")
-        } else {
-          @html.Attrs::build()
-        },
-        on_click=if can_clear_selected {
-          dispatch(@app.msg_select_resource(None))
-        } else {
-          @cmd.none
-        },
-        "Clear",
-      ),
-    ]),
-    @html.div(
-      class="asset-tree-summary",
-      if model.asset_query_normalized() == "" {
-        "\{visible_count} items · \{image_paths.length()} img · \{atlas_paths.length()} atlas · \{animation_paths.length()} anim · \{prefab_paths.length()} prefab"
-      } else {
-        "\{visible_count} filtered · \{image_paths.length()} img · \{atlas_paths.length()} atlas · \{animation_paths.length()} anim · \{prefab_paths.length()} prefab"
-      },
-    ),
   ])
-  let content : Array[@rabbita.Html] = [toolbar]
+  let sticky_ancestor_rows = selected_resource_ancestor_rows(model)
+  let content : Array[@rabbita.Html] = []
   if !image_rows.is_empty() {
     content.push(
       asset_section(
@@ -1487,7 +1398,17 @@ fn asset_panel_view(
       ),
     )
   }
-  @html.div(class="panel-body asset-grid", content)
+  @html.div(class="panel-body asset-panel-body", [
+    toolbar,
+    @html.div(class="asset-tree-scroll", [
+      if !sticky_ancestor_rows.is_empty() {
+        @html.div(class="asset-tree-sticky-ancestors", sticky_ancestor_rows)
+      } else {
+        @html.nothing
+      },
+      @html.div(class="asset-grid", content),
+    ]),
+  ])
 }
 
 ///|
@@ -1504,10 +1425,14 @@ fn scene_browser_view(
     }
     items.push(
       @html.div(
-        class=if is_selected { "tree-item selected" } else { "tree-item" },
+        class=if is_selected {
+          "tree-item scene-browser-item selected"
+        } else {
+          "tree-item scene-browser-item"
+        },
         on_click=dispatch(@app.msg_open_scene(scene_ref.path)),
         [
-          @html.span(scene_ref.path),
+          @html.span(class="scene-browser-path", scene_ref.path),
           if is_startup {
             @html.span(class="scene-pill", "startup")
           } else {
@@ -2739,10 +2664,6 @@ fn view(
       ]),
       @html.div(class="panel viewport-panel", [
         @html.h2("Viewport"),
-        @html.div(
-          class="viewport-toolbar",
-          "Drag selected assets into the scene. Pan with middle drag or Drag Canvas tool. Touchpad two-finger scroll pans; Shift + scroll zooms. Assets: I inserts selected, ] expands all, [ collapses all. Move snap step: - / +.",
-        ),
         @html.div(class="viewport-frame", [
           @html.canvas(
             id="canvas",

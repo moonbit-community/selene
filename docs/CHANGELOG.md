@@ -46,6 +46,7 @@
 - Changed `selene-editor` top Options UX to make move-snap step first-class: added `- / +` controls with a visible step readout, wired matching keyboard shortcuts (`-` / `+`), and surfaced current snap mode/step in the bottom info bar default text.
 - Changed `selene-editor` Scene Tree interaction UX so rows are clearly interactive (`hover`/pointer affordance), publish entity hints to the bottom info bar, and support double-click-to-frame for faster camera navigation.
 - Changed `selene-editor` component editing flow to add a direct `C` shortcut for opening the Inspector `Add Component` panel when an entity is selected, and updated button copy to advertise the shortcut.
+- Changed `selene-editor` Assets tree context retention to use a dedicated sticky ancestor header derived from the currently selected resource, instead of making the real folder rows themselves sticky.
 
 ### Fixed
 
@@ -55,8 +56,14 @@
 - Fixed `selene-editor` selection stability so clicks outside the viewport canvas (for example inside Inspector panels) no longer trigger preview pick clearing and unexpectedly deselect the current entity.
 - Fixed `selene-editor` Inspector Add Component UX by rendering the add panel directly below Inspector actions (instead of after the full component stack), so opening the panel is immediately visible even on long component lists.
 - Fixed `selene-editor` Assets panel hierarchy readability by replacing the flat card list with a directory-preserving tree view (Explorer-style folder/file indentation), so scrolling no longer destroys path context.
+- Fixed `selene-editor` Assets panel overflow regressions by separating the fixed `Filter Assets` toolbar from the scrollable tree viewport and moving ancestor stickiness into a dedicated header layer, eliminating horizontal overdraw into the viewport.
+- Fixed `selene-editor` tree-row overflow with long resource names by enforcing truncation-safe flex constraints (`min-width: 0`, ellipsis labels, non-shrinking badges) across asset rows and scene browser rows.
+- Fixed `selene-editor` long-name overflow in Assets/Scene trees by enforcing right-boundary ellipsis truncation from container layout constraints (`min-width: 0` + `overflow: hidden` + `text-overflow: ellipsis`) and making row badges shrinkable; also reduced baseline UI text size to improve dense tree readability and prevent boundary overflow under long names.
 
 ### Removed
+
+- Removed persistent inline instructional hint blocks from `selene-editor` `Viewport` and `Assets` panels; interaction guidance now relies on controls/tooltips and the bottom info bar.
+- Removed non-filter controls from `selene-editor` `Assets` toolbar (`Clear Filter`, `Expand All`, `Collapse All`, `Insert Selected`, `Clear`) and removed asset-filter focus shortcuts (`Cmd/Ctrl+F`, `/`) so this area now only exposes a plain `Filter Assets` input.
 
 ## [0.30.4] - 2026-03-31
 
