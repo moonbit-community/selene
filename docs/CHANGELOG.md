@@ -46,7 +46,7 @@
 - Changed `selene-editor` top Options UX to make move-snap step first-class: added `- / +` controls with a visible step readout, wired matching keyboard shortcuts (`-` / `+`), and surfaced current snap mode/step in the bottom info bar default text.
 - Changed `selene-editor` Scene Tree interaction UX so rows are clearly interactive (`hover`/pointer affordance), publish entity hints to the bottom info bar, and support double-click-to-frame for faster camera navigation.
 - Changed `selene-editor` component editing flow to add a direct `C` shortcut for opening the Inspector `Add Component` panel when an entity is selected, and updated button copy to advertise the shortcut.
-- Changed `selene-editor` Assets tree context retention to use a dedicated sticky ancestor header derived from the currently selected resource, instead of making the real folder rows themselves sticky.
+- Changed `selene-editor` Assets tree context retention to a VSCode-style sticky ancestor overlay: ancestors are derived from the first visible tree row and rendered in a dedicated sticky container, eliminating duplicate pseudo rows and preserving scroll context.
 
 ### Fixed
 

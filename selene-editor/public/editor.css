@@ -512,27 +512,38 @@ input {
   padding: 4px 0 0;
 }
 
-.asset-tree-sticky-ancestors {
+.asset-tree-sticky-overlay {
   position: sticky;
   top: 0;
-  z-index: 24;
+  z-index: 40;
   display: flex;
   flex-direction: column;
-  gap: 0;
   width: 100%;
   max-width: 100%;
-  overflow: hidden;
-  background: var(--panel);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-sizing: border-box;
+  pointer-events: none;
 }
 
-.asset-tree-row.sticky-header {
-  width: 100%;
-  max-width: 100%;
-  background: rgba(20, 31, 44, 0.98);
+.asset-tree-sticky-overlay.empty {
+  display: none;
+}
+
+.asset-tree-sticky-section {
+  padding: 6px 8px 4px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--muted);
-  cursor: default;
-  pointer-events: none;
+  background: rgba(20, 31, 44, 0.98);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.asset-tree-row.sticky-overlay-row {
+  background: rgba(20, 31, 44, 0.98);
+  border-bottom-color: rgba(255, 255, 255, 0.04);
 }
 
 .asset-thumb {

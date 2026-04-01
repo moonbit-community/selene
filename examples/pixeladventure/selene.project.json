@@ -11,6 +11,14 @@
     }
   ],
   "prefab_index": [],
-  "atlas_index": [],
-  "animation_index": []
+  "atlas_index": [
+    {
+      "path": "assets/atlases/arrowkey.atlas.json"
+    }
+  ],
+  "animation_index": [
+    {
+      "path": "assets/animations/arrowkey.anim.json"
+    }
+  ]
 }

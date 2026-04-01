@@ -466,6 +466,86 @@ extern "js" fn focus_component_search_input() =
   #| }
 
 ///|
+#cfg(target="js")
+extern "js" fn sync_asset_tree_sticky_overlay() =
+  #| () => {
+  #|   const scroll = document.querySelector(".asset-tree-scroll");
+  #|   if (!scroll) return;
+  #|   const overlay = scroll.querySelector(".asset-tree-sticky-overlay");
+  #|   if (!overlay) return;
+  #|
+  #|   // Ported from VSCode sticky-scroll model:
+  #|   // derive sticky ancestors from the first visible row in the viewport.
+  #|   const render = () => {
+  #|     const rows = Array.from(
+  #|       scroll.querySelectorAll(".asset-grid .asset-tree-row")
+  #|     );
+  #|     if (!rows.length) {
+  #|       overlay.replaceChildren();
+  #|       overlay.classList.add("empty");
+  #|       return;
+  #|     }
+  #|     const scrollRect = scroll.getBoundingClientRect();
+  #|     const firstVisible = rows.find((row) => {
+  #|       const rect = row.getBoundingClientRect();
+  #|       return rect.bottom > scrollRect.top + 1;
+  #|     });
+  #|     if (!firstVisible) {
+  #|       overlay.replaceChildren();
+  #|       overlay.classList.add("empty");
+  #|       return;
+  #|     }
+  #|     const chainRaw = firstVisible.dataset.stickyChain || "";
+  #|     const section = firstVisible.dataset.stickySection || "";
+  #|     const segments = chainRaw ? chainRaw.split("/") : [];
+  #|     if (!segments.length) {
+  #|       overlay.replaceChildren();
+  #|       overlay.classList.add("empty");
+  #|       return;
+  #|     }
+  #|     const fragment = document.createDocumentFragment();
+  #|     const sectionRow = document.createElement("div");
+  #|     sectionRow.className = "asset-tree-sticky-section";
+  #|     sectionRow.textContent = section;
+  #|     fragment.appendChild(sectionRow);
+  #|     for (let depth = 0; depth < segments.length; depth++) {
+  #|       const row = document.createElement("div");
+  #|       row.className = "asset-tree-row folder sticky-overlay-row";
+  #|
+  #|       for (let i = 0; i < depth; i++) {
+  #|         const indent = document.createElement("span");
+  #|         indent.className = "asset-tree-indent";
+  #|         row.appendChild(indent);
+  #|       }
+  #|
+  #|       const node = document.createElement("span");
+  #|       node.className = "asset-tree-node";
+  #|       node.textContent = "▾";
+  #|       row.appendChild(node);
+  #|
+  #|       const label = document.createElement("span");
+  #|       label.className = "asset-tree-label folder";
+  #|       label.textContent = segments[depth];
+  #|       row.appendChild(label);
+  #|
+  #|       fragment.appendChild(row);
+  #|     }
+  #|     overlay.replaceChildren(fragment);
+  #|     overlay.classList.remove("empty");
+  #|   };
+  #|
+  #|   if (!scroll.__seleneTreeStickyBound) {
+  #|     scroll.__seleneTreeStickyBound = true;
+  #|     scroll.__seleneTreeStickyRender = render;
+  #|     scroll.addEventListener("scroll", render, { passive: true });
+  #|     window.addEventListener("resize", render, { passive: true });
+  #|   } else {
+  #|     scroll.__seleneTreeStickyRender = render;
+  #|   }
+  #|   requestAnimationFrame(render);
+  #| }
+
+///|
 fn drag_drop_translation(event : @dom.DragEvent) -> @editor_bridge.Vec2Doc? {
   let metrics = drag_event_canvas_metrics(event)
   if metrics.length() < 4 {
@@ -721,6 +801,14 @@ fn focus_component_search_cmd() -> @rabbita.Cmd {
 }
 
 ///|
+fn sync_asset_tree_sticky_overlay_cmd() -> @rabbita.Cmd {
+  @cmd.raw_effect(
+    fn(_scheduler) { sync_asset_tree_sticky_overlay() },
+    kind=@cmd.after_render,
+  )
+}
+
+///|
 fn update(
   dispatch : @rabbita.Dispatch[@app.Msg],
   msg : @app.Msg,
@@ -740,8 +828,11 @@ fn update(
   } else {
     @cmd.none
   }
+  let sticky_overlay_sync_cmd = sync_asset_tree_sticky_overlay_cmd()
   (
-    @cmd.batch([effects_cmd, selection_sync_cmd, component_search_focus_cmd]),
+    @cmd.batch([
+      effects_cmd, selection_sync_cmd, component_search_focus_cmd, sticky_overlay_sync_cmd,
+    ]),
     next,
   )
 }
@@ -869,46 +960,6 @@ fn tree_path_segments(path : String, drop_root : String?) -> Array[String] {
 }
 
 ///|
-fn selected_resource_tree_info(
-  selection : @app.ResourceSelection,
-) -> (String, String) {
-  match selection {
-    @app.Image(path) => ("assets", path)
-    @app.Atlas(path) => ("assets", path)
-    @app.Animation(path) => ("assets", path)
-    @app.Prefab(path) => ("prefabs", path)
-  }
-}
-
-///|
-fn sticky_asset_ancestor_row(depth : Int, label : String) -> @rabbita.Html {
-  let children = tree_row_indents(depth)
-  children.push(@html.span(class="asset-tree-node", "▾"))
-  children.push(@html.span(class="asset-tree-label folder", label))
-  @html.div(class="asset-tree-row sticky-header", children)
-}
-
-///|
-fn selected_resource_ancestor_rows(model : @app.Model) -> Array[@rabbita.Html] {
-  match model.selected_resource {
-    None => []
-    Some(selection) => {
-      let (root, path) = selected_resource_tree_info(selection)
-      let segments = tree_path_segments(path, Some(root))
-      if segments.length() <= 1 {
-        []
-      } else {
-        let rows : Array[@rabbita.Html] = []
-        for index = 0; index < segments.length() - 1; index = index + 1 {
-          rows.push(sticky_asset_ancestor_row(index, segments[index]))
-        }
-        rows
-      }
-    }
-  }
-}
-
-///|
 fn common_prefix_len(left : Array[String], right : Array[String]) -> Int {
   let limit = if left.length() < right.length() {
     left.length()
@@ -930,6 +981,17 @@ fn tree_row_indents(depth : Int) -> Array[@rabbita.Html] {
     indents.push(@html.span(class="asset-tree-indent", @html.nothing))
   }
   indents
+}
+
+///|
+fn asset_tree_section_title(section_key : String) -> String {
+  match section_key {
+    "images" => "IMAGES"
+    "atlases" => "ATLASES"
+    "animations" => "ANIMATIONS"
+    "prefabs" => "PREFABS"
+    _ => section_key
+  }
 }
 
 ///|
@@ -970,6 +1032,8 @@ fn tree_folder_row(
   expanded : Bool,
   toggle_enabled : Bool,
   folder_key : String,
+  sticky_chain : Array[String],
+  sticky_section : String,
 ) -> @rabbita.Html {
   let children = tree_row_indents(depth)
   children.push(
@@ -987,6 +1051,10 @@ fn tree_folder_row(
   } else {
     "asset-tree-row folder collapsed locked"
   }
+  let attrs = hint_attrs(dispatch, hover_label)
+    .data_set("sticky-chain", sticky_chain.join("/"))
+    .data_set("sticky-section", sticky_section)
+    .data_set("sticky-kind", "folder")
   @html.button(
     class=if expanded { class } else { class },
     on_click=if toggle_enabled {
@@ -994,7 +1062,7 @@ fn tree_folder_row(
     } else {
       @cmd.none
     },
-    attrs=hint_attrs(dispatch, hover_label),
+    attrs~,
     children,
   )
 }
@@ -1009,6 +1077,8 @@ fn tree_file_row(
   label : String,
   badge : String,
   draggable_asset_path : String?,
+  sticky_chain : Array[String],
+  sticky_section : String,
 ) -> @rabbita.Html {
   let children = tree_row_indents(depth)
   children.push(
@@ -1032,7 +1102,7 @@ fn tree_file_row(
     },
     on_click=dispatch(@app.msg_select_resource(Some(selection))),
     attrs=asset_tree_file_attrs(
-      dispatch, selection, full_path, draggable_asset_path,
+      dispatch, selection, full_path, draggable_asset_path, sticky_chain, sticky_section,
     ),
     children,
   )
@@ -1044,8 +1114,13 @@ fn asset_tree_file_attrs(
   selection : @app.ResourceSelection,
   full_path : String,
   draggable_asset_path : String?,
+  sticky_chain : Array[String],
+  sticky_section : String,
 ) -> @html.Attrs {
   let attrs = @html.Attrs::build()
+    .data_set("sticky-chain", sticky_chain.join("/"))
+    .data_set("sticky-section", sticky_section)
+    .data_set("sticky-kind", "file")
     .handler("mouseenter", fn(_event, scheduler) {
       schedule_cmd(
         scheduler,
@@ -1095,6 +1170,7 @@ fn build_asset_tree_rows(
   draggable_path_of : (String) -> String?,
 ) -> Array[@rabbita.Html] {
   let rows : Array[@rabbita.Html] = []
+  let section_title = asset_tree_section_title(section_key)
   let sorted_paths : Array[String] = []
   sorted_paths.push_iter(paths.iter())
   sorted_paths.sort_by(fn(left, right) { left.compare(right) })
@@ -1136,6 +1212,8 @@ fn build_asset_tree_rows(
           expanded,
           !force_expand,
           key,
+          folders[:index + 1].to_array(),
+          section_title,
         ),
       )
     }
@@ -1160,6 +1238,8 @@ fn build_asset_tree_rows(
         segments[file_index],
         badge_of(path),
         draggable_path_of(path),
+        folders,
+        section_title,
       ),
     )
     previous_folders = folders
@@ -1309,7 +1389,6 @@ fn asset_panel_view(
       @html.nothing,
     ),
   ])
-  let sticky_ancestor_rows = selected_resource_ancestor_rows(model)
   let content : Array[@rabbita.Html] = []
   if !image_rows.is_empty() {
     content.push(
@@ -1401,11 +1480,7 @@ fn asset_panel_view(
   @html.div(class="panel-body asset-panel-body", [
     toolbar,
     @html.div(class="asset-tree-scroll", [
-      if !sticky_ancestor_rows.is_empty() {
-        @html.div(class="asset-tree-sticky-ancestors", sticky_ancestor_rows)
-      } else {
-        @html.nothing
-      },
+      @html.div(class="asset-tree-sticky-overlay empty", @html.nothing),
       @html.div(class="asset-grid", content),
     ]),
   ])
