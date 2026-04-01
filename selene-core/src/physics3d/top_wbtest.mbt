@@ -267,6 +267,57 @@ test "cast_shape respects body filter and exclude_entity in 3d" {
 }
 
 ///|
+test "cast_shape respects exclude_sensors and exclude_solids in 3d" {
+  with_physics3d_test_world(fn() raise {
+    let sensor_entity = @entity.Entity::new()
+    @transform.transforms().set(
+      sensor_entity,
+      @transform.Transform::from_xyz(2.0, 0.0, 0.0),
+    )
+    colliders().set(sensor_entity, Collider::ball(0.5))
+    sensors().set(sensor_entity, Sensor::{  })
+
+    let solid_entity = @entity.Entity::new()
+    @transform.transforms().set(
+      solid_entity,
+      @transform.Transform::from_xyz(5.0, 0.0, 0.0),
+    )
+    colliders().set(solid_entity, Collider::ball(0.5))
+
+    step_physics(1)
+
+    let all_hit = context()
+      .cast_shape(
+        Collider::ball(0.25),
+        @math.Vec3::zero(),
+        direction=@math.Vec3::x_axis(),
+      )
+      .unwrap()
+    inspect(all_hit.entity == sensor_entity, content="true")
+
+    let no_sensor_hit = context()
+      .cast_shape(
+        Collider::ball(0.25),
+        @math.Vec3::zero(),
+        direction=@math.Vec3::x_axis(),
+        query_filter={ ..QueryFilter::all(), exclude_sensors: true },
+      )
+      .unwrap()
+    inspect(no_sensor_hit.entity == solid_entity, content="true")
+
+    let no_solid_hit = context()
+      .cast_shape(
+        Collider::ball(0.25),
+        @math.Vec3::zero(),
+        direction=@math.Vec3::x_axis(),
+        query_filter={ ..QueryFilter::all(), exclude_solids: true },
+      )
+      .unwrap()
+    inspect(no_solid_hit.entity == sensor_entity, content="true")
+  })
+}
+
+///|
 test "query filter only_kinematic targets kinematic bodies in 3d" {
   with_physics3d_test_world(fn() raise {
     let kinematic_entity = @entity.Entity::new()
@@ -444,6 +495,48 @@ test "impulse joint contacts_enabled disables body contact pairs" {
 }
 
 ///|
+test "impulse rope and spring contacts_enabled disable body contact pairs" {
+  with_physics3d_test_world(fn() raise {
+    let parent = @entity.Entity::new()
+    rigid_bodies().set(parent, Fixed)
+    colliders().set(parent, Collider::ball(0.5))
+
+    let rope_child = @entity.Entity::new()
+    @transform.transforms().set(
+      rope_child,
+      @transform.Transform::from_xyz(0.0, 1.0, 0.0),
+    )
+    rigid_bodies().set(rope_child, Dynamic)
+    colliders().set(rope_child, Collider::ball(0.5))
+    impulse_joints().set(rope_child, {
+      parent,
+      data: Rope(RopeJoint::new(2.0)),
+      contacts_enabled: false,
+    })
+
+    let spring_child = @entity.Entity::new()
+    @transform.transforms().set(
+      spring_child,
+      @transform.Transform::from_xyz(0.0, 2.0, 0.0),
+    )
+    rigid_bodies().set(spring_child, Dynamic)
+    colliders().set(spring_child, Collider::ball(0.5))
+    impulse_joints().set(spring_child, {
+      parent,
+      data: Spring(SpringJoint::new(1.0, 8.0, 0.5)),
+      contacts_enabled: false,
+    })
+
+    step_physics(1)
+
+    inspect(
+      physics3d_world().impulse_joints.disabled_contact_pairs().length(),
+      content="2",
+    )
+  })
+}
+
+///|
 test "multibody joint creates a rapier handle" {
   with_physics3d_test_world(fn() raise {
     let parent = @entity.Entity::new()
@@ -470,7 +563,7 @@ test "multibody joint creates a rapier handle" {
 }
 
 ///|
-test "impulse joints expose handles for generic variants and route rope to rope set" {
+test "impulse joints expose generic handles for all 3d joint variants" {
   with_physics3d_test_world(fn() raise {
     let parent = @entity.Entity::new()
     rigid_bodies().set(parent, Fixed)
@@ -510,10 +603,13 @@ test "impulse joints expose handles for generic variants and route rope to rope 
     inspect(impulse_joint_handle(fixed_child) is Some(_), content="true")
     inspect(impulse_joint_handle(revolute_child) is Some(_), content="true")
     inspect(impulse_joint_handle(prismatic_child) is Some(_), content="true")
-    inspect(impulse_joint_handle(spring_child) is None, content="true")
+    inspect(impulse_joint_handle(spring_child) is Some(_), content="true")
     inspect(impulse_joint_handle(spherical_child) is Some(_), content="true")
-    inspect(impulse_joint_handle(rope_child) is None, content="true")
-    inspect(physics3d_world().rope_joints.interaction_pairs().length(), content="1")
+    inspect(impulse_joint_handle(rope_child) is Some(_), content="true")
+    inspect(
+      physics3d_world().rope_joints.interaction_pairs().length(),
+      content="0",
+    )
   })
 }
 
@@ -561,7 +657,10 @@ test "multibody joints expose generic handles for all 3d joint variants" {
     inspect(multibody_joint_handle(spherical_child) is Some(_), content="true")
     inspect(multibody_joint_handle(rope_child) is Some(_), content="true")
     inspect(multibody_joint_handle(spring_child) is Some(_), content="true")
-    inspect(physics3d_world().rope_joints.interaction_pairs().length(), content="0")
+    inspect(
+      physics3d_world().rope_joints.interaction_pairs().length(),
+      content="0",
+    )
   })
 }
 
