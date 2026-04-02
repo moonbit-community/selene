@@ -73,6 +73,7 @@
 - Changed `selene/physics3d` impulse `Rope/Spring` joint syncing to use generic-joint insertion (Bevy-style handle path), so these variants now expose stable impulse joint handles and share consistent `contacts_enabled` behavior with other impulse joint types.
 - Changed `selene/physics3d` collider sync to preserve threshold-derived contact-force active events during per-frame updates, and added wbtest coverage for default-vs-low `ContactForceEventThreshold` behavior.
 - Changed `selene/physics3d` revolute joint conversion to route through a generic-joint mapping path that applies `motor_model` and optional `softness`, and extended 3D wbtests with revolute/prismatic joint behavior assertions (limits + motor state + softness mapping coverage on the generic-joint path).
+- Changed CI workflows (`build`/`deploy`) to run example/web package checks and builds via `moon -C <pkg> ...` so package/module `preferred-target` is used in workspace mode instead of forcing explicit `--target js`.
 
 ### Fixed
 
@@ -91,6 +92,7 @@
 - Fixed `selene-editor` initial preview camera placement so first scene load aligns scene content to the viewport's top-left instead of leaving positive-coordinate scenes offset toward the center/right-bottom.
 - Fixed `selene-editor` initial viewport alignment race by making camera top-left alignment explicit and retryable until required camera/projection state is ready, preventing first-load misalignment when scene data arrives before full preview setup.
 - Fixed `selene-editor` workspace loading to stop silently falling back to defaults on invalid `.selene-editor/workspace.json`; project open now reports a deterministic error and preserves invalid-data visibility.
+- Fixed `examples/pixeladventure` editor scene loading to match split animation asset APIs in `selene/editor_bridge` by handling `InvalidAnimationClipAssetDocument` / `InvalidAnimationGraphAssetDocument` and wiring `animation_clip_assets` + `animation_graph_assets`.
 
 ### Removed
 

@@ -41,8 +41,8 @@ jobs:
         run: |
           cd selene-webgpu
           moon update
-          moon check --target js --deny-warn
-          moon build --target js
+          moon check --deny-warn
+          moon build
 
       - name: selene-examples
         if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -60,6 +60,6 @@ jobs:
             if [ -z "$pkg" ]; then
               continue
             fi
-            echo "Checking JS target for $pkg"
-            moon check "$pkg" --target js --deny-warn
+            echo "Checking preferred target for $pkg"
+            moon -C "$pkg" check --deny-warn
           done <<< "$web_packages"
