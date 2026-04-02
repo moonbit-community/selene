@@ -73,8 +73,10 @@ fn load_pixeladventure_project_bundle() -> @editor_bridge.ProjectBundle {
       abort("Invalid pixeladventure startup scene: " + message)
     @editor_bridge.InvalidAtlasAssetDocument(message) =>
       abort("Invalid pixeladventure atlas asset: " + message)
-    @editor_bridge.InvalidAnimationAssetDocument(message) =>
-      abort("Invalid pixeladventure animation asset: " + message)
+    @editor_bridge.InvalidAnimationClipAssetDocument(message) =>
+      abort("Invalid pixeladventure animation clip asset: " + message)
+    @editor_bridge.InvalidAnimationGraphAssetDocument(message) =>
+      abort("Invalid pixeladventure animation graph asset: " + message)
     err =>
       abort("Failed to load pixeladventure scene bundle: " + err.to_string())
   }
@@ -305,7 +307,8 @@ fn load_level_scene() -> LoadedLevelScene {
   let scene = bundle.scene
   let context = @editor_bridge.asset_instantiation_context(
     atlas_assets=bundle.atlas_assets,
-    animation_assets=bundle.animation_assets,
+    animation_clip_assets=bundle.animation_clip_assets,
+    animation_graph_assets=bundle.animation_graph_assets,
     custom_component_appliers=pixeladventure_custom_component_appliers(),
   )
   let runtime = @editor_bridge.instantiate_scene_document_with_context(
