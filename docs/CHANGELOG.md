@@ -4,12 +4,17 @@
 
 ### Added
 
+- Added root `moon.work` (`members`) to manage Selene modules (`selene-core`, `selene-webgpu`, `selene-raylib`, `selene-tools`, `selene-editor`) and `examples` in a single workspace.
 - Added `selene/editor_bridge` built-in component metadata APIs for editor-facing component workflows: `BuiltinComponentKind`, string/enum mapping helpers, category/dependency queries, removability checks, default component factories, and ordered built-in component enumeration.
 - Added `docs/bevy-alignment-tracker.md` as the canonical markdown tracker for ongoing Bevy parity work (`BEVY-001...`) with explicit status and queue ownership.
 - Added `docs/bevy-rapier3d-parity-matrix.md` as the formal gap matrix for `selene/physics3d` vs `bevy_rapier3d`, with per-area status and explicit remaining closure steps.
 
 ### Changed
 
+- Changed release quality/publish pipeline `moon` invocations to use explicit `--manifest-path` (plus scoped package/module paths for `fmt/info/check`) so workspace mode does not accidentally expand checks into unrelated modules.
+- Changed release quality checks to run explicit per-target validation (`js` / `native`) for multi-target modules instead of relying on `--target all` in workspace mode.
+- Changed script responsibilities by making `publish.py` release-only and moving page publishing flow to `publish_pages.py`.
+- Changed module manifests for workspace target scoping by adding explicit `supported-targets` to `selene-webgpu`, `selene-raylib`, and `examples`.
 - Changed `selene/editor_bridge` animation asset model from a single `.anim.json` document to Bevy-style split clip/graph assets (`AnimationClipAssetDocument` + `AnimationGraphAssetDocument`) and updated loader/runtime scene instantiation to resolve graph -> clip -> atlas dependencies.
 - Changed `selene-editor` typed protocol and preview payloads to carry separate animation clip/graph resources (`AnimationClipLoad/Save`, `AnimationGraphLoad/Save`, `AnimationMigrate`) instead of the legacy single animation document RPC flow.
 - Changed `selene-editor` Animation Graph Inspector from summary-only form fields to node/edge authoring workflow (`add clip/blend/additive node`, `remove node`, `set default node`, clip-path editing, and edge target/weight editing).

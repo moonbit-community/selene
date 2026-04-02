@@ -1479,9 +1479,7 @@ pub fn animation_repeat_mode_doc_from_string(
     return Forever
   }
   if normalized.has_prefix("count(") && normalized.has_suffix(")") {
-    let count = @string.parse_int(
-      normalized[6:normalized.length() - 1],
-    ) catch {
+    let count = @string.parse_int(normalized[6:normalized.length() - 1]) catch {
       _ => 0
     }
     if count > 0 {

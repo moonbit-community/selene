@@ -11,25 +11,51 @@ import {
 }
 
 // Values
-pub fn animation_asset_document(String, String, Array[AnimationClipDocument], String?) -> AnimationAssetDocument
+pub fn animation_clip_asset_document(String, String, Double, Bool, Array[String]) -> AnimationClipAssetDocument
 
-pub fn animation_asset_document_from_frames(String, String, Array[String], default_clip? : String) -> AnimationAssetDocument
+pub fn animation_clip_asset_file_name(String) -> String
 
-pub fn animation_asset_file_name(String) -> String
+pub fn animation_clip_asset_migration_preview(String, AnimationClipAssetDocument, Array[MigrationFieldChange]) -> AnimationClipAssetMigrationPreview
 
-pub fn animation_asset_migration_preview(String, AnimationAssetDocument, Array[MigrationFieldChange]) -> AnimationAssetMigrationPreview
+pub let animation_clip_asset_schema_version : Int
 
-pub let animation_asset_schema_version : Int
+pub fn animation_graph_asset_document(String, Array[AnimationGraphNodeDocument], String?) -> AnimationGraphAssetDocument
 
-pub fn animation_clip_document(String, Double, Bool, Array[String]) -> AnimationClipDocument
+pub fn animation_graph_asset_document_from_clip(String, String, node_id? : String) -> AnimationGraphAssetDocument
 
-pub fn animation_player_component(animation_asset_path? : String?, default_clip? : String?, autoplay? : Bool, repeat_mode? : String, speed? : Double) -> ComponentDocument
+pub fn animation_graph_asset_file_name(String) -> String
+
+pub fn animation_graph_asset_migration_preview(String, AnimationGraphAssetDocument, Array[MigrationFieldChange]) -> AnimationGraphAssetMigrationPreview
+
+pub let animation_graph_asset_schema_version : Int
+
+pub fn animation_graph_edge_document(String, weight? : Double) -> AnimationGraphEdgeDocument
+
+pub fn animation_graph_node_document(String, AnimationGraphNodeKind, mask_groups? : Array[Int], position? : Vec2Doc, edges? : Array[AnimationGraphEdgeDocument]) -> AnimationGraphNodeDocument
+
+pub fn animation_graph_node_kind_additive_blend() -> AnimationGraphNodeKind
+
+pub fn animation_graph_node_kind_blend() -> AnimationGraphNodeKind
+
+pub fn animation_graph_node_kind_clip(String) -> AnimationGraphNodeKind
+
+pub fn animation_player_component(graph_asset_path? : String?, start_node? : String?, autoplay? : Bool, repeat_mode? : AnimationRepeatModeDoc, speed? : Double) -> ComponentDocument
+
+pub fn animation_repeat_mode_count(Int) -> AnimationRepeatModeDoc
+
+pub fn animation_repeat_mode_doc_from_string(String) -> AnimationRepeatModeDoc
+
+pub fn animation_repeat_mode_doc_to_string(AnimationRepeatModeDoc) -> String
+
+pub fn animation_repeat_mode_forever() -> AnimationRepeatModeDoc
+
+pub fn animation_repeat_mode_never() -> AnimationRepeatModeDoc
 
 pub fn animation_transitions_component(duration? : Double) -> ComponentDocument
 
 pub fn asset_document(String, AssetKind, meta_path? : String?) -> AssetDocument
 
-pub fn asset_instantiation_context(asset_path_resolver? : (String?) -> String?, atlas_assets? : Map[String, AtlasAssetDocument], animation_assets? : Map[String, AnimationAssetDocument], custom_component_appliers? : Map[String, (@entity.Entity, ComponentDocument, AssetInstantiationContext) -> Unit]) -> AssetInstantiationContext
+pub fn asset_instantiation_context(asset_path_resolver? : (String?) -> String?, atlas_assets? : Map[String, AtlasAssetDocument], animation_clip_assets? : Map[String, AnimationClipAssetDocument], animation_graph_assets? : Map[String, AnimationGraphAssetDocument], custom_component_appliers? : Map[String, (@entity.Entity, ComponentDocument, AssetInstantiationContext) -> Unit]) -> AssetInstantiationContext
 
 pub fn asset_ref(String) -> AssetRef
 
@@ -59,9 +85,13 @@ pub fn color_material_component(color? : ColorDoc) -> ComponentDocument
 
 pub fn component_document(String, Json) -> ComponentDocument
 
-pub fn decode_animation_asset_document(Json) -> AnimationAssetDocument raise
+pub fn decode_animation_clip_asset_document(Json) -> AnimationClipAssetDocument raise
 
-pub fn decode_animation_asset_document_status(String, Json) -> AnimationAssetDocumentLoadStatus raise
+pub fn decode_animation_clip_asset_document_status(String, Json) -> AnimationClipAssetDocumentLoadStatus raise
+
+pub fn decode_animation_graph_asset_document(Json) -> AnimationGraphAssetDocument raise
+
+pub fn decode_animation_graph_asset_document_status(String, Json) -> AnimationGraphAssetDocumentLoadStatus raise
 
 pub fn decode_atlas_asset_document(Json) -> AtlasAssetDocument raise
 
@@ -101,13 +131,17 @@ pub fn instantiate_scene_document(SceneDocument, (String?) -> String?) -> SceneR
 
 pub fn instantiate_scene_document_with_context(SceneDocument, AssetInstantiationContext) -> SceneRuntime
 
+pub let legacy_animation_asset_schema_version : Int
+
 pub fn load_project_bundle((String) -> Bytes?, manifest_path? : String, scene_path? : String?) -> ProjectBundle raise
 
 pub fn map_document_source(Map[String, Bytes]) -> (String) -> Bytes?
 
 pub fn mesh2d_component(String, size? : Vec2Doc?, radius? : Double?) -> ComponentDocument
 
-pub fn migrate_animation_asset_document_json(String, Json) -> AnimationAssetDocument raise
+pub fn migrate_animation_clip_asset_document_json(String, Json) -> AnimationClipAssetDocument raise
+
+pub fn migrate_animation_graph_asset_document_json(String, Json) -> AnimationGraphAssetDocument raise
 
 pub fn migrate_atlas_asset_document_json(String, Json) -> AtlasAssetDocument raise
 
@@ -173,7 +207,9 @@ pub fn transform2d_component(translation? : Vec2Doc, rotation? : Double, scale? 
 
 pub fn transform2d_value(translation? : Vec2Doc, rotation? : Double, scale? : Vec2Doc) -> Transform2dComponent
 
-pub fn validate_animation_asset_document(AnimationAssetDocument) -> Array[ValidationError]
+pub fn validate_animation_clip_asset_document(AnimationClipAssetDocument) -> Array[ValidationError]
+
+pub fn validate_animation_graph_asset_document(AnimationGraphAssetDocument) -> Array[ValidationError]
 
 pub fn validate_atlas_asset_document(AtlasAssetDocument) -> Array[ValidationError]
 
@@ -198,55 +234,104 @@ pub suberror EditorBridgeDecodeError {
   InvalidSceneDocument(String)
   InvalidPrefabDocument(String)
   InvalidAtlasAssetDocument(String)
-  InvalidAnimationAssetDocument(String)
+  InvalidAnimationClipAssetDocument(String)
+  InvalidAnimationGraphAssetDocument(String)
   InvalidWorkspaceDocument(String)
 }
 
 // Types and methods
-pub struct AnimationAssetDocument {
+pub struct AnimationClipAssetDocument {
   version : Int
   name : String
   atlas_asset_path : String
-  clips : Array[AnimationClipDocument]
-  default_clip : String?
-} derive(Eq, Show, ToJson, @json.FromJson)
-pub fn AnimationAssetDocument::default(String, String) -> Self
-pub fn AnimationAssetDocument::with_clips(Self, Array[AnimationClipDocument]) -> Self
-pub fn AnimationAssetDocument::with_default_clip(Self, String?) -> Self
-pub fn AnimationAssetDocument::with_name(Self, String) -> Self
-
-pub enum AnimationAssetDocumentLoadStatus {
-  Ready(AnimationAssetDocument)
-  MigrationRequired(AnimationAssetMigrationPreview)
-} derive(Eq, Show)
-
-pub struct AnimationAssetDocumentMigrator {
-}
-
-pub struct AnimationAssetMigrationPreview {
-  path : String
-  animation : AnimationAssetDocument
-  changes : Array[MigrationFieldChange]
-} derive(Eq, Show, ToJson, @json.FromJson)
-
-pub struct AnimationClipDocument {
-  name : String
   fps : Double
   looping : Bool
   frames : Array[String]
 } derive(Eq, Show, ToJson, @json.FromJson)
-pub fn AnimationClipDocument::with_fps(Self, Double) -> Self
-pub fn AnimationClipDocument::with_frames(Self, Array[String]) -> Self
-pub fn AnimationClipDocument::with_looping(Self, Bool) -> Self
-pub fn AnimationClipDocument::with_name(Self, String) -> Self
+pub fn AnimationClipAssetDocument::default(String, String) -> Self
+pub fn AnimationClipAssetDocument::with_atlas_asset_path(Self, String) -> Self
+pub fn AnimationClipAssetDocument::with_fps(Self, Double) -> Self
+pub fn AnimationClipAssetDocument::with_frames(Self, Array[String]) -> Self
+pub fn AnimationClipAssetDocument::with_looping(Self, Bool) -> Self
+pub fn AnimationClipAssetDocument::with_name(Self, String) -> Self
+
+pub enum AnimationClipAssetDocumentLoadStatus {
+  Ready(AnimationClipAssetDocument)
+  MigrationRequired(AnimationClipAssetMigrationPreview)
+} derive(Eq, Show)
+
+pub struct AnimationClipAssetDocumentMigrator {
+}
+
+pub struct AnimationClipAssetMigrationPreview {
+  path : String
+  clip : AnimationClipAssetDocument
+  changes : Array[MigrationFieldChange]
+} derive(Eq, Show, ToJson, @json.FromJson)
+
+pub struct AnimationGraphAssetDocument {
+  version : Int
+  name : String
+  nodes : Array[AnimationGraphNodeDocument]
+  default_node : String?
+} derive(Eq, Show, ToJson, @json.FromJson)
+pub fn AnimationGraphAssetDocument::default(String, String) -> Self
+pub fn AnimationGraphAssetDocument::with_default_node(Self, String?) -> Self
+pub fn AnimationGraphAssetDocument::with_name(Self, String) -> Self
+pub fn AnimationGraphAssetDocument::with_nodes(Self, Array[AnimationGraphNodeDocument]) -> Self
+
+pub enum AnimationGraphAssetDocumentLoadStatus {
+  Ready(AnimationGraphAssetDocument)
+  MigrationRequired(AnimationGraphAssetMigrationPreview)
+} derive(Eq, Show)
+
+pub struct AnimationGraphAssetDocumentMigrator {
+}
+
+pub struct AnimationGraphAssetMigrationPreview {
+  path : String
+  graph : AnimationGraphAssetDocument
+  changes : Array[MigrationFieldChange]
+} derive(Eq, Show, ToJson, @json.FromJson)
+
+pub struct AnimationGraphEdgeDocument {
+  to : String
+  weight : Double
+} derive(Eq, Show, ToJson, @json.FromJson)
+
+pub struct AnimationGraphNodeDocument {
+  id : String
+  kind : AnimationGraphNodeKind
+  mask_groups : Array[Int]
+  position : Vec2Doc
+  edges : Array[AnimationGraphEdgeDocument]
+} derive(Eq, Show, ToJson, @json.FromJson)
+pub fn AnimationGraphNodeDocument::with_edges(Self, Array[AnimationGraphEdgeDocument]) -> Self
+pub fn AnimationGraphNodeDocument::with_kind(Self, AnimationGraphNodeKind) -> Self
+pub fn AnimationGraphNodeDocument::with_mask_groups(Self, Array[Int]) -> Self
+pub fn AnimationGraphNodeDocument::with_position(Self, Vec2Doc) -> Self
+
+pub enum AnimationGraphNodeKind {
+  Clip(clip_asset_path~ : String)
+  Blend
+  AdditiveBlend
+} derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct AnimationPlayerComponent {
-  animation_asset_path : String?
-  default_clip : String?
+  graph_asset_path : String?
+  start_node : String?
   autoplay : Bool
   repeat_mode : String
   speed : Double
 } derive(Eq, Show, ToJson, @json.FromJson)
+pub fn AnimationPlayerComponent::repeat_mode_doc(Self) -> AnimationRepeatModeDoc
+pub fn AnimationPlayerComponent::with_repeat_mode_doc(Self, AnimationRepeatModeDoc) -> Self
+
+pub enum AnimationRepeatModeDoc {
+  Never
+  Forever
+  Count(Int)
+} derive(Eq, Show)
 
 pub struct AnimationTransitionsComponent {
   duration : Double
@@ -261,7 +346,8 @@ pub struct AssetDocument {
 pub struct AssetInstantiationContext {
   asset_path_resolver : (String?) -> String?
   atlas_assets : Map[String, AtlasAssetDocument]
-  animation_assets : Map[String, AnimationAssetDocument]
+  animation_clip_assets : Map[String, AnimationClipAssetDocument]
+  animation_graph_assets : Map[String, AnimationGraphAssetDocument]
   custom_component_appliers : Map[String, (@entity.Entity, ComponentDocument, AssetInstantiationContext) -> Unit]
 }
 
@@ -271,7 +357,8 @@ pub enum AssetKind {
   Audio
   Font
   Atlas
-  Animation
+  AnimationClip
+  AnimationGraph
   Scene
   Prefab
   Project
@@ -382,10 +469,6 @@ pub fn EntityDocument::reparented(Self, String?) -> Self
 pub fn EntityDocument::with_component(Self, ComponentDocument) -> Self
 pub fn EntityDocument::without_component(Self, String) -> Self
 
-type LegacyAnimationAssetDocument derive(@json.FromJson)
-
-type LegacyAnimationClipDocument derive(@json.FromJson)
-
 type LegacyAtlasAssetDocument derive(@json.FromJson)
 
 type LegacyEntityDocument derive(@json.FromJson)
@@ -466,7 +549,8 @@ pub struct ProjectBundle {
   scene_path : String
   scene : SceneDocument
   atlas_assets : Map[String, AtlasAssetDocument]
-  animation_assets : Map[String, AnimationAssetDocument]
+  animation_clip_assets : Map[String, AnimationClipAssetDocument]
+  animation_graph_assets : Map[String, AnimationGraphAssetDocument]
 } derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct ProjectManifest {
@@ -477,11 +561,12 @@ pub struct ProjectManifest {
   scene_index : Array[SceneRef]
   prefab_index : Array[PrefabRef]
   atlas_index : Array[AssetRef]
-  animation_index : Array[AssetRef]
+  animation_clip_index : Array[AssetRef]
+  animation_graph_index : Array[AssetRef]
   editor_min_version : String?
 } derive(Eq, Show, ToJson, @json.FromJson)
-pub fn ProjectManifest::default(String, startup_scene? : String, asset_roots? : Array[String], scene_index? : Array[SceneRef], prefab_index? : Array[PrefabRef], atlas_index? : Array[AssetRef], animation_index? : Array[AssetRef], editor_min_version? : String?) -> Self
-pub fn ProjectManifest::with_indexes(Self, Array[SceneRef], Array[PrefabRef], Array[AssetRef], Array[AssetRef]) -> Self
+pub fn ProjectManifest::default(String, startup_scene? : String, asset_roots? : Array[String], scene_index? : Array[SceneRef], prefab_index? : Array[PrefabRef], atlas_index? : Array[AssetRef], animation_clip_index? : Array[AssetRef], animation_graph_index? : Array[AssetRef], editor_min_version? : String?) -> Self
+pub fn ProjectManifest::with_indexes(Self, Array[SceneRef], Array[PrefabRef], Array[AssetRef], Array[AssetRef], Array[AssetRef]) -> Self
 pub fn ProjectManifest::with_startup_scene(Self, String) -> Self
 
 pub enum ProjectManifestLoadStatus {

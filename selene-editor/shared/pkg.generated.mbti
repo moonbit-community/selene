@@ -7,13 +7,21 @@ import {
 }
 
 // Values
-pub fn animation_load_response(String, @editor_bridge.AnimationAssetDocument) -> AnimationLoadResponse
+pub fn animation_clip_load_response(String, @editor_bridge.AnimationClipAssetDocument) -> AnimationClipLoadResponse
+
+pub fn animation_graph_load_response(String, @editor_bridge.AnimationGraphAssetDocument) -> AnimationGraphLoadResponse
 
 pub fn assets_list_response(Array[@editor_bridge.AssetDocument]) -> AssetsListResponse
 
 pub fn atlas_load_response(String, @editor_bridge.AtlasAssetDocument) -> AtlasLoadResponse
 
 pub fn directory_pick_result(String?) -> DirectoryPickResult
+
+pub fn editor_event_animation_clip_saved(String) -> EditorEvent
+
+pub fn editor_event_animation_graph_saved(String) -> EditorEvent
+
+pub fn editor_event_animation_migrated(String, String) -> EditorEvent
 
 pub fn editor_event_asset_imported(@editor_bridge.AssetDocument) -> EditorEvent
 
@@ -45,13 +53,19 @@ pub fn preview_tool_select() -> PreviewTool
 
 pub fn preview_tool_translate() -> PreviewTool
 
-pub fn project_state_response(String?, @editor_bridge.ProjectManifest?, Array[@editor_bridge.SceneRef], Array[@editor_bridge.PrefabRef], Array[@editor_bridge.AssetRef], Array[@editor_bridge.AssetRef], @editor_bridge.WorkspaceDocument?, Array[String]) -> ProjectStateResponse
+pub fn project_state_response(String?, @editor_bridge.ProjectManifest?, Array[@editor_bridge.SceneRef], Array[@editor_bridge.PrefabRef], Array[@editor_bridge.AssetRef], Array[@editor_bridge.AssetRef], Array[@editor_bridge.AssetRef], @editor_bridge.WorkspaceDocument?, Array[String]) -> ProjectStateResponse
 
 pub fn rpc_error_response(Int, String, String, details? : Json) -> RpcResponseEnvelope
 
-pub fn rpc_request_animation_load(String) -> RpcRequest
+pub fn rpc_request_animation_clip_load(String) -> RpcRequest
 
-pub fn rpc_request_animation_save(String, @editor_bridge.AnimationAssetDocument) -> RpcRequest
+pub fn rpc_request_animation_clip_save(String, @editor_bridge.AnimationClipAssetDocument) -> RpcRequest
+
+pub fn rpc_request_animation_graph_load(String) -> RpcRequest
+
+pub fn rpc_request_animation_graph_save(String, @editor_bridge.AnimationGraphAssetDocument) -> RpcRequest
+
+pub fn rpc_request_animation_migrate(String, String) -> RpcRequest
 
 pub fn rpc_request_assets_list() -> RpcRequest
 
@@ -87,7 +101,9 @@ pub fn rpc_request_scene_migrate(String) -> RpcRequest
 
 pub fn rpc_request_scene_save(String, @editor_bridge.SceneDocument) -> RpcRequest
 
-pub fn rpc_response_animation_loaded(AnimationLoadResponse) -> RpcResponse
+pub fn rpc_response_animation_clip_loaded(AnimationClipLoadResponse) -> RpcResponse
+
+pub fn rpc_response_animation_graph_loaded(AnimationGraphLoadResponse) -> RpcResponse
 
 pub fn rpc_response_assets_listed(AssetsListResponse) -> RpcResponse
 
@@ -111,7 +127,9 @@ pub fn rpc_response_scene_migration_required(@editor_bridge.SceneMigrationPrevie
 
 pub fn rpc_response_startup_scene_updated(@editor_bridge.ProjectManifest) -> RpcResponse
 
-pub fn scene_bundle_animation_entry(String, @editor_bridge.AnimationAssetDocument) -> SceneBundleAnimationEntry
+pub fn scene_bundle_animation_clip_entry(String, @editor_bridge.AnimationClipAssetDocument) -> SceneBundleAnimationClipEntry
+
+pub fn scene_bundle_animation_graph_entry(String, @editor_bridge.AnimationGraphAssetDocument) -> SceneBundleAnimationGraphEntry
 
 pub fn scene_bundle_atlas_entry(String, @editor_bridge.AtlasAssetDocument) -> SceneBundleAtlasEntry
 
@@ -126,9 +144,14 @@ pub fn scene_load_outcome_migration_required(@editor_bridge.SceneMigrationPrevie
 // Errors
 
 // Types and methods
-pub struct AnimationLoadResponse {
+pub struct AnimationClipLoadResponse {
   path : String
-  animation : @editor_bridge.AnimationAssetDocument
+  clip : @editor_bridge.AnimationClipAssetDocument
+} derive(Eq, Show, ToJson, @json.FromJson)
+
+pub struct AnimationGraphLoadResponse {
+  path : String
+  graph : @editor_bridge.AnimationGraphAssetDocument
 } derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct AssetsListResponse {
@@ -152,6 +175,9 @@ pub enum EditorEvent {
   SceneCreated(path~ : String)
   SceneSaved(path~ : String)
   SceneDeleted(path~ : String)
+  AnimationClipSaved(path~ : String)
+  AnimationGraphSaved(path~ : String)
+  AnimationMigrated(scene_path~ : String, graph_path~ : String)
   AssetImported(asset~ : @editor_bridge.AssetDocument)
 } derive(Eq, Show, ToJson, @json.FromJson)
 
@@ -178,7 +204,8 @@ pub struct ProjectStateResponse {
   scenes : Array[@editor_bridge.SceneRef]
   prefabs : Array[@editor_bridge.PrefabRef]
   atlases : Array[@editor_bridge.AssetRef]
-  animations : Array[@editor_bridge.AssetRef]
+  animation_clips : Array[@editor_bridge.AssetRef]
+  animation_graphs : Array[@editor_bridge.AssetRef]
   workspace : @editor_bridge.WorkspaceDocument?
   recent_projects : Array[String]
 } derive(Eq, Show, ToJson, @json.FromJson)
@@ -206,8 +233,11 @@ pub enum RpcRequest {
   PrefabSave(path~ : String, prefab~ : @editor_bridge.PrefabDocument)
   AtlasLoad(path~ : String)
   AtlasSave(path~ : String, atlas~ : @editor_bridge.AtlasAssetDocument)
-  AnimationLoad(path~ : String)
-  AnimationSave(path~ : String, animation~ : @editor_bridge.AnimationAssetDocument)
+  AnimationClipLoad(path~ : String)
+  AnimationClipSave(path~ : String, clip~ : @editor_bridge.AnimationClipAssetDocument)
+  AnimationGraphLoad(path~ : String)
+  AnimationGraphSave(path~ : String, graph~ : @editor_bridge.AnimationGraphAssetDocument)
+  AnimationMigrate(path~ : String, scene_path~ : String)
 } derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct RpcRequestEnvelope {
@@ -224,7 +254,8 @@ pub enum RpcResponse {
   AssetsListed(list~ : AssetsListResponse)
   PrefabLoaded(prefab~ : PrefabLoadResponse)
   AtlasLoaded(atlas~ : AtlasLoadResponse)
-  AnimationLoaded(animation~ : AnimationLoadResponse)
+  AnimationClipLoaded(clip~ : AnimationClipLoadResponse)
+  AnimationGraphLoaded(graph~ : AnimationGraphLoadResponse)
   StartupSceneUpdated(manifest~ : @editor_bridge.ProjectManifest)
   SavedOk
   Error(error~ : RpcErrorDocument)
@@ -235,9 +266,14 @@ pub struct RpcResponseEnvelope {
   response : RpcResponse
 } derive(Eq, Show, ToJson, @json.FromJson)
 
-pub struct SceneBundleAnimationEntry {
+pub struct SceneBundleAnimationClipEntry {
   path : String
-  animation : @editor_bridge.AnimationAssetDocument
+  clip : @editor_bridge.AnimationClipAssetDocument
+} derive(Eq, Show, ToJson, @json.FromJson)
+
+pub struct SceneBundleAnimationGraphEntry {
+  path : String
+  graph : @editor_bridge.AnimationGraphAssetDocument
 } derive(Eq, Show, ToJson, @json.FromJson)
 
 pub struct SceneBundleAtlasEntry {
@@ -249,9 +285,10 @@ pub struct SceneBundleResponse {
   path : String
   scene : @editor_bridge.SceneDocument
   atlas_assets : Array[SceneBundleAtlasEntry]
-  animation_assets : Array[SceneBundleAnimationEntry]
+  animation_clip_assets : Array[SceneBundleAnimationClipEntry]
+  animation_graph_assets : Array[SceneBundleAnimationGraphEntry]
 } derive(Eq, Show, ToJson, @json.FromJson)
-pub fn SceneBundleResponse::with_assets(Self, Array[SceneBundleAtlasEntry], Array[SceneBundleAnimationEntry]) -> Self
+pub fn SceneBundleResponse::with_assets(Self, Array[SceneBundleAtlasEntry], Array[SceneBundleAnimationClipEntry], Array[SceneBundleAnimationGraphEntry]) -> Self
 
 pub struct SceneListResponse {
   scenes : Array[@editor_bridge.SceneRef]

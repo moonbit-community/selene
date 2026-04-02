@@ -1,0 +1,8 @@
+members = [
+  "./selene-core",
+  "./selene-webgpu",
+  "./selene-raylib",
+  "./selene-tools",
+  "./selene-editor",
+  "./examples",
+]
