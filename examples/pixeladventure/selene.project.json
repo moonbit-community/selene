@@ -16,9 +16,6 @@
       "path": "assets/atlases/arrowkey.atlas.json"
     }
   ],
-  "animation_index": [
-    {
-      "path": "assets/animations/arrowkey.anim.json"
-    }
-  ]
+  "animation_clip_index": [],
+  "animation_graph_index": []
 }

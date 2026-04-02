@@ -171,9 +171,10 @@ async fn EditorService::open_project(
   let scenes = list_scene_documents(root)
   let prefabs = list_prefab_documents(root)
   let atlases = list_atlas_asset_documents(root)
-  let animations = list_animation_asset_documents(root)
+  let animation_clips = list_animation_clip_asset_documents(root)
+  let animation_graphs = list_animation_graph_asset_documents(root)
   let manifest = loaded_manifest.with_indexes(
-    scenes, prefabs, atlases, animations,
+    scenes, prefabs, atlases, animation_clips, animation_graphs,
   )
   if manifest != loaded_manifest {
     save_project_manifest(root, manifest)
@@ -191,7 +192,8 @@ async fn EditorService::open_project(
     scenes,
     prefabs,
     atlases,
-    animations,
+    animation_clips,
+    animation_graphs,
     Some(workspace),
     self.recent_projects,
   )
@@ -238,7 +240,8 @@ pub async fn EditorService::handle_rpc(
               list_scene_documents(project.root),
               list_prefab_documents(project.root),
               list_atlas_asset_documents(project.root),
-              list_animation_asset_documents(project.root),
+              list_animation_clip_asset_documents(project.root),
+              list_animation_graph_asset_documents(project.root),
               Some(load_workspace_document(project.root)),
               self.recent_projects,
             )
@@ -254,6 +257,7 @@ pub async fn EditorService::handle_rpc(
                 None,
                 empty_scenes,
                 empty_prefabs,
+                empty_assets,
                 empty_assets,
                 empty_assets,
                 None,
@@ -406,16 +410,48 @@ pub async fn EditorService::handle_rpc(
         save_atlas_asset_document(root, path, atlas)
         @shared.rpc_response_saved_ok()
       }
-      @shared.AnimationLoad(path~) => {
+      @shared.AnimationClipLoad(path~) => {
         let root = self.current_project_root()
-        let animation = load_animation_asset_document(root, path)
-        @shared.rpc_response_animation_loaded(
-          @shared.animation_load_response(path, animation),
+        let clip = load_animation_clip_asset_document(root, path)
+        @shared.rpc_response_animation_clip_loaded(
+          @shared.animation_clip_load_response(path, clip),
         )
       }
-      @shared.AnimationSave(path~, animation~) => {
+      @shared.AnimationClipSave(path~, clip~) => {
         let root = self.current_project_root()
-        save_animation_asset_document(root, path, animation)
+        save_animation_clip_asset_document(root, path, clip)
+        self.broadcast(
+          @shared.event_envelope(
+            @shared.editor_event_animation_clip_saved(path),
+          ),
+        )
+        @shared.rpc_response_saved_ok()
+      }
+      @shared.AnimationGraphLoad(path~) => {
+        let root = self.current_project_root()
+        let graph = load_animation_graph_asset_document(root, path)
+        @shared.rpc_response_animation_graph_loaded(
+          @shared.animation_graph_load_response(path, graph),
+        )
+      }
+      @shared.AnimationGraphSave(path~, graph~) => {
+        let root = self.current_project_root()
+        save_animation_graph_asset_document(root, path, graph)
+        self.broadcast(
+          @shared.event_envelope(
+            @shared.editor_event_animation_graph_saved(path),
+          ),
+        )
+        @shared.rpc_response_saved_ok()
+      }
+      @shared.AnimationMigrate(path~, scene_path~) => {
+        let root = self.current_project_root()
+        migrate_legacy_animation_document(root, path, scene_path)
+        self.broadcast(
+          @shared.event_envelope(
+            @shared.editor_event_animation_migrated(scene_path, path),
+          ),
+        )
         @shared.rpc_response_saved_ok()
       }
     }

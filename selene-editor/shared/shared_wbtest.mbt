@@ -5,8 +5,11 @@ test "all retained rpc requests round trip through typed envelopes" {
   let atlas = @editor_bridge.AtlasAssetDocument::default(
     "Hero Atlas", "assets/images/hero.png",
   )
-  let animation = @editor_bridge.AnimationAssetDocument::default(
-    "Hero Animation", "assets/atlases/hero.atlas.json",
+  let clip = @editor_bridge.AnimationClipAssetDocument::default(
+    "Hero Clip", "assets/atlases/hero.atlas.json",
+  )
+  let graph = @editor_bridge.AnimationGraphAssetDocument::default(
+    "Hero Graph", "assets/animation_clips/hero.clip.json",
   )
   let workspace = @editor_bridge.WorkspaceDocument::default()
     .with_move_snap_enabled(true)
@@ -48,11 +51,31 @@ test "all retained rpc requests round trip through typed envelopes" {
     ),
     rpc_request_envelope(
       17,
-      rpc_request_animation_load("assets/animations/hero.anim.json"),
+      rpc_request_animation_clip_load("assets/animation_clips/hero.clip.json"),
     ),
     rpc_request_envelope(
       18,
-      rpc_request_animation_save("assets/animations/hero.anim.json", animation),
+      rpc_request_animation_clip_save(
+        "assets/animation_clips/hero.clip.json", clip,
+      ),
+    ),
+    rpc_request_envelope(
+      19,
+      rpc_request_animation_graph_load(
+        "assets/animation_graphs/hero.graph.json",
+      ),
+    ),
+    rpc_request_envelope(
+      20,
+      rpc_request_animation_graph_save(
+        "assets/animation_graphs/hero.graph.json", graph,
+      ),
+    ),
+    rpc_request_envelope(
+      21,
+      rpc_request_animation_migrate(
+        "assets/animations/hero.anim.json", "scenes/main.scene.json",
+      ),
     ),
   ]
   for request in requests {
@@ -78,7 +101,8 @@ test "all retained rpc responses and editor events round trip through typed enve
     [@editor_bridge.scene_ref("scenes/main.scene.json")],
     [@editor_bridge.prefab_ref("prefabs/hero.prefab.json")],
     [@editor_bridge.asset_ref("assets/atlases/hero.atlas.json")],
-    [@editor_bridge.asset_ref("assets/animations/hero.anim.json")],
+    [@editor_bridge.asset_ref("assets/animation_clips/hero.clip.json")],
+    [@editor_bridge.asset_ref("assets/animation_graphs/hero.graph.json")],
     Some(@editor_bridge.WorkspaceDocument::default()),
     ["/tmp/demo"],
   )
@@ -104,10 +128,18 @@ test "all retained rpc responses and editor events round trip through typed enve
             ),
           ],
           [
-            scene_bundle_animation_entry(
-              "assets/animations/hero.anim.json",
-              @editor_bridge.AnimationAssetDocument::default(
-                "Hero Animation", "assets/atlases/hero.atlas.json",
+            scene_bundle_animation_clip_entry(
+              "assets/animation_clips/hero.clip.json",
+              @editor_bridge.AnimationClipAssetDocument::default(
+                "Hero Clip", "assets/atlases/hero.atlas.json",
+              ),
+            ),
+          ],
+          [
+            scene_bundle_animation_graph_entry(
+              "assets/animation_graphs/hero.graph.json",
+              @editor_bridge.AnimationGraphAssetDocument::default(
+                "Hero Graph", "assets/animation_clips/hero.clip.json",
               ),
             ),
           ],
@@ -157,23 +189,34 @@ test "all retained rpc responses and editor events round trip through typed enve
     ),
     rpc_response_envelope(
       9,
-      rpc_response_animation_loaded(
-        animation_load_response(
-          "assets/animations/hero.anim.json",
-          @editor_bridge.AnimationAssetDocument::default(
-            "Hero Animation", "assets/atlases/hero.atlas.json",
+      rpc_response_animation_clip_loaded(
+        animation_clip_load_response(
+          "assets/animation_clips/hero.clip.json",
+          @editor_bridge.AnimationClipAssetDocument::default(
+            "Hero Clip", "assets/atlases/hero.atlas.json",
           ),
         ),
       ),
     ),
     rpc_response_envelope(
       10,
+      rpc_response_animation_graph_loaded(
+        animation_graph_load_response(
+          "assets/animation_graphs/hero.graph.json",
+          @editor_bridge.AnimationGraphAssetDocument::default(
+            "Hero Graph", "assets/animation_clips/hero.clip.json",
+          ),
+        ),
+      ),
+    ),
+    rpc_response_envelope(
+      11,
       rpc_response_startup_scene_updated(
         @editor_bridge.ProjectManifest::default("Demo"),
       ),
     ),
-    rpc_response_envelope(11, rpc_response_saved_ok()),
-    rpc_error_response(12, "broken", "Something failed"),
+    rpc_response_envelope(12, rpc_response_saved_ok()),
+    rpc_error_response(13, "broken", "Something failed"),
   ]
   for response in responses {
     let decoded : RpcResponseEnvelope = @json.from_json(response.to_json())
@@ -193,6 +236,19 @@ test "all retained rpc responses and editor events round trip through typed enve
     event_envelope(editor_event_scene_created("scenes/extra.scene.json")),
     event_envelope(editor_event_scene_saved("scenes/main.scene.json")),
     event_envelope(editor_event_scene_deleted("scenes/old.scene.json")),
+    event_envelope(
+      editor_event_animation_clip_saved("assets/animation_clips/hero.clip.json"),
+    ),
+    event_envelope(
+      editor_event_animation_graph_saved(
+        "assets/animation_graphs/hero.graph.json",
+      ),
+    ),
+    event_envelope(
+      editor_event_animation_migrated(
+        "scenes/main.scene.json", "assets/animation_graphs/hero.graph.json",
+      ),
+    ),
     event_envelope(
       editor_event_asset_imported(
         @editor_bridge.asset_document(

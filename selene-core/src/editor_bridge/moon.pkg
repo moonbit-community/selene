@@ -16,6 +16,7 @@ import {
   "Milky2018/selene/visibility",
   "moonbitlang/core/encoding/utf8",
   "moonbitlang/core/json",
+  "moonbitlang/core/string",
 }
 
 supported_targets = "all"

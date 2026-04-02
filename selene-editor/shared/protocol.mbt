@@ -17,7 +17,8 @@ pub struct ProjectStateResponse {
   scenes : Array[@editor_bridge.SceneRef]
   prefabs : Array[@editor_bridge.PrefabRef]
   atlases : Array[@editor_bridge.AssetRef]
-  animations : Array[@editor_bridge.AssetRef]
+  animation_clips : Array[@editor_bridge.AssetRef]
+  animation_graphs : Array[@editor_bridge.AssetRef]
   workspace : @editor_bridge.WorkspaceDocument?
   recent_projects : Array[String]
 } derive(Show, Eq, ToJson, FromJson)
@@ -29,9 +30,15 @@ pub struct SceneBundleAtlasEntry {
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
-pub struct SceneBundleAnimationEntry {
+pub struct SceneBundleAnimationClipEntry {
   path : String
-  animation : @editor_bridge.AnimationAssetDocument
+  clip : @editor_bridge.AnimationClipAssetDocument
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
+pub struct SceneBundleAnimationGraphEntry {
+  path : String
+  graph : @editor_bridge.AnimationGraphAssetDocument
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
@@ -39,7 +46,8 @@ pub struct SceneBundleResponse {
   path : String
   scene : @editor_bridge.SceneDocument
   atlas_assets : Array[SceneBundleAtlasEntry]
-  animation_assets : Array[SceneBundleAnimationEntry]
+  animation_clip_assets : Array[SceneBundleAnimationClipEntry]
+  animation_graph_assets : Array[SceneBundleAnimationGraphEntry]
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
@@ -72,9 +80,15 @@ pub struct AtlasLoadResponse {
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
-pub struct AnimationLoadResponse {
+pub struct AnimationClipLoadResponse {
   path : String
-  animation : @editor_bridge.AnimationAssetDocument
+  clip : @editor_bridge.AnimationClipAssetDocument
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
+pub struct AnimationGraphLoadResponse {
+  path : String
+  graph : @editor_bridge.AnimationGraphAssetDocument
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
@@ -95,11 +109,17 @@ pub enum RpcRequest {
   PrefabSave(path~ : String, prefab~ : @editor_bridge.PrefabDocument)
   AtlasLoad(path~ : String)
   AtlasSave(path~ : String, atlas~ : @editor_bridge.AtlasAssetDocument)
-  AnimationLoad(path~ : String)
-  AnimationSave(
+  AnimationClipLoad(path~ : String)
+  AnimationClipSave(
     path~ : String,
-    animation~ : @editor_bridge.AnimationAssetDocument
+    clip~ : @editor_bridge.AnimationClipAssetDocument
   )
+  AnimationGraphLoad(path~ : String)
+  AnimationGraphSave(
+    path~ : String,
+    graph~ : @editor_bridge.AnimationGraphAssetDocument
+  )
+  AnimationMigrate(path~ : String, scene_path~ : String)
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
@@ -112,7 +132,8 @@ pub enum RpcResponse {
   AssetsListed(list~ : AssetsListResponse)
   PrefabLoaded(prefab~ : PrefabLoadResponse)
   AtlasLoaded(atlas~ : AtlasLoadResponse)
-  AnimationLoaded(animation~ : AnimationLoadResponse)
+  AnimationClipLoaded(clip~ : AnimationClipLoadResponse)
+  AnimationGraphLoaded(graph~ : AnimationGraphLoadResponse)
   StartupSceneUpdated(manifest~ : @editor_bridge.ProjectManifest)
   SavedOk
   Error(error~ : RpcErrorDocument)
@@ -139,6 +160,9 @@ pub enum EditorEvent {
   SceneCreated(path~ : String)
   SceneSaved(path~ : String)
   SceneDeleted(path~ : String)
+  AnimationClipSaved(path~ : String)
+  AnimationGraphSaved(path~ : String)
+  AnimationMigrated(scene_path~ : String, graph_path~ : String)
   AssetImported(asset~ : @editor_bridge.AssetDocument)
 } derive(Show, Eq, ToJson, FromJson)
 
@@ -159,7 +183,8 @@ pub fn project_state_response(
   scenes : Array[@editor_bridge.SceneRef],
   prefabs : Array[@editor_bridge.PrefabRef],
   atlases : Array[@editor_bridge.AssetRef],
-  animations : Array[@editor_bridge.AssetRef],
+  animation_clips : Array[@editor_bridge.AssetRef],
+  animation_graphs : Array[@editor_bridge.AssetRef],
   workspace : @editor_bridge.WorkspaceDocument?,
   recent_projects : Array[String],
 ) -> ProjectStateResponse {
@@ -169,7 +194,8 @@ pub fn project_state_response(
     scenes,
     prefabs,
     atlases,
-    animations,
+    animation_clips,
+    animation_graphs,
     workspace,
     recent_projects,
   }
@@ -184,11 +210,19 @@ pub fn scene_bundle_atlas_entry(
 }
 
 ///|
-pub fn scene_bundle_animation_entry(
+pub fn scene_bundle_animation_clip_entry(
   path : String,
-  animation : @editor_bridge.AnimationAssetDocument,
-) -> SceneBundleAnimationEntry {
-  { path, animation }
+  clip : @editor_bridge.AnimationClipAssetDocument,
+) -> SceneBundleAnimationClipEntry {
+  { path, clip }
+}
+
+///|
+pub fn scene_bundle_animation_graph_entry(
+  path : String,
+  graph : @editor_bridge.AnimationGraphAssetDocument,
+) -> SceneBundleAnimationGraphEntry {
+  { path, graph }
 }
 
 ///|
@@ -196,16 +230,23 @@ pub fn scene_bundle_response(
   path : String,
   scene : @editor_bridge.SceneDocument,
 ) -> SceneBundleResponse {
-  { path, scene, atlas_assets: [], animation_assets: [] }
+  {
+    path,
+    scene,
+    atlas_assets: [],
+    animation_clip_assets: [],
+    animation_graph_assets: [],
+  }
 }
 
 ///|
 pub fn SceneBundleResponse::with_assets(
   self : SceneBundleResponse,
   atlas_assets : Array[SceneBundleAtlasEntry],
-  animation_assets : Array[SceneBundleAnimationEntry],
+  animation_clip_assets : Array[SceneBundleAnimationClipEntry],
+  animation_graph_assets : Array[SceneBundleAnimationGraphEntry],
 ) -> SceneBundleResponse {
-  { ..self, atlas_assets, animation_assets }
+  { ..self, atlas_assets, animation_clip_assets, animation_graph_assets }
 }
 
 ///|
@@ -254,11 +295,19 @@ pub fn atlas_load_response(
 }
 
 ///|
-pub fn animation_load_response(
+pub fn animation_clip_load_response(
   path : String,
-  animation : @editor_bridge.AnimationAssetDocument,
-) -> AnimationLoadResponse {
-  { path, animation }
+  clip : @editor_bridge.AnimationClipAssetDocument,
+) -> AnimationClipLoadResponse {
+  { path, clip }
+}
+
+///|
+pub fn animation_graph_load_response(
+  path : String,
+  graph : @editor_bridge.AnimationGraphAssetDocument,
+) -> AnimationGraphLoadResponse {
+  { path, graph }
 }
 
 ///|
@@ -387,16 +436,37 @@ pub fn rpc_request_atlas_save(
 }
 
 ///|
-pub fn rpc_request_animation_load(path : String) -> RpcRequest {
-  AnimationLoad(path~)
+pub fn rpc_request_animation_clip_load(path : String) -> RpcRequest {
+  AnimationClipLoad(path~)
 }
 
 ///|
-pub fn rpc_request_animation_save(
+pub fn rpc_request_animation_clip_save(
   path : String,
-  animation : @editor_bridge.AnimationAssetDocument,
+  clip : @editor_bridge.AnimationClipAssetDocument,
 ) -> RpcRequest {
-  AnimationSave(path~, animation~)
+  AnimationClipSave(path~, clip~)
+}
+
+///|
+pub fn rpc_request_animation_graph_load(path : String) -> RpcRequest {
+  AnimationGraphLoad(path~)
+}
+
+///|
+pub fn rpc_request_animation_graph_save(
+  path : String,
+  graph : @editor_bridge.AnimationGraphAssetDocument,
+) -> RpcRequest {
+  AnimationGraphSave(path~, graph~)
+}
+
+///|
+pub fn rpc_request_animation_migrate(
+  path : String,
+  scene_path : String,
+) -> RpcRequest {
+  AnimationMigrate(path~, scene_path~)
 }
 
 ///|
@@ -460,10 +530,17 @@ pub fn rpc_response_atlas_loaded(atlas : AtlasLoadResponse) -> RpcResponse {
 }
 
 ///|
-pub fn rpc_response_animation_loaded(
-  animation : AnimationLoadResponse,
+pub fn rpc_response_animation_clip_loaded(
+  clip : AnimationClipLoadResponse,
 ) -> RpcResponse {
-  AnimationLoaded(animation~)
+  AnimationClipLoaded(clip~)
+}
+
+///|
+pub fn rpc_response_animation_graph_loaded(
+  graph : AnimationGraphLoadResponse,
+) -> RpcResponse {
+  AnimationGraphLoaded(graph~)
 }
 
 ///|
@@ -529,6 +606,24 @@ pub fn editor_event_scene_saved(path : String) -> EditorEvent {
 ///|
 pub fn editor_event_scene_deleted(path : String) -> EditorEvent {
   SceneDeleted(path~)
+}
+
+///|
+pub fn editor_event_animation_clip_saved(path : String) -> EditorEvent {
+  AnimationClipSaved(path~)
+}
+
+///|
+pub fn editor_event_animation_graph_saved(path : String) -> EditorEvent {
+  AnimationGraphSaved(path~)
+}
+
+///|
+pub fn editor_event_animation_migrated(
+  scene_path : String,
+  graph_path : String,
+) -> EditorEvent {
+  AnimationMigrated(scene_path~, graph_path~)
 }
 
 ///|

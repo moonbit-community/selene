@@ -252,6 +252,7 @@ test "project load refreshes both scene and asset list" {
           [],
           [],
           [],
+          [],
           Some(@editor_bridge.WorkspaceDocument::default()),
           [],
         ),
@@ -272,6 +273,7 @@ test "project load rejects missing workspace payload" {
         @shared.project_state_response(
           Some("/tmp/demo"),
           Some(@editor_bridge.ProjectManifest::default("demo")),
+          [],
           [],
           [],
           [],
@@ -301,6 +303,7 @@ test "project load applies persisted move-snap workspace settings" {
         @shared.project_state_response(
           Some("/tmp/demo"),
           Some(@editor_bridge.ProjectManifest::default("demo")),
+          [],
           [],
           [],
           [],
@@ -367,6 +370,99 @@ test "cancelling scene migration keeps the scene unloaded" {
   inspect(next.scene is None, content="true")
   inspect(next.pending_scene_migration is None, content="true")
   inspect(next.status, content="Scene migration cancelled")
+}
+
+///|
+test "legacy animation references trigger migration prompt on scene load" {
+  let scene = @editor_bridge.SceneDocument::default_main()
+  let camera = scene.entity("camera").unwrap()
+  let legacy_player = @editor_bridge.component_document(
+    "AnimationPlayer",
+    @json.parse(
+      "{\"animation_asset_path\":\"assets/animations/hero.anim.json\",\"default_clip\":\"idle\",\"autoplay\":true,\"repeat_mode\":\"forever\",\"speed\":1}",
+    ),
+  )
+  let legacy_scene = scene.with_entity(camera.with_component(legacy_player))
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+  }
+  let (_effects, next) = update(
+    msg_scene_loaded(
+      Ok(
+        @shared.scene_load_outcome_loaded(
+          @shared.scene_bundle_response("scenes/main.scene.json", legacy_scene),
+        ),
+      ),
+    ),
+    model,
+  )
+  inspect(
+    next.pending_animation_migration_paths,
+    content="[\"assets/animations/hero.anim.json\"]",
+  )
+  inspect(
+    next.pending_animation_migration_scene_path,
+    content="Some(\"scenes/main.scene.json\")",
+  )
+  inspect(next.animation_migration_total, content="1")
+}
+
+///|
+test "animation migration confirm runs batch sequentially and reports failures" {
+  let base = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    pending_animation_migration_paths: [
+      "assets/animations/a.anim.json", "assets/animations/b.anim.json",
+    ],
+    pending_animation_migration_scene_path: Some("scenes/main.scene.json"),
+  }
+  let (confirm_effects, confirming) = update(
+    msg_confirm_animation_migration(),
+    base,
+  )
+  inspect(confirm_effects.length(), content="1")
+  inspect(confirming.animation_migration_in_progress, content="true")
+  inspect(confirming.animation_migration_total, content="2")
+  inspect(confirming.animation_migration_completed, content="0")
+  inspect(confirming.status, content="Migrating legacy animations (0/2)...")
+
+  let (first_effects, progressed) = update(
+    msg_animation_migration_saved(Ok(())),
+    confirming,
+  )
+  inspect(first_effects.length(), content="1")
+  inspect(progressed.animation_migration_completed, content="1")
+  inspect(progressed.animation_migration_failed, content="0")
+  inspect(progressed.status, content="Migrating legacy animations (1/2)...")
+
+  let (final_effects, finished) = update(
+    msg_animation_migration_saved(Err("decode failed")),
+    progressed,
+  )
+  inspect(final_effects.length(), content="0")
+  inspect(finished.animation_migration_in_progress, content="false")
+  inspect(finished.pending_animation_migration_paths.length(), content="0")
+  inspect(
+    finished.status,
+    content="Legacy animation migration finished with 1 failures",
+  )
+}
+
+///|
+test "cancelling animation migration dismisses prompt for current session" {
+  let model = {
+    ..new_model(),
+    pending_animation_migration_paths: ["assets/animations/hero.anim.json"],
+    pending_animation_migration_scene_path: Some("scenes/main.scene.json"),
+  }
+  let (_effects, next) = update(msg_cancel_animation_migration(), model)
+  inspect(next.pending_animation_migration_paths.length(), content="0")
+  inspect(next.animation_migration_prompt_dismissed, content="true")
+  inspect(next.status, content="Animation migration cancelled")
 }
 
 ///|
@@ -545,6 +641,70 @@ test "creating an atlas from a selected image updates resource state" {
 }
 
 ///|
+test "creating animation clip from selected atlas selects clip asset" {
+  let atlas = @editor_bridge.atlas_asset_document_from_image(
+    "hero",
+    "assets/images/hero.png",
+    @editor_bridge.vec2_doc(32.0, 32.0),
+  )
+  let model = {
+    ..new_model(),
+    animation_clips_section_expanded: false,
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    atlas_refs: [@editor_bridge.asset_ref("assets/atlases/hero.atlas.json")],
+    atlas_documents: { "assets/atlases/hero.atlas.json": atlas },
+    selected_resource: Some(
+      resource_selection_atlas("assets/atlases/hero.atlas.json"),
+    ),
+  }
+  let (effects, next) = update(
+    msg_create_animation_from_selected_atlas(),
+    model,
+  )
+  inspect(effects.length(), content="1")
+  inspect(next.animation_clip_refs.length(), content="1")
+  inspect(
+    next.selected_resource,
+    content="Some(AnimationClip(\"assets/animation_clips/hero-clip.clip.json\"))",
+  )
+  inspect(next.animation_clips_section_expanded, content="true")
+  inspect(next.status, content="Created animation clip hero Clip")
+}
+
+///|
+test "creating animation graph from selected clip selects graph asset" {
+  let clip = @editor_bridge.AnimationClipAssetDocument::default(
+    "hero", "assets/atlases/hero.atlas.json",
+  )
+  let model = {
+    ..new_model(),
+    animation_graphs_section_expanded: false,
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    animation_clip_refs: [
+      @editor_bridge.asset_ref("assets/animation_clips/hero.clip.json"),
+    ],
+    animation_clip_documents: { "assets/animation_clips/hero.clip.json": clip },
+    selected_resource: Some(
+      resource_selection_animation_clip("assets/animation_clips/hero.clip.json"),
+    ),
+  }
+  let (effects, next) = update(
+    msg_create_animation_graph_from_selected_clip(),
+    model,
+  )
+  inspect(effects.length(), content="1")
+  inspect(next.animation_graph_refs.length(), content="1")
+  inspect(
+    next.selected_resource,
+    content="Some(AnimationGraph(\"assets/animation_graphs/hero-graph.graph.json\"))",
+  )
+  inspect(next.animation_graphs_section_expanded, content="true")
+  inspect(next.status, content="Created animation graph hero Graph")
+}
+
+///|
 test "editing a selected atlas updates the atlas document and save emits rpc" {
   let atlas = @editor_bridge.atlas_asset_document_from_image(
     "hero",
@@ -574,36 +734,36 @@ test "editing a selected atlas updates the atlas document and save emits rpc" {
 }
 
 ///|
-test "editing a selected animation updates the animation document and save emits rpc" {
-  let animation = @editor_bridge.animation_asset_document_from_frames(
-    "hero",
-    "assets/atlases/hero.atlas.json",
-    ["idle_0", "idle_1"],
-  )
+test "editing a selected animation clip updates the clip document and save emits rpc" {
+  let animation = @editor_bridge.AnimationClipAssetDocument::default(
+    "hero", "assets/atlases/hero.atlas.json",
+  ).with_frames(["idle_0", "idle_1"])
   let model = {
     ..new_model(),
     current_root: Some("/tmp/demo"),
     manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
-    animation_refs: [
-      @editor_bridge.asset_ref("assets/animations/hero.anim.json"),
+    animation_clip_refs: [
+      @editor_bridge.asset_ref("assets/animation_clips/hero.clip.json"),
     ],
-    animation_documents: { "assets/animations/hero.anim.json": animation },
+    animation_clip_documents: {
+      "assets/animation_clips/hero.clip.json": animation,
+    },
     selected_resource: Some(
-      resource_selection_animation("assets/animations/hero.anim.json"),
+      resource_selection_animation_clip("assets/animation_clips/hero.clip.json"),
     ),
   }
   let (_, edited) = update(
     msg_update_selected_animation_clip_frames("run_0, run_1"),
     model,
   )
-  let updated = edited.animation_documents
-    .get("assets/animations/hero.anim.json")
+  let updated = edited.animation_clip_documents
+    .get("assets/animation_clips/hero.clip.json")
     .unwrap()
-  inspect(updated.clips[0].frames.join(","), content="run_0,run_1")
+  inspect(updated.frames.join(","), content="run_0,run_1")
 
-  let (effects, saving) = update(msg_save_selected_animation(), edited)
+  let (effects, saving) = update(msg_save_selected_animation_clip(), edited)
   inspect(effects.length(), content="1")
-  inspect(saving.status, content="Saving animation...")
+  inspect(saving.status, content="Saving animation clip...")
 }
 
 ///|
@@ -702,14 +862,16 @@ test "asset and resource load errors remain user-facing and non-fatal" {
   )
 
   let (_, animation_error) = update(
-    msg_animation_loaded(
-      Err("Animation document is invalid: assets/animations/hero.anim.json"),
+    msg_animation_clip_loaded(
+      Err(
+        "Animation clip document is invalid: assets/animation_clips/hero.clip.json",
+      ),
     ),
     atlas_error,
   )
   inspect(
     animation_error.status,
-    content="Animation load failed: Animation document is invalid: assets/animations/hero.anim.json",
+    content="Animation clip load failed: Animation clip document is invalid: assets/animation_clips/hero.clip.json",
   )
   inspect(animation_error.scene is Some(_), content="true")
 }
@@ -871,6 +1033,93 @@ test "adding animation transitions auto-adds required dependency chain" {
   inspect(camera.component("AnimationPlayer") is Some(_), content="true")
   inspect(camera.component("AnimationTransitions") is Some(_), content="true")
   inspect(next.undo_stack.length(), content="1")
+}
+
+///|
+test "animation player typed edits update component fields including negative speed" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(@editor_bridge.SceneDocument::default_main()),
+    selected_entity_id: Some("camera"),
+  }
+  let (_, seeded) = update(
+    msg_add_builtin_component(
+      @editor_bridge.builtin_component_kind_from_string("AnimationTransitions").unwrap(),
+    ),
+    model,
+  )
+  let (_, graph_path_updated) = update(
+    msg_update_selected_animation_player_graph_path(
+      "assets/animation_graphs/hero.graph.json",
+    ),
+    seeded,
+  )
+  let (_, start_node_updated) = update(
+    msg_update_selected_animation_player_start_node("idle"),
+    graph_path_updated,
+  )
+  let (_, repeat_updated) = update(
+    msg_update_selected_animation_player_repeat_mode("count"),
+    start_node_updated,
+  )
+  let (_, speed_updated) = update(
+    msg_update_selected_animation_player_speed("-1.5"),
+    repeat_updated,
+  )
+  let (_, autoplay_toggled) = update(
+    msg_toggle_selected_animation_player_autoplay(),
+    speed_updated,
+  )
+  let (_, committed) = update(
+    msg_commit_scene_edit_transaction(),
+    autoplay_toggled,
+  )
+  let camera = committed.scene.unwrap().entity("camera").unwrap()
+  let player : @editor_bridge.AnimationPlayerComponent = component_of(
+    camera, "AnimationPlayer",
+  ).unwrap()
+  inspect(
+    player.graph_asset_path,
+    content="Some(\"assets/animation_graphs/hero.graph.json\")",
+  )
+  inspect(player.start_node, content="Some(\"idle\")")
+  inspect(player.repeat_mode, content="count:1")
+  inspect(player.repeat_mode_doc(), content="Count(1)")
+  inspect(player.speed, content="-1.5")
+  inspect(player.autoplay, content="true")
+  inspect(committed.undo_stack.length() > 0, content="true")
+}
+
+///|
+test "animation transitions typed edit updates duration" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(@editor_bridge.SceneDocument::default_main()),
+    selected_entity_id: Some("camera"),
+  }
+  let (_, seeded) = update(
+    msg_add_builtin_component(
+      @editor_bridge.builtin_component_kind_from_string("AnimationTransitions").unwrap(),
+    ),
+    model,
+  )
+  let (_, duration_updated) = update(
+    msg_update_selected_animation_transitions_duration("0.4"),
+    seeded,
+  )
+  let (_, committed) = update(
+    msg_commit_scene_edit_transaction(),
+    duration_updated,
+  )
+  let camera = committed.scene.unwrap().entity("camera").unwrap()
+  let transitions : @editor_bridge.AnimationTransitionsComponent = component_of(
+    camera, "AnimationTransitions",
+  ).unwrap()
+  inspect(transitions.duration, content="0.4")
 }
 
 ///|
@@ -1140,4 +1389,381 @@ test "transform gesture without change does not push undo history" {
     started,
   )
   inspect(finished.undo_stack.length(), content="0")
+}
+
+///|
+test "add clip node appends a new graph node using first clip asset path" {
+  let graph_path = "assets/animation_graphs/hero.graph.json"
+  let clip_path = "assets/animation_clips/hero.clip.json"
+  let model = {
+    ..new_model(),
+    selected_resource: Some(resource_selection_animation_graph(graph_path)),
+    animation_graph_documents: {
+      "assets/animation_graphs/hero.graph.json": @editor_bridge.AnimationGraphAssetDocument::default(
+        "Hero Graph", clip_path,
+      ),
+    },
+    animation_clip_refs: [@editor_bridge.asset_ref(clip_path)],
+  }
+  let (_, next) = update(msg_add_selected_animation_graph_clip_node(), model)
+  let graph = next.animation_graph_documents.get(graph_path).unwrap()
+  inspect(graph.nodes.length(), content="2")
+  match graph.nodes[1].kind {
+    @editor_bridge.Clip(clip_asset_path~) =>
+      inspect(clip_asset_path, content=clip_path)
+    _ => inspect(false, content="true")
+  }
+}
+
+///|
+test "remove graph node prunes incoming edges and reassigns default node" {
+  let graph_path = "assets/animation_graphs/hero.graph.json"
+  let clip_path = "assets/animation_clips/hero.clip.json"
+  let node_a = @editor_bridge.animation_graph_node_document(
+    "node-a",
+    @editor_bridge.animation_graph_node_kind_blend(),
+    edges=[@editor_bridge.animation_graph_edge_document("node-b", weight=1.0)],
+  )
+  let node_b = @editor_bridge.animation_graph_node_document(
+    "node-b",
+    @editor_bridge.animation_graph_node_kind_clip(clip_path),
+  )
+  let graph = @editor_bridge.animation_graph_asset_document(
+    "Hero Graph",
+    [node_a, node_b],
+    Some("node-b"),
+  )
+  let model = {
+    ..new_model(),
+    selected_resource: Some(resource_selection_animation_graph(graph_path)),
+    animation_graph_documents: {
+      "assets/animation_graphs/hero.graph.json": graph,
+    },
+  }
+  let (_, next) = update(
+    msg_remove_selected_animation_graph_node("node-b"),
+    model,
+  )
+  let updated = next.animation_graph_documents.get(graph_path).unwrap()
+  inspect(updated.nodes.length(), content="1")
+  inspect(updated.default_node, content="Some(\"node-a\")")
+  inspect(updated.nodes[0].edges.length(), content="0")
+}
+
+///|
+test "updating clip path only affects clip nodes" {
+  let graph_path = "assets/animation_graphs/hero.graph.json"
+  let old_clip_path = "assets/animation_clips/idle.clip.json"
+  let new_clip_path = "assets/animation_clips/run.clip.json"
+  let node_clip = @editor_bridge.animation_graph_node_document(
+    "node-clip",
+    @editor_bridge.animation_graph_node_kind_clip(old_clip_path),
+  )
+  let node_blend = @editor_bridge.animation_graph_node_document(
+    "node-blend",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let graph = @editor_bridge.animation_graph_asset_document(
+    "Hero Graph",
+    [node_clip, node_blend],
+    Some("node-clip"),
+  )
+  let model = {
+    ..new_model(),
+    selected_resource: Some(resource_selection_animation_graph(graph_path)),
+    animation_graph_documents: {
+      "assets/animation_graphs/hero.graph.json": graph,
+    },
+  }
+  let (_, next) = update(
+    msg_update_selected_animation_graph_node_clip_path(
+      "node-clip", new_clip_path,
+    ),
+    model,
+  )
+  let updated = next.animation_graph_documents.get(graph_path).unwrap()
+  match updated.nodes[0].kind {
+    @editor_bridge.Clip(clip_asset_path~) =>
+      inspect(clip_asset_path, content=new_clip_path)
+    _ => inspect(false, content="true")
+  }
+  match updated.nodes[1].kind {
+    @editor_bridge.Blend => inspect(true, content="true")
+    _ => inspect(false, content="true")
+  }
+}
+
+///|
+test "adding graph edge links to another available node" {
+  let graph_path = "assets/animation_graphs/hero.graph.json"
+  let node_a = @editor_bridge.animation_graph_node_document(
+    "node-a",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let node_b = @editor_bridge.animation_graph_node_document(
+    "node-b",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let graph = @editor_bridge.animation_graph_asset_document(
+    "Hero Graph",
+    [node_a, node_b],
+    Some("node-a"),
+  )
+  let model = {
+    ..new_model(),
+    selected_resource: Some(resource_selection_animation_graph(graph_path)),
+    animation_graph_documents: {
+      "assets/animation_graphs/hero.graph.json": graph,
+    },
+  }
+  let (_, next) = update(msg_add_selected_animation_graph_edge("node-a"), model)
+  let updated = next.animation_graph_documents.get(graph_path).unwrap()
+  inspect(updated.nodes[0].edges.length(), content="1")
+  inspect(updated.nodes[0].edges[0].to, content="node-b")
+}
+
+///|
+test "editing graph edge target and weight persists values" {
+  let graph_path = "assets/animation_graphs/hero.graph.json"
+  let node_a = @editor_bridge.animation_graph_node_document(
+    "node-a",
+    @editor_bridge.animation_graph_node_kind_blend(),
+    edges=[@editor_bridge.animation_graph_edge_document("node-b")],
+  )
+  let node_b = @editor_bridge.animation_graph_node_document(
+    "node-b",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let node_c = @editor_bridge.animation_graph_node_document(
+    "node-c",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let graph = @editor_bridge.animation_graph_asset_document(
+    "Hero Graph",
+    [node_a, node_b, node_c],
+    Some("node-a"),
+  )
+  let model = {
+    ..new_model(),
+    selected_resource: Some(resource_selection_animation_graph(graph_path)),
+    animation_graph_documents: {
+      "assets/animation_graphs/hero.graph.json": graph,
+    },
+  }
+  let (_, target_updated) = update(
+    msg_update_selected_animation_graph_edge_target("node-a", 0, "node-c"),
+    model,
+  )
+  let (_, weight_updated) = update(
+    msg_update_selected_animation_graph_edge_weight("node-a", 0, "2.5"),
+    target_updated,
+  )
+  let updated = weight_updated.animation_graph_documents
+    .get(graph_path)
+    .unwrap()
+  inspect(updated.nodes[0].edges[0].to, content="node-c")
+  inspect(updated.nodes[0].edges[0].weight, content="2.5")
+}
+
+///|
+test "graph canvas edge connect adds edge and clears pending source" {
+  let graph_path = "assets/animation_graphs/hero.graph.json"
+  let node_a = @editor_bridge.animation_graph_node_document(
+    "node-a",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let node_b = @editor_bridge.animation_graph_node_document(
+    "node-b",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let graph = @editor_bridge.animation_graph_asset_document(
+    "Hero Graph",
+    [node_a, node_b],
+    Some("node-a"),
+  )
+  let model = {
+    ..new_model(),
+    selected_resource: Some(resource_selection_animation_graph(graph_path)),
+    animation_graph_documents: {
+      "assets/animation_graphs/hero.graph.json": graph,
+    },
+  }
+  let (_, connecting) = update(
+    msg_begin_selected_animation_graph_edge_connect("node-a"),
+    model,
+  )
+  inspect(connecting.graph_edge_connect_source_node, content="Some(\"node-a\")")
+
+  let (_, connected) = update(
+    msg_complete_selected_animation_graph_edge_connect("node-b"),
+    connecting,
+  )
+  inspect(connected.graph_edge_connect_source_node, content="None")
+  inspect(connected.status, content="Connected graph edge: node-a -> node-b")
+  let updated = connected.animation_graph_documents.get(graph_path).unwrap()
+  inspect(updated.nodes[0].edges.length(), content="1")
+  inspect(updated.nodes[0].edges[0].to, content="node-b")
+}
+
+///|
+test "graph canvas edge connect does not duplicate existing edge" {
+  let graph_path = "assets/animation_graphs/hero.graph.json"
+  let node_a = @editor_bridge.animation_graph_node_document(
+    "node-a",
+    @editor_bridge.animation_graph_node_kind_blend(),
+    edges=[@editor_bridge.animation_graph_edge_document("node-b")],
+  )
+  let node_b = @editor_bridge.animation_graph_node_document(
+    "node-b",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let graph = @editor_bridge.animation_graph_asset_document(
+    "Hero Graph",
+    [node_a, node_b],
+    Some("node-a"),
+  )
+  let model = {
+    ..new_model(),
+    selected_resource: Some(resource_selection_animation_graph(graph_path)),
+    animation_graph_documents: {
+      "assets/animation_graphs/hero.graph.json": graph,
+    },
+    graph_edge_connect_source_node: Some("node-a"),
+  }
+  let (_, next) = update(
+    msg_complete_selected_animation_graph_edge_connect("node-b"),
+    model,
+  )
+  inspect(next.graph_edge_connect_source_node, content="None")
+  inspect(next.status, content="Graph edge already exists: node-a -> node-b")
+  let updated = next.animation_graph_documents.get(graph_path).unwrap()
+  inspect(updated.nodes[0].edges.length(), content="1")
+}
+
+///|
+test "removing graph edge deletes selected edge index" {
+  let graph_path = "assets/animation_graphs/hero.graph.json"
+  let node_a = @editor_bridge.animation_graph_node_document(
+    "node-a",
+    @editor_bridge.animation_graph_node_kind_blend(),
+    edges=[
+      @editor_bridge.animation_graph_edge_document("node-b"),
+      @editor_bridge.animation_graph_edge_document("node-c"),
+    ],
+  )
+  let node_b = @editor_bridge.animation_graph_node_document(
+    "node-b",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let node_c = @editor_bridge.animation_graph_node_document(
+    "node-c",
+    @editor_bridge.animation_graph_node_kind_blend(),
+  )
+  let graph = @editor_bridge.animation_graph_asset_document(
+    "Hero Graph",
+    [node_a, node_b, node_c],
+    Some("node-a"),
+  )
+  let model = {
+    ..new_model(),
+    selected_resource: Some(resource_selection_animation_graph(graph_path)),
+    animation_graph_documents: {
+      "assets/animation_graphs/hero.graph.json": graph,
+    },
+  }
+  let (_, next) = update(
+    msg_remove_selected_animation_graph_edge("node-a", 0),
+    model,
+  )
+  let updated = next.animation_graph_documents.get(graph_path).unwrap()
+  inspect(updated.nodes[0].edges.length(), content="1")
+  inspect(updated.nodes[0].edges[0].to, content="node-c")
+}
+
+///|
+test "moving graph node updates its position from normalized canvas coordinates" {
+  let graph_path = "assets/animation_graphs/hero.graph.json"
+  let node_a = @editor_bridge.animation_graph_node_document(
+    "node-a",
+    @editor_bridge.animation_graph_node_kind_blend(),
+    position=@editor_bridge.vec2_doc(-10.0, -10.0),
+  )
+  let node_b = @editor_bridge.animation_graph_node_document(
+    "node-b",
+    @editor_bridge.animation_graph_node_kind_blend(),
+    position=@editor_bridge.vec2_doc(10.0, 10.0),
+  )
+  let graph = @editor_bridge.animation_graph_asset_document(
+    "Hero Graph",
+    [node_a, node_b],
+    Some("node-a"),
+  )
+  let model = {
+    ..new_model(),
+    selected_resource: Some(resource_selection_animation_graph(graph_path)),
+    animation_graph_documents: {
+      "assets/animation_graphs/hero.graph.json": graph,
+    },
+  }
+  let (_, next) = update(
+    msg_move_selected_animation_graph_node("node-a", 0.5, 0.25),
+    model,
+  )
+  let updated = next.animation_graph_documents.get(graph_path).unwrap()
+  inspect(updated.nodes[0].position.x, content="0")
+  inspect(updated.nodes[0].position.y, content="-5")
+}
+
+///|
+test "toggle animation preview paused emits preview command" {
+  let (effects, next) = update(
+    msg_toggle_animation_preview_paused(),
+    new_model(),
+  )
+  let mut has_preview_command = false
+  for effect in effects {
+    match effect {
+      Preview(@bridge.SetAnimationPreviewPaused(true)) =>
+        has_preview_command = true
+      _ => ()
+    }
+  }
+  inspect(next.animation_preview_paused, content="true")
+  inspect(has_preview_command, content="true")
+}
+
+///|
+test "animation preview speed and seek emit preview commands" {
+  let (speed_effects, speed_updated) = update(
+    msg_update_animation_preview_speed("1.5"),
+    new_model(),
+  )
+  let mut has_speed_command = false
+  for effect in speed_effects {
+    match effect {
+      Preview(@bridge.SetAnimationPreviewSpeed(speed)) if speed == 1.5 =>
+        has_speed_command = true
+      _ => ()
+    }
+  }
+  inspect(speed_updated.animation_preview_speed, content="1.5")
+  inspect(has_speed_command, content="true")
+
+  let (_, seek_input_updated) = update(
+    msg_update_animation_preview_seek_input("2.25"),
+    speed_updated,
+  )
+  let (seek_effects, _) = update(
+    msg_apply_animation_preview_seek(),
+    seek_input_updated,
+  )
+  let mut has_seek_command = false
+  for effect in seek_effects {
+    match effect {
+      Preview(@bridge.SeekAnimationPreview(seconds)) if seconds == 2.25 =>
+        has_seek_command = true
+      _ => ()
+    }
+  }
+  inspect(has_seek_command, content="true")
 }

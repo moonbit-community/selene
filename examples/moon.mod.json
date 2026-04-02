@@ -18,5 +18,6 @@
   "license": "Apache-2.0",
   "keywords": [],
   "description": "",
-  "preferred-target": "js"
+  "preferred-target": "js",
+  "supported-targets": "js"
 }

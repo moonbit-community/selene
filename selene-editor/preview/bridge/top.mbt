@@ -5,9 +5,15 @@ pub struct AtlasAssetEntry {
 } derive(Show, Eq)
 
 ///|
-pub struct AnimationAssetEntry {
+pub struct AnimationClipAssetEntry {
   path : String
-  animation : @editor_bridge.AnimationAssetDocument
+  clip : @editor_bridge.AnimationClipAssetDocument
+} derive(Show, Eq)
+
+///|
+pub struct AnimationGraphAssetEntry {
+  path : String
+  graph : @editor_bridge.AnimationGraphAssetDocument
 } derive(Show, Eq)
 
 ///|
@@ -15,7 +21,8 @@ pub struct PreviewScenePayload {
   scene_path : String?
   scene : @editor_bridge.SceneDocument
   atlases : Array[AtlasAssetEntry]
-  animations : Array[AnimationAssetEntry]
+  animation_clips : Array[AnimationClipAssetEntry]
+  animation_graphs : Array[AnimationGraphAssetEntry]
 } derive(Show, Eq)
 
 ///|
@@ -27,11 +34,19 @@ pub fn atlas_asset_entry(
 }
 
 ///|
-pub fn animation_asset_entry(
+pub fn animation_clip_asset_entry(
   path : String,
-  animation : @editor_bridge.AnimationAssetDocument,
-) -> AnimationAssetEntry {
-  { path, animation }
+  clip : @editor_bridge.AnimationClipAssetDocument,
+) -> AnimationClipAssetEntry {
+  { path, clip }
+}
+
+///|
+pub fn animation_graph_asset_entry(
+  path : String,
+  graph : @editor_bridge.AnimationGraphAssetDocument,
+) -> AnimationGraphAssetEntry {
+  { path, graph }
 }
 
 ///|
@@ -39,9 +54,10 @@ pub fn preview_scene_payload(
   scene_path : String?,
   scene : @editor_bridge.SceneDocument,
   atlases : Array[AtlasAssetEntry],
-  animations : Array[AnimationAssetEntry],
+  animation_clips : Array[AnimationClipAssetEntry],
+  animation_graphs : Array[AnimationGraphAssetEntry],
 ) -> PreviewScenePayload {
-  { scene_path, scene, atlases, animations }
+  { scene_path, scene, atlases, animation_clips, animation_graphs }
 }
 
 ///|
@@ -66,6 +82,9 @@ pub enum PreviewCommand {
   SelectEntity(String?)
   SetTool(@shared.PreviewTool)
   SetMoveSnap(enabled~ : Bool, step~ : Double)
+  SetAnimationPreviewPaused(Bool)
+  SetAnimationPreviewSpeed(Double)
+  SeekAnimationPreview(Double)
   FrameSelection
 } derive(Show, Eq)
 
@@ -132,6 +151,27 @@ pub fn preview_command_set_move_snap(
   step : Double,
 ) -> PreviewCommand {
   SetMoveSnap(enabled~, step~)
+}
+
+///|
+pub fn preview_command_set_animation_preview_paused(
+  paused : Bool,
+) -> PreviewCommand {
+  SetAnimationPreviewPaused(paused)
+}
+
+///|
+pub fn preview_command_set_animation_preview_speed(
+  speed : Double,
+) -> PreviewCommand {
+  SetAnimationPreviewSpeed(speed)
+}
+
+///|
+pub fn preview_command_seek_animation_preview(
+  seconds : Double,
+) -> PreviewCommand {
+  SeekAnimationPreview(seconds)
 }
 
 ///|

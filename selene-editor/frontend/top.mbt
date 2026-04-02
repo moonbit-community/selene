@@ -95,13 +95,24 @@ fn atlas_loaded_of_response(
 }
 
 ///|
-fn animation_loaded_of_response(
+fn animation_clip_loaded_of_response(
   response : @shared.RpcResponse,
-) -> Result[@shared.AnimationLoadResponse, String] {
+) -> Result[@shared.AnimationClipLoadResponse, String] {
   match response {
-    @shared.AnimationLoaded(animation~) => Ok(animation)
+    @shared.AnimationClipLoaded(clip~) => Ok(clip)
     @shared.Error(error~) => Err(error.message)
-    _ => Err("Unexpected RPC response for animation")
+    _ => Err("Unexpected RPC response for animation clip")
+  }
+}
+
+///|
+fn animation_graph_loaded_of_response(
+  response : @shared.RpcResponse,
+) -> Result[@shared.AnimationGraphLoadResponse, String] {
+  match response {
+    @shared.AnimationGraphLoaded(graph~) => Ok(graph)
+    @shared.Error(error~) => Err(error.message)
+    _ => Err("Unexpected RPC response for animation graph")
   }
 }
 
@@ -427,6 +438,43 @@ extern "js" fn drag_event_set_drop_copy(event : @dom.DragEvent) =
 
 ///|
 #cfg(target="js")
+extern "js" fn drag_event_set_graph_node_payload(
+  event : @dom.DragEvent,
+  node_id : String,
+) =
+  #| (event, nodeId) => {
+  #|   const transfer = event.dataTransfer;
+  #|   if (!transfer) return;
+  #|   transfer.setData("application/x-selene-graph-node", nodeId);
+  #|   transfer.setData("text/plain", `graph-node:${nodeId}`);
+  #|   transfer.effectAllowed = "move";
+  #| }
+
+///|
+#cfg(target="js")
+extern "js" fn drag_event_get_graph_node_payload(
+  event : @dom.DragEvent,
+) -> String =
+  #| (event) => {
+  #|   const transfer = event.dataTransfer;
+  #|   if (!transfer) return "";
+  #|   const custom = transfer.getData("application/x-selene-graph-node");
+  #|   if (custom) return custom;
+  #|   const text = transfer.getData("text/plain") || "";
+  #|   return text.startsWith("graph-node:") ? text.slice("graph-node:".length) : "";
+  #| }
+
+///|
+#cfg(target="js")
+extern "js" fn drag_event_set_drop_move(event : @dom.DragEvent) =
+  #| (event) => {
+  #|   const transfer = event.dataTransfer;
+  #|   if (!transfer) return;
+  #|   transfer.dropEffect = "move";
+  #| }
+
+///|
+#cfg(target="js")
 extern "js" fn input_event_is_enter_key(event : @dom.Event) -> Bool =
   #| (event) => (event?.key || "").toLowerCase() === "enter"
 
@@ -434,6 +482,11 @@ extern "js" fn input_event_is_enter_key(event : @dom.Event) -> Bool =
 #cfg(target="js")
 extern "js" fn input_event_is_escape_key(event : @dom.Event) -> Bool =
   #| (event) => (event?.key || "").toLowerCase() === "escape"
+
+///|
+#cfg(target="js")
+extern "js" fn event_alt_key(event : @dom.Event) -> Bool =
+  #| (event) => !!event?.altKey
 
 ///|
 #cfg(target="js")
@@ -718,6 +771,12 @@ fn run_preview_command(command : @bridge.PreviewCommand) -> Unit {
     @bridge.PreviewCommand::SetTool(tool) => @preview.set_tool(tool)
     @bridge.PreviewCommand::SetMoveSnap(enabled~, step~) =>
       @preview.set_move_snap(enabled, step)
+    @bridge.PreviewCommand::SetAnimationPreviewPaused(paused) =>
+      @preview.set_animation_preview_paused(paused)
+    @bridge.PreviewCommand::SetAnimationPreviewSpeed(speed) =>
+      @preview.set_animation_preview_speed(speed)
+    @bridge.PreviewCommand::SeekAnimationPreview(seconds) =>
+      @preview.seek_animation_preview(seconds)
     @bridge.PreviewCommand::FrameSelection => @preview.frame_selection()
   }
 }
@@ -772,15 +831,25 @@ fn rpc_effect_cmd(
         log_rpc_result_error("atlas.load", result)
         dispatch(@app.msg_atlas_loaded(result))
       })
-    @app.AnimationLoaded =>
-      rpc_cmd(request, animation_loaded_of_response, fn(result) {
-        log_rpc_result_error("animation.load", result)
-        dispatch(@app.msg_animation_loaded(result))
+    @app.AnimationClipLoaded =>
+      rpc_cmd(request, animation_clip_loaded_of_response, fn(result) {
+        log_rpc_result_error("animation.clip.load", result)
+        dispatch(@app.msg_animation_clip_loaded(result))
+      })
+    @app.AnimationGraphLoaded =>
+      rpc_cmd(request, animation_graph_loaded_of_response, fn(result) {
+        log_rpc_result_error("animation.graph.load", result)
+        dispatch(@app.msg_animation_graph_loaded(result))
       })
     @app.SceneSaved =>
       rpc_cmd(request, save_ack_of_response, fn(result) {
         log_rpc_result_error("scene.save", result)
         dispatch(@app.msg_scene_saved(result))
+      })
+    @app.AnimationMigrationSaved =>
+      rpc_cmd(request, save_ack_of_response, fn(result) {
+        log_rpc_result_error("animation.migrate", result)
+        dispatch(@app.msg_animation_migration_saved(result))
       })
     @app.WorkspaceSaved =>
       rpc_cmd(request, save_ack_of_response, fn(result) {
@@ -1135,7 +1204,8 @@ fn tree_file_row(
       match selection {
         @app.Image(_) => "I"
         @app.Atlas(_) => "A"
-        @app.Animation(_) => "N"
+        @app.AnimationClip(_) => "C"
+        @app.AnimationGraph(_) => "G"
         @app.Prefab(_) => "P"
       },
     ),
@@ -1382,27 +1452,51 @@ fn asset_panel_view(
     fn(_path) { None },
   )
 
-  let animation_paths : Array[String] = []
-  for animation_ref in model.animation_refs {
+  let animation_clip_paths : Array[String] = []
+  for animation_ref in model.animation_clip_refs {
     let animation_name = match
-      model.animation_documents.get(animation_ref.path) {
+      model.animation_clip_documents.get(animation_ref.path) {
       Some(animation) => animation.name
       None => asset_display_name_from_path(animation_ref.path)
     }
     if !model.asset_matches_query(animation_name, animation_ref.path) {
       continue
     }
-    animation_paths.push(animation_ref.path)
+    animation_clip_paths.push(animation_ref.path)
   }
-  let animation_rows = build_asset_tree_rows(
+  let animation_clip_rows = build_asset_tree_rows(
     dispatch,
     model,
-    animation_paths,
-    "animations",
+    animation_clip_paths,
+    "animation-clips",
     force_expand_tree,
     Some("assets"),
-    fn(path) { @app.resource_selection_animation(path) },
-    fn(_path) { "anim" },
+    fn(path) { @app.resource_selection_animation_clip(path) },
+    fn(_path) { "clip" },
+    fn(_path) { None },
+  )
+
+  let animation_graph_paths : Array[String] = []
+  for animation_ref in model.animation_graph_refs {
+    let animation_name = match
+      model.animation_graph_documents.get(animation_ref.path) {
+      Some(animation) => animation.name
+      None => asset_display_name_from_path(animation_ref.path)
+    }
+    if !model.asset_matches_query(animation_name, animation_ref.path) {
+      continue
+    }
+    animation_graph_paths.push(animation_ref.path)
+  }
+  let animation_graph_rows = build_asset_tree_rows(
+    dispatch,
+    model,
+    animation_graph_paths,
+    "animation-graphs",
+    force_expand_tree,
+    Some("assets"),
+    fn(path) { @app.resource_selection_animation_graph(path) },
+    fn(_path) { "graph" },
     fn(_path) { None },
   )
 
@@ -1428,6 +1522,18 @@ fn asset_panel_view(
     fn(_path) { "prefab" },
     fn(_path) { None },
   )
+  let selected_is_image = match model.selected_resource {
+    Some(@app.Image(_)) => true
+    _ => false
+  }
+  let selected_is_atlas = match model.selected_resource {
+    Some(@app.Atlas(_)) => true
+    _ => false
+  }
+  let selected_is_clip = match model.selected_resource {
+    Some(@app.AnimationClip(_)) => true
+    _ => false
+  }
   let toolbar = @html.div(class="asset-toolbar", [
     @html.input(
       class="field-input asset-search-input",
@@ -1436,6 +1542,47 @@ fn asset_panel_view(
       on_input=fn(value) { dispatch(@app.msg_set_asset_query(value)) },
       @html.nothing,
     ),
+    @html.div(class="asset-toolbar-actions", [
+      @html.button(
+        class=if selected_is_image {
+          "small-button"
+        } else {
+          "small-button disabled"
+        },
+        on_click=if selected_is_image {
+          dispatch(@app.msg_create_atlas_from_selected_image())
+        } else {
+          @cmd.none
+        },
+        "New Atlas",
+      ),
+      @html.button(
+        class=if selected_is_atlas {
+          "small-button"
+        } else {
+          "small-button disabled"
+        },
+        on_click=if selected_is_atlas {
+          dispatch(@app.msg_create_animation_from_selected_atlas())
+        } else {
+          @cmd.none
+        },
+        "New Clip",
+      ),
+      @html.button(
+        class=if selected_is_clip {
+          "small-button"
+        } else {
+          "small-button disabled"
+        },
+        on_click=if selected_is_clip {
+          dispatch(@app.msg_create_animation_graph_from_selected_clip())
+        } else {
+          @cmd.none
+        },
+        "New Graph",
+      ),
+    ]),
   ])
   let content : Array[@rabbita.Html] = []
   if !image_rows.is_empty() {
@@ -1470,19 +1617,35 @@ fn asset_panel_view(
       ),
     )
   }
-  if !animation_rows.is_empty() {
+  if !animation_clip_rows.is_empty() {
     content.push(
       asset_section(
         dispatch,
-        "Animations",
-        animation_paths.length(),
+        "Animation Clips",
+        animation_clip_paths.length(),
         if force_expand_sections {
           true
         } else {
-          model.animations_section_expanded
+          model.animation_clips_section_expanded
         },
-        @app.msg_toggle_animations_section(),
-        animation_rows,
+        @app.msg_toggle_animation_clips_section(),
+        animation_clip_rows,
+      ),
+    )
+  }
+  if !animation_graph_rows.is_empty() {
+    content.push(
+      asset_section(
+        dispatch,
+        "Animation Graphs",
+        animation_graph_paths.length(),
+        if force_expand_sections {
+          true
+        } else {
+          model.animation_graphs_section_expanded
+        },
+        @app.msg_toggle_animation_graphs_section(),
+        animation_graph_rows,
       ),
     )
   }
@@ -1504,7 +1667,8 @@ fn asset_panel_view(
   }
   if image_rows.is_empty() &&
     atlas_rows.is_empty() &&
-    animation_rows.is_empty() &&
+    animation_clip_rows.is_empty() &&
+    animation_graph_rows.is_empty() &&
     prefab_rows.is_empty() {
     content.push(
       @html.div(
@@ -1812,6 +1976,469 @@ fn visibility_component_body(
 }
 
 ///|
+fn animation_player_component_body(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  player : @editor_bridge.AnimationPlayerComponent,
+) -> @rabbita.Html {
+  let repeat_mode = player.repeat_mode_doc()
+  let is_forever = match repeat_mode {
+    @editor_bridge.Forever => true
+    _ => false
+  }
+  let is_never = match repeat_mode {
+    @editor_bridge.Never => true
+    _ => false
+  }
+  let is_count = match repeat_mode {
+    @editor_bridge.Count(_) => true
+    _ => false
+  }
+  @html.div(class="inspector-block", [
+    labeled_input_with_commit(
+      "Graph Asset Path",
+      player.graph_asset_path.unwrap_or(""),
+      fn(value) {
+        dispatch(@app.msg_update_selected_animation_player_graph_path(value))
+      },
+      fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+    ),
+    labeled_input_with_commit(
+      "Start Node",
+      player.start_node.unwrap_or(""),
+      fn(value) {
+        dispatch(@app.msg_update_selected_animation_player_start_node(value))
+      },
+      fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+    ),
+    @html.div(class="kv", [
+      @html.span(class="kv-key", "Repeat Mode"),
+      @html.span(
+        class="kv-value",
+        match repeat_mode {
+          @editor_bridge.Never => "Never"
+          @editor_bridge.Forever => "Forever"
+          @editor_bridge.Count(count) => "Count (\{count})"
+        },
+      ),
+    ]),
+    @html.div(class="inspector-actions", [
+      @html.button(
+        class=if is_forever { "small-button active" } else { "small-button" },
+        on_click=dispatch(
+          @app.msg_update_selected_animation_player_repeat_mode("forever"),
+        ),
+        "Forever",
+      ),
+      @html.button(
+        class=if is_never { "small-button active" } else { "small-button" },
+        on_click=dispatch(
+          @app.msg_update_selected_animation_player_repeat_mode("never"),
+        ),
+        "Never",
+      ),
+      @html.button(
+        class=if is_count { "small-button active" } else { "small-button" },
+        on_click=dispatch(
+          @app.msg_update_selected_animation_player_repeat_mode("count"),
+        ),
+        "Count",
+      ),
+    ]),
+    match repeat_mode {
+      @editor_bridge.Count(count) =>
+        labeled_input_with_commit(
+          "Repeat Count",
+          count.to_string(),
+          fn(value) {
+            dispatch(
+              @app.msg_update_selected_animation_player_repeat_mode(
+                "count:" + value,
+              ),
+            )
+          },
+          fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+        )
+      _ => @html.nothing
+    },
+    labeled_input_with_commit(
+      "Speed",
+      player.speed.to_string(),
+      fn(value) {
+        dispatch(@app.msg_update_selected_animation_player_speed(value))
+      },
+      fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+    ),
+    @html.button(
+      class="small-button",
+      on_click=dispatch(@app.msg_toggle_selected_animation_player_autoplay()),
+      if player.autoplay {
+        "Autoplay: Enabled"
+      } else {
+        "Autoplay: Disabled"
+      },
+    ),
+  ])
+}
+
+///|
+fn animation_transitions_component_body(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  transitions : @editor_bridge.AnimationTransitionsComponent,
+) -> @rabbita.Html {
+  @html.div(class="inspector-block", [
+    labeled_input_with_commit(
+      "Duration",
+      transitions.duration.to_string(),
+      fn(value) {
+        dispatch(@app.msg_update_selected_animation_transitions_duration(value))
+      },
+      fn() { dispatch(@app.msg_commit_scene_edit_transaction()) },
+    ),
+  ])
+}
+
+///|
+fn animation_graph_node_kind_label(
+  kind : @editor_bridge.AnimationGraphNodeKind,
+) -> String {
+  match kind {
+    @editor_bridge.Clip(..) => "Clip"
+    @editor_bridge.Blend => "Blend"
+    @editor_bridge.AdditiveBlend => "AdditiveBlend"
+  }
+}
+
+///|
+fn animation_graph_node_clip_path(
+  kind : @editor_bridge.AnimationGraphNodeKind,
+) -> String? {
+  match kind {
+    @editor_bridge.Clip(clip_asset_path~) => Some(clip_asset_path)
+    _ => None
+  }
+}
+
+///|
+fn animation_graph_axis_bounds(values : Array[Double]) -> (Double, Double) {
+  if values.is_empty() {
+    return (0.0, 1.0)
+  }
+  let mut min_value = values[0]
+  let mut max_value = values[0]
+  for value in values[1:] {
+    if value < min_value {
+      min_value = value
+    }
+    if value > max_value {
+      max_value = value
+    }
+  }
+  if max_value - min_value < 0.001 {
+    (min_value - 1.0, max_value + 1.0)
+  } else {
+    (min_value, max_value)
+  }
+}
+
+///|
+fn clamp01(value : Double) -> Double {
+  if value < 0.0 {
+    0.0
+  } else if value > 1.0 {
+    1.0
+  } else {
+    value
+  }
+}
+
+///|
+fn animation_graph_canvas_project(
+  value : Double,
+  min_value : Double,
+  max_value : Double,
+) -> Double {
+  clamp01((value - min_value) / (max_value - min_value))
+}
+
+///|
+fn graph_node_drag_attrs(
+  node_id : String,
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  graph_edge_connect_source_node : String?,
+) -> @html.Attrs {
+  @html.Attrs::build()
+  .draggable("true")
+  .handler("dragstart", fn(event, _scheduler) {
+    match event.to_drag_event() {
+      Some(drag_event) => drag_event_set_graph_node_payload(drag_event, node_id)
+      None => ()
+    }
+  })
+  .handler("click", fn(event, scheduler) {
+    if event_alt_key(event) {
+      event.prevent_default()
+      let connect_msg = match graph_edge_connect_source_node {
+        Some(source_node_id) =>
+          if source_node_id == node_id {
+            @app.msg_cancel_selected_animation_graph_edge_connect()
+          } else {
+            @app.msg_complete_selected_animation_graph_edge_connect(node_id)
+          }
+        None => @app.msg_begin_selected_animation_graph_edge_connect(node_id)
+      }
+      schedule_cmd(scheduler, dispatch(connect_msg))
+    } else {
+      schedule_cmd(
+        scheduler,
+        dispatch(@app.msg_update_selected_animation_graph_default_node(node_id)),
+      )
+    }
+  })
+}
+
+///|
+fn graph_canvas_drop_attrs(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+) -> @html.Attrs {
+  @html.Attrs::build()
+  .handler("dragover", fn(event, _scheduler) {
+    event.prevent_default()
+    match event.to_drag_event() {
+      Some(drag_event) =>
+        if drag_event_get_graph_node_payload(drag_event) != "" {
+          drag_event_set_drop_move(drag_event)
+        }
+      None => ()
+    }
+  })
+  .handler("drop", fn(event, scheduler) {
+    event.prevent_default()
+    match event.to_drag_event() {
+      Some(drag_event) => {
+        let node_id = drag_event_get_graph_node_payload(drag_event)
+        if node_id != "" {
+          let metrics = drag_event_canvas_metrics(drag_event)
+          if metrics.length() >= 4 && metrics[2] > 0.0 && metrics[3] > 0.0 {
+            let normalized_x = metrics[0] / metrics[2]
+            let normalized_y = metrics[1] / metrics[3]
+            schedule_cmd(
+              scheduler,
+              dispatch(
+                @app.msg_move_selected_animation_graph_node(
+                  node_id, normalized_x, normalized_y,
+                ),
+              ),
+            )
+          }
+        }
+      }
+      None => ()
+    }
+  })
+}
+
+///|
+fn animation_graph_canvas_view(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  graph : @editor_bridge.AnimationGraphAssetDocument,
+  graph_edge_connect_source_node : String?,
+) -> @rabbita.Html {
+  if graph.nodes.is_empty() {
+    return @html.div(class="graph-canvas-empty", "No nodes yet")
+  }
+  let x_values = graph.nodes.map(fn(node) { node.position.x })
+  let y_values = graph.nodes.map(fn(node) { node.position.y })
+  let (min_x, max_x) = animation_graph_axis_bounds(x_values)
+  let (min_y, max_y) = animation_graph_axis_bounds(y_values)
+  let node_items : Array[@rabbita.Html] = []
+  for node in graph.nodes {
+    let left = animation_graph_canvas_project(node.position.x, min_x, max_x)
+    let top = animation_graph_canvas_project(node.position.y, min_y, max_y)
+    let is_default = graph.default_node == Some(node.id)
+    let is_connect_source = graph_edge_connect_source_node == Some(node.id)
+    node_items.push(
+      @html.button(
+        class=if is_default && is_connect_source {
+          "graph-canvas-node default edge-source"
+        } else if is_default {
+          "graph-canvas-node default"
+        } else if is_connect_source {
+          "graph-canvas-node edge-source"
+        } else {
+          "graph-canvas-node"
+        },
+        style=[
+          "left: \{(left * 100.0).to_string()}%",
+          "top: \{(top * 100.0).to_string()}%",
+        ],
+        attrs=graph_node_drag_attrs(
+          node.id,
+          dispatch,
+          graph_edge_connect_source_node,
+        ),
+        [
+          @html.span(class="graph-canvas-node-id", node.id),
+          @html.span(
+            class="graph-canvas-node-kind",
+            animation_graph_node_kind_label(node.kind),
+          ),
+        ],
+      ),
+    )
+  }
+  let edge_rows : Array[@rabbita.Html] = []
+  for node in graph.nodes {
+    for edge in node.edges {
+      edge_rows.push(
+        @html.div(
+          class="graph-canvas-edge-row",
+          node.id + " -> " + edge.to + "  (w=" + edge.weight.to_string() + ")",
+        ),
+      )
+    }
+  }
+  @html.div(class="graph-canvas-shell", [
+    @html.div(
+      class="graph-canvas",
+      attrs=graph_canvas_drop_attrs(dispatch),
+      node_items,
+    ),
+    if edge_rows.is_empty() {
+      @html.div(class="graph-canvas-edge-empty", "No edges yet")
+    } else {
+      @html.div(class="graph-canvas-edge-list", edge_rows)
+    },
+  ])
+}
+
+///|
+fn animation_graph_edge_editor(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  node_id : String,
+  edge_index : Int,
+  edge : @editor_bridge.AnimationGraphEdgeDocument,
+) -> @rabbita.Html {
+  @html.div(class="graph-edge-row", [
+    labeled_input("Target", edge.to, fn(value) {
+      dispatch(
+        @app.msg_update_selected_animation_graph_edge_target(
+          node_id, edge_index, value,
+        ),
+      )
+    }),
+    labeled_input("Weight", edge.weight.to_string(), fn(value) {
+      dispatch(
+        @app.msg_update_selected_animation_graph_edge_weight(
+          node_id, edge_index, value,
+        ),
+      )
+    }),
+    @html.button(
+      class="small-button graph-edge-remove",
+      on_click=dispatch(
+        @app.msg_remove_selected_animation_graph_edge(node_id, edge_index),
+      ),
+      "Remove Edge",
+    ),
+  ])
+}
+
+///|
+fn animation_graph_node_card(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  graph : @editor_bridge.AnimationGraphAssetDocument,
+  node : @editor_bridge.AnimationGraphNodeDocument,
+) -> @rabbita.Html {
+  let is_default = graph.default_node == Some(node.id)
+  let edge_editors : Array[@rabbita.Html] = []
+  for edge_index = 0
+      edge_index < node.edges.length()
+      edge_index = edge_index + 1 {
+    edge_editors.push(
+      animation_graph_edge_editor(
+        dispatch,
+        node.id,
+        edge_index,
+        node.edges[edge_index],
+      ),
+    )
+  }
+  @html.div(class="component-card", [
+    @html.div(class="component-card-header", [
+      @html.span(
+        class="component-card-title",
+        node.id + " • " + animation_graph_node_kind_label(node.kind),
+      ),
+      @html.button(
+        class="component-card-menu-toggle",
+        on_click=dispatch(
+          @app.msg_remove_selected_animation_graph_node(node.id),
+        ),
+        "✕",
+      ),
+    ]),
+    @html.div(class="component-card-body", [
+      @html.div(class="inspector-block", [
+        @html.div(class="kv", [
+          @html.span(class="kv-key", "Position"),
+          @html.span(
+            class="kv-value",
+            "\{node.position.x.to_string()}, \{node.position.y.to_string()}",
+          ),
+        ]),
+        @html.div(class="kv", [
+          @html.span(class="kv-key", "Edges"),
+          @html.span(class="kv-value", node.edges.length().to_string()),
+        ]),
+        @html.button(
+          class="small-button",
+          on_click=dispatch(@app.msg_add_selected_animation_graph_edge(node.id)),
+          "Add Edge",
+        ),
+        if edge_editors.is_empty() {
+          @html.div(class="kv-value", "No edges yet")
+        } else {
+          @html.div(class="graph-edge-list", edge_editors)
+        },
+        match animation_graph_node_clip_path(node.kind) {
+          Some(clip_path) =>
+            labeled_input("Clip Asset Path", clip_path, fn(value) {
+              dispatch(
+                @app.msg_update_selected_animation_graph_node_clip_path(
+                  node.id,
+                  value,
+                ),
+              )
+            })
+          None => @html.nothing
+        },
+        @html.div(class="inspector-actions", [
+          @html.button(
+            class=if is_default {
+              "small-button disabled"
+            } else {
+              "small-button"
+            },
+            on_click=if is_default {
+              @cmd.none
+            } else {
+              dispatch(
+                @app.msg_update_selected_animation_graph_default_node(node.id),
+              )
+            },
+            if is_default {
+              "Default Node"
+            } else {
+              "Set Default Node"
+            },
+          ),
+        ]),
+      ]),
+    ]),
+  ])
+}
+
+///|
 fn custom_component_body(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.Model,
@@ -1895,6 +2522,30 @@ fn component_body_view(
       match text_component {
         Some(text_component) => text_component_body(dispatch, text_component)
         None => @html.div(class="component-error", "Invalid Text2d data")
+      }
+    }
+    "AnimationPlayer" => {
+      let player : @editor_bridge.AnimationPlayerComponent? = @app.component_of(
+        entity, "AnimationPlayer",
+      )
+      match player {
+        Some(player) => animation_player_component_body(dispatch, player)
+        None =>
+          @html.div(class="component-error", "Invalid AnimationPlayer data")
+      }
+    }
+    "AnimationTransitions" => {
+      let transitions : @editor_bridge.AnimationTransitionsComponent? = @app.component_of(
+        entity, "AnimationTransitions",
+      )
+      match transitions {
+        Some(transitions) =>
+          animation_transitions_component_body(dispatch, transitions)
+        None =>
+          @html.div(
+            class="component-error",
+            "Invalid AnimationTransitions data",
+          )
       }
     }
     _ =>
@@ -2318,28 +2969,23 @@ fn selected_asset_view(
                   on_click=dispatch(
                     @app.msg_create_animation_from_selected_atlas(),
                   ),
-                  "Create Animation",
+                  "Create Clip",
                 ),
               ]),
             ]),
           ])
         None => @html.div(class="empty", "Atlas is still loading")
       }
-    Some(@app.Animation(_)) =>
-      match model.selected_animation_document() {
-        Some((path, animation)) => {
-          let primary_clip = if animation.clips.is_empty() {
-            @editor_bridge.animation_clip_document("default", 8.0, true, [
-              "frame_0",
-            ])
-          } else {
-            animation.clips[0]
-          }
+    Some(@app.AnimationClip(_)) =>
+      match model.selected_animation_clip_document() {
+        Some((path, clip)) =>
           @html.div(class="panel-body", [
             @html.div(class="inspector-block", [
-              @html.h3("Animation"),
-              labeled_input("Name", animation.name, fn(value) {
-                dispatch(@app.msg_update_selected_animation_name(value))
+              @html.h3("Animation Clip"),
+              labeled_input("Name", clip.name, fn(value) {
+                dispatch(
+                  @app.msg_update_selected_animation_clip_asset_name(value),
+                )
               }),
               @html.div(class="kv", [
                 @html.span(class="kv-key", "Path"),
@@ -2347,23 +2993,9 @@ fn selected_asset_view(
               ]),
               @html.div(class="kv", [
                 @html.span(class="kv-key", "Atlas"),
-                @html.span(class="kv-value", animation.atlas_asset_path),
+                @html.span(class="kv-value", clip.atlas_asset_path),
               ]),
-              labeled_input(
-                "Default Clip",
-                animation.default_clip.unwrap_or(""),
-                fn(value) {
-                  dispatch(
-                    @app.msg_update_selected_animation_default_clip(value),
-                  )
-                },
-              ),
-              labeled_input("Clip Name", primary_clip.name, fn(value) {
-                dispatch(@app.msg_update_selected_animation_clip_name(value))
-              }),
-              labeled_input("Clip FPS", primary_clip.fps.to_string(), fn(
-                value,
-              ) {
+              labeled_input("FPS", clip.fps.to_string(), fn(value) {
                 dispatch(@app.msg_update_selected_animation_clip_fps(value))
               }),
               @html.label(class="field", [
@@ -2373,30 +3005,145 @@ fn selected_asset_view(
                   on_click=dispatch(
                     @app.msg_toggle_selected_animation_clip_looping(),
                   ),
-                  if primary_clip.looping {
+                  if clip.looping {
                     "Enabled"
                   } else {
                     "Disabled"
                   },
                 ),
               ]),
-              labeled_input("Frames", primary_clip.frames.join(", "), fn(
-                value,
-              ) {
+              labeled_input("Frames", clip.frames.join(", "), fn(value) {
                 dispatch(@app.msg_update_selected_animation_clip_frames(value))
               }),
+              @html.div(class="inspector-actions", [
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_save_selected_animation_clip()),
+                  "Save Clip",
+                ),
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_insert_selected_resource()),
+                  "Add Clip Sprite",
+                ),
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(
+                    @app.msg_create_animation_graph_from_selected_clip(),
+                  ),
+                  "Create Graph",
+                ),
+              ]),
+            ]),
+          ])
+        None => @html.div(class="empty", "Animation clip is still loading")
+      }
+    Some(@app.AnimationGraph(_)) =>
+      match model.selected_animation_graph_document() {
+        Some((path, graph)) =>
+          @html.div(class="panel-body", [
+            @html.div(class="inspector-block", [
+              @html.h3("Animation Graph"),
+              labeled_input("Name", graph.name, fn(value) {
+                dispatch(
+                  @app.msg_update_selected_animation_graph_asset_name(value),
+                )
+              }),
               @html.div(class="kv", [
-                @html.span(class="kv-key", "Clip Count"),
-                @html.span(
-                  class="kv-value",
-                  animation.clips.length().to_string(),
+                @html.span(class="kv-key", "Path"),
+                @html.span(class="kv-value", path),
+              ]),
+              labeled_input("Default Node", graph.default_node.unwrap_or(""), fn(
+                value,
+              ) {
+                dispatch(
+                  @app.msg_update_selected_animation_graph_default_node(value),
+                )
+              }),
+              @html.div(class="kv", [
+                @html.span(class="kv-key", "Node Count"),
+                @html.span(class="kv-value", graph.nodes.length().to_string()),
+              ]),
+              animation_graph_canvas_view(
+                dispatch,
+                graph,
+                model.graph_edge_connect_source_node,
+              ),
+              @html.div(class="inspector-actions", [
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(
+                    @app.msg_add_selected_animation_graph_clip_node(),
+                  ),
+                  "Add Clip Node",
+                ),
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(
+                    @app.msg_add_selected_animation_graph_blend_node(),
+                  ),
+                  "Add Blend Node",
+                ),
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(
+                    @app.msg_add_selected_animation_graph_additive_blend_node(),
+                  ),
+                  "Add Additive Node",
+                ),
+              ]),
+              if graph.nodes.is_empty() {
+                @html.div(class="empty", "No nodes yet")
+              } else {
+                @html.div(
+                  class="component-card-list",
+                  graph.nodes.map(fn(node) {
+                    animation_graph_node_card(dispatch, graph, node)
+                  }),
+                )
+              },
+              @html.h3("Preview"),
+              @html.div(class="inspector-actions", [
+                @html.button(
+                  class=if model.animation_preview_paused {
+                    "small-button"
+                  } else {
+                    "small-button active"
+                  },
+                  on_click=dispatch(@app.msg_toggle_animation_preview_paused()),
+                  if model.animation_preview_paused {
+                    "Play"
+                  } else {
+                    "Pause"
+                  },
+                ),
+              ]),
+              labeled_input(
+                "Speed",
+                model.animation_preview_speed.to_string(),
+                fn(value) {
+                  dispatch(@app.msg_update_animation_preview_speed(value))
+                },
+              ),
+              labeled_input(
+                "Seek (seconds)",
+                model.animation_preview_seek_input,
+                fn(value) {
+                  dispatch(@app.msg_update_animation_preview_seek_input(value))
+                },
+              ),
+              @html.div(class="inspector-actions", [
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_apply_animation_preview_seek()),
+                  "Seek",
                 ),
               ]),
               @html.div(class="inspector-actions", [
                 @html.button(
                   class="small-button",
-                  on_click=dispatch(@app.msg_save_selected_animation()),
-                  "Save Animation",
+                  on_click=dispatch(@app.msg_save_selected_animation_graph()),
+                  "Save Graph",
                 ),
                 @html.button(
                   class="small-button",
@@ -2406,8 +3153,7 @@ fn selected_asset_view(
               ]),
             ]),
           ])
-        }
-        None => @html.div(class="empty", "Animation is still loading")
+        None => @html.div(class="empty", "Animation graph is still loading")
       }
     Some(@app.Prefab(_)) =>
       match model.selected_prefab_document() {
@@ -2589,6 +3335,77 @@ fn scene_migration_dialog_view(
           class="small-button primary-button",
           on_click=dispatch(@app.msg_confirm_scene_migration()),
           "Migrate and Load",
+        ),
+      ]),
+    ]),
+  ])
+}
+
+///|
+fn animation_migration_dialog_view(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  model : @app.Model,
+) -> @rabbita.Html {
+  let items = model.pending_animation_migration_paths.map(fn(path) {
+    @html.li(class="migration-change-item", [
+      @html.div(class="migration-change-path", path),
+      @html.div(class="migration-change-reason", "Legacy animation asset"),
+      @html.div(class="migration-change-value", "Will generate clip + graph"),
+    ])
+  })
+  let progress = if model.animation_migration_total <= 0 {
+    "0/0"
+  } else {
+    "\{model.animation_migration_completed}/\{model.animation_migration_total}"
+  }
+  let running = model.animation_migration_in_progress
+  @html.div(class="modal-backdrop", [
+    @html.div(class="modal-card", [
+      @html.h2(class="modal-title", "Legacy Animation Migration"),
+      @html.p(
+        class="modal-copy",
+        "Legacy .anim.json assets were found. Migrate them to Selene v3 clip/graph assets.",
+      ),
+      @html.div(class="migration-summary", [
+        @html.div(class="migration-label", "Progress"),
+        @html.div(class="migration-value", progress),
+      ]),
+      @html.div(class="migration-summary", [
+        @html.div(class="migration-label", "Scene"),
+        @html.div(
+          class="migration-value",
+          model.pending_animation_migration_scene_path.unwrap_or(
+            model.scene_path,
+          ),
+        ),
+      ]),
+      @html.ul(class="migration-change-list", items),
+      @html.div(class="modal-actions", [
+        @html.button(
+          class=if running { "small-button disabled" } else { "small-button" },
+          on_click=if running {
+            @cmd.none
+          } else {
+            dispatch(@app.msg_cancel_animation_migration())
+          },
+          "Cancel",
+        ),
+        @html.button(
+          class=if running {
+            "small-button primary-button disabled"
+          } else {
+            "small-button primary-button"
+          },
+          on_click=if running {
+            @cmd.none
+          } else {
+            dispatch(@app.msg_confirm_animation_migration())
+          },
+          if running {
+            "Migrating..."
+          } else {
+            "Migrate"
+          },
         ),
       ]),
     ]),
@@ -2825,7 +3642,15 @@ fn view(
         body,
         scene_migration_dialog_view(dispatch, preview),
       ])
-    None => body
+    None =>
+      if model.pending_animation_migration_paths.is_empty() {
+        body
+      } else {
+        @html.div(class="editor-shell", [
+          body,
+          animation_migration_dialog_view(dispatch, model),
+        ])
+      }
   }
 }
 

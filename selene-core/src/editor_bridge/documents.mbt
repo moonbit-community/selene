@@ -44,7 +44,8 @@ pub struct ProjectManifest {
   scene_index : Array[SceneRef]
   prefab_index : Array[PrefabRef]
   atlas_index : Array[AssetRef]
-  animation_index : Array[AssetRef]
+  animation_clip_index : Array[AssetRef]
+  animation_graph_index : Array[AssetRef]
   editor_min_version : String?
 } derive(Show, Eq, ToJson, FromJson)
 
@@ -201,12 +202,19 @@ pub struct PhysicsCollider2dComponent {
 
 ///|
 pub struct AnimationPlayerComponent {
-  animation_asset_path : String?
-  default_clip : String?
+  graph_asset_path : String?
+  start_node : String?
   autoplay : Bool
   repeat_mode : String
   speed : Double
 } derive(Show, Eq, ToJson, FromJson)
+
+///|
+pub enum AnimationRepeatModeDoc {
+  Never
+  Forever
+  Count(Int)
+} derive(Show, Eq)
 
 ///|
 pub struct AnimationTransitionsComponent {
@@ -235,20 +243,43 @@ pub struct AtlasAssetDocument {
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
-pub struct AnimationClipDocument {
+pub struct AnimationClipAssetDocument {
+  version : Int
   name : String
+  atlas_asset_path : String
   fps : Double
   looping : Bool
   frames : Array[String]
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
-pub struct AnimationAssetDocument {
+pub enum AnimationGraphNodeKind {
+  Clip(clip_asset_path~ : String)
+  Blend
+  AdditiveBlend
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
+pub struct AnimationGraphEdgeDocument {
+  to : String
+  weight : Double
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
+pub struct AnimationGraphNodeDocument {
+  id : String
+  kind : AnimationGraphNodeKind
+  mask_groups : Array[Int]
+  position : Vec2Doc
+  edges : Array[AnimationGraphEdgeDocument]
+} derive(Show, Eq, ToJson, FromJson)
+
+///|
+pub struct AnimationGraphAssetDocument {
   version : Int
   name : String
-  atlas_asset_path : String
-  clips : Array[AnimationClipDocument]
-  default_clip : String?
+  nodes : Array[AnimationGraphNodeDocument]
+  default_node : String?
 } derive(Show, Eq, ToJson, FromJson)
 
 ///|
@@ -258,7 +289,8 @@ pub enum AssetKind {
   Audio
   Font
   Atlas
-  Animation
+  AnimationClip
+  AnimationGraph
   Scene
   Prefab
   Project
@@ -375,6 +407,21 @@ pub fn VisibilityComponent::toggled(
 }
 
 ///|
+pub fn AnimationPlayerComponent::repeat_mode_doc(
+  self : AnimationPlayerComponent,
+) -> AnimationRepeatModeDoc {
+  animation_repeat_mode_doc_from_string(self.repeat_mode)
+}
+
+///|
+pub fn AnimationPlayerComponent::with_repeat_mode_doc(
+  self : AnimationPlayerComponent,
+  repeat_mode : AnimationRepeatModeDoc,
+) -> AnimationPlayerComponent {
+  { ..self, repeat_mode: animation_repeat_mode_doc_to_string(repeat_mode) }
+}
+
+///|
 fn asset_kind_extension(path : String) -> String? {
   if path.rev_find(".") is Some(index) {
     Some(path[index + 1:].to_string().to_lower())
@@ -448,8 +495,13 @@ pub fn atlas_asset_file_name(name : String) -> String {
 }
 
 ///|
-pub fn animation_asset_file_name(name : String) -> String {
-  normalized_document_stem(name) + ".anim.json"
+pub fn animation_clip_asset_file_name(name : String) -> String {
+  normalized_document_stem(name) + ".clip.json"
+}
+
+///|
+pub fn animation_graph_asset_file_name(name : String) -> String {
+  normalized_document_stem(name) + ".graph.json"
 }
 
 ///|
@@ -466,8 +518,11 @@ pub fn infer_asset_kind(path : String) -> AssetKind {
   if path.has_suffix(".atlas.json") {
     return Atlas
   }
-  if path.has_suffix(".anim.json") {
-    return Animation
+  if path.has_suffix(".clip.json") {
+    return AnimationClip
+  }
+  if path.has_suffix(".graph.json") {
+    return AnimationGraph
   }
   if path.has_suffix("selene.project.json") {
     return Project
@@ -486,12 +541,14 @@ pub fn ProjectManifest::default(
   name : String,
   startup_scene? : String = startup_scene_path_for_name(name),
   asset_roots? : Array[String] = [
-    "assets/images", "assets/audio", "assets/fonts", "assets/atlases", "assets/animations",
+    "assets/images", "assets/audio", "assets/fonts", "assets/atlases", "assets/animation_clips",
+    "assets/animation_graphs",
   ],
   scene_index? : Array[SceneRef] = [],
   prefab_index? : Array[PrefabRef] = [],
   atlas_index? : Array[AssetRef] = [],
-  animation_index? : Array[AssetRef] = [],
+  animation_clip_index? : Array[AssetRef] = [],
+  animation_graph_index? : Array[AssetRef] = [],
   editor_min_version? : String? = None,
 ) -> ProjectManifest {
   {
@@ -502,7 +559,8 @@ pub fn ProjectManifest::default(
     scene_index,
     prefab_index,
     atlas_index,
-    animation_index,
+    animation_clip_index,
+    animation_graph_index,
     editor_min_version,
   }
 }
@@ -521,9 +579,17 @@ pub fn ProjectManifest::with_indexes(
   scene_index : Array[SceneRef],
   prefab_index : Array[PrefabRef],
   atlas_index : Array[AssetRef],
-  animation_index : Array[AssetRef],
+  animation_clip_index : Array[AssetRef],
+  animation_graph_index : Array[AssetRef],
 ) -> ProjectManifest {
-  { ..self, scene_index, prefab_index, atlas_index, animation_index }
+  {
+    ..self,
+    scene_index,
+    prefab_index,
+    atlas_index,
+    animation_clip_index,
+    animation_graph_index,
+  }
 }
 
 ///|
@@ -685,75 +751,162 @@ pub fn AtlasAssetDocument::with_regions(
 }
 
 ///|
-pub fn animation_asset_document(
+pub fn animation_clip_asset_document(
   name : String,
   atlas_asset_path : String,
-  clips : Array[AnimationClipDocument],
-  default_clip : String?,
-) -> AnimationAssetDocument {
+  fps : Double,
+  looping : Bool,
+  frames : Array[String],
+) -> AnimationClipAssetDocument {
   {
-    version: animation_asset_schema_version,
+    version: animation_clip_asset_schema_version,
     name,
     atlas_asset_path,
-    clips,
-    default_clip,
+    fps,
+    looping,
+    frames,
   }
 }
 
 ///|
-pub fn AnimationClipDocument::with_name(
-  self : AnimationClipDocument,
+pub fn animation_graph_edge_document(
+  to : String,
+  weight? : Double = 1.0,
+) -> AnimationGraphEdgeDocument {
+  { to, weight }
+}
+
+///|
+pub fn animation_graph_node_kind_clip(
+  clip_asset_path : String,
+) -> AnimationGraphNodeKind {
+  Clip(clip_asset_path~)
+}
+
+///|
+pub fn animation_graph_node_kind_blend() -> AnimationGraphNodeKind {
+  Blend
+}
+
+///|
+pub fn animation_graph_node_kind_additive_blend() -> AnimationGraphNodeKind {
+  AdditiveBlend
+}
+
+///|
+pub fn animation_graph_node_document(
+  id : String,
+  kind : AnimationGraphNodeKind,
+  mask_groups? : Array[Int] = [],
+  position? : Vec2Doc = vec2_doc(0.0, 0.0),
+  edges? : Array[AnimationGraphEdgeDocument] = [],
+) -> AnimationGraphNodeDocument {
+  { id, kind, mask_groups, position, edges }
+}
+
+///|
+pub fn animation_graph_asset_document(
   name : String,
-) -> AnimationClipDocument {
+  nodes : Array[AnimationGraphNodeDocument],
+  default_node : String?,
+) -> AnimationGraphAssetDocument {
+  { version: animation_graph_asset_schema_version, name, nodes, default_node }
+}
+
+///|
+pub fn AnimationClipAssetDocument::with_name(
+  self : AnimationClipAssetDocument,
+  name : String,
+) -> AnimationClipAssetDocument {
   { ..self, name, }
 }
 
 ///|
-pub fn AnimationClipDocument::with_fps(
-  self : AnimationClipDocument,
+pub fn AnimationClipAssetDocument::with_atlas_asset_path(
+  self : AnimationClipAssetDocument,
+  atlas_asset_path : String,
+) -> AnimationClipAssetDocument {
+  { ..self, atlas_asset_path, }
+}
+
+///|
+pub fn AnimationClipAssetDocument::with_fps(
+  self : AnimationClipAssetDocument,
   fps : Double,
-) -> AnimationClipDocument {
+) -> AnimationClipAssetDocument {
   { ..self, fps, }
 }
 
 ///|
-pub fn AnimationClipDocument::with_looping(
-  self : AnimationClipDocument,
+pub fn AnimationClipAssetDocument::with_looping(
+  self : AnimationClipAssetDocument,
   looping : Bool,
-) -> AnimationClipDocument {
+) -> AnimationClipAssetDocument {
   { ..self, looping, }
 }
 
 ///|
-pub fn AnimationClipDocument::with_frames(
-  self : AnimationClipDocument,
+pub fn AnimationClipAssetDocument::with_frames(
+  self : AnimationClipAssetDocument,
   frames : Array[String],
-) -> AnimationClipDocument {
+) -> AnimationClipAssetDocument {
   { ..self, frames, }
 }
 
 ///|
-pub fn AnimationAssetDocument::with_name(
-  self : AnimationAssetDocument,
+pub fn AnimationGraphNodeDocument::with_kind(
+  self : AnimationGraphNodeDocument,
+  kind : AnimationGraphNodeKind,
+) -> AnimationGraphNodeDocument {
+  { ..self, kind, }
+}
+
+///|
+pub fn AnimationGraphNodeDocument::with_mask_groups(
+  self : AnimationGraphNodeDocument,
+  mask_groups : Array[Int],
+) -> AnimationGraphNodeDocument {
+  { ..self, mask_groups, }
+}
+
+///|
+pub fn AnimationGraphNodeDocument::with_position(
+  self : AnimationGraphNodeDocument,
+  position : Vec2Doc,
+) -> AnimationGraphNodeDocument {
+  { ..self, position, }
+}
+
+///|
+pub fn AnimationGraphNodeDocument::with_edges(
+  self : AnimationGraphNodeDocument,
+  edges : Array[AnimationGraphEdgeDocument],
+) -> AnimationGraphNodeDocument {
+  { ..self, edges, }
+}
+
+///|
+pub fn AnimationGraphAssetDocument::with_name(
+  self : AnimationGraphAssetDocument,
   name : String,
-) -> AnimationAssetDocument {
+) -> AnimationGraphAssetDocument {
   { ..self, name, }
 }
 
 ///|
-pub fn AnimationAssetDocument::with_default_clip(
-  self : AnimationAssetDocument,
-  default_clip : String?,
-) -> AnimationAssetDocument {
-  { ..self, default_clip, }
+pub fn AnimationGraphAssetDocument::with_default_node(
+  self : AnimationGraphAssetDocument,
+  default_node : String?,
+) -> AnimationGraphAssetDocument {
+  { ..self, default_node, }
 }
 
 ///|
-pub fn AnimationAssetDocument::with_clips(
-  self : AnimationAssetDocument,
-  clips : Array[AnimationClipDocument],
-) -> AnimationAssetDocument {
-  { ..self, clips, }
+pub fn AnimationGraphAssetDocument::with_nodes(
+  self : AnimationGraphAssetDocument,
+  nodes : Array[AnimationGraphNodeDocument],
+) -> AnimationGraphAssetDocument {
+  { ..self, nodes, }
 }
 
 ///|
@@ -804,43 +957,54 @@ pub fn atlas_asset_document_from_image(
 }
 
 ///|
-pub fn AnimationAssetDocument::default(
+pub fn AnimationClipAssetDocument::default(
   name : String,
   atlas_asset_path : String,
-) -> AnimationAssetDocument {
+) -> AnimationClipAssetDocument {
   {
-    version: animation_asset_schema_version,
+    version: animation_clip_asset_schema_version,
     name,
     atlas_asset_path,
-    clips: [{ name: "default", fps: 8.0, looping: true, frames: ["frame_0"] }],
-    default_clip: Some("default"),
+    fps: 8.0,
+    looping: true,
+    frames: ["frame_0"],
   }
 }
 
 ///|
-pub fn animation_clip_document(
+pub fn AnimationGraphAssetDocument::default(
   name : String,
-  fps : Double,
-  looping : Bool,
-  frames : Array[String],
-) -> AnimationClipDocument {
-  { name, fps, looping, frames }
+  clip_asset_path : String,
+) -> AnimationGraphAssetDocument {
+  {
+    version: animation_graph_asset_schema_version,
+    name,
+    nodes: [
+      animation_graph_node_document(
+        "default",
+        Clip(clip_asset_path~),
+        position=vec2_doc(160.0, 90.0),
+      ),
+    ],
+    default_node: Some("default"),
+  }
 }
 
 ///|
-pub fn animation_asset_document_from_frames(
+pub fn animation_graph_asset_document_from_clip(
   name : String,
-  atlas_asset_path : String,
-  frames : Array[String],
-  default_clip? : String = "default",
-) -> AnimationAssetDocument {
-  {
-    version: animation_asset_schema_version,
-    name,
-    atlas_asset_path,
-    clips: [animation_clip_document(default_clip, 8.0, true, frames)],
-    default_clip: Some(default_clip),
-  }
+  clip_asset_path : String,
+  node_id? : String = "default",
+) -> AnimationGraphAssetDocument {
+  AnimationGraphAssetDocument::default(name, clip_asset_path)
+  .with_default_node(Some(node_id))
+  .with_nodes([
+    animation_graph_node_document(
+      node_id,
+      Clip(clip_asset_path~),
+      position=vec2_doc(160.0, 90.0),
+    ),
+  ])
 }
 
 ///|
@@ -1272,20 +1436,86 @@ pub fn physics_collider2d_component(
 }
 
 ///|
+pub fn animation_repeat_mode_never() -> AnimationRepeatModeDoc {
+  Never
+}
+
+///|
+pub fn animation_repeat_mode_forever() -> AnimationRepeatModeDoc {
+  Forever
+}
+
+///|
+pub fn animation_repeat_mode_count(count : Int) -> AnimationRepeatModeDoc {
+  if count <= 0 {
+    Count(1)
+  } else {
+    Count(count)
+  }
+}
+
+///|
+pub fn animation_repeat_mode_doc_from_string(
+  repeat_mode : String,
+) -> AnimationRepeatModeDoc {
+  let normalized = repeat_mode.trim().to_lower()
+  if normalized == "" ||
+    normalized == "forever" ||
+    normalized == "loop" ||
+    normalized == "infinite" {
+    return Forever
+  }
+  if normalized == "never" || normalized == "once" {
+    return Never
+  }
+  if normalized == "count" {
+    return Count(1)
+  }
+  if normalized.has_prefix("count:") {
+    let count = @string.parse_int(normalized[6:]) catch { _ => 0 }
+    if count > 0 {
+      return Count(count)
+    }
+    return Forever
+  }
+  if normalized.has_prefix("count(") && normalized.has_suffix(")") {
+    let count = @string.parse_int(normalized[6:normalized.length() - 1]) catch {
+      _ => 0
+    }
+    if count > 0 {
+      return Count(count)
+    }
+    return Forever
+  }
+  Forever
+}
+
+///|
+pub fn animation_repeat_mode_doc_to_string(
+  repeat_mode : AnimationRepeatModeDoc,
+) -> String {
+  match repeat_mode {
+    Never => "never"
+    Forever => "forever"
+    Count(count) => "count:\{count}"
+  }
+}
+
+///|
 pub fn animation_player_component(
-  animation_asset_path? : String? = None,
-  default_clip? : String? = None,
+  graph_asset_path? : String? = None,
+  start_node? : String? = None,
   autoplay? : Bool = false,
-  repeat_mode? : String = "forever",
+  repeat_mode? : AnimationRepeatModeDoc = animation_repeat_mode_forever(),
   speed? : Double = 1.0,
 ) -> ComponentDocument {
   {
     kind: "AnimationPlayer",
     data: AnimationPlayerComponent::{
-      animation_asset_path,
-      default_clip,
+      graph_asset_path,
+      start_node,
       autoplay,
-      repeat_mode,
+      repeat_mode: animation_repeat_mode_doc_to_string(repeat_mode),
       speed,
     }.to_json(),
   }

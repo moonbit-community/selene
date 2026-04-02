@@ -17,6 +17,14 @@ pub fn msg_add_builtin_component(@editor_bridge.BuiltinComponentKind) -> Msg
 
 pub fn msg_add_custom_component(String) -> Msg
 
+pub fn msg_add_selected_animation_graph_additive_blend_node() -> Msg
+
+pub fn msg_add_selected_animation_graph_blend_node() -> Msg
+
+pub fn msg_add_selected_animation_graph_clip_node() -> Msg
+
+pub fn msg_add_selected_animation_graph_edge(String) -> Msg
+
 pub fn msg_add_sprite_entity() -> Msg
 
 pub fn msg_add_sprite_from_asset(String) -> Msg
@@ -27,7 +35,13 @@ pub fn msg_add_text_entity() -> Msg
 
 pub fn msg_adjust_move_snap_step(Int) -> Msg
 
-pub fn msg_animation_loaded(Result[@shared.AnimationLoadResponse, String]) -> Msg
+pub fn msg_animation_clip_loaded(Result[@shared.AnimationClipLoadResponse, String]) -> Msg
+
+pub fn msg_animation_graph_loaded(Result[@shared.AnimationGraphLoadResponse, String]) -> Msg
+
+pub fn msg_animation_migration_saved(Result[Unit, String]) -> Msg
+
+pub fn msg_apply_animation_preview_seek() -> Msg
 
 pub fn msg_asset_image_load_failed(String) -> Msg
 
@@ -37,7 +51,13 @@ pub fn msg_assets_loaded(Result[@shared.AssetsListResponse, String]) -> Msg
 
 pub fn msg_atlas_loaded(Result[@shared.AtlasLoadResponse, String]) -> Msg
 
+pub fn msg_begin_selected_animation_graph_edge_connect(String) -> Msg
+
+pub fn msg_cancel_animation_migration() -> Msg
+
 pub fn msg_cancel_scene_migration() -> Msg
+
+pub fn msg_cancel_selected_animation_graph_edge_connect() -> Msg
 
 pub fn msg_clear_selection() -> Msg
 
@@ -49,9 +69,15 @@ pub fn msg_commit_custom_component_json(String) -> Msg
 
 pub fn msg_commit_scene_edit_transaction() -> Msg
 
+pub fn msg_complete_selected_animation_graph_edge_connect(String) -> Msg
+
+pub fn msg_confirm_animation_migration() -> Msg
+
 pub fn msg_confirm_scene_migration() -> Msg
 
 pub fn msg_create_animation_from_selected_atlas() -> Msg
+
+pub fn msg_create_animation_graph_from_selected_clip() -> Msg
 
 pub fn msg_create_atlas_from_selected_image() -> Msg
 
@@ -68,6 +94,8 @@ pub fn msg_frame_selection() -> Msg
 pub fn msg_initialize() -> Msg
 
 pub fn msg_insert_selected_resource() -> Msg
+
+pub fn msg_move_selected_animation_graph_node(String, Double, Double) -> Msg
 
 pub fn msg_move_selected_resource(Int) -> Msg
 
@@ -93,13 +121,19 @@ pub fn msg_reload_scene() -> Msg
 
 pub fn msg_remove_component(String) -> Msg
 
+pub fn msg_remove_selected_animation_graph_edge(String, Int) -> Msg
+
+pub fn msg_remove_selected_animation_graph_node(String) -> Msg
+
 pub fn msg_rename_current_scene(String) -> Msg
 
 pub fn msg_rename_selected(String) -> Msg
 
 pub fn msg_save_scene() -> Msg
 
-pub fn msg_save_selected_animation() -> Msg
+pub fn msg_save_selected_animation_clip() -> Msg
+
+pub fn msg_save_selected_animation_graph() -> Msg
 
 pub fn msg_save_selected_as_prefab() -> Msg
 
@@ -133,7 +167,11 @@ pub fn msg_set_project_root_input(String) -> Msg
 
 pub fn msg_set_tool(@shared.PreviewTool) -> Msg
 
-pub fn msg_toggle_animations_section() -> Msg
+pub fn msg_toggle_animation_clips_section() -> Msg
+
+pub fn msg_toggle_animation_graphs_section() -> Msg
+
+pub fn msg_toggle_animation_preview_paused() -> Msg
 
 pub fn msg_toggle_asset_tree_folder(String) -> Msg
 
@@ -151,13 +189,21 @@ pub fn msg_toggle_prefabs_section() -> Msg
 
 pub fn msg_toggle_selected_animation_clip_looping() -> Msg
 
+pub fn msg_toggle_selected_animation_player_autoplay() -> Msg
+
 pub fn msg_toggle_selected_visibility() -> Msg
 
 pub fn msg_undo_scene() -> Msg
 
 pub fn msg_update_add_custom_component_kind(String) -> Msg
 
+pub fn msg_update_animation_preview_seek_input(String) -> Msg
+
+pub fn msg_update_animation_preview_speed(String) -> Msg
+
 pub fn msg_update_custom_component_json(String, String) -> Msg
+
+pub fn msg_update_selected_animation_clip_asset_name(String) -> Msg
 
 pub fn msg_update_selected_animation_clip_fps(String) -> Msg
 
@@ -165,9 +211,25 @@ pub fn msg_update_selected_animation_clip_frames(String) -> Msg
 
 pub fn msg_update_selected_animation_clip_name(String) -> Msg
 
-pub fn msg_update_selected_animation_default_clip(String) -> Msg
+pub fn msg_update_selected_animation_graph_asset_name(String) -> Msg
 
-pub fn msg_update_selected_animation_name(String) -> Msg
+pub fn msg_update_selected_animation_graph_default_node(String) -> Msg
+
+pub fn msg_update_selected_animation_graph_edge_target(String, Int, String) -> Msg
+
+pub fn msg_update_selected_animation_graph_edge_weight(String, Int, String) -> Msg
+
+pub fn msg_update_selected_animation_graph_node_clip_path(String, String) -> Msg
+
+pub fn msg_update_selected_animation_player_graph_path(String) -> Msg
+
+pub fn msg_update_selected_animation_player_repeat_mode(String) -> Msg
+
+pub fn msg_update_selected_animation_player_speed(String) -> Msg
+
+pub fn msg_update_selected_animation_player_start_node(String) -> Msg
+
+pub fn msg_update_selected_animation_transitions_duration(String) -> Msg
 
 pub fn msg_update_selected_atlas_anchor_x(String) -> Msg
 
@@ -205,7 +267,9 @@ pub fn msg_workspace_saved(Result[Unit, String]) -> Msg
 
 pub fn new_model() -> Model
 
-pub fn resource_selection_animation(String) -> ResourceSelection
+pub fn resource_selection_animation_clip(String) -> ResourceSelection
+
+pub fn resource_selection_animation_graph(String) -> ResourceSelection
 
 pub fn resource_selection_atlas(String) -> ResourceSelection
 
@@ -236,7 +300,8 @@ pub struct Model {
   scene_refs : Array[@editor_bridge.SceneRef]
   prefab_refs : Array[@editor_bridge.PrefabRef]
   atlas_refs : Array[@editor_bridge.AssetRef]
-  animation_refs : Array[@editor_bridge.AssetRef]
+  animation_clip_refs : Array[@editor_bridge.AssetRef]
+  animation_graph_refs : Array[@editor_bridge.AssetRef]
   scene_path : String
   scene : @editor_bridge.SceneDocument?
   assets : Array[@editor_bridge.AssetDocument]
@@ -245,7 +310,8 @@ pub struct Model {
   failed_image_assets : Map[String, Bool]
   prefab_documents : Map[String, @editor_bridge.PrefabDocument]
   atlas_documents : Map[String, @editor_bridge.AtlasAssetDocument]
-  animation_documents : Map[String, @editor_bridge.AnimationAssetDocument]
+  animation_clip_documents : Map[String, @editor_bridge.AnimationClipAssetDocument]
+  animation_graph_documents : Map[String, @editor_bridge.AnimationGraphAssetDocument]
   workspace : @editor_bridge.WorkspaceDocument
   selected_resource : ResourceSelection?
   selected_entity_id : String?
@@ -257,6 +323,13 @@ pub struct Model {
   custom_component_json_drafts : Map[String, String]
   custom_component_json_errors : Map[String, String]
   pending_scene_migration : @editor_bridge.SceneMigrationPreview?
+  pending_animation_migration_paths : Array[String]
+  pending_animation_migration_scene_path : String?
+  animation_migration_in_progress : Bool
+  animation_migration_total : Int
+  animation_migration_completed : Int
+  animation_migration_failed : Int
+  animation_migration_prompt_dismissed : Bool
   undo_stack : Array[@editor_bridge.SceneDocument]
   redo_stack : Array[@editor_bridge.SceneDocument]
   active_scene_edit_transaction : SceneEditTransaction?
@@ -264,7 +337,8 @@ pub struct Model {
   asset_tree_expanded : Map[String, Bool]
   images_section_expanded : Bool
   atlases_section_expanded : Bool
-  animations_section_expanded : Bool
+  animation_clips_section_expanded : Bool
+  animation_graphs_section_expanded : Bool
   prefabs_section_expanded : Bool
   recent_projects : Array[String]
   logs : Array[String]
@@ -272,6 +346,10 @@ pub struct Model {
   active_tool : @shared.PreviewTool
   move_snap_enabled : Bool
   move_snap_step : Double
+  animation_preview_paused : Bool
+  animation_preview_speed : Double
+  animation_preview_seek_input : String
+  graph_edge_connect_source_node : String?
 } derive(Eq, Show)
 pub fn Model::asset_matches_query(Self, String, String) -> Bool
 pub fn Model::asset_query_normalized(Self) -> String
@@ -286,7 +364,8 @@ pub fn Model::component_search_query_normalized(Self) -> String
 pub fn Model::custom_component_json_draft(Self, String, String, Json) -> String
 pub fn Model::custom_component_json_error(Self, String, String) -> String?
 pub fn Model::image_assets(Self) -> Array[@editor_bridge.AssetDocument]
-pub fn Model::selected_animation_document(Self) -> (String, @editor_bridge.AnimationAssetDocument)?
+pub fn Model::selected_animation_clip_document(Self) -> (String, @editor_bridge.AnimationClipAssetDocument)?
+pub fn Model::selected_animation_graph_document(Self) -> (String, @editor_bridge.AnimationGraphAssetDocument)?
 pub fn Model::selected_atlas_document(Self) -> (String, @editor_bridge.AtlasAssetDocument)?
 pub fn Model::selected_component_remove_block_reason(Self, String) -> String?
 pub fn Model::selected_entity(Self) -> @editor_bridge.EntityDocument?
@@ -305,15 +384,19 @@ pub enum Msg {
   SceneLoaded(Result[@shared.SceneLoadOutcome, String])
   ConfirmSceneMigration
   CancelSceneMigration
+  ConfirmAnimationMigration
+  CancelAnimationMigration
   SceneListLoaded(Result[@shared.SceneListResponse, String])
   AssetsLoaded(Result[@shared.AssetsListResponse, String])
   PrefabLoaded(Result[@shared.PrefabLoadResponse, String])
   AtlasLoaded(Result[@shared.AtlasLoadResponse, String])
-  AnimationLoaded(Result[@shared.AnimationLoadResponse, String])
+  AnimationClipLoaded(Result[@shared.AnimationClipLoadResponse, String])
+  AnimationGraphLoaded(Result[@shared.AnimationGraphLoadResponse, String])
   AssetSizeResolved(String, Double, Double)
   AssetImageLoadFailed(String)
   SetAssetQuery(String)
   SceneSaved(Result[Unit, String])
+  AnimationMigrationSaved(Result[Unit, String])
   WorkspaceSaved(Result[Unit, String])
   ServiceEvent(Result[@shared.EditorEvent, String])
   PreviewEvent(@bridge.PreviewEvent)
@@ -323,7 +406,8 @@ pub enum Msg {
   CollapseAllAssetFolders
   ToggleImagesSection
   ToggleAtlasesSection
-  ToggleAnimationsSection
+  ToggleAnimationClipsSection
+  ToggleAnimationGraphsSection
   TogglePrefabsSection
   ToggleMoveSnap
   AdjustMoveSnapStep(Int)
@@ -340,6 +424,7 @@ pub enum Msg {
   RenameCurrentScene(String)
   CreateAtlasFromSelectedImage
   CreateAnimationFromSelectedAtlas
+  CreateAnimationGraphFromSelectedClip
   SaveSelectedAsPrefab
   InsertSelectedResource
   MoveSelectedResource(Int)
@@ -368,19 +453,44 @@ pub enum Msg {
   UpdateSelectedAtlasAnchorX(String)
   UpdateSelectedAtlasAnchorY(String)
   SaveSelectedAtlas
-  UpdateSelectedAnimationName(String)
-  UpdateSelectedAnimationDefaultClip(String)
+  UpdateSelectedAnimationClipAssetName(String)
+  UpdateSelectedAnimationGraphAssetName(String)
+  UpdateSelectedAnimationGraphDefaultNode(String)
   UpdateSelectedAnimationClipName(String)
   UpdateSelectedAnimationClipFps(String)
   ToggleSelectedAnimationClipLooping
   UpdateSelectedAnimationClipFrames(String)
-  SaveSelectedAnimation
+  AddSelectedAnimationGraphClipNode
+  AddSelectedAnimationGraphBlendNode
+  AddSelectedAnimationGraphAdditiveBlendNode
+  RemoveSelectedAnimationGraphNode(String)
+  UpdateSelectedAnimationGraphNodeClipPath(String, String)
+  AddSelectedAnimationGraphEdge(String)
+  RemoveSelectedAnimationGraphEdge(String, Int)
+  UpdateSelectedAnimationGraphEdgeTarget(String, Int, String)
+  UpdateSelectedAnimationGraphEdgeWeight(String, Int, String)
+  BeginSelectedAnimationGraphEdgeConnect(String)
+  CompleteSelectedAnimationGraphEdgeConnect(String)
+  CancelSelectedAnimationGraphEdgeConnect
+  MoveSelectedAnimationGraphNode(String, Double, Double)
+  ToggleAnimationPreviewPaused
+  UpdateAnimationPreviewSpeed(String)
+  UpdateAnimationPreviewSeekInput(String)
+  ApplyAnimationPreviewSeek
+  SaveSelectedAnimationClip
+  SaveSelectedAnimationGraph
   RenameSelected(String)
   UpdateSelectedTranslateX(String)
   UpdateSelectedTranslateY(String)
   UpdateSelectedRotation(String)
   UpdateSelectedText(String)
   ToggleSelectedVisibility
+  UpdateSelectedAnimationPlayerGraphPath(String)
+  UpdateSelectedAnimationPlayerStartNode(String)
+  ToggleSelectedAnimationPlayerAutoplay
+  UpdateSelectedAnimationPlayerRepeatMode(String)
+  UpdateSelectedAnimationPlayerSpeed(String)
+  UpdateSelectedAnimationTransitionsDuration(String)
   SaveScene
   ReloadScene
   AddSpriteEntity
@@ -395,7 +505,8 @@ pub enum Msg {
 pub enum ResourceSelection {
   Image(String)
   Atlas(String)
-  Animation(String)
+  AnimationClip(String)
+  AnimationGraph(String)
   Prefab(String)
 } derive(Eq, Show)
 
@@ -407,8 +518,10 @@ pub enum RpcTarget {
   AssetsLoaded
   PrefabLoaded
   AtlasLoaded
-  AnimationLoaded
+  AnimationClipLoaded
+  AnimationGraphLoaded
   SceneSaved
+  AnimationMigrationSaved
   WorkspaceSaved
 } derive(Eq, Show)
 

@@ -301,15 +301,15 @@ async test "service lists scenes and saves prefabs and asset docs" {
       ),
     )
 
-    let animation = @editor_bridge.AnimationAssetDocument::default(
-      "Hero Animation", "assets/atlases/hero.atlas.json",
+    let animation = @editor_bridge.AnimationClipAssetDocument::default(
+      "Hero Clip", "assets/atlases/hero.atlas.json",
     )
     ignore(
       service.handle_rpc(
         @shared.rpc_request_envelope(
           5,
-          @shared.rpc_request_animation_save(
-            "assets/animations/hero.anim.json", animation,
+          @shared.rpc_request_animation_clip_save(
+            "assets/animation_clips/hero.clip.json", animation,
           ),
         ),
       ),
@@ -324,7 +324,7 @@ async test "service lists scenes and saves prefabs and asset docs" {
       content="true",
     )
     inspect(
-      @fs.exists(path_join(root, "assets/animations/hero.anim.json")),
+      @fs.exists(path_join(root, "assets/animation_clips/hero.clip.json")),
       content="true",
     )
   })
@@ -492,15 +492,15 @@ async test "service typed rpc surface succeeds across current workspace actions"
       _ => fail("expected atlas load response")
     }
 
-    let animation = @editor_bridge.AnimationAssetDocument::default(
-      "Hero Animation", "assets/atlases/hero.atlas.json",
+    let animation = @editor_bridge.AnimationClipAssetDocument::default(
+      "Hero Clip", "assets/atlases/hero.atlas.json",
     )
     ignore(
       service.handle_rpc(
         @shared.rpc_request_envelope(
           14,
-          @shared.rpc_request_animation_save(
-            "assets/animations/hero.anim.json", animation,
+          @shared.rpc_request_animation_clip_save(
+            "assets/animation_clips/hero.clip.json", animation,
           ),
         ),
       ),
@@ -508,12 +508,14 @@ async test "service typed rpc surface succeeds across current workspace actions"
     let animation_payload = service.handle_rpc(
       @shared.rpc_request_envelope(
         15,
-        @shared.rpc_request_animation_load("assets/animations/hero.anim.json"),
+        @shared.rpc_request_animation_clip_load(
+          "assets/animation_clips/hero.clip.json",
+        ),
       ),
     )
     match response_envelope(animation_payload).response {
-      @shared.AnimationLoaded(animation~) =>
-        inspect(animation.animation.name, content="Hero Animation")
+      @shared.AnimationClipLoaded(clip~) =>
+        inspect(clip.clip.name, content="Hero Clip")
       _ => fail("expected animation load response")
     }
 
@@ -576,11 +578,22 @@ async test "service typed rpc surface returns stable errors for missing or inval
           "Test Atlas", "assets/images/test.png",
         ),
       ),
-      @shared.rpc_request_animation_load("assets/animations/missing.anim.json"),
-      @shared.rpc_request_animation_save(
-        "assets/animations/test.anim.json",
-        @editor_bridge.AnimationAssetDocument::default(
-          "Test Animation", "assets/atlases/test.atlas.json",
+      @shared.rpc_request_animation_clip_load(
+        "assets/animation_clips/missing.clip.json",
+      ),
+      @shared.rpc_request_animation_clip_save(
+        "assets/animation_clips/test.clip.json",
+        @editor_bridge.AnimationClipAssetDocument::default(
+          "Test Clip", "assets/atlases/test.atlas.json",
+        ),
+      ),
+      @shared.rpc_request_animation_graph_load(
+        "assets/animation_graphs/missing.graph.json",
+      ),
+      @shared.rpc_request_animation_graph_save(
+        "assets/animation_graphs/test.graph.json",
+        @editor_bridge.AnimationGraphAssetDocument::default(
+          "Test Graph", "assets/animation_clips/test.clip.json",
         ),
       ),
     ]
@@ -678,21 +691,22 @@ async test "service typed rpc surface returns stable errors for missing or inval
     )
 
     @fs.write_file(
-      path_join(root, "assets/animations/broken.anim.json"),
-      "{\n  \"version\": 1,\n  \"name\": \"Broken\",\n  \"atlas_asset_path\": \"assets/atlases/hero.atlas.json\",\n  \"clips\": [],\n  \"default_clip\": \"missing\"\n}\n"
-      |> @utf8.encode,
+      path_join(root, "assets/animation_clips/broken.clip.json"),
+      "{\n  \"version\": 3,\n  \"name\": \"Broken\"\n}\n" |> @utf8.encode,
       create=0o644,
     )
     let invalid_animation_payload = service.handle_rpc(
       @shared.rpc_request_envelope(
         request_id,
-        @shared.rpc_request_animation_load("assets/animations/broken.anim.json"),
+        @shared.rpc_request_animation_clip_load(
+          "assets/animation_clips/broken.clip.json",
+        ),
       ),
     )
     expect_error_response(
       response_envelope(invalid_animation_payload).response,
       "internal_error",
-      "Animation document is invalid: assets/animations/broken.anim.json",
+      "Animation clip document is invalid: assets/animation_clips/broken.clip.json",
     )
   })
 }

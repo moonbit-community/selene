@@ -304,6 +304,7 @@ pub fn clear_scene() -> Unit {
       @editor_bridge.SceneDocument::empty(),
       [],
       [],
+      [],
     ),
   )
 }
@@ -331,6 +332,62 @@ fn normalized_move_snap_step(step : Double) -> Double {
 pub fn set_move_snap(enabled : Bool, step : Double) -> Unit {
   preview_state.move_snap_enabled = enabled
   preview_state.move_snap_step = normalized_move_snap_step(step)
+}
+
+///|
+fn selected_runtime_entity() -> @entity.Entity? {
+  guard preview_state.runtime_scene is Some(scene) else { return None }
+  guard preview_state.selected_entity_id is Some(id) else { return None }
+  scene.entity(id)
+}
+
+///|
+fn with_selected_animation_player(
+  updater : (@animation.AnimationPlayer) -> Unit,
+) -> Unit {
+  guard selected_runtime_entity() is Some(entity) else { return }
+  guard @animation.animation_players().get(entity) is Some(player) else {
+    return
+  }
+  updater(player)
+}
+
+///|
+pub fn set_animation_preview_paused(paused : Bool) -> Unit {
+  with_selected_animation_player(fn(player) {
+    if paused {
+      ignore(player.pause_all())
+    } else {
+      ignore(player.resume_all())
+    }
+  })
+}
+
+///|
+pub fn set_animation_preview_speed(speed : Double) -> Unit {
+  with_selected_animation_player(fn(player) {
+    for _, playing in player.playing_animations() {
+      let (node, _active) = playing
+      match player.animation_mut(node) {
+        Some(active) => ignore(active.set_speed(speed))
+        None => ()
+      }
+    }
+  })
+}
+
+///|
+pub fn seek_animation_preview(seconds : Double) -> Unit {
+  let clamped = if seconds < 0.0 { 0.0 } else { seconds }
+  with_selected_animation_player(fn(player) {
+    for _, playing in player.playing_animations() {
+      let (node, _active) = playing
+      match player.animation_mut(node) {
+        Some(active) => ignore(active.set_seek_time(clamped))
+        None => ()
+      }
+    }
+  })
 }
 
 ///|
@@ -363,19 +420,30 @@ fn deactivate_runtime_scene_cameras(
 fn spawn_scene_entities(payload : @bridge.PreviewScenePayload) -> Unit {
   clear_runtime_scene()
   let atlas_assets : Map[String, @editor_bridge.AtlasAssetDocument] = {}
-  let animation_assets : Map[String, @editor_bridge.AnimationAssetDocument] = {}
+  let animation_clip_assets : Map[
+    String,
+    @editor_bridge.AnimationClipAssetDocument,
+  ] = {}
+  let animation_graph_assets : Map[
+    String,
+    @editor_bridge.AnimationGraphAssetDocument,
+  ] = {}
   for entry in payload.atlases {
     atlas_assets.set(entry.path, entry.atlas)
   }
-  for entry in payload.animations {
-    animation_assets.set(entry.path, entry.animation)
+  for entry in payload.animation_clips {
+    animation_clip_assets.set(entry.path, entry.clip)
+  }
+  for entry in payload.animation_graphs {
+    animation_graph_assets.set(entry.path, entry.graph)
   }
   let runtime_scene = @editor_bridge.instantiate_scene_document_with_context(
     payload.scene,
     @editor_bridge.asset_instantiation_context(
       asset_path_resolver=resolve_project_asset_path,
       atlas_assets~,
-      animation_assets~,
+      animation_clip_assets~,
+      animation_graph_assets~,
     ),
   )
   deactivate_runtime_scene_cameras(runtime_scene)

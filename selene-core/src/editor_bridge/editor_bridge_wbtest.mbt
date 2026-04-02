@@ -26,7 +26,8 @@ test "project manifest round trip includes v2 indexes" {
     scene_index=[scene_ref("scenes/demo.scene.json")],
     prefab_index=[prefab_ref("prefabs/enemy.prefab.json")],
     atlas_index=[asset_ref("assets/atlases/demo.atlas.json")],
-    animation_index=[asset_ref("assets/animations/demo.anim.json")],
+    animation_clip_index=[asset_ref("assets/animation_clips/demo.clip.json")],
+    animation_graph_index=[asset_ref("assets/animation_graphs/demo.graph.json")],
   )
   let decoded : ProjectManifest = @json.from_json(manifest.to_json())
   inspect(decoded == manifest, content="true")
@@ -96,6 +97,31 @@ test "builtin component dependencies and removability follow the inspector rules
   )
   inspect(removable_builtin_component(Transform2d), content="false")
   inspect(removable_builtin_component(Sprite), content="true")
+}
+
+///|
+test "animation repeat mode parsing and serialization stay stable" {
+  inspect(animation_repeat_mode_doc_from_string("forever"), content="Forever")
+  inspect(animation_repeat_mode_doc_from_string("never"), content="Never")
+  inspect(animation_repeat_mode_doc_from_string("once"), content="Never")
+  inspect(animation_repeat_mode_doc_from_string("count"), content="Count(1)")
+  inspect(animation_repeat_mode_doc_from_string("count:3"), content="Count(3)")
+  inspect(
+    animation_repeat_mode_doc_to_string(animation_repeat_mode_count(5)),
+    content="count:5",
+  )
+}
+
+///|
+test "animation player component constructor stores canonical repeat string" {
+  let component = animation_player_component(
+    graph_asset_path=Some("assets/animation_graphs/hero.graph.json"),
+    repeat_mode=animation_repeat_mode_count(2),
+    speed=-1.0,
+  )
+  let player : AnimationPlayerComponent = @json.from_json(component.data)
+  inspect(player.repeat_mode, content="count:2")
+  inspect(player.repeat_mode_doc(), content="Count(2)")
 }
 
 ///|
@@ -229,7 +255,7 @@ test "codec reports project manifest migration for missing v2 indexes" {
         content="scenes/main.scene.json",
       )
       inspect(preview.manifest.prefab_index.length(), content="0")
-      inspect(preview.changes.length(), content="4")
+      inspect(preview.changes.length(), content="5")
     }
     _ => fail("expected project manifest migration preview")
   }
@@ -281,38 +307,43 @@ test "loader accepts legacy v2 project manifest by auto-migrating indexes" {
 ///|
 test "loader builds a project bundle with atlas and animation dependencies" {
   let atlas_path = "assets/atlases/hero.atlas.json"
-  let animation_path = "assets/animations/hero.anim.json"
+  let clip_path = "assets/animation_clips/hero-default.clip.json"
+  let graph_path = "assets/animation_graphs/hero.graph.json"
   let scene_path = "scenes/main.scene.json"
   let manifest = ProjectManifest::default(
     "demo",
     startup_scene=scene_path,
     scene_index=[scene_ref(scene_path)],
     atlas_index=[asset_ref(atlas_path)],
-    animation_index=[asset_ref(animation_path)],
+    animation_clip_index=[asset_ref(clip_path)],
+    animation_graph_index=[asset_ref(graph_path)],
   )
   let atlas = AtlasAssetDocument::default(
     "Hero Atlas", "assets/images/hero.png",
   )
-  let animation = AnimationAssetDocument::default("Hero", atlas_path)
+  let clip = AnimationClipAssetDocument::default("Hero Default", atlas_path)
+  let graph = AnimationGraphAssetDocument::default("Hero Graph", clip_path)
   let scene = SceneDocument::default_main().with_entity(
     entity_document("hero", "Hero", components=[
       transform2d_component(),
       sprite_component(),
       texture_atlas_component(atlas_asset_path=Some(atlas_path)),
-      animation_player_component(animation_asset_path=Some(animation_path)),
+      animation_player_component(graph_asset_path=Some(graph_path)),
     ]),
   )
   let source = source_with_documents([
     ("selene.project.json", json_bytes(manifest)),
     (scene_path, json_bytes(scene)),
     (atlas_path, json_bytes(atlas)),
-    (animation_path, json_bytes(animation)),
+    (clip_path, json_bytes(clip)),
+    (graph_path, json_bytes(graph)),
   ])
   let bundle = load_project_bundle(source)
   inspect(bundle.scene_path, content="scenes/main.scene.json")
   inspect(bundle.scene.name, content="Main")
   inspect(bundle.atlas_assets.contains(atlas_path), content="true")
-  inspect(bundle.animation_assets.contains(animation_path), content="true")
+  inspect(bundle.animation_clip_assets.contains(clip_path), content="true")
+  inspect(bundle.animation_graph_assets.contains(graph_path), content="true")
 }
 
 ///|

@@ -4,10 +4,28 @@
 
 ### Added
 
+- Added root `moon.work` (`members`) to manage Selene modules (`selene-core`, `selene-webgpu`, `selene-raylib`, `selene-tools`, `selene-editor`) and `examples` in a single workspace.
 - Added `selene/editor_bridge` built-in component metadata APIs for editor-facing component workflows: `BuiltinComponentKind`, string/enum mapping helpers, category/dependency queries, removability checks, default component factories, and ordered built-in component enumeration.
+- Added `docs/bevy-alignment-tracker.md` as the canonical markdown tracker for ongoing Bevy parity work (`BEVY-001...`) with explicit status and queue ownership.
+- Added `docs/bevy-rapier3d-parity-matrix.md` as the formal gap matrix for `selene/physics3d` vs `bevy_rapier3d`, with per-area status and explicit remaining closure steps.
 
 ### Changed
 
+- Changed release quality/publish pipeline `moon` invocations to use explicit `--manifest-path` (plus scoped package/module paths for `fmt/info/check`) so workspace mode does not accidentally expand checks into unrelated modules.
+- Changed release quality checks to run explicit per-target validation (`js` / `native`) for multi-target modules instead of relying on `--target all` in workspace mode.
+- Changed script responsibilities by making `publish.py` release-only and moving page publishing flow to `publish_pages.py`.
+- Changed module manifests for workspace target scoping by adding explicit `supported-targets` to `selene-webgpu`, `selene-raylib`, and `examples`.
+- Changed `selene/editor_bridge` animation asset model from a single `.anim.json` document to Bevy-style split clip/graph assets (`AnimationClipAssetDocument` + `AnimationGraphAssetDocument`) and updated loader/runtime scene instantiation to resolve graph -> clip -> atlas dependencies.
+- Changed `selene-editor` typed protocol and preview payloads to carry separate animation clip/graph resources (`AnimationClipLoad/Save`, `AnimationGraphLoad/Save`, `AnimationMigrate`) instead of the legacy single animation document RPC flow.
+- Changed `selene-editor` Animation Graph Inspector from summary-only form fields to node/edge authoring workflow (`add clip/blend/additive node`, `remove node`, `set default node`, clip-path editing, and edge target/weight editing).
+- Changed `selene-editor` Entity Inspector animation editing from generic JSON to typed controls for `AnimationPlayer` (`graph_asset_path`, `start_node`, `autoplay`, `repeat_mode`, `speed`) and `AnimationTransitions` (`duration`) with transactional scene edits.
+- Changed `selene/editor_bridge` animation repeat semantics from ad-hoc strings to typed `AnimationRepeatModeDoc` (`Never` / `Forever` / `Count`) for component construction and runtime bridge mapping, while keeping canonical on-disk string representation (`never`, `forever`, `count:N`).
+- Changed `selene-editor` Animation Graph Inspector preview workflow to include direct playback controls (`play/pause`, `speed`, `seek`), and extended preview bridge/runtime commands to apply those controls to selected animated entities (including negative-speed reverse preview).
+- Changed `selene-editor` legacy animation migration UX to a user-confirmed batch workflow: detect `.anim.json`/legacy `animation_asset_path` usage, show modal `Migrate/Cancel`, run sequential `AnimationMigrate` RPCs with progress/failure reporting, and reload project resources automatically after successful completion.
+- Changed `selene-editor` animation asset authoring flow to an explicit pipeline (`image -> atlas -> clip -> graph`): atlas creation now produces clip assets only, graph creation is a dedicated action on selected clips, and Assets toolbar now exposes `New Atlas` / `New Clip` / `New Graph` entrypoints bound to current resource selection.
+- Changed `selene-editor` Animation Graph Inspector UX by adding a visual graph canvas panel (positioned node view + click-to-set-default) alongside structured node/edge form editing.
+- Changed `selene-editor` Animation Graph canvas interaction to support direct node drag repositioning on the visual graph panel, wired end-to-end through typed frontend messages with app-level wbtest coverage.
+- Changed `selene-editor` Animation Graph canvas interaction to support direct edge connect drawing (`Alt+click source node -> Alt+click target node`) with stateful source-node highlighting and wbtest coverage.
 - Changed `selene-core` and `examples` to use `Milky2018/moon_rapier@0.4.0`.
 - Changed `selene-editor` Entity Inspector to a Unity-style component stack with per-component cards, collapse state, card action menus, and an integrated `Add Component` search panel.
 - Changed `selene-editor` entity component editing flow to support built-in component add/remove with strong dependency rules (`auto-add required chain` + `block destructive removal`) and transactional undo/redo.
@@ -50,9 +68,17 @@
 - Changed `selene-editor` Image resource Inspector to render an inline preview image (loaded from `/project/...`) with load/error state handling, instead of text-only metadata.
 - Changed `selene-editor` preview bridge payload to carry explicit `scene_path`, and changed preview runtime scene sync to distinguish `scene switch` from `same-scene update` without heuristic fallback.
 - Changed `selene-editor` project-load state handling to require typed workspace payloads; missing workspace state is now treated as a protocol failure instead of silently defaulting.
+- Changed `selene/physics3d` parity verification coverage by extending 3D wbtests to include `QueryFilter` body-type filtering (`dynamic/fixed/kinematic`), exclude-entity/exclude-sensors/exclude-solids behavior, `cast_shape` filtering behavior, and collision/intersection event-bus mapping.
+- Changed `selene/physics3d` joint parity verification coverage by adding 3D wbtests for all joint variants on both `ImpulseJoint` and `MultibodyJoint`, and documenting current rope/spring handle-routing semantics in the parity matrix.
+- Changed `selene/physics3d` impulse `Rope/Spring` joint syncing to use generic-joint insertion (Bevy-style handle path), so these variants now expose stable impulse joint handles and share consistent `contacts_enabled` behavior with other impulse joint types.
+- Changed `selene/physics3d` collider sync to preserve threshold-derived contact-force active events during per-frame updates, and added wbtest coverage for default-vs-low `ContactForceEventThreshold` behavior.
+- Changed `selene/physics3d` revolute joint conversion to route through a generic-joint mapping path that applies `motor_model` and optional `softness`, and extended 3D wbtests with revolute/prismatic joint behavior assertions (limits + motor state + softness mapping coverage on the generic-joint path).
 
 ### Fixed
 
+- Fixed `selene/editor_bridge` project-manifest migration for legacy `animation_index` by mapping legacy `.anim.json` refs to v3 graph paths (`assets/animation_graphs/*.graph.json`) instead of copying invalid legacy paths into `animation_graph_index`.
+- Fixed `selene-core` animation runtime reverse-playback behavior by allowing negative speed in `ActiveAnimation::set_speed` and updating playback/repeat/completion logic in `animation_player_system`.
+- Fixed `selene-editor` project-open failure regression (`Project open failed. Check browser console for details.`) by completing clip/graph protocol migration across frontend/service/specs and ensuring project state + scene bundle decoding stays consistent.
 - Fixed `selene-raylib` fallback text rendering/measurement spacing to use raylib-compatible default spacing (`1.0`) instead of `0.0`, reducing compressed default-font appearance when cosmic text rendering is unavailable.
 - Fixed `selene/physics3d` moon_rapier `0.4.0` integration by updating multibody joint conversion to `GenericJoint3DReal` and driving `JointSet3DReal::solve` with `IntegrationParameters.num_solver_iterations`.
 - Fixed `selene/collision` moon_rapier `0.4.0` compatibility by switching 2D pipeline CCD solver wiring from `dynamics.CCDSolver` to `dynamics_ccd.CCDSolver`.
