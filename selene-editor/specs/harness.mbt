@@ -3,6 +3,7 @@ pub struct FakePreviewBridge {
   mut commands : Array[@bridge.PreviewCommand]
   mut current_scene : @editor_bridge.SceneDocument?
   mut selected_entity_id : String?
+  mut selected_entity_ids : Array[String]
   mut bootstrapped : Bool
 }
 
@@ -12,6 +13,7 @@ fn FakePreviewBridge::new() -> FakePreviewBridge {
     commands: [],
     current_scene: None,
     selected_entity_id: None,
+    selected_entity_ids: [],
     bootstrapped: false,
   }
 }
@@ -26,7 +28,10 @@ fn FakePreviewBridge::apply(
     @bridge.Bootstrap => self.bootstrapped = true
     @bridge.ClearScene => self.current_scene = None
     @bridge.LoadScene(payload) => self.current_scene = Some(payload.scene)
-    @bridge.SelectEntity(id) => self.selected_entity_id = id
+    @bridge.SetSelection(primary~, ids~) => {
+      self.selected_entity_id = primary
+      self.selected_entity_ids = ids
+    }
     @bridge.SetTool(_) => ()
     @bridge.SetMoveSnap(..) => ()
     @bridge.SetAnimationPreviewPaused(_) => ()
@@ -385,6 +390,13 @@ pub fn EditorHarness::selected_entity_id(self : EditorHarness) -> String? {
 }
 
 ///|
+pub fn EditorHarness::selected_entity_ids(
+  self : EditorHarness,
+) -> Array[String] {
+  self.model.selected_entity_ids
+}
+
+///|
 pub fn EditorHarness::entity(
   self : EditorHarness,
   id : String,
@@ -412,6 +424,13 @@ pub fn EditorHarness::preview_selected_entity_id(
   self : EditorHarness,
 ) -> String? {
   self.preview.selected_entity_id
+}
+
+///|
+pub fn EditorHarness::preview_selected_entity_ids(
+  self : EditorHarness,
+) -> Array[String] {
+  self.preview.selected_entity_ids
 }
 
 ///|
@@ -842,7 +861,20 @@ pub async fn EditorHarness::when_preview_picks_entity(
   self : EditorHarness,
   id : String?,
 ) -> Unit {
-  self.emit_preview_event(@bridge.preview_event_entity_picked(id))
+  let ids = match id {
+    Some(value) => [value]
+    None => []
+  }
+  self.emit_preview_event(@bridge.preview_event_selection_changed(id, ids))
+}
+
+///|
+pub async fn EditorHarness::when_preview_selects_entities(
+  self : EditorHarness,
+  ids : Array[String],
+) -> Unit {
+  let primary = if ids.is_empty() { None } else { Some(ids[0]) }
+  self.emit_preview_event(@bridge.preview_event_selection_changed(primary, ids))
 }
 
 ///|

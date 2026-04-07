@@ -196,13 +196,17 @@ test "select entity updates status with entity name when available" {
   let (_, selected) = update(msg_select_entity(Some("camera")), model)
   inspect(selected.status, content="Selected entity: Camera2d")
   inspect(selected.selected_entity_id, content="Some(\"camera\")")
+  inspect(selected.selected_entity_ids.length(), content="1")
+  inspect(selected.selected_entity_ids[0], content="camera")
 
   let (_, fallback) = update(msg_select_entity(Some("missing-entity")), model)
   inspect(fallback.status, content="Selected entity: missing-entity")
+  inspect(fallback.selected_entity_ids.length(), content="0")
 
   let (_, cleared) = update(msg_select_entity(None), selected)
   inspect(cleared.status, content="Entity selection cleared")
   inspect(cleared.selected_entity_id, content="None")
+  inspect(cleared.selected_entity_ids.length(), content="0")
 }
 
 ///|
@@ -465,10 +469,7 @@ test "assets load does not reopen animation migration prompt after completion" {
     model,
   )
   inspect(finished.pending_animation_migration_paths.length(), content="0")
-  inspect(
-    finished.status,
-    content="Legacy animation migration complete",
-  )
+  inspect(finished.status, content="Legacy animation migration complete")
   let (_asset_effects, after_assets) = update(
     msg_assets_loaded(
       Ok(
@@ -483,10 +484,7 @@ test "assets load does not reopen animation migration prompt after completion" {
     finished,
   )
   inspect(after_assets.pending_animation_migration_paths.length(), content="0")
-  inspect(
-    after_assets.status,
-    content="Legacy animation migration complete",
-  )
+  inspect(after_assets.status, content="Legacy animation migration complete")
 }
 
 ///|
@@ -1044,6 +1042,120 @@ test "inspector transform typing is coalesced into one undo entry after commit" 
     camera, "Transform2d",
   ).unwrap()
   inspect(transform.translation.x, content="0")
+}
+
+///|
+test "preview multi-selection updates selected entity ids" {
+  let model = {
+    ..new_model(),
+    scene: Some(
+      @editor_bridge.SceneDocument::default_main()
+      .with_entity(
+        @editor_bridge.entity_document("entity-a", "A", components=[
+          @editor_bridge.name_component("A"),
+          @editor_bridge.transform2d_component(),
+          @editor_bridge.visibility_component(),
+        ]),
+      )
+      .with_entity(
+        @editor_bridge.entity_document("entity-b", "B", components=[
+          @editor_bridge.name_component("B"),
+          @editor_bridge.transform2d_component(),
+          @editor_bridge.visibility_component(),
+        ]),
+      ),
+    ),
+  }
+  let (_, next) = update(
+    msg_preview_event(
+      @bridge.preview_event_selection_changed(Some("entity-a"), [
+        "entity-a", "entity-b",
+      ]),
+    ),
+    model,
+  )
+  inspect(next.selected_entity_id, content="Some(\"entity-a\")")
+  inspect(next.selected_entity_ids.length(), content="2")
+  inspect(next.selected_entity_ids[0], content="entity-a")
+  inspect(next.selected_entity_ids[1], content="entity-b")
+}
+
+///|
+test "batch transform edit applies to all selected entities" {
+  let scene = @editor_bridge.SceneDocument::default_main()
+    .with_entity(
+      @editor_bridge.entity_document("entity-a", "A", components=[
+        @editor_bridge.name_component("A"),
+        @editor_bridge.transform2d_component(
+          translation=@editor_bridge.vec2_doc(0.0, 1.0),
+        ),
+        @editor_bridge.visibility_component(),
+      ]),
+    )
+    .with_entity(
+      @editor_bridge.entity_document("entity-b", "B", components=[
+        @editor_bridge.name_component("B"),
+        @editor_bridge.transform2d_component(
+          translation=@editor_bridge.vec2_doc(30.0, 5.0),
+        ),
+        @editor_bridge.visibility_component(),
+      ]),
+    )
+  let model = {
+    ..new_model(),
+    scene: Some(scene),
+    selected_entity_id: Some("entity-a"),
+    selected_entity_ids: ["entity-a", "entity-b"],
+  }
+  let (_, edited) = update(msg_update_selected_translate_x("10"), model)
+  let entity_a = edited.scene.unwrap().entity("entity-a").unwrap()
+  let entity_b = edited.scene.unwrap().entity("entity-b").unwrap()
+  let transform_a : @editor_bridge.Transform2dComponent = component_of(
+    entity_a, "Transform2d",
+  ).unwrap()
+  let transform_b : @editor_bridge.Transform2dComponent = component_of(
+    entity_b, "Transform2d",
+  ).unwrap()
+  inspect(transform_a.translation.x, content="10")
+  inspect(transform_b.translation.x, content="10")
+  inspect(transform_a.translation.y, content="1")
+  inspect(transform_b.translation.y, content="5")
+}
+
+///|
+test "batch visibility toggle follows primary selection and applies to all" {
+  let scene = @editor_bridge.SceneDocument::default_main()
+    .with_entity(
+      @editor_bridge.entity_document("entity-a", "A", components=[
+        @editor_bridge.name_component("A"),
+        @editor_bridge.transform2d_component(),
+        @editor_bridge.visibility_component(visible=true),
+      ]),
+    )
+    .with_entity(
+      @editor_bridge.entity_document("entity-b", "B", components=[
+        @editor_bridge.name_component("B"),
+        @editor_bridge.transform2d_component(),
+        @editor_bridge.visibility_component(visible=false),
+      ]),
+    )
+  let model = {
+    ..new_model(),
+    scene: Some(scene),
+    selected_entity_id: Some("entity-a"),
+    selected_entity_ids: ["entity-a", "entity-b"],
+  }
+  let (_, toggled) = update(msg_toggle_selected_visibility(), model)
+  let entity_a = toggled.scene.unwrap().entity("entity-a").unwrap()
+  let entity_b = toggled.scene.unwrap().entity("entity-b").unwrap()
+  let visibility_a : @editor_bridge.VisibilityComponent = component_of(
+    entity_a, "Visibility",
+  ).unwrap()
+  let visibility_b : @editor_bridge.VisibilityComponent = component_of(
+    entity_b, "Visibility",
+  ).unwrap()
+  inspect(visibility_a.visible, content="false")
+  inspect(visibility_b.visible, content="false")
 }
 
 ///|

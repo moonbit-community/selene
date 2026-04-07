@@ -62,7 +62,7 @@ pub fn preview_scene_payload(
 
 ///|
 pub enum PreviewEvent {
-  EntityPicked(String?)
+  SelectionChanged(primary~ : String?, ids~ : Array[String])
   HoverChanged(String?)
   TransformGestureStarted(id~ : String)
   TransformChanged(
@@ -79,7 +79,7 @@ pub enum PreviewCommand {
   Bootstrap
   ClearScene
   LoadScene(PreviewScenePayload)
-  SelectEntity(String?)
+  SetSelection(primary~ : String?, ids~ : Array[String])
   SetTool(@shared.PreviewTool)
   SetMoveSnap(enabled~ : Bool, step~ : Double)
   SetAnimationPreviewPaused(Bool)
@@ -89,8 +89,11 @@ pub enum PreviewCommand {
 } derive(Show, Eq)
 
 ///|
-pub fn preview_event_entity_picked(id : String?) -> PreviewEvent {
-  EntityPicked(id)
+pub fn preview_event_selection_changed(
+  primary : String?,
+  ids : Array[String],
+) -> PreviewEvent {
+  SelectionChanged(primary~, ids~)
 }
 
 ///|
@@ -136,8 +139,11 @@ pub fn preview_command_load_scene(
 }
 
 ///|
-pub fn preview_command_select_entity(id : String?) -> PreviewCommand {
-  SelectEntity(id)
+pub fn preview_command_set_selection(
+  primary : String?,
+  ids : Array[String],
+) -> PreviewCommand {
+  SetSelection(primary~, ids~)
 }
 
 ///|

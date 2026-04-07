@@ -9,6 +9,12 @@ priv struct ToolDragState {
 }
 
 ///|
+priv struct SelectionDragState {
+  anchor_world : @math.Vec2D
+  anchor_pointer : @math.Vec2D
+}
+
+///|
 priv struct PreviewState {
   mut bootstrapped : Bool
   mut pending_scene : @bridge.PreviewScenePayload?
@@ -16,6 +22,7 @@ priv struct PreviewState {
   mut current_scene : @editor_bridge.SceneDocument?
   mut runtime_scene : @editor_bridge.SceneRuntime?
   mut selected_entity_id : String?
+  mut selected_entity_ids : Array[String]
   mut hovered_entity_id : String?
   mut active_tool : @shared.PreviewTool
   mut move_snap_enabled : Bool
@@ -23,8 +30,10 @@ priv struct PreviewState {
   mut camera_entity : @entity.Entity?
   mut selection_overlay : @entity.Entity?
   mut pivot_overlay : @entity.Entity?
+  mut selection_rect_overlay : @entity.Entity?
   mut pending_frame_selection : Bool
   mut tool_drag : ToolDragState?
+  mut selection_drag : SelectionDragState?
   mut camera_pan_anchor : @math.Vec2D?
   mut event_sink : ((@bridge.PreviewEvent) -> Unit)?
   mut initial_scene_aligned : Bool
@@ -39,6 +48,7 @@ fn PreviewState::new() -> PreviewState {
     current_scene: None,
     runtime_scene: None,
     selected_entity_id: None,
+    selected_entity_ids: [],
     hovered_entity_id: None,
     active_tool: @shared.preview_tool_select(),
     move_snap_enabled: false,
@@ -46,8 +56,10 @@ fn PreviewState::new() -> PreviewState {
     camera_entity: None,
     selection_overlay: None,
     pivot_overlay: None,
+    selection_rect_overlay: None,
     pending_frame_selection: false,
     tool_drag: None,
+    selection_drag: None,
     camera_pan_anchor: None,
     event_sink: None,
     initial_scene_aligned: false,
@@ -310,13 +322,36 @@ pub fn clear_scene() -> Unit {
 }
 
 ///|
-pub fn select_entity(id : String?) -> Unit {
-  preview_state.selected_entity_id = id
+pub fn set_selection(primary : String?, ids : Array[String]) -> Unit {
+  let unique_ids : Array[String] = []
+  let seen : Map[String, Bool] = {}
+  for id in ids {
+    if seen.contains(id) {
+      continue
+    }
+    seen.set(id, true)
+    unique_ids.push(id)
+  }
+  let normalized_primary = match primary {
+    Some(id) if seen.contains(id) => Some(id)
+    Some(_) => if unique_ids.is_empty() { None } else { Some(unique_ids[0]) }
+    None => if unique_ids.is_empty() { None } else { Some(unique_ids[0]) }
+  }
+  let normalized_ids = match normalized_primary {
+    Some(id) if unique_ids.contains(id) => unique_ids
+    Some(id) => [id] + unique_ids
+    None => []
+  }
+  preview_state.selected_entity_id = normalized_primary
+  preview_state.selected_entity_ids = normalized_ids
 }
 
 ///|
 pub fn set_tool(tool : @shared.PreviewTool) -> Unit {
   preview_state.active_tool = tool
+  if tool != @shared.preview_tool_select() {
+    preview_state.selection_drag = None
+  }
 }
 
 ///|
@@ -403,6 +438,7 @@ fn clear_runtime_scene() -> Unit {
   }
   preview_state.runtime_scene = None
   preview_state.tool_drag = None
+  preview_state.selection_drag = None
 }
 
 ///|
@@ -808,6 +844,65 @@ fn apply_pivot_overlay() -> Unit {
 }
 
 ///|
+fn apply_selection_rect_overlay(world_point : @math.Vec2D?) -> Unit {
+  guard preview_state.selection_rect_overlay is Some(overlay) else { return }
+  guard preview_state.selection_drag is Some(drag) else {
+    @visibility.visibilities().set(overlay, @visibility.Hidden)
+    return
+  }
+  guard world_point is Some(point) else {
+    @visibility.visibilities().set(overlay, @visibility.Hidden)
+    return
+  }
+  if !@inputs.mouse.left_button {
+    @visibility.visibilities().set(overlay, @visibility.Hidden)
+    return
+  }
+  if !pointer_drag_started(drag.anchor_pointer) {
+    @visibility.visibilities().set(overlay, @visibility.Hidden)
+    return
+  }
+  let min_x = if drag.anchor_world[X] < point[X] {
+    drag.anchor_world[X]
+  } else {
+    point[X]
+  }
+  let min_y = if drag.anchor_world[Y] < point[Y] {
+    drag.anchor_world[Y]
+  } else {
+    point[Y]
+  }
+  let max_x = if drag.anchor_world[X] > point[X] {
+    drag.anchor_world[X]
+  } else {
+    point[X]
+  }
+  let max_y = if drag.anchor_world[Y] > point[Y] {
+    drag.anchor_world[Y]
+  } else {
+    point[Y]
+  }
+  let width = max_x - min_x
+  let height = max_y - min_y
+  @visibility.visibilities().set(overlay, @visibility.Visible)
+  @transform.transforms().set(
+    overlay,
+    @transform.Transform::from_xyz(
+      min_x + width * 0.5,
+      min_y + height * 0.5,
+      11.0,
+    ).with_scale(@math.Vec3::new(width, height, 1.0)),
+  )
+  @sprite.sprites().set(
+    overlay,
+    @sprite.Sprite::from_color(
+      @render.Color::{ r: 96U, g: 220U, b: 255U, a: 0.22 },
+      @math.Vec2D(1.0, 1.0),
+    ),
+  )
+}
+
+///|
 fn editor_camera_entity() -> @entity.Entity? {
   preview_state.camera_entity
 }
@@ -936,6 +1031,100 @@ fn pick_entity_id_at(point : @math.Vec2D) -> String? {
 }
 
 ///|
+fn rect_contains_point(
+  min_point : @math.Vec2D,
+  max_point : @math.Vec2D,
+  point : @math.Vec2D,
+) -> Bool {
+  point[X] >= min_point[X] &&
+  point[X] <= max_point[X] &&
+  point[Y] >= min_point[Y] &&
+  point[Y] <= max_point[Y]
+}
+
+///|
+fn rect_intersects(
+  min_a : @math.Vec2D,
+  max_a : @math.Vec2D,
+  min_b : @math.Vec2D,
+  max_b : @math.Vec2D,
+) -> Bool {
+  !(max_a[X] < min_b[X] ||
+  max_b[X] < min_a[X] ||
+  max_a[Y] < min_b[Y] ||
+  max_b[Y] < min_a[Y])
+}
+
+///|
+fn pick_entity_ids_in_rect(
+  anchor : @math.Vec2D,
+  current : @math.Vec2D,
+) -> Array[String] {
+  guard preview_state.current_scene is Some(scene) else { return [] }
+  let min_point = @math.Vec2D(
+    if anchor[X] < current[X] {
+      anchor[X]
+    } else {
+      current[X]
+    },
+    if anchor[Y] < current[Y] {
+      anchor[Y]
+    } else {
+      current[Y]
+    },
+  )
+  let max_point = @math.Vec2D(
+    if anchor[X] > current[X] {
+      anchor[X]
+    } else {
+      current[X]
+    },
+    if anchor[Y] > current[Y] {
+      anchor[Y]
+    } else {
+      current[Y]
+    },
+  )
+  let selected : Array[String] = []
+  for document in scene.entities.rev_iter() {
+    if document.component("Camera2d") is Some(_) {
+      continue
+    }
+    let transform = @editor_bridge.decoded_transform(document)
+    let matched = match document_visual_bounds(document, transform) {
+      Some((position, size)) =>
+        if size[X].abs() <= 0.001 && size[Y].abs() <= 0.001 {
+          rect_contains_point(min_point, max_point, position)
+        } else {
+          rect_intersects(
+            min_point,
+            max_point,
+            position,
+            @math.Vec2D(position[X] + size[X], position[Y] + size[Y]),
+          )
+        }
+      None => false
+    }
+    if matched {
+      selected.push(document.id)
+    }
+  }
+  selected
+}
+
+///|
+fn set_selected_ids_and_emit(ids : Array[String]) -> Unit {
+  let primary = if ids.is_empty() { None } else { Some(ids[0]) }
+  set_selection(primary, ids)
+  emit_preview_event(
+    @bridge.preview_event_selection_changed(
+      preview_state.selected_entity_id,
+      preview_state.selected_entity_ids,
+    ),
+  )
+}
+
+///|
 fn frame_selection_impl() -> Unit {
   guard preview_state.pending_frame_selection else { return }
   preview_state.pending_frame_selection = false
@@ -998,6 +1187,20 @@ fn preview_startup_system(_world : @ecs.World) -> Unit {
       @math.Vec2D(1.0, 1.0),
     ),
   )
+  let selection_rect_overlay = @entity.Entity::new()
+  preview_state.selection_rect_overlay = Some(selection_rect_overlay)
+  @transform.transforms().set(
+    selection_rect_overlay,
+    @transform.Transform::from_xyz(0.0, 0.0, 11.0),
+  )
+  @visibility.visibilities().set(selection_rect_overlay, @visibility.Hidden)
+  @sprite.sprites().set(
+    selection_rect_overlay,
+    @sprite.Sprite::from_color(
+      @render.Color::{ r: 96U, g: 220U, b: 255U, a: 0.22 },
+      @math.Vec2D(1.0, 1.0),
+    ),
+  )
 }
 
 ///|
@@ -1010,6 +1213,18 @@ fn preview_scene_sync_system(_world : @ecs.World) -> Unit {
     preview_state.current_scene = Some(payload.scene)
     preview_state.pending_scene = None
     preview_state.tool_drag = None
+    preview_state.selection_drag = None
+    let kept_ids : Array[String] = []
+    for id in preview_state.selected_entity_ids {
+      if payload.scene.entity(id) is Some(_) {
+        kept_ids.push(id)
+      }
+    }
+    let kept_primary = match preview_state.selected_entity_id {
+      Some(id) if payload.scene.entity(id) is Some(_) => Some(id)
+      _ => None
+    }
+    set_selection(kept_primary, kept_ids)
     if scene_switched || payload.scene.entities.is_empty() {
       preview_state.initial_scene_aligned = false
     }
@@ -1104,7 +1319,10 @@ fn preview_camera_control_system(_world : @ecs.World) -> Unit {
 
 ///|
 fn preview_pick_system(_world : @ecs.World) -> Unit {
-  guard world_point_from_mouse() is Some(world_point) else { return }
+  guard world_point_from_mouse() is Some(world_point) else {
+    apply_selection_rect_overlay(None)
+    return
+  }
   let pointer_inside = pointer_over_canvas() &&
     inside_editor_viewport(normalized_mouse_position())
   let hovered = if pointer_inside {
@@ -1116,8 +1334,12 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
     preview_state.hovered_entity_id = hovered
     emit_preview_event(@bridge.preview_event_hover_changed(hovered))
   }
+  apply_selection_rect_overlay(Some(world_point))
   let cursor = if pointer_pan_active() {
     "grabbing"
+  } else if preview_state.active_tool == @shared.preview_tool_select() &&
+    preview_state.selection_drag is Some(_) {
+    "crosshair"
   } else if preview_state.tool_drag is Some(drag_state) {
     match drag_state.tool {
       @shared.Translate => "grabbing"
@@ -1147,9 +1369,43 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
   set_canvas_cursor(cursor)
   if pointer_pan_active() {
     preview_state.tool_drag = None
+    preview_state.selection_drag = None
     return
   }
-  if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) && pointer_inside {
+  if preview_state.active_tool == @shared.preview_tool_select() {
+    if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) &&
+      pointer_inside {
+      preview_state.selection_drag = Some({
+        anchor_world: world_point,
+        anchor_pointer: @inputs.mouse.pos,
+      })
+    } else if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) &&
+      !pointer_inside {
+      preview_debug(
+        "ignored left pick outside canvas, mouse=" +
+        @inputs.mouse.pos[X].to_string() +
+        "," +
+        @inputs.mouse.pos[Y].to_string(),
+      )
+    }
+    if (
+        @inputs.is_mouse_just_released(@inputs.MouseButton::Left) ||
+        !@inputs.mouse.left_button
+      ) &&
+      preview_state.selection_drag is Some(drag) {
+      if pointer_drag_started(drag.anchor_pointer) {
+        let ids = pick_entity_ids_in_rect(drag.anchor_world, world_point)
+        set_selected_ids_and_emit(ids)
+      } else {
+        match hovered {
+          Some(id) => set_selected_ids_and_emit([id])
+          None => set_selected_ids_and_emit([])
+        }
+      }
+      preview_state.selection_drag = None
+    }
+  } else if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) &&
+    pointer_inside {
     match preview_state.active_tool {
       @shared.Translate =>
         match preview_state.selected_entity_id {
@@ -1176,10 +1432,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
                 @bridge.preview_event_transform_gesture_started(selected),
               )
             } else if hovered is Some(hovered_id) {
-              preview_state.selected_entity_id = Some(hovered_id)
-              emit_preview_event(
-                @bridge.preview_event_entity_picked(Some(hovered_id)),
-              )
+              set_selected_ids_and_emit([hovered_id])
             } else {
               let target = move_target_world_point(world_point)
               let next_transform = @editor_bridge.transform2d_value(
@@ -1204,10 +1457,11 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
               )
             }
           }
-          _ => {
-            preview_state.selected_entity_id = hovered
-            emit_preview_event(@bridge.preview_event_entity_picked(hovered))
-          }
+          _ =>
+            match hovered {
+              Some(id) => set_selected_ids_and_emit([id])
+              None => set_selected_ids_and_emit([])
+            }
         }
       @shared.Rotate =>
         if preview_state.selected_entity_id is Some(selected) &&
@@ -1233,8 +1487,10 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
             @bridge.preview_event_transform_gesture_started(selected),
           )
         } else {
-          preview_state.selected_entity_id = hovered
-          emit_preview_event(@bridge.preview_event_entity_picked(hovered))
+          match hovered {
+            Some(id) => set_selected_ids_and_emit([id])
+            None => set_selected_ids_and_emit([])
+          }
         }
       @shared.Scale =>
         if preview_state.selected_entity_id is Some(selected) &&
@@ -1260,15 +1516,19 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
             @bridge.preview_event_transform_gesture_started(selected),
           )
         } else {
-          preview_state.selected_entity_id = hovered
-          emit_preview_event(@bridge.preview_event_entity_picked(hovered))
+          match hovered {
+            Some(id) => set_selected_ids_and_emit([id])
+            None => set_selected_ids_and_emit([])
+          }
         }
-      _ => {
-        preview_state.selected_entity_id = hovered
-        emit_preview_event(@bridge.preview_event_entity_picked(hovered))
-      }
+      _ =>
+        match hovered {
+          Some(id) => set_selected_ids_and_emit([id])
+          None => set_selected_ids_and_emit([])
+        }
     }
-  } else if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) {
+  } else if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) &&
+    preview_state.active_tool != @shared.preview_tool_select() {
     preview_debug(
       "ignored left pick outside canvas, mouse=" +
       @inputs.mouse.pos[X].to_string() +

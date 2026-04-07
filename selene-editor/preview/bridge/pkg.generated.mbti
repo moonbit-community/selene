@@ -23,19 +23,19 @@ pub fn preview_command_load_scene(PreviewScenePayload) -> PreviewCommand
 
 pub fn preview_command_seek_animation_preview(Double) -> PreviewCommand
 
-pub fn preview_command_select_entity(String?) -> PreviewCommand
-
 pub fn preview_command_set_animation_preview_paused(Bool) -> PreviewCommand
 
 pub fn preview_command_set_animation_preview_speed(Double) -> PreviewCommand
 
 pub fn preview_command_set_move_snap(Bool, Double) -> PreviewCommand
 
+pub fn preview_command_set_selection(String?, Array[String]) -> PreviewCommand
+
 pub fn preview_command_set_tool(@shared.PreviewTool) -> PreviewCommand
 
-pub fn preview_event_entity_picked(String?) -> PreviewEvent
-
 pub fn preview_event_hover_changed(String?) -> PreviewEvent
+
+pub fn preview_event_selection_changed(String?, Array[String]) -> PreviewEvent
 
 pub fn preview_event_transform_changed(String, @editor_bridge.Vec2Doc, Double, @editor_bridge.Vec2Doc) -> PreviewEvent
 
@@ -67,7 +67,7 @@ pub enum PreviewCommand {
   Bootstrap
   ClearScene
   LoadScene(PreviewScenePayload)
-  SelectEntity(String?)
+  SetSelection(primary~ : String?, ids~ : Array[String])
   SetTool(@shared.PreviewTool)
   SetMoveSnap(enabled~ : Bool, step~ : Double)
   SetAnimationPreviewPaused(Bool)
@@ -77,7 +77,7 @@ pub enum PreviewCommand {
 } derive(Eq, Show)
 
 pub enum PreviewEvent {
-  EntityPicked(String?)
+  SelectionChanged(primary~ : String?, ids~ : Array[String])
   HoverChanged(String?)
   TransformGestureStarted(id~ : String)
   TransformChanged(id~ : String, translation~ : @editor_bridge.Vec2Doc, rotation~ : Double, scale~ : @editor_bridge.Vec2Doc)

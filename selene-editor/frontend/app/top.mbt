@@ -68,6 +68,7 @@ pub struct Model {
   workspace : @editor_bridge.WorkspaceDocument
   selected_resource : ResourceSelection?
   selected_entity_id : String?
+  selected_entity_ids : Array[String]
   add_component_panel_open : Bool
   component_search_query : String
   open_component_menu_kind : String?
@@ -286,6 +287,7 @@ pub fn new_model() -> Model {
     workspace: @editor_bridge.WorkspaceDocument::default(),
     selected_resource: None,
     selected_entity_id: None,
+    selected_entity_ids: [],
     add_component_panel_open: false,
     component_search_query: "",
     open_component_menu_kind: None,
@@ -1469,7 +1471,12 @@ fn sync_preview_effects(model : Model) -> Array[Effect] {
         model.move_snap_step,
       ),
     ),
-    Preview(@bridge.preview_command_select_entity(model.selected_entity_id)),
+    Preview(
+      @bridge.preview_command_set_selection(
+        model.selected_entity_id,
+        selected_entity_ids_for_edit(model),
+      ),
+    ),
   ]
   effects
 }
@@ -2108,6 +2115,94 @@ pub fn entity_label(entity : @editor_bridge.EntityDocument) -> String {
 }
 
 ///|
+fn dedup_entity_ids(ids : Array[String]) -> Array[String] {
+  let seen : Map[String, Bool] = {}
+  let ordered : Array[String] = []
+  for id in ids {
+    if seen.contains(id) {
+      continue
+    }
+    seen.set(id, true)
+    ordered.push(id)
+  }
+  ordered
+}
+
+///|
+fn normalize_entity_selection_for_scene(
+  scene : @editor_bridge.SceneDocument?,
+  primary : String?,
+  ids : Array[String],
+) -> (String?, Array[String]) {
+  let deduped = dedup_entity_ids(ids)
+  match scene {
+    Some(scene) => {
+      let existing : Array[String] = []
+      for id in deduped {
+        if scene.entity(id) is Some(_) {
+          existing.push(id)
+        }
+      }
+      let normalized_primary = match primary {
+        Some(id) if scene.entity(id) is Some(_) => Some(id)
+        _ => if existing.is_empty() { None } else { Some(existing[0]) }
+      }
+      let normalized_ids = match normalized_primary {
+        Some(id) =>
+          if existing.contains(id) {
+            existing
+          } else {
+            [id] + existing
+          }
+        None => existing
+      }
+      (normalized_primary, normalized_ids)
+    }
+    None => (None, [])
+  }
+}
+
+///|
+fn with_entity_selection(
+  model : Model,
+  primary : String?,
+  ids : Array[String],
+) -> Model {
+  let (selected_entity_id, selected_entity_ids) = normalize_entity_selection_for_scene(
+    model.scene,
+    primary,
+    ids,
+  )
+  {
+    ..model,
+    selected_entity_id,
+    selected_entity_ids,
+    workspace: model.workspace.with_selected_entity_id(selected_entity_id),
+  }
+}
+
+///|
+fn with_single_entity_selection(model : Model, id : String?) -> Model {
+  match id {
+    Some(entity_id) =>
+      with_entity_selection(model, Some(entity_id), [entity_id])
+    None => with_entity_selection(model, None, [])
+  }
+}
+
+///|
+fn selected_entity_ids_for_edit(model : Model) -> Array[String] {
+  let ids = dedup_entity_ids(model.selected_entity_ids)
+  if ids.length() > 0 {
+    return ids
+  }
+  match model.selected_entity_id {
+    Some(id) => [id]
+    None => []
+  }
+}
+
+///|
 fn selected_after_load(
   previous : String?,
   scene : @editor_bridge.SceneDocument,
@@ -2549,6 +2644,16 @@ pub fn Model::can_undo(self : Model) -> Bool {
 ///|
 pub fn Model::can_redo(self : Model) -> Bool {
   self.redo_stack.length() > 0
+}
+
+///|
+pub fn Model::selected_entity_count(self : Model) -> Int {
+  selected_entity_ids_for_edit(self).length()
+}
+
+///|
+pub fn Model::has_entity_selection(self : Model) -> Bool {
+  self.selected_entity_count() > 0
 }
 
 ///|
@@ -3198,6 +3303,8 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                 status,
                 move_snap_enabled,
                 move_snap_step,
+                selected_entity_id: None,
+                selected_entity_ids: [],
               }
               (refresh_project_effects(next), next)
             }
@@ -3241,11 +3348,29 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
               animation_graph_refs.push(@editor_bridge.asset_ref(entry.path))
             }
           }
-          let workspace = model.workspace
-            .with_last_scene(Some(response.path))
-            .with_selected_entity_id(
-              selected_after_load(model.selected_entity_id, response.scene),
-            )
+          let loaded_workspace = model.workspace.with_last_scene(
+            Some(response.path),
+          )
+          let preferred_primary = selected_after_load(
+            loaded_workspace.selected_entity_id,
+            response.scene,
+          )
+          let preferred_ids = if model.selected_entity_ids.length() > 0 {
+            model.selected_entity_ids
+          } else {
+            match preferred_primary {
+              Some(id) => [id]
+              None => []
+            }
+          }
+          let (selected_entity_id, selected_entity_ids) = normalize_entity_selection_for_scene(
+            Some(response.scene),
+            preferred_primary,
+            preferred_ids,
+          )
+          let workspace = loaded_workspace.with_selected_entity_id(
+            selected_entity_id,
+          )
           let legacy_animation_paths = legacy_animation_paths_in_scene(
             response.scene,
           )
@@ -3281,7 +3406,8 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             animation_graph_documents,
             animation_clip_refs,
             animation_graph_refs,
-            selected_entity_id: workspace.selected_entity_id,
+            selected_entity_id,
+            selected_entity_ids,
             pending_scene_migration: None,
             pending_animation_migration_paths,
             pending_animation_migration_scene_path,
@@ -3305,6 +3431,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             scene_path: preview.path,
             scene: None,
             selected_entity_id: None,
+            selected_entity_ids: [],
             pending_scene_migration: Some(preview),
             pending_animation_migration_paths: [],
             pending_animation_migration_scene_path: None,
@@ -3357,6 +3484,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           ..model,
           scene: None,
           selected_entity_id: None,
+          selected_entity_ids: [],
           pending_scene_migration: None,
           pending_animation_migration_paths: [],
           pending_animation_migration_scene_path: None,
@@ -3711,11 +3839,11 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       }
     PreviewEvent(event) =>
       match event {
-        @bridge.EntityPicked(id) => {
+        @bridge.SelectionChanged(primary~, ids~) => {
+          let selected = with_entity_selection(model, primary, ids)
           let next = {
-            ..model,
-            selected_entity_id: id,
-            selected_resource: if id is Some(_) {
+            ..selected,
+            selected_resource: if selected.has_entity_selection() {
               None
             } else {
               model.selected_resource
@@ -3726,7 +3854,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
         @bridge.HoverChanged(_) => ([], model)
         @bridge.TransformGestureStarted(id~) => {
           let next = with_started_scene_edit_transaction(
-            { ..model, selected_entity_id: Some(id), selected_resource: None },
+            {
+              ..with_single_entity_selection(model, Some(id)),
+              selected_resource: None,
+            },
             "Transform",
           )
           ([], next)
@@ -3743,9 +3874,9 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                   scale~,
                 ),
               )
+              let selected_next = with_single_entity_selection(next, Some(id))
               apply_scene_change_without_history_or_preview(model, {
-                ..next,
-                selected_entity_id: Some(id),
+                ..selected_next,
                 selected_resource: None,
               })
             }
@@ -3757,7 +3888,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             Some(transaction) => transaction.label + " applied"
             None => "Transform applied"
           }
-          let next = { ..committed, selected_entity_id: Some(id), status }
+          let next = {
+            ..with_single_entity_selection(committed, Some(id)),
+            status,
+          }
           (sync_preview_effects(next), next)
         }
       }
@@ -3851,9 +3985,22 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           let previous_scene = model.undo_stack[count - 1]
           let undo_stack = model.undo_stack[:count - 1].to_array()
           let redo_stack = bounded_history(model.redo_stack + [current])
-          let selected_entity_id = selected_after_load(
+          let preferred_primary = selected_after_load(
             model.selected_entity_id,
             previous_scene,
+          )
+          let preferred_ids = if model.selected_entity_ids.length() > 0 {
+            model.selected_entity_ids
+          } else {
+            match preferred_primary {
+              Some(id) => [id]
+              None => []
+            }
+          }
+          let (selected_entity_id, selected_entity_ids) = normalize_entity_selection_for_scene(
+            Some(previous_scene),
+            preferred_primary,
+            preferred_ids,
           )
           let workspace = model.workspace.with_selected_entity_id(
             selected_entity_id,
@@ -3862,6 +4009,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             ..model,
             scene: Some(previous_scene),
             selected_entity_id,
+            selected_entity_ids,
             workspace,
             undo_stack,
             redo_stack,
@@ -3881,9 +4029,22 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           let next_scene = model.redo_stack[count - 1]
           let redo_stack = model.redo_stack[:count - 1].to_array()
           let undo_stack = bounded_history(model.undo_stack + [current])
-          let selected_entity_id = selected_after_load(
+          let preferred_primary = selected_after_load(
             model.selected_entity_id,
             next_scene,
+          )
+          let preferred_ids = if model.selected_entity_ids.length() > 0 {
+            model.selected_entity_ids
+          } else {
+            match preferred_primary {
+              Some(id) => [id]
+              None => []
+            }
+          }
+          let (selected_entity_id, selected_entity_ids) = normalize_entity_selection_for_scene(
+            Some(next_scene),
+            preferred_primary,
+            preferred_ids,
           )
           let workspace = model.workspace.with_selected_entity_id(
             selected_entity_id,
@@ -3892,6 +4053,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             ..model,
             scene: Some(next_scene),
             selected_entity_id,
+            selected_entity_ids,
             workspace,
             undo_stack,
             redo_stack,
@@ -3919,24 +4081,25 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             status: "Inspector panel closed",
           },
         )
-      } else if model.selected_entity_id is None &&
+      } else if !model.has_entity_selection() &&
         model.selected_resource is None &&
         !model.add_component_panel_open &&
         model.open_component_menu_kind is None {
         ([], model)
       } else {
-        let workspace = model.workspace.with_selected_entity_id(None)
-        let next = {
-          ..model,
-          selected_entity_id: None,
-          selected_resource: None,
-          graph_edge_connect_source_node: None,
-          add_component_panel_open: false,
-          component_search_query: "",
-          open_component_menu_kind: None,
-          workspace,
-          status: "Selection cleared",
-        }
+        let next = with_entity_selection(
+          {
+            ..model,
+            selected_resource: None,
+            graph_edge_connect_source_node: None,
+            add_component_panel_open: false,
+            component_search_query: "",
+            open_component_menu_kind: None,
+            status: "Selection cleared",
+          },
+          None,
+          [],
+        )
         (sync_preview_effects(next), next)
       }
     OpenScene(path) =>
@@ -3959,14 +4122,13 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
       }
       let next = with_expanded_section_for_selection(
         {
-          ..model,
+          ..with_entity_selection(model, None, []),
           selected_resource: resource,
           graph_edge_connect_source_node: None,
           asset_tree_expanded: with_asset_tree_expanded_for_selection(
             model.asset_tree_expanded,
             resource,
           ),
-          selected_entity_id: None,
           add_component_panel_open: false,
           component_search_query: "",
           open_component_menu_kind: None,
@@ -3995,8 +4157,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           }
       }
       let next = {
-        ..model,
-        selected_entity_id: id,
+        ..with_single_entity_selection(model, id),
         graph_edge_connect_source_node: None,
         add_component_panel_open: if id is Some(_) {
           model.add_component_panel_open
@@ -4275,11 +4436,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             path,
             next_resource_entity_translation(),
           )
-          let next = {
-            ..model,
-            scene: Some(next_scene),
-            selected_entity_id: Some(id),
-          }
+          let next = with_single_entity_selection(
+            { ..model, scene: Some(next_scene) },
+            Some(id),
+          )
           apply_scene_change(model, next)
         }
         (Some(scene), Some(Atlas(path))) =>
@@ -4292,9 +4452,8 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                 next_resource_entity_translation(),
               )
               let next = {
-                ..model,
+                ..with_single_entity_selection(model, Some(id)),
                 scene: Some(next_scene),
-                selected_entity_id: Some(id),
               }
               apply_scene_change(model, next)
             }
@@ -4329,9 +4488,8 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                         next_resource_entity_translation(),
                       )
                       let next = {
-                        ..model,
+                        ..with_single_entity_selection(model, Some(id)),
                         scene: Some(next_scene),
-                        selected_entity_id: Some(id),
                       }
                       apply_scene_change(model, next)
                     }
@@ -4343,9 +4501,8 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                         next_resource_entity_translation(),
                       )
                       let next = {
-                        ..model,
+                        ..with_single_entity_selection(model, Some(id)),
                         scene: Some(next_scene),
-                        selected_entity_id: Some(id),
                       }
                       apply_scene_change(model, next)
                     }
@@ -4373,9 +4530,8 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                             next_resource_entity_translation(),
                           )
                           let next = {
-                            ..model,
+                            ..with_single_entity_selection(model, Some(id)),
                             scene: Some(next_scene),
-                            selected_entity_id: Some(id),
                           }
                           apply_scene_change(model, next)
                         }
@@ -4396,9 +4552,8 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                 next_resource_entity_translation(),
               )
               let next = {
-                ..model,
+                ..with_single_entity_selection(model, id),
                 scene: Some(next_scene),
-                selected_entity_id: id,
               }
               apply_scene_change(model, next)
             }
@@ -4434,13 +4589,12 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           let selected_resource = Some(resources[target_index])
           let next = with_expanded_section_for_selection(
             {
-              ..model,
+              ..with_entity_selection(model, None, []),
               selected_resource,
               asset_tree_expanded: with_asset_tree_expanded_for_selection(
                 model.asset_tree_expanded,
                 selected_resource,
               ),
-              selected_entity_id: None,
               add_component_panel_open: false,
               component_search_query: "",
               open_component_menu_kind: None,
@@ -5085,16 +5239,28 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
               let staged = with_started_scene_edit_transaction(
                 model, "Edit Transform",
               )
-              let next = update_selected_component(
-                staged,
-                @editor_bridge.transform2d_component(
-                  translation=transform.translation.with_x(
-                    parse_double_or(transform.translation.x, value),
-                  ),
-                  rotation=transform.rotation,
-                  scale=transform.scale,
-                ),
-              )
+              let next_x = parse_double_or(transform.translation.x, value)
+              let mut next = staged
+              for id in selected_entity_ids_for_edit(staged) {
+                guard staged.scene is Some(scene) else { continue }
+                guard scene.entity(id) is Some(target) else { continue }
+                let target_transform : @editor_bridge.Transform2dComponent? = component_of(
+                  target, "Transform2d",
+                )
+                match target_transform {
+                  Some(target_transform) =>
+                    next = update_entity_component(
+                      next,
+                      id,
+                      @editor_bridge.transform2d_component(
+                        translation=target_transform.translation.with_x(next_x),
+                        rotation=target_transform.rotation,
+                        scale=target_transform.scale,
+                      ),
+                    )
+                  None => ()
+                }
+              }
               apply_scene_change_without_history(staged, next)
             }
             None => ([], model)
@@ -5113,16 +5279,28 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
               let staged = with_started_scene_edit_transaction(
                 model, "Edit Transform",
               )
-              let next = update_selected_component(
-                staged,
-                @editor_bridge.transform2d_component(
-                  translation=transform.translation.with_y(
-                    parse_double_or(transform.translation.y, value),
-                  ),
-                  rotation=transform.rotation,
-                  scale=transform.scale,
-                ),
-              )
+              let next_y = parse_double_or(transform.translation.y, value)
+              let mut next = staged
+              for id in selected_entity_ids_for_edit(staged) {
+                guard staged.scene is Some(scene) else { continue }
+                guard scene.entity(id) is Some(target) else { continue }
+                let target_transform : @editor_bridge.Transform2dComponent? = component_of(
+                  target, "Transform2d",
+                )
+                match target_transform {
+                  Some(target_transform) =>
+                    next = update_entity_component(
+                      next,
+                      id,
+                      @editor_bridge.transform2d_component(
+                        translation=target_transform.translation.with_y(next_y),
+                        rotation=target_transform.rotation,
+                        scale=target_transform.scale,
+                      ),
+                    )
+                  None => ()
+                }
+              }
               apply_scene_change_without_history(staged, next)
             }
             None => ([], model)
@@ -5141,14 +5319,28 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
               let staged = with_started_scene_edit_transaction(
                 model, "Edit Transform",
               )
-              let next = update_selected_component(
-                staged,
-                @editor_bridge.transform2d_component(
-                  translation=transform.translation,
-                  rotation=parse_double_or(transform.rotation, value),
-                  scale=transform.scale,
-                ),
-              )
+              let next_rotation = parse_double_or(transform.rotation, value)
+              let mut next = staged
+              for id in selected_entity_ids_for_edit(staged) {
+                guard staged.scene is Some(scene) else { continue }
+                guard scene.entity(id) is Some(target) else { continue }
+                let target_transform : @editor_bridge.Transform2dComponent? = component_of(
+                  target, "Transform2d",
+                )
+                match target_transform {
+                  Some(target_transform) =>
+                    next = update_entity_component(
+                      next,
+                      id,
+                      @editor_bridge.transform2d_component(
+                        translation=target_transform.translation,
+                        rotation=next_rotation,
+                        scale=target_transform.scale,
+                      ),
+                    )
+                  None => ()
+                }
+              }
               apply_scene_change_without_history(staged, next)
             }
             None => ([], model)
@@ -5193,12 +5385,24 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           )
           match visibility_component {
             Some(visibility_component) => {
-              let next = update_selected_component(
-                model,
-                @editor_bridge.visibility_component(
-                  visible=!visibility_component.visible,
-                ),
-              )
+              let next_visible = !visibility_component.visible
+              let mut next = model
+              for id in selected_entity_ids_for_edit(model) {
+                guard model.scene is Some(scene) else { continue }
+                guard scene.entity(id) is Some(target) else { continue }
+                let target_visibility : @editor_bridge.VisibilityComponent? = component_of(
+                  target, "Visibility",
+                )
+                match target_visibility {
+                  Some(_) =>
+                    next = update_entity_component(
+                      next,
+                      id,
+                      @editor_bridge.visibility_component(visible=next_visible),
+                    )
+                  None => ()
+                }
+              }
               apply_scene_change(model, next)
             }
             None => ([], model)
@@ -5409,11 +5613,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
               custom_size=Some(@editor_bridge.vec2_doc(64.0, 64.0)),
             ),
           ])
-          let next = {
-            ..model,
-            scene: Some(scene.with_entity(entity)),
-            selected_entity_id: Some(id),
-          }
+          let next = with_single_entity_selection(
+            { ..model, scene: Some(scene.with_entity(entity)) },
+            Some(id),
+          )
           apply_scene_change(model, next)
         }
         None => ([], model)
@@ -5427,11 +5630,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             path,
             next_resource_entity_translation(),
           )
-          let next = {
-            ..model,
-            scene: Some(next_scene),
-            selected_entity_id: Some(id),
-          }
+          let next = with_single_entity_selection(
+            { ..model, scene: Some(next_scene) },
+            Some(id),
+          )
           apply_scene_change(model, next)
         }
         None => ([], model)
@@ -5445,11 +5647,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             path,
             translation,
           )
-          let next = {
-            ..model,
-            scene: Some(next_scene),
-            selected_entity_id: Some(id),
-          }
+          let next = with_single_entity_selection(
+            { ..model, scene: Some(next_scene) },
+            Some(id),
+          )
           apply_scene_change(model, next)
         }
         None => ([], model)
@@ -5463,29 +5664,36 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             @editor_bridge.visibility_component(),
             @editor_bridge.text2d_component("Text"),
           ])
-          let next = {
-            ..model,
-            scene: Some(scene.with_entity(entity)),
-            selected_entity_id: Some(id),
-          }
+          let next = with_single_entity_selection(
+            { ..model, scene: Some(scene.with_entity(entity)) },
+            Some(id),
+          )
           apply_scene_change(model, next)
         }
         None => ([], model)
       }
     DeleteSelected =>
-      match (model.scene, model.selected_entity_id) {
-        (Some(scene), Some(id)) => {
-          let next = {
-            ..model,
-            scene: Some(scene.without_entity(id)),
-            selected_entity_id: None,
-            add_component_panel_open: false,
-            component_search_query: "",
-            open_component_menu_kind: None,
+      match model.scene {
+        Some(scene) => {
+          let selected_ids = selected_entity_ids_for_edit(model)
+          if selected_ids.is_empty() {
+            ([], model)
+          } else {
+            let mut next_scene = scene
+            for id in selected_ids {
+              next_scene = next_scene.without_entity(id)
+            }
+            let next = {
+              ..with_entity_selection(model, None, []),
+              scene: Some(next_scene),
+              add_component_panel_open: false,
+              component_search_query: "",
+              open_component_menu_kind: None,
+            }
+            apply_scene_change(model, next)
           }
-          apply_scene_change(model, next)
         }
-        _ => ([], model)
+        None => ([], model)
       }
     SetTool(tool) => {
       let next = {

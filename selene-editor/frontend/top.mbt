@@ -767,7 +767,8 @@ fn run_preview_command(command : @bridge.PreviewCommand) -> Unit {
     @bridge.PreviewCommand::Bootstrap => @preview.bootstrap()
     @bridge.PreviewCommand::ClearScene => @preview.clear_scene()
     @bridge.PreviewCommand::LoadScene(scene) => @preview.load_scene(scene)
-    @bridge.PreviewCommand::SelectEntity(id) => @preview.select_entity(id)
+    @bridge.PreviewCommand::SetSelection(primary~, ids~) =>
+      @preview.set_selection(primary, ids)
     @bridge.PreviewCommand::SetTool(tool) => @preview.set_tool(tool)
     @bridge.PreviewCommand::SetMoveSnap(enabled~, step~) =>
       @preview.set_move_snap(enabled, step)
@@ -939,7 +940,7 @@ fn tree_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
   scene : @editor_bridge.SceneDocument,
   parent : String?,
-  selected : String?,
+  selected_ids : Array[String],
   depth : Int,
 ) -> Array[@rabbita.Html] {
   let nodes : Array[@rabbita.Html] = []
@@ -947,7 +948,7 @@ fn tree_view(
     if entity.parent != parent {
       continue
     }
-    let is_selected = selected == Some(entity.id)
+    let is_selected = selected_ids.contains(entity.id)
     nodes.push(
       @html.div(
         class=if is_selected { "tree-item selected" } else { "tree-item" },
@@ -957,7 +958,7 @@ fn tree_view(
       ),
     )
     nodes.push_iter(
-      tree_view(dispatch, scene, Some(entity.id), selected, depth + 1).iter(),
+      tree_view(dispatch, scene, Some(entity.id), selected_ids, depth + 1).iter(),
     )
   }
   nodes
@@ -3420,8 +3421,16 @@ fn view(
   if model.current_root is None {
     return entry_view(dispatch, model)
   }
+  let selected_entity_ids = if model.selected_entity_ids.length() > 0 {
+    model.selected_entity_ids
+  } else {
+    match model.selected_entity_id {
+      Some(id) => [id]
+      None => []
+    }
+  }
   let scene_tree = match model.scene {
-    Some(scene) => tree_view(dispatch, scene, None, model.selected_entity_id, 0)
+    Some(scene) => tree_view(dispatch, scene, None, selected_entity_ids, 0)
     None => [@html.div(class="empty", "No scene loaded")]
   }
   let inspector = match model.selected_entity() {
@@ -3430,6 +3439,14 @@ fn view(
         component_card(dispatch, model, entity, component)
       })
       @html.div(class="panel-body", [
+        if selected_entity_ids.length() > 1 {
+          @html.div(
+            class="inspector-selection-note",
+            "Editing \{selected_entity_ids.length().to_string()} selected entities (Transform2d and Visibility apply to all)",
+          )
+        } else {
+          @html.nothing
+        },
         labeled_input_with_commit(
           "Name",
           entity.name,
@@ -3516,14 +3533,14 @@ fn view(
             "Delete Selected (Delete)",
             "⌫",
             @app.msg_delete_selected(),
-            enabled=model.selected_entity_id is Some(_),
+            enabled=model.has_entity_selection(),
           ),
           action_button(
             dispatch,
             "Frame Selection (F)",
             "⛶",
             @app.msg_frame_selection(),
-            enabled=model.selected_entity_id is Some(_),
+            enabled=model.has_entity_selection(),
           ),
         ]),
       ]),

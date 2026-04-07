@@ -64,6 +64,8 @@
 - Changed `selene-editor` top Options UX to make move-snap step first-class: added `- / +` controls with a visible step readout, wired matching keyboard shortcuts (`-` / `+`), and surfaced current snap mode/step in the bottom info bar default text.
 - Changed `selene-editor` Scene Tree interaction UX so rows are clearly interactive (`hover`/pointer affordance), publish entity hints to the bottom info bar, and support double-click-to-frame for faster camera navigation.
 - Changed `selene-editor` component editing flow to add a direct `C` shortcut for opening the Inspector `Add Component` panel when an entity is selected, and updated button copy to advertise the shortcut.
+- Changed `selene-editor` selection model from single-entity state to `primary + selection set`, wiring preview command/event sync as typed multi-selection payloads and reflecting multi-selection highlight in Scene Tree.
+- Changed `selene-editor` Inspector edit semantics so `Transform2d` (`x/y/rotation`) and `Visibility` edits apply uniformly across the full current entity selection while still showing the primary entity card stack.
 - Changed `selene-editor` Assets tree context retention to a VSCode-style sticky ancestor overlay: ancestors are derived from the first visible tree row and rendered in a dedicated sticky container, eliminating duplicate pseudo rows and preserving scroll context.
 - Changed `selene-editor` Image resource Inspector to render an inline preview image (loaded from `/project/...`) with load/error state handling, instead of text-only metadata.
 - Changed `selene-editor` preview bridge payload to carry explicit `scene_path`, and changed preview runtime scene sync to distinguish `scene switch` from `same-scene update` without heuristic fallback.
@@ -89,6 +91,7 @@
 - Fixed `selene/physics3d` moon_rapier `0.4.0` integration by updating multibody joint conversion to `GenericJoint3DReal` and driving `JointSet3DReal::solve` with `IntegrationParameters.num_solver_iterations`.
 - Fixed `selene/collision` moon_rapier `0.4.0` compatibility by switching 2D pipeline CCD solver wiring from `dynamics.CCDSolver` to `dynamics_ccd.CCDSolver`.
 - Fixed `selene-editor` selection stability so clicks outside the viewport canvas (for example inside Inspector panels) no longer trigger preview pick clearing and unexpectedly deselect the current entity.
+- Fixed `selene-editor` Select tool marquee workflow by adding viewport rectangle selection in preview runtime and propagating selected entity sets back to app state/inspector.
 - Fixed `selene-editor` Inspector Add Component UX by rendering the add panel directly below Inspector actions (instead of after the full component stack), so opening the panel is immediately visible even on long component lists.
 - Fixed `selene-editor` Assets panel hierarchy readability by replacing the flat card list with a directory-preserving tree view (Explorer-style folder/file indentation), so scrolling no longer destroys path context.
 - Fixed `selene-editor` Assets panel overflow regressions by separating the fixed `Filter Assets` toolbar from the scrollable tree viewport and moving ancestor stickiness into a dedicated header layer, eliminating horizontal overdraw into the viewport.

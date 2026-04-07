@@ -315,6 +315,7 @@ pub struct Model {
   workspace : @editor_bridge.WorkspaceDocument
   selected_resource : ResourceSelection?
   selected_entity_id : String?
+  selected_entity_ids : Array[String]
   add_component_panel_open : Bool
   component_search_query : String
   open_component_menu_kind : String?
@@ -363,12 +364,14 @@ pub fn Model::component_menu_is_open(Self, String) -> Bool
 pub fn Model::component_search_query_normalized(Self) -> String
 pub fn Model::custom_component_json_draft(Self, String, String, Json) -> String
 pub fn Model::custom_component_json_error(Self, String, String) -> String?
+pub fn Model::has_entity_selection(Self) -> Bool
 pub fn Model::image_assets(Self) -> Array[@editor_bridge.AssetDocument]
 pub fn Model::selected_animation_clip_document(Self) -> (String, @editor_bridge.AnimationClipAssetDocument)?
 pub fn Model::selected_animation_graph_document(Self) -> (String, @editor_bridge.AnimationGraphAssetDocument)?
 pub fn Model::selected_atlas_document(Self) -> (String, @editor_bridge.AtlasAssetDocument)?
 pub fn Model::selected_component_remove_block_reason(Self, String) -> String?
 pub fn Model::selected_entity(Self) -> @editor_bridge.EntityDocument?
+pub fn Model::selected_entity_count(Self) -> Int
 pub fn Model::selected_image_asset(Self) -> @editor_bridge.AssetDocument?
 pub fn Model::selected_prefab_document(Self) -> (String, @editor_bridge.PrefabDocument)?
 pub fn Model::selected_resource_path(Self) -> String?
