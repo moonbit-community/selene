@@ -1,10 +1,5 @@
 ///|
-pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
-  let model = if is_scene_edit_continuation(msg) {
-    model
-  } else {
-    with_committed_scene_edit_transaction(model)
-  }
+fn update_monolithic(msg : Msg, model : Model) -> (Array[Effect], Model) {
   match msg {
     Initialize =>
       (
