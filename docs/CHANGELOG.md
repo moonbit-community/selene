@@ -80,6 +80,7 @@
 
 ### Fixed
 
+- Fixed `selene-editor` viewport black-screen regression after migration dialog transitions by keeping the root view tree stable (`editor-shell` + conditional overlay), preventing `canvas` remount/desync that made scene entities interactive but invisible.
 - Fixed `selene/editor_bridge` project-manifest migration for legacy `animation_index` by mapping legacy `.anim.json` refs to v3 graph paths (`assets/animation_graphs/*.graph.json`) instead of copying invalid legacy paths into `animation_graph_index`.
 - Fixed `selene-core` animation runtime reverse-playback behavior by allowing negative speed in `ActiveAnimation::set_speed` and updating playback/repeat/completion logic in `animation_player_system`.
 - Fixed `selene-editor` project-open failure regression (`Project open failed. Check browser console for details.`) by completing clip/graph protocol migration across frontend/service/specs and ensuring project state + scene bundle decoding stays consistent.

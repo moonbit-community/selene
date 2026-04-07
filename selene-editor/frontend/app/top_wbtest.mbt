@@ -410,6 +410,56 @@ test "legacy animation references trigger migration prompt on scene load" {
 }
 
 ///|
+test "assets-triggered legacy animation migration prompt is preserved after scene load" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+  }
+  let (asset_effects, after_assets) = update(
+    msg_assets_loaded(
+      Ok(
+        @shared.assets_list_response([
+          @editor_bridge.asset_document(
+            "assets/animations/hero.anim.json",
+            @editor_bridge.infer_asset_kind("assets/animations/hero.anim.json"),
+          ),
+        ]),
+      ),
+    ),
+    model,
+  )
+  inspect(asset_effects.length(), content="0")
+  inspect(
+    after_assets.pending_animation_migration_paths,
+    content="[\"assets/animations/hero.anim.json\"]",
+  )
+
+  let (scene_effects, after_scene) = update(
+    msg_scene_loaded(
+      Ok(
+        @shared.scene_load_outcome_loaded(
+          @shared.scene_bundle_response(
+            "scenes/main.scene.json",
+            @editor_bridge.SceneDocument::default_main(),
+          ),
+        ),
+      ),
+    ),
+    after_assets,
+  )
+  inspect(scene_effects.length() > 0, content="true")
+  inspect(
+    after_scene.pending_animation_migration_paths,
+    content="[\"assets/animations/hero.anim.json\"]",
+  )
+  inspect(
+    after_scene.status,
+    content="Legacy animations detected. Migration required before use.",
+  )
+}
+
+///|
 test "animation migration confirm runs batch sequentially and reports failures" {
   let base = {
     ..new_model(),

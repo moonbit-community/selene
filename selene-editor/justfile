@@ -3,7 +3,7 @@ default_port := "47142"
 build:
     moon build frontend/web --target js --release
     mkdir -p public
-    cp _build/js/release/build/frontend/web/web.js public/editor.js
+    cp ../_build/js/release/build/Milky2018/selene_editor/frontend/web/web.js public/editor.js
 
 run port=default_port:
     just build

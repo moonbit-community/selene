@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "name": "default",
+  "atlas_asset_path": "assets/atlases/arrowkey.atlas.json",
+  "fps": 8,
+  "looping": true,
+  "frames": [
+    "frame_0"
+  ]
+}

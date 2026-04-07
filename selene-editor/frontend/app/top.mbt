@@ -3268,11 +3268,16 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           let legacy_animation_paths = legacy_animation_paths_in_scene(
             response.scene,
           )
-          let pending_animation_migration_paths = if legacy_animation_paths.is_empty() ||
-            model.animation_migration_prompt_dismissed {
+          let pending_animation_migration_paths = if model.animation_migration_prompt_dismissed {
             []
           } else {
-            legacy_animation_paths
+            let merged = model.pending_animation_migration_paths
+            for path in legacy_animation_paths {
+              if !merged.contains(path) {
+                merged.push(path)
+              }
+            }
+            merged
           }
           let pending_animation_migration_scene_path = if pending_animation_migration_paths.is_empty() {
             None

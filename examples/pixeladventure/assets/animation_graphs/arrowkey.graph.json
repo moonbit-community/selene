@@ -1,0 +1,22 @@
+{
+  "version": 3,
+  "name": "arrowkey",
+  "nodes": [
+    {
+      "id": "default",
+      "kind": [
+        "Clip",
+        {
+          "clip_asset_path": "assets/animation_clips/arrowkey-default.clip.json"
+        }
+      ],
+      "mask_groups": [],
+      "position": {
+        "x": 160,
+        "y": 90
+      },
+      "edges": []
+    }
+  ],
+  "default_node": "default"
+}

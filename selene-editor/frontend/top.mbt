@@ -3636,22 +3636,16 @@ fn view(
     ]),
     @html.div(class="info-bar", info_message(model)),
   ])
-  match model.pending_scene_migration {
-    Some(preview) =>
-      @html.div(class="editor-shell", [
-        body,
-        scene_migration_dialog_view(dispatch, preview),
-      ])
+  let overlay = match model.pending_scene_migration {
+    Some(preview) => scene_migration_dialog_view(dispatch, preview)
     None =>
       if model.pending_animation_migration_paths.is_empty() {
-        body
+        @html.nothing
       } else {
-        @html.div(class="editor-shell", [
-          body,
-          animation_migration_dialog_view(dispatch, model),
-        ])
+        animation_migration_dialog_view(dispatch, model)
       }
   }
+  @html.div(class="editor-shell", [body, overlay])
 }
 
 ///|
