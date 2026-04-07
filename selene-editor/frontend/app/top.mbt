@@ -2242,25 +2242,6 @@ fn legacy_animation_paths_in_scene(
 }
 
 ///|
-fn legacy_animation_paths_in_assets(
-  assets : Array[@editor_bridge.AssetDocument],
-) -> Array[String] {
-  let paths : Array[String] = []
-  let seen : Map[String, Bool] = {}
-  for asset in assets {
-    if !asset.path.has_suffix(".anim.json") {
-      continue
-    }
-    if seen.contains(asset.path) {
-      continue
-    }
-    seen.set(asset.path, true)
-    paths.push(asset.path)
-  }
-  sorted_strings(paths)
-}
-
-///|
 fn visible_resources_in_order(model : Model) -> Array[ResourceSelection] {
   let resources : Array[ResourceSelection] = []
   let force_expand_sections = model.asset_query_normalized() != ""
@@ -3560,23 +3541,6 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
               ) => Some(selection)
             _ => None
           }
-          let legacy_animation_paths = legacy_animation_paths_in_assets(
-            response.assets,
-          )
-          let show_animation_migration_prompt = !model.animation_migration_in_progress &&
-            model.pending_animation_migration_paths.is_empty() &&
-            !model.animation_migration_prompt_dismissed &&
-            !legacy_animation_paths.is_empty()
-          let pending_animation_migration_paths = if show_animation_migration_prompt {
-            legacy_animation_paths
-          } else {
-            model.pending_animation_migration_paths
-          }
-          let pending_animation_migration_scene_path = if show_animation_migration_prompt {
-            Some(model.scene_path)
-          } else {
-            model.pending_animation_migration_scene_path
-          }
           (
             [],
             {
@@ -3587,28 +3551,6 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                 model.asset_tree_expanded,
                 selected_resource,
               ),
-              pending_animation_migration_paths,
-              pending_animation_migration_scene_path,
-              animation_migration_total: if show_animation_migration_prompt {
-                pending_animation_migration_paths.length()
-              } else {
-                model.animation_migration_total
-              },
-              animation_migration_completed: if show_animation_migration_prompt {
-                0
-              } else {
-                model.animation_migration_completed
-              },
-              animation_migration_failed: if show_animation_migration_prompt {
-                0
-              } else {
-                model.animation_migration_failed
-              },
-              status: if show_animation_migration_prompt {
-                "Legacy animations detected. Migration required before use."
-              } else {
-                model.status
-              },
             },
           )
         }

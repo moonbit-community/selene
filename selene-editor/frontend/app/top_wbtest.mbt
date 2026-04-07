@@ -410,7 +410,7 @@ test "legacy animation references trigger migration prompt on scene load" {
 }
 
 ///|
-test "assets-triggered legacy animation migration prompt is preserved after scene load" {
+test "legacy animation migration prompt is scene-driven, not assets-driven" {
   let model = {
     ..new_model(),
     current_root: Some("/tmp/demo"),
@@ -430,10 +430,7 @@ test "assets-triggered legacy animation migration prompt is preserved after scen
     model,
   )
   inspect(asset_effects.length(), content="0")
-  inspect(
-    after_assets.pending_animation_migration_paths,
-    content="[\"assets/animations/hero.anim.json\"]",
-  )
+  inspect(after_assets.pending_animation_migration_paths.length(), content="0")
 
   let (scene_effects, after_scene) = update(
     msg_scene_loaded(
@@ -449,13 +446,46 @@ test "assets-triggered legacy animation migration prompt is preserved after scen
     after_assets,
   )
   inspect(scene_effects.length() > 0, content="true")
-  inspect(
-    after_scene.pending_animation_migration_paths,
-    content="[\"assets/animations/hero.anim.json\"]",
+  inspect(after_scene.pending_animation_migration_paths.length(), content="0")
+}
+
+///|
+test "assets load does not reopen animation migration prompt after completion" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    pending_animation_migration_paths: ["assets/animations/hero.anim.json"],
+    pending_animation_migration_scene_path: Some("scenes/main.scene.json"),
+    animation_migration_in_progress: true,
+    animation_migration_total: 1,
+  }
+  let (_finish_effects, finished) = update(
+    msg_animation_migration_saved(Ok(())),
+    model,
   )
+  inspect(finished.pending_animation_migration_paths.length(), content="0")
   inspect(
-    after_scene.status,
-    content="Legacy animations detected. Migration required before use.",
+    finished.status,
+    content="Legacy animation migration complete",
+  )
+  let (_asset_effects, after_assets) = update(
+    msg_assets_loaded(
+      Ok(
+        @shared.assets_list_response([
+          @editor_bridge.asset_document(
+            "assets/animations/hero.anim.json",
+            @editor_bridge.infer_asset_kind("assets/animations/hero.anim.json"),
+          ),
+        ]),
+      ),
+    ),
+    finished,
+  )
+  inspect(after_assets.pending_animation_migration_paths.length(), content="0")
+  inspect(
+    after_assets.status,
+    content="Legacy animation migration complete",
   )
 }
 
