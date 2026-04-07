@@ -1,5 +1,8 @@
 ///|
-fn update_scene_lifecycle(msg : Msg, model : Model) -> (Array[Effect], Model) {
+fn update_scene_lifecycle(
+  msg : SceneLifecycleMsg,
+  model : Model,
+) -> (Array[Effect], Model) {
   match msg {
     OpenScene(path) =>
       (
@@ -204,6 +207,5 @@ fn update_scene_lifecycle(msg : Msg, model : Model) -> (Array[Effect], Model) {
         }
         None => ([], model)
       }
-    _ => abort("unreachable: scene lifecycle msg routing mismatch")
   }
 }

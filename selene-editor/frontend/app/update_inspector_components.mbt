@@ -1,6 +1,6 @@
 ///|
 fn update_inspector_components(
-  msg : Msg,
+  msg : InspectorComponentsMsg,
   model : Model,
 ) -> (Array[Effect], Model) {
   match msg {
@@ -485,6 +485,5 @@ fn update_inspector_components(
         }
         None => ([], model)
       }
-    _ => abort("unreachable: inspector/components msg routing mismatch")
   }
 }

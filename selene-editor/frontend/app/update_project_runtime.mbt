@@ -1,5 +1,8 @@
 ///|
-fn update_project_runtime(msg : Msg, model : Model) -> (Array[Effect], Model) {
+fn update_project_runtime(
+  msg : ProjectRuntimeMsg,
+  model : Model,
+) -> (Array[Effect], Model) {
   match msg {
     Initialize =>
       (
@@ -703,6 +706,5 @@ fn update_project_runtime(msg : Msg, model : Model) -> (Array[Effect], Model) {
           (sync_preview_effects(next), next)
         }
       }
-    _ => abort("unreachable: project/runtime msg routing mismatch")
   }
 }

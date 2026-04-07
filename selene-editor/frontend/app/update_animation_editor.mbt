@@ -1,5 +1,8 @@
 ///|
-fn update_animation_editor(msg : Msg, model : Model) -> (Array[Effect], Model) {
+fn update_animation_editor(
+  msg : AnimationEditorMsg,
+  model : Model,
+) -> (Array[Effect], Model) {
   match msg {
     UpdateSelectedAnimationClipAssetName(value) => {
       let next = update_selected_animation_clip_document(model, fn(animation) {
@@ -450,6 +453,5 @@ fn update_animation_editor(msg : Msg, model : Model) -> (Array[Effect], Model) {
         }
         None => ([], model)
       }
-    _ => abort("unreachable: animation editor msg routing mismatch")
   }
 }

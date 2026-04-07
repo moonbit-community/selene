@@ -1,5 +1,8 @@
 ///|
-fn update_assets_resources(msg : Msg, model : Model) -> (Array[Effect], Model) {
+fn update_assets_resources(
+  msg : AssetsResourcesMsg,
+  model : Model,
+) -> (Array[Effect], Model) {
   match msg {
     CreateAtlasFromSelectedImage =>
       match model.selected_image_asset() {
@@ -301,6 +304,5 @@ fn update_assets_resources(msg : Msg, model : Model) -> (Array[Effect], Model) {
           }
         _ => ([], model)
       }
-    _ => abort("unreachable: assets/resources msg routing mismatch")
   }
 }

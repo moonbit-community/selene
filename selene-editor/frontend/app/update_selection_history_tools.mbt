@@ -1,6 +1,6 @@
 ///|
 fn update_selection_history_tools(
-  msg : Msg,
+  msg : SelectionHistoryToolsMsg,
   model : Model,
 ) -> (Array[Effect], Model) {
   match msg {
@@ -307,6 +307,5 @@ fn update_selection_history_tools(
     }
     FrameSelection =>
       ([Preview(@bridge.preview_command_frame_selection())], model)
-    _ => abort("unreachable: selection/history msg routing mismatch")
   }
 }
