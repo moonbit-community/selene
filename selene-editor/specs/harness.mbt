@@ -546,7 +546,7 @@ pub async fn EditorHarness::read_scene_document(
   relative_path : String,
 ) -> @editor_bridge.SceneDocument {
   let json = parse_json_file(self.project_root + "/" + relative_path)
-  @editor_bridge.decode_scene_document(json)
+  @editor_bridge.decode_scene_snf(json)
 }
 
 ///|
@@ -555,7 +555,7 @@ pub async fn EditorHarness::read_scene_document_status(
   relative_path : String,
 ) -> @editor_bridge.SceneDocumentLoadStatus {
   let json = parse_json_file(self.project_root + "/" + relative_path)
-  @editor_bridge.decode_scene_document_status(relative_path, json)
+  @editor_bridge.decode_scene_snf_status(relative_path, json)
 }
 
 ///|
@@ -602,7 +602,7 @@ pub async fn EditorHarness::given_scene_document(
   scene : @editor_bridge.SceneDocument,
 ) -> Unit {
   ensure_project_layout(self.project_root)
-  ignore(@editor_bridge.decode_scene_document(scene.to_json()))
+  ignore(@editor_bridge.decode_scene_snf(scene.to_json()))
   write_json_file(self.project_root + "/" + relative_path, scene)
 }
 
@@ -701,6 +701,13 @@ pub async fn EditorHarness::when_selected_atlas_creates_animation(
   self : EditorHarness,
 ) -> Unit {
   self.dispatch(@app.msg_create_animation_from_selected_atlas())
+}
+
+///|
+pub async fn EditorHarness::when_selected_animation_clip_creates_graph(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(@app.msg_create_animation_graph_from_selected_clip())
 }
 
 ///|

@@ -68,6 +68,9 @@
 - Changed `selene-editor` Image resource Inspector to render an inline preview image (loaded from `/project/...`) with load/error state handling, instead of text-only metadata.
 - Changed `selene-editor` preview bridge payload to carry explicit `scene_path`, and changed preview runtime scene sync to distinguish `scene switch` from `same-scene update` without heuristic fallback.
 - Changed `selene-editor` project-load state handling to require typed workspace payloads; missing workspace state is now treated as a protocol failure instead of silently defaulting.
+- Changed `selene/editor_bridge` scene document codec and loader semantics to `SNF v1` (`scene.version=3`) with dedicated scene APIs (`decode_scene_snf`, `decode_scene_snf_status`, `encode_scene_snf`, `migrate_scene_to_snf`) and canonical scene save output (stable JSON + trailing LF).
+- Changed `selene-editor` scene load/save pipeline to SNF-only semantics: `SceneLoad` now explicitly treats `v2` scenes as migration-required, `SceneMigrate` writes canonical SNF output, and migration UI/status copy now uses `Scene format migration required (SNF v1)`.
+- Changed `examples/pixeladventure/scenes/main.scene.json` to SNF scene schema `version=3` so runtime/editor bridge consumption no longer depends on legacy scene version tolerance.
 - Changed `selene/physics3d` parity verification coverage by extending 3D wbtests to include `QueryFilter` body-type filtering (`dynamic/fixed/kinematic`), exclude-entity/exclude-sensors/exclude-solids behavior, `cast_shape` filtering behavior, and collision/intersection event-bus mapping.
 - Changed `selene/physics3d` joint parity verification coverage by adding 3D wbtests for all joint variants on both `ImpulseJoint` and `MultibodyJoint`, and documenting current rope/spring handle-routing semantics in the parity matrix.
 - Changed `selene/physics3d` impulse `Rope/Spring` joint syncing to use generic-joint insertion (Bevy-style handle path), so these variants now expose stable impulse joint handles and share consistent `contacts_enabled` behavior with other impulse joint types.
@@ -93,6 +96,8 @@
 - Fixed `selene-editor` initial viewport alignment race by making camera top-left alignment explicit and retryable until required camera/projection state is ready, preventing first-load misalignment when scene data arrives before full preview setup.
 - Fixed `selene-editor` workspace loading to stop silently falling back to defaults on invalid `.selene-editor/workspace.json`; project open now reports a deterministic error and preserves invalid-data visibility.
 - Fixed `examples/pixeladventure` editor scene loading to match split animation asset APIs in `selene/editor_bridge` by handling `InvalidAnimationClipAssetDocument` / `InvalidAnimationGraphAssetDocument` and wiring `animation_clip_assets` + `animation_graph_assets`.
+- Fixed SNF migration detection for legacy `v2` scene files by always emitting a migration preview (including schema-version upgrade change), even when no other scene fields require repair.
+- Fixed `selene-editor` project-open regression on pre-existing empty directories by avoiding eager `@fs.kind` calls for missing `selene.project.json` candidates.
 
 ### Removed
 

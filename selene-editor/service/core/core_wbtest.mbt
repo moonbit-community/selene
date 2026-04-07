@@ -29,7 +29,7 @@ async fn read_scene_document_from_file(
   path : String,
 ) -> @editor_bridge.SceneDocument {
   let json = @json.parse(@fs.read_file(path).text())
-  @editor_bridge.decode_scene_document(json)
+  @editor_bridge.decode_scene_snf(json)
 }
 
 ///|
@@ -58,6 +58,8 @@ async test "project.open auto-initializes a missing project manifest" {
     let response = response_envelope(payload).response
     let loaded = match response {
       @shared.ProjectState(state~) => state.manifest.unwrap()
+      @shared.Error(error~) =>
+        fail("unexpected project-open error: " + error.message)
       _ => fail("expected project state")
     }
 
@@ -87,6 +89,8 @@ async test "project.open auto-initializes when the directory already exists" {
     let response = response_envelope(payload).response
     let loaded = match response {
       @shared.ProjectState(state~) => state.manifest.unwrap()
+      @shared.Error(error~) =>
+        fail("unexpected project-open error: " + error.message)
       _ => fail("expected project state")
     }
 
@@ -734,7 +738,7 @@ async test "scene.load can require migration and scene.migrate writes back the m
     )
     @fs.write_file(
       path_join(root, "scenes/main.scene.json"),
-      "{\n  \"version\": 1,\n  \"entities\": [\n    {\n      \"id\": \"camera\",\n      \"name\": \"Camera2d\",\n      \"components\": [\n        {\n          \"kind\": \"Transform2d\",\n          \"data\": {\n            \"translation\": {\n              \"x\": 0,\n              \"y\": 0\n            },\n            \"rotation\": 0,\n            \"scale\": {\n              \"x\": 1,\n              \"y\": 1\n            }\n          }\n        },\n        {\n          \"kind\": \"Camera2d\",\n          \"data\": {\n            \"is_active\": true,\n            \"order\": 0,\n            \"scale\": 1\n          }\n        },\n        {\n          \"kind\": \"Visibility\",\n          \"data\": {\n            \"visible\": true\n          }\n        }\n      ]\n    }\n  ]\n}\n"
+      "{\n  \"version\": 2,\n  \"entities\": [\n    {\n      \"id\": \"camera\",\n      \"name\": \"Camera2d\",\n      \"components\": [\n        {\n          \"kind\": \"Transform2d\",\n          \"data\": {\n            \"translation\": {\n              \"x\": 0,\n              \"y\": 0\n            },\n            \"rotation\": 0,\n            \"scale\": {\n              \"x\": 1,\n              \"y\": 1\n            }\n          }\n        },\n        {\n          \"kind\": \"Camera2d\",\n          \"data\": {\n            \"is_active\": true,\n            \"order\": 0,\n            \"scale\": 1\n          }\n        },\n        {\n          \"kind\": \"Visibility\",\n          \"data\": {\n            \"visible\": true\n          }\n        }\n      ]\n    }\n  ]\n}\n"
       |> @utf8.encode,
       create=0o644,
     )
@@ -761,7 +765,7 @@ async test "scene.load can require migration and scene.migrate writes back the m
     match load_response {
       @shared.SceneMigrationRequired(preview~) => {
         inspect(preview.scene.name, content="Main")
-        inspect(preview.changes.length(), content="2")
+        inspect(preview.changes.length(), content="3")
       }
       _ => fail("expected migration-required response")
     }

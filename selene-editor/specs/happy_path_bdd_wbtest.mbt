@@ -159,6 +159,13 @@ async test "bdd happy path persists image to atlas to animation to prefab flow" 
     )
 
     harness.when_selected_atlas_creates_animation()
+    inspect(
+      harness.selected_resource_path(),
+      content="Some(\"assets/animation_clips/hero-clip.clip.json\")",
+    )
+    inspect(harness.animation_refs().length(), content="0")
+
+    harness.when_selected_animation_clip_creates_graph()
     inspect(harness.animation_refs().length(), content="1")
 
     harness.when_selected_resource_is_inserted()

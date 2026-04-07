@@ -3333,7 +3333,7 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
             undo_stack: [],
             redo_stack: [],
             active_scene_edit_transaction: None,
-            status: "Legacy scene requires migration",
+            status: "Scene format migration required (SNF v1)",
           }
           let cleared = next.workspace
             .with_last_scene(Some(preview.path))

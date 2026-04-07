@@ -32,6 +32,12 @@ async fn write_json_file(path : String, value : &ToJson) -> Unit {
 }
 
 ///|
+async fn write_text_file(path : String, content : String) -> Unit {
+  ensure_parent_dir(path)
+  @fs.write_file(path, @utf8.encode(content), create=0o644)
+}
+
+///|
 priv struct LegacyAnimationClipDocument {
   name : String?
   fps : Double?
@@ -291,8 +297,10 @@ async fn project_manifest_candidates(root : String) -> Array[String] {
     return candidates
   }
   let path = project_manifest_path(root, "")
-  if @fs.exists(path) && @fs.kind(path) != Directory {
-    candidates.push(path)
+  if @fs.exists(path) {
+    if @fs.kind(path) != Directory {
+      candidates.push(path)
+    }
   }
   candidates
 }
@@ -381,7 +389,7 @@ async fn load_scene_document(
   let json = parse_json_file(path) catch {
     _ => raise Failure("Scene document is invalid: " + relative_path)
   }
-  @editor_bridge.decode_scene_document_status(relative_path, json) catch {
+  @editor_bridge.decode_scene_snf_status(relative_path, json) catch {
     @editor_bridge.InvalidSceneDocument(_) =>
       raise Failure("Scene document is invalid: " + relative_path)
     err => raise err
@@ -398,7 +406,7 @@ async fn migrate_scene_document(
   let json = parse_json_file(path) catch {
     _ => raise Failure("Scene document is invalid: " + relative_path)
   }
-  let scene = @editor_bridge.migrate_scene_document_json(relative_path, json) catch {
+  let scene = @editor_bridge.migrate_scene_to_snf(relative_path, json) catch {
     @editor_bridge.InvalidSceneDocument(_) =>
       raise Failure("Scene document is invalid: " + relative_path)
     err => raise err
@@ -464,10 +472,11 @@ async fn save_scene_document(
   relative_path : String,
   scene : @editor_bridge.SceneDocument,
 ) -> Unit {
-  ignore(@editor_bridge.decode_scene_document(scene.to_json()))
+  ignore(@editor_bridge.decode_scene_snf(scene.to_json()))
+  let scene_snf = @editor_bridge.encode_scene_snf(scene)
   let path = scene_path(root, relative_path)
   ensure_dir(path_join(root, "scenes"))
-  write_json_file(path, scene)
+  write_text_file(path, scene_snf)
 }
 
 ///|

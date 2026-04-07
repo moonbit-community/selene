@@ -149,6 +149,40 @@ test "scene document round trip" {
 }
 
 ///|
+test "scene snf round trip and canonical encoding are stable" {
+  let scene = SceneDocument::{
+    version: scene_schema_version,
+    name: "Main",
+    entities: [
+      EntityDocument::{
+        id: "camera",
+        name: "Camera2d",
+        parent: None,
+        components: [
+          transform2d_component(),
+          camera2d_component(),
+          visibility_component(),
+        ],
+      },
+      EntityDocument::{
+        id: "hero",
+        name: "Hero",
+        parent: None,
+        components: [
+          transform2d_component(translation={ x: 16.0, y: 8.0 }),
+          sprite_component(image_path=Some("assets/images/hero.png")),
+        ],
+      },
+    ],
+  }
+  let encoded = encode_scene_snf(scene)
+  let decoded = decode_scene_snf(@json.parse(encoded))
+  inspect(decoded == scene, content="true")
+  let encoded_again = encode_scene_snf(scene)
+  inspect(encoded_again == encoded, content="true")
+}
+
+///|
 test "scene patch applies in document space" {
   let scene = SceneDocument::default_main()
   let patch = ScenePatch::{
@@ -239,7 +273,7 @@ test "codec decodes valid project and scene documents" {
     decode_project_manifest(manifest.to_json()) == manifest,
     content="true",
   )
-  inspect(decode_scene_document(scene.to_json()) == scene, content="true")
+  inspect(decode_scene_snf(scene.to_json()) == scene, content="true")
 }
 
 ///|
@@ -266,8 +300,7 @@ test "codec reports scene migration only for v2 recoverable inputs" {
   let recoverable_json = @json.parse(
     "{\n  \"version\": 2,\n  \"entities\": [\n    {\n      \"id\": \"camera\",\n      \"components\": [\n        {\n          \"kind\": \"Transform2d\",\n          \"data\": {\n            \"translation\": { \"x\": 0, \"y\": 0 },\n            \"rotation\": 0,\n            \"scale\": { \"x\": 1, \"y\": 1 }\n          }\n        },\n        {\n          \"kind\": \"Camera2d\",\n          \"data\": { \"is_active\": true, \"order\": 0, \"scale\": 1 }\n        },\n        {\n          \"kind\": \"Visibility\",\n          \"data\": { \"visible\": true }\n        }\n      ]\n    }\n  ]\n}\n",
   )
-  match
-    decode_scene_document_status("scenes/main.scene.json", recoverable_json) {
+  match decode_scene_snf_status("scenes/main.scene.json", recoverable_json) {
     MigrationRequired(preview) => {
       inspect(preview.scene.name, content="Main")
       inspect(preview.changes.length() > 0, content="true")
@@ -278,12 +311,21 @@ test "codec reports scene migration only for v2 recoverable inputs" {
   let unsupported_json = @json.parse(
     "{\n  \"version\": 1,\n  \"entities\": []\n}\n",
   )
-  let result : Result[SceneDocumentLoadStatus, Error] = try? decode_scene_document_status(
+  let result : Result[SceneDocumentLoadStatus, Error] = try? decode_scene_snf_status(
     "scenes/main.scene.json", unsupported_json,
   )
   match result {
     Err(InvalidSceneDocument(_)) => inspect(true, content="true")
     _ => fail("expected non-migratable v1 scene to fail")
+  }
+
+  let migrated = migrate_scene_to_snf(
+    "scenes/main.scene.json", recoverable_json,
+  )
+  inspect(migrated.version == scene_schema_version, content="true")
+  match decode_scene_snf_status("scenes/main.scene.json", migrated.to_json()) {
+    Ready(_) => inspect(true, content="true")
+    _ => fail("expected migrated scene to be ready")
   }
 }
 

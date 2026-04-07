@@ -628,10 +628,17 @@ impl Migration for SceneDocumentMigrator with migration_changes(
 ) {
   ignore(self)
   let legacy = decode_legacy_scene_document(json)
-  if legacy.version != scene_schema_version {
+  if legacy.version != scene_legacy_schema_version {
     return None
   }
   let changes : Array[MigrationFieldChange] = []
+  changes.push(
+    migration_field_change(
+      "version",
+      "Scene schema upgraded to SNF v1",
+      scene_schema_version.to_string(),
+    ),
+  )
   ignore(SceneDocument::{
     version: scene_schema_version,
     name: migrate_name_or_default(
@@ -654,7 +661,7 @@ impl Migration for SceneDocumentMigrator with migration_changes(
 impl Migration for SceneDocumentMigrator with migrate_json(self, path, json) {
   ignore(self)
   let legacy = decode_legacy_scene_document(json)
-  guard legacy.version == scene_schema_version else {
+  guard legacy.version == scene_legacy_schema_version else {
     raise InvalidSceneDocument(
       "Scene document schema version \{legacy.version} is not migratable",
     )

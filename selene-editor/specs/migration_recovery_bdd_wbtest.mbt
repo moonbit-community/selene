@@ -1,6 +1,6 @@
 ///|
 fn legacy_scene_json() -> String {
-  "{\n  \"version\": 1,\n  \"entities\": [\n    {\n      \"id\": \"camera\",\n      \"name\": \"Camera2d\",\n      \"components\": [\n        {\n          \"kind\": \"Transform2d\",\n          \"data\": {\n            \"translation\": {\n              \"x\": 0,\n              \"y\": 0\n            },\n            \"rotation\": 0,\n            \"scale\": {\n              \"x\": 1,\n              \"y\": 1\n            }\n          }\n        },\n        {\n          \"kind\": \"Camera2d\",\n          \"data\": {\n            \"is_active\": true,\n            \"order\": 0,\n            \"scale\": 1\n          }\n        },\n        {\n          \"kind\": \"Visibility\",\n          \"data\": {\n            \"visible\": true\n          }\n        }\n      ]\n    }\n  ]\n}\n"
+  "{\n  \"version\": 2,\n  \"entities\": [\n    {\n      \"id\": \"camera\",\n      \"name\": \"Camera2d\",\n      \"components\": [\n        {\n          \"kind\": \"Transform2d\",\n          \"data\": {\n            \"translation\": {\n              \"x\": 0,\n              \"y\": 0\n            },\n            \"rotation\": 0,\n            \"scale\": {\n              \"x\": 1,\n              \"y\": 1\n            }\n          }\n        },\n        {\n          \"kind\": \"Camera2d\",\n          \"data\": {\n            \"is_active\": true,\n            \"order\": 0,\n            \"scale\": 1\n          }\n        },\n        {\n          \"kind\": \"Visibility\",\n          \"data\": {\n            \"visible\": true\n          }\n        }\n      ]\n    }\n  ]\n}\n"
 }
 
 ///|
@@ -20,7 +20,10 @@ async test "bdd recovery legacy startup scene asks for confirmation and cancel k
 
     inspect(harness.scene() is None, content="true")
     inspect(harness.pending_scene_migration() is Some(_), content="true")
-    inspect(harness.status(), content="Legacy scene requires migration")
+    inspect(
+      harness.status(),
+      content="Scene format migration required (SNF v1)",
+    )
 
     harness.when_pending_scene_migration_is_cancelled()
 
@@ -65,7 +68,7 @@ async test "bdd recovery legacy startup scene can be confirmed migrated and load
 }
 
 ///|
-async test "bdd recovery invalid workspace falls back to defaults and still opens the project" {
+async test "bdd recovery invalid workspace blocks open with stable project error state" {
   @async.with_task_group(group => {
     let harness = given_editor_harness()
     group.add_defer(() => harness.cleanup())
@@ -81,9 +84,13 @@ async test "bdd recovery invalid workspace falls back to defaults and still open
 
     harness.when_editor_initialized()
 
-    inspect(harness.scene() is Some(_), content="true")
-    inspect(harness.selected_entity_id(), content="Some(\"camera\")")
-    inspect(harness.status(), content="Loaded scenes/project.scene.json")
+    inspect(harness.scene() is None, content="true")
+    inspect(harness.selected_entity_id(), content="None")
+    inspect(
+      harness.status(),
+      content="Project open failed. Check browser console for details.",
+    )
+    inspect(harness.logs().length() > 0, content="true")
   })
 }
 

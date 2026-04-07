@@ -2,7 +2,10 @@
 pub let project_schema_version = 2
 
 ///|
-pub let scene_schema_version = 2
+pub let scene_schema_version = 3
+
+///|
+pub let scene_legacy_schema_version = 2
 
 ///|
 pub let prefab_schema_version = 2

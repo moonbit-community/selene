@@ -50,7 +50,7 @@ fn load_scene_document_from_source(
   let json = parse_json_document(source, path, fn(message) {
     InvalidSceneDocument(message)
   })
-  decode_scene_document(json) catch {
+  decode_scene_snf(json) catch {
     InvalidSceneDocument(message) =>
       raise InvalidSceneDocument(path + ": " + message)
     err => raise err

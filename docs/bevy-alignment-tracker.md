@@ -1,6 +1,6 @@
 # Selene Bevy Alignment Tracker
 
-Last updated: 2026-04-01 (physics3d joint behavior parity pass)
+Last updated: 2026-04-07 (SNF v1 scene cutover completed)
 
 ## Status Legend
 
@@ -21,6 +21,7 @@ Last updated: 2026-04-01 (physics3d joint behavior parity pass)
 | BEVY-006 | internal audit (physics3d bevy_rapier parity) | 3D physics surface parity still needs a formal gap matrix against `bevy_rapier3d` latest stable usage patterns. | IN_PROGRESS | Added baseline parity matrix at [`docs/bevy-rapier3d-parity-matrix.md`](/Users/zhengyu/Documents/projects/selene/docs/bevy-rapier3d-parity-matrix.md); expanded wbtests for query filters (`dynamic/fixed/kinematic`, `exclude_entity`, `exclude_sensors`, `exclude_solids`, `cast_shape`), collision/intersection/contact-force mapping (including threshold activation), and all 3D joint variant routing. Added joint behavior assertions for revolute/prismatic limits and motor state, plus internal conversion coverage for revolute `motor_model`/`softness`. Remaining work: character controller scenario assertions. |
 | BEVY-007 | internal audit (asset taxonomy) | Asset browser grouping and creation flows are not fully Bevy-like for animation pipeline (image -> atlas -> clip -> graph). | DONE | Added explicit creation entrypoints in Assets toolbar (`New Atlas` / `New Clip` / `New Graph`), changed atlas creation flow to generate clip only, added clip->graph creation action in Clip Inspector, and verified pipeline state transitions in frontend app wbtests. |
 | BEVY-008 | moon_rapier 3d-real backend audit | `GenericJoint3DReal` round-trip currently drops `motor_model` and `softness`, so Selene can map these fields at conversion time but cannot preserve them through the current 3D real backend representation. | BLOCKED | Added revolute/prismatic behavior wbtests for limits + motor state and added internal `revolute_joint_to_generic` mapping coverage for `motor_model`/`softness`. Verified backend limitation by checking the `GenericJoint3DReal` conversion path in `moon_rapier` (`joint_set3d_real.mbt`) where motor-model/softness are not serialized in the 3D-real state. |
+| BEVY-009 | product architecture (editor format) | Introduce Selene-native `SNF` (Scene Notation Format) as the textual scene notation layer and make `selene-editor` consume it through `editor_bridge`, without dual source-of-truth drift. | DONE | Implemented `Scene` SNF v1 as canonical JSON (`scene.version=3`) with dedicated codec APIs (`decode_scene_snf*`, `encode_scene_snf`, `migrate_scene_to_snf`), `v2->v3` migration confirmation path in editor/service, canonical scene save path, and runtime/example consumption via `editor_bridge` loader. |
 
 ## Current work queue
 

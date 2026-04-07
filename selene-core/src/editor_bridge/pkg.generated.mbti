@@ -111,6 +111,10 @@ pub fn decode_scene_document(Json) -> SceneDocument raise
 
 pub fn decode_scene_document_status(String, Json) -> SceneDocumentLoadStatus raise
 
+pub fn decode_scene_snf(Json) -> SceneDocument raise
+
+pub fn decode_scene_snf_status(String, Json) -> SceneDocumentLoadStatus raise
+
 pub fn decode_workspace_document(Json) -> WorkspaceDocument raise
 
 pub fn decoded_transform(EntityDocument) -> Transform2dComponent
@@ -118,6 +122,8 @@ pub fn decoded_transform(EntityDocument) -> Transform2dComponent
 pub fn default_color() -> ColorDoc
 
 pub fn default_component_document(BuiltinComponentKind) -> ComponentDocument
+
+pub fn encode_scene_snf(SceneDocument) -> String raise
 
 pub fn entity_document(String, String, parent? : String?, components? : Array[ComponentDocument]) -> EntityDocument
 
@@ -150,6 +156,8 @@ pub fn migrate_prefab_document_json(String, Json) -> PrefabDocument raise
 pub fn migrate_project_manifest_json(String, Json) -> ProjectManifest raise
 
 pub fn migrate_scene_document_json(String, Json) -> SceneDocument raise
+
+pub fn migrate_scene_to_snf(String, Json) -> SceneDocument raise
 
 pub fn migration_field_change(String, String, String) -> MigrationFieldChange
 
@@ -186,6 +194,8 @@ pub fn removable_builtin_component(BuiltinComponentKind) -> Bool
 pub fn required_builtin_components(BuiltinComponentKind) -> Array[BuiltinComponentKind]
 
 pub fn scene_file_name(String) -> String
+
+pub let scene_legacy_schema_version : Int
 
 pub fn scene_migration_preview(String, SceneDocument, Array[MigrationFieldChange]) -> SceneMigrationPreview
 

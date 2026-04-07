@@ -44,7 +44,7 @@ pub fn decode_project_manifest_status(
 }
 
 ///|
-pub fn decode_scene_document(json : Json) -> SceneDocument raise {
+pub fn decode_scene_snf(json : Json) -> SceneDocument raise {
   let scene : SceneDocument = @json.from_json(json) catch {
     err => raise InvalidSceneDocument(err.to_string())
   }
@@ -53,6 +53,12 @@ pub fn decode_scene_document(json : Json) -> SceneDocument raise {
     raise InvalidSceneDocument(validation_error_message(errors))
   }
   scene
+}
+
+///|
+pub fn encode_scene_snf(scene : SceneDocument) -> String raise {
+  ignore(decode_scene_snf(scene.to_json()))
+  scene.to_json().stringify(indent=2) + "\n"
 }
 
 ///|
@@ -161,14 +167,14 @@ fn[T, Preview, Status, M : Migration] migration_status_for(
 }
 
 ///|
-pub fn decode_scene_document_status(
+pub fn decode_scene_snf_status(
   path : String,
   json : Json,
 ) -> SceneDocumentLoadStatus raise {
   migration_status_for(
     path,
     json,
-    decode_scene_document,
+    decode_scene_snf,
     scene_migration_preview,
     fn(scene) { Ready(scene) },
     fn(preview) { MigrationRequired(preview) },
@@ -241,14 +247,32 @@ pub fn decode_animation_graph_asset_document_status(
 }
 
 ///|
+pub fn migrate_scene_to_snf(path : String, json : Json) -> SceneDocument raise {
+  match decode_scene_snf_status(path, json) {
+    Ready(scene) => scene
+    MigrationRequired(preview) => preview.scene
+  }
+}
+
+///|
+pub fn decode_scene_document(json : Json) -> SceneDocument raise {
+  decode_scene_snf(json)
+}
+
+///|
+pub fn decode_scene_document_status(
+  path : String,
+  json : Json,
+) -> SceneDocumentLoadStatus raise {
+  decode_scene_snf_status(path, json)
+}
+
+///|
 pub fn migrate_scene_document_json(
   path : String,
   json : Json,
 ) -> SceneDocument raise {
-  match decode_scene_document_status(path, json) {
-    Ready(scene) => scene
-    MigrationRequired(preview) => preview.scene
-  }
+  migrate_scene_to_snf(path, json)
 }
 
 ///|
