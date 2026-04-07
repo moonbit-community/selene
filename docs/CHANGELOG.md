@@ -66,6 +66,7 @@
 - Changed `selene-editor` component editing flow to add a direct `C` shortcut for opening the Inspector `Add Component` panel when an entity is selected, and updated button copy to advertise the shortcut.
 - Changed `selene-editor` selection model from single-entity state to `primary + selection set`, wiring preview command/event sync as typed multi-selection payloads and reflecting multi-selection highlight in Scene Tree.
 - Changed `selene-editor` Inspector edit semantics so `Transform2d` (`x/y/rotation`) and `Visibility` edits apply uniformly across the full current entity selection while still showing the primary entity card stack.
+- Changed `selene-editor/frontend/app` internal structure by extracting shared helpers for selection restoration (`SceneLoad`/`Undo`/`Redo`) and batched component updates (transform/visibility), reducing duplicated reducer logic without changing behavior.
 - Changed `selene-editor` Assets tree context retention to a VSCode-style sticky ancestor overlay: ancestors are derived from the first visible tree row and rendered in a dedicated sticky container, eliminating duplicate pseudo rows and preserving scroll context.
 - Changed `selene-editor` Image resource Inspector to render an inline preview image (loaded from `/project/...`) with load/error state handling, instead of text-only metadata.
 - Changed `selene-editor` preview bridge payload to carry explicit `scene_path`, and changed preview runtime scene sync to distinguish `scene switch` from `same-scene update` without heuristic fallback.

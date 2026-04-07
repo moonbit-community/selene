@@ -2203,6 +2203,21 @@ fn selected_entity_ids_for_edit(model : Model) -> Array[String] {
 }
 
 ///|
+fn preferred_entity_selection_ids(
+  previous_ids : Array[String],
+  fallback_primary : String?,
+) -> Array[String] {
+  if previous_ids.length() > 0 {
+    previous_ids
+  } else {
+    match fallback_primary {
+      Some(id) => [id]
+      None => []
+    }
+  }
+}
+
+///|
 fn selected_after_load(
   previous : String?,
   scene : @editor_bridge.SceneDocument,
@@ -2216,6 +2231,23 @@ fn selected_after_load(
         Some(scene.entities[0].id)
       }
   }
+}
+
+///|
+fn restored_entity_selection_for_scene(
+  scene : @editor_bridge.SceneDocument,
+  previous_primary : String?,
+  previous_ids : Array[String],
+) -> (String?, Array[String]) {
+  let preferred_primary = selected_after_load(previous_primary, scene)
+  let preferred_ids = preferred_entity_selection_ids(
+    previous_ids, preferred_primary,
+  )
+  normalize_entity_selection_for_scene(
+    Some(scene),
+    preferred_primary,
+    preferred_ids,
+  )
 }
 
 ///|
@@ -3114,6 +3146,70 @@ fn update_entity_component(
 }
 
 ///|
+fn with_selected_entities_updated(
+  model : Model,
+  updater : (String, @editor_bridge.EntityDocument) -> @editor_bridge.EntityDocument?,
+) -> Model {
+  let mut next = model
+  for id in selected_entity_ids_for_edit(model) {
+    guard next.scene is Some(scene) else { continue }
+    guard scene.entity(id) is Some(entity) else { continue }
+    match updater(id, entity) {
+      Some(updated_entity) =>
+        next = { ..next, scene: Some(scene.with_entity(updated_entity)) }
+      None => ()
+    }
+  }
+  next
+}
+
+///|
+fn with_selected_entities_transform_updated(
+  model : Model,
+  updater : (@editor_bridge.Transform2dComponent) -> @editor_bridge.Transform2dComponent,
+) -> Model {
+  with_selected_entities_updated(model, fn(_id, entity) {
+    let transform : @editor_bridge.Transform2dComponent? = component_of(
+      entity, "Transform2d",
+    )
+    match transform {
+      Some(transform) => {
+        let next_transform = updater(transform)
+        Some(
+          entity.with_component(
+            @editor_bridge.transform2d_component(
+              translation=next_transform.translation,
+              rotation=next_transform.rotation,
+              scale=next_transform.scale,
+            ),
+          ),
+        )
+      }
+      None => None
+    }
+  })
+}
+
+///|
+fn with_selected_entities_visibility_set(
+  model : Model,
+  visible : Bool,
+) -> Model {
+  with_selected_entities_updated(model, fn(_id, entity) {
+    let visibility_component : @editor_bridge.VisibilityComponent? = component_of(
+      entity, "Visibility",
+    )
+    match visibility_component {
+      Some(_) =>
+        Some(
+          entity.with_component(@editor_bridge.visibility_component(visible~)),
+        )
+      None => None
+    }
+  })
+}
+
+///|
 fn update_selected_atlas_document(
   model : Model,
   updater : (@editor_bridge.AtlasAssetDocument) -> @editor_bridge.AtlasAssetDocument,
@@ -3351,22 +3447,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           let loaded_workspace = model.workspace.with_last_scene(
             Some(response.path),
           )
-          let preferred_primary = selected_after_load(
-            loaded_workspace.selected_entity_id,
+          let (selected_entity_id, selected_entity_ids) = restored_entity_selection_for_scene(
             response.scene,
-          )
-          let preferred_ids = if model.selected_entity_ids.length() > 0 {
-            model.selected_entity_ids
-          } else {
-            match preferred_primary {
-              Some(id) => [id]
-              None => []
-            }
-          }
-          let (selected_entity_id, selected_entity_ids) = normalize_entity_selection_for_scene(
-            Some(response.scene),
-            preferred_primary,
-            preferred_ids,
+            loaded_workspace.selected_entity_id,
+            model.selected_entity_ids,
           )
           let workspace = loaded_workspace.with_selected_entity_id(
             selected_entity_id,
@@ -3985,22 +4069,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           let previous_scene = model.undo_stack[count - 1]
           let undo_stack = model.undo_stack[:count - 1].to_array()
           let redo_stack = bounded_history(model.redo_stack + [current])
-          let preferred_primary = selected_after_load(
-            model.selected_entity_id,
+          let (selected_entity_id, selected_entity_ids) = restored_entity_selection_for_scene(
             previous_scene,
-          )
-          let preferred_ids = if model.selected_entity_ids.length() > 0 {
-            model.selected_entity_ids
-          } else {
-            match preferred_primary {
-              Some(id) => [id]
-              None => []
-            }
-          }
-          let (selected_entity_id, selected_entity_ids) = normalize_entity_selection_for_scene(
-            Some(previous_scene),
-            preferred_primary,
-            preferred_ids,
+            model.selected_entity_id,
+            model.selected_entity_ids,
           )
           let workspace = model.workspace.with_selected_entity_id(
             selected_entity_id,
@@ -4029,22 +4101,10 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           let next_scene = model.redo_stack[count - 1]
           let redo_stack = model.redo_stack[:count - 1].to_array()
           let undo_stack = bounded_history(model.undo_stack + [current])
-          let preferred_primary = selected_after_load(
-            model.selected_entity_id,
+          let (selected_entity_id, selected_entity_ids) = restored_entity_selection_for_scene(
             next_scene,
-          )
-          let preferred_ids = if model.selected_entity_ids.length() > 0 {
-            model.selected_entity_ids
-          } else {
-            match preferred_primary {
-              Some(id) => [id]
-              None => []
-            }
-          }
-          let (selected_entity_id, selected_entity_ids) = normalize_entity_selection_for_scene(
-            Some(next_scene),
-            preferred_primary,
-            preferred_ids,
+            model.selected_entity_id,
+            model.selected_entity_ids,
           )
           let workspace = model.workspace.with_selected_entity_id(
             selected_entity_id,
@@ -5240,27 +5300,15 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                 model, "Edit Transform",
               )
               let next_x = parse_double_or(transform.translation.x, value)
-              let mut next = staged
-              for id in selected_entity_ids_for_edit(staged) {
-                guard staged.scene is Some(scene) else { continue }
-                guard scene.entity(id) is Some(target) else { continue }
-                let target_transform : @editor_bridge.Transform2dComponent? = component_of(
-                  target, "Transform2d",
+              let next = with_selected_entities_transform_updated(staged, fn(
+                target_transform,
+              ) {
+                @editor_bridge.transform2d_value(
+                  translation=target_transform.translation.with_x(next_x),
+                  rotation=target_transform.rotation,
+                  scale=target_transform.scale,
                 )
-                match target_transform {
-                  Some(target_transform) =>
-                    next = update_entity_component(
-                      next,
-                      id,
-                      @editor_bridge.transform2d_component(
-                        translation=target_transform.translation.with_x(next_x),
-                        rotation=target_transform.rotation,
-                        scale=target_transform.scale,
-                      ),
-                    )
-                  None => ()
-                }
-              }
+              })
               apply_scene_change_without_history(staged, next)
             }
             None => ([], model)
@@ -5280,27 +5328,15 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                 model, "Edit Transform",
               )
               let next_y = parse_double_or(transform.translation.y, value)
-              let mut next = staged
-              for id in selected_entity_ids_for_edit(staged) {
-                guard staged.scene is Some(scene) else { continue }
-                guard scene.entity(id) is Some(target) else { continue }
-                let target_transform : @editor_bridge.Transform2dComponent? = component_of(
-                  target, "Transform2d",
+              let next = with_selected_entities_transform_updated(staged, fn(
+                target_transform,
+              ) {
+                @editor_bridge.transform2d_value(
+                  translation=target_transform.translation.with_y(next_y),
+                  rotation=target_transform.rotation,
+                  scale=target_transform.scale,
                 )
-                match target_transform {
-                  Some(target_transform) =>
-                    next = update_entity_component(
-                      next,
-                      id,
-                      @editor_bridge.transform2d_component(
-                        translation=target_transform.translation.with_y(next_y),
-                        rotation=target_transform.rotation,
-                        scale=target_transform.scale,
-                      ),
-                    )
-                  None => ()
-                }
-              }
+              })
               apply_scene_change_without_history(staged, next)
             }
             None => ([], model)
@@ -5320,27 +5356,15 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
                 model, "Edit Transform",
               )
               let next_rotation = parse_double_or(transform.rotation, value)
-              let mut next = staged
-              for id in selected_entity_ids_for_edit(staged) {
-                guard staged.scene is Some(scene) else { continue }
-                guard scene.entity(id) is Some(target) else { continue }
-                let target_transform : @editor_bridge.Transform2dComponent? = component_of(
-                  target, "Transform2d",
+              let next = with_selected_entities_transform_updated(staged, fn(
+                target_transform,
+              ) {
+                @editor_bridge.transform2d_value(
+                  translation=target_transform.translation,
+                  rotation=next_rotation,
+                  scale=target_transform.scale,
                 )
-                match target_transform {
-                  Some(target_transform) =>
-                    next = update_entity_component(
-                      next,
-                      id,
-                      @editor_bridge.transform2d_component(
-                        translation=target_transform.translation,
-                        rotation=next_rotation,
-                        scale=target_transform.scale,
-                      ),
-                    )
-                  None => ()
-                }
-              }
+              })
               apply_scene_change_without_history(staged, next)
             }
             None => ([], model)
@@ -5386,23 +5410,9 @@ pub fn update(msg : Msg, model : Model) -> (Array[Effect], Model) {
           match visibility_component {
             Some(visibility_component) => {
               let next_visible = !visibility_component.visible
-              let mut next = model
-              for id in selected_entity_ids_for_edit(model) {
-                guard model.scene is Some(scene) else { continue }
-                guard scene.entity(id) is Some(target) else { continue }
-                let target_visibility : @editor_bridge.VisibilityComponent? = component_of(
-                  target, "Visibility",
-                )
-                match target_visibility {
-                  Some(_) =>
-                    next = update_entity_component(
-                      next,
-                      id,
-                      @editor_bridge.visibility_component(visible=next_visible),
-                    )
-                  None => ()
-                }
-              }
+              let next = with_selected_entities_visibility_set(
+                model, next_visible,
+              )
               apply_scene_change(model, next)
             }
             None => ([], model)
