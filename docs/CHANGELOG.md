@@ -4,6 +4,16 @@
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.30.5] - 2026-04-07
+
+### Added
+
 - Added root `moon.work` (`members`) to manage Selene modules (`selene-core`, `selene-webgpu`, `selene-raylib`, `selene-tools`, `selene-editor`) and `examples` in a single workspace.
 - Added `selene/editor_bridge` built-in component metadata APIs for editor-facing component workflows: `BuiltinComponentKind`, string/enum mapping helpers, category/dependency queries, removability checks, default component factories, and ordered built-in component enumeration.
 - Added `docs/bevy-alignment-tracker.md` as the canonical markdown tracker for ongoing Bevy parity work (`BEVY-001...`) with explicit status and queue ownership.

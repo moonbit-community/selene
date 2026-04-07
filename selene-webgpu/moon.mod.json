@@ -1,10 +1,10 @@
 {
   "name": "Milky2018/selene_webgpu",
-  "version": "0.30.4",
+  "version": "0.30.5",
   "deps": {
     "Yoorkin/rabbit-tea": "0.10.11",
     "Milky2018/selene": {
-      "version": "0.30.4",
+      "version": "0.30.5",
       "path": "../selene-core"
     },
     "rami3l/js-ffi": "0.4.0",
