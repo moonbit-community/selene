@@ -3,7 +3,7 @@ pub(all) enum ChannelInterpolation {
   Step
   Linear
   CubicSpline
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum AnimationValueKind {
@@ -11,7 +11,7 @@ pub(all) enum AnimationValueKind {
   Vec3
   Quat
   Weights
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum AnimatedValue {
@@ -27,7 +27,7 @@ pub(all) struct ScalarKeyframe {
   value : Double
   in_tangent : Double?
   out_tangent : Double?
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct Vec3Keyframe {
@@ -35,7 +35,7 @@ pub(all) struct Vec3Keyframe {
   value : @math.Vec3
   in_tangent : @math.Vec3?
   out_tangent : @math.Vec3?
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct QuatKeyframe {
@@ -43,7 +43,7 @@ pub(all) struct QuatKeyframe {
   value : @math.Quat
   in_tangent : @math.Quat?
   out_tangent : @math.Quat?
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct WeightKeyframe {
@@ -51,7 +51,7 @@ pub(all) struct WeightKeyframe {
   value : Array[Double]
   in_tangent : Array[Double]?
   out_tangent : Array[Double]?
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct AnimatedField {
@@ -62,7 +62,7 @@ pub(all) struct AnimatedField {
 }
 
 ///|
-pub(all) struct AnimatedFieldHandle(UInt) derive(Eq, Show, Hash)
+pub(all) struct AnimatedFieldHandle(UInt) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) enum VariableCurve {
@@ -73,7 +73,7 @@ pub(all) enum VariableCurve {
 }
 
 ///|
-pub(all) struct AnimationTargetId(String) derive(Eq, Show, Hash)
+pub(all) struct AnimationTargetId(String) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) struct AnimatedBy {
@@ -88,22 +88,22 @@ pub(all) struct AnimationEventContext {
   player : @entity.Entity
   target : @entity.Entity?
   time : Double
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
-pub(all) struct AnimationEventDescriptorHandle(UInt) derive(Eq, Show, Hash)
+pub(all) struct AnimationEventDescriptorHandle(UInt) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) struct AnimationClipEventDispatch {
   target : AnimationTargetId?
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct AnimationClipEventKeyframe {
   time : Double
   descriptor : AnimationEventDescriptorHandle
   dispatch : AnimationClipEventDispatch
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct AnimationClip {
@@ -116,10 +116,10 @@ pub(all) struct AnimationClip {
 }
 
 ///|
-pub(all) struct AnimationClipHandle(UInt) derive(Eq, Show, Hash)
+pub(all) struct AnimationClipHandle(UInt) derive(Eq, Debug, Hash)
 
 ///|
-pub(all) struct AnimationNodeIndex(UInt) derive(Eq, Show, Hash)
+pub(all) struct AnimationNodeIndex(UInt) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) enum AnimationGraphNodeType {
@@ -152,14 +152,14 @@ pub(all) struct AnimationGraph {
 }
 
 ///|
-pub(all) struct AnimationGraphHandle(UInt) derive(Eq, Show, Hash)
+pub(all) struct AnimationGraphHandle(UInt) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) enum RepeatAnimation {
   Never
   Forever
   Count(UInt)
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct ActiveAnimation {
@@ -199,7 +199,7 @@ pub(all) struct AnimationTransitions {
 pub(all) struct MorphTargetBinding3D {
   position_deltas : Array[@math.Vec3]?
   normal_deltas : Array[@math.Vec3]?
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct SkinVertexInfluence3D {

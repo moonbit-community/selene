@@ -25,13 +25,13 @@ pub(all) enum MouseButton {
   Left
   Right
   Middle
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum MouseButtonInputState {
   Pressed
   Released
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub struct MouseButtonEvent {

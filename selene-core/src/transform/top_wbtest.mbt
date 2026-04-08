@@ -68,7 +68,7 @@ test "remove_parent_in_place preserves global transform" {
   remove_parent_in_place(child)
   transform_propagate_system(0.0)
 
-  inspect(child.get_parent(), content="None")
+  inspect(child.get_parent() is None, content="true")
   inspect(transform_test_translation(child), content="12,0,0")
   inspect(transform_test_global_translation(child), content="12,0,0")
 }

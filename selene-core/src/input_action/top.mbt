@@ -3,7 +3,7 @@ pub(all) struct InputAction {
   name : String
 
   fn new(name : String) -> InputAction
-} derive(Eq, Show, Hash)
+} derive(Eq, Debug, Hash)
 
 ///|
 pub(all) enum InputBinding {
@@ -24,21 +24,21 @@ pub(all) struct ActionState {
   mut just_pressed : Bool
   mut just_released : Bool
   mut value : Double
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum ActionEventKind {
   Pressed
   Released
   ValueChanged
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct ActionEvent {
   action : InputAction
   kind : ActionEventKind
   value : Double
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 let input_bindings : Map[InputAction, Array[InputBinding]] = Map::new()

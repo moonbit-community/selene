@@ -103,7 +103,7 @@ pub(all) struct Mesh3DRenderer {
   mut visible : Bool
   mut cast_shadows : Bool
   mut receive_shadows : Bool
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 priv struct Render3DComponentWorldStore {

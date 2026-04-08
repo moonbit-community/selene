@@ -18,22 +18,22 @@ pub(all) enum RigidBody {
   Fixed
   KinematicPositionBased
   KinematicVelocityBased
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct Velocity {
   linvel : @math.Vec3
   angvel : @math.Vec3
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct Damping {
   linear_damping : Double
   angular_damping : Double
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
-pub(all) struct GravityScale(Double) derive(Eq, Show)
+pub(all) struct GravityScale(Double) derive(Eq, Debug)
 
 ///|
 pub(all) struct LockedAxes {
@@ -43,13 +43,13 @@ pub(all) struct LockedAxes {
   lock_rotation_x : Bool
   lock_rotation_y : Bool
   lock_rotation_z : Bool
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
-pub(all) struct Ccd {} derive(Eq, Show)
+pub(all) struct Ccd {} derive(Eq, Debug)
 
 ///|
-pub(all) struct Dominance(Int) derive(Eq, Show)
+pub(all) struct Dominance(Int) derive(Eq, Debug)
 
 ///|
 pub(all) enum AdditionalMassProperties {
@@ -71,36 +71,36 @@ pub(all) enum Collider {
   ConvexHull(Array[@math.Vec3])
   TriMesh(Array[@math.Vec3], Array[(Int, Int, Int)])
   Heightfield(Array[Double], Int, Int, @math.Vec3)
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
-pub(all) struct Sensor {} derive(Eq, Show)
+pub(all) struct Sensor {} derive(Eq, Debug)
 
 ///|
-pub(all) struct Friction(Double) derive(Eq, Show)
+pub(all) struct Friction(Double) derive(Eq, Debug)
 
 ///|
-pub(all) struct Restitution(Double) derive(Eq, Show)
+pub(all) struct Restitution(Double) derive(Eq, Debug)
 
 ///|
 pub(all) struct CollisionGroups {
   memberships : Int
   filters : Int
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct SolverGroups {
   memberships : Int
   filters : Int
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
-pub(all) struct ContactForceEventThreshold(Double) derive(Eq, Show)
+pub(all) struct ContactForceEventThreshold(Double) derive(Eq, Debug)
 
 ///|
 pub(all) enum ColliderMassProperties {
   Density(Double)
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub type RapierRigidBodyHandle = @dynamics.RigidBodyHandle
@@ -135,7 +135,7 @@ pub(all) enum QueryFilterBody {
   Dynamic
   Fixed
   Kinematic
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct QueryFilter {
@@ -154,7 +154,7 @@ pub(all) struct FixedJoint {
   local_anchor2 : @math.Vec3
   local_basis1 : @math.Quat
   local_basis2 : @math.Quat
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct RevoluteJoint {
@@ -178,14 +178,14 @@ pub(all) struct PrismaticJoint {
   motor_position : (Double, Double, Double)?
   motor_velocity : (Double, Double)?
   max_force : Double?
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct RopeJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
   max_distance : Double
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct SpringJoint {
@@ -194,14 +194,14 @@ pub(all) struct SpringJoint {
   rest_length : Double
   stiffness : Double
   damping : Double
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct SphericalJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
   motor_target : (@math.Quat, Double, Double)?
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum Joint {
@@ -247,7 +247,7 @@ pub(all) struct KinematicCharacterControllerOutput {
   effective_translation : @math.Vec3
   grounded : Bool
   is_sliding_down_slope : Bool
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct KinematicCharacterControllerCollision {
@@ -256,12 +256,12 @@ pub(all) struct KinematicCharacterControllerCollision {
   character_translation_remaining : @math.Vec3
   toi : Double
   normal : @math.Vec3
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct KinematicCharacterControllerCollisions {
   collisions : Array[KinematicCharacterControllerCollision]
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct CollisionEvent {
@@ -271,14 +271,14 @@ pub(all) struct CollisionEvent {
   stopped : Bool
   sensor : Bool
   normal : @math.Vec3
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct SensorEvent {
   sensor : @entity.Entity
   other : @entity.Entity
   entered : Bool
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct ContactForceEvent {
@@ -288,28 +288,28 @@ pub(all) struct ContactForceEvent {
   total_force_magnitude : Double
   max_force_direction : @math.Vec3
   max_force_magnitude : Double
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct RaycastHit {
   entity : @entity.Entity
   toi : Double
   normal : @math.Vec3
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct ShapeCastHit {
   entity : @entity.Entity
   toi : Double
   normal : @math.Vec3
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct PointProjection {
   entity : @entity.Entity
   point : @math.Vec3
   is_inside : Bool
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct RapierContext {}

@@ -92,7 +92,7 @@ pub enum LdtkLevelSpawnBehavior {
 pub enum LdtkIntGridRendering {
   Colorful
   Invisible
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub struct LdtkSpawnExclusions {

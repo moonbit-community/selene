@@ -101,11 +101,41 @@ test "builtin component dependencies and removability follow the inspector rules
 
 ///|
 test "animation repeat mode parsing and serialization stay stable" {
-  inspect(animation_repeat_mode_doc_from_string("forever"), content="Forever")
-  inspect(animation_repeat_mode_doc_from_string("never"), content="Never")
-  inspect(animation_repeat_mode_doc_from_string("once"), content="Never")
-  inspect(animation_repeat_mode_doc_from_string("count"), content="Count(1)")
-  inspect(animation_repeat_mode_doc_from_string("count:3"), content="Count(3)")
+  inspect(
+    match animation_repeat_mode_doc_from_string("forever") {
+      Forever => true
+      Never | Count(_) => false
+    },
+    content="true",
+  )
+  inspect(
+    match animation_repeat_mode_doc_from_string("never") {
+      Never => true
+      Forever | Count(_) => false
+    },
+    content="true",
+  )
+  inspect(
+    match animation_repeat_mode_doc_from_string("once") {
+      Never => true
+      Forever | Count(_) => false
+    },
+    content="true",
+  )
+  inspect(
+    match animation_repeat_mode_doc_from_string("count") {
+      Count(v) => v == 1
+      Never | Forever => false
+    },
+    content="true",
+  )
+  inspect(
+    match animation_repeat_mode_doc_from_string("count:3") {
+      Count(v) => v == 3
+      Never | Forever => false
+    },
+    content="true",
+  )
   inspect(
     animation_repeat_mode_doc_to_string(animation_repeat_mode_count(5)),
     content="count:5",
@@ -121,7 +151,13 @@ test "animation player component constructor stores canonical repeat string" {
   )
   let player : AnimationPlayerComponent = @json.from_json(component.data)
   inspect(player.repeat_mode, content="count:2")
-  inspect(player.repeat_mode_doc(), content="Count(2)")
+  inspect(
+    match player.repeat_mode_doc() {
+      Count(v) => v == 2
+      Never | Forever => false
+    },
+    content="true",
+  )
 }
 
 ///|

@@ -1,5 +1,5 @@
 ///|
-pub(all) struct AudioInstance(Int) derive(Eq, Show, Hash)
+pub(all) struct AudioInstance(Int) derive(Eq, Debug, Hash)
 
 ///|
 pub fn play_audio(

@@ -13,7 +13,7 @@ pub(all) struct SceneSpawner {
 pub(all) struct SceneInstanceReadyEvent {
   scene : SceneHandle
   root : @entity.Entity
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 let scene_instances : Map[@entity.Entity, SceneHandle] = Map::new()

@@ -17,7 +17,7 @@ struct Entity {
   value : UInt
 
   fn new() -> Entity
-} derive(Eq, Show, Hash)
+} derive(Eq, Debug, Hash)
 
 ///|
 enum EntityLifecycleState {
@@ -26,7 +26,7 @@ enum EntityLifecycleState {
   PendingDespawn
   PendingRespawn
   Destroyed
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 priv struct EntityWorldStore {

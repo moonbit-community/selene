@@ -19,7 +19,7 @@ pub(all) struct Vec3 {
   z : Double
 
   fn new(x : Double, y : Double, z : Double) -> Vec3
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn Vec3::new(x : Double, y : Double, z : Double) -> Vec3 {
@@ -147,7 +147,7 @@ pub(all) struct Quat {
   w : Double
 
   fn new(x : Double, y : Double, z : Double, w : Double) -> Quat
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn Quat::new(x : Double, y : Double, z : Double, w : Double) -> Quat {
@@ -322,7 +322,7 @@ pub(all) struct Mat4 {
   m31 : Double
   m32 : Double
   m33 : Double
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn Mat4::identity() -> Mat4 {
@@ -475,7 +475,7 @@ pub(all) struct Affine3 {
   y_axis : Vec3
   z_axis : Vec3
   translation : Vec3
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn Affine3::identity() -> Affine3 {

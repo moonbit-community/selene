@@ -23,7 +23,7 @@
 pub(all) enum Axis {
   X
   Y
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// 2D vector with x and y components.
@@ -44,7 +44,7 @@ pub(all) enum Axis {
 /// inspect(v2[Y], content="0")
 /// ```
 ///
-pub(all) struct Vec2D(Double, Double) derive(Eq, Show)
+pub(all) struct Vec2D(Double, Double) derive(Eq, Debug)
 
 ///|
 pub fn Vec2D::zero() -> Vec2D {

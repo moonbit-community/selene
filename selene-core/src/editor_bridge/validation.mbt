@@ -2,7 +2,7 @@
 pub struct ValidationError {
   path : String
   message : String
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 fn push_version_error(

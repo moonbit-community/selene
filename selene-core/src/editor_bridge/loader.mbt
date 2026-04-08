@@ -6,7 +6,7 @@ pub struct ProjectBundle {
   atlas_assets : Map[String, AtlasAssetDocument]
   animation_clip_assets : Map[String, AnimationClipAssetDocument]
   animation_graph_assets : Map[String, AnimationGraphAssetDocument]
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 fn parse_json_document(

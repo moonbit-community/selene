@@ -23,7 +23,7 @@ enum HandRank {
   FullHouse(Int, Int) // A-H, A-D, 2-C, 2-D, 2-S
   FourOfKind(Int) // A-H, A-D, A-C, A-S
   StraightFlush(Int) // 10-D, J-D, Q-D, K-D, A-D
-} derive(Show)
+} derive(Debug)
 
 ///|
 /// Convert hand rank to display string

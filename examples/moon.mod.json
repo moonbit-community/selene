@@ -17,7 +17,5 @@
   "repository": "https://github.com/moonbit-community/selene.git",
   "license": "Apache-2.0",
   "keywords": [],
-  "description": "",
-  "preferred-target": "js",
-  "supported-targets": "js"
+  "description": ""
 }

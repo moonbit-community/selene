@@ -3,7 +3,7 @@ pub(all) enum EventDomain {
   Frame
   Fixed
   Render
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct EventReader[T] {
@@ -21,7 +21,7 @@ pub(all) struct EventWriter[T] {
 }
 
 ///|
-pub(all) struct ObserverHandle(Int) derive(Eq, Show, Hash)
+pub(all) struct ObserverHandle(Int) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) struct Trigger[T] {

@@ -3,7 +3,7 @@ pub struct MigrationFieldChange {
   path : String
   reason : String
   migrated_value : String
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub trait Migration {
@@ -16,78 +16,78 @@ pub struct ProjectManifestMigrationPreview {
   path : String
   manifest : ProjectManifest
   changes : Array[MigrationFieldChange]
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub enum ProjectManifestLoadStatus {
   Ready(ProjectManifest)
   MigrationRequired(ProjectManifestMigrationPreview)
-} derive(Show, Eq)
+} derive(Eq)
 
 ///|
 pub struct SceneMigrationPreview {
   path : String
   scene : SceneDocument
   changes : Array[MigrationFieldChange]
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub enum SceneDocumentLoadStatus {
   Ready(SceneDocument)
   MigrationRequired(SceneMigrationPreview)
-} derive(Show, Eq)
+} derive(Eq)
 
 ///|
 pub struct PrefabMigrationPreview {
   path : String
   prefab : PrefabDocument
   changes : Array[MigrationFieldChange]
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub enum PrefabDocumentLoadStatus {
   Ready(PrefabDocument)
   MigrationRequired(PrefabMigrationPreview)
-} derive(Show, Eq)
+} derive(Eq)
 
 ///|
 pub struct AtlasAssetMigrationPreview {
   path : String
   atlas : AtlasAssetDocument
   changes : Array[MigrationFieldChange]
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub enum AtlasAssetDocumentLoadStatus {
   Ready(AtlasAssetDocument)
   MigrationRequired(AtlasAssetMigrationPreview)
-} derive(Show, Eq)
+} derive(Eq)
 
 ///|
 pub struct AnimationClipAssetMigrationPreview {
   path : String
   clip : AnimationClipAssetDocument
   changes : Array[MigrationFieldChange]
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub enum AnimationClipAssetDocumentLoadStatus {
   Ready(AnimationClipAssetDocument)
   MigrationRequired(AnimationClipAssetMigrationPreview)
-} derive(Show, Eq)
+} derive(Eq)
 
 ///|
 pub struct AnimationGraphAssetMigrationPreview {
   path : String
   graph : AnimationGraphAssetDocument
   changes : Array[MigrationFieldChange]
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub enum AnimationGraphAssetDocumentLoadStatus {
   Ready(AnimationGraphAssetDocument)
   MigrationRequired(AnimationGraphAssetMigrationPreview)
-} derive(Show, Eq)
+} derive(Eq)
 
 ///|
 pub struct ProjectManifestMigrator {}

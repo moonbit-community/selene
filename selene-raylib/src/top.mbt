@@ -2105,10 +2105,20 @@ fn get_or_create_primitive_mesh(
 }
 
 ///|
+fn mesh_handle_text(mesh_handle : @render3d_types.MeshHandle) -> String {
+  mesh_handle.hash().to_string()
+}
+
+///|
+fn image_handle_text(image_handle : @render3d_types.ImageHandle) -> String {
+  image_handle.hash().to_string()
+}
+
+///|
 fn triangle_mesh_cache_prefix(
   mesh_handle : @render3d_types.MeshHandle,
 ) -> String {
-  "triangle_mesh:\{mesh_handle}:"
+  "triangle_mesh:\{mesh_handle_text(mesh_handle)}:"
 }
 
 ///|
@@ -2251,8 +2261,8 @@ fn resolve_triangle_indices(
   for index in base_indices {
     if index < 0 || index >= mesh.positions.length() {
       warn_texture_issue(
-        "triangles_invalid_index:\{mesh_handle}:\{index}",
-        "triangle mesh \{mesh_handle} contains out-of-range index \{index}; skipping draw",
+        "triangles_invalid_index:\{mesh_handle_text(mesh_handle)}:\{index}",
+        "triangle mesh \{mesh_handle_text(mesh_handle)} contains out-of-range index \{index}; skipping draw",
       )
       return None
     }
@@ -2277,8 +2287,8 @@ fn sanitize_triangle_uv_set(
     set
   } else {
     warn_texture_issue(
-      "triangles_unsupported_uv_set:\{mesh_handle}:\{label}:\{set}",
-      "triangle mesh \{mesh_handle} uses unsupported \{label} UV set TEXCOORD_\{set}; fallback to TEXCOORD_0",
+      "triangles_unsupported_uv_set:\{mesh_handle_text(mesh_handle)}:\{label}:\{set}",
+      "triangle mesh \{mesh_handle_text(mesh_handle)} uses unsupported \{label} UV set TEXCOORD_\{set}; fallback to TEXCOORD_0",
     )
     0
   }
@@ -2337,8 +2347,8 @@ fn resolve_triangle_uv_sets(
         (has_occlusion && occlusion_set == 0 && !has_uv0) ||
         (has_normal && normal_set == 0 && !has_uv0) {
         warn_texture_issue(
-          "triangles_missing_uv_set0:\{mesh_handle}",
-          "triangle mesh \{mesh_handle} is missing TEXCOORD_0; texture maps that require UV0 are disabled",
+          "triangles_missing_uv_set0:\{mesh_handle_text(mesh_handle)}",
+          "triangle mesh \{mesh_handle_text(mesh_handle)} is missing TEXCOORD_0; texture maps that require UV0 are disabled",
         )
         if base_set == 0 {
           has_base = false
@@ -2362,8 +2372,8 @@ fn resolve_triangle_uv_sets(
         (has_occlusion && occlusion_set == 1 && !has_uv1) ||
         (has_normal && normal_set == 1 && !has_uv1) {
         warn_texture_issue(
-          "triangles_missing_uv_set1:\{mesh_handle}",
-          "triangle mesh \{mesh_handle} is missing TEXCOORD_1; texture maps that require UV1 are disabled",
+          "triangles_missing_uv_set1:\{mesh_handle_text(mesh_handle)}",
+          "triangle mesh \{mesh_handle_text(mesh_handle)} is missing TEXCOORD_1; texture maps that require UV1 are disabled",
         )
         if base_set == 1 {
           has_base = false
@@ -4108,8 +4118,8 @@ fn resolve_material_texture_source(
 ) -> MaterialTextureSource3D? {
   guard backend.images3d.get(binding.image) is Some(image_asset) else {
     warn_texture_issue(
-      "missing_image_handle:\{binding.image}",
-      "material texture handle \{binding.image} is not synced; fallback to default texture",
+      "missing_image_handle:\{image_handle_text(binding.image)}",
+      "material texture handle \{image_handle_text(binding.image)} is not synced; fallback to default texture",
     )
     return None
   }
@@ -4526,15 +4536,15 @@ fn draw_triangle_mesh(
   let vertices = mesh.positions
   if vertices.length() < 3 {
     warn_texture_issue(
-      "triangles_invalid_positions:\{mesh_handle}:\{vertices.length()}",
-      "triangle mesh positions length must be >= 3; skipping draw for \{mesh_handle}",
+      "triangles_invalid_positions:\{mesh_handle_text(mesh_handle)}:\{vertices.length()}",
+      "triangle mesh positions length must be >= 3; skipping draw for \{mesh_handle_text(mesh_handle)}",
     )
     return
   }
   guard resolve_triangle_indices(mesh_handle, mesh) is Some(triangle_indices) else {
     warn_texture_issue(
-      "triangles_invalid_indices:\{mesh_handle}",
-      "triangle mesh \{mesh_handle} has invalid index/topology data; skipping draw",
+      "triangles_invalid_indices:\{mesh_handle_text(mesh_handle)}",
+      "triangle mesh \{mesh_handle_text(mesh_handle)} has invalid index/topology data; skipping draw",
     )
     return
   }
@@ -4604,8 +4614,8 @@ fn draw_triangle_mesh(
       )
       is Some(created) else {
       warn_texture_issue(
-        "triangles_build_failed:\{mesh_handle}",
-        "failed to build GPU mesh from triangle primitive \{mesh_handle}; skipping draw",
+        "triangles_build_failed:\{mesh_handle_text(mesh_handle)}",
+        "failed to build GPU mesh from triangle primitive \{mesh_handle_text(mesh_handle)}; skipping draw",
       )
       return
     }

@@ -2,22 +2,22 @@
 pub(all) enum Visibility {
   Visible
   Hidden
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct InheritedVisibility {
   visible : Bool
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct ViewVisibility {
   visible : Bool
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct RenderLayers {
   mask : UInt
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 priv struct VisibilityWorldStore {

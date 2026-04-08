@@ -64,7 +64,7 @@ pub struct RaycastHit {
   toi : Double
   point : @math.Vec2D
   normal : @math.Vec2D
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// Result payload for a 2D shape-cast hit.
@@ -73,4 +73,4 @@ pub struct ShapeCastHit {
   toi : Double
   point : @math.Vec2D
   normal : @math.Vec2D
-} derive(Eq, Show)
+} derive(Eq, Debug)

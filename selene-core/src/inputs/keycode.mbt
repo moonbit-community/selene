@@ -68,13 +68,13 @@ pub(all) enum Code {
   Space
   Enter
   Escape
-} derive(Eq, Show, Hash)
+} derive(Eq, Debug, Hash)
 
 ///|
 pub(all) enum KeyInputState {
   Pressed
   Released
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub struct KeyInputEvent {

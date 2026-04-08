@@ -16,7 +16,5 @@
     "Game Engine"
   ],
   "description": "Native raylib backend for Selene.",
-  "source": "src",
-  "preferred-target": "native",
-  "supported-targets": "native"
+  "source": "src"
 }

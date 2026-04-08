@@ -45,7 +45,7 @@ pub(all) struct BorderRadius {
     bottom_right? : Val,
     bottom_left? : Val,
   ) -> BorderRadius
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn BorderRadius::all(value : Val) -> BorderRadius {
@@ -95,7 +95,7 @@ pub(all) struct ShadowStyle {
     spread_radius? : Val,
     blur_radius? : Val,
   ) -> ShadowStyle
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn ShadowStyle::new(
@@ -113,7 +113,7 @@ pub(all) struct BoxShadow {
   layers : Array[ShadowStyle]
 
   fn new(layers : Array[ShadowStyle]) -> BoxShadow
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn BoxShadow::new(layers : Array[ShadowStyle]) -> BoxShadow {
@@ -139,7 +139,7 @@ pub(all) enum ImageFit {
   Contain
   Cover
   None
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct UiImage {
@@ -154,7 +154,7 @@ pub(all) struct UiImage {
     tint? : @render.Color,
     fit? : ImageFit,
   ) -> UiImage
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn UiImage::from_image(
@@ -177,14 +177,14 @@ pub fn UiImage::new(
 }
 
 ///|
-pub(all) struct UiMaterialHandle(UInt) derive(Eq, Show, Hash)
+pub(all) struct UiMaterialHandle(UInt) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) struct MaterialNode {
   material : UiMaterialHandle
 
   fn new(material : UiMaterialHandle) -> MaterialNode
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn MaterialNode::new(material : UiMaterialHandle) -> MaterialNode {
@@ -197,7 +197,7 @@ pub(all) struct UiGradient {
   color_end : @render.Color
 
   fn new(color_start : @render.Color, color_end : @render.Color) -> UiGradient
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn UiGradient::new(
@@ -394,13 +394,13 @@ pub fn TextColor::from_css(color : String) -> TextColor {
 pub(all) enum TextWrap {
   NoWrap
   WordWrap
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum TextOverflow {
   Clip
   Ellipsis
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct TextLayout {
@@ -435,7 +435,7 @@ pub(all) struct Button {
   enabled : Bool
 
   fn new(enabled? : Bool) -> Button
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn Button::new(enabled? : Bool = true) -> Button {
@@ -447,7 +447,7 @@ pub(all) enum Interaction {
   None
   Hovered
   Pressed
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 priv struct UiVisualWorldStore {

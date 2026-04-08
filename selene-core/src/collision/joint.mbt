@@ -17,7 +17,7 @@
 pub enum JointMotorModel {
   AccelerationBased
   ForceBased
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn JointMotorModel::acceleration_based() -> JointMotorModel {
@@ -36,7 +36,7 @@ pub struct JointLimits {
   max : Double
 
   fn new(min : Double, max : Double) -> JointLimits
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn JointLimits::new(min : Double, max : Double) -> JointLimits {
@@ -50,7 +50,7 @@ pub struct JointSoftness {
   natural_frequency : Double
 
   fn new(damping_ratio : Double, natural_frequency : Double) -> JointSoftness
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn JointSoftness::new(
@@ -76,7 +76,7 @@ pub enum JointMotor {
     max_force~ : Double?,
     model~ : JointMotorModel
   )
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn JointMotor::position(
@@ -129,7 +129,7 @@ pub enum JointKind {
     local_anchor2~ : @math.Vec2D,
     model~ : JointMotorModel
   )
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// Authored 2D joint component that connects two rigid-body entities.
@@ -139,7 +139,7 @@ pub struct Joint {
   kind : JointKind
   active : Bool
   contacts_enabled : Bool
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// Native Rapier impulse-joint handle.
@@ -155,7 +155,7 @@ pub enum MultibodyJointKind {
     motor~ : JointMotor?,
     softness~ : JointSoftness?
   )
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// Authored 2D multibody joint attached to the child rigid-body entity.
@@ -163,7 +163,7 @@ pub struct MultibodyJoint {
   parent : @entity.Entity
   kind : MultibodyJointKind
   active : Bool
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// Native Rapier multibody-joint handle.

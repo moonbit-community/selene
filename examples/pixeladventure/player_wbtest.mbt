@@ -113,9 +113,14 @@ test "classify bird contact ignores separated sweeps" {
 
 ///|
 test "pending stomp bounce overrides downward Y velocity" {
+  let actual = player_motion_base_velocity(
+    @math.Vec2D(120.0, 480.0),
+    Some(-BUMP_V),
+  )
+  let expected = @math.Vec2D(120.0, -BUMP_V)
   inspect(
-    player_motion_base_velocity(@math.Vec2D(120.0, 480.0), Some(-BUMP_V)).to_string(),
-    content=@math.Vec2D(120.0, -BUMP_V).to_string(),
+    actual[@math.X] == expected[@math.X] && actual[@math.Y] == expected[@math.Y],
+    content="true",
   )
 }
 

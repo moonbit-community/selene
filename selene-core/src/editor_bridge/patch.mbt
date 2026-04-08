@@ -6,12 +6,12 @@ pub enum ScenePatchOp {
   RenameEntity(id~ : String, name~ : String)
   PutComponent(entity_id~ : String, component~ : ComponentDocument)
   RemoveComponent(entity_id~ : String, kind~ : String)
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub struct ScenePatch {
   ops : Array[ScenePatchOp]
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub fn ScenePatch::empty() -> ScenePatch {

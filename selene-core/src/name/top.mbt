@@ -3,7 +3,7 @@ pub(all) struct Name {
   value : String
 
   fn new(value : String) -> Name
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 priv struct NameWorldStore {

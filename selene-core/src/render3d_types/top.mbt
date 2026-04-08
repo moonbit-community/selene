@@ -13,42 +13,42 @@
 // limitations under the License.
 
 ///|
-pub(all) struct MeshHandle(UInt) derive(Eq, Show, Hash)
+pub(all) struct MeshHandle(UInt) derive(Eq, Debug, Hash)
 
 ///|
-pub(all) struct MaterialHandle(UInt) derive(Eq, Show, Hash)
+pub(all) struct MaterialHandle(UInt) derive(Eq, Debug, Hash)
 
 ///|
-pub(all) struct ImageHandle(UInt) derive(Eq, Show, Hash)
+pub(all) struct ImageHandle(UInt) derive(Eq, Debug, Hash)
 
 ///|
-pub(all) struct SceneHandle(UInt) derive(Eq, Show, Hash)
+pub(all) struct SceneHandle(UInt) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) enum CameraProjection3D {
   Perspective
   Orthographic
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum AlphaMode3D {
   Opaque
   Mask
   Blend
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum TextureWrap3D {
   ClampToEdge
   Repeat
   MirroredRepeat
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum TextureFilter3D {
   Nearest
   Linear
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct TextureSampler3D {
@@ -57,14 +57,14 @@ pub(all) struct TextureSampler3D {
   min_filter : TextureFilter3D
   mag_filter : TextureFilter3D
   mipmap_filter : TextureFilter3D?
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct TextureTransform3D {
   offset : @math.Vec2D
   scale : @math.Vec2D
   rotation : Double
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct TextureBinding3D {
@@ -72,7 +72,7 @@ pub(all) struct TextureBinding3D {
   sampler : TextureSampler3D
   texcoord_set : Int
   transform : TextureTransform3D
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct Tangent3D {
@@ -80,14 +80,14 @@ pub(all) struct Tangent3D {
   y : Double
   z : Double
   w : Double
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum TriangleTopology3D {
   TriangleList
   TriangleStrip
   TriangleFan
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct TriangleMesh3D {
@@ -98,7 +98,7 @@ pub(all) struct TriangleMesh3D {
   normals : Array[@math.Vec3]?
   tangents : Array[Tangent3D]?
   colors : Array[@render.Color]?
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum MeshPrimitive3D {
@@ -107,17 +107,17 @@ pub(all) enum MeshPrimitive3D {
   Cylinder(Double, Double, Double, Int)
   Plane(@math.Vec3)
   Triangles(TriangleMesh3D)
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct MeshAsset {
   primitive : MeshPrimitive3D
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct ImageAsset {
   path : String
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct StandardMaterial3D {
@@ -210,12 +210,12 @@ pub(all) struct AmbientLight3D {
 ///|
 pub(all) struct DirectionalLightShadowMap3D {
   size : Int
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct PointLightShadowMap3D {
   size : Int
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct CascadeShadowConfigBuilder3D {
@@ -224,21 +224,21 @@ pub(all) struct CascadeShadowConfigBuilder3D {
   maximum_distance : Double
   first_cascade_far_bound : Double
   overlap_proportion : Double
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct CascadeShadowConfig3D {
   bounds : Array[Double]
   minimum_distance : Double
   overlap_proportion : Double
-} derive(Show)
+} derive(Debug)
 
 ///|
 pub(all) struct FrameTransform3D {
   translation : @math.Vec3
   rotation : @math.Quat
   scale : @math.Vec3
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct FrameCamera3D {

@@ -2,7 +2,7 @@
 pub struct Vec2Doc {
   x : Double
   y : Double
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct RectDoc {
@@ -10,7 +10,7 @@ pub struct RectDoc {
   y : Double
   width : Double
   height : Double
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct ColorDoc {
@@ -18,22 +18,22 @@ pub struct ColorDoc {
   g : Int
   b : Int
   a : Int
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct AssetRef {
   path : String
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct SceneRef {
   path : String
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct PrefabRef {
   path : String
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct ProjectManifest {
@@ -47,21 +47,21 @@ pub struct ProjectManifest {
   animation_clip_index : Array[AssetRef]
   animation_graph_index : Array[AssetRef]
   editor_min_version : String?
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct SceneDocument {
   version : Int
   name : String
   entities : Array[EntityDocument]
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub struct PrefabDocument {
   version : Int
   name : String
   entities : Array[EntityDocument]
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub struct WorkspaceDocument {
@@ -70,7 +70,7 @@ pub struct WorkspaceDocument {
   selected_entity_id : String?
   move_snap_enabled : Bool?
   move_snap_step : Double?
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct EntityDocument {
@@ -78,13 +78,13 @@ pub struct EntityDocument {
   name : String
   parent : String?
   components : Array[ComponentDocument]
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub struct ComponentDocument {
   kind : String
   data : Json
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub enum BuiltinComponentKind {
@@ -101,24 +101,24 @@ pub enum BuiltinComponentKind {
   PhysicsCollider2d
   AnimationPlayer
   AnimationTransitions
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct NameComponent {
   value : String
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct Transform2dComponent {
   translation : Vec2Doc
   rotation : Double
   scale : Vec2Doc
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct VisibilityComponent {
   visible : Bool
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct TextureAtlasLayoutDoc {
@@ -127,7 +127,7 @@ pub struct TextureAtlasLayoutDoc {
   rows : Int
   padding : Vec2Doc
   offset : Vec2Doc
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct TextureAtlasComponent {
@@ -135,7 +135,7 @@ pub struct TextureAtlasComponent {
   region_name : String?
   layout : TextureAtlasLayoutDoc?
   index : Int
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct SpriteComponent {
@@ -147,7 +147,7 @@ pub struct SpriteComponent {
   flip_y : Bool
   rect : RectDoc?
   image_mode : String
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct Text2dComponent {
@@ -157,26 +157,26 @@ pub struct Text2dComponent {
   color : ColorDoc
   bounds : Vec2Doc?
   anchor : Vec2Doc
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct Mesh2dComponent {
   primitive : String
   size : Vec2Doc?
   radius : Double?
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct ColorMaterialComponent {
   color : ColorDoc
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct Camera2dComponent {
   is_active : Bool
   order : Int
   scale : Double
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct PhysicsBody2dComponent {
@@ -188,7 +188,7 @@ pub struct PhysicsBody2dComponent {
   angular_damping : Double
   lock_rotation : Bool
   ccd_enabled : Bool
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct PhysicsCollider2dComponent {
@@ -198,7 +198,7 @@ pub struct PhysicsCollider2dComponent {
   sensor : Bool
   friction : Double
   restitution : Double
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct AnimationPlayerComponent {
@@ -207,26 +207,26 @@ pub struct AnimationPlayerComponent {
   autoplay : Bool
   repeat_mode : String
   speed : Double
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub enum AnimationRepeatModeDoc {
   Never
   Forever
   Count(Int)
-} derive(Show, Eq)
+} derive(Debug, Eq)
 
 ///|
 pub struct AnimationTransitionsComponent {
   duration : Double
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct AtlasRegionDocument {
   name : String
   index : Int
   rect : RectDoc
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct AtlasAssetDocument {
@@ -240,7 +240,7 @@ pub struct AtlasAssetDocument {
   margin : Vec2Doc
   default_anchor : Vec2Doc
   regions : Array[AtlasRegionDocument]
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct AnimationClipAssetDocument {
@@ -250,20 +250,20 @@ pub struct AnimationClipAssetDocument {
   fps : Double
   looping : Bool
   frames : Array[String]
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub enum AnimationGraphNodeKind {
   Clip(clip_asset_path~ : String)
   Blend
   AdditiveBlend
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct AnimationGraphEdgeDocument {
   to : String
   weight : Double
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct AnimationGraphNodeDocument {
@@ -272,7 +272,7 @@ pub struct AnimationGraphNodeDocument {
   mask_groups : Array[Int]
   position : Vec2Doc
   edges : Array[AnimationGraphEdgeDocument]
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct AnimationGraphAssetDocument {
@@ -280,7 +280,7 @@ pub struct AnimationGraphAssetDocument {
   name : String
   nodes : Array[AnimationGraphNodeDocument]
   default_node : String?
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub enum AssetKind {
@@ -297,21 +297,21 @@ pub enum AssetKind {
   Meta
   Json
   Unknown
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct AssetMetaDocument {
   tags : Array[String]
   importer : String?
   source : String?
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub struct AssetDocument {
   path : String
   kind : AssetKind
   meta_path : String?
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Debug, Eq, ToJson, FromJson)
 
 ///|
 pub fn vec2_doc(x : Double, y : Double) -> Vec2Doc {

@@ -19,7 +19,7 @@ pub(all) enum RigidBodyType {
   Fixed
   KinematicPositionBased
   KinematicVelocityBased
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// 2D rigid-body configuration synchronized into Rapier.
@@ -30,7 +30,7 @@ pub(all) struct RigidBody {
   angular_damping : Double
   ccd_enabled : Bool
   lock_rotation : Bool
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// Native Rapier rigid-body handle.

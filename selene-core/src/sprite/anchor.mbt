@@ -1,5 +1,5 @@
 ///|
-pub(all) struct Anchor(@math.Vec2D) derive(Eq, Show)
+pub(all) struct Anchor(@math.Vec2D) derive(Eq, Debug)
 
 ///|
 pub fn default_anchor() -> Anchor {

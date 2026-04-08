@@ -1,4 +1,40 @@
 ///|
+
+///|
+fn test_resource_selection_repr(selection : ResourceSelection?) -> String {
+  match selection {
+    None => "None"
+    Some(Image(path)) => "Some(Image(\"" + path + "\"))"
+    Some(Atlas(path)) => "Some(Atlas(\"" + path + "\"))"
+    Some(AnimationClip(path)) => "Some(AnimationClip(\"" + path + "\"))"
+    Some(AnimationGraph(path)) => "Some(AnimationGraph(\"" + path + "\"))"
+    Some(Prefab(path)) => "Some(Prefab(\"" + path + "\"))"
+  }
+}
+
+///|
+fn test_repeat_mode_doc_repr(
+  mode : @editor_bridge.AnimationRepeatModeDoc,
+) -> String {
+  match mode {
+    Never => "Never"
+    Forever => "Forever"
+    Count(v) => "Count(\{v})"
+  }
+}
+
+///|
+fn test_preview_tool_repr(tool : @shared.PreviewTool) -> String {
+  match tool {
+    Select => "Select"
+    DragCanvas => "DragCanvas"
+    Translate => "Translate"
+    Rotate => "Rotate"
+    Scale => "Scale"
+  }
+}
+
+///|
 test "initialize subscribes to service and preview channels" {
   let (effects, _) = update(msg_initialize(), new_model())
   inspect(effects.length(), content="4")
@@ -60,7 +96,7 @@ test "clear selection closes inspector panel before deselecting" {
   inspect(close_effects.length(), content="0")
   inspect(closed_panel.selected_entity_id, content="Some(\"camera\")")
   inspect(
-    closed_panel.selected_resource,
+    test_resource_selection_repr(closed_panel.selected_resource),
     content="Some(Image(\"assets/images/hero.png\"))",
   )
   inspect(closed_panel.add_component_panel_open, content="false")
@@ -71,7 +107,10 @@ test "clear selection closes inspector panel before deselecting" {
   let (effects, cleared) = update(msg_clear_selection(), closed_panel)
   inspect(effects.length(), content="3")
   inspect(cleared.selected_entity_id, content="None")
-  inspect(cleared.selected_resource, content="None")
+  inspect(
+    test_resource_selection_repr(cleared.selected_resource),
+    content="None",
+  )
   inspect(cleared.add_component_panel_open, content="false")
   inspect(cleared.open_component_menu_kind, content="None")
   inspect(cleared.workspace.selected_entity_id, content="None")
@@ -127,7 +166,7 @@ test "asset query clears selection when selected resource is filtered out" {
     selected_resource: Some(resource_selection_image("assets/images/apple.png")),
   }
   let (_, next) = update(msg_set_asset_query("banana"), model)
-  inspect(next.selected_resource, content="None")
+  inspect(test_resource_selection_repr(next.selected_resource), content="None")
   inspect(next.status, content="Filtering assets: banana (selection cleared)")
 }
 
@@ -146,7 +185,7 @@ test "asset query keeps selected resource even when section is collapsed" {
   }
   let (_, next) = update(msg_set_asset_query("apple"), model)
   inspect(
-    next.selected_resource,
+    test_resource_selection_repr(next.selected_resource),
     content="Some(Image(\"assets/images/apple.png\"))",
   )
   inspect(next.status, content="Filtering assets: apple")
@@ -557,7 +596,10 @@ test "selecting an asset does not create a scene entity" {
     msg_select_resource(Some(Image("assets/hero.png"))),
     model,
   )
-  inspect(next.selected_resource, content="Some(Image(\"assets/hero.png\"))")
+  inspect(
+    test_resource_selection_repr(next.selected_resource),
+    content="Some(Image(\"assets/hero.png\"))",
+  )
   inspect(next.scene.unwrap().entities.length(), content="1")
   inspect(next.status, content="Selected resource: hero")
   inspect(next.images_section_expanded, content="true")
@@ -581,7 +623,7 @@ test "move selected resource follows visible asset ordering" {
   }
   let (_, first) = update(msg_move_selected_resource(1), model)
   inspect(
-    first.selected_resource,
+    test_resource_selection_repr(first.selected_resource),
     content="Some(Image(\"assets/images/apple.png\"))",
   )
   inspect(first.selected_entity_id, content="None")
@@ -589,14 +631,14 @@ test "move selected resource follows visible asset ordering" {
 
   let (_, second) = update(msg_move_selected_resource(1), first)
   inspect(
-    second.selected_resource,
+    test_resource_selection_repr(second.selected_resource),
     content="Some(Image(\"assets/images/zebra.png\"))",
   )
   inspect(second.status, content="Selected resource 2/2: zebra")
 
   let (_, back) = update(msg_move_selected_resource(-1), second)
   inspect(
-    back.selected_resource,
+    test_resource_selection_repr(back.selected_resource),
     content="Some(Image(\"assets/images/apple.png\"))",
   )
   inspect(back.status, content="Selected resource 1/2: apple")
@@ -623,21 +665,21 @@ test "move selected resource clamps to first and last for large deltas" {
   }
   let (_, first) = update(msg_move_selected_resource(1000000), model)
   inspect(
-    first.selected_resource,
+    test_resource_selection_repr(first.selected_resource),
     content="Some(Image(\"assets/images/a.png\"))",
   )
   inspect(first.status, content="Selected resource 1/3: a")
 
   let (_, still_first) = update(msg_move_selected_resource(-1000000), first)
   inspect(
-    still_first.selected_resource,
+    test_resource_selection_repr(still_first.selected_resource),
     content="Some(Image(\"assets/images/a.png\"))",
   )
   inspect(still_first.status, content="Selected resource 1/3: a")
 
   let (_, last) = update(msg_move_selected_resource(-1000000), model)
   inspect(
-    last.selected_resource,
+    test_resource_selection_repr(last.selected_resource),
     content="Some(Image(\"assets/images/c.png\"))",
   )
   inspect(last.status, content="Selected resource 3/3: c")
@@ -658,7 +700,7 @@ test "move selected resource respects section visibility" {
   }
   let (_, next) = update(msg_move_selected_resource(1), model)
   inspect(
-    next.selected_resource,
+    test_resource_selection_repr(next.selected_resource),
     content="Some(Atlas(\"assets/atlases/hero.atlas.json\"))",
   )
   inspect(next.atlases_section_expanded, content="true")
@@ -685,7 +727,13 @@ test "adding a sprite from an asset uses the resolved asset size" {
     entity, "Transform2d",
   ).unwrap()
   inspect(sprite.image_path, content="Some(\"assets/hero.png\")")
-  inspect(sprite.custom_size, content="Some({x: 32, y: 48})")
+  inspect(
+    match sprite.custom_size {
+      Some(size) => size.x == 32.0 && size.y == 48.0
+      None => false
+    },
+    content="true",
+  )
   inspect(transform.translation.x, content="0")
   inspect(transform.translation.y, content="0")
 }
@@ -712,7 +760,7 @@ test "creating an atlas from a selected image updates resource state" {
   inspect(effects.length(), content="1")
   inspect(next.atlas_refs.length(), content="1")
   inspect(
-    next.selected_resource,
+    test_resource_selection_repr(next.selected_resource),
     content="Some(Atlas(\"assets/atlases/hero.atlas.json\"))",
   )
   inspect(next.atlases_section_expanded, content="true")
@@ -743,7 +791,7 @@ test "creating animation clip from selected atlas selects clip asset" {
   inspect(effects.length(), content="1")
   inspect(next.animation_clip_refs.length(), content="1")
   inspect(
-    next.selected_resource,
+    test_resource_selection_repr(next.selected_resource),
     content="Some(AnimationClip(\"assets/animation_clips/hero-clip.clip.json\"))",
   )
   inspect(next.animation_clips_section_expanded, content="true")
@@ -775,7 +823,7 @@ test "creating animation graph from selected clip selects graph asset" {
   inspect(effects.length(), content="1")
   inspect(next.animation_graph_refs.length(), content="1")
   inspect(
-    next.selected_resource,
+    test_resource_selection_repr(next.selected_resource),
     content="Some(AnimationGraph(\"assets/animation_graphs/hero-graph.graph.json\"))",
   )
   inspect(next.animation_graphs_section_expanded, content="true")
@@ -1278,7 +1326,10 @@ test "animation player typed edits update component fields including negative sp
   )
   inspect(player.start_node, content="Some(\"idle\")")
   inspect(player.repeat_mode, content="count:1")
-  inspect(player.repeat_mode_doc(), content="Count(1)")
+  inspect(
+    test_repeat_mode_doc_repr(player.repeat_mode_doc()),
+    content="Count(1)",
+  )
   inspect(player.speed, content="-1.5")
   inspect(player.autoplay, content="true")
   inspect(committed.undo_stack.length() > 0, content="true")
@@ -1521,7 +1572,7 @@ test "setting drag-canvas tool updates editor state and emits preview sync effec
     msg_set_tool(@shared.preview_tool_drag_canvas()),
     model,
   )
-  inspect(next.active_tool, content="DragCanvas")
+  inspect(test_preview_tool_repr(next.active_tool), content="DragCanvas")
   inspect(effects.length() > 0, content="true")
   inspect(next.status, content="Tool: Drag Canvas")
 }

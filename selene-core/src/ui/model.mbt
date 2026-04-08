@@ -2,7 +2,7 @@
 pub(all) enum UiScaleMode {
   Screen
   Viewport
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 let ui_scale_modes : Map[UInt, UiScaleMode] = Map::new()
@@ -28,7 +28,7 @@ pub(all) enum Val {
   Auto
   Px(Double)
   Percent(Double)
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn Val::px(value : Double) -> Val {
@@ -48,7 +48,7 @@ pub(all) struct UiRectValues {
   bottom : Val
 
   fn new(left? : Val, right? : Val, top? : Val, bottom? : Val) -> UiRectValues
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn UiRectValues::all(value : Double) -> UiRectValues {
@@ -82,7 +82,7 @@ pub(all) struct UiInsets {
   right : Double
   top : Double
   bottom : Double
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn UiInsets::zero() -> UiInsets {
@@ -95,13 +95,13 @@ pub(all) enum Display {
   Flex
   Grid
   None
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum PositionType {
   Relative
   Absolute
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum FlexDirection {
@@ -109,7 +109,7 @@ pub(all) enum FlexDirection {
   RowReverse
   Column
   ColumnReverse
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum JustifyContent {
@@ -122,7 +122,7 @@ pub(all) enum JustifyContent {
   SpaceBetween
   SpaceAround
   SpaceEvenly
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum AlignItems {
@@ -133,7 +133,7 @@ pub(all) enum AlignItems {
   Center
   Baseline
   Stretch
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum AlignContent {
@@ -146,14 +146,14 @@ pub(all) enum AlignContent {
   SpaceBetween
   SpaceAround
   SpaceEvenly
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum FlexWrap {
   NoWrap
   Wrap
   WrapReverse
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum GridAutoFlow {
@@ -161,14 +161,14 @@ pub(all) enum GridAutoFlow {
   Column
   RowDense
   ColumnDense
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum GridPlacement {
   Auto
   Line(Int)
   Span(Int)
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct GridLine {
@@ -176,7 +176,7 @@ pub(all) struct GridLine {
   end : GridPlacement
 
   fn new(start? : GridPlacement, end? : GridPlacement) -> GridLine
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn GridLine::new(
@@ -191,7 +191,7 @@ pub(all) enum GridTrackRepetition {
   Count(Int)
   AutoFill
   AutoFit
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum GridTrack {
@@ -204,7 +204,7 @@ pub(all) enum GridTrack {
   FitContent(GridTrack)
   MinMax(GridTrack, GridTrack)
   Repeat(GridTrackRepetition, Array[GridTrack])
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn align_content_start() -> AlignContent {
@@ -370,20 +370,20 @@ pub(all) enum Overflow {
   Clip
   Hidden
   Scroll
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum OverflowClipBox {
   ContentBox
   PaddingBox
   BorderBox
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct OverflowClipMargin {
   visual_box : OverflowClipBox
   margin : Double
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn OverflowClipMargin::content_box() -> OverflowClipMargin {
@@ -500,7 +500,7 @@ pub(all) struct Node {
     grid_row? : GridLine,
     grid_column? : GridLine,
   ) -> Node
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn Node::new(
@@ -669,7 +669,7 @@ pub(all) struct LayoutConfig {
   use_rounding : Bool
 
   fn new(use_rounding? : Bool) -> LayoutConfig
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn LayoutConfig::new(use_rounding? : Bool = true) -> LayoutConfig {
@@ -681,7 +681,7 @@ pub(all) struct ZIndex {
   value : Int
 
   fn new(value : Int) -> ZIndex
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn ZIndex::new(value : Int) -> ZIndex {
@@ -693,7 +693,7 @@ pub(all) struct GlobalZIndex {
   value : Int
 
   fn new(value : Int) -> GlobalZIndex
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn GlobalZIndex::new(value : Int) -> GlobalZIndex {
@@ -704,7 +704,7 @@ pub fn GlobalZIndex::new(value : Int) -> GlobalZIndex {
 pub(all) struct ScrollPosition {
   mut x : Double
   mut y : Double
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn ScrollPosition::zero() -> ScrollPosition {
@@ -716,7 +716,7 @@ pub(all) struct TabIndex {
   value : Int
 
   fn new(value : Int) -> TabIndex
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn TabIndex::new(value : Int) -> TabIndex {
@@ -727,7 +727,7 @@ pub fn TabIndex::new(value : Int) -> TabIndex {
 pub(all) enum FocusPolicy {
   Block
   Pass
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct Focused {
@@ -758,7 +758,7 @@ pub(all) struct OverrideClip {
   _tag : Unit
 
   fn new() -> OverrideClip
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn OverrideClip::new() -> OverrideClip {
@@ -771,7 +771,7 @@ pub(all) struct RelativeCursorPosition {
   mut cursor_over : Bool
 
   fn new() -> RelativeCursorPosition
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn RelativeCursorPosition::new() -> RelativeCursorPosition {
@@ -934,7 +934,7 @@ fn compare_ui_stacking(lhs : @entity.Entity, rhs : @entity.Entity) -> Int {
   if lt != rt {
     lt - rt
   } else {
-    lhs.to_string().compare(rhs.to_string())
+    lhs.hash().compare(rhs.hash())
   }
 }
 
@@ -950,7 +950,7 @@ fn compare_ui_root_order(lhs : @entity.Entity, rhs : @entity.Entity) -> Int {
   if lz != rz {
     lz - rz
   } else {
-    lhs.to_string().compare(rhs.to_string())
+    lhs.hash().compare(rhs.hash())
   }
 }
 

@@ -2,19 +2,19 @@
 pub struct AtlasAssetEntry {
   path : String
   atlas : @editor_bridge.AtlasAssetDocument
-} derive(Show, Eq)
+} derive(Eq)
 
 ///|
 pub struct AnimationClipAssetEntry {
   path : String
   clip : @editor_bridge.AnimationClipAssetDocument
-} derive(Show, Eq)
+} derive(Eq)
 
 ///|
 pub struct AnimationGraphAssetEntry {
   path : String
   graph : @editor_bridge.AnimationGraphAssetDocument
-} derive(Show, Eq)
+} derive(Eq)
 
 ///|
 pub struct PreviewScenePayload {
@@ -23,7 +23,7 @@ pub struct PreviewScenePayload {
   atlases : Array[AtlasAssetEntry]
   animation_clips : Array[AnimationClipAssetEntry]
   animation_graphs : Array[AnimationGraphAssetEntry]
-} derive(Show, Eq)
+} derive(Eq)
 
 ///|
 pub fn atlas_asset_entry(
@@ -72,7 +72,7 @@ pub enum PreviewEvent {
     scale~ : @editor_bridge.Vec2Doc
   )
   TransformGestureFinished(id~ : String)
-} derive(Show, Eq)
+} derive(Eq)
 
 ///|
 pub enum PreviewCommand {
@@ -86,7 +86,7 @@ pub enum PreviewCommand {
   SetAnimationPreviewSpeed(Double)
   SeekAnimationPreview(Double)
   FrameSelection
-} derive(Show, Eq)
+} derive(Eq)
 
 ///|
 pub fn preview_event_selection_changed(

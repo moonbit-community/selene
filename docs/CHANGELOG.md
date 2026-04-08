@@ -6,6 +6,8 @@
 
 ### Changed
 
+- Changed workspace target preference configuration by removing `preferred-target`/`supported-targets` declarations from module manifests (`selene-webgpu`, `selene-raylib`, `examples`), eliminating mixed-workspace preferred-target ambiguity warnings during release checks/publish.
+
 ### Fixed
 
 ### Removed

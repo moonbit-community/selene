@@ -5,7 +5,7 @@ pub enum ResourceSelection {
   AnimationClip(String)
   AnimationGraph(String)
   Prefab(String)
-} derive(Show, Eq)
+} derive(Eq)
 
 ///|
 pub fn resource_selection_image(path : String) -> ResourceSelection {
@@ -36,7 +36,7 @@ pub fn resource_selection_prefab(path : String) -> ResourceSelection {
 pub struct SceneEditTransaction {
   label : String
   before : @editor_bridge.SceneDocument
-} derive(Show, Eq)
+} derive(Eq)
 
 ///|
 pub struct Model {
@@ -104,7 +104,7 @@ pub struct Model {
   animation_preview_speed : Double
   animation_preview_seek_input : String
   graph_edge_connect_source_node : String?
-} derive(Show, Eq)
+} derive(Eq)
 
 ///|
 pub enum Msg {
@@ -250,7 +250,7 @@ pub enum RpcTarget {
   SceneSaved
   AnimationMigrationSaved
   WorkspaceSaved
-} derive(Show, Eq)
+} derive(Eq)
 
 ///|
 pub enum Effect {
@@ -259,7 +259,7 @@ pub enum Effect {
   SubscribePreviewEvents
   SubscribeKeyboardShortcuts
   Preview(@bridge.PreviewCommand)
-} derive(Show, Eq)
+} derive(Eq)
 
 ///|
 pub fn new_model() -> Model {

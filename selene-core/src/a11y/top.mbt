@@ -242,7 +242,7 @@ fn ui_children(entity : @entity.Entity) -> Array[@entity.Entity] {
       if lz != rz {
         lz - rz
       } else {
-        lhs.to_string().compare(rhs.to_string())
+        lhs.hash().compare(rhs.hash())
       }
     }
   })

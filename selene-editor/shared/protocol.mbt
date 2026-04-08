@@ -3,12 +3,12 @@ pub struct RpcErrorDocument {
   code : String
   message : String
   details : Json
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub struct DirectoryPickResult {
   path : String?
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub struct ProjectStateResponse {
@@ -21,25 +21,25 @@ pub struct ProjectStateResponse {
   animation_graphs : Array[@editor_bridge.AssetRef]
   workspace : @editor_bridge.WorkspaceDocument?
   recent_projects : Array[String]
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub struct SceneBundleAtlasEntry {
   path : String
   atlas : @editor_bridge.AtlasAssetDocument
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub struct SceneBundleAnimationClipEntry {
   path : String
   clip : @editor_bridge.AnimationClipAssetDocument
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub struct SceneBundleAnimationGraphEntry {
   path : String
   graph : @editor_bridge.AnimationGraphAssetDocument
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub struct SceneBundleResponse {
@@ -48,48 +48,48 @@ pub struct SceneBundleResponse {
   atlas_assets : Array[SceneBundleAtlasEntry]
   animation_clip_assets : Array[SceneBundleAnimationClipEntry]
   animation_graph_assets : Array[SceneBundleAnimationGraphEntry]
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub enum SceneLoadOutcome {
   Loaded(SceneBundleResponse)
   MigrationRequired(@editor_bridge.SceneMigrationPreview)
-} derive(Show, Eq)
+} derive(Eq)
 
 ///|
 pub struct SceneListResponse {
   scenes : Array[@editor_bridge.SceneRef]
   startup_scene : String
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub struct AssetsListResponse {
   assets : Array[@editor_bridge.AssetDocument]
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub struct PrefabLoadResponse {
   path : String
   prefab : @editor_bridge.PrefabDocument
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub struct AtlasLoadResponse {
   path : String
   atlas : @editor_bridge.AtlasAssetDocument
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub struct AnimationClipLoadResponse {
   path : String
   clip : @editor_bridge.AnimationClipAssetDocument
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub struct AnimationGraphLoadResponse {
   path : String
   graph : @editor_bridge.AnimationGraphAssetDocument
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub enum RpcRequest {
@@ -120,7 +120,7 @@ pub enum RpcRequest {
     graph~ : @editor_bridge.AnimationGraphAssetDocument
   )
   AnimationMigrate(path~ : String, scene_path~ : String)
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub enum RpcResponse {
@@ -137,19 +137,19 @@ pub enum RpcResponse {
   StartupSceneUpdated(manifest~ : @editor_bridge.ProjectManifest)
   SavedOk
   Error(error~ : RpcErrorDocument)
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub struct RpcRequestEnvelope {
   id : Int
   request : RpcRequest
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub struct RpcResponseEnvelope {
   id : Int
   response : RpcResponse
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub enum EditorEvent {
@@ -164,12 +164,12 @@ pub enum EditorEvent {
   AnimationGraphSaved(path~ : String)
   AnimationMigrated(scene_path~ : String, graph_path~ : String)
   AssetImported(asset~ : @editor_bridge.AssetDocument)
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub struct EventEnvelope {
   event : EditorEvent
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub fn directory_pick_result(path : String?) -> DirectoryPickResult {
@@ -317,7 +317,7 @@ pub enum PreviewTool {
   Translate
   Rotate
   Scale
-} derive(Show, Eq, ToJson, FromJson)
+} derive(Eq, ToJson, FromJson)
 
 ///|
 pub fn preview_tool_select() -> PreviewTool {

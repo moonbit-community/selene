@@ -202,7 +202,7 @@ async test "project.current returns an empty typed state before any project is o
   match response {
     @shared.ProjectState(state~) => {
       inspect(state.root, content="None")
-      inspect(state.manifest, content="None")
+      inspect(state.manifest is None, content="true")
       inspect(state.scenes.length(), content="0")
     }
     _ => fail("expected project state response")
@@ -395,7 +395,13 @@ async test "service typed rpc surface succeeds across current workspace actions"
         @shared.rpc_request_scene_save("scenes/rpc-demo.scene.json", save_scene),
       ),
     )
-    inspect(response_envelope(save_payload).response, content="SavedOk")
+    inspect(
+      match response_envelope(save_payload).response {
+        @shared.SavedOk => true
+        _ => false
+      },
+      content="true",
+    )
 
     let create_scene_payload = service.handle_rpc(
       @shared.rpc_request_envelope(
@@ -434,8 +440,11 @@ async test "service typed rpc surface succeeds across current workspace actions"
       ),
     )
     inspect(
-      response_envelope(workspace_save_payload).response,
-      content="SavedOk",
+      match response_envelope(workspace_save_payload).response {
+        @shared.SavedOk => true
+        _ => false
+      },
+      content="true",
     )
 
     let assets_payload = service.handle_rpc(
@@ -529,7 +538,13 @@ async test "service typed rpc surface succeeds across current workspace actions"
         @shared.rpc_request_scene_delete(created_scene_path),
       ),
     )
-    inspect(response_envelope(delete_payload).response, content="SavedOk")
+    inspect(
+      match response_envelope(delete_payload).response {
+        @shared.SavedOk => true
+        _ => false
+      },
+      content="true",
+    )
 
     let workspace_json = @json.parse(
       @fs.read_file(path_join(root, ".selene-editor/workspace.json")).text(),

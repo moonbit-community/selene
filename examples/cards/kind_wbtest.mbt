@@ -13,11 +13,26 @@
 // limitations under the License.
 
 ///|
+fn hand_rank_signature(rank : HandRank) -> String {
+  match rank {
+    HighCard(v) => "HighCard(\{v})"
+    OnePair(v) => "OnePair(\{v})"
+    TwoPair(high, low) => "TwoPair(\{high}, \{low})"
+    ThreeOfKind(v) => "ThreeOfKind(\{v})"
+    Straight(v) => "Straight(\{v})"
+    Flush(v) => "Flush(\{v})"
+    FullHouse(three, pair) => "FullHouse(\{three}, \{pair})"
+    FourOfKind(v) => "FourOfKind(\{v})"
+    StraightFlush(v) => "StraightFlush(\{v})"
+  }
+}
+
+///|
 /// Test find_best_hand with 1 card (should return HighCard with value 0)
 test "find_best_hand: 1 card" {
   let cards = [Card(A, H)]
   let rank = find_best_hand(cards)
-  inspect(rank, content="HighCard(14)")
+  inspect(hand_rank_signature(rank), content="HighCard(14)")
 }
 
 ///|
@@ -25,7 +40,7 @@ test "find_best_hand: 1 card" {
 test "find_best_hand: 2 cards" {
   let cards = [Card(A, H), Card(K, S)]
   let rank = find_best_hand(cards)
-  inspect(rank, content="HighCard(14)")
+  inspect(hand_rank_signature(rank), content="HighCard(14)")
 }
 
 ///|
@@ -33,7 +48,7 @@ test "find_best_hand: 2 cards" {
 test "find_best_hand: 2 cards one pair" {
   let cards = [Card(A, H), Card(A, S)]
   let rank = find_best_hand(cards)
-  inspect(rank, content="OnePair(14)")
+  inspect(hand_rank_signature(rank), content="OnePair(14)")
 }
 
 ///|
@@ -41,14 +56,14 @@ test "find_best_hand: 2 cards one pair" {
 test "find_best_hand: 3 cards" {
   let cards = [Card(A, H), Card(K, S), Card(Q, D)]
   let rank = find_best_hand(cards)
-  inspect(rank, content="HighCard(14)")
+  inspect(hand_rank_signature(rank), content="HighCard(14)")
 }
 
 ///|
 test "find_best_hand: 3 cards ThreeOfKind" {
   let cards = [Card(K, H), Card(K, S), Card(K, D)]
   let rank = find_best_hand(cards)
-  inspect(rank, content="ThreeOfKind(13)")
+  inspect(hand_rank_signature(rank), content="ThreeOfKind(13)")
 }
 
 ///|
@@ -56,7 +71,7 @@ test "find_best_hand: 3 cards ThreeOfKind" {
 test "find_best_hand: 4 cards" {
   let cards = [Card(A, H), Card(K, S), Card(Q, D), Card(J, C)]
   let rank = find_best_hand(cards)
-  inspect(rank, content="HighCard(14)")
+  inspect(hand_rank_signature(rank), content="HighCard(14)")
 }
 
 ///|
@@ -64,7 +79,7 @@ test "find_best_hand: 4 cards" {
 test "find_best_hand: 5 cards - High Card" {
   let cards = [Card(A, H), Card(K, S), Card(Q, D), Card(J, C), Card(N9, H)]
   let rank = find_best_hand(cards)
-  inspect(rank, content="HighCard(14)")
+  inspect(hand_rank_signature(rank), content="HighCard(14)")
 }
 
 ///|
@@ -72,7 +87,7 @@ test "find_best_hand: 5 cards - High Card" {
 test "find_best_hand: 5 cards - One Pair" {
   let cards = [Card(A, H), Card(A, S), Card(Q, D), Card(J, C), Card(N9, H)]
   let rank = find_best_hand(cards)
-  inspect(rank, content="OnePair(14)")
+  inspect(hand_rank_signature(rank), content="OnePair(14)")
 }
 
 ///|
@@ -80,7 +95,7 @@ test "find_best_hand: 5 cards - One Pair" {
 test "find_best_hand: 5 cards - Two Pair" {
   let cards = [Card(A, H), Card(A, S), Card(K, D), Card(K, C), Card(N9, H)]
   let rank = find_best_hand(cards)
-  inspect(rank, content="TwoPair(14, 13)")
+  inspect(hand_rank_signature(rank), content="TwoPair(14, 13)")
 }
 
 ///|
@@ -88,7 +103,7 @@ test "find_best_hand: 5 cards - Two Pair" {
 test "find_best_hand: 5 cards - Three of a Kind" {
   let cards = [Card(A, H), Card(A, S), Card(A, D), Card(K, C), Card(N9, H)]
   let rank = find_best_hand(cards)
-  inspect(rank, content="ThreeOfKind(14)")
+  inspect(hand_rank_signature(rank), content="ThreeOfKind(14)")
 }
 
 ///|
@@ -96,7 +111,7 @@ test "find_best_hand: 5 cards - Three of a Kind" {
 test "find_best_hand: 5 cards - Straight" {
   let cards = [Card(A, H), Card(N2, S), Card(N3, D), Card(N4, C), Card(N5, H)]
   let rank = find_best_hand(cards)
-  inspect(rank, content="Straight(14)")
+  inspect(hand_rank_signature(rank), content="Straight(14)")
 }
 
 ///|
@@ -104,7 +119,7 @@ test "find_best_hand: 5 cards - Straight" {
 test "find_best_hand: 5 cards - Flush" {
   let cards = [Card(A, H), Card(K, H), Card(Q, H), Card(J, H), Card(N9, H)]
   let rank = find_best_hand(cards)
-  inspect(rank, content="Flush(14)")
+  inspect(hand_rank_signature(rank), content="Flush(14)")
 }
 
 ///|
@@ -112,7 +127,7 @@ test "find_best_hand: 5 cards - Flush" {
 test "find_best_hand: 5 cards - Full House" {
   let cards = [Card(A, H), Card(A, S), Card(A, D), Card(K, C), Card(K, H)]
   let rank = find_best_hand(cards)
-  inspect(rank, content="FullHouse(14, 13)")
+  inspect(hand_rank_signature(rank), content="FullHouse(14, 13)")
 }
 
 ///|
@@ -120,7 +135,7 @@ test "find_best_hand: 5 cards - Full House" {
 test "find_best_hand: 5 cards - Four of a Kind" {
   let cards = [Card(A, H), Card(A, S), Card(A, D), Card(A, C), Card(K, H)]
   let rank = find_best_hand(cards)
-  inspect(rank, content="FourOfKind(14)")
+  inspect(hand_rank_signature(rank), content="FourOfKind(14)")
 }
 
 ///|
@@ -128,7 +143,7 @@ test "find_best_hand: 5 cards - Four of a Kind" {
 test "find_best_hand: 5 cards - Straight Flush" {
   let cards = [Card(N9, H), Card(N8, H), Card(N7, H), Card(N6, H), Card(N5, H)]
   let rank = find_best_hand(cards)
-  inspect(rank, content="StraightFlush(9)")
+  inspect(hand_rank_signature(rank), content="StraightFlush(9)")
 }
 
 ///|
@@ -144,7 +159,7 @@ test "find_best_hand: 6 cards - best hand is Flush" {
     Card(A, S),
   ]
   let rank = find_best_hand(cards)
-  inspect(rank, content="Flush(14)")
+  inspect(hand_rank_signature(rank), content="Flush(14)")
 }
 
 ///|
@@ -159,7 +174,7 @@ test "find_best_hand: 6 cards - Full House" {
     Card(N9, C),
   ]
   let rank = find_best_hand(cards)
-  inspect(rank, content="FullHouse(14, 13)")
+  inspect(hand_rank_signature(rank), content="FullHouse(14, 13)")
 }
 
 ///|
@@ -178,7 +193,7 @@ test "find_best_hand: 7 cards - best hand is Straight" {
     Card(N2, C),
   ]
   let rank = find_best_hand(cards)
-  inspect(rank, content="Straight(14)")
+  inspect(hand_rank_signature(rank), content="Straight(14)")
 }
 
 ///|
@@ -195,7 +210,7 @@ test "find_best_hand: 7 cards - Flush" {
     Card(N7, C),
   ]
   let rank = find_best_hand(cards)
-  inspect(rank, content="Flush(14)") // Royal Flush
+  inspect(hand_rank_signature(rank), content="Flush(14)") // Royal Flush
 }
 
 ///|
@@ -216,7 +231,7 @@ test "find_best_hand: 7 cards - Full House vs Flush" {
   let rank = find_best_hand(cards)
   // Full House base: 500 + 14*3 + 13*2 = 568
   // Flush base: 200 + 14*5 = 270
-  inspect(rank, content="FullHouse(14, 13)")
+  inspect(hand_rank_signature(rank), content="FullHouse(14, 13)")
 }
 
 ///|
@@ -232,7 +247,7 @@ test "find_best_hand: 7 cards - Four of a Kind" {
     Card(J, C),
   ]
   let rank = find_best_hand(cards)
-  inspect(rank, content="FourOfKind(14)")
+  inspect(hand_rank_signature(rank), content="FourOfKind(14)")
 }
 
 ///|
@@ -249,7 +264,7 @@ test "find_best_hand: 7 cards - One Pair with best kicker" {
     Card(N2, C),
   ]
   let rank = find_best_hand(cards)
-  inspect(rank, content="Straight(14)")
+  inspect(hand_rank_signature(rank), content="Straight(14)")
 }
 
 ///|
@@ -266,7 +281,7 @@ test "find_best_hand: 7 cards - Two Pair" {
     Card(N2, C),
   ]
   let rank = find_best_hand(cards)
-  inspect(rank, content="TwoPair(14, 13)")
+  inspect(hand_rank_signature(rank), content="TwoPair(14, 13)")
 }
 
 ///|
@@ -282,5 +297,5 @@ test "find_best_hand: 7 cards - Wheel Straight" {
     Card(Q, C),
   ]
   let rank = find_best_hand(cards)
-  inspect(rank, content="Straight(14)")
+  inspect(hand_rank_signature(rank), content="Straight(14)")
 }

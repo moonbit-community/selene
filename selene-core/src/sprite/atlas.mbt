@@ -7,7 +7,7 @@ pub(all) struct TextureAtlasLayout {
 }
 
 ///|
-pub(all) struct TextureAtlasLayoutHandle(UInt) derive(Eq, Show, Hash)
+pub(all) struct TextureAtlasLayoutHandle(UInt) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) struct TextureAtlas {
@@ -15,7 +15,7 @@ pub(all) struct TextureAtlas {
   mut index : Int
 
   fn new(layout : TextureAtlasLayoutHandle, index? : Int) -> TextureAtlas
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 let texture_atlas_layouts_by_handle : Map[

@@ -19,7 +19,7 @@ pub(all) enum CollisionShape {
   Ball(radius~ : Double, offset~ : @math.Vec2D)
   Polygon(points~ : Array[@math.Vec2D], offset~ : @math.Vec2D)
   Polyline(points~ : Array[@math.Vec2D], offset~ : @math.Vec2D, closed~ : Bool)
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 priv struct ShapeWorldStore {

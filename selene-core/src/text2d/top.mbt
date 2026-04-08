@@ -2,7 +2,7 @@
 pub(all) struct Text2d {
 
   fn new() -> Text2d
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct TextBounds {
@@ -10,7 +10,7 @@ pub(all) struct TextBounds {
   height : Double
 
   fn new(width : Double, height : Double) -> TextBounds
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 priv struct Text2dWorldStore {

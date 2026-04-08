@@ -13,7 +13,7 @@ pub(all) enum LoadState {
   Loading
   Loaded
   Failed(String)
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) enum AssetEventKind {
@@ -22,13 +22,13 @@ pub(all) enum AssetEventKind {
   Removed
   Loaded
   Failed(String)
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct AssetEvent[T] {
   handle : T
   kind : AssetEventKind
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 let next_image_id : Ref[UInt] = Ref::new(0)

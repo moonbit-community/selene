@@ -129,11 +129,15 @@ test "read_accessor_vec3 applies sparse overrides over base data" {
       }),
     }),
   ]
+  let points = read_accessor_vec3(0, buffers, buffer_views, accessors).unwrap()
+  inspect(points.length(), content="2")
   inspect(
-    read_accessor_vec3(0, buffers, buffer_views, accessors),
-    content=(
-      #|Some([{x: 1, y: 1, z: 1}, {x: 9, y: 8, z: 7}])
-    ),
+    points[0].x == 1.0 && points[0].y == 1.0 && points[0].z == 1.0,
+    content="true",
+  )
+  inspect(
+    points[1].x == 9.0 && points[1].y == 8.0 && points[1].z == 7.0,
+    content="true",
   )
 }
 
@@ -151,11 +155,41 @@ test "parse_texture_samplers preserves glTF wrap and filter semantics" {
     #|  ]
     #|}
   let samplers = parse_texture_samplers(scene3d_test_object(sampler_json))
+  inspect(samplers.length(), content="1")
   inspect(
-    samplers,
-    content=(
-      #|[{wrap_u: ClampToEdge, wrap_v: MirroredRepeat, min_filter: Nearest, mag_filter: Nearest, mipmap_filter: Some(Nearest)}]
-    ),
+    match samplers[0].wrap_u {
+      ClampToEdge => true
+      Repeat | MirroredRepeat => false
+    },
+    content="true",
+  )
+  inspect(
+    match samplers[0].wrap_v {
+      MirroredRepeat => true
+      Repeat | ClampToEdge => false
+    },
+    content="true",
+  )
+  inspect(
+    match samplers[0].min_filter {
+      Nearest => true
+      Linear => false
+    },
+    content="true",
+  )
+  inspect(
+    match samplers[0].mag_filter {
+      Nearest => true
+      Linear => false
+    },
+    content="true",
+  )
+  inspect(
+    match samplers[0].mipmap_filter {
+      Some(Nearest) => true
+      Some(Linear) | None => false
+    },
+    content="true",
   )
 }
 
@@ -243,12 +277,24 @@ test "parse_material_asset preserves glTF material factors, bindings, and textur
     @json.parse(material_json),
     texture_sources,
   )
-  inspect(material.alpha_mode, content="Mask")
+  inspect(
+    match material.alpha_mode {
+      Mask => true
+      Opaque | Blend => false
+    },
+    content="true",
+  )
   inspect(material.alpha_cutoff, content="0.33")
   inspect(material.double_sided, content="true")
   inspect(material.unlit, content="true")
-  inspect(material.base_color, content="{r: 25, g: 51, b: 76, a: 0.5}")
-  inspect(material.emissive_color, content="{r: 51, g: 102, b: 153, a: 1}")
+  inspect(
+    material.base_color == { r: 25, g: 51, b: 76, a: 0.5 },
+    content="true",
+  )
+  inspect(
+    material.emissive_color == { r: 51, g: 102, b: 153, a: 1.0 },
+    content="true",
+  )
   inspect(
     material.base_color_texture.unwrap().image == texture_handles[3],
     content="true",

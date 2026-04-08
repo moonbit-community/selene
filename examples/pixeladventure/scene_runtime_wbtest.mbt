@@ -163,9 +163,11 @@ test "editor scene runtime registers gameplay entities through custom components
         @animation.animation_players().get(flag_entity) is Some(_),
         content="true",
       )
+      let expected_world_size = expected_scene_world_size()
       inspect(
-        loaded.world_size.to_string(),
-        content=expected_scene_world_size().to_string(),
+        loaded.world_size[@math.X] == expected_world_size[@math.X] &&
+        loaded.world_size[@math.Y] == expected_world_size[@math.Y],
+        content="true",
       )
       inspect(
         @transform.transforms().get(loaded.player_entity).unwrap().translation.z ==

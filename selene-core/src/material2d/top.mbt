@@ -2,7 +2,7 @@
 pub(all) enum AlphaMode2D {
   Opaque
   Blend
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct ColorMaterial {
@@ -20,19 +20,19 @@ pub(all) struct ColorMaterial {
 }
 
 ///|
-pub(all) struct ColorMaterialHandle(UInt) derive(Eq, Show, Hash)
+pub(all) struct ColorMaterialHandle(UInt) derive(Eq, Debug, Hash)
 
 ///|
 pub(all) enum Material2dHandle {
   Color(ColorMaterialHandle)
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct MeshMaterial2d {
   material : Material2dHandle
 
   fn new(material : Material2dHandle) -> MeshMaterial2d
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 priv struct Material2dWorldStore {

@@ -18,7 +18,7 @@ pub(all) struct Camera {
   order : Int
 
   fn new(is_active? : Bool, order? : Int) -> Camera
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn Camera::new(is_active? : Bool = true, order? : Int = 0) -> Camera {
@@ -34,7 +34,7 @@ pub impl Default for Camera with default() -> Camera {
 pub(all) struct Camera2d {
 
   fn new() -> Camera2d
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn Camera2d::new() -> Camera2d {
@@ -57,7 +57,7 @@ pub(all) struct OrthographicProjection {
     near? : Double,
     far? : Double,
   ) -> OrthographicProjection
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub fn OrthographicProjection::new(

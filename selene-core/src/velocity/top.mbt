@@ -26,7 +26,7 @@
 /// inspect(vel, content="Velocity(Vec2D(5, 3))")
 /// ```
 ///
-pub(all) struct Velocity(@math.Vec2D) derive(Eq, Show)
+pub(all) struct Velocity(@math.Vec2D) derive(Eq, Debug)
 
 ///|
 priv struct VelocityWorldStore {

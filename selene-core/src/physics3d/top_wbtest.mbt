@@ -66,9 +66,14 @@ test "child collider stays relative to its rigid-body ancestor" {
     let collider = physics3d_world().colliders
       .get(collider_handle(child).unwrap())
       .unwrap()
+    let local_translation = @math.vec3_from_rapier(
+      collider.local_position().translation,
+    )
     inspect(
-      @math.vec3_from_rapier(collider.local_position().translation),
-      content="{x: 0, y: 0, z: 2}",
+      local_translation.x == 0.0 &&
+      local_translation.y == 0.0 &&
+      local_translation.z == 2.0,
+      content="true",
     )
     let hit = context()
       .cast_ray(@math.Vec3::new(4.0, 0.0, 5.0), @math.Vec3::new(0.0, 0.0, -1.0))
@@ -952,8 +957,6 @@ test "character controller options are forwarded to rapier controller" {
     rapier_controller.normal_nudge_factor.to_double() < 0.016,
     content="true",
   )
-  inspect(
-    @math.vec3_from_rapier(rapier_controller.up),
-    content="{x: 0, y: 0, z: 1}",
-  )
+  let up = @math.vec3_from_rapier(rapier_controller.up)
+  inspect(up.x == 0.0 && up.y == 0.0 && up.z == 1.0, content="true")
 }

@@ -21,7 +21,7 @@ pub(all) enum PlaybackMode {
   Loop
   Remove
   Despawn
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct PlaybackSettings {
@@ -30,14 +30,14 @@ pub(all) struct PlaybackSettings {
   speed : Double
   paused : Bool
   muted : Bool
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct AudioPlayer {
   source : AudioHandle
 
   fn new(source : AudioHandle) -> AudioPlayer
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 pub(all) struct AudioSink {
@@ -56,7 +56,7 @@ pub(all) struct AudioEvent {
   source : AudioHandle
   settings : PlaybackSettings
   target : @entity.Entity?
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 priv struct AudioWorldStore {
