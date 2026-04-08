@@ -7,8 +7,11 @@
 ### Changed
 
 - Changed workspace target preference configuration by removing `preferred-target`/`supported-targets` declarations from module manifests (`selene-webgpu`, `selene-raylib`, `examples`), eliminating mixed-workspace preferred-target ambiguity warnings during release checks/publish.
+- Changed repository-wide derive usage from deprecated `derive(Show)` to `derive(Debug)`, and adjusted affected editor/core data models to avoid invalid `Debug` derives on `Json`/scene-document-containing types.
 
 ### Fixed
+
+- Fixed Show-bound callsites and tests after the derive migration by replacing `Show`-dependent assertions/stringification (`inspect` on non-`Show` types, `to_string` interpolation on handle/vector-like types) with explicit structural assertions or stable helper formatting.
 
 ### Removed
 
