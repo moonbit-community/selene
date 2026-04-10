@@ -6,6 +6,9 @@
 
 ### Changed
 
+- Changed repository build orchestration to reintroduce a root `justfile` with per-module `update` / `check` / `build` / `test` recipes (without explicit `--target` flags), delegating target selection to each module's `preferred-target`.
+- Changed `just test` to run scoped `selene-core/src/*` test packages only, avoiding accidental workspace-wide test fan-out into unrelated modules (`examples`/editor specs) under mixed preferred-target workspace mode.
+- Changed `selene-editor-specs` module defaults by setting `preferred-target: native` so targetless `moon test/check/build` picks a valid backend for the native-only specs package.
 - Changed workspace target preference defaults to explicit per-module values (`selene-webgpu: js`, `selene-raylib: native`, `selene-editor-service: native`, `examples: js`) to reduce mixed-workspace target ambiguity during root-level builds/checks.
 - Changed repository-wide derive usage from deprecated `derive(Show)` to `derive(Debug)`, and adjusted affected editor/core data models to avoid invalid `Debug` derives on `Json`/scene-document-containing types.
 - Changed Selene editor packaging from one module (`Milky2018/selene_editor`) to three published modules: `Milky2018/selene_editor_shared`, `Milky2018/selene_editor_frontend`, and `Milky2018/selene_editor_service`, with imports and workspace members migrated to the new module layout.
@@ -108,6 +111,7 @@
 
 ### Fixed
 
+- Fixed `examples/pixeladventure` scene-document loading determinism by introducing explicit `DocumentSource` injection for bundle/scene/runtime loading (`*_with_source`), removing path-candidate fallback reads, and aligning wbtests to a single rooted test source.
 - Fixed `selene-editor` viewport black-screen regression after migration dialog transitions by keeping the root view tree stable (`editor-shell` + conditional overlay), preventing `canvas` remount/desync that made scene entities interactive but invisible.
 - Fixed `selene-editor` legacy animation migration UX loop by removing asset-list-driven prompt reactivation; migration dialog visibility is now scene-reference-driven, so clicking `Migrate` no longer reopens the same modal from lingering `.anim.json` files.
 - Fixed `selene/editor_bridge` project-manifest migration for legacy `animation_index` by mapping legacy `.anim.json` refs to v3 graph paths (`assets/animation_graphs/*.graph.json`) instead of copying invalid legacy paths into `animation_graph_index`.

@@ -67,7 +67,9 @@ fn collapse_terrain_rows(rows : Map[Int, Array[Int]]) -> Array[String] {
 ///|
 test "editor scene includes required gameplay markers" {
   with_pixeladventure_test_asset_io(fn() raise {
-    let scene = pixeladventure_startup_scene_document()
+    let scene = pixeladventure_startup_scene_document_with_source(
+      pixeladventure_test_document_source(),
+    )
     inspect(
       scene_component_count_for_compare(
         scene, pixeladventure_player_component_kind,
@@ -107,8 +109,9 @@ test "editor scene runtime registers gameplay entities through custom components
   with_pixeladventure_test_asset_io(fn() raise {
     with_pixeladventure_test_world(fn() raise {
       reset_pixeladventure_world_store()
-      let scene = pixeladventure_startup_scene_document()
-      let loaded = load_level_scene()
+      let source = pixeladventure_test_document_source()
+      let scene = pixeladventure_startup_scene_document_with_source(source)
+      let loaded = load_level_scene_with_source(source)
       inspect(
         players().to_array().length() ==
         scene_component_count_for_compare(

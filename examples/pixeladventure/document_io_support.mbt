@@ -11,19 +11,26 @@ fn read_file_bytes_if_exists(path : String) -> Bytes? {
 }
 
 ///|
-fn pixeladventure_test_asset_reader(path : String) -> Bytes? {
+let pixeladventure_test_project_root : String = "pixeladventure"
+
+///|
+fn pixeladventure_test_document_path(path : String) -> String {
   let normalized = path.replace(old="\\", new="/")
-  let candidates = [
-    normalized,
-    "pixeladventure/" + normalized,
-    "examples/pixeladventure/" + normalized,
-  ]
-  for candidate in candidates {
-    if read_file_bytes_if_exists(candidate) is Some(bytes) {
-      return Some(bytes)
-    }
+  if normalized == "" {
+    pixeladventure_test_project_root
+  } else {
+    pixeladventure_test_project_root + "/" + normalized
   }
-  None
+}
+
+///|
+fn pixeladventure_test_asset_reader(path : String) -> Bytes? {
+  read_file_bytes_if_exists(pixeladventure_test_document_path(path))
+}
+
+///|
+pub fn pixeladventure_test_document_source() -> @editor_bridge.DocumentSource {
+  fn(path : String) { pixeladventure_test_asset_reader(path) }
 }
 
 ///|

@@ -127,7 +127,9 @@ test "pending stomp bounce overrides downward Y velocity" {
 ///|
 test "scene data contains player flag and terrain" {
   with_pixeladventure_test_asset_io(fn() raise {
-    let scene = pixeladventure_startup_scene_document()
+    let scene = pixeladventure_startup_scene_document_with_source(
+      pixeladventure_test_document_source(),
+    )
     inspect(
       test_scene_component_count(scene, pixeladventure_player_component_kind) >
       0,

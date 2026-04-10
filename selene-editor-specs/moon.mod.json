@@ -28,5 +28,6 @@
     "selene",
     "tests"
   ],
-  "description": "BDD and integration specs for Selene Editor modules"
+  "description": "BDD and integration specs for Selene Editor modules",
+  "preferred-target": "native"
 }

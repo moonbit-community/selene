@@ -50,29 +50,19 @@ priv struct LoadedLevelScene {
 }
 
 ///|
-fn pixeladventure_document_candidates(path : String) -> Array[String] {
-  let normalized = path.replace(old="\\", new="/")
-  [normalized, "pixeladventure/" + normalized, "examples/pixeladventure/" + normalized]
-}
-
-///|
-fn pixeladventure_document_source() -> @editor_bridge.DocumentSource {
+fn pixeladventure_runtime_document_source() -> @editor_bridge.DocumentSource {
   fn(path : String) {
-    for candidate in pixeladventure_document_candidates(path) {
-      if @asset.read_bytes(candidate) is Some(bytes) {
-        return Some(bytes)
-      }
-    }
-    None
+    let normalized = path.replace(old="\\", new="/")
+    @asset.read_bytes(normalized)
   }
 }
 
 ///|
-fn load_pixeladventure_project_bundle() -> @editor_bridge.ProjectBundle {
-  @editor_bridge.load_project_bundle(
-    pixeladventure_document_source(),
-    manifest_path=@editor_bridge.project_manifest_file_name(""),
-  ) catch {
+fn load_pixeladventure_project_bundle_with_source(
+  source : @editor_bridge.DocumentSource,
+  manifest_path? : String = @editor_bridge.project_manifest_file_name(""),
+) -> @editor_bridge.ProjectBundle {
+  @editor_bridge.load_project_bundle(source, manifest_path~) catch {
     @editor_bridge.MissingDocument(path) =>
       abort("Missing pixeladventure document: " + path)
     @editor_bridge.InvalidProjectManifest(message) =>
@@ -91,8 +81,18 @@ fn load_pixeladventure_project_bundle() -> @editor_bridge.ProjectBundle {
 }
 
 ///|
+pub fn pixeladventure_startup_scene_document_with_source(
+  source : @editor_bridge.DocumentSource,
+  manifest_path? : String = @editor_bridge.project_manifest_file_name(""),
+) -> @editor_bridge.SceneDocument {
+  load_pixeladventure_project_bundle_with_source(source, manifest_path~).scene
+}
+
+///|
 pub fn pixeladventure_startup_scene_document() -> @editor_bridge.SceneDocument {
-  load_pixeladventure_project_bundle().scene
+  pixeladventure_startup_scene_document_with_source(
+    pixeladventure_runtime_document_source(),
+  )
 }
 
 ///|
@@ -310,8 +310,14 @@ fn build_terrain_colliders_from_scene(
 }
 
 ///|
-fn load_level_scene() -> LoadedLevelScene {
-  let bundle = load_pixeladventure_project_bundle()
+fn load_level_scene_with_source(
+  source : @editor_bridge.DocumentSource,
+  manifest_path? : String = @editor_bridge.project_manifest_file_name(""),
+) -> LoadedLevelScene {
+  let bundle = load_pixeladventure_project_bundle_with_source(
+    source,
+    manifest_path~,
+  )
   let scene = bundle.scene
   let context = @editor_bridge.asset_instantiation_context(
     atlas_assets=bundle.atlas_assets,
@@ -335,4 +341,9 @@ fn load_level_scene() -> LoadedLevelScene {
   let world_size = scene_world_size(scene)
   build_terrain_colliders_from_scene(scene)
   { player_entity, camera_entity, world_size }
+}
+
+///|
+fn load_level_scene() -> LoadedLevelScene {
+  load_level_scene_with_source(pixeladventure_runtime_document_source())
 }
