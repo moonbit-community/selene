@@ -44,6 +44,24 @@ jobs:
           moon check --deny-warn
           moon build
 
+      - name: selene-editor-shared
+        run: |
+          cd selene-editor-shared
+          moon update
+          moon check --target all --deny-warn
+
+      - name: selene-editor-frontend
+        run: |
+          cd selene-editor-frontend
+          moon update
+          moon check --target js --deny-warn
+
+      - name: selene-editor-service
+        run: |
+          cd selene-editor-service
+          moon update
+          moon check --target native --deny-warn
+
       - name: selene-examples
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |

@@ -1,0 +1,11 @@
+import {
+  "Milky2018/selene_editor_service/service/core",
+  "moonbitlang/async",
+  "moonbitlang/core/env",
+}
+
+supported_targets = "native"
+
+options(
+  is_main: true,
+)

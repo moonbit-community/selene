@@ -1,0 +1,9 @@
+import {
+  "Milky2018/selene/editor_bridge",
+  "Milky2018/selene_editor_shared/preview_bridge" @bridge,
+  "Milky2018/selene_editor_shared/shared",
+  "moonbitlang/core/json",
+  "moonbitlang/core/string",
+}
+
+supported_targets = "all"

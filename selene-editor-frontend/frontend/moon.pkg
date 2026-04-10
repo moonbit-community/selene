@@ -1,0 +1,16 @@
+import {
+  "Milky2018/selene/editor_bridge",
+  "Milky2018/selene_editor_frontend/frontend/app",
+  "Milky2018/selene_editor_shared/preview_bridge" @bridge,
+  "Milky2018/selene_editor_frontend/preview",
+  "Milky2018/selene_editor_shared/shared",
+  "moonbit-community/rabbita",
+  "moonbit-community/rabbita/cmd",
+  "moonbit-community/rabbita/dom",
+  "moonbit-community/rabbita/html",
+  "moonbit-community/rabbita/http",
+  "moonbitlang/core/json",
+  "moonbitlang/core/strconv",
+}
+
+supported_targets = "js"

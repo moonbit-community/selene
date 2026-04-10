@@ -7,7 +7,7 @@
 
 ## `publish.py`
 - Release only: `python3 publish.py x.y.z`; it will fail if changelog has no matching version header.
-- Release order is fixed: `selene-core -> selene-webgpu -> selene-raylib -> selene-tools -> selene-editor`, all checks must be warning-free.
+- Release order is fixed: `selene-core -> selene-webgpu -> selene-raylib -> selene-tools -> selene-editor-shared -> selene-editor-frontend -> selene-editor-service`, all checks must be warning-free.
 
 ## `publish_pages.py`
 - Pages: `python3 publish_pages.py` (or `python3 publish_pages.py clean`), with examples release build already in `_build`.

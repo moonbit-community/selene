@@ -1,0 +1,539 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene_editor_frontend/frontend/app"
+
+import {
+  "Milky2018/selene/editor_bridge",
+  "Milky2018/selene_editor_shared/preview_bridge",
+  "Milky2018/selene_editor_shared/shared",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn[T : @json.FromJson] component_of(@editor_bridge.EntityDocument, String) -> T?
+
+pub fn entity_label(@editor_bridge.EntityDocument) -> String
+
+pub fn msg_add_builtin_component(@editor_bridge.BuiltinComponentKind) -> Msg
+
+pub fn msg_add_custom_component(String) -> Msg
+
+pub fn msg_add_selected_animation_graph_additive_blend_node() -> Msg
+
+pub fn msg_add_selected_animation_graph_blend_node() -> Msg
+
+pub fn msg_add_selected_animation_graph_clip_node() -> Msg
+
+pub fn msg_add_selected_animation_graph_edge(String) -> Msg
+
+pub fn msg_add_sprite_entity() -> Msg
+
+pub fn msg_add_sprite_from_asset(String) -> Msg
+
+pub fn msg_add_sprite_from_asset_at(String, @editor_bridge.Vec2Doc) -> Msg
+
+pub fn msg_add_text_entity() -> Msg
+
+pub fn msg_adjust_move_snap_step(Int) -> Msg
+
+pub fn msg_animation_clip_loaded(Result[@shared.AnimationClipLoadResponse, String]) -> Msg
+
+pub fn msg_animation_graph_loaded(Result[@shared.AnimationGraphLoadResponse, String]) -> Msg
+
+pub fn msg_animation_migration_saved(Result[Unit, String]) -> Msg
+
+pub fn msg_apply_animation_preview_seek() -> Msg
+
+pub fn msg_asset_image_load_failed(String) -> Msg
+
+pub fn msg_asset_size_resolved(String, Double, Double) -> Msg
+
+pub fn msg_assets_loaded(Result[@shared.AssetsListResponse, String]) -> Msg
+
+pub fn msg_atlas_loaded(Result[@shared.AtlasLoadResponse, String]) -> Msg
+
+pub fn msg_begin_selected_animation_graph_edge_connect(String) -> Msg
+
+pub fn msg_cancel_animation_migration() -> Msg
+
+pub fn msg_cancel_scene_migration() -> Msg
+
+pub fn msg_cancel_selected_animation_graph_edge_connect() -> Msg
+
+pub fn msg_clear_selection() -> Msg
+
+pub fn msg_close_add_component_panel() -> Msg
+
+pub fn msg_collapse_all_asset_folders() -> Msg
+
+pub fn msg_commit_custom_component_json(String) -> Msg
+
+pub fn msg_commit_scene_edit_transaction() -> Msg
+
+pub fn msg_complete_selected_animation_graph_edge_connect(String) -> Msg
+
+pub fn msg_confirm_animation_migration() -> Msg
+
+pub fn msg_confirm_scene_migration() -> Msg
+
+pub fn msg_create_animation_from_selected_atlas() -> Msg
+
+pub fn msg_create_animation_graph_from_selected_clip() -> Msg
+
+pub fn msg_create_atlas_from_selected_image() -> Msg
+
+pub fn msg_create_scene(String) -> Msg
+
+pub fn msg_delete_current_scene() -> Msg
+
+pub fn msg_delete_selected() -> Msg
+
+pub fn msg_expand_all_asset_folders() -> Msg
+
+pub fn msg_frame_selection() -> Msg
+
+pub fn msg_initialize() -> Msg
+
+pub fn msg_insert_selected_resource() -> Msg
+
+pub fn msg_move_selected_animation_graph_node(String, Double, Double) -> Msg
+
+pub fn msg_move_selected_resource(Int) -> Msg
+
+pub fn msg_open_add_component_panel() -> Msg
+
+pub fn msg_open_project() -> Msg
+
+pub fn msg_open_scene(String) -> Msg
+
+pub fn msg_pick_project_root() -> Msg
+
+pub fn msg_prefab_loaded(Result[@shared.PrefabLoadResponse, String]) -> Msg
+
+pub fn msg_preview_event(@preview_bridge.PreviewEvent) -> Msg
+
+pub fn msg_project_loaded(Result[@shared.ProjectStateResponse, String]) -> Msg
+
+pub fn msg_project_root_picked(Result[@shared.DirectoryPickResult, String]) -> Msg
+
+pub fn msg_redo_scene() -> Msg
+
+pub fn msg_reload_scene() -> Msg
+
+pub fn msg_remove_component(String) -> Msg
+
+pub fn msg_remove_selected_animation_graph_edge(String, Int) -> Msg
+
+pub fn msg_remove_selected_animation_graph_node(String) -> Msg
+
+pub fn msg_rename_current_scene(String) -> Msg
+
+pub fn msg_rename_selected(String) -> Msg
+
+pub fn msg_save_scene() -> Msg
+
+pub fn msg_save_selected_animation_clip() -> Msg
+
+pub fn msg_save_selected_animation_graph() -> Msg
+
+pub fn msg_save_selected_as_prefab() -> Msg
+
+pub fn msg_save_selected_atlas() -> Msg
+
+pub fn msg_save_selected_prefab() -> Msg
+
+pub fn msg_scene_list_loaded(Result[@shared.SceneListResponse, String]) -> Msg
+
+pub fn msg_scene_loaded(Result[@shared.SceneLoadOutcome, String]) -> Msg
+
+pub fn msg_scene_saved(Result[Unit, String]) -> Msg
+
+pub fn msg_select_entity(String?) -> Msg
+
+pub fn msg_select_resource(ResourceSelection?) -> Msg
+
+pub fn msg_service_event(Result[@shared.EditorEvent, String]) -> Msg
+
+pub fn msg_set_asset_query(String) -> Msg
+
+pub fn msg_set_component_search_query(String) -> Msg
+
+pub fn msg_set_current_scene_as_startup() -> Msg
+
+pub fn msg_set_hover_hint(String?) -> Msg
+
+pub fn msg_set_project_name_input(String) -> Msg
+
+pub fn msg_set_project_root_input(String) -> Msg
+
+pub fn msg_set_tool(@shared.PreviewTool) -> Msg
+
+pub fn msg_toggle_animation_clips_section() -> Msg
+
+pub fn msg_toggle_animation_graphs_section() -> Msg
+
+pub fn msg_toggle_animation_preview_paused() -> Msg
+
+pub fn msg_toggle_asset_tree_folder(String) -> Msg
+
+pub fn msg_toggle_atlases_section() -> Msg
+
+pub fn msg_toggle_component_collapsed(String) -> Msg
+
+pub fn msg_toggle_component_menu(String?) -> Msg
+
+pub fn msg_toggle_images_section() -> Msg
+
+pub fn msg_toggle_move_snap() -> Msg
+
+pub fn msg_toggle_prefabs_section() -> Msg
+
+pub fn msg_toggle_selected_animation_clip_looping() -> Msg
+
+pub fn msg_toggle_selected_animation_player_autoplay() -> Msg
+
+pub fn msg_toggle_selected_visibility() -> Msg
+
+pub fn msg_undo_scene() -> Msg
+
+pub fn msg_update_add_custom_component_kind(String) -> Msg
+
+pub fn msg_update_animation_preview_seek_input(String) -> Msg
+
+pub fn msg_update_animation_preview_speed(String) -> Msg
+
+pub fn msg_update_custom_component_json(String, String) -> Msg
+
+pub fn msg_update_selected_animation_clip_asset_name(String) -> Msg
+
+pub fn msg_update_selected_animation_clip_fps(String) -> Msg
+
+pub fn msg_update_selected_animation_clip_frames(String) -> Msg
+
+pub fn msg_update_selected_animation_clip_name(String) -> Msg
+
+pub fn msg_update_selected_animation_graph_asset_name(String) -> Msg
+
+pub fn msg_update_selected_animation_graph_default_node(String) -> Msg
+
+pub fn msg_update_selected_animation_graph_edge_target(String, Int, String) -> Msg
+
+pub fn msg_update_selected_animation_graph_edge_weight(String, Int, String) -> Msg
+
+pub fn msg_update_selected_animation_graph_node_clip_path(String, String) -> Msg
+
+pub fn msg_update_selected_animation_player_graph_path(String) -> Msg
+
+pub fn msg_update_selected_animation_player_repeat_mode(String) -> Msg
+
+pub fn msg_update_selected_animation_player_speed(String) -> Msg
+
+pub fn msg_update_selected_animation_player_start_node(String) -> Msg
+
+pub fn msg_update_selected_animation_transitions_duration(String) -> Msg
+
+pub fn msg_update_selected_atlas_anchor_x(String) -> Msg
+
+pub fn msg_update_selected_atlas_anchor_y(String) -> Msg
+
+pub fn msg_update_selected_atlas_columns(String) -> Msg
+
+pub fn msg_update_selected_atlas_margin_x(String) -> Msg
+
+pub fn msg_update_selected_atlas_margin_y(String) -> Msg
+
+pub fn msg_update_selected_atlas_name(String) -> Msg
+
+pub fn msg_update_selected_atlas_rows(String) -> Msg
+
+pub fn msg_update_selected_atlas_spacing_x(String) -> Msg
+
+pub fn msg_update_selected_atlas_spacing_y(String) -> Msg
+
+pub fn msg_update_selected_atlas_tile_height(String) -> Msg
+
+pub fn msg_update_selected_atlas_tile_width(String) -> Msg
+
+pub fn msg_update_selected_prefab_name(String) -> Msg
+
+pub fn msg_update_selected_rotation(String) -> Msg
+
+pub fn msg_update_selected_text(String) -> Msg
+
+pub fn msg_update_selected_translate_x(String) -> Msg
+
+pub fn msg_update_selected_translate_y(String) -> Msg
+
+pub fn msg_workspace_saved(Result[Unit, String]) -> Msg
+
+pub fn new_model() -> Model
+
+pub fn resource_selection_animation_clip(String) -> ResourceSelection
+
+pub fn resource_selection_animation_graph(String) -> ResourceSelection
+
+pub fn resource_selection_atlas(String) -> ResourceSelection
+
+pub fn resource_selection_image(String) -> ResourceSelection
+
+pub fn resource_selection_prefab(String) -> ResourceSelection
+
+pub fn tool_label(@shared.PreviewTool) -> String
+
+pub fn update(Msg, Model) -> (Array[Effect], Model)
+
+// Errors
+
+// Types and methods
+pub enum Effect {
+  Rpc(target~ : RpcTarget, request~ : @shared.RpcRequestEnvelope)
+  SubscribeServiceEvents
+  SubscribePreviewEvents
+  SubscribeKeyboardShortcuts
+  Preview(@preview_bridge.PreviewCommand)
+} derive(Eq)
+
+pub struct Model {
+  project_root_input : String
+  project_name_input : String
+  current_root : String?
+  manifest : @editor_bridge.ProjectManifest?
+  scene_refs : Array[@editor_bridge.SceneRef]
+  prefab_refs : Array[@editor_bridge.PrefabRef]
+  atlas_refs : Array[@editor_bridge.AssetRef]
+  animation_clip_refs : Array[@editor_bridge.AssetRef]
+  animation_graph_refs : Array[@editor_bridge.AssetRef]
+  scene_path : String
+  scene : @editor_bridge.SceneDocument?
+  assets : Array[@editor_bridge.AssetDocument]
+  asset_sizes : Map[String, @editor_bridge.Vec2Doc]
+  asset_query : String
+  failed_image_assets : Map[String, Bool]
+  prefab_documents : Map[String, @editor_bridge.PrefabDocument]
+  atlas_documents : Map[String, @editor_bridge.AtlasAssetDocument]
+  animation_clip_documents : Map[String, @editor_bridge.AnimationClipAssetDocument]
+  animation_graph_documents : Map[String, @editor_bridge.AnimationGraphAssetDocument]
+  workspace : @editor_bridge.WorkspaceDocument
+  selected_resource : ResourceSelection?
+  selected_entity_id : String?
+  selected_entity_ids : Array[String]
+  add_component_panel_open : Bool
+  component_search_query : String
+  open_component_menu_kind : String?
+  collapsed_component_cards : Map[String, Bool]
+  add_custom_component_kind : String
+  custom_component_json_drafts : Map[String, String]
+  custom_component_json_errors : Map[String, String]
+  pending_scene_migration : @editor_bridge.SceneMigrationPreview?
+  pending_animation_migration_paths : Array[String]
+  pending_animation_migration_scene_path : String?
+  animation_migration_in_progress : Bool
+  animation_migration_total : Int
+  animation_migration_completed : Int
+  animation_migration_failed : Int
+  animation_migration_prompt_dismissed : Bool
+  undo_stack : Array[@editor_bridge.SceneDocument]
+  redo_stack : Array[@editor_bridge.SceneDocument]
+  active_scene_edit_transaction : SceneEditTransaction?
+  hover_hint : String?
+  asset_tree_expanded : Map[String, Bool]
+  images_section_expanded : Bool
+  atlases_section_expanded : Bool
+  animation_clips_section_expanded : Bool
+  animation_graphs_section_expanded : Bool
+  prefabs_section_expanded : Bool
+  recent_projects : Array[String]
+  logs : Array[String]
+  status : String
+  active_tool : @shared.PreviewTool
+  move_snap_enabled : Bool
+  move_snap_step : Double
+  animation_preview_paused : Bool
+  animation_preview_speed : Double
+  animation_preview_seek_input : String
+  graph_edge_connect_source_node : String?
+} derive(Eq)
+pub fn Model::asset_matches_query(Self, String, String) -> Bool
+pub fn Model::asset_query_normalized(Self) -> String
+pub fn Model::asset_size(Self, String) -> @editor_bridge.Vec2Doc?
+pub fn Model::asset_tree_folder_expanded(Self, String) -> Bool
+pub fn Model::builtin_component_matches_query(Self, @editor_bridge.BuiltinComponentKind) -> Bool
+pub fn Model::can_redo(Self) -> Bool
+pub fn Model::can_undo(Self) -> Bool
+pub fn Model::component_card_collapsed(Self, String, String) -> Bool
+pub fn Model::component_menu_is_open(Self, String) -> Bool
+pub fn Model::component_search_query_normalized(Self) -> String
+pub fn Model::custom_component_json_draft(Self, String, String, Json) -> String
+pub fn Model::custom_component_json_error(Self, String, String) -> String?
+pub fn Model::has_entity_selection(Self) -> Bool
+pub fn Model::image_assets(Self) -> Array[@editor_bridge.AssetDocument]
+pub fn Model::selected_animation_clip_document(Self) -> (String, @editor_bridge.AnimationClipAssetDocument)?
+pub fn Model::selected_animation_graph_document(Self) -> (String, @editor_bridge.AnimationGraphAssetDocument)?
+pub fn Model::selected_atlas_document(Self) -> (String, @editor_bridge.AtlasAssetDocument)?
+pub fn Model::selected_component_remove_block_reason(Self, String) -> String?
+pub fn Model::selected_entity(Self) -> @editor_bridge.EntityDocument?
+pub fn Model::selected_entity_count(Self) -> Int
+pub fn Model::selected_image_asset(Self) -> @editor_bridge.AssetDocument?
+pub fn Model::selected_prefab_document(Self) -> (String, @editor_bridge.PrefabDocument)?
+pub fn Model::selected_resource_path(Self) -> String?
+
+pub enum Msg {
+  Initialize
+  SetProjectRootInput(String)
+  SetProjectNameInput(String)
+  PickProjectRoot
+  OpenProject
+  ProjectRootPicked(Result[@shared.DirectoryPickResult, String])
+  ProjectLoaded(Result[@shared.ProjectStateResponse, String])
+  SceneLoaded(Result[@shared.SceneLoadOutcome, String])
+  ConfirmSceneMigration
+  CancelSceneMigration
+  ConfirmAnimationMigration
+  CancelAnimationMigration
+  SceneListLoaded(Result[@shared.SceneListResponse, String])
+  AssetsLoaded(Result[@shared.AssetsListResponse, String])
+  PrefabLoaded(Result[@shared.PrefabLoadResponse, String])
+  AtlasLoaded(Result[@shared.AtlasLoadResponse, String])
+  AnimationClipLoaded(Result[@shared.AnimationClipLoadResponse, String])
+  AnimationGraphLoaded(Result[@shared.AnimationGraphLoadResponse, String])
+  AssetSizeResolved(String, Double, Double)
+  AssetImageLoadFailed(String)
+  SetAssetQuery(String)
+  SceneSaved(Result[Unit, String])
+  AnimationMigrationSaved(Result[Unit, String])
+  WorkspaceSaved(Result[Unit, String])
+  ServiceEvent(Result[@shared.EditorEvent, String])
+  PreviewEvent(@preview_bridge.PreviewEvent)
+  SetHoverHint(String?)
+  ToggleAssetTreeFolder(String)
+  ExpandAllAssetFolders
+  CollapseAllAssetFolders
+  ToggleImagesSection
+  ToggleAtlasesSection
+  ToggleAnimationClipsSection
+  ToggleAnimationGraphsSection
+  TogglePrefabsSection
+  ToggleMoveSnap
+  AdjustMoveSnapStep(Int)
+  CommitSceneEditTransaction
+  UndoScene
+  RedoScene
+  ClearSelection
+  OpenScene(String)
+  SelectResource(ResourceSelection?)
+  SelectEntity(String?)
+  CreateScene(String)
+  DeleteCurrentScene
+  SetCurrentSceneAsStartup
+  RenameCurrentScene(String)
+  CreateAtlasFromSelectedImage
+  CreateAnimationFromSelectedAtlas
+  CreateAnimationGraphFromSelectedClip
+  SaveSelectedAsPrefab
+  InsertSelectedResource
+  MoveSelectedResource(Int)
+  OpenAddComponentPanel
+  CloseAddComponentPanel
+  SetComponentSearchQuery(String)
+  ToggleComponentCollapsed(String)
+  ToggleComponentMenu(String?)
+  AddBuiltinComponent(@editor_bridge.BuiltinComponentKind)
+  RemoveComponent(String)
+  UpdateAddCustomComponentKind(String)
+  AddCustomComponent(String)
+  UpdateCustomComponentJson(String, String)
+  CommitCustomComponentJson(String)
+  UpdateSelectedPrefabName(String)
+  SaveSelectedPrefab
+  UpdateSelectedAtlasName(String)
+  UpdateSelectedAtlasTileWidth(String)
+  UpdateSelectedAtlasTileHeight(String)
+  UpdateSelectedAtlasColumns(String)
+  UpdateSelectedAtlasRows(String)
+  UpdateSelectedAtlasSpacingX(String)
+  UpdateSelectedAtlasSpacingY(String)
+  UpdateSelectedAtlasMarginX(String)
+  UpdateSelectedAtlasMarginY(String)
+  UpdateSelectedAtlasAnchorX(String)
+  UpdateSelectedAtlasAnchorY(String)
+  SaveSelectedAtlas
+  UpdateSelectedAnimationClipAssetName(String)
+  UpdateSelectedAnimationGraphAssetName(String)
+  UpdateSelectedAnimationGraphDefaultNode(String)
+  UpdateSelectedAnimationClipName(String)
+  UpdateSelectedAnimationClipFps(String)
+  ToggleSelectedAnimationClipLooping
+  UpdateSelectedAnimationClipFrames(String)
+  AddSelectedAnimationGraphClipNode
+  AddSelectedAnimationGraphBlendNode
+  AddSelectedAnimationGraphAdditiveBlendNode
+  RemoveSelectedAnimationGraphNode(String)
+  UpdateSelectedAnimationGraphNodeClipPath(String, String)
+  AddSelectedAnimationGraphEdge(String)
+  RemoveSelectedAnimationGraphEdge(String, Int)
+  UpdateSelectedAnimationGraphEdgeTarget(String, Int, String)
+  UpdateSelectedAnimationGraphEdgeWeight(String, Int, String)
+  BeginSelectedAnimationGraphEdgeConnect(String)
+  CompleteSelectedAnimationGraphEdgeConnect(String)
+  CancelSelectedAnimationGraphEdgeConnect
+  MoveSelectedAnimationGraphNode(String, Double, Double)
+  ToggleAnimationPreviewPaused
+  UpdateAnimationPreviewSpeed(String)
+  UpdateAnimationPreviewSeekInput(String)
+  ApplyAnimationPreviewSeek
+  SaveSelectedAnimationClip
+  SaveSelectedAnimationGraph
+  RenameSelected(String)
+  UpdateSelectedTranslateX(String)
+  UpdateSelectedTranslateY(String)
+  UpdateSelectedRotation(String)
+  UpdateSelectedText(String)
+  ToggleSelectedVisibility
+  UpdateSelectedAnimationPlayerGraphPath(String)
+  UpdateSelectedAnimationPlayerStartNode(String)
+  ToggleSelectedAnimationPlayerAutoplay
+  UpdateSelectedAnimationPlayerRepeatMode(String)
+  UpdateSelectedAnimationPlayerSpeed(String)
+  UpdateSelectedAnimationTransitionsDuration(String)
+  SaveScene
+  ReloadScene
+  AddSpriteEntity
+  AddSpriteFromAsset(String)
+  AddSpriteFromAssetAt(String, @editor_bridge.Vec2Doc)
+  AddTextEntity
+  DeleteSelected
+  SetTool(@shared.PreviewTool)
+  FrameSelection
+}
+
+pub enum ResourceSelection {
+  Image(String)
+  Atlas(String)
+  AnimationClip(String)
+  AnimationGraph(String)
+  Prefab(String)
+} derive(Eq)
+
+pub enum RpcTarget {
+  ProjectLoaded
+  ProjectRootPicked
+  SceneLoaded
+  SceneListLoaded
+  AssetsLoaded
+  PrefabLoaded
+  AtlasLoaded
+  AnimationClipLoaded
+  AnimationGraphLoaded
+  SceneSaved
+  AnimationMigrationSaved
+  WorkspaceSaved
+} derive(Eq)
+
+pub struct SceneEditTransaction {
+  label : String
+  before : @editor_bridge.SceneDocument
+} derive(Eq)
+
+// Type aliases
+
+// Traits
+

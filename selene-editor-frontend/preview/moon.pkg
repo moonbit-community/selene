@@ -1,0 +1,21 @@
+import {
+  "Milky2018/selene/animation",
+  "Milky2018/selene/editor_bridge",
+  "Milky2018/selene_editor_shared/preview_bridge" @bridge,
+  "moonbitlang/core/math" @cmath,
+  "Milky2018/selene/app",
+  "Milky2018/selene/camera",
+  "Milky2018/selene/ecs",
+  "Milky2018/selene/entity",
+  "Milky2018/selene/inputs",
+  "Milky2018/selene/math",
+  "Milky2018/selene/plugins",
+  "Milky2018/selene/render",
+  "Milky2018/selene/sprite",
+  "Milky2018/selene/system",
+  "Milky2018/selene/transform",
+  "Milky2018/selene/visibility",
+  "Milky2018/selene_editor_shared/shared",
+}
+
+supported_targets = "js"

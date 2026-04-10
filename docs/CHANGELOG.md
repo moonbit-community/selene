@@ -8,12 +8,18 @@
 
 - Changed workspace target preference configuration by removing `preferred-target`/`supported-targets` declarations from module manifests (`selene-webgpu`, `selene-raylib`, `examples`), eliminating mixed-workspace preferred-target ambiguity warnings during release checks/publish.
 - Changed repository-wide derive usage from deprecated `derive(Show)` to `derive(Debug)`, and adjusted affected editor/core data models to avoid invalid `Debug` derives on `Json`/scene-document-containing types.
+- Changed Selene editor packaging from one module (`Milky2018/selene_editor`) to three published modules: `Milky2018/selene_editor_shared`, `Milky2018/selene_editor_frontend`, and `Milky2018/selene_editor_service`, with imports and workspace members migrated to the new module layout.
+- Changed editor shared preview contract package path from `Milky2018/selene_editor_shared/preview/bridge` to `Milky2018/selene_editor_shared/preview_bridge`, and aligned all frontend/spec imports plus publish quality-check paths.
+- Changed editor source workflow to remove `justfile` entrypoints and use explicit Moon commands (`build frontend bundle` -> `copy public/editor.js` -> `run native service`) across module READMEs and service startup guidance.
+- Changed release pipeline module order and publish script wiring to include the new editor modules after `selene-tools` (`editor-shared -> editor-frontend -> editor-service`), including internal-dependency version rewrites and per-module quality checks.
 
 ### Fixed
 
 - Fixed Show-bound callsites and tests after the derive migration by replacing `Show`-dependent assertions/stringification (`inspect` on non-`Show` types, `to_string` interpolation on handle/vector-like types) with explicit structural assertions or stable helper formatting.
 
 ### Removed
+
+- Removed the legacy `selene-editor/` module directory and package surface (`Milky2018/selene_editor`) with no compatibility layer.
 
 ## [0.30.5] - 2026-04-07
 

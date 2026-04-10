@@ -1,0 +1,42 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene_editor_frontend/preview"
+
+import {
+  "Milky2018/selene/editor_bridge",
+  "Milky2018/selene_editor_shared/preview_bridge",
+  "Milky2018/selene_editor_shared/shared",
+}
+
+// Values
+pub fn bootstrap() -> Unit
+
+pub fn clear_scene() -> Unit
+
+pub fn frame_selection() -> Unit
+
+pub fn load_scene(@preview_bridge.PreviewScenePayload) -> Unit
+
+pub fn seek_animation_preview(Double) -> Unit
+
+pub fn set_animation_preview_paused(Bool) -> Unit
+
+pub fn set_animation_preview_speed(Double) -> Unit
+
+pub fn set_event_sink(((@preview_bridge.PreviewEvent) -> Unit)?) -> Unit
+
+pub fn set_move_snap(Bool, Double) -> Unit
+
+pub fn set_selection(String?, Array[String]) -> Unit
+
+pub fn set_tool(@shared.PreviewTool) -> Unit
+
+pub fn viewport_to_world(Double, Double, Double, Double) -> @editor_bridge.Vec2Doc?
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

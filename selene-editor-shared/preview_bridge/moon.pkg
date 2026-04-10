@@ -1,0 +1,6 @@
+import {
+  "Milky2018/selene/editor_bridge",
+  "Milky2018/selene_editor_shared/shared",
+}
+
+supported_targets = "all"

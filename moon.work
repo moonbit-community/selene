@@ -3,6 +3,9 @@ members = [
   "./selene-webgpu",
   "./selene-raylib",
   "./selene-tools",
-  "./selene-editor",
+  "./selene-editor-shared",
+  "./selene-editor-frontend",
+  "./selene-editor-service",
+  "./selene-editor-specs",
   "./examples",
 ]
