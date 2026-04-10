@@ -17,5 +17,5 @@
   ],
   "description": "Native raylib backend for Selene.",
   "source": "src",
-  "preferred-target": "js"
+  "preferred-target": "native"
 }

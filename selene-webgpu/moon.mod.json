@@ -17,5 +17,6 @@
     "Game Engine"
   ],
   "description": "Default backend for Selene game engine.",
-  "source": "src"
+  "source": "src",
+  "preferred-target": "js"
 }

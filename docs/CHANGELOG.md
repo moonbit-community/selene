@@ -6,7 +6,7 @@
 
 ### Changed
 
-- Changed workspace target preference configuration by removing `preferred-target`/`supported-targets` declarations from module manifests (`selene-webgpu`, `selene-raylib`, `examples`), eliminating mixed-workspace preferred-target ambiguity warnings during release checks/publish.
+- Changed workspace target preference defaults to explicit per-module values (`selene-webgpu: js`, `selene-raylib: native`, `selene-editor-service: native`, `examples: js`) to reduce mixed-workspace target ambiguity during root-level builds/checks.
 - Changed repository-wide derive usage from deprecated `derive(Show)` to `derive(Debug)`, and adjusted affected editor/core data models to avoid invalid `Debug` derives on `Json`/scene-document-containing types.
 - Changed Selene editor packaging from one module (`Milky2018/selene_editor`) to three published modules: `Milky2018/selene_editor_shared`, `Milky2018/selene_editor_frontend`, and `Milky2018/selene_editor_service`, with imports and workspace members migrated to the new module layout.
 - Changed editor shared preview contract package path from `Milky2018/selene_editor_shared/preview/bridge` to `Milky2018/selene_editor_shared/preview_bridge`, and aligned all frontend/spec imports plus publish quality-check paths.

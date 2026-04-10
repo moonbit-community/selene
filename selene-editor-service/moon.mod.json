@@ -20,5 +20,6 @@
     "selene",
     "service"
   ],
-  "description": "Native local daemon for Selene Editor"
+  "description": "Native local daemon for Selene Editor",
+  "preferred-target": "native"
 }
