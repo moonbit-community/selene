@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).parent
 PAGE_DIR = ROOT_DIR / "page"
 EXAMPLES_DIR = ROOT_DIR / "examples"
-BUILD_DIR = EXAMPLES_DIR / "_build" / "js" / "release" / "build"
+BUILD_DIR = ROOT_DIR / "_build" / "js" / "release" / "build"
 
 SCRIPT_SRC_RE = re.compile(
     r'<script[^>]+src=["\']([^"\']+\.js)["\']',
@@ -91,7 +91,7 @@ def ensure_web_release_built(games: list[str]):
     """Ensure release JS artifacts exist before publishing pages."""
     missing: list[str] = []
     for game in games:
-        js_path = BUILD_DIR / game / "web" / "web.js"
+        js_path = BUILD_DIR / "Milky2018" / "selene-examples" / game / "web" / "web.js"
         if not js_path.exists():
             missing.append(f"- {game}: {js_path.relative_to(ROOT_DIR)}")
 
@@ -281,8 +281,8 @@ def copy_compiled_javascript(game_name: str, index_html: Path, game_page_dir: Pa
 
     fallback_sources = [
         (
-            BUILD_DIR / game_name / "web" / "web.js",
-            PAGE_DIR / "examples" / "_build" / "js" / "release" / "build" / game_name / "web" / "web.js",
+            BUILD_DIR / "Milky2018" / "selene-examples" / game_name / "web" / "web.js",
+            PAGE_DIR / "_build" / "js" / "release" / "build" / "Milky2018" / "selene-examples" / game_name / "web" / "web.js",
         ),
     ]
 

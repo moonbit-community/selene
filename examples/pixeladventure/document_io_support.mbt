@@ -13,7 +13,11 @@ fn read_file_bytes_if_exists(path : String) -> Bytes? {
 ///|
 fn pixeladventure_test_asset_reader(path : String) -> Bytes? {
   let normalized = path.replace(old="\\", new="/")
-  let candidates = [normalized, "pixeladventure/" + normalized]
+  let candidates = [
+    normalized,
+    "pixeladventure/" + normalized,
+    "examples/pixeladventure/" + normalized,
+  ]
   for candidate in candidates {
     if read_file_bytes_if_exists(candidate) is Some(bytes) {
       return Some(bytes)

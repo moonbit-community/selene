@@ -50,12 +50,20 @@ priv struct LoadedLevelScene {
 }
 
 ///|
+fn pixeladventure_document_candidates(path : String) -> Array[String] {
+  let normalized = path.replace(old="\\", new="/")
+  [normalized, "pixeladventure/" + normalized, "examples/pixeladventure/" + normalized]
+}
+
+///|
 fn pixeladventure_document_source() -> @editor_bridge.DocumentSource {
   fn(path : String) {
-    match @asset.read_bytes(path) {
-      Some(bytes) => Some(bytes)
-      None => @asset.read_bytes("pixeladventure/" + path)
+    for candidate in pixeladventure_document_candidates(path) {
+      if @asset.read_bytes(candidate) is Some(bytes) {
+        return Some(bytes)
+      }
     }
+    None
   }
 }
 
