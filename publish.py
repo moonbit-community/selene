@@ -17,7 +17,6 @@ CHANGELOG_REL_PATH = Path("docs/CHANGELOG.md")
 CHANGELOG_PATH = ROOT_DIR / CHANGELOG_REL_PATH
 
 VERSION_RE = re.compile(r"^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$")
-
 INTERNAL_MODULES = {
     "Milky2018/selene",
     "Milky2018/selene_webgpu",
@@ -109,6 +108,17 @@ def run_cmd(cmd: list[str], cwd: Path, *, fail_on_warning: bool = False):
         merged = f"{proc.stdout}\n{proc.stderr}"
         if has_warning(merged):
             raise RuntimeError(f"Warning detected: {' '.join(cmd)}")
+
+
+def run_publish_cmd(module: ModuleConfig):
+    # `moon publish` currently prints workspace preferred-target warnings even when
+    # package validation succeeds. Treat publish as strict on exit code only:
+    # non-zero exits (including HTTP 409 duplicated version) still fail fast.
+    run_cmd(
+        ["moon", "publish", "--manifest-path", str(module_manifest_path(module))],
+        ROOT_DIR,
+        fail_on_warning=False,
+    )
 
 
 def has_warning(output: str) -> bool:
@@ -325,11 +335,7 @@ def run_release_pipeline(version: str):
     for idx, module_name in enumerate(PUBLISH_ORDER):
         module = module_by_name(module_name)
         print(f"==> moon publish: {module.name}")
-        run_cmd(
-            ["moon", "publish", "--manifest-path", str(module_manifest_path(module))],
-            ROOT_DIR,
-            fail_on_warning=True,
-        )
+        run_publish_cmd(module)
         if idx < len(PUBLISH_ORDER) - 1:
             print("==> moon update for remaining modules...")
             for next_module_name in PUBLISH_ORDER[idx + 1:]:

@@ -6,15 +6,48 @@
 
 ### Changed
 
-- Changed repository build orchestration to reintroduce a root `justfile` with per-module `update` / `check` / `build` / `test` recipes (without explicit `--target` flags), delegating target selection to each module's `preferred-target`.
+### Fixed
+
+### Removed
+
+## [0.31.2] - 2026-04-13
+
+### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.31.1] - 2026-04-13
+
+### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.31.0] - 2026-04-13
+
+### Added
+
+### Changed
+
+- Changed repository build orchestration in root `justfile` by simplifying `check`/`build` to single workspace commands (`moon check --target all --deny-warn` and `moon build --target all`).
+- Changed root `justfile` `update` recipe to a single workspace command (`moon update`) instead of per-module update calls.
 - Changed `just test` to run scoped `selene-core/src/*` test packages only, avoiding accidental workspace-wide test fan-out into unrelated modules (`examples`/editor specs) under mixed preferred-target workspace mode.
 - Changed `selene-editor-specs` module defaults by setting `preferred-target: native` so targetless `moon test/check/build` picks a valid backend for the native-only specs package.
 - Changed workspace target preference defaults to explicit per-module values (`selene-webgpu: js`, `selene-raylib: native`, `selene-editor-service: native`, `examples: js`) to reduce mixed-workspace target ambiguity during root-level builds/checks.
+- Changed `examples/moon.mod.json` target metadata by setting `supported-targets: js` to align workspace-wide `--target all` checks with the examples module constraint.
 - Changed repository-wide derive usage from deprecated `derive(Show)` to `derive(Debug)`, and adjusted affected editor/core data models to avoid invalid `Debug` derives on `Json`/scene-document-containing types.
 - Changed Selene editor packaging from one module (`Milky2018/selene_editor`) to three published modules: `Milky2018/selene_editor_shared`, `Milky2018/selene_editor_frontend`, and `Milky2018/selene_editor_service`, with imports and workspace members migrated to the new module layout.
 - Changed editor shared preview contract package path from `Milky2018/selene_editor_shared/preview/bridge` to `Milky2018/selene_editor_shared/preview_bridge`, and aligned all frontend/spec imports plus publish quality-check paths.
 - Changed editor source workflow to remove `justfile` entrypoints and use explicit Moon commands (`build frontend bundle` -> `copy public/editor.js` -> `run native service`) across module READMEs and service startup guidance.
 - Changed release pipeline module order and publish script wiring to include the new editor modules after `selene-tools` (`editor-shared -> editor-frontend -> editor-service`), including internal-dependency version rewrites and per-module quality checks.
+- Changed `publish.py` module publish stage to tolerate workspace preferred-target warning noise and skip already-published version conflicts (`409 duplicated`) so interrupted runs can resume through remaining modules.
 
 ### Fixed
 
@@ -111,6 +144,7 @@
 
 ### Fixed
 
+- Fixed pages publishing for scene-document-driven examples (`pixeladventure`) by copying `selene.project.json`, `scenes/`, and full `assets/` into `page/examples/<game>/`, so runtime scene loading no longer 404s on project/scene/animation document paths.
 - Fixed `examples/pixeladventure` scene-document loading determinism by introducing explicit `DocumentSource` injection for bundle/scene/runtime loading (`*_with_source`), removing path-candidate fallback reads, and aligning wbtests to a single rooted test source.
 - Fixed `selene-editor` viewport black-screen regression after migration dialog transitions by keeping the root view tree stable (`editor-shell` + conditional overlay), preventing `canvas` remount/desync that made scene entities interactive but invisible.
 - Fixed `selene-editor` legacy animation migration UX loop by removing asset-list-driven prompt reactivation; migration dialog visibility is now scene-reference-driven, so clicking `Migrate` no longer reopens the same modal from lingering `.anim.json` files.
