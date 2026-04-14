@@ -158,3 +158,16 @@ test "app: deterministic ordering keeps insertion order when disabled" {
   app.run_frames(1, raw_delta=1.0 / 60.0)
   inspect(order.val, content="ba")
 }
+
+///|
+test "app: run_frames_capture provides a generic capture pipeline without game-specific systems" {
+  let world = @ecs.World::new()
+  let app = App::new().with_world(world)
+  let captures = app.run_frames_capture(
+    2,
+    capture_width=64,
+    capture_height=64,
+    raw_delta=1.0 / 60.0,
+  )
+  inspect(captures.length(), content="0")
+}

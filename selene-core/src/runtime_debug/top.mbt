@@ -112,6 +112,105 @@ pub(all) struct WorldSnapshot {
 }
 
 ///|
+pub(all) struct DebugVec2 {
+  x : Double
+  y : Double
+} derive(Eq, Debug, ToJson)
+
+///|
+pub(all) struct DebugVec3 {
+  x : Double
+  y : Double
+  z : Double
+} derive(Eq, Debug, ToJson)
+
+///|
+pub(all) struct DebugRect {
+  x : Double
+  y : Double
+  width : Double
+  height : Double
+} derive(Eq, Debug, ToJson)
+
+///|
+pub(all) struct DebugColor {
+  r : UInt
+  g : UInt
+  b : UInt
+  a : Double
+} derive(Eq, Debug, ToJson)
+
+///|
+pub(all) struct SpriteInspectorEntry {
+  entity_id : UInt
+  entity_name : String?
+  visible : Bool
+  image_path : String?
+  source_rect : DebugRect?
+  destination_size : DebugVec2?
+  anchor : DebugVec2
+  flip_x : Bool
+  flip_y : Bool
+  local_translation : DebugVec3?
+  world_translation : DebugVec3?
+} derive(Debug, ToJson)
+
+///|
+pub(all) struct AtlasOverlayEntry {
+  entity_id : UInt?
+  layer : String
+  texture_path : String
+  source_rect : DebugRect
+  destination_rect : DebugRect?
+} derive(Debug, ToJson)
+
+///|
+pub(all) struct DrawSubmission2DMetadataEntry {
+  entity_id : UInt?
+  layer : String
+  kind : String
+  depth : Double?
+  texture_path : String?
+  source_rect : DebugRect?
+  destination_rect : DebugRect?
+  transform_translation : DebugVec2?
+  color : DebugColor?
+} derive(Debug, ToJson)
+
+///|
+pub(all) struct FramePerformanceMetricsExport {
+  frame_index : UInt
+  fixed_step_index : UInt
+  fixed_steps_this_frame : Int
+  update_delta : Double
+  fixed_delta_total : Double
+  render_delta : Double
+  entity_count : Int
+  draw2d_count : Int
+  draw3d_count : Int
+} derive(Eq, Debug, ToJson)
+
+///|
+pub(all) struct FrameCaptureMetadata {
+  frame_index : UInt
+  fixed_step_index : UInt
+  metrics : FramePerformanceMetricsExport?
+  draw2d : Array[DrawSubmission2DMetadataEntry]
+  draw3d_count : Int
+  sprites : Array[SpriteInspectorEntry]
+  atlas_overlay : Array[AtlasOverlayEntry]
+} derive(Debug, ToJson)
+
+///|
+pub(all) struct FrameCaptureArtifact {
+  frame_index : UInt
+  fixed_step_index : UInt
+  file_stem : String
+  png : Bytes
+  metadata_json : String
+} derive(Debug)
+
+///|
 pub type SnapshotProvider = (@ecs.World) -> String
 
 ///|
@@ -140,6 +239,9 @@ let latest_render_frame_by_world : Map[UInt, @render_pipeline.RenderFrame] = Map
 
 ///|
 let snapshot_providers : Map[String, SnapshotProvider] = Map::new()
+
+///|
+let atlas_overlay_enabled_by_world : Map[UInt, Bool] = Map::new()
 
 ///|
 fn current_world() -> @ecs.World {
@@ -196,6 +298,16 @@ pub fn fixed_delta_override() -> Double? {
 ///|
 pub fn deterministic_ordering_enabled() -> Bool {
   deterministic_mode().deterministic_ordering
+}
+
+///|
+pub fn set_atlas_overlay_enabled(enabled : Bool) -> Unit {
+  atlas_overlay_enabled_by_world.set(current_world_id(), enabled)
+}
+
+///|
+pub fn atlas_overlay_enabled() -> Bool {
+  atlas_overlay_enabled_by_world.get(current_world_id()).unwrap_or(false)
 }
 
 ///|
@@ -602,6 +714,100 @@ pub fn latest_render_submission() -> RenderSubmissionDebug? {
 }
 
 ///|
+fn draw2d_metadata_entry(
+  item : DrawSubmission2DInfo,
+) -> DrawSubmission2DMetadataEntry {
+  {
+    entity_id: item.entity_id,
+    layer: item.layer,
+    kind: item.kind,
+    depth: item.depth,
+    texture_path: item.texture_path,
+    source_rect: item.uv_rect.map(debug_rect),
+    destination_rect: item.destination_rect.map(debug_rect),
+    transform_translation: item.transform.map(fn(transform) {
+      debug_vec2(@math.Vec2(transform.tx, transform.ty))
+    }),
+    color: item.color.map(debug_color),
+  }
+}
+
+///|
+fn metrics_export(
+  metrics : FramePerformanceMetrics,
+) -> FramePerformanceMetricsExport {
+  {
+    frame_index: metrics.frame_index,
+    fixed_step_index: metrics.fixed_step_index,
+    fixed_steps_this_frame: metrics.fixed_steps_this_frame,
+    update_delta: metrics.update_delta,
+    fixed_delta_total: metrics.fixed_delta_total,
+    render_delta: metrics.render_delta,
+    entity_count: metrics.entity_count,
+    draw2d_count: metrics.draw2d_count,
+    draw3d_count: metrics.draw3d_count,
+  }
+}
+
+///|
+pub fn capture_last_frame_metadata() -> FrameCaptureMetadata? {
+  guard latest_render_submission() is Some(submission) else { return None }
+  let draw2d = submission.draw2d.map(draw2d_metadata_entry)
+  let metrics = frame_metrics_by_world
+    .get(current_world_id())
+    .map(metrics_export)
+  Some({
+    frame_index: submission.frame_index,
+    fixed_step_index: submission.fixed_step_index,
+    metrics,
+    draw2d,
+    draw3d_count: submission.draw3d.length(),
+    sprites: sprite_inspector_entries(),
+    atlas_overlay: atlas_overlay_entries(),
+  })
+}
+
+///|
+pub fn capture_last_frame_metadata_json(indent? : Int = 2) -> String? {
+  capture_last_frame_metadata().map(fn(metadata) {
+    metadata.to_json().stringify(indent~)
+  })
+}
+
+///|
+pub fn frame_capture_file_stem(
+  frame_index : UInt,
+  fixed_step_index : UInt,
+) -> String {
+  "frame_\{frame_index.to_string()}_fixed_\{fixed_step_index.to_string()}"
+}
+
+///|
+pub fn capture_last_frame_with_metadata(
+  width : Int,
+  height : Int,
+  indent? : Int = 2,
+) -> FrameCaptureArtifact? {
+  guard capture_last_frame_metadata() is Some(metadata) else { return None }
+  let png = match render_last_frame_offscreen_png(width, height) {
+    Some(bytes) => Some(bytes)
+    None => capture_frame_png()
+  }
+  guard png is Some(bytes) else { return None }
+  let file_stem = frame_capture_file_stem(
+    metadata.frame_index,
+    metadata.fixed_step_index,
+  )
+  Some({
+    frame_index: metadata.frame_index,
+    fixed_step_index: metadata.fixed_step_index,
+    file_stem,
+    png: bytes,
+    metadata_json: metadata.to_json().stringify(indent~),
+  })
+}
+
+///|
 pub fn render_last_frame_offscreen_png(width : Int, height : Int) -> Bytes? {
   guard latest_render_frame_by_world.get(current_world_id()) is Some(frame) else {
     return None
@@ -679,6 +885,175 @@ pub fn world_snapshot() -> WorldSnapshot {
     fixed_step_index: world.fixed_step_index(),
     entities,
     custom_fields,
+  }
+}
+
+///|
+fn debug_vec2(value : @math.Vec2) -> DebugVec2 {
+  { x: value[@math.X], y: value[@math.Y] }
+}
+
+///|
+fn debug_vec3(value : @math.Vec3) -> DebugVec3 {
+  { x: value.x, y: value.y, z: value.z }
+}
+
+///|
+fn debug_rect(value : @math.Rect) -> DebugRect {
+  {
+    x: value.position[@math.X],
+    y: value.position[@math.Y],
+    width: value.size[@math.X],
+    height: value.size[@math.Y],
+  }
+}
+
+///|
+fn debug_color(value : @render.Color) -> DebugColor {
+  { r: value.r, g: value.g, b: value.b, a: value.a }
+}
+
+///|
+fn sprite_source_rect(sprite : @sprite.Sprite) -> @math.Rect? {
+  match sprite.texture_atlas {
+    Some(texture_atlas) => @sprite.texture_atlas_rect(texture_atlas)
+    None => sprite.rect
+  }
+}
+
+///|
+fn sprite_destination_size(sprite : @sprite.Sprite) -> @math.Vec2? {
+  match sprite.custom_size {
+    Some(size) => Some(size)
+    None => sprite_source_rect(sprite).map(fn(rect) { rect.size })
+  }
+}
+
+///|
+pub fn sprite_inspector_entries() -> Array[SpriteInspectorEntry] {
+  let entries : Array[SpriteInspectorEntry] = []
+  for entity, sprite in @sprite.sprites() {
+    if !entity.is_alive() {
+      continue
+    }
+    let image_path = match sprite.image {
+      Some(image) => @asset.image_path(image)
+      None => None
+    }
+    let source_rect = sprite_source_rect(sprite).map(debug_rect)
+    let destination_size = sprite_destination_size(sprite).map(debug_vec2)
+    let anchor = debug_vec2(sprite.anchor.as_vec())
+    let local_translation = @transform.transforms()
+      .get(entity)
+      .map(fn(transform) { debug_vec3(transform.translation) })
+    let world_translation = @transform.global_transforms()
+      .get(entity)
+      .map(fn(transform) { debug_vec3(transform.translation()) })
+    entries.push({
+      entity_id: entity.id(),
+      entity_name: @name.name_of(entity),
+      visible: @visibility.is_visible(entity),
+      image_path,
+      source_rect,
+      destination_size,
+      anchor,
+      flip_x: sprite.flip_x,
+      flip_y: sprite.flip_y,
+      local_translation,
+      world_translation,
+    })
+  }
+  entries.sort_by(fn(lhs, rhs) {
+    if lhs.entity_id < rhs.entity_id {
+      -1
+    } else if lhs.entity_id > rhs.entity_id {
+      1
+    } else {
+      0
+    }
+  })
+  entries
+}
+
+///|
+pub fn atlas_overlay_entries() -> Array[AtlasOverlayEntry] {
+  let entries : Array[AtlasOverlayEntry] = []
+  guard latest_render_submission() is Some(submission) else { return entries }
+  for item in submission.draw2d {
+    guard item.texture_path is Some(texture_path) else { continue }
+    guard item.uv_rect is Some(source_rect) else { continue }
+    entries.push({
+      entity_id: item.entity_id,
+      layer: item.layer,
+      texture_path,
+      source_rect: debug_rect(source_rect),
+      destination_rect: item.destination_rect.map(debug_rect),
+    })
+  }
+  entries
+}
+
+///|
+fn atlas_overlay_fill_color() -> @render.Color {
+  { r: 255U, g: 64U, b: 160U, a: 0.08 }
+}
+
+///|
+fn atlas_overlay_stroke_color() -> @render.Color {
+  { r: 255U, g: 64U, b: 160U, a: 0.95 }
+}
+
+///|
+fn atlas_overlay_from_draw_command(
+  command : @render2d_types.DrawCommand2D,
+) -> @render2d_types.DrawCommand2D? {
+  match command {
+    Image(image) =>
+      if image.source is Some(_) {
+        Some(
+          Rect({
+            rect: image.destination,
+            transform: image.transform,
+            fill_color: atlas_overlay_fill_color(),
+            stroke_color: Some(atlas_overlay_stroke_color()),
+          }),
+        )
+      } else {
+        None
+      }
+    _ => None
+  }
+}
+
+///|
+pub fn decorate_frame_for_debug(
+  frame : @render_pipeline.RenderFrame,
+  world_commands : Array[@render2d.DrawCommandWithDepth2D],
+) -> @render_pipeline.RenderFrame {
+  if !atlas_overlay_enabled() {
+    return frame
+  }
+  let overlays : Array[@render2d_types.DrawCommand2D] = []
+  for command in world_commands {
+    if atlas_overlay_from_draw_command(command.command) is Some(overlay) {
+      overlays.push(overlay)
+    }
+  }
+  for command in frame.frame2d.ui_commands {
+    if atlas_overlay_from_draw_command(command) is Some(overlay) {
+      overlays.push(overlay)
+    }
+  }
+  if overlays.length() == 0 {
+    return frame
+  }
+  let ui_commands = frame.frame2d.ui_commands.copy()
+  for overlay in overlays {
+    ui_commands.push(overlay)
+  }
+  {
+    ..frame,
+    frame2d: { world_commands: frame.frame2d.world_commands, ui_commands },
   }
 }
 

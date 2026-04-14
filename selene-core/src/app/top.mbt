@@ -702,6 +702,62 @@ pub fn App::run_frames(
 }
 
 ///|
+fn resolved_capture_dimension(override_value : Int, fallback : Double) -> Int {
+  if override_value > 0 {
+    return override_value
+  }
+  let candidate = fallback.to_int()
+  if candidate > 0 {
+    candidate
+  } else {
+    1
+  }
+}
+
+///|
+pub fn App::run_frames_capture(
+  self : App,
+  frames : Int,
+  capture_width? : Int = 0,
+  capture_height? : Int = 0,
+  raw_delta? : Double = 1.0 / DEFAULT_FPS.to_double(),
+  fixed_delta_override? : Double? = None,
+  metadata_indent? : Int = 2,
+) -> Array[@runtime_debug.FrameCaptureArtifact] {
+  let captures : Array[@runtime_debug.FrameCaptureArtifact] = []
+  if frames <= 0 {
+    return captures
+  }
+  setup_runtime_world(self)
+  let plan = build_runtime_plan(self, fixed_delta_override~)
+  startup_runtime(plan)
+  let accumulator : Ref[Double] = { val: 0.0 }
+  let default_delta = 1.0 / self.fps.to_double()
+  let used_delta = if raw_delta > 0.0 { raw_delta } else { default_delta }
+  let resolved_width = resolved_capture_dimension(
+    capture_width,
+    self.viewport_width * self.zoom,
+  )
+  let resolved_height = resolved_capture_dimension(
+    capture_height,
+    self.viewport_height * self.zoom,
+  )
+  for _ in 0..<frames {
+    run_game_frame(plan, accumulator, used_delta, None)
+    run_render_frame(plan, used_delta)
+    if @runtime_debug.capture_last_frame_with_metadata(
+        resolved_width,
+        resolved_height,
+        indent=metadata_indent,
+      )
+      is Some(capture) {
+      captures.push(capture)
+    }
+  }
+  captures
+}
+
+///|
 pub fn App::step_fixed(
   self : App,
   steps : Int,

@@ -4,6 +4,7 @@ package "Milky2018/selene/app"
 import {
   "Milky2018/selene/ecs",
   "Milky2018/selene/event",
+  "Milky2018/selene/runtime_debug",
   "Milky2018/selene/system",
   "Milky2018/selene/system_set",
 }
@@ -35,6 +36,7 @@ pub fn App::add_systems(Self, @system.Schedule, Array[(@ecs.World) -> Unit], in_
 pub fn App::new() -> Self
 pub fn App::run(Self) -> Unit
 pub fn App::run_frames(Self, Int, raw_delta? : Double, fixed_delta_override? : Double?) -> Unit
+pub fn App::run_frames_capture(Self, Int, capture_width? : Int, capture_height? : Int, raw_delta? : Double, fixed_delta_override? : Double?, metadata_indent? : Int) -> Array[@runtime_debug.FrameCaptureArtifact]
 pub fn App::step_fixed(Self, Int, fixed_delta_override? : Double?) -> Unit
 pub fn App::with_fixed_hz(Self, UInt) -> Self
 pub fn App::with_fps(Self, UInt) -> Self

@@ -19,6 +19,11 @@ pub fn render_submit_system(_delta : Double) -> Unit {
     frame3d: @render3d_pipeline.get_prepared_frame3d(),
     assets3d,
   }
-  @runtime_debug.record_render_submission(frame, world_commands_with_depth)
-  @platform_render.submit_frame(frame)
+  let debug_frame = @runtime_debug.decorate_frame_for_debug(
+    frame, world_commands_with_depth,
+  )
+  @runtime_debug.record_render_submission(
+    debug_frame, world_commands_with_depth,
+  )
+  @platform_render.submit_frame(debug_frame)
 }

@@ -122,3 +122,123 @@ test "render submission keeps entity ids and exposes offscreen capture API" {
     inspect(render_last_frame_offscreen_png(64, 64) is None, content="true")
   })
 }
+
+///|
+test "sprite inspector returns unified sprite debug entries" {
+  with_runtime_debug_world(fn() raise {
+    let entity = @entity.Entity::new()
+    @name.names().set(entity, @name.Name::new("Sprite Debug"))
+    let image = @asset.load_image("assets/debug/sprite.png")
+    let source_rect : @math.Rect = {
+      position: @math.Vec2(2.0, 4.0),
+      size: @math.Vec2(8.0, 16.0),
+    }
+    let local_transform = @transform.Transform::from_xyz(12.0, 34.0, 1.0)
+    @transform.transforms().set(entity, local_transform)
+    @transform.global_transforms().set(
+      entity,
+      @transform.GlobalTransform::from_transform(local_transform),
+    )
+    @sprite.sprites().set(
+      entity,
+      @sprite.Sprite::new(
+        image=Some(image),
+        rect=Some(source_rect),
+        flip_x=true,
+        anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
+      ),
+    )
+    let entries = sprite_inspector_entries()
+    inspect(entries.length(), content="1")
+    inspect(entries[0].entity_name == Some("Sprite Debug"), content="true")
+    inspect(
+      entries[0].image_path == Some("assets/debug/sprite.png"),
+      content="true",
+    )
+    inspect(entries[0].source_rect is Some(_), content="true")
+    inspect(entries[0].flip_x, content="true")
+  })
+}
+
+///|
+test "atlas overlay decoration appends highlight rects when enabled" {
+  with_runtime_debug_world(fn() raise {
+    let image = @asset.load_image("assets/debug/atlas.png")
+    let draw_image : @render2d_types.ImageDrawCommand2D = {
+      image,
+      destination: {
+        position: @math.Vec2(10.0, 20.0),
+        size: @math.Vec2(30.0, 40.0),
+      },
+      source: Some({
+        position: @math.Vec2(1.0, 2.0),
+        size: @math.Vec2(3.0, 4.0),
+      }),
+      transform: @math.Transform::identity(),
+      repeat: @math.NoRepeat,
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+    }
+    let world_command : @render2d.DrawCommandWithDepth2D = {
+      depth: 1.0,
+      order: 0,
+      entity_id: Some(7U),
+      command: Image(draw_image),
+    }
+    let frame : @render_pipeline.RenderFrame = {
+      frame2d: { world_commands: [Image(draw_image)], ui_commands: [] },
+      frame3d: @render3d_types.empty_render_frame3d(),
+      assets3d: @render_pipeline.empty_asset_sync3d(),
+    }
+    set_atlas_overlay_enabled(false)
+    let disabled = decorate_frame_for_debug(frame, [world_command])
+    inspect(disabled.frame2d.ui_commands.length(), content="0")
+    set_atlas_overlay_enabled(true)
+    let enabled = decorate_frame_for_debug(frame, [world_command])
+    inspect(enabled.frame2d.ui_commands.length(), content="1")
+  })
+}
+
+///|
+test "frame metadata export includes draw commands and atlas overlay entries" {
+  with_runtime_debug_world(fn() raise {
+    let image = @asset.load_image("assets/debug/metadata.png")
+    let draw_image : @render2d_types.ImageDrawCommand2D = {
+      image,
+      destination: {
+        position: @math.Vec2(0.0, 0.0),
+        size: @math.Vec2(16.0, 16.0),
+      },
+      source: Some({
+        position: @math.Vec2(4.0, 5.0),
+        size: @math.Vec2(6.0, 7.0),
+      }),
+      transform: @math.Transform::identity(),
+      repeat: @math.NoRepeat,
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+    }
+    let world_command : @render2d.DrawCommandWithDepth2D = {
+      depth: 2.0,
+      order: 0,
+      entity_id: Some(9U),
+      command: Image(draw_image),
+    }
+    let frame : @render_pipeline.RenderFrame = {
+      frame2d: { world_commands: [Image(draw_image)], ui_commands: [] },
+      frame3d: @render3d_types.empty_render_frame3d(),
+      assets3d: @render_pipeline.empty_asset_sync3d(),
+    }
+    record_render_submission(frame, [world_command])
+    let metadata = capture_last_frame_metadata().unwrap()
+    inspect(metadata.draw2d.length(), content="1")
+    inspect(metadata.atlas_overlay.length(), content="1")
+    let json_text = capture_last_frame_metadata_json().unwrap()
+    inspect(json_text.contains("\"frame_index\""), content="true")
+    inspect(json_text.contains("\"atlas_overlay\""), content="true")
+    inspect(
+      frame_capture_file_stem(metadata.frame_index, metadata.fixed_step_index).contains(
+        "frame_",
+      ),
+      content="true",
+    )
+  })
+}

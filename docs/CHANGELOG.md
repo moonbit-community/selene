@@ -4,9 +4,14 @@
 
 ### Added
 
+- Added runtime-debug sprite inspection APIs (`sprite_inspector_entries`) exposing entity-level sprite/materialized frame fields (`path`, source rect, anchor, flip, size, local/world translation) for game-agnostic asset debugging.
+- Added runtime-debug frame capture/export APIs (`capture_last_frame_metadata`, `capture_last_frame_metadata_json`, `capture_last_frame_with_metadata`, `frame_capture_file_stem`) so deterministic runs can export frame-numbered PNG+metadata artifacts without per-game capture logic.
+- Added `App::run_frames_capture(...)` as a generic deterministic capture entrypoint that runs fixed frame counts and collects runtime-debug capture artifacts directly.
+
 ### Changed
 
 - Changed math naming to Bevy style by renaming `@math.Vec2D` to `@math.Vec2` across core/editor/examples/docs, including method names that previously used `vec2d` suffixes.
+- Changed render submission flow to route every frame through `runtime_debug.decorate_frame_for_debug(...)`, enabling a global atlas overlay switch instead of game-specific debug draw systems.
 
 ### Fixed
 
