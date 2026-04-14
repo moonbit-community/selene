@@ -10,6 +10,30 @@
 
 ### Removed
 
+## [0.32.0] - 2026-04-14
+
+### Added
+
+- Added `selene/runtime_debug` runtime testing/debug APIs for deterministic execution and diagnostics: deterministic mode config + seeded RNG helpers, programmable input injection queue, frame performance metrics, render submission export, world snapshot export, atlas layout validation, and frame PNG capture hooks.
+- Added deterministic stepping APIs on `selene/app`: `App::run_frames(...)` and `App::step_fixed(...)` for test-driven frame/fixed-step reproduction without opening a window loop.
+- Added runtime debug whitebox tests for deterministic RNG reproducibility, input injection fallback, frame metrics collection, atlas validation reporting, and app stepping semantics.
+- Added offscreen frame capture API `runtime_debug.render_last_frame_offscreen_png(width, height)` backed by new platform render hook `render_offscreen_png(...)`.
+- Added platform transparency probe hook `platform_render.image_region_is_fully_transparent(...)` and integrated atlas transparency diagnostics (`FullyTransparentRect`) into runtime atlas validation.
+
+### Changed
+
+- Changed `selene/render_submit` + `selene/render2d` integration to expose sorted world draw commands with depth metadata and explicit UI command extraction for frame-level debug capture.
+- Changed `selene/platform_render` virtual interface and backend wrappers (`selene-webgpu`, `selene-raylib`) to include screenshot capture entrypoints (`capture_frame_png`, `capture_frame_png_to_file`).
+- Changed deterministic schedule planning in `selene/app` to honor `DeterministicModeConfig.deterministic_ordering`, sorting unslotted systems by stable name order when enabled.
+- Changed render debug payloads to carry entity correlation metadata: 2D draw submissions now preserve optional source `entity_id`, and 3D render items/submissions now include optional `entity_id`.
+
+### Fixed
+
+- Fixed `selene-webgpu` frame capture integration by wiring JS canvas PNG byte extraction through the draw backend and removing duplicate helper symbol conflicts across package files.
+- Fixed `selene-raylib` local shadow whitebox fixtures to match updated `RenderItem3D` schema after entity-aware render metadata expansion.
+
+### Removed
+
 ## [0.31.2] - 2026-04-13
 
 ### Added

@@ -144,6 +144,7 @@ test "raylib local shadow helper keeps only shadow casters" {
   let frame = @render3d_types.empty_render_frame3d()
   frame.items = [
     {
+      entity_id: None,
       transform: {
         translation: @smath.Vec3::new(0.0, 0.0, 0.0),
         rotation: @smath.Quat::identity(),
@@ -155,6 +156,7 @@ test "raylib local shadow helper keeps only shadow casters" {
       receive_shadows: true,
     },
     {
+      entity_id: None,
       transform: {
         translation: @smath.Vec3::new(1.0, 2.0, 3.0),
         rotation: @smath.Quat::identity(),

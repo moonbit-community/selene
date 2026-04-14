@@ -142,7 +142,11 @@ pub fn render_sprite_system(delta : Double) -> Unit {
           repeat: sprite_repeat_mode(sprite),
           color: sprite.color,
         }
-        @render2d.push_image_with_depth(depth, command)
+        @render2d.push_image_with_depth_for_entity(
+          depth,
+          Some(entity.id()),
+          command,
+        )
       }
       None => {
         let command : @render2d_types.RectDrawCommand2D = {
@@ -151,7 +155,11 @@ pub fn render_sprite_system(delta : Double) -> Unit {
           fill_color: sprite.color,
           stroke_color: None,
         }
-        @render2d.push_rect_with_depth(depth, command)
+        @render2d.push_rect_with_depth_for_entity(
+          depth,
+          Some(entity.id()),
+          command,
+        )
       }
     }
   }

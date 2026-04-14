@@ -2,6 +2,15 @@
 priv struct OrderedDrawCommand2D {
   depth : Double
   order : Int
+  entity_id : UInt?
+  command : @render2d_types.DrawCommand2D
+}
+
+///|
+pub(all) struct DrawCommandWithDepth2D {
+  depth : Double
+  order : Int
+  entity_id : UInt?
   command : @render2d_types.DrawCommand2D
 }
 
@@ -35,10 +44,16 @@ pub fn begin_frame2d_system(_delta : Double) -> Unit {
 ///|
 fn push_world_command(
   depth : Double,
+  entity_id : UInt?,
   command : @render2d_types.DrawCommand2D,
 ) -> Unit {
   let frame = frame2d()
-  frame.world_commands.push({ depth, order: frame.next_order, command })
+  frame.world_commands.push({
+    depth,
+    order: frame.next_order,
+    entity_id,
+    command,
+  })
   frame.next_order += 1
 }
 
@@ -47,7 +62,16 @@ pub fn push_image_with_depth(
   depth : Double,
   command : @render2d_types.ImageDrawCommand2D,
 ) -> Unit {
-  push_world_command(depth, Image(command))
+  push_world_command(depth, None, Image(command))
+}
+
+///|
+pub fn push_image_with_depth_for_entity(
+  depth : Double,
+  entity_id : UInt?,
+  command : @render2d_types.ImageDrawCommand2D,
+) -> Unit {
+  push_world_command(depth, entity_id, Image(command))
 }
 
 ///|
@@ -65,7 +89,16 @@ pub fn push_text_with_depth(
   depth : Double,
   command : @render2d_types.TextDrawCommand2D,
 ) -> Unit {
-  push_world_command(depth, Text(command))
+  push_world_command(depth, None, Text(command))
+}
+
+///|
+pub fn push_text_with_depth_for_entity(
+  depth : Double,
+  entity_id : UInt?,
+  command : @render2d_types.TextDrawCommand2D,
+) -> Unit {
+  push_world_command(depth, entity_id, Text(command))
 }
 
 ///|
@@ -83,7 +116,16 @@ pub fn push_rect_with_depth(
   depth : Double,
   command : @render2d_types.RectDrawCommand2D,
 ) -> Unit {
-  push_world_command(depth, Rect(command))
+  push_world_command(depth, None, Rect(command))
+}
+
+///|
+pub fn push_rect_with_depth_for_entity(
+  depth : Double,
+  entity_id : UInt?,
+  command : @render2d_types.RectDrawCommand2D,
+) -> Unit {
+  push_world_command(depth, entity_id, Rect(command))
 }
 
 ///|
@@ -101,7 +143,16 @@ pub fn push_circle_with_depth(
   depth : Double,
   command : @render2d_types.CircleDrawCommand2D,
 ) -> Unit {
-  push_world_command(depth, Circle(command))
+  push_world_command(depth, None, Circle(command))
+}
+
+///|
+pub fn push_circle_with_depth_for_entity(
+  depth : Double,
+  entity_id : UInt?,
+  command : @render2d_types.CircleDrawCommand2D,
+) -> Unit {
+  push_world_command(depth, entity_id, Circle(command))
 }
 
 ///|
@@ -119,7 +170,16 @@ pub fn push_gradient_rect_with_depth(
   depth : Double,
   command : @render2d_types.GradientRectDrawCommand2D,
 ) -> Unit {
-  push_world_command(depth, GradientRect(command))
+  push_world_command(depth, None, GradientRect(command))
+}
+
+///|
+pub fn push_gradient_rect_with_depth_for_entity(
+  depth : Double,
+  entity_id : UInt?,
+  command : @render2d_types.GradientRectDrawCommand2D,
+) -> Unit {
+  push_world_command(depth, entity_id, GradientRect(command))
 }
 
 ///|
@@ -147,8 +207,9 @@ pub fn pop_ui_clip() -> Unit {
 }
 
 ///|
-pub fn get_frame2d() -> @render2d_types.RenderFrame2D {
-  let state = frame2d()
+fn sorted_world_commands(
+  state : RenderFrameState2D,
+) -> Array[OrderedDrawCommand2D] {
   let world_commands = state.world_commands.copy()
   world_commands.sort_by(fn(lhs, rhs) {
     if lhs.depth < rhs.depth {
@@ -163,8 +224,31 @@ pub fn get_frame2d() -> @render2d_types.RenderFrame2D {
       0
     }
   })
+  world_commands
+}
+
+///|
+pub fn get_world_commands_with_depth() -> Array[DrawCommandWithDepth2D] {
+  sorted_world_commands(frame2d()).map(fn(command) {
+    {
+      depth: command.depth,
+      order: command.order,
+      entity_id: command.entity_id,
+      command: command.command,
+    }
+  })
+}
+
+///|
+pub fn get_ui_commands() -> Array[@render2d_types.DrawCommand2D] {
+  frame2d().ui_commands.copy()
+}
+
+///|
+pub fn get_frame2d() -> @render2d_types.RenderFrame2D {
+  let world_commands = sorted_world_commands(frame2d())
   {
     world_commands: world_commands.map(fn(command) { command.command }),
-    ui_commands: state.ui_commands.copy(),
+    ui_commands: get_ui_commands(),
   }
 }

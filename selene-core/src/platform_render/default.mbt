@@ -41,3 +41,36 @@ pub fn capability_warning(feature : String, fallback : String) -> Unit {
   ignore(feature)
   ignore(fallback)
 }
+
+///|
+pub fn capture_frame_png() -> Bytes? {
+  None
+}
+
+///|
+pub fn capture_frame_png_to_file(path : String) -> Bool {
+  ignore(path)
+  false
+}
+
+///|
+pub fn render_offscreen_png(
+  frame : @render_pipeline.RenderFrame,
+  width : Int,
+  height : Int,
+) -> Bytes? {
+  ignore(frame)
+  ignore(width)
+  ignore(height)
+  None
+}
+
+///|
+pub fn image_region_is_fully_transparent(
+  path : String,
+  rect : @math.Rect,
+) -> Bool? {
+  ignore(path)
+  ignore(rect)
+  None
+}

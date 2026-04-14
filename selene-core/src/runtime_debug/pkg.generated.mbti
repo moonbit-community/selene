@@ -1,0 +1,193 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/runtime_debug"
+
+import {
+  "Milky2018/selene/collision",
+  "Milky2018/selene/ecs",
+  "Milky2018/selene/inputs",
+  "Milky2018/selene/math",
+  "Milky2018/selene/render",
+  "Milky2018/selene/render2d",
+  "Milky2018/selene/render3d_types",
+  "Milky2018/selene/render_pipeline",
+  "Milky2018/selene/sprite",
+  "Milky2018/selene/transform",
+  "Milky2018/selene/velocity",
+  "Milky2018/selene/visibility",
+}
+
+// Values
+pub fn begin_frame_metrics() -> Unit
+
+pub fn capture_frame_png() -> Bytes?
+
+pub fn capture_frame_png_to_file(String) -> Bool
+
+pub fn clear_deterministic_mode() -> Unit
+
+pub fn clear_queued_inputs() -> Unit
+
+pub fn consume_injected_input_or(() -> @inputs.InputSnapshot) -> @inputs.InputSnapshot
+
+pub fn deterministic_mode() -> DeterministicModeConfig
+
+pub fn deterministic_ordering_enabled() -> Bool
+
+pub fn fixed_delta_override() -> Double?
+
+pub fn frame_delta_override() -> Double?
+
+pub fn latest_metrics() -> FramePerformanceMetrics
+
+pub fn latest_render_submission() -> RenderSubmissionDebug?
+
+pub fn next_deterministic_f64() -> Double
+
+pub fn next_deterministic_u32() -> UInt
+
+pub fn note_fixed_step(Double) -> Unit
+
+pub fn note_render(Double, Int, Int) -> Unit
+
+pub fn note_update(Double, Int) -> Unit
+
+pub fn queue_input_event(InputInjectionEvent) -> Unit
+
+pub fn queue_input_snapshot(@inputs.InputSnapshot) -> Unit
+
+pub fn queued_input_count() -> Int
+
+pub fn record_render_submission(@render_pipeline.RenderFrame, Array[@render2d.DrawCommandWithDepth2D]) -> Unit
+
+pub fn register_snapshot_provider(String, (@ecs.World) -> String) -> Unit
+
+pub fn render_last_frame_offscreen_png(Int, Int) -> Bytes?
+
+pub fn rng_seed() -> UInt
+
+pub fn rolling_metrics() -> Array[FramePerformanceMetrics]
+
+pub fn set_deterministic_mode(DeterministicModeConfig) -> Unit
+
+pub fn set_rng_seed(UInt) -> Unit
+
+pub fn unregister_snapshot_provider(String) -> Unit
+
+pub fn validate_registered_texture_atlases() -> Array[(@sprite.TextureAtlasLayoutHandle, AtlasValidationReport)]
+
+pub fn validate_texture_atlas_layout(@sprite.TextureAtlasLayout) -> AtlasValidationReport
+
+pub fn validate_texture_atlas_layout_for_image(@sprite.TextureAtlasLayout, String?) -> AtlasValidationReport
+
+pub fn world_snapshot() -> WorldSnapshot
+
+// Errors
+
+// Types and methods
+pub(all) struct AtlasValidationIssue {
+  kind : AtlasValidationIssueKind
+  rect_index : Int?
+  other_rect_index : Int?
+  message : String
+}
+
+pub(all) enum AtlasValidationIssueKind {
+  InvalidAtlasSize
+  InvalidRectSize
+  OutOfBounds
+  DuplicateRect
+  Overlap
+  FullyTransparentRect
+  TransparencyCheckUnavailable
+}
+
+pub(all) struct AtlasValidationReport {
+  total_rects : Int
+  issues : Array[AtlasValidationIssue]
+}
+
+pub(all) struct DeterministicModeConfig {
+  rng_seed : UInt
+  fixed_delta_override : Double?
+  frame_delta_override : Double?
+  deterministic_ordering : Bool
+}
+
+pub(all) struct DrawSubmission2DInfo {
+  entity_id : UInt?
+  layer : String
+  kind : String
+  depth : Double?
+  texture_path : String?
+  uv_rect : @math.Rect?
+  destination_rect : @math.Rect?
+  transform : @math.Transform?
+  color : @render.Color?
+}
+
+pub(all) struct DrawSubmission3DInfo {
+  entity_id : UInt?
+  mesh : @render3d_types.MeshHandle
+  material : @render3d_types.MaterialHandle
+  cast_shadows : Bool
+  receive_shadows : Bool
+  translation : @math.Vec3
+  scale : @math.Vec3
+}
+
+pub(all) struct EntitySnapshot {
+  entity_id : UInt
+  name : String?
+  transform : @transform.Transform?
+  global_transform : @transform.GlobalTransform?
+  visibility : @visibility.Visibility?
+  sprite : @sprite.Sprite?
+  rigid_body2d : @collision.RigidBody?
+  collider2d : @collision.Collider?
+  linear_velocity2d : @velocity.Velocity?
+}
+
+pub(all) struct FramePerformanceMetrics {
+  frame_index : UInt
+  fixed_step_index : UInt
+  fixed_steps_this_frame : Int
+  update_delta : Double
+  fixed_delta_total : Double
+  render_delta : Double
+  entity_count : Int
+  draw2d_count : Int
+  draw3d_count : Int
+}
+
+pub(all) enum InputInjectionEvent {
+  KeyDown(@inputs.Code)
+  KeyUp(@inputs.Code)
+  MouseMove(@math.Vec2D)
+  MouseWheel(@math.Vec2D)
+  MouseLeft(Bool)
+  MouseRight(Bool)
+  MouseMiddle(Bool)
+  GamepadConnected(@inputs.Gamepad, Bool)
+  GamepadButton(@inputs.GamepadButtonInput, Bool)
+  GamepadAxis(@inputs.GamepadAxisInput, Double)
+}
+
+pub(all) struct RenderSubmissionDebug {
+  frame_index : UInt
+  fixed_step_index : UInt
+  draw2d : Array[DrawSubmission2DInfo]
+  draw3d : Array[DrawSubmission3DInfo]
+}
+
+pub(all) struct WorldSnapshot {
+  frame_index : UInt
+  fixed_step_index : UInt
+  entities : Array[EntitySnapshot]
+  custom_fields : Array[(String, String)]
+}
+
+// Type aliases
+pub type SnapshotProvider = (@ecs.World) -> String
+
+// Traits
+

@@ -649,6 +649,7 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
       }
     }
     items.push({
+      entity_id: Some(entity.id()),
       transform: {
         translation: transform.translation,
         rotation: transform.rotation,

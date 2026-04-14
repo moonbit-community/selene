@@ -34,6 +34,8 @@ pub fn App::add_system(Self, @system.Schedule, (@ecs.World) -> Unit, system_name
 pub fn App::add_systems(Self, @system.Schedule, Array[(@ecs.World) -> Unit], in_set? : @system_set.SystemSet, before? : Array[@system_set.SystemSet], after? : Array[@system_set.SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
 pub fn App::new() -> Self
 pub fn App::run(Self) -> Unit
+pub fn App::run_frames(Self, Int, raw_delta? : Double, fixed_delta_override? : Double?) -> Unit
+pub fn App::step_fixed(Self, Int, fixed_delta_override? : Double?) -> Unit
 pub fn App::with_fixed_hz(Self, UInt) -> Self
 pub fn App::with_fps(Self, UInt) -> Self
 pub fn App::with_image_smooth(Self, Bool) -> Self
@@ -52,6 +54,29 @@ pub(all) struct RegisteredSystem {
   before : Array[@system_set.SystemSet]
   after : Array[@system_set.SystemSet]
   run_if : ((@ecs.World) -> Bool)?
+}
+
+pub(all) struct RuntimePlan {
+  world : @ecs.World
+  fixed_dt : Double
+  max_fixed_steps : Int
+  startup_systems : Array[RegisteredSystem]
+  frame_first : Array[RegisteredSystem]
+  frame_pre : Array[RegisteredSystem]
+  frame_on_exit : Array[RegisteredSystem]
+  frame_on_enter : Array[RegisteredSystem]
+  frame_update : Array[RegisteredSystem]
+  frame_post : Array[RegisteredSystem]
+  frame_last : Array[RegisteredSystem]
+  fixed_first : Array[RegisteredSystem]
+  fixed_pre : Array[RegisteredSystem]
+  fixed_update : Array[RegisteredSystem]
+  fixed_post : Array[RegisteredSystem]
+  fixed_last : Array[RegisteredSystem]
+  render_extract : Array[RegisteredSystem]
+  render_prepare : Array[RegisteredSystem]
+  render_stage : Array[RegisteredSystem]
+  render_cleanup : Array[RegisteredSystem]
 }
 
 // Type aliases

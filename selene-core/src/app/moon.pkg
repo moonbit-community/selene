@@ -7,6 +7,7 @@ import {
   "Milky2018/selene/platform_audio",
   "Milky2018/selene/platform_input",
   "Milky2018/selene/platform_window",
+  "Milky2018/selene/runtime_debug",
   "Milky2018/selene/state",
   "Milky2018/selene/system",
   "Milky2018/selene/system_set",

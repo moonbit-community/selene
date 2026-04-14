@@ -77,6 +77,11 @@ pub fn Entity::new() -> Entity {
 }
 
 ///|
+pub fn Entity::id(self : Entity) -> UInt {
+  self.value
+}
+
+///|
 /// Reserves an entity id that becomes alive on the next flush.
 /// This matches deferred-spawn semantics used by commands.
 pub fn Entity::reserve_spawn() -> Entity {

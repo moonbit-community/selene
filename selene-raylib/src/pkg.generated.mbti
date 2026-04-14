@@ -12,6 +12,10 @@ import {
 }
 
 // Values
+pub fn capture_frame_png() -> Bytes?
+
+pub fn capture_frame_png_to_file(String) -> Bool
+
 pub fn draw_circle(@render2d_types.CircleDrawCommand2D) -> Unit
 
 pub fn draw_gradient_rect(@render2d_types.GradientRectDrawCommand2D) -> Unit

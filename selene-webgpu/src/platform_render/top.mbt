@@ -106,3 +106,35 @@ pub fn reset_clip_stack() -> Unit {
 pub fn capability_warning(_feature : String, _fallback : String) -> Unit {
   ()
 }
+
+///|
+pub fn capture_frame_png() -> Bytes? {
+  @impl.capture_frame_png()
+}
+
+///|
+pub fn capture_frame_png_to_file(path : String) -> Bool {
+  @impl.capture_frame_png_to_file(path)
+}
+
+///|
+pub fn render_offscreen_png(
+  frame : @render_pipeline.RenderFrame,
+  width : Int,
+  height : Int,
+) -> Bytes? {
+  ignore(frame)
+  ignore(width)
+  ignore(height)
+  @impl.capture_frame_png()
+}
+
+///|
+pub fn image_region_is_fully_transparent(
+  path : String,
+  rect : @math.Rect,
+) -> Bool? {
+  ignore(path)
+  ignore(rect)
+  None
+}

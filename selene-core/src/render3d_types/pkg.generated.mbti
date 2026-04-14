@@ -4,6 +4,7 @@ package "Milky2018/selene/render3d_types"
 import {
   "Milky2018/selene/math",
   "Milky2018/selene/render",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -42,7 +43,7 @@ pub(all) enum AlphaMode3D {
   Opaque
   Mask
   Blend
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct AmbientLight3D {
   color : @render.Color
@@ -52,13 +53,13 @@ pub(all) struct AmbientLight3D {
 pub(all) enum CameraProjection3D {
   Perspective
   Orthographic
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct CascadeShadowConfig3D {
   bounds : Array[Double]
   minimum_distance : Double
   overlap_proportion : Double
-} derive(Show)
+} derive(@debug.Debug)
 
 pub(all) struct CascadeShadowConfigBuilder3D {
   num_cascades : Int
@@ -66,7 +67,7 @@ pub(all) struct CascadeShadowConfigBuilder3D {
   maximum_distance : Double
   first_cascade_far_bound : Double
   overlap_proportion : Double
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct DirectionalLight3D {
   direction : @math.Vec3
@@ -80,7 +81,7 @@ pub(all) struct DirectionalLight3D {
 
 pub(all) struct DirectionalLightShadowMap3D {
   size : Int
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct FrameCamera3D {
   position : @math.Vec3
@@ -123,25 +124,25 @@ pub(all) struct FrameTransform3D {
   translation : @math.Vec3
   rotation : @math.Quat
   scale : @math.Vec3
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct ImageAsset {
   path : String
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
-pub(all) struct ImageHandle(UInt) derive(Eq, Hash, Show)
+pub(all) struct ImageHandle(UInt) derive(Eq, Hash, @debug.Debug)
 #deprecated
 pub fn ImageHandle::inner(Self) -> UInt
 
-pub(all) struct MaterialHandle(UInt) derive(Eq, Hash, Show)
+pub(all) struct MaterialHandle(UInt) derive(Eq, Hash, @debug.Debug)
 #deprecated
 pub fn MaterialHandle::inner(Self) -> UInt
 
 pub(all) struct MeshAsset {
   primitive : MeshPrimitive3D
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
-pub(all) struct MeshHandle(UInt) derive(Eq, Hash, Show)
+pub(all) struct MeshHandle(UInt) derive(Eq, Hash, @debug.Debug)
 #deprecated
 pub fn MeshHandle::inner(Self) -> UInt
 
@@ -151,7 +152,7 @@ pub(all) enum MeshPrimitive3D {
   Cylinder(Double, Double, Double, Int)
   Plane(@math.Vec3)
   Triangles(TriangleMesh3D)
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct PointLight3D {
   color : @render.Color
@@ -165,7 +166,7 @@ pub(all) struct PointLight3D {
 
 pub(all) struct PointLightShadowMap3D {
   size : Int
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct RenderFrame3D {
   mut camera : FrameCamera3D?
@@ -180,6 +181,7 @@ pub(all) struct RenderFrame3D {
 }
 
 pub(all) struct RenderItem3D {
+  entity_id : UInt?
   transform : FrameTransform3D
   mesh : MeshHandle
   material : MaterialHandle
@@ -187,7 +189,7 @@ pub(all) struct RenderItem3D {
   receive_shadows : Bool
 }
 
-pub(all) struct SceneHandle(UInt) derive(Eq, Hash, Show)
+pub(all) struct SceneHandle(UInt) derive(Eq, Hash, @debug.Debug)
 #deprecated
 pub fn SceneHandle::inner(Self) -> UInt
 
@@ -227,19 +229,19 @@ pub(all) struct Tangent3D {
   y : Double
   z : Double
   w : Double
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct TextureBinding3D {
   image : ImageHandle
   sampler : TextureSampler3D
   texcoord_set : Int
   transform : TextureTransform3D
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum TextureFilter3D {
   Nearest
   Linear
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct TextureSampler3D {
   wrap_u : TextureWrap3D
@@ -247,19 +249,19 @@ pub(all) struct TextureSampler3D {
   min_filter : TextureFilter3D
   mag_filter : TextureFilter3D
   mipmap_filter : TextureFilter3D?
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct TextureTransform3D {
   offset : @math.Vec2D
   scale : @math.Vec2D
   rotation : Double
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum TextureWrap3D {
   ClampToEdge
   Repeat
   MirroredRepeat
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct TriangleMesh3D {
   positions : Array[@math.Vec3]
@@ -269,13 +271,13 @@ pub(all) struct TriangleMesh3D {
   normals : Array[@math.Vec3]?
   tangents : Array[Tangent3D]?
   colors : Array[@render.Color]?
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum TriangleTopology3D {
   TriangleList
   TriangleStrip
   TriangleFan
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 // Type aliases
 

@@ -6,6 +6,7 @@ import {
   "Milky2018/selene/entity",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -27,6 +28,12 @@ pub fn take_released_texture_atlas_layouts() -> Array[TextureAtlasLayoutHandle]
 
 pub fn texture_atlas_layout(TextureAtlasLayoutHandle) -> TextureAtlasLayout?
 
+pub fn texture_atlas_layout_entries() -> Array[(TextureAtlasLayoutHandle, TextureAtlasLayout)]
+
+pub fn texture_atlas_layout_rects(TextureAtlasLayout) -> Array[@math.Rect]
+
+pub fn texture_atlas_layout_size(TextureAtlasLayout) -> @math.Vec2D
+
 pub fn texture_atlas_rect(TextureAtlas) -> @math.Rect?
 
 pub fn update_texture_atlas_layout(TextureAtlasLayoutHandle, TextureAtlasLayout) -> Unit
@@ -34,7 +41,7 @@ pub fn update_texture_atlas_layout(TextureAtlasLayoutHandle, TextureAtlasLayout)
 // Errors
 
 // Types and methods
-pub(all) struct Anchor(@math.Vec2D) derive(Eq, Show)
+pub(all) struct Anchor(@math.Vec2D) derive(Eq, @debug.Debug)
 pub fn Anchor::as_vec(Self) -> @math.Vec2D
 #deprecated
 pub fn Anchor::inner(Self) -> @math.Vec2D
@@ -67,7 +74,7 @@ pub(all) struct TextureAtlas {
   mut index : Int
 
   fn new(TextureAtlasLayoutHandle, index? : Int) -> TextureAtlas
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn TextureAtlas::new(TextureAtlasLayoutHandle, index? : Int) -> Self
 
 pub(all) struct TextureAtlasLayout {
@@ -79,7 +86,7 @@ pub(all) struct TextureAtlasLayout {
 pub fn TextureAtlasLayout::from_grid(@math.Vec2D, Int, Int, padding? : @math.Vec2D?, offset? : @math.Vec2D?) -> Self
 pub fn TextureAtlasLayout::new(@math.Vec2D, Array[@math.Rect]) -> Self
 
-pub(all) struct TextureAtlasLayoutHandle(UInt) derive(Eq, Hash, Show)
+pub(all) struct TextureAtlasLayoutHandle(UInt) derive(Eq, Hash, @debug.Debug)
 #deprecated
 pub fn TextureAtlasLayoutHandle::inner(Self) -> UInt
 

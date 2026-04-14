@@ -364,14 +364,18 @@ pub fn render_text2d_system(delta : Double) -> Unit {
         Center => origin[X] + (layout_width - measured[X]) / 2.0
         Right => origin[X] + layout_width - measured[X]
       }
-      @render2d.push_text_with_depth(global_transform.translation().z, {
-        text: line,
-        position: pixel_snapped_position(
-          @math.Vec2D(x, start_y + line_height * index.to_double()),
-        ),
-        transform: text_screen_transform(global_transform, camera_view),
-        style: style_for_draw,
-      })
+      @render2d.push_text_with_depth_for_entity(
+        global_transform.translation().z,
+        Some(entity.id()),
+        {
+          text: line,
+          position: pixel_snapped_position(
+            @math.Vec2D(x, start_y + line_height * index.to_double()),
+          ),
+          transform: text_screen_transform(global_transform, camera_view),
+          style: style_for_draw,
+        },
+      )
     }
   }
 }

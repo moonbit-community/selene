@@ -3123,6 +3123,28 @@ extern "js" fn webgpu_end_frame() -> Unit =
   #| }
 
 ///|
+extern "js" fn webgpu_capture_frame_png_bytes() -> Array[Int] =
+  #| () => {
+  #|   try {
+  #|     const rt = globalThis.__selene_webgpu_runtime;
+  #|     const canvas = rt?.canvas;
+  #|     if (!canvas || !canvas.toDataURL) return [];
+  #|     const dataUrl = canvas.toDataURL("image/png");
+  #|     const comma = dataUrl.indexOf(",");
+  #|     if (comma < 0) return [];
+  #|     const base64 = dataUrl.slice(comma + 1);
+  #|     const binary = atob(base64);
+  #|     const out = new Array(binary.length);
+  #|     for (let i = 0; i < binary.length; i += 1) {
+  #|       out[i] = binary.charCodeAt(i) & 0xff;
+  #|     }
+  #|     return out;
+  #|   } catch (_err) {
+  #|     return [];
+  #|   }
+  #| }
+
+///|
 extern "js" fn webgpu_preload_img(path : String) -> Unit =
   #| (path) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;

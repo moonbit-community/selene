@@ -4879,6 +4879,34 @@ pub fn get_asset_bytes(path : String) -> Bytes? {
 }
 
 ///|
+pub fn capture_frame_png() -> Bytes? {
+  let image = @raylib.Image::load_from_screen()
+  if !image.is_valid() {
+    image.unload()
+    return None
+  }
+  let bytes = image.export_to_memory(".png")
+  image.unload()
+  if bytes.length() == 0 {
+    None
+  } else {
+    Some(bytes)
+  }
+}
+
+///|
+pub fn capture_frame_png_to_file(path : String) -> Bool {
+  let image = @raylib.Image::load_from_screen()
+  if !image.is_valid() {
+    image.unload()
+    return false
+  }
+  let ok = image.export_(path)
+  image.unload()
+  ok
+}
+
+///|
 pub fn request_close() -> Unit {
   backend.close_requested = true
 }

@@ -178,16 +178,26 @@ pub fn App::add_systems(
 }
 
 ///|
-fn set_key(system : RegisteredSystem, index : Int) -> String {
+fn set_key(
+  system : RegisteredSystem,
+  index : Int,
+  deterministic_ordering : Bool,
+) -> String {
   match system.in_set {
     Some(set) => set.name
-    None => "__system_\{index}"
+    None =>
+      if deterministic_ordering {
+        "__system_\{system.name}_\{index}"
+      } else {
+        "__system_\{index}"
+      }
   }
 }
 
 ///|
 fn sort_systems_by_set(
   systems : Array[RegisteredSystem],
+  deterministic_ordering : Bool,
 ) -> Array[RegisteredSystem] {
   if systems.length() <= 1 {
     return systems
@@ -198,7 +208,7 @@ fn sort_systems_by_set(
   let group_keys : Array[String] = []
 
   for index, system in systems {
-    let key = set_key(system, index)
+    let key = set_key(system, index, deterministic_ordering)
     if !group_members.contains(key) {
       group_members.set(key, [])
       group_order.set(key, index)
@@ -237,7 +247,7 @@ fn sort_systems_by_set(
   }
 
   for index, system in systems {
-    let current_key = set_key(system, index)
+    let current_key = set_key(system, index, deterministic_ordering)
     for target in system.before {
       add_edge(current_key, target.name, outgoing, indegree)
     }
@@ -247,9 +257,21 @@ fn sort_systems_by_set(
   }
 
   let sorted_candidates = group_keys.copy()
-  sorted_candidates.sort_by(fn(lhs, rhs) {
-    group_order.get(lhs).unwrap_or(0) - group_order.get(rhs).unwrap_or(0)
-  })
+  if deterministic_ordering {
+    sorted_candidates.sort_by(fn(lhs, rhs) {
+      if lhs < rhs {
+        -1
+      } else if lhs > rhs {
+        1
+      } else {
+        0
+      }
+    })
+  } else {
+    sorted_candidates.sort_by(fn(lhs, rhs) {
+      group_order.get(lhs).unwrap_or(0) - group_order.get(rhs).unwrap_or(0)
+    })
+  }
 
   let processed : @set.Set[String] = @set.Set::new()
   let sorted_keys : Array[String] = []
@@ -283,7 +305,19 @@ fn sort_systems_by_set(
 
   let ordered : Array[RegisteredSystem] = []
   for key in sorted_keys {
-    for system in group_members.get(key).unwrap_or([]) {
+    let members = group_members.get(key).unwrap_or([])
+    if deterministic_ordering {
+      members.sort_by(fn(lhs, rhs) {
+        if lhs.name < rhs.name {
+          -1
+        } else if lhs.name > rhs.name {
+          1
+        } else {
+          0
+        }
+      })
+    }
+    for system in members {
       ordered.push(system)
     }
   }
@@ -293,6 +327,7 @@ fn sort_systems_by_set(
 ///|
 fn collect_systems(
   systems : Array[RegisteredSystem],
+  deterministic_ordering : Bool,
   matcher : (@system.Schedule) -> Bool,
 ) -> Array[RegisteredSystem] {
   let selected : Array[RegisteredSystem] = []
@@ -301,7 +336,7 @@ fn collect_systems(
       selected.push(system)
     }
   }
-  sort_systems_by_set(selected)
+  sort_systems_by_set(selected, deterministic_ordering)
 }
 
 ///|
@@ -331,153 +366,303 @@ fn run_stage(systems : Array[RegisteredSystem], world : @ecs.World) -> Unit {
 }
 
 ///|
-pub fn App::run(self : App) -> Unit {
-  if self.zoom <= 0.0 {
+pub(all) struct RuntimePlan {
+  world : @ecs.World
+  fixed_dt : Double
+  max_fixed_steps : Int
+  startup_systems : Array[RegisteredSystem]
+  frame_first : Array[RegisteredSystem]
+  frame_pre : Array[RegisteredSystem]
+  frame_on_exit : Array[RegisteredSystem]
+  frame_on_enter : Array[RegisteredSystem]
+  frame_update : Array[RegisteredSystem]
+  frame_post : Array[RegisteredSystem]
+  frame_last : Array[RegisteredSystem]
+  fixed_first : Array[RegisteredSystem]
+  fixed_pre : Array[RegisteredSystem]
+  fixed_update : Array[RegisteredSystem]
+  fixed_post : Array[RegisteredSystem]
+  fixed_last : Array[RegisteredSystem]
+  render_extract : Array[RegisteredSystem]
+  render_prepare : Array[RegisteredSystem]
+  render_stage : Array[RegisteredSystem]
+  render_cleanup : Array[RegisteredSystem]
+}
+
+///|
+fn setup_runtime_world(app : App) -> Unit {
+  @ecs.set_current_world(app.world)
+  @system.configure_display(app.viewport_width, app.viewport_height, app.zoom)
+  for register_event in app.event_registrations {
+    register_event(app.world)
+  }
+}
+
+///|
+fn resolve_fixed_dt(app : App, fixed_delta_override : Double?) -> Double {
+  let deterministic_override = @runtime_debug.fixed_delta_override()
+  let chosen = match fixed_delta_override {
+    Some(value) => Some(value)
+    None => deterministic_override
+  }
+  match chosen {
+    Some(value) => value
+    None => 1.0 / app.fixed_hz.to_double()
+  }
+}
+
+///|
+fn build_runtime_plan(
+  app : App,
+  fixed_delta_override? : Double? = None,
+) -> RuntimePlan {
+  if app.zoom <= 0.0 {
     abort("App::with_zoom must be a positive number")
   }
-  if self.fixed_hz == 0 {
+  if app.fixed_hz == 0 {
     abort("App::with_fixed_hz must be greater than 0")
   }
-  if self.max_fixed_steps_per_frame == 0 {
+  if app.max_fixed_steps_per_frame == 0 {
     abort("App::with_max_fixed_steps_per_frame must be greater than 0")
   }
+  let fixed_dt = resolve_fixed_dt(app, fixed_delta_override)
+  if fixed_dt <= 0.0 {
+    abort("App::run_frames/step_fixed fixed delta must be greater than 0")
+  }
+  let deterministic_ordering = @runtime_debug.deterministic_ordering_enabled()
+  {
+    world: app.world,
+    fixed_dt,
+    max_fixed_steps: app.max_fixed_steps_per_frame.reinterpret_as_int(),
+    startup_systems: collect_systems(app.systems, deterministic_ordering, fn(
+      schedule,
+    ) {
+      schedule is @system.Startup
+    }),
+    frame_first: collect_systems(app.systems, deterministic_ordering, fn(
+      schedule,
+    ) {
+      schedule is @system.First
+    }),
+    frame_pre: collect_systems(app.systems, deterministic_ordering, fn(
+      schedule,
+    ) {
+      schedule is @system.PreUpdate
+    }),
+    frame_on_exit: collect_systems(app.systems, deterministic_ordering, fn(
+      schedule,
+    ) {
+      schedule is @system.OnExit(_)
+    }),
+    frame_on_enter: collect_systems(app.systems, deterministic_ordering, fn(
+      schedule,
+    ) {
+      schedule is @system.OnEnter(_)
+    }),
+    frame_update: collect_systems(app.systems, deterministic_ordering, fn(
+      schedule,
+    ) {
+      schedule is @system.Update
+    }),
+    frame_post: collect_systems(app.systems, deterministic_ordering, fn(
+      schedule,
+    ) {
+      schedule is @system.PostUpdate
+    }),
+    frame_last: collect_systems(app.systems, deterministic_ordering, fn(
+      schedule,
+    ) {
+      schedule is @system.Last
+    }),
+    fixed_first: collect_systems(app.systems, deterministic_ordering, fn(
+      schedule,
+    ) {
+      schedule is @system.FixedFirst
+    }),
+    fixed_pre: collect_systems(app.systems, deterministic_ordering, fn(
+      schedule,
+    ) {
+      schedule is @system.FixedPreUpdate
+    }),
+    fixed_update: collect_systems(app.systems, deterministic_ordering, fn(
+      schedule,
+    ) {
+      schedule is @system.FixedUpdate
+    }),
+    fixed_post: collect_systems(app.systems, deterministic_ordering, fn(
+      schedule,
+    ) {
+      schedule is @system.FixedPostUpdate
+    }),
+    fixed_last: collect_systems(app.systems, deterministic_ordering, fn(
+      schedule,
+    ) {
+      schedule is @system.FixedLast
+    }),
+    render_extract: collect_systems(app.systems, deterministic_ordering, fn(
+      schedule,
+    ) {
+      schedule is @system.RenderExtract
+    }),
+    render_prepare: collect_systems(app.systems, deterministic_ordering, fn(
+      schedule,
+    ) {
+      schedule is @system.RenderPrepare
+    }),
+    render_stage: collect_systems(app.systems, deterministic_ordering, fn(
+      schedule,
+    ) {
+      schedule is @system.Render
+    }),
+    render_cleanup: collect_systems(app.systems, deterministic_ordering, fn(
+      schedule,
+    ) {
+      schedule is @system.RenderCleanup
+    }),
+  }
+}
 
-  @ecs.set_current_world(self.world)
-  @system.configure_display(
-    self.viewport_width,
-    self.viewport_height,
-    self.zoom,
-  )
-  let screen_width = self.viewport_width * self.zoom
-  let screen_height = self.viewport_height * self.zoom
-  for register_event in self.event_registrations {
-    register_event(self.world)
+///|
+fn startup_runtime(plan : RuntimePlan) -> Unit {
+  @ecs.set_current_world(plan.world)
+  @time.set_delta(0.0)
+  run_stage(plan.startup_systems, plan.world)
+  @commands.commands_flush_system(plan.world, 0.0)
+  @entity.entity_flush_system(0.0)
+}
+
+///|
+fn alive_entity_count() -> Int {
+  let mut count = 0
+  for entity in @entity.iter_entities() {
+    if entity.is_alive() {
+      count += 1
+    }
+  }
+  count
+}
+
+///|
+fn resolved_frame_delta(raw_delta : Double) -> Double {
+  match @runtime_debug.frame_delta_override() {
+    Some(override_delta) => override_delta
+    None => raw_delta
+  }
+}
+
+///|
+fn run_fixed_step_once(plan : RuntimePlan) -> Unit {
+  @ecs.set_current_world(plan.world)
+  plan.world.advance_fixed_step()
+  @time.use_fixed_delta(plan.fixed_dt)
+  let fixed_delta = @time.delta()
+  @event.event_fixed_update_system(fixed_delta)
+  run_stage(plan.fixed_first, plan.world)
+  run_stage(plan.fixed_pre, plan.world)
+  run_stage(plan.fixed_update, plan.world)
+  run_stage(plan.fixed_post, plan.world)
+  run_stage(plan.fixed_last, plan.world)
+  @commands.commands_flush_system(plan.world, fixed_delta)
+  @entity.entity_flush_system(fixed_delta)
+  @runtime_debug.note_fixed_step(fixed_delta)
+}
+
+///|
+fn run_game_frame(
+  plan : RuntimePlan,
+  accumulator : Ref[Double],
+  raw_delta : Double,
+  input_override : @inputs.InputSnapshot?,
+) -> Unit {
+  @ecs.set_current_world(plan.world)
+  plan.world.advance_frame()
+  @runtime_debug.begin_frame_metrics()
+
+  let used_delta = resolved_frame_delta(raw_delta)
+  @time.begin_frame(used_delta)
+  let injected_or_polled = match input_override {
+    Some(snapshot) => snapshot
+    None =>
+      @runtime_debug.consume_injected_input_or(fn() {
+        @platform_input.poll_input()
+      })
+  }
+  @inputs.apply_input_snapshot(injected_or_polled)
+  accumulator.val += @time.delta()
+
+  let mut fixed_steps = 0
+  while accumulator.val >= plan.fixed_dt && fixed_steps < plan.max_fixed_steps {
+    run_fixed_step_once(plan)
+    accumulator.val -= plan.fixed_dt
+    fixed_steps += 1
+  }
+  if fixed_steps >= plan.max_fixed_steps {
+    accumulator.val = 0.0
   }
 
-  let startup_systems = collect_systems(self.systems, fn(schedule) {
-    schedule is @system.Startup
-  })
-  let frame_first = collect_systems(self.systems, fn(schedule) {
-    schedule is @system.First
-  })
-  let frame_pre = collect_systems(self.systems, fn(schedule) {
-    schedule is @system.PreUpdate
-  })
-  let frame_on_exit = collect_systems(self.systems, fn(schedule) {
-    schedule is @system.OnExit(_)
-  })
-  let frame_on_enter = collect_systems(self.systems, fn(schedule) {
-    schedule is @system.OnEnter(_)
-  })
-  let frame_update = collect_systems(self.systems, fn(schedule) {
-    schedule is @system.Update
-  })
-  let frame_post = collect_systems(self.systems, fn(schedule) {
-    schedule is @system.PostUpdate
-  })
-  let frame_last = collect_systems(self.systems, fn(schedule) {
-    schedule is @system.Last
-  })
+  @time.use_frame_delta()
+  let delta = @time.delta()
+  @state.state_transition_system(delta)
+  @event.event_frame_update_system(delta)
+  run_stage(plan.frame_first, plan.world)
+  run_stage(plan.frame_pre, plan.world)
+  run_stage(plan.frame_on_exit, plan.world)
+  run_stage(plan.frame_on_enter, plan.world)
+  run_stage(plan.frame_update, plan.world)
+  run_stage(plan.frame_post, plan.world)
+  @event.event_observer_dispatch_system(delta)
+  run_stage(plan.frame_last, plan.world)
+  @commands.commands_flush_system(plan.world, delta)
+  @entity.entity_flush_system(delta)
 
-  let fixed_first = collect_systems(self.systems, fn(schedule) {
-    schedule is @system.FixedFirst
-  })
-  let fixed_pre = collect_systems(self.systems, fn(schedule) {
-    schedule is @system.FixedPreUpdate
-  })
-  let fixed_update = collect_systems(self.systems, fn(schedule) {
-    schedule is @system.FixedUpdate
-  })
-  let fixed_post = collect_systems(self.systems, fn(schedule) {
-    schedule is @system.FixedPostUpdate
-  })
-  let fixed_last = collect_systems(self.systems, fn(schedule) {
-    schedule is @system.FixedLast
-  })
+  @runtime_debug.note_update(delta, alive_entity_count())
 
-  let render_extract = collect_systems(self.systems, fn(schedule) {
-    schedule is @system.RenderExtract
-  })
-  let render_prepare = collect_systems(self.systems, fn(schedule) {
-    schedule is @system.RenderPrepare
-  })
-  let render_stage = collect_systems(self.systems, fn(schedule) {
-    schedule is @system.Render
-  })
-  let render_cleanup = collect_systems(self.systems, fn(schedule) {
-    schedule is @system.RenderCleanup
-  })
+  let alpha = @cmp.maximum(
+    0.0,
+    @cmp.minimum(1.0, accumulator.val / plan.fixed_dt),
+  )
+  @system.set_render_alpha(alpha)
+}
 
-  let world = self.world
+///|
+fn run_render_frame(plan : RuntimePlan, raw_delta : Double) -> Unit {
+  @ecs.set_current_world(plan.world)
+  let used_delta = resolved_frame_delta(raw_delta)
+  @time.set_delta(used_delta)
+  @time.use_frame_delta()
+  let delta = @time.delta()
+  @event.event_render_update_system(delta)
+  run_stage(plan.render_extract, plan.world)
+  run_stage(plan.render_prepare, plan.world)
+  run_stage(plan.render_stage, plan.world)
+  run_stage(plan.render_cleanup, plan.world)
+  let (draw2d_count, draw3d_count) = match
+    @runtime_debug.latest_render_submission() {
+    Some(submission) => (submission.draw2d.length(), submission.draw3d.length())
+    None => (0, 0)
+  }
+  @runtime_debug.note_render(delta, draw2d_count, draw3d_count)
+  @platform_audio.tick()
+}
+
+///|
+pub fn App::run(self : App) -> Unit {
+  setup_runtime_world(self)
+  let plan = build_runtime_plan(self)
+  let accumulator : Ref[Double] = { val: 0.0 }
+  let screen_width = self.viewport_width * self.zoom
+  let screen_height = self.viewport_height * self.zoom
 
   fn startup() {
-    @ecs.set_current_world(world)
-    @time.set_delta(0.0)
-    run_stage(startup_systems, world)
-    @commands.commands_flush_system(world, 0.0)
-    @entity.entity_flush_system(0.0)
+    startup_runtime(plan)
   }
 
   fn render_loop(_raw_delta : Double) {
-    @ecs.set_current_world(world)
-    @time.use_frame_delta()
-    let delta = @time.delta()
-    @event.event_render_update_system(delta)
-    run_stage(render_extract, world)
-    run_stage(render_prepare, world)
-    run_stage(render_stage, world)
-    run_stage(render_cleanup, world)
-    @platform_audio.tick()
+    run_render_frame(plan, _raw_delta)
   }
 
-  let fixed_dt = 1.0 / self.fixed_hz.to_double()
-  let max_fixed_steps = self.max_fixed_steps_per_frame.reinterpret_as_int()
-  let accumulator : Ref[Double] = { val: 0.0 }
-
   fn game_loop(raw_delta : Double) {
-    @ecs.set_current_world(world)
-    world.advance_frame()
-    @time.begin_frame(raw_delta)
-    @inputs.apply_input_snapshot(@platform_input.poll_input())
-    accumulator.val += @time.delta()
-    let mut fixed_steps = 0
-    while accumulator.val >= fixed_dt && fixed_steps < max_fixed_steps {
-      world.advance_fixed_step()
-      @time.use_fixed_delta(fixed_dt)
-      let fixed_delta = @time.delta()
-      @event.event_fixed_update_system(fixed_delta)
-      run_stage(fixed_first, world)
-      run_stage(fixed_pre, world)
-      run_stage(fixed_update, world)
-      run_stage(fixed_post, world)
-      run_stage(fixed_last, world)
-      @commands.commands_flush_system(world, fixed_delta)
-      @entity.entity_flush_system(fixed_delta)
-      accumulator.val -= fixed_dt
-      fixed_steps += 1
-    }
-    if fixed_steps >= max_fixed_steps {
-      accumulator.val = 0.0
-    }
-    @time.use_frame_delta()
-    let delta = @time.delta()
-    @state.state_transition_system(delta)
-    @event.event_frame_update_system(delta)
-
-    run_stage(frame_first, world)
-    run_stage(frame_pre, world)
-    run_stage(frame_on_exit, world)
-    run_stage(frame_on_enter, world)
-    run_stage(frame_update, world)
-    run_stage(frame_post, world)
-
-    @event.event_observer_dispatch_system(delta)
-    run_stage(frame_last, world)
-    @commands.commands_flush_system(world, delta)
-    @entity.entity_flush_system(delta)
-
-    let alpha = @cmp.maximum(0.0, @cmp.minimum(1.0, accumulator.val / fixed_dt))
-    @system.set_render_alpha(alpha)
+    run_game_frame(plan, accumulator, raw_delta, None)
   }
 
   let run_game = @platform_window.initialize(
@@ -492,4 +677,44 @@ pub fn App::run(self : App) -> Unit {
     { startup, render_loop, game_loop },
   )
   run_game()
+}
+
+///|
+pub fn App::run_frames(
+  self : App,
+  frames : Int,
+  raw_delta? : Double = 1.0 / DEFAULT_FPS.to_double(),
+  fixed_delta_override? : Double? = None,
+) -> Unit {
+  if frames <= 0 {
+    return
+  }
+  setup_runtime_world(self)
+  let plan = build_runtime_plan(self, fixed_delta_override~)
+  startup_runtime(plan)
+  let accumulator : Ref[Double] = { val: 0.0 }
+  let default_delta = 1.0 / self.fps.to_double()
+  let used_delta = if raw_delta > 0.0 { raw_delta } else { default_delta }
+  for _ in 0..<frames {
+    run_game_frame(plan, accumulator, used_delta, None)
+    run_render_frame(plan, used_delta)
+  }
+}
+
+///|
+pub fn App::step_fixed(
+  self : App,
+  steps : Int,
+  fixed_delta_override? : Double? = None,
+) -> Unit {
+  if steps <= 0 {
+    return
+  }
+  setup_runtime_world(self)
+  let plan = build_runtime_plan(self, fixed_delta_override~)
+  startup_runtime(plan)
+  for _ in 0..<steps {
+    run_fixed_step_once(plan)
+  }
+  @system.set_render_alpha(0.0)
 }

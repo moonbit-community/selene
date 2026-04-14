@@ -90,6 +90,25 @@ pub fn texture_atlas_layout(
 }
 
 ///|
+pub fn texture_atlas_layout_size(layout : TextureAtlasLayout) -> @math.Vec2D {
+  layout.size
+}
+
+///|
+pub fn texture_atlas_layout_rects(
+  layout : TextureAtlasLayout,
+) -> Array[@math.Rect] {
+  layout.rects.copy()
+}
+
+///|
+pub fn texture_atlas_layout_entries() -> Array[
+  (TextureAtlasLayoutHandle, TextureAtlasLayout),
+] {
+  texture_atlas_layouts_by_handle.to_array()
+}
+
+///|
 pub fn texture_atlas_rect(texture_atlas : TextureAtlas) -> @math.Rect? {
   guard texture_atlas_layout(texture_atlas.layout) is Some(layout) else {
     return None

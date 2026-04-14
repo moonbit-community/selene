@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/entity"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 pub fn entity_flush_system(Double) -> Unit
 
@@ -11,10 +15,11 @@ pub fn iter_entities() -> Iter[Entity]
 // Errors
 
 // Types and methods
-type Entity derive(Eq, Hash, Show)
+type Entity derive(Eq, Hash, @debug.Debug)
 pub fn Entity::destroy(Self) -> Unit
 pub fn Entity::get_children(Self) -> Array[Self]
 pub fn Entity::get_parent(Self) -> Self?
+pub fn Entity::id(Self) -> UInt
 pub fn Entity::is_alive(Self) -> Bool
 pub fn Entity::is_child(Self) -> Bool
 pub fn Entity::new() -> Self
@@ -24,7 +29,7 @@ pub fn Entity::respawn(Self) -> Unit
 pub fn Entity::set_parent(Self, Self) -> Unit
 pub fn Entity::spawn_child(Self) -> Self
 
-type EntityLifecycleState derive(Eq, Show)
+type EntityLifecycleState derive(Eq, @debug.Debug)
 
 // Type aliases
 

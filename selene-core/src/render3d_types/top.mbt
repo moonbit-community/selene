@@ -255,6 +255,7 @@ pub(all) struct FrameCamera3D {
 
 ///|
 pub(all) struct RenderItem3D {
+  entity_id : UInt?
   transform : FrameTransform3D
   mesh : MeshHandle
   material : MaterialHandle

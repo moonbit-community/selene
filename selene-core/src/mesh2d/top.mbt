@@ -268,25 +268,33 @@ pub fn render_mesh2d_system(delta : Double) -> Unit {
           centered_quad_transform(size)
         match material.texture {
           Some(image) =>
-            @render2d.push_image_with_depth(depth, {
-              image,
-              destination: { position: snapped_pos, size },
-              source: None,
-              transform: external_transform,
-              repeat: NoRepeat,
-              color: material.color,
-            })
+            @render2d.push_image_with_depth_for_entity(
+              depth,
+              Some(entity.id()),
+              {
+                image,
+                destination: { position: snapped_pos, size },
+                source: None,
+                transform: external_transform,
+                repeat: NoRepeat,
+                color: material.color,
+              },
+            )
           None =>
-            @render2d.push_rect_with_depth(depth, {
-              rect: { position: snapped_pos, size },
-              transform: external_transform,
-              fill_color: material.color,
-              stroke_color: None,
-            })
+            @render2d.push_rect_with_depth_for_entity(
+              depth,
+              Some(entity.id()),
+              {
+                rect: { position: snapped_pos, size },
+                transform: external_transform,
+                fill_color: material.color,
+                stroke_color: None,
+              },
+            )
         }
       }
       Circle(radius) =>
-        @render2d.push_circle_with_depth(depth, {
+        @render2d.push_circle_with_depth_for_entity(depth, Some(entity.id()), {
           center: snapped_pos,
           radius,
           transform: screen_transform,

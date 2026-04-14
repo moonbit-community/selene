@@ -125,6 +125,22 @@ pub fn end_frame() -> Unit {
 }
 
 ///|
+pub fn capture_frame_png() -> Bytes? {
+  let raw = webgpu_capture_frame_png_bytes()
+  if raw.length() == 0 {
+    return None
+  }
+  Some(
+    Bytes::from_iter(raw.iter().map(fn(value) { saturating_file_byte(value) })),
+  )
+}
+
+///|
+pub fn capture_frame_png_to_file(_path : String) -> Bool {
+  false
+}
+
+///|
 pub fn push_clip_rect(_rect : @smath.Rect) -> Unit {
   ()
 }

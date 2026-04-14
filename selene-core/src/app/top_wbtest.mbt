@@ -62,3 +62,99 @@ test "app: add_message registers buses to final world" {
 
   @ecs.set_current_world(@ecs.bootstrap_world())
 }
+
+///|
+test "app: run_frames advances startup/update/fixed/render schedules deterministically" {
+  let world = @ecs.World::new()
+  let startup_count : Ref[Int] = { val: 0 }
+  let update_count : Ref[Int] = { val: 0 }
+  let fixed_count : Ref[Int] = { val: 0 }
+  let render_count : Ref[Int] = { val: 0 }
+
+  let app = App::new()
+    .with_world(world)
+    .with_fixed_hz(30)
+    .add_system(@system.Startup, fn(_world) { startup_count.val += 1 })
+    .add_system(@system.Update, fn(_world) { update_count.val += 1 })
+    .add_system(@system.FixedUpdate, fn(_world) { fixed_count.val += 1 })
+    .add_system(@system.Render, fn(_world) { render_count.val += 1 })
+  app.run_frames(2, raw_delta=1.0 / 30.0)
+
+  inspect(startup_count.val, content="1")
+  inspect(update_count.val, content="2")
+  inspect(fixed_count.val, content="2")
+  inspect(render_count.val, content="2")
+}
+
+///|
+test "app: step_fixed advances only fixed schedule after startup" {
+  let world = @ecs.World::new()
+  let startup_count : Ref[Int] = { val: 0 }
+  let update_count : Ref[Int] = { val: 0 }
+  let fixed_count : Ref[Int] = { val: 0 }
+
+  let app = App::new()
+    .with_world(world)
+    .add_system(@system.Startup, fn(_world) { startup_count.val += 1 })
+    .add_system(@system.Update, fn(_world) { update_count.val += 1 })
+    .add_system(@system.FixedUpdate, fn(_world) { fixed_count.val += 1 })
+  app.step_fixed(3)
+
+  inspect(startup_count.val, content="1")
+  inspect(update_count.val, content="0")
+  inspect(fixed_count.val, content="3")
+}
+
+///|
+test "app: deterministic ordering sorts systems by name when enabled" {
+  let world = @ecs.World::new()
+  @ecs.set_current_world(world)
+  @runtime_debug.set_deterministic_mode({
+    rng_seed: 1U,
+    fixed_delta_override: None,
+    frame_delta_override: None,
+    deterministic_ordering: true,
+  })
+  let order : Ref[String] = { val: "" }
+  let app = App::new()
+    .with_world(world)
+    .add_system(
+      @system.Update,
+      fn(_world) { order.val = order.val + "b" },
+      system_name="b",
+    )
+    .add_system(
+      @system.Update,
+      fn(_world) { order.val = order.val + "a" },
+      system_name="a",
+    )
+  app.run_frames(1, raw_delta=1.0 / 60.0)
+  inspect(order.val, content="ab")
+}
+
+///|
+test "app: deterministic ordering keeps insertion order when disabled" {
+  let world = @ecs.World::new()
+  @ecs.set_current_world(world)
+  @runtime_debug.set_deterministic_mode({
+    rng_seed: 1U,
+    fixed_delta_override: None,
+    frame_delta_override: None,
+    deterministic_ordering: false,
+  })
+  let order : Ref[String] = { val: "" }
+  let app = App::new()
+    .with_world(world)
+    .add_system(
+      @system.Update,
+      fn(_world) { order.val = order.val + "b" },
+      system_name="b",
+    )
+    .add_system(
+      @system.Update,
+      fn(_world) { order.val = order.val + "a" },
+      system_name="a",
+    )
+  app.run_frames(1, raw_delta=1.0 / 60.0)
+  inspect(order.val, content="ba")
+}

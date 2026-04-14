@@ -1,5 +1,6 @@
 ///|
 pub fn render_submit_system(_delta : Double) -> Unit {
+  let world_commands_with_depth = @render2d.get_world_commands_with_depth()
   let assets3d : @render_pipeline.RenderAssetSync3D = {
     mesh_upserts: @render3d.take_dirty_mesh_assets(),
     material_upserts: @render3d.take_dirty_material_assets(),
@@ -9,9 +10,15 @@ pub fn render_submit_system(_delta : Double) -> Unit {
     image_releases: @render3d.take_released_image_assets(),
   }
   let frame : @render_pipeline.RenderFrame = {
-    frame2d: @render2d.get_frame2d(),
+    frame2d: {
+      world_commands: world_commands_with_depth.map(fn(command) {
+        command.command
+      }),
+      ui_commands: @render2d.get_ui_commands(),
+    },
     frame3d: @render3d_pipeline.get_prepared_frame3d(),
     assets3d,
   }
+  @runtime_debug.record_render_submission(frame, world_commands_with_depth)
   @platform_render.submit_frame(frame)
 }
