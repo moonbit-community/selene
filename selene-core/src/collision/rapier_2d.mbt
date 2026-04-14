@@ -17,21 +17,21 @@ const EPSILON = 0.000000001
 
 ///|
 pub(all) struct PhysicsConfig {
-  mut gravity : @math.Vec2D
+  mut gravity : @math.Vec2
   mut pixels_per_meter : Double
   mut max_ccd_substeps : Int
 }
 
 ///|
 pub let physics_config : PhysicsConfig = {
-  gravity: @math.Vec2D::zero(),
+  gravity: @math.Vec2::zero(),
   pixels_per_meter: 100.0,
   max_ccd_substeps: 1,
 }
 
 ///|
 pub fn configure_physics(
-  gravity? : @math.Vec2D,
+  gravity? : @math.Vec2,
   pixels_per_meter? : Double,
   max_ccd_substeps? : Int,
 ) -> Unit {
@@ -71,18 +71,18 @@ priv struct PhysicsWorldRuntime {
   world : PhysicsWorld
   entity_physics_config_keys : Map[@entity.Entity, EntityPhysicsConfigKey]
   pending_body_rotations : Map[@entity.Entity, Double]
-  pending_body_linear_velocities : Map[@entity.Entity, @math.Vec2D]
+  pending_body_linear_velocities : Map[@entity.Entity, @math.Vec2]
   pending_body_angular_velocities : Map[@entity.Entity, Double]
-  pending_body_forces : Map[@entity.Entity, @math.Vec2D]
+  pending_body_forces : Map[@entity.Entity, @math.Vec2]
   pending_body_force_points : Map[
     @entity.Entity,
-    Array[(@math.Vec2D, @math.Vec2D)],
+    Array[(@math.Vec2, @math.Vec2)],
   ]
   pending_body_torques : Map[@entity.Entity, Double]
-  pending_body_impulses : Map[@entity.Entity, @math.Vec2D]
+  pending_body_impulses : Map[@entity.Entity, @math.Vec2]
   pending_body_impulse_points : Map[
     @entity.Entity,
-    Array[(@math.Vec2D, @math.Vec2D)],
+    Array[(@math.Vec2, @math.Vec2)],
   ]
   pending_body_torque_impulses : Map[@entity.Entity, Double]
   entity_joint_config_keys : Map[@entity.Entity, EntityJointConfigKey]
@@ -148,23 +148,23 @@ priv struct EntityCollisionConfig {
 
 ///|
 priv struct EntityPhysicsSnapshot {
-  position : @math.Vec2D
+  position : @math.Vec2
   rotation : Double
   shape : CollisionShape
   collision : EntityCollisionConfig
   body : RigidBody
-  linear_velocity : @math.Vec2D?
+  linear_velocity : @math.Vec2?
   angular_velocity : Double?
 }
 
 ///|
 priv struct EntityPhysicsConfigKey {
-  translation : @math.Vec2D?
+  translation : @math.Vec2?
   rotation : Double?
   shape : CollisionShape
   collision : EntityCollisionConfig
   body : RigidBody
-  linear_velocity : @math.Vec2D?
+  linear_velocity : @math.Vec2?
   angular_velocity : Double?
 } derive(Eq)
 
@@ -179,7 +179,7 @@ fn pending_body_rotations() -> Map[@entity.Entity, Double] {
 }
 
 ///|
-fn pending_body_linear_velocities() -> Map[@entity.Entity, @math.Vec2D] {
+fn pending_body_linear_velocities() -> Map[@entity.Entity, @math.Vec2] {
   physics_world_runtime().pending_body_linear_velocities
 }
 
@@ -189,14 +189,14 @@ fn pending_body_angular_velocities() -> Map[@entity.Entity, Double] {
 }
 
 ///|
-fn pending_body_forces() -> Map[@entity.Entity, @math.Vec2D] {
+fn pending_body_forces() -> Map[@entity.Entity, @math.Vec2] {
   physics_world_runtime().pending_body_forces
 }
 
 ///|
 fn pending_body_force_points() -> Map[
   @entity.Entity,
-  Array[(@math.Vec2D, @math.Vec2D)],
+  Array[(@math.Vec2, @math.Vec2)],
 ] {
   physics_world_runtime().pending_body_force_points
 }
@@ -207,14 +207,14 @@ fn pending_body_torques() -> Map[@entity.Entity, Double] {
 }
 
 ///|
-fn pending_body_impulses() -> Map[@entity.Entity, @math.Vec2D] {
+fn pending_body_impulses() -> Map[@entity.Entity, @math.Vec2] {
   physics_world_runtime().pending_body_impulses
 }
 
 ///|
 fn pending_body_impulse_points() -> Map[
   @entity.Entity,
-  Array[(@math.Vec2D, @math.Vec2D)],
+  Array[(@math.Vec2, @math.Vec2)],
 ] {
   physics_world_runtime().pending_body_impulse_points
 }
@@ -279,8 +279,8 @@ pub fn multibody_link(entity : @entity.Entity) -> MultibodyLinkId? {
 
 ///|
 pub fn raycast(
-  origin : @math.Vec2D,
-  direction : @math.Vec2D,
+  origin : @math.Vec2,
+  direction : @math.Vec2,
   max_toi? : Double = 1000.0,
   solid? : Bool = true,
   query_filter? : SpatialQueryFilter = SpatialQueryFilter::default(),
@@ -309,7 +309,7 @@ pub fn raycast(
         {
           entity,
           toi,
-          point: @math.Vec2D(
+          point: @math.Vec2(
             origin[X] + normalized[X] * toi,
             origin[Y] + normalized[Y] * toi,
           ),
@@ -323,9 +323,9 @@ pub fn raycast(
 ///|
 pub fn shape_cast(
   shape : CollisionShape,
-  origin : @math.Vec2D,
+  origin : @math.Vec2,
   rotation? : Double = 0.0,
-  direction? : @math.Vec2D = @math.Vec2D(0.0, -1.0),
+  direction? : @math.Vec2 = @math.Vec2(0.0, -1.0),
   max_toi? : Double = 1000.0,
   stop_at_penetration? : Bool = false,
   query_filter? : SpatialQueryFilter = SpatialQueryFilter::default(),
@@ -367,7 +367,7 @@ pub fn shape_cast(
 
 ///|
 pub fn intersect_point(
-  point : @math.Vec2D,
+  point : @math.Vec2,
   query_filter? : SpatialQueryFilter = SpatialQueryFilter::default(),
 ) -> Array[@entity.Entity] {
   refresh_query_world()
@@ -384,7 +384,7 @@ pub fn intersect_point(
 ///|
 pub fn intersect_shape(
   shape : CollisionShape,
-  origin : @math.Vec2D,
+  origin : @math.Vec2,
   rotation? : Double = 0.0,
   query_filter? : SpatialQueryFilter = SpatialQueryFilter::default(),
 ) -> Array[@entity.Entity] {
@@ -405,7 +405,7 @@ pub fn intersect_shape(
 }
 
 ///|
-pub fn rigid_body_translation(entity : @entity.Entity) -> @math.Vec2D? {
+pub fn rigid_body_translation(entity : @entity.Entity) -> @math.Vec2? {
   if world().entity_bodies.get(entity) is Some(handle) &&
     world().bodies.get(handle) is Some(body) {
     Some(from_physics_vec2(body.translation()))
@@ -417,7 +417,7 @@ pub fn rigid_body_translation(entity : @entity.Entity) -> @math.Vec2D? {
 ///|
 pub fn set_rigid_body_translation(
   entity : @entity.Entity,
-  translation : @math.Vec2D,
+  translation : @math.Vec2,
 ) -> Unit {
   set_entity_translation(entity, translation)
   if world().entity_bodies.get(entity) is Some(handle) &&
@@ -460,16 +460,16 @@ pub fn set_rigid_body_rotation(
 }
 
 ///|
-pub fn rigid_body_linear_velocity(entity : @entity.Entity) -> @math.Vec2D? {
+pub fn rigid_body_linear_velocity(entity : @entity.Entity) -> @math.Vec2? {
   entity_physics_snapshot(entity).map(fn(snapshot) {
-    snapshot.linear_velocity.unwrap_or(@math.Vec2D::zero())
+    snapshot.linear_velocity.unwrap_or(@math.Vec2::zero())
   })
 }
 
 ///|
 pub fn set_rigid_body_linear_velocity(
   entity : @entity.Entity,
-  linear_velocity : @math.Vec2D,
+  linear_velocity : @math.Vec2,
 ) -> Unit {
   match entity_rigid_body(entity).body_type {
     Fixed => {
@@ -532,7 +532,7 @@ pub fn set_rigid_body_angular_velocity(
 ///|
 pub fn add_force(
   entity : @entity.Entity,
-  force : @math.Vec2D,
+  force : @math.Vec2,
   wake_up? : Bool = true,
 ) -> Unit {
   if vec2_length_squared(force) <= EPSILON {
@@ -546,8 +546,8 @@ pub fn add_force(
 ///|
 pub fn add_force_at_point(
   entity : @entity.Entity,
-  force : @math.Vec2D,
-  point : @math.Vec2D,
+  force : @math.Vec2,
+  point : @math.Vec2,
   wake_up? : Bool = true,
 ) -> Unit {
   if vec2_length_squared(force) <= EPSILON {
@@ -579,7 +579,7 @@ pub fn add_torque(
 ///|
 pub fn apply_impulse(
   entity : @entity.Entity,
-  impulse : @math.Vec2D,
+  impulse : @math.Vec2,
   wake_up? : Bool = true,
 ) -> Unit {
   if vec2_length_squared(impulse) <= EPSILON {
@@ -593,8 +593,8 @@ pub fn apply_impulse(
 ///|
 pub fn apply_impulse_at_point(
   entity : @entity.Entity,
-  impulse : @math.Vec2D,
-  point : @math.Vec2D,
+  impulse : @math.Vec2,
+  point : @math.Vec2,
   wake_up? : Bool = true,
 ) -> Unit {
   if vec2_length_squared(impulse) <= EPSILON {
@@ -654,7 +654,7 @@ fn from_physics_scalar(value : Double) -> Double {
 }
 
 ///|
-fn to_physics_vec2(value : @math.Vec2D) -> @rapier_full.Vec2 {
+fn to_physics_vec2(value : @math.Vec2) -> @rapier_full.Vec2 {
   @rapier_full.Vec2::new(
     Float::from_double(to_physics_scalar(value[X])),
     Float::from_double(to_physics_scalar(value[Y])),
@@ -662,7 +662,7 @@ fn to_physics_vec2(value : @math.Vec2D) -> @rapier_full.Vec2 {
 }
 
 ///|
-fn to_physics_direction(value : @math.Vec2D) -> @rapier_full.Vec2 {
+fn to_physics_direction(value : @math.Vec2) -> @rapier_full.Vec2 {
   @rapier_full.Vec2::new(
     Float::from_double(value[X]),
     Float::from_double(value[Y]),
@@ -670,16 +670,16 @@ fn to_physics_direction(value : @math.Vec2D) -> @rapier_full.Vec2 {
 }
 
 ///|
-fn from_physics_vec2(value : @rapier_full.Vec2) -> @math.Vec2D {
-  @math.Vec2D(
+fn from_physics_vec2(value : @rapier_full.Vec2) -> @math.Vec2 {
+  @math.Vec2(
     from_physics_scalar(value.x.to_double()),
     from_physics_scalar(value.y.to_double()),
   )
 }
 
 ///|
-fn from_physics_direction(value : @rapier_full.Vec2) -> @math.Vec2D {
-  @math.Vec2D(value.x.to_double(), value.y.to_double())
+fn from_physics_direction(value : @rapier_full.Vec2) -> @math.Vec2 {
+  @math.Vec2(value.x.to_double(), value.y.to_double())
 }
 
 ///|
@@ -694,7 +694,7 @@ fn from_physics_rotation(value : @rapier_full.Rot2) -> Double {
 
 ///|
 fn to_physics_isometry(
-  translation : @math.Vec2D,
+  translation : @math.Vec2,
   rotation : Double,
 ) -> @rapier_full.Isometry2 {
   @rapier_full.Isometry2::new(
@@ -704,7 +704,7 @@ fn to_physics_isometry(
 }
 
 ///|
-fn rotate_vec2(value : @math.Vec2D, rotation : Double) -> @math.Vec2D {
+fn rotate_vec2(value : @math.Vec2, rotation : Double) -> @math.Vec2 {
   from_physics_direction(
     to_physics_rotation(rotation).rotate_vec2(to_physics_direction(value)),
   )
@@ -724,16 +724,16 @@ fn entity_transform(entity : @entity.Entity) -> @transform.Transform? {
 }
 
 ///|
-fn entity_translation(entity : @entity.Entity) -> @math.Vec2D? {
+fn entity_translation(entity : @entity.Entity) -> @math.Vec2? {
   entity_transform(entity).map(fn(transform) {
-    @math.Vec2D(transform.translation.x, transform.translation.y)
+    @math.Vec2(transform.translation.x, transform.translation.y)
   })
 }
 
 ///|
 fn set_entity_translation(
   entity : @entity.Entity,
-  translation : @math.Vec2D,
+  translation : @math.Vec2,
 ) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
@@ -756,7 +756,7 @@ fn set_entity_rotation(entity : @entity.Entity, rotation : Double) -> Unit {
 }
 
 ///|
-fn vec2_length_squared(value : @math.Vec2D) -> Double {
+fn vec2_length_squared(value : @math.Vec2) -> Double {
   value[X] * value[X] + value[Y] * value[Y]
 }
 
@@ -831,7 +831,7 @@ fn entity_rotation(entity : @entity.Entity) -> Double {
 fn entity_linear_velocity_for_body(
   entity : @entity.Entity,
   body_type : RigidBodyType,
-) -> @math.Vec2D? {
+) -> @math.Vec2? {
   match body_type {
     Dynamic =>
       if pending_body_linear_velocities().get(entity) is Some(velocity) {
@@ -1052,7 +1052,7 @@ fn active_events() -> @rapier_collision.ActiveEvents {
 ///|
 fn collision_shape_to_rapier_shape(
   shape : CollisionShape,
-) -> (@rapier_collision.Shape, @math.Vec2D)? {
+) -> (@rapier_collision.Shape, @math.Vec2)? {
   match shape {
     Rect(size~, offset~) =>
       if size[X] <= 0.0 || size[Y] <= 0.0 {
@@ -1090,9 +1090,9 @@ fn collision_shape_to_rapier_shape(
 
 ///|
 fn collision_polygon_to_rapier_shape(
-  points : Array[@math.Vec2D],
-  offset : @math.Vec2D,
-) -> (@rapier_collision.Shape, @math.Vec2D)? {
+  points : Array[@math.Vec2],
+  offset : @math.Vec2,
+) -> (@rapier_collision.Shape, @math.Vec2)? {
   let vertices = collision_shape_vertices(points, offset, true)
   if vertices.length() < 3 {
     return None
@@ -1107,17 +1107,17 @@ fn collision_polygon_to_rapier_shape(
         collision_shape_to_rapier_points(vertices),
         triangles,
       ),
-      @math.Vec2D::zero(),
+      @math.Vec2::zero(),
     ),
   )
 }
 
 ///|
 fn collision_polyline_to_rapier_shape(
-  points : Array[@math.Vec2D],
-  offset : @math.Vec2D,
+  points : Array[@math.Vec2],
+  offset : @math.Vec2,
   closed : Bool,
-) -> (@rapier_collision.Shape, @math.Vec2D)? {
+) -> (@rapier_collision.Shape, @math.Vec2)? {
   let vertices = collision_shape_vertices(points, offset, false)
   if vertices.length() < 2 {
     return None
@@ -1138,18 +1138,18 @@ fn collision_polyline_to_rapier_shape(
         collision_shape_to_rapier_points(vertices),
         Some(segments),
       ),
-      @math.Vec2D::zero(),
+      @math.Vec2::zero(),
     ),
   )
 }
 
 ///|
 fn collision_shape_vertices(
-  points : Array[@math.Vec2D],
-  offset : @math.Vec2D,
+  points : Array[@math.Vec2],
+  offset : @math.Vec2,
   closed : Bool,
-) -> Array[@math.Vec2D] {
-  let vertices : Array[@math.Vec2D] = []
+) -> Array[@math.Vec2] {
+  let vertices : Array[@math.Vec2] = []
   for point in points {
     vertices.push(point + offset)
   }
@@ -1163,14 +1163,14 @@ fn collision_shape_vertices(
 
 ///|
 fn collision_shape_to_rapier_points(
-  points : Array[@math.Vec2D],
+  points : Array[@math.Vec2],
 ) -> Array[@rapier_full.Vec2] {
   points.map(point => to_physics_vec2(point))
 }
 
 ///|
 fn triangulate_collision_polygon(
-  points : Array[@math.Vec2D],
+  points : Array[@math.Vec2],
 ) -> Array[(Int, Int, Int)] {
   if points.length() < 3 {
     return []
@@ -1235,7 +1235,7 @@ fn triangulate_collision_polygon(
 
 ///|
 fn collision_is_ear(
-  points : Array[@math.Vec2D],
+  points : Array[@math.Vec2],
   remaining : Array[Int],
   a_index : Int,
   b_index : Int,
@@ -1261,7 +1261,7 @@ fn collision_is_ear(
 }
 
 ///|
-fn collision_polygon_signed_area(points : Array[@math.Vec2D]) -> Double {
+fn collision_polygon_signed_area(points : Array[@math.Vec2]) -> Double {
   let mut area = 0.0
   for index in 0..<points.length() {
     let next_index = if index + 1 == points.length() { 0 } else { index + 1 }
@@ -1273,19 +1273,19 @@ fn collision_polygon_signed_area(points : Array[@math.Vec2D]) -> Double {
 
 ///|
 fn collision_triangle_area(
-  a : @math.Vec2D,
-  b : @math.Vec2D,
-  c : @math.Vec2D,
+  a : @math.Vec2,
+  b : @math.Vec2,
+  c : @math.Vec2,
 ) -> Double {
   (b[X] - a[X]) * (c[Y] - a[Y]) - (b[Y] - a[Y]) * (c[X] - a[X])
 }
 
 ///|
 fn collision_point_in_triangle(
-  point : @math.Vec2D,
-  a : @math.Vec2D,
-  b : @math.Vec2D,
-  c : @math.Vec2D,
+  point : @math.Vec2,
+  a : @math.Vec2,
+  b : @math.Vec2,
+  c : @math.Vec2,
 ) -> Bool {
   let ab = collision_triangle_area(a, b, point)
   let bc = collision_triangle_area(b, c, point)
@@ -1296,15 +1296,15 @@ fn collision_point_in_triangle(
 }
 
 ///|
-fn collision_points_equal(left : @math.Vec2D, right : @math.Vec2D) -> Bool {
+fn collision_points_equal(left : @math.Vec2, right : @math.Vec2) -> Bool {
   (left[X] - right[X]).abs() <= EPSILON && (left[Y] - right[Y]).abs() <= EPSILON
 }
 
 ///|
 fn query_shape_isometry(
-  origin : @math.Vec2D,
+  origin : @math.Vec2,
   rotation : Double,
-  translation : @math.Vec2D,
+  translation : @math.Vec2,
 ) -> @rapier_full.Isometry2 {
   let rotated_translation = rotate_vec2(translation, rotation)
   to_physics_isometry(origin + rotated_translation, rotation)
@@ -1373,13 +1373,13 @@ fn refresh_query_world() -> Unit {
 
 ///|
 fn accumulate_pending_vec2(
-  pending : Map[@entity.Entity, @math.Vec2D],
+  pending : Map[@entity.Entity, @math.Vec2],
   entity : @entity.Entity,
-  value : @math.Vec2D,
+  value : @math.Vec2,
 ) -> Unit {
   pending.set(
     entity,
-    pending.get(entity).unwrap_or(@math.Vec2D::zero()) + value,
+    pending.get(entity).unwrap_or(@math.Vec2::zero()) + value,
   )
 }
 
@@ -1394,9 +1394,9 @@ fn accumulate_pending_scalar(
 
 ///|
 fn push_pending_force_point(
-  pending : Map[@entity.Entity, Array[(@math.Vec2D, @math.Vec2D)]],
+  pending : Map[@entity.Entity, Array[(@math.Vec2, @math.Vec2)]],
   entity : @entity.Entity,
-  value : (@math.Vec2D, @math.Vec2D),
+  value : (@math.Vec2, @math.Vec2),
 ) -> Unit {
   let values = pending.get(entity).unwrap_or([])
   values.push(value)
@@ -1406,7 +1406,7 @@ fn push_pending_force_point(
 ///|
 fn apply_force_now(
   entity : @entity.Entity,
-  force : @math.Vec2D,
+  force : @math.Vec2,
   wake_up : Bool,
 ) -> Bool {
   if world().entity_bodies.get(entity) is Some(handle) &&
@@ -1421,8 +1421,8 @@ fn apply_force_now(
 ///|
 fn apply_force_at_point_now(
   entity : @entity.Entity,
-  force : @math.Vec2D,
-  point : @math.Vec2D,
+  force : @math.Vec2,
+  point : @math.Vec2,
   wake_up : Bool,
 ) -> Bool {
   if world().entity_bodies.get(entity) is Some(handle) &&
@@ -1457,7 +1457,7 @@ fn apply_torque_now(
 ///|
 fn apply_impulse_now(
   entity : @entity.Entity,
-  impulse : @math.Vec2D,
+  impulse : @math.Vec2,
   wake_up : Bool,
 ) -> Bool {
   if world().entity_bodies.get(entity) is Some(handle) &&
@@ -1472,8 +1472,8 @@ fn apply_impulse_now(
 ///|
 fn apply_impulse_at_point_now(
   entity : @entity.Entity,
-  impulse : @math.Vec2D,
-  point : @math.Vec2D,
+  impulse : @math.Vec2,
+  point : @math.Vec2,
   wake_up : Bool,
 ) -> Bool {
   if world().entity_bodies.get(entity) is Some(handle) &&
@@ -2207,24 +2207,24 @@ fn entity_from_collider_handle(
 fn estimate_direction(
   from : @entity.Entity,
   to : @entity.Entity,
-) -> @math.Vec2D {
+) -> @math.Vec2 {
   if entity_translation(from) is Some(from_pos) &&
     entity_translation(to) is Some(to_pos) {
     let delta = to_pos - from_pos
     if delta[X].abs() >= delta[Y].abs() {
-      @math.Vec2D(if delta[X] >= 0.0 { 1.0 } else { -1.0 }, 0.0)
+      @math.Vec2(if delta[X] >= 0.0 { 1.0 } else { -1.0 }, 0.0)
     } else {
-      @math.Vec2D(0.0, if delta[Y] >= 0.0 { 1.0 } else { -1.0 })
+      @math.Vec2(0.0, if delta[Y] >= 0.0 { 1.0 } else { -1.0 })
     }
   } else {
-    @math.Vec2D::zero()
+    @math.Vec2::zero()
   }
 }
 
 ///|
 fn move_without_collision(
   entity : @entity.Entity,
-  displacement : @math.Vec2D,
+  displacement : @math.Vec2,
   delta : Double,
 ) -> Unit {
   if entity_translation(entity) is Some(position) {
@@ -2237,7 +2237,7 @@ fn move_without_collision(
     }
   }
   if delta.abs() <= EPSILON {
-    resolved_velocities().set(entity, @math.Vec2D::zero())
+    resolved_velocities().set(entity, @math.Vec2::zero())
   } else {
     resolved_velocities().set(entity, displacement.scalar_div(delta))
   }
@@ -2248,7 +2248,7 @@ fn move_without_collision(
 fn move_with_kinematic_controller(
   entity : @entity.Entity,
   collider_handle : @rapier_collision.ColliderHandle,
-  velocity : @math.Vec2D,
+  velocity : @math.Vec2,
   delta : Double,
   query_base : @rapier_collision.QueryPipeline,
 ) -> Unit {

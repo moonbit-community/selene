@@ -10,7 +10,7 @@ pub(all) struct Sprite {
   mut texture_atlas : TextureAtlas?
   mut rect : @math.Rect?
   mut color : @render.Color
-  mut custom_size : @math.Vec2D?
+  mut custom_size : @math.Vec2?
   mut anchor : Anchor
   mut flip_x : Bool
   mut flip_y : Bool
@@ -21,7 +21,7 @@ pub(all) struct Sprite {
     texture_atlas? : TextureAtlas?,
     rect? : @math.Rect?,
     color? : @render.Color,
-    custom_size? : @math.Vec2D?,
+    custom_size? : @math.Vec2?,
     anchor? : Anchor,
     flip_x? : Bool,
     flip_y? : Bool,
@@ -59,7 +59,7 @@ pub fn Sprite::new(
   texture_atlas? : TextureAtlas? = None,
   rect? : @math.Rect? = None,
   color? : @render.Color = white_sprite_color(),
-  custom_size? : @math.Vec2D? = None,
+  custom_size? : @math.Vec2? = None,
   anchor? : Anchor = default_anchor(),
   flip_x? : Bool = false,
   flip_y? : Bool = false,
@@ -81,7 +81,7 @@ pub fn Sprite::new(
 ///|
 pub fn Sprite::from_image(
   image : @asset.ImageHandle,
-  custom_size? : @math.Vec2D? = None,
+  custom_size? : @math.Vec2? = None,
 ) -> Sprite {
   Sprite::new(image=Some(image), custom_size~)
 }
@@ -102,7 +102,7 @@ pub fn Sprite::from_atlas_image(
 ///|
 pub fn Sprite::from_color(
   color : @render.Color,
-  custom_size : @math.Vec2D,
+  custom_size : @math.Vec2,
 ) -> Sprite {
   Sprite::new(color~, custom_size=Some(custom_size))
 }
@@ -119,7 +119,7 @@ pub fn render_sprite_system(delta : Double) -> Unit {
     }
     let depth = global_transform.translation().z
     let transform = global_transform.compute_transform()
-    let raw_pos = @math.Vec2D(transform.translation.x, transform.translation.y)
+    let raw_pos = @math.Vec2(transform.translation.x, transform.translation.y)
     let screen_pos = match camera_view {
       Some((camera, camera_global, projection)) =>
         camera.world_to_viewport(camera_global, projection, raw_pos)
@@ -186,12 +186,12 @@ fn sprite_image_region(sprite : Sprite) -> @render2d_types.ImageRegion2D? {
 }
 
 ///|
-fn sprite_source_size(sprite : Sprite) -> @math.Vec2D? {
+fn sprite_source_size(sprite : Sprite) -> @math.Vec2? {
   sprite_image_region(sprite).map(fn(region) { region.size })
 }
 
 ///|
-fn sprite_size(sprite : Sprite) -> @math.Vec2D? {
+fn sprite_size(sprite : Sprite) -> @math.Vec2? {
   match sprite.custom_size {
     Some(size) => Some(size)
     None =>
@@ -205,7 +205,7 @@ fn sprite_size(sprite : Sprite) -> @math.Vec2D? {
 ///|
 fn sprite_local_transform(
   sprite : Sprite,
-  size : @math.Vec2D,
+  size : @math.Vec2,
 ) -> @math.Transform {
   let anchor_offset = anchor_translation(sprite.anchor, size)
   let anchor_transform = @math.Transform::from_translation(
@@ -240,8 +240,8 @@ fn sprite_local_transform(
 }
 
 ///|
-fn pixel_snapped_position(position : @math.Vec2D) -> @math.Vec2D {
-  @math.Vec2D(position[X].round(), position[Y].round())
+fn pixel_snapped_position(position : @math.Vec2) -> @math.Vec2 {
+  @math.Vec2(position[X].round(), position[Y].round())
 }
 
 ///|

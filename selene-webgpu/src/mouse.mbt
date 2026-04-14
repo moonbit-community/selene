@@ -21,11 +21,11 @@ pub fn register_mouse_events(
   canvas_backend.mouse_movement.val = Some(mouse_movement)
   window.add_event_listener("mousemove", event => {
     let mouse_event = event.to_mouse_event().unwrap()
-    mouse.pos = @smath.Vec2D(
+    mouse.pos = @smath.Vec2(
       mouse_event.get_offset_x().to_double(),
       mouse_event.get_offset_y().to_double(),
     )
-    mouse_movement.movement = @smath.Vec2D(
+    mouse_movement.movement = @smath.Vec2(
       mouse_event.get_movement_x().to_double(),
       mouse_event.get_movement_y().to_double(),
     )
@@ -50,7 +50,7 @@ pub fn register_mouse_events(
   })
   window.add_event_listener("wheel", event => {
     let wheel_event = event.to_wheel_event().unwrap()
-    mouse_wheel.delta = @smath.Vec2D(
+    mouse_wheel.delta = @smath.Vec2(
       wheel_event.get_delta_x(),
       wheel_event.get_delta_y(),
     )

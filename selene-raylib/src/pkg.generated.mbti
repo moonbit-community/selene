@@ -40,7 +40,7 @@ pub fn load_font(String, String) -> Unit
 
 pub fn lock_mouse(@ref.Ref[Bool]) -> Unit
 
-pub fn measure_text(@render2d_types.TextStyle2D, String) -> @math.Vec2D
+pub fn measure_text(@render2d_types.TextStyle2D, String) -> @math.Vec2
 
 pub fn play_audio(audio_path~ : String, volume~ : Double, speed~ : Double, loop_~ : Bool, paused~ : Bool) -> Int
 

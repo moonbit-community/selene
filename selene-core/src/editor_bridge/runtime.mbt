@@ -70,8 +70,8 @@ pub fn asset_instantiation_context(
 }
 
 ///|
-fn vec2_of(doc : Vec2Doc) -> @math.Vec2D {
-  @math.Vec2D(doc.x, doc.y)
+fn vec2_of(doc : Vec2Doc) -> @math.Vec2 {
+  @math.Vec2(doc.x, doc.y)
 }
 
 ///|
@@ -87,14 +87,14 @@ fn color_of(doc : ColorDoc) -> @render.Color {
 ///|
 fn rect_of(doc : RectDoc) -> @math.Rect {
   @math.Rect::{
-    position: @math.Vec2D(doc.x, doc.y),
-    size: @math.Vec2D(doc.width, doc.height),
+    position: @math.Vec2(doc.x, doc.y),
+    size: @math.Vec2(doc.width, doc.height),
   }
 }
 
 ///|
 fn anchor_of(doc : Vec2Doc) -> @sprite.Anchor {
-  @sprite.Anchor(@math.Vec2D(doc.x, doc.y))
+  @sprite.Anchor(@math.Vec2(doc.x, doc.y))
 }
 
 ///|
@@ -649,7 +649,7 @@ fn apply_document_components(
               )
             _ =>
               @mesh2d.register_mesh2d_asset(
-                @mesh2d.Mesh2dAsset::rectangle(@math.Vec2D(32.0, 32.0)),
+                @mesh2d.Mesh2dAsset::rectangle(@math.Vec2(32.0, 32.0)),
               )
           }
           mesh_handles.push(handle)
@@ -746,12 +746,12 @@ fn apply_document_components(
           "circle" =>
             @physics2d.ColliderShape::Ball(
               radius=data.radius.unwrap_or(size.x / 2.0),
-              offset=@math.Vec2D::zero(),
+              offset=@math.Vec2::zero(),
             )
           _ =>
             @physics2d.ColliderShape::Rect(
               size=vec2_of(size),
-              offset=@math.Vec2D::zero(),
+              offset=@math.Vec2::zero(),
             )
         }
         @physics2d.shapes().set(entity, shape)

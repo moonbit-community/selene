@@ -6,6 +6,8 @@
 
 ### Changed
 
+- Changed math naming to Bevy style by renaming `@math.Vec2D` to `@math.Vec2` across core/editor/examples/docs, including method names that previously used `vec2d` suffixes.
+
 ### Fixed
 
 ### Removed
@@ -435,7 +437,7 @@
 - Added `@animation.register_animation_clip_asset(...)`, `animation_clip_asset(...)`, `update_animation_clip_asset(...)`, `release_animation_clip_asset(...)`, `take_dirty_animation_clip_assets()`, and `take_released_animation_clip_assets()`.
 - Added `@animation.register_animation_graph_asset(...)`, `animation_graph_asset(...)`, `update_animation_graph_asset(...)`, `release_animation_graph_asset(...)`, `take_dirty_animation_graph_assets()`, and `take_released_animation_graph_assets()`.
 - Added `@animation.animation_clip_asset_events`, `@animation.animation_graph_asset_events`, and `register_animation_event_descriptor(events, build)` for handle-based animation assets and typed clip-event dispatch.
-- Added Bevy-style 2D rendering surface types: tuple-struct `@sprite.Anchor(@math.Vec2D)`, `Anchor::as_vec()`, `TextureAtlasLayout`, `TextureAtlasLayoutHandle`, `TextureAtlas`, `SpriteImageMode`, `Sprite::new(...)`, `Sprite::from_image(...)`, `Sprite::from_atlas_image(...)`, `Sprite::from_color(...)`, `texture_atlas_layout(...)`, and `texture_atlas_rect(...)`.
+- Added Bevy-style 2D rendering surface types: tuple-struct `@sprite.Anchor(@math.Vec2)`, `Anchor::as_vec()`, `TextureAtlasLayout`, `TextureAtlasLayoutHandle`, `TextureAtlas`, `SpriteImageMode`, `Sprite::new(...)`, `Sprite::from_image(...)`, `Sprite::from_atlas_image(...)`, `Sprite::from_color(...)`, `texture_atlas_layout(...)`, and `texture_atlas_rect(...)`.
 - Added `selene/mesh2d` with `Mesh2dPrimitive`, `Mesh2dAsset`, `Mesh2dHandle`, `Mesh2d`, `mesh2ds()`, `register_mesh2d_asset(...)`, `update_mesh2d_asset(...)`, `release_mesh2d_asset(...)`, `take_dirty_mesh2d_assets()`, `take_released_mesh2d_assets()`, `rectangle(...)`, and `circle(...)`.
 - Added `selene/material2d` with `AlphaMode2D`, `ColorMaterial`, `ColorMaterialHandle`, `Material2dHandle`, `MeshMaterial2d`, `MeshMaterial2d::from_color_material(...)`, `mesh_material2ds()`, `register_color_material(...)`, `update_color_material(...)`, `release_color_material(...)`, `take_dirty_color_materials()`, and `take_released_color_materials()`.
 - Added `selene/text2d` with `Text2d`, `TextBounds`, `Text2d::new()`, `TextBounds::new(width, height)`, `text2ds()`, `text_bounds()`, `text_anchors()`, and `render_text2d_system(...)` for world-space text extraction independent of `selene/sprite`.
@@ -1190,12 +1192,12 @@
 - `LdtkFieldInstance::file_path_value()`: decodes field value as file-path string.
 - `LdtkFieldInstance::enum_value()`: decodes field value as enum identifier string.
 - `LdtkFieldInstance::number_value()`: decodes field value as `Double`.
-- `LdtkFieldInstance::vec2_value()`: decodes field value as `Vec2D` from array/object point payloads.
+- `LdtkFieldInstance::vec2_value()`: decodes field value as `Vec2` from array/object point payloads.
 - `LdtkFieldInstance::int_array_value()`: decodes field value as `Array[Int]`.
 - `LdtkFieldInstance::number_array_value()`: decodes field value as `Array[Double]`.
 - `LdtkFieldInstance::string_array_value()`: decodes field value as `Array[String]`.
 - `LdtkFieldInstance::bool_array_value()`: decodes field value as `Array[Bool]`.
-- `LdtkFieldInstance::vec2_array_value()`: decodes field value as `Array[Vec2D]`.
+- `LdtkFieldInstance::vec2_array_value()`: decodes field value as `Array[Vec2]`.
 - `LdtkFieldInstance::color_array_value()`: decodes field value as color string array.
 - `LdtkFieldInstance::file_path_array_value()`: decodes field value as file-path string array.
 - `LdtkFieldInstance::enum_array_value()`: decodes field value as enum identifier string array.
@@ -1213,12 +1215,12 @@
 - `ldtk_field_file_path(field_instances, identifier)`: finds and decodes a field value as file-path string.
 - `ldtk_field_enum(field_instances, identifier)`: finds and decodes a field value as enum identifier string.
 - `ldtk_field_number(field_instances, identifier)`: finds and decodes a field value as `Double`.
-- `ldtk_field_vec2(field_instances, identifier)`: finds and decodes a field value as `Vec2D`.
+- `ldtk_field_vec2(field_instances, identifier)`: finds and decodes a field value as `Vec2`.
 - `ldtk_field_int_array(field_instances, identifier)`: finds and decodes a field value as `Array[Int]`.
 - `ldtk_field_number_array(field_instances, identifier)`: finds and decodes a field value as `Array[Double]`.
 - `ldtk_field_string_array(field_instances, identifier)`: finds and decodes a field value as `Array[String]`.
 - `ldtk_field_bool_array(field_instances, identifier)`: finds and decodes a field value as `Array[Bool]`.
-- `ldtk_field_vec2_array(field_instances, identifier)`: finds and decodes a field value as `Array[Vec2D]`.
+- `ldtk_field_vec2_array(field_instances, identifier)`: finds and decodes a field value as `Array[Vec2]`.
 - `ldtk_field_color_array(field_instances, identifier)`: finds and decodes a field value as color string array.
 - `ldtk_field_file_path_array(field_instances, identifier)`: finds and decodes a field value as file-path string array.
 - `ldtk_field_enum_array(field_instances, identifier)`: finds and decodes a field value as enum identifier string array.
@@ -1238,12 +1240,12 @@
 - `LdtkEntityInstance::field_file_path(identifier)`: reads an entity field as file-path string.
 - `LdtkEntityInstance::field_enum(identifier)`: reads an entity field as enum identifier string.
 - `LdtkEntityInstance::field_number(identifier)`: reads an entity field as `Double`.
-- `LdtkEntityInstance::field_vec2(identifier)`: reads an entity field as `Vec2D`.
+- `LdtkEntityInstance::field_vec2(identifier)`: reads an entity field as `Vec2`.
 - `LdtkEntityInstance::field_int_array(identifier)`: reads an entity field as `Array[Int]`.
 - `LdtkEntityInstance::field_number_array(identifier)`: reads an entity field as `Array[Double]`.
 - `LdtkEntityInstance::field_string_array(identifier)`: reads an entity field as `Array[String]`.
 - `LdtkEntityInstance::field_bool_array(identifier)`: reads an entity field as `Array[Bool]`.
-- `LdtkEntityInstance::field_vec2_array(identifier)`: reads an entity field as `Array[Vec2D]`.
+- `LdtkEntityInstance::field_vec2_array(identifier)`: reads an entity field as `Array[Vec2]`.
 - `LdtkEntityInstance::field_color_array(identifier)`: reads an entity field as color string array.
 - `LdtkEntityInstance::field_file_path_array(identifier)`: reads an entity field as file-path string array.
 - `LdtkEntityInstance::field_enum_array(identifier)`: reads an entity field as enum identifier string array.
@@ -1265,12 +1267,12 @@
 - `LdtkLevel::field_file_path(identifier)`: reads a level field as file-path string.
 - `LdtkLevel::field_enum(identifier)`: reads a level field as enum identifier string.
 - `LdtkLevel::field_number(identifier)`: reads a level field as `Double`.
-- `LdtkLevel::field_vec2(identifier)`: reads a level field as `Vec2D`.
+- `LdtkLevel::field_vec2(identifier)`: reads a level field as `Vec2`.
 - `LdtkLevel::field_int_array(identifier)`: reads a level field as `Array[Int]`.
 - `LdtkLevel::field_number_array(identifier)`: reads a level field as `Array[Double]`.
 - `LdtkLevel::field_string_array(identifier)`: reads a level field as `Array[String]`.
 - `LdtkLevel::field_bool_array(identifier)`: reads a level field as `Array[Bool]`.
-- `LdtkLevel::field_vec2_array(identifier)`: reads a level field as `Array[Vec2D]`.
+- `LdtkLevel::field_vec2_array(identifier)`: reads a level field as `Array[Vec2]`.
 - `LdtkLevel::field_color_array(identifier)`: reads a level field as color string array.
 - `LdtkLevel::field_file_path_array(identifier)`: reads a level field as file-path string array.
 - `LdtkLevel::field_enum_array(identifier)`: reads a level field as enum identifier string array.
@@ -2297,13 +2299,13 @@
 
 - Entity inheritance, including APIs:
   - `fn get_children(Entity) -> Array[Entity]`
-  - `fn get_offset(Entity) -> @math.Vec2D`
+  - `fn get_offset(Entity) -> @math.Vec2`
   - `fn get_parent(Entity) -> Entity?`
   - `fn get_roots() -> Array[Entity]`
   - `fn iter_entities() -> Iter[Entity]`
   - `fn live_entities() -> Iter[Entity]`
-  - `fn set_offset(Entity, @math.Vec2D) -> Unit`
-  - `fn spawn_child(Entity, offset? : @math.Vec2D) -> Entity`
+  - `fn set_offset(Entity, @math.Vec2) -> Unit`
+  - `fn spawn_child(Entity, offset? : @math.Vec2) -> Entity`
 - Positions and liveness of child entities will be affected by parent entities 
 - New experimental subpackage `@style`, including APIs to make UI elements and styles
 

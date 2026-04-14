@@ -178,7 +178,7 @@ pub fn initialize(
     game_loop(delta * canvas_backend.time_scale)
     render_loop(delta * canvas_backend.time_scale)
     if canvas_backend.mouse_movement.val is Some(mouse_movement) {
-      mouse_movement.movement = @smath.Vec2D(0.0, 0.0)
+      mouse_movement.movement = @smath.Vec2(0.0, 0.0)
     }
   })
   canvas_backend.stop_loop = Some(stop_loop)

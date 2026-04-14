@@ -154,8 +154,8 @@ fn text_screen_transform(
 }
 
 ///|
-fn pixel_snapped_position(position : @math.Vec2D) -> @math.Vec2D {
-  @math.Vec2D(position[X].round(), position[Y].round())
+fn pixel_snapped_position(position : @math.Vec2) -> @math.Vec2 {
+  @math.Vec2(position[X].round(), position[Y].round())
 }
 
 ///|
@@ -165,14 +165,14 @@ fn text2d_layout(entity : @entity.Entity) -> @ui.TextLayout {
 
 ///|
 fn text2d_anchor(entity : @entity.Entity) -> @sprite.Anchor {
-  text_anchors().get(entity).unwrap_or(@sprite.Anchor(@math.Vec2D(0.0, 0.0)))
+  text_anchors().get(entity).unwrap_or(@sprite.Anchor(@math.Vec2(0.0, 0.0)))
 }
 
 ///|
 fn measure_text_fragment(
   style : @render2d_types.TextStyle2D,
   text : String,
-) -> @math.Vec2D {
+) -> @math.Vec2 {
   @platform_render.measure_text(style, text)
 }
 
@@ -301,9 +301,9 @@ fn bounded_text_lines(
 }
 
 ///|
-fn anchor_origin(anchor : @sprite.Anchor, size : @math.Vec2D) -> @math.Vec2D {
+fn anchor_origin(anchor : @sprite.Anchor, size : @math.Vec2) -> @math.Vec2 {
   let normalized = anchor.as_vec()
-  @math.Vec2D(
+  @math.Vec2(
     -size[X] * (normalized[X] + 0.5),
     -size[Y] * (0.5 - normalized[Y]),
   )
@@ -325,7 +325,7 @@ pub fn render_text2d_system(delta : Double) -> Unit {
     let anchor = text2d_anchor(entity)
     let bounds = text_bounds().get(entity)
     let transform = global_transform.compute_transform()
-    let raw_pos = @math.Vec2D(transform.translation.x, transform.translation.y)
+    let raw_pos = @math.Vec2(transform.translation.x, transform.translation.y)
     let screen_pos = pixel_snapped_position(
       match camera_view {
         Some((camera, camera_global, projection)) =>
@@ -349,7 +349,7 @@ pub fn render_text2d_system(delta : Double) -> Unit {
     } else {
       max_line_width
     }
-    let layout_size = @math.Vec2D(layout_width, bounds_height)
+    let layout_size = @math.Vec2(layout_width, bounds_height)
     let origin = screen_pos + anchor_origin(anchor, layout_size)
     let start_y = match layout.baseline {
       Top => origin[Y]
@@ -370,7 +370,7 @@ pub fn render_text2d_system(delta : Double) -> Unit {
         {
           text: line,
           position: pixel_snapped_position(
-            @math.Vec2D(x, start_y + line_height * index.to_double()),
+            @math.Vec2(x, start_y + line_height * index.to_double()),
           ),
           transform: text_screen_transform(global_transform, camera_view),
           style: style_for_draw,

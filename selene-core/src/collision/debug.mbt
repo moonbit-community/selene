@@ -41,13 +41,13 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
     guard e.is_alive() else { continue }
     guard collide.active else { continue }
     guard shapes().get(e) is Some(shape)
-    guard shape is Rect(size=Vec2D(width, height), offset~)
+    guard shape is Rect(size=Vec2(width, height), offset~)
     guard debug_entity_global_transform(e) is Some(global) else { continue }
     let rect = to_screen_rect(
       e,
       global,
       offset,
-      @math.Vec2D(width, height),
+      @math.Vec2(width, height),
       camera_view,
     )
     @render2d.push_rect({
@@ -61,13 +61,13 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
     guard e.is_alive() else { continue }
     guard area.active else { continue }
     guard shapes().get(e) is Some(shape) else { continue }
-    guard shape is Rect(size=Vec2D(width, height), offset~)
+    guard shape is Rect(size=Vec2(width, height), offset~)
     guard debug_entity_global_transform(e) is Some(global) else { continue }
     let rect = to_screen_rect(
       e,
       global,
       offset,
-      @math.Vec2D(width, height),
+      @math.Vec2(width, height),
       camera_view,
     )
     @render2d.push_rect({
@@ -80,13 +80,13 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
   for e, _pickable in pickables() {
     guard e.is_alive() else { continue }
     guard shapes().get(e) is Some(shape) else { continue }
-    guard shape is Rect(size=Vec2D(width, height), offset~)
+    guard shape is Rect(size=Vec2(width, height), offset~)
     guard debug_entity_global_transform(e) is Some(global) else { continue }
     let rect = to_screen_rect(
       e,
       global,
       offset,
-      @math.Vec2D(width, height),
+      @math.Vec2(width, height),
       camera_view,
     )
     @render2d.push_rect({
@@ -102,8 +102,8 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
 fn to_screen_rect(
   entity : @entity.Entity,
   global_transform : @transform.GlobalTransform,
-  local_position : @math.Vec2D,
-  size : @math.Vec2D,
+  local_position : @math.Vec2,
+  size : @math.Vec2,
   camera_view : (
     @camera.Camera,
     @transform.GlobalTransform,
@@ -170,8 +170,8 @@ fn to_screen_rect(
       }
     })
     @math.Rect::{
-      position: @math.Vec2D(min_x, min_y),
-      size: @math.Vec2D(max_x - min_x, max_y - min_y),
+      position: @math.Vec2(min_x, min_y),
+      size: @math.Vec2(max_x - min_x, max_y - min_y),
     }
   }
 }
@@ -184,8 +184,8 @@ fn screen_point(
     @transform.GlobalTransform,
     @camera.OrthographicProjection,
   )?,
-) -> @math.Vec2D {
-  let world_point_2d = @math.Vec2D(world_point.x, world_point.y)
+) -> @math.Vec2 {
+  let world_point_2d = @math.Vec2(world_point.x, world_point.y)
   match camera_view {
     Some((camera, camera_transform, projection)) =>
       camera.world_to_viewport(camera_transform, projection, world_point_2d)

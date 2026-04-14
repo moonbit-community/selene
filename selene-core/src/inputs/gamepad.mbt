@@ -279,24 +279,24 @@ pub fn gamepad_axis_value(gamepad : Gamepad, axis : GamepadAxis) -> Double {
 }
 
 ///|
-pub fn gamepad_left_stick(gamepad : Gamepad) -> @math.Vec2D {
-  @math.Vec2D(
+pub fn gamepad_left_stick(gamepad : Gamepad) -> @math.Vec2 {
+  @math.Vec2(
     gamepad_axis_value(gamepad, LeftStickX),
     gamepad_axis_value(gamepad, LeftStickY),
   )
 }
 
 ///|
-pub fn gamepad_right_stick(gamepad : Gamepad) -> @math.Vec2D {
-  @math.Vec2D(
+pub fn gamepad_right_stick(gamepad : Gamepad) -> @math.Vec2 {
+  @math.Vec2(
     gamepad_axis_value(gamepad, RightStickX),
     gamepad_axis_value(gamepad, RightStickY),
   )
 }
 
 ///|
-pub fn gamepad_triggers(gamepad : Gamepad) -> @math.Vec2D {
-  @math.Vec2D(
+pub fn gamepad_triggers(gamepad : Gamepad) -> @math.Vec2 {
+  @math.Vec2(
     gamepad_axis_value(gamepad, LeftZ),
     gamepad_axis_value(gamepad, RightZ),
   )

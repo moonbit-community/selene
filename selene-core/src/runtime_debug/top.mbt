@@ -10,8 +10,8 @@ pub(all) struct DeterministicModeConfig {
 pub(all) enum InputInjectionEvent {
   KeyDown(@inputs.Code)
   KeyUp(@inputs.Code)
-  MouseMove(@math.Vec2D)
-  MouseWheel(@math.Vec2D)
+  MouseMove(@math.Vec2)
+  MouseWheel(@math.Vec2)
   MouseLeft(Bool)
   MouseRight(Bool)
   MouseMiddle(Bool)
@@ -471,7 +471,7 @@ fn draw2d_info(
     Text(text) => {
       let destination = @math.Rect::{
         position: text.position,
-        size: @math.Vec2D::zero(),
+        size: @math.Vec2::zero(),
       }
       {
         entity_id,
@@ -499,8 +499,8 @@ fn draw2d_info(
       }
     Circle(circle) => {
       let destination = @math.Rect::{
-        position: circle.center - @math.Vec2D(circle.radius, circle.radius),
-        size: @math.Vec2D(circle.radius * 2.0, circle.radius * 2.0),
+        position: circle.center - @math.Vec2(circle.radius, circle.radius),
+        size: @math.Vec2(circle.radius * 2.0, circle.radius * 2.0),
       }
       {
         entity_id,

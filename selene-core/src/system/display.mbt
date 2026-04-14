@@ -14,8 +14,8 @@
 
 ///|
 priv struct DisplayState {
-  mut viewport_size : @math.Vec2D
-  mut screen_size : @math.Vec2D
+  mut viewport_size : @math.Vec2
+  mut screen_size : @math.Vec2
   mut zoom : Double
   mut render_alpha : Double
 }
@@ -27,8 +27,8 @@ let display_world_states : Map[UInt, DisplayState] = Map::new()
 fn display_state() -> DisplayState {
   let world_id = @ecs.require_current_world().id()
   display_world_states.get_or_init(world_id, () => {
-    viewport_size: @math.Vec2D(512.0, 256.0),
-    screen_size: @math.Vec2D(512.0, 256.0),
+    viewport_size: @math.Vec2(512.0, 256.0),
+    screen_size: @math.Vec2(512.0, 256.0),
     zoom: 1.0,
     render_alpha: 1.0,
   })
@@ -51,19 +51,19 @@ pub fn configure_display(
 ) -> Unit {
   let state = display_state()
   let zoom = positive_zoom(zoom)
-  state.viewport_size = @math.Vec2D(viewport_width, viewport_height)
-  state.screen_size = @math.Vec2D(viewport_width * zoom, viewport_height * zoom)
+  state.viewport_size = @math.Vec2(viewport_width, viewport_height)
+  state.screen_size = @math.Vec2(viewport_width * zoom, viewport_height * zoom)
   state.zoom = zoom
   state.render_alpha = 1.0
 }
 
 ///|
-pub fn get_viewport_size() -> @math.Vec2D {
+pub fn get_viewport_size() -> @math.Vec2 {
   display_state().viewport_size
 }
 
 ///|
-pub fn get_screen_size() -> @math.Vec2D {
+pub fn get_screen_size() -> @math.Vec2 {
   display_state().screen_size
 }
 
@@ -94,13 +94,13 @@ pub fn unscale_value(value : Double) -> Double {
 }
 
 ///|
-pub fn scale_vec2(vec : @math.Vec2D) -> @math.Vec2D {
-  @math.Vec2D(scale_value(vec[X]), scale_value(vec[Y]))
+pub fn scale_vec2(vec : @math.Vec2) -> @math.Vec2 {
+  @math.Vec2(scale_value(vec[X]), scale_value(vec[Y]))
 }
 
 ///|
-pub fn unscale_vec2(vec : @math.Vec2D) -> @math.Vec2D {
-  @math.Vec2D(unscale_value(vec[X]), unscale_value(vec[Y]))
+pub fn unscale_vec2(vec : @math.Vec2) -> @math.Vec2 {
+  @math.Vec2(unscale_value(vec[X]), unscale_value(vec[Y]))
 }
 
 ///|
@@ -111,12 +111,12 @@ pub fn scale_transform_translation(
 }
 
 ///|
-pub fn ui_virtual_to_screen(pos : @math.Vec2D) -> @math.Vec2D {
+pub fn ui_virtual_to_screen(pos : @math.Vec2) -> @math.Vec2 {
   scale_vec2(pos)
 }
 
 ///|
-pub fn screen_to_ui_virtual(pos : @math.Vec2D) -> @math.Vec2D {
+pub fn screen_to_ui_virtual(pos : @math.Vec2) -> @math.Vec2 {
   unscale_vec2(pos)
 }
 

@@ -10,7 +10,7 @@ fn submit_frame(@render_pipeline.RenderFrame) -> Unit
 
 fn register_font(String, String) -> Unit
 
-fn measure_text(@render2d_types.TextStyle2D, String) -> @math.Vec2D
+fn measure_text(@render2d_types.TextStyle2D, String) -> @math.Vec2
 
 fn push_clip_rect(@math.Rect) -> Unit
 

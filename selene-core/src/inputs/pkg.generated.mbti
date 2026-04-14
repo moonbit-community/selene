@@ -30,11 +30,11 @@ pub let gamepad_button_event_bus : @event.Events[GamepadButtonEvent]
 
 pub let gamepad_connection_event_bus : @event.Events[GamepadConnectionEvent]
 
-pub fn gamepad_left_stick(Gamepad) -> @math.Vec2D
+pub fn gamepad_left_stick(Gamepad) -> @math.Vec2
 
-pub fn gamepad_right_stick(Gamepad) -> @math.Vec2D
+pub fn gamepad_right_stick(Gamepad) -> @math.Vec2
 
-pub fn gamepad_triggers(Gamepad) -> @math.Vec2D
+pub fn gamepad_triggers(Gamepad) -> @math.Vec2
 
 pub fn is_gamepad_button_just_pressed(Gamepad, GamepadButton) -> Bool
 
@@ -80,7 +80,7 @@ pub fn just_released_gamepad_buttons() -> @set.Set[GamepadButtonInput]
 
 pub let key_input_event_bus : @event.Events[KeyInputEvent]
 
-pub fn key_vector(Code, Code, Code, Code) -> @math.Vec2D
+pub fn key_vector(Code, Code, Code, Code) -> @math.Vec2
 
 pub let mouse : Mouse
 
@@ -237,7 +237,7 @@ pub(all) enum KeyInputState {
 } derive(Eq, Show)
 
 pub(all) struct Mouse {
-  mut pos : @math.Vec2D
+  mut pos : @math.Vec2
   mut left_button : Bool
   mut right_button : Bool
   mut middle_button : Bool
@@ -252,7 +252,7 @@ pub(all) enum MouseButton {
 pub struct MouseButtonEvent {
   button : MouseButton
   state : MouseButtonInputState
-  position : @math.Vec2D
+  position : @math.Vec2
 }
 
 pub(all) enum MouseButtonInputState {
@@ -261,20 +261,20 @@ pub(all) enum MouseButtonInputState {
 } derive(Eq, Show)
 
 pub struct MouseMotionEvent {
-  position : @math.Vec2D
-  delta : @math.Vec2D
+  position : @math.Vec2
+  delta : @math.Vec2
 }
 
 pub(all) struct MouseMovement {
-  mut movement : @math.Vec2D
+  mut movement : @math.Vec2
 }
 
 pub(all) struct MouseWheel {
-  mut delta : @math.Vec2D
+  mut delta : @math.Vec2
 }
 
 pub struct MouseWheelEvent {
-  delta : @math.Vec2D
+  delta : @math.Vec2
 }
 
 // Type aliases

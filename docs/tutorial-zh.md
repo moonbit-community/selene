@@ -201,7 +201,7 @@ struct GameState {
 ```moonbit
 let player = @entity.Entity::new()
 @transform.transforms().set(player, @transform.Transform::from_xyz(100.0, 100.0, 0.0))
-@physics2d.linear_velocities().set(player, @math.Vec2D::zero())
+@physics2d.linear_velocities().set(player, @math.Vec2::zero())
 ```
 
 上述代码做了三件事：
@@ -220,7 +220,7 @@ Entity 类似引用，组件通过 `Map[K, V]::set` 关联到实体上。`@trans
 
 ```moonbit
 let player_idle_layout = @sprite.register_texture_atlas_layout(
-  @sprite.TextureAtlasLayout::from_grid(@math.Vec2D(32.0, 32.0), 11, 1),
+  @sprite.TextureAtlasLayout::from_grid(@math.Vec2(32.0, 32.0), 11, 1),
 )
 let player_idle_image = @asset.load_image(
   "assets/pixeladventure/Main Characters/Mask Dude/Idle (32x32).png",
@@ -305,7 +305,7 @@ let player_collision_group = @physics2d.CollisionGroup::new()
 
 @physics2d.shapes().set(
   game_state.player,
-  Rect(size=@math.Vec2D(24.0, 32.0), offset=@math.Vec2D(4.0, 0.0)),
+  Rect(size=@math.Vec2(24.0, 32.0), offset=@math.Vec2(4.0, 0.0)),
 )
 @physics2d.colliders().set(
   game_state.player,
@@ -330,7 +330,7 @@ fn generate_map() -> Unit {
   let tile_map = TileMap::from_json(tilemap)
   let grasses = tile_map.get_tiles("Grass")
   for grass in grasses {
-    add_grass_visual(tile_to_vec2d(grass, tile_map.tile_size), grass.id)
+    add_grass_visual(tile_to_vec2(grass, tile_map.tile_size), grass.id)
   }
 }
 ```
@@ -341,7 +341,7 @@ fn generate_map() -> Unit {
 
 ```moonbit
 @camera.set_limits(top=0.0, bottom=world_height, left=0.0, right=world_width)
-@camera.attach_entity(game_state.player, @math.Vec2D(16.0, 16.0))
+@camera.attach_entity(game_state.player, @math.Vec2(16.0, 16.0))
 ```
 
 `attach_entity` 的偏移量通常设置为角色中心附近。
@@ -389,8 +389,8 @@ fn add_score_box() -> Unit {
   @ui.nodes().set(
     game_state.score_box,
     @ui.Node::absolute(
-      @math.Vec2D(48.0, 16.0),
-      size=@math.Vec2D(432.0, 24.0),
+      @math.Vec2(48.0, 16.0),
+      size=@math.Vec2(432.0, 24.0),
     ),
   )
   @ui.z_indexes().set(game_state.score_box, @ui.ZIndex::new(100))

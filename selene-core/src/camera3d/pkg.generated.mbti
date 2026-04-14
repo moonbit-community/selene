@@ -27,7 +27,7 @@ pub(all) struct ActiveCamera3D {
 
 pub(all) struct Camera3DComponent {
   projection : @render3d_types.CameraProjection3D
-  orthographic_size : @math.Vec2D?
+  orthographic_size : @math.Vec2?
   near : Double
   far : Double
   fov_y : Double

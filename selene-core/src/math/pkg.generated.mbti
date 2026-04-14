@@ -90,11 +90,11 @@ pub impl Default for Quat
 pub impl Mul for Quat
 
 pub(all) struct Rect {
-  position : Vec2D
-  size : Vec2D
+  position : Vec2
+  size : Vec2
 }
 pub fn Rect::intersects(Self, Self) -> Bool
-pub fn Rect::shift(Self, Vec2D) -> Self
+pub fn Rect::shift(Self, Vec2) -> Self
 
 pub(all) enum RepeatMode {
   RepeatX
@@ -120,7 +120,7 @@ pub fn Transform::append_scale(Self, Double, Double) -> Self
 pub fn Transform::append_skew(Self, Double, Double) -> Self
 pub fn Transform::append_translation(Self, Double, Double) -> Self
 pub fn Transform::apply_to_point(Self, Double, Double) -> (Double, Double)
-pub fn Transform::apply_to_vec2d(Self, Vec2D) -> Vec2D
+pub fn Transform::apply_to_vec2(Self, Vec2) -> Vec2
 pub fn Transform::clone(Self) -> Self
 pub fn Transform::compose(Self, Self) -> Self
 pub fn Transform::flip_x(Double) -> Self
@@ -154,22 +154,22 @@ pub(all) enum VAlign {
   Bottom
 }
 
-pub(all) struct Vec2D(Double, Double) derive(Eq, Show)
-pub fn Vec2D::clone(Self) -> Self
-pub fn Vec2D::distance(Self) -> Double
-pub fn Vec2D::distance_to(Self, Self) -> Double
-pub fn Vec2D::dot(Self, Self) -> Double
-pub fn Vec2D::normalize(Self) -> Self
-pub fn Vec2D::op_get(Self, Axis) -> Double
-pub fn Vec2D::scalar_div(Self, Double) -> Self
-pub fn Vec2D::scalar_mul(Self, Double) -> Self
-pub fn Vec2D::update(Self, Axis, Double) -> Self
-pub fn Vec2D::zero() -> Self
-pub impl Add for Vec2D
-pub impl Default for Vec2D
-pub impl Mul for Vec2D
-pub impl Neg for Vec2D
-pub impl Sub for Vec2D
+pub(all) struct Vec2(Double, Double) derive(Eq, Show)
+pub fn Vec2::clone(Self) -> Self
+pub fn Vec2::distance(Self) -> Double
+pub fn Vec2::distance_to(Self, Self) -> Double
+pub fn Vec2::dot(Self, Self) -> Double
+pub fn Vec2::normalize(Self) -> Self
+pub fn Vec2::op_get(Self, Axis) -> Double
+pub fn Vec2::scalar_div(Self, Double) -> Self
+pub fn Vec2::scalar_mul(Self, Double) -> Self
+pub fn Vec2::update(Self, Axis, Double) -> Self
+pub fn Vec2::zero() -> Self
+pub impl Add for Vec2
+pub impl Default for Vec2
+pub impl Mul for Vec2
+pub impl Neg for Vec2
+pub impl Sub for Vec2
 
 pub(all) struct Vec3 {
   x : Double

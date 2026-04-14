@@ -5,13 +5,13 @@ fn collision_test_filter() -> CollisionFilter {
 
 ///|
 fn collision_test_shape() -> CollisionShape {
-  Rect(size=@math.Vec2D(16.0, 16.0), offset=@math.Vec2D::zero())
+  Rect(size=@math.Vec2(16.0, 16.0), offset=@math.Vec2::zero())
 }
 
 ///|
 fn set_test_translation(
   entity : @entity.Entity,
-  position : @math.Vec2D,
+  position : @math.Vec2,
 ) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
@@ -30,9 +30,9 @@ fn remove_test_transform(entity : @entity.Entity) -> Unit {
 }
 
 ///|
-fn test_translation(entity : @entity.Entity) -> @math.Vec2D {
+fn test_translation(entity : @entity.Entity) -> @math.Vec2 {
   let transform = @transform.transforms().get(entity).unwrap_or_default()
-  @math.Vec2D(transform.translation.x, transform.translation.y)
+  @math.Vec2(transform.translation.x, transform.translation.y)
 }
 
 ///|
@@ -53,7 +53,7 @@ fn collision_test_cleanup(entities : Array[@entity.Entity]) -> Unit {
   rapier_fixed_step(0.016)
   @entity.entity_flush_system(0.0)
   configure_physics(
-    gravity=@math.Vec2D::zero(),
+    gravity=@math.Vec2::zero(),
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
@@ -67,14 +67,14 @@ fn collision_test_close(left : Double, right : Double) -> Bool {
 ///|
 test "explicit rigid body syncs material and rapier handles" {
   configure_physics(
-    gravity=@math.Vec2D::zero(),
+    gravity=@math.Vec2::zero(),
     pixels_per_meter=100.0,
     max_ccd_substeps=4,
   )
   let entity = @entity.Entity::new()
   defer collision_test_cleanup([entity])
 
-  set_test_translation(entity, @math.Vec2D::zero())
+  set_test_translation(entity, @math.Vec2::zero())
   shapes().set(entity, collision_test_shape())
   colliders().set(
     entity,
@@ -145,14 +145,14 @@ test "explicit rigid body syncs material and rapier handles" {
 ///|
 test "dynamic rigid body moves under gravity without legacy velocity component" {
   configure_physics(
-    gravity=@math.Vec2D(0.0, 400.0),
+    gravity=@math.Vec2(0.0, 400.0),
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
   let entity = @entity.Entity::new()
   defer collision_test_cleanup([entity])
 
-  set_test_translation(entity, @math.Vec2D::zero())
+  set_test_translation(entity, @math.Vec2::zero())
   shapes().set(entity, collision_test_shape())
   colliders().set(entity, Collider::new(collision_test_filter()))
   rigid_bodies().set(entity, RigidBody::dynamic())
@@ -171,7 +171,7 @@ test "dynamic rigid body moves under gravity without legacy velocity component" 
 ///|
 test "explicit body type overrides legacy velocity heuristic" {
   configure_physics(
-    gravity=@math.Vec2D::zero(),
+    gravity=@math.Vec2::zero(),
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
@@ -180,10 +180,10 @@ test "explicit body type overrides legacy velocity heuristic" {
   defer collision_test_cleanup([fixed_entity, kinematic_entity])
 
   for entity in [fixed_entity, kinematic_entity] {
-    set_test_translation(entity, @math.Vec2D::zero())
+    set_test_translation(entity, @math.Vec2::zero())
     shapes().set(entity, collision_test_shape())
     colliders().set(entity, Collider::new(collision_test_filter()))
-    @velocity.velocities().set(entity, @math.Vec2D(120.0, 0.0))
+    @velocity.velocities().set(entity, @math.Vec2(120.0, 0.0))
   }
   rigid_bodies().set(fixed_entity, RigidBody::fixed())
   rigid_bodies().set(kinematic_entity, RigidBody::kinematic_velocity_based())
@@ -203,7 +203,7 @@ test "explicit body type overrides legacy velocity heuristic" {
 ///|
 test "spatial queries resolve hits, overlaps, and body filters" {
   configure_physics(
-    gravity=@math.Vec2D::zero(),
+    gravity=@math.Vec2::zero(),
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
@@ -212,26 +212,26 @@ test "spatial queries resolve hits, overlaps, and body filters" {
   let kinematic_entity = @entity.Entity::new()
   defer collision_test_cleanup([fixed_entity, dynamic_entity, kinematic_entity])
 
-  set_test_translation(fixed_entity, @math.Vec2D(120.0, 80.0))
+  set_test_translation(fixed_entity, @math.Vec2(120.0, 80.0))
   shapes().set(
     fixed_entity,
-    Rect(size=@math.Vec2D(40.0, 40.0), offset=@math.Vec2D::zero()),
+    Rect(size=@math.Vec2(40.0, 40.0), offset=@math.Vec2::zero()),
   )
   colliders().set(fixed_entity, Collider::new(collision_test_filter()))
   rigid_bodies().set(fixed_entity, RigidBody::fixed())
 
-  set_test_translation(dynamic_entity, @math.Vec2D(220.0, 80.0))
+  set_test_translation(dynamic_entity, @math.Vec2(220.0, 80.0))
   shapes().set(
     dynamic_entity,
-    Rect(size=@math.Vec2D(40.0, 40.0), offset=@math.Vec2D::zero()),
+    Rect(size=@math.Vec2(40.0, 40.0), offset=@math.Vec2::zero()),
   )
   colliders().set(dynamic_entity, Collider::new(collision_test_filter()))
   rigid_bodies().set(dynamic_entity, RigidBody::dynamic())
 
-  set_test_translation(kinematic_entity, @math.Vec2D(320.0, 80.0))
+  set_test_translation(kinematic_entity, @math.Vec2(320.0, 80.0))
   shapes().set(
     kinematic_entity,
-    Rect(size=@math.Vec2D(40.0, 40.0), offset=@math.Vec2D::zero()),
+    Rect(size=@math.Vec2(40.0, 40.0), offset=@math.Vec2::zero()),
   )
   colliders().set(kinematic_entity, Collider::new(collision_test_filter()))
   rigid_bodies().set(kinematic_entity, RigidBody::kinematic_position_based())
@@ -240,27 +240,27 @@ test "spatial queries resolve hits, overlaps, and body filters" {
 
   inspect(
     raycast(
-      @math.Vec2D::zero() + @math.Vec2D(0.0, 100.0),
-      @math.Vec2D(1.0, 0.0),
+      @math.Vec2::zero() + @math.Vec2(0.0, 100.0),
+      @math.Vec2(1.0, 0.0),
     ).map_or(false, fn(hit) { hit.entity == fixed_entity && hit.toi > 100.0 }),
     content="true",
   )
   inspect(
-    intersect_point(@math.Vec2D(140.0, 100.0)).contains(fixed_entity),
+    intersect_point(@math.Vec2(140.0, 100.0)).contains(fixed_entity),
     content="true",
   )
   inspect(
     intersect_shape(
-      Ball(radius=8.0, offset=@math.Vec2D::zero()),
-      @math.Vec2D(140.0, 100.0),
+      Ball(radius=8.0, offset=@math.Vec2::zero()),
+      @math.Vec2(140.0, 100.0),
     ).contains(fixed_entity),
     content="true",
   )
   inspect(
     shape_cast(
-      Ball(radius=8.0, offset=@math.Vec2D::zero()),
-      @math.Vec2D(0.0, 100.0),
-      direction=@math.Vec2D(1.0, 0.0),
+      Ball(radius=8.0, offset=@math.Vec2::zero()),
+      @math.Vec2(0.0, 100.0),
+      direction=@math.Vec2(1.0, 0.0),
     ).map_or(false, fn(hit) { hit.entity == fixed_entity }),
     content="true",
   )
@@ -278,25 +278,25 @@ test "spatial queries resolve hits, overlaps, and body filters" {
     body_filter: SpatialQueryBodyFilter::Kinematic,
   }
   inspect(
-    intersect_point(@math.Vec2D(240.0, 100.0), query_filter=dynamic_filter).contains(
+    intersect_point(@math.Vec2(240.0, 100.0), query_filter=dynamic_filter).contains(
       dynamic_entity,
     ),
     content="true",
   )
   inspect(
-    intersect_point(@math.Vec2D(140.0, 100.0), query_filter=fixed_filter).contains(
+    intersect_point(@math.Vec2(140.0, 100.0), query_filter=fixed_filter).contains(
       fixed_entity,
     ),
     content="true",
   )
   inspect(
-    intersect_point(@math.Vec2D(340.0, 100.0), query_filter=kinematic_filter).contains(
+    intersect_point(@math.Vec2(340.0, 100.0), query_filter=kinematic_filter).contains(
       kinematic_entity,
     ),
     content="true",
   )
   inspect(
-    raycast(@math.Vec2D(180.0, 100.0), @math.Vec2D(1.0, 0.0), query_filter={
+    raycast(@math.Vec2(180.0, 100.0), @math.Vec2(1.0, 0.0), query_filter={
       ..SpatialQueryFilter::default(),
       exclude_entity: Some(dynamic_entity),
     }).map_or(false, fn(hit) { hit.entity == kinematic_entity }),
@@ -307,21 +307,21 @@ test "spatial queries resolve hits, overlaps, and body filters" {
 ///|
 test "rigid body setters and getters work before insertion" {
   configure_physics(
-    gravity=@math.Vec2D::zero(),
+    gravity=@math.Vec2::zero(),
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
   let entity = @entity.Entity::new()
   defer collision_test_cleanup([entity])
 
-  set_test_translation(entity, @math.Vec2D::zero())
+  set_test_translation(entity, @math.Vec2::zero())
   shapes().set(entity, collision_test_shape())
   colliders().set(entity, Collider::new(collision_test_filter()))
   rigid_bodies().set(entity, { ..RigidBody::dynamic(), lock_rotation: false })
 
-  set_rigid_body_translation(entity, @math.Vec2D(32.0, 12.0))
+  set_rigid_body_translation(entity, @math.Vec2(32.0, 12.0))
   set_rigid_body_rotation(entity, 0.25)
-  set_rigid_body_linear_velocity(entity, @math.Vec2D(120.0, 0.0))
+  set_rigid_body_linear_velocity(entity, @math.Vec2(120.0, 0.0))
   set_rigid_body_angular_velocity(entity, 2.0)
 
   inspect(
@@ -365,23 +365,23 @@ test "rigid body setters and getters work before insertion" {
 ///|
 test "force and impulse helpers apply before and after body creation" {
   configure_physics(
-    gravity=@math.Vec2D::zero(),
+    gravity=@math.Vec2::zero(),
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
   let entity = @entity.Entity::new()
   defer collision_test_cleanup([entity])
 
-  set_test_translation(entity, @math.Vec2D::zero())
+  set_test_translation(entity, @math.Vec2::zero())
   shapes().set(entity, collision_test_shape())
   colliders().set(entity, Collider::new(collision_test_filter()))
   rigid_bodies().set(entity, { ..RigidBody::dynamic(), lock_rotation: false })
 
-  apply_impulse(entity, @math.Vec2D(200.0, 0.0))
+  apply_impulse(entity, @math.Vec2(200.0, 0.0))
   apply_torque_impulse(entity, 1.0)
 
   rapier_fixed_step(0.05)
-  let first_x = rigid_body_translation(entity).unwrap_or(@math.Vec2D::zero())[X]
+  let first_x = rigid_body_translation(entity).unwrap_or(@math.Vec2::zero())[X]
 
   inspect(first_x > 0.0, content="true")
   inspect(
@@ -389,8 +389,8 @@ test "force and impulse helpers apply before and after body creation" {
     content="true",
   )
 
-  add_force(entity, @math.Vec2D(80.0, 0.0))
-  add_force_at_point(entity, @math.Vec2D(0.0, 120.0), @math.Vec2D(8.0, 8.0))
+  add_force(entity, @math.Vec2(80.0, 0.0))
+  add_force_at_point(entity, @math.Vec2(0.0, 120.0), @math.Vec2(8.0, 8.0))
 
   rapier_fixed_step(0.05)
 
@@ -411,7 +411,7 @@ test "force and impulse helpers apply before and after body creation" {
 ///|
 test "impulse joints insert and accept all supported joint kinds" {
   configure_physics(
-    gravity=@math.Vec2D::zero(),
+    gravity=@math.Vec2::zero(),
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
@@ -420,12 +420,12 @@ test "impulse joints insert and accept all supported joint kinds" {
   let joint_entity = @entity.Entity::new()
   defer collision_test_cleanup([body_a, body_b, joint_entity])
 
-  set_test_translation(body_a, @math.Vec2D::zero())
+  set_test_translation(body_a, @math.Vec2::zero())
   shapes().set(body_a, collision_test_shape())
   colliders().set(body_a, Collider::new(collision_test_filter()))
   rigid_bodies().set(body_a, RigidBody::fixed())
 
-  set_test_translation(body_b, @math.Vec2D(32.0, 0.0))
+  set_test_translation(body_b, @math.Vec2(32.0, 0.0))
   shapes().set(body_b, collision_test_shape())
   colliders().set(body_b, Collider::new(collision_test_filter()))
   rigid_bodies().set(body_b, { ..RigidBody::dynamic(), lock_rotation: false })
@@ -454,7 +454,7 @@ test "impulse joints insert and accept all supported joint kinds" {
     Joint::prismatic(
       body_a,
       body_b,
-      @math.Vec2D(1.0, 0.0),
+      @math.Vec2(1.0, 0.0),
       limits=JointLimits::new(-24.0, 24.0),
     ),
   )
@@ -495,7 +495,7 @@ test "impulse joints insert and accept all supported joint kinds" {
 ///|
 test "impulse joints are removed when endpoints disappear" {
   configure_physics(
-    gravity=@math.Vec2D::zero(),
+    gravity=@math.Vec2::zero(),
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
@@ -504,7 +504,7 @@ test "impulse joints are removed when endpoints disappear" {
   let joint_entity = @entity.Entity::new()
   defer collision_test_cleanup([body_a, body_b, joint_entity])
 
-  for entry in [(body_a, @math.Vec2D::zero()), (body_b, @math.Vec2D(32.0, 0.0))] {
+  for entry in [(body_a, @math.Vec2::zero()), (body_b, @math.Vec2(32.0, 0.0))] {
     set_test_translation(entry.0, entry.1)
     shapes().set(entry.0, collision_test_shape())
     colliders().set(entry.0, Collider::new(collision_test_filter()))
@@ -529,7 +529,7 @@ test "impulse joints are removed when endpoints disappear" {
 ///|
 test "multibody joints insert, expose handles, and rebuild chains" {
   configure_physics(
-    gravity=@math.Vec2D::zero(),
+    gravity=@math.Vec2::zero(),
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
@@ -540,9 +540,9 @@ test "multibody joints insert, expose handles, and rebuild chains" {
 
   for
     entry in [
-      (parent, @math.Vec2D::zero()),
-      (child, @math.Vec2D(32.0, 0.0)),
-      (grandchild, @math.Vec2D(64.0, 0.0)),
+      (parent, @math.Vec2::zero()),
+      (child, @math.Vec2(32.0, 0.0)),
+      (grandchild, @math.Vec2(64.0, 0.0)),
     ] {
     set_test_translation(entry.0, entry.1)
     shapes().set(entry.0, collision_test_shape())
@@ -554,8 +554,8 @@ test "multibody joints insert, expose handles, and rebuild chains" {
     child,
     MultibodyJoint::revolute(
       parent,
-      local_anchor1=@math.Vec2D(8.0, 0.0),
-      local_anchor2=@math.Vec2D(-8.0, 0.0),
+      local_anchor1=@math.Vec2(8.0, 0.0),
+      local_anchor2=@math.Vec2(-8.0, 0.0),
       limits=JointLimits::new(-0.5, 0.5),
       motor=JointMotor::position(0.25, 4.0, 0.75, max_force=2.0),
       softness=JointSoftness::new(0.8, 6.0),
@@ -565,8 +565,8 @@ test "multibody joints insert, expose handles, and rebuild chains" {
     grandchild,
     MultibodyJoint::revolute(
       child,
-      local_anchor1=@math.Vec2D(8.0, 0.0),
-      local_anchor2=@math.Vec2D(-8.0, 0.0),
+      local_anchor1=@math.Vec2(8.0, 0.0),
+      local_anchor2=@math.Vec2(-8.0, 0.0),
     ),
   )
 
@@ -657,7 +657,7 @@ test "multibody joints insert, expose handles, and rebuild chains" {
 ///|
 test "multibody joints are removed when endpoints disappear" {
   configure_physics(
-    gravity=@math.Vec2D::zero(),
+    gravity=@math.Vec2::zero(),
     pixels_per_meter=100.0,
     max_ccd_substeps=1,
   )
@@ -665,7 +665,7 @@ test "multibody joints are removed when endpoints disappear" {
   let child = @entity.Entity::new()
   defer collision_test_cleanup([parent, child])
 
-  for entry in [(parent, @math.Vec2D::zero()), (child, @math.Vec2D(32.0, 0.0))] {
+  for entry in [(parent, @math.Vec2::zero()), (child, @math.Vec2(32.0, 0.0))] {
     set_test_translation(entry.0, entry.1)
     shapes().set(entry.0, collision_test_shape())
     colliders().set(entry.0, Collider::new(collision_test_filter()))

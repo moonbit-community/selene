@@ -224,8 +224,8 @@ test "ui layout uses overflow clip margins from the requested visual box" {
   nodes().set(
     entity,
     Node::absolute(
-      @math.Vec2D(10.0, 20.0),
-      size=@math.Vec2D(100.0, 80.0),
+      @math.Vec2(10.0, 20.0),
+      size=@math.Vec2(100.0, 80.0),
       padding=UiRectValues::px(left=6.0),
       border=UiRectValues::px(left=4.0),
       overflow_x=Overflow::Hidden,
@@ -254,8 +254,8 @@ test "ui layout config controls screen-space rounding for viewport-scaled rects"
   @system.configure_display(101.0, 101.0, 1.5)
 
   let logical_rect : @math.Rect = {
-    position: @math.Vec2D(33.835, 33.835),
-    size: @math.Vec2D(10.0, 10.0),
+    position: @math.Vec2(33.835, 33.835),
+    size: @math.Vec2(10.0, 10.0),
   }
   let rounded_rect = screen_rect_for(
     logical_rect,
@@ -290,15 +290,15 @@ test "ui override clip ignores inherited clipping rectangles" {
   nodes().set(
     parent,
     Node::absolute(
-      @math.Vec2D(0.0, 0.0),
-      size=@math.Vec2D(120.0, 120.0),
+      @math.Vec2(0.0, 0.0),
+      size=@math.Vec2(120.0, 120.0),
       overflow_x=Overflow::Hidden,
       overflow_y=Overflow::Hidden,
     ),
   )
   nodes().set(
     child,
-    Node::absolute(@math.Vec2D(90.0, 20.0), size=@math.Vec2D(80.0, 40.0)),
+    Node::absolute(@math.Vec2(90.0, 20.0), size=@math.Vec2(80.0, 40.0)),
   )
   override_clips().set(child, OverrideClip::new())
 

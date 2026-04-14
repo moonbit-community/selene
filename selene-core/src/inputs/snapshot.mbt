@@ -14,13 +14,13 @@ pub fn empty_input_snapshot() -> InputSnapshot {
   {
     pressed_keys: Set::new(),
     mouse: {
-      pos: @math.Vec2D::zero(),
+      pos: @math.Vec2::zero(),
       left_button: false,
       right_button: false,
       middle_button: false,
     },
-    mouse_movement: { movement: @math.Vec2D::zero() },
-    mouse_wheel: { delta: @math.Vec2D::zero() },
+    mouse_movement: { movement: @math.Vec2::zero() },
+    mouse_wheel: { delta: @math.Vec2::zero() },
     connected_gamepads: Set::new(),
     pressed_gamepad_buttons: Set::new(),
     gamepad_axis_values: Map::new(),

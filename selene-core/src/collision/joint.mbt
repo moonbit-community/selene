@@ -102,31 +102,31 @@ pub fn JointMotor::velocity(
 ///|
 /// Supported 2D joint descriptors backed by Rapier impulse joints.
 pub enum JointKind {
-  Fixed(local_anchor1~ : @math.Vec2D, local_anchor2~ : @math.Vec2D)
+  Fixed(local_anchor1~ : @math.Vec2, local_anchor2~ : @math.Vec2)
   Revolute(
-    local_anchor1~ : @math.Vec2D,
-    local_anchor2~ : @math.Vec2D,
+    local_anchor1~ : @math.Vec2,
+    local_anchor2~ : @math.Vec2,
     limits~ : JointLimits?,
     motor~ : JointMotor?,
     softness~ : JointSoftness?
   )
   Prismatic(
-    axis~ : @math.Vec2D,
-    local_anchor1~ : @math.Vec2D,
-    local_anchor2~ : @math.Vec2D,
+    axis~ : @math.Vec2,
+    local_anchor1~ : @math.Vec2,
+    local_anchor2~ : @math.Vec2,
     limits~ : JointLimits?
   )
   Rope(
     max_distance~ : Double,
-    local_anchor1~ : @math.Vec2D,
-    local_anchor2~ : @math.Vec2D
+    local_anchor1~ : @math.Vec2,
+    local_anchor2~ : @math.Vec2
   )
   Spring(
     rest_length~ : Double,
     stiffness~ : Double,
     damping~ : Double,
-    local_anchor1~ : @math.Vec2D,
-    local_anchor2~ : @math.Vec2D,
+    local_anchor1~ : @math.Vec2,
+    local_anchor2~ : @math.Vec2,
     model~ : JointMotorModel
   )
 } derive(Eq, Debug)
@@ -149,8 +149,8 @@ pub type JointHandle = @rapier_dynamics.ImpulseJointHandle
 /// Supported 2D multibody-joint descriptors backed by Rapier articulations.
 pub enum MultibodyJointKind {
   Revolute(
-    local_anchor1~ : @math.Vec2D,
-    local_anchor2~ : @math.Vec2D,
+    local_anchor1~ : @math.Vec2,
+    local_anchor2~ : @math.Vec2,
     limits~ : JointLimits?,
     motor~ : JointMotor?,
     softness~ : JointSoftness?
@@ -177,8 +177,8 @@ pub type MultibodyLinkId = @rapier_dynamics.MultibodyLinkId
 pub fn Joint::fixed(
   entity1 : @entity.Entity,
   entity2 : @entity.Entity,
-  local_anchor1? : @math.Vec2D = @math.Vec2D::zero(),
-  local_anchor2? : @math.Vec2D = @math.Vec2D::zero(),
+  local_anchor1? : @math.Vec2 = @math.Vec2::zero(),
+  local_anchor2? : @math.Vec2 = @math.Vec2::zero(),
   active? : Bool = true,
   contacts_enabled? : Bool = false,
 ) -> Joint {
@@ -195,8 +195,8 @@ pub fn Joint::fixed(
 pub fn Joint::revolute(
   entity1 : @entity.Entity,
   entity2 : @entity.Entity,
-  local_anchor1? : @math.Vec2D = @math.Vec2D::zero(),
-  local_anchor2? : @math.Vec2D = @math.Vec2D::zero(),
+  local_anchor1? : @math.Vec2 = @math.Vec2::zero(),
+  local_anchor2? : @math.Vec2 = @math.Vec2::zero(),
   limits? : JointLimits,
   motor? : JointMotor,
   softness? : JointSoftness,
@@ -216,9 +216,9 @@ pub fn Joint::revolute(
 pub fn Joint::prismatic(
   entity1 : @entity.Entity,
   entity2 : @entity.Entity,
-  axis : @math.Vec2D,
-  local_anchor1? : @math.Vec2D = @math.Vec2D::zero(),
-  local_anchor2? : @math.Vec2D = @math.Vec2D::zero(),
+  axis : @math.Vec2,
+  local_anchor1? : @math.Vec2 = @math.Vec2::zero(),
+  local_anchor2? : @math.Vec2 = @math.Vec2::zero(),
   limits? : JointLimits,
   active? : Bool = true,
   contacts_enabled? : Bool = false,
@@ -237,8 +237,8 @@ pub fn Joint::rope(
   entity1 : @entity.Entity,
   entity2 : @entity.Entity,
   max_distance : Double,
-  local_anchor1? : @math.Vec2D = @math.Vec2D::zero(),
-  local_anchor2? : @math.Vec2D = @math.Vec2D::zero(),
+  local_anchor1? : @math.Vec2 = @math.Vec2::zero(),
+  local_anchor2? : @math.Vec2 = @math.Vec2::zero(),
   active? : Bool = true,
   contacts_enabled? : Bool = false,
 ) -> Joint {
@@ -258,8 +258,8 @@ pub fn Joint::spring(
   rest_length : Double,
   stiffness : Double,
   damping : Double,
-  local_anchor1? : @math.Vec2D = @math.Vec2D::zero(),
-  local_anchor2? : @math.Vec2D = @math.Vec2D::zero(),
+  local_anchor1? : @math.Vec2 = @math.Vec2::zero(),
+  local_anchor2? : @math.Vec2 = @math.Vec2::zero(),
   model? : JointMotorModel = AccelerationBased,
   active? : Bool = true,
   contacts_enabled? : Bool = false,
@@ -283,8 +283,8 @@ pub fn Joint::spring(
 ///|
 pub fn MultibodyJoint::revolute(
   parent : @entity.Entity,
-  local_anchor1? : @math.Vec2D = @math.Vec2D::zero(),
-  local_anchor2? : @math.Vec2D = @math.Vec2D::zero(),
+  local_anchor1? : @math.Vec2 = @math.Vec2::zero(),
+  local_anchor2? : @math.Vec2 = @math.Vec2::zero(),
   limits? : JointLimits,
   motor? : JointMotor,
   softness? : JointSoftness,

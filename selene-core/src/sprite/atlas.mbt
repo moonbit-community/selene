@@ -1,9 +1,9 @@
 ///|
 pub(all) struct TextureAtlasLayout {
-  size : @math.Vec2D
+  size : @math.Vec2
   rects : Array[@math.Rect]
 
-  fn new(size : @math.Vec2D, rects : Array[@math.Rect]) -> TextureAtlasLayout
+  fn new(size : @math.Vec2, rects : Array[@math.Rect]) -> TextureAtlasLayout
 }
 
 ///|
@@ -37,7 +37,7 @@ let released_texture_atlas_layouts : Array[TextureAtlasLayoutHandle] = []
 
 ///|
 pub fn TextureAtlasLayout::new(
-  size : @math.Vec2D,
+  size : @math.Vec2,
   rects : Array[@math.Rect],
 ) -> TextureAtlasLayout {
   { size, rects }
@@ -45,25 +45,25 @@ pub fn TextureAtlasLayout::new(
 
 ///|
 pub fn TextureAtlasLayout::from_grid(
-  tile_size : @math.Vec2D,
+  tile_size : @math.Vec2,
   columns : Int,
   rows : Int,
-  padding? : @math.Vec2D? = None,
-  offset? : @math.Vec2D? = None,
+  padding? : @math.Vec2? = None,
+  offset? : @math.Vec2? = None,
 ) -> TextureAtlasLayout {
   let rects : Array[@math.Rect] = []
-  let padding = padding.unwrap_or(@math.Vec2D::zero())
-  let offset = offset.unwrap_or(@math.Vec2D::zero())
+  let padding = padding.unwrap_or(@math.Vec2::zero())
+  let offset = offset.unwrap_or(@math.Vec2::zero())
   for row in 0..<rows {
     for column in 0..<columns {
-      let position = @math.Vec2D(
+      let position = @math.Vec2(
         offset[X] + column.to_double() * (tile_size[X] + padding[X]),
         offset[Y] + row.to_double() * (tile_size[Y] + padding[Y]),
       )
       rects.push({ position, size: tile_size })
     }
   }
-  let size = @math.Vec2D(
+  let size = @math.Vec2(
     offset[X] +
     columns.to_double() * tile_size[X] +
     @cmp.maximum(0.0, (columns - 1).to_double()) * padding[X],
@@ -90,7 +90,7 @@ pub fn texture_atlas_layout(
 }
 
 ///|
-pub fn texture_atlas_layout_size(layout : TextureAtlasLayout) -> @math.Vec2D {
+pub fn texture_atlas_layout_size(layout : TextureAtlasLayout) -> @math.Vec2 {
   layout.size
 }
 

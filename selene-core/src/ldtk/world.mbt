@@ -1,7 +1,7 @@
 ///|
 fn set_entity_translation_2d(
   entity : @entity.Entity,
-  position : @math.Vec2D,
+  position : @math.Vec2,
 ) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
@@ -34,20 +34,20 @@ fn set_entity_visibility(entity : @entity.Entity, visible : Bool) -> Unit {
 
 ///|
 fn ldtk_sprite_anchor_for_pixel_offset(
-  offset : @math.Vec2D,
-  size : @math.Vec2D,
+  offset : @math.Vec2,
+  size : @math.Vec2,
 ) -> @sprite.Anchor {
   if size[X].abs() <= 0.000000001 || size[Y].abs() <= 0.000000001 {
-    return @sprite.Anchor(@math.Vec2D(-0.5, 0.5))
+    return @sprite.Anchor(@math.Vec2(-0.5, 0.5))
   }
   @sprite.Anchor(
-    @math.Vec2D(-(offset[X] / size[X]) - 0.5, offset[Y] / size[Y] + 0.5),
+    @math.Vec2(-(offset[X] / size[X]) - 0.5, offset[Y] / size[Y] + 0.5),
   )
 }
 
 ///|
 pub struct LdtkWorldSpawnSettings {
-  position : @math.Vec2D
+  position : @math.Vec2
   zindex : Int
   level_z_step : Int
   layer_z_step : Int
@@ -135,7 +135,7 @@ pub struct LdtkIntGridCell {
 ///|
 pub struct LdtkTileMetadata {
   tile_id : Int
-  src : @math.Vec2D
+  src : @math.Vec2
   flip_x : Bool
   flip_y : Bool
   alpha : Double
@@ -467,7 +467,7 @@ pub fn ldtk_pending_transformed_level_iids() -> Map[String, Bool] {
 ///|
 pub fn default_ldtk_world_spawn_settings() -> LdtkWorldSpawnSettings {
   {
-    position: @math.Vec2D::zero(),
+    position: @math.Vec2::zero(),
     zindex: 0,
     level_z_step: 1000,
     layer_z_step: 10,
@@ -832,18 +832,18 @@ pub fn ldtk_entity_tile_sprite(
   }
   let scale_x = target_width / source_width
   let scale_y = target_height / source_height
-  let pivot_offset = @math.Vec2D(
+  let pivot_offset = @math.Vec2(
     target_width * (event.instance.pivot[X] - 0.5),
     target_height * (event.instance.pivot[Y] - 0.5),
   )
   ignore(zindex)
-  let target_size = @math.Vec2D(source_width * scale_x, source_height * scale_y)
+  let target_size = @math.Vec2(source_width * scale_x, source_height * scale_y)
   Some(
     @sprite.Sprite::new(
       image=Some(image),
       rect=Some({
-        position: @math.Vec2D(tile.x.to_double(), tile.y.to_double()),
-        size: @math.Vec2D(source_width, source_height),
+        position: @math.Vec2(tile.x.to_double(), tile.y.to_double()),
+        size: @math.Vec2(source_width, source_height),
       }),
       color=@render.Color::{ r: 255U, g: 255U, b: 255U, a: 1.0 },
       custom_size=Some(target_size),
@@ -1595,7 +1595,7 @@ fn ldtk_spawn_level_background(
   if width <= 0.0 || height <= 0.0 {
     return
   }
-  let size = @math.Vec2D(width, height)
+  let size = @math.Vec2(width, height)
   let zindex = ldtk_level_zindex(level_entity, instance.settings) - 1
   if level.bg_color is Some(bg_color) {
     let background_entity = level_entity.spawn_child()
@@ -1605,7 +1605,7 @@ fn ldtk_spawn_level_background(
       @sprite.Sprite::new(
         color=@sprite.color_from_css(bg_color),
         custom_size=Some(size),
-        anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
+        anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
       ),
     )
     ldtk_level_backgrounds().set(background_entity, {
@@ -1622,19 +1622,19 @@ fn ldtk_spawn_level_background(
     set_entity_depth(background_entity, zindex)
     let image = @asset.load_image(instance.project.resolve_path(rel_path))
     let mut image_size = size
-    let mut image_offset = @math.Vec2D::zero()
+    let mut image_offset = @math.Vec2::zero()
     let mut image_transform = @math.Transform::identity()
     if level.bg_pos is Some(bg_pos) {
       image_offset = bg_pos.top_left_px
       if bg_pos.crop_width > 0.0 && bg_pos.crop_height > 0.0 {
-        image_size = @math.Vec2D(bg_pos.crop_width, bg_pos.crop_height)
+        image_size = @math.Vec2(bg_pos.crop_width, bg_pos.crop_height)
       }
       image_transform = @math.Transform::from_scale(
         bg_pos.scale[X],
         bg_pos.scale[Y],
       )
     }
-    let scaled_size = @math.Vec2D(
+    let scaled_size = @math.Vec2(
       image_size[X] * image_transform.a.abs(),
       image_size[Y] * image_transform.d.abs(),
     )
@@ -1645,7 +1645,7 @@ fn ldtk_spawn_level_background(
         rect=Some({ position: image_offset, size: image_size }),
         color=@render.Color::{ r: 255U, g: 255U, b: 255U, a: 1.0 },
         custom_size=Some(scaled_size),
-        anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
+        anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
       ),
     )
     ldtk_level_backgrounds().set(background_entity, {
@@ -1664,7 +1664,7 @@ fn ldtk_spawn_level_layers(
   world_entity : @entity.Entity,
   level_entity : @entity.Entity,
   level : LdtkLevel,
-  level_offset : @math.Vec2D,
+  level_offset : @math.Vec2,
   instance : LdtkWorldInstance,
 ) -> Unit {
   let spawnable_layers : Array[LdtkLayerInstance] = []
@@ -1685,7 +1685,7 @@ fn ldtk_spawn_level_layers(
     let z_order = spawn_count - 1 - layer_index
     let layer_zindex = ldtk_level_zindex(level_entity, instance.settings) +
       z_order * instance.settings.layer_z_step
-    let layer_offset = @math.Vec2D(
+    let layer_offset = @math.Vec2(
       layer.px_total_offset_x.to_double(),
       layer.px_total_offset_y.to_double(),
     )
@@ -1809,11 +1809,11 @@ fn ldtk_spawn_layer_tiles(
         image=Some(image),
         rect=Some({
           position: tile_src,
-          size: @math.Vec2D(tile_size, tile_size),
+          size: @math.Vec2(tile_size, tile_size),
         }),
         color=@render.Color::{ r: 255U, g: 255U, b: 255U, a: render_alpha },
-        custom_size=Some(@math.Vec2D(tile_size, tile_size)),
-        anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
+        custom_size=Some(@math.Vec2(tile_size, tile_size)),
+        anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
         flip_x=tile.flip_x,
         flip_y=tile.flip_y,
       ),
@@ -1860,7 +1860,7 @@ fn ldtk_spawn_int_grid_cells(
     let cell_entity = layer_entity.spawn_child()
     set_entity_translation_2d(
       cell_entity,
-      @math.Vec2D(
+      @math.Vec2(
         grid_x.to_double() * grid_size,
         grid_y.to_double() * grid_size,
       ),
@@ -1955,8 +1955,8 @@ fn ldtk_spawn_int_grid_cells(
       cell_entity,
       @sprite.Sprite::new(
         color=@sprite.color_from_css(render_color),
-        custom_size=Some(@math.Vec2D(grid_size, grid_size)),
-        anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
+        custom_size=Some(@math.Vec2(grid_size, grid_size)),
+        anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
       ),
     )
   }
@@ -1968,8 +1968,8 @@ fn ldtk_spawn_layer_entities(
   level_entity : @entity.Entity,
   layer_entity : @entity.Entity,
   level : LdtkLevel,
-  level_offset : @math.Vec2D,
-  layer_offset : @math.Vec2D,
+  level_offset : @math.Vec2,
+  layer_offset : @math.Vec2,
   instance : LdtkWorldInstance,
   layer : LdtkLayerInstance,
   zindex : Int,
@@ -2137,10 +2137,10 @@ fn ldtk_build_layer_metadata(layer : LdtkLayerInstance) -> LdtkLayerMetadata {
 }
 
 ///|
-fn ldtk_entity_position(entity_instance : LdtkEntityInstance) -> @math.Vec2D {
+fn ldtk_entity_position(entity_instance : LdtkEntityInstance) -> @math.Vec2 {
   let width = entity_instance.width.to_double()
   let height = entity_instance.height.to_double()
-  let anchor_offset = @math.Vec2D(
+  let anchor_offset = @math.Vec2(
     width * entity_instance.pivot[X],
     height * entity_instance.pivot[Y],
   )
@@ -2249,7 +2249,7 @@ fn ldtk_layer_grid_tiles(
 ///|
 fn ldtk_tile_exists_at_px(
   tiles : Array[LdtkTileInstance],
-  px : @math.Vec2D,
+  px : @math.Vec2,
 ) -> Bool {
   for tile in tiles {
     if tile.px[X] == px[X] && tile.px[Y] == px[Y] {
@@ -2277,7 +2277,7 @@ fn ldtk_tile_source(
   project : LdtkProject,
   layer : LdtkLayerInstance,
   tile : LdtkTileInstance,
-) -> @math.Vec2D {
+) -> @math.Vec2 {
   let fallback = tile.src
   guard tile.tile_id >= 0 else { return fallback }
   guard ldtk_layer_tileset_uid(layer) is Some(uid) else { return fallback }
@@ -2299,7 +2299,7 @@ fn ldtk_tile_source(
   guard columns > 0 else { return fallback }
   let tile_x = tile.tile_id % columns
   let tile_y = tile.tile_id / columns
-  @math.Vec2D(
+  @math.Vec2(
     (tileset.padding + tile_x * stride).to_double(),
     (tileset.padding + tile_y * stride).to_double(),
   )
@@ -2329,7 +2329,7 @@ fn ldtk_tile_enum_tags(
 
 ///|
 fn ldtk_grid_coords_from_px(
-  px : @math.Vec2D,
+  px : @math.Vec2,
   cell_size : Double,
 ) -> LdtkGridCoords {
   if cell_size <= 0.0 {
@@ -2359,8 +2359,8 @@ fn ldtk_apply_int_grid_physics(
   if grid_size <= 0.0 {
     return None
   }
-  let size = @math.Vec2D(grid_size, grid_size)
-  let shape = @physics2d.CollisionShape::Rect(size~, offset=@math.Vec2D::zero())
+  let size = @math.Vec2(grid_size, grid_size)
+  let shape = @physics2d.CollisionShape::Rect(size~, offset=@math.Vec2::zero())
   if physics_settings.as_sensor {
     @physics2d.areas().set(
       cell_entity,
@@ -2382,11 +2382,11 @@ fn ldtk_apply_int_grid_physics(
 fn ldtk_level_offset(
   level : LdtkLevel,
   behavior : LdtkLevelSpawnBehavior,
-) -> @math.Vec2D {
+) -> @math.Vec2 {
   match behavior {
-    UseZeroTranslation => @math.Vec2D::zero()
+    UseZeroTranslation => @math.Vec2::zero()
     UseWorldTranslation(_) =>
-      @math.Vec2D(level.world_x.to_double(), level.world_y.to_double())
+      @math.Vec2(level.world_x.to_double(), level.world_y.to_double())
   }
 }
 

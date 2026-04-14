@@ -1,5 +1,5 @@
 ///|
-fn root_size() -> @math.Vec2D {
+fn root_size() -> @math.Vec2 {
   match get_ui_scale_mode() {
     Screen => @system.get_screen_size()
     Viewport => @system.get_viewport_size()
@@ -149,7 +149,7 @@ fn resolve_val(value : Val, basis : Double) -> Double {
 }
 
 ///|
-fn resolve_insets(rect : UiRectValues, size : @math.Vec2D) -> UiInsets {
+fn resolve_insets(rect : UiRectValues, size : @math.Vec2) -> UiInsets {
   {
     left: resolve_val(rect.left, size[X]),
     right: resolve_val(rect.right, size[X]),
@@ -271,7 +271,7 @@ fn node_to_taffy_style(node : Node) -> @moon_taffy.Style {
 }
 
 ///|
-fn implicit_root_style(size : @math.Vec2D) -> @moon_taffy.Style {
+fn implicit_root_style(size : @math.Vec2) -> @moon_taffy.Style {
   @moon_taffy.Style::default()
   .with_display(@moon_taffy.display_flex())
   .with_size(
@@ -357,8 +357,8 @@ fn rect_intersection(lhs : @math.Rect, rhs : @math.Rect) -> @math.Rect? {
     None
   } else {
     Some({
-      position: @math.Vec2D(left, top),
-      size: @math.Vec2D(right - left, bottom - top),
+      position: @math.Vec2(left, top),
+      size: @math.Vec2(right - left, bottom - top),
     })
   }
 }
@@ -375,11 +375,11 @@ fn clip_rect_for_node(
     ContentBox => logical_content_rect
     PaddingBox =>
       {
-        position: @math.Vec2D(
+        position: @math.Vec2(
           logical_rect.position[X] + border.left,
           logical_rect.position[Y] + border.top,
         ),
-        size: @math.Vec2D(
+        size: @math.Vec2(
           @cmp.maximum(0.0, logical_rect.size[X] - border.left - border.right),
           @cmp.maximum(0.0, logical_rect.size[Y] - border.top - border.bottom),
         ),
@@ -389,11 +389,11 @@ fn clip_rect_for_node(
   let margin = node.overflow_clip_margin.margin
   screen_rect_for(
     {
-      position: @math.Vec2D(
+      position: @math.Vec2(
         base_rect.position[X] - margin,
         base_rect.position[Y] - margin,
       ),
-      size: @math.Vec2D(
+      size: @math.Vec2(
         @cmp.maximum(0.0, base_rect.size[X] + margin * 2.0),
         @cmp.maximum(0.0, base_rect.size[Y] + margin * 2.0),
       ),
@@ -409,8 +409,8 @@ fn rounded_screen_rect(rect : @math.Rect) -> @math.Rect {
   let right = (rect.position[X] + rect.size[X]).round()
   let bottom = (rect.position[Y] + rect.size[Y]).round()
   {
-    position: @math.Vec2D(left, top),
-    size: @math.Vec2D(
+    position: @math.Vec2(left, top),
+    size: @math.Vec2(
       @cmp.maximum(0.0, right - left),
       @cmp.maximum(0.0, bottom - top),
     ),
@@ -574,7 +574,7 @@ fn apply_layout_recursive(
   entity : @entity.Entity,
   taffy : @moon_taffy.TaffyTree[@entity.Entity],
   entity_to_node_id : Map[@entity.Entity, Int],
-  parent_content_origin : @math.Vec2D,
+  parent_content_origin : @math.Vec2,
   parent_clip : @math.Rect?,
   inherited_use_rounding : Bool,
   order_counter : Ref[Int],
@@ -589,17 +589,17 @@ fn apply_layout_recursive(
   guard layout_result is Ok(layout) else { return }
 
   let logical_pos = parent_content_origin +
-    @math.Vec2D(layout.location.x, layout.location.y)
-  let logical_size = @math.Vec2D(layout.size.width, layout.size.height)
+    @math.Vec2(layout.location.x, layout.location.y)
+  let logical_size = @math.Vec2(layout.size.width, layout.size.height)
   let logical_rect = @math.Rect::{ position: logical_pos, size: logical_size }
 
   let border = resolve_insets(node.border, logical_size)
   let padding = resolve_insets(node.padding, logical_size)
-  let content_position = @math.Vec2D(
+  let content_position = @math.Vec2(
     logical_pos[X] + border.left + padding.left,
     logical_pos[Y] + border.top + padding.top,
   )
-  let content_size = @math.Vec2D(
+  let content_size = @math.Vec2(
     @cmp.maximum(
       0.0,
       logical_size[X] -
@@ -664,7 +664,7 @@ fn apply_layout_recursive(
   }
 
   let scroll = scroll_positions().get(entity).unwrap_or(ScrollPosition::zero())
-  let next_origin = @math.Vec2D(
+  let next_origin = @math.Vec2(
     logical_content_rect.position[X] - scroll.x,
     logical_content_rect.position[Y] - scroll.y,
   )
@@ -708,7 +708,7 @@ pub fn ui_layout_system(_delta : Double) -> Unit {
       root_entity,
       taffy,
       entity_to_node_id,
-      @math.Vec2D::zero(),
+      @math.Vec2::zero(),
       None,
       true,
       order_counter,

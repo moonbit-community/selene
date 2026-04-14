@@ -314,7 +314,7 @@ fn entity_rect(entity : @entity.Entity) -> @math.Rect? {
     return None
   }
   guard @physics2d.shapes().get(entity) is Some(shape) else { return None }
-  let position = @math.Vec2D(transform.translation.x, transform.translation.y)
+  let position = @math.Vec2(transform.translation.x, transform.translation.y)
   match shape {
     Rect(size~, offset~) =>
       Some(@math.Rect::{ position: position + offset, size })
@@ -349,8 +349,8 @@ fn sweep_rect(from : @math.Rect, to : @math.Rect) -> @math.Rect {
   let bottom_to = to.position[Y] + to.size[Y]
   let bottom = if bottom_from > bottom_to { bottom_from } else { bottom_to }
   {
-    position: @math.Vec2D(left, top),
-    size: @math.Vec2D(right - left, bottom - top),
+    position: @math.Vec2(left, top),
+    size: @math.Vec2(right - left, bottom - top),
   }
 }
 
@@ -406,7 +406,7 @@ fn apply_stomp_bounce(
   controller.pending_bounce_velocity_y = Some(-BUMP_V)
   let bounce_velocity = @physics2d.linear_velocities()
     .get(player_entity)
-    .map_or(@math.Vec2D(0.0, -BUMP_V), fn(velocity) {
+    .map_or(@math.Vec2(0.0, -BUMP_V), fn(velocity) {
       velocity.0.update(Y, -BUMP_V)
     })
   @physics2d.linear_velocities().set(player_entity, bounce_velocity)
@@ -414,9 +414,9 @@ fn apply_stomp_bounce(
 
 ///|
 fn player_motion_base_velocity(
-  resolved_velocity : @math.Vec2D,
+  resolved_velocity : @math.Vec2,
   pending_bounce_velocity_y : Double?,
-) -> @math.Vec2D {
+) -> @math.Vec2 {
   match pending_bounce_velocity_y {
     Some(bounce_velocity_y) => resolved_velocity.update(Y, bounce_velocity_y)
     None => resolved_velocity
@@ -429,8 +429,8 @@ fn hurt_player(session : GameSession, controller : PlayerController) -> Unit {
     return
   }
   let knockback = match controller.facing {
-    Left => @math.Vec2D(ATTACK_V, 0.0)
-    Right => @math.Vec2D(-ATTACK_V, 0.0)
+    Left => @math.Vec2(ATTACK_V, 0.0)
+    Right => @math.Vec2(-ATTACK_V, 0.0)
   }
   @physics2d.linear_velocities().set(session.player, knockback)
   controller.state = Hit
@@ -457,7 +457,7 @@ fn player_controller_system(_world : @ecs.World) -> Unit {
   }
 
   if player_is_frozen(session.result) {
-    @physics2d.linear_velocities().set(session.player, @math.Vec2D::zero())
+    @physics2d.linear_velocities().set(session.player, @math.Vec2::zero())
     match session.result {
       Some(Win) => controller.state = Idle
       Some(GameOver) => controller.state = Hit
@@ -469,7 +469,7 @@ fn player_controller_system(_world : @ecs.World) -> Unit {
 
   let resolved_velocity = @physics2d.resolved_velocities()
     .get(session.player)
-    .map_or(@math.Vec2D::zero(), fn(velocity) { velocity.0 })
+    .map_or(@math.Vec2::zero(), fn(velocity) { velocity.0 })
   let grounded = @physics2d.is_grounded(session.player)
   let velocity = player_motion_base_velocity(
     resolved_velocity,
@@ -529,7 +529,7 @@ fn player_controller_system(_world : @ecs.World) -> Unit {
   }
   @physics2d.linear_velocities().set(
     session.player,
-    @math.Vec2D(new_velocity_x, new_velocity_y),
+    @math.Vec2(new_velocity_x, new_velocity_y),
   )
   play_player_animation(session.player, controller)
 }
@@ -547,7 +547,7 @@ fn player_bird_contact_system(_world : @ecs.World) -> Unit {
   let fixed_delta = @time.fixed_delta()
   let player_resolved_velocity = @physics2d.resolved_velocities()
     .get(session.player)
-    .map_or(@math.Vec2D::zero(), fn(v) { v.0 })
+    .map_or(@math.Vec2::zero(), fn(v) { v.0 })
   let player_prev_rect = player_rect.shift(
     player_resolved_velocity.scalar_mul(-fixed_delta),
   )
@@ -565,7 +565,7 @@ fn player_bird_contact_system(_world : @ecs.World) -> Unit {
     guard entity_rect(bird_entity) is Some(bird_rect) else { continue }
     let bird_resolved_velocity = @physics2d.resolved_velocities()
       .get(bird_entity)
-      .map_or(@math.Vec2D::zero(), fn(v) { v.0 })
+      .map_or(@math.Vec2::zero(), fn(v) { v.0 })
     let bird_prev_rect = bird_rect.shift(
       bird_resolved_velocity.scalar_mul(-fixed_delta),
     )
@@ -599,7 +599,7 @@ fn bird_patrol_system(_world : @ecs.World) -> Unit {
     }
     guard birds().get(bird_entity) is Some(bird) else { continue }
     if bird.is_hurt {
-      @physics2d.linear_velocities().set(bird_entity, @math.Vec2D::zero())
+      @physics2d.linear_velocities().set(bird_entity, @math.Vec2::zero())
       if @physics2d.colliders().get(bird_entity) is Some(collider) {
         collider.active = false
       }
@@ -629,12 +629,12 @@ fn bird_patrol_system(_world : @ecs.World) -> Unit {
       Left =>
         @physics2d.linear_velocities().set(
           bird_entity,
-          @math.Vec2D(-BIRD_SPEED, 0.0),
+          @math.Vec2(-BIRD_SPEED, 0.0),
         )
       Right =>
         @physics2d.linear_velocities().set(
           bird_entity,
-          @math.Vec2D(BIRD_SPEED, 0.0),
+          @math.Vec2(BIRD_SPEED, 0.0),
         )
     }
     play_bird_animation(bird_entity, bird)

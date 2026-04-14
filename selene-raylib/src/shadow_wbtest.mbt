@@ -120,19 +120,19 @@ test "raylib directional shadow helper builds cascade atlas states" {
   inspect(cascades[0].near_bound == 0.1, content="true")
   inspect(cascades[0].far_bound == 10.0, content="true")
   inspect(
-    cascades[0].atlas_rect.offset == @smath.Vec2D(0.0, 0.0),
+    cascades[0].atlas_rect.offset == @smath.Vec2(0.0, 0.0),
     content="true",
   )
   inspect(
-    cascades[0].atlas_rect.scale == @smath.Vec2D(0.5, 0.5),
+    cascades[0].atlas_rect.scale == @smath.Vec2(0.5, 0.5),
     content="true",
   )
   inspect(
-    cascades[3].atlas_rect.offset == @smath.Vec2D(0.5, 0.5),
+    cascades[3].atlas_rect.offset == @smath.Vec2(0.5, 0.5),
     content="true",
   )
   inspect(
-    cascades[3].atlas_rect.scale == @smath.Vec2D(0.5, 0.5),
+    cascades[3].atlas_rect.scale == @smath.Vec2(0.5, 0.5),
     content="true",
   )
 }

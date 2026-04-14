@@ -319,7 +319,7 @@ pub fn ldtk_field_number(
 pub fn ldtk_field_vec2(
   field_instances : Array[LdtkFieldInstance],
   identifier : String,
-) -> @math.Vec2D? {
+) -> @math.Vec2? {
   ldtk_field_instance(field_instances, identifier).bind(field_instance => {
     field_instance.vec2_value()
   })
@@ -369,7 +369,7 @@ pub fn ldtk_field_bool_array(
 pub fn ldtk_field_vec2_array(
   field_instances : Array[LdtkFieldInstance],
   identifier : String,
-) -> Array[@math.Vec2D]? {
+) -> Array[@math.Vec2]? {
   ldtk_field_instance(field_instances, identifier).bind(field_instance => {
     field_instance.vec2_array_value()
   })
@@ -600,7 +600,7 @@ pub fn LdtkFieldInstance::number_value(self : LdtkFieldInstance) -> Double? {
 }
 
 ///|
-pub fn LdtkFieldInstance::vec2_value(self : LdtkFieldInstance) -> @math.Vec2D? {
+pub fn LdtkFieldInstance::vec2_value(self : LdtkFieldInstance) -> @math.Vec2? {
   match self.value {
     Some(json_value) => json_vec2(json_value)
     None => None
@@ -650,7 +650,7 @@ pub fn LdtkFieldInstance::bool_array_value(
 ///|
 pub fn LdtkFieldInstance::vec2_array_value(
   self : LdtkFieldInstance,
-) -> Array[@math.Vec2D]? {
+) -> Array[@math.Vec2]? {
   match self.value {
     Some(json_value) => json_vec2_array(json_value)
     None => None
@@ -766,8 +766,8 @@ pub fn LdtkFieldInstance::tile_array_value(
 ///|
 pub struct LdtkTileInstance {
   tile_id : Int
-  src : @math.Vec2D
-  px : @math.Vec2D
+  src : @math.Vec2
+  px : @math.Vec2
   flip_x : Bool
   flip_y : Bool
   alpha : Double
@@ -781,9 +781,9 @@ pub struct LdtkEntityInstance {
   def_uid : Int
   width : Int
   height : Int
-  px : @math.Vec2D
-  grid : @math.Vec2D
-  pivot : @math.Vec2D
+  px : @math.Vec2
+  grid : @math.Vec2
+  pivot : @math.Vec2
   smart_color : String?
   tile : LdtkTilesetRect?
   tags : Array[String]
@@ -858,7 +858,7 @@ pub fn LdtkEntityInstance::field_number(
 pub fn LdtkEntityInstance::field_vec2(
   self : LdtkEntityInstance,
   identifier : String,
-) -> @math.Vec2D? {
+) -> @math.Vec2? {
   ldtk_field_vec2(self.field_instances, identifier)
 }
 
@@ -898,7 +898,7 @@ pub fn LdtkEntityInstance::field_bool_array(
 pub fn LdtkEntityInstance::field_vec2_array(
   self : LdtkEntityInstance,
   identifier : String,
-) -> Array[@math.Vec2D]? {
+) -> Array[@math.Vec2]? {
   ldtk_field_vec2_array(self.field_instances, identifier)
 }
 
@@ -1020,8 +1020,8 @@ pub struct LdtkLevelBackgroundPosition {
   crop_y : Double
   crop_width : Double
   crop_height : Double
-  scale : @math.Vec2D
-  top_left_px : @math.Vec2D
+  scale : @math.Vec2
+  top_left_px : @math.Vec2
 }
 
 ///|
@@ -1098,7 +1098,7 @@ pub fn LdtkLevel::field_number(
 pub fn LdtkLevel::field_vec2(
   self : LdtkLevel,
   identifier : String,
-) -> @math.Vec2D? {
+) -> @math.Vec2? {
   ldtk_field_vec2(self.field_instances, identifier)
 }
 
@@ -1138,7 +1138,7 @@ pub fn LdtkLevel::field_bool_array(
 pub fn LdtkLevel::field_vec2_array(
   self : LdtkLevel,
   identifier : String,
-) -> Array[@math.Vec2D]? {
+) -> Array[@math.Vec2]? {
   ldtk_field_vec2_array(self.field_instances, identifier)
 }
 
@@ -2166,10 +2166,10 @@ fn parse_ldtk_level_background_position(
   let crop = parse_ldtk_number_array(field_json(object, "cropRect"))
   let scale = field_json(object, "scale")
     .bind(value => json_vec2(value))
-    .unwrap_or(@math.Vec2D(1.0, 1.0))
+    .unwrap_or(@math.Vec2(1.0, 1.0))
   let top_left = field_json(object, "topLeftPx")
     .bind(value => json_vec2(value))
-    .unwrap_or(@math.Vec2D::zero())
+    .unwrap_or(@math.Vec2::zero())
   Some({
     crop_x: crop.get(0).unwrap_or(0.0),
     crop_y: crop.get(1).unwrap_or(0.0),
@@ -2334,33 +2334,33 @@ fn[T] option_or(value : T?, fallback : T?) -> T? {
 }
 
 ///|
-fn json_vec2_from_int_array(value : Json?) -> @math.Vec2D {
-  guard value is Some(value_json) else { return @math.Vec2D::zero() }
+fn json_vec2_from_int_array(value : Json?) -> @math.Vec2 {
+  guard value is Some(value_json) else { return @math.Vec2::zero() }
   guard json_array(value_json) is Some(items) else {
-    return @math.Vec2D::zero()
+    return @math.Vec2::zero()
   }
   if items.length() < 2 {
-    return @math.Vec2D::zero()
+    return @math.Vec2::zero()
   }
   let x = json_number(items[0]).unwrap_or(0.0)
   let y = json_number(items[1]).unwrap_or(0.0)
-  @math.Vec2D(x, y)
+  @math.Vec2(x, y)
 }
 
 ///|
-fn json_vec2_from_number_array(value : Json?) -> @math.Vec2D {
+fn json_vec2_from_number_array(value : Json?) -> @math.Vec2 {
   json_vec2_from_int_array(value)
 }
 
 ///|
-fn json_vec2(value : Json) -> @math.Vec2D? {
+fn json_vec2(value : Json) -> @math.Vec2? {
   if json_array(value) is Some(items) {
     if items.length() < 2 {
       return None
     }
     guard ldtk_json_number(items[0]) is Some(x) else { return None }
     guard ldtk_json_number(items[1]) is Some(y) else { return None }
-    return Some(@math.Vec2D(x, y))
+    return Some(@math.Vec2(x, y))
   }
   guard json_object(value) is Some(object) else { return None }
   let x = option_or(
@@ -2373,7 +2373,7 @@ fn json_vec2(value : Json) -> @math.Vec2D? {
   )
   guard x is Some(x) else { return None }
   guard y is Some(y) else { return None }
-  Some(@math.Vec2D(x, y))
+  Some(@math.Vec2(x, y))
 }
 
 ///|
@@ -2415,9 +2415,9 @@ fn json_string_array(value : Json) -> Array[String]? {
 }
 
 ///|
-fn json_vec2_array(value : Json) -> Array[@math.Vec2D]? {
+fn json_vec2_array(value : Json) -> Array[@math.Vec2]? {
   guard json_array(value) is Some(items) else { return None }
-  let values : Array[@math.Vec2D] = []
+  let values : Array[@math.Vec2] = []
   for item in items {
     if json_vec2(item) is Some(vec2_value) {
       values.push(vec2_value)

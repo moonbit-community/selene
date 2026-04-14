@@ -2,16 +2,16 @@
 priv struct ToolDragState {
   entity_id : String
   tool : @shared.PreviewTool
-  anchor_world : @math.Vec2D
-  anchor_pointer : @math.Vec2D
-  pivot_world : @math.Vec2D
+  anchor_world : @math.Vec2
+  anchor_pointer : @math.Vec2
+  pivot_world : @math.Vec2
   start_transform : @editor_bridge.Transform2dComponent
 }
 
 ///|
 priv struct SelectionDragState {
-  anchor_world : @math.Vec2D
-  anchor_pointer : @math.Vec2D
+  anchor_world : @math.Vec2
+  anchor_pointer : @math.Vec2
 }
 
 ///|
@@ -34,7 +34,7 @@ priv struct PreviewState {
   mut pending_frame_selection : Bool
   mut tool_drag : ToolDragState?
   mut selection_drag : SelectionDragState?
-  mut camera_pan_anchor : @math.Vec2D?
+  mut camera_pan_anchor : @math.Vec2?
   mut event_sink : ((@bridge.PreviewEvent) -> Unit)?
   mut initial_scene_aligned : Bool
 }
@@ -153,7 +153,7 @@ fn preview_debug(message : String) -> Unit {
 }
 
 ///|
-fn normalized_mouse_position() -> @math.Vec2D {
+fn normalized_mouse_position() -> @math.Vec2 {
   let size = canvas_client_size()
   let client_width = if size.length() > 0 && size[0] > 0.0 {
     size[0]
@@ -165,14 +165,14 @@ fn normalized_mouse_position() -> @math.Vec2D {
   } else {
     editor_viewport_height
   }
-  @math.Vec2D(
+  @math.Vec2(
     @inputs.mouse.pos[X] * editor_viewport_width / client_width,
     @inputs.mouse.pos[Y] * editor_viewport_height / client_height,
   )
 }
 
 ///|
-fn inside_editor_viewport(point : @math.Vec2D) -> Bool {
+fn inside_editor_viewport(point : @math.Vec2) -> Bool {
   point[X] >= 0.0 &&
   point[X] <= editor_viewport_width &&
   point[Y] >= 0.0 &&
@@ -180,7 +180,7 @@ fn inside_editor_viewport(point : @math.Vec2D) -> Bool {
 }
 
 ///|
-fn mouse_to_viewport_delta(delta : @math.Vec2D) -> @math.Vec2D {
+fn mouse_to_viewport_delta(delta : @math.Vec2) -> @math.Vec2 {
   let size = canvas_client_size()
   let client_width = if size.length() > 0 && size[0] > 0.0 {
     size[0]
@@ -192,14 +192,14 @@ fn mouse_to_viewport_delta(delta : @math.Vec2D) -> @math.Vec2D {
   } else {
     editor_viewport_height
   }
-  @math.Vec2D(
+  @math.Vec2(
     delta[X] * editor_viewport_width / client_width,
     delta[Y] * editor_viewport_height / client_height,
   )
 }
 
 ///|
-fn pointer_drag_started(anchor : @math.Vec2D) -> Bool {
+fn pointer_drag_started(anchor : @math.Vec2) -> Bool {
   let delta = @inputs.mouse.pos - anchor
   delta[X].abs() >= 1.0 || delta[Y].abs() >= 1.0
 }
@@ -218,7 +218,7 @@ fn pointer_pan_active() -> Bool {
 }
 
 ///|
-fn point_angle(center : @math.Vec2D, point : @math.Vec2D) -> Double {
+fn point_angle(center : @math.Vec2, point : @math.Vec2) -> Double {
   @cmath.atan2(point[Y] - center[Y], point[X] - center[X])
 }
 
@@ -235,7 +235,7 @@ fn shortest_angle_delta(start : Double, current : Double) -> Double {
 }
 
 ///|
-fn distance_between(a : @math.Vec2D, b : @math.Vec2D) -> Double {
+fn distance_between(a : @math.Vec2, b : @math.Vec2) -> Double {
   a.distance_to(b)
 }
 
@@ -256,20 +256,20 @@ fn move_grid_snap_active() -> Bool {
 }
 
 ///|
-fn snap_to_move_grid(point : @math.Vec2D) -> @math.Vec2D {
+fn snap_to_move_grid(point : @math.Vec2) -> @math.Vec2 {
   let grid = if preview_state.move_snap_step > 0.0 {
     preview_state.move_snap_step
   } else {
     16.0
   }
-  @math.Vec2D(
+  @math.Vec2(
     (point[X] / grid).round() * grid,
     (point[Y] / grid).round() * grid,
   )
 }
 
 ///|
-fn move_target_world_point(point : @math.Vec2D) -> @math.Vec2D {
+fn move_target_world_point(point : @math.Vec2) -> @math.Vec2 {
   if move_grid_snap_active() {
     snap_to_move_grid(point)
   } else {
@@ -516,7 +516,7 @@ fn entity_id_of(entity : @entity.Entity) -> String? {
 }
 
 ///|
-fn overlay_bounds() -> (@math.Vec2D, @math.Vec2D)? {
+fn overlay_bounds() -> (@math.Vec2, @math.Vec2)? {
   guard preview_state.current_scene is Some(scene) else { return None }
   guard preview_state.selected_entity_id is Some(id) else { return None }
   guard scene.entity(id) is Some(document) else { return None }
@@ -528,7 +528,7 @@ fn overlay_bounds() -> (@math.Vec2D, @math.Vec2D)? {
 fn document_visual_bounds(
   document : @editor_bridge.EntityDocument,
   transform : @editor_bridge.Transform2dComponent,
-) -> (@math.Vec2D, @math.Vec2D)? {
+) -> (@math.Vec2, @math.Vec2)? {
   if document.component("Sprite") is Some(component) {
     let sprite_data : @editor_bridge.SpriteComponent = match
       @editor_bridge.decode_component(Some(component)) {
@@ -550,7 +550,7 @@ fn document_visual_bounds(
     let min_x = transform.translation.x - scaled_width * (anchor.x + 0.5)
     let min_y = transform.translation.y - scaled_height * (0.5 - anchor.y)
     return Some(
-      (@math.Vec2D(min_x, min_y), @math.Vec2D(scaled_width, scaled_height)),
+      (@math.Vec2(min_x, min_y), @math.Vec2(scaled_width, scaled_height)),
     )
   }
   if document.component("Text2d") is Some(component) {
@@ -577,7 +577,7 @@ fn document_visual_bounds(
     let min_y = transform.translation.y -
       scaled_height * (0.5 - text_data.anchor.y)
     return Some(
-      (@math.Vec2D(min_x, min_y), @math.Vec2D(scaled_width, scaled_height)),
+      (@math.Vec2(min_x, min_y), @math.Vec2(scaled_width, scaled_height)),
     )
   }
   if document.component("Mesh2d") is Some(component) {
@@ -589,10 +589,10 @@ fn document_visual_bounds(
     let size = match mesh_data.primitive {
       "circle" => {
         let radius = mesh_data.radius.unwrap_or(16.0)
-        @math.Vec2D(radius * 2.0, radius * 2.0)
+        @math.Vec2(radius * 2.0, radius * 2.0)
       }
       _ =>
-        @math.Vec2D(
+        @math.Vec2(
           mesh_data.size.unwrap_or(@editor_bridge.vec2_doc(32.0, 32.0)).x,
           mesh_data.size.unwrap_or(@editor_bridge.vec2_doc(32.0, 32.0)).y,
         )
@@ -602,19 +602,19 @@ fn document_visual_bounds(
     let min_x = transform.translation.x - scaled_width * 0.5
     let min_y = transform.translation.y - scaled_height * 0.5
     return Some(
-      (@math.Vec2D(min_x, min_y), @math.Vec2D(scaled_width, scaled_height)),
+      (@math.Vec2(min_x, min_y), @math.Vec2(scaled_width, scaled_height)),
     )
   }
   Some(
     (
-      @math.Vec2D(transform.translation.x, transform.translation.y),
-      @math.Vec2D(0.0, 0.0),
+      @math.Vec2(transform.translation.x, transform.translation.y),
+      @math.Vec2(0.0, 0.0),
     ),
   )
 }
 
 ///|
-fn scene_visual_bounds() -> (@math.Vec2D, @math.Vec2D)? {
+fn scene_visual_bounds() -> (@math.Vec2, @math.Vec2)? {
   guard preview_state.current_scene is Some(scene) else { return None }
   let mut has_bounds = false
   let mut min_x = 0.0
@@ -657,7 +657,7 @@ fn scene_visual_bounds() -> (@math.Vec2D, @math.Vec2D)? {
   if !has_bounds {
     None
   } else {
-    Some((@math.Vec2D(min_x, min_y), @math.Vec2D(max_x - min_x, max_y - min_y)))
+    Some((@math.Vec2(min_x, min_y), @math.Vec2(max_x - min_x, max_y - min_y)))
   }
 }
 
@@ -733,12 +733,12 @@ fn try_align_initial_scene_camera() -> Unit {
 }
 
 ///|
-fn selected_pivot_world() -> @math.Vec2D? {
+fn selected_pivot_world() -> @math.Vec2? {
   guard preview_state.current_scene is Some(scene) else { return None }
   guard preview_state.selected_entity_id is Some(id) else { return None }
   guard scene.entity(id) is Some(document) else { return None }
   let transform = @editor_bridge.decoded_transform(document)
-  Some(@math.Vec2D(transform.translation.x, transform.translation.y))
+  Some(@math.Vec2(transform.translation.x, transform.translation.y))
 }
 
 ///|
@@ -810,7 +810,7 @@ fn apply_selection_overlay() -> Unit {
       )
       @sprite.sprites().set(
         overlay,
-        @sprite.Sprite::from_color(color, @math.Vec2D(1.0, 1.0)),
+        @sprite.Sprite::from_color(color, @math.Vec2(1.0, 1.0)),
       )
     }
     None => @visibility.visibilities().set(overlay, @visibility.Hidden)
@@ -836,7 +836,7 @@ fn apply_pivot_overlay() -> Unit {
       )
       @sprite.sprites().set(
         overlay,
-        @sprite.Sprite::from_color(color, @math.Vec2D(1.0, 1.0)),
+        @sprite.Sprite::from_color(color, @math.Vec2(1.0, 1.0)),
       )
     }
     None => @visibility.visibilities().set(overlay, @visibility.Hidden)
@@ -844,7 +844,7 @@ fn apply_pivot_overlay() -> Unit {
 }
 
 ///|
-fn apply_selection_rect_overlay(world_point : @math.Vec2D?) -> Unit {
+fn apply_selection_rect_overlay(world_point : @math.Vec2?) -> Unit {
   guard preview_state.selection_rect_overlay is Some(overlay) else { return }
   guard preview_state.selection_drag is Some(drag) else {
     @visibility.visibilities().set(overlay, @visibility.Hidden)
@@ -897,7 +897,7 @@ fn apply_selection_rect_overlay(world_point : @math.Vec2D?) -> Unit {
     overlay,
     @sprite.Sprite::from_color(
       @render.Color::{ r: 96U, g: 220U, b: 255U, a: 0.22 },
-      @math.Vec2D(1.0, 1.0),
+      @math.Vec2(1.0, 1.0),
     ),
   )
 }
@@ -908,7 +908,7 @@ fn editor_camera_entity() -> @entity.Entity? {
 }
 
 ///|
-fn world_point_from_mouse() -> @math.Vec2D? {
+fn world_point_from_mouse() -> @math.Vec2? {
   guard editor_camera_entity() is Some(camera_entity) else { return None }
   guard @camera.cameras().get(camera_entity) is Some(camera_) else {
     return None
@@ -950,7 +950,7 @@ pub fn viewport_to_world(
   guard @transform.compute_global_transform(camera_entity) is Some(global) else {
     return None
   }
-  let viewport_point = @math.Vec2D(
+  let viewport_point = @math.Vec2(
     x * editor_viewport_width / viewport_width,
     y * editor_viewport_height / viewport_height,
   )
@@ -961,7 +961,7 @@ pub fn viewport_to_world(
 }
 
 ///|
-fn pick_entity_id_at(point : @math.Vec2D) -> String? {
+fn pick_entity_id_at(point : @math.Vec2) -> String? {
   guard preview_state.current_scene is Some(scene) else { return None }
   for document in scene.entities.rev_iter() {
     let transform = @editor_bridge.decoded_transform(document)
@@ -1001,7 +1001,7 @@ fn pick_entity_id_at(point : @math.Vec2D) -> String? {
         "circle" => {
           let radius = mesh_data.radius.unwrap_or(16.0) *
             transform.scale.x.abs()
-          let center = @math.Vec2D(
+          let center = @math.Vec2(
             transform.translation.x,
             transform.translation.y,
           )
@@ -1032,9 +1032,9 @@ fn pick_entity_id_at(point : @math.Vec2D) -> String? {
 
 ///|
 fn rect_contains_point(
-  min_point : @math.Vec2D,
-  max_point : @math.Vec2D,
-  point : @math.Vec2D,
+  min_point : @math.Vec2,
+  max_point : @math.Vec2,
+  point : @math.Vec2,
 ) -> Bool {
   point[X] >= min_point[X] &&
   point[X] <= max_point[X] &&
@@ -1044,10 +1044,10 @@ fn rect_contains_point(
 
 ///|
 fn rect_intersects(
-  min_a : @math.Vec2D,
-  max_a : @math.Vec2D,
-  min_b : @math.Vec2D,
-  max_b : @math.Vec2D,
+  min_a : @math.Vec2,
+  max_a : @math.Vec2,
+  min_b : @math.Vec2,
+  max_b : @math.Vec2,
 ) -> Bool {
   !(max_a[X] < min_b[X] ||
   max_b[X] < min_a[X] ||
@@ -1057,11 +1057,11 @@ fn rect_intersects(
 
 ///|
 fn pick_entity_ids_in_rect(
-  anchor : @math.Vec2D,
-  current : @math.Vec2D,
+  anchor : @math.Vec2,
+  current : @math.Vec2,
 ) -> Array[String] {
   guard preview_state.current_scene is Some(scene) else { return [] }
-  let min_point = @math.Vec2D(
+  let min_point = @math.Vec2(
     if anchor[X] < current[X] {
       anchor[X]
     } else {
@@ -1073,7 +1073,7 @@ fn pick_entity_ids_in_rect(
       current[Y]
     },
   )
-  let max_point = @math.Vec2D(
+  let max_point = @math.Vec2(
     if anchor[X] > current[X] {
       anchor[X]
     } else {
@@ -1100,7 +1100,7 @@ fn pick_entity_ids_in_rect(
             min_point,
             max_point,
             position,
-            @math.Vec2D(position[X] + size[X], position[Y] + size[Y]),
+            @math.Vec2(position[X] + size[X], position[Y] + size[Y]),
           )
         }
       None => false
@@ -1130,7 +1130,7 @@ fn frame_selection_impl() -> Unit {
   preview_state.pending_frame_selection = false
   guard editor_camera_entity() is Some(camera_entity) else { return }
   guard overlay_bounds() is Some((position, size)) else { return }
-  let center = @math.Vec2D(
+  let center = @math.Vec2(
     position[X] + size[X] * 0.5,
     position[Y] + size[Y] * 0.5,
   )
@@ -1170,7 +1170,7 @@ fn preview_startup_system(_world : @ecs.World) -> Unit {
     overlay,
     @sprite.Sprite::from_color(
       @render.Color::{ r: 255U, g: 220U, b: 64U, a: 0.18 },
-      @math.Vec2D(1.0, 1.0),
+      @math.Vec2(1.0, 1.0),
     ),
   )
   let pivot_overlay = @entity.Entity::new()
@@ -1184,7 +1184,7 @@ fn preview_startup_system(_world : @ecs.World) -> Unit {
     pivot_overlay,
     @sprite.Sprite::from_color(
       @render.Color::{ r: 96U, g: 220U, b: 255U, a: 0.9 },
-      @math.Vec2D(1.0, 1.0),
+      @math.Vec2(1.0, 1.0),
     ),
   )
   let selection_rect_overlay = @entity.Entity::new()
@@ -1198,7 +1198,7 @@ fn preview_startup_system(_world : @ecs.World) -> Unit {
     selection_rect_overlay,
     @sprite.Sprite::from_color(
       @render.Color::{ r: 96U, g: 220U, b: 255U, a: 0.22 },
-      @math.Vec2D(1.0, 1.0),
+      @math.Vec2(1.0, 1.0),
     ),
   )
 }
@@ -1415,7 +1415,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
             let start_transform = entity_transform2d(selected_entity)
             if hovered == Some(selected) {
               let pivot_world = selected_pivot_world().unwrap_or(
-                @math.Vec2D(
+                @math.Vec2(
                   start_transform.translation.x,
                   start_transform.translation.y,
                 ),
@@ -1470,7 +1470,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
           scene.entity_ids.contains(selected) {
           let start_transform = entity_transform2d(scene.entity_ids[selected])
           let pivot_world = selected_pivot_world().unwrap_or(
-            @math.Vec2D(
+            @math.Vec2(
               start_transform.translation.x,
               start_transform.translation.y,
             ),
@@ -1499,7 +1499,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
           scene.entity_ids.contains(selected) {
           let start_transform = entity_transform2d(scene.entity_ids[selected])
           let pivot_world = selected_pivot_world().unwrap_or(
-            @math.Vec2D(
+            @math.Vec2(
               start_transform.translation.x,
               start_transform.translation.y,
             ),

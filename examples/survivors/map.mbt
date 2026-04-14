@@ -13,12 +13,12 @@
 // limitations under the License.
 
 ///|
-fn add_background(size : @math.Vec2D) -> Unit {
+fn add_background(size : @math.Vec2) -> Unit {
   let background = @entity.Entity::new()
   let background_sprite = @sprite.Sprite::new(
     image=Some(@asset.load_image(background_picture)),
     custom_size=Some(size),
-    anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
+    anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
     image_mode=@sprite.Tiled(Repeat),
   )
   @sprite.sprites().set(background, background_sprite)
@@ -29,8 +29,8 @@ fn add_background(size : @math.Vec2D) -> Unit {
 }
 
 ///|
-fn add_border(size : @math.Vec2D) -> Unit {
-  fn add_one_border(pos : @math.Vec2D, size : @math.Vec2D) -> Unit {
+fn add_border(size : @math.Vec2) -> Unit {
+  fn add_one_border(pos : @math.Vec2, size : @math.Vec2) -> Unit {
     let entity = @entity.Entity::new()
     let collider = @physics2d.Collider::new(
       @physics2d.CollisionFilter::empty(wall_collision_group),
@@ -38,7 +38,7 @@ fn add_border(size : @math.Vec2D) -> Unit {
     @physics2d.colliders().set(entity, collider)
     @physics2d.shapes().set(
       entity,
-      @physics2d.CollisionShape::Rect(size~, offset=Vec2D(0.0, 0.0)),
+      @physics2d.CollisionShape::Rect(size~, offset=Vec2(0.0, 0.0)),
     )
     @transform.transforms().set(
       entity,
@@ -46,10 +46,10 @@ fn add_border(size : @math.Vec2D) -> Unit {
     )
   }
 
-  add_one_border(Vec2D(-16.0, -16.0), Vec2D(size[X] + 32.0, 16.0))
-  add_one_border(Vec2D(-16.0, 0), Vec2D(16.0, size[Y]))
-  add_one_border(Vec2D(-16.0, size[Y]), Vec2D(size[X] + 32.0, 16.0))
-  add_one_border(Vec2D(size[X], 0), Vec2D(16.0, size[Y]))
+  add_one_border(Vec2(-16.0, -16.0), Vec2(size[X] + 32.0, 16.0))
+  add_one_border(Vec2(-16.0, 0), Vec2(16.0, size[Y]))
+  add_one_border(Vec2(-16.0, size[Y]), Vec2(size[X] + 32.0, 16.0))
+  add_one_border(Vec2(size[X], 0), Vec2(16.0, size[Y]))
 }
 
 ///|

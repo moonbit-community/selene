@@ -22,11 +22,11 @@
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let vel : Velocity = @math.Vec2D(5.0, 3.0)
-/// inspect(vel, content="Velocity(Vec2D(5, 3))")
+/// let vel : Velocity = @math.Vec2(5.0, 3.0)
+/// inspect(vel, content="Velocity(Vec2(5, 3))")
 /// ```
 ///
-pub(all) struct Velocity(@math.Vec2D) derive(Eq, Debug)
+pub(all) struct Velocity(@math.Vec2) derive(Eq, Debug)
 
 ///|
 priv struct VelocityWorldStore {
@@ -52,12 +52,12 @@ fn velocity_world_store() -> VelocityWorldStore {
 /// let entity = @entity.Entity::new()
 /// defer entity.destroy()
 ///
-/// @velocity.velocities().set(entity, @math.Vec2D(10.0, 5.0))
+/// @velocity.velocities().set(entity, @math.Vec2(10.0, 5.0))
 ///
 /// // Get velocity for an entity
 /// let entity_vel = @velocity.velocities().get(entity)
 ///
-/// inspect(entity_vel, content="Some(Velocity(Vec2D(10, 5)))")
+/// inspect(entity_vel, content="Some(Velocity(Vec2(10, 5)))")
 /// ```
 ///
 pub fn velocities() -> Map[@entity.Entity, Velocity] {

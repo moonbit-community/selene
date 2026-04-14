@@ -15,7 +15,7 @@ pub fn mesh2d_storage() -> Mesh2dStorage
 
 pub fn mesh2ds() -> Map[@entity.Entity, Mesh2d]
 
-pub fn rectangle(@math.Vec2D) -> Mesh2dHandle
+pub fn rectangle(@math.Vec2) -> Mesh2dHandle
 
 pub fn register_mesh2d_asset(Mesh2dAsset) -> Mesh2dHandle
 
@@ -43,14 +43,14 @@ pub(all) struct Mesh2dAsset {
   primitive : Mesh2dPrimitive
 } derive(Eq, Show)
 pub fn Mesh2dAsset::circle(Double) -> Self
-pub fn Mesh2dAsset::rectangle(@math.Vec2D) -> Self
+pub fn Mesh2dAsset::rectangle(@math.Vec2) -> Self
 
 pub(all) struct Mesh2dHandle(UInt) derive(Eq, Hash, Show)
 #deprecated
 pub fn Mesh2dHandle::inner(Self) -> UInt
 
 pub(all) enum Mesh2dPrimitive {
-  Rectangle(@math.Vec2D)
+  Rectangle(@math.Vec2)
   Circle(Double)
 } derive(Eq, Show)
 

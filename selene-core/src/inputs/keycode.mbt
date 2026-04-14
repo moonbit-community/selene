@@ -248,11 +248,11 @@ pub fn is_released(code : Code) -> Bool {
 /// ```moonbit nocheck
 /// // Get movement vector for WASD keys
 /// let movement = @inputs.key_vector(KeyW, KeyS, KeyA, KeyD)
-/// inspect(movement, content="Vec2D(0, 0)")
+/// inspect(movement, content="Vec2(0, 0)")
 ///
 /// // Get movement vector for arrow keys
 /// let arrow_movement = @inputs.key_vector(ArrowUp, ArrowDown, ArrowLeft, ArrowRight)
-/// inspect(arrow_movement, content="Vec2D(0, 0)")
+/// inspect(arrow_movement, content="Vec2(0, 0)")
 /// ```
 ///
 pub fn key_vector(
@@ -260,7 +260,7 @@ pub fn key_vector(
   down : Code,
   left : Code,
   right : Code,
-) -> @math.Vec2D {
+) -> @math.Vec2 {
   let x = if is_pressed(left) {
     -1.0
   } else if is_pressed(right) {
@@ -275,7 +275,7 @@ pub fn key_vector(
   } else {
     0.0
   }
-  @math.Vec2D(x, y)
+  @math.Vec2(x, y)
 }
 
 ///|

@@ -15,10 +15,10 @@
 ///|
 /// Collision geometry used by 2D colliders and trigger areas.
 pub(all) enum CollisionShape {
-  Rect(size~ : @math.Vec2D, offset~ : @math.Vec2D)
-  Ball(radius~ : Double, offset~ : @math.Vec2D)
-  Polygon(points~ : Array[@math.Vec2D], offset~ : @math.Vec2D)
-  Polyline(points~ : Array[@math.Vec2D], offset~ : @math.Vec2D, closed~ : Bool)
+  Rect(size~ : @math.Vec2, offset~ : @math.Vec2)
+  Ball(radius~ : Double, offset~ : @math.Vec2)
+  Polygon(points~ : Array[@math.Vec2], offset~ : @math.Vec2)
+  Polyline(points~ : Array[@math.Vec2], offset~ : @math.Vec2, closed~ : Bool)
 } derive(Eq, Debug)
 
 ///|
@@ -46,8 +46,8 @@ fn shape_world_store() -> ShapeWorldStore {
 /// @collision.shapes().set(
 ///   entity,
 ///   @collision.CollisionShape::Rect(
-///     size=@math.Vec2D(50.0, 30.0),
-///     offset=@math.Vec2D(0.0, 0.0),
+///     size=@math.Vec2(50.0, 30.0),
+///     offset=@math.Vec2(0.0, 0.0),
 ///   ),
 /// )
 /// ```

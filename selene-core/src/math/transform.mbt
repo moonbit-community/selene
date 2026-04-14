@@ -164,9 +164,9 @@ pub fn Transform::apply_to_point(
 }
 
 ///|
-pub fn Transform::apply_to_vec2d(self : Transform, vec : Vec2D) -> Vec2D {
+pub fn Transform::apply_to_vec2(self : Transform, vec : Vec2) -> Vec2 {
   let p = self.apply_to_point(vec.0, vec.1)
-  Vec2D(p.0, p.1)
+  Vec2(p.0, p.1)
 }
 
 ///|

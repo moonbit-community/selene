@@ -366,7 +366,7 @@ fn tiled_physics_specs_from_shape_object(
   transform : @math.Transform,
   inherited_properties : Array[TiledProperty],
   settings : TiledPhysicsSettings,
-  size_override? : @math.Vec2D? = None,
+  size_override? : @math.Vec2? = None,
 ) -> Array[TiledPhysicsSpawnSpec] {
   let properties = tiled_merge_properties(
     inherited_properties,
@@ -380,17 +380,17 @@ fn tiled_physics_specs_from_shape_object(
     Some(
       @physics2d.CollisionShape::Ball(
         radius=settings.point_radius,
-        offset=transform.apply_to_vec2d(@math.Vec2D::zero()),
+        offset=transform.apply_to_vec2(@math.Vec2::zero()),
       ),
     )
   } else if object.polyline.length() > 0 {
     Some(
       @physics2d.CollisionShape::Polyline(
         points=tiled_transform_points(
-          object.polyline.map(point => @math.Vec2D(point.x, point.y)),
+          object.polyline.map(point => @math.Vec2(point.x, point.y)),
           transform,
         ),
-        offset=@math.Vec2D::zero(),
+        offset=@math.Vec2::zero(),
         closed=false,
       ),
     )
@@ -398,14 +398,14 @@ fn tiled_physics_specs_from_shape_object(
     Some(
       @physics2d.CollisionShape::Polygon(
         points=tiled_transform_points(
-          object.polygon.map(point => @math.Vec2D(point.x, point.y)),
+          object.polygon.map(point => @math.Vec2(point.x, point.y)),
           transform,
         ),
-        offset=@math.Vec2D::zero(),
+        offset=@math.Vec2::zero(),
       ),
     )
   } else if object.ellipse {
-    let size = size_override.unwrap_or(@math.Vec2D(object.width, object.height))
+    let size = size_override.unwrap_or(@math.Vec2(object.width, object.height))
     if size[X] <= 0.0 || size[Y] <= 0.0 {
       None
     } else {
@@ -415,14 +415,14 @@ fn tiled_physics_specs_from_shape_object(
             tiled_ellipse_points(size, settings.ellipse_segments),
             transform,
           ),
-          offset=@math.Vec2D::zero(),
+          offset=@math.Vec2::zero(),
         ),
       )
     }
   } else if object.text is Some(_) {
     None
   } else {
-    let size = size_override.unwrap_or(@math.Vec2D(object.width, object.height))
+    let size = size_override.unwrap_or(@math.Vec2(object.width, object.height))
     if size[X] <= 0.0 || size[Y] <= 0.0 {
       None
     } else {
@@ -535,23 +535,23 @@ fn tiled_collision_object_transform(object : TiledObject) -> @math.Transform {
 
 ///|
 fn tiled_transform_points(
-  points : Array[@math.Vec2D],
+  points : Array[@math.Vec2],
   transform : @math.Transform,
-) -> Array[@math.Vec2D] {
-  points.map(point => transform.apply_to_vec2d(point))
+) -> Array[@math.Vec2] {
+  points.map(point => transform.apply_to_vec2(point))
 }
 
 ///|
 fn tiled_shape_from_rect(
-  size : @math.Vec2D,
+  size : @math.Vec2,
   transform : @math.Transform,
 ) -> @physics2d.CollisionShape {
   let corners = tiled_transform_points(
     [
-      @math.Vec2D::zero(),
-      @math.Vec2D(size[X], 0.0),
-      @math.Vec2D(size[X], size[Y]),
-      @math.Vec2D(0.0, size[Y]),
+      @math.Vec2::zero(),
+      @math.Vec2(size[X], 0.0),
+      @math.Vec2(size[X], size[Y]),
+      @math.Vec2(0.0, size[Y]),
     ],
     transform,
   )
@@ -561,15 +561,15 @@ fn tiled_shape_from_rect(
     None =>
       @physics2d.CollisionShape::Polygon(
         points=corners,
-        offset=@math.Vec2D::zero(),
+        offset=@math.Vec2::zero(),
       )
   }
 }
 
 ///|
 fn tiled_axis_aligned_rect(
-  corners : Array[@math.Vec2D],
-) -> (@math.Vec2D, @math.Vec2D)? {
+  corners : Array[@math.Vec2],
+) -> (@math.Vec2, @math.Vec2)? {
   if corners.length() != 4 {
     return None
   }
@@ -583,15 +583,15 @@ fn tiled_axis_aligned_rect(
     min_y = if point[Y] < min_y { point[Y] } else { min_y }
     max_y = if point[Y] > max_y { point[Y] } else { max_y }
   }
-  let rect_size = @math.Vec2D(max_x - min_x, max_y - min_y)
+  let rect_size = @math.Vec2(max_x - min_x, max_y - min_y)
   if rect_size[X] <= 0.0 || rect_size[Y] <= 0.0 {
     return None
   }
   let expected = [
-    @math.Vec2D(min_x, min_y),
-    @math.Vec2D(max_x, min_y),
-    @math.Vec2D(max_x, max_y),
-    @math.Vec2D(min_x, max_y),
+    @math.Vec2(min_x, min_y),
+    @math.Vec2(max_x, min_y),
+    @math.Vec2(max_x, max_y),
+    @math.Vec2(min_x, max_y),
   ]
   for expected_point in expected {
     let mut matched = false
@@ -605,22 +605,22 @@ fn tiled_axis_aligned_rect(
       return None
     }
   }
-  Some((@math.Vec2D(min_x, min_y), rect_size))
+  Some((@math.Vec2(min_x, min_y), rect_size))
 }
 
 ///|
 fn tiled_ellipse_points(
-  size : @math.Vec2D,
+  size : @math.Vec2,
   segments : Int,
-) -> Array[@math.Vec2D] {
+) -> Array[@math.Vec2] {
   let count = if segments < 8 { 8 } else { segments }
   let center = size.scalar_mul(0.5)
-  let points : Array[@math.Vec2D] = []
+  let points : Array[@math.Vec2] = []
   for index in 0..<count {
     let angle = index.to_double() * @cmath.PI * 2.0 / count.to_double()
     points.push(
       center +
-      @math.Vec2D(center[X] * @cmath.cos(angle), center[Y] * @cmath.sin(angle)),
+      @math.Vec2(center[X] * @cmath.cos(angle), center[Y] * @cmath.sin(angle)),
     )
   }
   points
@@ -690,21 +690,21 @@ fn tiled_merge_rect_spec(
 
 ///|
 fn tiled_merge_rects(
-  left_offset : @math.Vec2D,
-  left_size : @math.Vec2D,
-  right_offset : @math.Vec2D,
-  right_size : @math.Vec2D,
-) -> (@math.Vec2D, @math.Vec2D)? {
+  left_offset : @math.Vec2,
+  left_size : @math.Vec2,
+  right_offset : @math.Vec2,
+  right_size : @math.Vec2,
+) -> (@math.Vec2, @math.Vec2)? {
   if tiled_scalars_close(left_offset[Y], right_offset[Y]) &&
     tiled_scalars_close(left_size[Y], right_size[Y]) {
     if tiled_scalars_close(left_offset[X] + left_size[X], right_offset[X]) {
       return Some(
-        (left_offset, @math.Vec2D(left_size[X] + right_size[X], left_size[Y])),
+        (left_offset, @math.Vec2(left_size[X] + right_size[X], left_size[Y])),
       )
     }
     if tiled_scalars_close(right_offset[X] + right_size[X], left_offset[X]) {
       return Some(
-        (right_offset, @math.Vec2D(left_size[X] + right_size[X], left_size[Y])),
+        (right_offset, @math.Vec2(left_size[X] + right_size[X], left_size[Y])),
       )
     }
   }
@@ -712,12 +712,12 @@ fn tiled_merge_rects(
     tiled_scalars_close(left_size[X], right_size[X]) {
     if tiled_scalars_close(left_offset[Y] + left_size[Y], right_offset[Y]) {
       return Some(
-        (left_offset, @math.Vec2D(left_size[X], left_size[Y] + right_size[Y])),
+        (left_offset, @math.Vec2(left_size[X], left_size[Y] + right_size[Y])),
       )
     }
     if tiled_scalars_close(right_offset[Y] + right_size[Y], left_offset[Y]) {
       return Some(
-        (right_offset, @math.Vec2D(left_size[X], left_size[Y] + right_size[Y])),
+        (right_offset, @math.Vec2(left_size[X], left_size[Y] + right_size[Y])),
       )
     }
   }
@@ -901,7 +901,7 @@ fn tiled_merge_properties(
 }
 
 ///|
-fn tiled_points_close(left : @math.Vec2D, right : @math.Vec2D) -> Bool {
+fn tiled_points_close(left : @math.Vec2, right : @math.Vec2) -> Bool {
   tiled_scalars_close(left[X], right[X]) &&
   tiled_scalars_close(left[Y], right[Y])
 }

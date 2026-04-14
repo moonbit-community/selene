@@ -122,8 +122,8 @@ pub fn Camera::world_to_viewport(
   _self : Camera,
   camera_transform : @transform.GlobalTransform,
   projection : OrthographicProjection,
-  world_position : @math.Vec2D,
-) -> @math.Vec2D {
+  world_position : @math.Vec2,
+) -> @math.Vec2 {
   let world_point = @math.Vec3::new(world_position[X], world_position[Y], 0.0)
   let view_point = match camera_transform.affine.inverse() {
     Some(inverse_camera) => inverse_camera.transform_point3(world_point)
@@ -132,7 +132,7 @@ pub fn Camera::world_to_viewport(
   let pixels_per_world_unit = @system.get_zoom() /
     projection_scale(projection.scale)
   let viewport_center = @system.get_screen_size().scalar_mul(0.5)
-  @math.Vec2D(
+  @math.Vec2(
     viewport_center[X] + view_point.x * pixels_per_world_unit,
     viewport_center[Y] + view_point.y * pixels_per_world_unit,
   )
@@ -143,8 +143,8 @@ pub fn Camera::viewport_to_world_2d(
   _self : Camera,
   camera_transform : @transform.GlobalTransform,
   projection : OrthographicProjection,
-  viewport_position : @math.Vec2D,
-) -> @math.Vec2D {
+  viewport_position : @math.Vec2,
+) -> @math.Vec2 {
   let pixels_per_world_unit = @system.get_zoom() /
     projection_scale(projection.scale)
   let viewport_center = @system.get_screen_size().scalar_mul(0.5)
@@ -154,7 +154,7 @@ pub fn Camera::viewport_to_world_2d(
     0.0,
   )
   let world_point = camera_transform.transform_point(view_point)
-  @math.Vec2D(world_point.x, world_point.y)
+  @math.Vec2(world_point.x, world_point.y)
 }
 
 ///|
@@ -165,7 +165,7 @@ test "camera world_to_viewport roundtrip" {
   let camera_transform = @transform.GlobalTransform::from_transform(
     @transform.Transform::from_xyz(100.0, 50.0, 0.0),
   )
-  let world = @math.Vec2D(132.5, 64.0)
+  let world = @math.Vec2(132.5, 64.0)
   let viewport = camera.world_to_viewport(camera_transform, projection, world)
   let world2 = camera.viewport_to_world_2d(
     camera_transform, projection, viewport,
@@ -191,7 +191,7 @@ test "camera world_to_viewport respects camera rotation" {
   let viewport = camera.world_to_viewport(
     camera_transform,
     projection,
-    @math.Vec2D(0.0, 10.0),
+    @math.Vec2(0.0, 10.0),
   )
   assert_eq(viewport[X], 60.0)
   assert_eq(viewport[Y], 50.0)

@@ -1,7 +1,7 @@
 ///|
 fn tiled_world_set_entity_translation_2d(
   entity : @entity.Entity,
-  position : @math.Vec2D,
+  position : @math.Vec2,
 ) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
@@ -15,11 +15,11 @@ fn tiled_world_set_entity_translation_2d(
 }
 
 ///|
-fn tiled_world_entity_translation_2d(entity : @entity.Entity) -> @math.Vec2D? {
+fn tiled_world_entity_translation_2d(entity : @entity.Entity) -> @math.Vec2? {
   @transform.transforms()
   .get(entity)
   .map(fn(transform) {
-    @math.Vec2D(transform.translation.x, transform.translation.y)
+    @math.Vec2(transform.translation.x, transform.translation.y)
   })
 }
 
@@ -78,11 +78,11 @@ pub struct TiledWorldMapInstance {
 
 ///|
 pub struct TiledWorldSpawnSettings {
-  position : @math.Vec2D
+  position : @math.Vec2
   map_z_step : Int
   map_settings : TiledSpawnSettings
   focus_map_path : String?
-  chunking : @math.Vec2D?
+  chunking : @math.Vec2?
   world_hook : ((TiledWorldSpawnedEvent) -> Unit)?
   world_map_hook : ((TiledWorldMapSpawnedEvent) -> Unit)?
 }
@@ -123,7 +123,7 @@ pub fn empty_tiled_world() -> TiledWorld {
 ///|
 pub fn default_tiled_world_spawn_settings() -> TiledWorldSpawnSettings {
   {
-    position: @math.Vec2D::zero(),
+    position: @math.Vec2::zero(),
     map_z_step: 1000,
     map_settings: default_tiled_spawn_settings(),
     focus_map_path: None,
@@ -304,7 +304,7 @@ fn tiled_world_update_chunking(world_entity : @entity.Entity) -> Unit {
 }
 
 ///|
-fn tiled_camera_view_bounds() -> (@math.Vec2D, @math.Vec2D) {
+fn tiled_camera_view_bounds() -> (@math.Vec2, @math.Vec2) {
   match tiled_world_active_camera2d_view() {
     Some((camera, camera_transform, projection)) => {
       let screen_size = @system.get_screen_size()
@@ -312,22 +312,22 @@ fn tiled_camera_view_bounds() -> (@math.Vec2D, @math.Vec2D) {
         camera.viewport_to_world_2d(
           camera_transform,
           projection,
-          @math.Vec2D(0.0, 0.0),
+          @math.Vec2(0.0, 0.0),
         ),
         camera.viewport_to_world_2d(
           camera_transform,
           projection,
-          @math.Vec2D(screen_size[X], 0.0),
+          @math.Vec2(screen_size[X], 0.0),
         ),
         camera.viewport_to_world_2d(
           camera_transform,
           projection,
-          @math.Vec2D(0.0, screen_size[Y]),
+          @math.Vec2(0.0, screen_size[Y]),
         ),
         camera.viewport_to_world_2d(
           camera_transform,
           projection,
-          @math.Vec2D(screen_size[X], screen_size[Y]),
+          @math.Vec2(screen_size[X], screen_size[Y]),
         ),
       ]
       let min_x = corners.fold(init=corners[0][X], fn(acc, corner) {
@@ -358,9 +358,9 @@ fn tiled_camera_view_bounds() -> (@math.Vec2D, @math.Vec2D) {
           acc
         }
       })
-      (@math.Vec2D(min_x, min_y), @math.Vec2D(max_x, max_y))
+      (@math.Vec2(min_x, min_y), @math.Vec2(max_x, max_y))
     }
-    None => (@math.Vec2D::zero(), @system.get_viewport_size())
+    None => (@math.Vec2::zero(), @system.get_viewport_size())
   }
 }
 
@@ -419,7 +419,7 @@ fn tiled_world_spawn_loaded_map(
   if !loaded_map.spawnable {
     return
   }
-  let child_offset = @math.Vec2D(
+  let child_offset = @math.Vec2(
     loaded_map.world_map.x.to_double() +
     instance.settings.map_settings.position[X],
     loaded_map.world_map.y.to_double() +
@@ -455,9 +455,9 @@ fn tiled_world_spawn_loaded_map(
 
 ///|
 fn tiled_world_loaded_map_bounds(
-  origin : @math.Vec2D,
+  origin : @math.Vec2,
   loaded_map : TiledWorldLoadedMap,
-) -> (@math.Vec2D, @math.Vec2D) {
+) -> (@math.Vec2, @math.Vec2) {
   let width = loaded_map.world_map.width.unwrap_or(
     loaded_map.map.width * loaded_map.map.tile_width,
   )
@@ -465,11 +465,11 @@ fn tiled_world_loaded_map_bounds(
     loaded_map.map.height * loaded_map.map.tile_height,
   )
   let min = origin +
-    @math.Vec2D(
+    @math.Vec2(
       loaded_map.world_map.x.to_double(),
       loaded_map.world_map.y.to_double(),
     )
-  (min, min + @math.Vec2D(width.to_double(), height.to_double()))
+  (min, min + @math.Vec2(width.to_double(), height.to_double()))
 }
 
 ///|

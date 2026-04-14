@@ -12,13 +12,13 @@ fn webgpu_test_sync_image(
 }
 
 ///|
-fn webgpu_test_uv(x : Double, y : Double) -> @smath.Vec2D {
-  @smath.Vec2D(x, y)
+fn webgpu_test_uv(x : Double, y : Double) -> @smath.Vec2 {
+  @smath.Vec2(x, y)
 }
 
 ///|
 fn webgpu_test_mesh(
-  uv_sets : Array[Array[@smath.Vec2D]],
+  uv_sets : Array[Array[@smath.Vec2]],
 ) -> @render3d_types.TriangleMesh3D {
   {
     positions: [

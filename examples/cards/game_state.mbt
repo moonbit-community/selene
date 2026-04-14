@@ -43,7 +43,7 @@ priv struct Player {
   hole_cards : Array[Card]
   mut current_bet : Int
   mut has_folded : Bool
-  position : @math.Vec2D // Position for display
+  position : @math.Vec2 // Position for display
 }
 
 ///|
@@ -90,7 +90,7 @@ let game_state : GameState = {
     hole_cards: [],
     current_bet: 0,
     has_folded: false,
-    position: @math.Vec2D(VIEWPORT_WIDTH / 2.0, VIEWPORT_HEIGHT - 80.0),
+    position: @math.Vec2(VIEWPORT_WIDTH / 2.0, VIEWPORT_HEIGHT - 80.0),
   },
   phase: PreFlop,
   current_bet: 0,

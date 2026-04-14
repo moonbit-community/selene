@@ -593,8 +593,8 @@ pub fn Node::new(
 
 ///|
 pub fn Node::absolute(
-  offset : @math.Vec2D,
-  size? : @math.Vec2D = @math.Vec2D(-1.0, -1.0),
+  offset : @math.Vec2,
+  size? : @math.Vec2 = @math.Vec2(-1.0, -1.0),
   padding? : UiRectValues = UiRectValues::all(0.0),
   border? : UiRectValues = UiRectValues::all(0.0),
   display? : Display = Flex,
@@ -636,10 +636,10 @@ pub fn Node::absolute(
 
 ///|
 pub(all) struct ComputedUiNode {
-  position : @math.Vec2D
-  size : @math.Vec2D
-  content_position : @math.Vec2D
-  content_size : @math.Vec2D
+  position : @math.Vec2
+  size : @math.Vec2
+  content_position : @math.Vec2
+  content_size : @math.Vec2
   border : UiInsets
   padding : UiInsets
 }
@@ -767,7 +767,7 @@ pub fn OverrideClip::new() -> OverrideClip {
 
 ///|
 pub(all) struct RelativeCursorPosition {
-  mut normalized : @math.Vec2D?
+  mut normalized : @math.Vec2?
   mut cursor_over : Bool
 
   fn new() -> RelativeCursorPosition
@@ -960,7 +960,7 @@ pub fn is_ui_entity(entity : @entity.Entity) -> Bool {
 }
 
 ///|
-fn logical_to_screen_point(point : @math.Vec2D) -> @math.Vec2D {
+fn logical_to_screen_point(point : @math.Vec2) -> @math.Vec2 {
   match get_ui_scale_mode() {
     Screen => point
     Viewport => @system.ui_virtual_to_screen(point)
@@ -968,7 +968,7 @@ fn logical_to_screen_point(point : @math.Vec2D) -> @math.Vec2D {
 }
 
 ///|
-fn logical_to_screen_size(size : @math.Vec2D) -> @math.Vec2D {
+fn logical_to_screen_size(size : @math.Vec2) -> @math.Vec2 {
   match get_ui_scale_mode() {
     Screen => size
     Viewport => @system.scale_vec2(size)

@@ -59,7 +59,7 @@ This document captures the first breaking migration pass from legacy Selene ECS 
 
 | Legacy Selene | New Selene | Notes |
 | --- | --- | --- |
-| `SpriteType::Picture` / `@sprite.Picture` | `@sprite.Sprite { image, rect?, custom_size, anchor, flip_x, flip_y, color, image_mode } + @visibility.Visibility` | Static images now use the same Bevy-style sprite component as every other textured quad, and visibility is no longer embedded in the sprite component. `Anchor` is a tuple struct (`Anchor(Vec2D)`) rather than a Selene-specific enum. |
+| `SpriteType::Picture` / `@sprite.Picture` | `@sprite.Sprite { image, rect?, custom_size, anchor, flip_x, flip_y, color, image_mode } + @visibility.Visibility` | Static images now use the same Bevy-style sprite component as every other textured quad, and visibility is no longer embedded in the sprite component. `Anchor` is a tuple struct (`Anchor(Vec2)`) rather than a Selene-specific enum. |
 | `SpriteType::Animation` / `@sprite.Animation` | `@sprite.Sprite + @sprite.TextureAtlas + @animation.AnimationPlayer` | 2D flipbooks now animate `TextureAtlas.index` instead of storing frames inside the sprite component. |
 | `@animation.sprite_frame_index_field()` | `@animation.texture_atlas_index_field()` | Built-in 2D animation target now points at the atlas index. |
 | `@sprite.SpriteFrameIndex` / `@sprite.sprite_frame_indices()` | Removed | 2D frame playback no longer uses a sidecar runtime component. |

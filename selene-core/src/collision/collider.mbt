@@ -70,7 +70,7 @@ pub struct ContactEvent {
   entity : @entity.Entity
   other : @entity.Entity
   started : Bool
-  direction : @math.Vec2D
+  direction : @math.Vec2
 }
 
 ///|

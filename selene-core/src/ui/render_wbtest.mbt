@@ -5,7 +5,7 @@ fn test_rect(
   width : Double,
   height : Double,
 ) -> @math.Rect {
-  { position: @math.Vec2D(x, y), size: @math.Vec2D(width, height) }
+  { position: @math.Vec2(x, y), size: @math.Vec2(width, height) }
 }
 
 ///|
@@ -157,7 +157,7 @@ test "ui border radii resolve percent values against node size" {
       bottom_right=Val::px(8.0),
       bottom_left=Val::percent(1.0),
     ),
-    @math.Vec2D(120.0, 80.0),
+    @math.Vec2(120.0, 80.0),
   )
 
   inspect(resolved.top_left == 20.0, content="true")

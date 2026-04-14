@@ -170,7 +170,7 @@ fn add_player() -> Unit {
       PLAYER_ZINDEX.to_double(),
     ),
   )
-  @physics2d.linear_velocities().set(entity, Vec2D(0.0, 0.0))
+  @physics2d.linear_velocities().set(entity, Vec2(0.0, 0.0))
   @physics2d.colliders().set(
     entity,
     @physics2d.Collider::new(
@@ -182,8 +182,8 @@ fn add_player() -> Unit {
   @physics2d.shapes().set(
     entity,
     @physics2d.CollisionShape::Rect(
-      size=Vec2D(PLAYER_SIZE, PLAYER_SIZE),
-      offset=Vec2D(-PLAYER_SIZE / 2.0, -PLAYER_SIZE / 2.0),
+      size=Vec2(PLAYER_SIZE, PLAYER_SIZE),
+      offset=Vec2(-PLAYER_SIZE / 2.0, -PLAYER_SIZE / 2.0),
     ),
   )
   play_player_animation_state(
@@ -221,7 +221,7 @@ fn player_update_system(_world : @ecs.World) -> Unit {
   guard player_animation_controllers.get(entity) is Some(animation_controller) else {
     return
   }
-  match (vel == @math.Vec2D::zero(), game_state.player_direction) {
+  match (vel == @math.Vec2::zero(), game_state.player_direction) {
     (true, Left) =>
       play_player_animation_state(
         entity,
@@ -281,7 +281,7 @@ fn player_shooting_system(_world : @ecs.World) -> Unit {
   }
   guard @transform.transforms().get(game_state.player_entity)
     is Some(player_transform)
-  let player_pos = @math.Vec2D(
+  let player_pos = @math.Vec2(
     player_transform.translation.x,
     player_transform.translation.y,
   )
@@ -320,15 +320,15 @@ fn player_shooting_system(_world : @ecs.World) -> Unit {
 
 ///|
 fn find_nearest_enemy_in_range(
-  player_pos : @math.Vec2D,
+  player_pos : @math.Vec2,
   weapon_range : Double,
-) -> @math.Vec2D? {
+) -> @math.Vec2? {
   let mut min = weapon_range
-  let mut res : @math.Vec2D? = None
+  let mut res : @math.Vec2? = None
   for e, _enemy in enemies {
     guard e.is_alive() else { continue }
     guard @transform.transforms().get(e) is Some(enemy_transform)
-    let enemy_pos = @math.Vec2D(
+    let enemy_pos = @math.Vec2(
       enemy_transform.translation.x,
       enemy_transform.translation.y,
     )

@@ -276,8 +276,8 @@ pub fn default_texture_transform3d() -> TextureTransform3D {
 ///|
 pub fn apply_texture_transform3d(
   transform : TextureTransform3D,
-  uv : @math.Vec2D,
-) -> @math.Vec2D {
+  uv : @math.Vec2,
+) -> @math.Vec2 {
   @render3d_types.apply_texture_transform3d(transform, uv)
 }
 
@@ -319,11 +319,11 @@ pub fn plane_mesh(size : @math.Vec3) -> MeshAsset {
 ///|
 pub fn triangle_mesh(
   positions : Array[@math.Vec3],
-  uvs? : Array[@math.Vec2D]? = None,
+  uvs? : Array[@math.Vec2]? = None,
   normals? : Array[@math.Vec3]? = None,
   tangents? : Array[Tangent3D]? = None,
   colors? : Array[@render.Color]? = None,
-  uv_sets? : Array[Array[@math.Vec2D]] = [],
+  uv_sets? : Array[Array[@math.Vec2]] = [],
   indices? : Array[Int]? = None,
   topology? : TriangleTopology3D = TriangleList,
 ) -> MeshAsset {
@@ -599,7 +599,7 @@ fn is_visible_in_camera_frustum(
       }
       let up_n = right_n.cross(forward_n).normalize()
       let ortho_size = camera.orthographic_size.unwrap_or(
-        @math.Vec2D(20.0, 20.0),
+        @math.Vec2(20.0, 20.0),
       )
       let half_width = abs_double(ortho_size[X]) * 0.5
       let half_height = abs_double(ortho_size[Y]) * 0.5

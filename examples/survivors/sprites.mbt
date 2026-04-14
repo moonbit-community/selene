@@ -19,7 +19,7 @@ priv struct SpriteAnimationDef {
   layout : @sprite.TextureAtlasLayoutHandle
   fps : Double
   loop_ : Bool
-  size : @math.Vec2D
+  size : @math.Vec2
   anchor : @sprite.Anchor
   flip_x : Bool
   flip_y : Bool
@@ -29,12 +29,12 @@ priv struct SpriteAnimationDef {
 fn atlas_animation(
   path : String,
   frame_count : Int,
-  size : @math.Vec2D,
-  offset? : @math.Vec2D = @math.Vec2D::zero(),
+  size : @math.Vec2,
+  offset? : @math.Vec2 = @math.Vec2::zero(),
   space_x? : Double = 0.0,
   fps? : Double = 12.0,
   loop_? : Bool = true,
-  anchor? : @sprite.Anchor = @sprite.Anchor(@math.Vec2D(0.0, 0.0)),
+  anchor? : @sprite.Anchor = @sprite.Anchor(@math.Vec2(0.0, 0.0)),
   flip_x? : Bool = false,
   flip_y? : Bool = false,
 ) -> SpriteAnimationDef {
@@ -46,7 +46,7 @@ fn atlas_animation(
         size,
         frame_count,
         1,
-        padding=Some(@math.Vec2D(space_x, 0.0)),
+        padding=Some(@math.Vec2(space_x, 0.0)),
         offset=Some(offset),
       ),
     ),
@@ -74,9 +74,9 @@ fn sprite_animation_sprite(animation : SpriteAnimationDef) -> @sprite.Sprite {
 ///|
 fn static_region_sprite(
   path : String,
-  size : @math.Vec2D,
+  size : @math.Vec2,
   rect? : @math.Rect? = None,
-  anchor? : @sprite.Anchor = @sprite.Anchor(@math.Vec2D(0.0, 0.0)),
+  anchor? : @sprite.Anchor = @sprite.Anchor(@math.Vec2(0.0, 0.0)),
 ) -> @sprite.Sprite {
   @sprite.Sprite::new(
     image=Some(@asset.load_image(path)),
@@ -90,8 +90,8 @@ fn static_region_sprite(
 let player_idle_right_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/whiteboy/idle.png",
   4,
-  Vec2D(PLAYER_SIZE, PLAYER_SIZE),
-  offset=Vec2D(32.0, 32.0),
+  Vec2(PLAYER_SIZE, PLAYER_SIZE),
+  offset=Vec2(32.0, 32.0),
   space_x=64.0,
 )
 
@@ -99,8 +99,8 @@ let player_idle_right_animation : SpriteAnimationDef = atlas_animation(
 let player_idle_left_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/whiteboy/idle.png",
   4,
-  Vec2D(PLAYER_SIZE, PLAYER_SIZE),
-  offset=Vec2D(32.0, 32.0),
+  Vec2(PLAYER_SIZE, PLAYER_SIZE),
+  offset=Vec2(32.0, 32.0),
   space_x=64.0,
   flip_x=true,
 )
@@ -109,8 +109,8 @@ let player_idle_left_animation : SpriteAnimationDef = atlas_animation(
 let player_idle_up_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/whiteboy/idle.png",
   4,
-  Vec2D(PLAYER_SIZE, PLAYER_SIZE),
-  offset=Vec2D(32.0, 192.0),
+  Vec2(PLAYER_SIZE, PLAYER_SIZE),
+  offset=Vec2(32.0, 192.0),
   space_x=64.0,
 )
 
@@ -118,8 +118,8 @@ let player_idle_up_animation : SpriteAnimationDef = atlas_animation(
 let player_idle_down_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/whiteboy/idle.png",
   4,
-  Vec2D(PLAYER_SIZE, PLAYER_SIZE),
-  offset=Vec2D(32.0, 112.0),
+  Vec2(PLAYER_SIZE, PLAYER_SIZE),
+  offset=Vec2(32.0, 112.0),
   space_x=64.0,
 )
 
@@ -127,8 +127,8 @@ let player_idle_down_animation : SpriteAnimationDef = atlas_animation(
 let player_run_right_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/whiteboy/run.png",
   8,
-  Vec2D(PLAYER_SIZE, PLAYER_SIZE),
-  offset=Vec2D(32.0, 32.0),
+  Vec2(PLAYER_SIZE, PLAYER_SIZE),
+  offset=Vec2(32.0, 32.0),
   space_x=64.0,
 )
 
@@ -136,8 +136,8 @@ let player_run_right_animation : SpriteAnimationDef = atlas_animation(
 let player_run_left_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/whiteboy/run.png",
   8,
-  Vec2D(PLAYER_SIZE, PLAYER_SIZE),
-  offset=Vec2D(32.0, 32.0),
+  Vec2(PLAYER_SIZE, PLAYER_SIZE),
+  offset=Vec2(32.0, 32.0),
   space_x=64.0,
   flip_x=true,
 )
@@ -146,8 +146,8 @@ let player_run_left_animation : SpriteAnimationDef = atlas_animation(
 let player_run_down_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/whiteboy/run.png",
   8,
-  Vec2D(PLAYER_SIZE, PLAYER_SIZE),
-  offset=Vec2D(32.0, 112.0),
+  Vec2(PLAYER_SIZE, PLAYER_SIZE),
+  offset=Vec2(32.0, 112.0),
   space_x=64.0,
 )
 
@@ -155,8 +155,8 @@ let player_run_down_animation : SpriteAnimationDef = atlas_animation(
 let player_run_up_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/whiteboy/run.png",
   8,
-  Vec2D(PLAYER_SIZE, PLAYER_SIZE),
-  offset=Vec2D(32.0, 192.0),
+  Vec2(PLAYER_SIZE, PLAYER_SIZE),
+  offset=Vec2(32.0, 192.0),
   space_x=64.0,
 )
 
@@ -164,9 +164,9 @@ let player_run_up_animation : SpriteAnimationDef = atlas_animation(
 fn grass_sprite() -> @sprite.Sprite {
   static_region_sprite(
     "assets/survivors/tilesets/decor_16x16.png",
-    Vec2D(16.0, 16.0),
-    rect=Some({ position: Vec2D(0.0, 0.0), size: Vec2D(16.0, 16.0) }),
-    anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
+    Vec2(16.0, 16.0),
+    rect=Some({ position: Vec2(0.0, 0.0), size: Vec2(16.0, 16.0) }),
+    anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
   )
 }
 
@@ -177,16 +177,16 @@ let background_picture = "assets/survivors/tilesets/grass.png"
 let creeper_right_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/enemy/Creeper.png",
   4,
-  Vec2D(16.0, 24.0),
-  offset=Vec2D(0.0, 48.0),
+  Vec2(16.0, 24.0),
+  offset=Vec2(0.0, 48.0),
 )
 
 ///|
 let creeper_left_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/enemy/Creeper.png",
   4,
-  Vec2D(16.0, 24.0),
-  offset=Vec2D(0.0, 48.0),
+  Vec2(16.0, 24.0),
+  offset=Vec2(0.0, 48.0),
   flip_x=true,
 )
 
@@ -194,16 +194,16 @@ let creeper_left_animation : SpriteAnimationDef = atlas_animation(
 let icecream_right_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/enemy/Icecream.png",
   4,
-  Vec2D(16.0, 24.0),
-  offset=Vec2D(0.0, 48.0),
+  Vec2(16.0, 24.0),
+  offset=Vec2(0.0, 48.0),
 )
 
 ///|
 let icecream_left_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/enemy/Icecream.png",
   4,
-  Vec2D(16.0, 24.0),
-  offset=Vec2D(0.0, 48.0),
+  Vec2(16.0, 24.0),
+  offset=Vec2(0.0, 48.0),
   flip_x=true,
 )
 
@@ -211,16 +211,16 @@ let icecream_left_animation : SpriteAnimationDef = atlas_animation(
 let orc_right_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/enemy/Orc.png",
   4,
-  Vec2D(16.0, 24.0),
-  offset=Vec2D(0.0, 48.0),
+  Vec2(16.0, 24.0),
+  offset=Vec2(0.0, 48.0),
 )
 
 ///|
 let orc_left_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/enemy/Orc.png",
   4,
-  Vec2D(16.0, 24.0),
-  offset=Vec2D(0.0, 48.0),
+  Vec2(16.0, 24.0),
+  offset=Vec2(0.0, 48.0),
   flip_x=true,
 )
 
@@ -228,16 +228,16 @@ let orc_left_animation : SpriteAnimationDef = atlas_animation(
 let skull_right_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/enemy/Skull.png",
   4,
-  Vec2D(16.0, 24.0),
-  offset=Vec2D(0.0, 48.0),
+  Vec2(16.0, 24.0),
+  offset=Vec2(0.0, 48.0),
 )
 
 ///|
 let skull_left_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/enemy/Skull.png",
   4,
-  Vec2D(16.0, 24.0),
-  offset=Vec2D(0.0, 48.0),
+  Vec2(16.0, 24.0),
+  offset=Vec2(0.0, 48.0),
   flip_x=true,
 )
 
@@ -245,16 +245,16 @@ let skull_left_animation : SpriteAnimationDef = atlas_animation(
 let devil_right_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/enemy/Devil.png",
   4,
-  Vec2D(16.0, 24.0),
-  offset=Vec2D(0.0, 48.0),
+  Vec2(16.0, 24.0),
+  offset=Vec2(0.0, 48.0),
 )
 
 ///|
 let devil_left_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/enemy/Devil.png",
   4,
-  Vec2D(16.0, 24.0),
-  offset=Vec2D(0.0, 48.0),
+  Vec2(16.0, 24.0),
+  offset=Vec2(0.0, 48.0),
   flip_x=true,
 )
 
@@ -262,16 +262,16 @@ let devil_left_animation : SpriteAnimationDef = atlas_animation(
 let pirate_right_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/enemy/Pirate.png",
   4,
-  Vec2D(16.0, 24.0),
-  offset=Vec2D(0.0, 48.0),
+  Vec2(16.0, 24.0),
+  offset=Vec2(0.0, 48.0),
 )
 
 ///|
 let pirate_left_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/enemy/Pirate.png",
   4,
-  Vec2D(16.0, 24.0),
-  offset=Vec2D(0.0, 48.0),
+  Vec2(16.0, 24.0),
+  offset=Vec2(0.0, 48.0),
   flip_x=true,
 )
 
@@ -279,15 +279,15 @@ let pirate_left_animation : SpriteAnimationDef = atlas_animation(
 let teleman_right_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/enemy/Teleman.png",
   4,
-  Vec2D(16.0, 24.0),
-  offset=Vec2D(0.0, 0.0),
+  Vec2(16.0, 24.0),
+  offset=Vec2(0.0, 0.0),
 )
 
 ///|
 let teleman_left_animation : SpriteAnimationDef = atlas_animation(
   "assets/survivors/enemy/Teleman.png",
   4,
-  Vec2D(16.0, 24.0),
-  offset=Vec2D(0.0, 0.0),
+  Vec2(16.0, 24.0),
+  offset=Vec2(0.0, 0.0),
   flip_x=true,
 )

@@ -236,11 +236,11 @@ let enemy_data : Map[EnemyType, EnemyData] = {
 }
 
 ///|
-let spawners : Array[@math.Vec2D] = [
-  Vec2D(16.0, 16.0),
-  Vec2D(MAP_WIDTH - 16.0, 16.0),
-  Vec2D(16.0, MAP_HEIGHT - 16.0),
-  Vec2D(MAP_WIDTH - 16.0, MAP_HEIGHT - 16.0),
+let spawners : Array[@math.Vec2] = [
+  Vec2(16.0, 16.0),
+  Vec2(MAP_WIDTH - 16.0, 16.0),
+  Vec2(16.0, MAP_HEIGHT - 16.0),
+  Vec2(MAP_WIDTH - 16.0, MAP_HEIGHT - 16.0),
 ]
 
 ///|
@@ -272,7 +272,7 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
             ENEMY_ZINDEX.to_double(),
           ),
         )
-        @physics2d.linear_velocities().set(enemy, @math.Vec2D::zero())
+        @physics2d.linear_velocities().set(enemy, @math.Vec2::zero())
         let data = get_enemy_data(enemy_type)
         let (left_node, right_node) = create_enemy_animation_nodes(enemy, data)
 
@@ -291,8 +291,8 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
         @physics2d.shapes().set(
           enemy,
           @physics2d.CollisionShape::Rect(
-            size=Vec2D(8.0, 8.0),
-            offset=Vec2D(-4.0, -4.0),
+            size=Vec2(8.0, 8.0),
+            offset=Vec2(-4.0, -4.0),
           ),
         )
         @physics2d.colliders().set(
@@ -460,11 +460,11 @@ fn enemy_ai_system(_world : @ecs.World) -> Unit {
       is Some(player_transform)
     guard @transform.transforms().get(e) is Some(enemy_transform)
     let data = get_enemy_data(state.enemy_type)
-    let player_position = @math.Vec2D(
+    let player_position = @math.Vec2(
       player_transform.translation.x,
       player_transform.translation.y,
     )
-    let position = @math.Vec2D(
+    let position = @math.Vec2(
       enemy_transform.translation.x,
       enemy_transform.translation.y,
     )
@@ -501,11 +501,11 @@ fn devil_shooting_system(_world : @ecs.World) -> Unit {
     guard @transform.transforms().get(e) is Some(enemy_transform)
     guard @transform.transforms().get(game_state.player_entity)
       is Some(player_transform)
-    let enemy_pos = @math.Vec2D(
+    let enemy_pos = @math.Vec2(
       enemy_transform.translation.x,
       enemy_transform.translation.y,
     )
-    let player_pos = @math.Vec2D(
+    let player_pos = @math.Vec2(
       player_transform.translation.x,
       player_transform.translation.y,
     )
@@ -525,15 +525,15 @@ fn devil_shooting_system(_world : @ecs.World) -> Unit {
 
 ///|
 fn shoot_enemy_bullet(
-  enemy_pos : @math.Vec2D,
-  player_pos : @math.Vec2D,
+  enemy_pos : @math.Vec2,
+  player_pos : @math.Vec2,
 ) -> Unit {
   let bullet_entity = @entity.Entity::new()
   @sprite.sprites().set(
     bullet_entity,
     @sprite.Sprite::new(
       color=@sprite.color_from_css("red"),
-      custom_size=Some(Vec2D(4.0, 4.0)),
+      custom_size=Some(Vec2(4.0, 4.0)),
     ),
   )
   @transform.transforms().set(
@@ -549,8 +549,8 @@ fn shoot_enemy_bullet(
   @physics2d.shapes().set(
     bullet_entity,
     @physics2d.CollisionShape::Rect(
-      size=@math.Vec2D(4.0, 4.0),
-      offset=@math.Vec2D(-2.0, -2.0),
+      size=@math.Vec2(4.0, 4.0),
+      offset=@math.Vec2(-2.0, -2.0),
     ),
   )
   let area = @physics2d.Area::new(

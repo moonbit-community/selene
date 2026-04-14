@@ -61,8 +61,8 @@ pub(all) struct TextureSampler3D {
 
 ///|
 pub(all) struct TextureTransform3D {
-  offset : @math.Vec2D
-  scale : @math.Vec2D
+  offset : @math.Vec2
+  scale : @math.Vec2
   rotation : Double
 } derive(Eq, Debug)
 
@@ -94,7 +94,7 @@ pub(all) struct TriangleMesh3D {
   positions : Array[@math.Vec3]
   indices : Array[Int]?
   topology : TriangleTopology3D
-  uv_sets : Array[Array[@math.Vec2D]]
+  uv_sets : Array[Array[@math.Vec2]]
   normals : Array[@math.Vec3]?
   tangents : Array[Tangent3D]?
   colors : Array[@render.Color]?
@@ -247,7 +247,7 @@ pub(all) struct FrameCamera3D {
   up : @math.Vec3
   fov_y : Double
   projection : CameraProjection3D
-  orthographic_size : @math.Vec2D?
+  orthographic_size : @math.Vec2?
   near : Double
   far : Double
   clear_color : @render.Color
@@ -289,18 +289,18 @@ pub fn default_texture_sampler3d() -> TextureSampler3D {
 
 ///|
 pub fn default_texture_transform3d() -> TextureTransform3D {
-  { offset: @math.Vec2D::zero(), scale: @math.Vec2D(1.0, 1.0), rotation: 0.0 }
+  { offset: @math.Vec2::zero(), scale: @math.Vec2(1.0, 1.0), rotation: 0.0 }
 }
 
 ///|
 pub fn apply_texture_transform3d(
   transform : TextureTransform3D,
-  uv : @math.Vec2D,
-) -> @math.Vec2D {
+  uv : @math.Vec2,
+) -> @math.Vec2 {
   let scaled = uv * transform.scale
   let sin_rotation = @cmath.sin(transform.rotation)
   let cos_rotation = @cmath.cos(transform.rotation)
-  @math.Vec2D(
+  @math.Vec2(
     scaled[X] * cos_rotation - scaled[Y] * sin_rotation + transform.offset[X],
     scaled[X] * sin_rotation + scaled[Y] * cos_rotation + transform.offset[Y],
   )

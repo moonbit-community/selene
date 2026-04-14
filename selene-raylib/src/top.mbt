@@ -762,8 +762,8 @@ fn clip_rect_intersection(lhs : @smath.Rect, rhs : @smath.Rect) -> @smath.Rect? 
     None
   } else {
     Some({
-      position: @smath.Vec2D(left, top),
-      size: @smath.Vec2D(right - left, bottom - top),
+      position: @smath.Vec2(left, top),
+      size: @smath.Vec2(right - left, bottom - top),
     })
   }
 }
@@ -798,8 +798,8 @@ fn vector2_y(value : @raylib.Vector2) -> Double {
 }
 
 ///|
-fn to_selene_vec2(value : @raylib.Vector2) -> @smath.Vec2D {
-  @smath.Vec2D(vector2_x(value), vector2_y(value))
+fn to_selene_vec2(value : @raylib.Vector2) -> @smath.Vec2 {
+  @smath.Vec2(vector2_x(value), vector2_y(value))
 }
 
 ///|
@@ -863,7 +863,7 @@ fn uniform_float(value : Double) -> @raylib.ShaderUniformData {
 }
 
 ///|
-fn uniform_vec2(value : @smath.Vec2D) -> @raylib.ShaderUniformData {
+fn uniform_vec2(value : @smath.Vec2) -> @raylib.ShaderUniformData {
   @raylib.ShaderUniformData::Vec2(
     @raylib.Vector2::new(to_float(value[X]), to_float(value[Y])),
   )
@@ -957,8 +957,8 @@ fn texture_transform_offset_scale(
 ///|
 fn texture_transform_rotation_sin_cos(
   transform : @render3d_types.TextureTransform3D,
-) -> @smath.Vec2D {
-  @smath.Vec2D(@cmath.sin(transform.rotation), @cmath.cos(transform.rotation))
+) -> @smath.Vec2 {
+  @smath.Vec2(@cmath.sin(transform.rotation), @cmath.cos(transform.rotation))
 }
 
 ///|
@@ -1487,8 +1487,8 @@ fn upload_lighting_uniforms(
   let state = get_lighting_shader_state()
   let shader = state.shader
   let default_shadow_rect : ShadowAtlasRect = {
-    offset: @smath.Vec2D(0.0, 0.0),
-    scale: @smath.Vec2D(0.0, 0.0),
+    offset: @smath.Vec2(0.0, 0.0),
+    scale: @smath.Vec2(0.0, 0.0),
   }
   let ambient = frame.ambient_light
     .map(fn(light) { light_rgb(light.color, light.intensity) })
@@ -1593,8 +1593,8 @@ fn upload_lighting_uniforms(
       set_shader_uniform(
         shader,
         state.shadow_bound_locs[matrix_index],
-        cascade.map_or(uniform_vec2(@smath.Vec2D(0.0, 0.0)), fn(value) {
-          uniform_vec2(@smath.Vec2D(value.near_bound, value.far_bound))
+        cascade.map_or(uniform_vec2(@smath.Vec2(0.0, 0.0)), fn(value) {
+          uniform_vec2(@smath.Vec2(value.near_bound, value.far_bound))
         }),
       )
     }
@@ -1603,7 +1603,7 @@ fn upload_lighting_uniforms(
     shader,
     state.directional_shadow_texel_size_loc,
     uniform_vec2(
-      shadow_state.map_or(@smath.Vec2D(0.0, 0.0), fn(value) {
+      shadow_state.map_or(@smath.Vec2(0.0, 0.0), fn(value) {
         value.directional_texel_size
       }),
     ),
@@ -1726,7 +1726,7 @@ fn upload_lighting_uniforms(
     shader,
     state.spot_shadow_texel_size_loc,
     uniform_vec2(
-      shadow_state.map_or(@smath.Vec2D(0.0, 0.0), fn(value) {
+      shadow_state.map_or(@smath.Vec2(0.0, 0.0), fn(value) {
         value.spot_texel_size
       }),
     ),
@@ -1775,7 +1775,7 @@ fn upload_lighting_uniforms(
     shader,
     state.point_shadow_texel_size_loc,
     uniform_vec2(
-      shadow_state.map_or(@smath.Vec2D(0.0, 0.0), fn(value) {
+      shadow_state.map_or(@smath.Vec2(0.0, 0.0), fn(value) {
         value.point_texel_size
       }),
     ),
@@ -2153,7 +2153,7 @@ fn to_fixed_vec3_array(values : Array[@smath.Vec3]) -> FixedArray[Float] {
 }
 
 ///|
-fn to_fixed_vec2_array(values : Array[@smath.Vec2D]) -> FixedArray[Float] {
+fn to_fixed_vec2_array(values : Array[@smath.Vec2]) -> FixedArray[Float] {
   let out = FixedArray::make(values.length() * 2, to_float(0.0))
   for index in 0..<values.length() {
     let base = index * 2
@@ -2299,7 +2299,7 @@ fn resolve_triangle_uv_sets(
   mesh : @render3d_types.TriangleMesh3D,
   mesh_handle : @render3d_types.MeshHandle,
   texture_bundle : MaterialTextureBundle3D?,
-) -> (MaterialTextureBundle3D?, Array[@smath.Vec2D]?, Array[@smath.Vec2D]?) {
+) -> (MaterialTextureBundle3D?, Array[@smath.Vec2]?, Array[@smath.Vec2]?) {
   let vertex_count = mesh.positions.length()
   match texture_bundle {
     Some(bundle) => {
@@ -2436,10 +2436,10 @@ fn expand_vec3_with_indices(
 
 ///|
 fn expand_vec2_with_indices(
-  values : Array[@smath.Vec2D],
+  values : Array[@smath.Vec2],
   indices : Array[Int],
-) -> Array[@smath.Vec2D]? {
-  let output : Array[@smath.Vec2D] = []
+) -> Array[@smath.Vec2]? {
+  let output : Array[@smath.Vec2] = []
   for index in indices {
     guard values.get(index) is Some(value) else { return None }
     output.push(value)
@@ -2476,8 +2476,8 @@ fn expand_tangent_with_indices(
 ///|
 fn create_uploaded_triangle_mesh(
   vertices : Array[@smath.Vec3],
-  uv0 : Array[@smath.Vec2D]?,
-  uv1 : Array[@smath.Vec2D]?,
+  uv0 : Array[@smath.Vec2]?,
+  uv1 : Array[@smath.Vec2]?,
   normals : Array[@smath.Vec3],
   tangents : Array[@render3d_types.Tangent3D]?,
   colors : Array[@render.Color]?,
@@ -2995,7 +2995,7 @@ fn cosmic_texture_for_text(
 fn measure_text_with_cosmic(
   style : @render2d_types.TextStyle2D,
   text : String,
-) -> @smath.Vec2D? {
+) -> @smath.Vec2? {
   guard ensure_cosmic_font_loaded(style.family) else { return None }
   let font_size = cosmic_font_size(style.size)
   let metrics = @cosmic.Metrics::new(
@@ -3018,7 +3018,7 @@ fn measure_text_with_cosmic(
   if height <= 0.0 {
     height = font_size
   }
-  Some(@smath.Vec2D(width, height))
+  Some(@smath.Vec2(width, height))
 }
 
 ///|
@@ -3030,7 +3030,7 @@ fn draw_text_with_cosmic(command : @render2d_types.TextDrawCommand2D) -> Bool {
     return false
   }
   let measured = measure_text_with_cosmic(command.style, command.text).unwrap_or(
-    @smath.Vec2D(
+    @smath.Vec2(
       cached_texture.width.to_double(),
       cached_texture.height.to_double(),
     ),
@@ -3172,10 +3172,10 @@ fn sync_mouse_events() -> Unit {
     let wheel = @raylib.get_mouse_wheel_move_v() |> to_selene_vec2
     // Keep raw screen-space mouse coordinates consistent with canvas backend.
     // Core click systems are responsible for applying zoom conversion.
-    mouse.pos = @smath.Vec2D(pos[X], pos[Y])
-    movement.movement = @smath.Vec2D(delta[X], delta[Y])
+    mouse.pos = @smath.Vec2(pos[X], pos[Y])
+    movement.movement = @smath.Vec2(delta[X], delta[Y])
     if backend.mouse_wheel is Some(mouse_wheel) {
-      mouse_wheel.delta = @smath.Vec2D(wheel[X], wheel[Y])
+      mouse_wheel.delta = @smath.Vec2(wheel[X], wheel[Y])
     }
     mouse.left_button = @raylib.is_mouse_button_down(@raylib.MouseButtonLeft)
     mouse.right_button = @raylib.is_mouse_button_down(@raylib.MouseButtonRight)
@@ -3455,8 +3455,8 @@ pub fn push_clip_rect(rect : @smath.Rect) -> Unit {
   let next = match clip_stack.last() {
     Some(current) =>
       clip_rect_intersection(current, rect).unwrap_or({
-        position: @smath.Vec2D::zero(),
-        size: @smath.Vec2D::zero(),
+        position: @smath.Vec2::zero(),
+        size: @smath.Vec2::zero(),
       })
     None => rect
   }
@@ -3591,7 +3591,7 @@ fn draw_text_with_cosmic_transform(
     return false
   }
   let measured = measure_text_with_cosmic(command.style, command.text).unwrap_or(
-    @smath.Vec2D(
+    @smath.Vec2(
       cached_texture.width.to_double(),
       cached_texture.height.to_double(),
     ),
@@ -3669,9 +3669,9 @@ pub fn draw_text(command : @render2d_types.TextDrawCommand2D) -> Unit {
 pub fn measure_text(
   style : @render2d_types.TextStyle2D,
   text : String,
-) -> @smath.Vec2D {
+) -> @smath.Vec2 {
   if text == "" {
-    return @smath.Vec2D(0.0, cosmic_font_size(style.size))
+    return @smath.Vec2(0.0, cosmic_font_size(style.size))
   }
   if measure_text_with_cosmic(style, text) is Some(measured) {
     return measured
@@ -3683,7 +3683,7 @@ pub fn measure_text(
     to_float(style.size),
     RAYLIB_DEFAULT_TEXT_SPACING,
   )
-  @smath.Vec2D(vector2_x(measured), vector2_y(measured))
+  @smath.Vec2(vector2_x(measured), vector2_y(measured))
 }
 
 ///|
@@ -4356,9 +4356,9 @@ fn build_cylinder_mesh(
   radius_bottom : Double,
   height : Double,
   slices : Int,
-) -> (Array[@smath.Vec3], Array[@smath.Vec2D], Array[@smath.Vec3]) {
+) -> (Array[@smath.Vec3], Array[@smath.Vec2], Array[@smath.Vec3]) {
   let vertices : Array[@smath.Vec3] = []
-  let uvs : Array[@smath.Vec2D] = []
+  let uvs : Array[@smath.Vec2] = []
   let normals : Array[@smath.Vec3] = []
   let segment_count = if slices < 3 { 3 } else { slices }
   let half_h = height / 2.0
@@ -4409,9 +4409,9 @@ fn build_cylinder_mesh(
       top0,
       bot0,
       bot1,
-      @smath.Vec2D(u0, 0.0),
-      @smath.Vec2D(u0, 1.0),
-      @smath.Vec2D(u1, 1.0),
+      @smath.Vec2(u0, 0.0),
+      @smath.Vec2(u0, 1.0),
+      @smath.Vec2(u1, 1.0),
       side_normal0,
       side_normal0,
       side_normal1,
@@ -4423,9 +4423,9 @@ fn build_cylinder_mesh(
       top0,
       bot1,
       top1,
-      @smath.Vec2D(u0, 0.0),
-      @smath.Vec2D(u1, 1.0),
-      @smath.Vec2D(u1, 0.0),
+      @smath.Vec2(u0, 0.0),
+      @smath.Vec2(u1, 1.0),
+      @smath.Vec2(u1, 0.0),
       side_normal0,
       side_normal1,
       side_normal1,
@@ -4440,9 +4440,9 @@ fn build_cylinder_mesh(
         top_center,
         top1,
         top0,
-        @smath.Vec2D(0.5, 0.5),
-        @smath.Vec2D(0.5 + 0.5 * @cmath.cos(phi1), 0.5 + 0.5 * @cmath.sin(phi1)),
-        @smath.Vec2D(0.5 + 0.5 * @cmath.cos(phi0), 0.5 + 0.5 * @cmath.sin(phi0)),
+        @smath.Vec2(0.5, 0.5),
+        @smath.Vec2(0.5 + 0.5 * @cmath.cos(phi1), 0.5 + 0.5 * @cmath.sin(phi1)),
+        @smath.Vec2(0.5 + 0.5 * @cmath.cos(phi0), 0.5 + 0.5 * @cmath.sin(phi0)),
         top_normal,
         top_normal,
         top_normal,
@@ -4458,9 +4458,9 @@ fn build_cylinder_mesh(
         bottom_center,
         bot0,
         bot1,
-        @smath.Vec2D(0.5, 0.5),
-        @smath.Vec2D(0.5 + 0.5 * @cmath.cos(phi0), 0.5 + 0.5 * @cmath.sin(phi0)),
-        @smath.Vec2D(0.5 + 0.5 * @cmath.cos(phi1), 0.5 + 0.5 * @cmath.sin(phi1)),
+        @smath.Vec2(0.5, 0.5),
+        @smath.Vec2(0.5 + 0.5 * @cmath.cos(phi0), 0.5 + 0.5 * @cmath.sin(phi0)),
+        @smath.Vec2(0.5 + 0.5 * @cmath.cos(phi1), 0.5 + 0.5 * @cmath.sin(phi1)),
         bottom_normal,
         bottom_normal,
         bottom_normal,
@@ -4473,14 +4473,14 @@ fn build_cylinder_mesh(
 ///|
 fn push_textured_triangle(
   vertices : Array[@smath.Vec3],
-  uvs : Array[@smath.Vec2D],
+  uvs : Array[@smath.Vec2],
   normals : Array[@smath.Vec3],
   a : @smath.Vec3,
   b : @smath.Vec3,
   c : @smath.Vec3,
-  uv_a : @smath.Vec2D,
-  uv_b : @smath.Vec2D,
-  uv_c : @smath.Vec2D,
+  uv_a : @smath.Vec2,
+  uv_b : @smath.Vec2,
+  uv_c : @smath.Vec2,
   n_a : @smath.Vec3,
   n_b : @smath.Vec3,
   n_c : @smath.Vec3,

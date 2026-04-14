@@ -93,7 +93,7 @@ pub fn register_font(family : String, path : String) -> Unit {
 pub fn measure_text(
   style : @render2d_types.TextStyle2D,
   text : String,
-) -> @math.Vec2D {
+) -> @math.Vec2 {
   @impl.measure_text(resolve_text_style(style), text)
 }
 

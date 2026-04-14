@@ -93,7 +93,7 @@ test "texture atlas index field resolves as a discrete value instead of a weight
     let entity = @entity.Entity::new()
     let image = @asset.load_image("animation/test.png")
     let layout = @sprite.register_texture_atlas_layout(
-      @sprite.TextureAtlasLayout::from_grid(@math.Vec2D(16.0, 16.0), 6, 1),
+      @sprite.TextureAtlasLayout::from_grid(@math.Vec2(16.0, 16.0), 6, 1),
     )
     @sprite.sprites().set(
       entity,

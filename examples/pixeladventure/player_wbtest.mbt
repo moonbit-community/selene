@@ -31,12 +31,12 @@ test "player freezes after any game result" {
 ///|
 test "touching edges count as player/bird contact" {
   let player_rect = @math.Rect::{
-    position: @math.Vec2D(32.0, 0.0),
-    size: @math.Vec2D(24.0, 32.0),
+    position: @math.Vec2(32.0, 0.0),
+    size: @math.Vec2(24.0, 32.0),
   }
   let bird_rect = @math.Rect::{
-    position: @math.Vec2D(32.0, 32.0),
-    size: @math.Vec2D(32.0, 32.0),
+    position: @math.Vec2(32.0, 32.0),
+    size: @math.Vec2(32.0, 32.0),
   }
   inspect(rects_touch_or_intersect(player_rect, bird_rect), content="true")
 }
@@ -44,19 +44,19 @@ test "touching edges count as player/bird contact" {
 ///|
 test "classify bird contact treats a downward landing as stomp" {
   let bird_rect = @math.Rect::{
-    position: @math.Vec2D(32.0, 32.0),
-    size: @math.Vec2D(32.0, 32.0),
+    position: @math.Vec2(32.0, 32.0),
+    size: @math.Vec2(32.0, 32.0),
   }
   inspect(
     bird_contact_outcome_name(
       classify_bird_contact(
         @math.Rect::{
-          position: @math.Vec2D(32.0, -12.0),
-          size: @math.Vec2D(24.0, 32.0),
+          position: @math.Vec2(32.0, -12.0),
+          size: @math.Vec2(24.0, 32.0),
         },
         @math.Rect::{
-          position: @math.Vec2D(32.0, 0.0),
-          size: @math.Vec2D(24.0, 32.0),
+          position: @math.Vec2(32.0, 0.0),
+          size: @math.Vec2(24.0, 32.0),
         },
         bird_rect,
         bird_rect,
@@ -70,12 +70,12 @@ test "classify bird contact treats a downward landing as stomp" {
 ///|
 test "classify bird contact treats side overlap as hurt" {
   let player_rect = @math.Rect::{
-    position: @math.Vec2D(60.0, 32.0),
-    size: @math.Vec2D(24.0, 32.0),
+    position: @math.Vec2(60.0, 32.0),
+    size: @math.Vec2(24.0, 32.0),
   }
   let bird_rect = @math.Rect::{
-    position: @math.Vec2D(32.0, 32.0),
-    size: @math.Vec2D(32.0, 32.0),
+    position: @math.Vec2(32.0, 32.0),
+    size: @math.Vec2(32.0, 32.0),
   }
   inspect(
     bird_contact_outcome_name(
@@ -88,19 +88,19 @@ test "classify bird contact treats side overlap as hurt" {
 ///|
 test "classify bird contact ignores separated sweeps" {
   let bird_rect = @math.Rect::{
-    position: @math.Vec2D(120.0, 32.0),
-    size: @math.Vec2D(32.0, 32.0),
+    position: @math.Vec2(120.0, 32.0),
+    size: @math.Vec2(32.0, 32.0),
   }
   inspect(
     bird_contact_outcome_name(
       classify_bird_contact(
         @math.Rect::{
-          position: @math.Vec2D(0.0, 0.0),
-          size: @math.Vec2D(24.0, 32.0),
+          position: @math.Vec2(0.0, 0.0),
+          size: @math.Vec2(24.0, 32.0),
         },
         @math.Rect::{
-          position: @math.Vec2D(8.0, 0.0),
-          size: @math.Vec2D(24.0, 32.0),
+          position: @math.Vec2(8.0, 0.0),
+          size: @math.Vec2(24.0, 32.0),
         },
         bird_rect,
         bird_rect,
@@ -114,10 +114,10 @@ test "classify bird contact ignores separated sweeps" {
 ///|
 test "pending stomp bounce overrides downward Y velocity" {
   let actual = player_motion_base_velocity(
-    @math.Vec2D(120.0, 480.0),
+    @math.Vec2(120.0, 480.0),
     Some(-BUMP_V),
   )
-  let expected = @math.Vec2D(120.0, -BUMP_V)
+  let expected = @math.Vec2(120.0, -BUMP_V)
   inspect(
     actual[@math.X] == expected[@math.X] && actual[@math.Y] == expected[@math.Y],
     content="true",

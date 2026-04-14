@@ -46,7 +46,7 @@ priv struct TerrainPlacement {
 priv struct LoadedLevelScene {
   player_entity : @entity.Entity
   camera_entity : @entity.Entity
-  world_size : @math.Vec2D
+  world_size : @math.Vec2
 }
 
 ///|
@@ -251,10 +251,10 @@ fn terrain_placements_from_scene(
 }
 
 ///|
-fn scene_world_size(scene : @editor_bridge.SceneDocument) -> @math.Vec2D {
+fn scene_world_size(scene : @editor_bridge.SceneDocument) -> @math.Vec2 {
   let placements = terrain_placements_from_scene(scene)
   guard !placements.is_empty() else {
-    return @math.Vec2D(VIEWPORT_WIDTH, VIEWPORT_HEIGHT)
+    return @math.Vec2(VIEWPORT_WIDTH, VIEWPORT_HEIGHT)
   }
   let mut max_x = 0
   let mut max_y = 0
@@ -266,7 +266,7 @@ fn scene_world_size(scene : @editor_bridge.SceneDocument) -> @math.Vec2D {
       max_y = placement.tile_y
     }
   }
-  @math.Vec2D(
+  @math.Vec2(
     (max_x + 1).to_double() * terrain_tile_size.to_double(),
     (max_y + 1).to_double() * terrain_tile_size.to_double(),
   )
@@ -296,11 +296,11 @@ fn build_terrain_colliders_from_scene(
         cursor += 1
       }
       spawn_terrain_collider(
-        @math.Vec2D(
+        @math.Vec2(
           start_x.to_double() * tile_size_d,
           y.to_double() * tile_size_d,
         ),
-        @math.Vec2D(
+        @math.Vec2(
           (end_x - start_x + 1).to_double() * tile_size_d,
           tile_size_d,
         ),

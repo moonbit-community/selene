@@ -1,6 +1,6 @@
 ///|
 pub(all) enum Mesh2dPrimitive {
-  Rectangle(@math.Vec2D)
+  Rectangle(@math.Vec2)
   Circle(Double)
 } derive(Eq, Debug)
 
@@ -61,7 +61,7 @@ pub fn mesh2d_storage() -> Mesh2dStorage {
 }
 
 ///|
-pub fn Mesh2dAsset::rectangle(size : @math.Vec2D) -> Mesh2dAsset {
+pub fn Mesh2dAsset::rectangle(size : @math.Vec2) -> Mesh2dAsset {
   { primitive: Rectangle(size) }
 }
 
@@ -103,7 +103,7 @@ pub fn mesh2d_asset(handle : Mesh2dHandle) -> Mesh2dAsset? {
 }
 
 ///|
-pub fn rectangle(size : @math.Vec2D) -> Mesh2dHandle {
+pub fn rectangle(size : @math.Vec2) -> Mesh2dHandle {
   register_mesh2d_asset(Mesh2dAsset::rectangle(size))
 }
 
@@ -160,8 +160,8 @@ fn active_camera2d_view() -> (
 }
 
 ///|
-fn pixel_snapped_position(position : @math.Vec2D) -> @math.Vec2D {
-  @math.Vec2D(position[X].round(), position[Y].round())
+fn pixel_snapped_position(position : @math.Vec2) -> @math.Vec2 {
+  @math.Vec2(position[X].round(), position[Y].round())
 }
 
 ///|
@@ -230,7 +230,7 @@ fn mesh_screen_transform(
 }
 
 ///|
-fn centered_quad_transform(size : @math.Vec2D) -> @math.Transform {
+fn centered_quad_transform(size : @math.Vec2) -> @math.Transform {
   @math.Transform::from_translation(-size[X] / 2.0, -size[Y] / 2.0)
 }
 
@@ -254,7 +254,7 @@ pub fn render_mesh2d_system(delta : Double) -> Unit {
     guard material is Some(material) else { continue }
     let depth = global_transform.translation().z
     let transform = global_transform.compute_transform()
-    let raw_pos = @math.Vec2D(transform.translation.x, transform.translation.y)
+    let raw_pos = @math.Vec2(transform.translation.x, transform.translation.y)
     let screen_pos = match camera_view {
       Some((camera, camera_global, projection)) =>
         camera.world_to_viewport(camera_global, projection, raw_pos)

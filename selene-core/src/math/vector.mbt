@@ -36,28 +36,28 @@ pub(all) enum Axis {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let v1 = @math.Vec2D(3.0, 4.0)
-/// let v2 = @math.Vec2D::zero()
+/// let v1 = @math.Vec2(3.0, 4.0)
+/// let v2 = @math.Vec2::zero()
 /// inspect(v1[X], content="3")
 /// inspect(v1[Y], content="4")
 /// inspect(v2[X], content="0")
 /// inspect(v2[Y], content="0")
 /// ```
 ///
-pub(all) struct Vec2D(Double, Double) derive(Eq, Debug)
+pub(all) struct Vec2(Double, Double) derive(Eq, Debug)
 
 ///|
-pub fn Vec2D::zero() -> Vec2D {
-  Vec2D(0.0, 0.0)
+pub fn Vec2::zero() -> Vec2 {
+  Vec2(0.0, 0.0)
 }
 
 ///|
-pub impl Default for Vec2D with default() -> Vec2D {
-  Vec2D::zero()
+pub impl Default for Vec2 with default() -> Vec2 {
+  Vec2::zero()
 }
 
 ///|
-pub fn Vec2D::op_get(this : Vec2D, axis : Axis) -> Double {
+pub fn Vec2::op_get(this : Vec2, axis : Axis) -> Double {
   match axis {
     X => this.0
     Y => this.1
@@ -74,59 +74,59 @@ pub fn Vec2D::op_get(this : Vec2D, axis : Axis) -> Double {
 ///   vertical).
 /// * `value` : The new value to set for the specified axis.
 ///
-/// Returns a new `Vec2D` with the specified component updated while keeping the
+/// Returns a new `Vec2` with the specified component updated while keeping the
 /// other component unchanged.
 ///
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let v = @math.Vec2D(3.0, 4.0)
+/// let v = @math.Vec2(3.0, 4.0)
 /// let updated_x = v.update(X, 10.0)
 /// let updated_y = v.update(Y, 20.0)
-/// inspect(updated_x, content="Vec2D(10, 4)")
-/// inspect(updated_y, content="Vec2D(3, 20)")
+/// inspect(updated_x, content="Vec2(10, 4)")
+/// inspect(updated_y, content="Vec2(3, 20)")
 /// ```
 ///
-pub fn Vec2D::update(this : Vec2D, axis : Axis, value : Double) -> Vec2D {
+pub fn Vec2::update(this : Vec2, axis : Axis, value : Double) -> Vec2 {
   match axis {
-    X => Vec2D(value, this.1)
-    Y => Vec2D(this.0, value)
+    X => Vec2(value, this.1)
+    Y => Vec2(this.0, value)
   }
 }
 
 ///|
-pub fn Vec2D::clone(self : Vec2D) -> Vec2D {
-  Vec2D(self.0, self.1)
+pub fn Vec2::clone(self : Vec2) -> Vec2 {
+  Vec2(self.0, self.1)
 }
 
 ///|
-pub impl Add for Vec2D with add(this, other) {
-  Vec2D(this.0 + other.0, this.1 + other.1)
+pub impl Add for Vec2 with add(this, other) {
+  Vec2(this.0 + other.0, this.1 + other.1)
 }
 
 ///|
-pub impl Mul for Vec2D with mul(this, other) {
-  Vec2D(this.0 * other.0, this.1 * other.1)
+pub impl Mul for Vec2 with mul(this, other) {
+  Vec2(this.0 * other.0, this.1 * other.1)
 }
 
 ///|
-pub impl Neg for Vec2D with neg(this) {
-  Vec2D(-this.0, -this.1)
+pub impl Neg for Vec2 with neg(this) {
+  Vec2(-this.0, -this.1)
 }
 
 ///|
-pub impl Sub for Vec2D with sub(this, other) {
-  Vec2D(this.0 - other.0, this.1 - other.1)
+pub impl Sub for Vec2 with sub(this, other) {
+  Vec2(this.0 - other.0, this.1 - other.1)
 }
 
 ///|
-pub fn Vec2D::scalar_mul(this : Vec2D, scalar : Double) -> Vec2D {
-  Vec2D(this.0 * scalar, this.1 * scalar)
+pub fn Vec2::scalar_mul(this : Vec2, scalar : Double) -> Vec2 {
+  Vec2(this.0 * scalar, this.1 * scalar)
 }
 
 ///|
-pub fn Vec2D::scalar_div(this : Vec2D, scalar : Double) -> Vec2D {
-  Vec2D(this.0 / scalar, this.1 / scalar)
+pub fn Vec2::scalar_div(this : Vec2, scalar : Double) -> Vec2 {
+  Vec2(this.0 / scalar, this.1 / scalar)
 }
 
 ///|
@@ -141,11 +141,11 @@ pub fn Vec2D::scalar_div(this : Vec2D, scalar : Double) -> Vec2D {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let v = @math.Vec2D(3.0, 4.0)
+/// let v = @math.Vec2(3.0, 4.0)
 /// inspect(v.distance(), content="5") // sqrt(3² + 4²) = 5
 /// ```
 ///
-pub fn Vec2D::distance(this : Vec2D) -> Double {
+pub fn Vec2::distance(this : Vec2) -> Double {
   (this.0 * this.0 + this.1 * this.1).sqrt()
 }
 
@@ -162,12 +162,12 @@ pub fn Vec2D::distance(this : Vec2D) -> Double {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let v1 = @math.Vec2D(3.0, 4.0)
-/// let v2 = @math.Vec2D(2.0, 1.0)
+/// let v1 = @math.Vec2(3.0, 4.0)
+/// let v2 = @math.Vec2(2.0, 1.0)
 /// inspect(v1.dot(v2), content="10") // 3*2 + 4*1 = 10
 /// ```
 ///
-pub fn Vec2D::dot(this : Vec2D, other : Vec2D) -> Double {
+pub fn Vec2::dot(this : Vec2, other : Vec2) -> Double {
   this.0 * other.0 + this.1 * other.1
 }
 
@@ -184,12 +184,12 @@ pub fn Vec2D::dot(this : Vec2D, other : Vec2D) -> Double {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let v1 = @math.Vec2D(0.0, 0.0)
-/// let v2 = @math.Vec2D(3.0, 4.0)
+/// let v1 = @math.Vec2(0.0, 0.0)
+/// let v2 = @math.Vec2(3.0, 4.0)
 /// inspect(v1.distance_to(v2), content="5")
 /// ```
 ///
-pub fn Vec2D::distance_to(this : Vec2D, other : Vec2D) -> Double {
+pub fn Vec2::distance_to(this : Vec2, other : Vec2) -> Double {
   ((this.0 - other.0) * (this.0 - other.0) +
   (this.1 - other.1) * (this.1 - other.1)).sqrt()
 }
@@ -201,23 +201,23 @@ pub fn Vec2D::distance_to(this : Vec2D, other : Vec2D) -> Double {
 ///
 /// * `this` : The vector to normalize.
 ///
-/// Returns a new `Vec2D` representing the unit vector in the same direction as
+/// Returns a new `Vec2` representing the unit vector in the same direction as
 /// the original vector. If the original vector has zero magnitude, returns a
-/// zero vector `Vec2D(0.0, 0.0)`.
+/// zero vector `Vec2(0.0, 0.0)`.
 ///
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let v = @math.Vec2D(3.0, 4.0)
+/// let v = @math.Vec2(3.0, 4.0)
 /// let normalized = v.normalize()
 /// inspect(normalized.distance(), content="1") // Unit vector has magnitude 1
 /// ```
 ///
-pub fn Vec2D::normalize(this : Vec2D) -> Vec2D {
+pub fn Vec2::normalize(this : Vec2) -> Vec2 {
   let mag = this.distance()
   if mag > 0.0 {
-    Vec2D(this.0 / mag, this.1 / mag)
+    Vec2(this.0 / mag, this.1 / mag)
   } else {
-    Vec2D(0.0, 0.0) // Default direction if magnitude is zero
+    Vec2(0.0, 0.0) // Default direction if magnitude is zero
   }
 }

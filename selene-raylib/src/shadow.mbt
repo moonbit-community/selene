@@ -69,9 +69,9 @@ priv struct FrameShadowState {
   point_shadows : Map[Int, FramePointShadowState]
   spot_shadow_atlas_id : UInt?
   point_shadow_atlas_id : UInt?
-  directional_texel_size : @smath.Vec2D
-  spot_texel_size : @smath.Vec2D
-  point_texel_size : @smath.Vec2D
+  directional_texel_size : @smath.Vec2
+  spot_texel_size : @smath.Vec2
+  point_texel_size : @smath.Vec2
 }
 
 ///|
@@ -149,9 +149,9 @@ fn normalize_shadow_map_size(size : Int) -> Int {
 }
 
 ///|
-fn shadow_texel_size(size : Int) -> @smath.Vec2D {
+fn shadow_texel_size(size : Int) -> @smath.Vec2 {
   let inv = 1.0 / normalize_shadow_map_size(size).to_double()
-  @smath.Vec2D(inv, inv)
+  @smath.Vec2(inv, inv)
 }
 
 ///|
@@ -295,7 +295,7 @@ fn camera_frustum_slice_corners(
     }
     Orthographic => {
       let ortho_size = camera.orthographic_size.unwrap_or(
-        @smath.Vec2D(20.0, 20.0),
+        @smath.Vec2(20.0, 20.0),
       )
       let half_width = ortho_size[X].abs() * 0.5
       let half_height = ortho_size[Y].abs() * 0.5

@@ -12,15 +12,15 @@ import {
 }
 
 // Values
-pub fn add_force(@entity.Entity, @math.Vec2D, wake_up? : Bool) -> Unit
+pub fn add_force(@entity.Entity, @math.Vec2, wake_up? : Bool) -> Unit
 
-pub fn add_force_at_point(@entity.Entity, @math.Vec2D, @math.Vec2D, wake_up? : Bool) -> Unit
+pub fn add_force_at_point(@entity.Entity, @math.Vec2, @math.Vec2, wake_up? : Bool) -> Unit
 
 pub fn add_torque(@entity.Entity, Double, wake_up? : Bool) -> Unit
 
-pub fn apply_impulse(@entity.Entity, @math.Vec2D, wake_up? : Bool) -> Unit
+pub fn apply_impulse(@entity.Entity, @math.Vec2, wake_up? : Bool) -> Unit
 
-pub fn apply_impulse_at_point(@entity.Entity, @math.Vec2D, @math.Vec2D, wake_up? : Bool) -> Unit
+pub fn apply_impulse_at_point(@entity.Entity, @math.Vec2, @math.Vec2, wake_up? : Bool) -> Unit
 
 pub fn apply_torque_impulse(@entity.Entity, Double, wake_up? : Bool) -> Unit
 
@@ -30,7 +30,7 @@ pub fn collider_handle(@entity.Entity) -> @Milky2018/moon_rapier/collision.Colli
 
 pub fn colliders() -> Map[@entity.Entity, Collider]
 
-pub fn configure_physics(gravity? : @math.Vec2D, pixels_per_meter? : Double, max_ccd_substeps? : Int) -> Unit
+pub fn configure_physics(gravity? : @math.Vec2, pixels_per_meter? : Double, max_ccd_substeps? : Int) -> Unit
 
 pub let contact_event_bus : @event.Events[ContactEvent]
 
@@ -42,9 +42,9 @@ pub fn get_contains(@entity.Entity) -> @set.Set[@entity.Entity]
 
 pub fn grounded_entities() -> @set.Set[@entity.Entity]
 
-pub fn intersect_point(@math.Vec2D, query_filter? : SpatialQueryFilter) -> Array[@entity.Entity]
+pub fn intersect_point(@math.Vec2, query_filter? : SpatialQueryFilter) -> Array[@entity.Entity]
 
-pub fn intersect_shape(CollisionShape, @math.Vec2D, rotation? : Double, query_filter? : SpatialQueryFilter) -> Array[@entity.Entity]
+pub fn intersect_shape(CollisionShape, @math.Vec2, rotation? : Double, query_filter? : SpatialQueryFilter) -> Array[@entity.Entity]
 
 pub fn is_grounded(@entity.Entity) -> Bool
 
@@ -68,7 +68,7 @@ pub fn pickables() -> Map[@entity.Entity, Pickable]
 
 pub let pointer_event_bus : @event.Events[PointerEvent]
 
-pub fn raycast(@math.Vec2D, @math.Vec2D, max_toi? : Double, solid? : Bool, query_filter? : SpatialQueryFilter) -> RaycastHit?
+pub fn raycast(@math.Vec2, @math.Vec2, max_toi? : Double, solid? : Bool, query_filter? : SpatialQueryFilter) -> RaycastHit?
 
 pub fn reset_forces(@entity.Entity, wake_up? : Bool) -> Unit
 
@@ -82,21 +82,21 @@ pub fn rigid_body_angular_velocity(@entity.Entity) -> Double?
 
 pub fn rigid_body_handle(@entity.Entity) -> @dynamics.RigidBodyHandle?
 
-pub fn rigid_body_linear_velocity(@entity.Entity) -> @math.Vec2D?
+pub fn rigid_body_linear_velocity(@entity.Entity) -> @math.Vec2?
 
 pub fn rigid_body_rotation(@entity.Entity) -> Double?
 
-pub fn rigid_body_translation(@entity.Entity) -> @math.Vec2D?
+pub fn rigid_body_translation(@entity.Entity) -> @math.Vec2?
 
 pub fn set_rigid_body_angular_velocity(@entity.Entity, Double) -> Unit
 
-pub fn set_rigid_body_linear_velocity(@entity.Entity, @math.Vec2D) -> Unit
+pub fn set_rigid_body_linear_velocity(@entity.Entity, @math.Vec2) -> Unit
 
 pub fn set_rigid_body_rotation(@entity.Entity, Double) -> Unit
 
-pub fn set_rigid_body_translation(@entity.Entity, @math.Vec2D) -> Unit
+pub fn set_rigid_body_translation(@entity.Entity, @math.Vec2) -> Unit
 
-pub fn shape_cast(CollisionShape, @math.Vec2D, rotation? : Double, direction? : @math.Vec2D, max_toi? : Double, stop_at_penetration? : Bool, query_filter? : SpatialQueryFilter) -> ShapeCastHit?
+pub fn shape_cast(CollisionShape, @math.Vec2, rotation? : Double, direction? : @math.Vec2, max_toi? : Double, stop_at_penetration? : Bool, query_filter? : SpatialQueryFilter) -> ShapeCastHit?
 
 pub fn shapes() -> Map[@entity.Entity, CollisionShape]
 
@@ -144,17 +144,17 @@ pub struct CollisionGroup {
 pub fn CollisionGroup::new() -> Self
 
 pub(all) enum CollisionShape {
-  Rect(size~ : @math.Vec2D, offset~ : @math.Vec2D)
-  Ball(radius~ : Double, offset~ : @math.Vec2D)
-  Polygon(points~ : Array[@math.Vec2D], offset~ : @math.Vec2D)
-  Polyline(points~ : Array[@math.Vec2D], offset~ : @math.Vec2D, closed~ : Bool)
+  Rect(size~ : @math.Vec2, offset~ : @math.Vec2)
+  Ball(radius~ : Double, offset~ : @math.Vec2)
+  Polygon(points~ : Array[@math.Vec2], offset~ : @math.Vec2)
+  Polyline(points~ : Array[@math.Vec2], offset~ : @math.Vec2, closed~ : Bool)
 } derive(Eq, Show)
 
 pub struct ContactEvent {
   entity : @entity.Entity
   other : @entity.Entity
   started : Bool
-  direction : @math.Vec2D
+  direction : @math.Vec2
 }
 
 pub struct Joint {
@@ -164,18 +164,18 @@ pub struct Joint {
   active : Bool
   contacts_enabled : Bool
 } derive(Eq, Show)
-pub fn Joint::fixed(@entity.Entity, @entity.Entity, local_anchor1? : @math.Vec2D, local_anchor2? : @math.Vec2D, active? : Bool, contacts_enabled? : Bool) -> Self
-pub fn Joint::prismatic(@entity.Entity, @entity.Entity, @math.Vec2D, local_anchor1? : @math.Vec2D, local_anchor2? : @math.Vec2D, limits? : JointLimits, active? : Bool, contacts_enabled? : Bool) -> Self
-pub fn Joint::revolute(@entity.Entity, @entity.Entity, local_anchor1? : @math.Vec2D, local_anchor2? : @math.Vec2D, limits? : JointLimits, motor? : JointMotor, softness? : JointSoftness, active? : Bool, contacts_enabled? : Bool) -> Self
-pub fn Joint::rope(@entity.Entity, @entity.Entity, Double, local_anchor1? : @math.Vec2D, local_anchor2? : @math.Vec2D, active? : Bool, contacts_enabled? : Bool) -> Self
-pub fn Joint::spring(@entity.Entity, @entity.Entity, Double, Double, Double, local_anchor1? : @math.Vec2D, local_anchor2? : @math.Vec2D, model? : JointMotorModel, active? : Bool, contacts_enabled? : Bool) -> Self
+pub fn Joint::fixed(@entity.Entity, @entity.Entity, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, active? : Bool, contacts_enabled? : Bool) -> Self
+pub fn Joint::prismatic(@entity.Entity, @entity.Entity, @math.Vec2, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, limits? : JointLimits, active? : Bool, contacts_enabled? : Bool) -> Self
+pub fn Joint::revolute(@entity.Entity, @entity.Entity, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, limits? : JointLimits, motor? : JointMotor, softness? : JointSoftness, active? : Bool, contacts_enabled? : Bool) -> Self
+pub fn Joint::rope(@entity.Entity, @entity.Entity, Double, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, active? : Bool, contacts_enabled? : Bool) -> Self
+pub fn Joint::spring(@entity.Entity, @entity.Entity, Double, Double, Double, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, model? : JointMotorModel, active? : Bool, contacts_enabled? : Bool) -> Self
 
 pub enum JointKind {
-  Fixed(local_anchor1~ : @math.Vec2D, local_anchor2~ : @math.Vec2D)
-  Revolute(local_anchor1~ : @math.Vec2D, local_anchor2~ : @math.Vec2D, limits~ : JointLimits?, motor~ : JointMotor?, softness~ : JointSoftness?)
-  Prismatic(axis~ : @math.Vec2D, local_anchor1~ : @math.Vec2D, local_anchor2~ : @math.Vec2D, limits~ : JointLimits?)
-  Rope(max_distance~ : Double, local_anchor1~ : @math.Vec2D, local_anchor2~ : @math.Vec2D)
-  Spring(rest_length~ : Double, stiffness~ : Double, damping~ : Double, local_anchor1~ : @math.Vec2D, local_anchor2~ : @math.Vec2D, model~ : JointMotorModel)
+  Fixed(local_anchor1~ : @math.Vec2, local_anchor2~ : @math.Vec2)
+  Revolute(local_anchor1~ : @math.Vec2, local_anchor2~ : @math.Vec2, limits~ : JointLimits?, motor~ : JointMotor?, softness~ : JointSoftness?)
+  Prismatic(axis~ : @math.Vec2, local_anchor1~ : @math.Vec2, local_anchor2~ : @math.Vec2, limits~ : JointLimits?)
+  Rope(max_distance~ : Double, local_anchor1~ : @math.Vec2, local_anchor2~ : @math.Vec2)
+  Spring(rest_length~ : Double, stiffness~ : Double, damping~ : Double, local_anchor1~ : @math.Vec2, local_anchor2~ : @math.Vec2, model~ : JointMotorModel)
 } derive(Eq, Show)
 
 pub struct JointLimits {
@@ -213,14 +213,14 @@ pub struct MultibodyJoint {
   kind : MultibodyJointKind
   active : Bool
 } derive(Eq, Show)
-pub fn MultibodyJoint::revolute(@entity.Entity, local_anchor1? : @math.Vec2D, local_anchor2? : @math.Vec2D, limits? : JointLimits, motor? : JointMotor, softness? : JointSoftness, active? : Bool) -> Self
+pub fn MultibodyJoint::revolute(@entity.Entity, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, limits? : JointLimits, motor? : JointMotor, softness? : JointSoftness, active? : Bool) -> Self
 
 pub enum MultibodyJointKind {
-  Revolute(local_anchor1~ : @math.Vec2D, local_anchor2~ : @math.Vec2D, limits~ : JointLimits?, motor~ : JointMotor?, softness~ : JointSoftness?)
+  Revolute(local_anchor1~ : @math.Vec2, local_anchor2~ : @math.Vec2, limits~ : JointLimits?, motor~ : JointMotor?, softness~ : JointSoftness?)
 } derive(Eq, Show)
 
 pub(all) struct PhysicsConfig {
-  mut gravity : @math.Vec2D
+  mut gravity : @math.Vec2
   mut pixels_per_meter : Double
   mut max_ccd_substeps : Int
 }
@@ -248,8 +248,8 @@ pub(all) enum PointerPhase {
 pub struct RaycastHit {
   entity : @entity.Entity
   toi : Double
-  point : @math.Vec2D
-  normal : @math.Vec2D
+  point : @math.Vec2
+  normal : @math.Vec2
 } derive(Eq, Show)
 
 pub(all) struct RigidBody {
@@ -275,8 +275,8 @@ pub(all) enum RigidBodyType {
 pub struct ShapeCastHit {
   entity : @entity.Entity
   toi : Double
-  point : @math.Vec2D
-  normal : @math.Vec2D
+  point : @math.Vec2
+  normal : @math.Vec2
 } derive(Eq, Show)
 
 pub enum SpatialQueryBodyFilter {

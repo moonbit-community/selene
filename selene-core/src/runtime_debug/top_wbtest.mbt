@@ -65,18 +65,18 @@ test "frame metrics track fixed update and render phases" {
 test "atlas validation reports overlaps and out-of-bounds regions" {
   with_runtime_debug_world(fn() raise {
     let rect_a : @math.Rect = {
-      position: @math.Vec2D(0.0, 0.0),
-      size: @math.Vec2D(8.0, 8.0),
+      position: @math.Vec2(0.0, 0.0),
+      size: @math.Vec2(8.0, 8.0),
     }
     let rect_b : @math.Rect = {
-      position: @math.Vec2D(4.0, 4.0),
-      size: @math.Vec2D(8.0, 8.0),
+      position: @math.Vec2(4.0, 4.0),
+      size: @math.Vec2(8.0, 8.0),
     }
     let rect_c : @math.Rect = {
-      position: @math.Vec2D(14.0, 14.0),
-      size: @math.Vec2D(4.0, 4.0),
+      position: @math.Vec2(14.0, 14.0),
+      size: @math.Vec2(4.0, 4.0),
     }
-    let layout = @sprite.TextureAtlasLayout::new(@math.Vec2D(16.0, 16.0), [
+    let layout = @sprite.TextureAtlasLayout::new(@math.Vec2(16.0, 16.0), [
       rect_a, rect_b, rect_c,
     ])
     let report = validate_texture_atlas_layout(layout)
@@ -104,7 +104,7 @@ test "render submission keeps entity ids and exposes offscreen capture API" {
       order: 0,
       entity_id: Some(42U),
       command: Rect({
-        rect: { position: @math.Vec2D(0.0, 0.0), size: @math.Vec2D(2.0, 2.0) },
+        rect: { position: @math.Vec2(0.0, 0.0), size: @math.Vec2(2.0, 2.0) },
         transform: @math.Transform::identity(),
         fill_color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
         stroke_color: None,

@@ -1,7 +1,7 @@
 ///|
 pub(all) struct ImageRegion2D {
-  position : @math.Vec2D
-  size : @math.Vec2D
+  position : @math.Vec2
+  size : @math.Vec2
 }
 
 ///|
@@ -27,7 +27,7 @@ pub(all) struct TextStyle2D {
 ///|
 pub(all) struct TextDrawCommand2D {
   text : String
-  position : @math.Vec2D
+  position : @math.Vec2
   transform : @math.Transform
   style : TextStyle2D
 }
@@ -42,7 +42,7 @@ pub(all) struct RectDrawCommand2D {
 
 ///|
 pub(all) struct CircleDrawCommand2D {
-  center : @math.Vec2D
+  center : @math.Vec2
   radius : Double
   transform : @math.Transform
   fill_color : @render.Color

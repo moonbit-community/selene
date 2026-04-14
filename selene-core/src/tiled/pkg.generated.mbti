@@ -314,7 +314,7 @@ pub struct TiledObjectSpawnedEvent {
 }
 
 pub struct TiledParallaxLayer {
-  base_offset : @math.Vec2D
+  base_offset : @math.Vec2
   parallax_x : Double
   parallax_y : Double
 }
@@ -358,7 +358,7 @@ pub enum TiledPropertyValue {
 }
 
 pub struct TiledSpawnSettings {
-  position : @math.Vec2D
+  position : @math.Vec2
   zindex : Int
   layer_z_step : Int
   spawn_hidden_layers : Bool
@@ -507,11 +507,11 @@ pub struct TiledWorldPattern {
 }
 
 pub struct TiledWorldSpawnSettings {
-  position : @math.Vec2D
+  position : @math.Vec2
   map_z_step : Int
   map_settings : TiledSpawnSettings
   focus_map_path : String?
-  chunking : @math.Vec2D?
+  chunking : @math.Vec2?
   world_hook : ((TiledWorldSpawnedEvent) -> Unit)?
   world_map_hook : ((TiledWorldMapSpawnedEvent) -> Unit)?
 }

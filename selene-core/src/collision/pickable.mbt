@@ -84,9 +84,9 @@ pub fn emit_pickable_just_pressed(
 
 ///|
 fn point_in_rect(
-  point : @math.Vec2D,
-  rect_position : @math.Vec2D,
-  rect_size : @math.Vec2D,
+  point : @math.Vec2,
+  rect_position : @math.Vec2,
+  rect_size : @math.Vec2,
 ) -> Bool {
   point[X] >= rect_position[X] &&
   point[X] <= rect_position[X] + rect_size[X] &&
@@ -97,9 +97,9 @@ fn point_in_rect(
 ///|
 fn hit_test_pickable(
   entity : @entity.Entity,
-  mouse_screen : @math.Vec2D,
-  mouse_world : @math.Vec2D,
-  _mouse_virtual : @math.Vec2D,
+  mouse_screen : @math.Vec2,
+  mouse_world : @math.Vec2,
+  _mouse_virtual : @math.Vec2,
 ) -> Bool {
   if @ui.global_ui_nodes().get(entity) is Some(transform) {
     return point_in_rect(
@@ -120,7 +120,7 @@ fn hit_test_pickable(
       )
     None => @math.Vec3::new(mouse_world[X], mouse_world[Y], 0.0)
   }
-  point_in_rect(@math.Vec2D(local_point.x, local_point.y), offset, size)
+  point_in_rect(@math.Vec2(local_point.x, local_point.y), offset, size)
 }
 
 ///|

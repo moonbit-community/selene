@@ -9,7 +9,7 @@ import {
 }
 
 // Values
-pub fn apply_texture_transform3d(@render3d_types.TextureTransform3D, @math.Vec2D) -> @math.Vec2D
+pub fn apply_texture_transform3d(@render3d_types.TextureTransform3D, @math.Vec2) -> @math.Vec2
 
 pub fn build_cascade_shadow_config3d(@render3d_types.CascadeShadowConfigBuilder3D) -> @render3d_types.CascadeShadowConfig3D
 
@@ -99,7 +99,7 @@ pub fn take_released_mesh_assets() -> Array[@render3d_types.MeshHandle]
 
 pub fn texture_binding3d(@render3d_types.ImageHandle, texcoord_set? : Int, sampler? : @render3d_types.TextureSampler3D, transform? : @render3d_types.TextureTransform3D) -> @render3d_types.TextureBinding3D
 
-pub fn triangle_mesh(Array[@math.Vec3], uvs? : Array[@math.Vec2D]?, normals? : Array[@math.Vec3]?, tangents? : Array[@render3d_types.Tangent3D]?, colors? : Array[@render.Color]?, uv_sets? : Array[Array[@math.Vec2D]], indices? : Array[Int]?, topology? : @render3d_types.TriangleTopology3D) -> @render3d_types.MeshAsset
+pub fn triangle_mesh(Array[@math.Vec3], uvs? : Array[@math.Vec2]?, normals? : Array[@math.Vec3]?, tangents? : Array[@render3d_types.Tangent3D]?, colors? : Array[@render.Color]?, uv_sets? : Array[Array[@math.Vec2]], indices? : Array[Int]?, topology? : @render3d_types.TriangleTopology3D) -> @render3d_types.MeshAsset
 
 pub fn update_image_asset(@render3d_types.ImageHandle, @render3d_types.ImageAsset) -> Unit
 

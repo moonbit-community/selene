@@ -15,7 +15,7 @@
 ///|
 fn tiled_ecs_set_entity_translation_2d(
   entity : @entity.Entity,
-  position : @math.Vec2D,
+  position : @math.Vec2,
 ) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
@@ -56,7 +56,7 @@ priv struct TiledSpriteAnimation {
   fps : Double
   loop_ : Bool
   color : @render.Color
-  custom_size : @math.Vec2D?
+  custom_size : @math.Vec2?
   anchor : @sprite.Anchor
 }
 
@@ -168,7 +168,7 @@ fn tiled_install_sprite_animation(
 
 ///|
 pub struct TiledSpawnSettings {
-  position : @math.Vec2D
+  position : @math.Vec2
   zindex : Int
   layer_z_step : Int
   spawn_hidden_layers : Bool
@@ -240,7 +240,7 @@ pub struct TiledMapStorage {
 
 ///|
 pub struct TiledParallaxLayer {
-  base_offset : @math.Vec2D
+  base_offset : @math.Vec2
   parallax_x : Double
   parallax_y : Double
 }
@@ -350,7 +350,7 @@ pub fn tiled_parallax_layers() -> Map[@entity.Entity, TiledParallaxLayer] {
 ///|
 pub fn default_tiled_spawn_settings() -> TiledSpawnSettings {
   {
-    position: @math.Vec2D::zero(),
+    position: @math.Vec2::zero(),
     zindex: 0,
     layer_z_step: 10,
     spawn_hidden_layers: true,
@@ -444,7 +444,7 @@ fn spawn_tiled_layers(
     let layer_entity = parent_entity.spawn_child()
     tiled_ecs_set_entity_translation_2d(
       layer_entity,
-      @math.Vec2D(layer.offset_x, layer.offset_y),
+      @math.Vec2(layer.offset_x, layer.offset_y),
     )
     tiled_ecs_set_entity_visibility(layer_entity, effective_visible)
     tiled_register_parallax_layer(layer_entity, layer)
@@ -518,7 +518,7 @@ fn spawn_tiled_tile_layer(
     tiled_ecs_set_entity_translation_2d(
       tile_entity,
       tile_position +
-      @math.Vec2D(local_transform.translation.x, local_transform.translation.y),
+      @math.Vec2(local_transform.translation.x, local_transform.translation.y),
     )
     tiled_ecs_set_entity_depth(tile_entity, zindex)
     tiled_tile_instances().set(tile_entity, {
@@ -610,7 +610,7 @@ fn spawn_tiled_object_layer(
     tiled_ecs_set_entity_translation_2d(
       object_entity,
       object_offset +
-      @math.Vec2D(local_transform.translation.x, local_transform.translation.y),
+      @math.Vec2(local_transform.translation.x, local_transform.translation.y),
     )
     guard build_tiled_tile_animation(map, tileset, gid, size=object_size)
       is Some(animation) else {
@@ -668,7 +668,7 @@ fn spawn_tiled_image_layer(
       image=Some(load_tiled_image(image_path)),
       custom_size=Some(tiled_map_world_size(map)),
       color=@render.Color::{ r: 255U, g: 255U, b: 255U, a: layer.opacity },
-      anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
+      anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
       image_mode=@sprite.Tiled(repeat),
     ),
   )
@@ -679,7 +679,7 @@ fn build_tiled_tile_animation(
   map : TiledMap,
   tileset : TiledTileset,
   gid : TiledGid,
-  size? : @math.Vec2D,
+  size? : @math.Vec2,
 ) -> TiledSpriteAnimation? {
   let local_id = gid.tile_id - tileset.first_gid
   if local_id < 0 {
@@ -708,7 +708,7 @@ fn build_tiled_tile_animation(
         loop_: true,
         color: @render.Color::{ r: 255U, g: 255U, b: 255U, a: 1.0 },
         custom_size: Some(tile_size),
-        anchor: @sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
+        anchor: @sprite.Anchor(@math.Vec2(-0.5, 0.5)),
       })
     }
   }
@@ -729,7 +729,7 @@ fn build_tiled_tile_animation(
     loop_: false,
     color: @render.Color::{ r: 255U, g: 255U, b: 255U, a: 1.0 },
     custom_size: Some(tile_size),
-    anchor: @sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
+    anchor: @sprite.Anchor(@math.Vec2(-0.5, 0.5)),
   })
 }
 
@@ -738,7 +738,7 @@ fn tiled_animation_frames_from_definition(
   map : TiledMap,
   tileset : TiledTileset,
   animation : Array[TiledAnimationFrame],
-  frame_size : @math.Vec2D,
+  frame_size : @math.Vec2,
 ) -> (@asset.ImageHandle?, Array[@math.Rect], Double) {
   let visuals : Array[(@asset.ImageHandle, @math.Rect)] = []
   let step_ms = tiled_animation_step_ms(animation)
@@ -822,7 +822,7 @@ fn tiled_visual_regions_for_local_tile(
   map : TiledMap,
   tileset : TiledTileset,
   local_id : Int,
-  frame_size : @math.Vec2D,
+  frame_size : @math.Vec2,
 ) -> Array[(@asset.ImageHandle, @math.Rect)] {
   if local_id < 0 || frame_size[X] <= 0.0 || frame_size[Y] <= 0.0 {
     return []
@@ -833,7 +833,7 @@ fn tiled_visual_regions_for_local_tile(
       return [
         (
           load_tiled_image(resolved_path),
-          { position: @math.Vec2D::zero(), size: frame_size },
+          { position: @math.Vec2::zero(), size: frame_size },
         ),
       ]
     }
@@ -853,7 +853,7 @@ fn tiled_visual_regions_for_local_tile(
 }
 
 ///|
-fn tiled_layout_size(rects : Array[@math.Rect]) -> @math.Vec2D {
+fn tiled_layout_size(rects : Array[@math.Rect]) -> @math.Vec2 {
   let mut max_x = 0.0
   let mut max_y = 0.0
   for rect in rects {
@@ -866,7 +866,7 @@ fn tiled_layout_size(rects : Array[@math.Rect]) -> @math.Vec2D {
       max_y = bottom
     }
   }
-  @math.Vec2D(max_x, max_y)
+  @math.Vec2(max_x, max_y)
 }
 
 ///|
@@ -874,7 +874,7 @@ fn tiled_tileset_source_offset(
   map : TiledMap,
   tileset : TiledTileset,
   local_id : Int,
-) -> @math.Vec2D? {
+) -> @math.Vec2? {
   guard tileset.image is Some(_) else { return None }
   let tile_width = tileset.tile_width.unwrap_or(map.tile_width).to_double()
   let tile_height = tileset.tile_height.unwrap_or(map.tile_height).to_double()
@@ -888,7 +888,7 @@ fn tiled_tileset_source_offset(
   let column = local_id % columns
   let row = local_id / columns
   Some(
-    @math.Vec2D(
+    @math.Vec2(
       tileset.margin.to_double() +
       column.to_double() * (tile_width + tileset.spacing.to_double()),
       tileset.margin.to_double() +
@@ -901,8 +901,8 @@ fn tiled_tileset_source_offset(
 fn tiled_tileset_tile_size(
   map : TiledMap,
   tileset : TiledTileset,
-) -> @math.Vec2D {
-  @math.Vec2D(
+) -> @math.Vec2 {
+  @math.Vec2(
     tileset.tile_width.unwrap_or(map.tile_width).to_double(),
     tileset.tile_height.unwrap_or(map.tile_height).to_double(),
   )
@@ -913,7 +913,7 @@ fn tiled_cell_position(
   map : TiledMap,
   tileset : TiledTileset,
   cell : TiledCell,
-) -> @math.Vec2D {
+) -> @math.Vec2 {
   let tile_size = tiled_tileset_tile_size(map, tileset)
   match map.orientation.to_lower() {
     "isometric" => tiled_isometric_cell_position(map, tile_size, cell)
@@ -926,10 +926,10 @@ fn tiled_cell_position(
 ///|
 fn tiled_orthogonal_cell_position(
   map : TiledMap,
-  tile_size : @math.Vec2D,
+  tile_size : @math.Vec2,
   cell : TiledCell,
-) -> @math.Vec2D {
-  @math.Vec2D(
+) -> @math.Vec2 {
+  @math.Vec2(
     cell.x.to_double() * map.tile_width.to_double(),
     (cell.y + 1).to_double() * map.tile_height.to_double() - tile_size[Y],
   )
@@ -938,9 +938,9 @@ fn tiled_orthogonal_cell_position(
 ///|
 fn tiled_isometric_cell_position(
   map : TiledMap,
-  tile_size : @math.Vec2D,
+  tile_size : @math.Vec2,
   cell : TiledCell,
-) -> @math.Vec2D {
+) -> @math.Vec2 {
   let tile_width = map.tile_width.to_double()
   let tile_height = map.tile_height.to_double()
   let half_width = tile_width / 2.0
@@ -950,7 +950,7 @@ fn tiled_isometric_cell_position(
   } else {
     0.0
   }
-  @math.Vec2D(
+  @math.Vec2(
     (cell.x - cell.y).to_double() * half_width + origin_x,
     (cell.x + cell.y).to_double() * half_height + tile_height - tile_size[Y],
   )
@@ -959,9 +959,9 @@ fn tiled_isometric_cell_position(
 ///|
 fn tiled_hexagonal_cell_position(
   map : TiledMap,
-  tile_size : @math.Vec2D,
+  tile_size : @math.Vec2,
   cell : TiledCell,
-) -> @math.Vec2D {
+) -> @math.Vec2 {
   tiled_staggered_layout_cell_position(
     map,
     tile_size,
@@ -973,19 +973,19 @@ fn tiled_hexagonal_cell_position(
 ///|
 fn tiled_staggered_cell_position(
   map : TiledMap,
-  tile_size : @math.Vec2D,
+  tile_size : @math.Vec2,
   cell : TiledCell,
-) -> @math.Vec2D {
+) -> @math.Vec2 {
   tiled_staggered_layout_cell_position(map, tile_size, cell, 0.0)
 }
 
 ///|
 fn tiled_staggered_layout_cell_position(
   map : TiledMap,
-  tile_size : @math.Vec2D,
+  tile_size : @math.Vec2,
   cell : TiledCell,
   side_length : Double,
-) -> @math.Vec2D {
+) -> @math.Vec2 {
   let tile_width = map.tile_width.to_double()
   let tile_height = map.tile_height.to_double()
   let axis = map.stagger_axis.map_or("y", fn(value) { value.to_lower() })
@@ -996,7 +996,7 @@ fn tiled_staggered_layout_cell_position(
     } else {
       0.0
     }
-    return @math.Vec2D(
+    return @math.Vec2(
       cell.x.to_double() * column_step,
       cell.y.to_double() * tile_height + row_offset + tile_height - tile_size[Y],
     )
@@ -1007,7 +1007,7 @@ fn tiled_staggered_layout_cell_position(
   } else {
     0.0
   }
-  @math.Vec2D(
+  @math.Vec2(
     cell.x.to_double() * tile_width + column_offset,
     cell.y.to_double() * row_step + tile_height - tile_size[Y],
   )
@@ -1023,8 +1023,8 @@ fn tiled_is_staggered_index(index : Int, stagger_index : String?) -> Bool {
 }
 
 ///|
-fn tiled_plain_object_position(object : TiledObject) -> @math.Vec2D {
-  @math.Vec2D(object.x, object.y)
+fn tiled_plain_object_position(object : TiledObject) -> @math.Vec2 {
+  @math.Vec2(object.x, object.y)
 }
 
 ///|
@@ -1032,14 +1032,14 @@ fn tiled_tile_object_position(
   map : TiledMap,
   tileset : TiledTileset,
   object : TiledObject,
-) -> @math.Vec2D {
+) -> @math.Vec2 {
   let size = tiled_object_size(map, tileset, object)
   let origin_x = if map.orientation.to_lower() == "isometric" {
     object.x - size[X] / 2.0
   } else {
     object.x
   }
-  @math.Vec2D(origin_x, object.y - size[Y])
+  @math.Vec2(origin_x, object.y - size[Y])
 }
 
 ///|
@@ -1047,17 +1047,17 @@ fn tiled_object_size(
   map : TiledMap,
   tileset : TiledTileset,
   object : TiledObject,
-) -> @math.Vec2D {
+) -> @math.Vec2 {
   let default_size = tiled_tileset_tile_size(map, tileset)
   let width = if object.width > 0.0 { object.width } else { default_size[X] }
   let height = if object.height > 0.0 { object.height } else { default_size[Y] }
-  @math.Vec2D(width, height)
+  @math.Vec2(width, height)
 }
 
 ///|
 fn tiled_object_rotation_transform(
   object : TiledObject,
-  size : @math.Vec2D,
+  size : @math.Vec2,
 ) -> @math.Transform {
   if object.rotation == 0.0 {
     return @math.Transform::identity()
@@ -1068,7 +1068,7 @@ fn tiled_object_rotation_transform(
 }
 
 ///|
-fn tiled_gid_transform(gid : TiledGid, size : @math.Vec2D) -> @math.Transform {
+fn tiled_gid_transform(gid : TiledGid, size : @math.Vec2) -> @math.Transform {
   let width = size[X]
   let height = size[Y]
   if width <= 0.0 || height <= 0.0 {
@@ -1103,8 +1103,8 @@ fn tiled_image_repeat_mode(image_layer : TiledImageLayer) -> @math.RepeatMode {
 }
 
 ///|
-fn tiled_map_world_size(map : TiledMap) -> @math.Vec2D {
-  @math.Vec2D(
+fn tiled_map_world_size(map : TiledMap) -> @math.Vec2 {
+  @math.Vec2(
     map.width.to_double() * map.tile_width.to_double(),
     map.height.to_double() * map.tile_height.to_double(),
   )
@@ -1127,7 +1127,7 @@ pub fn tiled_parallax_system(_delta : Double) -> Unit {
     }
     let data = pair.1
     let offset = data.base_offset +
-      @math.Vec2D(
+      @math.Vec2(
         camera_view_origin[X] * (1.0 - data.parallax_x),
         camera_view_origin[Y] * (1.0 - data.parallax_y),
       )
@@ -1136,15 +1136,15 @@ pub fn tiled_parallax_system(_delta : Double) -> Unit {
 }
 
 ///|
-fn tiled_camera_view_origin() -> @math.Vec2D {
+fn tiled_camera_view_origin() -> @math.Vec2 {
   match tiled_ecs_active_camera2d_view() {
     Some((camera, camera_transform, projection)) =>
       camera.viewport_to_world_2d(
         camera_transform,
         projection,
-        @math.Vec2D(0.0, 0.0),
+        @math.Vec2(0.0, 0.0),
       )
-    None => @math.Vec2D::zero()
+    None => @math.Vec2::zero()
   }
 }
 
@@ -1260,7 +1260,7 @@ fn tiled_register_parallax_layer(
     return
   }
   tiled_parallax_layers().set(layer_entity, {
-    base_offset: @math.Vec2D(layer.offset_x, layer.offset_y),
+    base_offset: @math.Vec2(layer.offset_x, layer.offset_y),
     parallax_x: layer.parallax_x,
     parallax_y: layer.parallax_y,
   })

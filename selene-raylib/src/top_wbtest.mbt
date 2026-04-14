@@ -1,14 +1,14 @@
 ///|
 fn raylib_test_apply_shader_texture_transform(
   transform : @render3d_types.TextureTransform3D,
-  uv : @smath.Vec2D,
-) -> @smath.Vec2D {
+  uv : @smath.Vec2,
+) -> @smath.Vec2 {
   let (offset_x, offset_y, scale_x, scale_y) = texture_transform_offset_scale(
     transform,
   )
   let rotation = texture_transform_rotation_sin_cos(transform)
-  let scaled = @smath.Vec2D(uv[X] * scale_x, uv[Y] * scale_y)
-  @smath.Vec2D(
+  let scaled = @smath.Vec2(uv[X] * scale_x, uv[Y] * scale_y)
+  @smath.Vec2(
     scaled[X] * rotation[Y] - scaled[Y] * rotation[X] + offset_x,
     scaled[X] * rotation[X] + scaled[Y] * rotation[Y] + offset_y,
   )
@@ -17,11 +17,11 @@ fn raylib_test_apply_shader_texture_transform(
 ///|
 test "raylib shader texture transform helpers match render3d apply_texture_transform3d" {
   let transform : @render3d_types.TextureTransform3D = {
-    offset: @smath.Vec2D(0.25, 0.5),
-    scale: @smath.Vec2D(0.75, 0.125),
+    offset: @smath.Vec2(0.25, 0.5),
+    scale: @smath.Vec2(0.75, 0.125),
     rotation: 0.7853981633974483,
   }
-  let uv = @smath.Vec2D(0.2, 0.8)
+  let uv = @smath.Vec2(0.2, 0.8)
   inspect(
     raylib_test_apply_shader_texture_transform(transform, uv) ==
     @render3d_types.apply_texture_transform3d(transform, uv),

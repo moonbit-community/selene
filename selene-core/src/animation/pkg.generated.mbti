@@ -281,7 +281,7 @@ pub(all) struct MorphMeshBinding3D {
   indices : Array[Int]?
   topology : @render3d_types.TriangleTopology3D
   base_normals : Array[@math.Vec3]
-  uv_sets : Array[Array[@math.Vec2D]]
+  uv_sets : Array[Array[@math.Vec2]]
   colors : Array[@render.Color]?
   tangents : Array[@render3d_types.Tangent3D]?
   morph_targets : Array[MorphTargetBinding3D]
@@ -331,7 +331,7 @@ pub(all) struct SkinnedMeshBinding3D {
   indices : Array[Int]?
   topology : @render3d_types.TriangleTopology3D
   base_normals : Array[@math.Vec3]
-  uv_sets : Array[Array[@math.Vec2D]]
+  uv_sets : Array[Array[@math.Vec2]]
   colors : Array[@render.Color]?
   tangents : Array[@render3d_types.Tangent3D]?
   morph_targets : Array[MorphTargetBinding3D]

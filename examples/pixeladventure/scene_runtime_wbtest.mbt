@@ -25,8 +25,8 @@ fn scene_component_count_for_compare(
 }
 
 ///|
-fn expected_scene_world_size() -> @math.Vec2D {
-  @math.Vec2D(928.0, 576.0)
+fn expected_scene_world_size() -> @math.Vec2 {
+  @math.Vec2(928.0, 576.0)
 }
 
 ///|

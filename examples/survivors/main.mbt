@@ -121,8 +121,8 @@ fn create_level_up_panel_entity() -> @entity.Entity {
   @ui.nodes().set(
     panel,
     @ui.Node::absolute(
-      @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 80.0, VIEWPORT_HEIGHT / 2.0 - 120.0),
-      size=@math.Vec2D(160.0, 250.0),
+      @math.Vec2(VIEWPORT_WIDTH / 2.0 - 80.0, VIEWPORT_HEIGHT / 2.0 - 120.0),
+      size=@math.Vec2(160.0, 250.0),
     ),
   )
   @ui.z_indexes().set(panel, @ui.ZIndex::new(HUD_ZINDEX + 10))
@@ -140,8 +140,8 @@ fn create_game_over_panel_entity() -> @entity.Entity {
   @ui.nodes().set(
     panel,
     @ui.Node::absolute(
-      @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 100.0, VIEWPORT_HEIGHT / 2.0 - 60.0),
-      size=@math.Vec2D(200.0, 120.0),
+      @math.Vec2(VIEWPORT_WIDTH / 2.0 - 100.0, VIEWPORT_HEIGHT / 2.0 - 60.0),
+      size=@math.Vec2(200.0, 120.0),
     ),
   )
   @ui.z_indexes().set(panel, @ui.ZIndex::new(HUD_ZINDEX + 10))
@@ -434,8 +434,8 @@ fn game_start(_world : @ecs.World) -> Unit {
   @ui.set_ui_scale_mode(@ui.UiScaleMode::Viewport)
   add_player()
   setup_survivors_camera()
-  add_border(Vec2D(MAP_WIDTH, MAP_HEIGHT))
-  add_background(Vec2D(MAP_WIDTH, MAP_HEIGHT))
+  add_border(Vec2(MAP_WIDTH, MAP_HEIGHT))
+  add_background(Vec2(MAP_WIDTH, MAP_HEIGHT))
   add_grass()
   add_score_box()
   add_timer_box()
@@ -634,6 +634,6 @@ fn restart_game() -> Unit {
   )
   @physics2d.linear_velocities().set(
     game_state.player_entity,
-    @math.Vec2D::zero(),
+    @math.Vec2::zero(),
   )
 }

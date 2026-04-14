@@ -62,8 +62,8 @@ pub fn SpatialQueryFilter::only_kinematic() -> SpatialQueryFilter {
 pub struct RaycastHit {
   entity : @entity.Entity
   toi : Double
-  point : @math.Vec2D
-  normal : @math.Vec2D
+  point : @math.Vec2
+  normal : @math.Vec2
 } derive(Eq, Debug)
 
 ///|
@@ -71,6 +71,6 @@ pub struct RaycastHit {
 pub struct ShapeCastHit {
   entity : @entity.Entity
   toi : Double
-  point : @math.Vec2D
-  normal : @math.Vec2D
+  point : @math.Vec2
+  normal : @math.Vec2
 } derive(Eq, Debug)

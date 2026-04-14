@@ -412,11 +412,11 @@ test "instantiate_scene_instance installs animation components without autoplay"
 test "apply_texture_transform3d matches glTF offset-rotate-scale order" {
   let uv = @render3d.apply_texture_transform3d(
     {
-      offset: @math.Vec2D(0.25, 0.5),
-      scale: @math.Vec2D(2.0, 3.0),
+      offset: @math.Vec2(0.25, 0.5),
+      scale: @math.Vec2(2.0, 3.0),
       rotation: 1.5707963267948966,
     },
-    @math.Vec2D(1.0, 2.0),
+    @math.Vec2(1.0, 2.0),
   )
   inspect(uv[X], content="-5.75")
   inspect(uv[Y], content="2.5000000000000004")

@@ -49,11 +49,11 @@ fn game_start(_world : @ecs.World) -> Unit {
 ///|
 fn configure_text_box(
   entity : @entity.Entity,
-  offset : @math.Vec2D,
+  offset : @math.Vec2,
   content : String,
   color : String,
   font : String,
-  size? : @math.Vec2D = @math.Vec2D(-1.0, -1.0),
+  size? : @math.Vec2 = @math.Vec2(-1.0, -1.0),
   align? : @math.HAlign = @math.HAlign::Left,
   baseline? : @math.VAlign = @math.VAlign::Top,
 ) -> Unit {
@@ -74,26 +74,26 @@ fn spawn_hud(
 ) -> Unit {
   configure_text_box(
     result_box,
-    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 96.0, VIEWPORT_HEIGHT / 2.0 - 32.0),
+    @math.Vec2(VIEWPORT_WIDTH / 2.0 - 96.0, VIEWPORT_HEIGHT / 2.0 - 32.0),
     "",
     "white",
     "24px ThaleahFat",
-    size=@math.Vec2D(192.0, 32.0),
+    size=@math.Vec2(192.0, 32.0),
     align=@math.HAlign::Center,
     baseline=@math.VAlign::Center,
   )
   configure_text_box(
     score_box,
-    @math.Vec2D(PLAYFIELD_LEFT_INSET, 16.0),
+    @math.Vec2(PLAYFIELD_LEFT_INSET, 16.0),
     "Score: 0",
     "white",
     "20px ThaleahFat",
-    size=@math.Vec2D(VIEWPORT_WIDTH - PLAYFIELD_LEFT_INSET, 24.0),
+    size=@math.Vec2(VIEWPORT_WIDTH - PLAYFIELD_LEFT_INSET, 24.0),
     align=@math.HAlign::Center,
   )
   configure_text_box(
     health_box,
-    @math.Vec2D(20.0, 16.0),
+    @math.Vec2(20.0, 16.0),
     "HP: 3",
     "red",
     "20px ThaleahFat",
@@ -101,8 +101,8 @@ fn spawn_hud(
   @ui.nodes().set(
     volume_button,
     @ui.Node::absolute(
-      @math.Vec2D(VIEWPORT_WIDTH - 40.0, 18.0),
-      size=@math.Vec2D(21.0, 22.0),
+      @math.Vec2(VIEWPORT_WIDTH - 40.0, 18.0),
+      size=@math.Vec2(21.0, 22.0),
     ),
   )
   @ui.z_indexes().set(volume_button, @ui.ZIndex::new(BUTTON_ZINDEX))
@@ -170,10 +170,10 @@ fn configure_player_entity(entity : @entity.Entity) -> Unit {
     sprite_animation_sprite(player_idle_right_animation),
   )
   set_entity_z(entity, PLAYER_Z)
-  @physics2d.linear_velocities().set(entity, @math.Vec2D::zero())
+  @physics2d.linear_velocities().set(entity, @math.Vec2::zero())
   @physics2d.shapes().set(
     entity,
-    Rect(size=@math.Vec2D(24.0, 32.0), offset=@math.Vec2D(4.0, 0.0)),
+    Rect(size=@math.Vec2(24.0, 32.0), offset=@math.Vec2(4.0, 0.0)),
   )
   @physics2d.colliders().set(
     entity,
@@ -202,11 +202,11 @@ fn configure_bird_entity(entity : @entity.Entity) -> Unit {
     entity,
     sprite_animation_sprite(bird_fly_right_animation),
   )
-  @physics2d.linear_velocities().set(entity, @math.Vec2D(BIRD_SPEED, 0.0))
+  @physics2d.linear_velocities().set(entity, @math.Vec2(BIRD_SPEED, 0.0))
   set_entity_z(entity, PLAYER_Z)
   @physics2d.shapes().set(
     entity,
-    Rect(size=@math.Vec2D(32.0, 32.0), offset=@math.Vec2D::zero()),
+    Rect(size=@math.Vec2(32.0, 32.0), offset=@math.Vec2::zero()),
   )
   @physics2d.colliders().set(
     entity,
@@ -227,14 +227,14 @@ fn configure_bird_entity(entity : @entity.Entity) -> Unit {
 }
 
 ///|
-fn spawn_background(size : @math.Vec2D) -> Unit {
+fn spawn_background(size : @math.Vec2) -> Unit {
   let background = @entity.Entity::new()
   @sprite.sprites().set(
     background,
     @sprite.Sprite::new(
       image=Some(@asset.load_image("assets/pixeladventure/Background/Gray.png")),
       custom_size=Some(size),
-      anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
+      anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
       image_mode=@sprite.Tiled(Repeat),
     ),
   )
@@ -245,13 +245,13 @@ fn spawn_background(size : @math.Vec2D) -> Unit {
 }
 
 ///|
-fn spawn_terrain_collider(pos : @math.Vec2D, size : @math.Vec2D) -> Unit {
+fn spawn_terrain_collider(pos : @math.Vec2, size : @math.Vec2) -> Unit {
   let terrain = @entity.Entity::new()
   @transform.transforms().set(
     terrain,
     @transform.Transform::from_xyz(pos[X], pos[Y], 0.0),
   )
-  @physics2d.shapes().set(terrain, Rect(size~, offset=@math.Vec2D::zero()))
+  @physics2d.shapes().set(terrain, Rect(size~, offset=@math.Vec2::zero()))
   @physics2d.colliders().set(
     terrain,
     @physics2d.Collider::new(
@@ -263,11 +263,11 @@ fn spawn_terrain_collider(pos : @math.Vec2D, size : @math.Vec2D) -> Unit {
 }
 
 ///|
-let flag_idle_frame_size : @math.Vec2D = @math.Vec2D(64.0, 64.0)
+let flag_idle_frame_size : @math.Vec2 = @math.Vec2(64.0, 64.0)
 
 ///|
 fn flag_idle_frame_rect() -> @math.Rect {
-  { position: @math.Vec2D::zero(), size: flag_idle_frame_size }
+  { position: @math.Vec2::zero(), size: flag_idle_frame_size }
 }
 
 ///|
@@ -276,7 +276,7 @@ fn default_flag_sprite() -> @sprite.Sprite {
     image=Some(@asset.load_image(FLAG_IDLE_PATH)),
     rect=Some(flag_idle_frame_rect()),
     custom_size=Some(flag_idle_frame_size),
-    anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
+    anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
   )
 }
 
@@ -327,7 +327,7 @@ fn configure_flag_entity(entity : @entity.Entity) -> Unit {
   set_entity_z(entity, ITEM_Z)
   @physics2d.shapes().set(
     entity,
-    Rect(size=@math.Vec2D(64.0, 64.0), offset=@math.Vec2D::zero()),
+    Rect(size=@math.Vec2(64.0, 64.0), offset=@math.Vec2::zero()),
   )
   @physics2d.areas().set(
     entity,
@@ -347,7 +347,7 @@ fn configure_apple_entity(entity : @entity.Entity) -> Unit {
   set_entity_z(entity, ITEM_Z)
   @physics2d.shapes().set(
     entity,
-    Rect(size=@math.Vec2D(32.0, 32.0), offset=@math.Vec2D::zero()),
+    Rect(size=@math.Vec2(32.0, 32.0), offset=@math.Vec2::zero()),
   )
   @physics2d.areas().set(
     entity,

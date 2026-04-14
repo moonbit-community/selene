@@ -12,14 +12,14 @@ pub(all) struct UiPointerLeaveEvent {
 pub(all) struct UiPointerDownEvent {
   entity : @entity.Entity
   button : @inputs.MouseButton
-  position : @math.Vec2D
+  position : @math.Vec2
 }
 
 ///|
 pub(all) struct UiPointerUpEvent {
   entity : @entity.Entity
   button : @inputs.MouseButton
-  position : @math.Vec2D
+  position : @math.Vec2
 }
 
 ///|
@@ -216,8 +216,8 @@ fn focusable_entities() -> Array[@entity.Entity] {
 }
 
 ///|
-fn rect_center(rect : @math.Rect) -> @math.Vec2D {
-  @math.Vec2D(
+fn rect_center(rect : @math.Rect) -> @math.Vec2 {
+  @math.Vec2(
     rect.position[X] + rect.size[X] / 2.0,
     rect.position[Y] + rect.size[Y] / 2.0,
   )
@@ -225,8 +225,8 @@ fn rect_center(rect : @math.Rect) -> @math.Vec2D {
 
 ///|
 fn directional_score(
-  current : @math.Vec2D,
-  candidate : @math.Vec2D,
+  current : @math.Vec2,
+  candidate : @math.Vec2,
   direction : UiNavigationDirection,
 ) -> (Double, Double)? {
   let delta = candidate - current
@@ -330,7 +330,7 @@ fn move_focus_by_tab(reverse : Bool) -> Unit {
 }
 
 ///|
-fn point_in_rect(point : @math.Vec2D, rect : @math.Rect) -> Bool {
+fn point_in_rect(point : @math.Vec2, rect : @math.Rect) -> Bool {
   point[X] >= rect.position[X] &&
   point[Y] >= rect.position[Y] &&
   point[X] <= rect.position[X] + rect.size[X] &&
@@ -338,7 +338,7 @@ fn point_in_rect(point : @math.Vec2D, rect : @math.Rect) -> Bool {
 }
 
 ///|
-fn screen_clip_allows(entity : @entity.Entity, point : @math.Vec2D) -> Bool {
+fn screen_clip_allows(entity : @entity.Entity, point : @math.Vec2) -> Bool {
   match calculated_clips().get(entity) {
     Some(clip) => point_in_rect(point, clip.clip)
     None => true
@@ -347,14 +347,14 @@ fn screen_clip_allows(entity : @entity.Entity, point : @math.Vec2D) -> Bool {
 
 ///|
 fn normalized_cursor_position(
-  point : @math.Vec2D,
+  point : @math.Vec2,
   rect : @math.Rect,
-) -> @math.Vec2D? {
+) -> @math.Vec2? {
   if rect.size[X] <= 0.0 || rect.size[Y] <= 0.0 {
     None
   } else {
     Some(
-      @math.Vec2D(
+      @math.Vec2(
         (point[X] - rect.position[X]) / rect.size[X] - 0.5,
         (point[Y] - rect.position[Y]) / rect.size[Y] - 0.5,
       ),
@@ -363,7 +363,7 @@ fn normalized_cursor_position(
 }
 
 ///|
-fn update_relative_cursor_positions(position : @math.Vec2D) -> Unit {
+fn update_relative_cursor_positions(position : @math.Vec2) -> Unit {
   for entity, relative in relative_cursor_positions() {
     guard entity.is_alive() else { continue }
     guard nodes().get(entity) is Some(node) else {
@@ -391,7 +391,7 @@ fn update_relative_cursor_positions(position : @math.Vec2D) -> Unit {
 }
 
 ///|
-fn resolve_pointer_target(position : @math.Vec2D) -> @entity.Entity? {
+fn resolve_pointer_target(position : @math.Vec2) -> @entity.Entity? {
   let candidates = sorted_ui_entities()
   let mut index = candidates.length() - 1
   while index >= 0 {
@@ -415,7 +415,7 @@ fn resolve_pointer_target(position : @math.Vec2D) -> @entity.Entity? {
 }
 
 ///|
-fn update_scroll(position : @math.Vec2D) -> Unit {
+fn update_scroll(position : @math.Vec2) -> Unit {
   let delta = @inputs.mouse_wheel.delta
   if delta[X] == 0.0 && delta[Y] == 0.0 {
     return

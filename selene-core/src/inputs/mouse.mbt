@@ -37,18 +37,18 @@ pub(all) enum MouseButtonInputState {
 pub struct MouseButtonEvent {
   button : MouseButton
   state : MouseButtonInputState
-  position : @math.Vec2D
+  position : @math.Vec2
 }
 
 ///|
 pub struct MouseMotionEvent {
-  position : @math.Vec2D
-  delta : @math.Vec2D
+  position : @math.Vec2
+  delta : @math.Vec2
 }
 
 ///|
 pub struct MouseWheelEvent {
-  delta : @math.Vec2D
+  delta : @math.Vec2
 }
 
 ///|
@@ -65,12 +65,12 @@ pub struct MouseWheelEvent {
 ///
 /// ```moonbit nocheck
 /// // Access the global mouse state
-/// inspect(@inputs.mouse.pos, content="Vec2D(0, 0)")
+/// inspect(@inputs.mouse.pos, content="Vec2(0, 0)")
 /// inspect(@inputs.mouse.left_button, content="false")
 /// ```
 ///
 pub(all) struct Mouse {
-  mut pos : @math.Vec2D
+  mut pos : @math.Vec2
   mut left_button : Bool
   mut right_button : Bool
   mut middle_button : Bool
@@ -99,12 +99,12 @@ pub(all) struct Mouse {
 ///
 /// ```moonbit nocheck
 /// // Access the global mouse state
-/// inspect(@inputs.mouse.pos, content="Vec2D(0, 0)")
+/// inspect(@inputs.mouse.pos, content="Vec2(0, 0)")
 /// inspect(@inputs.mouse.left_button, content="false")
 /// ```
 ///
 pub let mouse : Mouse = {
-  pos: @math.Vec2D(0.0, 0.0),
+  pos: @math.Vec2(0.0, 0.0),
   left_button: false,
   right_button: false,
   middle_button: false,
@@ -122,19 +122,19 @@ pub let mouse : Mouse = {
 ///
 /// ```moonbit nocheck
 /// // Access the global mouse movement
-/// inspect(@inputs.mouse_movement.movement, content="Vec2D(0, 0)")
+/// inspect(@inputs.mouse_movement.movement, content="Vec2(0, 0)")
 ///
 /// // Update movement vector
-/// @inputs.mouse_movement.movement = @math.Vec2D(10.0, -5.0)
+/// @inputs.mouse_movement.movement = @math.Vec2(10.0, -5.0)
 /// ```
 ///
 pub(all) struct MouseMovement {
-  mut movement : @math.Vec2D
+  mut movement : @math.Vec2
 }
 
 ///|
 pub(all) struct MouseWheel {
-  mut delta : @math.Vec2D
+  mut delta : @math.Vec2
 }
 
 ///|
@@ -155,16 +155,16 @@ pub(all) struct MouseWheel {
 ///
 /// ```moonbit nocheck
 /// // Access the global mouse movement
-/// inspect(@inputs.mouse_movement.movement, content="Vec2D(10, -5)")
+/// inspect(@inputs.mouse_movement.movement, content="Vec2(10, -5)")
 ///
 /// // Update movement vector
-/// @inputs.mouse_movement.movement = @math.Vec2D(10.0, -5.0)
+/// @inputs.mouse_movement.movement = @math.Vec2(10.0, -5.0)
 /// ```
 ///
-pub let mouse_movement : MouseMovement = { movement: @math.Vec2D(0.0, 0.0) }
+pub let mouse_movement : MouseMovement = { movement: @math.Vec2(0.0, 0.0) }
 
 ///|
-pub let mouse_wheel : MouseWheel = { delta: @math.Vec2D(0.0, 0.0) }
+pub let mouse_wheel : MouseWheel = { delta: @math.Vec2(0.0, 0.0) }
 
 ///|
 pub let mouse_button_event_bus : @event.Events[MouseButtonEvent] = @event.Events::new()
@@ -177,7 +177,7 @@ pub let mouse_wheel_event_bus : @event.Events[MouseWheelEvent] = @event.Events::
 
 ///|
 let last_mouse : Mouse = {
-  pos: @math.Vec2D(0.0, 0.0),
+  pos: @math.Vec2(0.0, 0.0),
   left_button: false,
   right_button: false,
   middle_button: false,
@@ -216,7 +216,7 @@ let last_mouse : Mouse = {
 /// ```
 ///
 pub let just_pressed_mouse : Mouse = {
-  pos: @math.Vec2D(0.0, 0.0),
+  pos: @math.Vec2(0.0, 0.0),
   left_button: false,
   right_button: false,
   middle_button: false,
@@ -255,7 +255,7 @@ pub let just_pressed_mouse : Mouse = {
 /// ```
 ///
 pub let just_release_mouse : Mouse = {
-  pos: @math.Vec2D(0.0, 0.0),
+  pos: @math.Vec2(0.0, 0.0),
   left_button: false,
   right_button: false,
   middle_button: false,
@@ -347,7 +347,7 @@ pub fn advanced_mouse_system(_delta : Double) -> Unit {
   last_mouse.left_button = mouse.left_button
   last_mouse.right_button = mouse.right_button
   last_mouse.middle_button = mouse.middle_button
-  mouse_wheel.delta = @math.Vec2D::zero()
+  mouse_wheel.delta = @math.Vec2::zero()
 }
 
 ///|

@@ -152,7 +152,7 @@ let player_bullet_trigger_event_reader : @event.EventReader[
 ///|
 let player_bullet_visual : @sprite.Sprite = @sprite.Sprite::new(
   image=Some(@asset.load_image("assets/survivors/icon/bullet.png")),
-  custom_size=Some(Vec2D(12.0, 12.0)),
+  custom_size=Some(Vec2(12.0, 12.0)),
 )
 
 ///|
@@ -163,7 +163,7 @@ fn update_weapon_timers(
   player_attack : Double,
   player_range : Double,
   player_penetration : Int,
-  player_pos : @math.Vec2D,
+  player_pos : @math.Vec2,
 ) -> Unit {
   // Initialize timers array if needed
   while weapon_timers.length() < weapon_instances.length() {
@@ -206,8 +206,8 @@ fn update_weapon_timers(
 
 ///|
 fn shoot_weapon_bullet(
-  player_pos : @math.Vec2D,
-  target_pos : @math.Vec2D,
+  player_pos : @math.Vec2,
+  target_pos : @math.Vec2,
   weapon_data : WeaponData,
   damage : Double,
   total_penetration : Int,
@@ -215,7 +215,7 @@ fn shoot_weapon_bullet(
   let bullet_hitbox_size = 6.0
   let direction = target_pos - player_pos
   let dir = if direction.distance() <= 0.0000001 {
-    @math.Vec2D(1.0, 0.0)
+    @math.Vec2(1.0, 0.0)
   } else {
     direction.normalize()
   }
@@ -235,8 +235,8 @@ fn shoot_weapon_bullet(
   @physics2d.shapes().set(
     bullet_entity,
     @physics2d.CollisionShape::Rect(
-      size=@math.Vec2D(bullet_hitbox_size, bullet_hitbox_size),
-      offset=@math.Vec2D(-bullet_hitbox_size / 2.0, -bullet_hitbox_size / 2.0),
+      size=@math.Vec2(bullet_hitbox_size, bullet_hitbox_size),
+      offset=@math.Vec2(-bullet_hitbox_size / 2.0, -bullet_hitbox_size / 2.0),
     ),
   )
   let area = @physics2d.Area::new(

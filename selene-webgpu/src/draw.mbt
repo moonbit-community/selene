@@ -100,7 +100,7 @@ priv struct MaterialTextureBundle3D {
 ///|
 priv struct ResolvedMaterialTextureInput3D {
   path : String
-  uvs : Array[@smath.Vec2D]
+  uvs : Array[@smath.Vec2]
   sampler_code : Int
 }
 
@@ -234,14 +234,14 @@ pub fn draw_text(command : @render2d_types.TextDrawCommand2D) -> Unit {
 pub fn measure_text(
   style : @render2d_types.TextStyle2D,
   text : String,
-) -> @smath.Vec2D {
+) -> @smath.Vec2 {
   let measured = webgpu_measure_text(text, style.family, style.size)
   if measured.length() >= 2 {
-    @smath.Vec2D(measured[0], measured[1])
+    @smath.Vec2(measured[0], measured[1])
   } else {
     let width = text.length().to_double() * style.size * 0.6
     let height = if style.size <= 0.0 { 1.0 } else { style.size }
-    @smath.Vec2D(width, height)
+    @smath.Vec2(width, height)
   }
 }
 
@@ -1079,11 +1079,11 @@ fn flatten_colored_vertices3d(
 fn flatten_textured_vertices3d(
   positions : Array[@smath.Vec3],
   triangle_indices : Array[Int],
-  base_uvs : Array[@smath.Vec2D],
-  emissive_uvs : Array[@smath.Vec2D],
-  metallic_roughness_uvs : Array[@smath.Vec2D],
-  occlusion_uvs : Array[@smath.Vec2D],
-  normal_uvs : Array[@smath.Vec2D],
+  base_uvs : Array[@smath.Vec2],
+  emissive_uvs : Array[@smath.Vec2],
+  metallic_roughness_uvs : Array[@smath.Vec2],
+  occlusion_uvs : Array[@smath.Vec2],
+  normal_uvs : Array[@smath.Vec2],
   normals : Array[@smath.Vec3],
   tangents : Array[@render3d_types.Tangent3D],
   vertex_colors : Array[@render.Color]?,
@@ -1158,7 +1158,7 @@ fn flatten_textured_vertices3d(
 fn resolve_material_texture_input(
   mesh : @render3d_types.TriangleMesh3D,
   source : MaterialTextureSource3D?,
-  fallback_uvs : Array[@smath.Vec2D],
+  fallback_uvs : Array[@smath.Vec2],
   transform_binding? : @render3d_types.TextureBinding3D? = None,
 ) -> ResolvedMaterialTextureInput3D {
   match source {
@@ -1184,8 +1184,8 @@ fn resolve_material_texture_input(
 fn resolve_material_texture_uvs(
   binding : @render3d_types.TextureBinding3D?,
   texcoord_set : Int,
-  uvs : Array[@smath.Vec2D],
-) -> Array[@smath.Vec2D] {
+  uvs : Array[@smath.Vec2],
+) -> Array[@smath.Vec2] {
   match binding {
     Some(binding) =>
       if binding.texcoord_set == texcoord_set &&

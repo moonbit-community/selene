@@ -143,13 +143,13 @@ pub(all) enum ImageFit {
 
 ///|
 pub(all) struct UiImage {
-  size : @math.Vec2D
+  size : @math.Vec2
   image : @asset.ImageHandle
   tint : @render.Color
   fit : ImageFit
 
   fn new(
-    size : @math.Vec2D,
+    size : @math.Vec2,
     path : String,
     tint? : @render.Color,
     fit? : ImageFit,
@@ -158,7 +158,7 @@ pub(all) struct UiImage {
 
 ///|
 pub fn UiImage::from_image(
-  size : @math.Vec2D,
+  size : @math.Vec2,
   image : @asset.ImageHandle,
   tint? : @render.Color = rgba(255, 255, 255, 1.0),
   fit? : ImageFit = Stretch,
@@ -168,7 +168,7 @@ pub fn UiImage::from_image(
 
 ///|
 pub fn UiImage::new(
-  size : @math.Vec2D,
+  size : @math.Vec2,
   path : String,
   tint? : @render.Color = rgba(255, 255, 255, 1.0),
   fit? : ImageFit = Stretch,
@@ -237,7 +237,7 @@ pub(all) struct UiMaterialAsset {
   draw : (UiMaterialContext) -> Unit
 
   fn new(
-    size : @math.Vec2D,
+    size : @math.Vec2,
     path : String,
     tint? : @render.Color,
     fit? : ImageFit,
@@ -278,7 +278,7 @@ pub fn UiMaterialAsset::from_ui_image(image : UiImage) -> UiMaterialAsset {
 
 ///|
 pub fn UiMaterialAsset::from_image(
-  size : @math.Vec2D,
+  size : @math.Vec2,
   image : @asset.ImageHandle,
   tint? : @render.Color = rgba(255, 255, 255, 1.0),
   fit? : ImageFit = Stretch,
@@ -288,7 +288,7 @@ pub fn UiMaterialAsset::from_image(
 
 ///|
 pub fn UiMaterialAsset::new(
-  size : @math.Vec2D,
+  size : @math.Vec2,
   path : String,
   tint? : @render.Color = rgba(255, 255, 255, 1.0),
   fit? : ImageFit = Stretch,

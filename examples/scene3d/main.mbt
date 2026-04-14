@@ -509,7 +509,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
   let label = @entity.Entity::new()
   @ui.nodes().set(
     label,
-    @ui.Node::absolute(@math.Vec2D(16.0, 16.0), size=@math.Vec2D(420.0, 28.0)),
+    @ui.Node::absolute(@math.Vec2(16.0, 16.0), size=@math.Vec2(420.0, 28.0)),
   )
   @ui.texts().set(
     label,
@@ -523,7 +523,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
   let physics_text = @entity.Entity::new()
   @ui.nodes().set(
     physics_text,
-    @ui.Node::absolute(@math.Vec2D(16.0, 46.0), size=@math.Vec2D(620.0, 28.0)),
+    @ui.Node::absolute(@math.Vec2(16.0, 46.0), size=@math.Vec2(620.0, 28.0)),
   )
   @ui.texts().set(
     physics_text,
@@ -589,7 +589,7 @@ fn drive_character_controller_system(_world : @ecs.World) -> Unit {
   }
   let delta = @time.delta()
   let input = @inputs.key_vector(KeyW, KeyS, KeyA, KeyD)
-  let movement = if input == @math.Vec2D::zero() {
+  let movement = if input == @math.Vec2::zero() {
     vec3(0.0, 0.0, 0.0)
   } else {
     let planar = input.normalize().scalar_mul(2.4 * delta)

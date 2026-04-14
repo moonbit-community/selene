@@ -135,7 +135,7 @@ priv struct SpriteAnimationDef {
   layout : @sprite.TextureAtlasLayoutHandle
   fps : Double
   loop_ : Bool
-  size : @math.Vec2D
+  size : @math.Vec2
   anchor : @sprite.Anchor
   flip_x : Bool
   flip_y : Bool
@@ -153,7 +153,7 @@ priv struct GameSession {
   mut health : Int
   mut volume_on : Bool
   mut result : GameResult?
-  world_size : @math.Vec2D
+  world_size : @math.Vec2
 }
 
 ///|
@@ -253,8 +253,8 @@ fn sprite_clip(
   loop_? : Bool = true,
   fps? : Double = 12.0,
   flip_x? : Bool = false,
-  size? : @math.Vec2D = @math.Vec2D(32.0, 32.0),
-  anchor? : @sprite.Anchor = @sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
+  size? : @math.Vec2 = @math.Vec2(32.0, 32.0),
+  anchor? : @sprite.Anchor = @sprite.Anchor(@math.Vec2(-0.5, 0.5)),
 ) -> SpriteAnimationDef {
   {
     name: path,
@@ -300,14 +300,14 @@ let hurt_sound : @audio.AudioHandle = @asset.load_audio(
 
 ///|
 let volume_on_ui_image : @ui.UiImage = @ui.UiImage::new(
-  @math.Vec2D(21.0, 22.0),
+  @math.Vec2(21.0, 22.0),
   "assets/pixeladventure/Menu/Buttons/Volume.png",
   fit=@ui.ImageFit::Contain,
 )
 
 ///|
 let volume_off_ui_image : @ui.UiImage = @ui.UiImage::new(
-  @math.Vec2D(21.0, 22.0),
+  @math.Vec2(21.0, 22.0),
   "assets/pixeladventure/Menu/Buttons/VolumeOff.png",
   fit=@ui.ImageFit::Contain,
 )
@@ -411,7 +411,7 @@ let apple_spin_animation : SpriteAnimationDef = sprite_clip(
 let flag_idle_animation : SpriteAnimationDef = sprite_clip(
   FLAG_IDLE_PATH,
   10,
-  size=@math.Vec2D(64.0, 64.0),
+  size=@math.Vec2(64.0, 64.0),
 )
 
 ///|

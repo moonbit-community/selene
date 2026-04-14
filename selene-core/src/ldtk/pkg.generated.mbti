@@ -167,9 +167,9 @@ pub fn ldtk_field_tile(Array[LdtkFieldInstance], String) -> LdtkTilesetRect?
 
 pub fn ldtk_field_tiles(Array[LdtkFieldInstance], String) -> Array[LdtkTilesetRect]?
 
-pub fn ldtk_field_vec2(Array[LdtkFieldInstance], String) -> @math.Vec2D?
+pub fn ldtk_field_vec2(Array[LdtkFieldInstance], String) -> @math.Vec2?
 
-pub fn ldtk_field_vec2_array(Array[LdtkFieldInstance], String) -> Array[@math.Vec2D]?
+pub fn ldtk_field_vec2_array(Array[LdtkFieldInstance], String) -> Array[@math.Vec2]?
 
 pub fn ldtk_grid_coords() -> Map[@entity.Entity, LdtkGridCoords]
 
@@ -388,9 +388,9 @@ pub struct LdtkEntityInstance {
   def_uid : Int
   width : Int
   height : Int
-  px : @math.Vec2D
-  grid : @math.Vec2D
-  pivot : @math.Vec2D
+  px : @math.Vec2
+  grid : @math.Vec2
+  pivot : @math.Vec2
   smart_color : String?
   tile : LdtkTilesetRect?
   tags : Array[String]
@@ -417,8 +417,8 @@ pub fn LdtkEntityInstance::field_string(Self, String) -> String?
 pub fn LdtkEntityInstance::field_string_array(Self, String) -> Array[String]?
 pub fn LdtkEntityInstance::field_tile(Self, String) -> LdtkTilesetRect?
 pub fn LdtkEntityInstance::field_tiles(Self, String) -> Array[LdtkTilesetRect]?
-pub fn LdtkEntityInstance::field_vec2(Self, String) -> @math.Vec2D?
-pub fn LdtkEntityInstance::field_vec2_array(Self, String) -> Array[@math.Vec2D]?
+pub fn LdtkEntityInstance::field_vec2(Self, String) -> @math.Vec2?
+pub fn LdtkEntityInstance::field_vec2_array(Self, String) -> Array[@math.Vec2]?
 pub fn LdtkEntityInstance::has_tag(Self, String) -> Bool
 
 pub struct LdtkEntityReference {
@@ -487,8 +487,8 @@ pub fn LdtkFieldInstance::string_array_value(Self) -> Array[String]?
 pub fn LdtkFieldInstance::string_value(Self) -> String?
 pub fn LdtkFieldInstance::tile_array_value(Self) -> Array[LdtkTilesetRect]?
 pub fn LdtkFieldInstance::tile_value(Self) -> LdtkTilesetRect?
-pub fn LdtkFieldInstance::vec2_array_value(Self) -> Array[@math.Vec2D]?
-pub fn LdtkFieldInstance::vec2_value(Self) -> @math.Vec2D?
+pub fn LdtkFieldInstance::vec2_array_value(Self) -> Array[@math.Vec2]?
+pub fn LdtkFieldInstance::vec2_value(Self) -> @math.Vec2?
 
 pub struct LdtkGridCoords {
   x : Int
@@ -659,8 +659,8 @@ pub fn LdtkLevel::field_string(Self, String) -> String?
 pub fn LdtkLevel::field_string_array(Self, String) -> Array[String]?
 pub fn LdtkLevel::field_tile(Self, String) -> LdtkTilesetRect?
 pub fn LdtkLevel::field_tiles(Self, String) -> Array[LdtkTilesetRect]?
-pub fn LdtkLevel::field_vec2(Self, String) -> @math.Vec2D?
-pub fn LdtkLevel::field_vec2_array(Self, String) -> Array[@math.Vec2D]?
+pub fn LdtkLevel::field_vec2(Self, String) -> @math.Vec2?
+pub fn LdtkLevel::field_vec2_array(Self, String) -> Array[@math.Vec2]?
 
 pub struct LdtkLevelBackground {
   world_entity : @entity.Entity
@@ -676,8 +676,8 @@ pub struct LdtkLevelBackgroundPosition {
   crop_y : Double
   crop_width : Double
   crop_height : Double
-  scale : @math.Vec2D
-  top_left_px : @math.Vec2D
+  scale : @math.Vec2
+  top_left_px : @math.Vec2
 }
 
 pub enum LdtkLevelEvent {
@@ -833,8 +833,8 @@ pub struct LdtkSpawnedTileInstance {
 
 pub struct LdtkTileInstance {
   tile_id : Int
-  src : @math.Vec2D
-  px : @math.Vec2D
+  src : @math.Vec2
+  px : @math.Vec2
   flip_x : Bool
   flip_y : Bool
   alpha : Double
@@ -843,7 +843,7 @@ pub struct LdtkTileInstance {
 
 pub struct LdtkTileMetadata {
   tile_id : Int
-  src : @math.Vec2D
+  src : @math.Vec2
   flip_x : Bool
   flip_y : Bool
   alpha : Double
@@ -912,7 +912,7 @@ pub struct LdtkWorldInstance {
 }
 
 pub struct LdtkWorldSpawnSettings {
-  position : @math.Vec2D
+  position : @math.Vec2
   zindex : Int
   level_z_step : Int
   layer_z_step : Int

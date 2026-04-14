@@ -72,7 +72,7 @@ priv struct SkinnedPrimitiveTemplate {
   indices : Array[Int]?
   topology : @render3d.TriangleTopology3D
   base_normals : Array[@math.Vec3]
-  uv_sets : Array[Array[@math.Vec2D]]
+  uv_sets : Array[Array[@math.Vec2]]
   colors : Array[@render.Color]?
   tangents : Array[@render3d.Tangent3D]?
   morph_targets : Array[MorphTargetTemplate]
@@ -1426,11 +1426,11 @@ fn resolve_texture_transform(
     {
       offset: parse_texture_transform_vec2(
         field_array(transform_object, "offset"),
-        @math.Vec2D::zero(),
+        @math.Vec2::zero(),
       ),
       scale: parse_texture_transform_vec2(
         field_array(transform_object, "scale"),
-        @math.Vec2D(1.0, 1.0),
+        @math.Vec2(1.0, 1.0),
       ),
       rotation: field_number(transform_object, "rotation").unwrap_or(0.0),
     },
@@ -1440,11 +1440,11 @@ fn resolve_texture_transform(
 ///|
 fn parse_texture_transform_vec2(
   values : Array[Json]?,
-  fallback : @math.Vec2D,
-) -> @math.Vec2D {
+  fallback : @math.Vec2,
+) -> @math.Vec2 {
   match values {
     Some(items) if items.length() >= 2 =>
-      @math.Vec2D(
+      @math.Vec2(
         json_number(items[0]).unwrap_or(fallback[X]),
         json_number(items[1]).unwrap_or(fallback[Y]),
       )
@@ -1886,7 +1886,7 @@ fn parse_triangle_binding(
   indices : Array[Int]?,
   topology : @render3d.TriangleTopology3D,
   triangle_normals : Array[@math.Vec3],
-  triangle_uv_sets : Array[Array[@math.Vec2D]],
+  triangle_uv_sets : Array[Array[@math.Vec2]],
   triangle_colors : Array[@render.Color]?,
   triangle_tangents : Array[@render3d.Tangent3D]?,
   buffers : Array[Bytes?],
@@ -1937,12 +1937,12 @@ fn parse_triangle_uv_sets(
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
-) -> Array[Array[@math.Vec2D]] {
+) -> Array[Array[@math.Vec2]] {
   let max_set = max_attribute_set_index(attributes_object, "TEXCOORD_")
   if max_set < 0 {
     return []
   }
-  let uv_sets : Array[Array[@math.Vec2D]] = []
+  let uv_sets : Array[Array[@math.Vec2]] = []
   for set_index in 0..<(max_set + 1) {
     let resolved_uvs = match
       field_int(attributes_object, "TEXCOORD_\{set_index}") {
@@ -2286,7 +2286,7 @@ fn read_accessor_vec2(
   buffers : Array[Bytes?],
   buffer_views : Array[BufferViewTemplate?],
   accessors : Array[AccessorTemplate?],
-) -> Array[@math.Vec2D]? {
+) -> Array[@math.Vec2]? {
   guard accessor_index >= 0 else { return None }
   guard accessors.get(accessor_index) is Some(Some(accessor)) else {
     return None
@@ -2298,9 +2298,9 @@ fn read_accessor_vec2(
   if component_size <= 0 {
     return None
   }
-  let output : Array[@math.Vec2D] = []
+  let output : Array[@math.Vec2] = []
   for _ in 0..<accessor.count {
-    output.push(@math.Vec2D(0.0, 0.0))
+    output.push(@math.Vec2(0.0, 0.0))
   }
   if resolve_accessor_bytes(accessor, buffers, buffer_views)
     is Some((bytes, base_offset, stride, view_end)) {
@@ -2333,7 +2333,7 @@ fn read_accessor_vec2(
         accessor.normalized,
       )
       guard (x, y) is (Some(px), Some(py)) else { return None }
-      output[idx] = @math.Vec2D(px, py)
+      output[idx] = @math.Vec2(px, py)
     }
   }
   if accessor.sparse is Some(sparse) {
@@ -2380,7 +2380,7 @@ fn read_accessor_vec2(
         accessor.normalized,
       )
       guard (x, y) is (Some(px), Some(py)) else { return None }
-      output[target_index] = @math.Vec2D(px, py)
+      output[target_index] = @math.Vec2(px, py)
     }
   }
   Some(output)
@@ -3788,7 +3788,7 @@ fn parse_camera_component(
         {
           ..defaults,
           projection: Orthographic,
-          orthographic_size: Some(@math.Vec2D(2.0 * xmag, 2.0 * ymag)),
+          orthographic_size: Some(@math.Vec2(2.0 * xmag, 2.0 * ymag)),
           near: field_number(orthographic, "znear").unwrap_or(defaults.near),
           far: field_number(orthographic, "zfar").unwrap_or(defaults.far),
         }

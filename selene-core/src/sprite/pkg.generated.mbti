@@ -32,7 +32,7 @@ pub fn texture_atlas_layout_entries() -> Array[(TextureAtlasLayoutHandle, Textur
 
 pub fn texture_atlas_layout_rects(TextureAtlasLayout) -> Array[@math.Rect]
 
-pub fn texture_atlas_layout_size(TextureAtlasLayout) -> @math.Vec2D
+pub fn texture_atlas_layout_size(TextureAtlasLayout) -> @math.Vec2
 
 pub fn texture_atlas_rect(TextureAtlas) -> @math.Rect?
 
@@ -41,28 +41,28 @@ pub fn update_texture_atlas_layout(TextureAtlasLayoutHandle, TextureAtlasLayout)
 // Errors
 
 // Types and methods
-pub(all) struct Anchor(@math.Vec2D) derive(Eq, @debug.Debug)
-pub fn Anchor::as_vec(Self) -> @math.Vec2D
+pub(all) struct Anchor(@math.Vec2) derive(Eq, @debug.Debug)
+pub fn Anchor::as_vec(Self) -> @math.Vec2
 #deprecated
-pub fn Anchor::inner(Self) -> @math.Vec2D
+pub fn Anchor::inner(Self) -> @math.Vec2
 
 pub(all) struct Sprite {
   image : @asset_types.ImageHandle?
   mut texture_atlas : TextureAtlas?
   mut rect : @math.Rect?
   mut color : @render.Color
-  mut custom_size : @math.Vec2D?
+  mut custom_size : @math.Vec2?
   mut anchor : Anchor
   mut flip_x : Bool
   mut flip_y : Bool
   mut image_mode : SpriteImageMode
 
-  fn new(image? : @asset_types.ImageHandle?, texture_atlas? : TextureAtlas?, rect? : @math.Rect?, color? : @render.Color, custom_size? : @math.Vec2D?, anchor? : Anchor, flip_x? : Bool, flip_y? : Bool, image_mode? : SpriteImageMode) -> Sprite
+  fn new(image? : @asset_types.ImageHandle?, texture_atlas? : TextureAtlas?, rect? : @math.Rect?, color? : @render.Color, custom_size? : @math.Vec2?, anchor? : Anchor, flip_x? : Bool, flip_y? : Bool, image_mode? : SpriteImageMode) -> Sprite
 }
 pub fn Sprite::from_atlas_image(@asset_types.ImageHandle, TextureAtlas) -> Self
-pub fn Sprite::from_color(@render.Color, @math.Vec2D) -> Self
-pub fn Sprite::from_image(@asset_types.ImageHandle, custom_size? : @math.Vec2D?) -> Self
-pub fn Sprite::new(image? : @asset_types.ImageHandle?, texture_atlas? : TextureAtlas?, rect? : @math.Rect?, color? : @render.Color, custom_size? : @math.Vec2D?, anchor? : Anchor, flip_x? : Bool, flip_y? : Bool, image_mode? : SpriteImageMode) -> Self
+pub fn Sprite::from_color(@render.Color, @math.Vec2) -> Self
+pub fn Sprite::from_image(@asset_types.ImageHandle, custom_size? : @math.Vec2?) -> Self
+pub fn Sprite::new(image? : @asset_types.ImageHandle?, texture_atlas? : TextureAtlas?, rect? : @math.Rect?, color? : @render.Color, custom_size? : @math.Vec2?, anchor? : Anchor, flip_x? : Bool, flip_y? : Bool, image_mode? : SpriteImageMode) -> Self
 
 pub(all) enum SpriteImageMode {
   Auto
@@ -78,13 +78,13 @@ pub(all) struct TextureAtlas {
 pub fn TextureAtlas::new(TextureAtlasLayoutHandle, index? : Int) -> Self
 
 pub(all) struct TextureAtlasLayout {
-  size : @math.Vec2D
+  size : @math.Vec2
   rects : Array[@math.Rect]
 
-  fn new(@math.Vec2D, Array[@math.Rect]) -> TextureAtlasLayout
+  fn new(@math.Vec2, Array[@math.Rect]) -> TextureAtlasLayout
 }
-pub fn TextureAtlasLayout::from_grid(@math.Vec2D, Int, Int, padding? : @math.Vec2D?, offset? : @math.Vec2D?) -> Self
-pub fn TextureAtlasLayout::new(@math.Vec2D, Array[@math.Rect]) -> Self
+pub fn TextureAtlasLayout::from_grid(@math.Vec2, Int, Int, padding? : @math.Vec2?, offset? : @math.Vec2?) -> Self
+pub fn TextureAtlasLayout::new(@math.Vec2, Array[@math.Rect]) -> Self
 
 pub(all) struct TextureAtlasLayoutHandle(UInt) derive(Eq, Hash, @debug.Debug)
 #deprecated

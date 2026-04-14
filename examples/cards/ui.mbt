@@ -72,11 +72,11 @@ fn set_display(entity : @entity.Entity, display : @ui.Display) -> Unit {
 ///|
 fn configure_text(
   entity : @entity.Entity,
-  offset : @math.Vec2D,
+  offset : @math.Vec2,
   content : String,
   color : String,
   font : String,
-  size? : @math.Vec2D = @math.Vec2D(-1.0, -1.0),
+  size? : @math.Vec2 = @math.Vec2(-1.0, -1.0),
   align? : @math.HAlign = @math.HAlign::Left,
   baseline? : @math.VAlign = @math.VAlign::Top,
   zindex? : Int = HUD_ZINDEX,
@@ -92,8 +92,8 @@ fn configure_text(
 ///|
 fn configure_button(
   entity : @entity.Entity,
-  offset : @math.Vec2D,
-  size : @math.Vec2D,
+  offset : @math.Vec2,
+  size : @math.Vec2,
   background : String,
   tab_index : Int,
 ) -> Unit {
@@ -117,61 +117,61 @@ fn setup_ui() -> Unit {
     table_entity,
     @sprite.Sprite::new(
       color=@sprite.color_from_css("#2d5016"),
-      custom_size=Some(@math.Vec2D(VIEWPORT_WIDTH, VIEWPORT_HEIGHT)),
-      anchor=@sprite.Anchor(@math.Vec2D(-0.5, 0.5)),
+      custom_size=Some(@math.Vec2(VIEWPORT_WIDTH, VIEWPORT_HEIGHT)),
+      anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
     ),
   )
 
   configure_text(
     game_state.blind_label,
-    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 80.0, 20.0),
+    @math.Vec2(VIEWPORT_WIDTH / 2.0 - 80.0, 20.0),
     "Blind: $20",
     "gold",
     "20px ThaleahFat",
-    size=@math.Vec2D(160.0, 24.0),
+    size=@math.Vec2(160.0, 24.0),
     align=@math.HAlign::Center,
   )
   configure_text(
     game_state.chips_label,
-    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 80.0, 42.0),
+    @math.Vec2(VIEWPORT_WIDTH / 2.0 - 80.0, 42.0),
     "Chips: $1000",
     "lightgreen",
     "18px ThaleahFat",
-    size=@math.Vec2D(160.0, 22.0),
+    size=@math.Vec2(160.0, 22.0),
     align=@math.HAlign::Center,
   )
   configure_text(
     game_state.phase_label,
-    @math.Vec2D(20.0, 20.0),
+    @math.Vec2(20.0, 20.0),
     "Pre-Flop",
     "white",
     "18px ThaleahFat",
   )
   configure_text(
     game_state.turns_label,
-    @math.Vec2D(VIEWPORT_WIDTH - 110.0, 20.0),
+    @math.Vec2(VIEWPORT_WIDTH - 110.0, 20.0),
     "Turns: 10/10",
     "white",
     "18px ThaleahFat",
-    size=@math.Vec2D(90.0, 22.0),
+    size=@math.Vec2(90.0, 22.0),
     align=@math.HAlign::Right,
   )
   configure_text(
     game_state.hand_strength_label,
-    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 100.0, VIEWPORT_HEIGHT / 2.0 - 82.0),
+    @math.Vec2(VIEWPORT_WIDTH / 2.0 - 100.0, VIEWPORT_HEIGHT / 2.0 - 82.0),
     "",
     "cyan",
     "16px ThaleahFat",
-    size=@math.Vec2D(200.0, 20.0),
+    size=@math.Vec2(200.0, 20.0),
     align=@math.HAlign::Center,
   )
   configure_text(
     game_state.action_label,
-    @math.Vec2D(VIEWPORT_WIDTH / 2.0 - 110.0, VIEWPORT_HEIGHT - 64.0),
+    @math.Vec2(VIEWPORT_WIDTH / 2.0 - 110.0, VIEWPORT_HEIGHT - 64.0),
     "",
     "yellow",
     "16px ThaleahFat",
-    size=@math.Vec2D(220.0, 20.0),
+    size=@math.Vec2(220.0, 20.0),
     align=@math.HAlign::Center,
   )
 
@@ -184,16 +184,16 @@ fn create_action_buttons() -> Unit {
   let button_y = VIEWPORT_HEIGHT - 35.0
   let button_width = 70.0
   let button_height = 25.0
-  let button_size = @math.Vec2D(button_width, button_height)
-  let fold_offset = @math.Vec2D(
+  let button_size = @math.Vec2(button_width, button_height)
+  let fold_offset = @math.Vec2(
     VIEWPORT_WIDTH / 2.0 - 85.0 - button_width / 2.0,
     button_y,
   )
-  let call_offset = @math.Vec2D(
+  let call_offset = @math.Vec2(
     VIEWPORT_WIDTH / 2.0 - button_width / 2.0,
     button_y,
   )
-  let raise_offset = @math.Vec2D(
+  let raise_offset = @math.Vec2(
     VIEWPORT_WIDTH / 2.0 + 85.0 - button_width / 2.0,
     button_y,
   )

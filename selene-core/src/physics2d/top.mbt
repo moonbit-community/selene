@@ -246,12 +246,12 @@ pub let trigger_event_bus : @event.Events[TriggerEvent] = @collision.trigger_eve
 pub let pointer_event_bus : @event.Events[PointerEvent] = @collision.pointer_event_bus
 
 ///|
-pub fn make_velocity(value : @math.Vec2D) -> Velocity {
+pub fn make_velocity(value : @math.Vec2) -> Velocity {
   @velocity.Velocity(value)
 }
 
 ///|
-pub fn make_linear_velocity(value : @math.Vec2D) -> LinearVelocity {
+pub fn make_linear_velocity(value : @math.Vec2) -> LinearVelocity {
   make_velocity(value)
 }
 
@@ -305,8 +305,8 @@ pub fn multibody_link(entity : @entity.Entity) -> MultibodyLinkId? {
 
 ///|
 pub fn raycast(
-  origin : @math.Vec2D,
-  direction : @math.Vec2D,
+  origin : @math.Vec2,
+  direction : @math.Vec2,
   max_toi? : Double = 1000.0,
   solid? : Bool = true,
   query_filter? : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
@@ -317,9 +317,9 @@ pub fn raycast(
 ///|
 pub fn shape_cast(
   shape : CollisionShape,
-  origin : @math.Vec2D,
+  origin : @math.Vec2,
   rotation? : Double = 0.0,
-  direction? : @math.Vec2D = @math.Vec2D(0.0, -1.0),
+  direction? : @math.Vec2 = @math.Vec2(0.0, -1.0),
   max_toi? : Double = 1000.0,
   stop_at_penetration? : Bool = false,
   query_filter? : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
@@ -337,7 +337,7 @@ pub fn shape_cast(
 
 ///|
 pub fn intersect_point(
-  point : @math.Vec2D,
+  point : @math.Vec2,
   query_filter? : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
 ) -> Array[@entity.Entity] {
   @collision.intersect_point(point, query_filter~)
@@ -346,7 +346,7 @@ pub fn intersect_point(
 ///|
 pub fn intersect_shape(
   shape : CollisionShape,
-  origin : @math.Vec2D,
+  origin : @math.Vec2,
   rotation? : Double = 0.0,
   query_filter? : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
 ) -> Array[@entity.Entity] {
@@ -354,14 +354,14 @@ pub fn intersect_shape(
 }
 
 ///|
-pub fn rigid_body_translation(entity : @entity.Entity) -> @math.Vec2D? {
+pub fn rigid_body_translation(entity : @entity.Entity) -> @math.Vec2? {
   @collision.rigid_body_translation(entity)
 }
 
 ///|
 pub fn set_rigid_body_translation(
   entity : @entity.Entity,
-  translation : @math.Vec2D,
+  translation : @math.Vec2,
 ) -> Unit {
   @collision.set_rigid_body_translation(entity, translation)
 }
@@ -380,14 +380,14 @@ pub fn set_rigid_body_rotation(
 }
 
 ///|
-pub fn rigid_body_linear_velocity(entity : @entity.Entity) -> @math.Vec2D? {
+pub fn rigid_body_linear_velocity(entity : @entity.Entity) -> @math.Vec2? {
   @collision.rigid_body_linear_velocity(entity)
 }
 
 ///|
 pub fn set_rigid_body_linear_velocity(
   entity : @entity.Entity,
-  linear_velocity : @math.Vec2D,
+  linear_velocity : @math.Vec2,
 ) -> Unit {
   @collision.set_rigid_body_linear_velocity(entity, linear_velocity)
 }
@@ -408,7 +408,7 @@ pub fn set_rigid_body_angular_velocity(
 ///|
 pub fn add_force(
   entity : @entity.Entity,
-  force : @math.Vec2D,
+  force : @math.Vec2,
   wake_up? : Bool = true,
 ) -> Unit {
   @collision.add_force(entity, force, wake_up~)
@@ -417,8 +417,8 @@ pub fn add_force(
 ///|
 pub fn add_force_at_point(
   entity : @entity.Entity,
-  force : @math.Vec2D,
-  point : @math.Vec2D,
+  force : @math.Vec2,
+  point : @math.Vec2,
   wake_up? : Bool = true,
 ) -> Unit {
   @collision.add_force_at_point(entity, force, point, wake_up~)
@@ -436,7 +436,7 @@ pub fn add_torque(
 ///|
 pub fn apply_impulse(
   entity : @entity.Entity,
-  impulse : @math.Vec2D,
+  impulse : @math.Vec2,
   wake_up? : Bool = true,
 ) -> Unit {
   @collision.apply_impulse(entity, impulse, wake_up~)
@@ -445,8 +445,8 @@ pub fn apply_impulse(
 ///|
 pub fn apply_impulse_at_point(
   entity : @entity.Entity,
-  impulse : @math.Vec2D,
-  point : @math.Vec2D,
+  impulse : @math.Vec2,
+  point : @math.Vec2,
   wake_up? : Bool = true,
 ) -> Unit {
   @collision.apply_impulse_at_point(entity, impulse, point, wake_up~)
@@ -483,7 +483,7 @@ pub fn move_system(delta : Double) -> Unit {
 
 ///|
 pub fn configure_physics(
-  gravity? : @math.Vec2D,
+  gravity? : @math.Vec2,
   pixels_per_meter? : Double,
   max_ccd_substeps? : Int,
 ) -> Unit {
