@@ -8,6 +8,7 @@ import {
   "Milky2018/selene/inputs",
   "Milky2018/selene/math",
   "Milky2018/selene/velocity",
+  "moonbitlang/core/debug",
   "moonbitlang/core/set",
 }
 
@@ -148,7 +149,7 @@ pub(all) enum CollisionShape {
   Ball(radius~ : Double, offset~ : @math.Vec2)
   Polygon(points~ : Array[@math.Vec2], offset~ : @math.Vec2)
   Polyline(points~ : Array[@math.Vec2], offset~ : @math.Vec2, closed~ : Bool)
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub struct ContactEvent {
   entity : @entity.Entity
@@ -163,7 +164,7 @@ pub struct Joint {
   kind : JointKind
   active : Bool
   contacts_enabled : Bool
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn Joint::fixed(@entity.Entity, @entity.Entity, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, active? : Bool, contacts_enabled? : Bool) -> Self
 pub fn Joint::prismatic(@entity.Entity, @entity.Entity, @math.Vec2, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, limits? : JointLimits, active? : Bool, contacts_enabled? : Bool) -> Self
 pub fn Joint::revolute(@entity.Entity, @entity.Entity, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, limits? : JointLimits, motor? : JointMotor, softness? : JointSoftness, active? : Bool, contacts_enabled? : Bool) -> Self
@@ -176,27 +177,27 @@ pub enum JointKind {
   Prismatic(axis~ : @math.Vec2, local_anchor1~ : @math.Vec2, local_anchor2~ : @math.Vec2, limits~ : JointLimits?)
   Rope(max_distance~ : Double, local_anchor1~ : @math.Vec2, local_anchor2~ : @math.Vec2)
   Spring(rest_length~ : Double, stiffness~ : Double, damping~ : Double, local_anchor1~ : @math.Vec2, local_anchor2~ : @math.Vec2, model~ : JointMotorModel)
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub struct JointLimits {
   min : Double
   max : Double
 
   fn new(Double, Double) -> JointLimits
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn JointLimits::new(Double, Double) -> Self
 
 pub enum JointMotor {
   Position(target_position~ : Double, stiffness~ : Double, damping~ : Double, max_force~ : Double?, model~ : JointMotorModel)
   Velocity(target_velocity~ : Double, damping~ : Double, max_force~ : Double?, model~ : JointMotorModel)
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn JointMotor::position(Double, Double, Double, max_force? : Double, model? : JointMotorModel) -> Self
 pub fn JointMotor::velocity(Double, Double, max_force? : Double, model? : JointMotorModel) -> Self
 
 pub enum JointMotorModel {
   AccelerationBased
   ForceBased
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn JointMotorModel::acceleration_based() -> Self
 pub fn JointMotorModel::force_based() -> Self
 
@@ -205,19 +206,19 @@ pub struct JointSoftness {
   natural_frequency : Double
 
   fn new(Double, Double) -> JointSoftness
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn JointSoftness::new(Double, Double) -> Self
 
 pub struct MultibodyJoint {
   parent : @entity.Entity
   kind : MultibodyJointKind
   active : Bool
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn MultibodyJoint::revolute(@entity.Entity, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, limits? : JointLimits, motor? : JointMotor, softness? : JointSoftness, active? : Bool) -> Self
 
 pub enum MultibodyJointKind {
   Revolute(local_anchor1~ : @math.Vec2, local_anchor2~ : @math.Vec2, limits~ : JointLimits?, motor~ : JointMotor?, softness~ : JointSoftness?)
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct PhysicsConfig {
   mut gravity : @math.Vec2
@@ -250,7 +251,7 @@ pub struct RaycastHit {
   toi : Double
   point : @math.Vec2
   normal : @math.Vec2
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct RigidBody {
   body_type : RigidBodyType
@@ -259,7 +260,7 @@ pub(all) struct RigidBody {
   angular_damping : Double
   ccd_enabled : Bool
   lock_rotation : Bool
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn RigidBody::dynamic() -> Self
 pub fn RigidBody::fixed() -> Self
 pub fn RigidBody::kinematic_position_based() -> Self
@@ -270,14 +271,14 @@ pub(all) enum RigidBodyType {
   Fixed
   KinematicPositionBased
   KinematicVelocityBased
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub struct ShapeCastHit {
   entity : @entity.Entity
   toi : Double
   point : @math.Vec2
   normal : @math.Vec2
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub enum SpatialQueryBodyFilter {
   All

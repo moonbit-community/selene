@@ -120,6 +120,13 @@ priv enum InspectorComponentsMsg {
   UpdateSelectedRotation(String)
   UpdateSelectedText(String)
   ToggleSelectedVisibility
+  UpdateSelectedAutoTileAtlasPath(String)
+  UpdateSelectedAutoTileTileWidth(String)
+  UpdateSelectedAutoTileTileHeight(String)
+  UpdateSelectedAutoTileOriginX(String)
+  UpdateSelectedAutoTileOriginY(String)
+  UpdateSelectedAutoTileRuleSet(String)
+  UpdateAutoTileBrushTerrain(String)
 }
 
 ///|
@@ -332,6 +339,20 @@ fn to_domain_msg(msg : Msg) -> DomainMsg {
       InspectorComponents(UpdateSelectedRotation(value))
     UpdateSelectedText(value) => InspectorComponents(UpdateSelectedText(value))
     ToggleSelectedVisibility => InspectorComponents(ToggleSelectedVisibility)
+    UpdateSelectedAutoTileAtlasPath(value) =>
+      InspectorComponents(UpdateSelectedAutoTileAtlasPath(value))
+    UpdateSelectedAutoTileTileWidth(value) =>
+      InspectorComponents(UpdateSelectedAutoTileTileWidth(value))
+    UpdateSelectedAutoTileTileHeight(value) =>
+      InspectorComponents(UpdateSelectedAutoTileTileHeight(value))
+    UpdateSelectedAutoTileOriginX(value) =>
+      InspectorComponents(UpdateSelectedAutoTileOriginX(value))
+    UpdateSelectedAutoTileOriginY(value) =>
+      InspectorComponents(UpdateSelectedAutoTileOriginY(value))
+    UpdateSelectedAutoTileRuleSet(value) =>
+      InspectorComponents(UpdateSelectedAutoTileRuleSet(value))
+    UpdateAutoTileBrushTerrain(value) =>
+      InspectorComponents(UpdateAutoTileBrushTerrain(value))
     UpdateSelectedAnimationPlayerGraphPath(value) =>
       AnimationEditor(UpdateSelectedAnimationPlayerGraphPath(value))
     UpdateSelectedAnimationPlayerStartNode(value) =>

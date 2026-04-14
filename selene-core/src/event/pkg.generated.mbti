@@ -4,6 +4,7 @@ package "Milky2018/selene/event"
 import {
   "Milky2018/selene/ecs",
   "Milky2018/selene/entity",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -34,7 +35,7 @@ pub(all) enum EventDomain {
   Frame
   Fixed
   Render
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct EventReader[T] {
   last_seen_by_world : Map[UInt, Int]
@@ -77,7 +78,7 @@ pub fn[T] Events::unobserve(Self[T], ObserverHandle) -> Unit
 pub fn[T] Events::update(Self[T]) -> Unit
 pub fn[T] Events::writer(Self[T]) -> EventWriter[T]
 
-pub(all) struct ObserverHandle(Int) derive(Eq, Hash, Show)
+pub(all) struct ObserverHandle(Int) derive(Eq, Hash, @debug.Debug)
 #deprecated
 pub fn ObserverHandle::inner(Self) -> Int
 

@@ -7,6 +7,7 @@ import {
   "Milky2018/selene/render3d_types",
   "Milky2018/selene/scene3d",
   "Milky2018/selene/transform",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -32,7 +33,7 @@ pub fn spawner() -> SceneSpawner
 pub(all) struct SceneInstanceReadyEvent {
   scene : @render3d_types.SceneHandle
   root : @entity.Entity
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct SceneSpawner {
   _tag : Unit

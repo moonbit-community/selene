@@ -772,6 +772,8 @@ fn run_preview_command(command : @bridge.PreviewCommand) -> Unit {
     @bridge.PreviewCommand::SetTool(tool) => @preview.set_tool(tool)
     @bridge.PreviewCommand::SetMoveSnap(enabled~, step~) =>
       @preview.set_move_snap(enabled, step)
+    @bridge.PreviewCommand::SetAutoTileBrushTerrain(terrain) =>
+      @preview.set_autotile_brush_terrain(terrain)
     @bridge.PreviewCommand::SetAnimationPreviewPaused(paused) =>
       @preview.set_animation_preview_paused(paused)
     @bridge.PreviewCommand::SetAnimationPreviewSpeed(speed) =>
@@ -2481,6 +2483,72 @@ fn custom_component_body(
 }
 
 ///|
+fn autotile_rule_set_label(
+  rule_set : @editor_bridge.AutoTileRuleSetDocument,
+) -> String {
+  match rule_set {
+    @editor_bridge.Bitmask4 => "Bitmask4"
+    @editor_bridge.Bitmask8 => "Bitmask8"
+    @editor_bridge.Wang => "Wang"
+  }
+}
+
+///|
+fn autotile_component_body(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  model : @app.Model,
+  layer : @editor_bridge.AutoTileLayer2dComponent,
+) -> @rabbita.Html {
+  let palette_lines = layer.palette.map(fn(entry) {
+    "terrain \{entry.terrain}: " + entry.fallback_region_name
+  })
+  @html.div(class="inspector-block", [
+    labeled_input("Atlas Asset Path", layer.atlas_asset_path, fn(value) {
+      dispatch(@app.msg_update_selected_autotile_atlas_path(value))
+    }),
+    labeled_input("Tile Width", layer.tile_size.x.to_string(), fn(value) {
+      dispatch(@app.msg_update_selected_autotile_tile_width(value))
+    }),
+    labeled_input("Tile Height", layer.tile_size.y.to_string(), fn(value) {
+      dispatch(@app.msg_update_selected_autotile_tile_height(value))
+    }),
+    labeled_input("Origin X", layer.origin.x.to_string(), fn(value) {
+      dispatch(@app.msg_update_selected_autotile_origin_x(value))
+    }),
+    labeled_input("Origin Y", layer.origin.y.to_string(), fn(value) {
+      dispatch(@app.msg_update_selected_autotile_origin_y(value))
+    }),
+    labeled_input("Rule Set", autotile_rule_set_label(layer.rule_set), fn(
+      value,
+    ) {
+      dispatch(@app.msg_update_selected_autotile_rule_set(value))
+    }),
+    labeled_input("Brush Terrain", model.autotile_brush_terrain.to_string(), fn(
+      value,
+    ) {
+      dispatch(@app.msg_update_autotile_brush_terrain(value))
+    }),
+    @html.div(class="kv", [
+      @html.span(class="kv-key", "Cells"),
+      @html.span(class="kv-value", layer.cells.length().to_string()),
+    ]),
+    @html.div(class="kv", [
+      @html.span(class="kv-key", "Palette"),
+      @html.span(class="kv-value", layer.palette.length().to_string()),
+    ]),
+    if palette_lines.is_empty() {
+      @html.div(class="kv-value", "No palette entries")
+    } else {
+      @html.div(class="kv-value", palette_lines.join(" | "))
+    },
+    @html.div(
+      class="kv-value",
+      "Use AutoTile Paint / Erase / Fill tools in viewport to edit cells.",
+    ),
+  ])
+}
+
+///|
 fn component_body_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.Model,
@@ -2547,6 +2615,16 @@ fn component_body_view(
             class="component-error",
             "Invalid AnimationTransitions data",
           )
+      }
+    }
+    "AutoTileLayer2d" => {
+      let layer : @editor_bridge.AutoTileLayer2dComponent? = @app.component_of(
+        entity, "AutoTileLayer2d",
+      )
+      match layer {
+        Some(layer) => autotile_component_body(dispatch, model, layer)
+        None =>
+          @html.div(class="component-error", "Invalid AutoTileLayer2d data")
       }
     }
     _ =>
@@ -3581,6 +3659,27 @@ fn view(
             @shared.preview_tool_scale(),
             "Scale (R)",
             "⬚",
+          ),
+          toolbar_button(
+            dispatch,
+            model.active_tool,
+            @shared.preview_tool_autotile_paint(),
+            "AutoTile Paint",
+            "P",
+          ),
+          toolbar_button(
+            dispatch,
+            model.active_tool,
+            @shared.preview_tool_autotile_erase(),
+            "AutoTile Erase",
+            "E",
+          ),
+          toolbar_button(
+            dispatch,
+            model.active_tool,
+            @shared.preview_tool_autotile_fill(),
+            "AutoTile Fill",
+            "F",
           ),
         ]),
       ]),

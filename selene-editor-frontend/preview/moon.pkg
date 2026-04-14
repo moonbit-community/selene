@@ -1,5 +1,6 @@
 import {
   "Milky2018/selene/animation",
+  "Milky2018/selene/autotile2d",
   "Milky2018/selene/editor_bridge",
   "Milky2018/selene_editor_shared/preview_bridge" @bridge,
   "moonbitlang/core/math" @cmath,

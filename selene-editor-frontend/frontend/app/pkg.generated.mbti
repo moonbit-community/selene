@@ -201,6 +201,8 @@ pub fn msg_update_animation_preview_seek_input(String) -> Msg
 
 pub fn msg_update_animation_preview_speed(String) -> Msg
 
+pub fn msg_update_autotile_brush_terrain(String) -> Msg
+
 pub fn msg_update_custom_component_json(String, String) -> Msg
 
 pub fn msg_update_selected_animation_clip_asset_name(String) -> Msg
@@ -252,6 +254,18 @@ pub fn msg_update_selected_atlas_spacing_y(String) -> Msg
 pub fn msg_update_selected_atlas_tile_height(String) -> Msg
 
 pub fn msg_update_selected_atlas_tile_width(String) -> Msg
+
+pub fn msg_update_selected_autotile_atlas_path(String) -> Msg
+
+pub fn msg_update_selected_autotile_origin_x(String) -> Msg
+
+pub fn msg_update_selected_autotile_origin_y(String) -> Msg
+
+pub fn msg_update_selected_autotile_rule_set(String) -> Msg
+
+pub fn msg_update_selected_autotile_tile_height(String) -> Msg
+
+pub fn msg_update_selected_autotile_tile_width(String) -> Msg
 
 pub fn msg_update_selected_prefab_name(String) -> Msg
 
@@ -347,6 +361,7 @@ pub struct Model {
   active_tool : @shared.PreviewTool
   move_snap_enabled : Bool
   move_snap_step : Double
+  autotile_brush_terrain : Int
   animation_preview_paused : Bool
   animation_preview_speed : Double
   animation_preview_seek_input : String
@@ -488,6 +503,13 @@ pub enum Msg {
   UpdateSelectedRotation(String)
   UpdateSelectedText(String)
   ToggleSelectedVisibility
+  UpdateSelectedAutoTileAtlasPath(String)
+  UpdateSelectedAutoTileTileWidth(String)
+  UpdateSelectedAutoTileTileHeight(String)
+  UpdateSelectedAutoTileOriginX(String)
+  UpdateSelectedAutoTileOriginY(String)
+  UpdateSelectedAutoTileRuleSet(String)
+  UpdateAutoTileBrushTerrain(String)
   UpdateSelectedAnimationPlayerGraphPath(String)
   UpdateSelectedAnimationPlayerStartNode(String)
   ToggleSelectedAnimationPlayerAutoplay

@@ -31,6 +31,9 @@ fn test_preview_tool_repr(tool : @shared.PreviewTool) -> String {
     Translate => "Translate"
     Rotate => "Rotate"
     Scale => "Scale"
+    AutoTilePaint => "AutoTilePaint"
+    AutoTileErase => "AutoTileErase"
+    AutoTileFill => "AutoTileFill"
   }
 }
 
@@ -105,7 +108,7 @@ test "clear selection closes inspector panel before deselecting" {
   inspect(closed_panel.status, content="Inspector panel closed")
 
   let (effects, cleared) = update(msg_clear_selection(), closed_panel)
-  inspect(effects.length(), content="3")
+  inspect(effects.length(), content="4")
   inspect(cleared.selected_entity_id, content="None")
   inspect(
     test_resource_selection_repr(cleared.selected_resource),

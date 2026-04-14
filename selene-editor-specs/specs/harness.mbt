@@ -34,6 +34,7 @@ fn FakePreviewBridge::apply(
     }
     @bridge.SetTool(_) => ()
     @bridge.SetMoveSnap(..) => ()
+    @bridge.SetAutoTileBrushTerrain(_) => ()
     @bridge.SetAnimationPreviewPaused(_) => ()
     @bridge.SetAnimationPreviewSpeed(_) => ()
     @bridge.SeekAnimationPreview(_) => ()

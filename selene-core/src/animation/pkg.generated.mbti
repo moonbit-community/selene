@@ -8,6 +8,7 @@ import {
   "Milky2018/selene/math",
   "Milky2018/selene/render",
   "Milky2018/selene/render3d_types",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -129,7 +130,7 @@ pub(all) struct AnimatedField {
   apply : (@entity.Entity, AnimatedValue) -> Unit
 }
 
-pub(all) struct AnimatedFieldHandle(UInt) derive(Eq, Hash, Show)
+pub(all) struct AnimatedFieldHandle(UInt) derive(Eq, Hash, @debug.Debug)
 #deprecated
 pub fn AnimatedFieldHandle::inner(Self) -> UInt
 
@@ -154,15 +155,15 @@ pub fn AnimationClip::new(String) -> Self
 
 pub(all) struct AnimationClipEventDispatch {
   target : AnimationTargetId?
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct AnimationClipEventKeyframe {
   time : Double
   descriptor : AnimationEventDescriptorHandle
   dispatch : AnimationClipEventDispatch
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
-pub(all) struct AnimationClipHandle(UInt) derive(Eq, Hash, Show)
+pub(all) struct AnimationClipHandle(UInt) derive(Eq, Hash, @debug.Debug)
 #deprecated
 pub fn AnimationClipHandle::inner(Self) -> UInt
 
@@ -171,9 +172,9 @@ pub(all) struct AnimationEventContext {
   player : @entity.Entity
   target : @entity.Entity?
   time : Double
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
-pub(all) struct AnimationEventDescriptorHandle(UInt) derive(Eq, Hash, Show)
+pub(all) struct AnimationEventDescriptorHandle(UInt) derive(Eq, Hash, @debug.Debug)
 #deprecated
 pub fn AnimationEventDescriptorHandle::inner(Self) -> UInt
 
@@ -203,7 +204,7 @@ pub(all) struct AnimationGraphEdge {
   mut weight : Double
 }
 
-pub(all) struct AnimationGraphHandle(UInt) derive(Eq, Hash, Show)
+pub(all) struct AnimationGraphHandle(UInt) derive(Eq, Hash, @debug.Debug)
 #deprecated
 pub fn AnimationGraphHandle::inner(Self) -> UInt
 
@@ -219,7 +220,7 @@ pub(all) enum AnimationGraphNodeType {
   Clip(AnimationClipHandle)
 }
 
-pub(all) struct AnimationNodeIndex(UInt) derive(Eq, Hash, Show)
+pub(all) struct AnimationNodeIndex(UInt) derive(Eq, Hash, @debug.Debug)
 #deprecated
 pub fn AnimationNodeIndex::inner(Self) -> UInt
 
@@ -244,7 +245,7 @@ pub fn AnimationPlayer::start(Self, AnimationNodeIndex, repeat? : RepeatAnimatio
 pub fn AnimationPlayer::stop(Self, AnimationNodeIndex) -> Self
 pub fn AnimationPlayer::stop_all(Self) -> Self
 
-pub(all) struct AnimationTargetId(String) derive(Eq, Hash, Show)
+pub(all) struct AnimationTargetId(String) derive(Eq, Hash, @debug.Debug)
 pub fn AnimationTargetId::from_names(Array[String]) -> Self
 #deprecated
 pub fn AnimationTargetId::inner(Self) -> String
@@ -266,13 +267,13 @@ pub(all) enum AnimationValueKind {
   Vec3
   Quat
   Weights
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum ChannelInterpolation {
   Step
   Linear
   CubicSpline
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct MorphMeshBinding3D {
   target_entity : @entity.Entity
@@ -291,27 +292,27 @@ pub(all) struct MorphMeshBinding3D {
 pub(all) struct MorphTargetBinding3D {
   position_deltas : Array[@math.Vec3]?
   normal_deltas : Array[@math.Vec3]?
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct QuatKeyframe {
   time : Double
   value : @math.Quat
   in_tangent : @math.Quat?
   out_tangent : @math.Quat?
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum RepeatAnimation {
   Never
   Forever
   Count(UInt)
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct ScalarKeyframe {
   time : Double
   value : Double
   in_tangent : Double?
   out_tangent : Double?
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct SkinVertexInfluence3D {
   joint0 : Int
@@ -363,14 +364,14 @@ pub(all) struct Vec3Keyframe {
   value : @math.Vec3
   in_tangent : @math.Vec3?
   out_tangent : @math.Vec3?
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct WeightKeyframe {
   time : Double
   value : Array[Double]
   in_tangent : Array[Double]?
   out_tangent : Array[Double]?
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 // Type aliases
 

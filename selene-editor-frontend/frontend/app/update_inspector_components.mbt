@@ -1,4 +1,37 @@
 ///|
+fn autotile_rule_set_from_string(
+  value : String,
+) -> @editor_bridge.AutoTileRuleSetDocument {
+  match value.trim().to_lower() {
+    "bitmask4" | "4" => @editor_bridge.autotile_rule_set_bitmask4()
+    "wang" => @editor_bridge.autotile_rule_set_wang()
+    _ => @editor_bridge.autotile_rule_set_bitmask8()
+  }
+}
+
+///|
+fn selected_autotile_layer_component(
+  model : Model,
+) -> (@editor_bridge.EntityDocument, @editor_bridge.AutoTileLayer2dComponent)? {
+  guard model.selected_entity() is Some(entity) else { return None }
+  let component : @editor_bridge.AutoTileLayer2dComponent? = component_of(
+    entity, "AutoTileLayer2d",
+  )
+  component.map(fn(value) { (entity, value) })
+}
+
+///|
+fn update_selected_autotile_layer_component(
+  model : Model,
+  updater : (@editor_bridge.AutoTileLayer2dComponent) -> @editor_bridge.ComponentDocument,
+) -> Model {
+  match selected_autotile_layer_component(model) {
+    Some((_, layer)) => update_selected_component(model, updater(layer))
+    None => model
+  }
+}
+
+///|
 fn update_inspector_components(
   msg : InspectorComponentsMsg,
   model : Model,
@@ -485,5 +518,115 @@ fn update_inspector_components(
         }
         None => ([], model)
       }
+    UpdateSelectedAutoTileAtlasPath(value) => {
+      let staged = with_started_scene_edit_transaction(
+        model, "Edit AutoTile Layer",
+      )
+      let next = update_selected_autotile_layer_component(staged, fn(layer) {
+        @editor_bridge.autotile_layer2d_component(
+          tile_size=layer.tile_size,
+          origin=layer.origin,
+          atlas_asset_path=value.trim().to_string(),
+          rule_set=layer.rule_set,
+          palette=layer.palette,
+          cells=layer.cells,
+        )
+      })
+      apply_scene_change_without_history(staged, next)
+    }
+    UpdateSelectedAutoTileTileWidth(value) => {
+      let staged = with_started_scene_edit_transaction(
+        model, "Edit AutoTile Layer",
+      )
+      let next = update_selected_autotile_layer_component(staged, fn(layer) {
+        @editor_bridge.autotile_layer2d_component(
+          tile_size=layer.tile_size.with_x(
+            parse_positive_double_or(layer.tile_size.x, value),
+          ),
+          origin=layer.origin,
+          atlas_asset_path=layer.atlas_asset_path,
+          rule_set=layer.rule_set,
+          palette=layer.palette,
+          cells=layer.cells,
+        )
+      })
+      apply_scene_change_without_history(staged, next)
+    }
+    UpdateSelectedAutoTileTileHeight(value) => {
+      let staged = with_started_scene_edit_transaction(
+        model, "Edit AutoTile Layer",
+      )
+      let next = update_selected_autotile_layer_component(staged, fn(layer) {
+        @editor_bridge.autotile_layer2d_component(
+          tile_size=layer.tile_size.with_y(
+            parse_positive_double_or(layer.tile_size.y, value),
+          ),
+          origin=layer.origin,
+          atlas_asset_path=layer.atlas_asset_path,
+          rule_set=layer.rule_set,
+          palette=layer.palette,
+          cells=layer.cells,
+        )
+      })
+      apply_scene_change_without_history(staged, next)
+    }
+    UpdateSelectedAutoTileOriginX(value) => {
+      let staged = with_started_scene_edit_transaction(
+        model, "Edit AutoTile Layer",
+      )
+      let next = update_selected_autotile_layer_component(staged, fn(layer) {
+        @editor_bridge.autotile_layer2d_component(
+          tile_size=layer.tile_size,
+          origin=layer.origin.with_x(parse_double_or(layer.origin.x, value)),
+          atlas_asset_path=layer.atlas_asset_path,
+          rule_set=layer.rule_set,
+          palette=layer.palette,
+          cells=layer.cells,
+        )
+      })
+      apply_scene_change_without_history(staged, next)
+    }
+    UpdateSelectedAutoTileOriginY(value) => {
+      let staged = with_started_scene_edit_transaction(
+        model, "Edit AutoTile Layer",
+      )
+      let next = update_selected_autotile_layer_component(staged, fn(layer) {
+        @editor_bridge.autotile_layer2d_component(
+          tile_size=layer.tile_size,
+          origin=layer.origin.with_y(parse_double_or(layer.origin.y, value)),
+          atlas_asset_path=layer.atlas_asset_path,
+          rule_set=layer.rule_set,
+          palette=layer.palette,
+          cells=layer.cells,
+        )
+      })
+      apply_scene_change_without_history(staged, next)
+    }
+    UpdateSelectedAutoTileRuleSet(value) => {
+      let staged = with_started_scene_edit_transaction(
+        model, "Edit AutoTile Layer",
+      )
+      let rule_set = autotile_rule_set_from_string(value)
+      let next = update_selected_autotile_layer_component(staged, fn(layer) {
+        @editor_bridge.autotile_layer2d_component(
+          tile_size=layer.tile_size,
+          origin=layer.origin,
+          atlas_asset_path=layer.atlas_asset_path,
+          rule_set~,
+          palette=layer.palette,
+          cells=layer.cells,
+        )
+      })
+      apply_scene_change_without_history(staged, next)
+    }
+    UpdateAutoTileBrushTerrain(value) => {
+      let terrain = parse_positive_int_or(model.autotile_brush_terrain, value)
+      let next = {
+        ..model,
+        autotile_brush_terrain: terrain,
+        status: "AutoTile brush terrain: " + terrain.to_string(),
+      }
+      (sync_preview_effects(next), next)
+    }
   }
 }

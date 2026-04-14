@@ -5,6 +5,7 @@ import {
   "Milky2018/selene/entity",
   "Milky2018/selene/math",
   "Milky2018/selene/transform",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -22,7 +23,7 @@ pub(all) struct Camera {
   order : Int
 
   fn new(is_active? : Bool, order? : Int) -> Camera
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn Camera::new(is_active? : Bool, order? : Int) -> Self
 pub fn Camera::viewport_to_world_2d(Self, @transform.GlobalTransform, OrthographicProjection, @math.Vec2) -> @math.Vec2
 pub fn Camera::world_to_viewport(Self, @transform.GlobalTransform, OrthographicProjection, @math.Vec2) -> @math.Vec2
@@ -30,7 +31,7 @@ pub impl Default for Camera
 
 pub(all) struct Camera2d {
   fn new() -> Camera2d
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn Camera2d::new() -> Self
 pub impl Default for Camera2d
 
@@ -40,7 +41,7 @@ pub(all) struct OrthographicProjection {
   scale : Double
 
   fn new(scale? : Double, near? : Double, far? : Double) -> OrthographicProjection
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn OrthographicProjection::new(scale? : Double, near? : Double, far? : Double) -> Self
 pub impl Default for OrthographicProjection
 

@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/system_set"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 pub fn after(SystemSet) -> SystemOrdering
 
@@ -28,7 +32,7 @@ pub(all) struct SystemSet {
   name : String
 
   fn new(String) -> SystemSet
-} derive(Eq, Hash, Show)
+} derive(Eq, Hash, @debug.Debug)
 pub fn SystemSet::new(String) -> Self
 
 // Type aliases

@@ -93,6 +93,7 @@ pub enum BuiltinComponentKind {
   Visibility
   Sprite
   TextureAtlas
+  AutoTileLayer2d
   Text2d
   Mesh2d
   ColorMaterial
@@ -219,6 +220,57 @@ pub enum AnimationRepeatModeDoc {
 ///|
 pub struct AnimationTransitionsComponent {
   duration : Double
+} derive(Debug, Eq, ToJson, FromJson)
+
+///|
+pub enum AutoTileRuleSetDocument {
+  Bitmask4
+  Bitmask8
+  Wang
+} derive(Debug, Eq, ToJson, FromJson)
+
+///|
+pub struct AutoTileMaskRuleDocument {
+  mask : Int
+  region_name : String
+  atlas_index : Int
+} derive(Debug, Eq, ToJson, FromJson)
+
+///|
+pub struct AutoTileWangRuleDocument {
+  north : Int
+  east : Int
+  south : Int
+  west : Int
+  region_name : String
+  atlas_index : Int
+} derive(Debug, Eq, ToJson, FromJson)
+
+///|
+pub struct AutoTilePaletteEntryDocument {
+  terrain : Int
+  fallback_region_name : String
+  fallback_atlas_index : Int
+  bitmask4_rules : Array[AutoTileMaskRuleDocument]
+  bitmask8_rules : Array[AutoTileMaskRuleDocument]
+  wang_rules : Array[AutoTileWangRuleDocument]
+} derive(Debug, Eq, ToJson, FromJson)
+
+///|
+pub struct AutoTileCellDocument {
+  x : Int
+  y : Int
+  terrain : Int
+} derive(Debug, Eq, ToJson, FromJson)
+
+///|
+pub struct AutoTileLayer2dComponent {
+  tile_size : Vec2Doc
+  origin : Vec2Doc
+  atlas_asset_path : String
+  rule_set : AutoTileRuleSetDocument
+  palette : Array[AutoTilePaletteEntryDocument]
+  cells : Array[AutoTileCellDocument]
 } derive(Debug, Eq, ToJson, FromJson)
 
 ///|
@@ -1161,6 +1213,7 @@ pub fn builtin_component_kinds() -> Array[BuiltinComponentKind] {
     Visibility,
     Sprite,
     TextureAtlas,
+    AutoTileLayer2d,
     Text2d,
     Mesh2d,
     ColorMaterial,
@@ -1180,6 +1233,7 @@ pub fn builtin_component_kind_to_string(kind : BuiltinComponentKind) -> String {
     Visibility => "Visibility"
     Sprite => "Sprite"
     TextureAtlas => "TextureAtlas"
+    AutoTileLayer2d => "AutoTileLayer2d"
     Text2d => "Text2d"
     Mesh2d => "Mesh2d"
     ColorMaterial => "ColorMaterial"
@@ -1201,6 +1255,7 @@ pub fn builtin_component_kind_from_string(
     "Visibility" => Some(Visibility)
     "Sprite" => Some(Sprite)
     "TextureAtlas" => Some(TextureAtlas)
+    "AutoTileLayer2d" => Some(AutoTileLayer2d)
     "Text2d" => Some(Text2d)
     "Mesh2d" => Some(Mesh2d)
     "ColorMaterial" => Some(ColorMaterial)
@@ -1217,8 +1272,13 @@ pub fn builtin_component_kind_from_string(
 pub fn builtin_component_category(kind : BuiltinComponentKind) -> String {
   match kind {
     Name | Transform2d | Visibility => "Common"
-    Sprite | TextureAtlas | Text2d | Mesh2d | ColorMaterial | Camera2d =>
-      "Rendering"
+    Sprite
+    | TextureAtlas
+    | AutoTileLayer2d
+    | Text2d
+    | Mesh2d
+    | ColorMaterial
+    | Camera2d => "Rendering"
     PhysicsBody2d | PhysicsCollider2d => "Physics2D"
     AnimationPlayer | AnimationTransitions => "Animation"
   }
@@ -1252,6 +1312,7 @@ pub fn default_component_document(
     Visibility => visibility_component()
     Sprite => sprite_component()
     TextureAtlas => texture_atlas_component()
+    AutoTileLayer2d => autotile_layer2d_component()
     Text2d => text2d_component("Text")
     Mesh2d => mesh2d_component("rectangle", size=Some(vec2_doc(32.0, 32.0)))
     ColorMaterial => color_material_component()
@@ -1330,6 +1391,100 @@ pub fn texture_atlas_component(
       region_name,
       layout,
       index,
+    }.to_json(),
+  }
+}
+
+///|
+pub fn autotile_rule_set_bitmask4() -> AutoTileRuleSetDocument {
+  Bitmask4
+}
+
+///|
+pub fn autotile_rule_set_bitmask8() -> AutoTileRuleSetDocument {
+  Bitmask8
+}
+
+///|
+pub fn autotile_rule_set_wang() -> AutoTileRuleSetDocument {
+  Wang
+}
+
+///|
+pub fn autotile_mask_rule_document(
+  mask : Int,
+  region_name : String,
+  atlas_index? : Int = 0,
+) -> AutoTileMaskRuleDocument {
+  { mask, region_name, atlas_index }
+}
+
+///|
+pub fn autotile_wang_rule_document(
+  north : Int,
+  east : Int,
+  south : Int,
+  west : Int,
+  region_name : String,
+  atlas_index? : Int = 0,
+) -> AutoTileWangRuleDocument {
+  { north, east, south, west, region_name, atlas_index }
+}
+
+///|
+pub fn autotile_palette_entry_document(
+  terrain : Int,
+  fallback_region_name : String,
+  fallback_atlas_index? : Int = 0,
+  bitmask4_rules? : Array[AutoTileMaskRuleDocument] = [],
+  bitmask8_rules? : Array[AutoTileMaskRuleDocument] = [],
+  wang_rules? : Array[AutoTileWangRuleDocument] = [],
+) -> AutoTilePaletteEntryDocument {
+  {
+    terrain,
+    fallback_region_name,
+    fallback_atlas_index,
+    bitmask4_rules,
+    bitmask8_rules,
+    wang_rules,
+  }
+}
+
+///|
+pub fn autotile_cell_document(
+  x : Int,
+  y : Int,
+  terrain : Int,
+) -> AutoTileCellDocument {
+  { x, y, terrain }
+}
+
+///|
+pub fn autotile_layer2d_component(
+  tile_size? : Vec2Doc = vec2_doc(16.0, 16.0),
+  origin? : Vec2Doc = vec2_doc(0.0, 0.0),
+  atlas_asset_path? : String = "",
+  rule_set? : AutoTileRuleSetDocument = Bitmask8,
+  palette? : Array[AutoTilePaletteEntryDocument] = [
+    autotile_palette_entry_document(
+      1,
+      "tile_0",
+      bitmask4_rules=[autotile_mask_rule_document(0, "tile_0")],
+      bitmask8_rules=[autotile_mask_rule_document(0, "tile_0")],
+      wang_rules=[autotile_wang_rule_document(0, 0, 0, 0, "tile_0")],
+    ),
+  ],
+  cells? : Array[AutoTileCellDocument] = [],
+) -> ComponentDocument {
+  {
+    kind: "AutoTileLayer2d",
+    data: AutoTileLayer2dComponent::{
+      tile_size,
+      origin,
+      atlas_asset_path,
+      rule_set,
+      palette,
+      cells,
     }.to_json(),
   }
 }

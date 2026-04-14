@@ -9,6 +9,7 @@ import {
   "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/math",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -109,7 +110,7 @@ pub fn AdditionalMassProperties::mass(Double) -> Self
 pub fn AdditionalMassProperties::mass_properties(@core.MassProperties3) -> Self
 
 pub(all) struct Ccd {
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum Collider {
   Cuboid(@math.Vec3)
@@ -124,7 +125,7 @@ pub(all) enum Collider {
   ConvexHull(Array[@math.Vec3])
   TriMesh(Array[@math.Vec3], Array[(Int, Int, Int)])
   Heightfield(Array[Double], Int, Int, @math.Vec3)
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn Collider::ball(Double) -> Self
 pub fn Collider::capsule_x(Double, Double) -> Self
 pub fn Collider::capsule_y(Double, Double) -> Self
@@ -140,7 +141,7 @@ pub fn Collider::trimesh(Array[@math.Vec3], Array[(Int, Int, Int)]) -> Self
 
 pub(all) enum ColliderMassProperties {
   Density(Double)
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn ColliderMassProperties::density(Double) -> Self
 
 pub(all) struct CollisionEvent {
@@ -150,12 +151,12 @@ pub(all) struct CollisionEvent {
   stopped : Bool
   sensor : Bool
   normal : @math.Vec3
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct CollisionGroups {
   memberships : Int
   filters : Int
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn CollisionGroups::all() -> Self
 pub fn CollisionGroups::new(Int, Int) -> Self
 
@@ -166,9 +167,9 @@ pub(all) struct ContactForceEvent {
   total_force_magnitude : Double
   max_force_direction : @math.Vec3
   max_force_magnitude : Double
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
-pub(all) struct ContactForceEventThreshold(Double) derive(Eq, Show)
+pub(all) struct ContactForceEventThreshold(Double) derive(Eq, @debug.Debug)
 pub fn ContactForceEventThreshold::default() -> Self
 #deprecated
 pub fn ContactForceEventThreshold::inner(Self) -> Double
@@ -176,10 +177,10 @@ pub fn ContactForceEventThreshold::inner(Self) -> Double
 pub(all) struct Damping {
   linear_damping : Double
   angular_damping : Double
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn Damping::default() -> Self
 
-pub(all) struct Dominance(Int) derive(Eq, Show)
+pub(all) struct Dominance(Int) derive(Eq, @debug.Debug)
 #deprecated
 pub fn Dominance::inner(Self) -> Int
 pub fn Dominance::new(Int) -> Self
@@ -189,15 +190,15 @@ pub(all) struct FixedJoint {
   local_anchor2 : @math.Vec3
   local_basis1 : @math.Quat
   local_basis2 : @math.Quat
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn FixedJoint::new() -> Self
 
-pub(all) struct Friction(Double) derive(Eq, Show)
+pub(all) struct Friction(Double) derive(Eq, @debug.Debug)
 #deprecated
 pub fn Friction::inner(Self) -> Double
 pub fn Friction::new(Double) -> Self
 
-pub(all) struct GravityScale(Double) derive(Eq, Show)
+pub(all) struct GravityScale(Double) derive(Eq, @debug.Debug)
 pub fn GravityScale::default() -> Self
 #deprecated
 pub fn GravityScale::inner(Self) -> Double
@@ -237,11 +238,11 @@ pub(all) struct KinematicCharacterControllerCollision {
   character_translation_remaining : @math.Vec3
   toi : Double
   normal : @math.Vec3
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct KinematicCharacterControllerCollisions {
   collisions : Array[KinematicCharacterControllerCollision]
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn KinematicCharacterControllerCollisions::empty() -> Self
 
 pub(all) struct KinematicCharacterControllerOutput {
@@ -249,7 +250,7 @@ pub(all) struct KinematicCharacterControllerOutput {
   effective_translation : @math.Vec3
   grounded : Bool
   is_sliding_down_slope : Bool
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct LockedAxes {
   lock_translation_x : Bool
@@ -258,7 +259,7 @@ pub(all) struct LockedAxes {
   lock_rotation_x : Bool
   lock_rotation_y : Bool
   lock_rotation_z : Bool
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn LockedAxes::default() -> Self
 pub fn LockedAxes::lock_rotations() -> Self
 pub fn LockedAxes::lock_translations() -> Self
@@ -277,7 +278,7 @@ pub(all) struct PointProjection {
   entity : @entity.Entity
   point : @math.Vec3
   is_inside : Bool
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct PrismaticJoint {
   local_anchor1 : @math.Vec3
@@ -287,7 +288,7 @@ pub(all) struct PrismaticJoint {
   motor_position : (Double, Double, Double)?
   motor_velocity : (Double, Double)?
   max_force : Double?
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn PrismaticJoint::new(@math.Vec3) -> Self
 
 pub(all) struct QueryFilter {
@@ -310,7 +311,7 @@ pub(all) enum QueryFilterBody {
   Dynamic
   Fixed
   Kinematic
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct RapierContext {
 }
@@ -324,9 +325,9 @@ pub(all) struct RaycastHit {
   entity : @entity.Entity
   toi : Double
   normal : @math.Vec3
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
-pub(all) struct Restitution(Double) derive(Eq, Show)
+pub(all) struct Restitution(Double) derive(Eq, @debug.Debug)
 #deprecated
 pub fn Restitution::inner(Self) -> Double
 pub fn Restitution::new(Double) -> Self
@@ -349,34 +350,34 @@ pub(all) enum RigidBody {
   Fixed
   KinematicPositionBased
   KinematicVelocityBased
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct RopeJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
   max_distance : Double
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn RopeJoint::new(Double) -> Self
 
 pub(all) struct Sensor {
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct SensorEvent {
   sensor : @entity.Entity
   other : @entity.Entity
   entered : Bool
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct ShapeCastHit {
   entity : @entity.Entity
   toi : Double
   normal : @math.Vec3
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct SolverGroups {
   memberships : Int
   filters : Int
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn SolverGroups::all() -> Self
 pub fn SolverGroups::new(Int, Int) -> Self
 
@@ -384,7 +385,7 @@ pub(all) struct SphericalJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
   motor_target : (@math.Quat, Double, Double)?
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn SphericalJoint::new() -> Self
 
 pub(all) struct SpringJoint {
@@ -393,13 +394,13 @@ pub(all) struct SpringJoint {
   rest_length : Double
   stiffness : Double
   damping : Double
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn SpringJoint::new(Double, Double, Double) -> Self
 
 pub(all) struct Velocity {
   linvel : @math.Vec3
   angvel : @math.Vec3
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn Velocity::zero() -> Self
 
 // Type aliases

@@ -4,6 +4,7 @@ package "Milky2018/selene/velocity"
 import {
   "Milky2018/selene/entity",
   "Milky2018/selene/math",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -12,7 +13,7 @@ pub fn velocities() -> Map[@entity.Entity, Velocity]
 // Errors
 
 // Types and methods
-pub(all) struct Velocity(@math.Vec2) derive(Eq, Show)
+pub(all) struct Velocity(@math.Vec2) derive(Eq, @debug.Debug)
 #deprecated
 pub fn Velocity::inner(Self) -> @math.Vec2
 

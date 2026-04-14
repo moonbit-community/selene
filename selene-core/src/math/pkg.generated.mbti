@@ -3,6 +3,7 @@ package "Milky2018/selene/math"
 
 import {
   "Milky2018/moon_rapier/core",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -20,7 +21,7 @@ pub(all) struct Affine3 {
   y_axis : Vec3
   z_axis : Vec3
   translation : Vec3
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn Affine3::from_scale_rotation_translation(Vec3, Quat, Vec3) -> Self
 pub fn Affine3::identity() -> Self
 pub fn Affine3::inverse(Self) -> Self?
@@ -33,7 +34,7 @@ pub impl Mul for Affine3
 pub(all) enum Axis {
   X
   Y
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum HAlign {
   Left
@@ -58,7 +59,7 @@ pub(all) struct Mat4 {
   m31 : Double
   m32 : Double
   m33 : Double
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn Mat4::from_trs(Vec3, Quat, Vec3) -> Self
 pub fn Mat4::identity() -> Self
 pub fn Mat4::mul(Self, Self) -> Self
@@ -72,7 +73,7 @@ pub(all) struct Quat {
   w : Double
 
   fn new(Double, Double, Double, Double) -> Quat
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn Quat::conjugate(Self) -> Self
 pub fn Quat::dot(Self, Self) -> Double
 pub fn Quat::from_axis_angle(Vec3, Double) -> Self
@@ -154,7 +155,7 @@ pub(all) enum VAlign {
   Bottom
 }
 
-pub(all) struct Vec2(Double, Double) derive(Eq, Show)
+pub(all) struct Vec2(Double, Double) derive(Eq, @debug.Debug)
 pub fn Vec2::clone(Self) -> Self
 pub fn Vec2::distance(Self) -> Double
 pub fn Vec2::distance_to(Self, Self) -> Double
@@ -177,7 +178,7 @@ pub(all) struct Vec3 {
   z : Double
 
   fn new(Double, Double, Double) -> Vec3
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn Vec3::cross(Self, Self) -> Self
 pub fn Vec3::dot(Self, Self) -> Double
 pub fn Vec3::length(Self) -> Double

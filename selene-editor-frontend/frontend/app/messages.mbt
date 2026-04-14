@@ -523,6 +523,41 @@ pub fn msg_toggle_selected_visibility() -> Msg {
 }
 
 ///|
+pub fn msg_update_selected_autotile_atlas_path(value : String) -> Msg {
+  UpdateSelectedAutoTileAtlasPath(value)
+}
+
+///|
+pub fn msg_update_selected_autotile_tile_width(value : String) -> Msg {
+  UpdateSelectedAutoTileTileWidth(value)
+}
+
+///|
+pub fn msg_update_selected_autotile_tile_height(value : String) -> Msg {
+  UpdateSelectedAutoTileTileHeight(value)
+}
+
+///|
+pub fn msg_update_selected_autotile_origin_x(value : String) -> Msg {
+  UpdateSelectedAutoTileOriginX(value)
+}
+
+///|
+pub fn msg_update_selected_autotile_origin_y(value : String) -> Msg {
+  UpdateSelectedAutoTileOriginY(value)
+}
+
+///|
+pub fn msg_update_selected_autotile_rule_set(value : String) -> Msg {
+  UpdateSelectedAutoTileRuleSet(value)
+}
+
+///|
+pub fn msg_update_autotile_brush_terrain(value : String) -> Msg {
+  UpdateAutoTileBrushTerrain(value)
+}
+
+///|
 pub fn msg_update_selected_animation_player_graph_path(value : String) -> Msg {
   UpdateSelectedAnimationPlayerGraphPath(value)
 }

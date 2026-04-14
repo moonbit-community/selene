@@ -3,6 +3,7 @@ package "Milky2018/selene/name"
 
 import {
   "Milky2018/selene/entity",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -17,7 +18,7 @@ pub(all) struct Name {
   value : String
 
   fn new(String) -> Name
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn Name::new(String) -> Self
 
 // Type aliases

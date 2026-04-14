@@ -705,6 +705,29 @@ fn update_project_runtime(
           }
           (sync_preview_effects(next), next)
         }
+        @bridge.AutoTileLayerChanged(id~, component~) =>
+          match model.scene {
+            Some(_) => {
+              let staged = with_started_scene_edit_transaction(
+                model, "Edit AutoTile Layer",
+              )
+              let next = update_entity_component(
+                staged,
+                id,
+                @editor_bridge.component_document(
+                  "AutoTileLayer2d",
+                  component.to_json(),
+                ),
+              )
+              let selected_next = with_single_entity_selection(next, Some(id))
+              apply_scene_change_without_history_or_preview(model, {
+                ..selected_next,
+                selected_resource: None,
+                status: "AutoTile layer updated",
+              })
+            }
+            None => ([], model)
+          }
       }
   }
 }

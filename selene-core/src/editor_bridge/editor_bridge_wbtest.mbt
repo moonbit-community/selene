@@ -48,7 +48,7 @@ test "builtin component kind mapping and defaults stay aligned" {
   let names = kinds.map(fn(kind) { builtin_component_kind_to_string(kind) })
   inspect(
     names.join(","),
-    content="Name,Transform2d,Visibility,Sprite,TextureAtlas,Text2d,Mesh2d,ColorMaterial,Camera2d,PhysicsBody2d,PhysicsCollider2d,AnimationPlayer,AnimationTransitions",
+    content="Name,Transform2d,Visibility,Sprite,TextureAtlas,AutoTileLayer2d,Text2d,Mesh2d,ColorMaterial,Camera2d,PhysicsBody2d,PhysicsCollider2d,AnimationPlayer,AnimationTransitions",
   )
   let mut round_trip_ok = true
   let mut defaults_ok = true
@@ -298,6 +298,93 @@ test "scene runtime instantiates camera and mesh entities" {
   let shape_entity = runtime.entity("shape").unwrap()
   inspect(@camera.cameras().contains(camera_entity), content="true")
   inspect(@mesh2d.mesh2ds().contains(shape_entity), content="true")
+  runtime.destroy()
+}
+
+///|
+test "autotile component round trip and scene validation" {
+  let component = autotile_layer2d_component(
+    atlas_asset_path="assets/atlases/world.atlas.json",
+    palette=[
+      autotile_palette_entry_document(1, "terrain_0", bitmask4_rules=[
+        autotile_mask_rule_document(0, "terrain_0"),
+      ]),
+    ],
+    cells=[autotile_cell_document(0, 0, 1)],
+  )
+  let decoded : AutoTileLayer2dComponent = @json.from_json(component.data)
+  inspect(decoded.atlas_asset_path, content="assets/atlases/world.atlas.json")
+  inspect(decoded.cells.length(), content="1")
+  let scene = SceneDocument::default_main().with_entity(
+    entity_document("autotile", "AutoTile", components=[
+      transform2d_component(),
+      component,
+    ]),
+  )
+  let errors = validate_scene_document(scene)
+  inspect(errors.is_empty(), content="true")
+}
+
+///|
+test "autotile validation reports missing atlas and undefined terrain references" {
+  let scene = SceneDocument::default_main().with_entity(
+    entity_document("autotile", "AutoTile", components=[
+      transform2d_component(),
+      autotile_layer2d_component(
+        atlas_asset_path="",
+        palette=[autotile_palette_entry_document(1, "tile_0")],
+        cells=[autotile_cell_document(1, 2, 99)],
+      ),
+    ]),
+  )
+  let errors = validate_scene_document(scene)
+  inspect(errors.length() >= 2, content="true")
+}
+
+///|
+test "runtime instantiation renders autotile layer tiles from source only" {
+  let atlas_path = "assets/atlases/world.atlas.json"
+  let atlas = AtlasAssetDocument::default("world", "assets/images/world.png")
+    .with_tile_size(vec2_doc(16.0, 16.0))
+    .with_regions([
+      atlas_region_document("terrain_0", 0, rect_doc(0.0, 0.0, 16.0, 16.0)),
+    ])
+  let atlas_assets : Map[String, AtlasAssetDocument] = {}
+  atlas_assets.set(atlas_path, atlas)
+  let scene = SceneDocument::default_main().with_entity(
+    entity_document("autotile", "AutoTile", components=[
+      transform2d_component(),
+      autotile_layer2d_component(
+        atlas_asset_path=atlas_path,
+        rule_set=autotile_rule_set_bitmask4(),
+        palette=[
+          autotile_palette_entry_document(1, "terrain_0", bitmask4_rules=[
+            autotile_mask_rule_document(0, "terrain_0", atlas_index=0),
+          ]),
+        ],
+        cells=[autotile_cell_document(0, 0, 1)],
+      ),
+    ]),
+  )
+  let before_count = {
+    let mut count = 0
+    for _, _ in @sprite.sprites() {
+      count = count + 1
+    }
+    count
+  }
+  let runtime = instantiate_scene_document_with_context(
+    scene,
+    asset_instantiation_context(atlas_assets~),
+  )
+  let after_count = {
+    let mut count = 0
+    for _, _ in @sprite.sprites() {
+      count = count + 1
+    }
+    count
+  }
+  inspect(after_count == before_count + 1, content="true")
   runtime.destroy()
 }
 

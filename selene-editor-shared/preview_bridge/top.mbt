@@ -72,6 +72,10 @@ pub enum PreviewEvent {
     scale~ : @editor_bridge.Vec2Doc
   )
   TransformGestureFinished(id~ : String)
+  AutoTileLayerChanged(
+    id~ : String,
+    component~ : @editor_bridge.AutoTileLayer2dComponent
+  )
 } derive(Eq)
 
 ///|
@@ -82,6 +86,7 @@ pub enum PreviewCommand {
   SetSelection(primary~ : String?, ids~ : Array[String])
   SetTool(@shared.PreviewTool)
   SetMoveSnap(enabled~ : Bool, step~ : Double)
+  SetAutoTileBrushTerrain(Int)
   SetAnimationPreviewPaused(Bool)
   SetAnimationPreviewSpeed(Double)
   SeekAnimationPreview(Double)
@@ -122,6 +127,14 @@ pub fn preview_event_transform_gesture_finished(id : String) -> PreviewEvent {
 }
 
 ///|
+pub fn preview_event_autotile_layer_changed(
+  id : String,
+  component : @editor_bridge.AutoTileLayer2dComponent,
+) -> PreviewEvent {
+  AutoTileLayerChanged(id~, component~)
+}
+
+///|
 pub fn preview_command_bootstrap() -> PreviewCommand {
   Bootstrap
 }
@@ -157,6 +170,13 @@ pub fn preview_command_set_move_snap(
   step : Double,
 ) -> PreviewCommand {
   SetMoveSnap(enabled~, step~)
+}
+
+///|
+pub fn preview_command_set_autotile_brush_terrain(
+  terrain : Int,
+) -> PreviewCommand {
+  SetAutoTileBrushTerrain(terrain)
 }
 
 ///|

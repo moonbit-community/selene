@@ -100,6 +100,7 @@ pub struct Model {
   active_tool : @shared.PreviewTool
   move_snap_enabled : Bool
   move_snap_step : Double
+  autotile_brush_terrain : Int
   animation_preview_paused : Bool
   animation_preview_speed : Double
   animation_preview_seek_input : String
@@ -219,6 +220,13 @@ pub enum Msg {
   UpdateSelectedRotation(String)
   UpdateSelectedText(String)
   ToggleSelectedVisibility
+  UpdateSelectedAutoTileAtlasPath(String)
+  UpdateSelectedAutoTileTileWidth(String)
+  UpdateSelectedAutoTileTileHeight(String)
+  UpdateSelectedAutoTileOriginX(String)
+  UpdateSelectedAutoTileOriginY(String)
+  UpdateSelectedAutoTileRuleSet(String)
+  UpdateAutoTileBrushTerrain(String)
   UpdateSelectedAnimationPlayerGraphPath(String)
   UpdateSelectedAnimationPlayerStartNode(String)
   ToggleSelectedAnimationPlayerAutoplay
@@ -318,6 +326,7 @@ pub fn new_model() -> Model {
     active_tool: @shared.preview_tool_select(),
     move_snap_enabled: false,
     move_snap_step: 16.0,
+    autotile_brush_terrain: 1,
     animation_preview_paused: false,
     animation_preview_speed: 1.0,
     animation_preview_seek_input: "0",

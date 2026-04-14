@@ -6,6 +6,7 @@ import {
   "Milky2018/selene/math",
   "Milky2018/selene/render",
   "Milky2018/selene/render3d_types",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -116,7 +117,7 @@ pub(all) struct Mesh3DRenderer {
   mut visible : Bool
   mut cast_shadows : Bool
   mut receive_shadows : Bool
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 // Type aliases
 pub using @render3d_types {type AlphaMode3D}

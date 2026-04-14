@@ -27,6 +27,7 @@ priv struct PreviewState {
   mut active_tool : @shared.PreviewTool
   mut move_snap_enabled : Bool
   mut move_snap_step : Double
+  mut autotile_brush_terrain : Int
   mut camera_entity : @entity.Entity?
   mut selection_overlay : @entity.Entity?
   mut pivot_overlay : @entity.Entity?
@@ -37,6 +38,7 @@ priv struct PreviewState {
   mut camera_pan_anchor : @math.Vec2?
   mut event_sink : ((@bridge.PreviewEvent) -> Unit)?
   mut initial_scene_aligned : Bool
+  mut last_autotile_cell_key : String?
 }
 
 ///|
@@ -53,6 +55,7 @@ fn PreviewState::new() -> PreviewState {
     active_tool: @shared.preview_tool_select(),
     move_snap_enabled: false,
     move_snap_step: 16.0,
+    autotile_brush_terrain: 1,
     camera_entity: None,
     selection_overlay: None,
     pivot_overlay: None,
@@ -63,6 +66,7 @@ fn PreviewState::new() -> PreviewState {
     camera_pan_anchor: None,
     event_sink: None,
     initial_scene_aligned: false,
+    last_autotile_cell_key: None,
   }
 }
 
@@ -349,6 +353,7 @@ pub fn set_tool(tool : @shared.PreviewTool) -> Unit {
   if tool != @shared.preview_tool_select() {
     preview_state.selection_drag = None
   }
+  preview_state.last_autotile_cell_key = None
 }
 
 ///|
@@ -364,6 +369,11 @@ fn normalized_move_snap_step(step : Double) -> Double {
 pub fn set_move_snap(enabled : Bool, step : Double) -> Unit {
   preview_state.move_snap_enabled = enabled
   preview_state.move_snap_step = normalized_move_snap_step(step)
+}
+
+///|
+pub fn set_autotile_brush_terrain(terrain : Int) -> Unit {
+  preview_state.autotile_brush_terrain = if terrain > 0 { terrain } else { 1 }
 }
 
 ///|
@@ -436,6 +446,7 @@ fn clear_runtime_scene() -> Unit {
   preview_state.runtime_scene = None
   preview_state.tool_drag = None
   preview_state.selection_drag = None
+  preview_state.last_autotile_cell_key = None
 }
 
 ///|
@@ -510,6 +521,298 @@ fn entity_id_of(entity : @entity.Entity) -> String? {
     }
   }
   None
+}
+
+///|
+priv struct AutoTileEditCoord {
+  x : Int
+  y : Int
+}
+
+///|
+fn autotile_cell_key(x : Int, y : Int) -> String {
+  x.to_string() + "," + y.to_string()
+}
+
+///|
+fn autotile_cell_map(
+  layer : @editor_bridge.AutoTileLayer2dComponent,
+) -> Map[String, @editor_bridge.AutoTileCellDocument] {
+  let map : Map[String, @editor_bridge.AutoTileCellDocument] = {}
+  for cell in layer.cells {
+    map.set(autotile_cell_key(cell.x, cell.y), cell)
+  }
+  map
+}
+
+///|
+fn sorted_autotile_cells(
+  cells : Map[String, @editor_bridge.AutoTileCellDocument],
+) -> Array[@editor_bridge.AutoTileCellDocument] {
+  let ordered : Array[@editor_bridge.AutoTileCellDocument] = []
+  for _, cell in cells {
+    ordered.push(cell)
+  }
+  ordered.sort_by(fn(left, right) {
+    if left.y == right.y {
+      left.x.compare(right.x)
+    } else {
+      left.y.compare(right.y)
+    }
+  })
+  ordered
+}
+
+///|
+fn autotile_layer_with_cells(
+  layer : @editor_bridge.AutoTileLayer2dComponent,
+  cells : Array[@editor_bridge.AutoTileCellDocument],
+) -> @editor_bridge.AutoTileLayer2dComponent {
+  let component = @editor_bridge.autotile_layer2d_component(
+    tile_size=layer.tile_size,
+    origin=layer.origin,
+    atlas_asset_path=layer.atlas_asset_path,
+    rule_set=layer.rule_set,
+    palette=layer.palette,
+    cells~,
+  )
+  match @editor_bridge.decode_component(Some(component)) {
+    Some(next_layer) => next_layer
+    None => layer
+  }
+}
+
+///|
+fn selected_autotile_layer() -> (
+  String,
+  @editor_bridge.AutoTileLayer2dComponent,
+)? {
+  guard preview_state.current_scene is Some(scene) else { return None }
+  guard preview_state.selected_entity_id is Some(layer_id) else { return None }
+  guard scene.entity(layer_id) is Some(document) else { return None }
+  let layer : @editor_bridge.AutoTileLayer2dComponent? = @editor_bridge.decode_component(
+    document.component("AutoTileLayer2d"),
+  )
+  layer.map(fn(value) { (layer_id, value) })
+}
+
+///|
+fn world_to_autotile_cell(
+  layer : @editor_bridge.AutoTileLayer2dComponent,
+  world_point : @math.Vec2,
+) -> AutoTileEditCoord {
+  let tile_width = if layer.tile_size.x <= 0.0 {
+    16.0
+  } else {
+    layer.tile_size.x
+  }
+  let tile_height = if layer.tile_size.y <= 0.0 {
+    16.0
+  } else {
+    layer.tile_size.y
+  }
+  let x = @cmath.floor((world_point[X] - layer.origin.x) / tile_width).to_int()
+  let y = @cmath.floor((world_point[Y] - layer.origin.y) / tile_height).to_int()
+  { x, y }
+}
+
+///|
+fn runtime_layer_entity(layer_id : String) -> @entity.Entity? {
+  guard preview_state.runtime_scene is Some(scene) else { return None }
+  scene.entity(layer_id)
+}
+
+///|
+fn apply_runtime_autotile_cells(
+  layer_id : String,
+  changed : Array[AutoTileEditCoord],
+  terrain : Int?,
+) -> Unit {
+  guard runtime_layer_entity(layer_id) is Some(layer_entity) else { return }
+  for coord in changed {
+    match terrain {
+      Some(value) =>
+        @autotile2d.set_runtime_cell(layer_entity, coord.x, coord.y, value)
+      None => @autotile2d.remove_runtime_cell(layer_entity, coord.x, coord.y)
+    }
+  }
+}
+
+///|
+fn set_scene_autotile_layer(
+  layer_id : String,
+  layer : @editor_bridge.AutoTileLayer2dComponent,
+) -> Unit {
+  guard preview_state.current_scene is Some(scene) else { return }
+  guard scene.entity(layer_id) is Some(document) else { return }
+  let next_scene = scene.with_entity(
+    document.with_component(
+      @editor_bridge.component_document("AutoTileLayer2d", layer.to_json()),
+    ),
+  )
+  preview_state.current_scene = Some(next_scene)
+  emit_preview_event(
+    @bridge.preview_event_autotile_layer_changed(layer_id, layer),
+  )
+}
+
+///|
+fn apply_autotile_single_cell_edit(
+  layer_id : String,
+  layer : @editor_bridge.AutoTileLayer2dComponent,
+  coord : AutoTileEditCoord,
+  terrain : Int?,
+) -> Bool {
+  let cells = autotile_cell_map(layer)
+  let key = autotile_cell_key(coord.x, coord.y)
+  let changed = match terrain {
+    Some(value) =>
+      match cells.get(key) {
+        Some(cell) if cell.terrain == value => false
+        _ => {
+          cells.set(
+            key,
+            @editor_bridge.autotile_cell_document(coord.x, coord.y, value),
+          )
+          true
+        }
+      }
+    None =>
+      match cells.get(key) {
+        Some(_) => {
+          ignore(cells.remove(key))
+          true
+        }
+        None => false
+      }
+  }
+  if !changed {
+    return false
+  }
+  let next_layer = autotile_layer_with_cells(
+    layer,
+    sorted_autotile_cells(cells),
+  )
+  set_scene_autotile_layer(layer_id, next_layer)
+  apply_runtime_autotile_cells(layer_id, [coord], terrain)
+  true
+}
+
+///|
+fn apply_autotile_fill_edit(
+  layer_id : String,
+  layer : @editor_bridge.AutoTileLayer2dComponent,
+  start : AutoTileEditCoord,
+  terrain : Int,
+) -> Bool {
+  let cells = autotile_cell_map(layer)
+  let start_key = autotile_cell_key(start.x, start.y)
+  let target_terrain = match cells.get(start_key) {
+    Some(cell) => Some(cell.terrain)
+    None => None
+  }
+  match target_terrain {
+    None =>
+      apply_autotile_single_cell_edit(layer_id, layer, start, Some(terrain))
+    Some(target) =>
+      if target == terrain {
+        false
+      } else {
+        let queue : Array[AutoTileEditCoord] = [start]
+        let affected : Map[String, AutoTileEditCoord] = {}
+        let visited : Map[String, Bool] = {}
+        visited.set(start_key, true)
+        let mut index = 0
+        while index < queue.length() {
+          let coord = queue[index]
+          index = index + 1
+          let key = autotile_cell_key(coord.x, coord.y)
+          guard cells.get(key) is Some(cell) else { continue }
+          if cell.terrain != target {
+            continue
+          }
+          affected.set(key, coord)
+          let neighbors = [
+            { x: coord.x, y: coord.y - 1 },
+            { x: coord.x + 1, y: coord.y },
+            { x: coord.x, y: coord.y + 1 },
+            { x: coord.x - 1, y: coord.y },
+          ]
+          for neighbor in neighbors {
+            let neighbor_key = autotile_cell_key(neighbor.x, neighbor.y)
+            if visited.contains(neighbor_key) {
+              continue
+            }
+            visited.set(neighbor_key, true)
+            if cells.get(neighbor_key) is Some(neighbor_cell) &&
+              neighbor_cell.terrain == target {
+              queue.push(neighbor)
+            }
+          }
+        }
+        if affected.is_empty() {
+          false
+        } else {
+          let changed_coords : Array[AutoTileEditCoord] = []
+          for key, coord in affected {
+            cells.set(
+              key,
+              @editor_bridge.autotile_cell_document(coord.x, coord.y, terrain),
+            )
+            changed_coords.push(coord)
+          }
+          let next_layer = autotile_layer_with_cells(
+            layer,
+            sorted_autotile_cells(cells),
+          )
+          set_scene_autotile_layer(layer_id, next_layer)
+          apply_runtime_autotile_cells(layer_id, changed_coords, Some(terrain))
+          true
+        }
+      }
+  }
+}
+
+///|
+fn apply_autotile_tool_at_world(
+  world_point : @math.Vec2,
+  tool : @shared.PreviewTool,
+) -> Bool {
+  guard selected_autotile_layer() is Some((layer_id, layer)) else {
+    return false
+  }
+  let coord = world_to_autotile_cell(layer, world_point)
+  let key = autotile_cell_key(coord.x, coord.y)
+  if (
+      tool == @shared.preview_tool_autotile_paint() ||
+      tool == @shared.preview_tool_autotile_erase()
+    ) &&
+    preview_state.last_autotile_cell_key == Some(key) {
+    return false
+  }
+  let changed = match tool {
+    @shared.AutoTilePaint =>
+      apply_autotile_single_cell_edit(
+        layer_id,
+        layer,
+        coord,
+        Some(preview_state.autotile_brush_terrain),
+      )
+    @shared.AutoTileErase =>
+      apply_autotile_single_cell_edit(layer_id, layer, coord, None)
+    @shared.AutoTileFill =>
+      apply_autotile_fill_edit(
+        layer_id,
+        layer,
+        coord,
+        preview_state.autotile_brush_terrain,
+      )
+    _ => false
+  }
+  if changed {
+    preview_state.last_autotile_cell_key = Some(key)
+  }
+  changed
 }
 
 ///|
@@ -1315,6 +1618,14 @@ fn preview_camera_control_system(_world : @ecs.World) -> Unit {
 }
 
 ///|
+fn is_autotile_tool(tool : @shared.PreviewTool) -> Bool {
+  match tool {
+    @shared.AutoTilePaint | @shared.AutoTileErase | @shared.AutoTileFill => true
+    _ => false
+  }
+}
+
+///|
 fn preview_pick_system(_world : @ecs.World) -> Unit {
   guard world_point_from_mouse() is Some(world_point) else {
     apply_selection_rect_overlay(None)
@@ -1361,12 +1672,42 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
         }
       @shared.Rotate => "crosshair"
       @shared.Scale => "nwse-resize"
+      @shared.AutoTilePaint => "crosshair"
+      @shared.AutoTileErase => "cell"
+      @shared.AutoTileFill => "copy"
     }
   }
   set_canvas_cursor(cursor)
   if pointer_pan_active() {
     preview_state.tool_drag = None
     preview_state.selection_drag = None
+    return
+  }
+  if is_autotile_tool(preview_state.active_tool) {
+    if !@inputs.mouse.left_button {
+      preview_state.last_autotile_cell_key = None
+    }
+    if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) &&
+      !pointer_inside {
+      preview_debug(
+        "ignored autotile edit outside canvas, mouse=" +
+        @inputs.mouse.pos[X].to_string() +
+        "," +
+        @inputs.mouse.pos[Y].to_string(),
+      )
+      return
+    }
+    if !pointer_inside {
+      return
+    }
+    let active_tool = preview_state.active_tool
+    if active_tool == @shared.preview_tool_autotile_fill() {
+      if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) {
+        ignore(apply_autotile_tool_at_world(world_point, active_tool))
+      }
+    } else if @inputs.mouse.left_button {
+      ignore(apply_autotile_tool_at_world(world_point, active_tool))
+    }
     return
   }
   if preview_state.active_tool == @shared.preview_tool_select() {

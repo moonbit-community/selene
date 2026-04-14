@@ -317,6 +317,9 @@ pub enum PreviewTool {
   Translate
   Rotate
   Scale
+  AutoTilePaint
+  AutoTileErase
+  AutoTileFill
 } derive(Eq, ToJson, FromJson)
 
 ///|
@@ -342,6 +345,21 @@ pub fn preview_tool_rotate() -> PreviewTool {
 ///|
 pub fn preview_tool_scale() -> PreviewTool {
   Scale
+}
+
+///|
+pub fn preview_tool_autotile_paint() -> PreviewTool {
+  AutoTilePaint
+}
+
+///|
+pub fn preview_tool_autotile_erase() -> PreviewTool {
+  AutoTileErase
+}
+
+///|
+pub fn preview_tool_autotile_fill() -> PreviewTool {
+  AutoTileFill
 }
 
 ///|

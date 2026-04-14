@@ -7,6 +7,7 @@ import {
   "Milky2018/selene/material2d",
   "Milky2018/selene/mesh2d",
   "Milky2018/selene/sprite",
+  "moonbitlang/core/debug",
   "moonbitlang/core/json",
 }
 
@@ -68,6 +69,22 @@ pub fn atlas_asset_migration_preview(String, AtlasAssetDocument, Array[Migration
 pub let atlas_asset_schema_version : Int
 
 pub fn atlas_region_document(String, Int, RectDoc) -> AtlasRegionDocument
+
+pub fn autotile_cell_document(Int, Int, Int) -> AutoTileCellDocument
+
+pub fn autotile_layer2d_component(tile_size? : Vec2Doc, origin? : Vec2Doc, atlas_asset_path? : String, rule_set? : AutoTileRuleSetDocument, palette? : Array[AutoTilePaletteEntryDocument], cells? : Array[AutoTileCellDocument]) -> ComponentDocument
+
+pub fn autotile_mask_rule_document(Int, String, atlas_index? : Int) -> AutoTileMaskRuleDocument
+
+pub fn autotile_palette_entry_document(Int, String, fallback_atlas_index? : Int, bitmask4_rules? : Array[AutoTileMaskRuleDocument], bitmask8_rules? : Array[AutoTileMaskRuleDocument], wang_rules? : Array[AutoTileWangRuleDocument]) -> AutoTilePaletteEntryDocument
+
+pub fn autotile_rule_set_bitmask4() -> AutoTileRuleSetDocument
+
+pub fn autotile_rule_set_bitmask8() -> AutoTileRuleSetDocument
+
+pub fn autotile_rule_set_wang() -> AutoTileRuleSetDocument
+
+pub fn autotile_wang_rule_document(Int, Int, Int, Int, String, atlas_index? : Int) -> AutoTileWangRuleDocument
 
 pub fn builtin_component_category(BuiltinComponentKind) -> String
 
@@ -257,7 +274,7 @@ pub struct AnimationClipAssetDocument {
   fps : Double
   looping : Bool
   frames : Array[String]
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 pub fn AnimationClipAssetDocument::default(String, String) -> Self
 pub fn AnimationClipAssetDocument::with_atlas_asset_path(Self, String) -> Self
 pub fn AnimationClipAssetDocument::with_fps(Self, Double) -> Self
@@ -268,7 +285,7 @@ pub fn AnimationClipAssetDocument::with_name(Self, String) -> Self
 pub enum AnimationClipAssetDocumentLoadStatus {
   Ready(AnimationClipAssetDocument)
   MigrationRequired(AnimationClipAssetMigrationPreview)
-} derive(Eq, Show)
+} derive(Eq)
 
 pub struct AnimationClipAssetDocumentMigrator {
 }
@@ -277,14 +294,14 @@ pub struct AnimationClipAssetMigrationPreview {
   path : String
   clip : AnimationClipAssetDocument
   changes : Array[MigrationFieldChange]
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @json.FromJson)
 
 pub struct AnimationGraphAssetDocument {
   version : Int
   name : String
   nodes : Array[AnimationGraphNodeDocument]
   default_node : String?
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 pub fn AnimationGraphAssetDocument::default(String, String) -> Self
 pub fn AnimationGraphAssetDocument::with_default_node(Self, String?) -> Self
 pub fn AnimationGraphAssetDocument::with_name(Self, String) -> Self
@@ -293,7 +310,7 @@ pub fn AnimationGraphAssetDocument::with_nodes(Self, Array[AnimationGraphNodeDoc
 pub enum AnimationGraphAssetDocumentLoadStatus {
   Ready(AnimationGraphAssetDocument)
   MigrationRequired(AnimationGraphAssetMigrationPreview)
-} derive(Eq, Show)
+} derive(Eq)
 
 pub struct AnimationGraphAssetDocumentMigrator {
 }
@@ -302,12 +319,12 @@ pub struct AnimationGraphAssetMigrationPreview {
   path : String
   graph : AnimationGraphAssetDocument
   changes : Array[MigrationFieldChange]
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @json.FromJson)
 
 pub struct AnimationGraphEdgeDocument {
   to : String
   weight : Double
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct AnimationGraphNodeDocument {
   id : String
@@ -315,7 +332,7 @@ pub struct AnimationGraphNodeDocument {
   mask_groups : Array[Int]
   position : Vec2Doc
   edges : Array[AnimationGraphEdgeDocument]
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 pub fn AnimationGraphNodeDocument::with_edges(Self, Array[AnimationGraphEdgeDocument]) -> Self
 pub fn AnimationGraphNodeDocument::with_kind(Self, AnimationGraphNodeKind) -> Self
 pub fn AnimationGraphNodeDocument::with_mask_groups(Self, Array[Int]) -> Self
@@ -325,7 +342,7 @@ pub enum AnimationGraphNodeKind {
   Clip(clip_asset_path~ : String)
   Blend
   AdditiveBlend
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct AnimationPlayerComponent {
   graph_asset_path : String?
@@ -333,7 +350,7 @@ pub struct AnimationPlayerComponent {
   autoplay : Bool
   repeat_mode : String
   speed : Double
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 pub fn AnimationPlayerComponent::repeat_mode_doc(Self) -> AnimationRepeatModeDoc
 pub fn AnimationPlayerComponent::with_repeat_mode_doc(Self, AnimationRepeatModeDoc) -> Self
 
@@ -341,17 +358,17 @@ pub enum AnimationRepeatModeDoc {
   Never
   Forever
   Count(Int)
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub struct AnimationTransitionsComponent {
   duration : Double
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct AssetDocument {
   path : String
   kind : AssetKind
   meta_path : String?
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct AssetInstantiationContext {
   asset_path_resolver : (String?) -> String?
@@ -375,17 +392,17 @@ pub enum AssetKind {
   Meta
   Json
   Unknown
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct AssetMetaDocument {
   tags : Array[String]
   importer : String?
   source : String?
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct AssetRef {
   path : String
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct AtlasAssetDocument {
   version : Int
@@ -398,7 +415,7 @@ pub struct AtlasAssetDocument {
   margin : Vec2Doc
   default_anchor : Vec2Doc
   regions : Array[AtlasRegionDocument]
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 pub fn AtlasAssetDocument::default(String, String) -> Self
 pub fn AtlasAssetDocument::with_columns(Self, Int) -> Self
 pub fn AtlasAssetDocument::with_default_anchor(Self, Vec2Doc) -> Self
@@ -412,7 +429,7 @@ pub fn AtlasAssetDocument::with_tile_size(Self, Vec2Doc) -> Self
 pub enum AtlasAssetDocumentLoadStatus {
   Ready(AtlasAssetDocument)
   MigrationRequired(AtlasAssetMigrationPreview)
-} derive(Eq, Show)
+} derive(Eq)
 
 pub struct AtlasAssetDocumentMigrator {
 }
@@ -421,13 +438,58 @@ pub struct AtlasAssetMigrationPreview {
   path : String
   atlas : AtlasAssetDocument
   changes : Array[MigrationFieldChange]
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @json.FromJson)
 
 pub struct AtlasRegionDocument {
   name : String
   index : Int
   rect : RectDoc
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub struct AutoTileCellDocument {
+  x : Int
+  y : Int
+  terrain : Int
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub struct AutoTileLayer2dComponent {
+  tile_size : Vec2Doc
+  origin : Vec2Doc
+  atlas_asset_path : String
+  rule_set : AutoTileRuleSetDocument
+  palette : Array[AutoTilePaletteEntryDocument]
+  cells : Array[AutoTileCellDocument]
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub struct AutoTileMaskRuleDocument {
+  mask : Int
+  region_name : String
+  atlas_index : Int
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub struct AutoTilePaletteEntryDocument {
+  terrain : Int
+  fallback_region_name : String
+  fallback_atlas_index : Int
+  bitmask4_rules : Array[AutoTileMaskRuleDocument]
+  bitmask8_rules : Array[AutoTileMaskRuleDocument]
+  wang_rules : Array[AutoTileWangRuleDocument]
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub enum AutoTileRuleSetDocument {
+  Bitmask4
+  Bitmask8
+  Wang
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub struct AutoTileWangRuleDocument {
+  north : Int
+  east : Int
+  south : Int
+  west : Int
+  region_name : String
+  atlas_index : Int
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub enum BuiltinComponentKind {
   Name
@@ -435,6 +497,7 @@ pub enum BuiltinComponentKind {
   Visibility
   Sprite
   TextureAtlas
+  AutoTileLayer2d
   Text2d
   Mesh2d
   ColorMaterial
@@ -443,36 +506,36 @@ pub enum BuiltinComponentKind {
   PhysicsCollider2d
   AnimationPlayer
   AnimationTransitions
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct Camera2dComponent {
   is_active : Bool
   order : Int
   scale : Double
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct ColorDoc {
   r : Int
   g : Int
   b : Int
   a : Int
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct ColorMaterialComponent {
   color : ColorDoc
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct ComponentDocument {
   kind : String
   data : Json
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @json.FromJson)
 
 pub struct EntityDocument {
   id : String
   name : String
   parent : String?
   components : Array[ComponentDocument]
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @json.FromJson)
 pub fn EntityDocument::component(Self, String) -> ComponentDocument?
 pub fn EntityDocument::renamed(Self, String) -> Self
 pub fn EntityDocument::reparented(Self, String?) -> Self
@@ -493,17 +556,17 @@ pub struct Mesh2dComponent {
   primitive : String
   size : Vec2Doc?
   radius : Double?
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct MigrationFieldChange {
   path : String
   reason : String
   migrated_value : String
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @json.FromJson)
 
 pub struct NameComponent {
   value : String
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct PhysicsBody2dComponent {
   body_type : String
@@ -514,7 +577,7 @@ pub struct PhysicsBody2dComponent {
   angular_damping : Double
   lock_rotation : Bool
   ccd_enabled : Bool
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct PhysicsCollider2dComponent {
   shape : String
@@ -523,13 +586,13 @@ pub struct PhysicsCollider2dComponent {
   sensor : Bool
   friction : Double
   restitution : Double
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct PrefabDocument {
   version : Int
   name : String
   entities : Array[EntityDocument]
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @json.FromJson)
 pub fn PrefabDocument::empty(String) -> Self
 pub fn PrefabDocument::entity(Self, String) -> EntityDocument?
 pub fn PrefabDocument::with_entity(Self, EntityDocument) -> Self
@@ -539,7 +602,7 @@ pub fn PrefabDocument::without_entity(Self, String) -> Self
 pub enum PrefabDocumentLoadStatus {
   Ready(PrefabDocument)
   MigrationRequired(PrefabMigrationPreview)
-} derive(Eq, Show)
+} derive(Eq)
 
 pub struct PrefabDocumentMigrator {
 }
@@ -548,11 +611,11 @@ pub struct PrefabMigrationPreview {
   path : String
   prefab : PrefabDocument
   changes : Array[MigrationFieldChange]
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @json.FromJson)
 
 pub struct PrefabRef {
   path : String
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct ProjectBundle {
   manifest : ProjectManifest
@@ -561,7 +624,7 @@ pub struct ProjectBundle {
   atlas_assets : Map[String, AtlasAssetDocument]
   animation_clip_assets : Map[String, AnimationClipAssetDocument]
   animation_graph_assets : Map[String, AnimationGraphAssetDocument]
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @json.FromJson)
 
 pub struct ProjectManifest {
   version : Int
@@ -574,7 +637,7 @@ pub struct ProjectManifest {
   animation_clip_index : Array[AssetRef]
   animation_graph_index : Array[AssetRef]
   editor_min_version : String?
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 pub fn ProjectManifest::default(String, startup_scene? : String, asset_roots? : Array[String], scene_index? : Array[SceneRef], prefab_index? : Array[PrefabRef], atlas_index? : Array[AssetRef], animation_clip_index? : Array[AssetRef], animation_graph_index? : Array[AssetRef], editor_min_version? : String?) -> Self
 pub fn ProjectManifest::with_indexes(Self, Array[SceneRef], Array[PrefabRef], Array[AssetRef], Array[AssetRef], Array[AssetRef]) -> Self
 pub fn ProjectManifest::with_startup_scene(Self, String) -> Self
@@ -582,13 +645,13 @@ pub fn ProjectManifest::with_startup_scene(Self, String) -> Self
 pub enum ProjectManifestLoadStatus {
   Ready(ProjectManifest)
   MigrationRequired(ProjectManifestMigrationPreview)
-} derive(Eq, Show)
+} derive(Eq)
 
 pub struct ProjectManifestMigrationPreview {
   path : String
   manifest : ProjectManifest
   changes : Array[MigrationFieldChange]
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @json.FromJson)
 
 pub struct ProjectManifestMigrator {
 }
@@ -598,13 +661,13 @@ pub struct RectDoc {
   y : Double
   width : Double
   height : Double
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct SceneDocument {
   version : Int
   name : String
   entities : Array[EntityDocument]
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @json.FromJson)
 pub fn SceneDocument::apply_patch(Self, ScenePatch) -> Self
 pub fn SceneDocument::default_main() -> Self
 pub fn SceneDocument::empty(name? : String) -> Self
@@ -616,7 +679,7 @@ pub fn SceneDocument::without_entity(Self, String) -> Self
 pub enum SceneDocumentLoadStatus {
   Ready(SceneDocument)
   MigrationRequired(SceneMigrationPreview)
-} derive(Eq, Show)
+} derive(Eq)
 
 pub struct SceneDocumentMigrator {
 }
@@ -625,11 +688,11 @@ pub struct SceneMigrationPreview {
   path : String
   scene : SceneDocument
   changes : Array[MigrationFieldChange]
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @json.FromJson)
 
 pub struct ScenePatch {
   ops : Array[ScenePatchOp]
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @json.FromJson)
 pub fn ScenePatch::empty() -> Self
 
 pub enum ScenePatchOp {
@@ -639,11 +702,11 @@ pub enum ScenePatchOp {
   RenameEntity(id~ : String, name~ : String)
   PutComponent(entity_id~ : String, component~ : ComponentDocument)
   RemoveComponent(entity_id~ : String, kind~ : String)
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @json.FromJson)
 
 pub struct SceneRef {
   path : String
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct SceneRuntime {
   entity_ids : Map[String, @entity.Entity]
@@ -666,7 +729,7 @@ pub struct SpriteComponent {
   flip_y : Bool
   rect : RectDoc?
   image_mode : String
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct Text2dComponent {
   content : String
@@ -675,7 +738,7 @@ pub struct Text2dComponent {
   color : ColorDoc
   bounds : Vec2Doc?
   anchor : Vec2Doc
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 pub fn Text2dComponent::with_content(Self, String) -> Self
 
 pub struct TextureAtlasComponent {
@@ -683,7 +746,7 @@ pub struct TextureAtlasComponent {
   region_name : String?
   layout : TextureAtlasLayoutDoc?
   index : Int
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct TextureAtlasLayoutDoc {
   tile_size : Vec2Doc
@@ -691,13 +754,13 @@ pub struct TextureAtlasLayoutDoc {
   rows : Int
   padding : Vec2Doc
   offset : Vec2Doc
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct Transform2dComponent {
   translation : Vec2Doc
   rotation : Double
   scale : Vec2Doc
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 pub fn Transform2dComponent::with_rotation(Self, Double) -> Self
 pub fn Transform2dComponent::with_scale(Self, Vec2Doc) -> Self
 pub fn Transform2dComponent::with_translation(Self, Vec2Doc) -> Self
@@ -705,18 +768,18 @@ pub fn Transform2dComponent::with_translation(Self, Vec2Doc) -> Self
 pub struct ValidationError {
   path : String
   message : String
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct Vec2Doc {
   x : Double
   y : Double
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 pub fn Vec2Doc::with_x(Self, Double) -> Self
 pub fn Vec2Doc::with_y(Self, Double) -> Self
 
 pub struct VisibilityComponent {
   visible : Bool
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 pub fn VisibilityComponent::toggled(Self) -> Self
 
 pub struct WorkspaceDocument {
@@ -725,7 +788,7 @@ pub struct WorkspaceDocument {
   selected_entity_id : String?
   move_snap_enabled : Bool?
   move_snap_step : Double?
-} derive(Eq, Show, ToJson, @json.FromJson)
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 pub fn WorkspaceDocument::default() -> Self
 pub fn WorkspaceDocument::move_snap_enabled_or_default(Self) -> Bool
 pub fn WorkspaceDocument::move_snap_step_or_default(Self) -> Double

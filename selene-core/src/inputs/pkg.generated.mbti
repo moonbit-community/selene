@@ -4,6 +4,7 @@ package "Milky2018/selene/inputs"
 import {
   "Milky2018/selene/event",
   "Milky2018/selene/math",
+  "moonbitlang/core/debug",
   "moonbitlang/core/set",
 }
 
@@ -137,14 +138,14 @@ pub(all) enum Code {
   Space
   Enter
   Escape
-} derive(Eq, Hash, Show)
+} derive(Eq, Hash, @debug.Debug)
 pub fn Code::from_string(String) -> Self?
 
 pub(all) struct Gamepad {
   id : Int
 
   fn new(Int) -> Gamepad
-} derive(Eq, Hash, Show)
+} derive(Eq, Hash, @debug.Debug)
 pub fn Gamepad::id(Self) -> Int
 pub fn Gamepad::new(Int) -> Self
 
@@ -155,7 +156,7 @@ pub(all) enum GamepadAxis {
   RightStickY
   LeftZ
   RightZ
-} derive(Eq, Hash, Show)
+} derive(Eq, Hash, @debug.Debug)
 
 pub struct GamepadAxisEvent {
   input : GamepadAxisInput
@@ -168,7 +169,7 @@ pub(all) struct GamepadAxisInput {
   axis : GamepadAxis
 
   fn new(Gamepad, GamepadAxis) -> GamepadAxisInput
-} derive(Eq, Hash, Show)
+} derive(Eq, Hash, @debug.Debug)
 pub fn GamepadAxisInput::new(Gamepad, GamepadAxis) -> Self
 
 pub(all) enum GamepadButton {
@@ -191,7 +192,7 @@ pub(all) enum GamepadButton {
   DPadDown
   DPadLeft
   DPadRight
-} derive(Eq, Hash, Show)
+} derive(Eq, Hash, @debug.Debug)
 
 pub struct GamepadButtonEvent {
   input : GamepadButtonInput
@@ -203,13 +204,13 @@ pub(all) struct GamepadButtonInput {
   button : GamepadButton
 
   fn new(Gamepad, GamepadButton) -> GamepadButtonInput
-} derive(Eq, Hash, Show)
+} derive(Eq, Hash, @debug.Debug)
 pub fn GamepadButtonInput::new(Gamepad, GamepadButton) -> Self
 
 pub(all) enum GamepadButtonInputState {
   Pressed
   Released
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub struct GamepadConnectionEvent {
   gamepad : Gamepad
@@ -234,7 +235,7 @@ pub struct KeyInputEvent {
 pub(all) enum KeyInputState {
   Pressed
   Released
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct Mouse {
   mut pos : @math.Vec2
@@ -247,7 +248,7 @@ pub(all) enum MouseButton {
   Left
   Right
   Middle
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub struct MouseButtonEvent {
   button : MouseButton
@@ -258,7 +259,7 @@ pub struct MouseButtonEvent {
 pub(all) enum MouseButtonInputState {
   Pressed
   Released
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub struct MouseMotionEvent {
   position : @math.Vec2

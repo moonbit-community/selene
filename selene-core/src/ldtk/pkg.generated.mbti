@@ -7,6 +7,7 @@ import {
   "Milky2018/selene/event",
   "Milky2018/selene/math",
   "Milky2018/selene/sprite",
+  "moonbitlang/core/debug",
   "moonbitlang/core/ref",
 }
 
@@ -549,7 +550,7 @@ pub fn LdtkIntGridPhysicsSettings::matches(Self, String, Int) -> Bool
 pub enum LdtkIntGridRendering {
   Colorful
   Invisible
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub struct LdtkIntGridValueDefinition {
   value : Int

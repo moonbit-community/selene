@@ -6,6 +6,7 @@ import {
   "Milky2018/selene/entity",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -29,7 +30,7 @@ pub fn update_color_material(ColorMaterialHandle, ColorMaterial) -> Unit
 pub(all) enum AlphaMode2D {
   Opaque
   Blend
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct ColorMaterial {
   color : @render.Color
@@ -42,19 +43,19 @@ pub(all) struct ColorMaterial {
 pub fn ColorMaterial::from_color(@render.Color) -> Self
 pub fn ColorMaterial::new(color? : @render.Color, texture? : @asset_types.ImageHandle?, uv_transform? : @math.Transform, alpha_mode? : AlphaMode2D) -> Self
 
-pub(all) struct ColorMaterialHandle(UInt) derive(Eq, Hash, Show)
+pub(all) struct ColorMaterialHandle(UInt) derive(Eq, Hash, @debug.Debug)
 #deprecated
 pub fn ColorMaterialHandle::inner(Self) -> UInt
 
 pub(all) enum Material2dHandle {
   Color(ColorMaterialHandle)
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct MeshMaterial2d {
   material : Material2dHandle
 
   fn new(Material2dHandle) -> MeshMaterial2d
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn MeshMaterial2d::from_color_material(ColorMaterialHandle) -> Self
 pub fn MeshMaterial2d::new(Material2dHandle) -> Self
 

@@ -3,6 +3,7 @@ package "Milky2018/selene/visibility"
 
 import {
   "Milky2018/selene/entity",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -33,20 +34,20 @@ pub fn visibility_propagate_system(Double) -> Unit
 // Types and methods
 pub(all) struct InheritedVisibility {
   visible : Bool
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct RenderLayers {
   mask : UInt
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct ViewVisibility {
   visible : Bool
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum Visibility {
   Visible
   Hidden
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 // Type aliases
 

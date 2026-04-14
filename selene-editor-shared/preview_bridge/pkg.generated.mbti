@@ -27,11 +27,15 @@ pub fn preview_command_set_animation_preview_paused(Bool) -> PreviewCommand
 
 pub fn preview_command_set_animation_preview_speed(Double) -> PreviewCommand
 
+pub fn preview_command_set_autotile_brush_terrain(Int) -> PreviewCommand
+
 pub fn preview_command_set_move_snap(Bool, Double) -> PreviewCommand
 
 pub fn preview_command_set_selection(String?, Array[String]) -> PreviewCommand
 
 pub fn preview_command_set_tool(@shared.PreviewTool) -> PreviewCommand
+
+pub fn preview_event_autotile_layer_changed(String, @editor_bridge.AutoTileLayer2dComponent) -> PreviewEvent
 
 pub fn preview_event_hover_changed(String?) -> PreviewEvent
 
@@ -70,6 +74,7 @@ pub enum PreviewCommand {
   SetSelection(primary~ : String?, ids~ : Array[String])
   SetTool(@shared.PreviewTool)
   SetMoveSnap(enabled~ : Bool, step~ : Double)
+  SetAutoTileBrushTerrain(Int)
   SetAnimationPreviewPaused(Bool)
   SetAnimationPreviewSpeed(Double)
   SeekAnimationPreview(Double)
@@ -82,6 +87,7 @@ pub enum PreviewEvent {
   TransformGestureStarted(id~ : String)
   TransformChanged(id~ : String, translation~ : @editor_bridge.Vec2Doc, rotation~ : Double, scale~ : @editor_bridge.Vec2Doc)
   TransformGestureFinished(id~ : String)
+  AutoTileLayerChanged(id~ : String, component~ : @editor_bridge.AutoTileLayer2dComponent)
 } derive(Eq)
 
 pub struct PreviewScenePayload {

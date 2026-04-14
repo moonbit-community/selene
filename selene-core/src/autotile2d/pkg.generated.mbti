@@ -1,0 +1,137 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/autotile2d"
+
+import {
+  "Milky2018/selene/entity",
+  "Milky2018/selene/math",
+  "Milky2018/selene/sprite",
+  "moonbitlang/core/debug",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn autotile_cell(Int, Int, Int) -> AutoTileCell
+
+pub fn autotile_diff(AutoTileLayerSource, changed_tiles? : Array[AutoTileSolvedTile], removed_tiles? : Array[AutoTileGridPos]) -> AutoTileDiff
+
+pub fn autotile_grid_pos(Int, Int) -> AutoTileGridPos
+
+pub fn autotile_layer_source(tile_width? : Double, tile_height? : Double, origin_x? : Double, origin_y? : Double, atlas_asset_path? : String, rule_set? : AutoTileRuleSetKind, palette? : Array[AutoTilePaletteEntry], cells? : Array[AutoTileCell]) -> AutoTileLayerSource
+
+pub fn autotile_mask_rule(Int, String, atlas_index? : Int) -> AutoTileMaskRule
+
+pub fn autotile_palette_entry(Int, String, fallback_atlas_index? : Int, bitmask4_rules? : Array[AutoTileMaskRule], bitmask8_rules? : Array[AutoTileMaskRule], wang_rules? : Array[AutoTileWangRule]) -> AutoTilePaletteEntry
+
+pub fn autotile_rule_set_bitmask4() -> AutoTileRuleSetKind
+
+pub fn autotile_rule_set_bitmask8() -> AutoTileRuleSetKind
+
+pub fn autotile_rule_set_wang() -> AutoTileRuleSetKind
+
+pub fn autotile_runtime_context(visual_resolver? : ((AutoTileLayerSource, AutoTileSolvedTile) -> AutoTileVisual?)?, z? : Double) -> AutoTileRuntimeContext
+
+pub fn autotile_solved_tile(Int, Int, String, atlas_index? : Int) -> AutoTileSolvedTile
+
+pub fn autotile_visual(image_path? : String?, rect? : @math.Rect?, custom_size? : @math.Vec2?, anchor? : @sprite.Anchor) -> AutoTileVisual
+
+pub fn autotile_wang_rule(Int, Int, Int, Int, String, atlas_index? : Int) -> AutoTileWangRule
+
+pub fn rebuild_runtime_layer(@entity.Entity) -> Unit
+
+pub fn register_runtime_layer(@entity.Entity, AutoTileLayerSource, context? : AutoTileRuntimeContext) -> Unit
+
+pub fn remove_runtime_cell(@entity.Entity, Int, Int) -> Unit
+
+pub fn runtime_layer_source(@entity.Entity) -> AutoTileLayerSource?
+
+pub fn set_runtime_cell(@entity.Entity, Int, Int, Int) -> Unit
+
+pub fn solve_autotile_layer(AutoTileLayerSource) -> Array[AutoTileSolvedTile]
+
+pub fn update_cell_and_resolve_diff(AutoTileLayerSource, Int, Int, Int?) -> AutoTileDiff
+
+// Errors
+
+// Types and methods
+pub struct AutoTileCell {
+  x : Int
+  y : Int
+  terrain : Int
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub struct AutoTileDiff {
+  source : AutoTileLayerSource
+  changed_tiles : Array[AutoTileSolvedTile]
+  removed_tiles : Array[AutoTileGridPos]
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub struct AutoTileGridPos {
+  x : Int
+  y : Int
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub struct AutoTileLayerSource {
+  tile_width : Double
+  tile_height : Double
+  origin_x : Double
+  origin_y : Double
+  atlas_asset_path : String
+  rule_set : AutoTileRuleSetKind
+  palette : Array[AutoTilePaletteEntry]
+  cells : Array[AutoTileCell]
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub struct AutoTileMaskRule {
+  mask : Int
+  region_name : String
+  atlas_index : Int
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub struct AutoTilePaletteEntry {
+  terrain : Int
+  fallback_region_name : String
+  fallback_atlas_index : Int
+  bitmask4_rules : Array[AutoTileMaskRule]
+  bitmask8_rules : Array[AutoTileMaskRule]
+  wang_rules : Array[AutoTileWangRule]
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub enum AutoTileRuleSetKind {
+  Bitmask4
+  Bitmask8
+  Wang
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub struct AutoTileRuntimeContext {
+  visual_resolver : ((AutoTileLayerSource, AutoTileSolvedTile) -> AutoTileVisual?)?
+  z : Double
+}
+
+pub struct AutoTileSolvedTile {
+  x : Int
+  y : Int
+  region_name : String
+  atlas_index : Int
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub struct AutoTileVisual {
+  image_path : String?
+  rect : @math.Rect?
+  custom_size : @math.Vec2?
+  anchor : @sprite.Anchor
+}
+
+pub struct AutoTileWangRule {
+  north : Int
+  east : Int
+  south : Int
+  west : Int
+  region_name : String
+  atlas_index : Int
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+// Type aliases
+pub type AutoTileVisualResolver = (AutoTileLayerSource, AutoTileSolvedTile) -> AutoTileVisual?
+
+// Traits
+

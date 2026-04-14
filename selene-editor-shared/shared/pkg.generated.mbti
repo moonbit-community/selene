@@ -43,6 +43,12 @@ pub fn event_envelope(EditorEvent) -> EventEnvelope
 
 pub fn prefab_load_response(String, @editor_bridge.PrefabDocument) -> PrefabLoadResponse
 
+pub fn preview_tool_autotile_erase() -> PreviewTool
+
+pub fn preview_tool_autotile_fill() -> PreviewTool
+
+pub fn preview_tool_autotile_paint() -> PreviewTool
+
 pub fn preview_tool_drag_canvas() -> PreviewTool
 
 pub fn preview_tool_rotate() -> PreviewTool
@@ -196,6 +202,9 @@ pub enum PreviewTool {
   Translate
   Rotate
   Scale
+  AutoTilePaint
+  AutoTileErase
+  AutoTileFill
 } derive(Eq, ToJson, @json.FromJson)
 
 pub struct ProjectStateResponse {

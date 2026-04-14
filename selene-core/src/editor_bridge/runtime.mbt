@@ -160,6 +160,132 @@ fn region_by_name_or_index(
 }
 
 ///|
+fn autotile_rule_set_kind_of(
+  rule_set : AutoTileRuleSetDocument,
+) -> @autotile2d.AutoTileRuleSetKind {
+  match rule_set {
+    Bitmask4 => @autotile2d.autotile_rule_set_bitmask4()
+    Bitmask8 => @autotile2d.autotile_rule_set_bitmask8()
+    Wang => @autotile2d.autotile_rule_set_wang()
+  }
+}
+
+///|
+fn autotile_source_of(
+  data : AutoTileLayer2dComponent,
+) -> @autotile2d.AutoTileLayerSource {
+  let palette : Array[@autotile2d.AutoTilePaletteEntry] = []
+  for entry in data.palette {
+    let bitmask4_rules : Array[@autotile2d.AutoTileMaskRule] = []
+    let bitmask8_rules : Array[@autotile2d.AutoTileMaskRule] = []
+    let wang_rules : Array[@autotile2d.AutoTileWangRule] = []
+    for rule in entry.bitmask4_rules {
+      bitmask4_rules.push(
+        @autotile2d.autotile_mask_rule(
+          rule.mask,
+          rule.region_name,
+          atlas_index=rule.atlas_index,
+        ),
+      )
+    }
+    for rule in entry.bitmask8_rules {
+      bitmask8_rules.push(
+        @autotile2d.autotile_mask_rule(
+          rule.mask,
+          rule.region_name,
+          atlas_index=rule.atlas_index,
+        ),
+      )
+    }
+    for rule in entry.wang_rules {
+      wang_rules.push(
+        @autotile2d.autotile_wang_rule(
+          rule.north,
+          rule.east,
+          rule.south,
+          rule.west,
+          rule.region_name,
+          atlas_index=rule.atlas_index,
+        ),
+      )
+    }
+    palette.push(
+      @autotile2d.autotile_palette_entry(
+        entry.terrain,
+        entry.fallback_region_name,
+        fallback_atlas_index=entry.fallback_atlas_index,
+        bitmask4_rules~,
+        bitmask8_rules~,
+        wang_rules~,
+      ),
+    )
+  }
+  let cells : Array[@autotile2d.AutoTileCell] = []
+  for cell in data.cells {
+    cells.push(@autotile2d.autotile_cell(cell.x, cell.y, cell.terrain))
+  }
+  @autotile2d.autotile_layer_source(
+    tile_width=data.tile_size.x,
+    tile_height=data.tile_size.y,
+    origin_x=data.origin.x,
+    origin_y=data.origin.y,
+    atlas_asset_path=data.atlas_asset_path,
+    rule_set=autotile_rule_set_kind_of(data.rule_set),
+    palette~,
+    cells~,
+  )
+}
+
+///|
+fn autotile_visual_resolver(
+  context : AssetInstantiationContext,
+) -> @autotile2d.AutoTileVisualResolver {
+  fn(source, tile) {
+    guard source.atlas_asset_path.trim() != "" else { return None }
+    match context.atlas_assets.get(source.atlas_asset_path) {
+      Some(atlas) => {
+        let region = region_by_name_or_index(
+          atlas,
+          Some(tile.region_name),
+          tile.atlas_index,
+        )
+        let rect = region.map(fn(item) { rect_of(item.rect) })
+        let size = match region {
+          Some(item) => @math.Vec2(item.rect.width, item.rect.height)
+          None => @math.Vec2(source.tile_width, source.tile_height)
+        }
+        Some(
+          @autotile2d.autotile_visual(
+            image_path=(context.asset_path_resolver)(Some(atlas.source_image)),
+            rect~,
+            custom_size=Some(size),
+            anchor=anchor_of(atlas.default_anchor),
+          ),
+        )
+      }
+      None => None
+    }
+  }
+}
+
+///|
+fn apply_autotile_layer_component(
+  entity : @entity.Entity,
+  data : AutoTileLayer2dComponent,
+  context : AssetInstantiationContext,
+) -> Unit {
+  let source = autotile_source_of(data)
+  @autotile2d.register_runtime_layer(
+    entity,
+    source,
+    context=@autotile2d.autotile_runtime_context(
+      visual_resolver=Some(autotile_visual_resolver(context)),
+      z=0.1,
+    ),
+  )
+}
+
+///|
 fn prepared_atlas(
   atlas_doc : TextureAtlasComponent?,
   context : AssetInstantiationContext,
@@ -518,6 +644,9 @@ fn apply_document_components(
   let transitions_doc : AnimationTransitionsComponent? = decode_component(
     document.component("AnimationTransitions"),
   )
+  let autotile_doc : AutoTileLayer2dComponent? = decode_component(
+    document.component("AutoTileLayer2d"),
+  )
 
   for component in document.components {
     match component.kind {
@@ -771,6 +900,7 @@ fn apply_document_components(
       }
       "AnimationPlayer" => ()
       "AnimationTransitions" => ()
+      "AutoTileLayer2d" => ()
       _ =>
         if context.custom_component_appliers.get(component.kind)
           is Some(applier) {
@@ -783,6 +913,9 @@ fn apply_document_components(
       entity, document, player_doc, transitions_doc, context, animation_clip_handles,
       animation_graph_handles,
     )
+  }
+  if autotile_doc is Some(layer_doc) {
+    apply_autotile_layer_component(entity, layer_doc, context)
   }
   if !@name.names().contains(entity) {
     @name.names().set(entity, @name.Name::new(document.name))

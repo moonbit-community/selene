@@ -4,6 +4,7 @@ package "Milky2018/selene/text2d"
 import {
   "Milky2018/selene/entity",
   "Milky2018/selene/sprite",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -20,7 +21,7 @@ pub fn text_bounds() -> Map[@entity.Entity, TextBounds]
 // Types and methods
 pub(all) struct Text2d {
   fn new() -> Text2d
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn Text2d::new() -> Self
 
 pub(all) struct TextBounds {
@@ -28,7 +29,7 @@ pub(all) struct TextBounds {
   height : Double
 
   fn new(Double, Double) -> TextBounds
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn TextBounds::new(Double, Double) -> Self
 
 // Type aliases

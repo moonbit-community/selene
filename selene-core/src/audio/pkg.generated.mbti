@@ -6,6 +6,7 @@ import {
   "Milky2018/selene/entity",
   "Milky2018/selene/event",
   "Milky2018/selene/platform_audio",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -44,13 +45,13 @@ pub(all) struct AudioEvent {
   source : @asset_types.AudioHandle
   settings : PlaybackSettings
   target : @entity.Entity?
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct AudioPlayer {
   source : @asset_types.AudioHandle
 
   fn new(@asset_types.AudioHandle) -> AudioPlayer
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn AudioPlayer::from_path(String) -> Self
 pub fn AudioPlayer::new(@asset_types.AudioHandle) -> Self
 
@@ -84,7 +85,7 @@ pub(all) enum PlaybackMode {
   Loop
   Remove
   Despawn
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct PlaybackSettings {
   mode : PlaybackMode
@@ -92,7 +93,7 @@ pub(all) struct PlaybackSettings {
   speed : Double
   paused : Bool
   muted : Bool
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn PlaybackSettings::despawn() -> Self
 pub fn PlaybackSettings::looped() -> Self
 pub fn PlaybackSettings::once() -> Self

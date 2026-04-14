@@ -466,6 +466,11 @@ fn sync_preview_effects(model : Model) -> Array[Effect] {
       ),
     ),
     Preview(
+      @bridge.preview_command_set_autotile_brush_terrain(
+        model.autotile_brush_terrain,
+      ),
+    ),
+    Preview(
       @bridge.preview_command_set_selection(
         model.selected_entity_id,
         selected_entity_ids_for_edit(model),
@@ -1100,6 +1105,9 @@ pub fn tool_label(tool : @shared.PreviewTool) -> String {
     @shared.Translate => "Move"
     @shared.Rotate => "Rotate"
     @shared.Scale => "Scale"
+    @shared.AutoTilePaint => "AutoTile Paint"
+    @shared.AutoTileErase => "AutoTile Erase"
+    @shared.AutoTileFill => "AutoTile Fill"
   }
 }
 

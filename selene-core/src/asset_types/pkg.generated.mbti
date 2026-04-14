@@ -1,20 +1,24 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene/asset_types"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 
 // Errors
 
 // Types and methods
-pub(all) struct AudioHandle(UInt) derive(Eq, Hash, Show)
+pub(all) struct AudioHandle(UInt) derive(Eq, Hash, @debug.Debug)
 #deprecated
 pub fn AudioHandle::inner(Self) -> UInt
 
-pub(all) struct FontHandle(UInt) derive(Eq, Hash, Show)
+pub(all) struct FontHandle(UInt) derive(Eq, Hash, @debug.Debug)
 #deprecated
 pub fn FontHandle::inner(Self) -> UInt
 
-pub(all) struct ImageHandle(UInt) derive(Eq, Hash, Show)
+pub(all) struct ImageHandle(UInt) derive(Eq, Hash, @debug.Debug)
 #deprecated
 pub fn ImageHandle::inner(Self) -> UInt
 

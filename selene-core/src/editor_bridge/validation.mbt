@@ -102,6 +102,147 @@ fn validate_ref_index(
 }
 
 ///|
+fn validate_autotile_component(
+  component : ComponentDocument,
+  path_prefix : String,
+) -> Array[ValidationError] {
+  let errors : Array[ValidationError] = []
+  let decoded : Result[AutoTileLayer2dComponent, Error] = try? @json.from_json(
+    component.data,
+  )
+  let data = match decoded {
+    Ok(value) => value
+    Err(_) => {
+      errors.push({
+        path: path_prefix,
+        message: "AutoTileLayer2d component payload is invalid",
+      })
+      return errors
+    }
+  }
+  if data.atlas_asset_path.trim() == "" {
+    errors.push({
+      path: path_prefix + ".atlas_asset_path",
+      message: "AutoTileLayer2d must reference an atlas asset path",
+    })
+  }
+  if data.tile_size.x <= 0.0 || data.tile_size.y <= 0.0 {
+    errors.push({
+      path: path_prefix + ".tile_size",
+      message: "AutoTileLayer2d tile size must be positive",
+    })
+  }
+  if data.palette.is_empty() {
+    errors.push({
+      path: path_prefix + ".palette",
+      message: "AutoTileLayer2d palette must not be empty",
+    })
+  }
+  let seen_terrains : Map[Int, Bool] = {}
+  for entry in data.palette {
+    if entry.terrain <= 0 {
+      errors.push({
+        path: path_prefix + ".palette",
+        message: "AutoTile palette terrain must be positive",
+      })
+    }
+    if seen_terrains.contains(entry.terrain) {
+      errors.push({
+        path: path_prefix + ".palette",
+        message: "AutoTile palette contains duplicated terrain id",
+      })
+    } else {
+      seen_terrains.set(entry.terrain, true)
+    }
+    if entry.fallback_region_name.trim() == "" {
+      errors.push({
+        path: path_prefix + ".palette",
+        message: "AutoTile palette fallback region must not be empty",
+      })
+    }
+    for rule in entry.bitmask4_rules {
+      if rule.mask < 0 || rule.mask > 15 {
+        errors.push({
+          path: path_prefix + ".palette.bitmask4_rules",
+          message: "Bitmask4 mask must be in [0, 15]",
+        })
+      }
+      if rule.region_name.trim() == "" {
+        errors.push({
+          path: path_prefix + ".palette.bitmask4_rules",
+          message: "Bitmask4 rule region name must not be empty",
+        })
+      }
+    }
+    for rule in entry.bitmask8_rules {
+      if rule.mask < 0 || rule.mask > 255 {
+        errors.push({
+          path: path_prefix + ".palette.bitmask8_rules",
+          message: "Bitmask8 mask must be in [0, 255]",
+        })
+      }
+      if rule.region_name.trim() == "" {
+        errors.push({
+          path: path_prefix + ".palette.bitmask8_rules",
+          message: "Bitmask8 rule region name must not be empty",
+        })
+      }
+    }
+    for rule in entry.wang_rules {
+      if rule.north < 0 || rule.east < 0 || rule.south < 0 || rule.west < 0 {
+        errors.push({
+          path: path_prefix + ".palette.wang_rules",
+          message: "Wang rule edge colors must be non-negative",
+        })
+      }
+      if rule.region_name.trim() == "" {
+        errors.push({
+          path: path_prefix + ".palette.wang_rules",
+          message: "Wang rule region name must not be empty",
+        })
+      }
+    }
+  }
+  let seen_cells : Map[String, Bool] = {}
+  for cell in data.cells {
+    let key = cell.x.to_string() + "," + cell.y.to_string()
+    if seen_cells.contains(key) {
+      errors.push({
+        path: path_prefix + ".cells",
+        message: "AutoTile cells contain duplicated coordinates",
+      })
+    } else {
+      seen_cells.set(key, true)
+    }
+    if !seen_terrains.contains(cell.terrain) {
+      errors.push({
+        path: path_prefix + ".cells",
+        message: "AutoTile cell terrain is not defined in palette",
+      })
+    }
+  }
+  errors
+}
+
+///|
+fn validate_scene_autotile_components(
+  scene : SceneDocument,
+) -> Array[ValidationError] {
+  let errors : Array[ValidationError] = []
+  for entity in scene.entities {
+    for component in entity.components {
+      if component.kind == "AutoTileLayer2d" {
+        let path = "entities[\{entity.id}].components[AutoTileLayer2d]"
+        for error in validate_autotile_component(component, path) {
+          errors.push(error)
+        }
+      }
+    }
+  }
+  errors
+}
+
+///|
 pub fn validate_project_manifest(
   manifest : ProjectManifest,
 ) -> Array[ValidationError] {
@@ -173,7 +314,9 @@ pub fn validate_scene_document(scene : SceneDocument) -> Array[ValidationError] 
   if scene.name == "" {
     errors.push({ path: "name", message: "Scene name must not be empty" })
   }
-  errors + validate_entity_documents(scene.entities, "entities")
+  errors +
+  validate_entity_documents(scene.entities, "entities") +
+  validate_scene_autotile_components(scene)
 }
 
 ///|

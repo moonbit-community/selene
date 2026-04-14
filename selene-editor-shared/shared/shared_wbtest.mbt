@@ -295,3 +295,16 @@ test "preview tool supports drag-canvas round trip" {
   let decoded : PreviewTool = @json.from_json(tool.to_json())
   inspect(decoded == tool, content="true")
 }
+
+///|
+test "preview tool supports autotile tool round trip" {
+  let tools = [
+    preview_tool_autotile_paint(),
+    preview_tool_autotile_erase(),
+    preview_tool_autotile_fill(),
+  ]
+  for tool in tools {
+    let decoded : PreviewTool = @json.from_json(tool.to_json())
+    inspect(decoded == tool, content="true")
+  }
+}

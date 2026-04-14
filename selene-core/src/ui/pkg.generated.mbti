@@ -9,6 +9,7 @@ import {
   "Milky2018/selene/math",
   "Milky2018/selene/render",
   "Milky2018/selene/render2d_types",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -203,7 +204,7 @@ pub(all) enum AlignContent {
   SpaceBetween
   SpaceAround
   SpaceEvenly
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum AlignItems {
   Start
@@ -213,7 +214,7 @@ pub(all) enum AlignItems {
   Center
   Baseline
   Stretch
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct BackgroundColor {
   color : @render.Color
@@ -238,7 +239,7 @@ pub(all) struct BorderRadius {
   bottom_left : Val
 
   fn new(top_left? : Val, top_right? : Val, bottom_right? : Val, bottom_left? : Val) -> BorderRadius
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn BorderRadius::all(Val) -> Self
 pub fn BorderRadius::new(top_left? : Val, top_right? : Val, bottom_right? : Val, bottom_left? : Val) -> Self
 
@@ -246,7 +247,7 @@ pub(all) struct BoxShadow {
   layers : Array[ShadowStyle]
 
   fn new(Array[ShadowStyle]) -> BoxShadow
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn BoxShadow::new(Array[ShadowStyle]) -> Self
 pub fn BoxShadow::single(@render.Color, x_offset? : Val, y_offset? : Val, spread_radius? : Val, blur_radius? : Val) -> Self
 
@@ -254,7 +255,7 @@ pub(all) struct Button {
   enabled : Bool
 
   fn new(enabled? : Bool) -> Button
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn Button::new(enabled? : Bool) -> Self
 
 pub(all) struct CalculatedClip {
@@ -278,25 +279,25 @@ pub(all) enum Display {
   Flex
   Grid
   None
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum FlexDirection {
   Row
   RowReverse
   Column
   ColumnReverse
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum FlexWrap {
   NoWrap
   Wrap
   WrapReverse
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum FocusPolicy {
   Block
   Pass
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct Focusable {
   _tag : Unit
@@ -323,7 +324,7 @@ pub(all) struct GlobalZIndex {
   value : Int
 
   fn new(Int) -> GlobalZIndex
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn GlobalZIndex::new(Int) -> Self
 
 pub(all) enum GridAutoFlow {
@@ -331,21 +332,21 @@ pub(all) enum GridAutoFlow {
   Column
   RowDense
   ColumnDense
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct GridLine {
   start : GridPlacement
   end : GridPlacement
 
   fn new(start? : GridPlacement, end? : GridPlacement) -> GridLine
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn GridLine::new(start? : GridPlacement, end? : GridPlacement) -> Self
 
 pub(all) enum GridPlacement {
   Auto
   Line(Int)
   Span(Int)
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum GridTrack {
   Auto
@@ -357,26 +358,26 @@ pub(all) enum GridTrack {
   FitContent(GridTrack)
   MinMax(GridTrack, GridTrack)
   Repeat(GridTrackRepetition, Array[GridTrack])
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum GridTrackRepetition {
   Count(Int)
   AutoFill
   AutoFit
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum ImageFit {
   Stretch
   Contain
   Cover
   None
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum Interaction {
   None
   Hovered
   Pressed
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum JustifyContent {
   Start
@@ -388,20 +389,20 @@ pub(all) enum JustifyContent {
   SpaceBetween
   SpaceAround
   SpaceEvenly
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct LayoutConfig {
   use_rounding : Bool
 
   fn new(use_rounding? : Bool) -> LayoutConfig
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn LayoutConfig::new(use_rounding? : Bool) -> Self
 
 pub(all) struct MaterialNode {
   material : UiMaterialHandle
 
   fn new(UiMaterialHandle) -> MaterialNode
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn MaterialNode::new(UiMaterialHandle) -> Self
 
 pub(all) struct Node {
@@ -448,7 +449,7 @@ pub(all) struct Node {
   active : Bool
 
   fn new(width? : Val, height? : Val, min_width? : Val, min_height? : Val, max_width? : Val, max_height? : Val, left? : Val, right? : Val, top? : Val, bottom? : Val, margin? : UiRectValues, padding? : UiRectValues, border? : UiRectValues, display? : Display, position_type? : PositionType, flex_direction? : FlexDirection, justify_content? : JustifyContent, align_items? : AlignItems, row_gap? : Double, column_gap? : Double, overflow_x? : Overflow, overflow_y? : Overflow, overflow_clip_margin? : OverflowClipMargin, flex_grow? : Double, flex_shrink? : Double, active? : Bool, align_content? : AlignContent?, align_self? : AlignItems?, justify_items? : AlignItems?, justify_self? : AlignItems?, flex_wrap? : FlexWrap, flex_basis? : Val, aspect_ratio? : Double?, scrollbar_width? : Double, grid_template_rows? : Array[GridTrack], grid_template_columns? : Array[GridTrack], grid_auto_rows? : Array[GridTrack], grid_auto_columns? : Array[GridTrack], grid_auto_flow? : GridAutoFlow, grid_row? : GridLine, grid_column? : GridLine) -> Node
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn Node::absolute(@math.Vec2, size? : @math.Vec2, padding? : UiRectValues, border? : UiRectValues, display? : Display, flex_direction? : FlexDirection, justify_content? : JustifyContent, align_items? : AlignItems, row_gap? : Double, column_gap? : Double, overflow_x? : Overflow, overflow_y? : Overflow, overflow_clip_margin? : OverflowClipMargin, active? : Bool) -> Self
 pub fn Node::new(width? : Val, height? : Val, min_width? : Val, min_height? : Val, max_width? : Val, max_height? : Val, left? : Val, right? : Val, top? : Val, bottom? : Val, margin? : UiRectValues, padding? : UiRectValues, border? : UiRectValues, display? : Display, position_type? : PositionType, flex_direction? : FlexDirection, justify_content? : JustifyContent, align_items? : AlignItems, row_gap? : Double, column_gap? : Double, overflow_x? : Overflow, overflow_y? : Overflow, overflow_clip_margin? : OverflowClipMargin, flex_grow? : Double, flex_shrink? : Double, active? : Bool, align_content? : AlignContent?, align_self? : AlignItems?, justify_items? : AlignItems?, justify_self? : AlignItems?, flex_wrap? : FlexWrap, flex_basis? : Val, aspect_ratio? : Double?, scrollbar_width? : Double, grid_template_rows? : Array[GridTrack], grid_template_columns? : Array[GridTrack], grid_auto_rows? : Array[GridTrack], grid_auto_columns? : Array[GridTrack], grid_auto_flow? : GridAutoFlow, grid_row? : GridLine, grid_column? : GridLine) -> Self
 
@@ -466,18 +467,18 @@ pub(all) enum Overflow {
   Clip
   Hidden
   Scroll
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum OverflowClipBox {
   ContentBox
   PaddingBox
   BorderBox
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct OverflowClipMargin {
   visual_box : OverflowClipBox
   margin : Double
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn OverflowClipMargin::border_box() -> Self
 pub fn OverflowClipMargin::content_box() -> Self
 pub fn OverflowClipMargin::padding_box() -> Self
@@ -487,27 +488,27 @@ pub(all) struct OverrideClip {
   _tag : Unit
 
   fn new() -> OverrideClip
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn OverrideClip::new() -> Self
 
 pub(all) enum PositionType {
   Relative
   Absolute
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct RelativeCursorPosition {
   mut normalized : @math.Vec2?
   mut cursor_over : Bool
 
   fn new() -> RelativeCursorPosition
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn RelativeCursorPosition::mouse_over(Self) -> Bool
 pub fn RelativeCursorPosition::new() -> Self
 
 pub(all) struct ScrollPosition {
   mut x : Double
   mut y : Double
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn ScrollPosition::zero() -> Self
 
 pub(all) struct ShadowStyle {
@@ -518,14 +519,14 @@ pub(all) struct ShadowStyle {
   blur_radius : Val
 
   fn new(@render.Color, x_offset? : Val, y_offset? : Val, spread_radius? : Val, blur_radius? : Val) -> ShadowStyle
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn ShadowStyle::new(@render.Color, x_offset? : Val, y_offset? : Val, spread_radius? : Val, blur_radius? : Val) -> Self
 
 pub(all) struct TabIndex {
   value : Int
 
   fn new(Int) -> TabIndex
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn TabIndex::new(Int) -> Self
 
 pub(all) struct Text {
@@ -568,12 +569,12 @@ pub fn TextLayout::new(align? : @math.HAlign, baseline? : @math.VAlign, line_hei
 pub(all) enum TextOverflow {
   Clip
   Ellipsis
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum TextWrap {
   NoWrap
   WordWrap
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct UiClickEvent {
   entity : @entity.Entity
@@ -593,7 +594,7 @@ pub(all) struct UiGradient {
   color_end : @render.Color
 
   fn new(@render.Color, @render.Color) -> UiGradient
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn UiGradient::new(@render.Color, @render.Color) -> Self
 
 pub(all) struct UiImage {
@@ -603,7 +604,7 @@ pub(all) struct UiImage {
   fit : ImageFit
 
   fn new(@math.Vec2, String, tint? : @render.Color, fit? : ImageFit) -> UiImage
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn UiImage::from_image(@math.Vec2, @asset_types.ImageHandle, tint? : @render.Color, fit? : ImageFit) -> Self
 pub fn UiImage::new(@math.Vec2, String, tint? : @render.Color, fit? : ImageFit) -> Self
 
@@ -612,7 +613,7 @@ pub(all) struct UiInsets {
   right : Double
   top : Double
   bottom : Double
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn UiInsets::zero() -> Self
 
 pub(all) struct UiMaterialAsset {
@@ -637,7 +638,7 @@ pub(all) struct UiMaterialContext {
 }
 pub fn UiMaterialContext::new(@entity.Entity, @math.Rect, content_rect? : @math.Rect, border_radius? : BorderRadius) -> Self
 
-pub(all) struct UiMaterialHandle(UInt) derive(Eq, Hash, Show)
+pub(all) struct UiMaterialHandle(UInt) derive(Eq, Hash, @debug.Debug)
 #deprecated
 pub fn UiMaterialHandle::inner(Self) -> UInt
 
@@ -648,7 +649,7 @@ pub(all) enum UiNavigationDirection {
   Right
   Activate
   Cancel
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) struct UiNavigationEvent {
   entity : @entity.Entity?
@@ -682,7 +683,7 @@ pub(all) struct UiRectValues {
   bottom : Val
 
   fn new(left? : Val, right? : Val, top? : Val, bottom? : Val) -> UiRectValues
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn UiRectValues::all(Double) -> Self
 pub fn UiRectValues::new(left? : Val, right? : Val, top? : Val, bottom? : Val) -> Self
 pub fn UiRectValues::px(left? : Double, right? : Double, top? : Double, bottom? : Double) -> Self
@@ -690,13 +691,13 @@ pub fn UiRectValues::px(left? : Double, right? : Double, top? : Double, bottom? 
 pub(all) enum UiScaleMode {
   Screen
   Viewport
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 
 pub(all) enum Val {
   Auto
   Px(Double)
   Percent(Double)
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn Val::percent(Double) -> Self
 pub fn Val::px(Double) -> Self
 
@@ -704,7 +705,7 @@ pub(all) struct ZIndex {
   value : Int
 
   fn new(Int) -> ZIndex
-} derive(Eq, Show)
+} derive(Eq, @debug.Debug)
 pub fn ZIndex::new(Int) -> Self
 
 // Type aliases
