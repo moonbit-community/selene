@@ -46,6 +46,10 @@ pub fn deterministic_mode() -> DeterministicModeConfig
 
 pub fn deterministic_ordering_enabled() -> Bool
 
+pub fn export_sprite_inspector_regions(Array[SpriteInspectorEntry], String, file_naming? : (SpriteInspectorEntry, Int) -> String) -> Int
+
+pub fn export_texture_region_png(String, @math.Rect, String) -> Bool
+
 pub fn fixed_delta_override() -> Double?
 
 pub fn frame_capture_file_stem(UInt, UInt) -> String

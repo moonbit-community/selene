@@ -532,10 +532,7 @@ fn push_outline(entity : @entity.Entity) -> Unit {
   )
   push_ui_rect_fill(
     {
-      position: @math.Vec2(
-        outer.position[X],
-        inner.position[Y] + inner.size[Y],
-      ),
+      position: @math.Vec2(outer.position[X], inner.position[Y] + inner.size[Y]),
       size: @math.Vec2(
         outer.size[X],
         @cmp.maximum(
@@ -558,10 +555,7 @@ fn push_outline(entity : @entity.Entity) -> Unit {
   )
   push_ui_rect_fill(
     {
-      position: @math.Vec2(
-        inner.position[X] + inner.size[X],
-        inner.position[Y],
-      ),
+      position: @math.Vec2(inner.position[X] + inner.size[X], inner.position[Y]),
       size: @math.Vec2(
         @cmp.maximum(
           0.0,

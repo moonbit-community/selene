@@ -210,3 +210,54 @@ pub fn image_region_is_fully_transparent(
   image.unload()
   Some(!opaque_found)
 }
+
+///|
+pub fn export_texture_region_png(
+  image_path : String,
+  rect : @math.Rect,
+  out_path : String,
+) -> Bool {
+  if !@raylib.file_exists(image_path) {
+    return false
+  }
+  let image = @raylib.Image::load(image_path)
+  if !image.is_valid() {
+    image.unload()
+    return false
+  }
+  let start_x = rect.position[@math.X]
+  let start_y = rect.position[@math.Y]
+  let end_x = rect.position[@math.X] + rect.size[@math.X]
+  let end_y = rect.position[@math.Y] + rect.size[@math.Y]
+  let min_x_raw = @cmath.floor(@cmp.minimum(start_x, end_x)).to_int()
+  let min_y_raw = @cmath.floor(@cmp.minimum(start_y, end_y)).to_int()
+  let max_x_raw = @cmath.ceil(@cmp.maximum(start_x, end_x)).to_int()
+  let max_y_raw = @cmath.ceil(@cmp.maximum(start_y, end_y)).to_int()
+  let min_x = if min_x_raw < 0 { 0 } else { min_x_raw }
+  let min_y = if min_y_raw < 0 { 0 } else { min_y_raw }
+  let max_x = if max_x_raw > image.width() { image.width() } else { max_x_raw }
+  let max_y = if max_y_raw > image.height() {
+    image.height()
+  } else {
+    max_y_raw
+  }
+  if max_x <= min_x || max_y <= min_y {
+    image.unload()
+    return false
+  }
+  let crop = @raylib.Rectangle::new(
+    Float::from_int(min_x),
+    Float::from_int(min_y),
+    Float::from_int(max_x - min_x),
+    Float::from_int(max_y - min_y),
+  )
+  let cropped = image.from_image(crop)
+  image.unload()
+  if !cropped.is_valid() {
+    cropped.unload()
+    return false
+  }
+  let ok = cropped.export_(out_path)
+  cropped.unload()
+  ok
+}

@@ -138,3 +138,15 @@ pub fn image_region_is_fully_transparent(
   ignore(rect)
   None
 }
+
+///|
+pub fn export_texture_region_png(
+  image_path : String,
+  rect : @math.Rect,
+  out_path : String,
+) -> Bool {
+  ignore(image_path)
+  ignore(rect)
+  ignore(out_path)
+  false
+}

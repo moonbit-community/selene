@@ -27,3 +27,5 @@ fn capture_frame_png_to_file(String) -> Bool
 fn render_offscreen_png(@render_pipeline.RenderFrame, Int, Int) -> Bytes?
 
 fn image_region_is_fully_transparent(String, @math.Rect) -> Bool?
+
+fn export_texture_region_png(String, @math.Rect, String) -> Bool

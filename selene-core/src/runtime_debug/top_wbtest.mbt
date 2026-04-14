@@ -242,3 +242,74 @@ test "frame metadata export includes draw commands and atlas overlay entries" {
     )
   })
 }
+
+///|
+test "export sprite inspector regions only processes entries with image and source rect" {
+  with_runtime_debug_world(fn() raise {
+    let naming_calls = Ref::new(0)
+    let entries : Array[SpriteInspectorEntry] = [
+      {
+        entity_id: 1U,
+        entity_name: Some("No Image"),
+        visible: true,
+        image_path: None,
+        source_rect: Some({ x: 0.0, y: 0.0, width: 8.0, height: 8.0 }),
+        destination_size: None,
+        anchor: { x: 0.0, y: 0.0 },
+        flip_x: false,
+        flip_y: false,
+        local_translation: None,
+        world_translation: None,
+      },
+      {
+        entity_id: 2U,
+        entity_name: Some("No Rect"),
+        visible: true,
+        image_path: Some("assets/debug/export.png"),
+        source_rect: None,
+        destination_size: None,
+        anchor: { x: 0.0, y: 0.0 },
+        flip_x: false,
+        flip_y: false,
+        local_translation: None,
+        world_translation: None,
+      },
+      {
+        entity_id: 3U,
+        entity_name: Some("Valid"),
+        visible: true,
+        image_path: Some("assets/debug/export.png"),
+        source_rect: Some({ x: 1.0, y: 2.0, width: 4.0, height: 5.0 }),
+        destination_size: None,
+        anchor: { x: 0.0, y: 0.0 },
+        flip_x: false,
+        flip_y: false,
+        local_translation: None,
+        world_translation: None,
+      },
+    ]
+    let exported = export_sprite_inspector_regions(entries, "/tmp", file_naming=fn(
+      _entry,
+      _index,
+    ) {
+      naming_calls.val = naming_calls.val + 1
+      "runtime_debug_export_test.png"
+    })
+    inspect(naming_calls.val, content="1")
+    inspect(exported, content="0")
+  })
+}
+
+///|
+test "export texture region png returns false for missing image path" {
+  with_runtime_debug_world(fn() raise {
+    inspect(
+      export_texture_region_png(
+        "/tmp/selene_runtime_debug_missing.png",
+        { position: @math.Vec2(0.0, 0.0), size: @math.Vec2(1.0, 1.0) },
+        "/tmp/selene_runtime_debug_missing_out.png",
+      ),
+      content="false",
+    )
+  })
+}

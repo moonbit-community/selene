@@ -524,10 +524,7 @@ fn devil_shooting_system(_world : @ecs.World) -> Unit {
 }
 
 ///|
-fn shoot_enemy_bullet(
-  enemy_pos : @math.Vec2,
-  player_pos : @math.Vec2,
-) -> Unit {
+fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
   let bullet_entity = @entity.Entity::new()
   @sprite.sprites().set(
     bullet_entity,

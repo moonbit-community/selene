@@ -1377,10 +1377,7 @@ fn accumulate_pending_vec2(
   entity : @entity.Entity,
   value : @math.Vec2,
 ) -> Unit {
-  pending.set(
-    entity,
-    pending.get(entity).unwrap_or(@math.Vec2::zero()) + value,
-  )
+  pending.set(entity, pending.get(entity).unwrap_or(@math.Vec2::zero()) + value)
 }
 
 ///|
@@ -2204,10 +2201,7 @@ fn entity_from_collider_handle(
 }
 
 ///|
-fn estimate_direction(
-  from : @entity.Entity,
-  to : @entity.Entity,
-) -> @math.Vec2 {
+fn estimate_direction(from : @entity.Entity, to : @entity.Entity) -> @math.Vec2 {
   if entity_translation(from) is Some(from_pos) &&
     entity_translation(to) is Some(to_pos) {
     let delta = to_pos - from_pos

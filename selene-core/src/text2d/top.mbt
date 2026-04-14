@@ -303,10 +303,7 @@ fn bounded_text_lines(
 ///|
 fn anchor_origin(anchor : @sprite.Anchor, size : @math.Vec2) -> @math.Vec2 {
   let normalized = anchor.as_vec()
-  @math.Vec2(
-    -size[X] * (normalized[X] + 0.5),
-    -size[Y] * (0.5 - normalized[Y]),
-  )
+  @math.Vec2(-size[X] * (normalized[X] + 0.5), -size[Y] * (0.5 - normalized[Y]))
 }
 
 ///|

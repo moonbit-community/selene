@@ -300,10 +300,7 @@ fn build_terrain_colliders_from_scene(
           start_x.to_double() * tile_size_d,
           y.to_double() * tile_size_d,
         ),
-        @math.Vec2(
-          (end_x - start_x + 1).to_double() * tile_size_d,
-          tile_size_d,
-        ),
+        @math.Vec2((end_x - start_x + 1).to_double() * tile_size_d, tile_size_d),
       )
     }
   }

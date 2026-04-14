@@ -262,10 +262,7 @@ fn snap_to_move_grid(point : @math.Vec2) -> @math.Vec2 {
   } else {
     16.0
   }
-  @math.Vec2(
-    (point[X] / grid).round() * grid,
-    (point[Y] / grid).round() * grid,
-  )
+  @math.Vec2((point[X] / grid).round() * grid, (point[Y] / grid).round() * grid)
 }
 
 ///|

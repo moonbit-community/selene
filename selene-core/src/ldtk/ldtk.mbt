@@ -2336,9 +2336,7 @@ fn[T] option_or(value : T?, fallback : T?) -> T? {
 ///|
 fn json_vec2_from_int_array(value : Json?) -> @math.Vec2 {
   guard value is Some(value_json) else { return @math.Vec2::zero() }
-  guard json_array(value_json) is Some(items) else {
-    return @math.Vec2::zero()
-  }
+  guard json_array(value_json) is Some(items) else { return @math.Vec2::zero() }
   if items.length() < 2 {
     return @math.Vec2::zero()
   }

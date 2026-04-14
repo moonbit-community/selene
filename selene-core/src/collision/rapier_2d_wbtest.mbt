@@ -9,10 +9,7 @@ fn collision_test_shape() -> CollisionShape {
 }
 
 ///|
-fn set_test_translation(
-  entity : @entity.Entity,
-  position : @math.Vec2,
-) -> Unit {
+fn set_test_translation(entity : @entity.Entity, position : @math.Vec2) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
     ..current,
@@ -239,10 +236,10 @@ test "spatial queries resolve hits, overlaps, and body filters" {
   rapier_fixed_step(0.016)
 
   inspect(
-    raycast(
-      @math.Vec2::zero() + @math.Vec2(0.0, 100.0),
-      @math.Vec2(1.0, 0.0),
-    ).map_or(false, fn(hit) { hit.entity == fixed_entity && hit.toi > 100.0 }),
+    raycast(@math.Vec2::zero() + @math.Vec2(0.0, 100.0), @math.Vec2(1.0, 0.0)).map_or(
+      false,
+      fn(hit) { hit.entity == fixed_entity && hit.toi > 100.0 },
+    ),
     content="true",
   )
   inspect(

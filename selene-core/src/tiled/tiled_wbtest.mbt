@@ -890,10 +890,7 @@ test "tiled world chunking spawns maps around camera view" {
     inspect(first_spawned.length(), content="1")
     inspect(first_spawned[0].1.resolved_map_path, content="worlds/maps/a.tmj")
 
-    tiled_test_set_entity_translation_2d(
-      camera_entity,
-      @math.Vec2(250.0, 50.0),
-    )
+    tiled_test_set_entity_translation_2d(camera_entity, @math.Vec2(250.0, 50.0))
     tiled_world_chunking_system(0.0)
 
     let second_spawned = tiled_world_map_instances()

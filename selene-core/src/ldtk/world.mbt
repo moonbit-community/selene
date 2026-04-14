@@ -1807,10 +1807,7 @@ fn ldtk_spawn_layer_tiles(
       tile_entity,
       @sprite.Sprite::new(
         image=Some(image),
-        rect=Some({
-          position: tile_src,
-          size: @math.Vec2(tile_size, tile_size),
-        }),
+        rect=Some({ position: tile_src, size: @math.Vec2(tile_size, tile_size) }),
         color=@render.Color::{ r: 255U, g: 255U, b: 255U, a: render_alpha },
         custom_size=Some(@math.Vec2(tile_size, tile_size)),
         anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
@@ -1860,10 +1857,7 @@ fn ldtk_spawn_int_grid_cells(
     let cell_entity = layer_entity.spawn_child()
     set_entity_translation_2d(
       cell_entity,
-      @math.Vec2(
-        grid_x.to_double() * grid_size,
-        grid_y.to_double() * grid_size,
-      ),
+      @math.Vec2(grid_x.to_double() * grid_size, grid_y.to_double() * grid_size),
     )
     set_entity_depth(cell_entity, zindex)
     ldtk_grid_coords().set(cell_entity, { x: grid_x, y: grid_y })

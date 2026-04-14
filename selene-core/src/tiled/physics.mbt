@@ -609,10 +609,7 @@ fn tiled_axis_aligned_rect(
 }
 
 ///|
-fn tiled_ellipse_points(
-  size : @math.Vec2,
-  segments : Int,
-) -> Array[@math.Vec2] {
+fn tiled_ellipse_points(size : @math.Vec2, segments : Int) -> Array[@math.Vec2] {
   let count = if segments < 8 { 8 } else { segments }
   let center = size.scalar_mul(0.5)
   let points : Array[@math.Vec2] = []
