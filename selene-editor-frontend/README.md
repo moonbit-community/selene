@@ -1,12 +1,12 @@
 # selene-editor-frontend
 
-Browser shell and preview runtime for Selene Editor.
+Browser UI and preview runtime for Selene Editor.
 
-## Build Frontend Bundle (release)
+## Build
 
 ```bash
 moon build frontend/web --target js --release --manifest-path moon.mod.json
 cp ../_build/js/release/build/Milky2018/selene_editor_frontend/frontend/web/web.js ../selene-editor-service/public/editor.js
 ```
 
-The service serves `public/editor.js` directly, so frontend bundle generation and copy are explicit source steps.
+`selene-editor-service` serves `public/editor.js` directly, so the release bundle must be copied after each frontend rebuild.

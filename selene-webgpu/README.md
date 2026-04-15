@@ -1,6 +1,6 @@
 # Milky2018/selene_webgpu
 
-WebGPU backend implementation for Selene.
+WebGPU backend for Selene web builds.
 
 ## Install
 
@@ -10,7 +10,7 @@ moon add Milky2018/selene_webgpu
 
 ## Enable This Backend
 
-Override Selene platform interfaces in your entry package:
+In your web wrapper package:
 
 ```moonbit
 options(

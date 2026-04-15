@@ -27,6 +27,7 @@
 - Changed editor-service path utilities to use `moonbitlang/x/path` for join/basename/extname operations while retaining explicit editor path safety checks (`normalize_relative_path` guard).
 - Changed `selene-editor-service` HTTP layer from a single `http.mbt` file to focused modules (`http_common`, `http_open_project`, `http_rpc_dispatch`, `http_routes`, `http_watch_loop`) while preserving `/rpc`, `/events`, static routes, and watcher behavior.
 - Changed frontend app domain routing layout by extracting second-level domain ADT definitions into `domain_msg_types.mbt`, so `update_domain_msg.mbt` now focuses on message-to-domain routing only.
+- Changed repository README files to use shorter, current module descriptions and up-to-date build/run entrypoints.
 
 ### Fixed
 

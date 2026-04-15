@@ -1,6 +1,6 @@
 # selene-editor-specs
 
-BDD and integration tests for Selene Editor shared/frontend/service modules.
+BDD and integration coverage for Selene Editor open/edit/save/migration flows across the shared, frontend, and service modules.
 
 ## Test
 

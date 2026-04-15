@@ -1,12 +1,9 @@
-# `selene/ldtk` Registration Template (No Derive)
+# `selene/ldtk` Registration Template
 
-MoonBit currently does not provide a derive macro flow like bevy's
-`#[derive(LdtkEntity)]` / `#[derive(LdtkIntCell)]`.
+Selene uses explicit runtime registration APIs instead of derive macros.
 
-Selene provides equivalent runtime registration APIs:
-
-- `register_*`: set/replace one handler for a scope.
-- `add_*`: append handlers for a scope (bundle-like composition).
+- `register_*`: set or replace one handler for a scope
+- `add_*`: append handlers for a scope
 
 For both entity and int-cell typed registration, scope resolution priority is:
 
@@ -15,8 +12,7 @@ For both entity and int-cell typed registration, scope resolution priority is:
 3. `(layer only)`
 4. `(default)`
 
-Only the highest-priority scope is selected.  
-Within the same selected scope, `add_*` handlers run in registration order.
+Only the highest-priority scope is selected. Within the same selected scope, `add_*` handlers run in registration order.
 
 ## Minimal Bundle-Like Template
 
@@ -65,23 +61,9 @@ pub fn setup_ldtk_bindings() -> Unit {
 }
 ```
 
-## Common Variants
+## Entity Tile Helper (`__tile`)
 
-- Replace one scope handler (single registration):
-  - `register_ldtk_entity_for_layer_optional(...)`
-  - `register_ldtk_int_cell_for_layer_optional(...)`
-- Append additional behavior to the same scope:
-  - `add_ldtk_entity_registration_for_layer_optional(...)`
-  - `add_ldtk_int_cell_registration_for_layer_optional(...)`
-- Remove one scope:
-  - `unregister_ldtk_entity_for_layer_optional(...)`
-  - `unregister_ldtk_int_cell_for_layer_optional(...)`
-
-## Entity Tile Placeholder Sprite (`__tile`)
-
-To mirror bevy's `#[sprite_sheet]` flow without derive macros, Selene now
-provides explicit helper APIs that read `entity.instance.tile` (`__tile`) and
-insert a sprite automatically:
+To mirror bevy's `#[sprite_sheet]` flow without derive macros, Selene provides explicit helpers that read `entity.instance.tile` (`__tile`) and insert a sprite automatically:
 
 - One-shot insertion in your own hook:
   - `insert_ldtk_entity_tile_sprite(event, zindex=...)`
@@ -93,8 +75,7 @@ insert a sprite automatically:
 
 These helpers:
 
-- Resolve the tileset image from `__tile.tilesetUid` (or layer tileset fallback).
-- Use the `__tile` source rectangle as sprite atlas source.
-- Scale to `entity.width/height`.
-- Apply LDtk pivot offset so the rendered sprite occupies the expected entity
-  area.
+- Resolve the tileset image from `__tile.tilesetUid` (or layer tileset fallback)
+- Use the `__tile` source rectangle as the sprite source
+- Scale to `entity.width/height`
+- Apply the LDtk pivot offset so the sprite occupies the expected entity area

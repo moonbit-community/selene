@@ -1,50 +1,24 @@
-# The Selene Game Engine
+# Milky2018/selene
 
-Selene is an experimental game engine in MoonBit made as a tutorial for [MGPIC 2025](https://www.moonbitlang.cn/2025-mgpic).
+Core ECS/runtime package for Selene.
 
-Selene is free and open-source forever under the Apache 2.0 license.
+It includes app/runtime orchestration, ECS data flow, assets, scenes, animation, 2D/3D rendering, UI, physics, and editor-bridge document codecs.
 
-## Installation
+## Install
 
-```shell
+```bash
 moon add Milky2018/selene
 ```
 
-## Installation for v0.10.x (for MGPIC 2025)
+## Backends
 
-```shell 
-moon add Milky2018/selene@0.10.7
-```
+Use this package together with:
 
-## Example
+- `Milky2018/selene_webgpu` for web builds
+- `Milky2018/selene_raylib` for native builds
 
-Please check [examples](https://github.com/Milky2018/selene/tree/main/examples).
+## Learn More
 
-## Documentations and Tutorials
-
-Please check [docs](https://github.com/Milky2018/selene/tree/main/docs).
-
-## TODO
-
-- [x] Basic collisions 
-- [x] Areas 
-- [x] Backend as a virtual package
-- [ ] Gamepad support 
-- [x] Mouse support
-- [ ] Screen Touch support
-- [x] Camera
-- [x] Documentation
-- [ ] Convex polygon collision
-- [x] Debug information
-- [x] Audio
-- [x] Timer
-- [ ] Webpack (selene-webgpu)
-- [x] Parent-child structure
-- [x] Manual atlas
-- [x] Visibility 
-- [x] Move-and-slide collisions
-- [ ] Input mapping
-- [x] UI components 
-- [ ] Multiple cameras
-- [ ] Networking
-- [ ] Progress
+- Repository overview: [../README.md](../README.md)
+- Tutorials: [../docs](../docs)
+- Examples: [../examples](../examples)

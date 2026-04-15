@@ -1,20 +1,19 @@
 # selene-editor-service
 
-Native local HTTP/RPC/SSE daemon for Selene Editor.
+Native local HTTP/RPC/SSE service for Selene Editor.
 
-## Run From Source
+## Quick Start
 
-1. Build frontend bundle and copy to `public/editor.js`:
+From the repository root:
 
 ```bash
-cd ../selene-editor-frontend
-moon build frontend/web --target js --release --manifest-path moon.mod.json
-cp ../_build/js/release/build/Milky2018/selene_editor_frontend/frontend/web/web.js ../selene-editor-service/public/editor.js
+just editor
 ```
 
-2. Run service:
+## Manual Run
+
+First build and copy the frontend bundle, then run:
 
 ```bash
-cd ../selene-editor-service
 moon run service --target native --manifest-path moon.mod.json -- --port 47142
 ```
