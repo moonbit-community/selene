@@ -530,5 +530,29 @@ pub fn validate_workspace_document(
       message: "Move snap step must be positive when present",
     })
   }
+  if workspace.sidebar_scene_ratio is Some(ratio) &&
+    (ratio <= 0.0 || ratio >= 1.0) {
+    errors.push({
+      path: "sidebar_scene_ratio",
+      message: "Sidebar scene ratio must be in (0, 1) when present",
+    })
+  }
+  if workspace.sidebar_assets_ratio is Some(ratio) &&
+    (ratio <= 0.0 || ratio >= 1.0) {
+    errors.push({
+      path: "sidebar_assets_ratio",
+      message: "Sidebar assets ratio must be in (0, 1) when present",
+    })
+  }
+  match (workspace.sidebar_scene_ratio, workspace.sidebar_assets_ratio) {
+    (Some(scene_ratio), Some(assets_ratio)) =>
+      if scene_ratio + assets_ratio >= 1.0 {
+        errors.push({
+          path: "sidebar_scene_ratio/sidebar_assets_ratio",
+          message: "Sidebar scene and assets ratios must leave room for scene tree",
+        })
+      }
+    _ => ()
+  }
   errors
 }

@@ -70,6 +70,8 @@ pub struct WorkspaceDocument {
   selected_entity_id : String?
   move_snap_enabled : Bool?
   move_snap_step : Double?
+  sidebar_scene_ratio : Double?
+  sidebar_assets_ratio : Double?
 } derive(Debug, Eq, ToJson, FromJson)
 
 ///|
@@ -686,6 +688,8 @@ pub fn WorkspaceDocument::default() -> WorkspaceDocument {
     selected_entity_id: None,
     move_snap_enabled: None,
     move_snap_step: None,
+    sidebar_scene_ratio: None,
+    sidebar_assets_ratio: None,
   }
 }
 
@@ -735,6 +739,42 @@ pub fn WorkspaceDocument::move_snap_step_or_default(
   match self.move_snap_step {
     Some(step) if step > 0.0 => step
     _ => 16.0
+  }
+}
+
+///|
+pub fn WorkspaceDocument::with_sidebar_scene_ratio(
+  self : WorkspaceDocument,
+  ratio : Double,
+) -> WorkspaceDocument {
+  { ..self, sidebar_scene_ratio: Some(ratio) }
+}
+
+///|
+pub fn WorkspaceDocument::with_sidebar_assets_ratio(
+  self : WorkspaceDocument,
+  ratio : Double,
+) -> WorkspaceDocument {
+  { ..self, sidebar_assets_ratio: Some(ratio) }
+}
+
+///|
+pub fn WorkspaceDocument::sidebar_scene_ratio_or_default(
+  self : WorkspaceDocument,
+) -> Double {
+  match self.sidebar_scene_ratio {
+    Some(ratio) if ratio > 0.0 && ratio < 1.0 => ratio
+    _ => 0.18
+  }
+}
+
+///|
+pub fn WorkspaceDocument::sidebar_assets_ratio_or_default(
+  self : WorkspaceDocument,
+) -> Double {
+  match self.sidebar_assets_ratio {
+    Some(ratio) if ratio > 0.0 && ratio < 1.0 => ratio
+    _ => 0.47
   }
 }
 
