@@ -659,6 +659,8 @@ fn update_project_runtime(
             } else {
               model.selected_resource
             },
+            autotile_palette_json_draft: "",
+            autotile_palette_json_error: None,
           }
           ([], next)
         }

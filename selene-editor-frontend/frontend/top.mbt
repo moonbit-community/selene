@@ -2499,6 +2499,11 @@ fn autotile_component_body(
   model : @app.Model,
   layer : @editor_bridge.AutoTileLayer2dComponent,
 ) -> @rabbita.Html {
+  let palette_draft = if model.autotile_palette_json_draft.trim() == "" {
+    layer.palette.to_json().stringify(indent=2)
+  } else {
+    model.autotile_palette_json_draft
+  }
   let palette_lines = layer.palette.map(fn(entry) {
     "terrain \{entry.terrain}: " + entry.fallback_region_name
   })
@@ -2523,6 +2528,27 @@ fn autotile_component_body(
     ) {
       dispatch(@app.msg_update_selected_autotile_rule_set(value))
     }),
+    @html.label(class="field-label", "Palette Rules (JSON)"),
+    @html.textarea(
+      class="field-input custom-json-editor",
+      value=palette_draft,
+      placeholder="[{\"terrain\":1,\"fallback_region_name\":\"terrain_0\",\"fallback_atlas_index\":0,\"bitmask4_rules\":[],\"bitmask8_rules\":[],\"wang_rules\":[]}]",
+      on_input=fn(value) {
+        dispatch(@app.msg_update_selected_autotile_palette_json(value))
+      },
+      @html.nothing,
+    ),
+    match model.autotile_palette_json_error {
+      Some(message) => @html.div(class="component-error", message)
+      None => @html.nothing
+    },
+    @html.div(class="inspector-actions", [
+      @html.button(
+        class="small-button",
+        on_click=dispatch(@app.msg_commit_selected_autotile_palette_json()),
+        "Apply Palette JSON",
+      ),
+    ]),
     labeled_input("Brush Terrain", model.autotile_brush_terrain.to_string(), fn(
       value,
     ) {

@@ -7,11 +7,14 @@
 - Added `selene/autotile2d` core solver/runtime module with three rule-set families (`Bitmask4`, `Bitmask8`, `Wang`), deterministic solve output, and incremental cell diff APIs (`solve_autotile_layer`, `update_cell_and_resolve_diff`, runtime layer register/set/remove/rebuild helpers).
 - Added `AutoTileLayer2d` as a built-in editor-bridge scene component (`AutoTileRuleSetDocument`, palette/cell documents, default component factory, scene validation coverage) and wired scene instantiation to spawn runtime visual tiles through `autotile2d`.
 - Added editor AutoTile authoring flow with dedicated viewport tools (`AutoTile Paint`, `AutoTile Erase`, `AutoTile Fill`), brush terrain sync to preview, and `AutoTileLayer2d` Inspector controls (atlas path, tile size, origin, rule set, brush terrain).
+- Added AutoTile BDD happy-path coverage for paint/update flow (`PreviewEvent::AutoTileLayerChanged`), rule-set editing, undo/redo, and save-reopen persistence in `selene-editor-specs`.
 
 ### Changed
 
 - Changed preview bridge protocol to include typed AutoTile synchronization (`SetAutoTileBrushTerrain` command and `AutoTileLayerChanged` event) so viewport brush edits update SNF scene source and participate in undo/redo.
 - Changed shared/frontend/spec protocol tests to cover new AutoTile preview-tool round-trip and command/event handling.
+- Changed AutoTile Inspector to support editable palette/rule JSON with explicit `Apply` commit and structured parse/validation errors instead of implicit fallback behavior.
+- Changed AutoTile rule-set parsing to strict mode (`Bitmask4 | Bitmask8 | Wang`) so invalid input is reported to status/logs and does not silently default.
 
 ### Fixed
 

@@ -163,6 +163,8 @@ fn update_selection_history_tools(
             component_search_query: "",
             open_component_menu_kind: None,
             add_custom_component_kind: "",
+            autotile_palette_json_draft: "",
+            autotile_palette_json_error: None,
             status: "Inspector panel closed",
           },
         )
@@ -180,6 +182,8 @@ fn update_selection_history_tools(
             add_component_panel_open: false,
             component_search_query: "",
             open_component_menu_kind: None,
+            autotile_palette_json_draft: "",
+            autotile_palette_json_error: None,
             status: "Selection cleared",
           },
           None,
@@ -205,6 +209,8 @@ fn update_selection_history_tools(
           add_component_panel_open: false,
           component_search_query: "",
           open_component_menu_kind: None,
+          autotile_palette_json_draft: "",
+          autotile_palette_json_error: None,
           status,
         },
         resource,
@@ -248,6 +254,8 @@ fn update_selection_history_tools(
         } else {
           model.selected_resource
         },
+        autotile_palette_json_draft: "",
+        autotile_palette_json_error: None,
         status,
       }
       (sync_preview_effects(next), next)

@@ -2013,3 +2013,34 @@ test "animation preview speed and seek emit preview commands" {
   }
   inspect(has_seek_command, content="true")
 }
+
+///|
+test "invalid autotile rule set does not silently fallback" {
+  let scene = @editor_bridge.SceneDocument::default_main().with_entity(
+    @editor_bridge.entity_document("autotile", "AutoTile", components=[
+      @editor_bridge.transform2d_component(),
+      @editor_bridge.autotile_layer2d_component(
+        atlas_asset_path="assets/atlases/world.atlas.json",
+        rule_set=@editor_bridge.autotile_rule_set_bitmask4(),
+        palette=[@editor_bridge.autotile_palette_entry_document(1, "terrain_0")],
+        cells=[],
+      ),
+    ]),
+  )
+  let model = {
+    ..new_model(),
+    scene: Some(scene),
+    selected_entity_id: Some("autotile"),
+    selected_entity_ids: ["autotile"],
+  }
+  let (_, next) = update(
+    msg_update_selected_autotile_rule_set("invalid-rule-set"),
+    model,
+  )
+  let entity = next.scene.unwrap().entity("autotile").unwrap()
+  let layer : @editor_bridge.AutoTileLayer2dComponent = component_of(
+    entity, "AutoTileLayer2d",
+  ).unwrap()
+  inspect(layer.rule_set == @editor_bridge.autotile_rule_set_bitmask4(), content="true")
+  inspect(next.status.contains("AutoTile rule set must be"), content="true")
+}

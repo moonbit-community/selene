@@ -553,6 +553,16 @@ pub fn msg_update_selected_autotile_rule_set(value : String) -> Msg {
 }
 
 ///|
+pub fn msg_update_selected_autotile_palette_json(value : String) -> Msg {
+  UpdateSelectedAutoTilePaletteJson(value)
+}
+
+///|
+pub fn msg_commit_selected_autotile_palette_json() -> Msg {
+  CommitSelectedAutoTilePaletteJson
+}
+
+///|
 pub fn msg_update_autotile_brush_terrain(value : String) -> Msg {
   UpdateAutoTileBrushTerrain(value)
 }

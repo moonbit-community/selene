@@ -1,11 +1,12 @@
 ///|
 fn autotile_rule_set_from_string(
   value : String,
-) -> @editor_bridge.AutoTileRuleSetDocument {
+) -> Result[@editor_bridge.AutoTileRuleSetDocument, String] {
   match value.trim().to_lower() {
-    "bitmask4" | "4" => @editor_bridge.autotile_rule_set_bitmask4()
-    "wang" => @editor_bridge.autotile_rule_set_wang()
-    _ => @editor_bridge.autotile_rule_set_bitmask8()
+    "bitmask4" | "4" => Ok(@editor_bridge.autotile_rule_set_bitmask4())
+    "bitmask8" | "8" => Ok(@editor_bridge.autotile_rule_set_bitmask8())
+    "wang" => Ok(@editor_bridge.autotile_rule_set_wang())
+    _ => Err("AutoTile rule set must be Bitmask4, Bitmask8, or Wang")
   }
 }
 
@@ -28,6 +29,28 @@ fn update_selected_autotile_layer_component(
   match selected_autotile_layer_component(model) {
     Some((_, layer)) => update_selected_component(model, updater(layer))
     None => model
+  }
+}
+
+///|
+fn parse_autotile_palette_json(
+  draft : String,
+) -> Result[Array[@editor_bridge.AutoTilePaletteEntryDocument], String] {
+  let source = if draft.trim() == "" { "[]" } else { draft }
+  let json = @json.parse(source) catch {
+    err => return Err("Invalid AutoTile palette JSON: " + err.to_string())
+  }
+  let decoded : Result[
+    Array[@editor_bridge.AutoTilePaletteEntryDocument],
+    Error,
+  ] = try? @json.from_json(json)
+  match decoded {
+    Ok(palette) => Ok(palette)
+    Err(err) =>
+      Err(
+        "AutoTile palette must be an array of palette entries: " +
+        err.to_string(),
+      )
   }
 }
 
@@ -603,10 +626,16 @@ fn update_inspector_components(
       apply_scene_change_without_history(staged, next)
     }
     UpdateSelectedAutoTileRuleSet(value) => {
+      let rule_set = match autotile_rule_set_from_string(value) {
+        Ok(rule_set) => rule_set
+        Err(message) => {
+          let next = push_log(model, message)
+          return ([], { ..next, status: message })
+        }
+      }
       let staged = with_started_scene_edit_transaction(
         model, "Edit AutoTile Layer",
       )
-      let rule_set = autotile_rule_set_from_string(value)
       let next = update_selected_autotile_layer_component(staged, fn(layer) {
         @editor_bridge.autotile_layer2d_component(
           tile_size=layer.tile_size,
@@ -619,6 +648,64 @@ fn update_inspector_components(
       })
       apply_scene_change_without_history(staged, next)
     }
+    UpdateSelectedAutoTilePaletteJson(value) =>
+      (
+        [],
+        {
+          ..model,
+          autotile_palette_json_draft: value,
+          autotile_palette_json_error: None,
+        },
+      )
+    CommitSelectedAutoTilePaletteJson =>
+      match selected_autotile_layer_component(model) {
+        Some((_, layer)) => {
+          let draft = if model.autotile_palette_json_draft.trim() == "" {
+            layer.palette.to_json().stringify(indent=2)
+          } else {
+            model.autotile_palette_json_draft
+          }
+          match parse_autotile_palette_json(draft) {
+            Ok(palette) => {
+              let staged = with_started_scene_edit_transaction(
+                model, "Edit AutoTile Layer Palette",
+              )
+              let next = update_selected_autotile_layer_component(staged, fn(
+                layer,
+              ) {
+                @editor_bridge.autotile_layer2d_component(
+                  tile_size=layer.tile_size,
+                  origin=layer.origin,
+                  atlas_asset_path=layer.atlas_asset_path,
+                  rule_set=layer.rule_set,
+                  palette~,
+                  cells=layer.cells,
+                )
+              })
+              apply_scene_change(staged, {
+                ..next,
+                autotile_palette_json_draft: palette
+                .to_json()
+                .stringify(indent=2),
+                autotile_palette_json_error: None,
+                status: "Updated AutoTile palette",
+              })
+            }
+            Err(message) => {
+              let next = push_log(model, message)
+              (
+                [],
+                {
+                  ..next,
+                  status: message,
+                  autotile_palette_json_error: Some(message),
+                },
+              )
+            }
+          }
+        }
+        None => ([], model)
+      }
     UpdateAutoTileBrushTerrain(value) => {
       let terrain = parse_positive_int_or(model.autotile_brush_terrain, value)
       let next = {

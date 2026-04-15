@@ -1046,3 +1046,78 @@ pub fn EditorHarness::entity_has_component(
     None => false
   }
 }
+
+///|
+pub async fn EditorHarness::when_selected_autotile_rule_set_is_edited(
+  self : EditorHarness,
+  value : String,
+) -> Unit {
+  self.dispatch(@app.msg_update_selected_autotile_rule_set(value))
+}
+
+///|
+pub async fn EditorHarness::when_selected_autotile_atlas_path_is_edited(
+  self : EditorHarness,
+  value : String,
+) -> Unit {
+  self.dispatch(@app.msg_update_selected_autotile_atlas_path(value))
+}
+
+///|
+pub async fn EditorHarness::when_selected_autotile_palette_json_is_edited(
+  self : EditorHarness,
+  value : String,
+) -> Unit {
+  self.dispatch(@app.msg_update_selected_autotile_palette_json(value))
+}
+
+///|
+pub async fn EditorHarness::when_selected_autotile_palette_json_is_committed(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(@app.msg_commit_selected_autotile_palette_json())
+}
+
+///|
+pub async fn EditorHarness::when_preview_updates_autotile_layer(
+  self : EditorHarness,
+  id : String,
+  component : @editor_bridge.AutoTileLayer2dComponent,
+) -> Unit {
+  self.emit_preview_event(
+    @bridge.preview_event_autotile_layer_changed(id, component),
+  )
+}
+
+///|
+pub async fn EditorHarness::when_tool_is_set(
+  self : EditorHarness,
+  tool : @shared.PreviewTool,
+) -> Unit {
+  self.dispatch(@app.msg_set_tool(tool))
+}
+
+///|
+pub async fn EditorHarness::when_scene_undo_is_requested(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(@app.msg_undo_scene())
+}
+
+///|
+pub async fn EditorHarness::when_scene_redo_is_requested(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(@app.msg_redo_scene())
+}
+
+///|
+pub fn EditorHarness::autotile_layer_component(
+  self : EditorHarness,
+  entity_id : String,
+) -> @editor_bridge.AutoTileLayer2dComponent? {
+  match self.entity(entity_id) {
+    Some(entity) => @app.component_of(entity, "AutoTileLayer2d")
+    None => None
+  }
+}

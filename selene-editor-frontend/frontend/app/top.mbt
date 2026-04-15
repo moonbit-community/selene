@@ -101,6 +101,8 @@ pub struct Model {
   move_snap_enabled : Bool
   move_snap_step : Double
   autotile_brush_terrain : Int
+  autotile_palette_json_draft : String
+  autotile_palette_json_error : String?
   animation_preview_paused : Bool
   animation_preview_speed : Double
   animation_preview_seek_input : String
@@ -226,6 +228,8 @@ pub enum Msg {
   UpdateSelectedAutoTileOriginX(String)
   UpdateSelectedAutoTileOriginY(String)
   UpdateSelectedAutoTileRuleSet(String)
+  UpdateSelectedAutoTilePaletteJson(String)
+  CommitSelectedAutoTilePaletteJson
   UpdateAutoTileBrushTerrain(String)
   UpdateSelectedAnimationPlayerGraphPath(String)
   UpdateSelectedAnimationPlayerStartNode(String)
@@ -327,6 +331,8 @@ pub fn new_model() -> Model {
     move_snap_enabled: false,
     move_snap_step: 16.0,
     autotile_brush_terrain: 1,
+    autotile_palette_json_draft: "",
+    autotile_palette_json_error: None,
     animation_preview_paused: false,
     animation_preview_speed: 1.0,
     animation_preview_seek_input: "0",

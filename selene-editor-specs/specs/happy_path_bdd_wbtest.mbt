@@ -305,3 +305,80 @@ async test "bdd happy path custom json component persists after save and reopen"
     inspect(gameplay_tag.data == @json.parse("{\"hp\":10}"), content="true")
   })
 }
+
+///|
+async test "bdd happy path autotile paint undo redo and save-reopen stay consistent" {
+  @async.with_task_group(group => {
+    let harness = given_editor_harness()
+    group.add_defer(() => harness.cleanup())
+
+    harness.when_editor_initialized()
+    harness.when_scene_tree_selects_entity(Some("camera"))
+    harness.when_builtin_component_is_added(
+      @editor_bridge.builtin_component_kind_from_string("AutoTileLayer2d").unwrap(),
+    )
+    harness.when_selected_autotile_atlas_path_is_edited(
+      "assets/atlases/world.atlas.json",
+    )
+
+    harness.when_selected_autotile_rule_set_is_edited("bitmask4")
+    harness.when_selected_autotile_palette_json_is_edited(
+      "[{\"terrain\":1,\"fallback_region_name\":\"terrain_0\",\"fallback_atlas_index\":0,\"bitmask4_rules\":[{\"mask\":0,\"region_name\":\"terrain_0\",\"atlas_index\":0}],\"bitmask8_rules\":[],\"wang_rules\":[]}]",
+    )
+    harness.when_selected_autotile_palette_json_is_committed()
+
+    let configured_layer = harness.autotile_layer_component("camera").unwrap()
+    inspect(
+      configured_layer.rule_set == @editor_bridge.autotile_rule_set_bitmask4(),
+      content="true",
+    )
+    inspect(configured_layer.palette.length(), content="1")
+
+    harness.when_tool_is_set(@shared.preview_tool_autotile_paint())
+    let commands = harness.take_preview_commands()
+    inspect(commands.length() > 0, content="true")
+
+    let painted : @editor_bridge.AutoTileLayer2dComponent = @json.from_json(
+      @editor_bridge.autotile_layer2d_component(
+        tile_size=configured_layer.tile_size,
+        origin=configured_layer.origin,
+        atlas_asset_path=configured_layer.atlas_asset_path,
+        rule_set=configured_layer.rule_set,
+        palette=configured_layer.palette,
+        cells=[@editor_bridge.autotile_cell_document(0, 0, 1)],
+      ).data,
+    )
+    harness.when_preview_updates_autotile_layer("camera", painted)
+
+    inspect(
+      harness.autotile_layer_component("camera").unwrap().cells.length(),
+      content="1",
+    )
+
+    harness.when_scene_undo_is_requested()
+    inspect(
+      harness.autotile_layer_component("camera").unwrap().cells.length(),
+      content="0",
+    )
+
+    harness.when_scene_redo_is_requested()
+    inspect(
+      harness.autotile_layer_component("camera").unwrap().cells.length(),
+      content="1",
+    )
+
+    harness.when_scene_is_saved()
+    harness.when_project_opened()
+
+    let persisted = harness.read_scene_document(harness.scene_path())
+    let camera = persisted.entity("camera").unwrap()
+    let persisted_layer : @editor_bridge.AutoTileLayer2dComponent = @app.component_of(
+      camera, "AutoTileLayer2d",
+    ).unwrap()
+    inspect(persisted_layer.cells.length(), content="1")
+    inspect(
+      persisted_layer.rule_set == @editor_bridge.autotile_rule_set_bitmask4(),
+      content="true",
+    )
+  })
+}

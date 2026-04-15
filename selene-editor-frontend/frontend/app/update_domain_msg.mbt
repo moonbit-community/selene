@@ -126,6 +126,8 @@ priv enum InspectorComponentsMsg {
   UpdateSelectedAutoTileOriginX(String)
   UpdateSelectedAutoTileOriginY(String)
   UpdateSelectedAutoTileRuleSet(String)
+  UpdateSelectedAutoTilePaletteJson(String)
+  CommitSelectedAutoTilePaletteJson
   UpdateAutoTileBrushTerrain(String)
 }
 
@@ -351,6 +353,10 @@ fn to_domain_msg(msg : Msg) -> DomainMsg {
       InspectorComponents(UpdateSelectedAutoTileOriginY(value))
     UpdateSelectedAutoTileRuleSet(value) =>
       InspectorComponents(UpdateSelectedAutoTileRuleSet(value))
+    UpdateSelectedAutoTilePaletteJson(value) =>
+      InspectorComponents(UpdateSelectedAutoTilePaletteJson(value))
+    CommitSelectedAutoTilePaletteJson =>
+      InspectorComponents(CommitSelectedAutoTilePaletteJson)
     UpdateAutoTileBrushTerrain(value) =>
       InspectorComponents(UpdateAutoTileBrushTerrain(value))
     UpdateSelectedAnimationPlayerGraphPath(value) =>
