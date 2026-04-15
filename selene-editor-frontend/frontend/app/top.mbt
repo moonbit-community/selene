@@ -39,6 +39,57 @@ pub struct SceneEditTransaction {
 } derive(Eq)
 
 ///|
+pub enum SceneConflictState {
+  NoConflict
+  ExternalSceneChanged(
+    path~ : String,
+    disk_hash~ : String,
+    disk_revision~ : Int
+  )
+  SaveConflict(
+    path~ : String,
+    base_hash~ : String,
+    current_hash~ : String,
+    base_revision~ : Int,
+    current_revision~ : Int
+  )
+} derive(Eq)
+
+///|
+pub struct SceneSession {
+  path : String
+  scene : @editor_bridge.SceneDocument
+  dirty : Bool
+  base_hash : String
+  base_revision : Int
+  last_saved_at : Int
+  conflict_state : SceneConflictState
+  undo_stack : Array[@editor_bridge.SceneDocument]
+  redo_stack : Array[@editor_bridge.SceneDocument]
+  active_scene_edit_transaction : SceneEditTransaction?
+} derive(Eq)
+
+///|
+pub enum SceneSaveOutcome {
+  Saved(@shared.SceneSaveResult)
+  Conflict(@shared.RpcConflictDocument)
+} derive(Eq)
+
+///|
+pub fn scene_save_outcome_saved(
+  save : @shared.SceneSaveResult,
+) -> SceneSaveOutcome {
+  Saved(save)
+}
+
+///|
+pub fn scene_save_outcome_conflict(
+  conflict : @shared.RpcConflictDocument,
+) -> SceneSaveOutcome {
+  Conflict(conflict)
+}
+
+///|
 pub struct Model {
   project_root_input : String
   project_name_input : String
@@ -49,8 +100,7 @@ pub struct Model {
   atlas_refs : Array[@editor_bridge.AssetRef]
   animation_clip_refs : Array[@editor_bridge.AssetRef]
   animation_graph_refs : Array[@editor_bridge.AssetRef]
-  scene_path : String
-  scene : @editor_bridge.SceneDocument?
+  scene_session : SceneSession?
   assets : Array[@editor_bridge.AssetDocument]
   asset_sizes : Map[String, @editor_bridge.Vec2Doc]
   asset_query : String
@@ -84,9 +134,6 @@ pub struct Model {
   animation_migration_completed : Int
   animation_migration_failed : Int
   animation_migration_prompt_dismissed : Bool
-  undo_stack : Array[@editor_bridge.SceneDocument]
-  redo_stack : Array[@editor_bridge.SceneDocument]
-  active_scene_edit_transaction : SceneEditTransaction?
   hover_hint : String?
   asset_tree_expanded : Map[String, Bool]
   images_section_expanded : Bool
@@ -132,7 +179,10 @@ pub enum Msg {
   AssetSizeResolved(String, Double, Double)
   AssetImageLoadFailed(String)
   SetAssetQuery(String)
-  SceneSaved(Result[Unit, String])
+  SceneSaved(Result[SceneSaveOutcome, String])
+  ResolveSceneConflictKeepMine
+  ResolveSceneConflictReloadDisk
+  ResolveSceneConflictSaveAs(String)
   AnimationMigrationSaved(Result[Unit, String])
   WorkspaceSaved(Result[Unit, String])
   ServiceEvent(Result[@shared.EditorEvent, String])
@@ -286,8 +336,7 @@ pub fn new_model() -> Model {
     atlas_refs: [],
     animation_clip_refs: [],
     animation_graph_refs: [],
-    scene_path: @editor_bridge.startup_scene_path_for_name("main"),
-    scene: None,
+    scene_session: None,
     assets: [],
     asset_sizes: {},
     asset_query: "",
@@ -315,9 +364,6 @@ pub fn new_model() -> Model {
     animation_migration_completed: 0,
     animation_migration_failed: 0,
     animation_migration_prompt_dismissed: false,
-    undo_stack: [],
-    redo_stack: [],
-    active_scene_edit_transaction: None,
     hover_hint: None,
     asset_tree_expanded: {},
     images_section_expanded: true,

@@ -87,7 +87,7 @@ fn update_project_runtime(
                 response.manifest,
                 scene_refs,
                 workspace,
-                model.scene_path,
+                model_scene_path(model),
               )
               let status = match response.root {
                 Some(root) => "Project: " + root
@@ -107,7 +107,6 @@ fn update_project_runtime(
                 animation_graph_refs,
                 workspace,
                 recent_projects: response.recent_projects,
-                scene_path,
                 project_root_input,
                 pending_scene_migration: None,
                 pending_animation_migration_paths: [],
@@ -120,9 +119,9 @@ fn update_project_runtime(
                 add_component_panel_open: false,
                 component_search_query: "",
                 open_component_menu_kind: None,
-                undo_stack: [],
-                redo_stack: [],
-                active_scene_edit_transaction: None,
+                scene_session: model.scene_session.map(fn(session) {
+                  { ..session, path: scene_path }
+                }),
                 status,
                 move_snap_enabled,
                 move_snap_step,
@@ -206,10 +205,15 @@ fn update_project_runtime(
           } else {
             "Legacy animations detected. Migration required before use."
           }
+          let loaded = with_loaded_scene_session(
+            model,
+            response.path,
+            response.scene,
+            response.disk_hash,
+            response.disk_revision,
+          )
           let next = {
-            ..model,
-            scene_path: response.path,
-            scene: Some(response.scene),
+            ..loaded,
             workspace,
             atlas_documents,
             atlas_refs,
@@ -229,9 +233,6 @@ fn update_project_runtime(
             add_component_panel_open: false,
             component_search_query: "",
             open_component_menu_kind: None,
-            undo_stack: [],
-            redo_stack: [],
-            active_scene_edit_transaction: None,
             status,
           }
           (sync_preview_effects_with_scene(next), next)
@@ -239,8 +240,7 @@ fn update_project_runtime(
         Ok(@shared.MigrationRequired(preview)) => {
           let next = {
             ..model,
-            scene_path: preview.path,
-            scene: None,
+            scene_session: None,
             selected_entity_id: None,
             selected_entity_ids: [],
             pending_scene_migration: Some(preview),
@@ -254,9 +254,6 @@ fn update_project_runtime(
             add_component_panel_open: false,
             component_search_query: "",
             open_component_menu_kind: None,
-            undo_stack: [],
-            redo_stack: [],
-            active_scene_edit_transaction: None,
             status: "Scene format migration required (SNF v1)",
           }
           let cleared = next.workspace
@@ -293,7 +290,7 @@ fn update_project_runtime(
         [Preview(@bridge.preview_command_clear_scene())],
         {
           ..model,
-          scene: None,
+          scene_session: None,
           selected_entity_id: None,
           selected_entity_ids: [],
           pending_scene_migration: None,
@@ -307,9 +304,6 @@ fn update_project_runtime(
           add_component_panel_open: false,
           component_search_query: "",
           open_component_menu_kind: None,
-          undo_stack: [],
-          redo_stack: [],
-          active_scene_edit_transaction: None,
           workspace,
           status: "Scene migration cancelled",
         },
@@ -322,7 +316,7 @@ fn update_project_runtime(
         ([], { ..model, status: "No legacy animation files to migrate" })
       } else {
         let scene_path = model.pending_animation_migration_scene_path.unwrap_or(
-          model.scene_path,
+          model_scene_path(model),
         )
         let first_path = model.pending_animation_migration_paths[0]
         (
@@ -397,7 +391,7 @@ fn update_project_runtime(
         let in_progress = completed < total
         if in_progress {
           let scene_path = model.pending_animation_migration_scene_path.unwrap_or(
-            model.scene_path,
+            model_scene_path(model),
           )
           let next_path = model.pending_animation_migration_paths[completed]
           (
@@ -446,22 +440,24 @@ fn update_project_runtime(
           })
           let next_scene_path = if scene_path_exists(
               response.scenes,
-              model.scene_path,
+              model_scene_path(model),
             ) {
-            model.scene_path
+            model_scene_path(model)
           } else {
             preferred_scene_path(
               manifest,
               response.scenes,
               model.workspace,
-              model.scene_path,
+              model_scene_path(model),
             )
           }
           let next = {
             ..model,
             manifest,
             scene_refs: response.scenes,
-            scene_path: next_scene_path,
+            scene_session: model.scene_session.map(fn(session) {
+              { ..session, path: next_scene_path }
+            }),
           }
           ([], next)
         }
@@ -597,11 +593,125 @@ fn update_project_runtime(
     }
     SceneSaved(result) =>
       match result {
-        Ok(_) => ([], { ..model, status: save_success_status(model) })
+        Ok(Saved(save)) => {
+          let next = match model.scene_session {
+            Some(session) =>
+              {
+                ..model,
+                scene_session: Some({
+                  ..session,
+                  dirty: false,
+                  base_hash: save.disk_hash,
+                  base_revision: save.disk_revision,
+                  last_saved_at: save.disk_revision,
+                  conflict_state: SceneConflictState::NoConflict,
+                }),
+              }
+            None => model
+          }
+          ([], { ..next, status: save_success_status(next) })
+        }
+        Ok(Conflict(conflict)) => {
+          let next = match model.scene_session {
+            Some(session) if session.path == conflict.path =>
+              {
+                ..model,
+                scene_session: Some({
+                  ..session,
+                  conflict_state: SaveConflict(
+                    path=conflict.path,
+                    base_hash=conflict.base_hash,
+                    current_hash=conflict.current_hash,
+                    base_revision=conflict.base_revision,
+                    current_revision=conflict.current_revision,
+                  ),
+                }),
+              }
+            _ => model
+          }
+          (
+            [],
+            {
+              ..push_log(
+                next,
+                "Save conflict on " +
+                conflict.path +
+                ". Reload or keep local edits.",
+              ),
+              status: "Save conflict detected for " + conflict.path,
+            },
+          )
+        }
         Err(message) => {
           let next = push_log(model, "Save failed: " + message)
           ([], { ..next, status: "Save failed: " + message })
         }
+      }
+    ResolveSceneConflictKeepMine =>
+      match model.scene_session {
+        Some(session) => (
+          [],
+          {
+            ..model,
+            scene_session: Some({
+              ..session,
+              conflict_state: SceneConflictState::NoConflict,
+            }),
+            status: "Keeping local scene edits",
+          },
+        )
+        None => ([], model)
+      }
+    ResolveSceneConflictReloadDisk =>
+      match model.scene_session {
+        Some(session) => (
+          [rpc_effect(SceneLoaded, @shared.rpc_request_scene_load(session.path))],
+          {
+            ..model,
+            scene_session: Some({
+              ..session,
+              conflict_state: SceneConflictState::NoConflict,
+            }),
+            status: "Reloading scene from disk...",
+          },
+        )
+        None => ([], model)
+      }
+    ResolveSceneConflictSaveAs(path) =>
+      match model.scene_session {
+        Some(session) => {
+          let trimmed = path.trim().to_string()
+          if trimmed == "" {
+            let next = push_log(model, "Save As path is required")
+            ([], { ..next, status: "Save As path is required" })
+          } else {
+            let save_path = if trimmed.has_suffix(".scene.json") {
+              trimmed
+            } else {
+              trimmed + ".scene.json"
+            }
+            let next = {
+              ..model,
+              scene_session: Some({
+                ..session,
+                path: save_path,
+                conflict_state: SceneConflictState::NoConflict,
+              }),
+              status: "Saving conflict copy...",
+            }
+            (
+              [
+                rpc_effect(
+                  SceneSaved,
+                  @shared.rpc_request_scene_save(save_path, session.scene, "", 0),
+                ),
+                rpc_effect(SceneListLoaded, @shared.rpc_request_scene_list()),
+              ],
+              next,
+            )
+          }
+        }
+        None => ([], model)
       }
     WorkspaceSaved(result) =>
       match result {
@@ -624,21 +734,74 @@ fn update_project_runtime(
             @shared.Ready => ([], model)
             @shared.Log(label~, message~) =>
               ([], push_log(model, "[\{label}] \{message}"))
-            @shared.FilesChanged(_)
-            | @shared.SceneSaved(_)
+            @shared.ProjectDelta(delta~) =>
+              match delta {
+                @shared.WorkspaceChanged =>
+                  ([], { ..model, status: "Workspace settings updated" })
+                @shared.ManifestChanged =>
+                  (
+                    [
+                      rpc_effect(
+                        SceneListLoaded,
+                        @shared.rpc_request_scene_list(),
+                      ),
+                    ],
+                    { ..model, status: "Project manifest changed" },
+                  )
+                @shared.AssetFileChanged(_) =>
+                  (
+                    [
+                      rpc_effect(
+                        AssetsLoaded,
+                        @shared.rpc_request_assets_list(),
+                      ),
+                    ],
+                    model,
+                  )
+                @shared.SceneFileChanged(path~, disk_hash~, disk_revision~) =>
+                  match model.scene_session {
+                    Some(session) if session.path == path && session.dirty => {
+                      let next = {
+                        ..model,
+                        scene_session: Some({
+                          ..session,
+                          conflict_state: ExternalSceneChanged(
+                            path~,
+                            disk_hash~,
+                            disk_revision~,
+                          ),
+                        }),
+                        status: "Scene changed on disk while local edits are unsaved",
+                      }
+                      ([], next)
+                    }
+                    Some(session) if session.path == path =>
+                      (
+                        [
+                          rpc_effect(
+                            SceneLoaded,
+                            @shared.rpc_request_scene_load(path),
+                          ),
+                        ],
+                        { ..model, status: "Reloading changed scene..." },
+                      )
+                    _ =>
+                      (
+                        [
+                          rpc_effect(
+                            SceneListLoaded,
+                            @shared.rpc_request_scene_list(),
+                          ),
+                        ],
+                        model,
+                      )
+                  }
+              }
+            @shared.SceneSaved(_)
             | @shared.AnimationClipSaved(_)
             | @shared.AnimationGraphSaved(_)
             | @shared.AnimationMigrated(..)
-            | @shared.AssetImported(_) =>
-              (
-                [
-                  rpc_effect(
-                    ProjectLoaded,
-                    @shared.rpc_request_project_current(),
-                  ),
-                ],
-                model,
-              )
+            | @shared.AssetImported(_) => ([], model)
             @shared.ProjectOpened(..)
             | @shared.SceneCreated(..)
             | @shared.SceneDeleted(..) => ([], model)
@@ -678,7 +841,7 @@ fn update_project_runtime(
           ([], next)
         }
         @bridge.TransformChanged(id~, translation~, rotation~, scale~) =>
-          match model.scene {
+          match model_scene(model) {
             Some(_) => {
               let next = update_entity_component(
                 model,
@@ -707,8 +870,12 @@ fn update_project_runtime(
           }
         @bridge.TransformGestureFinished(id~) => {
           let committed = with_committed_scene_edit_transaction(model)
-          let status = match model.active_scene_edit_transaction {
-            Some(transaction) => transaction.label + " applied"
+          let status = match model.scene_session {
+            Some(session) =>
+              match session.active_scene_edit_transaction {
+                Some(transaction) => transaction.label + " applied"
+                None => "Transform applied"
+              }
             None => "Transform applied"
           }
           let next = if model.selected_entity_ids.contains(id) {
@@ -726,7 +893,7 @@ fn update_project_runtime(
           (sync_preview_effects(next), next)
         }
         @bridge.AutoTileLayerChanged(id~, component~) =>
-          match model.scene {
+          match model_scene(model) {
             Some(_) => {
               let staged = with_started_scene_edit_transaction(
                 model, "Edit AutoTile Layer",

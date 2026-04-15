@@ -9,7 +9,6 @@ fn update_scene_lifecycle(
         [rpc_effect(SceneLoaded, @shared.rpc_request_scene_load(path))],
         {
           ..model,
-          scene_path: path,
           add_component_panel_open: false,
           component_search_query: "",
           open_component_menu_kind: None,
@@ -37,7 +36,8 @@ fn update_scene_lifecycle(
         ([], { ..next, status: "Cannot delete the last scene" })
       } else {
         let fallback = fallback_scene_path(model)
-        let next_scene_path = if model.scene_path == fallback &&
+        let current_scene_path = model_scene_path(model)
+        let next_scene_path = if current_scene_path == fallback &&
           model.scene_refs.length() > 1 {
           model.scene_refs[1].path
         } else {
@@ -47,7 +47,7 @@ fn update_scene_lifecycle(
           [
             rpc_effect(
               SceneSaved,
-              @shared.rpc_request_scene_delete(model.scene_path),
+              @shared.rpc_request_scene_delete(current_scene_path),
             ),
             rpc_effect(SceneListLoaded, @shared.rpc_request_scene_list()),
             rpc_effect(
@@ -55,7 +55,7 @@ fn update_scene_lifecycle(
               @shared.rpc_request_scene_load(next_scene_path),
             ),
           ],
-          { ..model, scene_path: next_scene_path, status: "Deleting scene..." },
+          { ..model, status: "Deleting scene..." },
         )
       }
     SetCurrentSceneAsStartup =>
@@ -63,14 +63,16 @@ fn update_scene_lifecycle(
         [
           rpc_effect(
             SceneSaved,
-            @shared.rpc_request_project_set_startup_scene(model.scene_path),
+            @shared.rpc_request_project_set_startup_scene(
+              model_scene_path(model),
+            ),
           ),
           rpc_effect(SceneListLoaded, @shared.rpc_request_scene_list()),
         ],
         { ..model, status: "Updating startup scene..." },
       )
     RenameCurrentScene(value) =>
-      match model.scene {
+      match model_scene(model) {
         Some(scene) => {
           let trimmed = value.trim().to_string()
           if trimmed == "" {
@@ -78,17 +80,25 @@ fn update_scene_lifecycle(
             ([], { ..next, status: "Scene name is required" })
           } else {
             let next_scene = scene.with_name(trimmed)
-            let next = {
-              ..model,
-              scene: Some(next_scene),
-              status: "Renaming scene...",
-            }
+            let next = with_scene_document_updated(
+              { ..model, status: "Renaming scene..." },
+              fn(_current_scene) { next_scene },
+            )
             let with_history = with_recorded_scene_change(model, next)
+            let (base_hash, base_revision) = match model.scene_session {
+              Some(session) => (session.base_hash, session.base_revision)
+              None => ("", 0)
+            }
             (
               [
                 rpc_effect(
                   SceneSaved,
-                  @shared.rpc_request_scene_save(model.scene_path, next_scene),
+                  @shared.rpc_request_scene_save(
+                    model_scene_path(model),
+                    next_scene,
+                    base_hash,
+                    base_revision,
+                  ),
                 ),
               ] +
               sync_preview_effects_with_scene(with_history),
@@ -99,13 +109,18 @@ fn update_scene_lifecycle(
         None => ([], model)
       }
     SaveScene =>
-      match model.scene {
-        Some(scene) =>
+      match model.scene_session {
+        Some(session) =>
           (
             [
               rpc_effect(
                 SceneSaved,
-                @shared.rpc_request_scene_save(model.scene_path, scene),
+                @shared.rpc_request_scene_save(
+                  session.path,
+                  session.scene,
+                  session.base_hash,
+                  session.base_revision,
+                ),
               ),
             ],
             { ..model, status: "Saving scene..." },
@@ -115,7 +130,7 @@ fn update_scene_lifecycle(
     ReloadScene =>
       (refresh_project_effects(model), { ..model, status: "Reloading..." })
     AddSpriteEntity =>
-      match model.scene {
+      match model_scene(model) {
         Some(scene) => {
           let id = next_entity_id(scene)
           let entity = @editor_bridge.entity_document(id, "Sprite", components=[
@@ -126,7 +141,9 @@ fn update_scene_lifecycle(
             ),
           ])
           let next = with_single_entity_selection(
-            { ..model, scene: Some(scene.with_entity(entity)) },
+            with_scene_document_updated(model, fn(_current_scene) {
+              scene.with_entity(entity)
+            }),
             Some(id),
           )
           apply_scene_change(model, next)
@@ -134,7 +151,7 @@ fn update_scene_lifecycle(
         None => ([], model)
       }
     AddSpriteFromAsset(path) =>
-      match model.scene {
+      match model_scene(model) {
         Some(scene) => {
           let (next_scene, id) = add_sprite_asset_to_scene(
             model.asset_size(path),
@@ -143,7 +160,7 @@ fn update_scene_lifecycle(
             next_resource_entity_translation(),
           )
           let next = with_single_entity_selection(
-            { ..model, scene: Some(next_scene) },
+            with_scene_document_updated(model, fn(_current_scene) { next_scene }),
             Some(id),
           )
           apply_scene_change(model, next)
@@ -151,7 +168,7 @@ fn update_scene_lifecycle(
         None => ([], model)
       }
     AddSpriteFromAssetAt(path, translation) =>
-      match model.scene {
+      match model_scene(model) {
         Some(scene) => {
           let (next_scene, id) = add_sprite_asset_to_scene(
             model.asset_size(path),
@@ -160,7 +177,7 @@ fn update_scene_lifecycle(
             translation,
           )
           let next = with_single_entity_selection(
-            { ..model, scene: Some(next_scene) },
+            with_scene_document_updated(model, fn(_current_scene) { next_scene }),
             Some(id),
           )
           apply_scene_change(model, next)
@@ -168,7 +185,7 @@ fn update_scene_lifecycle(
         None => ([], model)
       }
     AddTextEntity =>
-      match model.scene {
+      match model_scene(model) {
         Some(scene) => {
           let id = next_entity_id(scene)
           let entity = @editor_bridge.entity_document(id, "Text", components=[
@@ -177,7 +194,9 @@ fn update_scene_lifecycle(
             @editor_bridge.text2d_component("Text"),
           ])
           let next = with_single_entity_selection(
-            { ..model, scene: Some(scene.with_entity(entity)) },
+            with_scene_document_updated(model, fn(_current_scene) {
+              scene.with_entity(entity)
+            }),
             Some(id),
           )
           apply_scene_change(model, next)
@@ -185,7 +204,7 @@ fn update_scene_lifecycle(
         None => ([], model)
       }
     DeleteSelected =>
-      match model.scene {
+      match model_scene(model) {
         Some(scene) => {
           let selected_ids = selected_entity_ids_for_edit(model)
           if selected_ids.is_empty() {
@@ -197,7 +216,9 @@ fn update_scene_lifecycle(
             }
             let next = {
               ..with_entity_selection(model, None, []),
-              scene: Some(next_scene),
+              scene_session: model.scene_session.map(fn(session) {
+                { ..session, scene: next_scene }
+              }),
               add_component_panel_open: false,
               component_search_query: "",
               open_component_menu_kind: None,

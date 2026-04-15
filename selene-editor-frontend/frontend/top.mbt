@@ -117,11 +117,42 @@ fn animation_graph_loaded_of_response(
 }
 
 ///|
+fn current_scene_path(model : @app.Model) -> String {
+  match model.scene_session {
+    Some(session) => session.path
+    None =>
+      if model.scene_refs.is_empty() {
+        "scenes/main.scene.json"
+      } else {
+        model.scene_refs[0].path
+      }
+  }
+}
+
+///|
+fn current_scene(model : @app.Model) -> @editor_bridge.SceneDocument? {
+  model.scene_session.map(fn(session) { session.scene })
+}
+
+///|
 fn save_ack_of_response(response : @shared.RpcResponse) -> Result[Unit, String] {
   match response {
     @shared.SavedOk | @shared.StartupSceneUpdated(_) => Ok(())
     @shared.Error(error~) => Err(error.message)
     _ => Err("Unexpected RPC response for save")
+  }
+}
+
+///|
+fn scene_save_of_response(
+  response : @shared.RpcResponse,
+) -> Result[@app.SceneSaveOutcome, String] {
+  match response {
+    @shared.SceneSaved(save~) => Ok(@app.scene_save_outcome_saved(save))
+    @shared.Conflict(conflict~) =>
+      Ok(@app.scene_save_outcome_conflict(conflict))
+    @shared.Error(error~) => Err(error.message)
+    _ => Err("Unexpected RPC response for scene save")
   }
 }
 
@@ -845,7 +876,7 @@ fn rpc_effect_cmd(
         dispatch(@app.msg_animation_graph_loaded(result))
       })
     @app.SceneSaved =>
-      rpc_cmd(request, save_ack_of_response, fn(result) {
+      rpc_cmd(request, scene_save_of_response, fn(result) {
         log_rpc_result_error("scene.save", result)
         dispatch(@app.msg_scene_saved(result))
       })
@@ -1707,8 +1738,10 @@ fn scene_browser_view(
   model : @app.Model,
 ) -> @rabbita.Html {
   let items : Array[@rabbita.Html] = []
+  let scene_path = current_scene_path(model)
+  let scene = current_scene(model)
   for scene_ref in model.scene_refs {
-    let is_selected = model.scene_path == scene_ref.path
+    let is_selected = scene_path == scene_ref.path
     let is_startup = match model.manifest {
       Some(manifest) => manifest.startup_scene == scene_ref.path
       None => false
@@ -1740,7 +1773,7 @@ fn scene_browser_view(
           @html.span(class="kv-key", "Name"),
           @html.span(
             class="kv-value",
-            match model.scene {
+            match scene {
               Some(scene) => scene.name
               None => "(none)"
             },
@@ -1748,7 +1781,7 @@ fn scene_browser_view(
         ]),
         @html.div(class="kv", [
           @html.span(class="kv-key", "Path"),
-          @html.span(class="kv-value", model.scene_path),
+          @html.span(class="kv-value", scene_path),
         ]),
       ]),
       @html.div(class="scene-browser-actions", [
@@ -1767,7 +1800,7 @@ fn scene_browser_view(
           class="small-button",
           attrs=hint_attrs(dispatch, "Rename Current Scene"),
           on_click=@cmd.raw_effect(fn(scheduler) {
-            let current_name = match model.scene {
+            let current_name = match scene {
               Some(scene) => scene.name
               None => "scene"
             }
@@ -3480,7 +3513,7 @@ fn animation_migration_dialog_view(
         @html.div(
           class="migration-value",
           model.pending_animation_migration_scene_path.unwrap_or(
-            model.scene_path,
+            current_scene_path(model),
           ),
         ),
       ]),
@@ -3518,6 +3551,118 @@ fn animation_migration_dialog_view(
 }
 
 ///|
+fn conflict_copy_path(path : String) -> String {
+  if path.has_suffix(".scene.json") {
+    let stem = path[:path.length() - ".scene.json".length()].to_string()
+    stem + ".conflict.scene.json"
+  } else {
+    path + ".conflict.scene.json"
+  }
+}
+
+///|
+fn scene_conflict_bar_view(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  model : @app.Model,
+) -> @rabbita.Html {
+  match model.scene_session {
+    Some(session) =>
+      match session.conflict_state {
+        @app.NoConflict => @html.nothing
+        @app.ExternalSceneChanged(path~, disk_hash~, disk_revision~) =>
+          @html.div(class="scene-conflict-bar", [
+            @html.div(class="scene-conflict-copy", [
+              @html.div(
+                class="scene-conflict-title",
+                "Scene changed on disk while local edits are unsaved",
+              ),
+              @html.div(
+                class="scene-conflict-meta",
+                "Path: \{path} · Disk hash: \{disk_hash} · Revision: \{disk_revision.to_string()}",
+              ),
+            ]),
+            @html.div(class="scene-conflict-actions", [
+              @html.button(
+                class="small-button",
+                on_click=dispatch(@app.msg_resolve_scene_conflict_keep_mine()),
+                "Keep Mine",
+              ),
+              @html.button(
+                class="small-button",
+                on_click=dispatch(@app.msg_resolve_scene_conflict_reload_disk()),
+                "Reload Disk",
+              ),
+              @html.button(
+                class="small-button",
+                on_click=@cmd.raw_effect(fn(scheduler) {
+                  let default_path = conflict_copy_path(path)
+                  let next_path = prompt_text("Save conflict copy as", default_path)
+                  if next_path.trim() != "" {
+                    schedule_cmd(
+                      scheduler,
+                      dispatch(
+                        @app.msg_resolve_scene_conflict_save_as(next_path),
+                      ),
+                    )
+                  }
+                }),
+                "Save As",
+              ),
+            ]),
+          ])
+        @app.SaveConflict(
+          path~,
+          base_hash~,
+          current_hash~,
+          base_revision~,
+          current_revision~,
+        ) =>
+          @html.div(class="scene-conflict-bar", [
+            @html.div(class="scene-conflict-copy", [
+              @html.div(
+                class="scene-conflict-title",
+                "Scene save conflict detected",
+              ),
+              @html.div(
+                class="scene-conflict-meta",
+                "Path: \{path} · Local \{base_hash}@\{base_revision.to_string()} · Disk \{current_hash}@\{current_revision.to_string()}",
+              ),
+            ]),
+            @html.div(class="scene-conflict-actions", [
+              @html.button(
+                class="small-button",
+                on_click=dispatch(@app.msg_resolve_scene_conflict_keep_mine()),
+                "Keep Mine",
+              ),
+              @html.button(
+                class="small-button",
+                on_click=dispatch(@app.msg_resolve_scene_conflict_reload_disk()),
+                "Reload Disk",
+              ),
+              @html.button(
+                class="small-button",
+                on_click=@cmd.raw_effect(fn(scheduler) {
+                  let default_path = conflict_copy_path(path)
+                  let next_path = prompt_text("Save conflict copy as", default_path)
+                  if next_path.trim() != "" {
+                    schedule_cmd(
+                      scheduler,
+                      dispatch(
+                        @app.msg_resolve_scene_conflict_save_as(next_path),
+                      ),
+                    )
+                  }
+                }),
+                "Save As",
+              ),
+            ]),
+          ])
+      }
+    None => @html.nothing
+  }
+}
+
+///|
 fn view(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.Model,
@@ -3533,7 +3678,7 @@ fn view(
       None => []
     }
   }
-  let scene_tree = match model.scene {
+  let scene_tree = match current_scene(model) {
     Some(scene) => tree_view(dispatch, scene, None, selected_entity_ids, 0)
     None => [@html.div(class="empty", "No scene loaded")]
   }
@@ -3597,7 +3742,7 @@ fn view(
             "Save Scene (Cmd/Ctrl+S)",
             "S",
             @app.msg_save_scene(),
-            enabled=model.scene is Some(_),
+            enabled=current_scene(model) is Some(_),
           ),
         ]),
       ]),
@@ -3623,14 +3768,14 @@ fn view(
             "Add Sprite",
             "+",
             @app.msg_add_sprite_entity(),
-            enabled=model.scene is Some(_),
+            enabled=current_scene(model) is Some(_),
           ),
           action_button(
             dispatch,
             "Add Text",
             "T",
             @app.msg_add_text_entity(),
-            enabled=model.scene is Some(_),
+            enabled=current_scene(model) is Some(_),
           ),
           action_button(
             dispatch,
@@ -3744,9 +3889,10 @@ fn view(
           ),
         ]),
       ]),
-    ]),
-    @html.div(class="content", [
-      @html.div(class="sidebar-column", [
+      ]),
+      scene_conflict_bar_view(dispatch, model),
+      @html.div(class="content", [
+        @html.div(class="sidebar-column", [
         @html.div(class="panel scene-browser-panel", [
           @html.h2("Scenes"),
           scene_browser_view(dispatch, model),

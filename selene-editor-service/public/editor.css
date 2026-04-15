@@ -106,6 +106,43 @@ input {
   border-left: 1px solid var(--border);
 }
 
+.scene-conflict-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid #7a4e1e;
+  background: rgba(246, 193, 119, 0.12);
+}
+
+.scene-conflict-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.scene-conflict-title {
+  color: #f6c177;
+  font-size: 12px;
+}
+
+.scene-conflict-meta {
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scene-conflict-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .content {
   display: grid;
   grid-template-columns: 320px 1fr 320px;

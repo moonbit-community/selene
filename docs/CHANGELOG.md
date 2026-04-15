@@ -15,8 +15,14 @@
 - Changed shared/frontend/spec protocol tests to cover new AutoTile preview-tool round-trip and command/event handling.
 - Changed AutoTile Inspector to support editable palette/rule JSON with explicit `Apply` commit and structured parse/validation errors instead of implicit fallback behavior.
 - Changed AutoTile rule-set parsing to strict mode (`Bitmask4 | Bitmask8 | Wang`) so invalid input is reported to status/logs and does not silently default.
+- Changed editor state flow to a scene-session-first model (`scene_session` with `dirty/base_hash/base_revision/conflict_state/undo/redo`), so non-scene UI actions no longer overwrite in-memory unsaved scene edits.
+- Changed typed protocol and service RPC handling for scene CAS save: `SceneSave(path, scene, base_hash, base_revision)` now returns either `SceneSaved(save)` or `Conflict(conflict)` with structured revision/hash metadata.
+- Changed watcher/event pipeline from broad file-change reload semantics to typed project deltas (`WorkspaceChanged`, `SceneFileChanged`, `AssetFileChanged`, `ManifestChanged`) and removed `FilesChanged -> project_current` auto-refresh coupling.
 
 ### Fixed
+
+- Fixed snap/tool/workspace interactions that previously rolled back unsaved scene edits by ensuring workspace deltas do not trigger scene reloads and dirty scene file changes enter explicit conflict state instead of silent overwrite.
+- Fixed editor frontend/service/spec round-trip handling for new scene save semantics (`SceneSaveOutcome`, `Conflict`) and scene disk metadata propagation (`disk_hash`, `disk_revision`) through load/save/test harness paths.
 
 ### Removed
 

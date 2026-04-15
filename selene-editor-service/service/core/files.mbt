@@ -38,6 +38,37 @@ async fn write_text_file(path : String, content : String) -> Unit {
 }
 
 ///|
+priv struct SceneDiskState {
+  hash : String
+  revision : Int
+}
+
+///|
+fn scene_hash_int(content : String) -> Int {
+  let mut value = 146959810
+  for ch in content.to_array() {
+    value = (value ^ ch.to_int()) * 16777619 % 2147483647
+  }
+  value
+}
+
+///|
+fn scene_hash(content : String) -> String {
+  scene_hash_int(content).to_string()
+}
+
+///|
+async fn scene_disk_state(
+  root : String,
+  relative_path : String,
+) -> SceneDiskState {
+  let path = scene_path(root, relative_path)
+  guard @fs.exists(path) else { return { hash: "", revision: 0 } }
+  let content = @fs.read_file(path).text()
+  { hash: scene_hash(content), revision: scene_hash_int(content) }
+}
+
+///|
 priv struct LegacyAnimationClipDocument {
   name : String?
   fps : Double?
@@ -257,7 +288,7 @@ async fn migrate_legacy_animation_document(
   }
   let migrated_preview = legacy_animation_preview_for_scene(scene_path, scene)
   guard migrated_preview is Some(preview) else { return }
-  save_scene_document(root, scene_path, preview.scene)
+  ignore(save_scene_document(root, scene_path, preview.scene))
 }
 
 ///|
@@ -411,13 +442,14 @@ async fn migrate_scene_document(
       raise Failure("Scene document is invalid: " + relative_path)
     err => raise err
   }
-  save_scene_document(root, relative_path, scene)
+  ignore(save_scene_document(root, relative_path, scene))
   scene
 }
 
 ///|
 fn scene_bundle_response_of_bundle(
   bundle : @editor_bridge.ProjectBundle,
+  disk_state : SceneDiskState,
 ) -> @shared.SceneBundleResponse {
   let atlas_assets : Array[@shared.SceneBundleAtlasEntry] = []
   let animation_clip_assets : Array[@shared.SceneBundleAnimationClipEntry] = []
@@ -435,9 +467,12 @@ fn scene_bundle_response_of_bundle(
       @shared.scene_bundle_animation_graph_entry(path, graph),
     )
   }
-  @shared.scene_bundle_response(bundle.scene_path, bundle.scene).with_assets(
-    atlas_assets, animation_clip_assets, animation_graph_assets,
-  )
+  @shared.scene_bundle_response(
+    bundle.scene_path,
+    bundle.scene,
+    disk_hash=disk_state.hash,
+    disk_revision=disk_state.revision,
+  ).with_assets(atlas_assets, animation_clip_assets, animation_graph_assets)
 }
 
 ///|
@@ -463,7 +498,7 @@ async fn load_scene_bundle(
       raise Failure("Missing document dependency: " + path)
     err => raise err
   }
-  scene_bundle_response_of_bundle(bundle)
+  scene_bundle_response_of_bundle(bundle, scene_disk_state(root, relative_path))
 }
 
 ///|
@@ -471,12 +506,13 @@ async fn save_scene_document(
   root : String,
   relative_path : String,
   scene : @editor_bridge.SceneDocument,
-) -> Unit {
+) -> SceneDiskState {
   ignore(@editor_bridge.decode_scene_snf(scene.to_json()))
   let scene_snf = @editor_bridge.encode_scene_snf(scene)
   let path = scene_path(root, relative_path)
   ensure_dir(path_join(root, "scenes"))
   write_text_file(path, scene_snf)
+  scene_disk_state(root, relative_path)
 }
 
 ///|

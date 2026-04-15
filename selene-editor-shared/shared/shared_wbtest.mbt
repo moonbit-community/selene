@@ -29,7 +29,7 @@ test "all retained rpc requests round trip through typed envelopes" {
     rpc_request_envelope(9, rpc_request_scene_create("Main")),
     rpc_request_envelope(
       10,
-      rpc_request_scene_save("scenes/main.scene.json", scene),
+      rpc_request_scene_save("scenes/main.scene.json", scene, "base-hash", 7),
     ),
     rpc_request_envelope(11, rpc_request_scene_delete("scenes/main.scene.json")),
     rpc_request_envelope(12, rpc_request_assets_list()),
@@ -232,7 +232,11 @@ test "all retained rpc responses and editor events round trip through typed enve
         @editor_bridge.ProjectManifest::default("Demo"),
       ),
     ),
-    event_envelope(editor_event_files_changed(["scenes/main.scene.json"])),
+    event_envelope(
+      editor_event_project_delta(
+        project_delta_scene_file_changed("scenes/main.scene.json", "hash", 1),
+      ),
+    ),
     event_envelope(editor_event_scene_created("scenes/extra.scene.json")),
     event_envelope(editor_event_scene_saved("scenes/main.scene.json")),
     event_envelope(editor_event_scene_deleted("scenes/old.scene.json")),

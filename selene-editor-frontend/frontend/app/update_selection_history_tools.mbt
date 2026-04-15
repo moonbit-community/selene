@@ -89,11 +89,12 @@ fn update_selection_history_tools(
       ([], committed)
     }
     UndoScene =>
-      match (model.scene, model.undo_stack.length()) {
-        (Some(current), count) if count > 0 => {
-          let previous_scene = model.undo_stack[count - 1]
-          let undo_stack = model.undo_stack[:count - 1].to_array()
-          let redo_stack = bounded_history(model.redo_stack + [current])
+      match model.scene_session {
+        Some(session) if session.undo_stack.length() > 0 => {
+          let count = session.undo_stack.length()
+          let previous_scene = session.undo_stack[count - 1]
+          let undo_stack = session.undo_stack[:count - 1].to_array()
+          let redo_stack = bounded_history(session.redo_stack + [session.scene])
           let (selected_entity_id, selected_entity_ids) = restored_entity_selection_for_scene(
             previous_scene,
             model.selected_entity_id,
@@ -104,13 +105,18 @@ fn update_selection_history_tools(
           )
           let next = {
             ..model,
-            scene: Some(previous_scene),
             selected_entity_id,
             selected_entity_ids,
             workspace,
-            undo_stack,
-            redo_stack,
-            active_scene_edit_transaction: None,
+            scene_session: Some({
+              ..session,
+              scene: previous_scene,
+              dirty: true,
+              conflict_state: SceneConflictState::NoConflict,
+              undo_stack,
+              redo_stack,
+              active_scene_edit_transaction: None,
+            }),
             status: "Undid last change",
           }
           normalize_scene_after_change(next)
@@ -121,11 +127,12 @@ fn update_selection_history_tools(
         }
       }
     RedoScene =>
-      match (model.scene, model.redo_stack.length()) {
-        (Some(current), count) if count > 0 => {
-          let next_scene = model.redo_stack[count - 1]
-          let redo_stack = model.redo_stack[:count - 1].to_array()
-          let undo_stack = bounded_history(model.undo_stack + [current])
+      match model.scene_session {
+        Some(session) if session.redo_stack.length() > 0 => {
+          let count = session.redo_stack.length()
+          let next_scene = session.redo_stack[count - 1]
+          let redo_stack = session.redo_stack[:count - 1].to_array()
+          let undo_stack = bounded_history(session.undo_stack + [session.scene])
           let (selected_entity_id, selected_entity_ids) = restored_entity_selection_for_scene(
             next_scene,
             model.selected_entity_id,
@@ -136,13 +143,18 @@ fn update_selection_history_tools(
           )
           let next = {
             ..model,
-            scene: Some(next_scene),
             selected_entity_id,
             selected_entity_ids,
             workspace,
-            undo_stack,
-            redo_stack,
-            active_scene_edit_transaction: None,
+            scene_session: Some({
+              ..session,
+              scene: next_scene,
+              dirty: true,
+              conflict_state: SceneConflictState::NoConflict,
+              undo_stack,
+              redo_stack,
+              active_scene_edit_transaction: None,
+            }),
             status: "Redid last change",
           }
           normalize_scene_after_change(next)
@@ -220,7 +232,7 @@ fn update_selection_history_tools(
     SelectEntity(id) => {
       let status = match id {
         Some(entity_id) =>
-          match model.scene {
+          match model_scene(model) {
             Some(scene) =>
               match scene.entity(entity_id) {
                 Some(entity) => "Selected entity: " + entity.name
@@ -297,6 +309,8 @@ fn update_selection_history_tools(
               add_component_panel_open: false,
               component_search_query: "",
               open_component_menu_kind: None,
+              autotile_palette_json_draft: "",
+              autotile_palette_json_error: None,
               status: "Selected resource \{target_index + 1}/\{resources.length()}: " +
               resource_selection_name(resources[target_index]),
             },

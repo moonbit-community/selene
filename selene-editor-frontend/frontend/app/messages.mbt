@@ -126,8 +126,23 @@ pub fn msg_asset_size_resolved(
 }
 
 ///|
-pub fn msg_scene_saved(result : Result[Unit, String]) -> Msg {
+pub fn msg_scene_saved(result : Result[SceneSaveOutcome, String]) -> Msg {
   SceneSaved(result)
+}
+
+///|
+pub fn msg_resolve_scene_conflict_keep_mine() -> Msg {
+  ResolveSceneConflictKeepMine
+}
+
+///|
+pub fn msg_resolve_scene_conflict_reload_disk() -> Msg {
+  ResolveSceneConflictReloadDisk
+}
+
+///|
+pub fn msg_resolve_scene_conflict_save_as(path : String) -> Msg {
+  ResolveSceneConflictSaveAs(path)
 }
 
 ///|

@@ -13,6 +13,61 @@ fn push_log(model : Model, line : String) -> Model {
 let scene_history_limit = 200
 
 ///|
+fn empty_scene_session(path : String) -> SceneSession {
+  {
+    path,
+    scene: @editor_bridge.SceneDocument::empty(),
+    dirty: false,
+    base_hash: "",
+    base_revision: 0,
+    last_saved_at: 0,
+    conflict_state: SceneConflictState::NoConflict,
+    undo_stack: [],
+    redo_stack: [],
+    active_scene_edit_transaction: None,
+  }
+}
+
+///|
+fn model_scene_path(model : Model) -> String {
+  match model.scene_session {
+    Some(session) => session.path
+    None => fallback_scene_path(model)
+  }
+}
+
+///|
+fn model_scene(model : Model) -> @editor_bridge.SceneDocument? {
+  model.scene_session.map(fn(session) { session.scene })
+}
+
+///|
+fn with_scene_session(model : Model, session : SceneSession?) -> Model {
+  { ..model, scene_session: session }
+}
+
+///|
+fn with_loaded_scene_session(
+  model : Model,
+  path : String,
+  scene : @editor_bridge.SceneDocument,
+  disk_hash : String,
+  disk_revision : Int,
+) -> Model {
+  with_scene_session(
+    model,
+    Some({
+      ..empty_scene_session(path),
+      path,
+      scene,
+      base_hash: disk_hash,
+      base_revision: disk_revision,
+      last_saved_at: disk_revision,
+    }),
+  )
+}
+
+///|
 let move_snap_step_options : ReadOnlyArray[Double] = [
   1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0,
 ]
@@ -70,35 +125,35 @@ fn bounded_history(
 
 ///|
 fn with_recorded_scene_change(previous : Model, next : Model) -> Model {
-  match (previous.scene, next.scene) {
+  match (previous.scene_session, next.scene_session) {
     (Some(before), Some(after)) if before != after => {
-      let undo_stack = bounded_history(previous.undo_stack + [before])
-      {
-        ..next,
-        undo_stack,
-        redo_stack: [],
-        active_scene_edit_transaction: None,
-      }
+      let undo_stack = bounded_history(before.undo_stack + [before.scene])
+      with_scene_session(
+        next,
+        Some({
+          ..after,
+          dirty: true,
+          conflict_state: SceneConflictState::NoConflict,
+          undo_stack,
+          redo_stack: [],
+          active_scene_edit_transaction: None,
+        }),
+      )
     }
-    (Some(before), None) => {
-      let undo_stack = bounded_history(previous.undo_stack + [before])
-      {
-        ..next,
-        undo_stack,
-        redo_stack: [],
-        active_scene_edit_transaction: None,
-      }
-    }
+    (Some(_), None) => next
     _ => next
   }
 }
 
 ///|
 fn with_started_scene_edit_transaction(model : Model, label : String) -> Model {
-  match (model.scene, model.active_scene_edit_transaction) {
-    (Some(before), None) => {
-      let transaction : SceneEditTransaction = { label, before }
-      { ..model, active_scene_edit_transaction: Some(transaction) }
+  match model.scene_session {
+    Some(session) if session.active_scene_edit_transaction is None => {
+      let transaction : SceneEditTransaction = { label, before: session.scene }
+      with_scene_session(
+        model,
+        Some({ ..session, active_scene_edit_transaction: Some(transaction) }),
+      )
     }
     _ => model
   }
@@ -106,17 +161,46 @@ fn with_started_scene_edit_transaction(model : Model, label : String) -> Model {
 
 ///|
 fn with_committed_scene_edit_transaction(model : Model) -> Model {
-  match (model.active_scene_edit_transaction, model.scene) {
-    (Some(transaction), Some(after)) if transaction.before != after => {
-      let undo_stack = bounded_history(model.undo_stack + [transaction.before])
-      {
-        ..model,
-        undo_stack,
-        redo_stack: [],
-        active_scene_edit_transaction: None,
+  match model.scene_session {
+    Some(session) =>
+      match session.active_scene_edit_transaction {
+        Some(transaction) if transaction.before != session.scene => {
+          let undo_stack = bounded_history(
+            session.undo_stack + [transaction.before],
+          )
+          with_scene_session(
+            model,
+            Some({
+              ..session,
+              dirty: true,
+              conflict_state: SceneConflictState::NoConflict,
+              undo_stack,
+              redo_stack: [],
+              active_scene_edit_transaction: None,
+            }),
+          )
+        }
+        Some(_) =>
+          with_scene_session(
+            model,
+            Some({ ..session, active_scene_edit_transaction: None }),
+          )
+        None => model
       }
+    None => model
+  }
+}
+
+///|
+fn with_scene_document_updated(
+  model : Model,
+  updater : (@editor_bridge.SceneDocument) -> @editor_bridge.SceneDocument,
+) -> Model {
+  match model.scene_session {
+    Some(session) => {
+      let next_scene = updater(session.scene)
+      with_scene_session(model, Some({ ..session, scene: next_scene }))
     }
-    (Some(_), _) => { ..model, active_scene_edit_transaction: None }
     _ => model
   }
 }
@@ -482,8 +566,8 @@ fn sync_preview_effects(model : Model) -> Array[Effect] {
 
 ///|
 fn scene_preview_effect(model : Model) -> Effect {
-  match model.scene {
-    Some(scene) => {
+  match model.scene_session {
+    Some(session) => {
       let atlases : Array[@bridge.AtlasAssetEntry] = []
       let animation_clips : Array[@bridge.AnimationClipAssetEntry] = []
       let animation_graphs : Array[@bridge.AnimationGraphAssetEntry] = []
@@ -499,8 +583,8 @@ fn scene_preview_effect(model : Model) -> Effect {
       Preview(
         @bridge.preview_command_load_scene(
           @bridge.preview_scene_payload(
-            Some(model.scene_path),
-            scene,
+            Some(session.path),
+            session.scene,
             atlases,
             animation_clips,
             animation_graphs,
@@ -559,7 +643,7 @@ fn refresh_project_effects(model : Model) -> Array[Effect] {
         Preview(@bridge.preview_command_bootstrap()),
         rpc_effect(
           SceneLoaded,
-          @shared.rpc_request_scene_load(model.scene_path),
+          @shared.rpc_request_scene_load(model_scene_path(model)),
         ),
         rpc_effect(SceneListLoaded, @shared.rpc_request_scene_list()),
         rpc_effect(AssetsLoaded, @shared.rpc_request_assets_list()),
@@ -1400,7 +1484,7 @@ fn add_sprite_asset_to_scene(
 
 ///|
 pub fn Model::selected_entity(self : Model) -> @editor_bridge.EntityDocument? {
-  match (self.scene, self.selected_entity_id) {
+  match (model_scene(self), self.selected_entity_id) {
     (Some(scene), Some(id)) => scene.entity(id)
     _ => None
   }
@@ -1536,12 +1620,18 @@ pub fn Model::selected_resource_path(self : Model) -> String? {
 
 ///|
 pub fn Model::can_undo(self : Model) -> Bool {
-  self.undo_stack.length() > 0
+  match self.scene_session {
+    Some(session) => session.undo_stack.length() > 0
+    None => false
+  }
 }
 
 ///|
 pub fn Model::can_redo(self : Model) -> Bool {
-  self.redo_stack.length() > 0
+  match self.scene_session {
+    Some(session) => session.redo_stack.length() > 0
+    None => false
+  }
 }
 
 ///|

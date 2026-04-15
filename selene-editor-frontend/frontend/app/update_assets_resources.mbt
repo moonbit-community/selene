@@ -129,7 +129,7 @@ fn update_assets_resources(
         None => ([], model)
       }
     SaveSelectedAsPrefab =>
-      match (model.scene, model.selected_entity_id) {
+      match (model_scene(model), model.selected_entity_id) {
         (Some(scene), Some(entity_id)) =>
           match prefab_from_scene_selection(scene, entity_id) {
             Some(prefab) => {
@@ -171,7 +171,7 @@ fn update_assets_resources(
         _ => ([], model)
       }
     InsertSelectedResource =>
-      match (model.scene, model.selected_resource) {
+      match (model_scene(model), model.selected_resource) {
         (Some(scene), Some(Image(path))) => {
           let (next_scene, id) = add_sprite_asset_to_scene(
             model.asset_size(path),
@@ -180,7 +180,7 @@ fn update_assets_resources(
             next_resource_entity_translation(),
           )
           let next = with_single_entity_selection(
-            { ..model, scene: Some(next_scene) },
+            with_scene_document_updated(model, fn(_current_scene) { next_scene }),
             Some(id),
           )
           apply_scene_change(model, next)
@@ -195,7 +195,9 @@ fn update_assets_resources(
                 next_resource_entity_translation(),
               )
               let next = with_single_entity_selection(
-                { ..model, scene: Some(next_scene) },
+                with_scene_document_updated(model, fn(_current_scene) {
+                  next_scene
+                }),
                 Some(id),
               )
               apply_scene_change(model, next)
@@ -231,7 +233,9 @@ fn update_assets_resources(
                         next_resource_entity_translation(),
                       )
                       let next = with_single_entity_selection(
-                        { ..model, scene: Some(next_scene) },
+                        with_scene_document_updated(model, fn(_current_scene) {
+                          next_scene
+                        }),
                         Some(id),
                       )
                       apply_scene_change(model, next)
@@ -244,7 +248,9 @@ fn update_assets_resources(
                         next_resource_entity_translation(),
                       )
                       let next = with_single_entity_selection(
-                        { ..model, scene: Some(next_scene) },
+                        with_scene_document_updated(model, fn(_current_scene) {
+                          next_scene
+                        }),
                         Some(id),
                       )
                       apply_scene_change(model, next)
@@ -273,7 +279,11 @@ fn update_assets_resources(
                             next_resource_entity_translation(),
                           )
                           let next = with_single_entity_selection(
-                            { ..model, scene: Some(next_scene) },
+                            with_scene_document_updated(model, fn(
+                              _current_scene,
+                            ) {
+                              next_scene
+                            }),
                             Some(id),
                           )
                           apply_scene_change(model, next)
@@ -295,7 +305,9 @@ fn update_assets_resources(
                 next_resource_entity_translation(),
               )
               let next = with_single_entity_selection(
-                { ..model, scene: Some(next_scene) },
+                with_scene_document_updated(model, fn(_current_scene) {
+                  next_scene
+                }),
                 id,
               )
               apply_scene_change(model, next)

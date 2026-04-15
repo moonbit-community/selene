@@ -158,10 +158,12 @@ async fn EditorService::open_project(
       let created = @editor_bridge.ProjectManifest::default(
         inferred_project_name(root),
       )
-      save_scene_document(
-        root,
-        created.startup_scene,
-        @editor_bridge.SceneDocument::default_main(),
+      ignore(
+        save_scene_document(
+          root,
+          created.startup_scene,
+          @editor_bridge.SceneDocument::default_main(),
+        ),
       )
       save_project_manifest(root, created)
       created
@@ -343,21 +345,49 @@ pub async fn EditorService::handle_rpc(
         let path = "scenes/" + @editor_bridge.scene_file_name(name)
         let root = self.current_project_root()
         let scene = @editor_bridge.SceneDocument::empty(name~)
-        save_scene_document(root, path, scene)
+        let disk = save_scene_document(root, path, scene)
         self.broadcast(
           @shared.event_envelope(@shared.editor_event_scene_created(path)),
         )
         @shared.rpc_response_scene_loaded(
-          @shared.scene_bundle_response(path, scene),
+          @shared.scene_bundle_response(
+            path,
+            scene,
+            disk_hash=disk.hash,
+            disk_revision=disk.revision,
+          ),
         )
       }
-      @shared.SceneSave(path~, scene~) => {
+      @shared.SceneSave(path~, scene~, base_hash~, base_revision~) => {
         let root = self.current_project_root()
-        save_scene_document(root, path, scene)
-        self.broadcast(
-          @shared.event_envelope(@shared.editor_event_scene_saved(path)),
-        )
-        @shared.rpc_response_saved_ok()
+        let current = scene_disk_state(root, path)
+        if current.hash != base_hash || current.revision != base_revision {
+          @shared.rpc_response_conflict(
+            @shared.rpc_conflict_document(
+              path,
+              base_hash,
+              current.hash,
+              base_revision,
+              current.revision,
+            ),
+          )
+        } else {
+          let disk = save_scene_document(root, path, scene)
+          self.broadcast(
+            @shared.event_envelope(
+              @shared.editor_event_project_delta(
+                @shared.project_delta_scene_file_changed(
+                  path,
+                  disk.hash,
+                  disk.revision,
+                ),
+              ),
+            ),
+          )
+          @shared.rpc_response_scene_saved(
+            @shared.scene_save_result(path, disk.hash, disk.revision),
+          )
+        }
       }
       @shared.SceneDelete(path~) => {
         let root = self.current_project_root()
@@ -517,6 +547,20 @@ pub async fn EditorService::handle_http_request(
 
 ///|
 pub async fn EditorService::watch_loop(self : EditorService) -> Unit {
+  fn sort_unique(values : Array[String]) -> Array[String] {
+    let seen : Map[String, Bool] = {}
+    let ordered : Array[String] = []
+    for value in values {
+      if seen.contains(value) {
+        continue
+      }
+      seen.set(value, true)
+      ordered.push(value)
+    }
+    ordered.sort_by(fn(left, right) { left.compare(right) })
+    ordered
+  }
+
   for ;; {
     if self.current_project is Some(project) {
       let next_snapshot = snapshot_project_files(project.root, project.manifest) catch {
@@ -538,9 +582,66 @@ pub async fn EditorService::watch_loop(self : EditorService) -> Unit {
       }
       if !changed.is_empty() {
         project.snapshot = next_snapshot
-        self.broadcast(
-          @shared.event_envelope(@shared.editor_event_files_changed(changed)),
-        )
+        let unique_changed = sort_unique(changed)
+        let mut workspace_changed = false
+        let mut manifest_changed = false
+        let scene_paths : Array[String] = []
+        let asset_paths : Array[String] = []
+        for path in unique_changed {
+          if path.has_prefix(".selene-editor/") {
+            workspace_changed = true
+          } else if path == "selene.project.json" ||
+            path.has_suffix(".project.json") {
+            manifest_changed = true
+          } else if path.has_prefix("scenes/") && path.has_suffix(".scene.json") {
+            scene_paths.push(path)
+          } else if path.has_prefix("assets/") {
+            asset_paths.push(path)
+          }
+        }
+        if workspace_changed {
+          self.broadcast(
+            @shared.event_envelope(
+              @shared.editor_event_project_delta(
+                @shared.project_delta_workspace_changed(),
+              ),
+            ),
+          )
+        }
+        if manifest_changed {
+          self.broadcast(
+            @shared.event_envelope(
+              @shared.editor_event_project_delta(
+                @shared.project_delta_manifest_changed(),
+              ),
+            ),
+          )
+        }
+        for path in sort_unique(scene_paths) {
+          let state = scene_disk_state(project.root, path) catch {
+            _ => { hash: "", revision: 0 }
+          }
+          self.broadcast(
+            @shared.event_envelope(
+              @shared.editor_event_project_delta(
+                @shared.project_delta_scene_file_changed(
+                  path,
+                  state.hash,
+                  state.revision,
+                ),
+              ),
+            ),
+          )
+        }
+        for path in sort_unique(asset_paths) {
+          self.broadcast(
+            @shared.event_envelope(
+              @shared.editor_event_project_delta(
+                @shared.project_delta_asset_file_changed(path),
+              ),
+            ),
+          )
+        }
       }
     }
     @async.sleep(1000)

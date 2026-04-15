@@ -380,9 +380,11 @@ async test "service typed rpc surface succeeds across current workspace actions"
         @shared.rpc_request_scene_load("scenes/rpc-demo.scene.json"),
       ),
     )
-    match response_envelope(load_payload).response {
-      @shared.SceneLoaded(scene~) =>
+    let loaded_scene_bundle = match response_envelope(load_payload).response {
+      @shared.SceneLoaded(scene~) => {
         inspect(scene.path, content="scenes/rpc-demo.scene.json")
+        scene
+      }
       _ => fail("expected scene load response")
     }
 
@@ -392,12 +394,17 @@ async test "service typed rpc surface succeeds across current workspace actions"
     let save_payload = service.handle_rpc(
       @shared.rpc_request_envelope(
         5,
-        @shared.rpc_request_scene_save("scenes/rpc-demo.scene.json", save_scene),
+        @shared.rpc_request_scene_save(
+          "scenes/rpc-demo.scene.json",
+          save_scene,
+          loaded_scene_bundle.disk_hash,
+          loaded_scene_bundle.disk_revision,
+        ),
       ),
     )
     inspect(
       match response_envelope(save_payload).response {
-        @shared.SavedOk => true
+        @shared.SceneSaved(save~) => save.path == "scenes/rpc-demo.scene.json"
         _ => false
       },
       content="true",
@@ -578,6 +585,8 @@ async test "service typed rpc surface returns stable errors for missing or inval
       @shared.rpc_request_scene_save(
         "scenes/main.scene.json",
         @editor_bridge.SceneDocument::default_main(),
+        "",
+        0,
       ),
       @shared.rpc_request_scene_delete("scenes/main.scene.json"),
       @shared.rpc_request_project_set_startup_scene("scenes/main.scene.json"),

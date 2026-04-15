@@ -172,9 +172,11 @@ fn msg_for_rpc_target(target : @app.RpcTarget, payload : Json) -> @app.Msg {
     @app.SceneSaved =>
       @app.msg_scene_saved(
         match response {
-          @shared.SavedOk | @shared.StartupSceneUpdated(_) => Ok(())
+          @shared.SceneSaved(save~) => Ok(@app.scene_save_outcome_saved(save))
+          @shared.Conflict(conflict~) =>
+            Ok(@app.scene_save_outcome_conflict(conflict))
           @shared.Error(error~) => Err(error.message)
-          _ => Err("Unexpected RPC response for save")
+          _ => Err("Unexpected RPC response for scene save")
         },
       )
     @app.AnimationMigrationSaved =>
@@ -306,7 +308,10 @@ pub fn EditorHarness::project_root_path(self : EditorHarness) -> String {
 
 ///|
 pub fn EditorHarness::scene_path(self : EditorHarness) -> String {
-  self.model.scene_path
+  match self.model.scene_session {
+    Some(session) => session.path
+    None => "scenes/main.scene.json"
+  }
 }
 
 ///|
@@ -325,7 +330,7 @@ pub fn EditorHarness::manifest(
 pub fn EditorHarness::scene(
   self : EditorHarness,
 ) -> @editor_bridge.SceneDocument? {
-  self.model.scene
+  self.model.scene_session.map(fn(session) { session.scene })
 }
 
 ///|
@@ -402,9 +407,59 @@ pub fn EditorHarness::entity(
   self : EditorHarness,
   id : String,
 ) -> @editor_bridge.EntityDocument? {
-  match self.model.scene {
-    Some(scene) => scene.entity(id)
+  match self.model.scene_session {
+    Some(session) => session.scene.entity(id)
     None => None
+  }
+}
+
+///|
+pub fn EditorHarness::scene_dirty(self : EditorHarness) -> Bool {
+  match self.model.scene_session {
+    Some(session) => session.dirty
+    None => false
+  }
+}
+
+///|
+pub fn EditorHarness::scene_conflict_state(
+  self : EditorHarness,
+) -> @app.SceneConflictState? {
+  match self.model.scene_session {
+    Some(session) => Some(session.conflict_state)
+    None => None
+  }
+}
+
+///|
+pub fn EditorHarness::scene_base_hash(self : EditorHarness) -> String? {
+  match self.model.scene_session {
+    Some(session) => Some(session.base_hash)
+    None => None
+  }
+}
+
+///|
+pub fn EditorHarness::scene_base_revision(self : EditorHarness) -> Int? {
+  match self.model.scene_session {
+    Some(session) => Some(session.base_revision)
+    None => None
+  }
+}
+
+///|
+pub fn EditorHarness::scene_path_or_none(self : EditorHarness) -> String? {
+  match self.model.scene_session {
+    Some(session) => Some(session.path)
+    None => None
+  }
+}
+
+///|
+pub fn EditorHarness::scene_exists(self : EditorHarness) -> Bool {
+  match self.model.scene_session {
+    Some(_) => true
+    None => false
   }
 }
 
@@ -887,6 +942,63 @@ pub async fn EditorHarness::when_service_event_fails(
 }
 
 ///|
+pub async fn EditorHarness::when_workspace_delta_is_received(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(
+    @app.msg_service_event(
+      Ok(
+        @shared.editor_event_project_delta(
+          @shared.project_delta_workspace_changed(),
+        ),
+      ),
+    ),
+  )
+}
+
+///|
+pub async fn EditorHarness::when_scene_file_delta_is_received(
+  self : EditorHarness,
+  path : String,
+  disk_hash : String,
+  disk_revision : Int,
+) -> Unit {
+  self.dispatch(
+    @app.msg_service_event(
+      Ok(
+        @shared.editor_event_project_delta(
+          @shared.project_delta_scene_file_changed(
+            path, disk_hash, disk_revision,
+          ),
+        ),
+      ),
+    ),
+  )
+}
+
+///|
+pub async fn EditorHarness::when_conflict_keep_mine_is_selected(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(@app.msg_resolve_scene_conflict_keep_mine())
+}
+
+///|
+pub async fn EditorHarness::when_conflict_reload_disk_is_selected(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(@app.msg_resolve_scene_conflict_reload_disk())
+}
+
+///|
+pub async fn EditorHarness::when_conflict_save_as_is_selected(
+  self : EditorHarness,
+  path : String,
+) -> Unit {
+  self.dispatch(@app.msg_resolve_scene_conflict_save_as(path))
+}
+
+///|
 pub async fn EditorHarness::when_prefab_load_fails(
   self : EditorHarness,
   message : String,
@@ -964,6 +1076,13 @@ pub async fn EditorHarness::when_sprite_asset_is_dropped(
 ///|
 pub async fn EditorHarness::when_scene_is_saved(self : EditorHarness) -> Unit {
   self.dispatch(@app.msg_save_scene())
+}
+
+///|
+pub async fn EditorHarness::when_move_snap_is_toggled(
+  self : EditorHarness,
+) -> Unit {
+  self.dispatch(@app.msg_toggle_move_snap())
 }
 
 ///|

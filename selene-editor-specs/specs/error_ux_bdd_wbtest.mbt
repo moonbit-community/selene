@@ -180,3 +180,128 @@ async test "bdd error ux service stream failures keep the current scene stable" 
     inspect(harness.logs().length() >= 1, content="true")
   })
 }
+
+///|
+async test "bdd error ux unsaved scene is not rolled back when toggling snap" {
+  @async.with_task_group(group => {
+    let harness = given_editor_harness()
+    group.add_defer(() => harness.cleanup())
+
+    harness.when_editor_initialized()
+    harness.when_sprite_entity_is_added()
+
+    let before_toggle = harness.scene()
+    inspect(harness.scene_dirty(), content="true")
+
+    harness.when_move_snap_is_toggled()
+
+    inspect(harness.scene_dirty(), content="true")
+    inspect(harness.scene() == before_toggle, content="true")
+  })
+}
+
+///|
+async test "bdd error ux workspace delta never reloads dirty scene session" {
+  @async.with_task_group(group => {
+    let harness = given_editor_harness()
+    group.add_defer(() => harness.cleanup())
+
+    harness.when_editor_initialized()
+    harness.when_sprite_entity_is_added()
+    let before_delta = harness.scene()
+
+    harness.when_workspace_delta_is_received()
+
+    inspect(harness.scene_dirty(), content="true")
+    inspect(harness.scene() == before_delta, content="true")
+    inspect(harness.status(), content="Workspace settings updated")
+  })
+}
+
+///|
+async test "bdd error ux dirty scene file delta enters explicit conflict state" {
+  @async.with_task_group(group => {
+    let harness = given_editor_harness()
+    group.add_defer(() => harness.cleanup())
+
+    harness.when_editor_initialized()
+    harness.when_sprite_entity_is_added()
+
+    harness.when_scene_file_delta_is_received(
+      harness.scene_path(),
+      "disk-hash",
+      22,
+    )
+
+    inspect(harness.scene_dirty(), content="true")
+    inspect(
+      harness.status(),
+      content="Scene changed on disk while local edits are unsaved",
+    )
+    match harness.scene_conflict_state() {
+      Some(@app.ExternalSceneChanged(path~, disk_hash~, disk_revision~)) => {
+        inspect(path, content=harness.scene_path())
+        inspect(disk_hash, content="disk-hash")
+        inspect(disk_revision, content="22")
+      }
+      _ => fail("expected external scene conflict state")
+    }
+  })
+}
+
+///|
+async test "bdd error ux keep mine clears conflict without dropping local edits" {
+  @async.with_task_group(group => {
+    let harness = given_editor_harness()
+    group.add_defer(() => harness.cleanup())
+
+    harness.when_editor_initialized()
+    harness.when_sprite_entity_is_added()
+    let before = harness.scene()
+
+    harness.when_scene_file_delta_is_received(
+      harness.scene_path(),
+      "disk-hash",
+      22,
+    )
+    harness.when_conflict_keep_mine_is_selected()
+
+    inspect(harness.scene() == before, content="true")
+    inspect(harness.scene_dirty(), content="true")
+    inspect(harness.status(), content="Keeping local scene edits")
+    match harness.scene_conflict_state() {
+      Some(@app.NoConflict) => inspect(true, content="true")
+      _ => fail("expected conflict state to be cleared")
+    }
+  })
+}
+
+///|
+async test "bdd error ux reload disk resolves conflict and restores clean session" {
+  @async.with_task_group(group => {
+    let harness = given_editor_harness()
+    group.add_defer(() => harness.cleanup())
+
+    harness.when_editor_initialized()
+    harness.when_sprite_entity_is_added()
+    let disk_scene = @editor_bridge.SceneDocument::default_main().with_name(
+      "Disk Version",
+    )
+    harness.given_scene_document(harness.scene_path(), disk_scene)
+
+    harness.when_scene_file_delta_is_received(
+      harness.scene_path(),
+      "disk-hash",
+      22,
+    )
+    harness.when_conflict_reload_disk_is_selected()
+
+    inspect(harness.scene_dirty(), content="false")
+    inspect(harness.scene().unwrap().name, content="Disk Version")
+    inspect(harness.status(), content="Loaded " + harness.scene_path())
+    match harness.scene_conflict_state() {
+      Some(@app.NoConflict) => inspect(true, content="true")
+      _ => fail("expected conflict state to be cleared")
+    }
+  })
+}

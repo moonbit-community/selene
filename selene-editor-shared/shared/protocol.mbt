@@ -45,9 +45,27 @@ pub struct SceneBundleAnimationGraphEntry {
 pub struct SceneBundleResponse {
   path : String
   scene : @editor_bridge.SceneDocument
+  disk_hash : String
+  disk_revision : Int
   atlas_assets : Array[SceneBundleAtlasEntry]
   animation_clip_assets : Array[SceneBundleAnimationClipEntry]
   animation_graph_assets : Array[SceneBundleAnimationGraphEntry]
+} derive(Eq, ToJson, FromJson)
+
+///|
+pub struct SceneSaveResult {
+  path : String
+  disk_hash : String
+  disk_revision : Int
+} derive(Eq, ToJson, FromJson)
+
+///|
+pub struct RpcConflictDocument {
+  path : String
+  base_hash : String
+  current_hash : String
+  base_revision : Int
+  current_revision : Int
 } derive(Eq, ToJson, FromJson)
 
 ///|
@@ -102,7 +120,12 @@ pub enum RpcRequest {
   SceneMigrate(path~ : String)
   SceneList
   SceneCreate(name~ : String)
-  SceneSave(path~ : String, scene~ : @editor_bridge.SceneDocument)
+  SceneSave(
+    path~ : String,
+    scene~ : @editor_bridge.SceneDocument,
+    base_hash~ : String,
+    base_revision~ : Int
+  )
   SceneDelete(path~ : String)
   AssetsList
   PrefabLoad(path~ : String)
@@ -128,15 +151,25 @@ pub enum RpcResponse {
   DirectoryPicked(result~ : DirectoryPickResult)
   SceneLoaded(scene~ : SceneBundleResponse)
   SceneMigrationRequired(preview~ : @editor_bridge.SceneMigrationPreview)
+  SceneSaved(save~ : SceneSaveResult)
   SceneListed(list~ : SceneListResponse)
   AssetsListed(list~ : AssetsListResponse)
   PrefabLoaded(prefab~ : PrefabLoadResponse)
   AtlasLoaded(atlas~ : AtlasLoadResponse)
   AnimationClipLoaded(clip~ : AnimationClipLoadResponse)
   AnimationGraphLoaded(graph~ : AnimationGraphLoadResponse)
+  Conflict(conflict~ : RpcConflictDocument)
   StartupSceneUpdated(manifest~ : @editor_bridge.ProjectManifest)
   SavedOk
   Error(error~ : RpcErrorDocument)
+} derive(Eq, ToJson, FromJson)
+
+///|
+pub enum ProjectDeltaEvent {
+  WorkspaceChanged
+  SceneFileChanged(path~ : String, disk_hash~ : String, disk_revision~ : Int)
+  AssetFileChanged(path~ : String)
+  ManifestChanged
 } derive(Eq, ToJson, FromJson)
 
 ///|
@@ -156,7 +189,7 @@ pub enum EditorEvent {
   Ready
   Log(label~ : String, message~ : String)
   ProjectOpened(root~ : String, manifest~ : @editor_bridge.ProjectManifest)
-  FilesChanged(paths~ : Array[String])
+  ProjectDelta(delta~ : ProjectDeltaEvent)
   SceneCreated(path~ : String)
   SceneSaved(path~ : String)
   SceneDeleted(path~ : String)
@@ -229,14 +262,38 @@ pub fn scene_bundle_animation_graph_entry(
 pub fn scene_bundle_response(
   path : String,
   scene : @editor_bridge.SceneDocument,
+  disk_hash? : String = "",
+  disk_revision? : Int = 0,
 ) -> SceneBundleResponse {
   {
     path,
     scene,
+    disk_hash,
+    disk_revision,
     atlas_assets: [],
     animation_clip_assets: [],
     animation_graph_assets: [],
   }
+}
+
+///|
+pub fn scene_save_result(
+  path : String,
+  disk_hash : String,
+  disk_revision : Int,
+) -> SceneSaveResult {
+  { path, disk_hash, disk_revision }
+}
+
+///|
+pub fn rpc_conflict_document(
+  path : String,
+  base_hash : String,
+  current_hash : String,
+  base_revision : Int,
+  current_revision : Int,
+) -> RpcConflictDocument {
+  { path, base_hash, current_hash, base_revision, current_revision }
 }
 
 ///|
@@ -413,8 +470,10 @@ pub fn rpc_request_scene_create(name : String) -> RpcRequest {
 pub fn rpc_request_scene_save(
   path : String,
   scene : @editor_bridge.SceneDocument,
+  base_hash : String,
+  base_revision : Int,
 ) -> RpcRequest {
-  SceneSave(path~, scene~)
+  SceneSave(path~, scene~, base_hash~, base_revision~)
 }
 
 ///|
@@ -528,6 +587,11 @@ pub fn rpc_response_scene_migration_required(
 }
 
 ///|
+pub fn rpc_response_scene_saved(save : SceneSaveResult) -> RpcResponse {
+  SceneSaved(save~)
+}
+
+///|
 pub fn rpc_response_scene_listed(list : SceneListResponse) -> RpcResponse {
   SceneListed(list~)
 }
@@ -559,6 +623,11 @@ pub fn rpc_response_animation_graph_loaded(
   graph : AnimationGraphLoadResponse,
 ) -> RpcResponse {
   AnimationGraphLoaded(graph~)
+}
+
+///|
+pub fn rpc_response_conflict(conflict : RpcConflictDocument) -> RpcResponse {
+  Conflict(conflict~)
 }
 
 ///|
@@ -607,8 +676,32 @@ pub fn editor_event_project_opened(
 }
 
 ///|
-pub fn editor_event_files_changed(paths : Array[String]) -> EditorEvent {
-  FilesChanged(paths~)
+pub fn editor_event_project_delta(delta : ProjectDeltaEvent) -> EditorEvent {
+  ProjectDelta(delta~)
+}
+
+///|
+pub fn project_delta_workspace_changed() -> ProjectDeltaEvent {
+  WorkspaceChanged
+}
+
+///|
+pub fn project_delta_scene_file_changed(
+  path : String,
+  disk_hash : String,
+  disk_revision : Int,
+) -> ProjectDeltaEvent {
+  SceneFileChanged(path~, disk_hash~, disk_revision~)
+}
+
+///|
+pub fn project_delta_asset_file_changed(path : String) -> ProjectDeltaEvent {
+  AssetFileChanged(path~)
+}
+
+///|
+pub fn project_delta_manifest_changed() -> ProjectDeltaEvent {
+  ManifestChanged
 }
 
 ///|

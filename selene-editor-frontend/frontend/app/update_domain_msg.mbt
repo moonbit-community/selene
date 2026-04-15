@@ -32,7 +32,10 @@ priv enum ProjectRuntimeMsg {
   AssetSizeResolved(String, Double, Double)
   AssetImageLoadFailed(String)
   SetAssetQuery(String)
-  SceneSaved(Result[Unit, String])
+  SceneSaved(Result[SceneSaveOutcome, String])
+  ResolveSceneConflictKeepMine
+  ResolveSceneConflictReloadDisk
+  ResolveSceneConflictSaveAs(String)
   WorkspaceSaved(Result[Unit, String])
   ServiceEvent(Result[@shared.EditorEvent, String])
   PreviewEvent(@bridge.PreviewEvent)
@@ -193,6 +196,11 @@ fn to_domain_msg(msg : Msg) -> DomainMsg {
     AssetImageLoadFailed(path) => ProjectRuntime(AssetImageLoadFailed(path))
     SetAssetQuery(value) => ProjectRuntime(SetAssetQuery(value))
     SceneSaved(result) => ProjectRuntime(SceneSaved(result))
+    ResolveSceneConflictKeepMine => ProjectRuntime(ResolveSceneConflictKeepMine)
+    ResolveSceneConflictReloadDisk =>
+      ProjectRuntime(ResolveSceneConflictReloadDisk)
+    ResolveSceneConflictSaveAs(path) =>
+      ProjectRuntime(ResolveSceneConflictSaveAs(path))
     AnimationMigrationSaved(result) =>
       ProjectRuntime(AnimationMigrationSaved(result))
     WorkspaceSaved(result) => ProjectRuntime(WorkspaceSaved(result))

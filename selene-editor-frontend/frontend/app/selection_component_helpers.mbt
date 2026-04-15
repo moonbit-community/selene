@@ -53,7 +53,7 @@ fn with_entity_selection(
   ids : Array[String],
 ) -> Model {
   let (selected_entity_id, selected_entity_ids) = normalize_entity_selection_for_scene(
-    model.scene,
+    model_scene(model),
     primary,
     ids,
   )
@@ -173,11 +173,13 @@ fn update_selected_entity(
   model : Model,
   updater : (@editor_bridge.EntityDocument) -> @editor_bridge.EntityDocument,
 ) -> Model {
-  match (model.scene, model.selected_entity_id) {
+  match (model_scene(model), model.selected_entity_id) {
     (Some(scene), Some(id)) =>
       match scene.entity(id) {
         Some(entity) =>
-          { ..model, scene: Some(scene.with_entity(updater(entity))) }
+          with_scene_document_updated(model, fn(_current_scene) {
+            scene.with_entity(updater(entity))
+          })
         None => model
       }
     _ => model
@@ -198,12 +200,12 @@ fn update_entity_component(
   entity_id : String,
   component : @editor_bridge.ComponentDocument,
 ) -> Model {
-  match model.scene {
+  match model_scene(model) {
     Some(scene) =>
       match scene.entity(entity_id) {
         Some(entity) => {
           let next_scene = scene.with_entity(entity.with_component(component))
-          { ..model, scene: Some(next_scene) }
+          with_scene_document_updated(model, fn(_current_scene) { next_scene })
         }
         None => model
       }
@@ -218,11 +220,13 @@ fn with_selected_entities_updated(
 ) -> Model {
   let mut next = model
   for id in selected_entity_ids_for_edit(model) {
-    guard next.scene is Some(scene) else { continue }
+    guard model_scene(next) is Some(scene) else { continue }
     guard scene.entity(id) is Some(entity) else { continue }
     match updater(id, entity) {
       Some(updated_entity) =>
-        next = { ..next, scene: Some(scene.with_entity(updated_entity)) }
+        next = with_scene_document_updated(next, fn(_current_scene) {
+          scene.with_entity(updated_entity)
+        })
       None => ()
     }
   }
