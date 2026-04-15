@@ -1867,39 +1867,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
             } else if hovered is Some(hovered_id) {
               set_selected_ids_and_emit([hovered_id])
             } else {
-              let target = move_target_world_point(world_point)
-              let primary_start = @math.Vec2(
-                start_transform.translation.x,
-                start_transform.translation.y,
-              )
-              let delta = target - primary_start
-              emit_preview_event(
-                @bridge.preview_event_transform_gesture_started(selected),
-              )
-              for id in drag_ids {
-                guard start_transforms.contains(id) else { continue }
-                let entity_start = start_transforms[id]
-                let next_transform = @editor_bridge.transform2d_value(
-                  translation=@editor_bridge.vec2_doc(
-                    entity_start.translation.x + delta[X],
-                    entity_start.translation.y + delta[Y],
-                  ),
-                  rotation=entity_start.rotation,
-                  scale=entity_start.scale,
-                )
-                apply_runtime_transform(id, next_transform)
-                emit_preview_event(
-                  @bridge.preview_event_transform_changed(
-                    id,
-                    next_transform.translation,
-                    next_transform.rotation,
-                    next_transform.scale,
-                  ),
-                )
-              }
-              emit_preview_event(
-                @bridge.preview_event_transform_gesture_finished(selected),
-              )
+              ()
             }
           }
           _ =>
