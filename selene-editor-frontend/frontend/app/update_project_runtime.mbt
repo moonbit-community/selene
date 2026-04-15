@@ -666,11 +666,13 @@ fn update_project_runtime(
         }
         @bridge.HoverChanged(_) => ([], model)
         @bridge.TransformGestureStarted(id~) => {
+          let next_selection = if model.selected_entity_ids.contains(id) {
+            with_entity_selection(model, Some(id), model.selected_entity_ids)
+          } else {
+            with_single_entity_selection(model, Some(id))
+          }
           let next = with_started_scene_edit_transaction(
-            {
-              ..with_single_entity_selection(model, Some(id)),
-              selected_resource: None,
-            },
+            { ..next_selection, selected_resource: None },
             "Transform",
           )
           ([], next)
@@ -687,7 +689,15 @@ fn update_project_runtime(
                   scale~,
                 ),
               )
-              let selected_next = with_single_entity_selection(next, Some(id))
+              let selected_next = if model.selected_entity_ids.contains(id) {
+                with_entity_selection(
+                  next,
+                  model.selected_entity_id,
+                  model.selected_entity_ids,
+                )
+              } else {
+                with_single_entity_selection(next, Some(id))
+              }
               apply_scene_change_without_history_or_preview(model, {
                 ..selected_next,
                 selected_resource: None,
@@ -701,9 +711,17 @@ fn update_project_runtime(
             Some(transaction) => transaction.label + " applied"
             None => "Transform applied"
           }
-          let next = {
-            ..with_single_entity_selection(committed, Some(id)),
-            status,
+          let next = if model.selected_entity_ids.contains(id) {
+            {
+              ..with_entity_selection(
+                committed,
+                model.selected_entity_id,
+                model.selected_entity_ids,
+              ),
+              status,
+            }
+          } else {
+            { ..with_single_entity_selection(committed, Some(id)), status, }
           }
           (sync_preview_effects(next), next)
         }

@@ -1,11 +1,12 @@
 ///|
 priv struct ToolDragState {
   entity_id : String
+  entity_ids : Array[String]
   tool : @shared.PreviewTool
   anchor_world : @math.Vec2
   anchor_pointer : @math.Vec2
   pivot_world : @math.Vec2
-  start_transform : @editor_bridge.Transform2dComponent
+  start_transforms : Map[String, @editor_bridge.Transform2dComponent]
 }
 
 ///|
@@ -345,6 +346,54 @@ pub fn set_selection(primary : String?, ids : Array[String]) -> Unit {
   }
   preview_state.selected_entity_id = normalized_primary
   preview_state.selected_entity_ids = normalized_ids
+}
+
+///|
+fn selected_entity_ids_for_edit() -> Array[String] {
+  let ids : Array[String] = []
+  let seen : Map[String, Bool] = {}
+  for id in preview_state.selected_entity_ids {
+    if seen.contains(id) {
+      continue
+    }
+    seen.set(id, true)
+    ids.push(id)
+  }
+  match preview_state.selected_entity_id {
+    Some(primary) if !seen.contains(primary) => [primary] + ids
+    _ => ids
+  }
+}
+
+///|
+fn selected_entity_ids_for_drag(
+  runtime_scene : @editor_bridge.SceneRuntime,
+  fallback_primary : String,
+) -> Array[String] {
+  let selected : Array[String] = []
+  for id in selected_entity_ids_for_edit() {
+    if runtime_scene.entity_ids.contains(id) {
+      selected.push(id)
+    }
+  }
+  if selected.is_empty() && runtime_scene.entity_ids.contains(fallback_primary) {
+    [fallback_primary]
+  } else {
+    selected
+  }
+}
+
+///|
+fn selected_drag_start_transforms(
+  runtime_scene : @editor_bridge.SceneRuntime,
+  ids : Array[String],
+) -> Map[String, @editor_bridge.Transform2dComponent] {
+  let transforms : Map[String, @editor_bridge.Transform2dComponent] = {}
+  for id in ids {
+    guard runtime_scene.entity_ids.contains(id) else { continue }
+    transforms.set(id, entity_transform2d(runtime_scene.entity_ids[id]))
+  }
+  transforms
 }
 
 ///|
@@ -818,10 +867,49 @@ fn apply_autotile_tool_at_world(
 ///|
 fn overlay_bounds() -> (@math.Vec2, @math.Vec2)? {
   guard preview_state.current_scene is Some(scene) else { return None }
-  guard preview_state.selected_entity_id is Some(id) else { return None }
-  guard scene.entity(id) is Some(document) else { return None }
-  let transform = @editor_bridge.decoded_transform(document)
-  document_visual_bounds(document, transform)
+  let selected_ids = selected_entity_ids_for_edit()
+  guard !selected_ids.is_empty() else { return None }
+  let mut has_bounds = false
+  let mut min_x = 0.0
+  let mut min_y = 0.0
+  let mut max_x = 0.0
+  let mut max_y = 0.0
+  for id in selected_ids {
+    guard scene.entity(id) is Some(document) else { continue }
+    let transform = @editor_bridge.decoded_transform(document)
+    guard document_visual_bounds(document, transform) is Some((position, size)) else {
+      continue
+    }
+    let left = position[X]
+    let top = position[Y]
+    let right = position[X] + size[X]
+    let bottom = position[Y] + size[Y]
+    if !has_bounds {
+      has_bounds = true
+      min_x = left
+      min_y = top
+      max_x = right
+      max_y = bottom
+    } else {
+      if left < min_x {
+        min_x = left
+      }
+      if top < min_y {
+        min_y = top
+      }
+      if right > max_x {
+        max_x = right
+      }
+      if bottom > max_y {
+        max_y = bottom
+      }
+    }
+  }
+  if !has_bounds {
+    None
+  } else {
+    Some((@math.Vec2(min_x, min_y), @math.Vec2(max_x - min_x, max_y - min_y)))
+  }
 }
 
 ///|
@@ -1089,12 +1177,13 @@ fn apply_runtime_transform(
 ///|
 fn apply_selection_overlay() -> Unit {
   guard preview_state.selection_overlay is Some(overlay) else { return }
+  let selected_ids = selected_entity_ids_for_edit()
   match overlay_bounds() {
     Some((position, size)) => {
       let color = if preview_state.tool_drag is Some(_) {
         @render.Color::{ r: 92U, g: 196U, b: 255U, a: 0.24 }
-      } else if preview_state.hovered_entity_id ==
-        preview_state.selected_entity_id {
+      } else if preview_state.hovered_entity_id is Some(hovered_id) &&
+        selected_ids.contains(hovered_id) {
         @render.Color::{ r: 255U, g: 220U, b: 64U, a: 0.28 }
       } else {
         @render.Color::{ r: 255U, g: 220U, b: 64U, a: 0.18 }
@@ -1638,6 +1727,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
   } else {
     None
   }
+  let selected_ids = selected_entity_ids_for_edit()
   if hovered != preview_state.hovered_entity_id {
     preview_state.hovered_entity_id = hovered
     emit_preview_event(@bridge.preview_event_hover_changed(hovered))
@@ -1660,12 +1750,11 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
       @shared.Select => if hovered is Some(_) { "pointer" } else { "default" }
       @shared.DragCanvas => "grab"
       @shared.Translate =>
-        if preview_state.selected_entity_id is Some(selected) &&
-          hovered == Some(selected) {
+        if hovered is Some(hovered_id) && selected_ids.contains(hovered_id) {
           "move"
         } else if hovered is Some(_) {
           "pointer"
-        } else if preview_state.selected_entity_id is Some(_) {
+        } else if !selected_ids.is_empty() {
           "crosshair"
         } else {
           "default"
@@ -1749,9 +1838,14 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
         match preview_state.selected_entity_id {
           Some(selected) if preview_state.runtime_scene is Some(scene) &&
             scene.entity_ids.contains(selected) => {
-            let selected_entity = scene.entity_ids[selected]
-            let start_transform = entity_transform2d(selected_entity)
-            if hovered == Some(selected) {
+            let drag_ids = selected_entity_ids_for_drag(scene, selected)
+            let start_transforms = selected_drag_start_transforms(
+              scene, drag_ids,
+            )
+            let start_transform = start_transforms
+              .get(selected)
+              .unwrap_or(entity_transform2d(scene.entity_ids[selected]))
+            if hovered is Some(hovered_id) && drag_ids.contains(hovered_id) {
               let pivot_world = selected_pivot_world().unwrap_or(
                 @math.Vec2(
                   start_transform.translation.x,
@@ -1760,11 +1854,12 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
               )
               preview_state.tool_drag = Some({
                 entity_id: selected,
+                entity_ids: drag_ids,
                 tool: @shared.preview_tool_translate(),
                 anchor_world: world_point,
                 anchor_pointer: @inputs.mouse.pos,
                 pivot_world,
-                start_transform,
+                start_transforms,
               })
               emit_preview_event(
                 @bridge.preview_event_transform_gesture_started(selected),
@@ -1773,23 +1868,35 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
               set_selected_ids_and_emit([hovered_id])
             } else {
               let target = move_target_world_point(world_point)
-              let next_transform = @editor_bridge.transform2d_value(
-                translation=@editor_bridge.vec2_doc(target[X], target[Y]),
-                rotation=start_transform.rotation,
-                scale=start_transform.scale,
+              let primary_start = @math.Vec2(
+                start_transform.translation.x,
+                start_transform.translation.y,
               )
+              let delta = target - primary_start
               emit_preview_event(
                 @bridge.preview_event_transform_gesture_started(selected),
               )
-              apply_runtime_transform(selected, next_transform)
-              emit_preview_event(
-                @bridge.preview_event_transform_changed(
-                  selected,
-                  next_transform.translation,
-                  next_transform.rotation,
-                  next_transform.scale,
-                ),
-              )
+              for id in drag_ids {
+                guard start_transforms.contains(id) else { continue }
+                let entity_start = start_transforms[id]
+                let next_transform = @editor_bridge.transform2d_value(
+                  translation=@editor_bridge.vec2_doc(
+                    entity_start.translation.x + delta[X],
+                    entity_start.translation.y + delta[Y],
+                  ),
+                  rotation=entity_start.rotation,
+                  scale=entity_start.scale,
+                )
+                apply_runtime_transform(id, next_transform)
+                emit_preview_event(
+                  @bridge.preview_event_transform_changed(
+                    id,
+                    next_transform.translation,
+                    next_transform.rotation,
+                    next_transform.scale,
+                  ),
+                )
+              }
               emit_preview_event(
                 @bridge.preview_event_transform_gesture_finished(selected),
               )
@@ -1803,10 +1910,20 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
         }
       @shared.Rotate =>
         if preview_state.selected_entity_id is Some(selected) &&
-          hovered == Some(selected) &&
           preview_state.runtime_scene is Some(scene) &&
           scene.entity_ids.contains(selected) {
-          let start_transform = entity_transform2d(scene.entity_ids[selected])
+          let drag_ids = selected_entity_ids_for_drag(scene, selected)
+          if !(hovered is Some(hovered_id) && drag_ids.contains(hovered_id)) {
+            match hovered {
+              Some(id) => set_selected_ids_and_emit([id])
+              None => set_selected_ids_and_emit([])
+            }
+            return
+          }
+          let start_transforms = selected_drag_start_transforms(scene, drag_ids)
+          let start_transform = start_transforms
+            .get(selected)
+            .unwrap_or(entity_transform2d(scene.entity_ids[selected]))
           let pivot_world = selected_pivot_world().unwrap_or(
             @math.Vec2(
               start_transform.translation.x,
@@ -1815,11 +1932,12 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
           )
           preview_state.tool_drag = Some({
             entity_id: selected,
+            entity_ids: drag_ids,
             tool: @shared.preview_tool_rotate(),
             anchor_world: world_point,
             anchor_pointer: @inputs.mouse.pos,
             pivot_world,
-            start_transform,
+            start_transforms,
           })
           emit_preview_event(
             @bridge.preview_event_transform_gesture_started(selected),
@@ -1832,10 +1950,20 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
         }
       @shared.Scale =>
         if preview_state.selected_entity_id is Some(selected) &&
-          hovered == Some(selected) &&
           preview_state.runtime_scene is Some(scene) &&
           scene.entity_ids.contains(selected) {
-          let start_transform = entity_transform2d(scene.entity_ids[selected])
+          let drag_ids = selected_entity_ids_for_drag(scene, selected)
+          if !(hovered is Some(hovered_id) && drag_ids.contains(hovered_id)) {
+            match hovered {
+              Some(id) => set_selected_ids_and_emit([id])
+              None => set_selected_ids_and_emit([])
+            }
+            return
+          }
+          let start_transforms = selected_drag_start_transforms(scene, drag_ids)
+          let start_transform = start_transforms
+            .get(selected)
+            .unwrap_or(entity_transform2d(scene.entity_ids[selected]))
           let pivot_world = selected_pivot_world().unwrap_or(
             @math.Vec2(
               start_transform.translation.x,
@@ -1844,11 +1972,12 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
           )
           preview_state.tool_drag = Some({
             entity_id: selected,
+            entity_ids: drag_ids,
             tool: @shared.preview_tool_scale(),
             anchor_world: world_point,
             anchor_pointer: @inputs.mouse.pos,
             pivot_world,
-            start_transform,
+            start_transforms,
           })
           emit_preview_event(
             @bridge.preview_event_transform_gesture_started(selected),
@@ -1886,80 +2015,96 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
   }
   if @inputs.mouse.left_button &&
     preview_state.tool_drag is Some(drag_state) &&
-    preview_state.runtime_scene is Some(scene) &&
-    scene.entity_ids.contains(drag_state.entity_id) {
+    preview_state.runtime_scene is Some(_scene) {
     if !pointer_drag_started(drag_state.anchor_pointer) {
       return
     }
-    let start = drag_state.start_transform
-    let next_transform = match drag_state.tool {
-      @shared.Translate => {
-        let target_world = move_target_world_point(world_point)
-        let anchor_world = move_target_world_point(drag_state.anchor_world)
-        let delta = target_world - anchor_world
-        @editor_bridge.transform2d_value(
-          translation=@editor_bridge.vec2_doc(
-            start.translation.x + delta[X],
-            start.translation.y + delta[Y],
-          ),
-          rotation=start.rotation,
-          scale=start.scale,
-        )
-      }
-      @shared.Rotate => {
-        let start_angle = point_angle(
-          drag_state.pivot_world,
-          drag_state.anchor_world,
-        )
-        let current_angle = point_angle(drag_state.pivot_world, world_point)
-        let rotation_delta = shortest_angle_delta(start_angle, current_angle)
-        let snapped_delta = if @inputs.is_pressed(@inputs.ShiftLeft) {
-          let step = @cmath.PI / 12.0
-          (rotation_delta / step).round() * step
-        } else {
-          rotation_delta
-        }
-        @editor_bridge.transform2d_value(
-          translation=start.translation,
-          rotation=start.rotation + snapped_delta,
-          scale=start.scale,
-        )
-      }
-      @shared.Scale => {
-        let start_distance = distance_between(
-          drag_state.pivot_world,
-          drag_state.anchor_world,
-        )
-        let current_distance = distance_between(
-          drag_state.pivot_world,
-          world_point,
-        )
-        let factor = if start_distance <= 0.001 {
-          1.0 + (@inputs.mouse.pos[X] - drag_state.anchor_pointer[X]) * 0.01
-        } else {
-          current_distance / start_distance
-        }
-        let clamped_factor = if factor < 0.05 { 0.05 } else { factor }
-        @editor_bridge.transform2d_value(
-          translation=start.translation,
-          rotation=start.rotation,
-          scale=@editor_bridge.vec2_doc(
-            clamp_scale_value(start.scale.x * clamped_factor),
-            clamp_scale_value(start.scale.y * clamped_factor),
-          ),
-        )
-      }
-      _ => start
-    }
-    apply_runtime_transform(drag_state.entity_id, next_transform)
-    emit_preview_event(
-      @bridge.preview_event_transform_changed(
-        drag_state.entity_id,
-        next_transform.translation,
-        next_transform.rotation,
-        next_transform.scale,
-      ),
+    let start_angle = point_angle(
+      drag_state.pivot_world,
+      drag_state.anchor_world,
     )
+    let current_angle = point_angle(drag_state.pivot_world, world_point)
+    let rotation_delta = shortest_angle_delta(start_angle, current_angle)
+    let snapped_rotation_delta = if @inputs.is_pressed(@inputs.ShiftLeft) {
+      let step = @cmath.PI / 12.0
+      (rotation_delta / step).round() * step
+    } else {
+      rotation_delta
+    }
+    let cos_delta = @cmath.cos(snapped_rotation_delta)
+    let sin_delta = @cmath.sin(snapped_rotation_delta)
+    let start_distance = distance_between(
+      drag_state.pivot_world,
+      drag_state.anchor_world,
+    )
+    let current_distance = distance_between(drag_state.pivot_world, world_point)
+    let scale_factor = if start_distance <= 0.001 {
+      1.0 + (@inputs.mouse.pos[X] - drag_state.anchor_pointer[X]) * 0.01
+    } else {
+      current_distance / start_distance
+    }
+    let clamped_scale_factor = if scale_factor < 0.05 {
+      0.05
+    } else {
+      scale_factor
+    }
+    let target_world = move_target_world_point(world_point)
+    let anchor_world = move_target_world_point(drag_state.anchor_world)
+    let translate_delta = target_world - anchor_world
+    for id in drag_state.entity_ids {
+      guard drag_state.start_transforms.contains(id) else { continue }
+      let start = drag_state.start_transforms[id]
+      let next_transform = match drag_state.tool {
+        @shared.Translate =>
+          @editor_bridge.transform2d_value(
+            translation=@editor_bridge.vec2_doc(
+              start.translation.x + translate_delta[X],
+              start.translation.y + translate_delta[Y],
+            ),
+            rotation=start.rotation,
+            scale=start.scale,
+          )
+        @shared.Rotate => {
+          let offset_x = start.translation.x - drag_state.pivot_world[X]
+          let offset_y = start.translation.y - drag_state.pivot_world[Y]
+          let rotated_x = offset_x * cos_delta - offset_y * sin_delta
+          let rotated_y = offset_x * sin_delta + offset_y * cos_delta
+          @editor_bridge.transform2d_value(
+            translation=@editor_bridge.vec2_doc(
+              drag_state.pivot_world[X] + rotated_x,
+              drag_state.pivot_world[Y] + rotated_y,
+            ),
+            rotation=start.rotation + snapped_rotation_delta,
+            scale=start.scale,
+          )
+        }
+        @shared.Scale => {
+          let offset_x = start.translation.x - drag_state.pivot_world[X]
+          let offset_y = start.translation.y - drag_state.pivot_world[Y]
+          @editor_bridge.transform2d_value(
+            translation=@editor_bridge.vec2_doc(
+              drag_state.pivot_world[X] + offset_x * clamped_scale_factor,
+              drag_state.pivot_world[Y] + offset_y * clamped_scale_factor,
+            ),
+            rotation=start.rotation,
+            scale=@editor_bridge.vec2_doc(
+              clamp_scale_value(start.scale.x * clamped_scale_factor),
+              clamp_scale_value(start.scale.y * clamped_scale_factor),
+            ),
+          )
+        }
+        _ => start
+      }
+      apply_runtime_transform(id, next_transform)
+      emit_preview_event(
+        @bridge.preview_event_transform_changed(
+          id,
+          next_transform.translation,
+          next_transform.rotation,
+          next_transform.scale,
+        ),
+      )
+    }
   }
 }
 

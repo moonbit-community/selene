@@ -1564,6 +1564,81 @@ test "preview transform gesture records a single undo entry" {
 }
 
 ///|
+test "preview transform gesture keeps multi-selection and updates all selected entities" {
+  let scene = @editor_bridge.SceneDocument::default_main().with_entity(
+    @editor_bridge.entity_document("entity-b", "B", components=[
+      @editor_bridge.name_component("B"),
+      @editor_bridge.transform2d_component(
+        translation=@editor_bridge.vec2_doc(30.0, 5.0),
+      ),
+      @editor_bridge.visibility_component(),
+    ]),
+  )
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(@editor_bridge.ProjectManifest::default("demo")),
+    scene: Some(scene),
+    selected_entity_id: Some("camera"),
+    selected_entity_ids: ["camera", "entity-b"],
+  }
+  let (_, started) = update(
+    msg_preview_event(@bridge.preview_event_transform_gesture_started("camera")),
+    model,
+  )
+  inspect(started.selected_entity_id, content="Some(\"camera\")")
+  inspect(started.selected_entity_ids.length(), content="2")
+  inspect(started.selected_entity_ids[0], content="camera")
+  inspect(started.selected_entity_ids[1], content="entity-b")
+
+  let (_, camera_moved) = update(
+    msg_preview_event(
+      @bridge.preview_event_transform_changed(
+        "camera",
+        @editor_bridge.vec2_doc(10.0, 0.0),
+        0.0,
+        @editor_bridge.vec2_doc(1.0, 1.0),
+      ),
+    ),
+    started,
+  )
+  let (_, both_moved) = update(
+    msg_preview_event(
+      @bridge.preview_event_transform_changed(
+        "entity-b",
+        @editor_bridge.vec2_doc(40.0, 5.0),
+        0.0,
+        @editor_bridge.vec2_doc(1.0, 1.0),
+      ),
+    ),
+    camera_moved,
+  )
+  inspect(both_moved.selected_entity_ids.length(), content="2")
+  inspect(both_moved.selected_entity_ids[0], content="camera")
+  inspect(both_moved.selected_entity_ids[1], content="entity-b")
+  let camera = both_moved.scene.unwrap().entity("camera").unwrap()
+  let entity_b = both_moved.scene.unwrap().entity("entity-b").unwrap()
+  let camera_transform : @editor_bridge.Transform2dComponent = component_of(
+    camera, "Transform2d",
+  ).unwrap()
+  let entity_b_transform : @editor_bridge.Transform2dComponent = component_of(
+    entity_b, "Transform2d",
+  ).unwrap()
+  inspect(camera_transform.translation.x, content="10")
+  inspect(entity_b_transform.translation.x, content="40")
+
+  let (_, finished) = update(
+    msg_preview_event(
+      @bridge.preview_event_transform_gesture_finished("camera"),
+    ),
+    both_moved,
+  )
+  inspect(finished.selected_entity_id, content="Some(\"camera\")")
+  inspect(finished.selected_entity_ids.length(), content="2")
+  inspect(finished.undo_stack.length(), content="1")
+}
+
+///|
 test "setting drag-canvas tool updates editor state and emits preview sync effects" {
   let model = {
     ..new_model(),
@@ -2041,6 +2116,9 @@ test "invalid autotile rule set does not silently fallback" {
   let layer : @editor_bridge.AutoTileLayer2dComponent = component_of(
     entity, "AutoTileLayer2d",
   ).unwrap()
-  inspect(layer.rule_set == @editor_bridge.autotile_rule_set_bitmask4(), content="true")
+  inspect(
+    layer.rule_set == @editor_bridge.autotile_rule_set_bitmask4(),
+    content="true",
+  )
   inspect(next.status.contains("AutoTile rule set must be"), content="true")
 }
