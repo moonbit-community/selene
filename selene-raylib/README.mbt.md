@@ -29,7 +29,3 @@ options(
 ```bash
 moon run --target native
 ```
-
-## Optional Asset Embedding
-
-For embedded native assets, use `Milky2018/selene_tools/cmd/selene-embed-assets` in your package `pre-build` pipeline.

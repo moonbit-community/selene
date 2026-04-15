@@ -38,6 +38,8 @@
 
 ### Removed
 
+- Removed the `selene-tools` module and its `selene-embed-assets` CLI flow from the workspace, release pipeline, and current documentation.
+
 ## [0.32.2] - 2026-04-14
 
 ### Added

@@ -21,7 +21,6 @@ INTERNAL_MODULES = {
     "Milky2018/selene",
     "Milky2018/selene_webgpu",
     "Milky2018/selene_raylib",
-    "Milky2018/selene_tools",
     "Milky2018/selene_editor_shared",
     "Milky2018/selene_editor_frontend",
     "Milky2018/selene_editor_service",
@@ -38,7 +37,6 @@ RELEASE_MODULES = [
     ModuleConfig("selene-core", ROOT_DIR / "selene-core"),
     ModuleConfig("selene-webgpu", ROOT_DIR / "selene-webgpu"),
     ModuleConfig("selene-raylib", ROOT_DIR / "selene-raylib"),
-    ModuleConfig("selene-tools", ROOT_DIR / "selene-tools"),
     ModuleConfig("selene-editor-shared", ROOT_DIR / "selene-editor-shared"),
     ModuleConfig("selene-editor-frontend", ROOT_DIR / "selene-editor-frontend"),
     ModuleConfig("selene-editor-service", ROOT_DIR / "selene-editor-service"),
@@ -48,7 +46,6 @@ PUBLISH_ORDER = [
     "selene-core",
     "selene-webgpu",
     "selene-raylib",
-    "selene-tools",
     "selene-editor-shared",
     "selene-editor-frontend",
     "selene-editor-service",
@@ -161,8 +158,6 @@ def module_info_entries(module: ModuleConfig) -> list[tuple[str, str]]:
         return [(str(module.path / "src"), "js")]
     if module.name == "selene-raylib":
         return [(str(module.path / "src"), "native")]
-    if module.name == "selene-tools":
-        return [(str(module.path), "native")]
     if module.name == "selene-editor-shared":
         return [
             (str(module.path / "shared"), "js"),
@@ -218,8 +213,6 @@ def run_module_quality_checks(module: ModuleConfig):
     elif module.name == "selene-webgpu":
         check_targets = ["js"]
     elif module.name == "selene-raylib":
-        check_targets = ["native"]
-    elif module.name == "selene-tools":
         check_targets = ["native"]
     elif module.name == "selene-editor-shared":
         check_targets = ["js", "native"]
