@@ -32,6 +32,20 @@ fn test_session(model : Model) -> SceneSession {
 }
 
 ///|
+test "view state mapping keeps ui-visible fields stable" {
+  let model = {
+    ..new_model(),
+    status: "Ready",
+    move_snap_enabled: true,
+    move_snap_step: 8.0,
+  }
+  let view = view_state(model)
+  inspect(view.status, content="Ready")
+  inspect(view.move_snap_enabled, content="true")
+  inspect(view.move_snap_step, content="8")
+}
+
+///|
 test "initialize subscribes to service and preview channels" {
   let (effects, _) = update(msg_initialize(), new_model())
   inspect(effects.length(), content="4")

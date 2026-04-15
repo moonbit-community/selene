@@ -1,14 +1,8 @@
 ///|
 fn path_join(base : String, child : String) -> String {
-  if child.has_prefix("/") {
-    child
-  } else if base == "" {
-    child
-  } else if base.has_suffix("/") {
-    base + child
-  } else {
-    base + "/" + child
-  }
+  let lhs : @path.Path = base
+  let rhs : @path.Path = child
+  @path.Path::join(lhs, rhs).to_string()
 }
 
 ///|
@@ -61,8 +55,12 @@ fn percent_decode_path(path : String) -> String raise {
 
 ///|
 fn normalize_relative_path(path : String) -> String raise {
+  let decoded : @path.Path = percent_decode_path(path).replace(
+    old="\\",
+    new="/",
+  )
   let normalized = strip_leading_slash(
-    percent_decode_path(path).replace(old="\\", new="/"),
+    @path.Path::normalize(decoded).to_string(),
   )
   if normalized.contains("..") {
     raise InvalidEditorPath(path)
@@ -72,21 +70,19 @@ fn normalize_relative_path(path : String) -> String raise {
 
 ///|
 fn extension_of(path : String) -> String? {
-  if path.rev_find(".") is Some(index) {
-    Some(path[index + 1:].to_string().to_lower())
-  } else {
+  let ext = @path.Path::extname(path).to_string().to_lower()
+  if ext == "" {
     None
+  } else if ext.has_prefix(".") {
+    Some(ext[1:].to_string())
+  } else {
+    Some(ext)
   }
 }
 
 ///|
 fn basename_of(path : String) -> String {
-  let normalized = path.replace(old="\\", new="/")
-  if normalized.rev_find("/") is Some(index) {
-    normalized[index + 1:].to_string()
-  } else {
-    normalized
-  }
+  @path.Path::basename(path).to_string()
 }
 
 ///|

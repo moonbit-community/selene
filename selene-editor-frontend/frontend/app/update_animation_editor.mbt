@@ -29,12 +29,6 @@ fn update_animation_editor(
       })
       (sync_preview_effects_with_scene(next), next)
     }
-    UpdateSelectedAnimationClipName(value) => {
-      let next = update_selected_animation_clip_document(model, fn(animation) {
-        animation.with_name(value)
-      })
-      (sync_preview_effects_with_scene(next), next)
-    }
     UpdateSelectedAnimationClipFps(value) => {
       let next = update_selected_animation_clip_document(model, fn(animation) {
         animation.with_fps(parse_positive_double_or(animation.fps, value))

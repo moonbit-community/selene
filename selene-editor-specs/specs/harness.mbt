@@ -1058,7 +1058,12 @@ pub async fn EditorHarness::when_sprite_asset_is_added(
   self : EditorHarness,
   asset_path : String,
 ) -> Unit {
-  self.dispatch(@app.msg_add_sprite_from_asset(asset_path))
+  self.dispatch(
+    @app.msg_add_sprite_from_asset_at(
+      asset_path,
+      @editor_bridge.vec2_doc(0.0, 0.0),
+    ),
+  )
 }
 
 ///|

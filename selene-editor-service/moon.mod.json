@@ -3,14 +3,15 @@
   "version": "0.32.2",
   "deps": {
     "Milky2018/selene": {
-      "version": "0.32.2",
-      "path": "../selene-core"
+      "path": "../selene-core",
+      "version": "0.32.2"
     },
     "Milky2018/selene_editor_shared": {
-      "version": "0.32.2",
-      "path": "../selene-editor-shared"
+      "path": "../selene-editor-shared",
+      "version": "0.32.2"
     },
-    "moonbitlang/async": "0.16.8"
+    "moonbitlang/async": "0.16.8",
+    "moonbitlang/x": "0.4.43"
   },
   "readme": "README.md",
   "repository": "https://github.com/moonbit-community/selene.git",

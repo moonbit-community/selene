@@ -18,11 +18,19 @@
 - Changed editor state flow to a scene-session-first model (`scene_session` with `dirty/base_hash/base_revision/conflict_state/undo/redo`), so non-scene UI actions no longer overwrite in-memory unsaved scene edits.
 - Changed typed protocol and service RPC handling for scene CAS save: `SceneSave(path, scene, base_hash, base_revision)` now returns either `SceneSaved(save)` or `Conflict(conflict)` with structured revision/hash metadata.
 - Changed watcher/event pipeline from broad file-change reload semantics to typed project deltas (`WorkspaceChanged`, `SceneFileChanged`, `AssetFileChanged`, `ManifestChanged`) and removed `FilesChanged -> project_current` auto-refresh coupling.
+- Changed `selene-editor-frontend` app helpers from a single monolithic file into domain-focused modules (`scene_session_ops`, `resource_tree_ops`, `component_ops`, `animation_graph_ops`, `parse_ops`), reducing cross-domain coupling and duplicate utility logic.
+- Changed frontend view/update boundaries to route UI consumption through `@app.ViewState` mapping and consolidated RPC target decoding into a single typed dispatcher (`rpc_msg_from_response`) instead of per-target decode glue functions.
+- Changed frontend message constructor layout by splitting the former monolithic `messages.mbt` into domain modules (`messages_project_runtime`, `messages_scene_lifecycle`, `messages_selection_tools`, `messages_assets_resources`, `messages_inspector_components`, `messages_animation_editor`) for clearer ownership and lower merge conflict risk.
+- Changed `selene-editor-service` core storage layout by splitting `files.mbt` into repository-oriented modules (`io_support`, `project_repo`, `scene_repo`, `asset_repo`) and introducing shared `list_document_refs` utilities for repeated list/sort document patterns.
+- Changed editor-service path utilities to use `moonbitlang/x/path` for join/basename/extname operations while retaining explicit editor path safety checks (`normalize_relative_path` guard).
+- Changed `selene-editor-service` HTTP layer from a single `http.mbt` file to focused modules (`http_common`, `http_open_project`, `http_rpc_dispatch`, `http_routes`, `http_watch_loop`) while preserving `/rpc`, `/events`, static routes, and watcher behavior.
+- Changed frontend app domain routing layout by extracting second-level domain ADT definitions into `domain_msg_types.mbt`, so `update_domain_msg.mbt` now focuses on message-to-domain routing only.
 
 ### Fixed
 
 - Fixed snap/tool/workspace interactions that previously rolled back unsaved scene edits by ensuring workspace deltas do not trigger scene reloads and dirty scene file changes enter explicit conflict state instead of silent overwrite.
 - Fixed editor frontend/service/spec round-trip handling for new scene save semantics (`SceneSaveOutcome`, `Conflict`) and scene disk metadata propagation (`disk_hash`, `disk_revision`) through load/save/test harness paths.
+- Fixed stale/unused editor message branches by removing dead `Msg` variants and reducer branches that had no UI producer (`SetProjectRootInput`, `SetProjectNameInput`, `PickProjectRoot`, `UpdateSelectedAnimationClipName`, `ReloadScene`, `AddSpriteFromAsset`), eliminating warning-prone dead paths.
 
 ### Removed
 

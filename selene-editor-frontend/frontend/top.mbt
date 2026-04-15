@@ -16,108 +16,7 @@ extern "js" fn console_error(message : String) =
   #| (message) => console.error(message)
 
 ///|
-fn project_root_picked_of_response(
-  response : @shared.RpcResponse,
-) -> Result[@shared.DirectoryPickResult, String] {
-  match response {
-    @shared.DirectoryPicked(result~) => Ok(result)
-    @shared.Error(error~) => Err(error.message)
-    _ => Err("Unexpected RPC response for project root picker")
-  }
-}
-
-///|
-fn project_loaded_of_response(
-  response : @shared.RpcResponse,
-) -> Result[@shared.ProjectStateResponse, String] {
-  match response {
-    @shared.ProjectState(state~) => Ok(state)
-    @shared.Error(error~) => Err(error.message)
-    _ => Err("Unexpected RPC response for project state")
-  }
-}
-
-///|
-fn scene_loaded_of_response(
-  response : @shared.RpcResponse,
-) -> Result[@shared.SceneLoadOutcome, String] {
-  match response {
-    @shared.SceneLoaded(scene~) => Ok(@shared.scene_load_outcome_loaded(scene))
-    @shared.SceneMigrationRequired(preview~) =>
-      Ok(@shared.scene_load_outcome_migration_required(preview))
-    @shared.Error(error~) => Err(error.message)
-    _ => Err("Unexpected RPC response for scene")
-  }
-}
-
-///|
-fn scene_list_of_response(
-  response : @shared.RpcResponse,
-) -> Result[@shared.SceneListResponse, String] {
-  match response {
-    @shared.SceneListed(list~) => Ok(list)
-    @shared.Error(error~) => Err(error.message)
-    _ => Err("Unexpected RPC response for scene list")
-  }
-}
-
-///|
-fn assets_list_of_response(
-  response : @shared.RpcResponse,
-) -> Result[@shared.AssetsListResponse, String] {
-  match response {
-    @shared.AssetsListed(list~) => Ok(list)
-    @shared.Error(error~) => Err(error.message)
-    _ => Err("Unexpected RPC response for assets")
-  }
-}
-
-///|
-fn prefab_loaded_of_response(
-  response : @shared.RpcResponse,
-) -> Result[@shared.PrefabLoadResponse, String] {
-  match response {
-    @shared.PrefabLoaded(prefab~) => Ok(prefab)
-    @shared.Error(error~) => Err(error.message)
-    _ => Err("Unexpected RPC response for prefab")
-  }
-}
-
-///|
-fn atlas_loaded_of_response(
-  response : @shared.RpcResponse,
-) -> Result[@shared.AtlasLoadResponse, String] {
-  match response {
-    @shared.AtlasLoaded(atlas~) => Ok(atlas)
-    @shared.Error(error~) => Err(error.message)
-    _ => Err("Unexpected RPC response for atlas")
-  }
-}
-
-///|
-fn animation_clip_loaded_of_response(
-  response : @shared.RpcResponse,
-) -> Result[@shared.AnimationClipLoadResponse, String] {
-  match response {
-    @shared.AnimationClipLoaded(clip~) => Ok(clip)
-    @shared.Error(error~) => Err(error.message)
-    _ => Err("Unexpected RPC response for animation clip")
-  }
-}
-
-///|
-fn animation_graph_loaded_of_response(
-  response : @shared.RpcResponse,
-) -> Result[@shared.AnimationGraphLoadResponse, String] {
-  match response {
-    @shared.AnimationGraphLoaded(graph~) => Ok(graph)
-    @shared.Error(error~) => Err(error.message)
-    _ => Err("Unexpected RPC response for animation graph")
-  }
-}
-
-///|
-fn current_scene_path(model : @app.Model) -> String {
+fn current_scene_path(model : @app.ViewState) -> String {
   match model.scene_session {
     Some(session) => session.path
     None =>
@@ -130,29 +29,153 @@ fn current_scene_path(model : @app.Model) -> String {
 }
 
 ///|
-fn current_scene(model : @app.Model) -> @editor_bridge.SceneDocument? {
+fn current_scene(model : @app.ViewState) -> @editor_bridge.SceneDocument? {
   model.scene_session.map(fn(session) { session.scene })
 }
 
 ///|
-fn save_ack_of_response(response : @shared.RpcResponse) -> Result[Unit, String] {
-  match response {
-    @shared.SavedOk | @shared.StartupSceneUpdated(_) => Ok(())
-    @shared.Error(error~) => Err(error.message)
-    _ => Err("Unexpected RPC response for save")
+fn rpc_scope(target : @app.RpcTarget) -> String {
+  match target {
+    @app.ProjectLoaded => "project.open"
+    @app.ProjectRootPicked => "project.pick_directory"
+    @app.SceneLoaded => "scene.load"
+    @app.SceneListLoaded => "scene.list"
+    @app.AssetsLoaded => "assets.list"
+    @app.PrefabLoaded => "prefab.load"
+    @app.AtlasLoaded => "atlas.load"
+    @app.AnimationClipLoaded => "animation.clip.load"
+    @app.AnimationGraphLoaded => "animation.graph.load"
+    @app.SceneSaved => "scene.save"
+    @app.AnimationMigrationSaved => "animation.migrate"
+    @app.WorkspaceSaved => "project.save_workspace"
   }
 }
 
 ///|
-fn scene_save_of_response(
+fn rpc_transport_error_msg(
+  target : @app.RpcTarget,
+  message : String,
+) -> @app.Msg {
+  match target {
+    @app.ProjectLoaded => @app.msg_project_loaded(Err(message))
+    @app.ProjectRootPicked => @app.msg_project_root_picked(Err(message))
+    @app.SceneLoaded => @app.msg_scene_loaded(Err(message))
+    @app.SceneListLoaded => @app.msg_scene_list_loaded(Err(message))
+    @app.AssetsLoaded => @app.msg_assets_loaded(Err(message))
+    @app.PrefabLoaded => @app.msg_prefab_loaded(Err(message))
+    @app.AtlasLoaded => @app.msg_atlas_loaded(Err(message))
+    @app.AnimationClipLoaded => @app.msg_animation_clip_loaded(Err(message))
+    @app.AnimationGraphLoaded => @app.msg_animation_graph_loaded(Err(message))
+    @app.SceneSaved => @app.msg_scene_saved(Err(message))
+    @app.AnimationMigrationSaved =>
+      @app.msg_animation_migration_saved(Err(message))
+    @app.WorkspaceSaved => @app.msg_workspace_saved(Err(message))
+  }
+}
+
+///|
+fn rpc_msg_from_response(
+  target : @app.RpcTarget,
   response : @shared.RpcResponse,
-) -> Result[@app.SceneSaveOutcome, String] {
-  match response {
-    @shared.SceneSaved(save~) => Ok(@app.scene_save_outcome_saved(save))
-    @shared.Conflict(conflict~) =>
-      Ok(@app.scene_save_outcome_conflict(conflict))
-    @shared.Error(error~) => Err(error.message)
-    _ => Err("Unexpected RPC response for scene save")
+) -> Result[@app.Msg, String] {
+  match target {
+    @app.ProjectRootPicked =>
+      match response {
+        @shared.DirectoryPicked(result~) =>
+          Ok(@app.msg_project_root_picked(Ok(result)))
+        @shared.Error(error~) =>
+          Ok(@app.msg_project_root_picked(Err(error.message)))
+        _ => Err("Unexpected RPC response for project root picker")
+      }
+    @app.ProjectLoaded =>
+      match response {
+        @shared.ProjectState(state~) => Ok(@app.msg_project_loaded(Ok(state)))
+        @shared.Error(error~) => Ok(@app.msg_project_loaded(Err(error.message)))
+        _ => Err("Unexpected RPC response for project state")
+      }
+    @app.SceneLoaded =>
+      match response {
+        @shared.SceneLoaded(scene~) =>
+          Ok(
+            @app.msg_scene_loaded(Ok(@shared.scene_load_outcome_loaded(scene))),
+          )
+        @shared.SceneMigrationRequired(preview~) =>
+          Ok(
+            @app.msg_scene_loaded(
+              Ok(@shared.scene_load_outcome_migration_required(preview)),
+            ),
+          )
+        @shared.Error(error~) => Ok(@app.msg_scene_loaded(Err(error.message)))
+        _ => Err("Unexpected RPC response for scene")
+      }
+    @app.SceneListLoaded =>
+      match response {
+        @shared.SceneListed(list~) => Ok(@app.msg_scene_list_loaded(Ok(list)))
+        @shared.Error(error~) =>
+          Ok(@app.msg_scene_list_loaded(Err(error.message)))
+        _ => Err("Unexpected RPC response for scene list")
+      }
+    @app.AssetsLoaded =>
+      match response {
+        @shared.AssetsListed(list~) => Ok(@app.msg_assets_loaded(Ok(list)))
+        @shared.Error(error~) => Ok(@app.msg_assets_loaded(Err(error.message)))
+        _ => Err("Unexpected RPC response for assets")
+      }
+    @app.PrefabLoaded =>
+      match response {
+        @shared.PrefabLoaded(prefab~) => Ok(@app.msg_prefab_loaded(Ok(prefab)))
+        @shared.Error(error~) => Ok(@app.msg_prefab_loaded(Err(error.message)))
+        _ => Err("Unexpected RPC response for prefab")
+      }
+    @app.AtlasLoaded =>
+      match response {
+        @shared.AtlasLoaded(atlas~) => Ok(@app.msg_atlas_loaded(Ok(atlas)))
+        @shared.Error(error~) => Ok(@app.msg_atlas_loaded(Err(error.message)))
+        _ => Err("Unexpected RPC response for atlas")
+      }
+    @app.AnimationClipLoaded =>
+      match response {
+        @shared.AnimationClipLoaded(clip~) =>
+          Ok(@app.msg_animation_clip_loaded(Ok(clip)))
+        @shared.Error(error~) =>
+          Ok(@app.msg_animation_clip_loaded(Err(error.message)))
+        _ => Err("Unexpected RPC response for animation clip")
+      }
+    @app.AnimationGraphLoaded =>
+      match response {
+        @shared.AnimationGraphLoaded(graph~) =>
+          Ok(@app.msg_animation_graph_loaded(Ok(graph)))
+        @shared.Error(error~) =>
+          Ok(@app.msg_animation_graph_loaded(Err(error.message)))
+        _ => Err("Unexpected RPC response for animation graph")
+      }
+    @app.SceneSaved =>
+      match response {
+        @shared.SceneSaved(save~) =>
+          Ok(@app.msg_scene_saved(Ok(@app.scene_save_outcome_saved(save))))
+        @shared.Conflict(conflict~) =>
+          Ok(
+            @app.msg_scene_saved(Ok(@app.scene_save_outcome_conflict(conflict))),
+          )
+        @shared.Error(error~) => Ok(@app.msg_scene_saved(Err(error.message)))
+        _ => Err("Unexpected RPC response for scene save")
+      }
+    @app.AnimationMigrationSaved =>
+      match response {
+        @shared.SavedOk | @shared.StartupSceneUpdated(_) =>
+          Ok(@app.msg_animation_migration_saved(Ok(())))
+        @shared.Error(error~) =>
+          Ok(@app.msg_animation_migration_saved(Err(error.message)))
+        _ => Err("Unexpected RPC response for save")
+      }
+    @app.WorkspaceSaved =>
+      match response {
+        @shared.SavedOk | @shared.StartupSceneUpdated(_) =>
+          Ok(@app.msg_workspace_saved(Ok(())))
+        @shared.Error(error~) =>
+          Ok(@app.msg_workspace_saved(Err(error.message)))
+        _ => Err("Unexpected RPC response for save")
+      }
   }
 }
 
@@ -829,68 +852,15 @@ fn rpc_effect_cmd(
   target : @app.RpcTarget,
   request : @shared.RpcRequestEnvelope,
 ) -> @rabbita.Cmd {
-  match target {
-    @app.ProjectRootPicked =>
-      rpc_cmd(request, project_root_picked_of_response, fn(result) {
-        log_rpc_result_error("project.pick_directory", result)
-        dispatch(@app.msg_project_root_picked(result))
-      })
-    @app.ProjectLoaded =>
-      rpc_cmd(request, project_loaded_of_response, fn(result) {
-        log_rpc_result_error("project.open", result)
-        dispatch(@app.msg_project_loaded(result))
-      })
-    @app.SceneLoaded =>
-      rpc_cmd(request, scene_loaded_of_response, fn(result) {
-        log_rpc_result_error("scene.load", result)
-        dispatch(@app.msg_scene_loaded(result))
-      })
-    @app.SceneListLoaded =>
-      rpc_cmd(request, scene_list_of_response, fn(result) {
-        log_rpc_result_error("scene.list", result)
-        dispatch(@app.msg_scene_list_loaded(result))
-      })
-    @app.AssetsLoaded =>
-      rpc_cmd(request, assets_list_of_response, fn(result) {
-        log_rpc_result_error("assets.list", result)
-        dispatch(@app.msg_assets_loaded(result))
-      })
-    @app.PrefabLoaded =>
-      rpc_cmd(request, prefab_loaded_of_response, fn(result) {
-        log_rpc_result_error("prefab.load", result)
-        dispatch(@app.msg_prefab_loaded(result))
-      })
-    @app.AtlasLoaded =>
-      rpc_cmd(request, atlas_loaded_of_response, fn(result) {
-        log_rpc_result_error("atlas.load", result)
-        dispatch(@app.msg_atlas_loaded(result))
-      })
-    @app.AnimationClipLoaded =>
-      rpc_cmd(request, animation_clip_loaded_of_response, fn(result) {
-        log_rpc_result_error("animation.clip.load", result)
-        dispatch(@app.msg_animation_clip_loaded(result))
-      })
-    @app.AnimationGraphLoaded =>
-      rpc_cmd(request, animation_graph_loaded_of_response, fn(result) {
-        log_rpc_result_error("animation.graph.load", result)
-        dispatch(@app.msg_animation_graph_loaded(result))
-      })
-    @app.SceneSaved =>
-      rpc_cmd(request, scene_save_of_response, fn(result) {
-        log_rpc_result_error("scene.save", result)
-        dispatch(@app.msg_scene_saved(result))
-      })
-    @app.AnimationMigrationSaved =>
-      rpc_cmd(request, save_ack_of_response, fn(result) {
-        log_rpc_result_error("animation.migrate", result)
-        dispatch(@app.msg_animation_migration_saved(result))
-      })
-    @app.WorkspaceSaved =>
-      rpc_cmd(request, save_ack_of_response, fn(result) {
-        log_rpc_result_error("project.save_workspace", result)
-        dispatch(@app.msg_workspace_saved(result))
-      })
-  }
+  rpc_cmd(request, fn(response) { rpc_msg_from_response(target, response) }, fn(
+    result,
+  ) {
+    log_rpc_result_error(rpc_scope(target), result)
+    match result {
+      Ok(msg) => dispatch(msg)
+      Err(message) => dispatch(rpc_transport_error_msg(target, message))
+    }
+  })
 }
 
 ///|
@@ -1156,7 +1126,7 @@ fn folder_chain_key(
 
 ///|
 fn folder_ancestors_expanded(
-  model : @app.Model,
+  model : @app.ViewState,
   section_key : String,
   folders : Array[String],
   force_expand : Bool,
@@ -1312,7 +1282,7 @@ fn asset_tree_file_attrs(
 ///|
 fn build_asset_tree_rows(
   dispatch : @rabbita.Dispatch[@app.Msg],
-  model : @app.Model,
+  model : @app.ViewState,
   paths : Array[String],
   section_key : String,
   force_expand : Bool,
@@ -1432,7 +1402,7 @@ fn asset_section(
 ///|
 fn asset_panel_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
-  model : @app.Model,
+  model : @app.ViewState,
 ) -> @rabbita.Html {
   let has_asset_filter = model.asset_query_normalized() != ""
   let force_expand_tree = model.asset_query_normalized() != ""
@@ -1735,7 +1705,7 @@ fn asset_panel_view(
 ///|
 fn scene_browser_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
-  model : @app.Model,
+  model : @app.ViewState,
 ) -> @rabbita.Html {
   let items : Array[@rabbita.Html] = []
   let scene_path = current_scene_path(model)
@@ -2477,7 +2447,7 @@ fn animation_graph_node_card(
 ///|
 fn custom_component_body(
   dispatch : @rabbita.Dispatch[@app.Msg],
-  model : @app.Model,
+  model : @app.ViewState,
   entity : @editor_bridge.EntityDocument,
   component : @editor_bridge.ComponentDocument,
 ) -> @rabbita.Html {
@@ -2529,7 +2499,7 @@ fn autotile_rule_set_label(
 ///|
 fn autotile_component_body(
   dispatch : @rabbita.Dispatch[@app.Msg],
-  model : @app.Model,
+  model : @app.ViewState,
   layer : @editor_bridge.AutoTileLayer2dComponent,
 ) -> @rabbita.Html {
   let palette_draft = if model.autotile_palette_json_draft.trim() == "" {
@@ -2610,7 +2580,7 @@ fn autotile_component_body(
 ///|
 fn component_body_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
-  model : @app.Model,
+  model : @app.ViewState,
   entity : @editor_bridge.EntityDocument,
   component : @editor_bridge.ComponentDocument,
 ) -> @rabbita.Html {
@@ -2698,7 +2668,7 @@ fn component_body_view(
 ///|
 fn remove_component_menu_item(
   dispatch : @rabbita.Dispatch[@app.Msg],
-  model : @app.Model,
+  model : @app.ViewState,
   component : @editor_bridge.ComponentDocument,
 ) -> @rabbita.Html {
   let reason = model.selected_component_remove_block_reason(component.kind)
@@ -2725,7 +2695,7 @@ fn remove_component_menu_item(
 ///|
 fn component_card(
   dispatch : @rabbita.Dispatch[@app.Msg],
-  model : @app.Model,
+  model : @app.ViewState,
   entity : @editor_bridge.EntityDocument,
   component : @editor_bridge.ComponentDocument,
 ) -> @rabbita.Html {
@@ -2769,7 +2739,7 @@ fn component_card(
 ///|
 fn add_component_group(
   dispatch : @rabbita.Dispatch[@app.Msg],
-  model : @app.Model,
+  model : @app.ViewState,
   entity : @editor_bridge.EntityDocument,
   title : String,
   kinds : Array[@editor_bridge.BuiltinComponentKind],
@@ -2820,7 +2790,7 @@ fn add_component_group(
 }
 
 ///|
-fn matching_builtin_component_count(model : @app.Model) -> Int {
+fn matching_builtin_component_count(model : @app.ViewState) -> Int {
   let matched : Array[@editor_bridge.BuiltinComponentKind] = []
   for kind in @editor_bridge.builtin_component_kinds() {
     if model.builtin_component_matches_query(kind) {
@@ -2865,7 +2835,7 @@ fn custom_component_kind_input_attrs(
 ///|
 fn add_component_panel(
   dispatch : @rabbita.Dispatch[@app.Msg],
-  model : @app.Model,
+  model : @app.ViewState,
   entity : @editor_bridge.EntityDocument,
 ) -> @rabbita.Html {
   let matches_count = matching_builtin_component_count(model)
@@ -2965,7 +2935,7 @@ fn add_component_panel(
 ///|
 fn selected_asset_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
-  model : @app.Model,
+  model : @app.ViewState,
 ) -> @rabbita.Html {
   match model.selected_resource {
     Some(@app.Image(path)) =>
@@ -3392,7 +3362,7 @@ fn action_button(
 }
 
 ///|
-fn info_message(model : @app.Model) -> String {
+fn info_message(model : @app.ViewState) -> String {
   let move_snap = if model.move_snap_enabled {
     "on (" + model.move_snap_step.to_string() + ")"
   } else {
@@ -3411,7 +3381,7 @@ fn info_message(model : @app.Model) -> String {
 ///|
 fn entry_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
-  model : @app.Model,
+  model : @app.ViewState,
 ) -> @rabbita.Html {
   @html.div(class="editor-root entry-root", [
     @html.div(class="welcome", [
@@ -3482,7 +3452,7 @@ fn scene_migration_dialog_view(
 ///|
 fn animation_migration_dialog_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
-  model : @app.Model,
+  model : @app.ViewState,
 ) -> @rabbita.Html {
   let items = model.pending_animation_migration_paths.map(fn(path) {
     @html.li(class="migration-change-item", [
@@ -3563,7 +3533,7 @@ fn conflict_copy_path(path : String) -> String {
 ///|
 fn scene_conflict_bar_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
-  model : @app.Model,
+  model : @app.ViewState,
 ) -> @rabbita.Html {
   match model.scene_session {
     Some(session) =>
@@ -3596,7 +3566,9 @@ fn scene_conflict_bar_view(
                 class="small-button",
                 on_click=@cmd.raw_effect(fn(scheduler) {
                   let default_path = conflict_copy_path(path)
-                  let next_path = prompt_text("Save conflict copy as", default_path)
+                  let next_path = prompt_text(
+                    "Save conflict copy as", default_path,
+                  )
                   if next_path.trim() != "" {
                     schedule_cmd(
                       scheduler,
@@ -3615,7 +3587,7 @@ fn scene_conflict_bar_view(
           base_hash~,
           current_hash~,
           base_revision~,
-          current_revision~,
+          current_revision~
         ) =>
           @html.div(class="scene-conflict-bar", [
             @html.div(class="scene-conflict-copy", [
@@ -3643,7 +3615,9 @@ fn scene_conflict_bar_view(
                 class="small-button",
                 on_click=@cmd.raw_effect(fn(scheduler) {
                   let default_path = conflict_copy_path(path)
-                  let next_path = prompt_text("Save conflict copy as", default_path)
+                  let next_path = prompt_text(
+                    "Save conflict copy as", default_path,
+                  )
                   if next_path.trim() != "" {
                     schedule_cmd(
                       scheduler,
@@ -3667,6 +3641,7 @@ fn view(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.Model,
 ) -> @rabbita.Html {
+  let model = @app.view_state(model)
   if model.current_root is None {
     return entry_view(dispatch, model)
   }
@@ -3889,10 +3864,10 @@ fn view(
           ),
         ]),
       ]),
-      ]),
-      scene_conflict_bar_view(dispatch, model),
-      @html.div(class="content", [
-        @html.div(class="sidebar-column", [
+    ]),
+    scene_conflict_bar_view(dispatch, model),
+    @html.div(class="content", [
+      @html.div(class="sidebar-column", [
         @html.div(class="panel scene-browser-panel", [
           @html.h2("Scenes"),
           scene_browser_view(dispatch, model),

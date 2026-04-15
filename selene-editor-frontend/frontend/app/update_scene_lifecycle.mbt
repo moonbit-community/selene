@@ -127,8 +127,6 @@ fn update_scene_lifecycle(
           )
         None => ([], model)
       }
-    ReloadScene =>
-      (refresh_project_effects(model), { ..model, status: "Reloading..." })
     AddSpriteEntity =>
       match model_scene(model) {
         Some(scene) => {
@@ -144,23 +142,6 @@ fn update_scene_lifecycle(
             with_scene_document_updated(model, fn(_current_scene) {
               scene.with_entity(entity)
             }),
-            Some(id),
-          )
-          apply_scene_change(model, next)
-        }
-        None => ([], model)
-      }
-    AddSpriteFromAsset(path) =>
-      match model_scene(model) {
-        Some(scene) => {
-          let (next_scene, id) = add_sprite_asset_to_scene(
-            model.asset_size(path),
-            scene,
-            path,
-            next_resource_entity_translation(),
-          )
-          let next = with_single_entity_selection(
-            with_scene_document_updated(model, fn(_current_scene) { next_scene }),
             Some(id),
           )
           apply_scene_change(model, next)

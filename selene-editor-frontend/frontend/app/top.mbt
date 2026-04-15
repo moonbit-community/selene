@@ -157,11 +157,263 @@ pub struct Model {
 } derive(Eq)
 
 ///|
+pub struct ViewState {
+  current_root : String?
+  manifest : @editor_bridge.ProjectManifest?
+  scene_refs : Array[@editor_bridge.SceneRef]
+  prefab_refs : Array[@editor_bridge.PrefabRef]
+  atlas_refs : Array[@editor_bridge.AssetRef]
+  animation_clip_refs : Array[@editor_bridge.AssetRef]
+  animation_graph_refs : Array[@editor_bridge.AssetRef]
+  scene_session : SceneSession?
+  asset_query : String
+  failed_image_assets : Map[String, Bool]
+  prefab_documents : Map[String, @editor_bridge.PrefabDocument]
+  atlas_documents : Map[String, @editor_bridge.AtlasAssetDocument]
+  animation_clip_documents : Map[
+    String,
+    @editor_bridge.AnimationClipAssetDocument,
+  ]
+  animation_graph_documents : Map[
+    String,
+    @editor_bridge.AnimationGraphAssetDocument,
+  ]
+  selected_resource : ResourceSelection?
+  selected_entity_id : String?
+  selected_entity_ids : Array[String]
+  add_component_panel_open : Bool
+  component_search_query : String
+  add_custom_component_kind : String
+  pending_scene_migration : @editor_bridge.SceneMigrationPreview?
+  pending_animation_migration_paths : Array[String]
+  pending_animation_migration_scene_path : String?
+  animation_migration_in_progress : Bool
+  animation_migration_total : Int
+  animation_migration_completed : Int
+  hover_hint : String?
+  images_section_expanded : Bool
+  atlases_section_expanded : Bool
+  animation_clips_section_expanded : Bool
+  animation_graphs_section_expanded : Bool
+  prefabs_section_expanded : Bool
+  status : String
+  active_tool : @shared.PreviewTool
+  move_snap_enabled : Bool
+  move_snap_step : Double
+  autotile_brush_terrain : Int
+  autotile_palette_json_draft : String
+  autotile_palette_json_error : String?
+  animation_preview_paused : Bool
+  animation_preview_speed : Double
+  animation_preview_seek_input : String
+  graph_edge_connect_source_node : String?
+  source : Model
+} derive(Eq)
+
+///|
+pub fn view_state(model : Model) -> ViewState {
+  {
+    current_root: model.current_root,
+    manifest: model.manifest,
+    scene_refs: model.scene_refs,
+    prefab_refs: model.prefab_refs,
+    atlas_refs: model.atlas_refs,
+    animation_clip_refs: model.animation_clip_refs,
+    animation_graph_refs: model.animation_graph_refs,
+    scene_session: model.scene_session,
+    asset_query: model.asset_query,
+    failed_image_assets: model.failed_image_assets,
+    prefab_documents: model.prefab_documents,
+    atlas_documents: model.atlas_documents,
+    animation_clip_documents: model.animation_clip_documents,
+    animation_graph_documents: model.animation_graph_documents,
+    selected_resource: model.selected_resource,
+    selected_entity_id: model.selected_entity_id,
+    selected_entity_ids: model.selected_entity_ids,
+    add_component_panel_open: model.add_component_panel_open,
+    component_search_query: model.component_search_query,
+    add_custom_component_kind: model.add_custom_component_kind,
+    pending_scene_migration: model.pending_scene_migration,
+    pending_animation_migration_paths: model.pending_animation_migration_paths,
+    pending_animation_migration_scene_path: model.pending_animation_migration_scene_path,
+    animation_migration_in_progress: model.animation_migration_in_progress,
+    animation_migration_total: model.animation_migration_total,
+    animation_migration_completed: model.animation_migration_completed,
+    hover_hint: model.hover_hint,
+    images_section_expanded: model.images_section_expanded,
+    atlases_section_expanded: model.atlases_section_expanded,
+    animation_clips_section_expanded: model.animation_clips_section_expanded,
+    animation_graphs_section_expanded: model.animation_graphs_section_expanded,
+    prefabs_section_expanded: model.prefabs_section_expanded,
+    status: model.status,
+    active_tool: model.active_tool,
+    move_snap_enabled: model.move_snap_enabled,
+    move_snap_step: model.move_snap_step,
+    autotile_brush_terrain: model.autotile_brush_terrain,
+    autotile_palette_json_draft: model.autotile_palette_json_draft,
+    autotile_palette_json_error: model.autotile_palette_json_error,
+    animation_preview_paused: model.animation_preview_paused,
+    animation_preview_speed: model.animation_preview_speed,
+    animation_preview_seek_input: model.animation_preview_seek_input,
+    graph_edge_connect_source_node: model.graph_edge_connect_source_node,
+    source: model,
+  }
+}
+
+///|
+pub fn ViewState::selected_entity(
+  self : ViewState,
+) -> @editor_bridge.EntityDocument? {
+  self.source.selected_entity()
+}
+
+///|
+pub fn ViewState::has_entity_selection(self : ViewState) -> Bool {
+  self.source.has_entity_selection()
+}
+
+///|
+pub fn ViewState::image_assets(
+  self : ViewState,
+) -> Array[@editor_bridge.AssetDocument] {
+  self.source.image_assets()
+}
+
+///|
+pub fn ViewState::selected_image_asset(
+  self : ViewState,
+) -> @editor_bridge.AssetDocument? {
+  self.source.selected_image_asset()
+}
+
+///|
+pub fn ViewState::selected_atlas_document(
+  self : ViewState,
+) -> (String, @editor_bridge.AtlasAssetDocument)? {
+  self.source.selected_atlas_document()
+}
+
+///|
+pub fn ViewState::selected_animation_clip_document(
+  self : ViewState,
+) -> (String, @editor_bridge.AnimationClipAssetDocument)? {
+  self.source.selected_animation_clip_document()
+}
+
+///|
+pub fn ViewState::selected_animation_graph_document(
+  self : ViewState,
+) -> (String, @editor_bridge.AnimationGraphAssetDocument)? {
+  self.source.selected_animation_graph_document()
+}
+
+///|
+pub fn ViewState::selected_prefab_document(
+  self : ViewState,
+) -> (String, @editor_bridge.PrefabDocument)? {
+  self.source.selected_prefab_document()
+}
+
+///|
+pub fn ViewState::asset_size(
+  self : ViewState,
+  path : String,
+) -> @editor_bridge.Vec2Doc? {
+  self.source.asset_size(path)
+}
+
+///|
+pub fn ViewState::asset_query_normalized(self : ViewState) -> String {
+  self.source.asset_query_normalized()
+}
+
+///|
+pub fn ViewState::asset_matches_query(
+  self : ViewState,
+  name : String,
+  path : String,
+) -> Bool {
+  self.source.asset_matches_query(name, path)
+}
+
+///|
+pub fn ViewState::asset_tree_folder_expanded(
+  self : ViewState,
+  key : String,
+) -> Bool {
+  self.source.asset_tree_folder_expanded(key)
+}
+
+///|
+pub fn ViewState::can_undo(self : ViewState) -> Bool {
+  self.source.can_undo()
+}
+
+///|
+pub fn ViewState::can_redo(self : ViewState) -> Bool {
+  self.source.can_redo()
+}
+
+///|
+pub fn ViewState::builtin_component_matches_query(
+  self : ViewState,
+  kind : @editor_bridge.BuiltinComponentKind,
+) -> Bool {
+  self.source.builtin_component_matches_query(kind)
+}
+
+///|
+pub fn ViewState::component_card_collapsed(
+  self : ViewState,
+  entity_id : String,
+  kind : String,
+) -> Bool {
+  self.source.component_card_collapsed(entity_id, kind)
+}
+
+///|
+pub fn ViewState::component_menu_is_open(
+  self : ViewState,
+  kind : String,
+) -> Bool {
+  self.source.component_menu_is_open(kind)
+}
+
+///|
+pub fn ViewState::component_search_query_normalized(self : ViewState) -> String {
+  self.source.component_search_query_normalized()
+}
+
+///|
+pub fn ViewState::selected_component_remove_block_reason(
+  self : ViewState,
+  kind : String,
+) -> String? {
+  self.source.selected_component_remove_block_reason(kind)
+}
+
+///|
+pub fn ViewState::custom_component_json_draft(
+  self : ViewState,
+  entity_id : String,
+  kind : String,
+  fallback : Json,
+) -> String {
+  self.source.custom_component_json_draft(entity_id, kind, fallback)
+}
+
+///|
+pub fn ViewState::custom_component_json_error(
+  self : ViewState,
+  entity_id : String,
+  kind : String,
+) -> String? {
+  self.source.custom_component_json_error(entity_id, kind)
+}
+
+///|
 pub enum Msg {
   Initialize
-  SetProjectRootInput(String)
-  SetProjectNameInput(String)
-  PickProjectRoot
   OpenProject
   ProjectRootPicked(Result[@shared.DirectoryPickResult, String])
   ProjectLoaded(Result[@shared.ProjectStateResponse, String])
@@ -243,7 +495,6 @@ pub enum Msg {
   UpdateSelectedAnimationClipAssetName(String)
   UpdateSelectedAnimationGraphAssetName(String)
   UpdateSelectedAnimationGraphDefaultNode(String)
-  UpdateSelectedAnimationClipName(String)
   UpdateSelectedAnimationClipFps(String)
   ToggleSelectedAnimationClipLooping
   UpdateSelectedAnimationClipFrames(String)
@@ -288,9 +539,7 @@ pub enum Msg {
   UpdateSelectedAnimationPlayerSpeed(String)
   UpdateSelectedAnimationTransitionsDuration(String)
   SaveScene
-  ReloadScene
   AddSpriteEntity
-  AddSpriteFromAsset(String)
   AddSpriteFromAssetAt(String, @editor_bridge.Vec2Doc)
   AddTextEntity
   DeleteSelected
