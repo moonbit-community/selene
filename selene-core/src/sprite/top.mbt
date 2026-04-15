@@ -110,56 +110,110 @@ pub fn Sprite::from_color(
 ///|
 pub fn render_sprite_system(delta : Double) -> Unit {
   ignore(delta)
-  let camera_view = active_camera2d_view()
+  let camera_views = @camera.active_camera2d_views()
   for entity, sprite in sprites() {
     guard entity.is_alive() else { continue }
     guard @visibility.is_visible(entity) else { continue }
     guard @transform.global_transforms().get(entity) is Some(global_transform) else {
       continue
     }
+    guard sprite_size(sprite) is Some(size) else { continue }
     let depth = global_transform.translation().z
     let transform = global_transform.compute_transform()
     let raw_pos = @math.Vec2(transform.translation.x, transform.translation.y)
-    let screen_pos = match camera_view {
-      Some((camera, camera_global, projection)) =>
-        camera.world_to_viewport(camera_global, projection, raw_pos)
-      None => @system.scale_vec2(raw_pos)
-    }
-    let sprite_transform = sprite_screen_transform(
-      global_transform, camera_view,
-    )
-    guard sprite_size(sprite) is Some(size) else { continue }
     let local_transform = sprite_local_transform(sprite, size)
-    let external_transform = sprite_transform * local_transform
-    let snapped_pos = pixel_snapped_position(screen_pos)
-    match sprite.image {
-      Some(image) => {
-        let command : @render2d_types.ImageDrawCommand2D = {
-          image,
-          destination: { position: snapped_pos, size },
-          source: sprite_image_region(sprite),
-          transform: external_transform,
-          repeat: sprite_repeat_mode(sprite),
-          color: sprite.color,
-        }
-        @render2d.push_image_with_depth_for_entity(
-          depth,
-          Some(entity.id()),
-          command,
-        )
+    if camera_views.is_empty() {
+      push_sprite_draw_command(
+        entity,
+        sprite,
+        size,
+        depth,
+        @camera.pixel_snapped_position(@system.scale_vec2(raw_pos)),
+        @camera.camera_screen_transform(global_transform, None) *
+        local_transform,
+        None,
+      )
+      continue
+    }
+    let entity_layers = @visibility.entity_render_layers(entity)
+    for camera_view in camera_views {
+      guard @visibility.matches(
+        @visibility.entity_render_layers(camera_view.entity),
+        entity_layers,
+      ) else {
+        continue
       }
-      None => {
-        let command : @render2d_types.RectDrawCommand2D = {
-          rect: { position: snapped_pos, size },
-          transform: external_transform,
-          fill_color: sprite.color,
-          stroke_color: None,
-        }
-        @render2d.push_rect_with_depth_for_entity(
-          depth,
-          Some(entity.id()),
-          command,
-        )
+      push_sprite_draw_command(
+        entity,
+        sprite,
+        size,
+        depth,
+        @camera.pixel_snapped_position(camera_view.world_to_viewport(raw_pos)),
+        @camera.camera_screen_transform(global_transform, Some(camera_view)) *
+        local_transform,
+        Some(camera_view.entity.id()),
+      )
+    }
+  }
+}
+
+///|
+fn push_sprite_draw_command(
+  entity : @entity.Entity,
+  sprite : Sprite,
+  size : @math.Vec2,
+  depth : Double,
+  snapped_pos : @math.Vec2,
+  transform : @math.Transform,
+  camera_entity_id : UInt?,
+) -> Unit {
+  match sprite.image {
+    Some(image) => {
+      let command : @render2d_types.ImageDrawCommand2D = {
+        image,
+        destination: { position: snapped_pos, size },
+        source: sprite_image_region(sprite),
+        transform,
+        repeat: sprite_repeat_mode(sprite),
+        color: sprite.color,
+      }
+      match camera_entity_id {
+        Some(camera_entity_id) =>
+          @render2d.push_image_with_depth_to_camera(
+            camera_entity_id,
+            depth,
+            command,
+            entity_id=Some(entity.id()),
+          )
+        None =>
+          @render2d.push_image_with_depth_for_entity(
+            depth,
+            Some(entity.id()),
+            command,
+          )
+      }
+    }
+    None => {
+      let command : @render2d_types.RectDrawCommand2D = {
+        rect: { position: snapped_pos, size },
+        transform,
+        fill_color: sprite.color,
+        stroke_color: None,
+      }
+      match camera_entity_id {
+        Some(camera_entity_id) =>
+          @render2d.push_rect_with_depth_to_camera(
+            camera_entity_id,
+            depth,
+            command,
+            entity_id=Some(entity.id()),
+          )
+        None =>
+          @render2d.push_rect_with_depth_for_entity(
+            depth,
+            Some(entity.id()),
+            command,
+          )
       }
     }
   }
@@ -240,104 +294,3 @@ fn sprite_local_transform(
 }
 
 ///|
-fn pixel_snapped_position(position : @math.Vec2) -> @math.Vec2 {
-  @math.Vec2(position[X].round(), position[Y].round())
-}
-
-///|
-fn active_camera2d_view() -> (
-  @camera.Camera,
-  @transform.GlobalTransform,
-  @camera.OrthographicProjection,
-)? {
-  let mut selected : (
-    @camera.Camera,
-    @transform.GlobalTransform,
-    @camera.OrthographicProjection,
-    Int,
-  )? = None
-  for entity, camera in @camera.cameras() {
-    guard entity.is_alive() else { continue }
-    guard camera.is_active else { continue }
-    guard @camera.camera2ds().contains(entity) else { continue }
-    let projection = @camera.orthographic_projections()
-      .get(entity)
-      .unwrap_or_default()
-    guard @transform.global_transforms().get(entity) is Some(global) else {
-      continue
-    }
-    match selected {
-      Some((_, _, _, order)) if order >= camera.order => ()
-      _ => selected = Some((camera, global, projection, camera.order))
-    }
-  }
-  match selected {
-    Some((camera, global, projection, _)) => Some((camera, global, projection))
-    None => None
-  }
-}
-
-///|
-fn screen_space_transform(
-  transform : @transform.Transform,
-) -> @transform.Transform {
-  transform.with_scale(
-    @math.Vec3::new(
-      transform.scale.x * @system.get_zoom(),
-      transform.scale.y * @system.get_zoom(),
-      transform.scale.z,
-    ),
-  )
-}
-
-///|
-fn camera_relative_transform(
-  global_transform : @transform.GlobalTransform,
-  camera_transform : @transform.GlobalTransform,
-  projection : @camera.OrthographicProjection,
-) -> @transform.Transform {
-  let relative_global = match camera_transform.affine.inverse() {
-    Some(inverse_camera) =>
-      @transform.GlobalTransform::{
-        affine: inverse_camera * global_transform.affine,
-      }
-    None => global_transform
-  }
-  let relative = relative_global.compute_transform()
-  let projection_scale = if projection.scale <= 0.0 {
-    1.0
-  } else {
-    projection.scale
-  }
-  let pixels_per_world_unit = @system.get_zoom() / projection_scale
-  relative.with_scale(
-    @math.Vec3::new(
-      relative.scale.x * pixels_per_world_unit,
-      relative.scale.y * pixels_per_world_unit,
-      relative.scale.z,
-    ),
-  )
-}
-
-///|
-fn sprite_screen_transform(
-  global_transform : @transform.GlobalTransform,
-  camera_view : (
-    @camera.Camera,
-    @transform.GlobalTransform,
-    @camera.OrthographicProjection,
-  )?,
-) -> @math.Transform {
-  let transform = match camera_view {
-    Some((_, camera_transform, projection)) =>
-      camera_relative_transform(global_transform, camera_transform, projection)
-    None => screen_space_transform(global_transform.compute_transform())
-  }
-  let x_axis = transform.rotation.rotate_vec3(
-    @math.Vec3::x_axis().scalar_mul(transform.scale.x),
-  )
-  let y_axis = transform.rotation.rotate_vec3(
-    @math.Vec3::y_axis().scalar_mul(transform.scale.y),
-  )
-  @math.Transform::new(a=x_axis.x, b=x_axis.y, c=y_axis.x, d=y_axis.y)
-}

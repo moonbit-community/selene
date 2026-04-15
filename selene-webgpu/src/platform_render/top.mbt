@@ -63,12 +63,17 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
 
   @impl.render_3d_frame(frame.frame3d)
   @impl.reset_clip_stack()
-  for command in frame.frame2d.world_commands {
-    submit_draw_command(command)
-  }
-  @impl.reset_clip_stack()
-  for command in frame.frame2d.ui_commands {
-    submit_draw_command(command)
+  for pass in frame.frame2d.passes {
+    @impl.push_clip_rect(pass.viewport)
+    for command in pass.world_commands {
+      submit_draw_command(command)
+    }
+    @impl.reset_clip_stack()
+    @impl.push_clip_rect(pass.viewport)
+    for command in pass.ui_commands {
+      submit_draw_command(command)
+    }
+    @impl.reset_clip_stack()
   }
   @impl.reset_clip_stack()
   @impl.end_frame()

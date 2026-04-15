@@ -25,9 +25,9 @@ pub fn editor_event_animation_migrated(String, String) -> EditorEvent
 
 pub fn editor_event_asset_imported(@editor_bridge.AssetDocument) -> EditorEvent
 
-pub fn editor_event_files_changed(Array[String]) -> EditorEvent
-
 pub fn editor_event_log(String, String) -> EditorEvent
+
+pub fn editor_event_project_delta(ProjectDeltaEvent) -> EditorEvent
 
 pub fn editor_event_project_opened(String, @editor_bridge.ProjectManifest) -> EditorEvent
 
@@ -59,7 +59,17 @@ pub fn preview_tool_select() -> PreviewTool
 
 pub fn preview_tool_translate() -> PreviewTool
 
+pub fn project_delta_asset_file_changed(String) -> ProjectDeltaEvent
+
+pub fn project_delta_manifest_changed() -> ProjectDeltaEvent
+
+pub fn project_delta_scene_file_changed(String, String, Int) -> ProjectDeltaEvent
+
+pub fn project_delta_workspace_changed() -> ProjectDeltaEvent
+
 pub fn project_state_response(String?, @editor_bridge.ProjectManifest?, Array[@editor_bridge.SceneRef], Array[@editor_bridge.PrefabRef], Array[@editor_bridge.AssetRef], Array[@editor_bridge.AssetRef], Array[@editor_bridge.AssetRef], @editor_bridge.WorkspaceDocument?, Array[String]) -> ProjectStateResponse
+
+pub fn rpc_conflict_document(String, String, String, Int, Int) -> RpcConflictDocument
 
 pub fn rpc_error_response(Int, String, String, details? : Json) -> RpcResponseEnvelope
 
@@ -105,7 +115,7 @@ pub fn rpc_request_scene_load(String) -> RpcRequest
 
 pub fn rpc_request_scene_migrate(String) -> RpcRequest
 
-pub fn rpc_request_scene_save(String, @editor_bridge.SceneDocument) -> RpcRequest
+pub fn rpc_request_scene_save(String, @editor_bridge.SceneDocument, String, Int) -> RpcRequest
 
 pub fn rpc_response_animation_clip_loaded(AnimationClipLoadResponse) -> RpcResponse
 
@@ -114,6 +124,8 @@ pub fn rpc_response_animation_graph_loaded(AnimationGraphLoadResponse) -> RpcRes
 pub fn rpc_response_assets_listed(AssetsListResponse) -> RpcResponse
 
 pub fn rpc_response_atlas_loaded(AtlasLoadResponse) -> RpcResponse
+
+pub fn rpc_response_conflict(RpcConflictDocument) -> RpcResponse
 
 pub fn rpc_response_directory_picked(DirectoryPickResult) -> RpcResponse
 
@@ -131,6 +143,8 @@ pub fn rpc_response_scene_loaded(SceneBundleResponse) -> RpcResponse
 
 pub fn rpc_response_scene_migration_required(@editor_bridge.SceneMigrationPreview) -> RpcResponse
 
+pub fn rpc_response_scene_saved(SceneSaveResult) -> RpcResponse
+
 pub fn rpc_response_startup_scene_updated(@editor_bridge.ProjectManifest) -> RpcResponse
 
 pub fn scene_bundle_animation_clip_entry(String, @editor_bridge.AnimationClipAssetDocument) -> SceneBundleAnimationClipEntry
@@ -139,13 +153,15 @@ pub fn scene_bundle_animation_graph_entry(String, @editor_bridge.AnimationGraphA
 
 pub fn scene_bundle_atlas_entry(String, @editor_bridge.AtlasAssetDocument) -> SceneBundleAtlasEntry
 
-pub fn scene_bundle_response(String, @editor_bridge.SceneDocument) -> SceneBundleResponse
+pub fn scene_bundle_response(String, @editor_bridge.SceneDocument, disk_hash? : String, disk_revision? : Int) -> SceneBundleResponse
 
 pub fn scene_list_response(Array[@editor_bridge.SceneRef], String) -> SceneListResponse
 
 pub fn scene_load_outcome_loaded(SceneBundleResponse) -> SceneLoadOutcome
 
 pub fn scene_load_outcome_migration_required(@editor_bridge.SceneMigrationPreview) -> SceneLoadOutcome
+
+pub fn scene_save_result(String, String, Int) -> SceneSaveResult
 
 // Errors
 
@@ -177,7 +193,7 @@ pub enum EditorEvent {
   Ready
   Log(label~ : String, message~ : String)
   ProjectOpened(root~ : String, manifest~ : @editor_bridge.ProjectManifest)
-  FilesChanged(paths~ : Array[String])
+  ProjectDelta(delta~ : ProjectDeltaEvent)
   SceneCreated(path~ : String)
   SceneSaved(path~ : String)
   SceneDeleted(path~ : String)
@@ -207,6 +223,13 @@ pub enum PreviewTool {
   AutoTileFill
 } derive(Eq, ToJson, @json.FromJson)
 
+pub enum ProjectDeltaEvent {
+  WorkspaceChanged
+  SceneFileChanged(path~ : String, disk_hash~ : String, disk_revision~ : Int)
+  AssetFileChanged(path~ : String)
+  ManifestChanged
+} derive(Eq, ToJson, @json.FromJson)
+
 pub struct ProjectStateResponse {
   root : String?
   manifest : @editor_bridge.ProjectManifest?
@@ -217,6 +240,14 @@ pub struct ProjectStateResponse {
   animation_graphs : Array[@editor_bridge.AssetRef]
   workspace : @editor_bridge.WorkspaceDocument?
   recent_projects : Array[String]
+} derive(Eq, ToJson, @json.FromJson)
+
+pub struct RpcConflictDocument {
+  path : String
+  base_hash : String
+  current_hash : String
+  base_revision : Int
+  current_revision : Int
 } derive(Eq, ToJson, @json.FromJson)
 
 pub struct RpcErrorDocument {
@@ -235,7 +266,7 @@ pub enum RpcRequest {
   SceneMigrate(path~ : String)
   SceneList
   SceneCreate(name~ : String)
-  SceneSave(path~ : String, scene~ : @editor_bridge.SceneDocument)
+  SceneSave(path~ : String, scene~ : @editor_bridge.SceneDocument, base_hash~ : String, base_revision~ : Int)
   SceneDelete(path~ : String)
   AssetsList
   PrefabLoad(path~ : String)
@@ -259,12 +290,14 @@ pub enum RpcResponse {
   DirectoryPicked(result~ : DirectoryPickResult)
   SceneLoaded(scene~ : SceneBundleResponse)
   SceneMigrationRequired(preview~ : @editor_bridge.SceneMigrationPreview)
+  SceneSaved(save~ : SceneSaveResult)
   SceneListed(list~ : SceneListResponse)
   AssetsListed(list~ : AssetsListResponse)
   PrefabLoaded(prefab~ : PrefabLoadResponse)
   AtlasLoaded(atlas~ : AtlasLoadResponse)
   AnimationClipLoaded(clip~ : AnimationClipLoadResponse)
   AnimationGraphLoaded(graph~ : AnimationGraphLoadResponse)
+  Conflict(conflict~ : RpcConflictDocument)
   StartupSceneUpdated(manifest~ : @editor_bridge.ProjectManifest)
   SavedOk
   Error(error~ : RpcErrorDocument)
@@ -293,6 +326,8 @@ pub struct SceneBundleAtlasEntry {
 pub struct SceneBundleResponse {
   path : String
   scene : @editor_bridge.SceneDocument
+  disk_hash : String
+  disk_revision : Int
   atlas_assets : Array[SceneBundleAtlasEntry]
   animation_clip_assets : Array[SceneBundleAnimationClipEntry]
   animation_graph_assets : Array[SceneBundleAnimationGraphEntry]
@@ -308,6 +343,12 @@ pub enum SceneLoadOutcome {
   Loaded(SceneBundleResponse)
   MigrationRequired(@editor_bridge.SceneMigrationPreview)
 } derive(Eq)
+
+pub struct SceneSaveResult {
+  path : String
+  disk_hash : String
+  disk_revision : Int
+} derive(Eq, ToJson, @json.FromJson)
 
 // Type aliases
 

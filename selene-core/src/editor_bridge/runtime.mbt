@@ -799,7 +799,13 @@ fn apply_document_components(
         }
         @camera.cameras().set(
           entity,
-          @camera.Camera::new(is_active=data.is_active, order=data.order),
+          @camera.Camera::new(
+            is_active=data.is_active,
+            order=data.order,
+            viewport=data.viewport.map(fn(viewport) {
+              @camera.CameraViewport::from_rect(rect_of(viewport))
+            }),
+          ),
         )
         @camera.camera2ds().set(entity, @camera.Camera2d::new())
         @camera.orthographic_projections().set(

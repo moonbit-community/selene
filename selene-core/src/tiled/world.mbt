@@ -305,30 +305,24 @@ fn tiled_world_update_chunking(world_entity : @entity.Entity) -> Unit {
 
 ///|
 fn tiled_camera_view_bounds() -> (@math.Vec2, @math.Vec2) {
-  match tiled_world_active_camera2d_view() {
-    Some((camera, camera_transform, projection)) => {
-      let screen_size = @system.get_screen_size()
+  match @camera.primary_camera2d_view() {
+    Some(camera_view) => {
+      let viewport = camera_view.viewport
       let corners = [
-        camera.viewport_to_world_2d(
-          camera_transform,
-          projection,
-          @math.Vec2(0.0, 0.0),
+        camera_view.viewport_to_world_2d(viewport.position),
+        camera_view.viewport_to_world_2d(
+          @math.Vec2(
+            viewport.position[X] + viewport.size[X],
+            viewport.position[Y],
+          ),
         ),
-        camera.viewport_to_world_2d(
-          camera_transform,
-          projection,
-          @math.Vec2(screen_size[X], 0.0),
+        camera_view.viewport_to_world_2d(
+          @math.Vec2(
+            viewport.position[X],
+            viewport.position[Y] + viewport.size[Y],
+          ),
         ),
-        camera.viewport_to_world_2d(
-          camera_transform,
-          projection,
-          @math.Vec2(0.0, screen_size[Y]),
-        ),
-        camera.viewport_to_world_2d(
-          camera_transform,
-          projection,
-          @math.Vec2(screen_size[X], screen_size[Y]),
-        ),
+        camera_view.viewport_to_world_2d(viewport.position + viewport.size),
       ]
       let min_x = corners.fold(init=corners[0][X], fn(acc, corner) {
         if corner[X] < acc {
@@ -361,46 +355,6 @@ fn tiled_camera_view_bounds() -> (@math.Vec2, @math.Vec2) {
       (@math.Vec2(min_x, min_y), @math.Vec2(max_x, max_y))
     }
     None => (@math.Vec2::zero(), @system.get_viewport_size())
-  }
-}
-
-///|
-fn tiled_world_entity_global_transform(
-  entity : @entity.Entity,
-) -> @transform.GlobalTransform? {
-  @transform.compute_global_transform(entity)
-}
-
-///|
-fn tiled_world_active_camera2d_view() -> (
-  @camera.Camera,
-  @transform.GlobalTransform,
-  @camera.OrthographicProjection,
-)? {
-  let mut selected : (
-    @camera.Camera,
-    @transform.GlobalTransform,
-    @camera.OrthographicProjection,
-    Int,
-  )? = None
-  for entity, camera in @camera.cameras() {
-    guard entity.is_alive() else { continue }
-    guard camera.is_active else { continue }
-    guard @camera.camera2ds().contains(entity) else { continue }
-    let projection = @camera.orthographic_projections()
-      .get(entity)
-      .unwrap_or_default()
-    guard tiled_world_entity_global_transform(entity) is Some(global) else {
-      continue
-    }
-    match selected {
-      Some((_, _, _, order)) if order >= camera.order => ()
-      _ => selected = Some((camera, global, projection, camera.order))
-    }
-  }
-  match selected {
-    Some((camera, global, projection, _)) => Some((camera, global, projection))
-    None => None
   }
 }
 

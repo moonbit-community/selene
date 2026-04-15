@@ -56,109 +56,6 @@ pub fn TextBounds::new(width : Double, height : Double) -> TextBounds {
 }
 
 ///|
-fn active_camera2d_view() -> (
-  @camera.Camera,
-  @transform.GlobalTransform,
-  @camera.OrthographicProjection,
-)? {
-  let mut selected : (
-    @camera.Camera,
-    @transform.GlobalTransform,
-    @camera.OrthographicProjection,
-    Int,
-  )? = None
-  for entity, camera in @camera.cameras() {
-    guard entity.is_alive() else { continue }
-    guard camera.is_active else { continue }
-    guard @camera.camera2ds().contains(entity) else { continue }
-    let projection = @camera.orthographic_projections()
-      .get(entity)
-      .unwrap_or_default()
-    guard @transform.global_transforms().get(entity) is Some(global) else {
-      continue
-    }
-    match selected {
-      Some((_, _, _, order)) if order >= camera.order => ()
-      _ => selected = Some((camera, global, projection, camera.order))
-    }
-  }
-  match selected {
-    Some((camera, global, projection, _)) => Some((camera, global, projection))
-    None => None
-  }
-}
-
-///|
-fn screen_space_transform(
-  transform : @transform.Transform,
-) -> @transform.Transform {
-  transform.with_scale(
-    @math.Vec3::new(
-      transform.scale.x * @system.get_zoom(),
-      transform.scale.y * @system.get_zoom(),
-      transform.scale.z,
-    ),
-  )
-}
-
-///|
-fn camera_relative_transform(
-  global_transform : @transform.GlobalTransform,
-  camera_transform : @transform.GlobalTransform,
-  projection : @camera.OrthographicProjection,
-) -> @transform.Transform {
-  let relative_global = match camera_transform.affine.inverse() {
-    Some(inverse_camera) =>
-      @transform.GlobalTransform::{
-        affine: inverse_camera * global_transform.affine,
-      }
-    None => global_transform
-  }
-  let relative = relative_global.compute_transform()
-  let projection_scale = if projection.scale <= 0.0 {
-    1.0
-  } else {
-    projection.scale
-  }
-  let pixels_per_world_unit = @system.get_zoom() / projection_scale
-  relative.with_scale(
-    @math.Vec3::new(
-      relative.scale.x * pixels_per_world_unit,
-      relative.scale.y * pixels_per_world_unit,
-      relative.scale.z,
-    ),
-  )
-}
-
-///|
-fn text_screen_transform(
-  global_transform : @transform.GlobalTransform,
-  camera_view : (
-    @camera.Camera,
-    @transform.GlobalTransform,
-    @camera.OrthographicProjection,
-  )?,
-) -> @math.Transform {
-  let transform = match camera_view {
-    Some((_, camera_transform, projection)) =>
-      camera_relative_transform(global_transform, camera_transform, projection)
-    None => screen_space_transform(global_transform.compute_transform())
-  }
-  let x_axis = transform.rotation.rotate_vec3(
-    @math.Vec3::x_axis().scalar_mul(transform.scale.x),
-  )
-  let y_axis = transform.rotation.rotate_vec3(
-    @math.Vec3::y_axis().scalar_mul(transform.scale.y),
-  )
-  @math.Transform::new(a=x_axis.x, b=x_axis.y, c=y_axis.x, d=y_axis.y)
-}
-
-///|
-fn pixel_snapped_position(position : @math.Vec2) -> @math.Vec2 {
-  @math.Vec2(position[X].round(), position[Y].round())
-}
-
-///|
 fn text2d_layout(entity : @entity.Entity) -> @ui.TextLayout {
   @ui.text_layouts().get(entity).unwrap_or(@ui.TextLayout::new())
 }
@@ -309,7 +206,7 @@ fn anchor_origin(anchor : @sprite.Anchor, size : @math.Vec2) -> @math.Vec2 {
 ///|
 pub fn render_text2d_system(delta : Double) -> Unit {
   ignore(delta)
-  let camera_view = active_camera2d_view()
+  let camera_views = @camera.active_camera2d_views()
   for entity, _ in text2ds() {
     guard entity.is_alive() else { continue }
     guard @visibility.is_visible(entity) else { continue }
@@ -319,17 +216,9 @@ pub fn render_text2d_system(delta : Double) -> Unit {
     guard @ui.texts().get(entity) is Some(text) else { continue }
     guard @ui.text_style_for(entity) is Some(style) else { continue }
     let layout = text2d_layout(entity)
-    let anchor = text2d_anchor(entity)
     let bounds = text_bounds().get(entity)
     let transform = global_transform.compute_transform()
     let raw_pos = @math.Vec2(transform.translation.x, transform.translation.y)
-    let screen_pos = pixel_snapped_position(
-      match camera_view {
-        Some((camera, camera_global, projection)) =>
-          camera.world_to_viewport(camera_global, projection, raw_pos)
-        None => @system.scale_vec2(raw_pos)
-      },
-    )
     let lines = bounded_text_lines(text.content, style, layout, bounds)
     if lines.is_empty() {
       continue
@@ -347,32 +236,100 @@ pub fn render_text2d_system(delta : Double) -> Unit {
       max_line_width
     }
     let layout_size = @math.Vec2(layout_width, bounds_height)
-    let origin = screen_pos + anchor_origin(anchor, layout_size)
-    let start_y = match layout.baseline {
-      Top => origin[Y]
-      Center => origin[Y] + (bounds_height - block_height) / 2.0
-      Bottom => origin[Y] + bounds_height - block_height
-    }
-    let style_for_draw = { ..style, align: Left, baseline: Top }
-    for index, line in lines {
-      let measured = measure_text_fragment(style, line)
-      let x = match layout.align {
-        Left => origin[X]
-        Center => origin[X] + (layout_width - measured[X]) / 2.0
-        Right => origin[X] + layout_width - measured[X]
-      }
-      @render2d.push_text_with_depth_for_entity(
-        global_transform.translation().z,
-        Some(entity.id()),
-        {
-          text: line,
-          position: pixel_snapped_position(
-            @math.Vec2(x, start_y + line_height * index.to_double()),
-          ),
-          transform: text_screen_transform(global_transform, camera_view),
-          style: style_for_draw,
-        },
+    if camera_views.is_empty() {
+      push_text2d_lines(
+        entity,
+        lines,
+        style,
+        layout,
+        layout_width,
+        bounds_height,
+        block_height,
+        line_height,
+        @camera.pixel_snapped_position(@system.scale_vec2(raw_pos)),
+        layout_size,
+        global_transform,
+        None,
       )
+      continue
+    }
+    let entity_layers = @visibility.entity_render_layers(entity)
+    for camera_view in camera_views {
+      guard @visibility.matches(
+        @visibility.entity_render_layers(camera_view.entity),
+        entity_layers,
+      ) else {
+        continue
+      }
+      push_text2d_lines(
+        entity,
+        lines,
+        style,
+        layout,
+        layout_width,
+        bounds_height,
+        block_height,
+        line_height,
+        @camera.pixel_snapped_position(camera_view.world_to_viewport(raw_pos)),
+        layout_size,
+        global_transform,
+        Some(camera_view),
+      )
+    }
+  }
+}
+
+///|
+fn push_text2d_lines(
+  entity : @entity.Entity,
+  lines : Array[String],
+  style : @render2d_types.TextStyle2D,
+  layout : @ui.TextLayout,
+  layout_width : Double,
+  bounds_height : Double,
+  block_height : Double,
+  line_height : Double,
+  screen_pos : @math.Vec2,
+  layout_size : @math.Vec2,
+  global_transform : @transform.GlobalTransform,
+  camera_view : @camera.Camera2dView?,
+) -> Unit {
+  let origin = screen_pos + anchor_origin(text2d_anchor(entity), layout_size)
+  let start_y = match layout.baseline {
+    Top => origin[Y]
+    Center => origin[Y] + (bounds_height - block_height) / 2.0
+    Bottom => origin[Y] + bounds_height - block_height
+  }
+  let style_for_draw = { ..style, align: Left, baseline: Top }
+  for index, line in lines {
+    let measured = measure_text_fragment(style, line)
+    let x = match layout.align {
+      Left => origin[X]
+      Center => origin[X] + (layout_width - measured[X]) / 2.0
+      Right => origin[X] + layout_width - measured[X]
+    }
+    let command : @render2d_types.TextDrawCommand2D = {
+      text: line,
+      position: @camera.pixel_snapped_position(
+        @math.Vec2(x, start_y + line_height * index.to_double()),
+      ),
+      transform: @camera.camera_screen_transform(global_transform, camera_view),
+      style: style_for_draw,
+    }
+    match camera_view {
+      Some(camera_view) =>
+        @render2d.push_text_with_depth_to_camera(
+          camera_view.entity.id(),
+          global_transform.translation().z,
+          command,
+          entity_id=Some(entity.id()),
+        )
+      None =>
+        @render2d.push_text_with_depth_for_entity(
+          global_transform.translation().z,
+          Some(entity.id()),
+          command,
+        )
     }
   }
 }

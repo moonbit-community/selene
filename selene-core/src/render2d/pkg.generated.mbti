@@ -9,7 +9,15 @@ import {
 // Values
 pub fn begin_frame2d_system(Double) -> Unit
 
+pub fn get_camera_ui_commands(UInt) -> Array[@render2d_types.DrawCommand2D]
+
+pub fn get_camera_world_commands_with_depth(UInt) -> Array[DrawCommandWithDepth2D]
+
 pub fn get_frame2d() -> @render2d_types.RenderFrame2D
+
+pub fn get_screen_ui_commands() -> Array[@render2d_types.DrawCommand2D]
+
+pub fn get_screen_world_commands_with_depth() -> Array[DrawCommandWithDepth2D]
 
 pub fn get_ui_commands() -> Array[@render2d_types.DrawCommand2D]
 
@@ -23,11 +31,15 @@ pub fn push_circle_with_depth(Double, @render2d_types.CircleDrawCommand2D) -> Un
 
 pub fn push_circle_with_depth_for_entity(Double, UInt?, @render2d_types.CircleDrawCommand2D) -> Unit
 
+pub fn push_circle_with_depth_to_camera(UInt, Double, @render2d_types.CircleDrawCommand2D, entity_id? : UInt?) -> Unit
+
 pub fn push_gradient_rect(@render2d_types.GradientRectDrawCommand2D) -> Unit
 
 pub fn push_gradient_rect_with_depth(Double, @render2d_types.GradientRectDrawCommand2D) -> Unit
 
 pub fn push_gradient_rect_with_depth_for_entity(Double, UInt?, @render2d_types.GradientRectDrawCommand2D) -> Unit
+
+pub fn push_gradient_rect_with_depth_to_camera(UInt, Double, @render2d_types.GradientRectDrawCommand2D, entity_id? : UInt?) -> Unit
 
 pub fn push_image(@render2d_types.ImageDrawCommand2D) -> Unit
 
@@ -35,17 +47,23 @@ pub fn push_image_with_depth(Double, @render2d_types.ImageDrawCommand2D) -> Unit
 
 pub fn push_image_with_depth_for_entity(Double, UInt?, @render2d_types.ImageDrawCommand2D) -> Unit
 
+pub fn push_image_with_depth_to_camera(UInt, Double, @render2d_types.ImageDrawCommand2D, entity_id? : UInt?) -> Unit
+
 pub fn push_rect(@render2d_types.RectDrawCommand2D) -> Unit
 
 pub fn push_rect_with_depth(Double, @render2d_types.RectDrawCommand2D) -> Unit
 
 pub fn push_rect_with_depth_for_entity(Double, UInt?, @render2d_types.RectDrawCommand2D) -> Unit
 
+pub fn push_rect_with_depth_to_camera(UInt, Double, @render2d_types.RectDrawCommand2D, entity_id? : UInt?) -> Unit
+
 pub fn push_text(@render2d_types.TextDrawCommand2D) -> Unit
 
 pub fn push_text_with_depth(Double, @render2d_types.TextDrawCommand2D) -> Unit
 
 pub fn push_text_with_depth_for_entity(Double, UInt?, @render2d_types.TextDrawCommand2D) -> Unit
+
+pub fn push_text_with_depth_to_camera(UInt, Double, @render2d_types.TextDrawCommand2D, entity_id? : UInt?) -> Unit
 
 pub fn push_ui_circle(@render2d_types.CircleDrawCommand2D) -> Unit
 
@@ -59,12 +77,15 @@ pub fn push_ui_rect(@render2d_types.RectDrawCommand2D) -> Unit
 
 pub fn push_ui_text(@render2d_types.TextDrawCommand2D) -> Unit
 
+pub fn set_ui_camera_target(UInt?) -> Unit
+
 // Errors
 
 // Types and methods
 pub(all) struct DrawCommandWithDepth2D {
   depth : Double
   order : Int
+  camera_entity_id : UInt?
   entity_id : UInt?
   command : @render2d_types.DrawCommand2D
 }

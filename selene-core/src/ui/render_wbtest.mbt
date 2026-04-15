@@ -18,6 +18,8 @@ fn test_global_node(
     screen_rect,
     logical_content_rect: screen_content_rect,
     screen_content_rect,
+    target_camera: None,
+    target_viewport: screen_rect,
   }
 }
 
@@ -26,6 +28,7 @@ fn cleanup_test_ui_entity(entity : @entity.Entity) -> Unit {
   nodes().remove(entity)
   computed_ui_nodes().remove(entity)
   global_ui_nodes().remove(entity)
+  ui_target_cameras().remove(entity)
   calculated_clips().remove(entity)
   layout_configs().remove(entity)
   background_colors().remove(entity)

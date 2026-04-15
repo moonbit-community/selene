@@ -179,6 +179,7 @@ pub struct Camera2dComponent {
   is_active : Bool
   order : Int
   scale : Double
+  viewport : RectDoc?
 } derive(Debug, Eq, ToJson, FromJson)
 
 ///|
@@ -1575,10 +1576,11 @@ pub fn camera2d_component(
   is_active? : Bool = true,
   order? : Int = 0,
   scale? : Double = 1.0,
+  viewport? : RectDoc? = None,
 ) -> ComponentDocument {
   {
     kind: "Camera2d",
-    data: Camera2dComponent::{ is_active, order, scale }.to_json(),
+    data: Camera2dComponent::{ is_active, order, scale, viewport }.to_json(),
   }
 }
 

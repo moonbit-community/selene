@@ -3,6 +3,7 @@ fn cleanup_layout_test_entity(entity : @entity.Entity) -> Unit {
   nodes().remove(entity)
   computed_ui_nodes().remove(entity)
   global_ui_nodes().remove(entity)
+  ui_target_cameras().remove(entity)
   calculated_clips().remove(entity)
   layout_configs().remove(entity)
   z_indexes().remove(entity)
@@ -259,6 +260,7 @@ test "ui layout config controls screen-space rounding for viewport-scaled rects"
   }
   let rounded_rect = screen_rect_for(
     logical_rect,
+    ui_layout_space(None),
     LayoutConfig::new().use_rounding,
   )
   inspect(rounded_rect.position[X] == 51.0, content="true")
@@ -266,6 +268,7 @@ test "ui layout config controls screen-space rounding for viewport-scaled rects"
 
   let unrounded_rect = screen_rect_for(
     logical_rect,
+    ui_layout_space(None),
     LayoutConfig::new(use_rounding=false).use_rounding,
   )
   let expected = 33.835 * 1.5
@@ -280,6 +283,48 @@ test "ui layout config controls screen-space rounding for viewport-scaled rects"
 
   set_ui_scale_mode(old_scale_mode)
   @system.configure_display(old_viewport[X], old_viewport[Y], old_zoom)
+}
+
+///|
+test "ui target camera layouts use the camera viewport as screen-space origin" {
+  @system.configure_display(200.0, 120.0, 1.0)
+  let camera = @entity.Entity::new()
+  @camera.cameras().set(
+    camera,
+    @camera.Camera::new(
+      viewport=Some(
+        @camera.CameraViewport::new(
+          @math.Vec2(20.0, 10.0),
+          @math.Vec2(80.0, 40.0),
+        ),
+      ),
+    ),
+  )
+  @camera.camera2ds().set(camera, @camera.Camera2d::new())
+  @transform.global_transforms().set(
+    camera,
+    @transform.GlobalTransform::from_transform(@transform.Transform::default()),
+  )
+
+  let entity = @entity.Entity::new()
+  nodes().set(
+    entity,
+    Node::absolute(@math.Vec2(4.0, 6.0), size=@math.Vec2(20.0, 10.0)),
+  )
+  ui_target_cameras().set(entity, UiTargetCamera::new(camera))
+
+  ui_layout_system(0.0)
+
+  let global = global_ui_nodes().get(entity).unwrap()
+  inspect(global.screen_rect.position[X] == 24.0, content="true")
+  inspect(global.screen_rect.position[Y] == 16.0, content="true")
+  inspect(global.target_camera == Some(camera), content="true")
+
+  cleanup_layout_test_entity(entity)
+  @camera.cameras().remove(camera)
+  @camera.camera2ds().remove(camera)
+  @transform.global_transforms().remove(camera)
+  camera.destroy()
 }
 
 ///|

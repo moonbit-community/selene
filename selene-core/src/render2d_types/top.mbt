@@ -74,12 +74,22 @@ pub(all) enum DrawCommand2D {
 }
 
 ///|
+pub(all) struct RenderPass2D {
+  camera_entity_id : UInt?
+  order : Int
+  viewport : @math.Rect
+  mut world_commands : Array[DrawCommand2D]
+  mut ui_commands : Array[DrawCommand2D]
+}
+
+///|
 pub(all) struct RenderFrame2D {
+  mut passes : Array[RenderPass2D]
   mut world_commands : Array[DrawCommand2D]
   mut ui_commands : Array[DrawCommand2D]
 }
 
 ///|
 pub fn empty_render_frame2d() -> RenderFrame2D {
-  { world_commands: [], ui_commands: [] }
+  { passes: [], world_commands: [], ui_commands: [] }
 }

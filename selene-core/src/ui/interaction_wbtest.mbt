@@ -3,6 +3,7 @@ fn cleanup_interaction_test_entity(entity : @entity.Entity) -> Unit {
   nodes().remove(entity)
   computed_ui_nodes().remove(entity)
   global_ui_nodes().remove(entity)
+  ui_target_cameras().remove(entity)
   calculated_clips().remove(entity)
   layout_configs().remove(entity)
   z_indexes().remove(entity)
@@ -47,6 +48,8 @@ fn interaction_test_global_node(rect : @math.Rect) -> GlobalUiNode {
     screen_rect: rect,
     logical_content_rect: rect,
     screen_content_rect: rect,
+    target_camera: None,
+    target_viewport: rect,
   }
 }
 

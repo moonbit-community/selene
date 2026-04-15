@@ -339,6 +339,13 @@ fn point_in_rect(point : @math.Vec2, rect : @math.Rect) -> Bool {
 
 ///|
 fn screen_clip_allows(entity : @entity.Entity, point : @math.Vec2) -> Bool {
+  let within_target_viewport = global_ui_nodes()
+    .get(entity)
+    .map(fn(transform) { point_in_rect(point, transform.target_viewport) })
+    .unwrap_or(true)
+  if !within_target_viewport {
+    return false
+  }
   match calculated_clips().get(entity) {
     Some(clip) => point_in_rect(point, clip.clip)
     None => true

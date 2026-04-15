@@ -1,0 +1,40 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene_editor_service/service/core"
+
+import {
+  "Milky2018/selene_editor_shared/shared",
+  "moonbitlang/async/aqueue",
+  "moonbitlang/async/http",
+  "moonbitlang/async/io",
+}
+
+// Values
+pub let default_host : String
+
+pub let default_port : Int
+
+pub async fn run_cli(String, Array[String]) -> Unit
+
+// Errors
+
+// Types and methods
+pub struct EditorService {
+  module_root : String
+  mut current_project : ProjectSession?
+  mut next_subscriber_id : Int
+  mut recent_projects : Array[String]
+  mut event_log : Array[@shared.EventEnvelope]
+  subscribers : Map[Int, @aqueue.Queue[@shared.EventEnvelope]]
+}
+pub fn EditorService::drain_events(Self) -> Array[@shared.EventEnvelope]
+pub async fn EditorService::handle_http_request(Self, @http.Request, &@io.Reader, @http.ServerConnection) -> Unit
+pub async fn EditorService::handle_rpc(Self, @shared.RpcRequestEnvelope) -> Json
+pub fn EditorService::new(String) -> Self
+pub async fn EditorService::watch_loop(Self) -> Unit
+
+type ProjectSession
+
+// Type aliases
+
+// Traits
+

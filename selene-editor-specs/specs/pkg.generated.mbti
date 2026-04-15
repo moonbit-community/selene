@@ -1,0 +1,147 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene_editor_specs/specs"
+
+import {
+  "Milky2018/selene/editor_bridge",
+  "Milky2018/selene_editor_frontend/frontend/app",
+  "Milky2018/selene_editor_service/service/core",
+  "Milky2018/selene_editor_shared/preview_bridge",
+  "Milky2018/selene_editor_shared/shared",
+}
+
+// Values
+pub async fn given_editor_harness() -> EditorHarness
+
+pub fn given_editor_harness_at(String) -> EditorHarness
+
+// Errors
+
+// Types and methods
+pub struct EditorHarness {
+  project_root : String
+  service : @core.EditorService
+  mut model : @app.Model
+  mut next_rpc_id : Int
+  mut service_events_subscribed : Bool
+  mut preview_events_subscribed : Bool
+  mut sidebar_layout_subscribed : Bool
+  preview : FakePreviewBridge
+}
+pub fn EditorHarness::animation_refs(Self) -> Array[@editor_bridge.AssetRef]
+pub fn EditorHarness::assets(Self) -> Array[@editor_bridge.AssetDocument]
+pub fn EditorHarness::atlas_refs(Self) -> Array[@editor_bridge.AssetRef]
+pub fn EditorHarness::autotile_layer_component(Self, String) -> @editor_bridge.AutoTileLayer2dComponent?
+pub async fn EditorHarness::cleanup(Self) -> Unit
+pub fn EditorHarness::current_root(Self) -> String?
+pub fn EditorHarness::entity(Self, String) -> @editor_bridge.EntityDocument?
+pub fn EditorHarness::entity_has_component(Self, String, String) -> Bool
+pub async fn EditorHarness::given_animation_document(Self, String, @editor_bridge.AnimationClipAssetDocument) -> Unit
+pub async fn EditorHarness::given_atlas_document(Self, String, @editor_bridge.AtlasAssetDocument) -> Unit
+pub async fn EditorHarness::given_image_asset(Self, String) -> Unit
+pub async fn EditorHarness::given_prefab_document(Self, String, @editor_bridge.PrefabDocument) -> Unit
+pub async fn EditorHarness::given_project_manifest(Self, @editor_bridge.ProjectManifest) -> Unit
+pub async fn EditorHarness::given_scene_document(Self, String, @editor_bridge.SceneDocument) -> Unit
+pub async fn EditorHarness::given_text_file(Self, String, String) -> Unit
+pub fn EditorHarness::logs(Self) -> Array[String]
+pub fn EditorHarness::manifest(Self) -> @editor_bridge.ProjectManifest?
+pub fn EditorHarness::pending_scene_migration(Self) -> @editor_bridge.SceneMigrationPreview?
+pub fn EditorHarness::prefab_refs(Self) -> Array[@editor_bridge.PrefabRef]
+pub fn EditorHarness::preview_bootstrapped(Self) -> Bool
+pub fn EditorHarness::preview_scene(Self) -> @editor_bridge.SceneDocument?
+pub fn EditorHarness::preview_selected_entity_id(Self) -> String?
+pub fn EditorHarness::preview_selected_entity_ids(Self) -> Array[String]
+pub fn EditorHarness::project_root_path(Self) -> String
+pub async fn EditorHarness::read_animation_document(Self, String) -> @editor_bridge.AnimationClipAssetDocument
+pub async fn EditorHarness::read_atlas_document(Self, String) -> @editor_bridge.AtlasAssetDocument
+pub async fn EditorHarness::read_prefab_document(Self, String) -> @editor_bridge.PrefabDocument
+pub async fn EditorHarness::read_scene_document(Self, String) -> @editor_bridge.SceneDocument
+pub async fn EditorHarness::read_scene_document_status(Self, String) -> @editor_bridge.SceneDocumentLoadStatus
+pub fn EditorHarness::scene(Self) -> @editor_bridge.SceneDocument?
+pub fn EditorHarness::scene_base_hash(Self) -> String?
+pub fn EditorHarness::scene_base_revision(Self) -> Int?
+pub fn EditorHarness::scene_conflict_state(Self) -> @app.SceneConflictState?
+pub fn EditorHarness::scene_dirty(Self) -> Bool
+pub fn EditorHarness::scene_exists(Self) -> Bool
+pub fn EditorHarness::scene_path(Self) -> String
+pub fn EditorHarness::scene_path_or_none(Self) -> String?
+pub fn EditorHarness::scene_refs(Self) -> Array[@editor_bridge.SceneRef]
+pub fn EditorHarness::selected_entity_id(Self) -> String?
+pub fn EditorHarness::selected_entity_ids(Self) -> Array[String]
+pub fn EditorHarness::selected_resource_path(Self) -> String?
+pub fn EditorHarness::status(Self) -> String
+pub fn EditorHarness::take_preview_commands(Self) -> Array[@preview_bridge.PreviewCommand]
+pub async fn EditorHarness::when_add_component_panel_is_opened(Self) -> Unit
+pub async fn EditorHarness::when_animation_load_fails(Self, String) -> Unit
+pub async fn EditorHarness::when_animation_resource_is_selected(Self, String) -> Unit
+pub async fn EditorHarness::when_atlas_load_fails(Self, String) -> Unit
+pub async fn EditorHarness::when_atlas_resource_is_selected(Self, String) -> Unit
+pub async fn EditorHarness::when_builtin_component_is_added(Self, @editor_bridge.BuiltinComponentKind) -> Unit
+pub async fn EditorHarness::when_component_is_removed(Self, String) -> Unit
+pub async fn EditorHarness::when_conflict_keep_mine_is_selected(Self) -> Unit
+pub async fn EditorHarness::when_conflict_reload_disk_is_selected(Self) -> Unit
+pub async fn EditorHarness::when_conflict_save_as_is_selected(Self, String) -> Unit
+pub async fn EditorHarness::when_current_scene_is_deleted(Self) -> Unit
+pub async fn EditorHarness::when_current_scene_is_marked_as_startup(Self) -> Unit
+pub async fn EditorHarness::when_current_scene_is_renamed(Self, String) -> Unit
+pub async fn EditorHarness::when_custom_component_is_added(Self, String) -> Unit
+pub async fn EditorHarness::when_custom_component_json_is_committed(Self, String) -> Unit
+pub async fn EditorHarness::when_custom_component_json_is_edited(Self, String, String) -> Unit
+pub async fn EditorHarness::when_editor_initialized(Self) -> Unit
+pub async fn EditorHarness::when_image_resource_is_selected(Self, String) -> Unit
+pub async fn EditorHarness::when_move_snap_is_toggled(Self) -> Unit
+pub async fn EditorHarness::when_pending_scene_migration_is_cancelled(Self) -> Unit
+pub async fn EditorHarness::when_pending_scene_migration_is_confirmed(Self) -> Unit
+pub async fn EditorHarness::when_prefab_load_fails(Self, String) -> Unit
+pub async fn EditorHarness::when_prefab_resource_is_selected(Self, String) -> Unit
+pub async fn EditorHarness::when_preview_picks_entity(Self, String?) -> Unit
+pub async fn EditorHarness::when_preview_selects_entities(Self, Array[String]) -> Unit
+pub async fn EditorHarness::when_preview_updates_autotile_layer(Self, String, @editor_bridge.AutoTileLayer2dComponent) -> Unit
+pub async fn EditorHarness::when_project_folder_pick_is_cancelled(Self) -> Unit
+pub async fn EditorHarness::when_project_opened(Self) -> Unit
+pub async fn EditorHarness::when_scene_file_delta_is_received(Self, String, String, Int) -> Unit
+pub async fn EditorHarness::when_scene_is_created(Self, String) -> Unit
+pub async fn EditorHarness::when_scene_is_opened(Self, String) -> Unit
+pub async fn EditorHarness::when_scene_is_saved(Self) -> Unit
+pub async fn EditorHarness::when_scene_redo_is_requested(Self) -> Unit
+pub async fn EditorHarness::when_scene_tree_selects_entity(Self, String?) -> Unit
+pub async fn EditorHarness::when_scene_undo_is_requested(Self) -> Unit
+pub async fn EditorHarness::when_selected_animation_clip_creates_graph(Self) -> Unit
+pub async fn EditorHarness::when_selected_animation_frames_are_edited(Self, String) -> Unit
+pub async fn EditorHarness::when_selected_animation_is_saved(Self) -> Unit
+pub async fn EditorHarness::when_selected_atlas_columns_are_edited(Self, String) -> Unit
+pub async fn EditorHarness::when_selected_atlas_creates_animation(Self) -> Unit
+pub async fn EditorHarness::when_selected_atlas_is_saved(Self) -> Unit
+pub async fn EditorHarness::when_selected_autotile_atlas_path_is_edited(Self, String) -> Unit
+pub async fn EditorHarness::when_selected_autotile_palette_json_is_committed(Self) -> Unit
+pub async fn EditorHarness::when_selected_autotile_palette_json_is_edited(Self, String) -> Unit
+pub async fn EditorHarness::when_selected_autotile_rule_set_is_edited(Self, String) -> Unit
+pub async fn EditorHarness::when_selected_entity_is_deleted(Self) -> Unit
+pub async fn EditorHarness::when_selected_entity_is_saved_as_prefab(Self) -> Unit
+pub async fn EditorHarness::when_selected_image_creates_atlas(Self) -> Unit
+pub async fn EditorHarness::when_selected_prefab_is_saved(Self) -> Unit
+pub async fn EditorHarness::when_selected_prefab_name_is_edited(Self, String) -> Unit
+pub async fn EditorHarness::when_selected_resource_is_inserted(Self) -> Unit
+pub async fn EditorHarness::when_selected_text_is_edited(Self, String) -> Unit
+pub async fn EditorHarness::when_selected_translate_x_is_edited(Self, String) -> Unit
+pub async fn EditorHarness::when_selected_translate_y_is_edited(Self, String) -> Unit
+pub async fn EditorHarness::when_selected_visibility_is_toggled(Self) -> Unit
+pub async fn EditorHarness::when_service_event_fails(Self, String) -> Unit
+pub async fn EditorHarness::when_sprite_asset_is_added(Self, String) -> Unit
+pub async fn EditorHarness::when_sprite_asset_is_dropped(Self, String, Double, Double) -> Unit
+pub async fn EditorHarness::when_sprite_entity_is_added(Self) -> Unit
+pub async fn EditorHarness::when_text_entity_is_added(Self) -> Unit
+pub async fn EditorHarness::when_tool_is_set(Self, @shared.PreviewTool) -> Unit
+pub async fn EditorHarness::when_workspace_delta_is_received(Self) -> Unit
+
+pub struct FakePreviewBridge {
+  mut commands : Array[@preview_bridge.PreviewCommand]
+  mut current_scene : @editor_bridge.SceneDocument?
+  mut selected_entity_id : String?
+  mut selected_entity_ids : Array[String]
+  mut bootstrapped : Bool
+}
+
+// Type aliases
+
+// Traits
+

@@ -13,16 +13,49 @@
 // limitations under the License.
 
 ///|
-pub(all) struct Camera {
-  mut is_active : Bool
-  order : Int
+pub(all) struct CameraViewport {
+  position : @math.Vec2
+  size : @math.Vec2
 
-  fn new(is_active? : Bool, order? : Int) -> Camera
+  fn new(position : @math.Vec2, size : @math.Vec2) -> CameraViewport
 } derive(Eq, Debug)
 
 ///|
-pub fn Camera::new(is_active? : Bool = true, order? : Int = 0) -> Camera {
-  { is_active, order }
+pub fn CameraViewport::new(
+  position : @math.Vec2,
+  size : @math.Vec2,
+) -> CameraViewport {
+  let width = if size[X] < 0.0 { 0.0 } else { size[X] }
+  let height = if size[Y] < 0.0 { 0.0 } else { size[Y] }
+  { position, size: @math.Vec2(width, height) }
+}
+
+///|
+pub fn CameraViewport::from_rect(rect : @math.Rect) -> CameraViewport {
+  CameraViewport::new(rect.position, rect.size)
+}
+
+///|
+pub fn CameraViewport::rect(self : CameraViewport) -> @math.Rect {
+  { position: self.position, size: self.size }
+}
+
+///|
+pub(all) struct Camera {
+  mut is_active : Bool
+  order : Int
+  viewport : CameraViewport?
+
+  fn new(is_active? : Bool, order? : Int, viewport? : CameraViewport?) -> Camera
+} derive(Eq, Debug)
+
+///|
+pub fn Camera::new(
+  is_active? : Bool = true,
+  order? : Int = 0,
+  viewport? : CameraViewport? = None,
+) -> Camera {
+  { is_active, order, viewport }
 }
 
 ///|
@@ -118,8 +151,37 @@ fn projection_scale(scale : Double) -> Double {
 }
 
 ///|
+fn full_screen_viewport_rect() -> @math.Rect {
+  { position: @math.Vec2::zero(), size: @system.get_screen_size() }
+}
+
+///|
+pub fn Camera::viewport_rect(self : Camera) -> @math.Rect {
+  self.viewport.map_or(full_screen_viewport_rect(), fn(viewport) {
+    viewport.rect()
+  })
+}
+
+///|
+pub fn Camera::with_viewport(
+  self : Camera,
+  viewport : CameraViewport?,
+) -> Camera {
+  { ..self, viewport, }
+}
+
+///|
+pub fn Camera::contains_screen_point(self : Camera, point : @math.Vec2) -> Bool {
+  let viewport = self.viewport_rect()
+  point[X] >= viewport.position[X] &&
+  point[X] <= viewport.position[X] + viewport.size[X] &&
+  point[Y] >= viewport.position[Y] &&
+  point[Y] <= viewport.position[Y] + viewport.size[Y]
+}
+
+///|
 pub fn Camera::world_to_viewport(
-  _self : Camera,
+  self : Camera,
   camera_transform : @transform.GlobalTransform,
   projection : OrthographicProjection,
   world_position : @math.Vec2,
@@ -131,7 +193,8 @@ pub fn Camera::world_to_viewport(
   }
   let pixels_per_world_unit = @system.get_zoom() /
     projection_scale(projection.scale)
-  let viewport_center = @system.get_screen_size().scalar_mul(0.5)
+  let viewport = self.viewport_rect()
+  let viewport_center = viewport.position + viewport.size.scalar_mul(0.5)
   @math.Vec2(
     viewport_center[X] + view_point.x * pixels_per_world_unit,
     viewport_center[Y] + view_point.y * pixels_per_world_unit,
@@ -140,14 +203,15 @@ pub fn Camera::world_to_viewport(
 
 ///|
 pub fn Camera::viewport_to_world_2d(
-  _self : Camera,
+  self : Camera,
   camera_transform : @transform.GlobalTransform,
   projection : OrthographicProjection,
   viewport_position : @math.Vec2,
 ) -> @math.Vec2 {
   let pixels_per_world_unit = @system.get_zoom() /
     projection_scale(projection.scale)
-  let viewport_center = @system.get_screen_size().scalar_mul(0.5)
+  let viewport = self.viewport_rect()
+  let viewport_center = viewport.position + viewport.size.scalar_mul(0.5)
   let view_point = @math.Vec3::new(
     (viewport_position[X] - viewport_center[X]) / pixels_per_world_unit,
     (viewport_position[Y] - viewport_center[Y]) / pixels_per_world_unit,
@@ -195,4 +259,30 @@ test "camera world_to_viewport respects camera rotation" {
   )
   assert_eq(viewport[X], 60.0)
   assert_eq(viewport[Y], 50.0)
+}
+
+///|
+test "camera viewport offsets world_to_viewport into viewport rect" {
+  @system.configure_display(200.0, 120.0, 1.0)
+  let camera = Camera::new(
+    viewport=Some(
+      CameraViewport::new(@math.Vec2(20.0, 10.0), @math.Vec2(80.0, 40.0)),
+    ),
+  )
+  let projection = OrthographicProjection::new()
+  let camera_transform = @transform.GlobalTransform::from_transform(
+    @transform.Transform::default(),
+  )
+  let viewport = camera.world_to_viewport(
+    camera_transform,
+    projection,
+    @math.Vec2::zero(),
+  )
+  assert_eq(viewport[X], 60.0)
+  assert_eq(viewport[Y], 30.0)
+  let world = camera.viewport_to_world_2d(
+    camera_transform, projection, viewport,
+  )
+  assert_eq(world[X], 0.0)
+  assert_eq(world[Y], 0.0)
 }

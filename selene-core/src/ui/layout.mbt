@@ -1,12 +1,4 @@
 ///|
-fn root_size() -> @math.Vec2 {
-  match get_ui_scale_mode() {
-    Screen => @system.get_screen_size()
-    Viewport => @system.get_viewport_size()
-  }
-}
-
-///|
 fn val_to_dimension(value : Val) -> @moon_taffy.Dimension {
   match value {
     Auto => @moon_taffy.auto()
@@ -369,6 +361,7 @@ fn clip_rect_for_node(
   logical_content_rect : @math.Rect,
   border : UiInsets,
   node : Node,
+  layout_space : UiLayoutSpace,
   use_rounding : Bool,
 ) -> @math.Rect {
   let base_rect = match node.overflow_clip_margin.visual_box {
@@ -398,6 +391,7 @@ fn clip_rect_for_node(
         @cmp.maximum(0.0, base_rect.size[Y] + margin * 2.0),
       ),
     },
+    layout_space,
     use_rounding,
   )
 }
@@ -420,9 +414,10 @@ fn rounded_screen_rect(rect : @math.Rect) -> @math.Rect {
 ///|
 fn screen_rect_for(
   logical_rect : @math.Rect,
+  layout_space : UiLayoutSpace,
   use_rounding : Bool,
 ) -> @math.Rect {
-  let screen_rect = to_screen_rect(logical_rect)
+  let screen_rect = to_screen_rect(logical_rect, layout_space)
   if use_rounding {
     rounded_screen_rect(screen_rect)
   } else {
@@ -445,6 +440,11 @@ fn cleanup_dead_ui_state() -> Unit {
   for pair in global_ui_nodes().to_array() {
     if !pair.0.is_alive() {
       global_ui_nodes().remove(pair.0)
+    }
+  }
+  for pair in ui_target_cameras().to_array() {
+    if !pair.0.is_alive() {
+      ui_target_cameras().remove(pair.0)
     }
   }
   for pair in z_indexes().to_array() {
@@ -578,9 +578,15 @@ fn apply_layout_recursive(
   parent_clip : @math.Rect?,
   inherited_use_rounding : Bool,
   order_counter : Ref[Int],
+  layout_space : UiLayoutSpace,
 ) -> Unit {
   guard entity_to_node_id.get(entity) is Some(node_id) else { return }
   guard nodes().get(entity) is Some(node) else { return }
+  let effective_layout_space = match ui_target_cameras().get(entity) {
+    Some(target) => ui_layout_space(Some(target.camera))
+    None => layout_space
+  }
+  let effective_target_camera = effective_layout_space.target_camera
   let use_rounding = layout_configs()
     .get(entity)
     .map(fn(config) { config.use_rounding })
@@ -630,13 +636,19 @@ fn apply_layout_recursive(
     border,
     padding,
   })
-  let screen_rect = screen_rect_for(logical_rect, use_rounding)
-  let screen_content_rect = screen_rect_for(logical_content_rect, use_rounding)
+  let screen_rect = screen_rect_for(
+    logical_rect, effective_layout_space, use_rounding,
+  )
+  let screen_content_rect = screen_rect_for(
+    logical_content_rect, effective_layout_space, use_rounding,
+  )
   global_ui_nodes().set(entity, {
     logical_rect,
     screen_rect,
     logical_content_rect,
     screen_content_rect,
+    target_camera: effective_target_camera,
+    target_viewport: effective_layout_space.viewport,
   })
 
   order_counter.val += 1
@@ -651,7 +663,7 @@ fn apply_layout_recursive(
     inherited_clip
   } else {
     let clip_rect = clip_rect_for_node(
-      logical_rect, logical_content_rect, border, node, use_rounding,
+      logical_rect, logical_content_rect, border, node, effective_layout_space, use_rounding,
     )
     match inherited_clip {
       Some(parent) => rect_intersection(parent, clip_rect)
@@ -671,6 +683,7 @@ fn apply_layout_recursive(
   for child in ui_children(entity) {
     apply_layout_recursive(
       child, taffy, entity_to_node_id, next_origin, current_clip, use_rounding, order_counter,
+      effective_layout_space,
     )
   }
 }
@@ -683,9 +696,12 @@ pub fn ui_layout_system(_delta : Double) -> Unit {
   calculated_clips().clear()
   tree_orders().clear()
 
-  let viewport = root_size()
   let order_counter : Ref[Int] = Ref::new(0)
   for root_entity in top_level_ui_nodes() {
+    let layout_space = ui_layout_space(
+      ui_target_cameras().get(root_entity).map(fn(target) { target.camera }),
+    )
+    let viewport = ui_layout_root_size(layout_space)
     let taffy : @moon_taffy.TaffyTree[@entity.Entity] = @moon_taffy.TaffyTree::new()
     let entity_to_node_id : Map[@entity.Entity, Int] = Map::new()
     guard build_taffy_tree(taffy, root_entity, entity_to_node_id)
@@ -712,6 +728,7 @@ pub fn ui_layout_system(_delta : Double) -> Unit {
       None,
       true,
       order_counter,
+      layout_space,
     )
   }
 }

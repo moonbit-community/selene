@@ -9,11 +9,25 @@ import {
 }
 
 // Values
+pub fn active_camera2d_views() -> Array[Camera2dView]
+
+pub fn camera2d_view_for_screen_point(@math.Vec2) -> Camera2dView?
+
 pub fn camera2ds() -> Map[@entity.Entity, Camera2d]
+
+pub fn camera_relative_transform(@transform.GlobalTransform, Camera2dView) -> @transform.Transform
+
+pub fn camera_screen_transform(@transform.GlobalTransform, Camera2dView?) -> @math.Transform
 
 pub fn cameras() -> Map[@entity.Entity, Camera]
 
 pub fn orthographic_projections() -> Map[@entity.Entity, OrthographicProjection]
+
+pub fn pixel_snapped_position(@math.Vec2) -> @math.Vec2
+
+pub fn primary_camera2d_view() -> Camera2dView?
+
+pub fn screen_space_transform(@transform.Transform) -> @transform.Transform
 
 // Errors
 
@@ -21,11 +35,15 @@ pub fn orthographic_projections() -> Map[@entity.Entity, OrthographicProjection]
 pub(all) struct Camera {
   mut is_active : Bool
   order : Int
+  viewport : CameraViewport?
 
-  fn new(is_active? : Bool, order? : Int) -> Camera
+  fn new(is_active? : Bool, order? : Int, viewport? : CameraViewport?) -> Camera
 } derive(Eq, @debug.Debug)
-pub fn Camera::new(is_active? : Bool, order? : Int) -> Self
+pub fn Camera::contains_screen_point(Self, @math.Vec2) -> Bool
+pub fn Camera::new(is_active? : Bool, order? : Int, viewport? : CameraViewport?) -> Self
+pub fn Camera::viewport_rect(Self) -> @math.Rect
 pub fn Camera::viewport_to_world_2d(Self, @transform.GlobalTransform, OrthographicProjection, @math.Vec2) -> @math.Vec2
+pub fn Camera::with_viewport(Self, CameraViewport?) -> Self
 pub fn Camera::world_to_viewport(Self, @transform.GlobalTransform, OrthographicProjection, @math.Vec2) -> @math.Vec2
 pub impl Default for Camera
 
@@ -34,6 +52,26 @@ pub(all) struct Camera2d {
 } derive(Eq, @debug.Debug)
 pub fn Camera2d::new() -> Self
 pub impl Default for Camera2d
+
+pub(all) struct Camera2dView {
+  entity : @entity.Entity
+  camera : Camera
+  global_transform : @transform.GlobalTransform
+  projection : OrthographicProjection
+  viewport : @math.Rect
+}
+pub fn Camera2dView::viewport_to_world_2d(Self, @math.Vec2) -> @math.Vec2
+pub fn Camera2dView::world_to_viewport(Self, @math.Vec2) -> @math.Vec2
+
+pub(all) struct CameraViewport {
+  position : @math.Vec2
+  size : @math.Vec2
+
+  fn new(@math.Vec2, @math.Vec2) -> CameraViewport
+} derive(Eq, @debug.Debug)
+pub fn CameraViewport::from_rect(@math.Rect) -> Self
+pub fn CameraViewport::new(@math.Vec2, @math.Vec2) -> Self
+pub fn CameraViewport::rect(Self) -> @math.Rect
 
 pub(all) struct OrthographicProjection {
   near : Double

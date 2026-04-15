@@ -1137,54 +1137,10 @@ pub fn tiled_parallax_system(_delta : Double) -> Unit {
 
 ///|
 fn tiled_camera_view_origin() -> @math.Vec2 {
-  match tiled_ecs_active_camera2d_view() {
-    Some((camera, camera_transform, projection)) =>
-      camera.viewport_to_world_2d(
-        camera_transform,
-        projection,
-        @math.Vec2(0.0, 0.0),
-      )
+  match @camera.primary_camera2d_view() {
+    Some(camera_view) =>
+      camera_view.viewport_to_world_2d(camera_view.viewport.position)
     None => @math.Vec2::zero()
-  }
-}
-
-///|
-fn tiled_entity_global_transform(
-  entity : @entity.Entity,
-) -> @transform.GlobalTransform? {
-  @transform.compute_global_transform(entity)
-}
-
-///|
-fn tiled_ecs_active_camera2d_view() -> (
-  @camera.Camera,
-  @transform.GlobalTransform,
-  @camera.OrthographicProjection,
-)? {
-  let mut selected : (
-    @camera.Camera,
-    @transform.GlobalTransform,
-    @camera.OrthographicProjection,
-    Int,
-  )? = None
-  for entity, camera in @camera.cameras() {
-    guard entity.is_alive() else { continue }
-    guard camera.is_active else { continue }
-    guard @camera.camera2ds().contains(entity) else { continue }
-    let projection = @camera.orthographic_projections()
-      .get(entity)
-      .unwrap_or_default()
-    guard tiled_entity_global_transform(entity) is Some(global) else {
-      continue
-    }
-    match selected {
-      Some((_, _, _, order)) if order >= camera.order => ()
-      _ => selected = Some((camera, global, projection, camera.order))
-    }
-  }
-  match selected {
-    Some((camera, global, projection, _)) => Some((camera, global, projection))
-    None => None
   }
 }
 

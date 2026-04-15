@@ -11,6 +11,8 @@
 
 ### Changed
 
+- Changed the 2D/UI camera pipeline to use viewport-aware per-camera 2D passes, render-layer-aware multi-camera extraction, and `UiTargetCamera`-routed UI layout/render/input coordinates instead of the previous single-camera/global-screen assumptions.
+- Changed camera scene documents to support optional persisted 2D camera viewport rectangles in the editor bridge runtime.
 - Changed preview bridge protocol to include typed AutoTile synchronization (`SetAutoTileBrushTerrain` command and `AutoTileLayerChanged` event) so viewport brush edits update SNF scene source and participate in undo/redo.
 - Changed shared/frontend/spec protocol tests to cover new AutoTile preview-tool round-trip and command/event handling.
 - Changed AutoTile Inspector to support editable palette/rule JSON with explicit `Apply` commit and structured parse/validation errors instead of implicit fallback behavior.

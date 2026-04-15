@@ -650,6 +650,39 @@ pub(all) struct GlobalUiNode {
   screen_rect : @math.Rect
   logical_content_rect : @math.Rect
   screen_content_rect : @math.Rect
+  target_camera : @entity.Entity?
+  target_viewport : @math.Rect
+}
+
+///|
+pub(all) struct UiTargetCamera {
+  camera : @entity.Entity
+
+  fn new(camera : @entity.Entity) -> UiTargetCamera
+} derive(Eq, Debug)
+
+///|
+pub fn UiTargetCamera::new(camera : @entity.Entity) -> UiTargetCamera {
+  { camera, }
+}
+
+///|
+pub(all) struct UiLayoutSpace {
+  target_camera : @entity.Entity?
+  viewport : @math.Rect
+
+  fn new(
+    viewport : @math.Rect,
+    target_camera? : @entity.Entity?,
+  ) -> UiLayoutSpace
+}
+
+///|
+pub fn UiLayoutSpace::new(
+  viewport : @math.Rect,
+  target_camera? : @entity.Entity? = None,
+) -> UiLayoutSpace {
+  { target_camera, viewport }
 }
 
 ///|
@@ -790,6 +823,7 @@ priv struct UiModelWorldStore {
   nodes : Map[@entity.Entity, Node]
   computed_ui_nodes : Map[@entity.Entity, ComputedUiNode]
   global_ui_nodes : Map[@entity.Entity, GlobalUiNode]
+  ui_target_cameras : Map[@entity.Entity, UiTargetCamera]
   calculated_clips : Map[@entity.Entity, CalculatedClip]
   layout_configs : Map[@entity.Entity, LayoutConfig]
   z_indexes : Map[@entity.Entity, ZIndex]
@@ -814,6 +848,7 @@ fn ui_model_world_store() -> UiModelWorldStore {
     nodes: Map::new(),
     computed_ui_nodes: Map::new(),
     global_ui_nodes: Map::new(),
+    ui_target_cameras: Map::new(),
     calculated_clips: Map::new(),
     layout_configs: Map::new(),
     z_indexes: Map::new(),
@@ -842,6 +877,11 @@ pub fn computed_ui_nodes() -> Map[@entity.Entity, ComputedUiNode] {
 ///|
 pub fn global_ui_nodes() -> Map[@entity.Entity, GlobalUiNode] {
   ui_model_world_store().global_ui_nodes
+}
+
+///|
+pub fn ui_target_cameras() -> Map[@entity.Entity, UiTargetCamera] {
+  ui_model_world_store().ui_target_cameras
 }
 
 ///|
@@ -960,15 +1000,55 @@ pub fn is_ui_entity(entity : @entity.Entity) -> Bool {
 }
 
 ///|
-fn logical_to_screen_point(point : @math.Vec2) -> @math.Vec2 {
-  match get_ui_scale_mode() {
-    Screen => point
-    Viewport => @system.ui_virtual_to_screen(point)
+fn full_screen_ui_viewport() -> @math.Rect {
+  { position: @math.Vec2::zero(), size: @system.get_screen_size() }
+}
+
+///|
+pub fn ui_layout_space(target_camera : @entity.Entity?) -> UiLayoutSpace {
+  match target_camera {
+    Some(target_camera) => {
+      if !@transform.global_transforms().contains(target_camera) {
+        return UiLayoutSpace::new(full_screen_ui_viewport())
+      }
+      for view in @camera.active_camera2d_views() {
+        if view.entity == target_camera {
+          return UiLayoutSpace::new(
+            view.viewport,
+            target_camera=Some(view.entity),
+          )
+        }
+      }
+      UiLayoutSpace::new(full_screen_ui_viewport())
+    }
+    None => UiLayoutSpace::new(full_screen_ui_viewport())
   }
 }
 
 ///|
-fn logical_to_screen_size(size : @math.Vec2) -> @math.Vec2 {
+pub fn ui_layout_root_size(space : UiLayoutSpace) -> @math.Vec2 {
+  match get_ui_scale_mode() {
+    Screen => space.viewport.size
+    Viewport => @system.unscale_vec2(space.viewport.size)
+  }
+}
+
+///|
+pub fn logical_to_screen_point(
+  point : @math.Vec2,
+  space : UiLayoutSpace,
+) -> @math.Vec2 {
+  match get_ui_scale_mode() {
+    Screen => space.viewport.position + point
+    Viewport => space.viewport.position + @system.ui_virtual_to_screen(point)
+  }
+}
+
+///|
+pub fn logical_to_screen_size(
+  size : @math.Vec2,
+  _space : UiLayoutSpace,
+) -> @math.Vec2 {
   match get_ui_scale_mode() {
     Screen => size
     Viewport => @system.scale_vec2(size)
@@ -976,10 +1056,10 @@ fn logical_to_screen_size(size : @math.Vec2) -> @math.Vec2 {
 }
 
 ///|
-fn to_screen_rect(rect : @math.Rect) -> @math.Rect {
+pub fn to_screen_rect(rect : @math.Rect, space : UiLayoutSpace) -> @math.Rect {
   {
-    position: logical_to_screen_point(rect.position),
-    size: logical_to_screen_size(rect.size),
+    position: logical_to_screen_point(rect.position, space),
+    size: logical_to_screen_size(rect.size, space),
   }
 }
 

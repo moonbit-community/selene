@@ -865,6 +865,14 @@ fn render_entity(entity : @entity.Entity) -> Unit {
 }
 
 ///|
+fn render_target_camera_id(entity : @entity.Entity) -> UInt? {
+  global_ui_nodes()
+  .get(entity)
+  .map(fn(transform) { transform.target_camera.map(fn(camera) { camera.id() }) })
+  .unwrap_or(None)
+}
+
+///|
 pub fn ui_extract_system(_delta : Double) -> Unit {
   extracted_ui_entities.clear()
   for entity, _ in nodes() {
@@ -878,6 +886,8 @@ pub fn ui_extract_system(_delta : Double) -> Unit {
 ///|
 pub fn ui_prepare_system(_delta : Double) -> Unit {
   for entity in extracted_ui_entities {
+    @render2d.set_ui_camera_target(render_target_camera_id(entity))
     render_entity(entity)
   }
+  @render2d.set_ui_camera_target(None)
 }

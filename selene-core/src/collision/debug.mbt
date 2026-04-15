@@ -36,7 +36,7 @@ fn rgba(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
 /// if the collision shape is not a rectangle.
 ///
 pub fn debug_collide_system(_delta : Double) -> Unit {
-  let camera_view = debug_active_camera2d_view()
+  let camera_view = @camera.primary_camera2d_view()
   for e, collide in colliders() {
     guard e.is_alive() else { continue }
     guard collide.active else { continue }
@@ -104,11 +104,7 @@ fn to_screen_rect(
   global_transform : @transform.GlobalTransform,
   local_position : @math.Vec2,
   size : @math.Vec2,
-  camera_view : (
-    @camera.Camera,
-    @transform.GlobalTransform,
-    @camera.OrthographicProjection,
-  )?,
+  camera_view : @camera.Camera2dView?,
 ) -> @math.Rect {
   if @ui.global_ui_nodes().get(entity) is Some(transform) {
     transform.screen_rect
@@ -179,16 +175,11 @@ fn to_screen_rect(
 ///|
 fn screen_point(
   world_point : @math.Vec3,
-  camera_view : (
-    @camera.Camera,
-    @transform.GlobalTransform,
-    @camera.OrthographicProjection,
-  )?,
+  camera_view : @camera.Camera2dView?,
 ) -> @math.Vec2 {
   let world_point_2d = @math.Vec2(world_point.x, world_point.y)
   match camera_view {
-    Some((camera, camera_transform, projection)) =>
-      camera.world_to_viewport(camera_transform, projection, world_point_2d)
+    Some(camera_view) => camera_view.world_to_viewport(world_point_2d)
     None => @system.scale_vec2(world_point_2d)
   }
 }
@@ -198,37 +189,4 @@ fn debug_entity_global_transform(
   entity : @entity.Entity,
 ) -> @transform.GlobalTransform? {
   @transform.global_transforms().get(entity)
-}
-
-///|
-fn debug_active_camera2d_view() -> (
-  @camera.Camera,
-  @transform.GlobalTransform,
-  @camera.OrthographicProjection,
-)? {
-  let mut selected : (
-    @camera.Camera,
-    @transform.GlobalTransform,
-    @camera.OrthographicProjection,
-    Int,
-  )? = None
-  for entity, camera in @camera.cameras() {
-    guard entity.is_alive() else { continue }
-    guard camera.is_active else { continue }
-    guard @camera.camera2ds().contains(entity) else { continue }
-    let projection = @camera.orthographic_projections()
-      .get(entity)
-      .unwrap_or_default()
-    guard debug_entity_global_transform(entity) is Some(global) else {
-      continue
-    }
-    match selected {
-      Some((_, _, _, order)) if order >= camera.order => ()
-      _ => selected = Some((camera, global, projection, camera.order))
-    }
-  }
-  match selected {
-    Some((camera, global, projection, _)) => Some((camera, global, projection))
-    None => None
-  }
 }

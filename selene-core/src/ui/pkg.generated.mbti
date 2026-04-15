@@ -129,6 +129,10 @@ pub fn is_ui_entity(@entity.Entity) -> Bool
 
 pub fn layout_configs() -> Map[@entity.Entity, LayoutConfig]
 
+pub fn logical_to_screen_point(@math.Vec2, UiLayoutSpace) -> @math.Vec2
+
+pub fn logical_to_screen_size(@math.Vec2, UiLayoutSpace) -> @math.Vec2
+
 pub fn material_nodes() -> Map[@entity.Entity, MaterialNode]
 
 pub let navigation_event_bus : @event.Events[UiNavigationEvent]
@@ -173,6 +177,8 @@ pub fn text_style_for(@entity.Entity) -> @render2d_types.TextStyle2D?
 
 pub fn texts() -> Map[@entity.Entity, Text]
 
+pub fn to_screen_rect(@math.Rect, UiLayoutSpace) -> @math.Rect
+
 pub fn transparent() -> @render.Color
 
 pub fn ui_extract_system(Double) -> Unit
@@ -181,11 +187,17 @@ pub fn ui_images() -> Map[@entity.Entity, UiImage]
 
 pub fn ui_interaction_system(Double) -> Unit
 
+pub fn ui_layout_root_size(UiLayoutSpace) -> @math.Vec2
+
+pub fn ui_layout_space(@entity.Entity?) -> UiLayoutSpace
+
 pub fn ui_layout_system(Double) -> Unit
 
 pub fn ui_material_asset(UiMaterialHandle) -> UiMaterialAsset?
 
 pub fn ui_prepare_system(Double) -> Unit
+
+pub fn ui_target_cameras() -> Map[@entity.Entity, UiTargetCamera]
 
 pub fn update_ui_material_asset(UiMaterialHandle, UiMaterialAsset) -> Unit
 
@@ -318,6 +330,8 @@ pub(all) struct GlobalUiNode {
   screen_rect : @math.Rect
   logical_content_rect : @math.Rect
   screen_content_rect : @math.Rect
+  target_camera : @entity.Entity?
+  target_viewport : @math.Rect
 }
 
 pub(all) struct GlobalZIndex {
@@ -616,6 +630,14 @@ pub(all) struct UiInsets {
 } derive(Eq, @debug.Debug)
 pub fn UiInsets::zero() -> Self
 
+pub(all) struct UiLayoutSpace {
+  target_camera : @entity.Entity?
+  viewport : @math.Rect
+
+  fn new(@math.Rect, target_camera? : @entity.Entity?) -> UiLayoutSpace
+}
+pub fn UiLayoutSpace::new(@math.Rect, target_camera? : @entity.Entity?) -> Self
+
 pub(all) struct UiMaterialAsset {
   draw : (UiMaterialContext) -> Unit
 
@@ -692,6 +714,13 @@ pub(all) enum UiScaleMode {
   Screen
   Viewport
 } derive(Eq, @debug.Debug)
+
+pub(all) struct UiTargetCamera {
+  camera : @entity.Entity
+
+  fn new(@entity.Entity) -> UiTargetCamera
+} derive(Eq, @debug.Debug)
+pub fn UiTargetCamera::new(@entity.Entity) -> Self
 
 pub(all) enum Val {
   Auto

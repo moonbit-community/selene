@@ -224,8 +224,12 @@ pub fn decorate_frame_for_debug(
   for overlay in overlays {
     ui_commands.push(overlay)
   }
-  {
-    ..frame,
-    frame2d: { world_commands: frame.frame2d.world_commands, ui_commands },
+  let passes = frame.frame2d.passes.copy()
+  if !passes.is_empty() {
+    let pass = passes[passes.length() - 1]
+    for overlay in overlays {
+      pass.ui_commands.push(overlay)
+    }
   }
+  { ..frame, frame2d: { ..frame.frame2d, passes, ui_commands } }
 }

@@ -94,7 +94,7 @@ pub fn builtin_component_kind_to_string(BuiltinComponentKind) -> String
 
 pub fn builtin_component_kinds() -> Array[BuiltinComponentKind]
 
-pub fn camera2d_component(is_active? : Bool, order? : Int, scale? : Double) -> ComponentDocument
+pub fn camera2d_component(is_active? : Bool, order? : Int, scale? : Double, viewport? : RectDoc?) -> ComponentDocument
 
 pub fn color_doc(Int, Int, Int, a? : Int) -> ColorDoc
 
@@ -512,6 +512,7 @@ pub struct Camera2dComponent {
   is_active : Bool
   order : Int
   scale : Double
+  viewport : RectDoc?
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub struct ColorDoc {
@@ -788,14 +789,20 @@ pub struct WorkspaceDocument {
   selected_entity_id : String?
   move_snap_enabled : Bool?
   move_snap_step : Double?
+  sidebar_scene_ratio : Double?
+  sidebar_assets_ratio : Double?
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 pub fn WorkspaceDocument::default() -> Self
 pub fn WorkspaceDocument::move_snap_enabled_or_default(Self) -> Bool
 pub fn WorkspaceDocument::move_snap_step_or_default(Self) -> Double
+pub fn WorkspaceDocument::sidebar_assets_ratio_or_default(Self) -> Double
+pub fn WorkspaceDocument::sidebar_scene_ratio_or_default(Self) -> Double
 pub fn WorkspaceDocument::with_last_scene(Self, String?) -> Self
 pub fn WorkspaceDocument::with_move_snap_enabled(Self, Bool) -> Self
 pub fn WorkspaceDocument::with_move_snap_step(Self, Double) -> Self
 pub fn WorkspaceDocument::with_selected_entity_id(Self, String?) -> Self
+pub fn WorkspaceDocument::with_sidebar_assets_ratio(Self, Double) -> Self
+pub fn WorkspaceDocument::with_sidebar_scene_ratio(Self, Double) -> Self
 
 // Type aliases
 pub type AssetPathResolver = (String?) -> String?

@@ -102,6 +102,7 @@ test "render submission keeps entity ids and exposes offscreen capture API" {
     let world_command : @render2d.DrawCommandWithDepth2D = {
       depth: 1.0,
       order: 0,
+      camera_entity_id: None,
       entity_id: Some(42U),
       command: Rect({
         rect: { position: @math.Vec2(0.0, 0.0), size: @math.Vec2(2.0, 2.0) },
@@ -111,7 +112,7 @@ test "render submission keeps entity ids and exposes offscreen capture API" {
       }),
     }
     let frame : @render_pipeline.RenderFrame = {
-      frame2d: { world_commands: [], ui_commands: [] },
+      frame2d: { passes: [], world_commands: [], ui_commands: [] },
       frame3d: @render3d_types.empty_render_frame3d(),
       assets3d: @render_pipeline.empty_asset_sync3d(),
     }
@@ -181,11 +182,16 @@ test "atlas overlay decoration appends highlight rects when enabled" {
     let world_command : @render2d.DrawCommandWithDepth2D = {
       depth: 1.0,
       order: 0,
+      camera_entity_id: None,
       entity_id: Some(7U),
       command: Image(draw_image),
     }
     let frame : @render_pipeline.RenderFrame = {
-      frame2d: { world_commands: [Image(draw_image)], ui_commands: [] },
+      frame2d: {
+        passes: [],
+        world_commands: [Image(draw_image)],
+        ui_commands: [],
+      },
       frame3d: @render3d_types.empty_render_frame3d(),
       assets3d: @render_pipeline.empty_asset_sync3d(),
     }
@@ -219,11 +225,16 @@ test "frame metadata export includes draw commands and atlas overlay entries" {
     let world_command : @render2d.DrawCommandWithDepth2D = {
       depth: 2.0,
       order: 0,
+      camera_entity_id: None,
       entity_id: Some(9U),
       command: Image(draw_image),
     }
     let frame : @render_pipeline.RenderFrame = {
-      frame2d: { world_commands: [Image(draw_image)], ui_commands: [] },
+      frame2d: {
+        passes: [],
+        world_commands: [Image(draw_image)],
+        ui_commands: [],
+      },
       frame3d: @render3d_types.empty_render_frame3d(),
       assets3d: @render_pipeline.empty_asset_sync3d(),
     }
