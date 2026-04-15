@@ -4,9 +4,12 @@ package "Milky2018/selene/visibility"
 import {
   "Milky2018/selene/entity",
   "moonbitlang/core/debug",
+  "moonbitlang/core/set",
 }
 
 // Values
+pub fn camera_view_visibilities() -> Map[@entity.Entity, @set.Set[UInt]]
+
 pub fn default_render_layers() -> RenderLayers
 
 pub fn entity_render_layers(@entity.Entity) -> RenderLayers
@@ -15,9 +18,13 @@ pub fn inherited_visibilities() -> Map[@entity.Entity, InheritedVisibility]
 
 pub fn is_visible(@entity.Entity) -> Bool
 
+pub fn is_visible_to_camera(@entity.Entity, UInt) -> Bool
+
 pub fn layer(UInt) -> RenderLayers
 
 pub fn layers(UInt) -> RenderLayers
+
+pub fn mark_visible_to_camera(@entity.Entity, UInt) -> Unit
 
 pub fn matches(RenderLayers, RenderLayers) -> Bool
 
@@ -28,6 +35,8 @@ pub fn view_visibilities() -> Map[@entity.Entity, ViewVisibility]
 pub fn visibilities() -> Map[@entity.Entity, Visibility]
 
 pub fn visibility_propagate_system(Double) -> Unit
+
+pub fn visible_camera_entity_ids(@entity.Entity) -> Array[UInt]
 
 // Errors
 

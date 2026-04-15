@@ -4,12 +4,14 @@ pub(all) struct ColorMaterial {
   texture : @asset.ImageHandle?
   uv_transform : @math.Transform
   alpha_mode : @render.AlphaMode2D
+  blend_mode : @render.BlendMode2D
 
   fn new(
     color? : @render.Color,
     texture? : @asset.ImageHandle?,
     uv_transform? : @math.Transform,
     alpha_mode? : @render.AlphaMode2D,
+    blend_mode? : @render.BlendMode2D,
   ) -> ColorMaterial
 }
 
@@ -72,8 +74,9 @@ pub fn ColorMaterial::new(
   texture? : @asset.ImageHandle? = None,
   uv_transform? : @math.Transform = @math.Transform::identity(),
   alpha_mode? : @render.AlphaMode2D = Blend,
+  blend_mode? : @render.BlendMode2D = Alpha,
 ) -> ColorMaterial {
-  { color, texture, uv_transform, alpha_mode }
+  { color, texture, uv_transform, alpha_mode, blend_mode }
 }
 
 ///|

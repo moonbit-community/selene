@@ -15,6 +15,12 @@ pub(all) enum AlphaMode2D {
   Blend
 } derive(Eq, @debug.Debug)
 
+pub(all) enum BlendMode2D {
+  Alpha
+  Additive
+  Multiply
+} derive(Eq, @debug.Debug)
+
 pub(all) struct Color {
   r : UInt
   g : UInt

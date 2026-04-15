@@ -37,6 +37,22 @@ fn submit_draw_command(command : @render2d_types.DrawCommand2D) -> Unit {
 }
 
 ///|
+fn pass_target_is_supported(
+  target : @render2d_types.RenderPassTarget2D,
+) -> Bool {
+  match target {
+    Screen => true
+    Offscreen(name) => {
+      ignore(name)
+      capability_warning(
+        "2d_offscreen_target", "webgpu backend does not support camera-owned 2D offscreen render targets yet",
+      )
+      false
+    }
+  }
+}
+
+///|
 pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
   let clear = frame.frame3d.clear_color
   @impl.begin_frame(clear)
@@ -62,9 +78,17 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
 
   @impl.render_3d_frame(frame.frame3d)
   for pass in frame.frame2d.passes {
+    if !pass_target_is_supported(pass.target) {
+      continue
+    }
     if !pass.world_commands.is_empty() ||
       pass.load_op is @render2d_types.RenderPassLoadOp2D::Clear {
-      @impl.begin_2d_pass(pass.viewport, pass.load_op, pass.clear_color)
+      @impl.begin_2d_pass(
+        pass.viewport,
+        pass.load_op,
+        pass.clear_color,
+        pass.target,
+      )
       for command in pass.world_commands {
         submit_draw_command(command)
       }
@@ -75,6 +99,7 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
         pass.viewport,
         @render2d_types.RenderPassLoadOp2D::Load,
         pass.clear_color,
+        pass.target,
       )
       for command in pass.ui_commands {
         submit_draw_command(command)

@@ -152,14 +152,16 @@ pub fn render_mesh2d_system(delta : Double) -> Unit {
     let sorting = @render2d.entity_sorting2d(entity)
     let depth = @render2d.sort_depth_for_transform(global_transform, sorting)
     let transform = global_transform.compute_transform()
-    let raw_pos = @math.Vec2(transform.translation.x, transform.translation.y)
+    let base_pos = @math.Vec2(transform.translation.x, transform.translation.y)
+    let parallax = @parallax2d.inherited_parallax2d(entity)
     if camera_views.is_empty() {
+      let screen_pos = @parallax2d.parallax_world_position(base_pos, parallax, None)
       push_mesh2d_draw_command(
         entity,
         mesh_asset,
         material,
         depth,
-        @camera.pixel_snapped_position(@system.scale_vec2(raw_pos)),
+        @camera.pixel_snapped_position(@system.scale_vec2(screen_pos)),
         @camera.camera_screen_transform(global_transform, None),
         None,
         sorting,
@@ -174,6 +176,11 @@ pub fn render_mesh2d_system(delta : Double) -> Unit {
       ) else {
         continue
       }
+      let raw_pos = @parallax2d.parallax_world_position(
+        base_pos,
+        parallax,
+        Some(camera_view),
+      )
       let screen_position = @camera.pixel_snapped_position(
         camera_view.world_to_viewport(raw_pos),
       )
@@ -183,6 +190,7 @@ pub fn render_mesh2d_system(delta : Double) -> Unit {
       )
       let bounds = mesh2d_bounds(mesh_asset, screen_position, screen_transform)
       guard camera_view.intersects_screen_rect(bounds) else { continue }
+      @visibility.mark_visible_to_camera(entity, camera_view.entity.id())
       push_mesh2d_draw_command(
         entity,
         mesh_asset,
@@ -221,6 +229,7 @@ fn push_mesh2d_draw_command(
             uv_transform: material.uv_transform,
             repeat: NoRepeat,
             alpha_mode: material.alpha_mode,
+            blend_mode: material.blend_mode,
             color: material.color,
           }
           match camera_entity_id {
@@ -246,6 +255,7 @@ fn push_mesh2d_draw_command(
             rect: { position: snapped_pos, size },
             transform: external_transform,
             alpha_mode: material.alpha_mode,
+            blend_mode: material.blend_mode,
             fill_color: material.color,
             stroke_color: None,
           }
@@ -275,6 +285,7 @@ fn push_mesh2d_draw_command(
         radius,
         transform: screen_transform,
         alpha_mode: material.alpha_mode,
+        blend_mode: material.blend_mode,
         fill_color: material.color,
         stroke_color: None,
       }

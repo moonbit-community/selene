@@ -40,6 +40,22 @@ fn submit_draw_command(command : @render2d_types.DrawCommand2D) -> Unit {
 let reported_capabilities : @set.Set[String] = @set.Set::new()
 
 ///|
+fn pass_target_is_supported(
+  target : @render2d_types.RenderPassTarget2D,
+) -> Bool {
+  match target {
+    Screen => true
+    Offscreen(name) => {
+      ignore(name)
+      capability_warning(
+        "2d_offscreen_target", "raylib backend does not support camera-owned 2D offscreen render targets yet",
+      )
+      false
+    }
+  }
+}
+
+///|
 fn submit_frame_contents(frame : @render_pipeline.RenderFrame) -> Unit {
   for pair in frame.assets3d.mesh_upserts {
     @impl.sync_mesh_asset(pair.0, pair.1)
@@ -68,9 +84,17 @@ fn submit_frame_contents(frame : @render_pipeline.RenderFrame) -> Unit {
 
   @impl.render_3d_frame(frame.frame3d)
   for pass in frame.frame2d.passes {
+    if !pass_target_is_supported(pass.target) {
+      continue
+    }
     if !pass.world_commands.is_empty() ||
       pass.load_op is @render2d_types.RenderPassLoadOp2D::Clear {
-      @impl.begin_2d_pass(pass.viewport, pass.load_op, pass.clear_color)
+      @impl.begin_2d_pass(
+        pass.viewport,
+        pass.load_op,
+        pass.clear_color,
+        pass.target,
+      )
       for command in pass.world_commands {
         submit_draw_command(command)
       }
@@ -81,6 +105,7 @@ fn submit_frame_contents(frame : @render_pipeline.RenderFrame) -> Unit {
         pass.viewport,
         @render2d_types.RenderPassLoadOp2D::Load,
         pass.clear_color,
+        pass.target,
       )
       for command in pass.ui_commands {
         submit_draw_command(command)

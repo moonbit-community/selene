@@ -59,5 +59,47 @@ test "build_frame2d keeps clear-only camera passes" {
       frame.passes[0].clear_color.g.reinterpret_as_int() == 24,
       content="true",
     )
+    inspect(
+      match frame.passes[0].target {
+        @render2d_types.RenderPassTarget2D::Screen => true
+        _ => false
+      },
+      content="true",
+    )
+  })
+}
+
+///|
+test "build_frame2d maps camera offscreen pass target" {
+  with_render_submit_test_world(fn() raise {
+    @system.configure_display(200.0, 120.0, 1.0)
+    let camera_entity = @entity.Entity::new()
+    @camera.cameras().set(
+      camera_entity,
+      @camera.Camera::new(
+        pass=@camera.CameraPass2D::new(
+          load_op=Clear,
+          clear_color={ r: 0U, g: 0U, b: 0U, a: 1.0 },
+          target=@camera.CameraPassTarget2D::Offscreen("minimap"),
+        ),
+      ),
+    )
+    @camera.camera2ds().set(camera_entity, @camera.Camera2d::new())
+    @transform.global_transforms().set(
+      camera_entity,
+      @transform.GlobalTransform::from_transform(
+        @transform.Transform::from_xyz(0.0, 0.0, 0.0),
+      ),
+    )
+
+    let (frame, _) = build_frame2d(@camera.active_camera2d_views())
+    inspect(frame.passes.length(), content="1")
+    inspect(
+      match frame.passes[0].target {
+        @render2d_types.RenderPassTarget2D::Offscreen(name) => name == "minimap"
+        _ => false
+      },
+      content="true",
+    )
   })
 }

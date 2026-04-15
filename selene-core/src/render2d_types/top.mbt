@@ -13,6 +13,7 @@ pub(all) struct ImageDrawCommand2D {
   uv_transform : @math.Transform
   repeat : @math.RepeatMode
   alpha_mode : @render.AlphaMode2D
+  blend_mode : @render.BlendMode2D
   color : @render.Color
 }
 
@@ -31,6 +32,7 @@ pub(all) struct TextDrawCommand2D {
   text : String
   position : @math.Vec2
   transform : @math.Transform
+  blend_mode : @render.BlendMode2D
   style : TextStyle2D
 }
 
@@ -39,6 +41,7 @@ pub(all) struct RectDrawCommand2D {
   rect : @math.Rect
   transform : @math.Transform
   alpha_mode : @render.AlphaMode2D
+  blend_mode : @render.BlendMode2D
   fill_color : @render.Color
   stroke_color : @render.Color?
 }
@@ -49,6 +52,7 @@ pub(all) struct CircleDrawCommand2D {
   radius : Double
   transform : @math.Transform
   alpha_mode : @render.AlphaMode2D
+  blend_mode : @render.BlendMode2D
   fill_color : @render.Color
   stroke_color : @render.Color?
 }
@@ -58,6 +62,7 @@ pub(all) struct GradientRectDrawCommand2D {
   rect : @math.Rect
   transform : @math.Transform
   alpha_mode : @render.AlphaMode2D
+  blend_mode : @render.BlendMode2D
   color_start : @render.Color
   color_end : @render.Color
 }
@@ -85,12 +90,19 @@ pub(all) enum RenderPassLoadOp2D {
 } derive(Eq, Debug)
 
 ///|
+pub(all) enum RenderPassTarget2D {
+  Screen
+  Offscreen(String)
+} derive(Eq, Debug)
+
+///|
 pub(all) struct RenderPass2D {
   camera_entity_id : UInt?
   order : Int
   viewport : @math.Rect
   load_op : RenderPassLoadOp2D
   clear_color : @render.Color
+  target : RenderPassTarget2D
   mut world_commands : Array[DrawCommand2D]
   mut ui_commands : Array[DrawCommand2D]
 }

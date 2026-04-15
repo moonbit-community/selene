@@ -23,6 +23,16 @@ fn render_pass_load_op(
 }
 
 ///|
+fn render_pass_target(
+  target : @camera.CameraPassTarget2D,
+) -> @render2d_types.RenderPassTarget2D {
+  match target {
+    Screen => @render2d_types.RenderPassTarget2D::Screen
+    Offscreen(name) => @render2d_types.RenderPassTarget2D::Offscreen(name)
+  }
+}
+
+///|
 fn build_frame2d(
   camera_views : Array[@camera.Camera2dView],
 ) -> (@render2d_types.RenderFrame2D, Array[@render2d.DrawCommandWithDepth2D]) {
@@ -57,6 +67,7 @@ fn build_frame2d(
       viewport: camera_view.viewport,
       load_op: render_pass_load_op(camera_view.camera.pass.load_op),
       clear_color: camera_view.camera.pass.clear_color,
+      target: render_pass_target(camera_view.camera.pass.target),
       world_commands: pass_world_commands,
       ui_commands: pass_ui_commands,
     })
@@ -81,6 +92,7 @@ fn build_frame2d(
       viewport: full_screen_viewport(),
       load_op: @render2d_types.RenderPassLoadOp2D::Load,
       clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0 },
+      target: @render2d_types.RenderPassTarget2D::Screen,
       world_commands: screen_world_commands,
       ui_commands: screen_ui_commands,
     })

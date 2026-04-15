@@ -1,6 +1,10 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene-examples/cards"
 
+import {
+  "moonbitlang/core/debug",
+}
+
 // Values
 pub fn run() -> Unit
 
@@ -15,7 +19,7 @@ type CardSuit derive(Eq, Hash)
 
 type GamePhase derive(Eq)
 
-type HandRank derive(Show)
+type HandRank derive(@debug.Debug)
 
 // Type aliases
 

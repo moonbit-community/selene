@@ -54,13 +54,18 @@ test "sprite rendering skips cameras whose viewport does not intersect the sprit
       position: @math.Vec2::zero(),
       size: @math.Vec2(100.0, 100.0),
     })
-    ignore(spawn_color_sprite(@math.Vec2(200.0, 200.0)))
+    let sprite_entity = spawn_color_sprite(@math.Vec2(200.0, 200.0))
+    @visibility.visibility_propagate_system(0.0)
 
     render_sprite_system(0.0)
 
     inspect(
       @render2d.get_camera_world_commands_with_depth(camera_entity.id()).length(),
       content="0",
+    )
+    inspect(
+      @visibility.is_visible_to_camera(sprite_entity, camera_entity.id()),
+      content="false",
     )
   })
 }
@@ -74,13 +79,18 @@ test "sprite rendering keeps visible sprites inside the camera viewport" {
       position: @math.Vec2::zero(),
       size: @math.Vec2(100.0, 100.0),
     })
-    ignore(spawn_color_sprite(@math.Vec2(50.0, 50.0)))
+    let sprite_entity = spawn_color_sprite(@math.Vec2(50.0, 50.0))
+    @visibility.visibility_propagate_system(0.0)
 
     render_sprite_system(0.0)
 
     inspect(
       @render2d.get_camera_world_commands_with_depth(camera_entity.id()).length(),
       content="1",
+    )
+    inspect(
+      @visibility.is_visible_to_camera(sprite_entity, camera_entity.id()),
+      content="true",
     )
   })
 }

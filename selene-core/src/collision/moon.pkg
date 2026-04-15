@@ -17,6 +17,7 @@ import {
   "Milky2018/selene/render2d",
   "Milky2018/selene/system",
   "Milky2018/selene/render",
+  "Milky2018/selene/visibility",
   "moonbitlang/core/math" @cmath,
   "moonbitlang/core/cmp",
   "moonbitlang/core/set",

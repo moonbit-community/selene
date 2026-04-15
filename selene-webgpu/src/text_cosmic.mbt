@@ -228,6 +228,7 @@ fn draw_text_with_cosmic(command : @render2d_types.TextDrawCommand2D) -> Bool {
       transform.ty,
       h_align_to_code(command.style.align),
       v_align_to_code(command.style.baseline),
+      blend_mode_to_code(command.blend_mode),
     )
     true
   } else {

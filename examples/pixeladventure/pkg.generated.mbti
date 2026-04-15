@@ -8,6 +8,10 @@ import {
 // Values
 pub fn pixeladventure_startup_scene_document() -> @editor_bridge.SceneDocument
 
+pub fn pixeladventure_startup_scene_document_with_source((String) -> Bytes?, manifest_path? : String) -> @editor_bridge.SceneDocument
+
+pub fn pixeladventure_test_document_source() -> (String) -> Bytes?
+
 pub fn run() -> Unit
 
 pub fn with_pixeladventure_test_asset_io(() -> Unit raise) -> Unit raise

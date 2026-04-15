@@ -32,11 +32,12 @@ pub(all) struct ColorMaterial {
   texture : @asset_types.ImageHandle?
   uv_transform : @math.Transform
   alpha_mode : @render.AlphaMode2D
+  blend_mode : @render.BlendMode2D
 
-  fn new(color? : @render.Color, texture? : @asset_types.ImageHandle?, uv_transform? : @math.Transform, alpha_mode? : @render.AlphaMode2D) -> ColorMaterial
+  fn new(color? : @render.Color, texture? : @asset_types.ImageHandle?, uv_transform? : @math.Transform, alpha_mode? : @render.AlphaMode2D, blend_mode? : @render.BlendMode2D) -> ColorMaterial
 }
 pub fn ColorMaterial::from_color(@render.Color) -> Self
-pub fn ColorMaterial::new(color? : @render.Color, texture? : @asset_types.ImageHandle?, uv_transform? : @math.Transform, alpha_mode? : @render.AlphaMode2D) -> Self
+pub fn ColorMaterial::new(color? : @render.Color, texture? : @asset_types.ImageHandle?, uv_transform? : @math.Transform, alpha_mode? : @render.AlphaMode2D, blend_mode? : @render.BlendMode2D) -> Self
 
 pub(all) struct ColorMaterialHandle(UInt) derive(Eq, Hash, @debug.Debug)
 #deprecated

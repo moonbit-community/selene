@@ -24,6 +24,7 @@ priv struct VisibilityWorldStore {
   visibilities : Map[@entity.Entity, Visibility]
   inherited_visibilities : Map[@entity.Entity, InheritedVisibility]
   view_visibilities : Map[@entity.Entity, ViewVisibility]
+  camera_view_visibilities : Map[@entity.Entity, @set.Set[UInt]]
   render_layers : Map[@entity.Entity, RenderLayers]
 }
 
@@ -37,6 +38,7 @@ fn visibility_world_store() -> VisibilityWorldStore {
     visibilities: Map::new(),
     inherited_visibilities: Map::new(),
     view_visibilities: Map::new(),
+    camera_view_visibilities: Map::new(),
     render_layers: Map::new(),
   })
 }
@@ -54,6 +56,11 @@ pub fn inherited_visibilities() -> Map[@entity.Entity, InheritedVisibility] {
 ///|
 pub fn view_visibilities() -> Map[@entity.Entity, ViewVisibility] {
   visibility_world_store().view_visibilities
+}
+
+///|
+pub fn camera_view_visibilities() -> Map[@entity.Entity, @set.Set[UInt]] {
+  visibility_world_store().camera_view_visibilities
 }
 
 ///|
@@ -91,6 +98,38 @@ pub fn entity_render_layers(entity : @entity.Entity) -> RenderLayers {
 }
 
 ///|
+fn camera_visibility_set(entity : @entity.Entity) -> @set.Set[UInt] {
+  camera_view_visibilities().get_or_init(entity, fn() { @set.Set::new() })
+}
+
+///|
+pub fn mark_visible_to_camera(
+  entity : @entity.Entity,
+  camera_entity_id : UInt,
+) -> Unit {
+  camera_visibility_set(entity).add(camera_entity_id)
+}
+
+///|
+pub fn is_visible_to_camera(
+  entity : @entity.Entity,
+  camera_entity_id : UInt,
+) -> Bool {
+  camera_view_visibilities().get(entity).map(fn(visible_cameras) {
+    visible_cameras.contains(camera_entity_id)
+  }).unwrap_or(false)
+}
+
+///|
+pub fn visible_camera_entity_ids(entity : @entity.Entity) -> Array[UInt] {
+  let camera_ids = camera_view_visibilities().get(entity).map(fn(visible_cameras) {
+    visible_cameras.to_array()
+  }).unwrap_or([])
+  camera_ids.sort_by(fn(lhs, rhs) { lhs.compare(rhs) })
+  camera_ids
+}
+
+///|
 fn compute_inherited_visibility(
   entity : @entity.Entity,
   cache : Map[@entity.Entity, Bool],
@@ -112,6 +151,7 @@ fn compute_inherited_visibility(
 pub fn visibility_propagate_system(_delta : Double) -> Unit {
   let inherited_visibilities = inherited_visibilities()
   let view_visibilities = view_visibilities()
+  let camera_view_visibilities = camera_view_visibilities()
   let render_layers = render_layers()
   let visibilities = visibilities()
   let cache : Map[@entity.Entity, Bool] = Map::new()
@@ -119,6 +159,10 @@ pub fn visibility_propagate_system(_delta : Double) -> Unit {
     let visible = compute_inherited_visibility(entity, cache)
     inherited_visibilities.set(entity, { visible, })
     view_visibilities.set(entity, { visible, })
+    match camera_view_visibilities.get(entity) {
+      Some(visible_cameras) => visible_cameras.clear()
+      None => ()
+    }
   }
   for pair in inherited_visibilities.to_array() {
     let entity = pair.0
@@ -130,6 +174,12 @@ pub fn visibility_propagate_system(_delta : Double) -> Unit {
     let entity = pair.0
     if !entity.is_alive() {
       view_visibilities.remove(entity)
+    }
+  }
+  for pair in camera_view_visibilities.to_array() {
+    let entity = pair.0
+    if !entity.is_alive() {
+      camera_view_visibilities.remove(entity)
     }
   }
   for pair in render_layers.to_array() {

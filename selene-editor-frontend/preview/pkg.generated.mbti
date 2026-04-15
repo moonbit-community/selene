@@ -22,6 +22,8 @@ pub fn set_animation_preview_paused(Bool) -> Unit
 
 pub fn set_animation_preview_speed(Double) -> Unit
 
+pub fn set_autotile_brush_terrain(Int) -> Unit
+
 pub fn set_event_sink(((@preview_bridge.PreviewEvent) -> Unit)?) -> Unit
 
 pub fn set_move_snap(Bool, Double) -> Unit

@@ -13,6 +13,8 @@ import {
 }
 
 // Values
+pub fn begin_2d_pass(@math.Rect, @render2d_types.RenderPassLoadOp2D, @render.Color, @render2d_types.RenderPassTarget2D) -> Unit
+
 pub fn begin_frame(@render.Color) -> Unit
 
 pub fn capture_frame_png() -> Bytes?
@@ -28,6 +30,8 @@ pub fn draw_image(@render2d_types.ImageDrawCommand2D, String) -> Unit
 pub fn draw_rect(@render2d_types.RectDrawCommand2D) -> Unit
 
 pub fn draw_text(@render2d_types.TextDrawCommand2D) -> Unit
+
+pub fn end_2d_pass() -> Unit
 
 pub fn end_frame() -> Unit
 

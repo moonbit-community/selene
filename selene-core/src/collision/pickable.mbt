@@ -95,11 +95,166 @@ fn point_in_rect(
 }
 
 ///|
+fn point_in_circle(
+  point : @math.Vec2,
+  center : @math.Vec2,
+  radius : Double,
+) -> Bool {
+  let dx = point[X] - center[X]
+  let dy = point[Y] - center[Y]
+  dx * dx + dy * dy <= radius * radius
+}
+
+///|
+fn point_in_polygon(
+  point : @math.Vec2,
+  points : Array[@math.Vec2],
+  offset : @math.Vec2,
+) -> Bool {
+  if points.length() < 3 {
+    return false
+  }
+  let mut inside = false
+  let mut last = points[points.length() - 1] + offset
+  for point_on_edge in points {
+    let current = point_on_edge + offset
+    if (current[Y] > point[Y]) != (last[Y] > point[Y]) {
+      let edge_height = last[Y] - current[Y]
+      if edge_height.abs() > 0.000001 {
+        let edge_x = current[X] +
+          (point[Y] - current[Y]) * (last[X] - current[X]) / edge_height
+        if point[X] < edge_x {
+          inside = !inside
+        }
+      }
+    }
+    last = current
+  }
+  inside
+}
+
+///|
+fn point_segment_distance_sq(
+  point : @math.Vec2,
+  start : @math.Vec2,
+  end_ : @math.Vec2,
+) -> Double {
+  let dx = end_[X] - start[X]
+  let dy = end_[Y] - start[Y]
+  let length_sq = dx * dx + dy * dy
+  if length_sq <= 0.000001 {
+    let px = point[X] - start[X]
+    let py = point[Y] - start[Y]
+    return px * px + py * py
+  }
+  let projection = ((point[X] - start[X]) * dx + (point[Y] - start[Y]) * dy) /
+    length_sq
+  let clamped = @cmp.maximum(0.0, @cmp.minimum(1.0, projection))
+  let closest_x = start[X] + dx * clamped
+  let closest_y = start[Y] + dy * clamped
+  let px = point[X] - closest_x
+  let py = point[Y] - closest_y
+  px * px + py * py
+}
+
+///|
+fn point_on_polyline(
+  point : @math.Vec2,
+  points : Array[@math.Vec2],
+  offset : @math.Vec2,
+  closed : Bool,
+  tolerance : Double,
+) -> Bool {
+  if points.length() < 2 {
+    return false
+  }
+  let tolerance_sq = tolerance * tolerance
+  let mut previous = points[0] + offset
+  for index, local_point in points {
+    if index == 0 {
+      continue
+    }
+    let current = local_point + offset
+    if point_segment_distance_sq(point, previous, current) <= tolerance_sq {
+      return true
+    }
+    previous = current
+  }
+  closed &&
+  point_segment_distance_sq(
+    point,
+    points[points.length() - 1] + offset,
+    points[0] + offset,
+  ) <= tolerance_sq
+}
+
+///|
+fn pickable_line_tolerance(camera_view : @camera.Camera2dView?) -> Double {
+  match camera_view {
+    Some(camera_view) => {
+      let projection_scale = if camera_view.projection.scale <= 0.0 {
+        1.0
+      } else {
+        camera_view.projection.scale
+      }
+      4.0 * projection_scale / @cmp.maximum(@system.get_zoom(), 0.000001)
+    }
+    None => 4.0 / @cmp.maximum(@system.get_zoom(), 0.000001)
+  }
+}
+
+///|
+fn point_in_collision_shape(
+  point : @math.Vec2,
+  shape : CollisionShape,
+  camera_view : @camera.Camera2dView?,
+) -> Bool {
+  match shape {
+    Rect(size~, offset~) => point_in_rect(point, offset, size)
+    Ball(radius~, offset~) => point_in_circle(point, offset, radius)
+    Polygon(points~, offset~) => point_in_polygon(point, points, offset)
+    Polyline(points~, offset~, closed~) =>
+      point_on_polyline(
+        point,
+        points,
+        offset,
+        closed,
+        pickable_line_tolerance(camera_view),
+      )
+  }
+}
+
+///|
+fn pickable_matches_camera_view(
+  entity : @entity.Entity,
+  camera_view : @camera.Camera2dView?,
+) -> Bool {
+  if @ui.global_ui_nodes().contains(entity) {
+    return true
+  }
+  match camera_view {
+    Some(camera_view) => {
+      if !@visibility.matches(
+        @visibility.entity_render_layers(entity),
+        @visibility.entity_render_layers(camera_view.entity),
+      ) {
+        return false
+      }
+      let visible_cameras = @visibility.visible_camera_entity_ids(entity)
+      visible_cameras.is_empty() ||
+      visible_cameras.contains(camera_view.entity.id())
+    }
+    None => true
+  }
+}
+
+///|
 fn hit_test_pickable(
   entity : @entity.Entity,
   mouse_screen : @math.Vec2,
   mouse_world : @math.Vec2,
   _mouse_virtual : @math.Vec2,
+  camera_view : @camera.Camera2dView?,
 ) -> Bool {
   if @ui.global_ui_nodes().get(entity) is Some(transform) {
     return point_in_rect(
@@ -112,7 +267,6 @@ fn hit_test_pickable(
     return false
   }
   guard shapes().get(entity) is Some(shape) else { return false }
-  guard shape is Rect(size~, offset~) else { return false }
   let local_point = match transform.affine.inverse() {
     Some(inverse_transform) =>
       inverse_transform.transform_point3(
@@ -120,7 +274,11 @@ fn hit_test_pickable(
       )
     None => @math.Vec3::new(mouse_world[X], mouse_world[Y], 0.0)
   }
-  point_in_rect(@math.Vec2(local_point.x, local_point.y), offset, size)
+  point_in_collision_shape(
+    @math.Vec2(local_point.x, local_point.y),
+    shape,
+    camera_view,
+  )
 }
 
 ///|
@@ -144,7 +302,8 @@ fn dispatch_pointer_events(entity : @entity.Entity) -> Unit {
 ///|
 pub fn pickable_click_system(_delta : Double) -> Unit {
   let mouse_screen = @inputs.mouse.pos
-  let mouse_world = match @camera.camera2d_view_for_screen_point(mouse_screen) {
+  let camera_view = @camera.camera2d_view_for_screen_point(mouse_screen)
+  let mouse_world = match camera_view {
     Some(camera_view) => camera_view.viewport_to_world_2d(mouse_screen)
     None => @system.unscale_vec2(mouse_screen)
   }
@@ -152,7 +311,15 @@ pub fn pickable_click_system(_delta : Double) -> Unit {
   for entity, pickable in pickables() {
     guard entity.is_alive() else { continue }
     guard pickable.active else { continue }
-    if hit_test_pickable(entity, mouse_screen, mouse_world, mouse_virtual) {
+    guard @visibility.is_visible(entity) else { continue }
+    guard pickable_matches_camera_view(entity, camera_view) else { continue }
+    if hit_test_pickable(
+      entity,
+      mouse_screen,
+      mouse_world,
+      mouse_virtual,
+      camera_view,
+    ) {
       dispatch_pointer_events(entity)
     }
   }

@@ -13,10 +13,33 @@ pub(all) struct TextBounds {
 } derive(Eq, Debug)
 
 ///|
+priv struct TextLayoutCacheKey {
+  text : String
+  font : @asset.FontHandle?
+  family : String
+  size : Double
+  line_height : Double
+  wrap : @ui.TextWrap
+  overflow : @ui.TextOverflow
+  bounds_width : Double
+  bounds_height : Double
+} derive(Eq)
+
+///|
+priv struct CachedTextLayout2d {
+  key : TextLayoutCacheKey
+  lines : Array[String]
+  max_line_width : Double
+  line_height : Double
+  block_height : Double
+}
+
+///|
 priv struct Text2dWorldStore {
   text2ds : Map[@entity.Entity, Text2d]
   text_bounds : Map[@entity.Entity, TextBounds]
   text_anchors : Map[@entity.Entity, @sprite.Anchor]
+  text_layout_caches : Map[@entity.Entity, CachedTextLayout2d]
 }
 
 ///|
@@ -26,7 +49,12 @@ let text2d_world_stores : Map[UInt, Text2dWorldStore] = Map::new()
 fn text2d_world_store() -> Text2dWorldStore {
   let world_id = @ecs.require_current_world().id()
   text2d_world_stores.get_or_init(world_id, fn() {
-    { text2ds: Map::new(), text_bounds: Map::new(), text_anchors: Map::new() }
+    {
+      text2ds: Map::new(),
+      text_bounds: Map::new(),
+      text_anchors: Map::new(),
+      text_layout_caches: Map::new(),
+    }
   })
 }
 
@@ -43,6 +71,11 @@ pub fn text_bounds() -> Map[@entity.Entity, TextBounds] {
 ///|
 pub fn text_anchors() -> Map[@entity.Entity, @sprite.Anchor] {
   text2d_world_store().text_anchors
+}
+
+///|
+fn text_layout_caches() -> Map[@entity.Entity, CachedTextLayout2d] {
+  text2d_world_store().text_layout_caches
 }
 
 ///|
@@ -198,6 +231,57 @@ fn bounded_text_lines(
 }
 
 ///|
+fn text_layout_cache_key(
+  text : String,
+  style : @render2d_types.TextStyle2D,
+  layout : @ui.TextLayout,
+  bounds : TextBounds?,
+) -> TextLayoutCacheKey {
+  {
+    text,
+    font: style.font,
+    family: style.family,
+    size: style.size,
+    line_height: layout.line_height,
+    wrap: layout.wrap,
+    overflow: layout.overflow,
+    bounds_width: bounds.map_or(-1.0, fn(bounds) { bounds.width }),
+    bounds_height: bounds.map_or(-1.0, fn(bounds) { bounds.height }),
+  }
+}
+
+///|
+fn cached_text_layout(
+  entity : @entity.Entity,
+  text : String,
+  style : @render2d_types.TextStyle2D,
+  layout : @ui.TextLayout,
+  bounds : TextBounds?,
+) -> CachedTextLayout2d {
+  let key = text_layout_cache_key(text, style, layout, bounds)
+  match text_layout_caches().get(entity) {
+    Some(cached) if cached.key == key => cached
+    _ => {
+      let lines = bounded_text_lines(text, style, layout, bounds)
+      let line_height = style.size * @cmp.maximum(1.0, layout.line_height)
+      let block_height = line_height * lines.length().to_double()
+      let max_line_width = lines.fold(init=0.0, fn(acc, line) {
+        @cmp.maximum(acc, measure_text_fragment(style, line)[X])
+      })
+      let cached = {
+        key,
+        lines,
+        max_line_width,
+        line_height,
+        block_height,
+      }
+      text_layout_caches().set(entity, cached)
+      cached
+    }
+  }
+}
+
+///|
 fn anchor_origin(anchor : @sprite.Anchor, size : @math.Vec2) -> @math.Vec2 {
   let normalized = anchor.as_vec()
   @math.Vec2(-size[X] * (normalized[X] + 0.5), -size[Y] * (0.5 - normalized[Y]))
@@ -206,6 +290,11 @@ fn anchor_origin(anchor : @sprite.Anchor, size : @math.Vec2) -> @math.Vec2 {
 ///|
 pub fn render_text2d_system(delta : Double) -> Unit {
   ignore(delta)
+  for pair in text_layout_caches().to_array() {
+    if !pair.0.is_alive() {
+      text_layout_caches().remove(pair.0)
+    }
+  }
   let camera_views = @camera.active_camera2d_views()
   for entity, _ in text2ds() {
     guard entity.is_alive() else { continue }
@@ -218,20 +307,26 @@ pub fn render_text2d_system(delta : Double) -> Unit {
     let layout = text2d_layout(entity)
     let bounds = text_bounds().get(entity)
     let transform = global_transform.compute_transform()
-    let raw_pos = @math.Vec2(transform.translation.x, transform.translation.y)
+    let base_pos = @math.Vec2(transform.translation.x, transform.translation.y)
+    let parallax = @parallax2d.inherited_parallax2d(entity)
     let sorting = @render2d.entity_sorting2d(entity)
     let depth = @render2d.sort_depth_for_transform(global_transform, sorting)
-    let lines = bounded_text_lines(text.content, style, layout, bounds)
+    let cached_layout = cached_text_layout(
+      entity,
+      text.content,
+      style,
+      layout,
+      bounds,
+    )
+    let lines = cached_layout.lines
     if lines.is_empty() {
       continue
     }
-    let line_height = style.size * @cmp.maximum(1.0, layout.line_height)
-    let block_height = line_height * lines.length().to_double()
+    let line_height = cached_layout.line_height
+    let block_height = cached_layout.block_height
     let bounds_width = bounds.map_or(0.0, fn(bounds) { bounds.width })
     let bounds_height = bounds.map_or(block_height, fn(bounds) { bounds.height })
-    let max_line_width = lines.fold(init=0.0, fn(acc, line) {
-      @cmp.maximum(acc, measure_text_fragment(style, line)[X])
-    })
+    let max_line_width = cached_layout.max_line_width
     let layout_width = if bounds_width > 0.0 {
       bounds_width
     } else {
@@ -239,6 +334,7 @@ pub fn render_text2d_system(delta : Double) -> Unit {
     }
     let layout_size = @math.Vec2(layout_width, bounds_height)
     if camera_views.is_empty() {
+      let screen_pos = @parallax2d.parallax_world_position(base_pos, parallax, None)
       push_text2d_lines(
         entity,
         lines,
@@ -248,7 +344,7 @@ pub fn render_text2d_system(delta : Double) -> Unit {
         bounds_height,
         block_height,
         line_height,
-        @camera.pixel_snapped_position(@system.scale_vec2(raw_pos)),
+        @camera.pixel_snapped_position(@system.scale_vec2(screen_pos)),
         layout_size,
         global_transform,
         None,
@@ -265,6 +361,11 @@ pub fn render_text2d_system(delta : Double) -> Unit {
       ) else {
         continue
       }
+      let raw_pos = @parallax2d.parallax_world_position(
+        base_pos,
+        parallax,
+        Some(camera_view),
+      )
       let screen_pos = @camera.pixel_snapped_position(
         camera_view.world_to_viewport(raw_pos),
       )
@@ -280,6 +381,7 @@ pub fn render_text2d_system(delta : Double) -> Unit {
         screen_transform,
       )
       guard camera_view.intersects_screen_rect(layout_bounds) else { continue }
+      @visibility.mark_visible_to_camera(entity, camera_view.entity.id())
       push_text2d_lines(
         entity,
         lines,
@@ -337,6 +439,7 @@ fn push_text2d_lines(
         @math.Vec2(x, start_y + line_height * index.to_double()),
       ),
       transform: @camera.camera_screen_transform(global_transform, camera_view),
+      blend_mode: @render.BlendMode2D::Alpha,
       style: style_for_draw,
     }
     match camera_view {

@@ -10,6 +10,7 @@ fn push_ui_rect_fill(rect : @math.Rect, color : @render.Color) -> Unit {
     rect,
     transform: @math.Transform::identity(),
     alpha_mode: color_alpha_mode(color),
+    blend_mode: @render.BlendMode2D::Alpha,
     fill_color: color,
     stroke_color: None,
   })
@@ -29,6 +30,7 @@ fn push_ui_circle_fill(
     radius,
     transform: @math.Transform::identity(),
     alpha_mode: color_alpha_mode(color),
+    blend_mode: @render.BlendMode2D::Alpha,
     fill_color: color,
     stroke_color: None,
   })
@@ -401,6 +403,7 @@ pub fn draw_ui_material_gradient(
     } else {
       @render.AlphaMode2D::Blend
     },
+    blend_mode: @render.BlendMode2D::Alpha,
     color_start: gradient.color_start,
     color_end: gradient.color_end,
   })
@@ -419,6 +422,7 @@ pub fn draw_ui_material_image(
     uv_transform: @math.Transform::identity(),
     repeat: NoRepeat,
     alpha_mode: @render.AlphaMode2D::Blend,
+    blend_mode: @render.BlendMode2D::Alpha,
     color: image.tint,
   })
 }
@@ -652,6 +656,7 @@ fn push_image(entity : @entity.Entity) -> Unit {
     uv_transform: @math.Transform::identity(),
     repeat: NoRepeat,
     alpha_mode: @render.AlphaMode2D::Blend,
+    blend_mode: @render.BlendMode2D::Alpha,
     color: image.tint,
   })
 }
@@ -805,6 +810,7 @@ fn push_text(entity : @entity.Entity) -> Unit {
       text: line,
       position: @math.Vec2(x, start_y + index.to_double() * line_height),
       transform: @math.Transform::identity(),
+      blend_mode: @render.BlendMode2D::Alpha,
       style: style_for_draw,
     })
   }

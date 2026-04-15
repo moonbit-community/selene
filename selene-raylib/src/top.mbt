@@ -3446,8 +3446,30 @@ pub fn draw_image(
   image_path : String,
 ) -> Unit {
   mark_frame_drawn()
-  let texture = get_texture(image_path)
-  draw_image_repeat_transform(texture, command)
+  with_blend_mode(command.blend_mode, fn() {
+    let texture = get_texture(image_path)
+    draw_image_repeat_transform(texture, command)
+  })
+}
+
+///|
+fn with_blend_mode(
+  blend_mode : @render.BlendMode2D,
+  action : () -> Unit,
+) -> Unit {
+  match blend_mode {
+    Alpha => action()
+    Additive => {
+      @raylib.begin_blend_mode(@raylib.BlendAdditive)
+      action()
+      @raylib.end_blend_mode()
+    }
+    Multiply => {
+      @raylib.begin_blend_mode(@raylib.BlendMultiplied)
+      action()
+      @raylib.end_blend_mode()
+    }
+  }
 }
 
 ///|
@@ -3455,7 +3477,9 @@ pub fn begin_2d_pass(
   viewport : @smath.Rect,
   load_op : @render2d_types.RenderPassLoadOp2D,
   clear_color : @render.Color,
+  target : @render2d_types.RenderPassTarget2D,
 ) -> Unit {
+  ignore(target)
   reset_clip_stack()
   push_clip_rect(viewport)
   if load_op is Clear {
@@ -3659,38 +3683,67 @@ fn draw_text_with_cosmic_transform(
 ///|
 pub fn draw_text(command : @render2d_types.TextDrawCommand2D) -> Unit {
   mark_frame_drawn()
-  if !transform_is_identity_2d(command.transform) {
-    if draw_text_with_cosmic_transform(command) {
-      return
+  with_blend_mode(command.blend_mode, fn() {
+    if !transform_is_identity_2d(command.transform) {
+      if draw_text_with_cosmic_transform(command) {
+        ()
+      } else if draw_text_with_cosmic(command) {
+        ()
+      } else {
+        let font = get_font_by_family(command.style.family)
+        let measured = measure_text(command.style, command.text)
+        let text_width = measured[X]
+        let text_height = measured[Y]
+        let mut x = command.position[X]
+        let mut y = command.position[Y]
+        match command.style.align {
+          Left => ()
+          Center => x -= text_width / 2.0
+          Right => x -= text_width
+        }
+        match command.style.baseline {
+          Top => ()
+          Center => y -= text_height / 2.0
+          Bottom => y -= text_height
+        }
+        @raylib.draw_text_ex(
+          font,
+          command.text,
+          to_ray_vector2(x, y),
+          to_float(command.style.size),
+          RAYLIB_DEFAULT_TEXT_SPACING,
+          to_ray_color(command.style.color),
+        )
+      }
+    } else if draw_text_with_cosmic(command) {
+      ()
+    } else {
+      let font = get_font_by_family(command.style.family)
+      let measured = measure_text(command.style, command.text)
+      let text_width = measured[X]
+      let text_height = measured[Y]
+      let mut x = command.position[X]
+      let mut y = command.position[Y]
+      match command.style.align {
+        Left => ()
+        Center => x -= text_width / 2.0
+        Right => x -= text_width
+      }
+      match command.style.baseline {
+        Top => ()
+        Center => y -= text_height / 2.0
+        Bottom => y -= text_height
+      }
+      @raylib.draw_text_ex(
+        font,
+        command.text,
+        to_ray_vector2(x, y),
+        to_float(command.style.size),
+        RAYLIB_DEFAULT_TEXT_SPACING,
+        to_ray_color(command.style.color),
+      )
     }
-  }
-  if draw_text_with_cosmic(command) {
-    return
-  }
-  let font = get_font_by_family(command.style.family)
-  let measured = measure_text(command.style, command.text)
-  let text_width = measured[X]
-  let text_height = measured[Y]
-  let mut x = command.position[X]
-  let mut y = command.position[Y]
-  match command.style.align {
-    Left => ()
-    Center => x -= text_width / 2.0
-    Right => x -= text_width
-  }
-  match command.style.baseline {
-    Top => ()
-    Center => y -= text_height / 2.0
-    Bottom => y -= text_height
-  }
-  @raylib.draw_text_ex(
-    font,
-    command.text,
-    to_ray_vector2(x, y),
-    to_float(command.style.size),
-    RAYLIB_DEFAULT_TEXT_SPACING,
-    to_ray_color(command.style.color),
-  )
+  })
 }
 
 ///|
@@ -3717,119 +3770,123 @@ pub fn measure_text(
 ///|
 pub fn draw_rect(command : @render2d_types.RectDrawCommand2D) -> Unit {
   mark_frame_drawn()
-  if !transform_is_identity_2d(command.transform) {
-    let p0 = transform_image_point(
-      command.rect.position[X],
-      command.rect.position[Y],
-      command.transform,
-      0.0,
-      0.0,
-    )
-    let p1 = transform_image_point(
-      command.rect.position[X],
-      command.rect.position[Y],
-      command.transform,
-      command.rect.size[X],
-      0.0,
-    )
-    let p2 = transform_image_point(
-      command.rect.position[X],
-      command.rect.position[Y],
-      command.transform,
-      command.rect.size[X],
-      command.rect.size[Y],
-    )
-    let p3 = transform_image_point(
-      command.rect.position[X],
-      command.rect.position[Y],
-      command.transform,
-      0.0,
-      command.rect.size[Y],
-    )
-    draw_colored_quad(
-      p0,
-      p1,
-      p2,
-      p3,
-      command.fill_color,
-      command.fill_color,
-      command.fill_color,
-      command.fill_color,
-    )
-    if command.stroke_color is Some(stroke_color) {
-      draw_line_loop([p0, p1, p2, p3], stroke_color)
+  with_blend_mode(command.blend_mode, fn() {
+    if !transform_is_identity_2d(command.transform) {
+      let p0 = transform_image_point(
+        command.rect.position[X],
+        command.rect.position[Y],
+        command.transform,
+        0.0,
+        0.0,
+      )
+      let p1 = transform_image_point(
+        command.rect.position[X],
+        command.rect.position[Y],
+        command.transform,
+        command.rect.size[X],
+        0.0,
+      )
+      let p2 = transform_image_point(
+        command.rect.position[X],
+        command.rect.position[Y],
+        command.transform,
+        command.rect.size[X],
+        command.rect.size[Y],
+      )
+      let p3 = transform_image_point(
+        command.rect.position[X],
+        command.rect.position[Y],
+        command.transform,
+        0.0,
+        command.rect.size[Y],
+      )
+      draw_colored_quad(
+        p0,
+        p1,
+        p2,
+        p3,
+        command.fill_color,
+        command.fill_color,
+        command.fill_color,
+        command.fill_color,
+      )
+      if command.stroke_color is Some(stroke_color) {
+        draw_line_loop([p0, p1, p2, p3], stroke_color)
+      }
+    } else {
+      let rect = to_ray_rect(
+        command.rect.position[X],
+        command.rect.position[Y],
+        command.rect.size[X],
+        command.rect.size[Y],
+      )
+      @raylib.draw_rectangle_rec(rect, to_ray_color(command.fill_color))
+      if command.stroke_color is Some(stroke_color) {
+        @raylib.draw_rectangle_lines_ex(rect, 1.0, to_ray_color(stroke_color))
+      }
     }
-    return
-  }
-  let rect = to_ray_rect(
-    command.rect.position[X],
-    command.rect.position[Y],
-    command.rect.size[X],
-    command.rect.size[Y],
-  )
-  @raylib.draw_rectangle_rec(rect, to_ray_color(command.fill_color))
-  if command.stroke_color is Some(stroke_color) {
-    @raylib.draw_rectangle_lines_ex(rect, 1.0, to_ray_color(stroke_color))
-  }
+  })
 }
 
 ///|
 pub fn draw_circle(command : @render2d_types.CircleDrawCommand2D) -> Unit {
   mark_frame_drawn()
-  if !transform_is_identity_2d(command.transform) {
-    let center = transform_image_point(
-      command.center[X],
-      command.center[Y],
-      command.transform,
-      0.0,
-      0.0,
-    )
-    let fill = command.fill_color
-    let outline : Array[(Float, Float)] = []
-    let segments = 40
-    ignore(@rl.check_render_batch_limit(segments * 3))
-    @rl.set_texture(0U)
-    @rl.begin(@rl.Triangles)
-    let (fr, fg, fb, fa) = to_ray_color_bytes(fill)
-    @rl.color4ub(fr, fg, fb, fa)
-    @rl.normal3f(0.0, 0.0, 1.0)
-    for index in 0..<segments {
-      let angle0 = index.to_double() * 2.0 * @cmath.PI / segments.to_double()
-      let angle1 = (index + 1).to_double() *
-        2.0 *
-        @cmath.PI /
-        segments.to_double()
-      let point0 = transform_image_point(
+  with_blend_mode(command.blend_mode, fn() {
+    if !transform_is_identity_2d(command.transform) {
+      let center = transform_image_point(
         command.center[X],
         command.center[Y],
         command.transform,
-        @cmath.cos(angle0) * command.radius,
-        @cmath.sin(angle0) * command.radius,
+        0.0,
+        0.0,
       )
-      let point1 = transform_image_point(
-        command.center[X],
-        command.center[Y],
-        command.transform,
-        @cmath.cos(angle1) * command.radius,
-        @cmath.sin(angle1) * command.radius,
-      )
-      outline.push(point0)
-      @rl.vertex2f(center.0, center.1)
-      @rl.vertex2f(point0.0, point0.1)
-      @rl.vertex2f(point1.0, point1.1)
+      let fill = command.fill_color
+      let outline : Array[(Float, Float)] = []
+      let segments = 40
+      ignore(@rl.check_render_batch_limit(segments * 3))
+      @rl.set_texture(0U)
+      @rl.begin(@rl.Triangles)
+      let (fr, fg, fb, fa) = to_ray_color_bytes(fill)
+      @rl.color4ub(fr, fg, fb, fa)
+      @rl.normal3f(0.0, 0.0, 1.0)
+      for index in 0..<segments {
+        let angle0 = index.to_double() * 2.0 * @cmath.PI / segments.to_double()
+        let angle1 = (index + 1).to_double() *
+          2.0 *
+          @cmath.PI /
+          segments.to_double()
+        let point0 = transform_image_point(
+          command.center[X],
+          command.center[Y],
+          command.transform,
+          @cmath.cos(angle0) * command.radius,
+          @cmath.sin(angle0) * command.radius,
+        )
+        let point1 = transform_image_point(
+          command.center[X],
+          command.center[Y],
+          command.transform,
+          @cmath.cos(angle1) * command.radius,
+          @cmath.sin(angle1) * command.radius,
+        )
+        outline.push(point0)
+        @rl.vertex2f(center.0, center.1)
+        @rl.vertex2f(point0.0, point0.1)
+        @rl.vertex2f(point1.0, point1.1)
+      }
+      @rl.end_()
+      if command.stroke_color is Some(stroke_color) {
+        draw_line_loop(outline, stroke_color)
+      }
+    } else {
+      let center = to_ray_vector2(command.center[X], command.center[Y])
+      let radius = to_float(command.radius)
+      @raylib.draw_circle_v(center, radius, to_ray_color(command.fill_color))
+      if command.stroke_color is Some(stroke_color) {
+        @raylib.draw_circle_lines_v(center, radius, to_ray_color(stroke_color))
+      }
     }
-    @rl.end_()
-    if command.stroke_color is Some(stroke_color) {
-      draw_line_loop(outline, stroke_color)
-    }
-    return
-  }
-  let center = to_ray_vector2(command.center[X], command.center[Y])
-  let radius = to_float(command.radius)
-  @raylib.draw_circle_v(center, radius, to_ray_color(command.fill_color))
-  if command.stroke_color is Some(stroke_color) {
-    @raylib.draw_circle_lines_v(center, radius, to_ray_color(stroke_color))
-  }
+  })
 }
 
 ///|
@@ -3837,60 +3894,62 @@ pub fn draw_gradient_rect(
   command : @render2d_types.GradientRectDrawCommand2D,
 ) -> Unit {
   mark_frame_drawn()
-  if !transform_is_identity_2d(command.transform) {
-    let p0 = transform_image_point(
-      command.rect.position[X],
-      command.rect.position[Y],
-      command.transform,
-      0.0,
-      0.0,
-    )
-    let p1 = transform_image_point(
-      command.rect.position[X],
-      command.rect.position[Y],
-      command.transform,
-      command.rect.size[X],
-      0.0,
-    )
-    let p2 = transform_image_point(
-      command.rect.position[X],
-      command.rect.position[Y],
-      command.transform,
-      command.rect.size[X],
-      command.rect.size[Y],
-    )
-    let p3 = transform_image_point(
-      command.rect.position[X],
-      command.rect.position[Y],
-      command.transform,
-      0.0,
-      command.rect.size[Y],
-    )
-    draw_colored_quad(
-      p0,
-      p1,
-      p2,
-      p3,
-      command.color_start,
-      command.color_start,
-      command.color_end,
-      command.color_end,
-    )
-    return
-  }
-  let rect = to_ray_rect(
-    command.rect.position[X],
-    command.rect.position[Y],
-    command.rect.size[X],
-    command.rect.size[Y],
-  )
-  @raylib.draw_rectangle_gradient_ex(
-    rect,
-    to_ray_color(command.color_start),
-    to_ray_color(command.color_start),
-    to_ray_color(command.color_end),
-    to_ray_color(command.color_end),
-  )
+  with_blend_mode(command.blend_mode, fn() {
+    if !transform_is_identity_2d(command.transform) {
+      let p0 = transform_image_point(
+        command.rect.position[X],
+        command.rect.position[Y],
+        command.transform,
+        0.0,
+        0.0,
+      )
+      let p1 = transform_image_point(
+        command.rect.position[X],
+        command.rect.position[Y],
+        command.transform,
+        command.rect.size[X],
+        0.0,
+      )
+      let p2 = transform_image_point(
+        command.rect.position[X],
+        command.rect.position[Y],
+        command.transform,
+        command.rect.size[X],
+        command.rect.size[Y],
+      )
+      let p3 = transform_image_point(
+        command.rect.position[X],
+        command.rect.position[Y],
+        command.transform,
+        0.0,
+        command.rect.size[Y],
+      )
+      draw_colored_quad(
+        p0,
+        p1,
+        p2,
+        p3,
+        command.color_start,
+        command.color_start,
+        command.color_end,
+        command.color_end,
+      )
+    } else {
+      let rect = to_ray_rect(
+        command.rect.position[X],
+        command.rect.position[Y],
+        command.rect.size[X],
+        command.rect.size[Y],
+      )
+      @raylib.draw_rectangle_gradient_ex(
+        rect,
+        to_ray_color(command.color_start),
+        to_ray_color(command.color_start),
+        to_ray_color(command.color_end),
+        to_ray_color(command.color_end),
+      )
+    }
+  })
 }
 
 ///|

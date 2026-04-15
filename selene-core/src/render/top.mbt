@@ -25,3 +25,10 @@ pub(all) enum AlphaMode2D {
   Opaque
   Blend
 } derive(Eq, Debug)
+
+///|
+pub(all) enum BlendMode2D {
+  Alpha
+  Additive
+  Multiply
+} derive(Eq, Debug)

@@ -1119,28 +1119,13 @@ fn load_tiled_image(path : String) -> @asset.ImageHandle {
 
 ///|
 pub fn tiled_parallax_system(_delta : Double) -> Unit {
-  let camera_view_origin = tiled_camera_view_origin()
   for pair in tiled_parallax_layers().to_array() {
     let layer_entity = pair.0
+    ignore(pair.1)
     if !layer_entity.is_alive() {
-      continue
+      tiled_parallax_layers().remove(layer_entity)
+      @parallax2d.parallax2ds().remove(layer_entity)
     }
-    let data = pair.1
-    let offset = data.base_offset +
-      @math.Vec2(
-        camera_view_origin[X] * (1.0 - data.parallax_x),
-        camera_view_origin[Y] * (1.0 - data.parallax_y),
-      )
-    tiled_ecs_set_entity_translation_2d(layer_entity, offset)
-  }
-}
-
-///|
-fn tiled_camera_view_origin() -> @math.Vec2 {
-  match @camera.primary_camera2d_view() {
-    Some(camera_view) =>
-      camera_view.viewport_to_world_2d(camera_view.viewport.position)
-    None => @math.Vec2::zero()
   }
 }
 
@@ -1213,11 +1198,19 @@ fn tiled_register_parallax_layer(
   layer : TiledLayer,
 ) -> Unit {
   if layer.parallax_x == 1.0 && layer.parallax_y == 1.0 {
+    @parallax2d.parallax2ds().remove(layer_entity)
     return
   }
+  let base_offset = @math.Vec2(layer.offset_x, layer.offset_y)
   tiled_parallax_layers().set(layer_entity, {
-    base_offset: @math.Vec2(layer.offset_x, layer.offset_y),
+    base_offset,
     parallax_x: layer.parallax_x,
     parallax_y: layer.parallax_y,
   })
+  @parallax2d.parallax2ds().set(
+    layer_entity,
+    @parallax2d.Parallax2d::new(
+      factor=@math.Vec2(layer.parallax_x, layer.parallax_y),
+    ),
+  )
 }

@@ -47,13 +47,21 @@ pub(all) enum CameraPassLoadOp2D {
 } derive(Eq, Debug)
 
 ///|
+pub(all) enum CameraPassTarget2D {
+  Screen
+  Offscreen(String)
+} derive(Eq, Debug)
+
+///|
 pub(all) struct CameraPass2D {
   load_op : CameraPassLoadOp2D
   clear_color : @render.Color
+  target : CameraPassTarget2D
 
   fn new(
     load_op? : CameraPassLoadOp2D,
     clear_color? : @render.Color,
+    target? : CameraPassTarget2D,
   ) -> CameraPass2D
 } derive(Eq, Debug)
 
@@ -66,8 +74,9 @@ fn default_camera_clear_color() -> @render.Color {
 pub fn CameraPass2D::new(
   load_op? : CameraPassLoadOp2D = Load,
   clear_color? : @render.Color = default_camera_clear_color(),
+  target? : CameraPassTarget2D = Screen,
 ) -> CameraPass2D {
-  { load_op, clear_color }
+  { load_op, clear_color, target }
 }
 
 ///|

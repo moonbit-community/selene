@@ -830,7 +830,7 @@ extern "js" fn webgpu_initialize(
   #|       }
   #|     };
   #|
-  #|     rt.pushCachedText = (key, x, y, ma, mb, mc, md, tx, ty, align, baseline) => {
+  #|     rt.pushCachedText = (key, x, y, ma, mb, mc, md, tx, ty, align, baseline, blendMode = 0) => {
   #|       const rec = rt.textCache.get(key);
   #|       if (!rec) return false;
   #|       let ox = x;
@@ -855,7 +855,7 @@ extern "js" fn webgpu_initialize(
   #|         p2x, p2y, 1, 1, 1, 1, 1, 1,
   #|         p3x, p3y, 0, 1, 1, 1, 1, 1,
   #|       ]);
-  #|       rt.pushTex2d(0, rec, verts);
+  #|       rt.pushTex2d(0, rec, verts, 1, blendMode);
   #|       return true;
   #|     };
   #|
@@ -874,16 +874,17 @@ extern "js" fn webgpu_initialize(
   #|       rt.passes2d.push(rt.current2dPass);
   #|       rt.current2dPass = null;
   #|     };
-  #|     rt.pushColor2d = (topology, verts, alphaMode = 1) => {
-  #|       rt.current2dCommandList().push({ kind: 'color', topology, verts, alphaMode });
+  #|     rt.pushColor2d = (topology, verts, alphaMode = 1, blendMode = 0) => {
+  #|       rt.current2dCommandList().push({ kind: 'color', topology, verts, alphaMode, blendMode });
   #|     };
-  #|     rt.pushTex2d = (samplerCode, textureRec, verts, alphaMode = 1) => {
+  #|     rt.pushTex2d = (samplerCode, textureRec, verts, alphaMode = 1, blendMode = 0) => {
   #|       rt.current2dCommandList().push({
   #|         kind: 'tex',
   #|         samplerCode,
   #|         textureRec,
   #|         verts,
   #|         alphaMode,
+  #|         blendMode,
   #|       });
   #|     };
   #|     rt.pushClip2d = (x, y, w, h) => {
@@ -899,7 +900,7 @@ extern "js" fn webgpu_initialize(
   #|       rt.current2dCommandList().push({ kind: 'resetClip' });
   #|     };
   #|
-  #|     rt.pushRect = (x, y, w, h, ma, mb, mc, md, tx, ty, alphaMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
+  #|     rt.pushRect = (x, y, w, h, ma, mb, mc, md, tx, ty, alphaMode, blendMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
   #|       const fill = colorNorm(fr, fg, fb, fa);
   #|       const p0x = ma * 0 + mc * 0 + tx + x;
   #|       const p0y = mb * 0 + md * 0 + ty + y;
@@ -917,7 +918,7 @@ extern "js" fn webgpu_initialize(
   #|         p2x, p2y, fill[0], fill[1], fill[2], fill[3],
   #|         p3x, p3y, fill[0], fill[1], fill[2], fill[3],
   #|       ]);
-  #|       rt.pushColor2d('triangle', verts, alphaMode);
+  #|       rt.pushColor2d('triangle', verts, alphaMode, blendMode);
   #|       if (hasStroke) {
   #|         const s = colorNorm(sr, sg, sb, sa);
   #|         const line = new Float32Array([
@@ -926,11 +927,11 @@ extern "js" fn webgpu_initialize(
   #|           p2x, p2y, s[0], s[1], s[2], s[3], p3x, p3y, s[0], s[1], s[2], s[3],
   #|           p3x, p3y, s[0], s[1], s[2], s[3], p0x, p0y, s[0], s[1], s[2], s[3],
   #|         ]);
-  #|         rt.pushColor2d('line', line, alphaMode);
+  #|         rt.pushColor2d('line', line, alphaMode, blendMode);
   #|       }
   #|     };
   #|
-  #|     rt.pushGradientRect = (x, y, w, h, ma, mb, mc, md, tx, ty, alphaMode, sr, sg, sb, sa, er, eg, eb, ea) => {
+  #|     rt.pushGradientRect = (x, y, w, h, ma, mb, mc, md, tx, ty, alphaMode, blendMode, sr, sg, sb, sa, er, eg, eb, ea) => {
   #|       const c0 = colorNorm(sr, sg, sb, sa);
   #|       const c1 = colorNorm(er, eg, eb, ea);
   #|       const cm = [
@@ -955,10 +956,10 @@ extern "js" fn webgpu_initialize(
   #|         p2x, p2y, c1[0], c1[1], c1[2], c1[3],
   #|         p3x, p3y, cm[0], cm[1], cm[2], cm[3],
   #|       ]);
-  #|       rt.pushColor2d('triangle', verts, alphaMode);
+  #|       rt.pushColor2d('triangle', verts, alphaMode, blendMode);
   #|     };
   #|
-  #|     rt.pushCircle = (cx, cy, radius, ma, mb, mc, md, tx, ty, alphaMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
+  #|     rt.pushCircle = (cx, cy, radius, ma, mb, mc, md, tx, ty, alphaMode, blendMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
   #|       const n = 40;
   #|       const fill = colorNorm(fr, fg, fb, fa);
   #|       const tri = [];
@@ -979,7 +980,7 @@ extern "js" fn webgpu_initialize(
   #|           x1, y1, fill[0], fill[1], fill[2], fill[3],
   #|         );
   #|       }
-  #|       rt.pushColor2d('triangle', new Float32Array(tri), alphaMode);
+  #|       rt.pushColor2d('triangle', new Float32Array(tri), alphaMode, blendMode);
   #|       if (hasStroke) {
   #|         const stroke = colorNorm(sr, sg, sb, sa);
   #|         const lines = [];
@@ -999,11 +1000,11 @@ extern "js" fn webgpu_initialize(
   #|             x1, y1, stroke[0], stroke[1], stroke[2], stroke[3],
   #|           );
   #|         }
-  #|         rt.pushColor2d('line', new Float32Array(lines), alphaMode);
+  #|         rt.pushColor2d('line', new Float32Array(lines), alphaMode, blendMode);
   #|       }
   #|     };
   #|
-  #|     rt.pushImage = (path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, ua, ub, uc, ud, utx, uty, repeatMode, alphaMode, tr, tg, tb, ta) => {
+  #|     rt.pushImage = (path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, ua, ub, uc, ud, utx, uty, repeatMode, alphaMode, blendMode, tr, tg, tb, ta) => {
   #|       const rec = rt.ensureImage(path);
   #|       if (!rec || rec.state !== 'ready') return;
   #|       const p0x = a * 0 + c * 0 + tx + dx;
@@ -1062,10 +1063,10 @@ extern "js" fn webgpu_initialize(
   #|         p2x, p2y, tu1b, tv1, tint[0], tint[1], tint[2], tint[3],
   #|         p3x, p3y, tu0b, tv1b, tint[0], tint[1], tint[2], tint[3],
   #|       ]);
-  #|       rt.pushTex2d(samplerCode, rec, verts, alphaMode);
+  #|       rt.pushTex2d(samplerCode, rec, verts, alphaMode, blendMode);
   #|     };
   #|
-  #|     rt.pushText = (text, x, y, ma, mb, mc, md, tx, ty, family, size, align, baseline, r, g, b, alpha) => {
+  #|     rt.pushText = (text, x, y, ma, mb, mc, md, tx, ty, family, size, align, baseline, blendMode, r, g, b, alpha) => {
   #|       const rec = rt.ensureTextTexture(text, family, size, r, g, b, alpha);
   #|       if (!rec) return;
   #|       let ox = x;
@@ -1090,7 +1091,7 @@ extern "js" fn webgpu_initialize(
   #|         p2x, p2y, 1, 1, 1, 1, 1, 1,
   #|         p3x, p3y, 0, 1, 1, 1, 1, 1,
   #|       ]);
-  #|       rt.pushTex2d(0, rec, verts);
+  #|       rt.pushTex2d(0, rec, verts, 1, blendMode);
   #|     };
   #|
   #|     rt.transformVerts3dWithStride = (verts, stride, tx, ty, tz, qx, qy, qz, qw, normalOffset = -1, tangentOffset = -1) => {
@@ -2134,12 +2135,63 @@ extern "js" fn webgpu_initialize(
   #|       pass.setScissorRect(scissorX, scissorY, scissorW, scissorH);
   #|       return true;
   #|     };
-  #|     rt.colorCommand2d = (topology, verts, alphaMode = 1) => ({
+  #|     rt.colorCommand2d = (topology, verts, alphaMode = 1, blendMode = 0) => ({
   #|       kind: 'color',
   #|       topology,
   #|       verts,
   #|       alphaMode,
+  #|       blendMode,
   #|     });
+  #|     rt.concatFloat32 = (lhs, rhs) => {
+  #|       const out = new Float32Array(lhs.length + rhs.length);
+  #|       out.set(lhs, 0);
+  #|       out.set(rhs, lhs.length);
+  #|       return out;
+  #|     };
+  #|     rt.canCompact2d = (lhs, rhs) => {
+  #|       if (!lhs || !rhs) return false;
+  #|       if (lhs.kind !== rhs.kind) return false;
+  #|       if (lhs.kind === 'color') {
+  #|         return lhs.topology === rhs.topology
+  #|           && lhs.alphaMode === rhs.alphaMode
+  #|           && lhs.blendMode === rhs.blendMode;
+  #|       }
+  #|       if (lhs.kind === 'tex') {
+  #|         return lhs.samplerCode === rhs.samplerCode
+  #|           && lhs.textureRec === rhs.textureRec
+  #|           && lhs.alphaMode === rhs.alphaMode
+  #|           && lhs.blendMode === rhs.blendMode;
+  #|       }
+  #|       return false;
+  #|     };
+  #|     rt.compact2dCommands = (commands) => {
+  #|       if (!Array.isArray(commands) || commands.length <= 1) {
+  #|         return Array.isArray(commands) ? commands.slice() : [];
+  #|       }
+  #|       const compacted = [];
+  #|       let pending = null;
+  #|       const flushPending = () => {
+  #|         if (pending) {
+  #|           compacted.push(pending);
+  #|           pending = null;
+  #|         }
+  #|       };
+  #|       for (const cmd of commands) {
+  #|         if (cmd.kind === 'pushClip' || cmd.kind === 'popClip' || cmd.kind === 'resetClip') {
+  #|           flushPending();
+  #|           compacted.push(cmd);
+  #|           continue;
+  #|         }
+  #|         if (pending && rt.canCompact2d(pending, cmd)) {
+  #|           pending = { ...pending, verts: rt.concatFloat32(pending.verts, cmd.verts) };
+  #|           continue;
+  #|         }
+  #|         flushPending();
+  #|         pending = cmd;
+  #|       }
+  #|       flushPending();
+  #|       return compacted;
+  #|     };
   #|     rt.render2d = (pass, passRecord) => {
   #|       const [canvasWidth, canvasHeight] = toCanvasSize();
   #|       const canvasUniform = new Float32Array([canvasWidth, canvasHeight, 0, 0]);
@@ -2164,11 +2216,12 @@ extern "js" fn webgpu_initialize(
   #|           x + w, y + h, clearColor[0], clearColor[1], clearColor[2], clearColor[3],
   #|           x, y + h, clearColor[0], clearColor[1], clearColor[2], clearColor[3],
   #|         ]);
-  #|         commands.unshift(rt.colorCommand2d('triangle', verts, clearColor[3] >= 0.999999 ? 0 : 1));
+  #|         commands.unshift(rt.colorCommand2d('triangle', verts, clearColor[3] >= 0.999999 ? 0 : 1, 0));
   #|       }
+  #|       const compactedCommands = rt.compact2dCommands(commands);
   #|       let colorBytes = 0;
   #|       let texBytes = 0;
-  #|       for (const cmd of commands) {
+  #|       for (const cmd of compactedCommands) {
   #|         if (cmd.kind === 'color') colorBytes += cmd.verts.byteLength;
   #|         else if (cmd.kind === 'tex') texBytes += cmd.verts.byteLength;
   #|       }
@@ -2181,7 +2234,7 @@ extern "js" fn webgpu_initialize(
   #|       let colorOffset = 0;
   #|       let texOffset = 0;
   #|       const clipStack = [viewport];
-  #|       for (const cmd of commands) {
+  #|       for (const cmd of compactedCommands) {
   #|         if (cmd.kind === 'pushClip') {
   #|           clipStack.push(rt.intersectClipRect(clipStack[clipStack.length - 1], cmd.rect));
   #|           continue;
@@ -2200,9 +2253,13 @@ extern "js" fn webgpu_initialize(
   #|         }
   #|         if (cmd.kind === 'color') {
   #|           if (cmd.topology === 'line') {
-  #|             pass.setPipeline(cmd.alphaMode === 0 ? rt.pipelines.color2dLineOpaque : rt.pipelines.color2dLine);
+  #|             if (cmd.blendMode === 1) pass.setPipeline(rt.pipelines.color2dLineAdditive);
+  #|             else if (cmd.blendMode === 2) pass.setPipeline(rt.pipelines.color2dLineMultiply);
+  #|             else pass.setPipeline(cmd.alphaMode === 0 ? rt.pipelines.color2dLineOpaque : rt.pipelines.color2dLine);
   #|           } else {
-  #|             pass.setPipeline(cmd.alphaMode === 0 ? rt.pipelines.color2dTriOpaque : rt.pipelines.color2dTri);
+  #|             if (cmd.blendMode === 1) pass.setPipeline(rt.pipelines.color2dTriAdditive);
+  #|             else if (cmd.blendMode === 2) pass.setPipeline(rt.pipelines.color2dTriMultiply);
+  #|             else pass.setPipeline(cmd.alphaMode === 0 ? rt.pipelines.color2dTriOpaque : rt.pipelines.color2dTri);
   #|           }
   #|           pass.setBindGroup(0, rt.bindGroups.canvas2d);
   #|           rt.device.queue.writeBuffer(colorVb, colorOffset, cmd.verts.buffer, cmd.verts.byteOffset, cmd.verts.byteLength);
@@ -2213,7 +2270,9 @@ extern "js" fn webgpu_initialize(
   #|         }
   #|         const rec = cmd.textureRec;
   #|         if (!rec?.view) continue;
-  #|         pass.setPipeline(cmd.alphaMode === 0 ? rt.pipelines.tex2dTriOpaque : rt.pipelines.tex2dTri);
+  #|         if (cmd.blendMode === 1) pass.setPipeline(rt.pipelines.tex2dTriAdditive);
+  #|         else if (cmd.blendMode === 2) pass.setPipeline(rt.pipelines.tex2dTriMultiply);
+  #|         else pass.setPipeline(cmd.alphaMode === 0 ? rt.pipelines.tex2dTriOpaque : rt.pipelines.tex2dTri);
   #|         rt.device.queue.writeBuffer(texVb, texOffset, cmd.verts.buffer, cmd.verts.byteOffset, cmd.verts.byteLength);
   #|         const sampler = cmd.samplerCode === 3
   #|           ? rt.samplers.repeat
@@ -3051,6 +3110,14 @@ extern "js" fn webgpu_initialize(
   #|         color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha', operation: 'add' },
   #|         alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },
   #|       };
+  #|       const blendStateAdditive = {
+  #|         color: { srcFactor: 'src-alpha', dstFactor: 'one', operation: 'add' },
+  #|         alpha: { srcFactor: 'one', dstFactor: 'one', operation: 'add' },
+  #|       };
+  #|       const blendStateMultiply = {
+  #|         color: { srcFactor: 'dst', dstFactor: 'zero', operation: 'add' },
+  #|         alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },
+  #|       };
   #|       const opaqueTarget = { format: rt.format };
   #|
   #|       const layout2dColor = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.canvas2d] });
@@ -3124,6 +3191,18 @@ extern "js" fn webgpu_initialize(
   #|           fragment: { module: shader2dColor, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendState }] },
   #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
   #|         }),
+  #|         color2dTriAdditive: rt.device.createRenderPipeline({
+  #|           layout: layout2dColor,
+  #|           vertex: { module: shader2dColor, entryPoint: 'vs_main', buffers: [color2dVertex] },
+  #|           fragment: { module: shader2dColor, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendStateAdditive }] },
+  #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
+  #|         }),
+  #|         color2dTriMultiply: rt.device.createRenderPipeline({
+  #|           layout: layout2dColor,
+  #|           vertex: { module: shader2dColor, entryPoint: 'vs_main', buffers: [color2dVertex] },
+  #|           fragment: { module: shader2dColor, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendStateMultiply }] },
+  #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
+  #|         }),
   #|         color2dLineOpaque: rt.device.createRenderPipeline({
   #|           layout: layout2dColor,
   #|           vertex: { module: shader2dColor, entryPoint: 'vs_main', buffers: [color2dVertex] },
@@ -3136,6 +3215,18 @@ extern "js" fn webgpu_initialize(
   #|           fragment: { module: shader2dColor, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendState }] },
   #|           primitive: { topology: 'line-list', cullMode: 'none' },
   #|         }),
+  #|         color2dLineAdditive: rt.device.createRenderPipeline({
+  #|           layout: layout2dColor,
+  #|           vertex: { module: shader2dColor, entryPoint: 'vs_main', buffers: [color2dVertex] },
+  #|           fragment: { module: shader2dColor, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendStateAdditive }] },
+  #|           primitive: { topology: 'line-list', cullMode: 'none' },
+  #|         }),
+  #|         color2dLineMultiply: rt.device.createRenderPipeline({
+  #|           layout: layout2dColor,
+  #|           vertex: { module: shader2dColor, entryPoint: 'vs_main', buffers: [color2dVertex] },
+  #|           fragment: { module: shader2dColor, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendStateMultiply }] },
+  #|           primitive: { topology: 'line-list', cullMode: 'none' },
+  #|         }),
   #|         tex2dTriOpaque: rt.device.createRenderPipeline({
   #|           layout: layout2dTex,
   #|           vertex: { module: shader2dTex, entryPoint: 'vs_main', buffers: [tex2dVertex] },
@@ -3146,6 +3237,18 @@ extern "js" fn webgpu_initialize(
   #|           layout: layout2dTex,
   #|           vertex: { module: shader2dTex, entryPoint: 'vs_main', buffers: [tex2dVertex] },
   #|           fragment: { module: shader2dTex, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendState }] },
+  #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
+  #|         }),
+  #|         tex2dTriAdditive: rt.device.createRenderPipeline({
+  #|           layout: layout2dTex,
+  #|           vertex: { module: shader2dTex, entryPoint: 'vs_main', buffers: [tex2dVertex] },
+  #|           fragment: { module: shader2dTex, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendStateAdditive }] },
+  #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
+  #|         }),
+  #|         tex2dTriMultiply: rt.device.createRenderPipeline({
+  #|           layout: layout2dTex,
+  #|           vertex: { module: shader2dTex, entryPoint: 'vs_main', buffers: [tex2dVertex] },
+  #|           fragment: { module: shader2dTex, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendStateMultiply }] },
   #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
   #|         }),
   #|         color3dTri: rt.device.createRenderPipeline({
@@ -3373,15 +3476,16 @@ extern "js" fn webgpu_draw_image(
   uv_transform_ty : Double,
   repeat_mode : Int,
   alpha_mode : Int,
+  blend_mode : Int,
   tint_r : Double,
   tint_g : Double,
   tint_b : Double,
   tint_a : Double,
 ) -> Unit =
-  #| (path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, ua, ub, uc, ud, utx, uty, repeatMode, alphaMode, tr, tg, tb, ta) => {
+  #| (path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, ua, ub, uc, ud, utx, uty, repeatMode, alphaMode, blendMode, tr, tg, tb, ta) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushImage(path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, ua, ub, uc, ud, utx, uty, repeatMode, alphaMode, tr, tg, tb, ta);
+  #|     rt.pushImage(path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, ua, ub, uc, ud, utx, uty, repeatMode, alphaMode, blendMode, tr, tg, tb, ta);
   #|   }
   #| }
 
@@ -3400,15 +3504,16 @@ extern "js" fn webgpu_draw_text(
   size : Double,
   align : Int,
   baseline : Int,
+  blend_mode : Int,
   color_r : Double,
   color_g : Double,
   color_b : Double,
   color_a : Double,
 ) -> Unit =
-  #| (text, x, y, a, b, c, d, tx, ty, family, size, align, baseline, r, g, bcol, alpha) => {
+  #| (text, x, y, a, b, c, d, tx, ty, family, size, align, baseline, blendMode, r, g, bcol, alpha) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushText(text, x, y, a, b, c, d, tx, ty, family, size, align, baseline, r, g, bcol, alpha);
+  #|     rt.pushText(text, x, y, a, b, c, d, tx, ty, family, size, align, baseline, blendMode, r, g, bcol, alpha);
   #|   }
   #| }
 
@@ -3442,11 +3547,12 @@ extern "js" fn webgpu_draw_cached_text(
   transform_ty : Double,
   align : Int,
   baseline : Int,
+  blend_mode : Int,
 ) -> Unit =
-  #| (key, x, y, a, b, c, d, tx, ty, align, baseline) => {
+  #| (key, x, y, a, b, c, d, tx, ty, align, baseline, blendMode) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushCachedText?.(key, x, y, a, b, c, d, tx, ty, align, baseline);
+  #|     rt.pushCachedText?.(key, x, y, a, b, c, d, tx, ty, align, baseline, blendMode);
   #|   }
   #| }
 
@@ -3463,6 +3569,7 @@ extern "js" fn webgpu_draw_rect(
   transform_tx : Double,
   transform_ty : Double,
   alpha_mode : Int,
+  blend_mode : Int,
   fill_r : Double,
   fill_g : Double,
   fill_b : Double,
@@ -3473,10 +3580,10 @@ extern "js" fn webgpu_draw_rect(
   stroke_b : Double,
   stroke_a : Double,
 ) -> Unit =
-  #| (x, y, w, h, a, b, c, d, tx, ty, alphaMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
+  #| (x, y, w, h, a, b, c, d, tx, ty, alphaMode, blendMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushRect(x, y, w, h, a, b, c, d, tx, ty, alphaMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa);
+  #|     rt.pushRect(x, y, w, h, a, b, c, d, tx, ty, alphaMode, blendMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa);
   #|   }
   #| }
 
@@ -3492,6 +3599,7 @@ extern "js" fn webgpu_draw_circle(
   transform_tx : Double,
   transform_ty : Double,
   alpha_mode : Int,
+  blend_mode : Int,
   fill_r : Double,
   fill_g : Double,
   fill_b : Double,
@@ -3502,10 +3610,10 @@ extern "js" fn webgpu_draw_circle(
   stroke_b : Double,
   stroke_a : Double,
 ) -> Unit =
-  #| (cx, cy, radius, a, b, c, d, tx, ty, alphaMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
+  #| (cx, cy, radius, a, b, c, d, tx, ty, alphaMode, blendMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushCircle(cx, cy, radius, a, b, c, d, tx, ty, alphaMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa);
+  #|     rt.pushCircle(cx, cy, radius, a, b, c, d, tx, ty, alphaMode, blendMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa);
   #|   }
   #| }
 
@@ -3522,6 +3630,7 @@ extern "js" fn webgpu_draw_gradient_rect(
   transform_tx : Double,
   transform_ty : Double,
   alpha_mode : Int,
+  blend_mode : Int,
   start_r : Double,
   start_g : Double,
   start_b : Double,
@@ -3531,10 +3640,10 @@ extern "js" fn webgpu_draw_gradient_rect(
   end_b : Double,
   end_a : Double,
 ) -> Unit =
-  #| (x, y, w, h, a, b, c, d, tx, ty, alphaMode, sr, sg, sb, sa, er, eg, eb, ea) => {
+  #| (x, y, w, h, a, b, c, d, tx, ty, alphaMode, blendMode, sr, sg, sb, sa, er, eg, eb, ea) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushGradientRect(x, y, w, h, a, b, c, d, tx, ty, alphaMode, sr, sg, sb, sa, er, eg, eb, ea);
+  #|     rt.pushGradientRect(x, y, w, h, a, b, c, d, tx, ty, alphaMode, blendMode, sr, sg, sb, sa, er, eg, eb, ea);
   #|   }
   #| }
 

@@ -305,57 +305,31 @@ fn tiled_world_update_chunking(world_entity : @entity.Entity) -> Unit {
 
 ///|
 fn tiled_camera_view_bounds() -> (@math.Vec2, @math.Vec2) {
-  match @camera.primary_camera2d_view() {
-    Some(camera_view) => {
-      let viewport = camera_view.viewport
-      let corners = [
-        camera_view.viewport_to_world_2d(viewport.position),
-        camera_view.viewport_to_world_2d(
-          @math.Vec2(
-            viewport.position[X] + viewport.size[X],
-            viewport.position[Y],
-          ),
-        ),
-        camera_view.viewport_to_world_2d(
-          @math.Vec2(
-            viewport.position[X],
-            viewport.position[Y] + viewport.size[Y],
-          ),
-        ),
-        camera_view.viewport_to_world_2d(viewport.position + viewport.size),
-      ]
-      let min_x = corners.fold(init=corners[0][X], fn(acc, corner) {
-        if corner[X] < acc {
-          corner[X]
-        } else {
-          acc
-        }
-      })
-      let min_y = corners.fold(init=corners[0][Y], fn(acc, corner) {
-        if corner[Y] < acc {
-          corner[Y]
-        } else {
-          acc
-        }
-      })
-      let max_x = corners.fold(init=corners[0][X], fn(acc, corner) {
-        if corner[X] > acc {
-          corner[X]
-        } else {
-          acc
-        }
-      })
-      let max_y = corners.fold(init=corners[0][Y], fn(acc, corner) {
-        if corner[Y] > acc {
-          corner[Y]
-        } else {
-          acc
-        }
-      })
-      (@math.Vec2(min_x, min_y), @math.Vec2(max_x, max_y))
-    }
-    None => (@math.Vec2::zero(), @system.get_viewport_size())
+  let camera_views = @camera.active_camera2d_views()
+  if camera_views.is_empty() {
+    return (@math.Vec2::zero(), @system.get_viewport_size())
   }
+  let first_bounds = camera_views[0].world_bounds()
+  let mut min_x = first_bounds.position[X]
+  let mut min_y = first_bounds.position[Y]
+  let mut max_x = first_bounds.position[X] + first_bounds.size[X]
+  let mut max_y = first_bounds.position[Y] + first_bounds.size[Y]
+  for camera_view in camera_views {
+    let bounds = camera_view.world_bounds()
+    if bounds.position[X] < min_x {
+      min_x = bounds.position[X]
+    }
+    if bounds.position[Y] < min_y {
+      min_y = bounds.position[Y]
+    }
+    if bounds.position[X] + bounds.size[X] > max_x {
+      max_x = bounds.position[X] + bounds.size[X]
+    }
+    if bounds.position[Y] + bounds.size[Y] > max_y {
+      max_y = bounds.position[Y] + bounds.size[Y]
+    }
+  }
+  (@math.Vec2(min_x, min_y), @math.Vec2(max_x, max_y))
 }
 
 ///|

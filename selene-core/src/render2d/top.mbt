@@ -5,6 +5,7 @@ priv struct OrderedDrawCommand2D {
   camera_entity_id : UInt?
   entity_id : UInt?
   sorting_layer : Int
+  sorting_group : Int
   sorting_order : Int
   alpha_mode : @render.AlphaMode2D
   command : @render2d_types.DrawCommand2D
@@ -28,19 +29,26 @@ pub(all) enum SortMode2D {
 ///|
 pub(all) struct Sorting2d {
   layer : Int
+  group : Int
   order : Int
   mode : SortMode2D
 
-  fn new(layer? : Int, order? : Int, mode? : SortMode2D) -> Sorting2d
+  fn new(
+    layer? : Int,
+    group? : Int,
+    order? : Int,
+    mode? : SortMode2D,
+  ) -> Sorting2d
 } derive(Eq, Debug)
 
 ///|
 pub fn Sorting2d::new(
   layer? : Int = 0,
+  group? : Int = 0,
   order? : Int = 0,
   mode? : SortMode2D = Depth,
 ) -> Sorting2d {
-  { layer, order, mode }
+  { layer, group, order, mode }
 }
 
 ///|
@@ -154,11 +162,31 @@ fn draw_command_alpha_mode(
   command : @render2d_types.DrawCommand2D,
 ) -> @render.AlphaMode2D {
   match command {
-    Image(command) => command.alpha_mode
+    Image(command) =>
+      if command.blend_mode is @render.BlendMode2D::Alpha {
+        command.alpha_mode
+      } else {
+        @render.AlphaMode2D::Blend
+      }
     Text(_) => @render.AlphaMode2D::Blend
-    Rect(command) => command.alpha_mode
-    Circle(command) => command.alpha_mode
-    GradientRect(command) => command.alpha_mode
+    Rect(command) =>
+      if command.blend_mode is @render.BlendMode2D::Alpha {
+        command.alpha_mode
+      } else {
+        @render.AlphaMode2D::Blend
+      }
+    Circle(command) =>
+      if command.blend_mode is @render.BlendMode2D::Alpha {
+        command.alpha_mode
+      } else {
+        @render.AlphaMode2D::Blend
+      }
+    GradientRect(command) =>
+      if command.blend_mode is @render.BlendMode2D::Alpha {
+        command.alpha_mode
+      } else {
+        @render.AlphaMode2D::Blend
+      }
     PushClip(_) => @render.AlphaMode2D::Opaque
     PopClip => @render.AlphaMode2D::Opaque
   }
@@ -179,6 +207,7 @@ fn push_world_command(
     camera_entity_id,
     entity_id,
     sorting_layer: sorting.layer,
+    sorting_group: sorting.group,
     sorting_order: sorting.order,
     alpha_mode: draw_command_alpha_mode(command),
     command,
@@ -202,6 +231,10 @@ fn sorted_world_commands(
       } else {
         1
       }
+    } else if lhs.sorting_group < rhs.sorting_group {
+      -1
+    } else if lhs.sorting_group > rhs.sorting_group {
+      1
     } else if lhs.sorting_order < rhs.sorting_order {
       -1
     } else if lhs.sorting_order > rhs.sorting_order {

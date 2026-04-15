@@ -67,19 +67,27 @@ pub(all) struct Camera2dView {
 }
 pub fn Camera2dView::intersects_screen_rect(Self, @math.Rect) -> Bool
 pub fn Camera2dView::viewport_to_world_2d(Self, @math.Vec2) -> @math.Vec2
+pub fn Camera2dView::world_bounds(Self) -> @math.Rect
+pub fn Camera2dView::world_origin(Self) -> @math.Vec2
 pub fn Camera2dView::world_to_viewport(Self, @math.Vec2) -> @math.Vec2
 
 pub(all) struct CameraPass2D {
   load_op : CameraPassLoadOp2D
   clear_color : @render.Color
+  target : CameraPassTarget2D
 
-  fn new(load_op? : CameraPassLoadOp2D, clear_color? : @render.Color) -> CameraPass2D
+  fn new(load_op? : CameraPassLoadOp2D, clear_color? : @render.Color, target? : CameraPassTarget2D) -> CameraPass2D
 } derive(Eq, @debug.Debug)
-pub fn CameraPass2D::new(load_op? : CameraPassLoadOp2D, clear_color? : @render.Color) -> Self
+pub fn CameraPass2D::new(load_op? : CameraPassLoadOp2D, clear_color? : @render.Color, target? : CameraPassTarget2D) -> Self
 
 pub(all) enum CameraPassLoadOp2D {
   Load
   Clear
+} derive(Eq, @debug.Debug)
+
+pub(all) enum CameraPassTarget2D {
+  Screen
+  Offscreen(String)
 } derive(Eq, @debug.Debug)
 
 pub(all) struct CameraViewport {

@@ -49,6 +49,15 @@ fn alpha_mode_to_code(alpha_mode : @render.AlphaMode2D) -> Int {
 }
 
 ///|
+fn blend_mode_to_code(blend_mode : @render.BlendMode2D) -> Int {
+  match blend_mode {
+    Alpha => 0
+    Additive => 1
+    Multiply => 2
+  }
+}
+
+///|
 fn color_rgba(color : @render.Color) -> (Double, Double, Double, Double) {
   (
     color.r.reinterpret_as_int().to_double(),
@@ -153,7 +162,9 @@ pub fn begin_2d_pass(
   viewport : @smath.Rect,
   load_op : @render2d_types.RenderPassLoadOp2D,
   clear_color : @render.Color,
+  target : @render2d_types.RenderPassTarget2D,
 ) -> Unit {
+  ignore(target)
   let (cr, cg, cb, ca) = color_rgba(clear_color)
   webgpu_begin_2d_pass(
     viewport.position[X],
@@ -245,6 +256,7 @@ pub fn draw_image(
     uv_transform.ty,
     repeat_mode_to_code(command.repeat),
     alpha_mode_to_code(command.alpha_mode),
+    blend_mode_to_code(command.blend_mode),
     tr,
     tg,
     tb,
@@ -273,6 +285,7 @@ pub fn draw_text(command : @render2d_types.TextDrawCommand2D) -> Unit {
     command.style.size,
     h_align_to_code(command.style.align),
     v_align_to_code(command.style.baseline),
+    blend_mode_to_code(command.blend_mode),
     r,
     g,
     b,
@@ -326,6 +339,7 @@ pub fn draw_rect(command : @render2d_types.RectDrawCommand2D) -> Unit {
     command.transform.tx,
     command.transform.ty,
     alpha_mode_to_code(command.alpha_mode),
+    blend_mode_to_code(command.blend_mode),
     fr,
     fg,
     fb,
@@ -368,6 +382,7 @@ pub fn draw_circle(command : @render2d_types.CircleDrawCommand2D) -> Unit {
     command.transform.tx,
     command.transform.ty,
     alpha_mode_to_code(command.alpha_mode),
+    blend_mode_to_code(command.blend_mode),
     fr,
     fg,
     fb,
@@ -398,6 +413,7 @@ pub fn draw_gradient_rect(
     command.transform.tx,
     command.transform.ty,
     alpha_mode_to_code(command.alpha_mode),
+    blend_mode_to_code(command.blend_mode),
     sr,
     sg,
     sb,

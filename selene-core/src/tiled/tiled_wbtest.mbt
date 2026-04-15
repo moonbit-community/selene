@@ -36,14 +36,19 @@ fn tiled_test_set_entity_translation_2d(
   position : @math.Vec2,
 ) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
-  @transform.transforms().set(entity, {
+  let next = {
     ..current,
     translation: @math.Vec3::new(
       position[X],
       position[Y],
       current.translation.z,
     ),
-  })
+  }
+  @transform.transforms().set(entity, next)
+  @transform.global_transforms().set(
+    entity,
+    @transform.GlobalTransform::from_transform(next),
+  )
 }
 
 ///|
@@ -908,6 +913,80 @@ test "tiled world chunking spawns maps around camera view" {
 }
 
 ///|
+test "tiled world chunking unions multiple active camera views" {
+  let previous_viewport = @system.get_viewport_size()
+  let previous_zoom = @system.get_zoom()
+  @system.configure_display(100.0, 100.0, 1.0)
+
+  let left_camera = @entity.Entity::new()
+  defer left_camera.destroy()
+  @camera.cameras().set(left_camera, @camera.Camera::new(order=0))
+  @camera.camera2ds().set(left_camera, @camera.Camera2d::new())
+  @camera.orthographic_projections().set(
+    left_camera,
+    @camera.OrthographicProjection::new(),
+  )
+  tiled_test_set_entity_translation_2d(left_camera, @math.Vec2(50.0, 50.0))
+
+  let right_camera = @entity.Entity::new()
+  defer right_camera.destroy()
+  @camera.cameras().set(right_camera, @camera.Camera::new(order=1))
+  @camera.camera2ds().set(right_camera, @camera.Camera2d::new())
+  @camera.orthographic_projections().set(
+    right_camera,
+    @camera.OrthographicProjection::new(),
+  )
+  tiled_test_set_entity_translation_2d(right_camera, @math.Vec2(250.0, 50.0))
+
+  let files : Map[String, Bytes] = Map::new()
+  files.set(
+    "worlds/chunk.world",
+    ascii_bytes(
+      "{\"maps\":[{\"fileName\":\"maps/a.tmj\",\"x\":0,\"y\":0},{\"fileName\":\"maps/b.tmj\",\"x\":200,\"y\":0}],\"type\":\"world\"}",
+    ),
+  )
+  files.set(
+    "worlds/maps/a.tmj",
+    ascii_bytes(
+      "{\"width\":2,\"height\":2,\"tilewidth\":16,\"tileheight\":16,\"layers\":[],\"tilesets\":[]}",
+    ),
+  )
+  files.set(
+    "worlds/maps/b.tmj",
+    ascii_bytes(
+      "{\"width\":2,\"height\":2,\"tilewidth\":16,\"tileheight\":16,\"layers\":[],\"tilesets\":[]}",
+    ),
+  )
+  with_fake_asset_io(files, fn() raise {
+    let root = load_and_spawn_tiled_world("worlds/chunk.world", settings={
+      ..default_tiled_world_spawn_settings(),
+      chunking: Some(@math.Vec2::zero()),
+      map_settings: {
+        ..default_tiled_spawn_settings(),
+        position: @math.Vec2::zero(),
+      },
+    })
+    defer cleanup_spawned_tiled_tree(root)
+
+    let spawned = tiled_world_map_instances()
+      .to_array()
+      .filter(fn(pair) { pair.1.world_entity == root })
+      .map(fn(pair) { pair.1.resolved_map_path })
+    spawned.sort_by(fn(lhs, rhs) { lhs.compare(rhs) })
+    inspect(
+      spawned,
+      content="[\"worlds/maps/a.tmj\", \"worlds/maps/b.tmj\"]",
+    )
+  })
+
+  @system.configure_display(
+    previous_viewport[X],
+    previous_viewport[Y],
+    previous_zoom,
+  )
+}
+
+///|
 test "tiled parallax system adjusts layer offsets" {
   let previous_viewport = @system.get_viewport_size()
   let previous_zoom = @system.get_zoom()
@@ -939,8 +1018,16 @@ test "tiled parallax system adjusts layer offsets" {
       .filter(fn(pair) {
         pair.1.map_entity == root && pair.1.layer.name == "Background"
       })[0].0
+    let parallax = @parallax2d.inherited_parallax2d(layer_entity).unwrap()
+    let first_camera_view = @camera.primary_camera2d_view().unwrap()
     inspect(
-      vec2_snapshot(tiled_test_entity_translation_2d(layer_entity)),
+      vec2_snapshot(
+        @parallax2d.parallax_world_position(
+          tiled_test_entity_translation_2d(layer_entity),
+          Some(parallax),
+          Some(first_camera_view),
+        ),
+      ),
       content="2,3",
     )
 
@@ -949,9 +1036,16 @@ test "tiled parallax system adjusts layer offsets" {
       @math.Vec2(250.0, 150.0),
     )
     tiled_parallax_system(0.0)
+    let second_camera_view = @camera.primary_camera2d_view().unwrap()
 
     inspect(
-      vec2_snapshot(tiled_test_entity_translation_2d(layer_entity)),
+      vec2_snapshot(
+        @parallax2d.parallax_world_position(
+          tiled_test_entity_translation_2d(layer_entity),
+          Some(parallax),
+          Some(second_camera_view),
+        ),
+      ),
       content="102,103",
     )
   })

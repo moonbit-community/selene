@@ -121,15 +121,17 @@ pub fn render_sprite_system(delta : Double) -> Unit {
     let sorting = @render2d.entity_sorting2d(entity)
     let depth = @render2d.sort_depth_for_transform(global_transform, sorting)
     let transform = global_transform.compute_transform()
-    let raw_pos = @math.Vec2(transform.translation.x, transform.translation.y)
+    let base_pos = @math.Vec2(transform.translation.x, transform.translation.y)
+    let parallax = @parallax2d.inherited_parallax2d(entity)
     let local_transform = sprite_local_transform(sprite, size)
     if camera_views.is_empty() {
+      let screen_pos = @parallax2d.parallax_world_position(base_pos, parallax, None)
       push_sprite_draw_command(
         entity,
         sprite,
         size,
         depth,
-        @camera.pixel_snapped_position(@system.scale_vec2(raw_pos)),
+        @camera.pixel_snapped_position(@system.scale_vec2(screen_pos)),
         @camera.camera_screen_transform(global_transform, None) *
         local_transform,
         None,
@@ -145,6 +147,11 @@ pub fn render_sprite_system(delta : Double) -> Unit {
       ) else {
         continue
       }
+      let raw_pos = @parallax2d.parallax_world_position(
+        base_pos,
+        parallax,
+        Some(camera_view),
+      )
       let screen_transform = @camera.camera_screen_transform(
           global_transform,
           Some(camera_view),
@@ -159,6 +166,7 @@ pub fn render_sprite_system(delta : Double) -> Unit {
         screen_transform,
       )
       guard camera_view.intersects_screen_rect(bounds) else { continue }
+      @visibility.mark_visible_to_camera(entity, camera_view.entity.id())
       push_sprite_draw_command(
         entity,
         sprite,
@@ -194,6 +202,7 @@ fn push_sprite_draw_command(
         uv_transform: @math.Transform::identity(),
         repeat: sprite_repeat_mode(sprite),
         alpha_mode: sprite_alpha_mode(sprite),
+        blend_mode: sprite_blend_mode(sprite),
         color: sprite.color,
       }
       match camera_entity_id {
@@ -219,6 +228,7 @@ fn push_sprite_draw_command(
         rect: { position: snapped_pos, size },
         transform,
         alpha_mode: sprite_alpha_mode(sprite),
+        blend_mode: sprite_blend_mode(sprite),
         fill_color: sprite.color,
         stroke_color: None,
       }
@@ -252,6 +262,11 @@ fn sprite_alpha_mode(sprite : Sprite) -> @render.AlphaMode2D {
   } else {
     @render.AlphaMode2D::Blend
   }
+}
+
+///|
+fn sprite_blend_mode(_sprite : Sprite) -> @render.BlendMode2D {
+  @render.BlendMode2D::Alpha
 }
 
 ///|

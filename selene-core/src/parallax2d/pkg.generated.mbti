@@ -1,0 +1,32 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/parallax2d"
+
+import {
+  "Milky2018/selene/camera",
+  "Milky2018/selene/entity",
+  "Milky2018/selene/math",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn inherited_parallax2d(@entity.Entity) -> Parallax2d?
+
+pub fn parallax2ds() -> Map[@entity.Entity, Parallax2d]
+
+pub fn parallax_world_position(@math.Vec2, Parallax2d?, @camera.Camera2dView?) -> @math.Vec2
+
+// Errors
+
+// Types and methods
+pub(all) struct Parallax2d {
+  base_offset : @math.Vec2
+  factor : @math.Vec2
+
+  fn new(base_offset? : @math.Vec2, factor? : @math.Vec2) -> Parallax2d
+} derive(Eq, @debug.Debug)
+pub fn Parallax2d::new(base_offset? : @math.Vec2, factor? : @math.Vec2) -> Self
+
+// Type aliases
+
+// Traits
+

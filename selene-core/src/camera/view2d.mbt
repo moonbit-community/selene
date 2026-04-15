@@ -95,6 +95,11 @@ pub fn Camera2dView::viewport_to_world_2d(
 }
 
 ///|
+pub fn Camera2dView::world_origin(self : Camera2dView) -> @math.Vec2 {
+  self.viewport_to_world_2d(self.viewport.position)
+}
+
+///|
 fn rect_from_points(points : Array[@math.Vec2]) -> @math.Rect {
   if points.is_empty() {
     return { position: @math.Vec2::zero(), size: @math.Vec2::zero() }
@@ -113,6 +118,21 @@ fn rect_from_points(points : Array[@math.Vec2]) -> @math.Rect {
     position: @math.Vec2(min_x, min_y),
     size: @math.Vec2(max_x - min_x, max_y - min_y),
   }
+}
+
+///|
+pub fn Camera2dView::world_bounds(self : Camera2dView) -> @math.Rect {
+  let viewport = self.viewport
+  rect_from_points([
+    self.viewport_to_world_2d(viewport.position),
+    self.viewport_to_world_2d(
+      @math.Vec2(viewport.position[X] + viewport.size[X], viewport.position[Y]),
+    ),
+    self.viewport_to_world_2d(
+      @math.Vec2(viewport.position[X], viewport.position[Y] + viewport.size[Y]),
+    ),
+    self.viewport_to_world_2d(viewport.position + viewport.size),
+  ])
 }
 
 ///|
