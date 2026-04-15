@@ -53,6 +53,7 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
     @render2d.push_rect({
       rect,
       transform: @math.Transform::identity(),
+      alpha_mode: @render.AlphaMode2D::Blend,
       fill_color: rgba(255U, 0U, 0U, 0.5),
       stroke_color: None,
     })
@@ -73,6 +74,7 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
     @render2d.push_rect({
       rect,
       transform: @math.Transform::identity(),
+      alpha_mode: @render.AlphaMode2D::Blend,
       fill_color: rgba(0U, 0U, 255U, 0.5),
       stroke_color: None,
     })
@@ -92,6 +94,7 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
     @render2d.push_rect({
       rect,
       transform: @math.Transform::identity(),
+      alpha_mode: @render.AlphaMode2D::Blend,
       fill_color: rgba(0U, 255U, 0U, 0.5),
       stroke_color: None,
     })

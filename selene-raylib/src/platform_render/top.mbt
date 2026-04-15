@@ -41,7 +41,6 @@ let reported_capabilities : @set.Set[String] = @set.Set::new()
 
 ///|
 fn submit_frame_contents(frame : @render_pipeline.RenderFrame) -> Unit {
-  @impl.reset_clip_stack()
   for pair in frame.assets3d.mesh_upserts {
     @impl.sync_mesh_asset(pair.0, pair.1)
   }
@@ -68,20 +67,27 @@ fn submit_frame_contents(frame : @render_pipeline.RenderFrame) -> Unit {
   }
 
   @impl.render_3d_frame(frame.frame3d)
-  @impl.reset_clip_stack()
   for pass in frame.frame2d.passes {
-    @impl.push_clip_rect(pass.viewport)
-    for command in pass.world_commands {
-      submit_draw_command(command)
+    if !pass.world_commands.is_empty() ||
+      pass.load_op is @render2d_types.RenderPassLoadOp2D::Clear {
+      @impl.begin_2d_pass(pass.viewport, pass.load_op, pass.clear_color)
+      for command in pass.world_commands {
+        submit_draw_command(command)
+      }
+      @impl.end_2d_pass()
     }
-    @impl.reset_clip_stack()
-    @impl.push_clip_rect(pass.viewport)
-    for command in pass.ui_commands {
-      submit_draw_command(command)
+    if !pass.ui_commands.is_empty() {
+      @impl.begin_2d_pass(
+        pass.viewport,
+        @render2d_types.RenderPassLoadOp2D::Load,
+        pass.clear_color,
+      )
+      for command in pass.ui_commands {
+        submit_draw_command(command)
+      }
+      @impl.end_2d_pass()
     }
-    @impl.reset_clip_stack()
   }
-  @impl.reset_clip_stack()
 }
 
 ///|

@@ -11,6 +11,7 @@
 
 ### Changed
 
+- Changed the 2D render pipeline to support camera pass load/clear semantics, per-camera 2D visibility culling, alpha-aware material submission, and explicit `Sorting2d` layer/order/depth behavior.
 - Changed the 2D/UI camera pipeline to use viewport-aware per-camera 2D passes, render-layer-aware multi-camera extraction, and `UiTargetCamera`-routed UI layout/render/input coordinates instead of the previous single-camera/global-screen assumptions.
 - Changed camera scene documents to support optional persisted 2D camera viewport rectangles in the editor bridge runtime.
 - Changed preview bridge protocol to include typed AutoTile synchronization (`SetAutoTileBrushTerrain` command and `AutoTileLayerChanged` event) so viewport brush edits update SNF scene source and participate in undo/redo.

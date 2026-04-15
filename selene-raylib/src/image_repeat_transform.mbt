@@ -26,8 +26,28 @@ fn transform_image_point(
 }
 
 ///|
+fn transform_uv_point(
+  transform : @smath.Transform,
+  u : Double,
+  v : Double,
+) -> (Float, Float) {
+  let uv = transform.apply_to_vec2(@smath.Vec2(u, v))
+  (to_float(uv[X]), to_float(uv[Y]))
+}
+
+///|
 fn can_use_texture_pro_path(transform : @smath.Transform) -> Bool {
   transform.b.abs() < 0.000001 && transform.c.abs() < 0.000001
+}
+
+///|
+fn uv_transform_is_identity(transform : @smath.Transform) -> Bool {
+  (transform.a - 1.0).abs() < 0.000001 &&
+  transform.b.abs() < 0.000001 &&
+  transform.c.abs() < 0.000001 &&
+  (transform.d - 1.0).abs() < 0.000001 &&
+  transform.tx.abs() < 0.000001 &&
+  transform.ty.abs() < 0.000001
 }
 
 ///|
@@ -83,12 +103,10 @@ fn draw_axis_aligned_textured_quad(
 ///|
 fn draw_affine_textured_quad(
   texture : @raylib.Texture,
-  texture_width : Double,
-  texture_height : Double,
-  src_x0 : Double,
-  src_y0 : Double,
-  src_x1 : Double,
-  src_y1 : Double,
+  uv00 : (Float, Float),
+  uv10 : (Float, Float),
+  uv11 : (Float, Float),
+  uv01 : (Float, Float),
   local_x0 : Double,
   local_y0 : Double,
   local_x1 : Double,
@@ -98,16 +116,9 @@ fn draw_affine_textured_quad(
   transform : @smath.Transform,
   tint : @render.Color,
 ) -> Unit {
-  if src_x1 <= src_x0 ||
-    src_y1 <= src_y0 ||
-    local_x1 <= local_x0 ||
-    local_y1 <= local_y0 {
+  if local_x1 <= local_x0 || local_y1 <= local_y0 {
     return
   }
-  let u0 = to_float(src_x0 / texture_width)
-  let v0 = to_float(src_y0 / texture_height)
-  let u1 = to_float(src_x1 / texture_width)
-  let v1 = to_float(src_y1 / texture_height)
   let p00 = transform_image_point(base_x, base_y, transform, local_x0, local_y0)
   let p10 = transform_image_point(base_x, base_y, transform, local_x1, local_y0)
   let p11 = transform_image_point(base_x, base_y, transform, local_x1, local_y1)
@@ -118,13 +129,13 @@ fn draw_affine_textured_quad(
   let (r, g, b, a) = to_ray_color_bytes(tint)
   @rl.color4ub(r, g, b, a)
   @rl.normal3f(0.0, 0.0, 1.0)
-  @rl.tex_coord2f(u0, v0)
+  @rl.tex_coord2f(uv00.0, uv00.1)
   @rl.vertex2f(p00.0, p00.1)
-  @rl.tex_coord2f(u0, v1)
+  @rl.tex_coord2f(uv01.0, uv01.1)
   @rl.vertex2f(p01.0, p01.1)
-  @rl.tex_coord2f(u1, v1)
+  @rl.tex_coord2f(uv11.0, uv11.1)
   @rl.vertex2f(p11.0, p11.1)
-  @rl.tex_coord2f(u1, v0)
+  @rl.tex_coord2f(uv10.0, uv10.1)
   @rl.vertex2f(p10.0, p10.1)
   @rl.end_()
   @rl.set_texture(0U)
@@ -146,9 +157,19 @@ fn draw_textured_quad(
   base_x : Double,
   base_y : Double,
   transform : @smath.Transform,
+  uv_transform : @smath.Transform,
   tint : @render.Color,
 ) -> Unit {
-  if can_use_texture_pro_path(transform) {
+  let base_u0 = src_x0 / texture_width
+  let base_v0 = src_y0 / texture_height
+  let base_u1 = src_x1 / texture_width
+  let base_v1 = src_y1 / texture_height
+  let uv00 = transform_uv_point(uv_transform, base_u0, base_v0)
+  let uv10 = transform_uv_point(uv_transform, base_u1, base_v0)
+  let uv11 = transform_uv_point(uv_transform, base_u1, base_v1)
+  let uv01 = transform_uv_point(uv_transform, base_u0, base_v1)
+  if can_use_texture_pro_path(transform) &&
+    uv_transform_is_identity(uv_transform) {
     draw_axis_aligned_textured_quad(
       texture, src_x0, src_y0, src_x1, src_y1, local_x0, local_y0, local_x1, local_y1,
       base_x, base_y, transform, tint,
@@ -156,8 +177,8 @@ fn draw_textured_quad(
     return
   }
   draw_affine_textured_quad(
-    texture, texture_width, texture_height, src_x0, src_y0, src_x1, src_y1, local_x0,
-    local_y0, local_x1, local_y1, base_x, base_y, transform, tint,
+    texture, uv00, uv10, uv11, uv01, local_x0, local_y0, local_x1, local_y1, base_x,
+    base_y, transform, tint,
   )
 }
 
@@ -199,6 +220,7 @@ fn draw_image_repeat_transform(
       base_x,
       base_y,
       command.transform,
+      command.uv_transform,
       command.color,
     )
     return
@@ -234,6 +256,7 @@ fn draw_image_repeat_transform(
         base_x,
         base_y,
         command.transform,
+        command.uv_transform,
         command.color,
       )
       oy += tile_h

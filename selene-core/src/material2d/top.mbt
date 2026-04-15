@@ -1,21 +1,15 @@
 ///|
-pub(all) enum AlphaMode2D {
-  Opaque
-  Blend
-} derive(Eq, Debug)
-
-///|
 pub(all) struct ColorMaterial {
   color : @render.Color
   texture : @asset.ImageHandle?
   uv_transform : @math.Transform
-  alpha_mode : AlphaMode2D
+  alpha_mode : @render.AlphaMode2D
 
   fn new(
     color? : @render.Color,
     texture? : @asset.ImageHandle?,
     uv_transform? : @math.Transform,
-    alpha_mode? : AlphaMode2D,
+    alpha_mode? : @render.AlphaMode2D,
   ) -> ColorMaterial
 }
 
@@ -77,7 +71,7 @@ pub fn ColorMaterial::new(
   color? : @render.Color = default_material_color(),
   texture? : @asset.ImageHandle? = None,
   uv_transform? : @math.Transform = @math.Transform::identity(),
-  alpha_mode? : AlphaMode2D = Blend,
+  alpha_mode? : @render.AlphaMode2D = Blend,
 ) -> ColorMaterial {
   { color, texture, uv_transform, alpha_mode }
 }

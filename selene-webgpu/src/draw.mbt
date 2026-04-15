@@ -41,6 +41,14 @@ fn v_align_to_code(align : @smath.VAlign) -> Int {
 }
 
 ///|
+fn alpha_mode_to_code(alpha_mode : @render.AlphaMode2D) -> Int {
+  match alpha_mode {
+    Opaque => 0
+    Blend => 1
+  }
+}
+
+///|
 fn color_rgba(color : @render.Color) -> (Double, Double, Double, Double) {
   (
     color.r.reinterpret_as_int().to_double(),
@@ -141,18 +149,52 @@ pub fn capture_frame_png_to_file(_path : String) -> Bool {
 }
 
 ///|
-pub fn push_clip_rect(_rect : @smath.Rect) -> Unit {
-  ()
+pub fn begin_2d_pass(
+  viewport : @smath.Rect,
+  load_op : @render2d_types.RenderPassLoadOp2D,
+  clear_color : @render.Color,
+) -> Unit {
+  let (cr, cg, cb, ca) = color_rgba(clear_color)
+  webgpu_begin_2d_pass(
+    viewport.position[X],
+    viewport.position[Y],
+    viewport.size[X],
+    viewport.size[Y],
+    if load_op is @render2d_types.RenderPassLoadOp2D::Clear {
+      1
+    } else {
+      0
+    },
+    cr,
+    cg,
+    cb,
+    ca,
+  )
+}
+
+///|
+pub fn end_2d_pass() -> Unit {
+  webgpu_end_2d_pass()
+}
+
+///|
+pub fn push_clip_rect(rect : @smath.Rect) -> Unit {
+  webgpu_push_clip_rect(
+    rect.position[X],
+    rect.position[Y],
+    rect.size[X],
+    rect.size[Y],
+  )
 }
 
 ///|
 pub fn pop_clip_rect() -> Unit {
-  ()
+  webgpu_pop_clip_rect()
 }
 
 ///|
 pub fn reset_clip_stack() -> Unit {
-  ()
+  webgpu_reset_clip_stack()
 }
 
 ///|
@@ -177,6 +219,7 @@ pub fn draw_image(
     None => ()
   }
   let (tr, tg, tb, ta) = color_rgba(command.color)
+  let uv_transform = command.uv_transform
   webgpu_draw_image(
     resolve_asset_path(image_path),
     command.destination.position[X],
@@ -194,7 +237,14 @@ pub fn draw_image(
     transform.d,
     transform.tx,
     transform.ty,
+    uv_transform.a,
+    uv_transform.b,
+    uv_transform.c,
+    uv_transform.d,
+    uv_transform.tx,
+    uv_transform.ty,
     repeat_mode_to_code(command.repeat),
+    alpha_mode_to_code(command.alpha_mode),
     tr,
     tg,
     tb,
@@ -275,6 +325,7 @@ pub fn draw_rect(command : @render2d_types.RectDrawCommand2D) -> Unit {
     command.transform.d,
     command.transform.tx,
     command.transform.ty,
+    alpha_mode_to_code(command.alpha_mode),
     fr,
     fg,
     fb,
@@ -316,6 +367,7 @@ pub fn draw_circle(command : @render2d_types.CircleDrawCommand2D) -> Unit {
     command.transform.d,
     command.transform.tx,
     command.transform.ty,
+    alpha_mode_to_code(command.alpha_mode),
     fr,
     fg,
     fb,
@@ -345,6 +397,7 @@ pub fn draw_gradient_rect(
     command.transform.d,
     command.transform.tx,
     command.transform.ty,
+    alpha_mode_to_code(command.alpha_mode),
     sr,
     sg,
     sb,

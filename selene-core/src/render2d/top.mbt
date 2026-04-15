@@ -4,6 +4,9 @@ priv struct OrderedDrawCommand2D {
   order : Int
   camera_entity_id : UInt?
   entity_id : UInt?
+  sorting_layer : Int
+  sorting_order : Int
+  alpha_mode : @render.AlphaMode2D
   command : @render2d_types.DrawCommand2D
 }
 
@@ -14,6 +17,35 @@ pub(all) struct DrawCommandWithDepth2D {
   camera_entity_id : UInt?
   entity_id : UInt?
   command : @render2d_types.DrawCommand2D
+}
+
+///|
+pub(all) enum SortMode2D {
+  Depth
+  Y
+} derive(Eq, Debug)
+
+///|
+pub(all) struct Sorting2d {
+  layer : Int
+  order : Int
+  mode : SortMode2D
+
+  fn new(layer? : Int, order? : Int, mode? : SortMode2D) -> Sorting2d
+} derive(Eq, Debug)
+
+///|
+pub fn Sorting2d::new(
+  layer? : Int = 0,
+  order? : Int = 0,
+  mode? : SortMode2D = Depth,
+) -> Sorting2d {
+  { layer, order, mode }
+}
+
+///|
+priv struct Sorting2dWorldStore {
+  sorting2ds : Map[@entity.Entity, Sorting2d]
 }
 
 ///|
@@ -28,6 +60,9 @@ priv struct RenderFrameState2D {
 
 ///|
 let frame2d_by_world : Map[UInt, RenderFrameState2D] = Map::new()
+
+///|
+let sorting2d_by_world : Map[UInt, Sorting2dWorldStore] = Map::new()
 
 ///|
 fn frame2d() -> RenderFrameState2D {
@@ -45,6 +80,17 @@ fn frame2d() -> RenderFrameState2D {
 }
 
 ///|
+fn sorting2d_store() -> Sorting2dWorldStore {
+  let world_id = @ecs.require_current_world().id()
+  sorting2d_by_world.get_or_init(world_id, fn() { { sorting2ds: Map::new() } })
+}
+
+///|
+pub fn sorting2ds() -> Map[@entity.Entity, Sorting2d] {
+  sorting2d_store().sorting2ds
+}
+
+///|
 pub fn begin_frame2d_system(_delta : Double) -> Unit {
   frame2d_by_world.set(@ecs.require_current_world().id(), {
     screen_world_commands: [],
@@ -54,6 +100,29 @@ pub fn begin_frame2d_system(_delta : Double) -> Unit {
     next_order: 0,
     current_ui_camera_entity_id: None,
   })
+  let sorting = sorting2ds()
+  for pair in sorting.to_array() {
+    let entity = pair.0
+    if !entity.is_alive() {
+      sorting.remove(entity)
+    }
+  }
+}
+
+///|
+pub fn entity_sorting2d(entity : @entity.Entity) -> Sorting2d {
+  sorting2ds().get(entity).unwrap_or(Sorting2d::new())
+}
+
+///|
+pub fn sort_depth_for_transform(
+  global_transform : @transform.GlobalTransform,
+  sorting : Sorting2d,
+) -> Double {
+  match sorting.mode {
+    Depth => global_transform.translation().z
+    Y => global_transform.translation().y
+  }
 }
 
 ///|
@@ -81,11 +150,27 @@ fn ui_command_bucket(
 }
 
 ///|
+fn draw_command_alpha_mode(
+  command : @render2d_types.DrawCommand2D,
+) -> @render.AlphaMode2D {
+  match command {
+    Image(command) => command.alpha_mode
+    Text(_) => @render.AlphaMode2D::Blend
+    Rect(command) => command.alpha_mode
+    Circle(command) => command.alpha_mode
+    GradientRect(command) => command.alpha_mode
+    PushClip(_) => @render.AlphaMode2D::Opaque
+    PopClip => @render.AlphaMode2D::Opaque
+  }
+}
+
+///|
 fn push_world_command(
   depth : Double,
   entity_id : UInt?,
   command : @render2d_types.DrawCommand2D,
   camera_entity_id? : UInt? = None,
+  sorting? : Sorting2d = Sorting2d::new(),
 ) -> Unit {
   let frame = frame2d()
   world_command_bucket(frame, camera_entity_id).push({
@@ -93,6 +178,9 @@ fn push_world_command(
     order: frame.next_order,
     camera_entity_id,
     entity_id,
+    sorting_layer: sorting.layer,
+    sorting_order: sorting.order,
+    alpha_mode: draw_command_alpha_mode(command),
     command,
   })
   frame.next_order += 1
@@ -104,7 +192,21 @@ fn sorted_world_commands(
 ) -> Array[OrderedDrawCommand2D] {
   let world_commands = commands.copy()
   world_commands.sort_by(fn(lhs, rhs) {
-    if lhs.depth < rhs.depth {
+    if lhs.sorting_layer < rhs.sorting_layer {
+      -1
+    } else if lhs.sorting_layer > rhs.sorting_layer {
+      1
+    } else if lhs.alpha_mode != rhs.alpha_mode {
+      if lhs.alpha_mode is @render.AlphaMode2D::Opaque {
+        -1
+      } else {
+        1
+      }
+    } else if lhs.sorting_order < rhs.sorting_order {
+      -1
+    } else if lhs.sorting_order > rhs.sorting_order {
+      1
+    } else if lhs.depth < rhs.depth {
       -1
     } else if lhs.depth > rhs.depth {
       1
@@ -137,8 +239,9 @@ fn sorted_camera_entity_ids() -> Array[UInt] {
 pub fn push_image_with_depth(
   depth : Double,
   command : @render2d_types.ImageDrawCommand2D,
+  sorting? : Sorting2d = Sorting2d::new(),
 ) -> Unit {
-  push_world_command(depth, None, Image(command))
+  push_world_command(depth, None, Image(command), sorting~)
 }
 
 ///|
@@ -146,8 +249,9 @@ pub fn push_image_with_depth_for_entity(
   depth : Double,
   entity_id : UInt?,
   command : @render2d_types.ImageDrawCommand2D,
+  sorting? : Sorting2d = Sorting2d::new(),
 ) -> Unit {
-  push_world_command(depth, entity_id, Image(command))
+  push_world_command(depth, entity_id, Image(command), sorting~)
 }
 
 ///|
@@ -156,12 +260,14 @@ pub fn push_image_with_depth_to_camera(
   depth : Double,
   command : @render2d_types.ImageDrawCommand2D,
   entity_id? : UInt? = None,
+  sorting? : Sorting2d = Sorting2d::new(),
 ) -> Unit {
   push_world_command(
     depth,
     entity_id,
     Image(command),
     camera_entity_id=Some(camera_entity_id),
+    sorting~,
   )
 }
 
@@ -181,8 +287,9 @@ pub fn push_ui_image(command : @render2d_types.ImageDrawCommand2D) -> Unit {
 pub fn push_text_with_depth(
   depth : Double,
   command : @render2d_types.TextDrawCommand2D,
+  sorting? : Sorting2d = Sorting2d::new(),
 ) -> Unit {
-  push_world_command(depth, None, Text(command))
+  push_world_command(depth, None, Text(command), sorting~)
 }
 
 ///|
@@ -190,8 +297,9 @@ pub fn push_text_with_depth_for_entity(
   depth : Double,
   entity_id : UInt?,
   command : @render2d_types.TextDrawCommand2D,
+  sorting? : Sorting2d = Sorting2d::new(),
 ) -> Unit {
-  push_world_command(depth, entity_id, Text(command))
+  push_world_command(depth, entity_id, Text(command), sorting~)
 }
 
 ///|
@@ -200,12 +308,14 @@ pub fn push_text_with_depth_to_camera(
   depth : Double,
   command : @render2d_types.TextDrawCommand2D,
   entity_id? : UInt? = None,
+  sorting? : Sorting2d = Sorting2d::new(),
 ) -> Unit {
   push_world_command(
     depth,
     entity_id,
     Text(command),
     camera_entity_id=Some(camera_entity_id),
+    sorting~,
   )
 }
 
@@ -225,8 +335,9 @@ pub fn push_ui_text(command : @render2d_types.TextDrawCommand2D) -> Unit {
 pub fn push_rect_with_depth(
   depth : Double,
   command : @render2d_types.RectDrawCommand2D,
+  sorting? : Sorting2d = Sorting2d::new(),
 ) -> Unit {
-  push_world_command(depth, None, Rect(command))
+  push_world_command(depth, None, Rect(command), sorting~)
 }
 
 ///|
@@ -234,8 +345,9 @@ pub fn push_rect_with_depth_for_entity(
   depth : Double,
   entity_id : UInt?,
   command : @render2d_types.RectDrawCommand2D,
+  sorting? : Sorting2d = Sorting2d::new(),
 ) -> Unit {
-  push_world_command(depth, entity_id, Rect(command))
+  push_world_command(depth, entity_id, Rect(command), sorting~)
 }
 
 ///|
@@ -244,12 +356,14 @@ pub fn push_rect_with_depth_to_camera(
   depth : Double,
   command : @render2d_types.RectDrawCommand2D,
   entity_id? : UInt? = None,
+  sorting? : Sorting2d = Sorting2d::new(),
 ) -> Unit {
   push_world_command(
     depth,
     entity_id,
     Rect(command),
     camera_entity_id=Some(camera_entity_id),
+    sorting~,
   )
 }
 
@@ -269,8 +383,9 @@ pub fn push_ui_rect(command : @render2d_types.RectDrawCommand2D) -> Unit {
 pub fn push_circle_with_depth(
   depth : Double,
   command : @render2d_types.CircleDrawCommand2D,
+  sorting? : Sorting2d = Sorting2d::new(),
 ) -> Unit {
-  push_world_command(depth, None, Circle(command))
+  push_world_command(depth, None, Circle(command), sorting~)
 }
 
 ///|
@@ -278,8 +393,9 @@ pub fn push_circle_with_depth_for_entity(
   depth : Double,
   entity_id : UInt?,
   command : @render2d_types.CircleDrawCommand2D,
+  sorting? : Sorting2d = Sorting2d::new(),
 ) -> Unit {
-  push_world_command(depth, entity_id, Circle(command))
+  push_world_command(depth, entity_id, Circle(command), sorting~)
 }
 
 ///|
@@ -288,12 +404,14 @@ pub fn push_circle_with_depth_to_camera(
   depth : Double,
   command : @render2d_types.CircleDrawCommand2D,
   entity_id? : UInt? = None,
+  sorting? : Sorting2d = Sorting2d::new(),
 ) -> Unit {
   push_world_command(
     depth,
     entity_id,
     Circle(command),
     camera_entity_id=Some(camera_entity_id),
+    sorting~,
   )
 }
 
@@ -313,8 +431,9 @@ pub fn push_ui_circle(command : @render2d_types.CircleDrawCommand2D) -> Unit {
 pub fn push_gradient_rect_with_depth(
   depth : Double,
   command : @render2d_types.GradientRectDrawCommand2D,
+  sorting? : Sorting2d = Sorting2d::new(),
 ) -> Unit {
-  push_world_command(depth, None, GradientRect(command))
+  push_world_command(depth, None, GradientRect(command), sorting~)
 }
 
 ///|
@@ -322,8 +441,9 @@ pub fn push_gradient_rect_with_depth_for_entity(
   depth : Double,
   entity_id : UInt?,
   command : @render2d_types.GradientRectDrawCommand2D,
+  sorting? : Sorting2d = Sorting2d::new(),
 ) -> Unit {
-  push_world_command(depth, entity_id, GradientRect(command))
+  push_world_command(depth, entity_id, GradientRect(command), sorting~)
 }
 
 ///|
@@ -332,12 +452,14 @@ pub fn push_gradient_rect_with_depth_to_camera(
   depth : Double,
   command : @render2d_types.GradientRectDrawCommand2D,
   entity_id? : UInt? = None,
+  sorting? : Sorting2d = Sorting2d::new(),
 ) -> Unit {
   push_world_command(
     depth,
     entity_id,
     GradientRect(command),
     camera_entity_id=Some(camera_entity_id),
+    sorting~,
   )
 }
 

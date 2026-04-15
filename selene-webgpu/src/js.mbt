@@ -246,6 +246,8 @@ extern "js" fn webgpu_initialize(
   #|       imageSmooth: true,
   #|       clearColor: [0, 0, 0, 1],
   #|       draw2dCommands: [],
+  #|       passes2d: [],
+  #|       current2dPass: null,
   #|       sections3d: [],
   #|       current3dSection: null,
   #|       imageCache: new Map(),
@@ -857,19 +859,47 @@ extern "js" fn webgpu_initialize(
   #|       return true;
   #|     };
   #|
-  #|     rt.pushColor2d = (topology, verts) => {
-  #|       rt.draw2dCommands.push({ kind: 'color', topology, verts });
+  #|     rt.current2dCommandList = () =>
+  #|       rt.current2dPass?.commands || rt.draw2dCommands;
+  #|     rt.beginPass2d = (x, y, w, h, loadOp, clearColor) => {
+  #|       rt.current2dPass = {
+  #|         viewport: [x, y, w, h],
+  #|         loadOp,
+  #|         clearColor,
+  #|         commands: [],
+  #|       };
   #|     };
-  #|     rt.pushTex2d = (samplerCode, textureRec, verts) => {
-  #|       rt.draw2dCommands.push({
+  #|     rt.endPass2d = () => {
+  #|       if (!rt.current2dPass) return;
+  #|       rt.passes2d.push(rt.current2dPass);
+  #|       rt.current2dPass = null;
+  #|     };
+  #|     rt.pushColor2d = (topology, verts, alphaMode = 1) => {
+  #|       rt.current2dCommandList().push({ kind: 'color', topology, verts, alphaMode });
+  #|     };
+  #|     rt.pushTex2d = (samplerCode, textureRec, verts, alphaMode = 1) => {
+  #|       rt.current2dCommandList().push({
   #|         kind: 'tex',
   #|         samplerCode,
   #|         textureRec,
   #|         verts,
+  #|         alphaMode,
   #|       });
   #|     };
+  #|     rt.pushClip2d = (x, y, w, h) => {
+  #|       rt.current2dCommandList().push({
+  #|         kind: 'pushClip',
+  #|         rect: [x, y, w, h],
+  #|       });
+  #|     };
+  #|     rt.popClip2d = () => {
+  #|       rt.current2dCommandList().push({ kind: 'popClip' });
+  #|     };
+  #|     rt.resetClip2d = () => {
+  #|       rt.current2dCommandList().push({ kind: 'resetClip' });
+  #|     };
   #|
-  #|     rt.pushRect = (x, y, w, h, ma, mb, mc, md, tx, ty, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
+  #|     rt.pushRect = (x, y, w, h, ma, mb, mc, md, tx, ty, alphaMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
   #|       const fill = colorNorm(fr, fg, fb, fa);
   #|       const p0x = ma * 0 + mc * 0 + tx + x;
   #|       const p0y = mb * 0 + md * 0 + ty + y;
@@ -887,7 +917,7 @@ extern "js" fn webgpu_initialize(
   #|         p2x, p2y, fill[0], fill[1], fill[2], fill[3],
   #|         p3x, p3y, fill[0], fill[1], fill[2], fill[3],
   #|       ]);
-  #|       rt.pushColor2d('triangle', verts);
+  #|       rt.pushColor2d('triangle', verts, alphaMode);
   #|       if (hasStroke) {
   #|         const s = colorNorm(sr, sg, sb, sa);
   #|         const line = new Float32Array([
@@ -896,11 +926,11 @@ extern "js" fn webgpu_initialize(
   #|           p2x, p2y, s[0], s[1], s[2], s[3], p3x, p3y, s[0], s[1], s[2], s[3],
   #|           p3x, p3y, s[0], s[1], s[2], s[3], p0x, p0y, s[0], s[1], s[2], s[3],
   #|         ]);
-  #|         rt.pushColor2d('line', line);
+  #|         rt.pushColor2d('line', line, alphaMode);
   #|       }
   #|     };
   #|
-  #|     rt.pushGradientRect = (x, y, w, h, ma, mb, mc, md, tx, ty, sr, sg, sb, sa, er, eg, eb, ea) => {
+  #|     rt.pushGradientRect = (x, y, w, h, ma, mb, mc, md, tx, ty, alphaMode, sr, sg, sb, sa, er, eg, eb, ea) => {
   #|       const c0 = colorNorm(sr, sg, sb, sa);
   #|       const c1 = colorNorm(er, eg, eb, ea);
   #|       const cm = [
@@ -925,10 +955,10 @@ extern "js" fn webgpu_initialize(
   #|         p2x, p2y, c1[0], c1[1], c1[2], c1[3],
   #|         p3x, p3y, cm[0], cm[1], cm[2], cm[3],
   #|       ]);
-  #|       rt.pushColor2d('triangle', verts);
+  #|       rt.pushColor2d('triangle', verts, alphaMode);
   #|     };
   #|
-  #|     rt.pushCircle = (cx, cy, radius, ma, mb, mc, md, tx, ty, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
+  #|     rt.pushCircle = (cx, cy, radius, ma, mb, mc, md, tx, ty, alphaMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
   #|       const n = 40;
   #|       const fill = colorNorm(fr, fg, fb, fa);
   #|       const tri = [];
@@ -949,7 +979,7 @@ extern "js" fn webgpu_initialize(
   #|           x1, y1, fill[0], fill[1], fill[2], fill[3],
   #|         );
   #|       }
-  #|       rt.pushColor2d('triangle', new Float32Array(tri));
+  #|       rt.pushColor2d('triangle', new Float32Array(tri), alphaMode);
   #|       if (hasStroke) {
   #|         const stroke = colorNorm(sr, sg, sb, sa);
   #|         const lines = [];
@@ -969,11 +999,11 @@ extern "js" fn webgpu_initialize(
   #|             x1, y1, stroke[0], stroke[1], stroke[2], stroke[3],
   #|           );
   #|         }
-  #|         rt.pushColor2d('line', new Float32Array(lines));
+  #|         rt.pushColor2d('line', new Float32Array(lines), alphaMode);
   #|       }
   #|     };
   #|
-  #|     rt.pushImage = (path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, repeatMode, tr, tg, tb, ta) => {
+  #|     rt.pushImage = (path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, ua, ub, uc, ud, utx, uty, repeatMode, alphaMode, tr, tg, tb, ta) => {
   #|       const rec = rt.ensureImage(path);
   #|       if (!rec || rec.state !== 'ready') return;
   #|       const p0x = a * 0 + c * 0 + tx + dx;
@@ -1018,16 +1048,21 @@ extern "js" fn webgpu_initialize(
   #|         }
   #|       }
   #|
+  #|       const applyUv = (u, v) => [ua * u + uc * v + utx, ub * u + ud * v + uty];
+  #|       const [tu0, tv0] = applyUv(u0, v0);
+  #|       const [tu1, tv0b] = applyUv(u1, v0);
+  #|       const [tu1b, tv1] = applyUv(u1, v1);
+  #|       const [tu0b, tv1b] = applyUv(u0, v1);
   #|       const tint = colorNorm(tr, tg, tb, ta);
   #|       const verts = new Float32Array([
-  #|         p0x, p0y, u0, v0, tint[0], tint[1], tint[2], tint[3],
-  #|         p1x, p1y, u1, v0, tint[0], tint[1], tint[2], tint[3],
-  #|         p2x, p2y, u1, v1, tint[0], tint[1], tint[2], tint[3],
-  #|         p0x, p0y, u0, v0, tint[0], tint[1], tint[2], tint[3],
-  #|         p2x, p2y, u1, v1, tint[0], tint[1], tint[2], tint[3],
-  #|         p3x, p3y, u0, v1, tint[0], tint[1], tint[2], tint[3],
+  #|         p0x, p0y, tu0, tv0, tint[0], tint[1], tint[2], tint[3],
+  #|         p1x, p1y, tu1, tv0b, tint[0], tint[1], tint[2], tint[3],
+  #|         p2x, p2y, tu1b, tv1, tint[0], tint[1], tint[2], tint[3],
+  #|         p0x, p0y, tu0, tv0, tint[0], tint[1], tint[2], tint[3],
+  #|         p2x, p2y, tu1b, tv1, tint[0], tint[1], tint[2], tint[3],
+  #|         p3x, p3y, tu0b, tv1b, tint[0], tint[1], tint[2], tint[3],
   #|       ]);
-  #|       rt.pushTex2d(samplerCode, rec, verts);
+  #|       rt.pushTex2d(samplerCode, rec, verts, alphaMode);
   #|     };
   #|
   #|     rt.pushText = (text, x, y, ma, mb, mc, md, tx, ty, family, size, align, baseline, r, g, b, alpha) => {
@@ -1542,6 +1577,8 @@ extern "js" fn webgpu_initialize(
   #|     rt.beginFrame = (r, g, b, a) => {
   #|       rt.clearColor = [clamp01(r), clamp01(g), clamp01(b), clamp01(a)];
   #|       rt.draw2dCommands.length = 0;
+  #|       rt.passes2d.length = 0;
+  #|       rt.current2dPass = null;
   #|       rt.sections3d.length = 0;
   #|       rt.current3dSection = null;
   #|     };
@@ -2078,15 +2115,62 @@ extern "js" fn webgpu_initialize(
   #|       }
   #|     };
   #|
-  #|     rt.render2d = (pass) => {
-  #|       const [w, h] = toCanvasSize();
-  #|       const canvasUniform = new Float32Array([w, h, 0, 0]);
+  #|     rt.intersectClipRect = (lhs, rhs) => {
+  #|       const x = Math.max(lhs[0], rhs[0]);
+  #|       const y = Math.max(lhs[1], rhs[1]);
+  #|       const x1 = Math.min(lhs[0] + lhs[2], rhs[0] + rhs[2]);
+  #|       const y1 = Math.min(lhs[1] + lhs[3], rhs[1] + rhs[3]);
+  #|       return [x, y, Math.max(0, x1 - x), Math.max(0, y1 - y)];
+  #|     };
+  #|     rt.applyClipScissor = (pass, clipRect, viewport, canvasWidth, canvasHeight) => {
+  #|       const finalRect = rt.intersectClipRect(viewport, clipRect);
+  #|       const scissorX = Math.max(0, Math.floor(finalRect[0]));
+  #|       const scissorY = Math.max(0, Math.floor(finalRect[1]));
+  #|       const maxWidth = Math.max(0, canvasWidth - scissorX);
+  #|       const maxHeight = Math.max(0, canvasHeight - scissorY);
+  #|       const scissorW = Math.max(0, Math.min(Math.ceil(finalRect[2]), maxWidth));
+  #|       const scissorH = Math.max(0, Math.min(Math.ceil(finalRect[3]), maxHeight));
+  #|       if (scissorW <= 0 || scissorH <= 0) return false;
+  #|       pass.setScissorRect(scissorX, scissorY, scissorW, scissorH);
+  #|       return true;
+  #|     };
+  #|     rt.colorCommand2d = (topology, verts, alphaMode = 1) => ({
+  #|       kind: 'color',
+  #|       topology,
+  #|       verts,
+  #|       alphaMode,
+  #|     });
+  #|     rt.render2d = (pass, passRecord) => {
+  #|       const [canvasWidth, canvasHeight] = toCanvasSize();
+  #|       const canvasUniform = new Float32Array([canvasWidth, canvasHeight, 0, 0]);
   #|       rt.device.queue.writeBuffer(rt.uniformBuffers.canvas2d, 0, canvasUniform.buffer, canvasUniform.byteOffset, canvasUniform.byteLength);
+  #|       const viewport = Array.isArray(passRecord?.viewport)
+  #|         ? passRecord.viewport
+  #|         : [0, 0, canvasWidth, canvasHeight];
+  #|       const loadOp = Number(passRecord?.loadOp) || 0;
+  #|       const clearColor = Array.isArray(passRecord?.clearColor)
+  #|         ? passRecord.clearColor
+  #|         : [0, 0, 0, 1];
+  #|       const commands = Array.isArray(passRecord?.commands)
+  #|         ? passRecord.commands.slice()
+  #|         : [];
+  #|       if (loadOp === 1) {
+  #|         const [x, y, w, h] = viewport;
+  #|         const verts = new Float32Array([
+  #|           x, y, clearColor[0], clearColor[1], clearColor[2], clearColor[3],
+  #|           x + w, y, clearColor[0], clearColor[1], clearColor[2], clearColor[3],
+  #|           x + w, y + h, clearColor[0], clearColor[1], clearColor[2], clearColor[3],
+  #|           x, y, clearColor[0], clearColor[1], clearColor[2], clearColor[3],
+  #|           x + w, y + h, clearColor[0], clearColor[1], clearColor[2], clearColor[3],
+  #|           x, y + h, clearColor[0], clearColor[1], clearColor[2], clearColor[3],
+  #|         ]);
+  #|         commands.unshift(rt.colorCommand2d('triangle', verts, clearColor[3] >= 0.999999 ? 0 : 1));
+  #|       }
   #|       let colorBytes = 0;
   #|       let texBytes = 0;
-  #|       for (const cmd of rt.draw2dCommands) {
+  #|       for (const cmd of commands) {
   #|         if (cmd.kind === 'color') colorBytes += cmd.verts.byteLength;
-  #|         else texBytes += cmd.verts.byteLength;
+  #|         else if (cmd.kind === 'tex') texBytes += cmd.verts.byteLength;
   #|       }
   #|       const colorVb = colorBytes > 0
   #|         ? rt.ensureDynamicBuffer('dyn2dColor', colorBytes, GPUBufferUsage.VERTEX)
@@ -2096,10 +2180,30 @@ extern "js" fn webgpu_initialize(
   #|         : null;
   #|       let colorOffset = 0;
   #|       let texOffset = 0;
-  #|       for (const cmd of rt.draw2dCommands) {
+  #|       const clipStack = [viewport];
+  #|       for (const cmd of commands) {
+  #|         if (cmd.kind === 'pushClip') {
+  #|           clipStack.push(rt.intersectClipRect(clipStack[clipStack.length - 1], cmd.rect));
+  #|           continue;
+  #|         }
+  #|         if (cmd.kind === 'popClip') {
+  #|           if (clipStack.length > 1) clipStack.pop();
+  #|           continue;
+  #|         }
+  #|         if (cmd.kind === 'resetClip') {
+  #|           clipStack.length = 0;
+  #|           clipStack.push(viewport);
+  #|           continue;
+  #|         }
+  #|         if (!rt.applyClipScissor(pass, clipStack[clipStack.length - 1], viewport, canvasWidth, canvasHeight)) {
+  #|           continue;
+  #|         }
   #|         if (cmd.kind === 'color') {
-  #|           if (cmd.topology === 'line') pass.setPipeline(rt.pipelines.color2dLine);
-  #|           else pass.setPipeline(rt.pipelines.color2dTri);
+  #|           if (cmd.topology === 'line') {
+  #|             pass.setPipeline(cmd.alphaMode === 0 ? rt.pipelines.color2dLineOpaque : rt.pipelines.color2dLine);
+  #|           } else {
+  #|             pass.setPipeline(cmd.alphaMode === 0 ? rt.pipelines.color2dTriOpaque : rt.pipelines.color2dTri);
+  #|           }
   #|           pass.setBindGroup(0, rt.bindGroups.canvas2d);
   #|           rt.device.queue.writeBuffer(colorVb, colorOffset, cmd.verts.buffer, cmd.verts.byteOffset, cmd.verts.byteLength);
   #|           pass.setVertexBuffer(0, colorVb, colorOffset, cmd.verts.byteLength);
@@ -2109,7 +2213,7 @@ extern "js" fn webgpu_initialize(
   #|         }
   #|         const rec = cmd.textureRec;
   #|         if (!rec?.view) continue;
-  #|         pass.setPipeline(rt.pipelines.tex2dTri);
+  #|         pass.setPipeline(cmd.alphaMode === 0 ? rt.pipelines.tex2dTriOpaque : rt.pipelines.tex2dTri);
   #|         rt.device.queue.writeBuffer(texVb, texOffset, cmd.verts.buffer, cmd.verts.byteOffset, cmd.verts.byteLength);
   #|         const sampler = cmd.samplerCode === 3
   #|           ? rt.samplers.repeat
@@ -2161,7 +2265,7 @@ extern "js" fn webgpu_initialize(
   #|           rendered = true;
   #|         }
   #|       }
-  #|       if (rt.draw2dCommands.length > 0 || !rendered) {
+  #|       if (rt.passes2d.length > 0 || rt.draw2dCommands.length > 0 || !rendered) {
   #|         const pass = encoder.beginRenderPass({
   #|           colorAttachments: [{
   #|             view,
@@ -2170,7 +2274,18 @@ extern "js" fn webgpu_initialize(
   #|             storeOp: 'store',
   #|           }],
   #|         });
-  #|         rt.render2d(pass);
+  #|         if (rt.passes2d.length > 0) {
+  #|           for (const passRecord of rt.passes2d) {
+  #|             rt.render2d(pass, passRecord);
+  #|           }
+  #|         } else {
+  #|           rt.render2d(pass, {
+  #|             viewport: [0, 0, rt.canvas.width, rt.canvas.height],
+  #|             loadOp: 0,
+  #|             clearColor: rt.clearColor,
+  #|             commands: rt.draw2dCommands,
+  #|           });
+  #|         }
   #|         pass.end();
   #|       }
   #|       rt.device.queue.submit([encoder.finish()]);
@@ -2936,6 +3051,7 @@ extern "js" fn webgpu_initialize(
   #|         color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha', operation: 'add' },
   #|         alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },
   #|       };
+  #|       const opaqueTarget = { format: rt.format };
   #|
   #|       const layout2dColor = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.canvas2d] });
   #|       const layout2dTex = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.tex2d] });
@@ -2996,17 +3112,35 @@ extern "js" fn webgpu_initialize(
   #|       };
   #|
   #|       rt.pipelines = {
+  #|         color2dTriOpaque: rt.device.createRenderPipeline({
+  #|           layout: layout2dColor,
+  #|           vertex: { module: shader2dColor, entryPoint: 'vs_main', buffers: [color2dVertex] },
+  #|           fragment: { module: shader2dColor, entryPoint: 'fs_main', targets: [opaqueTarget] },
+  #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
+  #|         }),
   #|         color2dTri: rt.device.createRenderPipeline({
   #|           layout: layout2dColor,
   #|           vertex: { module: shader2dColor, entryPoint: 'vs_main', buffers: [color2dVertex] },
   #|           fragment: { module: shader2dColor, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendState }] },
   #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
   #|         }),
+  #|         color2dLineOpaque: rt.device.createRenderPipeline({
+  #|           layout: layout2dColor,
+  #|           vertex: { module: shader2dColor, entryPoint: 'vs_main', buffers: [color2dVertex] },
+  #|           fragment: { module: shader2dColor, entryPoint: 'fs_main', targets: [opaqueTarget] },
+  #|           primitive: { topology: 'line-list', cullMode: 'none' },
+  #|         }),
   #|         color2dLine: rt.device.createRenderPipeline({
   #|           layout: layout2dColor,
   #|           vertex: { module: shader2dColor, entryPoint: 'vs_main', buffers: [color2dVertex] },
   #|           fragment: { module: shader2dColor, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendState }] },
   #|           primitive: { topology: 'line-list', cullMode: 'none' },
+  #|         }),
+  #|         tex2dTriOpaque: rt.device.createRenderPipeline({
+  #|           layout: layout2dTex,
+  #|           vertex: { module: shader2dTex, entryPoint: 'vs_main', buffers: [tex2dVertex] },
+  #|           fragment: { module: shader2dTex, entryPoint: 'fs_main', targets: [opaqueTarget] },
+  #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
   #|         }),
   #|         tex2dTri: rt.device.createRenderPipeline({
   #|           layout: layout2dTex,
@@ -3154,6 +3288,66 @@ extern "js" fn webgpu_preload_img(path : String) -> Unit =
   #| }
 
 ///|
+extern "js" fn webgpu_begin_2d_pass(
+  x : Double,
+  y : Double,
+  width : Double,
+  height : Double,
+  load_op : Int,
+  clear_r : Double,
+  clear_g : Double,
+  clear_b : Double,
+  clear_a : Double,
+) -> Unit =
+  #| (x, y, width, height, loadOp, clearR, clearG, clearB, clearA) => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (rt) {
+  #|     rt.beginPass2d(x, y, width, height, loadOp, [clearR, clearG, clearB, clearA]);
+  #|   }
+  #| }
+
+///|
+extern "js" fn webgpu_end_2d_pass() -> Unit =
+  #| () => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (rt) {
+  #|     rt.endPass2d();
+  #|   }
+  #| }
+
+///|
+extern "js" fn webgpu_push_clip_rect(
+  x : Double,
+  y : Double,
+  width : Double,
+  height : Double,
+) -> Unit =
+  #| (x, y, width, height) => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (rt) {
+  #|     rt.pushClip2d(x, y, width, height);
+  #|   }
+  #| }
+
+///|
+extern "js" fn webgpu_pop_clip_rect() -> Unit =
+  #| () => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (rt) {
+  #|     rt.popClip2d();
+  #|   }
+  #| }
+
+///|
+extern "js" fn webgpu_reset_clip_stack() -> Unit =
+  #| () => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (rt) {
+  #|     rt.resetClip2d();
+  #|   }
+  #| }
+
+///|
 extern "js" fn webgpu_draw_image(
   path : String,
   destination_x : Double,
@@ -3171,16 +3365,23 @@ extern "js" fn webgpu_draw_image(
   transform_d : Double,
   transform_tx : Double,
   transform_ty : Double,
+  uv_transform_a : Double,
+  uv_transform_b : Double,
+  uv_transform_c : Double,
+  uv_transform_d : Double,
+  uv_transform_tx : Double,
+  uv_transform_ty : Double,
   repeat_mode : Int,
+  alpha_mode : Int,
   tint_r : Double,
   tint_g : Double,
   tint_b : Double,
   tint_a : Double,
 ) -> Unit =
-  #| (path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, repeatMode, tr, tg, tb, ta) => {
+  #| (path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, ua, ub, uc, ud, utx, uty, repeatMode, alphaMode, tr, tg, tb, ta) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushImage(path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, repeatMode, tr, tg, tb, ta);
+  #|     rt.pushImage(path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, ua, ub, uc, ud, utx, uty, repeatMode, alphaMode, tr, tg, tb, ta);
   #|   }
   #| }
 
@@ -3261,6 +3462,7 @@ extern "js" fn webgpu_draw_rect(
   transform_d : Double,
   transform_tx : Double,
   transform_ty : Double,
+  alpha_mode : Int,
   fill_r : Double,
   fill_g : Double,
   fill_b : Double,
@@ -3271,10 +3473,10 @@ extern "js" fn webgpu_draw_rect(
   stroke_b : Double,
   stroke_a : Double,
 ) -> Unit =
-  #| (x, y, w, h, a, b, c, d, tx, ty, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
+  #| (x, y, w, h, a, b, c, d, tx, ty, alphaMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushRect(x, y, w, h, a, b, c, d, tx, ty, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa);
+  #|     rt.pushRect(x, y, w, h, a, b, c, d, tx, ty, alphaMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa);
   #|   }
   #| }
 
@@ -3289,6 +3491,7 @@ extern "js" fn webgpu_draw_circle(
   transform_d : Double,
   transform_tx : Double,
   transform_ty : Double,
+  alpha_mode : Int,
   fill_r : Double,
   fill_g : Double,
   fill_b : Double,
@@ -3299,10 +3502,10 @@ extern "js" fn webgpu_draw_circle(
   stroke_b : Double,
   stroke_a : Double,
 ) -> Unit =
-  #| (cx, cy, radius, a, b, c, d, tx, ty, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
+  #| (cx, cy, radius, a, b, c, d, tx, ty, alphaMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushCircle(cx, cy, radius, a, b, c, d, tx, ty, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa);
+  #|     rt.pushCircle(cx, cy, radius, a, b, c, d, tx, ty, alphaMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa);
   #|   }
   #| }
 
@@ -3318,6 +3521,7 @@ extern "js" fn webgpu_draw_gradient_rect(
   transform_d : Double,
   transform_tx : Double,
   transform_ty : Double,
+  alpha_mode : Int,
   start_r : Double,
   start_g : Double,
   start_b : Double,
@@ -3327,10 +3531,10 @@ extern "js" fn webgpu_draw_gradient_rect(
   end_b : Double,
   end_a : Double,
 ) -> Unit =
-  #| (x, y, w, h, a, b, c, d, tx, ty, sr, sg, sb, sa, er, eg, eb, ea) => {
+  #| (x, y, w, h, a, b, c, d, tx, ty, alphaMode, sr, sg, sb, sa, er, eg, eb, ea) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushGradientRect(x, y, w, h, a, b, c, d, tx, ty, sr, sg, sb, sa, er, eg, eb, ea);
+  #|     rt.pushGradientRect(x, y, w, h, a, b, c, d, tx, ty, alphaMode, sr, sg, sb, sa, er, eg, eb, ea);
   #|   }
   #| }
 

@@ -95,6 +95,57 @@ pub fn Camera2dView::viewport_to_world_2d(
 }
 
 ///|
+fn rect_from_points(points : Array[@math.Vec2]) -> @math.Rect {
+  if points.is_empty() {
+    return { position: @math.Vec2::zero(), size: @math.Vec2::zero() }
+  }
+  let mut min_x = points[0][X]
+  let mut min_y = points[0][Y]
+  let mut max_x = points[0][X]
+  let mut max_y = points[0][Y]
+  for point in points {
+    min_x = @cmp.minimum(min_x, point[X])
+    min_y = @cmp.minimum(min_y, point[Y])
+    max_x = @cmp.maximum(max_x, point[X])
+    max_y = @cmp.maximum(max_y, point[Y])
+  }
+  {
+    position: @math.Vec2(min_x, min_y),
+    size: @math.Vec2(max_x - min_x, max_y - min_y),
+  }
+}
+
+///|
+pub fn transformed_rect_bounds(
+  origin : @math.Vec2,
+  local_rect : @math.Rect,
+  transform : @math.Transform,
+) -> @math.Rect {
+  let x0 = local_rect.position[X]
+  let y0 = local_rect.position[Y]
+  let x1 = x0 + local_rect.size[X]
+  let y1 = y0 + local_rect.size[Y]
+  let points = [
+    transform.apply_to_vec2(@math.Vec2(x0, y0)) + origin,
+    transform.apply_to_vec2(@math.Vec2(x1, y0)) + origin,
+    transform.apply_to_vec2(@math.Vec2(x1, y1)) + origin,
+    transform.apply_to_vec2(@math.Vec2(x0, y1)) + origin,
+  ]
+  rect_from_points(points)
+}
+
+///|
+pub fn Camera2dView::intersects_screen_rect(
+  self : Camera2dView,
+  rect : @math.Rect,
+) -> Bool {
+  if rect.size[X] <= 0.0 || rect.size[Y] <= 0.0 {
+    return false
+  }
+  self.viewport.intersects(rect)
+}
+
+///|
 pub fn screen_space_transform(
   transform : @transform.Transform,
 ) -> @transform.Transform {

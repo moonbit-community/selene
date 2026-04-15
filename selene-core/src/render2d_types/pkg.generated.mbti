@@ -5,6 +5,7 @@ import {
   "Milky2018/selene/asset_types",
   "Milky2018/selene/math",
   "Milky2018/selene/render",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -17,6 +18,7 @@ pub(all) struct CircleDrawCommand2D {
   center : @math.Vec2
   radius : Double
   transform : @math.Transform
+  alpha_mode : @render.AlphaMode2D
   fill_color : @render.Color
   stroke_color : @render.Color?
 }
@@ -38,6 +40,7 @@ pub(all) enum DrawCommand2D {
 pub(all) struct GradientRectDrawCommand2D {
   rect : @math.Rect
   transform : @math.Transform
+  alpha_mode : @render.AlphaMode2D
   color_start : @render.Color
   color_end : @render.Color
 }
@@ -47,7 +50,9 @@ pub(all) struct ImageDrawCommand2D {
   destination : @math.Rect
   source : ImageRegion2D?
   transform : @math.Transform
+  uv_transform : @math.Transform
   repeat : @math.RepeatMode
+  alpha_mode : @render.AlphaMode2D
   color : @render.Color
 }
 
@@ -59,6 +64,7 @@ pub(all) struct ImageRegion2D {
 pub(all) struct RectDrawCommand2D {
   rect : @math.Rect
   transform : @math.Transform
+  alpha_mode : @render.AlphaMode2D
   fill_color : @render.Color
   stroke_color : @render.Color?
 }
@@ -73,9 +79,16 @@ pub(all) struct RenderPass2D {
   camera_entity_id : UInt?
   order : Int
   viewport : @math.Rect
+  load_op : RenderPassLoadOp2D
+  clear_color : @render.Color
   mut world_commands : Array[DrawCommand2D]
   mut ui_commands : Array[DrawCommand2D]
 }
+
+pub(all) enum RenderPassLoadOp2D {
+  Load
+  Clear
+} derive(Eq, @debug.Debug)
 
 pub(all) struct TextDrawCommand2D {
   text : String

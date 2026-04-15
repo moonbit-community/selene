@@ -41,12 +41,48 @@ pub fn CameraViewport::rect(self : CameraViewport) -> @math.Rect {
 }
 
 ///|
+pub(all) enum CameraPassLoadOp2D {
+  Load
+  Clear
+} derive(Eq, Debug)
+
+///|
+pub(all) struct CameraPass2D {
+  load_op : CameraPassLoadOp2D
+  clear_color : @render.Color
+
+  fn new(
+    load_op? : CameraPassLoadOp2D,
+    clear_color? : @render.Color,
+  ) -> CameraPass2D
+} derive(Eq, Debug)
+
+///|
+fn default_camera_clear_color() -> @render.Color {
+  { r: 0U, g: 0U, b: 0U, a: 1.0 }
+}
+
+///|
+pub fn CameraPass2D::new(
+  load_op? : CameraPassLoadOp2D = Load,
+  clear_color? : @render.Color = default_camera_clear_color(),
+) -> CameraPass2D {
+  { load_op, clear_color }
+}
+
+///|
 pub(all) struct Camera {
   mut is_active : Bool
   order : Int
   viewport : CameraViewport?
+  pass : CameraPass2D
 
-  fn new(is_active? : Bool, order? : Int, viewport? : CameraViewport?) -> Camera
+  fn new(
+    is_active? : Bool,
+    order? : Int,
+    viewport? : CameraViewport?,
+    pass? : CameraPass2D,
+  ) -> Camera
 } derive(Eq, Debug)
 
 ///|
@@ -54,8 +90,9 @@ pub fn Camera::new(
   is_active? : Bool = true,
   order? : Int = 0,
   viewport? : CameraViewport? = None,
+  pass? : CameraPass2D = CameraPass2D::new(),
 ) -> Camera {
-  { is_active, order, viewport }
+  { is_active, order, viewport, pass }
 }
 
 ///|
@@ -168,6 +205,11 @@ pub fn Camera::with_viewport(
   viewport : CameraViewport?,
 ) -> Camera {
   { ..self, viewport, }
+}
+
+///|
+pub fn Camera::with_pass(self : Camera, pass : CameraPass2D) -> Camera {
+  { ..self, pass, }
 }
 
 ///|

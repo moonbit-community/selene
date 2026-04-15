@@ -187,6 +187,7 @@ fn atlas_overlay_from_draw_command(
           Rect({
             rect: image.destination,
             transform: image.transform,
+            alpha_mode: @render.AlphaMode2D::Blend,
             fill_color: atlas_overlay_fill_color(),
             stroke_color: Some(atlas_overlay_stroke_color()),
           }),

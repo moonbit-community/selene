@@ -4,6 +4,7 @@ package "Milky2018/selene/camera"
 import {
   "Milky2018/selene/entity",
   "Milky2018/selene/math",
+  "Milky2018/selene/render",
   "Milky2018/selene/transform",
   "moonbitlang/core/debug",
 }
@@ -29,6 +30,8 @@ pub fn primary_camera2d_view() -> Camera2dView?
 
 pub fn screen_space_transform(@transform.Transform) -> @transform.Transform
 
+pub fn transformed_rect_bounds(@math.Vec2, @math.Rect, @math.Transform) -> @math.Rect
+
 // Errors
 
 // Types and methods
@@ -36,13 +39,15 @@ pub(all) struct Camera {
   mut is_active : Bool
   order : Int
   viewport : CameraViewport?
+  pass : CameraPass2D
 
-  fn new(is_active? : Bool, order? : Int, viewport? : CameraViewport?) -> Camera
+  fn new(is_active? : Bool, order? : Int, viewport? : CameraViewport?, pass? : CameraPass2D) -> Camera
 } derive(Eq, @debug.Debug)
 pub fn Camera::contains_screen_point(Self, @math.Vec2) -> Bool
-pub fn Camera::new(is_active? : Bool, order? : Int, viewport? : CameraViewport?) -> Self
+pub fn Camera::new(is_active? : Bool, order? : Int, viewport? : CameraViewport?, pass? : CameraPass2D) -> Self
 pub fn Camera::viewport_rect(Self) -> @math.Rect
 pub fn Camera::viewport_to_world_2d(Self, @transform.GlobalTransform, OrthographicProjection, @math.Vec2) -> @math.Vec2
+pub fn Camera::with_pass(Self, CameraPass2D) -> Self
 pub fn Camera::with_viewport(Self, CameraViewport?) -> Self
 pub fn Camera::world_to_viewport(Self, @transform.GlobalTransform, OrthographicProjection, @math.Vec2) -> @math.Vec2
 pub impl Default for Camera
@@ -60,8 +65,22 @@ pub(all) struct Camera2dView {
   projection : OrthographicProjection
   viewport : @math.Rect
 }
+pub fn Camera2dView::intersects_screen_rect(Self, @math.Rect) -> Bool
 pub fn Camera2dView::viewport_to_world_2d(Self, @math.Vec2) -> @math.Vec2
 pub fn Camera2dView::world_to_viewport(Self, @math.Vec2) -> @math.Vec2
+
+pub(all) struct CameraPass2D {
+  load_op : CameraPassLoadOp2D
+  clear_color : @render.Color
+
+  fn new(load_op? : CameraPassLoadOp2D, clear_color? : @render.Color) -> CameraPass2D
+} derive(Eq, @debug.Debug)
+pub fn CameraPass2D::new(load_op? : CameraPassLoadOp2D, clear_color? : @render.Color) -> Self
+
+pub(all) enum CameraPassLoadOp2D {
+  Load
+  Clear
+} derive(Eq, @debug.Debug)
 
 pub(all) struct CameraViewport {
   position : @math.Vec2

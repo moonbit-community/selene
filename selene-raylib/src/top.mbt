@@ -3451,6 +3451,33 @@ pub fn draw_image(
 }
 
 ///|
+pub fn begin_2d_pass(
+  viewport : @smath.Rect,
+  load_op : @render2d_types.RenderPassLoadOp2D,
+  clear_color : @render.Color,
+) -> Unit {
+  reset_clip_stack()
+  push_clip_rect(viewport)
+  if load_op is Clear {
+    mark_frame_drawn()
+    @raylib.draw_rectangle_rec(
+      to_ray_rect(
+        viewport.position[X],
+        viewport.position[Y],
+        viewport.size[X],
+        viewport.size[Y],
+      ),
+      to_ray_color(clear_color),
+    )
+  }
+}
+
+///|
+pub fn end_2d_pass() -> Unit {
+  reset_clip_stack()
+}
+
+///|
 pub fn push_clip_rect(rect : @smath.Rect) -> Unit {
   let next = match clip_stack.last() {
     Some(current) =>
@@ -3623,6 +3650,7 @@ fn draw_text_with_cosmic_transform(
     x,
     y,
     command.transform,
+    @smath.Transform::identity(),
     white_render_color(),
   )
   true

@@ -118,7 +118,8 @@ pub fn render_sprite_system(delta : Double) -> Unit {
       continue
     }
     guard sprite_size(sprite) is Some(size) else { continue }
-    let depth = global_transform.translation().z
+    let sorting = @render2d.entity_sorting2d(entity)
+    let depth = @render2d.sort_depth_for_transform(global_transform, sorting)
     let transform = global_transform.compute_transform()
     let raw_pos = @math.Vec2(transform.translation.x, transform.translation.y)
     let local_transform = sprite_local_transform(sprite, size)
@@ -132,6 +133,7 @@ pub fn render_sprite_system(delta : Double) -> Unit {
         @camera.camera_screen_transform(global_transform, None) *
         local_transform,
         None,
+        sorting,
       )
       continue
     }
@@ -143,15 +145,29 @@ pub fn render_sprite_system(delta : Double) -> Unit {
       ) else {
         continue
       }
+      let screen_transform = @camera.camera_screen_transform(
+          global_transform,
+          Some(camera_view),
+        ) *
+        local_transform
+      let screen_position = @camera.pixel_snapped_position(
+        camera_view.world_to_viewport(raw_pos),
+      )
+      let bounds = @camera.transformed_rect_bounds(
+        screen_position,
+        { position: @math.Vec2::zero(), size },
+        screen_transform,
+      )
+      guard camera_view.intersects_screen_rect(bounds) else { continue }
       push_sprite_draw_command(
         entity,
         sprite,
         size,
         depth,
-        @camera.pixel_snapped_position(camera_view.world_to_viewport(raw_pos)),
-        @camera.camera_screen_transform(global_transform, Some(camera_view)) *
-        local_transform,
+        screen_position,
+        screen_transform,
         Some(camera_view.entity.id()),
+        sorting,
       )
     }
   }
@@ -166,6 +182,7 @@ fn push_sprite_draw_command(
   snapped_pos : @math.Vec2,
   transform : @math.Transform,
   camera_entity_id : UInt?,
+  sorting : @render2d.Sorting2d,
 ) -> Unit {
   match sprite.image {
     Some(image) => {
@@ -174,7 +191,9 @@ fn push_sprite_draw_command(
         destination: { position: snapped_pos, size },
         source: sprite_image_region(sprite),
         transform,
+        uv_transform: @math.Transform::identity(),
         repeat: sprite_repeat_mode(sprite),
+        alpha_mode: sprite_alpha_mode(sprite),
         color: sprite.color,
       }
       match camera_entity_id {
@@ -184,12 +203,14 @@ fn push_sprite_draw_command(
             depth,
             command,
             entity_id=Some(entity.id()),
+            sorting~,
           )
         None =>
           @render2d.push_image_with_depth_for_entity(
             depth,
             Some(entity.id()),
             command,
+            sorting~,
           )
       }
     }
@@ -197,6 +218,7 @@ fn push_sprite_draw_command(
       let command : @render2d_types.RectDrawCommand2D = {
         rect: { position: snapped_pos, size },
         transform,
+        alpha_mode: sprite_alpha_mode(sprite),
         fill_color: sprite.color,
         stroke_color: None,
       }
@@ -207,15 +229,28 @@ fn push_sprite_draw_command(
             depth,
             command,
             entity_id=Some(entity.id()),
+            sorting~,
           )
         None =>
           @render2d.push_rect_with_depth_for_entity(
             depth,
             Some(entity.id()),
             command,
+            sorting~,
           )
       }
     }
+  }
+}
+
+///|
+fn sprite_alpha_mode(sprite : Sprite) -> @render.AlphaMode2D {
+  if sprite.image is Some(_) {
+    @render.AlphaMode2D::Blend
+  } else if sprite.color.a >= 0.999999 {
+    @render.AlphaMode2D::Opaque
+  } else {
+    @render.AlphaMode2D::Blend
   }
 }
 

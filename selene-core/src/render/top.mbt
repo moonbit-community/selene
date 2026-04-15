@@ -19,3 +19,9 @@ pub(all) struct Color {
   b : UInt
   a : Double
 } derive(Eq, Debug)
+
+///|
+pub(all) enum AlphaMode2D {
+  Opaque
+  Blend
+} derive(Eq, Debug)

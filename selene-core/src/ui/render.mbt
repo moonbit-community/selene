@@ -9,6 +9,7 @@ fn push_ui_rect_fill(rect : @math.Rect, color : @render.Color) -> Unit {
   @render2d.push_ui_rect({
     rect,
     transform: @math.Transform::identity(),
+    alpha_mode: color_alpha_mode(color),
     fill_color: color,
     stroke_color: None,
   })
@@ -27,9 +28,19 @@ fn push_ui_circle_fill(
     center,
     radius,
     transform: @math.Transform::identity(),
+    alpha_mode: color_alpha_mode(color),
     fill_color: color,
     stroke_color: None,
   })
+}
+
+///|
+fn color_alpha_mode(color : @render.Color) -> @render.AlphaMode2D {
+  if color.a >= 0.999999 {
+    @render.AlphaMode2D::Opaque
+  } else {
+    @render.AlphaMode2D::Blend
+  }
 }
 
 ///|
@@ -384,6 +395,12 @@ pub fn draw_ui_material_gradient(
   @render2d.push_ui_gradient_rect({
     rect: context.rect,
     transform: @math.Transform::identity(),
+    alpha_mode: if gradient.color_start.a >= 0.999999 &&
+      gradient.color_end.a >= 0.999999 {
+      @render.AlphaMode2D::Opaque
+    } else {
+      @render.AlphaMode2D::Blend
+    },
     color_start: gradient.color_start,
     color_end: gradient.color_end,
   })
@@ -399,7 +416,9 @@ pub fn draw_ui_material_image(
     destination: fitted_image_rect(context.rect, image),
     source: None,
     transform: @math.Transform::new(),
+    uv_transform: @math.Transform::identity(),
     repeat: NoRepeat,
+    alpha_mode: @render.AlphaMode2D::Blend,
     color: image.tint,
   })
 }
@@ -630,7 +649,9 @@ fn push_image(entity : @entity.Entity) -> Unit {
     destination: fitted_image_rect(transform.screen_content_rect, image),
     source: None,
     transform: @math.Transform::new(),
+    uv_transform: @math.Transform::identity(),
     repeat: NoRepeat,
+    alpha_mode: @render.AlphaMode2D::Blend,
     color: image.tint,
   })
 }

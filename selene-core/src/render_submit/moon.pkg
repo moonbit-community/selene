@@ -1,5 +1,6 @@
 import {
   "Milky2018/selene/camera",
+  "Milky2018/selene/entity",
   "Milky2018/selene/math",
   "Milky2018/selene/platform_render",
   "Milky2018/selene/render2d",
@@ -10,3 +11,8 @@ import {
   "Milky2018/selene/runtime_debug",
   "Milky2018/selene/system",
 }
+
+import {
+  "Milky2018/selene/ecs",
+  "Milky2018/selene/transform",
+} for "wbtest"

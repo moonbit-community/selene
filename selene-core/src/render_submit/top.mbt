@@ -13,6 +13,16 @@ fn screen_pass_order(camera_views : Array[@camera.Camera2dView]) -> Int {
 }
 
 ///|
+fn render_pass_load_op(
+  load_op : @camera.CameraPassLoadOp2D,
+) -> @render2d_types.RenderPassLoadOp2D {
+  match load_op {
+    Load => @render2d_types.RenderPassLoadOp2D::Load
+    Clear => @render2d_types.RenderPassLoadOp2D::Clear
+  }
+}
+
+///|
 fn build_frame2d(
   camera_views : Array[@camera.Camera2dView],
 ) -> (@render2d_types.RenderFrame2D, Array[@render2d.DrawCommandWithDepth2D]) {
@@ -27,7 +37,10 @@ fn build_frame2d(
     let pass_ui_commands = @render2d.get_camera_ui_commands(
       camera_view.entity.id(),
     )
-    if pass_world_with_depth.is_empty() && pass_ui_commands.is_empty() {
+    let needs_clear = camera_view.camera.pass.load_op is Clear
+    if pass_world_with_depth.is_empty() &&
+      pass_ui_commands.is_empty() &&
+      !needs_clear {
       continue
     }
     let pass_world_commands = pass_world_with_depth.map(fn(command) {
@@ -42,6 +55,8 @@ fn build_frame2d(
       camera_entity_id: Some(camera_view.entity.id()),
       order: camera_view.camera.order,
       viewport: camera_view.viewport,
+      load_op: render_pass_load_op(camera_view.camera.pass.load_op),
+      clear_color: camera_view.camera.pass.clear_color,
       world_commands: pass_world_commands,
       ui_commands: pass_ui_commands,
     })
@@ -64,6 +79,8 @@ fn build_frame2d(
       camera_entity_id: None,
       order: screen_pass_order(camera_views),
       viewport: full_screen_viewport(),
+      load_op: @render2d_types.RenderPassLoadOp2D::Load,
+      clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0 },
       world_commands: screen_world_commands,
       ui_commands: screen_ui_commands,
     })

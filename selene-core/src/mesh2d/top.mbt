@@ -149,7 +149,8 @@ pub fn render_mesh2d_system(delta : Double) -> Unit {
       Color(handle) => @material2d.color_material(handle)
     }
     guard material is Some(material) else { continue }
-    let depth = global_transform.translation().z
+    let sorting = @render2d.entity_sorting2d(entity)
+    let depth = @render2d.sort_depth_for_transform(global_transform, sorting)
     let transform = global_transform.compute_transform()
     let raw_pos = @math.Vec2(transform.translation.x, transform.translation.y)
     if camera_views.is_empty() {
@@ -161,6 +162,7 @@ pub fn render_mesh2d_system(delta : Double) -> Unit {
         @camera.pixel_snapped_position(@system.scale_vec2(raw_pos)),
         @camera.camera_screen_transform(global_transform, None),
         None,
+        sorting,
       )
       continue
     }
@@ -172,14 +174,24 @@ pub fn render_mesh2d_system(delta : Double) -> Unit {
       ) else {
         continue
       }
+      let screen_position = @camera.pixel_snapped_position(
+        camera_view.world_to_viewport(raw_pos),
+      )
+      let screen_transform = @camera.camera_screen_transform(
+        global_transform,
+        Some(camera_view),
+      )
+      let bounds = mesh2d_bounds(mesh_asset, screen_position, screen_transform)
+      guard camera_view.intersects_screen_rect(bounds) else { continue }
       push_mesh2d_draw_command(
         entity,
         mesh_asset,
         material,
         depth,
-        @camera.pixel_snapped_position(camera_view.world_to_viewport(raw_pos)),
-        @camera.camera_screen_transform(global_transform, Some(camera_view)),
+        screen_position,
+        screen_transform,
         Some(camera_view.entity.id()),
+        sorting,
       )
     }
   }
@@ -194,6 +206,7 @@ fn push_mesh2d_draw_command(
   snapped_pos : @math.Vec2,
   screen_transform : @math.Transform,
   camera_entity_id : UInt?,
+  sorting : @render2d.Sorting2d,
 ) -> Unit {
   match mesh_asset.primitive {
     Rectangle(size) => {
@@ -205,7 +218,9 @@ fn push_mesh2d_draw_command(
             destination: { position: snapped_pos, size },
             source: None,
             transform: external_transform,
+            uv_transform: material.uv_transform,
             repeat: NoRepeat,
+            alpha_mode: material.alpha_mode,
             color: material.color,
           }
           match camera_entity_id {
@@ -215,12 +230,14 @@ fn push_mesh2d_draw_command(
                 depth,
                 command,
                 entity_id=Some(entity.id()),
+                sorting~,
               )
             None =>
               @render2d.push_image_with_depth_for_entity(
                 depth,
                 Some(entity.id()),
                 command,
+                sorting~,
               )
           }
         }
@@ -228,6 +245,7 @@ fn push_mesh2d_draw_command(
           let command : @render2d_types.RectDrawCommand2D = {
             rect: { position: snapped_pos, size },
             transform: external_transform,
+            alpha_mode: material.alpha_mode,
             fill_color: material.color,
             stroke_color: None,
           }
@@ -238,12 +256,14 @@ fn push_mesh2d_draw_command(
                 depth,
                 command,
                 entity_id=Some(entity.id()),
+                sorting~,
               )
             None =>
               @render2d.push_rect_with_depth_for_entity(
                 depth,
                 Some(entity.id()),
                 command,
+                sorting~,
               )
           }
         }
@@ -254,6 +274,7 @@ fn push_mesh2d_draw_command(
         center: snapped_pos,
         radius,
         transform: screen_transform,
+        alpha_mode: material.alpha_mode,
         fill_color: material.color,
         stroke_color: None,
       }
@@ -264,14 +285,41 @@ fn push_mesh2d_draw_command(
             depth,
             command,
             entity_id=Some(entity.id()),
+            sorting~,
           )
         None =>
           @render2d.push_circle_with_depth_for_entity(
             depth,
             Some(entity.id()),
             command,
+            sorting~,
           )
       }
     }
+  }
+}
+
+///|
+fn mesh2d_bounds(
+  mesh_asset : Mesh2dAsset,
+  snapped_pos : @math.Vec2,
+  screen_transform : @math.Transform,
+) -> @math.Rect {
+  match mesh_asset.primitive {
+    Rectangle(size) =>
+      @camera.transformed_rect_bounds(
+        snapped_pos,
+        { position: @math.Vec2::zero(), size },
+        screen_transform * centered_quad_transform(size),
+      )
+    Circle(radius) =>
+      @camera.transformed_rect_bounds(
+        snapped_pos,
+        {
+          position: @math.Vec2(-radius, -radius),
+          size: @math.Vec2(radius * 2.0, radius * 2.0),
+        },
+        screen_transform,
+      )
   }
 }

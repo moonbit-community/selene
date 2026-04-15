@@ -10,6 +10,11 @@ import {
 // Errors
 
 // Types and methods
+pub(all) enum AlphaMode2D {
+  Opaque
+  Blend
+} derive(Eq, @debug.Debug)
+
 pub(all) struct Color {
   r : UInt
   g : UInt

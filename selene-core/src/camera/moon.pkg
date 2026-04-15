@@ -2,6 +2,8 @@ import {
   "Milky2018/selene/ecs",
   "Milky2018/selene/math",
   "Milky2018/selene/entity",
+  "Milky2018/selene/render",
   "Milky2018/selene/transform",
   "Milky2018/selene/system",
+  "moonbitlang/core/cmp",
 }

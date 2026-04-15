@@ -219,6 +219,8 @@ pub fn render_text2d_system(delta : Double) -> Unit {
     let bounds = text_bounds().get(entity)
     let transform = global_transform.compute_transform()
     let raw_pos = @math.Vec2(transform.translation.x, transform.translation.y)
+    let sorting = @render2d.entity_sorting2d(entity)
+    let depth = @render2d.sort_depth_for_transform(global_transform, sorting)
     let lines = bounded_text_lines(text.content, style, layout, bounds)
     if lines.is_empty() {
       continue
@@ -250,6 +252,8 @@ pub fn render_text2d_system(delta : Double) -> Unit {
         layout_size,
         global_transform,
         None,
+        depth,
+        sorting,
       )
       continue
     }
@@ -261,6 +265,21 @@ pub fn render_text2d_system(delta : Double) -> Unit {
       ) else {
         continue
       }
+      let screen_pos = @camera.pixel_snapped_position(
+        camera_view.world_to_viewport(raw_pos),
+      )
+      let screen_transform = @camera.camera_screen_transform(
+        global_transform,
+        Some(camera_view),
+      )
+      let layout_origin = screen_pos +
+        anchor_origin(text2d_anchor(entity), layout_size)
+      let layout_bounds = @camera.transformed_rect_bounds(
+        layout_origin,
+        { position: @math.Vec2::zero(), size: layout_size },
+        screen_transform,
+      )
+      guard camera_view.intersects_screen_rect(layout_bounds) else { continue }
       push_text2d_lines(
         entity,
         lines,
@@ -270,10 +289,12 @@ pub fn render_text2d_system(delta : Double) -> Unit {
         bounds_height,
         block_height,
         line_height,
-        @camera.pixel_snapped_position(camera_view.world_to_viewport(raw_pos)),
+        screen_pos,
         layout_size,
         global_transform,
         Some(camera_view),
+        depth,
+        sorting,
       )
     }
   }
@@ -293,6 +314,8 @@ fn push_text2d_lines(
   layout_size : @math.Vec2,
   global_transform : @transform.GlobalTransform,
   camera_view : @camera.Camera2dView?,
+  depth : Double,
+  sorting : @render2d.Sorting2d,
 ) -> Unit {
   let origin = screen_pos + anchor_origin(text2d_anchor(entity), layout_size)
   let start_y = match layout.baseline {
@@ -320,15 +343,17 @@ fn push_text2d_lines(
       Some(camera_view) =>
         @render2d.push_text_with_depth_to_camera(
           camera_view.entity.id(),
-          global_transform.translation().z,
+          depth,
           command,
           entity_id=Some(entity.id()),
+          sorting~,
         )
       None =>
         @render2d.push_text_with_depth_for_entity(
-          global_transform.translation().z,
+          depth,
           Some(entity.id()),
           command,
+          sorting~,
         )
     }
   }

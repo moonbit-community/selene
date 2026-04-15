@@ -107,6 +107,7 @@ test "render submission keeps entity ids and exposes offscreen capture API" {
       command: Rect({
         rect: { position: @math.Vec2(0.0, 0.0), size: @math.Vec2(2.0, 2.0) },
         transform: @math.Transform::identity(),
+        alpha_mode: @render.AlphaMode2D::Opaque,
         fill_color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
         stroke_color: None,
       }),
@@ -176,7 +177,9 @@ test "atlas overlay decoration appends highlight rects when enabled" {
         size: @math.Vec2(3.0, 4.0),
       }),
       transform: @math.Transform::identity(),
+      uv_transform: @math.Transform::identity(),
       repeat: @math.NoRepeat,
+      alpha_mode: @render.AlphaMode2D::Blend,
       color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
     }
     let world_command : @render2d.DrawCommandWithDepth2D = {
@@ -219,7 +222,9 @@ test "frame metadata export includes draw commands and atlas overlay entries" {
         size: @math.Vec2(6.0, 7.0),
       }),
       transform: @math.Transform::identity(),
+      uv_transform: @math.Transform::identity(),
       repeat: @math.NoRepeat,
+      alpha_mode: @render.AlphaMode2D::Blend,
       color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
     }
     let world_command : @render2d.DrawCommandWithDepth2D = {
