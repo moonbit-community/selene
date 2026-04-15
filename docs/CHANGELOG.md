@@ -35,6 +35,7 @@
 - Fixed editor frontend/service/spec round-trip handling for new scene save semantics (`SceneSaveOutcome`, `Conflict`) and scene disk metadata propagation (`disk_hash`, `disk_revision`) through load/save/test harness paths.
 - Fixed stale/unused editor message branches by removing dead `Msg` variants and reducer branches that had no UI producer (`SetProjectRootInput`, `SetProjectNameInput`, `PickProjectRoot`, `UpdateSelectedAnimationClipName`, `ReloadScene`, `AddSpriteFromAsset`), eliminating warning-prone dead paths.
 - Fixed animation graph inspector preview controls so play/pause/speed/seek now drive a real resource preview instead of only targeting selected scene entities.
+- Fixed `selene-editor-specs` harness effect processing to cover sidebar layout subscription effects, restoring exhaustive `@app.Effect` handling after the sidebar layout feature landed.
 
 ### Removed
 

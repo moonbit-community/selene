@@ -59,6 +59,7 @@ pub struct EditorHarness {
   mut next_rpc_id : Int
   mut service_events_subscribed : Bool
   mut preview_events_subscribed : Bool
+  mut sidebar_layout_subscribed : Bool
   preview : FakePreviewBridge
 }
 
@@ -207,6 +208,7 @@ fn editor_harness(module_root : String, project_root : String) -> EditorHarness 
     next_rpc_id: 1,
     service_events_subscribed: false,
     preview_events_subscribed: false,
+    sidebar_layout_subscribed: false,
     preview: FakePreviewBridge::new(),
   }
 }
@@ -276,6 +278,7 @@ async fn EditorHarness::process_effect(
     @app.SubscribeServiceEvents => self.service_events_subscribed = true
     @app.SubscribePreviewEvents => self.preview_events_subscribed = true
     @app.SubscribeKeyboardShortcuts => ()
+    @app.SubscribeSidebarLayout => self.sidebar_layout_subscribed = true
     @app.Preview(command) => self.preview.apply(command)
   }
 }
