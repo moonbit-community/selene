@@ -16,6 +16,7 @@
 - Changed AutoTile Inspector to support editable palette/rule JSON with explicit `Apply` commit and structured parse/validation errors instead of implicit fallback behavior.
 - Changed AutoTile rule-set parsing to strict mode (`Bitmask4 | Bitmask8 | Wang`) so invalid input is reported to status/logs and does not silently default.
 - Changed editor left-sidebar layout to keep a fixed `clamp(280px, 22vw, 360px)` width, add draggable Scenes/Assets/Scene Tree splitters (`18/47/35` defaults), compress Scenes/Assets chrome, and give Scene Tree its own 28px-row scrolling body.
+- Changed editor resource inspectors to render visual atlas, animation clip, and animation graph previews with independent canvas-based playback instead of text-only summaries.
 - Changed editor state flow to a scene-session-first model (`scene_session` with `dirty/base_hash/base_revision/conflict_state/undo/redo`), so non-scene UI actions no longer overwrite in-memory unsaved scene edits.
 - Changed typed protocol and service RPC handling for scene CAS save: `SceneSave(path, scene, base_hash, base_revision)` now returns either `SceneSaved(save)` or `Conflict(conflict)` with structured revision/hash metadata.
 - Changed watcher/event pipeline from broad file-change reload semantics to typed project deltas (`WorkspaceChanged`, `SceneFileChanged`, `AssetFileChanged`, `ManifestChanged`) and removed `FilesChanged -> project_current` auto-refresh coupling.
@@ -32,6 +33,7 @@
 - Fixed snap/tool/workspace interactions that previously rolled back unsaved scene edits by ensuring workspace deltas do not trigger scene reloads and dirty scene file changes enter explicit conflict state instead of silent overwrite.
 - Fixed editor frontend/service/spec round-trip handling for new scene save semantics (`SceneSaveOutcome`, `Conflict`) and scene disk metadata propagation (`disk_hash`, `disk_revision`) through load/save/test harness paths.
 - Fixed stale/unused editor message branches by removing dead `Msg` variants and reducer branches that had no UI producer (`SetProjectRootInput`, `SetProjectNameInput`, `PickProjectRoot`, `UpdateSelectedAnimationClipName`, `ReloadScene`, `AddSpriteFromAsset`), eliminating warning-prone dead paths.
+- Fixed animation graph inspector preview controls so play/pause/speed/seek now drive a real resource preview instead of only targeting selected scene entities.
 
 ### Removed
 

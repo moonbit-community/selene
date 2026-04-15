@@ -790,6 +790,263 @@ extern "js" fn sync_asset_tree_sticky_overlay() =
   #| }
 
 ///|
+#cfg(target="js")
+extern "js" fn sync_resource_previews() =
+  #| () => {
+  #|   const checkerFill = (ctx, width, height) => {
+  #|     ctx.fillStyle = "#10161d";
+  #|     ctx.fillRect(0, 0, width, height);
+  #|     const size = 16;
+  #|     for (let y = 0; y < height; y += size) {
+  #|       for (let x = 0; x < width; x += size) {
+  #|         if (((x + y) / size) % 2 === 0) {
+  #|           ctx.fillStyle = "rgba(255,255,255,0.03)";
+  #|           ctx.fillRect(x, y, size, size);
+  #|         }
+  #|       }
+  #|     }
+  #|   };
+  #|
+  #|   const ensureCanvasSize = (canvas) => {
+  #|     const rect = canvas.getBoundingClientRect();
+  #|     const dpr = window.devicePixelRatio || 1;
+  #|     const width = Math.max(1, Math.round(rect.width * dpr));
+  #|     const height = Math.max(1, Math.round(rect.height * dpr));
+  #|     if (canvas.width !== width || canvas.height !== height) {
+  #|       canvas.width = width;
+  #|       canvas.height = height;
+  #|     }
+  #|     return { width, height, dpr };
+  #|   };
+  #|
+  #|   const drawMessage = (ctx, width, height, message) => {
+  #|     checkerFill(ctx, width, height);
+  #|     ctx.fillStyle = "rgba(230, 237, 243, 0.78)";
+  #|     ctx.font = "12px SF Mono, Iosevka, Menlo, monospace";
+  #|     ctx.textAlign = "center";
+  #|     ctx.textBaseline = "middle";
+  #|     ctx.fillText(message, width / 2, height / 2);
+  #|   };
+  #|
+  #|   const parseRectSpecs = (value) => {
+  #|     const specs = [];
+  #|     if (!value) return specs;
+  #|     for (const item of value.split(";")) {
+  #|       if (!item) continue;
+  #|       const parts = item.split(",");
+  #|       if (parts.length < 4) continue;
+  #|       const x = Number(parts[0]);
+  #|       const y = Number(parts[1]);
+  #|       const width = Number(parts[2]);
+  #|       const height = Number(parts[3]);
+  #|       if (
+  #|         Number.isFinite(x) &&
+  #|         Number.isFinite(y) &&
+  #|         Number.isFinite(width) &&
+  #|         Number.isFinite(height) &&
+  #|         width > 0 &&
+  #|         height > 0
+  #|       ) {
+  #|         specs.push({ x, y, width, height });
+  #|       }
+  #|     }
+  #|     return specs;
+  #|   };
+  #|
+  #|   const imageCache = (window.__selenePreviewImageCache ||= new Map());
+  #|   const ensureImage = (src) => {
+  #|     if (!src) return null;
+  #|     let entry = imageCache.get(src);
+  #|     if (entry) return entry;
+  #|     const image = new Image();
+  #|     entry = { image, ready: false, failed: false };
+  #|     image.decoding = "async";
+  #|     image.onload = () => {
+  #|       entry.ready = true;
+  #|       entry.failed = false;
+  #|     };
+  #|     image.onerror = () => {
+  #|       entry.ready = false;
+  #|       entry.failed = true;
+  #|     };
+  #|     image.src = src;
+  #|     imageCache.set(src, entry);
+  #|     return entry;
+  #|   };
+  #|
+  #|   const drawAtlasPreview = (canvas) => {
+  #|     const ctx = canvas.getContext("2d");
+  #|     if (!ctx) return;
+  #|     const { width, height } = ensureCanvasSize(canvas);
+  #|     const rects = parseRectSpecs(canvas.dataset.previewRects || "");
+  #|     const src = canvas.dataset.previewSrc || "";
+  #|     const imageEntry = ensureImage(src);
+  #|     if (!src || !imageEntry) {
+  #|       drawMessage(ctx, width, height, "No source image");
+  #|       return;
+  #|     }
+  #|     if (imageEntry.failed) {
+  #|       drawMessage(ctx, width, height, "Source image unavailable");
+  #|       return;
+  #|     }
+  #|     if (!imageEntry.ready) {
+  #|       drawMessage(ctx, width, height, "Loading atlas preview...");
+  #|       return;
+  #|     }
+  #|     checkerFill(ctx, width, height);
+  #|     const image = imageEntry.image;
+  #|     const scale = Math.min(
+  #|       (width - 24) / Math.max(1, image.naturalWidth),
+  #|       (height - 24) / Math.max(1, image.naturalHeight)
+  #|     );
+  #|     const drawWidth = image.naturalWidth * scale;
+  #|     const drawHeight = image.naturalHeight * scale;
+  #|     const offsetX = (width - drawWidth) / 2;
+  #|     const offsetY = (height - drawHeight) / 2;
+  #|     ctx.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
+  #|     ctx.save();
+  #|     ctx.translate(offsetX, offsetY);
+  #|     ctx.scale(scale, scale);
+  #|     ctx.lineWidth = Math.max(1 / scale, 1);
+  #|     for (let index = 0; index < rects.length; index += 1) {
+  #|       const rect = rects[index];
+  #|       ctx.strokeStyle =
+  #|         index === 0 ? "rgba(246, 193, 119, 0.95)" : "rgba(88, 166, 255, 0.72)";
+  #|       ctx.strokeRect(rect.x + 0.5, rect.y + 0.5, rect.width, rect.height);
+  #|     }
+  #|     ctx.restore();
+  #|   };
+  #|
+  #|   const drawAnimationPreview = (canvas, now) => {
+  #|     const ctx = canvas.getContext("2d");
+  #|     if (!ctx) return;
+  #|     const { width, height } = ensureCanvasSize(canvas);
+  #|     const rects = parseRectSpecs(canvas.dataset.previewRects || "");
+  #|     const src = canvas.dataset.previewSrc || "";
+  #|     const imageEntry = ensureImage(src);
+  #|     if (!src || !imageEntry) {
+  #|       drawMessage(ctx, width, height, "No preview clip");
+  #|       return;
+  #|     }
+  #|     if (imageEntry.failed) {
+  #|       drawMessage(ctx, width, height, "Preview image unavailable");
+  #|       return;
+  #|     }
+  #|     if (!imageEntry.ready) {
+  #|       drawMessage(ctx, width, height, "Loading animation preview...");
+  #|       return;
+  #|     }
+  #|     if (!rects.length) {
+  #|       drawMessage(ctx, width, height, "No frames available");
+  #|       return;
+  #|     }
+  #|
+  #|     const paused = canvas.dataset.previewPaused === "true";
+  #|     const speed = Math.max(0.01, Number(canvas.dataset.previewSpeed || "1") || 1);
+  #|     const fps = Math.max(0.01, Number(canvas.dataset.previewFps || "1") || 1);
+  #|     const looping = canvas.dataset.previewLooping !== "false";
+  #|     const appliedSeek = Math.max(
+  #|       0,
+  #|       Number(canvas.dataset.previewSeekSeconds || "0") || 0
+  #|     );
+  #|     const seekSerial = Number(canvas.dataset.previewSeekSerial || "0") || 0;
+  #|     const signature = [
+  #|       src,
+  #|       canvas.dataset.previewRects || "",
+  #|       fps,
+  #|       looping ? 1 : 0,
+  #|       paused ? 1 : 0,
+  #|       speed,
+  #|       seekSerial,
+  #|     ].join("|");
+  #|     const state = (canvas.__selenePreviewState ||= {
+  #|       signature: "",
+  #|       currentTime: 0,
+  #|       lastNow: now,
+  #|       paused: true,
+  #|       speed: 1,
+  #|       seekSerial: 0,
+  #|     });
+  #|
+  #|     if (state.signature !== signature) {
+  #|       state.signature = signature;
+  #|       state.currentTime = appliedSeek;
+  #|       state.lastNow = now;
+  #|       state.paused = paused;
+  #|       state.speed = speed;
+  #|       state.seekSerial = seekSerial;
+  #|     } else {
+  #|       const deltaSeconds = Math.max(0, now - state.lastNow) / 1000;
+  #|       if (!state.paused) {
+  #|         state.currentTime += deltaSeconds * state.speed;
+  #|       }
+  #|       state.lastNow = now;
+  #|       state.paused = paused;
+  #|       state.speed = speed;
+  #|     }
+  #|
+  #|     const frameDuration = 1 / fps;
+  #|     const totalDuration = frameDuration * rects.length;
+  #|     let playhead = state.currentTime;
+  #|     if (looping) {
+  #|       playhead = totalDuration <= 0 ? 0 : playhead % totalDuration;
+  #|     } else if (playhead >= totalDuration) {
+  #|       playhead = Math.max(0, totalDuration - 0.0001);
+  #|       state.currentTime = playhead;
+  #|     }
+  #|     const frameIndex = Math.max(
+  #|       0,
+  #|       Math.min(rects.length - 1, Math.floor(playhead / frameDuration))
+  #|     );
+  #|     const frame = rects[frameIndex];
+  #|     checkerFill(ctx, width, height);
+  #|     const scale = Math.min(
+  #|       (width - 32) / frame.width,
+  #|       (height - 32) / frame.height
+  #|     );
+  #|     const drawWidth = frame.width * scale;
+  #|     const drawHeight = frame.height * scale;
+  #|     const offsetX = (width - drawWidth) / 2;
+  #|     const offsetY = (height - drawHeight) / 2;
+  #|     ctx.drawImage(
+  #|       imageEntry.image,
+  #|       frame.x,
+  #|       frame.y,
+  #|       frame.width,
+  #|       frame.height,
+  #|       offsetX,
+  #|       offsetY,
+  #|       drawWidth,
+  #|       drawHeight
+  #|     );
+  #|     ctx.strokeStyle = "rgba(88, 166, 255, 0.7)";
+  #|     ctx.lineWidth = 1;
+  #|     ctx.strokeRect(offsetX + 0.5, offsetY + 0.5, drawWidth - 1, drawHeight - 1);
+  #|   };
+  #|
+  #|   const drawAll = (now = performance.now()) => {
+  #|     document
+  #|       .querySelectorAll(".atlas-preview-canvas")
+  #|       .forEach((canvas) => drawAtlasPreview(canvas));
+  #|     document
+  #|       .querySelectorAll(".animation-preview-canvas")
+  #|       .forEach((canvas) => drawAnimationPreview(canvas, now));
+  #|   };
+  #|
+  #|   const renderLoop = (now = performance.now()) => {
+  #|     drawAll(now);
+  #|     requestAnimationFrame(renderLoop);
+  #|   };
+  #|
+  #|   if (!window.__selenePreviewLoopStarted) {
+  #|     window.__selenePreviewLoopStarted = true;
+  #|     window.__selenePreviewRenderNow = drawAll;
+  #|     requestAnimationFrame(renderLoop);
+  #|   }
+  #|   (window.__selenePreviewRenderNow || drawAll)(performance.now());
+  #| }
+
+///|
 fn drag_drop_translation(event : @dom.DragEvent) -> @editor_bridge.Vec2Doc? {
   let metrics = drag_event_canvas_metrics(event)
   if metrics.length() < 4 {
@@ -1034,6 +1291,14 @@ fn sync_asset_tree_sticky_overlay_cmd() -> @rabbita.Cmd {
 }
 
 ///|
+fn sync_resource_previews_cmd() -> @rabbita.Cmd {
+  @cmd.raw_effect(
+    fn(_scheduler) { sync_resource_previews() },
+    kind=@cmd.after_render,
+  )
+}
+
+///|
 fn update(
   dispatch : @rabbita.Dispatch[@app.Msg],
   msg : @app.Msg,
@@ -1054,9 +1319,11 @@ fn update(
     @cmd.none
   }
   let sticky_overlay_sync_cmd = sync_asset_tree_sticky_overlay_cmd()
+  let resource_preview_sync_cmd = sync_resource_previews_cmd()
   (
     @cmd.batch([
       effects_cmd, selection_sync_cmd, component_search_focus_cmd, sticky_overlay_sync_cmd,
+      resource_preview_sync_cmd,
     ]),
     next,
   )
@@ -1222,6 +1489,186 @@ fn atlas_region_preview_names(
     names.push(regions[index].name)
   }
   names.join(", ")
+}
+
+///|
+fn preview_rect_spec(rect : @editor_bridge.RectDoc) -> String {
+  "\{rect.x.to_string()},\{rect.y.to_string()},\{rect.width.to_string()},\{rect.height.to_string()}"
+}
+
+///|
+fn preview_region_specs(
+  regions : Array[@editor_bridge.AtlasRegionDocument],
+) -> String {
+  let specs : Array[String] = []
+  for region in regions {
+    specs.push(preview_rect_spec(region.rect))
+  }
+  specs.join(";")
+}
+
+///|
+fn atlas_region_by_name(
+  atlas : @editor_bridge.AtlasAssetDocument,
+  name : String,
+) -> @editor_bridge.AtlasRegionDocument? {
+  for region in atlas.regions {
+    if region.name == name {
+      return Some(region)
+    }
+  }
+  None
+}
+
+///|
+fn clip_preview_regions(
+  clip : @editor_bridge.AnimationClipAssetDocument,
+  atlas : @editor_bridge.AtlasAssetDocument,
+) -> (Array[@editor_bridge.AtlasRegionDocument], Array[String]) {
+  let regions : Array[@editor_bridge.AtlasRegionDocument] = []
+  let missing : Array[String] = []
+  for frame_name in clip.frames {
+    match atlas_region_by_name(atlas, frame_name) {
+      Some(region) => regions.push(region)
+      None => missing.push(frame_name)
+    }
+  }
+  (regions, missing)
+}
+
+///|
+fn graph_preview_clip_binding(
+  graph : @editor_bridge.AnimationGraphAssetDocument,
+) -> (String, String, Bool)? {
+  match graph.default_node {
+    Some(default_node_id) =>
+      for node in graph.nodes {
+        if node.id != default_node_id {
+          continue
+        }
+        match node.kind {
+          @editor_bridge.Clip(clip_asset_path~) =>
+            return Some((node.id, clip_asset_path, true))
+          _ => ()
+        }
+      }
+    None => ()
+  }
+  for node in graph.nodes {
+    match node.kind {
+      @editor_bridge.Clip(clip_asset_path~) =>
+        return Some((node.id, clip_asset_path, false))
+      _ => ()
+    }
+  }
+  None
+}
+
+///|
+fn atlas_preview_canvas(
+  source_image : String,
+  regions : Array[@editor_bridge.AtlasRegionDocument],
+) -> @rabbita.Html {
+  @html.div(class="resource-preview-frame resource-preview-canvas-frame", [
+    @html.canvas(
+      class="resource-preview-canvas atlas-preview-canvas",
+      attrs=@html.Attrs::build()
+        .data_set("preview-src", project_asset_src(source_image))
+        .data_set("preview-rects", preview_region_specs(regions)),
+      @html.nothing,
+    ),
+  ])
+}
+
+///|
+fn animation_preview_canvas(
+  source_image : String,
+  regions : Array[@editor_bridge.AtlasRegionDocument],
+  fps : Double,
+  looping : Bool,
+  model : @app.ViewState,
+) -> @rabbita.Html {
+  @html.div(
+    class="resource-preview-frame resource-preview-canvas-frame animation-preview-frame",
+    [
+      @html.canvas(
+        class="resource-preview-canvas animation-preview-canvas",
+        attrs=@html.Attrs::build()
+          .data_set("preview-src", project_asset_src(source_image))
+          .data_set("preview-rects", preview_region_specs(regions))
+          .data_set(
+            "preview-paused",
+            if model.animation_preview_paused {
+              "true"
+            } else {
+              "false"
+            },
+          )
+          .data_set("preview-speed", model.animation_preview_speed.to_string())
+          .data_set(
+            "preview-seek-seconds",
+            model.animation_preview_seek_seconds.to_string(),
+          )
+          .data_set(
+            "preview-seek-serial",
+            model.animation_preview_seek_serial.to_string(),
+          )
+          .data_set("preview-fps", fps.to_string())
+          .data_set("preview-looping", if looping { "true" } else { "false" }),
+        @html.nothing,
+      ),
+    ],
+  )
+}
+
+///|
+fn animation_preview_controls(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  model : @app.ViewState,
+) -> @rabbita.Html {
+  @html.div(class="resource-preview-controls", [
+    @html.div(class="inspector-actions", [
+      @html.button(
+        class=if model.animation_preview_paused {
+          "small-button"
+        } else {
+          "small-button active"
+        },
+        on_click=dispatch(@app.msg_toggle_animation_preview_paused()),
+        if model.animation_preview_paused {
+          "Play"
+        } else {
+          "Pause"
+        },
+      ),
+    ]),
+    labeled_input("Speed", model.animation_preview_speed.to_string(), fn(
+      value,
+    ) {
+      dispatch(@app.msg_update_animation_preview_speed(value))
+    }),
+    labeled_input("Seek (seconds)", model.animation_preview_seek_input, fn(
+      value,
+    ) {
+      dispatch(@app.msg_update_animation_preview_seek_input(value))
+    }),
+    @html.div(class="inspector-actions", [
+      @html.button(
+        class="small-button",
+        on_click=dispatch(@app.msg_apply_animation_preview_seek()),
+        "Seek",
+      ),
+    ]),
+  ])
+}
+
+///|
+fn preview_missing_frames_message(missing : Array[String]) -> String {
+  if missing.is_empty() {
+    ""
+  } else {
+    "Missing frames: " + missing.join(", ")
+  }
 }
 
 ///|
@@ -3194,6 +3641,11 @@ fn selected_asset_view(
           @html.div(class="panel-body", [
             @html.div(class="inspector-block", [
               @html.h3("Atlas"),
+              atlas_preview_canvas(atlas.source_image, atlas.regions),
+              @html.div(
+                class="resource-preview-note",
+                "Source image with generated atlas regions",
+              ),
               labeled_input("Name", atlas.name, fn(value) {
                 dispatch(@app.msg_update_selected_atlas_name(value))
               }),
@@ -3281,63 +3733,108 @@ fn selected_asset_view(
     Some(@app.AnimationClip(_)) =>
       match model.selected_animation_clip_document() {
         Some((path, clip)) =>
-          @html.div(class="panel-body", [
-            @html.div(class="inspector-block", [
-              @html.h3("Animation Clip"),
-              labeled_input("Name", clip.name, fn(value) {
-                dispatch(
-                  @app.msg_update_selected_animation_clip_asset_name(value),
-                )
-              }),
-              @html.div(class="kv", [
-                @html.span(class="kv-key", "Path"),
-                @html.span(class="kv-value", path),
-              ]),
-              @html.div(class="kv", [
-                @html.span(class="kv-key", "Atlas"),
-                @html.span(class="kv-value", clip.atlas_asset_path),
-              ]),
-              labeled_input("FPS", clip.fps.to_string(), fn(value) {
-                dispatch(@app.msg_update_selected_animation_clip_fps(value))
-              }),
-              @html.label(class="field", [
-                @html.span(class="field-label", "Looping"),
-                @html.button(
-                  class="small-button",
-                  on_click=dispatch(
-                    @app.msg_toggle_selected_animation_clip_looping(),
-                  ),
-                  if clip.looping {
-                    "Enabled"
+          match model.atlas_documents.get(clip.atlas_asset_path) {
+            Some(atlas) => {
+              let (preview_regions, missing_frames) = clip_preview_regions(
+                clip, atlas,
+              )
+              @html.div(class="panel-body", [
+                @html.div(class="inspector-block", [
+                  @html.h3("Animation Clip"),
+                  if preview_regions.is_empty() {
+                    @html.div(
+                      class="resource-preview-empty",
+                      if missing_frames.is_empty() {
+                        "No frames available in the referenced atlas"
+                      } else {
+                        preview_missing_frames_message(missing_frames)
+                      },
+                    )
                   } else {
-                    "Disabled"
+                    animation_preview_canvas(
+                      atlas.source_image,
+                      preview_regions,
+                      clip.fps,
+                      clip.looping,
+                      model,
+                    )
                   },
-                ),
-              ]),
-              labeled_input("Frames", clip.frames.join(", "), fn(value) {
-                dispatch(@app.msg_update_selected_animation_clip_frames(value))
-              }),
-              @html.div(class="inspector-actions", [
-                @html.button(
-                  class="small-button",
-                  on_click=dispatch(@app.msg_save_selected_animation_clip()),
-                  "Save Clip",
-                ),
-                @html.button(
-                  class="small-button",
-                  on_click=dispatch(@app.msg_insert_selected_resource()),
-                  "Add Clip Sprite",
-                ),
-                @html.button(
-                  class="small-button",
-                  on_click=dispatch(
-                    @app.msg_create_animation_graph_from_selected_clip(),
+                  @html.div(
+                    class="resource-preview-note",
+                    "Previewing \{preview_regions.length().to_string()}/\{clip.frames.length().to_string()} resolved clip frames",
                   ),
-                  "Create Graph",
-                ),
-              ]),
-            ]),
-          ])
+                  if missing_frames.is_empty() {
+                    @html.nothing
+                  } else {
+                    @html.div(
+                      class="resource-preview-empty compact",
+                      preview_missing_frames_message(missing_frames),
+                    )
+                  },
+                  animation_preview_controls(dispatch, model),
+                  labeled_input("Name", clip.name, fn(value) {
+                    dispatch(
+                      @app.msg_update_selected_animation_clip_asset_name(value),
+                    )
+                  }),
+                  @html.div(class="kv", [
+                    @html.span(class="kv-key", "Path"),
+                    @html.span(class="kv-value", path),
+                  ]),
+                  @html.div(class="kv", [
+                    @html.span(class="kv-key", "Atlas"),
+                    @html.span(class="kv-value", clip.atlas_asset_path),
+                  ]),
+                  labeled_input("FPS", clip.fps.to_string(), fn(value) {
+                    dispatch(@app.msg_update_selected_animation_clip_fps(value))
+                  }),
+                  @html.label(class="field", [
+                    @html.span(class="field-label", "Looping"),
+                    @html.button(
+                      class="small-button",
+                      on_click=dispatch(
+                        @app.msg_toggle_selected_animation_clip_looping(),
+                      ),
+                      if clip.looping {
+                        "Enabled"
+                      } else {
+                        "Disabled"
+                      },
+                    ),
+                  ]),
+                  labeled_input("Frames", clip.frames.join(", "), fn(value) {
+                    dispatch(
+                      @app.msg_update_selected_animation_clip_frames(value),
+                    )
+                  }),
+                  @html.div(class="inspector-actions", [
+                    @html.button(
+                      class="small-button",
+                      on_click=dispatch(@app.msg_save_selected_animation_clip()),
+                      "Save Clip",
+                    ),
+                    @html.button(
+                      class="small-button",
+                      on_click=dispatch(@app.msg_insert_selected_resource()),
+                      "Add Clip Sprite",
+                    ),
+                    @html.button(
+                      class="small-button",
+                      on_click=dispatch(
+                        @app.msg_create_animation_graph_from_selected_clip(),
+                      ),
+                      "Create Graph",
+                    ),
+                  ]),
+                ]),
+              ])
+            }
+            None =>
+              @html.div(
+                class="empty",
+                "Referenced atlas is still loading: \{clip.atlas_asset_path}",
+              )
+          }
         None => @html.div(class="empty", "Animation clip is still loading")
       }
     Some(@app.AnimationGraph(_)) =>
@@ -3405,42 +3902,75 @@ fn selected_asset_view(
                 )
               },
               @html.h3("Preview"),
-              @html.div(class="inspector-actions", [
-                @html.button(
-                  class=if model.animation_preview_paused {
-                    "small-button"
-                  } else {
-                    "small-button active"
-                  },
-                  on_click=dispatch(@app.msg_toggle_animation_preview_paused()),
-                  if model.animation_preview_paused {
-                    "Play"
-                  } else {
-                    "Pause"
-                  },
-                ),
-              ]),
-              labeled_input(
-                "Speed",
-                model.animation_preview_speed.to_string(),
-                fn(value) {
-                  dispatch(@app.msg_update_animation_preview_speed(value))
-                },
-              ),
-              labeled_input(
-                "Seek (seconds)",
-                model.animation_preview_seek_input,
-                fn(value) {
-                  dispatch(@app.msg_update_animation_preview_seek_input(value))
-                },
-              ),
-              @html.div(class="inspector-actions", [
-                @html.button(
-                  class="small-button",
-                  on_click=dispatch(@app.msg_apply_animation_preview_seek()),
-                  "Seek",
-                ),
-              ]),
+              match graph_preview_clip_binding(graph) {
+                Some((node_id, clip_path, uses_default_node)) =>
+                  match model.animation_clip_documents.get(clip_path) {
+                    Some(clip) =>
+                      match model.atlas_documents.get(clip.atlas_asset_path) {
+                        Some(atlas) => {
+                          let (preview_regions, missing_frames) = clip_preview_regions(
+                            clip, atlas,
+                          )
+                          @html.div(class="resource-preview-section", [
+                            if preview_regions.is_empty() {
+                              @html.div(
+                                class="resource-preview-empty",
+                                if missing_frames.is_empty() {
+                                  "Selected preview clip has no resolved frames"
+                                } else {
+                                  preview_missing_frames_message(missing_frames)
+                                },
+                              )
+                            } else {
+                              animation_preview_canvas(
+                                atlas.source_image,
+                                preview_regions,
+                                clip.fps,
+                                clip.looping,
+                                model,
+                              )
+                            },
+                            @html.div(
+                              class="resource-preview-note",
+                              if uses_default_node {
+                                "Previewing default clip node \{node_id}"
+                              } else {
+                                "Default node is not a clip; previewing first clip node \{node_id}"
+                              },
+                            ),
+                            @html.div(class="kv", [
+                              @html.span(class="kv-key", "Clip"),
+                              @html.span(class="kv-value", clip_path),
+                            ]),
+                            if missing_frames.is_empty() {
+                              @html.nothing
+                            } else {
+                              @html.div(
+                                class="resource-preview-empty compact",
+                                preview_missing_frames_message(missing_frames),
+                              )
+                            },
+                            animation_preview_controls(dispatch, model),
+                          ])
+                        }
+                        None =>
+                          @html.div(
+                            class="resource-preview-empty",
+                            "Preview atlas is still loading: \{clip.atlas_asset_path}",
+                          )
+                      }
+                    None =>
+                      @html.div(
+                        class="resource-preview-empty",
+                        "Preview clip is still loading: \{clip_path}",
+                      )
+                  }
+                None =>
+                  @html.div(
+                    class="resource-preview-empty",
+                    "No clip-backed node available for preview",
+                  )
+              },
               @html.div(class="inspector-actions", [
                 @html.button(
                   class="small-button",

@@ -220,7 +220,7 @@ fn update_animation_editor(
       )
     }
     UpdateAnimationPreviewSpeed(value) => {
-      let speed = parse_double_or(model.animation_preview_speed, value)
+      let speed = parse_positive_double_or(model.animation_preview_speed, value)
       (
         [Preview(@bridge.preview_command_set_animation_preview_speed(speed))],
         {
@@ -240,7 +240,12 @@ fn update_animation_editor(
       let clamped = if seek_seconds < 0.0 { 0.0 } else { seek_seconds }
       (
         [Preview(@bridge.preview_command_seek_animation_preview(clamped))],
-        { ..model, status: "Animation preview seek: \{clamped.to_string()}s" },
+        {
+          ..model,
+          animation_preview_seek_seconds: clamped,
+          animation_preview_seek_serial: model.animation_preview_seek_serial + 1,
+          status: "Animation preview seek: \{clamped.to_string()}s",
+        },
       )
     }
     SaveSelectedAnimationClip =>

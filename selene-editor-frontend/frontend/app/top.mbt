@@ -155,6 +155,8 @@ pub struct Model {
   animation_preview_paused : Bool
   animation_preview_speed : Double
   animation_preview_seek_input : String
+  animation_preview_seek_seconds : Double
+  animation_preview_seek_serial : Int
   graph_edge_connect_source_node : String?
 } derive(Eq)
 
@@ -210,6 +212,8 @@ pub struct ViewState {
   animation_preview_paused : Bool
   animation_preview_speed : Double
   animation_preview_seek_input : String
+  animation_preview_seek_seconds : Double
+  animation_preview_seek_serial : Int
   graph_edge_connect_source_node : String?
   source : Model
 } derive(Eq)
@@ -261,6 +265,8 @@ pub fn view_state(model : Model) -> ViewState {
     animation_preview_paused: model.animation_preview_paused,
     animation_preview_speed: model.animation_preview_speed,
     animation_preview_seek_input: model.animation_preview_seek_input,
+    animation_preview_seek_seconds: model.animation_preview_seek_seconds,
+    animation_preview_seek_serial: model.animation_preview_seek_serial,
     graph_edge_connect_source_node: model.graph_edge_connect_source_node,
     source: model,
   }
@@ -641,6 +647,8 @@ pub fn new_model() -> Model {
     animation_preview_paused: false,
     animation_preview_speed: 1.0,
     animation_preview_seek_input: "0",
+    animation_preview_seek_seconds: 0.0,
+    animation_preview_seek_serial: 0,
     graph_edge_connect_source_node: None,
   }
 }
