@@ -51,6 +51,7 @@ priv enum SelectionHistoryToolsMsg {
   TogglePrefabsSection
   ToggleMoveSnap
   AdjustMoveSnapStep(Int)
+  SetSidebarLayout(Double, Double)
   CommitSceneEditTransaction
   UndoScene
   RedoScene

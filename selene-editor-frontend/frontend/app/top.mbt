@@ -147,6 +147,8 @@ pub struct Model {
   active_tool : @shared.PreviewTool
   move_snap_enabled : Bool
   move_snap_step : Double
+  sidebar_scene_ratio : Double
+  sidebar_assets_ratio : Double
   autotile_brush_terrain : Int
   autotile_palette_json_draft : String
   autotile_palette_json_error : String?
@@ -200,6 +202,8 @@ pub struct ViewState {
   active_tool : @shared.PreviewTool
   move_snap_enabled : Bool
   move_snap_step : Double
+  sidebar_scene_ratio : Double
+  sidebar_assets_ratio : Double
   autotile_brush_terrain : Int
   autotile_palette_json_draft : String
   autotile_palette_json_error : String?
@@ -249,6 +253,8 @@ pub fn view_state(model : Model) -> ViewState {
     active_tool: model.active_tool,
     move_snap_enabled: model.move_snap_enabled,
     move_snap_step: model.move_snap_step,
+    sidebar_scene_ratio: model.sidebar_scene_ratio,
+    sidebar_assets_ratio: model.sidebar_assets_ratio,
     autotile_brush_terrain: model.autotile_brush_terrain,
     autotile_palette_json_draft: model.autotile_palette_json_draft,
     autotile_palette_json_error: model.autotile_palette_json_error,
@@ -450,6 +456,7 @@ pub enum Msg {
   TogglePrefabsSection
   ToggleMoveSnap
   AdjustMoveSnapStep(Int)
+  SetSidebarLayout(Double, Double)
   CommitSceneEditTransaction
   UndoScene
   RedoScene
@@ -569,6 +576,7 @@ pub enum Effect {
   SubscribeServiceEvents
   SubscribePreviewEvents
   SubscribeKeyboardShortcuts
+  SubscribeSidebarLayout
   Preview(@bridge.PreviewCommand)
 } derive(Eq)
 
@@ -625,6 +633,8 @@ pub fn new_model() -> Model {
     active_tool: @shared.preview_tool_select(),
     move_snap_enabled: false,
     move_snap_step: 16.0,
+    sidebar_scene_ratio: 0.18,
+    sidebar_assets_ratio: 0.47,
     autotile_brush_terrain: 1,
     autotile_palette_json_draft: "",
     autotile_palette_json_error: None,

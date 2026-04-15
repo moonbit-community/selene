@@ -79,6 +79,14 @@ pub fn msg_adjust_move_snap_step(delta : Int) -> Msg {
 }
 
 ///|
+pub fn msg_set_sidebar_layout(
+  scene_ratio : Double,
+  assets_ratio : Double,
+) -> Msg {
+  SetSidebarLayout(scene_ratio, assets_ratio)
+}
+
+///|
 pub fn msg_commit_scene_edit_transaction() -> Msg {
   CommitSceneEditTransaction
 }

@@ -423,6 +423,92 @@ extern "js" fn subscribe_shortcuts_forever(
   #| }
 
 ///|
+#cfg(target="js")
+extern "js" fn subscribe_sidebar_layout_forever(
+  on_layout : (Double, Double) -> Unit,
+) =
+  #| (onLayout) => {
+  #|   if (window.__seleneSidebarLayoutBound) return;
+  #|   window.__seleneSidebarLayoutBound = true;
+  #|
+  #|   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+  #|   const readRatio = (sidebar, key, fallback) => {
+  #|     const value = Number(sidebar?.dataset?.[key] ?? fallback);
+  #|     return Number.isFinite(value) ? value : fallback;
+  #|   };
+  #|   const readMinimums = (sidebarHeight) => {
+  #|     const available = Math.max(sidebarHeight - 16, 1);
+  #|     const minimums = {
+  #|       scene: 120 / available,
+  #|       assets: 180 / available,
+  #|       tree: 140 / available,
+  #|     };
+  #|     const total = minimums.scene + minimums.assets + minimums.tree;
+  #|     if (total >= 0.98) {
+  #|       const scale = 0.98 / total;
+  #|       minimums.scene *= scale;
+  #|       minimums.assets *= scale;
+  #|       minimums.tree *= scale;
+  #|     }
+  #|     return minimums;
+  #|   };
+  #|
+  #|   document.addEventListener(
+  #|     "pointerdown",
+  #|     (event) => {
+  #|       const handle = event.target?.closest?.(".sidebar-splitter");
+  #|       if (!handle) return;
+  #|       const sidebar = handle.closest(".sidebar-column");
+  #|       if (!sidebar) return;
+  #|       const rect = sidebar.getBoundingClientRect();
+  #|       const availableHeight = Math.max(rect.height - 16, 1);
+  #|       const minimums = readMinimums(rect.height);
+  #|       const kind = handle.dataset.sidebarSplitter || "";
+  #|       const startY = Number(event.clientY || 0);
+  #|       const startSceneRatio = readRatio(sidebar, "sceneRatio", 0.18);
+  #|       const startAssetsRatio = readRatio(sidebar, "assetsRatio", 0.47);
+  #|
+  #|       document.body?.classList.add("sidebar-layout-dragging");
+  #|       event.preventDefault();
+  #|
+  #|       const cleanup = () => {
+  #|         document.body?.classList.remove("sidebar-layout-dragging");
+  #|         window.removeEventListener("pointermove", onMove);
+  #|         window.removeEventListener("pointerup", onUp);
+  #|         window.removeEventListener("pointercancel", onUp);
+  #|       };
+  #|
+  #|       const onMove = (moveEvent) => {
+  #|         const delta = (Number(moveEvent.clientY || 0) - startY) / availableHeight;
+  #|         if (kind === "scene-assets") {
+  #|           const nextDelta = clamp(
+  #|             delta,
+  #|             minimums.scene - startSceneRatio,
+  #|             startAssetsRatio - minimums.assets
+  #|           );
+  #|           onLayout(startSceneRatio + nextDelta, startAssetsRatio - nextDelta);
+  #|           return;
+  #|         }
+  #|         if (kind === "assets-tree") {
+  #|           const nextAssets = clamp(
+  #|             startAssetsRatio + delta,
+  #|             minimums.assets,
+  #|             1 - startSceneRatio - minimums.tree
+  #|           );
+  #|           onLayout(startSceneRatio, nextAssets);
+  #|         }
+  #|       };
+  #|
+  #|       const onUp = () => cleanup();
+  #|       window.addEventListener("pointermove", onMove, { passive: false });
+  #|       window.addEventListener("pointerup", onUp, { passive: true });
+  #|       window.addEventListener("pointercancel", onUp, { passive: true });
+  #|     },
+  #|     { passive: false }
+  #|   );
+  #| }
+
+///|
 let dragged_asset_path : Ref[String] = Ref::new("")
 
 ///|
@@ -638,12 +724,35 @@ extern "js" fn sync_asset_tree_sticky_overlay() =
   #|       overlay.classList.add("empty");
   #|       return;
   #|     }
+  #|
+  #|     // Keep only ancestors that are actually scrolled above viewport.
+  #|     const hiddenSegments = [];
+  #|     const prefix = [];
+  #|     for (const segment of segments) {
+  #|       prefix.push(segment);
+  #|       const chain = prefix.join("/");
+  #|       const folderRow = rows.find((row) => {
+  #|         return (
+  #|           row.dataset.stickyKind === "folder" &&
+  #|           (row.dataset.stickySection || "") === section &&
+  #|           (row.dataset.stickyChain || "") === chain
+  #|         );
+  #|       });
+  #|       if (!folderRow) {
+  #|         continue;
+  #|       }
+  #|       const folderRect = folderRow.getBoundingClientRect();
+  #|       if (folderRect.top < scrollRect.top + 1) {
+  #|         hiddenSegments.push(segment);
+  #|       }
+  #|     }
+  #|     if (!hiddenSegments.length) {
+  #|       overlay.replaceChildren();
+  #|       overlay.classList.add("empty");
+  #|       return;
+  #|     }
   #|     const fragment = document.createDocumentFragment();
-  #|     const sectionRow = document.createElement("div");
-  #|     sectionRow.className = "asset-tree-sticky-section";
-  #|     sectionRow.textContent = section;
-  #|     fragment.appendChild(sectionRow);
-  #|     for (let depth = 0; depth < segments.length; depth++) {
+  #|     for (let depth = 0; depth < hiddenSegments.length; depth++) {
   #|       const row = document.createElement("div");
   #|       row.className = "asset-tree-row folder sticky-overlay-row";
   #|
@@ -660,7 +769,7 @@ extern "js" fn sync_asset_tree_sticky_overlay() =
   #|
   #|       const label = document.createElement("span");
   #|       label.className = "asset-tree-label folder";
-  #|       label.textContent = segments[depth];
+  #|       label.textContent = hiddenSegments[depth];
   #|       row.appendChild(label);
   #|
   #|       fragment.appendChild(row);
@@ -873,6 +982,7 @@ fn effect_to_cmd(
     @app.SubscribeServiceEvents => subscribe_events_cmd(dispatch)
     @app.SubscribePreviewEvents => subscribe_preview_events_cmd(dispatch)
     @app.SubscribeKeyboardShortcuts => subscribe_shortcuts_cmd(dispatch)
+    @app.SubscribeSidebarLayout => subscribe_sidebar_layout_cmd(dispatch)
     @app.Preview(command) => preview_cmd(command)
   }
 }
@@ -899,6 +1009,20 @@ fn focus_component_search_cmd() -> @rabbita.Cmd {
     fn(_scheduler) { focus_component_search_input() },
     kind=@cmd.after_render,
   )
+}
+
+///|
+fn subscribe_sidebar_layout_cmd(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+) -> @rabbita.Cmd {
+  @cmd.raw_effect(fn(scheduler : &@cmd.Scheduler) {
+    subscribe_sidebar_layout_forever(fn(scene_ratio, assets_ratio) {
+      schedule_cmd(
+        scheduler,
+        dispatch(@app.msg_set_sidebar_layout(scene_ratio, assets_ratio)),
+      )
+    })
+  })
 }
 
 ///|
@@ -939,6 +1063,47 @@ fn update(
 }
 
 ///|
+fn sidebar_tree_ratio(model : @app.ViewState) -> Double {
+  let ratio = 1.0 - model.sidebar_scene_ratio - model.sidebar_assets_ratio
+  if ratio < 0.0 {
+    0.0
+  } else {
+    ratio
+  }
+}
+
+///|
+fn sidebar_row_weight(ratio : Double) -> String {
+  let safe_ratio = if ratio < 0.01 { 0.01 } else { ratio }
+  "\{(safe_ratio * 100.0).to_string()}fr"
+}
+
+///|
+fn sidebar_column_style(model : @app.ViewState) -> Array[String] {
+  [
+    "--scene-pane: " + sidebar_row_weight(model.sidebar_scene_ratio),
+    "--assets-pane: " + sidebar_row_weight(model.sidebar_assets_ratio),
+    "--tree-pane: " + sidebar_row_weight(sidebar_tree_ratio(model)),
+  ]
+}
+
+///|
+fn sidebar_column_attrs(model : @app.ViewState) -> @html.Attrs {
+  @html.Attrs::build()
+  .data_set("scene-ratio", model.sidebar_scene_ratio.to_string())
+  .data_set("assets-ratio", model.sidebar_assets_ratio.to_string())
+}
+
+///|
+fn sidebar_splitter(kind : String) -> @rabbita.Html {
+  @html.div(
+    class="sidebar-splitter",
+    attrs=@html.Attrs::build().data_set("sidebar-splitter", kind),
+    @html.nothing,
+  )
+}
+
+///|
 fn tree_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
   scene : @editor_bridge.SceneDocument,
@@ -954,10 +1119,14 @@ fn tree_view(
     let is_selected = selected_ids.contains(entity.id)
     nodes.push(
       @html.div(
-        class=if is_selected { "tree-item selected" } else { "tree-item" },
-        style=["padding-left: \{depth * 14}px"],
+        class=if is_selected {
+          "scene-tree-row tree-item selected"
+        } else {
+          "scene-tree-row tree-item"
+        },
+        style=["padding-left: \{depth * 14 + 8}px"],
         attrs=scene_tree_item_attrs(dispatch, entity),
-        @app.entity_label(entity),
+        @html.span(class="scene-tree-row-label", @app.entity_label(entity)),
       ),
     )
     nodes.push_iter(
@@ -1542,7 +1711,7 @@ fn asset_panel_view(
     @html.input(
       class="field-input asset-search-input",
       value=model.asset_query,
-      placeholder="Filter Assets",
+      placeholder="Filter assets",
       on_input=fn(value) { dispatch(@app.msg_set_asset_query(value)) },
       @html.nothing,
     ),
@@ -1558,7 +1727,8 @@ fn asset_panel_view(
         } else {
           @cmd.none
         },
-        "New Atlas",
+        attrs=hint_attrs(dispatch, "Create atlas from selected image"),
+        "Atlas",
       ),
       @html.button(
         class=if selected_is_atlas {
@@ -1571,7 +1741,8 @@ fn asset_panel_view(
         } else {
           @cmd.none
         },
-        "New Clip",
+        attrs=hint_attrs(dispatch, "Create animation clip from selected atlas"),
+        "Clip",
       ),
       @html.button(
         class=if selected_is_clip {
@@ -1584,7 +1755,8 @@ fn asset_panel_view(
         } else {
           @cmd.none
         },
-        "New Graph",
+        attrs=hint_attrs(dispatch, "Create animation graph from selected clip"),
+        "Graph",
       ),
     ]),
   ])
@@ -1703,6 +1875,21 @@ fn asset_panel_view(
 }
 
 ///|
+fn scene_browser_action_button(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  hint : String,
+  on_click : @rabbita.Cmd,
+  label : String,
+) -> @rabbita.Html {
+  @html.button(
+    class="small-button compact-icon-button",
+    attrs=hint_attrs(dispatch, hint),
+    on_click~,
+    label,
+  )
+}
+
+///|
 fn scene_browser_view(
   dispatch : @rabbita.Dispatch[@app.Msg],
   model : @app.ViewState,
@@ -1710,6 +1897,14 @@ fn scene_browser_view(
   let items : Array[@rabbita.Html] = []
   let scene_path = current_scene_path(model)
   let scene = current_scene(model)
+  let scene_name = match scene {
+    Some(scene) => scene.name
+    None => "(none)"
+  }
+  let scene_prompt_name = match scene {
+    Some(scene) => scene.name
+    None => "scene"
+  }
   for scene_ref in model.scene_refs {
     let is_selected = scene_path == scene_ref.path
     let is_startup = match model.manifest {
@@ -1737,28 +1932,28 @@ fn scene_browser_view(
   }
   @html.div(class="panel-body scene-browser-body", [
     @html.div(class="scene-browser-head", [
-      @html.div(class="inspector-block", [
-        @html.h3("Current Scene"),
-        @html.div(class="kv", [
-          @html.span(class="kv-key", "Name"),
-          @html.span(
-            class="kv-value",
-            match scene {
-              Some(scene) => scene.name
-              None => "(none)"
-            },
-          ),
+      @html.div(class="scene-browser-current", [
+        @html.div(class="scene-browser-meta-row", [
+          @html.span(class="scene-browser-meta-label", "Name"),
+          @html.span(class="scene-browser-meta-value", scene_name),
         ]),
-        @html.div(class="kv", [
-          @html.span(class="kv-key", "Path"),
-          @html.span(class="kv-value", scene_path),
-        ]),
+        @html.div(
+          class="scene-browser-meta-row",
+          attrs=hint_attrs(dispatch, scene_path),
+          [
+            @html.span(class="scene-browser-meta-label", "Path"),
+            @html.span(
+              class="scene-browser-meta-value scene-browser-meta-path",
+              scene_path,
+            ),
+          ],
+        ),
       ]),
-      @html.div(class="scene-browser-actions", [
-        @html.button(
-          class="small-button",
-          attrs=hint_attrs(dispatch, "Create Scene"),
-          on_click=@cmd.raw_effect(fn(scheduler) {
+      @html.div(class="scene-browser-toolbar", [
+        scene_browser_action_button(
+          dispatch,
+          "Create Scene",
+          @cmd.raw_effect(fn(scheduler) {
             let name = prompt_text("Scene name", "scene")
             if name.trim() != "" {
               schedule_cmd(scheduler, dispatch(@app.msg_create_scene(name)))
@@ -1766,15 +1961,11 @@ fn scene_browser_view(
           }),
           "+",
         ),
-        @html.button(
-          class="small-button",
-          attrs=hint_attrs(dispatch, "Rename Current Scene"),
-          on_click=@cmd.raw_effect(fn(scheduler) {
-            let current_name = match scene {
-              Some(scene) => scene.name
-              None => "scene"
-            }
-            let name = prompt_text("Scene name", current_name)
+        scene_browser_action_button(
+          dispatch,
+          "Rename Current Scene",
+          @cmd.raw_effect(fn(scheduler) {
+            let name = prompt_text("Scene name", scene_prompt_name)
             if name.trim() != "" {
               schedule_cmd(
                 scheduler,
@@ -1784,16 +1975,16 @@ fn scene_browser_view(
           }),
           "✎",
         ),
-        @html.button(
-          class="small-button",
-          attrs=hint_attrs(dispatch, "Delete Current Scene"),
-          on_click=dispatch(@app.msg_delete_current_scene()),
+        scene_browser_action_button(
+          dispatch,
+          "Delete Current Scene",
+          dispatch(@app.msg_delete_current_scene()),
           "−",
         ),
-        @html.button(
-          class="small-button",
-          attrs=hint_attrs(dispatch, "Set Current As Startup"),
-          on_click=dispatch(@app.msg_set_current_scene_as_startup()),
+        scene_browser_action_button(
+          dispatch,
+          "Set Current As Startup",
+          dispatch(@app.msg_set_current_scene_as_startup()),
           "★",
         ),
       ]),
@@ -1802,10 +1993,13 @@ fn scene_browser_view(
       @html.div(class="empty", "No scenes in this project")
     } else {
       @html.div(class="scene-browser-list", [
-        @html.div(
-          class="scene-browser-list-header",
-          "All Scenes (\{items.length()})",
-        ),
+        @html.div(class="scene-browser-list-header", [
+          @html.span("All Scenes"),
+          @html.span(
+            class="scene-browser-list-count",
+            items.length().to_string(),
+          ),
+        ]),
         @html.div(class="scene-browser-list-body", items),
       ])
     },
@@ -3867,20 +4061,29 @@ fn view(
     ]),
     scene_conflict_bar_view(dispatch, model),
     @html.div(class="content", [
-      @html.div(class="sidebar-column", [
-        @html.div(class="panel scene-browser-panel", [
-          @html.h2("Scenes"),
-          scene_browser_view(dispatch, model),
-        ]),
-        @html.div(class="panel assets-panel", [
-          @html.h2("Assets"),
-          asset_panel_view(dispatch, model),
-        ]),
-        @html.div(class="panel tree-panel", [
-          @html.h2("Scene Tree"),
-          @html.div(class="panel-body", scene_tree),
-        ]),
-      ]),
+      @html.div(
+        class="sidebar-column",
+        style=sidebar_column_style(model),
+        attrs=sidebar_column_attrs(model),
+        [
+          @html.div(class="panel scene-browser-panel", [
+            @html.h2("Scenes"),
+            scene_browser_view(dispatch, model),
+          ]),
+          sidebar_splitter("scene-assets"),
+          @html.div(class="panel assets-panel", [
+            @html.h2("Assets"),
+            asset_panel_view(dispatch, model),
+          ]),
+          sidebar_splitter("assets-tree"),
+          @html.div(class="panel tree-panel", [
+            @html.h2("Scene Tree"),
+            @html.div(class="panel-body scene-tree-panel-body", [
+              @html.div(class="scene-tree-scroll", scene_tree),
+            ]),
+          ]),
+        ],
+      ),
       @html.div(class="panel viewport-panel", [
         @html.h2("Viewport"),
         @html.div(class="viewport-frame", [

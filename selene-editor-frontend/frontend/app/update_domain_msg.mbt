@@ -46,6 +46,8 @@ fn to_domain_msg(msg : Msg) -> DomainMsg {
     ToggleMoveSnap => SelectionHistoryTools(ToggleMoveSnap)
     AdjustMoveSnapStep(delta) =>
       SelectionHistoryTools(AdjustMoveSnapStep(delta))
+    SetSidebarLayout(scene_ratio, assets_ratio) =>
+      SelectionHistoryTools(SetSidebarLayout(scene_ratio, assets_ratio))
     CommitSceneEditTransaction =>
       SelectionHistoryTools(CommitSceneEditTransaction)
     UndoScene => SelectionHistoryTools(UndoScene)

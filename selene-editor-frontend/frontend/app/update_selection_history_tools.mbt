@@ -1,4 +1,49 @@
 ///|
+fn clamp_sidebar_ratio(
+  value : Double,
+  min_value : Double,
+  max_value : Double,
+) -> Double {
+  if value < min_value {
+    min_value
+  } else if value > max_value {
+    max_value
+  } else {
+    value
+  }
+}
+
+///|
+fn normalized_sidebar_layout(
+  scene_ratio : Double,
+  assets_ratio : Double,
+) -> (Double, Double) {
+  let scene_min = 0.12
+  let assets_min = 0.24
+  let tree_min = 0.18
+  let scene = clamp_sidebar_ratio(
+    scene_ratio,
+    scene_min,
+    1.0 - assets_min - tree_min,
+  )
+  let assets = clamp_sidebar_ratio(
+    assets_ratio,
+    assets_min,
+    1.0 - scene - tree_min,
+  )
+  (scene, assets)
+}
+
+///|
+fn abs_diff(left : Double, right : Double) -> Double {
+  if left >= right {
+    left - right
+  } else {
+    right - left
+  }
+}
+
+///|
 fn update_selection_history_tools(
   msg : SelectionHistoryToolsMsg,
   model : Model,
@@ -82,6 +127,24 @@ fn update_selection_history_tools(
           status: move_snap_status(model.move_snap_enabled, next_step),
         }
         (sync_preview_effects(next) + save_workspace_effects(next), next)
+      }
+    }
+    SetSidebarLayout(scene_ratio, assets_ratio) => {
+      let (next_scene_ratio, next_assets_ratio) = normalized_sidebar_layout(
+        scene_ratio, assets_ratio,
+      )
+      if abs_diff(model.sidebar_scene_ratio, next_scene_ratio) < 0.0005 &&
+        abs_diff(model.sidebar_assets_ratio, next_assets_ratio) < 0.0005 {
+        ([], model)
+      } else {
+        (
+          [],
+          {
+            ..model,
+            sidebar_scene_ratio: next_scene_ratio,
+            sidebar_assets_ratio: next_assets_ratio,
+          },
+        )
       }
     }
     CommitSceneEditTransaction => {

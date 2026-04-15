@@ -10,6 +10,7 @@ fn update_project_runtime(
           SubscribeServiceEvents,
           SubscribePreviewEvents,
           SubscribeKeyboardShortcuts,
+          SubscribeSidebarLayout,
           rpc_effect(ProjectLoaded, @shared.rpc_request_project_current()),
         ],
         model,
