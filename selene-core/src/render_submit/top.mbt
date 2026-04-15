@@ -33,6 +33,129 @@ fn render_pass_target(
 }
 
 ///|
+fn alpha_mode_batch_key(alpha_mode : @render.AlphaMode2D) -> String {
+  match alpha_mode {
+    Opaque => "opaque"
+    Blend => "blend"
+  }
+}
+
+///|
+fn blend_mode_batch_key(blend_mode : @render.BlendMode2D) -> String {
+  match blend_mode {
+    Alpha => "alpha"
+    Additive => "additive"
+    Multiply => "multiply"
+  }
+}
+
+///|
+fn draw_command_batch_key(command : @render2d_types.DrawCommand2D) -> String? {
+  match command {
+    Image(command) =>
+      Some(
+        "image:\{alpha_mode_batch_key(command.alpha_mode)}:\{blend_mode_batch_key(command.blend_mode)}",
+      )
+    Text(command) => Some("text:\{blend_mode_batch_key(command.blend_mode)}")
+    Rect(command) =>
+      Some(
+        "rect:\{alpha_mode_batch_key(command.alpha_mode)}:\{blend_mode_batch_key(command.blend_mode)}",
+      )
+    Circle(command) =>
+      Some(
+        "circle:\{alpha_mode_batch_key(command.alpha_mode)}:\{blend_mode_batch_key(command.blend_mode)}",
+      )
+    GradientRect(command) =>
+      Some(
+        "gradient_rect:\{alpha_mode_batch_key(command.alpha_mode)}:\{blend_mode_batch_key(command.blend_mode)}",
+      )
+    PushClip(_) => None
+    PopClip => None
+  }
+}
+
+///|
+fn build_draw_batches(
+  commands : Array[@render2d_types.DrawCommand2D],
+) -> Array[Array[@render2d_types.DrawCommand2D]] {
+  let batches : Array[Array[@render2d_types.DrawCommand2D]] = []
+  let mut current_key : String? = None
+  for command in commands {
+    match draw_command_batch_key(command) {
+      Some(key) => {
+        if current_key == Some(key) && !batches.is_empty() {
+          batches[batches.length() - 1].push(command)
+        } else {
+          batches.push([command])
+          current_key = Some(key)
+        }
+      }
+      None => {
+        // Clip commands are explicit batch barriers.
+        batches.push([command])
+        current_key = None
+      }
+    }
+  }
+  batches
+}
+
+///|
+fn offscreen_local_viewport(viewport : @math.Rect) -> @math.Rect {
+  { position: @math.Vec2::zero(), size: viewport.size }
+}
+
+///|
+fn offset_rect(rect : @math.Rect, offset : @math.Vec2) -> @math.Rect {
+  { position: rect.position - offset, size: rect.size }
+}
+
+///|
+fn normalize_draw_command_for_offscreen(
+  command : @render2d_types.DrawCommand2D,
+  offset : @math.Vec2,
+) -> @render2d_types.DrawCommand2D {
+  match command {
+    Image(image) =>
+      Image({
+        ..image,
+        destination: offset_rect(image.destination, offset),
+      })
+    Text(text) => Text({ ..text, position: text.position - offset })
+    Rect(rect) => Rect({ ..rect, rect: offset_rect(rect.rect, offset) })
+    Circle(circle) => Circle({ ..circle, center: circle.center - offset })
+    GradientRect(command) =>
+      GradientRect({ ..command, rect: offset_rect(command.rect, offset) })
+    PushClip(clip) => PushClip({ rect: offset_rect(clip.rect, offset) })
+    PopClip => PopClip
+  }
+}
+
+///|
+fn normalize_draw_commands_for_target(
+  commands : Array[@render2d_types.DrawCommand2D],
+  target : @render2d_types.RenderPassTarget2D,
+  viewport : @math.Rect,
+) -> Array[@render2d_types.DrawCommand2D] {
+  match target {
+    Screen => commands
+    Offscreen(_) =>
+      commands.map(fn(command) {
+        normalize_draw_command_for_offscreen(command, viewport.position)
+      })
+  }
+}
+
+///|
+fn normalize_draw_command_for_target(
+  command : @render2d_types.DrawCommand2D,
+  target : @render2d_types.RenderPassTarget2D,
+  viewport : @math.Rect,
+) -> @render2d_types.DrawCommand2D {
+  normalize_draw_commands_for_target([command], target, viewport)[0]
+}
+
+///|
 fn build_frame2d(
   camera_views : Array[@camera.Camera2dView],
 ) -> (@render2d_types.RenderFrame2D, Array[@render2d.DrawCommandWithDepth2D]) {
@@ -53,23 +176,42 @@ fn build_frame2d(
       !needs_clear {
       continue
     }
+    let pass_target = render_pass_target(camera_view.camera.pass.target)
     let pass_world_commands = pass_world_with_depth.map(fn(command) {
-      world_commands_with_depth.push(command)
-      world_commands.push(command.command)
-      command.command
+      let normalized_command = normalize_draw_command_for_target(
+        command.command,
+        pass_target,
+        camera_view.viewport,
+      )
+      world_commands_with_depth.push({
+        ..command,
+        command: normalized_command,
+      })
+      world_commands.push(normalized_command)
+      normalized_command
     })
-    for command in pass_ui_commands {
+    let normalized_ui_commands = normalize_draw_commands_for_target(
+      pass_ui_commands,
+      pass_target,
+      camera_view.viewport,
+    )
+    for command in normalized_ui_commands {
       ui_commands.push(command)
     }
     passes.push({
       camera_entity_id: Some(camera_view.entity.id()),
       order: camera_view.camera.order,
-      viewport: camera_view.viewport,
+      viewport: match pass_target {
+        Offscreen(_) => offscreen_local_viewport(camera_view.viewport)
+        Screen => camera_view.viewport
+      },
       load_op: render_pass_load_op(camera_view.camera.pass.load_op),
       clear_color: camera_view.camera.pass.clear_color,
-      target: render_pass_target(camera_view.camera.pass.target),
+      target: pass_target,
       world_commands: pass_world_commands,
-      ui_commands: pass_ui_commands,
+      ui_commands: normalized_ui_commands,
+      world_batches: build_draw_batches(pass_world_commands),
+      ui_batches: build_draw_batches(normalized_ui_commands),
     })
   }
 
@@ -95,6 +237,8 @@ fn build_frame2d(
       target: @render2d_types.RenderPassTarget2D::Screen,
       world_commands: screen_world_commands,
       ui_commands: screen_ui_commands,
+      world_batches: build_draw_batches(screen_world_commands),
+      ui_batches: build_draw_batches(screen_ui_commands),
     })
   }
 

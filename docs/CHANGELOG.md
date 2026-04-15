@@ -12,9 +12,10 @@
 ### Changed
 
 - Changed the 2D render pipeline to support camera pass load/clear semantics, per-camera 2D visibility culling, alpha-aware material submission, and explicit `Sorting2d` layer/order/depth behavior.
-- Changed 2D camera pass contracts to carry explicit pass target semantics (`Screen` / `Offscreen(name)`) through `CameraPass2D -> RenderPass2D -> render_submit`, with backend capability-gated handling for unsupported offscreen targets.
+- Changed 2D camera pass contracts to carry explicit pass target semantics (`Screen` / `Offscreen(name)`) through `CameraPass2D -> RenderPass2D -> render_submit`, with real backend offscreen render-target execution and `offscreen://<name>` sampling support.
 - Changed the WebGPU 2D backend to support explicit `BlendMode2D` pipeline routing (`Alpha` / `Additive` / `Multiply`) and command-stream compaction for adjacent compatible 2D draw commands.
 - Changed 2D sorting semantics to include `Sorting2d.group` in world draw ordering for large layered scenes.
+- Changed 2D render submission to emit pass-level command batches (`world_batches` / `ui_batches`) and offscreen-localized pass coordinates for camera-owned offscreen targets.
 - Changed the 2D/UI camera pipeline to use viewport-aware per-camera 2D passes, render-layer-aware multi-camera extraction, and `UiTargetCamera`-routed UI layout/render/input coordinates instead of the previous single-camera/global-screen assumptions.
 - Changed camera scene documents to support optional persisted 2D camera viewport rectangles in the editor bridge runtime.
 - Changed preview bridge protocol to include typed AutoTile synchronization (`SetAutoTileBrushTerrain` command and `AutoTileLayerChanged` event) so viewport brush edits update SNF scene source and participate in undo/redo.
@@ -43,6 +44,7 @@
 - Fixed animation graph inspector preview controls so play/pause/speed/seek now drive a real resource preview instead of only targeting selected scene entities.
 - Fixed `selene-editor-specs` harness effect processing to cover sidebar layout subscription effects, restoring exhaustive `@app.Effect` handling after the sidebar layout feature landed.
 - Fixed `text2d` per-frame relayout overhead by caching text layout/measurement outputs keyed by layout-affecting inputs and invalidating on key changes.
+- Fixed newly introduced 2D camera-grid culling helpers (`culling2d`) and package interfaces so sprite/text/mesh camera prefiltering compiles and runs under `--deny-warn`.
 
 ### Removed
 

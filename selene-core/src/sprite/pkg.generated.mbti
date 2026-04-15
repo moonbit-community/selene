@@ -56,13 +56,14 @@ pub(all) struct Sprite {
   mut flip_x : Bool
   mut flip_y : Bool
   mut image_mode : SpriteImageMode
+  mut blend_mode : @render.BlendMode2D
 
-  fn new(image? : @asset_types.ImageHandle?, texture_atlas? : TextureAtlas?, rect? : @math.Rect?, color? : @render.Color, custom_size? : @math.Vec2?, anchor? : Anchor, flip_x? : Bool, flip_y? : Bool, image_mode? : SpriteImageMode) -> Sprite
+  fn new(image? : @asset_types.ImageHandle?, texture_atlas? : TextureAtlas?, rect? : @math.Rect?, color? : @render.Color, custom_size? : @math.Vec2?, anchor? : Anchor, flip_x? : Bool, flip_y? : Bool, image_mode? : SpriteImageMode, blend_mode? : @render.BlendMode2D) -> Sprite
 }
 pub fn Sprite::from_atlas_image(@asset_types.ImageHandle, TextureAtlas) -> Self
 pub fn Sprite::from_color(@render.Color, @math.Vec2) -> Self
 pub fn Sprite::from_image(@asset_types.ImageHandle, custom_size? : @math.Vec2?) -> Self
-pub fn Sprite::new(image? : @asset_types.ImageHandle?, texture_atlas? : TextureAtlas?, rect? : @math.Rect?, color? : @render.Color, custom_size? : @math.Vec2?, anchor? : Anchor, flip_x? : Bool, flip_y? : Bool, image_mode? : SpriteImageMode) -> Self
+pub fn Sprite::new(image? : @asset_types.ImageHandle?, texture_atlas? : TextureAtlas?, rect? : @math.Rect?, color? : @render.Color, custom_size? : @math.Vec2?, anchor? : Anchor, flip_x? : Bool, flip_y? : Bool, image_mode? : SpriteImageMode, blend_mode? : @render.BlendMode2D) -> Self
 
 pub(all) enum SpriteImageMode {
   Auto

@@ -1,7 +1,8 @@
 ///|
 pub(all) struct Text2d {
+  blend_mode : @render.BlendMode2D
 
-  fn new() -> Text2d
+  fn new(blend_mode? : @render.BlendMode2D) -> Text2d
 } derive(Eq, Debug)
 
 ///|
@@ -79,8 +80,10 @@ fn text_layout_caches() -> Map[@entity.Entity, CachedTextLayout2d] {
 }
 
 ///|
-pub fn Text2d::new() -> Text2d {
-  Text2d::{  }
+pub fn Text2d::new(
+  blend_mode? : @render.BlendMode2D = @render.BlendMode2D::Alpha,
+) -> Text2d {
+  { blend_mode, }
 }
 
 ///|
@@ -296,7 +299,18 @@ pub fn render_text2d_system(delta : Double) -> Unit {
     }
   }
   let camera_views = @camera.active_camera2d_views()
-  for entity, _ in text2ds() {
+  let all_camera_ids = camera_views.map(fn(camera_view) { camera_view.entity.id() })
+  let camera_views_by_id : Map[UInt, @camera.Camera2dView] = Map::new()
+  let camera_grid_entries : Array[@culling2d.SpatialGridEntry2d] = []
+  for camera_view in camera_views {
+    camera_views_by_id.set(camera_view.entity.id(), camera_view)
+    camera_grid_entries.push({
+      id: camera_view.entity.id(),
+      bounds: camera_view.world_bounds(),
+    })
+  }
+  let camera_grid = @culling2d.build_spatial_grid2d(camera_grid_entries)
+  for entity, text2d in text2ds() {
     guard entity.is_alive() else { continue }
     guard @visibility.is_visible(entity) else { continue }
     guard @transform.global_transforms().get(entity) is Some(global_transform) else {
@@ -310,6 +324,7 @@ pub fn render_text2d_system(delta : Double) -> Unit {
     let base_pos = @math.Vec2(transform.translation.x, transform.translation.y)
     let parallax = @parallax2d.inherited_parallax2d(entity)
     let sorting = @render2d.entity_sorting2d(entity)
+    let anchor = text2d_anchor(entity)
     let depth = @render2d.sort_depth_for_transform(global_transform, sorting)
     let cached_layout = cached_text_layout(
       entity,
@@ -348,13 +363,31 @@ pub fn render_text2d_system(delta : Double) -> Unit {
         layout_size,
         global_transform,
         None,
+        text2d.blend_mode,
         depth,
         sorting,
       )
       continue
     }
+    let world_pos = @parallax2d.parallax_world_position(base_pos, parallax, None)
+    let world_bounds = @camera.transformed_rect_bounds(
+      world_pos + anchor_origin(anchor, layout_size),
+      { position: @math.Vec2::zero(), size: layout_size },
+      @camera.world_transform_2d(global_transform),
+    )
+    let candidate_camera_ids = if @parallax2d.parallax_depends_on_camera(parallax) {
+      all_camera_ids
+    } else {
+      camera_grid.query(world_bounds)
+    }
+    if candidate_camera_ids.is_empty() {
+      continue
+    }
     let entity_layers = @visibility.entity_render_layers(entity)
-    for camera_view in camera_views {
+    for camera_entity_id in candidate_camera_ids {
+      guard camera_views_by_id.get(camera_entity_id) is Some(camera_view) else {
+        continue
+      }
       guard @visibility.matches(
         @visibility.entity_render_layers(camera_view.entity),
         entity_layers,
@@ -374,7 +407,7 @@ pub fn render_text2d_system(delta : Double) -> Unit {
         Some(camera_view),
       )
       let layout_origin = screen_pos +
-        anchor_origin(text2d_anchor(entity), layout_size)
+        anchor_origin(anchor, layout_size)
       let layout_bounds = @camera.transformed_rect_bounds(
         layout_origin,
         { position: @math.Vec2::zero(), size: layout_size },
@@ -395,6 +428,7 @@ pub fn render_text2d_system(delta : Double) -> Unit {
         layout_size,
         global_transform,
         Some(camera_view),
+        text2d.blend_mode,
         depth,
         sorting,
       )
@@ -416,6 +450,7 @@ fn push_text2d_lines(
   layout_size : @math.Vec2,
   global_transform : @transform.GlobalTransform,
   camera_view : @camera.Camera2dView?,
+  blend_mode : @render.BlendMode2D,
   depth : Double,
   sorting : @render2d.Sorting2d,
 ) -> Unit {
@@ -439,7 +474,7 @@ fn push_text2d_lines(
         @math.Vec2(x, start_y + line_height * index.to_double()),
       ),
       transform: @camera.camera_screen_transform(global_transform, camera_view),
-      blend_mode: @render.BlendMode2D::Alpha,
+      blend_mode,
       style: style_for_draw,
     }
     match camera_view {

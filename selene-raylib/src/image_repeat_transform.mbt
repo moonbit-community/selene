@@ -159,11 +159,17 @@ fn draw_textured_quad(
   transform : @smath.Transform,
   uv_transform : @smath.Transform,
   tint : @render.Color,
+  flip_y? : Bool = false,
 ) -> Unit {
   let base_u0 = src_x0 / texture_width
-  let base_v0 = src_y0 / texture_height
+  let base_v0_raw = src_y0 / texture_height
   let base_u1 = src_x1 / texture_width
-  let base_v1 = src_y1 / texture_height
+  let base_v1_raw = src_y1 / texture_height
+  let (base_v0, base_v1) = if flip_y {
+    (1.0 - base_v0_raw, 1.0 - base_v1_raw)
+  } else {
+    (base_v0_raw, base_v1_raw)
+  }
   let uv00 = transform_uv_point(uv_transform, base_u0, base_v0)
   let uv10 = transform_uv_point(uv_transform, base_u1, base_v0)
   let uv11 = transform_uv_point(uv_transform, base_u1, base_v1)
@@ -186,6 +192,7 @@ fn draw_textured_quad(
 fn draw_image_repeat_transform(
   texture : @raylib.Texture,
   command : @render2d_types.ImageDrawCommand2D,
+  flip_y? : Bool = false,
 ) -> Unit {
   let texture_width = @raylib.get_texture_width(texture).to_double()
   let texture_height = @raylib.get_texture_height(texture).to_double()
@@ -222,6 +229,7 @@ fn draw_image_repeat_transform(
       command.transform,
       command.uv_transform,
       command.color,
+      flip_y~,
     )
     return
   }
@@ -258,6 +266,7 @@ fn draw_image_repeat_transform(
         command.transform,
         command.uv_transform,
         command.color,
+        flip_y~,
       )
       oy += tile_h
     }

@@ -3,6 +3,7 @@ import {
   "Milky2018/selene/entity",
   "Milky2018/selene/math",
   "Milky2018/selene/platform_render",
+  "Milky2018/selene/render",
   "Milky2018/selene/render2d",
   "Milky2018/selene/render2d_types",
   "Milky2018/selene/render3d",

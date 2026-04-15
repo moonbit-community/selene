@@ -226,6 +226,20 @@ pub fn camera_screen_transform(
 }
 
 ///|
+pub fn world_transform_2d(
+  global_transform : @transform.GlobalTransform,
+) -> @math.Transform {
+  let transform = global_transform.compute_transform()
+  let x_axis = transform.rotation.rotate_vec3(
+    @math.Vec3::x_axis().scalar_mul(transform.scale.x),
+  )
+  let y_axis = transform.rotation.rotate_vec3(
+    @math.Vec3::y_axis().scalar_mul(transform.scale.y),
+  )
+  @math.Transform::new(a=x_axis.x, b=x_axis.y, c=y_axis.x, d=y_axis.y)
+}
+
+///|
 pub fn pixel_snapped_position(position : @math.Vec2) -> @math.Vec2 {
   @math.Vec2(position[X].round(), position[Y].round())
 }

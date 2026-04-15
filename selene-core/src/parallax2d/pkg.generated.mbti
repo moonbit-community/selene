@@ -13,6 +13,8 @@ pub fn inherited_parallax2d(@entity.Entity) -> Parallax2d?
 
 pub fn parallax2ds() -> Map[@entity.Entity, Parallax2d]
 
+pub fn parallax_depends_on_camera(Parallax2d?) -> Bool
+
 pub fn parallax_world_position(@math.Vec2, Parallax2d?, @camera.Camera2dView?) -> @math.Vec2
 
 // Errors

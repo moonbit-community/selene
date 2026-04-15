@@ -88,6 +88,8 @@ pub(all) struct RenderPass2D {
   target : RenderPassTarget2D
   mut world_commands : Array[DrawCommand2D]
   mut ui_commands : Array[DrawCommand2D]
+  mut world_batches : Array[Array[DrawCommand2D]]
+  mut ui_batches : Array[Array[DrawCommand2D]]
 }
 
 pub(all) enum RenderPassLoadOp2D {

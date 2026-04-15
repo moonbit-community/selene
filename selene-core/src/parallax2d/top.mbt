@@ -76,3 +76,13 @@ pub fn parallax_world_position(
     _ => shifted
   }
 }
+
+///|
+pub fn parallax_depends_on_camera(parallax : Parallax2d?) -> Bool {
+  match parallax {
+    Some(parallax) =>
+      (parallax.factor[X] - 1.0).abs() > 0.000001 ||
+      (parallax.factor[Y] - 1.0).abs() > 0.000001
+    None => false
+  }
+}

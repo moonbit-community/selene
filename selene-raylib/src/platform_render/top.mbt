@@ -45,12 +45,32 @@ fn pass_target_is_supported(
 ) -> Bool {
   match target {
     Screen => true
-    Offscreen(name) => {
-      ignore(name)
-      capability_warning(
-        "2d_offscreen_target", "raylib backend does not support camera-owned 2D offscreen render targets yet",
-      )
-      false
+    Offscreen(_) => true
+  }
+}
+
+///|
+fn draw_batches_for_pass(
+  commands : Array[@render2d_types.DrawCommand2D],
+  batches : Array[Array[@render2d_types.DrawCommand2D]],
+) -> Array[Array[@render2d_types.DrawCommand2D]] {
+  if !batches.is_empty() {
+    return batches
+  }
+  if commands.is_empty() {
+    []
+  } else {
+    [commands]
+  }
+}
+
+///|
+fn submit_draw_batches(
+  batches : Array[Array[@render2d_types.DrawCommand2D]],
+) -> Unit {
+  for batch in batches {
+    for command in batch {
+      submit_draw_command(command)
     }
   }
 }
@@ -87,6 +107,8 @@ fn submit_frame_contents(frame : @render_pipeline.RenderFrame) -> Unit {
     if !pass_target_is_supported(pass.target) {
       continue
     }
+    let world_batches = draw_batches_for_pass(pass.world_commands, pass.world_batches)
+    let ui_batches = draw_batches_for_pass(pass.ui_commands, pass.ui_batches)
     if !pass.world_commands.is_empty() ||
       pass.load_op is @render2d_types.RenderPassLoadOp2D::Clear {
       @impl.begin_2d_pass(
@@ -95,9 +117,7 @@ fn submit_frame_contents(frame : @render_pipeline.RenderFrame) -> Unit {
         pass.clear_color,
         pass.target,
       )
-      for command in pass.world_commands {
-        submit_draw_command(command)
-      }
+      submit_draw_batches(world_batches)
       @impl.end_2d_pass()
     }
     if !pass.ui_commands.is_empty() {
@@ -107,9 +127,7 @@ fn submit_frame_contents(frame : @render_pipeline.RenderFrame) -> Unit {
         pass.clear_color,
         pass.target,
       )
-      for command in pass.ui_commands {
-        submit_draw_command(command)
-      }
+      submit_draw_batches(ui_batches)
       @impl.end_2d_pass()
     }
   }

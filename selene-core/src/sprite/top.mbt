@@ -15,6 +15,7 @@ pub(all) struct Sprite {
   mut flip_x : Bool
   mut flip_y : Bool
   mut image_mode : SpriteImageMode
+  mut blend_mode : @render.BlendMode2D
 
   fn new(
     image? : @asset.ImageHandle?,
@@ -26,6 +27,7 @@ pub(all) struct Sprite {
     flip_x? : Bool,
     flip_y? : Bool,
     image_mode? : SpriteImageMode,
+    blend_mode? : @render.BlendMode2D,
   ) -> Sprite
 }
 
@@ -64,6 +66,7 @@ pub fn Sprite::new(
   flip_x? : Bool = false,
   flip_y? : Bool = false,
   image_mode? : SpriteImageMode = Auto,
+  blend_mode? : @render.BlendMode2D = @render.BlendMode2D::Alpha,
 ) -> Sprite {
   {
     image,
@@ -75,6 +78,7 @@ pub fn Sprite::new(
     flip_x,
     flip_y,
     image_mode,
+    blend_mode,
   }
 }
 
@@ -111,6 +115,17 @@ pub fn Sprite::from_color(
 pub fn render_sprite_system(delta : Double) -> Unit {
   ignore(delta)
   let camera_views = @camera.active_camera2d_views()
+  let all_camera_ids = camera_views.map(fn(camera_view) { camera_view.entity.id() })
+  let camera_views_by_id : Map[UInt, @camera.Camera2dView] = Map::new()
+  let camera_grid_entries : Array[@culling2d.SpatialGridEntry2d] = []
+  for camera_view in camera_views {
+    camera_views_by_id.set(camera_view.entity.id(), camera_view)
+    camera_grid_entries.push({
+      id: camera_view.entity.id(),
+      bounds: camera_view.world_bounds(),
+    })
+  }
+  let camera_grid = @culling2d.build_spatial_grid2d(camera_grid_entries)
   for entity, sprite in sprites() {
     guard entity.is_alive() else { continue }
     guard @visibility.is_visible(entity) else { continue }
@@ -139,8 +154,25 @@ pub fn render_sprite_system(delta : Double) -> Unit {
       )
       continue
     }
+    let world_pos = @parallax2d.parallax_world_position(base_pos, parallax, None)
+    let world_bounds = @camera.transformed_rect_bounds(
+      world_pos,
+      { position: @math.Vec2::zero(), size },
+      @camera.world_transform_2d(global_transform) * local_transform,
+    )
+    let candidate_camera_ids = if @parallax2d.parallax_depends_on_camera(parallax) {
+      all_camera_ids
+    } else {
+      camera_grid.query(world_bounds)
+    }
+    if candidate_camera_ids.is_empty() {
+      continue
+    }
     let entity_layers = @visibility.entity_render_layers(entity)
-    for camera_view in camera_views {
+    for camera_entity_id in candidate_camera_ids {
+      guard camera_views_by_id.get(camera_entity_id) is Some(camera_view) else {
+        continue
+      }
       guard @visibility.matches(
         @visibility.entity_render_layers(camera_view.entity),
         entity_layers,
@@ -265,8 +297,8 @@ fn sprite_alpha_mode(sprite : Sprite) -> @render.AlphaMode2D {
 }
 
 ///|
-fn sprite_blend_mode(_sprite : Sprite) -> @render.BlendMode2D {
-  @render.BlendMode2D::Alpha
+fn sprite_blend_mode(sprite : Sprite) -> @render.BlendMode2D {
+  sprite.blend_mode
 }
 
 ///|

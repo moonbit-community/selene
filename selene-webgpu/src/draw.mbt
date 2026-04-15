@@ -164,7 +164,10 @@ pub fn begin_2d_pass(
   clear_color : @render.Color,
   target : @render2d_types.RenderPassTarget2D,
 ) -> Unit {
-  ignore(target)
+  let target_name = match target {
+    Screen => ""
+    Offscreen(name) => name
+  }
   let (cr, cg, cb, ca) = color_rgba(clear_color)
   webgpu_begin_2d_pass(
     viewport.position[X],
@@ -180,6 +183,7 @@ pub fn begin_2d_pass(
     cg,
     cb,
     ca,
+    target_name,
   )
 }
 

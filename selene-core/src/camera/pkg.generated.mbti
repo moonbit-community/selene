@@ -32,6 +32,8 @@ pub fn screen_space_transform(@transform.Transform) -> @transform.Transform
 
 pub fn transformed_rect_bounds(@math.Vec2, @math.Rect, @math.Transform) -> @math.Rect
 
+pub fn world_transform_2d(@transform.GlobalTransform) -> @math.Transform
+
 // Errors
 
 // Types and methods

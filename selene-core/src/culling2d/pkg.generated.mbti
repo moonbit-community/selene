@@ -1,0 +1,28 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/culling2d"
+
+import {
+  "Milky2018/selene/math",
+}
+
+// Values
+pub fn build_spatial_grid2d(Array[SpatialGridEntry2d], cell_size? : Double) -> SpatialGrid2d
+
+// Errors
+
+// Types and methods
+pub(all) struct SpatialGrid2d {
+  cell_size : Double
+  buckets : Map[String, Array[UInt]]
+}
+pub fn SpatialGrid2d::query(Self, @math.Rect) -> Array[UInt]
+
+pub(all) struct SpatialGridEntry2d {
+  id : UInt
+  bounds : @math.Rect
+}
+
+// Type aliases
+
+// Traits
+

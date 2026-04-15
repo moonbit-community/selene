@@ -248,6 +248,7 @@ extern "js" fn webgpu_initialize(
   #|       draw2dCommands: [],
   #|       passes2d: [],
   #|       current2dPass: null,
+  #|       offscreenTargets2d: new Map(),
   #|       sections3d: [],
   #|       current3dSection: null,
   #|       imageCache: new Map(),
@@ -722,7 +723,52 @@ extern "js" fn webgpu_initialize(
   #|       return texture;
   #|     };
   #|
+  #|     const OFFSCREEN_IMAGE_PREFIX = 'offscreen://';
+  #|     rt.ensureOffscreenTarget2d = (name, width, height) => {
+  #|       if (!rt.ready || !rt.device || !rt.format) return null;
+  #|       const key = String(name || '');
+  #|       if (!key) return null;
+  #|       const w = Math.max(1, Math.floor(width || 1));
+  #|       const h = Math.max(1, Math.floor(height || 1));
+  #|       const existing = rt.offscreenTargets2d.get(key);
+  #|       if (
+  #|         existing &&
+  #|         existing.width === w &&
+  #|         existing.height === h &&
+  #|         existing.texture &&
+  #|         existing.view
+  #|       ) {
+  #|         return existing;
+  #|       }
+  #|       if (existing?.texture) {
+  #|         try { existing.texture.destroy(); } catch (_err) {}
+  #|       }
+  #|       const texture = rt.device.createTexture({
+  #|         size: [w, h, 1],
+  #|         format: rt.format,
+  #|         usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_SRC,
+  #|       });
+  #|       const created = { texture, view: texture.createView(), width: w, height: h };
+  #|       rt.offscreenTargets2d.set(key, created);
+  #|       return created;
+  #|     };
+  #|
   #|     rt.ensureImage = (path) => {
+  #|       if (typeof path === 'string' && path.startsWith(OFFSCREEN_IMAGE_PREFIX)) {
+  #|         const name = path.slice(OFFSCREEN_IMAGE_PREFIX.length);
+  #|         const target = rt.offscreenTargets2d.get(name);
+  #|         if (!target?.view) {
+  #|           return { state: 'error', texture: null, view: null, width: 1, height: 1, promise: null };
+  #|         }
+  #|         return {
+  #|           state: 'ready',
+  #|           texture: target.texture,
+  #|           view: target.view,
+  #|           width: target.width,
+  #|           height: target.height,
+  #|           promise: null,
+  #|         };
+  #|       }
   #|       let rec = rt.imageCache.get(path);
   #|       if (rec) return rec;
   #|       rec = { state: 'loading', texture: null, view: null, width: 1, height: 1, promise: null };
@@ -861,12 +907,29 @@ extern "js" fn webgpu_initialize(
   #|
   #|     rt.current2dCommandList = () =>
   #|       rt.current2dPass?.commands || rt.draw2dCommands;
-  #|     rt.beginPass2d = (x, y, w, h, loadOp, clearColor) => {
+  #|     rt.beginPass2d = (x, y, w, h, loadOp, clearColor, targetName = '') => {
+  #|       const hasTarget = typeof targetName === 'string' && targetName.length > 0;
+  #|       if (hasTarget) {
+  #|         const target = rt.ensureOffscreenTarget2d(targetName, w, h);
+  #|         if (target) {
+  #|           rt.current2dPass = {
+  #|             viewport: [0, 0, target.width, target.height],
+  #|             loadOp,
+  #|             clearColor,
+  #|             commands: [],
+  #|             targetName,
+  #|             targetSize: [target.width, target.height],
+  #|           };
+  #|           return;
+  #|         }
+  #|       }
   #|       rt.current2dPass = {
   #|         viewport: [x, y, w, h],
   #|         loadOp,
   #|         clearColor,
   #|         commands: [],
+  #|         targetName: '',
+  #|         targetSize: null,
   #|       };
   #|     };
   #|     rt.endPass2d = () => {
@@ -2192,8 +2255,9 @@ extern "js" fn webgpu_initialize(
   #|       flushPending();
   #|       return compacted;
   #|     };
-  #|     rt.render2d = (pass, passRecord) => {
-  #|       const [canvasWidth, canvasHeight] = toCanvasSize();
+  #|     rt.render2d = (pass, passRecord, surfaceWidth, surfaceHeight) => {
+  #|       const canvasWidth = Math.max(1, Math.floor(surfaceWidth || rt.canvas?.width || 1));
+  #|       const canvasHeight = Math.max(1, Math.floor(surfaceHeight || rt.canvas?.height || 1));
   #|       const canvasUniform = new Float32Array([canvasWidth, canvasHeight, 0, 0]);
   #|       rt.device.queue.writeBuffer(rt.uniformBuffers.canvas2d, 0, canvasUniform.buffer, canvasUniform.byteOffset, canvasUniform.byteLength);
   #|       const viewport = Array.isArray(passRecord?.viewport)
@@ -2324,28 +2388,99 @@ extern "js" fn webgpu_initialize(
   #|           rendered = true;
   #|         }
   #|       }
-  #|       if (rt.passes2d.length > 0 || rt.draw2dCommands.length > 0 || !rendered) {
-  #|         const pass = encoder.beginRenderPass({
-  #|           colorAttachments: [{
-  #|             view,
-  #|             clearValue: { r: rt.clearColor[0], g: rt.clearColor[1], b: rt.clearColor[2], a: rt.clearColor[3] },
-  #|             loadOp: rendered ? 'load' : 'clear',
-  #|             storeOp: 'store',
-  #|           }],
-  #|         });
-  #|         if (rt.passes2d.length > 0) {
-  #|           for (const passRecord of rt.passes2d) {
-  #|             rt.render2d(pass, passRecord);
+  #|       const hasQueued2d = rt.passes2d.length > 0 || rt.draw2dCommands.length > 0;
+  #|       if (hasQueued2d || !rendered) {
+  #|         const fallbackPasses2d = [{
+  #|           viewport: [0, 0, rt.canvas.width, rt.canvas.height],
+  #|           loadOp: 0,
+  #|           clearColor: rt.clearColor,
+  #|           commands: rt.draw2dCommands,
+  #|           targetName: '',
+  #|           targetSize: [rt.canvas.width, rt.canvas.height],
+  #|         }];
+  #|         const passes2d = rt.passes2d.length > 0 ? rt.passes2d : fallbackPasses2d;
+  #|         let screenRendered = rendered;
+  #|         for (const passRecord of passes2d) {
+  #|           const targetName = typeof passRecord?.targetName === 'string'
+  #|             ? passRecord.targetName
+  #|             : '';
+  #|           if (targetName.length > 0) {
+  #|             const offscreenTarget = rt.offscreenTargets2d.get(targetName);
+  #|             if (!offscreenTarget?.view) {
+  #|               continue;
+  #|             }
+  #|             const offscreenClear = Array.isArray(passRecord?.clearColor)
+  #|               ? passRecord.clearColor
+  #|               : [0, 0, 0, 1];
+  #|             const offscreenPass = encoder.beginRenderPass({
+  #|               colorAttachments: [{
+  #|                 view: offscreenTarget.view,
+  #|                 clearValue: {
+  #|                   r: offscreenClear[0],
+  #|                   g: offscreenClear[1],
+  #|                   b: offscreenClear[2],
+  #|                   a: offscreenClear[3],
+  #|                 },
+  #|                 loadOp: Number(passRecord?.loadOp) === 1 ? 'clear' : 'load',
+  #|                 storeOp: 'store',
+  #|               }],
+  #|             });
+  #|             rt.render2d(
+  #|               offscreenPass,
+  #|               passRecord,
+  #|               offscreenTarget.width,
+  #|               offscreenTarget.height,
+  #|             );
+  #|             offscreenPass.end();
+  #|             continue;
   #|           }
-  #|         } else {
-  #|           rt.render2d(pass, {
-  #|             viewport: [0, 0, rt.canvas.width, rt.canvas.height],
-  #|             loadOp: 0,
-  #|             clearColor: rt.clearColor,
-  #|             commands: rt.draw2dCommands,
+  #|           const screenLoadOp = Number(passRecord?.loadOp) || 0;
+  #|           const clearColor = Array.isArray(passRecord?.clearColor)
+  #|             ? passRecord.clearColor
+  #|             : rt.clearColor;
+  #|           const screenPass = encoder.beginRenderPass({
+  #|             colorAttachments: [{
+  #|               view,
+  #|               clearValue: {
+  #|                 r: clearColor[0],
+  #|                 g: clearColor[1],
+  #|                 b: clearColor[2],
+  #|                 a: clearColor[3],
+  #|               },
+  #|               loadOp: screenRendered
+  #|                 ? (screenLoadOp === 1 ? 'clear' : 'load')
+  #|                 : 'clear',
+  #|               storeOp: 'store',
+  #|             }],
   #|           });
+  #|           const targetSize = Array.isArray(passRecord?.targetSize)
+  #|             ? passRecord.targetSize
+  #|             : [rt.canvas.width, rt.canvas.height];
+  #|           rt.render2d(
+  #|             screenPass,
+  #|             passRecord,
+  #|             targetSize[0],
+  #|             targetSize[1],
+  #|           );
+  #|           screenPass.end();
+  #|           screenRendered = true;
   #|         }
-  #|         pass.end();
+  #|         if (!screenRendered) {
+  #|           const clearPass = encoder.beginRenderPass({
+  #|             colorAttachments: [{
+  #|               view,
+  #|               clearValue: {
+  #|                 r: rt.clearColor[0],
+  #|                 g: rt.clearColor[1],
+  #|                 b: rt.clearColor[2],
+  #|                 a: rt.clearColor[3],
+  #|               },
+  #|               loadOp: 'clear',
+  #|               storeOp: 'store',
+  #|             }],
+  #|           });
+  #|           clearPass.end();
+  #|         }
   #|       }
   #|       rt.device.queue.submit([encoder.finish()]);
   #|     };
@@ -3401,11 +3536,12 @@ extern "js" fn webgpu_begin_2d_pass(
   clear_g : Double,
   clear_b : Double,
   clear_a : Double,
+  target_name : String,
 ) -> Unit =
-  #| (x, y, width, height, loadOp, clearR, clearG, clearB, clearA) => {
+  #| (x, y, width, height, loadOp, clearR, clearG, clearB, clearA, targetName) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.beginPass2d(x, y, width, height, loadOp, [clearR, clearG, clearB, clearA]);
+  #|     rt.beginPass2d(x, y, width, height, loadOp, [clearR, clearG, clearB, clearA], targetName);
   #|   }
   #| }
 

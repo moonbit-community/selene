@@ -140,6 +140,13 @@ priv struct CosmicTextTexture {
 }
 
 ///|
+priv struct OffscreenTarget2D {
+  render_texture : @raylib.RenderTexture
+  width : Int
+  height : Int
+}
+
+///|
 priv struct RaylibBackend {
   mut time_scale : Double
   mut image_smooth : Bool
@@ -165,6 +172,8 @@ priv struct RaylibBackend {
   fonts_by_path : Map[String, @raylib.Font]
   cosmic_loaded_families : Set[String]
   cosmic_textures : Map[String, CosmicTextTexture]
+  offscreen_targets_2d : Map[String, OffscreenTarget2D]
+  mut active_2d_offscreen_target : String?
   mut embedded_asset_cache : Map[String, Bytes]
   meshes3d : Map[@render3d_types.MeshHandle, @render3d_types.MeshAsset]
   materials3d : Map[
@@ -234,6 +243,8 @@ let backend : RaylibBackend = {
   fonts_by_path: Map::new(),
   cosmic_loaded_families: Set::new(),
   cosmic_textures: Map::new(),
+  offscreen_targets_2d: Map::new(),
+  active_2d_offscreen_target: None,
   embedded_asset_cache: Map::new(),
   meshes3d: Map::new(),
   materials3d: Map::new(),
@@ -2664,6 +2675,65 @@ fn draw_lit_mesh_with_material(
 }
 
 ///|
+const OFFSCREEN_IMAGE_PREFIX : String = "offscreen://"
+
+///|
+fn offscreen_target_name_from_path(path : String) -> String? {
+  if !path.has_prefix(OFFSCREEN_IMAGE_PREFIX) {
+    return None
+  }
+  if path.length() <= OFFSCREEN_IMAGE_PREFIX.length() {
+    return None
+  }
+  Some(
+    path.unsafe_substring(
+      start=OFFSCREEN_IMAGE_PREFIX.length(),
+      end=path.length(),
+    ),
+  )
+}
+
+///|
+fn ensure_offscreen_target_2d(
+  name : String,
+  width : Int,
+  height : Int,
+) -> OffscreenTarget2D? {
+  let width = @cmp.maximum(1, width)
+  let height = @cmp.maximum(1, height)
+  match backend.offscreen_targets_2d.get(name) {
+    Some(existing) =>
+      if existing.width == width && existing.height == height &&
+        existing.render_texture.is_valid() {
+        return Some(existing)
+      } else {
+        existing.render_texture.unload()
+        backend.offscreen_targets_2d.remove(name)
+      }
+    None => ()
+  }
+  let render_texture = @raylib.RenderTexture::load(width, height)
+  if !render_texture.is_valid() {
+    render_texture.unload()
+    return None
+  }
+  @raylib.set_texture_filter(render_texture.texture(), configured_filter())
+  let created = { render_texture, width, height }
+  backend.offscreen_targets_2d.set(name, created)
+  Some(created)
+}
+
+///|
+fn offscreen_target_texture(path : String) -> @raylib.Texture? {
+  match offscreen_target_name_from_path(path) {
+    Some(name) => backend.offscreen_targets_2d.get(name).map(fn(target) {
+      target.render_texture.texture()
+    })
+    None => None
+  }
+}
+
+///|
 fn get_texture(path : String) -> @raylib.Texture {
   if backend.textures.get(path) is Some(texture) {
     return texture
@@ -3390,6 +3460,11 @@ fn cleanup_resources() -> Unit {
   }
   backend.point_shadow_render_texture = None
   backend.point_shadow_map_size = 0
+  for _name, target in backend.offscreen_targets_2d {
+    target.render_texture.unload()
+  }
+  backend.offscreen_targets_2d.clear()
+  backend.active_2d_offscreen_target = None
   backend.meshes3d.clear()
   backend.materials3d.clear()
   backend.images3d.clear()
@@ -3445,10 +3520,23 @@ pub fn draw_image(
   command : @render2d_types.ImageDrawCommand2D,
   image_path : String,
 ) -> Unit {
+  let texture = match offscreen_target_texture(image_path) {
+    Some(texture) => Some(texture)
+    None =>
+      if offscreen_target_name_from_path(image_path) is Some(_) {
+        None
+      } else {
+        Some(get_texture(image_path))
+      }
+  }
+  guard texture is Some(texture) else { return }
   mark_frame_drawn()
   with_blend_mode(command.blend_mode, fn() {
-    let texture = get_texture(image_path)
-    draw_image_repeat_transform(texture, command)
+    draw_image_repeat_transform(
+      texture,
+      command,
+      flip_y=offscreen_target_name_from_path(image_path) is Some(_),
+    )
   })
 }
 
@@ -3479,17 +3567,40 @@ pub fn begin_2d_pass(
   clear_color : @render.Color,
   target : @render2d_types.RenderPassTarget2D,
 ) -> Unit {
-  ignore(target)
+  backend.active_2d_offscreen_target = None
+  let mut pass_viewport = viewport
+  match target {
+    Screen => ()
+    Offscreen(name) => {
+      let width = @cmp.maximum(1, viewport.size[X].ceil().to_int())
+      let height = @cmp.maximum(1, viewport.size[Y].ceil().to_int())
+      match ensure_offscreen_target_2d(name, width, height) {
+        Some(offscreen_target) => {
+          offscreen_target.render_texture.begin_mode()
+          backend.active_2d_offscreen_target = Some(name)
+          pass_viewport = {
+            position: @smath.Vec2::zero(),
+            size: @smath.Vec2(width.to_double(), height.to_double()),
+          }
+        }
+        None =>
+          pass_viewport = {
+            position: @smath.Vec2::zero(),
+            size: @smath.Vec2::zero(),
+          }
+      }
+    }
+  }
   reset_clip_stack()
-  push_clip_rect(viewport)
+  push_clip_rect(pass_viewport)
   if load_op is Clear {
     mark_frame_drawn()
     @raylib.draw_rectangle_rec(
       to_ray_rect(
-        viewport.position[X],
-        viewport.position[Y],
-        viewport.size[X],
-        viewport.size[Y],
+        pass_viewport.position[X],
+        pass_viewport.position[Y],
+        pass_viewport.size[X],
+        pass_viewport.size[Y],
       ),
       to_ray_color(clear_color),
     )
@@ -3499,6 +3610,10 @@ pub fn begin_2d_pass(
 ///|
 pub fn end_2d_pass() -> Unit {
   reset_clip_stack()
+  if backend.active_2d_offscreen_target is Some(_) {
+    @raylib.end_texture_mode()
+  }
+  backend.active_2d_offscreen_target = None
 }
 
 ///|
