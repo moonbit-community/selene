@@ -39,6 +39,35 @@ pub let animation_graph_asset_document_schema = "selene/animation_graph_asset_do
 pub let workspace_document_schema = "selene/workspace_document"
 
 ///|
+priv struct LegacyProjectManifestDocument {
+  version : Int?
+  name : String?
+  startup_scene : String?
+  asset_roots : Array[String]?
+  scene_index : Array[SceneRef]?
+  prefab_index : Array[PrefabRef]?
+  atlas_index : Array[AssetRef]?
+  animation_clip_index : Array[AssetRef]?
+  animation_graph_index : Array[AssetRef]?
+  editor_min_version : String?
+} derive(FromJson)
+
+///|
+priv struct LegacySceneDocument {
+  version : Int?
+  name : String?
+  entities : Array[LegacyEntityDocument]?
+} derive(FromJson)
+
+///|
+priv struct LegacyEntityDocument {
+  id : String?
+  name : String?
+  parent : String?
+  components : Array[ComponentDocument]?
+} derive(FromJson)
+
+///|
 fn validation_error_message(errors : Array[ValidationError]) -> String {
   errors.to_json().stringify()
 }
@@ -75,6 +104,38 @@ fn encode_envelope(schema : String, data : Json) -> String {
     version: document_envelope_version,
     data,
   }.to_json().stringify(indent=2) + "\n"
+}
+
+///|
+fn normalized_document_name(value : String?, fallback : String) -> String {
+  match value {
+    Some(name) => {
+      let trimmed = name.trim().to_string()
+      if trimmed == "" {
+        fallback
+      } else {
+        trimmed
+      }
+    }
+    None => fallback
+  }
+}
+
+///|
+fn migrated_legacy_scene_entities(
+  entities : Array[LegacyEntityDocument]?,
+) -> Array[EntityDocument] {
+  let result : Array[EntityDocument] = []
+  for index, entity in entities.unwrap_or([]) {
+    let id = normalized_document_name(entity.id, "entity-\{index + 1}")
+    result.push({
+      id,
+      name: normalized_document_name(entity.name, id),
+      parent: entity.parent,
+      components: entity.components.unwrap_or([]),
+    })
+  }
+  result
 }
 
 ///|
@@ -162,6 +223,147 @@ fn decode_workspace_data(data : Json) -> WorkspaceDocument raise {
 }
 
 ///|
+fn migrate_project_manifest_preview_from_legacy(
+  path : String,
+  json : Json,
+) -> ProjectManifestMigrationPreview raise {
+  let legacy : LegacyProjectManifestDocument = @json.from_json(json) catch {
+    err => raise InvalidProjectManifest("Invalid envelope: " + err.to_string())
+  }
+  let legacy_version = legacy.version.unwrap_or(0)
+  if legacy_version < 2 || legacy_version >= project_schema_version {
+    raise InvalidProjectManifest(
+      "Unsupported legacy project version: " + legacy_version.to_string(),
+    )
+  }
+  let name = normalized_document_name(legacy.name, "Project")
+  let startup_scene = normalized_document_name(
+    legacy.startup_scene,
+    startup_scene_path_for_name(name),
+  )
+  let default_manifest = ProjectManifest::default(name, startup_scene=startup_scene)
+  let asset_roots = match legacy.asset_roots {
+    Some(roots) if !roots.is_empty() => roots
+    _ => default_manifest.asset_roots
+  }
+  let scene_index = match legacy.scene_index {
+    Some(index) if !index.is_empty() => index
+    _ => [scene_ref(startup_scene)]
+  }
+  let manifest = {
+    ..default_manifest,
+    asset_roots,
+    scene_index,
+    prefab_index: legacy.prefab_index.unwrap_or([]),
+    atlas_index: legacy.atlas_index.unwrap_or([]),
+    animation_clip_index: legacy.animation_clip_index.unwrap_or([]),
+    animation_graph_index: legacy.animation_graph_index.unwrap_or([]),
+    editor_min_version: legacy.editor_min_version,
+  }
+  let validation_errors = validate_project_manifest(manifest)
+  guard validation_errors.is_empty() else {
+    raise InvalidProjectManifest(validation_error_message(validation_errors))
+  }
+  let changes : Array[MigrationFieldChange] = []
+  changes.push(
+    migration_field_change(
+      "version",
+      "Legacy project document uses a previous schema version",
+      project_schema_version.to_string(),
+    ),
+  )
+  if legacy.scene_index is None || legacy.scene_index.unwrap_or([]).is_empty() {
+    changes.push(
+      migration_field_change(
+        "scene_index",
+        "Legacy project document has no explicit scene index",
+        manifest.scene_index.to_json().stringify(),
+      ),
+    )
+  }
+  if legacy.prefab_index is None {
+    changes.push(
+      migration_field_change(
+        "prefab_index",
+        "Legacy project document has no explicit prefab index",
+        "[]",
+      ),
+    )
+  }
+  if legacy.atlas_index is None {
+    changes.push(
+      migration_field_change(
+        "atlas_index",
+        "Legacy project document has no explicit atlas index",
+        "[]",
+      ),
+    )
+  }
+  if legacy.animation_clip_index is None {
+    changes.push(
+      migration_field_change(
+        "animation_clip_index",
+        "Legacy project document has no explicit animation clip index",
+        "[]",
+      ),
+    )
+  }
+  if legacy.animation_graph_index is None {
+    changes.push(
+      migration_field_change(
+        "animation_graph_index",
+        "Legacy project document has no explicit animation graph index",
+        "[]",
+      ),
+    )
+  }
+  project_manifest_migration_preview(path, manifest, changes)
+}
+
+///|
+fn migrate_scene_preview_from_legacy(
+  path : String,
+  json : Json,
+) -> SceneMigrationPreview raise {
+  let legacy : LegacySceneDocument = @json.from_json(json) catch {
+    err => raise InvalidSceneDocument("Invalid envelope: " + err.to_string())
+  }
+  let legacy_version = legacy.version.unwrap_or(0)
+  if legacy_version < 2 || legacy_version >= scene_schema_version {
+    raise InvalidSceneDocument(
+      "Unsupported legacy scene version: " + legacy_version.to_string(),
+    )
+  }
+  let scene : SceneDocument = {
+    version: scene_schema_version,
+    name: normalized_document_name(legacy.name, "Main"),
+    entities: migrated_legacy_scene_entities(legacy.entities),
+  }
+  let validation_errors = validate_scene_document(scene)
+  guard validation_errors.is_empty() else {
+    raise InvalidSceneDocument(validation_error_message(validation_errors))
+  }
+  let changes : Array[MigrationFieldChange] = []
+  changes.push(
+    migration_field_change(
+      "version",
+      "Legacy scene document uses a previous schema version",
+      scene_schema_version.to_string(),
+    ),
+  )
+  if legacy.name is None || legacy.name.unwrap_or("").trim() == "" {
+    changes.push(
+      migration_field_change(
+        "name",
+        "Legacy scene document has no explicit scene name",
+        scene.name,
+      ),
+    )
+  }
+  scene_migration_preview(path, scene, changes)
+}
+
+///|
 pub fn decode_project_manifest(json : Json) -> ProjectManifest raise {
   decode_manifest_data(
     decode_envelope_data(
@@ -177,8 +379,23 @@ pub fn decode_project_manifest_status(
   path : String,
   json : Json,
 ) -> ProjectManifestLoadStatus raise {
-  ignore(path)
-  Ready(decode_project_manifest(json))
+  let strict : Result[ProjectManifest, Error] = try? decode_project_manifest(
+    json,
+  )
+  match strict {
+    Ok(manifest) => Ready(manifest)
+    Err(InvalidProjectManifest(message)) => {
+      let legacy : Result[ProjectManifestMigrationPreview, Error] = try? migrate_project_manifest_preview_from_legacy(
+        path,
+        json,
+      )
+      match legacy {
+        Ok(preview) => MigrationRequired(preview)
+        Err(_) => raise InvalidProjectManifest(message)
+      }
+    }
+    Err(err) => raise err
+  }
 }
 
 ///|
@@ -262,8 +479,21 @@ pub fn decode_scene_snf_status(
   path : String,
   json : Json,
 ) -> SceneDocumentLoadStatus raise {
-  ignore(path)
-  Ready(decode_scene_snf(json))
+  let strict : Result[SceneDocument, Error] = try? decode_scene_snf(json)
+  match strict {
+    Ok(scene) => Ready(scene)
+    Err(InvalidSceneDocument(message)) => {
+      let legacy : Result[SceneMigrationPreview, Error] = try? migrate_scene_preview_from_legacy(
+        path,
+        json,
+      )
+      match legacy {
+        Ok(preview) => MigrationRequired(preview)
+        Err(_) => raise InvalidSceneDocument(message)
+      }
+    }
+    Err(err) => raise err
+  }
 }
 
 ///|
@@ -313,6 +543,69 @@ pub fn decode_scene_document_status(
   json : Json,
 ) -> SceneDocumentLoadStatus raise {
   decode_scene_snf_status(path, json)
+}
+
+///|
+pub fn migrate_scene_to_snf(path : String, json : Json) -> SceneDocument raise {
+  match decode_scene_snf_status(path, json) {
+    Ready(scene) => scene
+    MigrationRequired(preview) => preview.scene
+  }
+}
+
+///|
+pub fn migrate_scene_document_json(
+  path : String,
+  json : Json,
+) -> SceneDocument raise {
+  migrate_scene_to_snf(path, json)
+}
+
+///|
+pub fn migrate_project_manifest_json(
+  path : String,
+  json : Json,
+) -> ProjectManifest raise {
+  match decode_project_manifest_status(path, json) {
+    Ready(manifest) => manifest
+    MigrationRequired(preview) => preview.manifest
+  }
+}
+
+///|
+pub fn migrate_prefab_document_json(
+  path : String,
+  json : Json,
+) -> PrefabDocument raise {
+  ignore(path)
+  decode_prefab_document(json)
+}
+
+///|
+pub fn migrate_atlas_asset_document_json(
+  path : String,
+  json : Json,
+) -> AtlasAssetDocument raise {
+  ignore(path)
+  decode_atlas_asset_document(json)
+}
+
+///|
+pub fn migrate_animation_clip_asset_document_json(
+  path : String,
+  json : Json,
+) -> AnimationClipAssetDocument raise {
+  ignore(path)
+  decode_animation_clip_asset_document(json)
+}
+
+///|
+pub fn migrate_animation_graph_asset_document_json(
+  path : String,
+  json : Json,
+) -> AnimationGraphAssetDocument raise {
+  ignore(path)
+  decode_animation_graph_asset_document(json)
 }
 
 ///|

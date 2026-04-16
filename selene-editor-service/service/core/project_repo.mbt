@@ -72,6 +72,12 @@ async fn load_project_manifest(root : String) -> @editor_bridge.ProjectManifest 
   }
   match status {
     @editor_bridge.Ready(manifest) => manifest
+    @editor_bridge.MigrationRequired(preview) => {
+      let migrated = preview.manifest
+      let encoded = @editor_bridge.encode_project_manifest_json(migrated)
+      write_text_file(project_manifest_path(root, ""), encoded)
+      migrated
+    }
   }
 }
 

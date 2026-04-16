@@ -421,34 +421,41 @@ test "codec decodes valid project and scene documents" {
 }
 
 ///|
-test "codec rejects legacy project manifest without envelope" {
+test "codec reports project manifest migration for missing indexes" {
   let legacy_json = @json.parse(
     "{\n  \"version\": 2,\n  \"name\": \"Demo\",\n  \"startup_scene\": \"scenes/main.scene.json\",\n  \"asset_roots\": [\"assets/images\"]\n}\n",
   )
-  let result : Result[ProjectManifestLoadStatus, Error] =
-    try? decode_project_manifest_status("selene.project.json", legacy_json)
-  match result {
-    Err(InvalidProjectManifest(_)) => inspect(true, content="true")
-    _ => fail("expected invalid legacy project manifest")
+  match decode_project_manifest_status("selene.project.json", legacy_json) {
+    MigrationRequired(preview) => {
+      inspect(preview.manifest.scene_index.length(), content="1")
+      inspect(
+        preview.manifest.scene_index[0].path,
+        content="scenes/main.scene.json",
+      )
+      inspect(preview.manifest.prefab_index.length(), content="0")
+      inspect(preview.changes.length() > 0, content="true")
+    }
+    _ => fail("expected project manifest migration preview")
   }
 }
 
 ///|
-test "codec rejects legacy scene document without envelope" {
+test "codec reports scene migration for legacy scene documents" {
   let legacy_json = @json.parse(
     "{\n  \"version\": 2,\n  \"entities\": [\n    {\n      \"id\": \"camera\",\n      \"components\": [\n        {\n          \"kind\": \"Transform2d\",\n          \"data\": {\n            \"translation\": { \"x\": 0, \"y\": 0 },\n            \"rotation\": 0,\n            \"scale\": { \"x\": 1, \"y\": 1 }\n          }\n        },\n        {\n          \"kind\": \"Camera2d\",\n          \"data\": { \"is_active\": true, \"order\": 0, \"scale\": 1 }\n        },\n        {\n          \"kind\": \"Visibility\",\n          \"data\": { \"visible\": true }\n        }\n      ]\n    }\n  ]\n}\n",
   )
-  let result : Result[SceneDocumentLoadStatus, Error] = try? decode_scene_snf_status(
-    "scenes/main.scene.json", legacy_json,
-  )
-  match result {
-    Err(InvalidSceneDocument(_)) => inspect(true, content="true")
-    _ => fail("expected invalid legacy scene document")
+  match decode_scene_snf_status("scenes/main.scene.json", legacy_json) {
+    MigrationRequired(preview) => {
+      inspect(preview.scene.name, content="Main")
+      inspect(preview.scene.version == scene_schema_version, content="true")
+      inspect(preview.changes.length() > 0, content="true")
+    }
+    _ => fail("expected scene migration preview")
   }
 }
 
 ///|
-test "loader rejects legacy project manifest without envelope" {
+test "loader accepts legacy project manifest by using migrated preview manifest" {
   let scene = SceneDocument::default_main()
   let source = source_with_documents([
     (
@@ -459,11 +466,9 @@ test "loader rejects legacy project manifest without envelope" {
     ),
     ("scenes/demo.scene.json", scene_bytes(scene)),
   ])
-  let result : Result[ProjectBundle, Error] = try? load_project_bundle(source)
-  match result {
-    Err(InvalidProjectManifest(_)) => inspect(true, content="true")
-    _ => fail("expected invalid legacy project manifest")
-  }
+  let bundle = load_project_bundle(source)
+  inspect(bundle.manifest.scene_index.length(), content="1")
+  inspect(bundle.manifest.scene_index[0].path, content="scenes/demo.scene.json")
 }
 
 ///|

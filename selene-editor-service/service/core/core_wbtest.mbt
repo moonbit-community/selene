@@ -85,7 +85,7 @@ async test "project.open auto-initializes when the directory already exists" {
 }
 
 ///|
-async test "project.open rejects legacy project manifests without envelope" {
+async test "project.open auto-migrates legacy project manifests missing indexes" {
   @async.with_task_group(group => {
     let temp_root = @fs.tmpdir(prefix="selene-editor-core")
     let root = path_join(temp_root, "Legacy Manifest Demo")
@@ -115,11 +115,18 @@ async test "project.open rejects legacy project manifests without envelope" {
     let payload = service.handle_rpc(
       @shared.rpc_request_envelope(1, @shared.rpc_request_project_open(root)),
     )
-    expect_error_response(
-      response_envelope(payload).response,
-      "internal_error",
-      "Project manifest is invalid: selene.project.json",
+    let response = response_envelope(payload).response
+    let manifest = match response {
+      @shared.ProjectState(state~) => state.manifest.unwrap()
+      _ => fail("expected project state")
+    }
+
+    inspect(manifest.scene_index.length(), content="1")
+    inspect(manifest.prefab_index.length(), content="0")
+    let migrated_manifest = @editor_bridge.decode_project_manifest(
+      @json.parse(@fs.read_file(path_join(root, "selene.project.json")).text()),
     )
+    inspect(migrated_manifest.scene_index.length(), content="1")
   })
 }
 
@@ -555,6 +562,7 @@ async test "service typed rpc surface returns stable errors for missing or inval
 
     let not_open_requests : Array[@shared.RpcRequest] = [
       @shared.rpc_request_scene_load("scenes/main.scene.json"),
+      @shared.rpc_request_scene_migrate("scenes/main.scene.json"),
       @shared.rpc_request_scene_list(),
       @shared.rpc_request_scene_create("Main"),
       @shared.rpc_request_scene_save(
@@ -715,7 +723,7 @@ async test "service typed rpc surface returns stable errors for missing or inval
 }
 
 ///|
-async test "scene.load rejects legacy scene documents without migration flow" {
+async test "scene.load can require migration and scene.migrate writes back the migrated scene" {
   @async.with_task_group(group => {
     let temp_root = @fs.tmpdir(prefix="selene-editor-migrate")
     let root = path_join(temp_root, "Legacy Demo")
@@ -760,10 +768,29 @@ async test "scene.load rejects legacy scene documents without migration flow" {
       ),
     )
     let load_response = response_envelope(load_payload).response
-    expect_error_response(
-      load_response,
-      "internal_error",
-      "Scene document is invalid: scenes/main.scene.json",
+    match load_response {
+      @shared.SceneMigrationRequired(preview~) => {
+        inspect(preview.scene.name, content="Main")
+        inspect(preview.changes.length() > 0, content="true")
+      }
+      _ => fail("expected migration-required response")
+    }
+
+    let migrate_payload = service.handle_rpc(
+      @shared.rpc_request_envelope(
+        3,
+        @shared.rpc_request_scene_migrate("scenes/main.scene.json"),
+      ),
     )
+    let migrate_response = response_envelope(migrate_payload).response
+    match migrate_response {
+      @shared.SceneLoaded(scene~) => inspect(scene.scene.name, content="Main")
+      _ => fail("expected migrated scene load response")
+    }
+
+    let persisted_scene = @editor_bridge.decode_scene_snf(
+      @json.parse(@fs.read_file(path_join(root, "scenes/main.scene.json")).text()),
+    )
+    inspect(persisted_scene.version == @editor_bridge.scene_schema_version, content="true")
   })
 }

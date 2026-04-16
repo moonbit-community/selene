@@ -38,6 +38,7 @@ fn load_project_manifest_from_source(
   }
   match status {
     Ready(manifest) => manifest
+    MigrationRequired(preview) => preview.manifest
   }
 }
 

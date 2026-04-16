@@ -184,6 +184,20 @@ pub fn map_document_source(Map[String, Bytes]) -> (String) -> Bytes?
 
 pub fn mesh2d_component(String, size? : Vec2Doc?, radius? : Double?) -> ComponentDocument
 
+pub fn migrate_animation_clip_asset_document_json(String, Json) -> AnimationClipAssetDocument raise
+
+pub fn migrate_animation_graph_asset_document_json(String, Json) -> AnimationGraphAssetDocument raise
+
+pub fn migrate_atlas_asset_document_json(String, Json) -> AtlasAssetDocument raise
+
+pub fn migrate_prefab_document_json(String, Json) -> PrefabDocument raise
+
+pub fn migrate_project_manifest_json(String, Json) -> ProjectManifest raise
+
+pub fn migrate_scene_document_json(String, Json) -> SceneDocument raise
+
+pub fn migrate_scene_to_snf(String, Json) -> SceneDocument raise
+
 pub fn migration_field_change(String, String, String) -> MigrationFieldChange
 
 pub fn name_component(String) -> ComponentDocument
@@ -300,6 +314,7 @@ pub fn AnimationClipAssetDocument::with_name(Self, String) -> Self
 
 pub enum AnimationClipAssetDocumentLoadStatus {
   Ready(AnimationClipAssetDocument)
+  MigrationRequired(AnimationClipAssetMigrationPreview)
 } derive(Eq, ToJson, @json.FromJson)
 
 pub struct AnimationClipAssetMigrationPreview {
@@ -321,6 +336,7 @@ pub fn AnimationGraphAssetDocument::with_nodes(Self, Array[AnimationGraphNodeDoc
 
 pub enum AnimationGraphAssetDocumentLoadStatus {
   Ready(AnimationGraphAssetDocument)
+  MigrationRequired(AnimationGraphAssetMigrationPreview)
 } derive(Eq, ToJson, @json.FromJson)
 
 pub struct AnimationGraphAssetMigrationPreview {
@@ -436,6 +452,7 @@ pub fn AtlasAssetDocument::with_tile_size(Self, Vec2Doc) -> Self
 
 pub enum AtlasAssetDocumentLoadStatus {
   Ready(AtlasAssetDocument)
+  MigrationRequired(AtlasAssetMigrationPreview)
 } derive(Eq, ToJson, @json.FromJson)
 
 pub struct AtlasAssetMigrationPreview {
@@ -602,6 +619,7 @@ pub fn PrefabDocument::without_entity(Self, String) -> Self
 
 pub enum PrefabDocumentLoadStatus {
   Ready(PrefabDocument)
+  MigrationRequired(PrefabMigrationPreview)
 } derive(Eq, ToJson, @json.FromJson)
 
 pub struct PrefabMigrationPreview {
@@ -641,6 +659,7 @@ pub fn ProjectManifest::with_startup_scene(Self, String) -> Self
 
 pub enum ProjectManifestLoadStatus {
   Ready(ProjectManifest)
+  MigrationRequired(ProjectManifestMigrationPreview)
 } derive(Eq, ToJson, @json.FromJson)
 
 pub struct ProjectManifestMigrationPreview {
@@ -671,6 +690,7 @@ pub fn SceneDocument::without_entity(Self, String) -> Self
 
 pub enum SceneDocumentLoadStatus {
   Ready(SceneDocument)
+  MigrationRequired(SceneMigrationPreview)
 } derive(Eq, ToJson, @json.FromJson)
 
 pub struct SceneMigrationPreview {

@@ -15,6 +15,7 @@ pub struct ProjectManifestMigrationPreview {
 ///|
 pub enum ProjectManifestLoadStatus {
   Ready(ProjectManifest)
+  MigrationRequired(ProjectManifestMigrationPreview)
 } derive(Eq, ToJson, FromJson)
 
 ///|
@@ -27,6 +28,7 @@ pub struct SceneMigrationPreview {
 ///|
 pub enum SceneDocumentLoadStatus {
   Ready(SceneDocument)
+  MigrationRequired(SceneMigrationPreview)
 } derive(Eq, ToJson, FromJson)
 
 ///|
@@ -39,6 +41,7 @@ pub struct PrefabMigrationPreview {
 ///|
 pub enum PrefabDocumentLoadStatus {
   Ready(PrefabDocument)
+  MigrationRequired(PrefabMigrationPreview)
 } derive(Eq, ToJson, FromJson)
 
 ///|
@@ -51,6 +54,7 @@ pub struct AtlasAssetMigrationPreview {
 ///|
 pub enum AtlasAssetDocumentLoadStatus {
   Ready(AtlasAssetDocument)
+  MigrationRequired(AtlasAssetMigrationPreview)
 } derive(Eq, ToJson, FromJson)
 
 ///|
@@ -63,6 +67,7 @@ pub struct AnimationClipAssetMigrationPreview {
 ///|
 pub enum AnimationClipAssetDocumentLoadStatus {
   Ready(AnimationClipAssetDocument)
+  MigrationRequired(AnimationClipAssetMigrationPreview)
 } derive(Eq, ToJson, FromJson)
 
 ///|
@@ -75,6 +80,7 @@ pub struct AnimationGraphAssetMigrationPreview {
 ///|
 pub enum AnimationGraphAssetDocumentLoadStatus {
   Ready(AnimationGraphAssetDocument)
+  MigrationRequired(AnimationGraphAssetMigrationPreview)
 } derive(Eq, ToJson, FromJson)
 
 ///|

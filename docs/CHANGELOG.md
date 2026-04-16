@@ -10,15 +10,11 @@
 - Changed large-file architecture across core/render/editor packages by splitting former hotspot files into focused modules (`scene3d`, `physics3d`, `animation`, `collision/rapier2d`, `ldtk`, `raylib`, `webgpu`, `editor-frontend`) and keeping package `top.mbt` files as facade-only entrypoints.
 - Changed render backend naming/contracts to unified frame/pass semantics (`frame_begin/frame_end`, `render2d_begin_pass/render2d_end_pass`, `render3d_submit`) and updated backend platform call sites accordingly.
 - Changed editor-bridge persistence to envelope-only document protocol (`{ schema, version, data }`) for project/scene/prefab/atlas/animation-clip/animation-graph/workspace, with service/spec/example write paths updated to the new format.
-- Changed editor open/load runtime behavior to hard-fail legacy non-envelope scene/project documents instead of entering migration-confirmation flow.
-- Changed editor shared/frontend/service RPC scene-load contract to loaded-or-error only, removing runtime dependence on migration-preview responses.
+- Changed editor migration behavior to keep migration-preview flows for legacy project/scene documents while still using envelope-only canonical save format after migration.
 
 ### Fixed
 
 ### Removed
-
-- Removed scene migration request/response protocol paths (`SceneMigrate`, `SceneMigrationRequired`, and `SceneLoadOutcome.MigrationRequired`) from editor shared/service/frontend runtime chains.
-- Removed public `migrate_*` codec API surface from `selene/editor_bridge` runtime codec entrypoints.
 
 ## [0.32.3] - 2026-04-16
 

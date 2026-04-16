@@ -99,7 +99,22 @@ pub async fn EditorService::handle_rpc(
             @shared.rpc_response_scene_loaded(
               load_scene_bundle(root, relative_path),
             )
+          @editor_bridge.MigrationRequired(preview) =>
+            @shared.rpc_response_scene_migration_required(preview)
         }
+      }
+      @shared.SceneMigrate(path~) => {
+        let relative_path = self.resolve_scene_path_for_rpc(path)
+        let root = self.current_project_root()
+        ignore(migrate_scene_document(root, relative_path))
+        self.broadcast(
+          @shared.event_envelope(
+            @shared.editor_event_scene_saved(relative_path),
+          ),
+        )
+        @shared.rpc_response_scene_loaded(
+          load_scene_bundle(root, relative_path),
+        )
       }
       @shared.SceneList => {
         let root = self.current_project_root()

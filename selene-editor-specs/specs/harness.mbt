@@ -116,6 +116,8 @@ fn msg_for_rpc_target(target : @app.RpcTarget, payload : Json) -> @app.Msg {
         match response {
           @shared.SceneLoaded(scene~) =>
             Ok(@shared.scene_load_outcome_loaded(scene))
+          @shared.SceneMigrationRequired(preview~) =>
+            Ok(@shared.scene_load_outcome_migration_required(preview))
           @shared.Error(error~) => Err(error.message)
           _ => Err("Unexpected RPC response for scene")
         },

@@ -113,6 +113,8 @@ pub fn rpc_request_scene_list() -> RpcRequest
 
 pub fn rpc_request_scene_load(String) -> RpcRequest
 
+pub fn rpc_request_scene_migrate(String) -> RpcRequest
+
 pub fn rpc_request_scene_save(String, @editor_bridge.SceneDocument, String, Int) -> RpcRequest
 
 pub fn rpc_response_animation_clip_loaded(AnimationClipLoadResponse) -> RpcResponse
@@ -139,6 +141,8 @@ pub fn rpc_response_scene_listed(SceneListResponse) -> RpcResponse
 
 pub fn rpc_response_scene_loaded(SceneBundleResponse) -> RpcResponse
 
+pub fn rpc_response_scene_migration_required(@editor_bridge.SceneMigrationPreview) -> RpcResponse
+
 pub fn rpc_response_scene_saved(SceneSaveResult) -> RpcResponse
 
 pub fn rpc_response_startup_scene_updated(@editor_bridge.ProjectManifest) -> RpcResponse
@@ -154,6 +158,8 @@ pub fn scene_bundle_response(String, @editor_bridge.SceneDocument, disk_hash? : 
 pub fn scene_list_response(Array[@editor_bridge.SceneRef], String) -> SceneListResponse
 
 pub fn scene_load_outcome_loaded(SceneBundleResponse) -> SceneLoadOutcome
+
+pub fn scene_load_outcome_migration_required(@editor_bridge.SceneMigrationPreview) -> SceneLoadOutcome
 
 pub fn scene_save_result(String, String, Int) -> SceneSaveResult
 
@@ -257,6 +263,7 @@ pub enum RpcRequest {
   ProjectSetStartupScene(path~ : String)
   ProjectSaveWorkspace(workspace~ : @editor_bridge.WorkspaceDocument)
   SceneLoad(path~ : String)
+  SceneMigrate(path~ : String)
   SceneList
   SceneCreate(name~ : String)
   SceneSave(path~ : String, scene~ : @editor_bridge.SceneDocument, base_hash~ : String, base_revision~ : Int)
@@ -282,6 +289,7 @@ pub enum RpcResponse {
   ProjectState(state~ : ProjectStateResponse)
   DirectoryPicked(result~ : DirectoryPickResult)
   SceneLoaded(scene~ : SceneBundleResponse)
+  SceneMigrationRequired(preview~ : @editor_bridge.SceneMigrationPreview)
   SceneSaved(save~ : SceneSaveResult)
   SceneListed(list~ : SceneListResponse)
   AssetsListed(list~ : AssetsListResponse)
@@ -333,6 +341,7 @@ pub struct SceneListResponse {
 
 pub enum SceneLoadOutcome {
   Loaded(SceneBundleResponse)
+  MigrationRequired(@editor_bridge.SceneMigrationPreview)
 } derive(Eq)
 
 pub struct SceneSaveResult {

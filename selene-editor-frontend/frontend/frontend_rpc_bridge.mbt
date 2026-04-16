@@ -99,6 +99,12 @@ fn rpc_msg_from_response(
           Ok(
             @app.msg_scene_loaded(Ok(@shared.scene_load_outcome_loaded(scene))),
           )
+        @shared.SceneMigrationRequired(preview~) =>
+          Ok(
+            @app.msg_scene_loaded(
+              Ok(@shared.scene_load_outcome_migration_required(preview)),
+            ),
+          )
         @shared.Error(error~) => Ok(@app.msg_scene_loaded(Err(error.message)))
         _ => Err("Unexpected RPC response for scene")
       }

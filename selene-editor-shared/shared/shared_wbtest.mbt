@@ -24,6 +24,7 @@ test "all retained rpc requests round trip through typed envelopes" {
     ),
     rpc_request_envelope(5, rpc_request_project_save_workspace(workspace)),
     rpc_request_envelope(6, rpc_request_scene_load("scenes/main.scene.json")),
+    rpc_request_envelope(7, rpc_request_scene_migrate("scenes/main.scene.json")),
     rpc_request_envelope(8, rpc_request_scene_list()),
     rpc_request_envelope(9, rpc_request_scene_create("Main")),
     rpc_request_envelope(
@@ -85,6 +86,15 @@ test "all retained rpc requests round trip through typed envelopes" {
 
 ///|
 test "all retained rpc responses and editor events round trip through typed envelopes" {
+  let preview = @editor_bridge.scene_migration_preview(
+    "scenes/main.scene.json",
+    @editor_bridge.SceneDocument::default_main(),
+    [
+      @editor_bridge.migration_field_change(
+        "version", "Legacy scene schema", "4",
+      ),
+    ],
+  )
   let project_state = project_state_response(
     Some("/tmp/demo"),
     Some(@editor_bridge.ProjectManifest::default("Demo")),
@@ -136,6 +146,7 @@ test "all retained rpc responses and editor events round trip through typed enve
         ),
       ),
     ),
+    rpc_response_envelope(4, rpc_response_scene_migration_required(preview)),
     rpc_response_envelope(
       5,
       rpc_response_scene_listed(
