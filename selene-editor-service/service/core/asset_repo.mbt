@@ -21,10 +21,10 @@ async fn save_prefab_document(
   relative_path : String,
   prefab : @editor_bridge.PrefabDocument,
 ) -> Unit {
-  ignore(@editor_bridge.decode_prefab_document(prefab.to_json()))
   let path = prefab_path(root, relative_path)
   ensure_dir(path_join(root, "prefabs"))
-  write_json_file(path, prefab)
+  let encoded = @editor_bridge.encode_prefab_document_json(prefab)
+  write_text_file(path, encoded)
 }
 
 ///|
@@ -64,10 +64,10 @@ async fn save_atlas_asset_document(
   relative_path : String,
   atlas : @editor_bridge.AtlasAssetDocument,
 ) -> Unit {
-  ignore(@editor_bridge.decode_atlas_asset_document(atlas.to_json()))
   let path = atlas_asset_path(root, relative_path)
   ensure_dir(path_join(root, "assets/atlases"))
-  write_json_file(path, atlas)
+  let encoded = @editor_bridge.encode_atlas_asset_document_json(atlas)
+  write_text_file(path, encoded)
 }
 
 ///|
@@ -107,10 +107,10 @@ async fn save_animation_clip_asset_document(
   relative_path : String,
   clip : @editor_bridge.AnimationClipAssetDocument,
 ) -> Unit {
-  ignore(@editor_bridge.decode_animation_clip_asset_document(clip.to_json()))
   let path = animation_clip_asset_path(root, relative_path)
   ensure_dir(path_join(root, "assets/animation_clips"))
-  write_json_file(path, clip)
+  let encoded = @editor_bridge.encode_animation_clip_asset_document_json(clip)
+  write_text_file(path, encoded)
 }
 
 ///|
@@ -150,10 +150,10 @@ async fn save_animation_graph_asset_document(
   relative_path : String,
   graph : @editor_bridge.AnimationGraphAssetDocument,
 ) -> Unit {
-  ignore(@editor_bridge.decode_animation_graph_asset_document(graph.to_json()))
   let path = animation_graph_asset_path(root, relative_path)
   ensure_dir(path_join(root, "assets/animation_graphs"))
-  write_json_file(path, graph)
+  let encoded = @editor_bridge.encode_animation_graph_asset_document_json(graph)
+  write_text_file(path, encoded)
 }
 
 ///|
@@ -198,9 +198,9 @@ async fn save_workspace_document(
   root : String,
   workspace : @editor_bridge.WorkspaceDocument,
 ) -> Unit {
-  ignore(@editor_bridge.decode_workspace_document(workspace.to_json()))
   ensure_dir(path_join(root, ".selene-editor"))
-  write_json_file(workspace_path(root), workspace)
+  let encoded = @editor_bridge.encode_workspace_document_json(workspace)
+  write_text_file(workspace_path(root), encoded)
 }
 
 ///|

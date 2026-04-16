@@ -14,6 +14,8 @@ import {
 // Values
 pub fn animation_clip_asset_document(String, String, Double, Bool, Array[String]) -> AnimationClipAssetDocument
 
+pub let animation_clip_asset_document_schema : String
+
 pub fn animation_clip_asset_file_name(String) -> String
 
 pub fn animation_clip_asset_migration_preview(String, AnimationClipAssetDocument, Array[MigrationFieldChange]) -> AnimationClipAssetMigrationPreview
@@ -23,6 +25,8 @@ pub let animation_clip_asset_schema_version : Int
 pub fn animation_graph_asset_document(String, Array[AnimationGraphNodeDocument], String?) -> AnimationGraphAssetDocument
 
 pub fn animation_graph_asset_document_from_clip(String, String, node_id? : String) -> AnimationGraphAssetDocument
+
+pub let animation_graph_asset_document_schema : String
 
 pub fn animation_graph_asset_file_name(String) -> String
 
@@ -61,6 +65,8 @@ pub fn asset_instantiation_context(asset_path_resolver? : (String?) -> String?, 
 pub fn asset_ref(String) -> AssetRef
 
 pub fn atlas_asset_document_from_image(String, String, Vec2Doc) -> AtlasAssetDocument
+
+pub let atlas_asset_document_schema : String
 
 pub fn atlas_asset_file_name(String) -> String
 
@@ -140,7 +146,23 @@ pub fn default_color() -> ColorDoc
 
 pub fn default_component_document(BuiltinComponentKind) -> ComponentDocument
 
+pub let document_envelope_version : Int
+
+pub let document_schema_major_version : Int
+
+pub fn encode_animation_clip_asset_document_json(AnimationClipAssetDocument) -> String raise
+
+pub fn encode_animation_graph_asset_document_json(AnimationGraphAssetDocument) -> String raise
+
+pub fn encode_atlas_asset_document_json(AtlasAssetDocument) -> String raise
+
+pub fn encode_prefab_document_json(PrefabDocument) -> String raise
+
+pub fn encode_project_manifest_json(ProjectManifest) -> String raise
+
 pub fn encode_scene_snf(SceneDocument) -> String raise
+
+pub fn encode_workspace_document_json(WorkspaceDocument) -> String raise
 
 pub fn entity_document(String, String, parent? : String?, components? : Array[ComponentDocument]) -> EntityDocument
 
@@ -162,20 +184,6 @@ pub fn map_document_source(Map[String, Bytes]) -> (String) -> Bytes?
 
 pub fn mesh2d_component(String, size? : Vec2Doc?, radius? : Double?) -> ComponentDocument
 
-pub fn migrate_animation_clip_asset_document_json(String, Json) -> AnimationClipAssetDocument raise
-
-pub fn migrate_animation_graph_asset_document_json(String, Json) -> AnimationGraphAssetDocument raise
-
-pub fn migrate_atlas_asset_document_json(String, Json) -> AtlasAssetDocument raise
-
-pub fn migrate_prefab_document_json(String, Json) -> PrefabDocument raise
-
-pub fn migrate_project_manifest_json(String, Json) -> ProjectManifest raise
-
-pub fn migrate_scene_document_json(String, Json) -> SceneDocument raise
-
-pub fn migrate_scene_to_snf(String, Json) -> SceneDocument raise
-
 pub fn migration_field_change(String, String, String) -> MigrationFieldChange
 
 pub fn name_component(String) -> ComponentDocument
@@ -187,6 +195,8 @@ pub fn physics_body2d_component(body_type? : String, linear_velocity? : Vec2Doc,
 pub fn physics_collider2d_component(shape? : String, size? : Vec2Doc?, radius? : Double?, sensor? : Bool, friction? : Double, restitution? : Double) -> ComponentDocument
 
 pub fn prefab_document(String, Array[EntityDocument]) -> PrefabDocument
+
+pub let prefab_document_schema : String
 
 pub fn prefab_file_name(String) -> String
 
@@ -200,6 +210,8 @@ pub fn project_manifest_file_name(String) -> String
 
 pub fn project_manifest_migration_preview(String, ProjectManifest, Array[MigrationFieldChange]) -> ProjectManifestMigrationPreview
 
+pub let project_manifest_schema : String
+
 pub let project_schema_version : Int
 
 pub fn rect_doc(Double, Double, Double, Double) -> RectDoc
@@ -209,6 +221,8 @@ pub fn register_custom_component(String, (@entity.Entity, ComponentDocument, Ass
 pub fn removable_builtin_component(BuiltinComponentKind) -> Bool
 
 pub fn required_builtin_components(BuiltinComponentKind) -> Array[BuiltinComponentKind]
+
+pub let scene_document_schema : String
 
 pub fn scene_file_name(String) -> String
 
@@ -252,6 +266,8 @@ pub fn vec2_doc(Double, Double) -> Vec2Doc
 
 pub fn visibility_component(visible? : Bool) -> ComponentDocument
 
+pub let workspace_document_schema : String
+
 pub let workspace_schema_version : Int
 
 // Errors
@@ -284,11 +300,7 @@ pub fn AnimationClipAssetDocument::with_name(Self, String) -> Self
 
 pub enum AnimationClipAssetDocumentLoadStatus {
   Ready(AnimationClipAssetDocument)
-  MigrationRequired(AnimationClipAssetMigrationPreview)
-} derive(Eq)
-
-pub struct AnimationClipAssetDocumentMigrator {
-}
+} derive(Eq, ToJson, @json.FromJson)
 
 pub struct AnimationClipAssetMigrationPreview {
   path : String
@@ -309,11 +321,7 @@ pub fn AnimationGraphAssetDocument::with_nodes(Self, Array[AnimationGraphNodeDoc
 
 pub enum AnimationGraphAssetDocumentLoadStatus {
   Ready(AnimationGraphAssetDocument)
-  MigrationRequired(AnimationGraphAssetMigrationPreview)
-} derive(Eq)
-
-pub struct AnimationGraphAssetDocumentMigrator {
-}
+} derive(Eq, ToJson, @json.FromJson)
 
 pub struct AnimationGraphAssetMigrationPreview {
   path : String
@@ -428,11 +436,7 @@ pub fn AtlasAssetDocument::with_tile_size(Self, Vec2Doc) -> Self
 
 pub enum AtlasAssetDocumentLoadStatus {
   Ready(AtlasAssetDocument)
-  MigrationRequired(AtlasAssetMigrationPreview)
-} derive(Eq)
-
-pub struct AtlasAssetDocumentMigrator {
-}
+} derive(Eq, ToJson, @json.FromJson)
 
 pub struct AtlasAssetMigrationPreview {
   path : String
@@ -531,6 +535,12 @@ pub struct ComponentDocument {
   data : Json
 } derive(Eq, ToJson, @json.FromJson)
 
+pub struct DocumentEnvelope {
+  schema : String
+  version : Int
+  data : Json
+} derive(Eq, ToJson, @json.FromJson)
+
 pub struct EntityDocument {
   id : String
   name : String
@@ -542,16 +552,6 @@ pub fn EntityDocument::renamed(Self, String) -> Self
 pub fn EntityDocument::reparented(Self, String?) -> Self
 pub fn EntityDocument::with_component(Self, ComponentDocument) -> Self
 pub fn EntityDocument::without_component(Self, String) -> Self
-
-type LegacyAtlasAssetDocument derive(@json.FromJson)
-
-type LegacyEntityDocument derive(@json.FromJson)
-
-type LegacyPrefabDocument derive(@json.FromJson)
-
-type LegacyProjectManifest derive(@json.FromJson)
-
-type LegacySceneDocument derive(@json.FromJson)
 
 pub struct Mesh2dComponent {
   primitive : String
@@ -602,11 +602,7 @@ pub fn PrefabDocument::without_entity(Self, String) -> Self
 
 pub enum PrefabDocumentLoadStatus {
   Ready(PrefabDocument)
-  MigrationRequired(PrefabMigrationPreview)
-} derive(Eq)
-
-pub struct PrefabDocumentMigrator {
-}
+} derive(Eq, ToJson, @json.FromJson)
 
 pub struct PrefabMigrationPreview {
   path : String
@@ -645,17 +641,13 @@ pub fn ProjectManifest::with_startup_scene(Self, String) -> Self
 
 pub enum ProjectManifestLoadStatus {
   Ready(ProjectManifest)
-  MigrationRequired(ProjectManifestMigrationPreview)
-} derive(Eq)
+} derive(Eq, ToJson, @json.FromJson)
 
 pub struct ProjectManifestMigrationPreview {
   path : String
   manifest : ProjectManifest
   changes : Array[MigrationFieldChange]
 } derive(Eq, ToJson, @json.FromJson)
-
-pub struct ProjectManifestMigrator {
-}
 
 pub struct RectDoc {
   x : Double
@@ -679,11 +671,7 @@ pub fn SceneDocument::without_entity(Self, String) -> Self
 
 pub enum SceneDocumentLoadStatus {
   Ready(SceneDocument)
-  MigrationRequired(SceneMigrationPreview)
-} derive(Eq)
-
-pub struct SceneDocumentMigrator {
-}
+} derive(Eq, ToJson, @json.FromJson)
 
 pub struct SceneMigrationPreview {
   path : String
@@ -812,8 +800,4 @@ pub type CustomComponentApplier = (@entity.Entity, ComponentDocument, AssetInsta
 pub type DocumentSource = (String) -> Bytes?
 
 // Traits
-pub trait Migration {
-  migration_changes(Self, String, Json) -> Array[MigrationFieldChange]? raise
-  migrate_json(Self, String, Json) -> Json raise
-}
 

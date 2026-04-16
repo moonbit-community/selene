@@ -75,7 +75,7 @@ fn submit_draw_batches(
 ///|
 pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
   let clear = frame.frame3d.clear_color
-  @impl.begin_frame(clear)
+  @impl.frame_begin(clear)
 
   for pair in frame.assets3d.mesh_upserts {
     @impl.sync_mesh_asset(pair.0, pair.1)
@@ -96,7 +96,7 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
     @impl.release_image_asset(handle)
   }
 
-  @impl.render_3d_frame(frame.frame3d)
+  @impl.render3d_submit(frame.frame3d)
   for pass in frame.frame2d.passes {
     if !pass_target_is_supported(pass.target) {
       continue
@@ -105,27 +105,27 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
     let ui_batches = draw_batches_for_pass(pass.ui_commands, pass.ui_batches)
     if !pass.world_commands.is_empty() ||
       pass.load_op is @render2d_types.RenderPassLoadOp2D::Clear {
-      @impl.begin_2d_pass(
+      @impl.render2d_begin_pass(
         pass.viewport,
         pass.load_op,
         pass.clear_color,
         pass.target,
       )
       submit_draw_batches(world_batches)
-      @impl.end_2d_pass()
+      @impl.render2d_end_pass()
     }
     if !pass.ui_commands.is_empty() {
-      @impl.begin_2d_pass(
+      @impl.render2d_begin_pass(
         pass.viewport,
         @render2d_types.RenderPassLoadOp2D::Load,
         pass.clear_color,
         pass.target,
       )
       submit_draw_batches(ui_batches)
-      @impl.end_2d_pass()
+      @impl.render2d_end_pass()
     }
   }
-  @impl.end_frame()
+  @impl.frame_end()
 }
 
 ///|

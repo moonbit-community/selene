@@ -48,7 +48,7 @@ test "view state mapping keeps ui-visible fields stable" {
 ///|
 test "initialize subscribes to service and preview channels" {
   let (effects, _) = update(msg_initialize(), new_model())
-  inspect(effects.length(), content="4")
+  inspect(effects.length(), content="5")
 }
 
 ///|

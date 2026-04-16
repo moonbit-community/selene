@@ -214,7 +214,6 @@ async fn migrate_legacy_animation_document(
   let status = load_scene_document(root, scene_path)
   let scene = match status {
     @editor_bridge.Ready(scene) => scene
-    @editor_bridge.MigrationRequired(preview) => preview.scene
   }
   let migrated_preview = legacy_animation_preview_for_scene(scene_path, scene)
   guard migrated_preview is Some(preview) else { return }
@@ -238,26 +237,6 @@ async fn load_scene_document(
   }
 }
 
-///|
-async fn migrate_scene_document(
-  root : String,
-  relative_path : String,
-) -> @editor_bridge.SceneDocument {
-  let path = scene_path(root, relative_path)
-  guard @fs.exists(path) else { raise SceneNotFound(relative_path) }
-  let json = parse_json_file(path) catch {
-    _ => raise Failure("Scene document is invalid: " + relative_path)
-  }
-  let scene = @editor_bridge.migrate_scene_to_snf(relative_path, json) catch {
-    @editor_bridge.InvalidSceneDocument(_) =>
-      raise Failure("Scene document is invalid: " + relative_path)
-    err => raise err
-  }
-  ignore(save_scene_document(root, relative_path, scene))
-  scene
-}
-
-///|
 fn scene_bundle_response_of_bundle(
   bundle : @editor_bridge.ProjectBundle,
   disk_state : SceneDiskState,
@@ -318,7 +297,6 @@ async fn save_scene_document(
   relative_path : String,
   scene : @editor_bridge.SceneDocument,
 ) -> SceneDiskState {
-  ignore(@editor_bridge.decode_scene_snf(scene.to_json()))
   let scene_snf = @editor_bridge.encode_scene_snf(scene)
   let path = scene_path(root, relative_path)
   ensure_dir(path_join(root, "scenes"))

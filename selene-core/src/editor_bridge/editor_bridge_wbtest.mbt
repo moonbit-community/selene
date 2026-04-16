@@ -1,11 +1,30 @@
-///|
-fn json_bytes(value : &ToJson) -> Bytes {
-  @utf8.encode(value.to_json().stringify(indent=2))
+fn json_string_bytes(value : String) -> Bytes {
+  @utf8.encode(value)
 }
 
 ///|
-fn json_string_bytes(value : String) -> Bytes {
-  @utf8.encode(value)
+fn manifest_bytes(manifest : ProjectManifest) -> Bytes raise {
+  json_string_bytes(encode_project_manifest_json(manifest))
+}
+
+///|
+fn scene_bytes(scene : SceneDocument) -> Bytes raise {
+  json_string_bytes(encode_scene_snf(scene))
+}
+
+///|
+fn atlas_bytes(atlas : AtlasAssetDocument) -> Bytes raise {
+  json_string_bytes(encode_atlas_asset_document_json(atlas))
+}
+
+///|
+fn animation_clip_bytes(clip : AnimationClipAssetDocument) -> Bytes raise {
+  json_string_bytes(encode_animation_clip_asset_document_json(clip))
+}
+
+///|
+fn animation_graph_bytes(graph : AnimationGraphAssetDocument) -> Bytes raise {
+  json_string_bytes(encode_animation_graph_asset_document_json(graph))
 }
 
 ///|
@@ -392,68 +411,44 @@ test "runtime instantiation renders autotile layer tiles from source only" {
 test "codec decodes valid project and scene documents" {
   let manifest = ProjectManifest::default("demo")
   let scene = SceneDocument::default_main()
+  let manifest_json = @json.parse(encode_project_manifest_json(manifest))
+  let scene_json = @json.parse(encode_scene_snf(scene))
   inspect(
-    decode_project_manifest(manifest.to_json()) == manifest,
+    decode_project_manifest(manifest_json) == manifest,
     content="true",
   )
-  inspect(decode_scene_snf(scene.to_json()) == scene, content="true")
+  inspect(decode_scene_snf(scene_json) == scene, content="true")
 }
 
 ///|
-test "codec reports project manifest migration for missing v2 indexes" {
+test "codec rejects legacy project manifest without envelope" {
   let legacy_json = @json.parse(
     "{\n  \"version\": 2,\n  \"name\": \"Demo\",\n  \"startup_scene\": \"scenes/main.scene.json\",\n  \"asset_roots\": [\"assets/images\"]\n}\n",
   )
-  match decode_project_manifest_status("selene.project.json", legacy_json) {
-    MigrationRequired(preview) => {
-      inspect(preview.manifest.scene_index.length(), content="1")
-      inspect(
-        preview.manifest.scene_index[0].path,
-        content="scenes/main.scene.json",
-      )
-      inspect(preview.manifest.prefab_index.length(), content="0")
-      inspect(preview.changes.length(), content="5")
-    }
-    _ => fail("expected project manifest migration preview")
+  let result : Result[ProjectManifestLoadStatus, Error] =
+    try? decode_project_manifest_status("selene.project.json", legacy_json)
+  match result {
+    Err(InvalidProjectManifest(_)) => inspect(true, content="true")
+    _ => fail("expected invalid legacy project manifest")
   }
 }
 
 ///|
-test "codec reports scene migration only for v2 recoverable inputs" {
-  let recoverable_json = @json.parse(
+test "codec rejects legacy scene document without envelope" {
+  let legacy_json = @json.parse(
     "{\n  \"version\": 2,\n  \"entities\": [\n    {\n      \"id\": \"camera\",\n      \"components\": [\n        {\n          \"kind\": \"Transform2d\",\n          \"data\": {\n            \"translation\": { \"x\": 0, \"y\": 0 },\n            \"rotation\": 0,\n            \"scale\": { \"x\": 1, \"y\": 1 }\n          }\n        },\n        {\n          \"kind\": \"Camera2d\",\n          \"data\": { \"is_active\": true, \"order\": 0, \"scale\": 1 }\n        },\n        {\n          \"kind\": \"Visibility\",\n          \"data\": { \"visible\": true }\n        }\n      ]\n    }\n  ]\n}\n",
   )
-  match decode_scene_snf_status("scenes/main.scene.json", recoverable_json) {
-    MigrationRequired(preview) => {
-      inspect(preview.scene.name, content="Main")
-      inspect(preview.changes.length() > 0, content="true")
-    }
-    _ => fail("expected migration preview")
-  }
-
-  let unsupported_json = @json.parse(
-    "{\n  \"version\": 1,\n  \"entities\": []\n}\n",
-  )
   let result : Result[SceneDocumentLoadStatus, Error] = try? decode_scene_snf_status(
-    "scenes/main.scene.json", unsupported_json,
+    "scenes/main.scene.json", legacy_json,
   )
   match result {
     Err(InvalidSceneDocument(_)) => inspect(true, content="true")
-    _ => fail("expected non-migratable v1 scene to fail")
-  }
-
-  let migrated = migrate_scene_to_snf(
-    "scenes/main.scene.json", recoverable_json,
-  )
-  inspect(migrated.version == scene_schema_version, content="true")
-  match decode_scene_snf_status("scenes/main.scene.json", migrated.to_json()) {
-    Ready(_) => inspect(true, content="true")
-    _ => fail("expected migrated scene to be ready")
+    _ => fail("expected invalid legacy scene document")
   }
 }
 
 ///|
-test "loader accepts legacy v2 project manifest by auto-migrating indexes" {
+test "loader rejects legacy project manifest without envelope" {
   let scene = SceneDocument::default_main()
   let source = source_with_documents([
     (
@@ -462,11 +457,13 @@ test "loader accepts legacy v2 project manifest by auto-migrating indexes" {
         "{\n  \"version\": 2,\n  \"name\": \"demo\",\n  \"startup_scene\": \"scenes/demo.scene.json\",\n  \"asset_roots\": [\"assets/images\"]\n}\n",
       ),
     ),
-    ("scenes/demo.scene.json", json_bytes(scene)),
+    ("scenes/demo.scene.json", scene_bytes(scene)),
   ])
-  let bundle = load_project_bundle(source)
-  inspect(bundle.manifest.scene_index.length(), content="1")
-  inspect(bundle.manifest.scene_index[0].path, content="scenes/demo.scene.json")
+  let result : Result[ProjectBundle, Error] = try? load_project_bundle(source)
+  match result {
+    Err(InvalidProjectManifest(_)) => inspect(true, content="true")
+    _ => fail("expected invalid legacy project manifest")
+  }
 }
 
 ///|
@@ -497,11 +494,11 @@ test "loader builds a project bundle with atlas and animation dependencies" {
     ]),
   )
   let source = source_with_documents([
-    ("selene.project.json", json_bytes(manifest)),
-    (scene_path, json_bytes(scene)),
-    (atlas_path, json_bytes(atlas)),
-    (clip_path, json_bytes(clip)),
-    (graph_path, json_bytes(graph)),
+    ("selene.project.json", manifest_bytes(manifest)),
+    (scene_path, scene_bytes(scene)),
+    (atlas_path, atlas_bytes(atlas)),
+    (clip_path, animation_clip_bytes(clip)),
+    (graph_path, animation_graph_bytes(graph)),
   ])
   let bundle = load_project_bundle(source)
   inspect(bundle.scene_path, content="scenes/main.scene.json")
@@ -514,7 +511,7 @@ test "loader builds a project bundle with atlas and animation dependencies" {
 ///|
 test "loader fails clearly for missing and invalid dependency documents" {
   let source_missing = source_with_documents([
-    ("selene.project.json", json_bytes(ProjectManifest::default("demo"))),
+    ("selene.project.json", manifest_bytes(ProjectManifest::default("demo"))),
   ])
   let missing_result : Result[ProjectBundle, Error] = try? load_project_bundle(
     source_missing,
@@ -533,8 +530,8 @@ test "loader fails clearly for missing and invalid dependency documents" {
     ]),
   )
   let source_invalid = source_with_documents([
-    ("selene.project.json", json_bytes(ProjectManifest::default("demo"))),
-    ("scenes/demo.scene.json", json_bytes(scene)),
+    ("selene.project.json", manifest_bytes(ProjectManifest::default("demo"))),
+    ("scenes/demo.scene.json", scene_bytes(scene)),
     (atlas_path, json_string_bytes("{\"version\":2,\"name\":")),
   ])
   let invalid_result : Result[ProjectBundle, Error] = try? load_project_bundle(

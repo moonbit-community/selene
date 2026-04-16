@@ -4,7 +4,7 @@ fn legacy_scene_json() -> String {
 }
 
 ///|
-async test "bdd recovery legacy startup scene asks for confirmation and cancel keeps file unchanged" {
+async test "bdd recovery legacy startup scene fails open without migration flow" {
   @async.with_task_group(group => {
     let harness = given_editor_harness()
     group.add_defer(() => harness.cleanup())
@@ -19,27 +19,23 @@ async test "bdd recovery legacy startup scene asks for confirmation and cancel k
     harness.when_editor_initialized()
 
     inspect(harness.scene() is None, content="true")
-    inspect(harness.pending_scene_migration() is Some(_), content="true")
+    inspect(harness.pending_scene_migration() is None, content="true")
     inspect(
       harness.status(),
-      content="Scene format migration required (SNF v1)",
+      content="Scene load failed. Check browser console for details.",
     )
-
-    harness.when_pending_scene_migration_is_cancelled()
-
-    inspect(harness.scene() is None, content="true")
-    inspect(harness.pending_scene_migration() is None, content="true")
-    inspect(harness.preview_scene() is None, content="true")
-    inspect(
-      harness.read_scene_document_status("scenes/main.scene.json")
-      is @editor_bridge.MigrationRequired(_),
-      content="true",
-    )
+    let scene_status_result : Result[@editor_bridge.SceneDocumentLoadStatus, Error] =
+      try? harness.read_scene_document_status("scenes/main.scene.json")
+    match scene_status_result {
+      Err(@editor_bridge.InvalidSceneDocument(_)) =>
+        inspect(true, content="true")
+      _ => fail("expected legacy scene decode to fail")
+    }
   })
 }
 
 ///|
-async test "bdd recovery legacy startup scene can be confirmed migrated and loaded" {
+async test "bdd recovery confirm/cancel migration are no-op without pending migration" {
   @async.with_task_group(group => {
     let harness = given_editor_harness()
     group.add_defer(() => harness.cleanup())
@@ -53,16 +49,16 @@ async test "bdd recovery legacy startup scene can be confirmed migrated and load
     harness.given_text_file("scenes/main.scene.json", legacy_scene_json())
 
     harness.when_editor_initialized()
-    inspect(harness.pending_scene_migration() is Some(_), content="true")
+    inspect(harness.pending_scene_migration() is None, content="true")
 
     harness.when_pending_scene_migration_is_confirmed()
+    harness.when_pending_scene_migration_is_cancelled()
 
-    inspect(harness.scene() is Some(_), content="true")
+    inspect(harness.scene() is None, content="true")
     inspect(harness.pending_scene_migration() is None, content="true")
-    inspect(harness.preview_scene() == harness.scene(), content="true")
     inspect(
-      harness.read_scene_document("scenes/main.scene.json").name,
-      content="Main",
+      harness.status(),
+      content="Scene load failed. Check browser console for details.",
     )
   })
 }
@@ -95,7 +91,7 @@ async test "bdd recovery invalid workspace blocks open with stable project error
 }
 
 ///|
-async test "bdd recovery legacy project manifest missing indexes is auto-migrated on open" {
+async test "bdd recovery legacy project manifest is rejected on open" {
   @async.with_task_group(group => {
     let harness = given_editor_harness()
     group.add_defer(() => harness.cleanup())
@@ -110,16 +106,22 @@ async test "bdd recovery legacy project manifest missing indexes is auto-migrate
 
     harness.when_editor_initialized()
 
-    inspect(harness.scene() is Some(_), content="true")
-    let manifest = harness.manifest().unwrap()
-    inspect(manifest.scene_index.length(), content="1")
+    inspect(harness.scene() is None, content="true")
+    inspect(harness.manifest() is None, content="true")
     inspect(
-      @editor_bridge.decode_project_manifest(
+      harness.status(),
+      content="Project open failed. Check browser console for details.",
+    )
+    let manifest_result : Result[@editor_bridge.ProjectManifest, Error] =
+      try? @editor_bridge.decode_project_manifest(
         @json.parse(
           @fs.read_file(harness.project_root_path() + "/selene.project.json").text(),
         ),
-      ).scene_index.length(),
-      content="1",
-    )
+      )
+    match manifest_result {
+      Err(@editor_bridge.InvalidProjectManifest(_)) =>
+        inspect(true, content="true")
+      _ => fail("expected legacy project manifest decode to fail")
+    }
   })
 }

@@ -116,8 +116,6 @@ fn msg_for_rpc_target(target : @app.RpcTarget, payload : Json) -> @app.Msg {
         match response {
           @shared.SceneLoaded(scene~) =>
             Ok(@shared.scene_load_outcome_loaded(scene))
-          @shared.SceneMigrationRequired(preview~) =>
-            Ok(@shared.scene_load_outcome_migration_required(preview))
           @shared.Error(error~) => Err(error.message)
           _ => Err("Unexpected RPC response for scene")
         },
@@ -604,13 +602,9 @@ async fn ensure_project_layout(root : String) -> Unit {
 }
 
 ///|
-async fn write_json_file(path : String, value : &ToJson) -> Unit {
+async fn write_text_file(path : String, content : String) -> Unit {
   ensure_parent_dir(path)
-  @fs.write_file(
-    path,
-    @utf8.encode(value.to_json().stringify(indent=2) + "\n"),
-    create=0o644,
-  )
+  @fs.write_file(path, @utf8.encode(content), create=0o644)
 }
 
 ///|
@@ -669,8 +663,8 @@ pub async fn EditorHarness::given_project_manifest(
   manifest : @editor_bridge.ProjectManifest,
 ) -> Unit {
   ensure_project_layout(self.project_root)
-  ignore(@editor_bridge.decode_project_manifest(manifest.to_json()))
-  write_json_file(self.project_root + "/selene.project.json", manifest)
+  let encoded = @editor_bridge.encode_project_manifest_json(manifest)
+  write_text_file(self.project_root + "/selene.project.json", encoded)
 }
 
 ///|
@@ -680,8 +674,8 @@ pub async fn EditorHarness::given_scene_document(
   scene : @editor_bridge.SceneDocument,
 ) -> Unit {
   ensure_project_layout(self.project_root)
-  ignore(@editor_bridge.decode_scene_snf(scene.to_json()))
-  write_json_file(self.project_root + "/" + relative_path, scene)
+  let encoded = @editor_bridge.encode_scene_snf(scene)
+  write_text_file(self.project_root + "/" + relative_path, encoded)
 }
 
 ///|
@@ -691,8 +685,8 @@ pub async fn EditorHarness::given_prefab_document(
   prefab : @editor_bridge.PrefabDocument,
 ) -> Unit {
   ensure_project_layout(self.project_root)
-  ignore(@editor_bridge.decode_prefab_document(prefab.to_json()))
-  write_json_file(self.project_root + "/" + relative_path, prefab)
+  let encoded = @editor_bridge.encode_prefab_document_json(prefab)
+  write_text_file(self.project_root + "/" + relative_path, encoded)
 }
 
 ///|
@@ -702,8 +696,8 @@ pub async fn EditorHarness::given_atlas_document(
   atlas : @editor_bridge.AtlasAssetDocument,
 ) -> Unit {
   ensure_project_layout(self.project_root)
-  ignore(@editor_bridge.decode_atlas_asset_document(atlas.to_json()))
-  write_json_file(self.project_root + "/" + relative_path, atlas)
+  let encoded = @editor_bridge.encode_atlas_asset_document_json(atlas)
+  write_text_file(self.project_root + "/" + relative_path, encoded)
 }
 
 ///|
@@ -713,10 +707,10 @@ pub async fn EditorHarness::given_animation_document(
   animation : @editor_bridge.AnimationClipAssetDocument,
 ) -> Unit {
   ensure_project_layout(self.project_root)
-  ignore(
-    @editor_bridge.decode_animation_clip_asset_document(animation.to_json()),
+  let encoded = @editor_bridge.encode_animation_clip_asset_document_json(
+    animation,
   )
-  write_json_file(self.project_root + "/" + relative_path, animation)
+  write_text_file(self.project_root + "/" + relative_path, encoded)
 }
 
 ///|

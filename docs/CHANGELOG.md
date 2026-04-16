@@ -4,6 +4,26 @@
 
 ### Added
 
+### Changed
+
+- Changed `selene-editor-frontend/frontend` view composition by extracting inspector/component graph panel render helpers from `top.mbt` into `inspector_components_view.mbt`, reducing the single-file hotspot size while keeping behavior unchanged.
+- Changed large-file architecture across core/render/editor packages by splitting former hotspot files into focused modules (`scene3d`, `physics3d`, `animation`, `collision/rapier2d`, `ldtk`, `raylib`, `webgpu`, `editor-frontend`) and keeping package `top.mbt` files as facade-only entrypoints.
+- Changed render backend naming/contracts to unified frame/pass semantics (`frame_begin/frame_end`, `render2d_begin_pass/render2d_end_pass`, `render3d_submit`) and updated backend platform call sites accordingly.
+- Changed editor-bridge persistence to envelope-only document protocol (`{ schema, version, data }`) for project/scene/prefab/atlas/animation-clip/animation-graph/workspace, with service/spec/example write paths updated to the new format.
+- Changed editor open/load runtime behavior to hard-fail legacy non-envelope scene/project documents instead of entering migration-confirmation flow.
+- Changed editor shared/frontend/service RPC scene-load contract to loaded-or-error only, removing runtime dependence on migration-preview responses.
+
+### Fixed
+
+### Removed
+
+- Removed scene migration request/response protocol paths (`SceneMigrate`, `SceneMigrationRequired`, and `SceneLoadOutcome.MigrationRequired`) from editor shared/service/frontend runtime chains.
+- Removed public `migrate_*` codec API surface from `selene/editor_bridge` runtime codec entrypoints.
+
+## [0.32.3] - 2026-04-16
+
+### Added
+
 - Added `selene/autotile2d` core solver/runtime module with three rule-set families (`Bitmask4`, `Bitmask8`, `Wang`), deterministic solve output, and incremental cell diff APIs (`solve_autotile_layer`, `update_cell_and_resolve_diff`, runtime layer register/set/remove/rebuild helpers).
 - Added `AutoTileLayer2d` as a built-in editor-bridge scene component (`AutoTileRuleSetDocument`, palette/cell documents, default component factory, scene validation coverage) and wired scene instantiation to spawn runtime visual tiles through `autotile2d`.
 - Added editor AutoTile authoring flow with dedicated viewport tools (`AutoTile Paint`, `AutoTile Erase`, `AutoTile Fill`), brush terrain sync to preview, and `AutoTileLayer2d` Inspector controls (atlas path, tile size, origin, rule set, brush terrain).
@@ -45,6 +65,7 @@
 - Fixed `selene-editor-specs` harness effect processing to cover sidebar layout subscription effects, restoring exhaustive `@app.Effect` handling after the sidebar layout feature landed.
 - Fixed `text2d` per-frame relayout overhead by caching text layout/measurement outputs keyed by layout-affecting inputs and invalidating on key changes.
 - Fixed newly introduced 2D camera-grid culling helpers (`culling2d`) and package interfaces so sprite/text/mesh camera prefiltering compiles and runs under `--deny-warn`.
+- Fixed `selene-webgpu` 3D primitive rendering (`Cube`/`Sphere`/`Cylinder`/`Plane`) to honor material texture bindings by routing textured primitives through the textured-triangle submission path instead of color-only draw calls.
 
 ### Removed
 

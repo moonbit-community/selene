@@ -28,45 +28,8 @@ fn update_project_runtime(
     ProjectRootPicked(result) => handle_project_root_picked(result, model)
     ProjectLoaded(result) => handle_project_loaded(result, model)
     SceneLoaded(result) => handle_scene_loaded(result, model)
-    ConfirmSceneMigration =>
-      match model.pending_scene_migration {
-        Some(preview) =>
-          (
-            [
-              rpc_effect(
-                SceneLoaded,
-                @shared.rpc_request_scene_migrate(preview.path),
-              ),
-            ],
-            { ..model, status: "Migrating " + preview.path + "..." },
-          )
-        None => ([], model)
-      }
-    CancelSceneMigration => {
-      let workspace = model.workspace.with_selected_entity_id(None)
-      (
-        [Preview(@bridge.preview_command_clear_scene())],
-        {
-          ..model,
-          scene_session: None,
-          selected_entity_id: None,
-          selected_entity_ids: [],
-          pending_scene_migration: None,
-          pending_animation_migration_paths: [],
-          pending_animation_migration_scene_path: None,
-          animation_migration_in_progress: false,
-          animation_migration_total: 0,
-          animation_migration_completed: 0,
-          animation_migration_failed: 0,
-          animation_migration_prompt_dismissed: false,
-          add_component_panel_open: false,
-          component_search_query: "",
-          open_component_menu_kind: None,
-          workspace,
-          status: "Scene migration cancelled",
-        },
-      )
-    }
+    ConfirmSceneMigration => ([], model)
+    CancelSceneMigration => ([], model)
     ConfirmAnimationMigration =>
       if model.animation_migration_in_progress {
         ([], model)

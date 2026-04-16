@@ -204,33 +204,6 @@ fn handle_scene_loaded(
       }
       (sync_preview_effects_with_scene(next), next)
     }
-    Ok(@shared.MigrationRequired(preview)) => {
-      let next = {
-        ..model,
-        scene_session: None,
-        selected_entity_id: None,
-        selected_entity_ids: [],
-        pending_scene_migration: Some(preview),
-        pending_animation_migration_paths: [],
-        pending_animation_migration_scene_path: None,
-        animation_migration_in_progress: false,
-        animation_migration_total: 0,
-        animation_migration_completed: 0,
-        animation_migration_failed: 0,
-        animation_migration_prompt_dismissed: false,
-        add_component_panel_open: false,
-        component_search_query: "",
-        open_component_menu_kind: None,
-        status: "Scene format migration required (SNF v1)",
-      }
-      let cleared = next.workspace
-        .with_last_scene(Some(preview.path))
-        .with_selected_entity_id(None)
-      (
-        [Preview(@bridge.preview_command_clear_scene())],
-        { ..next, workspace: cleared },
-      )
-    }
     Err(message) => {
       ignore(message)
       let next = push_log(model, scene_load_failed_message())

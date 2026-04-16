@@ -80,6 +80,12 @@ const MAX_POINT_LIGHTS : Int = 8
 const MAX_SPOT_LIGHTS : Int = 4
 
 ///|
+const TEXTURED_SPHERE_SLICES : Int = 24
+
+///|
+const TEXTURED_SPHERE_STACKS : Int = 16
+
+///|
 let synced_mesh_assets : Map[
   @render3d_types.MeshHandle,
   @render3d_types.MeshAsset,
@@ -127,7 +133,7 @@ pub fn preload_img(path : String) -> Unit {
 }
 
 ///|
-pub fn begin_frame(clear : @render.Color) -> Unit {
+pub fn frame_begin(clear : @render.Color) -> Unit {
   webgpu_begin_frame(
     clear.r.reinterpret_as_int().to_double() / 255.0,
     clear.g.reinterpret_as_int().to_double() / 255.0,
@@ -137,7 +143,7 @@ pub fn begin_frame(clear : @render.Color) -> Unit {
 }
 
 ///|
-pub fn end_frame() -> Unit {
+pub fn frame_end() -> Unit {
   webgpu_end_frame()
 }
 
@@ -158,7 +164,7 @@ pub fn capture_frame_png_to_file(_path : String) -> Bool {
 }
 
 ///|
-pub fn begin_2d_pass(
+pub fn render2d_begin_pass(
   viewport : @smath.Rect,
   load_op : @render2d_types.RenderPassLoadOp2D,
   clear_color : @render.Color,
@@ -188,7 +194,7 @@ pub fn begin_2d_pass(
 }
 
 ///|
-pub fn end_2d_pass() -> Unit {
+pub fn render2d_end_pass() -> Unit {
   webgpu_end_2d_pass()
 }
 
@@ -499,7 +505,7 @@ pub fn release_image_asset(handle : @render3d_types.ImageHandle) -> Unit {
 }
 
 ///|
-pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
+pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
   guard frame.camera is Some(active_camera) else { return }
   configure_scene_lighting(frame)
   begin_3d(active_camera)
@@ -519,268 +525,876 @@ pub fn render_3d_frame(frame : @render3d_types.RenderFrame3D) -> Unit {
     let alpha_mode = alpha_mode_code(material.alpha_mode)
     let alpha_cutoff = material.alpha_cutoff
     let unlit = material.unlit
+    let texture_bundle = resolve_material_texture_bundle(material)
     match mesh_asset.primitive {
       Cube(size) =>
-        webgpu_draw_cube_3d(
-          center.x,
-          center.y,
-          center.z,
-          size.x * item.transform.scale.x,
-          size.y * item.transform.scale.y,
-          size.z * item.transform.scale.z,
-          rotation.x,
-          rotation.y,
-          rotation.z,
-          rotation.w,
-          color.r.reinterpret_as_int().to_double(),
-          color.g.reinterpret_as_int().to_double(),
-          color.b.reinterpret_as_int().to_double(),
-          color.a,
-          emissive_r,
-          emissive_g,
-          emissive_b,
-          alpha_mode,
-          alpha_cutoff,
-          unlit,
-          item.cast_shadows,
-          item.receive_shadows,
-        )
+        match texture_bundle {
+          Some(bundle) =>
+            draw_triangle_mesh_instance(
+              build_cuboid_triangle_mesh3d(
+                size.x * item.transform.scale.x,
+                size.y * item.transform.scale.y,
+                size.z * item.transform.scale.z,
+                uv_set_count=required_primitive_uv_set_count(bundle),
+              ),
+              material,
+              Some(bundle),
+              color,
+              center,
+              rotation,
+              @smath.Vec3::one(),
+              false,
+              item.cast_shadows,
+              item.receive_shadows,
+            )
+          None =>
+            webgpu_draw_cube_3d(
+              center.x,
+              center.y,
+              center.z,
+              size.x * item.transform.scale.x,
+              size.y * item.transform.scale.y,
+              size.z * item.transform.scale.z,
+              rotation.x,
+              rotation.y,
+              rotation.z,
+              rotation.w,
+              color.r.reinterpret_as_int().to_double(),
+              color.g.reinterpret_as_int().to_double(),
+              color.b.reinterpret_as_int().to_double(),
+              color.a,
+              emissive_r,
+              emissive_g,
+              emissive_b,
+              alpha_mode,
+              alpha_cutoff,
+              unlit,
+              item.cast_shadows,
+              item.receive_shadows,
+            )
+        }
       Sphere(radius) =>
-        webgpu_draw_sphere_3d(
-          center.x,
-          center.y,
-          center.z,
-          scaled_radius(radius, item.transform.scale),
-          rotation.x,
-          rotation.y,
-          rotation.z,
-          rotation.w,
-          color.r.reinterpret_as_int().to_double(),
-          color.g.reinterpret_as_int().to_double(),
-          color.b.reinterpret_as_int().to_double(),
-          color.a,
-          emissive_r,
-          emissive_g,
-          emissive_b,
-          alpha_mode,
-          alpha_cutoff,
-          unlit,
-          item.cast_shadows,
-          item.receive_shadows,
-        )
+        match texture_bundle {
+          Some(bundle) =>
+            draw_triangle_mesh_instance(
+              build_sphere_triangle_mesh3d(
+                scaled_radius(radius, item.transform.scale),
+                TEXTURED_SPHERE_SLICES,
+                TEXTURED_SPHERE_STACKS,
+                uv_set_count=required_primitive_uv_set_count(bundle),
+              ),
+              material,
+              Some(bundle),
+              color,
+              center,
+              rotation,
+              @smath.Vec3::one(),
+              false,
+              item.cast_shadows,
+              item.receive_shadows,
+            )
+          None =>
+            webgpu_draw_sphere_3d(
+              center.x,
+              center.y,
+              center.z,
+              scaled_radius(radius, item.transform.scale),
+              rotation.x,
+              rotation.y,
+              rotation.z,
+              rotation.w,
+              color.r.reinterpret_as_int().to_double(),
+              color.g.reinterpret_as_int().to_double(),
+              color.b.reinterpret_as_int().to_double(),
+              color.a,
+              emissive_r,
+              emissive_g,
+              emissive_b,
+              alpha_mode,
+              alpha_cutoff,
+              unlit,
+              item.cast_shadows,
+              item.receive_shadows,
+            )
+        }
       Cylinder(radius_top, radius_bottom, height, slices) =>
-        webgpu_draw_cylinder_3d(
-          center.x,
-          center.y,
-          center.z,
-          scaled_radius(radius_top, item.transform.scale),
-          scaled_radius(radius_bottom, item.transform.scale),
-          height * item.transform.scale.y.abs(),
-          slices,
-          rotation.x,
-          rotation.y,
-          rotation.z,
-          rotation.w,
-          color.r.reinterpret_as_int().to_double(),
-          color.g.reinterpret_as_int().to_double(),
-          color.b.reinterpret_as_int().to_double(),
-          color.a,
-          emissive_r,
-          emissive_g,
-          emissive_b,
-          alpha_mode,
-          alpha_cutoff,
-          unlit,
-          item.cast_shadows,
-          item.receive_shadows,
-        )
+        match texture_bundle {
+          Some(bundle) =>
+            draw_triangle_mesh_instance(
+              build_cylinder_triangle_mesh3d(
+                scaled_radius(radius_top, item.transform.scale),
+                scaled_radius(radius_bottom, item.transform.scale),
+                height * item.transform.scale.y.abs(),
+                slices,
+                uv_set_count=required_primitive_uv_set_count(bundle),
+              ),
+              material,
+              Some(bundle),
+              color,
+              center,
+              rotation,
+              @smath.Vec3::one(),
+              false,
+              item.cast_shadows,
+              item.receive_shadows,
+            )
+          None =>
+            webgpu_draw_cylinder_3d(
+              center.x,
+              center.y,
+              center.z,
+              scaled_radius(radius_top, item.transform.scale),
+              scaled_radius(radius_bottom, item.transform.scale),
+              height * item.transform.scale.y.abs(),
+              slices,
+              rotation.x,
+              rotation.y,
+              rotation.z,
+              rotation.w,
+              color.r.reinterpret_as_int().to_double(),
+              color.g.reinterpret_as_int().to_double(),
+              color.b.reinterpret_as_int().to_double(),
+              color.a,
+              emissive_r,
+              emissive_g,
+              emissive_b,
+              alpha_mode,
+              alpha_cutoff,
+              unlit,
+              item.cast_shadows,
+              item.receive_shadows,
+            )
+        }
       Plane(size) => {
         let scaled = scaled_vec3(size, item.transform.scale)
         let y = if scaled.y.abs() < 0.0001 { 0.02 } else { scaled.y }
-        webgpu_draw_cube_3d(
-          center.x,
-          center.y,
-          center.z,
-          scaled.x,
-          y,
-          scaled.z,
-          rotation.x,
-          rotation.y,
-          rotation.z,
-          rotation.w,
-          color.r.reinterpret_as_int().to_double(),
-          color.g.reinterpret_as_int().to_double(),
-          color.b.reinterpret_as_int().to_double(),
-          color.a,
-          emissive_r,
-          emissive_g,
-          emissive_b,
-          alpha_mode,
-          alpha_cutoff,
-          unlit,
+        match texture_bundle {
+          Some(bundle) =>
+            draw_triangle_mesh_instance(
+              build_cuboid_triangle_mesh3d(
+                scaled.x,
+                y,
+                scaled.z,
+                uv_set_count=required_primitive_uv_set_count(bundle),
+              ),
+              material,
+              Some(bundle),
+              color,
+              center,
+              rotation,
+              @smath.Vec3::one(),
+              false,
+              item.cast_shadows,
+              item.receive_shadows,
+            )
+          None =>
+            webgpu_draw_cube_3d(
+              center.x,
+              center.y,
+              center.z,
+              scaled.x,
+              y,
+              scaled.z,
+              rotation.x,
+              rotation.y,
+              rotation.z,
+              rotation.w,
+              color.r.reinterpret_as_int().to_double(),
+              color.g.reinterpret_as_int().to_double(),
+              color.b.reinterpret_as_int().to_double(),
+              color.a,
+              emissive_r,
+              emissive_g,
+              emissive_b,
+              alpha_mode,
+              alpha_cutoff,
+              unlit,
+              item.cast_shadows,
+              item.receive_shadows,
+            )
+        }
+      }
+      Triangles(mesh) =>
+        draw_triangle_mesh_instance(
+          mesh,
+          material,
+          texture_bundle,
+          color,
+          center,
+          rotation,
+          item.transform.scale,
+          material.double_sided,
           item.cast_shadows,
           item.receive_shadows,
         )
-      }
-      Triangles(mesh) =>
-        if resolve_triangle_indices(mesh) is Some(triangle_indices) &&
-          triangle_indices.length() >= 3 {
-          let normals = resolve_mesh_normals(mesh)
-          let tangents = resolve_mesh_tangents(mesh)
-          match resolve_material_texture_bundle(material) {
-            Some(bundle) =>
-              match mesh.uv_sets.get(bundle.primary_texcoord_set) {
-                Some(primary_uvs) =>
-                  if primary_uvs.length() == mesh.positions.length() &&
-                    normals.length() == mesh.positions.length() {
-                    let base_input = resolve_material_texture_input(
-                      mesh,
-                      bundle.base_source,
-                      primary_uvs,
-                      transform_binding=material.base_color_texture,
-                    )
-                    let emissive_input = resolve_material_texture_input(
-                      mesh,
-                      bundle.emissive_source,
-                      primary_uvs,
-                      transform_binding=material.emissive_texture,
-                    )
-                    let metallic_roughness_input = resolve_material_texture_input(
-                      mesh,
-                      bundle.metallic_roughness_source,
-                      primary_uvs,
-                      transform_binding=material.metallic_roughness_texture,
-                    )
-                    let occlusion_input = resolve_material_texture_input(
-                      mesh,
-                      bundle.occlusion_source,
-                      primary_uvs,
-                      transform_binding=material.occlusion_texture,
-                    )
-                    let normal_input = resolve_material_texture_input(
-                      mesh,
-                      bundle.normal_source,
-                      primary_uvs,
-                      transform_binding=material.normal_texture,
-                    )
-                    webgpu_draw_textured_triangles_3d(
-                      base_input.path,
-                      emissive_input.path,
-                      metallic_roughness_input.path,
-                      occlusion_input.path,
-                      if tangents.length() == mesh.positions.length() {
-                        normal_input.path
-                      } else {
-                        ""
-                      },
-                      base_input.sampler_code,
-                      emissive_input.sampler_code,
-                      metallic_roughness_input.sampler_code,
-                      occlusion_input.sampler_code,
-                      normal_input.sampler_code,
-                      flatten_textured_vertices3d(
-                        mesh.positions,
-                        triangle_indices,
-                        base_input.uvs,
-                        emissive_input.uvs,
-                        metallic_roughness_input.uvs,
-                        occlusion_input.uvs,
-                        normal_input.uvs,
-                        normals,
-                        tangents,
-                        mesh.colors,
-                        item.transform.scale,
-                        material,
-                        color,
-                        item.receive_shadows,
-                      ),
-                      center.x,
-                      center.y,
-                      center.z,
-                      rotation.x,
-                      rotation.y,
-                      rotation.z,
-                      rotation.w,
-                      material.double_sided,
-                      item.cast_shadows,
-                      item.receive_shadows,
-                    )
-                  } else {
-                    webgpu_draw_colored_triangles_3d(
-                      flatten_colored_vertices3d(
-                        mesh.positions,
-                        triangle_indices,
-                        normals,
-                        mesh.colors,
-                        item.transform.scale,
-                        material,
-                        color,
-                        item.receive_shadows,
-                      ),
-                      center.x,
-                      center.y,
-                      center.z,
-                      rotation.x,
-                      rotation.y,
-                      rotation.z,
-                      rotation.w,
-                      material.double_sided,
-                      item.cast_shadows,
-                      item.receive_shadows,
-                    )
-                  }
-                None =>
-                  webgpu_draw_colored_triangles_3d(
-                    flatten_colored_vertices3d(
-                      mesh.positions,
-                      triangle_indices,
-                      normals,
-                      mesh.colors,
-                      item.transform.scale,
-                      material,
-                      color,
-                      item.receive_shadows,
-                    ),
-                    center.x,
-                    center.y,
-                    center.z,
-                    rotation.x,
-                    rotation.y,
-                    rotation.z,
-                    rotation.w,
-                    material.double_sided,
-                    item.cast_shadows,
-                    item.receive_shadows,
-                  )
-              }
-            None =>
-              webgpu_draw_colored_triangles_3d(
-                flatten_colored_vertices3d(
+    }
+  }
+  end_3d()
+}
+
+///|
+fn draw_triangle_mesh_instance(
+  mesh : @render3d_types.TriangleMesh3D,
+  material : @render3d_types.StandardMaterial3D,
+  texture_bundle : MaterialTextureBundle3D?,
+  color : @render.Color,
+  translation : @smath.Vec3,
+  rotation : @smath.Quat,
+  scale : @smath.Vec3,
+  double_sided : Bool,
+  cast_shadows : Bool,
+  receive_shadows : Bool,
+) -> Unit {
+  if resolve_triangle_indices(mesh) is Some(triangle_indices) &&
+    triangle_indices.length() >= 3 {
+    let normals = resolve_mesh_normals(mesh)
+    let tangents = resolve_mesh_tangents(mesh)
+    let draw_colored = fn() {
+      webgpu_draw_colored_triangles_3d(
+        flatten_colored_vertices3d(
+          mesh.positions,
+          triangle_indices,
+          normals,
+          mesh.colors,
+          scale,
+          material,
+          color,
+          receive_shadows,
+        ),
+        translation.x,
+        translation.y,
+        translation.z,
+        rotation.x,
+        rotation.y,
+        rotation.z,
+        rotation.w,
+        double_sided,
+        cast_shadows,
+        receive_shadows,
+      )
+    }
+    match texture_bundle {
+      Some(bundle) =>
+        match mesh.uv_sets.get(bundle.primary_texcoord_set) {
+          Some(primary_uvs) =>
+            if primary_uvs.length() == mesh.positions.length() &&
+              normals.length() == mesh.positions.length() {
+              let base_input = resolve_material_texture_input(
+                mesh,
+                bundle.base_source,
+                primary_uvs,
+                transform_binding=material.base_color_texture,
+              )
+              let emissive_input = resolve_material_texture_input(
+                mesh,
+                bundle.emissive_source,
+                primary_uvs,
+                transform_binding=material.emissive_texture,
+              )
+              let metallic_roughness_input = resolve_material_texture_input(
+                mesh,
+                bundle.metallic_roughness_source,
+                primary_uvs,
+                transform_binding=material.metallic_roughness_texture,
+              )
+              let occlusion_input = resolve_material_texture_input(
+                mesh,
+                bundle.occlusion_source,
+                primary_uvs,
+                transform_binding=material.occlusion_texture,
+              )
+              let normal_input = resolve_material_texture_input(
+                mesh,
+                bundle.normal_source,
+                primary_uvs,
+                transform_binding=material.normal_texture,
+              )
+              webgpu_draw_textured_triangles_3d(
+                base_input.path,
+                emissive_input.path,
+                metallic_roughness_input.path,
+                occlusion_input.path,
+                if tangents.length() == mesh.positions.length() {
+                  normal_input.path
+                } else {
+                  ""
+                },
+                base_input.sampler_code,
+                emissive_input.sampler_code,
+                metallic_roughness_input.sampler_code,
+                occlusion_input.sampler_code,
+                normal_input.sampler_code,
+                flatten_textured_vertices3d(
                   mesh.positions,
                   triangle_indices,
+                  base_input.uvs,
+                  emissive_input.uvs,
+                  metallic_roughness_input.uvs,
+                  occlusion_input.uvs,
+                  normal_input.uvs,
                   normals,
+                  tangents,
                   mesh.colors,
-                  item.transform.scale,
+                  scale,
                   material,
                   color,
-                  item.receive_shadows,
+                  receive_shadows,
                 ),
-                center.x,
-                center.y,
-                center.z,
+                translation.x,
+                translation.y,
+                translation.z,
                 rotation.x,
                 rotation.y,
                 rotation.z,
                 rotation.w,
-                material.double_sided,
-                item.cast_shadows,
-                item.receive_shadows,
+                double_sided,
+                cast_shadows,
+                receive_shadows,
               )
-          }
+            } else {
+              draw_colored()
+            }
+          None => draw_colored()
         }
+      None => draw_colored()
     }
   }
-  end_3d()
+}
+
+///|
+fn build_cuboid_triangle_mesh3d(
+  size_x : Double,
+  size_y : Double,
+  size_z : Double,
+  uv_set_count? : Int = 1,
+) -> @render3d_types.TriangleMesh3D {
+  let positions : Array[@smath.Vec3] = []
+  let uvs : Array[@smath.Vec2] = []
+  let normals : Array[@smath.Vec3] = []
+  let half_x = size_x / 2.0
+  let half_y = size_y / 2.0
+  let half_z = size_z / 2.0
+  let p000 = @smath.Vec3::new(-half_x, -half_y, -half_z)
+  let p001 = @smath.Vec3::new(-half_x, -half_y, half_z)
+  let p010 = @smath.Vec3::new(-half_x, half_y, -half_z)
+  let p011 = @smath.Vec3::new(-half_x, half_y, half_z)
+  let p100 = @smath.Vec3::new(half_x, -half_y, -half_z)
+  let p101 = @smath.Vec3::new(half_x, -half_y, half_z)
+  let p110 = @smath.Vec3::new(half_x, half_y, -half_z)
+  let p111 = @smath.Vec3::new(half_x, half_y, half_z)
+  let uv00 = @smath.Vec2(0.0, 0.0)
+  let uv10 = @smath.Vec2(1.0, 0.0)
+  let uv01 = @smath.Vec2(0.0, 1.0)
+  let uv11 = @smath.Vec2(1.0, 1.0)
+  let normal_front = @smath.Vec3::new(0.0, 0.0, 1.0)
+  push_textured_triangle3d(
+    positions,
+    uvs,
+    normals,
+    p001,
+    p101,
+    p111,
+    uv01,
+    uv11,
+    uv10,
+    normal_front,
+    normal_front,
+    normal_front,
+  )
+  push_textured_triangle3d(
+    positions,
+    uvs,
+    normals,
+    p001,
+    p111,
+    p011,
+    uv01,
+    uv10,
+    uv00,
+    normal_front,
+    normal_front,
+    normal_front,
+  )
+  let normal_back = @smath.Vec3::new(0.0, 0.0, -1.0)
+  push_textured_triangle3d(
+    positions,
+    uvs,
+    normals,
+    p100,
+    p000,
+    p010,
+    uv01,
+    uv11,
+    uv10,
+    normal_back,
+    normal_back,
+    normal_back,
+  )
+  push_textured_triangle3d(
+    positions,
+    uvs,
+    normals,
+    p100,
+    p010,
+    p110,
+    uv01,
+    uv10,
+    uv00,
+    normal_back,
+    normal_back,
+    normal_back,
+  )
+  let normal_right = @smath.Vec3::new(1.0, 0.0, 0.0)
+  push_textured_triangle3d(
+    positions,
+    uvs,
+    normals,
+    p101,
+    p100,
+    p110,
+    uv01,
+    uv11,
+    uv10,
+    normal_right,
+    normal_right,
+    normal_right,
+  )
+  push_textured_triangle3d(
+    positions,
+    uvs,
+    normals,
+    p101,
+    p110,
+    p111,
+    uv01,
+    uv10,
+    uv00,
+    normal_right,
+    normal_right,
+    normal_right,
+  )
+  let normal_left = @smath.Vec3::new(-1.0, 0.0, 0.0)
+  push_textured_triangle3d(
+    positions,
+    uvs,
+    normals,
+    p000,
+    p001,
+    p011,
+    uv01,
+    uv11,
+    uv10,
+    normal_left,
+    normal_left,
+    normal_left,
+  )
+  push_textured_triangle3d(
+    positions,
+    uvs,
+    normals,
+    p000,
+    p011,
+    p010,
+    uv01,
+    uv10,
+    uv00,
+    normal_left,
+    normal_left,
+    normal_left,
+  )
+  let normal_top = @smath.Vec3::new(0.0, 1.0, 0.0)
+  push_textured_triangle3d(
+    positions,
+    uvs,
+    normals,
+    p011,
+    p111,
+    p110,
+    uv01,
+    uv11,
+    uv10,
+    normal_top,
+    normal_top,
+    normal_top,
+  )
+  push_textured_triangle3d(
+    positions,
+    uvs,
+    normals,
+    p011,
+    p110,
+    p010,
+    uv01,
+    uv10,
+    uv00,
+    normal_top,
+    normal_top,
+    normal_top,
+  )
+  let normal_bottom = @smath.Vec3::new(0.0, -1.0, 0.0)
+  push_textured_triangle3d(
+    positions,
+    uvs,
+    normals,
+    p000,
+    p100,
+    p101,
+    uv01,
+    uv11,
+    uv10,
+    normal_bottom,
+    normal_bottom,
+    normal_bottom,
+  )
+  push_textured_triangle3d(
+    positions,
+    uvs,
+    normals,
+    p000,
+    p101,
+    p001,
+    uv01,
+    uv10,
+    uv00,
+    normal_bottom,
+    normal_bottom,
+    normal_bottom,
+  )
+  build_textured_triangle_mesh3d(positions, uvs, normals, uv_set_count~)
+}
+
+///|
+fn build_sphere_triangle_mesh3d(
+  radius : Double,
+  slices : Int,
+  stacks : Int,
+  uv_set_count? : Int = 1,
+) -> @render3d_types.TriangleMesh3D {
+  let positions : Array[@smath.Vec3] = []
+  let uvs : Array[@smath.Vec2] = []
+  let normals : Array[@smath.Vec3] = []
+  let safe_slices = if slices < 3 { 3 } else { slices }
+  let safe_stacks = if stacks < 2 { 2 } else { stacks }
+  for stack in 0..<safe_stacks {
+    let v0 = stack.to_double() / safe_stacks.to_double()
+    let v1 = (stack + 1).to_double() / safe_stacks.to_double()
+    let theta0 = v0 * @math.PI
+    let theta1 = v1 * @math.PI
+    let y0 = radius * @math.cos(theta0)
+    let y1 = radius * @math.cos(theta1)
+    let ring0 = radius * @math.sin(theta0)
+    let ring1 = radius * @math.sin(theta1)
+    for segment in 0..<safe_slices {
+      let u0 = segment.to_double() / safe_slices.to_double()
+      let u1 = (segment + 1).to_double() / safe_slices.to_double()
+      let phi0 = u0 * 2.0 * @math.PI
+      let phi1 = u1 * 2.0 * @math.PI
+      let p00 = @smath.Vec3::new(
+        ring0 * @math.cos(phi0),
+        y0,
+        ring0 * @math.sin(phi0),
+      )
+      let p01 = @smath.Vec3::new(
+        ring0 * @math.cos(phi1),
+        y0,
+        ring0 * @math.sin(phi1),
+      )
+      let p10 = @smath.Vec3::new(
+        ring1 * @math.cos(phi0),
+        y1,
+        ring1 * @math.sin(phi0),
+      )
+      let p11 = @smath.Vec3::new(
+        ring1 * @math.cos(phi1),
+        y1,
+        ring1 * @math.sin(phi1),
+      )
+      let uv00 = @smath.Vec2(u0, v0)
+      let uv01 = @smath.Vec2(u1, v0)
+      let uv10 = @smath.Vec2(u0, v1)
+      let uv11 = @smath.Vec2(u1, v1)
+      let n00 = sphere_vertex_normal(p00)
+      let n01 = sphere_vertex_normal(p01)
+      let n10 = sphere_vertex_normal(p10)
+      let n11 = sphere_vertex_normal(p11)
+      if stack == 0 {
+        push_textured_triangle3d(
+          positions,
+          uvs,
+          normals,
+          p00,
+          p10,
+          p11,
+          uv00,
+          uv10,
+          uv11,
+          n00,
+          n10,
+          n11,
+        )
+      } else if stack == safe_stacks - 1 {
+        push_textured_triangle3d(
+          positions,
+          uvs,
+          normals,
+          p00,
+          p10,
+          p01,
+          uv00,
+          uv10,
+          uv01,
+          n00,
+          n10,
+          n01,
+        )
+      } else {
+        push_textured_triangle3d(
+          positions,
+          uvs,
+          normals,
+          p00,
+          p10,
+          p11,
+          uv00,
+          uv10,
+          uv11,
+          n00,
+          n10,
+          n11,
+        )
+        push_textured_triangle3d(
+          positions,
+          uvs,
+          normals,
+          p00,
+          p11,
+          p01,
+          uv00,
+          uv11,
+          uv01,
+          n00,
+          n11,
+          n01,
+        )
+      }
+    }
+  }
+  build_textured_triangle_mesh3d(positions, uvs, normals, uv_set_count~)
+}
+
+///|
+fn build_cylinder_triangle_mesh3d(
+  radius_top : Double,
+  radius_bottom : Double,
+  height : Double,
+  slices : Int,
+  uv_set_count? : Int = 1,
+) -> @render3d_types.TriangleMesh3D {
+  let positions : Array[@smath.Vec3] = []
+  let uvs : Array[@smath.Vec2] = []
+  let normals : Array[@smath.Vec3] = []
+  let safe_slices = if slices < 3 { 3 } else { slices }
+  let half_height = height / 2.0
+  let slope_y = if height.abs() < 0.000001 {
+    0.0
+  } else {
+    (radius_bottom - radius_top) / height
+  }
+  for segment in 0..<safe_slices {
+    let u0 = segment.to_double() / safe_slices.to_double()
+    let u1 = (segment + 1).to_double() / safe_slices.to_double()
+    let phi0 = u0 * 2.0 * @math.PI
+    let phi1 = u1 * 2.0 * @math.PI
+    let top0 = @smath.Vec3::new(
+      radius_top * @math.cos(phi0),
+      half_height,
+      radius_top * @math.sin(phi0),
+    )
+    let top1 = @smath.Vec3::new(
+      radius_top * @math.cos(phi1),
+      half_height,
+      radius_top * @math.sin(phi1),
+    )
+    let bottom0 = @smath.Vec3::new(
+      radius_bottom * @math.cos(phi0),
+      -half_height,
+      radius_bottom * @math.sin(phi0),
+    )
+    let bottom1 = @smath.Vec3::new(
+      radius_bottom * @math.cos(phi1),
+      -half_height,
+      radius_bottom * @math.sin(phi1),
+    )
+    let side_normal0 = @smath.Vec3::new(
+      @math.cos(phi0),
+      slope_y,
+      @math.sin(phi0),
+    ).normalize()
+    let side_normal1 = @smath.Vec3::new(
+      @math.cos(phi1),
+      slope_y,
+      @math.sin(phi1),
+    ).normalize()
+    push_textured_triangle3d(
+      positions,
+      uvs,
+      normals,
+      top0,
+      bottom0,
+      bottom1,
+      @smath.Vec2(u0, 0.0),
+      @smath.Vec2(u0, 1.0),
+      @smath.Vec2(u1, 1.0),
+      side_normal0,
+      side_normal0,
+      side_normal1,
+    )
+    push_textured_triangle3d(
+      positions,
+      uvs,
+      normals,
+      top0,
+      bottom1,
+      top1,
+      @smath.Vec2(u0, 0.0),
+      @smath.Vec2(u1, 1.0),
+      @smath.Vec2(u1, 0.0),
+      side_normal0,
+      side_normal1,
+      side_normal1,
+    )
+    if radius_top.abs() > 0.000001 {
+      let top_center = @smath.Vec3::new(0.0, half_height, 0.0)
+      let top_normal = @smath.Vec3::new(0.0, 1.0, 0.0)
+      push_textured_triangle3d(
+        positions,
+        uvs,
+        normals,
+        top_center,
+        top1,
+        top0,
+        @smath.Vec2(0.5, 0.5),
+        @smath.Vec2(
+          0.5 + 0.5 * @math.cos(phi1),
+          0.5 + 0.5 * @math.sin(phi1),
+        ),
+        @smath.Vec2(
+          0.5 + 0.5 * @math.cos(phi0),
+          0.5 + 0.5 * @math.sin(phi0),
+        ),
+        top_normal,
+        top_normal,
+        top_normal,
+      )
+    }
+    if radius_bottom.abs() > 0.000001 {
+      let bottom_center = @smath.Vec3::new(0.0, -half_height, 0.0)
+      let bottom_normal = @smath.Vec3::new(0.0, -1.0, 0.0)
+      push_textured_triangle3d(
+        positions,
+        uvs,
+        normals,
+        bottom_center,
+        bottom0,
+        bottom1,
+        @smath.Vec2(0.5, 0.5),
+        @smath.Vec2(
+          0.5 + 0.5 * @math.cos(phi0),
+          0.5 + 0.5 * @math.sin(phi0),
+        ),
+        @smath.Vec2(
+          0.5 + 0.5 * @math.cos(phi1),
+          0.5 + 0.5 * @math.sin(phi1),
+        ),
+        bottom_normal,
+        bottom_normal,
+        bottom_normal,
+      )
+    }
+  }
+  build_textured_triangle_mesh3d(positions, uvs, normals, uv_set_count~)
+}
+
+///|
+fn build_textured_triangle_mesh3d(
+  positions : Array[@smath.Vec3],
+  uvs : Array[@smath.Vec2],
+  normals : Array[@smath.Vec3],
+  uv_set_count? : Int = 1,
+) -> @render3d_types.TriangleMesh3D {
+  let safe_uv_set_count = if uv_set_count < 1 { 1 } else { uv_set_count }
+  let uv_sets : Array[Array[@smath.Vec2]] = []
+  for _ in 0..<safe_uv_set_count {
+    uv_sets.push(uvs.copy())
+  }
+  {
+    positions,
+    indices: None,
+    topology: TriangleList,
+    uv_sets,
+    normals: Some(normals),
+    tangents: None,
+    colors: None,
+  }
+}
+
+///|
+fn required_primitive_uv_set_count(bundle : MaterialTextureBundle3D) -> Int {
+  let mut max_set = bundle.primary_texcoord_set
+  let track = fn(source : MaterialTextureSource3D?) {
+    match source {
+      Some(source) =>
+        if source.texcoord_set > max_set {
+          max_set = source.texcoord_set
+        }
+      None => ()
+    }
+  }
+  track(bundle.base_source)
+  track(bundle.emissive_source)
+  track(bundle.metallic_roughness_source)
+  track(bundle.occlusion_source)
+  track(bundle.normal_source)
+  if max_set < 0 {
+    1
+  } else {
+    max_set + 1
+  }
+}
+
+///|
+fn sphere_vertex_normal(position : @smath.Vec3) -> @smath.Vec3 {
+  if position.length_squared() <= 0.0000001 {
+    @smath.Vec3::new(0.0, 1.0, 0.0)
+  } else {
+    position.normalize()
+  }
+}
+
+///|
+fn push_textured_triangle3d(
+  positions : Array[@smath.Vec3],
+  uvs : Array[@smath.Vec2],
+  normals : Array[@smath.Vec3],
+  a : @smath.Vec3,
+  b : @smath.Vec3,
+  c : @smath.Vec3,
+  uv_a : @smath.Vec2,
+  uv_b : @smath.Vec2,
+  uv_c : @smath.Vec2,
+  n_a : @smath.Vec3,
+  n_b : @smath.Vec3,
+  n_c : @smath.Vec3,
+) -> Unit {
+  positions.push(a)
+  positions.push(b)
+  positions.push(c)
+  uvs.push(uv_a)
+  uvs.push(uv_b)
+  uvs.push(uv_c)
+  normals.push(n_a)
+  normals.push(n_b)
+  normals.push(n_c)
 }
 
 ///|

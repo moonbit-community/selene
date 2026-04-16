@@ -22,16 +22,6 @@ async fn parse_json_file(path : String) -> Json {
 }
 
 ///|
-async fn write_json_file(path : String, value : &ToJson) -> Unit {
-  ensure_parent_dir(path)
-  @fs.write_file(
-    path,
-    @utf8.encode(value.to_json().stringify(indent=2) + "\n"),
-    create=0o644,
-  )
-}
-
-///|
 async fn write_text_file(path : String, content : String) -> Unit {
   ensure_parent_dir(path)
   @fs.write_file(path, @utf8.encode(content), create=0o644)

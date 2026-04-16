@@ -71,7 +71,6 @@ pub struct RpcConflictDocument {
 ///|
 pub enum SceneLoadOutcome {
   Loaded(SceneBundleResponse)
-  MigrationRequired(@editor_bridge.SceneMigrationPreview)
 } derive(Eq)
 
 ///|
@@ -117,7 +116,6 @@ pub enum RpcRequest {
   ProjectSetStartupScene(path~ : String)
   ProjectSaveWorkspace(workspace~ : @editor_bridge.WorkspaceDocument)
   SceneLoad(path~ : String)
-  SceneMigrate(path~ : String)
   SceneList
   SceneCreate(name~ : String)
   SceneSave(
@@ -150,7 +148,6 @@ pub enum RpcResponse {
   ProjectState(state~ : ProjectStateResponse)
   DirectoryPicked(result~ : DirectoryPickResult)
   SceneLoaded(scene~ : SceneBundleResponse)
-  SceneMigrationRequired(preview~ : @editor_bridge.SceneMigrationPreview)
   SceneSaved(save~ : SceneSaveResult)
   SceneListed(list~ : SceneListResponse)
   AssetsListed(list~ : AssetsListResponse)
@@ -314,13 +311,6 @@ pub fn scene_load_outcome_loaded(
 }
 
 ///|
-pub fn scene_load_outcome_migration_required(
-  preview : @editor_bridge.SceneMigrationPreview,
-) -> SceneLoadOutcome {
-  MigrationRequired(preview)
-}
-
-///|
 pub fn scene_list_response(
   scenes : Array[@editor_bridge.SceneRef],
   startup_scene : String,
@@ -452,11 +442,6 @@ pub fn rpc_request_scene_load(path : String) -> RpcRequest {
 }
 
 ///|
-pub fn rpc_request_scene_migrate(path : String) -> RpcRequest {
-  SceneMigrate(path~)
-}
-
-///|
 pub fn rpc_request_scene_list() -> RpcRequest {
   SceneList
 }
@@ -577,13 +562,6 @@ pub fn rpc_response_directory_picked(
 ///|
 pub fn rpc_response_scene_loaded(scene : SceneBundleResponse) -> RpcResponse {
   SceneLoaded(scene~)
-}
-
-///|
-pub fn rpc_response_scene_migration_required(
-  preview : @editor_bridge.SceneMigrationPreview,
-) -> RpcResponse {
-  SceneMigrationRequired(preview~)
 }
 
 ///|

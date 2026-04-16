@@ -348,3 +348,31 @@ test "resolve_triangle_indices supports strip and fan topology" {
     content="Some([0, 1, 2, 0, 2, 3])",
   )
 }
+
+///|
+test "textured primitive mesh builders provide aligned position/uv/normal streams" {
+  let cuboid = build_cuboid_triangle_mesh3d(2.0, 4.0, 6.0)
+  inspect(cuboid.positions.length(), content="36")
+  inspect(cuboid.uv_sets.length(), content="1")
+  inspect(cuboid.uv_sets[0].length(), content="36")
+  inspect(cuboid.normals.unwrap().length(), content="36")
+
+  let sphere = build_sphere_triangle_mesh3d(1.0, 8, 6)
+  inspect(sphere.positions.length() > 0, content="true")
+  inspect(sphere.positions.length() == sphere.uv_sets[0].length(), content="true")
+  inspect(
+    sphere.positions.length() == sphere.normals.unwrap().length(),
+    content="true",
+  )
+
+  let cylinder = build_cylinder_triangle_mesh3d(0.75, 1.0, 2.0, 12)
+  inspect(cylinder.positions.length() > 0, content="true")
+  inspect(
+    cylinder.positions.length() == cylinder.uv_sets[0].length(),
+    content="true",
+  )
+  inspect(
+    cylinder.positions.length() == cylinder.normals.unwrap().length(),
+    content="true",
+  )
+}
