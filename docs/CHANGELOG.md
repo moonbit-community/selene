@@ -6,6 +6,7 @@
 
 ### Changed
 - Changed scene document terminology and APIs to `SDF`, removed semantic-version labels from migration UX copy, deepened `editor_bridge` scene validation, and unified custom-component defaults/validation/runtime handlers under a normalized registry flow.
+- Changed `editor_bridge` document encoders to use canonical non-`_json` names and kept only the formal `SDF`/envelope codec entrypoints across service, specs, and tests.
 
 ### Fixed
 - Fixed GitHub Pages CI to invoke `publish_pages.py` instead of calling the release-only `publish.py` entrypoint without a version argument.
@@ -13,6 +14,7 @@
 - Fixed `scripts/check_no_legacy_ui.sh` to keep validating when `rg` is unavailable, so CI no longer reports a false pass on runners without ripgrep.
 
 ### Removed
+- Removed the legacy project minimum-version field from the persisted protocol and dropped codec passthrough aliases that only forwarded to the canonical `SDF`/envelope APIs.
 - Removed four obsolete planning/tracking docs from `docs/`: `2d-render-issue-tracker.md`, `bevy-alignment-tracker.md`, `bevy-api-mapping.md`, and `bevy-rapier3d-parity-matrix.md`.
 
 ## [0.32.4] - 2026-04-17

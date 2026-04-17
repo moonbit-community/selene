@@ -46,7 +46,6 @@ pub struct ProjectManifest {
   atlas_index : Array[AssetRef]
   animation_clip_index : Array[AssetRef]
   animation_graph_index : Array[AssetRef]
-  editor_min_version : String?
 } derive(Debug, Eq, ToJson, FromJson)
 
 ///|
@@ -604,7 +603,6 @@ pub fn ProjectManifest::default(
   atlas_index? : Array[AssetRef] = [],
   animation_clip_index? : Array[AssetRef] = [],
   animation_graph_index? : Array[AssetRef] = [],
-  editor_min_version? : String? = None,
 ) -> ProjectManifest {
   {
     version: project_schema_version,
@@ -616,7 +614,6 @@ pub fn ProjectManifest::default(
     atlas_index,
     animation_clip_index,
     animation_graph_index,
-    editor_min_version,
   }
 }
 

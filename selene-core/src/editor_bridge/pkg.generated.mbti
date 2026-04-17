@@ -136,10 +136,6 @@ pub fn decode_project_manifest(Json) -> ProjectManifest raise
 
 pub fn decode_project_manifest_status(String, Json) -> ProjectManifestLoadStatus raise
 
-pub fn decode_scene_document(Json) -> SceneDocument raise
-
-pub fn decode_scene_document_status(String, Json) -> SceneDocumentLoadStatus raise
-
 pub fn decode_scene_sdf(Json) -> SceneDocument raise
 
 pub fn decode_scene_sdf_status(String, Json) -> SceneDocumentLoadStatus raise
@@ -158,19 +154,19 @@ pub let document_envelope_version : Int
 
 pub let document_schema_major_version : Int
 
-pub fn encode_animation_clip_asset_document_json(AnimationClipAssetDocument) -> String raise
+pub fn encode_animation_clip_asset_document(AnimationClipAssetDocument) -> String raise
 
-pub fn encode_animation_graph_asset_document_json(AnimationGraphAssetDocument) -> String raise
+pub fn encode_animation_graph_asset_document(AnimationGraphAssetDocument) -> String raise
 
-pub fn encode_atlas_asset_document_json(AtlasAssetDocument) -> String raise
+pub fn encode_atlas_asset_document(AtlasAssetDocument) -> String raise
 
-pub fn encode_prefab_document_json(PrefabDocument) -> String raise
+pub fn encode_prefab_document(PrefabDocument) -> String raise
 
-pub fn encode_project_manifest_json(ProjectManifest) -> String raise
+pub fn encode_project_manifest(ProjectManifest) -> String raise
 
 pub fn encode_scene_sdf(SceneDocument) -> String raise
 
-pub fn encode_workspace_document_json(WorkspaceDocument) -> String raise
+pub fn encode_workspace_document(WorkspaceDocument) -> String raise
 
 pub fn entity_document(String, String, parent? : String?, components? : Array[ComponentDocument]) -> EntityDocument
 
@@ -193,18 +189,6 @@ pub fn load_project_bundle((String) -> Bytes?, manifest_path? : String, scene_pa
 pub fn map_document_source(Map[String, Bytes]) -> (String) -> Bytes?
 
 pub fn mesh2d_component(String, size? : Vec2Doc?, radius? : Double?) -> ComponentDocument
-
-pub fn migrate_animation_clip_asset_document_json(String, Json) -> AnimationClipAssetDocument raise
-
-pub fn migrate_animation_graph_asset_document_json(String, Json) -> AnimationGraphAssetDocument raise
-
-pub fn migrate_atlas_asset_document_json(String, Json) -> AtlasAssetDocument raise
-
-pub fn migrate_prefab_document_json(String, Json) -> PrefabDocument raise
-
-pub fn migrate_project_manifest_json(String, Json) -> ProjectManifest raise
-
-pub fn migrate_scene_document_json(String, Json) -> SceneDocument raise
 
 pub fn migrate_scene_to_sdf(String, Json) -> SceneDocument raise
 
@@ -675,9 +659,8 @@ pub struct ProjectManifest {
   atlas_index : Array[AssetRef]
   animation_clip_index : Array[AssetRef]
   animation_graph_index : Array[AssetRef]
-  editor_min_version : String?
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
-pub fn ProjectManifest::default(String, startup_scene? : String, asset_roots? : Array[String], scene_index? : Array[SceneRef], prefab_index? : Array[PrefabRef], atlas_index? : Array[AssetRef], animation_clip_index? : Array[AssetRef], animation_graph_index? : Array[AssetRef], editor_min_version? : String?) -> Self
+pub fn ProjectManifest::default(String, startup_scene? : String, asset_roots? : Array[String], scene_index? : Array[SceneRef], prefab_index? : Array[PrefabRef], atlas_index? : Array[AssetRef], animation_clip_index? : Array[AssetRef], animation_graph_index? : Array[AssetRef]) -> Self
 pub fn ProjectManifest::with_indexes(Self, Array[SceneRef], Array[PrefabRef], Array[AssetRef], Array[AssetRef], Array[AssetRef]) -> Self
 pub fn ProjectManifest::with_startup_scene(Self, String) -> Self
 

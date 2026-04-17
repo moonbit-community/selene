@@ -665,7 +665,7 @@ pub async fn EditorHarness::given_project_manifest(
   manifest : @editor_bridge.ProjectManifest,
 ) -> Unit {
   ensure_project_layout(self.project_root)
-  let encoded = @editor_bridge.encode_project_manifest_json(manifest)
+  let encoded = @editor_bridge.encode_project_manifest(manifest)
   write_text_file(self.project_root + "/selene.project.json", encoded)
 }
 
@@ -687,7 +687,7 @@ pub async fn EditorHarness::given_prefab_document(
   prefab : @editor_bridge.PrefabDocument,
 ) -> Unit {
   ensure_project_layout(self.project_root)
-  let encoded = @editor_bridge.encode_prefab_document_json(prefab)
+  let encoded = @editor_bridge.encode_prefab_document(prefab)
   write_text_file(self.project_root + "/" + relative_path, encoded)
 }
 
@@ -698,7 +698,7 @@ pub async fn EditorHarness::given_atlas_document(
   atlas : @editor_bridge.AtlasAssetDocument,
 ) -> Unit {
   ensure_project_layout(self.project_root)
-  let encoded = @editor_bridge.encode_atlas_asset_document_json(atlas)
+  let encoded = @editor_bridge.encode_atlas_asset_document(atlas)
   write_text_file(self.project_root + "/" + relative_path, encoded)
 }
 
@@ -709,7 +709,7 @@ pub async fn EditorHarness::given_animation_document(
   animation : @editor_bridge.AnimationClipAssetDocument,
 ) -> Unit {
   ensure_project_layout(self.project_root)
-  let encoded = @editor_bridge.encode_animation_clip_asset_document_json(
+  let encoded = @editor_bridge.encode_animation_clip_asset_document(
     animation,
   )
   write_text_file(self.project_root + "/" + relative_path, encoded)

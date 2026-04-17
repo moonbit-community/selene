@@ -23,7 +23,7 @@ async fn save_prefab_document(
 ) -> Unit {
   let path = prefab_path(root, relative_path)
   ensure_dir(path_join(root, "prefabs"))
-  let encoded = @editor_bridge.encode_prefab_document_json(prefab)
+  let encoded = @editor_bridge.encode_prefab_document(prefab)
   write_text_file(path, encoded)
 }
 
@@ -66,7 +66,7 @@ async fn save_atlas_asset_document(
 ) -> Unit {
   let path = atlas_asset_path(root, relative_path)
   ensure_dir(path_join(root, "assets/atlases"))
-  let encoded = @editor_bridge.encode_atlas_asset_document_json(atlas)
+  let encoded = @editor_bridge.encode_atlas_asset_document(atlas)
   write_text_file(path, encoded)
 }
 
@@ -109,7 +109,7 @@ async fn save_animation_clip_asset_document(
 ) -> Unit {
   let path = animation_clip_asset_path(root, relative_path)
   ensure_dir(path_join(root, "assets/animation_clips"))
-  let encoded = @editor_bridge.encode_animation_clip_asset_document_json(clip)
+  let encoded = @editor_bridge.encode_animation_clip_asset_document(clip)
   write_text_file(path, encoded)
 }
 
@@ -152,7 +152,7 @@ async fn save_animation_graph_asset_document(
 ) -> Unit {
   let path = animation_graph_asset_path(root, relative_path)
   ensure_dir(path_join(root, "assets/animation_graphs"))
-  let encoded = @editor_bridge.encode_animation_graph_asset_document_json(graph)
+  let encoded = @editor_bridge.encode_animation_graph_asset_document(graph)
   write_text_file(path, encoded)
 }
 
@@ -199,7 +199,7 @@ async fn save_workspace_document(
   workspace : @editor_bridge.WorkspaceDocument,
 ) -> Unit {
   ensure_dir(path_join(root, ".selene-editor"))
-  let encoded = @editor_bridge.encode_workspace_document_json(workspace)
+  let encoded = @editor_bridge.encode_workspace_document(workspace)
   write_text_file(workspace_path(root), encoded)
 }
 

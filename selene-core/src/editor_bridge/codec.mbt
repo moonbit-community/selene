@@ -49,7 +49,6 @@ priv struct LegacyProjectManifestDocument {
   atlas_index : Array[AssetRef]?
   animation_clip_index : Array[AssetRef]?
   animation_graph_index : Array[AssetRef]?
-  editor_min_version : String?
 } derive(FromJson)
 
 ///|
@@ -258,7 +257,6 @@ fn migrate_project_manifest_preview_from_legacy(
     atlas_index: legacy.atlas_index.unwrap_or([]),
     animation_clip_index: legacy.animation_clip_index.unwrap_or([]),
     animation_graph_index: legacy.animation_graph_index.unwrap_or([]),
-    editor_min_version: legacy.editor_min_version,
   }
   let validation_errors = validate_project_manifest(manifest)
   guard validation_errors.is_empty() else {
@@ -533,19 +531,6 @@ pub fn decode_animation_graph_asset_document_status(
 }
 
 ///|
-pub fn decode_scene_document(json : Json) -> SceneDocument raise {
-  decode_scene_sdf(json)
-}
-
-///|
-pub fn decode_scene_document_status(
-  path : String,
-  json : Json,
-) -> SceneDocumentLoadStatus raise {
-  decode_scene_sdf_status(path, json)
-}
-
-///|
 pub fn migrate_scene_to_sdf(path : String, json : Json) -> SceneDocument raise {
   match decode_scene_sdf_status(path, json) {
     Ready(scene) => scene
@@ -554,74 +539,19 @@ pub fn migrate_scene_to_sdf(path : String, json : Json) -> SceneDocument raise {
 }
 
 ///|
-pub fn migrate_scene_document_json(
-  path : String,
-  json : Json,
-) -> SceneDocument raise {
-  migrate_scene_to_sdf(path, json)
-}
-
-///|
-pub fn migrate_project_manifest_json(
-  path : String,
-  json : Json,
-) -> ProjectManifest raise {
-  match decode_project_manifest_status(path, json) {
-    Ready(manifest) => manifest
-    MigrationRequired(preview) => preview.manifest
-  }
-}
-
-///|
-pub fn migrate_prefab_document_json(
-  path : String,
-  json : Json,
-) -> PrefabDocument raise {
-  ignore(path)
-  decode_prefab_document(json)
-}
-
-///|
-pub fn migrate_atlas_asset_document_json(
-  path : String,
-  json : Json,
-) -> AtlasAssetDocument raise {
-  ignore(path)
-  decode_atlas_asset_document(json)
-}
-
-///|
-pub fn migrate_animation_clip_asset_document_json(
-  path : String,
-  json : Json,
-) -> AnimationClipAssetDocument raise {
-  ignore(path)
-  decode_animation_clip_asset_document(json)
-}
-
-///|
-pub fn migrate_animation_graph_asset_document_json(
-  path : String,
-  json : Json,
-) -> AnimationGraphAssetDocument raise {
-  ignore(path)
-  decode_animation_graph_asset_document(json)
-}
-
-///|
-pub fn encode_project_manifest_json(manifest : ProjectManifest) -> String raise {
+pub fn encode_project_manifest(manifest : ProjectManifest) -> String raise {
   ignore(decode_manifest_data(manifest.to_json()))
   encode_envelope(project_manifest_schema, manifest.to_json())
 }
 
 ///|
-pub fn encode_prefab_document_json(prefab : PrefabDocument) -> String raise {
+pub fn encode_prefab_document(prefab : PrefabDocument) -> String raise {
   ignore(decode_prefab_data(prefab.to_json()))
   encode_envelope(prefab_document_schema, prefab.to_json())
 }
 
 ///|
-pub fn encode_atlas_asset_document_json(
+pub fn encode_atlas_asset_document(
   atlas : AtlasAssetDocument,
 ) -> String raise {
   ignore(decode_atlas_data(atlas.to_json()))
@@ -629,7 +559,7 @@ pub fn encode_atlas_asset_document_json(
 }
 
 ///|
-pub fn encode_animation_clip_asset_document_json(
+pub fn encode_animation_clip_asset_document(
   clip : AnimationClipAssetDocument,
 ) -> String raise {
   ignore(decode_animation_clip_data(clip.to_json()))
@@ -637,7 +567,7 @@ pub fn encode_animation_clip_asset_document_json(
 }
 
 ///|
-pub fn encode_animation_graph_asset_document_json(
+pub fn encode_animation_graph_asset_document(
   graph : AnimationGraphAssetDocument,
 ) -> String raise {
   ignore(decode_animation_graph_data(graph.to_json()))
@@ -645,7 +575,7 @@ pub fn encode_animation_graph_asset_document_json(
 }
 
 ///|
-pub fn encode_workspace_document_json(workspace : WorkspaceDocument) -> String raise {
+pub fn encode_workspace_document(workspace : WorkspaceDocument) -> String raise {
   ignore(decode_workspace_data(workspace.to_json()))
   encode_envelope(workspace_document_schema, workspace.to_json())
 }

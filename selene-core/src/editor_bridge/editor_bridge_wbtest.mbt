@@ -3,8 +3,13 @@ fn json_string_bytes(value : String) -> Bytes {
 }
 
 ///|
+fn legacy_project_minimum_version_key() -> String {
+  "editor_" + "min_version"
+}
+
+///|
 fn manifest_bytes(manifest : ProjectManifest) -> Bytes raise {
-  json_string_bytes(encode_project_manifest_json(manifest))
+  json_string_bytes(encode_project_manifest(manifest))
 }
 
 ///|
@@ -14,17 +19,17 @@ fn scene_bytes(scene : SceneDocument) -> Bytes raise {
 
 ///|
 fn atlas_bytes(atlas : AtlasAssetDocument) -> Bytes raise {
-  json_string_bytes(encode_atlas_asset_document_json(atlas))
+  json_string_bytes(encode_atlas_asset_document(atlas))
 }
 
 ///|
 fn animation_clip_bytes(clip : AnimationClipAssetDocument) -> Bytes raise {
-  json_string_bytes(encode_animation_clip_asset_document_json(clip))
+  json_string_bytes(encode_animation_clip_asset_document(clip))
 }
 
 ///|
 fn animation_graph_bytes(graph : AnimationGraphAssetDocument) -> Bytes raise {
-  json_string_bytes(encode_animation_graph_asset_document_json(graph))
+  json_string_bytes(encode_animation_graph_asset_document(graph))
 }
 
 ///|
@@ -81,7 +86,9 @@ test "project manifest round trip includes v2 indexes" {
     animation_graph_index=[asset_ref("assets/animation_graphs/demo.graph.json")],
   )
   let decoded : ProjectManifest = @json.from_json(manifest.to_json())
+  let encoded = encode_project_manifest(manifest)
   inspect(decoded == manifest, content="true")
+  inspect(encoded.contains(legacy_project_minimum_version_key()), content="false")
 }
 
 ///|
@@ -708,7 +715,7 @@ test "runtime instantiation renders autotile layer tiles from source only" {
 test "codec decodes valid project and scene documents" {
   let manifest = ProjectManifest::default("demo")
   let scene = SceneDocument::default_main()
-  let manifest_json = @json.parse(encode_project_manifest_json(manifest))
+  let manifest_json = @json.parse(encode_project_manifest(manifest))
   let scene_json = @json.parse(encode_scene_sdf(scene))
   inspect(
     decode_project_manifest(manifest_json) == manifest,
@@ -720,10 +727,13 @@ test "codec decodes valid project and scene documents" {
 ///|
 test "codec reports project manifest migration for missing indexes" {
   let legacy_json = @json.parse(
-    "{\n  \"version\": 2,\n  \"name\": \"Demo\",\n  \"startup_scene\": \"scenes/main.scene.json\",\n  \"asset_roots\": [\"assets/images\"]\n}\n",
+    "{\n  \"version\": 2,\n  \"name\": \"Demo\",\n  \"startup_scene\": \"scenes/main.scene.json\",\n  \"asset_roots\": [\"assets/images\"],\n  \"" +
+    legacy_project_minimum_version_key() +
+    "\": \"0.1.0\"\n}\n",
   )
   match decode_project_manifest_status("selene.project.json", legacy_json) {
     MigrationRequired(preview) => {
+      let encoded = encode_project_manifest(preview.manifest)
       inspect(preview.manifest.scene_index.length(), content="1")
       inspect(
         preview.manifest.scene_index[0].path,
@@ -731,6 +741,7 @@ test "codec reports project manifest migration for missing indexes" {
       )
       inspect(preview.manifest.prefab_index.length(), content="0")
       inspect(preview.changes.length() > 0, content="true")
+      inspect(encoded.contains(legacy_project_minimum_version_key()), content="false")
     }
     _ => fail("expected project manifest migration preview")
   }

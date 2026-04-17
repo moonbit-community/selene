@@ -74,7 +74,7 @@ async fn load_project_manifest(root : String) -> @editor_bridge.ProjectManifest 
     @editor_bridge.Ready(manifest) => manifest
     @editor_bridge.MigrationRequired(preview) => {
       let migrated = preview.manifest
-      let encoded = @editor_bridge.encode_project_manifest_json(migrated)
+      let encoded = @editor_bridge.encode_project_manifest(migrated)
       write_text_file(project_manifest_path(root, ""), encoded)
       migrated
     }
@@ -101,7 +101,7 @@ async fn save_project_manifest(
   manifest : @editor_bridge.ProjectManifest,
 ) -> Unit {
   let synced = synced_manifest_with_indexes(root, manifest)
-  let encoded = @editor_bridge.encode_project_manifest_json(synced)
+  let encoded = @editor_bridge.encode_project_manifest(synced)
   write_text_file(project_manifest_path(root, ""), encoded)
 }
 
