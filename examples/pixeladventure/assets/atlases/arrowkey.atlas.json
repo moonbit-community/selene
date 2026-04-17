@@ -1,0 +1,39 @@
+{
+  "schema": "selene/atlas_asset_document",
+  "version": 1,
+  "data": {
+    "version": 4,
+    "name": "arrowkey",
+    "source_image": "assets/pixeladventure/arrowkey.png",
+    "tile_size": {
+      "x": 1200,
+      "y": 1200
+    },
+    "columns": 1,
+    "rows": 1,
+    "spacing": {
+      "x": 0,
+      "y": 0
+    },
+    "margin": {
+      "x": 0,
+      "y": 0
+    },
+    "default_anchor": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "regions": [
+      {
+        "name": "frame_0",
+        "index": 0,
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1200,
+          "height": 1200
+        }
+      }
+    ]
+  }
+}

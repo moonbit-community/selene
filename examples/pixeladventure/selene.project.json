@@ -1,0 +1,33 @@
+{
+  "schema": "selene/project_manifest",
+  "version": 1,
+  "data": {
+    "version": 4,
+    "name": "Selene Project",
+    "startup_scene": "scenes/main.scene.json",
+    "asset_roots": [
+      "assets"
+    ],
+    "scene_index": [
+      {
+        "path": "scenes/main.scene.json"
+      }
+    ],
+    "prefab_index": [],
+    "atlas_index": [
+      {
+        "path": "assets/atlases/arrowkey.atlas.json"
+      }
+    ],
+    "animation_clip_index": [
+      {
+        "path": "assets/animation_clips/arrowkey-default.clip.json"
+      }
+    ],
+    "animation_graph_index": [
+      {
+        "path": "assets/animation_graphs/arrowkey.graph.json"
+      }
+    ]
+  }
+}
