@@ -299,17 +299,7 @@ pub fn render_text2d_system(delta : Double) -> Unit {
     }
   }
   let camera_views = @camera.active_camera2d_views()
-  let all_camera_ids = camera_views.map(fn(camera_view) { camera_view.entity.id() })
-  let camera_views_by_id : Map[UInt, @camera.Camera2dView] = Map::new()
-  let camera_grid_entries : Array[@culling2d.SpatialGridEntry2d] = []
-  for camera_view in camera_views {
-    camera_views_by_id.set(camera_view.entity.id(), camera_view)
-    camera_grid_entries.push({
-      id: camera_view.entity.id(),
-      bounds: camera_view.world_bounds(),
-    })
-  }
-  let camera_grid = @culling2d.build_spatial_grid2d(camera_grid_entries)
+  let camera_extract = @culling2d.build_camera_extract2d_context(camera_views)
   for entity, text2d in text2ds() {
     guard entity.is_alive() else { continue }
     guard @visibility.is_visible(entity) else { continue }
@@ -375,25 +365,15 @@ pub fn render_text2d_system(delta : Double) -> Unit {
       { position: @math.Vec2::zero(), size: layout_size },
       @camera.world_transform_2d(global_transform),
     )
-    let candidate_camera_ids = if @parallax2d.parallax_depends_on_camera(parallax) {
-      all_camera_ids
-    } else {
-      camera_grid.query(world_bounds)
-    }
-    if candidate_camera_ids.is_empty() {
+    let camera_views_for_entity = camera_extract.camera_views_for_bounds(
+      world_bounds,
+      @visibility.entity_render_layers(entity),
+      @parallax2d.parallax_depends_on_camera(parallax),
+    )
+    if camera_views_for_entity.is_empty() {
       continue
     }
-    let entity_layers = @visibility.entity_render_layers(entity)
-    for camera_entity_id in candidate_camera_ids {
-      guard camera_views_by_id.get(camera_entity_id) is Some(camera_view) else {
-        continue
-      }
-      guard @visibility.matches(
-        @visibility.entity_render_layers(camera_view.entity),
-        entity_layers,
-      ) else {
-        continue
-      }
+    for camera_view in camera_views_for_entity {
       let raw_pos = @parallax2d.parallax_world_position(
         base_pos,
         parallax,
@@ -414,7 +394,6 @@ pub fn render_text2d_system(delta : Double) -> Unit {
         screen_transform,
       )
       guard camera_view.intersects_screen_rect(layout_bounds) else { continue }
-      @visibility.mark_visible_to_camera(entity, camera_view.entity.id())
       push_text2d_lines(
         entity,
         lines,

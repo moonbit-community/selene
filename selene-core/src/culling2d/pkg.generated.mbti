@@ -2,15 +2,27 @@
 package "Milky2018/selene/culling2d"
 
 import {
+  "Milky2018/selene/camera",
   "Milky2018/selene/math",
+  "Milky2018/selene/visibility",
 }
 
 // Values
+pub fn build_camera_extract2d_context(Array[@camera.Camera2dView]) -> CameraExtract2dContext
+
 pub fn build_spatial_grid2d(Array[SpatialGridEntry2d], cell_size? : Double) -> SpatialGrid2d
 
 // Errors
 
 // Types and methods
+pub(all) struct CameraExtract2dContext {
+  camera_views : Array[@camera.Camera2dView]
+  all_camera_ids : Array[UInt]
+  camera_views_by_id : Map[UInt, @camera.Camera2dView]
+  camera_grid : SpatialGrid2d
+}
+pub fn CameraExtract2dContext::camera_views_for_bounds(Self, @math.Rect, @visibility.RenderLayers, Bool) -> Array[@camera.Camera2dView]
+
 pub(all) struct SpatialGrid2d {
   cell_size : Double
   buckets : Map[String, Array[UInt]]

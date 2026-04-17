@@ -213,12 +213,14 @@ pub(all) struct UiMaterialContext {
   rect : @math.Rect
   content_rect : @math.Rect
   border_radius : BorderRadius
+  target_camera_entity_id : UInt?
 
   fn new(
     entity : @entity.Entity,
     rect : @math.Rect,
     content_rect? : @math.Rect,
     border_radius? : BorderRadius,
+    target_camera_entity_id? : UInt?,
   ) -> UiMaterialContext
 }
 
@@ -228,8 +230,9 @@ pub fn UiMaterialContext::new(
   rect : @math.Rect,
   content_rect? : @math.Rect = rect,
   border_radius? : BorderRadius = BorderRadius::all(Val::px(0.0)),
+  target_camera_entity_id? : UInt? = None,
 ) -> UiMaterialContext {
-  { entity, rect, content_rect, border_radius }
+  { entity, rect, content_rect, border_radius, target_camera_entity_id }
 }
 
 ///|

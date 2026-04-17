@@ -240,9 +240,7 @@ fn pickable_matches_camera_view(
       ) {
         return false
       }
-      let visible_cameras = @visibility.visible_camera_entity_ids(entity)
-      visible_cameras.is_empty() ||
-      visible_cameras.contains(camera_view.entity.id())
+      true
     }
     None => true
   }

@@ -24,10 +24,6 @@ pub fn release_mesh2d_asset(Mesh2dHandle) -> Unit
 
 pub fn render_mesh2d_system(Double) -> Unit
 
-pub fn take_dirty_mesh2d_assets() -> Array[(Mesh2dHandle, Mesh2dAsset)]
-
-pub fn take_released_mesh2d_assets() -> Array[Mesh2dHandle]
-
 pub fn update_mesh2d_asset(Mesh2dHandle, Mesh2dAsset) -> Unit
 
 // Errors
@@ -57,8 +53,6 @@ pub(all) enum Mesh2dPrimitive {
 
 pub(all) struct Mesh2dStorage {
   meshes : Map[Mesh2dHandle, Mesh2dAsset]
-  dirty_meshes : Map[Mesh2dHandle, Mesh2dAsset]
-  released_meshes : Array[Mesh2dHandle]
 }
 
 // Type aliases

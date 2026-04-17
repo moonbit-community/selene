@@ -7,7 +7,6 @@ priv struct OrderedDrawCommand2D {
   sorting_layer : Int
   sorting_group : Int
   sorting_order : Int
-  alpha_mode : @render.AlphaMode2D
   command : @render2d_types.DrawCommand2D
 }
 
@@ -63,7 +62,6 @@ priv struct RenderFrameState2D {
   camera_world_commands : Map[UInt, Array[OrderedDrawCommand2D]]
   camera_ui_commands : Map[UInt, Array[@render2d_types.DrawCommand2D]]
   mut next_order : Int
-  mut current_ui_camera_entity_id : UInt?
 }
 
 ///|
@@ -82,7 +80,6 @@ fn frame2d() -> RenderFrameState2D {
       camera_world_commands: Map::new(),
       camera_ui_commands: Map::new(),
       next_order: 0,
-      current_ui_camera_entity_id: None,
     }
   })
 }
@@ -106,7 +103,6 @@ pub fn begin_frame2d_system(_delta : Double) -> Unit {
     camera_world_commands: Map::new(),
     camera_ui_commands: Map::new(),
     next_order: 0,
-    current_ui_camera_entity_id: None,
   })
   let sorting = sorting2ds()
   for pair in sorting.to_array() {
@@ -158,38 +154,11 @@ fn ui_command_bucket(
 }
 
 ///|
-fn draw_command_alpha_mode(
+fn push_ui_command(
   command : @render2d_types.DrawCommand2D,
-) -> @render.AlphaMode2D {
-  match command {
-    Image(command) =>
-      if command.blend_mode is @render.BlendMode2D::Alpha {
-        command.alpha_mode
-      } else {
-        @render.AlphaMode2D::Blend
-      }
-    Text(_) => @render.AlphaMode2D::Blend
-    Rect(command) =>
-      if command.blend_mode is @render.BlendMode2D::Alpha {
-        command.alpha_mode
-      } else {
-        @render.AlphaMode2D::Blend
-      }
-    Circle(command) =>
-      if command.blend_mode is @render.BlendMode2D::Alpha {
-        command.alpha_mode
-      } else {
-        @render.AlphaMode2D::Blend
-      }
-    GradientRect(command) =>
-      if command.blend_mode is @render.BlendMode2D::Alpha {
-        command.alpha_mode
-      } else {
-        @render.AlphaMode2D::Blend
-      }
-    PushClip(_) => @render.AlphaMode2D::Opaque
-    PopClip => @render.AlphaMode2D::Opaque
-  }
+  camera_entity_id : UInt?,
+) -> Unit {
+  ui_command_bucket(frame2d(), camera_entity_id).push(command)
 }
 
 ///|
@@ -209,7 +178,6 @@ fn push_world_command(
     sorting_layer: sorting.layer,
     sorting_group: sorting.group,
     sorting_order: sorting.order,
-    alpha_mode: draw_command_alpha_mode(command),
     command,
   })
   frame.next_order += 1
@@ -225,12 +193,6 @@ fn sorted_world_commands(
       -1
     } else if lhs.sorting_layer > rhs.sorting_layer {
       1
-    } else if lhs.alpha_mode != rhs.alpha_mode {
-      if lhs.alpha_mode is @render.AlphaMode2D::Opaque {
-        -1
-      } else {
-        1
-      }
     } else if lhs.sorting_group < rhs.sorting_group {
       -1
     } else if lhs.sorting_group > rhs.sorting_group {
@@ -265,6 +227,27 @@ fn sorted_camera_entity_ids() -> Array[UInt] {
   }
   let sorted = unique.keys().to_array()
   sorted.sort_by(fn(lhs, rhs) { lhs.compare(rhs) })
+  sorted
+}
+
+///|
+fn sorted_camera_entity_ids_by_pass_order() -> Array[UInt] {
+  let camera_order_by_entity_id : Map[UInt, Int] = Map::new()
+  for camera_view in @camera.active_camera2d_views() {
+    camera_order_by_entity_id.set(camera_view.entity.id(), camera_view.camera.order)
+  }
+  let sorted = sorted_camera_entity_ids()
+  sorted.sort_by(fn(lhs, rhs) {
+    let lhs_order = camera_order_by_entity_id.get(lhs).unwrap_or(0)
+    let rhs_order = camera_order_by_entity_id.get(rhs).unwrap_or(0)
+    if lhs_order < rhs_order {
+      -1
+    } else if lhs_order > rhs_order {
+      1
+    } else {
+      lhs.compare(rhs)
+    }
+  })
   sorted
 }
 
@@ -310,10 +293,16 @@ pub fn push_image(command : @render2d_types.ImageDrawCommand2D) -> Unit {
 }
 
 ///|
+pub fn push_ui_image_to_camera(
+  camera_entity_id : UInt?,
+  command : @render2d_types.ImageDrawCommand2D,
+) -> Unit {
+  push_ui_command(Image(command), camera_entity_id)
+}
+
+///|
 pub fn push_ui_image(command : @render2d_types.ImageDrawCommand2D) -> Unit {
-  ui_command_bucket(frame2d(), frame2d().current_ui_camera_entity_id).push(
-    Image(command),
-  )
+  push_ui_image_to_camera(None, command)
 }
 
 ///|
@@ -358,10 +347,16 @@ pub fn push_text(command : @render2d_types.TextDrawCommand2D) -> Unit {
 }
 
 ///|
+pub fn push_ui_text_to_camera(
+  camera_entity_id : UInt?,
+  command : @render2d_types.TextDrawCommand2D,
+) -> Unit {
+  push_ui_command(Text(command), camera_entity_id)
+}
+
+///|
 pub fn push_ui_text(command : @render2d_types.TextDrawCommand2D) -> Unit {
-  ui_command_bucket(frame2d(), frame2d().current_ui_camera_entity_id).push(
-    Text(command),
-  )
+  push_ui_text_to_camera(None, command)
 }
 
 ///|
@@ -406,10 +401,16 @@ pub fn push_rect(command : @render2d_types.RectDrawCommand2D) -> Unit {
 }
 
 ///|
+pub fn push_ui_rect_to_camera(
+  camera_entity_id : UInt?,
+  command : @render2d_types.RectDrawCommand2D,
+) -> Unit {
+  push_ui_command(Rect(command), camera_entity_id)
+}
+
+///|
 pub fn push_ui_rect(command : @render2d_types.RectDrawCommand2D) -> Unit {
-  ui_command_bucket(frame2d(), frame2d().current_ui_camera_entity_id).push(
-    Rect(command),
-  )
+  push_ui_rect_to_camera(None, command)
 }
 
 ///|
@@ -454,10 +455,16 @@ pub fn push_circle(command : @render2d_types.CircleDrawCommand2D) -> Unit {
 }
 
 ///|
+pub fn push_ui_circle_to_camera(
+  camera_entity_id : UInt?,
+  command : @render2d_types.CircleDrawCommand2D,
+) -> Unit {
+  push_ui_command(Circle(command), camera_entity_id)
+}
+
+///|
 pub fn push_ui_circle(command : @render2d_types.CircleDrawCommand2D) -> Unit {
-  ui_command_bucket(frame2d(), frame2d().current_ui_camera_entity_id).push(
-    Circle(command),
-  )
+  push_ui_circle_to_camera(None, command)
 }
 
 ///|
@@ -504,31 +511,38 @@ pub fn push_gradient_rect(
 }
 
 ///|
+pub fn push_ui_gradient_rect_to_camera(
+  camera_entity_id : UInt?,
+  command : @render2d_types.GradientRectDrawCommand2D,
+) -> Unit {
+  push_ui_command(GradientRect(command), camera_entity_id)
+}
+
+///|
 pub fn push_ui_gradient_rect(
   command : @render2d_types.GradientRectDrawCommand2D,
 ) -> Unit {
-  ui_command_bucket(frame2d(), frame2d().current_ui_camera_entity_id).push(
-    GradientRect(command),
-  )
+  push_ui_gradient_rect_to_camera(None, command)
+}
+
+///|
+pub fn push_ui_clip_for_camera(rect : @math.Rect, camera_entity_id : UInt?) -> Unit {
+  push_ui_command(PushClip({ rect, }), camera_entity_id)
 }
 
 ///|
 pub fn push_ui_clip(rect : @math.Rect) -> Unit {
-  ui_command_bucket(frame2d(), frame2d().current_ui_camera_entity_id).push(
-    PushClip({ rect, }),
-  )
+  push_ui_clip_for_camera(rect, None)
+}
+
+///|
+pub fn pop_ui_clip_for_camera(camera_entity_id : UInt?) -> Unit {
+  push_ui_command(PopClip, camera_entity_id)
 }
 
 ///|
 pub fn pop_ui_clip() -> Unit {
-  ui_command_bucket(frame2d(), frame2d().current_ui_camera_entity_id).push(
-    PopClip,
-  )
-}
-
-///|
-pub fn set_ui_camera_target(camera_entity_id : UInt?) -> Unit {
-  frame2d().current_ui_camera_entity_id = camera_entity_id
+  pop_ui_clip_for_camera(None)
 }
 
 ///|
@@ -564,11 +578,14 @@ pub fn get_camera_world_commands_with_depth(
 
 ///|
 pub fn get_world_commands_with_depth() -> Array[DrawCommandWithDepth2D] {
-  let commands = get_screen_world_commands_with_depth()
-  for camera_entity_id in sorted_camera_entity_ids() {
+  let commands : Array[DrawCommandWithDepth2D] = []
+  for camera_entity_id in sorted_camera_entity_ids_by_pass_order() {
     for command in get_camera_world_commands_with_depth(camera_entity_id) {
       commands.push(command)
     }
+  }
+  for command in get_screen_world_commands_with_depth() {
+    commands.push(command)
   }
   commands
 }
@@ -587,11 +604,14 @@ pub fn get_camera_ui_commands(
 
 ///|
 pub fn get_ui_commands() -> Array[@render2d_types.DrawCommand2D] {
-  let commands = get_screen_ui_commands()
-  for camera_entity_id in sorted_camera_entity_ids() {
+  let commands : Array[@render2d_types.DrawCommand2D] = []
+  for camera_entity_id in sorted_camera_entity_ids_by_pass_order() {
     for command in get_camera_ui_commands(camera_entity_id) {
       commands.push(command)
     }
+  }
+  for command in get_screen_ui_commands() {
+    commands.push(command)
   }
   commands
 }

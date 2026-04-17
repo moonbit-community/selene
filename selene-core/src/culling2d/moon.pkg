@@ -1,4 +1,6 @@
 import {
+  "Milky2018/selene/camera",
   "Milky2018/selene/math",
+  "Milky2018/selene/visibility",
   "moonbitlang/core/set" @set,
 }

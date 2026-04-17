@@ -30,6 +30,8 @@ pub fn get_world_commands_with_depth() -> Array[DrawCommandWithDepth2D]
 
 pub fn pop_ui_clip() -> Unit
 
+pub fn pop_ui_clip_for_camera(UInt?) -> Unit
+
 pub fn push_circle(@render2d_types.CircleDrawCommand2D) -> Unit
 
 pub fn push_circle_with_depth(Double, @render2d_types.CircleDrawCommand2D, sorting? : Sorting2d) -> Unit
@@ -72,17 +74,27 @@ pub fn push_text_with_depth_to_camera(UInt, Double, @render2d_types.TextDrawComm
 
 pub fn push_ui_circle(@render2d_types.CircleDrawCommand2D) -> Unit
 
+pub fn push_ui_circle_to_camera(UInt?, @render2d_types.CircleDrawCommand2D) -> Unit
+
 pub fn push_ui_clip(@math.Rect) -> Unit
+
+pub fn push_ui_clip_for_camera(@math.Rect, UInt?) -> Unit
 
 pub fn push_ui_gradient_rect(@render2d_types.GradientRectDrawCommand2D) -> Unit
 
+pub fn push_ui_gradient_rect_to_camera(UInt?, @render2d_types.GradientRectDrawCommand2D) -> Unit
+
 pub fn push_ui_image(@render2d_types.ImageDrawCommand2D) -> Unit
+
+pub fn push_ui_image_to_camera(UInt?, @render2d_types.ImageDrawCommand2D) -> Unit
 
 pub fn push_ui_rect(@render2d_types.RectDrawCommand2D) -> Unit
 
+pub fn push_ui_rect_to_camera(UInt?, @render2d_types.RectDrawCommand2D) -> Unit
+
 pub fn push_ui_text(@render2d_types.TextDrawCommand2D) -> Unit
 
-pub fn set_ui_camera_target(UInt?) -> Unit
+pub fn push_ui_text_to_camera(UInt?, @render2d_types.TextDrawCommand2D) -> Unit
 
 pub fn sort_depth_for_transform(@transform.GlobalTransform, Sorting2d) -> Double
 

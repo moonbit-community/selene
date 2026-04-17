@@ -2,11 +2,15 @@
 let extracted_ui_entities : Array[@entity.Entity] = []
 
 ///|
-fn push_ui_rect_fill(rect : @math.Rect, color : @render.Color) -> Unit {
+fn push_ui_rect_fill(
+  rect : @math.Rect,
+  color : @render.Color,
+  camera_entity_id? : UInt? = None,
+) -> Unit {
   if rect.size[X] <= 0.0 || rect.size[Y] <= 0.0 || color.a <= 0.0 {
     return
   }
-  @render2d.push_ui_rect({
+  @render2d.push_ui_rect_to_camera(camera_entity_id, {
     rect,
     transform: @math.Transform::identity(),
     alpha_mode: color_alpha_mode(color),
@@ -21,11 +25,12 @@ fn push_ui_circle_fill(
   center : @math.Vec2,
   radius : Double,
   color : @render.Color,
+  camera_entity_id? : UInt? = None,
 ) -> Unit {
   if radius <= 0.0 || color.a <= 0.0 {
     return
   }
-  @render2d.push_ui_circle({
+  @render2d.push_ui_circle_to_camera(camera_entity_id, {
     center,
     radius,
     transform: @math.Transform::identity(),
@@ -179,13 +184,14 @@ fn push_quarter_circle(
   center : @math.Vec2,
   radius : Double,
   color : @render.Color,
+  camera_entity_id? : UInt? = None,
 ) -> Unit {
   if clip_rect.size[X] <= 0.0 || clip_rect.size[Y] <= 0.0 || radius <= 0.0 {
     return
   }
-  @render2d.push_ui_clip(clip_rect)
-  push_ui_circle_fill(center, radius, color)
-  @render2d.pop_ui_clip()
+  @render2d.push_ui_clip_for_camera(clip_rect, camera_entity_id)
+  push_ui_circle_fill(center, radius, color, camera_entity_id=camera_entity_id)
+  @render2d.pop_ui_clip_for_camera(camera_entity_id)
 }
 
 ///|
@@ -193,12 +199,13 @@ fn push_rounded_rect(
   rect : @math.Rect,
   radius : ResolvedBorderRadius,
   color : @render.Color,
+  camera_entity_id? : UInt? = None,
 ) -> Unit {
   if rect.size[X] <= 0.0 || rect.size[Y] <= 0.0 || color.a <= 0.0 {
     return
   }
   if !has_rounded_corners(radius) {
-    push_ui_rect_fill(rect, color)
+    push_ui_rect_fill(rect, color, camera_entity_id=camera_entity_id)
     return
   }
 
@@ -224,6 +231,7 @@ fn push_rounded_rect(
       ),
     },
     color,
+    camera_entity_id=camera_entity_id,
   )
   push_ui_rect_fill(
     {
@@ -231,6 +239,7 @@ fn push_rounded_rect(
       size: @math.Vec2(@cmp.maximum(0.0, w - tl - tr), top_band),
     },
     color,
+    camera_entity_id=camera_entity_id,
   )
   push_ui_rect_fill(
     {
@@ -238,6 +247,7 @@ fn push_rounded_rect(
       size: @math.Vec2(@cmp.maximum(0.0, w - bl - br), bottom_band),
     },
     color,
+    camera_entity_id=camera_entity_id,
   )
   push_ui_rect_fill(
     {
@@ -245,6 +255,7 @@ fn push_rounded_rect(
       size: @math.Vec2(left_band, @cmp.maximum(0.0, h - tl - bl)),
     },
     color,
+    camera_entity_id=camera_entity_id,
   )
   push_ui_rect_fill(
     {
@@ -252,30 +263,35 @@ fn push_rounded_rect(
       size: @math.Vec2(right_band, @cmp.maximum(0.0, h - tr - br)),
     },
     color,
+    camera_entity_id=camera_entity_id,
   )
   push_quarter_circle(
     { position: @math.Vec2(x, y), size: @math.Vec2(tl, tl) },
     @math.Vec2(x + tl, y + tl),
     tl,
     color,
+    camera_entity_id=camera_entity_id,
   )
   push_quarter_circle(
     { position: @math.Vec2(x + w - tr, y), size: @math.Vec2(tr, tr) },
     @math.Vec2(x + w - tr, y + tr),
     tr,
     color,
+    camera_entity_id=camera_entity_id,
   )
   push_quarter_circle(
     { position: @math.Vec2(x + w - br, y + h - br), size: @math.Vec2(br, br) },
     @math.Vec2(x + w - br, y + h - br),
     br,
     color,
+    camera_entity_id=camera_entity_id,
   )
   push_quarter_circle(
     { position: @math.Vec2(x, y + h - bl), size: @math.Vec2(bl, bl) },
     @math.Vec2(x + bl, y + h - bl),
     bl,
     color,
+    camera_entity_id=camera_entity_id,
   )
 }
 
@@ -290,7 +306,10 @@ fn shadow_samples(blur : Double) -> Int {
 }
 
 ///|
-fn push_box_shadow(entity : @entity.Entity) -> Unit {
+fn push_box_shadow(
+  entity : @entity.Entity,
+  camera_entity_id? : UInt? = None,
+) -> Unit {
   guard box_shadows().get(entity) is Some(shadow) else { return }
   guard global_ui_nodes().get(entity) is Some(global) else { return }
   let base_radius = resolved_border_radius(
@@ -329,6 +348,7 @@ fn push_box_shadow(entity : @entity.Entity) -> Unit {
         ),
         inflate_border_radius(base_radius, spread + blur_amount),
         scale_alpha(layer.color, alpha_scale),
+        camera_entity_id=camera_entity_id,
       )
       index -= 1
     }
@@ -362,7 +382,10 @@ fn render_text_style(entity : @entity.Entity) -> @render2d_types.TextStyle2D? {
 }
 
 ///|
-fn ui_material_context_for(entity : @entity.Entity) -> UiMaterialContext? {
+fn ui_material_context_for(
+  entity : @entity.Entity,
+  camera_entity_id? : UInt? = None,
+) -> UiMaterialContext? {
   global_ui_nodes()
   .get(entity)
   .map(fn(transform) {
@@ -371,8 +394,9 @@ fn ui_material_context_for(entity : @entity.Entity) -> UiMaterialContext? {
       transform.screen_rect,
       content_rect=transform.screen_content_rect,
       border_radius=border_radii()
-        .get(entity)
-        .unwrap_or(BorderRadius::all(Val::px(0.0))),
+      .get(entity)
+      .unwrap_or(BorderRadius::all(Val::px(0.0))),
+      target_camera_entity_id=camera_entity_id,
     )
   })
 }
@@ -386,6 +410,7 @@ pub fn draw_ui_material_solid(
     context.rect,
     resolved_border_radius(context.border_radius, context.rect.size),
     color,
+    camera_entity_id=context.target_camera_entity_id,
   )
 }
 
@@ -394,7 +419,7 @@ pub fn draw_ui_material_gradient(
   context : UiMaterialContext,
   gradient : UiGradient,
 ) -> Unit {
-  @render2d.push_ui_gradient_rect({
+  @render2d.push_ui_gradient_rect_to_camera(context.target_camera_entity_id, {
     rect: context.rect,
     transform: @math.Transform::identity(),
     alpha_mode: if gradient.color_start.a >= 0.999999 &&
@@ -414,7 +439,7 @@ pub fn draw_ui_material_image(
   context : UiMaterialContext,
   image : UiImage,
 ) -> Unit {
-  @render2d.push_ui_image({
+  @render2d.push_ui_image_to_camera(context.target_camera_entity_id, {
     image: image.image,
     destination: fitted_image_rect(context.rect, image),
     source: None,
@@ -428,28 +453,43 @@ pub fn draw_ui_material_image(
 }
 
 ///|
-fn push_background(entity : @entity.Entity) -> Unit {
+fn push_background(
+  entity : @entity.Entity,
+  camera_entity_id? : UInt? = None,
+) -> Unit {
   guard !material_nodes().contains(entity) else { return }
   guard background_colors().get(entity) is Some(background) else { return }
-  guard ui_material_context_for(entity) is Some(context) else { return }
+  guard ui_material_context_for(entity, camera_entity_id=camera_entity_id)
+    is Some(context) else {
+    return
+  }
   draw_ui_material_solid(context, background.color)
 }
 
 ///|
-fn push_material_node(entity : @entity.Entity) -> Bool {
+fn push_material_node(
+  entity : @entity.Entity,
+  camera_entity_id? : UInt? = None,
+) -> Bool {
   guard material_nodes().get(entity) is Some(material_node) else {
     return false
   }
   guard ui_material_asset(material_node.material) is Some(material) else {
     return false
   }
-  guard ui_material_context_for(entity) is Some(context) else { return false }
+  guard ui_material_context_for(entity, camera_entity_id=camera_entity_id)
+    is Some(context) else {
+    return false
+  }
   (material.draw)(context)
   true
 }
 
 ///|
-fn push_border(entity : @entity.Entity) -> Unit {
+fn push_border(
+  entity : @entity.Entity,
+  camera_entity_id? : UInt? = None,
+) -> Unit {
   guard border_colors().get(entity) is Some(border_color) else { return }
   guard global_ui_nodes().get(entity) is Some(global) else { return }
   guard computed_ui_nodes().get(entity) is Some(computed) else { return }
@@ -462,11 +502,17 @@ fn push_border(entity : @entity.Entity) -> Unit {
   if has_rounded_corners(radius) {
     match background_colors().get(entity) {
       Some(background) => {
-        push_rounded_rect(rect, radius, border_color.color)
+        push_rounded_rect(
+          rect,
+          radius,
+          border_color.color,
+          camera_entity_id=camera_entity_id,
+        )
         push_rounded_rect(
           inset_rect(rect, border),
           inset_border_radius(radius, border),
           background.color,
+          camera_entity_id=camera_entity_id,
         )
         return
       }
@@ -480,6 +526,7 @@ fn push_border(entity : @entity.Entity) -> Unit {
     push_ui_rect_fill(
       { position: rect.position, size: @math.Vec2(rect.size[X], border.top) },
       border_color.color,
+      camera_entity_id=camera_entity_id,
     )
   }
   if border.bottom > 0.0 {
@@ -492,6 +539,7 @@ fn push_border(entity : @entity.Entity) -> Unit {
         size: @math.Vec2(rect.size[X], border.bottom),
       },
       border_color.color,
+      camera_entity_id=camera_entity_id,
     )
   }
   if border.left > 0.0 {
@@ -504,6 +552,7 @@ fn push_border(entity : @entity.Entity) -> Unit {
         ),
       },
       border_color.color,
+      camera_entity_id=camera_entity_id,
     )
   }
   if border.right > 0.0 {
@@ -519,12 +568,16 @@ fn push_border(entity : @entity.Entity) -> Unit {
         ),
       },
       border_color.color,
+      camera_entity_id=camera_entity_id,
     )
   }
 }
 
 ///|
-fn push_outline(entity : @entity.Entity) -> Unit {
+fn push_outline(
+  entity : @entity.Entity,
+  camera_entity_id? : UInt? = None,
+) -> Unit {
   guard outlines().get(entity) is Some(outline) else { return }
   guard global_ui_nodes().get(entity) is Some(transform) else { return }
   let width = resolve_val(outline.width, transform.screen_rect.size[X])
@@ -552,6 +605,7 @@ fn push_outline(entity : @entity.Entity) -> Unit {
       ),
     },
     outline.color,
+    camera_entity_id=camera_entity_id,
   )
   push_ui_rect_fill(
     {
@@ -565,6 +619,7 @@ fn push_outline(entity : @entity.Entity) -> Unit {
       ),
     },
     outline.color,
+    camera_entity_id=camera_entity_id,
   )
   push_ui_rect_fill(
     {
@@ -575,6 +630,7 @@ fn push_outline(entity : @entity.Entity) -> Unit {
       ),
     },
     outline.color,
+    camera_entity_id=camera_entity_id,
   )
   push_ui_rect_fill(
     {
@@ -588,6 +644,7 @@ fn push_outline(entity : @entity.Entity) -> Unit {
       ),
     },
     outline.color,
+    camera_entity_id=camera_entity_id,
   )
 }
 
@@ -644,11 +701,14 @@ fn fitted_image_rect(container : @math.Rect, image : UiImage) -> @math.Rect {
 }
 
 ///|
-fn push_image(entity : @entity.Entity) -> Unit {
+fn push_image(
+  entity : @entity.Entity,
+  camera_entity_id? : UInt? = None,
+) -> Unit {
   guard !material_nodes().contains(entity) else { return }
   guard ui_images().get(entity) is Some(image) else { return }
   guard global_ui_nodes().get(entity) is Some(transform) else { return }
-  @render2d.push_ui_image({
+  @render2d.push_ui_image_to_camera(camera_entity_id, {
     image: image.image,
     destination: fitted_image_rect(transform.screen_content_rect, image),
     source: None,
@@ -770,7 +830,10 @@ fn prepared_text_lines(
 }
 
 ///|
-fn push_text(entity : @entity.Entity) -> Unit {
+fn push_text(
+  entity : @entity.Entity,
+  camera_entity_id? : UInt? = None,
+) -> Unit {
   guard texts().get(entity) is Some(_) else { return }
   guard global_ui_nodes().get(entity) is Some(transform) else { return }
   guard render_text_style(entity) is Some(style) else { return }
@@ -806,7 +869,7 @@ fn push_text(entity : @entity.Entity) -> Unit {
     // `x`/`y` are already fully resolved in UI layout space.
     // Force renderer-local alignment to top-left to avoid applying alignment twice.
     let style_for_draw = { ..style, align: Left, baseline: Top }
-    @render2d.push_ui_text({
+    @render2d.push_ui_text_to_camera(camera_entity_id, {
       text: line,
       position: @math.Vec2(x, start_y + index.to_double() * line_height),
       transform: @math.Transform::identity(),
@@ -839,7 +902,10 @@ fn inherited_clip_for_entity(entity : @entity.Entity) -> @math.Rect? {
 }
 
 ///|
-fn render_entity(entity : @entity.Entity) -> Unit {
+fn render_entity(
+  entity : @entity.Entity,
+  camera_entity_id? : UInt? = None,
+) -> Unit {
   guard should_render_ui(entity) else { return }
   guard nodes().get(entity) is Some(node) else { return }
   let effective_inherited_clip = inherited_clip_for_entity(entity)
@@ -847,20 +913,20 @@ fn render_entity(entity : @entity.Entity) -> Unit {
   let mut pushed_inherited_clip = false
   match effective_inherited_clip {
     Some(clip_rect) => {
-      @render2d.push_ui_clip(clip_rect)
+      @render2d.push_ui_clip_for_camera(clip_rect, camera_entity_id)
       pushed_inherited_clip = true
     }
     None => ()
   }
 
-  push_box_shadow(entity)
-  ignore(push_material_node(entity))
-  push_background(entity)
-  push_border(entity)
-  push_outline(entity)
+  push_box_shadow(entity, camera_entity_id=camera_entity_id)
+  ignore(push_material_node(entity, camera_entity_id=camera_entity_id))
+  push_background(entity, camera_entity_id=camera_entity_id)
+  push_border(entity, camera_entity_id=camera_entity_id)
+  push_outline(entity, camera_entity_id=camera_entity_id)
 
   if pushed_inherited_clip {
-    @render2d.pop_ui_clip()
+    @render2d.pop_ui_clip_for_camera(camera_entity_id)
   }
 
   let needs_clip = node.overflow_x != Visible || node.overflow_y != Visible
@@ -878,15 +944,15 @@ fn render_entity(entity : @entity.Entity) -> Unit {
     let mut pushed_content_clip = false
     match content_clip {
       Some(clip_rect) => {
-        @render2d.push_ui_clip(clip_rect)
+        @render2d.push_ui_clip_for_camera(clip_rect, camera_entity_id)
         pushed_content_clip = true
       }
       None => ()
     }
-    push_image(entity)
-    push_text(entity)
+    push_image(entity, camera_entity_id=camera_entity_id)
+    push_text(entity, camera_entity_id=camera_entity_id)
     if pushed_content_clip {
-      @render2d.pop_ui_clip()
+      @render2d.pop_ui_clip_for_camera(camera_entity_id)
     }
   }
 }
@@ -913,8 +979,7 @@ pub fn ui_extract_system(_delta : Double) -> Unit {
 ///|
 pub fn ui_prepare_system(_delta : Double) -> Unit {
   for entity in extracted_ui_entities {
-    @render2d.set_ui_camera_target(render_target_camera_id(entity))
-    render_entity(entity)
+    let camera_entity_id = render_target_camera_id(entity)
+    render_entity(entity, camera_entity_id=camera_entity_id)
   }
-  @render2d.set_ui_camera_target(None)
 }

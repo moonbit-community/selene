@@ -154,16 +154,23 @@ test "build_frame2d batches camera ui commands with clip barriers" {
       ),
     )
 
-    @render2d.set_ui_camera_target(Some(camera_entity.id()))
-    @render2d.push_ui_clip({
+    @render2d.push_ui_clip_for_camera({
       position: @math.Vec2(0.0, 0.0),
       size: @math.Vec2(20.0, 20.0),
-    })
-    @render2d.push_ui_rect(test_rect_command(@math.Vec2(1.0, 1.0)))
-    @render2d.push_ui_rect(test_rect_command(@math.Vec2(2.0, 2.0)))
-    @render2d.pop_ui_clip()
-    @render2d.push_ui_rect(test_rect_command(@math.Vec2(3.0, 3.0)))
-    @render2d.set_ui_camera_target(None)
+    }, Some(camera_entity.id()))
+    @render2d.push_ui_rect_to_camera(
+      Some(camera_entity.id()),
+      test_rect_command(@math.Vec2(1.0, 1.0)),
+    )
+    @render2d.push_ui_rect_to_camera(
+      Some(camera_entity.id()),
+      test_rect_command(@math.Vec2(2.0, 2.0)),
+    )
+    @render2d.pop_ui_clip_for_camera(Some(camera_entity.id()))
+    @render2d.push_ui_rect_to_camera(
+      Some(camera_entity.id()),
+      test_rect_command(@math.Vec2(3.0, 3.0)),
+    )
 
     let (frame, _) = build_frame2d(@camera.active_camera2d_views())
     inspect(frame.passes.length(), content="1")

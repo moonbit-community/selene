@@ -58,12 +58,6 @@ let color_materials : Map[ColorMaterialHandle, ColorMaterial] = Map::new()
 let next_color_material_id : Ref[UInt] = Ref::new(0U)
 
 ///|
-let dirty_color_materials : Map[ColorMaterialHandle, ColorMaterial] = Map::new()
-
-///|
-let released_color_materials : Array[ColorMaterialHandle] = []
-
-///|
 fn default_material_color() -> @render.Color {
   @render.Color::{ r: 255U, g: 255U, b: 255U, a: 1.0 }
 }
@@ -106,7 +100,6 @@ pub fn register_color_material(material : ColorMaterial) -> ColorMaterialHandle 
   let handle = ColorMaterialHandle(next_color_material_id.val)
   next_color_material_id.val += 1U
   color_materials.set(handle, material)
-  dirty_color_materials.set(handle, material)
   handle
 }
 
@@ -116,28 +109,9 @@ pub fn update_color_material(
   material : ColorMaterial,
 ) -> Unit {
   color_materials.set(handle, material)
-  dirty_color_materials.set(handle, material)
 }
 
 ///|
 pub fn release_color_material(handle : ColorMaterialHandle) -> Unit {
   color_materials.remove(handle)
-  dirty_color_materials.remove(handle)
-  released_color_materials.push(handle)
-}
-
-///|
-pub fn take_dirty_color_materials() -> Array[
-  (ColorMaterialHandle, ColorMaterial),
-] {
-  let dirty = dirty_color_materials.to_array()
-  dirty_color_materials.clear()
-  dirty
-}
-
-///|
-pub fn take_released_color_materials() -> Array[ColorMaterialHandle] {
-  let released = released_color_materials.copy()
-  released_color_materials.clear()
-  released
 }

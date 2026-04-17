@@ -7,15 +7,21 @@
 ### Changed
 - Changed scene document terminology and APIs to `SDF`, removed semantic-version labels from migration UX copy, deepened `editor_bridge` scene validation, and unified custom-component defaults/validation/runtime handlers under a normalized registry flow.
 - Changed `editor_bridge` document encoders to use canonical non-`_json` names and kept only the formal `SDF`/envelope codec entrypoints across service, specs, and tests.
+- Changed 2D extraction architecture to use shared `culling2d` camera context/filter helpers across `sprite`/`text2d`/`mesh2d`, eliminating duplicated camera-grid/layer-culling pipelines.
+- Changed UI 2D command routing to explicit per-call camera targets (`push_ui_*_to_camera`, `push_ui_clip_for_camera`, `pop_ui_clip_for_camera`) and removed ambient target mutation from frame state.
+- Changed 2D flattened debug command aggregation to follow pass semantics (camera passes in pass order, then screen pass) and removed alpha-state coupling from world sorting order keys.
 
 ### Fixed
 - Fixed GitHub Pages CI to invoke `publish_pages.py` instead of calling the release-only `publish.py` entrypoint without a version argument.
 - Fixed GitHub Pages CI example builds to pass `--target js`, so `publish_pages.py` can find the expected `web.js` release artifacts.
 - Fixed `scripts/check_no_legacy_ui.sh` to keep validating when `rg` is unavailable, so CI no longer reports a false pass on runners without ripgrep.
+- Fixed 2D picking architecture to stop depending on renderer-side per-camera visibility side effects, so input filtering now relies on explicit layer/camera checks only.
 
 ### Removed
 - Removed the legacy project minimum-version field from the persisted protocol and dropped codec passthrough aliases that only forwarded to the canonical `SDF`/envelope APIs.
 - Removed four obsolete planning/tracking docs from `docs/`: `2d-render-issue-tracker.md`, `bevy-alignment-tracker.md`, `bevy-api-mapping.md`, and `bevy-rapier3d-parity-matrix.md`.
+- Removed stale 2D pseudo asset-sync APIs/state from `mesh2d` and `material2d` (`take_dirty_*`, `take_released_*`) that had no submit/backend consumer.
+- Removed per-camera visibility cache APIs from `visibility` (`camera_view_visibilities`, `mark_visible_to_camera`, `is_visible_to_camera`, `visible_camera_entity_ids`) and the `render2d.set_ui_camera_target` ambient routing API.
 
 ## [0.32.4] - 2026-04-17
 
