@@ -41,7 +41,7 @@ jobs:
               continue
             fi
             echo "Building $pkg"
-            moon -C "$pkg" build --release
+            moon -C "$pkg" build --target js --release
           done <<< "$web_packages"
 
       - name: Publish example pages

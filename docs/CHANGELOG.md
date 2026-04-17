@@ -8,6 +8,7 @@
 
 ### Fixed
 - Fixed GitHub Pages CI to invoke `publish_pages.py` instead of calling the release-only `publish.py` entrypoint without a version argument.
+- Fixed GitHub Pages CI example builds to pass `--target js`, so `publish_pages.py` can find the expected `web.js` release artifacts.
 - Fixed `scripts/check_no_legacy_ui.sh` to keep validating when `rg` is unavailable, so CI no longer reports a false pass on runners without ripgrep.
 
 ### Removed
