@@ -620,7 +620,7 @@ pub async fn EditorHarness::read_scene_document(
   relative_path : String,
 ) -> @editor_bridge.SceneDocument {
   let json = parse_json_file(self.project_root + "/" + relative_path)
-  @editor_bridge.decode_scene_snf(json)
+  @editor_bridge.decode_scene_sdf(json)
 }
 
 ///|
@@ -629,7 +629,7 @@ pub async fn EditorHarness::read_scene_document_status(
   relative_path : String,
 ) -> @editor_bridge.SceneDocumentLoadStatus {
   let json = parse_json_file(self.project_root + "/" + relative_path)
-  @editor_bridge.decode_scene_snf_status(relative_path, json)
+  @editor_bridge.decode_scene_sdf_status(relative_path, json)
 }
 
 ///|
@@ -676,7 +676,7 @@ pub async fn EditorHarness::given_scene_document(
   scene : @editor_bridge.SceneDocument,
 ) -> Unit {
   ensure_project_layout(self.project_root)
-  let encoded = @editor_bridge.encode_scene_snf(scene)
+  let encoded = @editor_bridge.encode_scene_sdf(scene)
   write_text_file(self.project_root + "/" + relative_path, encoded)
 }
 

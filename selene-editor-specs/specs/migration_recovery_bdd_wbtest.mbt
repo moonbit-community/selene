@@ -22,7 +22,7 @@ async test "bdd recovery legacy startup scene asks for confirmation and cancel k
     inspect(harness.pending_scene_migration() is Some(_), content="true")
     inspect(
       harness.status(),
-      content="Scene format migration required (SNF v1)",
+      content="Scene format migration required",
     )
 
     harness.when_pending_scene_migration_is_cancelled()

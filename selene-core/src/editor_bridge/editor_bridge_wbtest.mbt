@@ -9,7 +9,7 @@ fn manifest_bytes(manifest : ProjectManifest) -> Bytes raise {
 
 ///|
 fn scene_bytes(scene : SceneDocument) -> Bytes raise {
-  json_string_bytes(encode_scene_snf(scene))
+  json_string_bytes(encode_scene_sdf(scene))
 }
 
 ///|
@@ -35,6 +35,38 @@ fn source_with_documents(entries : Array[(String, Bytes)]) -> DocumentSource {
     documents.set(path, bytes)
   }
   map_document_source(documents)
+}
+
+///|
+priv struct RegisteredCustomComponentTestPayload {
+  label : String
+} derive(FromJson, ToJson)
+
+///|
+fn has_validation_error(
+  errors : Array[ValidationError],
+  path : String,
+  message_fragment : String,
+) -> Bool {
+  for error in errors {
+    if error.path == path && error.message.contains(message_fragment) {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn apply_registered_custom_component_test_payload(
+  entity : @entity.Entity,
+  component : ComponentDocument,
+  _context : AssetInstantiationContext,
+) -> Unit {
+  let parsed : RegisteredCustomComponentTestPayload? = decode_component(
+    Some(component),
+  )
+  guard parsed is Some(data) else { return }
+  @name.names().set(entity, @name.Name::new(data.label))
 }
 
 ///|
@@ -204,7 +236,7 @@ test "scene document round trip" {
 }
 
 ///|
-test "scene snf round trip and canonical encoding are stable" {
+test "scene sdf round trip and canonical encoding are stable" {
   let scene = SceneDocument::{
     version: scene_schema_version,
     name: "Main",
@@ -230,10 +262,10 @@ test "scene snf round trip and canonical encoding are stable" {
       },
     ],
   }
-  let encoded = encode_scene_snf(scene)
-  let decoded = decode_scene_snf(@json.parse(encoded))
+  let encoded = encode_scene_sdf(scene)
+  let decoded = decode_scene_sdf(@json.parse(encoded))
   inspect(decoded == scene, content="true")
-  let encoded_again = encode_scene_snf(scene)
+  let encoded_again = encode_scene_sdf(scene)
   inspect(encoded_again == encoded, content="true")
 }
 
@@ -263,7 +295,7 @@ test "scene patch applies in document space" {
 }
 
 ///|
-test "validation rejects unsupported scene version and missing parent" {
+test "validation rejects unsupported scene version missing parent and invalid custom payload" {
   let scene = SceneDocument::{
     version: 999,
     name: "Broken",
@@ -279,7 +311,272 @@ test "validation rejects unsupported scene version and missing parent" {
     ],
   }
   let errors = validate_scene_document(scene)
-  inspect(errors.length(), content="2")
+  inspect(errors.length(), content="3")
+  inspect(
+    has_validation_error(
+      errors,
+      "version",
+      "Unsupported schema version",
+    ),
+    content="true",
+  )
+  inspect(
+    has_validation_error(errors, "entities[child].parent", "Parent entity does not exist"),
+    content="true",
+  )
+  inspect(
+    has_validation_error(
+      errors,
+      "entities[child].components[UnknownKind]",
+      "Custom component payload must be a JSON object",
+    ),
+    content="true",
+  )
+}
+
+///|
+test "validation rejects duplicate component kinds dependency gaps and parent cycles" {
+  let scene = SceneDocument::{
+    version: scene_schema_version,
+    name: "BrokenGraph",
+    entities: [
+      EntityDocument::{
+        id: "a",
+        name: "A",
+        parent: Some("b"),
+        components: [
+          visibility_component(),
+          visibility_component(),
+          texture_atlas_component(),
+        ],
+      },
+      EntityDocument::{
+        id: "b",
+        name: "B",
+        parent: Some("a"),
+        components: [
+          mesh2d_component("triangle"),
+          color_material_component(),
+        ],
+      },
+    ],
+  }
+  let errors = validate_scene_document(scene)
+  inspect(
+    has_validation_error(
+      errors,
+      "entities[a].components[Visibility]",
+      "Duplicated component kind on entity",
+    ),
+    content="true",
+  )
+  inspect(
+    has_validation_error(
+      errors,
+      "entities[a].components[TextureAtlas]",
+      "requires Sprite",
+    ),
+    content="true",
+  )
+  inspect(
+    has_validation_error(
+      errors,
+      "entities[a].parent",
+      "must not contain cycles",
+    ),
+    content="true",
+  )
+  inspect(
+    has_validation_error(
+      errors,
+      "entities[b].components[Mesh2d].primitive",
+      "rectangle or circle",
+    ),
+    content="true",
+  )
+}
+
+///|
+test "validation reports field-level builtin component payload issues" {
+  let scene = SceneDocument::{
+    version: scene_schema_version,
+    name: "BrokenFields",
+    entities: [
+      entity_document("sprite", "Sprite", components=[
+        transform2d_component(scale=vec2_doc(0.0, 1.0)),
+        sprite_component(
+          image_path=Some(""),
+          custom_size=Some(vec2_doc(-4.0, 8.0)),
+          rect=Some(rect_doc(0.0, 0.0, 0.0, 16.0)),
+        ),
+      ]),
+      entity_document("camera", "Camera", components=[
+        transform2d_component(),
+        camera2d_component(scale=0.0),
+      ]),
+      entity_document("atlas", "Atlas", components=[
+        transform2d_component(),
+        sprite_component(image_path=Some("assets/images/player.png")),
+        texture_atlas_component(region_name=Some(""), index=-1),
+      ]),
+      entity_document("anim", "Animation", components=[
+        transform2d_component(),
+        animation_player_component(autoplay=true, repeat_mode=Count(0), speed=0.0),
+      ]),
+    ],
+  }
+  let errors = validate_scene_document(scene)
+  inspect(
+    has_validation_error(
+      errors,
+      "entities[sprite].components[Transform2d].scale",
+      "Transform2d scale must be positive",
+    ),
+    content="true",
+  )
+  inspect(
+    has_validation_error(
+      errors,
+      "entities[sprite].components[Sprite].custom_size",
+      "Sprite custom size must be positive",
+    ),
+    content="true",
+  )
+  inspect(
+    has_validation_error(
+      errors,
+      "entities[sprite].components[Sprite].rect",
+      "Sprite source rect size must be positive",
+    ),
+    content="true",
+  )
+  inspect(
+    has_validation_error(
+      errors,
+      "entities[camera].components[Camera2d].scale",
+      "Camera2d scale must be positive",
+    ),
+    content="true",
+  )
+  inspect(
+    has_validation_error(
+      errors,
+      "entities[atlas].components[TextureAtlas].region_name",
+      "must not be empty",
+    ),
+    content="true",
+  )
+  inspect(
+    has_validation_error(
+      errors,
+      "entities[atlas].components[TextureAtlas].index",
+      "must be non-negative",
+    ),
+    content="true",
+  )
+  inspect(
+    has_validation_error(
+      errors,
+      "entities[anim].components[AnimationPlayer].autoplay",
+      "requires graph_asset_path",
+    ),
+    content="true",
+  )
+  inspect(
+    has_validation_error(
+      errors,
+      "entities[anim].components[AnimationPlayer].speed",
+      "must be positive",
+    ),
+    content="true",
+  )
+}
+
+///|
+test "custom component registry wires defaults validation and apply" {
+  let custom_kind = "RegisteredCustomComponentTest"
+  register_custom_component(
+    custom_kind,
+    custom_component_handler(
+      default_data=fn() {
+        RegisteredCustomComponentTestPayload::{ label: "Default Marker" }.to_json()
+      },
+      validate=fn(component, path) {
+        let decoded : Result[
+          RegisteredCustomComponentTestPayload,
+          Array[ValidationError],
+        ] = validate_custom_component_payload(
+          component,
+          path,
+          "Registered custom payload is invalid",
+        )
+        match decoded {
+          Ok(data) =>
+            if data.label.trim() == "" {
+              [{ path: path + ".label", message: "Registered custom label must not be empty" }]
+            } else {
+              []
+            }
+          Err(errors) => errors
+        }
+      },
+      apply=apply_registered_custom_component_test_payload,
+    ),
+  )
+  inspect(
+    custom_component_default_data_for(custom_kind).unwrap().stringify(),
+    content="{\"label\":\"Default Marker\"}",
+  )
+  let invalid_scene = SceneDocument::{
+    version: scene_schema_version,
+    name: "Custom Invalid",
+    entities: [
+      EntityDocument::{
+        id: "marker",
+        name: "Marker",
+        parent: None,
+        components: [
+          component_document(
+            custom_kind,
+            RegisteredCustomComponentTestPayload::{ label: "" }.to_json(),
+          ),
+        ],
+      },
+    ],
+  }
+  let invalid_errors = validate_scene_document(invalid_scene)
+  inspect(
+    has_validation_error(
+      invalid_errors,
+      "entities[marker].components[RegisteredCustomComponentTest].label",
+      "must not be empty",
+    ),
+    content="true",
+  )
+  let scene = SceneDocument::{
+    version: scene_schema_version,
+    name: "Custom Valid",
+    entities: [
+      EntityDocument::{
+        id: "marker",
+        name: "Marker",
+        parent: None,
+        components: [
+          component_document(
+            custom_kind,
+            RegisteredCustomComponentTestPayload::{ label: "Applied Marker" }.to_json(),
+          ),
+        ],
+      },
+    ],
+  }
+  let runtime = instantiate_scene_document_with_context(
+    scene,
+    asset_instantiation_context(),
+  )
+  let entity = runtime.entity("marker").unwrap()
+  inspect(@name.name_of(entity).unwrap(), content="Applied Marker")
+  runtime.destroy()
 }
 
 ///|
@@ -412,12 +709,12 @@ test "codec decodes valid project and scene documents" {
   let manifest = ProjectManifest::default("demo")
   let scene = SceneDocument::default_main()
   let manifest_json = @json.parse(encode_project_manifest_json(manifest))
-  let scene_json = @json.parse(encode_scene_snf(scene))
+  let scene_json = @json.parse(encode_scene_sdf(scene))
   inspect(
     decode_project_manifest(manifest_json) == manifest,
     content="true",
   )
-  inspect(decode_scene_snf(scene_json) == scene, content="true")
+  inspect(decode_scene_sdf(scene_json) == scene, content="true")
 }
 
 ///|
@@ -444,7 +741,7 @@ test "codec reports scene migration for legacy scene documents" {
   let legacy_json = @json.parse(
     "{\n  \"version\": 2,\n  \"entities\": [\n    {\n      \"id\": \"camera\",\n      \"components\": [\n        {\n          \"kind\": \"Transform2d\",\n          \"data\": {\n            \"translation\": { \"x\": 0, \"y\": 0 },\n            \"rotation\": 0,\n            \"scale\": { \"x\": 1, \"y\": 1 }\n          }\n        },\n        {\n          \"kind\": \"Camera2d\",\n          \"data\": { \"is_active\": true, \"order\": 0, \"scale\": 1 }\n        },\n        {\n          \"kind\": \"Visibility\",\n          \"data\": { \"visible\": true }\n        }\n      ]\n    }\n  ]\n}\n",
   )
-  match decode_scene_snf_status("scenes/main.scene.json", legacy_json) {
+  match decode_scene_sdf_status("scenes/main.scene.json", legacy_json) {
     MigrationRequired(preview) => {
       inspect(preview.scene.name, content="Main")
       inspect(preview.scene.version == scene_schema_version, content="true")
@@ -531,6 +828,7 @@ test "loader fails clearly for missing and invalid dependency documents" {
   let scene = SceneDocument::default_main().with_entity(
     entity_document("hero", "Hero", components=[
       transform2d_component(),
+      sprite_component(),
       texture_atlas_component(atlas_asset_path=Some(atlas_path)),
     ]),
   )

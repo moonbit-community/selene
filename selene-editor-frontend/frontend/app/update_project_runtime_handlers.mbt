@@ -221,7 +221,7 @@ fn handle_scene_loaded(
         add_component_panel_open: false,
         component_search_query: "",
         open_component_menu_kind: None,
-        status: "Scene format migration required (SNF v1)",
+        status: "Scene format migration required",
       }
       let cleared = next.workspace
         .with_last_scene(Some(preview.path))

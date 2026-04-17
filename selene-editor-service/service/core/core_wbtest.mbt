@@ -788,7 +788,7 @@ async test "scene.load can require migration and scene.migrate writes back the m
       _ => fail("expected migrated scene load response")
     }
 
-    let persisted_scene = @editor_bridge.decode_scene_snf(
+    let persisted_scene = @editor_bridge.decode_scene_sdf(
       @json.parse(@fs.read_file(path_join(root, "scenes/main.scene.json")).text()),
     )
     inspect(persisted_scene.version == @editor_bridge.scene_schema_version, content="true")

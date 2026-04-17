@@ -160,17 +160,19 @@ fn update_inspector_components(
                   },
                 )
               } else {
-                let default_data = match parse_custom_component_json("{}") {
-                  Ok(json) => json
-                  Err(_) => Json::null()
-                }
+                let default_data = @editor_bridge.custom_component_default_data_for(
+                  kind,
+                ).unwrap_or_else(fn() { @editor_bridge.default_custom_component_data() })
                 let next = update_selected_component(
                   model,
                   @editor_bridge.component_document(kind, default_data),
                 )
                 let key = component_state_key(entity.id, kind)
                 let custom_component_json_drafts = next.custom_component_json_drafts
-                custom_component_json_drafts.set(key, "{}")
+                custom_component_json_drafts.set(
+                  key,
+                  default_data.stringify(indent=2),
+                )
                 let custom_component_json_errors = next.custom_component_json_errors
                 custom_component_json_errors.remove(key) |> ignore
                 apply_scene_change(model, {

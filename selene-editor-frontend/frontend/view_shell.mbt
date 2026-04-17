@@ -164,7 +164,7 @@ fn scene_migration_dialog_view(
       @html.h2(class="modal-title", "Scene Format Migration Required"),
       @html.p(
         class="modal-copy",
-        "This scene is not SNF v1 yet. Review the planned migration before loading it.",
+        "This scene uses an older scene document format. Review the migration before loading it.",
       ),
       @html.div(class="migration-summary", [
         @html.div(class="migration-label", "File"),

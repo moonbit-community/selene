@@ -14,7 +14,7 @@ pub struct AssetInstantiationContext {
   atlas_assets : Map[String, AtlasAssetDocument]
   animation_clip_assets : Map[String, AnimationClipAssetDocument]
   animation_graph_assets : Map[String, AnimationGraphAssetDocument]
-  custom_component_appliers : Map[String, CustomComponentApplier]
+  custom_component_handlers : Map[String, CustomComponentHandler]
 }
 
 ///|
@@ -37,19 +37,8 @@ priv struct PreparedAtlas {
 }
 
 ///|
-let registered_custom_component_appliers : Map[String, CustomComponentApplier] = {}
-
-///|
 pub fn identity_asset_path_resolver(path : String?) -> String? {
   path
-}
-
-///|
-pub fn register_custom_component(
-  kind : String,
-  applier : CustomComponentApplier,
-) -> Unit {
-  registered_custom_component_appliers.set(kind, applier)
 }
 
 ///|
@@ -58,14 +47,14 @@ pub fn asset_instantiation_context(
   atlas_assets? : Map[String, AtlasAssetDocument] = {},
   animation_clip_assets? : Map[String, AnimationClipAssetDocument] = {},
   animation_graph_assets? : Map[String, AnimationGraphAssetDocument] = {},
-  custom_component_appliers? : Map[String, CustomComponentApplier] = registered_custom_component_appliers,
+  custom_component_handlers? : Map[String, CustomComponentHandler] = registered_custom_component_handlers,
 ) -> AssetInstantiationContext {
   {
     asset_path_resolver,
     atlas_assets,
     animation_clip_assets,
     animation_graph_assets,
-    custom_component_appliers,
+    custom_component_handlers: normalize_custom_component_handlers(custom_component_handlers),
   }
 }
 
@@ -908,9 +897,9 @@ fn apply_document_components(
       "AnimationTransitions" => ()
       "AutoTileLayer2d" => ()
       _ =>
-        if context.custom_component_appliers.get(component.kind)
-          is Some(applier) {
-          applier(entity, component, context)
+        if context.custom_component_handlers.get(component.kind)
+          is Some(handler) {
+          (handler.apply)(entity, component, context)
         }
     }
   }

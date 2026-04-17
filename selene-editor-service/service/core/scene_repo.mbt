@@ -231,7 +231,7 @@ async fn load_scene_document(
   let json = parse_json_file(path) catch {
     _ => raise Failure("Scene document is invalid: " + relative_path)
   }
-  @editor_bridge.decode_scene_snf_status(relative_path, json) catch {
+  @editor_bridge.decode_scene_sdf_status(relative_path, json) catch {
     @editor_bridge.InvalidSceneDocument(_) =>
       raise Failure("Scene document is invalid: " + relative_path)
     err => raise err
@@ -248,7 +248,7 @@ async fn migrate_scene_document(
   let json = parse_json_file(path) catch {
     _ => raise Failure("Scene document is invalid: " + relative_path)
   }
-  let scene = @editor_bridge.migrate_scene_to_snf(relative_path, json) catch {
+  let scene = @editor_bridge.migrate_scene_to_sdf(relative_path, json) catch {
     @editor_bridge.InvalidSceneDocument(_) =>
       raise Failure("Scene document is invalid: " + relative_path)
     err => raise err
@@ -317,10 +317,10 @@ async fn save_scene_document(
   relative_path : String,
   scene : @editor_bridge.SceneDocument,
 ) -> SceneDiskState {
-  let scene_snf = @editor_bridge.encode_scene_snf(scene)
+  let scene_sdf = @editor_bridge.encode_scene_sdf(scene)
   let path = scene_path(root, relative_path)
   ensure_dir(path_join(root, "scenes"))
-  write_text_file(path, scene_snf)
+  write_text_file(path, scene_sdf)
   scene_disk_state(root, relative_path)
 }
 

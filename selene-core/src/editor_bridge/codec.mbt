@@ -399,7 +399,7 @@ pub fn decode_project_manifest_status(
 }
 
 ///|
-pub fn decode_scene_snf(json : Json) -> SceneDocument raise {
+pub fn decode_scene_sdf(json : Json) -> SceneDocument raise {
   decode_scene_data(
     decode_envelope_data(
       json,
@@ -410,7 +410,7 @@ pub fn decode_scene_snf(json : Json) -> SceneDocument raise {
 }
 
 ///|
-pub fn encode_scene_snf(scene : SceneDocument) -> String raise {
+pub fn encode_scene_sdf(scene : SceneDocument) -> String raise {
   ignore(decode_scene_data(scene.to_json()))
   encode_envelope(scene_document_schema, scene.to_json())
 }
@@ -475,11 +475,11 @@ pub fn decode_workspace_document(json : Json) -> WorkspaceDocument raise {
 }
 
 ///|
-pub fn decode_scene_snf_status(
+pub fn decode_scene_sdf_status(
   path : String,
   json : Json,
 ) -> SceneDocumentLoadStatus raise {
-  let strict : Result[SceneDocument, Error] = try? decode_scene_snf(json)
+  let strict : Result[SceneDocument, Error] = try? decode_scene_sdf(json)
   match strict {
     Ok(scene) => Ready(scene)
     Err(InvalidSceneDocument(message)) => {
@@ -534,7 +534,7 @@ pub fn decode_animation_graph_asset_document_status(
 
 ///|
 pub fn decode_scene_document(json : Json) -> SceneDocument raise {
-  decode_scene_snf(json)
+  decode_scene_sdf(json)
 }
 
 ///|
@@ -542,12 +542,12 @@ pub fn decode_scene_document_status(
   path : String,
   json : Json,
 ) -> SceneDocumentLoadStatus raise {
-  decode_scene_snf_status(path, json)
+  decode_scene_sdf_status(path, json)
 }
 
 ///|
-pub fn migrate_scene_to_snf(path : String, json : Json) -> SceneDocument raise {
-  match decode_scene_snf_status(path, json) {
+pub fn migrate_scene_to_sdf(path : String, json : Json) -> SceneDocument raise {
+  match decode_scene_sdf_status(path, json) {
     Ready(scene) => scene
     MigrationRequired(preview) => preview.scene
   }
@@ -558,7 +558,7 @@ pub fn migrate_scene_document_json(
   path : String,
   json : Json,
 ) -> SceneDocument raise {
-  migrate_scene_to_snf(path, json)
+  migrate_scene_to_sdf(path, json)
 }
 
 ///|

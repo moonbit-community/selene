@@ -32,7 +32,7 @@ priv struct PixelAdventureFlagComponent {} derive(FromJson)
 priv struct PixelAdventureTerrainComponent {
   solid : Bool
   collider_group : String
-} derive(FromJson)
+} derive(FromJson, ToJson)
 
 ///|
 priv struct TerrainPlacement {
@@ -47,6 +47,61 @@ priv struct LoadedLevelScene {
   player_entity : @entity.Entity
   camera_entity : @entity.Entity
   world_size : @math.Vec2
+}
+
+///|
+fn pixeladventure_empty_component_data() -> Json {
+  @editor_bridge.default_custom_component_data()
+}
+
+///|
+fn terrain_component_default_data() -> Json {
+  PixelAdventureTerrainComponent::{
+    solid: false,
+    collider_group: "grass",
+  }.to_json()
+}
+
+///|
+fn[T : @json.FromJson] validate_pixeladventure_component(
+  component : @editor_bridge.ComponentDocument,
+  path : String,
+  label : String,
+) -> Result[T, Array[@editor_bridge.ValidationError]] {
+  @editor_bridge.validate_custom_component_payload(
+    component,
+    path,
+    label + " payload is invalid",
+  )
+}
+
+///|
+fn validate_pixeladventure_terrain_component(
+  component : @editor_bridge.ComponentDocument,
+  path : String,
+) -> Array[@editor_bridge.ValidationError] {
+  let decoded : Result[
+    PixelAdventureTerrainComponent,
+    Array[@editor_bridge.ValidationError],
+  ] = validate_pixeladventure_component(
+    component,
+    path,
+    "PixelAdventureTerrain",
+  )
+  match decoded {
+    Ok(data) =>
+      if data.collider_group.trim() == "" {
+        [
+          @editor_bridge.validation_error(
+            path + ".collider_group",
+            "PixelAdventureTerrain collider_group must not be empty",
+          ),
+        ]
+      } else {
+        []
+      }
+    Err(errors) => errors
+  }
 }
 
 ///|
@@ -174,27 +229,111 @@ fn apply_pixeladventure_terrain_component(
 }
 
 ///|
-fn pixeladventure_custom_component_appliers() -> Map[
+fn pixeladventure_custom_component_handlers() -> Map[
   String,
-  @editor_bridge.CustomComponentApplier,
+  @editor_bridge.CustomComponentHandler,
 ] {
-  let appliers : Map[String, @editor_bridge.CustomComponentApplier] = {}
-  appliers.set(
-    pixeladventure_player_component_kind, apply_pixeladventure_player_component,
+  let handlers : Map[String, @editor_bridge.CustomComponentHandler] = {}
+  handlers.set(
+    pixeladventure_player_component_kind,
+    @editor_bridge.custom_component_handler(
+      default_data=pixeladventure_empty_component_data,
+      validate=fn(component, path) {
+        let decoded : Result[
+          PixelAdventurePlayerComponent,
+          Array[@editor_bridge.ValidationError],
+        ] = validate_pixeladventure_component(
+          component,
+          path,
+          "PixelAdventurePlayer",
+        )
+        match decoded {
+          Ok(_) => []
+          Err(errors) => errors
+        }
+      },
+      apply=apply_pixeladventure_player_component,
+    ),
   )
-  appliers.set(
-    pixeladventure_bird_component_kind, apply_pixeladventure_bird_component,
+  handlers.set(
+    pixeladventure_bird_component_kind,
+    @editor_bridge.custom_component_handler(
+      default_data=pixeladventure_empty_component_data,
+      validate=fn(component, path) {
+        let decoded : Result[
+          PixelAdventureBirdComponent,
+          Array[@editor_bridge.ValidationError],
+        ] = validate_pixeladventure_component(
+          component,
+          path,
+          "PixelAdventureBird",
+        )
+        match decoded {
+          Ok(_) => []
+          Err(errors) => errors
+        }
+      },
+      apply=apply_pixeladventure_bird_component,
+    ),
   )
-  appliers.set(
-    pixeladventure_apple_component_kind, apply_pixeladventure_apple_component,
+  handlers.set(
+    pixeladventure_apple_component_kind,
+    @editor_bridge.custom_component_handler(
+      default_data=pixeladventure_empty_component_data,
+      validate=fn(component, path) {
+        let decoded : Result[
+          PixelAdventureAppleComponent,
+          Array[@editor_bridge.ValidationError],
+        ] = validate_pixeladventure_component(
+          component,
+          path,
+          "PixelAdventureApple",
+        )
+        match decoded {
+          Ok(_) => []
+          Err(errors) => errors
+        }
+      },
+      apply=apply_pixeladventure_apple_component,
+    ),
   )
-  appliers.set(
-    pixeladventure_flag_component_kind, apply_pixeladventure_flag_component,
+  handlers.set(
+    pixeladventure_flag_component_kind,
+    @editor_bridge.custom_component_handler(
+      default_data=pixeladventure_empty_component_data,
+      validate=fn(component, path) {
+        let decoded : Result[
+          PixelAdventureFlagComponent,
+          Array[@editor_bridge.ValidationError],
+        ] = validate_pixeladventure_component(
+          component,
+          path,
+          "PixelAdventureFlag",
+        )
+        match decoded {
+          Ok(_) => []
+          Err(errors) => errors
+        }
+      },
+      apply=apply_pixeladventure_flag_component,
+    ),
   )
-  appliers.set(
-    pixeladventure_terrain_component_kind, apply_pixeladventure_terrain_component,
+  handlers.set(
+    pixeladventure_terrain_component_kind,
+    @editor_bridge.custom_component_handler(
+      default_data=terrain_component_default_data,
+      validate=validate_pixeladventure_terrain_component,
+      apply=apply_pixeladventure_terrain_component,
+    ),
   )
-  appliers
+  handlers
+}
+
+///|
+fn register_pixeladventure_custom_components() -> Unit {
+  for kind, handler in pixeladventure_custom_component_handlers() {
+    @editor_bridge.register_custom_component(kind, handler)
+  }
 }
 
 ///|
@@ -311,6 +450,7 @@ fn load_level_scene_with_source(
   source : @editor_bridge.DocumentSource,
   manifest_path? : String = @editor_bridge.project_manifest_file_name(""),
 ) -> LoadedLevelScene {
+  register_pixeladventure_custom_components()
   let bundle = load_pixeladventure_project_bundle_with_source(
     source,
     manifest_path~,
@@ -320,7 +460,7 @@ fn load_level_scene_with_source(
     atlas_assets=bundle.atlas_assets,
     animation_clip_assets=bundle.animation_clip_assets,
     animation_graph_assets=bundle.animation_graph_assets,
-    custom_component_appliers=pixeladventure_custom_component_appliers(),
+    custom_component_handlers=pixeladventure_custom_component_handlers(),
   )
   let runtime = @editor_bridge.instantiate_scene_document_with_context(
     scene, context,
