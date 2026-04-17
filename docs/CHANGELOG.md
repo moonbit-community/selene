@@ -12,6 +12,7 @@
 - Fixed `scripts/check_no_legacy_ui.sh` to keep validating when `rg` is unavailable, so CI no longer reports a false pass on runners without ripgrep.
 
 ### Removed
+- Removed four obsolete planning/tracking docs from `docs/`: `2d-render-issue-tracker.md`, `bevy-alignment-tracker.md`, `bevy-api-mapping.md`, and `bevy-rapier3d-parity-matrix.md`.
 
 ## [0.32.4] - 2026-04-17
 
