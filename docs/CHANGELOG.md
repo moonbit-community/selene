@@ -6,6 +6,18 @@
 
 ### Changed
 
+### Fixed
+- Fixed GitHub Pages CI to invoke `publish_pages.py` instead of calling the release-only `publish.py` entrypoint without a version argument.
+- Fixed `scripts/check_no_legacy_ui.sh` to keep validating when `rg` is unavailable, so CI no longer reports a false pass on runners without ripgrep.
+
+### Removed
+
+## [0.32.4] - 2026-04-17
+
+### Added
+
+### Changed
+
 - Changed `selene-editor-frontend/frontend` view composition by extracting inspector/component graph panel render helpers from `top.mbt` into `inspector_components_view.mbt`, reducing the single-file hotspot size while keeping behavior unchanged.
 - Changed large-file architecture across core/render/editor packages by splitting former hotspot files into focused modules (`scene3d`, `physics3d`, `animation`, `collision/rapier2d`, `ldtk`, `raylib`, `webgpu`, `editor-frontend`) and keeping package `top.mbt` files as facade-only entrypoints.
 - Changed render backend naming/contracts to unified frame/pass semantics (`frame_begin/frame_end`, `render2d_begin_pass/render2d_end_pass`, `render3d_submit`) and updated backend platform call sites accordingly.

@@ -1,14 +1,14 @@
 {
   "name": "Milky2018/selene_editor_service",
-  "version": "0.32.3",
+  "version": "0.32.4",
   "deps": {
     "Milky2018/selene": {
       "path": "../selene-core",
-      "version": "0.32.3"
+      "version": "0.32.4"
     },
     "Milky2018/selene_editor_shared": {
       "path": "../selene-editor-shared",
-      "version": "0.32.3"
+      "version": "0.32.4"
     },
     "moonbitlang/async": "0.16.8",
     "moonbitlang/x": "0.4.43"

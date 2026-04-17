@@ -13,10 +13,6 @@ import {
 }
 
 // Values
-pub fn begin_2d_pass(@math.Rect, @render2d_types.RenderPassLoadOp2D, @render.Color, @render2d_types.RenderPassTarget2D) -> Unit
-
-pub fn begin_frame(@render.Color) -> Unit
-
 pub fn capture_frame_png() -> Bytes?
 
 pub fn capture_frame_png_to_file(String) -> Bool
@@ -31,9 +27,9 @@ pub fn draw_rect(@render2d_types.RectDrawCommand2D) -> Unit
 
 pub fn draw_text(@render2d_types.TextDrawCommand2D) -> Unit
 
-pub fn end_2d_pass() -> Unit
+pub fn frame_begin(@render.Color) -> Unit
 
-pub fn end_frame() -> Unit
+pub fn frame_end() -> Unit
 
 pub fn get_asset_bytes(String) -> Bytes?
 
@@ -73,7 +69,11 @@ pub fn release_material_asset(@render3d_types.MaterialHandle) -> Unit
 
 pub fn release_mesh_asset(@render3d_types.MeshHandle) -> Unit
 
-pub fn render_3d_frame(@render3d_types.RenderFrame3D) -> Unit
+pub fn render2d_begin_pass(@math.Rect, @render2d_types.RenderPassLoadOp2D, @render.Color, @render2d_types.RenderPassTarget2D) -> Unit
+
+pub fn render2d_end_pass() -> Unit
+
+pub fn render3d_submit(@render3d_types.RenderFrame3D) -> Unit
 
 pub fn request_close() -> Unit
 

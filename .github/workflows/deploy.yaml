@@ -44,9 +44,9 @@ jobs:
             moon -C "$pkg" build --release
           done <<< "$web_packages"
 
-      - name: Copy example games
+      - name: Publish example pages
         run: |
-          python3 publish.py
+          python3 publish_pages.py
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
