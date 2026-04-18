@@ -620,6 +620,7 @@ pub fn initialize(
     )
     @raylib.set_exit_key(@raylib.KeyNull)
     @raylib.set_target_fps(config.fps.reinterpret_as_int())
+    @raylib.set_audio_stream_buffer_size_default(8192)
     if !@raylib.is_audio_device_ready() {
       @raylib.init_audio_device()
     }

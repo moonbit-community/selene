@@ -203,6 +203,7 @@ pub fn play_audio(
   let instance = next_audio_instance()
   let playback = if loop_ {
     let music = create_music(audio_path)
+    let total_seconds : Float = @raylib.get_music_time_length(music)
     @raylib.set_music_volume(music, to_float(volume))
     @raylib.set_music_pitch(music, to_float(speed))
     if !paused {
@@ -210,6 +211,7 @@ pub fn play_audio(
     }
     {
       kind: Music(music),
+      music_total_seconds: total_seconds,
       loop_: true,
       paused,
       started: !paused,
@@ -225,6 +227,7 @@ pub fn play_audio(
     }
     {
       kind: Sound(sound),
+      music_total_seconds: 0.0,
       loop_: false,
       paused,
       started: !paused,
