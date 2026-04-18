@@ -211,6 +211,7 @@ priv enum AudioPlaybackKind {
 ///|
 priv struct AudioPlayback {
   kind : AudioPlaybackKind
+  mut music_total_seconds : Float
   mut loop_ : Bool
   mut paused : Bool
   mut started : Bool
