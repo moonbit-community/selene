@@ -5,6 +5,16 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Removed
+
+## [0.33.0] - 2026-04-19
+
+### Added
+
+### Changed
 - Changed scene document terminology and APIs to `SDF`, removed semantic-version labels from migration UX copy, deepened `editor_bridge` scene validation, and unified custom-component defaults/validation/runtime handlers under a normalized registry flow.
 - Changed `editor_bridge` document encoders to use canonical non-`_json` names and kept only the formal `SDF`/envelope codec entrypoints across service, specs, and tests.
 - Changed 2D extraction architecture to use shared `culling2d` camera context/filter helpers across `sprite`/`text2d`/`mesh2d`, eliminating duplicated camera-grid/layer-culling pipelines.
