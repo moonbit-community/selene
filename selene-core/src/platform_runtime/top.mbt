@@ -11,6 +11,7 @@ pub(all) struct WindowConfig {
 ///|
 pub(all) struct RunnerCallbacks {
   startup : () -> Unit
+  service_frame : () -> Unit
   render_loop : (Double) -> Unit
   game_loop : (Double) -> Unit
 }

@@ -625,6 +625,11 @@ fn run_game_frame(
 }
 
 ///|
+fn service_platform_frame(service_frame : () -> Unit) -> Unit {
+  service_frame()
+}
+
+///|
 fn run_render_frame(plan : RuntimePlan, raw_delta : Double) -> Unit {
   @ecs.set_current_world(plan.world)
   let used_delta = resolved_frame_delta(raw_delta)
@@ -642,7 +647,20 @@ fn run_render_frame(plan : RuntimePlan, raw_delta : Double) -> Unit {
     None => (0, 0)
   }
   @runtime_debug.note_render(delta, draw2d_count, draw3d_count)
-  @platform_audio.tick()
+}
+
+///|
+fn run_headless_frame(
+  plan : RuntimePlan,
+  accumulator : Ref[Double],
+  raw_delta : Double,
+  input_override : @inputs.InputSnapshot?,
+  service_frame : () -> Unit,
+) -> Unit {
+  service_platform_frame(service_frame)
+  run_game_frame(plan, accumulator, raw_delta, input_override)
+  run_render_frame(plan, raw_delta)
+  service_platform_frame(service_frame)
 }
 
 ///|
@@ -655,6 +673,10 @@ pub fn App::run(self : App) -> Unit {
 
   fn startup() {
     startup_runtime(plan)
+  }
+
+  fn service_frame() {
+    @platform_audio.tick()
   }
 
   fn render_loop(_raw_delta : Double) {
@@ -674,7 +696,7 @@ pub fn App::run(self : App) -> Unit {
       fps: self.fps,
       image_smooth: self.image_smooth,
     },
-    { startup, render_loop, game_loop },
+    { startup, service_frame, render_loop, game_loop },
   )
   run_game()
 }
@@ -696,8 +718,7 @@ pub fn App::run_frames(
   let default_delta = 1.0 / self.fps.to_double()
   let used_delta = if raw_delta > 0.0 { raw_delta } else { default_delta }
   for _ in 0..<frames {
-    run_game_frame(plan, accumulator, used_delta, None)
-    run_render_frame(plan, used_delta)
+    run_headless_frame(plan, accumulator, used_delta, None, @platform_audio.tick)
   }
 }
 
@@ -743,8 +764,7 @@ pub fn App::run_frames_capture(
     self.viewport_height * self.zoom,
   )
   for _ in 0..<frames {
-    run_game_frame(plan, accumulator, used_delta, None)
-    run_render_frame(plan, used_delta)
+    run_headless_frame(plan, accumulator, used_delta, None, @platform_audio.tick)
     if @runtime_debug.capture_last_frame_with_metadata(
         resolved_width,
         resolved_height,

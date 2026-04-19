@@ -16,6 +16,8 @@
 - Fixed GitHub Pages CI example builds to pass `--target js`, so `publish_pages.py` can find the expected `web.js` release artifacts.
 - Fixed `scripts/check_no_legacy_ui.sh` to keep validating when `rg` is unavailable, so CI no longer reports a false pass on runners without ripgrep.
 - Fixed 2D picking architecture to stop depending on renderer-side per-camera visibility side effects, so input filtering now relies on explicit layer/camera checks only.
+- Fixed raylib looped audio servicing to run from platform frame maintenance instead of the render frame tail, reducing stalls under heavy draw load.
+- Fixed raylib music stream buffering to use a larger default stream buffer, giving looped playback more tolerance for frame-time spikes.
 
 ### Removed
 - Removed the legacy project minimum-version field from the persisted protocol and dropped codec passthrough aliases that only forwarded to the canonical `SDF`/envelope APIs.

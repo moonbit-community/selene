@@ -87,6 +87,38 @@ test "app: run_frames advances startup/update/fixed/render schedules determinist
 }
 
 ///|
+test "app: headless frames service platform maintenance around game and render" {
+  let world = @ecs.World::new()
+  let trace : Ref[String] = { val: "" }
+  let app = App::new()
+    .with_world(world)
+    .add_system(
+      @system.Update,
+      fn(_world) { trace.val = trace.val + "g" },
+      system_name="update_trace",
+    )
+    .add_system(
+      @system.Render,
+      fn(_world) { trace.val = trace.val + "r" },
+      system_name="render_trace",
+    )
+  setup_runtime_world(app)
+  let plan = build_runtime_plan(app)
+  startup_runtime(plan)
+  let accumulator : Ref[Double] = { val: 0.0 }
+
+  run_headless_frame(
+    plan,
+    accumulator,
+    1.0 / 60.0,
+    None,
+    fn() { trace.val = trace.val + "s" },
+  )
+
+  inspect(trace.val, content="sgrs")
+}
+
+///|
 test "app: step_fixed advances only fixed schedule after startup" {
   let world = @ecs.World::new()
   let startup_count : Ref[Int] = { val: 0 }
@@ -170,4 +202,24 @@ test "app: run_frames_capture provides a generic capture pipeline without game-s
     raw_delta=1.0 / 60.0,
   )
   inspect(captures.length(), content="0")
+}
+
+///|
+test "app: render frame does not perform platform service work implicitly" {
+  let world = @ecs.World::new()
+  let trace : Ref[String] = { val: "" }
+  let app = App::new()
+    .with_world(world)
+    .add_system(
+      @system.Render,
+      fn(_world) { trace.val = trace.val + "r" },
+      system_name="render_trace",
+    )
+  setup_runtime_world(app)
+  let plan = build_runtime_plan(app)
+  startup_runtime(plan)
+
+  run_render_frame(plan, 1.0 / 60.0)
+
+  inspect(trace.val, content="r")
 }

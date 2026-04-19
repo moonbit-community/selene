@@ -143,6 +143,7 @@ pub fn initialize(
   callbacks : @runtime.RunnerCallbacks,
 ) -> () -> Unit {
   let startup = callbacks.startup
+  let service_frame = callbacks.service_frame
   let render_loop = callbacks.render_loop
   let game_loop = callbacks.game_loop
   ignore(config.viewport_width)
@@ -175,8 +176,10 @@ pub fn initialize(
     let delta = delta / 1000.0
     realtime_delta.val = delta
     sync_gamepad_events()
+    service_frame()
     game_loop(delta * canvas_backend.time_scale)
     render_loop(delta * canvas_backend.time_scale)
+    service_frame()
     if canvas_backend.mouse_movement.val is Some(mouse_movement) {
       mouse_movement.movement = @smath.Vec2(0.0, 0.0)
     }

@@ -2,6 +2,9 @@
 const RAYLIB_DEFAULT_TEXT_SPACING : Float = 1.0
 
 ///|
+const RAYLIB_DEFAULT_AUDIO_STREAM_BUFFER_SIZE = 4096
+
+///|
 fn reset_cosmic_runtime() -> Unit {
   backend.cosmic_loaded_families.clear()
   for _key, entry in backend.cosmic_textures {
@@ -623,6 +626,9 @@ pub fn initialize(
     if !@raylib.is_audio_device_ready() {
       @raylib.init_audio_device()
     }
+    @raylib.set_audio_stream_buffer_size_default(
+      RAYLIB_DEFAULT_AUDIO_STREAM_BUFFER_SIZE,
+    )
     backend.texture_warning_keys.clear()
     (callbacks.startup)()
     while !backend.close_requested && !@raylib.window_should_close() {
@@ -632,11 +638,13 @@ pub fn initialize(
       sync_mouse_events()
       sync_gamepad_events()
       sync_mouse_lock()
+      (callbacks.service_frame)()
       (callbacks.game_loop)(delta * backend.time_scale)
       @raylib.begin_drawing()
       @raylib.clear_background(@raylib.black)
       backend.frame_has_draw_commands = false
       (callbacks.render_loop)(delta * backend.time_scale)
+      (callbacks.service_frame)()
       @raylib.end_drawing()
     }
     cleanup_resources()
