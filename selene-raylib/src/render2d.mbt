@@ -134,12 +134,12 @@ pub fn register_gamepad_events(
 }
 
 ///|
-pub fn lock_mouse(locked : Ref[Bool]) -> Unit {
-  backend.lock_state = Some(locked)
-  backend.lock_requested = locked.val
+pub fn lock_mouse(lock_state_ref : Ref[Bool]) -> Unit {
+  backend.lock_state = Some(lock_state_ref)
+  backend.lock_requested = lock_state_ref.val
   sync_mouse_lock()
   backend.cursor_locked = @raylib.is_cursor_hidden()
-  locked.val = backend.cursor_locked
+  lock_state_ref.val = backend.cursor_locked
 }
 
 ///|

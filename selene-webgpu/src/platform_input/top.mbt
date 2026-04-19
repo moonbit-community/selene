@@ -5,10 +5,10 @@ let snapshot : @inputs.InputSnapshot = @inputs.empty_input_snapshot()
 let registered : Ref[Bool] = Ref::new(false)
 
 ///|
-let mouse_lock_ref : Ref[Bool] = Ref::new(false)
+let mouse_lock_requested_ref : Ref[Bool] = Ref::new(false)
 
 ///|
-let mouse_lock_registered : Ref[Bool] = Ref::new(false)
+let mouse_lock_handlers_registered : Ref[Bool] = Ref::new(false)
 
 ///|
 fn[T : Hash + Eq] copy_set(src : Set[T]) -> Set[T] {
@@ -67,12 +67,13 @@ pub fn poll_input() -> @inputs.InputSnapshot {
 }
 
 ///|
-pub fn set_mouse_lock(locked : Bool) -> Bool {
-  if !mouse_lock_registered.val {
-    @impl.lock_mouse(mouse_lock_ref)
-    mouse_lock_registered.val = true
+pub fn set_mouse_lock(lock_requested : Bool) -> Bool {
+  if !mouse_lock_handlers_registered.val {
+    @impl.lock_mouse(mouse_lock_requested_ref)
+    mouse_lock_handlers_registered.val = true
   }
-  mouse_lock_ref.val = locked
-  mouse_lock_ref.val = @impl.sync_mouse_lock_state(mouse_lock_ref.val)
-  mouse_lock_ref.val
+  mouse_lock_requested_ref.val = lock_requested
+  @impl.sync_mouse_lock_state(
+    mouse_lock_requested_ref.val,
+  )
 }

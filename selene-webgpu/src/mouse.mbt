@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///|
 pub fn register_mouse_events(
   mouse : @inputs.Mouse,
   mouse_movement : @inputs.MouseMovement,
@@ -60,26 +59,21 @@ pub fn register_mouse_events(
 }
 
 ///|
-pub fn lock_mouse(locked : Ref[Bool]) -> Unit {
+pub fn lock_mouse(requested_lock_ref : Ref[Bool]) -> Unit {
   let canvas = require_canvas()
   canvas.add_event_listener("click", fn(_event) {
     note_audio_user_activation()
-    request_pointer_lock_if_enabled(canvas, locked.val)
-  })
-  document_add_event_listener("pointerlockchange", fn(_event) {
-    locked.val = is_pointer_locked(canvas)
+    request_pointer_lock_if_enabled(canvas, requested_lock_ref.val)
   })
 }
 
 ///|
-pub fn sync_mouse_lock_state(locked : Bool) -> Bool {
+pub fn sync_mouse_lock_state(lock_requested : Bool) -> Bool {
   let canvas = require_canvas()
-  if !locked && is_pointer_locked(canvas) {
+  let lock_active = is_pointer_locked(canvas)
+  if !lock_requested && lock_active {
     exit_pointer_lock()
     return false
   }
-  if locked {
-    return is_pointer_locked(canvas)
-  }
-  false
+  lock_active
 }

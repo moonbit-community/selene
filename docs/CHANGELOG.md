@@ -20,6 +20,7 @@
 - Fixed raylib music stream buffering to use a larger default stream buffer, giving looped playback more tolerance for frame-time spikes.
 - Fixed `selene_webgpu` audio playback to track blocked vs failed `HTMLAudioElement.play()` attempts, retry blocked playback only after new user activation, and terminate unrecoverable failures cleanly.
 - Fixed `selene_webgpu` audio source resolution/preload to use byte-backed cached sources for asset paths and wired shared audio asset loading through `platform_audio.preload()` so first-play behavior matches the asset pipeline.
+- Fixed `selene_webgpu` pointer lock intent handling to preserve pending lock requests until browser capture actually engages, so `@system.lock_mouse()` no longer loses the click-triggered lock request on web.
 
 ### Removed
 - Removed the legacy project minimum-version field from the persisted protocol and dropped codec passthrough aliases that only forwarded to the canonical `SDF`/envelope APIs.
