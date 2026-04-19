@@ -180,6 +180,7 @@ pub fn load_audio(path : String) -> AudioHandle {
   }
   audio_states.set(handle, Loading)
   if read_bytes(path) is Some(_) {
+    @platform_audio.preload(path)
     audio_states.set(handle, Loaded)
     audio_asset_events.send({ handle, kind: Loaded })
   } else {
@@ -272,6 +273,7 @@ pub fn reload_audio(handle : AudioHandle) -> Unit {
     Some(path) => {
       audio_states.set(handle, Loading)
       if read_bytes(path) is Some(_) {
+        @platform_audio.preload(path)
         audio_states.set(handle, Loaded)
         audio_asset_events.send({ handle, kind: Modified })
       } else {

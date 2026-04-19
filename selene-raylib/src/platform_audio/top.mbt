@@ -25,6 +25,11 @@ pub fn play_audio(
 }
 
 ///|
+pub fn preload(path : String) -> Unit {
+  @impl.preload_audio(path)
+}
+
+///|
 pub fn set_volume(instance~ : AudioInstance, volume~ : Double) -> Unit {
   @impl.set_volume(instance=to_impl_instance(instance), volume~)
 }

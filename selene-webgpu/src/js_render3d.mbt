@@ -1,8 +1,31 @@
 ///|
-pub extern "js" fn Audio::play(self : Self) -> Unit = "(self) => self.play()"
+pub extern "js" fn Audio::play(self : Self) -> Unit =
+  #| (self) => {
+  #|   const result = self.play();
+  #|   if (result && typeof result.then === 'function') {
+  #|     result.then(() => {
+  #|       self.__selenePlayState = 1;
+  #|     }).catch((err) => {
+  #|       const name = err && err.name ? String(err.name) : '';
+  #|       if (name === 'AbortError' && self.paused) {
+  #|         self.__selenePlayState = 0;
+  #|         return;
+  #|       }
+  #|       self.__selenePlayState = name === 'NotAllowedError' ? 2 : 3;
+  #|     });
+  #|   } else {
+  #|     self.__selenePlayState = self.paused ? 0 : 1;
+  #|   }
+  #| }
 
 ///|
-pub extern "js" fn Audio::pause(self : Self) -> Unit = "(self) => self.pause()"
+pub extern "js" fn Audio::pause(self : Self) -> Unit =
+  #| (self) => {
+  #|   self.pause();
+  #|   if (!self.ended) {
+  #|     self.__selenePlayState = 0;
+  #|   }
+  #| }
 
 ///|
 pub extern "js" fn Audio::set_volume(self : Self, volume : Double) -> Unit = "(self, volume) => self.volume = volume"

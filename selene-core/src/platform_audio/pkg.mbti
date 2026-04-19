@@ -10,6 +10,8 @@ fn play_audio(
   paused~ : Bool
 ) -> AudioInstance
 
+fn preload(String) -> Unit
+
 fn set_volume(instance~ : AudioInstance, volume~ : Double) -> Unit
 
 fn set_speed(instance~ : AudioInstance, speed~ : Double) -> Unit

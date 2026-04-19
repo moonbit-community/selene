@@ -31,6 +31,7 @@ pub fn register_mouse_events(
     )
   })
   window.add_event_listener("mousedown", event => {
+    note_audio_user_activation()
     let mouse_event = event.to_mouse_event().unwrap()
     match mouse_event.get_button() {
       0 => mouse.left_button = true
@@ -39,6 +40,7 @@ pub fn register_mouse_events(
       _ => ()
     }
   })
+  window.add_event_listener("touchstart", _event => note_audio_user_activation())
   window.add_event_listener("mouseup", event => {
     let mouse_event = event.to_mouse_event().unwrap()
     match mouse_event.get_button() {
@@ -61,6 +63,7 @@ pub fn register_mouse_events(
 pub fn lock_mouse(locked : Ref[Bool]) -> Unit {
   let canvas = require_canvas()
   canvas.add_event_listener("click", fn(_event) {
+    note_audio_user_activation()
     request_pointer_lock_if_enabled(canvas, locked.val)
   })
   document_add_event_listener("pointerlockchange", fn(_event) {

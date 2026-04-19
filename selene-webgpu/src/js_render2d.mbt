@@ -321,4 +321,30 @@ extern "js" fn webgpu_draw_textured_triangles_3d(
   #| }
 
 ///|
-pub extern "js" fn Audio::new(path : String) -> Audio = "(path) => new Audio(path)"
+pub extern "js" fn Audio::new(path : String) -> Audio =
+  #| (path) => {
+  #|   const init = globalThis.__selene_init_audio_element || (
+  #|     globalThis.__selene_init_audio_element = (audio) => {
+  #|       if (audio.__seleneAudioInitialized) {
+  #|         return audio;
+  #|       }
+  #|       audio.__seleneAudioInitialized = true;
+  #|       audio.preload = 'auto';
+  #|       audio.__selenePlayState = 0;
+  #|       audio.__selenePlayAttemptEpoch = -1;
+  #|       audio.addEventListener('playing', () => {
+  #|         audio.__selenePlayState = 1;
+  #|       });
+  #|       audio.addEventListener('pause', () => {
+  #|         if (!audio.ended) {
+  #|           audio.__selenePlayState = 0;
+  #|         }
+  #|       });
+  #|       audio.addEventListener('error', () => {
+  #|         audio.__selenePlayState = 3;
+  #|       });
+  #|       return audio;
+  #|     }
+  #|   );
+  #|   return init(new Audio(path));
+  #| }

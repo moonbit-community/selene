@@ -105,6 +105,7 @@ pub fn set_time_scale(time_scale : Double) -> Unit {
 pub fn set_embedded_assets(lookup : (String) -> Bytes?) -> Unit {
   embedded_asset_lookup.val = lookup
   embedded_asset_cache.clear()
+  reset_audio_runtime()
 }
 
 ///|
@@ -234,6 +235,7 @@ fn schedule_with_fixed_interval(
 
 ///|
 pub fn request_close() -> Unit {
+  reset_audio_runtime()
   canvas_backend.close_requested = true
   if canvas_backend.stop_loop is Some(stop_loop) {
     stop_loop()

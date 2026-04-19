@@ -37,6 +37,7 @@ pub fn register_key_events(pressed_keys : Set[@inputs.Code]) -> Unit {
     if keyboard_event.repeat() {
       return
     }
+    note_audio_user_activation()
     let keycode = keyboard_event.code() |> @inputs.Code::from_string
     if keycode is Some(c) {
       if should_prevent_default(c) {

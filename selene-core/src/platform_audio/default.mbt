@@ -18,6 +18,11 @@ pub fn play_audio(
 }
 
 ///|
+pub fn preload(path : String) -> Unit {
+  ignore(path)
+}
+
+///|
 pub fn set_volume(instance~ : AudioInstance, volume~ : Double) -> Unit {
   ignore(instance)
   ignore(volume)

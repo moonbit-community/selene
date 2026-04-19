@@ -18,6 +18,8 @@
 - Fixed 2D picking architecture to stop depending on renderer-side per-camera visibility side effects, so input filtering now relies on explicit layer/camera checks only.
 - Fixed raylib looped audio servicing to run from platform frame maintenance instead of the render frame tail, reducing stalls under heavy draw load.
 - Fixed raylib music stream buffering to use a larger default stream buffer, giving looped playback more tolerance for frame-time spikes.
+- Fixed `selene_webgpu` audio playback to track blocked vs failed `HTMLAudioElement.play()` attempts, retry blocked playback only after new user activation, and terminate unrecoverable failures cleanly.
+- Fixed `selene_webgpu` audio source resolution/preload to use byte-backed cached sources for asset paths and wired shared audio asset loading through `platform_audio.preload()` so first-play behavior matches the asset pipeline.
 
 ### Removed
 - Removed the legacy project minimum-version field from the persisted protocol and dropped codec passthrough aliases that only forwarded to the canonical `SDF`/envelope APIs.
