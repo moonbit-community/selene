@@ -225,12 +225,13 @@ fn matching_builtin_component_count(model : @app.ViewState) -> Int {
 fn close_add_component_panel_on_escape_attrs(
   dispatch : @rabbita.Dispatch[@app.Msg],
 ) -> @html.Attrs {
-  @html.Attrs::build().handler("keydown", fn(event, scheduler) {
-    if input_event_is_escape_key(event) {
+  @html.Attrs::build().on_keydown(fn(event) {
+    if keyboard_event_is_escape_key(event) {
       event.prevent_default()
-      input_event_blur_target(event)
-      schedule_cmd(scheduler, dispatch(@app.msg_close_add_component_panel()))
+      keyboard_event_blur_target(event)
+      return dispatch(@app.msg_close_add_component_panel())
     }
+    @cmd.none
   })
 }
 
@@ -239,17 +240,17 @@ fn custom_component_kind_input_attrs(
   dispatch : @rabbita.Dispatch[@app.Msg],
   value : String,
 ) -> @html.Attrs {
-  @html.Attrs::build().handler("keydown", fn(event, scheduler) {
-    if input_event_is_escape_key(event) {
+  @html.Attrs::build().on_keydown(fn(event) {
+    if keyboard_event_is_escape_key(event) {
       event.prevent_default()
-      input_event_blur_target(event)
-      schedule_cmd(scheduler, dispatch(@app.msg_close_add_component_panel()))
-      return
+      keyboard_event_blur_target(event)
+      return dispatch(@app.msg_close_add_component_panel())
     }
-    if input_event_is_enter_key(event) {
+    if keyboard_event_is_enter_key(event) {
       event.prevent_default()
-      schedule_cmd(scheduler, dispatch(@app.msg_add_custom_component(value)))
+      return dispatch(@app.msg_add_custom_component(value))
     }
+    @cmd.none
   })
 }
 

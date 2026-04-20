@@ -20,13 +20,52 @@ fn update(
   }
   let sticky_overlay_sync_cmd = sync_asset_tree_sticky_overlay_cmd()
   let resource_preview_sync_cmd = sync_resource_previews_cmd()
+  let image_preview_probe_cmd = selected_image_preview_probe_cmd(dispatch, next)
   (
     @cmd.batch([
       effects_cmd, selection_sync_cmd, component_search_focus_cmd, sticky_overlay_sync_cmd,
-      resource_preview_sync_cmd,
+      resource_preview_sync_cmd, image_preview_probe_cmd,
     ]),
     next,
   )
+}
+
+///|
+fn selected_image_preview_probe_cmd(
+  dispatch : @rabbita.Dispatch[@app.Msg],
+  model : @app.Model,
+) -> @rabbita.Cmd {
+  match model.selected_resource {
+    Some(@app.Image(path)) =>
+      if model.asset_size(path) is Some(_) ||
+        model.failed_image_assets.get(path).unwrap_or(false) {
+        @cmd.none
+      } else {
+        let src = project_asset_src(path)
+        if src == "" {
+          @cmd.none
+        } else {
+          @cmd.custom_cmd(kind=@cmd.after_render, fn(scheduler) {
+            probe_image_asset(
+              src,
+              fn(width, height) {
+                schedule_cmd(
+                  scheduler,
+                  dispatch(@app.msg_asset_size_resolved(path, width, height)),
+                )
+              },
+              fn() {
+                schedule_cmd(
+                  scheduler,
+                  dispatch(@app.msg_asset_image_load_failed(path)),
+                )
+              },
+            )
+          })
+        }
+      }
+    _ => @cmd.none
+  }
 }
 
 ///|
@@ -112,18 +151,20 @@ fn scene_tree_item_attrs(
     @app.entity_label(entity) +
     " (double-click to frame)"
   @html.Attrs::build()
-  .handler("click", fn(_event, scheduler) {
-    schedule_cmd(scheduler, dispatch(@app.msg_select_entity(Some(entity.id))))
+  .on_click(fn(_event) {
+    dispatch(@app.msg_select_entity(Some(entity.id)))
   })
-  .handler("dblclick", fn(_event, scheduler) {
-    schedule_cmd(scheduler, dispatch(@app.msg_select_entity(Some(entity.id))))
-    schedule_cmd(scheduler, dispatch(@app.msg_frame_selection()))
+  .on_dblclick(fn(_event) {
+    @cmd.batch([
+      dispatch(@app.msg_select_entity(Some(entity.id))),
+      dispatch(@app.msg_frame_selection()),
+    ])
   })
-  .handler("mouseenter", fn(_event, scheduler) {
-    schedule_cmd(scheduler, dispatch(@app.msg_set_hover_hint(Some(hover_hint))))
+  .on_mouseenter(fn(_event) {
+    dispatch(@app.msg_set_hover_hint(Some(hover_hint)))
   })
-  .handler("mouseleave", fn(_event, scheduler) {
-    schedule_cmd(scheduler, dispatch(@app.msg_set_hover_hint(None)))
+  .on_mouseleave(fn(_event) {
+    dispatch(@app.msg_set_hover_hint(None))
   })
 }
 
@@ -133,11 +174,11 @@ fn hint_attrs(
   label : String,
 ) -> @html.Attrs {
   @html.Attrs::build()
-  .handler("mouseenter", fn(_event, scheduler) {
-    schedule_cmd(scheduler, dispatch(@app.msg_set_hover_hint(Some(label))))
+  .on_mouseenter(fn(_event) {
+    dispatch(@app.msg_set_hover_hint(Some(label)))
   })
-  .handler("mouseleave", fn(_event, scheduler) {
-    schedule_cmd(scheduler, dispatch(@app.msg_set_hover_hint(None)))
+  .on_mouseleave(fn(_event) {
+    dispatch(@app.msg_set_hover_hint(None))
   })
 }
 
@@ -156,25 +197,6 @@ fn asset_display_name_from_path(path : String) -> String {
   }
 }
 
-///|
-fn image_preview_attrs(
-  dispatch : @rabbita.Dispatch[@app.Msg],
-  path : String,
-) -> @html.Attrs {
-  @html.Attrs::build()
-  .handler("load", fn(event, scheduler) {
-    let size = image_event_natural_size(event)
-    if size.length() >= 2 {
-      schedule_cmd(
-        scheduler,
-        dispatch(@app.msg_asset_size_resolved(path, size[0], size[1])),
-      )
-    }
-  })
-  .handler("error", fn(_event, scheduler) {
-    schedule_cmd(scheduler, dispatch(@app.msg_asset_image_load_failed(path)))
-  })
-}
 ///|
 fn tree_row_indents(depth : Int) -> Array[@rabbita.Html] {
   let indents : Array[@rabbita.Html] = []
@@ -323,37 +345,34 @@ fn asset_tree_file_attrs(
     .data_set("sticky-chain", sticky_chain.join("/"))
     .data_set("sticky-section", sticky_section)
     .data_set("sticky-kind", "file")
-    .handler("mouseenter", fn(_event, scheduler) {
-      schedule_cmd(
-        scheduler,
-        dispatch(@app.msg_set_hover_hint(Some(full_path))),
-      )
+    .on_mouseenter(fn(_event) {
+      dispatch(@app.msg_set_hover_hint(Some(full_path)))
     })
-    .handler("mouseleave", fn(_event, scheduler) {
-      schedule_cmd(scheduler, dispatch(@app.msg_set_hover_hint(None)))
+    .on_mouseleave(fn(_event) {
+      dispatch(@app.msg_set_hover_hint(None))
     })
-    .handler("dblclick", fn(_event, scheduler) {
-      schedule_cmd(
-        scheduler,
+    .on_dblclick(fn(_event) {
+      @cmd.batch([
         dispatch(@app.msg_select_resource(Some(selection))),
-      )
-      schedule_cmd(scheduler, dispatch(@app.msg_insert_selected_resource()))
+        dispatch(@app.msg_insert_selected_resource()),
+      ])
     })
   match draggable_asset_path {
     Some(asset_path) =>
       attrs
       .draggable("true")
-      .handler("dragstart", fn(event, _scheduler) {
+      .on_dragstart(fn(event) {
         begin_dragged_asset(asset_path)
         match event.to_drag_event() {
           Some(drag_event) =>
             drag_event_set_asset_payload(drag_event, asset_path)
           None => ()
         }
+        @cmd.none
       })
-      .handler("dragend", fn(event, _scheduler) {
-        ignore(event)
+      .on_dragend(fn(_event) {
         clear_dragged_asset()
+        @cmd.none
       })
     None => attrs
   }

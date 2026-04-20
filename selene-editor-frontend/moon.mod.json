@@ -1,20 +1,20 @@
 {
   "name": "Milky2018/selene_editor_frontend",
-  "version": "0.33.0",
+  "version": "0.33.1",
   "deps": {
     "Milky2018/selene": {
-      "version": "0.33.0",
-      "path": "../selene-core"
+      "path": "../selene-core",
+      "version": "0.33.1"
     },
     "Milky2018/selene_webgpu": {
-      "version": "0.33.0",
-      "path": "../selene-webgpu"
+      "path": "../selene-webgpu",
+      "version": "0.33.1"
     },
     "Milky2018/selene_editor_shared": {
-      "version": "0.33.0",
-      "path": "../selene-editor-shared"
+      "path": "../selene-editor-shared",
+      "version": "0.33.1"
     },
-    "moonbit-community/rabbita": "0.11.6"
+    "moonbit-community/rabbita": "0.11.8"
   },
   "readme": "README.md",
   "repository": "https://github.com/moonbit-community/selene.git",

@@ -21,7 +21,6 @@ fn selected_asset_view(
                     class="resource-preview-image",
                     src=project_asset_src(path),
                     alt=asset_display_name(asset),
-                    attrs=image_preview_attrs(dispatch, path),
                     @html.nothing,
                   ),
                 ])

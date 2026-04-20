@@ -18,14 +18,15 @@ fn labeled_input_with_commit(
   on_commit : () -> @rabbita.Cmd,
 ) -> @rabbita.Html {
   let attrs = @html.Attrs::build()
-    .handler("change", fn(_event, scheduler) {
-      schedule_cmd(scheduler, on_commit())
+    .on_change(fn(_event) {
+      on_commit()
     })
-    .handler("keydown", fn(event, scheduler) {
-      if input_event_is_enter_key(event) {
-        input_event_blur_target(event)
-        schedule_cmd(scheduler, on_commit())
+    .on_keydown(fn(event) {
+      if keyboard_event_is_enter_key(event) {
+        keyboard_event_blur_target(event)
+        return on_commit()
       }
+      @cmd.none
     })
   @html.label(class="field", [
     @html.span(class="field-label", label),
@@ -311,14 +312,15 @@ fn graph_node_drag_attrs(
 ) -> @html.Attrs {
   @html.Attrs::build()
   .draggable("true")
-  .handler("dragstart", fn(event, _scheduler) {
+  .on_dragstart(fn(event) {
     match event.to_drag_event() {
       Some(drag_event) => drag_event_set_graph_node_payload(drag_event, node_id)
       None => ()
     }
+    @cmd.none
   })
-  .handler("click", fn(event, scheduler) {
-    if event_alt_key(event) {
+  .on_click(fn(event) {
+    if mouse_event_alt_key(event) {
       event.prevent_default()
       let connect_msg = match graph_edge_connect_source_node {
         Some(source_node_id) =>
@@ -329,11 +331,10 @@ fn graph_node_drag_attrs(
           }
         None => @app.msg_begin_selected_animation_graph_edge_connect(node_id)
       }
-      schedule_cmd(scheduler, dispatch(connect_msg))
+      dispatch(connect_msg)
     } else {
-      schedule_cmd(
-        scheduler,
-        dispatch(@app.msg_update_selected_animation_graph_default_node(node_id)),
+      dispatch(
+        @app.msg_update_selected_animation_graph_default_node(node_id),
       )
     }
   })
@@ -344,7 +345,7 @@ fn graph_canvas_drop_attrs(
   dispatch : @rabbita.Dispatch[@app.Msg],
 ) -> @html.Attrs {
   @html.Attrs::build()
-  .handler("dragover", fn(event, _scheduler) {
+  .on_dragover(fn(event) {
     event.prevent_default()
     match event.to_drag_event() {
       Some(drag_event) =>
@@ -353,8 +354,9 @@ fn graph_canvas_drop_attrs(
         }
       None => ()
     }
+    @cmd.none
   })
-  .handler("drop", fn(event, scheduler) {
+  .on_drop(fn(event) {
     event.prevent_default()
     match event.to_drag_event() {
       Some(drag_event) => {
@@ -362,14 +364,11 @@ fn graph_canvas_drop_attrs(
         if node_id != "" {
           let metrics = drag_event_canvas_metrics(drag_event)
           if metrics.length() >= 4 && metrics[2] > 0.0 && metrics[3] > 0.0 {
-            let normalized_x = metrics[0] / metrics[2]
-            let normalized_y = metrics[1] / metrics[3]
-            schedule_cmd(
-              scheduler,
-              dispatch(
-                @app.msg_move_selected_animation_graph_node(
-                  node_id, normalized_x, normalized_y,
-                ),
+          let normalized_x = metrics[0] / metrics[2]
+          let normalized_y = metrics[1] / metrics[3]
+            return dispatch(
+              @app.msg_move_selected_animation_graph_node(
+                node_id, normalized_x, normalized_y,
               ),
             )
           }
@@ -377,6 +376,7 @@ fn graph_canvas_drop_attrs(
       }
       None => ()
     }
+    @cmd.none
   })
 }
 

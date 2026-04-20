@@ -1,22 +1,22 @@
 ///|
 #cfg(target="js")
-extern "js" fn input_event_is_enter_key(event : @dom.Event) -> Bool =
+extern "js" fn keyboard_event_is_enter_key(event : @dom.KeyboardEvent) -> Bool =
   #| (event) => (event?.key || "").toLowerCase() === "enter"
 
 ///|
 #cfg(target="js")
-extern "js" fn input_event_is_escape_key(event : @dom.Event) -> Bool =
+extern "js" fn keyboard_event_is_escape_key(event : @dom.KeyboardEvent) -> Bool =
   #| (event) => (event?.key || "").toLowerCase() === "escape"
 
 ///|
 #cfg(target="js")
-extern "js" fn event_alt_key(event : @dom.Event) -> Bool =
-  #| (event) => !!event?.altKey
+extern "js" fn keyboard_event_blur_target(event : @dom.KeyboardEvent) =
+  #| (event) => event?.target?.blur?.()
 
 ///|
 #cfg(target="js")
-extern "js" fn input_event_blur_target(event : @dom.Event) =
-  #| (event) => event?.target?.blur?.()
+extern "js" fn mouse_event_alt_key(event : @dom.MouseEvent) -> Bool =
+  #| (event) => !!event?.altKey
 
 ///|
 #cfg(target="js")
@@ -61,14 +61,29 @@ extern "js" fn project_asset_src(path : String) -> String =
 
 ///|
 #cfg(target="js")
-extern "js" fn image_event_natural_size(event : @dom.Event) -> Array[Double] =
-  #| (event) => {
-  #|   const target = event && event.target;
-  #|   if (!target) return [];
-  #|   const width = Number(target.naturalWidth || 0);
-  #|   const height = Number(target.naturalHeight || 0);
-  #|   if (width <= 0 || height <= 0) return [];
-  #|   return [width, height];
+extern "js" fn probe_image_asset(
+  src : String,
+  on_load : (Double, Double) -> Unit,
+  on_error : () -> Unit,
+) =
+  #| (src, onLoad, onError) => {
+  #|   if (!src) {
+  #|     onError();
+  #|     return;
+  #|   }
+  #|   const image = new Image();
+  #|   image.decoding = "async";
+  #|   image.onload = () => {
+  #|     const width = Number(image.naturalWidth || 0);
+  #|     const height = Number(image.naturalHeight || 0);
+  #|     if (width > 0 && height > 0) {
+  #|       onLoad(width, height);
+  #|     } else {
+  #|       onError();
+  #|     }
+  #|   };
+  #|   image.onerror = () => onError();
+  #|   image.src = src;
   #| }
 
 ///|
@@ -442,7 +457,7 @@ fn drag_drop_translation(event : @dom.DragEvent) -> @editor_bridge.Vec2Doc? {
 
 ///|
 fn subscribe_events_cmd(dispatch : @rabbita.Dispatch[@app.Msg]) -> @rabbita.Cmd {
-  @cmd.raw_effect(fn(scheduler : &@cmd.Scheduler) {
+  @cmd.custom_cmd(fn(scheduler : @cmd.Scheduler) {
     subscribe_events_forever(
       "/events",
       fn(data) {

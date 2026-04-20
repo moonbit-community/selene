@@ -1,14 +1,15 @@
 ///|
 fn viewport_drop_attrs(dispatch : @rabbita.Dispatch[@app.Msg]) -> @html.Attrs {
   @html.Attrs::build()
-  .handler("dragover", fn(event, _scheduler) {
+  .on_dragover(fn(event) {
     event.prevent_default()
     match event.to_drag_event() {
       Some(drag_event) => drag_event_set_drop_copy(drag_event)
       None => ()
     }
+    @cmd.none
   })
-  .handler("drop", fn(event, scheduler) {
+  .on_drop(fn(event) {
     event.prevent_default()
     let cmd = match current_dragged_asset() {
       Some(asset_path) =>
@@ -43,7 +44,7 @@ fn viewport_drop_attrs(dispatch : @rabbita.Dispatch[@app.Msg]) -> @html.Attrs {
         }
     }
     clear_dragged_asset()
-    schedule_cmd(scheduler, cmd)
+    cmd
   })
 }
 
@@ -302,7 +303,7 @@ fn scene_conflict_bar_view(
               ),
               @html.button(
                 class="small-button",
-                on_click=@cmd.raw_effect(fn(scheduler) {
+                on_click=@cmd.custom_cmd(fn(scheduler) {
                   let default_path = conflict_copy_path(path)
                   let next_path = prompt_text(
                     "Save conflict copy as", default_path,
@@ -351,7 +352,7 @@ fn scene_conflict_bar_view(
               ),
               @html.button(
                 class="small-button",
-                on_click=@cmd.raw_effect(fn(scheduler) {
+                on_click=@cmd.custom_cmd(fn(scheduler) {
                   let default_path = conflict_copy_path(path)
                   let next_path = prompt_text(
                     "Save conflict copy as", default_path,

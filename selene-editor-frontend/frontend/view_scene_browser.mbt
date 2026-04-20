@@ -2,7 +2,7 @@
 fn subscribe_preview_events_cmd(
   dispatch : @rabbita.Dispatch[@app.Msg],
 ) -> @rabbita.Cmd {
-  @cmd.raw_effect(fn(scheduler : &@cmd.Scheduler) {
+  @cmd.custom_cmd(fn(scheduler : @cmd.Scheduler) {
     @preview.set_event_sink(
       Some(fn(event) {
         schedule_cmd(scheduler, dispatch(@app.msg_preview_event(event)))
@@ -15,7 +15,7 @@ fn subscribe_preview_events_cmd(
 fn subscribe_shortcuts_cmd(
   dispatch : @rabbita.Dispatch[@app.Msg],
 ) -> @rabbita.Cmd {
-  @cmd.raw_effect(fn(scheduler : &@cmd.Scheduler) {
+  @cmd.custom_cmd(fn(scheduler : @cmd.Scheduler) {
     subscribe_shortcuts_forever(
       fn() { schedule_cmd(scheduler, dispatch(@app.msg_undo_scene())) },
       fn() { schedule_cmd(scheduler, dispatch(@app.msg_redo_scene())) },
@@ -124,7 +124,7 @@ fn run_preview_command(command : @bridge.PreviewCommand) -> Unit {
 
 ///|
 fn preview_cmd(command : @bridge.PreviewCommand) -> @rabbita.Cmd {
-  @cmd.raw_effect(
+  @cmd.custom_cmd(
     fn(_scheduler) { run_preview_command(command) },
     kind=@cmd.after_render,
   )
@@ -172,7 +172,7 @@ fn effects_to_cmd(
 
 ///|
 fn ensure_selected_asset_visible_cmd() -> @rabbita.Cmd {
-  @cmd.raw_effect(
+  @cmd.custom_cmd(
     fn(_scheduler) { scroll_selected_asset_row_into_view() },
     kind=@cmd.after_render,
   )
@@ -180,7 +180,7 @@ fn ensure_selected_asset_visible_cmd() -> @rabbita.Cmd {
 
 ///|
 fn focus_component_search_cmd() -> @rabbita.Cmd {
-  @cmd.raw_effect(
+  @cmd.custom_cmd(
     fn(_scheduler) { focus_component_search_input() },
     kind=@cmd.after_render,
   )
@@ -190,7 +190,7 @@ fn focus_component_search_cmd() -> @rabbita.Cmd {
 fn subscribe_sidebar_layout_cmd(
   dispatch : @rabbita.Dispatch[@app.Msg],
 ) -> @rabbita.Cmd {
-  @cmd.raw_effect(fn(scheduler : &@cmd.Scheduler) {
+  @cmd.custom_cmd(fn(scheduler : @cmd.Scheduler) {
     subscribe_sidebar_layout_forever(fn(scene_ratio, assets_ratio) {
       schedule_cmd(
         scheduler,
@@ -202,7 +202,7 @@ fn subscribe_sidebar_layout_cmd(
 
 ///|
 fn sync_asset_tree_sticky_overlay_cmd() -> @rabbita.Cmd {
-  @cmd.raw_effect(
+  @cmd.custom_cmd(
     fn(_scheduler) { sync_asset_tree_sticky_overlay() },
     kind=@cmd.after_render,
   )
@@ -210,7 +210,7 @@ fn sync_asset_tree_sticky_overlay_cmd() -> @rabbita.Cmd {
 
 ///|
 fn sync_resource_previews_cmd() -> @rabbita.Cmd {
-  @cmd.raw_effect(
+  @cmd.custom_cmd(
     fn(_scheduler) { sync_resource_previews() },
     kind=@cmd.after_render,
   )
@@ -294,7 +294,7 @@ fn scene_browser_view(
         scene_browser_action_button(
           dispatch,
           "Create Scene",
-          @cmd.raw_effect(fn(scheduler) {
+          @cmd.custom_cmd(fn(scheduler) {
             let name = prompt_text("Scene name", "scene")
             if name.trim() != "" {
               schedule_cmd(scheduler, dispatch(@app.msg_create_scene(name)))
@@ -305,7 +305,7 @@ fn scene_browser_view(
         scene_browser_action_button(
           dispatch,
           "Rename Current Scene",
-          @cmd.raw_effect(fn(scheduler) {
+          @cmd.custom_cmd(fn(scheduler) {
             let name = prompt_text("Scene name", scene_prompt_name)
             if name.trim() != "" {
               schedule_cmd(

@@ -1,14 +1,14 @@
 {
   "name": "Milky2018/selene_webgpu",
-  "version": "0.33.0",
+  "version": "0.33.1",
   "deps": {
-    "Yoorkin/rabbit-tea": "0.10.11",
     "Milky2018/selene": {
       "path": "../selene-core",
-      "version": "0.33.0"
+      "version": "0.33.1"
     },
     "Milky2018/moon_cosmic": "0.3.0",
-    "moonbit-community/js-ffi": "0.4.2"
+    "moonbit-community/js-ffi": "0.4.2",
+    "moonbit-community/rabbita": "0.11.8"
   },
   "readme": "README.md",
   "repository": "https://github.com/moonbit-community/selene.git",

@@ -10,6 +10,17 @@
 
 ### Removed
 
+## [0.33.1] - 2026-04-20
+
+### Added
+
+### Changed
+- Changed web UI dependencies to use `moonbit-community/rabbita@0.11.8`, replacing the remaining `Yoorkin/rabbit-tea` dependency in `selene-webgpu` and aligning editor frontend on the same package version.
+
+### Fixed
+
+### Removed
+
 ## [0.33.0] - 2026-04-19
 
 ### Added
