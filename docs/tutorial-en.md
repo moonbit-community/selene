@@ -30,13 +30,13 @@ Enter the examples directory and build the web sample:
 ```shell
 cd examples
 moon update
-moon build ./pixeladventure/web --target js --target-dir _build --release
+moon build ./pixeladventure/web --target js --release
 ```
 
 Run with any web server, for example Python:
 
 ```shell
-python -m http.server 8000
+python3 -m http.server 8000
 ```
 
 After startup, open `http://localhost:8000/pixeladventure/` in your browser.
@@ -70,7 +70,7 @@ First install MoonBit CLI. If you use VS Code, install the MoonBit extension for
 
 After creating a new project with `moon new`, use a structure similar to `examples/pixeladventure`:
 
-- `pixeladventure`: shared gameplay package
+- `pixeladventure`: shared gameplay package, scene/runtime bridge, and asset references
 - `pixeladventure/web`: web wrapper package (selects webgpu backend by overrides)
 
 ### Asset Preparation
@@ -81,6 +81,11 @@ The image and audio assets can be downloaded from:
 - [Audio assets](https://brackeysgames.itch.io/brackeys-platformer-bundle)
 
 Place assets under paths such as `assets/pixeladventure/...`.
+
+The current example also keeps a Selene project manifest and startup scene beside gameplay code:
+
+- `selene.project.json`: project entry and asset indexes
+- `scenes/main.scene.json`: startup scene document
 
 ### Engine Dependency Installation
 
@@ -102,25 +107,23 @@ Core gameplay package imports are module-based. Example from `examples/pixeladve
 ```moonbit
 import {
   "Milky2018/selene/app",
+  "Milky2018/selene/animation",
+  "Milky2018/selene/asset",
   "Milky2018/selene/audio",
-  "Milky2018/selene/system",
-  "Milky2018/selene/state",
+  "Milky2018/selene/editor_bridge",
   "Milky2018/selene/ecs",
   "Milky2018/selene/entity",
-  "Milky2018/selene/math",
-  "Milky2018/selene/sprite",
-  "Milky2018/selene/physics2d",
-  "Milky2018/selene/plugins",
-  "Milky2018/selene/time",
-  "Milky2018/selene/transform",
-  "Milky2018/selene/camera",
-  "Milky2018/selene/ui",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
-  "Milky2018/selene/asset",
+  "Milky2018/selene/math",
+  "Milky2018/selene/physics2d",
+  "Milky2018/selene/plugins",
+  "Milky2018/selene/sprite",
+  "Milky2018/selene/time",
+  "Milky2018/selene/transform",
+  "Milky2018/selene/ui",
   "moonbitlang/core/json",
-  "moonbitlang/core/random",
-  "moonbitlang/core/set",
+  "moonbitlang/x/fs",
 }
 ```
 
@@ -131,6 +134,8 @@ import {
   "Milky2018/selene-examples/pixeladventure" @pixeladventure_game,
 }
 
+supported_targets = "js"
+
 options(
   "is-main": true,
   overrides: [
@@ -140,7 +145,6 @@ options(
     "Milky2018/selene_webgpu/platform_audio",
     "Milky2018/selene_webgpu/platform_asset_io",
   ],
-  "supported-targets": "js",
   targets: { "main.mbt": [ "js" ] },
 )
 ```
@@ -165,9 +169,13 @@ pub fn run() -> Unit {
   .with_fps(60)
   .add_plugin(@plugins.default_plugin)
   .add_system(Startup, game_start)
-  .add_system(Update, player_state_system)
-  .add_system(FixedPostUpdate, player_collision_system)
-  .add_system(Update, map_trigger_system)
+  .add_system(Update, player_controller_system)
+  .add_system(Update, trigger_system)
+  .add_system(Update, pixeladventure_camera_follow_system)
+  .add_system(FixedPostUpdate, player_bird_contact_system)
+  .add_system(FixedPostUpdate, bird_patrol_system)
+  .add_system(PostUpdate, volume_button_system)
+  .add_system(PostUpdate, hud_sync_system)
   .run()
 }
 ```
@@ -176,20 +184,27 @@ Systems are executed by schedule, and each system owns a specific responsibility
 
 ### Game State Management
 
-Global game state can store player references, score, volume status, and UI entities:
+Global game state can store player references, score, volume status, and UI entities. The current example separates session data from per-player controller data:
 
 ```moonbit
-struct GameState {
+struct GameSession {
   player : @entity.Entity
-  mut direction : Direction2
-  mut score : Int
+  camera : @entity.Entity
   result_box : @entity.Entity
   score_box : @entity.Entity
   health_box : @entity.Entity
   volume_button : @entity.Entity
+  mut score : Int
   mut volume_on : Bool
   mut health : Int
-  mut hurt_timer : Double
+  mut result : GameResult?
+  world_size : @math.Vec2
+}
+
+struct PlayerController {
+  mut facing : Direction2
+  mut state : PlayerState
+  mut hurt_cooldown : Double
   mut pending_bounce_velocity_y : Double?
 }
 ```
@@ -233,7 +248,7 @@ Build a clip/graph pair and attach an animation player with:
 
 ```moonbit
 @sprite.sprites().set(
-  game_state.player,
+  player,
   @sprite.Sprite::from_atlas_image(
     player_idle_image,
     @sprite.TextureAtlas::new(player_idle_layout),
@@ -261,22 +276,27 @@ let (graph, nodes) = @animation.AnimationGraph::from_clips([
   @animation.register_animation_clip_asset(clip),
 ])
 @animation.animation_graph_handles().set(
-  game_state.player,
+  player,
   @animation.register_animation_graph_asset(graph),
 )
 @animation.animation_players().set(
-  game_state.player,
+  player,
   @animation.AnimationPlayer::new(),
 )
 @animation.animation_target_ids().set(
-  game_state.player,
+  player,
   @animation.AnimationTargetId::new("self"),
 )
 @animation.animated_bys().set(
-  game_state.player,
-  @animation.AnimatedBy::new(game_state.player),
+  player,
+  @animation.AnimatedBy::new(player),
 )
-ignore(@animation.animation_players().get(game_state.player).unwrap().play(nodes[0]))
+ignore(
+  @animation.animation_players().get(player).unwrap().play(
+    nodes[0],
+    repeat=@animation.RepeatAnimation::Forever,
+  ),
+)
 ```
 
 Input handling uses `@inputs`:
@@ -288,7 +308,7 @@ if @inputs.is_pressed(@inputs.ArrowLeft) {
   // move right
 }
 
-if @inputs.is_just_pressed(ArrowUp) && @physics2d.is_grounded(game_state.player) {
+if @inputs.is_just_pressed(@inputs.ArrowUp) && @physics2d.is_grounded(player) {
   // jump
 }
 ```
@@ -304,11 +324,11 @@ let terrain_collision_group = @physics2d.CollisionGroup::new()
 let player_collision_group = @physics2d.CollisionGroup::new()
 
 @physics2d.shapes().set(
-  game_state.player,
+  player,
   Rect(size=@math.Vec2(24.0, 32.0), offset=@math.Vec2(4.0, 0.0)),
 )
 @physics2d.colliders().set(
-  game_state.player,
+  player,
   @physics2d.Collider::new(
     @physics2d.CollisionFilter::new(player_collision_group, [
       terrain_collision_group,
@@ -319,32 +339,41 @@ let player_collision_group = @physics2d.CollisionGroup::new()
 
 Only allowed collision-filter pairs will interact.
 
-### Tile Map Creation
+### Scene Documents and Level Loading
 
-Writing full maps directly in code is inconvenient. You can design maps in [Sprite Fusion](https://www.spritefusion.com/) and export JSON.
+Writing full maps directly in code is inconvenient. The current example uses a Selene project manifest plus a startup scene document, then instantiates it at runtime.
 
-The example defines local `TileMap` parsing in `spritefusion_tilemap.mbt`, then spawns entities in `generate_map`:
+The loading flow in `editor_scene.mbt` looks like this:
 
 ```moonbit
-fn generate_map() -> Unit {
-  let tile_map = TileMap::from_json(tilemap)
-  let grasses = tile_map.get_tiles("Grass")
-  for grass in grasses {
-    add_grass_visual(tile_to_vec2(grass, tile_map.tile_size), grass.id)
-  }
-}
+let bundle = load_pixeladventure_project_bundle_with_source(source)
+let scene = bundle.scene
+let context = @editor_bridge.asset_instantiation_context(
+  atlas_assets=bundle.atlas_assets,
+  animation_clip_assets=bundle.animation_clip_assets,
+  animation_graph_assets=bundle.animation_graph_assets,
+  custom_component_handlers=pixeladventure_custom_component_handlers(),
+)
+let runtime = @editor_bridge.instantiate_scene_document_with_context(
+  scene,
+  context,
+)
 ```
 
 ### Camera
 
-When world size is larger than viewport, set camera limits and follow target:
+When world size is larger than viewport, move the camera entity each frame and clamp it into the level bounds:
 
 ```moonbit
-@camera.set_limits(top=0.0, bottom=world_height, left=0.0, right=world_width)
-@camera.attach_entity(game_state.player, @math.Vec2(16.0, 16.0))
+let target_x = player_transform.translation.x + 16.0
+let target_y = player_transform.translation.y + 16.0
+let center_x = target_x.clamp(half_width, session.world_size.x - half_width)
+let center_y = target_y.clamp(half_height, session.world_size.y - half_height)
+@transform.transforms().set(
+  session.camera,
+  @transform.Transform::from_xyz(center_x, center_y, 0.0),
+)
 ```
-
-The attach offset is typically near the player center.
 
 ### Areas and Audio
 
@@ -360,10 +389,10 @@ let area = @physics2d.Area::new(
 
 fn map_trigger_system(_world : @ecs.World) -> Unit {
   for apple in apples.to_array() {
-    if @physics2d.get_contains(apple).contains(game_state.player) {
-      set_score(game_state.score + 10)
-      if game_state.volume_on {
-        play_sfx(coin_sound)
+    if @physics2d.get_contains(apple).contains(session.player) {
+      session.score += 10
+      if session.volume_on {
+        play_sfx(coin_sound, session.volume_on)
       }
       apple.destroy()
       apples.remove(apple)
@@ -375,8 +404,10 @@ fn map_trigger_system(_world : @ecs.World) -> Unit {
 Sound effects are sent as audio events:
 
 ```moonbit
-fn play_sfx(sound : @audio.AudioHandle) -> Unit {
-  @audio.send_audio_event(sound, settings=@audio.PlaybackSettings::remove())
+fn play_sfx(sound : @audio.AudioHandle, enabled : Bool) -> Unit {
+  if enabled {
+    @audio.send_audio_event(sound, settings=@audio.PlaybackSettings::remove())
+  }
 }
 ```
 
@@ -387,15 +418,15 @@ Current UI uses `@ui` component stores for text/buttons/images. Example score te
 ```moonbit
 fn add_score_box() -> Unit {
   @ui.nodes().set(
-    game_state.score_box,
+    session.score_box,
     @ui.Node::absolute(
       @math.Vec2(48.0, 16.0),
       size=@math.Vec2(432.0, 24.0),
     ),
   )
-  @ui.z_indexes().set(game_state.score_box, @ui.ZIndex::new(100))
-  @ui.texts().set(game_state.score_box, @ui.Text::new("Score: 0"))
-  @ui.text_fonts().set(game_state.score_box, @ui.TextFont::from_css("20px ThaleahFat"))
+  @ui.z_indexes().set(session.score_box, @ui.ZIndex::new(100))
+  @ui.texts().set(session.score_box, @ui.Text::new("Score: 0"))
+  @ui.text_fonts().set(session.score_box, @ui.TextFont::from_css("20px ThaleahFat"))
 }
 ```
 
@@ -406,8 +437,8 @@ let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = @event.EventReader:
 
 fn volume_button_input_system(_world : @ecs.World) -> Unit {
   for event in @ui.click_event_bus.read(ui_click_reader) {
-    guard event.entity == game_state.volume_button else { continue }
-    game_state.volume_on = !game_state.volume_on
+    guard event.entity == session.volume_button else { continue }
+    session.volume_on = !session.volume_on
   }
 }
 ```
@@ -418,14 +449,13 @@ Build command:
 
 ```shell
 cd examples
-moon build ./pixeladventure/web --target js --target-dir _build --release
+moon build ./pixeladventure/web --target js --release
 ```
 
 Then use `examples/pixeladventure/index.html`, which references:
 
 ```html
-<script src="../preload-assets.js"></script>
-<script src="../_build/js/release/build/pixeladventure/web/web.js" defer></script>
+<script src="../../_build/js/release/build/Milky2018/selene-examples/pixeladventure/web/web.js" defer></script>
 ```
 
 Run local server:

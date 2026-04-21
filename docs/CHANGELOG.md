@@ -5,6 +5,7 @@
 ### Added
 
 ### Changed
+- Changed the English and Chinese tutorials to match the current scene-document workflow, camera follow pattern, module imports, and web build output paths.
 
 ### Fixed
 
