@@ -29,75 +29,69 @@ fn handle_project_loaded(
   model : Model,
 ) -> (Array[Effect], Model) {
   match result {
-    Ok(response) =>
-      match response.workspace {
-        Some(loaded_workspace) => {
-          let scene_refs = response.scenes
-          let prefab_refs = response.prefabs
-          let atlas_refs = response.atlases
-          let animation_clip_refs = response.animation_clips
-          let animation_graph_refs = response.animation_graphs
-          let move_snap_enabled = loaded_workspace.move_snap_enabled_or_default()
-          let move_snap_step = nearest_move_snap_step(
-            loaded_workspace.move_snap_step_or_default(),
-          )
-          let workspace = loaded_workspace
-            .with_move_snap_enabled(move_snap_enabled)
-            .with_move_snap_step(move_snap_step)
-          let scene_path = preferred_scene_path(
-            response.manifest,
-            scene_refs,
-            workspace,
-            model_scene_path(model),
-          )
-          let status = match response.root {
-            Some(root) => "Project: " + root
-            None => "Choose a project folder to begin"
-          }
-          let project_root_input = response.root.unwrap_or(
-            model.project_root_input,
-          )
-          let next = {
-            ..model,
-            current_root: response.root,
-            manifest: response.manifest,
-            scene_refs,
-            prefab_refs,
-            atlas_refs,
-            animation_clip_refs,
-            animation_graph_refs,
-            workspace,
-            recent_projects: response.recent_projects,
-            project_root_input,
-            pending_scene_migration: None,
-            pending_animation_migration_paths: [],
-            pending_animation_migration_scene_path: None,
-            animation_migration_in_progress: false,
-            animation_migration_total: 0,
-            animation_migration_completed: 0,
-            animation_migration_failed: 0,
-            animation_migration_prompt_dismissed: false,
-            add_component_panel_open: false,
-            component_search_query: "",
-            open_component_menu_kind: None,
-            scene_session: model.scene_session.map(fn(session) {
-              { ..session, path: scene_path }
-            }),
-            status,
-            move_snap_enabled,
-            move_snap_step,
-            selected_entity_id: None,
-            selected_entity_ids: [],
-          }
-          (refresh_project_effects(next), next)
-        }
-        None => {
-          let next = push_log(
-            model, "Project response is missing workspace state.",
-          )
-          ([], { ..next, status: project_open_failed_message() })
-        }
+    Ok(response) => {
+      let loaded_workspace = response.workspace.unwrap_or(
+        @editor_bridge.WorkspaceDocument::default(),
+      )
+      let scene_refs = response.scenes
+      let prefab_refs = response.prefabs
+      let atlas_refs = response.atlases
+      let animation_clip_refs = response.animation_clips
+      let animation_graph_refs = response.animation_graphs
+      let move_snap_enabled = loaded_workspace.move_snap_enabled_or_default()
+      let move_snap_step = nearest_move_snap_step(
+        loaded_workspace.move_snap_step_or_default(),
+      )
+      let workspace = loaded_workspace
+        .with_move_snap_enabled(move_snap_enabled)
+        .with_move_snap_step(move_snap_step)
+      let scene_path = preferred_scene_path(
+        response.manifest,
+        scene_refs,
+        workspace,
+        model_scene_path(model),
+      )
+      let status = match response.root {
+        Some(root) => "Project: " + root
+        None => "Choose a project folder to begin"
       }
+      let project_root_input = response.root.unwrap_or(
+        model.project_root_input,
+      )
+      let next = {
+        ..model,
+        current_root: response.root,
+        manifest: response.manifest,
+        scene_refs,
+        prefab_refs,
+        atlas_refs,
+        animation_clip_refs,
+        animation_graph_refs,
+        workspace,
+        recent_projects: response.recent_projects,
+        project_root_input,
+        pending_scene_migration: None,
+        pending_animation_migration_paths: [],
+        pending_animation_migration_scene_path: None,
+        animation_migration_in_progress: false,
+        animation_migration_total: 0,
+        animation_migration_completed: 0,
+        animation_migration_failed: 0,
+        animation_migration_prompt_dismissed: false,
+        add_component_panel_open: false,
+        component_search_query: "",
+        open_component_menu_kind: None,
+        scene_session: model.scene_session.map(fn(session) {
+          { ..session, path: scene_path }
+        }),
+        status,
+        move_snap_enabled,
+        move_snap_step,
+        selected_entity_id: None,
+        selected_entity_ids: [],
+      }
+      (refresh_project_effects(next), next)
+    }
     Err(message) => {
       ignore(message)
       let next = push_log(model, project_open_failed_message())

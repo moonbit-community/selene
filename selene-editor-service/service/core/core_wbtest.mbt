@@ -180,6 +180,55 @@ async test "project.open fails when workspace.json is invalid instead of silentl
 }
 
 ///|
+async test "project.open migrates legacy workspace.json to envelope format" {
+  @async.with_task_group(group => {
+    let temp_root = @fs.tmpdir(prefix="selene-editor-core")
+    let root = path_join(temp_root, "Legacy Workspace Demo")
+    group.add_defer(() => {
+      if @fs.exists(temp_root) {
+        @fs.rmdir(temp_root, recursive=true)
+      }
+    })
+
+    let service = EditorService::new(".")
+    ignore(
+      service.handle_rpc(
+        @shared.rpc_request_envelope(1, @shared.rpc_request_project_open(root)),
+      ),
+    )
+
+    @fs.write_file(
+      path_join(root, ".selene-editor/workspace.json"),
+      "{\n  \"version\": 2,\n  \"last_scene\": \"scenes/main.scene.json\",\n  \"move_snap_enabled\": true,\n  \"move_snap_step\": 16\n}\n"
+      |> @utf8.encode,
+      create=0o644,
+    )
+
+    let payload = service.handle_rpc(
+      @shared.rpc_request_envelope(2, @shared.rpc_request_project_open(root)),
+    )
+    let response = response_envelope(payload).response
+    match response {
+      @shared.ProjectState(state~) => {
+        let workspace = state.workspace.unwrap()
+        inspect(workspace.move_snap_enabled, content="Some(true)")
+        inspect(workspace.move_snap_step, content="Some(16)")
+      }
+      _ => fail("expected project state response")
+    }
+
+    let encoded_workspace = @fs.read_file(
+      path_join(root, ".selene-editor/workspace.json"),
+    )
+    .text()
+    inspect(
+      encoded_workspace.contains("\"schema\": \"selene/workspace_document\""),
+      content="true",
+    )
+  })
+}
+
+///|
 async test "project.open rejects an empty root" {
   let service = EditorService::new(".")
   let payload = service.handle_rpc(

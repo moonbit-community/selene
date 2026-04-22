@@ -11,6 +11,8 @@
 ### Fixed
 - Fixed editor save/startup-scene RPC bindings so non-scene document writes and startup-scene updates no longer mis-handle `SavedOk` / `StartupSceneUpdated` responses.
 - Fixed `selene-editor-specs` harness RPC effect simulation to follow the new `RpcBinding` model, restoring compatibility after the frontend RPC binding refactor.
+- Fixed editor startup state handling for `ProjectCurrent` empty responses so missing workspace payload no longer triggers a false "Project open failed" status.
+- Fixed editor-service project open flow to accept legacy non-envelope workspace documents and rewrite them to canonical envelope format on successful load.
 
 ### Removed
 

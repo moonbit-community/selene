@@ -171,6 +171,112 @@ async fn list_animation_graph_asset_documents(
 }
 
 ///|
+fn legacy_workspace_optional_string_field(
+  object : Map[String, Json],
+  key : String,
+) -> String? raise {
+  if !object.contains(key) {
+    return None
+  }
+  match object[key] {
+    Null => None
+    String(value) => Some(value)
+    _ =>
+      raise Failure(
+        "Workspace document is invalid: .selene-editor/workspace.json",
+      )
+  }
+}
+
+///|
+fn legacy_workspace_optional_bool_field(
+  object : Map[String, Json],
+  key : String,
+) -> Bool? raise {
+  if !object.contains(key) {
+    return None
+  }
+  match object[key] {
+    Null => None
+    True => Some(true)
+    False => Some(false)
+    _ =>
+      raise Failure(
+        "Workspace document is invalid: .selene-editor/workspace.json",
+      )
+  }
+}
+
+///|
+fn legacy_workspace_optional_number_field(
+  object : Map[String, Json],
+  key : String,
+) -> Double? raise {
+  if !object.contains(key) {
+    return None
+  }
+  match object[key] {
+    Null => None
+    Number(value, ..) => Some(value)
+    _ =>
+      raise Failure(
+        "Workspace document is invalid: .selene-editor/workspace.json",
+      )
+  }
+}
+
+///|
+fn decode_legacy_workspace_document(
+  json : Json,
+) -> @editor_bridge.WorkspaceDocument raise {
+  let object = match json {
+    Object(object) => object
+    _ =>
+      raise Failure(
+        "Workspace document is invalid: .selene-editor/workspace.json",
+      )
+  }
+  let version = if object.contains("version") {
+    match object["version"] {
+      Number(value, ..) => value.to_int()
+      _ =>
+        raise Failure(
+          "Workspace document is invalid: .selene-editor/workspace.json",
+        )
+    }
+  } else {
+    raise Failure("Workspace document is invalid: .selene-editor/workspace.json")
+  }
+  ignore(version)
+  let mut workspace = @editor_bridge.WorkspaceDocument::default()
+  workspace = workspace.with_last_scene(
+    legacy_workspace_optional_string_field(object, "last_scene"),
+  )
+  workspace = workspace.with_selected_entity_id(
+    legacy_workspace_optional_string_field(object, "selected_entity_id"),
+  )
+  if legacy_workspace_optional_bool_field(object, "move_snap_enabled") is Some(
+    enabled,
+  ) {
+    workspace = workspace.with_move_snap_enabled(enabled)
+  }
+  if legacy_workspace_optional_number_field(object, "move_snap_step") is Some(step) {
+    workspace = workspace.with_move_snap_step(step)
+  }
+  if legacy_workspace_optional_number_field(object, "sidebar_scene_ratio") is Some(
+    ratio,
+  ) {
+    workspace = workspace.with_sidebar_scene_ratio(ratio)
+  }
+  if legacy_workspace_optional_number_field(object, "sidebar_assets_ratio") is Some(
+    ratio,
+  ) {
+    workspace = workspace.with_sidebar_assets_ratio(ratio)
+  }
+  workspace
+}
+
+///|
 async fn load_workspace_document(
   root : String,
 ) -> @editor_bridge.WorkspaceDocument {
@@ -185,10 +291,19 @@ async fn load_workspace_document(
       )
   }
   @editor_bridge.decode_workspace_document(json) catch {
-    @editor_bridge.InvalidWorkspaceDocument(_) =>
-      raise Failure(
-        "Workspace document is invalid: .selene-editor/workspace.json",
-      )
+    @editor_bridge.InvalidWorkspaceDocument(_) => {
+      // Accept legacy non-envelope workspace files and rewrite them to the
+      // canonical envelope format on successful decode.
+      let legacy_workspace = decode_legacy_workspace_document(json)
+      let encoded = @editor_bridge.encode_workspace_document(legacy_workspace) catch {
+        _ =>
+          raise Failure(
+            "Workspace document is invalid: .selene-editor/workspace.json",
+          )
+      }
+      write_text_file(path, encoded)
+      legacy_workspace
+    }
     err => raise err
   }
 }

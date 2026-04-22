@@ -52,6 +52,25 @@ test "initialize subscribes to service and preview channels" {
 }
 
 ///|
+test "project current without open project keeps editor in ready-empty state" {
+  let response = @shared.project_state_response(
+    None,
+    None,
+    [],
+    [],
+    [],
+    [],
+    [],
+    None,
+    [],
+  )
+  let (effects, next) = update(msg_project_loaded(Ok(response)), new_model())
+  inspect(effects.length(), content="0")
+  inspect(next.status, content="Choose a project folder to begin")
+  inspect(next.current_root is None, content="true")
+}
+
+///|
 test "save scene uses cas base hash and revision from scene session" {
   let scene = @editor_bridge.SceneDocument::default_main().with_name(
     "Dirty Scene",
