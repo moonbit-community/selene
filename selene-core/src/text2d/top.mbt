@@ -271,13 +271,7 @@ fn cached_text_layout(
       let max_line_width = lines.fold(init=0.0, fn(acc, line) {
         @cmp.maximum(acc, measure_text_fragment(style, line)[X])
       })
-      let cached = {
-        key,
-        lines,
-        max_line_width,
-        line_height,
-        block_height,
-      }
+      let cached = { key, lines, max_line_width, line_height, block_height }
       text_layout_caches().set(entity, cached)
       cached
     }
@@ -339,7 +333,11 @@ pub fn render_text2d_system(delta : Double) -> Unit {
     }
     let layout_size = @math.Vec2(layout_width, bounds_height)
     if camera_views.is_empty() {
-      let screen_pos = @parallax2d.parallax_world_position(base_pos, parallax, None)
+      let screen_pos = @parallax2d.parallax_world_position(
+        base_pos,
+        parallax,
+        None,
+      )
       push_text2d_lines(
         entity,
         lines,
@@ -359,7 +357,11 @@ pub fn render_text2d_system(delta : Double) -> Unit {
       )
       continue
     }
-    let world_pos = @parallax2d.parallax_world_position(base_pos, parallax, None)
+    let world_pos = @parallax2d.parallax_world_position(
+      base_pos,
+      parallax,
+      None,
+    )
     let world_bounds = @camera.transformed_rect_bounds(
       world_pos + anchor_origin(anchor, layout_size),
       { position: @math.Vec2::zero(), size: layout_size },
@@ -386,8 +388,7 @@ pub fn render_text2d_system(delta : Double) -> Unit {
         global_transform,
         Some(camera_view),
       )
-      let layout_origin = screen_pos +
-        anchor_origin(anchor, layout_size)
+      let layout_origin = screen_pos + anchor_origin(anchor, layout_size)
       let layout_bounds = @camera.transformed_rect_bounds(
         layout_origin,
         { position: @math.Vec2::zero(), size: layout_size },

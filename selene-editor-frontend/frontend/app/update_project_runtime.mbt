@@ -11,18 +11,13 @@ fn update_project_runtime(
           SubscribePreviewEvents,
           SubscribeKeyboardShortcuts,
           SubscribeSidebarLayout,
-          rpc_effect(ProjectLoaded, @shared.rpc_request_project_current()),
+          rpc_effect(RpcProjectCurrent),
         ],
         model,
       )
     OpenProject =>
       (
-        [
-          rpc_effect(
-            ProjectRootPicked,
-            @shared.rpc_request_project_pick_directory("Open a Selene project"),
-          ),
-        ],
+        [rpc_effect(RpcProjectPickDirectory("Open a Selene project"))],
         { ..model, status: "Choose a project folder..." },
       )
     ProjectRootPicked(result) => handle_project_root_picked(result, model)
@@ -32,12 +27,7 @@ fn update_project_runtime(
       match model.pending_scene_migration {
         Some(preview) =>
           (
-            [
-              rpc_effect(
-                SceneLoaded,
-                @shared.rpc_request_scene_migrate(preview.path),
-              ),
-            ],
+            [rpc_effect(RpcSceneMigrate(preview.path))],
             { ..model, status: "Migrating " + preview.path + "..." },
           )
         None => ([], model)
@@ -78,12 +68,7 @@ fn update_project_runtime(
         )
         let first_path = model.pending_animation_migration_paths[0]
         (
-          [
-            rpc_effect(
-              AnimationMigrationSaved,
-              @shared.rpc_request_animation_migrate(first_path, scene_path),
-            ),
-          ],
+          [rpc_effect(RpcAnimationMigrate(first_path, scene_path))],
           {
             ..model,
             animation_migration_in_progress: true,
@@ -153,12 +138,7 @@ fn update_project_runtime(
           )
           let next_path = model.pending_animation_migration_paths[completed]
           (
-            [
-              rpc_effect(
-                AnimationMigrationSaved,
-                @shared.rpc_request_animation_migrate(next_path, scene_path),
-              ),
-            ],
+            [rpc_effect(RpcAnimationMigrate(next_path, scene_path))],
             {
               ..with_log,
               animation_migration_failed: failed,
@@ -370,12 +350,7 @@ fn update_project_runtime(
       match model.scene_session {
         Some(session) =>
           (
-            [
-              rpc_effect(
-                SceneLoaded,
-                @shared.rpc_request_scene_load(session.path),
-              ),
-            ],
+            [rpc_effect(RpcSceneLoad(session.path))],
             {
               ..model,
               scene_session: Some({
@@ -411,16 +386,8 @@ fn update_project_runtime(
             }
             (
               [
-                rpc_effect(
-                  SceneSaved,
-                  @shared.rpc_request_scene_save(
-                    save_path,
-                    session.scene,
-                    "",
-                    0,
-                  ),
-                ),
-                rpc_effect(SceneListLoaded, @shared.rpc_request_scene_list()),
+                rpc_effect(RpcSceneSave(save_path, session.scene, "", 0)),
+                rpc_effect(RpcSceneList),
               ],
               next,
             )
@@ -440,6 +407,14 @@ fn update_project_runtime(
               status: "Workspace save failed. Check browser console for details.",
             },
           )
+        }
+      }
+    RpcAck(result) =>
+      match result {
+        Ok(_) => ([], model)
+        Err(message) => {
+          let next = push_log(model, "Request failed: " + message)
+          ([], { ..next, status: "Request failed: " + message })
         }
       }
     ServiceEvent(result) => handle_service_event(result, model)

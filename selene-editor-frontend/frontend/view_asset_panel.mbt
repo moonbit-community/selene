@@ -151,9 +151,7 @@ fn scene_tree_item_attrs(
     @app.entity_label(entity) +
     " (double-click to frame)"
   @html.Attrs::build()
-  .on_click(fn(_event) {
-    dispatch(@app.msg_select_entity(Some(entity.id)))
-  })
+  .on_click(fn(_event) { dispatch(@app.msg_select_entity(Some(entity.id))) })
   .on_dblclick(fn(_event) {
     @cmd.batch([
       dispatch(@app.msg_select_entity(Some(entity.id))),
@@ -163,9 +161,7 @@ fn scene_tree_item_attrs(
   .on_mouseenter(fn(_event) {
     dispatch(@app.msg_set_hover_hint(Some(hover_hint)))
   })
-  .on_mouseleave(fn(_event) {
-    dispatch(@app.msg_set_hover_hint(None))
-  })
+  .on_mouseleave(fn(_event) { dispatch(@app.msg_set_hover_hint(None)) })
 }
 
 ///|
@@ -174,12 +170,8 @@ fn hint_attrs(
   label : String,
 ) -> @html.Attrs {
   @html.Attrs::build()
-  .on_mouseenter(fn(_event) {
-    dispatch(@app.msg_set_hover_hint(Some(label)))
-  })
-  .on_mouseleave(fn(_event) {
-    dispatch(@app.msg_set_hover_hint(None))
-  })
+  .on_mouseenter(fn(_event) { dispatch(@app.msg_set_hover_hint(Some(label))) })
+  .on_mouseleave(fn(_event) { dispatch(@app.msg_set_hover_hint(None)) })
 }
 
 ///|
@@ -348,9 +340,7 @@ fn asset_tree_file_attrs(
     .on_mouseenter(fn(_event) {
       dispatch(@app.msg_set_hover_hint(Some(full_path)))
     })
-    .on_mouseleave(fn(_event) {
-      dispatch(@app.msg_set_hover_hint(None))
-    })
+    .on_mouseleave(fn(_event) { dispatch(@app.msg_set_hover_hint(None)) })
     .on_dblclick(fn(_event) {
       @cmd.batch([
         dispatch(@app.msg_select_resource(Some(selection))),

@@ -234,7 +234,10 @@ fn sorted_camera_entity_ids() -> Array[UInt] {
 fn sorted_camera_entity_ids_by_pass_order() -> Array[UInt] {
   let camera_order_by_entity_id : Map[UInt, Int] = Map::new()
   for camera_view in @camera.active_camera2d_views() {
-    camera_order_by_entity_id.set(camera_view.entity.id(), camera_view.camera.order)
+    camera_order_by_entity_id.set(
+      camera_view.entity.id(),
+      camera_view.camera.order,
+    )
   }
   let sorted = sorted_camera_entity_ids()
   sorted.sort_by(fn(lhs, rhs) {
@@ -526,7 +529,10 @@ pub fn push_ui_gradient_rect(
 }
 
 ///|
-pub fn push_ui_clip_for_camera(rect : @math.Rect, camera_entity_id : UInt?) -> Unit {
+pub fn push_ui_clip_for_camera(
+  rect : @math.Rect,
+  camera_entity_id : UInt?,
+) -> Unit {
   push_ui_command(PushClip({ rect, }), camera_entity_id)
 }
 

@@ -9,7 +9,7 @@ fn handle_project_root_picked(
         Some(path) => {
           let root = normalized_project_root(path)
           (
-            [rpc_effect(ProjectLoaded, @shared.rpc_request_project_open(root))],
+            [rpc_effect(RpcProjectOpen(root))],
             { ..model, project_root_input: root, status: "Opening project..." },
           )
         }
@@ -318,14 +318,10 @@ fn handle_service_event(
               ([], { ..model, status: "Workspace settings updated" })
             @shared.ManifestChanged =>
               (
-                [rpc_effect(SceneListLoaded, @shared.rpc_request_scene_list())],
+                [rpc_effect(RpcSceneList)],
                 { ..model, status: "Project manifest changed" },
               )
-            @shared.AssetFileChanged(_) =>
-              (
-                [rpc_effect(AssetsLoaded, @shared.rpc_request_assets_list())],
-                model,
-              )
+            @shared.AssetFileChanged(_) => ([rpc_effect(RpcAssetsList)], model)
             @shared.SceneFileChanged(path~, disk_hash~, disk_revision~) =>
               match model.scene_session {
                 Some(session) if session.path == path && session.dirty => {
@@ -345,24 +341,10 @@ fn handle_service_event(
                 }
                 Some(session) if session.path == path =>
                   (
-                    [
-                      rpc_effect(
-                        SceneLoaded,
-                        @shared.rpc_request_scene_load(path),
-                      ),
-                    ],
+                    [rpc_effect(RpcSceneLoad(path))],
                     { ..model, status: "Reloading changed scene..." },
                   )
-                _ =>
-                  (
-                    [
-                      rpc_effect(
-                        SceneListLoaded,
-                        @shared.rpc_request_scene_list(),
-                      ),
-                    ],
-                    model,
-                  )
+                _ => ([rpc_effect(RpcSceneList)], model)
               }
           }
         @shared.SceneSaved(_)

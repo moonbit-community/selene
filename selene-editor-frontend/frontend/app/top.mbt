@@ -448,6 +448,7 @@ pub enum Msg {
   ResolveSceneConflictReloadDisk
   ResolveSceneConflictSaveAs(String)
   AnimationMigrationSaved(Result[Unit, String])
+  RpcAck(Result[Unit, String])
   WorkspaceSaved(Result[Unit, String])
   ServiceEvent(Result[@shared.EditorEvent, String])
   PreviewEvent(@bridge.PreviewEvent)
@@ -561,24 +562,8 @@ pub enum Msg {
 }
 
 ///|
-pub enum RpcTarget {
-  ProjectLoaded
-  ProjectRootPicked
-  SceneLoaded
-  SceneListLoaded
-  AssetsLoaded
-  PrefabLoaded
-  AtlasLoaded
-  AnimationClipLoaded
-  AnimationGraphLoaded
-  SceneSaved
-  AnimationMigrationSaved
-  WorkspaceSaved
-} derive(Eq)
-
-///|
 pub enum Effect {
-  Rpc(target~ : RpcTarget, request~ : @shared.RpcRequestEnvelope)
+  Rpc(binding~ : RpcBinding)
   SubscribeServiceEvents
   SubscribePreviewEvents
   SubscribeKeyboardShortcuts

@@ -237,20 +237,14 @@ fn folder_picker_failed_message() -> String {
 }
 
 ///|
-fn rpc_effect(target : RpcTarget, request : @shared.RpcRequest) -> Effect {
-  Rpc(target~, request=@shared.rpc_request_envelope(1, request))
+fn rpc_effect(binding : RpcBinding) -> Effect {
+  Rpc(binding~)
 }
 
 ///|
 fn save_workspace_effects(model : Model) -> Array[Effect] {
   match model.current_root {
-    Some(_) =>
-      [
-        rpc_effect(
-          WorkspaceSaved,
-          @shared.rpc_request_project_save_workspace(model.workspace),
-        ),
-      ]
+    Some(_) => [rpc_effect(RpcProjectSaveWorkspace(model.workspace))]
     None => []
   }
 }
@@ -323,30 +317,16 @@ fn sync_preview_effects_with_scene(model : Model) -> Array[Effect] {
 fn load_supporting_resource_effects(model : Model) -> Array[Effect] {
   let effects : Array[Effect] = []
   for prefab_ref in model.prefab_refs {
-    effects.push(
-      rpc_effect(PrefabLoaded, @shared.rpc_request_prefab_load(prefab_ref.path)),
-    )
+    effects.push(rpc_effect(RpcPrefabLoad(prefab_ref.path)))
   }
   for atlas_ref in model.atlas_refs {
-    effects.push(
-      rpc_effect(AtlasLoaded, @shared.rpc_request_atlas_load(atlas_ref.path)),
-    )
+    effects.push(rpc_effect(RpcAtlasLoad(atlas_ref.path)))
   }
   for animation_ref in model.animation_clip_refs {
-    effects.push(
-      rpc_effect(
-        AnimationClipLoaded,
-        @shared.rpc_request_animation_clip_load(animation_ref.path),
-      ),
-    )
+    effects.push(rpc_effect(RpcAnimationClipLoad(animation_ref.path)))
   }
   for animation_ref in model.animation_graph_refs {
-    effects.push(
-      rpc_effect(
-        AnimationGraphLoaded,
-        @shared.rpc_request_animation_graph_load(animation_ref.path),
-      ),
-    )
+    effects.push(rpc_effect(RpcAnimationGraphLoad(animation_ref.path)))
   }
   effects
 }
@@ -357,12 +337,9 @@ fn refresh_project_effects(model : Model) -> Array[Effect] {
     Some(_) => {
       let effects : Array[Effect] = [
         Preview(@bridge.preview_command_bootstrap()),
-        rpc_effect(
-          SceneLoaded,
-          @shared.rpc_request_scene_load(model_scene_path(model)),
-        ),
-        rpc_effect(SceneListLoaded, @shared.rpc_request_scene_list()),
-        rpc_effect(AssetsLoaded, @shared.rpc_request_assets_list()),
+        rpc_effect(RpcSceneLoad(model_scene_path(model))),
+        rpc_effect(RpcSceneList),
+        rpc_effect(RpcAssetsList),
       ]
       effects.push_iter(load_supporting_resource_effects(model).iter())
       effects

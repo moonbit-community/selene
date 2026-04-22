@@ -413,7 +413,8 @@ fn ensure_offscreen_target_2d(
   let height = @cmp.maximum(1, height)
   match backend.offscreen_targets_2d.get(name) {
     Some(existing) =>
-      if existing.width == width && existing.height == height &&
+      if existing.width == width &&
+        existing.height == height &&
         existing.render_texture.is_valid() {
         return Some(existing)
       } else {
@@ -436,9 +437,10 @@ fn ensure_offscreen_target_2d(
 ///|
 fn offscreen_target_texture(path : String) -> @raylib.Texture? {
   match offscreen_target_name_from_path(path) {
-    Some(name) => backend.offscreen_targets_2d.get(name).map(fn(target) {
-      target.render_texture.texture()
-    })
+    Some(name) =>
+      backend.offscreen_targets_2d
+      .get(name)
+      .map(fn(target) { target.render_texture.texture() })
     None => None
   }
 }

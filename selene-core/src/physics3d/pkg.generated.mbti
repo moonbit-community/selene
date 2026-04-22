@@ -171,8 +171,6 @@ pub(all) struct ContactForceEvent {
 
 pub(all) struct ContactForceEventThreshold(Double) derive(Eq, @debug.Debug)
 pub fn ContactForceEventThreshold::default() -> Self
-#deprecated
-pub fn ContactForceEventThreshold::inner(Self) -> Double
 
 pub(all) struct Damping {
   linear_damping : Double
@@ -181,8 +179,6 @@ pub(all) struct Damping {
 pub fn Damping::default() -> Self
 
 pub(all) struct Dominance(Int) derive(Eq, @debug.Debug)
-#deprecated
-pub fn Dominance::inner(Self) -> Int
 pub fn Dominance::new(Int) -> Self
 
 pub(all) struct FixedJoint {
@@ -194,14 +190,10 @@ pub(all) struct FixedJoint {
 pub fn FixedJoint::new() -> Self
 
 pub(all) struct Friction(Double) derive(Eq, @debug.Debug)
-#deprecated
-pub fn Friction::inner(Self) -> Double
 pub fn Friction::new(Double) -> Self
 
 pub(all) struct GravityScale(Double) derive(Eq, @debug.Debug)
 pub fn GravityScale::default() -> Self
-#deprecated
-pub fn GravityScale::inner(Self) -> Double
 
 pub(all) struct ImpulseJoint {
   parent : @entity.Entity
@@ -328,8 +320,6 @@ pub(all) struct RaycastHit {
 } derive(Eq, @debug.Debug)
 
 pub(all) struct Restitution(Double) derive(Eq, @debug.Debug)
-#deprecated
-pub fn Restitution::inner(Self) -> Double
 pub fn Restitution::new(Double) -> Self
 
 pub(all) struct RevoluteJoint {

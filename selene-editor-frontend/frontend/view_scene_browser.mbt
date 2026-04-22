@@ -133,16 +133,13 @@ fn preview_cmd(command : @bridge.PreviewCommand) -> @rabbita.Cmd {
 ///|
 fn rpc_effect_cmd(
   dispatch : @rabbita.Dispatch[@app.Msg],
-  target : @app.RpcTarget,
-  request : @shared.RpcRequestEnvelope,
+  binding : @app.RpcBinding,
 ) -> @rabbita.Cmd {
-  rpc_cmd(request, fn(response) { rpc_msg_from_response(target, response) }, fn(
-    result,
-  ) {
-    log_rpc_result_error(rpc_scope(target), result)
+  rpc_cmd(binding, fn(result) {
+    log_rpc_result_error(binding.scope(), result)
     match result {
       Ok(msg) => dispatch(msg)
-      Err(message) => dispatch(rpc_transport_error_msg(target, message))
+      Err(message) => dispatch(binding.transport_error_msg(message))
     }
   })
 }
@@ -153,7 +150,7 @@ fn effect_to_cmd(
   effect : @app.Effect,
 ) -> @rabbita.Cmd {
   match effect {
-    @app.Rpc(target~, request~) => rpc_effect_cmd(dispatch, target, request)
+    @app.Rpc(binding~) => rpc_effect_cmd(dispatch, binding)
     @app.SubscribeServiceEvents => subscribe_events_cmd(dispatch)
     @app.SubscribePreviewEvents => subscribe_preview_events_cmd(dispatch)
     @app.SubscribeKeyboardShortcuts => subscribe_shortcuts_cmd(dispatch)
@@ -215,6 +212,7 @@ fn sync_resource_previews_cmd() -> @rabbita.Cmd {
     kind=@cmd.after_render,
   )
 }
+
 ///|
 fn scene_browser_action_button(
   dispatch : @rabbita.Dispatch[@app.Msg],

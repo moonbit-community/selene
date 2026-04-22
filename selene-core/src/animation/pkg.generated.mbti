@@ -131,8 +131,6 @@ pub(all) struct AnimatedField {
 }
 
 pub(all) struct AnimatedFieldHandle(UInt) derive(Eq, Hash, @debug.Debug)
-#deprecated
-pub fn AnimatedFieldHandle::inner(Self) -> UInt
 
 pub(all) enum AnimatedValue {
   Scalar(Double)
@@ -164,8 +162,6 @@ pub(all) struct AnimationClipEventKeyframe {
 } derive(Eq, @debug.Debug)
 
 pub(all) struct AnimationClipHandle(UInt) derive(Eq, Hash, @debug.Debug)
-#deprecated
-pub fn AnimationClipHandle::inner(Self) -> UInt
 
 pub(all) struct AnimationEventContext {
   clip : AnimationClipHandle
@@ -175,8 +171,6 @@ pub(all) struct AnimationEventContext {
 } derive(Eq, @debug.Debug)
 
 pub(all) struct AnimationEventDescriptorHandle(UInt) derive(Eq, Hash, @debug.Debug)
-#deprecated
-pub fn AnimationEventDescriptorHandle::inner(Self) -> UInt
 
 pub(all) struct AnimationGraph {
   root : AnimationNodeIndex
@@ -205,8 +199,6 @@ pub(all) struct AnimationGraphEdge {
 }
 
 pub(all) struct AnimationGraphHandle(UInt) derive(Eq, Hash, @debug.Debug)
-#deprecated
-pub fn AnimationGraphHandle::inner(Self) -> UInt
 
 pub(all) struct AnimationGraphNode {
   node_type : AnimationGraphNodeType
@@ -221,8 +213,6 @@ pub(all) enum AnimationGraphNodeType {
 }
 
 pub(all) struct AnimationNodeIndex(UInt) derive(Eq, Hash, @debug.Debug)
-#deprecated
-pub fn AnimationNodeIndex::inner(Self) -> UInt
 
 pub(all) struct AnimationPlayer {
   active_animations : Map[AnimationNodeIndex, ActiveAnimation]
@@ -247,8 +237,6 @@ pub fn AnimationPlayer::stop_all(Self) -> Self
 
 pub(all) struct AnimationTargetId(String) derive(Eq, Hash, @debug.Debug)
 pub fn AnimationTargetId::from_names(Array[String]) -> Self
-#deprecated
-pub fn AnimationTargetId::inner(Self) -> String
 pub fn AnimationTargetId::new(String) -> Self
 pub fn AnimationTargetId::path(Self) -> String
 

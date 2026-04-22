@@ -107,13 +107,9 @@ test "app: headless frames service platform maintenance around game and render" 
   startup_runtime(plan)
   let accumulator : Ref[Double] = { val: 0.0 }
 
-  run_headless_frame(
-    plan,
-    accumulator,
-    1.0 / 60.0,
-    None,
-    fn() { trace.val = trace.val + "s" },
-  )
+  run_headless_frame(plan, accumulator, 1.0 / 60.0, None, fn() {
+    trace.val = trace.val + "s"
+  })
 
   inspect(trace.val, content="sgrs")
 }

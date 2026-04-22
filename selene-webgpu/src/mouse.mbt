@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 pub fn register_mouse_events(
   mouse : @inputs.Mouse,
   mouse_movement : @inputs.MouseMovement,

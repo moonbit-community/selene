@@ -662,8 +662,6 @@ pub(all) struct UiMaterialContext {
 pub fn UiMaterialContext::new(@entity.Entity, @math.Rect, content_rect? : @math.Rect, border_radius? : BorderRadius, target_camera_entity_id? : UInt?) -> Self
 
 pub(all) struct UiMaterialHandle(UInt) derive(Eq, Hash, @debug.Debug)
-#deprecated
-pub fn UiMaterialHandle::inner(Self) -> UInt
 
 pub(all) enum UiNavigationDirection {
   Up

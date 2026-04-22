@@ -82,12 +82,8 @@ test "pickable click respects top-most camera render layers" {
       position: @math.Vec2::zero(),
       size: @math.Vec2(100.0, 100.0),
     }
-    ignore(
-      spawn_pickable_camera(viewport, 0, @visibility.layer(0U)),
-    )
-    ignore(
-      spawn_pickable_camera(viewport, 1, @visibility.layer(1U)),
-    )
+    ignore(spawn_pickable_camera(viewport, 0, @visibility.layer(0U)))
+    ignore(spawn_pickable_camera(viewport, 1, @visibility.layer(1U)))
     let hidden_entity = spawn_pickable_shape(
       @math.Vec2(50.0, 50.0),
       Rect(size=@math.Vec2(20.0, 20.0), offset=@math.Vec2(-10.0, -10.0)),

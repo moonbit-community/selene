@@ -38,19 +38,30 @@ fn[T : @json.FromJson] decoded_component_payload(
 }
 
 ///|
-fn validate_color_doc(color : ColorDoc, path : String) -> Array[ValidationError] {
+fn validate_color_doc(
+  color : ColorDoc,
+  path : String,
+) -> Array[ValidationError] {
   let errors : Array[ValidationError] = []
   if color.r < 0 || color.r > 255 {
-    errors.push(validation_error(path + ".r", "Color channel must be in [0, 255]"))
+    errors.push(
+      validation_error(path + ".r", "Color channel must be in [0, 255]"),
+    )
   }
   if color.g < 0 || color.g > 255 {
-    errors.push(validation_error(path + ".g", "Color channel must be in [0, 255]"))
+    errors.push(
+      validation_error(path + ".g", "Color channel must be in [0, 255]"),
+    )
   }
   if color.b < 0 || color.b > 255 {
-    errors.push(validation_error(path + ".b", "Color channel must be in [0, 255]"))
+    errors.push(
+      validation_error(path + ".b", "Color channel must be in [0, 255]"),
+    )
   }
   if color.a < 0 || color.a > 255 {
-    errors.push(validation_error(path + ".a", "Color channel must be in [0, 255]"))
+    errors.push(
+      validation_error(path + ".a", "Color channel must be in [0, 255]"),
+    )
   }
   errors
 }
@@ -169,14 +180,17 @@ fn validate_builtin_component(
   match builtin_component_kind_from_string(component.kind) {
     Some(Name) => {
       let decoded : Result[NameComponent, Array[ValidationError]] = decoded_component_payload(
-        component,
-        path,
-        "Name component payload is invalid",
+        component, path, "Name component payload is invalid",
       )
       match decoded {
         Ok(data) =>
           if data.value.trim() == "" {
-            [validation_error(path + ".value", "Name component value must not be empty")]
+            [
+              validation_error(
+                path + ".value",
+                "Name component value must not be empty",
+              ),
+            ]
           } else {
             []
           }
@@ -184,12 +198,9 @@ fn validate_builtin_component(
       }
     }
     Some(Transform2d) => {
-      let decoded : Result[Transform2dComponent, Array[ValidationError]] =
-        decoded_component_payload(
-          component,
-          path,
-          "Transform2d component payload is invalid",
-        )
+      let decoded : Result[Transform2dComponent, Array[ValidationError]] = decoded_component_payload(
+        component, path, "Transform2d component payload is invalid",
+      )
       match decoded {
         Ok(data) =>
           validate_positive_vec2_doc(
@@ -201,12 +212,9 @@ fn validate_builtin_component(
       }
     }
     Some(Visibility) => {
-      let decoded : Result[VisibilityComponent, Array[ValidationError]] =
-        decoded_component_payload(
-          component,
-          path,
-          "Visibility component payload is invalid",
-        )
+      let decoded : Result[VisibilityComponent, Array[ValidationError]] = decoded_component_payload(
+        component, path, "Visibility component payload is invalid",
+      )
       match decoded {
         Ok(_) => []
         Err(errors) => errors
@@ -214,9 +222,7 @@ fn validate_builtin_component(
     }
     Some(Sprite) => {
       let decoded : Result[SpriteComponent, Array[ValidationError]] = decoded_component_payload(
-        component,
-        path,
-        "Sprite component payload is invalid",
+        component, path, "Sprite component payload is invalid",
       )
       match decoded {
         Ok(data) => {
@@ -258,17 +264,14 @@ fn validate_builtin_component(
       }
     }
     Some(TextureAtlas) => {
-      let decoded : Result[TextureAtlasComponent, Array[ValidationError]] =
-        decoded_component_payload(
-          component,
-          path,
-          "TextureAtlas component payload is invalid",
-        )
+      let decoded : Result[TextureAtlasComponent, Array[ValidationError]] = decoded_component_payload(
+        component, path, "TextureAtlas component payload is invalid",
+      )
       match decoded {
         Ok(data) => {
           let errors : Array[ValidationError] = []
           match data.atlas_asset_path {
-            Some(atlas_path) => {
+            Some(atlas_path) =>
               if atlas_path.trim() == "" {
                 errors.push(
                   validation_error(
@@ -284,7 +287,6 @@ fn validate_builtin_component(
                   ),
                 )
               }
-            }
             None => ()
           }
           match data.region_name {
@@ -310,17 +312,17 @@ fn validate_builtin_component(
           if data.atlas_asset_path is None && data.layout is None {
             errors.push(
               validation_error(
-                path,
-                "TextureAtlas must provide atlas_asset_path or inline layout",
+                path, "TextureAtlas must provide atlas_asset_path or inline layout",
               ),
             )
           }
           match data.layout {
             Some(layout) =>
-              for error in validate_texture_atlas_layout_doc(
-                layout,
-                path + ".layout",
-              ) {
+              for
+                error in validate_texture_atlas_layout_doc(
+                  layout,
+                  path + ".layout",
+                ) {
                 errors.push(error)
               }
             None => ()
@@ -332,12 +334,9 @@ fn validate_builtin_component(
     }
     Some(AutoTileLayer2d) => validate_autotile_component(component, path)
     Some(Text2d) => {
-      let decoded : Result[Text2dComponent, Array[ValidationError]] =
-        decoded_component_payload(
-          component,
-          path,
-          "Text2d component payload is invalid",
-        )
+      let decoded : Result[Text2dComponent, Array[ValidationError]] = decoded_component_payload(
+        component, path, "Text2d component payload is invalid",
+      )
       match decoded {
         Ok(data) => {
           let errors = validate_color_doc(data.color, path + ".color") +
@@ -374,9 +373,7 @@ fn validate_builtin_component(
     }
     Some(Mesh2d) => {
       let decoded : Result[Mesh2dComponent, Array[ValidationError]] = decoded_component_payload(
-        component,
-        path,
-        "Mesh2d component payload is invalid",
+        component, path, "Mesh2d component payload is invalid",
       )
       match decoded {
         Ok(data) => {
@@ -412,24 +409,18 @@ fn validate_builtin_component(
       }
     }
     Some(ColorMaterial) => {
-      let decoded : Result[ColorMaterialComponent, Array[ValidationError]] =
-        decoded_component_payload(
-          component,
-          path,
-          "ColorMaterial component payload is invalid",
-        )
+      let decoded : Result[ColorMaterialComponent, Array[ValidationError]] = decoded_component_payload(
+        component, path, "ColorMaterial component payload is invalid",
+      )
       match decoded {
         Ok(data) => validate_color_doc(data.color, path + ".color")
         Err(errors) => errors
       }
     }
     Some(Camera2d) => {
-      let decoded : Result[Camera2dComponent, Array[ValidationError]] =
-        decoded_component_payload(
-          component,
-          path,
-          "Camera2d component payload is invalid",
-        )
+      let decoded : Result[Camera2dComponent, Array[ValidationError]] = decoded_component_payload(
+        component, path, "Camera2d component payload is invalid",
+      )
       match decoded {
         Ok(data) => {
           let errors = validate_optional_rect_doc(
@@ -452,12 +443,9 @@ fn validate_builtin_component(
       }
     }
     Some(PhysicsBody2d) => {
-      let decoded : Result[PhysicsBody2dComponent, Array[ValidationError]] =
-        decoded_component_payload(
-          component,
-          path,
-          "PhysicsBody2d component payload is invalid",
-        )
+      let decoded : Result[PhysicsBody2dComponent, Array[ValidationError]] = decoded_component_payload(
+        component, path, "PhysicsBody2d component payload is invalid",
+      )
       match decoded {
         Ok(data) => {
           let errors : Array[ValidationError] = []
@@ -495,12 +483,9 @@ fn validate_builtin_component(
       }
     }
     Some(PhysicsCollider2d) => {
-      let decoded : Result[PhysicsCollider2dComponent, Array[ValidationError]] =
-        decoded_component_payload(
-          component,
-          path,
-          "PhysicsCollider2d component payload is invalid",
-        )
+      let decoded : Result[PhysicsCollider2dComponent, Array[ValidationError]] = decoded_component_payload(
+        component, path, "PhysicsCollider2d component payload is invalid",
+      )
       match decoded {
         Ok(data) => {
           let errors = validate_optional_positive_vec2_doc(
@@ -552,17 +537,14 @@ fn validate_builtin_component(
       }
     }
     Some(AnimationPlayer) => {
-      let decoded : Result[AnimationPlayerComponent, Array[ValidationError]] =
-        decoded_component_payload(
-          component,
-          path,
-          "AnimationPlayer component payload is invalid",
-        )
+      let decoded : Result[AnimationPlayerComponent, Array[ValidationError]] = decoded_component_payload(
+        component, path, "AnimationPlayer component payload is invalid",
+      )
       match decoded {
         Ok(data) => {
           let errors : Array[ValidationError] = []
           match data.graph_asset_path {
-            Some(graph_path) => {
+            Some(graph_path) =>
               if graph_path.trim() == "" {
                 errors.push(
                   validation_error(
@@ -578,7 +560,6 @@ fn validate_builtin_component(
                   ),
                 )
               }
-            }
             None => ()
           }
           match data.start_node {
@@ -623,12 +604,12 @@ fn validate_builtin_component(
       }
     }
     Some(AnimationTransitions) => {
-      let decoded : Result[AnimationTransitionsComponent, Array[ValidationError]] =
-        decoded_component_payload(
-          component,
-          path,
-          "AnimationTransitions component payload is invalid",
-        )
+      let decoded : Result[
+        AnimationTransitionsComponent,
+        Array[ValidationError],
+      ] = decoded_component_payload(
+        component, path, "AnimationTransitions component payload is invalid",
+      )
       match decoded {
         Ok(data) =>
           if data.duration < 0.0 {
@@ -657,7 +638,8 @@ fn validate_entity_component_documents(
   let component_kinds : Map[String, Bool] = {}
   let builtin_kinds : Map[String, Bool] = {}
   for component in entity.components {
-    let component_path = path_prefix + "[\{entity.id}].components[\{component.kind}]"
+    let component_path = path_prefix +
+      "[\{entity.id}].components[\{component.kind}]"
     if component.kind == "" {
       errors.push(
         validation_error(
@@ -681,14 +663,14 @@ fn validate_entity_component_documents(
     }
   }
   for component in entity.components {
-    let component_path = path_prefix + "[\{entity.id}].components[\{component.kind}]"
+    let component_path = path_prefix +
+      "[\{entity.id}].components[\{component.kind}]"
     match builtin_component_kind_from_string(component.kind) {
       Some(_) =>
-        for error in validate_builtin_component(
-          component,
-          component_path,
-          component_kinds,
-        ) {
+        for
+          error in validate_builtin_component(
+            component, component_path, component_kinds,
+          ) {
           errors.push(error)
         }
       None =>
@@ -698,10 +680,10 @@ fn validate_entity_component_documents(
               errors.push(error)
             }
           None =>
-            for error in validate_custom_component_object_payload(
-              component,
-              component_path,
-            ) {
+            for
+              error in validate_custom_component_object_payload(
+                component, component_path,
+              ) {
               errors.push(error)
             }
         }
@@ -716,7 +698,10 @@ fn validate_entity_component_documents(
             errors.push(
               validation_error(
                 path_prefix + "[\{entity.id}].components[\{component.kind}]",
-                component.kind + " requires " + required_kind + " on the same entity",
+                component.kind +
+                " requires " +
+                required_kind +
+                " on the same entity",
               ),
             )
           }
@@ -751,7 +736,9 @@ fn validate_parent_cycles(
         break
       }
       visited.set(parent, true)
-      current = entity_by_id.get(parent).bind(fn(parent_entity) { parent_entity.parent })
+      current = entity_by_id
+        .get(parent)
+        .bind(fn(parent_entity) { parent_entity.parent })
     }
   }
   errors
@@ -766,7 +753,9 @@ fn validate_entity_documents(
   let seen_ids : Map[String, Bool] = {}
   entities.each(fn(entity) {
     if entity.id == "" {
-      errors.push(validation_error(path_prefix + "[].id", "Entity id must not be empty"))
+      errors.push(
+        validation_error(path_prefix + "[].id", "Entity id must not be empty"),
+      )
     }
     if entity.name == "" {
       errors.push(

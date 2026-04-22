@@ -73,129 +73,14 @@ fn decode_rpc_payload(
 }
 
 ///|
-fn msg_for_rpc_target(target : @app.RpcTarget, payload : Json) -> @app.Msg {
-  let response = match decode_rpc_payload(payload) {
-    Ok(envelope) => envelope.response
-    Err(message) =>
-      return match target {
-        @app.ProjectRootPicked => @app.msg_project_root_picked(Err(message))
-        @app.ProjectLoaded => @app.msg_project_loaded(Err(message))
-        @app.SceneLoaded => @app.msg_scene_loaded(Err(message))
-        @app.SceneListLoaded => @app.msg_scene_list_loaded(Err(message))
-        @app.AssetsLoaded => @app.msg_assets_loaded(Err(message))
-        @app.PrefabLoaded => @app.msg_prefab_loaded(Err(message))
-        @app.AtlasLoaded => @app.msg_atlas_loaded(Err(message))
-        @app.AnimationClipLoaded => @app.msg_animation_clip_loaded(Err(message))
-        @app.AnimationGraphLoaded =>
-          @app.msg_animation_graph_loaded(Err(message))
-        @app.SceneSaved => @app.msg_scene_saved(Err(message))
-        @app.AnimationMigrationSaved =>
-          @app.msg_animation_migration_saved(Err(message))
-        @app.WorkspaceSaved => @app.msg_workspace_saved(Err(message))
+fn msg_for_rpc_binding(binding : @app.RpcBinding, payload : Json) -> @app.Msg {
+  match decode_rpc_payload(payload) {
+    Ok(envelope) =>
+      match binding.response_to_msg(envelope.response) {
+        Ok(msg) => msg
+        Err(message) => binding.transport_error_msg(message)
       }
-  }
-  match target {
-    @app.ProjectRootPicked =>
-      @app.msg_project_root_picked(
-        match response {
-          @shared.DirectoryPicked(result~) => Ok(result)
-          @shared.Error(error~) => Err(error.message)
-          _ => Err("Unexpected RPC response for project root picker")
-        },
-      )
-    @app.ProjectLoaded =>
-      @app.msg_project_loaded(
-        match response {
-          @shared.ProjectState(state~) => Ok(state)
-          @shared.Error(error~) => Err(error.message)
-          _ => Err("Unexpected RPC response for project state")
-        },
-      )
-    @app.SceneLoaded =>
-      @app.msg_scene_loaded(
-        match response {
-          @shared.SceneLoaded(scene~) =>
-            Ok(@shared.scene_load_outcome_loaded(scene))
-          @shared.SceneMigrationRequired(preview~) =>
-            Ok(@shared.scene_load_outcome_migration_required(preview))
-          @shared.Error(error~) => Err(error.message)
-          _ => Err("Unexpected RPC response for scene")
-        },
-      )
-    @app.SceneListLoaded =>
-      @app.msg_scene_list_loaded(
-        match response {
-          @shared.SceneListed(list~) => Ok(list)
-          @shared.Error(error~) => Err(error.message)
-          _ => Err("Unexpected RPC response for scene list")
-        },
-      )
-    @app.AssetsLoaded =>
-      @app.msg_assets_loaded(
-        match response {
-          @shared.AssetsListed(list~) => Ok(list)
-          @shared.Error(error~) => Err(error.message)
-          _ => Err("Unexpected RPC response for assets")
-        },
-      )
-    @app.PrefabLoaded =>
-      @app.msg_prefab_loaded(
-        match response {
-          @shared.PrefabLoaded(prefab~) => Ok(prefab)
-          @shared.Error(error~) => Err(error.message)
-          _ => Err("Unexpected RPC response for prefab")
-        },
-      )
-    @app.AtlasLoaded =>
-      @app.msg_atlas_loaded(
-        match response {
-          @shared.AtlasLoaded(atlas~) => Ok(atlas)
-          @shared.Error(error~) => Err(error.message)
-          _ => Err("Unexpected RPC response for atlas")
-        },
-      )
-    @app.AnimationClipLoaded =>
-      @app.msg_animation_clip_loaded(
-        match response {
-          @shared.AnimationClipLoaded(clip~) => Ok(clip)
-          @shared.Error(error~) => Err(error.message)
-          _ => Err("Unexpected RPC response for animation clip")
-        },
-      )
-    @app.AnimationGraphLoaded =>
-      @app.msg_animation_graph_loaded(
-        match response {
-          @shared.AnimationGraphLoaded(graph~) => Ok(graph)
-          @shared.Error(error~) => Err(error.message)
-          _ => Err("Unexpected RPC response for animation graph")
-        },
-      )
-    @app.SceneSaved =>
-      @app.msg_scene_saved(
-        match response {
-          @shared.SceneSaved(save~) => Ok(@app.scene_save_outcome_saved(save))
-          @shared.Conflict(conflict~) =>
-            Ok(@app.scene_save_outcome_conflict(conflict))
-          @shared.Error(error~) => Err(error.message)
-          _ => Err("Unexpected RPC response for scene save")
-        },
-      )
-    @app.AnimationMigrationSaved =>
-      @app.msg_animation_migration_saved(
-        match response {
-          @shared.SavedOk | @shared.StartupSceneUpdated(_) => Ok(())
-          @shared.Error(error~) => Err(error.message)
-          _ => Err("Unexpected RPC response for save")
-        },
-      )
-    @app.WorkspaceSaved =>
-      @app.msg_workspace_saved(
-        match response {
-          @shared.SavedOk | @shared.StartupSceneUpdated(_) => Ok(())
-          @shared.Error(error~) => Err(error.message)
-          _ => Err("Unexpected RPC response for save")
-        },
-      )
+    Err(message) => binding.transport_error_msg(message)
   }
 }
 
@@ -258,10 +143,10 @@ async fn EditorHarness::process_effect(
   effect : @app.Effect,
 ) -> Unit {
   match effect {
-    @app.Rpc(target~, request~) => {
+    @app.Rpc(binding~) => {
       let request_id = self.next_rpc_id
       self.next_rpc_id += 1
-      let payload = if request.request is @shared.ProjectPickDirectory(_) {
+      let payload = if binding is @app.RpcProjectPickDirectory(_) {
         @shared.rpc_response_envelope(
           request_id,
           @shared.rpc_response_directory_picked(
@@ -269,11 +154,9 @@ async fn EditorHarness::process_effect(
           ),
         ).to_json()
       } else {
-        self.service.handle_rpc(
-          @shared.rpc_request_envelope(request_id, request.request),
-        )
+        self.service.handle_rpc(binding.request_envelope(id=request_id))
       }
-      self.dispatch(msg_for_rpc_target(target, payload))
+      self.dispatch(msg_for_rpc_binding(binding, payload))
     }
     @app.SubscribeServiceEvents => self.service_events_subscribed = true
     @app.SubscribePreviewEvents => self.preview_events_subscribed = true
@@ -709,9 +592,7 @@ pub async fn EditorHarness::given_animation_document(
   animation : @editor_bridge.AnimationClipAssetDocument,
 ) -> Unit {
   ensure_project_layout(self.project_root)
-  let encoded = @editor_bridge.encode_animation_clip_asset_document(
-    animation,
-  )
+  let encoded = @editor_bridge.encode_animation_clip_asset_document(animation)
   write_text_file(self.project_root + "/" + relative_path, encoded)
 }
 

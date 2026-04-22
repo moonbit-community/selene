@@ -36,8 +36,6 @@ pub fn ColorMaterial::from_color(@render.Color) -> Self
 pub fn ColorMaterial::new(color? : @render.Color, texture? : @asset_types.ImageHandle?, uv_transform? : @math.Transform, alpha_mode? : @render.AlphaMode2D, blend_mode? : @render.BlendMode2D) -> Self
 
 pub(all) struct ColorMaterialHandle(UInt) derive(Eq, Hash, @debug.Debug)
-#deprecated
-pub fn ColorMaterialHandle::inner(Self) -> UInt
 
 pub(all) enum Material2dHandle {
   Color(ColorMaterialHandle)

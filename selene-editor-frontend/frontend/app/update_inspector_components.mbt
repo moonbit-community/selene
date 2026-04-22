@@ -162,7 +162,9 @@ fn update_inspector_components(
               } else {
                 let default_data = @editor_bridge.custom_component_default_data_for(
                   kind,
-                ).unwrap_or_else(fn() { @editor_bridge.default_custom_component_data() })
+                ).unwrap_or_else(fn() {
+                  @editor_bridge.default_custom_component_data()
+                })
                 let next = update_selected_component(
                   model,
                   @editor_bridge.component_document(kind, default_data),
@@ -274,12 +276,7 @@ fn update_inspector_components(
       match model.selected_prefab_document() {
         Some((path, prefab)) =>
           (
-            [
-              rpc_effect(
-                SceneSaved,
-                @shared.rpc_request_prefab_save(path, prefab),
-              ),
-            ],
+            [rpc_effect(RpcPrefabSave(path, prefab))],
             { ..model, status: "Saving prefab..." },
           )
         None => ([], model)
@@ -394,12 +391,7 @@ fn update_inspector_components(
       match model.selected_atlas_document() {
         Some((path, atlas)) =>
           (
-            [
-              rpc_effect(
-                SceneSaved,
-                @shared.rpc_request_atlas_save(path, atlas),
-              ),
-            ],
+            [rpc_effect(RpcAtlasSave(path, atlas))],
             { ..model, status: "Saving atlas..." },
           )
         None => ([], model)

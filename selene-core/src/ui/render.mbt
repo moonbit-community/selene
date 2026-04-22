@@ -190,7 +190,7 @@ fn push_quarter_circle(
     return
   }
   @render2d.push_ui_clip_for_camera(clip_rect, camera_entity_id)
-  push_ui_circle_fill(center, radius, color, camera_entity_id=camera_entity_id)
+  push_ui_circle_fill(center, radius, color, camera_entity_id~)
   @render2d.pop_ui_clip_for_camera(camera_entity_id)
 }
 
@@ -205,7 +205,7 @@ fn push_rounded_rect(
     return
   }
   if !has_rounded_corners(radius) {
-    push_ui_rect_fill(rect, color, camera_entity_id=camera_entity_id)
+    push_ui_rect_fill(rect, color, camera_entity_id~)
     return
   }
 
@@ -231,7 +231,7 @@ fn push_rounded_rect(
       ),
     },
     color,
-    camera_entity_id=camera_entity_id,
+    camera_entity_id~,
   )
   push_ui_rect_fill(
     {
@@ -239,7 +239,7 @@ fn push_rounded_rect(
       size: @math.Vec2(@cmp.maximum(0.0, w - tl - tr), top_band),
     },
     color,
-    camera_entity_id=camera_entity_id,
+    camera_entity_id~,
   )
   push_ui_rect_fill(
     {
@@ -247,7 +247,7 @@ fn push_rounded_rect(
       size: @math.Vec2(@cmp.maximum(0.0, w - bl - br), bottom_band),
     },
     color,
-    camera_entity_id=camera_entity_id,
+    camera_entity_id~,
   )
   push_ui_rect_fill(
     {
@@ -255,7 +255,7 @@ fn push_rounded_rect(
       size: @math.Vec2(left_band, @cmp.maximum(0.0, h - tl - bl)),
     },
     color,
-    camera_entity_id=camera_entity_id,
+    camera_entity_id~,
   )
   push_ui_rect_fill(
     {
@@ -263,35 +263,35 @@ fn push_rounded_rect(
       size: @math.Vec2(right_band, @cmp.maximum(0.0, h - tr - br)),
     },
     color,
-    camera_entity_id=camera_entity_id,
+    camera_entity_id~,
   )
   push_quarter_circle(
     { position: @math.Vec2(x, y), size: @math.Vec2(tl, tl) },
     @math.Vec2(x + tl, y + tl),
     tl,
     color,
-    camera_entity_id=camera_entity_id,
+    camera_entity_id~,
   )
   push_quarter_circle(
     { position: @math.Vec2(x + w - tr, y), size: @math.Vec2(tr, tr) },
     @math.Vec2(x + w - tr, y + tr),
     tr,
     color,
-    camera_entity_id=camera_entity_id,
+    camera_entity_id~,
   )
   push_quarter_circle(
     { position: @math.Vec2(x + w - br, y + h - br), size: @math.Vec2(br, br) },
     @math.Vec2(x + w - br, y + h - br),
     br,
     color,
-    camera_entity_id=camera_entity_id,
+    camera_entity_id~,
   )
   push_quarter_circle(
     { position: @math.Vec2(x, y + h - bl), size: @math.Vec2(bl, bl) },
     @math.Vec2(x + bl, y + h - bl),
     bl,
     color,
-    camera_entity_id=camera_entity_id,
+    camera_entity_id~,
   )
 }
 
@@ -348,7 +348,7 @@ fn push_box_shadow(
         ),
         inflate_border_radius(base_radius, spread + blur_amount),
         scale_alpha(layer.color, alpha_scale),
-        camera_entity_id=camera_entity_id,
+        camera_entity_id~,
       )
       index -= 1
     }
@@ -394,8 +394,8 @@ fn ui_material_context_for(
       transform.screen_rect,
       content_rect=transform.screen_content_rect,
       border_radius=border_radii()
-      .get(entity)
-      .unwrap_or(BorderRadius::all(Val::px(0.0))),
+        .get(entity)
+        .unwrap_or(BorderRadius::all(Val::px(0.0))),
       target_camera_entity_id=camera_entity_id,
     )
   })
@@ -459,8 +459,7 @@ fn push_background(
 ) -> Unit {
   guard !material_nodes().contains(entity) else { return }
   guard background_colors().get(entity) is Some(background) else { return }
-  guard ui_material_context_for(entity, camera_entity_id=camera_entity_id)
-    is Some(context) else {
+  guard ui_material_context_for(entity, camera_entity_id~) is Some(context) else {
     return
   }
   draw_ui_material_solid(context, background.color)
@@ -477,8 +476,7 @@ fn push_material_node(
   guard ui_material_asset(material_node.material) is Some(material) else {
     return false
   }
-  guard ui_material_context_for(entity, camera_entity_id=camera_entity_id)
-    is Some(context) else {
+  guard ui_material_context_for(entity, camera_entity_id~) is Some(context) else {
     return false
   }
   (material.draw)(context)
@@ -502,17 +500,12 @@ fn push_border(
   if has_rounded_corners(radius) {
     match background_colors().get(entity) {
       Some(background) => {
-        push_rounded_rect(
-          rect,
-          radius,
-          border_color.color,
-          camera_entity_id=camera_entity_id,
-        )
+        push_rounded_rect(rect, radius, border_color.color, camera_entity_id~)
         push_rounded_rect(
           inset_rect(rect, border),
           inset_border_radius(radius, border),
           background.color,
-          camera_entity_id=camera_entity_id,
+          camera_entity_id~,
         )
         return
       }
@@ -526,7 +519,7 @@ fn push_border(
     push_ui_rect_fill(
       { position: rect.position, size: @math.Vec2(rect.size[X], border.top) },
       border_color.color,
-      camera_entity_id=camera_entity_id,
+      camera_entity_id~,
     )
   }
   if border.bottom > 0.0 {
@@ -539,7 +532,7 @@ fn push_border(
         size: @math.Vec2(rect.size[X], border.bottom),
       },
       border_color.color,
-      camera_entity_id=camera_entity_id,
+      camera_entity_id~,
     )
   }
   if border.left > 0.0 {
@@ -552,7 +545,7 @@ fn push_border(
         ),
       },
       border_color.color,
-      camera_entity_id=camera_entity_id,
+      camera_entity_id~,
     )
   }
   if border.right > 0.0 {
@@ -568,7 +561,7 @@ fn push_border(
         ),
       },
       border_color.color,
-      camera_entity_id=camera_entity_id,
+      camera_entity_id~,
     )
   }
 }
@@ -605,7 +598,7 @@ fn push_outline(
       ),
     },
     outline.color,
-    camera_entity_id=camera_entity_id,
+    camera_entity_id~,
   )
   push_ui_rect_fill(
     {
@@ -619,7 +612,7 @@ fn push_outline(
       ),
     },
     outline.color,
-    camera_entity_id=camera_entity_id,
+    camera_entity_id~,
   )
   push_ui_rect_fill(
     {
@@ -630,7 +623,7 @@ fn push_outline(
       ),
     },
     outline.color,
-    camera_entity_id=camera_entity_id,
+    camera_entity_id~,
   )
   push_ui_rect_fill(
     {
@@ -644,7 +637,7 @@ fn push_outline(
       ),
     },
     outline.color,
-    camera_entity_id=camera_entity_id,
+    camera_entity_id~,
   )
 }
 
@@ -830,10 +823,7 @@ fn prepared_text_lines(
 }
 
 ///|
-fn push_text(
-  entity : @entity.Entity,
-  camera_entity_id? : UInt? = None,
-) -> Unit {
+fn push_text(entity : @entity.Entity, camera_entity_id? : UInt? = None) -> Unit {
   guard texts().get(entity) is Some(_) else { return }
   guard global_ui_nodes().get(entity) is Some(transform) else { return }
   guard render_text_style(entity) is Some(style) else { return }
@@ -919,11 +909,11 @@ fn render_entity(
     None => ()
   }
 
-  push_box_shadow(entity, camera_entity_id=camera_entity_id)
-  ignore(push_material_node(entity, camera_entity_id=camera_entity_id))
-  push_background(entity, camera_entity_id=camera_entity_id)
-  push_border(entity, camera_entity_id=camera_entity_id)
-  push_outline(entity, camera_entity_id=camera_entity_id)
+  push_box_shadow(entity, camera_entity_id~)
+  ignore(push_material_node(entity, camera_entity_id~))
+  push_background(entity, camera_entity_id~)
+  push_border(entity, camera_entity_id~)
+  push_outline(entity, camera_entity_id~)
 
   if pushed_inherited_clip {
     @render2d.pop_ui_clip_for_camera(camera_entity_id)
@@ -949,8 +939,8 @@ fn render_entity(
       }
       None => ()
     }
-    push_image(entity, camera_entity_id=camera_entity_id)
-    push_text(entity, camera_entity_id=camera_entity_id)
+    push_image(entity, camera_entity_id~)
+    push_text(entity, camera_entity_id~)
     if pushed_content_clip {
       @render2d.pop_ui_clip_for_camera(camera_entity_id)
     }
@@ -980,6 +970,6 @@ pub fn ui_extract_system(_delta : Double) -> Unit {
 pub fn ui_prepare_system(_delta : Double) -> Unit {
   for entity in extracted_ui_entities {
     let camera_entity_id = render_target_camera_id(entity)
-    render_entity(entity, camera_entity_id=camera_entity_id)
+    render_entity(entity, camera_entity_id~)
   }
 }

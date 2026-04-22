@@ -82,14 +82,13 @@ fn build_draw_batches(
   let mut current_key : String? = None
   for command in commands {
     match draw_command_batch_key(command) {
-      Some(key) => {
+      Some(key) =>
         if current_key == Some(key) && !batches.is_empty() {
           batches[batches.length() - 1].push(command)
         } else {
           batches.push([command])
           current_key = Some(key)
         }
-      }
       None => {
         // Clip commands are explicit batch barriers.
         batches.push([command])
@@ -117,10 +116,7 @@ fn normalize_draw_command_for_offscreen(
 ) -> @render2d_types.DrawCommand2D {
   match command {
     Image(image) =>
-      Image({
-        ..image,
-        destination: offset_rect(image.destination, offset),
-      })
+      Image({ ..image, destination: offset_rect(image.destination, offset) })
     Text(text) => Text({ ..text, position: text.position - offset })
     Rect(rect) => Rect({ ..rect, rect: offset_rect(rect.rect, offset) })
     Circle(circle) => Circle({ ..circle, center: circle.center - offset })
@@ -183,10 +179,7 @@ fn build_frame2d(
         pass_target,
         camera_view.viewport,
       )
-      world_commands_with_depth.push({
-        ..command,
-        command: normalized_command,
-      })
+      world_commands_with_depth.push({ ..command, command: normalized_command })
       world_commands.push(normalized_command)
       normalized_command
     })

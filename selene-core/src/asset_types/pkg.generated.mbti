@@ -11,16 +11,10 @@ import {
 
 // Types and methods
 pub(all) struct AudioHandle(UInt) derive(Eq, Hash, @debug.Debug)
-#deprecated
-pub fn AudioHandle::inner(Self) -> UInt
 
 pub(all) struct FontHandle(UInt) derive(Eq, Hash, @debug.Debug)
-#deprecated
-pub fn FontHandle::inner(Self) -> UInt
 
 pub(all) struct ImageHandle(UInt) derive(Eq, Hash, @debug.Debug)
-#deprecated
-pub fn ImageHandle::inner(Self) -> UInt
 
 // Type aliases
 

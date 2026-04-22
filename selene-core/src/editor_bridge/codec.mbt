@@ -82,7 +82,10 @@ fn decode_envelope_data(
   }
   if envelope.schema != expected_schema {
     raise invalid(
-      "Unexpected schema: expected " + expected_schema + ", got " + envelope.schema,
+      "Unexpected schema: expected " +
+      expected_schema +
+      ", got " +
+      envelope.schema,
     )
   }
   if envelope.version != document_envelope_version {
@@ -98,11 +101,10 @@ fn decode_envelope_data(
 
 ///|
 fn encode_envelope(schema : String, data : Json) -> String {
-  {
-    schema,
-    version: document_envelope_version,
-    data,
-  }.to_json().stringify(indent=2) + "\n"
+  { schema, version: document_envelope_version, data }
+  .to_json()
+  .stringify(indent=2) +
+  "\n"
 }
 
 ///|
@@ -198,7 +200,9 @@ fn decode_animation_clip_data(data : Json) -> AnimationClipAssetDocument raise {
 }
 
 ///|
-fn decode_animation_graph_data(data : Json) -> AnimationGraphAssetDocument raise {
+fn decode_animation_graph_data(
+  data : Json,
+) -> AnimationGraphAssetDocument raise {
   let graph : AnimationGraphAssetDocument = @json.from_json(data) catch {
     err => raise InvalidAnimationGraphAssetDocument(err.to_string())
   }
@@ -240,7 +244,7 @@ fn migrate_project_manifest_preview_from_legacy(
     legacy.startup_scene,
     startup_scene_path_for_name(name),
   )
-  let default_manifest = ProjectManifest::default(name, startup_scene=startup_scene)
+  let default_manifest = ProjectManifest::default(name, startup_scene~)
   let asset_roots = match legacy.asset_roots {
     Some(roots) if !roots.is_empty() => roots
     _ => default_manifest.asset_roots
@@ -282,26 +286,21 @@ fn migrate_project_manifest_preview_from_legacy(
   if legacy.prefab_index is None {
     changes.push(
       migration_field_change(
-        "prefab_index",
-        "Legacy project document has no explicit prefab index",
-        "[]",
+        "prefab_index", "Legacy project document has no explicit prefab index", "[]",
       ),
     )
   }
   if legacy.atlas_index is None {
     changes.push(
       migration_field_change(
-        "atlas_index",
-        "Legacy project document has no explicit atlas index",
-        "[]",
+        "atlas_index", "Legacy project document has no explicit atlas index", "[]",
       ),
     )
   }
   if legacy.animation_clip_index is None {
     changes.push(
       migration_field_change(
-        "animation_clip_index",
-        "Legacy project document has no explicit animation clip index",
+        "animation_clip_index", "Legacy project document has no explicit animation clip index",
         "[]",
       ),
     )
@@ -309,8 +308,7 @@ fn migrate_project_manifest_preview_from_legacy(
   if legacy.animation_graph_index is None {
     changes.push(
       migration_field_change(
-        "animation_graph_index",
-        "Legacy project document has no explicit animation graph index",
+        "animation_graph_index", "Legacy project document has no explicit animation graph index",
         "[]",
       ),
     )
@@ -364,11 +362,9 @@ fn migrate_scene_preview_from_legacy(
 ///|
 pub fn decode_project_manifest(json : Json) -> ProjectManifest raise {
   decode_manifest_data(
-    decode_envelope_data(
-      json,
-      project_manifest_schema,
-      fn(message) { InvalidProjectManifest(message) },
-    ),
+    decode_envelope_data(json, project_manifest_schema, fn(message) {
+      InvalidProjectManifest(message)
+    }),
   )
 }
 
@@ -384,8 +380,7 @@ pub fn decode_project_manifest_status(
     Ok(manifest) => Ready(manifest)
     Err(InvalidProjectManifest(message)) => {
       let legacy : Result[ProjectManifestMigrationPreview, Error] = try? migrate_project_manifest_preview_from_legacy(
-        path,
-        json,
+        path, json,
       )
       match legacy {
         Ok(preview) => MigrationRequired(preview)
@@ -399,11 +394,9 @@ pub fn decode_project_manifest_status(
 ///|
 pub fn decode_scene_sdf(json : Json) -> SceneDocument raise {
   decode_scene_data(
-    decode_envelope_data(
-      json,
-      scene_document_schema,
-      fn(message) { InvalidSceneDocument(message) },
-    ),
+    decode_envelope_data(json, scene_document_schema, fn(message) {
+      InvalidSceneDocument(message)
+    }),
   )
 }
 
@@ -416,22 +409,18 @@ pub fn encode_scene_sdf(scene : SceneDocument) -> String raise {
 ///|
 pub fn decode_prefab_document(json : Json) -> PrefabDocument raise {
   decode_prefab_data(
-    decode_envelope_data(
-      json,
-      prefab_document_schema,
-      fn(message) { InvalidPrefabDocument(message) },
-    ),
+    decode_envelope_data(json, prefab_document_schema, fn(message) {
+      InvalidPrefabDocument(message)
+    }),
   )
 }
 
 ///|
 pub fn decode_atlas_asset_document(json : Json) -> AtlasAssetDocument raise {
   decode_atlas_data(
-    decode_envelope_data(
-      json,
-      atlas_asset_document_schema,
-      fn(message) { InvalidAtlasAssetDocument(message) },
-    ),
+    decode_envelope_data(json, atlas_asset_document_schema, fn(message) {
+      InvalidAtlasAssetDocument(message)
+    }),
   )
 }
 
@@ -440,11 +429,11 @@ pub fn decode_animation_clip_asset_document(
   json : Json,
 ) -> AnimationClipAssetDocument raise {
   decode_animation_clip_data(
-    decode_envelope_data(
-      json,
-      animation_clip_asset_document_schema,
-      fn(message) { InvalidAnimationClipAssetDocument(message) },
-    ),
+    decode_envelope_data(json, animation_clip_asset_document_schema, fn(
+      message,
+    ) {
+      InvalidAnimationClipAssetDocument(message)
+    }),
   )
 }
 
@@ -453,22 +442,20 @@ pub fn decode_animation_graph_asset_document(
   json : Json,
 ) -> AnimationGraphAssetDocument raise {
   decode_animation_graph_data(
-    decode_envelope_data(
-      json,
-      animation_graph_asset_document_schema,
-      fn(message) { InvalidAnimationGraphAssetDocument(message) },
-    ),
+    decode_envelope_data(json, animation_graph_asset_document_schema, fn(
+      message,
+    ) {
+      InvalidAnimationGraphAssetDocument(message)
+    }),
   )
 }
 
 ///|
 pub fn decode_workspace_document(json : Json) -> WorkspaceDocument raise {
   decode_workspace_data(
-    decode_envelope_data(
-      json,
-      workspace_document_schema,
-      fn(message) { InvalidWorkspaceDocument(message) },
-    ),
+    decode_envelope_data(json, workspace_document_schema, fn(message) {
+      InvalidWorkspaceDocument(message)
+    }),
   )
 }
 
@@ -482,8 +469,7 @@ pub fn decode_scene_sdf_status(
     Ok(scene) => Ready(scene)
     Err(InvalidSceneDocument(message)) => {
       let legacy : Result[SceneMigrationPreview, Error] = try? migrate_scene_preview_from_legacy(
-        path,
-        json,
+        path, json,
       )
       match legacy {
         Ok(preview) => MigrationRequired(preview)
@@ -551,9 +537,7 @@ pub fn encode_prefab_document(prefab : PrefabDocument) -> String raise {
 }
 
 ///|
-pub fn encode_atlas_asset_document(
-  atlas : AtlasAssetDocument,
-) -> String raise {
+pub fn encode_atlas_asset_document(atlas : AtlasAssetDocument) -> String raise {
   ignore(decode_atlas_data(atlas.to_json()))
   encode_envelope(atlas_asset_document_schema, atlas.to_json())
 }

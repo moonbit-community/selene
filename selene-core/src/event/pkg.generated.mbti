@@ -79,8 +79,6 @@ pub fn[T] Events::update(Self[T]) -> Unit
 pub fn[T] Events::writer(Self[T]) -> EventWriter[T]
 
 pub(all) struct ObserverHandle(Int) derive(Eq, Hash, @debug.Debug)
-#deprecated
-pub fn ObserverHandle::inner(Self) -> Int
 
 pub(all) struct Trigger[T] {
   event : T

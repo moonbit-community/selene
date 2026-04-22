@@ -257,6 +257,7 @@ async fn migrate_scene_document(
   scene
 }
 
+///|
 fn scene_bundle_response_of_bundle(
   bundle : @editor_bridge.ProjectBundle,
   disk_state : SceneDiskState,

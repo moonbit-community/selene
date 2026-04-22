@@ -8,7 +8,9 @@ fn with_render_submit_test_world(action : () -> Unit raise) -> Unit raise {
 }
 
 ///|
-fn test_rect_command(position : @math.Vec2) -> @render2d_types.RectDrawCommand2D {
+fn test_rect_command(
+  position : @math.Vec2,
+) -> @render2d_types.RectDrawCommand2D {
   {
     rect: { position, size: @math.Vec2(8.0, 8.0) },
     transform: @math.Transform::identity(),
@@ -128,8 +130,7 @@ test "build_frame2d normalizes offscreen viewport and command coordinates" {
     inspect(
       match frame.passes[0].world_commands[0] {
         Rect(command) =>
-          command.rect.position[X] == 10.0 &&
-          command.rect.position[Y] == 12.0
+          command.rect.position[X] == 10.0 && command.rect.position[Y] == 12.0
         _ => false
       },
       content="true",
@@ -154,10 +155,10 @@ test "build_frame2d batches camera ui commands with clip barriers" {
       ),
     )
 
-    @render2d.push_ui_clip_for_camera({
-      position: @math.Vec2(0.0, 0.0),
-      size: @math.Vec2(20.0, 20.0),
-    }, Some(camera_entity.id()))
+    @render2d.push_ui_clip_for_camera(
+      { position: @math.Vec2(0.0, 0.0), size: @math.Vec2(20.0, 20.0) },
+      Some(camera_entity.id()),
+    )
     @render2d.push_ui_rect_to_camera(
       Some(camera_entity.id()),
       test_rect_command(@math.Vec2(1.0, 1.0)),

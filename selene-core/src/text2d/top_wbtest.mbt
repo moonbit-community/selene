@@ -28,7 +28,9 @@ test "text2d layout cache reuses identical inputs" {
     let bounds = Some(TextBounds::new(60.0, 100.0))
 
     let first = cached_text_layout(entity, "hello world", style, layout, bounds)
-    let second = cached_text_layout(entity, "hello world", style, layout, bounds)
+    let second = cached_text_layout(
+      entity, "hello world", style, layout, bounds,
+    )
 
     inspect(text_layout_caches().length(), content="1")
     inspect(first.key == second.key, content="true")
@@ -45,12 +47,17 @@ test "text2d layout cache invalidates when text changes" {
     let bounds = Some(TextBounds::new(60.0, 100.0))
 
     let first = cached_text_layout(entity, "hello world", style, layout, bounds)
-    let second = cached_text_layout(entity, "different text", style, layout, bounds)
+    let second = cached_text_layout(
+      entity, "different text", style, layout, bounds,
+    )
 
     inspect(first.key == second.key, content="false")
     inspect(first.lines == second.lines, content="false")
     inspect(
-      text_layout_caches().get(entity).map(fn(cached) { cached.key == second.key }).unwrap_or(false),
+      text_layout_caches()
+      .get(entity)
+      .map(fn(cached) { cached.key == second.key })
+      .unwrap_or(false),
       content="true",
     )
   })

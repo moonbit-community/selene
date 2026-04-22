@@ -43,8 +43,6 @@ pub fn update_texture_atlas_layout(TextureAtlasLayoutHandle, TextureAtlasLayout)
 // Types and methods
 pub(all) struct Anchor(@math.Vec2) derive(Eq, @debug.Debug)
 pub fn Anchor::as_vec(Self) -> @math.Vec2
-#deprecated
-pub fn Anchor::inner(Self) -> @math.Vec2
 
 pub(all) struct Sprite {
   image : @asset_types.ImageHandle?
@@ -88,8 +86,6 @@ pub fn TextureAtlasLayout::from_grid(@math.Vec2, Int, Int, padding? : @math.Vec2
 pub fn TextureAtlasLayout::new(@math.Vec2, Array[@math.Rect]) -> Self
 
 pub(all) struct TextureAtlasLayoutHandle(UInt) derive(Eq, Hash, @debug.Debug)
-#deprecated
-pub fn TextureAtlasLayoutHandle::inner(Self) -> UInt
 
 // Type aliases
 

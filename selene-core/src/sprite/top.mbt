@@ -130,7 +130,11 @@ pub fn render_sprite_system(delta : Double) -> Unit {
     let parallax = @parallax2d.inherited_parallax2d(entity)
     let local_transform = sprite_local_transform(sprite, size)
     if camera_views.is_empty() {
-      let screen_pos = @parallax2d.parallax_world_position(base_pos, parallax, None)
+      let screen_pos = @parallax2d.parallax_world_position(
+        base_pos,
+        parallax,
+        None,
+      )
       push_sprite_draw_command(
         entity,
         sprite,
@@ -144,7 +148,11 @@ pub fn render_sprite_system(delta : Double) -> Unit {
       )
       continue
     }
-    let world_pos = @parallax2d.parallax_world_position(base_pos, parallax, None)
+    let world_pos = @parallax2d.parallax_world_position(
+      base_pos,
+      parallax,
+      None,
+    )
     let world_bounds = @camera.transformed_rect_bounds(
       world_pos,
       { position: @math.Vec2::zero(), size },

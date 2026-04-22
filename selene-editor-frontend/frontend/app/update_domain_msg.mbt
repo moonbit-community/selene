@@ -29,6 +29,7 @@ fn to_domain_msg(msg : Msg) -> DomainMsg {
     AnimationMigrationSaved(result) =>
       ProjectRuntime(AnimationMigrationSaved(result))
     WorkspaceSaved(result) => ProjectRuntime(WorkspaceSaved(result))
+    RpcAck(result) => ProjectRuntime(RpcAck(result))
     ServiceEvent(result) => ProjectRuntime(ServiceEvent(result))
     PreviewEvent(event) => ProjectRuntime(PreviewEvent(event))
     SetHoverHint(hint) => SelectionHistoryTools(SetHoverHint(hint))

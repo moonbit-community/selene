@@ -6,7 +6,7 @@ fn update_scene_lifecycle(
   match msg {
     OpenScene(path) =>
       (
-        [rpc_effect(SceneLoaded, @shared.rpc_request_scene_load(path))],
+        [rpc_effect(RpcSceneLoad(path))],
         {
           ..model,
           add_component_panel_open: false,
@@ -22,10 +22,7 @@ fn update_scene_lifecycle(
         ([], { ..next, status: "Scene name is required" })
       } else {
         (
-          [
-            rpc_effect(SceneLoaded, @shared.rpc_request_scene_create(trimmed)),
-            rpc_effect(SceneListLoaded, @shared.rpc_request_scene_list()),
-          ],
+          [rpc_effect(RpcSceneCreate(trimmed)), rpc_effect(RpcSceneList)],
           { ..model, status: "Creating scene..." },
         )
       }
@@ -45,15 +42,9 @@ fn update_scene_lifecycle(
         }
         (
           [
-            rpc_effect(
-              SceneSaved,
-              @shared.rpc_request_scene_delete(current_scene_path),
-            ),
-            rpc_effect(SceneListLoaded, @shared.rpc_request_scene_list()),
-            rpc_effect(
-              SceneLoaded,
-              @shared.rpc_request_scene_load(next_scene_path),
-            ),
+            rpc_effect(RpcSceneDelete(current_scene_path)),
+            rpc_effect(RpcSceneList),
+            rpc_effect(RpcSceneLoad(next_scene_path)),
           ],
           { ..model, status: "Deleting scene..." },
         )
@@ -61,13 +52,8 @@ fn update_scene_lifecycle(
     SetCurrentSceneAsStartup =>
       (
         [
-          rpc_effect(
-            SceneSaved,
-            @shared.rpc_request_project_set_startup_scene(
-              model_scene_path(model),
-            ),
-          ),
-          rpc_effect(SceneListLoaded, @shared.rpc_request_scene_list()),
+          rpc_effect(RpcProjectSetStartupScene(model_scene_path(model))),
+          rpc_effect(RpcSceneList),
         ],
         { ..model, status: "Updating startup scene..." },
       )
@@ -92,8 +78,7 @@ fn update_scene_lifecycle(
             (
               [
                 rpc_effect(
-                  SceneSaved,
-                  @shared.rpc_request_scene_save(
+                  RpcSceneSave(
                     model_scene_path(model),
                     next_scene,
                     base_hash,
@@ -114,8 +99,7 @@ fn update_scene_lifecycle(
           (
             [
               rpc_effect(
-                SceneSaved,
-                @shared.rpc_request_scene_save(
+                RpcSceneSave(
                   session.path,
                   session.scene,
                   session.base_hash,

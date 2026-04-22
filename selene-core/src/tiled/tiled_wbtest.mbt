@@ -973,10 +973,7 @@ test "tiled world chunking unions multiple active camera views" {
       .filter(fn(pair) { pair.1.world_entity == root })
       .map(fn(pair) { pair.1.resolved_map_path })
     spawned.sort_by(fn(lhs, rhs) { lhs.compare(rhs) })
-    inspect(
-      spawned,
-      content="[\"worlds/maps/a.tmj\", \"worlds/maps/b.tmj\"]",
-    )
+    inspect(spawned, content="[\"worlds/maps/a.tmj\", \"worlds/maps/b.tmj\"]")
   })
 
   @system.configure_display(

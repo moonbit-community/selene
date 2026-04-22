@@ -359,7 +359,10 @@ test "textured primitive mesh builders provide aligned position/uv/normal stream
 
   let sphere = build_sphere_triangle_mesh3d(1.0, 8, 6)
   inspect(sphere.positions.length() > 0, content="true")
-  inspect(sphere.positions.length() == sphere.uv_sets[0].length(), content="true")
+  inspect(
+    sphere.positions.length() == sphere.uv_sets[0].length(),
+    content="true",
+  )
   inspect(
     sphere.positions.length() == sphere.normals.unwrap().length(),
     content="true",

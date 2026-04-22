@@ -16,6 +16,7 @@
 pub type AudioInstance = Int
 
 ///|
+
 ///|
 const AUDIO_PLAY_STATE_BLOCKED = 2
 
@@ -143,28 +144,27 @@ fn resolved_audio_source(path : String, refresh? : Bool = false) -> String {
   } else {
     clear_cached_audio_source(path)
   }
-  let src =
-    if audio_prefers_byte_backed_source(path) {
-      match get_asset_bytes(path) {
-        Some(bytes) => {
-          let blob_url = create_audio_object_url(
-            bytes,
-            browser_audio_mime_type(path),
-          )
-          cached_audio_sources.set(path, { src: blob_url, blob_owned: true })
-          blob_url
-        }
-        None => {
-          let resolved = resolve_asset_path(path)
-          cached_audio_sources.set(path, { src: resolved, blob_owned: false })
-          resolved
-        }
+  let src = if audio_prefers_byte_backed_source(path) {
+    match get_asset_bytes(path) {
+      Some(bytes) => {
+        let blob_url = create_audio_object_url(
+          bytes,
+          browser_audio_mime_type(path),
+        )
+        cached_audio_sources.set(path, { src: blob_url, blob_owned: true })
+        blob_url
       }
-    } else {
-      let resolved = resolve_asset_path(path)
-      cached_audio_sources.set(path, { src: resolved, blob_owned: false })
-      resolved
+      None => {
+        let resolved = resolve_asset_path(path)
+        cached_audio_sources.set(path, { src: resolved, blob_owned: false })
+        resolved
+      }
     }
+  } else {
+    let resolved = resolve_asset_path(path)
+    cached_audio_sources.set(path, { src: resolved, blob_owned: false })
+    resolved
+  }
   src
 }
 
@@ -209,11 +209,7 @@ fn create_audio_instance(path : String) -> (AudioInstance, AudioPlayback) {
   let audio = template.clone_audio()
   (
     id,
-    {
-      audio,
-      requested_paused: false,
-      last_play_attempt_activation_epoch: -1,
-    },
+    { audio, requested_paused: false, last_play_attempt_activation_epoch: -1 },
   )
 }
 
@@ -331,11 +327,11 @@ pub fn tick_audio() -> Unit {
     if playback.audio.is_ended() || play_state == AUDIO_PLAY_STATE_FAILED {
       audio_instances.remove(pair.0)
     } else if should_retry_blocked_audio_playback(
-      play_state,
-      playback.requested_paused,
-      activation_epoch,
-      playback.last_play_attempt_activation_epoch,
-    ) {
+        play_state,
+        playback.requested_paused,
+        activation_epoch,
+        playback.last_play_attempt_activation_epoch,
+      ) {
       request_audio_playback(playback)
     }
   }

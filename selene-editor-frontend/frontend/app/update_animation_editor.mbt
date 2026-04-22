@@ -252,12 +252,7 @@ fn update_animation_editor(
       match model.selected_animation_clip_document() {
         Some((path, clip)) =>
           (
-            [
-              rpc_effect(
-                SceneSaved,
-                @shared.rpc_request_animation_clip_save(path, clip),
-              ),
-            ],
+            [rpc_effect(RpcAnimationClipSave(path, clip))],
             { ..model, status: "Saving animation clip..." },
           )
         None => ([], model)
@@ -266,12 +261,7 @@ fn update_animation_editor(
       match model.selected_animation_graph_document() {
         Some((path, graph)) =>
           (
-            [
-              rpc_effect(
-                SceneSaved,
-                @shared.rpc_request_animation_graph_save(path, graph),
-              ),
-            ],
+            [rpc_effect(RpcAnimationGraphSave(path, graph))],
             { ..model, status: "Saving animation graph..." },
           )
         None => ([], model)

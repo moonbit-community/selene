@@ -2,10 +2,9 @@
 pub type CustomComponentDefaultData = () -> Json
 
 ///|
-pub type CustomComponentValidator = (
-  ComponentDocument,
-  String,
-) -> Array[ValidationError]
+pub type CustomComponentValidator = (ComponentDocument, String) -> Array[
+  ValidationError,
+]
 
 ///|
 // Keep custom component lifecycle in one registry so editor defaults,
@@ -39,12 +38,7 @@ pub fn validate_custom_component_object_payload(
 ) -> Array[ValidationError] {
   match component.data {
     Object(_) => []
-    _ => [
-      {
-        path,
-        message: "Custom component payload must be a JSON object",
-      },
-    ]
+    _ => [{ path, message: "Custom component payload must be a JSON object" }]
   }
 }
 
@@ -71,6 +65,7 @@ pub fn ignore_custom_component(
   _component : ComponentDocument,
   _context : AssetInstantiationContext,
 ) -> Unit {
+
 }
 
 ///|
@@ -112,10 +107,10 @@ pub fn register_custom_component(
 }
 
 ///|
-pub fn custom_component_handler_for(
-  kind : String,
-) -> CustomComponentHandler? {
-  registered_custom_component_handlers.get(normalized_custom_component_kind(kind))
+pub fn custom_component_handler_for(kind : String) -> CustomComponentHandler? {
+  registered_custom_component_handlers.get(
+    normalized_custom_component_kind(kind),
+  )
 }
 
 ///|

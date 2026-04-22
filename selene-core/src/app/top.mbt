@@ -718,7 +718,13 @@ pub fn App::run_frames(
   let default_delta = 1.0 / self.fps.to_double()
   let used_delta = if raw_delta > 0.0 { raw_delta } else { default_delta }
   for _ in 0..<frames {
-    run_headless_frame(plan, accumulator, used_delta, None, @platform_audio.tick)
+    run_headless_frame(
+      plan,
+      accumulator,
+      used_delta,
+      None,
+      @platform_audio.tick,
+    )
   }
 }
 
@@ -764,7 +770,13 @@ pub fn App::run_frames_capture(
     self.viewport_height * self.zoom,
   )
   for _ in 0..<frames {
-    run_headless_frame(plan, accumulator, used_delta, None, @platform_audio.tick)
+    run_headless_frame(
+      plan,
+      accumulator,
+      used_delta,
+      None,
+      @platform_audio.tick,
+    )
     if @runtime_debug.capture_last_frame_with_metadata(
         resolved_width,
         resolved_height,

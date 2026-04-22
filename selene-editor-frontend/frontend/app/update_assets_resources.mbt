@@ -34,15 +34,7 @@ fn update_assets_resources(
             next,
             next.selected_resource,
           )
-          (
-            [
-              rpc_effect(
-                SceneSaved,
-                @shared.rpc_request_atlas_save(path, atlas),
-              ),
-            ],
-            next,
-          )
+          ([rpc_effect(RpcAtlasSave(path, atlas))], next)
         }
         None => ([], model)
       }
@@ -75,15 +67,7 @@ fn update_assets_resources(
             next,
             next.selected_resource,
           )
-          (
-            [
-              rpc_effect(
-                SceneSaved,
-                @shared.rpc_request_animation_clip_save(clip_path, clip),
-              ),
-            ],
-            next,
-          )
+          ([rpc_effect(RpcAnimationClipSave(clip_path, clip))], next)
         }
         None => ([], model)
       }
@@ -116,15 +100,7 @@ fn update_assets_resources(
             next,
             next.selected_resource,
           )
-          (
-            [
-              rpc_effect(
-                SceneSaved,
-                @shared.rpc_request_animation_graph_save(graph_path, graph),
-              ),
-            ],
-            next,
-          )
+          ([rpc_effect(RpcAnimationGraphSave(graph_path, graph))], next)
         }
         None => ([], model)
       }
@@ -156,15 +132,7 @@ fn update_assets_resources(
                 next,
                 next.selected_resource,
               )
-              (
-                [
-                  rpc_effect(
-                    SceneSaved,
-                    @shared.rpc_request_prefab_save(path, prefab),
-                  ),
-                ],
-                next,
-              )
+              ([rpc_effect(RpcPrefabSave(path, prefab))], next)
             }
             None => ([], model)
           }

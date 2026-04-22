@@ -56,10 +56,7 @@ fn pixeladventure_empty_component_data() -> Json {
 
 ///|
 fn terrain_component_default_data() -> Json {
-  PixelAdventureTerrainComponent::{
-    solid: false,
-    collider_group: "grass",
-  }.to_json()
+  PixelAdventureTerrainComponent::{ solid: false, collider_group: "grass" }.to_json()
 }
 
 ///|
@@ -84,9 +81,7 @@ fn validate_pixeladventure_terrain_component(
     PixelAdventureTerrainComponent,
     Array[@editor_bridge.ValidationError],
   ] = validate_pixeladventure_component(
-    component,
-    path,
-    "PixelAdventureTerrain",
+    component, path, "PixelAdventureTerrain",
   )
   match decoded {
     Ok(data) =>
@@ -243,9 +238,7 @@ fn pixeladventure_custom_component_handlers() -> Map[
           PixelAdventurePlayerComponent,
           Array[@editor_bridge.ValidationError],
         ] = validate_pixeladventure_component(
-          component,
-          path,
-          "PixelAdventurePlayer",
+          component, path, "PixelAdventurePlayer",
         )
         match decoded {
           Ok(_) => []
@@ -264,9 +257,7 @@ fn pixeladventure_custom_component_handlers() -> Map[
           PixelAdventureBirdComponent,
           Array[@editor_bridge.ValidationError],
         ] = validate_pixeladventure_component(
-          component,
-          path,
-          "PixelAdventureBird",
+          component, path, "PixelAdventureBird",
         )
         match decoded {
           Ok(_) => []
@@ -285,9 +276,7 @@ fn pixeladventure_custom_component_handlers() -> Map[
           PixelAdventureAppleComponent,
           Array[@editor_bridge.ValidationError],
         ] = validate_pixeladventure_component(
-          component,
-          path,
-          "PixelAdventureApple",
+          component, path, "PixelAdventureApple",
         )
         match decoded {
           Ok(_) => []
@@ -306,9 +295,7 @@ fn pixeladventure_custom_component_handlers() -> Map[
           PixelAdventureFlagComponent,
           Array[@editor_bridge.ValidationError],
         ] = validate_pixeladventure_component(
-          component,
-          path,
-          "PixelAdventureFlag",
+          component, path, "PixelAdventureFlag",
         )
         match decoded {
           Ok(_) => []

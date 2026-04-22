@@ -131,6 +131,8 @@ pub fn msg_resolve_scene_conflict_reload_disk() -> Msg
 
 pub fn msg_resolve_scene_conflict_save_as(String) -> Msg
 
+pub fn msg_rpc_ack(Result[Unit, String]) -> Msg
+
 pub fn msg_save_scene() -> Msg
 
 pub fn msg_save_selected_animation_clip() -> Msg
@@ -305,7 +307,7 @@ pub fn view_state(Model) -> ViewState
 
 // Types and methods
 pub enum Effect {
-  Rpc(target~ : RpcTarget, request~ : @shared.RpcRequestEnvelope)
+  Rpc(binding~ : RpcBinding)
   SubscribeServiceEvents
   SubscribePreviewEvents
   SubscribeKeyboardShortcuts
@@ -424,6 +426,7 @@ pub enum Msg {
   ResolveSceneConflictReloadDisk
   ResolveSceneConflictSaveAs(String)
   AnimationMigrationSaved(Result[Unit, String])
+  RpcAck(Result[Unit, String])
   WorkspaceSaved(Result[Unit, String])
   ServiceEvent(Result[@shared.EditorEvent, String])
   PreviewEvent(@preview_bridge.PreviewEvent)
@@ -544,20 +547,33 @@ pub enum ResourceSelection {
   Prefab(String)
 } derive(Eq)
 
-pub enum RpcTarget {
-  ProjectLoaded
-  ProjectRootPicked
-  SceneLoaded
-  SceneListLoaded
-  AssetsLoaded
-  PrefabLoaded
-  AtlasLoaded
-  AnimationClipLoaded
-  AnimationGraphLoaded
-  SceneSaved
-  AnimationMigrationSaved
-  WorkspaceSaved
+pub enum RpcBinding {
+  RpcProjectCurrent
+  RpcProjectOpen(String)
+  RpcProjectPickDirectory(String)
+  RpcProjectSaveWorkspace(@editor_bridge.WorkspaceDocument)
+  RpcProjectSetStartupScene(String)
+  RpcSceneLoad(String)
+  RpcSceneMigrate(String)
+  RpcSceneList
+  RpcSceneCreate(String)
+  RpcSceneSave(String, @editor_bridge.SceneDocument, String, Int)
+  RpcSceneDelete(String)
+  RpcAssetsList
+  RpcPrefabLoad(String)
+  RpcPrefabSave(String, @editor_bridge.PrefabDocument)
+  RpcAtlasLoad(String)
+  RpcAtlasSave(String, @editor_bridge.AtlasAssetDocument)
+  RpcAnimationClipLoad(String)
+  RpcAnimationClipSave(String, @editor_bridge.AnimationClipAssetDocument)
+  RpcAnimationGraphLoad(String)
+  RpcAnimationGraphSave(String, @editor_bridge.AnimationGraphAssetDocument)
+  RpcAnimationMigrate(String, String)
 } derive(Eq)
+pub fn RpcBinding::request_envelope(Self, id? : Int) -> @shared.RpcRequestEnvelope
+pub fn RpcBinding::response_to_msg(Self, @shared.RpcResponse) -> Result[Msg, String]
+pub fn RpcBinding::scope(Self) -> String
+pub fn RpcBinding::transport_error_msg(Self, String) -> Msg
 
 pub enum SceneConflictState {
   NoConflict

@@ -6,8 +6,11 @@
 
 ### Changed
 - Changed the English and Chinese tutorials to match the current scene-document workflow, camera follow pattern, module imports, and web build output paths.
+- Changed editor frontend RPC effects to use typed `RpcBinding` dispatch instead of parallel `RpcTarget` + request mapping, and split editor-service RPC handling into project/scene/assets/animation domain handlers.
 
 ### Fixed
+- Fixed editor save/startup-scene RPC bindings so non-scene document writes and startup-scene updates no longer mis-handle `SavedOk` / `StartupSceneUpdated` responses.
+- Fixed `selene-editor-specs` harness RPC effect simulation to follow the new `RpcBinding` model, restoring compatibility after the frontend RPC binding refactor.
 
 ### Removed
 

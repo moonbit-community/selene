@@ -18,9 +18,7 @@ fn labeled_input_with_commit(
   on_commit : () -> @rabbita.Cmd,
 ) -> @rabbita.Html {
   let attrs = @html.Attrs::build()
-    .on_change(fn(_event) {
-      on_commit()
-    })
+    .on_change(fn(_event) { on_commit() })
     .on_keydown(fn(event) {
       if keyboard_event_is_enter_key(event) {
         keyboard_event_blur_target(event)
@@ -333,9 +331,7 @@ fn graph_node_drag_attrs(
       }
       dispatch(connect_msg)
     } else {
-      dispatch(
-        @app.msg_update_selected_animation_graph_default_node(node_id),
-      )
+      dispatch(@app.msg_update_selected_animation_graph_default_node(node_id))
     }
   })
 }
@@ -364,8 +360,8 @@ fn graph_canvas_drop_attrs(
         if node_id != "" {
           let metrics = drag_event_canvas_metrics(drag_event)
           if metrics.length() >= 4 && metrics[2] > 0.0 && metrics[3] > 0.0 {
-          let normalized_x = metrics[0] / metrics[2]
-          let normalized_y = metrics[1] / metrics[3]
+            let normalized_x = metrics[0] / metrics[2]
+            let normalized_y = metrics[1] / metrics[3]
             return dispatch(
               @app.msg_move_selected_animation_graph_node(
                 node_id, normalized_x, normalized_y,

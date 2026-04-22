@@ -185,7 +185,8 @@ fn point_on_polyline(
     point,
     points[points.length() - 1] + offset,
     points[0] + offset,
-  ) <= tolerance_sq
+  ) <=
+  tolerance_sq
 }
 
 ///|
@@ -235,9 +236,9 @@ fn pickable_matches_camera_view(
   match camera_view {
     Some(camera_view) => {
       if !@visibility.matches(
-        @visibility.entity_render_layers(entity),
-        @visibility.entity_render_layers(camera_view.entity),
-      ) {
+          @visibility.entity_render_layers(entity),
+          @visibility.entity_render_layers(camera_view.entity),
+        ) {
         return false
       }
       true
@@ -312,12 +313,8 @@ pub fn pickable_click_system(_delta : Double) -> Unit {
     guard @visibility.is_visible(entity) else { continue }
     guard pickable_matches_camera_view(entity, camera_view) else { continue }
     if hit_test_pickable(
-      entity,
-      mouse_screen,
-      mouse_world,
-      mouse_virtual,
-      camera_view,
-    ) {
+        entity, mouse_screen, mouse_world, mouse_virtual, camera_view,
+      ) {
       dispatch_pointer_events(entity)
     }
   }

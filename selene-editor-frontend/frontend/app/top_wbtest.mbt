@@ -60,17 +60,40 @@ test "save scene uses cas base hash and revision from scene session" {
   let (effects, next) = update(msg_save_scene(), model)
   inspect(next.status, content="Saving scene...")
   match effects {
-    [Rpc(target=SceneSaved, request~)] =>
-      match request.request {
-        @shared.SceneSave(path~, scene~, base_hash~, base_revision~) => {
-          inspect(path, content="scenes/main.scene.json")
-          inspect(scene.name, content="Dirty Scene")
-          inspect(base_hash, content="hash-before")
-          inspect(base_revision, content="11")
-        }
-        _ => fail("expected scene.save request")
-      }
+    [Rpc(binding=RpcSceneSave(path, scene, base_hash, base_revision))] => {
+      inspect(path, content="scenes/main.scene.json")
+      inspect(scene.name, content="Dirty Scene")
+      inspect(base_hash, content="hash-before")
+      inspect(base_revision, content="11")
+    }
     _ => fail("expected exactly one save rpc effect")
+  }
+}
+
+///|
+test "setting startup scene emits an ack binding plus scene list refresh" {
+  let model = {
+    ..new_model(),
+    current_root: Some("/tmp/demo"),
+    manifest: Some(
+      @editor_bridge.ProjectManifest::default(
+        "Demo",
+        startup_scene="scenes/main.scene.json",
+        asset_roots=[],
+      ),
+    ),
+    scene_refs: [
+      @editor_bridge.scene_ref("scenes/main.scene.json"),
+      @editor_bridge.scene_ref("scenes/alt.scene.json"),
+    ],
+    scene_session: Some(empty_scene_session("scenes/alt.scene.json")),
+  }
+  let (effects, next) = update(msg_set_current_scene_as_startup(), model)
+  inspect(next.status, content="Updating startup scene...")
+  match effects {
+    [Rpc(binding=RpcProjectSetStartupScene(path)), Rpc(binding=RpcSceneList)] =>
+      inspect(path, content="scenes/alt.scene.json")
+    _ => fail("expected startup-scene ack plus scene list refresh")
   }
 }
 
@@ -197,12 +220,8 @@ test "clean scene reloads automatically when current scene file changes on disk"
   )
   inspect(next.status, content="Reloading changed scene...")
   match effects {
-    [Rpc(target=SceneLoaded, request~)] =>
-      match request.request {
-        @shared.SceneLoad(path~) =>
-          inspect(path, content="scenes/main.scene.json")
-        _ => fail("expected scene.load request")
-      }
+    [Rpc(binding=RpcSceneLoad(path))] =>
+      inspect(path, content="scenes/main.scene.json")
     _ => fail("expected one scene.load effect")
   }
 }
@@ -228,6 +247,23 @@ test "workspace delta never overwrites in-memory scene session" {
   inspect(session.scene.name, content="Unsaved Local")
   inspect(session.dirty, content="true")
   inspect(next.status, content="Workspace settings updated")
+}
+
+///|
+test "rpc ack keeps state on success and reports generic request failures" {
+  let (success_effects, success_model) = update(
+    msg_rpc_ack(Ok(())),
+    new_model(),
+  )
+  inspect(success_effects.length(), content="0")
+  inspect(success_model.status, content="Choose a project folder to begin")
+
+  let (error_effects, error_model) = update(
+    msg_rpc_ack(Err("boom")),
+    new_model(),
+  )
+  inspect(error_effects.length(), content="0")
+  inspect(error_model.status, content="Request failed: boom")
 }
 
 ///|

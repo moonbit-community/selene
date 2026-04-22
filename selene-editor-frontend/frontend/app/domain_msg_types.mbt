@@ -34,6 +34,7 @@ priv enum ProjectRuntimeMsg {
   ResolveSceneConflictReloadDisk
   ResolveSceneConflictSaveAs(String)
   WorkspaceSaved(Result[Unit, String])
+  RpcAck(Result[Unit, String])
   ServiceEvent(Result[@shared.EditorEvent, String])
   PreviewEvent(@bridge.PreviewEvent)
 }

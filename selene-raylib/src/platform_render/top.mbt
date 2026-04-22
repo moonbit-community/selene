@@ -107,7 +107,10 @@ fn submit_frame_contents(frame : @render_pipeline.RenderFrame) -> Unit {
     if !pass_target_is_supported(pass.target) {
       continue
     }
-    let world_batches = draw_batches_for_pass(pass.world_commands, pass.world_batches)
+    let world_batches = draw_batches_for_pass(
+      pass.world_commands,
+      pass.world_batches,
+    )
     let ui_batches = draw_batches_for_pass(pass.ui_commands, pass.ui_batches)
     if !pass.world_commands.is_empty() ||
       pass.load_op is @render2d_types.RenderPassLoadOp2D::Clear {

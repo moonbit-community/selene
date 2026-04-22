@@ -25,8 +25,16 @@ fn parallax2d_world_store() -> Parallax2dWorldStore {
 ///|
 fn clamped_parallax_factor(factor : @math.Vec2) -> @math.Vec2 {
   @math.Vec2(
-    if factor[X] < 0.0 { 0.0 } else { factor[X] },
-    if factor[Y] < 0.0 { 0.0 } else { factor[Y] },
+    if factor[X] < 0.0 {
+      0.0
+    } else {
+      factor[X]
+    },
+    if factor[Y] < 0.0 {
+      0.0
+    } else {
+      factor[Y]
+    },
   )
 }
 
@@ -61,9 +69,8 @@ pub fn parallax_world_position(
   parallax : Parallax2d?,
   camera_view : @camera.Camera2dView?,
 ) -> @math.Vec2 {
-  let shifted = base_position + parallax.map_or(@math.Vec2::zero(), fn(parallax) {
-    parallax.base_offset
-  })
+  let shifted = base_position +
+    parallax.map_or(@math.Vec2::zero(), fn(parallax) { parallax.base_offset })
   match (parallax, camera_view) {
     (Some(parallax), Some(camera_view)) => {
       let camera_origin = camera_view.world_origin()

@@ -29,6 +29,7 @@ fn legacy_project_minimum_version_key() -> String {
   "editor_" + "min_version"
 }
 
+///|
 async test "project.open auto-initializes a missing project manifest" {
   @async.with_task_group(group => {
     let temp_root = @fs.tmpdir(prefix="selene-editor-core")
@@ -94,8 +95,7 @@ async test "project.open auto-migrates legacy project manifests missing indexes"
   @async.with_task_group(group => {
     let temp_root = @fs.tmpdir(prefix="selene-editor-core")
     let root = path_join(temp_root, "Legacy Manifest Demo")
-    let legacy_manifest_text =
-      "{\n  \"version\": 2,\n  \"name\": \"Legacy\",\n  \"startup_scene\": \"scenes/main.scene.json\",\n  \"asset_roots\": [\"assets/images\"],\n  \"" +
+    let legacy_manifest_text = "{\n  \"version\": 2,\n  \"name\": \"Legacy\",\n  \"startup_scene\": \"scenes/main.scene.json\",\n  \"asset_roots\": [\"assets/images\"],\n  \"" +
       legacy_project_minimum_version_key() +
       "\": \"0.1.0\"\n}\n"
     @fs.mkdir(path_join(root, "scenes"), permission=0o755, recursive=true)
@@ -136,9 +136,9 @@ async test "project.open auto-migrates legacy project manifests missing indexes"
     )
     inspect(migrated_manifest.scene_index.length(), content="1")
     inspect(
-      @fs.read_file(path_join(root, "selene.project.json")).text().contains(
-        legacy_project_minimum_version_key(),
-      ),
+      @fs.read_file(path_join(root, "selene.project.json"))
+      .text()
+      .contains(legacy_project_minimum_version_key()),
       content="false",
     )
   })
@@ -803,8 +803,13 @@ async test "scene.load can require migration and scene.migrate writes back the m
     }
 
     let persisted_scene = @editor_bridge.decode_scene_sdf(
-      @json.parse(@fs.read_file(path_join(root, "scenes/main.scene.json")).text()),
+      @json.parse(
+        @fs.read_file(path_join(root, "scenes/main.scene.json")).text(),
+      ),
     )
-    inspect(persisted_scene.version == @editor_bridge.scene_schema_version, content="true")
+    inspect(
+      persisted_scene.version == @editor_bridge.scene_schema_version,
+      content="true",
+    )
   })
 }

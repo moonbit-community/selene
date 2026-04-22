@@ -54,7 +54,9 @@ pub fn asset_instantiation_context(
     atlas_assets,
     animation_clip_assets,
     animation_graph_assets,
-    custom_component_handlers: normalize_custom_component_handlers(custom_component_handlers),
+    custom_component_handlers: normalize_custom_component_handlers(
+      custom_component_handlers,
+    ),
   }
 }
 

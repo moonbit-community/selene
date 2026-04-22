@@ -141,6 +141,11 @@ pub fn msg_workspace_saved(result : Result[Unit, String]) -> Msg {
 }
 
 ///|
+pub fn msg_rpc_ack(result : Result[Unit, String]) -> Msg {
+  RpcAck(result)
+}
+
+///|
 pub fn msg_service_event(result : Result[@shared.EditorEvent, String]) -> Msg {
   ServiceEvent(result)
 }

@@ -44,9 +44,7 @@ pub fn mesh2ds() -> Map[@entity.Entity, Mesh2d] {
 }
 
 ///|
-let mesh_storage : Mesh2dStorage = {
-  meshes: Map::new(),
-}
+let mesh_storage : Mesh2dStorage = { meshes: Map::new() }
 
 ///|
 let next_mesh2d_id : Ref[UInt] = Ref::new(0U)
@@ -104,6 +102,7 @@ pub fn circle(radius : Double) -> Mesh2dHandle {
   register_mesh2d_asset(Mesh2dAsset::circle(radius))
 }
 
+///|
 fn centered_quad_transform(size : @math.Vec2) -> @math.Transform {
   @math.Transform::from_translation(-size[X] / 2.0, -size[Y] / 2.0)
 }
@@ -133,7 +132,11 @@ pub fn render_mesh2d_system(delta : Double) -> Unit {
     let base_pos = @math.Vec2(transform.translation.x, transform.translation.y)
     let parallax = @parallax2d.inherited_parallax2d(entity)
     if camera_views.is_empty() {
-      let screen_pos = @parallax2d.parallax_world_position(base_pos, parallax, None)
+      let screen_pos = @parallax2d.parallax_world_position(
+        base_pos,
+        parallax,
+        None,
+      )
       push_mesh2d_draw_command(
         entity,
         mesh_asset,
@@ -146,7 +149,11 @@ pub fn render_mesh2d_system(delta : Double) -> Unit {
       )
       continue
     }
-    let world_pos = @parallax2d.parallax_world_position(base_pos, parallax, None)
+    let world_pos = @parallax2d.parallax_world_position(
+      base_pos,
+      parallax,
+      None,
+    )
     let world_bounds = mesh2d_bounds(
       mesh_asset,
       world_pos,

@@ -22,7 +22,9 @@ pub(all) struct CameraExtract2dContext {
 pub fn build_camera_extract2d_context(
   camera_views : Array[@camera.Camera2dView],
 ) -> CameraExtract2dContext {
-  let all_camera_ids = camera_views.map(fn(camera_view) { camera_view.entity.id() })
+  let all_camera_ids = camera_views.map(fn(camera_view) {
+    camera_view.entity.id()
+  })
   let camera_views_by_id : Map[UInt, @camera.Camera2dView] = Map::new()
   let camera_grid_entries : Array[SpatialGridEntry2d] = []
   for camera_view in camera_views {
@@ -73,7 +75,11 @@ pub fn CameraExtract2dContext::camera_views_for_bounds(
 
 ///|
 fn effective_cell_size(cell_size : Double) -> Double {
-  if cell_size < 1.0 { 1.0 } else { cell_size }
+  if cell_size < 1.0 {
+    1.0
+  } else {
+    cell_size
+  }
 }
 
 ///|
@@ -119,7 +125,10 @@ pub fn build_spatial_grid2d(
 }
 
 ///|
-pub fn SpatialGrid2d::query(self : SpatialGrid2d, region : @math.Rect) -> Array[UInt] {
+pub fn SpatialGrid2d::query(
+  self : SpatialGrid2d,
+  region : @math.Rect,
+) -> Array[UInt] {
   if region.size[X] <= 0.0 || region.size[Y] <= 0.0 {
     return []
   }
@@ -128,11 +137,10 @@ pub fn SpatialGrid2d::query(self : SpatialGrid2d, region : @math.Rect) -> Array[
   for x in min_x..<(max_x + 1) {
     for y in min_y..<(max_y + 1) {
       match self.buckets.get(bucket_key(x, y)) {
-        Some(ids) => {
+        Some(ids) =>
           for id in ids {
             unique.add(id)
           }
-        }
         None => ()
       }
     }
@@ -144,11 +152,29 @@ pub fn SpatialGrid2d::query(self : SpatialGrid2d, region : @math.Rect) -> Array[
 
 ///|
 test "spatial grid query returns deterministic ids from overlapping cells" {
-  let grid = build_spatial_grid2d([
-    { id: 5U, bounds: { position: @math.Vec2(0.0, 0.0), size: @math.Vec2(16.0, 16.0) } },
-    { id: 2U, bounds: { position: @math.Vec2(20.0, 0.0), size: @math.Vec2(16.0, 16.0) } },
-    { id: 9U, bounds: { position: @math.Vec2(400.0, 0.0), size: @math.Vec2(16.0, 16.0) } },
-  ], cell_size=32.0)
+  let grid = build_spatial_grid2d(
+    [
+      {
+        id: 5U,
+        bounds: { position: @math.Vec2(0.0, 0.0), size: @math.Vec2(16.0, 16.0) },
+      },
+      {
+        id: 2U,
+        bounds: {
+          position: @math.Vec2(20.0, 0.0),
+          size: @math.Vec2(16.0, 16.0),
+        },
+      },
+      {
+        id: 9U,
+        bounds: {
+          position: @math.Vec2(400.0, 0.0),
+          size: @math.Vec2(16.0, 16.0),
+        },
+      },
+    ],
+    cell_size=32.0,
+  )
   inspect(
     grid.query({ position: @math.Vec2(0.0, 0.0), size: @math.Vec2(40.0, 32.0) }),
     content="[2, 5]",

@@ -131,20 +131,14 @@ pub(all) struct ImageAsset {
 } derive(Eq, @debug.Debug)
 
 pub(all) struct ImageHandle(UInt) derive(Eq, Hash, @debug.Debug)
-#deprecated
-pub fn ImageHandle::inner(Self) -> UInt
 
 pub(all) struct MaterialHandle(UInt) derive(Eq, Hash, @debug.Debug)
-#deprecated
-pub fn MaterialHandle::inner(Self) -> UInt
 
 pub(all) struct MeshAsset {
   primitive : MeshPrimitive3D
 } derive(Eq, @debug.Debug)
 
 pub(all) struct MeshHandle(UInt) derive(Eq, Hash, @debug.Debug)
-#deprecated
-pub fn MeshHandle::inner(Self) -> UInt
 
 pub(all) enum MeshPrimitive3D {
   Cube(@math.Vec3)
@@ -190,8 +184,6 @@ pub(all) struct RenderItem3D {
 }
 
 pub(all) struct SceneHandle(UInt) derive(Eq, Hash, @debug.Debug)
-#deprecated
-pub fn SceneHandle::inner(Self) -> UInt
 
 pub(all) struct SpotLight3D {
   direction : @math.Vec3

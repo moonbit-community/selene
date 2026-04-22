@@ -13,7 +13,10 @@ extern "js" fn revoke_object_url(url : String) -> Unit =
   #| }
 
 ///|
-extern "js" fn request_audio_play(audio : Audio, activation_epoch : Int) -> Unit =
+extern "js" fn request_audio_play(
+  audio : Audio,
+  activation_epoch : Int,
+) -> Unit =
   #| (audio, activationEpoch) => {
   #|   audio.__selenePlayAttemptEpoch = activationEpoch | 0;
   #|   if (audio.error) {

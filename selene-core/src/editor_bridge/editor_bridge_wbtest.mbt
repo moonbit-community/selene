@@ -1,3 +1,4 @@
+///|
 fn json_string_bytes(value : String) -> Bytes {
   @utf8.encode(value)
 }
@@ -88,7 +89,10 @@ test "project manifest round trip includes v2 indexes" {
   let decoded : ProjectManifest = @json.from_json(manifest.to_json())
   let encoded = encode_project_manifest(manifest)
   inspect(decoded == manifest, content="true")
-  inspect(encoded.contains(legacy_project_minimum_version_key()), content="false")
+  inspect(
+    encoded.contains(legacy_project_minimum_version_key()),
+    content="false",
+  )
 }
 
 ///|
@@ -320,22 +324,18 @@ test "validation rejects unsupported scene version missing parent and invalid cu
   let errors = validate_scene_document(scene)
   inspect(errors.length(), content="3")
   inspect(
+    has_validation_error(errors, "version", "Unsupported schema version"),
+    content="true",
+  )
+  inspect(
     has_validation_error(
-      errors,
-      "version",
-      "Unsupported schema version",
+      errors, "entities[child].parent", "Parent entity does not exist",
     ),
     content="true",
   )
   inspect(
-    has_validation_error(errors, "entities[child].parent", "Parent entity does not exist"),
-    content="true",
-  )
-  inspect(
     has_validation_error(
-      errors,
-      "entities[child].components[UnknownKind]",
-      "Custom component payload must be a JSON object",
+      errors, "entities[child].components[UnknownKind]", "Custom component payload must be a JSON object",
     ),
     content="true",
   )
@@ -361,43 +361,32 @@ test "validation rejects duplicate component kinds dependency gaps and parent cy
         id: "b",
         name: "B",
         parent: Some("a"),
-        components: [
-          mesh2d_component("triangle"),
-          color_material_component(),
-        ],
+        components: [mesh2d_component("triangle"), color_material_component()],
       },
     ],
   }
   let errors = validate_scene_document(scene)
   inspect(
     has_validation_error(
-      errors,
-      "entities[a].components[Visibility]",
-      "Duplicated component kind on entity",
+      errors, "entities[a].components[Visibility]", "Duplicated component kind on entity",
     ),
     content="true",
   )
   inspect(
     has_validation_error(
-      errors,
-      "entities[a].components[TextureAtlas]",
-      "requires Sprite",
+      errors, "entities[a].components[TextureAtlas]", "requires Sprite",
     ),
     content="true",
   )
   inspect(
     has_validation_error(
-      errors,
-      "entities[a].parent",
-      "must not contain cycles",
+      errors, "entities[a].parent", "must not contain cycles",
     ),
     content="true",
   )
   inspect(
     has_validation_error(
-      errors,
-      "entities[b].components[Mesh2d].primitive",
-      "rectangle or circle",
+      errors, "entities[b].components[Mesh2d].primitive", "rectangle or circle",
     ),
     content="true",
   )
@@ -428,72 +417,60 @@ test "validation reports field-level builtin component payload issues" {
       ]),
       entity_document("anim", "Animation", components=[
         transform2d_component(),
-        animation_player_component(autoplay=true, repeat_mode=Count(0), speed=0.0),
+        animation_player_component(
+          autoplay=true,
+          repeat_mode=Count(0),
+          speed=0.0,
+        ),
       ]),
     ],
   }
   let errors = validate_scene_document(scene)
   inspect(
     has_validation_error(
-      errors,
-      "entities[sprite].components[Transform2d].scale",
-      "Transform2d scale must be positive",
+      errors, "entities[sprite].components[Transform2d].scale", "Transform2d scale must be positive",
     ),
     content="true",
   )
   inspect(
     has_validation_error(
-      errors,
-      "entities[sprite].components[Sprite].custom_size",
-      "Sprite custom size must be positive",
+      errors, "entities[sprite].components[Sprite].custom_size", "Sprite custom size must be positive",
     ),
     content="true",
   )
   inspect(
     has_validation_error(
-      errors,
-      "entities[sprite].components[Sprite].rect",
-      "Sprite source rect size must be positive",
+      errors, "entities[sprite].components[Sprite].rect", "Sprite source rect size must be positive",
     ),
     content="true",
   )
   inspect(
     has_validation_error(
-      errors,
-      "entities[camera].components[Camera2d].scale",
-      "Camera2d scale must be positive",
+      errors, "entities[camera].components[Camera2d].scale", "Camera2d scale must be positive",
     ),
     content="true",
   )
   inspect(
     has_validation_error(
-      errors,
-      "entities[atlas].components[TextureAtlas].region_name",
-      "must not be empty",
+      errors, "entities[atlas].components[TextureAtlas].region_name", "must not be empty",
     ),
     content="true",
   )
   inspect(
     has_validation_error(
-      errors,
-      "entities[atlas].components[TextureAtlas].index",
-      "must be non-negative",
+      errors, "entities[atlas].components[TextureAtlas].index", "must be non-negative",
     ),
     content="true",
   )
   inspect(
     has_validation_error(
-      errors,
-      "entities[anim].components[AnimationPlayer].autoplay",
-      "requires graph_asset_path",
+      errors, "entities[anim].components[AnimationPlayer].autoplay", "requires graph_asset_path",
     ),
     content="true",
   )
   inspect(
     has_validation_error(
-      errors,
-      "entities[anim].components[AnimationPlayer].speed",
-      "must be positive",
+      errors, "entities[anim].components[AnimationPlayer].speed", "must be positive",
     ),
     content="true",
   )
@@ -513,14 +490,17 @@ test "custom component registry wires defaults validation and apply" {
           RegisteredCustomComponentTestPayload,
           Array[ValidationError],
         ] = validate_custom_component_payload(
-          component,
-          path,
-          "Registered custom payload is invalid",
+          component, path, "Registered custom payload is invalid",
         )
         match decoded {
           Ok(data) =>
             if data.label.trim() == "" {
-              [{ path: path + ".label", message: "Registered custom label must not be empty" }]
+              [
+                {
+                  path: path + ".label",
+                  message: "Registered custom label must not be empty",
+                },
+              ]
             } else {
               []
             }
@@ -554,8 +534,7 @@ test "custom component registry wires defaults validation and apply" {
   let invalid_errors = validate_scene_document(invalid_scene)
   inspect(
     has_validation_error(
-      invalid_errors,
-      "entities[marker].components[RegisteredCustomComponentTest].label",
+      invalid_errors, "entities[marker].components[RegisteredCustomComponentTest].label",
       "must not be empty",
     ),
     content="true",
@@ -717,10 +696,7 @@ test "codec decodes valid project and scene documents" {
   let scene = SceneDocument::default_main()
   let manifest_json = @json.parse(encode_project_manifest(manifest))
   let scene_json = @json.parse(encode_scene_sdf(scene))
-  inspect(
-    decode_project_manifest(manifest_json) == manifest,
-    content="true",
-  )
+  inspect(decode_project_manifest(manifest_json) == manifest, content="true")
   inspect(decode_scene_sdf(scene_json) == scene, content="true")
 }
 
@@ -741,7 +717,10 @@ test "codec reports project manifest migration for missing indexes" {
       )
       inspect(preview.manifest.prefab_index.length(), content="0")
       inspect(preview.changes.length() > 0, content="true")
-      inspect(encoded.contains(legacy_project_minimum_version_key()), content="false")
+      inspect(
+        encoded.contains(legacy_project_minimum_version_key()),
+        content="false",
+      )
     }
     _ => fail("expected project manifest migration preview")
   }

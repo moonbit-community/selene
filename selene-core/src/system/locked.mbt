@@ -60,7 +60,9 @@ fn next_mouse_lock_request(
 pub fn lock_mouse() -> Unit {
   mouse_lock_enabled.val = true
   mouse_lock_requested.val = true
-  mouse_lock_active.val = @platform_input.set_mouse_lock(mouse_lock_requested.val)
+  mouse_lock_active.val = @platform_input.set_mouse_lock(
+    mouse_lock_requested.val,
+  )
 }
 
 ///|
@@ -88,7 +90,9 @@ pub fn sync_mouse_lock_system(_delta : Double) -> Unit {
     @inputs.is_just_pressed(@inputs.Escape),
     @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left),
   )
-  mouse_lock_active.val = @platform_input.set_mouse_lock(mouse_lock_requested.val)
+  mouse_lock_active.val = @platform_input.set_mouse_lock(
+    mouse_lock_requested.val,
+  )
 }
 
 ///|

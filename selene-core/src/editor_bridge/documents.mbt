@@ -1350,13 +1350,15 @@ pub fn default_component_document(
     Visibility => visibility_component()
     Sprite => sprite_component()
     TextureAtlas =>
-      texture_atlas_component(layout=Some(TextureAtlasLayoutDoc::{
-        tile_size: vec2_doc(16.0, 16.0),
-        columns: 1,
-        rows: 1,
-        padding: vec2_doc(0.0, 0.0),
-        offset: vec2_doc(0.0, 0.0),
-      }))
+      texture_atlas_component(
+        layout=Some(TextureAtlasLayoutDoc::{
+          tile_size: vec2_doc(16.0, 16.0),
+          columns: 1,
+          rows: 1,
+          padding: vec2_doc(0.0, 0.0),
+          offset: vec2_doc(0.0, 0.0),
+        }),
+      )
     AutoTileLayer2d => autotile_layer2d_component()
     Text2d => text2d_component("Text")
     Mesh2d => mesh2d_component("rectangle", size=Some(vec2_doc(32.0, 32.0)))
