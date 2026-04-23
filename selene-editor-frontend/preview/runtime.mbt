@@ -33,6 +33,7 @@ priv struct PreviewState {
   mut selection_overlay : @entity.Entity?
   mut pivot_overlay : @entity.Entity?
   mut selection_rect_overlay : @entity.Entity?
+  snap_grid_overlays : Array[@entity.Entity]
   mut pending_frame_selection : Bool
   mut tool_drag : ToolDragState?
   mut selection_drag : SelectionDragState?
@@ -63,6 +64,7 @@ fn PreviewState::new() -> PreviewState {
     selection_overlay: None,
     pivot_overlay: None,
     selection_rect_overlay: None,
+    snap_grid_overlays: [],
     pending_frame_selection: false,
     tool_drag: None,
     selection_drag: None,
@@ -471,6 +473,162 @@ fn normalized_move_snap_step(step : Double) -> Double {
 pub fn set_move_snap(enabled : Bool, step : Double) -> Unit {
   preview_state.move_snap_enabled = enabled
   preview_state.move_snap_step = normalized_move_snap_step(step)
+}
+
+///|
+let preview_snap_grid_color : @render.Color = @render.Color::{
+  r: 152U,
+  g: 152U,
+  b: 152U,
+  a: 0.22,
+}
+
+///|
+let preview_snap_grid_z = -8.0
+
+///|
+fn ensure_snap_grid_overlay_capacity(count : Int) -> Unit {
+  while preview_state.snap_grid_overlays.length() < count {
+    let overlay = @entity.Entity::new()
+    preview_state.snap_grid_overlays.push(overlay)
+    @transform.transforms().set(
+      overlay,
+      @transform.Transform::from_xyz(0.0, 0.0, preview_snap_grid_z),
+    )
+    @visibility.visibilities().set(overlay, @visibility.Hidden)
+    @sprite.sprites().set(
+      overlay,
+      @sprite.Sprite::from_color(preview_snap_grid_color, @math.Vec2(1.0, 1.0)),
+    )
+  }
+}
+
+///|
+fn hide_snap_grid_overlays_from(start : Int) -> Unit {
+  for index = start; index < preview_state.snap_grid_overlays.length(); index = index +
+      1 {
+    @visibility.visibilities().set(
+      preview_state.snap_grid_overlays[index],
+      @visibility.Hidden,
+    )
+  }
+}
+
+///|
+fn clear_snap_grid_overlays() -> Unit {
+  hide_snap_grid_overlays_from(0)
+}
+
+///|
+fn preview_camera_projection_state(
+) -> (@camera.Camera, @camera.OrthographicProjection, @transform.GlobalTransform)? {
+  guard editor_camera_entity() is Some(camera_entity) else { return None }
+  guard @camera.cameras().get(camera_entity) is Some(camera_) else {
+    return None
+  }
+  guard @camera.orthographic_projections().get(camera_entity)
+    is Some(projection) else {
+    return None
+  }
+  guard @transform.compute_global_transform(camera_entity) is Some(global) else {
+    return None
+  }
+  Some((camera_, projection, global))
+}
+
+///|
+fn apply_snap_grid_overlays() -> Unit {
+  if !preview_state.move_snap_enabled {
+    clear_snap_grid_overlays()
+    return
+  }
+  let step = normalized_move_snap_step(preview_state.move_snap_step)
+  if step <= 0.0 {
+    clear_snap_grid_overlays()
+    return
+  }
+  guard preview_camera_projection_state() is Some((camera_, projection, global)) else {
+    clear_snap_grid_overlays()
+    return
+  }
+  let viewport = current_editor_viewport_size()
+  let top_left = camera_.viewport_to_world_2d(global, projection, @math.Vec2(0.0, 0.0))
+  let bottom_right = camera_.viewport_to_world_2d(global, projection, viewport)
+  let min_x = if top_left[X] < bottom_right[X] {
+    top_left[X]
+  } else {
+    bottom_right[X]
+  }
+  let max_x = if top_left[X] > bottom_right[X] {
+    top_left[X]
+  } else {
+    bottom_right[X]
+  }
+  let min_y = if top_left[Y] < bottom_right[Y] {
+    top_left[Y]
+  } else {
+    bottom_right[Y]
+  }
+  let max_y = if top_left[Y] > bottom_right[Y] {
+    top_left[Y]
+  } else {
+    bottom_right[Y]
+  }
+  if max_x <= min_x || max_y <= min_y {
+    clear_snap_grid_overlays()
+    return
+  }
+  let padding = step
+  let start_x = ((min_x - padding) / step).floor() * step
+  let end_x = ((max_x + padding) / step).ceil() * step
+  let start_y = ((min_y - padding) / step).floor() * step
+  let end_y = ((max_y + padding) / step).ceil() * step
+  let vertical_count = ((end_x - start_x) / step).ceil().to_int() + 1
+  let horizontal_count = ((end_y - start_y) / step).ceil().to_int() + 1
+  let line_count = vertical_count + horizontal_count
+  let max_lines = 1024
+  if line_count <= 0 || line_count > max_lines {
+    clear_snap_grid_overlays()
+    return
+  }
+  ensure_snap_grid_overlay_capacity(line_count)
+  let line_thickness = if projection.scale < 1.0 {
+    projection.scale
+  } else {
+    1.0
+  }
+  let vertical_height = (end_y - start_y) + line_thickness
+  let horizontal_width = (end_x - start_x) + line_thickness
+  let mut overlay_index = 0
+  for index = 0; index < vertical_count; index = index + 1 {
+    let x = start_x + step * index.to_double()
+    let overlay = preview_state.snap_grid_overlays[overlay_index]
+    overlay_index += 1
+    @transform.transforms().set(
+      overlay,
+      @transform.Transform::from_xyz(
+        x,
+        (start_y + end_y) * 0.5,
+        preview_snap_grid_z,
+      ).with_scale(@math.Vec3::new(line_thickness, vertical_height, 1.0)),
+    )
+    @visibility.visibilities().set(overlay, @visibility.Visible)
+  }
+  for index = 0; index < horizontal_count; index = index + 1 {
+    let y = start_y + step * index.to_double()
+    let overlay = preview_state.snap_grid_overlays[overlay_index]
+    overlay_index += 1
+    @transform.transforms().set(
+      overlay,
+      @transform.Transform::from_xyz(
+        (start_x + end_x) * 0.5,
+        y,
+        preview_snap_grid_z,
+      ).with_scale(@math.Vec3::new(horizontal_width, line_thickness, 1.0)),
+    )
+    @visibility.visibilities().set(overlay, @visibility.Visible)
+  }
+  hide_snap_grid_overlays_from(overlay_index)
 }
 
 ///|
@@ -1686,6 +1844,11 @@ fn preview_viewport_sync_system(_world : @ecs.World) -> Unit {
 }
 
 ///|
+fn preview_snap_grid_overlay_system(_world : @ecs.World) -> Unit {
+  apply_snap_grid_overlays()
+}
+
+///|
 fn preview_camera_control_system(_world : @ecs.World) -> Unit {
   guard editor_camera_entity() is Some(camera_entity) else { return }
   let pointer_inside_canvas = pointer_over_canvas()
@@ -2156,6 +2319,7 @@ pub fn bootstrap() -> Unit {
   .add_system(@system.Update, preview_viewport_sync_system)
   .add_system(@system.Update, preview_scene_sync_system)
   .add_system(@system.Update, preview_camera_control_system)
+  .add_system(@system.Update, preview_snap_grid_overlay_system)
   .add_system(@system.Update, preview_pick_system)
   .run()
 }

@@ -11,6 +11,7 @@
 - Changed editor resource creation UX to remove create entrypoints from the left Assets panel and move critical resource actions (save/insert/create-next) to the top of the right-side Resource Inspector.
 - Changed editor workspace persistence/state flow to include `asset_scope`, restore sidebar ratios + scope on project load, and commit sidebar layout only on drag-end instead of every pointer move.
 - Changed preview runtime viewport semantics from fixed-size (`960x540`) assumptions to dynamic canvas-size synchronization with full-bleed viewport rendering.
+- Changed preview viewport interaction to render a semi-transparent gray snap grid overlay when move-snap is enabled.
 
 ### Fixed
 - Fixed editor save/startup-scene RPC bindings so non-scene document writes and startup-scene updates no longer mis-handle `SavedOk` / `StartupSceneUpdated` responses.
