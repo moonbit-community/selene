@@ -262,20 +262,21 @@ body.sidebar-layout-dragging * {
 .viewport-frame {
   flex: 1;
   min-height: 0;
-  padding: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 0;
+  display: block;
+  position: relative;
+  overflow: hidden;
+  background: #0b0f14;
 }
 
 .viewport-canvas {
   width: 100%;
-  height: auto;
-  max-width: 100%;
-  max-height: 100%;
-  aspect-ratio: 16 / 9;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  aspect-ratio: auto;
   display: block;
-  border: 1px solid var(--border);
+  border: 0;
   background: #0b0f14;
   outline: none;
   image-rendering: pixelated;
@@ -393,7 +394,7 @@ body.sidebar-layout-dragging * {
 .asset-grid {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 2px;
   align-content: start;
   width: 100%;
   max-width: 100%;
@@ -404,10 +405,10 @@ body.sidebar-layout-dragging * {
 .asset-panel-body {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   min-height: 0;
   min-width: 0;
-  padding: 8px 8px 6px;
+  padding: 6px;
 }
 
 .asset-tree-scroll {
@@ -421,6 +422,16 @@ body.sidebar-layout-dragging * {
   position: relative;
   contain: paint;
   padding-right: 0;
+}
+
+.asset-tree-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.asset-tree-scroll::-webkit-scrollbar-thumb {
+  background: rgba(138, 160, 179, 0.35);
+  border-radius: 999px;
 }
 
 .asset-card {
@@ -611,8 +622,7 @@ body.sidebar-layout-dragging * {
   position: sticky;
   top: 0;
   z-index: 40;
-  display: flex;
-  flex-direction: column;
+  display: block;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -623,22 +633,17 @@ body.sidebar-layout-dragging * {
   display: none;
 }
 
-.asset-tree-sticky-section {
-  padding: 6px 8px 4px;
+.asset-tree-sticky-bar {
+  padding: 4px 8px;
   font-size: 10px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
-  background: rgba(20, 31, 44, 0.98);
+  background: rgba(20, 31, 44, 0.96);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.asset-tree-row.sticky-overlay-row {
-  background: rgba(20, 31, 44, 0.98);
-  border-bottom-color: rgba(255, 255, 255, 0.04);
 }
 
 .asset-thumb {
@@ -885,31 +890,66 @@ body.sidebar-layout-dragging * {
   margin-bottom: 0;
   width: 100%;
   box-sizing: border-box;
+  height: 30px;
+  padding: 5px 8px;
 }
 
 .asset-toolbar {
-  position: static;
-  width: 100%;
-  box-sizing: border-box;
-  min-width: 0;
-  flex: 0 0 auto;
-  background: transparent;
-  border-bottom: none;
-  padding-bottom: 0;
-  margin-bottom: 0;
-}
-
-.asset-toolbar-actions {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 6px;
-  margin-top: 6px;
+  width: 100%;
+  flex: 0 0 auto;
 }
 
-.asset-toolbar-actions .small-button {
+.asset-scope-filter {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.asset-scope-button {
   min-width: 0;
-  width: 100%;
-  padding: 6px 8px;
+  height: 24px;
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--muted);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.asset-scope-button.active {
+  border-color: rgba(88, 166, 255, 0.6);
+  background: rgba(88, 166, 255, 0.14);
+  color: var(--text);
+}
+
+.asset-scope-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.asset-scope-divider-title {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.asset-scope-divider-count {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--accent);
+}
+
+.asset-grid-single {
+  gap: 0;
 }
 
 .asset-tree-actions {

@@ -40,6 +40,8 @@ priv struct PreviewState {
   mut event_sink : ((@bridge.PreviewEvent) -> Unit)?
   mut initial_scene_aligned : Bool
   mut last_autotile_cell_key : String?
+  mut viewport_width : Double
+  mut viewport_height : Double
 }
 
 ///|
@@ -68,6 +70,8 @@ fn PreviewState::new() -> PreviewState {
     event_sink: None,
     initial_scene_aligned: false,
     last_autotile_cell_key: None,
+    viewport_width: 960.0,
+    viewport_height: 540.0,
   }
 }
 
@@ -75,10 +79,10 @@ fn PreviewState::new() -> PreviewState {
 let preview_state : PreviewState = PreviewState::new()
 
 ///|
-let editor_viewport_width = 960.0
+let default_editor_viewport_width = 960.0
 
 ///|
-let editor_viewport_height = 540.0
+let default_editor_viewport_height = 540.0
 
 ///|
 #cfg(target="js")
@@ -92,6 +96,30 @@ extern "js" fn canvas_client_size() -> Array[Double] =
   #|     Math.max(1, rect.height || canvas.clientHeight || canvas.height || 540),
   #|   ];
   #| }
+
+///|
+#cfg(target="js")
+extern "js" fn sync_canvas_backing_size(width : Double, height : Double) =
+  #| (width, height) => {
+  #|   const canvas = document.getElementById("canvas");
+  #|   if (!canvas) return;
+  #|   const nextWidth = Math.max(1, Math.floor(width));
+  #|   const nextHeight = Math.max(1, Math.floor(height));
+  #|   if (canvas.width !== nextWidth) canvas.width = nextWidth;
+  #|   if (canvas.height !== nextHeight) canvas.height = nextHeight;
+  #| }
+
+///|
+#cfg(not(target="js"))
+fn canvas_client_size() -> Array[Double] {
+  [preview_state.viewport_width, preview_state.viewport_height]
+}
+
+///|
+#cfg(not(target="js"))
+fn sync_canvas_backing_size(_width : Double, _height : Double) -> Unit {
+  ()
+}
 
 ///|
 #cfg(target="js")
@@ -158,48 +186,73 @@ fn preview_debug(message : String) -> Unit {
 }
 
 ///|
-fn normalized_mouse_position() -> @math.Vec2 {
+fn resolved_canvas_client_size() -> @math.Vec2 {
   let size = canvas_client_size()
-  let client_width = if size.length() > 0 && size[0] > 0.0 {
+  let width = if size.length() > 0 && size[0] > 0.0 {
     size[0]
   } else {
-    editor_viewport_width
+    default_editor_viewport_width
   }
-  let client_height = if size.length() > 1 && size[1] > 0.0 {
+  let height = if size.length() > 1 && size[1] > 0.0 {
     size[1]
   } else {
-    editor_viewport_height
+    default_editor_viewport_height
   }
+  @math.Vec2(width, height)
+}
+
+///|
+fn current_editor_viewport_size() -> @math.Vec2 {
+  @math.Vec2(preview_state.viewport_width, preview_state.viewport_height)
+}
+
+///|
+fn refresh_editor_viewport_size() -> Unit {
+  let size = resolved_canvas_client_size()
+  let width = size[X]
+  let height = size[Y]
+  let changed = (width - preview_state.viewport_width).abs() > 0.5 ||
+    (height - preview_state.viewport_height).abs() > 0.5
+  if changed {
+    let zoom = @system.get_zoom()
+    preview_state.viewport_width = width
+    preview_state.viewport_height = height
+    @system.configure_display(width, height, zoom)
+    preview_debug("viewport resized to \{width.to_string()}x\{height.to_string()}")
+  }
+  sync_canvas_backing_size(width, height)
+}
+
+///|
+fn normalized_mouse_position() -> @math.Vec2 {
+  let client_size = resolved_canvas_client_size()
+  let client_width = client_size[X]
+  let client_height = client_size[Y]
+  let viewport = current_editor_viewport_size()
   @math.Vec2(
-    @inputs.mouse.pos[X] * editor_viewport_width / client_width,
-    @inputs.mouse.pos[Y] * editor_viewport_height / client_height,
+    @inputs.mouse.pos[X] * viewport[X] / client_width,
+    @inputs.mouse.pos[Y] * viewport[Y] / client_height,
   )
 }
 
 ///|
 fn inside_editor_viewport(point : @math.Vec2) -> Bool {
+  let viewport = current_editor_viewport_size()
   point[X] >= 0.0 &&
-  point[X] <= editor_viewport_width &&
+  point[X] <= viewport[X] &&
   point[Y] >= 0.0 &&
-  point[Y] <= editor_viewport_height
+  point[Y] <= viewport[Y]
 }
 
 ///|
 fn mouse_to_viewport_delta(delta : @math.Vec2) -> @math.Vec2 {
-  let size = canvas_client_size()
-  let client_width = if size.length() > 0 && size[0] > 0.0 {
-    size[0]
-  } else {
-    editor_viewport_width
-  }
-  let client_height = if size.length() > 1 && size[1] > 0.0 {
-    size[1]
-  } else {
-    editor_viewport_height
-  }
+  let client_size = resolved_canvas_client_size()
+  let client_width = client_size[X]
+  let client_height = client_size[Y]
+  let viewport = current_editor_viewport_size()
   @math.Vec2(
-    delta[X] * editor_viewport_width / client_width,
-    delta[Y] * editor_viewport_height / client_height,
+    delta[X] * viewport[X] / client_width,
+    delta[Y] * viewport[Y] / client_height,
   )
 }
 
@@ -1062,8 +1115,9 @@ fn align_camera_to_scene_top_left() -> Bool {
     preview_debug("camera align skipped: missing camera transform")
     return false
   }
-  let view_width = editor_viewport_width * projection.scale
-  let view_height = editor_viewport_height * projection.scale
+  let viewport = current_editor_viewport_size()
+  let view_width = viewport[X] * projection.scale
+  let view_height = viewport[Y] * projection.scale
   @transform.transforms().set(
     camera_entity,
     transform.with_translation(
@@ -1089,8 +1143,9 @@ fn align_camera_to_origin_top_left() -> Bool {
     preview_debug("origin align skipped: missing camera transform")
     return false
   }
-  let view_width = editor_viewport_width * projection.scale
-  let view_height = editor_viewport_height * projection.scale
+  let viewport = current_editor_viewport_size()
+  let view_width = viewport[X] * projection.scale
+  let view_height = viewport[Y] * projection.scale
   @transform.transforms().set(
     camera_entity,
     transform.with_translation(
@@ -1339,9 +1394,10 @@ pub fn viewport_to_world(
   guard @transform.compute_global_transform(camera_entity) is Some(global) else {
     return None
   }
+  let editor_viewport = current_editor_viewport_size()
   let viewport_point = @math.Vec2(
-    x * editor_viewport_width / viewport_width,
-    y * editor_viewport_height / viewport_height,
+    x * editor_viewport[X] / viewport_width,
+    y * editor_viewport[Y] / viewport_height,
   )
   let world_point = camera_.viewport_to_world_2d(
     global, projection, viewport_point,
@@ -1622,6 +1678,11 @@ fn preview_scene_sync_system(_world : @ecs.World) -> Unit {
   apply_selection_overlay()
   apply_pivot_overlay()
   frame_selection_impl()
+}
+
+///|
+fn preview_viewport_sync_system(_world : @ecs.World) -> Unit {
+  refresh_editor_viewport_size()
 }
 
 ///|
@@ -2082,12 +2143,17 @@ pub fn bootstrap() -> Unit {
     return
   }
   preview_state.bootstrapped = true
+  let initial_viewport = resolved_canvas_client_size()
+  preview_state.viewport_width = initial_viewport[X]
+  preview_state.viewport_height = initial_viewport[Y]
+  sync_canvas_backing_size(initial_viewport[X], initial_viewport[Y])
   @app.App::new()
-  .with_viewport_width(editor_viewport_width)
-  .with_viewport_height(editor_viewport_height)
+  .with_viewport_width(initial_viewport[X])
+  .with_viewport_height(initial_viewport[Y])
   .with_image_smooth(false)
   .add_plugin(@plugins.default_plugin)
   .add_system(@system.Startup, preview_startup_system)
+  .add_system(@system.Update, preview_viewport_sync_system)
   .add_system(@system.Update, preview_scene_sync_system)
   .add_system(@system.Update, preview_camera_control_system)
   .add_system(@system.Update, preview_pick_system)

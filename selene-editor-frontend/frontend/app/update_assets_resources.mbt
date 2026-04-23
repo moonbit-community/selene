@@ -23,6 +23,10 @@ fn update_assets_resources(
             ..model,
             atlas_documents,
             atlas_refs,
+            asset_scope: Atlases,
+            workspace: model.workspace.with_asset_scope(
+              asset_scope_storage_value(Atlases),
+            ),
             selected_resource: Some(resource_selection_atlas(path)),
             asset_tree_expanded: with_asset_tree_expanded_for_selection(
               model.asset_tree_expanded,
@@ -30,11 +34,10 @@ fn update_assets_resources(
             ),
             status: "Created atlas " + atlas.name,
           }
-          let next = with_expanded_section_for_selection(
+          (
+            [rpc_effect(RpcAtlasSave(path, atlas))] + save_workspace_effects(next),
             next,
-            next.selected_resource,
           )
-          ([rpc_effect(RpcAtlasSave(path, atlas))], next)
         }
         None => ([], model)
       }
@@ -54,6 +57,10 @@ fn update_assets_resources(
             ..model,
             animation_clip_documents,
             animation_clip_refs,
+            asset_scope: AnimationClips,
+            workspace: model.workspace.with_asset_scope(
+              asset_scope_storage_value(AnimationClips),
+            ),
             selected_resource: Some(
               resource_selection_animation_clip(clip_path),
             ),
@@ -63,11 +70,11 @@ fn update_assets_resources(
             ),
             status: "Created animation clip " + clip.name,
           }
-          let next = with_expanded_section_for_selection(
+          (
+            [rpc_effect(RpcAnimationClipSave(clip_path, clip))] +
+            save_workspace_effects(next),
             next,
-            next.selected_resource,
           )
-          ([rpc_effect(RpcAnimationClipSave(clip_path, clip))], next)
         }
         None => ([], model)
       }
@@ -87,6 +94,10 @@ fn update_assets_resources(
             ..model,
             animation_graph_documents,
             animation_graph_refs,
+            asset_scope: AnimationGraphs,
+            workspace: model.workspace.with_asset_scope(
+              asset_scope_storage_value(AnimationGraphs),
+            ),
             selected_resource: Some(
               resource_selection_animation_graph(graph_path),
             ),
@@ -96,11 +107,11 @@ fn update_assets_resources(
             ),
             status: "Created animation graph " + graph.name,
           }
-          let next = with_expanded_section_for_selection(
+          (
+            [rpc_effect(RpcAnimationGraphSave(graph_path, graph))] +
+            save_workspace_effects(next),
             next,
-            next.selected_resource,
           )
-          ([rpc_effect(RpcAnimationGraphSave(graph_path, graph))], next)
         }
         None => ([], model)
       }
@@ -121,6 +132,10 @@ fn update_assets_resources(
                 ..model,
                 prefab_documents,
                 prefab_refs,
+                asset_scope: Prefabs,
+                workspace: model.workspace.with_asset_scope(
+                  asset_scope_storage_value(Prefabs),
+                ),
                 selected_resource: Some(resource_selection_prefab(path)),
                 asset_tree_expanded: with_asset_tree_expanded_for_selection(
                   model.asset_tree_expanded,
@@ -128,11 +143,11 @@ fn update_assets_resources(
                 ),
                 status: "Saved prefab " + prefab.name,
               }
-              let next = with_expanded_section_for_selection(
+              (
+                [rpc_effect(RpcPrefabSave(path, prefab))] +
+                save_workspace_effects(next),
                 next,
-                next.selected_resource,
               )
-              ([rpc_effect(RpcPrefabSave(path, prefab))], next)
             }
             None => ([], model)
           }

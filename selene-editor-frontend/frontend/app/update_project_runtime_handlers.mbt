@@ -42,9 +42,19 @@ fn handle_project_loaded(
       let move_snap_step = nearest_move_snap_step(
         loaded_workspace.move_snap_step_or_default(),
       )
+      let (sidebar_scene_ratio, sidebar_assets_ratio) = normalized_sidebar_layout(
+        loaded_workspace.sidebar_scene_ratio_or_default(),
+        loaded_workspace.sidebar_assets_ratio_or_default(),
+      )
+      let asset_scope = asset_scope_from_storage_value(
+        loaded_workspace.asset_scope_or_default(),
+      )
       let workspace = loaded_workspace
         .with_move_snap_enabled(move_snap_enabled)
         .with_move_snap_step(move_snap_step)
+        .with_sidebar_scene_ratio(sidebar_scene_ratio)
+        .with_sidebar_assets_ratio(sidebar_assets_ratio)
+        .with_asset_scope(asset_scope_storage_value(asset_scope))
       let scene_path = preferred_scene_path(
         response.manifest,
         scene_refs,
@@ -87,6 +97,9 @@ fn handle_project_loaded(
         status,
         move_snap_enabled,
         move_snap_step,
+        sidebar_scene_ratio,
+        sidebar_assets_ratio,
+        asset_scope,
         selected_entity_id: None,
         selected_entity_ids: [],
       }

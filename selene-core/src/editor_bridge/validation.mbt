@@ -1259,5 +1259,19 @@ pub fn validate_workspace_document(
       }
     _ => ()
   }
+  if workspace.asset_scope is Some(scope) {
+    let normalized = scope.trim().to_string().to_lower()
+    if normalized != "all" &&
+      normalized != "images" &&
+      normalized != "atlases" &&
+      normalized != "animation_clips" &&
+      normalized != "animation_graphs" &&
+      normalized != "prefabs" {
+      errors.push({
+        path: "asset_scope",
+        message: "Asset scope must be one of: all, images, atlases, animation_clips, animation_graphs, prefabs",
+      })
+    }
+  }
   errors
 }

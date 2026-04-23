@@ -188,12 +188,15 @@ fn subscribe_sidebar_layout_cmd(
   dispatch : @rabbita.Dispatch[@app.Msg],
 ) -> @rabbita.Cmd {
   @cmd.custom_cmd(fn(scheduler : @cmd.Scheduler) {
-    subscribe_sidebar_layout_forever(fn(scene_ratio, assets_ratio) {
-      schedule_cmd(
-        scheduler,
-        dispatch(@app.msg_set_sidebar_layout(scene_ratio, assets_ratio)),
-      )
-    })
+    subscribe_sidebar_layout_forever(
+      fn(scene_ratio, assets_ratio) {
+        schedule_cmd(
+          scheduler,
+          dispatch(@app.msg_set_sidebar_layout(scene_ratio, assets_ratio)),
+        )
+      },
+      fn() { schedule_cmd(scheduler, dispatch(@app.msg_commit_sidebar_layout())) },
+    )
   })
 }
 

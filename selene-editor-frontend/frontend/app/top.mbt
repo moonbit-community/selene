@@ -8,6 +8,46 @@ pub enum ResourceSelection {
 } derive(Eq)
 
 ///|
+pub enum AssetScope {
+  All
+  Images
+  Atlases
+  AnimationClips
+  AnimationGraphs
+  Prefabs
+} derive(Eq)
+
+///|
+pub fn asset_scope_all() -> AssetScope {
+  All
+}
+
+///|
+pub fn asset_scope_images() -> AssetScope {
+  Images
+}
+
+///|
+pub fn asset_scope_atlases() -> AssetScope {
+  Atlases
+}
+
+///|
+pub fn asset_scope_animation_clips() -> AssetScope {
+  AnimationClips
+}
+
+///|
+pub fn asset_scope_animation_graphs() -> AssetScope {
+  AnimationGraphs
+}
+
+///|
+pub fn asset_scope_prefabs() -> AssetScope {
+  Prefabs
+}
+
+///|
 pub fn resource_selection_image(path : String) -> ResourceSelection {
   Image(path)
 }
@@ -135,12 +175,8 @@ pub struct Model {
   animation_migration_failed : Int
   animation_migration_prompt_dismissed : Bool
   hover_hint : String?
+  asset_scope : AssetScope
   asset_tree_expanded : Map[String, Bool]
-  images_section_expanded : Bool
-  atlases_section_expanded : Bool
-  animation_clips_section_expanded : Bool
-  animation_graphs_section_expanded : Bool
-  prefabs_section_expanded : Bool
   recent_projects : Array[String]
   logs : Array[String]
   status : String
@@ -195,11 +231,7 @@ pub struct ViewState {
   animation_migration_total : Int
   animation_migration_completed : Int
   hover_hint : String?
-  images_section_expanded : Bool
-  atlases_section_expanded : Bool
-  animation_clips_section_expanded : Bool
-  animation_graphs_section_expanded : Bool
-  prefabs_section_expanded : Bool
+  asset_scope : AssetScope
   status : String
   active_tool : @shared.PreviewTool
   move_snap_enabled : Bool
@@ -248,11 +280,7 @@ pub fn view_state(model : Model) -> ViewState {
     animation_migration_total: model.animation_migration_total,
     animation_migration_completed: model.animation_migration_completed,
     hover_hint: model.hover_hint,
-    images_section_expanded: model.images_section_expanded,
-    atlases_section_expanded: model.atlases_section_expanded,
-    animation_clips_section_expanded: model.animation_clips_section_expanded,
-    animation_graphs_section_expanded: model.animation_graphs_section_expanded,
-    prefabs_section_expanded: model.prefabs_section_expanded,
+    asset_scope: model.asset_scope,
     status: model.status,
     active_tool: model.active_tool,
     move_snap_enabled: model.move_snap_enabled,
@@ -456,14 +484,11 @@ pub enum Msg {
   ToggleAssetTreeFolder(String)
   ExpandAllAssetFolders
   CollapseAllAssetFolders
-  ToggleImagesSection
-  ToggleAtlasesSection
-  ToggleAnimationClipsSection
-  ToggleAnimationGraphsSection
-  TogglePrefabsSection
+  SetAssetScope(AssetScope)
   ToggleMoveSnap
   AdjustMoveSnapStep(Int)
   SetSidebarLayout(Double, Double)
+  CommitSidebarLayout
   CommitSceneEditTransaction
   UndoScene
   RedoScene
@@ -613,12 +638,8 @@ pub fn new_model() -> Model {
     animation_migration_failed: 0,
     animation_migration_prompt_dismissed: false,
     hover_hint: None,
+    asset_scope: Images,
     asset_tree_expanded: {},
-    images_section_expanded: true,
-    atlases_section_expanded: true,
-    animation_clips_section_expanded: true,
-    animation_graphs_section_expanded: true,
-    prefabs_section_expanded: true,
     status: "Choose a project folder to begin",
     logs: [],
     active_tool: @shared.preview_tool_select(),

@@ -203,7 +203,8 @@ fn asset_tree_section_title(section_key : String) -> String {
   match section_key {
     "images" => "IMAGES"
     "atlases" => "ATLASES"
-    "animations" => "ANIMATIONS"
+    "animation-clips" => "ANIMATION CLIPS"
+    "animation-graphs" => "ANIMATION GRAPHS"
     "prefabs" => "PREFABS"
     _ => section_key
   }
@@ -459,32 +460,28 @@ fn build_asset_tree_rows(
 }
 
 ///|
-fn asset_section(
+fn asset_scope_button(
   dispatch : @rabbita.Dispatch[@app.Msg],
-  title : String,
-  count : Int,
-  expanded : Bool,
-  toggle_msg : @app.Msg,
-  items : Array[@rabbita.Html],
+  current_scope : @app.AssetScope,
+  scope : @app.AssetScope,
+  label : String,
 ) -> @rabbita.Html {
-  @html.div(class="asset-section", [
-    @html.button(class="asset-section-toggle", on_click=dispatch(toggle_msg), [
-      @html.span(
-        class="asset-section-caret",
-        if expanded {
-          "▾"
-        } else {
-          "▸"
-        },
-      ),
-      @html.span(class="asset-section-title", title),
-      @html.span(class="asset-section-count", count.to_string()),
-    ]),
-    if expanded && !items.is_empty() {
-      @html.div(class="asset-list", items)
+  @html.button(
+    class=if current_scope == scope {
+      "asset-scope-button active"
     } else {
-      @html.nothing
+      "asset-scope-button"
     },
+    on_click=dispatch(@app.msg_set_asset_scope(scope)),
+    label,
+  )
+}
+
+///|
+fn asset_scope_divider(title : String, count : Int) -> @rabbita.Html {
+  @html.div(class="asset-scope-divider", [
+    @html.span(class="asset-scope-divider-title", title),
+    @html.span(class="asset-scope-divider-count", count.to_string()),
   ])
 }
 
@@ -495,7 +492,6 @@ fn asset_panel_view(
 ) -> @rabbita.Html {
   let has_asset_filter = model.asset_query_normalized() != ""
   let force_expand_tree = model.asset_query_normalized() != ""
-  let force_expand_sections = force_expand_tree
   let image_paths : Array[String] = []
   let image_badges : Map[String, String] = {}
   for asset in model.image_assets() {
@@ -615,18 +611,12 @@ fn asset_panel_view(
     fn(_path) { "prefab" },
     fn(_path) { None },
   )
-  let selected_is_image = match model.selected_resource {
-    Some(@app.Image(_)) => true
-    _ => false
-  }
-  let selected_is_atlas = match model.selected_resource {
-    Some(@app.Atlas(_)) => true
-    _ => false
-  }
-  let selected_is_clip = match model.selected_resource {
-    Some(@app.AnimationClip(_)) => true
-    _ => false
-  }
+  let scope_images = @app.asset_scope_images()
+  let scope_atlases = @app.asset_scope_atlases()
+  let scope_animation_clips = @app.asset_scope_animation_clips()
+  let scope_animation_graphs = @app.asset_scope_animation_graphs()
+  let scope_prefabs = @app.asset_scope_prefabs()
+  let scope_all = @app.asset_scope_all()
   let toolbar = @html.div(class="asset-toolbar", [
     @html.input(
       class="field-input asset-search-input",
@@ -635,137 +625,76 @@ fn asset_panel_view(
       on_input=fn(value) { dispatch(@app.msg_set_asset_query(value)) },
       @html.nothing,
     ),
-    @html.div(class="asset-toolbar-actions", [
-      @html.button(
-        class=if selected_is_image {
-          "small-button"
-        } else {
-          "small-button disabled"
-        },
-        on_click=if selected_is_image {
-          dispatch(@app.msg_create_atlas_from_selected_image())
-        } else {
-          @cmd.none
-        },
-        attrs=hint_attrs(dispatch, "Create atlas from selected image"),
-        "Atlas",
+    @html.div(class="asset-scope-filter", [
+      asset_scope_button(dispatch, model.asset_scope, scope_images, "Images"),
+      asset_scope_button(dispatch, model.asset_scope, scope_atlases, "Atlases"),
+      asset_scope_button(
+        dispatch,
+        model.asset_scope,
+        scope_animation_clips,
+        "Clips",
       ),
-      @html.button(
-        class=if selected_is_atlas {
-          "small-button"
-        } else {
-          "small-button disabled"
-        },
-        on_click=if selected_is_atlas {
-          dispatch(@app.msg_create_animation_from_selected_atlas())
-        } else {
-          @cmd.none
-        },
-        attrs=hint_attrs(dispatch, "Create animation clip from selected atlas"),
-        "Clip",
+      asset_scope_button(
+        dispatch,
+        model.asset_scope,
+        scope_animation_graphs,
+        "Graphs",
       ),
-      @html.button(
-        class=if selected_is_clip {
-          "small-button"
-        } else {
-          "small-button disabled"
-        },
-        on_click=if selected_is_clip {
-          dispatch(@app.msg_create_animation_graph_from_selected_clip())
-        } else {
-          @cmd.none
-        },
-        attrs=hint_attrs(dispatch, "Create animation graph from selected clip"),
-        "Graph",
-      ),
+      asset_scope_button(dispatch, model.asset_scope, scope_prefabs, "Prefabs"),
+      asset_scope_button(dispatch, model.asset_scope, scope_all, "All"),
     ]),
   ])
   let content : Array[@rabbita.Html] = []
-  if !image_rows.is_empty() {
-    content.push(
-      asset_section(
-        dispatch,
-        "Images",
-        image_paths.length(),
-        if force_expand_sections {
-          true
-        } else {
-          model.images_section_expanded
-        },
-        @app.msg_toggle_images_section(),
-        image_rows,
-      ),
-    )
+  if model.asset_scope == scope_images || model.asset_scope == scope_all {
+    if !image_rows.is_empty() {
+      if model.asset_scope == scope_all {
+        content.push(asset_scope_divider("Images", image_paths.length()))
+      }
+      content.push_iter(image_rows.iter())
+    }
   }
-  if !atlas_rows.is_empty() {
-    content.push(
-      asset_section(
-        dispatch,
-        "Atlases",
-        atlas_paths.length(),
-        if force_expand_sections {
-          true
-        } else {
-          model.atlases_section_expanded
-        },
-        @app.msg_toggle_atlases_section(),
-        atlas_rows,
-      ),
-    )
+  if model.asset_scope == scope_atlases || model.asset_scope == scope_all {
+    if !atlas_rows.is_empty() {
+      if model.asset_scope == scope_all {
+        content.push(asset_scope_divider("Atlases", atlas_paths.length()))
+      }
+      content.push_iter(atlas_rows.iter())
+    }
   }
-  if !animation_clip_rows.is_empty() {
-    content.push(
-      asset_section(
-        dispatch,
-        "Animation Clips",
-        animation_clip_paths.length(),
-        if force_expand_sections {
-          true
-        } else {
-          model.animation_clips_section_expanded
-        },
-        @app.msg_toggle_animation_clips_section(),
-        animation_clip_rows,
-      ),
-    )
+  if model.asset_scope == scope_animation_clips ||
+    model.asset_scope == scope_all {
+    if !animation_clip_rows.is_empty() {
+      if model.asset_scope == scope_all {
+        content.push(
+          asset_scope_divider("Animation Clips", animation_clip_paths.length()),
+        )
+      }
+      content.push_iter(animation_clip_rows.iter())
+    }
   }
-  if !animation_graph_rows.is_empty() {
-    content.push(
-      asset_section(
-        dispatch,
-        "Animation Graphs",
-        animation_graph_paths.length(),
-        if force_expand_sections {
-          true
-        } else {
-          model.animation_graphs_section_expanded
-        },
-        @app.msg_toggle_animation_graphs_section(),
-        animation_graph_rows,
-      ),
-    )
+  if model.asset_scope == scope_animation_graphs ||
+    model.asset_scope == scope_all {
+    if !animation_graph_rows.is_empty() {
+      if model.asset_scope == scope_all {
+        content.push(
+          asset_scope_divider(
+            "Animation Graphs",
+            animation_graph_paths.length(),
+          ),
+        )
+      }
+      content.push_iter(animation_graph_rows.iter())
+    }
   }
-  if !prefab_rows.is_empty() {
-    content.push(
-      asset_section(
-        dispatch,
-        "Prefabs",
-        prefab_paths.length(),
-        if force_expand_sections {
-          true
-        } else {
-          model.prefabs_section_expanded
-        },
-        @app.msg_toggle_prefabs_section(),
-        prefab_rows,
-      ),
-    )
+  if model.asset_scope == scope_prefabs || model.asset_scope == scope_all {
+    if !prefab_rows.is_empty() {
+      if model.asset_scope == scope_all {
+        content.push(asset_scope_divider("Prefabs", prefab_paths.length()))
+      }
+      content.push_iter(prefab_rows.iter())
+    }
   }
-  if image_rows.is_empty() &&
-    atlas_rows.is_empty() &&
-    animation_clip_rows.is_empty() &&
-    animation_graph_rows.is_empty() &&
-    prefab_rows.is_empty() {
+  if content.is_empty() {
     content.push(
       @html.div(
         class="empty",
@@ -789,7 +718,7 @@ fn asset_panel_view(
     toolbar,
     @html.div(class="asset-tree-scroll", [
       @html.div(class="asset-tree-sticky-overlay empty", @html.nothing),
-      @html.div(class="asset-grid", content),
+      @html.div(class="asset-grid asset-grid-single", content),
     ]),
   ])
 }

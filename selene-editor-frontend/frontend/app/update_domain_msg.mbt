@@ -37,18 +37,13 @@ fn to_domain_msg(msg : Msg) -> DomainMsg {
       SelectionHistoryTools(ToggleAssetTreeFolder(key))
     ExpandAllAssetFolders => SelectionHistoryTools(ExpandAllAssetFolders)
     CollapseAllAssetFolders => SelectionHistoryTools(CollapseAllAssetFolders)
-    ToggleImagesSection => SelectionHistoryTools(ToggleImagesSection)
-    ToggleAtlasesSection => SelectionHistoryTools(ToggleAtlasesSection)
-    ToggleAnimationClipsSection =>
-      SelectionHistoryTools(ToggleAnimationClipsSection)
-    ToggleAnimationGraphsSection =>
-      SelectionHistoryTools(ToggleAnimationGraphsSection)
-    TogglePrefabsSection => SelectionHistoryTools(TogglePrefabsSection)
+    SetAssetScope(scope) => SelectionHistoryTools(SetAssetScope(scope))
     ToggleMoveSnap => SelectionHistoryTools(ToggleMoveSnap)
     AdjustMoveSnapStep(delta) =>
       SelectionHistoryTools(AdjustMoveSnapStep(delta))
     SetSidebarLayout(scene_ratio, assets_ratio) =>
       SelectionHistoryTools(SetSidebarLayout(scene_ratio, assets_ratio))
+    CommitSidebarLayout => SelectionHistoryTools(CommitSidebarLayout)
     CommitSceneEditTransaction =>
       SelectionHistoryTools(CommitSceneEditTransaction)
     UndoScene => SelectionHistoryTools(UndoScene)

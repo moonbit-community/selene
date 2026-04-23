@@ -7,12 +7,17 @@
 ### Changed
 - Changed the English and Chinese tutorials to match the current scene-document workflow, camera follow pattern, module imports, and web build output paths.
 - Changed editor frontend RPC effects to use typed `RpcBinding` dispatch instead of parallel `RpcTarget` + request mapping, and split editor-service RPC handling into project/scene/assets/animation domain handlers.
+- Changed editor Assets interaction model to a single-list scope filter (`Images/Atlases/Clips/Graphs/Prefabs/All`) with compact top controls and a non-blocking sticky breadcrumb bar.
+- Changed editor resource creation UX to remove create entrypoints from the left Assets panel and move critical resource actions (save/insert/create-next) to the top of the right-side Resource Inspector.
+- Changed editor workspace persistence/state flow to include `asset_scope`, restore sidebar ratios + scope on project load, and commit sidebar layout only on drag-end instead of every pointer move.
+- Changed preview runtime viewport semantics from fixed-size (`960x540`) assumptions to dynamic canvas-size synchronization with full-bleed viewport rendering.
 
 ### Fixed
 - Fixed editor save/startup-scene RPC bindings so non-scene document writes and startup-scene updates no longer mis-handle `SavedOk` / `StartupSceneUpdated` responses.
 - Fixed `selene-editor-specs` harness RPC effect simulation to follow the new `RpcBinding` model, restoring compatibility after the frontend RPC binding refactor.
 - Fixed editor startup state handling for `ProjectCurrent` empty responses so missing workspace payload no longer triggers a false "Project open failed" status.
 - Fixed editor-service project open flow to accept legacy non-envelope workspace documents and rewrite them to canonical envelope format on successful load.
+- Fixed preview viewport picking/drag coordinate mapping and camera alignment to stay consistent after canvas resize and initial project open.
 
 ### Removed
 

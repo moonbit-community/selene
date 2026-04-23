@@ -94,12 +94,9 @@ extern "js" fn sync_asset_tree_sticky_overlay() =
   #|   if (!scroll) return;
   #|   const overlay = scroll.querySelector(".asset-tree-sticky-overlay");
   #|   if (!overlay) return;
-  #|
-  #|   // Ported from VSCode sticky-scroll model:
-  #|   // derive sticky ancestors from the first visible row in the viewport.
   #|   const render = () => {
   #|     const rows = Array.from(
-  #|       scroll.querySelectorAll(".asset-grid .asset-tree-row")
+  #|       scroll.querySelectorAll(".asset-grid .asset-tree-row[data-sticky-kind]")
   #|     );
   #|     if (!rows.length) {
   #|       overlay.replaceChildren();
@@ -116,65 +113,43 @@ extern "js" fn sync_asset_tree_sticky_overlay() =
   #|       overlay.classList.add("empty");
   #|       return;
   #|     }
-  #|     const chainRaw = firstVisible.dataset.stickyChain || "";
   #|     const section = firstVisible.dataset.stickySection || "";
+  #|     const chainRaw = firstVisible.dataset.stickyChain || "";
   #|     const segments = chainRaw ? chainRaw.split("/") : [];
-  #|     if (!segments.length) {
+  #|     const crumbs = [];
+  #|     if (section) crumbs.push(section);
+  #|     if (segments.length) {
+  #|       const hiddenSegments = [];
+  #|       const prefix = [];
+  #|       for (const segment of segments) {
+  #|         prefix.push(segment);
+  #|         const chain = prefix.join("/");
+  #|         const folderRow = rows.find((row) => {
+  #|           return (
+  #|             row.dataset.stickyKind === "folder" &&
+  #|             (row.dataset.stickySection || "") === section &&
+  #|             (row.dataset.stickyChain || "") === chain
+  #|           );
+  #|         });
+  #|         if (!folderRow) continue;
+  #|         const folderRect = folderRow.getBoundingClientRect();
+  #|         if (folderRect.top < scrollRect.top + 1) {
+  #|           hiddenSegments.push(segment);
+  #|         }
+  #|       }
+  #|       if (hiddenSegments.length) {
+  #|         crumbs.push(hiddenSegments.join(" / "));
+  #|       }
+  #|     }
+  #|     if (!crumbs.length) {
   #|       overlay.replaceChildren();
   #|       overlay.classList.add("empty");
   #|       return;
   #|     }
-  #|
-  #|     // Keep only ancestors that are actually scrolled above viewport.
-  #|     const hiddenSegments = [];
-  #|     const prefix = [];
-  #|     for (const segment of segments) {
-  #|       prefix.push(segment);
-  #|       const chain = prefix.join("/");
-  #|       const folderRow = rows.find((row) => {
-  #|         return (
-  #|           row.dataset.stickyKind === "folder" &&
-  #|           (row.dataset.stickySection || "") === section &&
-  #|           (row.dataset.stickyChain || "") === chain
-  #|         );
-  #|       });
-  #|       if (!folderRow) {
-  #|         continue;
-  #|       }
-  #|       const folderRect = folderRow.getBoundingClientRect();
-  #|       if (folderRect.top < scrollRect.top + 1) {
-  #|         hiddenSegments.push(segment);
-  #|       }
-  #|     }
-  #|     if (!hiddenSegments.length) {
-  #|       overlay.replaceChildren();
-  #|       overlay.classList.add("empty");
-  #|       return;
-  #|     }
-  #|     const fragment = document.createDocumentFragment();
-  #|     for (let depth = 0; depth < hiddenSegments.length; depth++) {
-  #|       const row = document.createElement("div");
-  #|       row.className = "asset-tree-row folder sticky-overlay-row";
-  #|
-  #|       for (let i = 0; i < depth; i++) {
-  #|         const indent = document.createElement("span");
-  #|         indent.className = "asset-tree-indent";
-  #|         row.appendChild(indent);
-  #|       }
-  #|
-  #|       const node = document.createElement("span");
-  #|       node.className = "asset-tree-node";
-  #|       node.textContent = "▾";
-  #|       row.appendChild(node);
-  #|
-  #|       const label = document.createElement("span");
-  #|       label.className = "asset-tree-label folder";
-  #|       label.textContent = hiddenSegments[depth];
-  #|       row.appendChild(label);
-  #|
-  #|       fragment.appendChild(row);
-  #|     }
-  #|     overlay.replaceChildren(fragment);
+  #|     const bar = document.createElement("div");
+  #|     bar.className = "asset-tree-sticky-bar";
+  #|     bar.textContent = crumbs.join(" > ");
+  #|     overlay.replaceChildren(bar);
   #|     overlay.classList.remove("empty");
   #|   };
   #|

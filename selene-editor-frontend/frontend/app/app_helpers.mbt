@@ -287,6 +287,59 @@ pub fn tool_label(tool : @shared.PreviewTool) -> String {
 }
 
 ///|
+pub fn asset_scope_storage_value(scope : AssetScope) -> String {
+  match scope {
+    All => "all"
+    Images => "images"
+    Atlases => "atlases"
+    AnimationClips => "animation_clips"
+    AnimationGraphs => "animation_graphs"
+    Prefabs => "prefabs"
+  }
+}
+
+///|
+pub fn asset_scope_from_storage_value(value : String) -> AssetScope {
+  match value.trim().to_string().to_lower() {
+    "all" => All
+    "images" => Images
+    "atlases" => Atlases
+    "animation_clips" => AnimationClips
+    "animation_graphs" => AnimationGraphs
+    "prefabs" => Prefabs
+    _ => Images
+  }
+}
+
+///|
+pub fn asset_scope_label(scope : AssetScope) -> String {
+  match scope {
+    All => "All"
+    Images => "Images"
+    Atlases => "Atlases"
+    AnimationClips => "Animation Clips"
+    AnimationGraphs => "Animation Graphs"
+    Prefabs => "Prefabs"
+  }
+}
+
+///|
+pub fn asset_scope_includes_resource(
+  scope : AssetScope,
+  resource : ResourceSelection,
+) -> Bool {
+  match (scope, resource) {
+    (All, _) => true
+    (Images, Image(_)) => true
+    (Atlases, Atlas(_)) => true
+    (AnimationClips, AnimationClip(_)) => true
+    (AnimationGraphs, AnimationGraph(_)) => true
+    (Prefabs, Prefab(_)) => true
+    _ => false
+  }
+}
+
+///|
 pub fn entity_label(entity : @editor_bridge.EntityDocument) -> String {
   entity.name + " (" + entity.id + ")"
 }

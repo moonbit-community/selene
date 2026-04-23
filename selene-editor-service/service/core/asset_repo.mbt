@@ -273,6 +273,9 @@ fn decode_legacy_workspace_document(
   ) {
     workspace = workspace.with_sidebar_assets_ratio(ratio)
   }
+  if legacy_workspace_optional_string_field(object, "asset_scope") is Some(scope) {
+    workspace = workspace.with_asset_scope(scope)
+  }
   workspace
 }
 

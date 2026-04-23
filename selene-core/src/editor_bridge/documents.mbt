@@ -71,6 +71,7 @@ pub struct WorkspaceDocument {
   move_snap_step : Double?
   sidebar_scene_ratio : Double?
   sidebar_assets_ratio : Double?
+  asset_scope : String?
 } derive(Debug, Eq, ToJson, FromJson)
 
 ///|
@@ -688,6 +689,7 @@ pub fn WorkspaceDocument::default() -> WorkspaceDocument {
     move_snap_step: None,
     sidebar_scene_ratio: None,
     sidebar_assets_ratio: None,
+    asset_scope: None,
   }
 }
 
@@ -773,6 +775,24 @@ pub fn WorkspaceDocument::sidebar_assets_ratio_or_default(
   match self.sidebar_assets_ratio {
     Some(ratio) if ratio > 0.0 && ratio < 1.0 => ratio
     _ => 0.47
+  }
+}
+
+///|
+pub fn WorkspaceDocument::with_asset_scope(
+  self : WorkspaceDocument,
+  scope : String,
+) -> WorkspaceDocument {
+  { ..self, asset_scope: Some(scope) }
+}
+
+///|
+pub fn WorkspaceDocument::asset_scope_or_default(
+  self : WorkspaceDocument,
+) -> String {
+  match self.asset_scope {
+    Some(scope) if scope.trim() != "" => scope.trim().to_string()
+    _ => "images"
   }
 }
 

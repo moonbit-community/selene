@@ -57,87 +57,81 @@ fn resource_exists(model : Model, selection : ResourceSelection) -> Bool {
 
 ///|
 fn visible_resources_in_order(model : Model) -> Array[ResourceSelection] {
+  let all_resources : Array[ResourceSelection] = []
+  let image_paths : Array[String] = []
+  for asset in model.image_assets() {
+    if model.asset_matches_query(asset_basename(asset.path), asset.path) {
+      image_paths.push(asset.path)
+    }
+  }
+  for path in sorted_strings(image_paths) {
+    all_resources.push(Image(path))
+  }
+
+  let atlas_paths : Array[String] = []
+  for atlas_ref in model.atlas_refs {
+    let atlas_name = match model.atlas_documents.get(atlas_ref.path) {
+      Some(atlas) => atlas.name
+      None => asset_basename(atlas_ref.path)
+    }
+    if model.asset_matches_query(atlas_name, atlas_ref.path) {
+      atlas_paths.push(atlas_ref.path)
+    }
+  }
+  for path in sorted_strings(atlas_paths) {
+    all_resources.push(Atlas(path))
+  }
+
+  let animation_paths : Array[String] = []
+  for animation_ref in model.animation_clip_refs {
+    let animation_name = match
+      model.animation_clip_documents.get(animation_ref.path) {
+      Some(animation) => animation.name
+      None => asset_basename(animation_ref.path)
+    }
+    if model.asset_matches_query(animation_name, animation_ref.path) {
+      animation_paths.push(animation_ref.path)
+    }
+  }
+  for path in sorted_strings(animation_paths) {
+    all_resources.push(AnimationClip(path))
+  }
+
+  let graph_paths : Array[String] = []
+  for animation_ref in model.animation_graph_refs {
+    let animation_name = match
+      model.animation_graph_documents.get(animation_ref.path) {
+      Some(animation) => animation.name
+      None => asset_basename(animation_ref.path)
+    }
+    if model.asset_matches_query(animation_name, animation_ref.path) {
+      graph_paths.push(animation_ref.path)
+    }
+  }
+  for path in sorted_strings(graph_paths) {
+    all_resources.push(AnimationGraph(path))
+  }
+
+  let prefab_paths : Array[String] = []
+  for prefab_ref in model.prefab_refs {
+    let prefab_name = match model.prefab_documents.get(prefab_ref.path) {
+      Some(prefab) => prefab.name
+      None => asset_basename(prefab_ref.path)
+    }
+    if model.asset_matches_query(prefab_name, prefab_ref.path) {
+      prefab_paths.push(prefab_ref.path)
+    }
+  }
+  for path in sorted_strings(prefab_paths) {
+    all_resources.push(Prefab(path))
+  }
+
   let resources : Array[ResourceSelection] = []
-  let force_expand_sections = model.asset_query_normalized() != ""
-
-  if model.images_section_expanded || force_expand_sections {
-    let image_paths : Array[String] = []
-    for asset in model.image_assets() {
-      if model.asset_matches_query(asset_basename(asset.path), asset.path) {
-        image_paths.push(asset.path)
-      }
-    }
-    for path in sorted_strings(image_paths) {
-      resources.push(Image(path))
+  for resource in all_resources {
+    if asset_scope_includes_resource(model.asset_scope, resource) {
+      resources.push(resource)
     }
   }
-
-  if model.atlases_section_expanded || force_expand_sections {
-    let atlas_paths : Array[String] = []
-    for atlas_ref in model.atlas_refs {
-      let atlas_name = match model.atlas_documents.get(atlas_ref.path) {
-        Some(atlas) => atlas.name
-        None => asset_basename(atlas_ref.path)
-      }
-      if model.asset_matches_query(atlas_name, atlas_ref.path) {
-        atlas_paths.push(atlas_ref.path)
-      }
-    }
-    for path in sorted_strings(atlas_paths) {
-      resources.push(Atlas(path))
-    }
-  }
-
-  if model.animation_clips_section_expanded || force_expand_sections {
-    let animation_paths : Array[String] = []
-    for animation_ref in model.animation_clip_refs {
-      let animation_name = match
-        model.animation_clip_documents.get(animation_ref.path) {
-        Some(animation) => animation.name
-        None => asset_basename(animation_ref.path)
-      }
-      if model.asset_matches_query(animation_name, animation_ref.path) {
-        animation_paths.push(animation_ref.path)
-      }
-    }
-    for path in sorted_strings(animation_paths) {
-      resources.push(AnimationClip(path))
-    }
-  }
-
-  if model.animation_graphs_section_expanded || force_expand_sections {
-    let animation_paths : Array[String] = []
-    for animation_ref in model.animation_graph_refs {
-      let animation_name = match
-        model.animation_graph_documents.get(animation_ref.path) {
-        Some(animation) => animation.name
-        None => asset_basename(animation_ref.path)
-      }
-      if model.asset_matches_query(animation_name, animation_ref.path) {
-        animation_paths.push(animation_ref.path)
-      }
-    }
-    for path in sorted_strings(animation_paths) {
-      resources.push(AnimationGraph(path))
-    }
-  }
-
-  if model.prefabs_section_expanded || force_expand_sections {
-    let prefab_paths : Array[String] = []
-    for prefab_ref in model.prefab_refs {
-      let prefab_name = match model.prefab_documents.get(prefab_ref.path) {
-        Some(prefab) => prefab.name
-        None => asset_basename(prefab_ref.path)
-      }
-      if model.asset_matches_query(prefab_name, prefab_ref.path) {
-        prefab_paths.push(prefab_ref.path)
-      }
-    }
-    for path in sorted_strings(prefab_paths) {
-      resources.push(Prefab(path))
-    }
-  }
-
   resources
 }
 
@@ -152,23 +146,6 @@ fn resource_index(
     }
   }
   None
-}
-
-///|
-fn with_expanded_section_for_selection(
-  model : Model,
-  selection : ResourceSelection?,
-) -> Model {
-  match selection {
-    Some(Image(_)) => { ..model, images_section_expanded: true }
-    Some(Atlas(_)) => { ..model, atlases_section_expanded: true }
-    Some(AnimationClip(_)) =>
-      { ..model, animation_clips_section_expanded: true }
-    Some(AnimationGraph(_)) =>
-      { ..model, animation_graphs_section_expanded: true }
-    Some(Prefab(_)) => { ..model, prefabs_section_expanded: true }
-    None => model
-  }
 }
 
 ///|

@@ -75,34 +75,38 @@ fn update_selection_history_tools(
         { ..model, asset_tree_expanded, status: "Collapsed all asset folders" },
       )
     }
-    ToggleImagesSection =>
-      ([], { ..model, images_section_expanded: !model.images_section_expanded })
-    ToggleAtlasesSection =>
-      (
-        [],
-        { ..model, atlases_section_expanded: !model.atlases_section_expanded },
-      )
-    ToggleAnimationClipsSection =>
-      (
-        [],
-        {
-          ..model,
-          animation_clips_section_expanded: !model.animation_clips_section_expanded,
-        },
-      )
-    ToggleAnimationGraphsSection =>
-      (
-        [],
-        {
-          ..model,
-          animation_graphs_section_expanded: !model.animation_graphs_section_expanded,
-        },
-      )
-    TogglePrefabsSection =>
-      (
-        [],
-        { ..model, prefabs_section_expanded: !model.prefabs_section_expanded },
-      )
+    SetAssetScope(scope) =>
+      if model.asset_scope == scope {
+        ([], model)
+      } else {
+        let next_scope_model = { ..model, asset_scope: scope }
+        let visible = visible_resources_in_order(next_scope_model)
+        let selected_resource = match model.selected_resource {
+          Some(selection) if resource_index(visible, selection) is Some(_) =>
+            Some(selection)
+          _ => None
+        }
+        let workspace = model.workspace.with_asset_scope(
+          asset_scope_storage_value(scope),
+        )
+        let next = {
+          ..next_scope_model,
+          selected_resource,
+          workspace,
+          asset_tree_expanded: with_asset_tree_expanded_for_selection(
+            model.asset_tree_expanded,
+            selected_resource,
+          ),
+          graph_edge_connect_source_node: None,
+          add_component_panel_open: false,
+          component_search_query: "",
+          open_component_menu_kind: None,
+          autotile_palette_json_draft: "",
+          autotile_palette_json_error: None,
+          status: "Asset scope: " + asset_scope_label(scope),
+        }
+        (save_workspace_effects(next), next)
+      }
     ToggleMoveSnap => {
       let enabled = !model.move_snap_enabled
       let workspace = model.workspace.with_move_snap_enabled(enabled)
@@ -145,6 +149,17 @@ fn update_selection_history_tools(
             sidebar_assets_ratio: next_assets_ratio,
           },
         )
+      }
+    }
+    CommitSidebarLayout => {
+      let workspace = model.workspace
+        .with_sidebar_scene_ratio(model.sidebar_scene_ratio)
+        .with_sidebar_assets_ratio(model.sidebar_assets_ratio)
+      if workspace == model.workspace {
+        ([], model)
+      } else {
+        let next = { ..model, workspace }
+        (save_workspace_effects(next), next)
       }
     }
     CommitSceneEditTransaction => {
@@ -272,24 +287,21 @@ fn update_selection_history_tools(
           "Selected resource: " + resource_selection_name(selection)
         None => "Selection cleared"
       }
-      let next = with_expanded_section_for_selection(
-        {
-          ..with_entity_selection(model, None, []),
-          selected_resource: resource,
-          graph_edge_connect_source_node: None,
-          asset_tree_expanded: with_asset_tree_expanded_for_selection(
-            model.asset_tree_expanded,
-            resource,
-          ),
-          add_component_panel_open: false,
-          component_search_query: "",
-          open_component_menu_kind: None,
-          autotile_palette_json_draft: "",
-          autotile_palette_json_error: None,
-          status,
-        },
-        resource,
-      )
+      let next = {
+        ..with_entity_selection(model, None, []),
+        selected_resource: resource,
+        graph_edge_connect_source_node: None,
+        asset_tree_expanded: with_asset_tree_expanded_for_selection(
+          model.asset_tree_expanded,
+          resource,
+        ),
+        add_component_panel_open: false,
+        component_search_query: "",
+        open_component_menu_kind: None,
+        autotile_palette_json_draft: "",
+        autotile_palette_json_error: None,
+        status,
+      }
       ([], next)
     }
     SelectEntity(id) => {
@@ -361,24 +373,21 @@ fn update_selection_history_tools(
             None => if delta > 0 { 0 } else { resources.length() - 1 }
           }
           let selected_resource = Some(resources[target_index])
-          let next = with_expanded_section_for_selection(
-            {
-              ..with_entity_selection(model, None, []),
-              selected_resource,
-              asset_tree_expanded: with_asset_tree_expanded_for_selection(
-                model.asset_tree_expanded,
-                selected_resource,
-              ),
-              add_component_panel_open: false,
-              component_search_query: "",
-              open_component_menu_kind: None,
-              autotile_palette_json_draft: "",
-              autotile_palette_json_error: None,
-              status: "Selected resource \{target_index + 1}/\{resources.length()}: " +
-              resource_selection_name(resources[target_index]),
-            },
+          let next = {
+            ..with_entity_selection(model, None, []),
             selected_resource,
-          )
+            asset_tree_expanded: with_asset_tree_expanded_for_selection(
+              model.asset_tree_expanded,
+              selected_resource,
+            ),
+            add_component_panel_open: false,
+            component_search_query: "",
+            open_component_menu_kind: None,
+            autotile_palette_json_draft: "",
+            autotile_palette_json_error: None,
+            status: "Selected resource \{target_index + 1}/\{resources.length()}: " +
+            resource_selection_name(resources[target_index]),
+          }
           ([], next)
         }
       }

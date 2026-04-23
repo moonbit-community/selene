@@ -44,28 +44,8 @@ pub fn msg_collapse_all_asset_folders() -> Msg {
 }
 
 ///|
-pub fn msg_toggle_images_section() -> Msg {
-  ToggleImagesSection
-}
-
-///|
-pub fn msg_toggle_atlases_section() -> Msg {
-  ToggleAtlasesSection
-}
-
-///|
-pub fn msg_toggle_animation_clips_section() -> Msg {
-  ToggleAnimationClipsSection
-}
-
-///|
-pub fn msg_toggle_animation_graphs_section() -> Msg {
-  ToggleAnimationGraphsSection
-}
-
-///|
-pub fn msg_toggle_prefabs_section() -> Msg {
-  TogglePrefabsSection
+pub fn msg_set_asset_scope(scope : AssetScope) -> Msg {
+  SetAssetScope(scope)
 }
 
 ///|
@@ -84,6 +64,11 @@ pub fn msg_set_sidebar_layout(
   assets_ratio : Double,
 ) -> Msg {
   SetSidebarLayout(scene_ratio, assets_ratio)
+}
+
+///|
+pub fn msg_commit_sidebar_layout() -> Msg {
+  CommitSidebarLayout
 }
 
 ///|

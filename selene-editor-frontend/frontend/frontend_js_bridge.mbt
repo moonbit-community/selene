@@ -194,8 +194,9 @@ extern "js" fn subscribe_shortcuts_forever(
 #cfg(target="js")
 extern "js" fn subscribe_sidebar_layout_forever(
   on_layout : (Double, Double) -> Unit,
+  on_commit : () -> Unit,
 ) =
-  #| (onLayout) => {
+  #| (onLayout, onCommit) => {
   #|   if (window.__seleneSidebarLayoutBound) return;
   #|   window.__seleneSidebarLayoutBound = true;
   #|
@@ -235,6 +236,7 @@ extern "js" fn subscribe_sidebar_layout_forever(
   #|       const startY = Number(event.clientY || 0);
   #|       const startSceneRatio = readRatio(sidebar, "sceneRatio", 0.18);
   #|       const startAssetsRatio = readRatio(sidebar, "assetsRatio", 0.47);
+  #|       let moved = false;
   #|
   #|       document.body?.classList.add("sidebar-layout-dragging");
   #|       event.preventDefault();
@@ -255,6 +257,7 @@ extern "js" fn subscribe_sidebar_layout_forever(
   #|             startAssetsRatio - minimums.assets
   #|           );
   #|           onLayout(startSceneRatio + nextDelta, startAssetsRatio - nextDelta);
+  #|           moved = true;
   #|           return;
   #|         }
   #|         if (kind === "assets-tree") {
@@ -264,10 +267,14 @@ extern "js" fn subscribe_sidebar_layout_forever(
   #|             1 - startSceneRatio - minimums.tree
   #|           );
   #|           onLayout(startSceneRatio, nextAssets);
+  #|           moved = true;
   #|         }
   #|       };
   #|
-  #|       const onUp = () => cleanup();
+  #|       const onUp = () => {
+  #|         cleanup();
+  #|         if (moved) onCommit();
+  #|       };
   #|       window.addEventListener("pointermove", onMove, { passive: false });
   #|       window.addEventListener("pointerup", onUp, { passive: true });
   #|       window.addEventListener("pointercancel", onUp, { passive: true });

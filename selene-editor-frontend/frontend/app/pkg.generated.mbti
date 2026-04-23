@@ -9,6 +9,26 @@ import {
 }
 
 // Values
+pub fn asset_scope_all() -> AssetScope
+
+pub fn asset_scope_animation_clips() -> AssetScope
+
+pub fn asset_scope_animation_graphs() -> AssetScope
+
+pub fn asset_scope_atlases() -> AssetScope
+
+pub fn asset_scope_from_storage_value(String) -> AssetScope
+
+pub fn asset_scope_images() -> AssetScope
+
+pub fn asset_scope_includes_resource(AssetScope, ResourceSelection) -> Bool
+
+pub fn asset_scope_label(AssetScope) -> String
+
+pub fn asset_scope_prefabs() -> AssetScope
+
+pub fn asset_scope_storage_value(AssetScope) -> String
+
 pub fn[T : @json.FromJson] component_of(@editor_bridge.EntityDocument, String) -> T?
 
 pub fn entity_label(@editor_bridge.EntityDocument) -> String
@@ -68,6 +88,8 @@ pub fn msg_commit_custom_component_json(String) -> Msg
 pub fn msg_commit_scene_edit_transaction() -> Msg
 
 pub fn msg_commit_selected_autotile_palette_json() -> Msg
+
+pub fn msg_commit_sidebar_layout() -> Msg
 
 pub fn msg_complete_selected_animation_graph_edge_connect(String) -> Msg
 
@@ -159,6 +181,8 @@ pub fn msg_service_event(Result[@shared.EditorEvent, String]) -> Msg
 
 pub fn msg_set_asset_query(String) -> Msg
 
+pub fn msg_set_asset_scope(AssetScope) -> Msg
+
 pub fn msg_set_component_search_query(String) -> Msg
 
 pub fn msg_set_current_scene_as_startup() -> Msg
@@ -169,25 +193,15 @@ pub fn msg_set_sidebar_layout(Double, Double) -> Msg
 
 pub fn msg_set_tool(@shared.PreviewTool) -> Msg
 
-pub fn msg_toggle_animation_clips_section() -> Msg
-
-pub fn msg_toggle_animation_graphs_section() -> Msg
-
 pub fn msg_toggle_animation_preview_paused() -> Msg
 
 pub fn msg_toggle_asset_tree_folder(String) -> Msg
-
-pub fn msg_toggle_atlases_section() -> Msg
 
 pub fn msg_toggle_component_collapsed(String) -> Msg
 
 pub fn msg_toggle_component_menu(String?) -> Msg
 
-pub fn msg_toggle_images_section() -> Msg
-
 pub fn msg_toggle_move_snap() -> Msg
-
-pub fn msg_toggle_prefabs_section() -> Msg
 
 pub fn msg_toggle_selected_animation_clip_looping() -> Msg
 
@@ -306,6 +320,15 @@ pub fn view_state(Model) -> ViewState
 // Errors
 
 // Types and methods
+pub enum AssetScope {
+  All
+  Images
+  Atlases
+  AnimationClips
+  AnimationGraphs
+  Prefabs
+} derive(Eq)
+
 pub enum Effect {
   Rpc(binding~ : RpcBinding)
   SubscribeServiceEvents
@@ -354,12 +377,8 @@ pub struct Model {
   animation_migration_failed : Int
   animation_migration_prompt_dismissed : Bool
   hover_hint : String?
+  asset_scope : AssetScope
   asset_tree_expanded : Map[String, Bool]
-  images_section_expanded : Bool
-  atlases_section_expanded : Bool
-  animation_clips_section_expanded : Bool
-  animation_graphs_section_expanded : Bool
-  prefabs_section_expanded : Bool
   recent_projects : Array[String]
   logs : Array[String]
   status : String
@@ -434,14 +453,11 @@ pub enum Msg {
   ToggleAssetTreeFolder(String)
   ExpandAllAssetFolders
   CollapseAllAssetFolders
-  ToggleImagesSection
-  ToggleAtlasesSection
-  ToggleAnimationClipsSection
-  ToggleAnimationGraphsSection
-  TogglePrefabsSection
+  SetAssetScope(AssetScope)
   ToggleMoveSnap
   AdjustMoveSnapStep(Int)
   SetSidebarLayout(Double, Double)
+  CommitSidebarLayout
   CommitSceneEditTransaction
   UndoScene
   RedoScene
@@ -632,11 +648,7 @@ pub struct ViewState {
   animation_migration_total : Int
   animation_migration_completed : Int
   hover_hint : String?
-  images_section_expanded : Bool
-  atlases_section_expanded : Bool
-  animation_clips_section_expanded : Bool
-  animation_graphs_section_expanded : Bool
-  prefabs_section_expanded : Bool
+  asset_scope : AssetScope
   status : String
   active_tool : @shared.PreviewTool
   move_snap_enabled : Bool

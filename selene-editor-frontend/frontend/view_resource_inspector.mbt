@@ -10,6 +10,18 @@ fn selected_asset_view(
           @html.div(class="panel-body", [
             @html.div(class="inspector-block", [
               @html.h3("Image"),
+              @html.div(class="inspector-actions", [
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_insert_selected_resource()),
+                  "Add Sprite To Scene",
+                ),
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_create_atlas_from_selected_image()),
+                  "Create Atlas",
+                ),
+              ]),
               if model.failed_image_assets.get(path).unwrap_or(false) {
                 @html.div(
                   class="resource-preview-empty",
@@ -43,18 +55,6 @@ fn selected_asset_view(
                   },
                 ),
               ]),
-              @html.div(class="inspector-actions", [
-                @html.button(
-                  class="small-button",
-                  on_click=dispatch(@app.msg_insert_selected_resource()),
-                  "Add Sprite To Scene",
-                ),
-                @html.button(
-                  class="small-button",
-                  on_click=dispatch(@app.msg_create_atlas_from_selected_image()),
-                  "Create Atlas",
-                ),
-              ]),
             ]),
           ])
         None => @html.div(class="empty", "No resource selected")
@@ -65,6 +65,25 @@ fn selected_asset_view(
           @html.div(class="panel-body", [
             @html.div(class="inspector-block", [
               @html.h3("Atlas"),
+              @html.div(class="inspector-actions", [
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_save_selected_atlas()),
+                  "Save Atlas",
+                ),
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_insert_selected_resource()),
+                  "Add Atlas Sprite",
+                ),
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(
+                    @app.msg_create_animation_from_selected_atlas(),
+                  ),
+                  "Create Clip",
+                ),
+              ]),
               atlas_preview_canvas(atlas.source_image, atlas.regions),
               @html.div(
                 class="resource-preview-note",
@@ -131,25 +150,6 @@ fn selected_asset_view(
                 class="kv-value",
                 atlas_region_preview_names(atlas.regions),
               ),
-              @html.div(class="inspector-actions", [
-                @html.button(
-                  class="small-button",
-                  on_click=dispatch(@app.msg_save_selected_atlas()),
-                  "Save Atlas",
-                ),
-                @html.button(
-                  class="small-button",
-                  on_click=dispatch(@app.msg_insert_selected_resource()),
-                  "Add Atlas Sprite",
-                ),
-                @html.button(
-                  class="small-button",
-                  on_click=dispatch(
-                    @app.msg_create_animation_from_selected_atlas(),
-                  ),
-                  "Create Clip",
-                ),
-              ]),
             ]),
           ])
         None => @html.div(class="empty", "Atlas is still loading")
@@ -165,6 +165,25 @@ fn selected_asset_view(
               @html.div(class="panel-body", [
                 @html.div(class="inspector-block", [
                   @html.h3("Animation Clip"),
+                  @html.div(class="inspector-actions", [
+                    @html.button(
+                      class="small-button",
+                      on_click=dispatch(@app.msg_save_selected_animation_clip()),
+                      "Save Clip",
+                    ),
+                    @html.button(
+                      class="small-button",
+                      on_click=dispatch(@app.msg_insert_selected_resource()),
+                      "Add Clip Sprite",
+                    ),
+                    @html.button(
+                      class="small-button",
+                      on_click=dispatch(
+                        @app.msg_create_animation_graph_from_selected_clip(),
+                      ),
+                      "Create Graph",
+                    ),
+                  ]),
                   if preview_regions.is_empty() {
                     @html.div(
                       class="resource-preview-empty",
@@ -231,25 +250,6 @@ fn selected_asset_view(
                       @app.msg_update_selected_animation_clip_frames(value),
                     )
                   }),
-                  @html.div(class="inspector-actions", [
-                    @html.button(
-                      class="small-button",
-                      on_click=dispatch(@app.msg_save_selected_animation_clip()),
-                      "Save Clip",
-                    ),
-                    @html.button(
-                      class="small-button",
-                      on_click=dispatch(@app.msg_insert_selected_resource()),
-                      "Add Clip Sprite",
-                    ),
-                    @html.button(
-                      class="small-button",
-                      on_click=dispatch(
-                        @app.msg_create_animation_graph_from_selected_clip(),
-                      ),
-                      "Create Graph",
-                    ),
-                  ]),
                 ]),
               ])
             }
@@ -267,6 +267,18 @@ fn selected_asset_view(
           @html.div(class="panel-body", [
             @html.div(class="inspector-block", [
               @html.h3("Animation Graph"),
+              @html.div(class="inspector-actions", [
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_save_selected_animation_graph()),
+                  "Save Graph",
+                ),
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_insert_selected_resource()),
+                  "Add Animated Sprite",
+                ),
+              ]),
               labeled_input("Name", graph.name, fn(value) {
                 dispatch(
                   @app.msg_update_selected_animation_graph_asset_name(value),
@@ -395,18 +407,6 @@ fn selected_asset_view(
                     "No clip-backed node available for preview",
                   )
               },
-              @html.div(class="inspector-actions", [
-                @html.button(
-                  class="small-button",
-                  on_click=dispatch(@app.msg_save_selected_animation_graph()),
-                  "Save Graph",
-                ),
-                @html.button(
-                  class="small-button",
-                  on_click=dispatch(@app.msg_insert_selected_resource()),
-                  "Add Animated Sprite",
-                ),
-              ]),
             ]),
           ])
         None => @html.div(class="empty", "Animation graph is still loading")
@@ -417,6 +417,18 @@ fn selected_asset_view(
           @html.div(class="panel-body", [
             @html.div(class="inspector-block", [
               @html.h3("Prefab"),
+              @html.div(class="inspector-actions", [
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_save_selected_prefab()),
+                  "Save Prefab",
+                ),
+                @html.button(
+                  class="small-button",
+                  on_click=dispatch(@app.msg_insert_selected_resource()),
+                  "Instantiate Prefab",
+                ),
+              ]),
               labeled_input("Name", prefab.name, fn(value) {
                 dispatch(@app.msg_update_selected_prefab_name(value))
               }),
@@ -437,18 +449,6 @@ fn selected_asset_view(
                 .map(fn(entity) { entity.name + " (" + entity.id + ")" })
                 .join(", "),
               ),
-              @html.div(class="inspector-actions", [
-                @html.button(
-                  class="small-button",
-                  on_click=dispatch(@app.msg_save_selected_prefab()),
-                  "Save Prefab",
-                ),
-                @html.button(
-                  class="small-button",
-                  on_click=dispatch(@app.msg_insert_selected_resource()),
-                  "Instantiate Prefab",
-                ),
-              ]),
             ]),
           ])
         None => @html.div(class="empty", "Prefab is still loading")

@@ -806,12 +806,15 @@ pub struct WorkspaceDocument {
   move_snap_step : Double?
   sidebar_scene_ratio : Double?
   sidebar_assets_ratio : Double?
+  asset_scope : String?
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn WorkspaceDocument::asset_scope_or_default(Self) -> String
 pub fn WorkspaceDocument::default() -> Self
 pub fn WorkspaceDocument::move_snap_enabled_or_default(Self) -> Bool
 pub fn WorkspaceDocument::move_snap_step_or_default(Self) -> Double
 pub fn WorkspaceDocument::sidebar_assets_ratio_or_default(Self) -> Double
 pub fn WorkspaceDocument::sidebar_scene_ratio_or_default(Self) -> Double
+pub fn WorkspaceDocument::with_asset_scope(Self, String) -> Self
 pub fn WorkspaceDocument::with_last_scene(Self, String?) -> Self
 pub fn WorkspaceDocument::with_move_snap_enabled(Self, Bool) -> Self
 pub fn WorkspaceDocument::with_move_snap_step(Self, Double) -> Self

@@ -45,14 +45,11 @@ priv enum SelectionHistoryToolsMsg {
   ToggleAssetTreeFolder(String)
   ExpandAllAssetFolders
   CollapseAllAssetFolders
-  ToggleImagesSection
-  ToggleAtlasesSection
-  ToggleAnimationClipsSection
-  ToggleAnimationGraphsSection
-  TogglePrefabsSection
+  SetAssetScope(AssetScope)
   ToggleMoveSnap
   AdjustMoveSnapStep(Int)
   SetSidebarLayout(Double, Double)
+  CommitSidebarLayout
   CommitSceneEditTransaction
   UndoScene
   RedoScene

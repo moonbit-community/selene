@@ -835,3 +835,24 @@ test "loader fails clearly for missing and invalid dependency documents" {
     _ => fail("expected invalid atlas dependency error")
   }
 }
+
+///|
+test "workspace asset scope defaults and roundtrip encoding" {
+  let default_workspace = WorkspaceDocument::default()
+  inspect(default_workspace.asset_scope_or_default(), content="images")
+
+  let workspace = default_workspace.with_asset_scope("atlases")
+  let encoded = encode_workspace_document(workspace)
+  let decoded = decode_workspace_document(@json.parse(encoded))
+  inspect(decoded.asset_scope_or_default(), content="atlases")
+}
+
+///|
+test "workspace validation rejects unknown asset scope values" {
+  let workspace = WorkspaceDocument::default().with_asset_scope("unknown_scope")
+  let errors = validate_workspace_document(workspace)
+  inspect(
+    has_validation_error(errors, "asset_scope", "Asset scope must be one of"),
+    content="true",
+  )
+}

@@ -71,6 +71,77 @@ test "project current without open project keeps editor in ready-empty state" {
 }
 
 ///|
+test "project load restores workspace sidebar layout and asset scope" {
+  let workspace = @editor_bridge.WorkspaceDocument::default()
+    .with_move_snap_enabled(true)
+    .with_move_snap_step(12.0)
+    .with_sidebar_scene_ratio(0.26)
+    .with_sidebar_assets_ratio(0.44)
+    .with_asset_scope("atlases")
+  let response = @shared.project_state_response(
+    Some("/tmp/demo"),
+    Some(@editor_bridge.ProjectManifest::default("Demo")),
+    [],
+    [],
+    [],
+    [],
+    [],
+    Some(workspace),
+    [],
+  )
+  let (_effects, next) = update(msg_project_loaded(Ok(response)), new_model())
+  inspect((next.sidebar_scene_ratio - 0.26).abs() < 0.0001, content="true")
+  inspect((next.sidebar_assets_ratio - 0.44).abs() < 0.0001, content="true")
+  inspect(next.workspace.asset_scope_or_default(), content="atlases")
+  inspect(
+    match next.asset_scope {
+      Atlases => true
+      _ => false
+    },
+    content="true",
+  )
+}
+
+///|
+test "committing sidebar layout persists workspace once" {
+  let base = { ..new_model(), current_root: Some("/tmp/demo") }
+  let (_drag_effects, dragged) = update(msg_set_sidebar_layout(0.31, 0.43), base)
+  let (effects, next) = update(msg_commit_sidebar_layout(), dragged)
+  inspect(
+    (next.workspace.sidebar_scene_ratio_or_default() - 0.31).abs() < 0.0001,
+    content="true",
+  )
+  inspect(
+    (next.workspace.sidebar_assets_ratio_or_default() - 0.43).abs() < 0.0001,
+    content="true",
+  )
+  match effects {
+    [Rpc(binding=RpcProjectSaveWorkspace(_workspace))] =>
+      inspect(true, content="true")
+    _ => fail("expected one workspace save effect")
+  }
+}
+
+///|
+test "setting asset scope persists workspace and updates model scope" {
+  let base = { ..new_model(), current_root: Some("/tmp/demo") }
+  let (effects, next) = update(msg_set_asset_scope(Atlases), base)
+  inspect(next.workspace.asset_scope_or_default(), content="atlases")
+  inspect(
+    match next.asset_scope {
+      Atlases => true
+      _ => false
+    },
+    content="true",
+  )
+  match effects {
+    [Rpc(binding=RpcProjectSaveWorkspace(_workspace))] =>
+      inspect(true, content="true")
+    _ => fail("expected one workspace save effect")
+  }
+}
+
+///|
 test "save scene uses cas base hash and revision from scene session" {
   let scene = @editor_bridge.SceneDocument::default_main().with_name(
     "Dirty Scene",
