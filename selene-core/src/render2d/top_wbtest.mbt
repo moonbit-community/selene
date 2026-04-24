@@ -14,7 +14,7 @@ fn test_rect_command(
 }
 
 ///|
-test "render2d world sorting honors layer and alpha buckets" {
+test "render2d world sorting honors layer and depth order" {
   begin_frame2d_system(0.0)
 
   push_rect_with_depth_for_entity(
@@ -39,7 +39,7 @@ test "render2d world sorting honors layer and alpha buckets" {
   let order = get_screen_world_commands_with_depth().map(fn(command) {
     command.entity_id.unwrap_or(0U).reinterpret_as_int()
   })
-  inspect(order, content="[3, 2, 1]")
+  inspect(order, content="[3, 1, 2]")
 }
 
 ///|

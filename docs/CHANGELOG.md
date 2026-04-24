@@ -19,6 +19,7 @@
 - Fixed editor startup state handling for `ProjectCurrent` empty responses so missing workspace payload no longer triggers a false "Project open failed" status.
 - Fixed editor-service project open flow to accept legacy non-envelope workspace documents and rewrite them to canonical envelope format on successful load.
 - Fixed preview viewport picking/drag coordinate mapping and camera alignment to stay consistent after canvas resize and initial project open.
+- Fixed `render2d` world-sorting wbtest expectation to match the current layer/group/order/depth semantics (no alpha-bucket sort key coupling).
 
 ### Removed
 
