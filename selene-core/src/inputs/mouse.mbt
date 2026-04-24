@@ -167,13 +167,13 @@ pub let mouse_movement : MouseMovement = { movement: @math.Vec2(0.0, 0.0) }
 pub let mouse_wheel : MouseWheel = { delta: @math.Vec2(0.0, 0.0) }
 
 ///|
-pub let mouse_button_event_bus : @event.Events[MouseButtonEvent] = @event.Events::new()
+pub let mouse_button_event_bus : @event.Events[MouseButtonEvent] = @event.Events()
 
 ///|
-pub let mouse_motion_event_bus : @event.Events[MouseMotionEvent] = @event.Events::new()
+pub let mouse_motion_event_bus : @event.Events[MouseMotionEvent] = @event.Events()
 
 ///|
-pub let mouse_wheel_event_bus : @event.Events[MouseWheelEvent] = @event.Events::new()
+pub let mouse_wheel_event_bus : @event.Events[MouseWheelEvent] = @event.Events()
 
 ///|
 let last_mouse : Mouse = {

@@ -15,14 +15,16 @@ pub fn iter_entities() -> Iter[Entity]
 // Errors
 
 // Types and methods
-type Entity derive(Eq, Hash, @debug.Debug)
+pub struct Entity {
+  // private fields
+} derive(Eq, Hash, @debug.Debug)
+pub fn Entity::Entity() -> Self
 pub fn Entity::destroy(Self) -> Unit
 pub fn Entity::get_children(Self) -> Array[Self]
 pub fn Entity::get_parent(Self) -> Self?
 pub fn Entity::id(Self) -> UInt
 pub fn Entity::is_alive(Self) -> Bool
 pub fn Entity::is_child(Self) -> Bool
-pub fn Entity::new() -> Self
 pub fn Entity::remove_parent(Self) -> Unit
 pub fn Entity::reserve_spawn() -> Self
 pub fn Entity::respawn(Self) -> Unit

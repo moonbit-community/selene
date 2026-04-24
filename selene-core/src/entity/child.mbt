@@ -153,7 +153,7 @@ fn attach_parent_link(child : Entity, parent : Entity) -> Unit {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let parent = @entity.Entity::new()
+/// let parent = @entity.Entity()
 /// @transform.transforms().set(parent, @transform.Transform::from_xyz(100.0, 100.0, 0.0))
 ///
 /// let child = parent.spawn_child()
@@ -184,7 +184,7 @@ pub fn Entity::spawn_child(parent : Entity) -> Entity {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let parent = @entity.Entity::new()
+/// let parent = @entity.Entity()
 /// let child1 = parent.spawn_child()
 /// let child2 = parent.spawn_child()
 ///
@@ -213,9 +213,9 @@ pub fn Entity::get_children(parent : Entity) -> Array[Entity] {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let parent = @entity.Entity::new()
+/// let parent = @entity.Entity()
 /// let child = parent.spawn_child()
-/// let standalone = @entity.Entity::new()
+/// let standalone = @entity.Entity()
 ///
 /// inspect(child.is_child(), content="true")
 /// inspect(standalone.is_child(), content="false")
@@ -242,7 +242,7 @@ pub fn Entity::is_child(entity : Entity) -> Bool {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let parent = @entity.Entity::new()
+/// let parent = @entity.Entity()
 /// let child = parent.spawn_child()
 ///
 /// inspect(child.get_parent().unwrap() == parent, content="true")
@@ -279,7 +279,7 @@ pub fn Entity::remove_parent(child : Entity) -> Unit {
 /// `@transform.transform_propagate_system`.
 ///
 /// **Important**: Only entities that have called `spawn_child()` at least once
-/// can be root entities. Standalone entities created with `Entity::new()` that
+/// can be root entities. Standalone entities created with `Entity()` that
 /// have never spawned children are not considered roots and will not be returned
 /// by this function.
 ///
@@ -290,8 +290,8 @@ pub fn Entity::remove_parent(child : Entity) -> Unit {
 /// ```moonbit nocheck
 /// @entity.entity_flush_system(0.0)
 ///
-/// let root1 = @entity.Entity::new()
-/// let root2 = @entity.Entity::new()
+/// let root1 = @entity.Entity()
+/// let root2 = @entity.Entity()
 /// let child1 = root1.spawn_child()
 /// let _grandchild = child1.spawn_child()
 ///

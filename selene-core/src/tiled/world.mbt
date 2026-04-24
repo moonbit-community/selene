@@ -6,11 +6,7 @@ fn tiled_world_set_entity_translation_2d(
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
     ..current,
-    translation: @math.Vec3::new(
-      position[X],
-      position[Y],
-      current.translation.z,
-    ),
+    translation: @math.Vec3(position[X], position[Y], current.translation.z),
   })
 }
 
@@ -166,7 +162,7 @@ pub fn spawn_tiled_world(
   world : TiledWorld,
   settings? : TiledWorldSpawnSettings = default_tiled_world_spawn_settings(),
 ) -> @entity.Entity {
-  let world_entity = @entity.Entity::new()
+  let world_entity = @entity.Entity()
   spawn_tiled_world_root(world_entity, world, settings)
   world_entity
 }

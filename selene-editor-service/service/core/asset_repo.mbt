@@ -245,7 +245,9 @@ fn decode_legacy_workspace_document(
         )
     }
   } else {
-    raise Failure("Workspace document is invalid: .selene-editor/workspace.json")
+    raise Failure(
+      "Workspace document is invalid: .selene-editor/workspace.json",
+    )
   }
   ignore(version)
   let mut workspace = @editor_bridge.WorkspaceDocument::default()
@@ -255,25 +257,24 @@ fn decode_legacy_workspace_document(
   workspace = workspace.with_selected_entity_id(
     legacy_workspace_optional_string_field(object, "selected_entity_id"),
   )
-  if legacy_workspace_optional_bool_field(object, "move_snap_enabled") is Some(
-    enabled,
-  ) {
+  if legacy_workspace_optional_bool_field(object, "move_snap_enabled")
+    is Some(enabled) {
     workspace = workspace.with_move_snap_enabled(enabled)
   }
-  if legacy_workspace_optional_number_field(object, "move_snap_step") is Some(step) {
+  if legacy_workspace_optional_number_field(object, "move_snap_step")
+    is Some(step) {
     workspace = workspace.with_move_snap_step(step)
   }
-  if legacy_workspace_optional_number_field(object, "sidebar_scene_ratio") is Some(
-    ratio,
-  ) {
+  if legacy_workspace_optional_number_field(object, "sidebar_scene_ratio")
+    is Some(ratio) {
     workspace = workspace.with_sidebar_scene_ratio(ratio)
   }
-  if legacy_workspace_optional_number_field(object, "sidebar_assets_ratio") is Some(
-    ratio,
-  ) {
+  if legacy_workspace_optional_number_field(object, "sidebar_assets_ratio")
+    is Some(ratio) {
     workspace = workspace.with_sidebar_assets_ratio(ratio)
   }
-  if legacy_workspace_optional_string_field(object, "asset_scope") is Some(scope) {
+  if legacy_workspace_optional_string_field(object, "asset_scope")
+    is Some(scope) {
     workspace = workspace.with_asset_scope(scope)
   }
   workspace

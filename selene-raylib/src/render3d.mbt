@@ -95,7 +95,7 @@ fn draw_mesh3d_instance(
       )
     Plane(size) => {
       let thickness = if size.y.abs() < 0.0001 { 0.02 } else { size.y }
-      let cuboid = @smath.Vec3::new(size.x, thickness, size.z)
+      let cuboid = @smath.Vec3(size.x, thickness, size.z)
       draw_lit_cuboid(
         cuboid, material, frame, camera_position, texture_bundle, receive_shadows,
         shadow_state,
@@ -475,36 +475,28 @@ fn build_cylinder_mesh(
     let u1 = (segment + 1).to_double() / segment_count.to_double()
     let phi0 = u0 * 2.0 * @cmath.PI
     let phi1 = u1 * 2.0 * @cmath.PI
-    let top0 = @smath.Vec3::new(
+    let top0 = @smath.Vec3(
       radius_top * @cmath.cos(phi0),
       half_h,
       radius_top * @cmath.sin(phi0),
     )
-    let top1 = @smath.Vec3::new(
+    let top1 = @smath.Vec3(
       radius_top * @cmath.cos(phi1),
       half_h,
       radius_top * @cmath.sin(phi1),
     )
-    let bot0 = @smath.Vec3::new(
+    let bot0 = @smath.Vec3(
       radius_bottom * @cmath.cos(phi0),
       -half_h,
       radius_bottom * @cmath.sin(phi0),
     )
-    let bot1 = @smath.Vec3::new(
+    let bot1 = @smath.Vec3(
       radius_bottom * @cmath.cos(phi1),
       -half_h,
       radius_bottom * @cmath.sin(phi1),
     )
-    let side_normal0 = @smath.Vec3::new(
-      @cmath.cos(phi0),
-      slope_y,
-      @cmath.sin(phi0),
-    ).normalize()
-    let side_normal1 = @smath.Vec3::new(
-      @cmath.cos(phi1),
-      slope_y,
-      @cmath.sin(phi1),
-    ).normalize()
+    let side_normal0 = @smath.Vec3(@cmath.cos(phi0), slope_y, @cmath.sin(phi0)).normalize()
+    let side_normal1 = @smath.Vec3(@cmath.cos(phi1), slope_y, @cmath.sin(phi1)).normalize()
     push_textured_triangle(
       vertices,
       uvs,
@@ -534,8 +526,8 @@ fn build_cylinder_mesh(
       side_normal1,
     )
     if radius_top.abs() > 0.000001 {
-      let top_center = @smath.Vec3::new(0.0, half_h, 0.0)
-      let top_normal = @smath.Vec3::new(0.0, 1.0, 0.0)
+      let top_center = @smath.Vec3(0.0, half_h, 0.0)
+      let top_normal = @smath.Vec3(0.0, 1.0, 0.0)
       push_textured_triangle(
         vertices,
         uvs,
@@ -552,8 +544,8 @@ fn build_cylinder_mesh(
       )
     }
     if radius_bottom.abs() > 0.000001 {
-      let bottom_center = @smath.Vec3::new(0.0, -half_h, 0.0)
-      let bottom_normal = @smath.Vec3::new(0.0, -1.0, 0.0)
+      let bottom_center = @smath.Vec3(0.0, -half_h, 0.0)
+      let bottom_normal = @smath.Vec3(0.0, -1.0, 0.0)
       push_textured_triangle(
         vertices,
         uvs,

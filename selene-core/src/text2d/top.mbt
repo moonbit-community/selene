@@ -1,16 +1,12 @@
 ///|
 pub(all) struct Text2d {
   blend_mode : @render.BlendMode2D
-
-  fn new(blend_mode? : @render.BlendMode2D) -> Text2d
 } derive(Eq, Debug)
 
 ///|
 pub(all) struct TextBounds {
   width : Double
   height : Double
-
-  fn new(width : Double, height : Double) -> TextBounds
 } derive(Eq, Debug)
 
 ///|
@@ -80,20 +76,20 @@ fn text_layout_caches() -> Map[@entity.Entity, CachedTextLayout2d] {
 }
 
 ///|
-pub fn Text2d::new(
+pub fn Text2d::Text2d(
   blend_mode? : @render.BlendMode2D = @render.BlendMode2D::Alpha,
 ) -> Text2d {
   { blend_mode, }
 }
 
 ///|
-pub fn TextBounds::new(width : Double, height : Double) -> TextBounds {
+pub fn TextBounds::TextBounds(width : Double, height : Double) -> TextBounds {
   { width: @cmp.maximum(0.0, width), height: @cmp.maximum(0.0, height) }
 }
 
 ///|
 fn text2d_layout(entity : @entity.Entity) -> @ui.TextLayout {
-  @ui.text_layouts().get(entity).unwrap_or(@ui.TextLayout::new())
+  @ui.text_layouts().get(entity).unwrap_or(@ui.TextLayout())
 }
 
 ///|

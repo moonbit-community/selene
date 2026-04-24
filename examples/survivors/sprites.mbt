@@ -61,9 +61,9 @@ fn atlas_animation(
 
 ///|
 fn sprite_animation_sprite(animation : SpriteAnimationDef) -> @sprite.Sprite {
-  @sprite.Sprite::new(
+  @sprite.Sprite(
     image=Some(animation.image),
-    texture_atlas=Some(@sprite.TextureAtlas::new(animation.layout)),
+    texture_atlas=Some(@sprite.TextureAtlas(animation.layout)),
     custom_size=Some(animation.size),
     anchor=animation.anchor,
     flip_x=animation.flip_x,
@@ -78,7 +78,7 @@ fn static_region_sprite(
   rect? : @math.Rect? = None,
   anchor? : @sprite.Anchor = @sprite.Anchor(@math.Vec2(0.0, 0.0)),
 ) -> @sprite.Sprite {
-  @sprite.Sprite::new(
+  @sprite.Sprite(
     image=Some(@asset.load_image(path)),
     rect~,
     custom_size=Some(size),

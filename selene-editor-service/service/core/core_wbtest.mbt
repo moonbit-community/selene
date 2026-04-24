@@ -40,7 +40,7 @@ async test "project.open auto-initializes a missing project manifest" {
       }
     })
 
-    let service = EditorService::new(".")
+    let service = EditorService(".")
     let payload = service.handle_rpc(
       @shared.rpc_request_envelope(1, @shared.rpc_request_project_open(root)),
     )
@@ -71,7 +71,7 @@ async test "project.open auto-initializes when the directory already exists" {
       }
     })
 
-    let service = EditorService::new(".")
+    let service = EditorService(".")
     let payload = service.handle_rpc(
       @shared.rpc_request_envelope(1, @shared.rpc_request_project_open(root)),
     )
@@ -119,7 +119,7 @@ async test "project.open auto-migrates legacy project manifests missing indexes"
       }
     })
 
-    let service = EditorService::new(".")
+    let service = EditorService(".")
     let payload = service.handle_rpc(
       @shared.rpc_request_envelope(1, @shared.rpc_request_project_open(root)),
     )
@@ -155,7 +155,7 @@ async test "project.open fails when workspace.json is invalid instead of silentl
       }
     })
 
-    let service = EditorService::new(".")
+    let service = EditorService(".")
     ignore(
       service.handle_rpc(
         @shared.rpc_request_envelope(1, @shared.rpc_request_project_open(root)),
@@ -190,7 +190,7 @@ async test "project.open migrates legacy workspace.json to envelope format" {
       }
     })
 
-    let service = EditorService::new(".")
+    let service = EditorService(".")
     ignore(
       service.handle_rpc(
         @shared.rpc_request_envelope(1, @shared.rpc_request_project_open(root)),
@@ -219,8 +219,7 @@ async test "project.open migrates legacy workspace.json to envelope format" {
 
     let encoded_workspace = @fs.read_file(
       path_join(root, ".selene-editor/workspace.json"),
-    )
-    .text()
+    ).text()
     inspect(
       encoded_workspace.contains("\"schema\": \"selene/workspace_document\""),
       content="true",
@@ -230,7 +229,7 @@ async test "project.open migrates legacy workspace.json to envelope format" {
 
 ///|
 async test "project.open rejects an empty root" {
-  let service = EditorService::new(".")
+  let service = EditorService(".")
   let payload = service.handle_rpc(
     @shared.rpc_request_envelope(1, @shared.rpc_request_project_open("")),
   )
@@ -240,7 +239,7 @@ async test "project.open rejects an empty root" {
 
 ///|
 async test "project.current returns an empty typed state before any project is open" {
-  let service = EditorService::new(".")
+  let service = EditorService(".")
   let payload = service.handle_rpc(
     @shared.rpc_request_envelope(1, @shared.rpc_request_project_current()),
   )
@@ -303,7 +302,7 @@ async test "service lists scenes and saves prefabs and asset docs" {
       }
     })
 
-    let service = EditorService::new(".")
+    let service = EditorService(".")
     ignore(
       service.handle_rpc(
         @shared.rpc_request_envelope(1, @shared.rpc_request_project_open(root)),
@@ -391,7 +390,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
       }
     })
 
-    let service = EditorService::new(".")
+    let service = EditorService(".")
     ignore(
       service.handle_rpc(
         @shared.rpc_request_envelope(1, @shared.rpc_request_project_open(root)),
@@ -621,7 +620,7 @@ async test "service typed rpc surface returns stable errors for missing or inval
       }
     })
 
-    let service = EditorService::new(".")
+    let service = EditorService(".")
 
     let not_open_requests : Array[@shared.RpcRequest] = [
       @shared.rpc_request_scene_load("scenes/main.scene.json"),
@@ -817,7 +816,7 @@ async test "scene.load can require migration and scene.migrate writes back the m
       }
     })
 
-    let service = EditorService::new(".")
+    let service = EditorService(".")
     ignore(
       service.handle_rpc(
         @shared.rpc_request_envelope(1, @shared.rpc_request_project_open(root)),

@@ -19,11 +19,11 @@ fn game_start(_world : @ecs.World) -> Unit {
   reset_pixeladventure_world_store()
   let loaded_level = load_level_scene()
 
-  let session_entity = @entity.Entity::new()
-  let result_box = @entity.Entity::new()
-  let score_box = @entity.Entity::new()
-  let health_box = @entity.Entity::new()
-  let volume_button = @entity.Entity::new()
+  let session_entity = @entity.Entity()
+  let result_box = @entity.Entity()
+  let score_box = @entity.Entity()
+  let health_box = @entity.Entity()
+  let volume_button = @entity.Entity()
 
   spawn_background(loaded_level.world_size)
   spawn_hud(result_box, score_box, health_box, volume_button)
@@ -58,11 +58,11 @@ fn configure_text_box(
   baseline? : @math.VAlign = @math.VAlign::Top,
 ) -> Unit {
   @ui.nodes().set(entity, @ui.Node::absolute(offset, size~))
-  @ui.z_indexes().set(entity, @ui.ZIndex::new(HUD_ZINDEX))
+  @ui.z_indexes().set(entity, @ui.ZIndex(HUD_ZINDEX))
   set_ui_text(entity, content)
   @ui.text_fonts().set(entity, @ui.TextFont::from_css(font))
   set_ui_text_color(entity, color)
-  @ui.text_layouts().set(entity, @ui.TextLayout::new(align~, baseline~))
+  @ui.text_layouts().set(entity, @ui.TextLayout(align~, baseline~))
 }
 
 ///|
@@ -105,8 +105,8 @@ fn spawn_hud(
       size=@math.Vec2(21.0, 22.0),
     ),
   )
-  @ui.z_indexes().set(volume_button, @ui.ZIndex::new(BUTTON_ZINDEX))
-  @ui.buttons().set(volume_button, @ui.Button::new())
+  @ui.z_indexes().set(volume_button, @ui.ZIndex(BUTTON_ZINDEX))
+  @ui.buttons().set(volume_button, @ui.Button())
   @ui.ui_images().set(volume_button, volume_image(true))
 }
 
@@ -122,7 +122,7 @@ fn register_sprite_animation_node(
 fn build_player_animation_nodes(
   entity : @entity.Entity,
 ) -> PlayerAnimationNodes {
-  let graph = @animation.AnimationGraph::new()
+  let graph = @animation.AnimationGraph()
   let nodes = {
     idle_left: register_sprite_animation_node(graph, player_idle_left_animation),
     idle_right: register_sprite_animation_node(
@@ -149,7 +149,7 @@ fn build_player_animation_nodes(
 
 ///|
 fn build_bird_animation_nodes(entity : @entity.Entity) -> BirdAnimationNodes {
-  let graph = @animation.AnimationGraph::new()
+  let graph = @animation.AnimationGraph()
   let nodes = {
     fly_left: register_sprite_animation_node(graph, bird_fly_left_animation),
     fly_right: register_sprite_animation_node(graph, bird_fly_right_animation),
@@ -177,8 +177,8 @@ fn configure_player_entity(entity : @entity.Entity) -> Unit {
   )
   @physics2d.colliders().set(
     entity,
-    @physics2d.Collider::new(
-      @physics2d.CollisionFilter::new(player_collision_group, [
+    @physics2d.collider(
+      @physics2d.collision_filter(player_collision_group, [
         terrain_collision_group, trigger_collision_group,
       ]),
     ),
@@ -210,8 +210,8 @@ fn configure_bird_entity(entity : @entity.Entity) -> Unit {
   )
   @physics2d.colliders().set(
     entity,
-    @physics2d.Collider::new(
-      @physics2d.CollisionFilter::new(enemy_collision_group, [
+    @physics2d.collider(
+      @physics2d.collision_filter(enemy_collision_group, [
         terrain_collision_group,
       ]),
     ),
@@ -228,10 +228,10 @@ fn configure_bird_entity(entity : @entity.Entity) -> Unit {
 
 ///|
 fn spawn_background(size : @math.Vec2) -> Unit {
-  let background = @entity.Entity::new()
+  let background = @entity.Entity()
   @sprite.sprites().set(
     background,
-    @sprite.Sprite::new(
+    @sprite.Sprite(
       image=Some(@asset.load_image("assets/pixeladventure/Background/Gray.png")),
       custom_size=Some(size),
       anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
@@ -246,7 +246,7 @@ fn spawn_background(size : @math.Vec2) -> Unit {
 
 ///|
 fn spawn_terrain_collider(pos : @math.Vec2, size : @math.Vec2) -> Unit {
-  let terrain = @entity.Entity::new()
+  let terrain = @entity.Entity()
   @transform.transforms().set(
     terrain,
     @transform.Transform::from_xyz(pos[X], pos[Y], 0.0),
@@ -254,8 +254,8 @@ fn spawn_terrain_collider(pos : @math.Vec2, size : @math.Vec2) -> Unit {
   @physics2d.shapes().set(terrain, Rect(size~, offset=@math.Vec2::zero()))
   @physics2d.colliders().set(
     terrain,
-    @physics2d.Collider::new(
-      @physics2d.CollisionFilter::new(terrain_collision_group, [
+    @physics2d.collider(
+      @physics2d.collision_filter(terrain_collision_group, [
         player_collision_group, enemy_collision_group,
       ]),
     ),
@@ -272,7 +272,7 @@ fn flag_idle_frame_rect() -> @math.Rect {
 
 ///|
 fn default_flag_sprite() -> @sprite.Sprite {
-  @sprite.Sprite::new(
+  @sprite.Sprite(
     image=Some(@asset.load_image(FLAG_IDLE_PATH)),
     rect=Some(flag_idle_frame_rect()),
     custom_size=Some(flag_idle_frame_size),
@@ -300,7 +300,7 @@ fn normalized_flag_sprite(sprite : @sprite.Sprite) -> @sprite.Sprite {
     Some(size) => Some(size)
     None => Some(flag_idle_frame_size)
   }
-  @sprite.Sprite::new(
+  @sprite.Sprite(
     image=resolved_image,
     texture_atlas=sprite.texture_atlas,
     rect=resolved_rect,
@@ -331,8 +331,8 @@ fn configure_flag_entity(entity : @entity.Entity) -> Unit {
   )
   @physics2d.areas().set(
     entity,
-    @physics2d.Area::new(
-      @physics2d.CollisionFilter::new(trigger_collision_group, [
+    @physics2d.sensor(
+      @physics2d.collision_filter(trigger_collision_group, [
         player_collision_group,
       ]),
     ),
@@ -351,8 +351,8 @@ fn configure_apple_entity(entity : @entity.Entity) -> Unit {
   )
   @physics2d.areas().set(
     entity,
-    @physics2d.Area::new(
-      @physics2d.CollisionFilter::new(trigger_collision_group, [
+    @physics2d.sensor(
+      @physics2d.collision_filter(trigger_collision_group, [
         player_collision_group,
       ]),
     ),

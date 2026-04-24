@@ -143,11 +143,9 @@ pub fn Code::from_string(String) -> Self?
 
 pub(all) struct Gamepad {
   id : Int
-
-  fn new(Int) -> Gamepad
 } derive(Eq, Hash, @debug.Debug)
+pub fn Gamepad::Gamepad(Int) -> Self
 pub fn Gamepad::id(Self) -> Int
-pub fn Gamepad::new(Int) -> Self
 
 pub(all) enum GamepadAxis {
   LeftStickX
@@ -167,10 +165,8 @@ pub struct GamepadAxisEvent {
 pub(all) struct GamepadAxisInput {
   gamepad : Gamepad
   axis : GamepadAxis
-
-  fn new(Gamepad, GamepadAxis) -> GamepadAxisInput
 } derive(Eq, Hash, @debug.Debug)
-pub fn GamepadAxisInput::new(Gamepad, GamepadAxis) -> Self
+pub fn GamepadAxisInput::GamepadAxisInput(Gamepad, GamepadAxis) -> Self
 
 pub(all) enum GamepadButton {
   South
@@ -202,10 +198,8 @@ pub struct GamepadButtonEvent {
 pub(all) struct GamepadButtonInput {
   gamepad : Gamepad
   button : GamepadButton
-
-  fn new(Gamepad, GamepadButton) -> GamepadButtonInput
 } derive(Eq, Hash, @debug.Debug)
-pub fn GamepadButtonInput::new(Gamepad, GamepadButton) -> Self
+pub fn GamepadButtonInput::GamepadButtonInput(Gamepad, GamepadButton) -> Self
 
 pub(all) enum GamepadButtonInputState {
   Pressed

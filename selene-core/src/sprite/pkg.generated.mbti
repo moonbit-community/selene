@@ -55,13 +55,11 @@ pub(all) struct Sprite {
   mut flip_y : Bool
   mut image_mode : SpriteImageMode
   mut blend_mode : @render.BlendMode2D
-
-  fn new(image? : @asset_types.ImageHandle?, texture_atlas? : TextureAtlas?, rect? : @math.Rect?, color? : @render.Color, custom_size? : @math.Vec2?, anchor? : Anchor, flip_x? : Bool, flip_y? : Bool, image_mode? : SpriteImageMode, blend_mode? : @render.BlendMode2D) -> Sprite
 }
+pub fn Sprite::Sprite(image? : @asset_types.ImageHandle?, texture_atlas? : TextureAtlas?, rect? : @math.Rect?, color? : @render.Color, custom_size? : @math.Vec2?, anchor? : Anchor, flip_x? : Bool, flip_y? : Bool, image_mode? : SpriteImageMode, blend_mode? : @render.BlendMode2D) -> Self
 pub fn Sprite::from_atlas_image(@asset_types.ImageHandle, TextureAtlas) -> Self
 pub fn Sprite::from_color(@render.Color, @math.Vec2) -> Self
 pub fn Sprite::from_image(@asset_types.ImageHandle, custom_size? : @math.Vec2?) -> Self
-pub fn Sprite::new(image? : @asset_types.ImageHandle?, texture_atlas? : TextureAtlas?, rect? : @math.Rect?, color? : @render.Color, custom_size? : @math.Vec2?, anchor? : Anchor, flip_x? : Bool, flip_y? : Bool, image_mode? : SpriteImageMode, blend_mode? : @render.BlendMode2D) -> Self
 
 pub(all) enum SpriteImageMode {
   Auto
@@ -71,19 +69,15 @@ pub(all) enum SpriteImageMode {
 pub(all) struct TextureAtlas {
   layout : TextureAtlasLayoutHandle
   mut index : Int
-
-  fn new(TextureAtlasLayoutHandle, index? : Int) -> TextureAtlas
 } derive(Eq, @debug.Debug)
-pub fn TextureAtlas::new(TextureAtlasLayoutHandle, index? : Int) -> Self
+pub fn TextureAtlas::TextureAtlas(TextureAtlasLayoutHandle, index? : Int) -> Self
 
 pub(all) struct TextureAtlasLayout {
   size : @math.Vec2
   rects : Array[@math.Rect]
-
-  fn new(@math.Vec2, Array[@math.Rect]) -> TextureAtlasLayout
 }
+pub fn TextureAtlasLayout::TextureAtlasLayout(@math.Vec2, Array[@math.Rect]) -> Self
 pub fn TextureAtlasLayout::from_grid(@math.Vec2, Int, Int, padding? : @math.Vec2?, offset? : @math.Vec2?) -> Self
-pub fn TextureAtlasLayout::new(@math.Vec2, Array[@math.Rect]) -> Self
 
 pub(all) struct TextureAtlasLayoutHandle(UInt) derive(Eq, Hash, @debug.Debug)
 

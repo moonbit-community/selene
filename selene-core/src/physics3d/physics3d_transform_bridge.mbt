@@ -383,7 +383,7 @@ fn apply_character_controller_translation(
       }
     Some(KinematicVelocityBased) =>
       if delta > 0.0 {
-        let velocity = @math.Vec3::new(
+        let velocity = @math.Vec3(
           translation.x / delta,
           translation.y / delta,
           translation.z / delta,
@@ -546,14 +546,14 @@ fn shape_world_aabb(
   let mins = local_aabb.mins
   let maxs = local_aabb.maxs
   let corners = [
-    @math.Vec3::new(mins.x.to_double(), mins.y.to_double(), mins.z.to_double()),
-    @math.Vec3::new(mins.x.to_double(), mins.y.to_double(), maxs.z.to_double()),
-    @math.Vec3::new(mins.x.to_double(), maxs.y.to_double(), mins.z.to_double()),
-    @math.Vec3::new(mins.x.to_double(), maxs.y.to_double(), maxs.z.to_double()),
-    @math.Vec3::new(maxs.x.to_double(), mins.y.to_double(), mins.z.to_double()),
-    @math.Vec3::new(maxs.x.to_double(), mins.y.to_double(), maxs.z.to_double()),
-    @math.Vec3::new(maxs.x.to_double(), maxs.y.to_double(), mins.z.to_double()),
-    @math.Vec3::new(maxs.x.to_double(), maxs.y.to_double(), maxs.z.to_double()),
+    @math.Vec3(mins.x.to_double(), mins.y.to_double(), mins.z.to_double()),
+    @math.Vec3(mins.x.to_double(), mins.y.to_double(), maxs.z.to_double()),
+    @math.Vec3(mins.x.to_double(), maxs.y.to_double(), mins.z.to_double()),
+    @math.Vec3(mins.x.to_double(), maxs.y.to_double(), maxs.z.to_double()),
+    @math.Vec3(maxs.x.to_double(), mins.y.to_double(), mins.z.to_double()),
+    @math.Vec3(maxs.x.to_double(), mins.y.to_double(), maxs.z.to_double()),
+    @math.Vec3(maxs.x.to_double(), maxs.y.to_double(), mins.z.to_double()),
+    @math.Vec3(maxs.x.to_double(), maxs.y.to_double(), maxs.z.to_double()),
   ]
   let world_points = corners.map(point => {
     rotation.rotate_vec3(point) + translation
@@ -561,12 +561,12 @@ fn shape_world_aabb(
   let mut min_point = world_points[0]
   let mut max_point = world_points[0]
   for point in world_points {
-    min_point = @math.Vec3::new(
+    min_point = @math.Vec3(
       Double::min(min_point.x, point.x),
       Double::min(min_point.y, point.y),
       Double::min(min_point.z, point.z),
     )
-    max_point = @math.Vec3::new(
+    max_point = @math.Vec3(
       Double::max(max_point.x, point.x),
       Double::max(max_point.y, point.y),
       Double::max(max_point.z, point.z),

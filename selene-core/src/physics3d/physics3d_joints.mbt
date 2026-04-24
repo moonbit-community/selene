@@ -137,8 +137,8 @@ fn collider_desc(entity : @entity.Entity, shape : Collider) -> ColliderDesc {
   {
     shape,
     sensor: sensors().contains(entity),
-    friction: frictions().get(entity).unwrap_or(Friction::new(0.5)),
-    restitution: restitutions().get(entity).unwrap_or(Restitution::new(0.0)),
+    friction: frictions().get(entity).unwrap_or(Friction(0.5)),
+    restitution: restitutions().get(entity).unwrap_or(Restitution(0.0)),
     collision_groups: collision_groups()
     .get(entity)
     .unwrap_or(CollisionGroups::all()),
@@ -254,7 +254,7 @@ pub fn RapierContext::cast_shape(
   shape : Collider,
   origin : @math.Vec3,
   rotation? : @math.Quat = @math.Quat::identity(),
-  direction? : @math.Vec3 = @math.Vec3::new(0.0, -1.0, 0.0),
+  direction? : @math.Vec3 = @math.Vec3(0.0, -1.0, 0.0),
   max_toi? : Double = 1000.0,
   stop_at_penetration? : Bool = false,
   query_filter? : QueryFilter = QueryFilter::all(),

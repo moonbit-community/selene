@@ -17,7 +17,7 @@ const ZOOM : Double = 2.0
 
 ///|
 pub fn run() -> Unit {
-  @app.App::new()
+  @app.App()
   .with_viewport_width(VIEWPORT_WIDTH)
   .with_viewport_height(VIEWPORT_HEIGHT)
   .with_zoom(ZOOM)
@@ -36,12 +36,12 @@ fn game_start(_world : @ecs.World) -> Unit {
   // Load font
   ignore(@asset.load_font("assets/cards/ThaleahFat.ttf", family="ThaleahFat"))
   @ui.set_ui_scale_mode(@ui.UiScaleMode::Viewport)
-  let camera_entity = @entity.Entity::new()
-  @camera.cameras().set(camera_entity, @camera.Camera::new())
-  @camera.camera2ds().set(camera_entity, @camera.Camera2d::new())
+  let camera_entity = @entity.Entity()
+  @camera.cameras().set(camera_entity, @camera.Camera())
+  @camera.camera2ds().set(camera_entity, @camera.Camera2d())
   @camera.orthographic_projections().set(
     camera_entity,
-    @camera.OrthographicProjection::new(),
+    @camera.OrthographicProjection(),
   )
   @transform.transforms().set(
     camera_entity,

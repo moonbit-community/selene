@@ -20,11 +20,7 @@ fn tiled_ecs_set_entity_translation_2d(
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
     ..current,
-    translation: @math.Vec3::new(
-      position[X],
-      position[Y],
-      current.translation.z,
-    ),
+    translation: @math.Vec3(position[X], position[Y], current.translation.z),
   })
 }
 
@@ -33,7 +29,7 @@ fn tiled_ecs_set_entity_depth(entity : @entity.Entity, z : Int) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
     ..current,
-    translation: @math.Vec3::new(
+    translation: @math.Vec3(
       current.translation.x,
       current.translation.y,
       z.to_double(),
@@ -64,8 +60,8 @@ priv struct TiledSpriteAnimation {
 fn tiled_transform_from_2d_affine(
   affine : @math.Transform,
 ) -> @transform.Transform {
-  let x_axis = @math.Vec3::new(affine.a, affine.b, 0.0)
-  let y_axis = @math.Vec3::new(affine.c, affine.d, 0.0)
+  let x_axis = @math.Vec3(affine.a, affine.b, 0.0)
+  let y_axis = @math.Vec3(affine.c, affine.d, 0.0)
   let mut scale_x = x_axis.length()
   let mut scale_y = y_axis.length()
   if scale_x <= 0.000000001 {
@@ -81,9 +77,9 @@ fn tiled_transform_from_2d_affine(
     basis_y = -basis_y
   }
   {
-    translation: @math.Vec3::new(affine.tx, affine.ty, 0.0),
+    translation: @math.Vec3(affine.tx, affine.ty, 0.0),
     rotation: @math.Quat::from_basis(basis_x, basis_y, @math.Vec3::z_axis()),
-    scale: @math.Vec3::new(scale_x, scale_y, 1.0),
+    scale: @math.Vec3(scale_x, scale_y, 1.0),
   }
 }
 
@@ -91,7 +87,7 @@ fn tiled_transform_from_2d_affine(
 fn tiled_sprite_animation_clip_asset(
   animation : TiledSpriteAnimation,
 ) -> @animation.AnimationClipHandle {
-  let clip = @animation.AnimationClip::new("sprite/tiled")
+  let clip = @animation.AnimationClip("sprite/tiled")
   let layout = @sprite.texture_atlas_layout(animation.layout).unwrap()
   let keys : Array[@animation.ScalarKeyframe] = []
   let frame_duration = if animation.fps <= 0.0 {
@@ -108,7 +104,7 @@ fn tiled_sprite_animation_clip_asset(
     })
   }
   clip.add_curve_to_target(
-    @animation.AnimationTargetId::new("self"),
+    @animation.AnimationTargetId("self"),
     @animation.VariableCurve::scalar(
       @animation.texture_atlas_index_field(),
       keys,
@@ -127,9 +123,9 @@ fn tiled_sprite_animation_clip_asset(
 fn tiled_sprite_from_animation(
   animation : TiledSpriteAnimation,
 ) -> @sprite.Sprite {
-  @sprite.Sprite::new(
+  @sprite.Sprite(
     image=Some(animation.image),
-    texture_atlas=Some(@sprite.TextureAtlas::new(animation.layout)),
+    texture_atlas=Some(@sprite.TextureAtlas(animation.layout)),
     color=animation.color,
     custom_size=animation.custom_size,
     anchor=animation.anchor,
@@ -143,19 +139,19 @@ fn tiled_install_sprite_animation(
 ) -> Unit {
   ignore(
     @animation.animation_players().get_or_init(entity, fn() {
-      @animation.AnimationPlayer::new()
+      @animation.AnimationPlayer()
     }),
   )
   ignore(
     @animation.animation_transitions().get_or_init(entity, fn() {
-      @animation.AnimationTransitions::new()
+      @animation.AnimationTransitions()
     }),
   )
   @animation.animation_target_ids().set(
     entity,
-    @animation.AnimationTargetId::new("self"),
+    @animation.AnimationTargetId("self"),
   )
-  @animation.animated_bys().set(entity, @animation.AnimatedBy::new(entity))
+  @animation.animated_bys().set(entity, @animation.AnimatedBy(entity))
   let (graph, nodes) = @animation.AnimationGraph::from_clips([
     tiled_sprite_animation_clip_asset(animation),
   ])
@@ -376,7 +372,7 @@ pub fn spawn_tiled_map(
   map : TiledMap,
   settings? : TiledSpawnSettings = default_tiled_spawn_settings(),
 ) -> @entity.Entity {
-  let root = @entity.Entity::new()
+  let root = @entity.Entity()
   spawn_tiled_map_root(root, map, settings)
   root
 }
@@ -664,7 +660,7 @@ fn spawn_tiled_image_layer(
   let repeat = tiled_image_repeat_mode(image_layer)
   @sprite.sprites().set(
     layer_entity,
-    @sprite.Sprite::new(
+    @sprite.Sprite(
       image=Some(load_tiled_image(image_path)),
       custom_size=Some(tiled_map_world_size(map)),
       color=@render.Color::{ r: 255U, g: 255U, b: 255U, a: layer.opacity },
@@ -1075,7 +1071,7 @@ fn tiled_gid_transform(gid : TiledGid, size : @math.Vec2) -> @math.Transform {
     return @math.Transform::identity()
   }
   let diagonal = if gid.flipped_diagonally {
-    @math.Transform::new(a=0.0, b=height / width, c=width / height, d=0.0)
+    @math.Transform(a=0.0, b=height / width, c=width / height, d=0.0)
   } else {
     @math.Transform::identity()
   }
@@ -1209,7 +1205,7 @@ fn tiled_register_parallax_layer(
   })
   @parallax2d.parallax2ds().set(
     layer_entity,
-    @parallax2d.Parallax2d::new(
+    @parallax2d.Parallax2d(
       factor=@math.Vec2(layer.parallax_x, layer.parallax_y),
     ),
   )

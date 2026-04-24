@@ -103,10 +103,10 @@ pub fn tiled_collider_origins() -> Map[@entity.Entity, TiledColliderOrigin] {
 ///|
 pub let tiled_collider_spawned_event_bus : @event.Events[
   TiledColliderSpawnedEvent,
-] = @event.Events::new()
+] = @event.Events()
 
 ///|
-let tiled_default_physics_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup::new()
+let tiled_default_physics_group : @physics2d.CollisionGroup = @physics2d.collision_group()
 
 ///|
 pub fn default_tiled_physics_settings() -> TiledPhysicsSettings {
@@ -461,10 +461,7 @@ fn spawn_tiled_physics_spec(
   if spec.sensor {
     @physics2d.areas().set(collider_entity, @physics2d.new_sensor(filter))
   } else {
-    @physics2d.colliders().set(
-      collider_entity,
-      @physics2d.Collider::new(filter),
-    )
+    @physics2d.colliders().set(collider_entity, @physics2d.collider(filter))
   }
   tiled_apply_physics_properties(collider_entity, spec.sensor, spec.properties)
   @physics2d.shapes().set(collider_entity, spec.shape)

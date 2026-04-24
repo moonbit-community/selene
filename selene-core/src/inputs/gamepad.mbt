@@ -16,12 +16,10 @@
 /// Stable gamepad identifier.
 pub(all) struct Gamepad {
   id : Int
-
-  fn new(id : Int) -> Gamepad
 } derive(Eq, Debug, Hash)
 
 ///|
-pub fn Gamepad::new(id : Int) -> Gamepad {
+pub fn Gamepad::Gamepad(id : Int) -> Gamepad {
   { id, }
 }
 
@@ -94,12 +92,10 @@ pub struct GamepadAxisEvent {
 pub(all) struct GamepadButtonInput {
   gamepad : Gamepad
   button : GamepadButton
-
-  fn new(gamepad : Gamepad, button : GamepadButton) -> GamepadButtonInput
 } derive(Eq, Debug, Hash)
 
 ///|
-pub fn GamepadButtonInput::new(
+pub fn GamepadButtonInput::GamepadButtonInput(
   gamepad : Gamepad,
   button : GamepadButton,
 ) -> GamepadButtonInput {
@@ -110,12 +106,10 @@ pub fn GamepadButtonInput::new(
 pub(all) struct GamepadAxisInput {
   gamepad : Gamepad
   axis : GamepadAxis
-
-  fn new(gamepad : Gamepad, axis : GamepadAxis) -> GamepadAxisInput
 } derive(Eq, Debug, Hash)
 
 ///|
-pub fn GamepadAxisInput::new(
+pub fn GamepadAxisInput::GamepadAxisInput(
   gamepad : Gamepad,
   axis : GamepadAxis,
 ) -> GamepadAxisInput {
@@ -214,13 +208,13 @@ fn last_gamepad_axis_values() -> Map[GamepadAxisInput, Double] {
 }
 
 ///|
-pub let gamepad_connection_event_bus : @event.Events[GamepadConnectionEvent] = @event.Events::new()
+pub let gamepad_connection_event_bus : @event.Events[GamepadConnectionEvent] = @event.Events()
 
 ///|
-pub let gamepad_button_event_bus : @event.Events[GamepadButtonEvent] = @event.Events::new()
+pub let gamepad_button_event_bus : @event.Events[GamepadButtonEvent] = @event.Events()
 
 ///|
-pub let gamepad_axis_event_bus : @event.Events[GamepadAxisEvent] = @event.Events::new()
+pub let gamepad_axis_event_bus : @event.Events[GamepadAxisEvent] = @event.Events()
 
 ///|
 pub fn is_gamepad_connected(gamepad : Gamepad) -> Bool {
@@ -242,7 +236,7 @@ pub fn is_gamepad_button_pressed(
   gamepad : Gamepad,
   button : GamepadButton,
 ) -> Bool {
-  pressed_gamepad_buttons().contains(GamepadButtonInput::new(gamepad, button))
+  pressed_gamepad_buttons().contains(GamepadButtonInput(gamepad, button))
 }
 
 ///|
@@ -258,9 +252,7 @@ pub fn is_gamepad_button_just_pressed(
   gamepad : Gamepad,
   button : GamepadButton,
 ) -> Bool {
-  just_pressed_gamepad_buttons().contains(
-    GamepadButtonInput::new(gamepad, button),
-  )
+  just_pressed_gamepad_buttons().contains(GamepadButtonInput(gamepad, button))
 }
 
 ///|
@@ -268,14 +260,12 @@ pub fn is_gamepad_button_just_released(
   gamepad : Gamepad,
   button : GamepadButton,
 ) -> Bool {
-  just_released_gamepad_buttons().contains(
-    GamepadButtonInput::new(gamepad, button),
-  )
+  just_released_gamepad_buttons().contains(GamepadButtonInput(gamepad, button))
 }
 
 ///|
 pub fn gamepad_axis_value(gamepad : Gamepad, axis : GamepadAxis) -> Double {
-  gamepad_axis_values().get(GamepadAxisInput::new(gamepad, axis)).unwrap_or(0.0)
+  gamepad_axis_values().get(GamepadAxisInput(gamepad, axis)).unwrap_or(0.0)
 }
 
 ///|

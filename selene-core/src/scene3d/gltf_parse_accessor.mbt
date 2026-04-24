@@ -368,7 +368,7 @@ fn quat_from_components(
   if length_squared <= 0.0000000001 {
     @math.Quat::identity()
   } else {
-    @math.Quat::new(x, y, z, w).normalize()
+    @math.Quat(x, y, z, w).normalize()
   }
 }
 

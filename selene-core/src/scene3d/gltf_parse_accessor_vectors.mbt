@@ -57,7 +57,7 @@ fn read_accessor_vec3(
         accessor.normalized,
       )
       guard (x, y, z) is (Some(px), Some(py), Some(pz)) else { return None }
-      output[idx] = @math.Vec3::new(px, py, pz)
+      output[idx] = @math.Vec3(px, py, pz)
     }
   }
   if accessor.sparse is Some(sparse) {
@@ -110,7 +110,7 @@ fn read_accessor_vec3(
         accessor.normalized,
       )
       guard (x, y, z) is (Some(px), Some(py), Some(pz)) else { return None }
-      output[target_index] = @math.Vec3::new(px, py, pz)
+      output[target_index] = @math.Vec3(px, py, pz)
     }
   }
   Some(output)

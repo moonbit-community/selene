@@ -1,9 +1,9 @@
 ///|
 test "render3d extract preserves mesh shadow toggles" {
-  let entity = @entity.Entity::new()
+  let entity = @entity.Entity()
   let mesh = @render3d_types.MeshHandle(9901U)
   let material = @render3d_types.MaterialHandle(9902U)
-  meshes.set(mesh, cube_mesh(@math.Vec3::new(1.0, 1.0, 1.0)))
+  meshes.set(mesh, cube_mesh(@math.Vec3(1.0, 1.0, 1.0)))
   materials.set(material, default_standard_material3d())
   mesh3d_renderers().set(entity, {
     mesh,

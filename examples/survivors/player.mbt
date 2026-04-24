@@ -44,26 +44,26 @@ let player_animation_controllers : Map[
 fn ensure_sprite_animation_binding(entity : @entity.Entity) -> Unit {
   ignore(
     @animation.animation_players().get_or_init(entity, fn() {
-      @animation.AnimationPlayer::new()
+      @animation.AnimationPlayer()
     }),
   )
   ignore(
     @animation.animation_transitions().get_or_init(entity, fn() {
-      @animation.AnimationTransitions::new()
+      @animation.AnimationTransitions()
     }),
   )
   @animation.animation_target_ids().set(
     entity,
-    @animation.AnimationTargetId::new("self"),
+    @animation.AnimationTargetId("self"),
   )
-  @animation.animated_bys().set(entity, @animation.AnimatedBy::new(entity))
+  @animation.animated_bys().set(entity, @animation.AnimatedBy(entity))
 }
 
 ///|
 fn build_sprite_animation_clip_asset(
   animation : SpriteAnimationDef,
 ) -> @animation.AnimationClipHandle {
-  let clip = @animation.AnimationClip::new(animation.name)
+  let clip = @animation.AnimationClip(animation.name)
   let keys : Array[@animation.ScalarKeyframe] = []
   let frame_duration = if animation.fps <= 0.0 {
     1.0
@@ -84,7 +84,7 @@ fn build_sprite_animation_clip_asset(
     })
   }
   clip.add_curve_to_target(
-    @animation.AnimationTargetId::new("self"),
+    @animation.AnimationTargetId("self"),
     @animation.VariableCurve::scalar(
       @animation.texture_atlas_index_field(),
       keys,
@@ -111,7 +111,7 @@ fn register_sprite_animation_node(
 fn create_player_animation_controller(
   entity : @entity.Entity,
 ) -> PlayerAnimationController {
-  let graph = @animation.AnimationGraph::new()
+  let graph = @animation.AnimationGraph()
   let controller = {
     idle_left: register_sprite_animation_node(graph, player_idle_left_animation),
     idle_right: register_sprite_animation_node(
@@ -173,10 +173,8 @@ fn add_player() -> Unit {
   @physics2d.linear_velocities().set(entity, Vec2(0.0, 0.0))
   @physics2d.colliders().set(
     entity,
-    @physics2d.Collider::new(
-      @physics2d.CollisionFilter::new(player_collision_group, [
-        wall_collision_group,
-      ]),
+    @physics2d.collider(
+      @physics2d.collision_filter(player_collision_group, [wall_collision_group]),
     ),
   )
   @physics2d.shapes().set(

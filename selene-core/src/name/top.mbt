@@ -1,8 +1,6 @@
 ///|
 pub(all) struct Name {
   value : String
-
-  fn new(value : String) -> Name
 } derive(Eq, Debug)
 
 ///|
@@ -20,7 +18,7 @@ fn name_world_store() -> NameWorldStore {
 }
 
 ///|
-pub fn Name::new(value : String) -> Name {
+pub fn Name::Name(value : String) -> Name {
   { value, }
 }
 

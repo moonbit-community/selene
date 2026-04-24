@@ -40,20 +40,16 @@ pub(all) enum EventDomain {
 pub(all) struct EventReader[T] {
   last_seen_by_world : Map[UInt, Int]
   marker : T?
-
-  fn[T] new() -> EventReader[T]
 }
-pub fn[T] EventReader::new() -> Self[T]
+pub fn[T] EventReader::EventReader() -> Self[T]
 pub fn[T] EventReader::read(Self[T], Events[T]) -> Array[T]
 
 type EventWorldStore[T]
 
 pub(all) struct EventWriter[T] {
   events : Events[T]
-
-  fn[T] new(Events[T]) -> EventWriter[T]
 }
-pub fn[T] EventWriter::new(Events[T]) -> Self[T]
+pub fn[T] EventWriter::EventWriter(Events[T]) -> Self[T]
 pub fn[T] EventWriter::send(Self[T], T) -> Unit
 pub fn[T] EventWriter::trigger(Self[T], T, target? : @entity.Entity?) -> Unit
 
@@ -62,12 +58,10 @@ pub struct Events[T] {
   domain : EventDomain
   stores : Map[UInt, EventWorldStore[T]]
   marker : T?
-
-  fn[T] new(domain? : EventDomain) -> Events[T]
 }
+pub fn[T] Events::Events(domain? : EventDomain) -> Self[T]
 pub fn[T] Events::clear(Self[T]) -> Unit
 pub fn[T] Events::dispatch_observers(Self[T]) -> Unit
-pub fn[T] Events::new(domain? : EventDomain) -> Self[T]
 pub fn[T] Events::observe_entity(Self[T], @entity.Entity, (Trigger[T]) -> Unit) -> ObserverHandle
 pub fn[T] Events::observe_global(Self[T], (Trigger[T]) -> Unit) -> ObserverHandle
 pub fn[T] Events::read(Self[T], EventReader[T]) -> Array[T]

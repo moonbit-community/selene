@@ -135,7 +135,7 @@ fn to_ray_color_bytes(color : @render.Color) -> (Byte, Byte, Byte, Byte) {
 
 ///|
 fn color_to_vec3(color : @render.Color) -> @smath.Vec3 {
-  @smath.Vec3::new(
+  @smath.Vec3(
     color.r.to_double() / 255.0,
     color.g.to_double() / 255.0,
     color.b.to_double() / 255.0,

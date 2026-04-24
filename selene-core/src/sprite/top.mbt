@@ -16,19 +16,6 @@ pub(all) struct Sprite {
   mut flip_y : Bool
   mut image_mode : SpriteImageMode
   mut blend_mode : @render.BlendMode2D
-
-  fn new(
-    image? : @asset.ImageHandle?,
-    texture_atlas? : TextureAtlas?,
-    rect? : @math.Rect?,
-    color? : @render.Color,
-    custom_size? : @math.Vec2?,
-    anchor? : Anchor,
-    flip_x? : Bool,
-    flip_y? : Bool,
-    image_mode? : SpriteImageMode,
-    blend_mode? : @render.BlendMode2D,
-  ) -> Sprite
 }
 
 ///|
@@ -56,7 +43,7 @@ fn white_sprite_color() -> @render.Color {
 }
 
 ///|
-pub fn Sprite::new(
+pub fn Sprite::Sprite(
   image? : @asset.ImageHandle? = None,
   texture_atlas? : TextureAtlas? = None,
   rect? : @math.Rect? = None,
@@ -87,7 +74,7 @@ pub fn Sprite::from_image(
   image : @asset.ImageHandle,
   custom_size? : @math.Vec2? = None,
 ) -> Sprite {
-  Sprite::new(image=Some(image), custom_size~)
+  Sprite(image=Some(image), custom_size~)
 }
 
 ///|
@@ -96,11 +83,7 @@ pub fn Sprite::from_atlas_image(
   texture_atlas : TextureAtlas,
 ) -> Sprite {
   let custom_size = texture_atlas_rect(texture_atlas).map(fn(rect) { rect.size })
-  Sprite::new(
-    image=Some(image),
-    texture_atlas=Some(texture_atlas),
-    custom_size~,
-  )
+  Sprite(image=Some(image), texture_atlas=Some(texture_atlas), custom_size~)
 }
 
 ///|
@@ -108,7 +91,7 @@ pub fn Sprite::from_color(
   color : @render.Color,
   custom_size : @math.Vec2,
 ) -> Sprite {
-  Sprite::new(color~, custom_size=Some(custom_size))
+  Sprite(color~, custom_size=Some(custom_size))
 }
 
 ///|

@@ -41,7 +41,7 @@ fn shape_world_store() -> ShapeWorldStore {
 /// Example:
 ///
 /// ```moonbit nocheck
-/// let entity = @entity.Entity::new()
+/// let entity = @entity.Entity()
 /// defer entity.destroy()
 /// @collision.shapes().set(
 ///   entity,

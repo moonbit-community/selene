@@ -389,7 +389,7 @@ fn ui_material_context_for(
   global_ui_nodes()
   .get(entity)
   .map(fn(transform) {
-    UiMaterialContext::new(
+    UiMaterialContext(
       entity,
       transform.screen_rect,
       content_rect=transform.screen_content_rect,
@@ -443,7 +443,7 @@ pub fn draw_ui_material_image(
     image: image.image,
     destination: fitted_image_rect(context.rect, image),
     source: None,
-    transform: @math.Transform::new(),
+    transform: @math.Transform(),
     uv_transform: @math.Transform::identity(),
     repeat: NoRepeat,
     alpha_mode: @render.AlphaMode2D::Blend,
@@ -705,7 +705,7 @@ fn push_image(
     image: image.image,
     destination: fitted_image_rect(transform.screen_content_rect, image),
     source: None,
-    transform: @math.Transform::new(),
+    transform: @math.Transform(),
     uv_transform: @math.Transform::identity(),
     repeat: NoRepeat,
     alpha_mode: @render.AlphaMode2D::Blend,

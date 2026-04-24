@@ -38,11 +38,7 @@ fn tiled_test_set_entity_translation_2d(
   let current = @transform.transforms().get(entity).unwrap_or_default()
   let next = {
     ..current,
-    translation: @math.Vec3::new(
-      position[X],
-      position[Y],
-      current.translation.z,
-    ),
+    translation: @math.Vec3(position[X], position[Y], current.translation.z),
   }
   @transform.transforms().set(entity, next)
   @transform.global_transforms().set(
@@ -446,7 +442,7 @@ test "respawn_tiled_map_into_entity replaces previous tiled children and metadat
   )
   files.set("maps/bg.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
-    let root = @entity.Entity::new()
+    let root = @entity.Entity()
     spawn_tiled_map_into_entity(root, load_tiled_map("maps/a.tmj"), settings={
       ..default_tiled_spawn_settings(),
       position: @math.Vec2(1.0, 2.0),
@@ -726,8 +722,8 @@ test "spawn_tiled_world loads adjacent maps and emits world events" {
     ),
   )
   with_fake_asset_io(files, fn() raise {
-    let world_reader = @event.EventReader::new()
-    let world_map_reader = @event.EventReader::new()
+    let world_reader = @event.EventReader()
+    let world_map_reader = @event.EventReader()
     let hooked_paths : Array[String] = []
     let world = load_tiled_world("worlds/demo.world")
     let root = spawn_tiled_world(world, settings={
@@ -802,7 +798,7 @@ test "respawn_tiled_world_into_entity replaces previous spawned maps" {
     ),
   )
   with_fake_asset_io(files, fn() raise {
-    let root = @entity.Entity::new()
+    let root = @entity.Entity()
     spawn_tiled_world_into_entity(root, load_tiled_world("worlds/a.world"), settings={
       ..default_tiled_world_spawn_settings(),
       position: @math.Vec2(5.0, 7.0),
@@ -849,13 +845,13 @@ test "tiled world chunking spawns maps around camera view" {
   let previous_zoom = @system.get_zoom()
   @system.configure_display(100.0, 100.0, 1.0)
 
-  let camera_entity = @entity.Entity::new()
+  let camera_entity = @entity.Entity()
   defer camera_entity.destroy()
-  @camera.cameras().set(camera_entity, @camera.Camera::new())
-  @camera.camera2ds().set(camera_entity, @camera.Camera2d::new())
+  @camera.cameras().set(camera_entity, @camera.Camera())
+  @camera.camera2ds().set(camera_entity, @camera.Camera2d())
   @camera.orthographic_projections().set(
     camera_entity,
-    @camera.OrthographicProjection::new(),
+    @camera.OrthographicProjection(),
   )
   tiled_test_set_entity_translation_2d(camera_entity, @math.Vec2(50.0, 50.0))
 
@@ -918,23 +914,23 @@ test "tiled world chunking unions multiple active camera views" {
   let previous_zoom = @system.get_zoom()
   @system.configure_display(100.0, 100.0, 1.0)
 
-  let left_camera = @entity.Entity::new()
+  let left_camera = @entity.Entity()
   defer left_camera.destroy()
-  @camera.cameras().set(left_camera, @camera.Camera::new(order=0))
-  @camera.camera2ds().set(left_camera, @camera.Camera2d::new())
+  @camera.cameras().set(left_camera, @camera.Camera(order=0))
+  @camera.camera2ds().set(left_camera, @camera.Camera2d())
   @camera.orthographic_projections().set(
     left_camera,
-    @camera.OrthographicProjection::new(),
+    @camera.OrthographicProjection(),
   )
   tiled_test_set_entity_translation_2d(left_camera, @math.Vec2(50.0, 50.0))
 
-  let right_camera = @entity.Entity::new()
+  let right_camera = @entity.Entity()
   defer right_camera.destroy()
-  @camera.cameras().set(right_camera, @camera.Camera::new(order=1))
-  @camera.camera2ds().set(right_camera, @camera.Camera2d::new())
+  @camera.cameras().set(right_camera, @camera.Camera(order=1))
+  @camera.camera2ds().set(right_camera, @camera.Camera2d())
   @camera.orthographic_projections().set(
     right_camera,
-    @camera.OrthographicProjection::new(),
+    @camera.OrthographicProjection(),
   )
   tiled_test_set_entity_translation_2d(right_camera, @math.Vec2(250.0, 50.0))
 
@@ -989,13 +985,13 @@ test "tiled parallax system adjusts layer offsets" {
   let previous_zoom = @system.get_zoom()
   @system.configure_display(100.0, 100.0, 1.0)
 
-  let camera_entity = @entity.Entity::new()
+  let camera_entity = @entity.Entity()
   defer camera_entity.destroy()
-  @camera.cameras().set(camera_entity, @camera.Camera::new())
-  @camera.camera2ds().set(camera_entity, @camera.Camera2d::new())
+  @camera.cameras().set(camera_entity, @camera.Camera())
+  @camera.camera2ds().set(camera_entity, @camera.Camera2d())
   @camera.orthographic_projections().set(
     camera_entity,
-    @camera.OrthographicProjection::new(),
+    @camera.OrthographicProjection(),
   )
   tiled_test_set_entity_translation_2d(camera_entity, @math.Vec2(50.0, 50.0))
 

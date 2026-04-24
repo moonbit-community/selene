@@ -35,8 +35,6 @@ pub(all) struct PlaybackSettings {
 ///|
 pub(all) struct AudioPlayer {
   source : AudioHandle
-
-  fn new(source : AudioHandle) -> AudioPlayer
 } derive(Eq, Debug)
 
 ///|
@@ -94,10 +92,10 @@ pub fn audio_sinks() -> Map[@entity.Entity, AudioSink] {
 }
 
 ///|
-pub let audio_event_bus : @event.Events[AudioEvent] = @event.Events::new()
+pub let audio_event_bus : @event.Events[AudioEvent] = @event.Events()
 
 ///|
-let audio_event_reader : @event.EventReader[AudioEvent] = @event.EventReader::new()
+let audio_event_reader : @event.EventReader[AudioEvent] = @event.EventReader()
 
 ///|
 let global_volume_ref : Ref[Double] = Ref::new(1.0)
@@ -149,13 +147,13 @@ fn should_sink_pause(sink : AudioSink) -> Bool {
 }
 
 ///|
-pub fn AudioPlayer::new(source : AudioHandle) -> AudioPlayer {
+pub fn AudioPlayer::AudioPlayer(source : AudioHandle) -> AudioPlayer {
   { source, }
 }
 
 ///|
 pub fn AudioPlayer::from_path(path : String) -> AudioPlayer {
-  AudioPlayer::new(@asset.load_audio(path))
+  AudioPlayer(@asset.load_audio(path))
 }
 
 ///|
@@ -318,8 +316,8 @@ pub fn spawn_audio(
   source : AudioHandle,
   settings? : PlaybackSettings = PlaybackSettings::once(),
 ) -> @entity.Entity {
-  let entity = @entity.Entity::new()
-  attach_audio(entity, AudioPlayer::new(source), settings~)
+  let entity = @entity.Entity()
+  attach_audio(entity, AudioPlayer(source), settings~)
   entity
 }
 
@@ -457,8 +455,7 @@ pub fn audio_event_playback_system(_delta : Double) -> Unit {
   for event in @event.read(audio_event_reader, audio_event_bus) {
     let settings = normalize_settings(event.settings)
     match event.target {
-      Some(entity) =>
-        attach_audio(entity, AudioPlayer::new(event.source), settings~)
+      Some(entity) => attach_audio(entity, AudioPlayer(event.source), settings~)
       None => ignore(spawn_audio(event.source, settings~))
     }
   }

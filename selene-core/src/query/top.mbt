@@ -24,8 +24,6 @@ pub(all) struct QueryReader[T] {
   mut entities : @set.Set[@entity.Entity]
   mut entries : Map[@entity.Entity, T]
   mut initialized : Bool
-
-  fn[T] new() -> QueryReader[T]
 }
 
 ///|
@@ -44,7 +42,7 @@ pub fn[T] query(
 }
 
 ///|
-pub fn[T] QueryReader::new() -> QueryReader[T] {
+pub fn[T] QueryReader::QueryReader() -> QueryReader[T] {
   { entities: @set.Set::new(), entries: Map::new(), initialized: false }
 }
 

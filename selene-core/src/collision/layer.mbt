@@ -18,8 +18,6 @@
 /// Groups are used by `CollisionFilter` to decide which entities can interact.
 pub struct CollisionGroup {
   value : UInt
-
-  fn new() -> CollisionGroup
 } derive(Eq)
 
 ///|
@@ -31,11 +29,6 @@ pub struct CollisionFilter {
   group : CollisionGroup
   mask : Array[CollisionGroup]
   match_all : Bool
-
-  fn new(
-    group : CollisionGroup,
-    mask : Array[CollisionGroup],
-  ) -> CollisionFilter
 } derive(Eq)
 
 ///|
@@ -43,7 +36,7 @@ let collision_group_generator : Ref[UInt] = { val: 0 }
 
 ///|
 /// Creates a new collision group with a unique identifier.
-pub fn CollisionGroup::new() -> CollisionGroup {
+pub fn CollisionGroup::CollisionGroup() -> CollisionGroup {
   let group = collision_group_generator.val
   collision_group_generator.val += 1
   { value: group }
@@ -52,7 +45,7 @@ pub fn CollisionGroup::new() -> CollisionGroup {
 ///|
 /// Creates a collision filter that belongs to `group` and can interact with
 /// all groups listed in `mask`.
-pub fn CollisionFilter::new(
+pub fn CollisionFilter::CollisionFilter(
   group : CollisionGroup,
   mask : Array[CollisionGroup],
 ) -> CollisionFilter {

@@ -35,20 +35,10 @@ pub(all) struct A11y {
   action_callbacks : Array[
     (@moon_accesskit.Action, @moon_accesskit.ActionData?) -> Unit,
   ]
-
-  fn new(
-    role? : A11yRole,
-    label? : String?,
-    value? : String?,
-    focusable? : Bool,
-    disabled? : Bool,
-    selected? : Bool?,
-    hidden? : Bool,
-  ) -> A11y
 }
 
 ///|
-pub fn A11y::new(
+pub fn A11y::A11y(
   role? : A11yRole = Container,
   label? : String? = None,
   value? : String? = None,
@@ -188,11 +178,11 @@ fn to_accesskit_role(role : A11yRole) -> @moon_accesskit.Role {
 ///|
 fn auto_a11y(entity : @entity.Entity) -> A11y? {
   if @ui.buttons().get(entity) is Some(button) {
-    Some(A11y::new(role=Button, focusable=true, disabled=!button.enabled))
+    Some(A11y(role=Button, focusable=true, disabled=!button.enabled))
   } else if @ui.texts().get(entity) is Some(_) {
-    Some(A11y::new(role=Label))
+    Some(A11y(role=Label))
   } else if @ui.ui_images().get(entity) is Some(_) {
-    Some(A11y::new(role=Image))
+    Some(A11y(role=Image))
   } else {
     None
   }

@@ -55,28 +55,28 @@ pub(all) struct UiFocusOutEvent {
 }
 
 ///|
-pub let pointer_enter_event_bus : @event.Events[UiPointerEnterEvent] = @event.Events::new()
+pub let pointer_enter_event_bus : @event.Events[UiPointerEnterEvent] = @event.Events()
 
 ///|
-pub let pointer_leave_event_bus : @event.Events[UiPointerLeaveEvent] = @event.Events::new()
+pub let pointer_leave_event_bus : @event.Events[UiPointerLeaveEvent] = @event.Events()
 
 ///|
-pub let pointer_down_event_bus : @event.Events[UiPointerDownEvent] = @event.Events::new()
+pub let pointer_down_event_bus : @event.Events[UiPointerDownEvent] = @event.Events()
 
 ///|
-pub let pointer_up_event_bus : @event.Events[UiPointerUpEvent] = @event.Events::new()
+pub let pointer_up_event_bus : @event.Events[UiPointerUpEvent] = @event.Events()
 
 ///|
-pub let click_event_bus : @event.Events[UiClickEvent] = @event.Events::new()
+pub let click_event_bus : @event.Events[UiClickEvent] = @event.Events()
 
 ///|
-pub let navigation_event_bus : @event.Events[UiNavigationEvent] = @event.Events::new()
+pub let navigation_event_bus : @event.Events[UiNavigationEvent] = @event.Events()
 
 ///|
-pub let focus_in_event_bus : @event.Events[UiFocusInEvent] = @event.Events::new()
+pub let focus_in_event_bus : @event.Events[UiFocusInEvent] = @event.Events()
 
 ///|
-pub let focus_out_event_bus : @event.Events[UiFocusOutEvent] = @event.Events::new()
+pub let focus_out_event_bus : @event.Events[UiFocusOutEvent] = @event.Events()
 
 ///|
 priv struct UiInteractionRuntime {
@@ -115,7 +115,7 @@ fn clear_focus_marker(entity : @entity.Entity) -> Unit {
 
 ///|
 fn set_focus_marker(entity : @entity.Entity) -> Unit {
-  focuseds().set(entity, Focused::new())
+  focuseds().set(entity, Focused())
 }
 
 ///|
@@ -522,10 +522,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
     })
   }
   if @inputs.is_just_pressed(@inputs.ArrowLeft) ||
-    @inputs.is_gamepad_button_just_pressed(
-      @inputs.Gamepad::new(0),
-      @inputs.DPadLeft,
-    ) {
+    @inputs.is_gamepad_button_just_pressed(@inputs.Gamepad(0), @inputs.DPadLeft) {
     move_focus(Left)
     navigation_event_bus.send({
       entity: runtime.focused_entity,
@@ -534,7 +531,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
   }
   if @inputs.is_just_pressed(@inputs.ArrowRight) ||
     @inputs.is_gamepad_button_just_pressed(
-      @inputs.Gamepad::new(0),
+      @inputs.Gamepad(0),
       @inputs.DPadRight,
     ) {
     move_focus(Right)
@@ -544,18 +541,12 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
     })
   }
   if @inputs.is_just_pressed(@inputs.ArrowUp) ||
-    @inputs.is_gamepad_button_just_pressed(
-      @inputs.Gamepad::new(0),
-      @inputs.DPadUp,
-    ) {
+    @inputs.is_gamepad_button_just_pressed(@inputs.Gamepad(0), @inputs.DPadUp) {
     move_focus(Up)
     navigation_event_bus.send({ entity: runtime.focused_entity, direction: Up })
   }
   if @inputs.is_just_pressed(@inputs.ArrowDown) ||
-    @inputs.is_gamepad_button_just_pressed(
-      @inputs.Gamepad::new(0),
-      @inputs.DPadDown,
-    ) {
+    @inputs.is_gamepad_button_just_pressed(@inputs.Gamepad(0), @inputs.DPadDown) {
     move_focus(Down)
     navigation_event_bus.send({
       entity: runtime.focused_entity,
@@ -563,10 +554,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
     })
   }
   if @inputs.is_just_pressed(@inputs.Escape) ||
-    @inputs.is_gamepad_button_just_pressed(
-      @inputs.Gamepad::new(0),
-      @inputs.East,
-    ) {
+    @inputs.is_gamepad_button_just_pressed(@inputs.Gamepad(0), @inputs.East) {
     navigation_event_bus.send({
       entity: runtime.focused_entity,
       direction: Cancel,
@@ -575,10 +563,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
   if (
       @inputs.is_just_pressed(@inputs.Enter) ||
       @inputs.is_just_pressed(@inputs.Space) ||
-      @inputs.is_gamepad_button_just_pressed(
-        @inputs.Gamepad::new(0),
-        @inputs.South,
-      )
+      @inputs.is_gamepad_button_just_pressed(@inputs.Gamepad(0), @inputs.South)
     ) &&
     runtime.focused_entity is Some(target) &&
     is_interactive(target) {

@@ -73,13 +73,13 @@ let audio_states : Map[AudioHandle, LoadState] = Map::new()
 let font_states : Map[FontHandle, LoadState] = Map::new()
 
 ///|
-pub let image_asset_events : @event.Events[AssetEvent[ImageHandle]] = @event.Events::new()
+pub let image_asset_events : @event.Events[AssetEvent[ImageHandle]] = @event.Events()
 
 ///|
-pub let audio_asset_events : @event.Events[AssetEvent[AudioHandle]] = @event.Events::new()
+pub let audio_asset_events : @event.Events[AssetEvent[AudioHandle]] = @event.Events()
 
 ///|
-pub let font_asset_events : @event.Events[AssetEvent[FontHandle]] = @event.Events::new()
+pub let font_asset_events : @event.Events[AssetEvent[FontHandle]] = @event.Events()
 
 ///|
 fn normalize_font_family(path : String) -> String {

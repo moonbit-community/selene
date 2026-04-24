@@ -124,7 +124,7 @@ pub struct LdtkIntGridPhysicsSettings {
 
 ///|
 pub fn default_ldtk_int_grid_physics_settings() -> LdtkIntGridPhysicsSettings {
-  let group = @physics2d.CollisionGroup::new()
+  let group = @physics2d.collision_group()
   {
     enabled: false,
     layer_identifiers: [],

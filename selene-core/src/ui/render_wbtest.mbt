@@ -53,10 +53,10 @@ fn cleanup_test_ui_entity(entity : @entity.Entity) -> Unit {
 ///|
 test "ui rounded backgrounds emit quarter-circle fill commands" {
   @render2d.begin_frame2d_system(0.0)
-  let entity = @entity.Entity::new()
+  let entity = @entity.Entity()
   let rect = test_rect(10.0, 20.0, 100.0, 60.0)
   global_ui_nodes().set(entity, test_global_node(rect, rect))
-  background_colors().set(entity, BackgroundColor::new(rgba(20, 40, 60, 1.0)))
+  background_colors().set(entity, BackgroundColor(rgba(20, 40, 60, 1.0)))
   border_radii().set(entity, BorderRadius::all(Val::px(12.0)))
 
   push_background(entity)
@@ -86,15 +86,15 @@ test "ui rounded backgrounds emit quarter-circle fill commands" {
 ///|
 test "ui material nodes render gradient materials ahead of legacy background fills" {
   @render2d.begin_frame2d_system(0.0)
-  let entity = @entity.Entity::new()
+  let entity = @entity.Entity()
   let rect = test_rect(8.0, 12.0, 80.0, 40.0)
   let handle = register_ui_material_asset(
     UiMaterialAsset::gradient(rgba(255, 0, 0, 1.0), rgba(0, 0, 255, 1.0)),
   )
-  nodes().set(entity, Node::new())
+  nodes().set(entity, Node())
   global_ui_nodes().set(entity, test_global_node(rect, rect))
-  material_nodes().set(entity, MaterialNode::new(handle))
-  background_colors().set(entity, BackgroundColor::new(rgba(20, 40, 60, 1.0)))
+  material_nodes().set(entity, MaterialNode(handle))
+  background_colors().set(entity, BackgroundColor(rgba(20, 40, 60, 1.0)))
 
   render_entity(entity)
 
@@ -119,7 +119,7 @@ test "ui material nodes render gradient materials ahead of legacy background fil
 ///|
 test "ui material assets can render through custom draw callbacks" {
   @render2d.begin_frame2d_system(0.0)
-  let entity = @entity.Entity::new()
+  let entity = @entity.Entity()
   let screen_rect = test_rect(4.0, 6.0, 120.0, 80.0)
   let content_rect = test_rect(12.0, 18.0, 64.0, 24.0)
   let handle = register_ui_material_asset(
@@ -127,9 +127,9 @@ test "ui material assets can render through custom draw callbacks" {
       push_ui_rect_fill(context.content_rect, rgba(0, 200, 80, 1.0))
     }),
   )
-  nodes().set(entity, Node::new())
+  nodes().set(entity, Node())
   global_ui_nodes().set(entity, test_global_node(screen_rect, content_rect))
-  material_nodes().set(entity, MaterialNode::new(handle))
+  material_nodes().set(entity, MaterialNode(handle))
 
   render_entity(entity)
 
@@ -154,7 +154,7 @@ test "ui material assets can render through custom draw callbacks" {
 ///|
 test "ui border radii resolve percent values against node size" {
   let resolved = resolved_border_radius(
-    BorderRadius::new(
+    BorderRadius(
       top_left=Val::percent(0.25),
       top_right=Val::percent(0.5),
       bottom_right=Val::px(8.0),
@@ -172,7 +172,7 @@ test "ui border radii resolve percent values against node size" {
 ///|
 test "ui box shadows emit layered rounded shadow commands" {
   @render2d.begin_frame2d_system(0.0)
-  let entity = @entity.Entity::new()
+  let entity = @entity.Entity()
   let rect = test_rect(16.0, 24.0, 96.0, 48.0)
   global_ui_nodes().set(entity, test_global_node(rect, rect))
   border_radii().set(entity, BorderRadius::all(Val::px(8.0)))
@@ -208,12 +208,12 @@ test "ui box shadows emit layered rounded shadow commands" {
 ///|
 test "ui outlines resolve width and offset into outer bands" {
   @render2d.begin_frame2d_system(0.0)
-  let entity = @entity.Entity::new()
+  let entity = @entity.Entity()
   let rect = test_rect(20.0, 30.0, 100.0, 60.0)
   global_ui_nodes().set(entity, test_global_node(rect, rect))
   outlines().set(
     entity,
-    Outline::new(Val::px(4.0), rgba(255, 200, 0, 1.0), offset=Val::px(2.0)),
+    Outline(Val::px(4.0), rgba(255, 200, 0, 1.0), offset=Val::px(2.0)),
   )
 
   push_outline(entity)
@@ -249,14 +249,14 @@ test "ui outlines resolve width and offset into outer bands" {
 ///|
 test "ui overflow clipping applies after node decorations" {
   @render2d.begin_frame2d_system(0.0)
-  let entity = @entity.Entity::new()
+  let entity = @entity.Entity()
   let screen_rect = test_rect(0.0, 0.0, 120.0, 80.0)
   let content_rect = test_rect(12.0, 10.0, 96.0, 54.0)
-  nodes().set(entity, Node::new(overflow_y=Overflow::Scroll))
+  nodes().set(entity, Node(overflow_y=Overflow::Scroll))
   global_ui_nodes().set(entity, test_global_node(screen_rect, content_rect))
-  background_colors().set(entity, BackgroundColor::new(rgba(32, 64, 96, 1.0)))
-  texts().set(entity, Text::new("Overflow"))
-  calculated_clips().set(entity, CalculatedClip::new(content_rect))
+  background_colors().set(entity, BackgroundColor(rgba(32, 64, 96, 1.0)))
+  texts().set(entity, Text("Overflow"))
+  calculated_clips().set(entity, CalculatedClip(content_rect))
   tree_orders().set(entity, 1)
 
   render_entity(entity)
@@ -298,13 +298,13 @@ test "ui overflow clipping applies after node decorations" {
 ///|
 test "ui override clip removes inherited clip from child rendering" {
   @render2d.begin_frame2d_system(0.0)
-  let parent = @entity.Entity::new()
+  let parent = @entity.Entity()
   let child = parent.spawn_child()
   nodes().set(
     parent,
-    Node::new(overflow_x=Overflow::Hidden, overflow_y=Overflow::Hidden),
+    Node(overflow_x=Overflow::Hidden, overflow_y=Overflow::Hidden),
   )
-  nodes().set(child, Node::new())
+  nodes().set(child, Node())
   global_ui_nodes().set(
     parent,
     test_global_node(
@@ -321,12 +321,12 @@ test "ui override clip removes inherited clip from child rendering" {
   )
   calculated_clips().set(
     parent,
-    CalculatedClip::new(test_rect(0.0, 0.0, 100.0, 80.0)),
+    CalculatedClip(test_rect(0.0, 0.0, 100.0, 80.0)),
   )
-  texts().set(child, Text::new("Child"))
+  texts().set(child, Text("Child"))
   tree_orders().set(parent, 1)
   tree_orders().set(child, 2)
-  override_clips().set(child, OverrideClip::new())
+  override_clips().set(child, OverrideClip())
 
   render_entity(parent)
   render_entity(child)
@@ -361,16 +361,16 @@ test "ui override clip removes inherited clip from child rendering" {
 
 ///|
 test "ui stacking sorts by global z before local z and tree order" {
-  let back = @entity.Entity::new()
-  let front = @entity.Entity::new()
-  nodes().set(back, Node::new())
-  nodes().set(front, Node::new())
+  let back = @entity.Entity()
+  let front = @entity.Entity()
+  nodes().set(back, Node())
+  nodes().set(front, Node())
   tree_orders().set(back, 5)
   tree_orders().set(front, 1)
-  z_indexes().set(back, ZIndex::new(100))
-  z_indexes().set(front, ZIndex::new(0))
-  global_zindexes().set(back, GlobalZIndex::new(0))
-  global_zindexes().set(front, GlobalZIndex::new(1))
+  z_indexes().set(back, ZIndex(100))
+  z_indexes().set(front, ZIndex(0))
+  global_zindexes().set(back, GlobalZIndex(0))
+  global_zindexes().set(front, GlobalZIndex(1))
 
   let entities = [front, back]
   entities.sort_by(compare_ui_stacking)

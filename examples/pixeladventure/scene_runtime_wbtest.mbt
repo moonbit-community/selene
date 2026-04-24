@@ -1,7 +1,7 @@
 ///|
 fn with_pixeladventure_test_world(action : () -> Unit raise) -> Unit raise {
   let previous = @ecs.current_world()
-  let world = @ecs.World::new()
+  let world = @ecs.World()
   @ecs.set_current_world(world)
   action()
   match previous {

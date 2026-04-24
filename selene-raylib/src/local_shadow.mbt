@@ -114,10 +114,7 @@ fn shadow_map_near_z(near_z : Double) -> Double {
 fn build_spot_shadow_setup(
   light : @render3d_types.FrameSpotLight3D,
 ) -> DirectionalShadowSetup {
-  let direction = normalize_or(
-    light.direction,
-    @smath.Vec3::new(0.0, -1.0, 0.0),
-  )
+  let direction = normalize_or(light.direction, @smath.Vec3(0.0, -1.0, 0.0))
   let target = light.position + direction
   let near_plane = shadow_map_near_z(light.shadow_map_near_z)
   let far_plane = @cmp.maximum(near_plane + 1.0, light.range)
@@ -147,12 +144,12 @@ fn build_spot_shadow_setup(
 ///|
 fn point_shadow_face(index : Int) -> (@smath.Vec3, @smath.Vec3) {
   match index {
-    0 => (@smath.Vec3::new(1.0, 0.0, 0.0), @smath.Vec3::new(0.0, -1.0, 0.0))
-    1 => (@smath.Vec3::new(-1.0, 0.0, 0.0), @smath.Vec3::new(0.0, -1.0, 0.0))
-    2 => (@smath.Vec3::new(0.0, 1.0, 0.0), @smath.Vec3::new(0.0, 0.0, 1.0))
-    3 => (@smath.Vec3::new(0.0, -1.0, 0.0), @smath.Vec3::new(0.0, 0.0, -1.0))
-    4 => (@smath.Vec3::new(0.0, 0.0, 1.0), @smath.Vec3::new(0.0, -1.0, 0.0))
-    _ => (@smath.Vec3::new(0.0, 0.0, -1.0), @smath.Vec3::new(0.0, -1.0, 0.0))
+    0 => (@smath.Vec3(1.0, 0.0, 0.0), @smath.Vec3(0.0, -1.0, 0.0))
+    1 => (@smath.Vec3(-1.0, 0.0, 0.0), @smath.Vec3(0.0, -1.0, 0.0))
+    2 => (@smath.Vec3(0.0, 1.0, 0.0), @smath.Vec3(0.0, 0.0, 1.0))
+    3 => (@smath.Vec3(0.0, -1.0, 0.0), @smath.Vec3(0.0, 0.0, -1.0))
+    4 => (@smath.Vec3(0.0, 0.0, 1.0), @smath.Vec3(0.0, -1.0, 0.0))
+    _ => (@smath.Vec3(0.0, 0.0, -1.0), @smath.Vec3(0.0, -1.0, 0.0))
   }
 }
 

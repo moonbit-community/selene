@@ -18,12 +18,10 @@ pub(all) struct Area {
   mut active : Bool
   filter : CollisionFilter
   mut contains : Set[@entity.Entity]
-
-  fn new(filter : CollisionFilter) -> Area
 } derive(Eq)
 
 ///|
-pub fn Area::new(filter : CollisionFilter) -> Area {
+pub fn Area::Area(filter : CollisionFilter) -> Area {
   { active: true, filter, contains: Set::new() }
 }
 
@@ -57,7 +55,7 @@ pub struct TriggerEvent {
 
 ///|
 /// Trigger event bus.
-pub let trigger_event_bus : @event.Events[TriggerEvent] = @event.Events::new()
+pub let trigger_event_bus : @event.Events[TriggerEvent] = @event.Events()
 
 ///|
 fn push_trigger_event(event : TriggerEvent) -> Unit {

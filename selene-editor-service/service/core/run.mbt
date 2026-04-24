@@ -71,7 +71,7 @@ async fn EditorService::ensure_runtime_assets(self : EditorService) -> Unit {
 
 ///|
 pub async fn run_cli(module_root : String, args : Array[String]) -> Unit {
-  let service = EditorService::new(module_root)
+  let service = EditorService(module_root)
   let options = parse_cli_options(args) catch {
     err => {
       println("Failed to start selene-editor: \{err}")

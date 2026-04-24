@@ -14,8 +14,8 @@
 
 ///|
 test "events: reader consumes unseen events in order" {
-  let events : Events[Int] = Events::new()
-  let reader : EventReader[Int] = EventReader::new()
+  let events : Events[Int] = Events()
+  let reader : EventReader[Int] = EventReader()
   events.send(10)
   events.send(20)
   inspect(events.read(reader), content="[10, 20]")
@@ -24,9 +24,9 @@ test "events: reader consumes unseen events in order" {
 
 ///|
 test "events: readers are independent" {
-  let events : Events[Int] = Events::new()
-  let reader_a : EventReader[Int] = EventReader::new()
-  let reader_b : EventReader[Int] = EventReader::new()
+  let events : Events[Int] = Events()
+  let reader_a : EventReader[Int] = EventReader()
+  let reader_b : EventReader[Int] = EventReader()
   events.send(7)
   inspect(events.read(reader_a), content="[7]")
   inspect(events.read(reader_a), content="[]")
@@ -35,8 +35,8 @@ test "events: readers are independent" {
 
 ///|
 test "events: update keeps last and current cycle payloads" {
-  let events : Events[Int] = Events::new()
-  let reader : EventReader[Int] = EventReader::new()
+  let events : Events[Int] = Events()
+  let reader : EventReader[Int] = EventReader()
   events.send(1)
   events.update()
   events.send(2)
@@ -48,7 +48,7 @@ test "events: update keeps last and current cycle payloads" {
 
 ///|
 test "events: trigger dispatches observers while send does not" {
-  let events : Events[Int] = Events::new()
+  let events : Events[Int] = Events()
   let received : Array[Int] = []
   events.observe_global(fn(item) { received.push(item.event) }) |> ignore
 
@@ -63,9 +63,9 @@ test "events: trigger dispatches observers while send does not" {
 
 ///|
 test "events: entity observer only receives targeted trigger" {
-  let events : Events[Int] = Events::new()
-  let target = @entity.Entity::new()
-  let other = @entity.Entity::new()
+  let events : Events[Int] = Events()
+  let target = @entity.Entity()
+  let other = @entity.Entity()
   let received : Array[Int] = []
   events.observe_entity(target, fn(item) { received.push(item.event) })
   |> ignore
@@ -81,7 +81,7 @@ test "events: entity observer only receives targeted trigger" {
 
 ///|
 test "events: unobserve removes callback" {
-  let events : Events[Int] = Events::new()
+  let events : Events[Int] = Events()
   let received : Array[Int] = []
   let handle = events.observe_global(fn(item) { received.push(item.event) })
   events.unobserve(handle)
@@ -92,11 +92,11 @@ test "events: unobserve removes callback" {
 
 ///|
 test "events: frame update systems are world-scoped and require explicit registration" {
-  let events : Events[Int] = Events::new()
-  let world_a = @ecs.World::new()
-  let world_b = @ecs.World::new()
-  let reader_a : EventReader[Int] = EventReader::new()
-  let reader_b : EventReader[Int] = EventReader::new()
+  let events : Events[Int] = Events()
+  let world_a = @ecs.World()
+  let world_b = @ecs.World()
+  let reader_a : EventReader[Int] = EventReader()
+  let reader_b : EventReader[Int] = EventReader()
 
   events.register_to_world(world_a)
 

@@ -1,7 +1,7 @@
 ///|
 fn with_pickable_test_world(action : () -> Unit raise) -> Unit raise {
   let previous = @ecs.current_world().unwrap_or(@ecs.bootstrap_world())
-  let world = @ecs.World::new()
+  let world = @ecs.World()
   @ecs.set_current_world(world)
   action()
   @ecs.set_current_world(previous)
@@ -28,15 +28,15 @@ fn spawn_pickable_camera(
   order : Int,
   layers : @visibility.RenderLayers,
 ) -> @entity.Entity {
-  let camera_entity = @entity.Entity::new()
+  let camera_entity = @entity.Entity()
   @camera.cameras().set(
     camera_entity,
-    @camera.Camera::new(
+    @camera.Camera(
       order~,
       viewport=Some(@camera.CameraViewport::from_rect(viewport)),
     ),
   )
-  @camera.camera2ds().set(camera_entity, @camera.Camera2d::new())
+  @camera.camera2ds().set(camera_entity, @camera.Camera2d())
   @transform.global_transforms().set(
     camera_entity,
     @transform.GlobalTransform::from_transform(
@@ -53,8 +53,8 @@ fn spawn_pickable_shape(
   shape : CollisionShape,
   layers? : @visibility.RenderLayers = @visibility.default_render_layers(),
 ) -> @entity.Entity {
-  let entity = @entity.Entity::new()
-  pickables().set(entity, Pickable::new())
+  let entity = @entity.Entity()
+  pickables().set(entity, Pickable())
   shapes().set(entity, shape)
   @transform.global_transforms().set(
     entity,
@@ -96,7 +96,7 @@ test "pickable click respects top-most camera render layers" {
     )
     click_left_mouse(@math.Vec2(50.0, 50.0))
 
-    let reader = @event.EventReader::new()
+    let reader = @event.EventReader()
     pickable_click_system(0.0)
     let events = pointer_event_bus.read(reader)
     let visible_id = visible_entity.id()
@@ -134,7 +134,7 @@ test "pickable click supports ball shapes" {
     )
     click_left_mouse(@math.Vec2(48.0, 40.0))
 
-    let reader = @event.EventReader::new()
+    let reader = @event.EventReader()
     pickable_click_system(0.0)
     let events = pointer_event_bus.read(reader)
     let left_events = events.filter(fn(event) {

@@ -45,12 +45,10 @@ pub(all) struct App {
   world : @ecs.World
   event_registrations : Array[(@ecs.World) -> Unit]
   systems : Array[RegisteredSystem]
-
-  fn new() -> App
 }
 
 ///|
-pub fn App::new() -> App {
+pub fn App::App() -> App {
   let world = @ecs.current_world().unwrap_or(@ecs.bootstrap_world())
   {
     viewport_height: DEFAULT_VIEWPORT_HEIGHT,

@@ -173,10 +173,10 @@ test "raylib material texture slot bindings stay complete for active maps" {
 test "raylib triangle topology indices resolve strip and fan to triangle list" {
   let strip_mesh : @render3d_types.TriangleMesh3D = {
     positions: [
-      @smath.Vec3::new(0.0, 0.0, 0.0),
-      @smath.Vec3::new(1.0, 0.0, 0.0),
-      @smath.Vec3::new(0.0, 1.0, 0.0),
-      @smath.Vec3::new(1.0, 1.0, 0.0),
+      @smath.Vec3(0.0, 0.0, 0.0),
+      @smath.Vec3(1.0, 0.0, 0.0),
+      @smath.Vec3(0.0, 1.0, 0.0),
+      @smath.Vec3(1.0, 1.0, 0.0),
     ],
     indices: Some([0, 1, 2, 3]),
     topology: TriangleStrip,

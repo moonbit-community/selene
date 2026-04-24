@@ -29,11 +29,9 @@ pub(all) struct ColorMaterial {
   uv_transform : @math.Transform
   alpha_mode : @render.AlphaMode2D
   blend_mode : @render.BlendMode2D
-
-  fn new(color? : @render.Color, texture? : @asset_types.ImageHandle?, uv_transform? : @math.Transform, alpha_mode? : @render.AlphaMode2D, blend_mode? : @render.BlendMode2D) -> ColorMaterial
 }
+pub fn ColorMaterial::ColorMaterial(color? : @render.Color, texture? : @asset_types.ImageHandle?, uv_transform? : @math.Transform, alpha_mode? : @render.AlphaMode2D, blend_mode? : @render.BlendMode2D) -> Self
 pub fn ColorMaterial::from_color(@render.Color) -> Self
-pub fn ColorMaterial::new(color? : @render.Color, texture? : @asset_types.ImageHandle?, uv_transform? : @math.Transform, alpha_mode? : @render.AlphaMode2D, blend_mode? : @render.BlendMode2D) -> Self
 
 pub(all) struct ColorMaterialHandle(UInt) derive(Eq, Hash, @debug.Debug)
 
@@ -43,11 +41,9 @@ pub(all) enum Material2dHandle {
 
 pub(all) struct MeshMaterial2d {
   material : Material2dHandle
-
-  fn new(Material2dHandle) -> MeshMaterial2d
 } derive(Eq, @debug.Debug)
+pub fn MeshMaterial2d::MeshMaterial2d(Material2dHandle) -> Self
 pub fn MeshMaterial2d::from_color_material(ColorMaterialHandle) -> Self
-pub fn MeshMaterial2d::new(Material2dHandle) -> Self
 
 // Type aliases
 

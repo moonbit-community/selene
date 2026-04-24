@@ -199,7 +199,7 @@ fn compute_vertex_normals(
     let c = positions[ic]
     let mut face_normal = (b - a).cross(c - a)
     if face_normal.length_squared() <= 0.0000001 {
-      face_normal = @math.Vec3::new(0.0, 1.0, 0.0)
+      face_normal = @math.Vec3(0.0, 1.0, 0.0)
     }
     normals[ia] = normals[ia] + face_normal
     normals[ib] = normals[ib] + face_normal
@@ -208,7 +208,7 @@ fn compute_vertex_normals(
   for index in 0..<normals.length() {
     let normal = normals[index]
     normals[index] = if normal.length_squared() <= 0.0000001 {
-      @math.Vec3::new(0.0, 1.0, 0.0)
+      @math.Vec3(0.0, 1.0, 0.0)
     } else {
       normal.normalize()
     }

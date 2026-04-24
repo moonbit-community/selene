@@ -85,7 +85,7 @@ test "load_image emits added and loaded only once for a cached handle" {
         None
       }
     })
-    let reader = @event.EventReader::new()
+    let reader = @event.EventReader()
     let handle = load_image("assets/test.png")
     let first_events = reader.read(image_asset_events)
     inspect(
@@ -120,7 +120,7 @@ test "reload_image emits modified and remove_image resets load state" {
       }
     })
     let handle = load_image("assets/reload.png")
-    let reader = @event.EventReader::new()
+    let reader = @event.EventReader()
     ignore(reader.read(image_asset_events))
 
     reload_image(handle)
@@ -152,7 +152,7 @@ test "reload_image emits modified and remove_image resets load state" {
 ///|
 test "missing asset enters failed state and emits failed event" {
   with_asset_test_world(fn() raise {
-    let reader = @event.EventReader::new()
+    let reader = @event.EventReader()
     let handle = load_audio("assets/missing.wav")
     let events = reader.read(audio_asset_events)
     inspect(

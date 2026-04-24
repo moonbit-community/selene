@@ -410,7 +410,7 @@ pub fn default_cascade_shadow_config3d() -> CascadeShadowConfig3D {
 ///|
 pub fn default_directional_light3d() -> DirectionalLight3D {
   {
-    direction: @math.Vec3::new(0.0, 0.0, -1.0),
+    direction: @math.Vec3(0.0, 0.0, -1.0),
     color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
     intensity: 1.0,
     shadows: false,
@@ -438,7 +438,7 @@ pub fn default_point_light3d() -> PointLight3D {
 ///|
 pub fn default_spot_light3d() -> SpotLight3D {
   {
-    direction: @math.Vec3::new(0.0, 0.0, -1.0),
+    direction: @math.Vec3(0.0, 0.0, -1.0),
     color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
     intensity: 1.0,
     range: 0.0,

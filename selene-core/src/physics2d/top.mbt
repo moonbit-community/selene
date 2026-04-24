@@ -256,11 +256,34 @@ pub fn make_linear_velocity(value : @math.Vec2) -> LinearVelocity {
 }
 
 ///|
+pub fn collision_group() -> CollisionGroup {
+  @collision.CollisionGroup()
+}
+
+///|
+pub fn collision_filter(
+  memberships : CollisionGroup,
+  filters : Array[CollisionGroup],
+) -> CollisionFilter {
+  @collision.CollisionFilter(memberships, filters)
+}
+
+///|
+pub fn collider(filter : CollisionFilter) -> Collider {
+  @collision.Collider(filter)
+}
+
+///|
+pub fn sensor(filter : CollisionFilter) -> Sensor {
+  @collision.Area(filter)
+}
+
+///|
 pub fn new_collision_layers(
   memberships : CollisionGroup,
   filters : Array[CollisionGroup],
 ) -> CollisionLayers {
-  @collision.CollisionFilter::new(memberships, filters)
+  collision_filter(memberships, filters)
 }
 
 ///|
@@ -275,7 +298,7 @@ pub fn all_collision_layers(memberships : CollisionGroup) -> CollisionLayers {
 
 ///|
 pub fn new_sensor(filter : CollisionLayers) -> Sensor {
-  @collision.Area::new(filter)
+  @collision.Area(filter)
 }
 
 ///|

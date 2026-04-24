@@ -1,7 +1,7 @@
 ///|
 fn with_animation_test_world(action : () -> Unit raise) -> Unit raise {
   let previous = @ecs.current_world().unwrap_or(@ecs.bootstrap_world())
-  let world = @ecs.World::new()
+  let world = @ecs.World()
   @ecs.set_current_world(world)
   action()
   @ecs.set_current_world(previous)
@@ -13,7 +13,7 @@ fn animation_test_translation_clip(
   target : AnimationTargetId,
   x : Double,
 ) -> AnimationClipHandle {
-  let clip = AnimationClip::new(name)
+  let clip = AnimationClip(name)
   clip.add_curve_to_target(
     target,
     VariableCurve::vec3(
@@ -21,7 +21,7 @@ fn animation_test_translation_clip(
       [
         {
           time: 0.0,
-          value: @math.Vec3::new(x, 0.0, 0.0),
+          value: @math.Vec3(x, 0.0, 0.0),
           in_tangent: None,
           out_tangent: None,
         },
@@ -34,7 +34,7 @@ fn animation_test_translation_clip(
 
 ///|
 test "animation player play preserves active animation state while start restarts it" {
-  let player = AnimationPlayer::new()
+  let player = AnimationPlayer()
   let node = AnimationNodeIndex(1U)
   with_animation_test_world(fn() raise {
     let active = player.start(node)
@@ -51,7 +51,7 @@ test "animation player play preserves active animation state while start restart
 
 ///|
 test "animation player bulk controls update all active animations" {
-  let player = AnimationPlayer::new()
+  let player = AnimationPlayer()
   let node_a = AnimationNodeIndex(1U)
   let node_b = AnimationNodeIndex(2U)
   with_animation_test_world(fn() raise {
@@ -71,8 +71,8 @@ test "animation player bulk controls update all active animations" {
 
 ///|
 test "animation transitions track the main animation and return the active animation" {
-  let player = AnimationPlayer::new()
-  let transitions = AnimationTransitions::new()
+  let player = AnimationPlayer()
+  let transitions = AnimationTransitions()
   let first = AnimationNodeIndex(1U)
   let second = AnimationNodeIndex(2U)
   with_animation_test_world(fn() raise {
@@ -90,7 +90,7 @@ test "animation transitions track the main animation and return the active anima
 ///|
 test "texture atlas index field resolves as a discrete value instead of a weighted blend" {
   with_animation_test_world(fn() raise {
-    let entity = @entity.Entity::new()
+    let entity = @entity.Entity()
     let image = @asset.load_image("animation/test.png")
     let layout = @sprite.register_texture_atlas_layout(
       @sprite.TextureAtlasLayout::from_grid(@math.Vec2(16.0, 16.0), 6, 1),
@@ -99,7 +99,7 @@ test "texture atlas index field resolves as a discrete value instead of a weight
       entity,
       @sprite.Sprite::from_atlas_image(
         image,
-        @sprite.TextureAtlas::new(layout, index=1),
+        @sprite.TextureAtlas(layout, index=1),
       ),
     )
     let handle = texture_atlas_index_field()
@@ -138,15 +138,15 @@ test "step scalar sampling switches at an interior keyframe boundary" {
 ///|
 test "animation graph mask groups exclude masked targets during apply" {
   with_animation_test_world(fn() raise {
-    let player_entity = @entity.Entity::new()
-    let target_entity = @entity.Entity::new()
-    let target_id = AnimationTargetId::new("masked")
+    let player_entity = @entity.Entity()
+    let target_entity = @entity.Entity()
+    let target_id = AnimationTargetId("masked")
     @transform.transforms().set(target_entity, @transform.Transform::default())
     animation_target_ids().set(target_entity, target_id)
-    animated_bys().set(target_entity, AnimatedBy::new(player_entity))
+    animated_bys().set(target_entity, AnimatedBy(player_entity))
 
     let masked_clip = animation_test_translation_clip("masked", target_id, 10.0)
-    let masked_graph = AnimationGraph::new()
+    let masked_graph = AnimationGraph()
     let masked_node = masked_graph.add_clip_with_mask(masked_clip, [1])
     masked_graph.add_target_to_mask_group(target_id, 1)
     animation_graph_handles().set(
@@ -154,7 +154,7 @@ test "animation graph mask groups exclude masked targets during apply" {
       register_animation_graph_asset(masked_graph),
     )
     let masked_player = animation_players().get_or_init(player_entity, fn() {
-      AnimationPlayer::new()
+      AnimationPlayer()
     })
     ignore(masked_player.start(masked_node, repeat=Never))
     animation_apply_system(0.0)
@@ -163,7 +163,7 @@ test "animation graph mask groups exclude masked targets during apply" {
       content="0",
     )
 
-    let unmasked_graph = AnimationGraph::new()
+    let unmasked_graph = AnimationGraph()
     let unmasked_node = unmasked_graph.add_clip(masked_clip)
     animation_graph_handles().set(
       player_entity,
@@ -183,10 +183,10 @@ test "animation graph mask groups exclude masked targets during apply" {
 ///|
 test "animation event descriptors dispatch typed events to readers and observers" {
   with_animation_test_world(fn() raise {
-    let events : @event.Events[Int] = @event.Events::new()
-    let reader : @event.EventReader[Int] = @event.EventReader::new()
+    let events : @event.Events[Int] = @event.Events()
+    let reader : @event.EventReader[Int] = @event.EventReader()
     let observed : Array[Int] = []
-    let player_entity = @entity.Entity::new()
+    let player_entity = @entity.Entity()
     events.observe_entity(player_entity, fn(trigger) {
       observed.push(trigger.event)
     })
@@ -194,7 +194,7 @@ test "animation event descriptors dispatch typed events to readers and observers
     let descriptor = register_animation_event_descriptor(events, fn(context) {
       context.time.to_int() + 6
     })
-    let clip = AnimationClip::new("event")
+    let clip = AnimationClip("event")
     clip.add_event(1.0, descriptor)
     let clip_handle = register_animation_clip_asset(clip)
     let (graph, nodes) = AnimationGraph::from_clips([clip_handle])
@@ -203,7 +203,7 @@ test "animation event descriptors dispatch typed events to readers and observers
       register_animation_graph_asset(graph),
     )
     let player = animation_players().get_or_init(player_entity, fn() {
-      AnimationPlayer::new()
+      AnimationPlayer()
     })
     ignore(player.start(nodes[0], repeat=Never))
     animation_player_system(1.0)
@@ -218,8 +218,8 @@ test "animation asset queues report dirty and released handles" {
   with_animation_test_world(fn() raise {
     ignore(take_dirty_animation_clip_assets())
     ignore(take_dirty_animation_graph_assets())
-    let clip_handle = register_animation_clip_asset(AnimationClip::new("dirty"))
-    let graph_handle = register_animation_graph_asset(AnimationGraph::new())
+    let clip_handle = register_animation_clip_asset(AnimationClip("dirty"))
+    let graph_handle = register_animation_graph_asset(AnimationGraph())
     inspect(take_dirty_animation_clip_assets().length(), content="1")
     inspect(take_dirty_animation_graph_assets().length(), content="1")
     release_animation_clip_asset(clip_handle)

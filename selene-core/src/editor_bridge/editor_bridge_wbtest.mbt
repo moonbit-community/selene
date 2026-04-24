@@ -72,7 +72,7 @@ fn apply_registered_custom_component_test_payload(
     Some(component),
   )
   guard parsed is Some(data) else { return }
-  @name.names().set(entity, @name.Name::new(data.label))
+  @name.names().set(entity, @name.Name(data.label))
 }
 
 ///|

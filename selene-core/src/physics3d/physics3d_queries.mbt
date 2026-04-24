@@ -9,7 +9,7 @@ pub fn QueryFilter::only_kinematic() -> QueryFilter {
 }
 
 ///|
-pub fn FixedJoint::new() -> FixedJoint {
+pub fn FixedJoint::FixedJoint() -> FixedJoint {
   {
     local_anchor1: @math.Vec3::zero(),
     local_anchor2: @math.Vec3::zero(),
@@ -19,7 +19,7 @@ pub fn FixedJoint::new() -> FixedJoint {
 }
 
 ///|
-pub fn RevoluteJoint::new(axis : @math.Vec3) -> RevoluteJoint {
+pub fn RevoluteJoint::RevoluteJoint(axis : @math.Vec3) -> RevoluteJoint {
   {
     local_anchor1: @math.Vec3::zero(),
     local_anchor2: @math.Vec3::zero(),
@@ -34,7 +34,7 @@ pub fn RevoluteJoint::new(axis : @math.Vec3) -> RevoluteJoint {
 }
 
 ///|
-pub fn PrismaticJoint::new(axis : @math.Vec3) -> PrismaticJoint {
+pub fn PrismaticJoint::PrismaticJoint(axis : @math.Vec3) -> PrismaticJoint {
   {
     local_anchor1: @math.Vec3::zero(),
     local_anchor2: @math.Vec3::zero(),
@@ -47,7 +47,7 @@ pub fn PrismaticJoint::new(axis : @math.Vec3) -> PrismaticJoint {
 }
 
 ///|
-pub fn RopeJoint::new(max_distance : Double) -> RopeJoint {
+pub fn RopeJoint::RopeJoint(max_distance : Double) -> RopeJoint {
   {
     local_anchor1: @math.Vec3::zero(),
     local_anchor2: @math.Vec3::zero(),
@@ -56,7 +56,7 @@ pub fn RopeJoint::new(max_distance : Double) -> RopeJoint {
 }
 
 ///|
-pub fn SpringJoint::new(
+pub fn SpringJoint::SpringJoint(
   rest_length : Double,
   stiffness : Double,
   damping : Double,
@@ -71,7 +71,7 @@ pub fn SpringJoint::new(
 }
 
 ///|
-pub fn SphericalJoint::new() -> SphericalJoint {
+pub fn SphericalJoint::SphericalJoint() -> SphericalJoint {
   {
     local_anchor1: @math.Vec3::zero(),
     local_anchor2: @math.Vec3::zero(),

@@ -445,7 +445,7 @@ fn sample_quat(
       rhs.in_tangent is Some(rhs_in) {
       let (h00, h10, h01, h11) = cubic_hermite_basis(alpha)
       let dt = rhs.time - lhs.time
-      return @math.Quat::new(
+      return @math.Quat(
         lhs.value.x * h00 +
         lhs_out.x * dt * h10 +
         rhs.value.x * h01 +
@@ -464,7 +464,7 @@ fn sample_quat(
         rhs_in.w * dt * h11,
       ).normalize()
     }
-    return @math.Quat::new(
+    return @math.Quat(
       lhs.value.x * (1.0 - alpha) + rhs.value.x * alpha,
       lhs.value.y * (1.0 - alpha) + rhs.value.y * alpha,
       lhs.value.z * (1.0 - alpha) + rhs.value.z * alpha,

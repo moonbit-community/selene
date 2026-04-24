@@ -16,10 +16,8 @@ pub fn names() -> Map[@entity.Entity, Name]
 // Types and methods
 pub(all) struct Name {
   value : String
-
-  fn new(String) -> Name
 } derive(Eq, @debug.Debug)
-pub fn Name::new(String) -> Self
+pub fn Name::Name(String) -> Self
 
 // Type aliases
 

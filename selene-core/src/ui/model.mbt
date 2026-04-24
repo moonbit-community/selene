@@ -46,8 +46,6 @@ pub(all) struct UiRectValues {
   right : Val
   top : Val
   bottom : Val
-
-  fn new(left? : Val, right? : Val, top? : Val, bottom? : Val) -> UiRectValues
 } derive(Eq, Debug)
 
 ///|
@@ -57,7 +55,7 @@ pub fn UiRectValues::all(value : Double) -> UiRectValues {
 }
 
 ///|
-pub fn UiRectValues::new(
+pub fn UiRectValues::UiRectValues(
   left? : Val = Auto,
   right? : Val = Auto,
   top? : Val = Auto,
@@ -174,12 +172,10 @@ pub(all) enum GridPlacement {
 pub(all) struct GridLine {
   start : GridPlacement
   end : GridPlacement
-
-  fn new(start? : GridPlacement, end? : GridPlacement) -> GridLine
 } derive(Eq, Debug)
 
 ///|
-pub fn GridLine::new(
+pub fn GridLine::GridLine(
   start? : GridPlacement = Auto,
   end? : GridPlacement = Auto,
 ) -> GridLine {
@@ -456,54 +452,10 @@ pub(all) struct Node {
   grid_row : GridLine
   grid_column : GridLine
   active : Bool
-
-  fn new(
-    width? : Val,
-    height? : Val,
-    min_width? : Val,
-    min_height? : Val,
-    max_width? : Val,
-    max_height? : Val,
-    left? : Val,
-    right? : Val,
-    top? : Val,
-    bottom? : Val,
-    margin? : UiRectValues,
-    padding? : UiRectValues,
-    border? : UiRectValues,
-    display? : Display,
-    position_type? : PositionType,
-    flex_direction? : FlexDirection,
-    justify_content? : JustifyContent,
-    align_items? : AlignItems,
-    row_gap? : Double,
-    column_gap? : Double,
-    overflow_x? : Overflow,
-    overflow_y? : Overflow,
-    overflow_clip_margin? : OverflowClipMargin,
-    flex_grow? : Double,
-    flex_shrink? : Double,
-    active? : Bool,
-    align_content? : AlignContent?,
-    align_self? : AlignItems?,
-    justify_items? : AlignItems?,
-    justify_self? : AlignItems?,
-    flex_wrap? : FlexWrap,
-    flex_basis? : Val,
-    aspect_ratio? : Double?,
-    scrollbar_width? : Double,
-    grid_template_rows? : Array[GridTrack],
-    grid_template_columns? : Array[GridTrack],
-    grid_auto_rows? : Array[GridTrack],
-    grid_auto_columns? : Array[GridTrack],
-    grid_auto_flow? : GridAutoFlow,
-    grid_row? : GridLine,
-    grid_column? : GridLine,
-  ) -> Node
 } derive(Eq, Debug)
 
 ///|
-pub fn Node::new(
+pub fn Node::Node(
   width? : Val = Auto,
   height? : Val = Auto,
   min_width? : Val = Auto,
@@ -543,8 +495,8 @@ pub fn Node::new(
   grid_auto_rows? : Array[GridTrack] = [],
   grid_auto_columns? : Array[GridTrack] = [],
   grid_auto_flow? : GridAutoFlow = Row,
-  grid_row? : GridLine = GridLine::new(),
-  grid_column? : GridLine = GridLine::new(),
+  grid_row? : GridLine = GridLine(),
+  grid_column? : GridLine = GridLine(),
 ) -> Node {
   {
     width,
@@ -613,7 +565,7 @@ pub fn Node::absolute(
   } else {
     (Val::Auto, Val::Auto)
   }
-  Node::new(
+  Node(
     width~,
     height~,
     left=Val::Px(offset[X]),
@@ -657,12 +609,12 @@ pub(all) struct GlobalUiNode {
 ///|
 pub(all) struct UiTargetCamera {
   camera : @entity.Entity
-
-  fn new(camera : @entity.Entity) -> UiTargetCamera
 } derive(Eq, Debug)
 
 ///|
-pub fn UiTargetCamera::new(camera : @entity.Entity) -> UiTargetCamera {
+pub fn UiTargetCamera::UiTargetCamera(
+  camera : @entity.Entity,
+) -> UiTargetCamera {
   { camera, }
 }
 
@@ -670,15 +622,10 @@ pub fn UiTargetCamera::new(camera : @entity.Entity) -> UiTargetCamera {
 pub(all) struct UiLayoutSpace {
   target_camera : @entity.Entity?
   viewport : @math.Rect
-
-  fn new(
-    viewport : @math.Rect,
-    target_camera? : @entity.Entity?,
-  ) -> UiLayoutSpace
 }
 
 ///|
-pub fn UiLayoutSpace::new(
+pub fn UiLayoutSpace::UiLayoutSpace(
   viewport : @math.Rect,
   target_camera? : @entity.Entity? = None,
 ) -> UiLayoutSpace {
@@ -688,48 +635,40 @@ pub fn UiLayoutSpace::new(
 ///|
 pub(all) struct CalculatedClip {
   clip : @math.Rect
-
-  fn new(clip : @math.Rect) -> CalculatedClip
 }
 
 ///|
-pub fn CalculatedClip::new(clip : @math.Rect) -> CalculatedClip {
+pub fn CalculatedClip::CalculatedClip(clip : @math.Rect) -> CalculatedClip {
   { clip, }
 }
 
 ///|
 pub(all) struct LayoutConfig {
   use_rounding : Bool
-
-  fn new(use_rounding? : Bool) -> LayoutConfig
 } derive(Eq, Debug)
 
 ///|
-pub fn LayoutConfig::new(use_rounding? : Bool = true) -> LayoutConfig {
+pub fn LayoutConfig::LayoutConfig(use_rounding? : Bool = true) -> LayoutConfig {
   { use_rounding, }
 }
 
 ///|
 pub(all) struct ZIndex {
   value : Int
-
-  fn new(value : Int) -> ZIndex
 } derive(Eq, Debug)
 
 ///|
-pub fn ZIndex::new(value : Int) -> ZIndex {
+pub fn ZIndex::ZIndex(value : Int) -> ZIndex {
   { value, }
 }
 
 ///|
 pub(all) struct GlobalZIndex {
   value : Int
-
-  fn new(value : Int) -> GlobalZIndex
 } derive(Eq, Debug)
 
 ///|
-pub fn GlobalZIndex::new(value : Int) -> GlobalZIndex {
+pub fn GlobalZIndex::GlobalZIndex(value : Int) -> GlobalZIndex {
   { value, }
 }
 
@@ -747,12 +686,10 @@ pub fn ScrollPosition::zero() -> ScrollPosition {
 ///|
 pub(all) struct TabIndex {
   value : Int
-
-  fn new(value : Int) -> TabIndex
 } derive(Eq, Debug)
 
 ///|
-pub fn TabIndex::new(value : Int) -> TabIndex {
+pub fn TabIndex::TabIndex(value : Int) -> TabIndex {
   { value, }
 }
 
@@ -765,36 +702,30 @@ pub(all) enum FocusPolicy {
 ///|
 pub(all) struct Focused {
   _tag : Unit
-
-  fn new() -> Focused
 }
 
 ///|
-pub fn Focused::new() -> Focused {
+pub fn Focused::Focused() -> Focused {
   { _tag: () }
 }
 
 ///|
 pub(all) struct Focusable {
   _tag : Unit
-
-  fn new() -> Focusable
 }
 
 ///|
-pub fn Focusable::new() -> Focusable {
+pub fn Focusable::Focusable() -> Focusable {
   { _tag: () }
 }
 
 ///|
 pub(all) struct OverrideClip {
   _tag : Unit
-
-  fn new() -> OverrideClip
 } derive(Eq, Debug)
 
 ///|
-pub fn OverrideClip::new() -> OverrideClip {
+pub fn OverrideClip::OverrideClip() -> OverrideClip {
   { _tag: () }
 }
 
@@ -802,12 +733,10 @@ pub fn OverrideClip::new() -> OverrideClip {
 pub(all) struct RelativeCursorPosition {
   mut normalized : @math.Vec2?
   mut cursor_over : Bool
-
-  fn new() -> RelativeCursorPosition
 } derive(Eq, Debug)
 
 ///|
-pub fn RelativeCursorPosition::new() -> RelativeCursorPosition {
+pub fn RelativeCursorPosition::RelativeCursorPosition() -> RelativeCursorPosition {
   { normalized: None, cursor_over: false }
 }
 
@@ -1009,19 +938,16 @@ pub fn ui_layout_space(target_camera : @entity.Entity?) -> UiLayoutSpace {
   match target_camera {
     Some(target_camera) => {
       if !@transform.global_transforms().contains(target_camera) {
-        return UiLayoutSpace::new(full_screen_ui_viewport())
+        return UiLayoutSpace(full_screen_ui_viewport())
       }
       for view in @camera.active_camera2d_views() {
         if view.entity == target_camera {
-          return UiLayoutSpace::new(
-            view.viewport,
-            target_camera=Some(view.entity),
-          )
+          return UiLayoutSpace(view.viewport, target_camera=Some(view.entity))
         }
       }
-      UiLayoutSpace::new(full_screen_ui_viewport())
+      UiLayoutSpace(full_screen_ui_viewport())
     }
-    None => UiLayoutSpace::new(full_screen_ui_viewport())
+    None => UiLayoutSpace(full_screen_ui_viewport())
   }
 }
 

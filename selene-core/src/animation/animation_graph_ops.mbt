@@ -24,7 +24,7 @@ fn morphed_meshes() -> Map[@entity.Entity, MorphMeshBinding3D] {
 }
 
 ///|
-pub fn AnimatedBy::new(player : @entity.Entity) -> AnimatedBy {
+pub fn AnimatedBy::AnimatedBy(player : @entity.Entity) -> AnimatedBy {
   { player, }
 }
 
@@ -40,12 +40,12 @@ fn mask_from_groups(groups : Array[Int]) -> UInt {
 }
 
 ///|
-pub fn AnimationClip::new(name : String) -> AnimationClip {
+pub fn AnimationClip::AnimationClip(name : String) -> AnimationClip {
   { name, duration: 0.0, curves: Map::new(), events: [] }
 }
 
 ///|
-pub fn AnimationGraph::new() -> AnimationGraph {
+pub fn AnimationGraph::AnimationGraph() -> AnimationGraph {
   let root = AnimationNodeIndex(0U)
   let nodes : Map[AnimationNodeIndex, AnimationGraphNode] = Map::new()
   nodes.set(root, { node_type: Blend, mask: 0U, children: [] })
@@ -53,18 +53,13 @@ pub fn AnimationGraph::new() -> AnimationGraph {
 }
 
 ///|
-pub fn AnimationPlayer::new() -> AnimationPlayer {
+pub fn AnimationPlayer::AnimationPlayer() -> AnimationPlayer {
   { active_animations: Map::new() }
 }
 
 ///|
-pub fn AnimationTransitions::new() -> AnimationTransitions {
+pub fn AnimationTransitions::AnimationTransitions() -> AnimationTransitions {
   { main: None, fading: Map::new() }
-}
-
-///|
-pub fn AnimationTargetId::new(path : String) -> AnimationTargetId {
-  AnimationTargetId(path)
 }
 
 ///|

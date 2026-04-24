@@ -47,7 +47,7 @@ let controller_entity : Ref[@entity.Entity?] = Ref::new(None)
 
 ///|
 let contact_force_reader : Ref[@event.EventReader[@physics3d.ContactForceEvent]] = Ref::new(
-  @event.EventReader::new(),
+  @event.EventReader(),
 )
 
 ///|
@@ -60,7 +60,7 @@ fn color(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
 
 ///|
 fn vec3(x : Double, y : Double, z : Double) -> @math.Vec3 {
-  @math.Vec3::new(x, y, z)
+  @math.Vec3(x, y, z)
 }
 
 ///|
@@ -83,7 +83,7 @@ fn spawn_sphere(
     base_color,
     roughness: 0.3,
   })
-  let entity = @entity.Entity::new()
+  let entity = @entity.Entity()
   update_transform(entity, {
     translation,
     rotation: @math.Quat::identity(),
@@ -199,7 +199,7 @@ fn lit_cube_mesh(size : Double) -> @render3d.MeshAsset {
 
 ///|
 pub fn run() -> Unit {
-  @app.App::new()
+  @app.App()
   .with_viewport_width(VIEWPORT_WIDTH)
   .with_viewport_height(VIEWPORT_HEIGHT)
   .with_zoom(1.0)
@@ -215,7 +215,7 @@ pub fn run() -> Unit {
 
 ///|
 fn setup_scene3d(_world : @ecs.World) -> Unit {
-  let camera = @entity.Entity::new()
+  let camera = @entity.Entity()
   @transform.transforms().set(camera, {
     translation: vec3(0.0, 1.5, 8.0),
     rotation: @math.Quat::identity(),
@@ -237,7 +237,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     base_color: color(96U, 104U, 110U, 1.0),
     roughness: 0.9,
   })
-  let floor = @entity.Entity::new()
+  let floor = @entity.Entity()
   @transform.transforms().set(floor, {
     translation: vec3(0.0, -0.01, 0.0),
     rotation: @math.Quat::identity(),
@@ -262,7 +262,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     roughness: 0.25,
   })
 
-  let cube = @entity.Entity::new()
+  let cube = @entity.Entity()
   @transform.transforms().set(cube, {
     translation: vec3(0.0, 0.5, 0.0),
     rotation: @math.Quat::identity(),
@@ -283,7 +283,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     base_color: color(244U, 199U, 124U, 1.0),
     roughness: 0.25,
   })
-  let target = @entity.Entity::new()
+  let target = @entity.Entity()
   @transform.transforms().set(target, {
     translation: vec3(1.35, 1.55, -0.75),
     rotation: @math.Quat::identity(),
@@ -305,7 +305,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     base_color: color(86U, 96U, 112U, 1.0),
     roughness: 0.82,
   })
-  let shadow_wall = @entity.Entity::new()
+  let shadow_wall = @entity.Entity()
   @transform.transforms().set(shadow_wall, {
     translation: vec3(0.0, 1.6, -2.9),
     rotation: @math.Quat::identity(),
@@ -319,7 +319,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     receive_shadows: true,
   })
 
-  let off_axis_cube = @entity.Entity::new()
+  let off_axis_cube = @entity.Entity()
   @transform.transforms().set(off_axis_cube, {
     translation: vec3(-2.2, 0.5, 1.8),
     rotation: @math.Quat::from_axis_angle(vec3(0.0, 1.0, 0.0), 0.45),
@@ -365,7 +365,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
   )
   dynamic_ball_entity.val = Some(dynamic_ball)
 
-  let compound_body = @entity.Entity::new()
+  let compound_body = @entity.Entity()
   update_transform(compound_body, {
     translation: vec3(-3.0, 0.45, -0.8),
     rotation: @math.Quat::identity(),
@@ -430,7 +430,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
   @physics3d.impulse_joints().set(joint_ball, {
     parent: joint_anchor,
     data: Spherical({
-      ..@physics3d.SphericalJoint::new(),
+      ..@physics3d.SphericalJoint(),
       local_anchor1: vec3(-0.55, 1.2, 0.0),
       local_anchor2: vec3(0.0, 0.0, 0.0),
     }),
@@ -451,7 +451,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
   )
   controller_entity.val = Some(controller)
 
-  let spotlight = @entity.Entity::new()
+  let spotlight = @entity.Entity()
   @transform.transforms().set(spotlight, {
     translation: vec3(3.2, 3.0, 0.0),
     rotation: @math.Quat::identity(),
@@ -492,7 +492,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     receive_shadows: false,
   })
 
-  let dir_light = @entity.Entity::new()
+  let dir_light = @entity.Entity()
   @render3d.directional_lights3d().set(dir_light, {
     ..@render3d.default_directional_light3d(),
     direction: vec3(-0.72, -1.0, -0.42).normalize(),
@@ -506,40 +506,40 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     Some({ color: color(255U, 255U, 255U, 1.0), intensity: 0.03 }),
   )
 
-  let label = @entity.Entity::new()
+  let label = @entity.Entity()
   @ui.nodes().set(
     label,
     @ui.Node::absolute(@math.Vec2(16.0, 16.0), size=@math.Vec2(420.0, 28.0)),
   )
   @ui.texts().set(
     label,
-    @ui.Text::new("3d_scene: WebGPU directional + spot shadows"),
+    @ui.Text("3d_scene: WebGPU directional + spot shadows"),
   )
-  @ui.text_fonts().set(label, @ui.TextFont::new(family="sans-serif", size=20.0))
-  @ui.text_colors().set(label, @ui.TextColor::new(color(245U, 245U, 245U, 1.0)))
-  @ui.z_indexes().set(label, @ui.ZIndex::new(100))
+  @ui.text_fonts().set(label, @ui.TextFont(family="sans-serif", size=20.0))
+  @ui.text_colors().set(label, @ui.TextColor(color(245U, 245U, 245U, 1.0)))
+  @ui.z_indexes().set(label, @ui.ZIndex(100))
   hud_label.val = Some(label)
 
-  let physics_text = @entity.Entity::new()
+  let physics_text = @entity.Entity()
   @ui.nodes().set(
     physics_text,
     @ui.Node::absolute(@math.Vec2(16.0, 46.0), size=@math.Vec2(620.0, 28.0)),
   )
   @ui.texts().set(
     physics_text,
-    @ui.Text::new(
+    @ui.Text(
       "physics: ball, child collider, joint, controller, raycast, contact force",
     ),
   )
   @ui.text_fonts().set(
     physics_text,
-    @ui.TextFont::new(family="sans-serif", size=18.0),
+    @ui.TextFont(family="sans-serif", size=18.0),
   )
   @ui.text_colors().set(
     physics_text,
-    @ui.TextColor::new(color(214U, 224U, 235U, 1.0)),
+    @ui.TextColor(color(214U, 224U, 235U, 1.0)),
   )
-  @ui.z_indexes().set(physics_text, @ui.ZIndex::new(100))
+  @ui.z_indexes().set(physics_text, @ui.ZIndex(100))
   physics_label.val = Some(physics_text)
 }
 
@@ -631,7 +631,7 @@ fn update_physics_overlay_system(_world : @ecs.World) -> Unit {
   guard physics_label.val is Some(label) else { return }
   @ui.texts().set(
     label,
-    @ui.Text::new(
+    @ui.Text(
       "physics: ray=\{ray_label}  contact=\{strongest_force}  controller=\{controller_status}",
     ),
   )

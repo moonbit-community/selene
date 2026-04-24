@@ -26,15 +26,6 @@ pub(all) struct Transform {
   d : Double // scale_y * cos(rotation)
   tx : Double // translation_x
   ty : Double // translation_y
-
-  fn new(
-    a? : Double,
-    b? : Double,
-    c? : Double,
-    d? : Double,
-    tx? : Double,
-    ty? : Double,
-  ) -> Transform
 }
 
 ///|
@@ -65,7 +56,7 @@ pub impl Default for Transform with default() -> Transform {
 ///|
 /// Create transform from matrix components
 /// 
-pub fn Transform::new(
+pub fn Transform::Transform(
   a? : Double = 1.0,
   b? : Double = 0.0,
   c? : Double = 0.0,
@@ -377,7 +368,7 @@ fn transform_approx_eq(
 ///|
 test "Transform::identity creates identity matrix" {
   let identity = Transform::identity()
-  let expected = Transform::new(a=1.0, b=0.0, c=0.0, d=1.0, tx=0.0, ty=0.0)
+  let expected = Transform(a=1.0, b=0.0, c=0.0, d=1.0, tx=0.0, ty=0.0)
   assert_true(transform_approx_eq(identity, expected))
 }
 
@@ -386,7 +377,7 @@ test "Transform::identity creates identity matrix" {
 ///|
 test "Transform::from_translation creates correct translation matrix" {
   let translation = Transform::from_translation(10.0, 20.0)
-  let expected = Transform::new(a=1.0, b=0.0, c=0.0, d=1.0, tx=10.0, ty=20.0)
+  let expected = Transform(a=1.0, b=0.0, c=0.0, d=1.0, tx=10.0, ty=20.0)
   assert_true(transform_approx_eq(translation, expected))
 }
 
@@ -395,7 +386,7 @@ test "Transform::from_translation creates correct translation matrix" {
 ///|
 test "Transform::from_scale creates correct scale matrix" {
   let scale = Transform::from_scale(2.0, 3.0)
-  let expected = Transform::new(a=2.0, b=0.0, c=0.0, d=3.0, tx=0.0, ty=0.0)
+  let expected = Transform(a=2.0, b=0.0, c=0.0, d=3.0, tx=0.0, ty=0.0)
   assert_true(transform_approx_eq(scale, expected))
 }
 
@@ -405,7 +396,7 @@ test "Transform::from_scale creates correct scale matrix" {
 test "Transform::from_rotation_deg creates correct rotation matrix" {
   let rotation = Transform::from_rotation_deg(90.0)
   // 90 degrees: cos(90°) = 0, sin(90°) = 1
-  let expected = Transform::new(a=0.0, b=1.0, c=-1.0, d=0.0, tx=0.0, ty=0.0)
+  let expected = Transform(a=0.0, b=1.0, c=-1.0, d=0.0, tx=0.0, ty=0.0)
   assert_true(transform_approx_eq(rotation, expected))
 }
 
@@ -415,7 +406,7 @@ test "Transform::from_rotation_deg creates correct rotation matrix" {
 test "Transform::from_rotation_rad creates correct rotation matrix" {
   let rotation = Transform::from_rotation_rad(@cmath.PI / 2.0)
   // π/2 radians: cos(π/2) = 0, sin(π/2) = 1
-  let expected = Transform::new(a=0.0, b=1.0, c=-1.0, d=0.0, tx=0.0, ty=0.0)
+  let expected = Transform(a=0.0, b=1.0, c=-1.0, d=0.0, tx=0.0, ty=0.0)
   assert_true(transform_approx_eq(rotation, expected))
 }
 
@@ -424,7 +415,7 @@ test "Transform::from_rotation_rad creates correct rotation matrix" {
 ///|
 test "Transform::from_skew creates correct skew matrix" {
   let skew = Transform::from_skew(0.5, 0.3)
-  let expected = Transform::new(a=1.0, b=0.3, c=0.5, d=1.0, tx=0.0, ty=0.0)
+  let expected = Transform(a=1.0, b=0.3, c=0.5, d=1.0, tx=0.0, ty=0.0)
   assert_true(transform_approx_eq(skew, expected))
 }
 
@@ -502,7 +493,7 @@ test "Transform::prepend and Transform::append have explicit order" {
 
 ///|
 test "Transform::with_translation updates translation only" {
-  let base = Transform::new(a=1.2, b=0.3, c=0.4, d=1.5, tx=9.0, ty=8.0)
+  let base = Transform(a=1.2, b=0.3, c=0.4, d=1.5, tx=9.0, ty=8.0)
   let updated = base.with_translation(3.0, 4.0)
   assert_true(approx_eq(updated.a, 1.2))
   assert_true(approx_eq(updated.b, 0.3))
@@ -602,14 +593,7 @@ test "Transform::inverse with rotation" {
 ///|
 test "Transform::inverse returns None for non-invertible matrix" {
   // Create a matrix with zero determinant (not invertible)
-  let non_invertible = Transform::new(
-    a=0.0,
-    b=0.0,
-    c=0.0,
-    d=0.0,
-    tx=0.0,
-    ty=0.0,
-  )
+  let non_invertible = Transform(a=0.0, b=0.0, c=0.0, d=0.0, tx=0.0, ty=0.0)
   let inverse = non_invertible.inverse()
   match inverse {
     Some(_) => abort("Non-invertible matrix should return None")

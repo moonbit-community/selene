@@ -262,7 +262,7 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
     // Try to select an enemy type for the current wave
     match select_enemy_type_for_wave(rand) {
       Some(enemy_type) => {
-        let enemy = @entity.Entity::new()
+        let enemy = @entity.Entity()
         let pos = spawners[rand.int(limit=spawners.length())]
         @transform.transforms().set(
           enemy,
@@ -297,8 +297,8 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
         )
         @physics2d.colliders().set(
           enemy,
-          @physics2d.Collider::new(
-            @physics2d.CollisionFilter::new(enemy_collision_group, [
+          @physics2d.collider(
+            @physics2d.collision_filter(enemy_collision_group, [
               enemy_collision_group, wall_collision_group,
             ]),
           ),
@@ -348,17 +348,17 @@ let enemies : Map[@entity.Entity, Enemy] = Map::new()
 let enemy_bullets : Set[@entity.Entity] = Set::new()
 
 ///|
-let enemy_contact_event_reader : @event.EventReader[@physics2d.ContactEvent] = @event.EventReader::new()
+let enemy_contact_event_reader : @event.EventReader[@physics2d.ContactEvent] = @event.EventReader()
 
 ///|
-let enemy_trigger_event_reader : @event.EventReader[@physics2d.TriggerEvent] = @event.EventReader::new()
+let enemy_trigger_event_reader : @event.EventReader[@physics2d.TriggerEvent] = @event.EventReader()
 
 ///|
 fn create_enemy_animation_nodes(
   entity : @entity.Entity,
   data : EnemyData,
 ) -> (@animation.AnimationNodeIndex, @animation.AnimationNodeIndex) {
-  let graph = @animation.AnimationGraph::new()
+  let graph = @animation.AnimationGraph()
   let right_node = register_sprite_animation_node(graph, data.right_animation)
   let left_node = register_sprite_animation_node(graph, data.left_animation)
   ensure_sprite_animation_binding(entity)
@@ -525,10 +525,10 @@ fn devil_shooting_system(_world : @ecs.World) -> Unit {
 
 ///|
 fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
-  let bullet_entity = @entity.Entity::new()
+  let bullet_entity = @entity.Entity()
   @sprite.sprites().set(
     bullet_entity,
-    @sprite.Sprite::new(
+    @sprite.Sprite(
       color=@sprite.color_from_css("red"),
       custom_size=Some(Vec2(4.0, 4.0)),
     ),
@@ -550,8 +550,8 @@ fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
       offset=@math.Vec2(-2.0, -2.0),
     ),
   )
-  let area = @physics2d.Area::new(
-    @physics2d.CollisionFilter::new(enemybullet_collision_group, [
+  let area = @physics2d.sensor(
+    @physics2d.collision_filter(enemybullet_collision_group, [
       player_collision_group, wall_collision_group,
     ]),
   )

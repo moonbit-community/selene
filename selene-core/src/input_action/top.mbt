@@ -1,8 +1,6 @@
 ///|
 pub(all) struct InputAction {
   name : String
-
-  fn new(name : String) -> InputAction
 } derive(Eq, Debug, Hash)
 
 ///|
@@ -47,10 +45,10 @@ let input_bindings : Map[InputAction, Array[InputBinding]] = Map::new()
 let action_states : Map[InputAction, ActionState] = Map::new()
 
 ///|
-pub let input_action_event_bus : @event.Events[ActionEvent] = @event.Events::new()
+pub let input_action_event_bus : @event.Events[ActionEvent] = @event.Events()
 
 ///|
-pub fn InputAction::new(name : String) -> InputAction {
+pub fn InputAction::InputAction(name : String) -> InputAction {
   { name, }
 }
 

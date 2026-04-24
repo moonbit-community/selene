@@ -16,12 +16,10 @@
 pub(all) struct CameraViewport {
   position : @math.Vec2
   size : @math.Vec2
-
-  fn new(position : @math.Vec2, size : @math.Vec2) -> CameraViewport
 } derive(Eq, Debug)
 
 ///|
-pub fn CameraViewport::new(
+pub fn CameraViewport::CameraViewport(
   position : @math.Vec2,
   size : @math.Vec2,
 ) -> CameraViewport {
@@ -32,7 +30,7 @@ pub fn CameraViewport::new(
 
 ///|
 pub fn CameraViewport::from_rect(rect : @math.Rect) -> CameraViewport {
-  CameraViewport::new(rect.position, rect.size)
+  CameraViewport(rect.position, rect.size)
 }
 
 ///|
@@ -57,12 +55,6 @@ pub(all) struct CameraPass2D {
   load_op : CameraPassLoadOp2D
   clear_color : @render.Color
   target : CameraPassTarget2D
-
-  fn new(
-    load_op? : CameraPassLoadOp2D,
-    clear_color? : @render.Color,
-    target? : CameraPassTarget2D,
-  ) -> CameraPass2D
 } derive(Eq, Debug)
 
 ///|
@@ -71,7 +63,7 @@ fn default_camera_clear_color() -> @render.Color {
 }
 
 ///|
-pub fn CameraPass2D::new(
+pub fn CameraPass2D::CameraPass2D(
   load_op? : CameraPassLoadOp2D = Load,
   clear_color? : @render.Color = default_camera_clear_color(),
   target? : CameraPassTarget2D = Screen,
@@ -85,44 +77,34 @@ pub(all) struct Camera {
   order : Int
   viewport : CameraViewport?
   pass : CameraPass2D
-
-  fn new(
-    is_active? : Bool,
-    order? : Int,
-    viewport? : CameraViewport?,
-    pass? : CameraPass2D,
-  ) -> Camera
 } derive(Eq, Debug)
 
 ///|
-pub fn Camera::new(
+pub fn Camera::Camera(
   is_active? : Bool = true,
   order? : Int = 0,
   viewport? : CameraViewport? = None,
-  pass? : CameraPass2D = CameraPass2D::new(),
+  pass? : CameraPass2D = CameraPass2D(),
 ) -> Camera {
   { is_active, order, viewport, pass }
 }
 
 ///|
 pub impl Default for Camera with default() -> Camera {
-  Camera::new()
+  Camera()
 }
 
 ///|
-pub(all) struct Camera2d {
-
-  fn new() -> Camera2d
-} derive(Eq, Debug)
+pub(all) struct Camera2d {} derive(Eq, Debug)
 
 ///|
-pub fn Camera2d::new() -> Camera2d {
+pub fn Camera2d::Camera2d() -> Camera2d {
   Camera2d::{  }
 }
 
 ///|
 pub impl Default for Camera2d with default() -> Camera2d {
-  Camera2d::new()
+  Camera2d()
 }
 
 ///|
@@ -130,16 +112,10 @@ pub(all) struct OrthographicProjection {
   near : Double
   far : Double
   scale : Double
-
-  fn new(
-    scale? : Double,
-    near? : Double,
-    far? : Double,
-  ) -> OrthographicProjection
 } derive(Eq, Debug)
 
 ///|
-pub fn OrthographicProjection::new(
+pub fn OrthographicProjection::OrthographicProjection(
   scale? : Double = 1.0,
   near? : Double = -1000.0,
   far? : Double = 1000.0,
@@ -149,7 +125,7 @@ pub fn OrthographicProjection::new(
 
 ///|
 pub impl Default for OrthographicProjection with default() -> OrthographicProjection {
-  OrthographicProjection::new()
+  OrthographicProjection()
 }
 
 ///|
@@ -237,7 +213,7 @@ pub fn Camera::world_to_viewport(
   projection : OrthographicProjection,
   world_position : @math.Vec2,
 ) -> @math.Vec2 {
-  let world_point = @math.Vec3::new(world_position[X], world_position[Y], 0.0)
+  let world_point = @math.Vec3(world_position[X], world_position[Y], 0.0)
   let view_point = match camera_transform.affine.inverse() {
     Some(inverse_camera) => inverse_camera.transform_point3(world_point)
     None => world_point
@@ -263,7 +239,7 @@ pub fn Camera::viewport_to_world_2d(
     projection_scale(projection.scale)
   let viewport = self.viewport_rect()
   let viewport_center = viewport.position + viewport.size.scalar_mul(0.5)
-  let view_point = @math.Vec3::new(
+  let view_point = @math.Vec3(
     (viewport_position[X] - viewport_center[X]) / pixels_per_world_unit,
     (viewport_position[Y] - viewport_center[Y]) / pixels_per_world_unit,
     0.0,
@@ -275,8 +251,8 @@ pub fn Camera::viewport_to_world_2d(
 ///|
 test "camera world_to_viewport roundtrip" {
   @system.configure_display(480.0, 320.0, 2.0)
-  let camera = Camera::new()
-  let projection = OrthographicProjection::new()
+  let camera = Camera()
+  let projection = OrthographicProjection()
   let camera_transform = @transform.GlobalTransform::from_transform(
     @transform.Transform::from_xyz(100.0, 50.0, 0.0),
   )
@@ -292,14 +268,14 @@ test "camera world_to_viewport roundtrip" {
 ///|
 test "camera world_to_viewport respects camera rotation" {
   @system.configure_display(100.0, 100.0, 1.0)
-  let camera = Camera::new()
-  let projection = OrthographicProjection::new()
+  let camera = Camera()
+  let projection = OrthographicProjection()
   let quarter_turn = @math.Quat::from_axis_angle(
     @math.Vec3::z_axis(),
     1.5707963267948966,
   )
   let camera_transform = @transform.GlobalTransform::from_transform({
-    translation: @math.Vec3::new(0.0, 0.0, 0.0),
+    translation: @math.Vec3(0.0, 0.0, 0.0),
     rotation: quarter_turn,
     scale: @math.Vec3::one(),
   })
@@ -315,12 +291,12 @@ test "camera world_to_viewport respects camera rotation" {
 ///|
 test "camera viewport offsets world_to_viewport into viewport rect" {
   @system.configure_display(200.0, 120.0, 1.0)
-  let camera = Camera::new(
+  let camera = Camera(
     viewport=Some(
-      CameraViewport::new(@math.Vec2(20.0, 10.0), @math.Vec2(80.0, 40.0)),
+      CameraViewport(@math.Vec2(20.0, 10.0), @math.Vec2(80.0, 40.0)),
     ),
   )
-  let projection = OrthographicProjection::new()
+  let projection = OrthographicProjection()
   let camera_transform = @transform.GlobalTransform::from_transform(
     @transform.Transform::default(),
   )

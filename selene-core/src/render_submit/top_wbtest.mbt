@@ -1,7 +1,7 @@
 ///|
 fn with_render_submit_test_world(action : () -> Unit raise) -> Unit raise {
   let previous = @ecs.current_world().unwrap_or(@ecs.bootstrap_world())
-  let world = @ecs.World::new()
+  let world = @ecs.World()
   @ecs.set_current_world(world)
   action()
   @ecs.set_current_world(previous)
@@ -25,17 +25,14 @@ fn test_rect_command(
 test "build_frame2d keeps clear-only camera passes" {
   with_render_submit_test_world(fn() raise {
     @system.configure_display(200.0, 120.0, 1.0)
-    let camera_entity = @entity.Entity::new()
+    let camera_entity = @entity.Entity()
     @camera.cameras().set(
       camera_entity,
-      @camera.Camera::new(
+      @camera.Camera(
         viewport=Some(
-          @camera.CameraViewport::new(
-            @math.Vec2(20.0, 10.0),
-            @math.Vec2(80.0, 40.0),
-          ),
+          @camera.CameraViewport(@math.Vec2(20.0, 10.0), @math.Vec2(80.0, 40.0)),
         ),
-        pass=@camera.CameraPass2D::new(load_op=Clear, clear_color={
+        pass=@camera.CameraPass2D(load_op=Clear, clear_color={
           r: 12U,
           g: 24U,
           b: 48U,
@@ -43,7 +40,7 @@ test "build_frame2d keeps clear-only camera passes" {
         }),
       ),
     )
-    @camera.camera2ds().set(camera_entity, @camera.Camera2d::new())
+    @camera.camera2ds().set(camera_entity, @camera.Camera2d())
     @transform.global_transforms().set(
       camera_entity,
       @transform.GlobalTransform::from_transform(
@@ -88,24 +85,21 @@ test "build_frame2d normalizes offscreen viewport and command coordinates" {
   with_render_submit_test_world(fn() raise {
     @system.configure_display(200.0, 120.0, 1.0)
     @render2d.begin_frame2d_system(0.0)
-    let camera_entity = @entity.Entity::new()
+    let camera_entity = @entity.Entity()
     @camera.cameras().set(
       camera_entity,
-      @camera.Camera::new(
+      @camera.Camera(
         viewport=Some(
-          @camera.CameraViewport::new(
-            @math.Vec2(20.0, 10.0),
-            @math.Vec2(80.0, 40.0),
-          ),
+          @camera.CameraViewport(@math.Vec2(20.0, 10.0), @math.Vec2(80.0, 40.0)),
         ),
-        pass=@camera.CameraPass2D::new(
+        pass=@camera.CameraPass2D(
           load_op=Clear,
           clear_color={ r: 0U, g: 0U, b: 0U, a: 1.0 },
           target=@camera.CameraPassTarget2D::Offscreen("minimap"),
         ),
       ),
     )
-    @camera.camera2ds().set(camera_entity, @camera.Camera2d::new())
+    @camera.camera2ds().set(camera_entity, @camera.Camera2d())
     @transform.global_transforms().set(
       camera_entity,
       @transform.GlobalTransform::from_transform(
@@ -145,9 +139,9 @@ test "build_frame2d batches camera ui commands with clip barriers" {
   with_render_submit_test_world(fn() raise {
     @system.configure_display(200.0, 120.0, 1.0)
     @render2d.begin_frame2d_system(0.0)
-    let camera_entity = @entity.Entity::new()
-    @camera.cameras().set(camera_entity, @camera.Camera::new())
-    @camera.camera2ds().set(camera_entity, @camera.Camera2d::new())
+    let camera_entity = @entity.Entity()
+    @camera.cameras().set(camera_entity, @camera.Camera())
+    @camera.camera2ds().set(camera_entity, @camera.Camera2d())
     @transform.global_transforms().set(
       camera_entity,
       @transform.GlobalTransform::from_transform(
@@ -187,18 +181,18 @@ test "build_frame2d batches camera ui commands with clip barriers" {
 test "build_frame2d maps camera offscreen pass target" {
   with_render_submit_test_world(fn() raise {
     @system.configure_display(200.0, 120.0, 1.0)
-    let camera_entity = @entity.Entity::new()
+    let camera_entity = @entity.Entity()
     @camera.cameras().set(
       camera_entity,
-      @camera.Camera::new(
-        pass=@camera.CameraPass2D::new(
+      @camera.Camera(
+        pass=@camera.CameraPass2D(
           load_op=Clear,
           clear_color={ r: 0U, g: 0U, b: 0U, a: 1.0 },
           target=@camera.CameraPassTarget2D::Offscreen("minimap"),
         ),
       ),
     )
-    @camera.camera2ds().set(camera_entity, @camera.Camera2d::new())
+    @camera.camera2ds().set(camera_entity, @camera.Camera2d())
     @transform.global_transforms().set(
       camera_entity,
       @transform.GlobalTransform::from_transform(

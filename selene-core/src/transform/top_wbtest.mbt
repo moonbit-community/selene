@@ -16,7 +16,7 @@ fn transform_test_global_translation(entity : @entity.Entity) -> String {
 
 ///|
 test "compute_global_transform follows parent hierarchy" {
-  let parent = @entity.Entity::new()
+  let parent = @entity.Entity()
   let child = parent.spawn_child()
   defer parent.destroy()
   defer child.destroy()
@@ -33,8 +33,8 @@ test "compute_global_transform follows parent hierarchy" {
 
 ///|
 test "set_parent_in_place preserves global transform" {
-  let parent_a = @entity.Entity::new()
-  let parent_b = @entity.Entity::new()
+  let parent_a = @entity.Entity()
+  let parent_b = @entity.Entity()
   defer parent_a.destroy()
   defer parent_b.destroy()
 
@@ -56,7 +56,7 @@ test "set_parent_in_place preserves global transform" {
 
 ///|
 test "remove_parent_in_place preserves global transform" {
-  let parent = @entity.Entity::new()
+  let parent = @entity.Entity()
   defer parent.destroy()
   transforms().set(parent, Transform::from_xyz(10.0, 0.0, 0.0))
 

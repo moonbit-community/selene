@@ -557,13 +557,13 @@ fn is_visible_in_camera_frustum(
       let up = if camera.up.length_squared() > 0.0000001 {
         camera.up.normalize()
       } else {
-        @math.Vec3::new(0.0, 1.0, 0.0)
+        @math.Vec3(0.0, 1.0, 0.0)
       }
       let right = forward_n.cross(up)
       let right_n = if right.length_squared() > 0.0000001 {
         right.normalize()
       } else {
-        @math.Vec3::new(1.0, 0.0, 0.0)
+        @math.Vec3(1.0, 0.0, 0.0)
       }
       let up_n = right_n.cross(forward_n).normalize()
       let viewport = @system.get_viewport_size()
@@ -589,13 +589,13 @@ fn is_visible_in_camera_frustum(
       let up = if camera.up.length_squared() > 0.0000001 {
         camera.up.normalize()
       } else {
-        @math.Vec3::new(0.0, 1.0, 0.0)
+        @math.Vec3(0.0, 1.0, 0.0)
       }
       let right = forward_n.cross(up)
       let right_n = if right.length_squared() > 0.0000001 {
         right.normalize()
       } else {
-        @math.Vec3::new(1.0, 0.0, 0.0)
+        @math.Vec3(1.0, 0.0, 0.0)
       }
       let up_n = right_n.cross(forward_n).normalize()
       let ortho_size = camera.orthographic_size.unwrap_or(
@@ -670,7 +670,7 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
       }
       let transform = global_transform.compute_transform()
       let local_direction = if light.direction.length_squared() <= 0.0000001 {
-        @math.Vec3::new(0.0, 0.0, -1.0)
+        @math.Vec3(0.0, 0.0, -1.0)
       } else {
         light.direction.normalize()
       }
@@ -712,7 +712,7 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
       }
       let transform = global_transform.compute_transform()
       let local_direction = if light.direction.length_squared() <= 0.0000001 {
-        @math.Vec3::new(0.0, -1.0, 0.0)
+        @math.Vec3(0.0, -1.0, 0.0)
       } else {
         light.direction.normalize()
       }

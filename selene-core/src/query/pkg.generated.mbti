@@ -40,10 +40,8 @@ pub(all) struct QueryReader[T] {
   mut entities : @set.Set[@entity.Entity]
   mut entries : Map[@entity.Entity, T]
   mut initialized : Bool
-
-  fn[T] new() -> QueryReader[T]
 }
-pub fn[T] QueryReader::new() -> Self[T]
+pub fn[T] QueryReader::QueryReader() -> Self[T]
 pub fn[T : Eq] QueryReader::read(Self[T], @ecs.World, Map[@entity.Entity, T]) -> QueryDelta[T]
 pub fn[T] QueryReader::reset(Self[T]) -> Unit
 

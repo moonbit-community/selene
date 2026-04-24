@@ -16,12 +16,10 @@
 /// Marker component for pointer-interactive entities.
 pub(all) struct Pickable {
   mut active : Bool
-
-  fn new() -> Pickable
 }
 
 ///|
-pub fn Pickable::new() -> Pickable {
+pub fn Pickable::Pickable() -> Pickable {
   { active: true }
 }
 
@@ -63,7 +61,7 @@ pub struct PointerEvent {
 }
 
 ///|
-pub let pointer_event_bus : @event.Events[PointerEvent] = @event.Events::new()
+pub let pointer_event_bus : @event.Events[PointerEvent] = @event.Events()
 
 ///|
 fn push_pointer_event(
@@ -269,9 +267,9 @@ fn hit_test_pickable(
   let local_point = match transform.affine.inverse() {
     Some(inverse_transform) =>
       inverse_transform.transform_point3(
-        @math.Vec3::new(mouse_world[X], mouse_world[Y], 0.0),
+        @math.Vec3(mouse_world[X], mouse_world[Y], 0.0),
       )
-    None => @math.Vec3::new(mouse_world[X], mouse_world[Y], 0.0)
+    None => @math.Vec3(mouse_world[X], mouse_world[Y], 0.0)
   }
   point_in_collision_shape(
     @math.Vec2(local_point.x, local_point.y),

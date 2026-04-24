@@ -318,7 +318,7 @@ fn ldtk_apply_int_grid_physics(
   } else {
     @physics2d.colliders().set(
       cell_entity,
-      @physics2d.Collider::new(physics_settings.collision_filter),
+      @physics2d.collider(physics_settings.collision_filter),
     )
   }
   @physics2d.shapes().set(cell_entity, shape)

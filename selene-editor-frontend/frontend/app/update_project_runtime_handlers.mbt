@@ -65,9 +65,7 @@ fn handle_project_loaded(
         Some(root) => "Project: " + root
         None => "Choose a project folder to begin"
       }
-      let project_root_input = response.root.unwrap_or(
-        model.project_root_input,
-      )
+      let project_root_input = response.root.unwrap_or(model.project_root_input)
       let next = {
         ..model,
         current_root: response.root,

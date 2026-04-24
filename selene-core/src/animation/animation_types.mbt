@@ -78,8 +78,6 @@ pub(all) struct AnimationTargetId(String) derive(Eq, Debug, Hash)
 ///|
 pub(all) struct AnimatedBy {
   player : @entity.Entity
-
-  fn new(player : @entity.Entity) -> AnimatedBy
 }
 
 ///|
@@ -111,8 +109,6 @@ pub(all) struct AnimationClip {
   mut duration : Double
   curves : Map[AnimationTargetId, Array[VariableCurve]]
   events : Array[AnimationClipEventKeyframe]
-
-  fn new(name : String) -> AnimationClip
 }
 
 ///|
@@ -147,8 +143,6 @@ pub(all) struct AnimationGraph {
   nodes : Map[AnimationNodeIndex, AnimationGraphNode]
   mask_groups : Map[AnimationTargetId, UInt]
   mut next_node : UInt
-
-  fn new() -> AnimationGraph
 }
 
 ///|
@@ -176,6 +170,4 @@ pub(all) struct ActiveAnimation {
 ///|
 pub(all) struct AnimationPlayer {
   active_animations : Map[AnimationNodeIndex, ActiveAnimation]
-
-  fn new() -> AnimationPlayer
 }

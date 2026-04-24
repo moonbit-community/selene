@@ -247,7 +247,7 @@ test "runtime layer cell updates keep source state in sync" {
     [autotile_palette_entry(1, "base", bitmask4_rules=[mask_rule(0, "m0")])],
     [autotile_cell(0, 0, 1)],
   )
-  let layer = @entity.Entity::new()
+  let layer = @entity.Entity()
   register_runtime_layer(layer, source)
   inspect(runtime_layer_source(layer) is Some(_), content="true")
   set_runtime_cell(layer, 1, 0, 1)

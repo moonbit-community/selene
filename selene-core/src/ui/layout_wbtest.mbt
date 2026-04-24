@@ -36,7 +36,7 @@ test "ui nodes map flex wrap and align content into wrapped layout" {
   let taffy : @moon_taffy.TaffyTree[Unit] = @moon_taffy.TaffyTree::new()
   let mk_child = fn() {
     taffy.new_leaf(
-      node_to_taffy_style(Node::new(width=Val::px(50.0), height=Val::px(10.0))),
+      node_to_taffy_style(Node(width=Val::px(50.0), height=Val::px(10.0))),
     )
   }
   let child0 = mk_child()
@@ -47,7 +47,7 @@ test "ui nodes map flex wrap and align content into wrapped layout" {
   let child5 = mk_child()
   let root = taffy.new_with_children(
     node_to_taffy_style(
-      Node::new(
+      Node(
         width=Val::px(120.0),
         height=Val::px(100.0),
         flex_direction=FlexDirection::Row,
@@ -76,7 +76,7 @@ test "ui nodes map block display and aspect ratio into block layout" {
   let taffy : @moon_taffy.TaffyTree[Unit] = @moon_taffy.TaffyTree::new()
   let child = taffy.new_leaf(
     node_to_taffy_style(
-      Node::new(
+      Node(
         position_type=PositionType::Absolute,
         left=Val::percent(0.05),
         right=Val::percent(0.05),
@@ -88,11 +88,7 @@ test "ui nodes map block display and aspect ratio into block layout" {
   )
   let root = taffy.new_with_children(
     node_to_taffy_style(
-      Node::new(
-        display=Display::Block,
-        width=Val::px(400.0),
-        height=Val::px(300.0),
-      ),
+      Node(display=Display::Block, width=Val::px(400.0), height=Val::px(300.0)),
     ),
     [child],
   )
@@ -110,29 +106,29 @@ test "ui nodes map grid placement and self alignment into grid layout" {
   let taffy : @moon_taffy.TaffyTree[Unit] = @moon_taffy.TaffyTree::new()
   let child0 = taffy.new_leaf(
     node_to_taffy_style(
-      Node::new(
+      Node(
         width=Val::px(20.0),
         height=Val::px(20.0),
-        grid_row=GridLine::new(start=grid_line_index(1)),
-        grid_column=GridLine::new(start=grid_line_index(1)),
+        grid_row=GridLine(start=grid_line_index(1)),
+        grid_column=GridLine(start=grid_line_index(1)),
       ),
     ),
   )
   let child1 = taffy.new_leaf(
     node_to_taffy_style(
-      Node::new(
+      Node(
         width=Val::px(20.0),
         height=Val::px(20.0),
         align_self=Some(AlignItems::Center),
         justify_self=Some(AlignItems::Center),
-        grid_row=GridLine::new(start=grid_line_index(3)),
-        grid_column=GridLine::new(start=grid_line_index(3)),
+        grid_row=GridLine(start=grid_line_index(3)),
+        grid_column=GridLine(start=grid_line_index(3)),
       ),
     ),
   )
   let root = taffy.new_with_children(
     node_to_taffy_style(
-      Node::new(
+      Node(
         display=Display::Grid,
         width=Val::px(120.0),
         height=Val::px(120.0),
@@ -158,7 +154,7 @@ test "ui nodes map grid placement and self alignment into grid layout" {
 ///|
 test "ui nodes map style-only grid and flex fields into taffy style" {
   let style = node_to_taffy_style(
-    Node::new(
+    Node(
       display=Display::Grid,
       overflow_x=Overflow::Hidden,
       flex_basis=Val::percent(0.25),
@@ -221,7 +217,7 @@ test "ui nodes map style-only grid and flex fields into taffy style" {
 
 ///|
 test "ui layout uses overflow clip margins from the requested visual box" {
-  let entity = @entity.Entity::new()
+  let entity = @entity.Entity()
   nodes().set(
     entity,
     Node::absolute(
@@ -261,7 +257,7 @@ test "ui layout config controls screen-space rounding for viewport-scaled rects"
   let rounded_rect = screen_rect_for(
     logical_rect,
     ui_layout_space(None),
-    LayoutConfig::new().use_rounding,
+    LayoutConfig().use_rounding,
   )
   inspect(rounded_rect.position[X] == 51.0, content="true")
   inspect(rounded_rect.position[Y] == 51.0, content="true")
@@ -269,7 +265,7 @@ test "ui layout config controls screen-space rounding for viewport-scaled rects"
   let unrounded_rect = screen_rect_for(
     logical_rect,
     ui_layout_space(None),
-    LayoutConfig::new(use_rounding=false).use_rounding,
+    LayoutConfig(use_rounding=false).use_rounding,
   )
   let expected = 33.835 * 1.5
   inspect(
@@ -288,30 +284,27 @@ test "ui layout config controls screen-space rounding for viewport-scaled rects"
 ///|
 test "ui target camera layouts use the camera viewport as screen-space origin" {
   @system.configure_display(200.0, 120.0, 1.0)
-  let camera = @entity.Entity::new()
+  let camera = @entity.Entity()
   @camera.cameras().set(
     camera,
-    @camera.Camera::new(
+    @camera.Camera(
       viewport=Some(
-        @camera.CameraViewport::new(
-          @math.Vec2(20.0, 10.0),
-          @math.Vec2(80.0, 40.0),
-        ),
+        @camera.CameraViewport(@math.Vec2(20.0, 10.0), @math.Vec2(80.0, 40.0)),
       ),
     ),
   )
-  @camera.camera2ds().set(camera, @camera.Camera2d::new())
+  @camera.camera2ds().set(camera, @camera.Camera2d())
   @transform.global_transforms().set(
     camera,
     @transform.GlobalTransform::from_transform(@transform.Transform::default()),
   )
 
-  let entity = @entity.Entity::new()
+  let entity = @entity.Entity()
   nodes().set(
     entity,
     Node::absolute(@math.Vec2(4.0, 6.0), size=@math.Vec2(20.0, 10.0)),
   )
-  ui_target_cameras().set(entity, UiTargetCamera::new(camera))
+  ui_target_cameras().set(entity, UiTargetCamera(camera))
 
   ui_layout_system(0.0)
 
@@ -329,7 +322,7 @@ test "ui target camera layouts use the camera viewport as screen-space origin" {
 
 ///|
 test "ui override clip ignores inherited clipping rectangles" {
-  let parent = @entity.Entity::new()
+  let parent = @entity.Entity()
   let child = parent.spawn_child()
 
   nodes().set(
@@ -345,7 +338,7 @@ test "ui override clip ignores inherited clipping rectangles" {
     child,
     Node::absolute(@math.Vec2(90.0, 20.0), size=@math.Vec2(80.0, 40.0)),
   )
-  override_clips().set(child, OverrideClip::new())
+  override_clips().set(child, OverrideClip())
 
   ui_layout_system(0.0)
 

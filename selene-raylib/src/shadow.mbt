@@ -156,7 +156,7 @@ fn shadow_texel_size(size : Int) -> @smath.Vec2 {
 
 ///|
 fn vec3_min(lhs : @smath.Vec3, rhs : @smath.Vec3) -> @smath.Vec3 {
-  @smath.Vec3::new(
+  @smath.Vec3(
     @cmp.minimum(lhs.x, rhs.x),
     @cmp.minimum(lhs.y, rhs.y),
     @cmp.minimum(lhs.z, rhs.z),
@@ -165,7 +165,7 @@ fn vec3_min(lhs : @smath.Vec3, rhs : @smath.Vec3) -> @smath.Vec3 {
 
 ///|
 fn vec3_max(lhs : @smath.Vec3, rhs : @smath.Vec3) -> @smath.Vec3 {
-  @smath.Vec3::new(
+  @smath.Vec3(
     @cmp.maximum(lhs.x, rhs.x),
     @cmp.maximum(lhs.y, rhs.y),
     @cmp.maximum(lhs.z, rhs.z),
@@ -174,7 +174,7 @@ fn vec3_max(lhs : @smath.Vec3, rhs : @smath.Vec3) -> @smath.Vec3 {
 
 ///|
 fn vec3_midpoint(lhs : @smath.Vec3, rhs : @smath.Vec3) -> @smath.Vec3 {
-  @smath.Vec3::new(
+  @smath.Vec3(
     (lhs.x + rhs.x) * 0.5,
     (lhs.y + rhs.y) * 0.5,
     (lhs.z + rhs.z) * 0.5,
@@ -183,13 +183,10 @@ fn vec3_midpoint(lhs : @smath.Vec3, rhs : @smath.Vec3) -> @smath.Vec3 {
 
 ///|
 fn choose_shadow_up(light_direction : @smath.Vec3) -> @smath.Vec3 {
-  let normalized = normalize_or(
-    light_direction,
-    @smath.Vec3::new(0.0, -1.0, 0.0),
-  )
-  let world_up = @smath.Vec3::new(0.0, 1.0, 0.0)
+  let normalized = normalize_or(light_direction, @smath.Vec3(0.0, -1.0, 0.0))
+  let world_up = @smath.Vec3(0.0, 1.0, 0.0)
   if normalized.cross(world_up).length_squared() <= 0.0001 {
-    @smath.Vec3::new(0.0, 0.0, 1.0)
+    @smath.Vec3(0.0, 0.0, 1.0)
   } else {
     world_up
   }
@@ -226,13 +223,13 @@ fn camera_basis(
 ) -> (@smath.Vec3, @smath.Vec3, @smath.Vec3) {
   let forward = normalize_or(
     camera.target - camera.position,
-    @smath.Vec3::new(0.0, 0.0, -1.0),
+    @smath.Vec3(0.0, 0.0, -1.0),
   )
-  let up = normalize_or(camera.up, @smath.Vec3::new(0.0, 1.0, 0.0))
-  let right = normalize_or(forward.cross(up), @smath.Vec3::new(1.0, 0.0, 0.0))
+  let up = normalize_or(camera.up, @smath.Vec3(0.0, 1.0, 0.0))
+  let right = normalize_or(forward.cross(up), @smath.Vec3(1.0, 0.0, 0.0))
   let corrected_up = normalize_or(
     right.cross(forward),
-    @smath.Vec3::new(0.0, 1.0, 0.0),
+    @smath.Vec3(0.0, 1.0, 0.0),
   )
   (forward, right, corrected_up)
 }
@@ -388,7 +385,7 @@ fn build_directional_shadow_cascades_for_light(
   }
   let light_direction = normalize_or(
     light.direction,
-    @smath.Vec3::new(0.0, -1.0, 0.0),
+    @smath.Vec3(0.0, -1.0, 0.0),
   )
   let light_view = @raylib.Matrix::look_at(
     @raylib.Vector3::zero(),
@@ -500,14 +497,14 @@ fn bounds_corners(bounds : Bounds3D) -> Array[@smath.Vec3] {
   let min = bounds.min
   let max = bounds.max
   [
-    @smath.Vec3::new(min.x, min.y, min.z),
-    @smath.Vec3::new(min.x, min.y, max.z),
-    @smath.Vec3::new(min.x, max.y, min.z),
-    @smath.Vec3::new(min.x, max.y, max.z),
-    @smath.Vec3::new(max.x, min.y, min.z),
-    @smath.Vec3::new(max.x, min.y, max.z),
-    @smath.Vec3::new(max.x, max.y, min.z),
-    @smath.Vec3::new(max.x, max.y, max.z),
+    @smath.Vec3(min.x, min.y, min.z),
+    @smath.Vec3(min.x, min.y, max.z),
+    @smath.Vec3(min.x, max.y, min.z),
+    @smath.Vec3(min.x, max.y, max.z),
+    @smath.Vec3(max.x, min.y, min.z),
+    @smath.Vec3(max.x, min.y, max.z),
+    @smath.Vec3(max.x, max.y, min.z),
+    @smath.Vec3(max.x, max.y, max.z),
   ]
 }
 
@@ -524,7 +521,7 @@ fn transform_shadow_point(
     ),
     matrix,
   )
-  @smath.Vec3::new(
+  @smath.Vec3(
     transformed.x.to_double(),
     transformed.y.to_double(),
     transformed.z.to_double(),
@@ -552,7 +549,7 @@ fn primitive_local_bounding_sphere(
 ) -> BoundingSphere3D? {
   match primitive {
     Cube(size) => {
-      let half_extents = @smath.Vec3::new(
+      let half_extents = @smath.Vec3(
         size.x.abs() * 0.5,
         size.y.abs() * 0.5,
         size.z.abs() * 0.5,
@@ -563,16 +560,12 @@ fn primitive_local_bounding_sphere(
       Some({ center: @smath.Vec3::zero(), radius: radius.abs() })
     Cylinder(radius_top, radius_bottom, height, _slices) => {
       let max_radius = @cmp.maximum(radius_top.abs(), radius_bottom.abs())
-      let half_extents = @smath.Vec3::new(
-        max_radius,
-        height.abs() * 0.5,
-        max_radius,
-      )
+      let half_extents = @smath.Vec3(max_radius, height.abs() * 0.5, max_radius)
       Some({ center: @smath.Vec3::zero(), radius: half_extents.length() })
     }
     Plane(size) => {
       let thickness = if size.y.abs() < 0.0001 { 0.02 } else { size.y.abs() }
-      let half_extents = @smath.Vec3::new(
+      let half_extents = @smath.Vec3(
         size.x.abs() * 0.5,
         thickness * 0.5,
         size.z.abs() * 0.5,
@@ -593,7 +586,7 @@ fn world_bounding_sphere(
   transform : @render3d_types.FrameTransform3D,
 ) -> BoundingSphere3D? {
   primitive_local_bounding_sphere(mesh_asset.primitive).map(fn(local_sphere) {
-    let scaled_center = @smath.Vec3::new(
+    let scaled_center = @smath.Vec3(
       local_sphere.center.x * transform.scale.x,
       local_sphere.center.y * transform.scale.y,
       local_sphere.center.z * transform.scale.z,
@@ -618,7 +611,7 @@ fn scene_shadow_bounds(frame : @render3d_types.RenderFrame3D) -> Bounds3D? {
     guard world_bounding_sphere(mesh_asset, item.transform) is Some(sphere) else {
       continue
     }
-    let extent = @smath.Vec3::new(sphere.radius, sphere.radius, sphere.radius)
+    let extent = @smath.Vec3(sphere.radius, sphere.radius, sphere.radius)
     let item_bounds : Bounds3D = {
       min: sphere.center - extent,
       max: sphere.center + extent,
@@ -649,7 +642,7 @@ fn build_directional_shadow_setup_for_light(
   let light = frame.directional_lights[light_index]
   let light_direction = normalize_or(
     light.direction,
-    @smath.Vec3::new(0.0, -1.0, 0.0),
+    @smath.Vec3(0.0, -1.0, 0.0),
   )
   let center = vec3_midpoint(bounds.min, bounds.max)
   let extent = bounds.max - center
@@ -663,7 +656,7 @@ fn build_directional_shadow_setup_for_light(
     SHADOW_CAMERA_DISTANCE_MIN,
   )
   let light_position = center -
-    @smath.Vec3::new(
+    @smath.Vec3(
       light_direction.x * distance,
       light_direction.y * distance,
       light_direction.z * distance,
@@ -1188,7 +1181,7 @@ fn draw_shadow_mesh3d_instance(
     Plane(size) => {
       let thickness = if size.y.abs() < 0.0001 { 0.02 } else { size.y }
       draw_shadow_cuboid(
-        @smath.Vec3::new(size.x, thickness, size.z),
+        @smath.Vec3(size.x, thickness, size.z),
         material,
         base_source,
         setup,

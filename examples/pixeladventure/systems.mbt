@@ -33,7 +33,7 @@ fn player_is_frozen(result : GameResult?) -> Bool {
 
 ///|
 fn set_ui_text(entity : @entity.Entity, content : String) -> Unit {
-  let text = @ui.texts().get_or_init(entity, fn() { @ui.Text::new(content) })
+  let text = @ui.texts().get_or_init(entity, fn() { @ui.Text(content) })
   if text.content != content {
     text.content = content
   }
@@ -93,26 +93,26 @@ fn volume_image(volume_on : Bool) -> @ui.UiImage {
 fn ensure_sprite_animation_binding(entity : @entity.Entity) -> Unit {
   ignore(
     @animation.animation_players().get_or_init(entity, fn() {
-      @animation.AnimationPlayer::new()
+      @animation.AnimationPlayer()
     }),
   )
   ignore(
     @animation.animation_transitions().get_or_init(entity, fn() {
-      @animation.AnimationTransitions::new()
+      @animation.AnimationTransitions()
     }),
   )
   @animation.animation_target_ids().set(
     entity,
-    @animation.AnimationTargetId::new("self"),
+    @animation.AnimationTargetId("self"),
   )
-  @animation.animated_bys().set(entity, @animation.AnimatedBy::new(entity))
+  @animation.animated_bys().set(entity, @animation.AnimatedBy(entity))
 }
 
 ///|
 fn build_sprite_animation_clip_asset(
   animation : SpriteAnimationDef,
 ) -> @animation.AnimationClipHandle {
-  let clip = @animation.AnimationClip::new(animation.name)
+  let clip = @animation.AnimationClip(animation.name)
   let keys : Array[@animation.ScalarKeyframe] = []
   let frame_duration = if animation.fps <= 0.0 {
     1.0
@@ -133,7 +133,7 @@ fn build_sprite_animation_clip_asset(
     })
   }
   clip.add_curve_to_target(
-    @animation.AnimationTargetId::new("self"),
+    @animation.AnimationTargetId("self"),
     @animation.VariableCurve::scalar(
       @animation.texture_atlas_index_field(),
       keys,
@@ -395,7 +395,7 @@ fn apply_stomp_bounce(
     @transform.transforms().set(
       player_entity,
       player_transform.with_translation(
-        @math.Vec3::new(
+        @math.Vec3(
           player_transform.translation.x,
           player_transform.translation.y + snap_delta_y,
           player_transform.translation.z,

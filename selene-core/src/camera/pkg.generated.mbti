@@ -42,11 +42,9 @@ pub(all) struct Camera {
   order : Int
   viewport : CameraViewport?
   pass : CameraPass2D
-
-  fn new(is_active? : Bool, order? : Int, viewport? : CameraViewport?, pass? : CameraPass2D) -> Camera
 } derive(Eq, @debug.Debug)
+pub fn Camera::Camera(is_active? : Bool, order? : Int, viewport? : CameraViewport?, pass? : CameraPass2D) -> Self
 pub fn Camera::contains_screen_point(Self, @math.Vec2) -> Bool
-pub fn Camera::new(is_active? : Bool, order? : Int, viewport? : CameraViewport?, pass? : CameraPass2D) -> Self
 pub fn Camera::viewport_rect(Self) -> @math.Rect
 pub fn Camera::viewport_to_world_2d(Self, @transform.GlobalTransform, OrthographicProjection, @math.Vec2) -> @math.Vec2
 pub fn Camera::with_pass(Self, CameraPass2D) -> Self
@@ -55,9 +53,8 @@ pub fn Camera::world_to_viewport(Self, @transform.GlobalTransform, OrthographicP
 pub impl Default for Camera
 
 pub(all) struct Camera2d {
-  fn new() -> Camera2d
 } derive(Eq, @debug.Debug)
-pub fn Camera2d::new() -> Self
+pub fn Camera2d::Camera2d() -> Self
 pub impl Default for Camera2d
 
 pub(all) struct Camera2dView {
@@ -77,10 +74,8 @@ pub(all) struct CameraPass2D {
   load_op : CameraPassLoadOp2D
   clear_color : @render.Color
   target : CameraPassTarget2D
-
-  fn new(load_op? : CameraPassLoadOp2D, clear_color? : @render.Color, target? : CameraPassTarget2D) -> CameraPass2D
 } derive(Eq, @debug.Debug)
-pub fn CameraPass2D::new(load_op? : CameraPassLoadOp2D, clear_color? : @render.Color, target? : CameraPassTarget2D) -> Self
+pub fn CameraPass2D::CameraPass2D(load_op? : CameraPassLoadOp2D, clear_color? : @render.Color, target? : CameraPassTarget2D) -> Self
 
 pub(all) enum CameraPassLoadOp2D {
   Load
@@ -95,21 +90,17 @@ pub(all) enum CameraPassTarget2D {
 pub(all) struct CameraViewport {
   position : @math.Vec2
   size : @math.Vec2
-
-  fn new(@math.Vec2, @math.Vec2) -> CameraViewport
 } derive(Eq, @debug.Debug)
+pub fn CameraViewport::CameraViewport(@math.Vec2, @math.Vec2) -> Self
 pub fn CameraViewport::from_rect(@math.Rect) -> Self
-pub fn CameraViewport::new(@math.Vec2, @math.Vec2) -> Self
 pub fn CameraViewport::rect(Self) -> @math.Rect
 
 pub(all) struct OrthographicProjection {
   near : Double
   far : Double
   scale : Double
-
-  fn new(scale? : Double, near? : Double, far? : Double) -> OrthographicProjection
 } derive(Eq, @debug.Debug)
-pub fn OrthographicProjection::new(scale? : Double, near? : Double, far? : Double) -> Self
+pub fn OrthographicProjection::OrthographicProjection(scale? : Double, near? : Double, far? : Double) -> Self
 pub impl Default for OrthographicProjection
 
 // Type aliases

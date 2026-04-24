@@ -407,7 +407,7 @@ fn sync_gamepad_events() -> Unit {
     if !@raylib.is_gamepad_available(id) {
       continue
     }
-    let gamepad = @inputs.Gamepad::new(id)
+    let gamepad = @inputs.Gamepad(id)
     gamepads.add(gamepad)
     sync_one_gamepad_buttons(id, gamepad, buttons)
     sync_one_gamepad_axes(id, gamepad, axes)
@@ -441,7 +441,7 @@ fn sync_one_gamepad_buttons(
   ]
   for mapping in mappings {
     if @raylib.is_gamepad_button_down(id, mapping.0) {
-      buttons.add(@inputs.GamepadButtonInput::new(gamepad, mapping.1))
+      buttons.add(@inputs.GamepadButtonInput(gamepad, mapping.1))
     }
   }
 }
@@ -453,27 +453,27 @@ fn sync_one_gamepad_axes(
   axes : Map[@inputs.GamepadAxisInput, Double],
 ) -> Unit {
   axes.set(
-    @inputs.GamepadAxisInput::new(gamepad, LeftStickX),
+    @inputs.GamepadAxisInput(gamepad, LeftStickX),
     @raylib.get_gamepad_axis_movement(id, @raylib.GamepadAxisLeftX).to_double(),
   )
   axes.set(
-    @inputs.GamepadAxisInput::new(gamepad, LeftStickY),
+    @inputs.GamepadAxisInput(gamepad, LeftStickY),
     @raylib.get_gamepad_axis_movement(id, @raylib.GamepadAxisLeftY).to_double(),
   )
   axes.set(
-    @inputs.GamepadAxisInput::new(gamepad, RightStickX),
+    @inputs.GamepadAxisInput(gamepad, RightStickX),
     @raylib.get_gamepad_axis_movement(id, @raylib.GamepadAxisRightX).to_double(),
   )
   axes.set(
-    @inputs.GamepadAxisInput::new(gamepad, RightStickY),
+    @inputs.GamepadAxisInput(gamepad, RightStickY),
     @raylib.get_gamepad_axis_movement(id, @raylib.GamepadAxisRightY).to_double(),
   )
   axes.set(
-    @inputs.GamepadAxisInput::new(gamepad, LeftZ),
+    @inputs.GamepadAxisInput(gamepad, LeftZ),
     @raylib.get_gamepad_axis_movement(id, @raylib.GamepadAxisLeftTrigger).to_double(),
   )
   axes.set(
-    @inputs.GamepadAxisInput::new(gamepad, RightZ),
+    @inputs.GamepadAxisInput(gamepad, RightZ),
     @raylib.get_gamepad_axis_movement(id, @raylib.GamepadAxisRightTrigger).to_double(),
   )
 }

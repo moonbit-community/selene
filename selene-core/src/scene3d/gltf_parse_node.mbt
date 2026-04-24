@@ -33,11 +33,11 @@ fn parse_matrix_transform(values : Array[Json]) -> @transform.Transform? {
   let m20 = numbers[2]
   let m21 = numbers[6]
   let m22 = numbers[10]
-  let translation = @math.Vec3::new(numbers[12], numbers[13], numbers[14])
+  let translation = @math.Vec3(numbers[12], numbers[13], numbers[14])
 
-  let mut scale_x = @math.Vec3::new(m00, m10, m20).length()
-  let mut scale_y = @math.Vec3::new(m01, m11, m21).length()
-  let mut scale_z = @math.Vec3::new(m02, m12, m22).length()
+  let mut scale_x = @math.Vec3(m00, m10, m20).length()
+  let mut scale_y = @math.Vec3(m01, m11, m21).length()
+  let mut scale_z = @math.Vec3(m02, m12, m22).length()
   if scale_x <= 0.0000001 {
     scale_x = 1.0
   }
@@ -57,11 +57,7 @@ fn parse_matrix_transform(values : Array[Json]) -> @transform.Transform? {
   let r21 = m21 / scale_y
   let r22 = m22 / scale_z
   let rotation = quat_from_matrix3(r00, r01, r02, r10, r11, r12, r20, r21, r22)
-  Some({
-    translation,
-    rotation,
-    scale: @math.Vec3::new(scale_x, scale_y, scale_z),
-  })
+  Some({ translation, rotation, scale: @math.Vec3(scale_x, scale_y, scale_z) })
 }
 
 ///|
@@ -79,16 +75,16 @@ fn quat_from_matrix3(
   let trace = m00 + m11 + m22
   if trace > 0.0 {
     let s = (trace + 1.0).sqrt() * 2.0
-    @math.Quat::new((m21 - m12) / s, (m02 - m20) / s, (m10 - m01) / s, 0.25 * s).normalize()
+    @math.Quat((m21 - m12) / s, (m02 - m20) / s, (m10 - m01) / s, 0.25 * s).normalize()
   } else if m00 > m11 && m00 > m22 {
     let s = (1.0 + m00 - m11 - m22).sqrt() * 2.0
-    @math.Quat::new(0.25 * s, (m01 + m10) / s, (m02 + m20) / s, (m21 - m12) / s).normalize()
+    @math.Quat(0.25 * s, (m01 + m10) / s, (m02 + m20) / s, (m21 - m12) / s).normalize()
   } else if m11 > m22 {
     let s = (1.0 + m11 - m00 - m22).sqrt() * 2.0
-    @math.Quat::new((m01 + m10) / s, 0.25 * s, (m12 + m21) / s, (m02 - m20) / s).normalize()
+    @math.Quat((m01 + m10) / s, 0.25 * s, (m12 + m21) / s, (m02 - m20) / s).normalize()
   } else {
     let s = (1.0 + m22 - m00 - m11).sqrt() * 2.0
-    @math.Quat::new((m02 + m20) / s, (m12 + m21) / s, 0.25 * s, (m10 - m01) / s).normalize()
+    @math.Quat((m02 + m20) / s, (m12 + m21) / s, 0.25 * s, (m10 - m01) / s).normalize()
   }
 }
 
@@ -170,7 +166,7 @@ fn parse_vec3(value : Json?, fallback : @math.Vec3) -> @math.Vec3 {
   let x = json_number(values[0]).unwrap_or(fallback.x)
   let y = json_number(values[1]).unwrap_or(fallback.y)
   let z = json_number(values[2]).unwrap_or(fallback.z)
-  @math.Vec3::new(x, y, z)
+  @math.Vec3(x, y, z)
 }
 
 ///|
@@ -184,7 +180,7 @@ fn parse_quat(value : Json?, fallback : @math.Quat) -> @math.Quat {
   let y = json_number(values[1]).unwrap_or(fallback.y)
   let z = json_number(values[2]).unwrap_or(fallback.z)
   let w = json_number(values[3]).unwrap_or(fallback.w)
-  @math.Quat::new(x, y, z, w).normalize()
+  @math.Quat(x, y, z, w).normalize()
 }
 
 ///|

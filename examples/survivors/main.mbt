@@ -32,7 +32,7 @@ const FPS : Double = 60
 
 ///|
 pub fn run() -> Unit {
-  @app.App::new()
+  @app.App()
   .with_viewport_width(VIEWPORT_WIDTH)
   .with_viewport_height(VIEWPORT_HEIGHT)
   .with_image_smooth(false)
@@ -117,7 +117,7 @@ priv struct GameOverPanel {
 
 ///|
 fn create_level_up_panel_entity() -> @entity.Entity {
-  let panel = @entity.Entity::new()
+  let panel = @entity.Entity()
   @ui.nodes().set(
     panel,
     @ui.Node::absolute(
@@ -125,7 +125,7 @@ fn create_level_up_panel_entity() -> @entity.Entity {
       size=@math.Vec2(160.0, 250.0),
     ),
   )
-  @ui.z_indexes().set(panel, @ui.ZIndex::new(HUD_ZINDEX + 10))
+  @ui.z_indexes().set(panel, @ui.ZIndex(HUD_ZINDEX + 10))
   @ui.background_colors().set(
     panel,
     @ui.BackgroundColor::from_css("rgba(13, 170, 26, 1)"),
@@ -136,7 +136,7 @@ fn create_level_up_panel_entity() -> @entity.Entity {
 
 ///|
 fn create_game_over_panel_entity() -> @entity.Entity {
-  let panel = @entity.Entity::new()
+  let panel = @entity.Entity()
   @ui.nodes().set(
     panel,
     @ui.Node::absolute(
@@ -144,7 +144,7 @@ fn create_game_over_panel_entity() -> @entity.Entity {
       size=@math.Vec2(200.0, 120.0),
     ),
   )
-  @ui.z_indexes().set(panel, @ui.ZIndex::new(HUD_ZINDEX + 10))
+  @ui.z_indexes().set(panel, @ui.ZIndex(HUD_ZINDEX + 10))
   @ui.background_colors().set(
     panel,
     @ui.BackgroundColor::from_css("rgba(0, 0, 0, 0.8)"),
@@ -155,24 +155,24 @@ fn create_game_over_panel_entity() -> @entity.Entity {
 
 ///|
 let game_state : GameState = {
-  player_entity: @entity.Entity::new(),
-  camera_entity: @entity.Entity::new(),
+  player_entity: @entity.Entity(),
+  camera_entity: @entity.Entity(),
   player_direction: Down,
   rand: @random.Rand::new(),
   score: 0,
-  score_box: @entity.Entity::new(),
+  score_box: @entity.Entity(),
   invincible: false,
   game_timer: 600.0,
   game_over: false,
-  timer_box: @entity.Entity::new(),
-  game_over_box: @entity.Entity::new(),
+  timer_box: @entity.Entity(),
+  game_over_box: @entity.Entity(),
   game_over_displayed: false,
   current_wave: 1,
-  wave_box: @entity.Entity::new(),
+  wave_box: @entity.Entity(),
   exp: 0,
-  exp_box: @entity.Entity::new(),
+  exp_box: @entity.Entity(),
   player_level: 1,
-  level_box: @entity.Entity::new(),
+  level_box: @entity.Entity(),
   player_stats: {
     attack: 0.0,
     range: 0.0, // Base range, weapons add to this
@@ -448,11 +448,11 @@ fn game_start(_world : @ecs.World) -> Unit {
 
 ///|
 fn setup_survivors_camera() -> Unit {
-  @camera.cameras().set(game_state.camera_entity, @camera.Camera::new())
-  @camera.camera2ds().set(game_state.camera_entity, @camera.Camera2d::new())
+  @camera.cameras().set(game_state.camera_entity, @camera.Camera())
+  @camera.camera2ds().set(game_state.camera_entity, @camera.Camera2d())
   @camera.orthographic_projections().set(
     game_state.camera_entity,
-    @camera.OrthographicProjection::new(),
+    @camera.OrthographicProjection(),
   )
   survivors_camera_follow_system(@ecs.require_current_world())
 }

@@ -6,11 +6,7 @@ fn set_entity_translation_2d(
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
     ..current,
-    translation: @math.Vec3::new(
-      position[X],
-      position[Y],
-      current.translation.z,
-    ),
+    translation: @math.Vec3(position[X], position[Y], current.translation.z),
   })
 }
 
@@ -19,7 +15,7 @@ fn set_entity_depth(entity : @entity.Entity, z : Int) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
     ..current,
-    translation: @math.Vec3::new(
+    translation: @math.Vec3(
       current.translation.x,
       current.translation.y,
       z.to_double(),

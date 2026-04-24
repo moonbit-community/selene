@@ -42,12 +42,12 @@ fn upload_lighting_uniforms(
     state.view_position_loc,
     uniform_vec3(camera_position),
   )
-  let camera_forward = frame.camera.map_or(@smath.Vec3::new(0.0, 0.0, -1.0), fn(
+  let camera_forward = frame.camera.map_or(@smath.Vec3(0.0, 0.0, -1.0), fn(
     active_camera,
   ) {
     normalize_or(
       active_camera.target - active_camera.position,
-      @smath.Vec3::new(0.0, 0.0, -1.0),
+      @smath.Vec3(0.0, 0.0, -1.0),
     )
   })
   set_shader_uniform(
@@ -65,7 +65,7 @@ fn upload_lighting_uniforms(
   for index in 0..<directional_count {
     let light = frame.directional_lights[index]
     directional_directions.push(
-      normalize_or(light.direction, @smath.Vec3::new(0.0, -1.0, 0.0)),
+      normalize_or(light.direction, @smath.Vec3(0.0, -1.0, 0.0)),
     )
     directional_colors.push(light_rgb(light.color, light.intensity))
   }
@@ -194,11 +194,11 @@ fn upload_lighting_uniforms(
     let outer = @cmath.cos(light.outer_angle)
     spot_positions.push(light.position)
     spot_directions.push(
-      normalize_or(light.direction, @smath.Vec3::new(0.0, -1.0, 0.0)),
+      normalize_or(light.direction, @smath.Vec3(0.0, -1.0, 0.0)),
     )
     spot_colors.push(light_rgb(light.color, light.intensity))
     spot_params.push(
-      @smath.Vec3::new(
+      @smath.Vec3(
         light.range,
         @cmp.maximum(inner, outer),
         @cmp.minimum(inner, outer),

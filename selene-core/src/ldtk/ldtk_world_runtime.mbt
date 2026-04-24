@@ -66,7 +66,7 @@ pub fn spawn_ldtk_world(
   project : LdtkProject,
   settings? : LdtkWorldSpawnSettings = default_ldtk_world_spawn_settings(),
 ) -> @entity.Entity {
-  let world_entity = @entity.Entity::new()
+  let world_entity = @entity.Entity()
   spawn_ldtk_world_root(world_entity, project, settings)
   world_entity
 }
@@ -325,7 +325,7 @@ fn ldtk_spawn_level_background(
     set_entity_depth(background_entity, zindex)
     @sprite.sprites().set(
       background_entity,
-      @sprite.Sprite::new(
+      @sprite.Sprite(
         color=@sprite.color_from_css(bg_color),
         custom_size=Some(size),
         anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
@@ -363,7 +363,7 @@ fn ldtk_spawn_level_background(
     )
     @sprite.sprites().set(
       background_entity,
-      @sprite.Sprite::new(
+      @sprite.Sprite(
         image=Some(image),
         rect=Some({ position: image_offset, size: image_size }),
         color=@render.Color::{ r: 255U, g: 255U, b: 255U, a: 1.0 },
@@ -528,7 +528,7 @@ fn ldtk_spawn_layer_tiles(
     )
     @sprite.sprites().set(
       tile_entity,
-      @sprite.Sprite::new(
+      @sprite.Sprite(
         image=Some(image),
         rect=Some({ position: tile_src, size: @math.Vec2(tile_size, tile_size) }),
         color=@render.Color::{ r: 255U, g: 255U, b: 255U, a: render_alpha },
@@ -670,7 +670,7 @@ fn ldtk_spawn_int_grid_cells(
     let render_color = ldtk_color_with_alpha(color, layer.opacity)
     @sprite.sprites().set(
       cell_entity,
-      @sprite.Sprite::new(
+      @sprite.Sprite(
         color=@sprite.color_from_css(render_color),
         custom_size=Some(@math.Vec2(grid_size, grid_size)),
         anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),

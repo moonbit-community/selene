@@ -1,8 +1,6 @@
 ///|
 pub(all) struct SystemSet {
   name : String
-
-  fn new(name : String) -> SystemSet
 } derive(Eq, Debug, Hash)
 
 ///|
@@ -13,13 +11,13 @@ pub(all) struct SystemOrdering {
 }
 
 ///|
-pub fn SystemSet::new(name : String) -> SystemSet {
+pub fn SystemSet::SystemSet(name : String) -> SystemSet {
   { name, }
 }
 
 ///|
 pub fn named(name : String) -> SystemSet {
-  SystemSet::new(name)
+  SystemSet(name)
 }
 
 ///|

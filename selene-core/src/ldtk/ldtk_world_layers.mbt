@@ -164,7 +164,7 @@ pub fn ldtk_entity_tile_sprite(
   ignore(zindex)
   let target_size = @math.Vec2(source_width * scale_x, source_height * scale_y)
   Some(
-    @sprite.Sprite::new(
+    @sprite.Sprite(
       image=Some(image),
       rect=Some({
         position: @math.Vec2(tile.x.to_double(), tile.y.to_double()),

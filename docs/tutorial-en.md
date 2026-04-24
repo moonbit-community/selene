@@ -161,7 +161,7 @@ The App object is the runtime entrypoint. Example app bootstrap:
 
 ```moonbit
 pub fn run() -> Unit {
-  @app.App::new()
+  @app.App()
   .with_viewport_width(480.0)
   .with_viewport_height(320.0)
   .with_image_smooth(false)
@@ -214,7 +214,7 @@ struct PlayerController {
 Game objects are represented by Entity + Component data. Example:
 
 ```moonbit
-let player = @entity.Entity::new()
+let player = @entity.Entity()
 @transform.transforms().set(player, @transform.Transform::from_xyz(100.0, 100.0, 0.0))
 @physics2d.linear_velocities().set(player, @math.Vec2::zero())
 ```
@@ -251,10 +251,10 @@ Build a clip/graph pair and attach an animation player with:
   player,
   @sprite.Sprite::from_atlas_image(
     player_idle_image,
-    @sprite.TextureAtlas::new(player_idle_layout),
+    @sprite.TextureAtlas(player_idle_layout),
   ),
 )
-let clip = @animation.AnimationClip::new("player_idle")
+let clip = @animation.AnimationClip("player_idle")
 let frame_keys : Array[@animation.ScalarKeyframe] = []
 for index in 0..<11 {
   frame_keys.push({
@@ -265,7 +265,7 @@ for index in 0..<11 {
   })
 }
 clip.add_curve_to_target(
-  @animation.AnimationTargetId::new("self"),
+  @animation.AnimationTargetId("self"),
   @animation.VariableCurve::scalar(
     @animation.texture_atlas_index_field(),
     frame_keys,
@@ -281,15 +281,15 @@ let (graph, nodes) = @animation.AnimationGraph::from_clips([
 )
 @animation.animation_players().set(
   player,
-  @animation.AnimationPlayer::new(),
+  @animation.AnimationPlayer(),
 )
 @animation.animation_target_ids().set(
   player,
-  @animation.AnimationTargetId::new("self"),
+  @animation.AnimationTargetId("self"),
 )
 @animation.animated_bys().set(
   player,
-  @animation.AnimatedBy::new(player),
+  @animation.AnimatedBy(player),
 )
 ignore(
   @animation.animation_players().get(player).unwrap().play(
@@ -320,8 +320,8 @@ if @inputs.is_just_pressed(@inputs.ArrowUp) && @physics2d.is_grounded(player) {
 Configure collision groups, shape, and collider to block terrain penetration:
 
 ```moonbit
-let terrain_collision_group = @physics2d.CollisionGroup::new()
-let player_collision_group = @physics2d.CollisionGroup::new()
+let terrain_collision_group = @physics2d.collision_group()
+let player_collision_group = @physics2d.collision_group()
 
 @physics2d.shapes().set(
   player,
@@ -329,8 +329,8 @@ let player_collision_group = @physics2d.CollisionGroup::new()
 )
 @physics2d.colliders().set(
   player,
-  @physics2d.Collider::new(
-    @physics2d.CollisionFilter::new(player_collision_group, [
+  @physics2d.collider(
+    @physics2d.collision_filter(player_collision_group, [
       terrain_collision_group,
     ]),
   ),
@@ -380,8 +380,8 @@ let center_y = target_y.clamp(half_height, session.world_size.y - half_height)
 Apples should not block movement, but should trigger collection behavior. Add `Area` and detect contain state in system:
 
 ```moonbit
-let area = @physics2d.Area::new(
-  @physics2d.CollisionFilter::new(trigger_collision_group, [
+let area = @physics2d.sensor(
+  @physics2d.collision_filter(trigger_collision_group, [
     player_collision_group,
   ]),
 )
@@ -424,8 +424,8 @@ fn add_score_box() -> Unit {
       size=@math.Vec2(432.0, 24.0),
     ),
   )
-  @ui.z_indexes().set(session.score_box, @ui.ZIndex::new(100))
-  @ui.texts().set(session.score_box, @ui.Text::new("Score: 0"))
+  @ui.z_indexes().set(session.score_box, @ui.ZIndex(100))
+  @ui.texts().set(session.score_box, @ui.Text("Score: 0"))
   @ui.text_fonts().set(session.score_box, @ui.TextFont::from_css("20px ThaleahFat"))
 }
 ```
@@ -433,7 +433,7 @@ fn add_score_box() -> Unit {
 Volume button click handling:
 
 ```moonbit
-let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = @event.EventReader::new()
+let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = @event.EventReader()
 
 fn volume_button_input_system(_world : @ecs.World) -> Unit {
   for event in @ui.click_event_bus.read(ui_click_reader) {

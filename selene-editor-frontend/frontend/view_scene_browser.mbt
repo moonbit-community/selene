@@ -195,7 +195,9 @@ fn subscribe_sidebar_layout_cmd(
           dispatch(@app.msg_set_sidebar_layout(scene_ratio, assets_ratio)),
         )
       },
-      fn() { schedule_cmd(scheduler, dispatch(@app.msg_commit_sidebar_layout())) },
+      fn() {
+        schedule_cmd(scheduler, dispatch(@app.msg_commit_sidebar_layout()))
+      },
     )
   })
 }

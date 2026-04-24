@@ -22,9 +22,9 @@ fn webgpu_test_mesh(
 ) -> @render3d_types.TriangleMesh3D {
   {
     positions: [
-      @smath.Vec3::new(0.0, 0.0, 0.0),
-      @smath.Vec3::new(1.0, 0.0, 0.0),
-      @smath.Vec3::new(0.0, 1.0, 0.0),
+      @smath.Vec3(0.0, 0.0, 0.0),
+      @smath.Vec3(1.0, 0.0, 0.0),
+      @smath.Vec3(0.0, 1.0, 0.0),
     ],
     indices: None,
     topology: TriangleList,
@@ -40,7 +40,7 @@ test "pack_directional_light_data includes shadow metadata and cascade bounds" {
   let frame = @render3d_types.empty_render_frame3d()
   frame.directional_lights = [
     {
-      direction: @smath.Vec3::new(0.0, -2.0, 0.0),
+      direction: @smath.Vec3(0.0, -2.0, 0.0),
       color: { r: 64U, g: 128U, b: 255U, a: 1.0 },
       intensity: 1.5,
       shadows: true,
@@ -79,7 +79,7 @@ test "pack_point_light_data and pack_spot_light_data include shadow metadata" {
   let frame = @render3d_types.empty_render_frame3d()
   frame.point_lights = [
     {
-      position: @smath.Vec3::new(1.0, 2.0, 3.0),
+      position: @smath.Vec3(1.0, 2.0, 3.0),
       color: { r: 255U, g: 64U, b: 32U, a: 1.0 },
       intensity: 2.0,
       range: 12.5,
@@ -91,8 +91,8 @@ test "pack_point_light_data and pack_spot_light_data include shadow metadata" {
   ]
   frame.spot_lights = [
     {
-      position: @smath.Vec3::new(4.0, 5.0, 6.0),
-      direction: @smath.Vec3::new(0.0, -2.0, 0.0),
+      position: @smath.Vec3(4.0, 5.0, 6.0),
+      direction: @smath.Vec3(0.0, -2.0, 0.0),
       color: { r: 32U, g: 160U, b: 255U, a: 1.0 },
       intensity: 3.0,
       range: 16.0,
@@ -259,12 +259,12 @@ test "flatten_colored_vertices3d packs unlit material metadata" {
     mesh.positions,
     [0, 1, 2],
     [
-      @smath.Vec3::new(0.0, 0.0, 1.0),
-      @smath.Vec3::new(0.0, 0.0, 1.0),
-      @smath.Vec3::new(0.0, 0.0, 1.0),
+      @smath.Vec3(0.0, 0.0, 1.0),
+      @smath.Vec3(0.0, 0.0, 1.0),
+      @smath.Vec3(0.0, 0.0, 1.0),
     ],
     None,
-    @smath.Vec3::new(1.0, 1.0, 1.0),
+    @smath.Vec3(1.0, 1.0, 1.0),
     {
       ..@render3d_types.default_standard_material3d(),
       alpha_mode: @render3d_types.AlphaMode3D::Mask,
@@ -299,9 +299,9 @@ test "flatten_textured_vertices3d packs unlit surface metadata" {
     mesh.uv_sets[0],
     mesh.uv_sets[0],
     [
-      @smath.Vec3::new(0.0, 0.0, 1.0),
-      @smath.Vec3::new(0.0, 0.0, 1.0),
-      @smath.Vec3::new(0.0, 0.0, 1.0),
+      @smath.Vec3(0.0, 0.0, 1.0),
+      @smath.Vec3(0.0, 0.0, 1.0),
+      @smath.Vec3(0.0, 0.0, 1.0),
     ],
     [
       { x: 1.0, y: 0.0, z: 0.0, w: 1.0 },
@@ -309,7 +309,7 @@ test "flatten_textured_vertices3d packs unlit surface metadata" {
       { x: 1.0, y: 0.0, z: 0.0, w: 1.0 },
     ],
     None,
-    @smath.Vec3::new(1.0, 1.0, 1.0),
+    @smath.Vec3(1.0, 1.0, 1.0),
     {
       ..@render3d_types.default_standard_material3d(),
       occlusion_strength: 0.5,
@@ -330,10 +330,10 @@ test "flatten_textured_vertices3d packs unlit surface metadata" {
 test "resolve_triangle_indices supports strip and fan topology" {
   let mesh : @render3d_types.TriangleMesh3D = {
     positions: [
-      @smath.Vec3::new(0.0, 0.0, 0.0),
-      @smath.Vec3::new(1.0, 0.0, 0.0),
-      @smath.Vec3::new(0.0, 1.0, 0.0),
-      @smath.Vec3::new(1.0, 1.0, 0.0),
+      @smath.Vec3(0.0, 0.0, 0.0),
+      @smath.Vec3(1.0, 0.0, 0.0),
+      @smath.Vec3(0.0, 1.0, 0.0),
+      @smath.Vec3(1.0, 1.0, 0.0),
     ],
     indices: Some([0, 1, 2, 3]),
     topology: TriangleStrip,

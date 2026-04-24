@@ -45,7 +45,7 @@ pub fn Transform::from_translation(translation : @math.Vec3) -> Transform {
 
 ///|
 pub fn Transform::from_xyz(x : Double, y : Double, z : Double) -> Transform {
-  Transform::from_translation(@math.Vec3::new(x, y, z))
+  Transform::from_translation(@math.Vec3(x, y, z))
 }
 
 ///|
@@ -137,7 +137,7 @@ pub fn GlobalTransform::compute_transform(self : GlobalTransform) -> Transform {
   {
     translation: self.translation(),
     rotation: @math.Quat::from_basis(basis_x, basis_y, basis_z),
-    scale: @math.Vec3::new(scale_x, scale_y, scale_z),
+    scale: @math.Vec3(scale_x, scale_y, scale_z),
   }
 }
 

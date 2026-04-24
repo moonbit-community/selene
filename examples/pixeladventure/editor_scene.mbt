@@ -153,7 +153,7 @@ fn set_entity_z(entity : @entity.Entity, z : Double) -> Unit {
   @transform.transforms().set(
     entity,
     transform.with_translation(
-      @math.Vec3::new(transform.translation.x, transform.translation.y, z),
+      @math.Vec3(transform.translation.x, transform.translation.y, z),
     ),
   )
 }

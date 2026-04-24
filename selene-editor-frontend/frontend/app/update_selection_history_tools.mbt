@@ -158,7 +158,7 @@ fn update_selection_history_tools(
       if workspace == model.workspace {
         ([], model)
       } else {
-        let next = { ..model, workspace }
+        let next = { ..model, workspace, }
         (save_workspace_effects(next), next)
       }
     }

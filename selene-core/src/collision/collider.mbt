@@ -19,12 +19,10 @@ pub(all) struct Collider {
   filter : CollisionFilter
   mut friction : Double
   mut restitution : Double
-
-  fn new(filter : CollisionFilter) -> Collider
 } derive(Eq)
 
 ///|
-pub fn Collider::new(filter : CollisionFilter) -> Collider {
+pub fn Collider::Collider(filter : CollisionFilter) -> Collider {
   { active: true, filter, friction: 0.5, restitution: 0.0 }
 }
 
@@ -75,7 +73,7 @@ pub struct ContactEvent {
 
 ///|
 /// Contact event bus.
-pub let contact_event_bus : @event.Events[ContactEvent] = @event.Events::new()
+pub let contact_event_bus : @event.Events[ContactEvent] = @event.Events()
 
 ///|
 /// Effective post-solve velocities from the latest fixed step.

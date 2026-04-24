@@ -5,6 +5,18 @@
 ### Added
 
 ### Changed
+- Changed MoonBit constructor APIs to use direct `Type(...)` constructors and removed the legacy `Type::new(...)` constructor entrypoints across Selene packages.
+
+### Fixed
+
+### Removed
+- Removed the legacy `Type::new(...)` constructor entrypoints from Selene-owned MoonBit types; use direct `Type(...)` constructors instead.
+
+## [0.33.2] - 2026-04-24
+
+### Added
+
+### Changed
 - Changed the English and Chinese tutorials to match the current scene-document workflow, camera follow pattern, module imports, and web build output paths.
 - Changed editor frontend RPC effects to use typed `RpcBinding` dispatch instead of parallel `RpcTarget` + request mapping, and split editor-service RPC handling into project/scene/assets/animation domain handlers.
 - Changed editor Assets interaction model to a single-list scope filter (`Images/Atlases/Clips/Graphs/Prefabs/All`) with compact top controls and a non-blocking sticky breadcrumb bar.
@@ -20,6 +32,7 @@
 - Fixed editor-service project open flow to accept legacy non-envelope workspace documents and rewrite them to canonical envelope format on successful load.
 - Fixed preview viewport picking/drag coordinate mapping and camera alignment to stay consistent after canvas resize and initial project open.
 - Fixed `render2d` world-sorting wbtest expectation to match the current layer/group/order/depth semantics (no alpha-bucket sort key coupling).
+- Fixed deprecated constructor declarations that blocked warning-free release checks with the current MoonBit toolchain.
 
 ### Removed
 

@@ -302,7 +302,7 @@ fn prepared_atlas(
                   Some(atlas_asset.source_image),
                 ),
                 texture_atlas: Some(
-                  @sprite.TextureAtlas::new(
+                  @sprite.TextureAtlas(
                     layout,
                     index=region.map_or(atlas_data.index, fn(it) { it.index }),
                   ),
@@ -323,7 +323,7 @@ fn prepared_atlas(
               Some({
                 image_path: None,
                 texture_atlas: Some(
-                  @sprite.TextureAtlas::new(layout, index=atlas_data.index),
+                  @sprite.TextureAtlas(layout, index=atlas_data.index),
                 ),
                 default_size: Some(layout_doc.tile_size),
                 default_anchor: None,
@@ -467,7 +467,7 @@ fn apply_animation_components(
   guard context.animation_graph_assets.get(graph_path) is Some(graph_doc) else {
     return
   }
-  let target_id = @animation.AnimationTargetId::new(document.id)
+  let target_id = @animation.AnimationTargetId(document.id)
   @animation.animation_target_ids().set(entity, target_id)
 
   let clip_handles_by_path : Map[String, @animation.AnimationClipHandle] = {}
@@ -486,7 +486,7 @@ fn apply_animation_components(
           is Some(atlas_asset) else {
           continue
         }
-        let clip = @animation.AnimationClip::new(clip_doc.name)
+        let clip = @animation.AnimationClip(clip_doc.name)
         let keyframes : Array[@animation.ScalarKeyframe] = []
         for index, frame_name in clip_doc.frames {
           if region_by_name_or_index(atlas_asset, Some(frame_name), index)
@@ -519,7 +519,7 @@ fn apply_animation_components(
   }
   guard !clip_handles_by_path.is_empty() else { return }
 
-  let graph = @animation.AnimationGraph::new()
+  let graph = @animation.AnimationGraph()
   let graph_nodes : Map[String, @animation.AnimationNodeIndex] = {}
   let runtime_node_order : Array[@animation.AnimationNodeIndex] = []
   for node in graph_doc.nodes {
@@ -565,7 +565,7 @@ fn apply_animation_components(
   let graph_handle = @animation.register_animation_graph_asset(graph)
   animation_graph_handles.push(graph_handle)
   @animation.animation_graph_handles().set(entity, graph_handle)
-  let player = @animation.AnimationPlayer::new()
+  let player = @animation.AnimationPlayer()
   let default_node : @animation.AnimationNodeIndex? = match
     animation_doc.start_node {
     Some(node_name) =>
@@ -588,7 +588,7 @@ fn apply_animation_components(
       }
   }
   if transitions_doc is Some(transitions_data) {
-    let transitions = @animation.AnimationTransitions::new()
+    let transitions = @animation.AnimationTransitions()
     if animation_doc.autoplay && default_node is Some(node) {
       let active = transitions.play(
         player,
@@ -646,7 +646,7 @@ fn apply_document_components(
           Some(data) => data
           None => continue
         }
-        @name.names().set(entity, @name.Name::new(data.value))
+        @name.names().set(entity, @name.Name(data.value))
       }
       "Transform2d" => {
         let data : Transform2dComponent = match
@@ -664,7 +664,7 @@ fn apply_document_components(
           .with_rotation(
             @math.Quat::from_axis_angle(@math.Vec3::z_axis(), data.rotation),
           )
-          .with_scale(@math.Vec3::new(data.scale.x, data.scale.y, 1.0)),
+          .with_scale(@math.Vec3(data.scale.x, data.scale.y, 1.0)),
         )
       }
       "Visibility" => {
@@ -701,7 +701,7 @@ fn apply_document_components(
         })
         @sprite.sprites().set(
           entity,
-          @sprite.Sprite::new(
+          @sprite.Sprite(
             image~,
             texture_atlas=prepared.bind(fn(value) { value.texture_atlas }),
             rect=match prepared {
@@ -732,25 +732,25 @@ fn apply_document_components(
           Some(data) => data
           None => continue
         }
-        @text2d.text2ds().set(entity, @text2d.Text2d::new())
+        @text2d.text2ds().set(entity, @text2d.Text2d())
         @text2d.text_anchors().set(entity, anchor_of(data.anchor))
         match data.bounds {
           Some(bounds) =>
             @text2d.text_bounds().set(
               entity,
-              @text2d.TextBounds::new(bounds.x, bounds.y),
+              @text2d.TextBounds(bounds.x, bounds.y),
             )
           None => ()
         }
-        @ui.texts().set(entity, @ui.Text::new(data.content))
-        @ui.text_colors().set(entity, @ui.TextColor::new(color_of(data.color)))
+        @ui.texts().set(entity, @ui.Text(data.content))
+        @ui.text_colors().set(entity, @ui.TextColor(color_of(data.color)))
         let font = match (context.asset_path_resolver)(data.font_path) {
           Some(path) =>
             @ui.TextFont::from_font(
               @asset.load_font(path, family=basename_of(path)),
               size=data.font_size,
             )
-          None => @ui.TextFont::new(size=data.font_size)
+          None => @ui.TextFont(size=data.font_size)
         }
         @ui.text_fonts().set(entity, font)
       }
@@ -777,7 +777,7 @@ fn apply_document_components(
             @material2d.ColorMaterial::from_color(color_of(material_data.color)),
           )
           material_handles.push(material)
-          @mesh2d.mesh2ds().set(entity, @mesh2d.Mesh2d::new(handle))
+          @mesh2d.mesh2ds().set(entity, @mesh2d.Mesh2d(handle))
           @material2d.mesh_material2ds().set(
             entity,
             @material2d.MeshMaterial2d::from_color_material(material),
@@ -790,7 +790,7 @@ fn apply_document_components(
         }
         @camera.cameras().set(
           entity,
-          @camera.Camera::new(
+          @camera.Camera(
             is_active=data.is_active,
             order=data.order,
             viewport=data.viewport.map(fn(viewport) {
@@ -798,10 +798,10 @@ fn apply_document_components(
             }),
           ),
         )
-        @camera.camera2ds().set(entity, @camera.Camera2d::new())
+        @camera.camera2ds().set(entity, @camera.Camera2d())
         @camera.orthographic_projections().set(
           entity,
-          @camera.OrthographicProjection::new(scale=data.scale),
+          @camera.OrthographicProjection(scale=data.scale),
         )
       }
       "PhysicsBody2d" => {
@@ -865,7 +865,7 @@ fn apply_document_components(
           None => continue
         }
         let filter = @physics2d.all_collision_layers(
-          @physics2d.CollisionGroup::new(),
+          @physics2d.collision_group(),
         )
         let size = data.size.unwrap_or(vec2_doc(32.0, 32.0))
         let shape = match data.shape.to_lower() {
@@ -882,7 +882,7 @@ fn apply_document_components(
         }
         @physics2d.shapes().set(entity, shape)
         if data.sensor {
-          @physics2d.sensors().set(entity, @physics2d.Area::new(filter))
+          @physics2d.sensors().set(entity, @physics2d.sensor(filter))
         } else {
           @physics2d.colliders().set(
             entity,
@@ -915,7 +915,7 @@ fn apply_document_components(
     apply_autotile_layer_component(entity, layer_doc, context)
   }
   if !@name.names().contains(entity) {
-    @name.names().set(entity, @name.Name::new(document.name))
+    @name.names().set(entity, @name.Name(document.name))
   }
   if !@transform.transforms().contains(entity) {
     @transform.transforms().set(entity, @transform.Transform::identity())
@@ -940,7 +940,7 @@ fn instantiate_entity_documents(
   let animation_graph_handles : Array[@animation.AnimationGraphHandle] = []
 
   for document in documents {
-    let entity = @entity.Entity::new()
+    let entity = @entity.Entity()
     entity_ids.set(document.id, entity)
     tracked_entities.push(entity)
   }

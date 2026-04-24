@@ -22,18 +22,14 @@ pub fn text_bounds() -> Map[@entity.Entity, TextBounds]
 // Types and methods
 pub(all) struct Text2d {
   blend_mode : @render.BlendMode2D
-
-  fn new(blend_mode? : @render.BlendMode2D) -> Text2d
 } derive(Eq, @debug.Debug)
-pub fn Text2d::new(blend_mode? : @render.BlendMode2D) -> Self
+pub fn Text2d::Text2d(blend_mode? : @render.BlendMode2D) -> Self
 
 pub(all) struct TextBounds {
   width : Double
   height : Double
-
-  fn new(Double, Double) -> TextBounds
 } derive(Eq, @debug.Debug)
-pub fn TextBounds::new(Double, Double) -> Self
+pub fn TextBounds::TextBounds(Double, Double) -> Self
 
 // Type aliases
 

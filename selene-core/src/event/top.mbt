@@ -9,15 +9,11 @@ pub(all) enum EventDomain {
 pub(all) struct EventReader[T] {
   last_seen_by_world : Map[UInt, Int]
   marker : T?
-
-  fn[T] new() -> EventReader[T]
 }
 
 ///|
 pub(all) struct EventWriter[T] {
   events : Events[T]
-
-  fn[T] new(events : Events[T]) -> EventWriter[T]
 }
 
 ///|
@@ -57,8 +53,6 @@ pub struct Events[T] {
   domain : EventDomain
   stores : Map[UInt, EventWorldStore[T]]
   marker : T?
-
-  fn[T] new(domain? : EventDomain) -> Events[T]
 }
 
 ///|
@@ -101,7 +95,7 @@ fn[T] world_store(events : Events[T]) -> EventWorldStore[T] {
 }
 
 ///|
-pub fn[T] EventReader::new() -> EventReader[T] {
+pub fn[T] EventReader::EventReader() -> EventReader[T] {
   { last_seen_by_world: Map::new(), marker: None }
 }
 
@@ -132,7 +126,7 @@ pub fn[T] EventReader::read(
 }
 
 ///|
-pub fn[T] EventWriter::new(events : Events[T]) -> EventWriter[T] {
+pub fn[T] EventWriter::EventWriter(events : Events[T]) -> EventWriter[T] {
   { events, }
 }
 
@@ -151,7 +145,9 @@ pub fn[T] EventWriter::trigger(
 }
 
 ///|
-pub fn[T] Events::new(domain? : EventDomain = EventDomain::Frame) -> Events[T] {
+pub fn[T] Events::Events(
+  domain? : EventDomain = EventDomain::Frame,
+) -> Events[T] {
   { id: allocate_event_bus_id(), domain, stores: Map::new(), marker: None }
 }
 
@@ -178,7 +174,7 @@ pub fn[T] Events::register_to_world(
 
 ///|
 pub fn[T] Events::writer(self : Events[T]) -> EventWriter[T] {
-  EventWriter::new(self)
+  EventWriter(self)
 }
 
 ///|

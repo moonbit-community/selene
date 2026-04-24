@@ -124,12 +124,12 @@ fn instantiate_scene_node(
   }
   parts.set(entity_path, entity)
   node_entities.set(node_index, entity)
-  @name.names().set(entity, @name.Name::new(entity_name))
+  @name.names().set(entity, @name.Name(entity_name))
   @animation.animation_target_ids().set(
     entity,
-    @animation.AnimationTargetId::new(entity_path),
+    @animation.AnimationTargetId(entity_path),
   )
-  @animation.animated_bys().set(entity, @animation.AnimatedBy::new(root_entity))
+  @animation.animated_bys().set(entity, @animation.AnimatedBy(root_entity))
   @transform.transforms().set(entity, node.transform)
   if node.camera is Some(camera) {
     @camera3d.cameras3d().set(entity, camera)
@@ -403,7 +403,7 @@ fn assign_scene_node_target_ids(
     path_base
   }
   seen_paths.add(path)
-  output.set(node_index, @animation.AnimationTargetId::new(path))
+  output.set(node_index, @animation.AnimationTargetId(path))
   for child_index in node.children {
     assign_scene_node_target_ids(
       nodes,
@@ -466,7 +466,7 @@ fn parse_animation_clips(
     let name = field_string(animation_object, "name").unwrap_or(
       "animation_\{animation_index}",
     )
-    let clip = @animation.AnimationClip::new(name)
+    let clip = @animation.AnimationClip(name)
     for channel in channels {
       if channel.translations.length() > 0 {
         clip.add_curve_to_target(

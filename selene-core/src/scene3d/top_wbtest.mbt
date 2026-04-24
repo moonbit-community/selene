@@ -382,7 +382,7 @@ test "parse_material_asset preserves glTF material factors, bindings, and textur
 ///|
 test "instantiate_scene_instance installs animation components without autoplay" {
   let scene = @render3d.register_scene_path("wbtest://animation-scene")
-  let clip = @animation.AnimationClip::new("idle")
+  let clip = @animation.AnimationClip("idle")
   let clip_handle = @animation.register_animation_clip_asset(clip)
   let template = empty_scene_template()
   template.animations.set("idle", clip_handle)

@@ -157,8 +157,8 @@ pub(all) struct CollisionGroups {
   memberships : Int
   filters : Int
 } derive(Eq, @debug.Debug)
+pub fn CollisionGroups::CollisionGroups(Int, Int) -> Self
 pub fn CollisionGroups::all() -> Self
-pub fn CollisionGroups::new(Int, Int) -> Self
 
 pub(all) struct ContactForceEvent {
   entity_a : @entity.Entity
@@ -179,7 +179,6 @@ pub(all) struct Damping {
 pub fn Damping::default() -> Self
 
 pub(all) struct Dominance(Int) derive(Eq, @debug.Debug)
-pub fn Dominance::new(Int) -> Self
 
 pub(all) struct FixedJoint {
   local_anchor1 : @math.Vec3
@@ -187,10 +186,9 @@ pub(all) struct FixedJoint {
   local_basis1 : @math.Quat
   local_basis2 : @math.Quat
 } derive(Eq, @debug.Debug)
-pub fn FixedJoint::new() -> Self
+pub fn FixedJoint::FixedJoint() -> Self
 
 pub(all) struct Friction(Double) derive(Eq, @debug.Debug)
-pub fn Friction::new(Double) -> Self
 
 pub(all) struct GravityScale(Double) derive(Eq, @debug.Debug)
 pub fn GravityScale::default() -> Self
@@ -281,7 +279,7 @@ pub(all) struct PrismaticJoint {
   motor_velocity : (Double, Double)?
   max_force : Double?
 } derive(Eq, @debug.Debug)
-pub fn PrismaticJoint::new(@math.Vec3) -> Self
+pub fn PrismaticJoint::PrismaticJoint(@math.Vec3) -> Self
 
 pub(all) struct QueryFilter {
   groups : CollisionGroups?
@@ -320,7 +318,6 @@ pub(all) struct RaycastHit {
 } derive(Eq, @debug.Debug)
 
 pub(all) struct Restitution(Double) derive(Eq, @debug.Debug)
-pub fn Restitution::new(Double) -> Self
 
 pub(all) struct RevoluteJoint {
   local_anchor1 : @math.Vec3
@@ -333,7 +330,7 @@ pub(all) struct RevoluteJoint {
   max_force : Double?
   softness : @dynamics.SpringCoefficients?
 }
-pub fn RevoluteJoint::new(@math.Vec3) -> Self
+pub fn RevoluteJoint::RevoluteJoint(@math.Vec3) -> Self
 
 pub(all) enum RigidBody {
   Dynamic
@@ -347,7 +344,7 @@ pub(all) struct RopeJoint {
   local_anchor2 : @math.Vec3
   max_distance : Double
 } derive(Eq, @debug.Debug)
-pub fn RopeJoint::new(Double) -> Self
+pub fn RopeJoint::RopeJoint(Double) -> Self
 
 pub(all) struct Sensor {
 } derive(Eq, @debug.Debug)
@@ -368,15 +365,15 @@ pub(all) struct SolverGroups {
   memberships : Int
   filters : Int
 } derive(Eq, @debug.Debug)
+pub fn SolverGroups::SolverGroups(Int, Int) -> Self
 pub fn SolverGroups::all() -> Self
-pub fn SolverGroups::new(Int, Int) -> Self
 
 pub(all) struct SphericalJoint {
   local_anchor1 : @math.Vec3
   local_anchor2 : @math.Vec3
   motor_target : (@math.Quat, Double, Double)?
 } derive(Eq, @debug.Debug)
-pub fn SphericalJoint::new() -> Self
+pub fn SphericalJoint::SphericalJoint() -> Self
 
 pub(all) struct SpringJoint {
   local_anchor1 : @math.Vec3
@@ -385,7 +382,7 @@ pub(all) struct SpringJoint {
   stiffness : Double
   damping : Double
 } derive(Eq, @debug.Debug)
-pub fn SpringJoint::new(Double, Double, Double) -> Self
+pub fn SpringJoint::SpringJoint(Double, Double, Double) -> Self
 
 pub(all) struct Velocity {
   linvel : @math.Vec3

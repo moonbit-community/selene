@@ -82,11 +82,11 @@ let game_over_title_ref : Ref[@entity.Entity?] = { val: None }
 let restart_button_ref : Ref[@entity.Entity?] = { val: None }
 
 ///|
-let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = @event.EventReader::new()
+let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = @event.EventReader()
 
 ///|
 fn set_ui_text(entity : @entity.Entity, content : String) -> Unit {
-  let text = @ui.texts().get_or_init(entity, fn() { @ui.Text::new(content) })
+  let text = @ui.texts().get_or_init(entity, fn() { @ui.Text(content) })
   text.content = content
 }
 
@@ -111,11 +111,11 @@ fn configure_text_entity(
     entity,
     @ui.Node::absolute(offset, size~, border=@ui.UiRectValues::all(1.0)),
   )
-  @ui.z_indexes().set(entity, @ui.ZIndex::new(zindex))
+  @ui.z_indexes().set(entity, @ui.ZIndex(zindex))
   set_ui_text(entity, content)
   @ui.text_fonts().set(entity, @ui.TextFont::from_css(font))
   set_ui_text_color(entity, color)
-  @ui.text_layouts().set(entity, @ui.TextLayout::new(align~, baseline~))
+  @ui.text_layouts().set(entity, @ui.TextLayout(align~, baseline~))
 }
 
 ///|
@@ -130,7 +130,7 @@ fn configure_panel_box(
     entity,
     @ui.Node::absolute(offset, size~, border=@ui.UiRectValues::all(1.0)),
   )
-  @ui.z_indexes().set(entity, @ui.ZIndex::new(PANEL_LAYER_ZINDEX))
+  @ui.z_indexes().set(entity, @ui.ZIndex(PANEL_LAYER_ZINDEX))
   @ui.background_colors().set(entity, @ui.BackgroundColor::from_css(background))
   @ui.border_colors().set(entity, @ui.BorderColor::from_css(border))
   @ui.border_radii().set(entity, @ui.BorderRadius::all(@ui.Val::px(10.0)))
@@ -147,21 +147,18 @@ fn configure_panel_button(
   tab_index : Int,
 ) -> Unit {
   @ui.nodes().set(entity, @ui.Node::absolute(offset, size~))
-  @ui.z_indexes().set(entity, @ui.ZIndex::new(PANEL_TEXT_ZINDEX))
+  @ui.z_indexes().set(entity, @ui.ZIndex(PANEL_TEXT_ZINDEX))
   @ui.background_colors().set(entity, @ui.BackgroundColor::from_css(background))
   @ui.border_colors().set(entity, @ui.BorderColor::from_css(border))
   @ui.border_radii().set(entity, @ui.BorderRadius::all(@ui.Val::px(8.0)))
-  @ui.buttons().set(entity, @ui.Button::new())
-  @ui.tab_indexes().set(entity, @ui.TabIndex::new(tab_index))
+  @ui.buttons().set(entity, @ui.Button())
+  @ui.tab_indexes().set(entity, @ui.TabIndex(tab_index))
   set_ui_text(entity, label)
   @ui.text_fonts().set(entity, @ui.TextFont::from_css("16px ThaleahFat"))
   set_ui_text_color(entity, "white")
   @ui.text_layouts().set(
     entity,
-    @ui.TextLayout::new(
-      align=@math.HAlign::Center,
-      baseline=@math.VAlign::Center,
-    ),
+    @ui.TextLayout(align=@math.HAlign::Center, baseline=@math.VAlign::Center),
   )
 }
 
@@ -185,7 +182,7 @@ fn set_ui_active(entity : @entity.Entity, active : Bool) -> Unit {
 ///|
 fn set_button_enabled(entity : @entity.Entity, enabled : Bool) -> Unit {
   if @ui.buttons().get(entity) is Some(_) {
-    @ui.buttons().set(entity, @ui.Button::new(enabled~))
+    @ui.buttons().set(entity, @ui.Button(enabled~))
   }
 }
 
@@ -193,7 +190,7 @@ fn set_button_enabled(entity : @entity.Entity, enabled : Bool) -> Unit {
 fn set_icon_image(entity : @entity.Entity, path : String) -> Unit {
   @ui.ui_images().set(
     entity,
-    @ui.UiImage::new(
+    @ui.UiImage(
       @math.Vec2(LEVELUP_BUTTON_ICON_SIZE, LEVELUP_BUTTON_ICON_SIZE),
       path,
       fit=@ui.ImageFit::Contain,
@@ -303,7 +300,7 @@ fn setup_level_up_ui() -> Unit {
     "black",
   )
 
-  let title = @entity.Entity::new()
+  let title = @entity.Entity()
   levelup_title_ref.val = Some(title)
   configure_text_entity(
     title,
@@ -319,7 +316,7 @@ fn setup_level_up_ui() -> Unit {
   for i in 0..<3 {
     let button_y = LEVELUP_PANEL_BUTTON_START_Y +
       i.to_double() * (36.0 + LEVELUP_PANEL_BUTTON_GAP_Y)
-    let button = @entity.Entity::new()
+    let button = @entity.Entity()
     configure_panel_button(
       button,
       levelup_panel_origin() + @math.Vec2(0.0, button_y),
@@ -331,7 +328,7 @@ fn setup_level_up_ui() -> Unit {
     )
     levelup_buttons.push(button)
 
-    let icon = @entity.Entity::new()
+    let icon = @entity.Entity()
     @ui.nodes().set(
       icon,
       @ui.Node::absolute(
@@ -343,7 +340,7 @@ fn setup_level_up_ui() -> Unit {
         size=@math.Vec2(LEVELUP_BUTTON_ICON_SIZE, LEVELUP_BUTTON_ICON_SIZE),
       ),
     )
-    @ui.z_indexes().set(icon, @ui.ZIndex::new(PANEL_TEXT_ZINDEX))
+    @ui.z_indexes().set(icon, @ui.ZIndex(PANEL_TEXT_ZINDEX))
     set_icon_image(icon, POWERUP_RANGE_ICON_PATH)
     levelup_button_icons.push(icon)
   }
@@ -460,7 +457,7 @@ fn setup_game_over_ui() -> Unit {
     "white",
   )
 
-  let title = @entity.Entity::new()
+  let title = @entity.Entity()
   game_over_title_ref.val = Some(title)
   configure_text_entity(
     title,
@@ -484,7 +481,7 @@ fn setup_game_over_ui() -> Unit {
     zindex=PANEL_TEXT_ZINDEX,
   )
 
-  let restart_button = @entity.Entity::new()
+  let restart_button = @entity.Entity()
   restart_button_ref.val = Some(restart_button)
   configure_panel_button(
     restart_button,

@@ -59,7 +59,7 @@ fn set_entity_translation(
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
     ..current,
-    translation: @math.Vec3::new(
+    translation: @math.Vec3(
       translation[X],
       translation[Y],
       current.translation.z,

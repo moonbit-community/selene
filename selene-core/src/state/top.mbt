@@ -28,8 +28,6 @@ pub(all) struct State[T] {
   next : Ref[T?]
   previous : Ref[T?]
   changed_serial : Ref[UInt]
-
-  fn[T] new(initial : T) -> State[T]
 }
 
 ///|
@@ -38,7 +36,7 @@ pub(all) struct NextState[T] {
 }
 
 ///|
-pub fn[T] State::new(initial : T) -> State[T] {
+pub fn[T] State::State(initial : T) -> State[T] {
   let world = @ecs.require_current_world()
   let runtime = state_runtime(world.id())
   let state : State[T] = {

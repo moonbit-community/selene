@@ -117,8 +117,10 @@ pub fn Audio::set_loop(Self, Bool) -> Unit
 pub fn Audio::set_playback_rate(Self, Double) -> Unit
 pub fn Audio::set_volume(Self, Double) -> Unit
 
-type WebGpuBackend
-pub fn WebGpuBackend::new() -> Self
+pub struct WebGpuBackend {
+  // private fields
+}
+pub fn WebGpuBackend::WebGpuBackend() -> Self
 
 // Type aliases
 pub type AudioInstance = Int

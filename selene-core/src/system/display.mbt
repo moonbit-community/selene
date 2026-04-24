@@ -124,7 +124,7 @@ pub fn screen_to_ui_virtual(pos : @math.Vec2) -> @math.Vec2 {
 test "scale transform translation only" {
   configure_display(480.0, 320.0, 2.0)
   let transformed = scale_transform_translation(
-    @math.Transform::new(a=1.2, b=0.3, c=0.4, d=1.1, tx=10.0, ty=20.0),
+    @math.Transform(a=1.2, b=0.3, c=0.4, d=1.1, tx=10.0, ty=20.0),
   )
   assert_eq(transformed.a, 1.2)
   assert_eq(transformed.b, 0.3)

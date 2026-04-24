@@ -1,13 +1,11 @@
 ///|
 test "raylib directional shadow helper chooses a stable up axis" {
   inspect(
-    choose_shadow_up(@smath.Vec3::new(0.0, -1.0, 0.0)) ==
-    @smath.Vec3::new(0.0, 0.0, 1.0),
+    choose_shadow_up(@smath.Vec3(0.0, -1.0, 0.0)) == @smath.Vec3(0.0, 0.0, 1.0),
     content="true",
   )
   inspect(
-    choose_shadow_up(@smath.Vec3::new(1.0, -1.0, 0.0)) ==
-    @smath.Vec3::new(0.0, 1.0, 0.0),
+    choose_shadow_up(@smath.Vec3(1.0, -1.0, 0.0)) == @smath.Vec3(0.0, 1.0, 0.0),
     content="true",
   )
 }
@@ -18,21 +16,21 @@ test "raylib directional shadow helper picks enabled lights in frame order" {
   frame.directional_lights = [
     {
       ..@render3d_types.default_directional_light3d(),
-      direction: @smath.Vec3::new(0.0, -1.0, 0.0),
+      direction: @smath.Vec3(0.0, -1.0, 0.0),
       color: white_render_color(),
       intensity: 1.0,
       shadows: false,
     },
     {
       ..@render3d_types.default_directional_light3d(),
-      direction: @smath.Vec3::new(1.0, -1.0, 0.0),
+      direction: @smath.Vec3(1.0, -1.0, 0.0),
       color: white_render_color(),
       intensity: 2.0,
       shadows: true,
     },
     {
       ..@render3d_types.default_directional_light3d(),
-      direction: @smath.Vec3::new(-1.0, -1.0, 0.0),
+      direction: @smath.Vec3(-1.0, -1.0, 0.0),
       color: white_render_color(),
       intensity: 3.0,
       shadows: true,
@@ -70,9 +68,9 @@ test "raylib directional shadow helper clamps negative bias values" {
 test "raylib directional shadow helper builds Bevy-aligned cascade bounds" {
   let light = { ..@render3d_types.default_directional_light3d(), shadows: true }
   let camera : @render3d_types.FrameCamera3D = {
-    position: @smath.Vec3::new(0.0, 2.0, 8.0),
-    target: @smath.Vec3::new(0.0, 1.0, 0.0),
-    up: @smath.Vec3::new(0.0, 1.0, 0.0),
+    position: @smath.Vec3(0.0, 2.0, 8.0),
+    target: @smath.Vec3(0.0, 1.0, 0.0),
+    up: @smath.Vec3(0.0, 1.0, 0.0),
     fov_y: 60.0,
     projection: Perspective,
     orthographic_size: None,
@@ -96,16 +94,16 @@ test "raylib directional shadow helper builds cascade atlas states" {
   frame.directional_lights = [
     {
       ..@render3d_types.default_directional_light3d(),
-      direction: @smath.Vec3::new(1.0, -2.0, -0.5),
+      direction: @smath.Vec3(1.0, -2.0, -0.5),
       color: white_render_color(),
       intensity: 1.0,
       shadows: true,
     },
   ]
   let camera : @render3d_types.FrameCamera3D = {
-    position: @smath.Vec3::new(0.0, 3.0, 9.0),
-    target: @smath.Vec3::new(0.0, 1.0, 0.0),
-    up: @smath.Vec3::new(0.0, 1.0, 0.0),
+    position: @smath.Vec3(0.0, 3.0, 9.0),
+    target: @smath.Vec3(0.0, 1.0, 0.0),
+    up: @smath.Vec3(0.0, 1.0, 0.0),
     fov_y: 55.0,
     projection: Perspective,
     orthographic_size: None,
@@ -140,9 +138,9 @@ test "raylib local shadow helper keeps only shadow casters" {
     {
       entity_id: None,
       transform: {
-        translation: @smath.Vec3::new(0.0, 0.0, 0.0),
+        translation: @smath.Vec3(0.0, 0.0, 0.0),
         rotation: @smath.Quat::identity(),
-        scale: @smath.Vec3::new(1.0, 1.0, 1.0),
+        scale: @smath.Vec3(1.0, 1.0, 1.0),
       },
       mesh,
       material,
@@ -152,9 +150,9 @@ test "raylib local shadow helper keeps only shadow casters" {
     {
       entity_id: None,
       transform: {
-        translation: @smath.Vec3::new(1.0, 2.0, 3.0),
+        translation: @smath.Vec3(1.0, 2.0, 3.0),
         rotation: @smath.Quat::identity(),
-        scale: @smath.Vec3::new(1.0, 1.0, 1.0),
+        scale: @smath.Vec3(1.0, 1.0, 1.0),
       },
       mesh,
       material,
@@ -171,8 +169,8 @@ test "raylib local shadow helper keeps only shadow casters" {
 ///|
 test "raylib local shadow helpers build clamped projected setups" {
   let spot_setup = build_spot_shadow_setup({
-    position: @smath.Vec3::new(0.0, 4.0, 2.0),
-    direction: @smath.Vec3::new(0.0, -1.0, 0.0),
+    position: @smath.Vec3(0.0, 4.0, 2.0),
+    direction: @smath.Vec3(0.0, -1.0, 0.0),
     color: white_render_color(),
     intensity: 1.0,
     range: 12.0,
@@ -188,7 +186,7 @@ test "raylib local shadow helpers build clamped projected setups" {
 
   let point_setup = build_point_shadow_face_setup(
     {
-      position: @smath.Vec3::new(1.0, 2.0, 3.0),
+      position: @smath.Vec3(1.0, 2.0, 3.0),
       color: white_render_color(),
       intensity: 1.0,
       range: 8.0,

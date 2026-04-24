@@ -28,7 +28,7 @@ pub struct EditorService {
 }
 
 ///|
-pub fn EditorService::new(module_root : String) -> EditorService {
+pub fn EditorService::EditorService(module_root : String) -> EditorService {
   {
     module_root,
     current_project: None,

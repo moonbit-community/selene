@@ -196,7 +196,7 @@ fn pixeladventure_world_store() -> PixelAdventureWorldStore {
     birds: Map::new(),
     apples: Map::new(),
     flags: Map::new(),
-    ui_click_reader: @event.EventReader::new(),
+    ui_click_reader: @event.EventReader(),
   })
 }
 
@@ -273,9 +273,9 @@ fn sprite_clip(
 
 ///|
 fn sprite_animation_sprite(animation : SpriteAnimationDef) -> @sprite.Sprite {
-  @sprite.Sprite::new(
+  @sprite.Sprite(
     image=Some(animation.image),
-    texture_atlas=Some(@sprite.TextureAtlas::new(animation.layout)),
+    texture_atlas=Some(@sprite.TextureAtlas(animation.layout)),
     custom_size=Some(animation.size),
     anchor=animation.anchor,
     flip_x=animation.flip_x,
@@ -299,14 +299,14 @@ let hurt_sound : @audio.AudioHandle = @asset.load_audio(
 )
 
 ///|
-let volume_on_ui_image : @ui.UiImage = @ui.UiImage::new(
+let volume_on_ui_image : @ui.UiImage = @ui.UiImage(
   @math.Vec2(21.0, 22.0),
   "assets/pixeladventure/Menu/Buttons/Volume.png",
   fit=@ui.ImageFit::Contain,
 )
 
 ///|
-let volume_off_ui_image : @ui.UiImage = @ui.UiImage::new(
+let volume_off_ui_image : @ui.UiImage = @ui.UiImage(
   @math.Vec2(21.0, 22.0),
   "assets/pixeladventure/Menu/Buttons/VolumeOff.png",
   fit=@ui.ImageFit::Contain,
@@ -415,13 +415,13 @@ let flag_idle_animation : SpriteAnimationDef = sprite_clip(
 )
 
 ///|
-let player_collision_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup::new()
+let player_collision_group : @physics2d.CollisionGroup = @physics2d.collision_group()
 
 ///|
-let terrain_collision_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup::new()
+let terrain_collision_group : @physics2d.CollisionGroup = @physics2d.collision_group()
 
 ///|
-let enemy_collision_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup::new()
+let enemy_collision_group : @physics2d.CollisionGroup = @physics2d.collision_group()
 
 ///|
-let trigger_collision_group : @physics2d.CollisionGroup = @physics2d.CollisionGroup::new()
+let trigger_collision_group : @physics2d.CollisionGroup = @physics2d.collision_group()

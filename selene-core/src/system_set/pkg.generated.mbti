@@ -30,10 +30,8 @@ pub fn SystemOrdering::with_set(Self, SystemSet) -> Self
 
 pub(all) struct SystemSet {
   name : String
-
-  fn new(String) -> SystemSet
 } derive(Eq, Hash, @debug.Debug)
-pub fn SystemSet::new(String) -> Self
+pub fn SystemSet::SystemSet(String) -> Self
 
 // Type aliases
 

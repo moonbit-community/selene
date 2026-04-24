@@ -117,25 +117,25 @@ fn to_screen_rect(
   } else {
     let p0 = screen_point(
       global_transform.transform_point(
-        @math.Vec3::new(local_position[X], local_position[Y], 0.0),
+        @math.Vec3(local_position[X], local_position[Y], 0.0),
       ),
       camera_view,
     )
     let p1 = screen_point(
       global_transform.transform_point(
-        @math.Vec3::new(local_position[X] + size[X], local_position[Y], 0.0),
+        @math.Vec3(local_position[X] + size[X], local_position[Y], 0.0),
       ),
       camera_view,
     )
     let p2 = screen_point(
       global_transform.transform_point(
-        @math.Vec3::new(local_position[X], local_position[Y] + size[Y], 0.0),
+        @math.Vec3(local_position[X], local_position[Y] + size[Y], 0.0),
       ),
       camera_view,
     )
     let p3 = screen_point(
       global_transform.transform_point(
-        @math.Vec3::new(
+        @math.Vec3(
           local_position[X] + size[X],
           local_position[Y] + size[Y],
           0.0,

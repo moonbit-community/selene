@@ -5,14 +5,6 @@ pub(all) struct ColorMaterial {
   uv_transform : @math.Transform
   alpha_mode : @render.AlphaMode2D
   blend_mode : @render.BlendMode2D
-
-  fn new(
-    color? : @render.Color,
-    texture? : @asset.ImageHandle?,
-    uv_transform? : @math.Transform,
-    alpha_mode? : @render.AlphaMode2D,
-    blend_mode? : @render.BlendMode2D,
-  ) -> ColorMaterial
 }
 
 ///|
@@ -26,8 +18,6 @@ pub(all) enum Material2dHandle {
 ///|
 pub(all) struct MeshMaterial2d {
   material : Material2dHandle
-
-  fn new(material : Material2dHandle) -> MeshMaterial2d
 } derive(Eq, Debug)
 
 ///|
@@ -63,7 +53,7 @@ fn default_material_color() -> @render.Color {
 }
 
 ///|
-pub fn ColorMaterial::new(
+pub fn ColorMaterial::ColorMaterial(
   color? : @render.Color = default_material_color(),
   texture? : @asset.ImageHandle? = None,
   uv_transform? : @math.Transform = @math.Transform::identity(),
@@ -75,11 +65,13 @@ pub fn ColorMaterial::new(
 
 ///|
 pub fn ColorMaterial::from_color(color : @render.Color) -> ColorMaterial {
-  ColorMaterial::new(color~)
+  ColorMaterial(color~)
 }
 
 ///|
-pub fn MeshMaterial2d::new(material : Material2dHandle) -> MeshMaterial2d {
+pub fn MeshMaterial2d::MeshMaterial2d(
+  material : Material2dHandle,
+) -> MeshMaterial2d {
   { material, }
 }
 
@@ -87,7 +79,7 @@ pub fn MeshMaterial2d::new(material : Material2dHandle) -> MeshMaterial2d {
 pub fn MeshMaterial2d::from_color_material(
   material : ColorMaterialHandle,
 ) -> MeshMaterial2d {
-  MeshMaterial2d::new(Color(material))
+  MeshMaterial2d(Color(material))
 }
 
 ///|

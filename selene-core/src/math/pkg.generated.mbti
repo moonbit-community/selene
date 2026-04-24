@@ -71,9 +71,8 @@ pub(all) struct Quat {
   y : Double
   z : Double
   w : Double
-
-  fn new(Double, Double, Double, Double) -> Quat
 } derive(Eq, @debug.Debug)
+pub fn Quat::Quat(Double, Double, Double, Double) -> Self
 pub fn Quat::conjugate(Self) -> Self
 pub fn Quat::dot(Self, Self) -> Double
 pub fn Quat::from_axis_angle(Vec3, Double) -> Self
@@ -82,7 +81,6 @@ pub fn Quat::identity() -> Self
 pub fn Quat::inverse(Self) -> Self
 pub fn Quat::length_squared(Self) -> Double
 pub fn Quat::multiply(Self, Self) -> Self
-pub fn Quat::new(Double, Double, Double, Double) -> Self
 pub fn Quat::nlerp(Self, Self, Double) -> Self
 pub fn Quat::normalize(Self) -> Self
 pub fn Quat::rotate_vec3(Self, Vec3) -> Vec3
@@ -111,9 +109,8 @@ pub(all) struct Transform {
   d : Double
   tx : Double
   ty : Double
-
-  fn new(a? : Double, b? : Double, c? : Double, d? : Double, tx? : Double, ty? : Double) -> Transform
 }
+pub fn Transform::Transform(a? : Double, b? : Double, c? : Double, d? : Double, tx? : Double, ty? : Double) -> Self
 pub fn Transform::append(Self, Self) -> Self
 pub fn Transform::append_rotation_deg(Self, Double) -> Self
 pub fn Transform::append_rotation_rad(Self, Double) -> Self
@@ -137,7 +134,6 @@ pub fn Transform::get_translation(Self) -> (Double, Double)
 pub fn Transform::identity() -> Self
 pub fn Transform::inverse(Self) -> Self?
 pub fn Transform::multiply(Self, Self) -> Self
-pub fn Transform::new(a? : Double, b? : Double, c? : Double, d? : Double, tx? : Double, ty? : Double) -> Self
 pub fn Transform::prepend(Self, Self) -> Self
 pub fn Transform::prepend_rotation_deg(Self, Double) -> Self
 pub fn Transform::prepend_rotation_rad(Self, Double) -> Self
@@ -176,15 +172,13 @@ pub(all) struct Vec3 {
   x : Double
   y : Double
   z : Double
-
-  fn new(Double, Double, Double) -> Vec3
 } derive(Eq, @debug.Debug)
+pub fn Vec3::Vec3(Double, Double, Double) -> Self
 pub fn Vec3::cross(Self, Self) -> Self
 pub fn Vec3::dot(Self, Self) -> Double
 pub fn Vec3::length(Self) -> Double
 pub fn Vec3::length_squared(Self) -> Double
 pub fn Vec3::lerp(Self, Self, Double) -> Self
-pub fn Vec3::new(Double, Double, Double) -> Self
 pub fn Vec3::normalize(Self) -> Self
 pub fn Vec3::one() -> Self
 pub fn Vec3::scalar_div(Self, Double) -> Self

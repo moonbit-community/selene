@@ -2248,7 +2248,7 @@ test "ldtk transformed event is emitted on next sync tick" {
   let project = test_project_with_layers("level-main", [])
   set_ldtk_settings(default_ldtk_settings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let reader = @event.EventReader::new()
+  let reader = @event.EventReader()
   let world = spawn_ldtk_world(project)
 
   let immediate = ldtk_level_event_bus.read(reader)
@@ -2402,7 +2402,7 @@ test "ldtk world respawn recreates worldly entities" {
 ///|
 test "ldtk intgrid physics spawns collider from matching cells" {
   reset_ldtk_runtime()
-  let collider_reader = @event.EventReader::new()
+  let collider_reader = @event.EventReader()
   let project = test_project_with_layers("level-main", [
     test_int_grid_layer("Collision", 1, 1, [1]),
   ])
@@ -2433,7 +2433,7 @@ test "ldtk intgrid physics spawns collider from matching cells" {
 ///|
 test "ldtk intgrid physics supports sensor mode" {
   reset_ldtk_runtime()
-  let collider_reader = @event.EventReader::new()
+  let collider_reader = @event.EventReader()
   let project = test_project_with_layers("level-main", [
     test_int_grid_layer("Collision", 1, 1, [1]),
   ])
@@ -2466,7 +2466,7 @@ test "ldtk transformed remains delayed after level respawn" {
   let project = test_project_with_layers("level-main", [])
   set_ldtk_settings(default_ldtk_settings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let reader = @event.EventReader::new()
+  let reader = @event.EventReader()
   let world = spawn_ldtk_world(project)
 
   ldtk_world_sync_system(0.0)
@@ -2495,7 +2495,7 @@ test "despawn_ldtk_tree clears pending transformed levels before sync" {
   let project = test_project_with_layers("level-main", [])
   set_ldtk_settings(default_ldtk_settings())
   set_ldtk_level_selection(ldtk_level_selection_index(0))
-  let reader = @event.EventReader::new()
+  let reader = @event.EventReader()
   let world = spawn_ldtk_world(project)
 
   inspect(

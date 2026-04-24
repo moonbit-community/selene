@@ -98,9 +98,9 @@ pub fn instantiate_scene_instance(
   scene : @render3d.SceneHandle,
   root_transform : @transform.Transform,
 ) -> SceneInstance {
-  let root = @entity.Entity::new()
+  let root = @entity.Entity()
   @transform.transforms().set(root, root_transform)
-  @name.names().set(root, @name.Name::new("scene_root"))
+  @name.names().set(root, @name.Name("scene_root"))
   let parts : Map[String, @entity.Entity] = Map::new()
   guard scene_templates.get(scene) is Some(template) else {
     return { root, parts, animations: Map::new() }
@@ -123,17 +123,17 @@ pub fn instantiate_scene_instance(
   resolve_scene_skin_bindings(template, node_entities, pending_skin_bindings)
   let animation_nodes : Map[String, @animation.AnimationNodeIndex] = Map::new()
   if template.animations.length() > 0 {
-    let graph = @animation.AnimationGraph::new()
+    let graph = @animation.AnimationGraph()
     for name, clip in template.animations {
       let node = graph.add_clip(clip)
       animation_nodes.set(name, node)
     }
     let graph_handle = @animation.register_animation_graph_asset(graph)
     @animation.animation_graph_handles().set(root, graph_handle)
-    @animation.animation_players().set(root, @animation.AnimationPlayer::new())
+    @animation.animation_players().set(root, @animation.AnimationPlayer())
     @animation.animation_transitions().set(
       root,
-      @animation.AnimationTransitions::new(),
+      @animation.AnimationTransitions(),
     )
   }
   { root, parts, animations: animation_nodes }

@@ -1,7 +1,7 @@
 ///|
 fn with_sprite_test_world(action : () -> Unit raise) -> Unit raise {
   let previous = @ecs.current_world().unwrap_or(@ecs.bootstrap_world())
-  let world = @ecs.World::new()
+  let world = @ecs.World()
   @ecs.set_current_world(world)
   action()
   @ecs.set_current_world(previous)
@@ -9,14 +9,12 @@ fn with_sprite_test_world(action : () -> Unit raise) -> Unit raise {
 
 ///|
 fn spawn_test_camera(viewport : @math.Rect) -> @entity.Entity {
-  let camera_entity = @entity.Entity::new()
+  let camera_entity = @entity.Entity()
   @camera.cameras().set(
     camera_entity,
-    @camera.Camera::new(
-      viewport=Some(@camera.CameraViewport::from_rect(viewport)),
-    ),
+    @camera.Camera(viewport=Some(@camera.CameraViewport::from_rect(viewport))),
   )
-  @camera.camera2ds().set(camera_entity, @camera.Camera2d::new())
+  @camera.camera2ds().set(camera_entity, @camera.Camera2d())
   @transform.global_transforms().set(
     camera_entity,
     @transform.GlobalTransform::from_transform(
@@ -28,7 +26,7 @@ fn spawn_test_camera(viewport : @math.Rect) -> @entity.Entity {
 
 ///|
 fn spawn_color_sprite(position : @math.Vec2) -> @entity.Entity {
-  let entity = @entity.Entity::new()
+  let entity = @entity.Entity()
   sprites().set(
     entity,
     Sprite::from_color(

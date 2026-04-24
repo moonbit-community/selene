@@ -1,7 +1,7 @@
 ///|
 fn with_runtime_debug_world(action : () -> Unit raise) -> Unit raise {
   let previous = @ecs.current_world().unwrap_or(@ecs.bootstrap_world())
-  let world = @ecs.World::new()
+  let world = @ecs.World()
   @ecs.set_current_world(world)
   action()
   @ecs.set_current_world(previous)
@@ -76,7 +76,7 @@ test "atlas validation reports overlaps and out-of-bounds regions" {
       position: @math.Vec2(14.0, 14.0),
       size: @math.Vec2(4.0, 4.0),
     }
-    let layout = @sprite.TextureAtlasLayout::new(@math.Vec2(16.0, 16.0), [
+    let layout = @sprite.TextureAtlasLayout(@math.Vec2(16.0, 16.0), [
       rect_a, rect_b, rect_c,
     ])
     let report = validate_texture_atlas_layout(layout)
@@ -129,8 +129,8 @@ test "render submission keeps entity ids and exposes offscreen capture API" {
 ///|
 test "sprite inspector returns unified sprite debug entries" {
   with_runtime_debug_world(fn() raise {
-    let entity = @entity.Entity::new()
-    @name.names().set(entity, @name.Name::new("Sprite Debug"))
+    let entity = @entity.Entity()
+    @name.names().set(entity, @name.Name("Sprite Debug"))
     let image = @asset.load_image("assets/debug/sprite.png")
     let source_rect : @math.Rect = {
       position: @math.Vec2(2.0, 4.0),
@@ -144,7 +144,7 @@ test "sprite inspector returns unified sprite debug entries" {
     )
     @sprite.sprites().set(
       entity,
-      @sprite.Sprite::new(
+      @sprite.Sprite(
         image=Some(image),
         rect=Some(source_rect),
         flip_x=true,

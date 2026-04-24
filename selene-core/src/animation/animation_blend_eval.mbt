@@ -156,7 +156,7 @@ fn blend_quat(
   if total <= 0.000001 {
     fallback
   } else {
-    @math.Quat::new(x / total, y / total, z / total, w / total).normalize()
+    @math.Quat(x / total, y / total, z / total, w / total).normalize()
   }
 }
 

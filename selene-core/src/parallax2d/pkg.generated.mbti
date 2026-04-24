@@ -23,10 +23,8 @@ pub fn parallax_world_position(@math.Vec2, Parallax2d?, @camera.Camera2dView?) -
 pub(all) struct Parallax2d {
   base_offset : @math.Vec2
   factor : @math.Vec2
-
-  fn new(base_offset? : @math.Vec2, factor? : @math.Vec2) -> Parallax2d
 } derive(Eq, @debug.Debug)
-pub fn Parallax2d::new(base_offset? : @math.Vec2, factor? : @math.Vec2) -> Self
+pub fn Parallax2d::Parallax2d(base_offset? : @math.Vec2, factor? : @math.Vec2) -> Self
 
 // Type aliases
 

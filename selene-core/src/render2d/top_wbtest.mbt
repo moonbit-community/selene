@@ -21,19 +21,19 @@ test "render2d world sorting honors layer and depth order" {
     10.0,
     Some(1U),
     test_rect_command(@render.AlphaMode2D::Blend, 0.5),
-    sorting=Sorting2d::new(),
+    sorting=Sorting2d(),
   )
   push_rect_with_depth_for_entity(
     20.0,
     Some(2U),
     test_rect_command(@render.AlphaMode2D::Opaque, 1.0),
-    sorting=Sorting2d::new(),
+    sorting=Sorting2d(),
   )
   push_rect_with_depth_for_entity(
     5.0,
     Some(3U),
     test_rect_command(@render.AlphaMode2D::Opaque, 1.0),
-    sorting=Sorting2d::new(layer=-1),
+    sorting=Sorting2d(layer=-1),
   )
 
   let order = get_screen_world_commands_with_depth().map(fn(command) {
@@ -50,19 +50,19 @@ test "render2d world sorting honors explicit sorting groups" {
     1.0,
     Some(1U),
     test_rect_command(@render.AlphaMode2D::Opaque, 1.0),
-    sorting=Sorting2d::new(group=2),
+    sorting=Sorting2d(group=2),
   )
   push_rect_with_depth_for_entity(
     100.0,
     Some(2U),
     test_rect_command(@render.AlphaMode2D::Opaque, 1.0),
-    sorting=Sorting2d::new(group=0),
+    sorting=Sorting2d(group=0),
   )
   push_rect_with_depth_for_entity(
     50.0,
     Some(3U),
     test_rect_command(@render.AlphaMode2D::Opaque, 1.0),
-    sorting=Sorting2d::new(group=1),
+    sorting=Sorting2d(group=1),
   )
 
   let order = get_screen_world_commands_with_depth().map(fn(command) {

@@ -874,19 +874,19 @@ fn build_cuboid_triangle_mesh3d(
   let half_x = size_x / 2.0
   let half_y = size_y / 2.0
   let half_z = size_z / 2.0
-  let p000 = @smath.Vec3::new(-half_x, -half_y, -half_z)
-  let p001 = @smath.Vec3::new(-half_x, -half_y, half_z)
-  let p010 = @smath.Vec3::new(-half_x, half_y, -half_z)
-  let p011 = @smath.Vec3::new(-half_x, half_y, half_z)
-  let p100 = @smath.Vec3::new(half_x, -half_y, -half_z)
-  let p101 = @smath.Vec3::new(half_x, -half_y, half_z)
-  let p110 = @smath.Vec3::new(half_x, half_y, -half_z)
-  let p111 = @smath.Vec3::new(half_x, half_y, half_z)
+  let p000 = @smath.Vec3(-half_x, -half_y, -half_z)
+  let p001 = @smath.Vec3(-half_x, -half_y, half_z)
+  let p010 = @smath.Vec3(-half_x, half_y, -half_z)
+  let p011 = @smath.Vec3(-half_x, half_y, half_z)
+  let p100 = @smath.Vec3(half_x, -half_y, -half_z)
+  let p101 = @smath.Vec3(half_x, -half_y, half_z)
+  let p110 = @smath.Vec3(half_x, half_y, -half_z)
+  let p111 = @smath.Vec3(half_x, half_y, half_z)
   let uv00 = @smath.Vec2(0.0, 0.0)
   let uv10 = @smath.Vec2(1.0, 0.0)
   let uv01 = @smath.Vec2(0.0, 1.0)
   let uv11 = @smath.Vec2(1.0, 1.0)
-  let normal_front = @smath.Vec3::new(0.0, 0.0, 1.0)
+  let normal_front = @smath.Vec3(0.0, 0.0, 1.0)
   push_textured_triangle3d(
     positions, uvs, normals, p001, p101, p111, uv01, uv11, uv10, normal_front, normal_front,
     normal_front,
@@ -895,7 +895,7 @@ fn build_cuboid_triangle_mesh3d(
     positions, uvs, normals, p001, p111, p011, uv01, uv10, uv00, normal_front, normal_front,
     normal_front,
   )
-  let normal_back = @smath.Vec3::new(0.0, 0.0, -1.0)
+  let normal_back = @smath.Vec3(0.0, 0.0, -1.0)
   push_textured_triangle3d(
     positions, uvs, normals, p100, p000, p010, uv01, uv11, uv10, normal_back, normal_back,
     normal_back,
@@ -904,7 +904,7 @@ fn build_cuboid_triangle_mesh3d(
     positions, uvs, normals, p100, p010, p110, uv01, uv10, uv00, normal_back, normal_back,
     normal_back,
   )
-  let normal_right = @smath.Vec3::new(1.0, 0.0, 0.0)
+  let normal_right = @smath.Vec3(1.0, 0.0, 0.0)
   push_textured_triangle3d(
     positions, uvs, normals, p101, p100, p110, uv01, uv11, uv10, normal_right, normal_right,
     normal_right,
@@ -913,7 +913,7 @@ fn build_cuboid_triangle_mesh3d(
     positions, uvs, normals, p101, p110, p111, uv01, uv10, uv00, normal_right, normal_right,
     normal_right,
   )
-  let normal_left = @smath.Vec3::new(-1.0, 0.0, 0.0)
+  let normal_left = @smath.Vec3(-1.0, 0.0, 0.0)
   push_textured_triangle3d(
     positions, uvs, normals, p000, p001, p011, uv01, uv11, uv10, normal_left, normal_left,
     normal_left,
@@ -922,7 +922,7 @@ fn build_cuboid_triangle_mesh3d(
     positions, uvs, normals, p000, p011, p010, uv01, uv10, uv00, normal_left, normal_left,
     normal_left,
   )
-  let normal_top = @smath.Vec3::new(0.0, 1.0, 0.0)
+  let normal_top = @smath.Vec3(0.0, 1.0, 0.0)
   push_textured_triangle3d(
     positions, uvs, normals, p011, p111, p110, uv01, uv11, uv10, normal_top, normal_top,
     normal_top,
@@ -931,7 +931,7 @@ fn build_cuboid_triangle_mesh3d(
     positions, uvs, normals, p011, p110, p010, uv01, uv10, uv00, normal_top, normal_top,
     normal_top,
   )
-  let normal_bottom = @smath.Vec3::new(0.0, -1.0, 0.0)
+  let normal_bottom = @smath.Vec3(0.0, -1.0, 0.0)
   push_textured_triangle3d(
     positions, uvs, normals, p000, p100, p101, uv01, uv11, uv10, normal_bottom, normal_bottom,
     normal_bottom,
@@ -969,22 +969,22 @@ fn build_sphere_triangle_mesh3d(
       let u1 = (segment + 1).to_double() / safe_slices.to_double()
       let phi0 = u0 * 2.0 * @math.PI
       let phi1 = u1 * 2.0 * @math.PI
-      let p00 = @smath.Vec3::new(
+      let p00 = @smath.Vec3(
         ring0 * @math.cos(phi0),
         y0,
         ring0 * @math.sin(phi0),
       )
-      let p01 = @smath.Vec3::new(
+      let p01 = @smath.Vec3(
         ring0 * @math.cos(phi1),
         y0,
         ring0 * @math.sin(phi1),
       )
-      let p10 = @smath.Vec3::new(
+      let p10 = @smath.Vec3(
         ring1 * @math.cos(phi0),
         y1,
         ring1 * @math.sin(phi0),
       )
-      let p11 = @smath.Vec3::new(
+      let p11 = @smath.Vec3(
         ring1 * @math.cos(phi1),
         y1,
         ring1 * @math.sin(phi1),
@@ -1041,36 +1041,28 @@ fn build_cylinder_triangle_mesh3d(
     let u1 = (segment + 1).to_double() / safe_slices.to_double()
     let phi0 = u0 * 2.0 * @math.PI
     let phi1 = u1 * 2.0 * @math.PI
-    let top0 = @smath.Vec3::new(
+    let top0 = @smath.Vec3(
       radius_top * @math.cos(phi0),
       half_height,
       radius_top * @math.sin(phi0),
     )
-    let top1 = @smath.Vec3::new(
+    let top1 = @smath.Vec3(
       radius_top * @math.cos(phi1),
       half_height,
       radius_top * @math.sin(phi1),
     )
-    let bottom0 = @smath.Vec3::new(
+    let bottom0 = @smath.Vec3(
       radius_bottom * @math.cos(phi0),
       -half_height,
       radius_bottom * @math.sin(phi0),
     )
-    let bottom1 = @smath.Vec3::new(
+    let bottom1 = @smath.Vec3(
       radius_bottom * @math.cos(phi1),
       -half_height,
       radius_bottom * @math.sin(phi1),
     )
-    let side_normal0 = @smath.Vec3::new(
-      @math.cos(phi0),
-      slope_y,
-      @math.sin(phi0),
-    ).normalize()
-    let side_normal1 = @smath.Vec3::new(
-      @math.cos(phi1),
-      slope_y,
-      @math.sin(phi1),
-    ).normalize()
+    let side_normal0 = @smath.Vec3(@math.cos(phi0), slope_y, @math.sin(phi0)).normalize()
+    let side_normal1 = @smath.Vec3(@math.cos(phi1), slope_y, @math.sin(phi1)).normalize()
     push_textured_triangle3d(
       positions,
       uvs,
@@ -1100,8 +1092,8 @@ fn build_cylinder_triangle_mesh3d(
       side_normal1,
     )
     if radius_top.abs() > 0.000001 {
-      let top_center = @smath.Vec3::new(0.0, half_height, 0.0)
-      let top_normal = @smath.Vec3::new(0.0, 1.0, 0.0)
+      let top_center = @smath.Vec3(0.0, half_height, 0.0)
+      let top_normal = @smath.Vec3(0.0, 1.0, 0.0)
       push_textured_triangle3d(
         positions,
         uvs,
@@ -1118,8 +1110,8 @@ fn build_cylinder_triangle_mesh3d(
       )
     }
     if radius_bottom.abs() > 0.000001 {
-      let bottom_center = @smath.Vec3::new(0.0, -half_height, 0.0)
-      let bottom_normal = @smath.Vec3::new(0.0, -1.0, 0.0)
+      let bottom_center = @smath.Vec3(0.0, -half_height, 0.0)
+      let bottom_normal = @smath.Vec3(0.0, -1.0, 0.0)
       push_textured_triangle3d(
         positions,
         uvs,
@@ -1189,7 +1181,7 @@ fn required_primitive_uv_set_count(bundle : MaterialTextureBundle3D) -> Int {
 ///|
 fn sphere_vertex_normal(position : @smath.Vec3) -> @smath.Vec3 {
   if position.length_squared() <= 0.0000001 {
-    @smath.Vec3::new(0.0, 1.0, 0.0)
+    @smath.Vec3(0.0, 1.0, 0.0)
   } else {
     position.normalize()
   }
@@ -1247,7 +1239,7 @@ fn configure_scene_lighting(frame : @render3d_types.RenderFrame3D) -> Unit {
   let ambient = if has_lighting {
     frame.ambient_light.map_or(@smath.Vec3::zero(), fn(light) {
       let (r, g, b) = color_rgb01(light.color)
-      @smath.Vec3::new(r, g, b).scalar_mul(light.intensity)
+      @smath.Vec3(r, g, b).scalar_mul(light.intensity)
     })
   } else {
     @smath.Vec3::one()
@@ -1281,7 +1273,7 @@ fn pack_directional_light_data(
   for idx in 0..<directional_count {
     let light = frame.directional_lights[idx]
     let direction = if light.direction.length_squared() <= 0.0000001 {
-      @smath.Vec3::new(0.0, -1.0, 0.0)
+      @smath.Vec3(0.0, -1.0, 0.0)
     } else {
       light.direction.normalize()
     }
@@ -1360,7 +1352,7 @@ fn pack_spot_light_data(frame : @render3d_types.RenderFrame3D) -> Array[Double] 
   for idx in 0..<spot_count {
     let light = frame.spot_lights[idx]
     let direction = if light.direction.length_squared() <= 0.0000001 {
-      @smath.Vec3::new(0.0, -1.0, 0.0)
+      @smath.Vec3(0.0, -1.0, 0.0)
     } else {
       light.direction.normalize()
     }
@@ -1507,7 +1499,7 @@ fn compute_vertex_normals(
     let c = positions[ic]
     let mut normal = (b - a).cross(c - a)
     if normal.length_squared() <= 0.0000001 {
-      normal = @smath.Vec3::new(0.0, 1.0, 0.0)
+      normal = @smath.Vec3(0.0, 1.0, 0.0)
     }
     normals[ia] = normals[ia] + normal
     normals[ib] = normals[ib] + normal
@@ -1516,7 +1508,7 @@ fn compute_vertex_normals(
   for index in 0..<normals.length() {
     let normal = normals[index]
     normals[index] = if normal.length_squared() <= 0.0000001 {
-      @smath.Vec3::new(0.0, 1.0, 0.0)
+      @smath.Vec3(0.0, 1.0, 0.0)
     } else {
       normal.normalize()
     }

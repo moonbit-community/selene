@@ -50,10 +50,8 @@ pub(all) struct ActionState {
 
 pub(all) struct InputAction {
   name : String
-
-  fn new(String) -> InputAction
 } derive(Eq, Hash, @debug.Debug)
-pub fn InputAction::new(String) -> Self
+pub fn InputAction::InputAction(String) -> Self
 
 pub(all) enum InputBinding {
   Key(@inputs.Code)

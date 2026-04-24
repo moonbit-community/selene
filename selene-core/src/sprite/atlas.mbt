@@ -2,8 +2,6 @@
 pub(all) struct TextureAtlasLayout {
   size : @math.Vec2
   rects : Array[@math.Rect]
-
-  fn new(size : @math.Vec2, rects : Array[@math.Rect]) -> TextureAtlasLayout
 }
 
 ///|
@@ -13,8 +11,6 @@ pub(all) struct TextureAtlasLayoutHandle(UInt) derive(Eq, Debug, Hash)
 pub(all) struct TextureAtlas {
   layout : TextureAtlasLayoutHandle
   mut index : Int
-
-  fn new(layout : TextureAtlasLayoutHandle, index? : Int) -> TextureAtlas
 } derive(Eq, Debug)
 
 ///|
@@ -36,7 +32,7 @@ let dirty_texture_atlas_layouts : Map[
 let released_texture_atlas_layouts : Array[TextureAtlasLayoutHandle] = []
 
 ///|
-pub fn TextureAtlasLayout::new(
+pub fn TextureAtlasLayout::TextureAtlasLayout(
   size : @math.Vec2,
   rects : Array[@math.Rect],
 ) -> TextureAtlasLayout {
@@ -75,7 +71,7 @@ pub fn TextureAtlasLayout::from_grid(
 }
 
 ///|
-pub fn TextureAtlas::new(
+pub fn TextureAtlas::TextureAtlas(
   layout : TextureAtlasLayoutHandle,
   index? : Int = 0,
 ) -> TextureAtlas {

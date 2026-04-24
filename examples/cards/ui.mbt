@@ -22,17 +22,17 @@ const BUTTON_ZINDEX : Int = 110
 const BUTTON_LABEL_ZINDEX : Int = 111
 
 ///|
-let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = @event.EventReader::new()
+let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = @event.EventReader()
 
 ///|
 fn set_text(entity : @entity.Entity, content : String) -> Unit {
-  let text = @ui.texts().get_or_init(entity, fn() { @ui.Text::new(content) })
+  let text = @ui.texts().get_or_init(entity, fn() { @ui.Text(content) })
   text.content = content
 }
 
 ///|
 fn with_display(node : @ui.Node, display : @ui.Display) -> @ui.Node {
-  @ui.Node::new(
+  @ui.Node(
     width=node.width,
     height=node.height,
     min_width=node.min_width,
@@ -65,7 +65,7 @@ fn with_display(node : @ui.Node, display : @ui.Display) -> @ui.Node {
 fn set_display(entity : @entity.Entity, display : @ui.Display) -> Unit {
   match @ui.nodes().get(entity) {
     Some(node) => @ui.nodes().set(entity, with_display(node, display))
-    None => @ui.nodes().set(entity, @ui.Node::new(display~))
+    None => @ui.nodes().set(entity, @ui.Node(display~))
   }
 }
 
@@ -82,11 +82,11 @@ fn configure_text(
   zindex? : Int = HUD_ZINDEX,
 ) -> Unit {
   @ui.nodes().set(entity, @ui.Node::absolute(offset, size~))
-  @ui.z_indexes().set(entity, @ui.ZIndex::new(zindex))
+  @ui.z_indexes().set(entity, @ui.ZIndex(zindex))
   set_text(entity, content)
   @ui.text_fonts().set(entity, @ui.TextFont::from_css(font))
   @ui.text_colors().set(entity, @ui.TextColor::from_css(color))
-  @ui.text_layouts().set(entity, @ui.TextLayout::new(align~, baseline~))
+  @ui.text_layouts().set(entity, @ui.TextLayout(align~, baseline~))
 }
 
 ///|
@@ -98,24 +98,24 @@ fn configure_button(
   tab_index : Int,
 ) -> Unit {
   @ui.nodes().set(entity, @ui.Node::absolute(offset, size~))
-  @ui.z_indexes().set(entity, @ui.ZIndex::new(BUTTON_ZINDEX))
+  @ui.z_indexes().set(entity, @ui.ZIndex(BUTTON_ZINDEX))
   @ui.background_colors().set(entity, @ui.BackgroundColor::from_css(background))
   @ui.border_radii().set(entity, @ui.BorderRadius::all(@ui.Val::px(6.0)))
-  @ui.buttons().set(entity, @ui.Button::new())
-  @ui.tab_indexes().set(entity, @ui.TabIndex::new(tab_index))
+  @ui.buttons().set(entity, @ui.Button())
+  @ui.tab_indexes().set(entity, @ui.TabIndex(tab_index))
 }
 
 ///|
 /// Setup UI elements
 fn setup_ui() -> Unit {
-  let table_entity = @entity.Entity::new()
+  let table_entity = @entity.Entity()
   @transform.transforms().set(
     table_entity,
     @transform.Transform::from_xyz(0.0, 0.0, 0.0),
   )
   @sprite.sprites().set(
     table_entity,
-    @sprite.Sprite::new(
+    @sprite.Sprite(
       color=@sprite.color_from_css("#2d5016"),
       custom_size=Some(@math.Vec2(VIEWPORT_WIDTH, VIEWPORT_HEIGHT)),
       anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
@@ -413,7 +413,7 @@ fn display_all_cards() -> Unit {
 
   for j, card in player.hole_cards {
     let card_x = x_base + (j.to_double() - 0.5) * 30.0 - 30
-    let card_entity = @entity.Entity::new()
+    let card_entity = @entity.Entity()
     @transform.transforms().set(
       card_entity,
       @transform.Transform::from_xyz(card_x, y_base, j.to_double()),
@@ -436,7 +436,7 @@ fn display_community_cards() -> Unit {
   let center_y = VIEWPORT_HEIGHT / 2.0 - 60.0
   for i, card in game_state.community_cards {
     let card_x = center_x + (i.to_double() - 2.5) * 30.0 - 15
-    let card_entity = @entity.Entity::new()
+    let card_entity = @entity.Entity()
     @transform.transforms().set(
       card_entity,
       @transform.Transform::from_xyz(card_x, center_y, (10 + i).to_double()),

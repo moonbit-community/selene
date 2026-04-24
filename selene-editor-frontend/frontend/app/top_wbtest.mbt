@@ -105,7 +105,10 @@ test "project load restores workspace sidebar layout and asset scope" {
 ///|
 test "committing sidebar layout persists workspace once" {
   let base = { ..new_model(), current_root: Some("/tmp/demo") }
-  let (_drag_effects, dragged) = update(msg_set_sidebar_layout(0.31, 0.43), base)
+  let (_drag_effects, dragged) = update(
+    msg_set_sidebar_layout(0.31, 0.43),
+    base,
+  )
   let (effects, next) = update(msg_commit_sidebar_layout(), dragged)
   inspect(
     (next.workspace.sidebar_scene_ratio_or_default() - 0.31).abs() < 0.0001,

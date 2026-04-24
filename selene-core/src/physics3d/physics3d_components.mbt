@@ -170,7 +170,7 @@ pub(all) struct Physics3DConfig {
 }
 
 ///|
-pub let config : Physics3DConfig = { gravity: @math.Vec3::new(0.0, -9.81, 0.0) }
+pub let config : Physics3DConfig = { gravity: @math.Vec3(0.0, -9.81, 0.0) }
 
 ///|
 priv struct RigidBodyDesc {

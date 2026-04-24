@@ -386,7 +386,7 @@ fn parse_mesh_asset_from_extras(
         )
       "plane" =>
         @render3d.plane_mesh(
-          parse_vec3(extras_object.get("size"), @math.Vec3::new(1.0, 0.1, 1.0)),
+          parse_vec3(extras_object.get("size"), @math.Vec3(1.0, 0.1, 1.0)),
         )
       _ =>
         @render3d.cube_mesh(

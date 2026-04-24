@@ -1,7 +1,7 @@
 ///|
 test "player animation controller remembers current node" {
   @ecs.set_current_world(@ecs.bootstrap_world())
-  let entity = @entity.Entity::new()
+  let entity = @entity.Entity()
   let controller = create_player_animation_controller(entity)
   player_animation_controllers.set(entity, controller)
 
@@ -21,7 +21,7 @@ test "player animation controller remembers current node" {
 ///|
 test "replaying same player animation state does not reset atlas index" {
   @ecs.set_current_world(@ecs.bootstrap_world())
-  let entity = @entity.Entity::new()
+  let entity = @entity.Entity()
   let controller = create_player_animation_controller(entity)
   player_animation_controllers.set(entity, controller)
 
@@ -51,7 +51,7 @@ test "replaying same player animation state does not reset atlas index" {
 ///|
 test "player run animation advances atlas indices in order" {
   @ecs.set_current_world(@ecs.bootstrap_world())
-  let entity = @entity.Entity::new()
+  let entity = @entity.Entity()
   let controller = create_player_animation_controller(entity)
   player_animation_controllers.set(entity, controller)
 

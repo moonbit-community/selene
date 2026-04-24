@@ -9,8 +9,6 @@ pub(all) struct TransitionEntry {
 pub(all) struct AnimationTransitions {
   mut main : AnimationNodeIndex?
   fading : Map[AnimationNodeIndex, TransitionEntry]
-
-  fn new() -> AnimationTransitions
 }
 
 ///|
@@ -142,12 +140,12 @@ let released_animation_graph_assets : Array[AnimationGraphHandle] = []
 ///|
 pub let animation_clip_asset_events : @event.Events[
   @asset.AssetEvent[AnimationClipHandle],
-] = @event.Events::new()
+] = @event.Events()
 
 ///|
 pub let animation_graph_asset_events : @event.Events[
   @asset.AssetEvent[AnimationGraphHandle],
-] = @event.Events::new()
+] = @event.Events()
 
 ///|
 pub fn animation_players() -> Map[@entity.Entity, AnimationPlayer] {

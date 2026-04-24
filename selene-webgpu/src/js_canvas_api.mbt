@@ -22,12 +22,10 @@ struct WebGpuBackend {
   mut gamepad_axes : Map[@inputs.GamepadAxisInput, Double]?
   mut close_requested : Bool
   mut stop_loop : (() -> Unit)?
-
-  fn new() -> WebGpuBackend
 }
 
 ///|
-pub fn WebGpuBackend::new() -> WebGpuBackend {
+pub fn WebGpuBackend::WebGpuBackend() -> WebGpuBackend {
   {
     canvas: None,
     time_scale: 1.0,

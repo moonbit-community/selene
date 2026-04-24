@@ -25,15 +25,13 @@ pub(all) struct App {
   world : @ecs.World
   event_registrations : Array[(@ecs.World) -> Unit]
   systems : Array[RegisteredSystem]
-
-  fn new() -> App
 }
+pub fn App::App() -> Self
 pub fn[T] App::add_message(Self, @event.Events[T]) -> Self
 pub fn App::add_plugin(Self, (Self) -> Self) -> Self
 pub fn App::add_plugins(Self, Array[(Self) -> Self]) -> Self
 pub fn App::add_system(Self, @system.Schedule, (@ecs.World) -> Unit, system_name? : String, in_set? : @system_set.SystemSet, before? : Array[@system_set.SystemSet], after? : Array[@system_set.SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
 pub fn App::add_systems(Self, @system.Schedule, Array[(@ecs.World) -> Unit], in_set? : @system_set.SystemSet, before? : Array[@system_set.SystemSet], after? : Array[@system_set.SystemSet], run_if? : (@ecs.World) -> Bool) -> Self
-pub fn App::new() -> Self
 pub fn App::run(Self) -> Unit
 pub fn App::run_frames(Self, Int, raw_delta? : Double, fixed_delta_override? : Double?) -> Unit
 pub fn App::run_frames_capture(Self, Int, capture_width? : Int, capture_height? : Int, raw_delta? : Double, fixed_delta_override? : Double?, metadata_indent? : Int) -> Array[@runtime_debug.FrameCaptureArtifact]

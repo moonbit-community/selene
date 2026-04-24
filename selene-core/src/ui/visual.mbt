@@ -1,35 +1,33 @@
 ///|
 pub(all) struct BackgroundColor {
   color : @render.Color
-
-  fn new(color : @render.Color) -> BackgroundColor
 }
 
 ///|
-pub fn BackgroundColor::new(color : @render.Color) -> BackgroundColor {
+pub fn BackgroundColor::BackgroundColor(
+  color : @render.Color,
+) -> BackgroundColor {
   { color, }
 }
 
 ///|
 pub fn BackgroundColor::from_css(color : String) -> BackgroundColor {
-  BackgroundColor::new(parse_color(color))
+  BackgroundColor(parse_color(color))
 }
 
 ///|
 pub(all) struct BorderColor {
   color : @render.Color
-
-  fn new(color : @render.Color) -> BorderColor
 }
 
 ///|
-pub fn BorderColor::new(color : @render.Color) -> BorderColor {
+pub fn BorderColor::BorderColor(color : @render.Color) -> BorderColor {
   { color, }
 }
 
 ///|
 pub fn BorderColor::from_css(color : String) -> BorderColor {
-  BorderColor::new(parse_color(color))
+  BorderColor(parse_color(color))
 }
 
 ///|
@@ -38,13 +36,6 @@ pub(all) struct BorderRadius {
   top_right : Val
   bottom_right : Val
   bottom_left : Val
-
-  fn new(
-    top_left? : Val,
-    top_right? : Val,
-    bottom_right? : Val,
-    bottom_left? : Val,
-  ) -> BorderRadius
 } derive(Eq, Debug)
 
 ///|
@@ -53,7 +44,7 @@ pub fn BorderRadius::all(value : Val) -> BorderRadius {
 }
 
 ///|
-pub fn BorderRadius::new(
+pub fn BorderRadius::BorderRadius(
   top_left? : Val = Val::px(0.0),
   top_right? : Val = top_left,
   bottom_right? : Val = top_left,
@@ -67,12 +58,10 @@ pub(all) struct Outline {
   width : Val
   offset : Val
   color : @render.Color
-
-  fn new(width : Val, color : @render.Color, offset? : Val) -> Outline
 }
 
 ///|
-pub fn Outline::new(
+pub fn Outline::Outline(
   width : Val,
   color : @render.Color,
   offset? : Val = Val::px(0.0),
@@ -87,18 +76,10 @@ pub(all) struct ShadowStyle {
   y_offset : Val
   spread_radius : Val
   blur_radius : Val
-
-  fn new(
-    color : @render.Color,
-    x_offset? : Val,
-    y_offset? : Val,
-    spread_radius? : Val,
-    blur_radius? : Val,
-  ) -> ShadowStyle
 } derive(Eq, Debug)
 
 ///|
-pub fn ShadowStyle::new(
+pub fn ShadowStyle::ShadowStyle(
   color : @render.Color,
   x_offset? : Val = Val::px(0.0),
   y_offset? : Val = Val::px(0.0),
@@ -111,12 +92,10 @@ pub fn ShadowStyle::new(
 ///|
 pub(all) struct BoxShadow {
   layers : Array[ShadowStyle]
-
-  fn new(layers : Array[ShadowStyle]) -> BoxShadow
 } derive(Eq, Debug)
 
 ///|
-pub fn BoxShadow::new(layers : Array[ShadowStyle]) -> BoxShadow {
+pub fn BoxShadow::BoxShadow(layers : Array[ShadowStyle]) -> BoxShadow {
   { layers, }
 }
 
@@ -128,8 +107,8 @@ pub fn BoxShadow::single(
   spread_radius? : Val = Val::px(0.0),
   blur_radius? : Val = Val::px(0.0),
 ) -> BoxShadow {
-  BoxShadow::new([
-    ShadowStyle::new(color, x_offset~, y_offset~, spread_radius~, blur_radius~),
+  BoxShadow([
+    ShadowStyle(color, x_offset~, y_offset~, spread_radius~, blur_radius~),
   ])
 }
 
@@ -147,13 +126,6 @@ pub(all) struct UiImage {
   image : @asset.ImageHandle
   tint : @render.Color
   fit : ImageFit
-
-  fn new(
-    size : @math.Vec2,
-    path : String,
-    tint? : @render.Color,
-    fit? : ImageFit,
-  ) -> UiImage
 } derive(Eq, Debug)
 
 ///|
@@ -167,7 +139,7 @@ pub fn UiImage::from_image(
 }
 
 ///|
-pub fn UiImage::new(
+pub fn UiImage::UiImage(
   size : @math.Vec2,
   path : String,
   tint? : @render.Color = rgba(255, 255, 255, 1.0),
@@ -182,12 +154,10 @@ pub(all) struct UiMaterialHandle(UInt) derive(Eq, Debug, Hash)
 ///|
 pub(all) struct MaterialNode {
   material : UiMaterialHandle
-
-  fn new(material : UiMaterialHandle) -> MaterialNode
 } derive(Eq, Debug)
 
 ///|
-pub fn MaterialNode::new(material : UiMaterialHandle) -> MaterialNode {
+pub fn MaterialNode::MaterialNode(material : UiMaterialHandle) -> MaterialNode {
   { material, }
 }
 
@@ -195,12 +165,10 @@ pub fn MaterialNode::new(material : UiMaterialHandle) -> MaterialNode {
 pub(all) struct UiGradient {
   color_start : @render.Color
   color_end : @render.Color
-
-  fn new(color_start : @render.Color, color_end : @render.Color) -> UiGradient
 } derive(Eq, Debug)
 
 ///|
-pub fn UiGradient::new(
+pub fn UiGradient::UiGradient(
   color_start : @render.Color,
   color_end : @render.Color,
 ) -> UiGradient {
@@ -214,18 +182,10 @@ pub(all) struct UiMaterialContext {
   content_rect : @math.Rect
   border_radius : BorderRadius
   target_camera_entity_id : UInt?
-
-  fn new(
-    entity : @entity.Entity,
-    rect : @math.Rect,
-    content_rect? : @math.Rect,
-    border_radius? : BorderRadius,
-    target_camera_entity_id? : UInt?,
-  ) -> UiMaterialContext
 }
 
 ///|
-pub fn UiMaterialContext::new(
+pub fn UiMaterialContext::UiMaterialContext(
   entity : @entity.Entity,
   rect : @math.Rect,
   content_rect? : @math.Rect = rect,
@@ -238,13 +198,6 @@ pub fn UiMaterialContext::new(
 ///|
 pub(all) struct UiMaterialAsset {
   draw : (UiMaterialContext) -> Unit
-
-  fn new(
-    size : @math.Vec2,
-    path : String,
-    tint? : @render.Color,
-    fit? : ImageFit,
-  ) -> UiMaterialAsset
 }
 
 ///|
@@ -266,7 +219,7 @@ pub fn UiMaterialAsset::gradient(
   color_start : @render.Color,
   color_end : @render.Color,
 ) -> UiMaterialAsset {
-  let gradient = UiGradient::new(color_start, color_end)
+  let gradient = UiGradient(color_start, color_end)
   UiMaterialAsset::from_draw(fn(context) {
     draw_ui_material_gradient(context, gradient)
   })
@@ -290,24 +243,22 @@ pub fn UiMaterialAsset::from_image(
 }
 
 ///|
-pub fn UiMaterialAsset::new(
+pub fn UiMaterialAsset::UiMaterialAsset(
   size : @math.Vec2,
   path : String,
   tint? : @render.Color = rgba(255, 255, 255, 1.0),
   fit? : ImageFit = Stretch,
 ) -> UiMaterialAsset {
-  UiMaterialAsset::from_ui_image(UiImage::new(size, path, tint~, fit~))
+  UiMaterialAsset::from_ui_image(UiImage(size, path, tint~, fit~))
 }
 
 ///|
 pub(all) struct Text {
   mut content : String
-
-  fn new(content : String) -> Text
 }
 
 ///|
-pub fn Text::new(content : String) -> Text {
+pub fn Text::Text(content : String) -> Text {
   { content, }
 }
 
@@ -316,12 +267,10 @@ pub(all) struct TextFont {
   mut family : String
   mut size : Double
   mut font_handle : @asset.FontHandle?
-
-  fn new(family? : String, size? : Double) -> TextFont
 }
 
 ///|
-pub fn TextFont::new(
+pub fn TextFont::TextFont(
   family? : String = "Arial",
   size? : Double = 16.0,
 ) -> TextFont {
@@ -360,37 +309,32 @@ fn parse_font_family(family : StringView) -> String {
 pub fn TextFont::from_css(font : String) -> TextFont {
   let font = font.trim().to_string()
   if font == "" {
-    return TextFont::new()
+    return TextFont()
   }
   let parts : Array[StringView] = []
   for part in font.split("px") {
     parts.push(part)
   }
   if parts.length() >= 2 {
-    TextFont::new(
-      family=parse_font_family(parts[1]),
-      size=parse_font_size(parts[0]),
-    )
+    TextFont(family=parse_font_family(parts[1]), size=parse_font_size(parts[0]))
   } else {
-    TextFont::new(family=font)
+    TextFont(family=font)
   }
 }
 
 ///|
 pub(all) struct TextColor {
   mut color : @render.Color
-
-  fn new(color : @render.Color) -> TextColor
 }
 
 ///|
-pub fn TextColor::new(color : @render.Color) -> TextColor {
+pub fn TextColor::TextColor(color : @render.Color) -> TextColor {
   { color, }
 }
 
 ///|
 pub fn TextColor::from_css(color : String) -> TextColor {
-  TextColor::new(parse_color(color))
+  TextColor(parse_color(color))
 }
 
 ///|
@@ -412,18 +356,10 @@ pub(all) struct TextLayout {
   mut line_height : Double
   mut wrap : TextWrap
   mut overflow : TextOverflow
-
-  fn new(
-    align? : @math.HAlign,
-    baseline? : @math.VAlign,
-    line_height? : Double,
-    wrap? : TextWrap,
-    overflow? : TextOverflow,
-  ) -> TextLayout
 }
 
 ///|
-pub fn TextLayout::new(
+pub fn TextLayout::TextLayout(
   align? : @math.HAlign = Left,
   baseline? : @math.VAlign = Top,
   line_height? : Double = 1.0,
@@ -436,12 +372,10 @@ pub fn TextLayout::new(
 ///|
 pub(all) struct Button {
   enabled : Bool
-
-  fn new(enabled? : Bool) -> Button
 } derive(Eq, Debug)
 
 ///|
-pub fn Button::new(enabled? : Bool = true) -> Button {
+pub fn Button::Button(enabled? : Bool = true) -> Button {
   { enabled, }
 }
 
@@ -593,7 +527,7 @@ pub fn release_ui_material_asset(handle : UiMaterialHandle) -> Unit {
 
 ///|
 fn default_text_font() -> TextFont {
-  TextFont::new()
+  TextFont()
 }
 
 ///|
@@ -603,7 +537,7 @@ fn default_text_color() -> TextColor {
 
 ///|
 fn default_text_layout() -> TextLayout {
-  TextLayout::new()
+  TextLayout()
 }
 
 ///|

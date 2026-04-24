@@ -46,7 +46,7 @@ priv struct PreviewState {
 }
 
 ///|
-fn PreviewState::new() -> PreviewState {
+fn PreviewState::PreviewState() -> PreviewState {
   {
     bootstrapped: false,
     pending_scene: None,
@@ -78,7 +78,7 @@ fn PreviewState::new() -> PreviewState {
 }
 
 ///|
-let preview_state : PreviewState = PreviewState::new()
+let preview_state : PreviewState = PreviewState()
 
 ///|
 let default_editor_viewport_width = 960.0
@@ -220,7 +220,9 @@ fn refresh_editor_viewport_size() -> Unit {
     preview_state.viewport_width = width
     preview_state.viewport_height = height
     @system.configure_display(width, height, zoom)
-    preview_debug("viewport resized to \{width.to_string()}x\{height.to_string()}")
+    preview_debug(
+      "viewport resized to \{width.to_string()}x\{height.to_string()}",
+    )
   }
   sync_canvas_backing_size(width, height)
 }
@@ -489,7 +491,7 @@ let preview_snap_grid_z = -8.0
 ///|
 fn ensure_snap_grid_overlay_capacity(count : Int) -> Unit {
   while preview_state.snap_grid_overlays.length() < count {
-    let overlay = @entity.Entity::new()
+    let overlay = @entity.Entity()
     preview_state.snap_grid_overlays.push(overlay)
     @transform.transforms().set(
       overlay,
@@ -505,8 +507,9 @@ fn ensure_snap_grid_overlay_capacity(count : Int) -> Unit {
 
 ///|
 fn hide_snap_grid_overlays_from(start : Int) -> Unit {
-  for index = start; index < preview_state.snap_grid_overlays.length(); index = index +
-      1 {
+  for index = start
+      index < preview_state.snap_grid_overlays.length()
+      index = index + 1 {
     @visibility.visibilities().set(
       preview_state.snap_grid_overlays[index],
       @visibility.Hidden,
@@ -520,8 +523,11 @@ fn clear_snap_grid_overlays() -> Unit {
 }
 
 ///|
-fn preview_camera_projection_state(
-) -> (@camera.Camera, @camera.OrthographicProjection, @transform.GlobalTransform)? {
+fn preview_camera_projection_state() -> (
+  @camera.Camera,
+  @camera.OrthographicProjection,
+  @transform.GlobalTransform,
+)? {
   guard editor_camera_entity() is Some(camera_entity) else { return None }
   guard @camera.cameras().get(camera_entity) is Some(camera_) else {
     return None
@@ -552,7 +558,11 @@ fn apply_snap_grid_overlays() -> Unit {
     return
   }
   let viewport = current_editor_viewport_size()
-  let top_left = camera_.viewport_to_world_2d(global, projection, @math.Vec2(0.0, 0.0))
+  let top_left = camera_.viewport_to_world_2d(
+    global,
+    projection,
+    @math.Vec2(0.0, 0.0),
+  )
   let bottom_right = camera_.viewport_to_world_2d(global, projection, viewport)
   let min_x = if top_left[X] < bottom_right[X] {
     top_left[X]
@@ -597,8 +607,8 @@ fn apply_snap_grid_overlays() -> Unit {
   } else {
     1.0
   }
-  let vertical_height = (end_y - start_y) + line_thickness
-  let horizontal_width = (end_x - start_x) + line_thickness
+  let vertical_height = end_y - start_y + line_thickness
+  let horizontal_width = end_x - start_x + line_thickness
   let mut overlay_index = 0
   for index = 0; index < vertical_count; index = index + 1 {
     let x = start_x + step * index.to_double()
@@ -610,7 +620,7 @@ fn apply_snap_grid_overlays() -> Unit {
         x,
         (start_y + end_y) * 0.5,
         preview_snap_grid_z,
-      ).with_scale(@math.Vec3::new(line_thickness, vertical_height, 1.0)),
+      ).with_scale(@math.Vec3(line_thickness, vertical_height, 1.0)),
     )
     @visibility.visibilities().set(overlay, @visibility.Visible)
   }
@@ -624,7 +634,7 @@ fn apply_snap_grid_overlays() -> Unit {
         (start_x + end_x) * 0.5,
         y,
         preview_snap_grid_z,
-      ).with_scale(@math.Vec3::new(horizontal_width, line_thickness, 1.0)),
+      ).with_scale(@math.Vec3(horizontal_width, line_thickness, 1.0)),
     )
     @visibility.visibilities().set(overlay, @visibility.Visible)
   }
@@ -715,7 +725,7 @@ fn deactivate_runtime_scene_cameras(
 ) -> Unit {
   for _, entity in runtime_scene.entity_ids {
     if @camera.cameras().contains(entity) {
-      @camera.cameras().set(entity, @camera.Camera::new(is_active=false))
+      @camera.cameras().set(entity, @camera.Camera(is_active=false))
     }
   }
 }
@@ -1279,7 +1289,7 @@ fn align_camera_to_scene_top_left() -> Bool {
   @transform.transforms().set(
     camera_entity,
     transform.with_translation(
-      @math.Vec3::new(
+      @math.Vec3(
         position[X] + view_width * 0.5,
         position[Y] + view_height * 0.5,
         transform.translation.z,
@@ -1307,11 +1317,7 @@ fn align_camera_to_origin_top_left() -> Bool {
   @transform.transforms().set(
     camera_entity,
     transform.with_translation(
-      @math.Vec3::new(
-        view_width * 0.5,
-        view_height * 0.5,
-        transform.translation.z,
-      ),
+      @math.Vec3(view_width * 0.5, view_height * 0.5, transform.translation.z),
     ),
   )
   true
@@ -1381,9 +1387,7 @@ fn apply_runtime_transform(
     .with_rotation(
       @math.Quat::from_axis_angle(@math.Vec3::z_axis(), next_transform.rotation),
     )
-    .with_scale(
-      @math.Vec3::new(next_transform.scale.x, next_transform.scale.y, 1.0),
-    )
+    .with_scale(@math.Vec3(next_transform.scale.x, next_transform.scale.y, 1.0))
   @transform.transforms().set(entity, runtime_transform)
 }
 
@@ -1408,7 +1412,7 @@ fn apply_selection_overlay() -> Unit {
           position[X] + size[X] * 0.5,
           position[Y] + size[Y] * 0.5,
           10.0,
-        ).with_scale(@math.Vec3::new(size[X], size[Y], 1.0)),
+        ).with_scale(@math.Vec3(size[X], size[Y], 1.0)),
       )
       @sprite.sprites().set(
         overlay,
@@ -1433,7 +1437,7 @@ fn apply_pivot_overlay() -> Unit {
       @transform.transforms().set(
         overlay,
         @transform.Transform::from_xyz(position[X], position[Y], 12.0).with_scale(
-          @math.Vec3::new(8.0, 8.0, 1.0),
+          @math.Vec3(8.0, 8.0, 1.0),
         ),
       )
       @sprite.sprites().set(
@@ -1493,7 +1497,7 @@ fn apply_selection_rect_overlay(world_point : @math.Vec2?) -> Unit {
       min_x + width * 0.5,
       min_y + height * 0.5,
       11.0,
-    ).with_scale(@math.Vec3::new(width, height, 1.0)),
+    ).with_scale(@math.Vec3(width, height, 1.0)),
   )
   @sprite.sprites().set(
     overlay,
@@ -1743,26 +1747,26 @@ fn frame_selection_impl() -> Unit {
   @transform.transforms().set(
     camera_entity,
     transform.with_translation(
-      @math.Vec3::new(center[X], center[Y], transform.translation.z),
+      @math.Vec3(center[X], center[Y], transform.translation.z),
     ),
   )
 }
 
 ///|
 fn preview_startup_system(_world : @ecs.World) -> Unit {
-  let camera_entity = @entity.Entity::new()
+  let camera_entity = @entity.Entity()
   preview_state.camera_entity = Some(camera_entity)
   @transform.transforms().set(
     camera_entity,
     @transform.Transform::from_xyz(0.0, 0.0, 1000.0),
   )
-  @camera.cameras().set(camera_entity, @camera.Camera::new(order=0))
-  @camera.camera2ds().set(camera_entity, @camera.Camera2d::new())
+  @camera.cameras().set(camera_entity, @camera.Camera(order=0))
+  @camera.camera2ds().set(camera_entity, @camera.Camera2d())
   @camera.orthographic_projections().set(
     camera_entity,
-    @camera.OrthographicProjection::new(scale=1.0),
+    @camera.OrthographicProjection(scale=1.0),
   )
-  let overlay = @entity.Entity::new()
+  let overlay = @entity.Entity()
   preview_state.selection_overlay = Some(overlay)
   @transform.transforms().set(
     overlay,
@@ -1776,7 +1780,7 @@ fn preview_startup_system(_world : @ecs.World) -> Unit {
       @math.Vec2(1.0, 1.0),
     ),
   )
-  let pivot_overlay = @entity.Entity::new()
+  let pivot_overlay = @entity.Entity()
   preview_state.pivot_overlay = Some(pivot_overlay)
   @transform.transforms().set(
     pivot_overlay,
@@ -1790,7 +1794,7 @@ fn preview_startup_system(_world : @ecs.World) -> Unit {
       @math.Vec2(1.0, 1.0),
     ),
   )
-  let selection_rect_overlay = @entity.Entity::new()
+  let selection_rect_overlay = @entity.Entity()
   preview_state.selection_rect_overlay = Some(selection_rect_overlay)
   @transform.transforms().set(
     selection_rect_overlay,
@@ -1869,7 +1873,7 @@ fn preview_camera_control_system(_world : @ecs.World) -> Unit {
         @transform.transforms().set(
           camera_entity,
           transform.with_translation(
-            @math.Vec3::new(
+            @math.Vec3(
               transform.translation.x + wheel_delta[X] * projection.scale,
               transform.translation.y + wheel_delta[Y] * projection.scale,
               transform.translation.z,
@@ -1911,14 +1915,14 @@ fn preview_camera_control_system(_world : @ecs.World) -> Unit {
     if movement[X].abs() >= 1.0 || movement[Y].abs() >= 1.0 {
       let projection = @camera.orthographic_projections()
         .get(camera_entity)
-        .unwrap_or(@camera.OrthographicProjection::new())
+        .unwrap_or(@camera.OrthographicProjection())
       let transform = @transform.transforms()
         .get(camera_entity)
         .unwrap_or(@transform.Transform::identity())
       @transform.transforms().set(
         camera_entity,
         transform.with_translation(
-          @math.Vec3::new(
+          @math.Vec3(
             transform.translation.x - movement[X] * projection.scale,
             transform.translation.y - movement[Y] * projection.scale,
             transform.translation.z,
@@ -2310,7 +2314,7 @@ pub fn bootstrap() -> Unit {
   preview_state.viewport_width = initial_viewport[X]
   preview_state.viewport_height = initial_viewport[Y]
   sync_canvas_backing_size(initial_viewport[X], initial_viewport[Y])
-  @app.App::new()
+  @app.App()
   .with_viewport_width(initial_viewport[X])
   .with_viewport_height(initial_viewport[Y])
   .with_image_smooth(false)

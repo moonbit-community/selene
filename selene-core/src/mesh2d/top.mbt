@@ -15,8 +15,6 @@ pub(all) struct Mesh2dHandle(UInt) derive(Eq, Debug, Hash)
 ///|
 pub(all) struct Mesh2d {
   mesh : Mesh2dHandle
-
-  fn new(mesh : Mesh2dHandle) -> Mesh2d
 } derive(Eq, Debug)
 
 ///|
@@ -65,7 +63,7 @@ pub fn Mesh2dAsset::circle(radius : Double) -> Mesh2dAsset {
 }
 
 ///|
-pub fn Mesh2d::new(mesh : Mesh2dHandle) -> Mesh2d {
+pub fn Mesh2d::Mesh2d(mesh : Mesh2dHandle) -> Mesh2d {
   { mesh, }
 }
 

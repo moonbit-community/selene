@@ -559,7 +559,7 @@ fn apply_tile_visual(
     None => None
   }
   guard visual is Some(visual) else { return None }
-  let tile_entity = @entity.Entity::new()
+  let tile_entity = @entity.Entity()
   tile_entity.set_parent(layer_entity)
   let position = tile_position(source, solved.x, solved.y)
   @transform.transforms().set(
@@ -568,7 +568,7 @@ fn apply_tile_visual(
   )
   @sprite.sprites().set(
     tile_entity,
-    @sprite.Sprite::new(
+    @sprite.Sprite(
       image=visual.image_path.map(fn(path) { @asset.load_image(path) }),
       rect=visual.rect,
       custom_size=visual.custom_size,

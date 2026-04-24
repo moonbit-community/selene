@@ -23,7 +23,7 @@ const VIEWPORT_HEIGHT : Double = 320.0
 
 ///|
 pub fn run() -> Unit {
-  @app.App::new()
+  @app.App()
   .with_viewport_width(VIEWPORT_WIDTH)
   .with_viewport_height(VIEWPORT_HEIGHT)
   .with_image_smooth(false)

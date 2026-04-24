@@ -14,8 +14,8 @@
 
 ///|
 fn add_background(size : @math.Vec2) -> Unit {
-  let background = @entity.Entity::new()
-  let background_sprite = @sprite.Sprite::new(
+  let background = @entity.Entity()
+  let background_sprite = @sprite.Sprite(
     image=Some(@asset.load_image(background_picture)),
     custom_size=Some(size),
     anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
@@ -31,8 +31,8 @@ fn add_background(size : @math.Vec2) -> Unit {
 ///|
 fn add_border(size : @math.Vec2) -> Unit {
   fn add_one_border(pos : @math.Vec2, size : @math.Vec2) -> Unit {
-    let entity = @entity.Entity::new()
-    let collider = @physics2d.Collider::new(
+    let entity = @entity.Entity()
+    let collider = @physics2d.collider(
       @physics2d.CollisionFilter::empty(wall_collision_group),
     )
     @physics2d.colliders().set(entity, collider)
@@ -59,7 +59,7 @@ fn add_grass() -> Unit {
   for x in 0..<(MAP_WIDTH / 16.0).to_int() {
     for y in 0..<(MAP_HEIGHT / 16.0).to_int() {
       if rand.double() < density {
-        let grass = @entity.Entity::new()
+        let grass = @entity.Entity()
         let sprite = grass_sprite()
         @sprite.sprites().set(grass, sprite)
         @transform.transforms().set(

@@ -15,7 +15,7 @@ test "quat identity converts to rapier xyzw layout" {
 
 ///|
 test "quat rapier roundtrip preserves components" {
-  let source = Quat::from_axis_angle(Vec3::new(0.0, 1.0, 0.0), 0.7).normalize()
+  let source = Quat::from_axis_angle(Vec3(0.0, 1.0, 0.0), 0.7).normalize()
   let roundtrip = quat_from_rapier(source.to_rapier()).normalize()
   inspect(approx(source.x, roundtrip.x), content="true")
   inspect(approx(source.y, roundtrip.y), content="true")

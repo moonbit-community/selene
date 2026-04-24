@@ -2,8 +2,6 @@
 pub(all) struct Parallax2d {
   base_offset : @math.Vec2
   factor : @math.Vec2
-
-  fn new(base_offset? : @math.Vec2, factor? : @math.Vec2) -> Parallax2d
 } derive(Eq, Debug)
 
 ///|
@@ -39,7 +37,7 @@ fn clamped_parallax_factor(factor : @math.Vec2) -> @math.Vec2 {
 }
 
 ///|
-pub fn Parallax2d::new(
+pub fn Parallax2d::Parallax2d(
   base_offset? : @math.Vec2 = @math.Vec2::zero(),
   factor? : @math.Vec2 = @math.Vec2(1.0, 1.0),
 ) -> Parallax2d {

@@ -26,10 +26,10 @@ pub struct EditorService {
   mut event_log : Array[@shared.EventEnvelope]
   subscribers : Map[Int, @aqueue.Queue[@shared.EventEnvelope]]
 }
+pub fn EditorService::EditorService(String) -> Self
 pub fn EditorService::drain_events(Self) -> Array[@shared.EventEnvelope]
 pub async fn EditorService::handle_http_request(Self, @http.Request, &@io.Reader, @http.ServerConnection) -> Unit
 pub async fn EditorService::handle_rpc(Self, @shared.RpcRequestEnvelope) -> Json
-pub fn EditorService::new(String) -> Self
 pub async fn EditorService::watch_loop(Self) -> Unit
 
 type ProjectSession

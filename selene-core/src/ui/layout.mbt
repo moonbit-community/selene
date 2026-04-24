@@ -190,7 +190,7 @@ fn node_to_taffy_style(node : Node) -> @moon_taffy.Style {
     .with_border(rect_values_to_taffy(node.border))
     .with_inset(
       rect_values_to_taffy(
-        UiRectValues::new(
+        UiRectValues(
           left=node.left,
           right=node.right,
           top=node.top,
@@ -671,7 +671,7 @@ fn apply_layout_recursive(
     }
   }
   match current_clip {
-    Some(rect) => calculated_clips().set(entity, CalculatedClip::new(rect))
+    Some(rect) => calculated_clips().set(entity, CalculatedClip(rect))
     None => calculated_clips().remove(entity)
   }
 

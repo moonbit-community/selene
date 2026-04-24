@@ -139,13 +139,13 @@ fn multibody_joint_handles() -> Map[@entity.Entity, RapierMultibodyJointHandle] 
 }
 
 ///|
-pub let collision_event_bus : @event.Events[CollisionEvent] = @event.Events::new()
+pub let collision_event_bus : @event.Events[CollisionEvent] = @event.Events()
 
 ///|
-pub let sensor_event_bus : @event.Events[SensorEvent] = @event.Events::new()
+pub let sensor_event_bus : @event.Events[SensorEvent] = @event.Events()
 
 ///|
-pub let contact_force_event_bus : @event.Events[ContactForceEvent] = @event.Events::new()
+pub let contact_force_event_bus : @event.Events[ContactForceEvent] = @event.Events()
 
 ///|
 pub fn context() -> RapierContext {

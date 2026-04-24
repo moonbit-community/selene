@@ -35,7 +35,8 @@ fn update_assets_resources(
             status: "Created atlas " + atlas.name,
           }
           (
-            [rpc_effect(RpcAtlasSave(path, atlas))] + save_workspace_effects(next),
+            [rpc_effect(RpcAtlasSave(path, atlas))] +
+            save_workspace_effects(next),
             next,
           )
         }

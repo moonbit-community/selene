@@ -19,11 +19,6 @@ pub fn LockedAxes::lock_translations() -> LockedAxes {
 }
 
 ///|
-pub fn Dominance::new(group : Int) -> Dominance {
-  Dominance(group)
-}
-
-///|
 pub fn AdditionalMassProperties::mass(
   mass : Double,
 ) -> AdditionalMassProperties {
@@ -110,17 +105,7 @@ pub fn Collider::heightfield(
 }
 
 ///|
-pub fn Friction::new(coefficient : Double) -> Friction {
-  Friction(coefficient)
-}
-
-///|
-pub fn Restitution::new(coefficient : Double) -> Restitution {
-  Restitution(coefficient)
-}
-
-///|
-pub fn CollisionGroups::new(
+pub fn CollisionGroups::CollisionGroups(
   memberships : Int,
   filters : Int,
 ) -> CollisionGroups {
@@ -133,7 +118,10 @@ pub fn CollisionGroups::all() -> CollisionGroups {
 }
 
 ///|
-pub fn SolverGroups::new(memberships : Int, filters : Int) -> SolverGroups {
+pub fn SolverGroups::SolverGroups(
+  memberships : Int,
+  filters : Int,
+) -> SolverGroups {
   { memberships, filters }
 }
 

@@ -15,8 +15,6 @@
 ///|
 struct Entity {
   value : UInt
-
-  fn new() -> Entity
 } derive(Eq, Debug, Hash)
 
 ///|
@@ -67,7 +65,7 @@ pub fn Entity::is_alive(e : Entity) -> Bool {
 }
 
 ///|
-pub fn Entity::new() -> Entity {
+pub fn Entity::Entity() -> Entity {
   let store = entity_store()
   let entity = { value: store.entity_generator }
   store.entity_generator += 1U

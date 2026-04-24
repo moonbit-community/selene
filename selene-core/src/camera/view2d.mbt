@@ -170,7 +170,7 @@ pub fn screen_space_transform(
   transform : @transform.Transform,
 ) -> @transform.Transform {
   transform.with_scale(
-    @math.Vec3::new(
+    @math.Vec3(
       transform.scale.x * @system.get_zoom(),
       transform.scale.y * @system.get_zoom(),
       transform.scale.z,
@@ -198,7 +198,7 @@ pub fn camera_relative_transform(
   }
   let pixels_per_world_unit = @system.get_zoom() / projection_scale
   relative.with_scale(
-    @math.Vec3::new(
+    @math.Vec3(
       relative.scale.x * pixels_per_world_unit,
       relative.scale.y * pixels_per_world_unit,
       relative.scale.z,
@@ -222,7 +222,7 @@ pub fn camera_screen_transform(
   let y_axis = transform.rotation.rotate_vec3(
     @math.Vec3::y_axis().scalar_mul(transform.scale.y),
   )
-  @math.Transform::new(a=x_axis.x, b=x_axis.y, c=y_axis.x, d=y_axis.y)
+  @math.Transform(a=x_axis.x, b=x_axis.y, c=y_axis.x, d=y_axis.y)
 }
 
 ///|
@@ -236,7 +236,7 @@ pub fn world_transform_2d(
   let y_axis = transform.rotation.rotate_vec3(
     @math.Vec3::y_axis().scalar_mul(transform.scale.y),
   )
-  @math.Transform::new(a=x_axis.x, b=x_axis.y, c=y_axis.x, d=y_axis.y)
+  @math.Transform(a=x_axis.x, b=x_axis.y, c=y_axis.x, d=y_axis.y)
 }
 
 ///|

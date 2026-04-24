@@ -17,12 +17,10 @@ pub(all) struct Vec3 {
   x : Double
   y : Double
   z : Double
-
-  fn new(x : Double, y : Double, z : Double) -> Vec3
 } derive(Eq, Debug)
 
 ///|
-pub fn Vec3::new(x : Double, y : Double, z : Double) -> Vec3 {
+pub fn Vec3::Vec3(x : Double, y : Double, z : Double) -> Vec3 {
   { x, y, z }
 }
 
@@ -38,17 +36,17 @@ pub fn Vec3::one() -> Vec3 {
 
 ///|
 pub fn Vec3::x_axis() -> Vec3 {
-  Vec3::new(1.0, 0.0, 0.0)
+  Vec3(1.0, 0.0, 0.0)
 }
 
 ///|
 pub fn Vec3::y_axis() -> Vec3 {
-  Vec3::new(0.0, 1.0, 0.0)
+  Vec3(0.0, 1.0, 0.0)
 }
 
 ///|
 pub fn Vec3::z_axis() -> Vec3 {
-  Vec3::new(0.0, 0.0, 1.0)
+  Vec3(0.0, 0.0, 1.0)
 }
 
 ///|
@@ -58,32 +56,32 @@ pub impl Default for Vec3 with default() -> Vec3 {
 
 ///|
 pub impl Add for Vec3 with add(self, other) {
-  Vec3::new(self.x + other.x, self.y + other.y, self.z + other.z)
+  Vec3(self.x + other.x, self.y + other.y, self.z + other.z)
 }
 
 ///|
 pub impl Sub for Vec3 with sub(self, other) {
-  Vec3::new(self.x - other.x, self.y - other.y, self.z - other.z)
+  Vec3(self.x - other.x, self.y - other.y, self.z - other.z)
 }
 
 ///|
 pub impl Neg for Vec3 with neg(self) {
-  Vec3::new(-self.x, -self.y, -self.z)
+  Vec3(-self.x, -self.y, -self.z)
 }
 
 ///|
 pub impl Mul for Vec3 with mul(self, other) {
-  Vec3::new(self.x * other.x, self.y * other.y, self.z * other.z)
+  Vec3(self.x * other.x, self.y * other.y, self.z * other.z)
 }
 
 ///|
 pub fn Vec3::scalar_mul(self : Vec3, scalar : Double) -> Vec3 {
-  Vec3::new(self.x * scalar, self.y * scalar, self.z * scalar)
+  Vec3(self.x * scalar, self.y * scalar, self.z * scalar)
 }
 
 ///|
 pub fn Vec3::scalar_div(self : Vec3, scalar : Double) -> Vec3 {
-  Vec3::new(self.x / scalar, self.y / scalar, self.z / scalar)
+  Vec3(self.x / scalar, self.y / scalar, self.z / scalar)
 }
 
 ///|
@@ -93,7 +91,7 @@ pub fn Vec3::dot(self : Vec3, other : Vec3) -> Double {
 
 ///|
 pub fn Vec3::cross(self : Vec3, other : Vec3) -> Vec3 {
-  Vec3::new(
+  Vec3(
     self.y * other.z - self.z * other.y,
     self.z * other.x - self.x * other.z,
     self.x * other.y - self.y * other.x,
@@ -127,7 +125,7 @@ pub fn Vec3::lerp(self : Vec3, other : Vec3, alpha : Double) -> Vec3 {
 
 ///|
 pub fn Vec3::to_rapier(self : Vec3) -> @rcore.Vec3 {
-  @rcore.Vec3::new(
+  @rcore.Vec3(
     Float::from_double(self.x),
     Float::from_double(self.y),
     Float::from_double(self.z),
@@ -136,7 +134,7 @@ pub fn Vec3::to_rapier(self : Vec3) -> @rcore.Vec3 {
 
 ///|
 pub fn vec3_from_rapier(value : @rcore.Vec3) -> Vec3 {
-  Vec3::new(value.x.to_double(), value.y.to_double(), value.z.to_double())
+  Vec3(value.x.to_double(), value.y.to_double(), value.z.to_double())
 }
 
 ///|
@@ -145,18 +143,16 @@ pub(all) struct Quat {
   y : Double
   z : Double
   w : Double
-
-  fn new(x : Double, y : Double, z : Double, w : Double) -> Quat
 } derive(Eq, Debug)
 
 ///|
-pub fn Quat::new(x : Double, y : Double, z : Double, w : Double) -> Quat {
+pub fn Quat::Quat(x : Double, y : Double, z : Double, w : Double) -> Quat {
   { x, y, z, w }
 }
 
 ///|
 pub fn Quat::identity() -> Quat {
-  Quat::new(0.0, 0.0, 0.0, 1.0)
+  Quat(0.0, 0.0, 0.0, 1.0)
 }
 
 ///|
@@ -170,7 +166,7 @@ pub fn Quat::from_axis_angle(axis : Vec3, radians : Double) -> Quat {
   let half = radians * 0.5
   let sin_half = @cmath.sin(half)
   let cos_half = @cmath.cos(half)
-  Quat::new(
+  Quat(
     normalized_axis.x * sin_half,
     normalized_axis.y * sin_half,
     normalized_axis.z * sin_half,
@@ -180,7 +176,7 @@ pub fn Quat::from_axis_angle(axis : Vec3, radians : Double) -> Quat {
 
 ///|
 pub fn Quat::conjugate(self : Quat) -> Quat {
-  Quat::new(-self.x, -self.y, -self.z, self.w)
+  Quat(-self.x, -self.y, -self.z, self.w)
 }
 
 ///|
@@ -190,7 +186,7 @@ pub fn Quat::inverse(self : Quat) -> Quat {
     Quat::identity()
   } else {
     let conjugate = self.conjugate()
-    Quat::new(
+    Quat(
       conjugate.x / len_sq,
       conjugate.y / len_sq,
       conjugate.z / len_sq,
@@ -210,13 +206,13 @@ pub fn Quat::normalize(self : Quat) -> Quat {
   if len <= 0.000000001 {
     Quat::identity()
   } else {
-    Quat::new(self.x / len, self.y / len, self.z / len, self.w / len)
+    Quat(self.x / len, self.y / len, self.z / len, self.w / len)
   }
 }
 
 ///|
 pub fn Quat::multiply(self : Quat, other : Quat) -> Quat {
-  Quat::new(
+  Quat(
     self.w * other.x + self.x * other.w + self.y * other.z - self.z * other.y,
     self.w * other.y - self.x * other.z + self.y * other.w + self.z * other.x,
     self.w * other.z + self.x * other.y - self.y * other.x + self.z * other.w,
@@ -237,19 +233,19 @@ pub impl Mul for Quat with mul(self, other) {
 ///|
 pub fn Quat::rotate_vec3(self : Quat, vec : Vec3) -> Vec3 {
   let q = self.normalize()
-  let qv = Quat::new(vec.x, vec.y, vec.z, 0.0)
+  let qv = Quat(vec.x, vec.y, vec.z, 0.0)
   let rotated = q * qv * q.conjugate()
-  Vec3::new(rotated.x, rotated.y, rotated.z)
+  Vec3(rotated.x, rotated.y, rotated.z)
 }
 
 ///|
 pub fn Quat::nlerp(self : Quat, other : Quat, alpha : Double) -> Quat {
   let rhs = if self.dot(other) < 0.0 {
-    Quat::new(-other.x, -other.y, -other.z, -other.w)
+    Quat(-other.x, -other.y, -other.z, -other.w)
   } else {
     other
   }
-  Quat::new(
+  Quat(
     self.x * (1.0 - alpha) + rhs.x * alpha,
     self.y * (1.0 - alpha) + rhs.y * alpha,
     self.z * (1.0 - alpha) + rhs.z * alpha,
@@ -271,22 +267,22 @@ pub fn Quat::from_basis(x_axis : Vec3, y_axis : Vec3, z_axis : Vec3) -> Quat {
   let trace = m00 + m11 + m22
   if trace > 0.0 {
     let s = (trace + 1.0).sqrt() * 2.0
-    Quat::new((m21 - m12) / s, (m02 - m20) / s, (m10 - m01) / s, 0.25 * s).normalize()
+    Quat((m21 - m12) / s, (m02 - m20) / s, (m10 - m01) / s, 0.25 * s).normalize()
   } else if m00 > m11 && m00 > m22 {
     let s = (1.0 + m00 - m11 - m22).sqrt() * 2.0
-    Quat::new(0.25 * s, (m01 + m10) / s, (m02 + m20) / s, (m21 - m12) / s).normalize()
+    Quat(0.25 * s, (m01 + m10) / s, (m02 + m20) / s, (m21 - m12) / s).normalize()
   } else if m11 > m22 {
     let s = (1.0 + m11 - m00 - m22).sqrt() * 2.0
-    Quat::new((m01 + m10) / s, 0.25 * s, (m12 + m21) / s, (m02 - m20) / s).normalize()
+    Quat((m01 + m10) / s, 0.25 * s, (m12 + m21) / s, (m02 - m20) / s).normalize()
   } else {
     let s = (1.0 + m22 - m00 - m11).sqrt() * 2.0
-    Quat::new((m02 + m20) / s, (m12 + m21) / s, 0.25 * s, (m10 - m01) / s).normalize()
+    Quat((m02 + m20) / s, (m12 + m21) / s, 0.25 * s, (m10 - m01) / s).normalize()
   }
 }
 
 ///|
 pub fn Quat::to_rapier(self : Quat) -> @rcore.Quat {
-  @rcore.Quat::new(
+  @rcore.Quat(
     Float::from_double(self.x),
     Float::from_double(self.y),
     Float::from_double(self.z),
@@ -296,7 +292,7 @@ pub fn Quat::to_rapier(self : Quat) -> @rcore.Quat {
 
 ///|
 pub fn quat_from_rapier(value : @rcore.Quat) -> Quat {
-  Quat::new(
+  Quat(
     value.x.to_double(),
     value.y.to_double(),
     value.z.to_double(),
@@ -462,7 +458,7 @@ pub fn Mat4::mul(self : Mat4, other : Mat4) -> Mat4 {
 
 ///|
 pub fn Mat4::transform_point(self : Mat4, point : Vec3) -> Vec3 {
-  Vec3::new(
+  Vec3(
     self.m00 * point.x + self.m01 * point.y + self.m02 * point.z + self.m03,
     self.m10 * point.x + self.m11 * point.y + self.m12 * point.z + self.m13,
     self.m20 * point.x + self.m21 * point.y + self.m22 * point.z + self.m23,
@@ -560,9 +556,9 @@ pub fn Affine3::inverse(self : Affine3) -> Affine3? {
   }
   let inv_det = 1.0 / det
   let inverse = {
-    x_axis: Vec3::new(c00 * inv_det, c10 * inv_det, c20 * inv_det),
-    y_axis: Vec3::new(c01 * inv_det, c11 * inv_det, c21 * inv_det),
-    z_axis: Vec3::new(c02 * inv_det, c12 * inv_det, c22 * inv_det),
+    x_axis: Vec3(c00 * inv_det, c10 * inv_det, c20 * inv_det),
+    y_axis: Vec3(c01 * inv_det, c11 * inv_det, c21 * inv_det),
+    z_axis: Vec3(c02 * inv_det, c12 * inv_det, c22 * inv_det),
     translation: Vec3::zero(),
   }
   Some({ ..inverse, translation: inverse.transform_vector3(-self.translation) })

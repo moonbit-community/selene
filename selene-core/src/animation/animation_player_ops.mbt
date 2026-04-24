@@ -132,7 +132,7 @@ pub fn AnimationGraph::add_target_to_mask_group(
 pub fn AnimationGraph::from_clip(
   clip : AnimationClipHandle,
 ) -> (AnimationGraph, AnimationNodeIndex) {
-  let graph = AnimationGraph::new()
+  let graph = AnimationGraph()
   let node = graph.add_clip(clip)
   (graph, node)
 }
@@ -141,7 +141,7 @@ pub fn AnimationGraph::from_clip(
 pub fn AnimationGraph::from_clips(
   clips : Array[AnimationClipHandle],
 ) -> (AnimationGraph, Array[AnimationNodeIndex]) {
-  let graph = AnimationGraph::new()
+  let graph = AnimationGraph()
   let nodes : Array[AnimationNodeIndex] = []
   for clip in clips {
     nodes.push(graph.add_clip(clip))

@@ -86,29 +86,29 @@ pub enum LdtkLevelEvent {
 }
 
 ///|
-pub let ldtk_world_spawned_event_bus : @event.Events[LdtkWorldSpawnedEvent] = @event.Events::new()
+pub let ldtk_world_spawned_event_bus : @event.Events[LdtkWorldSpawnedEvent] = @event.Events()
 
 ///|
-pub let ldtk_level_spawned_event_bus : @event.Events[LdtkLevelSpawnedEvent] = @event.Events::new()
+pub let ldtk_level_spawned_event_bus : @event.Events[LdtkLevelSpawnedEvent] = @event.Events()
 
 ///|
-pub let ldtk_layer_spawned_event_bus : @event.Events[LdtkLayerSpawnedEvent] = @event.Events::new()
+pub let ldtk_layer_spawned_event_bus : @event.Events[LdtkLayerSpawnedEvent] = @event.Events()
 
 ///|
-pub let ldtk_tile_spawned_event_bus : @event.Events[LdtkTileSpawnedEvent] = @event.Events::new()
+pub let ldtk_tile_spawned_event_bus : @event.Events[LdtkTileSpawnedEvent] = @event.Events()
 
 ///|
-pub let ldtk_entity_spawned_event_bus : @event.Events[LdtkEntitySpawnedEvent] = @event.Events::new()
+pub let ldtk_entity_spawned_event_bus : @event.Events[LdtkEntitySpawnedEvent] = @event.Events()
 
 ///|
 pub let ldtk_int_grid_cell_spawned_event_bus : @event.Events[
   LdtkIntGridCellSpawnedEvent,
-] = @event.Events::new()
+] = @event.Events()
 
 ///|
 pub let ldtk_int_grid_collider_spawned_event_bus : @event.Events[
   LdtkIntGridColliderSpawnedEvent,
-] = @event.Events::new()
+] = @event.Events()
 
 ///|
-pub let ldtk_level_event_bus : @event.Events[LdtkLevelEvent] = @event.Events::new()
+pub let ldtk_level_event_bus : @event.Events[LdtkLevelEvent] = @event.Events()

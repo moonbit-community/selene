@@ -4,8 +4,6 @@ pub(all) struct World {
   pending_commands : Array[(World) -> Unit]
   mut frame_index : UInt
   mut fixed_step_index : UInt
-
-  fn new() -> World
 }
 
 ///|
@@ -23,7 +21,7 @@ let bootstrap_world_value : World = make_world(0U)
 let current_world_ref : Ref[World?] = Ref::new(Some(bootstrap_world_value))
 
 ///|
-pub fn World::new() -> World {
+pub fn World::World() -> World {
   let id = next_world_id.val
   next_world_id.val += 1U
   make_world(id)

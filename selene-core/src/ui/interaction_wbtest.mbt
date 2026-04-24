@@ -56,14 +56,14 @@ fn interaction_test_global_node(rect : @math.Rect) -> GlobalUiNode {
 ///|
 test "ui relative cursor positions use centered normalized coordinates" {
   reset_interaction_test_state()
-  let entity = @entity.Entity::new()
+  let entity = @entity.Entity()
   let rect : @math.Rect = {
     position: @math.Vec2(100.0, 50.0),
     size: @math.Vec2(40.0, 20.0),
   }
-  nodes().set(entity, Node::new())
+  nodes().set(entity, Node())
   global_ui_nodes().set(entity, interaction_test_global_node(rect))
-  relative_cursor_positions().set(entity, RelativeCursorPosition::new())
+  relative_cursor_positions().set(entity, RelativeCursorPosition())
   @inputs.mouse.pos = @math.Vec2(130.0, 60.0)
 
   ui_interaction_system(0.0)
@@ -82,21 +82,21 @@ test "ui relative cursor positions use centered normalized coordinates" {
 ///|
 test "ui relative cursor positions keep normalized values outside calculated clip" {
   reset_interaction_test_state()
-  let entity = @entity.Entity::new()
+  let entity = @entity.Entity()
   let rect : @math.Rect = {
     position: @math.Vec2(100.0, 50.0),
     size: @math.Vec2(40.0, 20.0),
   }
-  nodes().set(entity, Node::new())
+  nodes().set(entity, Node())
   global_ui_nodes().set(entity, interaction_test_global_node(rect))
   calculated_clips().set(
     entity,
-    CalculatedClip::new({
+    CalculatedClip({
       position: @math.Vec2(100.0, 50.0),
       size: @math.Vec2(10.0, 20.0),
     }),
   )
-  relative_cursor_positions().set(entity, RelativeCursorPosition::new())
+  relative_cursor_positions().set(entity, RelativeCursorPosition())
   @inputs.mouse.pos = @math.Vec2(130.0, 60.0)
 
   ui_interaction_system(0.0)

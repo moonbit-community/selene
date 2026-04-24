@@ -121,10 +121,8 @@ pub(all) struct Sorting2d {
   group : Int
   order : Int
   mode : SortMode2D
-
-  fn new(layer? : Int, group? : Int, order? : Int, mode? : SortMode2D) -> Sorting2d
 } derive(Eq, @debug.Debug)
-pub fn Sorting2d::new(layer? : Int, group? : Int, order? : Int, mode? : SortMode2D) -> Self
+pub fn Sorting2d::Sorting2d(layer? : Int, group? : Int, order? : Int, mode? : SortMode2D) -> Self
 
 // Type aliases
 

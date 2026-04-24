@@ -19,14 +19,14 @@ fn plugin_b(app : App) -> App {
 
 ///|
 test "app: add_plugin applies plugin immediately" {
-  let app = App::new().add_plugin(plugin_add_startup_system)
+  let app = App().add_plugin(plugin_add_startup_system)
   inspect(app.systems.length(), content="1")
   inspect(app.systems[0].name, content="plugin_startup")
 }
 
 ///|
 test "app: add_plugins preserves plugin order" {
-  let app = App::new().add_plugins([plugin_a, plugin_b])
+  let app = App().add_plugins([plugin_a, plugin_b])
   inspect(app.systems.length(), content="2")
   inspect(app.systems[0].name, content="plugin_a")
   inspect(app.systems[1].name, content="plugin_b")
@@ -34,16 +34,13 @@ test "app: add_plugins preserves plugin order" {
 
 ///|
 test "app: add_message registers buses to final world" {
-  let events : @event.Events[Int] = @event.Events::new()
-  let world_a = @ecs.World::new()
-  let world_b = @ecs.World::new()
-  let reader_a : @event.EventReader[Int] = @event.EventReader::new()
-  let reader_b : @event.EventReader[Int] = @event.EventReader::new()
+  let events : @event.Events[Int] = @event.Events()
+  let world_a = @ecs.World()
+  let world_b = @ecs.World()
+  let reader_a : @event.EventReader[Int] = @event.EventReader()
+  let reader_b : @event.EventReader[Int] = @event.EventReader()
 
-  let app = App::new()
-    .with_world(world_a)
-    .add_message(events)
-    .with_world(world_b)
+  let app = App().with_world(world_a).add_message(events).with_world(world_b)
   for register in app.event_registrations {
     register(app.world)
   }
@@ -65,13 +62,13 @@ test "app: add_message registers buses to final world" {
 
 ///|
 test "app: run_frames advances startup/update/fixed/render schedules deterministically" {
-  let world = @ecs.World::new()
+  let world = @ecs.World()
   let startup_count : Ref[Int] = { val: 0 }
   let update_count : Ref[Int] = { val: 0 }
   let fixed_count : Ref[Int] = { val: 0 }
   let render_count : Ref[Int] = { val: 0 }
 
-  let app = App::new()
+  let app = App()
     .with_world(world)
     .with_fixed_hz(30)
     .add_system(@system.Startup, fn(_world) { startup_count.val += 1 })
@@ -88,9 +85,9 @@ test "app: run_frames advances startup/update/fixed/render schedules determinist
 
 ///|
 test "app: headless frames service platform maintenance around game and render" {
-  let world = @ecs.World::new()
+  let world = @ecs.World()
   let trace : Ref[String] = { val: "" }
-  let app = App::new()
+  let app = App()
     .with_world(world)
     .add_system(
       @system.Update,
@@ -116,12 +113,12 @@ test "app: headless frames service platform maintenance around game and render" 
 
 ///|
 test "app: step_fixed advances only fixed schedule after startup" {
-  let world = @ecs.World::new()
+  let world = @ecs.World()
   let startup_count : Ref[Int] = { val: 0 }
   let update_count : Ref[Int] = { val: 0 }
   let fixed_count : Ref[Int] = { val: 0 }
 
-  let app = App::new()
+  let app = App()
     .with_world(world)
     .add_system(@system.Startup, fn(_world) { startup_count.val += 1 })
     .add_system(@system.Update, fn(_world) { update_count.val += 1 })
@@ -135,7 +132,7 @@ test "app: step_fixed advances only fixed schedule after startup" {
 
 ///|
 test "app: deterministic ordering sorts systems by name when enabled" {
-  let world = @ecs.World::new()
+  let world = @ecs.World()
   @ecs.set_current_world(world)
   @runtime_debug.set_deterministic_mode({
     rng_seed: 1U,
@@ -144,7 +141,7 @@ test "app: deterministic ordering sorts systems by name when enabled" {
     deterministic_ordering: true,
   })
   let order : Ref[String] = { val: "" }
-  let app = App::new()
+  let app = App()
     .with_world(world)
     .add_system(
       @system.Update,
@@ -162,7 +159,7 @@ test "app: deterministic ordering sorts systems by name when enabled" {
 
 ///|
 test "app: deterministic ordering keeps insertion order when disabled" {
-  let world = @ecs.World::new()
+  let world = @ecs.World()
   @ecs.set_current_world(world)
   @runtime_debug.set_deterministic_mode({
     rng_seed: 1U,
@@ -171,7 +168,7 @@ test "app: deterministic ordering keeps insertion order when disabled" {
     deterministic_ordering: false,
   })
   let order : Ref[String] = { val: "" }
-  let app = App::new()
+  let app = App()
     .with_world(world)
     .add_system(
       @system.Update,
@@ -189,8 +186,8 @@ test "app: deterministic ordering keeps insertion order when disabled" {
 
 ///|
 test "app: run_frames_capture provides a generic capture pipeline without game-specific systems" {
-  let world = @ecs.World::new()
-  let app = App::new().with_world(world)
+  let world = @ecs.World()
+  let app = App().with_world(world)
   let captures = app.run_frames_capture(
     2,
     capture_width=64,
@@ -202,9 +199,9 @@ test "app: run_frames_capture provides a generic capture pipeline without game-s
 
 ///|
 test "app: render frame does not perform platform service work implicitly" {
-  let world = @ecs.World::new()
+  let world = @ecs.World()
   let trace : Ref[String] = { val: "" }
-  let app = App::new()
+  let app = App()
     .with_world(world)
     .add_system(
       @system.Render,

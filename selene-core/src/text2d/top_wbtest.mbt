@@ -1,7 +1,7 @@
 ///|
 fn with_text2d_test_world(action : () -> Unit raise) -> Unit raise {
   let previous = @ecs.current_world().unwrap_or(@ecs.bootstrap_world())
-  let world = @ecs.World::new()
+  let world = @ecs.World()
   @ecs.set_current_world(world)
   action()
   @ecs.set_current_world(previous)
@@ -22,10 +22,10 @@ fn text2d_test_style() -> @render2d_types.TextStyle2D {
 ///|
 test "text2d layout cache reuses identical inputs" {
   with_text2d_test_world(fn() raise {
-    let entity = @entity.Entity::new()
+    let entity = @entity.Entity()
     let style = text2d_test_style()
-    let layout = @ui.TextLayout::new(wrap=WordWrap, overflow=Ellipsis)
-    let bounds = Some(TextBounds::new(60.0, 100.0))
+    let layout = @ui.TextLayout(wrap=WordWrap, overflow=Ellipsis)
+    let bounds = Some(TextBounds(60.0, 100.0))
 
     let first = cached_text_layout(entity, "hello world", style, layout, bounds)
     let second = cached_text_layout(
@@ -41,10 +41,10 @@ test "text2d layout cache reuses identical inputs" {
 ///|
 test "text2d layout cache invalidates when text changes" {
   with_text2d_test_world(fn() raise {
-    let entity = @entity.Entity::new()
+    let entity = @entity.Entity()
     let style = text2d_test_style()
-    let layout = @ui.TextLayout::new(wrap=WordWrap, overflow=Ellipsis)
-    let bounds = Some(TextBounds::new(60.0, 100.0))
+    let layout = @ui.TextLayout(wrap=WordWrap, overflow=Ellipsis)
+    let bounds = Some(TextBounds(60.0, 100.0))
 
     let first = cached_text_layout(entity, "hello world", style, layout, bounds)
     let second = cached_text_layout(

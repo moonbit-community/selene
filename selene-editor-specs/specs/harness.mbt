@@ -8,7 +8,7 @@ pub struct FakePreviewBridge {
 }
 
 ///|
-fn FakePreviewBridge::new() -> FakePreviewBridge {
+fn FakePreviewBridge::FakePreviewBridge() -> FakePreviewBridge {
   {
     commands: [],
     current_scene: None,
@@ -88,13 +88,13 @@ fn msg_for_rpc_binding(binding : @app.RpcBinding, payload : Json) -> @app.Msg {
 fn editor_harness(module_root : String, project_root : String) -> EditorHarness {
   {
     project_root,
-    service: @core.EditorService::new(module_root),
+    service: @core.EditorService(module_root),
     model: @app.new_model(),
     next_rpc_id: 1,
     service_events_subscribed: false,
     preview_events_subscribed: false,
     sidebar_layout_subscribed: false,
-    preview: FakePreviewBridge::new(),
+    preview: FakePreviewBridge(),
   }
 }
 

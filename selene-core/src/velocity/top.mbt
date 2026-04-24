@@ -49,7 +49,7 @@ fn velocity_world_store() -> VelocityWorldStore {
 ///
 /// ```moonbit nocheck
 /// // Set velocity for an entity
-/// let entity = @entity.Entity::new()
+/// let entity = @entity.Entity()
 /// defer entity.destroy()
 ///
 /// @velocity.velocities().set(entity, @math.Vec2(10.0, 5.0))
