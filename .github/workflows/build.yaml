@@ -13,6 +13,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Use MSVC on Windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Configure C compiler on Windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          echo "CC=cl" >> $env:GITHUB_ENV
+          echo "CXX=cl" >> $env:GITHUB_ENV
+
       - name: Install MoonBit
         if: ${{ matrix.os != 'windows-latest' }}
         run: |
