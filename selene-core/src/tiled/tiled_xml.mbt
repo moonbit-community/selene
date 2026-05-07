@@ -321,8 +321,8 @@ fn parse_tiled_xml_points(node : TiledXmlNode) -> Array[TiledPoint] {
       continue
     }
     parsed.push({
-      x: parse_xml_double_text(coords[0].to_string()).unwrap_or(0.0),
-      y: parse_xml_double_text(coords[1].to_string()).unwrap_or(0.0),
+      x: parse_xml_double_text(coords[0].to_owned()).unwrap_or(0.0),
+      y: parse_xml_double_text(coords[1].to_owned()).unwrap_or(0.0),
     })
   }
   parsed
@@ -496,7 +496,7 @@ fn xml_children(node : TiledXmlNode, name : String) -> Array[TiledXmlNode] {
 
 ///|
 fn xml_text(node : TiledXmlNode) -> String {
-  node.text.trim().to_string()
+  node.text.trim().to_owned()
 }
 
 ///|
@@ -534,7 +534,7 @@ fn parse_xml_double_text(text : String) -> Double? {
 
 ///|
 fn parse_xml_bool_text(text : String) -> Bool? {
-  let normalized = text.trim().to_string()
+  let normalized = text.trim().to_owned()
   if normalized == "1" ||
     normalized == "true" ||
     normalized == "True" ||

@@ -8,7 +8,7 @@ fn path_join(base : String, child : String) -> String {
 ///|
 fn strip_leading_slash(path : String) -> String {
   if path.has_prefix("/") {
-    path[1:].to_string()
+    path[1:].to_owned()
   } else {
     path
   }
@@ -70,11 +70,11 @@ fn normalize_relative_path(path : String) -> String raise {
 
 ///|
 fn extension_of(path : String) -> String? {
-  let ext = @path.Path::extname(path).to_string().to_lower()
+  let ext = @path.Path::extname(path).to_owned().to_lower()
   if ext == "" {
     None
   } else if ext.has_prefix(".") {
-    Some(ext[1:].to_string())
+    Some(ext[1:].to_owned())
   } else {
     Some(ext)
   }
@@ -82,12 +82,12 @@ fn extension_of(path : String) -> String? {
 
 ///|
 fn basename_of(path : String) -> String {
-  @path.Path::basename(path).to_string()
+  @path.Path::basename(path).to_owned()
 }
 
 ///|
 fn inferred_project_name(root : String) -> String {
-  let base = basename_of(root).trim().to_string()
+  let base = basename_of(root).trim().to_owned()
   if base == "" {
     "Selene Project"
   } else {

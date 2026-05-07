@@ -171,7 +171,7 @@ fn update_selection_history_tools(
         Some(session) if session.undo_stack.length() > 0 => {
           let count = session.undo_stack.length()
           let previous_scene = session.undo_stack[count - 1]
-          let undo_stack = session.undo_stack[:count - 1].to_array()
+          let undo_stack = session.undo_stack[:count - 1].to_owned()
           let redo_stack = bounded_history(session.redo_stack + [session.scene])
           let (selected_entity_id, selected_entity_ids) = restored_entity_selection_for_scene(
             previous_scene,
@@ -209,7 +209,7 @@ fn update_selection_history_tools(
         Some(session) if session.redo_stack.length() > 0 => {
           let count = session.redo_stack.length()
           let next_scene = session.redo_stack[count - 1]
-          let redo_stack = session.redo_stack[:count - 1].to_array()
+          let redo_stack = session.redo_stack[:count - 1].to_owned()
           let undo_stack = bounded_history(session.undo_stack + [session.scene])
           let (selected_entity_id, selected_entity_ids) = restored_entity_selection_for_scene(
             next_scene,

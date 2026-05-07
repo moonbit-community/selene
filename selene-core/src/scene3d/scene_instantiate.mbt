@@ -263,7 +263,7 @@ fn parse_glb_source(bytes : Bytes) -> GltfSource? {
     if chunk_end > total_length || chunk_end > bytes.length() {
       return None
     }
-    let chunk_bytes = bytes[chunk_start:chunk_end].to_bytes()
+    let chunk_bytes = bytes[chunk_start:chunk_end].to_owned()
     match chunk_type {
       0x4E4F534A =>
         if json_document is None {
@@ -421,8 +421,8 @@ fn compute_scene_node_target_ids(
   nodes : Array[SceneNodeTemplate],
   roots : Array[Int],
 ) -> Map[Int, @animation.AnimationTargetId] {
-  let output : Map[Int, @animation.AnimationTargetId] = Map::new()
-  let seen_paths : Set[String] = Set::new()
+  let output : Map[Int, @animation.AnimationTargetId] = Map([])
+  let seen_paths : Set[String] = Set([])
   for root_order, node_index in roots {
     assign_scene_node_target_ids(
       nodes,
@@ -445,7 +445,7 @@ fn parse_animation_clips(
   nodes : Array[SceneNodeTemplate],
   roots : Array[Int],
 ) -> Map[String, @animation.AnimationClipHandle] {
-  let animations : Map[String, @animation.AnimationClipHandle] = Map::new()
+  let animations : Map[String, @animation.AnimationClipHandle] = Map([])
   guard root_object.get("animations") is Some(animations_json) else {
     return animations
   }

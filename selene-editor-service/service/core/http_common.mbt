@@ -73,7 +73,7 @@ async fn send_file(
 
 ///|
 fn require_project_root(root : String) -> String raise {
-  let normalized = root.trim().to_string()
+  let normalized = root.trim().to_owned()
   if normalized == "" {
     raise Failure("Project root is required")
   }

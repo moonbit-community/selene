@@ -170,7 +170,7 @@ fn with_builtin_component_added(
 
 ///|
 fn validated_custom_component_kind(raw_kind : String) -> Result[String, String] {
-  let kind = raw_kind.trim().to_string()
+  let kind = raw_kind.trim().to_owned()
   if kind == "" {
     return Err("Component kind is required")
   }
@@ -182,7 +182,7 @@ fn validated_custom_component_kind(raw_kind : String) -> Result[String, String] 
 
 ///|
 pub fn Model::component_search_query_normalized(self : Model) -> String {
-  self.component_search_query.trim().to_string().to_lower()
+  self.component_search_query.trim().to_owned().to_lower()
 }
 
 ///|

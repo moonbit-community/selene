@@ -284,7 +284,7 @@ extern "js" fn subscribe_sidebar_layout_forever(
   #| }
 
 ///|
-let dragged_asset_path : Ref[String] = Ref::new("")
+let dragged_asset_path : Ref[String] = Ref("")
 
 ///|
 fn begin_dragged_asset(path : String) -> Unit {

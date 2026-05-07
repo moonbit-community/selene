@@ -93,7 +93,7 @@ priv struct PhysicsWorldRuntime {
 }
 
 ///|
-let physics_world_runtimes : Map[UInt, PhysicsWorldRuntime] = Map::new()
+let physics_world_runtimes : Map[UInt, PhysicsWorldRuntime] = Map([])
 
 ///|
 fn physics_world_runtime() -> PhysicsWorldRuntime {
@@ -111,24 +111,24 @@ fn physics_world_runtime() -> PhysicsWorldRuntime {
       multibody_joints: @rapier_dynamics.MultibodyJointSet::new(),
       ccd_solver: @rapier_dynamics_ccd.CCDSolver::new(),
       event_handler: @rapier_pipeline.EventHandler::new(),
-      entity_bodies: Map::new(),
-      entity_colliders: Map::new(),
-      collider_entities: Map::new(),
-      entity_joints: Map::new(),
-      entity_multibody_joints: Map::new(),
+      entity_bodies: Map([]),
+      entity_colliders: Map([]),
+      collider_entities: Map([]),
+      entity_joints: Map([]),
+      entity_multibody_joints: Map([]),
     },
-    entity_physics_config_keys: Map::new(),
-    pending_body_rotations: Map::new(),
-    pending_body_linear_velocities: Map::new(),
-    pending_body_angular_velocities: Map::new(),
-    pending_body_forces: Map::new(),
-    pending_body_force_points: Map::new(),
-    pending_body_torques: Map::new(),
-    pending_body_impulses: Map::new(),
-    pending_body_impulse_points: Map::new(),
-    pending_body_torque_impulses: Map::new(),
-    entity_joint_config_keys: Map::new(),
-    entity_multibody_joint_config_keys: Map::new(),
+    entity_physics_config_keys: Map([]),
+    pending_body_rotations: Map([]),
+    pending_body_linear_velocities: Map([]),
+    pending_body_angular_velocities: Map([]),
+    pending_body_forces: Map([]),
+    pending_body_force_points: Map([]),
+    pending_body_torques: Map([]),
+    pending_body_impulses: Map([]),
+    pending_body_impulse_points: Map([]),
+    pending_body_torque_impulses: Map([]),
+    entity_joint_config_keys: Map([]),
+    entity_multibody_joint_config_keys: Map([]),
   })
 }
 

@@ -12,13 +12,13 @@ fn make_world(id : UInt) -> World {
 }
 
 ///|
-let next_world_id : Ref[UInt] = Ref::new(1U)
+let next_world_id : Ref[UInt] = Ref(1U)
 
 ///|
 let bootstrap_world_value : World = make_world(0U)
 
 ///|
-let current_world_ref : Ref[World?] = Ref::new(Some(bootstrap_world_value))
+let current_world_ref : Ref[World?] = Ref(Some(bootstrap_world_value))
 
 ///|
 pub fn World::World() -> World {

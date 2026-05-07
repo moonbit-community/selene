@@ -763,7 +763,7 @@ fn wrap_line(
   }
   let words : Array[String] = []
   for word in text.split(" ") {
-    words.push(word.to_string())
+    words.push(word.to_owned())
   }
   if words.length() <= 1 {
     return [truncate_line(entity, text, max_width)]
@@ -796,7 +796,7 @@ fn prepared_text_lines(
   let layout = text_layout(entity)
   let raw_lines : Array[String] = []
   for raw_line in text.content.split("\n") {
-    raw_lines.push(raw_line.to_string())
+    raw_lines.push(raw_line.to_owned())
   }
   let lines : Array[String] = []
   for raw_line in raw_lines {

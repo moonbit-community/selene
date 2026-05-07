@@ -265,7 +265,7 @@ test "frame metadata export includes draw commands and atlas overlay entries" {
 ///|
 test "export sprite inspector regions only processes entries with image and source rect" {
   with_runtime_debug_world(fn() raise {
-    let naming_calls = Ref::new(0)
+    let naming_calls = Ref(0)
     let entries : Array[SpriteInspectorEntry] = [
       {
         entity_id: 1U,

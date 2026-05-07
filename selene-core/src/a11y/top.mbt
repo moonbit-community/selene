@@ -78,12 +78,12 @@ priv struct A11yWorldStore {
 }
 
 ///|
-let a11y_world_stores : Map[UInt, A11yWorldStore] = Map::new()
+let a11y_world_stores : Map[UInt, A11yWorldStore] = Map([])
 
 ///|
 fn a11y_world_store() -> A11yWorldStore {
   let world_id = @ecs.require_current_world().id()
-  a11y_world_stores.get_or_init(world_id, () => { a11ys: Map::new() })
+  a11y_world_stores.get_or_init(world_id, () => { a11ys: Map([]) })
 }
 
 ///|
@@ -101,10 +101,10 @@ let latest_tree_update_ref : Ref[@moon_accesskit.TreeUpdate?] = { val: None }
 let pending_action_requests : Array[@moon_accesskit.ActionRequest] = []
 
 ///|
-let entity_node_ids : Map[@entity.Entity, UInt64] = Map::new()
+let entity_node_ids : Map[@entity.Entity, UInt64] = Map([])
 
 ///|
-let current_node_entities : Map[@moon_accesskit.NodeId, @entity.Entity] = Map::new()
+let current_node_entities : Map[@moon_accesskit.NodeId, @entity.Entity] = Map([])
 
 ///|
 let next_node_id : Ref[UInt64] = { val: 1UL }
@@ -257,7 +257,7 @@ fn collect_semantic_descendants(
 ///|
 fn collect_ordered_semantic_entities() -> Array[@entity.Entity] {
   let ordered : Array[@entity.Entity] = []
-  let seen : Map[@entity.Entity, Bool] = Map::new()
+  let seen : Map[@entity.Entity, Bool] = Map([])
   for entity, _node in @ui.nodes() {
     guard entity.is_alive() else { continue }
     match entity.get_parent() {
@@ -294,7 +294,7 @@ fn build_hierarchy(
   ordered : Array[@entity.Entity],
 ) -> (Array[@entity.Entity], Map[@entity.Entity, Array[@entity.Entity]]) {
   let roots : Array[@entity.Entity] = []
-  let children : Map[@entity.Entity, Array[@entity.Entity]] = Map::new()
+  let children : Map[@entity.Entity, Array[@entity.Entity]] = Map([])
   for entity in ordered {
     if find_semantic_parent(entity) is Some(parent) {
       children.get_or_init(parent, () => []).push(entity)

@@ -5,7 +5,7 @@ priv struct StateWorldRuntime {
 }
 
 ///|
-let state_world_runtimes : Map[UInt, StateWorldRuntime] = Map::new()
+let state_world_runtimes : Map[UInt, StateWorldRuntime] = Map([])
 
 ///|
 fn state_runtime(world_id : UInt) -> StateWorldRuntime {
@@ -41,10 +41,10 @@ pub fn[T] State::State(initial : T) -> State[T] {
   let runtime = state_runtime(world.id())
   let state : State[T] = {
     world_id: world.id(),
-    current: Ref::new(initial),
-    next: Ref::new(None),
-    previous: Ref::new(None),
-    changed_serial: Ref::new(0),
+    current: Ref(initial),
+    next: Ref(None),
+    previous: Ref(None),
+    changed_serial: Ref(0),
   }
   runtime.transition_callbacks.push(fn() {
     match state.next.val {

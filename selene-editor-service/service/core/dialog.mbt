@@ -10,7 +10,7 @@ async fn collect_stdout_if_ok(cmd : String, args : Array[String]) -> String? {
     if code != 0 {
       return None
     }
-    let trimmed = stdout.text().trim().to_string()
+    let trimmed = stdout.text().trim().to_owned()
     if trimmed == "" {
       None
     } else {

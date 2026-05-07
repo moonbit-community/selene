@@ -331,7 +331,7 @@ fn with_selected_animation_graph_edge_target_updated(
   target : String,
 ) -> Model {
   update_selected_animation_graph_document(model, fn(graph) {
-    let next_target = target.trim().to_string()
+    let next_target = target.trim().to_owned()
     if next_target == "" {
       return graph
     }

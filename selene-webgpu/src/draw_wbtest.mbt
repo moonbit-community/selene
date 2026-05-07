@@ -342,8 +342,11 @@ test "resolve_triangle_indices supports strip and fan topology" {
     tangents: None,
     colors: None,
   }
-  inspect(resolve_triangle_indices(mesh), content="Some([0, 1, 2, 2, 1, 3])")
-  inspect(
+  debug_inspect(
+    resolve_triangle_indices(mesh),
+    content="Some([0, 1, 2, 2, 1, 3])",
+  )
+  debug_inspect(
     resolve_triangle_indices({ ..mesh, topology: TriangleFan }),
     content="Some([0, 1, 2, 0, 2, 3])",
   )

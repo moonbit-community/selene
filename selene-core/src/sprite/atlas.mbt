@@ -17,16 +17,16 @@ pub(all) struct TextureAtlas {
 let texture_atlas_layouts_by_handle : Map[
   TextureAtlasLayoutHandle,
   TextureAtlasLayout,
-] = Map::new()
+] = Map([])
 
 ///|
-let next_texture_atlas_layout_id : Ref[UInt] = Ref::new(0U)
+let next_texture_atlas_layout_id : Ref[UInt] = Ref(0U)
 
 ///|
 let dirty_texture_atlas_layouts : Map[
   TextureAtlasLayoutHandle,
   TextureAtlasLayout,
-] = Map::new()
+] = Map([])
 
 ///|
 let released_texture_atlas_layouts : Array[TextureAtlasLayoutHandle] = []

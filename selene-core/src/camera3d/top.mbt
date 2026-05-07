@@ -50,12 +50,12 @@ priv struct Camera3DWorldStore {
 }
 
 ///|
-let camera3d_world_stores : Map[UInt, Camera3DWorldStore] = Map::new()
+let camera3d_world_stores : Map[UInt, Camera3DWorldStore] = Map([])
 
 ///|
 fn camera3d_world_store() -> Camera3DWorldStore {
   let world_id = @ecs.require_current_world().id()
-  camera3d_world_stores.get_or_init(world_id, () => { cameras3d: Map::new() })
+  camera3d_world_stores.get_or_init(world_id, () => { cameras3d: Map([]) })
 }
 
 ///|
@@ -64,7 +64,7 @@ pub fn cameras3d() -> Map[@entity.Entity, Camera3DComponent] {
 }
 
 ///|
-let active_cameras3d_by_world : Map[UInt, ActiveCamera3D?] = Map::new()
+let active_cameras3d_by_world : Map[UInt, ActiveCamera3D?] = Map([])
 
 ///|
 fn current_world_id() -> UInt {

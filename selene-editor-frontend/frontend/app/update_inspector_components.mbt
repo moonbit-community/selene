@@ -543,7 +543,7 @@ fn update_inspector_components(
         @editor_bridge.autotile_layer2d_component(
           tile_size=layer.tile_size,
           origin=layer.origin,
-          atlas_asset_path=value.trim().to_string(),
+          atlas_asset_path=value.trim().to_owned(),
           rule_set=layer.rule_set,
           palette=layer.palette,
           cells=layer.cells,

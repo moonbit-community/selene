@@ -40,17 +40,17 @@ priv struct Text2dWorldStore {
 }
 
 ///|
-let text2d_world_stores : Map[UInt, Text2dWorldStore] = Map::new()
+let text2d_world_stores : Map[UInt, Text2dWorldStore] = Map([])
 
 ///|
 fn text2d_world_store() -> Text2dWorldStore {
   let world_id = @ecs.require_current_world().id()
   text2d_world_stores.get_or_init(world_id, fn() {
     {
-      text2ds: Map::new(),
-      text_bounds: Map::new(),
-      text_anchors: Map::new(),
-      text_layout_caches: Map::new(),
+      text2ds: Map([]),
+      text_bounds: Map([]),
+      text_anchors: Map([]),
+      text_layout_caches: Map([]),
     }
   })
 }
@@ -137,7 +137,7 @@ fn wrap_line(
   }
   let words : Array[String] = []
   for word in text.split(" ") {
-    words.push(word.to_string())
+    words.push(word.to_owned())
   }
   if words.length() <= 1 {
     return [truncate_line(style, text, max_width)]
@@ -171,7 +171,7 @@ fn bounded_text_lines(
   let width = bounds.map_or(-1.0, fn(bounds) { bounds.width })
   let raw_lines : Array[String] = []
   for raw_line in text.split("\n") {
-    raw_lines.push(raw_line.to_string())
+    raw_lines.push(raw_line.to_owned())
   }
   let lines : Array[String] = []
   for raw_line in raw_lines {

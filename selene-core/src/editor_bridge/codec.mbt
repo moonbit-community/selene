@@ -111,7 +111,7 @@ fn encode_envelope(schema : String, data : Json) -> String {
 fn normalized_document_name(value : String?, fallback : String) -> String {
   match value {
     Some(name) => {
-      let trimmed = name.trim().to_string()
+      let trimmed = name.trim().to_owned()
       if trimmed == "" {
         fallback
       } else {

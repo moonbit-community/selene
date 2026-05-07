@@ -114,16 +114,17 @@ priv struct Render3DComponentWorldStore {
 }
 
 ///|
-let render3d_component_world_stores : Map[UInt, Render3DComponentWorldStore] = Map::new()
+let render3d_component_world_stores : Map[UInt, Render3DComponentWorldStore] = Map([],
+)
 
 ///|
 fn render3d_component_world_store() -> Render3DComponentWorldStore {
   let world_id = @ecs.require_current_world().id()
   render3d_component_world_stores.get_or_init(world_id, () => {
-    mesh3d_renderers: Map::new(),
-    directional_lights3d: Map::new(),
-    point_lights3d: Map::new(),
-    spot_lights3d: Map::new(),
+    mesh3d_renderers: Map([]),
+    directional_lights3d: Map([]),
+    point_lights3d: Map([]),
+    spot_lights3d: Map([]),
   })
 }
 
@@ -156,7 +157,7 @@ priv struct Render3DWorldState {
 }
 
 ///|
-let render3d_world_states : Map[UInt, Render3DWorldState] = Map::new()
+let render3d_world_states : Map[UInt, Render3DWorldState] = Map([])
 
 ///|
 fn render3d_world_state() -> Render3DWorldState {
@@ -170,37 +171,37 @@ fn render3d_world_state() -> Render3DWorldState {
 }
 
 ///|
-let meshes : Map[MeshHandle, MeshAsset] = Map::new()
+let meshes : Map[MeshHandle, MeshAsset] = Map([])
 
 ///|
-let materials : Map[MaterialHandle, StandardMaterial3D] = Map::new()
+let materials : Map[MaterialHandle, StandardMaterial3D] = Map([])
 
 ///|
-let images : Map[ImageHandle, ImageAsset] = Map::new()
+let images : Map[ImageHandle, ImageAsset] = Map([])
 
 ///|
-let scene_paths : Map[SceneHandle, String] = Map::new()
+let scene_paths : Map[SceneHandle, String] = Map([])
 
 ///|
-let next_mesh_id : Ref[UInt] = Ref::new(0)
+let next_mesh_id : Ref[UInt] = Ref(0)
 
 ///|
-let next_material_id : Ref[UInt] = Ref::new(0)
+let next_material_id : Ref[UInt] = Ref(0)
 
 ///|
-let next_image_id : Ref[UInt] = Ref::new(0)
+let next_image_id : Ref[UInt] = Ref(0)
 
 ///|
-let next_scene_id : Ref[UInt] = Ref::new(0)
+let next_scene_id : Ref[UInt] = Ref(0)
 
 ///|
-let dirty_mesh_assets : Map[MeshHandle, MeshAsset] = Map::new()
+let dirty_mesh_assets : Map[MeshHandle, MeshAsset] = Map([])
 
 ///|
-let dirty_material_assets : Map[MaterialHandle, StandardMaterial3D] = Map::new()
+let dirty_material_assets : Map[MaterialHandle, StandardMaterial3D] = Map([])
 
 ///|
-let dirty_image_assets : Map[ImageHandle, ImageAsset] = Map::new()
+let dirty_image_assets : Map[ImageHandle, ImageAsset] = Map([])
 
 ///|
 let released_mesh_assets : Array[MeshHandle] = []

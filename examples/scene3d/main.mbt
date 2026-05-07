@@ -19,39 +19,39 @@ const VIEWPORT_WIDTH : Double = 960.0
 const VIEWPORT_HEIGHT : Double = 640.0
 
 ///|
-let rotating_cube : Ref[@entity.Entity?] = Ref::new(None)
+let rotating_cube : Ref[@entity.Entity?] = Ref(None)
 
 ///|
-let cube_rotation : Ref[Double] = Ref::new(0.0)
+let cube_rotation : Ref[Double] = Ref(0.0)
 
 ///|
-let spotlight_entity : Ref[@entity.Entity?] = Ref::new(None)
+let spotlight_entity : Ref[@entity.Entity?] = Ref(None)
 
 ///|
-let spotlight_phase : Ref[Double] = Ref::new(0.0)
+let spotlight_phase : Ref[Double] = Ref(0.0)
 
 ///|
-let hud_label : Ref[@entity.Entity?] = Ref::new(None)
+let hud_label : Ref[@entity.Entity?] = Ref(None)
 
 ///|
-let physics_label : Ref[@entity.Entity?] = Ref::new(None)
+let physics_label : Ref[@entity.Entity?] = Ref(None)
 
 ///|
-let dynamic_ball_entity : Ref[@entity.Entity?] = Ref::new(None)
+let dynamic_ball_entity : Ref[@entity.Entity?] = Ref(None)
 
 ///|
-let joint_ball_entity : Ref[@entity.Entity?] = Ref::new(None)
+let joint_ball_entity : Ref[@entity.Entity?] = Ref(None)
 
 ///|
-let controller_entity : Ref[@entity.Entity?] = Ref::new(None)
+let controller_entity : Ref[@entity.Entity?] = Ref(None)
 
 ///|
-let contact_force_reader : Ref[@event.EventReader[@physics3d.ContactForceEvent]] = Ref::new(
+let contact_force_reader : Ref[@event.EventReader[@physics3d.ContactForceEvent]] = Ref(
   @event.EventReader(),
 )
 
 ///|
-let last_contact_force : Ref[Double] = Ref::new(0.0)
+let last_contact_force : Ref[Double] = Ref(0.0)
 
 ///|
 fn color(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {

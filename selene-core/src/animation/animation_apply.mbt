@@ -74,19 +74,19 @@ priv struct AnimationSampleBuffer {
 }
 
 ///|
-let translation_field_ref : Ref[AnimatedFieldHandle?] = Ref::new(None)
+let translation_field_ref : Ref[AnimatedFieldHandle?] = Ref(None)
 
 ///|
-let rotation_field_ref : Ref[AnimatedFieldHandle?] = Ref::new(None)
+let rotation_field_ref : Ref[AnimatedFieldHandle?] = Ref(None)
 
 ///|
-let scale_field_ref : Ref[AnimatedFieldHandle?] = Ref::new(None)
+let scale_field_ref : Ref[AnimatedFieldHandle?] = Ref(None)
 
 ///|
-let morph_weights_field_ref : Ref[AnimatedFieldHandle?] = Ref::new(None)
+let morph_weights_field_ref : Ref[AnimatedFieldHandle?] = Ref(None)
 
 ///|
-let texture_atlas_index_field_ref : Ref[AnimatedFieldHandle?] = Ref::new(None)
+let texture_atlas_index_field_ref : Ref[AnimatedFieldHandle?] = Ref(None)
 
 ///|
 pub fn transform_translation_field() -> AnimatedFieldHandle {

@@ -185,17 +185,17 @@ priv struct PixelAdventureWorldStore {
 }
 
 ///|
-let pixeladventure_world_stores : Map[UInt, PixelAdventureWorldStore] = Map::new()
+let pixeladventure_world_stores : Map[UInt, PixelAdventureWorldStore] = Map([])
 
 ///|
 fn pixeladventure_world_store() -> PixelAdventureWorldStore {
   let world_id = @ecs.require_current_world().id()
   pixeladventure_world_stores.get_or_init(world_id, () => {
-    sessions: Map::new(),
-    players: Map::new(),
-    birds: Map::new(),
-    apples: Map::new(),
-    flags: Map::new(),
+    sessions: Map([]),
+    players: Map([]),
+    birds: Map([]),
+    apples: Map([]),
+    flags: Map([]),
     ui_click_reader: @event.EventReader(),
   })
 }

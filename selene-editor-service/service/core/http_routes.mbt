@@ -48,7 +48,7 @@ async fn EditorService::handle_static_request(
           return true
         }
       }
-      let rel_path = normalize_relative_path(request.path[9:].to_string()) catch {
+      let rel_path = normalize_relative_path(request.path[9:].to_owned()) catch {
         err => {
           send_text(conn, err.to_string(), code=400, reason="Bad Request")
           return true

@@ -161,7 +161,7 @@ fn resolve_buffer_view_bytes(
   if start < 0 || end_ > bytes.length() || end_ < start {
     return None
   }
-  Some(bytes[start:end_].to_bytes())
+  Some(bytes[start:end_].to_owned())
 }
 
 ///|

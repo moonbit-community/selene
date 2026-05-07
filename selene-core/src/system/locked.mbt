@@ -13,13 +13,13 @@
 // limitations under the License.
 
 ///|
-let mouse_lock_enabled : Ref[Bool] = Ref::new(false)
+let mouse_lock_enabled : Ref[Bool] = Ref(false)
 
 ///|
-let mouse_lock_requested : Ref[Bool] = Ref::new(false)
+let mouse_lock_requested : Ref[Bool] = Ref(false)
 
 ///|
-let mouse_lock_active : Ref[Bool] = Ref::new(false)
+let mouse_lock_active : Ref[Bool] = Ref(false)
 
 ///|
 fn next_mouse_lock_request(

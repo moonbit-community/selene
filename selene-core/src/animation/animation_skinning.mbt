@@ -13,7 +13,7 @@ pub fn animation_player_system(delta : Double) -> Unit {
       continue
     }
     guard animation_graph_asset(graph_handle) is Some(graph) else { continue }
-    let targets = targets_by_player.get_or_init(entity, fn() { Map::new() })
+    let targets = targets_by_player.get_or_init(entity, fn() { Map([]) })
     for node_index, active in player.active_animations {
       if active.paused || active.finished {
         continue
@@ -166,10 +166,8 @@ pub fn animation_apply_system(_delta : Double) -> Unit {
       continue
     }
     guard animation_graph_asset(graph_handle) is Some(graph) else { continue }
-    let targets = targets_by_player.get_or_init(player_entity, fn() {
-      Map::new()
-    })
-    let buffers : Map[AnimationPropertyKey, AnimationSampleBuffer] = Map::new()
+    let targets = targets_by_player.get_or_init(player_entity, fn() { Map([]) })
+    let buffers : Map[AnimationPropertyKey, AnimationSampleBuffer] = Map([])
     for node_index, active in player.active_animations {
       if active.weight <= 0.0 {
         continue

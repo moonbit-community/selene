@@ -297,7 +297,7 @@ fn parse_font_size(size : StringView) -> Double {
 
 ///|
 fn parse_font_family(family : StringView) -> String {
-  let family = family.trim().to_string()
+  let family = family.trim().to_owned()
   if family == "" {
     "Arial"
   } else {
@@ -307,7 +307,7 @@ fn parse_font_family(family : StringView) -> String {
 
 ///|
 pub fn TextFont::from_css(font : String) -> TextFont {
-  let font = font.trim().to_string()
+  let font = font.trim().to_owned()
   if font == "" {
     return TextFont()
   }
@@ -404,25 +404,25 @@ priv struct UiVisualWorldStore {
 }
 
 ///|
-let ui_visual_world_stores : Map[UInt, UiVisualWorldStore] = Map::new()
+let ui_visual_world_stores : Map[UInt, UiVisualWorldStore] = Map([])
 
 ///|
 fn ui_visual_world_store() -> UiVisualWorldStore {
   let world_id = @ecs.require_current_world().id()
   ui_visual_world_stores.get_or_init(world_id, () => {
-    background_colors: Map::new(),
-    border_colors: Map::new(),
-    border_radii: Map::new(),
-    box_shadows: Map::new(),
-    outlines: Map::new(),
-    ui_images: Map::new(),
-    material_nodes: Map::new(),
-    texts: Map::new(),
-    text_fonts: Map::new(),
-    text_colors: Map::new(),
-    text_layouts: Map::new(),
-    buttons: Map::new(),
-    interactions: Map::new(),
+    background_colors: Map([]),
+    border_colors: Map([]),
+    border_radii: Map([]),
+    box_shadows: Map([]),
+    outlines: Map([]),
+    ui_images: Map([]),
+    material_nodes: Map([]),
+    texts: Map([]),
+    text_fonts: Map([]),
+    text_colors: Map([]),
+    text_layouts: Map([]),
+    buttons: Map([]),
+    interactions: Map([]),
   })
 }
 
@@ -462,10 +462,10 @@ pub fn material_nodes() -> Map[@entity.Entity, MaterialNode] {
 }
 
 ///|
-let ui_material_assets : Map[UiMaterialHandle, UiMaterialAsset] = Map::new()
+let ui_material_assets : Map[UiMaterialHandle, UiMaterialAsset] = Map([])
 
 ///|
-let next_ui_material_id : Ref[UInt] = Ref::new(0)
+let next_ui_material_id : Ref[UInt] = Ref(0)
 
 ///|
 pub fn texts() -> Map[@entity.Entity, Text] {

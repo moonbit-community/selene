@@ -249,39 +249,39 @@ priv struct LdtkWorldStore {
 }
 
 ///|
-let ldtk_world_stores : Map[UInt, LdtkWorldStore] = Map::new()
+let ldtk_world_stores : Map[UInt, LdtkWorldStore] = Map([])
 
 ///|
 fn ldtk_world_store() -> LdtkWorldStore {
   let world_id = @ecs.require_current_world().id()
   ldtk_world_stores.get_or_init(world_id, () => {
-    ldtk_world_instances: Map::new(),
-    ldtk_level_instances: Map::new(),
-    ldtk_layer_metadata: Map::new(),
-    ldtk_level_backgrounds: Map::new(),
-    ldtk_level_iids: Map::new(),
-    ldtk_entity_iids: Map::new(),
-    ldtk_grid_coords: Map::new(),
-    ldtk_int_grid_cells: Map::new(),
-    ldtk_tile_metadata: Map::new(),
-    ldtk_int_grid_colliders: Map::new(),
-    ldtk_worldly_entities: Map::new(),
-    ldtk_respawns: Map::new(),
-    ldtk_spawned_layer_instances: Map::new(),
-    ldtk_spawned_tile_instances: Map::new(),
-    ldtk_spawned_entity_instances: Map::new(),
-    ldtk_spawned_int_grid_cells: Map::new(),
-    ldtk_entity_spawn_hooks: Map::new(),
-    ldtk_entity_layer_spawn_hooks: Map::new(),
-    ldtk_entity_layer_identifier_spawn_hooks: Map::new(),
+    ldtk_world_instances: Map([]),
+    ldtk_level_instances: Map([]),
+    ldtk_layer_metadata: Map([]),
+    ldtk_level_backgrounds: Map([]),
+    ldtk_level_iids: Map([]),
+    ldtk_entity_iids: Map([]),
+    ldtk_grid_coords: Map([]),
+    ldtk_int_grid_cells: Map([]),
+    ldtk_tile_metadata: Map([]),
+    ldtk_int_grid_colliders: Map([]),
+    ldtk_worldly_entities: Map([]),
+    ldtk_respawns: Map([]),
+    ldtk_spawned_layer_instances: Map([]),
+    ldtk_spawned_tile_instances: Map([]),
+    ldtk_spawned_entity_instances: Map([]),
+    ldtk_spawned_int_grid_cells: Map([]),
+    ldtk_entity_spawn_hooks: Map([]),
+    ldtk_entity_layer_spawn_hooks: Map([]),
+    ldtk_entity_layer_identifier_spawn_hooks: Map([]),
     ldtk_entity_default_spawn_hook: { val: None },
-    ldtk_int_grid_layer_spawn_hooks: Map::new(),
-    ldtk_int_grid_cell_spawn_hooks: Map::new(),
-    ldtk_int_grid_value_spawn_hooks: Map::new(),
+    ldtk_int_grid_layer_spawn_hooks: Map([]),
+    ldtk_int_grid_cell_spawn_hooks: Map([]),
+    ldtk_int_grid_value_spawn_hooks: Map([]),
     ldtk_int_grid_default_spawn_hook: { val: None },
-    ldtk_entity_typed_registrations: Map::new(),
-    ldtk_int_cell_typed_registrations: Map::new(),
-    ldtk_pending_transformed_level_iids: Map::new(),
+    ldtk_entity_typed_registrations: Map([]),
+    ldtk_int_cell_typed_registrations: Map([]),
+    ldtk_pending_transformed_level_iids: Map([]),
   })
 }
 

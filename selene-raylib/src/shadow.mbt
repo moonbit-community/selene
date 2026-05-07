@@ -1201,7 +1201,7 @@ fn render_directional_shadow_map(
   let shadow_map_size = normalize_shadow_map_size(
     frame.directional_shadow_map_size,
   )
-  let directional_shadows : Map[Int, FrameDirectionalShadowState] = Map::new()
+  let directional_shadows : Map[Int, FrameDirectionalShadowState] = Map([])
   for light_index in shadowed_directional_light_indices(frame) {
     let mut cascades = build_directional_shadow_cascades_for_light(
       frame, light_index, camera, shadow_map_size,

@@ -20,20 +20,20 @@ priv struct CosmicRasterImage {
 }
 
 ///|
-let cosmic_font_system : Ref[@cosmic.FontSystem] = Ref::new(
+let cosmic_font_system : Ref[@cosmic.FontSystem] = Ref(
   @cosmic.FontSystem::new(),
 )
 
 ///|
-let cosmic_swash_cache : Ref[@cosmic.SwashCache] = Ref::new(
+let cosmic_swash_cache : Ref[@cosmic.SwashCache] = Ref(
   @cosmic.SwashCache::new(),
 )
 
 ///|
-let cosmic_loaded_families : Map[String, Bool] = Map::new()
+let cosmic_loaded_families : Map[String, Bool] = Map([])
 
 ///|
-let cosmic_text_cache : Map[String, Bool] = Map::new()
+let cosmic_text_cache : Map[String, Bool] = Map([])
 
 ///|
 fn saturating_byte(value : Int) -> Byte {

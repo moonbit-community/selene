@@ -183,7 +183,7 @@ fn asset_display_name(asset : @editor_bridge.AssetDocument) -> String {
 fn asset_display_name_from_path(path : String) -> String {
   let normalized = path.replace(old="\\", new="/")
   if normalized.rev_find("/") is Some(index) {
-    normalized[index + 1:].to_string()
+    normalized[index + 1:].to_owned()
   } else {
     normalized
   }
@@ -394,7 +394,7 @@ fn build_asset_tree_rows(
     }
     let file_index = segments.length() - 1
     let folders = if file_index > 0 {
-      segments[:file_index].to_array()
+      segments[:file_index].to_owned()
     } else {
       []
     }
@@ -424,7 +424,7 @@ fn build_asset_tree_rows(
           expanded,
           !force_expand,
           key,
-          folders[:index + 1].to_array(),
+          folders[:index + 1].to_owned(),
           section_title,
         ),
       )

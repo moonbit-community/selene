@@ -20,7 +20,7 @@ let registered_custom_component_handlers : Map[String, CustomComponentHandler] =
 
 ///|
 fn normalized_custom_component_kind(kind : String) -> String {
-  kind.trim().to_string()
+  kind.trim().to_owned()
 }
 
 ///|

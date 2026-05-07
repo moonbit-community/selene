@@ -69,7 +69,7 @@ fn EditorService::add_recent_project(
     }
   })
   if next.length() > 10 {
-    self.recent_projects = next[:10].to_array()
+    self.recent_projects = next[:10].to_owned()
   } else {
     self.recent_projects = next
   }

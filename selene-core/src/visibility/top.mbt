@@ -28,16 +28,16 @@ priv struct VisibilityWorldStore {
 }
 
 ///|
-let visibility_world_stores : Map[UInt, VisibilityWorldStore] = Map::new()
+let visibility_world_stores : Map[UInt, VisibilityWorldStore] = Map([])
 
 ///|
 fn visibility_world_store() -> VisibilityWorldStore {
   let world_id = @ecs.require_current_world().id()
   visibility_world_stores.get_or_init(world_id, () => {
-    visibilities: Map::new(),
-    inherited_visibilities: Map::new(),
-    view_visibilities: Map::new(),
-    render_layers: Map::new(),
+    visibilities: Map([]),
+    inherited_visibilities: Map([]),
+    view_visibilities: Map([]),
+    render_layers: Map([]),
   })
 }
 
@@ -114,7 +114,7 @@ pub fn visibility_propagate_system(_delta : Double) -> Unit {
   let view_visibilities = view_visibilities()
   let render_layers = render_layers()
   let visibilities = visibilities()
-  let cache : Map[@entity.Entity, Bool] = Map::new()
+  let cache : Map[@entity.Entity, Bool] = Map([])
   for entity in @entity.iter_entities() {
     let visible = compute_inherited_visibility(entity, cache)
     inherited_visibilities.set(entity, { visible, })

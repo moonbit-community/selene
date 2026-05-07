@@ -186,7 +186,7 @@ fn parse_hex_color(color : String) -> @render.Color? {
 fn parse_rgb_body(body : String, with_alpha : Bool) -> @render.Color? {
   let values : Array[String] = []
   for part in body.split(",") {
-    values.push(part.trim().to_string())
+    values.push(part.trim().to_owned())
   }
   if with_alpha && values.length() != 4 {
     return None
@@ -219,7 +219,7 @@ fn parse_rgb_color(color : String) -> @render.Color? {
 
 ///|
 fn parse_color(color : String) -> @render.Color {
-  let normalized = color.trim().to_string().to_lower()
+  let normalized = color.trim().to_owned().to_lower()
   if normalized.has_prefix("#") {
     if parse_hex_color(normalized) is Some(color) {
       return color

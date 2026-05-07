@@ -18,7 +18,7 @@ fn update_animation_editor(
     }
     UpdateSelectedAnimationGraphDefaultNode(value) => {
       let next = update_selected_animation_graph_document(model, fn(animation) {
-        let default_node = value.trim().to_string()
+        let default_node = value.trim().to_owned()
         animation.with_default_node(
           if default_node == "" {
             None
@@ -277,7 +277,7 @@ fn update_animation_editor(
               let staged = with_started_scene_edit_transaction(
                 model, "Edit Animation Player",
               )
-              let graph_asset_path = value.trim().to_string()
+              let graph_asset_path = value.trim().to_owned()
               let next = update_selected_component(
                 staged,
                 @editor_bridge.animation_player_component(
@@ -310,7 +310,7 @@ fn update_animation_editor(
               let staged = with_started_scene_edit_transaction(
                 model, "Edit Animation Player",
               )
-              let start_node = value.trim().to_string()
+              let start_node = value.trim().to_owned()
               let next = update_selected_component(
                 staged,
                 @editor_bridge.animation_player_component(

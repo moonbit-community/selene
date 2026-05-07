@@ -74,45 +74,45 @@ priv struct AnimationWorldStore {
 }
 
 ///|
-let animation_world_stores : Map[UInt, AnimationWorldStore] = Map::new()
+let animation_world_stores : Map[UInt, AnimationWorldStore] = Map([])
 
 ///|
 fn animation_world_store() -> AnimationWorldStore {
   let world_id = @ecs.require_current_world().id()
   animation_world_stores.get_or_init(world_id, () => {
-    animation_players: Map::new(),
-    animation_graph_handles: Map::new(),
-    animation_transitions: Map::new(),
-    animation_target_ids: Map::new(),
-    animated_bys: Map::new(),
-    skinned_meshes: Map::new(),
-    morphed_meshes: Map::new(),
+    animation_players: Map([]),
+    animation_graph_handles: Map([]),
+    animation_transitions: Map([]),
+    animation_target_ids: Map([]),
+    animated_bys: Map([]),
+    skinned_meshes: Map([]),
+    morphed_meshes: Map([]),
   })
 }
 
 ///|
-let next_clip_id : Ref[UInt] = Ref::new(0U)
+let next_clip_id : Ref[UInt] = Ref(0U)
 
 ///|
-let next_graph_id : Ref[UInt] = Ref::new(0U)
+let next_graph_id : Ref[UInt] = Ref(0U)
 
 ///|
-let next_field_id : Ref[UInt] = Ref::new(0U)
+let next_field_id : Ref[UInt] = Ref(0U)
 
 ///|
-let next_event_descriptor_id : Ref[UInt] = Ref::new(0U)
+let next_event_descriptor_id : Ref[UInt] = Ref(0U)
 
 ///|
-let animation_clips : Map[AnimationClipHandle, AnimationClip] = Map::new()
+let animation_clips : Map[AnimationClipHandle, AnimationClip] = Map([])
 
 ///|
-let animation_graphs : Map[AnimationGraphHandle, AnimationGraph] = Map::new()
+let animation_graphs : Map[AnimationGraphHandle, AnimationGraph] = Map([])
 
 ///|
-let animated_fields : Map[AnimatedFieldHandle, AnimatedField] = Map::new()
+let animated_fields : Map[AnimatedFieldHandle, AnimatedField] = Map([])
 
 ///|
-let discrete_animated_fields : Set[AnimatedFieldHandle] = Set::new()
+let discrete_animated_fields : Set[AnimatedFieldHandle] = Set([])
 
 ///|
 priv struct AnimationEventDescriptor {
@@ -123,13 +123,15 @@ priv struct AnimationEventDescriptor {
 let animation_event_descriptors : Map[
   AnimationEventDescriptorHandle,
   AnimationEventDescriptor,
-] = Map::new()
+] = Map([])
 
 ///|
-let dirty_animation_clip_assets : Map[AnimationClipHandle, AnimationClip] = Map::new()
+let dirty_animation_clip_assets : Map[AnimationClipHandle, AnimationClip] = Map([],
+)
 
 ///|
-let dirty_animation_graph_assets : Map[AnimationGraphHandle, AnimationGraph] = Map::new()
+let dirty_animation_graph_assets : Map[AnimationGraphHandle, AnimationGraph] = Map([],
+)
 
 ///|
 let released_animation_clip_assets : Array[AnimationClipHandle] = []

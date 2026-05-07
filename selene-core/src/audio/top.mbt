@@ -64,15 +64,15 @@ priv struct AudioWorldStore {
 }
 
 ///|
-let audio_world_stores : Map[UInt, AudioWorldStore] = Map::new()
+let audio_world_stores : Map[UInt, AudioWorldStore] = Map([])
 
 ///|
 fn audio_world_store() -> AudioWorldStore {
   let world_id = @ecs.require_current_world().id()
   audio_world_stores.get_or_init(world_id, () => {
-    audio_players: Map::new(),
-    audio_playback_settings: Map::new(),
-    audio_sinks: Map::new(),
+    audio_players: Map([]),
+    audio_playback_settings: Map([]),
+    audio_sinks: Map([]),
   })
 }
 
@@ -98,7 +98,7 @@ pub let audio_event_bus : @event.Events[AudioEvent] = @event.Events()
 let audio_event_reader : @event.EventReader[AudioEvent] = @event.EventReader()
 
 ///|
-let global_volume_ref : Ref[Double] = Ref::new(1.0)
+let global_volume_ref : Ref[Double] = Ref(1.0)
 
 ///|
 fn sanitize_volume(volume : Double) -> Double {

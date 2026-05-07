@@ -189,11 +189,11 @@ test "raylib triangle topology indices resolve strip and fan to triangle list" {
     ..strip_mesh,
     topology: TriangleFan,
   }
-  inspect(
+  debug_inspect(
     resolve_triangle_indices(@render3d_types.MeshHandle(1U), strip_mesh),
     content="Some([0, 1, 2, 2, 1, 3])",
   )
-  inspect(
+  debug_inspect(
     resolve_triangle_indices(@render3d_types.MeshHandle(2U), fan_mesh),
     content="Some([0, 1, 2, 0, 2, 3])",
   )

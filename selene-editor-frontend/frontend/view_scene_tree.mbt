@@ -199,7 +199,7 @@ fn tree_path_segments(path : String, drop_root : String?) -> Array[String] {
   let segments : Array[String] = []
   for segment in raw {
     if segment != "" {
-      segments.push(segment.to_string())
+      segments.push(segment.to_owned())
     }
   }
   let mut start = 0

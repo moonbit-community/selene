@@ -51,6 +51,7 @@ extern "js" fn webgpu_initialize(
   #|       },
   #|       shadowCameraBuffers: [],
   #|       dynamicBuffers: new Map(),
+  #|       retiredDynamicBuffers: [],
   #|     };
   #|
   #|     const clamp01 = (x) => Math.max(0, Math.min(1, x));
@@ -473,7 +474,9 @@ extern "js" fn webgpu_initialize(
   #|       const existed = rt.dynamicBuffers.get(name);
   #|       if (!existed || existed.size < byteSize) {
   #|         if (existed?.buffer) {
-  #|           try { existed.buffer.destroy(); } catch (_err) {}
+  #|           // A buffer may already be referenced by commands recorded earlier
+  #|           // in the same encoder. Retire it only after queue.submit().
+  #|           rt.retiredDynamicBuffers.push(existed.buffer);
   #|         }
   #|         const size = nextPow2(Math.max(256, byteSize));
   #|         const buffer = rt.device.createBuffer({ size, usage: usage | GPUBufferUsage.COPY_DST });
@@ -2028,7 +2031,7 @@ extern "js" fn webgpu_initialize(
   #|       flushPending();
   #|       return compacted;
   #|     };
-  #|     rt.render2d = (pass, passRecord, surfaceWidth, surfaceHeight) => {
+  #|     rt.render2d = (pass, passRecord, surfaceWidth, surfaceHeight, bufferScope = 0) => {
   #|       const canvasWidth = Math.max(1, Math.floor(surfaceWidth || rt.canvas?.width || 1));
   #|       const canvasHeight = Math.max(1, Math.floor(surfaceHeight || rt.canvas?.height || 1));
   #|       const canvasUniform = new Float32Array([canvasWidth, canvasHeight, 0, 0]);
@@ -2062,11 +2065,13 @@ extern "js" fn webgpu_initialize(
   #|         if (cmd.kind === 'color') colorBytes += cmd.verts.byteLength;
   #|         else if (cmd.kind === 'tex') texBytes += cmd.verts.byteLength;
   #|       }
+  #|       const colorBufferName = `dyn2dColor:${bufferScope}`;
+  #|       const texBufferName = `dyn2dTex:${bufferScope}`;
   #|       const colorVb = colorBytes > 0
-  #|         ? rt.ensureDynamicBuffer('dyn2dColor', colorBytes, GPUBufferUsage.VERTEX)
+  #|         ? rt.ensureDynamicBuffer(colorBufferName, colorBytes, GPUBufferUsage.VERTEX)
   #|         : null;
   #|       const texVb = texBytes > 0
-  #|         ? rt.ensureDynamicBuffer('dyn2dTex', texBytes, GPUBufferUsage.VERTEX)
+  #|         ? rt.ensureDynamicBuffer(texBufferName, texBytes, GPUBufferUsage.VERTEX)
   #|         : null;
   #|       let colorOffset = 0;
   #|       let texOffset = 0;
@@ -2173,6 +2178,7 @@ extern "js" fn webgpu_initialize(
   #|         }];
   #|         const passes2d = rt.passes2d.length > 0 ? rt.passes2d : fallbackPasses2d;
   #|         let screenRendered = rendered;
+  #|         let passBufferScope = 0;
   #|         for (const passRecord of passes2d) {
   #|           const targetName = typeof passRecord?.targetName === 'string'
   #|             ? passRecord.targetName
@@ -2203,6 +2209,7 @@ extern "js" fn webgpu_initialize(
   #|               passRecord,
   #|               offscreenTarget.width,
   #|               offscreenTarget.height,
+  #|               passBufferScope++,
   #|             );
   #|             offscreenPass.end();
   #|             continue;
@@ -2234,6 +2241,7 @@ extern "js" fn webgpu_initialize(
   #|             passRecord,
   #|             targetSize[0],
   #|             targetSize[1],
+  #|             passBufferScope++,
   #|           );
   #|           screenPass.end();
   #|           screenRendered = true;
@@ -2256,6 +2264,10 @@ extern "js" fn webgpu_initialize(
   #|         }
   #|       }
   #|       rt.device.queue.submit([encoder.finish()]);
+  #|       for (const buffer of rt.retiredDynamicBuffers) {
+  #|         try { buffer.destroy(); } catch (_err) {}
+  #|       }
+  #|       rt.retiredDynamicBuffers.length = 0;
   #|     };
   #|
   #|     rt.init = async () => {

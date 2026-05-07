@@ -92,7 +92,7 @@ fn anchor_of(doc : Vec2Doc) -> @sprite.Anchor {
 fn basename_of(path : String) -> String {
   let normalized = path.replace(old="\\", new="/")
   if normalized.rev_find("/") is Some(index) {
-    normalized[index + 1:].to_string()
+    normalized[index + 1:].to_owned()
   } else {
     normalized
   }

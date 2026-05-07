@@ -479,7 +479,7 @@ pub fn AnimationPlayerComponent::with_repeat_mode_doc(
 ///|
 fn asset_kind_extension(path : String) -> String? {
   if path.rev_find(".") is Some(index) {
-    Some(path[index + 1:].to_string().to_lower())
+    Some(path[index + 1:].to_owned().to_lower())
   } else {
     None
   }
@@ -489,7 +489,7 @@ fn asset_kind_extension(path : String) -> String? {
 fn sanitized_document_name(name : String) -> String {
   let normalized = name
     .trim()
-    .to_string()
+    .to_owned()
     .to_lower()
     .replace(old="\\", new="-")
     .replace(old="/", new="-")
@@ -506,7 +506,7 @@ fn sanitized_document_name(name : String) -> String {
     .replace(old="\r", new=" ")
   let parts : Array[String] = []
   for part in normalized.split(" ") {
-    let token = part.trim().to_string()
+    let token = part.trim().to_owned()
     if token != "" {
       parts.push(token)
     }
@@ -791,7 +791,7 @@ pub fn WorkspaceDocument::asset_scope_or_default(
   self : WorkspaceDocument,
 ) -> String {
   match self.asset_scope {
-    Some(scope) if scope.trim() != "" => scope.trim().to_string()
+    Some(scope) if scope.trim() != "" => scope.trim().to_owned()
     _ => "images"
   }
 }

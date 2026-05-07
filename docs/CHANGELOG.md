@@ -8,6 +8,8 @@
 - Changed MoonBit constructor APIs to use direct `Type(...)` constructors and removed the legacy `Type::new(...)` constructor entrypoints across Selene packages.
 
 ### Fixed
+- Fixed current MoonBit deprecation warnings across Selene packages so warning-free checks pass with `--deny-warn`.
+- Fixed `selene_webgpu` dynamic 2D vertex buffer lifetime/scoping so later passes no longer overwrite or destroy buffers referenced by earlier passes before `queue.submit()`.
 
 ### Removed
 - Removed the legacy `Type::new(...)` constructor entrypoints from Selene-owned MoonBit types; use direct `Type(...)` constructors instead.

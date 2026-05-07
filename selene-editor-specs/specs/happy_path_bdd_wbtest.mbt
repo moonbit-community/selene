@@ -36,16 +36,19 @@ async test "bdd happy path keeps selection synchronized between scene tree and p
 
     harness.when_text_entity_is_added()
     let text_id = harness.selected_entity_id().unwrap_or("")
-    inspect(
+    debug_inspect(
       harness.preview_selected_entity_id(),
       content="Some(\"\{text_id}\")",
     )
 
     harness.when_scene_tree_selects_entity(Some("camera"))
-    inspect(harness.preview_selected_entity_id(), content="Some(\"camera\")")
+    debug_inspect(
+      harness.preview_selected_entity_id(),
+      content="Some(\"camera\")",
+    )
 
     harness.when_preview_picks_entity(Some(text_id))
-    inspect(harness.selected_entity_id(), content="Some(\"\{text_id}\")")
+    debug_inspect(harness.selected_entity_id(), content="Some(\"\{text_id}\")")
   })
 }
 
@@ -135,7 +138,7 @@ async test "bdd happy path places image assets into the scene" {
       entity, "Transform2d",
     ).unwrap()
 
-    inspect(sprite.image_path, content="Some(\"assets/images/hero.png\")")
+    debug_inspect(sprite.image_path, content="Some(\"assets/images/hero.png\")")
     inspect(transform.translation.x, content="96")
     inspect(transform.translation.y, content="144")
   })
@@ -153,13 +156,13 @@ async test "bdd happy path persists image to atlas to animation to prefab flow" 
     harness.when_selected_image_creates_atlas()
 
     inspect(harness.atlas_refs().length(), content="1")
-    inspect(
+    debug_inspect(
       harness.selected_resource_path(),
       content="Some(\"assets/atlases/hero.atlas.json\")",
     )
 
     harness.when_selected_atlas_creates_animation()
-    inspect(
+    debug_inspect(
       harness.selected_resource_path(),
       content="Some(\"assets/animation_clips/hero-clip.clip.json\")",
     )

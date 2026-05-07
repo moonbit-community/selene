@@ -279,7 +279,7 @@ fn ldtk_color_with_alpha(color : String, alpha : Double) -> String {
   if clamped_alpha >= 0.999999 {
     return color
   }
-  let normalized = color.trim().to_string()
+  let normalized = color.trim().to_owned()
   if normalized.has_prefix("#") {
     return ldtk_hex_color_with_alpha(normalized, clamped_alpha).unwrap_or(color)
   }

@@ -262,7 +262,7 @@ fn animation_migration_dialog_view(
 ///|
 fn conflict_copy_path(path : String) -> String {
   if path.has_suffix(".scene.json") {
-    let stem = path[:path.length() - ".scene.json".length()].to_string()
+    let stem = path[:path.length() - ".scene.json".length()].to_owned()
     stem + ".conflict.scene.json"
   } else {
     path + ".conflict.scene.json"

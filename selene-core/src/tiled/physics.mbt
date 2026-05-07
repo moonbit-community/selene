@@ -79,14 +79,14 @@ priv struct TiledPhysicsWorldStore {
 }
 
 ///|
-let tiled_physics_world_stores : Map[UInt, TiledPhysicsWorldStore] = Map::new()
+let tiled_physics_world_stores : Map[UInt, TiledPhysicsWorldStore] = Map([])
 
 ///|
 fn tiled_physics_world_store() -> TiledPhysicsWorldStore {
   let world_id = @ecs.require_current_world().id()
   tiled_physics_world_stores.get_or_init(world_id, () => {
-    tiled_colliders: Map::new(),
-    tiled_collider_origins: Map::new(),
+    tiled_colliders: Map([]),
+    tiled_collider_origins: Map([]),
   })
 }
 
@@ -793,7 +793,7 @@ fn tiled_physics_body(
 
 ///|
 fn tiled_physics_body_type(value : String) -> @physics2d.RigidBodyType? {
-  match value.trim().to_string().to_lower() {
+  match value.trim().to_owned().to_lower() {
     "dynamic" => Some(@physics2d.RigidBodyType::Dynamic)
     "fixed" => Some(@physics2d.RigidBodyType::Fixed)
     "kinematicpositionbased" =>
@@ -876,7 +876,7 @@ fn tiled_merge_properties(
   override_ : Array[TiledProperty],
 ) -> Array[TiledProperty] {
   let merged : Array[TiledProperty] = []
-  let names : Set[String] = Set::new()
+  let names : Set[String] = Set([])
   for property in override_ {
     if names.contains(property.name) {
       continue

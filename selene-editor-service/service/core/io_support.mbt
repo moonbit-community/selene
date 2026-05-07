@@ -8,7 +8,7 @@ async fn ensure_dir(path : String) -> Unit {
 ///|
 async fn ensure_parent_dir(path : String) -> Unit {
   if path.rev_find("/") is Some(index) {
-    let parent = path[:index].to_string()
+    let parent = path[:index].to_owned()
     if parent != "" {
       ensure_dir(parent)
     }

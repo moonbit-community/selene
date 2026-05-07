@@ -320,7 +320,7 @@ fn render_spot_shadow_map(
   frame : @render3d_types.RenderFrame3D,
   camera : @render3d_types.FrameCamera3D,
 ) -> (Map[Int, FrameSpotShadowState], UInt?, @smath.Vec2) {
-  let spot_shadows : Map[Int, FrameSpotShadowState] = Map::new()
+  let spot_shadows : Map[Int, FrameSpotShadowState] = Map([])
   let spot_count = @cmp.minimum(frame.spot_lights.length(), MAX_SPOT_LIGHTS)
   let shadow_map_size = @cmp.maximum(1, frame.directional_shadow_map_size)
   if spot_count == 0 {
@@ -373,7 +373,7 @@ fn render_point_shadow_map(
   frame : @render3d_types.RenderFrame3D,
   camera : @render3d_types.FrameCamera3D,
 ) -> (Map[Int, FramePointShadowState], UInt?, @smath.Vec2) {
-  let point_shadows : Map[Int, FramePointShadowState] = Map::new()
+  let point_shadows : Map[Int, FramePointShadowState] = Map([])
   let point_count = @cmp.minimum(frame.point_lights.length(), MAX_POINT_LIGHTS)
   let face_size = @cmp.maximum(1, frame.point_shadow_map_size)
   if point_count == 0 {

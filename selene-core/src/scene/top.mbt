@@ -16,7 +16,7 @@ pub(all) struct SceneInstanceReadyEvent {
 } derive(Eq, Debug)
 
 ///|
-let scene_instances : Map[@entity.Entity, SceneHandle] = Map::new()
+let scene_instances : Map[@entity.Entity, SceneHandle] = Map([])
 
 ///|
 pub let scene_instance_ready_events : @event.Events[SceneInstanceReadyEvent] = @event.Events()

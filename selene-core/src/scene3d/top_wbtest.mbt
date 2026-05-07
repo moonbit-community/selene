@@ -88,7 +88,7 @@ test "read_accessor_scalar supports sparse-only accessors" {
       }),
     }),
   ]
-  inspect(
+  debug_inspect(
     read_accessor_scalar(0, buffers, buffer_views, accessors),
     content="Some([0, 7, 0, 9])",
   )

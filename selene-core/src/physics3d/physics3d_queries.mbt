@@ -141,36 +141,37 @@ priv struct Physics3DComponentWorldStore {
 }
 
 ///|
-let physics3d_component_world_stores : Map[UInt, Physics3DComponentWorldStore] = Map::new()
+let physics3d_component_world_stores : Map[UInt, Physics3DComponentWorldStore] = Map([],
+)
 
 ///|
 fn physics3d_component_world_store() -> Physics3DComponentWorldStore {
   let world_id = @ecs.require_current_world().id()
   physics3d_component_world_stores.get_or_init(world_id, () => {
-    rigid_bodies: Map::new(),
-    velocities: Map::new(),
-    dampings: Map::new(),
-    gravity_scales: Map::new(),
-    locked_axes: Map::new(),
-    ccds: Map::new(),
-    dominances: Map::new(),
-    additional_mass_properties: Map::new(),
-    colliders: Map::new(),
-    sensors: Map::new(),
-    frictions: Map::new(),
-    restitutions: Map::new(),
-    collision_groups: Map::new(),
-    solver_groups: Map::new(),
-    active_collision_types: Map::new(),
-    active_events: Map::new(),
-    active_hooks: Map::new(),
-    contact_force_event_thresholds: Map::new(),
-    collider_mass_properties: Map::new(),
-    impulse_joints: Map::new(),
-    multibody_joints: Map::new(),
-    kinematic_character_controllers: Map::new(),
-    kinematic_character_controller_outputs: Map::new(),
-    kinematic_character_controller_collisions: Map::new(),
+    rigid_bodies: Map([]),
+    velocities: Map([]),
+    dampings: Map([]),
+    gravity_scales: Map([]),
+    locked_axes: Map([]),
+    ccds: Map([]),
+    dominances: Map([]),
+    additional_mass_properties: Map([]),
+    colliders: Map([]),
+    sensors: Map([]),
+    frictions: Map([]),
+    restitutions: Map([]),
+    collision_groups: Map([]),
+    solver_groups: Map([]),
+    active_collision_types: Map([]),
+    active_events: Map([]),
+    active_hooks: Map([]),
+    contact_force_event_thresholds: Map([]),
+    collider_mass_properties: Map([]),
+    impulse_joints: Map([]),
+    multibody_joints: Map([]),
+    kinematic_character_controllers: Map([]),
+    kinematic_character_controller_outputs: Map([]),
+    kinematic_character_controller_collisions: Map([]),
   })
 }
 

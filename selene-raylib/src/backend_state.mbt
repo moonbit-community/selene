@@ -235,22 +235,22 @@ let backend : RaylibBackend = {
   cursor_locked: false,
   close_requested: false,
   frame_has_draw_commands: false,
-  textures: Map::new(),
-  sounds: Map::new(),
-  audio_instances: Map::new(),
+  textures: Map([]),
+  sounds: Map([]),
+  audio_instances: Map([]),
   next_audio_instance: 1U,
-  font_alias: Map::new(),
-  fonts_by_path: Map::new(),
-  cosmic_loaded_families: Set::new(),
-  cosmic_textures: Map::new(),
-  offscreen_targets_2d: Map::new(),
+  font_alias: Map([]),
+  fonts_by_path: Map([]),
+  cosmic_loaded_families: Set([]),
+  cosmic_textures: Map([]),
+  offscreen_targets_2d: Map([]),
   active_2d_offscreen_target: None,
-  embedded_asset_cache: Map::new(),
-  meshes3d: Map::new(),
-  materials3d: Map::new(),
-  images3d: Map::new(),
-  primitive_meshes: Map::new(),
-  triangle_mesh_cache: Map::new(),
+  embedded_asset_cache: Map([]),
+  meshes3d: Map([]),
+  materials3d: Map([]),
+  images3d: Map([]),
+  primitive_meshes: Map([]),
+  triangle_mesh_cache: Map([]),
   lighting_shader: None,
   lit_material: None,
   lit_textured_material: None,
@@ -264,19 +264,19 @@ let backend : RaylibBackend = {
   spot_shadow_map_size: 0,
   point_shadow_render_texture: None,
   point_shadow_map_size: 0,
-  texture_warning_keys: Set::new(),
+  texture_warning_keys: Set([]),
 }
 
 ///|
 let clip_stack : Array[@smath.Rect] = []
 
 ///|
-let cosmic_font_system : Ref[@cosmic.FontSystem] = Ref::new(
+let cosmic_font_system : Ref[@cosmic.FontSystem] = Ref(
   @cosmic.FontSystem::new(),
 )
 
 ///|
-let cosmic_swash_cache : Ref[@cosmic.SwashCache] = Ref::new(
+let cosmic_swash_cache : Ref[@cosmic.SwashCache] = Ref(
   @cosmic.SwashCache::new(),
 )
 

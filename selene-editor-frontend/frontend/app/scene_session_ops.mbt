@@ -2,7 +2,7 @@
 fn push_log(model : Model, line : String) -> Model {
   let next_logs = model.logs + [line]
   let logs = if next_logs.length() > 200 {
-    next_logs[next_logs.length() - 200:].to_array()
+    next_logs[next_logs.length() - 200:].to_owned()
   } else {
     next_logs
   }
@@ -117,7 +117,7 @@ fn bounded_history(
   history : Array[@editor_bridge.SceneDocument],
 ) -> Array[@editor_bridge.SceneDocument] {
   if history.length() > scene_history_limit {
-    history[history.length() - scene_history_limit:].to_array()
+    history[history.length() - scene_history_limit:].to_owned()
   } else {
     history
   }

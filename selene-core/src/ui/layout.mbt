@@ -696,14 +696,14 @@ pub fn ui_layout_system(_delta : Double) -> Unit {
   calculated_clips().clear()
   tree_orders().clear()
 
-  let order_counter : Ref[Int] = Ref::new(0)
+  let order_counter : Ref[Int] = Ref(0)
   for root_entity in top_level_ui_nodes() {
     let layout_space = ui_layout_space(
       ui_target_cameras().get(root_entity).map(fn(target) { target.camera }),
     )
     let viewport = ui_layout_root_size(layout_space)
     let taffy : @moon_taffy.TaffyTree[@entity.Entity] = @moon_taffy.TaffyTree::new()
-    let entity_to_node_id : Map[@entity.Entity, Int] = Map::new()
+    let entity_to_node_id : Map[@entity.Entity, Int] = Map([])
     guard build_taffy_tree(taffy, root_entity, entity_to_node_id)
       is Some(root_node) else {
       continue

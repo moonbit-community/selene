@@ -82,7 +82,7 @@ async test "bdd recovery invalid workspace blocks open with stable project error
     harness.when_editor_initialized()
 
     inspect(harness.scene() is None, content="true")
-    inspect(harness.selected_entity_id(), content="None")
+    debug_inspect(harness.selected_entity_id(), content="None")
     inspect(
       harness.status(),
       content="Project open failed. Check browser console for details.",

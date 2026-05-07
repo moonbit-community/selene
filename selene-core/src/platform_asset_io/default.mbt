@@ -1,5 +1,5 @@
 ///|
-let reader : Ref[(String) -> Bytes?] = Ref::new(fn(_path : String) { None })
+let reader : Ref[(String) -> Bytes?] = Ref(fn(_path : String) { None })
 
 ///|
 pub fn set_reader(callback : (String) -> Bytes?) -> Unit {

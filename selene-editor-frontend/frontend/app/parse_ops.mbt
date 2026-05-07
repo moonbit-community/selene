@@ -1,18 +1,18 @@
 ///|
 fn normalized_project_root(root : String) -> String {
-  root.trim().to_string()
+  root.trim().to_owned()
 }
 
 ///|
 fn asset_basename(path : String) -> String {
   let normalized = path.replace(old="\\", new="/")
   let base = if normalized.rev_find("/") is Some(index) {
-    normalized[index + 1:].to_string()
+    normalized[index + 1:].to_owned()
   } else {
     normalized
   }
   if base.rev_find(".") is Some(index) {
-    base[:index].to_string()
+    base[:index].to_owned()
   } else {
     base
   }
@@ -69,7 +69,7 @@ fn parse_positive_int_or(current : Int, input : String) -> Int {
 fn parse_clip_frames(current : Array[String], input : String) -> Array[String] {
   let frames : Array[String] = []
   for raw in input.split(",") {
-    let frame = raw.trim().to_string()
+    let frame = raw.trim().to_owned()
     if frame != "" {
       frames.push(frame)
     }

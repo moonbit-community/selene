@@ -299,7 +299,7 @@ fn update_project_runtime(
       ([], { ..model, failed_image_assets, })
     }
     SetAssetQuery(value) => {
-      let trimmed = value.trim().to_string()
+      let trimmed = value.trim().to_owned()
       let next_selected_resource = match model.selected_resource {
         Some(selection) => {
           let preview_model = { ..model, asset_query: value }
@@ -365,7 +365,7 @@ fn update_project_runtime(
     ResolveSceneConflictSaveAs(path) =>
       match model.scene_session {
         Some(session) => {
-          let trimmed = path.trim().to_string()
+          let trimmed = path.trim().to_owned()
           if trimmed == "" {
             let next = push_log(model, "Save As path is required")
             ([], { ..next, status: "Save As path is required" })

@@ -29,12 +29,12 @@ priv struct PickableWorldStore {
 }
 
 ///|
-let pickable_world_stores : Map[UInt, PickableWorldStore] = Map::new()
+let pickable_world_stores : Map[UInt, PickableWorldStore] = Map([])
 
 ///|
 fn pickable_world_store() -> PickableWorldStore {
   let world_id = @ecs.require_current_world().id()
-  pickable_world_stores.get_or_init(world_id, () => { pickables: Map::new() })
+  pickable_world_stores.get_or_init(world_id, () => { pickables: Map([]) })
 }
 
 ///|

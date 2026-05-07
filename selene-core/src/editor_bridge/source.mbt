@@ -3,7 +3,7 @@ pub type DocumentSource = (String) -> Bytes?
 
 ///|
 fn normalize_source_key(path : String) -> String {
-  path.replace(old="\\", new="/").trim().to_string()
+  path.replace(old="\\", new="/").trim().to_owned()
 }
 
 ///|

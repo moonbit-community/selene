@@ -16,7 +16,7 @@ fn update_scene_lifecycle(
         },
       )
     CreateScene(name) => {
-      let trimmed = name.trim().to_string()
+      let trimmed = name.trim().to_owned()
       if trimmed == "" {
         let next = push_log(model, "Scene name is required")
         ([], { ..next, status: "Scene name is required" })
@@ -60,7 +60,7 @@ fn update_scene_lifecycle(
     RenameCurrentScene(value) =>
       match model_scene(model) {
         Some(scene) => {
-          let trimmed = value.trim().to_string()
+          let trimmed = value.trim().to_owned()
           if trimmed == "" {
             let next = push_log(model, "Scene name is required")
             ([], { ..next, status: "Scene name is required" })

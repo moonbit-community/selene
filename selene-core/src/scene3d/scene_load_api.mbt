@@ -45,14 +45,14 @@ priv struct AccessorTemplate {
 }
 
 ///|
-let scene_templates : Map[@render3d.SceneHandle, SceneTemplate] = Map::new()
+let scene_templates : Map[@render3d.SceneHandle, SceneTemplate] = Map([])
 
 ///|
-let scene_paths : Map[@render3d.SceneHandle, String] = Map::new()
+let scene_paths : Map[@render3d.SceneHandle, String] = Map([])
 
 ///|
 fn empty_scene_template() -> SceneTemplate {
-  { roots: [], nodes: [], skins: [], animations: Map::new() }
+  { roots: [], nodes: [], skins: [], animations: Map([]) }
 }
 
 ///|
@@ -101,11 +101,11 @@ pub fn instantiate_scene_instance(
   let root = @entity.Entity()
   @transform.transforms().set(root, root_transform)
   @name.names().set(root, @name.Name("scene_root"))
-  let parts : Map[String, @entity.Entity] = Map::new()
+  let parts : Map[String, @entity.Entity] = Map([])
   guard scene_templates.get(scene) is Some(template) else {
-    return { root, parts, animations: Map::new() }
+    return { root, parts, animations: Map([]) }
   }
-  let node_entities : Map[Int, @entity.Entity] = Map::new()
+  let node_entities : Map[Int, @entity.Entity] = Map([])
   let pending_skin_bindings : Array[PendingSkinBinding] = []
   for root_order, node_index in template.roots {
     instantiate_scene_node(
@@ -121,7 +121,7 @@ pub fn instantiate_scene_instance(
     )
   }
   resolve_scene_skin_bindings(template, node_entities, pending_skin_bindings)
-  let animation_nodes : Map[String, @animation.AnimationNodeIndex] = Map::new()
+  let animation_nodes : Map[String, @animation.AnimationNodeIndex] = Map([])
   if template.animations.length() > 0 {
     let graph = @animation.AnimationGraph()
     for name, clip in template.animations {

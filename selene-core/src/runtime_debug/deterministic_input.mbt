@@ -92,7 +92,7 @@ pub fn next_deterministic_f64() -> Double {
 
 ///|
 fn[T : Hash + Eq] copy_set(source : Set[T]) -> Set[T] {
-  let out = Set::new()
+  let out = Set([])
   for item in source {
     out.add(item)
   }
@@ -101,7 +101,7 @@ fn[T : Hash + Eq] copy_set(source : Set[T]) -> Set[T] {
 
 ///|
 fn[K : Hash + Eq, V] copy_map(source : Map[K, V]) -> Map[K, V] {
-  let out = Map::new()
+  let out = Map([])
   for key, value in source {
     out.set(key, value)
   }

@@ -300,7 +300,7 @@ pub fn asset_scope_storage_value(scope : AssetScope) -> String {
 
 ///|
 pub fn asset_scope_from_storage_value(value : String) -> AssetScope {
-  match value.trim().to_string().to_lower() {
+  match value.trim().to_owned().to_lower() {
     "all" => All
     "images" => Images
     "atlases" => Atlases
@@ -359,7 +359,7 @@ fn legacy_animation_paths_in_scene(
     )
     guard legacy_result is Ok(legacy_player) else { continue }
     guard legacy_player.animation_asset_path is Some(path) else { continue }
-    let normalized_path = path.trim().to_string()
+    let normalized_path = path.trim().to_owned()
     if normalized_path == "" || seen.contains(normalized_path) {
       continue
     }
@@ -490,7 +490,7 @@ pub fn Model::asset_size(
 
 ///|
 pub fn Model::asset_query_normalized(self : Model) -> String {
-  self.asset_query.trim().to_string().to_lower()
+  self.asset_query.trim().to_owned().to_lower()
 }
 
 ///|

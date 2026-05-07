@@ -29,7 +29,7 @@ pub fn WebGpuBackend::WebGpuBackend() -> WebGpuBackend {
   {
     canvas: None,
     time_scale: 1.0,
-    mouse_movement: Ref::new(None),
+    mouse_movement: Ref(None),
     gamepads: None,
     gamepad_buttons: None,
     gamepad_axes: None,
@@ -63,12 +63,12 @@ fn default_embedded_asset_lookup(_path : String) -> Bytes? {
 }
 
 ///|
-let embedded_asset_lookup : Ref[(String) -> Bytes?] = Ref::new(
+let embedded_asset_lookup : Ref[(String) -> Bytes?] = Ref(
   default_embedded_asset_lookup,
 )
 
 ///|
-let embedded_asset_cache : Map[String, Bytes] = Map::new()
+let embedded_asset_cache : Map[String, Bytes] = Map([])
 
 ///|
 fn get_embedded_asset(path : String) -> Bytes? {
@@ -134,7 +134,7 @@ pub fn get_asset_bytes(path : String) -> Bytes? {
 }
 
 ///|
-let realtime_delta : Ref[Double] = Ref::new(0.0)
+let realtime_delta : Ref[Double] = Ref(0.0)
 
 ///|
 pub fn initialize(
@@ -200,9 +200,9 @@ fn schedule_with_fixed_interval(
   interval : Double,
   callback : (Double) -> Unit,
 ) -> () -> Unit {
-  let lastTime = Ref::new(0.0)
-  let accumulator = Ref::new(0.0)
-  let lastId = Ref::new(0.0)
+  let lastTime = Ref(0.0)
+  let accumulator = Ref(0.0)
+  let lastId = Ref(0.0)
   fn update(time : Double) -> Unit {
     if canvas_backend.close_requested {
       lastId.val = 0.0

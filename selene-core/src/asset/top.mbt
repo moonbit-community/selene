@@ -31,46 +31,46 @@ pub(all) struct AssetEvent[T] {
 } derive(Eq, Debug)
 
 ///|
-let next_image_id : Ref[UInt] = Ref::new(0)
+let next_image_id : Ref[UInt] = Ref(0)
 
 ///|
-let next_audio_id : Ref[UInt] = Ref::new(0)
+let next_audio_id : Ref[UInt] = Ref(0)
 
 ///|
-let next_font_id : Ref[UInt] = Ref::new(0)
+let next_font_id : Ref[UInt] = Ref(0)
 
 ///|
-let images_by_path : Map[String, ImageHandle] = Map::new()
+let images_by_path : Map[String, ImageHandle] = Map([])
 
 ///|
-let audios_by_path : Map[String, AudioHandle] = Map::new()
+let audios_by_path : Map[String, AudioHandle] = Map([])
 
 ///|
-let fonts_by_path : Map[String, FontHandle] = Map::new()
+let fonts_by_path : Map[String, FontHandle] = Map([])
 
 ///|
-let font_family_by_handle : Map[FontHandle, String] = Map::new()
+let font_family_by_handle : Map[FontHandle, String] = Map([])
 
 ///|
-let font_handle_by_family : Map[String, FontHandle] = Map::new()
+let font_handle_by_family : Map[String, FontHandle] = Map([])
 
 ///|
-let image_path_by_handle : Map[ImageHandle, String] = Map::new()
+let image_path_by_handle : Map[ImageHandle, String] = Map([])
 
 ///|
-let audio_path_by_handle : Map[AudioHandle, String] = Map::new()
+let audio_path_by_handle : Map[AudioHandle, String] = Map([])
 
 ///|
-let font_path_by_handle : Map[FontHandle, String] = Map::new()
+let font_path_by_handle : Map[FontHandle, String] = Map([])
 
 ///|
-let image_states : Map[ImageHandle, LoadState] = Map::new()
+let image_states : Map[ImageHandle, LoadState] = Map([])
 
 ///|
-let audio_states : Map[AudioHandle, LoadState] = Map::new()
+let audio_states : Map[AudioHandle, LoadState] = Map([])
 
 ///|
-let font_states : Map[FontHandle, LoadState] = Map::new()
+let font_states : Map[FontHandle, LoadState] = Map([])
 
 ///|
 pub let image_asset_events : @event.Events[AssetEvent[ImageHandle]] = @event.Events()

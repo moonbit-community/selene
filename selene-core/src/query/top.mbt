@@ -43,7 +43,7 @@ pub fn[T] query(
 
 ///|
 pub fn[T] QueryReader::QueryReader() -> QueryReader[T] {
-  { entities: @set.Set::new(), entries: Map::new(), initialized: false }
+  { entities: @set.Set([]), entries: Map([]), initialized: false }
 }
 
 ///|

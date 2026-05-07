@@ -211,8 +211,8 @@ async test "project.open migrates legacy workspace.json to envelope format" {
     match response {
       @shared.ProjectState(state~) => {
         let workspace = state.workspace.unwrap()
-        inspect(workspace.move_snap_enabled, content="Some(true)")
-        inspect(workspace.move_snap_step, content="Some(16)")
+        debug_inspect(workspace.move_snap_enabled, content="Some(true)")
+        debug_inspect(workspace.move_snap_step, content="Some(16)")
       }
       _ => fail("expected project state response")
     }
@@ -246,7 +246,7 @@ async test "project.current returns an empty typed state before any project is o
   let response = response_envelope(payload).response
   match response {
     @shared.ProjectState(state~) => {
-      inspect(state.root, content="None")
+      debug_inspect(state.root, content="None")
       inspect(state.manifest is None, content="true")
       inspect(state.scenes.length(), content="0")
     }
@@ -258,7 +258,7 @@ async test "project.current returns an empty typed state before any project is o
 test "parse_cli_options defaults to the editor port" {
   let options = parse_cli_options(["selene-editor"])
   inspect(options.port, content="47142")
-  inspect(options.project_root, content="None")
+  debug_inspect(options.project_root, content="None")
 }
 
 ///|
@@ -267,7 +267,7 @@ test "parse_cli_options accepts --port and project root" {
     "selene-editor", "--port", "48123", "/tmp/demo-project",
   ])
   inspect(options.port, content="48123")
-  inspect(options.project_root, content="Some(\"/tmp/demo-project\")")
+  debug_inspect(options.project_root, content="Some(\"/tmp/demo-project\")")
 }
 
 ///|
@@ -407,7 +407,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
     )
     match response_envelope(current_payload).response {
       @shared.ProjectState(state~) =>
-        inspect(state.root, content="Some(\"" + root + "\")")
+        debug_inspect(state.root, content="Some(\"" + root + "\")")
       _ => fail("expected project state")
     }
 
@@ -604,8 +604,8 @@ async test "service typed rpc surface succeeds across current workspace actions"
     let loaded_workspace = @editor_bridge.decode_workspace_document(
       workspace_json,
     )
-    inspect(loaded_workspace.move_snap_enabled, content="Some(true)")
-    inspect(loaded_workspace.move_snap_step, content="Some(32)")
+    debug_inspect(loaded_workspace.move_snap_enabled, content="Some(true)")
+    debug_inspect(loaded_workspace.move_snap_step, content="Some(32)")
   })
 }
 

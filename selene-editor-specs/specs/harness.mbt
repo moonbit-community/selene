@@ -425,7 +425,7 @@ pub async fn EditorHarness::given_image_asset(
 ) -> Unit {
   let full_path = self.project_root + "/" + relative_path
   let parent = if full_path.rev_find("/") is Some(index) {
-    full_path[:index].to_string()
+    full_path[:index].to_owned()
   } else {
     self.project_root
   }
@@ -443,7 +443,7 @@ pub async fn EditorHarness::given_text_file(
 ) -> Unit {
   let full_path = self.project_root + "/" + relative_path
   let parent = if full_path.rev_find("/") is Some(index) {
-    full_path[:index].to_string()
+    full_path[:index].to_owned()
   } else {
     self.project_root
   }
@@ -463,7 +463,7 @@ async fn ensure_dir(path : String) -> Unit {
 ///|
 async fn ensure_parent_dir(path : String) -> Unit {
   if path.rev_find("/") is Some(index) {
-    let parent = path[:index].to_string()
+    let parent = path[:index].to_owned()
     if parent != "" {
       ensure_dir(parent)
     }

@@ -28,7 +28,7 @@ fn normalized_clip_name(name : String?, index : Int) -> String {
   let fallback = "clip-\{index + 1}"
   match name {
     Some(name) => {
-      let trimmed = name.trim().to_string()
+      let trimmed = name.trim().to_owned()
       if trimmed == "" {
         fallback
       } else {
@@ -46,14 +46,14 @@ fn graph_path_from_legacy_animation_path(
 ) -> String {
   let normalized = path.replace(old="\\", new="/")
   let stem = if normalized.has_suffix(".anim.json") {
-    normalized[:normalized.length() - ".anim.json".length()].to_string()
+    normalized[:normalized.length() - ".anim.json".length()].to_owned()
   } else if normalized.has_suffix(".json") {
-    normalized[:normalized.length() - ".json".length()].to_string()
+    normalized[:normalized.length() - ".json".length()].to_owned()
   } else {
     normalized
   }
   let file_stem = if stem.rev_find("/") is Some(index) {
-    stem[index + 1:].to_string()
+    stem[index + 1:].to_owned()
   } else {
     stem
   }
@@ -75,7 +75,7 @@ fn inferred_graph_name(
 ) -> String {
   match legacy.name {
     Some(name) => {
-      let trimmed = name.trim().to_string()
+      let trimmed = name.trim().to_owned()
       if trimmed == "" {
         fallback
       } else {
@@ -103,7 +103,7 @@ fn legacy_animation_preview_for_scene(
     )
     guard legacy_result is Ok(legacy) else { continue }
     guard legacy.animation_asset_path is Some(legacy_path) else { continue }
-    let trimmed_legacy_path = legacy_path.trim().to_string()
+    let trimmed_legacy_path = legacy_path.trim().to_owned()
     if trimmed_legacy_path == "" {
       continue
     }

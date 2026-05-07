@@ -1260,7 +1260,7 @@ pub fn validate_workspace_document(
     _ => ()
   }
   if workspace.asset_scope is Some(scope) {
-    let normalized = scope.trim().to_string().to_lower()
+    let normalized = scope.trim().to_owned().to_lower()
     if normalized != "all" &&
       normalized != "images" &&
       normalized != "atlases" &&
