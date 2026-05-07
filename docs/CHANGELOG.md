@@ -8,7 +8,7 @@
 - Changed MoonBit constructor APIs to use direct `Type(...)` constructors and removed the legacy `Type::new(...)` constructor entrypoints across Selene packages.
 
 ### Fixed
-- Fixed CI MoonBit installation to use the nightly toolchain so CI matches the source syntax baseline.
+- Fixed CI and Pages MoonBit installation to use the nightly toolchain so automation matches the source syntax baseline.
 - Fixed Windows CI native builds to use MSVC for MoonBit C stubs that do not support MinGW.
 - Fixed current MoonBit deprecation warnings across Selene packages so warning-free checks pass with `--deny-warn`.
 - Fixed `selene_webgpu` dynamic 2D vertex buffer lifetime/scoping so later passes no longer overwrite or destroy buffers referenced by earlier passes before `queue.submit()`.

@@ -14,6 +14,8 @@ permissions:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      MOONBIT_INSTALL_VERSION: nightly
 
     steps:
       - uses: actions/checkout@v4
