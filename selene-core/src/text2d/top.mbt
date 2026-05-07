@@ -40,17 +40,17 @@ priv struct Text2dWorldStore {
 }
 
 ///|
-let text2d_world_stores : Map[UInt, Text2dWorldStore] = Map([])
+let text2d_world_stores : Map[UInt, Text2dWorldStore] = Map::of([])
 
 ///|
 fn text2d_world_store() -> Text2dWorldStore {
   let world_id = @ecs.require_current_world().id()
   text2d_world_stores.get_or_init(world_id, fn() {
     {
-      text2ds: Map([]),
-      text_bounds: Map([]),
-      text_anchors: Map([]),
-      text_layout_caches: Map([]),
+      text2ds: Map::of([]),
+      text_bounds: Map::of([]),
+      text_anchors: Map::of([]),
+      text_layout_caches: Map::of([]),
     }
   })
 }

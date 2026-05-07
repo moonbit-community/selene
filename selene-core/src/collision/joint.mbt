@@ -300,14 +300,14 @@ priv struct JointWorldStore {
 }
 
 ///|
-let joint_world_stores : Map[UInt, JointWorldStore] = Map([])
+let joint_world_stores : Map[UInt, JointWorldStore] = Map::of([])
 
 ///|
 fn joint_world_store() -> JointWorldStore {
   let world_id = @ecs.require_current_world().id()
   joint_world_stores.get_or_init(world_id, () => {
-    joints: Map([]),
-    multibody_joints: Map([]),
+    joints: Map::of([]),
+    multibody_joints: Map::of([]),
   })
 }
 

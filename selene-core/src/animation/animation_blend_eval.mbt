@@ -347,7 +347,7 @@ fn collect_targets_by_player() -> Map[
   let targets_by_player : Map[
     @entity.Entity,
     Map[AnimationTargetId, @entity.Entity],
-  ] = Map([])
+  ] = Map::of([])
   for entity in @entity.iter_entities() {
     guard entity.is_alive() else { continue }
     let player = animated_bys()
@@ -355,7 +355,7 @@ fn collect_targets_by_player() -> Map[
       .map_or(entity, fn(binding) { binding.player })
     guard animation_target_id_of(entity) is Some(target_id) else { continue }
     targets_by_player
-    .get_or_init(player, fn() { Map([]) })
+    .get_or_init(player, fn() { Map::of([]) })
     .set(target_id, entity)
   }
   targets_by_player

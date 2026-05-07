@@ -40,37 +40,37 @@ let next_audio_id : Ref[UInt] = Ref(0)
 let next_font_id : Ref[UInt] = Ref(0)
 
 ///|
-let images_by_path : Map[String, ImageHandle] = Map([])
+let images_by_path : Map[String, ImageHandle] = Map::of([])
 
 ///|
-let audios_by_path : Map[String, AudioHandle] = Map([])
+let audios_by_path : Map[String, AudioHandle] = Map::of([])
 
 ///|
-let fonts_by_path : Map[String, FontHandle] = Map([])
+let fonts_by_path : Map[String, FontHandle] = Map::of([])
 
 ///|
-let font_family_by_handle : Map[FontHandle, String] = Map([])
+let font_family_by_handle : Map[FontHandle, String] = Map::of([])
 
 ///|
-let font_handle_by_family : Map[String, FontHandle] = Map([])
+let font_handle_by_family : Map[String, FontHandle] = Map::of([])
 
 ///|
-let image_path_by_handle : Map[ImageHandle, String] = Map([])
+let image_path_by_handle : Map[ImageHandle, String] = Map::of([])
 
 ///|
-let audio_path_by_handle : Map[AudioHandle, String] = Map([])
+let audio_path_by_handle : Map[AudioHandle, String] = Map::of([])
 
 ///|
-let font_path_by_handle : Map[FontHandle, String] = Map([])
+let font_path_by_handle : Map[FontHandle, String] = Map::of([])
 
 ///|
-let image_states : Map[ImageHandle, LoadState] = Map([])
+let image_states : Map[ImageHandle, LoadState] = Map::of([])
 
 ///|
-let audio_states : Map[AudioHandle, LoadState] = Map([])
+let audio_states : Map[AudioHandle, LoadState] = Map::of([])
 
 ///|
-let font_states : Map[FontHandle, LoadState] = Map([])
+let font_states : Map[FontHandle, LoadState] = Map::of([])
 
 ///|
 pub let image_asset_events : @event.Events[AssetEvent[ImageHandle]] = @event.Events()

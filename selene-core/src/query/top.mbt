@@ -43,7 +43,7 @@ pub fn[T] query(
 
 ///|
 pub fn[T] QueryReader::QueryReader() -> QueryReader[T] {
-  { entities: @set.Set([]), entries: Map([]), initialized: false }
+  { entities: @set.Set::from_iter(Iter::empty()), entries: Map::of([]), initialized: false }
 }
 
 ///|

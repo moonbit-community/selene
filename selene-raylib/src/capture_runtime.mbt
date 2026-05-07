@@ -366,7 +366,7 @@ pub fn load_font(font : String, path : String) -> Unit {
 ///|
 pub fn set_embedded_assets(lookup : (String) -> Bytes?) -> Unit {
   backend.embedded_asset_lookup = lookup
-  backend.embedded_asset_cache = Map([])
+  backend.embedded_asset_cache = Map::of([])
 }
 
 ///|

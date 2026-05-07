@@ -46,14 +46,14 @@ priv struct HierarchyWorldStore {
 }
 
 ///|
-let hierarchy_world_stores : Map[UInt, HierarchyWorldStore] = Map([])
+let hierarchy_world_stores : Map[UInt, HierarchyWorldStore] = Map::of([])
 
 ///|
 fn hierarchy_store() -> HierarchyWorldStore {
   let world = @ecs.require_current_world()
   hierarchy_world_stores.get_or_init(world.id(), () => {
-    parents: Map([]),
-    children: Map([]),
+    parents: Map::of([]),
+    children: Map::of([]),
   })
 }
 

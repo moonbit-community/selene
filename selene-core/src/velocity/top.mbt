@@ -34,12 +34,12 @@ priv struct VelocityWorldStore {
 }
 
 ///|
-let velocity_world_stores : Map[UInt, VelocityWorldStore] = Map([])
+let velocity_world_stores : Map[UInt, VelocityWorldStore] = Map::of([])
 
 ///|
 fn velocity_world_store() -> VelocityWorldStore {
   let world_id = @ecs.require_current_world().id()
-  velocity_world_stores.get_or_init(world_id, () => { velocities: Map([]) })
+  velocity_world_stores.get_or_init(world_id, () => { velocities: Map::of([]) })
 }
 
 ///|

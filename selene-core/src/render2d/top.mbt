@@ -58,10 +58,10 @@ priv struct RenderFrameState2D {
 }
 
 ///|
-let frame2d_by_world : Map[UInt, RenderFrameState2D] = Map([])
+let frame2d_by_world : Map[UInt, RenderFrameState2D] = Map::of([])
 
 ///|
-let sorting2d_by_world : Map[UInt, Sorting2dWorldStore] = Map([])
+let sorting2d_by_world : Map[UInt, Sorting2dWorldStore] = Map::of([])
 
 ///|
 fn frame2d() -> RenderFrameState2D {
@@ -70,8 +70,8 @@ fn frame2d() -> RenderFrameState2D {
     {
       screen_world_commands: [],
       screen_ui_commands: [],
-      camera_world_commands: Map([]),
-      camera_ui_commands: Map([]),
+      camera_world_commands: Map::of([]),
+      camera_ui_commands: Map::of([]),
       next_order: 0,
     }
   })
@@ -80,7 +80,7 @@ fn frame2d() -> RenderFrameState2D {
 ///|
 fn sorting2d_store() -> Sorting2dWorldStore {
   let world_id = @ecs.require_current_world().id()
-  sorting2d_by_world.get_or_init(world_id, fn() { { sorting2ds: Map([]) } })
+  sorting2d_by_world.get_or_init(world_id, fn() { { sorting2ds: Map::of([]) } })
 }
 
 ///|
@@ -93,8 +93,8 @@ pub fn begin_frame2d_system(_delta : Double) -> Unit {
   frame2d_by_world.set(@ecs.require_current_world().id(), {
     screen_world_commands: [],
     screen_ui_commands: [],
-    camera_world_commands: Map([]),
-    camera_ui_commands: Map([]),
+    camera_world_commands: Map::of([]),
+    camera_ui_commands: Map::of([]),
     next_order: 0,
   })
   let sorting = sorting2ds()
@@ -211,7 +211,7 @@ fn sorted_world_commands(
 
 ///|
 fn sorted_camera_entity_ids() -> Array[UInt] {
-  let unique : Map[UInt, Unit] = Map([])
+  let unique : Map[UInt, Unit] = Map::of([])
   for id in frame2d().camera_world_commands.keys() {
     unique.set(id, ())
   }
@@ -225,7 +225,7 @@ fn sorted_camera_entity_ids() -> Array[UInt] {
 
 ///|
 fn sorted_camera_entity_ids_by_pass_order() -> Array[UInt] {
-  let camera_order_by_entity_id : Map[UInt, Int] = Map([])
+  let camera_order_by_entity_id : Map[UInt, Int] = Map::of([])
   for camera_view in @camera.active_camera2d_views() {
     camera_order_by_entity_id.set(
       camera_view.entity.id(),

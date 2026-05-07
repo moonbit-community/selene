@@ -89,19 +89,19 @@ const TEXTURED_SPHERE_STACKS : Int = 16
 let synced_mesh_assets : Map[
   @render3d_types.MeshHandle,
   @render3d_types.MeshAsset,
-] = Map([])
+] = Map::of([])
 
 ///|
 let synced_material_assets : Map[
   @render3d_types.MaterialHandle,
   @render3d_types.StandardMaterial3D,
-] = Map([])
+] = Map::of([])
 
 ///|
 let synced_image_assets : Map[
   @render3d_types.ImageHandle,
   @render3d_types.ImageAsset,
-] = Map([])
+] = Map::of([])
 
 ///|
 priv struct MaterialTextureSource3D {

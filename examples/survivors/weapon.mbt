@@ -142,7 +142,7 @@ priv struct PlayerBulletState {
 }
 
 ///|
-let player_bullets : Map[@entity.Entity, PlayerBulletState] = Map([])
+let player_bullets : Map[@entity.Entity, PlayerBulletState] = Map::of([])
 
 ///|
 let player_bullet_trigger_event_reader : @event.EventReader[

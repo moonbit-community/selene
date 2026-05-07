@@ -404,25 +404,25 @@ priv struct UiVisualWorldStore {
 }
 
 ///|
-let ui_visual_world_stores : Map[UInt, UiVisualWorldStore] = Map([])
+let ui_visual_world_stores : Map[UInt, UiVisualWorldStore] = Map::of([])
 
 ///|
 fn ui_visual_world_store() -> UiVisualWorldStore {
   let world_id = @ecs.require_current_world().id()
   ui_visual_world_stores.get_or_init(world_id, () => {
-    background_colors: Map([]),
-    border_colors: Map([]),
-    border_radii: Map([]),
-    box_shadows: Map([]),
-    outlines: Map([]),
-    ui_images: Map([]),
-    material_nodes: Map([]),
-    texts: Map([]),
-    text_fonts: Map([]),
-    text_colors: Map([]),
-    text_layouts: Map([]),
-    buttons: Map([]),
-    interactions: Map([]),
+    background_colors: Map::of([]),
+    border_colors: Map::of([]),
+    border_radii: Map::of([]),
+    box_shadows: Map::of([]),
+    outlines: Map::of([]),
+    ui_images: Map::of([]),
+    material_nodes: Map::of([]),
+    texts: Map::of([]),
+    text_fonts: Map::of([]),
+    text_colors: Map::of([]),
+    text_layouts: Map::of([]),
+    buttons: Map::of([]),
+    interactions: Map::of([]),
   })
 }
 
@@ -462,7 +462,7 @@ pub fn material_nodes() -> Map[@entity.Entity, MaterialNode] {
 }
 
 ///|
-let ui_material_assets : Map[UiMaterialHandle, UiMaterialAsset] = Map([])
+let ui_material_assets : Map[UiMaterialHandle, UiMaterialAsset] = Map::of([])
 
 ///|
 let next_ui_material_id : Ref[UInt] = Ref(0)

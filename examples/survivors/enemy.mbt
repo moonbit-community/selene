@@ -182,7 +182,7 @@ fn reset_wave_state() -> Unit {
 
 ///|
 let enemy_data : Map[EnemyType, EnemyData] = {
-  let data = Map([])
+  let data = Map::of([])
   data.set(Creeper, {
     health: 1.0,
     speed: 60.0,
@@ -342,10 +342,10 @@ enum EnemyType {
 } derive(Eq, Hash)
 
 ///|
-let enemies : Map[@entity.Entity, Enemy] = Map([])
+let enemies : Map[@entity.Entity, Enemy] = Map::of([])
 
 ///|
-let enemy_bullets : Set[@entity.Entity] = Set([])
+let enemy_bullets : Set[@entity.Entity] = Set::from_iter(Iter::empty())
 
 ///|
 let enemy_contact_event_reader : @event.EventReader[@physics2d.ContactEvent] = @event.EventReader()

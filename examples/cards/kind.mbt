@@ -97,7 +97,7 @@ fn find_best_hand(cards : Array[Card]) -> HandRank {
 
 ///|
 fn count_by_num(hand : Array[Card]) -> Map[CardNum, Int] {
-  let map = Map([])
+  let map = Map::of([])
   for card in hand {
     let count = map.get(card.0).unwrap_or(0)
     map.set(card.0, count + 1)
@@ -107,7 +107,7 @@ fn count_by_num(hand : Array[Card]) -> Map[CardNum, Int] {
 
 ///|
 fn count_by_suit(hand : Array[Card]) -> Map[CardSuit, Int] {
-  let map = Map([])
+  let map = Map::of([])
   for card in hand {
     let count = map.get(card.1).unwrap_or(0)
     map.set(card.1, count + 1)

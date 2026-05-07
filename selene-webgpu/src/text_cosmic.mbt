@@ -30,10 +30,10 @@ let cosmic_swash_cache : Ref[@cosmic.SwashCache] = Ref(
 )
 
 ///|
-let cosmic_loaded_families : Map[String, Bool] = Map([])
+let cosmic_loaded_families : Map[String, Bool] = Map::of([])
 
 ///|
-let cosmic_text_cache : Map[String, Bool] = Map([])
+let cosmic_text_cache : Map[String, Bool] = Map::of([])
 
 ///|
 fn saturating_byte(value : Int) -> Byte {

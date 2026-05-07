@@ -137,7 +137,7 @@ pub fn validate_texture_atlas_layout_for_image(
 pub fn validate_registered_texture_atlases() -> Array[
   (@sprite.TextureAtlasLayoutHandle, AtlasValidationReport),
 ] {
-  let atlas_image_paths : Map[@sprite.TextureAtlasLayoutHandle, String] = Map([])
+  let atlas_image_paths : Map[@sprite.TextureAtlasLayoutHandle, String] = Map::of([])
   for _entity, sprite in @sprite.sprites() {
     guard sprite.texture_atlas is Some(atlas) else { continue }
     guard sprite.image is Some(image_handle) else { continue }

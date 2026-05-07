@@ -64,7 +64,7 @@ priv struct RegisteredBus {
 }
 
 ///|
-let registered_buses_by_world : Map[UInt, Array[RegisteredBus]] = Map([])
+let registered_buses_by_world : Map[UInt, Array[RegisteredBus]] = Map::of([])
 
 ///|
 let next_event_bus_id : Ref[UInt] = { val: 1U }
@@ -89,14 +89,14 @@ fn[T] world_store(events : Events[T]) -> EventWorldStore[T] {
     next_observer_id: 0,
     older: [],
     newer: [],
-    observers: Map([]),
+    observers: Map::of([]),
     observer_queue: [],
   })
 }
 
 ///|
 pub fn[T] EventReader::EventReader() -> EventReader[T] {
-  { last_seen_by_world: Map([]), marker: None }
+  { last_seen_by_world: Map::of([]), marker: None }
 }
 
 ///|
@@ -148,7 +148,7 @@ pub fn[T] EventWriter::trigger(
 pub fn[T] Events::Events(
   domain? : EventDomain = EventDomain::Frame,
 ) -> Events[T] {
-  { id: allocate_event_bus_id(), domain, stores: Map([]), marker: None }
+  { id: allocate_event_bus_id(), domain, stores: Map::of([]), marker: None }
 }
 
 ///|

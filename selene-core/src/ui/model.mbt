@@ -5,7 +5,7 @@ pub(all) enum UiScaleMode {
 } derive(Eq, Debug)
 
 ///|
-let ui_scale_modes : Map[UInt, UiScaleMode] = Map([])
+let ui_scale_modes : Map[UInt, UiScaleMode] = Map::of([])
 
 ///|
 fn ui_scale_mode() -> UiScaleMode {
@@ -768,28 +768,28 @@ priv struct UiModelWorldStore {
 }
 
 ///|
-let ui_model_world_stores : Map[UInt, UiModelWorldStore] = Map([])
+let ui_model_world_stores : Map[UInt, UiModelWorldStore] = Map::of([])
 
 ///|
 fn ui_model_world_store() -> UiModelWorldStore {
   let world_id = @ecs.require_current_world().id()
   ui_model_world_stores.get_or_init(world_id, () => {
-    nodes: Map([]),
-    computed_ui_nodes: Map([]),
-    global_ui_nodes: Map([]),
-    ui_target_cameras: Map([]),
-    calculated_clips: Map([]),
-    layout_configs: Map([]),
-    z_indexes: Map([]),
-    global_zindexes: Map([]),
-    scroll_positions: Map([]),
-    tab_indexes: Map([]),
-    focus_policies: Map([]),
-    focusables: Map([]),
-    focuseds: Map([]),
-    override_clips: Map([]),
-    relative_cursor_positions: Map([]),
-    tree_orders: Map([]),
+    nodes: Map::of([]),
+    computed_ui_nodes: Map::of([]),
+    global_ui_nodes: Map::of([]),
+    ui_target_cameras: Map::of([]),
+    calculated_clips: Map::of([]),
+    layout_configs: Map::of([]),
+    z_indexes: Map::of([]),
+    global_zindexes: Map::of([]),
+    scroll_positions: Map::of([]),
+    tab_indexes: Map::of([]),
+    focus_policies: Map::of([]),
+    focusables: Map::of([]),
+    focuseds: Map::of([]),
+    override_clips: Map::of([]),
+    relative_cursor_positions: Map::of([]),
+    tree_orders: Map::of([]),
   })
 }
 

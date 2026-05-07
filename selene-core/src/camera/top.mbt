@@ -136,15 +136,15 @@ priv struct CameraWorldStore {
 }
 
 ///|
-let camera_world_stores : Map[UInt, CameraWorldStore] = Map([])
+let camera_world_stores : Map[UInt, CameraWorldStore] = Map::of([])
 
 ///|
 fn camera_world_store() -> CameraWorldStore {
   let world_id = @ecs.require_current_world().id()
   camera_world_stores.get_or_init(world_id, () => {
-    cameras: Map([]),
-    camera2ds: Map([]),
-    orthographic_projections: Map([]),
+    cameras: Map::of([]),
+    camera2ds: Map::of([]),
+    orthographic_projections: Map::of([]),
   })
 }
 

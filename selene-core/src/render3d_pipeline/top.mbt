@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-let prepared_frame3d_by_world : Map[UInt, @render3d.RenderFrame3D] = Map([])
+let prepared_frame3d_by_world : Map[UInt, @render3d.RenderFrame3D] = Map::of([])
 
 ///|
 fn prepared_frame3d() -> @render3d.RenderFrame3D {

@@ -5,7 +5,7 @@ priv struct StateWorldRuntime {
 }
 
 ///|
-let state_world_runtimes : Map[UInt, StateWorldRuntime] = Map([])
+let state_world_runtimes : Map[UInt, StateWorldRuntime] = Map::of([])
 
 ///|
 fn state_runtime(world_id : UInt) -> StateWorldRuntime {

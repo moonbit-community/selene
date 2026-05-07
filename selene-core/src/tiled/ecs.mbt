@@ -243,7 +243,7 @@ pub struct TiledParallaxLayer {
 
 ///|
 pub fn empty_tiled_map_storage() -> TiledMapStorage {
-  { layers: Map([]), objects: Map([]), tiles: Map([]) }
+  { layers: Map::of([]), objects: Map::of([]), tiles: Map::of([]) }
 }
 
 ///|
@@ -283,20 +283,20 @@ priv struct TiledEcsWorldStore {
 }
 
 ///|
-let tiled_ecs_world_stores : Map[UInt, TiledEcsWorldStore] = Map([])
+let tiled_ecs_world_stores : Map[UInt, TiledEcsWorldStore] = Map::of([])
 
 ///|
 fn tiled_ecs_world_store() -> TiledEcsWorldStore {
   let world_id = @ecs.require_current_world().id()
   tiled_ecs_world_stores.get_or_init(world_id, () => {
-    tiled_map_instances: Map([]),
-    tiled_layer_instances: Map([]),
-    tiled_tile_instances: Map([]),
-    tiled_object_instances: Map([]),
-    tiled_image_layer_instances: Map([]),
-    tiled_properties: Map([]),
-    tiled_map_storages: Map([]),
-    tiled_parallax_layers: Map([]),
+    tiled_map_instances: Map::of([]),
+    tiled_layer_instances: Map::of([]),
+    tiled_tile_instances: Map::of([]),
+    tiled_object_instances: Map::of([]),
+    tiled_image_layer_instances: Map::of([]),
+    tiled_properties: Map::of([]),
+    tiled_map_storages: Map::of([]),
+    tiled_parallax_layers: Map::of([]),
   })
 }
 
@@ -1133,7 +1133,7 @@ fn tiled_set_properties(
   if properties.length() == 0 {
     return
   }
-  let values : Map[String, TiledPropertyValue] = Map([])
+  let values : Map[String, TiledPropertyValue] = Map::of([])
   for property in properties {
     values.set(property.name, property.value)
   }

@@ -220,7 +220,7 @@ fn spawn_ldtk_world_root(
     project,
     settings,
     level_set,
-    spawned_levels: Map([]),
+    spawned_levels: Map::of([]),
   })
   let world_event = { world_entity, project }
   ldtk_world_spawned_event_bus.trigger(world_event, Some(world_entity))

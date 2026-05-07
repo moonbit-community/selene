@@ -168,14 +168,14 @@ priv struct TransformWorldStore {
 }
 
 ///|
-let transform_world_stores : Map[UInt, TransformWorldStore] = Map([])
+let transform_world_stores : Map[UInt, TransformWorldStore] = Map::of([])
 
 ///|
 fn transform_world_store() -> TransformWorldStore {
   let world_id = @ecs.require_current_world().id()
   transform_world_stores.get_or_init(world_id, () => {
-    transforms: Map([]),
-    global_transforms: Map([]),
+    transforms: Map::of([]),
+    global_transforms: Map::of([]),
   })
 }
 

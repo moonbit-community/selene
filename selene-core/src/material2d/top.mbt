@@ -26,13 +26,13 @@ priv struct Material2dWorldStore {
 }
 
 ///|
-let material2d_world_stores : Map[UInt, Material2dWorldStore] = Map([])
+let material2d_world_stores : Map[UInt, Material2dWorldStore] = Map::of([])
 
 ///|
 fn material2d_world_store() -> Material2dWorldStore {
   let world_id = @ecs.require_current_world().id()
   material2d_world_stores.get_or_init(world_id, fn() {
-    { mesh_material2ds: Map([]) }
+    { mesh_material2ds: Map::of([]) }
   })
 }
 
@@ -42,7 +42,7 @@ pub fn mesh_material2ds() -> Map[@entity.Entity, MeshMaterial2d] {
 }
 
 ///|
-let color_materials : Map[ColorMaterialHandle, ColorMaterial] = Map([])
+let color_materials : Map[ColorMaterialHandle, ColorMaterial] = Map::of([])
 
 ///|
 let next_color_material_id : Ref[UInt] = Ref(0U)

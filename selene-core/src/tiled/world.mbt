@@ -90,14 +90,14 @@ priv struct TiledWorldRuntimeStore {
 }
 
 ///|
-let tiled_world_runtime_stores : Map[UInt, TiledWorldRuntimeStore] = Map([])
+let tiled_world_runtime_stores : Map[UInt, TiledWorldRuntimeStore] = Map::of([])
 
 ///|
 fn tiled_world_runtime_store() -> TiledWorldRuntimeStore {
   let world_id = @ecs.require_current_world().id()
   tiled_world_runtime_stores.get_or_init(world_id, () => {
-    tiled_world_instances: Map([]),
-    tiled_world_map_instances: Map([]),
+    tiled_world_instances: Map::of([]),
+    tiled_world_map_instances: Map::of([]),
   })
 }
 
@@ -211,7 +211,7 @@ fn spawn_tiled_world_root(
       ),
     })
   }
-  let spawned_maps : Map[Int, @entity.Entity] = Map([])
+  let spawned_maps : Map[Int, @entity.Entity] = Map::of([])
   tiled_world_instances().set(world_entity, {
     world,
     settings,
@@ -470,7 +470,7 @@ fn parse_tiled_world_patterns(
 
 ///|
 fn tiled_world_collect_maps(world : TiledWorld) -> Array[TiledWorldMap] {
-  let resolved_paths : Map[String, Bool] = Map([])
+  let resolved_paths : Map[String, Bool] = Map::of([])
   let maps : Array[TiledWorldMap] = []
   for world_map in world.maps {
     let resolved = world.resolve_map_path(world_map.file_name)

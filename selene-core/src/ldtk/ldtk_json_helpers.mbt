@@ -55,7 +55,7 @@ fn resolve_external_ldtk_levels(project : LdtkProject) -> LdtkProject {
   if project.source_path is None {
     return project
   }
-  let cache : Map[String, LdtkLevel] = Map([])
+  let cache : Map[String, LdtkLevel] = Map::of([])
   let resolved_levels : Array[LdtkLevel] = []
   for level in project.levels {
     resolved_levels.push(resolve_external_ldtk_level(project, level, cache))

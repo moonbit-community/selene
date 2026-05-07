@@ -10,13 +10,13 @@ priv struct Parallax2dWorldStore {
 }
 
 ///|
-let parallax2d_world_stores : Map[UInt, Parallax2dWorldStore] = Map([])
+let parallax2d_world_stores : Map[UInt, Parallax2dWorldStore] = Map::of([])
 
 ///|
 fn parallax2d_world_store() -> Parallax2dWorldStore {
   let world_id = @ecs.require_current_world().id()
   parallax2d_world_stores.get_or_init(world_id, fn() {
-    { parallax2ds: Map([]) }
+    { parallax2ds: Map::of([]) }
   })
 }
 

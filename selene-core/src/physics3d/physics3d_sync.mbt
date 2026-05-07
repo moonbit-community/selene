@@ -81,7 +81,7 @@ priv struct Physics3DWorldStore {
 }
 
 ///|
-let physics3d_world_stores : Map[UInt, Physics3DWorldStore] = Map([])
+let physics3d_world_stores : Map[UInt, Physics3DWorldStore] = Map::of([])
 
 ///|
 fn physics3d_world_store() -> Physics3DWorldStore {
@@ -100,11 +100,11 @@ fn physics3d_world_store() -> Physics3DWorldStore {
       multibody_joints: @dynamics.MultibodyJointSet3DReal::new(),
       event_handler: @pipeline.EventHandler3D::new(),
     },
-    body_handles: Map([]),
-    collider_handles: Map([]),
-    impulse_joint_handles: Map([]),
-    multibody_joint_handles: Map([]),
-    collider_entities_by_key: Map([]),
+    body_handles: Map::of([]),
+    collider_handles: Map::of([]),
+    impulse_joint_handles: Map::of([]),
+    multibody_joint_handles: Map::of([]),
+    collider_entities_by_key: Map::of([]),
   })
 }
 

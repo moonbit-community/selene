@@ -22,7 +22,7 @@ pub(all) struct Area {
 
 ///|
 pub fn Area::Area(filter : CollisionFilter) -> Area {
-  { active: true, filter, contains: Set([]) }
+  { active: true, filter, contains: Set::from_iter(Iter::empty()) }
 }
 
 ///|
@@ -31,12 +31,12 @@ priv struct AreaWorldStore {
 }
 
 ///|
-let area_world_stores : Map[UInt, AreaWorldStore] = Map([])
+let area_world_stores : Map[UInt, AreaWorldStore] = Map::of([])
 
 ///|
 fn area_world_store() -> AreaWorldStore {
   let world_id = @ecs.require_current_world().id()
-  area_world_stores.get_or_init(world_id, () => { areas: Map([]) })
+  area_world_stores.get_or_init(world_id, () => { areas: Map::of([]) })
 }
 
 ///|
@@ -64,5 +64,5 @@ fn push_trigger_event(event : TriggerEvent) -> Unit {
 
 ///|
 pub fn get_contains(area : @entity.Entity) -> Set[@entity.Entity] {
-  areas().get(area).map_or(Set([]), fn(area) { area.contains })
+  areas().get(area).map_or(Set::from_iter(Iter::empty()), fn(area) { area.contains })
 }

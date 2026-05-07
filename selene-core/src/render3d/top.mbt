@@ -121,10 +121,10 @@ let render3d_component_world_stores : Map[UInt, Render3DComponentWorldStore] = M
 fn render3d_component_world_store() -> Render3DComponentWorldStore {
   let world_id = @ecs.require_current_world().id()
   render3d_component_world_stores.get_or_init(world_id, () => {
-    mesh3d_renderers: Map([]),
-    directional_lights3d: Map([]),
-    point_lights3d: Map([]),
-    spot_lights3d: Map([]),
+    mesh3d_renderers: Map::of([]),
+    directional_lights3d: Map::of([]),
+    point_lights3d: Map::of([]),
+    spot_lights3d: Map::of([]),
   })
 }
 
@@ -157,7 +157,7 @@ priv struct Render3DWorldState {
 }
 
 ///|
-let render3d_world_states : Map[UInt, Render3DWorldState] = Map([])
+let render3d_world_states : Map[UInt, Render3DWorldState] = Map::of([])
 
 ///|
 fn render3d_world_state() -> Render3DWorldState {
@@ -171,16 +171,16 @@ fn render3d_world_state() -> Render3DWorldState {
 }
 
 ///|
-let meshes : Map[MeshHandle, MeshAsset] = Map([])
+let meshes : Map[MeshHandle, MeshAsset] = Map::of([])
 
 ///|
-let materials : Map[MaterialHandle, StandardMaterial3D] = Map([])
+let materials : Map[MaterialHandle, StandardMaterial3D] = Map::of([])
 
 ///|
-let images : Map[ImageHandle, ImageAsset] = Map([])
+let images : Map[ImageHandle, ImageAsset] = Map::of([])
 
 ///|
-let scene_paths : Map[SceneHandle, String] = Map([])
+let scene_paths : Map[SceneHandle, String] = Map::of([])
 
 ///|
 let next_mesh_id : Ref[UInt] = Ref(0)
@@ -195,13 +195,13 @@ let next_image_id : Ref[UInt] = Ref(0)
 let next_scene_id : Ref[UInt] = Ref(0)
 
 ///|
-let dirty_mesh_assets : Map[MeshHandle, MeshAsset] = Map([])
+let dirty_mesh_assets : Map[MeshHandle, MeshAsset] = Map::of([])
 
 ///|
-let dirty_material_assets : Map[MaterialHandle, StandardMaterial3D] = Map([])
+let dirty_material_assets : Map[MaterialHandle, StandardMaterial3D] = Map::of([])
 
 ///|
-let dirty_image_assets : Map[ImageHandle, ImageAsset] = Map([])
+let dirty_image_assets : Map[ImageHandle, ImageAsset] = Map::of([])
 
 ///|
 let released_mesh_assets : Array[MeshHandle] = []

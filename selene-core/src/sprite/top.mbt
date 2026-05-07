@@ -24,12 +24,12 @@ priv struct SpriteWorldStore {
 }
 
 ///|
-let sprite_world_stores : Map[UInt, SpriteWorldStore] = Map([])
+let sprite_world_stores : Map[UInt, SpriteWorldStore] = Map::of([])
 
 ///|
 fn sprite_world_store() -> SpriteWorldStore {
   let world_id = @ecs.require_current_world().id()
-  sprite_world_stores.get_or_init(world_id, fn() { { sprites: Map([]) } })
+  sprite_world_stores.get_or_init(world_id, fn() { { sprites: Map::of([]) } })
 }
 
 ///|

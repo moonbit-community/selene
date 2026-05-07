@@ -44,15 +44,15 @@ priv struct ColliderWorldStore {
 }
 
 ///|
-let collider_world_stores : Map[UInt, ColliderWorldStore] = Map([])
+let collider_world_stores : Map[UInt, ColliderWorldStore] = Map::of([])
 
 ///|
 fn collider_world_store() -> ColliderWorldStore {
   let world_id = @ecs.require_current_world().id()
   collider_world_stores.get_or_init(world_id, () => {
-    colliders: Map([]),
-    resolved_velocities: Map([]),
-    grounded_entities: Set([]),
+    colliders: Map::of([]),
+    resolved_velocities: Map::of([]),
+    grounded_entities: Set::from_iter(Iter::empty()),
   })
 }
 
