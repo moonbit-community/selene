@@ -126,12 +126,10 @@ let animation_event_descriptors : Map[
 ] = Map::of([])
 
 ///|
-let dirty_animation_clip_assets : Map[AnimationClipHandle, AnimationClip] = Map([],
-)
+let dirty_animation_clip_assets : Map[AnimationClipHandle, AnimationClip] = Map::of([])
 
 ///|
-let dirty_animation_graph_assets : Map[AnimationGraphHandle, AnimationGraph] = Map([],
-)
+let dirty_animation_graph_assets : Map[AnimationGraphHandle, AnimationGraph] = Map::of([])
 
 ///|
 let released_animation_clip_assets : Array[AnimationClipHandle] = []

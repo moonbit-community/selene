@@ -229,15 +229,13 @@ let staged_input_by_world : Map[UInt, @inputs.InputSnapshot] = Map::of([])
 let frame_metrics_by_world : Map[UInt, FramePerformanceMetrics] = Map::of([])
 
 ///|
-let frame_metrics_history_by_world : Map[UInt, Array[FramePerformanceMetrics]] = Map([],
-)
+let frame_metrics_history_by_world : Map[UInt, Array[FramePerformanceMetrics]] = Map::of([])
 
 ///|
 let render_submission_by_world : Map[UInt, RenderSubmissionDebug] = Map::of([])
 
 ///|
-let latest_render_frame_by_world : Map[UInt, @render_pipeline.RenderFrame] = Map([],
-)
+let latest_render_frame_by_world : Map[UInt, @render_pipeline.RenderFrame] = Map::of([])
 
 ///|
 let snapshot_providers : Map[String, SnapshotProvider] = Map::of([])
