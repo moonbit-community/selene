@@ -41,25 +41,25 @@ fn mask_from_groups(groups : Array[Int]) -> UInt {
 
 ///|
 pub fn AnimationClip::AnimationClip(name : String) -> AnimationClip {
-  { name, duration: 0.0, curves: Map::of([]), events: [] }
+  { name, duration: 0.0, curves: Map([]), events: [] }
 }
 
 ///|
 pub fn AnimationGraph::AnimationGraph() -> AnimationGraph {
   let root = AnimationNodeIndex(0U)
-  let nodes : Map[AnimationNodeIndex, AnimationGraphNode] = Map::of([])
+  let nodes : Map[AnimationNodeIndex, AnimationGraphNode] = Map([])
   nodes.set(root, { node_type: Blend, mask: 0U, children: [] })
-  { root, nodes, mask_groups: Map::of([]), next_node: 1U }
+  { root, nodes, mask_groups: Map([]), next_node: 1U }
 }
 
 ///|
 pub fn AnimationPlayer::AnimationPlayer() -> AnimationPlayer {
-  { active_animations: Map::of([]) }
+  { active_animations: Map([]) }
 }
 
 ///|
 pub fn AnimationTransitions::AnimationTransitions() -> AnimationTransitions {
-  { main: None, fading: Map::of([]) }
+  { main: None, fading: Map([]) }
 }
 
 ///|

@@ -86,7 +86,7 @@ priv struct UiInteractionRuntime {
 }
 
 ///|
-let ui_interaction_runtimes : Map[UInt, UiInteractionRuntime] = Map::of([])
+let ui_interaction_runtimes : Map[UInt, UiInteractionRuntime] = Map([])
 
 ///|
 fn ui_interaction_runtime() -> UiInteractionRuntime {

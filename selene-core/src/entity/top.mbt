@@ -35,16 +35,16 @@ priv struct EntityWorldStore {
 }
 
 ///|
-let entity_world_stores : Map[UInt, EntityWorldStore] = Map::of([])
+let entity_world_stores : Map[UInt, EntityWorldStore] = Map([])
 
 ///|
 fn entity_store() -> EntityWorldStore {
   let world = @ecs.require_current_world()
   entity_world_stores.get_or_init(world.id(), () => {
     entity_generator: 0U,
-    all_entities: @set.Set::from_iter(Iter::empty()),
-    lifecycle_states: Map::of([]),
-    pending_state_changes: @set.Set::from_iter(Iter::empty()),
+    all_entities: @set.Set([]),
+    lifecycle_states: Map([]),
+    pending_state_changes: @set.Set([]),
   })
 }
 

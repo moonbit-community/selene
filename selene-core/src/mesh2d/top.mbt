@@ -28,12 +28,12 @@ priv struct Mesh2dWorldStore {
 }
 
 ///|
-let mesh2d_world_stores : Map[UInt, Mesh2dWorldStore] = Map::of([])
+let mesh2d_world_stores : Map[UInt, Mesh2dWorldStore] = Map([])
 
 ///|
 fn mesh2d_world_store() -> Mesh2dWorldStore {
   let world_id = @ecs.require_current_world().id()
-  mesh2d_world_stores.get_or_init(world_id, fn() { { mesh2ds: Map::of([]) } })
+  mesh2d_world_stores.get_or_init(world_id, fn() { { mesh2ds: Map([]) } })
 }
 
 ///|
@@ -42,7 +42,7 @@ pub fn mesh2ds() -> Map[@entity.Entity, Mesh2d] {
 }
 
 ///|
-let mesh_storage : Mesh2dStorage = { meshes: Map::of([]) }
+let mesh_storage : Mesh2dStorage = { meshes: Map([]) }
 
 ///|
 let next_mesh2d_id : Ref[UInt] = Ref(0U)

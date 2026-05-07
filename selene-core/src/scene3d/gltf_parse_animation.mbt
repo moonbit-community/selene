@@ -331,7 +331,7 @@ fn parse_light_template(
         spot: None,
       })
     "spot" => {
-      let spot_object = field_object(light_object, "spot").unwrap_or(Map::of([]))
+      let spot_object = field_object(light_object, "spot").unwrap_or(Map([]))
       Some({
         directional: None,
         point: None,

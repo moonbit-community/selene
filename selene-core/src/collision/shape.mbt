@@ -27,12 +27,12 @@ priv struct ShapeWorldStore {
 }
 
 ///|
-let shape_world_stores : Map[UInt, ShapeWorldStore] = Map::of([])
+let shape_world_stores : Map[UInt, ShapeWorldStore] = Map([])
 
 ///|
 fn shape_world_store() -> ShapeWorldStore {
   let world_id = @ecs.require_current_world().id()
-  shape_world_stores.get_or_init(world_id, () => { shapes: Map::of([]) })
+  shape_world_stores.get_or_init(world_id, () => { shapes: Map([]) })
 }
 
 ///|

@@ -37,7 +37,7 @@ fn submit_draw_command(command : @render2d_types.DrawCommand2D) -> Unit {
 }
 
 ///|
-let reported_capabilities : @set.Set[String] = @set.Set::from_iter(Iter::empty())
+let reported_capabilities : @set.Set[String] = @set.Set([])
 
 ///|
 fn pass_target_is_supported(

@@ -68,7 +68,7 @@ let embedded_asset_lookup : Ref[(String) -> Bytes?] = Ref(
 )
 
 ///|
-let embedded_asset_cache : Map[String, Bytes] = Map::of([])
+let embedded_asset_cache : Map[String, Bytes] = Map([])
 
 ///|
 fn get_embedded_asset(path : String) -> Bytes? {

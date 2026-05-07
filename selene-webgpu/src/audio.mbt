@@ -37,7 +37,7 @@ priv struct AudioPlayback {
 }
 
 ///|
-let audio_instances : Map[AudioInstance, AudioPlayback] = Map::of([])
+let audio_instances : Map[AudioInstance, AudioPlayback] = Map([])
 
 ///|
 let next_audio_instance : Ref[Int] = Ref(1)
@@ -46,13 +46,13 @@ let next_audio_instance : Ref[Int] = Ref(1)
 let audio_user_activation_epoch : Ref[Int] = Ref(0)
 
 ///|
-let cached_audio_sources : Map[String, CachedAudioSource] = Map::of([])
+let cached_audio_sources : Map[String, CachedAudioSource] = Map([])
 
 ///|
 let retired_blob_audio_sources : Array[String] = []
 
 ///|
-let preloaded_audio_templates : Map[String, Audio] = Map::of([])
+let preloaded_audio_templates : Map[String, Audio] = Map([])
 
 ///|
 fn clamp_playback_speed(speed : Double) -> Double {

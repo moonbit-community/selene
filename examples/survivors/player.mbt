@@ -38,7 +38,7 @@ priv struct PlayerAnimationController {
 let player_animation_controllers : Map[
   @entity.Entity,
   PlayerAnimationController,
-] = Map::of([])
+] = Map([])
 
 ///|
 fn ensure_sprite_animation_binding(entity : @entity.Entity) -> Unit {

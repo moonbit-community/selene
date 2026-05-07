@@ -12,7 +12,7 @@ pub(all) struct InputSnapshot {
 ///|
 pub fn empty_input_snapshot() -> InputSnapshot {
   {
-    pressed_keys: Set::from_iter(Iter::empty()),
+    pressed_keys: Set([]),
     mouse: {
       pos: @math.Vec2::zero(),
       left_button: false,
@@ -21,9 +21,9 @@ pub fn empty_input_snapshot() -> InputSnapshot {
     },
     mouse_movement: { movement: @math.Vec2::zero() },
     mouse_wheel: { delta: @math.Vec2::zero() },
-    connected_gamepads: Set::from_iter(Iter::empty()),
-    pressed_gamepad_buttons: Set::from_iter(Iter::empty()),
-    gamepad_axis_values: Map::of([]),
+    connected_gamepads: Set([]),
+    pressed_gamepad_buttons: Set([]),
+    gamepad_axis_values: Map([]),
   }
 }
 

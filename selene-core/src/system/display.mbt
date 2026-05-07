@@ -21,7 +21,7 @@ priv struct DisplayState {
 }
 
 ///|
-let display_world_states : Map[UInt, DisplayState] = Map::of([])
+let display_world_states : Map[UInt, DisplayState] = Map([])
 
 ///|
 fn display_state() -> DisplayState {

@@ -131,22 +131,22 @@ priv struct GamepadWorldStore {
 }
 
 ///|
-let gamepad_world_stores : Map[UInt, GamepadWorldStore] = Map::of([])
+let gamepad_world_stores : Map[UInt, GamepadWorldStore] = Map([])
 
 ///|
 fn gamepad_world_store() -> GamepadWorldStore {
   let world_id = @ecs.require_current_world().id()
   gamepad_world_stores.get_or_init(world_id, () => {
-    connected_gamepads: Set::from_iter(Iter::empty()),
-    pressed_gamepad_buttons: Set::from_iter(Iter::empty()),
-    gamepad_axis_values: Map::of([]),
-    just_connected_gamepads: Set::from_iter(Iter::empty()),
-    just_disconnected_gamepads: Set::from_iter(Iter::empty()),
-    just_pressed_gamepad_buttons: Set::from_iter(Iter::empty()),
-    just_released_gamepad_buttons: Set::from_iter(Iter::empty()),
-    last_connected_gamepads: Set::from_iter(Iter::empty()),
-    last_pressed_gamepad_buttons: Set::from_iter(Iter::empty()),
-    last_gamepad_axis_values: Map::of([]),
+    connected_gamepads: Set([]),
+    pressed_gamepad_buttons: Set([]),
+    gamepad_axis_values: Map([]),
+    just_connected_gamepads: Set([]),
+    just_disconnected_gamepads: Set([]),
+    just_pressed_gamepad_buttons: Set([]),
+    just_released_gamepad_buttons: Set([]),
+    last_connected_gamepads: Set([]),
+    last_pressed_gamepad_buttons: Set([]),
+    last_gamepad_axis_values: Map([]),
   })
 }
 

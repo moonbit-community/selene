@@ -421,8 +421,8 @@ fn compute_scene_node_target_ids(
   nodes : Array[SceneNodeTemplate],
   roots : Array[Int],
 ) -> Map[Int, @animation.AnimationTargetId] {
-  let output : Map[Int, @animation.AnimationTargetId] = Map::of([])
-  let seen_paths : Set[String] = Set::from_iter(Iter::empty())
+  let output : Map[Int, @animation.AnimationTargetId] = Map([])
+  let seen_paths : Set[String] = Set([])
   for root_order, node_index in roots {
     assign_scene_node_target_ids(
       nodes,
@@ -445,7 +445,7 @@ fn parse_animation_clips(
   nodes : Array[SceneNodeTemplate],
   roots : Array[Int],
 ) -> Map[String, @animation.AnimationClipHandle] {
-  let animations : Map[String, @animation.AnimationClipHandle] = Map::of([])
+  let animations : Map[String, @animation.AnimationClipHandle] = Map([])
   guard root_object.get("animations") is Some(animations_json) else {
     return animations
   }

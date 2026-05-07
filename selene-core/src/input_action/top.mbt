@@ -39,10 +39,10 @@ pub(all) struct ActionEvent {
 } derive(Eq, Debug)
 
 ///|
-let input_bindings : Map[InputAction, Array[InputBinding]] = Map::of([])
+let input_bindings : Map[InputAction, Array[InputBinding]] = Map([])
 
 ///|
-let action_states : Map[InputAction, ActionState] = Map::of([])
+let action_states : Map[InputAction, ActionState] = Map([])
 
 ///|
 pub let input_action_event_bus : @event.Events[ActionEvent] = @event.Events()

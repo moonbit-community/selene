@@ -25,7 +25,7 @@ pub fn build_camera_extract2d_context(
   let all_camera_ids = camera_views.map(fn(camera_view) {
     camera_view.entity.id()
   })
-  let camera_views_by_id : Map[UInt, @camera.Camera2dView] = Map::of([])
+  let camera_views_by_id : Map[UInt, @camera.Camera2dView] = Map([])
   let camera_grid_entries : Array[SpatialGridEntry2d] = []
   for camera_view in camera_views {
     camera_views_by_id.set(camera_view.entity.id(), camera_view)
@@ -110,7 +110,7 @@ pub fn build_spatial_grid2d(
   cell_size? : Double = 256.0,
 ) -> SpatialGrid2d {
   let effective_size = effective_cell_size(cell_size)
-  let buckets : Map[String, Array[UInt]] = Map::of([])
+  let buckets : Map[String, Array[UInt]] = Map([])
   for entry in entries {
     let bounds = entry.bounds
     guard bounds.size[X] > 0.0 && bounds.size[Y] > 0.0 else { continue }
@@ -132,7 +132,7 @@ pub fn SpatialGrid2d::query(
   if region.size[X] <= 0.0 || region.size[Y] <= 0.0 {
     return []
   }
-  let unique : @set.Set[UInt] = @set.Set::from_iter(Iter::empty())
+  let unique : @set.Set[UInt] = @set.Set([])
   let (min_x, min_y, max_x, max_y) = rect_cell_bounds(region, self.cell_size)
   for x in min_x..<(max_x + 1) {
     for y in min_y..<(max_y + 1) {

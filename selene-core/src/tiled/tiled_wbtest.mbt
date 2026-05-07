@@ -92,7 +92,7 @@ fn animation_image_path(entity : @entity.Entity) -> String? {
 
 ///|
 test "load_tiled_map resolves external JSON tilesets" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/demo.tmj",
     ascii_bytes(
@@ -122,7 +122,7 @@ test "load_tiled_map resolves external JSON tilesets" {
 
 ///|
 test "load_tiled_map resolves external TSX tilesets" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   let demo_tmx =
     #|<?xml version="1.0" encoding="UTF-8"?>
     #|<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="1" height="1" tilewidth="16" tileheight="16">
@@ -155,7 +155,7 @@ test "load_tiled_map resolves external TSX tilesets" {
 
 ///|
 test "load_tiled_map decodes JSON base64 tile layer data" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/base64.tmj",
     ascii_bytes(
@@ -173,7 +173,7 @@ test "load_tiled_map decodes JSON base64 tile layer data" {
 
 ///|
 test "load_tiled_map decodes JSON csv tile layer string data" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/csv.tmj",
     ascii_bytes(
@@ -191,7 +191,7 @@ test "load_tiled_map decodes JSON csv tile layer string data" {
 
 ///|
 test "load_tiled_map decodes base64 with empty compression marker" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/base64-empty-compression.tmj",
     ascii_bytes(
@@ -209,7 +209,7 @@ test "load_tiled_map decodes base64 with empty compression marker" {
 
 ///|
 test "load_tiled_map decodes JSON base64 gzip tile layer data" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/base64-gzip.tmj",
     ascii_bytes(
@@ -227,7 +227,7 @@ test "load_tiled_map decodes JSON base64 gzip tile layer data" {
 
 ///|
 test "load_tiled_map decodes JSON base64 zlib tile layer data" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/base64-zlib.tmj",
     ascii_bytes(
@@ -245,7 +245,7 @@ test "load_tiled_map decodes JSON base64 zlib tile layer data" {
 
 ///|
 test "load_tiled_map decodes JSON base64 zstd tile layer data" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/base64-zstd.tmj",
     ascii_bytes(
@@ -263,7 +263,7 @@ test "load_tiled_map decodes JSON base64 zstd tile layer data" {
 
 ///|
 test "load_tiled_map decodes TMX base64 tile layer data" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   let base64_tmx =
     #|<?xml version="1.0" encoding="UTF-8"?>
     #|<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="2" height="2" tilewidth="16" tileheight="16">
@@ -310,7 +310,7 @@ test "tiled world pattern expansion derives map position and size" {
 
 ///|
 test "load_tiled_world parses pattern map dimensions defaults" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "worlds/patterns.world",
     ascii_bytes(
@@ -327,7 +327,7 @@ test "load_tiled_world parses pattern map dimensions defaults" {
 
 ///|
 test "spawn_tiled_map creates tile object and image layer entities" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/level.tmj",
     ascii_bytes(
@@ -427,7 +427,7 @@ test "spawn_tiled_map creates tile object and image layer entities" {
 
 ///|
 test "respawn_tiled_map_into_entity replaces previous tiled children and metadata" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/a.tmj",
     ascii_bytes(
@@ -491,7 +491,7 @@ test "respawn_tiled_map_into_entity replaces previous tiled children and metadat
 
 ///|
 test "spawn_tiled_map attaches full tiled physics coverage" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/physics.tmj",
     ascii_bytes(
@@ -623,7 +623,7 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
 
 ///|
 test "spawn_tiled_map applies physics body and material properties" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/physics-properties.tmj",
     ascii_bytes(
@@ -696,7 +696,7 @@ test "spawn_tiled_map applies physics body and material properties" {
 
 ///|
 test "spawn_tiled_world loads adjacent maps and emits world events" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "worlds/demo.world",
     ascii_bytes(
@@ -772,7 +772,7 @@ test "spawn_tiled_world loads adjacent maps and emits world events" {
 
 ///|
 test "respawn_tiled_world_into_entity replaces previous spawned maps" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "worlds/a.world",
     ascii_bytes(
@@ -855,7 +855,7 @@ test "tiled world chunking spawns maps around camera view" {
   )
   tiled_test_set_entity_translation_2d(camera_entity, @math.Vec2(50.0, 50.0))
 
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "worlds/chunk.world",
     ascii_bytes(
@@ -934,7 +934,7 @@ test "tiled world chunking unions multiple active camera views" {
   )
   tiled_test_set_entity_translation_2d(right_camera, @math.Vec2(250.0, 50.0))
 
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "worlds/chunk.world",
     ascii_bytes(
@@ -995,7 +995,7 @@ test "tiled parallax system adjusts layer offsets" {
   )
   tiled_test_set_entity_translation_2d(camera_entity, @math.Vec2(50.0, 50.0))
 
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/parallax.tmj",
     ascii_bytes(
@@ -1052,7 +1052,7 @@ test "tiled parallax system adjusts layer offsets" {
 
 ///|
 test "spawn_tiled_map reads TMX tile object and image layers" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   let level_tmx =
     #|<?xml version="1.0" encoding="UTF-8"?>
     #|<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="2" height="2" tilewidth="16" tileheight="16">
@@ -1146,7 +1146,7 @@ test "spawn_tiled_map reads TMX tile object and image layers" {
 
 ///|
 test "spawn_tiled_map expands tiled animated tiles into frame timelines" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/animated.tmj",
     ascii_bytes(
@@ -1188,7 +1188,7 @@ test "spawn_tiled_map expands tiled animated tiles into frame timelines" {
 
 ///|
 test "spawn_tiled_map creates tile entities for isometric maps" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/isometric.tmj",
     ascii_bytes(

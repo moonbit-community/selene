@@ -214,34 +214,36 @@ pub(all) struct FrameCaptureArtifact {
 pub type SnapshotProvider = (@ecs.World) -> String
 
 ///|
-let deterministic_mode_by_world : Map[UInt, DeterministicModeConfig] = Map::of([])
+let deterministic_mode_by_world : Map[UInt, DeterministicModeConfig] = Map([])
 
 ///|
-let rng_state_by_world : Map[UInt, UInt] = Map::of([])
+let rng_state_by_world : Map[UInt, UInt] = Map([])
 
 ///|
-let queued_inputs_by_world : Map[UInt, Array[@inputs.InputSnapshot]] = Map::of([])
+let queued_inputs_by_world : Map[UInt, Array[@inputs.InputSnapshot]] = Map([])
 
 ///|
-let staged_input_by_world : Map[UInt, @inputs.InputSnapshot] = Map::of([])
+let staged_input_by_world : Map[UInt, @inputs.InputSnapshot] = Map([])
 
 ///|
-let frame_metrics_by_world : Map[UInt, FramePerformanceMetrics] = Map::of([])
+let frame_metrics_by_world : Map[UInt, FramePerformanceMetrics] = Map([])
 
 ///|
-let frame_metrics_history_by_world : Map[UInt, Array[FramePerformanceMetrics]] = Map::of([])
+let frame_metrics_history_by_world : Map[UInt, Array[FramePerformanceMetrics]] = Map([],
+)
 
 ///|
-let render_submission_by_world : Map[UInt, RenderSubmissionDebug] = Map::of([])
+let render_submission_by_world : Map[UInt, RenderSubmissionDebug] = Map([])
 
 ///|
-let latest_render_frame_by_world : Map[UInt, @render_pipeline.RenderFrame] = Map::of([])
+let latest_render_frame_by_world : Map[UInt, @render_pipeline.RenderFrame] = Map([],
+)
 
 ///|
-let snapshot_providers : Map[String, SnapshotProvider] = Map::of([])
+let snapshot_providers : Map[String, SnapshotProvider] = Map([])
 
 ///|
-let atlas_overlay_enabled_by_world : Map[UInt, Bool] = Map::of([])
+let atlas_overlay_enabled_by_world : Map[UInt, Bool] = Map([])
 
 ///|
 fn current_world() -> @ecs.World {

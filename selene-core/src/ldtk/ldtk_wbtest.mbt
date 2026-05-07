@@ -305,7 +305,7 @@ fn level_background_image_count(level_iid : String) -> Int {
 
 ///|
 test "load_ldtk_project parses level selection and neighbor set" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "levels/world.ldtk",
     ascii_bytes(
@@ -331,7 +331,7 @@ test "load_ldtk_project parses level selection and neighbor set" {
 
 ///|
 test "load_ldtk_project resolves external level files" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "levels/world.ldtk",
     ascii_bytes(
@@ -366,7 +366,7 @@ test "load_ldtk_project resolves external level files" {
 
 ///|
 test "load_ldtk_project parses defs entities enums and typed entity field helpers" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "levels/world.ldtk",
     ascii_bytes(
@@ -410,7 +410,7 @@ test "load_ldtk_project parses defs entities enums and typed entity field helper
 
 ///|
 test "load_ldtk_project parses entity instance tags" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "levels/world.ldtk",
     ascii_bytes(
@@ -432,7 +432,7 @@ test "load_ldtk_project parses entity instance tags" {
 
 ///|
 test "load_ldtk_project parses advanced field helpers for level and entity" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "levels/world.ldtk",
     ascii_bytes(
@@ -498,7 +498,7 @@ test "load_ldtk_project parses advanced field helpers for level and entity" {
 
 ///|
 test "load_ldtk_project parses level background position" {
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set(
     "levels/world.ldtk",
     ascii_bytes(
@@ -591,7 +591,7 @@ test "ldtk_world_sync_system updates spawned levels from selection" {
 ///|
 test "spawn_ldtk_world spawns level backgrounds from bg color and image" {
   reset_ldtk_runtime()
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set("levels/assets/bg.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
     let project : LdtkProject = {
@@ -674,7 +674,7 @@ test "spawn_ldtk_world spawns level backgrounds from bg color and image" {
 ///|
 test "spawn_ldtk_world spawns layer tiles entities and intgrid cells" {
   reset_ldtk_runtime()
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set("assets/tiles.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
     let tile_layer : LdtkLayerInstance = {
@@ -866,7 +866,7 @@ test "spawn_ldtk_world spawns layer tiles entities and intgrid cells" {
 ///|
 test "ldtk entity tile sprite registration inserts placeholder sprite from __tile" {
   reset_ldtk_runtime()
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set("assets/entity_tiles.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
     add_ldtk_entity_tile_sprite("Enemy")
@@ -986,7 +986,7 @@ test "ldtk entity tile sprite registration inserts placeholder sprite from __til
 ///|
 test "ldtk tile source uses tileset spacing and padding" {
   reset_ldtk_runtime()
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set("assets/tiles.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
     let project : LdtkProject = {
@@ -1078,7 +1078,7 @@ test "ldtk tile source uses tileset spacing and padding" {
 ///|
 test "ldtk tile render alpha multiplies layer opacity and tile alpha" {
   reset_ldtk_runtime()
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set("assets/tiles.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
     let project : LdtkProject = {
@@ -1216,7 +1216,7 @@ test "ldtk tileset custom data and enum tags resolve by tile id" {
 ///|
 test "ldtk spawned tile metadata includes custom data and enum tags" {
   reset_ldtk_runtime()
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set("assets/tiles.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
     let project : LdtkProject = {
@@ -1671,8 +1671,8 @@ test "ldtk add entity component helpers can build bundle-like sets" {
       },
     ]),
   ])
-  let entity_scores : Map[@entity.Entity, Int] = Map::of([])
-  let entity_kinds : Map[@entity.Entity, String] = Map::of([])
+  let entity_scores : Map[@entity.Entity, Int] = Map([])
+  let entity_kinds : Map[@entity.Entity, String] = Map([])
 
   add_ldtk_entity_component("Enemy", entity_scores, fn(_event) { 99 })
   add_ldtk_entity_component("Enemy", entity_kinds, fn(event) {
@@ -1780,8 +1780,8 @@ test "ldtk add int cell component helpers can compose per scope" {
   let project = test_project_with_layers("level-main", [
     test_int_grid_layer("Collision", 2, 1, [1, 2]),
   ])
-  let cell_labels : Map[@entity.Entity, String] = Map::of([])
-  let cell_values_x2 : Map[@entity.Entity, Int] = Map::of([])
+  let cell_labels : Map[@entity.Entity, String] = Map([])
+  let cell_values_x2 : Map[@entity.Entity, Int] = Map([])
 
   add_ldtk_int_cell_component(2, cell_labels, fn(_event) { "solid" })
   add_ldtk_int_cell_component(2, cell_values_x2, fn(event) { event.value * 2 })
@@ -1984,7 +1984,7 @@ test "ldtk layer display order uses LDtk top-most first ordering" {
 ///|
 test "ldtk intgrid with tileset skips colorful fallback sprites" {
   reset_ldtk_runtime()
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set("assets/tiles.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
     let project : LdtkProject = {
@@ -2109,7 +2109,7 @@ test "ldtk intgrid with tileset skips colorful fallback sprites" {
 ///|
 test "ldtk settings intgrid invisible and layer exclusion apply at spawn" {
   reset_ldtk_runtime()
-  let files : Map[String, Bytes] = Map::of([])
+  let files : Map[String, Bytes] = Map([])
   files.set("assets/tiles.png", ascii_bytes("png"))
   with_fake_asset_io(files, fn() raise {
     let project : LdtkProject = {

@@ -10,7 +10,7 @@ priv struct TimeState {
 }
 
 ///|
-let time_world_states : Map[UInt, TimeState] = Map::of([])
+let time_world_states : Map[UInt, TimeState] = Map([])
 
 ///|
 fn time_state() -> TimeState {

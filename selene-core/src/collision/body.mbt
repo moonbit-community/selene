@@ -75,12 +75,12 @@ priv struct RigidBodyWorldStore {
 }
 
 ///|
-let rigid_body_world_stores : Map[UInt, RigidBodyWorldStore] = Map::of([])
+let rigid_body_world_stores : Map[UInt, RigidBodyWorldStore] = Map([])
 
 ///|
 fn rigid_body_world_store() -> RigidBodyWorldStore {
   let world_id = @ecs.require_current_world().id()
-  rigid_body_world_stores.get_or_init(world_id, () => { rigid_bodies: Map::of([]) })
+  rigid_body_world_stores.get_or_init(world_id, () => { rigid_bodies: Map([]) })
 }
 
 ///|

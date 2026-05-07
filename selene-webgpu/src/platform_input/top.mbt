@@ -12,7 +12,7 @@ let mouse_lock_handlers_registered : Ref[Bool] = Ref(false)
 
 ///|
 fn[T : Hash + Eq] copy_set(src : Set[T]) -> Set[T] {
-  let out = Set::from_iter(Iter::empty())
+  let out = Set([])
   for item in src {
     out.add(item)
   }
@@ -21,7 +21,7 @@ fn[T : Hash + Eq] copy_set(src : Set[T]) -> Set[T] {
 
 ///|
 fn[K : Hash + Eq, V] copy_map(src : Map[K, V]) -> Map[K, V] {
-  let out = Map::of([])
+  let out = Map([])
   for key, value in src {
     out.set(key, value)
   }

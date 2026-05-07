@@ -201,8 +201,8 @@ fn sort_systems_by_set(
     return systems
   }
 
-  let group_members : Map[String, Array[RegisteredSystem]] = Map::of([])
-  let group_order : Map[String, Int] = Map::of([])
+  let group_members : Map[String, Array[RegisteredSystem]] = Map([])
+  let group_order : Map[String, Int] = Map([])
   let group_keys : Array[String] = []
 
   for index, system in systems {
@@ -217,10 +217,10 @@ fn sort_systems_by_set(
     group_members.set(key, members)
   }
 
-  let outgoing : Map[String, @set.Set[String]] = Map::of([])
-  let indegree : Map[String, Int] = Map::of([])
+  let outgoing : Map[String, @set.Set[String]] = Map([])
+  let indegree : Map[String, Int] = Map([])
   for key in group_keys {
-    outgoing.set(key, @set.Set::from_iter(Iter::empty()))
+    outgoing.set(key, @set.Set([]))
     indegree.set(key, 0)
   }
 
@@ -271,7 +271,7 @@ fn sort_systems_by_set(
     })
   }
 
-  let processed : @set.Set[String] = @set.Set::from_iter(Iter::empty())
+  let processed : @set.Set[String] = @set.Set([])
   let sorted_keys : Array[String] = []
   while processed.to_array().length() < group_keys.length() {
     let mut progressed = false
@@ -285,7 +285,7 @@ fn sort_systems_by_set(
       progressed = true
       processed.add(key)
       sorted_keys.push(key)
-      for target in outgoing.get(key).unwrap_or(@set.Set::from_iter(Iter::empty())) {
+      for target in outgoing.get(key).unwrap_or(@set.Set([])) {
         let degree = indegree.get(target).unwrap_or(0)
         indegree.set(target, @cmp.maximum(0, degree - 1))
       }

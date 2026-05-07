@@ -64,15 +64,15 @@ priv struct AudioWorldStore {
 }
 
 ///|
-let audio_world_stores : Map[UInt, AudioWorldStore] = Map::of([])
+let audio_world_stores : Map[UInt, AudioWorldStore] = Map([])
 
 ///|
 fn audio_world_store() -> AudioWorldStore {
   let world_id = @ecs.require_current_world().id()
   audio_world_stores.get_or_init(world_id, () => {
-    audio_players: Map::of([]),
-    audio_playback_settings: Map::of([]),
-    audio_sinks: Map::of([]),
+    audio_players: Map([]),
+    audio_playback_settings: Map([]),
+    audio_sinks: Map([]),
   })
 }
 

@@ -703,7 +703,7 @@ pub fn ui_layout_system(_delta : Double) -> Unit {
     )
     let viewport = ui_layout_root_size(layout_space)
     let taffy : @moon_taffy.TaffyTree[@entity.Entity] = @moon_taffy.TaffyTree::new()
-    let entity_to_node_id : Map[@entity.Entity, Int] = Map::of([])
+    let entity_to_node_id : Map[@entity.Entity, Int] = Map([])
     guard build_taffy_tree(taffy, root_entity, entity_to_node_id)
       is Some(root_node) else {
       continue

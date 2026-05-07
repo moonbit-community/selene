@@ -79,14 +79,14 @@ priv struct TiledPhysicsWorldStore {
 }
 
 ///|
-let tiled_physics_world_stores : Map[UInt, TiledPhysicsWorldStore] = Map::of([])
+let tiled_physics_world_stores : Map[UInt, TiledPhysicsWorldStore] = Map([])
 
 ///|
 fn tiled_physics_world_store() -> TiledPhysicsWorldStore {
   let world_id = @ecs.require_current_world().id()
   tiled_physics_world_stores.get_or_init(world_id, () => {
-    tiled_colliders: Map::of([]),
-    tiled_collider_origins: Map::of([]),
+    tiled_colliders: Map([]),
+    tiled_collider_origins: Map([]),
   })
 }
 
@@ -876,7 +876,7 @@ fn tiled_merge_properties(
   override_ : Array[TiledProperty],
 ) -> Array[TiledProperty] {
   let merged : Array[TiledProperty] = []
-  let names : Set[String] = Set::from_iter(Iter::empty())
+  let names : Set[String] = Set([])
   for property in override_ {
     if names.contains(property.name) {
       continue

@@ -458,7 +458,7 @@ fn process_trigger_events() -> Unit {
       area_collider.position(),
       area_collider.shape(),
     )
-    let intersecting_entities : Set[@entity.Entity] = Set::from_iter(Iter::empty())
+    let intersecting_entities : Set[@entity.Entity] = Set([])
     for handle in overlaps {
       guard entity_from_collider_handle(handle) is Some(other) else { continue }
       intersecting_entities.add(other)
