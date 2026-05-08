@@ -8,6 +8,8 @@
 - Changed MoonBit constructor APIs to use direct `Type(...)` constructors and removed the legacy `Type::new(...)` constructor entrypoints across Selene packages.
 
 ### Fixed
+- Fixed Survivors level-up power-up icons being intermittently hidden behind their button backgrounds by making each icon a child of its option button instead of an equal-z top-level UI entity.
+- Fixed Cosmic text rasterization in the WebGPU and raylib backends so glyph RGB output cannot override the requested text color for individual characters.
 - Fixed CI and Pages MoonBit installation to use the nightly toolchain so automation matches the source syntax baseline.
 - Fixed Windows CI native builds to use MSVC for MoonBit C stubs that do not support MinGW.
 - Fixed current MoonBit deprecation warnings across Selene packages so warning-free checks pass with `--deny-warn`.

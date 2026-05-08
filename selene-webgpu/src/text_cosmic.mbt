@@ -62,6 +62,24 @@ fn to_cosmic_color(color : @render.Color) -> @cosmic.Color {
 }
 
 ///|
+fn color_channel_to_int(channel : UInt) -> Int {
+  saturating_byte(channel.reinterpret_as_int()).to_int()
+}
+
+///|
+fn styled_text_pixel_rgba(
+  color : @render.Color,
+  coverage_alpha : Int,
+) -> (Int, Int, Int, Int) {
+  (
+    color_channel_to_int(color.r),
+    color_channel_to_int(color.g),
+    color_channel_to_int(color.b),
+    saturating_byte(coverage_alpha).to_int(),
+  )
+}
+
+///|
 fn text_cache_key(command : @render2d_types.TextDrawCommand2D) -> String {
   let color = command.style.color
   let a = alpha_to_byte(color.a).to_int()
@@ -133,14 +151,14 @@ fn rasterize_with_cosmic(
   let mut min_y = 0
   let mut max_x = -1
   let mut max_y = -1
-  let points : Array[(Int, Int, Int, Int, Int, Int)] = []
+  let points : Array[(Int, Int, Int)] = []
   let (drawn_buffer, swash_cache) = buffer.draw(
     cosmic_font_system.val,
     cosmic_swash_cache.val,
     to_cosmic_color(command.style.color),
     fn(x, y, _w, _h, color) {
-      let (r, g, b, a) = color.as_rgba()
-      points.push((x, y, r.to_int(), g.to_int(), b.to_int(), a.to_int()))
+      let (_, _, _, a) = color.as_rgba()
+      points.push((x, y, a.to_int()))
       if max_x < min_x {
         min_x = x
         max_x = x
@@ -173,10 +191,7 @@ fn rasterize_with_cosmic(
   for point in points {
     let x = point.0
     let y = point.1
-    let r = point.2
-    let g = point.3
-    let b = point.4
-    let a = point.5
+    let (r, g, b, a) = styled_text_pixel_rgba(command.style.color, point.2)
     let local_x = x - min_x
     let local_y = y - min_y
     let idx = (local_y * width + local_x) * 4

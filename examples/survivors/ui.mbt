@@ -328,15 +328,11 @@ fn setup_level_up_ui() -> Unit {
     )
     levelup_buttons.push(button)
 
-    let icon = @entity.Entity()
+    let icon = button.spawn_child()
     @ui.nodes().set(
       icon,
       @ui.Node::absolute(
-        levelup_panel_origin() +
-        @math.Vec2(
-          LEVELUP_BUTTON_ICON_OFFSET_X,
-          button_y + LEVELUP_BUTTON_ICON_OFFSET_Y,
-        ),
+        @math.Vec2(LEVELUP_BUTTON_ICON_OFFSET_X, LEVELUP_BUTTON_ICON_OFFSET_Y),
         size=@math.Vec2(LEVELUP_BUTTON_ICON_SIZE, LEVELUP_BUTTON_ICON_SIZE),
       ),
     )

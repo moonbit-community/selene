@@ -64,6 +64,24 @@ fn cosmic_font_size(size : Double) -> Double {
 }
 
 ///|
+fn text_color_channel_to_int(channel : UInt) -> Int {
+  clamp_u8(channel.reinterpret_as_int())
+}
+
+///|
+fn styled_text_pixel_rgba(
+  color : @render.Color,
+  coverage_alpha : Int,
+) -> (Int, Int, Int, Int) {
+  (
+    text_color_channel_to_int(color.r),
+    text_color_channel_to_int(color.g),
+    text_color_channel_to_int(color.b),
+    clamp_u8(coverage_alpha),
+  )
+}
+
+///|
 fn rasterize_with_cosmic(
   text : String,
   style : @render2d_types.TextStyle2D,
@@ -86,7 +104,7 @@ fn rasterize_with_cosmic(
   let mut min_y = 0
   let mut max_x = -1
   let mut max_y = -1
-  let fills : Array[(Int, Int, Int, Int, Int, Int, Int, Int)] = []
+  let fills : Array[(Int, Int, Int, Int, Int)] = []
   let (drawn_buffer, swash_cache) = buffer.draw(
     cosmic_font_system.val,
     cosmic_swash_cache.val,
@@ -100,8 +118,8 @@ fn rasterize_with_cosmic(
       let w = width.reinterpret_as_int()
       let h = height.reinterpret_as_int()
       guard w > 0 && h > 0 else { return }
-      let (r, g, b, a) = color.as_rgba()
-      fills.push((x, y, w, h, r.to_int(), g.to_int(), b.to_int(), a.to_int()))
+      let (_, _, _, a) = color.as_rgba()
+      fills.push((x, y, w, h, a.to_int()))
       let right = x + w - 1
       let bottom = y + h - 1
       if max_x < min_x {
@@ -136,10 +154,7 @@ fn rasterize_with_cosmic(
     let y = fill.1
     let w = fill.2
     let h = fill.3
-    let r = fill.4
-    let g = fill.5
-    let b = fill.6
-    let a = fill.7
+    let (r, g, b, a) = styled_text_pixel_rgba(style.color, fill.4)
     for local_y in 0..<h {
       let py = y + local_y - min_y
       if py < 0 || py >= height {

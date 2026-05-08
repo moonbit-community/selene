@@ -24,6 +24,22 @@ test "level up shows panel and buttons" {
     content="true",
   )
   inspect(@ui.ui_images().contains(levelup_button_icons[0]), content="true")
+  inspect(
+    levelup_button_icons[0].get_parent() == Some(levelup_buttons[0]),
+    content="true",
+  )
+  let button_rect = @ui.global_ui_nodes().get(levelup_buttons[0]).unwrap().screen_rect
+  let icon_rect = @ui.global_ui_nodes().get(levelup_button_icons[0]).unwrap().screen_rect
+  inspect(
+    icon_rect.position[X] ==
+    button_rect.position[X] + LEVELUP_BUTTON_ICON_OFFSET_X,
+    content="true",
+  )
+  inspect(
+    icon_rect.position[Y] ==
+    button_rect.position[Y] + LEVELUP_BUTTON_ICON_OFFSET_Y,
+    content="true",
+  )
   inspect(game_state.level_up_panel.available_selections.length(), content="3")
 }
 
