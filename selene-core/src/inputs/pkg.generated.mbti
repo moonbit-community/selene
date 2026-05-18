@@ -23,6 +23,8 @@ pub fn apply_input_snapshot(InputSnapshot) -> Unit
 
 pub fn clear_touch_state() -> Unit
 
+pub fn clear_virtual_controls() -> Unit
+
 pub fn connected_gamepads() -> @set.Set[Gamepad]
 
 pub fn empty_input_snapshot() -> InputSnapshot
@@ -77,6 +79,8 @@ pub fn is_released(Code) -> Bool
 
 pub fn is_touch_active(TouchId) -> Bool
 
+pub fn is_virtual_button_pressed(VirtualButton) -> Bool
+
 pub fn just_connected_gamepads() -> @set.Set[Gamepad]
 
 pub fn just_disconnected_gamepads() -> @set.Set[Gamepad]
@@ -119,6 +123,10 @@ pub fn primary_touch() -> TouchPoint?
 
 pub fn replace_touch_state(Map[TouchId, TouchPoint], Array[TouchEvent]) -> Unit
 
+pub fn set_virtual_axis_value(VirtualAxis, Double) -> Unit
+
+pub fn set_virtual_button_pressed(VirtualButton, Bool) -> Unit
+
 pub fn touch_changes_this_frame() -> Array[TouchEvent]
 
 pub let touch_event_bus : @event.Events[TouchEvent]
@@ -128,6 +136,12 @@ pub fn touch_gesture_changes_this_frame() -> Array[TouchGestureEvent]
 pub let touch_gesture_event_bus : @event.Events[TouchGestureEvent]
 
 pub fn touch_point(TouchId) -> TouchPoint?
+
+pub let virtual_axis_event_bus : @event.Events[VirtualAxisEvent]
+
+pub fn virtual_axis_value(VirtualAxis) -> Double
+
+pub let virtual_button_event_bus : @event.Events[VirtualButtonEvent]
 
 // Errors
 
@@ -385,6 +399,34 @@ pub(all) struct TouchPoint {
   delta : @math.Vec2
   primary : Bool
 }
+
+pub(all) struct VirtualAxis {
+  name : String
+} derive(Eq, Hash, @debug.Debug)
+pub fn VirtualAxis::VirtualAxis(String) -> Self
+pub fn VirtualAxis::name(Self) -> String
+
+pub(all) struct VirtualAxisEvent {
+  axis : VirtualAxis
+  value : Double
+  delta : Double
+}
+
+pub(all) struct VirtualButton {
+  name : String
+} derive(Eq, Hash, @debug.Debug)
+pub fn VirtualButton::VirtualButton(String) -> Self
+pub fn VirtualButton::name(Self) -> String
+
+pub(all) struct VirtualButtonEvent {
+  button : VirtualButton
+  state : VirtualButtonInputState
+}
+
+pub(all) enum VirtualButtonInputState {
+  Pressed
+  Released
+} derive(Eq, @debug.Debug)
 
 // Type aliases
 

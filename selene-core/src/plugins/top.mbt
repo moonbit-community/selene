@@ -47,6 +47,8 @@ fn register_builtin_messages(app : @app.App) -> @app.App {
   .add_message(@inputs.mouse_wheel_event_bus)
   .add_message(@inputs.touch_event_bus)
   .add_message(@inputs.touch_gesture_event_bus)
+  .add_message(@inputs.virtual_button_event_bus)
+  .add_message(@inputs.virtual_axis_event_bus)
   .add_message(@inputs.gamepad_connection_event_bus)
   .add_message(@inputs.gamepad_button_event_bus)
   .add_message(@inputs.gamepad_axis_event_bus)

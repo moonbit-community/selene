@@ -264,7 +264,11 @@ pub fn primary_pointer_down() -> Bool {
 
 ///|
 fn abs_double(value : Double) -> Double {
-  if value < 0.0 { -value } else { value }
+  if value < 0.0 {
+    -value
+  } else {
+    value
+  }
 }
 
 ///|
@@ -452,7 +456,11 @@ fn first_two_gesture_touches() -> (GestureTouchState, GestureTouchState)? {
 }
 
 ///|
-fn same_pinch_pair(state : PinchState, first : TouchId, second : TouchId) -> Bool {
+fn same_pinch_pair(
+  state : PinchState,
+  first : TouchId,
+  second : TouchId,
+) -> Bool {
   (state.first == first && state.second == second) ||
   (state.first == second && state.second == first)
 }
@@ -463,7 +471,11 @@ fn end_current_pinch(cancelled~ : Bool) -> Unit {
     Some(state) => {
       if state.active {
         push_gesture(
-          if cancelled { PinchCancel } else { PinchEnd },
+          if cancelled {
+            PinchCancel
+          } else {
+            PinchEnd
+          },
           primary_id=state.first,
           secondary_id=state.second,
           position=state.previous_center,
@@ -514,9 +526,11 @@ fn update_pinch(cancelled : Bool) -> Unit {
               distance~,
             )
           } else if state.active &&
-            (abs_double(delta_distance) > 0.000001 ||
+            (
+              abs_double(delta_distance) > 0.000001 ||
               center_delta[X] != 0.0 ||
-              center_delta[Y] != 0.0) {
+              center_delta[Y] != 0.0
+            ) {
             push_gesture(
               PinchMove,
               primary_id=first.id,

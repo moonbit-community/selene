@@ -7,6 +7,13 @@ pub(all) struct InputAction {
 pub(all) enum InputBinding {
   Key(@inputs.Code)
   Mouse(@inputs.MouseButton)
+  PointerPrimary
+  VirtualButton(@inputs.VirtualButton)
+  VirtualAxis(
+    @inputs.VirtualAxis,
+    mut dead_zone~ : Double,
+    mut positive~ : Bool
+  )
   GamepadButton(@inputs.Gamepad, @inputs.GamepadButton)
   GamepadAxis(
     @inputs.Gamepad,
@@ -110,23 +117,47 @@ fn binding_value(binding : InputBinding) -> Double {
   match binding {
     Key(code) => if @inputs.is_pressed(code) { 1.0 } else { 0.0 }
     Mouse(button) => if @inputs.is_mouse_pressed(button) { 1.0 } else { 0.0 }
+    PointerPrimary => if @inputs.primary_pointer_down() { 1.0 } else { 0.0 }
+    VirtualButton(button) =>
+      if @inputs.is_virtual_button_pressed(button) {
+        1.0
+      } else {
+        0.0
+      }
+    VirtualAxis(axis, dead_zone~, positive~) =>
+      axis_value_with_dead_zone(
+        @inputs.virtual_axis_value(axis),
+        dead_zone,
+        positive,
+      )
     GamepadButton(gamepad, button) =>
       if @inputs.is_gamepad_button_pressed(gamepad, button) {
         1.0
       } else {
         0.0
       }
-    GamepadAxis(gamepad, axis, dead_zone~, positive~) => {
-      let axis_value = @inputs.gamepad_axis_value(gamepad, axis)
-      let dead_zone = @cmp.minimum(1.0, @cmp.maximum(0.0, dead_zone))
-      let absolute = if axis_value < 0.0 { -axis_value } else { axis_value }
-      let filtered = if absolute <= dead_zone { 0.0 } else { axis_value }
-      if positive {
-        @cmp.maximum(0.0, filtered)
-      } else {
-        @cmp.maximum(0.0, -filtered)
-      }
-    }
+    GamepadAxis(gamepad, axis, dead_zone~, positive~) =>
+      axis_value_with_dead_zone(
+        @inputs.gamepad_axis_value(gamepad, axis),
+        dead_zone,
+        positive,
+      )
+  }
+}
+
+///|
+fn axis_value_with_dead_zone(
+  axis_value : Double,
+  dead_zone : Double,
+  positive : Bool,
+) -> Double {
+  let dead_zone = @cmp.minimum(1.0, @cmp.maximum(0.0, dead_zone))
+  let absolute = if axis_value < 0.0 { -axis_value } else { axis_value }
+  let filtered = if absolute <= dead_zone { 0.0 } else { axis_value }
+  if positive {
+    @cmp.maximum(0.0, filtered)
+  } else {
+    @cmp.maximum(0.0, -filtered)
   }
 }
 

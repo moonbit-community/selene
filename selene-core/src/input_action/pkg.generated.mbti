@@ -56,6 +56,9 @@ pub fn InputAction::InputAction(String) -> Self
 pub(all) enum InputBinding {
   Key(@inputs.Code)
   Mouse(@inputs.MouseButton)
+  PointerPrimary
+  VirtualButton(@inputs.VirtualButton)
+  VirtualAxis(@inputs.VirtualAxis, mut dead_zone~ : Double, mut positive~ : Bool)
   GamepadButton(@inputs.Gamepad, @inputs.GamepadButton)
   GamepadAxis(@inputs.Gamepad, @inputs.GamepadAxis, mut dead_zone~ : Double, mut positive~ : Bool)
 }
