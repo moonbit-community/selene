@@ -51,6 +51,8 @@ pub let click_event_bus : @event.Events[UiClickEvent]
 
 pub fn computed_ui_nodes() -> Map[@entity.Entity, ComputedUiNode]
 
+pub fn consume_touch(@inputs.TouchId) -> Unit
+
 pub fn default_overflow_clip_margin() -> OverflowClipMargin
 
 pub fn draw_ui_material_gradient(UiMaterialContext, UiGradient) -> Unit

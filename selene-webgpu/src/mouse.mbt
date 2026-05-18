@@ -19,7 +19,12 @@ extern "js" fn configure_canvas_touch_input(
   #| (canvas) => {
   #|   if (canvas && canvas.style) {
   #|     canvas.style.touchAction = 'none';
+  #|     canvas.style.userSelect = 'none';
+  #|     canvas.style.webkitUserSelect = 'none';
+  #|     canvas.style.webkitTouchCallout = 'none';
+  #|     canvas.style.webkitTapHighlightColor = 'transparent';
   #|   }
+  #|   canvas?.addEventListener?.('contextmenu', event => event.preventDefault());
   #| }
 
 ///|

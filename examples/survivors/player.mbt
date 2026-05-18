@@ -22,12 +22,6 @@ const PLAYER_SPEED : Double = 150
 const INVINCIBLE_TIME : Double = 1.0
 
 ///|
-const TOUCH_JOYSTICK_DEAD_ZONE : Double = 12.0
-
-///|
-const TOUCH_JOYSTICK_RADIUS : Double = 72.0
-
-///|
 priv struct PlayerAnimationController {
   idle_left : @animation.AnimationNodeIndex
   idle_right : @animation.AnimationNodeIndex
@@ -47,56 +41,16 @@ let player_animation_controllers : Map[
 ] = Map([])
 
 ///|
-fn clamp_touch_axis(value : Double) -> Double {
-  if value < -1.0 {
-    -1.0
-  } else if value > 1.0 {
-    1.0
-  } else {
-    value
-  }
-}
-
-///|
-fn touch_joystick_center(screen : @math.Vec2) -> @math.Vec2 {
-  @math.Vec2(screen[X] * 0.25, screen[Y] * 0.72)
-}
-
-///|
-fn touch_joystick_vector(
-  position : @math.Vec2,
-  screen : @math.Vec2,
-) -> @math.Vec2 {
-  let delta = position - touch_joystick_center(screen)
-  if delta.distance() < TOUCH_JOYSTICK_DEAD_ZONE {
-    @math.Vec2::zero()
-  } else {
-    @math.Vec2(
-      clamp_touch_axis(delta[X] / TOUCH_JOYSTICK_RADIUS),
-      clamp_touch_axis(delta[Y] / TOUCH_JOYSTICK_RADIUS),
-    )
-  }
-}
-
-///|
-fn touch_movement_vector() -> @math.Vec2 {
+fn player_input_vector() -> @math.Vec2 {
   if !game_state.level_up_panel.available_selections.is_empty() {
     return @math.Vec2::zero()
   }
-  let screen = @system.get_screen_size()
-  for touch in @ui.active_unconsumed_touches() {
-    if touch.position[X] <= screen[X] * 0.55 &&
-      touch.position[Y] >= screen[Y] * 0.35 {
-      return touch_joystick_vector(touch.position, screen)
-    }
-  }
-  @math.Vec2::zero()
-}
-
-///|
-fn player_input_vector() -> @math.Vec2 {
-  let input = @inputs.key_vector(KeyW, KeyS, KeyA, KeyD) +
-    touch_movement_vector()
+  let input = @math.Vec2(
+    @input_action.action_value(survivors_move_right_action()) -
+    @input_action.action_value(survivors_move_left_action()),
+    @input_action.action_value(survivors_move_down_action()) -
+    @input_action.action_value(survivors_move_up_action()),
+  )
   if input.distance() > 1.0 {
     input.normalize()
   } else {

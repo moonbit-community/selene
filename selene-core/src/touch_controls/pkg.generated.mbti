@@ -1,0 +1,83 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Milky2018/selene/touch_controls"
+
+import {
+  "Milky2018/selene/inputs",
+  "Milky2018/selene/math",
+  "Milky2018/selene/render",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn add_virtual_button_control(VirtualButtonControl) -> Unit
+
+pub fn add_virtual_stick_control(VirtualStick) -> Unit
+
+pub fn clear_controls() -> Unit
+
+pub fn is_enabled() -> Bool
+
+pub fn is_visible() -> Bool
+
+pub fn set_enabled(Bool) -> Unit
+
+pub fn set_visible(Bool) -> Unit
+
+pub fn spawn_mobile_platformer_controls(@inputs.VirtualButton, @inputs.VirtualButton, @inputs.VirtualButton, left_label? : String, right_label? : String, jump_label? : String) -> Unit
+
+pub fn spawn_twin_stick_controls(@inputs.VirtualAxis, @inputs.VirtualAxis) -> Unit
+
+pub fn touch_controls_render_system(Double) -> Unit
+
+pub fn touch_controls_system(Double) -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) enum StickMode {
+  Fixed
+  Floating
+} derive(Eq, @debug.Debug)
+
+pub(all) struct TouchControlStyle {
+  base_color : @render.Color
+  active_color : @render.Color
+  knob_color : @render.Color
+  label_color : @render.Color
+}
+pub fn TouchControlStyle::TouchControlStyle(base_color? : @render.Color, active_color? : @render.Color, knob_color? : @render.Color, label_color? : @render.Color) -> Self
+
+pub(all) enum TouchPlacement {
+  BottomLeft
+  BottomRight
+  TopLeft
+  TopRight
+  Anchor(Double, Double, @math.Vec2)
+} derive(Eq, @debug.Debug)
+
+pub(all) struct VirtualButtonControl {
+  id : String
+  button : @inputs.VirtualButton
+  placement : TouchPlacement
+  radius : Double
+  label : String
+  style : TouchControlStyle
+}
+pub fn VirtualButtonControl::VirtualButtonControl(String, @inputs.VirtualButton, placement? : TouchPlacement, radius? : Double, label? : String, style? : TouchControlStyle) -> Self
+
+pub(all) struct VirtualStick {
+  id : String
+  axis_x : @inputs.VirtualAxis
+  axis_y : @inputs.VirtualAxis
+  placement : TouchPlacement
+  radius : Double
+  dead_zone : Double
+  mode : StickMode
+  style : TouchControlStyle
+}
+pub fn VirtualStick::VirtualStick(String, @inputs.VirtualAxis, @inputs.VirtualAxis, placement? : TouchPlacement, radius? : Double, dead_zone? : Double, mode? : StickMode, style? : TouchControlStyle) -> Self
+
+// Type aliases
+
+// Traits
+

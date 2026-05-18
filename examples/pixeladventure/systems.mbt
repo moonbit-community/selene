@@ -32,41 +32,6 @@ fn player_is_frozen(result : GameResult?) -> Bool {
 }
 
 ///|
-fn touch_in_bottom_controls(position : @math.Vec2, screen : @math.Vec2) -> Bool {
-  position[Y] >= screen[Y] * 0.55
-}
-
-///|
-fn touch_move_axis() -> Double {
-  let screen = @system.get_screen_size()
-  for touch in @ui.active_unconsumed_touches() {
-    if !touch_in_bottom_controls(touch.position, screen) {
-      continue
-    }
-    if touch.position[X] < screen[X] * 0.25 {
-      return -1.0
-    }
-    if touch.position[X] < screen[X] * 0.5 {
-      return 1.0
-    }
-  }
-  0.0
-}
-
-///|
-fn touch_jump_just_pressed() -> Bool {
-  let screen = @system.get_screen_size()
-  for event in @ui.unconsumed_touch_changes_this_frame() {
-    if event.phase == @inputs.TouchPhase::Started &&
-      touch_in_bottom_controls(event.position, screen) &&
-      event.position[X] >= screen[X] * 0.65 {
-      return true
-    }
-  }
-  false
-}
-
-///|
 fn set_ui_text(entity : @entity.Entity, content : String) -> Unit {
   let text = @ui.texts().get_or_init(entity, fn() { @ui.Text(content) })
   if text.content != content {
@@ -529,14 +494,13 @@ fn player_controller_system(_world : @ecs.World) -> Unit {
       }
     }
   } else {
-    let touch_axis = touch_move_axis()
-    if @inputs.is_pressed(@inputs.ArrowLeft) || touch_axis < 0.0 {
+    if @input_action.action_pressed(pixel_move_left_action()) {
       new_velocity_x -= RUN_ACC * delta
       if new_velocity_x < -MAX_RUN_V {
         new_velocity_x = -MAX_RUN_V
       }
       controller.facing = Left
-    } else if @inputs.is_pressed(@inputs.ArrowRight) || touch_axis > 0.0 {
+    } else if @input_action.action_pressed(pixel_move_right_action()) {
       new_velocity_x += RUN_ACC * delta
       if new_velocity_x > MAX_RUN_V {
         new_velocity_x = MAX_RUN_V
@@ -546,8 +510,7 @@ fn player_controller_system(_world : @ecs.World) -> Unit {
       new_velocity_x = 0.0
     }
 
-    if grounded &&
-      (@inputs.is_just_pressed(@inputs.ArrowUp) || touch_jump_just_pressed()) {
+    if grounded && @input_action.action_just_pressed(pixel_jump_action()) {
       new_velocity_y = -JUMP_V
       controller.state = Jump
       play_sfx(jump_sound, session.volume_on)

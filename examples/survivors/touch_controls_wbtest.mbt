@@ -1,12 +1,17 @@
 ///|
-test "survivors touch joystick clamps movement vector" {
-  let screen = @math.Vec2(960.0, 640.0)
-  let center = touch_joystick_center(screen)
-  inspect(touch_joystick_vector(center, screen).distance(), content="0")
-  let far_right = touch_joystick_vector(center + @math.Vec2(200.0, 0.0), screen)
-  inspect(far_right[X], content="1")
-  inspect(far_right[Y], content="0")
-  let diagonal = touch_joystick_vector(center + @math.Vec2(-72.0, 72.0), screen)
-  inspect(diagonal[X], content="-1")
-  inspect(diagonal[Y], content="1")
+test "survivors touch controls feed movement actions" {
+  configure_survivors_input()
+  @inputs.set_virtual_axis_value(@inputs.VirtualAxis("survivors.move-x"), 0.75)
+  @inputs.set_virtual_axis_value(@inputs.VirtualAxis("survivors.move-y"), -0.5)
+  @input_action.input_action_system(0.0)
+  inspect(
+    @input_action.action_value(survivors_move_right_action()),
+    content="0.75",
+  )
+  inspect(@input_action.action_value(survivors_move_left_action()), content="0")
+  inspect(@input_action.action_value(survivors_move_up_action()), content="0.5")
+  inspect(@input_action.action_value(survivors_move_down_action()), content="0")
+  @touch_controls.clear_controls()
+  @inputs.clear_virtual_controls()
+  @input_action.clear_all_action_bindings()
 }

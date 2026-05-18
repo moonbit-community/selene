@@ -6,14 +6,18 @@
 - Added first-class touch input state/events, touch snapshots, and pointer primitives for WebGPU and raylib backends.
 - Added portable touch gesture events for tap, long press, pan, and pinch recognition.
 - Added virtual button/axis controls and input-action bindings for touch-driven mobile controls.
+- Added first-class `touch_controls` virtual joystick/button overlays with visible HUD feedback and reusable platformer/twin-stick presets.
 - Added touch controls to the `cards`, `survivors`, `pixeladventure`, and `scene3d` examples.
 - Added UI touch capture/consumption APIs so gameplay touch controls can ignore pointers owned by UI.
 
 ### Changed
 - Changed `moon_accesskit` to `0.3.0` and updated the a11y adapter to the current constructor API.
+- Changed default input scheduling so UI capture and touch controls feed `input_action` before gameplay systems run.
+- Changed `survivors`, `pixeladventure`, and `scene3d` touch movement from invisible screen regions to visible virtual controls backed by `input_action`.
 - Changed UI interaction to use pointer-ready press/release semantics, including touch tap/cancel handling and one-finger drag scrolling for scrollable UI.
 
 ### Fixed
+- Fixed WebGPU example pages so long-press touch interactions on the game canvas and non-interactive preview images no longer open the browser image/context menu.
 - Fixed touch drag scrolling so non-button scrollable UI panels can receive one-finger scroll gestures.
 - Fixed raylib shadow white-box tests to avoid deprecated array `inspect` output under warning-strict checks.
 

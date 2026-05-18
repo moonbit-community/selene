@@ -16,6 +16,7 @@
 fn game_start(_world : @ecs.World) -> Unit {
   ignore(@asset.load_font(FONT_PATH, family=FONT_FAMILY))
   @ui.set_ui_scale_mode(@ui.UiScaleMode::Viewport)
+  configure_pixeladventure_input()
   reset_pixeladventure_world_store()
   let loaded_level = load_level_scene()
 

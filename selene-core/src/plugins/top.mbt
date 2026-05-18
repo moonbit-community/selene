@@ -108,6 +108,8 @@ pub fn debug_plugin(app : @app.App) -> @app.App {
 pub fn default_plugin(app : @app.App) -> @app.App {
   let app = register_builtin_messages(app)
   let input = @system_set.named("input")
+  let ui_input = @system_set.named("ui_input")
+  let touch_controls = @system_set.named("touch_controls")
   let physics = @system_set.named("physics")
   let gameplay = @system_set.named("gameplay")
   let audio = @system_set.named("audio")
@@ -117,6 +119,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   let ui = @system_set.named("ui")
   let render_extract = @system_set.named("render_extract")
   let render_prepare = @system_set.named("render_prepare")
+  let touch_controls_render = @system_set.named("touch_controls_render")
   let render_submit = @system_set.named("render_submit")
 
   let app = add_system(
@@ -149,17 +152,26 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
-    @input_action.input_action_system,
-    PreUpdate,
-    "Input Action System",
-    in_set=input,
-  )
-  let app = add_system(
-    app,
     @ui.ui_input_capture_system,
     PreUpdate,
     "UI Input Capture System",
+    in_set=ui_input,
     after=[input],
+  )
+  let app = add_system(
+    app,
+    @touch_controls.touch_controls_system,
+    PreUpdate,
+    "Touch Controls System",
+    in_set=touch_controls,
+    after=[ui_input],
+  )
+  let app = add_system(
+    app,
+    @input_action.input_action_system,
+    PreUpdate,
+    "Input Action System",
+    after=[touch_controls],
   )
   let app = add_system(
     app,
@@ -347,11 +359,19 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
+    @touch_controls.touch_controls_render_system,
+    RenderPrepare,
+    "Touch Controls Prepare",
+    in_set=touch_controls_render,
+    after=[render_extract],
+  )
+  let app = add_system(
+    app,
     @ui.ui_prepare_system,
     RenderPrepare,
     "UI Prepare",
     in_set=render_prepare,
-    after=[render_extract],
+    after=[touch_controls_render],
   )
   add_system(
     app,
@@ -367,11 +387,15 @@ pub fn default_plugin(app : @app.App) -> @app.App {
 pub fn default_3d_plugin(app : @app.App) -> @app.App {
   let app = register_builtin_messages(app)
   let input = @system_set.named("input")
+  let ui_input = @system_set.named("ui_input")
+  let touch_controls = @system_set.named("touch_controls")
   let physics = @system_set.named("physics3d")
   let animation = @system_set.named("animation")
   let transform = @system_set.named("transform")
+  let ui = @system_set.named("ui")
   let render_extract = @system_set.named("render_extract")
   let render_prepare = @system_set.named("render_prepare")
+  let touch_controls_render = @system_set.named("touch_controls_render")
   let render_submit = @system_set.named("render_submit")
   let audio = @system_set.named("audio")
   let time = @system_set.named("time")
@@ -392,6 +416,13 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
+    @inputs.advanced_touch_system,
+    PreUpdate,
+    "Advanced Touch System",
+    in_set=input,
+  )
+  let app = add_system(
+    app,
     @inputs.advanced_gamepad_system,
     PreUpdate,
     "Advanced Gamepad System",
@@ -399,10 +430,26 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
+    @ui.ui_input_capture_system,
+    PreUpdate,
+    "UI Input Capture System",
+    in_set=ui_input,
+    after=[input],
+  )
+  let app = add_system(
+    app,
+    @touch_controls.touch_controls_system,
+    PreUpdate,
+    "Touch Controls System",
+    in_set=touch_controls,
+    after=[ui_input],
+  )
+  let app = add_system(
+    app,
     @input_action.input_action_system,
     PreUpdate,
     "Input Action System",
-    in_set=input,
+    after=[touch_controls],
   )
   let app = add_system(
     app,
@@ -464,6 +511,30 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
     "Visibility Propagation System",
     in_set=transform,
     after=[transform],
+  )
+  let app = add_system(
+    app,
+    @ui.ui_layout_system,
+    PostUpdate,
+    "UI Layout System",
+    in_set=ui,
+    after=[transform],
+  )
+  let app = add_system(
+    app,
+    @ui.ui_interaction_system,
+    PostUpdate,
+    "UI Interaction System",
+    in_set=ui,
+    after=[ui],
+  )
+  let app = add_system(
+    app,
+    @a11y.a11y_sync_system,
+    PostUpdate,
+    "A11y Sync System",
+    in_set=ui,
+    after=[ui],
   )
   let app = add_system(
     app,
@@ -541,11 +612,19 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
+    @touch_controls.touch_controls_render_system,
+    RenderPrepare,
+    "Touch Controls Prepare",
+    in_set=touch_controls_render,
+    after=[render_extract],
+  )
+  let app = add_system(
+    app,
     @ui.ui_prepare_system,
     RenderPrepare,
     "UI Prepare",
     in_set=render_prepare,
-    after=[render_extract],
+    after=[touch_controls_render],
   )
   let app = add_system(
     app,

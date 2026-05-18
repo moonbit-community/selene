@@ -6,6 +6,7 @@ import {
   "Milky2018/selene/editor_bridge",
   "Milky2018/selene/ecs",
   "Milky2018/selene/entity",
+  "Milky2018/selene/input_action",
   "Milky2018/selene/math",
   "Milky2018/selene/sprite",
   "Milky2018/selene/system",
@@ -16,6 +17,7 @@ import {
   "Milky2018/selene/ui",
   "Milky2018/selene/event",
   "Milky2018/selene/inputs",
+  "Milky2018/selene/touch_controls",
   "moonbitlang/core/json",
   "moonbitlang/x/fs",
 }

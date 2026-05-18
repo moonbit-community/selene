@@ -432,6 +432,7 @@ fn game_start(_world : @ecs.World) -> Unit {
     ),
   )
   @ui.set_ui_scale_mode(@ui.UiScaleMode::Viewport)
+  configure_survivors_input()
   add_player()
   setup_survivors_camera()
   add_border(Vec2(MAP_WIDTH, MAP_HEIGHT))

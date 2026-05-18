@@ -15,6 +15,7 @@ import {
   "Milky2018/selene/scene",
   "Milky2018/selene/transform",
   "Milky2018/selene/text2d",
+  "Milky2018/selene/touch_controls",
   "Milky2018/selene/visibility",
   "Milky2018/selene/render2d",
   "Milky2018/selene/render3d",

@@ -118,6 +118,11 @@ pub fn is_touch_consumed(id : @inputs.TouchId) -> Bool {
 }
 
 ///|
+pub fn consume_touch(id : @inputs.TouchId) -> Unit {
+  ui_interaction_runtime().consumed_touches.add(id)
+}
+
+///|
 pub fn active_unconsumed_touches() -> Array[@inputs.TouchPoint] {
   let touches : Array[@inputs.TouchPoint] = []
   let runtime = ui_interaction_runtime()
