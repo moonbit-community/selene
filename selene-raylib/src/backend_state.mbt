@@ -156,6 +156,8 @@ priv struct RaylibBackend {
   mut mouse_state : @inputs.Mouse?
   mut mouse_movement : @inputs.MouseMovement?
   mut mouse_wheel : @inputs.MouseWheel?
+  mut touch_state : Map[@inputs.TouchId, @inputs.TouchPoint]?
+  mut touch_changes_state : Array[@inputs.TouchEvent]?
   mut gamepads_state : Set[@inputs.Gamepad]?
   mut gamepad_buttons_state : Set[@inputs.GamepadButtonInput]?
   mut gamepad_axes_state : Map[@inputs.GamepadAxisInput, Double]?
@@ -197,6 +199,7 @@ priv struct RaylibBackend {
   mut point_shadow_render_texture : @raylib.RenderTexture?
   mut point_shadow_map_size : Int
   texture_warning_keys : Set[String]
+  last_touches : Map[@inputs.TouchId, @inputs.TouchPoint]
 }
 
 ///|
@@ -227,6 +230,8 @@ let backend : RaylibBackend = {
   mouse_state: None,
   mouse_movement: None,
   mouse_wheel: None,
+  touch_state: None,
+  touch_changes_state: None,
   gamepads_state: None,
   gamepad_buttons_state: None,
   gamepad_axes_state: None,
@@ -265,6 +270,7 @@ let backend : RaylibBackend = {
   point_shadow_render_texture: None,
   point_shadow_map_size: 0,
   texture_warning_keys: Set([]),
+  last_touches: Map([]),
 }
 
 ///|

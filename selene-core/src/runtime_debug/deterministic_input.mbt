@@ -109,6 +109,15 @@ fn[K : Hash + Eq, V] copy_map(source : Map[K, V]) -> Map[K, V] {
 }
 
 ///|
+fn[T] copy_array(source : Array[T]) -> Array[T] {
+  let out : Array[T] = []
+  for item in source {
+    out.push(item)
+  }
+  out
+}
+
+///|
 fn copy_snapshot(snapshot : @inputs.InputSnapshot) -> @inputs.InputSnapshot {
   {
     pressed_keys: copy_set(snapshot.pressed_keys),
@@ -120,6 +129,8 @@ fn copy_snapshot(snapshot : @inputs.InputSnapshot) -> @inputs.InputSnapshot {
     },
     mouse_movement: { movement: snapshot.mouse_movement.movement },
     mouse_wheel: { delta: snapshot.mouse_wheel.delta },
+    touches: copy_map(snapshot.touches),
+    touch_changes: copy_array(snapshot.touch_changes),
     connected_gamepads: copy_set(snapshot.connected_gamepads),
     pressed_gamepad_buttons: copy_set(snapshot.pressed_gamepad_buttons),
     gamepad_axis_values: copy_map(snapshot.gamepad_axis_values),

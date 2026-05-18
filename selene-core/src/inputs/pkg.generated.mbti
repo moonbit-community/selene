@@ -9,17 +9,25 @@ import {
 }
 
 // Values
+pub fn active_touches() -> Map[TouchId, TouchPoint]
+
 pub fn advanced_gamepad_system(Double) -> Unit
 
 pub fn advanced_key_system(Double) -> Unit
 
 pub fn advanced_mouse_system(Double) -> Unit
 
+pub fn advanced_touch_system(Double) -> Unit
+
 pub fn apply_input_snapshot(InputSnapshot) -> Unit
+
+pub fn clear_touch_state() -> Unit
 
 pub fn connected_gamepads() -> @set.Set[Gamepad]
 
 pub fn empty_input_snapshot() -> InputSnapshot
+
+pub fn first_touch_change(TouchPhase) -> TouchEvent?
 
 pub let gamepad_axis_event_bus : @event.Events[GamepadAxisEvent]
 
@@ -67,6 +75,8 @@ pub fn is_pressed(Code) -> Bool
 
 pub fn is_released(Code) -> Bool
 
+pub fn is_touch_active(TouchId) -> Bool
+
 pub fn just_connected_gamepads() -> @set.Set[Gamepad]
 
 pub fn just_disconnected_gamepads() -> @set.Set[Gamepad]
@@ -95,9 +105,25 @@ pub let mouse_wheel : MouseWheel
 
 pub let mouse_wheel_event_bus : @event.Events[MouseWheelEvent]
 
+pub fn pointer_event_from_touch(TouchEvent) -> PointerEvent
+
 pub fn pressed_gamepad_buttons() -> @set.Set[GamepadButtonInput]
 
 pub let pressed_keys : @set.Set[Code]
+
+pub fn primary_pointer_down() -> Bool
+
+pub fn primary_pointer_position() -> @math.Vec2
+
+pub fn primary_touch() -> TouchPoint?
+
+pub fn replace_touch_state(Map[TouchId, TouchPoint], Array[TouchEvent]) -> Unit
+
+pub fn touch_changes_this_frame() -> Array[TouchEvent]
+
+pub let touch_event_bus : @event.Events[TouchEvent]
+
+pub fn touch_point(TouchId) -> TouchPoint?
 
 // Errors
 
@@ -216,6 +242,8 @@ pub(all) struct InputSnapshot {
   mouse : Mouse
   mouse_movement : MouseMovement
   mouse_wheel : MouseWheel
+  touches : Map[TouchId, TouchPoint]
+  touch_changes : Array[TouchEvent]
   connected_gamepads : @set.Set[Gamepad]
   pressed_gamepad_buttons : @set.Set[GamepadButtonInput]
   gamepad_axis_values : Map[GamepadAxisInput, Double]
@@ -270,6 +298,64 @@ pub(all) struct MouseWheel {
 
 pub struct MouseWheelEvent {
   delta : @math.Vec2
+}
+
+pub(all) struct PointerEvent {
+  id : PointerId
+  source : PointerSource
+  phase : PointerPhase
+  position : @math.Vec2
+  previous_position : @math.Vec2
+  delta : @math.Vec2
+  primary : Bool
+}
+
+pub(all) struct PointerId {
+  source : PointerSource
+  value : Int
+} derive(Eq, Hash, @debug.Debug)
+
+pub(all) enum PointerPhase {
+  Down
+  Move
+  Up
+  Cancel
+} derive(Eq, @debug.Debug)
+
+pub(all) enum PointerSource {
+  PointerMouse
+  PointerTouch
+  PointerPen
+} derive(Eq, Hash, @debug.Debug)
+
+pub(all) struct TouchEvent {
+  id : TouchId
+  phase : TouchPhase
+  position : @math.Vec2
+  previous_position : @math.Vec2
+  delta : @math.Vec2
+  primary : Bool
+}
+
+pub(all) struct TouchId {
+  value : Int
+} derive(Eq, Hash, @debug.Debug)
+pub fn TouchId::TouchId(Int) -> Self
+pub fn TouchId::value(Self) -> Int
+
+pub(all) enum TouchPhase {
+  Started
+  Moved
+  Ended
+  Cancelled
+} derive(Eq, @debug.Debug)
+
+pub(all) struct TouchPoint {
+  id : TouchId
+  position : @math.Vec2
+  previous_position : @math.Vec2
+  delta : @math.Vec2
+  primary : Bool
 }
 
 // Type aliases

@@ -29,6 +29,15 @@ fn[K : Hash + Eq, V] copy_map(src : Map[K, V]) -> Map[K, V] {
 }
 
 ///|
+fn[T] copy_array(src : Array[T]) -> Array[T] {
+  let out : Array[T] = []
+  for item in src {
+    out.push(item)
+  }
+  out
+}
+
+///|
 fn ensure_registered() -> Unit {
   if registered.val {
     return
@@ -39,6 +48,7 @@ fn ensure_registered() -> Unit {
     snapshot.mouse_movement,
     snapshot.mouse_wheel,
   )
+  @impl.register_touch_events(snapshot.touches, snapshot.touch_changes)
   @impl.register_gamepad_events(
     snapshot.connected_gamepads,
     snapshot.pressed_gamepad_buttons,
@@ -50,7 +60,7 @@ fn ensure_registered() -> Unit {
 ///|
 pub fn poll_input() -> @inputs.InputSnapshot {
   ensure_registered()
-  {
+  let out = {
     pressed_keys: copy_set(snapshot.pressed_keys),
     mouse: {
       pos: snapshot.mouse.pos,
@@ -60,10 +70,14 @@ pub fn poll_input() -> @inputs.InputSnapshot {
     },
     mouse_movement: { movement: snapshot.mouse_movement.movement },
     mouse_wheel: { delta: snapshot.mouse_wheel.delta },
+    touches: copy_map(snapshot.touches),
+    touch_changes: copy_array(snapshot.touch_changes),
     connected_gamepads: copy_set(snapshot.connected_gamepads),
     pressed_gamepad_buttons: copy_set(snapshot.pressed_gamepad_buttons),
     gamepad_axis_values: copy_map(snapshot.gamepad_axis_values),
   }
+  snapshot.touch_changes.clear()
+  out
 }
 
 ///|

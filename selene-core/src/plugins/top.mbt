@@ -45,6 +45,7 @@ fn register_builtin_messages(app : @app.App) -> @app.App {
   .add_message(@inputs.mouse_button_event_bus)
   .add_message(@inputs.mouse_motion_event_bus)
   .add_message(@inputs.mouse_wheel_event_bus)
+  .add_message(@inputs.touch_event_bus)
   .add_message(@inputs.gamepad_connection_event_bus)
   .add_message(@inputs.gamepad_button_event_bus)
   .add_message(@inputs.gamepad_axis_event_bus)
@@ -127,6 +128,13 @@ pub fn default_plugin(app : @app.App) -> @app.App {
     @inputs.advanced_mouse_system,
     PreUpdate,
     "Advanced Mouse System",
+    in_set=input,
+  )
+  let app = add_system(
+    app,
+    @inputs.advanced_touch_system,
+    PreUpdate,
+    "Advanced Touch System",
     in_set=input,
   )
   let app = add_system(

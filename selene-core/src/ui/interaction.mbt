@@ -422,11 +422,7 @@ fn resolve_pointer_target(position : @math.Vec2) -> @entity.Entity? {
 }
 
 ///|
-fn update_scroll(position : @math.Vec2) -> Unit {
-  let delta = @inputs.mouse_wheel.delta
-  if delta[X] == 0.0 && delta[Y] == 0.0 {
-    return
-  }
+fn scrollable_target_at(position : @math.Vec2) -> @entity.Entity? {
   let mut target = resolve_pointer_target(position)
   while target is Some(entity) {
     guard nodes().get(entity) is Some(node) else {
@@ -434,16 +430,46 @@ fn update_scroll(position : @math.Vec2) -> Unit {
       continue
     }
     if node.overflow_x == Scroll || node.overflow_y == Scroll {
-      let scroll = scroll_positions().get_or_init(entity, ScrollPosition::zero)
-      if node.overflow_x == Scroll {
-        scroll.x = @cmp.maximum(0.0, scroll.x + delta[X] * 16.0)
-      }
-      if node.overflow_y == Scroll {
-        scroll.y = @cmp.maximum(0.0, scroll.y + delta[Y] * 16.0)
+      return Some(entity)
+    }
+    target = entity.get_parent()
+  }
+  None
+}
+
+///|
+fn apply_scroll_delta(entity : @entity.Entity, delta : @math.Vec2) -> Unit {
+  guard nodes().get(entity) is Some(node) else { return }
+  let scroll = scroll_positions().get_or_init(entity, ScrollPosition::zero)
+  if node.overflow_x == Scroll {
+    scroll.x = @cmp.maximum(0.0, scroll.x + delta[X])
+  }
+  if node.overflow_y == Scroll {
+    scroll.y = @cmp.maximum(0.0, scroll.y + delta[Y])
+  }
+}
+
+///|
+fn update_scroll(position : @math.Vec2) -> Unit {
+  let delta = @inputs.mouse_wheel.delta
+  if delta[X] == 0.0 && delta[Y] == 0.0 {
+    return
+  }
+  if scrollable_target_at(position) is Some(entity) {
+    apply_scroll_delta(entity, @math.Vec2(delta[X] * 16.0, delta[Y] * 16.0))
+  }
+}
+
+///|
+fn update_touch_drag_scroll() -> Unit {
+  for event in @inputs.touch_changes_this_frame() {
+    if event.primary && event.phase == Moved {
+      if scrollable_target_at(event.previous_position) is Some(entity) {
+        // Dragging content down should move the scroll offset up.
+        apply_scroll_delta(entity, @math.Vec2(-event.delta[X], -event.delta[Y]))
       }
       return
     }
-    target = entity.get_parent()
   }
 }
 
@@ -462,13 +488,37 @@ fn sanitize_focus() -> Unit {
 }
 
 ///|
-pub fn ui_interaction_system(_delta : Double) -> Unit {
+fn active_primary_touch() -> Bool {
+  match @inputs.primary_touch() {
+    Some(_) => true
+    None => false
+  }
+}
+
+///|
+fn primary_touch_change(phase : @inputs.TouchPhase) -> @inputs.TouchEvent? {
+  for event in @inputs.touch_changes_this_frame() {
+    if event.primary && event.phase == phase {
+      return Some(event)
+    }
+  }
+  None
+}
+
+///|
+fn touch_pointer_changed_this_frame() -> Bool {
+  for event in @inputs.touch_changes_this_frame() {
+    if event.primary {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn update_hover_from_mouse(position : @math.Vec2) -> @entity.Entity? {
   let runtime = ui_interaction_runtime()
-  sanitize_focus()
-  let mouse_position = @inputs.mouse.pos
-  update_relative_cursor_positions(mouse_position)
-  update_scroll(mouse_position)
-  let hovered = resolve_pointer_target(mouse_position)
+  let hovered = resolve_pointer_target(position)
   if runtime.hovered_entity != hovered {
     if runtime.hovered_entity is Some(previous) {
       pointer_leave_event_bus.send({ entity: previous })
@@ -478,30 +528,87 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
     }
     runtime.hovered_entity = hovered
   }
+  hovered
+}
 
-  if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) &&
-    hovered is Some(target) {
-    runtime.pressed_entity = Some(target)
-    pointer_down_event_bus.send({
-      entity: target,
-      button: @inputs.MouseButton::Left,
-      position: mouse_position,
-    })
-    if is_focusable(target) {
-      focus(target)
-    } else {
-      blur()
+///|
+fn clear_touch_hover() -> Unit {
+  let runtime = ui_interaction_runtime()
+  if runtime.hovered_entity is Some(previous) {
+    pointer_leave_event_bus.send({ entity: previous })
+  }
+  runtime.hovered_entity = None
+}
+
+///|
+pub fn ui_interaction_system(_delta : Double) -> Unit {
+  let runtime = ui_interaction_runtime()
+  sanitize_focus()
+  let pointer_position = @inputs.primary_pointer_position()
+  update_relative_cursor_positions(pointer_position)
+  update_scroll(pointer_position)
+  update_touch_drag_scroll()
+  let touch_active = active_primary_touch() ||
+    touch_pointer_changed_this_frame()
+  let visual_hover : @entity.Entity? = if touch_active {
+    clear_touch_hover()
+    None
+  } else {
+    update_hover_from_mouse(@inputs.mouse.pos)
+  }
+
+  let touch_started = primary_touch_change(Started)
+  let press_position = match touch_started {
+    Some(event) => Some(event.position)
+    None =>
+      if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) {
+        Some(@inputs.mouse.pos)
+      } else {
+        None
+      }
+  }
+  if press_position is Some(position) {
+    let target_at_press = resolve_pointer_target(position)
+    if target_at_press is Some(target) {
+      runtime.pressed_entity = Some(target)
+      pointer_down_event_bus.send({
+        entity: target,
+        button: @inputs.MouseButton::Left,
+        position,
+      })
+      if is_focusable(target) {
+        focus(target)
+      } else {
+        blur()
+      }
     }
   }
 
-  if @inputs.is_mouse_just_released(@inputs.MouseButton::Left) &&
+  let touch_ended = primary_touch_change(Ended)
+  let touch_cancelled = primary_touch_change(Cancelled)
+  let release_position = match (touch_ended, touch_cancelled) {
+    (Some(event), _) => Some(event.position)
+    (_, Some(event)) => Some(event.position)
+    _ =>
+      if @inputs.is_mouse_just_released(@inputs.MouseButton::Left) {
+        Some(@inputs.mouse.pos)
+      } else {
+        None
+      }
+  }
+  let cancelled = touch_cancelled is Some(_)
+  if release_position is Some(position) &&
     runtime.pressed_entity is Some(pressed) {
+    let target_at_release = resolve_pointer_target(position)
     pointer_up_event_bus.send({
       entity: pressed,
       button: @inputs.MouseButton::Left,
-      position: mouse_position,
+      position,
     })
-    if hovered is Some(target) && target == pressed && is_interactive(pressed) {
+    if !cancelled &&
+      target_at_release is Some(target) &&
+      target == pressed &&
+      is_interactive(pressed) {
       click_event_bus.send({
         entity: pressed,
         button: @inputs.MouseButton::Left,
@@ -573,7 +680,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
 
   for entity, _button in buttons() {
     if entity.is_alive() {
-      interactions().set(entity, interaction_state(entity, hovered))
+      interactions().set(entity, interaction_state(entity, visual_hover))
     }
   }
 }

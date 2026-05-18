@@ -122,6 +122,15 @@ pub fn register_mouse_events(
 }
 
 ///|
+pub fn register_touch_events(
+  touches : Map[@inputs.TouchId, @inputs.TouchPoint],
+  changes : Array[@inputs.TouchEvent],
+) -> Unit {
+  backend.touch_state = Some(touches)
+  backend.touch_changes_state = Some(changes)
+}
+
+///|
 pub fn register_gamepad_events(
   gamepads : Set[@inputs.Gamepad],
   buttons : Set[@inputs.GamepadButtonInput],

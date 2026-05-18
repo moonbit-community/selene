@@ -3,8 +3,10 @@
 ## [Unreleased]
 
 ### Added
+- Added first-class touch input state/events, touch snapshots, and pointer primitives for WebGPU and raylib backends.
 
 ### Changed
+- Changed UI interaction to use pointer-ready press/release semantics, including touch tap/cancel handling and one-finger drag scrolling for scrollable UI.
 
 ### Fixed
 

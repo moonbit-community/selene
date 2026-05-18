@@ -4,6 +4,8 @@ pub(all) struct InputSnapshot {
   mouse : Mouse
   mouse_movement : MouseMovement
   mouse_wheel : MouseWheel
+  touches : Map[TouchId, TouchPoint]
+  touch_changes : Array[TouchEvent]
   connected_gamepads : Set[Gamepad]
   pressed_gamepad_buttons : Set[GamepadButtonInput]
   gamepad_axis_values : Map[GamepadAxisInput, Double]
@@ -21,6 +23,8 @@ pub fn empty_input_snapshot() -> InputSnapshot {
     },
     mouse_movement: { movement: @math.Vec2::zero() },
     mouse_wheel: { delta: @math.Vec2::zero() },
+    touches: Map([]),
+    touch_changes: [],
     connected_gamepads: Set([]),
     pressed_gamepad_buttons: Set([]),
     gamepad_axis_values: Map([]),
@@ -41,6 +45,8 @@ pub fn apply_input_snapshot(snapshot : InputSnapshot) -> Unit {
 
   mouse_movement.movement = snapshot.mouse_movement.movement
   mouse_wheel.delta = snapshot.mouse_wheel.delta
+  replace_touch_state(snapshot.touches, snapshot.touch_changes)
+  apply_primary_touch_mouse_compat(snapshot)
 
   connected_gamepads().clear()
   for gamepad in snapshot.connected_gamepads {
@@ -55,5 +61,29 @@ pub fn apply_input_snapshot(snapshot : InputSnapshot) -> Unit {
   gamepad_axis_values().clear()
   for axis, value in snapshot.gamepad_axis_values {
     gamepad_axis_values().set(axis, value)
+  }
+}
+
+///|
+fn apply_primary_touch_mouse_compat(snapshot : InputSnapshot) -> Unit {
+  let mut mirrored = false
+  for _, touch in snapshot.touches {
+    if touch.primary {
+      mouse.pos = touch.position
+      mouse.left_button = true
+      mirrored = true
+    }
+  }
+  if mirrored {
+    return
+  }
+  for event in snapshot.touch_changes {
+    if event.primary {
+      mouse.pos = event.position
+      mouse.left_button = match event.phase {
+        Ended | Cancelled => false
+        Started | Moved => true
+      }
+    }
   }
 }

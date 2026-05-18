@@ -63,6 +63,8 @@ pub fn register_key_events(@set.Set[@inputs.Code]) -> Unit
 
 pub fn register_mouse_events(@inputs.Mouse, @inputs.MouseMovement, @inputs.MouseWheel) -> Unit
 
+pub fn register_touch_events(Map[@inputs.TouchId, @inputs.TouchPoint], Array[@inputs.TouchEvent]) -> Unit
+
 pub fn release_image_asset(@render3d_types.ImageHandle) -> Unit
 
 pub fn release_material_asset(@render3d_types.MaterialHandle) -> Unit

@@ -406,6 +406,83 @@ fn sync_mouse_events() -> Unit {
 }
 
 ///|
+fn push_raylib_touch_change(
+  changes : Array[@inputs.TouchEvent],
+  id : @inputs.TouchId,
+  phase : @inputs.TouchPhase,
+  position : @smath.Vec2,
+  previous_position : @smath.Vec2,
+  primary : Bool,
+) -> Unit {
+  changes.push({
+    id,
+    phase,
+    position,
+    previous_position,
+    delta: position - previous_position,
+    primary,
+  })
+}
+
+///|
+fn sync_touch_events() -> Unit {
+  guard backend.touch_state is Some(touches) else { return }
+  guard backend.touch_changes_state is Some(changes) else { return }
+  changes.clear()
+  let current_ids : Set[@inputs.TouchId] = Set([])
+  let count = @raylib.get_touch_point_count()
+  for index in 0..<count {
+    let id = @inputs.TouchId(@raylib.get_touch_point_id(index))
+    let position = @raylib.get_touch_position(index) |> to_selene_vec2
+    let primary = index == 0
+    current_ids.add(id)
+    let previous_position = backend.last_touches
+      .get(id)
+      .map_or(position, fn(touch) { touch.position })
+    let delta = position - previous_position
+    touches.set(id, { id, position, previous_position, delta, primary })
+    if backend.last_touches.contains(id) {
+      if delta[X] != 0.0 || delta[Y] != 0.0 {
+        push_raylib_touch_change(
+          changes,
+          id,
+          Moved,
+          position,
+          previous_position,
+          primary,
+        )
+      }
+    } else {
+      push_raylib_touch_change(
+        changes,
+        id,
+        Started,
+        position,
+        previous_position,
+        primary,
+      )
+    }
+  }
+  for id, touch in backend.last_touches {
+    if !current_ids.contains(id) {
+      push_raylib_touch_change(
+        changes,
+        id,
+        Ended,
+        touch.position,
+        touch.position,
+        touch.primary,
+      )
+      ignore(touches.remove(id))
+    }
+  }
+  backend.last_touches.clear()
+  for id, touch in touches {
+    backend.last_touches.set(id, touch)
+  }
+}
+
+///|
 const MAX_GAMEPADS : Int = 8
 
 ///|
@@ -651,6 +728,7 @@ pub fn initialize(
       backend.realtime_delta = delta
       sync_key_events()
       sync_mouse_events()
+      sync_touch_events()
       sync_gamepad_events()
       sync_mouse_lock()
       (callbacks.service_frame)()

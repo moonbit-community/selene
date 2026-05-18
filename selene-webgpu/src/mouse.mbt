@@ -13,6 +13,71 @@
 // limitations under the License.
 
 ///|
+extern "js" fn configure_canvas_touch_input(
+  canvas : @dom.HTMLCanvasElement,
+) -> Unit =
+  #| (canvas) => {
+  #|   if (canvas && canvas.style) {
+  #|     canvas.style.touchAction = 'none';
+  #|   }
+  #| }
+
+///|
+extern "js" fn pointer_event_id(event : @dom.Event) -> Int =
+  #| (event) => Number(event.pointerId ?? 0) | 0
+
+///|
+extern "js" fn pointer_event_type(event : @dom.Event) -> String =
+  #| (event) => String(event.pointerType ?? '')
+
+///|
+extern "js" fn pointer_event_offset_x(event : @dom.Event) -> Double =
+  #| (event) => {
+  #|   if (Number.isFinite(event.offsetX)) return Number(event.offsetX);
+  #|   const rect = event.currentTarget?.getBoundingClientRect?.();
+  #|   if (!rect) return 0;
+  #|   return Number(event.clientX ?? 0) - rect.left;
+  #| }
+
+///|
+extern "js" fn pointer_event_offset_y(event : @dom.Event) -> Double =
+  #| (event) => {
+  #|   if (Number.isFinite(event.offsetY)) return Number(event.offsetY);
+  #|   const rect = event.currentTarget?.getBoundingClientRect?.();
+  #|   if (!rect) return 0;
+  #|   return Number(event.clientY ?? 0) - rect.top;
+  #| }
+
+///|
+extern "js" fn pointer_event_is_primary(event : @dom.Event) -> Bool =
+  #| (event) => Boolean(event.isPrimary ?? true)
+
+///|
+extern "js" fn prevent_pointer_default(event : @dom.Event) -> Unit =
+  #| (event) => event.preventDefault?.()
+
+///|
+extern "js" fn capture_pointer(
+  canvas : @dom.HTMLCanvasElement,
+  pointer_id : Int,
+) -> Unit =
+  #| (canvas, pointerId) => {
+  #|   try { canvas.setPointerCapture?.(pointerId); } catch (_err) {}
+  #| }
+
+///|
+extern "js" fn release_pointer(
+  canvas : @dom.HTMLCanvasElement,
+  pointer_id : Int,
+) -> Unit =
+  #| (canvas, pointerId) => {
+  #|   try { canvas.releasePointerCapture?.(pointerId); } catch (_err) {}
+  #| }
+
+///|
+let touch_handlers_registered : Ref[Bool] = Ref(false)
+
+///|
 pub fn register_mouse_events(
   mouse : @inputs.Mouse,
   mouse_movement : @inputs.MouseMovement,
@@ -56,6 +121,135 @@ pub fn register_mouse_events(
       wheel_event.get_delta_x(),
       wheel_event.get_delta_y(),
     )
+  })
+}
+
+///|
+fn is_touch_pointer_type(kind : String) -> Bool {
+  kind == "touch" || kind == "pen"
+}
+
+///|
+fn touch_position_from_pointer_event(event : @dom.Event) -> @smath.Vec2 {
+  @smath.Vec2(pointer_event_offset_x(event), pointer_event_offset_y(event))
+}
+
+///|
+fn push_touch_change(
+  changes : Array[@inputs.TouchEvent],
+  id : @inputs.TouchId,
+  phase : @inputs.TouchPhase,
+  position : @smath.Vec2,
+  previous_position : @smath.Vec2,
+  primary : Bool,
+) -> Unit {
+  changes.push({
+    id,
+    phase,
+    position,
+    previous_position,
+    delta: position - previous_position,
+    primary,
+  })
+}
+
+///|
+pub fn register_touch_events(
+  touches : Map[@inputs.TouchId, @inputs.TouchPoint],
+  changes : Array[@inputs.TouchEvent],
+) -> Unit {
+  if touch_handlers_registered.val {
+    return
+  }
+  touch_handlers_registered.val = true
+  let canvas = require_canvas()
+  configure_canvas_touch_input(canvas)
+  canvas.add_event_listener("pointerdown", event => {
+    let kind = pointer_event_type(event)
+    if !is_touch_pointer_type(kind) {
+      return
+    }
+    prevent_pointer_default(event)
+    note_audio_user_activation()
+    let id = @inputs.TouchId(pointer_event_id(event))
+    let position = touch_position_from_pointer_event(event)
+    let primary = pointer_event_is_primary(event)
+    touches.set(id, {
+      id,
+      position,
+      previous_position: position,
+      delta: @smath.Vec2::zero(),
+      primary,
+    })
+    push_touch_change(changes, id, Started, position, position, primary)
+    capture_pointer(canvas, id.value)
+  })
+  canvas.add_event_listener("pointermove", event => {
+    let kind = pointer_event_type(event)
+    if !is_touch_pointer_type(kind) {
+      return
+    }
+    prevent_pointer_default(event)
+    let id = @inputs.TouchId(pointer_event_id(event))
+    guard touches.get(id) is Some(previous_touch) else { return }
+    let position = touch_position_from_pointer_event(event)
+    let previous_position = previous_touch.position
+    let primary = previous_touch.primary
+    let delta = position - previous_position
+    touches.set(id, { id, position, previous_position, delta, primary })
+    if delta[X] != 0.0 || delta[Y] != 0.0 {
+      push_touch_change(
+        changes,
+        id,
+        Moved,
+        position,
+        previous_position,
+        primary,
+      )
+    }
+  })
+  canvas.add_event_listener("pointerup", event => {
+    let kind = pointer_event_type(event)
+    if !is_touch_pointer_type(kind) {
+      return
+    }
+    prevent_pointer_default(event)
+    let id = @inputs.TouchId(pointer_event_id(event))
+    let position = touch_position_from_pointer_event(event)
+    let previous_position = touches
+      .get(id)
+      .map_or(position, fn(touch) { touch.position })
+    let primary = touches
+      .get(id)
+      .map_or(pointer_event_is_primary(event), fn(touch) { touch.primary })
+    push_touch_change(changes, id, Ended, position, previous_position, primary)
+    ignore(touches.remove(id))
+    release_pointer(canvas, id.value)
+  })
+  canvas.add_event_listener("pointercancel", event => {
+    let kind = pointer_event_type(event)
+    if !is_touch_pointer_type(kind) {
+      return
+    }
+    prevent_pointer_default(event)
+    let id = @inputs.TouchId(pointer_event_id(event))
+    let position = touch_position_from_pointer_event(event)
+    let previous_position = touches
+      .get(id)
+      .map_or(position, fn(touch) { touch.position })
+    let primary = touches
+      .get(id)
+      .map_or(pointer_event_is_primary(event), fn(touch) { touch.primary })
+    push_touch_change(
+      changes,
+      id,
+      Cancelled,
+      position,
+      previous_position,
+      primary,
+    )
+    ignore(touches.remove(id))
+    release_pointer(canvas, id.value)
   })
 }
 
