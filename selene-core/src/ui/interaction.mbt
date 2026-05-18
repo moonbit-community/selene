@@ -422,8 +422,27 @@ fn resolve_pointer_target(position : @math.Vec2) -> @entity.Entity? {
 }
 
 ///|
+fn ui_node_at(position : @math.Vec2) -> @entity.Entity? {
+  let candidates = sorted_ui_entities()
+  let mut index = candidates.length() - 1
+  while index >= 0 {
+    let entity = candidates[index]
+    guard global_ui_nodes().get(entity) is Some(transform) else {
+      index -= 1
+      continue
+    }
+    if point_in_rect(position, transform.screen_rect) &&
+      screen_clip_allows(entity, position) {
+      return Some(entity)
+    }
+    index -= 1
+  }
+  None
+}
+
+///|
 fn scrollable_target_at(position : @math.Vec2) -> @entity.Entity? {
-  let mut target = resolve_pointer_target(position)
+  let mut target = ui_node_at(position)
   while target is Some(entity) {
     guard nodes().get(entity) is Some(node) else {
       target = entity.get_parent()
