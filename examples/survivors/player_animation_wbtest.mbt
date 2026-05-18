@@ -75,5 +75,10 @@ test "player run animation advances atlas indices in order" {
     )
   }
 
-  inspect(indices, content="[0, 1, 2, 3, 4]")
+  inspect(indices.length(), content="5")
+  inspect(indices[0], content="0")
+  inspect(indices[1], content="1")
+  inspect(indices[2], content="2")
+  inspect(indices[3], content="3")
+  inspect(indices[4], content="4")
 }

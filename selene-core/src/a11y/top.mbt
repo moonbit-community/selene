@@ -309,7 +309,7 @@ fn build_hierarchy(
 fn resolve_bounds(entity : @entity.Entity) -> @moon_accesskit.Rect? {
   guard @ui.global_ui_nodes().get(entity) is Some(node) else { return None }
   Some(
-    @moon_accesskit.Rect::new(
+    @moon_accesskit.Rect(
       node.screen_rect.position[X],
       node.screen_rect.position[Y],
       node.screen_rect.position[X] + node.screen_rect.size[X],
@@ -338,12 +338,12 @@ fn is_clickable(entity : @entity.Entity, a11y : A11y) -> Bool {
 ///|
 fn get_or_create_node_id(entity : @entity.Entity) -> @moon_accesskit.NodeId {
   if entity_node_ids.get(entity) is Some(raw) {
-    @moon_accesskit.NodeId::new(raw)
+    @moon_accesskit.NodeId(raw)
   } else {
     let raw = next_node_id.val
     next_node_id.val = next_node_id.val + 1UL
     entity_node_ids.set(entity, raw)
-    @moon_accesskit.NodeId::new(raw)
+    @moon_accesskit.NodeId(raw)
   }
 }
 
@@ -363,8 +363,8 @@ fn build_tree_update(
   child_map : Map[@entity.Entity, Array[@entity.Entity]],
 ) -> @moon_accesskit.TreeUpdate {
   current_node_entities.clear()
-  let update = @moon_accesskit.TreeUpdate::new(a11y_tree_id, focused_node_id())
-  let root = @moon_accesskit.Node::new(@moon_accesskit.Role::Window)
+  let update = @moon_accesskit.TreeUpdate(a11y_tree_id, focused_node_id())
+  let root = @moon_accesskit.Node(@moon_accesskit.Role::Window)
   root.set_label("Selene")
   let root_children : Array[@moon_accesskit.NodeId] = []
   for entity in roots {
@@ -379,7 +379,7 @@ fn build_tree_update(
     guard get_a11y(entity) is Some(a11y) else { continue }
     let id = get_or_create_node_id(entity)
     current_node_entities.set(id, entity)
-    let node = @moon_accesskit.Node::new(to_accesskit_role(a11y.role))
+    let node = @moon_accesskit.Node(to_accesskit_role(a11y.role))
     if effective_label(entity, a11y) is Some(label) {
       node.set_label(label)
     }
@@ -408,7 +408,7 @@ fn build_tree_update(
     node.set_children(child_ids)
     update.push_node(id, node)
   }
-  update.set_tree(@moon_accesskit.Tree::new(@moon_accesskit.NodeId::root()))
+  update.set_tree(@moon_accesskit.Tree(@moon_accesskit.NodeId::root()))
   update
 }
 

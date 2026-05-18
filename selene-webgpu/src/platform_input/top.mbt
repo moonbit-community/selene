@@ -60,7 +60,7 @@ fn ensure_registered() -> Unit {
 ///|
 pub fn poll_input() -> @inputs.InputSnapshot {
   ensure_registered()
-  let out = {
+  let out : @inputs.InputSnapshot = {
     pressed_keys: copy_set(snapshot.pressed_keys),
     mouse: {
       pos: snapshot.mouse.pos,

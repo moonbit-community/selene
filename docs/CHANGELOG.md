@@ -8,6 +8,7 @@
 - Added virtual button/axis controls and input-action bindings for touch-driven mobile controls.
 
 ### Changed
+- Changed `moon_accesskit` to `0.3.0` and updated the a11y adapter to the current constructor API.
 - Changed UI interaction to use pointer-ready press/release semantics, including touch tap/cancel handling and one-finger drag scrolling for scrollable UI.
 
 ### Fixed
