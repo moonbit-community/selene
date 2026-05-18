@@ -54,8 +54,68 @@ let contact_force_reader : Ref[@event.EventReader[@physics3d.ContactForceEvent]]
 let last_contact_force : Ref[Double] = Ref(0.0)
 
 ///|
+const TOUCH_CONTROLLER_DEAD_ZONE : Double = 14.0
+
+///|
+const TOUCH_CONTROLLER_RADIUS : Double = 96.0
+
+///|
 fn color(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
   @render.Color::{ r, g, b, a }
+}
+
+///|
+fn clamp_touch_axis(value : Double) -> Double {
+  if value < -1.0 {
+    -1.0
+  } else if value > 1.0 {
+    1.0
+  } else {
+    value
+  }
+}
+
+///|
+fn touch_controller_center(screen : @math.Vec2) -> @math.Vec2 {
+  @math.Vec2(screen[X] * 0.5, screen[Y] * 0.72)
+}
+
+///|
+fn touch_controller_vector(
+  position : @math.Vec2,
+  screen : @math.Vec2,
+) -> @math.Vec2 {
+  let delta = position - touch_controller_center(screen)
+  if delta.distance() < TOUCH_CONTROLLER_DEAD_ZONE {
+    @math.Vec2::zero()
+  } else {
+    @math.Vec2(
+      clamp_touch_axis(delta[X] / TOUCH_CONTROLLER_RADIUS),
+      clamp_touch_axis(delta[Y] / TOUCH_CONTROLLER_RADIUS),
+    )
+  }
+}
+
+///|
+fn touch_character_input() -> @math.Vec2 {
+  let screen = @system.get_screen_size()
+  for touch in @ui.active_unconsumed_touches() {
+    if touch.position[Y] >= screen[Y] * 0.35 {
+      return touch_controller_vector(touch.position, screen)
+    }
+  }
+  @math.Vec2::zero()
+}
+
+///|
+fn character_input_vector() -> @math.Vec2 {
+  let input = @inputs.key_vector(KeyW, KeyS, KeyA, KeyD) +
+    touch_character_input()
+  if input.distance() > 1.0 {
+    input.normalize()
+  } else {
+    input
+  }
 }
 
 ///|
@@ -588,7 +648,7 @@ fn drive_character_controller_system(_world : @ecs.World) -> Unit {
     return
   }
   let delta = @time.delta()
-  let input = @inputs.key_vector(KeyW, KeyS, KeyA, KeyD)
+  let input = character_input_vector()
   let movement = if input == @math.Vec2::zero() {
     vec3(0.0, 0.0, 0.0)
   } else {

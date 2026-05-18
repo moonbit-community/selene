@@ -83,6 +83,8 @@ priv struct UiInteractionRuntime {
   mut hovered_entity : @entity.Entity?
   mut pressed_entity : @entity.Entity?
   mut focused_entity : @entity.Entity?
+  touch_captures : Map[@inputs.TouchId, @entity.Entity]
+  consumed_touches : Set[@inputs.TouchId]
 }
 
 ///|
@@ -95,6 +97,8 @@ fn ui_interaction_runtime() -> UiInteractionRuntime {
     hovered_entity: None,
     pressed_entity: None,
     focused_entity: None,
+    touch_captures: Map([]),
+    consumed_touches: Set([]),
   })
 }
 
@@ -106,6 +110,35 @@ pub fn hovered_entity() -> @entity.Entity? {
 ///|
 pub fn focused_entity() -> @entity.Entity? {
   ui_interaction_runtime().focused_entity
+}
+
+///|
+pub fn is_touch_consumed(id : @inputs.TouchId) -> Bool {
+  ui_interaction_runtime().consumed_touches.contains(id)
+}
+
+///|
+pub fn active_unconsumed_touches() -> Array[@inputs.TouchPoint] {
+  let touches : Array[@inputs.TouchPoint] = []
+  let runtime = ui_interaction_runtime()
+  for id, touch in @inputs.active_touches() {
+    if !runtime.consumed_touches.contains(id) {
+      touches.push(touch)
+    }
+  }
+  touches
+}
+
+///|
+pub fn unconsumed_touch_changes_this_frame() -> Array[@inputs.TouchEvent] {
+  let changes : Array[@inputs.TouchEvent] = []
+  let runtime = ui_interaction_runtime()
+  for event in @inputs.touch_changes_this_frame() {
+    if !runtime.consumed_touches.contains(event.id) {
+      changes.push(event)
+    }
+  }
+  changes
 }
 
 ///|
@@ -454,6 +487,81 @@ fn scrollable_target_at(position : @math.Vec2) -> @entity.Entity? {
     target = entity.get_parent()
   }
   None
+}
+
+///|
+fn blocking_target_at(position : @math.Vec2) -> @entity.Entity? {
+  let mut target = ui_node_at(position)
+  while target is Some(entity) {
+    if button_blocks_pointer(entity) {
+      return Some(entity)
+    }
+    target = entity.get_parent()
+  }
+  None
+}
+
+///|
+fn touch_capture_target_at(position : @math.Vec2) -> @entity.Entity? {
+  match resolve_pointer_target(position) {
+    Some(entity) => Some(entity)
+    None =>
+      match scrollable_target_at(position) {
+        Some(entity) => Some(entity)
+        None => blocking_target_at(position)
+      }
+  }
+}
+
+///|
+fn clear_invalid_touch_captures(runtime : UiInteractionRuntime) -> Unit {
+  let stale : Array[@inputs.TouchId] = []
+  for id, entity in runtime.touch_captures {
+    if !entity.is_alive() || !global_ui_nodes().contains(entity) {
+      stale.push(id)
+    }
+  }
+  for id in stale {
+    ignore(runtime.touch_captures.remove(id))
+  }
+}
+
+///|
+fn update_touch_capture_for_event(
+  runtime : UiInteractionRuntime,
+  event : @inputs.TouchEvent,
+) -> Unit {
+  match event.phase {
+    Started =>
+      if touch_capture_target_at(event.position) is Some(entity) {
+        runtime.touch_captures.set(event.id, entity)
+        runtime.consumed_touches.add(event.id)
+      }
+    Moved =>
+      if runtime.touch_captures.contains(event.id) {
+        runtime.consumed_touches.add(event.id)
+      }
+    Ended | Cancelled =>
+      if runtime.touch_captures.contains(event.id) {
+        runtime.consumed_touches.add(event.id)
+        ignore(runtime.touch_captures.remove(event.id))
+      }
+  }
+}
+
+///|
+pub fn ui_input_capture_system(_delta : Double) -> Unit {
+  let runtime = ui_interaction_runtime()
+  runtime.consumed_touches.clear()
+  clear_invalid_touch_captures(runtime)
+  for id, _touch in @inputs.active_touches() {
+    if runtime.touch_captures.contains(id) {
+      runtime.consumed_touches.add(id)
+    }
+  }
+  for event in @inputs.touch_changes_this_frame() {
+    update_touch_capture_for_event(runtime, event)
+  }
 }
 
 ///|

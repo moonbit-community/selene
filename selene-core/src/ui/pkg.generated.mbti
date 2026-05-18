@@ -13,6 +13,8 @@ import {
 }
 
 // Values
+pub fn active_unconsumed_touches() -> Array[@inputs.TouchPoint]
+
 pub fn align_content_center() -> AlignContent
 
 pub fn align_content_end() -> AlignContent
@@ -125,6 +127,8 @@ pub fn hovered_entity() -> @entity.Entity?
 
 pub fn interactions() -> Map[@entity.Entity, Interaction]
 
+pub fn is_touch_consumed(@inputs.TouchId) -> Bool
+
 pub fn is_ui_entity(@entity.Entity) -> Bool
 
 pub fn layout_configs() -> Map[@entity.Entity, LayoutConfig]
@@ -185,6 +189,8 @@ pub fn ui_extract_system(Double) -> Unit
 
 pub fn ui_images() -> Map[@entity.Entity, UiImage]
 
+pub fn ui_input_capture_system(Double) -> Unit
+
 pub fn ui_interaction_system(Double) -> Unit
 
 pub fn ui_layout_root_size(UiLayoutSpace) -> @math.Vec2
@@ -198,6 +204,8 @@ pub fn ui_material_asset(UiMaterialHandle) -> UiMaterialAsset?
 pub fn ui_prepare_system(Double) -> Unit
 
 pub fn ui_target_cameras() -> Map[@entity.Entity, UiTargetCamera]
+
+pub fn unconsumed_touch_changes_this_frame() -> Array[@inputs.TouchEvent]
 
 pub fn update_ui_material_asset(UiMaterialHandle, UiMaterialAsset) -> Unit
 

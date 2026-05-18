@@ -47,6 +47,8 @@ fn reset_interaction_test_state() -> Unit {
   runtime.hovered_entity = None
   runtime.pressed_entity = None
   runtime.focused_entity = None
+  runtime.touch_captures.clear()
+  runtime.consumed_touches.clear()
   @inputs.apply_input_snapshot(@inputs.empty_input_snapshot())
   @inputs.just_pressed_mouse.left_button = false
   @inputs.just_pressed_mouse.right_button = false
@@ -282,6 +284,116 @@ test "ui touch drag scrolls non-button scrollable panels" {
 
     let scroll = scroll_positions().get(entity).unwrap()
     inspect(scroll.y, content="20")
+
+    cleanup_interaction_test_entity(entity)
+    reset_interaction_test_state()
+  })
+}
+
+///|
+test "ui input capture consumes touch started over button before interaction" {
+  with_ui_interaction_test_world(fn() raise {
+    reset_interaction_test_state()
+    let entity = spawn_interaction_test_node({
+      position: @math.Vec2(100.0, 50.0),
+      size: @math.Vec2(80.0, 40.0),
+    })
+    let id = @inputs.TouchId(5)
+    let press = @math.Vec2(120.0, 70.0)
+
+    apply_ui_touch_frame(Some(touch_point(id, press)), [
+      touch_event(id, Started, press),
+    ])
+    ui_input_capture_system(0.0)
+
+    inspect(is_touch_consumed(id), content="true")
+    inspect(active_unconsumed_touches().length(), content="0")
+
+    cleanup_interaction_test_entity(entity)
+    reset_interaction_test_state()
+  })
+}
+
+///|
+test "ui input capture holds touch until release" {
+  with_ui_interaction_test_world(fn() raise {
+    reset_interaction_test_state()
+    let entity = spawn_interaction_test_node({
+      position: @math.Vec2(100.0, 50.0),
+      size: @math.Vec2(80.0, 40.0),
+    })
+    let id = @inputs.TouchId(6)
+    let press = @math.Vec2(120.0, 70.0)
+    let outside = @math.Vec2(20.0, 20.0)
+
+    apply_ui_touch_frame(Some(touch_point(id, press)), [
+      touch_event(id, Started, press),
+    ])
+    ui_input_capture_system(0.0)
+    apply_ui_touch_frame(
+      Some(touch_point(id, outside, previous_position=press)),
+      [touch_event(id, Moved, outside, previous_position=press)],
+    )
+    ui_input_capture_system(0.0)
+    inspect(is_touch_consumed(id), content="true")
+    inspect(active_unconsumed_touches().length(), content="0")
+
+    apply_ui_touch_frame(None, [
+      touch_event(id, Ended, outside, previous_position=outside),
+    ])
+    ui_input_capture_system(0.0)
+    inspect(is_touch_consumed(id), content="true")
+    apply_ui_touch_frame(None, [])
+    ui_input_capture_system(0.0)
+    inspect(is_touch_consumed(id), content="false")
+
+    cleanup_interaction_test_entity(entity)
+    reset_interaction_test_state()
+  })
+}
+
+///|
+test "ui input capture consumes non-button scroll panels" {
+  with_ui_interaction_test_world(fn() raise {
+    reset_interaction_test_state()
+    let entity = spawn_interaction_test_node(
+      { position: @math.Vec2(0.0, 0.0), size: @math.Vec2(100.0, 100.0) },
+      interactive=false,
+      overflow_y=Scroll,
+    )
+    let id = @inputs.TouchId(7)
+    let press = @math.Vec2(20.0, 40.0)
+
+    apply_ui_touch_frame(Some(touch_point(id, press)), [
+      touch_event(id, Started, press),
+    ])
+    ui_input_capture_system(0.0)
+
+    inspect(is_touch_consumed(id), content="true")
+
+    cleanup_interaction_test_entity(entity)
+    reset_interaction_test_state()
+  })
+}
+
+///|
+test "ui input capture leaves gameplay touches unconsumed" {
+  with_ui_interaction_test_world(fn() raise {
+    reset_interaction_test_state()
+    let entity = spawn_interaction_test_node({
+      position: @math.Vec2(100.0, 50.0),
+      size: @math.Vec2(80.0, 40.0),
+    })
+    let id = @inputs.TouchId(8)
+    let press = @math.Vec2(20.0, 20.0)
+
+    apply_ui_touch_frame(Some(touch_point(id, press)), [
+      touch_event(id, Started, press),
+    ])
+    ui_input_capture_system(0.0)
+
+    inspect(is_touch_consumed(id), content="false")
+    inspect(active_unconsumed_touches().length(), content="1")
 
     cleanup_interaction_test_entity(entity)
     reset_interaction_test_state()

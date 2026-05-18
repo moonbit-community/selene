@@ -156,6 +156,13 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
+    @ui.ui_input_capture_system,
+    PreUpdate,
+    "UI Input Capture System",
+    after=[input],
+  )
+  let app = add_system(
+    app,
     @system.sync_mouse_lock_system,
     PreUpdate,
     "Sync Mouse Lock",

@@ -6,6 +6,8 @@
 - Added first-class touch input state/events, touch snapshots, and pointer primitives for WebGPU and raylib backends.
 - Added portable touch gesture events for tap, long press, pan, and pinch recognition.
 - Added virtual button/axis controls and input-action bindings for touch-driven mobile controls.
+- Added touch controls to the `cards`, `survivors`, `pixeladventure`, and `scene3d` examples.
+- Added UI touch capture/consumption APIs so gameplay touch controls can ignore pointers owned by UI.
 
 ### Changed
 - Changed `moon_accesskit` to `0.3.0` and updated the a11y adapter to the current constructor API.

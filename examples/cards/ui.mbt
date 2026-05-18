@@ -25,6 +25,13 @@ const BUTTON_LABEL_ZINDEX : Int = 111
 let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = @event.EventReader()
 
 ///|
+priv enum TouchAction {
+  TouchFold
+  TouchCall
+  TouchRaise
+}
+
+///|
 fn set_text(entity : @entity.Entity, content : String) -> Unit {
   let text = @ui.texts().get_or_init(entity, fn() { @ui.Text(content) })
   text.content = content
@@ -377,20 +384,70 @@ fn on_raise_click() -> Unit {
 }
 
 ///|
+fn touch_action_at(position : @math.Vec2, screen : @math.Vec2) -> TouchAction? {
+  if position[Y] < screen[Y] * 0.72 {
+    return None
+  }
+  if position[X] < screen[X] / 3.0 {
+    Some(TouchFold)
+  } else if position[X] < screen[X] * 2.0 / 3.0 {
+    Some(TouchCall)
+  } else {
+    Some(TouchRaise)
+  }
+}
+
+///|
+fn apply_touch_action(action : TouchAction) -> Unit {
+  match action {
+    TouchFold => if game_state.phase != River { on_fold_click() }
+    TouchCall => on_call_click()
+    TouchRaise => if game_state.phase != River { on_raise_click() }
+  }
+}
+
+///|
+fn handle_cards_touch_shortcuts() -> Bool {
+  if !game_state.waiting_for_player {
+    return false
+  }
+  let screen = @system.get_screen_size()
+  for event in @ui.unconsumed_touch_changes_this_frame() {
+    if event.primary && event.phase == @inputs.TouchPhase::Ended {
+      match touch_action_at(event.position, screen) {
+        Some(action) => {
+          apply_touch_action(action)
+          return true
+        }
+        None => ()
+      }
+    }
+  }
+  false
+}
+
+///|
 fn cards_ui_pointer_system(_world : @ecs.World) -> Unit {
+  let mut handled_ui_click = false
   for event in @ui.click_event_bus.read(ui_click_reader) {
     if event.entity == game_state.fold_button {
       on_fold_click()
+      handled_ui_click = true
       continue
     }
     if event.entity == game_state.call_button {
       on_call_click()
+      handled_ui_click = true
       continue
     }
     if event.entity == game_state.raise_button {
       on_raise_click()
+      handled_ui_click = true
       continue
     }
+  }
+  if !handled_ui_click {
+    ignore(handle_cards_touch_shortcuts())
   }
 }
 
