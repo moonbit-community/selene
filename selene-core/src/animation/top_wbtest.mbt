@@ -207,9 +207,12 @@ test "animation event descriptors dispatch typed events to readers and observers
     })
     ignore(player.start(nodes[0], repeat=Never))
     animation_player_system(1.0)
-    inspect(events.read(reader), content="[7]")
+    let reader_events = events.read(reader)
+    inspect(reader_events.length(), content="1")
+    inspect(reader_events[0], content="7")
     events.dispatch_observers()
-    inspect(observed, content="[7]")
+    inspect(observed.length(), content="1")
+    inspect(observed[0], content="7")
   })
 }
 

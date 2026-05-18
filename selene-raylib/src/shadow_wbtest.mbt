@@ -36,7 +36,10 @@ test "raylib directional shadow helper picks enabled lights in frame order" {
       shadows: true,
     },
   ]
-  inspect(shadowed_directional_light_indices(frame), content="[1, 2]")
+  let indices = shadowed_directional_light_indices(frame)
+  inspect(indices.length(), content="2")
+  inspect(indices[0], content="1")
+  inspect(indices[1], content="2")
 }
 
 ///|
@@ -49,7 +52,10 @@ test "raylib directional shadow helper keeps enabled light order within the shad
     { ..@render3d_types.default_directional_light3d(), shadows: false },
     { ..@render3d_types.default_directional_light3d(), shadows: true },
   ]
-  inspect(shadowed_directional_light_indices(frame), content="[1, 2]")
+  let indices = shadowed_directional_light_indices(frame)
+  inspect(indices.length(), content="2")
+  inspect(indices[0], content="1")
+  inspect(indices[1], content="2")
 }
 
 ///|

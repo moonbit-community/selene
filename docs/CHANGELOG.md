@@ -11,6 +11,7 @@
 - Changed UI interaction to use pointer-ready press/release semantics, including touch tap/cancel handling and one-finger drag scrolling for scrollable UI.
 
 ### Fixed
+- Fixed raylib shadow white-box tests to avoid deprecated array `inspect` output under warning-strict checks.
 
 ### Removed
 

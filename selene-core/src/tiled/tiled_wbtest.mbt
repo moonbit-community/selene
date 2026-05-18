@@ -31,6 +31,22 @@ fn vec2_snapshot(vec : @math.Vec2) -> String {
 }
 
 ///|
+fn string_array_matches(
+  values : Array[String],
+  expected : Array[String],
+) -> Bool {
+  let mut matches = values.length() == expected.length()
+  if matches {
+    for index in 0..<values.length() {
+      if values[index] != expected[index] {
+        matches = false
+      }
+    }
+  }
+  matches
+}
+
+///|
 fn tiled_test_set_entity_translation_2d(
   entity : @entity.Entity,
   position : @math.Vec2,
@@ -303,8 +319,10 @@ test "tiled world pattern expansion derives map position and size" {
   })
   snapshot.sort()
   inspect(
-    snapshot,
-    content="[\"ow-p0001-n0001-o0000.tmx@0,0,6400,6400\", \"ow-p0002-n0003-o0000.tmx@6400,12800,6400,6400\"]",
+    string_array_matches(snapshot, [
+      "ow-p0001-n0001-o0000.tmx@0,0,6400,6400", "ow-p0002-n0003-o0000.tmx@6400,12800,6400,6400",
+    ]),
+    content="true",
   )
 }
 
@@ -386,7 +404,10 @@ test "spawn_tiled_map creates tile object and image layer entities" {
       vec2_snapshot(tile_offset + layer_offset)
     })
     tile_positions.sort()
-    inspect(tile_positions, content="[\"2,3\", \"18,19\"]")
+    inspect(
+      string_array_matches(tile_positions, ["2,3", "18,19"]),
+      content="true",
+    )
     debug_inspect(
       animation_image_path(tile_entities[0].0),
       content="Some(\"maps/terrain.png\")",
@@ -413,7 +434,10 @@ test "spawn_tiled_map creates tile object and image layer entities" {
       "\{name}@\{vec2_snapshot(object_offset + layer_offset)}"
     })
     named_positions.sort()
-    inspect(named_positions, content="[\"Spawn@20,24\", \"Torch@32,16\"]")
+    inspect(
+      string_array_matches(named_positions, ["Spawn@20,24", "Torch@32,16"]),
+      content="true",
+    )
 
     let backdrop_entity = layer_entities.filter(fn(pair) {
         pair.1.layer.name == "Backdrop"
@@ -481,7 +505,7 @@ test "respawn_tiled_map_into_entity replaces previous tiled children and metadat
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
       .map(fn(pair) { pair.1.layer.name })
-    inspect(layer_names, content="[\"Backdrop\"]")
+    inspect(string_array_matches(layer_names, ["Backdrop"]), content="true")
     let image_layers = tiled_image_layer_instances()
       .to_array()
       .filter(fn(pair) { pair.1.map_entity == root })
@@ -750,8 +774,10 @@ test "spawn_tiled_world loads adjacent maps and emits world events" {
     inspect(world_map_events.length(), content="2")
     hooked_paths.sort()
     inspect(
-      hooked_paths,
-      content="[\"worlds/maps/a.tmj\", \"worlds/maps/b.tmj\"]",
+      string_array_matches(hooked_paths, [
+        "worlds/maps/a.tmj", "worlds/maps/b.tmj",
+      ]),
+      content="true",
     )
 
     let map_entities = tiled_world_map_instances()
@@ -764,8 +790,10 @@ test "spawn_tiled_world loads adjacent maps and emits world events" {
       })
     map_entities.sort()
     inspect(
-      map_entities,
-      content="[\"worlds/maps/a.tmj@0,0\", \"worlds/maps/b.tmj@32,0\"]",
+      string_array_matches(map_entities, [
+        "worlds/maps/a.tmj@0,0", "worlds/maps/b.tmj@32,0",
+      ]),
+      content="true",
     )
   })
 }
@@ -835,7 +863,10 @@ test "respawn_tiled_world_into_entity replaces previous spawned maps" {
         let offset = tiled_test_entity_translation_2d(pair.0)
         "\{path}@\{vec2_snapshot(offset)}"
       })
-    inspect(map_entities, content="[\"worlds/maps/b.tmj@64,0\"]")
+    inspect(
+      string_array_matches(map_entities, ["worlds/maps/b.tmj@64,0"]),
+      content="true",
+    )
   })
 }
 
@@ -969,7 +1000,10 @@ test "tiled world chunking unions multiple active camera views" {
       .filter(fn(pair) { pair.1.world_entity == root })
       .map(fn(pair) { pair.1.resolved_map_path })
     spawned.sort_by(fn(lhs, rhs) { lhs.compare(rhs) })
-    inspect(spawned, content="[\"worlds/maps/a.tmj\", \"worlds/maps/b.tmj\"]")
+    inspect(
+      string_array_matches(spawned, ["worlds/maps/a.tmj", "worlds/maps/b.tmj"]),
+      content="true",
+    )
   })
 
   @system.configure_display(
@@ -1113,7 +1147,10 @@ test "spawn_tiled_map reads TMX tile object and image layers" {
       vec2_snapshot(tile_offset + layer_offset)
     })
     tile_positions.sort()
-    inspect(tile_positions, content="[\"2,3\", \"18,19\"]")
+    inspect(
+      string_array_matches(tile_positions, ["2,3", "18,19"]),
+      content="true",
+    )
     debug_inspect(
       animation_image_path(tile_entities[0].0),
       content="Some(\"maps/terrain.png\")",
@@ -1132,7 +1169,10 @@ test "spawn_tiled_map reads TMX tile object and image layers" {
       "\{name}@\{vec2_snapshot(object_offset + layer_offset)}"
     })
     named_positions.sort()
-    inspect(named_positions, content="[\"Spawn@20,24\", \"Torch@32,16\"]")
+    inspect(
+      string_array_matches(named_positions, ["Spawn@20,24", "Torch@32,16"]),
+      content="true",
+    )
 
     let backdrop_entity = layer_entities.filter(fn(pair) {
         pair.1.layer.name == "Backdrop"
@@ -1177,7 +1217,10 @@ test "spawn_tiled_map expands tiled animated tiles into frame timelines" {
             let offsets = layout.rects.map(fn(rect) {
               rect.position[X].to_int().to_string()
             })
-            inspect(offsets, content="[\"0\", \"16\", \"16\"]")
+            inspect(
+              string_array_matches(offsets, ["0", "16", "16"]),
+              content="true",
+            )
           }
           None => inspect("missing-layout", content="missing-layout")
         }
@@ -1227,7 +1270,10 @@ test "tiled_cell_position supports isometric hexagonal and staggered layouts" {
   let iso_snapshot = iso_cells.map(fn(cell) {
     vec2_snapshot(tiled_cell_position(iso_map, tileset, cell))
   })
-  inspect(iso_snapshot, content="[\"8,0\", \"16,8\", \"0,8\"]")
+  inspect(
+    string_array_matches(iso_snapshot, ["8,0", "16,8", "0,8"]),
+    content="true",
+  )
 
   let hex_map = {
     ..empty_tiled_map(),
@@ -1248,7 +1294,10 @@ test "tiled_cell_position supports isometric hexagonal and staggered layouts" {
   let hex_snapshot = hex_cells.map(fn(cell) {
     vec2_snapshot(tiled_cell_position(hex_map, tileset, cell))
   })
-  inspect(hex_snapshot, content="[\"0,0\", \"8,12\", \"24,12\"]")
+  inspect(
+    string_array_matches(hex_snapshot, ["0,0", "8,12", "24,12"]),
+    content="true",
+  )
 
   let staggered_map = {
     ..empty_tiled_map(),
@@ -1268,7 +1317,10 @@ test "tiled_cell_position supports isometric hexagonal and staggered layouts" {
   let staggered_snapshot = staggered_cells.map(fn(cell) {
     vec2_snapshot(tiled_cell_position(staggered_map, tileset, cell))
   })
-  inspect(staggered_snapshot, content="[\"0,8\", \"8,0\", \"0,24\"]")
+  inspect(
+    string_array_matches(staggered_snapshot, ["0,8", "8,0", "0,24"]),
+    content="true",
+  )
 }
 
 ///|

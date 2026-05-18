@@ -175,8 +175,11 @@ test "spatial grid query returns deterministic ids from overlapping cells" {
     ],
     cell_size=32.0,
   )
-  inspect(
-    grid.query({ position: @math.Vec2(0.0, 0.0), size: @math.Vec2(40.0, 32.0) }),
-    content="[2, 5]",
-  )
+  let ids = grid.query({
+    position: @math.Vec2(0.0, 0.0),
+    size: @math.Vec2(40.0, 32.0),
+  })
+  inspect(ids.length(), content="2")
+  inspect(ids[0], content="2")
+  inspect(ids[1], content="5")
 }

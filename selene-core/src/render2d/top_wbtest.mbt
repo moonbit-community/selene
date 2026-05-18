@@ -14,6 +14,19 @@ fn test_rect_command(
 }
 
 ///|
+fn int_array_matches(values : Array[Int], expected : Array[Int]) -> Bool {
+  let mut matches = values.length() == expected.length()
+  if matches {
+    for index in 0..<values.length() {
+      if values[index] != expected[index] {
+        matches = false
+      }
+    }
+  }
+  matches
+}
+
+///|
 test "render2d world sorting honors layer and depth order" {
   begin_frame2d_system(0.0)
 
@@ -39,7 +52,7 @@ test "render2d world sorting honors layer and depth order" {
   let order = get_screen_world_commands_with_depth().map(fn(command) {
     command.entity_id.unwrap_or(0U).reinterpret_as_int()
   })
-  inspect(order, content="[3, 1, 2]")
+  inspect(int_array_matches(order, [3, 1, 2]), content="true")
 }
 
 ///|
@@ -68,5 +81,5 @@ test "render2d world sorting honors explicit sorting groups" {
   let order = get_screen_world_commands_with_depth().map(fn(command) {
     command.entity_id.unwrap_or(0U).reinterpret_as_int()
   })
-  inspect(order, content="[2, 3, 1]")
+  inspect(int_array_matches(order, [2, 3, 1]), content="true")
 }
