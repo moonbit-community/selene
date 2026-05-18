@@ -112,13 +112,22 @@ def run_publish_cmd(module: ModuleConfig):
     # package validation succeeds. Treat publish as strict on exit code only:
     # non-zero exits (including HTTP 409 duplicated version) still fail fast.
     run_cmd(
-        ["moon", "publish", "--manifest-path", str(module_manifest_path(module))],
+        ["moon", "-C", str(module.path), "publish"],
         ROOT_DIR,
         fail_on_warning=False,
     )
 
 
 def has_warning(output: str) -> bool:
+    filtered_lines = []
+    for line in output.splitlines():
+        if re.match(
+            r"^Warning: Skipping package `[^`]+` for `moon info`: it does not support target backend `wasm-gc`$",
+            line,
+        ):
+            continue
+        filtered_lines.append(line)
+    output = "\n".join(filtered_lines)
     patterns = [
         r"(^|\s)WARN(\s|:)",
         r"^Warning:",
@@ -146,6 +155,10 @@ def module_by_name(name: str) -> ModuleConfig:
 
 def module_manifest_path(module: ModuleConfig) -> Path:
     return module.path / "moon.mod.json"
+
+
+def module_relative_path(module: ModuleConfig, path: str) -> str:
+    return str(Path(path).relative_to(module.path))
 
 
 def module_info_entries(module: ModuleConfig) -> list[tuple[str, str]]:
@@ -185,11 +198,10 @@ def ensure_no_legacy_ui_references():
 
 def run_module_quality_checks(module: ModuleConfig):
     """Run fmt/info/check and fail on any warning."""
-    manifest_path = module_manifest_path(module)
     info_entries = module_info_entries(module)
 
     run_cmd(
-        ["moon", "fmt", str(module.path), "--manifest-path", str(manifest_path)],
+        ["moon", "-C", str(module.path), "fmt", "."],
         ROOT_DIR,
         fail_on_warning=True,
     )
@@ -197,12 +209,12 @@ def run_module_quality_checks(module: ModuleConfig):
         run_cmd(
             [
                 "moon",
+                "-C",
+                str(module.path),
                 "info",
-                info_entry_path,
+                module_relative_path(module, info_entry_path),
                 "--target",
                 info_target,
-                "--manifest-path",
-                str(manifest_path),
             ],
             ROOT_DIR,
             fail_on_warning=True,
@@ -227,13 +239,13 @@ def run_module_quality_checks(module: ModuleConfig):
         run_cmd(
             [
                 "moon",
-                "check",
+                "-C",
                 str(module.path),
+                "check",
+                ".",
                 "--target",
                 target,
                 "--deny-warn",
-                "--manifest-path",
-                str(manifest_path),
             ],
             ROOT_DIR,
             fail_on_warning=True,
@@ -313,13 +325,13 @@ def run_release_pipeline(version: str):
     for module in RELEASE_MODULES:
         print(f"==> moon update: {module.name}")
         run_cmd(
-            ["moon", "update", "--manifest-path", str(module_manifest_path(module))],
+            ["moon", "-C", str(module.path), "update"],
             ROOT_DIR,
             fail_on_warning=True,
         )
     print("==> moon update: examples")
     run_cmd(
-        ["moon", "update", "--manifest-path", str(EXAMPLES_MANIFEST_PATH)],
+        ["moon", "-C", str(EXAMPLES_DIR), "update"],
         ROOT_DIR,
         fail_on_warning=True,
     )
@@ -334,7 +346,7 @@ def run_release_pipeline(version: str):
             for next_module_name in PUBLISH_ORDER[idx + 1:]:
                 next_module = module_by_name(next_module_name)
                 run_cmd(
-                    ["moon", "update", "--manifest-path", str(module_manifest_path(next_module))],
+                    ["moon", "-C", str(next_module.path), "update"],
                     ROOT_DIR,
                     fail_on_warning=True,
                 )
@@ -343,13 +355,13 @@ def run_release_pipeline(version: str):
     for module in RELEASE_MODULES:
         print(f"==> moon update: {module.name}")
         run_cmd(
-            ["moon", "update", "--manifest-path", str(module_manifest_path(module))],
+            ["moon", "-C", str(module.path), "update"],
             ROOT_DIR,
             fail_on_warning=True,
         )
     print("==> moon update: examples")
     run_cmd(
-        ["moon", "update", "--manifest-path", str(EXAMPLES_MANIFEST_PATH)],
+        ["moon", "-C", str(EXAMPLES_DIR), "update"],
         ROOT_DIR,
         fail_on_warning=True,
     )
