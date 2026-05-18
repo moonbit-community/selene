@@ -3,6 +3,16 @@
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.34.0] - 2026-05-18
+
+### Added
 - Added first-class touch input state/events, touch snapshots, and pointer primitives for WebGPU and raylib backends.
 - Added portable touch gesture events for tap, long press, pan, and pinch recognition.
 - Added virtual button/axis controls and input-action bindings for touch-driven mobile controls.
