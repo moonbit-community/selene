@@ -123,6 +123,10 @@ pub fn touch_changes_this_frame() -> Array[TouchEvent]
 
 pub let touch_event_bus : @event.Events[TouchEvent]
 
+pub fn touch_gesture_changes_this_frame() -> Array[TouchGestureEvent]
+
+pub let touch_gesture_event_bus : @event.Events[TouchGestureEvent]
+
 pub fn touch_point(TouchId) -> TouchPoint?
 
 // Errors
@@ -336,6 +340,30 @@ pub(all) struct TouchEvent {
   delta : @math.Vec2
   primary : Bool
 }
+
+pub(all) struct TouchGestureEvent {
+  kind : TouchGestureKind
+  primary_id : TouchId?
+  secondary_id : TouchId?
+  position : @math.Vec2
+  delta : @math.Vec2
+  scale : Double
+  distance : Double
+  duration : Double
+}
+
+pub(all) enum TouchGestureKind {
+  Tap
+  LongPress
+  PanStart
+  PanMove
+  PanEnd
+  PanCancel
+  PinchStart
+  PinchMove
+  PinchEnd
+  PinchCancel
+} derive(Eq, @debug.Debug)
 
 pub(all) struct TouchId {
   value : Int
