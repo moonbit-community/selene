@@ -537,6 +537,28 @@ fn free_audio_playback(playback : AudioPlayback) -> Unit {
 }
 
 ///|
+fn music_reached_end(music : @raylib.Music, playback : AudioPlayback) -> Bool {
+  let total : Float = if playback.music_total_seconds > 0.0 {
+    playback.music_total_seconds
+  } else {
+    let total = @raylib.get_music_time_length(music)
+    playback.music_total_seconds = total
+    total
+  }
+  if total <= 0.0 {
+    return false
+  }
+  let played : Float = @raylib.get_music_time_played(music)
+  let epsilon : Float = 0.03
+  let threshold : Float = total - epsilon
+  if threshold <= 0.0 {
+    played >= total
+  } else {
+    played >= threshold
+  }
+}
+
+///|
 fn tick_audio_playback(playback : AudioPlayback) -> Unit {
   if playback.finished || playback.paused {
     return
@@ -552,10 +574,12 @@ fn tick_audio_playback(playback : AudioPlayback) -> Unit {
       }
     Music(music) => {
       @raylib.update_music_stream(music)
-      if playback.started && !@raylib.is_music_stream_playing(music) {
+      let is_playing = @raylib.is_music_stream_playing(music)
+      let reached_end = music_reached_end(music, playback)
+      if playback.started && !is_playing {
         if playback.loop_ {
           @raylib.play_music_stream(music)
-        } else {
+        } else if !playback.loop_ && reached_end {
           playback.finished = true
         }
       }
