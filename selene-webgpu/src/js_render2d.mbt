@@ -37,13 +37,14 @@ extern "js" fn webgpu_set_lighting_3d(
   directional_data : Array[Double],
   point_data : Array[Double],
   spot_data : Array[Double],
+  light_uniform : Array[Double],
   ambient_r : Double,
   ambient_g : Double,
   ambient_b : Double,
   directional_shadow_map_size : Double,
   point_shadow_map_size : Double,
 ) -> Unit =
-  #| (directionalData, pointData, spotData, ar, ag, ab, directionalShadowMapSize, pointShadowMapSize) => {
+  #| (directionalData, pointData, spotData, lightUniform, ar, ag, ab, directionalShadowMapSize, pointShadowMapSize) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (!rt) return;
   #|   const clamp01 = (x) => Math.max(0, Math.min(1, Number.isFinite(x) ? x : 0));
@@ -51,6 +52,7 @@ extern "js" fn webgpu_set_lighting_3d(
   #|   const safeDirectional = Array.isArray(directionalData) ? directionalData : [];
   #|   const safePoint = Array.isArray(pointData) ? pointData : [];
   #|   const safeSpot = Array.isArray(spotData) ? spotData : [];
+  #|   const safeLightUniform = Array.isArray(lightUniform) ? lightUniform : [];
   #|   const safeDirectionalShadowMapSize = Math.max(1, Math.round(Number(directionalShadowMapSize) || 2048));
   #|   const safePointShadowMapSize = Math.max(1, Math.round(Number(pointShadowMapSize) || 1024));
   #|   const directionalLights = [];
@@ -171,6 +173,7 @@ extern "js" fn webgpu_set_lighting_3d(
   #|     directionalShadowMapSize: safeDirectionalShadowMapSize,
   #|     pointShadowMapSize: safePointShadowMapSize,
   #|   };
+  #|   rt.lightUniform3d = new Float32Array(safeLightUniform);
   #| }
 
 ///|

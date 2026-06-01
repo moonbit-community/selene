@@ -1633,66 +1633,9 @@ extern "js" fn webgpu_initialize(
   #|         directionalShadowMapSize: 2048,
   #|         pointShadowMapSize: 1024,
   #|       };
-  #|       const directionalLights = Array.isArray(light.directionalLights) ? light.directionalLights : [];
-  #|       const pointLights = Array.isArray(light.pointLights) ? light.pointLights : [];
-  #|       const spotLights = Array.isArray(light.spotLights) ? light.spotLights : [];
-  #|       const directionalCount = Math.min(4, directionalLights.length);
-  #|       const pointCount = Math.min(8, pointLights.length);
-  #|       const spotCount = Math.min(4, spotLights.length);
-  #|       const basis = cameraBasis(camera);
-  #|       const lightUniform = new Float32Array(44 * 4);
-  #|       lightUniform[0] = clamp01(Number(light.ambient?.[0]) || 0);
-  #|       lightUniform[1] = clamp01(Number(light.ambient?.[1]) || 0);
-  #|       lightUniform[2] = clamp01(Number(light.ambient?.[2]) || 0);
-  #|       lightUniform[3] = directionalCount;
-  #|       lightUniform[4] = pointCount;
-  #|       lightUniform[5] = spotCount;
-  #|       lightUniform[8] = Number(camera.position?.[0]) || 0;
-  #|       lightUniform[9] = Number(camera.position?.[1]) || 0;
-  #|       lightUniform[10] = Number(camera.position?.[2]) || 0;
-  #|       lightUniform[12] = Number(basis.forward?.[0]) || 0;
-  #|       lightUniform[13] = Number(basis.forward?.[1]) || 0;
-  #|       lightUniform[14] = Number(basis.forward?.[2]) || -1;
-  #|       for (let index = 0; index < directionalCount; index += 1) {
-  #|         const src = directionalLights[index];
-  #|         const base = 16 + index * 8;
-  #|         lightUniform[base] = Number(src.direction?.[0]) || 0;
-  #|         lightUniform[base + 1] = Number(src.direction?.[1]) || -1;
-  #|         lightUniform[base + 2] = Number(src.direction?.[2]) || 0;
-  #|         lightUniform[base + 3] = Math.max(0, Number(src.intensity) || 0);
-  #|         lightUniform[base + 4] = clamp01(Number(src.color?.[0]) || 0);
-  #|         lightUniform[base + 5] = clamp01(Number(src.color?.[1]) || 0);
-  #|         lightUniform[base + 6] = clamp01(Number(src.color?.[2]) || 0);
-  #|       }
-  #|       for (let index = 0; index < pointCount; index += 1) {
-  #|         const src = pointLights[index];
-  #|         const base = 48 + index * 8;
-  #|         lightUniform[base] = Number(src.position?.[0]) || 0;
-  #|         lightUniform[base + 1] = Number(src.position?.[1]) || 0;
-  #|         lightUniform[base + 2] = Number(src.position?.[2]) || 0;
-  #|         lightUniform[base + 3] = Math.max(0, Number(src.intensity) || 0);
-  #|         lightUniform[base + 4] = clamp01(Number(src.color?.[0]) || 0);
-  #|         lightUniform[base + 5] = clamp01(Number(src.color?.[1]) || 0);
-  #|         lightUniform[base + 6] = clamp01(Number(src.color?.[2]) || 0);
-  #|         lightUniform[base + 7] = Math.max(0.0001, Number(src.range) || 0.0001);
-  #|       }
-  #|       for (let index = 0; index < spotCount; index += 1) {
-  #|         const src = spotLights[index];
-  #|         const base = 112 + index * 16;
-  #|         lightUniform[base] = Number(src.position?.[0]) || 0;
-  #|         lightUniform[base + 1] = Number(src.position?.[1]) || 0;
-  #|         lightUniform[base + 2] = Number(src.position?.[2]) || 0;
-  #|         lightUniform[base + 3] = Math.max(0, Number(src.intensity) || 0);
-  #|         lightUniform[base + 4] = clamp01(Number(src.color?.[0]) || 0);
-  #|         lightUniform[base + 5] = clamp01(Number(src.color?.[1]) || 0);
-  #|         lightUniform[base + 6] = clamp01(Number(src.color?.[2]) || 0);
-  #|         lightUniform[base + 7] = Math.max(0.0001, Number(src.range) || 0.0001);
-  #|         lightUniform[base + 8] = Number(src.direction?.[0]) || 0;
-  #|         lightUniform[base + 9] = Number(src.direction?.[1]) || -1;
-  #|         lightUniform[base + 10] = Number(src.direction?.[2]) || 0;
-  #|         lightUniform[base + 11] = Number(src.innerCos) || 0;
-  #|         lightUniform[base + 12] = Number(src.outerCos) || 0;
-  #|       }
+  #|       const lightUniform = rt.lightUniform3d?.length === 176
+  #|         ? rt.lightUniform3d
+  #|         : new Float32Array(44 * 4);
   #|       const buffers = rt.prepareSectionBuffers3d(section);
   #|       const shadowState = rt.createShadowState3d();
   #|       rt.renderDirectionalShadowMaps3d(encoder, section, buffers, camera, aspect, light, shadowState);

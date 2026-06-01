@@ -375,6 +375,90 @@ test "render3d lighting modes filter light packets in MoonBit" {
 }
 
 ///|
+test "pack_light_uniform_data owns shader light layout in MoonBit" {
+  let frame = @render3d_types.empty_render_frame3d()
+  frame.directional_lights = [
+    {
+      direction: @smath.Vec3(0.0, -2.0, 0.0),
+      color: { r: 64U, g: 128U, b: 255U, a: 1.0 },
+      intensity: 1.5,
+      shadows: false,
+      shadow_depth_bias: 0.0,
+      shadow_normal_bias: 0.0,
+      cascade_shadow_config: {
+        bounds: [],
+        minimum_distance: 0.0,
+        overlap_proportion: 0.0,
+      },
+    },
+  ]
+  frame.point_lights = [
+    {
+      position: @smath.Vec3(1.0, 2.0, 3.0),
+      color: { r: 255U, g: 64U, b: 32U, a: 1.0 },
+      intensity: 2.0,
+      range: 0.0,
+      shadows: false,
+      shadow_depth_bias: 0.0,
+      shadow_normal_bias: 0.0,
+      shadow_map_near_z: 0.1,
+    },
+  ]
+  frame.spot_lights = [
+    {
+      position: @smath.Vec3(4.0, 5.0, 6.0),
+      direction: @smath.Vec3(0.0, -2.0, 0.0),
+      color: { r: 32U, g: 160U, b: 255U, a: 1.0 },
+      intensity: 3.0,
+      range: 16.0,
+      shadows: false,
+      shadow_depth_bias: 0.0,
+      shadow_normal_bias: 0.0,
+      shadow_map_near_z: 0.1,
+      inner_angle: 0.5,
+      outer_angle: 0.25,
+    },
+  ]
+  let uniform = pack_light_uniform_data(
+    frame,
+    webgpu_test_camera(),
+    @smath.Vec3(1.2, 0.25, -1.0),
+  )
+  inspect(uniform.length(), content="176")
+  inspect(uniform[0], content="1")
+  inspect(uniform[1], content="0.25")
+  inspect(uniform[2], content="0")
+  inspect(uniform[3], content="1")
+  inspect(uniform[4], content="1")
+  inspect(uniform[5], content="1")
+  inspect(uniform[8], content="0")
+  inspect(uniform[10], content="8")
+  inspect(uniform[12], content="0")
+  inspect(uniform[14], content="-1")
+  inspect(uniform[17], content="-1")
+  inspect(uniform[19], content="1.5")
+  inspect((uniform[20] - 64.0 / 255.0).abs() < 0.000001, content="true")
+  inspect(uniform[48], content="1")
+  inspect(uniform[51], content="2")
+  inspect(uniform[55], content="0.0001")
+  inspect(uniform[112], content="4")
+  inspect(uniform[119], content="16")
+  inspect(uniform[121], content="-1")
+  inspect((uniform[123] - @math.cos(0.25)).abs() < 0.000001, content="true")
+  inspect((uniform[124] - @math.cos(0.5)).abs() < 0.000001, content="true")
+
+  let cheap_uniform = pack_light_uniform_data(
+    frame,
+    webgpu_test_camera(),
+    @smath.Vec3::zero(),
+    mode=Cheap,
+  )
+  inspect(cheap_uniform[3], content="1")
+  inspect(cheap_uniform[4], content="0")
+  inspect(cheap_uniform[5], content="0")
+}
+
+///|
 test "resolve_material_texture_bundle keeps independent UV channels when samplers match" {
   let sampler = @render3d_types.default_texture_sampler3d()
   let base_handle = webgpu_test_handle(9000)

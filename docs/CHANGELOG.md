@@ -20,6 +20,7 @@
 - Changed WebGPU textured 3D primitives to stay explicitly unbatched until texture resource handles are MoonBit-owned, removing JavaScript-side textured command compaction policy.
 - Changed WebGPU custom 3D mesh transform application so MoonBit pre-transforms colored/textured triangle vertices before passing buffers to JavaScript.
 - Changed WebGPU 2D rendering to stop doing JavaScript-side command compaction, leaving draw ordering and batching decisions outside `canvas.mbt`.
+- Changed WebGPU 3D light uniform layout so MoonBit packs the shader uniform buffer before JavaScript writes it to WebGPU.
 
 ### Fixed
 - Fixed WebGPU 3D primitives to honor material double-sided state, use instance scale consistently with custom meshes and raylib primitives, and wind textured sphere triangles outward.

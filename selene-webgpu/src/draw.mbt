@@ -597,7 +597,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
     prune_stale_retained_instance_buffers3d()
     return
   }
-  configure_scene_lighting(frame)
+  configure_scene_lighting(frame, active_camera)
   begin_3d(active_camera)
   let lit_primitive_batches = new_lit_primitive_mesh_batch_accumulator()
   for item in frame.items {
@@ -2046,7 +2046,10 @@ fn push_textured_triangle3d(
 }
 
 ///|
-fn configure_scene_lighting(frame : @render3d_types.RenderFrame3D) -> Unit {
+fn configure_scene_lighting(
+  frame : @render3d_types.RenderFrame3D,
+  camera : @render3d_types.FrameCamera3D,
+) -> Unit {
   let has_lighting = frame.ambient_light is Some(_) ||
     frame.directional_lights.length() > 0 ||
     frame.point_lights.length() > 0 ||
@@ -2063,10 +2066,12 @@ fn configure_scene_lighting(frame : @render3d_types.RenderFrame3D) -> Unit {
   let directional_data = pack_directional_light_data(frame, mode~)
   let point_data = pack_point_light_data(frame, mode~)
   let spot_data = pack_spot_light_data(frame, mode~)
+  let light_uniform = pack_light_uniform_data(frame, camera, ambient, mode~)
   webgpu_set_lighting_3d(
     directional_data,
     point_data,
     spot_data,
+    light_uniform,
     ambient.x,
     ambient.y,
     ambient.z,
@@ -2151,6 +2156,133 @@ fn max_spot_lights_for_mode(mode : Render3DLightingMode) -> Int {
   match mode {
     Full => MAX_SPOT_LIGHTS
     Cheap | Unlit => 0
+  }
+}
+
+///|
+fn pack_light_uniform_data(
+  frame : @render3d_types.RenderFrame3D,
+  camera : @render3d_types.FrameCamera3D,
+  ambient : @smath.Vec3,
+  mode? : Render3DLightingMode = Full,
+) -> Array[Double] {
+  let values : Array[Double] = []
+  for _ in 0..<176 {
+    values.push(0.0)
+  }
+  let directional_count = min_int(
+    frame.directional_lights.length(),
+    max_directional_lights_for_mode(mode),
+  )
+  let point_count = min_int(
+    frame.point_lights.length(),
+    max_point_lights_for_mode(mode),
+  )
+  let spot_count = min_int(
+    frame.spot_lights.length(),
+    max_spot_lights_for_mode(mode),
+  )
+  values[0] = clamp01_double(ambient.x)
+  values[1] = clamp01_double(ambient.y)
+  values[2] = clamp01_double(ambient.z)
+  values[3] = directional_count.to_double()
+  values[4] = point_count.to_double()
+  values[5] = spot_count.to_double()
+  values[8] = camera.position.x
+  values[9] = camera.position.y
+  values[10] = camera.position.z
+  let forward = camera_forward3d(camera)
+  values[12] = forward.x
+  values[13] = forward.y
+  values[14] = forward.z
+  for idx in 0..<directional_count {
+    let light = frame.directional_lights[idx]
+    let direction = if light.direction.length_squared() <= 0.0000001 {
+      @smath.Vec3(0.0, -1.0, 0.0)
+    } else {
+      light.direction.normalize()
+    }
+    let (r, g, b) = color_rgb01(light.color)
+    let base = 16 + idx * 8
+    values[base] = direction.x
+    values[base + 1] = direction.y
+    values[base + 2] = direction.z
+    values[base + 3] = if light.intensity < 0.0 { 0.0 } else { light.intensity }
+    values[base + 4] = clamp01_double(r)
+    values[base + 5] = clamp01_double(g)
+    values[base + 6] = clamp01_double(b)
+  }
+  for idx in 0..<point_count {
+    let light = frame.point_lights[idx]
+    let (r, g, b) = color_rgb01(light.color)
+    let base = 48 + idx * 8
+    values[base] = light.position.x
+    values[base + 1] = light.position.y
+    values[base + 2] = light.position.z
+    values[base + 3] = if light.intensity < 0.0 { 0.0 } else { light.intensity }
+    values[base + 4] = clamp01_double(r)
+    values[base + 5] = clamp01_double(g)
+    values[base + 6] = clamp01_double(b)
+    values[base + 7] = if light.range < 0.0001 { 0.0001 } else { light.range }
+  }
+  for idx in 0..<spot_count {
+    let light = frame.spot_lights[idx]
+    let direction = if light.direction.length_squared() <= 0.0000001 {
+      @smath.Vec3(0.0, -1.0, 0.0)
+    } else {
+      light.direction.normalize()
+    }
+    let (r, g, b) = color_rgb01(light.color)
+    let (inner_angle, outer_angle) = if light.inner_angle <= light.outer_angle {
+      (light.inner_angle, light.outer_angle)
+    } else {
+      (light.outer_angle, light.inner_angle)
+    }
+    let base = 112 + idx * 16
+    values[base] = light.position.x
+    values[base + 1] = light.position.y
+    values[base + 2] = light.position.z
+    values[base + 3] = if light.intensity < 0.0 { 0.0 } else { light.intensity }
+    values[base + 4] = clamp01_double(r)
+    values[base + 5] = clamp01_double(g)
+    values[base + 6] = clamp01_double(b)
+    values[base + 7] = if light.range < 0.0001 { 0.0001 } else { light.range }
+    values[base + 8] = direction.x
+    values[base + 9] = direction.y
+    values[base + 10] = direction.z
+    values[base + 11] = @math.cos(inner_angle)
+    values[base + 12] = @math.cos(outer_angle)
+  }
+  values
+}
+
+///|
+fn camera_forward3d(camera : @render3d_types.FrameCamera3D) -> @smath.Vec3 {
+  let forward = camera.target - camera.position
+  if forward.length_squared() <= 0.0000001 {
+    @smath.Vec3(0.0, 0.0, -1.0)
+  } else {
+    forward.normalize()
+  }
+}
+
+///|
+fn clamp01_double(value : Double) -> Double {
+  if value < 0.0 {
+    0.0
+  } else if value > 1.0 {
+    1.0
+  } else {
+    value
+  }
+}
+
+///|
+fn min_int(lhs : Int, rhs : Int) -> Int {
+  if lhs < rhs {
+    lhs
+  } else {
+    rhs
   }
 }
 
