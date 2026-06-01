@@ -993,8 +993,13 @@ extern "js" fn webgpu_initialize(
   #|       rt.pushTex2d(0, rec, verts, 1, blendMode);
   #|     };
   #|
-  #|     rt.begin3d = (px, py, pz, tx, ty, tz, ux, uy, uz, fovy, near, far, orthographic, orthoWidth, orthoHeight) => {
+  #|     rt.begin3d = (viewProjection, px, py, pz, tx, ty, tz, ux, uy, uz, fovy, near, far, orthographic, orthoWidth, orthoHeight) => {
   #|       const section = {
+  #|         viewProjection: new Float32Array(
+  #|           Array.isArray(viewProjection) && viewProjection.length === 16
+  #|             ? viewProjection
+  #|             : [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+  #|         ),
   #|         camera: {
   #|           position: [px, py, pz],
   #|           target: [tx, ty, tz],
@@ -1491,21 +1496,6 @@ extern "js" fn webgpu_initialize(
   #|       const [w, h] = toCanvasSize();
   #|       const aspect = w / h;
   #|       const camera = section.camera;
-  #|       const proj = camera.orthographic
-  #|         ? mat4Orthographic(
-  #|             camera.orthoWidth > 0 ? camera.orthoWidth : 20,
-  #|             camera.orthoHeight > 0 ? camera.orthoHeight : 20,
-  #|             camera.near > 0 ? camera.near : 0.1,
-  #|             camera.far > camera.near ? camera.far : (camera.near + 200.0),
-  #|           )
-  #|         : mat4Perspective(
-  #|             camera.fovy,
-  #|             aspect,
-  #|             camera.near > 0 ? camera.near : 0.1,
-  #|             camera.far > camera.near ? camera.far : (camera.near + 200.0),
-  #|           );
-  #|       const view = mat4LookAt(camera.position, camera.target, camera.up);
-  #|       const viewProj = mat4Multiply(proj, view);
   #|       const light = rt.light3d || {
   #|         directionalLights: [],
   #|         pointLights: [],
@@ -1523,7 +1513,7 @@ extern "js" fn webgpu_initialize(
   #|       rt.renderSpotShadowMaps3d(encoder, section, buffers, light, shadowState);
   #|       rt.renderPointShadowMaps3d(encoder, section, buffers, light, shadowState);
   #|       const shadowUniform = rt.buildShadowUniform3d(shadowState);
-  #|       rt.device.queue.writeBuffer(rt.uniformBuffers.camera3d, 0, viewProj.buffer, viewProj.byteOffset, viewProj.byteLength);
+  #|       rt.device.queue.writeBuffer(rt.uniformBuffers.camera3d, 0, section.viewProjection.buffer, section.viewProjection.byteOffset, section.viewProjection.byteLength);
   #|       rt.device.queue.writeBuffer(rt.uniformBuffers.light3d, 0, lightUniform.buffer, lightUniform.byteOffset, lightUniform.byteLength);
   #|       rt.device.queue.writeBuffer(rt.uniformBuffers.shadow3d, 0, shadowUniform.buffer, shadowUniform.byteOffset, shadowUniform.byteLength);
   #|       return { buffers, shadowState };

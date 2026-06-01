@@ -1,5 +1,6 @@
 ///|
 extern "js" fn webgpu_begin_3d(
+  view_projection : Array[Double],
   position_x : Double,
   position_y : Double,
   position_z : Double,
@@ -16,11 +17,22 @@ extern "js" fn webgpu_begin_3d(
   orthographic_width : Double,
   orthographic_height : Double,
 ) -> Unit =
-  #| (px, py, pz, tx, ty, tz, ux, uy, uz, fovy, nearZ, farZ, orthographic, orthoWidth, orthoHeight) => {
+  #| (viewProjection, px, py, pz, tx, ty, tz, ux, uy, uz, fovy, nearZ, farZ, orthographic, orthoWidth, orthoHeight) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.begin3d(px, py, pz, tx, ty, tz, ux, uy, uz, fovy, nearZ, farZ, orthographic, orthoWidth, orthoHeight);
+  #|     rt.begin3d(viewProjection, px, py, pz, tx, ty, tz, ux, uy, uz, fovy, nearZ, farZ, orthographic, orthoWidth, orthoHeight);
   #|   }
+  #| }
+
+///|
+extern "js" fn webgpu_canvas_size() -> Array[Double] =
+  #| () => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (!rt?.canvas) return [1, 1];
+  #|   return [
+  #|     Math.max(1, Math.floor(rt.canvas.width || 1)),
+  #|     Math.max(1, Math.floor(rt.canvas.height || 1)),
+  #|   ];
   #| }
 
 ///|

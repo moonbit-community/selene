@@ -197,6 +197,48 @@ test "MoonBit packs WebGPU 2D rect and circle vertices before FFI" {
 }
 
 ///|
+test "MoonBit packs WebGPU 3D camera view projection before FFI" {
+  let perspective = pack_camera_view_projection3d(
+    webgpu_test_camera(),
+    16.0 / 9.0,
+  )
+  inspect(perspective.length(), content="16")
+  inspect((perspective[0] - 1.357995128834866).abs() < 0.000001, content="true")
+  inspect((perspective[5] - 2.414213562373095).abs() < 0.000001, content="true")
+  inspect(
+    (perspective[10] + 1.0010010010010009).abs() < 0.000001,
+    content="true",
+  )
+  inspect(perspective[11], content="-1")
+  inspect(
+    (perspective[14] - 7.907907907907907).abs() < 0.000001,
+    content="true",
+  )
+  inspect(perspective[15], content="8")
+
+  let orthographic = pack_camera_view_projection3d(
+    {
+      ..webgpu_test_camera(),
+      projection: Orthographic,
+      orthographic_size: Some(@smath.Vec2(20.0, 10.0)),
+    },
+    1.0,
+  )
+  inspect(orthographic.length(), content="16")
+  inspect(orthographic[0], content="0.1")
+  inspect(orthographic[5], content="0.2")
+  inspect(
+    (orthographic[10] + 0.01001001001001001).abs() < 0.000001,
+    content="true",
+  )
+  inspect(
+    (orthographic[14] - 0.07907907907907907).abs() < 0.000001,
+    content="true",
+  )
+  inspect(orthographic[15], content="1")
+}
+
+///|
 test "render3d submission stats record repeated primitive pressure" {
   let mesh = webgpu_test_mesh_handle(9100)
   let material = webgpu_test_material_handle(9101)

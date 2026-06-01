@@ -476,6 +476,7 @@ pub fn draw_gradient_rect(
 ///|
 fn begin_3d(camera : @render3d_types.FrameCamera3D) -> Unit {
   webgpu_begin_3d(
+    pack_camera_view_projection3d(camera, webgpu_canvas_aspect_ratio()),
     camera.position.x,
     camera.position.y,
     camera.position.z,
