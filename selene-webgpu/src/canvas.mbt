@@ -53,9 +53,12 @@ extern "js" fn webgpu_initialize(
   #|       dynamicBuffers: new Map(),
   #|       retiredDynamicBuffers: [],
   #|       primitiveMeshCache: new Map(),
+  #|       retainedInstanceBuffers3d: new Map(),
+  #|       retainedInstanceBufferFrame: 0,
   #|       frameBindGroupCache3d: new Map(),
   #|       bindGroupResourceIds: new WeakMap(),
   #|       nextBindGroupResourceId: 1,
+  #|       lightingMode3d: 'full',
   #|     };
   #|
   #|     const clamp01 = (x) => Math.max(0, Math.min(1, x));
@@ -496,6 +499,26 @@ extern "js" fn webgpu_initialize(
   #|         }
   #|       }
   #|       rt.primitiveMeshCache.clear();
+  #|     };
+  #|
+  #|     rt.destroyRetainedInstanceBuffers3d = () => {
+  #|       for (const record of rt.retainedInstanceBuffers3d.values()) {
+  #|         if (record?.buffer) {
+  #|           try { record.buffer.destroy(); } catch (_err) {}
+  #|         }
+  #|       }
+  #|       rt.retainedInstanceBuffers3d.clear();
+  #|     };
+  #|
+  #|     rt.pruneRetainedInstanceBuffers3d = () => {
+  #|       const minLiveFrame = rt.retainedInstanceBufferFrame - 120;
+  #|       for (const [key, record] of rt.retainedInstanceBuffers3d) {
+  #|         if ((record?.lastUsedFrame || 0) >= minLiveFrame) continue;
+  #|         if (record?.buffer) {
+  #|           try { record.buffer.destroy(); } catch (_err) {}
+  #|         }
+  #|         rt.retainedInstanceBuffers3d.delete(key);
+  #|       }
   #|     };
   #|
   #|     rt.floatKey = (value) => {
@@ -1631,6 +1654,8 @@ extern "js" fn webgpu_initialize(
   #|       rt.current2dPass = null;
   #|       rt.sections3d.length = 0;
   #|       rt.current3dSection = null;
+  #|       rt.retainedInstanceBufferFrame += 1;
+  #|       rt.pruneRetainedInstanceBuffers3d();
   #|       rt.frameBindGroupCache3d.clear();
   #|     };
   #|
@@ -1707,28 +1732,35 @@ extern "js" fn webgpu_initialize(
   #|     };
   #|     rt.uploadInstancedLitBuffers3d = (commands) => {
   #|       if (!commands || commands.length === 0) {
-  #|         return { buffer: null, offsets: [] };
+  #|         return;
   #|       }
-  #|       let totalBytes = 0;
   #|       for (const command of commands) {
   #|         command.instanceArray = new Float32Array(command.instances);
-  #|         totalBytes += command.instanceArray.byteLength;
-  #|       }
-  #|       if (totalBytes <= 0) {
-  #|         return { buffer: null, offsets: [] };
-  #|       }
-  #|       const buffer = rt.ensureDynamicBuffer('dyn3dLitInstances', totalBytes, GPUBufferUsage.VERTEX);
-  #|       const offsets = [];
-  #|       let offset = 0;
-  #|       for (const command of commands) {
+  #|         command.instanceBuffer = null;
+  #|         command.instanceByteLength = 0;
   #|         const instances = command.instanceArray;
-  #|         offsets.push(offset);
-  #|         if (instances?.byteLength > 0) {
-  #|           rt.device.queue.writeBuffer(buffer, offset, instances.buffer, instances.byteOffset, instances.byteLength);
-  #|           offset += instances.byteLength;
+  #|         if (!instances?.byteLength) continue;
+  #|         const key = [
+  #|           command.meshRecord?.key || '',
+  #|           command.doubleSided ? 'double' : 'single',
+  #|           command.castShadows ? 'cast' : 'no-cast',
+  #|           command.receiveShadows ? 'receive' : 'no-receive',
+  #|           Array.from(instances).map((value) => rt.floatKey(value)).join(','),
+  #|         ].join('|');
+  #|         let retained = rt.retainedInstanceBuffers3d.get(key);
+  #|         if (!retained) {
+  #|           const buffer = rt.device.createBuffer({
+  #|             size: instances.byteLength,
+  #|             usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  #|           });
+  #|           rt.device.queue.writeBuffer(buffer, 0, instances.buffer, instances.byteOffset, instances.byteLength);
+  #|           retained = { buffer, byteLength: instances.byteLength, lastUsedFrame: rt.retainedInstanceBufferFrame };
+  #|           rt.retainedInstanceBuffers3d.set(key, retained);
   #|         }
+  #|         retained.lastUsedFrame = rt.retainedInstanceBufferFrame;
+  #|         command.instanceBuffer = retained.buffer;
+  #|         command.instanceByteLength = retained.byteLength;
   #|       }
-  #|       return { buffer, offsets };
   #|     };
   #|
   #|     rt.prepareSectionBuffers3d = (section) => {
@@ -1793,14 +1825,14 @@ extern "js" fn webgpu_initialize(
   #|           pass.draw(cmd.verts.length / 17, 1, 0, 0);
   #|         }
   #|       }
-  #|       if (buffers.instancedLit.buffer && section.instancedLitCommands.length > 0) {
+  #|       if (section.instancedLitCommands.length > 0) {
   #|         pass.setPipeline(rt.pipelines.shadow3dLitInstanced);
   #|         pass.setBindGroup(0, solidBindGroup);
   #|         for (let index = 0; index < section.instancedLitCommands.length; index += 1) {
   #|           const cmd = section.instancedLitCommands[index];
-  #|           if (!cmd.castShadows || !cmd.meshRecord?.buffer || !cmd.instanceArray?.length) continue;
+  #|           if (!cmd.castShadows || !cmd.meshRecord?.buffer || !cmd.instanceBuffer || !cmd.instanceArray?.length) continue;
   #|           pass.setVertexBuffer(0, cmd.meshRecord.buffer, 0, cmd.meshRecord.byteLength);
-  #|           pass.setVertexBuffer(1, buffers.instancedLit.buffer, buffers.instancedLit.offsets[index], cmd.instanceArray.byteLength);
+  #|           pass.setVertexBuffer(1, cmd.instanceBuffer, 0, cmd.instanceByteLength);
   #|           pass.draw(cmd.meshRecord.vertexCount, cmd.instanceArray.length / 11, 0, 0);
   #|         }
   #|       }
@@ -2092,9 +2124,14 @@ extern "js" fn webgpu_initialize(
   #|       const directionalLights = Array.isArray(light.directionalLights) ? light.directionalLights : [];
   #|       const pointLights = Array.isArray(light.pointLights) ? light.pointLights : [];
   #|       const spotLights = Array.isArray(light.spotLights) ? light.spotLights : [];
-  #|       const directionalCount = Math.min(4, directionalLights.length);
-  #|       const pointCount = Math.min(8, pointLights.length);
-  #|       const spotCount = Math.min(4, spotLights.length);
+  #|       // WebGPU lighting mode is explicit: "full" keeps the normal limits,
+  #|       // "cheap" keeps one directional light, and "unlit" uses ambient only.
+  #|       const lightingMode = String(rt.lightingMode3d || 'full');
+  #|       const cheapLighting = lightingMode === 'cheap';
+  #|       const unlitLighting = lightingMode === 'unlit';
+  #|       const directionalCount = unlitLighting ? 0 : Math.min(cheapLighting ? 1 : 4, directionalLights.length);
+  #|       const pointCount = (cheapLighting || unlitLighting) ? 0 : Math.min(8, pointLights.length);
+  #|       const spotCount = (cheapLighting || unlitLighting) ? 0 : Math.min(4, spotLights.length);
   #|       const basis = cameraBasis(camera);
   #|       const lightUniform = new Float32Array(44 * 4);
   #|       lightUniform[0] = clamp01(Number(light.ambient?.[0]) || 0);
@@ -2188,14 +2225,14 @@ extern "js" fn webgpu_initialize(
   #|           pass.draw(cmd.verts.length / 17, 1, 0, 0);
   #|         }
   #|       }
-  #|       if (state.buffers.instancedLit.buffer && section.instancedLitCommands.length > 0) {
+  #|       if (section.instancedLitCommands.length > 0) {
   #|         pass.setBindGroup(0, rt.resolveLit3dBindGroup(state.shadowState));
   #|         for (let index = 0; index < section.instancedLitCommands.length; index += 1) {
   #|           const cmd = section.instancedLitCommands[index];
-  #|           if (!cmd.meshRecord?.buffer || !cmd.instanceArray?.length) continue;
+  #|           if (!cmd.meshRecord?.buffer || !cmd.instanceBuffer || !cmd.instanceArray?.length) continue;
   #|           pass.setPipeline(cmd.doubleSided ? rt.pipelines.lit3dInstancedDouble : rt.pipelines.lit3dInstancedSingle);
   #|           pass.setVertexBuffer(0, cmd.meshRecord.buffer, 0, cmd.meshRecord.byteLength);
-  #|           pass.setVertexBuffer(1, state.buffers.instancedLit.buffer, state.buffers.instancedLit.offsets[index], cmd.instanceArray.byteLength);
+  #|           pass.setVertexBuffer(1, cmd.instanceBuffer, 0, cmd.instanceByteLength);
   #|           pass.draw(cmd.meshRecord.vertexCount, cmd.instanceArray.length / 11, 0, 0);
   #|         }
   #|       }
@@ -2541,6 +2578,7 @@ extern "js" fn webgpu_initialize(
   #|       }
   #|       rt.device = await rt.adapter.requestDevice();
   #|       rt.destroyPrimitiveMeshCache();
+  #|       rt.destroyRetainedInstanceBuffers3d();
   #|       rt.context = rt.canvas.getContext('webgpu');
   #|       rt.format = navigator.gpu.getPreferredCanvasFormat();
   #|       rt.context.configure({

@@ -124,6 +124,28 @@ test "render3d submission stats record repeated primitive pressure" {
 }
 
 ///|
+test "render3d submission stats reuse retained static primitive instances" {
+  let mesh = webgpu_test_mesh_handle(9120)
+  let material = webgpu_test_material_handle(9121)
+  sync_mesh_asset(mesh, { primitive: Cube(@smath.Vec3(1.0, 1.0, 1.0)) })
+  sync_material_asset(material, @render3d_types.default_standard_material3d())
+  let frame = @render3d_types.empty_render_frame3d()
+  frame.camera = Some(webgpu_test_camera())
+  frame.items = [
+    webgpu_test_item(mesh, material, 10.0),
+    webgpu_test_item(mesh, material, 11.0),
+  ]
+  let first_stats = collect_render3d_submission_stats(frame)
+  let second_stats = collect_render3d_submission_stats(frame)
+  inspect(first_stats.draw_commands, content="1")
+  inspect(first_stats.uploaded_vertex_bytes, content="88")
+  inspect(second_stats.draw_commands, content="1")
+  inspect(second_stats.uploaded_vertex_bytes, content="0")
+  release_mesh_asset(mesh)
+  release_material_asset(material)
+}
+
+///|
 test "render3d submission stats distinguish textured primitive bind groups" {
   let image = webgpu_test_handle(9110)
   let mesh = webgpu_test_mesh_handle(9111)

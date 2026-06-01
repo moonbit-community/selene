@@ -86,6 +86,13 @@ const TEXTURED_SPHERE_SLICES : Int = 24
 const TEXTURED_SPHERE_STACKS : Int = 16
 
 ///|
+pub(all) enum Render3DLightingMode {
+  Full
+  Cheap
+  Unlit
+} derive(Eq, Debug)
+
+///|
 let synced_mesh_assets : Map[
   @render3d_types.MeshHandle,
   @render3d_types.MeshAsset,
@@ -146,6 +153,9 @@ let last_render3d_submission_stats : Ref[Render3DSubmissionStats] = Ref(
 let last_render3d_submission_stats_checksum : Ref[Int] = Ref(0)
 
 ///|
+let retained_render3d_instance_signatures : Map[String, Bool] = Map([])
+
+///|
 fn empty_render3d_submission_stats() -> Render3DSubmissionStats {
   {
     sections: 0,
@@ -185,6 +195,20 @@ pub fn frame_begin(clear : @render.Color) -> Unit {
 ///|
 pub fn frame_end() -> Unit {
   webgpu_end_frame()
+}
+
+///|
+pub fn set_render3d_lighting_mode(mode : Render3DLightingMode) -> Unit {
+  webgpu_set_lighting_mode_3d(render3d_lighting_mode_name(mode))
+}
+
+///|
+fn render3d_lighting_mode_name(mode : Render3DLightingMode) -> String {
+  match mode {
+    Full => "full"
+    Cheap => "cheap"
+    Unlit => "unlit"
+  }
 }
 
 ///|
@@ -811,6 +835,8 @@ fn collect_render3d_submission_stats(
 ) -> Render3DSubmissionStats {
   let stats = empty_render3d_submission_stats()
   let instanced_lit_buckets : Map[String, Bool] = Map([])
+  let instanced_lit_signatures : Map[String, String] = Map([])
+  let instanced_lit_counts : Map[String, Int] = Map([])
   let textured_buckets : Map[String, Bool] = Map([])
   guard frame.camera is Some(_) else { return stats }
   stats.sections = 1
@@ -844,10 +870,29 @@ fn collect_render3d_submission_stats(
         instanced_lit_buckets.set(key, true)
         stats.lit_triangle_commands += 1
       }
-      stats.uploaded_vertex_bytes += 11 * 4
+      instanced_lit_counts.set(
+        key,
+        instanced_lit_counts.get(key).unwrap_or(0) + 1,
+      )
+      let signature = instanced_lit_signatures
+        .get(key)
+        .map_or(key, fn(previous) { previous }) +
+        "|" +
+        render3d_primitive_signature(mesh_asset.primitive) +
+        "|" +
+        render3d_item_instance_signature(item)
+      instanced_lit_signatures.set(key, signature)
     } else {
       stats.lit_triangle_commands += 1
       stats.uploaded_vertex_bytes += vertex_count * 17 * 4
+    }
+  }
+  for key, signature in instanced_lit_signatures {
+    if !retained_render3d_instance_signatures.contains(signature) {
+      retained_render3d_instance_signatures.set(signature, true)
+      stats.uploaded_vertex_bytes += instanced_lit_counts.get(key).unwrap_or(0) *
+        11 *
+        4
     }
   }
   if stats.lit_triangle_commands > 0 {
@@ -884,6 +929,68 @@ fn render3d_lit_instance_bucket_key(
   (if item.cast_shadows { "cast" } else { "no-cast" }) +
   "|" +
   (if item.receive_shadows { "receive" } else { "no-receive" })
+}
+
+///|
+fn render3d_item_instance_signature(
+  item : @render3d_types.RenderItem3D,
+) -> String {
+  let transform = item.transform
+  let translation = transform.translation
+  let rotation = transform.rotation
+  let scale = transform.scale
+  translation.x.to_string() +
+  "," +
+  translation.y.to_string() +
+  "," +
+  translation.z.to_string() +
+  "," +
+  rotation.x.to_string() +
+  "," +
+  rotation.y.to_string() +
+  "," +
+  rotation.z.to_string() +
+  "," +
+  rotation.w.to_string() +
+  "," +
+  scale.x.to_string() +
+  "," +
+  scale.y.to_string() +
+  "," +
+  scale.z.to_string()
+}
+
+///|
+fn render3d_primitive_signature(
+  primitive : @render3d_types.MeshPrimitive3D,
+) -> String {
+  match primitive {
+    Cube(size) =>
+      "cube:" +
+      size.x.to_string() +
+      "," +
+      size.y.to_string() +
+      "," +
+      size.z.to_string()
+    Sphere(radius) => "sphere:" + radius.to_string()
+    Cylinder(radius_top, radius_bottom, height, slices) =>
+      "cylinder:" +
+      radius_top.to_string() +
+      "," +
+      radius_bottom.to_string() +
+      "," +
+      height.to_string() +
+      "," +
+      slices.to_string()
+    Plane(size) =>
+      "plane:" +
+      size.x.to_string() +
+      "," +
+      size.y.to_string() +
+      "," +
+      size.z.to_string()
+    Triangles(_) => "triangles"
+  }
 }
 
 ///|

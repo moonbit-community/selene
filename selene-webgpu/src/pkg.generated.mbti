@@ -8,6 +8,7 @@ import {
   "Milky2018/selene/render",
   "Milky2018/selene/render2d_types",
   "Milky2018/selene/render3d_types",
+  "moonbitlang/core/debug",
   "moonbitlang/core/ref",
   "moonbitlang/core/set",
 }
@@ -87,6 +88,8 @@ pub fn set_loop(instance~ : Int, loop_~ : Bool) -> Unit
 
 pub fn set_paused(instance~ : Int, paused~ : Bool) -> Unit
 
+pub fn set_render3d_lighting_mode(Render3DLightingMode) -> Unit
+
 pub fn set_speed(instance~ : Int, speed~ : Double) -> Unit
 
 pub fn set_time_scale(Double) -> Unit
@@ -118,6 +121,12 @@ pub fn Audio::set_current_time(Self, Double) -> Unit
 pub fn Audio::set_loop(Self, Bool) -> Unit
 pub fn Audio::set_playback_rate(Self, Double) -> Unit
 pub fn Audio::set_volume(Self, Double) -> Unit
+
+pub(all) enum Render3DLightingMode {
+  Full
+  Cheap
+  Unlit
+} derive(Eq, @debug.Debug)
 
 pub struct WebGpuBackend {
   // private fields

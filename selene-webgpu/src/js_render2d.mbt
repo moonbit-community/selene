@@ -174,6 +174,15 @@ extern "js" fn webgpu_set_lighting_3d(
   #| }
 
 ///|
+extern "js" fn webgpu_set_lighting_mode_3d(mode : String) -> Unit =
+  #| (mode) => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (!rt) return;
+  #|   const value = String(mode || 'full');
+  #|   rt.lightingMode3d = value === 'cheap' || value === 'unlit' ? value : 'full';
+  #| }
+
+///|
 extern "js" fn webgpu_draw_cube_3d(
   center_x : Double,
   center_y : Double,
