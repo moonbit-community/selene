@@ -36,6 +36,16 @@ fn webgpu_test_mesh(
 }
 
 ///|
+fn triangle_winding_dot(
+  a : @smath.Vec3,
+  b : @smath.Vec3,
+  c : @smath.Vec3,
+  normal : @smath.Vec3,
+) -> Double {
+  (b - a).cross(c - a).dot(normal)
+}
+
+///|
 test "pack_directional_light_data includes shadow metadata and cascade bounds" {
   let frame = @render3d_types.empty_render_frame3d()
   frame.directional_lights = [
@@ -379,6 +389,30 @@ test "textured primitive mesh builders provide aligned position/uv/normal stream
   )
   inspect(
     cylinder.positions.length() == cylinder.normals.unwrap().length(),
+    content="true",
+  )
+}
+
+///|
+test "cylinder primitive side triangles wind toward their outward normals" {
+  let cylinder = build_cylinder_triangle_mesh3d(1.0, 1.0, 2.0, 8)
+  let normals = cylinder.normals.unwrap()
+  inspect(
+    triangle_winding_dot(
+      cylinder.positions[0],
+      cylinder.positions[1],
+      cylinder.positions[2],
+      normals[0],
+    ) > 0.0,
+    content="true",
+  )
+  inspect(
+    triangle_winding_dot(
+      cylinder.positions[3],
+      cylinder.positions[4],
+      cylinder.positions[5],
+      normals[3],
+    ) > 0.0,
     content="true",
   )
 }

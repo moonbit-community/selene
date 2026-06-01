@@ -1183,11 +1183,11 @@ extern "js" fn webgpu_initialize(
   #|         const b1 = [Math.cos(a1) * rtBottom, -h2, Math.sin(a1) * rtBottom];
   #|         out.push(
   #|           t0[0], t0[1], t0[2], color[0], color[1], color[2], color[3],
+  #|           b1[0], b1[1], b1[2], color[0], color[1], color[2], color[3],
   #|           b0[0], b0[1], b0[2], color[0], color[1], color[2], color[3],
-  #|           b1[0], b1[1], b1[2], color[0], color[1], color[2], color[3],
   #|           t0[0], t0[1], t0[2], color[0], color[1], color[2], color[3],
-  #|           b1[0], b1[1], b1[2], color[0], color[1], color[2], color[3],
   #|           t1[0], t1[1], t1[2], color[0], color[1], color[2], color[3],
+  #|           b1[0], b1[1], b1[2], color[0], color[1], color[2], color[3],
   #|         );
   #|         const top = [0, h2, 0];
   #|         out.push(
@@ -1227,11 +1227,11 @@ extern "js" fn webgpu_initialize(
   #|         const n0 = sideNormal(a0);
   #|         const n1 = sideNormal(a1);
   #|         rt.pushLitVertex(out, t0, n0, color, emissive, alphaMode, alphaCutoff, unlit);
+  #|         rt.pushLitVertex(out, b1, n1, color, emissive, alphaMode, alphaCutoff, unlit);
   #|         rt.pushLitVertex(out, b0, n0, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|         rt.pushLitVertex(out, b1, n1, color, emissive, alphaMode, alphaCutoff, unlit);
   #|         rt.pushLitVertex(out, t0, n0, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|         rt.pushLitVertex(out, b1, n1, color, emissive, alphaMode, alphaCutoff, unlit);
   #|         rt.pushLitVertex(out, t1, n1, color, emissive, alphaMode, alphaCutoff, unlit);
+  #|         rt.pushLitVertex(out, b1, n1, color, emissive, alphaMode, alphaCutoff, unlit);
   #|         const top = [0, h2, 0];
   #|         const topNormal = [0, 1, 0];
   #|         rt.pushLitVertex(out, top, topNormal, color, emissive, alphaMode, alphaCutoff, unlit);

@@ -10,6 +10,17 @@
 
 ### Removed
 
+## [0.34.1] - 2026-06-01
+
+### Added
+
+### Changed
+
+### Fixed
+- Fixed WebGPU cylinder primitive side-face winding so lit/textured cylinders are no longer back-face culled into hollow-looking geometry.
+
+### Removed
+
 ## [0.34.0] - 2026-05-18
 
 ### Added
