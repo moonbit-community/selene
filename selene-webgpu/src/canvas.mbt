@@ -75,16 +75,6 @@ extern "js" fn webgpu_initialize(
   #|       while (n < v) n <<= 1;
   #|       return n;
   #|     };
-  #|     const makeShadowAtlasRect = (slot, columns, tileSize, atlasWidth, atlasHeight) => {
-  #|       const column = slot % columns;
-  #|       const row = Math.floor(slot / columns);
-  #|       const tileWidth = tileSize / Math.max(1, atlasWidth);
-  #|       const tileHeight = tileSize / Math.max(1, atlasHeight);
-  #|       return {
-  #|         offset: [column * tileWidth, row * tileHeight],
-  #|         scale: [tileWidth, tileHeight],
-  #|       };
-  #|     };
   #|     const createShadowTexture = (width, height) => {
   #|       const texture = rt.device.createTexture({
   #|         size: [Math.max(1, width), Math.max(1, height), 1],
@@ -950,27 +940,27 @@ extern "js" fn webgpu_initialize(
   #|       for (let lightIndex = 0; lightIndex < Math.min(4, spotLights.length); lightIndex += 1) {
   #|         const spotLight = spotLights[lightIndex];
   #|         if (!spotLight?.shadows) continue;
-  #|         const rect = makeShadowAtlasRect(lightIndex, 2, tileSize, record.width, record.height);
+  #|         const setup = rt.shadowViewProjection3d?.spotSetups?.[lightIndex];
+  #|         if (!setup) continue;
+  #|         const rect = setup.atlasRect;
   #|         const viewportX = rect.offset[0] * record.width;
   #|         const viewportY = rect.offset[1] * record.height;
   #|         const scissorX = Math.max(0, Math.floor(viewportX));
   #|         const scissorY = Math.max(0, Math.floor(viewportY));
   #|         pass.setViewport(viewportX, viewportY, tileSize, tileSize, 0.0, 1.0);
   #|         pass.setScissorRect(scissorX, scissorY, tileSize | 0, tileSize | 0);
-  #|         const setupMatrix = rt.shadowViewProjection3d?.spotMatrices?.[lightIndex];
-  #|         if (!setupMatrix) continue;
   #|         rt.renderShadowCastersForSetup(
   #|           pass,
   #|           section,
   #|           buffers,
-  #|           setupMatrix,
+  #|           setup.lightViewProjection,
   #|           shadowState.shadowCameraBufferCursor,
   #|         );
   #|         shadowState.shadowCameraBufferCursor += 1;
   #|         shadowState.spotEnabled[lightIndex] = 1;
   #|         shadowState.spotDepthBiases[lightIndex] = Math.max(0, Number(spotLight.depthBias) || 0);
   #|         shadowState.spotNormalBiases[lightIndex] = Math.max(0, Number(spotLight.normalBias) || 0);
-  #|         shadowState.spotMatrices[lightIndex] = setupMatrix;
+  #|         shadowState.spotMatrices[lightIndex] = setup.lightViewProjection;
   #|         shadowState.spotRects[lightIndex] = [rect.offset[0], rect.offset[1], rect.scale[0], rect.scale[1]];
   #|       }
   #|       pass.end();
@@ -1000,26 +990,25 @@ extern "js" fn webgpu_initialize(
   #|         shadowState.pointDepthBiases[lightIndex] = Math.max(0, Number(pointLight.depthBias) || 0);
   #|         shadowState.pointNormalBiases[lightIndex] = Math.max(0, Number(pointLight.normalBias) || 0);
   #|         for (let faceIndex = 0; faceIndex < 6; faceIndex += 1) {
-  #|           const atlasSlot = lightIndex * 6 + faceIndex;
-  #|           const rect = makeShadowAtlasRect(atlasSlot, 8, faceSize, record.width, record.height);
+  #|           const stateIndex = lightIndex * 6 + faceIndex;
+  #|           const setup = rt.shadowViewProjection3d?.pointSetups?.[stateIndex];
+  #|           if (!setup) continue;
+  #|           const rect = setup.atlasRect;
   #|           const viewportX = rect.offset[0] * record.width;
   #|           const viewportY = rect.offset[1] * record.height;
   #|           const scissorX = Math.max(0, Math.floor(viewportX));
   #|           const scissorY = Math.max(0, Math.floor(viewportY));
   #|           pass.setViewport(viewportX, viewportY, faceSize, faceSize, 0.0, 1.0);
   #|           pass.setScissorRect(scissorX, scissorY, faceSize | 0, faceSize | 0);
-  #|           const stateIndex = lightIndex * 6 + faceIndex;
-  #|           const setupMatrix = rt.shadowViewProjection3d?.pointMatrices?.[stateIndex];
-  #|           if (!setupMatrix) continue;
   #|           rt.renderShadowCastersForSetup(
   #|             pass,
   #|             section,
   #|             buffers,
-  #|             setupMatrix,
+  #|             setup.lightViewProjection,
   #|             shadowState.shadowCameraBufferCursor,
   #|           );
   #|           shadowState.shadowCameraBufferCursor += 1;
-  #|           shadowState.pointMatrices[stateIndex] = setupMatrix;
+  #|           shadowState.pointMatrices[stateIndex] = setup.lightViewProjection;
   #|           shadowState.pointRects[stateIndex] = [rect.offset[0], rect.offset[1], rect.scale[0], rect.scale[1]];
   #|         }
   #|       }

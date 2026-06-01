@@ -570,10 +570,20 @@ test "pack spot and point shadow view projections in MoonBit" {
   ]
   let spot_matrices = pack_spot_shadow_view_projection_data(frame)
   let point_matrices = pack_point_shadow_view_projection_data(frame)
-  inspect(spot_matrices.length(), content="16")
-  inspect(point_matrices.length(), content="96")
-  inspect(spot_matrices[14] != 0.0, content="true")
-  inspect(point_matrices[14] != 0.0, content="true")
+  inspect(spot_matrices.length(), content="21")
+  inspect(point_matrices.length(), content="126")
+  inspect(spot_matrices[0], content="0")
+  inspect(point_matrices[0], content="0")
+  inspect(spot_matrices[15] != 0.0, content="true")
+  inspect(point_matrices[15] != 0.0, content="true")
+  inspect(spot_matrices[17], content="0")
+  inspect(spot_matrices[18], content="0")
+  inspect(spot_matrices[19], content="0.5")
+  inspect(spot_matrices[20], content="0.5")
+  inspect(point_matrices[17], content="0")
+  inspect(point_matrices[18], content="0")
+  inspect(point_matrices[19], content="0.125")
+  inspect((point_matrices[20] - 1.0 / 6.0).abs() < 0.000001, content="true")
   inspect(
     pack_spot_shadow_view_projection_data(frame, mode=Cheap).length(),
     content="0",

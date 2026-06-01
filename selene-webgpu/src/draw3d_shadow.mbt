@@ -67,7 +67,9 @@ fn pack_spot_shadow_view_projection_data(
   )
   for index in 0..<count {
     let light = frame.spot_lights[index]
+    values.push(index.to_double())
     append_matrix3d(values, spot_shadow_view_projection3d(light))
+    append_spot_shadow_atlas_rect3d(values, index)
   }
   values
 }
@@ -85,10 +87,12 @@ fn pack_point_shadow_view_projection_data(
   for light_index in 0..<count {
     let light = frame.point_lights[light_index]
     for face_index in 0..<6 {
+      values.push((light_index * 6 + face_index).to_double())
       append_matrix3d(
         values,
         point_shadow_face_view_projection3d(light, face_index),
       )
+      append_point_shadow_atlas_rect3d(values, light_index, face_index)
     }
   }
   values
@@ -506,6 +510,39 @@ fn append_directional_shadow_cascade3d(
   values.push(cascade.atlas_scale_y)
   values.push(cascade.near_bound)
   values.push(cascade.far_bound)
+}
+
+///|
+fn append_spot_shadow_atlas_rect3d(
+  values : Array[Double],
+  light_index : Int,
+) -> Unit {
+  let (offset_x, offset_y, scale_x, scale_y) = shadow_atlas_rect3d(
+    light_index, 2, 1.0, 2.0, 2.0,
+  )
+  values.push(offset_x)
+  values.push(offset_y)
+  values.push(scale_x)
+  values.push(scale_y)
+}
+
+///|
+fn append_point_shadow_atlas_rect3d(
+  values : Array[Double],
+  light_index : Int,
+  face_index : Int,
+) -> Unit {
+  let (offset_x, offset_y, scale_x, scale_y) = shadow_atlas_rect3d(
+    light_index * 6 + face_index,
+    8,
+    1.0,
+    8.0,
+    6.0,
+  )
+  values.push(offset_x)
+  values.push(offset_y)
+  values.push(scale_x)
+  values.push(scale_y)
 }
 
 ///|

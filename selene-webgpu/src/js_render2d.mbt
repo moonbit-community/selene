@@ -197,13 +197,20 @@ extern "js" fn webgpu_set_shadow_view_projection_3d(
   #| (directionalCascades, spotMatrices, pointMatrices) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (!rt) return;
-  #|   const matrixChunks = (values) => {
+  #|   const shadowSetups = (values, length) => {
   #|     const safe = Array.isArray(values) ? values : [];
-  #|     const chunks = [];
-  #|     for (let index = 0; index + 15 < safe.length; index += 16) {
-  #|       chunks.push(new Float32Array(safe.slice(index, index + 16)));
+  #|     const setups = [];
+  #|     for (let index = 0; index + 20 < safe.length; index += 21) {
+  #|       const slot = Math.max(0, Math.min(length - 1, Math.round(Number(safe[index]) || 0)));
+  #|       setups[slot] = {
+  #|         lightViewProjection: new Float32Array(safe.slice(index + 1, index + 17)),
+  #|         atlasRect: {
+  #|           offset: [Number(safe[index + 17]) || 0, Number(safe[index + 18]) || 0],
+  #|           scale: [Number(safe[index + 19]) || 0, Number(safe[index + 20]) || 0],
+  #|         },
+  #|       };
   #|     }
-  #|     return chunks;
+  #|     return setups;
   #|   };
   #|   const directional = Array.from({ length: 4 }, () => []);
   #|   const safeDirectional = Array.isArray(directionalCascades) ? directionalCascades : [];
@@ -226,8 +233,8 @@ extern "js" fn webgpu_set_shadow_view_projection_3d(
   #|   }
   #|   rt.shadowViewProjection3d = {
   #|     directionalCascades: directional,
-  #|     spotMatrices: matrixChunks(spotMatrices),
-  #|     pointMatrices: matrixChunks(pointMatrices),
+  #|     spotSetups: shadowSetups(spotMatrices, 4),
+  #|     pointSetups: shadowSetups(pointMatrices, 48),
   #|   };
   #| }
 
