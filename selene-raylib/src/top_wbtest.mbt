@@ -15,6 +15,16 @@ fn raylib_test_apply_shader_texture_transform(
 }
 
 ///|
+fn triangle_winding_dot(
+  a : @smath.Vec3,
+  b : @smath.Vec3,
+  c : @smath.Vec3,
+  normal : @smath.Vec3,
+) -> Double {
+  (b - a).cross(c - a).dot(normal)
+}
+
+///|
 test "raylib shader texture transform helpers match render3d apply_texture_transform3d" {
   let transform : @render3d_types.TextureTransform3D = {
     offset: @smath.Vec2(0.25, 0.5),
@@ -196,6 +206,38 @@ test "raylib triangle topology indices resolve strip and fan to triangle list" {
   debug_inspect(
     resolve_triangle_indices(@render3d_types.MeshHandle(2U), fan_mesh),
     content="Some([0, 1, 2, 0, 2, 3])",
+  )
+}
+
+///|
+test "raylib cylinder mesh is centered on local origin" {
+  let (vertices, _, _) = build_cylinder_mesh(1.0, 1.0, 4.0, 8)
+  let mut min_y = vertices[0].y
+  let mut max_y = vertices[0].y
+  for vertex in vertices {
+    if vertex.y < min_y {
+      min_y = vertex.y
+    }
+    if vertex.y > max_y {
+      max_y = vertex.y
+    }
+  }
+  inspect(min_y, content="-2")
+  inspect(max_y, content="2")
+}
+
+///|
+test "raylib cylinder side triangles wind toward their outward normals" {
+  let (vertices, _, normals) = build_cylinder_mesh(1.0, 1.0, 4.0, 8)
+  inspect(
+    triangle_winding_dot(vertices[0], vertices[1], vertices[2], normals[0]) >
+    0.0,
+    content="true",
+  )
+  inspect(
+    triangle_winding_dot(vertices[3], vertices[4], vertices[5], normals[3]) >
+    0.0,
+    content="true",
   )
 }
 

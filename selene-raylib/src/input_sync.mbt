@@ -275,6 +275,20 @@ fn create_uploaded_triangle_mesh(
 }
 
 ///|
+fn empty_uploaded_triangle_mesh() -> @raylib.Mesh {
+  let mesh = @raylib.Mesh::new(
+    FixedArray::make(9, to_float(0.0)),
+    texcoords=FixedArray::make(6, to_float(0.0)),
+    texcoords2=FixedArray::make(6, to_float(0.0)),
+    normals=FixedArray::make(9, to_float(0.0)),
+    tangents=FixedArray::make(12, to_float(0.0)),
+    colors=FixedArray::make(12, b'\xff'),
+  )
+  mesh.upload(false)
+  mesh
+}
+
+///|
 fn material_texture_for_slot(
   bundle : MaterialTextureBundle3D,
   slot : Int,

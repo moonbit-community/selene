@@ -174,40 +174,22 @@ fn draw_lit_cylinder(
   shadow_state : FrameShadowState?,
 ) -> Unit {
   let safe_slices = @cmp.maximum(3, slices)
-  if (radius_top - radius_bottom).abs() <= 0.000001 {
-    let key = "cylinder:\{radius_top}:\{height}:\{safe_slices}"
-    let mesh = get_or_create_primitive_mesh(key, fn() {
-      @raylib.gen_mesh_cylinder(
-        to_float(radius_top),
-        to_float(height),
-        safe_slices,
-      )
-    })
-    draw_lit_mesh_with_material(
-      mesh, frame, camera_position, material, texture_bundle, false, receive_shadows,
-      shadow_state,
-    )
-    return
-  }
   let key = "truncated_cylinder:\{radius_top}:\{radius_bottom}:\{height}:\{safe_slices}"
   let mesh = get_or_create_primitive_mesh(key, fn() {
     let (vertices, uvs, normals) = build_cylinder_mesh(
       radius_top, radius_bottom, height, safe_slices,
     )
-    create_uploaded_triangle_mesh(
+    match create_uploaded_triangle_mesh(
       vertices,
       Some(uvs),
       None,
       normals,
       None,
       None,
-    ).unwrap_or(
-      @raylib.gen_mesh_cylinder(
-        to_float(radius_bottom),
-        to_float(height),
-        safe_slices,
-      ),
-    )
+    ) {
+      Some(mesh) => mesh
+      None => empty_uploaded_triangle_mesh()
+    }
   })
   draw_lit_mesh_with_material(
     mesh, frame, camera_position, material, texture_bundle, false, receive_shadows,
@@ -502,25 +484,25 @@ fn build_cylinder_mesh(
       uvs,
       normals,
       top0,
-      bot0,
       bot1,
+      bot0,
       @smath.Vec2(u0, 0.0),
-      @smath.Vec2(u0, 1.0),
       @smath.Vec2(u1, 1.0),
-      side_normal0,
+      @smath.Vec2(u0, 1.0),
       side_normal0,
       side_normal1,
+      side_normal0,
     )
     push_textured_triangle(
       vertices,
       uvs,
       normals,
       top0,
-      bot1,
       top1,
+      bot1,
       @smath.Vec2(u0, 0.0),
-      @smath.Vec2(u1, 1.0),
       @smath.Vec2(u1, 0.0),
+      @smath.Vec2(u1, 1.0),
       side_normal0,
       side_normal1,
       side_normal1,

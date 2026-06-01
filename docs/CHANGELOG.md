@@ -7,6 +7,7 @@
 ### Changed
 
 ### Fixed
+- Fixed raylib cylinder primitives to use Selene's centered mesh generation so cylinder transforms match WebGPU and truncated cylinders.
 
 ### Removed
 

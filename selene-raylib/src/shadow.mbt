@@ -1030,20 +1030,6 @@ fn draw_shadow_cylinder(
   base_source : MaterialTextureSource3D?,
   setup : DirectionalShadowSetup,
 ) -> Unit {
-  if (radius_top - radius_bottom).abs() <= 0.000001 {
-    let key = "cylinder:\{radius_top}:\{height}:\{slices}"
-    let mesh = get_or_create_primitive_mesh(key, fn() {
-      @raylib.gen_mesh_cylinder(to_float(radius_top), to_float(height), slices)
-    })
-    draw_shadow_mesh_with_material(
-      mesh,
-      material,
-      base_source,
-      shadow_base_uv_set(base_source),
-      setup,
-    )
-    return
-  }
   let (vertices, uvs, _normals) = build_cylinder_mesh(
     radius_top, radius_bottom, height, slices,
   )
