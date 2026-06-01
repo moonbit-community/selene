@@ -197,6 +197,53 @@ test "MoonBit packs WebGPU 2D rect and circle vertices before FFI" {
 }
 
 ///|
+test "MoonBit packs WebGPU 2D image vertices before FFI" {
+  let destination : @smath.Rect = {
+    position: @smath.Vec2(10.0, 20.0),
+    size: @smath.Vec2(64.0, 16.0),
+  }
+  let repeated = pack_image_vertices2d_raw(
+    destination,
+    @smath.Transform(),
+    None,
+    @smath.Transform(),
+    Repeat,
+    { r: 128U, g: 255U, b: 0U, a: 0.5 },
+    32.0,
+    16.0,
+  )
+  inspect(repeated.sampler_code, content="3")
+  inspect(repeated.vertices.length(), content="48")
+  inspect(repeated.vertices[0], content="10")
+  inspect(repeated.vertices[1], content="20")
+  inspect(repeated.vertices[10], content="2")
+  inspect(repeated.vertices[19], content="1")
+  inspect(
+    (repeated.vertices[20] - 128.0 / 255.0).abs() < 0.000001,
+    content="true",
+  )
+  inspect(repeated.vertices[23], content="0.5")
+
+  let sourced = pack_image_vertices2d_raw(
+    destination,
+    @smath.Transform(tx=1.0, ty=2.0),
+    Some({ position: @smath.Vec2(8.0, 4.0), size: @smath.Vec2(16.0, 8.0) }),
+    @smath.Transform(a=2.0, d=3.0),
+    Repeat,
+    { r: 255U, g: 255U, b: 255U, a: 1.0 },
+    32.0,
+    16.0,
+  )
+  inspect(sourced.sampler_code, content="0")
+  inspect(sourced.vertices[0], content="11")
+  inspect(sourced.vertices[1], content="22")
+  inspect(sourced.vertices[2], content="0.5")
+  inspect(sourced.vertices[3], content="0.75")
+  inspect(sourced.vertices[10], content="1.5")
+  inspect(sourced.vertices[11], content="0.75")
+}
+
+///|
 test "MoonBit packs WebGPU 3D camera view projection before FFI" {
   let perspective = pack_camera_view_projection3d(
     webgpu_test_camera(),

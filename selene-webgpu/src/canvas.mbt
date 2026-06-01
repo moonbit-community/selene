@@ -903,68 +903,6 @@ extern "js" fn webgpu_initialize(
   #|       rt.current2dCommandList().push({ kind: 'resetClip' });
   #|     };
   #|
-  #|     rt.pushImage = (path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, ua, ub, uc, ud, utx, uty, repeatMode, alphaMode, blendMode, tr, tg, tb, ta) => {
-  #|       const rec = rt.ensureImage(path);
-  #|       if (!rec || rec.state !== 'ready') return;
-  #|       const p0x = a * 0 + c * 0 + tx + dx;
-  #|       const p0y = b * 0 + d * 0 + ty + dy;
-  #|       const p1x = a * dw + c * 0 + tx + dx;
-  #|       const p1y = b * dw + d * 0 + ty + dy;
-  #|       const p2x = a * dw + c * dh + tx + dx;
-  #|       const p2y = b * dw + d * dh + ty + dy;
-  #|       const p3x = a * 0 + c * dh + tx + dx;
-  #|       const p3y = b * 0 + d * dh + ty + dy;
-  #|
-  #|       let u0 = 0;
-  #|       let v0 = 0;
-  #|       let u1 = 1;
-  #|       let v1 = 1;
-  #|       let samplerCode = 0;
-  #|       if (hasSource) {
-  #|         u0 = sx / rec.width;
-  #|         v0 = sy / rec.height;
-  #|         u1 = (sx + sw) / rec.width;
-  #|         v1 = (sy + sh) / rec.height;
-  #|         samplerCode = 0;
-  #|       } else {
-  #|         const scaleU = rec.width > 0 ? dw / rec.width : 1;
-  #|         const scaleV = rec.height > 0 ? dh / rec.height : 1;
-  #|         if (repeatMode === 3) {
-  #|           u1 = scaleU;
-  #|           v1 = scaleV;
-  #|           samplerCode = 3;
-  #|         } else if (repeatMode === 0) {
-  #|           u1 = scaleU;
-  #|           v1 = 1;
-  #|           samplerCode = 1;
-  #|         } else if (repeatMode === 1) {
-  #|           u1 = 1;
-  #|           v1 = scaleV;
-  #|           samplerCode = 2;
-  #|         } else {
-  #|           u1 = 1;
-  #|           v1 = 1;
-  #|           samplerCode = 0;
-  #|         }
-  #|       }
-  #|
-  #|       const applyUv = (u, v) => [ua * u + uc * v + utx, ub * u + ud * v + uty];
-  #|       const [tu0, tv0] = applyUv(u0, v0);
-  #|       const [tu1, tv0b] = applyUv(u1, v0);
-  #|       const [tu1b, tv1] = applyUv(u1, v1);
-  #|       const [tu0b, tv1b] = applyUv(u0, v1);
-  #|       const tint = colorNorm(tr, tg, tb, ta);
-  #|       const verts = new Float32Array([
-  #|         p0x, p0y, tu0, tv0, tint[0], tint[1], tint[2], tint[3],
-  #|         p1x, p1y, tu1, tv0b, tint[0], tint[1], tint[2], tint[3],
-  #|         p2x, p2y, tu1b, tv1, tint[0], tint[1], tint[2], tint[3],
-  #|         p0x, p0y, tu0, tv0, tint[0], tint[1], tint[2], tint[3],
-  #|         p2x, p2y, tu1b, tv1, tint[0], tint[1], tint[2], tint[3],
-  #|         p3x, p3y, tu0b, tv1b, tint[0], tint[1], tint[2], tint[3],
-  #|       ]);
-  #|       rt.pushTex2d(samplerCode, rec, verts, alphaMode, blendMode);
-  #|     };
-  #|
   #|     rt.pushText = (text, x, y, ma, mb, mc, md, tx, ty, family, size, align, baseline, blendMode, r, g, b, alpha) => {
   #|       const rec = rt.ensureTextTexture(text, family, size, r, g, b, alpha);
   #|       if (!rec) return;

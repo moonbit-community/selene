@@ -13,16 +13,6 @@
 // limitations under the License.
 
 ///|
-fn repeat_mode_to_code(repeat : @smath.RepeatMode) -> Int {
-  match repeat {
-    RepeatX => 0
-    RepeatY => 1
-    NoRepeat => 2
-    Repeat => 3
-  }
-}
-
-///|
 fn h_align_to_code(align : @smath.HAlign) -> Int {
   match align {
     Left => 0
@@ -319,54 +309,21 @@ pub fn draw_image(
   command : @render2d_types.ImageDrawCommand2D,
   image_path : String,
 ) -> Unit {
-  let transform = command.transform
-  let mut source_x = 0.0
-  let mut source_y = 0.0
-  let mut source_width = 0.0
-  let mut source_height = 0.0
-  let mut has_source = false
-  match command.source {
-    Some(source) => {
-      source_x = source.position[X]
-      source_y = source.position[Y]
-      source_width = source.size[X]
-      source_height = source.size[Y]
-      has_source = true
-    }
-    None => ()
+  let path = resolve_asset_path(image_path)
+  let dimensions = webgpu_image_dimensions(path)
+  if dimensions.length() < 3 ||
+    dimensions[0] < 0.5 ||
+    dimensions[1] <= 0.0 ||
+    dimensions[2] <= 0.0 {
+    return
   }
-  let (tr, tg, tb, ta) = color_rgba(command.color)
-  let uv_transform = command.uv_transform
-  webgpu_draw_image(
-    resolve_asset_path(image_path),
-    command.destination.position[X],
-    command.destination.position[Y],
-    command.destination.size[X],
-    command.destination.size[Y],
-    has_source,
-    source_x,
-    source_y,
-    source_width,
-    source_height,
-    transform.a,
-    transform.b,
-    transform.c,
-    transform.d,
-    transform.tx,
-    transform.ty,
-    uv_transform.a,
-    uv_transform.b,
-    uv_transform.c,
-    uv_transform.d,
-    uv_transform.tx,
-    uv_transform.ty,
-    repeat_mode_to_code(command.repeat),
+  let packed = pack_image_vertices2d(command, dimensions[1], dimensions[2])
+  webgpu_push_texture_vertices_2d(
+    path,
+    packed.sampler_code,
+    packed.vertices,
     alpha_mode_to_code(command.alpha_mode),
     blend_mode_to_code(command.blend_mode),
-    tr,
-    tg,
-    tb,
-    ta,
   )
 }
 

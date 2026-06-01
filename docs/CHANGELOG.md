@@ -25,6 +25,7 @@
 - Changed WebGPU 3D triangle and instance submission so JavaScript no longer receives or rewrites redundant receive-shadow flags already packed by MoonBit.
 - Changed WebGPU 3D camera view-projection packing so MoonBit computes the main camera uniform before JavaScript writes it to WebGPU.
 - Changed WebGPU 2D clear-pass geometry so MoonBit submits the clear quad instead of generating it inside the JavaScript render loop.
+- Changed WebGPU 2D image quad, UV, repeat sampler, and tint packing so MoonBit builds texture vertices before JavaScript binds the image resource.
 
 ### Fixed
 - Fixed WebGPU 3D primitives to honor material double-sided state, use instance scale consistently with custom meshes and raylib primitives, and wind textured sphere triangles outward.

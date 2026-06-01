@@ -31,42 +31,29 @@ extern "js" fn webgpu_push_color_vertices_2d(
   #| }
 
 ///|
-extern "js" fn webgpu_draw_image(
+extern "js" fn webgpu_image_dimensions(path : String) -> Array[Double] =
+  #| (path) => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (!rt) return [0, 0, 0];
+  #|   const rec = rt.ensureImage(path);
+  #|   if (!rec || rec.state !== 'ready') return [0, 0, 0];
+  #|   return [1, rec.width, rec.height];
+  #| }
+
+///|
+extern "js" fn webgpu_push_texture_vertices_2d(
   path : String,
-  destination_x : Double,
-  destination_y : Double,
-  destination_width : Double,
-  destination_height : Double,
-  has_source : Bool,
-  source_x : Double,
-  source_y : Double,
-  source_width : Double,
-  source_height : Double,
-  transform_a : Double,
-  transform_b : Double,
-  transform_c : Double,
-  transform_d : Double,
-  transform_tx : Double,
-  transform_ty : Double,
-  uv_transform_a : Double,
-  uv_transform_b : Double,
-  uv_transform_c : Double,
-  uv_transform_d : Double,
-  uv_transform_tx : Double,
-  uv_transform_ty : Double,
-  repeat_mode : Int,
+  sampler_code : Int,
+  vertices : Array[Double],
   alpha_mode : Int,
   blend_mode : Int,
-  tint_r : Double,
-  tint_g : Double,
-  tint_b : Double,
-  tint_a : Double,
 ) -> Unit =
-  #| (path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, ua, ub, uc, ud, utx, uty, repeatMode, alphaMode, blendMode, tr, tg, tb, ta) => {
+  #| (path, samplerCode, vertices, alphaMode, blendMode) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
-  #|   if (rt) {
-  #|     rt.pushImage(path, dx, dy, dw, dh, hasSource, sx, sy, sw, sh, a, b, c, d, tx, ty, ua, ub, uc, ud, utx, uty, repeatMode, alphaMode, blendMode, tr, tg, tb, ta);
-  #|   }
+  #|   if (!rt) return;
+  #|   const rec = rt.ensureImage(path);
+  #|   if (!rec || rec.state !== 'ready') return;
+  #|   rt.pushTex2d(samplerCode, rec, new Float32Array(vertices), alphaMode, blendMode);
   #| }
 
 ///|

@@ -1,4 +1,10 @@
 ///|
+priv struct ImageVertices2D {
+  vertices : Array[Double]
+  sampler_code : Int
+}
+
+///|
 fn pack_rect_fill_vertices2d(
   rect : @smath.Rect,
   transform : @smath.Transform,
@@ -58,6 +64,86 @@ fn pack_gradient_rect_vertices2d(
   push_color_vertex2d(vertices, p2x, p2y, r1, g1, b1, a1)
   push_color_vertex2d(vertices, p3x, p3y, rm, gm, bm, am)
   vertices
+}
+
+///|
+fn pack_image_vertices2d(
+  command : @render2d_types.ImageDrawCommand2D,
+  image_width : Double,
+  image_height : Double,
+) -> ImageVertices2D {
+  pack_image_vertices2d_raw(
+    command.destination,
+    command.transform,
+    command.source,
+    command.uv_transform,
+    command.repeat,
+    command.color,
+    image_width,
+    image_height,
+  )
+}
+
+///|
+fn pack_image_vertices2d_raw(
+  destination : @smath.Rect,
+  transform : @smath.Transform,
+  source : @render2d_types.ImageRegion2D?,
+  uv_transform : @smath.Transform,
+  repeat : @smath.RepeatMode,
+  color : @render.Color,
+  image_width : Double,
+  image_height : Double,
+) -> ImageVertices2D {
+  let (p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y) = rect_points2d(
+    destination, transform,
+  )
+  let mut u0 = 0.0
+  let mut v0 = 0.0
+  let mut u1 = 1.0
+  let mut v1 = 1.0
+  let mut sampler_code = 0
+  match source {
+    Some(source) => {
+      u0 = source.position[X] / image_width
+      v0 = source.position[Y] / image_height
+      u1 = (source.position[X] + source.size[X]) / image_width
+      v1 = (source.position[Y] + source.size[Y]) / image_height
+    }
+    None => {
+      let scale_u = destination.size[X] / image_width
+      let scale_v = destination.size[Y] / image_height
+      match repeat {
+        Repeat => {
+          u1 = scale_u
+          v1 = scale_v
+          sampler_code = 3
+        }
+        RepeatX => {
+          u1 = scale_u
+          sampler_code = 1
+        }
+        RepeatY => {
+          v1 = scale_v
+          sampler_code = 2
+        }
+        NoRepeat => ()
+      }
+    }
+  }
+  let (tu0, tv0) = transform_uv2d(uv_transform, u0, v0)
+  let (tu1, tv0b) = transform_uv2d(uv_transform, u1, v0)
+  let (tu1b, tv1) = transform_uv2d(uv_transform, u1, v1)
+  let (tu0b, tv1b) = transform_uv2d(uv_transform, u0, v1)
+  let (r, g, b, a) = color_rgba01(color)
+  let vertices : Array[Double] = []
+  push_tex_vertex2d(vertices, p0x, p0y, tu0, tv0, r, g, b, a)
+  push_tex_vertex2d(vertices, p1x, p1y, tu1, tv0b, r, g, b, a)
+  push_tex_vertex2d(vertices, p2x, p2y, tu1b, tv1, r, g, b, a)
+  push_tex_vertex2d(vertices, p0x, p0y, tu0, tv0, r, g, b, a)
+  push_tex_vertex2d(vertices, p2x, p2y, tu1b, tv1, r, g, b, a)
+  push_tex_vertex2d(vertices, p3x, p3y, tu0b, tv1b, r, g, b, a)
+  { vertices, sampler_code }
 }
 
 ///|
@@ -152,6 +238,18 @@ fn transformed_local_point2d(
 }
 
 ///|
+fn transform_uv2d(
+  transform : @smath.Transform,
+  u : Double,
+  v : Double,
+) -> (Double, Double) {
+  (
+    transform.a * u + transform.c * v + transform.tx,
+    transform.b * u + transform.d * v + transform.ty,
+  )
+}
+
+///|
 fn color_rgba01(color : @render.Color) -> (Double, Double, Double, Double) {
   (
     color.r.reinterpret_as_int().to_double() / 255.0,
@@ -173,6 +271,28 @@ fn push_color_vertex2d(
 ) -> Unit {
   vertices.push(x)
   vertices.push(y)
+  vertices.push(r)
+  vertices.push(g)
+  vertices.push(b)
+  vertices.push(a)
+}
+
+///|
+fn push_tex_vertex2d(
+  vertices : Array[Double],
+  x : Double,
+  y : Double,
+  u : Double,
+  v : Double,
+  r : Double,
+  g : Double,
+  b : Double,
+  a : Double,
+) -> Unit {
+  vertices.push(x)
+  vertices.push(y)
+  vertices.push(u)
+  vertices.push(v)
   vertices.push(r)
   vertices.push(g)
   vertices.push(b)
