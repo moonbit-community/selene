@@ -104,6 +104,10 @@ let synced_image_assets : Map[
 ] = Map([])
 
 ///|
+let textured_primitive_mesh_cache : Map[String, @render3d_types.TriangleMesh3D] = Map([],
+)
+
+///|
 priv struct MaterialTextureSource3D {
   path : String
   texcoord_set : Int
@@ -572,11 +576,11 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
         match texture_bundle {
           Some(bundle) =>
             draw_triangle_mesh_instance(
-              build_cuboid_triangle_mesh3d(
+              cached_cuboid_triangle_mesh3d(
                 size.x,
                 size.y,
                 size.z,
-                uv_set_count=required_primitive_uv_set_count(bundle),
+                required_primitive_uv_set_count(bundle),
               ),
               material,
               Some(bundle),
@@ -622,11 +626,11 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
         match texture_bundle {
           Some(bundle) =>
             draw_triangle_mesh_instance(
-              build_sphere_triangle_mesh3d(
+              cached_sphere_triangle_mesh3d(
                 radius,
                 TEXTURED_SPHERE_SLICES,
                 TEXTURED_SPHERE_STACKS,
-                uv_set_count=required_primitive_uv_set_count(bundle),
+                required_primitive_uv_set_count(bundle),
               ),
               material,
               Some(bundle),
@@ -670,12 +674,12 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
         match texture_bundle {
           Some(bundle) =>
             draw_triangle_mesh_instance(
-              build_cylinder_triangle_mesh3d(
+              cached_cylinder_triangle_mesh3d(
                 radius_top,
                 radius_bottom,
                 height,
                 slices,
-                uv_set_count=required_primitive_uv_set_count(bundle),
+                required_primitive_uv_set_count(bundle),
               ),
               material,
               Some(bundle),
@@ -723,11 +727,11 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
         match texture_bundle {
           Some(bundle) =>
             draw_triangle_mesh_instance(
-              build_cuboid_triangle_mesh3d(
+              cached_cuboid_triangle_mesh3d(
                 size.x,
                 y,
                 size.z,
-                uv_set_count=required_primitive_uv_set_count(bundle),
+                required_primitive_uv_set_count(bundle),
               ),
               material,
               Some(bundle),
@@ -807,6 +811,7 @@ fn collect_render3d_submission_stats(
 ) -> Render3DSubmissionStats {
   let stats = empty_render3d_submission_stats()
   let instanced_lit_buckets : Map[String, Bool] = Map([])
+  let textured_buckets : Map[String, Bool] = Map([])
   guard frame.camera is Some(_) else { return stats }
   stats.sections = 1
   for item in frame.items {
@@ -827,7 +832,11 @@ fn collect_render3d_submission_stats(
     let textured = texture_bundle is Some(_) &&
       render3d_item_can_use_textured_path(mesh_asset.primitive, texture_bundle)
     if textured {
-      stats.textured_triangle_commands += 1
+      let key = render3d_textured_bucket_key(item)
+      if !textured_buckets.contains(key) {
+        textured_buckets.set(key, true)
+        stats.textured_triangle_commands += 1
+      }
       stats.uploaded_vertex_bytes += vertex_count * 35 * 4
     } else if render3d_item_can_use_instanced_lit_path(mesh_asset.primitive) {
       let key = render3d_lit_instance_bucket_key(item)
@@ -875,6 +884,11 @@ fn render3d_lit_instance_bucket_key(
   (if item.cast_shadows { "cast" } else { "no-cast" }) +
   "|" +
   (if item.receive_shadows { "receive" } else { "no-receive" })
+}
+
+///|
+fn render3d_textured_bucket_key(item : @render3d_types.RenderItem3D) -> String {
+  render3d_lit_instance_bucket_key(item)
 }
 
 ///|
@@ -1081,6 +1095,90 @@ fn draw_triangle_mesh_instance(
       None => draw_colored()
     }
   }
+}
+
+///|
+fn cached_textured_primitive_mesh3d(
+  key : String,
+  build : () -> @render3d_types.TriangleMesh3D,
+) -> @render3d_types.TriangleMesh3D {
+  textured_primitive_mesh_cache.get_or_init(key, build)
+}
+
+///|
+fn textured_primitive_cache_key(
+  prefix : String,
+  values : Array[String],
+) -> String {
+  let mut key = prefix
+  for value in values {
+    key = key + "|" + value
+  }
+  key
+}
+
+///|
+fn cached_cuboid_triangle_mesh3d(
+  size_x : Double,
+  size_y : Double,
+  size_z : Double,
+  uv_set_count : Int,
+) -> @render3d_types.TriangleMesh3D {
+  cached_textured_primitive_mesh3d(
+    textured_primitive_cache_key("cuboid", [
+      size_x.to_string(),
+      size_y.to_string(),
+      size_z.to_string(),
+      uv_set_count.to_string(),
+    ]),
+    fn() { build_cuboid_triangle_mesh3d(size_x, size_y, size_z, uv_set_count~) },
+  )
+}
+
+///|
+fn cached_sphere_triangle_mesh3d(
+  radius : Double,
+  slices : Int,
+  stacks : Int,
+  uv_set_count : Int,
+) -> @render3d_types.TriangleMesh3D {
+  cached_textured_primitive_mesh3d(
+    textured_primitive_cache_key("sphere", [
+      radius.to_string(),
+      slices.to_string(),
+      stacks.to_string(),
+      uv_set_count.to_string(),
+    ]),
+    fn() { build_sphere_triangle_mesh3d(radius, slices, stacks, uv_set_count~) },
+  )
+}
+
+///|
+fn cached_cylinder_triangle_mesh3d(
+  radius_top : Double,
+  radius_bottom : Double,
+  height : Double,
+  slices : Int,
+  uv_set_count : Int,
+) -> @render3d_types.TriangleMesh3D {
+  cached_textured_primitive_mesh3d(
+    textured_primitive_cache_key("cylinder", [
+      radius_top.to_string(),
+      radius_bottom.to_string(),
+      height.to_string(),
+      slices.to_string(),
+      uv_set_count.to_string(),
+    ]),
+    fn() {
+      build_cylinder_triangle_mesh3d(
+        radius_top,
+        radius_bottom,
+        height,
+        slices,
+        uv_set_count~,
+      )
+    },
+  )
 }
 
 ///|

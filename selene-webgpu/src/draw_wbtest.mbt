@@ -136,13 +136,16 @@ test "render3d submission stats distinguish textured primitive bind groups" {
   })
   let frame = @render3d_types.empty_render_frame3d()
   frame.camera = Some(webgpu_test_camera())
-  frame.items = [webgpu_test_item(mesh, material, 0.0)]
+  frame.items = [
+    webgpu_test_item(mesh, material, 0.0),
+    webgpu_test_item(mesh, material, 1.0),
+  ]
   let stats = collect_render3d_submission_stats(frame)
   inspect(stats.command_groups, content="1")
   inspect(stats.draw_commands, content="1")
   inspect(stats.lit_triangle_commands, content="0")
   inspect(stats.textured_triangle_commands, content="1")
-  inspect(stats.uploaded_vertex_bytes, content="5040")
+  inspect(stats.uploaded_vertex_bytes, content="10080")
   inspect(stats.render_bind_group_creations, content="1")
   release_image_asset(image)
   release_mesh_asset(mesh)

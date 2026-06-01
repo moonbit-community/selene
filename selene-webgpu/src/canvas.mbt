@@ -1666,6 +1666,45 @@ extern "js" fn webgpu_initialize(
   #|       }
   #|       return { buffer, offsets };
   #|     };
+  #|     rt.texturedCommandKey3d = (cmd) => [
+  #|       cmd.doubleSided ? 'double' : 'single',
+  #|       cmd.castShadows ? 'cast' : 'no-cast',
+  #|       cmd.baseSamplerCode,
+  #|       rt.bindGroupResourceId(cmd.textureRec?.view),
+  #|       cmd.emissiveSamplerCode,
+  #|       rt.bindGroupResourceId(cmd.emissiveTextureRec?.view),
+  #|       cmd.metallicRoughnessSamplerCode,
+  #|       rt.bindGroupResourceId(cmd.metallicRoughnessTextureRec?.view),
+  #|       cmd.occlusionSamplerCode,
+  #|       rt.bindGroupResourceId(cmd.occlusionTextureRec?.view),
+  #|       cmd.normalSamplerCode,
+  #|       rt.bindGroupResourceId(cmd.normalTextureRec?.view),
+  #|     ].join('|');
+  #|     rt.concatFloat32 = (lhs, rhs) => {
+  #|       const out = new Float32Array(lhs.length + rhs.length);
+  #|       out.set(lhs, 0);
+  #|       out.set(rhs, lhs.length);
+  #|       return out;
+  #|     };
+  #|     rt.compactTexturedCommands3d = (commands) => {
+  #|       if (!Array.isArray(commands) || commands.length <= 1) {
+  #|         return Array.isArray(commands) ? commands : [];
+  #|       }
+  #|       const compacted = [];
+  #|       const buckets = new Map();
+  #|       for (const cmd of commands) {
+  #|         const key = rt.texturedCommandKey3d(cmd);
+  #|         let target = buckets.get(key);
+  #|         if (!target) {
+  #|           target = { ...cmd, verts: cmd.verts };
+  #|           buckets.set(key, target);
+  #|           compacted.push(target);
+  #|           continue;
+  #|         }
+  #|         target.verts = rt.concatFloat32(target.verts, cmd.verts);
+  #|       }
+  #|       return compacted;
+  #|     };
   #|     rt.uploadInstancedLitBuffers3d = (commands) => {
   #|       if (!commands || commands.length === 0) {
   #|         return { buffer: null, offsets: [] };
@@ -1692,13 +1731,16 @@ extern "js" fn webgpu_initialize(
   #|       return { buffer, offsets };
   #|     };
   #|
-  #|     rt.prepareSectionBuffers3d = (section) => ({
-  #|       tri: rt.uploadCommandBuffer3d('dyn3dTri', section.triCommands, (cmd) => cmd.verts),
-  #|       line: rt.uploadCommandBuffer3d('dyn3dLine', section.lineCommands, (verts) => verts),
-  #|       lit: rt.uploadCommandBuffer3d('dyn3dLitTri', section.litTriCommands, (cmd) => cmd.verts),
-  #|       instancedLit: rt.uploadInstancedLitBuffers3d(section.instancedLitCommands),
-  #|       tex: rt.uploadCommandBuffer3d('dyn3dLitTexTri', section.texTriCommands, (cmd) => cmd.verts),
-  #|     });
+  #|     rt.prepareSectionBuffers3d = (section) => {
+  #|       section.texTriCommands = rt.compactTexturedCommands3d(section.texTriCommands);
+  #|       return {
+  #|         tri: rt.uploadCommandBuffer3d('dyn3dTri', section.triCommands, (cmd) => cmd.verts),
+  #|         line: rt.uploadCommandBuffer3d('dyn3dLine', section.lineCommands, (verts) => verts),
+  #|         lit: rt.uploadCommandBuffer3d('dyn3dLitTri', section.litTriCommands, (cmd) => cmd.verts),
+  #|         instancedLit: rt.uploadInstancedLitBuffers3d(section.instancedLitCommands),
+  #|         tex: rt.uploadCommandBuffer3d('dyn3dLitTexTri', section.texTriCommands, (cmd) => cmd.verts),
+  #|       };
+  #|     };
   #|
   #|     rt.ensureShadowCameraBuffer = (index) => {
   #|       while (rt.shadowCameraBuffers.length <= index) {
