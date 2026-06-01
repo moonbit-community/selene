@@ -1097,116 +1097,6 @@ extern "js" fn webgpu_initialize(
   #|       rt.pushTex2d(0, rec, verts, 1, blendMode);
   #|     };
   #|
-  #|     rt.transformVerts3dWithStride = (verts, stride, tx, ty, tz, qx, qy, qz, qw, normalOffset = -1, tangentOffset = -1, sx = 1.0, sy = 1.0, sz = 1.0) => {
-  #|       let qnx = qx;
-  #|       let qny = qy;
-  #|       let qnz = qz;
-  #|       let qnw = qw;
-  #|       const qLen = Math.hypot(qnx, qny, qnz, qnw);
-  #|       if (qLen <= 1e-8) {
-  #|         qnx = 0;
-  #|         qny = 0;
-  #|         qnz = 0;
-  #|         qnw = 1;
-  #|       } else {
-  #|         qnx /= qLen;
-  #|         qny /= qLen;
-  #|         qnz /= qLen;
-  #|         qnw /= qLen;
-  #|       }
-  #|       const rotate = (x, y, z) => {
-  #|         const dotUV = qnx * x + qny * y + qnz * z;
-  #|         const dotUU = qnx * qnx + qny * qny + qnz * qnz;
-  #|         const cx = qny * z - qnz * y;
-  #|         const cy = qnz * x - qnx * z;
-  #|         const cz = qnx * y - qny * x;
-  #|         const rx = 2 * dotUV * qnx + (qnw * qnw - dotUU) * x + 2 * qnw * cx;
-  #|         const ry = 2 * dotUV * qny + (qnw * qnw - dotUU) * y + 2 * qnw * cy;
-  #|         const rz = 2 * dotUV * qnz + (qnw * qnw - dotUU) * z + 2 * qnw * cz;
-  #|         return [rx, ry, rz];
-  #|       };
-  #|       for (let i = 0; i < verts.length; i += stride) {
-  #|         const [rx, ry, rz] = rotate(verts[i] * sx, verts[i + 1] * sy, verts[i + 2] * sz);
-  #|         verts[i] = rx + tx;
-  #|         verts[i + 1] = ry + ty;
-  #|         verts[i + 2] = rz + tz;
-  #|         if (normalOffset >= 0) {
-  #|           const ni = i + normalOffset;
-  #|           if (ni + 2 < verts.length) {
-  #|             const localNx = Math.abs(sx) > 1e-8 ? verts[ni] / sx : verts[ni];
-  #|             const localNy = Math.abs(sy) > 1e-8 ? verts[ni + 1] / sy : verts[ni + 1];
-  #|             const localNz = Math.abs(sz) > 1e-8 ? verts[ni + 2] / sz : verts[ni + 2];
-  #|             const [nx, ny, nz] = rotate(localNx, localNy, localNz);
-  #|             const len = Math.hypot(nx, ny, nz);
-  #|             if (len > 1e-8) {
-  #|               verts[ni] = nx / len;
-  #|               verts[ni + 1] = ny / len;
-  #|               verts[ni + 2] = nz / len;
-  #|             } else {
-  #|               verts[ni] = 0.0;
-  #|               verts[ni + 1] = 1.0;
-  #|               verts[ni + 2] = 0.0;
-  #|             }
-  #|           }
-  #|         }
-  #|         if (tangentOffset >= 0) {
-  #|           const ti = i + tangentOffset;
-  #|           if (ti + 2 < verts.length) {
-  #|             const localTx = Math.abs(sx) > 1e-8 ? verts[ti] / sx : verts[ti];
-  #|             const localTy = Math.abs(sy) > 1e-8 ? verts[ti + 1] / sy : verts[ti + 1];
-  #|             const localTz = Math.abs(sz) > 1e-8 ? verts[ti + 2] / sz : verts[ti + 2];
-  #|             const [txr, tyr, tzr] = rotate(localTx, localTy, localTz);
-  #|             const len = Math.hypot(txr, tyr, tzr);
-  #|             if (len > 1e-8) {
-  #|               verts[ti] = txr / len;
-  #|               verts[ti + 1] = tyr / len;
-  #|               verts[ti + 2] = tzr / len;
-  #|             } else {
-  #|               verts[ti] = 1.0;
-  #|               verts[ti + 1] = 0.0;
-  #|               verts[ti + 2] = 0.0;
-  #|             }
-  #|           }
-  #|         }
-  #|       }
-  #|       return verts;
-  #|     };
-  #|     rt.transformVerts3d = (verts, tx, ty, tz, qx, qy, qz, qw, sx = 1.0, sy = 1.0, sz = 1.0) =>
-  #|       rt.transformVerts3dWithStride(verts, 7, tx, ty, tz, qx, qy, qz, qw, -1, -1, sx, sy, sz);
-  #|     rt.transformTexVerts3d = (verts, tx, ty, tz, qx, qy, qz, qw, sx = 1.0, sy = 1.0, sz = 1.0) =>
-  #|       rt.transformVerts3dWithStride(verts, 9, tx, ty, tz, qx, qy, qz, qw, -1, -1, sx, sy, sz);
-  #|     rt.transformLitVerts3d = (verts, tx, ty, tz, qx, qy, qz, qw, sx = 1.0, sy = 1.0, sz = 1.0) =>
-  #|       rt.transformVerts3dWithStride(verts, 17, tx, ty, tz, qx, qy, qz, qw, 3, -1, sx, sy, sz);
-  #|     rt.transformLitTexVerts3d = (verts, tx, ty, tz, qx, qy, qz, qw, sx = 1.0, sy = 1.0, sz = 1.0) =>
-  #|       rt.transformVerts3dWithStride(verts, 35, tx, ty, tz, qx, qy, qz, qw, 3, 23, sx, sy, sz);
-  #|
-  #|     rt.makeCubeEdges = (sx, sy, sz, color) => {
-  #|       const hx = sx / 2;
-  #|       const hy = sy / 2;
-  #|       const hz = sz / 2;
-  #|       const p = [
-  #|         [-hx, -hy, -hz],
-  #|         [hx, -hy, -hz],
-  #|         [hx, hy, -hz],
-  #|         [-hx, hy, -hz],
-  #|         [-hx, -hy, hz],
-  #|         [hx, -hy, hz],
-  #|         [hx, hy, hz],
-  #|         [-hx, hy, hz],
-  #|       ];
-  #|       const e = [
-  #|         0,1, 1,2, 2,3, 3,0,
-  #|         4,5, 5,6, 6,7, 7,4,
-  #|         0,4, 1,5, 2,6, 3,7,
-  #|       ];
-  #|       const out = [];
-  #|       for (let i = 0; i < e.length; i += 1) {
-  #|         const v = p[e[i]];
-  #|         out.push(v[0], v[1], v[2], color[0], color[1], color[2], color[3]);
-  #|       }
-  #|       return new Float32Array(out);
-  #|     };
-  #|
   #|     rt.begin3d = (px, py, pz, tx, ty, tz, ux, uy, uz, fovy, near, far, orthographic, orthoWidth, orthoHeight) => {
   #|       const section = {
   #|         camera: {
@@ -1246,37 +1136,7 @@ extern "js" fn webgpu_initialize(
   #|         instanceArray: null,
   #|       });
   #|     };
-  #|     rt.pushCubeWires3d = (cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, r, g, b, a) => {
-  #|       if (!rt.current3dSection) return;
-  #|       const verts = rt.makeCubeEdges(sx, sy, sz, colorNorm(r, g, b, a));
-  #|       rt.transformVerts3d(verts, cx, cy, cz, qx, qy, qz, qw);
-  #|       rt.current3dSection.lineCommands.push(verts);
-  #|     };
-  #|     rt.pushTriangles3d = (verts, tx, ty, tz, qx, qy, qz, qw, r, g, b, a) => {
-  #|       if (!rt.current3dSection) return;
-  #|       if (!verts || verts.length < 9) return;
-  #|       const triVertexCount = Math.floor(verts.length / 3);
-  #|       if (triVertexCount < 3) return;
-  #|       const out = new Float32Array(triVertexCount * 7);
-  #|       const cr = clamp01((r || 0) / 255.0);
-  #|       const cg = clamp01((g || 0) / 255.0);
-  #|       const cb = clamp01((b || 0) / 255.0);
-  #|       const ca = clamp01(a ?? 1.0);
-  #|       for (let i = 0; i < triVertexCount; i += 1) {
-  #|         const src = i * 3;
-  #|         const dst = i * 7;
-  #|         out[dst] = Number(verts[src]) || 0.0;
-  #|         out[dst + 1] = Number(verts[src + 1]) || 0.0;
-  #|         out[dst + 2] = Number(verts[src + 2]) || 0.0;
-  #|         out[dst + 3] = cr;
-  #|         out[dst + 4] = cg;
-  #|         out[dst + 5] = cb;
-  #|         out[dst + 6] = ca;
-  #|       }
-  #|       rt.transformVerts3d(out, tx, ty, tz, qx, qy, qz, qw);
-  #|       rt.current3dSection.triCommands.push({ verts: out, castShadows: true });
-  #|     };
-  #|     rt.pushColoredTriangles3d = (verts, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows, sx = 1.0, sy = 1.0, sz = 1.0) => {
+  #|     rt.pushColoredTriangles3d = (verts, doubleSided, castShadows, receiveShadows) => {
   #|       if (!rt.current3dSection) return;
   #|       if (!verts || verts.length < 51) return;
   #|       const triVertexCount = Math.floor(verts.length / 17);
@@ -1285,7 +1145,6 @@ extern "js" fn webgpu_initialize(
   #|       for (let i = 0; i < out.length; i += 1) {
   #|         out[i] = Number(verts[i]) || 0.0;
   #|       }
-  #|       rt.transformLitVerts3d(out, tx, ty, tz, qx, qy, qz, qw, sx, sy, sz);
   #|       if (out.length >= 17) {
   #|         const receiveValue = receiveShadows ? 1.0 : 0.0;
   #|         for (let index = 16; index < out.length; index += 17) {
@@ -1299,7 +1158,7 @@ extern "js" fn webgpu_initialize(
   #|         receiveShadows: !!receiveShadows,
   #|       });
   #|     };
-  #|     rt.pushTexturedTriangles3d = (basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, verts, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows, sx = 1.0, sy = 1.0, sz = 1.0) => {
+  #|     rt.pushTexturedTriangles3d = (basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, verts, doubleSided, castShadows, receiveShadows) => {
   #|       if (!rt.current3dSection) return;
   #|       if (!verts || verts.length < 105) return;
   #|       const baseRec = (basePath && basePath.length > 0)
@@ -1324,7 +1183,6 @@ extern "js" fn webgpu_initialize(
   #|       for (let i = 0; i < out.length; i += 1) {
   #|         out[i] = Number(verts[i]) || 0.0;
   #|       }
-  #|       rt.transformLitTexVerts3d(out, tx, ty, tz, qx, qy, qz, qw, sx, sy, sz);
   #|       if (out.length >= 35) {
   #|         const receiveValue = receiveShadows ? 1.0 : 0.0;
   #|         for (let index = 34; index < out.length; index += 35) {
@@ -1928,56 +1786,6 @@ extern "js" fn webgpu_initialize(
   #|       alphaMode,
   #|       blendMode,
   #|     });
-  #|     rt.concatFloat32 = (lhs, rhs) => {
-  #|       const out = new Float32Array(lhs.length + rhs.length);
-  #|       out.set(lhs, 0);
-  #|       out.set(rhs, lhs.length);
-  #|       return out;
-  #|     };
-  #|     rt.canCompact2d = (lhs, rhs) => {
-  #|       if (!lhs || !rhs) return false;
-  #|       if (lhs.kind !== rhs.kind) return false;
-  #|       if (lhs.kind === 'color') {
-  #|         return lhs.topology === rhs.topology
-  #|           && lhs.alphaMode === rhs.alphaMode
-  #|           && lhs.blendMode === rhs.blendMode;
-  #|       }
-  #|       if (lhs.kind === 'tex') {
-  #|         return lhs.samplerCode === rhs.samplerCode
-  #|           && lhs.textureRec === rhs.textureRec
-  #|           && lhs.alphaMode === rhs.alphaMode
-  #|           && lhs.blendMode === rhs.blendMode;
-  #|       }
-  #|       return false;
-  #|     };
-  #|     rt.compact2dCommands = (commands) => {
-  #|       if (!Array.isArray(commands) || commands.length <= 1) {
-  #|         return Array.isArray(commands) ? commands.slice() : [];
-  #|       }
-  #|       const compacted = [];
-  #|       let pending = null;
-  #|       const flushPending = () => {
-  #|         if (pending) {
-  #|           compacted.push(pending);
-  #|           pending = null;
-  #|         }
-  #|       };
-  #|       for (const cmd of commands) {
-  #|         if (cmd.kind === 'pushClip' || cmd.kind === 'popClip' || cmd.kind === 'resetClip') {
-  #|           flushPending();
-  #|           compacted.push(cmd);
-  #|           continue;
-  #|         }
-  #|         if (pending && rt.canCompact2d(pending, cmd)) {
-  #|           pending = { ...pending, verts: rt.concatFloat32(pending.verts, cmd.verts) };
-  #|           continue;
-  #|         }
-  #|         flushPending();
-  #|         pending = cmd;
-  #|       }
-  #|       flushPending();
-  #|       return compacted;
-  #|     };
   #|     rt.render2d = (pass, passRecord, surfaceWidth, surfaceHeight, bufferScope = 0) => {
   #|       const canvasWidth = Math.max(1, Math.floor(surfaceWidth || rt.canvas?.width || 1));
   #|       const canvasHeight = Math.max(1, Math.floor(surfaceHeight || rt.canvas?.height || 1));
@@ -2005,10 +1813,9 @@ extern "js" fn webgpu_initialize(
   #|         ]);
   #|         commands.unshift(rt.colorCommand2d('triangle', verts, clearColor[3] >= 0.999999 ? 0 : 1, 0));
   #|       }
-  #|       const compactedCommands = rt.compact2dCommands(commands);
   #|       let colorBytes = 0;
   #|       let texBytes = 0;
-  #|       for (const cmd of compactedCommands) {
+  #|       for (const cmd of commands) {
   #|         if (cmd.kind === 'color') colorBytes += cmd.verts.byteLength;
   #|         else if (cmd.kind === 'tex') texBytes += cmd.verts.byteLength;
   #|       }
@@ -2023,7 +1830,7 @@ extern "js" fn webgpu_initialize(
   #|       let colorOffset = 0;
   #|       let texOffset = 0;
   #|       const clipStack = [viewport];
-  #|       for (const cmd of compactedCommands) {
+  #|       for (const cmd of commands) {
   #|         if (cmd.kind === 'pushClip') {
   #|           clipStack.push(rt.intersectClipRect(clipStack[clipStack.length - 1], cmd.rect));
   #|           continue;

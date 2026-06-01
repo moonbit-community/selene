@@ -576,6 +576,26 @@ test "flatten_textured_vertices3d packs unlit surface metadata" {
 }
 
 ///|
+test "custom mesh transforms are applied in MoonBit before WebGPU FFI" {
+  let positions = [@smath.Vec3(1.0, 2.0, 3.0)]
+  let transformed = transform_positions3d(
+    positions,
+    @smath.Vec3(10.0, 20.0, 30.0),
+    @smath.Quat::identity(),
+    @smath.Vec3(2.0, 3.0, 4.0),
+  )
+  inspect(transformed[0].x, content="12")
+  inspect(transformed[0].y, content="26")
+  inspect(transformed[0].z, content="42")
+  let normals = rotate_normals3d(
+    [@smath.Vec3(1.0, 1.0, 0.0)],
+    @smath.Quat::identity(),
+    @smath.Vec3(2.0, 1.0, 1.0),
+  )
+  inspect(normals[0].x < normals[0].y, content="true")
+}
+
+///|
 test "resolve_triangle_indices supports strip and fan topology" {
   let mesh : @render3d_types.TriangleMesh3D = {
     positions: [

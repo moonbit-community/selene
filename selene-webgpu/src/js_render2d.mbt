@@ -226,24 +226,14 @@ extern "js" fn webgpu_release_retained_instance_buffer_3d(
 ///|
 extern "js" fn webgpu_draw_colored_triangles_3d(
   vertices : Array[Double],
-  translation_x : Double,
-  translation_y : Double,
-  translation_z : Double,
-  rotation_x : Double,
-  rotation_y : Double,
-  rotation_z : Double,
-  rotation_w : Double,
   double_sided : Bool,
   cast_shadows : Bool,
   receive_shadows : Bool,
-  scale_x : Double,
-  scale_y : Double,
-  scale_z : Double,
 ) -> Unit =
-  #| (vertices, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows, scaleX, scaleY, scaleZ) => {
+  #| (vertices, doubleSided, castShadows, receiveShadows) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushColoredTriangles3d(vertices, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows, scaleX, scaleY, scaleZ);
+  #|     rt.pushColoredTriangles3d(vertices, doubleSided, castShadows, receiveShadows);
   #|   }
   #| }
 
@@ -260,24 +250,14 @@ extern "js" fn webgpu_draw_textured_triangles_3d(
   occlusion_sampler_code : Int,
   normal_sampler_code : Int,
   vertices : Array[Double],
-  translation_x : Double,
-  translation_y : Double,
-  translation_z : Double,
-  rotation_x : Double,
-  rotation_y : Double,
-  rotation_z : Double,
-  rotation_w : Double,
   double_sided : Bool,
   cast_shadows : Bool,
   receive_shadows : Bool,
-  scale_x : Double,
-  scale_y : Double,
-  scale_z : Double,
 ) -> Unit =
-  #| (basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, vertices, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows, scaleX, scaleY, scaleZ) => {
+  #| (basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, vertices, doubleSided, castShadows, receiveShadows) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushTexturedTriangles3d(basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, vertices, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows, scaleX, scaleY, scaleZ);
+  #|     rt.pushTexturedTriangles3d(basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, vertices, doubleSided, castShadows, receiveShadows);
   #|   }
   #| }
 

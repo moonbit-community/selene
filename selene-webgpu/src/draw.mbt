@@ -1409,31 +1409,28 @@ fn draw_triangle_mesh_instance(
     triangle_indices.length() >= 3 {
     let normals = resolve_mesh_normals(mesh)
     let tangents = resolve_mesh_tangents(mesh)
+    let transformed_positions = transform_positions3d(
+      mesh.positions,
+      translation,
+      rotation,
+      scale,
+    )
+    let transformed_normals = rotate_normals3d(normals, rotation, scale)
     let draw_colored = fn() {
       webgpu_draw_colored_triangles_3d(
         flatten_colored_vertices3d(
-          mesh.positions,
+          transformed_positions,
           triangle_indices,
-          normals,
+          transformed_normals,
           mesh.colors,
           @smath.Vec3::one(),
           material,
           color,
           receive_shadows,
         ),
-        translation.x,
-        translation.y,
-        translation.z,
-        rotation.x,
-        rotation.y,
-        rotation.z,
-        rotation.w,
         double_sided,
         cast_shadows,
         receive_shadows,
-        scale.x,
-        scale.y,
-        scale.z,
       )
     }
     match texture_bundle {
@@ -1488,34 +1485,24 @@ fn draw_triangle_mesh_instance(
                 occlusion_input.sampler_code,
                 normal_input.sampler_code,
                 flatten_textured_vertices3d(
-                  mesh.positions,
+                  transformed_positions,
                   triangle_indices,
                   base_input.uvs,
                   emissive_input.uvs,
                   metallic_roughness_input.uvs,
                   occlusion_input.uvs,
                   normal_input.uvs,
-                  normals,
-                  tangents,
+                  transformed_normals,
+                  rotate_tangents3d(tangents, rotation, scale),
                   mesh.colors,
                   @smath.Vec3::one(),
                   material,
                   color,
                   receive_shadows,
                 ),
-                translation.x,
-                translation.y,
-                translation.z,
-                rotation.x,
-                rotation.y,
-                rotation.z,
-                rotation.w,
                 double_sided,
                 cast_shadows,
                 receive_shadows,
-                scale.x,
-                scale.y,
-                scale.z,
               )
             } else {
               draw_colored()
@@ -1902,6 +1889,101 @@ fn build_textured_triangle_mesh3d(
     tangents: None,
     colors: None,
   }
+}
+
+///|
+fn transform_positions3d(
+  positions : Array[@smath.Vec3],
+  translation : @smath.Vec3,
+  rotation : @smath.Quat,
+  scale : @smath.Vec3,
+) -> Array[@smath.Vec3] {
+  let transformed : Array[@smath.Vec3] = []
+  for position in positions {
+    transformed.push(
+      translation +
+      rotation.rotate_vec3(
+        @smath.Vec3(
+          position.x * scale.x,
+          position.y * scale.y,
+          position.z * scale.z,
+        ),
+      ),
+    )
+  }
+  transformed
+}
+
+///|
+fn rotate_normals3d(
+  normals : Array[@smath.Vec3],
+  rotation : @smath.Quat,
+  scale : @smath.Vec3,
+) -> Array[@smath.Vec3] {
+  let transformed : Array[@smath.Vec3] = []
+  for normal in normals {
+    let rotated = rotation
+      .rotate_vec3(inverse_scale_direction3d(normal, scale))
+      .normalize()
+    transformed.push(
+      if rotated.length_squared() <= 0.00000001 {
+        @smath.Vec3(0.0, 1.0, 0.0)
+      } else {
+        rotated
+      },
+    )
+  }
+  transformed
+}
+
+///|
+fn rotate_tangents3d(
+  tangents : Array[@render3d_types.Tangent3D],
+  rotation : @smath.Quat,
+  scale : @smath.Vec3,
+) -> Array[@render3d_types.Tangent3D] {
+  let transformed : Array[@render3d_types.Tangent3D] = []
+  for tangent in tangents {
+    let rotated = rotation
+      .rotate_vec3(
+        inverse_scale_direction3d(
+          @smath.Vec3(tangent.x, tangent.y, tangent.z),
+          scale,
+        ),
+      )
+      .normalize()
+    let safe = if rotated.length_squared() <= 0.00000001 {
+      @smath.Vec3(1.0, 0.0, 0.0)
+    } else {
+      rotated
+    }
+    transformed.push({ x: safe.x, y: safe.y, z: safe.z, w: tangent.w })
+  }
+  transformed
+}
+
+///|
+fn inverse_scale_direction3d(
+  direction : @smath.Vec3,
+  scale : @smath.Vec3,
+) -> @smath.Vec3 {
+  @smath.Vec3(
+    if scale.x.abs() > 0.00000001 {
+      direction.x / scale.x
+    } else {
+      direction.x
+    },
+    if scale.y.abs() > 0.00000001 {
+      direction.y / scale.y
+    } else {
+      direction.y
+    },
+    if scale.z.abs() > 0.00000001 {
+      direction.z / scale.z
+    } else {
+      direction.z
+    },
+  )
 }
 
 ///|
