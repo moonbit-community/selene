@@ -156,6 +156,9 @@ let last_render3d_submission_stats_checksum : Ref[Int] = Ref(0)
 let retained_render3d_instance_signatures : Map[String, Bool] = Map([])
 
 ///|
+let current_render3d_lighting_mode : Ref[Render3DLightingMode] = Ref(Full)
+
+///|
 fn empty_render3d_submission_stats() -> Render3DSubmissionStats {
   {
     sections: 0,
@@ -199,16 +202,7 @@ pub fn frame_end() -> Unit {
 
 ///|
 pub fn set_render3d_lighting_mode(mode : Render3DLightingMode) -> Unit {
-  webgpu_set_lighting_mode_3d(render3d_lighting_mode_name(mode))
-}
-
-///|
-fn render3d_lighting_mode_name(mode : Render3DLightingMode) -> String {
-  match mode {
-    Full => "full"
-    Cheap => "cheap"
-    Unlit => "unlit"
-  }
+  current_render3d_lighting_mode.val = mode
 }
 
 ///|
@@ -1654,9 +1648,10 @@ fn configure_scene_lighting(frame : @render3d_types.RenderFrame3D) -> Unit {
   } else {
     @smath.Vec3::one()
   }
-  let directional_data = pack_directional_light_data(frame)
-  let point_data = pack_point_light_data(frame)
-  let spot_data = pack_spot_light_data(frame)
+  let mode = current_render3d_lighting_mode.val
+  let directional_data = pack_directional_light_data(frame, mode~)
+  let point_data = pack_point_light_data(frame, mode~)
+  let spot_data = pack_spot_light_data(frame, mode~)
   webgpu_set_lighting_3d(
     directional_data,
     point_data,
@@ -1672,13 +1667,14 @@ fn configure_scene_lighting(frame : @render3d_types.RenderFrame3D) -> Unit {
 ///|
 fn pack_directional_light_data(
   frame : @render3d_types.RenderFrame3D,
+  mode? : Render3DLightingMode = Full,
 ) -> Array[Double] {
   let directional_data : Array[Double] = []
-  let directional_count = if frame.directional_lights.length() <
-    MAX_DIRECTIONAL_LIGHTS {
+  let max_lights = max_directional_lights_for_mode(mode)
+  let directional_count = if frame.directional_lights.length() < max_lights {
     frame.directional_lights.length()
   } else {
-    MAX_DIRECTIONAL_LIGHTS
+    max_lights
   }
   for idx in 0..<directional_count {
     let light = frame.directional_lights[idx]
@@ -1723,14 +1719,41 @@ fn pack_directional_light_data(
 }
 
 ///|
+fn max_directional_lights_for_mode(mode : Render3DLightingMode) -> Int {
+  match mode {
+    Full => MAX_DIRECTIONAL_LIGHTS
+    Cheap => 1
+    Unlit => 0
+  }
+}
+
+///|
+fn max_point_lights_for_mode(mode : Render3DLightingMode) -> Int {
+  match mode {
+    Full => MAX_POINT_LIGHTS
+    Cheap | Unlit => 0
+  }
+}
+
+///|
+fn max_spot_lights_for_mode(mode : Render3DLightingMode) -> Int {
+  match mode {
+    Full => MAX_SPOT_LIGHTS
+    Cheap | Unlit => 0
+  }
+}
+
+///|
 fn pack_point_light_data(
   frame : @render3d_types.RenderFrame3D,
+  mode? : Render3DLightingMode = Full,
 ) -> Array[Double] {
   let point_data : Array[Double] = []
-  let point_count = if frame.point_lights.length() < MAX_POINT_LIGHTS {
+  let max_lights = max_point_lights_for_mode(mode)
+  let point_count = if frame.point_lights.length() < max_lights {
     frame.point_lights.length()
   } else {
-    MAX_POINT_LIGHTS
+    max_lights
   }
   for idx in 0..<point_count {
     let light = frame.point_lights[idx]
@@ -1752,12 +1775,16 @@ fn pack_point_light_data(
 }
 
 ///|
-fn pack_spot_light_data(frame : @render3d_types.RenderFrame3D) -> Array[Double] {
+fn pack_spot_light_data(
+  frame : @render3d_types.RenderFrame3D,
+  mode? : Render3DLightingMode = Full,
+) -> Array[Double] {
   let spot_data : Array[Double] = []
-  let spot_count = if frame.spot_lights.length() < MAX_SPOT_LIGHTS {
+  let max_lights = max_spot_lights_for_mode(mode)
+  let spot_count = if frame.spot_lights.length() < max_lights {
     frame.spot_lights.length()
   } else {
-    MAX_SPOT_LIGHTS
+    max_lights
   }
   for idx in 0..<spot_count {
     let light = frame.spot_lights[idx]

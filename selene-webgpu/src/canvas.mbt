@@ -58,7 +58,6 @@ extern "js" fn webgpu_initialize(
   #|       frameBindGroupCache3d: new Map(),
   #|       bindGroupResourceIds: new WeakMap(),
   #|       nextBindGroupResourceId: 1,
-  #|       lightingMode3d: 'full',
   #|     };
   #|
   #|     const clamp01 = (x) => Math.max(0, Math.min(1, x));
@@ -2124,14 +2123,9 @@ extern "js" fn webgpu_initialize(
   #|       const directionalLights = Array.isArray(light.directionalLights) ? light.directionalLights : [];
   #|       const pointLights = Array.isArray(light.pointLights) ? light.pointLights : [];
   #|       const spotLights = Array.isArray(light.spotLights) ? light.spotLights : [];
-  #|       // WebGPU lighting mode is explicit: "full" keeps the normal limits,
-  #|       // "cheap" keeps one directional light, and "unlit" uses ambient only.
-  #|       const lightingMode = String(rt.lightingMode3d || 'full');
-  #|       const cheapLighting = lightingMode === 'cheap';
-  #|       const unlitLighting = lightingMode === 'unlit';
-  #|       const directionalCount = unlitLighting ? 0 : Math.min(cheapLighting ? 1 : 4, directionalLights.length);
-  #|       const pointCount = (cheapLighting || unlitLighting) ? 0 : Math.min(8, pointLights.length);
-  #|       const spotCount = (cheapLighting || unlitLighting) ? 0 : Math.min(4, spotLights.length);
+  #|       const directionalCount = Math.min(4, directionalLights.length);
+  #|       const pointCount = Math.min(8, pointLights.length);
+  #|       const spotCount = Math.min(4, spotLights.length);
   #|       const basis = cameraBasis(camera);
   #|       const lightUniform = new Float32Array(44 * 4);
   #|       lightUniform[0] = clamp01(Number(light.ambient?.[0]) || 0);

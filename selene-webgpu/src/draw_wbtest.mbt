@@ -265,6 +265,75 @@ test "pack_point_light_data and pack_spot_light_data include shadow metadata" {
 }
 
 ///|
+test "render3d lighting modes filter light packets in MoonBit" {
+  let frame = @render3d_types.empty_render_frame3d()
+  frame.directional_lights = [
+    {
+      direction: @smath.Vec3(0.0, -1.0, 0.0),
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      intensity: 1.0,
+      shadows: false,
+      shadow_depth_bias: 0.0,
+      shadow_normal_bias: 0.0,
+      cascade_shadow_config: {
+        bounds: [],
+        minimum_distance: 0.0,
+        overlap_proportion: 0.0,
+      },
+    },
+    {
+      direction: @smath.Vec3(1.0, -1.0, 0.0),
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      intensity: 0.5,
+      shadows: false,
+      shadow_depth_bias: 0.0,
+      shadow_normal_bias: 0.0,
+      cascade_shadow_config: {
+        bounds: [],
+        minimum_distance: 0.0,
+        overlap_proportion: 0.0,
+      },
+    },
+  ]
+  frame.point_lights = [
+    {
+      position: @smath.Vec3(1.0, 2.0, 3.0),
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      intensity: 1.0,
+      range: 8.0,
+      shadows: false,
+      shadow_depth_bias: 0.0,
+      shadow_normal_bias: 0.0,
+      shadow_map_near_z: 0.1,
+    },
+  ]
+  frame.spot_lights = [
+    {
+      position: @smath.Vec3(1.0, 2.0, 3.0),
+      direction: @smath.Vec3(0.0, -1.0, 0.0),
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      intensity: 1.0,
+      range: 8.0,
+      shadows: false,
+      shadow_depth_bias: 0.0,
+      shadow_normal_bias: 0.0,
+      shadow_map_near_z: 0.1,
+      inner_angle: 0.2,
+      outer_angle: 0.4,
+    },
+  ]
+  inspect(pack_directional_light_data(frame, mode=Full).length(), content="34")
+  inspect(pack_point_light_data(frame, mode=Full).length(), content="12")
+  inspect(pack_spot_light_data(frame, mode=Full).length(), content="17")
+  inspect(pack_directional_light_data(frame, mode=Cheap).length(), content="17")
+  inspect(pack_point_light_data(frame, mode=Cheap).length(), content="0")
+  inspect(pack_spot_light_data(frame, mode=Cheap).length(), content="0")
+  inspect(pack_directional_light_data(frame, mode=Unlit).length(), content="0")
+  inspect(pack_point_light_data(frame, mode=Unlit).length(), content="0")
+  inspect(pack_spot_light_data(frame, mode=Unlit).length(), content="0")
+}
+
+///|
 test "resolve_material_texture_bundle keeps independent UV channels when samplers match" {
   let sampler = @render3d_types.default_texture_sampler3d()
   let base_handle = webgpu_test_handle(9000)
