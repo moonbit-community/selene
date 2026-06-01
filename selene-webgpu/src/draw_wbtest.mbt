@@ -396,45 +396,6 @@ test "render3d submission stats keep textured primitives unbatched" {
 }
 
 ///|
-test "pack_directional_light_data includes shadow metadata and cascade bounds" {
-  let frame = @render3d_types.empty_render_frame3d()
-  frame.directional_lights = [
-    {
-      direction: @smath.Vec3(0.0, -2.0, 0.0),
-      color: { r: 64U, g: 128U, b: 255U, a: 1.0 },
-      intensity: 1.5,
-      shadows: true,
-      shadow_depth_bias: 0.02,
-      shadow_normal_bias: 1.1,
-      cascade_shadow_config: {
-        bounds: [8.0, 24.0],
-        minimum_distance: 0.5,
-        overlap_proportion: 0.25,
-      },
-    },
-  ]
-  let packed = pack_directional_light_data(frame)
-  inspect(packed.length(), content="17")
-  inspect(packed[0], content="0")
-  inspect(packed[1], content="-1")
-  inspect(packed[2], content="0")
-  inspect(packed[3], content="1.5")
-  inspect((packed[4] - 64.0 / 255.0).abs() < 0.000001, content="true")
-  inspect((packed[5] - 128.0 / 255.0).abs() < 0.000001, content="true")
-  inspect(packed[6], content="1")
-  inspect(packed[7], content="1")
-  inspect(packed[8], content="0.02")
-  inspect(packed[9], content="1.1")
-  inspect(packed[10], content="2")
-  inspect(packed[11], content="0.5")
-  inspect(packed[12], content="0.25")
-  inspect(packed[13], content="8")
-  inspect(packed[14], content="24")
-  inspect(packed[15], content="24")
-  inspect(packed[16], content="24")
-}
-
-///|
 test "2D pipeline codes are selected in MoonBit" {
   inspect(color_pipeline2d_code("triangle", 1, 0), content="0")
   inspect(color_pipeline2d_code("triangle", 0, 0), content="1")
@@ -504,54 +465,70 @@ test "pack directional shadow cascades in MoonBit" {
 }
 
 ///|
-test "pack_point_light_data and pack_spot_light_data include shadow metadata" {
+test "pack WebGPU shadow runtime metadata in MoonBit" {
   let frame = @render3d_types.empty_render_frame3d()
+  frame.directional_lights = [
+    {
+      direction: @smath.Vec3(0.0, -1.0, 0.0),
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      intensity: 1.0,
+      shadows: true,
+      shadow_depth_bias: -0.25,
+      shadow_normal_bias: 0.5,
+      cascade_shadow_config: {
+        bounds: [8.0],
+        minimum_distance: 0.0,
+        overlap_proportion: 0.0,
+      },
+    },
+  ]
   frame.point_lights = [
     {
-      position: @smath.Vec3(1.0, 2.0, 3.0),
-      color: { r: 255U, g: 64U, b: 32U, a: 1.0 },
-      intensity: 2.0,
-      range: 12.5,
-      shadows: true,
-      shadow_depth_bias: 0.03,
-      shadow_normal_bias: 0.8,
-      shadow_map_near_z: 0.15,
+      position: @smath.Vec3(0.0, 1.0, 2.0),
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      intensity: 1.0,
+      range: 4.0,
+      shadows: false,
+      shadow_depth_bias: 0.25,
+      shadow_normal_bias: -0.5,
+      shadow_map_near_z: 0.1,
     },
   ]
   frame.spot_lights = [
     {
-      position: @smath.Vec3(4.0, 5.0, 6.0),
-      direction: @smath.Vec3(0.0, -2.0, 0.0),
-      color: { r: 32U, g: 160U, b: 255U, a: 1.0 },
-      intensity: 3.0,
-      range: 16.0,
+      position: @smath.Vec3(0.0, 1.0, 2.0),
+      direction: @smath.Vec3(0.0, -1.0, 0.0),
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      intensity: 1.0,
+      range: 4.0,
       shadows: true,
-      shadow_depth_bias: 0.04,
-      shadow_normal_bias: 0.9,
-      shadow_map_near_z: 0.2,
+      shadow_depth_bias: 0.125,
+      shadow_normal_bias: 0.75,
+      shadow_map_near_z: 0.1,
       inner_angle: 0.25,
       outer_angle: 0.5,
     },
   ]
-  let point_packed = pack_point_light_data(frame)
-  inspect(point_packed.length(), content="12")
-  inspect(point_packed[7], content="12.5")
-  inspect(point_packed[8], content="1")
-  inspect(point_packed[9], content="0.03")
-  inspect(point_packed[10], content="0.8")
-  inspect(point_packed[11], content="0.15")
-
-  let spot_packed = pack_spot_light_data(frame)
-  inspect(spot_packed.length(), content="17")
-  inspect(spot_packed[8], content="0")
-  inspect(spot_packed[9], content="-1")
-  inspect(spot_packed[10], content="0")
-  inspect((spot_packed[11] - @math.cos(0.25)).abs() < 0.000001, content="true")
-  inspect((spot_packed[12] - @math.cos(0.5)).abs() < 0.000001, content="true")
-  inspect(spot_packed[13], content="1")
-  inspect(spot_packed[14], content="0.04")
-  inspect(spot_packed[15], content="0.9")
-  inspect(spot_packed[16], content="0.2")
+  let directional = pack_directional_shadow_metadata3d(frame)
+  inspect(directional.length(), content="4")
+  inspect(directional[0], content="1")
+  inspect(directional[1], content="0")
+  inspect(directional[2], content="0.5")
+  inspect(directional[3], content="0")
+  let point = pack_point_shadow_metadata3d(frame)
+  inspect(point.length(), content="3")
+  inspect(point[0], content="0")
+  inspect(point[1], content="0.25")
+  inspect(point[2], content="0")
+  let spot = pack_spot_shadow_metadata3d(frame)
+  inspect(spot.length(), content="3")
+  inspect(spot[0], content="1")
+  inspect(spot[1], content="0.125")
+  inspect(spot[2], content="0.75")
+  inspect(
+    pack_directional_shadow_metadata3d(frame, mode=Unlit).length(),
+    content="0",
+  )
 }
 
 ///|
@@ -678,15 +655,33 @@ test "render3d lighting modes filter light packets in MoonBit" {
       outer_angle: 0.4,
     },
   ]
-  inspect(pack_directional_light_data(frame, mode=Full).length(), content="34")
-  inspect(pack_point_light_data(frame, mode=Full).length(), content="12")
-  inspect(pack_spot_light_data(frame, mode=Full).length(), content="17")
-  inspect(pack_directional_light_data(frame, mode=Cheap).length(), content="17")
-  inspect(pack_point_light_data(frame, mode=Cheap).length(), content="0")
-  inspect(pack_spot_light_data(frame, mode=Cheap).length(), content="0")
-  inspect(pack_directional_light_data(frame, mode=Unlit).length(), content="0")
-  inspect(pack_point_light_data(frame, mode=Unlit).length(), content="0")
-  inspect(pack_spot_light_data(frame, mode=Unlit).length(), content="0")
+  inspect(
+    pack_directional_shadow_metadata3d(frame, mode=Full).length(),
+    content="8",
+  )
+  inspect(pack_point_shadow_metadata3d(frame, mode=Full).length(), content="3")
+  inspect(pack_spot_shadow_metadata3d(frame, mode=Full).length(), content="3")
+  inspect(
+    pack_directional_shadow_metadata3d(frame, mode=Cheap).length(),
+    content="4",
+  )
+  inspect(pack_point_shadow_metadata3d(frame, mode=Cheap).length(), content="0")
+  inspect(pack_spot_shadow_metadata3d(frame, mode=Cheap).length(), content="0")
+  inspect(
+    pack_directional_shadow_metadata3d(frame, mode=Unlit).length(),
+    content="0",
+  )
+  inspect(pack_point_shadow_metadata3d(frame, mode=Unlit).length(), content="0")
+  inspect(pack_spot_shadow_metadata3d(frame, mode=Unlit).length(), content="0")
+  let full_uniform = pack_light_uniform_data(
+    frame,
+    webgpu_test_camera(),
+    @smath.Vec3::one(),
+    mode=Full,
+  )
+  inspect(full_uniform[3], content="2")
+  inspect(full_uniform[4], content="1")
+  inspect(full_uniform[5], content="1")
 }
 
 ///|

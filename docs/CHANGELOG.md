@@ -36,6 +36,7 @@
 - Changed WebGPU lit and textured shadow caster shader sources so MoonBit owns those WGSL strings before JavaScript creates shader modules.
 - Changed WebGPU shared light/shadow WGSL blocks so MoonBit owns uniform structs and shadow sampling shader code used by lit pipelines.
 - Changed WebGPU lit 3D color and textured shader sources so MoonBit owns those WGSL strings before JavaScript creates shader modules.
+- Changed WebGPU shadow runtime metadata packing so MoonBit owns light shadow flags and bias data before JavaScript executes shadow passes.
 
 ### Fixed
 - Fixed WebGPU 3D primitives to honor material double-sided state, use instance scale consistently with custom meshes and raylib primitives, and wind textured sphere triangles outward.

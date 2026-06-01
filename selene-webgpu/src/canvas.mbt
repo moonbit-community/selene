@@ -28,11 +28,10 @@ extern "js" fn webgpu_initialize(
   #|       current3dSection: null,
   #|       imageCache: new Map(),
   #|       textCache: new Map(),
-  #|       light3d: {
-  #|         directionalLights: [],
-  #|         pointLights: [],
-  #|         spotLights: [],
-  #|         ambient: [1, 1, 1],
+  #|       shadow3d: {
+  #|         directional: new Float32Array(),
+  #|         point: new Float32Array(),
+  #|         spot: new Float32Array(),
   #|         directionalShadowMapSize: 2048,
   #|         pointShadowMapSize: 1024,
   #|       },
@@ -859,13 +858,14 @@ extern "js" fn webgpu_initialize(
   #|       shadowCameraBufferCursor: 0,
   #|     });
   #|
-  #|     rt.renderDirectionalShadowMaps3d = (encoder, section, buffers, camera, aspect, light, shadowState) => {
-  #|       const directionalLights = Array.isArray(light.directionalLights) ? light.directionalLights : [];
-  #|       const tileSize = Math.max(1, Number(light.directionalShadowMapSize) || 2048);
-  #|       if (directionalLights.length <= 0) return;
-  #|       for (let lightIndex = 0; lightIndex < Math.min(4, directionalLights.length); lightIndex += 1) {
-  #|         const directionalLight = directionalLights[lightIndex];
-  #|         if (!directionalLight?.shadows) continue;
+  #|     rt.renderDirectionalShadowMaps3d = (encoder, section, buffers, camera, aspect, shadow, shadowState) => {
+  #|       const directional = shadow?.directional || new Float32Array();
+  #|       const tileSize = Math.max(1, Number(shadow?.directionalShadowMapSize) || 2048);
+  #|       const lightCount = Math.min(4, Math.floor(directional.length / 4));
+  #|       if (lightCount <= 0) return;
+  #|       for (let lightIndex = 0; lightIndex < lightCount; lightIndex += 1) {
+  #|         const base = lightIndex * 4;
+  #|         if (directional[base] < 0.5) continue;
   #|         const cascades = rt.shadowViewProjection3d?.directionalCascades?.[lightIndex] || [];
   #|         if (cascades.length <= 0) continue;
   #|         const record = rt.ensureDirectionalShadowTexture(lightIndex, tileSize, cascades.length);
@@ -873,8 +873,8 @@ extern "js" fn webgpu_initialize(
   #|         shadowState.directionalRecords[lightIndex] = record;
   #|         shadowState.directionalEnabled[lightIndex] = 1;
   #|         shadowState.directionalCascadeCounts[lightIndex] = cascades.length;
-  #|         shadowState.directionalDepthBiases[lightIndex] = Math.max(0, Number(directionalLight.depthBias) || 0);
-  #|         shadowState.directionalNormalBiases[lightIndex] = Math.max(0, Number(directionalLight.normalBias) || 0);
+  #|         shadowState.directionalDepthBiases[lightIndex] = directional[base + 1] || 0;
+  #|         shadowState.directionalNormalBiases[lightIndex] = directional[base + 2] || 0;
   #|         shadowState.directionalTexel = [1 / tileSize, 1 / tileSize];
   #|         const pass = encoder.beginRenderPass({
   #|           colorAttachments: [],
@@ -915,10 +915,11 @@ extern "js" fn webgpu_initialize(
   #|       }
   #|     };
   #|
-  #|     rt.renderSpotShadowMaps3d = (encoder, section, buffers, light, shadowState) => {
-  #|       const spotLights = Array.isArray(light.spotLights) ? light.spotLights : [];
-  #|       const tileSize = Math.max(1, Number(light.directionalShadowMapSize) || 2048);
-  #|       if (spotLights.length <= 0) return;
+  #|     rt.renderSpotShadowMaps3d = (encoder, section, buffers, shadow, shadowState) => {
+  #|       const spot = shadow?.spot || new Float32Array();
+  #|       const tileSize = Math.max(1, Number(shadow?.directionalShadowMapSize) || 2048);
+  #|       const lightCount = Math.min(4, Math.floor(spot.length / 3));
+  #|       if (lightCount <= 0) return;
   #|       const record = rt.ensureSpotShadowTexture(tileSize);
   #|       if (!record?.view) return;
   #|       shadowState.spotRecord = record;
@@ -932,9 +933,9 @@ extern "js" fn webgpu_initialize(
   #|           depthStoreOp: 'store',
   #|         },
   #|       });
-  #|       for (let lightIndex = 0; lightIndex < Math.min(4, spotLights.length); lightIndex += 1) {
-  #|         const spotLight = spotLights[lightIndex];
-  #|         if (!spotLight?.shadows) continue;
+  #|       for (let lightIndex = 0; lightIndex < lightCount; lightIndex += 1) {
+  #|         const base = lightIndex * 3;
+  #|         if (spot[base] < 0.5) continue;
   #|         const setup = rt.shadowViewProjection3d?.spotSetups?.[lightIndex];
   #|         if (!setup) continue;
   #|         const rect = setup.atlasRect;
@@ -953,18 +954,19 @@ extern "js" fn webgpu_initialize(
   #|         );
   #|         shadowState.shadowCameraBufferCursor += 1;
   #|         shadowState.spotEnabled[lightIndex] = 1;
-  #|         shadowState.spotDepthBiases[lightIndex] = Math.max(0, Number(spotLight.depthBias) || 0);
-  #|         shadowState.spotNormalBiases[lightIndex] = Math.max(0, Number(spotLight.normalBias) || 0);
+  #|         shadowState.spotDepthBiases[lightIndex] = spot[base + 1] || 0;
+  #|         shadowState.spotNormalBiases[lightIndex] = spot[base + 2] || 0;
   #|         shadowState.spotMatrices[lightIndex] = setup.lightViewProjection;
   #|         shadowState.spotRects[lightIndex] = [rect.offset[0], rect.offset[1], rect.scale[0], rect.scale[1]];
   #|       }
   #|       pass.end();
   #|     };
   #|
-  #|     rt.renderPointShadowMaps3d = (encoder, section, buffers, light, shadowState) => {
-  #|       const pointLights = Array.isArray(light.pointLights) ? light.pointLights : [];
-  #|       const faceSize = Math.max(1, Number(light.pointShadowMapSize) || 1024);
-  #|       if (pointLights.length <= 0) return;
+  #|     rt.renderPointShadowMaps3d = (encoder, section, buffers, shadow, shadowState) => {
+  #|       const point = shadow?.point || new Float32Array();
+  #|       const faceSize = Math.max(1, Number(shadow?.pointShadowMapSize) || 1024);
+  #|       const lightCount = Math.min(8, Math.floor(point.length / 3));
+  #|       if (lightCount <= 0) return;
   #|       const record = rt.ensurePointShadowTexture(faceSize);
   #|       if (!record?.view) return;
   #|       shadowState.pointRecord = record;
@@ -978,12 +980,12 @@ extern "js" fn webgpu_initialize(
   #|           depthStoreOp: 'store',
   #|         },
   #|       });
-  #|       for (let lightIndex = 0; lightIndex < Math.min(8, pointLights.length); lightIndex += 1) {
-  #|         const pointLight = pointLights[lightIndex];
-  #|         if (!pointLight?.shadows) continue;
+  #|       for (let lightIndex = 0; lightIndex < lightCount; lightIndex += 1) {
+  #|         const base = lightIndex * 3;
+  #|         if (point[base] < 0.5) continue;
   #|         shadowState.pointEnabled[lightIndex] = 1;
-  #|         shadowState.pointDepthBiases[lightIndex] = Math.max(0, Number(pointLight.depthBias) || 0);
-  #|         shadowState.pointNormalBiases[lightIndex] = Math.max(0, Number(pointLight.normalBias) || 0);
+  #|         shadowState.pointDepthBiases[lightIndex] = point[base + 1] || 0;
+  #|         shadowState.pointNormalBiases[lightIndex] = point[base + 2] || 0;
   #|         for (let faceIndex = 0; faceIndex < 6; faceIndex += 1) {
   #|           const stateIndex = lightIndex * 6 + faceIndex;
   #|           const setup = rt.shadowViewProjection3d?.pointSetups?.[stateIndex];
@@ -1083,11 +1085,10 @@ extern "js" fn webgpu_initialize(
   #|       const [w, h] = toCanvasSize();
   #|       const aspect = w / h;
   #|       const camera = section.camera;
-  #|       const light = rt.light3d || {
-  #|         directionalLights: [],
-  #|         pointLights: [],
-  #|         spotLights: [],
-  #|         ambient: [1, 1, 1],
+  #|       const shadow = rt.shadow3d || {
+  #|         directional: new Float32Array(),
+  #|         point: new Float32Array(),
+  #|         spot: new Float32Array(),
   #|         directionalShadowMapSize: 2048,
   #|         pointShadowMapSize: 1024,
   #|       };
@@ -1096,9 +1097,9 @@ extern "js" fn webgpu_initialize(
   #|         : new Float32Array(44 * 4);
   #|       const buffers = rt.prepareSectionBuffers3d(section);
   #|       const shadowState = rt.createShadowState3d();
-  #|       rt.renderDirectionalShadowMaps3d(encoder, section, buffers, camera, aspect, light, shadowState);
-  #|       rt.renderSpotShadowMaps3d(encoder, section, buffers, light, shadowState);
-  #|       rt.renderPointShadowMaps3d(encoder, section, buffers, light, shadowState);
+  #|       rt.renderDirectionalShadowMaps3d(encoder, section, buffers, camera, aspect, shadow, shadowState);
+  #|       rt.renderSpotShadowMaps3d(encoder, section, buffers, shadow, shadowState);
+  #|       rt.renderPointShadowMaps3d(encoder, section, buffers, shadow, shadowState);
   #|       const shadowUniform = rt.buildShadowUniform3d(shadowState);
   #|       rt.device.queue.writeBuffer(rt.uniformBuffers.camera3d, 0, section.viewProjection.buffer, section.viewProjection.byteOffset, section.viewProjection.byteLength);
   #|       rt.device.queue.writeBuffer(rt.uniformBuffers.light3d, 0, lightUniform.buffer, lightUniform.byteOffset, lightUniform.byteLength);

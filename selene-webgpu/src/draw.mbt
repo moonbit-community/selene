@@ -73,9 +73,6 @@ fn color_rgba(color : @render.Color) -> (Double, Double, Double, Double) {
 const MAX_DIRECTIONAL_LIGHTS : Int = 4
 
 ///|
-const MAX_DIRECTIONAL_CASCADES : Int = 4
-
-///|
 const MAX_POINT_LIGHTS : Int = 8
 
 ///|
@@ -2025,18 +2022,12 @@ fn configure_scene_lighting(
     @smath.Vec3::one()
   }
   let mode = current_render3d_lighting_mode.val
-  let directional_data = pack_directional_light_data(frame, mode~)
-  let point_data = pack_point_light_data(frame, mode~)
-  let spot_data = pack_spot_light_data(frame, mode~)
   let light_uniform = pack_light_uniform_data(frame, camera, ambient, mode~)
   webgpu_set_lighting_3d(
-    directional_data,
-    point_data,
-    spot_data,
     light_uniform,
-    ambient.x,
-    ambient.y,
-    ambient.z,
+    pack_directional_shadow_metadata3d(frame, mode~),
+    pack_point_shadow_metadata3d(frame, mode~),
+    pack_spot_shadow_metadata3d(frame, mode~),
     frame.directional_shadow_map_size.to_double(),
     frame.point_shadow_map_size.to_double(),
   )
@@ -2048,57 +2039,61 @@ fn configure_scene_lighting(
 }
 
 ///|
-fn pack_directional_light_data(
+fn pack_directional_shadow_metadata3d(
   frame : @render3d_types.RenderFrame3D,
   mode? : Render3DLightingMode = Full,
 ) -> Array[Double] {
-  let directional_data : Array[Double] = []
-  let max_lights = max_directional_lights_for_mode(mode)
-  let directional_count = if frame.directional_lights.length() < max_lights {
-    frame.directional_lights.length()
-  } else {
-    max_lights
-  }
-  for idx in 0..<directional_count {
+  let values : Array[Double] = []
+  let count = min_int(
+    frame.directional_lights.length(),
+    max_directional_lights_for_mode(mode),
+  )
+  for idx in 0..<count {
     let light = frame.directional_lights[idx]
-    let direction = if light.direction.length_squared() <= 0.0000001 {
-      @smath.Vec3(0.0, -1.0, 0.0)
-    } else {
-      light.direction.normalize()
-    }
-    let (r, g, b) = color_rgb01(light.color)
-    let authored_bounds = light.cascade_shadow_config.bounds
-    let cascade_count = if authored_bounds.length() < 1 {
-      1
-    } else if authored_bounds.length() > MAX_DIRECTIONAL_CASCADES {
-      MAX_DIRECTIONAL_CASCADES
-    } else {
-      authored_bounds.length()
-    }
-    directional_data.push(direction.x)
-    directional_data.push(direction.y)
-    directional_data.push(direction.z)
-    directional_data.push(light.intensity)
-    directional_data.push(r)
-    directional_data.push(g)
-    directional_data.push(b)
-    directional_data.push(if light.shadows { 1.0 } else { 0.0 })
-    directional_data.push(light.shadow_depth_bias)
-    directional_data.push(light.shadow_normal_bias)
-    directional_data.push(cascade_count.to_double())
-    directional_data.push(light.cascade_shadow_config.minimum_distance)
-    directional_data.push(light.cascade_shadow_config.overlap_proportion)
-    let fallback_bound = match authored_bounds.last() {
-      Some(bound) => bound
-      None => 0.0
-    }
-    for bound_index in 0..<MAX_DIRECTIONAL_CASCADES {
-      directional_data.push(
-        authored_bounds.get(bound_index).unwrap_or(fallback_bound),
-      )
-    }
+    values.push(if light.shadows { 1.0 } else { 0.0 })
+    values.push(non_negative_double(light.shadow_depth_bias))
+    values.push(non_negative_double(light.shadow_normal_bias))
+    values.push(0.0)
   }
-  directional_data
+  values
+}
+
+///|
+fn pack_point_shadow_metadata3d(
+  frame : @render3d_types.RenderFrame3D,
+  mode? : Render3DLightingMode = Full,
+) -> Array[Double] {
+  let values : Array[Double] = []
+  let count = min_int(
+    frame.point_lights.length(),
+    max_point_lights_for_mode(mode),
+  )
+  for idx in 0..<count {
+    let light = frame.point_lights[idx]
+    values.push(if light.shadows { 1.0 } else { 0.0 })
+    values.push(non_negative_double(light.shadow_depth_bias))
+    values.push(non_negative_double(light.shadow_normal_bias))
+  }
+  values
+}
+
+///|
+fn pack_spot_shadow_metadata3d(
+  frame : @render3d_types.RenderFrame3D,
+  mode? : Render3DLightingMode = Full,
+) -> Array[Double] {
+  let values : Array[Double] = []
+  let count = min_int(
+    frame.spot_lights.length(),
+    max_spot_lights_for_mode(mode),
+  )
+  for idx in 0..<count {
+    let light = frame.spot_lights[idx]
+    values.push(if light.shadows { 1.0 } else { 0.0 })
+    values.push(non_negative_double(light.shadow_depth_bias))
+    values.push(non_negative_double(light.shadow_normal_bias))
+  }
+  values
 }
 
 ///|
@@ -2245,89 +2240,21 @@ fn clamp01_double(value : Double) -> Double {
 }
 
 ///|
+fn non_negative_double(value : Double) -> Double {
+  if value < 0.0 {
+    0.0
+  } else {
+    value
+  }
+}
+
+///|
 fn min_int(lhs : Int, rhs : Int) -> Int {
   if lhs < rhs {
     lhs
   } else {
     rhs
   }
-}
-
-///|
-fn pack_point_light_data(
-  frame : @render3d_types.RenderFrame3D,
-  mode? : Render3DLightingMode = Full,
-) -> Array[Double] {
-  let point_data : Array[Double] = []
-  let max_lights = max_point_lights_for_mode(mode)
-  let point_count = if frame.point_lights.length() < max_lights {
-    frame.point_lights.length()
-  } else {
-    max_lights
-  }
-  for idx in 0..<point_count {
-    let light = frame.point_lights[idx]
-    let (r, g, b) = color_rgb01(light.color)
-    point_data.push(light.position.x)
-    point_data.push(light.position.y)
-    point_data.push(light.position.z)
-    point_data.push(light.intensity)
-    point_data.push(r)
-    point_data.push(g)
-    point_data.push(b)
-    point_data.push(light.range)
-    point_data.push(if light.shadows { 1.0 } else { 0.0 })
-    point_data.push(light.shadow_depth_bias)
-    point_data.push(light.shadow_normal_bias)
-    point_data.push(light.shadow_map_near_z)
-  }
-  point_data
-}
-
-///|
-fn pack_spot_light_data(
-  frame : @render3d_types.RenderFrame3D,
-  mode? : Render3DLightingMode = Full,
-) -> Array[Double] {
-  let spot_data : Array[Double] = []
-  let max_lights = max_spot_lights_for_mode(mode)
-  let spot_count = if frame.spot_lights.length() < max_lights {
-    frame.spot_lights.length()
-  } else {
-    max_lights
-  }
-  for idx in 0..<spot_count {
-    let light = frame.spot_lights[idx]
-    let direction = if light.direction.length_squared() <= 0.0000001 {
-      @smath.Vec3(0.0, -1.0, 0.0)
-    } else {
-      light.direction.normalize()
-    }
-    let (r, g, b) = color_rgb01(light.color)
-    let (inner_angle, outer_angle) = if light.inner_angle <= light.outer_angle {
-      (light.inner_angle, light.outer_angle)
-    } else {
-      (light.outer_angle, light.inner_angle)
-    }
-    spot_data.push(light.position.x)
-    spot_data.push(light.position.y)
-    spot_data.push(light.position.z)
-    spot_data.push(light.intensity)
-    spot_data.push(r)
-    spot_data.push(g)
-    spot_data.push(b)
-    spot_data.push(light.range)
-    spot_data.push(direction.x)
-    spot_data.push(direction.y)
-    spot_data.push(direction.z)
-    spot_data.push(@math.cos(inner_angle))
-    spot_data.push(@math.cos(outer_angle))
-    spot_data.push(if light.shadows { 1.0 } else { 0.0 })
-    spot_data.push(light.shadow_depth_bias)
-    spot_data.push(light.shadow_normal_bias)
-    spot_data.push(light.shadow_map_near_z)
-  }
-  spot_data
 }
 
 ///|
