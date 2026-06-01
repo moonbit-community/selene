@@ -8,6 +8,7 @@
 ### Changed
 - Changed mouse input snapshots to carry raw relative deltas separately from derived mouse movement.
 - Changed WebGPU untextured 3D primitives to resolve reusable primitive mesh cache records before per-item submission.
+- Changed WebGPU repeated untextured 3D primitives to submit compatible primitive batches with instanced draws.
 
 ### Fixed
 - Fixed WebGPU 3D primitives to honor material double-sided state, use instance scale consistently with custom meshes and raylib primitives, and wind textured sphere triangles outward.

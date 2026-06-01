@@ -806,6 +806,7 @@ fn collect_render3d_submission_stats(
   frame : @render3d_types.RenderFrame3D,
 ) -> Render3DSubmissionStats {
   let stats = empty_render3d_submission_stats()
+  let instanced_lit_buckets : Map[String, Bool] = Map([])
   guard frame.camera is Some(_) else { return stats }
   stats.sections = 1
   for item in frame.items {
@@ -828,6 +829,13 @@ fn collect_render3d_submission_stats(
     if textured {
       stats.textured_triangle_commands += 1
       stats.uploaded_vertex_bytes += vertex_count * 35 * 4
+    } else if render3d_item_can_use_instanced_lit_path(mesh_asset.primitive) {
+      let key = render3d_lit_instance_bucket_key(item)
+      if !instanced_lit_buckets.contains(key) {
+        instanced_lit_buckets.set(key, true)
+        stats.lit_triangle_commands += 1
+      }
+      stats.uploaded_vertex_bytes += 11 * 4
     } else {
       stats.lit_triangle_commands += 1
       stats.uploaded_vertex_bytes += vertex_count * 17 * 4
@@ -844,6 +852,29 @@ fn collect_render3d_submission_stats(
   stats.draw_commands = stats.lit_triangle_commands +
     stats.textured_triangle_commands
   stats
+}
+
+///|
+fn render3d_item_can_use_instanced_lit_path(
+  primitive : @render3d_types.MeshPrimitive3D,
+) -> Bool {
+  match primitive {
+    Cube(_) | Sphere(_) | Cylinder(_, _, _, _) | Plane(_) => true
+    Triangles(_) => false
+  }
+}
+
+///|
+fn render3d_lit_instance_bucket_key(
+  item : @render3d_types.RenderItem3D,
+) -> String {
+  item.mesh.0.to_string() +
+  "|" +
+  item.material.0.to_string() +
+  "|" +
+  (if item.cast_shadows { "cast" } else { "no-cast" }) +
+  "|" +
+  (if item.receive_shadows { "receive" } else { "no-receive" })
 }
 
 ///|

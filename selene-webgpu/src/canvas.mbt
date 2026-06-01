@@ -1322,6 +1322,8 @@ extern "js" fn webgpu_initialize(
   #|         },
   #|         triCommands: [],
   #|         litTriCommands: [],
+  #|         instancedLitCommands: [],
+  #|         instancedLitMap: new Map(),
   #|         texTriCommands: [],
   #|         lineCommands: [],
   #|       };
@@ -1348,7 +1350,7 @@ extern "js" fn webgpu_initialize(
   #|         rt.makeLitCube(sizeX, sizeY, sizeZ, color, emissive, safeAlphaMode, safeAlphaCutoff, !!unlit),
   #|       );
   #|       if (!meshRecord) return;
-  #|       rt.pushColoredTriangles3d(meshRecord.verts, cx, cy, cz, qx, qy, qz, qw, !!doubleSided, castShadows, receiveShadows, sx, sy, sz);
+  #|       rt.pushLitPrimitiveInstance3d(meshRecord, cx, cy, cz, qx, qy, qz, qw, sx, sy, sz, !!doubleSided, castShadows, receiveShadows);
   #|     };
   #|     rt.pushCubeWires3d = (cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, r, g, b, a) => {
   #|       if (!rt.current3dSection) return;
@@ -1371,7 +1373,7 @@ extern "js" fn webgpu_initialize(
   #|         rt.makeLitSphere(radius, color, emissive, safeAlphaMode, safeAlphaCutoff, !!unlit),
   #|       );
   #|       if (!meshRecord) return;
-  #|       rt.pushColoredTriangles3d(meshRecord.verts, cx, cy, cz, qx, qy, qz, qw, !!doubleSided, castShadows, receiveShadows, sx, sy, sz);
+  #|       rt.pushLitPrimitiveInstance3d(meshRecord, cx, cy, cz, qx, qy, qz, qw, sx, sy, sz, !!doubleSided, castShadows, receiveShadows);
   #|     };
   #|     rt.pushCylinder3d = (cx, cy, cz, rtTop, rtBottom, h, slices, qx, qy, qz, qw, sx, sy, sz, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
   #|       if (!rt.current3dSection) return;
@@ -1392,7 +1394,7 @@ extern "js" fn webgpu_initialize(
   #|         rt.makeLitCylinder(rtTop, rtBottom, h, safeSlices, color, emissive, safeAlphaMode, safeAlphaCutoff, !!unlit),
   #|       );
   #|       if (!meshRecord) return;
-  #|       rt.pushColoredTriangles3d(meshRecord.verts, cx, cy, cz, qx, qy, qz, qw, !!doubleSided, castShadows, receiveShadows, sx, sy, sz);
+  #|       rt.pushLitPrimitiveInstance3d(meshRecord, cx, cy, cz, qx, qy, qz, qw, sx, sy, sz, !!doubleSided, castShadows, receiveShadows);
   #|     };
   #|     rt.pushTriangles3d = (verts, tx, ty, tz, qx, qy, qz, qw, r, g, b, a) => {
   #|       if (!rt.current3dSection) return;
@@ -1440,6 +1442,41 @@ extern "js" fn webgpu_initialize(
   #|         castShadows: !!castShadows,
   #|         receiveShadows: !!receiveShadows,
   #|       });
+  #|     };
+  #|     rt.pushLitPrimitiveInstance3d = (meshRecord, tx, ty, tz, qx, qy, qz, qw, sx, sy, sz, doubleSided, castShadows, receiveShadows) => {
+  #|       if (!rt.current3dSection || !meshRecord?.buffer || !meshRecord?.verts) return;
+  #|       const key = [
+  #|         meshRecord.key,
+  #|         doubleSided ? 'double' : 'single',
+  #|         castShadows ? 'cast' : 'no-cast',
+  #|         receiveShadows ? 'receive' : 'no-receive',
+  #|       ].join('|');
+  #|       let command = rt.current3dSection.instancedLitMap.get(key);
+  #|       if (!command) {
+  #|         command = {
+  #|           meshRecord,
+  #|           instances: [],
+  #|           doubleSided: !!doubleSided,
+  #|           castShadows: !!castShadows,
+  #|           receiveShadows: !!receiveShadows,
+  #|           instanceArray: null,
+  #|         };
+  #|         rt.current3dSection.instancedLitMap.set(key, command);
+  #|         rt.current3dSection.instancedLitCommands.push(command);
+  #|       }
+  #|       command.instances.push(
+  #|         Number(tx) || 0.0,
+  #|         Number(ty) || 0.0,
+  #|         Number(tz) || 0.0,
+  #|         Number(qx) || 0.0,
+  #|         Number(qy) || 0.0,
+  #|         Number(qz) || 0.0,
+  #|         Number(qw) || 1.0,
+  #|         Number(sx) || 1.0,
+  #|         Number(sy) || 1.0,
+  #|         Number(sz) || 1.0,
+  #|         receiveShadows ? 1.0 : 0.0,
+  #|       );
   #|     };
   #|     rt.pushTexturedTriangles3d = (basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, verts, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows, sx = 1.0, sy = 1.0, sz = 1.0) => {
   #|       if (!rt.current3dSection) return;
@@ -1532,11 +1569,37 @@ extern "js" fn webgpu_initialize(
   #|       }
   #|       return { buffer, offsets };
   #|     };
+  #|     rt.uploadInstancedLitBuffers3d = (commands) => {
+  #|       if (!commands || commands.length === 0) {
+  #|         return { buffer: null, offsets: [] };
+  #|       }
+  #|       let totalBytes = 0;
+  #|       for (const command of commands) {
+  #|         command.instanceArray = new Float32Array(command.instances);
+  #|         totalBytes += command.instanceArray.byteLength;
+  #|       }
+  #|       if (totalBytes <= 0) {
+  #|         return { buffer: null, offsets: [] };
+  #|       }
+  #|       const buffer = rt.ensureDynamicBuffer('dyn3dLitInstances', totalBytes, GPUBufferUsage.VERTEX);
+  #|       const offsets = [];
+  #|       let offset = 0;
+  #|       for (const command of commands) {
+  #|         const instances = command.instanceArray;
+  #|         offsets.push(offset);
+  #|         if (instances?.byteLength > 0) {
+  #|           rt.device.queue.writeBuffer(buffer, offset, instances.buffer, instances.byteOffset, instances.byteLength);
+  #|           offset += instances.byteLength;
+  #|         }
+  #|       }
+  #|       return { buffer, offsets };
+  #|     };
   #|
   #|     rt.prepareSectionBuffers3d = (section) => ({
   #|       tri: rt.uploadCommandBuffer3d('dyn3dTri', section.triCommands, (cmd) => cmd.verts),
   #|       line: rt.uploadCommandBuffer3d('dyn3dLine', section.lineCommands, (verts) => verts),
   #|       lit: rt.uploadCommandBuffer3d('dyn3dLitTri', section.litTriCommands, (cmd) => cmd.verts),
+  #|       instancedLit: rt.uploadInstancedLitBuffers3d(section.instancedLitCommands),
   #|       tex: rt.uploadCommandBuffer3d('dyn3dLitTexTri', section.texTriCommands, (cmd) => cmd.verts),
   #|     });
   #|
@@ -1589,6 +1652,17 @@ extern "js" fn webgpu_initialize(
   #|           pass.setBindGroup(0, solidBindGroup);
   #|           pass.setVertexBuffer(0, buffers.lit.buffer, buffers.lit.offsets[index], cmd.verts.byteLength);
   #|           pass.draw(cmd.verts.length / 17, 1, 0, 0);
+  #|         }
+  #|       }
+  #|       if (buffers.instancedLit.buffer && section.instancedLitCommands.length > 0) {
+  #|         pass.setPipeline(rt.pipelines.shadow3dLitInstanced);
+  #|         pass.setBindGroup(0, solidBindGroup);
+  #|         for (let index = 0; index < section.instancedLitCommands.length; index += 1) {
+  #|           const cmd = section.instancedLitCommands[index];
+  #|           if (!cmd.castShadows || !cmd.meshRecord?.buffer || !cmd.instanceArray?.length) continue;
+  #|           pass.setVertexBuffer(0, cmd.meshRecord.buffer, 0, cmd.meshRecord.byteLength);
+  #|           pass.setVertexBuffer(1, buffers.instancedLit.buffer, buffers.instancedLit.offsets[index], cmd.instanceArray.byteLength);
+  #|           pass.draw(cmd.meshRecord.vertexCount, cmd.instanceArray.length / 11, 0, 0);
   #|         }
   #|       }
   #|       if (buffers.tex.buffer && section.texTriCommands.length > 0) {
@@ -1988,6 +2062,32 @@ extern "js" fn webgpu_initialize(
   #|           pass.setPipeline(cmd.doubleSided ? rt.pipelines.lit3dTriDouble : rt.pipelines.lit3dTriSingle);
   #|           pass.setVertexBuffer(0, state.buffers.lit.buffer, state.buffers.lit.offsets[index], cmd.verts.byteLength);
   #|           pass.draw(cmd.verts.length / 17, 1, 0, 0);
+  #|         }
+  #|       }
+  #|       if (state.buffers.instancedLit.buffer && section.instancedLitCommands.length > 0) {
+  #|         const bindGroup = rt.device.createBindGroup({
+  #|           layout: rt.bindGroupLayouts.lit3d,
+  #|           entries: [
+  #|             { binding: 0, resource: { buffer: rt.uniformBuffers.camera3d } },
+  #|             { binding: 1, resource: { buffer: rt.uniformBuffers.light3d } },
+  #|             { binding: 2, resource: { buffer: rt.uniformBuffers.shadow3d } },
+  #|             { binding: 3, resource: rt.samplers.shadowCompare },
+  #|             { binding: 4, resource: state.shadowState.directionalRecords[0].view },
+  #|             { binding: 5, resource: state.shadowState.directionalRecords[1].view },
+  #|             { binding: 6, resource: state.shadowState.directionalRecords[2].view },
+  #|             { binding: 7, resource: state.shadowState.directionalRecords[3].view },
+  #|             { binding: 8, resource: state.shadowState.spotRecord.view },
+  #|             { binding: 9, resource: state.shadowState.pointRecord.view },
+  #|           ],
+  #|         });
+  #|         pass.setBindGroup(0, bindGroup);
+  #|         for (let index = 0; index < section.instancedLitCommands.length; index += 1) {
+  #|           const cmd = section.instancedLitCommands[index];
+  #|           if (!cmd.meshRecord?.buffer || !cmd.instanceArray?.length) continue;
+  #|           pass.setPipeline(cmd.doubleSided ? rt.pipelines.lit3dInstancedDouble : rt.pipelines.lit3dInstancedSingle);
+  #|           pass.setVertexBuffer(0, cmd.meshRecord.buffer, 0, cmd.meshRecord.byteLength);
+  #|           pass.setVertexBuffer(1, state.buffers.instancedLit.buffer, state.buffers.instancedLit.offsets[index], cmd.instanceArray.byteLength);
+  #|           pass.draw(cmd.meshRecord.vertexCount, cmd.instanceArray.length / 11, 0, 0);
   #|         }
   #|       }
   #|       if (state.buffers.tex.buffer && section.texTriCommands.length > 0) {
@@ -2668,6 +2768,14 @@ extern "js" fn webgpu_initialize(
   #|   @location(2) color: vec4<f32>,
   #|   @location(4) material: vec4<f32>,
   #| };
+  #| struct VSInInstanced {
+  #|   @location(0) pos: vec3<f32>,
+  #|   @location(2) color: vec4<f32>,
+  #|   @location(4) material: vec4<f32>,
+  #|   @location(5) instance_translation: vec3<f32>,
+  #|   @location(6) instance_rotation: vec4<f32>,
+  #|   @location(7) instance_scale: vec3<f32>,
+  #| };
   #| struct VSOut {
   #|   @builtin(position) pos: vec4<f32>,
   #|   @location(0) color: vec4<f32>,
@@ -2676,6 +2784,26 @@ extern "js" fn webgpu_initialize(
   #| @vertex fn vs_main(v: VSIn) -> VSOut {
   #|   var o: VSOut;
   #|   o.pos = u_shadow_camera.light_view_proj * vec4<f32>(v.pos, 1.0);
+  #|   o.color = v.color;
+  #|   o.material = v.material;
+  #|   return o;
+  #| }
+  #| fn rotate_quat(value: vec3<f32>, quat: vec4<f32>) -> vec3<f32> {
+  #|   let len = length(quat);
+  #|   var q = quat;
+  #|   if (len <= 0.00001) {
+  #|     q = vec4<f32>(0.0, 0.0, 0.0, 1.0);
+  #|   } else {
+  #|     q = quat / len;
+  #|   }
+  #|   let u = q.xyz;
+  #|   let s = q.w;
+  #|   return 2.0 * dot(u, value) * u + (s * s - dot(u, u)) * value + 2.0 * s * cross(u, value);
+  #| }
+  #| @vertex fn vs_instanced(v: VSInInstanced) -> VSOut {
+  #|   var o: VSOut;
+  #|   let world_pos = rotate_quat(v.pos * v.instance_scale, v.instance_rotation) + v.instance_translation;
+  #|   o.pos = u_shadow_camera.light_view_proj * vec4<f32>(world_pos, 1.0);
   #|   o.color = v.color;
   #|   o.material = v.material;
   #|   return o;
@@ -2744,6 +2872,17 @@ extern "js" fn webgpu_initialize(
   #|   @location(3) emissive: vec3<f32>,
   #|   @location(4) material: vec4<f32>,
   #| };
+  #| struct VSInInstanced {
+  #|   @location(0) pos: vec3<f32>,
+  #|   @location(1) normal: vec3<f32>,
+  #|   @location(2) color: vec4<f32>,
+  #|   @location(3) emissive: vec3<f32>,
+  #|   @location(4) material: vec4<f32>,
+  #|   @location(5) instance_translation: vec3<f32>,
+  #|   @location(6) instance_rotation: vec4<f32>,
+  #|   @location(7) instance_scale: vec3<f32>,
+  #|   @location(8) instance_receive_shadows: f32,
+  #| };
   #| struct VSOut {
   #|   @builtin(position) pos: vec4<f32>,
   #|   @location(0) world_pos: vec3<f32>,
@@ -2760,6 +2899,42 @@ extern "js" fn webgpu_initialize(
   #|   o.color = v.color;
   #|   o.emissive = v.emissive;
   #|   o.material = v.material;
+  #|   return o;
+  #| }
+  #| fn rotate_quat(value: vec3<f32>, quat: vec4<f32>) -> vec3<f32> {
+  #|   let len = length(quat);
+  #|   var q = quat;
+  #|   if (len <= 0.00001) {
+  #|     q = vec4<f32>(0.0, 0.0, 0.0, 1.0);
+  #|   } else {
+  #|     q = quat / len;
+  #|   }
+  #|   let u = q.xyz;
+  #|   let s = q.w;
+  #|   return 2.0 * dot(u, value) * u + (s * s - dot(u, u)) * value + 2.0 * s * cross(u, value);
+  #| }
+  #| fn safe_scale_component(value: f32) -> f32 {
+  #|   return select(value, 1.0, abs(value) <= 0.00001);
+  #| }
+  #| @vertex fn vs_instanced(v: VSInInstanced) -> VSOut {
+  #|   var o: VSOut;
+  #|   let scaled_pos = v.pos * v.instance_scale;
+  #|   let world_pos = rotate_quat(scaled_pos, v.instance_rotation) + v.instance_translation;
+  #|   let inverse_scale = vec3<f32>(
+  #|     safe_scale_component(v.instance_scale.x),
+  #|     safe_scale_component(v.instance_scale.y),
+  #|     safe_scale_component(v.instance_scale.z),
+  #|   );
+  #|   let scaled_normal = v.normal / inverse_scale;
+  #|   let world_normal = normalize(rotate_quat(scaled_normal, v.instance_rotation));
+  #|   var material = v.material;
+  #|   material.w = v.instance_receive_shadows;
+  #|   o.pos = u_camera.view_proj * vec4<f32>(world_pos, 1.0);
+  #|   o.world_pos = world_pos;
+  #|   o.normal = world_normal;
+  #|   o.color = v.color;
+  #|   o.emissive = v.emissive;
+  #|   o.material = material;
   #|   return o;
   #| }
   #| ${shadowSamplingWgsl}
@@ -3158,6 +3333,25 @@ extern "js" fn webgpu_initialize(
   #|           { shaderLocation: 4, offset: 52, format: 'float32x4' },
   #|         ],
   #|       };
+  #|       const lit3dInstanceVertex = {
+  #|         arrayStride: 44,
+  #|         stepMode: 'instance',
+  #|         attributes: [
+  #|           { shaderLocation: 5, offset: 0, format: 'float32x3' },
+  #|           { shaderLocation: 6, offset: 12, format: 'float32x4' },
+  #|           { shaderLocation: 7, offset: 28, format: 'float32x3' },
+  #|           { shaderLocation: 8, offset: 40, format: 'float32' },
+  #|         ],
+  #|       };
+  #|       const lit3dShadowInstanceVertex = {
+  #|         arrayStride: 44,
+  #|         stepMode: 'instance',
+  #|         attributes: [
+  #|           { shaderLocation: 5, offset: 0, format: 'float32x3' },
+  #|           { shaderLocation: 6, offset: 12, format: 'float32x4' },
+  #|           { shaderLocation: 7, offset: 28, format: 'float32x3' },
+  #|         ],
+  #|       };
   #|       const litTex3dVertex = {
   #|         arrayStride: 140,
   #|         attributes: [
@@ -3276,6 +3470,13 @@ extern "js" fn webgpu_initialize(
   #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
   #|           depthStencil: { format: 'depth32float', depthWriteEnabled: true, depthCompare: 'less' },
   #|         }),
+  #|         shadow3dLitInstanced: rt.device.createRenderPipeline({
+  #|           layout: layoutShadow3d,
+  #|           vertex: { module: shader3dShadowLit, entryPoint: 'vs_instanced', buffers: [lit3dVertex, lit3dShadowInstanceVertex] },
+  #|           fragment: { module: shader3dShadowLit, entryPoint: 'fs_main', targets: [] },
+  #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
+  #|           depthStencil: { format: 'depth32float', depthWriteEnabled: true, depthCompare: 'less' },
+  #|         }),
   #|         shadow3dTexTri: rt.device.createRenderPipeline({
   #|           layout: layoutShadow3dTex,
   #|           vertex: { module: shader3dShadowTex, entryPoint: 'vs_main', buffers: [litTex3dVertex] },
@@ -3293,6 +3494,20 @@ extern "js" fn webgpu_initialize(
   #|         lit3dTriDouble: rt.device.createRenderPipeline({
   #|           layout: layoutLit3d,
   #|           vertex: { module: shader3dLitColor, entryPoint: 'vs_main', buffers: [lit3dVertex] },
+  #|           fragment: { module: shader3dLitColor, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendState }] },
+  #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
+  #|           depthStencil: { format: 'depth24plus', depthWriteEnabled: true, depthCompare: 'less' },
+  #|         }),
+  #|         lit3dInstancedSingle: rt.device.createRenderPipeline({
+  #|           layout: layoutLit3d,
+  #|           vertex: { module: shader3dLitColor, entryPoint: 'vs_instanced', buffers: [lit3dVertex, lit3dInstanceVertex] },
+  #|           fragment: { module: shader3dLitColor, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendState }] },
+  #|           primitive: { topology: 'triangle-list', cullMode: 'back' },
+  #|           depthStencil: { format: 'depth24plus', depthWriteEnabled: true, depthCompare: 'less' },
+  #|         }),
+  #|         lit3dInstancedDouble: rt.device.createRenderPipeline({
+  #|           layout: layoutLit3d,
+  #|           vertex: { module: shader3dLitColor, entryPoint: 'vs_instanced', buffers: [lit3dVertex, lit3dInstanceVertex] },
   #|           fragment: { module: shader3dLitColor, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendState }] },
   #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
   #|           depthStencil: { format: 'depth24plus', depthWriteEnabled: true, depthCompare: 'less' },
