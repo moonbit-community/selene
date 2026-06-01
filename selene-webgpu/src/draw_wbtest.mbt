@@ -117,6 +117,26 @@ test "lit primitive mesh resource keys are owned by MoonBit" {
 }
 
 ///|
+test "MoonBit forms lit primitive instance batches before WebGPU FFI" {
+  let batches = new_lit_primitive_mesh_batch_accumulator()
+  enqueue_lit_primitive_mesh_batch(
+    batches, "lit-cube|1|1|1|255,255,255,1|0,0,0|0|0.5|0", 0.0, 1.0, 2.0, 0.0, 0.0,
+    0.0, 1.0, 1.0, 1.0, 1.0, false, true, true,
+  )
+  enqueue_lit_primitive_mesh_batch(
+    batches, "lit-cube|1|1|1|255,255,255,1|0,0,0|0|0.5|0", 3.0, 4.0, 5.0, 0.0, 0.0,
+    0.0, 1.0, 1.0, 1.0, 1.0, false, true, true,
+  )
+  inspect(batches.order.length(), content="1")
+  let batch_key = batches.order[0]
+  inspect(
+    batches.resource_keys.get(batch_key).unwrap(),
+    content="lit-cube|1|1|1|255,255,255,1|0,0,0|0|0.5|0",
+  )
+  inspect(batches.instances.get(batch_key).unwrap().length(), content="22")
+}
+
+///|
 test "render3d submission stats record repeated primitive pressure" {
   let mesh = webgpu_test_mesh_handle(9100)
   let material = webgpu_test_material_handle(9101)
@@ -167,7 +187,7 @@ test "render3d submission stats reuse retained static primitive instances" {
 }
 
 ///|
-test "render3d submission stats distinguish textured primitive bind groups" {
+test "render3d submission stats keep textured primitives unbatched" {
   let image = webgpu_test_handle(9110)
   let mesh = webgpu_test_mesh_handle(9111)
   let material = webgpu_test_material_handle(9112)
@@ -185,11 +205,11 @@ test "render3d submission stats distinguish textured primitive bind groups" {
   ]
   let stats = collect_render3d_submission_stats(frame)
   inspect(stats.command_groups, content="1")
-  inspect(stats.draw_commands, content="1")
+  inspect(stats.draw_commands, content="2")
   inspect(stats.lit_triangle_commands, content="0")
-  inspect(stats.textured_triangle_commands, content="1")
+  inspect(stats.textured_triangle_commands, content="2")
   inspect(stats.uploaded_vertex_bytes, content="10080")
-  inspect(stats.render_bind_group_creations, content="1")
+  inspect(stats.render_bind_group_creations, content="2")
   release_image_asset(image)
   release_mesh_asset(mesh)
   release_material_asset(material)

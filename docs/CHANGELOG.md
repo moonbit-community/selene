@@ -16,6 +16,8 @@
 - Changed WebGPU lighting mode filtering so MoonBit owns full/cheap/unlit light packet decisions instead of embedded JavaScript.
 - Changed WebGPU primitive mesh resource keys and stale-resource release policy to be owned by MoonBit instead of embedded JavaScript.
 - Changed WebGPU untextured primitive mesh generation so cube, sphere, cylinder, and plane/cuboid geometry is built in MoonBit before upload.
+- Changed WebGPU untextured 3D primitive batching and retained instance-buffer keys so MoonBit forms instance batches before crossing the JavaScript FFI boundary.
+- Changed WebGPU textured 3D primitives to stay explicitly unbatched until texture resource handles are MoonBit-owned, removing JavaScript-side textured command compaction policy.
 
 ### Fixed
 - Fixed WebGPU 3D primitives to honor material double-sided state, use instance scale consistently with custom meshes and raylib primitives, and wind textured sphere triangles outward.

@@ -148,6 +148,16 @@ priv struct Render3DSubmissionStats {
 }
 
 ///|
+priv struct LitPrimitiveMeshBatchAccumulator {
+  order : Array[String]
+  resource_keys : Map[String, String]
+  instances : Map[String, Array[Double]]
+  double_sided : Map[String, Bool]
+  cast_shadows : Map[String, Bool]
+  receive_shadows : Map[String, Bool]
+}
+
+///|
 let last_render3d_submission_stats : Ref[Render3DSubmissionStats] = Ref(
   empty_render3d_submission_stats(),
 )
@@ -156,7 +166,7 @@ let last_render3d_submission_stats : Ref[Render3DSubmissionStats] = Ref(
 let last_render3d_submission_stats_checksum : Ref[Int] = Ref(0)
 
 ///|
-let retained_render3d_instance_signatures : Map[String, Bool] = Map([])
+let retained_render3d_instance_last_seen : Map[String, Int] = Map([])
 
 ///|
 let current_render3d_lighting_mode : Ref[Render3DLightingMode] = Ref(Full)
@@ -584,10 +594,12 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
   )
   guard frame.camera is Some(active_camera) else {
     prune_stale_primitive_mesh_resources()
+    prune_stale_retained_instance_buffers3d()
     return
   }
   configure_scene_lighting(frame)
   begin_3d(active_camera)
+  let lit_primitive_batches = new_lit_primitive_mesh_batch_accumulator()
   for item in frame.items {
     guard synced_mesh_assets.get(item.mesh) is Some(mesh_asset) else {
       continue
@@ -633,7 +645,8 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               size.z,
               1,
             )
-            webgpu_draw_lit_primitive_mesh_3d(
+            enqueue_lit_primitive_mesh_batch(
+              lit_primitive_batches,
               ensure_lit_primitive_mesh_resource(
                 lit_primitive_mesh_resource_key(
                   "lit-cube",
@@ -694,7 +707,8 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               TEXTURED_SPHERE_STACKS,
               1,
             )
-            webgpu_draw_lit_primitive_mesh_3d(
+            enqueue_lit_primitive_mesh_batch(
+              lit_primitive_batches,
               ensure_lit_primitive_mesh_resource(
                 lit_primitive_mesh_resource_key(
                   "lit-sphere",
@@ -753,7 +767,8 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
             let primitive_mesh = cached_cylinder_triangle_mesh3d(
               radius_top, radius_bottom, height, slices, 1,
             )
-            webgpu_draw_lit_primitive_mesh_3d(
+            enqueue_lit_primitive_mesh_batch(
+              lit_primitive_batches,
               ensure_lit_primitive_mesh_resource(
                 lit_primitive_mesh_resource_key(
                   "lit-cylinder",
@@ -820,7 +835,8 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               size.z,
               1,
             )
-            webgpu_draw_lit_primitive_mesh_3d(
+            enqueue_lit_primitive_mesh_batch(
+              lit_primitive_batches,
               ensure_lit_primitive_mesh_resource(
                 lit_primitive_mesh_resource_key(
                   "lit-cube",
@@ -870,8 +886,10 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
         )
     }
   }
+  flush_lit_primitive_mesh_batches(lit_primitive_batches)
   end_3d()
   prune_stale_primitive_mesh_resources()
+  prune_stale_retained_instance_buffers3d()
 }
 
 ///|
@@ -890,6 +908,137 @@ fn render3d_submission_stats_checksum(stats : Render3DSubmissionStats) -> Int {
 ///|
 fn begin_webgpu_resource_frame() -> Unit {
   webgpu_resource_frame.val += 1
+}
+
+///|
+fn new_lit_primitive_mesh_batch_accumulator() -> LitPrimitiveMeshBatchAccumulator {
+  {
+    order: [],
+    resource_keys: Map([]),
+    instances: Map([]),
+    double_sided: Map([]),
+    cast_shadows: Map([]),
+    receive_shadows: Map([]),
+  }
+}
+
+///|
+fn enqueue_lit_primitive_mesh_batch(
+  batches : LitPrimitiveMeshBatchAccumulator,
+  resource_key : String,
+  center_x : Double,
+  center_y : Double,
+  center_z : Double,
+  rotation_x : Double,
+  rotation_y : Double,
+  rotation_z : Double,
+  rotation_w : Double,
+  scale_x : Double,
+  scale_y : Double,
+  scale_z : Double,
+  double_sided : Bool,
+  cast_shadows : Bool,
+  receive_shadows : Bool,
+) -> Unit {
+  let batch_key = lit_primitive_mesh_batch_key(
+    resource_key, double_sided, cast_shadows, receive_shadows,
+  )
+  if !batches.instances.contains(batch_key) {
+    batches.order.push(batch_key)
+    batches.resource_keys.set(batch_key, resource_key)
+    batches.instances.set(batch_key, [])
+    batches.double_sided.set(batch_key, double_sided)
+    batches.cast_shadows.set(batch_key, cast_shadows)
+    batches.receive_shadows.set(batch_key, receive_shadows)
+  }
+  if batches.instances.get(batch_key) is Some(instances) {
+    push_lit_primitive_instance_values(
+      instances, center_x, center_y, center_z, rotation_x, rotation_y, rotation_z,
+      rotation_w, scale_x, scale_y, scale_z, receive_shadows,
+    )
+  }
+}
+
+///|
+fn flush_lit_primitive_mesh_batches(
+  batches : LitPrimitiveMeshBatchAccumulator,
+) -> Unit {
+  for batch_key in batches.order {
+    guard batches.resource_keys.get(batch_key) is Some(resource_key) else {
+      continue
+    }
+    guard batches.instances.get(batch_key) is Some(instances) else { continue }
+    if instances.length() == 0 {
+      continue
+    }
+    let retained_key = mark_retained_instance_buffer_key(
+      retained_lit_primitive_instance_key(batch_key, instances),
+    )
+    webgpu_draw_lit_primitive_mesh_batch_3d(
+      resource_key,
+      retained_key,
+      instances,
+      batches.double_sided.get(batch_key).unwrap_or(false),
+      batches.cast_shadows.get(batch_key).unwrap_or(false),
+      batches.receive_shadows.get(batch_key).unwrap_or(false),
+    )
+  }
+}
+
+///|
+fn lit_primitive_mesh_batch_key(
+  resource_key : String,
+  double_sided : Bool,
+  cast_shadows : Bool,
+  receive_shadows : Bool,
+) -> String {
+  resource_key +
+  "|" +
+  (if double_sided { "double" } else { "single" }) +
+  "|" +
+  (if cast_shadows { "cast" } else { "no-cast" }) +
+  "|" +
+  (if receive_shadows { "receive" } else { "no-receive" })
+}
+
+///|
+fn push_lit_primitive_instance_values(
+  instances : Array[Double],
+  center_x : Double,
+  center_y : Double,
+  center_z : Double,
+  rotation_x : Double,
+  rotation_y : Double,
+  rotation_z : Double,
+  rotation_w : Double,
+  scale_x : Double,
+  scale_y : Double,
+  scale_z : Double,
+  receive_shadows : Bool,
+) -> Unit {
+  instances.push(center_x)
+  instances.push(center_y)
+  instances.push(center_z)
+  instances.push(rotation_x)
+  instances.push(rotation_y)
+  instances.push(rotation_z)
+  instances.push(rotation_w)
+  instances.push(scale_x)
+  instances.push(scale_y)
+  instances.push(scale_z)
+  instances.push(if receive_shadows { 1.0 } else { 0.0 })
+}
+
+///|
+fn retained_lit_primitive_instance_key(
+  batch_key : String,
+  instances : Array[Double],
+) -> String {
+  let mut key = batch_key
+  for value in instances {
+    key = key + "|" + value.to_string()
+  }
+  key
 }
 
 ///|
@@ -933,6 +1082,24 @@ fn prune_stale_primitive_mesh_resources() -> Unit {
       ignore(primitive_mesh_resource_last_seen.remove(pair.0))
       ignore(uploaded_primitive_mesh_resources.remove(pair.0))
       webgpu_release_primitive_mesh_resource(pair.0)
+    }
+  }
+}
+
+///|
+fn mark_retained_instance_buffer_key(key : String) -> String {
+  retained_render3d_instance_last_seen.set(key, webgpu_resource_frame.val)
+  key
+}
+
+///|
+fn prune_stale_retained_instance_buffers3d() -> Unit {
+  let min_live_frame = webgpu_resource_frame.val -
+    WEBGPU_PRIMITIVE_MESH_RESOURCE_TTL_FRAMES
+  for pair in retained_render3d_instance_last_seen.to_array() {
+    if pair.1 < min_live_frame {
+      ignore(retained_render3d_instance_last_seen.remove(pair.0))
+      webgpu_release_retained_instance_buffer_3d(pair.0)
     }
   }
 }
@@ -1003,7 +1170,6 @@ fn collect_render3d_submission_stats(
   let instanced_lit_buckets : Map[String, Bool] = Map([])
   let instanced_lit_signatures : Map[String, String] = Map([])
   let instanced_lit_counts : Map[String, Int] = Map([])
-  let textured_buckets : Map[String, Bool] = Map([])
   guard frame.camera is Some(_) else { return stats }
   stats.sections = 1
   for item in frame.items {
@@ -1024,11 +1190,7 @@ fn collect_render3d_submission_stats(
     let textured = texture_bundle is Some(_) &&
       render3d_item_can_use_textured_path(mesh_asset.primitive, texture_bundle)
     if textured {
-      let key = render3d_textured_bucket_key(item)
-      if !textured_buckets.contains(key) {
-        textured_buckets.set(key, true)
-        stats.textured_triangle_commands += 1
-      }
+      stats.textured_triangle_commands += 1
       stats.uploaded_vertex_bytes += vertex_count * 35 * 4
     } else if render3d_item_can_use_instanced_lit_path(mesh_asset.primitive) {
       let key = render3d_lit_instance_bucket_key(item)
@@ -1054,12 +1216,12 @@ fn collect_render3d_submission_stats(
     }
   }
   for key, signature in instanced_lit_signatures {
-    if !retained_render3d_instance_signatures.contains(signature) {
-      retained_render3d_instance_signatures.set(signature, true)
+    if !retained_render3d_instance_last_seen.contains(signature) {
       stats.uploaded_vertex_bytes += instanced_lit_counts.get(key).unwrap_or(0) *
         11 *
         4
     }
+    ignore(mark_retained_instance_buffer_key(signature))
   }
   if stats.lit_triangle_commands > 0 {
     stats.command_groups += 1
@@ -1157,11 +1319,6 @@ fn render3d_primitive_signature(
       size.z.to_string()
     Triangles(_) => "triangles"
   }
-}
-
-///|
-fn render3d_textured_bucket_key(item : @render3d_types.RenderItem3D) -> String {
-  render3d_lit_instance_bucket_key(item)
 }
 
 ///|

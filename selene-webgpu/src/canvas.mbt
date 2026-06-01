@@ -54,7 +54,6 @@ extern "js" fn webgpu_initialize(
   #|       retiredDynamicBuffers: [],
   #|       primitiveMeshCache: new Map(),
   #|       retainedInstanceBuffers3d: new Map(),
-  #|       retainedInstanceBufferFrame: 0,
   #|       frameBindGroupCache3d: new Map(),
   #|       bindGroupResourceIds: new WeakMap(),
   #|       nextBindGroupResourceId: 1,
@@ -509,20 +508,13 @@ extern "js" fn webgpu_initialize(
   #|       rt.retainedInstanceBuffers3d.clear();
   #|     };
   #|
-  #|     rt.pruneRetainedInstanceBuffers3d = () => {
-  #|       const minLiveFrame = rt.retainedInstanceBufferFrame - 120;
-  #|       for (const [key, record] of rt.retainedInstanceBuffers3d) {
-  #|         if ((record?.lastUsedFrame || 0) >= minLiveFrame) continue;
-  #|         if (record?.buffer) {
-  #|           try { record.buffer.destroy(); } catch (_err) {}
-  #|         }
-  #|         rt.retainedInstanceBuffers3d.delete(key);
+  #|     rt.releaseRetainedInstanceBuffer3d = (key) => {
+  #|       const retainedKey = String(key || '');
+  #|       const record = rt.retainedInstanceBuffers3d.get(retainedKey);
+  #|       if (record?.buffer) {
+  #|         try { record.buffer.destroy(); } catch (_err) {}
   #|       }
-  #|     };
-  #|
-  #|     rt.floatKey = (value) => {
-  #|       const n = Number(value);
-  #|       return Number.isFinite(n) ? n.toFixed(6) : '0.000000';
+  #|       rt.retainedInstanceBuffers3d.delete(retainedKey);
   #|     };
   #|
   #|     rt.resolvePrimitiveMeshRecord = (key, createVerts) => {
@@ -1231,7 +1223,6 @@ extern "js" fn webgpu_initialize(
   #|         triCommands: [],
   #|         litTriCommands: [],
   #|         instancedLitCommands: [],
-  #|         instancedLitMap: new Map(),
   #|         texTriCommands: [],
   #|         lineCommands: [],
   #|       };
@@ -1241,11 +1232,19 @@ extern "js" fn webgpu_initialize(
   #|     rt.end3d = () => {
   #|       rt.current3dSection = null;
   #|     };
-  #|     rt.pushLitPrimitiveMesh3d = (cacheKey, cx, cy, cz, qx, qy, qz, qw, sx, sy, sz, doubleSided, castShadows, receiveShadows) => {
+  #|     rt.pushLitPrimitiveMeshBatch3d = (cacheKey, retainedKey, instances, doubleSided, castShadows, receiveShadows) => {
   #|       if (!rt.current3dSection) return;
   #|       const meshRecord = rt.primitiveMeshCache.get(String(cacheKey || ''));
   #|       if (!meshRecord) return;
-  #|       rt.pushLitPrimitiveInstance3d(meshRecord, cx, cy, cz, qx, qy, qz, qw, sx, sy, sz, !!doubleSided, castShadows, receiveShadows);
+  #|       rt.current3dSection.instancedLitCommands.push({
+  #|         meshRecord,
+  #|         retainedKey: String(retainedKey || ''),
+  #|         instances,
+  #|         doubleSided: !!doubleSided,
+  #|         castShadows: !!castShadows,
+  #|         receiveShadows: !!receiveShadows,
+  #|         instanceArray: null,
+  #|       });
   #|     };
   #|     rt.pushCubeWires3d = (cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, r, g, b, a) => {
   #|       if (!rt.current3dSection) return;
@@ -1299,41 +1298,6 @@ extern "js" fn webgpu_initialize(
   #|         castShadows: !!castShadows,
   #|         receiveShadows: !!receiveShadows,
   #|       });
-  #|     };
-  #|     rt.pushLitPrimitiveInstance3d = (meshRecord, tx, ty, tz, qx, qy, qz, qw, sx, sy, sz, doubleSided, castShadows, receiveShadows) => {
-  #|       if (!rt.current3dSection || !meshRecord?.buffer || !meshRecord?.verts) return;
-  #|       const key = [
-  #|         meshRecord.key,
-  #|         doubleSided ? 'double' : 'single',
-  #|         castShadows ? 'cast' : 'no-cast',
-  #|         receiveShadows ? 'receive' : 'no-receive',
-  #|       ].join('|');
-  #|       let command = rt.current3dSection.instancedLitMap.get(key);
-  #|       if (!command) {
-  #|         command = {
-  #|           meshRecord,
-  #|           instances: [],
-  #|           doubleSided: !!doubleSided,
-  #|           castShadows: !!castShadows,
-  #|           receiveShadows: !!receiveShadows,
-  #|           instanceArray: null,
-  #|         };
-  #|         rt.current3dSection.instancedLitMap.set(key, command);
-  #|         rt.current3dSection.instancedLitCommands.push(command);
-  #|       }
-  #|       command.instances.push(
-  #|         Number(tx) || 0.0,
-  #|         Number(ty) || 0.0,
-  #|         Number(tz) || 0.0,
-  #|         Number(qx) || 0.0,
-  #|         Number(qy) || 0.0,
-  #|         Number(qz) || 0.0,
-  #|         Number(qw) || 1.0,
-  #|         Number(sx) || 1.0,
-  #|         Number(sy) || 1.0,
-  #|         Number(sz) || 1.0,
-  #|         receiveShadows ? 1.0 : 0.0,
-  #|       );
   #|     };
   #|     rt.pushTexturedTriangles3d = (basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, verts, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows, sx = 1.0, sy = 1.0, sz = 1.0) => {
   #|       if (!rt.current3dSection) return;
@@ -1392,8 +1356,6 @@ extern "js" fn webgpu_initialize(
   #|       rt.current2dPass = null;
   #|       rt.sections3d.length = 0;
   #|       rt.current3dSection = null;
-  #|       rt.retainedInstanceBufferFrame += 1;
-  #|       rt.pruneRetainedInstanceBuffers3d();
   #|       rt.frameBindGroupCache3d.clear();
   #|     };
   #|
@@ -1429,45 +1391,6 @@ extern "js" fn webgpu_initialize(
   #|       }
   #|       return { buffer, offsets };
   #|     };
-  #|     rt.texturedCommandKey3d = (cmd) => [
-  #|       cmd.doubleSided ? 'double' : 'single',
-  #|       cmd.castShadows ? 'cast' : 'no-cast',
-  #|       cmd.baseSamplerCode,
-  #|       rt.bindGroupResourceId(cmd.textureRec?.view),
-  #|       cmd.emissiveSamplerCode,
-  #|       rt.bindGroupResourceId(cmd.emissiveTextureRec?.view),
-  #|       cmd.metallicRoughnessSamplerCode,
-  #|       rt.bindGroupResourceId(cmd.metallicRoughnessTextureRec?.view),
-  #|       cmd.occlusionSamplerCode,
-  #|       rt.bindGroupResourceId(cmd.occlusionTextureRec?.view),
-  #|       cmd.normalSamplerCode,
-  #|       rt.bindGroupResourceId(cmd.normalTextureRec?.view),
-  #|     ].join('|');
-  #|     rt.concatFloat32 = (lhs, rhs) => {
-  #|       const out = new Float32Array(lhs.length + rhs.length);
-  #|       out.set(lhs, 0);
-  #|       out.set(rhs, lhs.length);
-  #|       return out;
-  #|     };
-  #|     rt.compactTexturedCommands3d = (commands) => {
-  #|       if (!Array.isArray(commands) || commands.length <= 1) {
-  #|         return Array.isArray(commands) ? commands : [];
-  #|       }
-  #|       const compacted = [];
-  #|       const buckets = new Map();
-  #|       for (const cmd of commands) {
-  #|         const key = rt.texturedCommandKey3d(cmd);
-  #|         let target = buckets.get(key);
-  #|         if (!target) {
-  #|           target = { ...cmd, verts: cmd.verts };
-  #|           buckets.set(key, target);
-  #|           compacted.push(target);
-  #|           continue;
-  #|         }
-  #|         target.verts = rt.concatFloat32(target.verts, cmd.verts);
-  #|       }
-  #|       return compacted;
-  #|     };
   #|     rt.uploadInstancedLitBuffers3d = (commands) => {
   #|       if (!commands || commands.length === 0) {
   #|         return;
@@ -1478,13 +1401,8 @@ extern "js" fn webgpu_initialize(
   #|         command.instanceByteLength = 0;
   #|         const instances = command.instanceArray;
   #|         if (!instances?.byteLength) continue;
-  #|         const key = [
-  #|           command.meshRecord?.key || '',
-  #|           command.doubleSided ? 'double' : 'single',
-  #|           command.castShadows ? 'cast' : 'no-cast',
-  #|           command.receiveShadows ? 'receive' : 'no-receive',
-  #|           Array.from(instances).map((value) => rt.floatKey(value)).join(','),
-  #|         ].join('|');
+  #|         const key = String(command.retainedKey || '');
+  #|         if (key.length === 0) continue;
   #|         let retained = rt.retainedInstanceBuffers3d.get(key);
   #|         if (!retained) {
   #|           const buffer = rt.device.createBuffer({
@@ -1492,17 +1410,15 @@ extern "js" fn webgpu_initialize(
   #|             usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
   #|           });
   #|           rt.device.queue.writeBuffer(buffer, 0, instances.buffer, instances.byteOffset, instances.byteLength);
-  #|           retained = { buffer, byteLength: instances.byteLength, lastUsedFrame: rt.retainedInstanceBufferFrame };
+  #|           retained = { buffer, byteLength: instances.byteLength };
   #|           rt.retainedInstanceBuffers3d.set(key, retained);
   #|         }
-  #|         retained.lastUsedFrame = rt.retainedInstanceBufferFrame;
   #|         command.instanceBuffer = retained.buffer;
   #|         command.instanceByteLength = retained.byteLength;
   #|       }
   #|     };
   #|
   #|     rt.prepareSectionBuffers3d = (section) => {
-  #|       section.texTriCommands = rt.compactTexturedCommands3d(section.texTriCommands);
   #|       return {
   #|         tri: rt.uploadCommandBuffer3d('dyn3dTri', section.triCommands, (cmd) => cmd.verts),
   #|         line: rt.uploadCommandBuffer3d('dyn3dLine', section.lineCommands, (verts) => verts),

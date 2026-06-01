@@ -186,26 +186,18 @@ extern "js" fn webgpu_upload_lit_primitive_mesh_resource(
   #| }
 
 ///|
-extern "js" fn webgpu_draw_lit_primitive_mesh_3d(
+extern "js" fn webgpu_draw_lit_primitive_mesh_batch_3d(
   cache_key : String,
-  center_x : Double,
-  center_y : Double,
-  center_z : Double,
-  rotation_x : Double,
-  rotation_y : Double,
-  rotation_z : Double,
-  rotation_w : Double,
-  scale_x : Double,
-  scale_y : Double,
-  scale_z : Double,
+  retained_key : String,
+  instances : Array[Double],
   double_sided : Bool,
   cast_shadows : Bool,
   receive_shadows : Bool,
 ) -> Unit =
-  #| (cacheKey, cx, cy, cz, qx, qy, qz, qw, scaleX, scaleY, scaleZ, doubleSided, castShadows, receiveShadows) => {
+  #| (cacheKey, retainedKey, instances, doubleSided, castShadows, receiveShadows) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushLitPrimitiveMesh3d(cacheKey, cx, cy, cz, qx, qy, qz, qw, scaleX, scaleY, scaleZ, doubleSided, castShadows, receiveShadows);
+  #|     rt.pushLitPrimitiveMeshBatch3d(cacheKey, retainedKey, instances, doubleSided, castShadows, receiveShadows);
   #|   }
   #| }
 
@@ -217,6 +209,17 @@ extern "js" fn webgpu_release_primitive_mesh_resource(
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
   #|     rt.releasePrimitiveMeshResource(cacheKey);
+  #|   }
+  #| }
+
+///|
+extern "js" fn webgpu_release_retained_instance_buffer_3d(
+  retained_key : String,
+) -> Unit =
+  #| (retainedKey) => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (rt) {
+  #|     rt.releaseRetainedInstanceBuffer3d(retainedKey);
   #|   }
   #| }
 
