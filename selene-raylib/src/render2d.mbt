@@ -113,11 +113,11 @@ pub fn register_key_events(pressed_keys : Set[@inputs.Code]) -> Unit {
 ///|
 pub fn register_mouse_events(
   mouse : @inputs.Mouse,
-  mouse_movement : @inputs.MouseMovement,
+  mouse_relative_delta : Ref[@smath.Vec2?],
   mouse_wheel : @inputs.MouseWheel,
 ) -> Unit {
   backend.mouse_state = Some(mouse)
-  backend.mouse_movement = Some(mouse_movement)
+  backend.mouse_relative_delta = Some(mouse_relative_delta)
   backend.mouse_wheel = Some(mouse_wheel)
 }
 

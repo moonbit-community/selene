@@ -167,6 +167,9 @@ pub let mouse_movement : MouseMovement = { movement: @math.Vec2(0.0, 0.0) }
 pub let mouse_wheel : MouseWheel = { delta: @math.Vec2(0.0, 0.0) }
 
 ///|
+let pending_mouse_relative_delta : Ref[@math.Vec2?] = Ref(None)
+
+///|
 pub let mouse_button_event_bus : @event.Events[MouseButtonEvent] = @event.Events()
 
 ///|
@@ -278,8 +281,10 @@ pub let just_release_mouse : Mouse = {
 /// ```
 ///
 pub fn advanced_mouse_system(_delta : Double) -> Unit {
-  let delta = mouse.pos - last_mouse.pos
+  let positional_delta = mouse.pos - last_mouse.pos
+  let delta = pending_mouse_relative_delta.val.unwrap_or(positional_delta)
   mouse_movement.movement = delta
+  pending_mouse_relative_delta.val = None
   if delta[X] != 0.0 || delta[Y] != 0.0 {
     mouse_motion_event_bus.send({ position: mouse.pos, delta })
   }

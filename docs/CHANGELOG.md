@@ -5,9 +5,11 @@
 ### Added
 
 ### Changed
+- Changed mouse input snapshots to carry raw relative deltas separately from derived mouse movement.
 
 ### Fixed
 - Fixed WebGPU 3D primitives to honor material double-sided state, use instance scale consistently with custom meshes and raylib primitives, and wind textured sphere triangles outward.
+- Fixed mouse movement processing so platform-provided relative deltas, including WebGPU pointer-lock movement, are not overwritten by absolute cursor position deltas.
 
 ### Removed
 

@@ -154,7 +154,7 @@ priv struct RaylibBackend {
   mut embedded_asset_lookup : (String) -> Bytes?
   mut key_events : Set[@inputs.Code]?
   mut mouse_state : @inputs.Mouse?
-  mut mouse_movement : @inputs.MouseMovement?
+  mut mouse_relative_delta : Ref[@smath.Vec2?]?
   mut mouse_wheel : @inputs.MouseWheel?
   mut touch_state : Map[@inputs.TouchId, @inputs.TouchPoint]?
   mut touch_changes_state : Array[@inputs.TouchEvent]?
@@ -228,7 +228,7 @@ let backend : RaylibBackend = {
   embedded_asset_lookup: default_embedded_asset_lookup,
   key_events: None,
   mouse_state: None,
-  mouse_movement: None,
+  mouse_relative_delta: None,
   mouse_wheel: None,
   touch_state: None,
   touch_changes_state: None,

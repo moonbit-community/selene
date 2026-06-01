@@ -2,6 +2,9 @@
 let snapshot : @inputs.InputSnapshot = @inputs.empty_input_snapshot()
 
 ///|
+let mouse_relative_delta : Ref[@math.Vec2?] = Ref(None)
+
+///|
 let registered : Ref[Bool] = Ref(false)
 
 ///|
@@ -45,7 +48,7 @@ fn ensure_registered() -> Unit {
   @impl.register_key_events(snapshot.pressed_keys)
   @impl.register_mouse_events(
     snapshot.mouse,
-    snapshot.mouse_movement,
+    mouse_relative_delta,
     snapshot.mouse_wheel,
   )
   @impl.register_touch_events(snapshot.touches, snapshot.touch_changes)
@@ -68,7 +71,7 @@ pub fn poll_input() -> @inputs.InputSnapshot {
       right_button: snapshot.mouse.right_button,
       middle_button: snapshot.mouse.middle_button,
     },
-    mouse_movement: { movement: snapshot.mouse_movement.movement },
+    mouse_relative_delta: mouse_relative_delta.val,
     mouse_wheel: { delta: snapshot.mouse_wheel.delta },
     touches: copy_map(snapshot.touches),
     touch_changes: copy_array(snapshot.touch_changes),
@@ -77,6 +80,7 @@ pub fn poll_input() -> @inputs.InputSnapshot {
     gamepad_axis_values: copy_map(snapshot.gamepad_axis_values),
   }
   snapshot.touch_changes.clear()
+  mouse_relative_delta.val = None
   out
 }
 

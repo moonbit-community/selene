@@ -11,6 +11,7 @@ pub(all) enum InputInjectionEvent {
   KeyDown(@inputs.Code)
   KeyUp(@inputs.Code)
   MouseMove(@math.Vec2)
+  MouseDelta(@math.Vec2)
   MouseWheel(@math.Vec2)
   MouseLeft(Bool)
   MouseRight(Bool)

@@ -2,7 +2,7 @@
 pub(all) struct InputSnapshot {
   pressed_keys : Set[Code]
   mouse : Mouse
-  mouse_movement : MouseMovement
+  mut mouse_relative_delta : @math.Vec2?
   mouse_wheel : MouseWheel
   touches : Map[TouchId, TouchPoint]
   touch_changes : Array[TouchEvent]
@@ -21,7 +21,7 @@ pub fn empty_input_snapshot() -> InputSnapshot {
       right_button: false,
       middle_button: false,
     },
-    mouse_movement: { movement: @math.Vec2::zero() },
+    mouse_relative_delta: None,
     mouse_wheel: { delta: @math.Vec2::zero() },
     touches: Map([]),
     touch_changes: [],
@@ -43,7 +43,7 @@ pub fn apply_input_snapshot(snapshot : InputSnapshot) -> Unit {
   mouse.right_button = snapshot.mouse.right_button
   mouse.middle_button = snapshot.mouse.middle_button
 
-  mouse_movement.movement = snapshot.mouse_movement.movement
+  pending_mouse_relative_delta.val = snapshot.mouse_relative_delta
   mouse_wheel.delta = snapshot.mouse_wheel.delta
   replace_touch_state(snapshot.touches, snapshot.touch_changes)
   apply_primary_touch_mouse_compat(snapshot)

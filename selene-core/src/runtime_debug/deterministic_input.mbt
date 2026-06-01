@@ -127,7 +127,7 @@ fn copy_snapshot(snapshot : @inputs.InputSnapshot) -> @inputs.InputSnapshot {
       right_button: snapshot.mouse.right_button,
       middle_button: snapshot.mouse.middle_button,
     },
-    mouse_movement: { movement: snapshot.mouse_movement.movement },
+    mouse_relative_delta: snapshot.mouse_relative_delta,
     mouse_wheel: { delta: snapshot.mouse_wheel.delta },
     touches: copy_map(snapshot.touches),
     touch_changes: copy_array(snapshot.touch_changes),
@@ -172,9 +172,10 @@ pub fn queue_input_event(event : InputInjectionEvent) -> Unit {
     KeyDown(code) => staged.pressed_keys.add(code)
     KeyUp(code) => staged.pressed_keys.remove(code)
     MouseMove(position) => {
-      staged.mouse_movement.movement = position - staged.mouse.pos
+      staged.mouse_relative_delta = None
       staged.mouse.pos = position
     }
+    MouseDelta(delta) => staged.mouse_relative_delta = Some(delta)
     MouseWheel(delta) => staged.mouse_wheel.delta = delta
     MouseLeft(pressed) => staged.mouse.left_button = pressed
     MouseRight(pressed) => staged.mouse.right_button = pressed

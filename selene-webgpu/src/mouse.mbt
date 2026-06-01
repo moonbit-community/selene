@@ -85,19 +85,20 @@ let touch_handlers_registered : Ref[Bool] = Ref(false)
 ///|
 pub fn register_mouse_events(
   mouse : @inputs.Mouse,
-  mouse_movement : @inputs.MouseMovement,
+  mouse_relative_delta : Ref[@smath.Vec2?],
   mouse_wheel : @inputs.MouseWheel,
 ) -> Unit {
-  canvas_backend.mouse_movement.val = Some(mouse_movement)
   window.add_event_listener("mousemove", event => {
     let mouse_event = event.to_mouse_event().unwrap()
     mouse.pos = @smath.Vec2(
       mouse_event.get_offset_x().to_double(),
       mouse_event.get_offset_y().to_double(),
     )
-    mouse_movement.movement = @smath.Vec2(
-      mouse_event.get_movement_x().to_double(),
-      mouse_event.get_movement_y().to_double(),
+    mouse_relative_delta.val = Some(
+      @smath.Vec2(
+        mouse_event.get_movement_x().to_double(),
+        mouse_event.get_movement_y().to_double(),
+      ),
     )
   })
   window.add_event_listener("mousedown", event => {

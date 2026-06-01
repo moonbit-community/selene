@@ -386,14 +386,14 @@ fn sync_key_events() -> Unit {
 ///|
 fn sync_mouse_events() -> Unit {
   if backend.mouse_state is Some(mouse) &&
-    backend.mouse_movement is Some(movement) {
+    backend.mouse_relative_delta is Some(relative_delta) {
     let pos = @raylib.get_mouse_position() |> to_selene_vec2
     let delta = @raylib.get_mouse_delta() |> to_selene_vec2
     let wheel = @raylib.get_mouse_wheel_move_v() |> to_selene_vec2
     // Keep raw screen-space mouse coordinates consistent with canvas backend.
     // Core click systems are responsible for applying zoom conversion.
     mouse.pos = @smath.Vec2(pos[X], pos[Y])
-    movement.movement = @smath.Vec2(delta[X], delta[Y])
+    relative_delta.val = Some(@smath.Vec2(delta[X], delta[Y]))
     if backend.mouse_wheel is Some(mouse_wheel) {
       mouse_wheel.delta = @smath.Vec2(wheel[X], wheel[Y])
     }

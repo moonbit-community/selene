@@ -16,7 +16,6 @@
 struct WebGpuBackend {
   mut canvas : @dom.HTMLCanvasElement?
   mut time_scale : Double
-  mouse_movement : Ref[@inputs.MouseMovement?]
   mut gamepads : Set[@inputs.Gamepad]?
   mut gamepad_buttons : Set[@inputs.GamepadButtonInput]?
   mut gamepad_axes : Map[@inputs.GamepadAxisInput, Double]?
@@ -29,7 +28,6 @@ pub fn WebGpuBackend::WebGpuBackend() -> WebGpuBackend {
   {
     canvas: None,
     time_scale: 1.0,
-    mouse_movement: Ref(None),
     gamepads: None,
     gamepad_buttons: None,
     gamepad_axes: None,
@@ -179,9 +177,6 @@ pub fn initialize(
     game_loop(delta * canvas_backend.time_scale)
     render_loop(delta * canvas_backend.time_scale)
     service_frame()
-    if canvas_backend.mouse_movement.val is Some(mouse_movement) {
-      mouse_movement.movement = @smath.Vec2(0.0, 0.0)
-    }
   })
   canvas_backend.stop_loop = Some(stop_loop)
   return fn() {  }

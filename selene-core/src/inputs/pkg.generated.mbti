@@ -258,7 +258,7 @@ pub struct GamepadConnectionEvent {
 pub(all) struct InputSnapshot {
   pressed_keys : @set.Set[Code]
   mouse : Mouse
-  mouse_movement : MouseMovement
+  mut mouse_relative_delta : @math.Vec2?
   mouse_wheel : MouseWheel
   touches : Map[TouchId, TouchPoint]
   touch_changes : Array[TouchEvent]
