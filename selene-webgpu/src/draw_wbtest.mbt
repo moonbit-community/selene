@@ -137,6 +137,66 @@ test "MoonBit forms lit primitive instance batches before WebGPU FFI" {
 }
 
 ///|
+test "MoonBit packs WebGPU 2D rect and circle vertices before FFI" {
+  let rect : @smath.Rect = {
+    position: @smath.Vec2(10.0, 20.0),
+    size: @smath.Vec2(2.0, 4.0),
+  }
+  let transform = @smath.Transform(a=2.0, d=3.0, tx=5.0, ty=7.0)
+  let fill = pack_rect_fill_vertices2d(rect, transform, {
+    r: 255U,
+    g: 0U,
+    b: 0U,
+    a: 0.5,
+  })
+  inspect(fill.length(), content="36")
+  inspect(fill[0], content="15")
+  inspect(fill[1], content="27")
+  inspect(fill[6], content="19")
+  inspect(fill[7], content="27")
+  inspect(fill[12], content="19")
+  inspect(fill[13], content="39")
+  inspect(fill[4], content="0")
+  inspect(fill[5], content="0.5")
+
+  let stroke = pack_rect_stroke_vertices2d(rect, transform, {
+    r: 0U,
+    g: 255U,
+    b: 0U,
+    a: 1.0,
+  })
+  inspect(stroke.length(), content="48")
+  inspect(stroke[36], content="15")
+  inspect(stroke[37], content="39")
+  inspect(stroke[46], content="0")
+  inspect(stroke[47], content="1")
+
+  let gradient = pack_gradient_rect_vertices2d(
+    rect,
+    @smath.Transform(),
+    { r: 255U, g: 0U, b: 0U, a: 1.0 },
+    { r: 0U, g: 0U, b: 255U, a: 0.5 },
+  )
+  inspect(gradient.length(), content="36")
+  inspect(gradient[2], content="1")
+  inspect(gradient[8], content="0.5")
+  inspect(gradient[10], content="0.5")
+  inspect(gradient[17], content="0.5")
+
+  let circle = pack_circle_fill_vertices2d(
+    @smath.Vec2(2.0, 3.0),
+    4.0,
+    @smath.Transform(),
+    { r: 255U, g: 255U, b: 255U, a: 1.0 },
+  )
+  inspect(circle.length(), content="720")
+  inspect(circle[0], content="2")
+  inspect(circle[1], content="3")
+  inspect(circle[6], content="6")
+  inspect(circle[7], content="3")
+}
+
+///|
 test "render3d submission stats record repeated primitive pressure" {
   let mesh = webgpu_test_mesh_handle(9100)
   let material = webgpu_test_material_handle(9101)

@@ -17,6 +17,20 @@ extern "js" fn webgpu_reset_clip_stack() -> Unit =
   #| }
 
 ///|
+extern "js" fn webgpu_push_color_vertices_2d(
+  topology : String,
+  vertices : Array[Double],
+  alpha_mode : Int,
+  blend_mode : Int,
+) -> Unit =
+  #| (topology, vertices, alphaMode, blendMode) => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (rt) {
+  #|     rt.pushColor2d(topology, new Float32Array(vertices), alphaMode, blendMode);
+  #|   }
+  #| }
+
+///|
 extern "js" fn webgpu_draw_image(
   path : String,
   destination_x : Double,
@@ -119,96 +133,5 @@ extern "js" fn webgpu_draw_cached_text(
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
   #|     rt.pushCachedText?.(key, x, y, a, b, c, d, tx, ty, align, baseline, blendMode);
-  #|   }
-  #| }
-
-///|
-extern "js" fn webgpu_draw_rect(
-  x : Double,
-  y : Double,
-  width : Double,
-  height : Double,
-  transform_a : Double,
-  transform_b : Double,
-  transform_c : Double,
-  transform_d : Double,
-  transform_tx : Double,
-  transform_ty : Double,
-  alpha_mode : Int,
-  blend_mode : Int,
-  fill_r : Double,
-  fill_g : Double,
-  fill_b : Double,
-  fill_a : Double,
-  has_stroke : Bool,
-  stroke_r : Double,
-  stroke_g : Double,
-  stroke_b : Double,
-  stroke_a : Double,
-) -> Unit =
-  #| (x, y, w, h, a, b, c, d, tx, ty, alphaMode, blendMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
-  #|   const rt = globalThis.__selene_webgpu_runtime;
-  #|   if (rt) {
-  #|     rt.pushRect(x, y, w, h, a, b, c, d, tx, ty, alphaMode, blendMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa);
-  #|   }
-  #| }
-
-///|
-extern "js" fn webgpu_draw_circle(
-  center_x : Double,
-  center_y : Double,
-  radius : Double,
-  transform_a : Double,
-  transform_b : Double,
-  transform_c : Double,
-  transform_d : Double,
-  transform_tx : Double,
-  transform_ty : Double,
-  alpha_mode : Int,
-  blend_mode : Int,
-  fill_r : Double,
-  fill_g : Double,
-  fill_b : Double,
-  fill_a : Double,
-  has_stroke : Bool,
-  stroke_r : Double,
-  stroke_g : Double,
-  stroke_b : Double,
-  stroke_a : Double,
-) -> Unit =
-  #| (cx, cy, radius, a, b, c, d, tx, ty, alphaMode, blendMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa) => {
-  #|   const rt = globalThis.__selene_webgpu_runtime;
-  #|   if (rt) {
-  #|     rt.pushCircle(cx, cy, radius, a, b, c, d, tx, ty, alphaMode, blendMode, fr, fg, fb, fa, hasStroke, sr, sg, sb, sa);
-  #|   }
-  #| }
-
-///|
-extern "js" fn webgpu_draw_gradient_rect(
-  x : Double,
-  y : Double,
-  width : Double,
-  height : Double,
-  transform_a : Double,
-  transform_b : Double,
-  transform_c : Double,
-  transform_d : Double,
-  transform_tx : Double,
-  transform_ty : Double,
-  alpha_mode : Int,
-  blend_mode : Int,
-  start_r : Double,
-  start_g : Double,
-  start_b : Double,
-  start_a : Double,
-  end_r : Double,
-  end_g : Double,
-  end_b : Double,
-  end_a : Double,
-) -> Unit =
-  #| (x, y, w, h, a, b, c, d, tx, ty, alphaMode, blendMode, sr, sg, sb, sa, er, eg, eb, ea) => {
-  #|   const rt = globalThis.__selene_webgpu_runtime;
-  #|   if (rt) {
-  #|     rt.pushGradientRect(x, y, w, h, a, b, c, d, tx, ty, alphaMode, blendMode, sr, sg, sb, sa, er, eg, eb, ea);
   #|   }
   #| }

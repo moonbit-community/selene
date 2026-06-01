@@ -400,118 +400,76 @@ pub fn measure_text(
 
 ///|
 pub fn draw_rect(command : @render2d_types.RectDrawCommand2D) -> Unit {
-  let (fr, fg, fb, fa) = color_rgba(command.fill_color)
-  let mut has_stroke = false
-  let mut sr = 0.0
-  let mut sg = 0.0
-  let mut sb = 0.0
-  let mut sa = 1.0
-  match command.stroke_color {
-    Some(stroke_color) => {
-      has_stroke = true
-      let (tr, tg, tb, ta) = color_rgba(stroke_color)
-      sr = tr
-      sg = tg
-      sb = tb
-      sa = ta
-    }
-    None => ()
-  }
-  webgpu_draw_rect(
-    command.rect.position[X],
-    command.rect.position[Y],
-    command.rect.size[X],
-    command.rect.size[Y],
-    command.transform.a,
-    command.transform.b,
-    command.transform.c,
-    command.transform.d,
-    command.transform.tx,
-    command.transform.ty,
+  webgpu_push_color_vertices_2d(
+    "triangle",
+    pack_rect_fill_vertices2d(
+      command.rect,
+      command.transform,
+      command.fill_color,
+    ),
     alpha_mode_to_code(command.alpha_mode),
     blend_mode_to_code(command.blend_mode),
-    fr,
-    fg,
-    fb,
-    fa,
-    has_stroke,
-    sr,
-    sg,
-    sb,
-    sa,
   )
+  match command.stroke_color {
+    Some(stroke_color) =>
+      webgpu_push_color_vertices_2d(
+        "line",
+        pack_rect_stroke_vertices2d(
+          command.rect,
+          command.transform,
+          stroke_color,
+        ),
+        alpha_mode_to_code(command.alpha_mode),
+        blend_mode_to_code(command.blend_mode),
+      )
+    None => ()
+  }
 }
 
 ///|
 pub fn draw_circle(command : @render2d_types.CircleDrawCommand2D) -> Unit {
-  let (fr, fg, fb, fa) = color_rgba(command.fill_color)
-  let mut has_stroke = false
-  let mut sr = 0.0
-  let mut sg = 0.0
-  let mut sb = 0.0
-  let mut sa = 1.0
-  match command.stroke_color {
-    Some(stroke_color) => {
-      has_stroke = true
-      let (tr, tg, tb, ta) = color_rgba(stroke_color)
-      sr = tr
-      sg = tg
-      sb = tb
-      sa = ta
-    }
-    None => ()
-  }
-  webgpu_draw_circle(
-    command.center[X],
-    command.center[Y],
-    command.radius,
-    command.transform.a,
-    command.transform.b,
-    command.transform.c,
-    command.transform.d,
-    command.transform.tx,
-    command.transform.ty,
+  webgpu_push_color_vertices_2d(
+    "triangle",
+    pack_circle_fill_vertices2d(
+      command.center,
+      command.radius,
+      command.transform,
+      command.fill_color,
+    ),
     alpha_mode_to_code(command.alpha_mode),
     blend_mode_to_code(command.blend_mode),
-    fr,
-    fg,
-    fb,
-    fa,
-    has_stroke,
-    sr,
-    sg,
-    sb,
-    sa,
   )
+  match command.stroke_color {
+    Some(stroke_color) =>
+      webgpu_push_color_vertices_2d(
+        "line",
+        pack_circle_stroke_vertices2d(
+          command.center,
+          command.radius,
+          command.transform,
+          stroke_color,
+        ),
+        alpha_mode_to_code(command.alpha_mode),
+        blend_mode_to_code(command.blend_mode),
+      )
+    None => ()
+  }
 }
 
 ///|
 pub fn draw_gradient_rect(
   command : @render2d_types.GradientRectDrawCommand2D,
 ) -> Unit {
-  let (sr, sg, sb, sa) = color_rgba(command.color_start)
-  let (er, eg, eb, ea) = color_rgba(command.color_end)
-  webgpu_draw_gradient_rect(
-    command.rect.position[X],
-    command.rect.position[Y],
-    command.rect.size[X],
-    command.rect.size[Y],
-    command.transform.a,
-    command.transform.b,
-    command.transform.c,
-    command.transform.d,
-    command.transform.tx,
-    command.transform.ty,
+  webgpu_push_color_vertices_2d(
+    "triangle",
+    pack_gradient_rect_vertices2d(
+      command.rect,
+      command.transform,
+      command.color_start,
+      command.color_end,
+    ),
     alpha_mode_to_code(command.alpha_mode),
     blend_mode_to_code(command.blend_mode),
-    sr,
-    sg,
-    sb,
-    sa,
-    er,
-    eg,
-    eb,
-    ea,
   )
 }
 
