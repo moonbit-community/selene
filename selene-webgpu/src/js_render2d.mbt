@@ -78,44 +78,10 @@ extern "js" fn webgpu_set_shadow_view_projection_3d(
   #| (directionalCascades, spotMatrices, pointMatrices) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (!rt) return;
-  #|   const shadowSetups = (values, length) => {
-  #|     const safe = Array.isArray(values) ? values : [];
-  #|     const setups = [];
-  #|     for (let index = 0; index + 20 < safe.length; index += 21) {
-  #|       const slot = Math.max(0, Math.min(length - 1, Math.round(Number(safe[index]) || 0)));
-  #|       setups[slot] = {
-  #|         lightViewProjection: new Float32Array(safe.slice(index + 1, index + 17)),
-  #|         atlasRect: {
-  #|           offset: [Number(safe[index + 17]) || 0, Number(safe[index + 18]) || 0],
-  #|           scale: [Number(safe[index + 19]) || 0, Number(safe[index + 20]) || 0],
-  #|         },
-  #|       };
-  #|     }
-  #|     return setups;
-  #|   };
-  #|   const directional = Array.from({ length: 4 }, () => []);
-  #|   const safeDirectional = Array.isArray(directionalCascades) ? directionalCascades : [];
-  #|   for (let index = 0; index + 23 < safeDirectional.length; index += 24) {
-  #|     const lightIndex = Math.max(0, Math.min(3, Math.round(Number(safeDirectional[index]) || 0)));
-  #|     const cascadeIndex = Math.max(0, Math.min(3, Math.round(Number(safeDirectional[index + 1]) || 0)));
-  #|     directional[lightIndex].push({
-  #|       cascadeIndex,
-  #|       lightViewProjection: new Float32Array(safeDirectional.slice(index + 2, index + 18)),
-  #|       atlasRect: {
-  #|         offset: [Number(safeDirectional[index + 18]) || 0, Number(safeDirectional[index + 19]) || 0],
-  #|         scale: [Number(safeDirectional[index + 20]) || 0, Number(safeDirectional[index + 21]) || 0],
-  #|       },
-  #|       nearBound: Number(safeDirectional[index + 22]) || 0,
-  #|       farBound: Number(safeDirectional[index + 23]) || 0,
-  #|     });
-  #|   }
-  #|   for (const cascades of directional) {
-  #|     cascades.sort((lhs, rhs) => lhs.cascadeIndex - rhs.cascadeIndex);
-  #|   }
   #|   rt.shadowViewProjection3d = {
-  #|     directionalCascades: directional,
-  #|     spotSetups: shadowSetups(spotMatrices, 4),
-  #|     pointSetups: shadowSetups(pointMatrices, 48),
+  #|     directional: new Float32Array(Array.isArray(directionalCascades) ? directionalCascades : []),
+  #|     spot: new Float32Array(Array.isArray(spotMatrices) ? spotMatrices : []),
+  #|     point: new Float32Array(Array.isArray(pointMatrices) ? pointMatrices : []),
   #|   };
   #| }
 

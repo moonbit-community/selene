@@ -858,21 +858,37 @@ extern "js" fn webgpu_initialize(
   #|       shadowCameraBufferCursor: 0,
   #|     });
   #|
+  #|     rt.countDirectionalShadowPackets3d = (values, lightIndex) => {
+  #|       let count = 0;
+  #|       for (let offset = 0; offset + 23 < values.length; offset += 24) {
+  #|         if ((Math.round(values[offset]) | 0) === lightIndex) count += 1;
+  #|       }
+  #|       return count;
+  #|     };
+  #|
+  #|     rt.findShadowPacket3d = (values, stride, slot) => {
+  #|       for (let offset = 0; offset + stride - 1 < values.length; offset += stride) {
+  #|         if ((Math.round(values[offset]) | 0) === slot) return offset;
+  #|       }
+  #|       return -1;
+  #|     };
+  #|
   #|     rt.renderDirectionalShadowMaps3d = (encoder, section, buffers, camera, aspect, shadow, shadowState) => {
   #|       const directional = shadow?.directional || new Float32Array();
+  #|       const shadowView = rt.shadowViewProjection3d?.directional || new Float32Array();
   #|       const tileSize = Math.max(1, Number(shadow?.directionalShadowMapSize) || 2048);
   #|       const lightCount = Math.min(4, Math.floor(directional.length / 4));
   #|       if (lightCount <= 0) return;
   #|       for (let lightIndex = 0; lightIndex < lightCount; lightIndex += 1) {
   #|         const base = lightIndex * 4;
   #|         if (directional[base] < 0.5) continue;
-  #|         const cascades = rt.shadowViewProjection3d?.directionalCascades?.[lightIndex] || [];
-  #|         if (cascades.length <= 0) continue;
-  #|         const record = rt.ensureDirectionalShadowTexture(lightIndex, tileSize, cascades.length);
+  #|         const cascadeCount = rt.countDirectionalShadowPackets3d(shadowView, lightIndex);
+  #|         if (cascadeCount <= 0) continue;
+  #|         const record = rt.ensureDirectionalShadowTexture(lightIndex, tileSize, cascadeCount);
   #|         if (!record?.view) continue;
   #|         shadowState.directionalRecords[lightIndex] = record;
   #|         shadowState.directionalEnabled[lightIndex] = 1;
-  #|         shadowState.directionalCascadeCounts[lightIndex] = cascades.length;
+  #|         shadowState.directionalCascadeCounts[lightIndex] = cascadeCount;
   #|         shadowState.directionalDepthBiases[lightIndex] = directional[base + 1] || 0;
   #|         shadowState.directionalNormalBiases[lightIndex] = directional[base + 2] || 0;
   #|         shadowState.directionalTexel = [1 / tileSize, 1 / tileSize];
@@ -885,10 +901,16 @@ extern "js" fn webgpu_initialize(
   #|             depthStoreOp: 'store',
   #|           },
   #|         });
-  #|         for (let cascadeIndex = 0; cascadeIndex < cascades.length; cascadeIndex += 1) {
-  #|           const cascade = cascades[cascadeIndex];
-  #|           const viewportX = cascade.atlasRect.offset[0] * record.width;
-  #|           const viewportY = cascade.atlasRect.offset[1] * record.height;
+  #|         for (let offset = 0; offset + 23 < shadowView.length; offset += 24) {
+  #|           if ((Math.round(shadowView[offset]) | 0) !== lightIndex) continue;
+  #|           const cascadeIndex = Math.max(0, Math.min(3, Math.round(shadowView[offset + 1]) | 0));
+  #|           const matrix = shadowView.subarray(offset + 2, offset + 18);
+  #|           const rectOffsetX = shadowView[offset + 18] || 0;
+  #|           const rectOffsetY = shadowView[offset + 19] || 0;
+  #|           const rectScaleX = shadowView[offset + 20] || 0;
+  #|           const rectScaleY = shadowView[offset + 21] || 0;
+  #|           const viewportX = rectOffsetX * record.width;
+  #|           const viewportY = rectOffsetY * record.height;
   #|           const scissorX = Math.max(0, Math.floor(viewportX));
   #|           const scissorY = Math.max(0, Math.floor(viewportY));
   #|           pass.setViewport(viewportX, viewportY, tileSize, tileSize, 0.0, 1.0);
@@ -897,19 +919,14 @@ extern "js" fn webgpu_initialize(
   #|             pass,
   #|             section,
   #|             buffers,
-  #|             cascade.lightViewProjection,
+  #|             matrix,
   #|             shadowState.shadowCameraBufferCursor,
   #|           );
   #|           shadowState.shadowCameraBufferCursor += 1;
   #|           const stateIndex = lightIndex * 4 + cascadeIndex;
-  #|           shadowState.directionalMatrices[stateIndex] = cascade.lightViewProjection;
-  #|           shadowState.directionalRects[stateIndex] = [
-  #|             cascade.atlasRect.offset[0],
-  #|             cascade.atlasRect.offset[1],
-  #|             cascade.atlasRect.scale[0],
-  #|             cascade.atlasRect.scale[1],
-  #|           ];
-  #|           shadowState.directionalBounds[stateIndex] = [cascade.nearBound, cascade.farBound, 0, 0];
+  #|           shadowState.directionalMatrices[stateIndex] = matrix;
+  #|           shadowState.directionalRects[stateIndex] = [rectOffsetX, rectOffsetY, rectScaleX, rectScaleY];
+  #|           shadowState.directionalBounds[stateIndex] = [shadowView[offset + 22] || 0, shadowView[offset + 23] || 0, 0, 0];
   #|         }
   #|         pass.end();
   #|       }
@@ -917,6 +934,7 @@ extern "js" fn webgpu_initialize(
   #|
   #|     rt.renderSpotShadowMaps3d = (encoder, section, buffers, shadow, shadowState) => {
   #|       const spot = shadow?.spot || new Float32Array();
+  #|       const shadowView = rt.shadowViewProjection3d?.spot || new Float32Array();
   #|       const tileSize = Math.max(1, Number(shadow?.directionalShadowMapSize) || 2048);
   #|       const lightCount = Math.min(4, Math.floor(spot.length / 3));
   #|       if (lightCount <= 0) return;
@@ -936,11 +954,15 @@ extern "js" fn webgpu_initialize(
   #|       for (let lightIndex = 0; lightIndex < lightCount; lightIndex += 1) {
   #|         const base = lightIndex * 3;
   #|         if (spot[base] < 0.5) continue;
-  #|         const setup = rt.shadowViewProjection3d?.spotSetups?.[lightIndex];
-  #|         if (!setup) continue;
-  #|         const rect = setup.atlasRect;
-  #|         const viewportX = rect.offset[0] * record.width;
-  #|         const viewportY = rect.offset[1] * record.height;
+  #|         const setupOffset = rt.findShadowPacket3d(shadowView, 21, lightIndex);
+  #|         if (setupOffset < 0) continue;
+  #|         const matrix = shadowView.subarray(setupOffset + 1, setupOffset + 17);
+  #|         const rectOffsetX = shadowView[setupOffset + 17] || 0;
+  #|         const rectOffsetY = shadowView[setupOffset + 18] || 0;
+  #|         const rectScaleX = shadowView[setupOffset + 19] || 0;
+  #|         const rectScaleY = shadowView[setupOffset + 20] || 0;
+  #|         const viewportX = rectOffsetX * record.width;
+  #|         const viewportY = rectOffsetY * record.height;
   #|         const scissorX = Math.max(0, Math.floor(viewportX));
   #|         const scissorY = Math.max(0, Math.floor(viewportY));
   #|         pass.setViewport(viewportX, viewportY, tileSize, tileSize, 0.0, 1.0);
@@ -949,21 +971,22 @@ extern "js" fn webgpu_initialize(
   #|           pass,
   #|           section,
   #|           buffers,
-  #|           setup.lightViewProjection,
+  #|           matrix,
   #|           shadowState.shadowCameraBufferCursor,
   #|         );
   #|         shadowState.shadowCameraBufferCursor += 1;
   #|         shadowState.spotEnabled[lightIndex] = 1;
   #|         shadowState.spotDepthBiases[lightIndex] = spot[base + 1] || 0;
   #|         shadowState.spotNormalBiases[lightIndex] = spot[base + 2] || 0;
-  #|         shadowState.spotMatrices[lightIndex] = setup.lightViewProjection;
-  #|         shadowState.spotRects[lightIndex] = [rect.offset[0], rect.offset[1], rect.scale[0], rect.scale[1]];
+  #|         shadowState.spotMatrices[lightIndex] = matrix;
+  #|         shadowState.spotRects[lightIndex] = [rectOffsetX, rectOffsetY, rectScaleX, rectScaleY];
   #|       }
   #|       pass.end();
   #|     };
   #|
   #|     rt.renderPointShadowMaps3d = (encoder, section, buffers, shadow, shadowState) => {
   #|       const point = shadow?.point || new Float32Array();
+  #|       const shadowView = rt.shadowViewProjection3d?.point || new Float32Array();
   #|       const faceSize = Math.max(1, Number(shadow?.pointShadowMapSize) || 1024);
   #|       const lightCount = Math.min(8, Math.floor(point.length / 3));
   #|       if (lightCount <= 0) return;
@@ -988,11 +1011,15 @@ extern "js" fn webgpu_initialize(
   #|         shadowState.pointNormalBiases[lightIndex] = point[base + 2] || 0;
   #|         for (let faceIndex = 0; faceIndex < 6; faceIndex += 1) {
   #|           const stateIndex = lightIndex * 6 + faceIndex;
-  #|           const setup = rt.shadowViewProjection3d?.pointSetups?.[stateIndex];
-  #|           if (!setup) continue;
-  #|           const rect = setup.atlasRect;
-  #|           const viewportX = rect.offset[0] * record.width;
-  #|           const viewportY = rect.offset[1] * record.height;
+  #|           const setupOffset = rt.findShadowPacket3d(shadowView, 21, stateIndex);
+  #|           if (setupOffset < 0) continue;
+  #|           const matrix = shadowView.subarray(setupOffset + 1, setupOffset + 17);
+  #|           const rectOffsetX = shadowView[setupOffset + 17] || 0;
+  #|           const rectOffsetY = shadowView[setupOffset + 18] || 0;
+  #|           const rectScaleX = shadowView[setupOffset + 19] || 0;
+  #|           const rectScaleY = shadowView[setupOffset + 20] || 0;
+  #|           const viewportX = rectOffsetX * record.width;
+  #|           const viewportY = rectOffsetY * record.height;
   #|           const scissorX = Math.max(0, Math.floor(viewportX));
   #|           const scissorY = Math.max(0, Math.floor(viewportY));
   #|           pass.setViewport(viewportX, viewportY, faceSize, faceSize, 0.0, 1.0);
@@ -1001,12 +1028,12 @@ extern "js" fn webgpu_initialize(
   #|             pass,
   #|             section,
   #|             buffers,
-  #|             setup.lightViewProjection,
+  #|             matrix,
   #|             shadowState.shadowCameraBufferCursor,
   #|           );
   #|           shadowState.shadowCameraBufferCursor += 1;
-  #|           shadowState.pointMatrices[stateIndex] = setup.lightViewProjection;
-  #|           shadowState.pointRects[stateIndex] = [rect.offset[0], rect.offset[1], rect.scale[0], rect.scale[1]];
+  #|           shadowState.pointMatrices[stateIndex] = matrix;
+  #|           shadowState.pointRects[stateIndex] = [rectOffsetX, rectOffsetY, rectScaleX, rectScaleY];
   #|         }
   #|       }
   #|       pass.end();
