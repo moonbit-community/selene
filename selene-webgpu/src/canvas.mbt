@@ -1495,6 +1495,113 @@ extern "js" fn webgpu_initialize(
   #|       const shader3dLitTex = rt.device.createShaderModule({
   #|         code: shaderSource(9),
   #|       });
+  #|
+  #|       rt.uniformBuffers = {
+  #|         canvas2d: rt.device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }),
+  #|         camera3d: rt.device.createBuffer({ size: 64, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }),
+  #|         light3d: rt.device.createBuffer({ size: 704, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }),
+  #|         shadowCamera3d: rt.device.createBuffer({ size: 64, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }),
+  #|         shadow3d: rt.device.createBuffer({ size: 5984, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }),
+  #|       };
+  #|       rt.bindGroupLayouts = {
+  #|         canvas2d: rt.device.createBindGroupLayout({
+  #|           entries: [{ binding: 0, visibility: GPUShaderStage.VERTEX, buffer: {} }],
+  #|         }),
+  #|         tex2d: rt.device.createBindGroupLayout({
+  #|           entries: [
+  #|             { binding: 0, visibility: GPUShaderStage.VERTEX, buffer: {} },
+  #|             { binding: 1, visibility: GPUShaderStage.FRAGMENT, sampler: { type: 'filtering' } },
+  #|             { binding: 2, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'float' } },
+  #|           ],
+  #|         }),
+  #|         camera3d: rt.device.createBindGroupLayout({
+  #|           entries: [{ binding: 0, visibility: GPUShaderStage.VERTEX, buffer: {} }],
+  #|         }),
+  #|         shadow3d: rt.device.createBindGroupLayout({
+  #|           entries: [{ binding: 0, visibility: GPUShaderStage.VERTEX, buffer: {} }],
+  #|         }),
+  #|         shadow3dTex: rt.device.createBindGroupLayout({
+  #|           entries: [
+  #|             { binding: 0, visibility: GPUShaderStage.VERTEX, buffer: {} },
+  #|             { binding: 1, visibility: GPUShaderStage.FRAGMENT, sampler: { type: 'filtering' } },
+  #|             { binding: 2, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'float' } },
+  #|           ],
+  #|         }),
+  #|         lit3d: rt.device.createBindGroupLayout({
+  #|           entries: [
+  #|             { binding: 0, visibility: GPUShaderStage.VERTEX, buffer: {} },
+  #|             { binding: 1, visibility: GPUShaderStage.FRAGMENT, buffer: {} },
+  #|             { binding: 2, visibility: GPUShaderStage.FRAGMENT, buffer: {} },
+  #|             { binding: 3, visibility: GPUShaderStage.FRAGMENT, sampler: { type: 'comparison' } },
+  #|             { binding: 4, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'depth' } },
+  #|             { binding: 5, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'depth' } },
+  #|             { binding: 6, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'depth' } },
+  #|             { binding: 7, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'depth' } },
+  #|             { binding: 8, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'depth' } },
+  #|             { binding: 9, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'depth' } },
+  #|           ],
+  #|         }),
+  #|         lit3dTex: rt.device.createBindGroupLayout({
+  #|           entries: [
+  #|             { binding: 0, visibility: GPUShaderStage.VERTEX, buffer: {} },
+  #|             { binding: 1, visibility: GPUShaderStage.FRAGMENT, buffer: {} },
+  #|             { binding: 2, visibility: GPUShaderStage.FRAGMENT, buffer: {} },
+  #|             { binding: 3, visibility: GPUShaderStage.FRAGMENT, sampler: { type: 'comparison' } },
+  #|             { binding: 4, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'depth' } },
+  #|             { binding: 5, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'depth' } },
+  #|             { binding: 6, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'depth' } },
+  #|             { binding: 7, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'depth' } },
+  #|             { binding: 8, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'depth' } },
+  #|             { binding: 9, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'depth' } },
+  #|             { binding: 10, visibility: GPUShaderStage.FRAGMENT, sampler: { type: 'filtering' } },
+  #|             { binding: 11, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'float' } },
+  #|             { binding: 12, visibility: GPUShaderStage.FRAGMENT, sampler: { type: 'filtering' } },
+  #|             { binding: 13, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'float' } },
+  #|             { binding: 14, visibility: GPUShaderStage.FRAGMENT, sampler: { type: 'filtering' } },
+  #|             { binding: 15, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'float' } },
+  #|             { binding: 16, visibility: GPUShaderStage.FRAGMENT, sampler: { type: 'filtering' } },
+  #|             { binding: 17, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'float' } },
+  #|             { binding: 18, visibility: GPUShaderStage.FRAGMENT, sampler: { type: 'filtering' } },
+  #|             { binding: 19, visibility: GPUShaderStage.FRAGMENT, texture: { sampleType: 'float' } },
+  #|           ],
+  #|         }),
+  #|       };
+  #|       rt.bindGroups = {
+  #|         canvas2d: rt.device.createBindGroup({
+  #|           layout: rt.bindGroupLayouts.canvas2d,
+  #|           entries: [{ binding: 0, resource: { buffer: rt.uniformBuffers.canvas2d } }],
+  #|         }),
+  #|         camera3d: rt.device.createBindGroup({
+  #|           layout: rt.bindGroupLayouts.camera3d,
+  #|           entries: [{ binding: 0, resource: { buffer: rt.uniformBuffers.camera3d } }],
+  #|         }),
+  #|         shadow3d: rt.device.createBindGroup({
+  #|           layout: rt.bindGroupLayouts.shadow3d,
+  #|           entries: [{ binding: 0, resource: { buffer: rt.uniformBuffers.shadowCamera3d } }],
+  #|         }),
+  #|       };
+  #|       const blendState = {
+  #|         color: { srcFactor: 'src-alpha', dstFactor: 'one-minus-src-alpha', operation: 'add' },
+  #|         alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },
+  #|       };
+  #|       const blendStateAdditive = {
+  #|         color: { srcFactor: 'src-alpha', dstFactor: 'one', operation: 'add' },
+  #|         alpha: { srcFactor: 'one', dstFactor: 'one', operation: 'add' },
+  #|       };
+  #|       const blendStateMultiply = {
+  #|         color: { srcFactor: 'dst', dstFactor: 'zero', operation: 'add' },
+  #|         alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },
+  #|       };
+  #|       const opaqueTarget = { format: rt.format };
+  #|
+  #|       const layout2dColor = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.canvas2d] });
+  #|       const layout2dTex = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.tex2d] });
+  #|       const layout3d = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.camera3d] });
+  #|       const layoutShadow3d = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.shadow3d] });
+  #|       const layoutShadow3dTex = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.shadow3dTex] });
+  #|       const layoutLit3d = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.lit3d] });
+  #|       const layoutLit3dTex = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.lit3dTex] });
+  #|
   #|       const color2dVertex = {
   #|         arrayStride: 24,
   #|         attributes: [

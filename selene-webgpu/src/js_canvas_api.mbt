@@ -135,6 +135,13 @@ pub fn get_asset_bytes(path : String) -> Bytes? {
 let realtime_delta : Ref[Double] = Ref(0.0)
 
 ///|
+extern "js" fn webgpu_runtime_ready() -> Bool =
+  #| () => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   return !!(rt?.ready && rt?.device && rt?.context);
+  #| }
+
+///|
 pub fn initialize(
   config : @runtime.WindowConfig,
   callbacks : @runtime.RunnerCallbacks,
@@ -180,6 +187,9 @@ pub fn initialize(
     realtime_delta.val = delta
     sync_gamepad_events()
     service_frame()
+    if !webgpu_runtime_ready() {
+      return
+    }
     game_loop(delta * canvas_backend.time_scale)
     render_loop(delta * canvas_backend.time_scale)
     service_frame()
