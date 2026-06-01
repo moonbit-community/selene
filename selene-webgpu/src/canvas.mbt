@@ -52,6 +52,7 @@ extern "js" fn webgpu_initialize(
   #|       shadowCameraBuffers: [],
   #|       dynamicBuffers: new Map(),
   #|       retiredDynamicBuffers: [],
+  #|       primitiveMeshCache: new Map(),
   #|     };
   #|
   #|     const clamp01 = (x) => Math.max(0, Math.min(1, x));
@@ -483,6 +484,60 @@ extern "js" fn webgpu_initialize(
   #|         rt.dynamicBuffers.set(name, { buffer, size });
   #|       }
   #|       return rt.dynamicBuffers.get(name).buffer;
+  #|     };
+  #|
+  #|     rt.destroyPrimitiveMeshCache = () => {
+  #|       for (const record of rt.primitiveMeshCache.values()) {
+  #|         if (record?.buffer) {
+  #|           try { record.buffer.destroy(); } catch (_err) {}
+  #|         }
+  #|       }
+  #|       rt.primitiveMeshCache.clear();
+  #|     };
+  #|
+  #|     rt.floatKey = (value) => {
+  #|       const n = Number(value);
+  #|       return Number.isFinite(n) ? n.toFixed(6) : '0.000000';
+  #|     };
+  #|
+  #|     rt.colorKey = (values) =>
+  #|       Array.isArray(values)
+  #|         ? values.map((value) => rt.floatKey(value)).join(',')
+  #|         : '';
+  #|
+  #|     rt.litPrimitiveStyleKey = (color, emissive, alphaMode, alphaCutoff, unlit) =>
+  #|       [
+  #|         rt.colorKey(color),
+  #|         rt.colorKey(emissive),
+  #|         rt.floatKey(alphaMode),
+  #|         rt.floatKey(alphaCutoff),
+  #|         unlit ? '1' : '0',
+  #|       ].join('|');
+  #|
+  #|     rt.resolvePrimitiveMeshRecord = (key, createVerts) => {
+  #|       const cacheKey = String(key || '');
+  #|       const existing = rt.primitiveMeshCache.get(cacheKey);
+  #|       if (existing?.buffer && existing?.verts) {
+  #|         return existing;
+  #|       }
+  #|       const verts = createVerts();
+  #|       if (!verts || verts.byteLength <= 0) {
+  #|         return null;
+  #|       }
+  #|       const buffer = rt.device.createBuffer({
+  #|         size: verts.byteLength,
+  #|         usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  #|       });
+  #|       rt.device.queue.writeBuffer(buffer, 0, verts.buffer, verts.byteOffset, verts.byteLength);
+  #|       const record = {
+  #|         key: cacheKey,
+  #|         verts,
+  #|         buffer,
+  #|         vertexCount: verts.length / 17,
+  #|         byteLength: verts.byteLength,
+  #|       };
+  #|       rt.primitiveMeshCache.set(cacheKey, record);
+  #|       return record;
   #|     };
   #|
   #|     rt.createImageTexture = (source, width, height) => {
@@ -1278,17 +1333,22 @@ extern "js" fn webgpu_initialize(
   #|     };
   #|     rt.pushCube3d = (cx, cy, cz, sizeX, sizeY, sizeZ, qx, qy, qz, qw, sx, sy, sz, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
   #|       if (!rt.current3dSection) return;
-  #|       const verts = rt.makeLitCube(
-  #|         sizeX,
-  #|         sizeY,
-  #|         sizeZ,
-  #|         colorNorm(r, g, b, a),
-  #|         [clamp01(emissiveR), clamp01(emissiveG), clamp01(emissiveB)],
-  #|         Number(alphaMode) || 0.0,
-  #|         Math.max(0.0, Number(alphaCutoff) || 0.0),
-  #|         !!unlit,
+  #|       const color = colorNorm(r, g, b, a);
+  #|       const emissive = [clamp01(emissiveR), clamp01(emissiveG), clamp01(emissiveB)];
+  #|       const safeAlphaMode = Number(alphaMode) || 0.0;
+  #|       const safeAlphaCutoff = Math.max(0.0, Number(alphaCutoff) || 0.0);
+  #|       const litKey = [
+  #|         'lit-cube',
+  #|         rt.floatKey(sizeX),
+  #|         rt.floatKey(sizeY),
+  #|         rt.floatKey(sizeZ),
+  #|         rt.litPrimitiveStyleKey(color, emissive, safeAlphaMode, safeAlphaCutoff, !!unlit),
+  #|       ].join('|');
+  #|       const meshRecord = rt.resolvePrimitiveMeshRecord(litKey, () =>
+  #|         rt.makeLitCube(sizeX, sizeY, sizeZ, color, emissive, safeAlphaMode, safeAlphaCutoff, !!unlit),
   #|       );
-  #|       rt.pushColoredTriangles3d(verts, cx, cy, cz, qx, qy, qz, qw, !!doubleSided, castShadows, receiveShadows, sx, sy, sz);
+  #|       if (!meshRecord) return;
+  #|       rt.pushColoredTriangles3d(meshRecord.verts, cx, cy, cz, qx, qy, qz, qw, !!doubleSided, castShadows, receiveShadows, sx, sy, sz);
   #|     };
   #|     rt.pushCubeWires3d = (cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, r, g, b, a) => {
   #|       if (!rt.current3dSection) return;
@@ -1298,30 +1358,41 @@ extern "js" fn webgpu_initialize(
   #|     };
   #|     rt.pushSphere3d = (cx, cy, cz, radius, qx, qy, qz, qw, sx, sy, sz, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
   #|       if (!rt.current3dSection) return;
-  #|       const verts = rt.makeLitSphere(
-  #|         radius,
-  #|         colorNorm(r, g, b, a),
-  #|         [clamp01(emissiveR), clamp01(emissiveG), clamp01(emissiveB)],
-  #|         Number(alphaMode) || 0.0,
-  #|         Math.max(0.0, Number(alphaCutoff) || 0.0),
-  #|         !!unlit,
+  #|       const color = colorNorm(r, g, b, a);
+  #|       const emissive = [clamp01(emissiveR), clamp01(emissiveG), clamp01(emissiveB)];
+  #|       const safeAlphaMode = Number(alphaMode) || 0.0;
+  #|       const safeAlphaCutoff = Math.max(0.0, Number(alphaCutoff) || 0.0);
+  #|       const litKey = [
+  #|         'lit-sphere',
+  #|         rt.floatKey(radius),
+  #|         rt.litPrimitiveStyleKey(color, emissive, safeAlphaMode, safeAlphaCutoff, !!unlit),
+  #|       ].join('|');
+  #|       const meshRecord = rt.resolvePrimitiveMeshRecord(litKey, () =>
+  #|         rt.makeLitSphere(radius, color, emissive, safeAlphaMode, safeAlphaCutoff, !!unlit),
   #|       );
-  #|       rt.pushColoredTriangles3d(verts, cx, cy, cz, qx, qy, qz, qw, !!doubleSided, castShadows, receiveShadows, sx, sy, sz);
+  #|       if (!meshRecord) return;
+  #|       rt.pushColoredTriangles3d(meshRecord.verts, cx, cy, cz, qx, qy, qz, qw, !!doubleSided, castShadows, receiveShadows, sx, sy, sz);
   #|     };
   #|     rt.pushCylinder3d = (cx, cy, cz, rtTop, rtBottom, h, slices, qx, qy, qz, qw, sx, sy, sz, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
   #|       if (!rt.current3dSection) return;
-  #|       const verts = rt.makeLitCylinder(
-  #|         rtTop,
-  #|         rtBottom,
-  #|         h,
-  #|         slices,
-  #|         colorNorm(r, g, b, a),
-  #|         [clamp01(emissiveR), clamp01(emissiveG), clamp01(emissiveB)],
-  #|         Number(alphaMode) || 0.0,
-  #|         Math.max(0.0, Number(alphaCutoff) || 0.0),
-  #|         !!unlit,
+  #|       const color = colorNorm(r, g, b, a);
+  #|       const emissive = [clamp01(emissiveR), clamp01(emissiveG), clamp01(emissiveB)];
+  #|       const safeAlphaMode = Number(alphaMode) || 0.0;
+  #|       const safeAlphaCutoff = Math.max(0.0, Number(alphaCutoff) || 0.0);
+  #|       const safeSlices = Math.max(3, slices | 0);
+  #|       const litKey = [
+  #|         'lit-cylinder',
+  #|         rt.floatKey(rtTop),
+  #|         rt.floatKey(rtBottom),
+  #|         rt.floatKey(h),
+  #|         String(safeSlices),
+  #|         rt.litPrimitiveStyleKey(color, emissive, safeAlphaMode, safeAlphaCutoff, !!unlit),
+  #|       ].join('|');
+  #|       const meshRecord = rt.resolvePrimitiveMeshRecord(litKey, () =>
+  #|         rt.makeLitCylinder(rtTop, rtBottom, h, safeSlices, color, emissive, safeAlphaMode, safeAlphaCutoff, !!unlit),
   #|       );
-  #|       rt.pushColoredTriangles3d(verts, cx, cy, cz, qx, qy, qz, qw, !!doubleSided, castShadows, receiveShadows, sx, sy, sz);
+  #|       if (!meshRecord) return;
+  #|       rt.pushColoredTriangles3d(meshRecord.verts, cx, cy, cz, qx, qy, qz, qw, !!doubleSided, castShadows, receiveShadows, sx, sy, sz);
   #|     };
   #|     rt.pushTriangles3d = (verts, tx, ty, tz, qx, qy, qz, qw, r, g, b, a) => {
   #|       if (!rt.current3dSection) return;
@@ -2285,6 +2356,7 @@ extern "js" fn webgpu_initialize(
   #|         throw new Error('Failed to acquire WebGPU adapter');
   #|       }
   #|       rt.device = await rt.adapter.requestDevice();
+  #|       rt.destroyPrimitiveMeshCache();
   #|       rt.context = rt.canvas.getContext('webgpu');
   #|       rt.format = navigator.gpu.getPreferredCanvasFormat();
   #|       rt.context.configure({
