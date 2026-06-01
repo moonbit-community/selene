@@ -7,6 +7,16 @@
 ### Changed
 
 ### Fixed
+
+### Removed
+
+## [0.34.4] - 2026-06-01
+
+### Added
+
+### Changed
+
+### Fixed
 - Fixed WebGPU canvas initialization so shader module extraction no longer leaves pipeline layouts and uniform buffers undefined before pipeline creation.
 - Fixed the WebGPU window loop so game/render frames wait for async WebGPU device initialization before submitting render resources.
 
