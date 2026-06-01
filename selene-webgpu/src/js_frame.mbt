@@ -18,15 +18,13 @@ extern "js" fn webgpu_reset_clip_stack() -> Unit =
 
 ///|
 extern "js" fn webgpu_push_color_vertices_2d(
-  topology : String,
   vertices : Array[Double],
-  alpha_mode : Int,
-  blend_mode : Int,
+  pipeline_code : Int,
 ) -> Unit =
-  #| (topology, vertices, alphaMode, blendMode) => {
+  #| (vertices, pipelineCode) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushColor2d(topology, new Float32Array(vertices), alphaMode, blendMode);
+  #|     rt.pushColor2d(new Float32Array(vertices), pipelineCode);
   #|   }
   #| }
 
@@ -45,15 +43,14 @@ extern "js" fn webgpu_push_texture_vertices_2d(
   path : String,
   sampler_code : Int,
   vertices : Array[Double],
-  alpha_mode : Int,
-  blend_mode : Int,
+  pipeline_code : Int,
 ) -> Unit =
-  #| (path, samplerCode, vertices, alphaMode, blendMode) => {
+  #| (path, samplerCode, vertices, pipelineCode) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (!rt) return;
   #|   const rec = rt.ensureImage(path);
   #|   if (!rec || rec.state !== 'ready') return;
-  #|   rt.pushTex2d(samplerCode, rec, new Float32Array(vertices), alphaMode, blendMode);
+  #|   rt.pushTex2d(samplerCode, rec, new Float32Array(vertices), pipelineCode);
   #| }
 
 ///|
@@ -84,14 +81,14 @@ extern "js" fn webgpu_push_text_vertices_2d(
   color_b : Double,
   color_a : Double,
   vertices : Array[Double],
-  blend_mode : Int,
+  pipeline_code : Int,
 ) -> Unit =
-  #| (text, family, size, r, g, bcol, alpha, vertices, blendMode) => {
+  #| (text, family, size, r, g, bcol, alpha, vertices, pipelineCode) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (!rt) return;
   #|   const rec = rt.ensureTextTexture(text, family, size, r, g, bcol, alpha);
   #|   if (!rec) return;
-  #|   rt.pushTex2d(0, rec, new Float32Array(vertices), 1, blendMode);
+  #|   rt.pushTex2d(0, rec, new Float32Array(vertices), pipelineCode);
   #| }
 
 ///|
@@ -115,12 +112,12 @@ extern "js" fn webgpu_upload_text_texture(
 extern "js" fn webgpu_push_cached_text_vertices_2d(
   key : String,
   vertices : Array[Double],
-  blend_mode : Int,
+  pipeline_code : Int,
 ) -> Unit =
-  #| (key, vertices, blendMode) => {
+  #| (key, vertices, pipelineCode) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (!rt) return;
   #|   const rec = rt.textCache.get(key);
   #|   if (!rec) return;
-  #|   rt.pushTex2d(0, rec, new Float32Array(vertices), 1, blendMode);
+  #|   rt.pushTex2d(0, rec, new Float32Array(vertices), pipelineCode);
   #| }

@@ -30,6 +30,36 @@ fn blend_mode_to_code(blend_mode : @render.BlendMode2D) -> Int {
 }
 
 ///|
+fn color_pipeline2d_code(
+  topology : String,
+  alpha_code : Int,
+  blend_code : Int,
+) -> Int {
+  if topology == "line" {
+    match blend_code {
+      1 => 6
+      2 => 7
+      _ => if alpha_code == 0 { 5 } else { 4 }
+    }
+  } else {
+    match blend_code {
+      1 => 2
+      2 => 3
+      _ => if alpha_code == 0 { 1 } else { 0 }
+    }
+  }
+}
+
+///|
+fn texture_pipeline2d_code(alpha_code : Int, blend_code : Int) -> Int {
+  match blend_code {
+    1 => 10
+    2 => 11
+    _ => if alpha_code == 0 { 9 } else { 8 }
+  }
+}
+
+///|
 fn color_rgba(color : @render.Color) -> (Double, Double, Double, Double) {
   (
     color.r.reinterpret_as_int().to_double(),
@@ -249,14 +279,16 @@ pub fn render2d_begin_pass(
       Offscreen(_) => { position: @smath.Vec2::zero(), size: viewport.size }
     }
     webgpu_push_color_vertices_2d(
-      "triangle",
       pack_rect_fill_vertices2d(clear_viewport, @smath.Transform(), clear_color),
-      if clear_color.a >= 0.999999 {
-        0
-      } else {
-        1
-      },
-      0,
+      color_pipeline2d_code(
+        "triangle",
+        if clear_color.a >= 0.999999 {
+          0
+        } else {
+          1
+        },
+        0,
+      ),
     )
   }
 }
@@ -304,8 +336,10 @@ pub fn draw_image(
     path,
     packed.sampler_code,
     packed.vertices,
-    alpha_mode_to_code(command.alpha_mode),
-    blend_mode_to_code(command.blend_mode),
+    texture_pipeline2d_code(
+      alpha_mode_to_code(command.alpha_mode),
+      blend_mode_to_code(command.blend_mode),
+    ),
   )
 }
 
@@ -339,7 +373,7 @@ pub fn draw_text(command : @render2d_types.TextDrawCommand2D) -> Unit {
     b,
     a,
     pack_text_vertices2d(command, dimensions[1], dimensions[2]),
-    blend_mode_to_code(command.blend_mode),
+    texture_pipeline2d_code(1, blend_mode_to_code(command.blend_mode)),
   )
 }
 
@@ -361,26 +395,30 @@ pub fn measure_text(
 ///|
 pub fn draw_rect(command : @render2d_types.RectDrawCommand2D) -> Unit {
   webgpu_push_color_vertices_2d(
-    "triangle",
     pack_rect_fill_vertices2d(
       command.rect,
       command.transform,
       command.fill_color,
     ),
-    alpha_mode_to_code(command.alpha_mode),
-    blend_mode_to_code(command.blend_mode),
+    color_pipeline2d_code(
+      "triangle",
+      alpha_mode_to_code(command.alpha_mode),
+      blend_mode_to_code(command.blend_mode),
+    ),
   )
   match command.stroke_color {
     Some(stroke_color) =>
       webgpu_push_color_vertices_2d(
-        "line",
         pack_rect_stroke_vertices2d(
           command.rect,
           command.transform,
           stroke_color,
         ),
-        alpha_mode_to_code(command.alpha_mode),
-        blend_mode_to_code(command.blend_mode),
+        color_pipeline2d_code(
+          "line",
+          alpha_mode_to_code(command.alpha_mode),
+          blend_mode_to_code(command.blend_mode),
+        ),
       )
     None => ()
   }
@@ -389,28 +427,32 @@ pub fn draw_rect(command : @render2d_types.RectDrawCommand2D) -> Unit {
 ///|
 pub fn draw_circle(command : @render2d_types.CircleDrawCommand2D) -> Unit {
   webgpu_push_color_vertices_2d(
-    "triangle",
     pack_circle_fill_vertices2d(
       command.center,
       command.radius,
       command.transform,
       command.fill_color,
     ),
-    alpha_mode_to_code(command.alpha_mode),
-    blend_mode_to_code(command.blend_mode),
+    color_pipeline2d_code(
+      "triangle",
+      alpha_mode_to_code(command.alpha_mode),
+      blend_mode_to_code(command.blend_mode),
+    ),
   )
   match command.stroke_color {
     Some(stroke_color) =>
       webgpu_push_color_vertices_2d(
-        "line",
         pack_circle_stroke_vertices2d(
           command.center,
           command.radius,
           command.transform,
           stroke_color,
         ),
-        alpha_mode_to_code(command.alpha_mode),
-        blend_mode_to_code(command.blend_mode),
+        color_pipeline2d_code(
+          "line",
+          alpha_mode_to_code(command.alpha_mode),
+          blend_mode_to_code(command.blend_mode),
+        ),
       )
     None => ()
   }
@@ -421,15 +463,17 @@ pub fn draw_gradient_rect(
   command : @render2d_types.GradientRectDrawCommand2D,
 ) -> Unit {
   webgpu_push_color_vertices_2d(
-    "triangle",
     pack_gradient_rect_vertices2d(
       command.rect,
       command.transform,
       command.color_start,
       command.color_end,
     ),
-    alpha_mode_to_code(command.alpha_mode),
-    blend_mode_to_code(command.blend_mode),
+    color_pipeline2d_code(
+      "triangle",
+      alpha_mode_to_code(command.alpha_mode),
+      blend_mode_to_code(command.blend_mode),
+    ),
   )
 }
 

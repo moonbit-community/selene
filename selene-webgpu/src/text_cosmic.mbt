@@ -244,7 +244,7 @@ fn draw_text_with_cosmic(command : @render2d_types.TextDrawCommand2D) -> Bool {
           entry.width.to_double(),
           entry.height.to_double(),
         ),
-        blend_mode_to_code(command.blend_mode),
+        texture_pipeline2d_code(1, blend_mode_to_code(command.blend_mode)),
       )
       true
     }

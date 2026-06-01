@@ -435,6 +435,22 @@ test "pack_directional_light_data includes shadow metadata and cascade bounds" {
 }
 
 ///|
+test "2D pipeline codes are selected in MoonBit" {
+  inspect(color_pipeline2d_code("triangle", 1, 0), content="0")
+  inspect(color_pipeline2d_code("triangle", 0, 0), content="1")
+  inspect(color_pipeline2d_code("triangle", 1, 1), content="2")
+  inspect(color_pipeline2d_code("triangle", 1, 2), content="3")
+  inspect(color_pipeline2d_code("line", 1, 0), content="4")
+  inspect(color_pipeline2d_code("line", 0, 0), content="5")
+  inspect(color_pipeline2d_code("line", 1, 1), content="6")
+  inspect(color_pipeline2d_code("line", 1, 2), content="7")
+  inspect(texture_pipeline2d_code(1, 0), content="8")
+  inspect(texture_pipeline2d_code(0, 0), content="9")
+  inspect(texture_pipeline2d_code(1, 1), content="10")
+  inspect(texture_pipeline2d_code(1, 2), content="11")
+}
+
+///|
 test "pack directional shadow cascades in MoonBit" {
   let frame = @render3d_types.empty_render_frame3d()
   frame.camera = Some(webgpu_test_camera())

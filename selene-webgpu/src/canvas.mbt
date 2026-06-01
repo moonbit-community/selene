@@ -60,12 +60,6 @@ extern "js" fn webgpu_initialize(
   #|     };
   #|
   #|     const clamp01 = (x) => Math.max(0, Math.min(1, x));
-  #|     const colorNorm = (r, g, b, a) => [
-  #|       clamp01((r || 0) / 255.0),
-  #|       clamp01((g || 0) / 255.0),
-  #|       clamp01((b || 0) / 255.0),
-  #|       clamp01(a == null ? 1.0 : a),
-  #|     ];
   #|     const toCanvasSize = () => [
   #|       Math.max(1, Math.floor(rt.canvas?.width || 1)),
   #|       Math.max(1, Math.floor(rt.canvas?.height || 1)),
@@ -558,17 +552,16 @@ extern "js" fn webgpu_initialize(
   #|       rt.passes2d.push(rt.current2dPass);
   #|       rt.current2dPass = null;
   #|     };
-  #|     rt.pushColor2d = (topology, verts, alphaMode = 1, blendMode = 0) => {
-  #|       rt.current2dCommandList().push({ kind: 'color', topology, verts, alphaMode, blendMode });
+  #|     rt.pushColor2d = (verts, pipelineCode = 0) => {
+  #|       rt.current2dCommandList().push({ kind: 'color', verts, pipelineCode });
   #|     };
-  #|     rt.pushTex2d = (samplerCode, textureRec, verts, alphaMode = 1, blendMode = 0) => {
+  #|     rt.pushTex2d = (samplerCode, textureRec, verts, pipelineCode = 8) => {
   #|       rt.current2dCommandList().push({
   #|         kind: 'tex',
   #|         samplerCode,
   #|         textureRec,
   #|         verts,
-  #|         alphaMode,
-  #|         blendMode,
+  #|         pipelineCode,
   #|       });
   #|     };
   #|     rt.pushClip2d = (x, y, w, h) => {
@@ -1185,13 +1178,22 @@ extern "js" fn webgpu_initialize(
   #|       pass.setScissorRect(scissorX, scissorY, scissorW, scissorH);
   #|       return true;
   #|     };
-  #|     rt.colorCommand2d = (topology, verts, alphaMode = 1, blendMode = 0) => ({
-  #|       kind: 'color',
-  #|       topology,
-  #|       verts,
-  #|       alphaMode,
-  #|       blendMode,
-  #|     });
+  #|     rt.pipeline2d = (code) => {
+  #|       switch (code | 0) {
+  #|         case 1: return rt.pipelines.color2dTriOpaque;
+  #|         case 2: return rt.pipelines.color2dTriAdditive;
+  #|         case 3: return rt.pipelines.color2dTriMultiply;
+  #|         case 4: return rt.pipelines.color2dLine;
+  #|         case 5: return rt.pipelines.color2dLineOpaque;
+  #|         case 6: return rt.pipelines.color2dLineAdditive;
+  #|         case 7: return rt.pipelines.color2dLineMultiply;
+  #|         case 8: return rt.pipelines.tex2dTri;
+  #|         case 9: return rt.pipelines.tex2dTriOpaque;
+  #|         case 10: return rt.pipelines.tex2dTriAdditive;
+  #|         case 11: return rt.pipelines.tex2dTriMultiply;
+  #|         default: return rt.pipelines.color2dTri;
+  #|       }
+  #|     };
   #|     rt.render2d = (pass, passRecord, surfaceWidth, surfaceHeight, bufferScope = 0) => {
   #|       const canvasWidth = Math.max(1, Math.floor(surfaceWidth || rt.canvas?.width || 1));
   #|       const canvasHeight = Math.max(1, Math.floor(surfaceHeight || rt.canvas?.height || 1));
@@ -1238,15 +1240,7 @@ extern "js" fn webgpu_initialize(
   #|           continue;
   #|         }
   #|         if (cmd.kind === 'color') {
-  #|           if (cmd.topology === 'line') {
-  #|             if (cmd.blendMode === 1) pass.setPipeline(rt.pipelines.color2dLineAdditive);
-  #|             else if (cmd.blendMode === 2) pass.setPipeline(rt.pipelines.color2dLineMultiply);
-  #|             else pass.setPipeline(cmd.alphaMode === 0 ? rt.pipelines.color2dLineOpaque : rt.pipelines.color2dLine);
-  #|           } else {
-  #|             if (cmd.blendMode === 1) pass.setPipeline(rt.pipelines.color2dTriAdditive);
-  #|             else if (cmd.blendMode === 2) pass.setPipeline(rt.pipelines.color2dTriMultiply);
-  #|             else pass.setPipeline(cmd.alphaMode === 0 ? rt.pipelines.color2dTriOpaque : rt.pipelines.color2dTri);
-  #|           }
+  #|           pass.setPipeline(rt.pipeline2d(cmd.pipelineCode));
   #|           pass.setBindGroup(0, rt.bindGroups.canvas2d);
   #|           rt.device.queue.writeBuffer(colorVb, colorOffset, cmd.verts.buffer, cmd.verts.byteOffset, cmd.verts.byteLength);
   #|           pass.setVertexBuffer(0, colorVb, colorOffset, cmd.verts.byteLength);
@@ -1256,9 +1250,7 @@ extern "js" fn webgpu_initialize(
   #|         }
   #|         const rec = cmd.textureRec;
   #|         if (!rec?.view) continue;
-  #|         if (cmd.blendMode === 1) pass.setPipeline(rt.pipelines.tex2dTriAdditive);
-  #|         else if (cmd.blendMode === 2) pass.setPipeline(rt.pipelines.tex2dTriMultiply);
-  #|         else pass.setPipeline(cmd.alphaMode === 0 ? rt.pipelines.tex2dTriOpaque : rt.pipelines.tex2dTri);
+  #|         pass.setPipeline(rt.pipeline2d(cmd.pipelineCode));
   #|         rt.device.queue.writeBuffer(texVb, texOffset, cmd.verts.buffer, cmd.verts.byteOffset, cmd.verts.byteLength);
   #|         const sampler = cmd.samplerCode === 3
   #|           ? rt.samplers.repeat
