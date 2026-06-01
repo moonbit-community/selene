@@ -532,9 +532,9 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
           Some(bundle) =>
             draw_triangle_mesh_instance(
               build_cuboid_triangle_mesh3d(
-                size.x * item.transform.scale.x,
-                size.y * item.transform.scale.y,
-                size.z * item.transform.scale.z,
+                size.x,
+                size.y,
+                size.z,
                 uv_set_count=required_primitive_uv_set_count(bundle),
               ),
               material,
@@ -542,8 +542,8 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               color,
               center,
               rotation,
-              @smath.Vec3::one(),
-              false,
+              item.transform.scale,
+              material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
             )
@@ -552,13 +552,16 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               center.x,
               center.y,
               center.z,
-              size.x * item.transform.scale.x,
-              size.y * item.transform.scale.y,
-              size.z * item.transform.scale.z,
+              size.x,
+              size.y,
+              size.z,
               rotation.x,
               rotation.y,
               rotation.z,
               rotation.w,
+              item.transform.scale.x,
+              item.transform.scale.y,
+              item.transform.scale.z,
               color.r.reinterpret_as_int().to_double(),
               color.g.reinterpret_as_int().to_double(),
               color.b.reinterpret_as_int().to_double(),
@@ -569,6 +572,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               alpha_mode,
               alpha_cutoff,
               unlit,
+              material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
             )
@@ -578,7 +582,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
           Some(bundle) =>
             draw_triangle_mesh_instance(
               build_sphere_triangle_mesh3d(
-                scaled_radius(radius, item.transform.scale),
+                radius,
                 TEXTURED_SPHERE_SLICES,
                 TEXTURED_SPHERE_STACKS,
                 uv_set_count=required_primitive_uv_set_count(bundle),
@@ -588,8 +592,8 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               color,
               center,
               rotation,
-              @smath.Vec3::one(),
-              false,
+              item.transform.scale,
+              material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
             )
@@ -598,11 +602,14 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               center.x,
               center.y,
               center.z,
-              scaled_radius(radius, item.transform.scale),
+              radius,
               rotation.x,
               rotation.y,
               rotation.z,
               rotation.w,
+              item.transform.scale.x,
+              item.transform.scale.y,
+              item.transform.scale.z,
               color.r.reinterpret_as_int().to_double(),
               color.g.reinterpret_as_int().to_double(),
               color.b.reinterpret_as_int().to_double(),
@@ -613,6 +620,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               alpha_mode,
               alpha_cutoff,
               unlit,
+              material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
             )
@@ -622,9 +630,9 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
           Some(bundle) =>
             draw_triangle_mesh_instance(
               build_cylinder_triangle_mesh3d(
-                scaled_radius(radius_top, item.transform.scale),
-                scaled_radius(radius_bottom, item.transform.scale),
-                height * item.transform.scale.y.abs(),
+                radius_top,
+                radius_bottom,
+                height,
                 slices,
                 uv_set_count=required_primitive_uv_set_count(bundle),
               ),
@@ -633,8 +641,8 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               color,
               center,
               rotation,
-              @smath.Vec3::one(),
-              false,
+              item.transform.scale,
+              material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
             )
@@ -643,14 +651,17 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               center.x,
               center.y,
               center.z,
-              scaled_radius(radius_top, item.transform.scale),
-              scaled_radius(radius_bottom, item.transform.scale),
-              height * item.transform.scale.y.abs(),
+              radius_top,
+              radius_bottom,
+              height,
               slices,
               rotation.x,
               rotation.y,
               rotation.z,
               rotation.w,
+              item.transform.scale.x,
+              item.transform.scale.y,
+              item.transform.scale.z,
               color.r.reinterpret_as_int().to_double(),
               color.g.reinterpret_as_int().to_double(),
               color.b.reinterpret_as_int().to_double(),
@@ -661,20 +672,20 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               alpha_mode,
               alpha_cutoff,
               unlit,
+              material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
             )
         }
       Plane(size) => {
-        let scaled = scaled_vec3(size, item.transform.scale)
-        let y = if scaled.y.abs() < 0.0001 { 0.02 } else { scaled.y }
+        let y = if size.y.abs() < 0.0001 { 0.02 } else { size.y }
         match texture_bundle {
           Some(bundle) =>
             draw_triangle_mesh_instance(
               build_cuboid_triangle_mesh3d(
-                scaled.x,
+                size.x,
                 y,
-                scaled.z,
+                size.z,
                 uv_set_count=required_primitive_uv_set_count(bundle),
               ),
               material,
@@ -682,8 +693,8 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               color,
               center,
               rotation,
-              @smath.Vec3::one(),
-              false,
+              item.transform.scale,
+              material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
             )
@@ -692,13 +703,16 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               center.x,
               center.y,
               center.z,
-              scaled.x,
+              size.x,
               y,
-              scaled.z,
+              size.z,
               rotation.x,
               rotation.y,
               rotation.z,
               rotation.w,
+              item.transform.scale.x,
+              item.transform.scale.y,
+              item.transform.scale.z,
               color.r.reinterpret_as_int().to_double(),
               color.g.reinterpret_as_int().to_double(),
               color.b.reinterpret_as_int().to_double(),
@@ -709,6 +723,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               alpha_mode,
               alpha_cutoff,
               unlit,
+              material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
             )
@@ -756,7 +771,7 @@ fn draw_triangle_mesh_instance(
           triangle_indices,
           normals,
           mesh.colors,
-          scale,
+          @smath.Vec3::one(),
           material,
           color,
           receive_shadows,
@@ -771,6 +786,9 @@ fn draw_triangle_mesh_instance(
         double_sided,
         cast_shadows,
         receive_shadows,
+        scale.x,
+        scale.y,
+        scale.z,
       )
     }
     match texture_bundle {
@@ -835,7 +853,7 @@ fn draw_triangle_mesh_instance(
                   normals,
                   tangents,
                   mesh.colors,
-                  scale,
+                  @smath.Vec3::one(),
                   material,
                   color,
                   receive_shadows,
@@ -850,6 +868,9 @@ fn draw_triangle_mesh_instance(
                 double_sided,
                 cast_shadows,
                 receive_shadows,
+                scale.x,
+                scale.y,
+                scale.z,
               )
             } else {
               draw_colored()
@@ -999,18 +1020,18 @@ fn build_sphere_triangle_mesh3d(
       let n11 = sphere_vertex_normal(p11)
       if stack == 0 {
         push_textured_triangle3d(
-          positions, uvs, normals, p00, p10, p11, uv00, uv10, uv11, n00, n10, n11,
+          positions, uvs, normals, p00, p11, p10, uv00, uv11, uv10, n00, n11, n10,
         )
       } else if stack == safe_stacks - 1 {
         push_textured_triangle3d(
-          positions, uvs, normals, p00, p10, p01, uv00, uv10, uv01, n00, n10, n01,
+          positions, uvs, normals, p00, p01, p10, uv00, uv01, uv10, n00, n01, n10,
         )
       } else {
         push_textured_triangle3d(
-          positions, uvs, normals, p00, p10, p11, uv00, uv10, uv11, n00, n10, n11,
+          positions, uvs, normals, p00, p11, p10, uv00, uv11, uv10, n00, n11, n10,
         )
         push_textured_triangle3d(
-          positions, uvs, normals, p00, p11, p01, uv00, uv11, uv01, n00, n11, n01,
+          positions, uvs, normals, p00, p01, p11, uv00, uv01, uv11, n00, n01, n11,
         )
       }
     }
@@ -1211,23 +1232,6 @@ fn push_textured_triangle3d(
   normals.push(n_a)
   normals.push(n_b)
   normals.push(n_c)
-}
-
-///|
-fn scaled_vec3(size : @smath.Vec3, scale : @smath.Vec3) -> @smath.Vec3 {
-  {
-    x: size.x * scale.x.abs(),
-    y: size.y * scale.y.abs(),
-    z: size.z * scale.z.abs(),
-  }
-}
-
-///|
-fn scaled_radius(radius : Double, scale : @smath.Vec3) -> Double {
-  let sx = scale.x.abs()
-  let sz = scale.z.abs()
-  let max_xz = if sx > sz { sx } else { sz }
-  radius * max_xz
 }
 
 ///|

@@ -394,6 +394,34 @@ test "textured primitive mesh builders provide aligned position/uv/normal stream
 }
 
 ///|
+test "cuboid and sphere primitive triangles wind toward their outward normals" {
+  let cuboid = build_cuboid_triangle_mesh3d(2.0, 4.0, 6.0)
+  let cuboid_normals = cuboid.normals.unwrap()
+  inspect(
+    triangle_winding_dot(
+      cuboid.positions[0],
+      cuboid.positions[1],
+      cuboid.positions[2],
+      cuboid_normals[0],
+    ) > 0.0,
+    content="true",
+  )
+
+  let sphere = build_sphere_triangle_mesh3d(1.0, 8, 6)
+  let sphere_normals = sphere.normals.unwrap()
+  let triangle_base = 6
+  inspect(
+    triangle_winding_dot(
+      sphere.positions[triangle_base],
+      sphere.positions[triangle_base + 1],
+      sphere.positions[triangle_base + 2],
+      sphere_normals[triangle_base],
+    ) > 0.0,
+    content="true",
+  )
+}
+
+///|
 test "cylinder primitive side triangles wind toward their outward normals" {
   let cylinder = build_cylinder_triangle_mesh3d(1.0, 1.0, 2.0, 8)
   let normals = cylinder.normals.unwrap()

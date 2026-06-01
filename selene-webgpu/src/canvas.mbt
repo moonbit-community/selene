@@ -933,7 +933,7 @@ extern "js" fn webgpu_initialize(
   #|       rt.pushTex2d(0, rec, verts, 1, blendMode);
   #|     };
   #|
-  #|     rt.transformVerts3dWithStride = (verts, stride, tx, ty, tz, qx, qy, qz, qw, normalOffset = -1, tangentOffset = -1) => {
+  #|     rt.transformVerts3dWithStride = (verts, stride, tx, ty, tz, qx, qy, qz, qw, normalOffset = -1, tangentOffset = -1, sx = 1.0, sy = 1.0, sz = 1.0) => {
   #|       let qnx = qx;
   #|       let qny = qy;
   #|       let qnz = qz;
@@ -962,14 +962,17 @@ extern "js" fn webgpu_initialize(
   #|         return [rx, ry, rz];
   #|       };
   #|       for (let i = 0; i < verts.length; i += stride) {
-  #|         const [rx, ry, rz] = rotate(verts[i], verts[i + 1], verts[i + 2]);
+  #|         const [rx, ry, rz] = rotate(verts[i] * sx, verts[i + 1] * sy, verts[i + 2] * sz);
   #|         verts[i] = rx + tx;
   #|         verts[i + 1] = ry + ty;
   #|         verts[i + 2] = rz + tz;
   #|         if (normalOffset >= 0) {
   #|           const ni = i + normalOffset;
   #|           if (ni + 2 < verts.length) {
-  #|             const [nx, ny, nz] = rotate(verts[ni], verts[ni + 1], verts[ni + 2]);
+  #|             const localNx = Math.abs(sx) > 1e-8 ? verts[ni] / sx : verts[ni];
+  #|             const localNy = Math.abs(sy) > 1e-8 ? verts[ni + 1] / sy : verts[ni + 1];
+  #|             const localNz = Math.abs(sz) > 1e-8 ? verts[ni + 2] / sz : verts[ni + 2];
+  #|             const [nx, ny, nz] = rotate(localNx, localNy, localNz);
   #|             const len = Math.hypot(nx, ny, nz);
   #|             if (len > 1e-8) {
   #|               verts[ni] = nx / len;
@@ -985,7 +988,10 @@ extern "js" fn webgpu_initialize(
   #|         if (tangentOffset >= 0) {
   #|           const ti = i + tangentOffset;
   #|           if (ti + 2 < verts.length) {
-  #|             const [txr, tyr, tzr] = rotate(verts[ti], verts[ti + 1], verts[ti + 2]);
+  #|             const localTx = Math.abs(sx) > 1e-8 ? verts[ti] / sx : verts[ti];
+  #|             const localTy = Math.abs(sy) > 1e-8 ? verts[ti + 1] / sy : verts[ti + 1];
+  #|             const localTz = Math.abs(sz) > 1e-8 ? verts[ti + 2] / sz : verts[ti + 2];
+  #|             const [txr, tyr, tzr] = rotate(localTx, localTy, localTz);
   #|             const len = Math.hypot(txr, tyr, tzr);
   #|             if (len > 1e-8) {
   #|               verts[ti] = txr / len;
@@ -1001,14 +1007,14 @@ extern "js" fn webgpu_initialize(
   #|       }
   #|       return verts;
   #|     };
-  #|     rt.transformVerts3d = (verts, tx, ty, tz, qx, qy, qz, qw) =>
-  #|       rt.transformVerts3dWithStride(verts, 7, tx, ty, tz, qx, qy, qz, qw);
-  #|     rt.transformTexVerts3d = (verts, tx, ty, tz, qx, qy, qz, qw) =>
-  #|       rt.transformVerts3dWithStride(verts, 9, tx, ty, tz, qx, qy, qz, qw);
-  #|     rt.transformLitVerts3d = (verts, tx, ty, tz, qx, qy, qz, qw) =>
-  #|       rt.transformVerts3dWithStride(verts, 17, tx, ty, tz, qx, qy, qz, qw, 3);
-  #|     rt.transformLitTexVerts3d = (verts, tx, ty, tz, qx, qy, qz, qw) =>
-  #|       rt.transformVerts3dWithStride(verts, 35, tx, ty, tz, qx, qy, qz, qw, 3, 23);
+  #|     rt.transformVerts3d = (verts, tx, ty, tz, qx, qy, qz, qw, sx = 1.0, sy = 1.0, sz = 1.0) =>
+  #|       rt.transformVerts3dWithStride(verts, 7, tx, ty, tz, qx, qy, qz, qw, -1, -1, sx, sy, sz);
+  #|     rt.transformTexVerts3d = (verts, tx, ty, tz, qx, qy, qz, qw, sx = 1.0, sy = 1.0, sz = 1.0) =>
+  #|       rt.transformVerts3dWithStride(verts, 9, tx, ty, tz, qx, qy, qz, qw, -1, -1, sx, sy, sz);
+  #|     rt.transformLitVerts3d = (verts, tx, ty, tz, qx, qy, qz, qw, sx = 1.0, sy = 1.0, sz = 1.0) =>
+  #|       rt.transformVerts3dWithStride(verts, 17, tx, ty, tz, qx, qy, qz, qw, 3, -1, sx, sy, sz);
+  #|     rt.transformLitTexVerts3d = (verts, tx, ty, tz, qx, qy, qz, qw, sx = 1.0, sy = 1.0, sz = 1.0) =>
+  #|       rt.transformVerts3dWithStride(verts, 35, tx, ty, tz, qx, qy, qz, qw, 3, 23, sx, sy, sz);
   #|
   #|     rt.makeCube = (sx, sy, sz, color) => {
   #|       const hx = sx / 2;
@@ -1270,19 +1276,19 @@ extern "js" fn webgpu_initialize(
   #|     rt.end3d = () => {
   #|       rt.current3dSection = null;
   #|     };
-  #|     rt.pushCube3d = (cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, castShadows, receiveShadows) => {
+  #|     rt.pushCube3d = (cx, cy, cz, sizeX, sizeY, sizeZ, qx, qy, qz, qw, sx, sy, sz, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
   #|       if (!rt.current3dSection) return;
   #|       const verts = rt.makeLitCube(
-  #|         sx,
-  #|         sy,
-  #|         sz,
+  #|         sizeX,
+  #|         sizeY,
+  #|         sizeZ,
   #|         colorNorm(r, g, b, a),
   #|         [clamp01(emissiveR), clamp01(emissiveG), clamp01(emissiveB)],
   #|         Number(alphaMode) || 0.0,
   #|         Math.max(0.0, Number(alphaCutoff) || 0.0),
   #|         !!unlit,
   #|       );
-  #|       rt.pushColoredTriangles3d(verts, cx, cy, cz, qx, qy, qz, qw, false, castShadows, receiveShadows);
+  #|       rt.pushColoredTriangles3d(verts, cx, cy, cz, qx, qy, qz, qw, !!doubleSided, castShadows, receiveShadows, sx, sy, sz);
   #|     };
   #|     rt.pushCubeWires3d = (cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, r, g, b, a) => {
   #|       if (!rt.current3dSection) return;
@@ -1290,7 +1296,7 @@ extern "js" fn webgpu_initialize(
   #|       rt.transformVerts3d(verts, cx, cy, cz, qx, qy, qz, qw);
   #|       rt.current3dSection.lineCommands.push(verts);
   #|     };
-  #|     rt.pushSphere3d = (cx, cy, cz, radius, qx, qy, qz, qw, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, castShadows, receiveShadows) => {
+  #|     rt.pushSphere3d = (cx, cy, cz, radius, qx, qy, qz, qw, sx, sy, sz, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
   #|       if (!rt.current3dSection) return;
   #|       const verts = rt.makeLitSphere(
   #|         radius,
@@ -1300,9 +1306,9 @@ extern "js" fn webgpu_initialize(
   #|         Math.max(0.0, Number(alphaCutoff) || 0.0),
   #|         !!unlit,
   #|       );
-  #|       rt.pushColoredTriangles3d(verts, cx, cy, cz, qx, qy, qz, qw, false, castShadows, receiveShadows);
+  #|       rt.pushColoredTriangles3d(verts, cx, cy, cz, qx, qy, qz, qw, !!doubleSided, castShadows, receiveShadows, sx, sy, sz);
   #|     };
-  #|     rt.pushCylinder3d = (cx, cy, cz, rtTop, rtBottom, h, slices, qx, qy, qz, qw, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, castShadows, receiveShadows) => {
+  #|     rt.pushCylinder3d = (cx, cy, cz, rtTop, rtBottom, h, slices, qx, qy, qz, qw, sx, sy, sz, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
   #|       if (!rt.current3dSection) return;
   #|       const verts = rt.makeLitCylinder(
   #|         rtTop,
@@ -1315,7 +1321,7 @@ extern "js" fn webgpu_initialize(
   #|         Math.max(0.0, Number(alphaCutoff) || 0.0),
   #|         !!unlit,
   #|       );
-  #|       rt.pushColoredTriangles3d(verts, cx, cy, cz, qx, qy, qz, qw, false, castShadows, receiveShadows);
+  #|       rt.pushColoredTriangles3d(verts, cx, cy, cz, qx, qy, qz, qw, !!doubleSided, castShadows, receiveShadows, sx, sy, sz);
   #|     };
   #|     rt.pushTriangles3d = (verts, tx, ty, tz, qx, qy, qz, qw, r, g, b, a) => {
   #|       if (!rt.current3dSection) return;
@@ -1341,7 +1347,7 @@ extern "js" fn webgpu_initialize(
   #|       rt.transformVerts3d(out, tx, ty, tz, qx, qy, qz, qw);
   #|       rt.current3dSection.triCommands.push({ verts: out, castShadows: true });
   #|     };
-  #|     rt.pushColoredTriangles3d = (verts, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows) => {
+  #|     rt.pushColoredTriangles3d = (verts, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows, sx = 1.0, sy = 1.0, sz = 1.0) => {
   #|       if (!rt.current3dSection) return;
   #|       if (!verts || verts.length < 51) return;
   #|       const triVertexCount = Math.floor(verts.length / 17);
@@ -1350,7 +1356,7 @@ extern "js" fn webgpu_initialize(
   #|       for (let i = 0; i < out.length; i += 1) {
   #|         out[i] = Number(verts[i]) || 0.0;
   #|       }
-  #|       rt.transformLitVerts3d(out, tx, ty, tz, qx, qy, qz, qw);
+  #|       rt.transformLitVerts3d(out, tx, ty, tz, qx, qy, qz, qw, sx, sy, sz);
   #|       if (out.length >= 17) {
   #|         const receiveValue = receiveShadows ? 1.0 : 0.0;
   #|         for (let index = 16; index < out.length; index += 17) {
@@ -1364,7 +1370,7 @@ extern "js" fn webgpu_initialize(
   #|         receiveShadows: !!receiveShadows,
   #|       });
   #|     };
-  #|     rt.pushTexturedTriangles3d = (basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, verts, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows) => {
+  #|     rt.pushTexturedTriangles3d = (basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, verts, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows, sx = 1.0, sy = 1.0, sz = 1.0) => {
   #|       if (!rt.current3dSection) return;
   #|       if (!verts || verts.length < 105) return;
   #|       const baseRec = (basePath && basePath.length > 0)
@@ -1389,7 +1395,7 @@ extern "js" fn webgpu_initialize(
   #|       for (let i = 0; i < out.length; i += 1) {
   #|         out[i] = Number(verts[i]) || 0.0;
   #|       }
-  #|       rt.transformLitTexVerts3d(out, tx, ty, tz, qx, qy, qz, qw);
+  #|       rt.transformLitTexVerts3d(out, tx, ty, tz, qx, qy, qz, qw, sx, sy, sz);
   #|       if (out.length >= 35) {
   #|         const receiveValue = receiveShadows ? 1.0 : 0.0;
   #|         for (let index = 34; index < out.length; index += 35) {

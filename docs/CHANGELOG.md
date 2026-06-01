@@ -7,6 +7,7 @@
 ### Changed
 
 ### Fixed
+- Fixed WebGPU 3D primitives to honor material double-sided state, use instance scale consistently with custom meshes and raylib primitives, and wind textured sphere triangles outward.
 
 ### Removed
 

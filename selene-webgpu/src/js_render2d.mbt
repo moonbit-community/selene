@@ -185,6 +185,9 @@ extern "js" fn webgpu_draw_cube_3d(
   rotation_y : Double,
   rotation_z : Double,
   rotation_w : Double,
+  scale_x : Double,
+  scale_y : Double,
+  scale_z : Double,
   r : Double,
   g : Double,
   b : Double,
@@ -195,13 +198,14 @@ extern "js" fn webgpu_draw_cube_3d(
   alpha_mode : Double,
   alpha_cutoff : Double,
   unlit : Bool,
+  double_sided : Bool,
   cast_shadows : Bool,
   receive_shadows : Bool,
 ) -> Unit =
-  #| (cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, castShadows, receiveShadows) => {
+  #| (cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, scaleX, scaleY, scaleZ, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushCube3d(cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, castShadows, receiveShadows);
+  #|     rt.pushCube3d(cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, scaleX, scaleY, scaleZ, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows);
   #|   }
   #| }
 
@@ -215,6 +219,9 @@ extern "js" fn webgpu_draw_sphere_3d(
   rotation_y : Double,
   rotation_z : Double,
   rotation_w : Double,
+  scale_x : Double,
+  scale_y : Double,
+  scale_z : Double,
   r : Double,
   g : Double,
   b : Double,
@@ -225,13 +232,14 @@ extern "js" fn webgpu_draw_sphere_3d(
   alpha_mode : Double,
   alpha_cutoff : Double,
   unlit : Bool,
+  double_sided : Bool,
   cast_shadows : Bool,
   receive_shadows : Bool,
 ) -> Unit =
-  #| (cx, cy, cz, radius, qx, qy, qz, qw, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, castShadows, receiveShadows) => {
+  #| (cx, cy, cz, radius, qx, qy, qz, qw, scaleX, scaleY, scaleZ, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushSphere3d(cx, cy, cz, radius, qx, qy, qz, qw, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, castShadows, receiveShadows);
+  #|     rt.pushSphere3d(cx, cy, cz, radius, qx, qy, qz, qw, scaleX, scaleY, scaleZ, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows);
   #|   }
   #| }
 
@@ -248,6 +256,9 @@ extern "js" fn webgpu_draw_cylinder_3d(
   rotation_y : Double,
   rotation_z : Double,
   rotation_w : Double,
+  scale_x : Double,
+  scale_y : Double,
+  scale_z : Double,
   r : Double,
   g : Double,
   b : Double,
@@ -258,13 +269,14 @@ extern "js" fn webgpu_draw_cylinder_3d(
   alpha_mode : Double,
   alpha_cutoff : Double,
   unlit : Bool,
+  double_sided : Bool,
   cast_shadows : Bool,
   receive_shadows : Bool,
 ) -> Unit =
-  #| (cx, cy, cz, rtTop, rtBottom, h, slices, qx, qy, qz, qw, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, castShadows, receiveShadows) => {
+  #| (cx, cy, cz, rtTop, rtBottom, h, slices, qx, qy, qz, qw, scaleX, scaleY, scaleZ, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushCylinder3d(cx, cy, cz, rtTop, rtBottom, h, slices, qx, qy, qz, qw, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, castShadows, receiveShadows);
+  #|     rt.pushCylinder3d(cx, cy, cz, rtTop, rtBottom, h, slices, qx, qy, qz, qw, scaleX, scaleY, scaleZ, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows);
   #|   }
   #| }
 
@@ -281,11 +293,14 @@ extern "js" fn webgpu_draw_colored_triangles_3d(
   double_sided : Bool,
   cast_shadows : Bool,
   receive_shadows : Bool,
+  scale_x : Double,
+  scale_y : Double,
+  scale_z : Double,
 ) -> Unit =
-  #| (vertices, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows) => {
+  #| (vertices, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows, scaleX, scaleY, scaleZ) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushColoredTriangles3d(vertices, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows);
+  #|     rt.pushColoredTriangles3d(vertices, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows, scaleX, scaleY, scaleZ);
   #|   }
   #| }
 
@@ -312,11 +327,14 @@ extern "js" fn webgpu_draw_textured_triangles_3d(
   double_sided : Bool,
   cast_shadows : Bool,
   receive_shadows : Bool,
+  scale_x : Double,
+  scale_y : Double,
+  scale_z : Double,
 ) -> Unit =
-  #| (basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, vertices, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows) => {
+  #| (basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, vertices, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows, scaleX, scaleY, scaleZ) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushTexturedTriangles3d(basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, vertices, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows);
+  #|     rt.pushTexturedTriangles3d(basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, vertices, tx, ty, tz, qx, qy, qz, qw, doubleSided, castShadows, receiveShadows, scaleX, scaleY, scaleZ);
   #|   }
   #| }
 
