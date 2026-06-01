@@ -168,6 +168,9 @@ let webgpu_resource_frame : Ref[Int] = Ref(0)
 let primitive_mesh_resource_last_seen : Map[String, Int] = Map([])
 
 ///|
+let uploaded_primitive_mesh_resources : Map[String, Bool] = Map([])
+
+///|
 fn empty_render3d_submission_stats() -> Render3DSubmissionStats {
   {
     sections: 0,
@@ -623,9 +626,15 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               item.cast_shadows,
               item.receive_shadows,
             )
-          None =>
-            webgpu_draw_cube_3d(
-              mark_primitive_mesh_resource_key(
+          None => {
+            let primitive_mesh = cached_cuboid_triangle_mesh3d(
+              size.x,
+              size.y,
+              size.z,
+              1,
+            )
+            webgpu_draw_lit_primitive_mesh_3d(
+              ensure_lit_primitive_mesh_resource(
                 lit_primitive_mesh_resource_key(
                   "lit-cube",
                   [size.x, size.y, size.z],
@@ -637,13 +646,14 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
                   alpha_cutoff,
                   unlit,
                 ),
+                primitive_mesh,
+                material,
+                color,
+                item.receive_shadows,
               ),
               center.x,
               center.y,
               center.z,
-              size.x,
-              size.y,
-              size.z,
               rotation.x,
               rotation.y,
               rotation.z,
@@ -651,20 +661,11 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               item.transform.scale.x,
               item.transform.scale.y,
               item.transform.scale.z,
-              color.r.reinterpret_as_int().to_double(),
-              color.g.reinterpret_as_int().to_double(),
-              color.b.reinterpret_as_int().to_double(),
-              color.a,
-              emissive_r,
-              emissive_g,
-              emissive_b,
-              alpha_mode,
-              alpha_cutoff,
-              unlit,
               material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
             )
+          }
         }
       Sphere(radius) =>
         match texture_bundle {
@@ -686,9 +687,15 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               item.cast_shadows,
               item.receive_shadows,
             )
-          None =>
-            webgpu_draw_sphere_3d(
-              mark_primitive_mesh_resource_key(
+          None => {
+            let primitive_mesh = cached_sphere_triangle_mesh3d(
+              radius,
+              TEXTURED_SPHERE_SLICES,
+              TEXTURED_SPHERE_STACKS,
+              1,
+            )
+            webgpu_draw_lit_primitive_mesh_3d(
+              ensure_lit_primitive_mesh_resource(
                 lit_primitive_mesh_resource_key(
                   "lit-sphere",
                   [radius],
@@ -700,11 +707,14 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
                   alpha_cutoff,
                   unlit,
                 ),
+                primitive_mesh,
+                material,
+                color,
+                item.receive_shadows,
               ),
               center.x,
               center.y,
               center.z,
-              radius,
               rotation.x,
               rotation.y,
               rotation.z,
@@ -712,20 +722,11 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               item.transform.scale.x,
               item.transform.scale.y,
               item.transform.scale.z,
-              color.r.reinterpret_as_int().to_double(),
-              color.g.reinterpret_as_int().to_double(),
-              color.b.reinterpret_as_int().to_double(),
-              color.a,
-              emissive_r,
-              emissive_g,
-              emissive_b,
-              alpha_mode,
-              alpha_cutoff,
-              unlit,
               material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
             )
+          }
         }
       Cylinder(radius_top, radius_bottom, height, slices) =>
         match texture_bundle {
@@ -748,9 +749,12 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               item.cast_shadows,
               item.receive_shadows,
             )
-          None =>
-            webgpu_draw_cylinder_3d(
-              mark_primitive_mesh_resource_key(
+          None => {
+            let primitive_mesh = cached_cylinder_triangle_mesh3d(
+              radius_top, radius_bottom, height, slices, 1,
+            )
+            webgpu_draw_lit_primitive_mesh_3d(
+              ensure_lit_primitive_mesh_resource(
                 lit_primitive_mesh_resource_key(
                   "lit-cylinder",
                   [
@@ -767,14 +771,14 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
                   alpha_cutoff,
                   unlit,
                 ),
+                primitive_mesh,
+                material,
+                color,
+                item.receive_shadows,
               ),
               center.x,
               center.y,
               center.z,
-              radius_top,
-              radius_bottom,
-              height,
-              slices,
               rotation.x,
               rotation.y,
               rotation.z,
@@ -782,20 +786,11 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               item.transform.scale.x,
               item.transform.scale.y,
               item.transform.scale.z,
-              color.r.reinterpret_as_int().to_double(),
-              color.g.reinterpret_as_int().to_double(),
-              color.b.reinterpret_as_int().to_double(),
-              color.a,
-              emissive_r,
-              emissive_g,
-              emissive_b,
-              alpha_mode,
-              alpha_cutoff,
-              unlit,
               material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
             )
+          }
         }
       Plane(size) => {
         let y = if size.y.abs() < 0.0001 { 0.02 } else { size.y }
@@ -818,9 +813,15 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               item.cast_shadows,
               item.receive_shadows,
             )
-          None =>
-            webgpu_draw_cube_3d(
-              mark_primitive_mesh_resource_key(
+          None => {
+            let primitive_mesh = cached_cuboid_triangle_mesh3d(
+              size.x,
+              y,
+              size.z,
+              1,
+            )
+            webgpu_draw_lit_primitive_mesh_3d(
+              ensure_lit_primitive_mesh_resource(
                 lit_primitive_mesh_resource_key(
                   "lit-cube",
                   [size.x, y, size.z],
@@ -832,13 +833,14 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
                   alpha_cutoff,
                   unlit,
                 ),
+                primitive_mesh,
+                material,
+                color,
+                item.receive_shadows,
               ),
               center.x,
               center.y,
               center.z,
-              size.x,
-              y,
-              size.z,
               rotation.x,
               rotation.y,
               rotation.z,
@@ -846,20 +848,11 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               item.transform.scale.x,
               item.transform.scale.y,
               item.transform.scale.z,
-              color.r.reinterpret_as_int().to_double(),
-              color.g.reinterpret_as_int().to_double(),
-              color.b.reinterpret_as_int().to_double(),
-              color.a,
-              emissive_r,
-              emissive_g,
-              emissive_b,
-              alpha_mode,
-              alpha_cutoff,
-              unlit,
               material.double_sided,
               item.cast_shadows,
               item.receive_shadows,
             )
+          }
         }
       }
       Triangles(mesh) =>
@@ -906,12 +899,39 @@ fn mark_primitive_mesh_resource_key(key : String) -> String {
 }
 
 ///|
+fn ensure_lit_primitive_mesh_resource(
+  key : String,
+  mesh : @render3d_types.TriangleMesh3D,
+  material : @render3d_types.StandardMaterial3D,
+  color : @render.Color,
+  receive_shadows : Bool,
+) -> String {
+  let marked_key = mark_primitive_mesh_resource_key(key)
+  if !uploaded_primitive_mesh_resources.contains(marked_key) {
+    let vertices = flatten_colored_vertices3d(
+      mesh.positions,
+      resolve_triangle_indices(mesh).unwrap_or([]),
+      resolve_mesh_normals(mesh),
+      mesh.colors,
+      @smath.Vec3::one(),
+      material,
+      color,
+      receive_shadows,
+    )
+    webgpu_upload_lit_primitive_mesh_resource(marked_key, vertices)
+    uploaded_primitive_mesh_resources.set(marked_key, true)
+  }
+  marked_key
+}
+
+///|
 fn prune_stale_primitive_mesh_resources() -> Unit {
   let min_live_frame = webgpu_resource_frame.val -
     WEBGPU_PRIMITIVE_MESH_RESOURCE_TTL_FRAMES
   for pair in primitive_mesh_resource_last_seen.to_array() {
     if pair.1 < min_live_frame {
       ignore(primitive_mesh_resource_last_seen.remove(pair.0))
+      ignore(uploaded_primitive_mesh_resources.remove(pair.0))
       webgpu_release_primitive_mesh_resource(pair.0)
     }
   }

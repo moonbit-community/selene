@@ -560,6 +560,10 @@ extern "js" fn webgpu_initialize(
   #|       rt.primitiveMeshCache.delete(cacheKey);
   #|     };
   #|
+  #|     rt.uploadLitPrimitiveMeshResource = (key, vertices) => {
+  #|       rt.resolvePrimitiveMeshRecord(key, () => new Float32Array(vertices || []));
+  #|     };
+  #|
   #|     rt.bindGroupResourceId = (resource) => {
   #|       if (!resource || (typeof resource !== 'object' && typeof resource !== 'function')) {
   #|         return 'none';
@@ -1184,74 +1188,6 @@ extern "js" fn webgpu_initialize(
   #|     rt.transformLitTexVerts3d = (verts, tx, ty, tz, qx, qy, qz, qw, sx = 1.0, sy = 1.0, sz = 1.0) =>
   #|       rt.transformVerts3dWithStride(verts, 35, tx, ty, tz, qx, qy, qz, qw, 3, 23, sx, sy, sz);
   #|
-  #|     rt.makeCube = (sx, sy, sz, color) => {
-  #|       const hx = sx / 2;
-  #|       const hy = sy / 2;
-  #|       const hz = sz / 2;
-  #|       const p = [
-  #|         [-hx, -hy, -hz],
-  #|         [hx, -hy, -hz],
-  #|         [hx, hy, -hz],
-  #|         [-hx, hy, -hz],
-  #|         [-hx, -hy, hz],
-  #|         [hx, -hy, hz],
-  #|         [hx, hy, hz],
-  #|         [-hx, hy, hz],
-  #|       ];
-  #|       const idx = [
-  #|         0, 1, 2, 0, 2, 3,
-  #|         5, 4, 7, 5, 7, 6,
-  #|         4, 0, 3, 4, 3, 7,
-  #|         1, 5, 6, 1, 6, 2,
-  #|         3, 2, 6, 3, 6, 7,
-  #|         4, 5, 1, 4, 1, 0,
-  #|       ];
-  #|       const out = [];
-  #|       for (let i = 0; i < idx.length; i += 1) {
-  #|         const v = p[idx[i]];
-  #|         out.push(v[0], v[1], v[2], color[0], color[1], color[2], color[3]);
-  #|       }
-  #|       return new Float32Array(out);
-  #|     };
-  #|
-  #|     rt.pushLitVertex = (out, position, normal, color, emissive, alphaMode, alphaCutoff, unlit) => {
-  #|       out.push(
-  #|         position[0], position[1], position[2],
-  #|         normal[0], normal[1], normal[2],
-  #|         color[0], color[1], color[2], color[3],
-  #|         emissive[0], emissive[1], emissive[2],
-  #|         alphaMode,
-  #|         alphaCutoff,
-  #|         unlit ? 1.0 : 0.0,
-  #|         0.0,
-  #|       );
-  #|     };
-  #|
-  #|     rt.makeLitCube = (sx, sy, sz, color, emissive, alphaMode, alphaCutoff, unlit) => {
-  #|       const hx = sx / 2;
-  #|       const hy = sy / 2;
-  #|       const hz = sz / 2;
-  #|       const faces = [
-  #|         { normal: [0, 0, -1], corners: [[-hx, -hy, -hz], [-hx, hy, -hz], [hx, hy, -hz], [hx, -hy, -hz]] },
-  #|         { normal: [0, 0, 1], corners: [[-hx, -hy, hz], [hx, -hy, hz], [hx, hy, hz], [-hx, hy, hz]] },
-  #|         { normal: [-1, 0, 0], corners: [[-hx, -hy, hz], [-hx, hy, hz], [-hx, hy, -hz], [-hx, -hy, -hz]] },
-  #|         { normal: [1, 0, 0], corners: [[hx, -hy, -hz], [hx, hy, -hz], [hx, hy, hz], [hx, -hy, hz]] },
-  #|         { normal: [0, 1, 0], corners: [[-hx, hy, -hz], [-hx, hy, hz], [hx, hy, hz], [hx, hy, -hz]] },
-  #|         { normal: [0, -1, 0], corners: [[-hx, -hy, hz], [-hx, -hy, -hz], [hx, -hy, -hz], [hx, -hy, hz]] },
-  #|       ];
-  #|       const out = [];
-  #|       for (let index = 0; index < faces.length; index += 1) {
-  #|         const face = faces[index];
-  #|         rt.pushLitVertex(out, face.corners[0], face.normal, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|         rt.pushLitVertex(out, face.corners[1], face.normal, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|         rt.pushLitVertex(out, face.corners[2], face.normal, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|         rt.pushLitVertex(out, face.corners[0], face.normal, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|         rt.pushLitVertex(out, face.corners[2], face.normal, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|         rt.pushLitVertex(out, face.corners[3], face.normal, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|       }
-  #|       return new Float32Array(out);
-  #|     };
-  #|
   #|     rt.makeCubeEdges = (sx, sy, sz, color) => {
   #|       const hx = sx / 2;
   #|       const hy = sy / 2;
@@ -1275,147 +1211,6 @@ extern "js" fn webgpu_initialize(
   #|       for (let i = 0; i < e.length; i += 1) {
   #|         const v = p[e[i]];
   #|         out.push(v[0], v[1], v[2], color[0], color[1], color[2], color[3]);
-  #|       }
-  #|       return new Float32Array(out);
-  #|     };
-  #|
-  #|     rt.makeSphere = (radius, color) => {
-  #|       const stacks = 12;
-  #|       const slices = 24;
-  #|       const out = [];
-  #|       for (let i = 0; i < stacks; i += 1) {
-  #|         const v0 = i / stacks;
-  #|         const v1 = (i + 1) / stacks;
-  #|         const phi0 = v0 * Math.PI;
-  #|         const phi1 = v1 * Math.PI;
-  #|         for (let j = 0; j < slices; j += 1) {
-  #|           const u0 = j / slices;
-  #|           const u1 = (j + 1) / slices;
-  #|           const th0 = u0 * Math.PI * 2;
-  #|           const th1 = u1 * Math.PI * 2;
-  #|           const p0 = [Math.cos(th0) * Math.sin(phi0) * radius, Math.cos(phi0) * radius, Math.sin(th0) * Math.sin(phi0) * radius];
-  #|           const p1 = [Math.cos(th1) * Math.sin(phi0) * radius, Math.cos(phi0) * radius, Math.sin(th1) * Math.sin(phi0) * radius];
-  #|           const p2 = [Math.cos(th1) * Math.sin(phi1) * radius, Math.cos(phi1) * radius, Math.sin(th1) * Math.sin(phi1) * radius];
-  #|           const p3 = [Math.cos(th0) * Math.sin(phi1) * radius, Math.cos(phi1) * radius, Math.sin(th0) * Math.sin(phi1) * radius];
-  #|           out.push(
-  #|             p0[0], p0[1], p0[2], color[0], color[1], color[2], color[3],
-  #|             p1[0], p1[1], p1[2], color[0], color[1], color[2], color[3],
-  #|             p2[0], p2[1], p2[2], color[0], color[1], color[2], color[3],
-  #|             p0[0], p0[1], p0[2], color[0], color[1], color[2], color[3],
-  #|             p2[0], p2[1], p2[2], color[0], color[1], color[2], color[3],
-  #|             p3[0], p3[1], p3[2], color[0], color[1], color[2], color[3],
-  #|           );
-  #|         }
-  #|       }
-  #|       return new Float32Array(out);
-  #|     };
-  #|
-  #|     rt.makeLitSphere = (radius, color, emissive, alphaMode, alphaCutoff, unlit) => {
-  #|       const stacks = 12;
-  #|       const slices = 24;
-  #|       const out = [];
-  #|       const safeRadius = Math.max(Math.abs(radius), 0.0001);
-  #|       const pushSphereVertex = (point) => {
-  #|         const normal = [point[0] / safeRadius, point[1] / safeRadius, point[2] / safeRadius];
-  #|         rt.pushLitVertex(out, point, normal, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|       };
-  #|       for (let i = 0; i < stacks; i += 1) {
-  #|         const v0 = i / stacks;
-  #|         const v1 = (i + 1) / stacks;
-  #|         const phi0 = v0 * Math.PI;
-  #|         const phi1 = v1 * Math.PI;
-  #|         for (let j = 0; j < slices; j += 1) {
-  #|           const u0 = j / slices;
-  #|           const u1 = (j + 1) / slices;
-  #|           const th0 = u0 * Math.PI * 2;
-  #|           const th1 = u1 * Math.PI * 2;
-  #|           const p0 = [Math.cos(th0) * Math.sin(phi0) * radius, Math.cos(phi0) * radius, Math.sin(th0) * Math.sin(phi0) * radius];
-  #|           const p1 = [Math.cos(th1) * Math.sin(phi0) * radius, Math.cos(phi0) * radius, Math.sin(th1) * Math.sin(phi0) * radius];
-  #|           const p2 = [Math.cos(th1) * Math.sin(phi1) * radius, Math.cos(phi1) * radius, Math.sin(th1) * Math.sin(phi1) * radius];
-  #|           const p3 = [Math.cos(th0) * Math.sin(phi1) * radius, Math.cos(phi1) * radius, Math.sin(th0) * Math.sin(phi1) * radius];
-  #|           pushSphereVertex(p0);
-  #|           pushSphereVertex(p1);
-  #|           pushSphereVertex(p2);
-  #|           pushSphereVertex(p0);
-  #|           pushSphereVertex(p2);
-  #|           pushSphereVertex(p3);
-  #|         }
-  #|       }
-  #|       return new Float32Array(out);
-  #|     };
-  #|
-  #|     rt.makeCylinder = (rtTop, rtBottom, height, slices, color) => {
-  #|       const out = [];
-  #|       const h2 = height / 2;
-  #|       const n = Math.max(3, slices | 0);
-  #|       for (let i = 0; i < n; i += 1) {
-  #|         const a0 = (i / n) * Math.PI * 2;
-  #|         const a1 = ((i + 1) / n) * Math.PI * 2;
-  #|         const t0 = [Math.cos(a0) * rtTop, h2, Math.sin(a0) * rtTop];
-  #|         const t1 = [Math.cos(a1) * rtTop, h2, Math.sin(a1) * rtTop];
-  #|         const b0 = [Math.cos(a0) * rtBottom, -h2, Math.sin(a0) * rtBottom];
-  #|         const b1 = [Math.cos(a1) * rtBottom, -h2, Math.sin(a1) * rtBottom];
-  #|         out.push(
-  #|           t0[0], t0[1], t0[2], color[0], color[1], color[2], color[3],
-  #|           b1[0], b1[1], b1[2], color[0], color[1], color[2], color[3],
-  #|           b0[0], b0[1], b0[2], color[0], color[1], color[2], color[3],
-  #|           t0[0], t0[1], t0[2], color[0], color[1], color[2], color[3],
-  #|           t1[0], t1[1], t1[2], color[0], color[1], color[2], color[3],
-  #|           b1[0], b1[1], b1[2], color[0], color[1], color[2], color[3],
-  #|         );
-  #|         const top = [0, h2, 0];
-  #|         out.push(
-  #|           top[0], top[1], top[2], color[0], color[1], color[2], color[3],
-  #|           t1[0], t1[1], t1[2], color[0], color[1], color[2], color[3],
-  #|           t0[0], t0[1], t0[2], color[0], color[1], color[2], color[3],
-  #|         );
-  #|         const bottom = [0, -h2, 0];
-  #|         out.push(
-  #|           bottom[0], bottom[1], bottom[2], color[0], color[1], color[2], color[3],
-  #|           b0[0], b0[1], b0[2], color[0], color[1], color[2], color[3],
-  #|           b1[0], b1[1], b1[2], color[0], color[1], color[2], color[3],
-  #|         );
-  #|       }
-  #|       return new Float32Array(out);
-  #|     };
-  #|
-  #|     rt.makeLitCylinder = (rtTop, rtBottom, height, slices, color, emissive, alphaMode, alphaCutoff, unlit) => {
-  #|       const out = [];
-  #|       const h2 = height / 2;
-  #|       const n = Math.max(3, slices | 0);
-  #|       const safeHeight = Math.max(Math.abs(height), 0.0001);
-  #|       const slope = (rtBottom - rtTop) / safeHeight;
-  #|       const sideNormal = (angle) => {
-  #|         const normal = [Math.cos(angle), slope, Math.sin(angle)];
-  #|         const len = Math.hypot(normal[0], normal[1], normal[2]);
-  #|         if (len <= 1e-8) return [1, 0, 0];
-  #|         return [normal[0] / len, normal[1] / len, normal[2] / len];
-  #|       };
-  #|       for (let i = 0; i < n; i += 1) {
-  #|         const a0 = (i / n) * Math.PI * 2;
-  #|         const a1 = ((i + 1) / n) * Math.PI * 2;
-  #|         const t0 = [Math.cos(a0) * rtTop, h2, Math.sin(a0) * rtTop];
-  #|         const t1 = [Math.cos(a1) * rtTop, h2, Math.sin(a1) * rtTop];
-  #|         const b0 = [Math.cos(a0) * rtBottom, -h2, Math.sin(a0) * rtBottom];
-  #|         const b1 = [Math.cos(a1) * rtBottom, -h2, Math.sin(a1) * rtBottom];
-  #|         const n0 = sideNormal(a0);
-  #|         const n1 = sideNormal(a1);
-  #|         rt.pushLitVertex(out, t0, n0, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|         rt.pushLitVertex(out, b1, n1, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|         rt.pushLitVertex(out, b0, n0, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|         rt.pushLitVertex(out, t0, n0, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|         rt.pushLitVertex(out, t1, n1, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|         rt.pushLitVertex(out, b1, n1, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|         const top = [0, h2, 0];
-  #|         const topNormal = [0, 1, 0];
-  #|         rt.pushLitVertex(out, top, topNormal, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|         rt.pushLitVertex(out, t1, topNormal, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|         rt.pushLitVertex(out, t0, topNormal, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|         const bottom = [0, -h2, 0];
-  #|         const bottomNormal = [0, -1, 0];
-  #|         rt.pushLitVertex(out, bottom, bottomNormal, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|         rt.pushLitVertex(out, b0, bottomNormal, color, emissive, alphaMode, alphaCutoff, unlit);
-  #|         rt.pushLitVertex(out, b1, bottomNormal, color, emissive, alphaMode, alphaCutoff, unlit);
   #|       }
   #|       return new Float32Array(out);
   #|     };
@@ -1446,15 +1241,9 @@ extern "js" fn webgpu_initialize(
   #|     rt.end3d = () => {
   #|       rt.current3dSection = null;
   #|     };
-  #|     rt.pushCube3d = (cacheKey, cx, cy, cz, sizeX, sizeY, sizeZ, qx, qy, qz, qw, sx, sy, sz, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
+  #|     rt.pushLitPrimitiveMesh3d = (cacheKey, cx, cy, cz, qx, qy, qz, qw, sx, sy, sz, doubleSided, castShadows, receiveShadows) => {
   #|       if (!rt.current3dSection) return;
-  #|       const color = colorNorm(r, g, b, a);
-  #|       const emissive = [clamp01(emissiveR), clamp01(emissiveG), clamp01(emissiveB)];
-  #|       const safeAlphaMode = Number(alphaMode) || 0.0;
-  #|       const safeAlphaCutoff = Math.max(0.0, Number(alphaCutoff) || 0.0);
-  #|       const meshRecord = rt.resolvePrimitiveMeshRecord(cacheKey, () =>
-  #|         rt.makeLitCube(sizeX, sizeY, sizeZ, color, emissive, safeAlphaMode, safeAlphaCutoff, !!unlit),
-  #|       );
+  #|       const meshRecord = rt.primitiveMeshCache.get(String(cacheKey || ''));
   #|       if (!meshRecord) return;
   #|       rt.pushLitPrimitiveInstance3d(meshRecord, cx, cy, cz, qx, qy, qz, qw, sx, sy, sz, !!doubleSided, castShadows, receiveShadows);
   #|     };
@@ -1463,31 +1252,6 @@ extern "js" fn webgpu_initialize(
   #|       const verts = rt.makeCubeEdges(sx, sy, sz, colorNorm(r, g, b, a));
   #|       rt.transformVerts3d(verts, cx, cy, cz, qx, qy, qz, qw);
   #|       rt.current3dSection.lineCommands.push(verts);
-  #|     };
-  #|     rt.pushSphere3d = (cacheKey, cx, cy, cz, radius, qx, qy, qz, qw, sx, sy, sz, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
-  #|       if (!rt.current3dSection) return;
-  #|       const color = colorNorm(r, g, b, a);
-  #|       const emissive = [clamp01(emissiveR), clamp01(emissiveG), clamp01(emissiveB)];
-  #|       const safeAlphaMode = Number(alphaMode) || 0.0;
-  #|       const safeAlphaCutoff = Math.max(0.0, Number(alphaCutoff) || 0.0);
-  #|       const meshRecord = rt.resolvePrimitiveMeshRecord(cacheKey, () =>
-  #|         rt.makeLitSphere(radius, color, emissive, safeAlphaMode, safeAlphaCutoff, !!unlit),
-  #|       );
-  #|       if (!meshRecord) return;
-  #|       rt.pushLitPrimitiveInstance3d(meshRecord, cx, cy, cz, qx, qy, qz, qw, sx, sy, sz, !!doubleSided, castShadows, receiveShadows);
-  #|     };
-  #|     rt.pushCylinder3d = (cacheKey, cx, cy, cz, rtTop, rtBottom, h, slices, qx, qy, qz, qw, sx, sy, sz, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
-  #|       if (!rt.current3dSection) return;
-  #|       const color = colorNorm(r, g, b, a);
-  #|       const emissive = [clamp01(emissiveR), clamp01(emissiveG), clamp01(emissiveB)];
-  #|       const safeAlphaMode = Number(alphaMode) || 0.0;
-  #|       const safeAlphaCutoff = Math.max(0.0, Number(alphaCutoff) || 0.0);
-  #|       const safeSlices = Math.max(3, slices | 0);
-  #|       const meshRecord = rt.resolvePrimitiveMeshRecord(cacheKey, () =>
-  #|         rt.makeLitCylinder(rtTop, rtBottom, h, safeSlices, color, emissive, safeAlphaMode, safeAlphaCutoff, !!unlit),
-  #|       );
-  #|       if (!meshRecord) return;
-  #|       rt.pushLitPrimitiveInstance3d(meshRecord, cx, cy, cz, qx, qy, qz, qw, sx, sy, sz, !!doubleSided, castShadows, receiveShadows);
   #|     };
   #|     rt.pushTriangles3d = (verts, tx, ty, tz, qx, qy, qz, qw, r, g, b, a) => {
   #|       if (!rt.current3dSection) return;
