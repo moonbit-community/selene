@@ -22,6 +22,7 @@
 - Changed WebGPU 2D rendering to stop doing JavaScript-side command compaction, leaving draw ordering and batching decisions outside `canvas.mbt`.
 - Changed WebGPU 3D light uniform layout so MoonBit packs the shader uniform buffer before JavaScript writes it to WebGPU.
 - Changed WebGPU 2D rect, gradient rect, and circle tessellation so MoonBit packs color vertices before passing them through a thin JavaScript FFI.
+- Changed WebGPU 3D triangle and instance submission so JavaScript no longer receives or rewrites redundant receive-shadow flags already packed by MoonBit.
 
 ### Fixed
 - Fixed WebGPU 3D primitives to honor material double-sided state, use instance scale consistently with custom meshes and raylib primitives, and wind textured sphere triangles outward.

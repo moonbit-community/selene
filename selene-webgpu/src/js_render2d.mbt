@@ -195,12 +195,11 @@ extern "js" fn webgpu_draw_lit_primitive_mesh_batch_3d(
   instances : Array[Double],
   double_sided : Bool,
   cast_shadows : Bool,
-  receive_shadows : Bool,
 ) -> Unit =
-  #| (cacheKey, retainedKey, instances, doubleSided, castShadows, receiveShadows) => {
+  #| (cacheKey, retainedKey, instances, doubleSided, castShadows) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushLitPrimitiveMeshBatch3d(cacheKey, retainedKey, instances, doubleSided, castShadows, receiveShadows);
+  #|     rt.pushLitPrimitiveMeshBatch3d(cacheKey, retainedKey, instances, doubleSided, castShadows);
   #|   }
   #| }
 
@@ -231,12 +230,11 @@ extern "js" fn webgpu_draw_colored_triangles_3d(
   vertices : Array[Double],
   double_sided : Bool,
   cast_shadows : Bool,
-  receive_shadows : Bool,
 ) -> Unit =
-  #| (vertices, doubleSided, castShadows, receiveShadows) => {
+  #| (vertices, doubleSided, castShadows) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushColoredTriangles3d(vertices, doubleSided, castShadows, receiveShadows);
+  #|     rt.pushColoredTriangles3d(vertices, doubleSided, castShadows);
   #|   }
   #| }
 
@@ -255,12 +253,11 @@ extern "js" fn webgpu_draw_textured_triangles_3d(
   vertices : Array[Double],
   double_sided : Bool,
   cast_shadows : Bool,
-  receive_shadows : Bool,
 ) -> Unit =
-  #| (basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, vertices, doubleSided, castShadows, receiveShadows) => {
+  #| (basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, vertices, doubleSided, castShadows) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushTexturedTriangles3d(basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, vertices, doubleSided, castShadows, receiveShadows);
+  #|     rt.pushTexturedTriangles3d(basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, vertices, doubleSided, castShadows);
   #|   }
   #| }
 

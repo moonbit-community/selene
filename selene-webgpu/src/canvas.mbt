@@ -1018,7 +1018,7 @@ extern "js" fn webgpu_initialize(
   #|     rt.end3d = () => {
   #|       rt.current3dSection = null;
   #|     };
-  #|     rt.pushLitPrimitiveMeshBatch3d = (cacheKey, retainedKey, instances, doubleSided, castShadows, receiveShadows) => {
+  #|     rt.pushLitPrimitiveMeshBatch3d = (cacheKey, retainedKey, instances, doubleSided, castShadows) => {
   #|       if (!rt.current3dSection) return;
   #|       const meshRecord = rt.primitiveMeshCache.get(String(cacheKey || ''));
   #|       if (!meshRecord) return;
@@ -1028,11 +1028,10 @@ extern "js" fn webgpu_initialize(
   #|         instances,
   #|         doubleSided: !!doubleSided,
   #|         castShadows: !!castShadows,
-  #|         receiveShadows: !!receiveShadows,
   #|         instanceArray: null,
   #|       });
   #|     };
-  #|     rt.pushColoredTriangles3d = (verts, doubleSided, castShadows, receiveShadows) => {
+  #|     rt.pushColoredTriangles3d = (verts, doubleSided, castShadows) => {
   #|       if (!rt.current3dSection) return;
   #|       if (!verts || verts.length < 51) return;
   #|       const triVertexCount = Math.floor(verts.length / 17);
@@ -1041,20 +1040,13 @@ extern "js" fn webgpu_initialize(
   #|       for (let i = 0; i < out.length; i += 1) {
   #|         out[i] = Number(verts[i]) || 0.0;
   #|       }
-  #|       if (out.length >= 17) {
-  #|         const receiveValue = receiveShadows ? 1.0 : 0.0;
-  #|         for (let index = 16; index < out.length; index += 17) {
-  #|           out[index] = receiveValue;
-  #|         }
-  #|       }
   #|       rt.current3dSection.litTriCommands.push({
   #|         verts: out,
   #|         doubleSided: !!doubleSided,
   #|         castShadows: !!castShadows,
-  #|         receiveShadows: !!receiveShadows,
   #|       });
   #|     };
-  #|     rt.pushTexturedTriangles3d = (basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, verts, doubleSided, castShadows, receiveShadows) => {
+  #|     rt.pushTexturedTriangles3d = (basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, verts, doubleSided, castShadows) => {
   #|       if (!rt.current3dSection) return;
   #|       if (!verts || verts.length < 105) return;
   #|       const baseRec = (basePath && basePath.length > 0)
@@ -1079,12 +1071,6 @@ extern "js" fn webgpu_initialize(
   #|       for (let i = 0; i < out.length; i += 1) {
   #|         out[i] = Number(verts[i]) || 0.0;
   #|       }
-  #|       if (out.length >= 35) {
-  #|         const receiveValue = receiveShadows ? 1.0 : 0.0;
-  #|         for (let index = 34; index < out.length; index += 35) {
-  #|           out[index] = receiveValue;
-  #|         }
-  #|       }
   #|       rt.current3dSection.texTriCommands.push({
   #|         textureRec: baseRec,
   #|         emissiveTextureRec: emissiveRec,
@@ -1099,7 +1085,6 @@ extern "js" fn webgpu_initialize(
   #|         verts: out,
   #|         doubleSided: !!doubleSided,
   #|         castShadows: !!castShadows,
-  #|         receiveShadows: !!receiveShadows,
   #|       });
   #|     };
   #|

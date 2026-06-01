@@ -938,7 +938,6 @@ fn flush_lit_primitive_mesh_batches(
       instances,
       batches.double_sided.get(batch_key).unwrap_or(false),
       batches.cast_shadows.get(batch_key).unwrap_or(false),
-      batches.receive_shadows.get(batch_key).unwrap_or(false),
     )
   }
 }
@@ -1388,7 +1387,6 @@ fn draw_triangle_mesh_instance(
         ),
         double_sided,
         cast_shadows,
-        receive_shadows,
       )
     }
     match texture_bundle {
@@ -1460,7 +1458,6 @@ fn draw_triangle_mesh_instance(
                 ),
                 double_sided,
                 cast_shadows,
-                receive_shadows,
               )
             } else {
               draw_colored()
