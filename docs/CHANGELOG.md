@@ -32,7 +32,7 @@
 - Changed WebGPU directional shadow cascade planning so MoonBit computes cascade bounds, atlas rects, and shadow matrices before JavaScript executes the shadow passes.
 - Changed WebGPU spot and point shadow atlas rect planning so MoonBit supplies normalized atlas rects with the shadow matrices.
 - Changed WebGPU 2D pipeline selection so MoonBit chooses stable color/texture pipeline codes before JavaScript binds GPU pipelines.
-- Changed WebGPU 2D shader sources so MoonBit owns the WGSL text and JavaScript only creates shader modules from supplied sources.
+- Changed WebGPU 2D, basic 3D color, and solid shadow shader sources so MoonBit owns the WGSL text and JavaScript only creates shader modules from supplied sources.
 
 ### Fixed
 - Fixed WebGPU 3D primitives to honor material double-sided state, use instance scale consistently with custom meshes and raylib primitives, and wind textured sphere triangles outward.

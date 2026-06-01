@@ -4,12 +4,12 @@ extern "js" fn webgpu_initialize(
   width : Double,
   height : Double,
   image_smooth : Bool,
-  shader2d_color_source : String,
-  shader2d_texture_source : String,
+  shader_sources : Array[String],
 ) -> Unit =
-  #| (canvas, width, height, imageSmooth, shader2dColorSource, shader2dTextureSource) => {
+  #| (canvas, width, height, imageSmooth, shaderSources) => {
   #|   const g = globalThis;
   #|   if (!g.__selene_webgpu_runtime) {
+  #|     const shaderSource = (index) => String(Array.isArray(shaderSources) ? (shaderSources[index] || '') : '');
   #|     const rt = {
   #|       canvas: null,
   #|       context: null,
@@ -1444,35 +1444,13 @@ extern "js" fn webgpu_initialize(
   #|       };
   #|
   #|       const shader2dColor = rt.device.createShaderModule({
-  #|         code: String(shader2dColorSource || ''),
+  #|         code: shaderSource(0),
   #|       });
   #|       const shader2dTex = rt.device.createShaderModule({
-  #|         code: String(shader2dTextureSource || ''),
+  #|         code: shaderSource(1),
   #|       });
   #|       const shader3dColor = rt.device.createShaderModule({
-  #|         code: `
-  #| struct CameraUniform {
-  #|   view_proj: mat4x4<f32>,
-  #| };
-  #| @group(0) @binding(0) var<uniform> u_camera: CameraUniform;
-  #| struct VSIn {
-  #|   @location(0) pos: vec3<f32>,
-  #|   @location(1) color: vec4<f32>,
-  #| };
-  #| struct VSOut {
-  #|   @builtin(position) pos: vec4<f32>,
-  #|   @location(0) color: vec4<f32>,
-  #| };
-  #| @vertex fn vs_main(v: VSIn) -> VSOut {
-  #|   var o: VSOut;
-  #|   o.pos = u_camera.view_proj * vec4<f32>(v.pos, 1.0);
-  #|   o.color = v.color;
-  #|   return o;
-  #| }
-  #| @fragment fn fs_main(v: VSOut) -> @location(0) vec4<f32> {
-  #|   return v.color;
-  #| }
-  #| `,
+  #|         code: shaderSource(2),
   #|       });
   #|       const lightShadowStructsWgsl = `
   #| struct LightUniform {
@@ -1660,17 +1638,7 @@ extern "js" fn webgpu_initialize(
   #| }
   #| `;
   #|       const shader3dShadowSolid = rt.device.createShaderModule({
-  #|         code: `
-  #| struct ShadowCameraUniform { light_view_proj: mat4x4<f32>, };
-  #| @group(0) @binding(0) var<uniform> u_shadow_camera: ShadowCameraUniform;
-  #| struct VSIn { @location(0) pos: vec3<f32>, @location(1) color: vec4<f32>, };
-  #| struct VSOut { @builtin(position) pos: vec4<f32>, };
-  #| @vertex fn vs_main(v: VSIn) -> VSOut {
-  #|   var o: VSOut;
-  #|   o.pos = u_shadow_camera.light_view_proj * vec4<f32>(v.pos, 1.0);
-  #|   return o;
-  #| }
-  #| `,
+  #|         code: shaderSource(3),
   #|       });
   #|       const shader3dShadowLit = rt.device.createShaderModule({
   #|         code: `

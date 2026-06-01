@@ -167,8 +167,7 @@ pub fn initialize(
     screen_width,
     screen_height,
     image_smooth,
-    webgpu_shader2d_color_source(),
-    webgpu_shader2d_texture_source(),
+    webgpu_shader_sources(),
   )
   startup()
   let stop_loop = schedule_with_fixed_interval(1000 / fps.to_double(), fn(
