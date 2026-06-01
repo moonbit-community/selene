@@ -88,6 +88,9 @@
             height: 100%;
             object-fit: cover;
             transition: transform 0.3s ease;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
         }
 
         .game-card:hover .game-screenshot {
@@ -154,6 +157,13 @@
             }
         }
     </style>
+    <script>
+        document.addEventListener('contextmenu', event => {
+            if (event.target.closest('.game-card')) {
+                event.preventDefault();
+            }
+        });
+    </script>
 </head>
 
 <body>
