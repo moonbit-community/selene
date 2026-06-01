@@ -13,24 +13,6 @@
 // limitations under the License.
 
 ///|
-fn h_align_to_code(align : @smath.HAlign) -> Int {
-  match align {
-    Left => 0
-    Center => 1
-    Right => 2
-  }
-}
-
-///|
-fn v_align_to_code(align : @smath.VAlign) -> Int {
-  match align {
-    Top => 0
-    Center => 1
-    Bottom => 2
-  }
-}
-
-///|
 fn alpha_mode_to_code(alpha_mode : @render.AlphaMode2D) -> Int {
   match alpha_mode {
     Opaque => 0

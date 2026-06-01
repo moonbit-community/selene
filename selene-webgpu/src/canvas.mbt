@@ -816,35 +816,6 @@ extern "js" fn webgpu_initialize(
   #|       }
   #|     };
   #|
-  #|     rt.pushCachedText = (key, x, y, ma, mb, mc, md, tx, ty, align, baseline, blendMode = 0) => {
-  #|       const rec = rt.textCache.get(key);
-  #|       if (!rec) return false;
-  #|       let ox = x;
-  #|       let oy = y;
-  #|       if (align === 1) ox -= rec.width / 2;
-  #|       else if (align === 2) ox -= rec.width;
-  #|       if (baseline === 1) oy -= rec.height / 2;
-  #|       else if (baseline === 2) oy -= rec.height;
-  #|       const p0x = ma * 0 + mc * 0 + tx + ox;
-  #|       const p0y = mb * 0 + md * 0 + ty + oy;
-  #|       const p1x = ma * rec.width + mc * 0 + tx + ox;
-  #|       const p1y = mb * rec.width + md * 0 + ty + oy;
-  #|       const p2x = ma * rec.width + mc * rec.height + tx + ox;
-  #|       const p2y = mb * rec.width + md * rec.height + ty + oy;
-  #|       const p3x = ma * 0 + mc * rec.height + tx + ox;
-  #|       const p3y = mb * 0 + md * rec.height + ty + oy;
-  #|       const verts = new Float32Array([
-  #|         p0x, p0y, 0, 0, 1, 1, 1, 1,
-  #|         p1x, p1y, 1, 0, 1, 1, 1, 1,
-  #|         p2x, p2y, 1, 1, 1, 1, 1, 1,
-  #|         p0x, p0y, 0, 0, 1, 1, 1, 1,
-  #|         p2x, p2y, 1, 1, 1, 1, 1, 1,
-  #|         p3x, p3y, 0, 1, 1, 1, 1, 1,
-  #|       ]);
-  #|       rt.pushTex2d(0, rec, verts, 1, blendMode);
-  #|       return true;
-  #|     };
-  #|
   #|     rt.current2dCommandList = () =>
   #|       rt.current2dPass?.commands || rt.draw2dCommands;
   #|     rt.beginPass2d = (x, y, w, h, loadOp, clearColor, targetName = '') => {

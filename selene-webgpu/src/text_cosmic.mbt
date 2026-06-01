@@ -20,6 +20,12 @@ priv struct CosmicRasterImage {
 }
 
 ///|
+priv struct CosmicTextCacheEntry {
+  width : Int
+  height : Int
+}
+
+///|
 let cosmic_font_system : Ref[@cosmic.FontSystem] = Ref(
   @cosmic.FontSystem::new(),
 )
@@ -33,7 +39,7 @@ let cosmic_swash_cache : Ref[@cosmic.SwashCache] = Ref(
 let cosmic_loaded_families : Map[String, Bool] = Map([])
 
 ///|
-let cosmic_text_cache : Map[String, Bool] = Map([])
+let cosmic_text_cache : Map[String, CosmicTextCacheEntry] = Map([])
 
 ///|
 fn saturating_byte(value : Int) -> Byte {
@@ -224,29 +230,24 @@ fn draw_text_with_cosmic(command : @render2d_types.TextDrawCommand2D) -> Bool {
           ) {
           return false
         }
-        cosmic_text_cache.set(key, true)
+        cosmic_text_cache.set(key, { width: image.width, height: image.height })
       }
       None => return false
     }
   }
-  if cosmic_text_cache.contains(key) {
-    let transform = command.transform
-    webgpu_draw_cached_text(
-      key,
-      command.position[X],
-      command.position[Y],
-      transform.a,
-      transform.b,
-      transform.c,
-      transform.d,
-      transform.tx,
-      transform.ty,
-      h_align_to_code(command.style.align),
-      v_align_to_code(command.style.baseline),
-      blend_mode_to_code(command.blend_mode),
-    )
-    true
-  } else {
-    false
+  match cosmic_text_cache.get(key) {
+    Some(entry) => {
+      webgpu_push_cached_text_vertices_2d(
+        key,
+        pack_text_vertices2d(
+          command,
+          entry.width.to_double(),
+          entry.height.to_double(),
+        ),
+        blend_mode_to_code(command.blend_mode),
+      )
+      true
+    }
+    None => false
   }
 }

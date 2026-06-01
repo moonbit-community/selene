@@ -112,23 +112,15 @@ extern "js" fn webgpu_upload_text_texture(
   #| }
 
 ///|
-extern "js" fn webgpu_draw_cached_text(
+extern "js" fn webgpu_push_cached_text_vertices_2d(
   key : String,
-  x : Double,
-  y : Double,
-  transform_a : Double,
-  transform_b : Double,
-  transform_c : Double,
-  transform_d : Double,
-  transform_tx : Double,
-  transform_ty : Double,
-  align : Int,
-  baseline : Int,
+  vertices : Array[Double],
   blend_mode : Int,
 ) -> Unit =
-  #| (key, x, y, a, b, c, d, tx, ty, align, baseline, blendMode) => {
+  #| (key, vertices, blendMode) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
-  #|   if (rt) {
-  #|     rt.pushCachedText?.(key, x, y, a, b, c, d, tx, ty, align, baseline, blendMode);
-  #|   }
+  #|   if (!rt) return;
+  #|   const rec = rt.textCache.get(key);
+  #|   if (!rec) return;
+  #|   rt.pushTex2d(0, rec, new Float32Array(vertices), 1, blendMode);
   #| }
