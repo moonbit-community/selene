@@ -53,6 +53,9 @@ extern "js" fn webgpu_initialize(
   #|       dynamicBuffers: new Map(),
   #|       retiredDynamicBuffers: [],
   #|       primitiveMeshCache: new Map(),
+  #|       frameBindGroupCache3d: new Map(),
+  #|       bindGroupResourceIds: new WeakMap(),
+  #|       nextBindGroupResourceId: 1,
   #|     };
   #|
   #|     const clamp01 = (x) => Math.max(0, Math.min(1, x));
@@ -538,6 +541,99 @@ extern "js" fn webgpu_initialize(
   #|       };
   #|       rt.primitiveMeshCache.set(cacheKey, record);
   #|       return record;
+  #|     };
+  #|
+  #|     rt.bindGroupResourceId = (resource) => {
+  #|       if (!resource || (typeof resource !== 'object' && typeof resource !== 'function')) {
+  #|         return 'none';
+  #|       }
+  #|       let id = rt.bindGroupResourceIds.get(resource);
+  #|       if (!id) {
+  #|         id = rt.nextBindGroupResourceId++;
+  #|         rt.bindGroupResourceIds.set(resource, id);
+  #|       }
+  #|       return String(id);
+  #|     };
+  #|
+  #|     rt.cached3dBindGroup = (key, createBindGroup) => {
+  #|       const cacheKey = String(key || '');
+  #|       const cached = rt.frameBindGroupCache3d.get(cacheKey);
+  #|       if (cached) return cached;
+  #|       const bindGroup = createBindGroup();
+  #|       rt.frameBindGroupCache3d.set(cacheKey, bindGroup);
+  #|       return bindGroup;
+  #|     };
+  #|
+  #|     rt.shadowBindGroupKey3d = (shadowState) => [
+  #|       rt.bindGroupResourceId(shadowState.directionalRecords[0].view),
+  #|       rt.bindGroupResourceId(shadowState.directionalRecords[1].view),
+  #|       rt.bindGroupResourceId(shadowState.directionalRecords[2].view),
+  #|       rt.bindGroupResourceId(shadowState.directionalRecords[3].view),
+  #|       rt.bindGroupResourceId(shadowState.spotRecord.view),
+  #|       rt.bindGroupResourceId(shadowState.pointRecord.view),
+  #|     ].join('|');
+  #|
+  #|     rt.resolveLit3dBindGroup = (shadowState) =>
+  #|       rt.cached3dBindGroup(`lit:${rt.shadowBindGroupKey3d(shadowState)}`, () =>
+  #|         rt.device.createBindGroup({
+  #|           layout: rt.bindGroupLayouts.lit3d,
+  #|           entries: [
+  #|             { binding: 0, resource: { buffer: rt.uniformBuffers.camera3d } },
+  #|             { binding: 1, resource: { buffer: rt.uniformBuffers.light3d } },
+  #|             { binding: 2, resource: { buffer: rt.uniformBuffers.shadow3d } },
+  #|             { binding: 3, resource: rt.samplers.shadowCompare },
+  #|             { binding: 4, resource: shadowState.directionalRecords[0].view },
+  #|             { binding: 5, resource: shadowState.directionalRecords[1].view },
+  #|             { binding: 6, resource: shadowState.directionalRecords[2].view },
+  #|             { binding: 7, resource: shadowState.directionalRecords[3].view },
+  #|             { binding: 8, resource: shadowState.spotRecord.view },
+  #|             { binding: 9, resource: shadowState.pointRecord.view },
+  #|           ],
+  #|         }),
+  #|       );
+  #|
+  #|     rt.resolveLitTex3dBindGroup = (cmd, shadowState) => {
+  #|       const key = [
+  #|         'lit-tex',
+  #|         rt.shadowBindGroupKey3d(shadowState),
+  #|         cmd.baseSamplerCode,
+  #|         rt.bindGroupResourceId(cmd.textureRec.view),
+  #|         cmd.emissiveSamplerCode,
+  #|         rt.bindGroupResourceId(cmd.emissiveTextureRec.view),
+  #|         cmd.metallicRoughnessSamplerCode,
+  #|         rt.bindGroupResourceId(cmd.metallicRoughnessTextureRec.view),
+  #|         cmd.occlusionSamplerCode,
+  #|         rt.bindGroupResourceId(cmd.occlusionTextureRec.view),
+  #|         cmd.normalSamplerCode,
+  #|         rt.bindGroupResourceId(cmd.normalTextureRec.view),
+  #|       ].join('|');
+  #|       return rt.cached3dBindGroup(key, () =>
+  #|         rt.device.createBindGroup({
+  #|           layout: rt.bindGroupLayouts.lit3dTex,
+  #|           entries: [
+  #|             { binding: 0, resource: { buffer: rt.uniformBuffers.camera3d } },
+  #|             { binding: 1, resource: { buffer: rt.uniformBuffers.light3d } },
+  #|             { binding: 2, resource: { buffer: rt.uniformBuffers.shadow3d } },
+  #|             { binding: 3, resource: rt.samplers.shadowCompare },
+  #|             { binding: 4, resource: shadowState.directionalRecords[0].view },
+  #|             { binding: 5, resource: shadowState.directionalRecords[1].view },
+  #|             { binding: 6, resource: shadowState.directionalRecords[2].view },
+  #|             { binding: 7, resource: shadowState.directionalRecords[3].view },
+  #|             { binding: 8, resource: shadowState.spotRecord.view },
+  #|             { binding: 9, resource: shadowState.pointRecord.view },
+  #|             { binding: 10, resource: rt.resolveSampler(cmd.baseSamplerCode) },
+  #|             { binding: 11, resource: cmd.textureRec.view },
+  #|             { binding: 12, resource: rt.resolveSampler(cmd.emissiveSamplerCode) },
+  #|             { binding: 13, resource: cmd.emissiveTextureRec.view },
+  #|             { binding: 14, resource: rt.resolveSampler(cmd.metallicRoughnessSamplerCode) },
+  #|             { binding: 15, resource: cmd.metallicRoughnessTextureRec.view },
+  #|             { binding: 16, resource: rt.resolveSampler(cmd.occlusionSamplerCode) },
+  #|             { binding: 17, resource: cmd.occlusionTextureRec.view },
+  #|             { binding: 18, resource: rt.resolveSampler(cmd.normalSamplerCode) },
+  #|             { binding: 19, resource: cmd.normalTextureRec.view },
+  #|           ],
+  #|         }),
+  #|       );
   #|     };
   #|
   #|     rt.createImageTexture = (source, width, height) => {
@@ -1535,6 +1631,7 @@ extern "js" fn webgpu_initialize(
   #|       rt.current2dPass = null;
   #|       rt.sections3d.length = 0;
   #|       rt.current3dSection = null;
+  #|       rt.frameBindGroupCache3d.clear();
   #|     };
   #|
   #|     rt.resolveSampler = (samplerCode) =>
@@ -2041,22 +2138,7 @@ extern "js" fn webgpu_initialize(
   #|         }
   #|       }
   #|       if (state.buffers.lit.buffer && section.litTriCommands.length > 0) {
-  #|         const bindGroup = rt.device.createBindGroup({
-  #|           layout: rt.bindGroupLayouts.lit3d,
-  #|           entries: [
-  #|             { binding: 0, resource: { buffer: rt.uniformBuffers.camera3d } },
-  #|             { binding: 1, resource: { buffer: rt.uniformBuffers.light3d } },
-  #|             { binding: 2, resource: { buffer: rt.uniformBuffers.shadow3d } },
-  #|             { binding: 3, resource: rt.samplers.shadowCompare },
-  #|             { binding: 4, resource: state.shadowState.directionalRecords[0].view },
-  #|             { binding: 5, resource: state.shadowState.directionalRecords[1].view },
-  #|             { binding: 6, resource: state.shadowState.directionalRecords[2].view },
-  #|             { binding: 7, resource: state.shadowState.directionalRecords[3].view },
-  #|             { binding: 8, resource: state.shadowState.spotRecord.view },
-  #|             { binding: 9, resource: state.shadowState.pointRecord.view },
-  #|           ],
-  #|         });
-  #|         pass.setBindGroup(0, bindGroup);
+  #|         pass.setBindGroup(0, rt.resolveLit3dBindGroup(state.shadowState));
   #|         for (let index = 0; index < section.litTriCommands.length; index += 1) {
   #|           const cmd = section.litTriCommands[index];
   #|           pass.setPipeline(cmd.doubleSided ? rt.pipelines.lit3dTriDouble : rt.pipelines.lit3dTriSingle);
@@ -2065,22 +2147,7 @@ extern "js" fn webgpu_initialize(
   #|         }
   #|       }
   #|       if (state.buffers.instancedLit.buffer && section.instancedLitCommands.length > 0) {
-  #|         const bindGroup = rt.device.createBindGroup({
-  #|           layout: rt.bindGroupLayouts.lit3d,
-  #|           entries: [
-  #|             { binding: 0, resource: { buffer: rt.uniformBuffers.camera3d } },
-  #|             { binding: 1, resource: { buffer: rt.uniformBuffers.light3d } },
-  #|             { binding: 2, resource: { buffer: rt.uniformBuffers.shadow3d } },
-  #|             { binding: 3, resource: rt.samplers.shadowCompare },
-  #|             { binding: 4, resource: state.shadowState.directionalRecords[0].view },
-  #|             { binding: 5, resource: state.shadowState.directionalRecords[1].view },
-  #|             { binding: 6, resource: state.shadowState.directionalRecords[2].view },
-  #|             { binding: 7, resource: state.shadowState.directionalRecords[3].view },
-  #|             { binding: 8, resource: state.shadowState.spotRecord.view },
-  #|             { binding: 9, resource: state.shadowState.pointRecord.view },
-  #|           ],
-  #|         });
-  #|         pass.setBindGroup(0, bindGroup);
+  #|         pass.setBindGroup(0, rt.resolveLit3dBindGroup(state.shadowState));
   #|         for (let index = 0; index < section.instancedLitCommands.length; index += 1) {
   #|           const cmd = section.instancedLitCommands[index];
   #|           if (!cmd.meshRecord?.buffer || !cmd.instanceArray?.length) continue;
@@ -2099,33 +2166,8 @@ extern "js" fn webgpu_initialize(
   #|           const occlusionRec = cmd.occlusionTextureRec;
   #|           const normalRec = cmd.normalTextureRec;
   #|           if (!rec?.view || !emissiveRec?.view || !metallicRoughnessRec?.view || !occlusionRec?.view || !normalRec?.view) continue;
-  #|           const bindGroup = rt.device.createBindGroup({
-  #|             layout: rt.bindGroupLayouts.lit3dTex,
-  #|             entries: [
-  #|               { binding: 0, resource: { buffer: rt.uniformBuffers.camera3d } },
-  #|               { binding: 1, resource: { buffer: rt.uniformBuffers.light3d } },
-  #|               { binding: 2, resource: { buffer: rt.uniformBuffers.shadow3d } },
-  #|               { binding: 3, resource: rt.samplers.shadowCompare },
-  #|               { binding: 4, resource: state.shadowState.directionalRecords[0].view },
-  #|               { binding: 5, resource: state.shadowState.directionalRecords[1].view },
-  #|               { binding: 6, resource: state.shadowState.directionalRecords[2].view },
-  #|               { binding: 7, resource: state.shadowState.directionalRecords[3].view },
-  #|               { binding: 8, resource: state.shadowState.spotRecord.view },
-  #|               { binding: 9, resource: state.shadowState.pointRecord.view },
-  #|               { binding: 10, resource: rt.resolveSampler(cmd.baseSamplerCode) },
-  #|               { binding: 11, resource: rec.view },
-  #|               { binding: 12, resource: rt.resolveSampler(cmd.emissiveSamplerCode) },
-  #|               { binding: 13, resource: emissiveRec.view },
-  #|               { binding: 14, resource: rt.resolveSampler(cmd.metallicRoughnessSamplerCode) },
-  #|               { binding: 15, resource: metallicRoughnessRec.view },
-  #|               { binding: 16, resource: rt.resolveSampler(cmd.occlusionSamplerCode) },
-  #|               { binding: 17, resource: occlusionRec.view },
-  #|               { binding: 18, resource: rt.resolveSampler(cmd.normalSamplerCode) },
-  #|               { binding: 19, resource: normalRec.view },
-  #|             ],
-  #|           });
   #|           pass.setPipeline(cmd.doubleSided ? rt.pipelines.lit3dTexTriDouble : rt.pipelines.lit3dTexTriSingle);
-  #|           pass.setBindGroup(0, bindGroup);
+  #|           pass.setBindGroup(0, rt.resolveLitTex3dBindGroup(cmd, state.shadowState));
   #|           pass.setVertexBuffer(0, state.buffers.tex.buffer, state.buffers.tex.offsets[index], cmd.verts.byteLength);
   #|           pass.draw(cmd.verts.length / 35, 1, 0, 0);
   #|         }
