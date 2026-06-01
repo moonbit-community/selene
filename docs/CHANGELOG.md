@@ -4,6 +4,7 @@
 
 ### Added
 - Added internal WebGPU 3D primitive submission telemetry for renderer performance work.
+- Added markdown issue tracker entries for the MoonBit-first WebGPU FFI refactor and its thin syscall boundary.
 
 ### Changed
 - Changed mouse input snapshots to carry raw relative deltas separately from derived mouse movement.
