@@ -147,6 +147,49 @@ fn pack_image_vertices2d_raw(
 }
 
 ///|
+fn pack_text_vertices2d(
+  command : @render2d_types.TextDrawCommand2D,
+  texture_width : Double,
+  texture_height : Double,
+) -> Array[Double] {
+  let mut x = command.position[X]
+  let mut y = command.position[Y]
+  match command.style.align {
+    Center => x = x - texture_width / 2.0
+    Right => x = x - texture_width
+    Left => ()
+  }
+  match command.style.baseline {
+    Center => y = y - texture_height / 2.0
+    Bottom => y = y - texture_height
+    Top => ()
+  }
+  pack_text_vertices2d_raw(
+    @smath.Rect::{
+      position: @smath.Vec2(x, y),
+      size: @smath.Vec2(texture_width, texture_height),
+    },
+    command.transform,
+  )
+}
+
+///|
+fn pack_text_vertices2d_raw(
+  rect : @smath.Rect,
+  transform : @smath.Transform,
+) -> Array[Double] {
+  let (p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y) = rect_points2d(rect, transform)
+  let vertices : Array[Double] = []
+  push_tex_vertex2d(vertices, p0x, p0y, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0)
+  push_tex_vertex2d(vertices, p1x, p1y, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0)
+  push_tex_vertex2d(vertices, p2x, p2y, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+  push_tex_vertex2d(vertices, p0x, p0y, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0)
+  push_tex_vertex2d(vertices, p2x, p2y, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+  push_tex_vertex2d(vertices, p3x, p3y, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+  vertices
+}
+
+///|
 fn pack_circle_fill_vertices2d(
   center : @smath.Vec2,
   radius : Double,

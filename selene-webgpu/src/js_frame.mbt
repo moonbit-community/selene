@@ -57,31 +57,41 @@ extern "js" fn webgpu_push_texture_vertices_2d(
   #| }
 
 ///|
-extern "js" fn webgpu_draw_text(
+extern "js" fn webgpu_text_texture_dimensions(
   text : String,
-  x : Double,
-  y : Double,
-  transform_a : Double,
-  transform_b : Double,
-  transform_c : Double,
-  transform_d : Double,
-  transform_tx : Double,
-  transform_ty : Double,
   family : String,
   size : Double,
-  align : Int,
-  baseline : Int,
-  blend_mode : Int,
   color_r : Double,
   color_g : Double,
   color_b : Double,
   color_a : Double,
-) -> Unit =
-  #| (text, x, y, a, b, c, d, tx, ty, family, size, align, baseline, blendMode, r, g, bcol, alpha) => {
+) -> Array[Double] =
+  #| (text, family, size, r, g, bcol, alpha) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
-  #|   if (rt) {
-  #|     rt.pushText(text, x, y, a, b, c, d, tx, ty, family, size, align, baseline, blendMode, r, g, bcol, alpha);
-  #|   }
+  #|   if (!rt) return [0, 0, 0];
+  #|   const rec = rt.ensureTextTexture(text, family, size, r, g, bcol, alpha);
+  #|   if (!rec) return [0, 0, 0];
+  #|   return [1, rec.width, rec.height];
+  #| }
+
+///|
+extern "js" fn webgpu_push_text_vertices_2d(
+  text : String,
+  family : String,
+  size : Double,
+  color_r : Double,
+  color_g : Double,
+  color_b : Double,
+  color_a : Double,
+  vertices : Array[Double],
+  blend_mode : Int,
+) -> Unit =
+  #| (text, family, size, r, g, bcol, alpha, vertices, blendMode) => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (!rt) return;
+  #|   const rec = rt.ensureTextTexture(text, family, size, r, g, bcol, alpha);
+  #|   if (!rec) return;
+  #|   rt.pushTex2d(0, rec, new Float32Array(vertices), 1, blendMode);
   #| }
 
 ///|

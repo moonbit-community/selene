@@ -333,26 +333,31 @@ pub fn draw_text(command : @render2d_types.TextDrawCommand2D) -> Unit {
     return
   }
   let (r, g, b, a) = color_rgba(command.style.color)
-  let transform = command.transform
-  webgpu_draw_text(
+  let dimensions = webgpu_text_texture_dimensions(
     command.text,
-    command.position[X],
-    command.position[Y],
-    transform.a,
-    transform.b,
-    transform.c,
-    transform.d,
-    transform.tx,
-    transform.ty,
     command.style.family,
     command.style.size,
-    h_align_to_code(command.style.align),
-    v_align_to_code(command.style.baseline),
-    blend_mode_to_code(command.blend_mode),
     r,
     g,
     b,
     a,
+  )
+  if dimensions.length() < 3 ||
+    dimensions[0] < 0.5 ||
+    dimensions[1] <= 0.0 ||
+    dimensions[2] <= 0.0 {
+    return
+  }
+  webgpu_push_text_vertices_2d(
+    command.text,
+    command.style.family,
+    command.style.size,
+    r,
+    g,
+    b,
+    a,
+    pack_text_vertices2d(command, dimensions[1], dimensions[2]),
+    blend_mode_to_code(command.blend_mode),
   )
 }
 

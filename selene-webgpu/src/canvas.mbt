@@ -903,34 +903,6 @@ extern "js" fn webgpu_initialize(
   #|       rt.current2dCommandList().push({ kind: 'resetClip' });
   #|     };
   #|
-  #|     rt.pushText = (text, x, y, ma, mb, mc, md, tx, ty, family, size, align, baseline, blendMode, r, g, b, alpha) => {
-  #|       const rec = rt.ensureTextTexture(text, family, size, r, g, b, alpha);
-  #|       if (!rec) return;
-  #|       let ox = x;
-  #|       let oy = y;
-  #|       if (align === 1) ox -= rec.width / 2;
-  #|       else if (align === 2) ox -= rec.width;
-  #|       if (baseline === 1) oy -= rec.height / 2;
-  #|       else if (baseline === 2) oy -= rec.height;
-  #|       const p0x = ma * 0 + mc * 0 + tx + ox;
-  #|       const p0y = mb * 0 + md * 0 + ty + oy;
-  #|       const p1x = ma * rec.width + mc * 0 + tx + ox;
-  #|       const p1y = mb * rec.width + md * 0 + ty + oy;
-  #|       const p2x = ma * rec.width + mc * rec.height + tx + ox;
-  #|       const p2y = mb * rec.width + md * rec.height + ty + oy;
-  #|       const p3x = ma * 0 + mc * rec.height + tx + ox;
-  #|       const p3y = mb * 0 + md * rec.height + ty + oy;
-  #|       const verts = new Float32Array([
-  #|         p0x, p0y, 0, 0, 1, 1, 1, 1,
-  #|         p1x, p1y, 1, 0, 1, 1, 1, 1,
-  #|         p2x, p2y, 1, 1, 1, 1, 1, 1,
-  #|         p0x, p0y, 0, 0, 1, 1, 1, 1,
-  #|         p2x, p2y, 1, 1, 1, 1, 1, 1,
-  #|         p3x, p3y, 0, 1, 1, 1, 1, 1,
-  #|       ]);
-  #|       rt.pushTex2d(0, rec, verts, 1, blendMode);
-  #|     };
-  #|
   #|     rt.begin3d = (viewProjection, px, py, pz, tx, ty, tz, ux, uy, uz, fovy, near, far, orthographic, orthoWidth, orthoHeight) => {
   #|       const section = {
   #|         viewProjection: new Float32Array(

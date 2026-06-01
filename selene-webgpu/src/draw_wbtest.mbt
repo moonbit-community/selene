@@ -244,6 +244,37 @@ test "MoonBit packs WebGPU 2D image vertices before FFI" {
 }
 
 ///|
+test "MoonBit packs WebGPU 2D fallback text vertices before FFI" {
+  let vertices = pack_text_vertices2d(
+    {
+      text: "hello",
+      position: @smath.Vec2(100.0, 50.0),
+      transform: @smath.Transform(tx=1.0, ty=2.0),
+      blend_mode: @render.BlendMode2D::Alpha,
+      style: {
+        font: None,
+        family: "sans",
+        size: 16.0,
+        color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+        align: Center,
+        baseline: Bottom,
+      },
+    },
+    40.0,
+    10.0,
+  )
+  inspect(vertices.length(), content="48")
+  inspect(vertices[0], content="81")
+  inspect(vertices[1], content="42")
+  inspect(vertices[8], content="121")
+  inspect(vertices[9], content="42")
+  inspect(vertices[16], content="121")
+  inspect(vertices[17], content="52")
+  inspect(vertices[18], content="1")
+  inspect(vertices[19], content="1")
+}
+
+///|
 test "MoonBit packs WebGPU 3D camera view projection before FFI" {
   let perspective = pack_camera_view_projection3d(
     webgpu_test_camera(),
