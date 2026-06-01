@@ -1641,96 +1641,10 @@ extern "js" fn webgpu_initialize(
   #|         code: shaderSource(3),
   #|       });
   #|       const shader3dShadowLit = rt.device.createShaderModule({
-  #|         code: `
-  #| struct ShadowCameraUniform { light_view_proj: mat4x4<f32>, };
-  #| @group(0) @binding(0) var<uniform> u_shadow_camera: ShadowCameraUniform;
-  #| struct VSIn {
-  #|   @location(0) pos: vec3<f32>,
-  #|   @location(2) color: vec4<f32>,
-  #|   @location(4) material: vec4<f32>,
-  #| };
-  #| struct VSInInstanced {
-  #|   @location(0) pos: vec3<f32>,
-  #|   @location(2) color: vec4<f32>,
-  #|   @location(4) material: vec4<f32>,
-  #|   @location(5) instance_translation: vec3<f32>,
-  #|   @location(6) instance_rotation: vec4<f32>,
-  #|   @location(7) instance_scale: vec3<f32>,
-  #| };
-  #| struct VSOut {
-  #|   @builtin(position) pos: vec4<f32>,
-  #|   @location(0) color: vec4<f32>,
-  #|   @location(1) material: vec4<f32>,
-  #| };
-  #| @vertex fn vs_main(v: VSIn) -> VSOut {
-  #|   var o: VSOut;
-  #|   o.pos = u_shadow_camera.light_view_proj * vec4<f32>(v.pos, 1.0);
-  #|   o.color = v.color;
-  #|   o.material = v.material;
-  #|   return o;
-  #| }
-  #| fn rotate_quat(value: vec3<f32>, quat: vec4<f32>) -> vec3<f32> {
-  #|   let len = length(quat);
-  #|   var q = quat;
-  #|   if (len <= 0.00001) {
-  #|     q = vec4<f32>(0.0, 0.0, 0.0, 1.0);
-  #|   } else {
-  #|     q = quat / len;
-  #|   }
-  #|   let u = q.xyz;
-  #|   let s = q.w;
-  #|   return 2.0 * dot(u, value) * u + (s * s - dot(u, u)) * value + 2.0 * s * cross(u, value);
-  #| }
-  #| @vertex fn vs_instanced(v: VSInInstanced) -> VSOut {
-  #|   var o: VSOut;
-  #|   let world_pos = rotate_quat(v.pos * v.instance_scale, v.instance_rotation) + v.instance_translation;
-  #|   o.pos = u_shadow_camera.light_view_proj * vec4<f32>(world_pos, 1.0);
-  #|   o.color = v.color;
-  #|   o.material = v.material;
-  #|   return o;
-  #| }
-  #| @fragment fn fs_main(v: VSOut) {
-  #|   let alpha_mode = i32(round(v.material.x));
-  #|   let alpha_cutoff = v.material.y;
-  #|   if (alpha_mode == 2) { discard; }
-  #|   if (alpha_mode == 1 && v.color.a < alpha_cutoff) { discard; }
-  #| }
-  #| `,
+  #|         code: shaderSource(4),
   #|       });
   #|       const shader3dShadowTex = rt.device.createShaderModule({
-  #|         code: `
-  #| struct ShadowCameraUniform { light_view_proj: mat4x4<f32>, };
-  #| @group(0) @binding(0) var<uniform> u_shadow_camera: ShadowCameraUniform;
-  #| @group(0) @binding(1) var u_shadow_base_sampler: sampler;
-  #| @group(0) @binding(2) var u_shadow_base_texture: texture_2d<f32>;
-  #| struct VSIn {
-  #|   @location(0) pos: vec3<f32>,
-  #|   @location(2) base_uv: vec2<f32>,
-  #|   @location(7) color: vec4<f32>,
-  #|   @location(10) material: vec4<f32>,
-  #| };
-  #| struct VSOut {
-  #|   @builtin(position) pos: vec4<f32>,
-  #|   @location(0) base_uv: vec2<f32>,
-  #|   @location(1) color: vec4<f32>,
-  #|   @location(2) material: vec4<f32>,
-  #| };
-  #| @vertex fn vs_main(v: VSIn) -> VSOut {
-  #|   var o: VSOut;
-  #|   o.pos = u_shadow_camera.light_view_proj * vec4<f32>(v.pos, 1.0);
-  #|   o.base_uv = v.base_uv;
-  #|   o.color = v.color;
-  #|   o.material = v.material;
-  #|   return o;
-  #| }
-  #| @fragment fn fs_main(v: VSOut) {
-  #|   let alpha_mode = i32(round(v.material.x));
-  #|   let alpha_cutoff = v.material.y;
-  #|   if (alpha_mode == 2) { discard; }
-  #|   let albedo = textureSample(u_shadow_base_texture, u_shadow_base_sampler, v.base_uv) * v.color;
-  #|   if (alpha_mode == 1 && albedo.a < alpha_cutoff) { discard; }
-  #| }
-  #| `,
+  #|         code: shaderSource(5),
   #|       });
   #|       const shader3dLitColor = rt.device.createShaderModule({
   #|         code: `
