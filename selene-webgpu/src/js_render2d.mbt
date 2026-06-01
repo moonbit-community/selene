@@ -189,6 +189,28 @@ extern "js" fn webgpu_set_lighting_3d(
   #| }
 
 ///|
+extern "js" fn webgpu_set_shadow_view_projection_3d(
+  spot_matrices : Array[Double],
+  point_matrices : Array[Double],
+) -> Unit =
+  #| (spotMatrices, pointMatrices) => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (!rt) return;
+  #|   const matrixChunks = (values) => {
+  #|     const safe = Array.isArray(values) ? values : [];
+  #|     const chunks = [];
+  #|     for (let index = 0; index + 15 < safe.length; index += 16) {
+  #|       chunks.push(new Float32Array(safe.slice(index, index + 16)));
+  #|     }
+  #|     return chunks;
+  #|   };
+  #|   rt.shadowViewProjection3d = {
+  #|     spotMatrices: matrixChunks(spotMatrices),
+  #|     pointMatrices: matrixChunks(pointMatrices),
+  #|   };
+  #| }
+
+///|
 extern "js" fn webgpu_upload_lit_primitive_mesh_resource(
   cache_key : String,
   vertices : Array[Double],

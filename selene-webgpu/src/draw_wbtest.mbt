@@ -486,6 +486,62 @@ test "pack_point_light_data and pack_spot_light_data include shadow metadata" {
 }
 
 ///|
+test "pack spot and point shadow view projections in MoonBit" {
+  let frame = @render3d_types.empty_render_frame3d()
+  frame.point_lights = [
+    {
+      position: @smath.Vec3(1.0, 2.0, 3.0),
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      intensity: 1.0,
+      range: 12.5,
+      shadows: true,
+      shadow_depth_bias: 0.0,
+      shadow_normal_bias: 0.0,
+      shadow_map_near_z: 0.15,
+    },
+  ]
+  frame.spot_lights = [
+    {
+      position: @smath.Vec3(4.0, 5.0, 6.0),
+      direction: @smath.Vec3(0.0, -2.0, 0.0),
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      intensity: 1.0,
+      range: 16.0,
+      shadows: true,
+      shadow_depth_bias: 0.0,
+      shadow_normal_bias: 0.0,
+      shadow_map_near_z: 0.2,
+      inner_angle: 0.25,
+      outer_angle: 0.5,
+    },
+  ]
+  let spot_matrices = pack_spot_shadow_view_projection_data(frame)
+  let point_matrices = pack_point_shadow_view_projection_data(frame)
+  inspect(spot_matrices.length(), content="16")
+  inspect(point_matrices.length(), content="96")
+  inspect(spot_matrices[14] != 0.0, content="true")
+  inspect(point_matrices[14] != 0.0, content="true")
+  inspect(
+    pack_spot_shadow_view_projection_data(frame, mode=Cheap).length(),
+    content="0",
+  )
+  inspect(
+    pack_point_shadow_view_projection_data(frame, mode=Cheap).length(),
+    content="0",
+  )
+  let (face_direction, face_up) = point_shadow_face3d(2)
+  inspect(face_direction.x, content="0")
+  inspect(face_direction.y, content="1")
+  inspect(face_direction.z, content="0")
+  inspect(face_up.x, content="0")
+  inspect(face_up.y, content="0")
+  inspect(face_up.z, content="1")
+  let (near_plane, far_plane) = shadow_near_far3d(0.0, 0.0)
+  inspect(near_plane, content="0.01")
+  inspect(far_plane, content="1.01")
+}
+
+///|
 test "render3d lighting modes filter light packets in MoonBit" {
   let frame = @render3d_types.empty_render_frame3d()
   frame.directional_lights = [

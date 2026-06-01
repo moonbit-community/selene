@@ -1994,6 +1994,10 @@ fn configure_scene_lighting(
     frame.directional_shadow_map_size.to_double(),
     frame.point_shadow_map_size.to_double(),
   )
+  webgpu_set_shadow_view_projection_3d(
+    pack_spot_shadow_view_projection_data(frame, mode~),
+    pack_point_shadow_view_projection_data(frame, mode~),
+  )
 }
 
 ///|
