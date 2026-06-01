@@ -525,20 +525,6 @@ extern "js" fn webgpu_initialize(
   #|       return Number.isFinite(n) ? n.toFixed(6) : '0.000000';
   #|     };
   #|
-  #|     rt.colorKey = (values) =>
-  #|       Array.isArray(values)
-  #|         ? values.map((value) => rt.floatKey(value)).join(',')
-  #|         : '';
-  #|
-  #|     rt.litPrimitiveStyleKey = (color, emissive, alphaMode, alphaCutoff, unlit) =>
-  #|       [
-  #|         rt.colorKey(color),
-  #|         rt.colorKey(emissive),
-  #|         rt.floatKey(alphaMode),
-  #|         rt.floatKey(alphaCutoff),
-  #|         unlit ? '1' : '0',
-  #|       ].join('|');
-  #|
   #|     rt.resolvePrimitiveMeshRecord = (key, createVerts) => {
   #|       const cacheKey = String(key || '');
   #|       const existing = rt.primitiveMeshCache.get(cacheKey);
@@ -563,6 +549,15 @@ extern "js" fn webgpu_initialize(
   #|       };
   #|       rt.primitiveMeshCache.set(cacheKey, record);
   #|       return record;
+  #|     };
+  #|
+  #|     rt.releasePrimitiveMeshResource = (key) => {
+  #|       const cacheKey = String(key || '');
+  #|       const record = rt.primitiveMeshCache.get(cacheKey);
+  #|       if (record?.buffer) {
+  #|         try { record.buffer.destroy(); } catch (_err) {}
+  #|       }
+  #|       rt.primitiveMeshCache.delete(cacheKey);
   #|     };
   #|
   #|     rt.bindGroupResourceId = (resource) => {
@@ -1451,20 +1446,13 @@ extern "js" fn webgpu_initialize(
   #|     rt.end3d = () => {
   #|       rt.current3dSection = null;
   #|     };
-  #|     rt.pushCube3d = (cx, cy, cz, sizeX, sizeY, sizeZ, qx, qy, qz, qw, sx, sy, sz, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
+  #|     rt.pushCube3d = (cacheKey, cx, cy, cz, sizeX, sizeY, sizeZ, qx, qy, qz, qw, sx, sy, sz, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
   #|       if (!rt.current3dSection) return;
   #|       const color = colorNorm(r, g, b, a);
   #|       const emissive = [clamp01(emissiveR), clamp01(emissiveG), clamp01(emissiveB)];
   #|       const safeAlphaMode = Number(alphaMode) || 0.0;
   #|       const safeAlphaCutoff = Math.max(0.0, Number(alphaCutoff) || 0.0);
-  #|       const litKey = [
-  #|         'lit-cube',
-  #|         rt.floatKey(sizeX),
-  #|         rt.floatKey(sizeY),
-  #|         rt.floatKey(sizeZ),
-  #|         rt.litPrimitiveStyleKey(color, emissive, safeAlphaMode, safeAlphaCutoff, !!unlit),
-  #|       ].join('|');
-  #|       const meshRecord = rt.resolvePrimitiveMeshRecord(litKey, () =>
+  #|       const meshRecord = rt.resolvePrimitiveMeshRecord(cacheKey, () =>
   #|         rt.makeLitCube(sizeX, sizeY, sizeZ, color, emissive, safeAlphaMode, safeAlphaCutoff, !!unlit),
   #|       );
   #|       if (!meshRecord) return;
@@ -1476,39 +1464,26 @@ extern "js" fn webgpu_initialize(
   #|       rt.transformVerts3d(verts, cx, cy, cz, qx, qy, qz, qw);
   #|       rt.current3dSection.lineCommands.push(verts);
   #|     };
-  #|     rt.pushSphere3d = (cx, cy, cz, radius, qx, qy, qz, qw, sx, sy, sz, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
+  #|     rt.pushSphere3d = (cacheKey, cx, cy, cz, radius, qx, qy, qz, qw, sx, sy, sz, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
   #|       if (!rt.current3dSection) return;
   #|       const color = colorNorm(r, g, b, a);
   #|       const emissive = [clamp01(emissiveR), clamp01(emissiveG), clamp01(emissiveB)];
   #|       const safeAlphaMode = Number(alphaMode) || 0.0;
   #|       const safeAlphaCutoff = Math.max(0.0, Number(alphaCutoff) || 0.0);
-  #|       const litKey = [
-  #|         'lit-sphere',
-  #|         rt.floatKey(radius),
-  #|         rt.litPrimitiveStyleKey(color, emissive, safeAlphaMode, safeAlphaCutoff, !!unlit),
-  #|       ].join('|');
-  #|       const meshRecord = rt.resolvePrimitiveMeshRecord(litKey, () =>
+  #|       const meshRecord = rt.resolvePrimitiveMeshRecord(cacheKey, () =>
   #|         rt.makeLitSphere(radius, color, emissive, safeAlphaMode, safeAlphaCutoff, !!unlit),
   #|       );
   #|       if (!meshRecord) return;
   #|       rt.pushLitPrimitiveInstance3d(meshRecord, cx, cy, cz, qx, qy, qz, qw, sx, sy, sz, !!doubleSided, castShadows, receiveShadows);
   #|     };
-  #|     rt.pushCylinder3d = (cx, cy, cz, rtTop, rtBottom, h, slices, qx, qy, qz, qw, sx, sy, sz, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
+  #|     rt.pushCylinder3d = (cacheKey, cx, cy, cz, rtTop, rtBottom, h, slices, qx, qy, qz, qw, sx, sy, sz, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
   #|       if (!rt.current3dSection) return;
   #|       const color = colorNorm(r, g, b, a);
   #|       const emissive = [clamp01(emissiveR), clamp01(emissiveG), clamp01(emissiveB)];
   #|       const safeAlphaMode = Number(alphaMode) || 0.0;
   #|       const safeAlphaCutoff = Math.max(0.0, Number(alphaCutoff) || 0.0);
   #|       const safeSlices = Math.max(3, slices | 0);
-  #|       const litKey = [
-  #|         'lit-cylinder',
-  #|         rt.floatKey(rtTop),
-  #|         rt.floatKey(rtBottom),
-  #|         rt.floatKey(h),
-  #|         String(safeSlices),
-  #|         rt.litPrimitiveStyleKey(color, emissive, safeAlphaMode, safeAlphaCutoff, !!unlit),
-  #|       ].join('|');
-  #|       const meshRecord = rt.resolvePrimitiveMeshRecord(litKey, () =>
+  #|       const meshRecord = rt.resolvePrimitiveMeshRecord(cacheKey, () =>
   #|         rt.makeLitCylinder(rtTop, rtBottom, h, safeSlices, color, emissive, safeAlphaMode, safeAlphaCutoff, !!unlit),
   #|       );
   #|       if (!meshRecord) return;

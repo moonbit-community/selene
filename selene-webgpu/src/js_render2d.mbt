@@ -175,6 +175,7 @@ extern "js" fn webgpu_set_lighting_3d(
 
 ///|
 extern "js" fn webgpu_draw_cube_3d(
+  cache_key : String,
   center_x : Double,
   center_y : Double,
   center_z : Double,
@@ -202,15 +203,16 @@ extern "js" fn webgpu_draw_cube_3d(
   cast_shadows : Bool,
   receive_shadows : Bool,
 ) -> Unit =
-  #| (cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, scaleX, scaleY, scaleZ, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
+  #| (cacheKey, cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, scaleX, scaleY, scaleZ, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushCube3d(cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, scaleX, scaleY, scaleZ, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows);
+  #|     rt.pushCube3d(cacheKey, cx, cy, cz, sx, sy, sz, qx, qy, qz, qw, scaleX, scaleY, scaleZ, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows);
   #|   }
   #| }
 
 ///|
 extern "js" fn webgpu_draw_sphere_3d(
+  cache_key : String,
   center_x : Double,
   center_y : Double,
   center_z : Double,
@@ -236,15 +238,16 @@ extern "js" fn webgpu_draw_sphere_3d(
   cast_shadows : Bool,
   receive_shadows : Bool,
 ) -> Unit =
-  #| (cx, cy, cz, radius, qx, qy, qz, qw, scaleX, scaleY, scaleZ, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
+  #| (cacheKey, cx, cy, cz, radius, qx, qy, qz, qw, scaleX, scaleY, scaleZ, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushSphere3d(cx, cy, cz, radius, qx, qy, qz, qw, scaleX, scaleY, scaleZ, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows);
+  #|     rt.pushSphere3d(cacheKey, cx, cy, cz, radius, qx, qy, qz, qw, scaleX, scaleY, scaleZ, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows);
   #|   }
   #| }
 
 ///|
 extern "js" fn webgpu_draw_cylinder_3d(
+  cache_key : String,
   center_x : Double,
   center_y : Double,
   center_z : Double,
@@ -273,10 +276,21 @@ extern "js" fn webgpu_draw_cylinder_3d(
   cast_shadows : Bool,
   receive_shadows : Bool,
 ) -> Unit =
-  #| (cx, cy, cz, rtTop, rtBottom, h, slices, qx, qy, qz, qw, scaleX, scaleY, scaleZ, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
+  #| (cacheKey, cx, cy, cz, rtTop, rtBottom, h, slices, qx, qy, qz, qw, scaleX, scaleY, scaleZ, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows) => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   if (rt) {
-  #|     rt.pushCylinder3d(cx, cy, cz, rtTop, rtBottom, h, slices, qx, qy, qz, qw, scaleX, scaleY, scaleZ, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows);
+  #|     rt.pushCylinder3d(cacheKey, cx, cy, cz, rtTop, rtBottom, h, slices, qx, qy, qz, qw, scaleX, scaleY, scaleZ, r, g, b, a, emissiveR, emissiveG, emissiveB, alphaMode, alphaCutoff, unlit, doubleSided, castShadows, receiveShadows);
+  #|   }
+  #| }
+
+///|
+extern "js" fn webgpu_release_primitive_mesh_resource(
+  cache_key : String,
+) -> Unit =
+  #| (cacheKey) => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (rt) {
+  #|     rt.releasePrimitiveMeshResource(cacheKey);
   #|   }
   #| }
 

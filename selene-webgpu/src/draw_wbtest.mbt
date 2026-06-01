@@ -96,6 +96,27 @@ fn triangle_winding_dot(
 }
 
 ///|
+test "lit primitive mesh resource keys are owned by MoonBit" {
+  let color : @render.Color = { r: 255U, g: 128U, b: 0U, a: 0.5 }
+  inspect(
+    lit_primitive_mesh_resource_key(
+      "lit-cube",
+      [1.0, 2.0, 3.0],
+      color,
+      0.1,
+      0.2,
+      0.3,
+      2.0,
+      0.4,
+      true,
+    ),
+    content="lit-cube|1|2|3|255,128,0,0.5|0.1,0.2,0.3|2|0.4|1",
+  )
+  inspect(safe_cylinder_slices(2), content="3")
+  inspect(safe_cylinder_slices(12), content="12")
+}
+
+///|
 test "render3d submission stats record repeated primitive pressure" {
   let mesh = webgpu_test_mesh_handle(9100)
   let material = webgpu_test_material_handle(9101)

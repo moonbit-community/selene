@@ -86,6 +86,9 @@ const TEXTURED_SPHERE_SLICES : Int = 24
 const TEXTURED_SPHERE_STACKS : Int = 16
 
 ///|
+const WEBGPU_PRIMITIVE_MESH_RESOURCE_TTL_FRAMES : Int = 120
+
+///|
 pub(all) enum Render3DLightingMode {
   Full
   Cheap
@@ -157,6 +160,12 @@ let retained_render3d_instance_signatures : Map[String, Bool] = Map([])
 
 ///|
 let current_render3d_lighting_mode : Ref[Render3DLightingMode] = Ref(Full)
+
+///|
+let webgpu_resource_frame : Ref[Int] = Ref(0)
+
+///|
+let primitive_mesh_resource_last_seen : Map[String, Int] = Map([])
 
 ///|
 fn empty_render3d_submission_stats() -> Render3DSubmissionStats {
@@ -564,12 +573,16 @@ pub fn release_image_asset(handle : @render3d_types.ImageHandle) -> Unit {
 
 ///|
 pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
+  begin_webgpu_resource_frame()
   let stats = collect_render3d_submission_stats(frame)
   last_render3d_submission_stats.val = stats
   last_render3d_submission_stats_checksum.val = render3d_submission_stats_checksum(
     stats,
   )
-  guard frame.camera is Some(active_camera) else { return }
+  guard frame.camera is Some(active_camera) else {
+    prune_stale_primitive_mesh_resources()
+    return
+  }
   configure_scene_lighting(frame)
   begin_3d(active_camera)
   for item in frame.items {
@@ -612,6 +625,19 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
             )
           None =>
             webgpu_draw_cube_3d(
+              mark_primitive_mesh_resource_key(
+                lit_primitive_mesh_resource_key(
+                  "lit-cube",
+                  [size.x, size.y, size.z],
+                  color,
+                  emissive_r,
+                  emissive_g,
+                  emissive_b,
+                  alpha_mode,
+                  alpha_cutoff,
+                  unlit,
+                ),
+              ),
               center.x,
               center.y,
               center.z,
@@ -662,6 +688,19 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
             )
           None =>
             webgpu_draw_sphere_3d(
+              mark_primitive_mesh_resource_key(
+                lit_primitive_mesh_resource_key(
+                  "lit-sphere",
+                  [radius],
+                  color,
+                  emissive_r,
+                  emissive_g,
+                  emissive_b,
+                  alpha_mode,
+                  alpha_cutoff,
+                  unlit,
+                ),
+              ),
               center.x,
               center.y,
               center.z,
@@ -711,6 +750,24 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
             )
           None =>
             webgpu_draw_cylinder_3d(
+              mark_primitive_mesh_resource_key(
+                lit_primitive_mesh_resource_key(
+                  "lit-cylinder",
+                  [
+                    radius_top,
+                    radius_bottom,
+                    height,
+                    safe_cylinder_slices(slices).to_double(),
+                  ],
+                  color,
+                  emissive_r,
+                  emissive_g,
+                  emissive_b,
+                  alpha_mode,
+                  alpha_cutoff,
+                  unlit,
+                ),
+              ),
               center.x,
               center.y,
               center.z,
@@ -763,6 +820,19 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
             )
           None =>
             webgpu_draw_cube_3d(
+              mark_primitive_mesh_resource_key(
+                lit_primitive_mesh_resource_key(
+                  "lit-cube",
+                  [size.x, y, size.z],
+                  color,
+                  emissive_r,
+                  emissive_g,
+                  emissive_b,
+                  alpha_mode,
+                  alpha_cutoff,
+                  unlit,
+                ),
+              ),
               center.x,
               center.y,
               center.z,
@@ -808,6 +878,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
     }
   }
   end_3d()
+  prune_stale_primitive_mesh_resources()
 }
 
 ///|
@@ -821,6 +892,87 @@ fn render3d_submission_stats_checksum(stats : Render3DSubmissionStats) -> Int {
   stats.textured_triangle_commands +
   stats.uploaded_vertex_bytes +
   stats.render_bind_group_creations
+}
+
+///|
+fn begin_webgpu_resource_frame() -> Unit {
+  webgpu_resource_frame.val += 1
+}
+
+///|
+fn mark_primitive_mesh_resource_key(key : String) -> String {
+  primitive_mesh_resource_last_seen.set(key, webgpu_resource_frame.val)
+  key
+}
+
+///|
+fn prune_stale_primitive_mesh_resources() -> Unit {
+  let min_live_frame = webgpu_resource_frame.val -
+    WEBGPU_PRIMITIVE_MESH_RESOURCE_TTL_FRAMES
+  for pair in primitive_mesh_resource_last_seen.to_array() {
+    if pair.1 < min_live_frame {
+      ignore(primitive_mesh_resource_last_seen.remove(pair.0))
+      webgpu_release_primitive_mesh_resource(pair.0)
+    }
+  }
+}
+
+///|
+fn lit_primitive_mesh_resource_key(
+  prefix : String,
+  dimensions : Array[Double],
+  color : @render.Color,
+  emissive_r : Double,
+  emissive_g : Double,
+  emissive_b : Double,
+  alpha_mode : Double,
+  alpha_cutoff : Double,
+  unlit : Bool,
+) -> String {
+  let mut key = prefix
+  for dimension in dimensions {
+    key = key + "|" + webgpu_resource_float_key(dimension)
+  }
+  key +
+  "|" +
+  webgpu_resource_color_key(color) +
+  "|" +
+  webgpu_resource_float_key(emissive_r) +
+  "," +
+  webgpu_resource_float_key(emissive_g) +
+  "," +
+  webgpu_resource_float_key(emissive_b) +
+  "|" +
+  webgpu_resource_float_key(alpha_mode) +
+  "|" +
+  webgpu_resource_float_key(alpha_cutoff) +
+  "|" +
+  (if unlit { "1" } else { "0" })
+}
+
+///|
+fn webgpu_resource_color_key(color : @render.Color) -> String {
+  color.r.to_string() +
+  "," +
+  color.g.to_string() +
+  "," +
+  color.b.to_string() +
+  "," +
+  webgpu_resource_float_key(color.a)
+}
+
+///|
+fn webgpu_resource_float_key(value : Double) -> String {
+  value.to_string()
+}
+
+///|
+fn safe_cylinder_slices(slices : Int) -> Int {
+  if slices < 3 {
+    3
+  } else {
+    slices
+  }
 }
 
 ///|
