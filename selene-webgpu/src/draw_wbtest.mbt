@@ -4,11 +4,61 @@ fn webgpu_test_handle(id : Int) -> @render3d_types.ImageHandle {
 }
 
 ///|
+fn webgpu_test_mesh_handle(id : Int) -> @render3d_types.MeshHandle {
+  @render3d_types.MeshHandle(id.reinterpret_as_uint())
+}
+
+///|
+fn webgpu_test_material_handle(id : Int) -> @render3d_types.MaterialHandle {
+  @render3d_types.MaterialHandle(id.reinterpret_as_uint())
+}
+
+///|
 fn webgpu_test_sync_image(
   handle : @render3d_types.ImageHandle,
   path : String,
 ) -> Unit {
   synced_image_assets.set(handle, { path, })
+}
+
+///|
+fn webgpu_test_camera() -> @render3d_types.FrameCamera3D {
+  {
+    position: @smath.Vec3(0.0, 0.0, 8.0),
+    target: @smath.Vec3::zero(),
+    up: @smath.Vec3::y_axis(),
+    fov_y: 45.0,
+    projection: Perspective,
+    orthographic_size: None,
+    near: 0.1,
+    far: 100.0,
+    clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0 },
+  }
+}
+
+///|
+fn webgpu_test_transform(x : Double) -> @render3d_types.FrameTransform3D {
+  {
+    translation: @smath.Vec3(x, 0.0, 0.0),
+    rotation: @smath.Quat::identity(),
+    scale: @smath.Vec3::one(),
+  }
+}
+
+///|
+fn webgpu_test_item(
+  mesh : @render3d_types.MeshHandle,
+  material : @render3d_types.MaterialHandle,
+  x : Double,
+) -> @render3d_types.RenderItem3D {
+  {
+    entity_id: None,
+    transform: webgpu_test_transform(x),
+    mesh,
+    material,
+    cast_shadows: true,
+    receive_shadows: true,
+  }
 }
 
 ///|
@@ -43,6 +93,60 @@ fn triangle_winding_dot(
   normal : @smath.Vec3,
 ) -> Double {
   (b - a).cross(c - a).dot(normal)
+}
+
+///|
+test "render3d submission stats record repeated primitive pressure" {
+  let mesh = webgpu_test_mesh_handle(9100)
+  let material = webgpu_test_material_handle(9101)
+  sync_mesh_asset(mesh, { primitive: Cube(@smath.Vec3(1.0, 1.0, 1.0)) })
+  sync_material_asset(material, @render3d_types.default_standard_material3d())
+  let frame = @render3d_types.empty_render_frame3d()
+  frame.camera = Some(webgpu_test_camera())
+  frame.items = [
+    webgpu_test_item(mesh, material, 0.0),
+    webgpu_test_item(mesh, material, 1.0),
+    webgpu_test_item(mesh, material, 2.0),
+    webgpu_test_item(mesh, material, 3.0),
+  ]
+  let stats = collect_render3d_submission_stats(frame)
+  inspect(stats.sections, content="1")
+  inspect(stats.submitted_items, content="4")
+  inspect(stats.skipped_items, content="0")
+  inspect(stats.command_groups, content="1")
+  inspect(stats.draw_commands, content="4")
+  inspect(stats.lit_triangle_commands, content="4")
+  inspect(stats.textured_triangle_commands, content="0")
+  inspect(stats.uploaded_vertex_bytes, content="9792")
+  inspect(stats.render_bind_group_creations, content="1")
+  release_mesh_asset(mesh)
+  release_material_asset(material)
+}
+
+///|
+test "render3d submission stats distinguish textured primitive bind groups" {
+  let image = webgpu_test_handle(9110)
+  let mesh = webgpu_test_mesh_handle(9111)
+  let material = webgpu_test_material_handle(9112)
+  webgpu_test_sync_image(image, "wbtest://base")
+  sync_mesh_asset(mesh, { primitive: Cube(@smath.Vec3(1.0, 1.0, 1.0)) })
+  sync_material_asset(material, {
+    ..@render3d_types.default_standard_material3d(),
+    base_color_texture: Some(@render3d_types.texture_binding3d(image)),
+  })
+  let frame = @render3d_types.empty_render_frame3d()
+  frame.camera = Some(webgpu_test_camera())
+  frame.items = [webgpu_test_item(mesh, material, 0.0)]
+  let stats = collect_render3d_submission_stats(frame)
+  inspect(stats.command_groups, content="1")
+  inspect(stats.draw_commands, content="1")
+  inspect(stats.lit_triangle_commands, content="0")
+  inspect(stats.textured_triangle_commands, content="1")
+  inspect(stats.uploaded_vertex_bytes, content="5040")
+  inspect(stats.render_bind_group_creations, content="1")
+  release_image_asset(image)
+  release_mesh_asset(mesh)
+  release_material_asset(material)
 }
 
 ///|
@@ -403,7 +507,8 @@ test "cuboid and sphere primitive triangles wind toward their outward normals" {
       cuboid.positions[1],
       cuboid.positions[2],
       cuboid_normals[0],
-    ) > 0.0,
+    ) >
+    0.0,
     content="true",
   )
 
@@ -416,7 +521,8 @@ test "cuboid and sphere primitive triangles wind toward their outward normals" {
       sphere.positions[triangle_base + 1],
       sphere.positions[triangle_base + 2],
       sphere_normals[triangle_base],
-    ) > 0.0,
+    ) >
+    0.0,
     content="true",
   )
 }
@@ -431,7 +537,8 @@ test "cylinder primitive side triangles wind toward their outward normals" {
       cylinder.positions[1],
       cylinder.positions[2],
       normals[0],
-    ) > 0.0,
+    ) >
+    0.0,
     content="true",
   )
   inspect(
@@ -440,7 +547,8 @@ test "cylinder primitive side triangles wind toward their outward normals" {
       cylinder.positions[4],
       cylinder.positions[5],
       normals[3],
-    ) > 0.0,
+    ) >
+    0.0,
     content="true",
   )
 }

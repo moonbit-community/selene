@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- Added internal WebGPU 3D primitive submission telemetry for renderer performance work.
 
 ### Changed
 - Changed mouse input snapshots to carry raw relative deltas separately from derived mouse movement.

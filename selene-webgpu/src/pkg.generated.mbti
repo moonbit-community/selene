@@ -61,7 +61,7 @@ pub fn register_gamepad_events(@set.Set[@inputs.Gamepad], @set.Set[@inputs.Gamep
 
 pub fn register_key_events(@set.Set[@inputs.Code]) -> Unit
 
-pub fn register_mouse_events(@inputs.Mouse, @inputs.MouseMovement, @inputs.MouseWheel) -> Unit
+pub fn register_mouse_events(@inputs.Mouse, @ref.Ref[@math.Vec2?], @inputs.MouseWheel) -> Unit
 
 pub fn register_touch_events(Map[@inputs.TouchId, @inputs.TouchPoint], Array[@inputs.TouchEvent]) -> Unit
 

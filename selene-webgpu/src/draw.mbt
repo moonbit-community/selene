@@ -121,6 +121,42 @@ priv struct MaterialTextureBundle3D {
 }
 
 ///|
+priv struct Render3DSubmissionStats {
+  mut sections : Int
+  mut submitted_items : Int
+  mut skipped_items : Int
+  mut command_groups : Int
+  mut draw_commands : Int
+  mut lit_triangle_commands : Int
+  mut textured_triangle_commands : Int
+  mut uploaded_vertex_bytes : Int
+  mut render_bind_group_creations : Int
+}
+
+///|
+let last_render3d_submission_stats : Ref[Render3DSubmissionStats] = Ref(
+  empty_render3d_submission_stats(),
+)
+
+///|
+let last_render3d_submission_stats_checksum : Ref[Int] = Ref(0)
+
+///|
+fn empty_render3d_submission_stats() -> Render3DSubmissionStats {
+  {
+    sections: 0,
+    submitted_items: 0,
+    skipped_items: 0,
+    command_groups: 0,
+    draw_commands: 0,
+    lit_triangle_commands: 0,
+    textured_triangle_commands: 0,
+    uploaded_vertex_bytes: 0,
+    render_bind_group_creations: 0,
+  }
+}
+
+///|
 priv struct ResolvedMaterialTextureInput3D {
   path : String
   uvs : Array[@smath.Vec2]
@@ -506,6 +542,11 @@ pub fn release_image_asset(handle : @render3d_types.ImageHandle) -> Unit {
 
 ///|
 pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
+  let stats = collect_render3d_submission_stats(frame)
+  last_render3d_submission_stats.val = stats
+  last_render3d_submission_stats_checksum.val = render3d_submission_stats_checksum(
+    stats,
+  )
   guard frame.camera is Some(active_camera) else { return }
   configure_scene_lighting(frame)
   begin_3d(active_camera)
@@ -745,6 +786,135 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
     }
   }
   end_3d()
+}
+
+///|
+fn render3d_submission_stats_checksum(stats : Render3DSubmissionStats) -> Int {
+  stats.sections +
+  stats.submitted_items +
+  stats.skipped_items +
+  stats.command_groups +
+  stats.draw_commands +
+  stats.lit_triangle_commands +
+  stats.textured_triangle_commands +
+  stats.uploaded_vertex_bytes +
+  stats.render_bind_group_creations
+}
+
+///|
+fn collect_render3d_submission_stats(
+  frame : @render3d_types.RenderFrame3D,
+) -> Render3DSubmissionStats {
+  let stats = empty_render3d_submission_stats()
+  guard frame.camera is Some(_) else { return stats }
+  stats.sections = 1
+  for item in frame.items {
+    guard synced_mesh_assets.get(item.mesh) is Some(mesh_asset) else {
+      stats.skipped_items += 1
+      continue
+    }
+    let material = synced_material_assets
+      .get(item.material)
+      .unwrap_or(@render3d_types.default_standard_material3d())
+    let texture_bundle = resolve_material_texture_bundle(material)
+    let vertex_count = render3d_item_vertex_count(mesh_asset.primitive)
+    if vertex_count <= 0 {
+      stats.skipped_items += 1
+      continue
+    }
+    stats.submitted_items += 1
+    let textured = texture_bundle is Some(_) &&
+      render3d_item_can_use_textured_path(mesh_asset.primitive, texture_bundle)
+    if textured {
+      stats.textured_triangle_commands += 1
+      stats.uploaded_vertex_bytes += vertex_count * 35 * 4
+    } else {
+      stats.lit_triangle_commands += 1
+      stats.uploaded_vertex_bytes += vertex_count * 17 * 4
+    }
+  }
+  if stats.lit_triangle_commands > 0 {
+    stats.command_groups += 1
+    stats.render_bind_group_creations += 1
+  }
+  if stats.textured_triangle_commands > 0 {
+    stats.command_groups += 1
+    stats.render_bind_group_creations += stats.textured_triangle_commands
+  }
+  stats.draw_commands = stats.lit_triangle_commands +
+    stats.textured_triangle_commands
+  stats
+}
+
+///|
+fn render3d_item_can_use_textured_path(
+  primitive : @render3d_types.MeshPrimitive3D,
+  texture_bundle : MaterialTextureBundle3D?,
+) -> Bool {
+  guard texture_bundle is Some(bundle) else { return false }
+  match primitive {
+    Cube(_) | Sphere(_) | Cylinder(_, _, _, _) | Plane(_) => true
+    Triangles(mesh) => textured_triangle_mesh_vertex_count(mesh, bundle) > 0
+  }
+}
+
+///|
+fn render3d_item_vertex_count(
+  primitive : @render3d_types.MeshPrimitive3D,
+) -> Int {
+  match primitive {
+    Cube(_) => cuboid_triangle_vertex_count()
+    Sphere(_) =>
+      sphere_triangle_vertex_count(
+        TEXTURED_SPHERE_SLICES,
+        TEXTURED_SPHERE_STACKS,
+      )
+    Cylinder(radius_top, radius_bottom, _, slices) =>
+      cylinder_triangle_vertex_count(radius_top, radius_bottom, slices)
+    Plane(_) => cuboid_triangle_vertex_count()
+    Triangles(mesh) =>
+      resolve_triangle_indices(mesh).map_or(0, fn(indices) { indices.length() })
+  }
+}
+
+///|
+fn cuboid_triangle_vertex_count() -> Int {
+  36
+}
+
+///|
+fn sphere_triangle_vertex_count(slices : Int, stacks : Int) -> Int {
+  let safe_slices = if slices < 3 { 3 } else { slices }
+  let safe_stacks = if stacks < 2 { 2 } else { stacks }
+  safe_slices * (safe_stacks - 1) * 6
+}
+
+///|
+fn cylinder_triangle_vertex_count(
+  radius_top : Double,
+  radius_bottom : Double,
+  slices : Int,
+) -> Int {
+  let safe_slices = if slices < 3 { 3 } else { slices }
+  let cap_vertices = (if radius_top.abs() > 0.000001 { 3 } else { 0 }) +
+    (if radius_bottom.abs() > 0.000001 { 3 } else { 0 })
+  safe_slices * (6 + cap_vertices)
+}
+
+///|
+fn textured_triangle_mesh_vertex_count(
+  mesh : @render3d_types.TriangleMesh3D,
+  bundle : MaterialTextureBundle3D,
+) -> Int {
+  guard resolve_triangle_indices(mesh) is Some(triangle_indices) else {
+    return 0
+  }
+  let normals = resolve_mesh_normals(mesh)
+  match mesh.uv_sets.get(bundle.primary_texcoord_set) {
+    Some(primary_uvs) if primary_uvs.length() == mesh.positions.length() &&
+      normals.length() == mesh.positions.length() => triangle_indices.length()
+    _ => 0
+  }
 }
 
 ///|
