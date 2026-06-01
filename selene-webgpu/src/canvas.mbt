@@ -1608,25 +1608,9 @@ extern "js" fn webgpu_initialize(
   #|       const viewport = Array.isArray(passRecord?.viewport)
   #|         ? passRecord.viewport
   #|         : [0, 0, canvasWidth, canvasHeight];
-  #|       const loadOp = Number(passRecord?.loadOp) || 0;
-  #|       const clearColor = Array.isArray(passRecord?.clearColor)
-  #|         ? passRecord.clearColor
-  #|         : [0, 0, 0, 1];
   #|       const commands = Array.isArray(passRecord?.commands)
   #|         ? passRecord.commands.slice()
   #|         : [];
-  #|       if (loadOp === 1) {
-  #|         const [x, y, w, h] = viewport;
-  #|         const verts = new Float32Array([
-  #|           x, y, clearColor[0], clearColor[1], clearColor[2], clearColor[3],
-  #|           x + w, y, clearColor[0], clearColor[1], clearColor[2], clearColor[3],
-  #|           x + w, y + h, clearColor[0], clearColor[1], clearColor[2], clearColor[3],
-  #|           x, y, clearColor[0], clearColor[1], clearColor[2], clearColor[3],
-  #|           x + w, y + h, clearColor[0], clearColor[1], clearColor[2], clearColor[3],
-  #|           x, y + h, clearColor[0], clearColor[1], clearColor[2], clearColor[3],
-  #|         ]);
-  #|         commands.unshift(rt.colorCommand2d('triangle', verts, clearColor[3] >= 0.999999 ? 0 : 1, 0));
-  #|       }
   #|       let colorBytes = 0;
   #|       let texBytes = 0;
   #|       for (const cmd of commands) {

@@ -271,6 +271,22 @@ pub fn render2d_begin_pass(
     ca,
     target_name,
   )
+  if load_op is @render2d_types.RenderPassLoadOp2D::Clear {
+    let clear_viewport = match target {
+      Screen => viewport
+      Offscreen(_) => { position: @smath.Vec2::zero(), size: viewport.size }
+    }
+    webgpu_push_color_vertices_2d(
+      "triangle",
+      pack_rect_fill_vertices2d(clear_viewport, @smath.Transform(), clear_color),
+      if clear_color.a >= 0.999999 {
+        0
+      } else {
+        1
+      },
+      0,
+    )
+  }
 }
 
 ///|
