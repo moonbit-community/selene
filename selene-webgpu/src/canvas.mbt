@@ -75,185 +75,6 @@ extern "js" fn webgpu_initialize(
   #|       while (n < v) n <<= 1;
   #|       return n;
   #|     };
-  #|     const mat4Multiply = (a, b) => {
-  #|       const out = new Float32Array(16);
-  #|       for (let c = 0; c < 4; c += 1) {
-  #|         for (let r = 0; r < 4; r += 1) {
-  #|           out[c * 4 + r] =
-  #|             a[0 * 4 + r] * b[c * 4 + 0] +
-  #|             a[1 * 4 + r] * b[c * 4 + 1] +
-  #|             a[2 * 4 + r] * b[c * 4 + 2] +
-  #|             a[3 * 4 + r] * b[c * 4 + 3];
-  #|         }
-  #|       }
-  #|       return out;
-  #|     };
-  #|     const vec3Sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
-  #|     const vec3Dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-  #|     const vec3Cross = (a, b) => [
-  #|       a[1] * b[2] - a[2] * b[1],
-  #|       a[2] * b[0] - a[0] * b[2],
-  #|       a[0] * b[1] - a[1] * b[0],
-  #|     ];
-  #|     const vec3Norm = (v) => {
-  #|       const len = Math.hypot(v[0], v[1], v[2]) || 1;
-  #|       return [v[0] / len, v[1] / len, v[2] / len];
-  #|     };
-  #|     const mat4LookAt = (eye, target, up) => {
-  #|       const z = vec3Norm(vec3Sub(eye, target));
-  #|       const x = vec3Norm(vec3Cross(up, z));
-  #|       const y = vec3Cross(z, x);
-  #|       return new Float32Array([
-  #|         x[0], y[0], z[0], 0,
-  #|         x[1], y[1], z[1], 0,
-  #|         x[2], y[2], z[2], 0,
-  #|         -vec3Dot(x, eye), -vec3Dot(y, eye), -vec3Dot(z, eye), 1,
-  #|       ]);
-  #|     };
-  #|     const mat4Perspective = (fovyDeg, aspect, near, far) => {
-  #|       const fovy = (fovyDeg * Math.PI) / 180.0;
-  #|       const f = 1.0 / Math.tan(fovy / 2.0);
-  #|       return new Float32Array([
-  #|         f / aspect, 0, 0, 0,
-  #|         0, f, 0, 0,
-  #|         0, 0, far / (near - far), -1,
-  #|         0, 0, (near * far) / (near - far), 0,
-  #|       ]);
-  #|     };
-  #|     const mat4Orthographic = (width, height, near, far) => {
-  #|       const halfW = Math.max(Math.abs(width), 0.0001) / 2.0;
-  #|       const halfH = Math.max(Math.abs(height), 0.0001) / 2.0;
-  #|       const left = -halfW;
-  #|       const right = halfW;
-  #|       const bottom = -halfH;
-  #|       const top = halfH;
-  #|       const dz = Math.max(far - near, 0.0001);
-  #|       return new Float32Array([
-  #|         2.0 / (right - left), 0, 0, 0,
-  #|         0, 2.0 / (top - bottom), 0, 0,
-  #|         0, 0, 1.0 / (near - far), 0,
-  #|         -(right + left) / (right - left),
-  #|         -(top + bottom) / (top - bottom),
-  #|         near / (near - far),
-  #|         1,
-  #|       ]);
-  #|     };
-  #|     const mat4Translation = (x, y, z) =>
-  #|       new Float32Array([
-  #|         1, 0, 0, 0,
-  #|         0, 1, 0, 0,
-  #|         0, 0, 1, 0,
-  #|         x, y, z, 1,
-  #|       ]);
-  #|     ;
-  #|     const vec3Add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
-  #|     const vec3Scale = (v, s) => [v[0] * s, v[1] * s, v[2] * s];
-  #|     const vec3LengthSq = (v) => vec3Dot(v, v);
-  #|     const vec3Min = (a, b) => [
-  #|       Math.min(a[0], b[0]),
-  #|       Math.min(a[1], b[1]),
-  #|       Math.min(a[2], b[2]),
-  #|     ];
-  #|     const vec3Max = (a, b) => [
-  #|       Math.max(a[0], b[0]),
-  #|       Math.max(a[1], b[1]),
-  #|       Math.max(a[2], b[2]),
-  #|     ];
-  #|     const chooseShadowUp = (direction) => {
-  #|       const normalized = vec3LengthSq(direction) <= 1e-8
-  #|         ? [0, -1, 0]
-  #|         : vec3Norm(direction);
-  #|       const worldUp = [0, 1, 0];
-  #|       return vec3LengthSq(vec3Cross(normalized, worldUp)) <= 1e-4
-  #|         ? [0, 0, 1]
-  #|         : worldUp;
-  #|     };
-  #|     const cameraBasis = (camera) => {
-  #|       const forward = vec3LengthSq(vec3Sub(camera.target, camera.position)) <= 1e-8
-  #|         ? [0, 0, -1]
-  #|         : vec3Norm(vec3Sub(camera.target, camera.position));
-  #|       const up = vec3LengthSq(camera.up) <= 1e-8
-  #|         ? [0, 1, 0]
-  #|         : vec3Norm(camera.up);
-  #|       const right = vec3LengthSq(vec3Cross(forward, up)) <= 1e-8
-  #|         ? [1, 0, 0]
-  #|         : vec3Norm(vec3Cross(forward, up));
-  #|       const correctedUp = vec3LengthSq(vec3Cross(right, forward)) <= 1e-8
-  #|         ? [0, 1, 0]
-  #|         : vec3Norm(vec3Cross(right, forward));
-  #|       return { forward, right, up: correctedUp };
-  #|     };
-  #|     const cameraFrustumSliceCorners = (camera, aspect, nearBound, farBound) => {
-  #|       const { forward, right, up } = cameraBasis(camera);
-  #|       const corners = [];
-  #|       if (camera.orthographic) {
-  #|         const halfWidth = Math.max(Math.abs(camera.orthoWidth || 20), 0.0001) * 0.5;
-  #|         const halfHeight = Math.max(Math.abs(camera.orthoHeight || 20), 0.0001) * 0.5;
-  #|         const nearCenter = vec3Add(camera.position, vec3Scale(forward, nearBound));
-  #|         const farCenter = vec3Add(camera.position, vec3Scale(forward, farBound));
-  #|         corners.push(
-  #|           vec3Sub(vec3Sub(nearCenter, vec3Scale(right, halfWidth)), vec3Scale(up, halfHeight)),
-  #|           vec3Add(vec3Sub(nearCenter, vec3Scale(up, halfHeight)), vec3Scale(right, halfWidth)),
-  #|           vec3Add(vec3Add(nearCenter, vec3Scale(right, halfWidth)), vec3Scale(up, halfHeight)),
-  #|           vec3Add(vec3Sub(nearCenter, vec3Scale(right, halfWidth)), vec3Scale(up, halfHeight)),
-  #|           vec3Sub(vec3Sub(farCenter, vec3Scale(right, halfWidth)), vec3Scale(up, halfHeight)),
-  #|           vec3Add(vec3Sub(farCenter, vec3Scale(up, halfHeight)), vec3Scale(right, halfWidth)),
-  #|           vec3Add(vec3Add(farCenter, vec3Scale(right, halfWidth)), vec3Scale(up, halfHeight)),
-  #|           vec3Add(vec3Sub(farCenter, vec3Scale(right, halfWidth)), vec3Scale(up, halfHeight)),
-  #|         );
-  #|         return corners;
-  #|       }
-  #|       const fovy = (Math.max(0.0001, Number(camera.fovy) || 0.0001) * Math.PI) / 180.0;
-  #|       const tanHalfY = Math.tan(fovy * 0.5);
-  #|       const nearHeight = nearBound * tanHalfY;
-  #|       const nearWidth = nearHeight * aspect;
-  #|       const farHeight = farBound * tanHalfY;
-  #|       const farWidth = farHeight * aspect;
-  #|       const nearCenter = vec3Add(camera.position, vec3Scale(forward, nearBound));
-  #|       const farCenter = vec3Add(camera.position, vec3Scale(forward, farBound));
-  #|       corners.push(
-  #|         vec3Sub(vec3Sub(nearCenter, vec3Scale(right, nearWidth)), vec3Scale(up, nearHeight)),
-  #|         vec3Add(vec3Sub(nearCenter, vec3Scale(up, nearHeight)), vec3Scale(right, nearWidth)),
-  #|         vec3Add(vec3Add(nearCenter, vec3Scale(right, nearWidth)), vec3Scale(up, nearHeight)),
-  #|         vec3Add(vec3Sub(nearCenter, vec3Scale(right, nearWidth)), vec3Scale(up, nearHeight)),
-  #|         vec3Sub(vec3Sub(farCenter, vec3Scale(right, farWidth)), vec3Scale(up, farHeight)),
-  #|         vec3Add(vec3Sub(farCenter, vec3Scale(up, farHeight)), vec3Scale(right, farWidth)),
-  #|         vec3Add(vec3Add(farCenter, vec3Scale(right, farWidth)), vec3Scale(up, farHeight)),
-  #|         vec3Add(vec3Sub(farCenter, vec3Scale(right, farWidth)), vec3Scale(up, farHeight)),
-  #|       );
-  #|       return corners;
-  #|     };
-  #|     const directionalShadowBounds = (light, camera) => {
-  #|       const config = light.cascadeConfig || {};
-  #|       const minimumDistance = Math.max(
-  #|         Math.max(0, Number(camera.near) || 0.1),
-  #|         Math.max(0, Number(config.minimumDistance) || 0),
-  #|       );
-  #|       const far = Number(camera.far) || (minimumDistance + 200.0);
-  #|       if (far <= minimumDistance) return [];
-  #|       const overlap = Math.max(0, Math.min(1, Number(config.overlapProportion) || 0));
-  #|       const authoredBounds = Array.isArray(config.bounds) ? config.bounds : [];
-  #|       const cascadeCount = Math.max(1, Math.min(4, authoredBounds.length || 1));
-  #|       const bounds = [];
-  #|       let previousFar = minimumDistance;
-  #|       for (let index = 0; index < cascadeCount; index += 1) {
-  #|         const authoredFar = Number(authoredBounds[index]) || far;
-  #|         const farBound = Math.min(far, authoredFar);
-  #|         const nearBound = index === 0
-  #|           ? minimumDistance
-  #|           : Math.max(minimumDistance, previousFar * (1.0 - overlap));
-  #|         previousFar = farBound;
-  #|         if (farBound <= nearBound) continue;
-  #|         bounds.push([nearBound, farBound]);
-  #|         if (farBound >= far) break;
-  #|       }
-  #|       return bounds;
-  #|     };
-  #|     const directionalAtlasLayout = (cascadeCount) => {
-  #|       if (cascadeCount <= 1) return [1, 1];
-  #|       if (cascadeCount === 2) return [2, 1];
-  #|       return [2, 2];
-  #|     };
   #|     const makeShadowAtlasRect = (slot, columns, tileSize, atlasWidth, atlasHeight) => {
   #|       const column = slot % columns;
   #|       const row = Math.floor(slot / columns);
@@ -263,69 +84,6 @@ extern "js" fn webgpu_initialize(
   #|         offset: [column * tileWidth, row * tileHeight],
   #|         scale: [tileWidth, tileHeight],
   #|       };
-  #|     };
-  #|     const transformPoint = (matrix, point) => {
-  #|       const x = point[0];
-  #|       const y = point[1];
-  #|       const z = point[2];
-  #|       return [
-  #|         matrix[0] * x + matrix[4] * y + matrix[8] * z + matrix[12],
-  #|         matrix[1] * x + matrix[5] * y + matrix[9] * z + matrix[13],
-  #|         matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14],
-  #|       ];
-  #|     };
-  #|     const buildDirectionalShadowCascadesForLight = (light, camera, aspect, tileSize) => {
-  #|       const bounds = directionalShadowBounds(light, camera);
-  #|       if (bounds.length === 0) return [];
-  #|       const direction = vec3LengthSq(light.direction || [0, -1, 0]) <= 1e-8
-  #|         ? [0, -1, 0]
-  #|         : vec3Norm(light.direction);
-  #|       const lightView = mat4LookAt([0, 0, 0], direction, chooseShadowUp(direction));
-  #|       const [atlasColumns, atlasRows] = directionalAtlasLayout(bounds.length);
-  #|       const atlasWidth = tileSize * atlasColumns;
-  #|       const atlasHeight = tileSize * atlasRows;
-  #|       const cascades = [];
-  #|       for (let cascadeIndex = 0; cascadeIndex < bounds.length; cascadeIndex += 1) {
-  #|         const nearBound = bounds[cascadeIndex][0];
-  #|         const farBound = bounds[cascadeIndex][1];
-  #|         const corners = cameraFrustumSliceCorners(camera, aspect, nearBound, farBound);
-  #|         if (corners.length < 8) continue;
-  #|         let minCorner = transformPoint(lightView, corners[0]);
-  #|         let maxCorner = minCorner;
-  #|         for (let index = 1; index < corners.length; index += 1) {
-  #|           const point = transformPoint(lightView, corners[index]);
-  #|           minCorner = vec3Min(minCorner, point);
-  #|           maxCorner = vec3Max(maxCorner, point);
-  #|         }
-  #|         const bodyDiagonal = vec3LengthSq(vec3Sub(corners[0], corners[6]));
-  #|         const farPlaneDiagonal = vec3LengthSq(vec3Sub(corners[4], corners[6]));
-  #|         const diameter = Math.max(1.0, Math.ceil(Math.sqrt(Math.max(bodyDiagonal, farPlaneDiagonal))));
-  #|         const texelSize = diameter / Math.max(1, tileSize);
-  #|         const centerX = Math.floor(((minCorner[0] + maxCorner[0]) * 0.5) / texelSize) * texelSize;
-  #|         const centerY = Math.floor(((minCorner[1] + maxCorner[1]) * 0.5) / texelSize) * texelSize;
-  #|         const halfExtent = diameter * 0.5;
-  #|         const nearPlane = 0.01;
-  #|         const farPlane = Math.max(nearPlane + 1.0, (maxCorner[2] - minCorner[2]) + nearPlane);
-  #|         const cascadeView = mat4Multiply(
-  #|           lightView,
-  #|           mat4Translation(-centerX, -centerY, -(maxCorner[2] + nearPlane)),
-  #|         );
-  #|         const cascadeProjection = mat4Orthographic(halfExtent * 2.0, halfExtent * 2.0, nearPlane, farPlane);
-  #|         const atlasRect = makeShadowAtlasRect(
-  #|           cascadeIndex,
-  #|           atlasColumns,
-  #|           tileSize,
-  #|           atlasWidth,
-  #|           atlasHeight,
-  #|         );
-  #|         cascades.push({
-  #|           lightViewProjection: mat4Multiply(cascadeProjection, cascadeView),
-  #|           atlasRect,
-  #|           nearBound,
-  #|           farBound,
-  #|         });
-  #|       }
-  #|       return cascades;
   #|     };
   #|     const createShadowTexture = (width, height) => {
   #|       const texture = rt.device.createTexture({
@@ -348,7 +106,8 @@ extern "js" fn webgpu_initialize(
   #|       if (!rt.device || index < 0 || index >= 4) return null;
   #|       const safeTileSize = Math.max(1, tileSize | 0);
   #|       const safeCascadeCount = Math.max(1, Math.min(4, cascadeCount | 0));
-  #|       const [columns, rows] = directionalAtlasLayout(safeCascadeCount);
+  #|       const columns = safeCascadeCount <= 1 ? 1 : 2;
+  #|       const rows = safeCascadeCount <= 2 ? 1 : 2;
   #|       const width = safeTileSize * columns;
   #|       const height = safeTileSize * rows;
   #|       const existing = rt.shadowTextures.directional[index];
@@ -1122,7 +881,7 @@ extern "js" fn webgpu_initialize(
   #|       for (let lightIndex = 0; lightIndex < Math.min(4, directionalLights.length); lightIndex += 1) {
   #|         const directionalLight = directionalLights[lightIndex];
   #|         if (!directionalLight?.shadows) continue;
-  #|         const cascades = buildDirectionalShadowCascadesForLight(directionalLight, camera, aspect, tileSize);
+  #|         const cascades = rt.shadowViewProjection3d?.directionalCascades?.[lightIndex] || [];
   #|         if (cascades.length <= 0) continue;
   #|         const record = rt.ensureDirectionalShadowTexture(lightIndex, tileSize, cascades.length);
   #|         if (!record?.view) continue;

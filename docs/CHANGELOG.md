@@ -29,6 +29,7 @@
 - Changed WebGPU fallback text quad alignment and vertex packing so MoonBit builds text texture vertices before JavaScript binds the generated text texture.
 - Changed WebGPU Cosmic cached text rendering so MoonBit keeps cached texture sizes and packs cached text vertices before JavaScript binds the cached texture.
 - Changed WebGPU spot and point shadow view-projection planning so MoonBit packs those shadow matrices before JavaScript executes the shadow passes.
+- Changed WebGPU directional shadow cascade planning so MoonBit computes cascade bounds, atlas rects, and shadow matrices before JavaScript executes the shadow passes.
 
 ### Fixed
 - Fixed WebGPU 3D primitives to honor material double-sided state, use instance scale consistently with custom meshes and raylib primitives, and wind textured sphere triangles outward.

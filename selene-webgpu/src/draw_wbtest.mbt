@@ -435,6 +435,59 @@ test "pack_directional_light_data includes shadow metadata and cascade bounds" {
 }
 
 ///|
+test "pack directional shadow cascades in MoonBit" {
+  let frame = @render3d_types.empty_render_frame3d()
+  frame.camera = Some(webgpu_test_camera())
+  frame.directional_lights = [
+    {
+      direction: @smath.Vec3(0.0, -2.0, 0.0),
+      color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
+      intensity: 1.0,
+      shadows: true,
+      shadow_depth_bias: 0.0,
+      shadow_normal_bias: 0.0,
+      cascade_shadow_config: {
+        bounds: [8.0, 24.0],
+        minimum_distance: 0.5,
+        overlap_proportion: 0.25,
+      },
+    },
+  ]
+  frame.directional_shadow_map_size = 1024
+  let packed = pack_directional_shadow_cascade_data(frame, 16.0 / 9.0)
+  inspect(packed.length(), content="48")
+  inspect(packed[0], content="0")
+  inspect(packed[1], content="0")
+  inspect(packed[2] != 0.0, content="true")
+  inspect(packed[18], content="0")
+  inspect(packed[19], content="0")
+  inspect(packed[20], content="0.5")
+  inspect(packed[21], content="1")
+  inspect(packed[22], content="0.5")
+  inspect(packed[23], content="8")
+  inspect(packed[24], content="0")
+  inspect(packed[25], content="1")
+  inspect(packed[42], content="0.5")
+  inspect(packed[43], content="0")
+  inspect(packed[44], content="0.5")
+  inspect(packed[45], content="1")
+  inspect(packed[46], content="6")
+  inspect(packed[47], content="24")
+  inspect(
+    pack_directional_shadow_cascade_data(frame, 1.0, mode=Unlit).length(),
+    content="0",
+  )
+  frame.directional_lights[0] = {
+    ..frame.directional_lights[0],
+    shadows: false,
+  }
+  inspect(
+    pack_directional_shadow_cascade_data(frame, 1.0).length(),
+    content="0",
+  )
+}
+
+///|
 test "pack_point_light_data and pack_spot_light_data include shadow metadata" {
   let frame = @render3d_types.empty_render_frame3d()
   frame.point_lights = [

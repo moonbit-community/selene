@@ -434,9 +434,9 @@ pub fn draw_gradient_rect(
 }
 
 ///|
-fn begin_3d(camera : @render3d_types.FrameCamera3D) -> Unit {
+fn begin_3d(camera : @render3d_types.FrameCamera3D, aspect : Double) -> Unit {
   webgpu_begin_3d(
-    pack_camera_view_projection3d(camera, webgpu_canvas_aspect_ratio()),
+    pack_camera_view_projection3d(camera, aspect),
     camera.position.x,
     camera.position.y,
     camera.position.z,
@@ -516,8 +516,9 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
     prune_stale_retained_instance_buffers3d()
     return
   }
-  configure_scene_lighting(frame, active_camera)
-  begin_3d(active_camera)
+  let aspect = webgpu_canvas_aspect_ratio()
+  configure_scene_lighting(frame, active_camera, aspect)
+  begin_3d(active_camera, aspect)
   let lit_primitive_batches = new_lit_primitive_mesh_batch_accumulator()
   for item in frame.items {
     guard synced_mesh_assets.get(item.mesh) is Some(mesh_asset) else {
@@ -1965,6 +1966,7 @@ fn push_textured_triangle3d(
 fn configure_scene_lighting(
   frame : @render3d_types.RenderFrame3D,
   camera : @render3d_types.FrameCamera3D,
+  aspect : Double,
 ) -> Unit {
   let has_lighting = frame.ambient_light is Some(_) ||
     frame.directional_lights.length() > 0 ||
@@ -1995,6 +1997,7 @@ fn configure_scene_lighting(
     frame.point_shadow_map_size.to_double(),
   )
   webgpu_set_shadow_view_projection_3d(
+    pack_directional_shadow_cascade_data(frame, aspect, mode~),
     pack_spot_shadow_view_projection_data(frame, mode~),
     pack_point_shadow_view_projection_data(frame, mode~),
   )
