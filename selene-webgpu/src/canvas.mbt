@@ -4,8 +4,10 @@ extern "js" fn webgpu_initialize(
   width : Double,
   height : Double,
   image_smooth : Bool,
+  shader2d_color_source : String,
+  shader2d_texture_source : String,
 ) -> Unit =
-  #| (canvas, width, height, imageSmooth) => {
+  #| (canvas, width, height, imageSmooth, shader2dColorSource, shader2dTextureSource) => {
   #|   const g = globalThis;
   #|   if (!g.__selene_webgpu_runtime) {
   #|     const rt = {
@@ -1442,59 +1444,10 @@ extern "js" fn webgpu_initialize(
   #|       };
   #|
   #|       const shader2dColor = rt.device.createShaderModule({
-  #|         code: `
-  #| struct CanvasUniform { size: vec2<f32>, _pad: vec2<f32> };
-  #| @group(0) @binding(0) var<uniform> u_canvas: CanvasUniform;
-  #| struct VSIn {
-  #|   @location(0) pos: vec2<f32>,
-  #|   @location(1) color: vec4<f32>,
-  #| };
-  #| struct VSOut {
-  #|   @builtin(position) pos: vec4<f32>,
-  #|   @location(0) color: vec4<f32>,
-  #| };
-  #| @vertex fn vs_main(v: VSIn) -> VSOut {
-  #|   var o: VSOut;
-  #|   let nx = (v.pos.x / u_canvas.size.x) * 2.0 - 1.0;
-  #|   let ny = 1.0 - (v.pos.y / u_canvas.size.y) * 2.0;
-  #|   o.pos = vec4<f32>(nx, ny, 0.0, 1.0);
-  #|   o.color = v.color;
-  #|   return o;
-  #| }
-  #| @fragment fn fs_main(v: VSOut) -> @location(0) vec4<f32> {
-  #|   return v.color;
-  #| }
-  #| `,
+  #|         code: String(shader2dColorSource || ''),
   #|       });
   #|       const shader2dTex = rt.device.createShaderModule({
-  #|         code: `
-  #| struct CanvasUniform { size: vec2<f32>, _pad: vec2<f32> };
-  #| @group(0) @binding(0) var<uniform> u_canvas: CanvasUniform;
-  #| @group(0) @binding(1) var u_sampler: sampler;
-  #| @group(0) @binding(2) var u_texture: texture_2d<f32>;
-  #| struct VSIn {
-  #|   @location(0) pos: vec2<f32>,
-  #|   @location(1) uv: vec2<f32>,
-  #|   @location(2) color: vec4<f32>,
-  #| };
-  #| struct VSOut {
-  #|   @builtin(position) pos: vec4<f32>,
-  #|   @location(0) uv: vec2<f32>,
-  #|   @location(1) color: vec4<f32>,
-  #| };
-  #| @vertex fn vs_main(v: VSIn) -> VSOut {
-  #|   var o: VSOut;
-  #|   let nx = (v.pos.x / u_canvas.size.x) * 2.0 - 1.0;
-  #|   let ny = 1.0 - (v.pos.y / u_canvas.size.y) * 2.0;
-  #|   o.pos = vec4<f32>(nx, ny, 0.0, 1.0);
-  #|   o.uv = v.uv;
-  #|   o.color = v.color;
-  #|   return o;
-  #| }
-  #| @fragment fn fs_main(v: VSOut) -> @location(0) vec4<f32> {
-  #|   return textureSample(u_texture, u_sampler, v.uv) * v.color;
-  #| }
-  #| `,
+  #|         code: String(shader2dTextureSource || ''),
   #|       });
   #|       const shader3dColor = rt.device.createShaderModule({
   #|         code: `

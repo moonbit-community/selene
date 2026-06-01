@@ -162,7 +162,14 @@ pub fn initialize(
   let canvas = require_canvas()
   set_viewport_height(canvas, screen_height)
   set_viewport_width(canvas, screen_width)
-  webgpu_initialize(canvas, screen_width, screen_height, image_smooth)
+  webgpu_initialize(
+    canvas,
+    screen_width,
+    screen_height,
+    image_smooth,
+    webgpu_shader2d_color_source(),
+    webgpu_shader2d_texture_source(),
+  )
   startup()
   let stop_loop = schedule_with_fixed_interval(1000 / fps.to_double(), fn(
     delta,
