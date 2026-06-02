@@ -3,17 +3,20 @@
 ## [Unreleased]
 
 ### Added
+- Added a minimal Tank 3D GLB viewer example for `examples/tank3d/assets/tank_1_green.glb`.
 - Added WebGPU frame timing diagnostics for separating frame cadence from per-frame engine work.
 - Added a WebGPU 3D performance benchmark example with frame-time and render submission metrics.
 - Added a narrow WebGPU render3d submission stats snapshot API for diagnostics.
 
 ### Changed
+- Changed MoonBit module manifests from `moon.mod.json` to `moon.mod` after the current toolchain migration.
 - Changed WebGPU 3D primitive batching to use compact retained instance keys plus frame-local batch/material caching.
 - Changed the WebGPU 3D performance benchmark to report work/game/render timing and reduce live HUD measurement overhead.
 - Changed 3D render extraction to reuse camera culling constants across items in a frame.
 - Changed runtime frame metrics to read an O(1) alive entity count instead of scanning all entities every frame.
 
 ### Fixed
+- Fixed scene3d GLB loading to decode JSON chunks as UTF-8 so standard binary glTF files instantiate nodes correctly.
 
 ### Removed
 

@@ -230,12 +230,30 @@ fn instantiate_scene_node(
 }
 
 ///|
+const GLB_MAGIC_G : Int = 103
+
+///|
+const GLB_MAGIC_L : Int = 108
+
+///|
+const GLB_MAGIC_T : Int = 84
+
+///|
+const GLB_MAGIC_F : Int = 70
+
+///|
+const GLB_CHUNK_TYPE_JSON : Int = 1313821514
+
+///|
+const GLB_CHUNK_TYPE_BIN : Int = 5130562
+
+///|
 fn glb_magic_matches(bytes : Bytes) -> Bool {
   bytes.length() >= 4 &&
-  bytes[0].to_int() == 0x67 &&
-  bytes[1].to_int() == 0x6C &&
-  bytes[2].to_int() == 0x54 &&
-  bytes[3].to_int() == 0x46
+  bytes[0].to_int() == GLB_MAGIC_G &&
+  bytes[1].to_int() == GLB_MAGIC_L &&
+  bytes[2].to_int() == GLB_MAGIC_T &&
+  bytes[3].to_int() == GLB_MAGIC_F
 }
 
 ///|
@@ -265,15 +283,16 @@ fn parse_glb_source(bytes : Bytes) -> GltfSource? {
     }
     let chunk_bytes = bytes[chunk_start:chunk_end].to_owned()
     match chunk_type {
-      0x4E4F534A =>
+      GLB_CHUNK_TYPE_JSON =>
         if json_document is None {
+          let chunk_text = @utf8.decode(chunk_bytes) catch { _ => return None }
           let parsed : Result[Json, @json.ParseError] = try? @json.parse(
-            chunk_bytes.to_unchecked_string().view(),
+            chunk_text,
           )
           guard parsed is Ok(document) else { return None }
           json_document = Some(document)
         }
-      0x004E4942 => glb_buffers.push(Some(chunk_bytes))
+      GLB_CHUNK_TYPE_BIN => glb_buffers.push(Some(chunk_bytes))
       _ => ()
     }
     offset = chunk_end
@@ -300,8 +319,8 @@ fn parse_gltf_source(bytes : Bytes) -> GltfSource? {
   if glb_magic_matches(bytes) {
     return parse_glb_source(bytes)
   }
-  let source = bytes.to_unchecked_string()
-  let parsed : Result[Json, @json.ParseError] = try? @json.parse(source.view())
+  let source = @utf8.decode(bytes) catch { _ => return None }
+  let parsed : Result[Json, @json.ParseError] = try? @json.parse(source)
   match parsed {
     Ok(document) => Some({ document, glb_buffers: [] })
     Err(_) => None

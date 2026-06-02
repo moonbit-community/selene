@@ -35,6 +35,38 @@ fn sparse_test_append_vec3_le(
 }
 
 ///|
+fn scene3d_test_append_u32_le(out : Array[Byte], value : Int) -> Unit {
+  let bits = value.reinterpret_as_uint()
+  out.push(bits.to_byte())
+  out.push((bits >> 8).to_byte())
+  out.push((bits >> 16).to_byte())
+  out.push((bits >> 24).to_byte())
+}
+
+///|
+fn scene3d_test_glb_bytes(json_text : String) -> Bytes {
+  let json_bytes = @utf8.encode(json_text)
+  let padded_json_length = (json_bytes.length() + 3) / 4 * 4
+  let total_length = 12 + 8 + padded_json_length
+  let out : Array[Byte] = []
+  out.push((103).to_byte())
+  out.push((108).to_byte())
+  out.push((84).to_byte())
+  out.push((70).to_byte())
+  scene3d_test_append_u32_le(out, 2)
+  scene3d_test_append_u32_le(out, total_length)
+  scene3d_test_append_u32_le(out, padded_json_length)
+  scene3d_test_append_u32_le(out, GLB_CHUNK_TYPE_JSON)
+  for byte in json_bytes {
+    out.push(byte)
+  }
+  for _ in json_bytes.length()..<padded_json_length {
+    out.push((32).to_byte())
+  }
+  Bytes::from_array(out[:])
+}
+
+///|
 fn scene3d_test_object(input : String) -> Map[String, Json] raise {
   json_object(@json.parse(input)).unwrap()
 }
@@ -62,6 +94,21 @@ fn scene3d_test_texture_sources() -> (
     ],
     handles,
   )
+}
+
+///|
+test "parse_gltf_source decodes GLB JSON as UTF-8" {
+  let json_text = "{\"asset\":{\"version\":\"2.0\"},\"scene\":0,\"scenes\":[{\"nodes\":[0]}],\"nodes\":[{\"name\":\"root\"}]}"
+  let glb_bytes = scene3d_test_glb_bytes(json_text)
+  let source = parse_gltf_source(glb_bytes)
+  guard source is Some(gltf_source) else {
+    inspect(false, content="true")
+    return
+  }
+  let template = parse_scene_template("wbtest://scene.glb", gltf_source)
+  inspect(template.roots.length(), content="1")
+  inspect(template.nodes.length(), content="1")
+  debug_inspect(template.nodes[0].name, content="Some(\"root\")")
 }
 
 ///|

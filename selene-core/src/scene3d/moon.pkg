@@ -9,6 +9,7 @@ import {
   "Milky2018/selene/render",
   "Milky2018/selene/transform",
   "moonbitlang/core/encoding/base64",
+  "moonbitlang/core/encoding/utf8",
   "moonbitlang/core/json",
   "moonbitlang/core/cmp",
   "moonbitlang/core/string",
