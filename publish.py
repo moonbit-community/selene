@@ -3,7 +3,6 @@
 Release publish script for Selene modules.
 """
 
-import json
 import re
 import subprocess
 import sys
@@ -12,7 +11,7 @@ from pathlib import Path
 
 ROOT_DIR = Path(__file__).parent
 EXAMPLES_DIR = ROOT_DIR / "examples"
-EXAMPLES_MANIFEST_PATH = EXAMPLES_DIR / "moon.mod.json"
+EXAMPLES_MANIFEST_PATH = EXAMPLES_DIR / "moon.mod"
 CHANGELOG_REL_PATH = Path("docs/CHANGELOG.md")
 CHANGELOG_PATH = ROOT_DIR / CHANGELOG_REL_PATH
 
@@ -138,14 +137,6 @@ def has_warning(output: str) -> bool:
     return any(re.search(pat, output, flags=re.MULTILINE) for pat in patterns)
 
 
-def load_json(path: Path) -> dict:
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
-def write_json(path: Path, data: dict):
-    path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-
-
 def module_by_name(name: str) -> ModuleConfig:
     for module in RELEASE_MODULES:
         if module.name == name:
@@ -154,7 +145,7 @@ def module_by_name(name: str) -> ModuleConfig:
 
 
 def module_manifest_path(module: ModuleConfig) -> Path:
-    return module.path / "moon.mod.json"
+    return module.path / "moon.mod"
 
 
 def module_relative_path(module: ModuleConfig, path: str) -> str:
@@ -253,49 +244,44 @@ def run_module_quality_checks(module: ModuleConfig):
 
 
 def rewrite_module_for_release(module: ModuleConfig, version: str):
-    """Set module version and update internal deps to path+version form."""
+    """Set module version and update internal deps for the current moon.mod format."""
     manifest_path = module_manifest_path(module)
-    manifest = load_json(manifest_path)
-    manifest["version"] = version
-    deps = manifest.get("deps", {})
-
-    for dep_name in INTERNAL_MODULES:
-        if dep_name not in deps:
-            continue
-        dep_val = deps[dep_name]
-        if isinstance(dep_val, dict):
-            rewritten = dict(dep_val)
-            rewritten["version"] = version
-            deps[dep_name] = rewritten
-        elif isinstance(dep_val, str):
-            deps[dep_name] = version
-        else:
-            raise RuntimeError(f"Unsupported dep value for {dep_name} in {manifest_path}")
-
-    manifest["deps"] = deps
-    write_json(manifest_path, manifest)
+    manifest_text = manifest_path.read_text(encoding="utf-8")
+    manifest_text = re.sub(
+        r'^version\s*=\s*"[^"]+"$',
+        f'version = "{version}"',
+        manifest_text,
+        count=1,
+        flags=re.MULTILINE,
+    )
+    manifest_text = rewrite_moon_mod_internal_imports(manifest_text, version)
+    manifest_path.write_text(manifest_text, encoding="utf-8")
 
 
 def sync_examples_internal_deps(version: str):
-    """Keep examples local deps in path+version form for the current Selene version."""
-    manifest = load_json(EXAMPLES_MANIFEST_PATH)
-    deps = manifest.get("deps", {})
+    """Keep examples internal Selene deps on the current release version."""
+    manifest_text = EXAMPLES_MANIFEST_PATH.read_text(encoding="utf-8")
+    manifest_text = rewrite_moon_mod_internal_imports(manifest_text, version)
+    EXAMPLES_MANIFEST_PATH.write_text(manifest_text, encoding="utf-8")
 
-    for dep_name in INTERNAL_MODULES:
-        if dep_name not in deps:
-            continue
-        dep_val = deps[dep_name]
-        if isinstance(dep_val, dict):
-            rewritten = dict(dep_val)
-            rewritten["version"] = version
-            deps[dep_name] = rewritten
-        elif isinstance(dep_val, str):
-            deps[dep_name] = version
-        else:
-            raise RuntimeError(f"Unsupported dep value for {dep_name} in {EXAMPLES_MANIFEST_PATH}")
 
-    manifest["deps"] = deps
-    write_json(EXAMPLES_MANIFEST_PATH, manifest)
+def rewrite_moon_mod_internal_imports(manifest_text: str, version: str) -> str:
+    def rewrite_import_block(match: re.Match[str]) -> str:
+        block = match.group(0)
+        for dep_name in INTERNAL_MODULES:
+            dep_pattern = re.compile(
+                rf'"{re.escape(dep_name)}(?:@[^"]+)?"',
+            )
+            block = dep_pattern.sub(f'"{dep_name}@{version}"', block)
+        return block
+
+    return re.sub(
+        r"import\s*\{[^}]*\}",
+        rewrite_import_block,
+        manifest_text,
+        count=1,
+        flags=re.MULTILINE | re.DOTALL,
+    )
 
 
 def run_release_pipeline(version: str):
@@ -317,9 +303,9 @@ def run_release_pipeline(version: str):
     print("\n[2/5] Rewriting module versions and internal deps...")
     for module in RELEASE_MODULES:
         rewrite_module_for_release(module, version)
-        print(f"✓ Updated {module.name}/moon.mod.json")
+        print(f"✓ Updated {module.name}/moon.mod")
     sync_examples_internal_deps(version)
-    print("✓ Updated examples/moon.mod.json internal deps")
+    print("✓ Updated examples/moon.mod internal deps")
 
     print("\n[3/5] Running moon update after manifest rewrites...")
     for module in RELEASE_MODULES:

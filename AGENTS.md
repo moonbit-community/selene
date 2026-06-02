@@ -13,8 +13,8 @@
 - Pages: `python3 publish_pages.py` (or `python3 publish_pages.py clean`), with examples release build already in `_build`.
 
 ## Release Manifest Behavior
-- Publish flow rewrites each release module `moon.mod.json` version and internal Selene deps to `path + version` with `version=x.y.z`.
-- Publish flow also syncs `examples/moon.mod.json` internal Selene deps to `path + version` with `version=x.y.z`.
+- Publish flow rewrites each release module `moon.mod` version and internal Selene deps to `@x.y.z`.
+- Publish flow also syncs `examples/moon.mod` internal Selene deps to `@x.y.z`.
 - Release pipeline finishes with `moon update` for release modules and `examples`; it does not restore old deps.
 
 ## Scope

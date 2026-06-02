@@ -1,9 +1,9 @@
 name = "Milky2018/selene_raylib"
 
-version = "0.34.4"
+version = "0.34.5"
 
 import {
-  "Milky2018/selene@0.34.4",
+  "Milky2018/selene@0.34.5",
   "tonyfettes/raylib@0.3.1",
   "Milky2018/moon_cosmic@0.3.0",
 }

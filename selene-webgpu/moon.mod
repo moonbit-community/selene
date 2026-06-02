@@ -1,9 +1,9 @@
 name = "Milky2018/selene_webgpu"
 
-version = "0.34.4"
+version = "0.34.5"
 
 import {
-  "Milky2018/selene@0.34.4",
+  "Milky2018/selene@0.34.5",
   "Milky2018/moon_cosmic@0.3.0",
   "moonbit-community/js-ffi@0.4.2",
   "moonbit-community/rabbita@0.11.8",

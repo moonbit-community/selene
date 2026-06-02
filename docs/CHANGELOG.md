@@ -3,6 +3,16 @@
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.34.5] - 2026-06-02
+
+### Added
 - Added a minimal Tank 3D GLB viewer example for `examples/tank3d/assets/tank_1_green.glb`.
 - Added WebGPU frame timing diagnostics for separating frame cadence from per-frame engine work.
 - Added a WebGPU 3D performance benchmark example with frame-time and render submission metrics.

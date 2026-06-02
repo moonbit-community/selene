@@ -1,11 +1,11 @@
 name = "Milky2018/selene_editor_frontend"
 
-version = "0.34.4"
+version = "0.34.5"
 
 import {
-  "Milky2018/selene@0.34.4",
-  "Milky2018/selene_webgpu@0.34.4",
-  "Milky2018/selene_editor_shared@0.34.4",
+  "Milky2018/selene@0.34.5",
+  "Milky2018/selene_webgpu@0.34.5",
+  "Milky2018/selene_editor_shared@0.34.5",
   "moonbit-community/rabbita@0.11.8",
 }
 
