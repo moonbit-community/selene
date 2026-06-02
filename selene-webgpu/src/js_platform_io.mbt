@@ -71,6 +71,7 @@ extern "js" fn resolve_asset_path(path : String) -> String =
 ///|
 extern "js" fn webgpu_load_file_bytes_sync(path : String) -> Array[Int] =
   #| (path) => {
+  #|   globalThis.__selene_webgpu_last_file_load_error = '';
   #|   try {
   #|     const xhr = new XMLHttpRequest();
   #|     xhr.open('GET', path, false);
@@ -87,11 +88,19 @@ extern "js" fn webgpu_load_file_bytes_sync(path : String) -> Array[Int] =
   #|       }
   #|       return out;
   #|     }
-  #|   } catch (_err) {
+  #|     globalThis.__selene_webgpu_last_file_load_error =
+  #|       `HTTP ${xhr.status || 0} ${xhr.statusText || 'File not found'}`;
+  #|   } catch (err) {
+  #|     globalThis.__selene_webgpu_last_file_load_error =
+  #|       err && err.message ? String(err.message) : String(err);
   #|     return [];
   #|   }
   #|   return [];
   #| }
+
+///|
+extern "js" fn webgpu_last_file_load_error() -> String =
+  #| () => String(globalThis.__selene_webgpu_last_file_load_error || '')
 
 ///|
 extern "js" fn webgpu_gamepad_count() -> Int =

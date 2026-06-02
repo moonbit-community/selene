@@ -78,6 +78,9 @@ let embedded_asset_lookup : Ref[(String) -> Bytes?] = Ref(
 let embedded_asset_cache : Map[String, Bytes] = Map([])
 
 ///|
+let reported_asset_io_failures : Set[String] = Set([])
+
+///|
 fn get_embedded_asset(path : String) -> Bytes? {
   if embedded_asset_cache.get(path) is Some(bytes) {
     return Some(bytes)
@@ -110,7 +113,18 @@ pub fn set_time_scale(time_scale : Double) -> Unit {
 pub fn set_embedded_assets(lookup : (String) -> Bytes?) -> Unit {
   embedded_asset_lookup.val = lookup
   embedded_asset_cache.clear()
+  reported_asset_io_failures.clear()
   reset_audio_runtime()
+}
+
+///|
+fn report_asset_io_failure(path : String, message : String) -> Unit {
+  let key = path + ":" + message
+  if reported_asset_io_failures.contains(key) {
+    return
+  }
+  reported_asset_io_failures.add(key)
+  println("[selene-webgpu][asset-error] Failed to read \{path}: \{message}")
 }
 
 ///|
@@ -132,7 +146,9 @@ pub fn get_asset_bytes(path : String) -> Bytes? {
     }
   }
   let raw = webgpu_load_file_bytes_sync(resolved_path)
-  if raw.length() == 0 {
+  let error = webgpu_last_file_load_error()
+  if error != "" {
+    report_asset_io_failure(resolved_path, error)
     return None
   }
   Some(

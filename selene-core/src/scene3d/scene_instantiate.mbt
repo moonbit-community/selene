@@ -248,6 +248,19 @@ const GLB_CHUNK_TYPE_JSON : Int = 1313821514
 const GLB_CHUNK_TYPE_BIN : Int = 5130562
 
 ///|
+let reported_scene_load_failures : Set[String] = Set([])
+
+///|
+fn report_scene_load_failure(path : String, message : String) -> Unit {
+  let key = path + ":" + message
+  if reported_scene_load_failures.contains(key) {
+    return
+  }
+  reported_scene_load_failures.add(key)
+  println("[selene][scene3d-error] \{message}: \{path}")
+}
+
+///|
 fn glb_magic_matches(bytes : Bytes) -> Bool {
   bytes.length() >= 4 &&
   bytes[0].to_int() == GLB_MAGIC_G &&
@@ -306,11 +319,15 @@ fn parse_glb_source(bytes : Bytes) -> GltfSource? {
 ///|
 fn load_scene_template(path : String) -> SceneTemplate {
   guard @asset.read_bytes(path) is Some(bytes) else {
+    report_scene_load_failure(path, "Scene asset could not be read")
     return empty_scene_template()
   }
   match parse_gltf_source(bytes) {
     Some(source) => parse_scene_template(path, source)
-    None => empty_scene_template()
+    None => {
+      report_scene_load_failure(path, "Scene asset is not valid glTF/GLB")
+      empty_scene_template()
+    }
   }
 }
 

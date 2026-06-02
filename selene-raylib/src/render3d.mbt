@@ -179,14 +179,15 @@ fn draw_lit_cylinder(
     let (vertices, uvs, normals) = build_cylinder_mesh(
       radius_top, radius_bottom, height, safe_slices,
     )
-    match create_uploaded_triangle_mesh(
-      vertices,
-      Some(uvs),
-      None,
-      normals,
-      None,
-      None,
-    ) {
+    match
+      create_uploaded_triangle_mesh(
+        vertices,
+        Some(uvs),
+        None,
+        normals,
+        None,
+        None,
+      ) {
       Some(mesh) => mesh
       None => empty_uploaded_triangle_mesh()
     }

@@ -367,6 +367,17 @@ pub fn load_font(font : String, path : String) -> Unit {
 pub fn set_embedded_assets(lookup : (String) -> Bytes?) -> Unit {
   backend.embedded_asset_lookup = lookup
   backend.embedded_asset_cache = Map([])
+  backend.asset_io_warning_keys.clear()
+}
+
+///|
+fn report_asset_io_failure(path : String, message : String) -> Unit {
+  let key = path + ":" + message
+  if backend.asset_io_warning_keys.contains(key) {
+    return
+  }
+  backend.asset_io_warning_keys.add(key)
+  println("[selene-raylib][asset-error] Failed to read \{path}: \{message}")
 }
 
 ///|
@@ -375,6 +386,7 @@ pub fn get_asset_bytes(path : String) -> Bytes? {
     return Some(bytes)
   }
   if !@raylib.file_exists(path) {
+    report_asset_io_failure(path, "file does not exist")
     return None
   }
   Some(@raylib.load_file_data(path))

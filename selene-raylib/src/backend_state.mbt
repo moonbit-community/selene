@@ -199,6 +199,7 @@ priv struct RaylibBackend {
   mut point_shadow_render_texture : @raylib.RenderTexture?
   mut point_shadow_map_size : Int
   texture_warning_keys : Set[String]
+  asset_io_warning_keys : Set[String]
   last_touches : Map[@inputs.TouchId, @inputs.TouchPoint]
 }
 
@@ -270,6 +271,7 @@ let backend : RaylibBackend = {
   point_shadow_render_texture: None,
   point_shadow_map_size: 0,
   texture_warning_keys: Set([]),
+  asset_io_warning_keys: Set([]),
   last_touches: Map([]),
 }
 

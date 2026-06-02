@@ -638,7 +638,9 @@ fn _is_visible_in_camera_frustum(
   transform : @transform.Transform,
 ) -> Bool {
   is_visible_in_camera_culling_context(
-    camera_culling_context(camera), mesh, transform,
+    camera_culling_context(camera),
+    mesh,
+    transform,
   )
 }
 
@@ -681,7 +683,9 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
     let transform = global_transform.compute_transform()
     if camera_culling is Some(context) {
       if !is_visible_in_camera_culling_context(
-          context, meshes[renderer.mesh], transform,
+          context,
+          meshes[renderer.mesh],
+          transform,
         ) {
         continue
       }

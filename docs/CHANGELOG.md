@@ -16,6 +16,7 @@
 - Changed runtime frame metrics to read an O(1) alive entity count instead of scanning all entities every frame.
 
 ### Fixed
+- Fixed platform asset reads so missing or failed asset paths emit explicit diagnostics instead of failing silently.
 - Fixed scene3d GLB loading to decode JSON chunks as UTF-8 so standard binary glTF files instantiate nodes correctly.
 
 ### Removed
