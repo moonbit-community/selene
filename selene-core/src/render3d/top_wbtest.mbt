@@ -42,6 +42,45 @@ test "render3d extract preserves mesh shadow toggles" {
 }
 
 ///|
+test "render3d camera culling context reuses frame constants" {
+  let camera : @render3d_types.FrameCamera3D = {
+    position: @math.Vec3(0.0, 0.0, 10.0),
+    target: @math.Vec3::zero(),
+    up: @math.Vec3::y_axis(),
+    fov_y: 60.0,
+    projection: Perspective,
+    orthographic_size: None,
+    near: 0.1,
+    far: 100.0,
+    clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0 },
+  }
+  let mesh = cube_mesh(@math.Vec3(1.0, 1.0, 1.0))
+  let visible_transform : @transform.Transform = {
+    translation: @math.Vec3::zero(),
+    rotation: @math.Quat::identity(),
+    scale: @math.Vec3::one(),
+  }
+  let hidden_transform : @transform.Transform = {
+    translation: @math.Vec3(100.0, 0.0, 0.0),
+    rotation: @math.Quat::identity(),
+    scale: @math.Vec3::one(),
+  }
+  let context = camera_culling_context(camera)
+  inspect(
+    is_visible_in_camera_culling_context(context, mesh, visible_transform),
+    content="true",
+  )
+  inspect(
+    is_visible_in_camera_culling_context(context, mesh, hidden_transform),
+    content="false",
+  )
+  inspect(
+    _is_visible_in_camera_frustum(camera, mesh, visible_transform),
+    content="true",
+  )
+}
+
+///|
 test "render3d point and spot defaults include Bevy-aligned shadow settings" {
   let point = default_point_light3d()
   inspect(point.shadows, content="false")

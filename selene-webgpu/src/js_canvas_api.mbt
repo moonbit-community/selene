@@ -24,6 +24,15 @@ struct WebGpuBackend {
 }
 
 ///|
+pub(all) struct WebGpuFrameTimingSnapshot {
+  service_before_ms : Double
+  game_ms : Double
+  render_ms : Double
+  service_after_ms : Double
+  total_work_ms : Double
+} derive(Eq, Debug)
+
+///|
 pub fn WebGpuBackend::WebGpuBackend() -> WebGpuBackend {
   {
     canvas: None,
@@ -135,11 +144,28 @@ pub fn get_asset_bytes(path : String) -> Bytes? {
 let realtime_delta : Ref[Double] = Ref(0.0)
 
 ///|
+let last_frame_timing : Ref[WebGpuFrameTimingSnapshot] = Ref({
+  service_before_ms: 0.0,
+  game_ms: 0.0,
+  render_ms: 0.0,
+  service_after_ms: 0.0,
+  total_work_ms: 0.0,
+})
+
+///|
 extern "js" fn webgpu_runtime_ready() -> Bool =
   #| () => {
   #|   const rt = globalThis.__selene_webgpu_runtime;
   #|   return !!(rt?.ready && rt?.device && rt?.context);
   #| }
+
+///|
+extern "js" fn webgpu_now_ms() -> Double = "() => performance.now()"
+
+///|
+pub fn webgpu_last_frame_timing() -> WebGpuFrameTimingSnapshot {
+  { ..last_frame_timing.val }
+}
 
 ///|
 pub fn initialize(
@@ -186,13 +212,27 @@ pub fn initialize(
     let delta = delta / 1000.0
     realtime_delta.val = delta
     sync_gamepad_events()
+    let frame_start = webgpu_now_ms()
+    let service_before_start = frame_start
     service_frame()
+    let service_before_end = webgpu_now_ms()
     if !webgpu_runtime_ready() {
       return
     }
+    let game_start = service_before_end
     game_loop(delta * canvas_backend.time_scale)
+    let game_end = webgpu_now_ms()
     render_loop(delta * canvas_backend.time_scale)
+    let render_end = webgpu_now_ms()
     service_frame()
+    let service_after_end = webgpu_now_ms()
+    last_frame_timing.val = {
+      service_before_ms: service_before_end - service_before_start,
+      game_ms: game_end - game_start,
+      render_ms: render_end - game_end,
+      service_after_ms: service_after_end - render_end,
+      total_work_ms: service_after_end - frame_start,
+    }
   })
   canvas_backend.stop_loop = Some(stop_loop)
   return fn() {  }

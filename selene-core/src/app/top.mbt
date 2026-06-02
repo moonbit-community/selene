@@ -530,17 +530,6 @@ fn startup_runtime(plan : RuntimePlan) -> Unit {
 }
 
 ///|
-fn alive_entity_count() -> Int {
-  let mut count = 0
-  for entity in @entity.iter_entities() {
-    if entity.is_alive() {
-      count += 1
-    }
-  }
-  count
-}
-
-///|
 fn resolved_frame_delta(raw_delta : Double) -> Double {
   match @runtime_debug.frame_delta_override() {
     Some(override_delta) => override_delta
@@ -613,7 +602,7 @@ fn run_game_frame(
   @commands.commands_flush_system(plan.world, delta)
   @entity.entity_flush_system(delta)
 
-  @runtime_debug.note_update(delta, alive_entity_count())
+  @runtime_debug.note_update(delta, @entity.alive_entity_count())
 
   let alpha = @cmp.maximum(
     0.0,

@@ -29,6 +29,7 @@ enum EntityLifecycleState {
 ///|
 priv struct EntityWorldStore {
   mut entity_generator : UInt
+  mut alive_count : Int
   all_entities : @set.Set[Entity]
   lifecycle_states : Map[Entity, EntityLifecycleState]
   pending_state_changes : @set.Set[Entity]
@@ -42,6 +43,7 @@ fn entity_store() -> EntityWorldStore {
   let world = @ecs.require_current_world()
   entity_world_stores.get_or_init(world.id(), () => {
     entity_generator: 0U,
+    alive_count: 0,
     all_entities: @set.Set([]),
     lifecycle_states: Map([]),
     pending_state_changes: @set.Set([]),
@@ -51,6 +53,11 @@ fn entity_store() -> EntityWorldStore {
 ///|
 pub fn iter_entities() -> Iter[Entity] {
   entity_store().all_entities.iter()
+}
+
+///|
+pub fn alive_entity_count() -> Int {
+  entity_store().alive_count
 }
 
 ///|
@@ -70,6 +77,7 @@ pub fn Entity::Entity() -> Entity {
   let entity = { value: store.entity_generator }
   store.entity_generator += 1U
   store.all_entities.add(entity)
+  store.alive_count += 1
   store.lifecycle_states.set(entity, Alive)
   entity
 }
@@ -97,7 +105,16 @@ pub fn Entity::destroy(e : Entity) -> Unit {
   match
     store.lifecycle_states.get(e).unwrap_or(EntityLifecycleState::Destroyed) {
     Destroyed | PendingDespawn => ()
-    Alive | PendingRespawn | PendingSpawn => {
+    PendingSpawn => {
+      store.lifecycle_states.set(e, PendingDespawn)
+      store.pending_state_changes.add(e)
+    }
+    Alive | PendingRespawn => {
+      if store.all_entities.contains(e) {
+        if store.alive_count > 0 {
+          store.alive_count -= 1
+        }
+      }
       store.lifecycle_states.set(e, PendingDespawn)
       store.pending_state_changes.add(e)
       if hierarchy_parents().get(e) is Some(p) {
@@ -116,6 +133,10 @@ pub fn Entity::respawn(e : Entity) -> Unit {
     store.lifecycle_states.get(e).unwrap_or(EntityLifecycleState::Destroyed) {
     Alive | PendingRespawn => ()
     Destroyed | PendingDespawn | PendingSpawn => {
+      if store.lifecycle_states.get(e) is Some(PendingDespawn) &&
+        store.all_entities.contains(e) {
+        store.alive_count += 1
+      }
       store.lifecycle_states.set(e, PendingRespawn)
       store.pending_state_changes.add(e)
       if hierarchy_parents().get(e) is Some(p) {
@@ -133,15 +154,23 @@ pub fn entity_flush_system(_delta : Double) -> Unit {
   for entity in store.pending_state_changes.to_array() {
     match store.lifecycle_states.get(entity).unwrap_or(Destroyed) {
       PendingSpawn => {
-        store.all_entities.add(entity)
+        if !store.all_entities.contains(entity) {
+          store.all_entities.add(entity)
+          store.alive_count += 1
+        }
         store.lifecycle_states.set(entity, Alive)
       }
       PendingDespawn => {
-        store.all_entities.remove(entity)
+        if store.all_entities.contains(entity) {
+          store.all_entities.remove(entity)
+        }
         store.lifecycle_states.set(entity, Destroyed)
       }
       PendingRespawn => {
-        store.all_entities.add(entity)
+        if !store.all_entities.contains(entity) {
+          store.all_entities.add(entity)
+          store.alive_count += 1
+        }
         store.lifecycle_states.set(entity, Alive)
       }
       Alive | Destroyed => ()

@@ -523,8 +523,66 @@ fn mesh_local_radius(mesh : MeshAsset) -> Double {
 }
 
 ///|
-fn is_visible_in_camera_frustum(
+priv struct CameraCullingContext3D {
+  camera : @render3d_types.FrameCamera3D
+  has_forward : Bool
+  forward_n : @math.Vec3
+  right_n : @math.Vec3
+  up_n : @math.Vec3
+  tan_half_x : Double
+  tan_half_y : Double
+  half_width : Double
+  half_height : Double
+}
+
+///|
+fn camera_culling_context(
   camera : @render3d_types.FrameCamera3D,
+) -> CameraCullingContext3D {
+  let forward = camera.target - camera.position
+  let has_forward = forward.length_squared() > 0.0000001
+  let forward_n = if has_forward {
+    forward.normalize()
+  } else {
+    @math.Vec3(0.0, 0.0, -1.0)
+  }
+  let up = if camera.up.length_squared() > 0.0000001 {
+    camera.up.normalize()
+  } else {
+    @math.Vec3(0.0, 1.0, 0.0)
+  }
+  let right = forward_n.cross(up)
+  let right_n = if right.length_squared() > 0.0000001 {
+    right.normalize()
+  } else {
+    @math.Vec3(1.0, 0.0, 0.0)
+  }
+  let up_n = right_n.cross(forward_n).normalize()
+  let viewport = @system.get_viewport_size()
+  let aspect = if viewport[Y] <= 0.0000001 {
+    1.0
+  } else {
+    viewport[X] / viewport[Y]
+  }
+  let half_fovy_rad = camera.fov_y * 0.5 * @cmath.PI / 180.0
+  let tan_half_y = @cmath.tan(half_fovy_rad)
+  let ortho_size = camera.orthographic_size.unwrap_or(@math.Vec2(20.0, 20.0))
+  {
+    camera,
+    has_forward,
+    forward_n,
+    right_n,
+    up_n,
+    tan_half_x: tan_half_y * aspect,
+    tan_half_y,
+    half_width: abs_double(ortho_size[X]) * 0.5,
+    half_height: abs_double(ortho_size[Y]) * 0.5,
+  }
+}
+
+///|
+fn is_visible_in_camera_culling_context(
+  context : CameraCullingContext3D,
   mesh : MeshAsset,
   transform : @transform.Transform,
 ) -> Bool {
@@ -540,13 +598,12 @@ fn is_visible_in_camera_frustum(
     abs_double(scale.z)
   }
   let radius = mesh_local_radius(mesh) * max_scale
+  let camera = context.camera
   let to_center = transform.translation - camera.position
-  let forward = camera.target - camera.position
-  if forward.length_squared() <= 0.0000001 {
+  if !context.has_forward {
     return true
   }
-  let forward_n = forward.normalize()
-  let depth = to_center.dot(forward_n)
+  let depth = to_center.dot(context.forward_n)
   if depth + radius < camera.near || depth - radius > camera.far {
     return false
   }
@@ -555,60 +612,34 @@ fn is_visible_in_camera_frustum(
       if depth <= 0.0 {
         return depth + radius >= 0.0
       }
-      let up = if camera.up.length_squared() > 0.0000001 {
-        camera.up.normalize()
-      } else {
-        @math.Vec3(0.0, 1.0, 0.0)
-      }
-      let right = forward_n.cross(up)
-      let right_n = if right.length_squared() > 0.0000001 {
-        right.normalize()
-      } else {
-        @math.Vec3(1.0, 0.0, 0.0)
-      }
-      let up_n = right_n.cross(forward_n).normalize()
-      let viewport = @system.get_viewport_size()
-      let aspect = if viewport[Y] <= 0.0000001 {
-        1.0
-      } else {
-        viewport[X] / viewport[Y]
-      }
-      let half_fovy_rad = camera.fov_y * 0.5 * @cmath.PI / 180.0
-      let tan_half_y = @cmath.tan(half_fovy_rad)
-      let tan_half_x = tan_half_y * aspect
-      let side = abs_double(to_center.dot(right_n))
-      let vertical = abs_double(to_center.dot(up_n))
-      if side > depth * tan_half_x + radius {
+      let side = abs_double(to_center.dot(context.right_n))
+      let vertical = abs_double(to_center.dot(context.up_n))
+      if side > depth * context.tan_half_x + radius {
         return false
       }
-      if vertical > depth * tan_half_y + radius {
+      if vertical > depth * context.tan_half_y + radius {
         return false
       }
       true
     }
     Orthographic => {
-      let up = if camera.up.length_squared() > 0.0000001 {
-        camera.up.normalize()
-      } else {
-        @math.Vec3(0.0, 1.0, 0.0)
-      }
-      let right = forward_n.cross(up)
-      let right_n = if right.length_squared() > 0.0000001 {
-        right.normalize()
-      } else {
-        @math.Vec3(1.0, 0.0, 0.0)
-      }
-      let up_n = right_n.cross(forward_n).normalize()
-      let ortho_size = camera.orthographic_size.unwrap_or(
-        @math.Vec2(20.0, 20.0),
-      )
-      let half_width = abs_double(ortho_size[X]) * 0.5
-      let half_height = abs_double(ortho_size[Y]) * 0.5
-      let side = abs_double(to_center.dot(right_n))
-      let vertical = abs_double(to_center.dot(up_n))
-      side <= half_width + radius && vertical <= half_height + radius
+      let side = abs_double(to_center.dot(context.right_n))
+      let vertical = abs_double(to_center.dot(context.up_n))
+      side <= context.half_width + radius &&
+      vertical <= context.half_height + radius
     }
   }
+}
+
+///|
+fn _is_visible_in_camera_frustum(
+  camera : @render3d_types.FrameCamera3D,
+  mesh : MeshAsset,
+  transform : @transform.Transform,
+) -> Bool {
+  is_visible_in_camera_culling_context(
+    camera_culling_context(camera), mesh, transform,
+  )
 }
 
 ///|
@@ -624,6 +655,10 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
   frame.ambient_light = state.ambient_light
   frame.directional_shadow_map_size = state.directional_shadow_map.size
   frame.point_shadow_map_size = state.point_shadow_map.size
+  let camera_culling = match frame.camera {
+    Some(camera) => Some(camera_culling_context(camera))
+    None => None
+  }
 
   let items : Array[RenderItem3D] = []
   for entity, renderer in mesh3d_renderers() {
@@ -644,8 +679,10 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
       continue
     }
     let transform = global_transform.compute_transform()
-    if frame.camera is Some(camera) {
-      if !is_visible_in_camera_frustum(camera, meshes[renderer.mesh], transform) {
+    if camera_culling is Some(context) {
+      if !is_visible_in_camera_culling_context(
+          context, meshes[renderer.mesh], transform,
+        ) {
         continue
       }
     }

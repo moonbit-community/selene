@@ -37,10 +37,18 @@ priv struct PerfState {
   config : PerfConfig
   entities : Array[@entity.Entity]
   frame_samples : Array[Double]
+  work_samples : Array[Double]
+  game_samples : Array[Double]
+  render_samples : Array[Double]
+  render3d_submit_samples : Array[Double]
+  render3d_items_samples : Array[Double]
+  render3d_flush_samples : Array[Double]
   start_ms : Double
   mut last_ms : Double
+  mut last_live_ms : Double
   mut frames : Int
   mut max_frame_ms : Double
+  mut max_work_ms : Double
   mut finished : Bool
   hud : @entity.Entity
 }
@@ -59,10 +67,7 @@ fn vec3(x : Double, y : Double, z : Double) -> @math.Vec3 {
 }
 
 ///|
-fn look_at_rotation(
-  position : @math.Vec3,
-  target : @math.Vec3,
-) -> @math.Quat {
+fn look_at_rotation(position : @math.Vec3, target : @math.Vec3) -> @math.Quat {
   let forward = (target - position).normalize()
   if forward.length_squared() <= 0.0000001 {
     return @math.Quat::identity()
@@ -124,10 +129,18 @@ fn setup_perf3d(_world : @ecs.World) -> Unit {
     config,
     entities,
     frame_samples: [],
+    work_samples: [],
+    game_samples: [],
+    render_samples: [],
+    render3d_submit_samples: [],
+    render3d_items_samples: [],
+    render3d_flush_samples: [],
     start_ms: now,
     last_ms: now,
+    last_live_ms: now,
     frames: 0,
     max_frame_ms: 0.0,
+    max_work_ms: 0.0,
     finished: false,
     hud,
   })
@@ -147,8 +160,8 @@ fn setup_camera(config : PerfConfig) -> Unit {
   @camera3d.cameras3d().set(camera, {
     ..@camera3d.Camera3DComponent::default(),
     clear_color: color(18U, 20U, 26U, 1.0),
-    fov_y: 60.0,
-    far: 160.0,
+    fov_y: 75.0,
+    far: 500.0,
   })
 }
 
@@ -189,12 +202,13 @@ fn setup_hud(config : PerfConfig) -> @entity.Entity {
 ///|
 fn meshes_for_case(case_name : String) -> Array[@render3d.MeshHandle] {
   let meshes : Array[@render3d.MeshAsset] = match case_name {
-    "mixed-primitives" => [
-      @render3d.cube_mesh(vec3(0.8, 0.8, 0.8)),
-      @render3d.sphere_mesh(0.45),
-      @render3d.cylinder_mesh(0.42, 0.42, 0.9, slices=24),
-      @render3d.plane_mesh(vec3(0.9, 0.9, 0.9)),
-    ]
+    "mixed-primitives" =>
+      [
+        @render3d.cube_mesh(vec3(0.8, 0.8, 0.8)),
+        @render3d.sphere_mesh(0.45),
+        @render3d.cylinder_mesh(0.42, 0.42, 0.9, slices=24),
+        @render3d.plane_mesh(vec3(0.9, 0.9, 0.9)),
+      ]
     "shadow-casters" => [@render3d.cube_mesh(vec3(0.8, 1.4, 0.8))]
     _ => [@render3d.cube_mesh(vec3(0.8, 0.8, 0.8))]
   }
@@ -298,29 +312,45 @@ fn update_perf3d_stats(_world : @ecs.World) -> Unit {
 
   let elapsed_s = (now - state.start_ms) / 1000.0
   let stats = @webgpu.render3d_last_submission_stats()
+  let timing = @webgpu.webgpu_last_frame_timing()
+  let render3d_timing = @webgpu.webgpu_last_render3d_timing()
+  if state.frames > 1 {
+    state.work_samples.push(timing.total_work_ms)
+    state.game_samples.push(timing.game_ms)
+    state.render_samples.push(timing.render_ms)
+    state.render3d_submit_samples.push(render3d_timing.submit_total_ms)
+    state.render3d_items_samples.push(render3d_timing.items_ms)
+    state.render3d_flush_samples.push(render3d_timing.flush_ms)
+    state.max_work_ms = state.max_work_ms.max(timing.total_work_ms)
+  }
   let avg_fps = if elapsed_s > 0.0 {
     state.frames.to_double() / elapsed_s
   } else {
     0.0
   }
-  let p95 = percentile_frame_ms(state.frame_samples, 0.95)
-  perf_publish_live(
-    state.config.case_name,
-    state.config.count,
-    state.config.duration,
-    state.frames,
-    avg_fps,
-    p95,
-    stats.draw_commands,
-    stats.uploaded_vertex_bytes,
-  )
-  @ui.texts().set(
-    state.hud,
-    @ui.Text(
-      "perf3d case=\{state.config.case_name} count=\{state.config.count} mode=\{state.config.mode}\n" +
-      "fps=\{avg_fps} p95=\{p95}ms draw=\{stats.draw_commands} submitted=\{stats.submitted_items} upload=\{stats.uploaded_vertex_bytes}B",
-    ),
-  )
+  if now - state.last_live_ms >= 250.0 {
+    state.last_live_ms = now
+    let p95 = percentile_frame_ms(state.frame_samples, 0.95)
+    let work_p95 = percentile_frame_ms(state.work_samples, 0.95)
+    perf_publish_live(
+      state.config.case_name,
+      state.config.count,
+      state.config.duration,
+      state.frames,
+      avg_fps,
+      p95,
+      work_p95,
+      stats.draw_commands,
+      stats.uploaded_vertex_bytes,
+    )
+    @ui.texts().set(
+      state.hud,
+      @ui.Text(
+        "perf3d case=\{state.config.case_name} count=\{state.config.count} mode=\{state.config.mode}\n" +
+        "fps=\{avg_fps} p95=\{p95}ms work_p95=\{work_p95}ms draw=\{stats.draw_commands} submitted=\{stats.submitted_items} upload=\{stats.uploaded_vertex_bytes}B",
+      ),
+    )
+  }
   if elapsed_s >= state.config.duration {
     state.finished = true
     publish_final_result(state, stats, elapsed_s)
@@ -348,6 +378,14 @@ fn publish_final_result(
     percentile_frame_ms(state.frame_samples, 0.50),
     percentile_frame_ms(state.frame_samples, 0.95),
     state.max_frame_ms,
+    percentile_frame_ms(state.work_samples, 0.50),
+    percentile_frame_ms(state.work_samples, 0.95),
+    state.max_work_ms,
+    percentile_frame_ms(state.game_samples, 0.95),
+    percentile_frame_ms(state.render_samples, 0.95),
+    percentile_frame_ms(state.render3d_submit_samples, 0.95),
+    percentile_frame_ms(state.render3d_items_samples, 0.95),
+    percentile_frame_ms(state.render3d_flush_samples, 0.95),
     stats.submitted_items,
     stats.draw_commands,
     stats.command_groups,

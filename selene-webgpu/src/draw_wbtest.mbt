@@ -119,21 +119,56 @@ test "lit primitive mesh resource keys are owned by MoonBit" {
 ///|
 test "MoonBit forms lit primitive instance batches before WebGPU FFI" {
   let batches = new_lit_primitive_mesh_batch_accumulator()
+  let batch_key = {
+    mesh: @render3d_types.MeshHandle(1U),
+    material: @render3d_types.MaterialHandle(2U),
+    cast_shadows: true,
+    receive_shadows: true,
+  }
+  let resource_key = "lit-cube|1|1|1|255,255,255,1|0,0,0|0|0.5|0"
   enqueue_lit_primitive_mesh_batch(
-    batches, "lit-cube|1|1|1|255,255,255,1|0,0,0|0|0.5|0", 0.0, 1.0, 2.0, 0.0, 0.0,
-    0.0, 1.0, 1.0, 1.0, 1.0, false, true, true,
+    batches,
+    batch_key,
+    fn() { resource_key },
+    0.0,
+    1.0,
+    2.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    false,
+    true,
+    true,
   )
   enqueue_lit_primitive_mesh_batch(
-    batches, "lit-cube|1|1|1|255,255,255,1|0,0,0|0|0.5|0", 3.0, 4.0, 5.0, 0.0, 0.0,
-    0.0, 1.0, 1.0, 1.0, 1.0, false, true, true,
+    batches,
+    batch_key,
+    fn() { abort("resource key should be cached") },
+    3.0,
+    4.0,
+    5.0,
+    0.0,
+    0.0,
+    0.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    false,
+    true,
+    true,
   )
   inspect(batches.order.length(), content="1")
-  let batch_key = batches.order[0]
+  let entry = batches.entries[batches.order[0]]
   inspect(
-    batches.resource_keys.get(batch_key).unwrap(),
+    entry.resource_key,
     content="lit-cube|1|1|1|255,255,255,1|0,0,0|0|0.5|0",
   )
-  inspect(batches.instances.get(batch_key).unwrap().length(), content="22")
+  inspect(entry.instances.length(), content="22")
 }
 
 ///|
@@ -330,7 +365,7 @@ test "render3d submission stats record repeated primitive pressure" {
     webgpu_test_item(mesh, material, 2.0),
     webgpu_test_item(mesh, material, 3.0),
   ]
-  let stats = collect_render3d_submission_stats(frame)
+  let stats = _collect_render3d_submission_stats(frame)
   inspect(stats.sections, content="1")
   inspect(stats.submitted_items, content="4")
   inspect(stats.skipped_items, content="0")
@@ -361,8 +396,8 @@ test "render3d submission stats reuse retained static primitive instances" {
     webgpu_test_item(mesh, material, 10.0),
     webgpu_test_item(mesh, material, 11.0),
   ]
-  let first_stats = collect_render3d_submission_stats(frame)
-  let second_stats = collect_render3d_submission_stats(frame)
+  let first_stats = _collect_render3d_submission_stats(frame)
+  let second_stats = _collect_render3d_submission_stats(frame)
   inspect(first_stats.draw_commands, content="1")
   inspect(first_stats.uploaded_vertex_bytes, content="88")
   inspect(second_stats.draw_commands, content="1")
@@ -388,7 +423,7 @@ test "render3d submission stats keep textured primitives unbatched" {
     webgpu_test_item(mesh, material, 0.0),
     webgpu_test_item(mesh, material, 1.0),
   ]
-  let stats = collect_render3d_submission_stats(frame)
+  let stats = _collect_render3d_submission_stats(frame)
   inspect(stats.command_groups, content="1")
   inspect(stats.draw_commands, content="2")
   inspect(stats.lit_triangle_commands, content="0")

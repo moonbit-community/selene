@@ -134,6 +134,19 @@ priv struct MaterialTextureBundle3D {
 }
 
 ///|
+priv struct ResolvedRender3DMaterial {
+  material : @render3d_types.StandardMaterial3D
+  color : @render.Color
+  emissive_r : Double
+  emissive_g : Double
+  emissive_b : Double
+  alpha_mode : Double
+  alpha_cutoff : Double
+  unlit : Bool
+  texture_bundle : MaterialTextureBundle3D?
+}
+
+///|
 priv struct Render3DSubmissionStats {
   mut sections : Int
   mut submitted_items : Int
@@ -160,13 +173,36 @@ pub(all) struct Render3DSubmissionStatsSnapshot {
 } derive(Eq, Debug)
 
 ///|
+pub(all) struct WebGpuRender3DTimingSnapshot {
+  setup_ms : Double
+  items_ms : Double
+  flush_ms : Double
+  cleanup_ms : Double
+  submit_total_ms : Double
+} derive(Eq, Debug)
+
+///|
 priv struct LitPrimitiveMeshBatchAccumulator {
-  order : Array[String]
-  resource_keys : Map[String, String]
-  instances : Map[String, Array[Double]]
-  double_sided : Map[String, Bool]
-  cast_shadows : Map[String, Bool]
-  receive_shadows : Map[String, Bool]
+  order : Array[Int]
+  indices : Map[LitPrimitiveMeshBatchKey, Int]
+  entries : Array[LitPrimitiveMeshBatch]
+}
+
+///|
+priv struct LitPrimitiveMeshBatchKey {
+  mesh : @render3d_types.MeshHandle
+  material : @render3d_types.MaterialHandle
+  cast_shadows : Bool
+  receive_shadows : Bool
+} derive(Eq, Hash)
+
+///|
+priv struct LitPrimitiveMeshBatch {
+  resource_key : String
+  instances : Array[Double]
+  double_sided : Bool
+  cast_shadows : Bool
+  receive_shadows : Bool
 }
 
 ///|
@@ -176,6 +212,15 @@ let last_render3d_submission_stats : Ref[Render3DSubmissionStats] = Ref(
 
 ///|
 let last_render3d_submission_stats_checksum : Ref[Int] = Ref(0)
+
+///|
+let last_render3d_timing : Ref[WebGpuRender3DTimingSnapshot] = Ref({
+  setup_ms: 0.0,
+  items_ms: 0.0,
+  flush_ms: 0.0,
+  cleanup_ms: 0.0,
+  submit_total_ms: 0.0,
+})
 
 ///|
 let retained_render3d_instance_last_seen : Map[String, Int] = Map([])
@@ -227,6 +272,11 @@ fn render3d_submission_stats_snapshot(
 ///|
 pub fn render3d_last_submission_stats() -> Render3DSubmissionStatsSnapshot {
   render3d_submission_stats_snapshot(last_render3d_submission_stats.val)
+}
+
+///|
+pub fn webgpu_last_render3d_timing() -> WebGpuRender3DTimingSnapshot {
+  { ..last_render3d_timing.val }
 }
 
 ///|
@@ -580,43 +630,102 @@ pub fn release_image_asset(handle : @render3d_types.ImageHandle) -> Unit {
 }
 
 ///|
+fn resolve_render3d_material(
+  cache : Map[@render3d_types.MaterialHandle, ResolvedRender3DMaterial],
+  handle : @render3d_types.MaterialHandle,
+) -> ResolvedRender3DMaterial {
+  match cache.get(handle) {
+    Some(resolved) => resolved
+    None => {
+      let material = synced_material_assets
+        .get(handle)
+        .unwrap_or(@render3d_types.default_standard_material3d())
+      let color = effective_material_color(material)
+      let (emissive_r, emissive_g, emissive_b) = color_rgb01(
+        material.emissive_color,
+      )
+      let resolved = {
+        material,
+        color,
+        emissive_r,
+        emissive_g,
+        emissive_b,
+        alpha_mode: alpha_mode_code(material.alpha_mode),
+        alpha_cutoff: material.alpha_cutoff,
+        unlit: material.unlit,
+        texture_bundle: resolve_material_texture_bundle(material),
+      }
+      cache.set(handle, resolved)
+      resolved
+    }
+  }
+}
+
+///|
 pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
+  let submit_start = webgpu_now_ms()
   begin_webgpu_resource_frame()
-  let stats = collect_render3d_submission_stats(frame)
-  last_render3d_submission_stats.val = stats
-  last_render3d_submission_stats_checksum.val = render3d_submission_stats_checksum(
-    stats,
-  )
+  let stats = empty_render3d_submission_stats()
   guard frame.camera is Some(active_camera) else {
+    last_render3d_submission_stats.val = stats
+    last_render3d_submission_stats_checksum.val = render3d_submission_stats_checksum(
+      stats,
+    )
     prune_stale_primitive_mesh_resources()
     prune_stale_retained_instance_buffers3d()
+    let submit_end = webgpu_now_ms()
+    last_render3d_timing.val = {
+      setup_ms: 0.0,
+      items_ms: 0.0,
+      flush_ms: 0.0,
+      cleanup_ms: submit_end - submit_start,
+      submit_total_ms: submit_end - submit_start,
+    }
     return
   }
+  stats.sections = 1
+  let setup_start = webgpu_now_ms()
   let aspect = webgpu_canvas_aspect_ratio()
   configure_scene_lighting(frame, active_camera, aspect)
   begin_3d(active_camera, aspect)
   let lit_primitive_batches = new_lit_primitive_mesh_batch_accumulator()
+  let material_cache : Map[
+    @render3d_types.MaterialHandle,
+    ResolvedRender3DMaterial,
+  ] = Map([])
+  let item_start = webgpu_now_ms()
   for item in frame.items {
     guard synced_mesh_assets.get(item.mesh) is Some(mesh_asset) else {
+      stats.skipped_items += 1
       continue
     }
-    let material = synced_material_assets
-      .get(item.material)
-      .unwrap_or(@render3d_types.default_standard_material3d())
+    let resolved_material = resolve_render3d_material(
+      material_cache,
+      item.material,
+    )
+    let material = resolved_material.material
+    let vertex_count = render3d_item_vertex_count(mesh_asset.primitive)
+    if vertex_count <= 0 {
+      stats.skipped_items += 1
+      continue
+    }
+    stats.submitted_items += 1
     let center = item.transform.translation
     let rotation = item.transform.rotation
-    let color = effective_material_color(material)
-    let (emissive_r, emissive_g, emissive_b) = color_rgb01(
-      material.emissive_color,
-    )
-    let alpha_mode = alpha_mode_code(material.alpha_mode)
-    let alpha_cutoff = material.alpha_cutoff
-    let unlit = material.unlit
-    let texture_bundle = resolve_material_texture_bundle(material)
+    let color = resolved_material.color
+    let emissive_r = resolved_material.emissive_r
+    let emissive_g = resolved_material.emissive_g
+    let emissive_b = resolved_material.emissive_b
+    let alpha_mode = resolved_material.alpha_mode
+    let alpha_cutoff = resolved_material.alpha_cutoff
+    let unlit = resolved_material.unlit
+    let texture_bundle = resolved_material.texture_bundle
     match mesh_asset.primitive {
       Cube(size) =>
         match texture_bundle {
-          Some(bundle) =>
+          Some(bundle) => {
+            stats.textured_triangle_commands += 1
+            stats.uploaded_vertex_bytes += vertex_count * 35 * 4
             draw_triangle_mesh_instance(
               cached_cuboid_triangle_mesh3d(
                 size.x,
@@ -634,6 +743,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               item.cast_shadows,
               item.receive_shadows,
             )
+          }
           None => {
             let primitive_mesh = cached_cuboid_triangle_mesh3d(
               size.x,
@@ -643,23 +753,26 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
             )
             enqueue_lit_primitive_mesh_batch(
               lit_primitive_batches,
-              ensure_lit_primitive_mesh_resource(
-                lit_primitive_mesh_resource_key(
-                  "lit-cube",
-                  [size.x, size.y, size.z],
+              lit_primitive_mesh_batch_key(item),
+              fn() {
+                ensure_lit_primitive_mesh_resource(
+                  lit_primitive_mesh_resource_key(
+                    "lit-cube",
+                    [size.x, size.y, size.z],
+                    color,
+                    emissive_r,
+                    emissive_g,
+                    emissive_b,
+                    alpha_mode,
+                    alpha_cutoff,
+                    unlit,
+                  ),
+                  primitive_mesh,
+                  material,
                   color,
-                  emissive_r,
-                  emissive_g,
-                  emissive_b,
-                  alpha_mode,
-                  alpha_cutoff,
-                  unlit,
-                ),
-                primitive_mesh,
-                material,
-                color,
-                item.receive_shadows,
-              ),
+                  item.receive_shadows,
+                )
+              },
               center.x,
               center.y,
               center.z,
@@ -678,7 +791,9 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
         }
       Sphere(radius) =>
         match texture_bundle {
-          Some(bundle) =>
+          Some(bundle) => {
+            stats.textured_triangle_commands += 1
+            stats.uploaded_vertex_bytes += vertex_count * 35 * 4
             draw_triangle_mesh_instance(
               cached_sphere_triangle_mesh3d(
                 radius,
@@ -696,6 +811,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               item.cast_shadows,
               item.receive_shadows,
             )
+          }
           None => {
             let primitive_mesh = cached_sphere_triangle_mesh3d(
               radius,
@@ -705,23 +821,26 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
             )
             enqueue_lit_primitive_mesh_batch(
               lit_primitive_batches,
-              ensure_lit_primitive_mesh_resource(
-                lit_primitive_mesh_resource_key(
-                  "lit-sphere",
-                  [radius],
+              lit_primitive_mesh_batch_key(item),
+              fn() {
+                ensure_lit_primitive_mesh_resource(
+                  lit_primitive_mesh_resource_key(
+                    "lit-sphere",
+                    [radius],
+                    color,
+                    emissive_r,
+                    emissive_g,
+                    emissive_b,
+                    alpha_mode,
+                    alpha_cutoff,
+                    unlit,
+                  ),
+                  primitive_mesh,
+                  material,
                   color,
-                  emissive_r,
-                  emissive_g,
-                  emissive_b,
-                  alpha_mode,
-                  alpha_cutoff,
-                  unlit,
-                ),
-                primitive_mesh,
-                material,
-                color,
-                item.receive_shadows,
-              ),
+                  item.receive_shadows,
+                )
+              },
               center.x,
               center.y,
               center.z,
@@ -740,7 +859,9 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
         }
       Cylinder(radius_top, radius_bottom, height, slices) =>
         match texture_bundle {
-          Some(bundle) =>
+          Some(bundle) => {
+            stats.textured_triangle_commands += 1
+            stats.uploaded_vertex_bytes += vertex_count * 35 * 4
             draw_triangle_mesh_instance(
               cached_cylinder_triangle_mesh3d(
                 radius_top,
@@ -759,34 +880,38 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               item.cast_shadows,
               item.receive_shadows,
             )
+          }
           None => {
             let primitive_mesh = cached_cylinder_triangle_mesh3d(
               radius_top, radius_bottom, height, slices, 1,
             )
             enqueue_lit_primitive_mesh_batch(
               lit_primitive_batches,
-              ensure_lit_primitive_mesh_resource(
-                lit_primitive_mesh_resource_key(
-                  "lit-cylinder",
-                  [
-                    radius_top,
-                    radius_bottom,
-                    height,
-                    safe_cylinder_slices(slices).to_double(),
-                  ],
+              lit_primitive_mesh_batch_key(item),
+              fn() {
+                ensure_lit_primitive_mesh_resource(
+                  lit_primitive_mesh_resource_key(
+                    "lit-cylinder",
+                    [
+                      radius_top,
+                      radius_bottom,
+                      height,
+                      safe_cylinder_slices(slices).to_double(),
+                    ],
+                    color,
+                    emissive_r,
+                    emissive_g,
+                    emissive_b,
+                    alpha_mode,
+                    alpha_cutoff,
+                    unlit,
+                  ),
+                  primitive_mesh,
+                  material,
                   color,
-                  emissive_r,
-                  emissive_g,
-                  emissive_b,
-                  alpha_mode,
-                  alpha_cutoff,
-                  unlit,
-                ),
-                primitive_mesh,
-                material,
-                color,
-                item.receive_shadows,
-              ),
+                  item.receive_shadows,
+                )
+              },
               center.x,
               center.y,
               center.z,
@@ -806,7 +931,9 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
       Plane(size) => {
         let y = if size.y.abs() < 0.0001 { 0.02 } else { size.y }
         match texture_bundle {
-          Some(bundle) =>
+          Some(bundle) => {
+            stats.textured_triangle_commands += 1
+            stats.uploaded_vertex_bytes += vertex_count * 35 * 4
             draw_triangle_mesh_instance(
               cached_cuboid_triangle_mesh3d(
                 size.x,
@@ -824,6 +951,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
               item.cast_shadows,
               item.receive_shadows,
             )
+          }
           None => {
             let primitive_mesh = cached_cuboid_triangle_mesh3d(
               size.x,
@@ -833,23 +961,26 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
             )
             enqueue_lit_primitive_mesh_batch(
               lit_primitive_batches,
-              ensure_lit_primitive_mesh_resource(
-                lit_primitive_mesh_resource_key(
-                  "lit-cube",
-                  [size.x, y, size.z],
+              lit_primitive_mesh_batch_key(item),
+              fn() {
+                ensure_lit_primitive_mesh_resource(
+                  lit_primitive_mesh_resource_key(
+                    "lit-cube",
+                    [size.x, y, size.z],
+                    color,
+                    emissive_r,
+                    emissive_g,
+                    emissive_b,
+                    alpha_mode,
+                    alpha_cutoff,
+                    unlit,
+                  ),
+                  primitive_mesh,
+                  material,
                   color,
-                  emissive_r,
-                  emissive_g,
-                  emissive_b,
-                  alpha_mode,
-                  alpha_cutoff,
-                  unlit,
-                ),
-                primitive_mesh,
-                material,
-                color,
-                item.receive_shadows,
-              ),
+                  item.receive_shadows,
+                )
+              },
               center.x,
               center.y,
               center.z,
@@ -867,7 +998,18 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
           }
         }
       }
-      Triangles(mesh) =>
+      Triangles(mesh) => {
+        if texture_bundle is Some(_) &&
+          render3d_item_can_use_textured_path(
+            mesh_asset.primitive,
+            texture_bundle,
+          ) {
+          stats.textured_triangle_commands += 1
+          stats.uploaded_vertex_bytes += vertex_count * 35 * 4
+        } else {
+          stats.lit_triangle_commands += 1
+          stats.uploaded_vertex_bytes += vertex_count * 17 * 4
+        }
         draw_triangle_mesh_instance(
           mesh,
           material,
@@ -880,12 +1022,37 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
           item.cast_shadows,
           item.receive_shadows,
         )
+      }
     }
   }
-  flush_lit_primitive_mesh_batches(lit_primitive_batches)
+  let flush_start = webgpu_now_ms()
+  flush_lit_primitive_mesh_batches(lit_primitive_batches, stats)
+  if stats.lit_triangle_commands > 0 {
+    stats.command_groups += 1
+    stats.render_bind_group_creations += 1
+  }
+  if stats.textured_triangle_commands > 0 {
+    stats.command_groups += 1
+    stats.render_bind_group_creations += stats.textured_triangle_commands
+  }
+  stats.draw_commands = stats.lit_triangle_commands +
+    stats.textured_triangle_commands
+  last_render3d_submission_stats.val = stats
+  last_render3d_submission_stats_checksum.val = render3d_submission_stats_checksum(
+    stats,
+  )
+  let cleanup_start = webgpu_now_ms()
   end_3d()
   prune_stale_primitive_mesh_resources()
   prune_stale_retained_instance_buffers3d()
+  let submit_end = webgpu_now_ms()
+  last_render3d_timing.val = {
+    setup_ms: item_start - setup_start,
+    items_ms: flush_start - item_start,
+    flush_ms: cleanup_start - flush_start,
+    cleanup_ms: submit_end - cleanup_start,
+    submit_total_ms: submit_end - submit_start,
+  }
 }
 
 ///|
@@ -908,20 +1075,26 @@ fn begin_webgpu_resource_frame() -> Unit {
 
 ///|
 fn new_lit_primitive_mesh_batch_accumulator() -> LitPrimitiveMeshBatchAccumulator {
+  { order: [], indices: Map([]), entries: [] }
+}
+
+///|
+fn lit_primitive_mesh_batch_key(
+  item : @render3d_types.RenderItem3D,
+) -> LitPrimitiveMeshBatchKey {
   {
-    order: [],
-    resource_keys: Map([]),
-    instances: Map([]),
-    double_sided: Map([]),
-    cast_shadows: Map([]),
-    receive_shadows: Map([]),
+    mesh: item.mesh,
+    material: item.material,
+    cast_shadows: item.cast_shadows,
+    receive_shadows: item.receive_shadows,
   }
 }
 
 ///|
 fn enqueue_lit_primitive_mesh_batch(
   batches : LitPrimitiveMeshBatchAccumulator,
-  resource_key : String,
+  key : LitPrimitiveMeshBatchKey,
+  build_resource_key : () -> String,
   center_x : Double,
   center_y : Double,
   center_z : Double,
@@ -936,52 +1109,76 @@ fn enqueue_lit_primitive_mesh_batch(
   cast_shadows : Bool,
   receive_shadows : Bool,
 ) -> Unit {
-  let batch_key = lit_primitive_mesh_batch_key(
-    resource_key, double_sided, cast_shadows, receive_shadows,
+  let batch_index = match batches.indices.get(key) {
+    Some(index) => index
+    None => {
+      let index = batches.entries.length()
+      batches.order.push(index)
+      batches.indices.set(key, index)
+      batches.entries.push({
+        resource_key: build_resource_key(),
+        instances: [],
+        double_sided,
+        cast_shadows,
+        receive_shadows,
+      })
+      index
+    }
+  }
+  let entry = batches.entries[batch_index]
+  push_lit_primitive_instance_values(
+    entry.instances,
+    center_x,
+    center_y,
+    center_z,
+    rotation_x,
+    rotation_y,
+    rotation_z,
+    rotation_w,
+    scale_x,
+    scale_y,
+    scale_z,
+    receive_shadows,
   )
-  if !batches.instances.contains(batch_key) {
-    batches.order.push(batch_key)
-    batches.resource_keys.set(batch_key, resource_key)
-    batches.instances.set(batch_key, [])
-    batches.double_sided.set(batch_key, double_sided)
-    batches.cast_shadows.set(batch_key, cast_shadows)
-    batches.receive_shadows.set(batch_key, receive_shadows)
-  }
-  if batches.instances.get(batch_key) is Some(instances) {
-    push_lit_primitive_instance_values(
-      instances, center_x, center_y, center_z, rotation_x, rotation_y, rotation_z,
-      rotation_w, scale_x, scale_y, scale_z, receive_shadows,
-    )
-  }
 }
 
 ///|
 fn flush_lit_primitive_mesh_batches(
   batches : LitPrimitiveMeshBatchAccumulator,
+  stats : Render3DSubmissionStats,
 ) -> Unit {
-  for batch_key in batches.order {
-    guard batches.resource_keys.get(batch_key) is Some(resource_key) else {
-      continue
-    }
-    guard batches.instances.get(batch_key) is Some(instances) else { continue }
+  for index in batches.order {
+    let entry = batches.entries[index]
+    let instances = entry.instances
     if instances.length() == 0 {
       continue
     }
-    let retained_key = mark_retained_instance_buffer_key(
-      retained_lit_primitive_instance_key(batch_key, instances),
+    let retained_key = retained_lit_primitive_instance_key(
+      lit_primitive_instance_batch_key(
+        entry.resource_key,
+        entry.double_sided,
+        entry.cast_shadows,
+        entry.receive_shadows,
+      ),
+      instances,
     )
+    if !retained_render3d_instance_last_seen.contains(retained_key) {
+      stats.uploaded_vertex_bytes += instances.length() * 4
+    }
+    ignore(mark_retained_instance_buffer_key(retained_key))
+    stats.lit_triangle_commands += 1
     webgpu_draw_lit_primitive_mesh_batch_3d(
-      resource_key,
+      entry.resource_key,
       retained_key,
       instances,
-      batches.double_sided.get(batch_key).unwrap_or(false),
-      batches.cast_shadows.get(batch_key).unwrap_or(false),
+      entry.double_sided,
+      entry.cast_shadows,
     )
   }
 }
 
 ///|
-fn lit_primitive_mesh_batch_key(
+fn lit_primitive_instance_batch_key(
   resource_key : String,
   double_sided : Bool,
   cast_shadows : Bool,
@@ -1029,11 +1226,27 @@ fn retained_lit_primitive_instance_key(
   batch_key : String,
   instances : Array[Double],
 ) -> String {
-  let mut key = batch_key
+  let mut hash_a = 17
+  let mut hash_b = 29
   for value in instances {
-    key = key + "|" + value.to_string()
+    let component = retained_instance_hash_component(value)
+    hash_a = (hash_a * 131 + component) % 1000003
+    hash_b = (hash_b * 257 + component) % 1000033
   }
-  key
+  batch_key +
+  "|instances:" +
+  instances.length().to_string() +
+  ":" +
+  hash_a.to_string() +
+  ":" +
+  hash_b.to_string()
+}
+
+///|
+fn retained_instance_hash_component(value : Double) -> Int {
+  let scaled = (value * 1000000.0).to_int()
+  let positive = if scaled < 0 { -scaled + 17 } else { scaled }
+  positive % 1000003
 }
 
 ///|
@@ -1158,12 +1371,12 @@ fn safe_cylinder_slices(slices : Int) -> Int {
 }
 
 ///|
-fn collect_render3d_submission_stats(
+fn _collect_render3d_submission_stats(
   frame : @render3d_types.RenderFrame3D,
 ) -> Render3DSubmissionStats {
   let stats = empty_render3d_submission_stats()
   let instanced_lit_buckets : Map[String, Bool] = Map([])
-  let instanced_lit_signatures : Map[String, String] = Map([])
+  let instanced_lit_instances : Map[String, Array[Double]] = Map([])
   let instanced_lit_counts : Map[String, Int] = Map([])
   guard frame.camera is Some(_) else { return stats }
   stats.sections = 1
@@ -1197,20 +1410,17 @@ fn collect_render3d_submission_stats(
         key,
         instanced_lit_counts.get(key).unwrap_or(0) + 1,
       )
-      let signature = instanced_lit_signatures
-        .get(key)
-        .map_or(key, fn(previous) { previous }) +
-        "|" +
-        render3d_primitive_signature(mesh_asset.primitive) +
-        "|" +
-        render3d_item_instance_signature(item)
-      instanced_lit_signatures.set(key, signature)
+      push_render3d_item_instance_values(
+        instanced_lit_instances.get_or_init(key, fn() { [] }),
+        item,
+      )
     } else {
       stats.lit_triangle_commands += 1
       stats.uploaded_vertex_bytes += vertex_count * 17 * 4
     }
   }
-  for key, signature in instanced_lit_signatures {
+  for key, instances in instanced_lit_instances {
+    let signature = retained_lit_primitive_instance_key(key, instances)
     if !retained_render3d_instance_last_seen.contains(signature) {
       stats.uploaded_vertex_bytes += instanced_lit_counts.get(key).unwrap_or(0) *
         11 *
@@ -1255,65 +1465,28 @@ fn render3d_lit_instance_bucket_key(
 }
 
 ///|
-fn render3d_item_instance_signature(
+fn push_render3d_item_instance_values(
+  instances : Array[Double],
   item : @render3d_types.RenderItem3D,
-) -> String {
+) -> Unit {
   let transform = item.transform
   let translation = transform.translation
   let rotation = transform.rotation
   let scale = transform.scale
-  translation.x.to_string() +
-  "," +
-  translation.y.to_string() +
-  "," +
-  translation.z.to_string() +
-  "," +
-  rotation.x.to_string() +
-  "," +
-  rotation.y.to_string() +
-  "," +
-  rotation.z.to_string() +
-  "," +
-  rotation.w.to_string() +
-  "," +
-  scale.x.to_string() +
-  "," +
-  scale.y.to_string() +
-  "," +
-  scale.z.to_string()
-}
-
-///|
-fn render3d_primitive_signature(
-  primitive : @render3d_types.MeshPrimitive3D,
-) -> String {
-  match primitive {
-    Cube(size) =>
-      "cube:" +
-      size.x.to_string() +
-      "," +
-      size.y.to_string() +
-      "," +
-      size.z.to_string()
-    Sphere(radius) => "sphere:" + radius.to_string()
-    Cylinder(radius_top, radius_bottom, height, slices) =>
-      "cylinder:" +
-      radius_top.to_string() +
-      "," +
-      radius_bottom.to_string() +
-      "," +
-      height.to_string() +
-      "," +
-      slices.to_string()
-    Plane(size) =>
-      "plane:" +
-      size.x.to_string() +
-      "," +
-      size.y.to_string() +
-      "," +
-      size.z.to_string()
-    Triangles(_) => "triangles"
-  }
+  push_lit_primitive_instance_values(
+    instances,
+    translation.x,
+    translation.y,
+    translation.z,
+    rotation.x,
+    rotation.y,
+    rotation.z,
+    rotation.w,
+    scale.x,
+    scale.y,
+    scale.z,
+    item.receive_shadows,
+  )
 }
 
 ///|

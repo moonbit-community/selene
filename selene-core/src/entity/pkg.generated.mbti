@@ -6,6 +6,8 @@ import {
 }
 
 // Values
+pub fn alive_entity_count() -> Int
+
 pub fn entity_flush_system(Double) -> Unit
 
 pub fn get_roots() -> Iter[Entity]

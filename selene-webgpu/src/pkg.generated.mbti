@@ -110,6 +110,10 @@ pub fn sync_mouse_lock_state(Bool) -> Bool
 
 pub fn tick_audio() -> Unit
 
+pub fn webgpu_last_frame_timing() -> WebGpuFrameTimingSnapshot
+
+pub fn webgpu_last_render3d_timing() -> WebGpuRender3DTimingSnapshot
+
 // Errors
 
 // Types and methods
@@ -146,6 +150,22 @@ pub struct WebGpuBackend {
   // private fields
 }
 pub fn WebGpuBackend::WebGpuBackend() -> Self
+
+pub(all) struct WebGpuFrameTimingSnapshot {
+  service_before_ms : Double
+  game_ms : Double
+  render_ms : Double
+  service_after_ms : Double
+  total_work_ms : Double
+} derive(Eq, @debug.Debug)
+
+pub(all) struct WebGpuRender3DTimingSnapshot {
+  setup_ms : Double
+  items_ms : Double
+  flush_ms : Double
+  cleanup_ms : Double
+  submit_total_ms : Double
+} derive(Eq, @debug.Debug)
 
 // Type aliases
 pub type AudioInstance = Int
