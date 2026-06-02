@@ -340,6 +340,11 @@ test "render3d submission stats record repeated primitive pressure" {
   inspect(stats.textured_triangle_commands, content="0")
   inspect(stats.uploaded_vertex_bytes, content="176")
   inspect(stats.render_bind_group_creations, content="1")
+  last_render3d_submission_stats.val = stats
+  let snapshot = render3d_last_submission_stats()
+  inspect(snapshot.submitted_items, content="4")
+  inspect(snapshot.draw_commands, content="1")
+  inspect(snapshot.uploaded_vertex_bytes, content="176")
   release_mesh_asset(mesh)
   release_material_asset(material)
 }

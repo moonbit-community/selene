@@ -76,6 +76,8 @@ pub fn render2d_begin_pass(@math.Rect, @render2d_types.RenderPassLoadOp2D, @rend
 
 pub fn render2d_end_pass() -> Unit
 
+pub fn render3d_last_submission_stats() -> Render3DSubmissionStatsSnapshot
+
 pub fn render3d_submit(@render3d_types.RenderFrame3D) -> Unit
 
 pub fn request_close() -> Unit
@@ -126,6 +128,18 @@ pub(all) enum Render3DLightingMode {
   Full
   Cheap
   Unlit
+} derive(Eq, @debug.Debug)
+
+pub(all) struct Render3DSubmissionStatsSnapshot {
+  sections : Int
+  submitted_items : Int
+  skipped_items : Int
+  command_groups : Int
+  draw_commands : Int
+  lit_triangle_commands : Int
+  textured_triangle_commands : Int
+  uploaded_vertex_bytes : Int
+  render_bind_group_creations : Int
 } derive(Eq, @debug.Debug)
 
 pub struct WebGpuBackend {

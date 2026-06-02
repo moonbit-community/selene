@@ -1,0 +1,17 @@
+import {
+  "Milky2018/selene/app",
+  "Milky2018/selene/camera3d",
+  "Milky2018/selene/ecs",
+  "Milky2018/selene/entity",
+  "Milky2018/selene/math",
+  "Milky2018/selene/plugins",
+  "Milky2018/selene/render",
+  "Milky2018/selene/render3d",
+  "Milky2018/selene/system",
+  "Milky2018/selene/time",
+  "Milky2018/selene/transform",
+  "Milky2018/selene/ui",
+  "Milky2018/selene_webgpu" @webgpu,
+}
+
+supported_targets = "js"

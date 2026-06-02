@@ -147,6 +147,19 @@ priv struct Render3DSubmissionStats {
 }
 
 ///|
+pub(all) struct Render3DSubmissionStatsSnapshot {
+  sections : Int
+  submitted_items : Int
+  skipped_items : Int
+  command_groups : Int
+  draw_commands : Int
+  lit_triangle_commands : Int
+  textured_triangle_commands : Int
+  uploaded_vertex_bytes : Int
+  render_bind_group_creations : Int
+} derive(Eq, Debug)
+
+///|
 priv struct LitPrimitiveMeshBatchAccumulator {
   order : Array[String]
   resource_keys : Map[String, String]
@@ -192,6 +205,28 @@ fn empty_render3d_submission_stats() -> Render3DSubmissionStats {
     uploaded_vertex_bytes: 0,
     render_bind_group_creations: 0,
   }
+}
+
+///|
+fn render3d_submission_stats_snapshot(
+  stats : Render3DSubmissionStats,
+) -> Render3DSubmissionStatsSnapshot {
+  {
+    sections: stats.sections,
+    submitted_items: stats.submitted_items,
+    skipped_items: stats.skipped_items,
+    command_groups: stats.command_groups,
+    draw_commands: stats.draw_commands,
+    lit_triangle_commands: stats.lit_triangle_commands,
+    textured_triangle_commands: stats.textured_triangle_commands,
+    uploaded_vertex_bytes: stats.uploaded_vertex_bytes,
+    render_bind_group_creations: stats.render_bind_group_creations,
+  }
+}
+
+///|
+pub fn render3d_last_submission_stats() -> Render3DSubmissionStatsSnapshot {
+  render3d_submission_stats_snapshot(last_render3d_submission_stats.val)
 }
 
 ///|

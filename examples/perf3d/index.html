@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Perf Benchmark - Selene</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #10131a;
+            color: #edf2ff;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        main {
+            width: min(1120px, 100%);
+        }
+
+        h1 {
+            margin: 0 0 12px;
+            font-size: 28px;
+        }
+
+        .hint {
+            margin: 0 0 18px;
+            color: #a8b3c7;
+            line-height: 1.5;
+        }
+
+        .game-wrapper {
+            padding: 16px;
+            border: 1px solid #293142;
+            border-radius: 16px;
+            background: #171c26;
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border-radius: 10px;
+            background: #121722;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        .panel {
+            margin-top: 16px;
+            padding: 14px;
+            border: 1px solid #293142;
+            border-radius: 12px;
+            background: #151a22;
+            white-space: pre-wrap;
+            overflow: auto;
+        }
+
+        a {
+            color: #8cc8ff;
+        }
+    </style>
+    <script src="../../_build/js/release/build/Milky2018/selene-examples/perf3d/web/web.js" defer></script>
+</head>
+
+<body>
+    <main>
+        <h1>Selene WebGPU 3D Perf Benchmark</h1>
+        <p class="hint">
+            URL parameters: <code>?case=static-cubes|dynamic-cubes|mixed-primitives|shadow-casters&amp;count=1000&amp;mode=cheap|full|unlit&amp;duration=10</code>.
+            Final results are written to <code>window.__selene_perf_result</code> and logged as <code>[selene-perf]</code>.
+        </p>
+        <div class="game-wrapper">
+            <canvas id="canvas" height="32" width="32"></canvas>
+        </div>
+        <div id="perf-live" class="panel">Waiting for benchmark...</div>
+        <pre id="perf-result" class="panel">Final result will appear here.</pre>
+        <p class="hint"><a href="../index.html">← Back to examples</a></p>
+    </main>
+</body>
+
+</html>

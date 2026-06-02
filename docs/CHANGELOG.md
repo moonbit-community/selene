@@ -3,6 +3,8 @@
 ## [Unreleased]
 
 ### Added
+- Added a WebGPU 3D performance benchmark example with frame-time and render submission metrics.
+- Added a narrow WebGPU render3d submission stats snapshot API for diagnostics.
 
 ### Changed
 
