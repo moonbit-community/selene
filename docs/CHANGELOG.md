@@ -13,6 +13,8 @@
 - Changed the `tank3d` example asset path to the standard `assets/tank3d/...` layout shared by web and native runs.
 
 ### Fixed
+- Fixed GitHub Actions Ubuntu native builds by installing raylib's Linux system dependencies.
+- Fixed GitHub Pages deployment to build the split `examples-web` module instead of the removed `examples/*/web` layout.
 - Fixed raylib native transformed 2D color primitives so solid sprite backgrounds are not culled by reversed quad winding.
 - Fixed the `tank3d` example native run so the GLB asset is found from both the `examples` and `examples/tank3d` working directories.
 

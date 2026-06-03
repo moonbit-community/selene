@@ -31,20 +31,9 @@ jobs:
 
       - name: Build project
         run: |
-          cd examples
+          cd examples-web
           moon update
-          web_packages=$(find . -mindepth 2 -maxdepth 2 -type d -name web | sort)
-          if [ -z "$web_packages" ]; then
-            echo "No web example packages found under examples/*/web"
-            exit 1
-          fi
-          while IFS= read -r pkg; do
-            if [ -z "$pkg" ]; then
-              continue
-            fi
-            echo "Building $pkg"
-            moon -C "$pkg" build --target js --release
-          done <<< "$web_packages"
+          moon build --target js --release
 
       - name: Publish example pages
         run: |

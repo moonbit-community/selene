@@ -25,6 +25,20 @@ jobs:
           echo "CC=cl" >> $env:GITHUB_ENV
           echo "CXX=cl" >> $env:GITHUB_ENV
 
+      - name: Install raylib native dependencies on Ubuntu
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libasound2-dev \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev \
+            libx11-dev \
+            libxcursor-dev \
+            libxinerama-dev \
+            libxi-dev \
+            libxrandr-dev
+
       - name: Install MoonBit
         if: ${{ matrix.os != 'windows-latest' }}
         run: |
@@ -79,17 +93,11 @@ jobs:
         run: |
           cd examples
           moon update
+          moon check --deny-warn
 
-          web_packages=$(find . -mindepth 2 -maxdepth 2 -type d -name web | sort)
-          if [ -z "$web_packages" ]; then
-            echo "No web example packages found under examples/*/web"
-            exit 1
-          fi
-
-          while IFS= read -r pkg; do
-            if [ -z "$pkg" ]; then
-              continue
-            fi
-            echo "Checking preferred target for $pkg"
-            moon -C "$pkg" check --deny-warn
-          done <<< "$web_packages"
+      - name: selene-examples-web
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          cd examples-web
+          moon update
+          moon check --target js --deny-warn
