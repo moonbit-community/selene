@@ -83,9 +83,9 @@ fn result_color(result : GameResult?) -> String {
 ///|
 fn volume_image(volume_on : Bool) -> @ui.UiImage {
   if volume_on {
-    volume_on_ui_image
+    volume_on_ui_image()
   } else {
-    volume_off_ui_image
+    volume_off_ui_image()
   }
 }
 
@@ -439,7 +439,7 @@ fn hurt_player(session : GameSession, controller : PlayerController) -> Unit {
   if session.health <= 0 {
     session.result = Some(GameOver)
   }
-  play_sfx(hurt_sound, session.volume_on)
+  play_sfx(hurt_sound(), session.volume_on)
 }
 
 ///|
@@ -513,7 +513,7 @@ fn player_controller_system(_world : @ecs.World) -> Unit {
     if grounded && @input_action.action_just_pressed(pixel_jump_action()) {
       new_velocity_y = -JUMP_V
       controller.state = Jump
-      play_sfx(jump_sound, session.volume_on)
+      play_sfx(jump_sound(), session.volume_on)
     } else if !grounded {
       controller.state = if velocity[Y] > 0.0 { Fall } else { Jump }
     } else if new_velocity_x != 0.0 {
@@ -671,7 +671,7 @@ fn trigger_system(_world : @ecs.World) -> Unit {
     }
     if @physics2d.get_contains(apple_entity).contains(session.player) {
       session.score += 10
-      play_sfx(coin_sound, session.volume_on)
+      play_sfx(coin_sound(), session.volume_on)
       apple_entity.destroy()
       apples().remove(apple_entity)
     }

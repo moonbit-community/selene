@@ -1,8 +1,7 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "Milky2018/selene-examples/perf3d"
+package "Milky2018/selene-examples-web/pixeladventure/web"
 
 // Values
-pub fn run() -> Unit
 
 // Errors
 

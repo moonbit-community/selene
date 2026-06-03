@@ -1,7 +1,13 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Milky2018/selene-examples/tank3d"
 
+import {
+  "Milky2018/selene/app",
+}
+
 // Values
+pub fn app() -> @app.App
+
 pub fn run() -> Unit
 
 // Errors

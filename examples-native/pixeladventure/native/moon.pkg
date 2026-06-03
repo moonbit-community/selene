@@ -1,0 +1,19 @@
+import {
+  "Milky2018/selene/asset",
+  "Milky2018/selene-examples/pixeladventure" @pixeladventure_game,
+  "Milky2018/selene-examples-native/support",
+}
+
+supported_targets = "native"
+
+options(
+  "is-main": true,
+  overrides: [
+    "Milky2018/selene_raylib/platform_window",
+    "Milky2018/selene_raylib/platform_input",
+    "Milky2018/selene_raylib/platform_render",
+    "Milky2018/selene_raylib/platform_audio",
+    "Milky2018/selene_raylib/platform_asset_io",
+  ],
+  targets: { "main.mbt": [ "native" ] },
+)

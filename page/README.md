@@ -5,10 +5,7 @@ Static output for the published Selene example pages.
 ## Build
 
 ```bash
-cd examples
-moon build --release
-
-cd ..
+moon -C examples-web build --release
 python3 publish_pages.py
 ```
 

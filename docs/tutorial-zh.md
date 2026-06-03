@@ -28,9 +28,9 @@ git clone https://github.com/moonbit-community/selene.git
 进入 examples 目录并构建 Web 示例：
 
 ```shell
-cd examples
 moon update
-moon build ./pixeladventure/web --target js --release
+moon -C examples-web build ./pixeladventure/web --target js --release
+cd examples
 ```
 
 使用任何 Web 服务器运行，例如 Python：
@@ -127,7 +127,7 @@ import {
 }
 ```
 
-Web wrapper（`examples/pixeladventure/web/moon.pkg`）示例：
+Web wrapper（`examples-web/pixeladventure/web/moon.pkg`）示例：
 
 ```moonbit
 import {
@@ -448,14 +448,13 @@ fn volume_button_input_system(_world : @ecs.World) -> Unit {
 构建命令：
 
 ```shell
-cd examples
-moon build ./pixeladventure/web --target js --release
+moon -C examples-web build ./pixeladventure/web --target js --release
 ```
 
 构建后可直接使用 `examples/pixeladventure/index.html`，其中脚本路径如下：
 
 ```html
-<script src="../../_build/js/release/build/Milky2018/selene-examples/pixeladventure/web/web.js" defer></script>
+<script src="../../_build/js/release/build/Milky2018/selene-examples-web/pixeladventure/web/web.js" defer></script>
 ```
 
 然后启动本地 Web 服务：

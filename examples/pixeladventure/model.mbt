@@ -131,7 +131,7 @@ priv struct BirdAnimationNodes {
 ///|
 priv struct SpriteAnimationDef {
   name : String
-  image : @asset.ImageHandle
+  image_path : String
   layout : @sprite.TextureAtlasLayoutHandle
   fps : Double
   loop_ : Bool
@@ -258,7 +258,7 @@ fn sprite_clip(
 ) -> SpriteAnimationDef {
   {
     name: path,
-    image: @asset.load_image(path),
+    image_path: path,
     layout: @sprite.register_texture_atlas_layout(
       @sprite.TextureAtlasLayout::from_grid(size, frame_count, 1),
     ),
@@ -274,7 +274,7 @@ fn sprite_clip(
 ///|
 fn sprite_animation_sprite(animation : SpriteAnimationDef) -> @sprite.Sprite {
   @sprite.Sprite(
-    image=Some(animation.image),
+    image=Some(@asset.load_image(animation.image_path)),
     texture_atlas=Some(@sprite.TextureAtlas(animation.layout)),
     custom_size=Some(animation.size),
     anchor=animation.anchor,
@@ -284,33 +284,37 @@ fn sprite_animation_sprite(animation : SpriteAnimationDef) -> @sprite.Sprite {
 }
 
 ///|
-let jump_sound : @audio.AudioHandle = @asset.load_audio(
-  "assets/pixeladventure/sounds/jump.wav",
-)
+fn jump_sound() -> @audio.AudioHandle {
+  @asset.load_audio("assets/pixeladventure/sounds/jump.wav")
+}
 
 ///|
-let coin_sound : @audio.AudioHandle = @asset.load_audio(
-  "assets/pixeladventure/sounds/coin.wav",
-)
+fn coin_sound() -> @audio.AudioHandle {
+  @asset.load_audio("assets/pixeladventure/sounds/coin.wav")
+}
 
 ///|
-let hurt_sound : @audio.AudioHandle = @asset.load_audio(
-  "assets/pixeladventure/sounds/hurt.wav",
-)
+fn hurt_sound() -> @audio.AudioHandle {
+  @asset.load_audio("assets/pixeladventure/sounds/hurt.wav")
+}
 
 ///|
-let volume_on_ui_image : @ui.UiImage = @ui.UiImage(
-  @math.Vec2(21.0, 22.0),
-  "assets/pixeladventure/Menu/Buttons/Volume.png",
-  fit=@ui.ImageFit::Contain,
-)
+fn volume_on_ui_image() -> @ui.UiImage {
+  @ui.UiImage(
+    @math.Vec2(21.0, 22.0),
+    "assets/pixeladventure/Menu/Buttons/Volume.png",
+    fit=@ui.ImageFit::Contain,
+  )
+}
 
 ///|
-let volume_off_ui_image : @ui.UiImage = @ui.UiImage(
-  @math.Vec2(21.0, 22.0),
-  "assets/pixeladventure/Menu/Buttons/VolumeOff.png",
-  fit=@ui.ImageFit::Contain,
-)
+fn volume_off_ui_image() -> @ui.UiImage {
+  @ui.UiImage(
+    @math.Vec2(21.0, 22.0),
+    "assets/pixeladventure/Menu/Buttons/VolumeOff.png",
+    fit=@ui.ImageFit::Contain,
+  )
+}
 
 ///|
 let player_idle_right_animation : SpriteAnimationDef = sprite_clip(

@@ -150,10 +150,12 @@ let player_bullet_trigger_event_reader : @event.EventReader[
 ] = @event.EventReader()
 
 ///|
-let player_bullet_visual : @sprite.Sprite = @sprite.Sprite(
-  image=Some(@asset.load_image("assets/survivors/icon/bullet.png")),
-  custom_size=Some(Vec2(12.0, 12.0)),
-)
+fn player_bullet_visual() -> @sprite.Sprite {
+  @sprite.Sprite(
+    image=Some(@asset.load_image("assets/survivors/icon/bullet.png")),
+    custom_size=Some(Vec2(12.0, 12.0)),
+  )
+}
 
 ///|
 fn update_weapon_timers(
@@ -221,7 +223,7 @@ fn shoot_weapon_bullet(
   }
   let bullet_spawn_pos = player_pos + dir.scalar_mul(14.0)
   let bullet_entity = @entity.Entity()
-  @sprite.sprites().set(bullet_entity, player_bullet_visual)
+  @sprite.sprites().set(bullet_entity, player_bullet_visual())
   @transform.transforms().set(
     bullet_entity,
     @transform.Transform::from_xyz(

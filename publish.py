@@ -10,8 +10,11 @@ from dataclasses import dataclass
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).parent
-EXAMPLES_DIR = ROOT_DIR / "examples"
-EXAMPLES_MANIFEST_PATH = EXAMPLES_DIR / "moon.mod"
+EXAMPLE_MODULE_DIRS = [
+    ROOT_DIR / "examples",
+    ROOT_DIR / "examples-web",
+    ROOT_DIR / "examples-native",
+]
 CHANGELOG_REL_PATH = Path("docs/CHANGELOG.md")
 CHANGELOG_PATH = ROOT_DIR / CHANGELOG_REL_PATH
 
@@ -259,10 +262,12 @@ def rewrite_module_for_release(module: ModuleConfig, version: str):
 
 
 def sync_examples_internal_deps(version: str):
-    """Keep examples internal Selene deps on the current release version."""
-    manifest_text = EXAMPLES_MANIFEST_PATH.read_text(encoding="utf-8")
-    manifest_text = rewrite_moon_mod_internal_imports(manifest_text, version)
-    EXAMPLES_MANIFEST_PATH.write_text(manifest_text, encoding="utf-8")
+    """Keep example modules' internal Selene deps on the current release version."""
+    for module_dir in EXAMPLE_MODULE_DIRS:
+        manifest_path = module_dir / "moon.mod"
+        manifest_text = manifest_path.read_text(encoding="utf-8")
+        manifest_text = rewrite_moon_mod_internal_imports(manifest_text, version)
+        manifest_path.write_text(manifest_text, encoding="utf-8")
 
 
 def rewrite_moon_mod_internal_imports(manifest_text: str, version: str) -> str:
@@ -305,7 +310,7 @@ def run_release_pipeline(version: str):
         rewrite_module_for_release(module, version)
         print(f"✓ Updated {module.name}/moon.mod")
     sync_examples_internal_deps(version)
-    print("✓ Updated examples/moon.mod internal deps")
+    print("✓ Updated example module moon.mod internal deps")
 
     print("\n[3/5] Running moon update after manifest rewrites...")
     for module in RELEASE_MODULES:
@@ -315,12 +320,13 @@ def run_release_pipeline(version: str):
             ROOT_DIR,
             fail_on_warning=True,
         )
-    print("==> moon update: examples")
-    run_cmd(
-        ["moon", "-C", str(EXAMPLES_DIR), "update"],
-        ROOT_DIR,
-        fail_on_warning=True,
-    )
+    for module_dir in EXAMPLE_MODULE_DIRS:
+        print(f"==> moon update: {module_dir.relative_to(ROOT_DIR)}")
+        run_cmd(
+            ["moon", "-C", str(module_dir), "update"],
+            ROOT_DIR,
+            fail_on_warning=True,
+        )
 
     print("\n[4/5] Publishing modules in order...")
     for idx, module_name in enumerate(PUBLISH_ORDER):
@@ -345,12 +351,13 @@ def run_release_pipeline(version: str):
             ROOT_DIR,
             fail_on_warning=True,
         )
-    print("==> moon update: examples")
-    run_cmd(
-        ["moon", "-C", str(EXAMPLES_DIR), "update"],
-        ROOT_DIR,
-        fail_on_warning=True,
-    )
+    for module_dir in EXAMPLE_MODULE_DIRS:
+        print(f"==> moon update: {module_dir.relative_to(ROOT_DIR)}")
+        run_cmd(
+            ["moon", "-C", str(module_dir), "update"],
+            ROOT_DIR,
+            fail_on_warning=True,
+        )
 
     print("\n" + "=" * 60)
     print(f"✓ Release publish pipeline completed for {version}")

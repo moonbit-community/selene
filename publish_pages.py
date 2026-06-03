@@ -13,7 +13,9 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).parent
 PAGE_DIR = ROOT_DIR / "page"
 EXAMPLES_DIR = ROOT_DIR / "examples"
+EXAMPLES_WEB_DIR = ROOT_DIR / "examples-web"
 BUILD_DIR = ROOT_DIR / "_build" / "js" / "release" / "build"
+WEB_MODULE_BUILD_DIR = BUILD_DIR / "Milky2018" / "selene-examples-web"
 
 SCRIPT_SRC_RE = re.compile(
     r'<script[^>]+src=["\']([^"\']+\.js)["\']',
@@ -68,7 +70,7 @@ def ensure_no_legacy_ui_references():
 
 
 def get_game_folders() -> list[str]:
-    """Automatically detect game folders from examples/<game>/web."""
+    """Automatically detect games with static pages and web wrapper packages."""
     if not EXAMPLES_DIR.exists():
         return []
 
@@ -78,7 +80,7 @@ def get_game_folders() -> list[str]:
             continue
         if item.name.startswith(".") or item.name in {"_build", "target"}:
             continue
-        if not (item / "web" / "moon.pkg").exists():
+        if not (EXAMPLES_WEB_DIR / item.name / "web" / "moon.pkg").exists():
             continue
         if not (item / "index.html").exists():
             continue
@@ -91,7 +93,7 @@ def ensure_web_release_built(games: list[str]):
     """Ensure release JS artifacts exist before publishing pages."""
     missing: list[str] = []
     for game in games:
-        js_path = BUILD_DIR / "Milky2018" / "selene-examples" / game / "web" / "web.js"
+        js_path = WEB_MODULE_BUILD_DIR / game / "web" / "web.js"
         if not js_path.exists():
             missing.append(f"- {game}: {js_path.relative_to(ROOT_DIR)}")
 
@@ -103,8 +105,8 @@ def ensure_web_release_built(games: list[str]):
         "Missing web release build artifacts:\n"
         f"{details}\n"
         "Run one of:\n"
-        "  (cd examples && moon build --release)\n"
-        "  (cd examples && moon build ./<game>/web --target js --release)"
+        "  (cd examples-web && moon build --release)\n"
+        "  (cd examples-web && moon build ./<game>/web --target js --release)"
     )
 
 
@@ -186,11 +188,11 @@ def generate_asset_manifest(assets_dir: Path):
 def copy_game_files(game_name: str):
     """Copy all files for a specific game."""
     game_src_dir = EXAMPLES_DIR / game_name
-    game_web_dir = game_src_dir / "web"
+    game_web_dir = EXAMPLES_WEB_DIR / game_name / "web"
     game_page_dir = PAGE_DIR / "examples" / game_name
 
     if not game_web_dir.exists():
-        print(f"⚠ Warning: {game_name} missing examples/{game_name}/web, skipping")
+        print(f"⚠ Warning: {game_name} missing examples-web/{game_name}/web, skipping")
         return
 
     game_page_dir.mkdir(parents=True, exist_ok=True)
@@ -299,8 +301,8 @@ def copy_compiled_javascript(game_name: str, index_html: Path, game_page_dir: Pa
 
     fallback_sources = [
         (
-            BUILD_DIR / "Milky2018" / "selene-examples" / game_name / "web" / "web.js",
-            PAGE_DIR / "_build" / "js" / "release" / "build" / "Milky2018" / "selene-examples" / game_name / "web" / "web.js",
+            WEB_MODULE_BUILD_DIR / game_name / "web" / "web.js",
+            PAGE_DIR / "_build" / "js" / "release" / "build" / "Milky2018" / "selene-examples-web" / game_name / "web" / "web.js",
         ),
     ]
 

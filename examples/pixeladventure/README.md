@@ -5,8 +5,8 @@ A small Selene example built around scene documents, atlases, animation clips/gr
 ## Run
 
 ```bash
+moon -C examples-web build ./pixeladventure/web --target js --release
 cd examples
-moon build ./pixeladventure/web --target js --release
 python3 -m http.server 8000
 ```
 

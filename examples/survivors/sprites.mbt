@@ -15,7 +15,7 @@
 ///|
 priv struct SpriteAnimationDef {
   name : String
-  image : @asset.ImageHandle
+  image_path : String
   layout : @sprite.TextureAtlasLayoutHandle
   fps : Double
   loop_ : Bool
@@ -40,7 +40,7 @@ fn atlas_animation(
 ) -> SpriteAnimationDef {
   {
     name: path,
-    image: @asset.load_image(path),
+    image_path: path,
     layout: @sprite.register_texture_atlas_layout(
       @sprite.TextureAtlasLayout::from_grid(
         size,
@@ -62,7 +62,7 @@ fn atlas_animation(
 ///|
 fn sprite_animation_sprite(animation : SpriteAnimationDef) -> @sprite.Sprite {
   @sprite.Sprite(
-    image=Some(animation.image),
+    image=Some(@asset.load_image(animation.image_path)),
     texture_atlas=Some(@sprite.TextureAtlas(animation.layout)),
     custom_size=Some(animation.size),
     anchor=animation.anchor,

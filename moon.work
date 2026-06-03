@@ -7,4 +7,6 @@ members = [
   "./selene-editor-service",
   "./selene-editor-specs",
   "./examples",
+  "./examples-web",
+  "./examples-native",
 ]

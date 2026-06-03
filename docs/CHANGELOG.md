@@ -3,10 +3,16 @@
 ## [Unreleased]
 
 ### Added
+- Added a native raylib launcher for the `tank3d` example.
+- Added separate `examples-web` and `examples-native` workspace modules for backend-specific example wrappers.
+- Added native raylib launchers for `cards`, `pixeladventure`, `scene3d`, and `survivors`.
 
 ### Changed
+- Changed example builds so shared example logic, WebGPU wrappers, and raylib wrappers live in separate MoonBit modules with their own target constraints.
+- Changed the `tank3d` example asset path to the standard `assets/tank3d/...` layout shared by web and native runs.
 
 ### Fixed
+- Fixed the `tank3d` example native run so the GLB asset is found from both the `examples` and `examples/tank3d` working directories.
 
 ### Removed
 

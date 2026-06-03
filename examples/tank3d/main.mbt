@@ -19,7 +19,7 @@ const VIEWPORT_WIDTH : Double = 960.0
 const VIEWPORT_HEIGHT : Double = 640.0
 
 ///|
-const TANK_SCENE_PATH : String = "assets/tank_1_green.glb"
+const TANK_SCENE_PATH : String = "assets/tank3d/tank_1_green.glb"
 
 ///|
 const TANK_SCALE : Double = 1.35
@@ -57,7 +57,7 @@ fn tank_basis_rotation() -> @math.Quat {
 }
 
 ///|
-pub fn run() -> Unit {
+pub fn app() -> @app.App {
   @app.App()
   .with_viewport_width(VIEWPORT_WIDTH)
   .with_viewport_height(VIEWPORT_HEIGHT)
@@ -66,7 +66,11 @@ pub fn run() -> Unit {
   .add_plugin(@plugins.default_3d_plugin)
   .add_system(Startup, setup_tank3d)
   .add_system(Update, rotate_tank_system)
-  .run()
+}
+
+///|
+pub fn run() -> Unit {
+  app().run()
 }
 
 ///|

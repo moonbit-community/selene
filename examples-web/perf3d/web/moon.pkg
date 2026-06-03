@@ -1,5 +1,5 @@
 import {
-  "Milky2018/selene-examples/perf3d",
+  "Milky2018/selene-examples-web/perf3d",
 }
 
 supported_targets = "js"

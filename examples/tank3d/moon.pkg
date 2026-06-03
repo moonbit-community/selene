@@ -13,4 +13,4 @@ import {
   "moonbitlang/core/math" @cmath,
 }
 
-supported_targets = "js"
+supported_targets = "all"

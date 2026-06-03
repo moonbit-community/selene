@@ -28,9 +28,9 @@ git clone https://github.com/moonbit-community/selene.git
 Enter the examples directory and build the web sample:
 
 ```shell
-cd examples
 moon update
-moon build ./pixeladventure/web --target js --release
+moon -C examples-web build ./pixeladventure/web --target js --release
+cd examples
 ```
 
 Run with any web server, for example Python:
@@ -127,7 +127,7 @@ import {
 }
 ```
 
-Web wrapper example (`examples/pixeladventure/web/moon.pkg`):
+Web wrapper example (`examples-web/pixeladventure/web/moon.pkg`):
 
 ```moonbit
 import {
@@ -448,14 +448,13 @@ fn volume_button_input_system(_world : @ecs.World) -> Unit {
 Build command:
 
 ```shell
-cd examples
-moon build ./pixeladventure/web --target js --release
+moon -C examples-web build ./pixeladventure/web --target js --release
 ```
 
 Then use `examples/pixeladventure/index.html`, which references:
 
 ```html
-<script src="../../_build/js/release/build/Milky2018/selene-examples/pixeladventure/web/web.js" defer></script>
+<script src="../../_build/js/release/build/Milky2018/selene-examples-web/pixeladventure/web/web.js" defer></script>
 ```
 
 Run local server:
