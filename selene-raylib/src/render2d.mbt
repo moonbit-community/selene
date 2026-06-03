@@ -162,6 +162,39 @@ fn transform_is_identity_2d(transform : @smath.Transform) -> Bool {
 }
 
 ///|
+fn bind_solid_color_texture() -> Unit {
+  @rl.set_texture(@raylib.get_texture_id(get_white_texture()))
+}
+
+///|
+fn tuple_to_ray_vector2(point : (Float, Float)) -> @raylib.Vector2 {
+  @raylib.Vector2::new(point.0, point.1)
+}
+
+///|
+fn draw_solid_quad(
+  p0 : (Float, Float),
+  p1 : (Float, Float),
+  p2 : (Float, Float),
+  p3 : (Float, Float),
+  color : @render.Color,
+) -> Unit {
+  let ray_color = to_ray_color(color)
+  @raylib.draw_triangle(
+    tuple_to_ray_vector2(p0),
+    tuple_to_ray_vector2(p3),
+    tuple_to_ray_vector2(p2),
+    ray_color,
+  )
+  @raylib.draw_triangle(
+    tuple_to_ray_vector2(p0),
+    tuple_to_ray_vector2(p2),
+    tuple_to_ray_vector2(p1),
+    ray_color,
+  )
+}
+
+///|
 fn draw_colored_quad(
   p0 : (Float, Float),
   p1 : (Float, Float),
@@ -173,21 +206,25 @@ fn draw_colored_quad(
   c3 : @render.Color,
 ) -> Unit {
   ignore(@rl.check_render_batch_limit(4))
-  @rl.set_texture(0U)
+  bind_solid_color_texture()
   @rl.begin(@rl.Quads)
   @rl.normal3f(0.0, 0.0, 1.0)
   let (r0, g0, b0, a0) = to_ray_color_bytes(c0)
   @rl.color4ub(r0, g0, b0, a0)
+  @rl.tex_coord2f(0.0, 0.0)
   @rl.vertex2f(p0.0, p0.1)
-  let (r1, g1, b1, a1) = to_ray_color_bytes(c1)
-  @rl.color4ub(r1, g1, b1, a1)
-  @rl.vertex2f(p1.0, p1.1)
-  let (r2, g2, b2, a2) = to_ray_color_bytes(c2)
-  @rl.color4ub(r2, g2, b2, a2)
-  @rl.vertex2f(p2.0, p2.1)
   let (r3, g3, b3, a3) = to_ray_color_bytes(c3)
   @rl.color4ub(r3, g3, b3, a3)
+  @rl.tex_coord2f(0.0, 1.0)
   @rl.vertex2f(p3.0, p3.1)
+  let (r2, g2, b2, a2) = to_ray_color_bytes(c2)
+  @rl.color4ub(r2, g2, b2, a2)
+  @rl.tex_coord2f(1.0, 1.0)
+  @rl.vertex2f(p2.0, p2.1)
+  let (r1, g1, b1, a1) = to_ray_color_bytes(c1)
+  @rl.color4ub(r1, g1, b1, a1)
+  @rl.tex_coord2f(1.0, 0.0)
+  @rl.vertex2f(p1.0, p1.1)
   @rl.end_()
 }
 
@@ -199,18 +236,16 @@ fn draw_line_loop(
   if points.length() < 2 {
     return
   }
-  let (r, g, b, a) = to_ray_color_bytes(color)
-  ignore(@rl.check_render_batch_limit(points.length() * 2))
-  @rl.set_texture(0U)
-  @rl.begin(@rl.Lines)
-  @rl.color4ub(r, g, b, a)
+  let ray_color = to_ray_color(color)
   for index in 0..<points.length() {
     let current = points[index]
     let next = points[(index + 1) % points.length()]
-    @rl.vertex2f(current.0, current.1)
-    @rl.vertex2f(next.0, next.1)
+    @raylib.draw_line_v(
+      tuple_to_ray_vector2(current),
+      tuple_to_ray_vector2(next),
+      ray_color,
+    )
   }
-  @rl.end_()
 }
 
 ///|
@@ -382,16 +417,7 @@ pub fn draw_rect(command : @render2d_types.RectDrawCommand2D) -> Unit {
         0.0,
         command.rect.size[Y],
       )
-      draw_colored_quad(
-        p0,
-        p1,
-        p2,
-        p3,
-        command.fill_color,
-        command.fill_color,
-        command.fill_color,
-        command.fill_color,
-      )
+      draw_solid_quad(p0, p1, p2, p3, command.fill_color)
       if command.stroke_color is Some(stroke_color) {
         draw_line_loop([p0, p1, p2, p3], stroke_color)
       }
@@ -424,19 +450,10 @@ pub fn draw_circle(command : @render2d_types.CircleDrawCommand2D) -> Unit {
       )
       let fill = command.fill_color
       let outline : Array[(Float, Float)] = []
+      let fan : Array[@raylib.Vector2] = [tuple_to_ray_vector2(center)]
       let segments = 40
-      ignore(@rl.check_render_batch_limit(segments * 3))
-      @rl.set_texture(0U)
-      @rl.begin(@rl.Triangles)
-      let (fr, fg, fb, fa) = to_ray_color_bytes(fill)
-      @rl.color4ub(fr, fg, fb, fa)
-      @rl.normal3f(0.0, 0.0, 1.0)
       for index in 0..<segments {
         let angle0 = index.to_double() * 2.0 * @cmath.PI / segments.to_double()
-        let angle1 = (index + 1).to_double() *
-          2.0 *
-          @cmath.PI /
-          segments.to_double()
         let point0 = transform_image_point(
           command.center[X],
           command.center[Y],
@@ -444,19 +461,10 @@ pub fn draw_circle(command : @render2d_types.CircleDrawCommand2D) -> Unit {
           @cmath.cos(angle0) * command.radius,
           @cmath.sin(angle0) * command.radius,
         )
-        let point1 = transform_image_point(
-          command.center[X],
-          command.center[Y],
-          command.transform,
-          @cmath.cos(angle1) * command.radius,
-          @cmath.sin(angle1) * command.radius,
-        )
         outline.push(point0)
-        @rl.vertex2f(center.0, center.1)
-        @rl.vertex2f(point0.0, point0.1)
-        @rl.vertex2f(point1.0, point1.1)
+        fan.push(tuple_to_ray_vector2(point0))
       }
-      @rl.end_()
+      @raylib.draw_triangle_fan(fan, to_ray_color(fill))
       if command.stroke_color is Some(stroke_color) {
         draw_line_loop(outline, stroke_color)
       }
