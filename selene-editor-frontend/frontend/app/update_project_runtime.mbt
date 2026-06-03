@@ -119,13 +119,13 @@ fn update_project_runtime(
           "(unknown)"
         }
         let failed = match result {
-          Ok(_) => model.animation_migration_failed
-          Err(_) => model.animation_migration_failed + 1
+          AsyncOk(_) => model.animation_migration_failed
+          AsyncErr(_) => model.animation_migration_failed + 1
         }
         let completed = model.animation_migration_completed + 1
         let with_log = match result {
-          Ok(_) => model
-          Err(message) =>
+          AsyncOk(_) => model
+          AsyncErr(message) =>
             push_log(
               model,
               "Animation migration failed for \{current_path}: \{message}",
@@ -172,7 +172,7 @@ fn update_project_runtime(
       }
     SceneListLoaded(result) =>
       match result {
-        Ok(response) => {
+        AsyncOk(response) => {
           let manifest = model.manifest.map(fn(value) {
             value.with_startup_scene(response.startup_scene)
           })
@@ -199,14 +199,14 @@ fn update_project_runtime(
           }
           ([], next)
         }
-        Err(message) => {
+        AsyncErr(message) => {
           let next = push_log(model, "Scene list failed: " + message)
           ([], { ..next, status: "Scene list failed: " + message })
         }
       }
     AssetsLoaded(result) =>
       match result {
-        Ok(response) => {
+        AsyncOk(response) => {
           let selected_resource = match model.selected_resource {
             Some(selection) if resource_exists(
                 { ..model, assets: response.assets },
@@ -227,58 +227,58 @@ fn update_project_runtime(
             },
           )
         }
-        Err(message) => {
+        AsyncErr(message) => {
           let next = push_log(model, "Assets load failed: " + message)
           ([], { ..next, status: "Assets load failed: " + message })
         }
       }
     PrefabLoaded(result) =>
       match result {
-        Ok(response) => {
+        AsyncOk(response) => {
           let prefab_documents = model.prefab_documents
           prefab_documents.set(response.path, response.prefab)
           ([], { ..model, prefab_documents, })
         }
-        Err(message) => {
+        AsyncErr(message) => {
           let next = push_log(model, "Prefab load failed: " + message)
           ([], { ..next, status: "Prefab load failed: " + message })
         }
       }
     AtlasLoaded(result) =>
       match result {
-        Ok(response) => {
+        AsyncOk(response) => {
           let atlas_documents = model.atlas_documents
           atlas_documents.set(response.path, response.atlas)
           let next = { ..model, atlas_documents, }
           (sync_preview_effects_with_scene(next), next)
         }
-        Err(message) => {
+        AsyncErr(message) => {
           let next = push_log(model, "Atlas load failed: " + message)
           ([], { ..next, status: "Atlas load failed: " + message })
         }
       }
     AnimationClipLoaded(result) =>
       match result {
-        Ok(response) => {
+        AsyncOk(response) => {
           let animation_clip_documents = model.animation_clip_documents
           animation_clip_documents.set(response.path, response.clip)
           let next = { ..model, animation_clip_documents, }
           (sync_preview_effects_with_scene(next), next)
         }
-        Err(message) => {
+        AsyncErr(message) => {
           let next = push_log(model, "Animation clip load failed: " + message)
           ([], { ..next, status: "Animation clip load failed: " + message })
         }
       }
     AnimationGraphLoaded(result) =>
       match result {
-        Ok(response) => {
+        AsyncOk(response) => {
           let animation_graph_documents = model.animation_graph_documents
           animation_graph_documents.set(response.path, response.graph)
           let next = { ..model, animation_graph_documents, }
           (sync_preview_effects_with_scene(next), next)
         }
-        Err(message) => {
+        AsyncErr(message) => {
           let next = push_log(model, "Animation graph load failed: " + message)
           ([], { ..next, status: "Animation graph load failed: " + message })
         }
@@ -397,8 +397,8 @@ fn update_project_runtime(
       }
     WorkspaceSaved(result) =>
       match result {
-        Ok(_) => ([], model)
-        Err(message) => {
+        AsyncOk(_) => ([], model)
+        AsyncErr(message) => {
           let next = push_log(model, "Workspace save failed: " + message)
           (
             [],
@@ -411,8 +411,8 @@ fn update_project_runtime(
       }
     RpcAck(result) =>
       match result {
-        Ok(_) => ([], model)
-        Err(message) => {
+        AsyncOk(_) => ([], model)
+        AsyncErr(message) => {
           let next = push_log(model, "Request failed: " + message)
           ([], { ..next, status: "Request failed: " + message })
         }

@@ -438,18 +438,21 @@ fn subscribe_events_cmd(dispatch : @rabbita.Dispatch[@app.Msg]) -> @rabbita.Cmd 
       fn(data) {
         let result = try {
           let event : @shared.EventEnvelope = @json.from_json(@json.parse(data))
-          Ok(event.event)
+          @app.AsyncOk(event.event)
         } catch {
           err => {
             console_error("SSE decode failed: " + err.to_string())
-            Err("Invalid event payload")
+            @app.AsyncErr("Invalid event payload")
           }
         }
         schedule_cmd(scheduler, dispatch(@app.msg_service_event(result)))
       },
       fn(message) {
         console_error("SSE stream failed: " + message)
-        schedule_cmd(scheduler, dispatch(@app.msg_service_event(Err(message))))
+        schedule_cmd(
+          scheduler,
+          dispatch(@app.msg_service_event(@app.AsyncErr(message))),
+        )
       },
     )
   })

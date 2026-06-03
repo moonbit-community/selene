@@ -299,10 +299,7 @@ fn parse_glb_source(bytes : Bytes) -> GltfSource? {
       GLB_CHUNK_TYPE_JSON =>
         if json_document is None {
           let chunk_text = @utf8.decode(chunk_bytes) catch { _ => return None }
-          let parsed : Result[Json, @json.ParseError] = try? @json.parse(
-            chunk_text,
-          )
-          guard parsed is Ok(document) else { return None }
+          let document = @json.parse(chunk_text) catch { _ => return None }
           json_document = Some(document)
         }
       GLB_CHUNK_TYPE_BIN => glb_buffers.push(Some(chunk_bytes))
@@ -337,11 +334,8 @@ fn parse_gltf_source(bytes : Bytes) -> GltfSource? {
     return parse_glb_source(bytes)
   }
   let source = @utf8.decode(bytes) catch { _ => return None }
-  let parsed : Result[Json, @json.ParseError] = try? @json.parse(source)
-  match parsed {
-    Ok(document) => Some({ document, glb_buffers: [] })
-    Err(_) => None
-  }
+  let document = @json.parse(source) catch { _ => return None }
+  Some({ document, glb_buffers: [] })
 }
 
 ///|

@@ -96,8 +96,7 @@ fn resolve_external_ldtk_level(
 
 ///|
 fn parse_ldtk_level_source(source : String) -> LdtkLevel? {
-  let parsed : Result[Json, @json.ParseError] = try? @json.parse(source.view())
-  guard parsed is Ok(root_json) else { return None }
+  let root_json = @json.parse(source.view()) catch { _ => return None }
   guard json_object(root_json) is Some(root_object) else { return None }
   Some(parse_ldtk_level(root_object))
 }
@@ -396,10 +395,8 @@ fn json_bool(value : Json) -> Bool? {
 
 ///|
 fn[T : @json.FromJson] json_decode(value : Json) -> T? {
-  let parsed : Result[T, @json.JsonDecodeError] = try? @json.from_json(value)
-  match parsed {
-    Ok(output) => Some(output)
-    Err(_) => None
+  Some(@json.from_json(value)) catch {
+    _ => None
   }
 }
 

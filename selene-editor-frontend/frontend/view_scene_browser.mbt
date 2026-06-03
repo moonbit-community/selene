@@ -135,13 +135,7 @@ fn rpc_effect_cmd(
   dispatch : @rabbita.Dispatch[@app.Msg],
   binding : @app.RpcBinding,
 ) -> @rabbita.Cmd {
-  rpc_cmd(binding, fn(result) {
-    log_rpc_result_error(binding.scope(), result)
-    match result {
-      Ok(msg) => dispatch(msg)
-      Err(message) => dispatch(binding.transport_error_msg(message))
-    }
-  })
+  rpc_cmd(binding, dispatch)
 }
 
 ///|

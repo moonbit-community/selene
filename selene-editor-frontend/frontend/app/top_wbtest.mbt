@@ -64,7 +64,10 @@ test "project current without open project keeps editor in ready-empty state" {
     None,
     [],
   )
-  let (effects, next) = update(msg_project_loaded(Ok(response)), new_model())
+  let (effects, next) = update(
+    msg_project_loaded(AsyncOk(response)),
+    new_model(),
+  )
   inspect(effects.length(), content="0")
   inspect(next.status, content="Choose a project folder to begin")
   inspect(next.current_root is None, content="true")
@@ -89,7 +92,10 @@ test "project load restores workspace sidebar layout and asset scope" {
     Some(workspace),
     [],
   )
-  let (_effects, next) = update(msg_project_loaded(Ok(response)), new_model())
+  let (_effects, next) = update(
+    msg_project_loaded(AsyncOk(response)),
+    new_model(),
+  )
   inspect((next.sidebar_scene_ratio - 0.26).abs() < 0.0001, content="true")
   inspect((next.sidebar_assets_ratio - 0.44).abs() < 0.0001, content="true")
   inspect(next.workspace.asset_scope_or_default(), content="atlases")
@@ -198,7 +204,7 @@ test "scene save success clears dirty and updates base metadata" {
   let model = test_loaded_model(scene, true, "hash-before", 11)
   let (effects, next) = update(
     msg_scene_saved(
-      Ok(
+      AsyncOk(
         Saved(
           @shared.scene_save_result("scenes/main.scene.json", "hash-after", 12),
         ),
@@ -223,7 +229,7 @@ test "scene save conflict keeps local scene and records conflict state" {
   let model = test_loaded_model(scene, true, "hash-before", 11)
   let (effects, next) = update(
     msg_scene_saved(
-      Ok(
+      AsyncOk(
         Conflict(
           @shared.rpc_conflict_document(
             "scenes/main.scene.json", "hash-before", "hash-on-disk", 11, 13,
@@ -267,7 +273,7 @@ test "dirty scene does not reload when current scene file changes on disk" {
   let model = test_loaded_model(scene, true, "hash-before", 11)
   let (effects, next) = update(
     msg_service_event(
-      Ok(
+      AsyncOk(
         @shared.editor_event_project_delta(
           @shared.project_delta_scene_file_changed(
             "scenes/main.scene.json", "hash-disk", 15,
@@ -301,7 +307,7 @@ test "clean scene reloads automatically when current scene file changes on disk"
   let model = test_loaded_model(scene, false, "hash-before", 11)
   let (effects, next) = update(
     msg_service_event(
-      Ok(
+      AsyncOk(
         @shared.editor_event_project_delta(
           @shared.project_delta_scene_file_changed(
             "scenes/main.scene.json", "hash-disk", 15,
@@ -327,7 +333,7 @@ test "workspace delta never overwrites in-memory scene session" {
   let model = test_loaded_model(scene, true, "hash-before", 11)
   let (effects, next) = update(
     msg_service_event(
-      Ok(
+      AsyncOk(
         @shared.editor_event_project_delta(
           @shared.project_delta_workspace_changed(),
         ),
@@ -345,14 +351,14 @@ test "workspace delta never overwrites in-memory scene session" {
 ///|
 test "rpc ack keeps state on success and reports generic request failures" {
   let (success_effects, success_model) = update(
-    msg_rpc_ack(Ok(())),
+    msg_rpc_ack(AsyncOk(())),
     new_model(),
   )
   inspect(success_effects.length(), content="0")
   inspect(success_model.status, content="Choose a project folder to begin")
 
   let (error_effects, error_model) = update(
-    msg_rpc_ack(Err("boom")),
+    msg_rpc_ack(AsyncErr("boom")),
     new_model(),
   )
   inspect(error_effects.length(), content="0")

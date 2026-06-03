@@ -95,17 +95,23 @@ fn with_component_card_collapsed(
 }
 
 ///|
+priv suberror ComponentEditError {
+  ComponentEditFailed(String)
+}
+
+///|
 fn with_component_removed(
   model : Model,
   kind : String,
-) -> Result[Model, String] {
+) -> Model raise ComponentEditError {
   match model.selected_entity() {
     Some(entity) => {
       if entity.component(kind) is None {
-        return Err("\{kind} is not on this entity")
+        raise ComponentEditFailed("\{kind} is not on this entity")
       }
       match remove_component_block_reason_for_entity(entity, kind) {
-        Some(reason) => Err("Cannot remove \{kind}: \{reason}")
+        Some(reason) =>
+          raise ComponentEditFailed("Cannot remove \{kind}: \{reason}")
         None => {
           let next = update_selected_entity(model, fn(selected) {
             selected.without_component(kind)
@@ -117,7 +123,7 @@ fn with_component_removed(
           custom_component_json_drafts.remove(component_key) |> ignore
           let custom_component_json_errors = next.custom_component_json_errors
           custom_component_json_errors.remove(component_key) |> ignore
-          Ok({
+          {
             ..next,
             collapsed_component_cards,
             custom_component_json_drafts,
@@ -128,11 +134,11 @@ fn with_component_removed(
             } else {
               next.open_component_menu_kind
             },
-          })
+          }
         }
       }
     }
-    None => Err("Select an entity first")
+    None => raise ComponentEditFailed("Select an entity first")
   }
 }
 
@@ -169,15 +175,17 @@ fn with_builtin_component_added(
 }
 
 ///|
-fn validated_custom_component_kind(raw_kind : String) -> Result[String, String] {
+fn validated_custom_component_kind(
+  raw_kind : String,
+) -> String raise ComponentEditError {
   let kind = raw_kind.trim().to_owned()
   if kind == "" {
-    return Err("Component kind is required")
+    raise ComponentEditFailed("Component kind is required")
   }
   if @editor_bridge.builtin_component_kind_from_string(kind) is Some(_) {
-    return Err("Custom kind conflicts with a built-in component")
+    raise ComponentEditFailed("Custom kind conflicts with a built-in component")
   }
-  Ok(kind)
+  kind
 }
 
 ///|

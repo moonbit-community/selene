@@ -25,15 +25,19 @@ pub fn validation_error(path : String, message : String) -> ValidationError {
 }
 
 ///|
+pub suberror ComponentPayloadValidationError {
+  ComponentPayloadInvalid(Array[ValidationError])
+}
+
+///|
 fn[T : @json.FromJson] decoded_component_payload(
   component : ComponentDocument,
   path : String,
   invalid_message : String,
-) -> Result[T, Array[ValidationError]] {
-  let decoded : Result[T, Error] = try? @json.from_json(component.data)
-  match decoded {
-    Ok(value) => Ok(value)
-    Err(_) => Err([validation_error(path, invalid_message)])
+) -> T raise ComponentPayloadValidationError {
+  @json.from_json(component.data) catch {
+    _ =>
+      raise ComponentPayloadInvalid([validation_error(path, invalid_message)])
   }
 }
 
@@ -179,450 +183,409 @@ fn validate_builtin_component(
 ) -> Array[ValidationError] {
   match builtin_component_kind_from_string(component.kind) {
     Some(Name) => {
-      let decoded : Result[NameComponent, Array[ValidationError]] = decoded_component_payload(
+      let data : NameComponent = decoded_component_payload(
         component, path, "Name component payload is invalid",
-      )
-      match decoded {
-        Ok(data) =>
-          if data.value.trim() == "" {
-            [
-              validation_error(
-                path + ".value",
-                "Name component value must not be empty",
-              ),
-            ]
-          } else {
-            []
-          }
-        Err(errors) => errors
+      ) catch {
+        ComponentPayloadInvalid(errors) => return errors
+      }
+      if data.value.trim() == "" {
+        [
+          validation_error(
+            path + ".value",
+            "Name component value must not be empty",
+          ),
+        ]
+      } else {
+        []
       }
     }
     Some(Transform2d) => {
-      let decoded : Result[Transform2dComponent, Array[ValidationError]] = decoded_component_payload(
+      let data : Transform2dComponent = decoded_component_payload(
         component, path, "Transform2d component payload is invalid",
-      )
-      match decoded {
-        Ok(data) =>
-          validate_positive_vec2_doc(
-            data.scale,
-            path + ".scale",
-            "Transform2d scale must be positive",
-          )
-        Err(errors) => errors
+      ) catch {
+        ComponentPayloadInvalid(errors) => return errors
       }
+      validate_positive_vec2_doc(
+        data.scale,
+        path + ".scale",
+        "Transform2d scale must be positive",
+      )
     }
     Some(Visibility) => {
-      let decoded : Result[VisibilityComponent, Array[ValidationError]] = decoded_component_payload(
+      let _data : VisibilityComponent = decoded_component_payload(
         component, path, "Visibility component payload is invalid",
-      )
-      match decoded {
-        Ok(_) => []
-        Err(errors) => errors
+      ) catch {
+        ComponentPayloadInvalid(errors) => return errors
       }
+      []
     }
     Some(Sprite) => {
-      let decoded : Result[SpriteComponent, Array[ValidationError]] = decoded_component_payload(
+      let data : SpriteComponent = decoded_component_payload(
         component, path, "Sprite component payload is invalid",
-      )
-      match decoded {
-        Ok(data) => {
-          let errors = validate_color_doc(data.color, path + ".color") +
-            validate_optional_positive_vec2_doc(
-              data.custom_size,
-              path + ".custom_size",
-              "Sprite custom size must be positive when present",
-            ) +
-            validate_optional_rect_doc(
-              data.rect,
-              path + ".rect",
-              "Sprite source rect size must be positive when present",
-            )
-          let next = errors
-          match data.image_path {
-            Some(image_path) =>
-              if image_path.trim() == "" {
-                next.push(
-                  validation_error(
-                    path + ".image_path",
-                    "Sprite image path must not be empty when present",
-                  ),
-                )
-              }
-            None =>
-              if !component_kinds.contains("TextureAtlas") {
-                next.push(
-                  validation_error(
-                    path + ".image_path",
-                    "Sprite must provide an image path or pair with TextureAtlas",
-                  ),
-                )
-              }
-          }
-          next
-        }
-        Err(errors) => errors
+      ) catch {
+        ComponentPayloadInvalid(errors) => return errors
       }
+      let errors = validate_color_doc(data.color, path + ".color") +
+        validate_optional_positive_vec2_doc(
+          data.custom_size,
+          path + ".custom_size",
+          "Sprite custom size must be positive when present",
+        ) +
+        validate_optional_rect_doc(
+          data.rect,
+          path + ".rect",
+          "Sprite source rect size must be positive when present",
+        )
+      let next = errors
+      match data.image_path {
+        Some(image_path) =>
+          if image_path.trim() == "" {
+            next.push(
+              validation_error(
+                path + ".image_path",
+                "Sprite image path must not be empty when present",
+              ),
+            )
+          }
+        None =>
+          if !component_kinds.contains("TextureAtlas") {
+            next.push(
+              validation_error(
+                path + ".image_path",
+                "Sprite must provide an image path or pair with TextureAtlas",
+              ),
+            )
+          }
+      }
+      next
     }
     Some(TextureAtlas) => {
-      let decoded : Result[TextureAtlasComponent, Array[ValidationError]] = decoded_component_payload(
+      let data : TextureAtlasComponent = decoded_component_payload(
         component, path, "TextureAtlas component payload is invalid",
-      )
-      match decoded {
-        Ok(data) => {
-          let errors : Array[ValidationError] = []
-          match data.atlas_asset_path {
-            Some(atlas_path) =>
-              if atlas_path.trim() == "" {
-                errors.push(
-                  validation_error(
-                    path + ".atlas_asset_path",
-                    "TextureAtlas atlas asset path must not be empty when present",
-                  ),
-                )
-              } else if !atlas_path.has_suffix(".atlas.json") {
-                errors.push(
-                  validation_error(
-                    path + ".atlas_asset_path",
-                    "TextureAtlas atlas asset path must point to a .atlas.json file",
-                  ),
-                )
-              }
-            None => ()
-          }
-          match data.region_name {
-            Some(region_name) =>
-              if region_name.trim() == "" {
-                errors.push(
-                  validation_error(
-                    path + ".region_name",
-                    "TextureAtlas region name must not be empty when present",
-                  ),
-                )
-              }
-            None => ()
-          }
-          if data.index < 0 {
-            errors.push(
-              validation_error(
-                path + ".index",
-                "TextureAtlas index must be non-negative",
-              ),
-            )
-          }
-          if data.atlas_asset_path is None && data.layout is None {
-            errors.push(
-              validation_error(
-                path, "TextureAtlas must provide atlas_asset_path or inline layout",
-              ),
-            )
-          }
-          match data.layout {
-            Some(layout) =>
-              for
-                error in validate_texture_atlas_layout_doc(
-                  layout,
-                  path + ".layout",
-                ) {
-                errors.push(error)
-              }
-            None => ()
-          }
-          errors
-        }
-        Err(errors) => errors
+      ) catch {
+        ComponentPayloadInvalid(errors) => return errors
       }
+      let errors : Array[ValidationError] = []
+      match data.atlas_asset_path {
+        Some(atlas_path) =>
+          if atlas_path.trim() == "" {
+            errors.push(
+              validation_error(
+                path + ".atlas_asset_path",
+                "TextureAtlas atlas asset path must not be empty when present",
+              ),
+            )
+          } else if !atlas_path.has_suffix(".atlas.json") {
+            errors.push(
+              validation_error(
+                path + ".atlas_asset_path",
+                "TextureAtlas atlas asset path must point to a .atlas.json file",
+              ),
+            )
+          }
+        None => ()
+      }
+      match data.region_name {
+        Some(region_name) =>
+          if region_name.trim() == "" {
+            errors.push(
+              validation_error(
+                path + ".region_name",
+                "TextureAtlas region name must not be empty when present",
+              ),
+            )
+          }
+        None => ()
+      }
+      if data.index < 0 {
+        errors.push(
+          validation_error(
+            path + ".index",
+            "TextureAtlas index must be non-negative",
+          ),
+        )
+      }
+      if data.atlas_asset_path is None && data.layout is None {
+        errors.push(
+          validation_error(
+            path, "TextureAtlas must provide atlas_asset_path or inline layout",
+          ),
+        )
+      }
+      match data.layout {
+        Some(layout) =>
+          for
+            error in validate_texture_atlas_layout_doc(layout, path + ".layout") {
+            errors.push(error)
+          }
+        None => ()
+      }
+      errors
     }
     Some(AutoTileLayer2d) => validate_autotile_component(component, path)
     Some(Text2d) => {
-      let decoded : Result[Text2dComponent, Array[ValidationError]] = decoded_component_payload(
+      let data : Text2dComponent = decoded_component_payload(
         component, path, "Text2d component payload is invalid",
-      )
-      match decoded {
-        Ok(data) => {
-          let errors = validate_color_doc(data.color, path + ".color") +
-            validate_optional_positive_vec2_doc(
-              data.bounds,
-              path + ".bounds",
-              "Text2d bounds must be positive when present",
-            )
-          let next = errors
-          if data.font_size <= 0.0 {
+      ) catch {
+        ComponentPayloadInvalid(errors) => return errors
+      }
+      let errors = validate_color_doc(data.color, path + ".color") +
+        validate_optional_positive_vec2_doc(
+          data.bounds,
+          path + ".bounds",
+          "Text2d bounds must be positive when present",
+        )
+      let next = errors
+      if data.font_size <= 0.0 {
+        next.push(
+          validation_error(
+            path + ".font_size",
+            "Text2d font size must be positive",
+          ),
+        )
+      }
+      match data.font_path {
+        Some(font_path) =>
+          if font_path.trim() == "" {
             next.push(
               validation_error(
-                path + ".font_size",
-                "Text2d font size must be positive",
+                path + ".font_path",
+                "Text2d font path must not be empty when present",
               ),
             )
           }
-          match data.font_path {
-            Some(font_path) =>
-              if font_path.trim() == "" {
-                next.push(
-                  validation_error(
-                    path + ".font_path",
-                    "Text2d font path must not be empty when present",
-                  ),
-                )
-              }
-            None => ()
-          }
-          next
-        }
-        Err(errors) => errors
+        None => ()
       }
+      next
     }
     Some(Mesh2d) => {
-      let decoded : Result[Mesh2dComponent, Array[ValidationError]] = decoded_component_payload(
+      let data : Mesh2dComponent = decoded_component_payload(
         component, path, "Mesh2d component payload is invalid",
+      ) catch {
+        ComponentPayloadInvalid(errors) => return errors
+      }
+      let errors = validate_optional_positive_vec2_doc(
+        data.size,
+        path + ".size",
+        "Mesh2d size must be positive when present",
       )
-      match decoded {
-        Ok(data) => {
-          let errors = validate_optional_positive_vec2_doc(
-            data.size,
-            path + ".size",
-            "Mesh2d size must be positive when present",
-          )
-          let next = errors
-          if data.primitive != "rectangle" && data.primitive != "circle" {
+      let next = errors
+      if data.primitive != "rectangle" && data.primitive != "circle" {
+        next.push(
+          validation_error(
+            path + ".primitive",
+            "Mesh2d primitive must be rectangle or circle",
+          ),
+        )
+      }
+      match data.radius {
+        Some(radius) =>
+          if radius <= 0.0 {
             next.push(
               validation_error(
-                path + ".primitive",
-                "Mesh2d primitive must be rectangle or circle",
+                path + ".radius",
+                "Mesh2d radius must be positive when present",
               ),
             )
           }
-          match data.radius {
-            Some(radius) =>
-              if radius <= 0.0 {
-                next.push(
-                  validation_error(
-                    path + ".radius",
-                    "Mesh2d radius must be positive when present",
-                  ),
-                )
-              }
-            None => ()
-          }
-          next
-        }
-        Err(errors) => errors
+        None => ()
       }
+      next
     }
     Some(ColorMaterial) => {
-      let decoded : Result[ColorMaterialComponent, Array[ValidationError]] = decoded_component_payload(
+      let data : ColorMaterialComponent = decoded_component_payload(
         component, path, "ColorMaterial component payload is invalid",
-      )
-      match decoded {
-        Ok(data) => validate_color_doc(data.color, path + ".color")
-        Err(errors) => errors
+      ) catch {
+        ComponentPayloadInvalid(errors) => return errors
       }
+      validate_color_doc(data.color, path + ".color")
     }
     Some(Camera2d) => {
-      let decoded : Result[Camera2dComponent, Array[ValidationError]] = decoded_component_payload(
+      let data : Camera2dComponent = decoded_component_payload(
         component, path, "Camera2d component payload is invalid",
-      )
-      match decoded {
-        Ok(data) => {
-          let errors = validate_optional_rect_doc(
-            data.viewport,
-            path + ".viewport",
-            "Camera2d viewport size must be positive when present",
-          )
-          let next = errors
-          if data.scale <= 0.0 {
-            next.push(
-              validation_error(
-                path + ".scale",
-                "Camera2d scale must be positive",
-              ),
-            )
-          }
-          next
-        }
-        Err(errors) => errors
+      ) catch {
+        ComponentPayloadInvalid(errors) => return errors
       }
+      let errors = validate_optional_rect_doc(
+        data.viewport,
+        path + ".viewport",
+        "Camera2d viewport size must be positive when present",
+      )
+      let next = errors
+      if data.scale <= 0.0 {
+        next.push(
+          validation_error(path + ".scale", "Camera2d scale must be positive"),
+        )
+      }
+      next
     }
     Some(PhysicsBody2d) => {
-      let decoded : Result[PhysicsBody2dComponent, Array[ValidationError]] = decoded_component_payload(
+      let data : PhysicsBody2dComponent = decoded_component_payload(
         component, path, "PhysicsBody2d component payload is invalid",
-      )
-      match decoded {
-        Ok(data) => {
-          let errors : Array[ValidationError] = []
-          let body_type = data.body_type.to_lower()
-          if body_type != "dynamic" &&
-            body_type != "fixed" &&
-            body_type != "kinematic_position_based" &&
-            body_type != "kinematic_velocity_based" {
-            errors.push(
-              validation_error(
-                path + ".body_type",
-                "PhysicsBody2d body_type is not supported",
-              ),
-            )
-          }
-          if data.linear_damping < 0.0 {
-            errors.push(
-              validation_error(
-                path + ".linear_damping",
-                "PhysicsBody2d linear damping must be non-negative",
-              ),
-            )
-          }
-          if data.angular_damping < 0.0 {
-            errors.push(
-              validation_error(
-                path + ".angular_damping",
-                "PhysicsBody2d angular damping must be non-negative",
-              ),
-            )
-          }
-          errors
-        }
-        Err(errors) => errors
+      ) catch {
+        ComponentPayloadInvalid(errors) => return errors
       }
+      let errors : Array[ValidationError] = []
+      let body_type = data.body_type.to_lower()
+      if body_type != "dynamic" &&
+        body_type != "fixed" &&
+        body_type != "kinematic_position_based" &&
+        body_type != "kinematic_velocity_based" {
+        errors.push(
+          validation_error(
+            path + ".body_type",
+            "PhysicsBody2d body_type is not supported",
+          ),
+        )
+      }
+      if data.linear_damping < 0.0 {
+        errors.push(
+          validation_error(
+            path + ".linear_damping",
+            "PhysicsBody2d linear damping must be non-negative",
+          ),
+        )
+      }
+      if data.angular_damping < 0.0 {
+        errors.push(
+          validation_error(
+            path + ".angular_damping",
+            "PhysicsBody2d angular damping must be non-negative",
+          ),
+        )
+      }
+      errors
     }
     Some(PhysicsCollider2d) => {
-      let decoded : Result[PhysicsCollider2dComponent, Array[ValidationError]] = decoded_component_payload(
+      let data : PhysicsCollider2dComponent = decoded_component_payload(
         component, path, "PhysicsCollider2d component payload is invalid",
-      )
-      match decoded {
-        Ok(data) => {
-          let errors = validate_optional_positive_vec2_doc(
-            data.size,
-            path + ".size",
-            "PhysicsCollider2d size must be positive when present",
-          )
-          let next = errors
-          let shape = data.shape.to_lower()
-          if shape != "rectangle" && shape != "circle" {
-            next.push(
-              validation_error(
-                path + ".shape",
-                "PhysicsCollider2d shape must be rectangle or circle",
-              ),
-            )
-          }
-          match data.radius {
-            Some(radius) =>
-              if radius <= 0.0 {
-                next.push(
-                  validation_error(
-                    path + ".radius",
-                    "PhysicsCollider2d radius must be positive when present",
-                  ),
-                )
-              }
-            None => ()
-          }
-          if data.friction < 0.0 {
-            next.push(
-              validation_error(
-                path + ".friction",
-                "PhysicsCollider2d friction must be non-negative",
-              ),
-            )
-          }
-          if data.restitution < 0.0 {
-            next.push(
-              validation_error(
-                path + ".restitution",
-                "PhysicsCollider2d restitution must be non-negative",
-              ),
-            )
-          }
-          next
-        }
-        Err(errors) => errors
+      ) catch {
+        ComponentPayloadInvalid(errors) => return errors
       }
+      let errors = validate_optional_positive_vec2_doc(
+        data.size,
+        path + ".size",
+        "PhysicsCollider2d size must be positive when present",
+      )
+      let next = errors
+      let shape = data.shape.to_lower()
+      if shape != "rectangle" && shape != "circle" {
+        next.push(
+          validation_error(
+            path + ".shape",
+            "PhysicsCollider2d shape must be rectangle or circle",
+          ),
+        )
+      }
+      match data.radius {
+        Some(radius) =>
+          if radius <= 0.0 {
+            next.push(
+              validation_error(
+                path + ".radius",
+                "PhysicsCollider2d radius must be positive when present",
+              ),
+            )
+          }
+        None => ()
+      }
+      if data.friction < 0.0 {
+        next.push(
+          validation_error(
+            path + ".friction",
+            "PhysicsCollider2d friction must be non-negative",
+          ),
+        )
+      }
+      if data.restitution < 0.0 {
+        next.push(
+          validation_error(
+            path + ".restitution",
+            "PhysicsCollider2d restitution must be non-negative",
+          ),
+        )
+      }
+      next
     }
     Some(AnimationPlayer) => {
-      let decoded : Result[AnimationPlayerComponent, Array[ValidationError]] = decoded_component_payload(
+      let data : AnimationPlayerComponent = decoded_component_payload(
         component, path, "AnimationPlayer component payload is invalid",
-      )
-      match decoded {
-        Ok(data) => {
-          let errors : Array[ValidationError] = []
-          match data.graph_asset_path {
-            Some(graph_path) =>
-              if graph_path.trim() == "" {
-                errors.push(
-                  validation_error(
-                    path + ".graph_asset_path",
-                    "AnimationPlayer graph asset path must not be empty when present",
-                  ),
-                )
-              } else if !graph_path.has_suffix(".graph.json") {
-                errors.push(
-                  validation_error(
-                    path + ".graph_asset_path",
-                    "AnimationPlayer graph asset path must point to a .graph.json file",
-                  ),
-                )
-              }
-            None => ()
-          }
-          match data.start_node {
-            Some(node_id) =>
-              if node_id.trim() == "" {
-                errors.push(
-                  validation_error(
-                    path + ".start_node",
-                    "AnimationPlayer start node must not be empty when present",
-                  ),
-                )
-              }
-            None => ()
-          }
-          if data.speed <= 0.0 {
-            errors.push(
-              validation_error(
-                path + ".speed",
-                "AnimationPlayer speed must be positive",
-              ),
-            )
-          }
-          if data.autoplay && data.graph_asset_path is None {
-            errors.push(
-              validation_error(
-                path + ".autoplay",
-                "AnimationPlayer autoplay requires graph_asset_path",
-              ),
-            )
-          }
-          if !valid_animation_repeat_mode_string(data.repeat_mode) {
-            errors.push(
-              validation_error(
-                path + ".repeat_mode",
-                "AnimationPlayer repeat mode must be never, forever, or count:n",
-              ),
-            )
-          }
-          errors
-        }
-        Err(errors) => errors
+      ) catch {
+        ComponentPayloadInvalid(errors) => return errors
       }
+      let errors : Array[ValidationError] = []
+      match data.graph_asset_path {
+        Some(graph_path) =>
+          if graph_path.trim() == "" {
+            errors.push(
+              validation_error(
+                path + ".graph_asset_path",
+                "AnimationPlayer graph asset path must not be empty when present",
+              ),
+            )
+          } else if !graph_path.has_suffix(".graph.json") {
+            errors.push(
+              validation_error(
+                path + ".graph_asset_path",
+                "AnimationPlayer graph asset path must point to a .graph.json file",
+              ),
+            )
+          }
+        None => ()
+      }
+      match data.start_node {
+        Some(node_id) =>
+          if node_id.trim() == "" {
+            errors.push(
+              validation_error(
+                path + ".start_node",
+                "AnimationPlayer start node must not be empty when present",
+              ),
+            )
+          }
+        None => ()
+      }
+      if data.speed <= 0.0 {
+        errors.push(
+          validation_error(
+            path + ".speed",
+            "AnimationPlayer speed must be positive",
+          ),
+        )
+      }
+      if data.autoplay && data.graph_asset_path is None {
+        errors.push(
+          validation_error(
+            path + ".autoplay",
+            "AnimationPlayer autoplay requires graph_asset_path",
+          ),
+        )
+      }
+      if !valid_animation_repeat_mode_string(data.repeat_mode) {
+        errors.push(
+          validation_error(
+            path + ".repeat_mode",
+            "AnimationPlayer repeat mode must be never, forever, or count:n",
+          ),
+        )
+      }
+      errors
     }
     Some(AnimationTransitions) => {
-      let decoded : Result[
-        AnimationTransitionsComponent,
-        Array[ValidationError],
-      ] = decoded_component_payload(
+      let data : AnimationTransitionsComponent = decoded_component_payload(
         component, path, "AnimationTransitions component payload is invalid",
-      )
-      match decoded {
-        Ok(data) =>
-          if data.duration < 0.0 {
-            [
-              validation_error(
-                path + ".duration",
-                "AnimationTransitions duration must be non-negative",
-              ),
-            ]
-          } else {
-            []
-          }
-        Err(errors) => errors
+      ) catch {
+        ComponentPayloadInvalid(errors) => return errors
+      }
+      if data.duration < 0.0 {
+        [
+          validation_error(
+            path + ".duration",
+            "AnimationTransitions duration must be non-negative",
+          ),
+        ]
+      } else {
+        []
       }
     }
     None => []
@@ -832,12 +795,8 @@ fn validate_autotile_component(
   path_prefix : String,
 ) -> Array[ValidationError] {
   let errors : Array[ValidationError] = []
-  let decoded : Result[AutoTileLayer2dComponent, Error] = try? @json.from_json(
-    component.data,
-  )
-  let data = match decoded {
-    Ok(value) => value
-    Err(_) => {
+  let data : AutoTileLayer2dComponent = @json.from_json(component.data) catch {
+    _ => {
       errors.push({
         path: path_prefix,
         message: "AutoTileLayer2d component payload is invalid",

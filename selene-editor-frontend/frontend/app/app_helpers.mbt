@@ -354,10 +354,11 @@ fn legacy_animation_paths_in_scene(
     guard entity.component("AnimationPlayer") is Some(player_component) else {
       continue
     }
-    let legacy_result : Result[LegacyAnimationPlayerComponent, Error] = try? @json.from_json(
+    let legacy_player : LegacyAnimationPlayerComponent = @json.from_json(
       player_component.data,
-    )
-    guard legacy_result is Ok(legacy_player) else { continue }
+    ) catch {
+      _ => continue
+    }
     guard legacy_player.animation_asset_path is Some(path) else { continue }
     let normalized_path = path.trim().to_owned()
     if normalized_path == "" || seen.contains(normalized_path) {

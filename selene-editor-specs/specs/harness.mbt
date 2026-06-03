@@ -64,23 +64,17 @@ pub struct EditorHarness {
 }
 
 ///|
-fn decode_rpc_payload(
-  payload : Json,
-) -> Result[@shared.RpcResponseEnvelope, String] {
-  Ok(@json.from_json(payload)) catch {
-    err => Err(err.to_string())
-  }
+fn decode_rpc_payload(payload : Json) -> @shared.RpcResponseEnvelope raise {
+  @json.from_json(payload)
 }
 
 ///|
 fn msg_for_rpc_binding(binding : @app.RpcBinding, payload : Json) -> @app.Msg {
-  match decode_rpc_payload(payload) {
-    Ok(envelope) =>
-      match binding.response_to_msg(envelope.response) {
-        Ok(msg) => msg
-        Err(message) => binding.transport_error_msg(message)
-      }
-    Err(message) => binding.transport_error_msg(message)
+  let envelope = decode_rpc_payload(payload) catch {
+    err => return binding.transport_error_msg(err.to_string())
+  }
+  binding.response_to_msg(envelope.response) catch {
+    @app.UnexpectedRpcResponse(message) => binding.transport_error_msg(message)
   }
 }
 
@@ -173,7 +167,7 @@ async fn EditorHarness::flush_service_events(self : EditorHarness) -> Unit {
   }
   let events = self.service.drain_events()
   for event in events {
-    self.dispatch(@app.msg_service_event(Ok(event.event)))
+    self.dispatch(@app.msg_service_event(@app.AsyncOk(event.event)))
   }
 }
 
@@ -400,7 +394,9 @@ pub async fn EditorHarness::when_project_folder_pick_is_cancelled(
   self : EditorHarness,
 ) -> Unit {
   self.dispatch(
-    @app.msg_project_root_picked(Ok(@shared.directory_pick_result(None))),
+    @app.msg_project_root_picked(
+      @app.AsyncOk(@shared.directory_pick_result(None)),
+    ),
   )
 }
 
@@ -818,7 +814,7 @@ pub async fn EditorHarness::when_service_event_fails(
   self : EditorHarness,
   message : String,
 ) -> Unit {
-  self.dispatch(@app.msg_service_event(Err(message)))
+  self.dispatch(@app.msg_service_event(@app.AsyncErr(message)))
 }
 
 ///|
@@ -827,7 +823,7 @@ pub async fn EditorHarness::when_workspace_delta_is_received(
 ) -> Unit {
   self.dispatch(
     @app.msg_service_event(
-      Ok(
+      @app.AsyncOk(
         @shared.editor_event_project_delta(
           @shared.project_delta_workspace_changed(),
         ),
@@ -845,7 +841,7 @@ pub async fn EditorHarness::when_scene_file_delta_is_received(
 ) -> Unit {
   self.dispatch(
     @app.msg_service_event(
-      Ok(
+      @app.AsyncOk(
         @shared.editor_event_project_delta(
           @shared.project_delta_scene_file_changed(
             path, disk_hash, disk_revision,
@@ -883,7 +879,7 @@ pub async fn EditorHarness::when_prefab_load_fails(
   self : EditorHarness,
   message : String,
 ) -> Unit {
-  self.dispatch(@app.msg_prefab_loaded(Err(message)))
+  self.dispatch(@app.msg_prefab_loaded(@app.AsyncErr(message)))
 }
 
 ///|
@@ -891,7 +887,7 @@ pub async fn EditorHarness::when_atlas_load_fails(
   self : EditorHarness,
   message : String,
 ) -> Unit {
-  self.dispatch(@app.msg_atlas_loaded(Err(message)))
+  self.dispatch(@app.msg_atlas_loaded(@app.AsyncErr(message)))
 }
 
 ///|
@@ -899,7 +895,7 @@ pub async fn EditorHarness::when_animation_load_fails(
   self : EditorHarness,
   message : String,
 ) -> Unit {
-  self.dispatch(@app.msg_animation_clip_loaded(Err(message)))
+  self.dispatch(@app.msg_animation_clip_loaded(@app.AsyncErr(message)))
 }
 
 ///|

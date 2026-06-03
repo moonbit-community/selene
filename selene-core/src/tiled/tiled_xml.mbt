@@ -49,12 +49,8 @@ fn parse_tiled_xml_tileset_document(
 ///|
 fn parse_tiled_xml_root(source : String) -> TiledXmlNode? {
   let reader = @xml.Reader::from_string(source)
-  let parsed : Result[TiledXmlNode?, @xml.XmlError] = try? read_tiled_xml_root(
-    reader,
-  )
-  match parsed {
-    Ok(root) => root
-    Err(_) => None
+  read_tiled_xml_root(reader) catch {
+    _ => None
   }
 }
 
@@ -516,19 +512,15 @@ fn xml_bool_attr(node : TiledXmlNode, key : String) -> Bool? {
 
 ///|
 fn parse_xml_int_text(text : String) -> Int? {
-  let parsed : Result[Int, Error] = try? @string.parse_int(text.trim())
-  match parsed {
-    Ok(value) => Some(value)
-    Err(_) => None
+  Some(@string.parse_int(text.trim())) catch {
+    _ => None
   }
 }
 
 ///|
 fn parse_xml_double_text(text : String) -> Double? {
-  let parsed : Result[Double, Error] = try? @string.parse_double(text.trim())
-  match parsed {
-    Ok(value) => Some(value)
-    Err(_) => None
+  Some(@string.parse_double(text.trim())) catch {
+    _ => None
   }
 }
 

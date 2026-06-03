@@ -266,7 +266,7 @@ pub fn validate_atlas_asset_document(AtlasAssetDocument) -> Array[ValidationErro
 
 pub fn validate_custom_component_object_payload(ComponentDocument, String) -> Array[ValidationError]
 
-pub fn[T : @json.FromJson] validate_custom_component_payload(ComponentDocument, String, String) -> Result[T, Array[ValidationError]]
+pub fn[T : @json.FromJson] validate_custom_component_payload(ComponentDocument, String, String) -> T raise ComponentPayloadValidationError
 
 pub fn validate_prefab_document(PrefabDocument) -> Array[ValidationError]
 
@@ -287,6 +287,10 @@ pub let workspace_document_schema : String
 pub let workspace_schema_version : Int
 
 // Errors
+pub suberror ComponentPayloadValidationError {
+  ComponentPayloadInvalid(Array[ValidationError])
+}
+
 pub suberror EditorBridgeDecodeError {
   MissingDocument(String)
   InvalidProjectManifest(String)

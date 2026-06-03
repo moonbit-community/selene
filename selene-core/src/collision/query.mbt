@@ -58,7 +58,7 @@ pub fn SpatialQueryFilter::only_kinematic() -> SpatialQueryFilter {
 }
 
 ///|
-/// Result payload for a 2D raycast hit.
+/// Payload for a 2D raycast hit.
 pub struct RaycastHit {
   entity : @entity.Entity
   toi : Double
@@ -67,7 +67,7 @@ pub struct RaycastHit {
 } derive(Eq, Debug)
 
 ///|
-/// Result payload for a 2D shape-cast hit.
+/// Payload for a 2D shape-cast hit.
 pub struct ShapeCastHit {
   entity : @entity.Entity
   toi : Double

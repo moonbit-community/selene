@@ -10,22 +10,20 @@ pub fn msg_open_project() -> Msg {
 
 ///|
 pub fn msg_project_root_picked(
-  result : Result[@shared.DirectoryPickResult, String],
+  result : AsyncOutcome[@shared.DirectoryPickResult],
 ) -> Msg {
   ProjectRootPicked(result)
 }
 
 ///|
 pub fn msg_project_loaded(
-  result : Result[@shared.ProjectStateResponse, String],
+  result : AsyncOutcome[@shared.ProjectStateResponse],
 ) -> Msg {
   ProjectLoaded(result)
 }
 
 ///|
-pub fn msg_scene_loaded(
-  result : Result[@shared.SceneLoadOutcome, String],
-) -> Msg {
+pub fn msg_scene_loaded(result : AsyncOutcome[@shared.SceneLoadOutcome]) -> Msg {
   SceneLoaded(result)
 }
 
@@ -51,42 +49,42 @@ pub fn msg_cancel_animation_migration() -> Msg {
 
 ///|
 pub fn msg_scene_list_loaded(
-  result : Result[@shared.SceneListResponse, String],
+  result : AsyncOutcome[@shared.SceneListResponse],
 ) -> Msg {
   SceneListLoaded(result)
 }
 
 ///|
 pub fn msg_assets_loaded(
-  result : Result[@shared.AssetsListResponse, String],
+  result : AsyncOutcome[@shared.AssetsListResponse],
 ) -> Msg {
   AssetsLoaded(result)
 }
 
 ///|
 pub fn msg_prefab_loaded(
-  result : Result[@shared.PrefabLoadResponse, String],
+  result : AsyncOutcome[@shared.PrefabLoadResponse],
 ) -> Msg {
   PrefabLoaded(result)
 }
 
 ///|
 pub fn msg_atlas_loaded(
-  result : Result[@shared.AtlasLoadResponse, String],
+  result : AsyncOutcome[@shared.AtlasLoadResponse],
 ) -> Msg {
   AtlasLoaded(result)
 }
 
 ///|
 pub fn msg_animation_clip_loaded(
-  result : Result[@shared.AnimationClipLoadResponse, String],
+  result : AsyncOutcome[@shared.AnimationClipLoadResponse],
 ) -> Msg {
   AnimationClipLoaded(result)
 }
 
 ///|
 pub fn msg_animation_graph_loaded(
-  result : Result[@shared.AnimationGraphLoadResponse, String],
+  result : AsyncOutcome[@shared.AnimationGraphLoadResponse],
 ) -> Msg {
   AnimationGraphLoaded(result)
 }
@@ -111,7 +109,7 @@ pub fn msg_asset_size_resolved(
 }
 
 ///|
-pub fn msg_scene_saved(result : Result[SceneSaveOutcome, String]) -> Msg {
+pub fn msg_scene_saved(result : AsyncOutcome[SceneSaveOutcome]) -> Msg {
   SceneSaved(result)
 }
 
@@ -131,22 +129,22 @@ pub fn msg_resolve_scene_conflict_save_as(path : String) -> Msg {
 }
 
 ///|
-pub fn msg_animation_migration_saved(result : Result[Unit, String]) -> Msg {
+pub fn msg_animation_migration_saved(result : AsyncOutcome[Unit]) -> Msg {
   AnimationMigrationSaved(result)
 }
 
 ///|
-pub fn msg_workspace_saved(result : Result[Unit, String]) -> Msg {
+pub fn msg_workspace_saved(result : AsyncOutcome[Unit]) -> Msg {
   WorkspaceSaved(result)
 }
 
 ///|
-pub fn msg_rpc_ack(result : Result[Unit, String]) -> Msg {
+pub fn msg_rpc_ack(result : AsyncOutcome[Unit]) -> Msg {
   RpcAck(result)
 }
 
 ///|
-pub fn msg_service_event(result : Result[@shared.EditorEvent, String]) -> Msg {
+pub fn msg_service_event(result : AsyncOutcome[@shared.EditorEvent]) -> Msg {
   ServiceEvent(result)
 }
 

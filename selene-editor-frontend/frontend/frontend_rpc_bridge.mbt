@@ -1,11 +1,16 @@
 ///|
+priv suberror RpcBridgeError {
+  InvalidRpcPayload(String)
+}
+
+///|
 fn decode_rpc_payload(
   payload : Json,
-) -> Result[@shared.RpcResponseEnvelope, String] {
-  Ok(@json.from_json(payload)) catch {
+) -> @shared.RpcResponseEnvelope raise RpcBridgeError {
+  @json.from_json(payload) catch {
     err => {
       console_error("RPC response decode failed: " + err.to_string())
-      Err("Invalid server response")
+      raise InvalidRpcPayload("Invalid server response")
     }
   }
 }
@@ -37,33 +42,40 @@ fn current_scene(model : @app.ViewState) -> @editor_bridge.SceneDocument? {
 fn rpc_msg_from_payload(
   binding : @app.RpcBinding,
   payload : Json,
-) -> Result[@app.Msg, String] {
-  match decode_rpc_payload(payload) {
-    Ok(envelope) => binding.response_to_msg(envelope.response)
-    Err(message) => Err(message)
+) -> @app.Msg raise RpcBridgeError {
+  let envelope = decode_rpc_payload(payload) catch {
+    InvalidRpcPayload(message) => raise InvalidRpcPayload(message)
+  }
+  binding.response_to_msg(envelope.response) catch {
+    @app.UnexpectedRpcResponse(message) => raise InvalidRpcPayload(message)
   }
 }
 
 ///|
 fn rpc_cmd(
   binding : @app.RpcBinding,
-  on_result : (Result[@app.Msg, String]) -> @rabbita.Cmd,
+  dispatch : @rabbita.Dispatch[@app.Msg],
 ) -> @rabbita.Cmd {
   @http.post(
     "/rpc",
     @http.Body::Json(binding.request_envelope().to_json()),
-    expect=@http.Json(on_result, fn(payload) {
-      rpc_msg_from_payload(binding, payload)
-    }),
+    expect=@http.Json(
+      fn(result) {
+        match result {
+          Ok(msg) => dispatch(msg)
+          Err(message) => {
+            console_error("RPC " + binding.scope() + " failed: " + message)
+            dispatch(binding.transport_error_msg(message))
+          }
+        }
+      },
+      fn(payload) {
+        Ok(rpc_msg_from_payload(binding, payload)) catch {
+          InvalidRpcPayload(message) => Err(message)
+        }
+      },
+    ),
   )
-}
-
-///|
-fn[T] log_rpc_result_error(scope : String, result : Result[T, String]) -> Unit {
-  match result {
-    Ok(_) => ()
-    Err(message) => console_error("RPC " + scope + " failed: " + message)
-  }
 }
 
 ///|

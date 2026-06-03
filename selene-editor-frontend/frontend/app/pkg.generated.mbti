@@ -53,11 +53,11 @@ pub fn msg_add_text_entity() -> Msg
 
 pub fn msg_adjust_move_snap_step(Int) -> Msg
 
-pub fn msg_animation_clip_loaded(Result[@shared.AnimationClipLoadResponse, String]) -> Msg
+pub fn msg_animation_clip_loaded(AsyncOutcome[@shared.AnimationClipLoadResponse]) -> Msg
 
-pub fn msg_animation_graph_loaded(Result[@shared.AnimationGraphLoadResponse, String]) -> Msg
+pub fn msg_animation_graph_loaded(AsyncOutcome[@shared.AnimationGraphLoadResponse]) -> Msg
 
-pub fn msg_animation_migration_saved(Result[Unit, String]) -> Msg
+pub fn msg_animation_migration_saved(AsyncOutcome[Unit]) -> Msg
 
 pub fn msg_apply_animation_preview_seek() -> Msg
 
@@ -65,9 +65,9 @@ pub fn msg_asset_image_load_failed(String) -> Msg
 
 pub fn msg_asset_size_resolved(String, Double, Double) -> Msg
 
-pub fn msg_assets_loaded(Result[@shared.AssetsListResponse, String]) -> Msg
+pub fn msg_assets_loaded(AsyncOutcome[@shared.AssetsListResponse]) -> Msg
 
-pub fn msg_atlas_loaded(Result[@shared.AtlasLoadResponse, String]) -> Msg
+pub fn msg_atlas_loaded(AsyncOutcome[@shared.AtlasLoadResponse]) -> Msg
 
 pub fn msg_begin_selected_animation_graph_edge_connect(String) -> Msg
 
@@ -127,13 +127,13 @@ pub fn msg_open_project() -> Msg
 
 pub fn msg_open_scene(String) -> Msg
 
-pub fn msg_prefab_loaded(Result[@shared.PrefabLoadResponse, String]) -> Msg
+pub fn msg_prefab_loaded(AsyncOutcome[@shared.PrefabLoadResponse]) -> Msg
 
 pub fn msg_preview_event(@preview_bridge.PreviewEvent) -> Msg
 
-pub fn msg_project_loaded(Result[@shared.ProjectStateResponse, String]) -> Msg
+pub fn msg_project_loaded(AsyncOutcome[@shared.ProjectStateResponse]) -> Msg
 
-pub fn msg_project_root_picked(Result[@shared.DirectoryPickResult, String]) -> Msg
+pub fn msg_project_root_picked(AsyncOutcome[@shared.DirectoryPickResult]) -> Msg
 
 pub fn msg_redo_scene() -> Msg
 
@@ -153,7 +153,7 @@ pub fn msg_resolve_scene_conflict_reload_disk() -> Msg
 
 pub fn msg_resolve_scene_conflict_save_as(String) -> Msg
 
-pub fn msg_rpc_ack(Result[Unit, String]) -> Msg
+pub fn msg_rpc_ack(AsyncOutcome[Unit]) -> Msg
 
 pub fn msg_save_scene() -> Msg
 
@@ -167,17 +167,17 @@ pub fn msg_save_selected_atlas() -> Msg
 
 pub fn msg_save_selected_prefab() -> Msg
 
-pub fn msg_scene_list_loaded(Result[@shared.SceneListResponse, String]) -> Msg
+pub fn msg_scene_list_loaded(AsyncOutcome[@shared.SceneListResponse]) -> Msg
 
-pub fn msg_scene_loaded(Result[@shared.SceneLoadOutcome, String]) -> Msg
+pub fn msg_scene_loaded(AsyncOutcome[@shared.SceneLoadOutcome]) -> Msg
 
-pub fn msg_scene_saved(Result[SceneSaveOutcome, String]) -> Msg
+pub fn msg_scene_saved(AsyncOutcome[SceneSaveOutcome]) -> Msg
 
 pub fn msg_select_entity(String?) -> Msg
 
 pub fn msg_select_resource(ResourceSelection?) -> Msg
 
-pub fn msg_service_event(Result[@shared.EditorEvent, String]) -> Msg
+pub fn msg_service_event(AsyncOutcome[@shared.EditorEvent]) -> Msg
 
 pub fn msg_set_asset_query(String) -> Msg
 
@@ -293,7 +293,7 @@ pub fn msg_update_selected_translate_x(String) -> Msg
 
 pub fn msg_update_selected_translate_y(String) -> Msg
 
-pub fn msg_workspace_saved(Result[Unit, String]) -> Msg
+pub fn msg_workspace_saved(AsyncOutcome[Unit]) -> Msg
 
 pub fn new_model() -> Model
 
@@ -318,6 +318,9 @@ pub fn update(Msg, Model) -> (Array[Effect], Model)
 pub fn view_state(Model) -> ViewState
 
 // Errors
+pub suberror RpcBindingError {
+  UnexpectedRpcResponse(String)
+}
 
 // Types and methods
 pub enum AssetScope {
@@ -328,6 +331,11 @@ pub enum AssetScope {
   AnimationGraphs
   Prefabs
 } derive(Eq)
+
+pub(all) enum AsyncOutcome[T] {
+  AsyncOk(T)
+  AsyncErr(String)
+}
 
 pub enum Effect {
   Rpc(binding~ : RpcBinding)
@@ -424,30 +432,30 @@ pub fn Model::selected_resource_path(Self) -> String?
 pub enum Msg {
   Initialize
   OpenProject
-  ProjectRootPicked(Result[@shared.DirectoryPickResult, String])
-  ProjectLoaded(Result[@shared.ProjectStateResponse, String])
-  SceneLoaded(Result[@shared.SceneLoadOutcome, String])
+  ProjectRootPicked(AsyncOutcome[@shared.DirectoryPickResult])
+  ProjectLoaded(AsyncOutcome[@shared.ProjectStateResponse])
+  SceneLoaded(AsyncOutcome[@shared.SceneLoadOutcome])
   ConfirmSceneMigration
   CancelSceneMigration
   ConfirmAnimationMigration
   CancelAnimationMigration
-  SceneListLoaded(Result[@shared.SceneListResponse, String])
-  AssetsLoaded(Result[@shared.AssetsListResponse, String])
-  PrefabLoaded(Result[@shared.PrefabLoadResponse, String])
-  AtlasLoaded(Result[@shared.AtlasLoadResponse, String])
-  AnimationClipLoaded(Result[@shared.AnimationClipLoadResponse, String])
-  AnimationGraphLoaded(Result[@shared.AnimationGraphLoadResponse, String])
+  SceneListLoaded(AsyncOutcome[@shared.SceneListResponse])
+  AssetsLoaded(AsyncOutcome[@shared.AssetsListResponse])
+  PrefabLoaded(AsyncOutcome[@shared.PrefabLoadResponse])
+  AtlasLoaded(AsyncOutcome[@shared.AtlasLoadResponse])
+  AnimationClipLoaded(AsyncOutcome[@shared.AnimationClipLoadResponse])
+  AnimationGraphLoaded(AsyncOutcome[@shared.AnimationGraphLoadResponse])
   AssetSizeResolved(String, Double, Double)
   AssetImageLoadFailed(String)
   SetAssetQuery(String)
-  SceneSaved(Result[SceneSaveOutcome, String])
+  SceneSaved(AsyncOutcome[SceneSaveOutcome])
   ResolveSceneConflictKeepMine
   ResolveSceneConflictReloadDisk
   ResolveSceneConflictSaveAs(String)
-  AnimationMigrationSaved(Result[Unit, String])
-  RpcAck(Result[Unit, String])
-  WorkspaceSaved(Result[Unit, String])
-  ServiceEvent(Result[@shared.EditorEvent, String])
+  AnimationMigrationSaved(AsyncOutcome[Unit])
+  RpcAck(AsyncOutcome[Unit])
+  WorkspaceSaved(AsyncOutcome[Unit])
+  ServiceEvent(AsyncOutcome[@shared.EditorEvent])
   PreviewEvent(@preview_bridge.PreviewEvent)
   SetHoverHint(String?)
   ToggleAssetTreeFolder(String)
@@ -587,7 +595,7 @@ pub enum RpcBinding {
   RpcAnimationMigrate(String, String)
 } derive(Eq)
 pub fn RpcBinding::request_envelope(Self, id? : Int) -> @shared.RpcRequestEnvelope
-pub fn RpcBinding::response_to_msg(Self, @shared.RpcResponse) -> Result[Msg, String]
+pub fn RpcBinding::response_to_msg(Self, @shared.RpcResponse) -> Msg raise RpcBindingError
 pub fn RpcBinding::scope(Self) -> String
 pub fn RpcBinding::transport_error_msg(Self, String) -> Msg
 

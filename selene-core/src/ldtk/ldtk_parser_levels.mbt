@@ -264,8 +264,9 @@ fn load_ldtk_text_document(path : String) -> String? {
 
 ///|
 fn parse_ldtk_project_source(source : String) -> LdtkProject {
-  let parsed : Result[Json, @json.ParseError] = try? @json.parse(source.view())
-  guard parsed is Ok(root_json) else { return empty_ldtk_project() }
+  let root_json = @json.parse(source.view()) catch {
+    _ => return empty_ldtk_project()
+  }
   LdtkProject::from_ldtk_json(root_json)
 }
 

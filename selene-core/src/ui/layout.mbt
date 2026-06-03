@@ -328,7 +328,9 @@ fn build_taffy_tree(
     }
   }
   let node_id = taffy.new_with_children(node_to_taffy_style(node), child_ids)
-  let _ = try? taffy.set_node_context(node_id, entity)
+  ignore(taffy.set_node_context(node_id, entity)) catch {
+    _ => ()
+  }
   entity_to_node_id.set(entity, node_id)
   Some(node_id)
 }
@@ -591,8 +593,7 @@ fn apply_layout_recursive(
     .get(entity)
     .map(fn(config) { config.use_rounding })
     .unwrap_or(inherited_use_rounding)
-  let layout_result = try? taffy.layout(node_id)
-  guard layout_result is Ok(layout) else { return }
+  let layout = taffy.layout(node_id) catch { _ => return }
 
   let logical_pos = parent_content_origin +
     @math.Vec2(layout.location.x, layout.location.y)
@@ -711,15 +712,18 @@ pub fn ui_layout_system(_delta : Double) -> Unit {
     let implicit_root = taffy.new_with_children(implicit_root_style(viewport), [
       root_node,
     ])
-    let layout_result = try? taffy.compute_layout_with_measure(
-      implicit_root,
-      @moon_taffy.Size::new(
-        width=@moon_taffy.available_space_definite(viewport[X]),
-        height=@moon_taffy.available_space_definite(viewport[Y]),
+    ignore(
+      taffy.compute_layout_with_measure(
+        implicit_root,
+        @moon_taffy.Size::new(
+          width=@moon_taffy.available_space_definite(viewport[X]),
+          height=@moon_taffy.available_space_definite(viewport[Y]),
+        ),
+        measure_node,
       ),
-      measure_node,
-    )
-    guard layout_result is Ok(_) else { continue }
+    ) catch {
+      _ => continue
+    }
     apply_layout_recursive(
       root_entity,
       taffy,

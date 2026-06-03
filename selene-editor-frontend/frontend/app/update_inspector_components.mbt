@@ -1,12 +1,20 @@
 ///|
+priv suberror InspectorInputError {
+  InvalidInspectorInput(String)
+}
+
+///|
 fn autotile_rule_set_from_string(
   value : String,
-) -> Result[@editor_bridge.AutoTileRuleSetDocument, String] {
+) -> @editor_bridge.AutoTileRuleSetDocument raise InspectorInputError {
   match value.trim().to_lower() {
-    "bitmask4" | "4" => Ok(@editor_bridge.autotile_rule_set_bitmask4())
-    "bitmask8" | "8" => Ok(@editor_bridge.autotile_rule_set_bitmask8())
-    "wang" => Ok(@editor_bridge.autotile_rule_set_wang())
-    _ => Err("AutoTile rule set must be Bitmask4, Bitmask8, or Wang")
+    "bitmask4" | "4" => @editor_bridge.autotile_rule_set_bitmask4()
+    "bitmask8" | "8" => @editor_bridge.autotile_rule_set_bitmask8()
+    "wang" => @editor_bridge.autotile_rule_set_wang()
+    _ =>
+      raise InvalidInspectorInput(
+        "AutoTile rule set must be Bitmask4, Bitmask8, or Wang",
+      )
   }
 }
 
@@ -35,19 +43,17 @@ fn update_selected_autotile_layer_component(
 ///|
 fn parse_autotile_palette_json(
   draft : String,
-) -> Result[Array[@editor_bridge.AutoTilePaletteEntryDocument], String] {
+) -> Array[@editor_bridge.AutoTilePaletteEntryDocument] raise InspectorInputError {
   let source = if draft.trim() == "" { "[]" } else { draft }
   let json = @json.parse(source) catch {
-    err => return Err("Invalid AutoTile palette JSON: " + err.to_string())
+    err =>
+      raise InvalidInspectorInput(
+        "Invalid AutoTile palette JSON: " + err.to_string(),
+      )
   }
-  let decoded : Result[
-    Array[@editor_bridge.AutoTilePaletteEntryDocument],
-    Error,
-  ] = try? @json.from_json(json)
-  match decoded {
-    Ok(palette) => Ok(palette)
-    Err(err) =>
-      Err(
+  @json.from_json(json) catch {
+    err =>
+      raise InvalidInspectorInput(
         "AutoTile palette must be an array of palette entries: " +
         err.to_string(),
       )
@@ -131,14 +137,15 @@ fn update_inspector_components(
         None => ([], model)
       }
     RemoveComponent(kind) =>
-      match with_component_removed(model, kind) {
-        Ok(next) =>
-          apply_scene_change(model, {
-            ..next,
-            open_component_menu_kind: None,
-            status: "Removed " + kind,
-          })
-        Err(message) => {
+      try {
+        let next = with_component_removed(model, kind)
+        apply_scene_change(model, {
+          ..next,
+          open_component_menu_kind: None,
+          status: "Removed " + kind,
+        })
+      } catch {
+        ComponentEditFailed(message) => {
           let next = push_log(model, message)
           ([], { ..next, status: message, open_component_menu_kind: None })
         }
@@ -147,55 +154,55 @@ fn update_inspector_components(
       ([], { ..model, add_custom_component_kind: value })
     AddCustomComponent(raw_kind) =>
       match model.selected_entity() {
-        Some(entity) =>
-          match validated_custom_component_kind(raw_kind) {
-            Ok(kind) =>
-              if entity.component(kind) is Some(_) {
-                (
-                  [],
-                  {
-                    ..model,
-                    status: kind + " already exists on this entity",
-                    add_custom_component_kind: kind,
-                  },
-                )
-              } else {
-                let default_data = @editor_bridge.custom_component_default_data_for(
-                  kind,
-                ).unwrap_or_else(fn() {
-                  @editor_bridge.default_custom_component_data()
-                })
-                let next = update_selected_component(
-                  model,
-                  @editor_bridge.component_document(kind, default_data),
-                )
-                let key = component_state_key(entity.id, kind)
-                let custom_component_json_drafts = next.custom_component_json_drafts
-                custom_component_json_drafts.set(
-                  key,
-                  default_data.stringify(indent=2),
-                )
-                let custom_component_json_errors = next.custom_component_json_errors
-                custom_component_json_errors.remove(key) |> ignore
-                apply_scene_change(model, {
-                  ..next,
-                  custom_component_json_drafts,
-                  custom_component_json_errors,
-                  add_component_panel_open: false,
-                  component_search_query: "",
-                  add_custom_component_kind: "",
-                  open_component_menu_kind: None,
-                  status: "Added " + kind,
-                })
-              }
-            Err(message) => {
+        Some(entity) => {
+          let kind = validated_custom_component_kind(raw_kind) catch {
+            ComponentEditFailed(message) => {
               let next = push_log(model, message)
-              (
+              return (
                 [],
                 { ..next, status: message, add_custom_component_kind: raw_kind },
               )
             }
           }
+          if entity.component(kind) is Some(_) {
+            (
+              [],
+              {
+                ..model,
+                status: kind + " already exists on this entity",
+                add_custom_component_kind: kind,
+              },
+            )
+          } else {
+            let default_data = @editor_bridge.custom_component_default_data_for(
+              kind,
+            ).unwrap_or_else(fn() {
+              @editor_bridge.default_custom_component_data()
+            })
+            let next = update_selected_component(
+              model,
+              @editor_bridge.component_document(kind, default_data),
+            )
+            let key = component_state_key(entity.id, kind)
+            let custom_component_json_drafts = next.custom_component_json_drafts
+            custom_component_json_drafts.set(
+              key,
+              default_data.stringify(indent=2),
+            )
+            let custom_component_json_errors = next.custom_component_json_errors
+            custom_component_json_errors.remove(key) |> ignore
+            apply_scene_change(model, {
+              ..next,
+              custom_component_json_drafts,
+              custom_component_json_errors,
+              add_component_panel_open: false,
+              component_search_query: "",
+              add_custom_component_kind: "",
+              open_component_menu_kind: None,
+              status: "Added " + kind,
+            })
+          }
+        }
         None => ([], model)
       }
     UpdateCustomComponentJson(kind, value) =>
@@ -226,27 +233,24 @@ fn update_inspector_components(
               let draft = model.custom_component_json_drafts
                 .get(key)
                 .unwrap_or(component.data.stringify(indent=2))
-              match parse_custom_component_json(draft) {
-                Ok(json) => {
-                  let next = update_selected_component(
-                    model,
-                    @editor_bridge.component_document(kind, json),
-                  )
-                  let custom_component_json_errors = next.custom_component_json_errors
-                  custom_component_json_errors.remove(key) |> ignore
-                  let custom_component_json_drafts = next.custom_component_json_drafts
-                  custom_component_json_drafts.set(
-                    key,
-                    json.stringify(indent=2),
-                  )
-                  apply_scene_change(model, {
-                    ..next,
-                    custom_component_json_errors,
-                    custom_component_json_drafts,
-                    status: "Updated " + kind,
-                  })
-                }
-                Err(message) => {
+              try {
+                let json = parse_custom_component_json(draft)
+                let next = update_selected_component(
+                  model,
+                  @editor_bridge.component_document(kind, json),
+                )
+                let custom_component_json_errors = next.custom_component_json_errors
+                custom_component_json_errors.remove(key) |> ignore
+                let custom_component_json_drafts = next.custom_component_json_drafts
+                custom_component_json_drafts.set(key, json.stringify(indent=2))
+                apply_scene_change(model, {
+                  ..next,
+                  custom_component_json_errors,
+                  custom_component_json_drafts,
+                  status: "Updated " + kind,
+                })
+              } catch {
+                InvalidComponentJsonDraft(message) => {
                   let custom_component_json_errors = model.custom_component_json_errors
                   custom_component_json_errors.set(key, message)
                   (
@@ -620,9 +624,8 @@ fn update_inspector_components(
       apply_scene_change_without_history(staged, next)
     }
     UpdateSelectedAutoTileRuleSet(value) => {
-      let rule_set = match autotile_rule_set_from_string(value) {
-        Ok(rule_set) => rule_set
-        Err(message) => {
+      let rule_set = autotile_rule_set_from_string(value) catch {
+        InvalidInspectorInput(message) => {
           let next = push_log(model, message)
           return ([], { ..next, status: message })
         }
@@ -659,33 +662,31 @@ fn update_inspector_components(
           } else {
             model.autotile_palette_json_draft
           }
-          match parse_autotile_palette_json(draft) {
-            Ok(palette) => {
-              let staged = with_started_scene_edit_transaction(
-                model, "Edit AutoTile Layer Palette",
+          try {
+            let palette = parse_autotile_palette_json(draft)
+            let staged = with_started_scene_edit_transaction(
+              model, "Edit AutoTile Layer Palette",
+            )
+            let next = update_selected_autotile_layer_component(staged, fn(
+              layer,
+            ) {
+              @editor_bridge.autotile_layer2d_component(
+                tile_size=layer.tile_size,
+                origin=layer.origin,
+                atlas_asset_path=layer.atlas_asset_path,
+                rule_set=layer.rule_set,
+                palette~,
+                cells=layer.cells,
               )
-              let next = update_selected_autotile_layer_component(staged, fn(
-                layer,
-              ) {
-                @editor_bridge.autotile_layer2d_component(
-                  tile_size=layer.tile_size,
-                  origin=layer.origin,
-                  atlas_asset_path=layer.atlas_asset_path,
-                  rule_set=layer.rule_set,
-                  palette~,
-                  cells=layer.cells,
-                )
-              })
-              apply_scene_change(staged, {
-                ..next,
-                autotile_palette_json_draft: palette
-                .to_json()
-                .stringify(indent=2),
-                autotile_palette_json_error: None,
-                status: "Updated AutoTile palette",
-              })
-            }
-            Err(message) => {
+            })
+            apply_scene_change(staged, {
+              ..next,
+              autotile_palette_json_draft: palette.to_json().stringify(indent=2),
+              autotile_palette_json_error: None,
+              status: "Updated AutoTile palette",
+            })
+          } catch {
+            InvalidInspectorInput(message) => {
               let next = push_log(model, message)
               (
                 [],

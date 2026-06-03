@@ -3,10 +3,8 @@ fn read_file_bytes_if_exists(path : String) -> Bytes? {
   if !@fs.path_exists(path) {
     return None
   }
-  let result : Result[Bytes, Error] = try? @fs.read_file_to_bytes(path)
-  match result {
-    Ok(bytes) => Some(bytes)
-    Err(_) => None
+  Some(@fs.read_file_to_bytes(path)) catch {
+    _ => None
   }
 }
 

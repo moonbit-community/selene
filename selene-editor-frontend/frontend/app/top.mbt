@@ -455,30 +455,30 @@ pub fn ViewState::custom_component_json_error(
 pub enum Msg {
   Initialize
   OpenProject
-  ProjectRootPicked(Result[@shared.DirectoryPickResult, String])
-  ProjectLoaded(Result[@shared.ProjectStateResponse, String])
-  SceneLoaded(Result[@shared.SceneLoadOutcome, String])
+  ProjectRootPicked(AsyncOutcome[@shared.DirectoryPickResult])
+  ProjectLoaded(AsyncOutcome[@shared.ProjectStateResponse])
+  SceneLoaded(AsyncOutcome[@shared.SceneLoadOutcome])
   ConfirmSceneMigration
   CancelSceneMigration
   ConfirmAnimationMigration
   CancelAnimationMigration
-  SceneListLoaded(Result[@shared.SceneListResponse, String])
-  AssetsLoaded(Result[@shared.AssetsListResponse, String])
-  PrefabLoaded(Result[@shared.PrefabLoadResponse, String])
-  AtlasLoaded(Result[@shared.AtlasLoadResponse, String])
-  AnimationClipLoaded(Result[@shared.AnimationClipLoadResponse, String])
-  AnimationGraphLoaded(Result[@shared.AnimationGraphLoadResponse, String])
+  SceneListLoaded(AsyncOutcome[@shared.SceneListResponse])
+  AssetsLoaded(AsyncOutcome[@shared.AssetsListResponse])
+  PrefabLoaded(AsyncOutcome[@shared.PrefabLoadResponse])
+  AtlasLoaded(AsyncOutcome[@shared.AtlasLoadResponse])
+  AnimationClipLoaded(AsyncOutcome[@shared.AnimationClipLoadResponse])
+  AnimationGraphLoaded(AsyncOutcome[@shared.AnimationGraphLoadResponse])
   AssetSizeResolved(String, Double, Double)
   AssetImageLoadFailed(String)
   SetAssetQuery(String)
-  SceneSaved(Result[SceneSaveOutcome, String])
+  SceneSaved(AsyncOutcome[SceneSaveOutcome])
   ResolveSceneConflictKeepMine
   ResolveSceneConflictReloadDisk
   ResolveSceneConflictSaveAs(String)
-  AnimationMigrationSaved(Result[Unit, String])
-  RpcAck(Result[Unit, String])
-  WorkspaceSaved(Result[Unit, String])
-  ServiceEvent(Result[@shared.EditorEvent, String])
+  AnimationMigrationSaved(AsyncOutcome[Unit])
+  RpcAck(AsyncOutcome[Unit])
+  WorkspaceSaved(AsyncOutcome[Unit])
+  ServiceEvent(AsyncOutcome[@shared.EditorEvent])
   PreviewEvent(@bridge.PreviewEvent)
   SetHoverHint(String?)
   ToggleAssetTreeFolder(String)

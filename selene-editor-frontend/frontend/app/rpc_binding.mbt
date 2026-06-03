@@ -1,4 +1,9 @@
 ///|
+pub suberror RpcBindingError {
+  UnexpectedRpcResponse(String)
+}
+
+///|
 pub enum RpcBinding {
   RpcProjectCurrent
   RpcProjectOpen(String)
@@ -99,25 +104,27 @@ pub fn RpcBinding::transport_error_msg(
   message : String,
 ) -> Msg {
   match self {
-    RpcProjectCurrent | RpcProjectOpen(_) => msg_project_loaded(Err(message))
-    RpcProjectPickDirectory(_) => msg_project_root_picked(Err(message))
+    RpcProjectCurrent | RpcProjectOpen(_) =>
+      msg_project_loaded(AsyncErr(message))
+    RpcProjectPickDirectory(_) => msg_project_root_picked(AsyncErr(message))
     RpcSceneLoad(_) | RpcSceneMigrate(_) | RpcSceneCreate(_) =>
-      msg_scene_loaded(Err(message))
-    RpcSceneList => msg_scene_list_loaded(Err(message))
-    RpcAssetsList => msg_assets_loaded(Err(message))
-    RpcPrefabLoad(_) => msg_prefab_loaded(Err(message))
-    RpcAtlasLoad(_) => msg_atlas_loaded(Err(message))
-    RpcAnimationClipLoad(_) => msg_animation_clip_loaded(Err(message))
-    RpcAnimationGraphLoad(_) => msg_animation_graph_loaded(Err(message))
-    RpcSceneSave(_, _, _, _) => msg_scene_saved(Err(message))
-    RpcAnimationMigrate(_, _) => msg_animation_migration_saved(Err(message))
-    RpcProjectSaveWorkspace(_) => msg_workspace_saved(Err(message))
-    RpcProjectSetStartupScene(_) => msg_rpc_ack(Err(message))
+      msg_scene_loaded(AsyncErr(message))
+    RpcSceneList => msg_scene_list_loaded(AsyncErr(message))
+    RpcAssetsList => msg_assets_loaded(AsyncErr(message))
+    RpcPrefabLoad(_) => msg_prefab_loaded(AsyncErr(message))
+    RpcAtlasLoad(_) => msg_atlas_loaded(AsyncErr(message))
+    RpcAnimationClipLoad(_) => msg_animation_clip_loaded(AsyncErr(message))
+    RpcAnimationGraphLoad(_) => msg_animation_graph_loaded(AsyncErr(message))
+    RpcSceneSave(_, _, _, _) => msg_scene_saved(AsyncErr(message))
+    RpcAnimationMigrate(_, _) =>
+      msg_animation_migration_saved(AsyncErr(message))
+    RpcProjectSaveWorkspace(_) => msg_workspace_saved(AsyncErr(message))
+    RpcProjectSetStartupScene(_) => msg_rpc_ack(AsyncErr(message))
     RpcSceneDelete(_)
     | RpcPrefabSave(_, _)
     | RpcAtlasSave(_, _)
     | RpcAnimationClipSave(_, _)
-    | RpcAnimationGraphSave(_, _) => msg_rpc_ack(Err(message))
+    | RpcAnimationGraphSave(_, _) => msg_rpc_ack(AsyncErr(message))
   }
 }
 
@@ -125,101 +132,123 @@ pub fn RpcBinding::transport_error_msg(
 pub fn RpcBinding::response_to_msg(
   self : RpcBinding,
   response : @shared.RpcResponse,
-) -> Result[Msg, String] {
+) -> Msg raise RpcBindingError {
   match self {
     RpcProjectCurrent | RpcProjectOpen(_) =>
       match response {
-        @shared.ProjectState(state~) => Ok(msg_project_loaded(Ok(state)))
-        @shared.Error(error~) => Ok(msg_project_loaded(Err(error.message)))
-        _ => Err("Unexpected RPC response for project state")
+        @shared.ProjectState(state~) => msg_project_loaded(AsyncOk(state))
+        @shared.Error(error~) => msg_project_loaded(AsyncErr(error.message))
+        _ =>
+          raise UnexpectedRpcResponse(
+            "Unexpected RPC response for project state",
+          )
       }
     RpcProjectPickDirectory(_) =>
       match response {
         @shared.DirectoryPicked(result~) =>
-          Ok(msg_project_root_picked(Ok(result)))
-        @shared.Error(error~) => Ok(msg_project_root_picked(Err(error.message)))
-        _ => Err("Unexpected RPC response for project root picker")
+          msg_project_root_picked(AsyncOk(result))
+        @shared.Error(error~) =>
+          msg_project_root_picked(AsyncErr(error.message))
+        _ =>
+          raise UnexpectedRpcResponse(
+            "Unexpected RPC response for project root picker",
+          )
       }
     RpcSceneLoad(_) | RpcSceneMigrate(_) | RpcSceneCreate(_) =>
       match response {
         @shared.SceneLoaded(scene~) =>
-          Ok(msg_scene_loaded(Ok(@shared.scene_load_outcome_loaded(scene))))
+          msg_scene_loaded(AsyncOk(@shared.scene_load_outcome_loaded(scene)))
         @shared.SceneMigrationRequired(preview~) =>
-          Ok(
-            msg_scene_loaded(
-              Ok(@shared.scene_load_outcome_migration_required(preview)),
-            ),
+          msg_scene_loaded(
+            AsyncOk(@shared.scene_load_outcome_migration_required(preview)),
           )
-        @shared.Error(error~) => Ok(msg_scene_loaded(Err(error.message)))
-        _ => Err("Unexpected RPC response for scene")
+        @shared.Error(error~) => msg_scene_loaded(AsyncErr(error.message))
+        _ => raise UnexpectedRpcResponse("Unexpected RPC response for scene")
       }
     RpcSceneList =>
       match response {
-        @shared.SceneListed(list~) => Ok(msg_scene_list_loaded(Ok(list)))
-        @shared.Error(error~) => Ok(msg_scene_list_loaded(Err(error.message)))
-        _ => Err("Unexpected RPC response for scene list")
+        @shared.SceneListed(list~) => msg_scene_list_loaded(AsyncOk(list))
+        @shared.Error(error~) => msg_scene_list_loaded(AsyncErr(error.message))
+        _ =>
+          raise UnexpectedRpcResponse("Unexpected RPC response for scene list")
       }
     RpcProjectSetStartupScene(_) =>
       match response {
-        @shared.StartupSceneUpdated(_) => Ok(msg_rpc_ack(Ok(())))
-        @shared.Error(error~) => Ok(msg_rpc_ack(Err(error.message)))
-        _ => Err("Unexpected RPC response for startup scene update")
+        @shared.StartupSceneUpdated(_) => msg_rpc_ack(AsyncOk(()))
+        @shared.Error(error~) => msg_rpc_ack(AsyncErr(error.message))
+        _ =>
+          raise UnexpectedRpcResponse(
+            "Unexpected RPC response for startup scene update",
+          )
       }
     RpcAssetsList =>
       match response {
-        @shared.AssetsListed(list~) => Ok(msg_assets_loaded(Ok(list)))
-        @shared.Error(error~) => Ok(msg_assets_loaded(Err(error.message)))
-        _ => Err("Unexpected RPC response for assets")
+        @shared.AssetsListed(list~) => msg_assets_loaded(AsyncOk(list))
+        @shared.Error(error~) => msg_assets_loaded(AsyncErr(error.message))
+        _ => raise UnexpectedRpcResponse("Unexpected RPC response for assets")
       }
     RpcPrefabLoad(_) =>
       match response {
-        @shared.PrefabLoaded(prefab~) => Ok(msg_prefab_loaded(Ok(prefab)))
-        @shared.Error(error~) => Ok(msg_prefab_loaded(Err(error.message)))
-        _ => Err("Unexpected RPC response for prefab")
+        @shared.PrefabLoaded(prefab~) => msg_prefab_loaded(AsyncOk(prefab))
+        @shared.Error(error~) => msg_prefab_loaded(AsyncErr(error.message))
+        _ => raise UnexpectedRpcResponse("Unexpected RPC response for prefab")
       }
     RpcAtlasLoad(_) =>
       match response {
-        @shared.AtlasLoaded(atlas~) => Ok(msg_atlas_loaded(Ok(atlas)))
-        @shared.Error(error~) => Ok(msg_atlas_loaded(Err(error.message)))
-        _ => Err("Unexpected RPC response for atlas")
+        @shared.AtlasLoaded(atlas~) => msg_atlas_loaded(AsyncOk(atlas))
+        @shared.Error(error~) => msg_atlas_loaded(AsyncErr(error.message))
+        _ => raise UnexpectedRpcResponse("Unexpected RPC response for atlas")
       }
     RpcAnimationClipLoad(_) =>
       match response {
         @shared.AnimationClipLoaded(clip~) =>
-          Ok(msg_animation_clip_loaded(Ok(clip)))
+          msg_animation_clip_loaded(AsyncOk(clip))
         @shared.Error(error~) =>
-          Ok(msg_animation_clip_loaded(Err(error.message)))
-        _ => Err("Unexpected RPC response for animation clip")
+          msg_animation_clip_loaded(AsyncErr(error.message))
+        _ =>
+          raise UnexpectedRpcResponse(
+            "Unexpected RPC response for animation clip",
+          )
       }
     RpcAnimationGraphLoad(_) =>
       match response {
         @shared.AnimationGraphLoaded(graph~) =>
-          Ok(msg_animation_graph_loaded(Ok(graph)))
+          msg_animation_graph_loaded(AsyncOk(graph))
         @shared.Error(error~) =>
-          Ok(msg_animation_graph_loaded(Err(error.message)))
-        _ => Err("Unexpected RPC response for animation graph")
+          msg_animation_graph_loaded(AsyncErr(error.message))
+        _ =>
+          raise UnexpectedRpcResponse(
+            "Unexpected RPC response for animation graph",
+          )
       }
     RpcSceneSave(_, _, _, _) =>
       match response {
         @shared.SceneSaved(save~) =>
-          Ok(msg_scene_saved(Ok(scene_save_outcome_saved(save))))
+          msg_scene_saved(AsyncOk(scene_save_outcome_saved(save)))
         @shared.Conflict(conflict~) =>
-          Ok(msg_scene_saved(Ok(scene_save_outcome_conflict(conflict))))
-        @shared.Error(error~) => Ok(msg_scene_saved(Err(error.message)))
-        _ => Err("Unexpected RPC response for scene save")
+          msg_scene_saved(AsyncOk(scene_save_outcome_conflict(conflict)))
+        @shared.Error(error~) => msg_scene_saved(AsyncErr(error.message))
+        _ =>
+          raise UnexpectedRpcResponse("Unexpected RPC response for scene save")
       }
     RpcAnimationMigrate(_, _) =>
       match response {
-        @shared.SavedOk => Ok(msg_animation_migration_saved(Ok(())))
+        @shared.SavedOk => msg_animation_migration_saved(AsyncOk(()))
         @shared.Error(error~) =>
-          Ok(msg_animation_migration_saved(Err(error.message)))
-        _ => Err("Unexpected RPC response for animation migrate")
+          msg_animation_migration_saved(AsyncErr(error.message))
+        _ =>
+          raise UnexpectedRpcResponse(
+            "Unexpected RPC response for animation migrate",
+          )
       }
     RpcProjectSaveWorkspace(_) =>
       match response {
-        @shared.SavedOk => Ok(msg_workspace_saved(Ok(())))
-        @shared.Error(error~) => Ok(msg_workspace_saved(Err(error.message)))
-        _ => Err("Unexpected RPC response for workspace save")
+        @shared.SavedOk => msg_workspace_saved(AsyncOk(()))
+        @shared.Error(error~) => msg_workspace_saved(AsyncErr(error.message))
+        _ =>
+          raise UnexpectedRpcResponse(
+            "Unexpected RPC response for workspace save",
+          )
       }
     RpcSceneDelete(_)
     | RpcPrefabSave(_, _)
@@ -227,9 +256,12 @@ pub fn RpcBinding::response_to_msg(
     | RpcAnimationClipSave(_, _)
     | RpcAnimationGraphSave(_, _) =>
       match response {
-        @shared.SavedOk => Ok(msg_rpc_ack(Ok(())))
-        @shared.Error(error~) => Ok(msg_rpc_ack(Err(error.message)))
-        _ => Err("Unexpected RPC response for save acknowledgement")
+        @shared.SavedOk => msg_rpc_ack(AsyncOk(()))
+        @shared.Error(error~) => msg_rpc_ack(AsyncErr(error.message))
+        _ =>
+          raise UnexpectedRpcResponse(
+            "Unexpected RPC response for save acknowledgement",
+          )
       }
   }
 }

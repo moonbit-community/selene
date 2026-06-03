@@ -590,11 +590,10 @@ fn parse_tiled_tileset_source(
 
 ///|
 fn parse_tiled_json_map_source(source : String) -> TiledMap {
-  let parsed : Result[Json, @json.ParseError] = try? @json.parse(source.view())
-  match parsed {
-    Ok(document) => TiledMap::from_tiled_json(document)
-    Err(_) => empty_tiled_map()
+  let document = @json.parse(source.view()) catch {
+    _ => return empty_tiled_map()
   }
+  TiledMap::from_tiled_json(document)
 }
 
 ///|
@@ -603,8 +602,7 @@ fn parse_tiled_json_tileset_source(
   first_gid : Int,
   source_path : String,
 ) -> TiledTileset? {
-  let parsed : Result[Json, @json.ParseError] = try? @json.parse(source.view())
-  guard parsed is Ok(document) else { return None }
+  let document = @json.parse(source.view()) catch { _ => return None }
   guard json_object(document) is Some(tileset_object) else { return None }
   let external_tileset = parse_tileset(tileset_object)
   Some({ ..external_tileset, first_gid, source: Some(source_path) })
@@ -786,16 +784,10 @@ fn parse_tiled_base64_gids(
   if cleaned.length() == 0 {
     return []
   }
-  let decoded : Result[Bytes, @base64.CorruptInputError] = try? @base64.std_decode2bytes(
-    cleaned,
-  )
-  match decoded {
-    Ok(bytes) =>
-      match decompress_tiled_gid_bytes(bytes, compression) {
-        Some(decompressed) => parse_tiled_gid_bytes(decompressed)
-        None => []
-      }
-    Err(_) => []
+  let bytes = @base64.std_decode2bytes(cleaned) catch { _ => return [] }
+  match decompress_tiled_gid_bytes(bytes, compression) {
+    Some(decompressed) => parse_tiled_gid_bytes(decompressed)
+    None => []
   }
 }
 
@@ -828,10 +820,8 @@ fn tiled_gzip_decompress(bytes : Bytes) -> Bytes? {
 
 ///|
 fn tiled_zstd_decompress(bytes : Bytes) -> Bytes? {
-  let decoded : Result[Bytes, @zstd.ZstdError] = try? @zstd.decompress(bytes)
-  match decoded {
-    Ok(output) => Some(output)
-    Err(_) => None
+  Some(@zstd.decompress(bytes)) catch {
+    _ => None
   }
 }
 
@@ -887,13 +877,14 @@ fn parse_tiled_gid_csv(source : String) -> Array[TiledGid] {
     if ch == ',' || is_tiled_source_whitespace(ch) {
       let token_string = token.to_string()
       if token_string.length() > 0 {
-        let parsed : Result[Int, Error] = try? @string.parse_int(
-          token_string[:],
-        )
-        match parsed {
-          Ok(raw) => gids.push(decode_tiled_gid(raw))
-          Err(_) => gids.push(empty_tiled_gid())
+        let raw = @string.parse_int(token_string[:]) catch {
+          _ => {
+            gids.push(empty_tiled_gid())
+            token = StringBuilder::new()
+            continue
+          }
         }
+        gids.push(decode_tiled_gid(raw))
         token = StringBuilder::new()
       }
       continue
@@ -902,11 +893,13 @@ fn parse_tiled_gid_csv(source : String) -> Array[TiledGid] {
   }
   let token_string = token.to_string()
   if token_string.length() > 0 {
-    let parsed : Result[Int, Error] = try? @string.parse_int(token_string[:])
-    match parsed {
-      Ok(raw) => gids.push(decode_tiled_gid(raw))
-      Err(_) => gids.push(empty_tiled_gid())
+    let raw = @string.parse_int(token_string[:]) catch {
+      _ => {
+        gids.push(empty_tiled_gid())
+        return gids
+      }
     }
+    gids.push(decode_tiled_gid(raw))
   }
   gids
 }
@@ -1256,10 +1249,8 @@ fn json_bool(value : Json) -> Bool? {
 
 ///|
 fn[T : @json.FromJson] json_decode(value : Json) -> T? {
-  let parsed : Result[T, @json.JsonDecodeError] = try? @json.from_json(value)
-  match parsed {
-    Ok(output) => Some(output)
-    Err(_) => None
+  Some(@json.from_json(value)) catch {
+    _ => None
   }
 }
 

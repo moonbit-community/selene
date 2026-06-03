@@ -8,6 +8,7 @@
 - Added native raylib launchers for `cards`, `pixeladventure`, `scene3d`, and `survivors`.
 
 ### Changed
+- Changed MoonBit error handling to remove deprecated `try?` usage and internal `Result` type surfaces in favor of typed raising APIs and explicit editor async outcomes.
 - Changed example builds so shared example logic, WebGPU wrappers, and raylib wrappers live in separate MoonBit modules with their own target constraints.
 - Changed the `tank3d` example asset path to the standard `assets/tank3d/...` layout shared by web and native runs.
 

@@ -1,4 +1,10 @@
 ///|
+pub(all) enum AsyncOutcome[T] {
+  AsyncOk(T)
+  AsyncErr(String)
+}
+
+///|
 priv enum DomainMsg {
   ProjectRuntime(ProjectRuntimeMsg)
   SelectionHistoryTools(SelectionHistoryToolsMsg)
@@ -12,30 +18,30 @@ priv enum DomainMsg {
 priv enum ProjectRuntimeMsg {
   Initialize
   OpenProject
-  ProjectRootPicked(Result[@shared.DirectoryPickResult, String])
-  ProjectLoaded(Result[@shared.ProjectStateResponse, String])
-  SceneLoaded(Result[@shared.SceneLoadOutcome, String])
+  ProjectRootPicked(AsyncOutcome[@shared.DirectoryPickResult])
+  ProjectLoaded(AsyncOutcome[@shared.ProjectStateResponse])
+  SceneLoaded(AsyncOutcome[@shared.SceneLoadOutcome])
   ConfirmSceneMigration
   CancelSceneMigration
   ConfirmAnimationMigration
   CancelAnimationMigration
-  AnimationMigrationSaved(Result[Unit, String])
-  SceneListLoaded(Result[@shared.SceneListResponse, String])
-  AssetsLoaded(Result[@shared.AssetsListResponse, String])
-  PrefabLoaded(Result[@shared.PrefabLoadResponse, String])
-  AtlasLoaded(Result[@shared.AtlasLoadResponse, String])
-  AnimationClipLoaded(Result[@shared.AnimationClipLoadResponse, String])
-  AnimationGraphLoaded(Result[@shared.AnimationGraphLoadResponse, String])
+  AnimationMigrationSaved(AsyncOutcome[Unit])
+  SceneListLoaded(AsyncOutcome[@shared.SceneListResponse])
+  AssetsLoaded(AsyncOutcome[@shared.AssetsListResponse])
+  PrefabLoaded(AsyncOutcome[@shared.PrefabLoadResponse])
+  AtlasLoaded(AsyncOutcome[@shared.AtlasLoadResponse])
+  AnimationClipLoaded(AsyncOutcome[@shared.AnimationClipLoadResponse])
+  AnimationGraphLoaded(AsyncOutcome[@shared.AnimationGraphLoadResponse])
   AssetSizeResolved(String, Double, Double)
   AssetImageLoadFailed(String)
   SetAssetQuery(String)
-  SceneSaved(Result[SceneSaveOutcome, String])
+  SceneSaved(AsyncOutcome[SceneSaveOutcome])
   ResolveSceneConflictKeepMine
   ResolveSceneConflictReloadDisk
   ResolveSceneConflictSaveAs(String)
-  WorkspaceSaved(Result[Unit, String])
-  RpcAck(Result[Unit, String])
-  ServiceEvent(Result[@shared.EditorEvent, String])
+  WorkspaceSaved(AsyncOutcome[Unit])
+  RpcAck(AsyncOutcome[Unit])
+  ServiceEvent(AsyncOutcome[@shared.EditorEvent])
   PreviewEvent(@bridge.PreviewEvent)
 }
 

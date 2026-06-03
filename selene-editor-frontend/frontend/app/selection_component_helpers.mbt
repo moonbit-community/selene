@@ -161,10 +161,17 @@ fn component_state_key(entity_id : String, kind : String) -> String {
 }
 
 ///|
-fn parse_custom_component_json(draft : String) -> Result[Json, String] {
+priv suberror ComponentJsonDraftError {
+  InvalidComponentJsonDraft(String)
+}
+
+///|
+fn parse_custom_component_json(
+  draft : String,
+) -> Json raise ComponentJsonDraftError {
   let source = if draft.trim() == "" { "{}" } else { draft }
-  Ok(@json.parse(source)) catch {
-    err => Err("Invalid JSON: " + err.to_string())
+  @json.parse(source) catch {
+    err => raise InvalidComponentJsonDraft("Invalid JSON: " + err.to_string())
   }
 }
 

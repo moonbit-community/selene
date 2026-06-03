@@ -134,8 +134,9 @@ pub fn load_tiled_world(path : String) -> TiledWorld {
   guard load_tiled_text_document(path) is Some(source) else {
     return empty_tiled_world()
   }
-  let parsed : Result[Json, @json.ParseError] = try? @json.parse(source.view())
-  guard parsed is Ok(document) else { return empty_tiled_world() }
+  let document = @json.parse(source.view()) catch {
+    _ => return empty_tiled_world()
+  }
   guard json_object(document) is Some(root_object) else {
     return empty_tiled_world()
   }
@@ -537,13 +538,11 @@ fn tiled_world_expand_pattern(
 fn tiled_world_scan_directory_files(world : TiledWorld) -> Array[String] {
   guard world.source_path is Some(source_path) else { return [] }
   let directory = tiled_world_directory_path(source_path)
-  let listed : Result[Array[String], @fs.IOError] = try? @fs.read_dir(directory)
-  guard listed is Ok(entries) else { return [] }
+  let entries = @fs.read_dir(directory) catch { _ => return [] }
   let file_names : Array[String] = []
   for entry in entries {
     let resolved = world.resolve_map_path(entry)
-    let is_file : Result[Bool, @fs.IOError] = try? @fs.is_file(resolved)
-    if is_file is Ok(true) {
+    if (@fs.is_file(resolved) catch { _ => false }) {
       file_names.push(entry)
     }
   }
@@ -1068,10 +1067,8 @@ fn tiled_world_is_word_char(ch : Char) -> Bool {
 
 ///|
 fn tiled_world_capture_int(source : String) -> Int? {
-  let parsed : Result[Int, Error] = try? @string.parse_int(source[:])
-  match parsed {
-    Ok(value) => Some(value)
-    Err(_) => None
+  Some(@string.parse_int(source[:])) catch {
+    _ => None
   }
 }
 

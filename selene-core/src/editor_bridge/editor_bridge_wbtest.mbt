@@ -486,25 +486,20 @@ test "custom component registry wires defaults validation and apply" {
         RegisteredCustomComponentTestPayload::{ label: "Default Marker" }.to_json()
       },
       validate=fn(component, path) {
-        let decoded : Result[
-          RegisteredCustomComponentTestPayload,
-          Array[ValidationError],
-        ] = validate_custom_component_payload(
+        let data : RegisteredCustomComponentTestPayload = validate_custom_component_payload(
           component, path, "Registered custom payload is invalid",
-        )
-        match decoded {
-          Ok(data) =>
-            if data.label.trim() == "" {
-              [
-                {
-                  path: path + ".label",
-                  message: "Registered custom label must not be empty",
-                },
-              ]
-            } else {
-              []
-            }
-          Err(errors) => errors
+        ) catch {
+          ComponentPayloadInvalid(errors) => return errors
+        }
+        if data.label.trim() == "" {
+          [
+            {
+              path: path + ".label",
+              message: "Registered custom label must not be empty",
+            },
+          ]
+        } else {
+          []
         }
       },
       apply=apply_registered_custom_component_test_payload,
@@ -805,12 +800,11 @@ test "loader fails clearly for missing and invalid dependency documents" {
   let source_missing = source_with_documents([
     ("selene.project.json", manifest_bytes(ProjectManifest::default("demo"))),
   ])
-  let missing_result : Result[ProjectBundle, Error] = try? load_project_bundle(
-    source_missing,
-  )
-  match missing_result {
-    Err(MissingDocument("scenes/demo.scene.json")) =>
-      inspect(true, content="true")
+  try {
+    ignore(load_project_bundle(source_missing))
+    fail("expected missing startup scene")
+  } catch {
+    MissingDocument("scenes/demo.scene.json") => inspect(true, content="true")
     _ => fail("expected missing startup scene")
   }
 
@@ -827,11 +821,11 @@ test "loader fails clearly for missing and invalid dependency documents" {
     ("scenes/demo.scene.json", scene_bytes(scene)),
     (atlas_path, json_string_bytes("{\"version\":2,\"name\":")),
   ])
-  let invalid_result : Result[ProjectBundle, Error] = try? load_project_bundle(
-    source_invalid,
-  )
-  match invalid_result {
-    Err(InvalidAtlasAssetDocument(_)) => inspect(true, content="true")
+  try {
+    ignore(load_project_bundle(source_invalid))
+    fail("expected invalid atlas dependency error")
+  } catch {
+    InvalidAtlasAssetDocument(_) => inspect(true, content="true")
     _ => fail("expected invalid atlas dependency error")
   }
 }

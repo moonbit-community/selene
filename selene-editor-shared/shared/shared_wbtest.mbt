@@ -270,26 +270,27 @@ test "all retained rpc responses and editor events round trip through typed enve
 
 ///|
 test "invalid protocol payloads fail to decode" {
-  let invalid_request : Result[RpcRequestEnvelope, Error] = try? @json.from_json(
-    @json.parse("{\"id\":1}"),
-  )
-  let invalid_response : Result[RpcResponseEnvelope, Error] = try? @json.from_json(
-    @json.parse("{\"id\":1,\"response\":{\"SavedOk\":{}}}"),
-  )
-  let invalid_event : Result[EventEnvelope, Error] = try? @json.from_json(
-    @json.parse("{\"event\":{\"FilesChanged\":{}}}"),
-  )
-  match invalid_request {
-    Err(_) => inspect(true, content="true")
-    _ => fail("expected invalid request decode to fail")
+  try {
+    let _ : RpcRequestEnvelope = @json.from_json(@json.parse("{\"id\":1}"))
+    fail("expected invalid request decode to fail")
+  } catch {
+    _ => inspect(true, content="true")
   }
-  match invalid_response {
-    Err(_) => inspect(true, content="true")
-    _ => fail("expected invalid response decode to fail")
+  try {
+    let _ : RpcResponseEnvelope = @json.from_json(
+      @json.parse("{\"id\":1,\"response\":{\"SavedOk\":{}}}"),
+    )
+    fail("expected invalid response decode to fail")
+  } catch {
+    _ => inspect(true, content="true")
   }
-  match invalid_event {
-    Err(_) => inspect(true, content="true")
-    _ => fail("expected invalid event decode to fail")
+  try {
+    let _ : EventEnvelope = @json.from_json(
+      @json.parse("{\"event\":{\"FilesChanged\":{}}}"),
+    )
+    fail("expected invalid event decode to fail")
+  } catch {
+    _ => inspect(true, content="true")
   }
 }
 

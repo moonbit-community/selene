@@ -47,15 +47,13 @@ pub fn[T : @json.FromJson] validate_custom_component_payload(
   component : ComponentDocument,
   path : String,
   invalid_message : String,
-) -> Result[T, Array[ValidationError]] {
-  let decoded : Result[T, Error] = try? @json.from_json(component.data)
-  match decoded {
-    Ok(value) =>
-      match validate_custom_component_object_payload(component, path) {
-        [] => Ok(value)
-        errors => Err(errors)
-      }
-    Err(_) => Err([{ path, message: invalid_message }])
+) -> T raise ComponentPayloadValidationError {
+  let value : T = @json.from_json(component.data) catch {
+    _ => raise ComponentPayloadInvalid([{ path, message: invalid_message }])
+  }
+  match validate_custom_component_object_payload(component, path) {
+    [] => value
+    errors => raise ComponentPayloadInvalid(errors)
   }
 }
 

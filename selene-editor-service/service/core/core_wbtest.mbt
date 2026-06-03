@@ -1,11 +1,7 @@
 ///|
 fn response_envelope(payload : Json) -> @shared.RpcResponseEnvelope {
-  let result : Result[@shared.RpcResponseEnvelope, Error] = try? @json.from_json(
-    payload,
-  )
-  match result {
-    Ok(envelope) => envelope
-    Err(_) => abort("Failed to decode rpc response envelope")
+  @json.from_json(payload) catch {
+    _ => abort("Failed to decode rpc response envelope")
   }
 }
 
@@ -272,11 +268,11 @@ test "parse_cli_options accepts --port and project root" {
 
 ///|
 test "parse_cli_options rejects an invalid port" {
-  let result : Result[CliOptions, Error] = try? parse_cli_options([
-    "selene-editor", "--port", "70000",
-  ])
-  match result {
-    Err(Failure(message)) => inspect(message, content="Invalid port: 70000")
+  try {
+    ignore(parse_cli_options(["selene-editor", "--port", "70000"]))
+    fail("expected invalid port failure")
+  } catch {
+    Failure(message) => inspect(message, content="Invalid port: 70000")
     _ => fail("expected invalid port failure")
   }
 }

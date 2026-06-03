@@ -108,11 +108,8 @@ async fn native_document_source(root : String) -> @editor_bridge.DocumentSource 
   let documents : Map[String, Bytes] = {}
   for relative_path in list_files_recursive(root) {
     let full_path = path_join(root, relative_path)
-    let read_result : Result[&@io.Data, Error] = try? @fs.read_file(full_path)
-    match read_result {
-      Ok(data) => documents.set(relative_path, data.binary())
-      Err(_) => ()
-    }
+    let data = @fs.read_file(full_path) catch { _ => continue }
+    documents.set(relative_path, data.binary())
   }
   @editor_bridge.map_document_source(documents)
 }

@@ -373,21 +373,14 @@ pub fn decode_project_manifest_status(
   path : String,
   json : Json,
 ) -> ProjectManifestLoadStatus raise {
-  let strict : Result[ProjectManifest, Error] = try? decode_project_manifest(
-    json,
-  )
-  match strict {
-    Ok(manifest) => Ready(manifest)
-    Err(InvalidProjectManifest(message)) => {
-      let legacy : Result[ProjectManifestMigrationPreview, Error] = try? migrate_project_manifest_preview_from_legacy(
-        path, json,
-      )
-      match legacy {
-        Ok(preview) => MigrationRequired(preview)
-        Err(_) => raise InvalidProjectManifest(message)
+  Ready(decode_project_manifest(json)) catch {
+    InvalidProjectManifest(message) =>
+      MigrationRequired(
+        migrate_project_manifest_preview_from_legacy(path, json),
+      ) catch {
+        _ => raise InvalidProjectManifest(message)
       }
-    }
-    Err(err) => raise err
+    err => raise err
   }
 }
 
@@ -464,19 +457,12 @@ pub fn decode_scene_sdf_status(
   path : String,
   json : Json,
 ) -> SceneDocumentLoadStatus raise {
-  let strict : Result[SceneDocument, Error] = try? decode_scene_sdf(json)
-  match strict {
-    Ok(scene) => Ready(scene)
-    Err(InvalidSceneDocument(message)) => {
-      let legacy : Result[SceneMigrationPreview, Error] = try? migrate_scene_preview_from_legacy(
-        path, json,
-      )
-      match legacy {
-        Ok(preview) => MigrationRequired(preview)
-        Err(_) => raise InvalidSceneDocument(message)
+  Ready(decode_scene_sdf(json)) catch {
+    InvalidSceneDocument(message) =>
+      MigrationRequired(migrate_scene_preview_from_legacy(path, json)) catch {
+        _ => raise InvalidSceneDocument(message)
       }
-    }
-    Err(err) => raise err
+    err => raise err
   }
 }
 

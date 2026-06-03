@@ -33,28 +33,22 @@ pub fn transparent() -> @render.Color {
 
 ///|
 fn parse_uint(text : StringView, base : Int) -> UInt? {
-  let parsed = try? @string.parse_uint(text, base~)
-  match parsed {
-    Ok(value) => Some(value)
-    Err(_) => None
+  Some(@string.parse_uint(text, base~)) catch {
+    _ => None
   }
 }
 
 ///|
 fn parse_int(text : StringView) -> Int? {
-  let parsed = try? @string.parse_int(text)
-  match parsed {
-    Ok(value) => Some(value)
-    Err(_) => None
+  Some(@string.parse_int(text)) catch {
+    _ => None
   }
 }
 
 ///|
 fn parse_double(text : StringView) -> Double? {
-  let parsed = try? @string.parse_double(text)
-  match parsed {
-    Ok(value) => Some(value)
-    Err(_) => None
+  Some(@string.parse_double(text)) catch {
+    _ => None
   }
 }
 

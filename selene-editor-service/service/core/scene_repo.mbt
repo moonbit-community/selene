@@ -98,10 +98,11 @@ fn legacy_animation_preview_for_scene(
     guard entity.component("AnimationPlayer") is Some(player_component) else {
       continue
     }
-    let legacy_result : Result[LegacyAnimationPlayerComponent, Error] = try? @json.from_json(
+    let legacy : LegacyAnimationPlayerComponent = @json.from_json(
       player_component.data,
-    )
-    guard legacy_result is Ok(legacy) else { continue }
+    ) catch {
+      _ => continue
+    }
     guard legacy.animation_asset_path is Some(legacy_path) else { continue }
     let trimmed_legacy_path = legacy_path.trim().to_owned()
     if trimmed_legacy_path == "" {

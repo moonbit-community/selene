@@ -1,10 +1,10 @@
 ///|
 fn handle_project_root_picked(
-  result : Result[@shared.DirectoryPickResult, String],
+  result : AsyncOutcome[@shared.DirectoryPickResult],
   model : Model,
 ) -> (Array[Effect], Model) {
   match result {
-    Ok(response) =>
+    AsyncOk(response) =>
       match response.path {
         Some(path) => {
           let root = normalized_project_root(path)
@@ -15,7 +15,7 @@ fn handle_project_root_picked(
         }
         None => ([], { ..model, status: "Open a project to begin" })
       }
-    Err(message) => {
+    AsyncErr(message) => {
       ignore(message)
       let next = push_log(model, folder_picker_failed_message())
       ([], { ..next, status: folder_picker_failed_message() })
@@ -25,11 +25,11 @@ fn handle_project_root_picked(
 
 ///|
 fn handle_project_loaded(
-  result : Result[@shared.ProjectStateResponse, String],
+  result : AsyncOutcome[@shared.ProjectStateResponse],
   model : Model,
 ) -> (Array[Effect], Model) {
   match result {
-    Ok(response) => {
+    AsyncOk(response) => {
       let loaded_workspace = response.workspace.unwrap_or(
         @editor_bridge.WorkspaceDocument::default(),
       )
@@ -103,7 +103,7 @@ fn handle_project_loaded(
       }
       (refresh_project_effects(next), next)
     }
-    Err(message) => {
+    AsyncErr(message) => {
       ignore(message)
       let next = push_log(model, project_open_failed_message())
       ([], { ..next, status: project_open_failed_message() })
@@ -113,11 +113,11 @@ fn handle_project_loaded(
 
 ///|
 fn handle_scene_loaded(
-  result : Result[@shared.SceneLoadOutcome, String],
+  result : AsyncOutcome[@shared.SceneLoadOutcome],
   model : Model,
 ) -> (Array[Effect], Model) {
   match result {
-    Ok(@shared.Loaded(response)) => {
+    AsyncOk(@shared.Loaded(response)) => {
       let atlas_documents = model.atlas_documents
       let atlas_refs = model.atlas_refs
       for entry in response.atlas_assets {
@@ -209,7 +209,7 @@ fn handle_scene_loaded(
       }
       (sync_preview_effects_with_scene(next), next)
     }
-    Ok(@shared.MigrationRequired(preview)) => {
+    AsyncOk(@shared.MigrationRequired(preview)) => {
       let next = {
         ..model,
         scene_session: None,
@@ -236,7 +236,7 @@ fn handle_scene_loaded(
         { ..next, workspace: cleared },
       )
     }
-    Err(message) => {
+    AsyncErr(message) => {
       ignore(message)
       let next = push_log(model, scene_load_failed_message())
       ([], { ..next, status: scene_load_failed_message() })
@@ -246,11 +246,11 @@ fn handle_scene_loaded(
 
 ///|
 fn handle_scene_saved(
-  result : Result[SceneSaveOutcome, String],
+  result : AsyncOutcome[SceneSaveOutcome],
   model : Model,
 ) -> (Array[Effect], Model) {
   match result {
-    Ok(Saved(save)) => {
+    AsyncOk(Saved(save)) => {
       let next = match model.scene_session {
         Some(session) =>
           {
@@ -268,7 +268,7 @@ fn handle_scene_saved(
       }
       ([], { ..next, status: save_success_status(next) })
     }
-    Ok(Conflict(conflict)) => {
+    AsyncOk(Conflict(conflict)) => {
       let next = match model.scene_session {
         Some(session) if session.path == conflict.path =>
           {
@@ -299,7 +299,7 @@ fn handle_scene_saved(
         },
       )
     }
-    Err(message) => {
+    AsyncErr(message) => {
       let next = push_log(model, "Save failed: " + message)
       ([], { ..next, status: "Save failed: " + message })
     }
@@ -308,11 +308,11 @@ fn handle_scene_saved(
 
 ///|
 fn handle_service_event(
-  result : Result[@shared.EditorEvent, String],
+  result : AsyncOutcome[@shared.EditorEvent],
   model : Model,
 ) -> (Array[Effect], Model) {
   match result {
-    Ok(event) =>
+    AsyncOk(event) =>
       match event {
         @shared.Ready => ([], model)
         @shared.Log(label~, message~) =>
@@ -361,7 +361,7 @@ fn handle_service_event(
         | @shared.SceneCreated(..)
         | @shared.SceneDeleted(..) => ([], model)
       }
-    Err(message) => {
+    AsyncErr(message) => {
       let next = push_log(model, "SSE error: " + message)
       ([], { ..next, status: "SSE error" })
     }

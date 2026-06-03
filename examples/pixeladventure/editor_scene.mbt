@@ -64,7 +64,7 @@ fn[T : @json.FromJson] validate_pixeladventure_component(
   component : @editor_bridge.ComponentDocument,
   path : String,
   label : String,
-) -> Result[T, Array[@editor_bridge.ValidationError]] {
+) -> T raise @editor_bridge.ComponentPayloadValidationError {
   @editor_bridge.validate_custom_component_payload(
     component,
     path,
@@ -77,25 +77,20 @@ fn validate_pixeladventure_terrain_component(
   component : @editor_bridge.ComponentDocument,
   path : String,
 ) -> Array[@editor_bridge.ValidationError] {
-  let decoded : Result[
-    PixelAdventureTerrainComponent,
-    Array[@editor_bridge.ValidationError],
-  ] = validate_pixeladventure_component(
+  let data : PixelAdventureTerrainComponent = validate_pixeladventure_component(
     component, path, "PixelAdventureTerrain",
-  )
-  match decoded {
-    Ok(data) =>
-      if data.collider_group.trim() == "" {
-        [
-          @editor_bridge.validation_error(
-            path + ".collider_group",
-            "PixelAdventureTerrain collider_group must not be empty",
-          ),
-        ]
-      } else {
-        []
-      }
-    Err(errors) => errors
+  ) catch {
+    @editor_bridge.ComponentPayloadInvalid(errors) => return errors
+  }
+  if data.collider_group.trim() == "" {
+    [
+      @editor_bridge.validation_error(
+        path + ".collider_group",
+        "PixelAdventureTerrain collider_group must not be empty",
+      ),
+    ]
+  } else {
+    []
   }
 }
 
@@ -234,16 +229,12 @@ fn pixeladventure_custom_component_handlers() -> Map[
     @editor_bridge.custom_component_handler(
       default_data=pixeladventure_empty_component_data,
       validate=fn(component, path) {
-        let decoded : Result[
-          PixelAdventurePlayerComponent,
-          Array[@editor_bridge.ValidationError],
-        ] = validate_pixeladventure_component(
+        let _value : PixelAdventurePlayerComponent = validate_pixeladventure_component(
           component, path, "PixelAdventurePlayer",
-        )
-        match decoded {
-          Ok(_) => []
-          Err(errors) => errors
+        ) catch {
+          @editor_bridge.ComponentPayloadInvalid(errors) => return errors
         }
+        []
       },
       apply=apply_pixeladventure_player_component,
     ),
@@ -253,16 +244,12 @@ fn pixeladventure_custom_component_handlers() -> Map[
     @editor_bridge.custom_component_handler(
       default_data=pixeladventure_empty_component_data,
       validate=fn(component, path) {
-        let decoded : Result[
-          PixelAdventureBirdComponent,
-          Array[@editor_bridge.ValidationError],
-        ] = validate_pixeladventure_component(
+        let _value : PixelAdventureBirdComponent = validate_pixeladventure_component(
           component, path, "PixelAdventureBird",
-        )
-        match decoded {
-          Ok(_) => []
-          Err(errors) => errors
+        ) catch {
+          @editor_bridge.ComponentPayloadInvalid(errors) => return errors
         }
+        []
       },
       apply=apply_pixeladventure_bird_component,
     ),
@@ -272,16 +259,12 @@ fn pixeladventure_custom_component_handlers() -> Map[
     @editor_bridge.custom_component_handler(
       default_data=pixeladventure_empty_component_data,
       validate=fn(component, path) {
-        let decoded : Result[
-          PixelAdventureAppleComponent,
-          Array[@editor_bridge.ValidationError],
-        ] = validate_pixeladventure_component(
+        let _value : PixelAdventureAppleComponent = validate_pixeladventure_component(
           component, path, "PixelAdventureApple",
-        )
-        match decoded {
-          Ok(_) => []
-          Err(errors) => errors
+        ) catch {
+          @editor_bridge.ComponentPayloadInvalid(errors) => return errors
         }
+        []
       },
       apply=apply_pixeladventure_apple_component,
     ),
@@ -291,16 +274,12 @@ fn pixeladventure_custom_component_handlers() -> Map[
     @editor_bridge.custom_component_handler(
       default_data=pixeladventure_empty_component_data,
       validate=fn(component, path) {
-        let decoded : Result[
-          PixelAdventureFlagComponent,
-          Array[@editor_bridge.ValidationError],
-        ] = validate_pixeladventure_component(
+        let _value : PixelAdventureFlagComponent = validate_pixeladventure_component(
           component, path, "PixelAdventureFlag",
-        )
-        match decoded {
-          Ok(_) => []
-          Err(errors) => errors
+        ) catch {
+          @editor_bridge.ComponentPayloadInvalid(errors) => return errors
         }
+        []
       },
       apply=apply_pixeladventure_flag_component,
     ),
