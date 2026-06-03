@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tank 3D - Selene Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at 50% 15%, #324050 0%, #0f141b 62%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            max-width: 1040px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .game-wrapper {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+            margin: 18px 0;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border-radius: 12px;
+            background: #121820;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .game-wrapper,
+        .game-wrapper * {
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        .instructions {
+            color: #c8d2df;
+            line-height: 1.5;
+            margin-bottom: 18px;
+        }
+
+        .back-link {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.14);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+        }
+    </style>
+    <script>
+        document.addEventListener('contextmenu', event => {
+            if (event.target.closest('.game-wrapper')) {
+                event.preventDefault();
+            }
+        });
+    </script>
+    <script src="../preload-assets.js"></script>
+    <script src="../../_build/js/release/build/Milky2018/selene-examples-web/tank3d/web/web.js" defer></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Tank 3D</h1>
+        <p class="instructions">A minimal Selene GLB viewer for <code>tank_1_green.glb</code>.</p>
+        <div class="game-wrapper">
+            <canvas id="canvas" height="32" width="32"></canvas>
+        </div>
+        <a href="../index.html" class="back-link">← Back to Games</a>
+    </div>
+</body>
+
+</html>
