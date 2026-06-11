@@ -134,7 +134,7 @@ fn insert_entity_physics(
     body_builder = body_builder.angvel(Float::from_double(angular_velocity))
   }
   let body_handle = world().bodies.insert(body_builder.build())
-  let collider = @rapier_full.ColliderBuilder::new(rapier_shape)
+  let collider = @rapier_full.ColliderBuilder::ColliderBuilder(rapier_shape)
     .translation(to_physics_vec2(translation))
     .active_collision_types(@rapier_collision.ActiveCollisionTypes::all())
     .sensor(snapshot.collision.sensor)
@@ -182,7 +182,7 @@ fn sync_entity_physics(
     .set_locked_rotations(snapshot.body.lock_rotation, false)
     |> ignore
     if snapshot.body.body_type is Fixed {
-      body.set_linvel(@rapier_full.Vec2::new(0.0F, 0.0F), false) |> ignore
+      body.set_linvel(@rapier_full.Vec2::Vec2(0.0F, 0.0F), false) |> ignore
       body.set_angvel(0.0F, false) |> ignore
     } else if snapshot.linear_velocity is Some(linear_velocity) {
       body.set_linvel(to_physics_vec2(linear_velocity), false) |> ignore
@@ -300,13 +300,13 @@ fn move_with_kinematic_controller(
   }
   let displacement = velocity.scalar_mul(delta)
   let query = query_base.with_filter(
-    @rapier_collision.QueryFilter::new()
+    @rapier_collision.QueryFilter::QueryFilter()
     .exclude_collider(collider_handle)
     .exclude_sensors()
     .groups(to_rapier_groups(collider.filter)),
   )
   let controller = @rapier_control.KinematicCharacterController::default().with_up(
-    @rapier_full.Vec2::new(0.0F, -1.0F),
+    @rapier_full.Vec2::Vec2(0.0F, -1.0F),
   )
   let effective = controller.move_shape(
     Float::from_double(delta),
@@ -427,8 +427,8 @@ fn clear_area_contains(area_entity : @entity.Entity, area : Area) -> Unit {
 
 ///|
 fn process_trigger_events() -> Unit {
-  let query_base = @rapier_collision.QueryPipeline::new(
-    @rapier_collision.QueryFilter::new(),
+  let query_base = @rapier_collision.QueryPipeline::QueryPipeline(
+    @rapier_collision.QueryFilter::QueryFilter(),
     world().bodies,
     world().colliders,
   )
@@ -447,7 +447,7 @@ fn process_trigger_events() -> Unit {
       continue
     }
     let query = query_base.with_filter(
-      @rapier_collision.QueryFilter::new()
+      @rapier_collision.QueryFilter::QueryFilter()
       .exclude_collider(area_handle)
       .exclude_sensors()
       .groups(to_rapier_groups(area.filter)),
@@ -513,7 +513,7 @@ fn step_rapier_pipeline(delta : Double) -> Unit {
     world().impulse_joints,
     world().multibody_joints,
     world().ccd_solver,
-    @rapier_pipeline.PhysicsHooks::new(),
+    @rapier_pipeline.PhysicsHooks::PhysicsHooks(),
     world().event_handler,
   )
 }
@@ -531,8 +531,8 @@ fn rapier_fixed_step(delta : Double) -> Unit {
   grounded_entities().clear()
   resolved_velocities().clear()
 
-  let query_base = @rapier_collision.QueryPipeline::new(
-    @rapier_collision.QueryFilter::new(),
+  let query_base = @rapier_collision.QueryPipeline::QueryPipeline(
+    @rapier_collision.QueryFilter::QueryFilter(),
     world().bodies,
     world().colliders,
   )

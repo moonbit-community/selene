@@ -1,12 +1,12 @@
 name = "Milky2018/selene_editor_frontend"
 
-version = "0.34.5"
+version = "0.34.6"
 
 import {
-  "Milky2018/selene@0.34.5",
-  "Milky2018/selene_webgpu@0.34.5",
-  "Milky2018/selene_editor_shared@0.34.5",
-  "moonbit-community/rabbita@0.11.8",
+  "Milky2018/selene@0.34.6",
+  "Milky2018/selene_webgpu@0.34.6",
+  "Milky2018/selene_editor_shared@0.34.6",
+  "moonbit-community/rabbita@0.12.4",
 }
 
 readme = "README.md"

@@ -92,7 +92,7 @@ pub async fn run_cli(module_root : String, args : Array[String]) -> Unit {
       err => println("Failed to open project \{project_root}: \{err}")
     }
   }
-  let server = @http.Server::new(
+  let server = @http.Server::Server(
     @socket.Addr::parse("\{default_host}:\{options.port}"),
   )
   let url = "http://\{default_host}:\{options.port}"

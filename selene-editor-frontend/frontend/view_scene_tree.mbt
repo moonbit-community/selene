@@ -145,7 +145,7 @@ fn animation_preview_canvas(
 
 ///|
 fn animation_preview_controls(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   model : @app.ViewState,
 ) -> @rabbita.Html {
   @html.div(class="resource-preview-controls", [

@@ -18,7 +18,7 @@ fn to_physics_isometry(
   translation : @math.Vec2,
   rotation : Double,
 ) -> @rapier_full.Isometry2 {
-  @rapier_full.Isometry2::new(
+  @rapier_full.Isometry2::Isometry2(
     to_physics_vec2(translation),
     to_physics_rotation(rotation),
   )

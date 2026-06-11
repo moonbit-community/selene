@@ -1,5 +1,5 @@
 ///|
-fn viewport_drop_attrs(dispatch : @rabbita.Dispatch[@app.Msg]) -> @html.Attrs {
+fn viewport_drop_attrs(dispatch : @rabbita.Emit[@app.Msg]) -> @html.Attrs {
   @html.Attrs::build()
   .on_dragover(fn(event) {
     event.prevent_default()
@@ -50,7 +50,7 @@ fn viewport_drop_attrs(dispatch : @rabbita.Dispatch[@app.Msg]) -> @html.Attrs {
 
 ///|
 fn toolbar_button(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   current : @shared.PreviewTool,
   tool : @shared.PreviewTool,
   label : String,
@@ -70,7 +70,7 @@ fn toolbar_button(
 
 ///|
 fn action_button(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   label : String,
   icon : String,
   msg : @app.Msg,
@@ -119,7 +119,7 @@ fn info_message(model : @app.ViewState) -> String {
 
 ///|
 fn entry_view(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   model : @app.ViewState,
 ) -> @rabbita.Html {
   @html.div(class="editor-root entry-root", [
@@ -150,7 +150,7 @@ fn entry_view(
 
 ///|
 fn scene_migration_dialog_view(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   preview : @editor_bridge.SceneMigrationPreview,
 ) -> @rabbita.Html {
   let items = preview.changes.map(fn(change) {
@@ -190,7 +190,7 @@ fn scene_migration_dialog_view(
 
 ///|
 fn animation_migration_dialog_view(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   model : @app.ViewState,
 ) -> @rabbita.Html {
   let items = model.pending_animation_migration_paths.map(fn(path) {
@@ -271,7 +271,7 @@ fn conflict_copy_path(path : String) -> String {
 
 ///|
 fn scene_conflict_bar_view(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   model : @app.ViewState,
 ) -> @rabbita.Html {
   match model.scene_session {
@@ -377,7 +377,7 @@ fn scene_conflict_bar_view(
 
 ///|
 fn view(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   model : @app.Model,
 ) -> @rabbita.Html {
   let model = @app.view_state(model)
@@ -662,7 +662,7 @@ fn view(
 ///|
 #warnings("-alert_unstable")
 pub fn start() -> Unit {
-  let (dispatch, root) = @rabbita.cell_with_dispatch(
+  let (dispatch, root) = @rabbita.cell_with_emit(
     model=@app.new_model(),
     update~,
     view~,

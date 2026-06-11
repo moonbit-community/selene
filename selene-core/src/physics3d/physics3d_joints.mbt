@@ -224,7 +224,7 @@ pub fn RapierContext::cast_ray(
   }
   let world = physics3d_world()
   let query = make_query_pipeline(query_filter~)
-  let ray = @collision.Ray3::new(
+  let ray = @collision.Ray3::Ray3(
     origin.to_rapier(),
     direction.normalize().to_rapier(),
   )
@@ -264,7 +264,7 @@ pub fn RapierContext::cast_shape(
   }
   let world = physics3d_world()
   let query = make_query_pipeline(query_filter~)
-  let options = @collision.ShapeCastOptions3::new(
+  let options = @collision.ShapeCastOptions3::ShapeCastOptions3(
     Float::from_double(max_toi),
     stop_at_penetration,
   )
@@ -275,7 +275,7 @@ pub fn RapierContext::cast_shape(
     query.cast_shape(
       world.bodies,
       world.colliders,
-      @core.Isometry3::new(origin.to_rapier(), shape_rotation.to_rapier()),
+      @core.Isometry3::Isometry3(origin.to_rapier(), shape_rotation.to_rapier()),
       direction.normalize().to_rapier(),
       query_shape,
       options,
@@ -329,7 +329,7 @@ pub fn RapierContext::intersections_with_shape(
   let (query_shape, shape_rotation) = to_query_shape_with_rotation(
     shape, rotation,
   )
-  let query_iso = @core.Isometry3::new(
+  let query_iso = @core.Isometry3::Isometry3(
     origin.to_rapier(),
     shape_rotation.to_rapier(),
   )

@@ -33,7 +33,7 @@ fn cleanup_layout_test_entity(entity : @entity.Entity) -> Unit {
 
 ///|
 test "ui nodes map flex wrap and align content into wrapped layout" {
-  let taffy : @moon_taffy.TaffyTree[Unit] = @moon_taffy.TaffyTree::new()
+  let taffy : @tree.TaffyTree[Unit] = @tree.TaffyTree::TaffyTree()
   let mk_child = fn() {
     taffy.new_leaf(
       node_to_taffy_style(Node(width=Val::px(50.0), height=Val::px(10.0))),
@@ -57,7 +57,7 @@ test "ui nodes map flex wrap and align content into wrapped layout" {
     ),
     [child0, child1, child2, child3, child4, child5],
   )
-  taffy.compute_layout(root, @moon_taffy.Size::max_content())
+  taffy.compute_layout(root, @geometry.Size::max_content())
 
   let root_layout = taffy.layout(root)
   inspect(root_layout.size.width == 120.0, content="true")
@@ -73,7 +73,7 @@ test "ui nodes map flex wrap and align content into wrapped layout" {
 
 ///|
 test "ui nodes map block display and aspect ratio into block layout" {
-  let taffy : @moon_taffy.TaffyTree[Unit] = @moon_taffy.TaffyTree::new()
+  let taffy : @tree.TaffyTree[Unit] = @tree.TaffyTree::TaffyTree()
   let child = taffy.new_leaf(
     node_to_taffy_style(
       Node(
@@ -92,7 +92,7 @@ test "ui nodes map block display and aspect ratio into block layout" {
     ),
     [child],
   )
-  taffy.compute_layout(root, @moon_taffy.Size::max_content())
+  taffy.compute_layout(root, @geometry.Size::max_content())
 
   let layout = taffy.layout(child)
   inspect(layout.size.width == 360.0, content="true")
@@ -103,7 +103,7 @@ test "ui nodes map block display and aspect ratio into block layout" {
 
 ///|
 test "ui nodes map grid placement and self alignment into grid layout" {
-  let taffy : @moon_taffy.TaffyTree[Unit] = @moon_taffy.TaffyTree::new()
+  let taffy : @tree.TaffyTree[Unit] = @tree.TaffyTree::TaffyTree()
   let child0 = taffy.new_leaf(
     node_to_taffy_style(
       Node(
@@ -140,7 +140,7 @@ test "ui nodes map grid placement and self alignment into grid layout" {
     ),
     [child0, child1],
   )
-  taffy.compute_layout(root, @moon_taffy.Size::max_content())
+  taffy.compute_layout(root, @geometry.Size::max_content())
 
   let layout0 = taffy.layout(child0)
   inspect(layout0.location.x == 20.0, content="true")
@@ -167,36 +167,36 @@ test "ui nodes map style-only grid and flex fields into taffy style" {
   )
 
   let has_percent_basis = match style.flex_basis {
-    @moon_taffy.DimPercent(value) => value == 0.25
+    @style.DimPercent(value) => value == 0.25
     _ => false
   }
   inspect(has_percent_basis, content="true")
   inspect(style.scrollbar_width == 12.0, content="true")
 
   let has_auto_row = match style.grid_auto_rows[0] {
-    @moon_taffy.DimLength(value) => value == 16.0
+    @style.DimLength(value) => value == 16.0
     _ => false
   }
   inspect(has_auto_row, content="true")
 
   let has_auto_column = match style.grid_auto_columns[0] {
-    @moon_taffy.DimFr(value) => value == 1.0
+    @style.DimFr(value) => value == 1.0
     _ => false
   }
   inspect(has_auto_column, content="true")
 
   let is_column_dense = match style.grid_auto_flow {
-    @moon_taffy.ColumnDense => true
+    @style.ColumnDense => true
     _ => false
   }
   inspect(is_column_dense, content="true")
 
   let has_repeated_template = match style.grid_template_columns[0] {
-    @moon_taffy.DimRepeat(@moon_taffy.RepeatCount(2), tracks) => {
+    @style.DimRepeat(@style.RepeatCount(2), tracks) => {
       let has_single_track = tracks.length() == 1
       let has_length_track = if has_single_track {
         match tracks[0] {
-          @moon_taffy.DimLength(value) => value == 20.0
+          @style.DimLength(value) => value == 20.0
           _ => false
         }
       } else {
@@ -209,7 +209,7 @@ test "ui nodes map style-only grid and flex fields into taffy style" {
   inspect(has_repeated_template, content="true")
 
   let has_hidden_overflow = match style.overflow.x {
-    @moon_taffy.OverflowHidden => true
+    @style.OverflowHidden => true
     _ => false
   }
   inspect(has_hidden_overflow, content="true")

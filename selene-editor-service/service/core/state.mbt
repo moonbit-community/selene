@@ -81,7 +81,7 @@ fn EditorService::add_subscriber(
 ) -> (Int, @async.Queue[@shared.EventEnvelope]) {
   let id = self.next_subscriber_id
   self.next_subscriber_id += 1
-  let queue = @async.Queue::new(kind=Unbounded)
+  let queue = @async.Queue::Queue(kind=Unbounded)
   self.subscribers.set(id, queue)
   (id, queue)
 }

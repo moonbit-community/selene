@@ -1,8 +1,8 @@
 ///|
 fn sync_impulse_joints_to_rapier() -> Unit {
   let world = physics3d_world()
-  world.impulse_joints = @dynamics.JointSet3DReal::new()
-  world.rope_joints = @dynamics.RopeJointSet3DReal::new()
+  world.impulse_joints = @dynamics.JointSet3DReal::JointSet3DReal()
+  world.rope_joints = @dynamics.RopeJointSet3DReal::RopeJointSet3DReal()
   for pair in impulse_joint_handles().to_array() {
     impulse_joint_handles().remove(pair.0)
   }
@@ -103,7 +103,7 @@ fn sync_impulse_joints_to_rapier() -> Unit {
 ///|
 fn sync_multibody_joints_to_rapier() -> Unit {
   let world = physics3d_world()
-  world.multibody_joints = @dynamics.MultibodyJointSet3DReal::new()
+  world.multibody_joints = @dynamics.MultibodyJointSet3DReal::MultibodyJointSet3DReal()
   for pair in multibody_joint_handles().to_array() {
     multibody_joint_handles().remove(pair.0)
   }
@@ -172,7 +172,7 @@ fn sync_character_controllers(delta : Double) -> Unit {
       shape,
       transform.rotation,
     )
-    let position = @core.Isometry3::new(
+    let position = @core.Isometry3::Isometry3(
       transform.translation.to_rapier(),
       shape_rotation.to_rapier(),
     )
@@ -266,7 +266,7 @@ fn sync_collider_to_rapier(
             entity, body_entity,
           )
           collider.set_local_position(
-            @core.Isometry3::new(
+            @core.Isometry3::Isometry3(
               relative_transform.translation.to_rapier(),
               relative_transform.rotation.to_rapier(),
             ),

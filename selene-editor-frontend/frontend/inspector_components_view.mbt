@@ -6,7 +6,7 @@ fn labeled_input(
 ) -> @rabbita.Html {
   @html.label(class="field", [
     @html.span(class="field-label", label),
-    @html.input(value~, class="field-input", on_input=on_change, @html.nothing),
+    @html.input(value~, class="field-input", on_input=on_change),
   ])
 }
 
@@ -28,19 +28,13 @@ fn labeled_input_with_commit(
     })
   @html.label(class="field", [
     @html.span(class="field-label", label),
-    @html.input(
-      value~,
-      class="field-input",
-      on_input=on_change,
-      attrs~,
-      @html.nothing,
-    ),
+    @html.input(value~, class="field-input", on_input=on_change, attrs~),
   ])
 }
 
 ///|
 fn transform_component_body(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   transform : @editor_bridge.Transform2dComponent,
 ) -> @rabbita.Html {
   @html.div(class="inspector-block", [
@@ -67,7 +61,7 @@ fn transform_component_body(
 
 ///|
 fn text_component_body(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   text_component : @editor_bridge.Text2dComponent,
 ) -> @rabbita.Html {
   @html.div(class="inspector-block", [
@@ -101,7 +95,7 @@ fn sprite_component_body(
 
 ///|
 fn visibility_component_body(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   visibility_component : @editor_bridge.VisibilityComponent,
 ) -> @rabbita.Html {
   @html.div(class="inspector-block", [
@@ -119,7 +113,7 @@ fn visibility_component_body(
 
 ///|
 fn animation_player_component_body(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   player : @editor_bridge.AnimationPlayerComponent,
 ) -> @rabbita.Html {
   let repeat_mode = player.repeat_mode_doc()
@@ -224,7 +218,7 @@ fn animation_player_component_body(
 
 ///|
 fn animation_transitions_component_body(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   transitions : @editor_bridge.AnimationTransitionsComponent,
 ) -> @rabbita.Html {
   @html.div(class="inspector-block", [
@@ -305,7 +299,7 @@ fn animation_graph_canvas_project(
 ///|
 fn graph_node_drag_attrs(
   node_id : String,
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   graph_edge_connect_source_node : String?,
 ) -> @html.Attrs {
   @html.Attrs::build()
@@ -337,9 +331,7 @@ fn graph_node_drag_attrs(
 }
 
 ///|
-fn graph_canvas_drop_attrs(
-  dispatch : @rabbita.Dispatch[@app.Msg],
-) -> @html.Attrs {
+fn graph_canvas_drop_attrs(dispatch : @rabbita.Emit[@app.Msg]) -> @html.Attrs {
   @html.Attrs::build()
   .on_dragover(fn(event) {
     event.prevent_default()
@@ -378,7 +370,7 @@ fn graph_canvas_drop_attrs(
 
 ///|
 fn animation_graph_canvas_view(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   graph : @editor_bridge.AnimationGraphAssetDocument,
   graph_edge_connect_source_node : String?,
 ) -> @rabbita.Html {
@@ -452,7 +444,7 @@ fn animation_graph_canvas_view(
 
 ///|
 fn animation_graph_edge_editor(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   node_id : String,
   edge_index : Int,
   edge : @editor_bridge.AnimationGraphEdgeDocument,
@@ -484,7 +476,7 @@ fn animation_graph_edge_editor(
 
 ///|
 fn animation_graph_node_card(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   graph : @editor_bridge.AnimationGraphAssetDocument,
   node : @editor_bridge.AnimationGraphNodeDocument,
 ) -> @rabbita.Html {
@@ -579,7 +571,7 @@ fn animation_graph_node_card(
 
 ///|
 fn custom_component_body(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   model : @app.ViewState,
   entity : @editor_bridge.EntityDocument,
   component : @editor_bridge.ComponentDocument,
@@ -631,7 +623,7 @@ fn autotile_rule_set_label(
 
 ///|
 fn autotile_component_body(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   model : @app.ViewState,
   layer : @editor_bridge.AutoTileLayer2dComponent,
 ) -> @rabbita.Html {

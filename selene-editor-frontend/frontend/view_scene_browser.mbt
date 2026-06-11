@@ -1,8 +1,8 @@
 ///|
 fn subscribe_preview_events_cmd(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
 ) -> @rabbita.Cmd {
-  @cmd.custom_cmd(fn(scheduler : @cmd.Scheduler) {
+  @cmd.custom_cmd(fn(scheduler : &@cmd.Scheduler) {
     @preview.set_event_sink(
       Some(fn(event) {
         schedule_cmd(scheduler, dispatch(@app.msg_preview_event(event)))
@@ -12,10 +12,8 @@ fn subscribe_preview_events_cmd(
 }
 
 ///|
-fn subscribe_shortcuts_cmd(
-  dispatch : @rabbita.Dispatch[@app.Msg],
-) -> @rabbita.Cmd {
-  @cmd.custom_cmd(fn(scheduler : @cmd.Scheduler) {
+fn subscribe_shortcuts_cmd(dispatch : @rabbita.Emit[@app.Msg]) -> @rabbita.Cmd {
+  @cmd.custom_cmd(fn(scheduler : &@cmd.Scheduler) {
     subscribe_shortcuts_forever(
       fn() { schedule_cmd(scheduler, dispatch(@app.msg_undo_scene())) },
       fn() { schedule_cmd(scheduler, dispatch(@app.msg_redo_scene())) },
@@ -132,7 +130,7 @@ fn preview_cmd(command : @bridge.PreviewCommand) -> @rabbita.Cmd {
 
 ///|
 fn rpc_effect_cmd(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   binding : @app.RpcBinding,
 ) -> @rabbita.Cmd {
   rpc_cmd(binding, dispatch)
@@ -140,7 +138,7 @@ fn rpc_effect_cmd(
 
 ///|
 fn effect_to_cmd(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   effect : @app.Effect,
 ) -> @rabbita.Cmd {
   match effect {
@@ -155,7 +153,7 @@ fn effect_to_cmd(
 
 ///|
 fn effects_to_cmd(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   effects : Array[@app.Effect],
 ) -> @rabbita.Cmd {
   @cmd.batch(effects.map(fn(effect) { effect_to_cmd(dispatch, effect) }))
@@ -179,9 +177,9 @@ fn focus_component_search_cmd() -> @rabbita.Cmd {
 
 ///|
 fn subscribe_sidebar_layout_cmd(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
 ) -> @rabbita.Cmd {
-  @cmd.custom_cmd(fn(scheduler : @cmd.Scheduler) {
+  @cmd.custom_cmd(fn(scheduler : &@cmd.Scheduler) {
     subscribe_sidebar_layout_forever(
       fn(scene_ratio, assets_ratio) {
         schedule_cmd(
@@ -214,7 +212,7 @@ fn sync_resource_previews_cmd() -> @rabbita.Cmd {
 
 ///|
 fn scene_browser_action_button(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   hint : String,
   on_click : @rabbita.Cmd,
   label : String,
@@ -229,7 +227,7 @@ fn scene_browser_action_button(
 
 ///|
 fn scene_browser_view(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   model : @app.ViewState,
 ) -> @rabbita.Html {
   let items : Array[@rabbita.Html] = []

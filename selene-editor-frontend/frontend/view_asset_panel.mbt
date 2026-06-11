@@ -1,6 +1,6 @@
 ///|
 fn update(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   msg : @app.Msg,
   model : @app.Model,
 ) -> (@rabbita.Cmd, @app.Model) {
@@ -32,7 +32,7 @@ fn update(
 
 ///|
 fn selected_image_preview_probe_cmd(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   model : @app.Model,
 ) -> @rabbita.Cmd {
   match model.selected_resource {
@@ -111,7 +111,7 @@ fn sidebar_splitter(kind : String) -> @rabbita.Html {
 
 ///|
 fn tree_view(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   scene : @editor_bridge.SceneDocument,
   parent : String?,
   selected_ids : Array[String],
@@ -144,7 +144,7 @@ fn tree_view(
 
 ///|
 fn scene_tree_item_attrs(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   entity : @editor_bridge.EntityDocument,
 ) -> @html.Attrs {
   let hover_hint = "Entity: " +
@@ -166,7 +166,7 @@ fn scene_tree_item_attrs(
 
 ///|
 fn hint_attrs(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   label : String,
 ) -> @html.Attrs {
   @html.Attrs::build()
@@ -241,7 +241,7 @@ fn folder_ancestors_expanded(
 
 ///|
 fn tree_folder_row(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   depth : Int,
   label : String,
   hover_label : String,
@@ -285,7 +285,7 @@ fn tree_folder_row(
 
 ///|
 fn tree_file_row(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   selected : Bool,
   selection : @app.ResourceSelection,
   full_path : String,
@@ -327,7 +327,7 @@ fn tree_file_row(
 
 ///|
 fn asset_tree_file_attrs(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   selection : @app.ResourceSelection,
   full_path : String,
   draggable_asset_path : String?,
@@ -371,7 +371,7 @@ fn asset_tree_file_attrs(
 
 ///|
 fn build_asset_tree_rows(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   model : @app.ViewState,
   paths : Array[String],
   section_key : String,
@@ -461,7 +461,7 @@ fn build_asset_tree_rows(
 
 ///|
 fn asset_scope_button(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   current_scope : @app.AssetScope,
   scope : @app.AssetScope,
   label : String,
@@ -487,7 +487,7 @@ fn asset_scope_divider(title : String, count : Int) -> @rabbita.Html {
 
 ///|
 fn asset_panel_view(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   model : @app.ViewState,
 ) -> @rabbita.Html {
   let has_asset_filter = model.asset_query_normalized() != ""
@@ -623,7 +623,6 @@ fn asset_panel_view(
       value=model.asset_query,
       placeholder="Filter assets",
       on_input=fn(value) { dispatch(@app.msg_set_asset_query(value)) },
-      @html.nothing,
     ),
     @html.div(class="asset-scope-filter", [
       asset_scope_button(dispatch, model.asset_scope, scope_images, "Images"),

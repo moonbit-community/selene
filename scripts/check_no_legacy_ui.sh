@@ -7,7 +7,6 @@ TMP_FILE="/tmp/selene-legacy-ui-check.txt"
 
 patterns=(
   'Milky2018/selene/style'
-  '@style'
   '\bUiSpace\b'
   '\bscreen_root\b'
   '\bvirtual_root\b'

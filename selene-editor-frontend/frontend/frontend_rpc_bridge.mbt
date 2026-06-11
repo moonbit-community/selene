@@ -54,27 +54,27 @@ fn rpc_msg_from_payload(
 ///|
 fn rpc_cmd(
   binding : @app.RpcBinding,
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
 ) -> @rabbita.Cmd {
-  @http.post(
-    "/rpc",
-    @http.Body::Json(binding.request_envelope().to_json()),
-    expect=@http.Json(
-      fn(result) {
-        match result {
-          Ok(msg) => dispatch(msg)
-          Err(message) => {
-            console_error("RPC " + binding.scope() + " failed: " + message)
-            dispatch(binding.transport_error_msg(message))
+  @http.post("/rpc")
+  .with_json(binding.request_envelope().to_json())
+  .expect_json(
+    dispatch.map(fn(result : Result[Json, Error]) {
+      match result {
+        Ok(payload) =>
+          rpc_msg_from_payload(binding, payload) catch {
+            InvalidRpcPayload(message) => {
+              console_error("RPC " + binding.scope() + " failed: " + message)
+              binding.transport_error_msg(message)
+            }
           }
+        Err(err) => {
+          let message = err.to_string()
+          console_error("RPC " + binding.scope() + " failed: " + message)
+          binding.transport_error_msg(message)
         }
-      },
-      fn(payload) {
-        Ok(rpc_msg_from_payload(binding, payload)) catch {
-          InvalidRpcPayload(message) => Err(message)
-        }
-      },
-    ),
+      }
+    }),
   )
 }
 
@@ -94,7 +94,7 @@ extern "js" fn subscribe_events_forever(
 ///|
 
 ///|
-fn schedule_cmd(scheduler : @cmd.Scheduler, cmd : @rabbita.Cmd) -> Unit {
+fn schedule_cmd(scheduler : &@cmd.Scheduler, cmd : @rabbita.Cmd) -> Unit {
   scheduler.add(cmd)
 }
 

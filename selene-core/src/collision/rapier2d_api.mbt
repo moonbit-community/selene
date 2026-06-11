@@ -88,7 +88,7 @@ pub fn raycast(
   refresh_query_world()
   let query = make_query_pipeline(query_filter)
   let normalized = direction.normalize()
-  let ray = @rapier_collision.Ray::new(
+  let ray = @rapier_collision.Ray::Ray(
     to_physics_vec2(origin),
     to_physics_direction(normalized),
   )
@@ -136,7 +136,7 @@ pub fn shape_cast(
   }
   refresh_query_world()
   let query = make_query_pipeline(query_filter)
-  let options = @rapier_collision.ShapeCastOptions::new(
+  let options = @rapier_collision.ShapeCastOptions::ShapeCastOptions(
     Float::from_double(to_physics_scalar(max_toi)),
     stop_at_penetration,
   )

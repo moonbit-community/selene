@@ -98,7 +98,7 @@ fn motor_model_to_rapier(
 fn joint_softness_to_rapier(
   softness : JointSoftness,
 ) -> @rapier_dynamics.SpringCoefficients {
-  @rapier_dynamics.SpringCoefficients::new(
+  @rapier_dynamics.SpringCoefficients::SpringCoefficients(
     Float::from_double(softness.natural_frequency),
     Float::from_double(softness.damping_ratio),
   )
@@ -139,13 +139,13 @@ fn entity_joint_config_key(
 fn joint_to_rapier(joint : Joint) -> @rapier_dynamics.GenericJoint? {
   let generic = match joint.kind {
     Fixed(local_anchor1~, local_anchor2~) => {
-      let builder = @rapier_dynamics.FixedJointBuilder::new()
+      let builder = @rapier_dynamics.FixedJointBuilder::FixedJointBuilder()
         .local_anchor1(to_physics_vec2(local_anchor1))
         .local_anchor2(to_physics_vec2(local_anchor2))
       Some(@rapier_dynamics.GenericJoint::from_fixed(builder.build()))
     }
     Revolute(local_anchor1~, local_anchor2~, limits~, motor~, softness~) => {
-      let mut builder = @rapier_dynamics.RevoluteJointBuilder::new()
+      let mut builder = @rapier_dynamics.RevoluteJointBuilder::RevoluteJointBuilder()
         .local_anchor1(to_physics_vec2(local_anchor1))
         .local_anchor2(to_physics_vec2(local_anchor2))
       if limits is Some(limits) {
@@ -190,7 +190,7 @@ fn joint_to_rapier(joint : Joint) -> @rapier_dynamics.GenericJoint? {
       if vec2_length_squared(axis) <= EPSILON {
         None
       } else {
-        let mut builder = @rapier_dynamics.PrismaticJointBuilder::new(
+        let mut builder = @rapier_dynamics.PrismaticJointBuilder::PrismaticJointBuilder(
             to_physics_direction(axis.normalize()),
           )
           .local_anchor1(to_physics_vec2(local_anchor1))
@@ -207,7 +207,7 @@ fn joint_to_rapier(joint : Joint) -> @rapier_dynamics.GenericJoint? {
       if max_distance < 0.0 {
         None
       } else {
-        let builder = @rapier_dynamics.RopeJointBuilder::new(
+        let builder = @rapier_dynamics.RopeJointBuilder::RopeJointBuilder(
             Float::from_double(to_physics_scalar(max_distance)),
           )
           .local_anchor1(to_physics_vec2(local_anchor1))
@@ -225,7 +225,7 @@ fn joint_to_rapier(joint : Joint) -> @rapier_dynamics.GenericJoint? {
       if rest_length < 0.0 {
         None
       } else {
-        let spring = @rapier_dynamics.SpringJointBuilder::new(
+        let spring = @rapier_dynamics.SpringJointBuilder::SpringJointBuilder(
             Float::from_double(to_physics_scalar(rest_length)),
             Float::from_double(stiffness),
             Float::from_double(damping),
@@ -281,7 +281,7 @@ fn multibody_joint_to_rapier(
   }
   match joint.kind {
     Revolute(local_anchor1~, local_anchor2~, limits~, motor~, softness~) => {
-      let mut builder = @rapier_dynamics.RevoluteJointBuilder::new()
+      let mut builder = @rapier_dynamics.RevoluteJointBuilder::RevoluteJointBuilder()
         .local_anchor1(to_physics_vec2(local_anchor1))
         .local_anchor2(to_physics_vec2(local_anchor2))
       if limits is Some(limits) {

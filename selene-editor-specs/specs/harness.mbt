@@ -428,7 +428,12 @@ pub async fn EditorHarness::given_image_asset(
   if !@fs.exists(parent) {
     @fs.mkdir(parent, permission=0o755, recursive=true)
   }
-  @fs.write_file(full_path, b"fake-image", create=0o644)
+  @fs.write_file(
+    full_path,
+    b"fake-image",
+    create_mode=@fs.CreateOrTruncate,
+    permission=0o644,
+  )
 }
 
 ///|
@@ -446,7 +451,12 @@ pub async fn EditorHarness::given_text_file(
   if !@fs.exists(parent) {
     @fs.mkdir(parent, permission=0o755, recursive=true)
   }
-  @fs.write_file(full_path, content |> @utf8.encode, create=0o644)
+  @fs.write_file(
+    full_path,
+    content |> @utf8.encode,
+    create_mode=@fs.CreateOrTruncate,
+    permission=0o644,
+  )
 }
 
 ///|
@@ -485,7 +495,12 @@ async fn ensure_project_layout(root : String) -> Unit {
 ///|
 async fn write_text_file(path : String, content : String) -> Unit {
   ensure_parent_dir(path)
-  @fs.write_file(path, @utf8.encode(content), create=0o644)
+  @fs.write_file(
+    path,
+    @utf8.encode(content),
+    create_mode=@fs.CreateOrTruncate,
+    permission=0o644,
+  )
 }
 
 ///|

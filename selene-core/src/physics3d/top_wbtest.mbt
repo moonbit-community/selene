@@ -114,7 +114,7 @@ test "query filter groups and contact force events work in 3d" {
     inspect(hit.entity == filtered, content="true")
 
     physics3d_world().event_handler.push_contact_force_event(
-      @collision.ContactForceEvent3D::new(
+      @collision.ContactForceEvent3D::ContactForceEvent3D(
         @collision.ColliderHandle3D::from_raw_parts(1, 0),
         @collision.ColliderHandle3D::from_raw_parts(2, 0),
         @math.Vec3(0.0, 3.0, 0.0).to_rapier(),
@@ -397,7 +397,9 @@ test "collision and intersection events map to selene event buses" {
       @collision.CollisionEvent3D::Started(sensor_handle, other_handle, flags),
     )
     physics3d_world().event_handler.push_intersection_event(
-      @collision.IntersectionEvent3D::new(sensor_handle, other_handle, true),
+      @collision.IntersectionEvent3D::IntersectionEvent3D(
+        sensor_handle, other_handle, true,
+      ),
     )
     collect_events()
 
@@ -675,7 +677,9 @@ test "multibody joints expose generic handles for all 3d joint variants" {
 
 ///|
 test "revolute joint forwards limits motor model and softness" {
-  let expected_softness = @dynamics.SpringCoefficients::new(0.35F, 6.0F)
+  let expected_softness = @dynamics.SpringCoefficients::SpringCoefficients(
+    0.35F, 6.0F,
+  )
   let joint = {
     ..RevoluteJoint(@math.Vec3::z_axis()),
     limits: Some((-0.5, 0.75)),
@@ -885,7 +889,7 @@ test "kinematic character controller writes output and clears consumed translati
 
 ///|
 test "character controller options are forwarded to rapier controller" {
-  let autostep = CharacterAutostep::new(
+  let autostep = CharacterAutostep::CharacterAutostep(
     CharacterLength::absolute(0.6),
     CharacterLength::absolute(1.2),
   ).with_include_dynamic_bodies(false)

@@ -3,11 +3,23 @@
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.34.6] - 2026-06-11
+
+### Added
 - Added a native raylib launcher for the `tank3d` example.
 - Added separate `examples-web` and `examples-native` workspace modules for backend-specific example wrappers.
 - Added native raylib launchers for `cards`, `pixeladventure`, `scene3d`, and `survivors`.
 
 ### Changed
+- Changed workspace dependencies to current registry versions, including `Milky2018/moon_rapier@0.5.1`, `Milky2018/moon_taffy@0.5.2`, `Milky2018/moon_cosmic@0.3.3`, `moonbit-community/rabbita@0.12.4`, `moonbitlang/async@0.19.3`, `moonbitlang/x@0.4.45`, `tonyfettes/raylib@0.4.0`, and updated `gmlewis/*` codec dependencies.
+- Changed native test invocations to run with `--release`, including GitHub Actions native test jobs.
 - Changed MoonBit error handling to remove deprecated `try?` usage and internal `Result` type surfaces in favor of typed raising APIs and explicit editor async outcomes.
 - Changed example builds so shared example logic, WebGPU wrappers, and raylib wrappers live in separate MoonBit modules with their own target constraints.
 - Changed the `tank3d` example asset path to the standard `assets/tank3d/...` layout shared by web and native runs.

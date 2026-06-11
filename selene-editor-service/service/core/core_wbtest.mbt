@@ -98,7 +98,8 @@ async test "project.open auto-migrates legacy project manifests missing indexes"
     @fs.write_file(
       path_join(root, "selene.project.json"),
       legacy_manifest_text |> @utf8.encode,
-      create=0o644,
+      create_mode=@fs.CreateOrTruncate,
+      permission=0o644,
     )
     @fs.write_file(
       path_join(root, "scenes/main.scene.json"),
@@ -107,7 +108,8 @@ async test "project.open auto-migrates legacy project manifests missing indexes"
       .stringify(indent=2) +
       "\n")
       |> @utf8.encode,
-      create=0o644,
+      create_mode=@fs.CreateOrTruncate,
+      permission=0o644,
     )
     group.add_defer(() => {
       if @fs.exists(temp_root) {
@@ -161,7 +163,8 @@ async test "project.open fails when workspace.json is invalid instead of silentl
     @fs.write_file(
       path_join(root, ".selene-editor/workspace.json"),
       "{\n  \"version\": 2,\n  \"move_snap_step\": 0\n}\n" |> @utf8.encode,
-      create=0o644,
+      create_mode=@fs.CreateOrTruncate,
+      permission=0o644,
     )
 
     let payload = service.handle_rpc(
@@ -197,7 +200,8 @@ async test "project.open migrates legacy workspace.json to envelope format" {
       path_join(root, ".selene-editor/workspace.json"),
       "{\n  \"version\": 2,\n  \"last_scene\": \"scenes/main.scene.json\",\n  \"move_snap_enabled\": true,\n  \"move_snap_step\": 16\n}\n"
       |> @utf8.encode,
-      create=0o644,
+      create_mode=@fs.CreateOrTruncate,
+      permission=0o644,
     )
 
     let payload = service.handle_rpc(
@@ -395,7 +399,8 @@ async test "service typed rpc surface succeeds across current workspace actions"
     @fs.write_file(
       path_join(root, "assets/images/hero.png"),
       b"fake-image",
-      create=0o644,
+      create_mode=@fs.CreateOrTruncate,
+      permission=0o644,
     )
 
     let current_payload = service.handle_rpc(
@@ -693,7 +698,8 @@ async test "service typed rpc surface returns stable errors for missing or inval
     @fs.write_file(
       invalid_scene_path,
       "{\"version\":1,\"entities\":" |> @utf8.encode,
-      create=0o644,
+      create_mode=@fs.CreateOrTruncate,
+      permission=0o644,
     )
     let invalid_scene_payload = service.handle_rpc(
       @shared.rpc_request_envelope(
@@ -725,7 +731,8 @@ async test "service typed rpc surface returns stable errors for missing or inval
       path_join(root, "prefabs/broken.prefab.json"),
       "{\n  \"version\": 1,\n  \"name\": \"\",\n  \"entities\": []\n}\n"
       |> @utf8.encode,
-      create=0o644,
+      create_mode=@fs.CreateOrTruncate,
+      permission=0o644,
     )
     let invalid_prefab_payload = service.handle_rpc(
       @shared.rpc_request_envelope(
@@ -744,7 +751,8 @@ async test "service typed rpc surface returns stable errors for missing or inval
       path_join(root, "assets/atlases/broken.atlas.json"),
       "{\n  \"version\": 1,\n  \"name\": \"Broken\",\n  \"source_image\": \"assets/images/hero.png\",\n  \"tile_size\": {\"x\": 0, \"y\": 0},\n  \"columns\": 0,\n  \"rows\": 0,\n  \"spacing\": {\"x\": 0, \"y\": 0},\n  \"margin\": {\"x\": 0, \"y\": 0},\n  \"default_anchor\": {\"x\": 0.5, \"y\": 0.5},\n  \"regions\": []\n}\n"
       |> @utf8.encode,
-      create=0o644,
+      create_mode=@fs.CreateOrTruncate,
+      permission=0o644,
     )
     let invalid_atlas_payload = service.handle_rpc(
       @shared.rpc_request_envelope(
@@ -762,7 +770,8 @@ async test "service typed rpc surface returns stable errors for missing or inval
     @fs.write_file(
       path_join(root, "assets/animation_clips/broken.clip.json"),
       "{\n  \"version\": 3,\n  \"name\": \"Broken\"\n}\n" |> @utf8.encode,
-      create=0o644,
+      create_mode=@fs.CreateOrTruncate,
+      permission=0o644,
     )
     let invalid_animation_payload = service.handle_rpc(
       @shared.rpc_request_envelope(
@@ -798,13 +807,15 @@ async test "scene.load can require migration and scene.migrate writes back the m
         ),
       )
       |> @utf8.encode,
-      create=0o644,
+      create_mode=@fs.CreateOrTruncate,
+      permission=0o644,
     )
     @fs.write_file(
       path_join(root, "scenes/main.scene.json"),
       "{\n  \"version\": 2,\n  \"entities\": [\n    {\n      \"id\": \"camera\",\n      \"name\": \"Camera2d\",\n      \"components\": [\n        {\n          \"kind\": \"Transform2d\",\n          \"data\": {\n            \"translation\": {\n              \"x\": 0,\n              \"y\": 0\n            },\n            \"rotation\": 0,\n            \"scale\": {\n              \"x\": 1,\n              \"y\": 1\n            }\n          }\n        },\n        {\n          \"kind\": \"Camera2d\",\n          \"data\": {\n            \"is_active\": true,\n            \"order\": 0,\n            \"scale\": 1\n          }\n        },\n        {\n          \"kind\": \"Visibility\",\n          \"data\": {\n            \"visible\": true\n          }\n        }\n      ]\n    }\n  ]\n}\n"
       |> @utf8.encode,
-      create=0o644,
+      create_mode=@fs.CreateOrTruncate,
+      permission=0o644,
     )
     group.add_defer(() => {
       if @fs.exists(temp_root) {

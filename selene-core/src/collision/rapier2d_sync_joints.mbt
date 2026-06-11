@@ -52,7 +52,7 @@ fn query_shape_isometry(
 fn to_rapier_query_filter(
   query_filter : SpatialQueryFilter,
 ) -> @rapier_collision.QueryFilter {
-  let mut filter = @rapier_collision.QueryFilter::new()
+  let mut filter = @rapier_collision.QueryFilter::QueryFilter()
   if query_filter.groups is Some(groups) {
     filter = filter.groups(to_rapier_groups(groups))
   }
@@ -82,7 +82,7 @@ fn to_rapier_query_filter(
 fn make_query_pipeline(
   query_filter : SpatialQueryFilter,
 ) -> @rapier_collision.QueryPipeline {
-  @rapier_collision.QueryPipeline::new(
+  @rapier_collision.QueryPipeline::QueryPipeline(
     to_rapier_query_filter(query_filter),
     world().bodies,
     world().colliders,

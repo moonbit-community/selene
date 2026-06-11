@@ -168,7 +168,7 @@ fn groups_from_mask(mask : Array[CollisionGroup]) -> @rapier_dynamics.Group {
 fn to_rapier_groups(
   filter : CollisionFilter,
 ) -> @rapier_dynamics.InteractionGroups {
-  @rapier_dynamics.InteractionGroups::new(
+  @rapier_dynamics.InteractionGroups::InteractionGroups(
     group_from_collision(filter.group),
     if filter.match_all {
       @rapier_dynamics.Group::all()

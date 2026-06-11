@@ -13,7 +13,10 @@ import {
   "Milky2018/selene/system",
   "Milky2018/selene/transform",
   "Milky2018/selene/visibility",
-  "Milky2018/moon_taffy",
+  "Milky2018/moon_taffy/geometry",
+  "Milky2018/moon_taffy/style",
+  "Milky2018/moon_taffy/style_helpers",
+  "Milky2018/moon_taffy/tree",
   "moonbitlang/core/cmp",
   "moonbitlang/core/string",
 }

@@ -3,9 +3,9 @@ fn interaction_groups(
   memberships : Int,
   filters : Int,
 ) -> @dynamics.InteractionGroups {
-  @dynamics.InteractionGroups::new(
-    @dynamics.Group::new(memberships),
-    @dynamics.Group::new(filters),
+  @dynamics.InteractionGroups::InteractionGroups(
+    @dynamics.Group::Group(memberships),
+    @dynamics.Group::Group(filters),
     And,
   )
 }
@@ -123,7 +123,9 @@ fn fixed_joint_to_rapier(
   joint : FixedJoint,
   contacts_enabled? : Bool = true,
 ) -> @dynamics.GenericJoint3DReal {
-  @dynamics.GenericJoint3DRealBuilder::new(@dynamics.JointAxesMask3DReal::all())
+  @dynamics.GenericJoint3DRealBuilder::GenericJoint3DRealBuilder(
+    @dynamics.JointAxesMask3DReal::all(),
+  )
   .contacts_enabled(contacts_enabled)
   .local_anchor1(joint.local_anchor1.to_rapier())
   .local_anchor2(joint.local_anchor2.to_rapier())
@@ -148,7 +150,9 @@ fn revolute_joint_to_generic(
   let locked = @dynamics.JointAxesMask3DReal::lin_axes()
     .or(@dynamics.JointAxesMask3DReal::ang_y())
     .or(@dynamics.JointAxesMask3DReal::ang_z())
-  let mut builder = @dynamics.GenericJoint3DRealBuilder::new(locked)
+  let mut builder = @dynamics.GenericJoint3DRealBuilder::GenericJoint3DRealBuilder(
+      locked,
+    )
     .contacts_enabled(contacts_enabled)
     .local_axis1(joint.axis.to_rapier())
     .local_axis2(joint.axis.to_rapier())
@@ -201,7 +205,9 @@ fn prismatic_joint_to_rapier(
   let locked = @dynamics.JointAxesMask3DReal::lin_y()
     .or(@dynamics.JointAxesMask3DReal::lin_z())
     .or(@dynamics.JointAxesMask3DReal::ang_axes())
-  let mut builder = @dynamics.GenericJoint3DRealBuilder::new(locked)
+  let mut builder = @dynamics.GenericJoint3DRealBuilder::GenericJoint3DRealBuilder(
+      locked,
+    )
     .contacts_enabled(contacts_enabled)
     .local_axis1(joint.axis.to_rapier())
     .local_axis2(joint.axis.to_rapier())
@@ -244,7 +250,7 @@ fn spherical_joint_to_rapier(
   joint : SphericalJoint,
   contacts_enabled? : Bool = true,
 ) -> @dynamics.GenericJoint3DReal {
-  let mut builder = @dynamics.GenericJoint3DRealBuilder::new(
+  let mut builder = @dynamics.GenericJoint3DRealBuilder::GenericJoint3DRealBuilder(
     @dynamics.JointAxesMask3DReal::lin_axes(),
   ).contacts_enabled(contacts_enabled)
   builder = builder
@@ -259,7 +265,9 @@ fn rope_joint_to_rapier(
   contacts_enabled? : Bool = true,
 ) -> @dynamics.GenericJoint3DReal {
   @dynamics.GenericJoint::from_rope(
-    @dynamics.RopeJointBuilder3::new(Float::from_double(joint.max_distance))
+    @dynamics.RopeJointBuilder3::RopeJointBuilder3(
+      Float::from_double(joint.max_distance),
+    )
     .local_anchor1(joint.local_anchor1.to_rapier())
     .local_anchor2(joint.local_anchor2.to_rapier())
     .build(),
@@ -274,7 +282,9 @@ fn spring_joint_to_rapier(
   contacts_enabled? : Bool = true,
 ) -> @dynamics.GenericJoint3DReal {
   @dynamics.GenericJoint::from_rope(
-    @dynamics.RopeJointBuilder3::new(Float::from_double(joint.rest_length))
+    @dynamics.RopeJointBuilder3::RopeJointBuilder3(
+      Float::from_double(joint.rest_length),
+    )
     .local_anchor1(joint.local_anchor1.to_rapier())
     .local_anchor2(joint.local_anchor2.to_rapier())
     .motor_position(
@@ -303,7 +313,7 @@ fn multibody_joint_to_rapier(
     Rope(rope_joint) =>
       Some(rope_joint_to_rapier(rope_joint, contacts_enabled~))
     Spherical(spherical_joint) => {
-      let mut builder = @dynamics.GenericJoint3DRealBuilder::new(
+      let mut builder = @dynamics.GenericJoint3DRealBuilder::GenericJoint3DRealBuilder(
           @dynamics.JointAxesMask3DReal::lin_axes(),
         )
         .contacts_enabled(contacts_enabled)
@@ -342,7 +352,7 @@ fn multibody_joint_to_rapier(
 fn controller_to_rapier(
   controller : KinematicCharacterController,
 ) -> @control.KinematicCharacterController3DReal {
-  @control.KinematicCharacterController3DReal::new()
+  @control.KinematicCharacterController3DReal::KinematicCharacterController3DReal()
   .with_offset(controller.offset)
   .with_slide(controller.slide)
   .with_autostep(controller.autostep)
@@ -402,7 +412,7 @@ fn make_query_pipeline(
   query_filter? : QueryFilter = QueryFilter::all(),
 ) -> @collision.QueryPipeline3DReal {
   let world = physics3d_world()
-  @collision.QueryPipeline3DReal::new(
+  @collision.QueryPipeline3DReal::QueryPipeline3DReal(
     to_query_filter(query_filter),
     world.bodies,
     world.colliders,
@@ -499,16 +509,16 @@ fn to_query_shape_with_rotation(
 ///|
 fn to_query_filter(query_filter : QueryFilter) -> @collision.QueryFilter3DReal {
   let mut filter = match query_filter.body_filter {
-    All => @collision.QueryFilter3DReal::new()
+    All => @collision.QueryFilter3DReal::QueryFilter3DReal()
     Dynamic => @collision.QueryFilter3DReal::only_dynamic()
     Fixed => @collision.QueryFilter3DReal::only_fixed()
     Kinematic => @collision.QueryFilter3DReal::only_kinematic()
   }
   if query_filter.groups is Some(groups) {
     filter = filter.groups(
-      @dynamics.InteractionGroups::new(
-        @dynamics.Group::new(groups.memberships),
-        @dynamics.Group::new(groups.filters),
+      @dynamics.InteractionGroups::InteractionGroups(
+        @dynamics.Group::Group(groups.memberships),
+        @dynamics.Group::Group(groups.filters),
         And,
       ),
     )

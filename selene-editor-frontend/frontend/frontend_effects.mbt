@@ -431,8 +431,8 @@ fn drag_drop_translation(event : @dom.DragEvent) -> @editor_bridge.Vec2Doc? {
 }
 
 ///|
-fn subscribe_events_cmd(dispatch : @rabbita.Dispatch[@app.Msg]) -> @rabbita.Cmd {
-  @cmd.custom_cmd(fn(scheduler : @cmd.Scheduler) {
+fn subscribe_events_cmd(dispatch : @rabbita.Emit[@app.Msg]) -> @rabbita.Cmd {
+  @cmd.custom_cmd(fn(scheduler : &@cmd.Scheduler) {
     subscribe_events_forever(
       "/events",
       fn(data) {

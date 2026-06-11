@@ -61,7 +61,15 @@ jobs:
           cd selene-core
           moon update
           moon check --deny-warn
+          moon test src/animation src/app src/asset src/autotile2d src/collision src/editor_bridge src/entity src/event src/input_action src/inputs src/ldtk src/math src/physics3d src/render2d src/render3d src/render_submit src/runtime_debug src/scene3d src/sprite src/text2d src/tiled src/touch_controls src/transform src/ui --target native --release --deny-warn
           moon build
+
+      - name: selene-raylib
+        run: |
+          cd selene-raylib
+          moon update
+          moon check --target native --deny-warn
+          moon test src --target native --release --deny-warn
       
       - name: selene-webgpu
         run: |
@@ -87,6 +95,14 @@ jobs:
           cd selene-editor-service
           moon update
           moon check --target native --deny-warn
+          moon test service/core --target native --release --deny-warn
+
+      - name: selene-editor-specs
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          cd selene-editor-specs
+          moon update
+          moon test specs --target native --release --deny-warn
 
       - name: selene-examples
         if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -94,6 +110,14 @@ jobs:
           cd examples
           moon update
           moon check --deny-warn
+
+      - name: selene-examples-native
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          cd examples-native
+          moon update
+          moon check --target native --deny-warn
+          moon test support --target native --release --deny-warn
 
       - name: selene-examples-web
         if: ${{ matrix.os == 'ubuntu-latest' }}

@@ -5,5 +5,5 @@ BDD and integration coverage for Selene Editor open/edit/save/migration flows ac
 ## Test
 
 ```bash
-moon test --manifest-path moon.mod.json
+moon test specs --target native --release --deny-warn
 ```

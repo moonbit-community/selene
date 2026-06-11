@@ -1,6 +1,6 @@
 ///|
 fn component_body_view(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   model : @app.ViewState,
   entity : @editor_bridge.EntityDocument,
   component : @editor_bridge.ComponentDocument,
@@ -88,7 +88,7 @@ fn component_body_view(
 
 ///|
 fn remove_component_menu_item(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   model : @app.ViewState,
   component : @editor_bridge.ComponentDocument,
 ) -> @rabbita.Html {
@@ -115,7 +115,7 @@ fn remove_component_menu_item(
 
 ///|
 fn component_card(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   model : @app.ViewState,
   entity : @editor_bridge.EntityDocument,
   component : @editor_bridge.ComponentDocument,
@@ -159,7 +159,7 @@ fn component_card(
 
 ///|
 fn add_component_group(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   model : @app.ViewState,
   entity : @editor_bridge.EntityDocument,
   title : String,
@@ -223,7 +223,7 @@ fn matching_builtin_component_count(model : @app.ViewState) -> Int {
 
 ///|
 fn close_add_component_panel_on_escape_attrs(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
 ) -> @html.Attrs {
   @html.Attrs::build().on_keydown(fn(event) {
     if keyboard_event_is_escape_key(event) {
@@ -237,7 +237,7 @@ fn close_add_component_panel_on_escape_attrs(
 
 ///|
 fn custom_component_kind_input_attrs(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   value : String,
 ) -> @html.Attrs {
   @html.Attrs::build().on_keydown(fn(event) {
@@ -256,7 +256,7 @@ fn custom_component_kind_input_attrs(
 
 ///|
 fn add_component_panel(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   model : @app.ViewState,
   entity : @editor_bridge.EntityDocument,
 ) -> @rabbita.Html {
@@ -309,7 +309,6 @@ fn add_component_panel(
         dispatch(@app.msg_set_component_search_query(value))
       },
       attrs=close_add_component_panel_on_escape_attrs(dispatch),
-      @html.nothing,
     ),
     @html.div(
       class="component-add-search-meta",
@@ -341,7 +340,6 @@ fn add_component_panel(
           dispatch,
           model.add_custom_component_kind,
         ),
-        @html.nothing,
       ),
       @html.button(
         class="small-button component-add-item",

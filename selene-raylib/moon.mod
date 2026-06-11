@@ -1,11 +1,11 @@
 name = "Milky2018/selene_raylib"
 
-version = "0.34.5"
+version = "0.34.6"
 
 import {
-  "Milky2018/selene@0.34.5",
-  "tonyfettes/raylib@0.3.1",
-  "Milky2018/moon_cosmic@0.3.0",
+  "Milky2018/selene@0.34.6",
+  "tonyfettes/raylib@0.4.0",
+  "Milky2018/moon_cosmic@0.3.3",
 }
 
 readme = "README.md"

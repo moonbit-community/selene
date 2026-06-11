@@ -1,6 +1,6 @@
 ///|
 fn selected_asset_view(
-  dispatch : @rabbita.Dispatch[@app.Msg],
+  dispatch : @rabbita.Emit[@app.Msg],
   model : @app.ViewState,
 ) -> @rabbita.Html {
   match model.selected_resource {
@@ -33,7 +33,6 @@ fn selected_asset_view(
                     class="resource-preview-image",
                     src=project_asset_src(path),
                     alt=asset_display_name(asset),
-                    @html.nothing,
                   ),
                 ])
               },

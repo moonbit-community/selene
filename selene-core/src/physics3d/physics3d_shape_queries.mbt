@@ -326,7 +326,7 @@ fn set_standalone_collider_position(
   match current_world_transform(entity) {
     Some(transform) =>
       collider.set_position(
-        @core.Isometry3::new(
+        @core.Isometry3::Isometry3(
           transform.translation.to_rapier(),
           transform.rotation.to_rapier(),
         ),
