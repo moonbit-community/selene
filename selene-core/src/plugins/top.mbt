@@ -95,11 +95,18 @@ fn register_builtin_messages(app : @app.App) -> @app.App {
 ///|
 pub fn debug_plugin(app : @app.App) -> @app.App {
   let render_prepare = @system_set.named("render_prepare")
-  add_system(
+  let app = add_system(
     app,
     @physics2d.debug_colliders_system,
     RenderPrepare,
     "Debug Collide System",
+    in_set=render_prepare,
+  )
+  add_system(
+    app,
+    @physics3d.debug_colliders_system,
+    RenderPrepare,
+    "Debug Collider3D System",
     in_set=render_prepare,
   )
 }

@@ -637,6 +637,17 @@ extern "js" fn webgpu_initialize(
   #|         castShadows: !!castShadows,
   #|       });
   #|     };
+  #|     rt.pushLines3d = (verts) => {
+  #|       if (!rt.current3dSection) return;
+  #|       if (!verts || verts.length < 14) return;
+  #|       const lineVertexCount = Math.floor(verts.length / 7);
+  #|       if (lineVertexCount < 2) return;
+  #|       const out = new Float32Array(lineVertexCount * 7);
+  #|       for (let i = 0; i < out.length; i += 1) {
+  #|         out[i] = Number(verts[i]) || 0.0;
+  #|       }
+  #|       rt.current3dSection.lineCommands.push(out);
+  #|     };
   #|     rt.pushTexturedTriangles3d = (basePath, emissivePath, metallicRoughnessPath, occlusionPath, normalPath, baseSamplerCode, emissiveSamplerCode, metallicRoughnessSamplerCode, occlusionSamplerCode, normalSamplerCode, verts, doubleSided, castShadows) => {
   #|       if (!rt.current3dSection) return;
   #|       if (!verts || verts.length < 105) return;

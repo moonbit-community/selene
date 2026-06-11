@@ -597,6 +597,34 @@ fn end_3d() -> Unit {
 }
 
 ///|
+fn draw_render3d_lines(frame : @render3d_types.RenderFrame3D) -> Int {
+  guard frame.lines.length() > 0 else { return 0 }
+  let vertices : Array[Double] = []
+  for line in frame.lines {
+    push_line3d_vertex(vertices, line.start, line.color)
+    push_line3d_vertex(vertices, line.end, line.color)
+  }
+  webgpu_draw_lines_3d(vertices)
+  1
+}
+
+///|
+fn push_line3d_vertex(
+  vertices : Array[Double],
+  position : @smath.Vec3,
+  color : @render.Color,
+) -> Unit {
+  let (r, g, b, a) = color_rgba01(color)
+  vertices.push(position.x)
+  vertices.push(position.y)
+  vertices.push(position.z)
+  vertices.push(r)
+  vertices.push(g)
+  vertices.push(b)
+  vertices.push(a)
+}
+
+///|
 pub fn sync_mesh_asset(
   handle : @render3d_types.MeshHandle,
   mesh : @render3d_types.MeshAsset,
@@ -1239,6 +1267,11 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
       }
     }
   }
+  let line_commands = draw_render3d_lines(frame)
+  if line_commands > 0 {
+    stats.command_groups += 1
+    stats.uploaded_vertex_bytes += frame.lines.length() * 2 * 7 * 4
+  }
   let flush_start = webgpu_now_ms()
   flush_lit_primitive_mesh_batches(lit_primitive_batches, stats)
   if stats.lit_triangle_commands > 0 {
@@ -1250,7 +1283,8 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
     stats.render_bind_group_creations += stats.textured_triangle_commands
   }
   stats.draw_commands = stats.lit_triangle_commands +
-    stats.textured_triangle_commands
+    stats.textured_triangle_commands +
+    line_commands
   last_render3d_submission_stats.val = stats
   last_render3d_submission_stats_checksum.val = render3d_submission_stats_checksum(
     stats,
@@ -1650,8 +1684,14 @@ fn _collect_render3d_submission_stats(
     stats.command_groups += 1
     stats.render_bind_group_creations += stats.textured_triangle_commands
   }
+  if frame.lines.length() > 0 {
+    stats.command_groups += 1
+    stats.uploaded_vertex_bytes += frame.lines.length() * 2 * 7 * 4
+  }
+  let line_commands = if frame.lines.length() > 0 { 1 } else { 0 }
   stats.draw_commands = stats.lit_triangle_commands +
-    stats.textured_triangle_commands
+    stats.textured_triangle_commands +
+    line_commands
   stats
 }
 

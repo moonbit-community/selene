@@ -289,11 +289,19 @@ pub(all) struct RenderItem3D {
 }
 
 ///|
+pub(all) struct RenderLine3D {
+  start : @math.Vec3
+  end : @math.Vec3
+  color : @render.Color
+} derive(Eq, Debug)
+
+///|
 pub(all) struct RenderFrame3D {
   mut camera : FrameCamera3D?
   mut clear_color : @render.Color
   mut skybox : Skybox3D?
   mut items : Array[RenderItem3D]
+  mut lines : Array[RenderLine3D]
   mut directional_lights : Array[DirectionalLight3D]
   mut point_lights : Array[FramePointLight3D]
   mut spot_lights : Array[FrameSpotLight3D]
@@ -383,6 +391,7 @@ pub fn empty_render_frame3d() -> RenderFrame3D {
     clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0 },
     skybox: None,
     items: [],
+    lines: [],
     directional_lights: [],
     point_lights: [],
     spot_lights: [],

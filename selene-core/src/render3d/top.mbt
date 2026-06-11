@@ -106,6 +106,9 @@ pub type CascadeShadowConfig3D = @render3d_types.CascadeShadowConfig3D
 pub type RenderItem3D = @render3d_types.RenderItem3D
 
 ///|
+pub type RenderLine3D = @render3d_types.RenderLine3D
+
+///|
 pub type RenderFrame3D = @render3d_types.RenderFrame3D
 
 ///|
@@ -246,6 +249,11 @@ let released_cubemap_assets : Array[CubemapHandle] = []
 ///|
 pub fn empty_render_frame3d() -> RenderFrame3D {
   @render3d_types.empty_render_frame3d()
+}
+
+///|
+pub fn push_line3d(line : RenderLine3D) -> Unit {
+  render3d_world_state().extracted_frame.lines.push(line)
 }
 
 ///|

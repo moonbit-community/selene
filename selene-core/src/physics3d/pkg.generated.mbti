@@ -43,6 +43,8 @@ pub fn context() -> RapierContext
 
 pub fn dampings() -> Map[@entity.Entity, Damping]
 
+pub fn debug_colliders_system(Double) -> Unit
+
 pub fn dominances() -> Map[@entity.Entity, Dominance]
 
 pub fn frictions() -> Map[@entity.Entity, Friction]

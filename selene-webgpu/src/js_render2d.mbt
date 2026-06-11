@@ -148,6 +148,15 @@ extern "js" fn webgpu_draw_colored_triangles_3d(
   #| }
 
 ///|
+extern "js" fn webgpu_draw_lines_3d(vertices : Array[Double]) -> Unit =
+  #| (vertices) => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (rt) {
+  #|     rt.pushLines3d(vertices);
+  #|   }
+  #| }
+
+///|
 extern "js" fn webgpu_draw_textured_triangles_3d(
   base_path : String,
   emissive_path : String,

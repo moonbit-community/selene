@@ -962,3 +962,128 @@ test "character controller options are forwarded to rapier controller" {
   let up = @math.vec3_from_rapier(rapier_controller.up)
   inspect(up.x == 0.0 && up.y == 0.0 && up.z == 1.0, content="true")
 }
+
+///|
+test "collider3d debug wire builds expected primitive edges" {
+  inspect(
+    collider_wire_segments(Collider::cuboid(@math.Vec3(1.0, 2.0, 3.0))).length(),
+    content="12",
+  )
+  inspect(
+    collider_wire_segments(
+      Collider::trimesh(
+        [
+          @math.Vec3(0.0, 0.0, 0.0),
+          @math.Vec3(1.0, 0.0, 0.0),
+          @math.Vec3(0.0, 1.0, 0.0),
+        ],
+        [(0, 1, 2)],
+      ),
+    ).length(),
+    content="3",
+  )
+  inspect(
+    collider_wire_segments(
+      Collider::heightfield([0.0, 1.0, 2.0, 3.0], 2, 2, @math.Vec3::one()),
+    ).length(),
+    content="4",
+  )
+}
+
+///|
+test "collider3d debug wire supports every collider shape" {
+  let shapes = [
+    Collider::cuboid(@math.Vec3(1.0, 1.0, 1.0)),
+    Collider::ball(1.0),
+    Collider::capsule_x(1.0, 0.25),
+    Collider::capsule_y(1.0, 0.25),
+    Collider::capsule_z(1.0, 0.25),
+    Collider::cylinder(1.0, 0.5),
+    Collider::cone(1.0, 0.5),
+    Collider::round_cylinder(1.0, 0.5, 0.1),
+    Collider::halfspace(@math.Vec3::y_axis()),
+    Collider::convex_hull([
+      @math.Vec3(-1.0, -1.0, -1.0),
+      @math.Vec3(1.0, 1.0, 1.0),
+    ]),
+    Collider::trimesh(
+      [
+        @math.Vec3(0.0, 0.0, 0.0),
+        @math.Vec3(1.0, 0.0, 0.0),
+        @math.Vec3(0.0, 1.0, 0.0),
+      ],
+      [(0, 1, 2)],
+    ),
+    Collider::heightfield([0.0, 1.0, 2.0, 3.0], 2, 2, @math.Vec3::one()),
+  ]
+  let mut supported = true
+  for shape in shapes {
+    supported = supported && collider_wire_segments(shape).length() > 0
+  }
+  inspect(supported, content="true")
+}
+
+///|
+test "collider3d debug color distinguishes body and sensor types" {
+  with_physics3d_test_world(fn() raise {
+    let dynamic_entity = @entity.Entity()
+    let fixed_entity = @entity.Entity()
+    let kinematic_entity = @entity.Entity()
+    let sensor_entity = @entity.Entity()
+    let disabled_entity = @entity.Entity()
+    rigid_bodies().set(dynamic_entity, Dynamic)
+    rigid_bodies().set(fixed_entity, Fixed)
+    rigid_bodies().set(kinematic_entity, KinematicPositionBased)
+    rigid_bodies().set(sensor_entity, Dynamic)
+    rigid_bodies().set(disabled_entity, Dynamic)
+    colliders().set(disabled_entity, Collider::ball(1.0))
+    sensors().set(sensor_entity, Sensor::{  })
+    step_physics(1)
+    match collider_handle(disabled_entity) {
+      Some(handle) =>
+        match physics3d_world().colliders.get(handle) {
+          Some(collider) => ignore(collider.set_enabled(false))
+          None => ()
+        }
+      None => ()
+    }
+    inspect(
+      debug_collider_color(dynamic_entity) == debug_dynamic_color(),
+      content="true",
+    )
+    inspect(
+      debug_collider_color(fixed_entity) == debug_fixed_color(),
+      content="true",
+    )
+    inspect(
+      debug_collider_color(kinematic_entity) == debug_kinematic_color(),
+      content="true",
+    )
+    inspect(
+      debug_collider_color(sensor_entity) == debug_sensor_color(),
+      content="true",
+    )
+    inspect(
+      debug_collider_color(disabled_entity) == debug_disabled_color(),
+      content="true",
+    )
+  })
+}
+
+///|
+test "collider3d debug system appends wire lines to render3d pipeline" {
+  with_physics3d_test_world(fn() raise {
+    let entity = @entity.Entity()
+    colliders().set(entity, Collider::cuboid(@math.Vec3(1.0, 1.0, 1.0)))
+    @transform.global_transforms().set(
+      entity,
+      @transform.GlobalTransform::from_transform(
+        @transform.Transform::from_xyz(2.0, 0.0, 0.0),
+      ),
+    )
+    debug_colliders_system(0.0)
+    let frame = @render3d_pipeline.get_prepared_frame3d()
+    inspect(frame.lines.length(), content="12")
+    inspect(frame.lines[0].start.x == 1.0, content="true")
+  })
+}

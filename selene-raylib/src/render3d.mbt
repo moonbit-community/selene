@@ -64,7 +64,19 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
       shadow_state,
     )
   }
+  draw_render3d_lines(frame)
   end_3d()
+}
+
+///|
+fn draw_render3d_lines(frame : @render3d_types.RenderFrame3D) -> Unit {
+  for line in frame.lines {
+    @raylib.draw_line_3d(
+      to_ray_vector3_smath(line.start),
+      to_ray_vector3_smath(line.end),
+      to_ray_color(line.color),
+    )
+  }
 }
 
 ///|

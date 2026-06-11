@@ -3,6 +3,17 @@
 ## [Unreleased]
 
 ### Added
+- Added 3D collider wireframe debug rendering through the debug plugin and render3d pipeline.
+
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.35.0] - 2026-06-11
+
+### Added
 - Added first-class 3D cubemap assets and per-camera skybox rendering for Raylib and WebGPU backends.
 
 ### Changed

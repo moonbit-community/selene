@@ -32,6 +32,12 @@ pub fn render3d_prepare_system(_delta : Double) -> Unit {
 }
 
 ///|
+pub fn push_line3d(line : @render3d.RenderLine3D) -> Unit {
+  @render3d.push_line3d(line)
+  prepared_frame3d().lines.push(line)
+}
+
+///|
 pub fn get_prepared_frame3d() -> @render3d.RenderFrame3D {
   prepared_frame3d()
 }

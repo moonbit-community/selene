@@ -8,6 +8,8 @@ import {
 // Values
 pub fn get_prepared_frame3d() -> @render3d_types.RenderFrame3D
 
+pub fn push_line3d(@render3d_types.RenderLine3D) -> Unit
+
 pub fn render3d_prepare_system(Double) -> Unit
 
 // Errors

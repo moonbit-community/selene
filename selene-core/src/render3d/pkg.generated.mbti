@@ -68,6 +68,8 @@ pub fn plane_mesh(@math.Vec3) -> @render3d_types.MeshAsset
 
 pub fn point_lights3d() -> Map[@entity.Entity, @render3d_types.PointLight3D]
 
+pub fn push_line3d(@render3d_types.RenderLine3D) -> Unit
+
 pub fn register_cubemap_asset(@render3d_types.CubemapAsset3D) -> @render3d_types.CubemapHandle
 
 pub fn register_image_asset(@render3d_types.ImageAsset) -> @render3d_types.ImageHandle
@@ -181,6 +183,8 @@ pub using @render3d_types {type PointLightShadowMap3D}
 pub using @render3d_types {type RenderFrame3D}
 
 pub using @render3d_types {type RenderItem3D}
+
+pub using @render3d_types {type RenderLine3D}
 
 pub using @render3d_types {type SceneHandle}
 
