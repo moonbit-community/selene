@@ -732,20 +732,24 @@ fn draw_skybox3d(
 
 ///|
 fn skybox_half_size(camera : @render3d_types.FrameCamera3D) -> Double {
-  let far_size = if camera.far > 1.0 { camera.far * 0.45 } else { 64.0 }
+  let safe_far = if camera.far > 0.001 { camera.far } else { 0.001 }
+  let max_visible_half = safe_far * 0.45
   match camera.projection {
-    Perspective => far_size
+    Perspective => max_visible_half
     Orthographic =>
-      camera.orthographic_size.map_or(far_size, fn(size) {
+      camera.orthographic_size.map_or(max_visible_half, fn(size) {
         let max_axis = if size[X].abs() > size[Y].abs() {
           size[X].abs()
         } else {
           size[Y].abs()
         }
-        if max_axis * 2.0 > far_size {
-          max_axis * 2.0
+        let cover_half = max_axis * 0.5
+        if cover_half > max_visible_half {
+          max_visible_half
+        } else if cover_half <= 0.001 {
+          max_visible_half
         } else {
-          far_size
+          cover_half
         }
       })
   }

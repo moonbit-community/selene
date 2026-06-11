@@ -6,6 +6,7 @@
 - Added first-class 3D cubemap assets and per-camera skybox rendering for Raylib and WebGPU backends.
 
 ### Changed
+- Changed 3D render frame and asset sync records to carry per-camera skybox and cubemap asset sync data.
 
 ### Fixed
 
