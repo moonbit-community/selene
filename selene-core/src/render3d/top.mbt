@@ -25,6 +25,9 @@ pub type ImageHandle = @render3d_types.ImageHandle
 pub type SceneHandle = @render3d_types.SceneHandle
 
 ///|
+pub type CubemapHandle = @render3d_types.CubemapHandle
+
+///|
 pub type AlphaMode3D = @render3d_types.AlphaMode3D
 
 ///|
@@ -56,6 +59,15 @@ pub type MeshAsset = @render3d_types.MeshAsset
 
 ///|
 pub type ImageAsset = @render3d_types.ImageAsset
+
+///|
+pub type CubemapFaces3D = @render3d_types.CubemapFaces3D
+
+///|
+pub type CubemapAsset3D = @render3d_types.CubemapAsset3D
+
+///|
+pub type Skybox3D = @render3d_types.Skybox3D
 
 ///|
 pub type StandardMaterial3D = @render3d_types.StandardMaterial3D
@@ -111,6 +123,7 @@ priv struct Render3DComponentWorldStore {
   directional_lights3d : Map[@entity.Entity, DirectionalLight3D]
   point_lights3d : Map[@entity.Entity, PointLight3D]
   spot_lights3d : Map[@entity.Entity, SpotLight3D]
+  camera_skyboxes3d : Map[@entity.Entity, Skybox3D]
 }
 
 ///|
@@ -125,6 +138,7 @@ fn render3d_component_world_store() -> Render3DComponentWorldStore {
     directional_lights3d: Map([]),
     point_lights3d: Map([]),
     spot_lights3d: Map([]),
+    camera_skyboxes3d: Map([]),
   })
 }
 
@@ -146,6 +160,11 @@ pub fn point_lights3d() -> Map[@entity.Entity, PointLight3D] {
 ///|
 pub fn spot_lights3d() -> Map[@entity.Entity, SpotLight3D] {
   render3d_component_world_store().spot_lights3d
+}
+
+///|
+pub fn camera_skyboxes3d() -> Map[@entity.Entity, Skybox3D] {
+  render3d_component_world_store().camera_skyboxes3d
 }
 
 ///|
@@ -180,6 +199,9 @@ let materials : Map[MaterialHandle, StandardMaterial3D] = Map([])
 let images : Map[ImageHandle, ImageAsset] = Map([])
 
 ///|
+let cubemaps : Map[CubemapHandle, CubemapAsset3D] = Map([])
+
+///|
 let scene_paths : Map[SceneHandle, String] = Map([])
 
 ///|
@@ -190,6 +212,9 @@ let next_material_id : Ref[UInt] = Ref(0)
 
 ///|
 let next_image_id : Ref[UInt] = Ref(0)
+
+///|
+let next_cubemap_id : Ref[UInt] = Ref(0)
 
 ///|
 let next_scene_id : Ref[UInt] = Ref(0)
@@ -204,6 +229,9 @@ let dirty_material_assets : Map[MaterialHandle, StandardMaterial3D] = Map([])
 let dirty_image_assets : Map[ImageHandle, ImageAsset] = Map([])
 
 ///|
+let dirty_cubemap_assets : Map[CubemapHandle, CubemapAsset3D] = Map([])
+
+///|
 let released_mesh_assets : Array[MeshHandle] = []
 
 ///|
@@ -211,6 +239,9 @@ let released_material_assets : Array[MaterialHandle] = []
 
 ///|
 let released_image_assets : Array[ImageHandle] = []
+
+///|
+let released_cubemap_assets : Array[CubemapHandle] = []
 
 ///|
 pub fn empty_render_frame3d() -> RenderFrame3D {
@@ -290,6 +321,34 @@ pub fn texture_binding3d(
   transform? : TextureTransform3D = default_texture_transform3d(),
 ) -> TextureBinding3D {
   @render3d_types.texture_binding3d(image, texcoord_set~, sampler~, transform~)
+}
+
+///|
+pub fn cubemap_faces3d(
+  positive_x : ImageHandle,
+  negative_x : ImageHandle,
+  positive_y : ImageHandle,
+  negative_y : ImageHandle,
+  positive_z : ImageHandle,
+  negative_z : ImageHandle,
+) -> CubemapFaces3D {
+  @render3d_types.cubemap_faces3d(
+    positive_x, negative_x, positive_y, negative_y, positive_z, negative_z,
+  )
+}
+
+///|
+pub fn cubemap_asset_six_faces(faces : CubemapFaces3D) -> CubemapAsset3D {
+  @render3d_types.cubemap_asset_six_faces(faces)
+}
+
+///|
+pub fn skybox3d(
+  cubemap : CubemapHandle,
+  brightness? : Double = 1.0,
+  rotation? : @math.Quat = @math.Quat::identity(),
+) -> Skybox3D {
+  @render3d_types.skybox3d(cubemap, brightness~, rotation~)
 }
 
 ///|
@@ -386,6 +445,20 @@ pub fn register_image_asset(image : ImageAsset) -> ImageHandle {
 }
 
 ///|
+pub fn register_cubemap_asset(cubemap : CubemapAsset3D) -> CubemapHandle {
+  let handle = @render3d_types.CubemapHandle(next_cubemap_id.val)
+  next_cubemap_id.val += 1
+  cubemaps.set(handle, cubemap)
+  dirty_cubemap_assets.set(handle, cubemap)
+  handle
+}
+
+///|
+pub fn cubemap_asset(handle : CubemapHandle) -> CubemapAsset3D? {
+  cubemaps.get(handle)
+}
+
+///|
 pub fn update_mesh_asset(handle : MeshHandle, mesh : MeshAsset) -> Unit {
   meshes.set(handle, mesh)
   dirty_mesh_assets.set(handle, mesh)
@@ -407,6 +480,15 @@ pub fn update_image_asset(handle : ImageHandle, image : ImageAsset) -> Unit {
 }
 
 ///|
+pub fn update_cubemap_asset(
+  handle : CubemapHandle,
+  cubemap : CubemapAsset3D,
+) -> Unit {
+  cubemaps.set(handle, cubemap)
+  dirty_cubemap_assets.set(handle, cubemap)
+}
+
+///|
 pub fn release_mesh_asset(handle : MeshHandle) -> Unit {
   meshes.remove(handle)
   dirty_mesh_assets.remove(handle)
@@ -425,6 +507,13 @@ pub fn release_image_asset(handle : ImageHandle) -> Unit {
   images.remove(handle)
   dirty_image_assets.remove(handle)
   released_image_assets.push(handle)
+}
+
+///|
+pub fn release_cubemap_asset(handle : CubemapHandle) -> Unit {
+  cubemaps.remove(handle)
+  dirty_cubemap_assets.remove(handle)
+  released_cubemap_assets.push(handle)
 }
 
 ///|
@@ -653,6 +742,11 @@ pub fn render3d_extract_system(_delta : Double) -> Unit {
     frame.camera = Some(camera.camera)
     frame.clear_color = camera.camera.clear_color
     active_camera_layers = @visibility.entity_render_layers(camera.entity)
+    match camera_skyboxes3d().get(camera.entity) {
+      Some(skybox) if cubemaps.get(skybox.cubemap) is Some(_) =>
+        frame.skybox = Some(skybox)
+      _ => ()
+    }
   }
   frame.ambient_light = state.ambient_light
   frame.directional_shadow_map_size = state.directional_shadow_map.size
@@ -813,6 +907,13 @@ pub fn take_dirty_image_assets() -> Array[(ImageHandle, ImageAsset)] {
 }
 
 ///|
+pub fn take_dirty_cubemap_assets() -> Array[(CubemapHandle, CubemapAsset3D)] {
+  let values = dirty_cubemap_assets.to_array()
+  dirty_cubemap_assets.clear()
+  values
+}
+
+///|
 pub fn take_released_mesh_assets() -> Array[MeshHandle] {
   let values = released_mesh_assets.copy()
   released_mesh_assets.clear()
@@ -830,5 +931,12 @@ pub fn take_released_material_assets() -> Array[MaterialHandle] {
 pub fn take_released_image_assets() -> Array[ImageHandle] {
   let values = released_image_assets.copy()
   released_image_assets.clear()
+  values
+}
+
+///|
+pub fn take_released_cubemap_assets() -> Array[CubemapHandle] {
+  let values = released_cubemap_assets.copy()
+  released_cubemap_assets.clear()
   values
 }

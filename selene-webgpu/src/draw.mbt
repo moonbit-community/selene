@@ -113,6 +113,12 @@ let synced_image_assets : Map[
 ] = Map([])
 
 ///|
+let synced_cubemap_assets : Map[
+  @render3d_types.CubemapHandle,
+  @render3d_types.CubemapAsset3D,
+] = Map([])
+
+///|
 let textured_primitive_mesh_cache : Map[String, @render3d_types.TriangleMesh3D] = Map([],
 )
 
@@ -615,6 +621,14 @@ pub fn sync_image_asset(
 }
 
 ///|
+pub fn sync_cubemap_asset(
+  handle : @render3d_types.CubemapHandle,
+  cubemap : @render3d_types.CubemapAsset3D,
+) -> Unit {
+  synced_cubemap_assets.set(handle, cubemap)
+}
+
+///|
 pub fn release_mesh_asset(handle : @render3d_types.MeshHandle) -> Unit {
   synced_mesh_assets.remove(handle)
 }
@@ -627,6 +641,201 @@ pub fn release_material_asset(handle : @render3d_types.MaterialHandle) -> Unit {
 ///|
 pub fn release_image_asset(handle : @render3d_types.ImageHandle) -> Unit {
   synced_image_assets.remove(handle)
+}
+
+///|
+pub fn release_cubemap_asset(handle : @render3d_types.CubemapHandle) -> Unit {
+  synced_cubemap_assets.remove(handle)
+}
+
+///|
+fn draw_skybox3d(
+  frame : @render3d_types.RenderFrame3D,
+  camera : @render3d_types.FrameCamera3D,
+) -> Unit {
+  guard frame.skybox is Some(skybox) else { return }
+  guard synced_cubemap_assets.get(skybox.cubemap) is Some(cubemap) else {
+    return
+  }
+  match cubemap {
+    SixFaces(faces) => {
+      let half_size = skybox_half_size(camera)
+      draw_skybox_face(
+        faces.positive_x,
+        camera.position,
+        skybox.rotation,
+        skybox.brightness,
+        half_size,
+        @smath.Vec3(1.0, -1.0, -1.0),
+        @smath.Vec3(1.0, -1.0, 1.0),
+        @smath.Vec3(1.0, 1.0, 1.0),
+        @smath.Vec3(1.0, 1.0, -1.0),
+      )
+      draw_skybox_face(
+        faces.negative_x,
+        camera.position,
+        skybox.rotation,
+        skybox.brightness,
+        half_size,
+        @smath.Vec3(-1.0, -1.0, 1.0),
+        @smath.Vec3(-1.0, -1.0, -1.0),
+        @smath.Vec3(-1.0, 1.0, -1.0),
+        @smath.Vec3(-1.0, 1.0, 1.0),
+      )
+      draw_skybox_face(
+        faces.positive_y,
+        camera.position,
+        skybox.rotation,
+        skybox.brightness,
+        half_size,
+        @smath.Vec3(-1.0, 1.0, -1.0),
+        @smath.Vec3(1.0, 1.0, -1.0),
+        @smath.Vec3(1.0, 1.0, 1.0),
+        @smath.Vec3(-1.0, 1.0, 1.0),
+      )
+      draw_skybox_face(
+        faces.negative_y,
+        camera.position,
+        skybox.rotation,
+        skybox.brightness,
+        half_size,
+        @smath.Vec3(-1.0, -1.0, 1.0),
+        @smath.Vec3(1.0, -1.0, 1.0),
+        @smath.Vec3(1.0, -1.0, -1.0),
+        @smath.Vec3(-1.0, -1.0, -1.0),
+      )
+      draw_skybox_face(
+        faces.positive_z,
+        camera.position,
+        skybox.rotation,
+        skybox.brightness,
+        half_size,
+        @smath.Vec3(1.0, -1.0, 1.0),
+        @smath.Vec3(-1.0, -1.0, 1.0),
+        @smath.Vec3(-1.0, 1.0, 1.0),
+        @smath.Vec3(1.0, 1.0, 1.0),
+      )
+      draw_skybox_face(
+        faces.negative_z,
+        camera.position,
+        skybox.rotation,
+        skybox.brightness,
+        half_size,
+        @smath.Vec3(-1.0, -1.0, -1.0),
+        @smath.Vec3(1.0, -1.0, -1.0),
+        @smath.Vec3(1.0, 1.0, -1.0),
+        @smath.Vec3(-1.0, 1.0, -1.0),
+      )
+    }
+  }
+}
+
+///|
+fn skybox_half_size(camera : @render3d_types.FrameCamera3D) -> Double {
+  let far_size = if camera.far > 1.0 { camera.far * 0.45 } else { 64.0 }
+  match camera.projection {
+    Perspective => far_size
+    Orthographic =>
+      camera.orthographic_size.map_or(far_size, fn(size) {
+        let max_axis = if size[X].abs() > size[Y].abs() {
+          size[X].abs()
+        } else {
+          size[Y].abs()
+        }
+        if max_axis * 2.0 > far_size {
+          max_axis * 2.0
+        } else {
+          far_size
+        }
+      })
+  }
+}
+
+///|
+fn draw_skybox_face(
+  image : @render3d_types.ImageHandle,
+  camera_position : @smath.Vec3,
+  rotation : @smath.Quat,
+  brightness : Double,
+  half_size : Double,
+  p0 : @smath.Vec3,
+  p1 : @smath.Vec3,
+  p2 : @smath.Vec3,
+  p3 : @smath.Vec3,
+) -> Unit {
+  guard synced_image_assets.get(image) is Some(image_asset) else { return }
+  let path = resolve_asset_path(image_asset.path)
+  let vertices : Array[Double] = []
+  push_skybox_vertex(
+    vertices, camera_position, rotation, half_size, p0, 0.0, 1.0, brightness,
+  )
+  push_skybox_vertex(
+    vertices, camera_position, rotation, half_size, p1, 1.0, 1.0, brightness,
+  )
+  push_skybox_vertex(
+    vertices, camera_position, rotation, half_size, p2, 1.0, 0.0, brightness,
+  )
+  push_skybox_vertex(
+    vertices, camera_position, rotation, half_size, p0, 0.0, 1.0, brightness,
+  )
+  push_skybox_vertex(
+    vertices, camera_position, rotation, half_size, p2, 1.0, 0.0, brightness,
+  )
+  push_skybox_vertex(
+    vertices, camera_position, rotation, half_size, p3, 0.0, 0.0, brightness,
+  )
+  webgpu_draw_skybox_textured_triangles_3d(path, vertices)
+}
+
+///|
+fn push_skybox_vertex(
+  vertices : Array[Double],
+  camera_position : @smath.Vec3,
+  rotation : @smath.Quat,
+  half_size : Double,
+  direction : @smath.Vec3,
+  u : Double,
+  v : Double,
+  brightness : Double,
+) -> Unit {
+  let position = camera_position +
+    rotation.rotate_vec3(direction.scalar_mul(half_size))
+  let color = if brightness < 0.0 { 0.0 } else { brightness }
+  vertices.push(position.x)
+  vertices.push(position.y)
+  vertices.push(position.z)
+  vertices.push(direction.x)
+  vertices.push(direction.y)
+  vertices.push(direction.z)
+  vertices.push(u)
+  vertices.push(v)
+  vertices.push(u)
+  vertices.push(v)
+  vertices.push(u)
+  vertices.push(v)
+  vertices.push(u)
+  vertices.push(v)
+  vertices.push(u)
+  vertices.push(v)
+  vertices.push(color)
+  vertices.push(color)
+  vertices.push(color)
+  vertices.push(1.0)
+  vertices.push(0.0)
+  vertices.push(0.0)
+  vertices.push(0.0)
+  vertices.push(1.0)
+  vertices.push(0.0)
+  vertices.push(0.0)
+  vertices.push(1.0)
+  vertices.push(0.0)
+  vertices.push(0.0)
+  vertices.push(0.0)
+  vertices.push(1.0)
+  vertices.push(1.0)
+  vertices.push(0.0)
+  vertices.push(1.0)
+  vertices.push(0.0)
 }
 
 ///|
@@ -688,6 +897,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
   let aspect = webgpu_canvas_aspect_ratio()
   configure_scene_lighting(frame, active_camera, aspect)
   begin_3d(active_camera, aspect)
+  draw_skybox3d(frame, active_camera)
   let lit_primitive_batches = new_lit_primitive_mesh_batch_accumulator()
   let material_cache : Map[
     @render3d_types.MaterialHandle,

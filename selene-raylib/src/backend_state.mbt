@@ -183,6 +183,10 @@ priv struct RaylibBackend {
     @render3d_types.StandardMaterial3D,
   ]
   images3d : Map[@render3d_types.ImageHandle, @render3d_types.ImageAsset]
+  cubemaps3d : Map[
+    @render3d_types.CubemapHandle,
+    @render3d_types.CubemapAsset3D,
+  ]
   primitive_meshes : Map[String, @raylib.Mesh]
   triangle_mesh_cache : Map[String, @raylib.Mesh]
   mut lighting_shader : LightingShaderState?
@@ -255,6 +259,7 @@ let backend : RaylibBackend = {
   meshes3d: Map([]),
   materials3d: Map([]),
   images3d: Map([]),
+  cubemaps3d: Map([]),
   primitive_meshes: Map([]),
   triangle_mesh_cache: Map([]),
   lighting_shader: None,

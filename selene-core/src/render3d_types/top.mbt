@@ -25,6 +25,9 @@ pub(all) struct ImageHandle(UInt) derive(Eq, Debug, Hash)
 pub(all) struct SceneHandle(UInt) derive(Eq, Debug, Hash)
 
 ///|
+pub(all) struct CubemapHandle(UInt) derive(Eq, Debug, Hash)
+
+///|
 pub(all) enum CameraProjection3D {
   Perspective
   Orthographic
@@ -117,6 +120,28 @@ pub(all) struct MeshAsset {
 ///|
 pub(all) struct ImageAsset {
   path : String
+} derive(Eq, Debug)
+
+///|
+pub(all) struct CubemapFaces3D {
+  positive_x : ImageHandle
+  negative_x : ImageHandle
+  positive_y : ImageHandle
+  negative_y : ImageHandle
+  positive_z : ImageHandle
+  negative_z : ImageHandle
+} derive(Eq, Debug)
+
+///|
+pub(all) enum CubemapAsset3D {
+  SixFaces(CubemapFaces3D)
+} derive(Eq, Debug)
+
+///|
+pub(all) struct Skybox3D {
+  cubemap : CubemapHandle
+  brightness : Double
+  rotation : @math.Quat
 } derive(Eq, Debug)
 
 ///|
@@ -267,6 +292,7 @@ pub(all) struct RenderItem3D {
 pub(all) struct RenderFrame3D {
   mut camera : FrameCamera3D?
   mut clear_color : @render.Color
+  mut skybox : Skybox3D?
   mut items : Array[RenderItem3D]
   mut directional_lights : Array[DirectionalLight3D]
   mut point_lights : Array[FramePointLight3D]
@@ -317,10 +343,45 @@ pub fn texture_binding3d(
 }
 
 ///|
+pub fn cubemap_faces3d(
+  positive_x : ImageHandle,
+  negative_x : ImageHandle,
+  positive_y : ImageHandle,
+  negative_y : ImageHandle,
+  positive_z : ImageHandle,
+  negative_z : ImageHandle,
+) -> CubemapFaces3D {
+  { positive_x, negative_x, positive_y, negative_y, positive_z, negative_z }
+}
+
+///|
+pub fn cubemap_asset_six_faces(faces : CubemapFaces3D) -> CubemapAsset3D {
+  SixFaces(faces)
+}
+
+///|
+pub fn skybox3d(
+  cubemap : CubemapHandle,
+  brightness? : Double = 1.0,
+  rotation? : @math.Quat = @math.Quat::identity(),
+) -> Skybox3D {
+  {
+    cubemap,
+    brightness: if brightness < 0.0 {
+      0.0
+    } else {
+      brightness
+    },
+    rotation,
+  }
+}
+
+///|
 pub fn empty_render_frame3d() -> RenderFrame3D {
   {
     camera: None,
     clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0 },
+    skybox: None,
     items: [],
     directional_lights: [],
     point_lights: [],

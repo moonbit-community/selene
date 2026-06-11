@@ -86,6 +86,9 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
   for pair in frame.assets3d.image_upserts {
     @impl.sync_image_asset(pair.0, pair.1)
   }
+  for pair in frame.assets3d.cubemap_upserts {
+    @impl.sync_cubemap_asset(pair.0, pair.1)
+  }
   for handle in frame.assets3d.mesh_releases {
     @impl.release_mesh_asset(handle)
   }
@@ -94,6 +97,9 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
   }
   for handle in frame.assets3d.image_releases {
     @impl.release_image_asset(handle)
+  }
+  for handle in frame.assets3d.cubemap_releases {
+    @impl.release_cubemap_asset(handle)
   }
 
   @impl.render3d_submit(frame.frame3d)

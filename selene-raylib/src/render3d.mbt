@@ -10,6 +10,14 @@ pub fn sync_image_asset(
 }
 
 ///|
+pub fn sync_cubemap_asset(
+  handle : @render3d_types.CubemapHandle,
+  cubemap : @render3d_types.CubemapAsset3D,
+) -> Unit {
+  backend.cubemaps3d.set(handle, cubemap)
+}
+
+///|
 pub fn release_mesh_asset(handle : @render3d_types.MeshHandle) -> Unit {
   clear_triangle_mesh_cache_for_handle(handle)
   backend.meshes3d.remove(handle)
@@ -26,6 +34,11 @@ pub fn release_image_asset(handle : @render3d_types.ImageHandle) -> Unit {
 }
 
 ///|
+pub fn release_cubemap_asset(handle : @render3d_types.CubemapHandle) -> Unit {
+  backend.cubemaps3d.remove(handle)
+}
+
+///|
 pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
   guard frame.camera is Some(active_camera) else { return }
   let shadow_state = render_directional_shadow_map(frame, active_camera)
@@ -34,6 +47,7 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
   }
   mark_frame_drawn()
   begin_3d(active_camera)
+  draw_skybox3d(frame, active_camera)
   for item in frame.items {
     guard backend.meshes3d.get(item.mesh) is Some(mesh_asset) else { continue }
     let material = backend.materials3d
@@ -51,6 +65,145 @@ pub fn render3d_submit(frame : @render3d_types.RenderFrame3D) -> Unit {
     )
   }
   end_3d()
+}
+
+///|
+fn draw_skybox3d(
+  frame : @render3d_types.RenderFrame3D,
+  camera : @render3d_types.FrameCamera3D,
+) -> Unit {
+  guard frame.skybox is Some(skybox) else { return }
+  guard backend.cubemaps3d.get(skybox.cubemap) is Some(cubemap) else { return }
+  match cubemap {
+    SixFaces(faces) => {
+      let half_size = skybox_half_size(camera)
+      @rl.disable_depth_mask()
+      @rl.disable_backface_culling()
+      draw_skybox_face(
+        faces.positive_x,
+        camera.position,
+        skybox.rotation,
+        skybox.brightness,
+        half_size,
+        @smath.Vec3(1.0, -1.0, -1.0),
+        @smath.Vec3(1.0, -1.0, 1.0),
+        @smath.Vec3(1.0, 1.0, 1.0),
+        @smath.Vec3(1.0, 1.0, -1.0),
+      )
+      draw_skybox_face(
+        faces.negative_x,
+        camera.position,
+        skybox.rotation,
+        skybox.brightness,
+        half_size,
+        @smath.Vec3(-1.0, -1.0, 1.0),
+        @smath.Vec3(-1.0, -1.0, -1.0),
+        @smath.Vec3(-1.0, 1.0, -1.0),
+        @smath.Vec3(-1.0, 1.0, 1.0),
+      )
+      draw_skybox_face(
+        faces.positive_y,
+        camera.position,
+        skybox.rotation,
+        skybox.brightness,
+        half_size,
+        @smath.Vec3(-1.0, 1.0, -1.0),
+        @smath.Vec3(1.0, 1.0, -1.0),
+        @smath.Vec3(1.0, 1.0, 1.0),
+        @smath.Vec3(-1.0, 1.0, 1.0),
+      )
+      draw_skybox_face(
+        faces.negative_y,
+        camera.position,
+        skybox.rotation,
+        skybox.brightness,
+        half_size,
+        @smath.Vec3(-1.0, -1.0, 1.0),
+        @smath.Vec3(1.0, -1.0, 1.0),
+        @smath.Vec3(1.0, -1.0, -1.0),
+        @smath.Vec3(-1.0, -1.0, -1.0),
+      )
+      draw_skybox_face(
+        faces.positive_z,
+        camera.position,
+        skybox.rotation,
+        skybox.brightness,
+        half_size,
+        @smath.Vec3(1.0, -1.0, 1.0),
+        @smath.Vec3(-1.0, -1.0, 1.0),
+        @smath.Vec3(-1.0, 1.0, 1.0),
+        @smath.Vec3(1.0, 1.0, 1.0),
+      )
+      draw_skybox_face(
+        faces.negative_z,
+        camera.position,
+        skybox.rotation,
+        skybox.brightness,
+        half_size,
+        @smath.Vec3(-1.0, -1.0, -1.0),
+        @smath.Vec3(1.0, -1.0, -1.0),
+        @smath.Vec3(1.0, 1.0, -1.0),
+        @smath.Vec3(-1.0, 1.0, -1.0),
+      )
+      @rl.enable_backface_culling()
+      @rl.enable_depth_mask()
+    }
+  }
+}
+
+///|
+fn skybox_half_size(camera : @render3d_types.FrameCamera3D) -> Double {
+  let far_size = if camera.far > 1.0 { camera.far * 0.45 } else { 64.0 }
+  match camera.projection {
+    Perspective => far_size
+    Orthographic =>
+      camera.orthographic_size.map_or(far_size, fn(size) {
+        @cmp.maximum(@cmp.maximum(size[X].abs(), size[Y].abs()) * 2.0, far_size)
+      })
+  }
+}
+
+///|
+fn draw_skybox_face(
+  image : @render3d_types.ImageHandle,
+  camera_position : @smath.Vec3,
+  rotation : @smath.Quat,
+  brightness : Double,
+  half_size : Double,
+  p0 : @smath.Vec3,
+  p1 : @smath.Vec3,
+  p2 : @smath.Vec3,
+  p3 : @smath.Vec3,
+) -> Unit {
+  guard backend.images3d.get(image) is Some(image_asset) else { return }
+  let texture = get_texture(image_asset.path)
+  let color = clamp_u8((255.0 * @cmp.maximum(0.0, brightness)).to_int()).to_byte()
+  @rl.set_texture(texture.id())
+  @rl.color4ub(color, color, color, b'\xFF')
+  @rl.begin(@rl.Triangles)
+  emit_skybox_vertex(camera_position, rotation, half_size, p0, 0.0, 1.0)
+  emit_skybox_vertex(camera_position, rotation, half_size, p1, 1.0, 1.0)
+  emit_skybox_vertex(camera_position, rotation, half_size, p2, 1.0, 0.0)
+  emit_skybox_vertex(camera_position, rotation, half_size, p0, 0.0, 1.0)
+  emit_skybox_vertex(camera_position, rotation, half_size, p2, 1.0, 0.0)
+  emit_skybox_vertex(camera_position, rotation, half_size, p3, 0.0, 0.0)
+  @rl.end_()
+  @rl.set_texture(0U)
+}
+
+///|
+fn emit_skybox_vertex(
+  camera_position : @smath.Vec3,
+  rotation : @smath.Quat,
+  half_size : Double,
+  direction : @smath.Vec3,
+  u : Double,
+  v : Double,
+) -> Unit {
+  let position = camera_position +
+    rotation.rotate_vec3(direction.scalar_mul(half_size))
+  @rl.tex_coord2f(to_float(u), to_float(v))
+  @rl.vertex3f(to_float(position.x), to_float(position.y), to_float(position.z))
 }
 
 ///|

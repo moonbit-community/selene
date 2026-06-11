@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- Added first-class 3D cubemap assets and per-camera skybox rendering for Raylib and WebGPU backends.
 
 ### Changed
 

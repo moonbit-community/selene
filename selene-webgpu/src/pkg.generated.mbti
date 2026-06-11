@@ -66,6 +66,8 @@ pub fn register_mouse_events(@inputs.Mouse, @ref.Ref[@math.Vec2?], @inputs.Mouse
 
 pub fn register_touch_events(Map[@inputs.TouchId, @inputs.TouchPoint], Array[@inputs.TouchEvent]) -> Unit
 
+pub fn release_cubemap_asset(@render3d_types.CubemapHandle) -> Unit
+
 pub fn release_image_asset(@render3d_types.ImageHandle) -> Unit
 
 pub fn release_material_asset(@render3d_types.MaterialHandle) -> Unit
@@ -99,6 +101,8 @@ pub fn set_time_scale(Double) -> Unit
 pub fn set_volume(instance~ : Int, volume~ : Double) -> Unit
 
 pub fn stop(instance~ : Int) -> Unit
+
+pub fn sync_cubemap_asset(@render3d_types.CubemapHandle, @render3d_types.CubemapAsset3D) -> Unit
 
 pub fn sync_image_asset(@render3d_types.ImageHandle, @render3d_types.ImageAsset) -> Unit
 

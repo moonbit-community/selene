@@ -171,6 +171,18 @@ extern "js" fn webgpu_draw_textured_triangles_3d(
   #| }
 
 ///|
+extern "js" fn webgpu_draw_skybox_textured_triangles_3d(
+  base_path : String,
+  vertices : Array[Double],
+) -> Unit =
+  #| (basePath, vertices) => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (rt) {
+  #|     rt.pushSkyboxTexturedTriangles3d(basePath, vertices);
+  #|   }
+  #| }
+
+///|
 pub extern "js" fn Audio::new(path : String) -> Audio =
   #| (path) => {
   #|   const init = globalThis.__selene_init_audio_element || (

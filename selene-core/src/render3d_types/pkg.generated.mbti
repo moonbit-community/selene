@@ -12,6 +12,10 @@ pub fn apply_texture_transform3d(TextureTransform3D, @math.Vec2) -> @math.Vec2
 
 pub fn build_cascade_shadow_config3d(CascadeShadowConfigBuilder3D) -> CascadeShadowConfig3D
 
+pub fn cubemap_asset_six_faces(CubemapFaces3D) -> CubemapAsset3D
+
+pub fn cubemap_faces3d(ImageHandle, ImageHandle, ImageHandle, ImageHandle, ImageHandle, ImageHandle) -> CubemapFaces3D
+
 pub fn default_cascade_shadow_config3d() -> CascadeShadowConfig3D
 
 pub fn default_cascade_shadow_config_builder3d() -> CascadeShadowConfigBuilder3D
@@ -33,6 +37,8 @@ pub fn default_texture_sampler3d() -> TextureSampler3D
 pub fn default_texture_transform3d() -> TextureTransform3D
 
 pub fn empty_render_frame3d() -> RenderFrame3D
+
+pub fn skybox3d(CubemapHandle, brightness? : Double, rotation? : @math.Quat) -> Skybox3D
 
 pub fn texture_binding3d(ImageHandle, texcoord_set? : Int, sampler? : TextureSampler3D, transform? : TextureTransform3D) -> TextureBinding3D
 
@@ -68,6 +74,21 @@ pub(all) struct CascadeShadowConfigBuilder3D {
   first_cascade_far_bound : Double
   overlap_proportion : Double
 } derive(Eq, @debug.Debug)
+
+pub(all) enum CubemapAsset3D {
+  SixFaces(CubemapFaces3D)
+} derive(Eq, @debug.Debug)
+
+pub(all) struct CubemapFaces3D {
+  positive_x : ImageHandle
+  negative_x : ImageHandle
+  positive_y : ImageHandle
+  negative_y : ImageHandle
+  positive_z : ImageHandle
+  negative_z : ImageHandle
+} derive(Eq, @debug.Debug)
+
+pub(all) struct CubemapHandle(UInt) derive(Eq, Hash, @debug.Debug)
 
 pub(all) struct DirectionalLight3D {
   direction : @math.Vec3
@@ -165,6 +186,7 @@ pub(all) struct PointLightShadowMap3D {
 pub(all) struct RenderFrame3D {
   mut camera : FrameCamera3D?
   mut clear_color : @render.Color
+  mut skybox : Skybox3D?
   mut items : Array[RenderItem3D]
   mut directional_lights : Array[DirectionalLight3D]
   mut point_lights : Array[FramePointLight3D]
@@ -184,6 +206,12 @@ pub(all) struct RenderItem3D {
 }
 
 pub(all) struct SceneHandle(UInt) derive(Eq, Hash, @debug.Debug)
+
+pub(all) struct Skybox3D {
+  cubemap : CubemapHandle
+  brightness : Double
+  rotation : @math.Quat
+} derive(Eq, @debug.Debug)
 
 pub(all) struct SpotLight3D {
   direction : @math.Vec3

@@ -597,6 +597,7 @@ extern "js" fn webgpu_initialize(
   #|           orthoHeight,
   #|         },
   #|         triCommands: [],
+  #|         skyboxTexTriCommands: [],
   #|         litTriCommands: [],
   #|         instancedLitCommands: [],
   #|         texTriCommands: [],
@@ -677,6 +678,35 @@ extern "js" fn webgpu_initialize(
   #|         castShadows: !!castShadows,
   #|       });
   #|     };
+  #|     rt.pushSkyboxTexturedTriangles3d = (basePath, verts) => {
+  #|       if (!rt.current3dSection) return;
+  #|       if (!verts || verts.length < 105) return;
+  #|       const baseRec = (basePath && basePath.length > 0)
+  #|         ? rt.ensureImage(basePath)
+  #|         : rt.ensureSolidTexture('__solid:white', 255, 255, 255, 1.0);
+  #|       const whiteRec = rt.ensureSolidTexture('__solid:white', 255, 255, 255, 1.0);
+  #|       const normalRec = rt.ensureSolidTexture('__solid:normal', 128, 128, 255, 1.0);
+  #|       if (!baseRec || !whiteRec || !normalRec) return;
+  #|       const triVertexCount = Math.floor(verts.length / 35);
+  #|       if (triVertexCount < 3) return;
+  #|       const out = new Float32Array(triVertexCount * 35);
+  #|       for (let i = 0; i < out.length; i += 1) {
+  #|         out[i] = Number(verts[i]) || 0.0;
+  #|       }
+  #|       rt.current3dSection.skyboxTexTriCommands.push({
+  #|         textureRec: baseRec,
+  #|         emissiveTextureRec: whiteRec,
+  #|         metallicRoughnessTextureRec: whiteRec,
+  #|         occlusionTextureRec: whiteRec,
+  #|         normalTextureRec: normalRec,
+  #|         baseSamplerCode: 0,
+  #|         emissiveSamplerCode: 0,
+  #|         metallicRoughnessSamplerCode: 0,
+  #|         occlusionSamplerCode: 0,
+  #|         normalSamplerCode: 0,
+  #|         verts: out,
+  #|       });
+  #|     };
   #|
   #|     rt.beginFrame = (r, g, b, a) => {
   #|       rt.clearColor = [clamp01(r), clamp01(g), clamp01(b), clamp01(a)];
@@ -751,6 +781,7 @@ extern "js" fn webgpu_initialize(
   #|       return {
   #|         tri: rt.uploadCommandBuffer3d('dyn3dTri', section.triCommands, (cmd) => cmd.verts),
   #|         line: rt.uploadCommandBuffer3d('dyn3dLine', section.lineCommands, (verts) => verts),
+  #|         skyboxTex: rt.uploadCommandBuffer3d('dyn3dSkyboxTexTri', section.skyboxTexTriCommands, (cmd) => cmd.verts),
   #|         lit: rt.uploadCommandBuffer3d('dyn3dLitTri', section.litTriCommands, (cmd) => cmd.verts),
   #|         instancedLit: rt.uploadInstancedLitBuffers3d(section.instancedLitCommands),
   #|         tex: rt.uploadCommandBuffer3d('dyn3dLitTexTri', section.texTriCommands, (cmd) => cmd.verts),
@@ -1135,6 +1166,22 @@ extern "js" fn webgpu_initialize(
   #|     };
   #|
   #|     rt.renderSection3d = (pass, section, state) => {
+  #|       pass.setBindGroup(0, rt.bindGroups.camera3d);
+  #|       if (state.buffers.skyboxTex.buffer && section.skyboxTexTriCommands.length > 0) {
+  #|         for (let index = 0; index < section.skyboxTexTriCommands.length; index += 1) {
+  #|           const cmd = section.skyboxTexTriCommands[index];
+  #|           const rec = cmd.textureRec;
+  #|           const emissiveRec = cmd.emissiveTextureRec;
+  #|           const metallicRoughnessRec = cmd.metallicRoughnessTextureRec;
+  #|           const occlusionRec = cmd.occlusionTextureRec;
+  #|           const normalRec = cmd.normalTextureRec;
+  #|           if (!rec?.view || !emissiveRec?.view || !metallicRoughnessRec?.view || !occlusionRec?.view || !normalRec?.view) continue;
+  #|           pass.setPipeline(rt.pipelines.skybox3dTexTri);
+  #|           pass.setBindGroup(0, rt.resolveLitTex3dBindGroup(cmd, state.shadowState));
+  #|           pass.setVertexBuffer(0, state.buffers.skyboxTex.buffer, state.buffers.skyboxTex.offsets[index], cmd.verts.byteLength);
+  #|           pass.draw(cmd.verts.length / 35, 1, 0, 0);
+  #|         }
+  #|       }
   #|       pass.setBindGroup(0, rt.bindGroups.camera3d);
   #|       if (state.buffers.tri.buffer && section.triCommands.length > 0) {
   #|         pass.setPipeline(rt.pipelines.color3dTri);
@@ -1826,6 +1873,13 @@ extern "js" fn webgpu_initialize(
   #|           fragment: { module: shader3dLitTex, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendState }] },
   #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
   #|           depthStencil: { format: 'depth24plus', depthWriteEnabled: true, depthCompare: 'less' },
+  #|         }),
+  #|         skybox3dTexTri: rt.device.createRenderPipeline({
+  #|           layout: layoutLit3dTex,
+  #|           vertex: { module: shader3dLitTex, entryPoint: 'vs_main', buffers: [litTex3dVertex] },
+  #|           fragment: { module: shader3dLitTex, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendState }] },
+  #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
+  #|           depthStencil: { format: 'depth24plus', depthWriteEnabled: false, depthCompare: 'always' },
   #|         }),
   #|       };
   #|       rt.ensureDepth();
