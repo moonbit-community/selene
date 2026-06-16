@@ -306,391 +306,395 @@ const MAX_POINT_LIGHTS : Int = 8
 const MAX_SPOT_LIGHTS : Int = 4
 
 ///|
-let raylib_lighting_vertex_shader : String = "#version 330\n" +
-  "in vec3 vertexPosition;\n" +
-  "in vec2 vertexTexCoord;\n" +
-  "in vec2 vertexTexCoord2;\n" +
-  "in vec3 vertexNormal;\n" +
-  "in vec4 vertexTangent;\n" +
-  "in vec4 vertexColor;\n" +
-  "uniform mat4 mvp;\n" +
-  "uniform mat4 matModel;\n" +
-  "uniform mat4 matNormal;\n" +
-  "out vec3 fragPosition;\n" +
-  "out vec2 fragTexCoord;\n" +
-  "out vec2 fragTexCoord2;\n" +
-  "out vec3 fragNormal;\n" +
-  "out vec4 fragTangent;\n" +
-  "out vec4 fragVertexColor;\n" +
-  "void main() {\n" +
-  "  vec4 worldPosition = matModel * vec4(vertexPosition, 1.0);\n" +
-  "  fragPosition = worldPosition.xyz;\n" +
-  "  fragTexCoord = vertexTexCoord;\n" +
-  "  fragTexCoord2 = vertexTexCoord2;\n" +
-  "  fragNormal = normalize((matNormal * vec4(vertexNormal, 0.0)).xyz);\n" +
-  "  vec3 tangent = normalize((matNormal * vec4(vertexTangent.xyz, 0.0)).xyz);\n" +
-  "  fragTangent = vec4(tangent, vertexTangent.w);\n" +
-  "  fragVertexColor = vertexColor;\n" +
-  "  gl_Position = mvp * vec4(vertexPosition, 1.0);\n" +
-  "}\n"
+let raylib_lighting_vertex_shader : String =
+  #|#version 330
+  #|in vec3 vertexPosition;
+  #|in vec2 vertexTexCoord;
+  #|in vec2 vertexTexCoord2;
+  #|in vec3 vertexNormal;
+  #|in vec4 vertexTangent;
+  #|in vec4 vertexColor;
+  #|uniform mat4 mvp;
+  #|uniform mat4 matModel;
+  #|uniform mat4 matNormal;
+  #|out vec3 fragPosition;
+  #|out vec2 fragTexCoord;
+  #|out vec2 fragTexCoord2;
+  #|out vec3 fragNormal;
+  #|out vec4 fragTangent;
+  #|out vec4 fragVertexColor;
+  #|void main() {
+  #|  vec4 worldPosition = matModel * vec4(vertexPosition, 1.0);
+  #|  fragPosition = worldPosition.xyz;
+  #|  fragTexCoord = vertexTexCoord;
+  #|  fragTexCoord2 = vertexTexCoord2;
+  #|  fragNormal = normalize((matNormal * vec4(vertexNormal, 0.0)).xyz);
+  #|  vec3 tangent = normalize((matNormal * vec4(vertexTangent.xyz, 0.0)).xyz);
+  #|  fragTangent = vec4(tangent, vertexTangent.w);
+  #|  fragVertexColor = vertexColor;
+  #|  gl_Position = mvp * vec4(vertexPosition, 1.0);
+  #|}
+  #|
 
 ///|
-let raylib_lighting_fragment_shader : String = "#version 330\n" +
-  "in vec3 fragPosition;\n" +
-  "in vec2 fragTexCoord;\n" +
-  "in vec2 fragTexCoord2;\n" +
-  "in vec3 fragNormal;\n" +
-  "in vec4 fragTangent;\n" +
-  "in vec4 fragVertexColor;\n" +
-  "uniform sampler2D texture0;\n" +
-  "uniform sampler2D texture1;\n" +
-  "uniform sampler2D texture2;\n" +
-  "uniform sampler2D texture4;\n" +
-  "uniform sampler2D texture5;\n" +
-  "uniform vec3 ambientLight;\n" +
-  "uniform vec3 viewPosition;\n" +
-  "uniform vec3 viewForward;\n" +
-  "uniform int directionalCount;\n" +
-  "uniform vec3 directionalDirections[4];\n" +
-  "uniform vec3 directionalColors[4];\n" +
-  "uniform int pointCount;\n" +
-  "uniform vec3 pointPositions[8];\n" +
-  "uniform vec3 pointColors[8];\n" +
-  "uniform float pointRanges[8];\n" +
-  "uniform int spotCount;\n" +
-  "uniform vec3 spotPositions[4];\n" +
-  "uniform vec3 spotDirections[4];\n" +
-  "uniform vec3 spotColors[4];\n" +
-  "uniform vec3 spotParams[4];\n" +
-  "uniform vec4 materialBaseColor;\n" +
-  "uniform vec3 materialEmissiveColor;\n" +
-  "uniform float materialNormalScale;\n" +
-  "uniform float materialOcclusionStrength;\n" +
-  "uniform float materialMetallic;\n" +
-  "uniform float materialRoughness;\n" +
-  "uniform int materialAlphaMode;\n" +
-  "uniform float materialAlphaCutoff;\n" +
-  "uniform int materialHasBaseTexture;\n" +
-  "uniform int materialHasEmissiveTexture;\n" +
-  "uniform int materialHasMetallicRoughnessTexture;\n" +
-  "uniform int materialHasOcclusionTexture;\n" +
-  "uniform int materialHasNormalTexture;\n" +
-  "uniform int materialHasTangents;\n" +
-  "uniform int materialUnlit;\n" +
-  "uniform int materialReceiveShadows;\n" +
-  "uniform int shadowEnabled[4];\n" +
-  "uniform int shadowCascadeCounts[4];\n" +
-  "uniform sampler2D shadowMap0;\n" +
-  "uniform sampler2D shadowMap1;\n" +
-  "uniform sampler2D shadowMap2;\n" +
-  "uniform sampler2D shadowMap3;\n" +
-  "uniform mat4 shadowMatrices[16];\n" +
-  "uniform vec4 shadowRects[16];\n" +
-  "uniform vec2 shadowBounds[16];\n" +
-  "uniform float shadowDepthBiases[4];\n" +
-  "uniform float shadowNormalBiases[4];\n" +
-  "uniform vec2 directionalShadowTexelSize;\n" +
-  "uniform int spotShadowEnabled[4];\n" +
-  "uniform sampler2D spotShadowAtlas;\n" +
-  "uniform mat4 spotShadowMatrices[4];\n" +
-  "uniform vec4 spotShadowRects[4];\n" +
-  "uniform float spotShadowDepthBiases[4];\n" +
-  "uniform float spotShadowNormalBiases[4];\n" +
-  "uniform vec2 spotShadowTexelSize;\n" +
-  "uniform int pointShadowEnabled[8];\n" +
-  "uniform sampler2D pointShadowAtlas;\n" +
-  "uniform mat4 pointShadowMatrices[48];\n" +
-  "uniform vec4 pointShadowRects[48];\n" +
-  "uniform float pointShadowDepthBiases[8];\n" +
-  "uniform float pointShadowNormalBiases[8];\n" +
-  "uniform vec2 pointShadowTexelSize;\n" +
-  "uniform vec4 baseUvOffsetScale;\n" +
-  "uniform vec2 baseUvRotation;\n" +
-  "uniform int baseUvSet;\n" +
-  "uniform vec4 metallicRoughnessUvOffsetScale;\n" +
-  "uniform vec2 metallicRoughnessUvRotation;\n" +
-  "uniform int metallicRoughnessUvSet;\n" +
-  "uniform vec4 normalUvOffsetScale;\n" +
-  "uniform vec2 normalUvRotation;\n" +
-  "uniform int normalUvSet;\n" +
-  "uniform vec4 occlusionUvOffsetScale;\n" +
-  "uniform vec2 occlusionUvRotation;\n" +
-  "uniform int occlusionUvSet;\n" +
-  "uniform vec4 emissiveUvOffsetScale;\n" +
-  "uniform vec2 emissiveUvRotation;\n" +
-  "uniform int emissiveUvSet;\n" +
-  "out vec4 finalColor;\n" +
-  "float rangeAttenuation(float distanceToLight, float lightRange) {\n" +
-  "  if (lightRange <= 0.000001) return 1.0;\n" +
-  "  if (distanceToLight >= lightRange) return 0.0;\n" +
-  "  float t = 1.0 - distanceToLight / lightRange;\n" +
-  "  return t * t;\n" +
-  "}\n" +
-  "vec2 selectUv(int setIndex) {\n" +
-  "  if (setIndex == 1) return fragTexCoord2;\n" +
-  "  return fragTexCoord;\n" +
-  "}\n" +
-  "vec2 applyTextureTransform(vec2 uv, vec4 offsetScale, vec2 rotationSinCos) {\n" +
-  "  vec2 scaled = uv * offsetScale.zw;\n" +
-  "  return vec2(\n" +
-  "    scaled.x * rotationSinCos.y - scaled.y * rotationSinCos.x + offsetScale.x,\n" +
-  "    scaled.x * rotationSinCos.x + scaled.y * rotationSinCos.y + offsetScale.y\n" +
-  "  );\n" +
-  "}\n" +
-  "float spotAttenuation(vec3 spotDirection, vec3 lightToFragment, vec3 params) {\n" +
-  "  float inner = max(params.y, params.z);\n" +
-  "  float outer = min(params.y, params.z);\n" +
-  "  float cosTheta = dot(normalize(spotDirection), normalize(lightToFragment));\n" +
-  "  float delta = inner - outer;\n" +
-  "  if (cosTheta <= outer) return 0.0;\n" +
-  "  if (cosTheta >= inner || abs(delta) <= 0.000001) return 1.0;\n" +
-  "  return (cosTheta - outer) / delta;\n" +
-  "}\n" +
-  "mat3 cotangentFrame(vec3 normal, vec3 worldPosition, vec2 uv) {\n" +
-  "  vec3 dp1 = dFdx(worldPosition);\n" +
-  "  vec3 dp2 = dFdy(worldPosition);\n" +
-  "  vec2 duv1 = dFdx(uv);\n" +
-  "  vec2 duv2 = dFdy(uv);\n" +
-  "  vec3 dp2perp = cross(dp2, normal);\n" +
-  "  vec3 dp1perp = cross(normal, dp1);\n" +
-  "  vec3 tangent = dp2perp * duv1.x + dp1perp * duv2.x;\n" +
-  "  vec3 bitangent = dp2perp * duv1.y + dp1perp * duv2.y;\n" +
-  "  float scale = max(dot(tangent, tangent), dot(bitangent, bitangent));\n" +
-  "  if (scale <= 0.000001) return mat3(1.0);\n" +
-  "  float invScale = inversesqrt(scale);\n" +
-  "  return mat3(tangent * invScale, bitangent * invScale, normal);\n" +
-  "}\n" +
-  "vec3 applyNormalMap(vec3 normal, vec3 worldPosition, vec2 uv) {\n" +
-  "  vec3 mapNormal = texture(texture2, uv).xyz * 2.0 - 1.0;\n" +
-  "  mapNormal.xy *= materialNormalScale;\n" +
-  "  mapNormal = normalize(mapNormal);\n" +
-  "  mat3 tbn = cotangentFrame(normal, worldPosition, uv);\n" +
-  "  if (materialHasTangents != 0) {\n" +
-  "    vec3 tangent = normalize(fragTangent.xyz);\n" +
-  "    vec3 bitangent = normalize(cross(normal, tangent) * fragTangent.w);\n" +
-  "    if (dot(tangent, tangent) > 0.000001 && dot(bitangent, bitangent) > 0.000001) {\n" +
-  "      tbn = mat3(tangent, bitangent, normal);\n" +
-  "    }\n" +
-  "  }\n" +
-  "  return normalize(tbn * mapNormal);\n" +
-  "}\n" +
-  "void addLight(\n" +
-  "  vec3 lightDir,\n" +
-  "  vec3 lightColor,\n" +
-  "  float attenuation,\n" +
-  "  vec3 normal,\n" +
-  "  vec3 viewDir,\n" +
-  "  float shininess,\n" +
-  "  float specularStrength,\n" +
-  "  inout vec3 diffuseLight,\n" +
-  "  inout vec3 specularLight\n" +
-  ") {\n" +
-  "  if (attenuation <= 0.0) return;\n" +
-  "  float lambert = max(dot(normal, lightDir), 0.0);\n" +
-  "  if (lambert <= 0.0) return;\n" +
-  "  diffuseLight += lightColor * (lambert * attenuation);\n" +
-  "  vec3 halfway = normalize(lightDir + viewDir);\n" +
-  "  float spec = pow(max(dot(normal, halfway), 0.0), shininess) * specularStrength;\n" +
-  "  specularLight += lightColor * (spec * attenuation);\n" +
-  "}\n" +
-  "float sampleShadowMapDepth(int index, vec2 uv) {\n" +
-  "  if (index == 0) return texture(shadowMap0, uv).r;\n" +
-  "  if (index == 1) return texture(shadowMap1, uv).r;\n" +
-  "  if (index == 2) return texture(shadowMap2, uv).r;\n" +
-  "  if (index == 3) return texture(shadowMap3, uv).r;\n" +
-  "  return 1.0;\n" +
-  "}\n" +
-  "float sampleShadowAtlasDepth(sampler2D atlasTexture, vec2 uv, vec4 atlasRect) {\n" +
-  "  return texture(atlasTexture, atlasRect.xy + uv * atlasRect.zw).r;\n" +
-  "}\n" +
-  "float sampleDirectionalShadowCascade(int lightIndex, int cascadeIndex, vec3 normal, vec3 lightDir) {\n" +
-  "  int matrixIndex = lightIndex * 4 + cascadeIndex;\n" +
-  "  vec4 atlasRect = shadowRects[matrixIndex];\n" +
-  "  if (atlasRect.z <= 0.0 || atlasRect.w <= 0.0) return 1.0;\n" +
-  "  vec4 shadowClip = shadowMatrices[matrixIndex] * vec4(fragPosition, 1.0);\n" +
-  "  if (abs(shadowClip.w) <= 0.00001) return 1.0;\n" +
-  "  vec3 shadowNdc = shadowClip.xyz / shadowClip.w;\n" +
-  "  vec2 shadowUv = shadowNdc.xy * 0.5 + 0.5;\n" +
-  "  float shadowDepth = shadowNdc.z * 0.5 + 0.5;\n" +
-  "  if (shadowDepth <= 0.0 || shadowDepth >= 1.0) return 1.0;\n" +
-  "  if (shadowUv.x <= 0.0 || shadowUv.x >= 1.0 || shadowUv.y <= 0.0 || shadowUv.y >= 1.0) return 1.0;\n" +
-  "  float texel = max(directionalShadowTexelSize.x, directionalShadowTexelSize.y);\n" +
-  "  float ndotl = max(dot(normal, lightDir), 0.0);\n" +
-  "  float bias = max(0.0, shadowDepthBiases[lightIndex]) + max(0.0, shadowNormalBiases[lightIndex]) * texel * (1.0 - ndotl);\n" +
-  "  float filterRadius = 1.25;\n" +
-  "  float lit = 0.0;\n" +
-  "  float totalWeight = 0.0;\n" +
-  "  for (int x = -1; x <= 1; x++) {\n" +
-  "    for (int y = -1; y <= 1; y++) {\n" +
-  "      float weight = 1.0 / (1.0 + abs(float(x)) + abs(float(y)));\n" +
-  "      vec2 sampleUv = shadowUv + vec2(float(x), float(y)) * directionalShadowTexelSize * filterRadius;\n" +
-  "      float closest = sampleShadowMapDepth(lightIndex, clamp(atlasRect.xy + sampleUv * atlasRect.zw, vec2(0.0), vec2(1.0)));\n" +
-  "      lit += (shadowDepth - bias <= closest ? 1.0 : 0.0) * weight;\n" +
-  "      totalWeight += weight;\n" +
-  "    }\n" +
-  "  }\n" +
-  "  return totalWeight <= 0.00001 ? 1.0 : lit / totalWeight;\n" +
-  "}\n" +
-  "float sampleDirectionalShadow(int index, vec3 normal, vec3 lightDir) {\n" +
-  "  if (materialReceiveShadows == 0 || index < 0 || index >= 4 || shadowEnabled[index] == 0) return 1.0;\n" +
-  "  int cascadeCount = shadowCascadeCounts[index];\n" +
-  "  if (cascadeCount <= 0) return 1.0;\n" +
-  "  float viewDepth = dot(fragPosition - viewPosition, viewForward);\n" +
-  "  int baseIndex = index * 4;\n" +
-  "  float firstNear = shadowBounds[baseIndex].x;\n" +
-  "  float lastFar = shadowBounds[baseIndex + cascadeCount - 1].y;\n" +
-  "  if (viewDepth < firstNear || viewDepth > lastFar) return 1.0;\n" +
-  "  int selected = cascadeCount - 1;\n" +
-  "  for (int i = 0; i < 4; i++) {\n" +
-  "    if (i >= cascadeCount) break;\n" +
-  "    if (viewDepth <= shadowBounds[baseIndex + i].y) {\n" +
-  "      selected = i;\n" +
-  "      break;\n" +
-  "    }\n" +
-  "  }\n" +
-  "  float shadow = sampleDirectionalShadowCascade(index, selected, normal, lightDir);\n" +
-  "  if (selected > 0) {\n" +
-  "    int previous = selected - 1;\n" +
-  "    float overlapNear = shadowBounds[baseIndex + selected].x;\n" +
-  "    float overlapFar = shadowBounds[baseIndex + previous].y;\n" +
-  "    if (overlapNear < overlapFar && viewDepth >= overlapNear && viewDepth <= overlapFar) {\n" +
-  "      float blend = clamp((viewDepth - overlapNear) / (overlapFar - overlapNear), 0.0, 1.0);\n" +
-  "      shadow = mix(sampleDirectionalShadowCascade(index, previous, normal, lightDir), shadow, blend);\n" +
-  "    }\n" +
-  "  }\n" +
-  "  return shadow;\n" +
-  "}\n" +
-  "float sampleSpotShadow(int index, vec3 normal, vec3 lightDir) {\n" +
-  "  if (materialReceiveShadows == 0 || index < 0 || index >= 4 || spotShadowEnabled[index] == 0) return 1.0;\n" +
-  "  vec4 shadowClip = spotShadowMatrices[index] * vec4(fragPosition, 1.0);\n" +
-  "  if (abs(shadowClip.w) <= 0.00001) return 1.0;\n" +
-  "  vec3 shadowNdc = shadowClip.xyz / shadowClip.w;\n" +
-  "  vec2 shadowUv = shadowNdc.xy * 0.5 + 0.5;\n" +
-  "  float shadowDepth = shadowNdc.z * 0.5 + 0.5;\n" +
-  "  if (shadowDepth <= 0.0 || shadowDepth >= 1.0) return 1.0;\n" +
-  "  if (shadowUv.x <= 0.0 || shadowUv.x >= 1.0 || shadowUv.y <= 0.0 || shadowUv.y >= 1.0) return 1.0;\n" +
-  "  float texel = max(spotShadowTexelSize.x, spotShadowTexelSize.y);\n" +
-  "  float ndotl = max(dot(normal, lightDir), 0.0);\n" +
-  "  float bias = max(0.0, spotShadowDepthBiases[index]) + max(0.0, spotShadowNormalBiases[index]) * texel * (1.0 - ndotl);\n" +
-  "  float filterRadius = 1.25;\n" +
-  "  float lit = 0.0;\n" +
-  "  float totalWeight = 0.0;\n" +
-  "  for (int x = -1; x <= 1; x++) {\n" +
-  "    for (int y = -1; y <= 1; y++) {\n" +
-  "      float weight = 1.0 / (1.0 + abs(float(x)) + abs(float(y)));\n" +
-  "      vec2 sampleUv = shadowUv + vec2(float(x), float(y)) * spotShadowTexelSize * filterRadius;\n" +
-  "      float closest = sampleShadowAtlasDepth(spotShadowAtlas, clamp(sampleUv, vec2(0.0), vec2(1.0)), spotShadowRects[index]);\n" +
-  "      lit += (shadowDepth - bias <= closest ? 1.0 : 0.0) * weight;\n" +
-  "      totalWeight += weight;\n" +
-  "    }\n" +
-  "  }\n" +
-  "  return totalWeight <= 0.00001 ? 1.0 : lit / totalWeight;\n" +
-  "}\n" +
-  "int selectPointShadowFace(vec3 dir) {\n" +
-  "  vec3 absDir = abs(dir);\n" +
-  "  if (absDir.x >= absDir.y && absDir.x >= absDir.z) return dir.x >= 0.0 ? 0 : 1;\n" +
-  "  if (absDir.y >= absDir.x && absDir.y >= absDir.z) return dir.y >= 0.0 ? 2 : 3;\n" +
-  "  return dir.z >= 0.0 ? 4 : 5;\n" +
-  "}\n" +
-  "float samplePointShadow(int index, vec3 normal, vec3 lightDir, vec3 lightToFragment) {\n" +
-  "  if (materialReceiveShadows == 0 || index < 0 || index >= 8 || pointShadowEnabled[index] == 0) return 1.0;\n" +
-  "  int face = selectPointShadowFace(lightToFragment);\n" +
-  "  int matrixIndex = index * 6 + face;\n" +
-  "  vec4 shadowClip = pointShadowMatrices[matrixIndex] * vec4(fragPosition, 1.0);\n" +
-  "  if (abs(shadowClip.w) <= 0.00001) return 1.0;\n" +
-  "  vec3 shadowNdc = shadowClip.xyz / shadowClip.w;\n" +
-  "  vec2 shadowUv = shadowNdc.xy * 0.5 + 0.5;\n" +
-  "  float shadowDepth = shadowNdc.z * 0.5 + 0.5;\n" +
-  "  if (shadowDepth <= 0.0 || shadowDepth >= 1.0) return 1.0;\n" +
-  "  if (shadowUv.x <= 0.0 || shadowUv.x >= 1.0 || shadowUv.y <= 0.0 || shadowUv.y >= 1.0) return 1.0;\n" +
-  "  float texel = max(pointShadowTexelSize.x, pointShadowTexelSize.y);\n" +
-  "  float ndotl = max(dot(normal, lightDir), 0.0);\n" +
-  "  float bias = max(0.0, pointShadowDepthBiases[index]) + max(0.0, pointShadowNormalBiases[index]) * texel * (1.0 - ndotl);\n" +
-  "  float filterRadius = 1.0;\n" +
-  "  float lit = 0.0;\n" +
-  "  float totalWeight = 0.0;\n" +
-  "  for (int x = -1; x <= 1; x++) {\n" +
-  "    for (int y = -1; y <= 1; y++) {\n" +
-  "      float weight = 1.0 / (1.0 + abs(float(x)) + abs(float(y)));\n" +
-  "      vec2 sampleUv = shadowUv + vec2(float(x), float(y)) * pointShadowTexelSize * filterRadius;\n" +
-  "      float closest = sampleShadowAtlasDepth(pointShadowAtlas, clamp(sampleUv, vec2(0.0), vec2(1.0)), pointShadowRects[matrixIndex]);\n" +
-  "      lit += (shadowDepth - bias <= closest ? 1.0 : 0.0) * weight;\n" +
-  "      totalWeight += weight;\n" +
-  "    }\n" +
-  "  }\n" +
-  "  return totalWeight <= 0.00001 ? 1.0 : lit / totalWeight;\n" +
-  "}\n" +
-  "void main() {\n" +
-  "  vec2 baseUv = applyTextureTransform(selectUv(baseUvSet), baseUvOffsetScale, baseUvRotation);\n" +
-  "  vec2 metallicRoughnessUv = applyTextureTransform(selectUv(metallicRoughnessUvSet), metallicRoughnessUvOffsetScale, metallicRoughnessUvRotation);\n" +
-  "  vec2 normalUv = applyTextureTransform(selectUv(normalUvSet), normalUvOffsetScale, normalUvRotation);\n" +
-  "  vec2 occlusionUv = applyTextureTransform(selectUv(occlusionUvSet), occlusionUvOffsetScale, occlusionUvRotation);\n" +
-  "  vec2 emissiveUv = applyTextureTransform(selectUv(emissiveUvSet), emissiveUvOffsetScale, emissiveUvRotation);\n" +
-  "  vec4 albedoSample = vec4(1.0);\n" +
-  "  if (materialHasBaseTexture != 0) albedoSample = texture(texture0, baseUv);\n" +
-  "  vec4 albedo = albedoSample * fragVertexColor * materialBaseColor;\n" +
-  "  if (materialAlphaMode == 0) {\n" +
-  "    albedo.a = 1.0;\n" +
-  "  } else if (materialAlphaMode == 1) {\n" +
-  "    if (albedo.a < materialAlphaCutoff) discard;\n" +
-  "    albedo.a = 1.0;\n" +
-  "  } else if (albedo.a <= 0.0001) discard;\n" +
-  "  if (materialUnlit != 0) {\n" +
-  "    finalColor = vec4(albedo.rgb, albedo.a);\n" +
-  "    return;\n" +
-  "  }\n" +
-  "  vec4 metallicRoughnessSample = vec4(1.0);\n" +
-  "  if (materialHasMetallicRoughnessTexture != 0) {\n" +
-  "    metallicRoughnessSample = texture(texture1, metallicRoughnessUv);\n" +
-  "  }\n" +
-  "  vec3 normal = normalize(fragNormal);\n" +
-  "  if (length(normal) <= 0.00001) normal = vec3(0.0, 1.0, 0.0);\n" +
-  "  vec3 geometricNormal = normal;\n" +
-  "  if (materialHasNormalTexture != 0) normal = applyNormalMap(normal, fragPosition, normalUv);\n" +
-  "  vec3 viewDir = normalize(viewPosition - fragPosition);\n" +
-  "  if (length(viewDir) <= 0.00001) viewDir = vec3(0.0, 0.0, 1.0);\n" +
-  "  float roughness = clamp(materialRoughness * metallicRoughnessSample.g, 0.089, 1.0);\n" +
-  "  float metallic = clamp(materialMetallic * metallicRoughnessSample.b, 0.0, 1.0);\n" +
-  "  float shininess = mix(96.0, 8.0, roughness);\n" +
-  "  float specularStrength = mix(0.04, 1.0, metallic);\n" +
-  "  vec3 diffuseLight = ambientLight;\n" +
-  "  vec3 specularLight = vec3(0.0);\n" +
-  "  for (int i = 0; i < directionalCount; i++) {\n" +
-  "    vec3 lightDir = normalize(-directionalDirections[i]);\n" +
-  "    float attenuation = sampleDirectionalShadow(i, geometricNormal, lightDir);\n" +
-  "    addLight(lightDir, directionalColors[i], attenuation, normal, viewDir, shininess, specularStrength, diffuseLight, specularLight);\n" +
-  "  }\n" +
-  "  for (int i = 0; i < pointCount; i++) {\n" +
-  "    vec3 toLight = pointPositions[i] - fragPosition;\n" +
-  "    float distanceToLight = length(toLight);\n" +
-  "    if (distanceToLight <= 0.00001) continue;\n" +
-  "    vec3 lightDir = toLight / distanceToLight;\n" +
-  "    float attenuation = rangeAttenuation(distanceToLight, pointRanges[i]) * samplePointShadow(i, geometricNormal, lightDir, fragPosition - pointPositions[i]);\n" +
-  "    addLight(lightDir, pointColors[i], attenuation, normal, viewDir, shininess, specularStrength, diffuseLight, specularLight);\n" +
-  "  }\n" +
-  "  for (int i = 0; i < spotCount; i++) {\n" +
-  "    vec3 toLight = spotPositions[i] - fragPosition;\n" +
-  "    float distanceToLight = length(toLight);\n" +
-  "    if (distanceToLight <= 0.00001) continue;\n" +
-  "    vec3 lightDir = toLight / distanceToLight;\n" +
-  "    float attenuation = rangeAttenuation(distanceToLight, spotParams[i].x);\n" +
-  "    float cone = spotAttenuation(spotDirections[i], -lightDir, spotParams[i]);\n" +
-  "    addLight(lightDir, spotColors[i], attenuation * cone * sampleSpotShadow(i, geometricNormal, lightDir), normal, viewDir, shininess, specularStrength, diffuseLight, specularLight);\n" +
-  "  }\n" +
-  "  if (directionalCount == 0 && pointCount == 0 && spotCount == 0 && dot(ambientLight, ambientLight) <= 0.000001) {\n" +
-  "    diffuseLight = vec3(1.0);\n" +
-  "  }\n" +
-  "  float occlusion = 1.0;\n" +
-  "  if (materialHasOcclusionTexture != 0) {\n" +
-  "    occlusion = mix(1.0, texture(texture4, occlusionUv).r, clamp(materialOcclusionStrength, 0.0, 1.0));\n" +
-  "  }\n" +
-  "  vec3 emissive = materialEmissiveColor;\n" +
-  "  if (materialHasEmissiveTexture != 0) {\n" +
-  "    emissive = texture(texture5, emissiveUv).rgb * materialEmissiveColor;\n" +
-  "  }\n" +
-  "  vec3 litColor = albedo.rgb * diffuseLight * occlusion + specularLight * occlusion + emissive;\n" +
-  "  finalColor = vec4(litColor, albedo.a);\n" +
-  "}\n"
+let raylib_lighting_fragment_shader : String =
+  #|#version 330
+  #|in vec3 fragPosition;
+  #|in vec2 fragTexCoord;
+  #|in vec2 fragTexCoord2;
+  #|in vec3 fragNormal;
+  #|in vec4 fragTangent;
+  #|in vec4 fragVertexColor;
+  #|uniform sampler2D texture0;
+  #|uniform sampler2D texture1;
+  #|uniform sampler2D texture2;
+  #|uniform sampler2D texture4;
+  #|uniform sampler2D texture5;
+  #|uniform vec3 ambientLight;
+  #|uniform vec3 viewPosition;
+  #|uniform vec3 viewForward;
+  #|uniform int directionalCount;
+  #|uniform vec3 directionalDirections[4];
+  #|uniform vec3 directionalColors[4];
+  #|uniform int pointCount;
+  #|uniform vec3 pointPositions[8];
+  #|uniform vec3 pointColors[8];
+  #|uniform float pointRanges[8];
+  #|uniform int spotCount;
+  #|uniform vec3 spotPositions[4];
+  #|uniform vec3 spotDirections[4];
+  #|uniform vec3 spotColors[4];
+  #|uniform vec3 spotParams[4];
+  #|uniform vec4 materialBaseColor;
+  #|uniform vec3 materialEmissiveColor;
+  #|uniform float materialNormalScale;
+  #|uniform float materialOcclusionStrength;
+  #|uniform float materialMetallic;
+  #|uniform float materialRoughness;
+  #|uniform int materialAlphaMode;
+  #|uniform float materialAlphaCutoff;
+  #|uniform int materialHasBaseTexture;
+  #|uniform int materialHasEmissiveTexture;
+  #|uniform int materialHasMetallicRoughnessTexture;
+  #|uniform int materialHasOcclusionTexture;
+  #|uniform int materialHasNormalTexture;
+  #|uniform int materialHasTangents;
+  #|uniform int materialUnlit;
+  #|uniform int materialReceiveShadows;
+  #|uniform int shadowEnabled[4];
+  #|uniform int shadowCascadeCounts[4];
+  #|uniform sampler2D shadowMap0;
+  #|uniform sampler2D shadowMap1;
+  #|uniform sampler2D shadowMap2;
+  #|uniform sampler2D shadowMap3;
+  #|uniform mat4 shadowMatrices[16];
+  #|uniform vec4 shadowRects[16];
+  #|uniform vec2 shadowBounds[16];
+  #|uniform float shadowDepthBiases[4];
+  #|uniform float shadowNormalBiases[4];
+  #|uniform vec2 directionalShadowTexelSize;
+  #|uniform int spotShadowEnabled[4];
+  #|uniform sampler2D spotShadowAtlas;
+  #|uniform mat4 spotShadowMatrices[4];
+  #|uniform vec4 spotShadowRects[4];
+  #|uniform float spotShadowDepthBiases[4];
+  #|uniform float spotShadowNormalBiases[4];
+  #|uniform vec2 spotShadowTexelSize;
+  #|uniform int pointShadowEnabled[8];
+  #|uniform sampler2D pointShadowAtlas;
+  #|uniform mat4 pointShadowMatrices[48];
+  #|uniform vec4 pointShadowRects[48];
+  #|uniform float pointShadowDepthBiases[8];
+  #|uniform float pointShadowNormalBiases[8];
+  #|uniform vec2 pointShadowTexelSize;
+  #|uniform vec4 baseUvOffsetScale;
+  #|uniform vec2 baseUvRotation;
+  #|uniform int baseUvSet;
+  #|uniform vec4 metallicRoughnessUvOffsetScale;
+  #|uniform vec2 metallicRoughnessUvRotation;
+  #|uniform int metallicRoughnessUvSet;
+  #|uniform vec4 normalUvOffsetScale;
+  #|uniform vec2 normalUvRotation;
+  #|uniform int normalUvSet;
+  #|uniform vec4 occlusionUvOffsetScale;
+  #|uniform vec2 occlusionUvRotation;
+  #|uniform int occlusionUvSet;
+  #|uniform vec4 emissiveUvOffsetScale;
+  #|uniform vec2 emissiveUvRotation;
+  #|uniform int emissiveUvSet;
+  #|out vec4 finalColor;
+  #|float rangeAttenuation(float distanceToLight, float lightRange) {
+  #|  if (lightRange <= 0.000001) return 1.0;
+  #|  if (distanceToLight >= lightRange) return 0.0;
+  #|  float t = 1.0 - distanceToLight / lightRange;
+  #|  return t * t;
+  #|}
+  #|vec2 selectUv(int setIndex) {
+  #|  if (setIndex == 1) return fragTexCoord2;
+  #|  return fragTexCoord;
+  #|}
+  #|vec2 applyTextureTransform(vec2 uv, vec4 offsetScale, vec2 rotationSinCos) {
+  #|  vec2 scaled = uv * offsetScale.zw;
+  #|  return vec2(
+  #|    scaled.x * rotationSinCos.y - scaled.y * rotationSinCos.x + offsetScale.x,
+  #|    scaled.x * rotationSinCos.x + scaled.y * rotationSinCos.y + offsetScale.y
+  #|  );
+  #|}
+  #|float spotAttenuation(vec3 spotDirection, vec3 lightToFragment, vec3 params) {
+  #|  float inner = max(params.y, params.z);
+  #|  float outer = min(params.y, params.z);
+  #|  float cosTheta = dot(normalize(spotDirection), normalize(lightToFragment));
+  #|  float delta = inner - outer;
+  #|  if (cosTheta <= outer) return 0.0;
+  #|  if (cosTheta >= inner || abs(delta) <= 0.000001) return 1.0;
+  #|  return (cosTheta - outer) / delta;
+  #|}
+  #|mat3 cotangentFrame(vec3 normal, vec3 worldPosition, vec2 uv) {
+  #|  vec3 dp1 = dFdx(worldPosition);
+  #|  vec3 dp2 = dFdy(worldPosition);
+  #|  vec2 duv1 = dFdx(uv);
+  #|  vec2 duv2 = dFdy(uv);
+  #|  vec3 dp2perp = cross(dp2, normal);
+  #|  vec3 dp1perp = cross(normal, dp1);
+  #|  vec3 tangent = dp2perp * duv1.x + dp1perp * duv2.x;
+  #|  vec3 bitangent = dp2perp * duv1.y + dp1perp * duv2.y;
+  #|  float scale = max(dot(tangent, tangent), dot(bitangent, bitangent));
+  #|  if (scale <= 0.000001) return mat3(1.0);
+  #|  float invScale = inversesqrt(scale);
+  #|  return mat3(tangent * invScale, bitangent * invScale, normal);
+  #|}
+  #|vec3 applyNormalMap(vec3 normal, vec3 worldPosition, vec2 uv) {
+  #|  vec3 mapNormal = texture(texture2, uv).xyz * 2.0 - 1.0;
+  #|  mapNormal.xy *= materialNormalScale;
+  #|  mapNormal = normalize(mapNormal);
+  #|  mat3 tbn = cotangentFrame(normal, worldPosition, uv);
+  #|  if (materialHasTangents != 0) {
+  #|    vec3 tangent = normalize(fragTangent.xyz);
+  #|    vec3 bitangent = normalize(cross(normal, tangent) * fragTangent.w);
+  #|    if (dot(tangent, tangent) > 0.000001 && dot(bitangent, bitangent) > 0.000001) {
+  #|      tbn = mat3(tangent, bitangent, normal);
+  #|    }
+  #|  }
+  #|  return normalize(tbn * mapNormal);
+  #|}
+  #|void addLight(
+  #|  vec3 lightDir,
+  #|  vec3 lightColor,
+  #|  float attenuation,
+  #|  vec3 normal,
+  #|  vec3 viewDir,
+  #|  float shininess,
+  #|  float specularStrength,
+  #|  inout vec3 diffuseLight,
+  #|  inout vec3 specularLight
+  #|) {
+  #|  if (attenuation <= 0.0) return;
+  #|  float lambert = max(dot(normal, lightDir), 0.0);
+  #|  if (lambert <= 0.0) return;
+  #|  diffuseLight += lightColor * (lambert * attenuation);
+  #|  vec3 halfway = normalize(lightDir + viewDir);
+  #|  float spec = pow(max(dot(normal, halfway), 0.0), shininess) * specularStrength;
+  #|  specularLight += lightColor * (spec * attenuation);
+  #|}
+  #|float sampleShadowMapDepth(int index, vec2 uv) {
+  #|  if (index == 0) return texture(shadowMap0, uv).r;
+  #|  if (index == 1) return texture(shadowMap1, uv).r;
+  #|  if (index == 2) return texture(shadowMap2, uv).r;
+  #|  if (index == 3) return texture(shadowMap3, uv).r;
+  #|  return 1.0;
+  #|}
+  #|float sampleShadowAtlasDepth(sampler2D atlasTexture, vec2 uv, vec4 atlasRect) {
+  #|  return texture(atlasTexture, atlasRect.xy + uv * atlasRect.zw).r;
+  #|}
+  #|float sampleDirectionalShadowCascade(int lightIndex, int cascadeIndex, vec3 normal, vec3 lightDir) {
+  #|  int matrixIndex = lightIndex * 4 + cascadeIndex;
+  #|  vec4 atlasRect = shadowRects[matrixIndex];
+  #|  if (atlasRect.z <= 0.0 || atlasRect.w <= 0.0) return 1.0;
+  #|  vec4 shadowClip = shadowMatrices[matrixIndex] * vec4(fragPosition, 1.0);
+  #|  if (abs(shadowClip.w) <= 0.00001) return 1.0;
+  #|  vec3 shadowNdc = shadowClip.xyz / shadowClip.w;
+  #|  vec2 shadowUv = shadowNdc.xy * 0.5 + 0.5;
+  #|  float shadowDepth = shadowNdc.z * 0.5 + 0.5;
+  #|  if (shadowDepth <= 0.0 || shadowDepth >= 1.0) return 1.0;
+  #|  if (shadowUv.x <= 0.0 || shadowUv.x >= 1.0 || shadowUv.y <= 0.0 || shadowUv.y >= 1.0) return 1.0;
+  #|  float texel = max(directionalShadowTexelSize.x, directionalShadowTexelSize.y);
+  #|  float ndotl = max(dot(normal, lightDir), 0.0);
+  #|  float bias = max(0.0, shadowDepthBiases[lightIndex]) + max(0.0, shadowNormalBiases[lightIndex]) * texel * (1.0 - ndotl);
+  #|  float filterRadius = 1.25;
+  #|  float lit = 0.0;
+  #|  float totalWeight = 0.0;
+  #|  for (int x = -1; x <= 1; x++) {
+  #|    for (int y = -1; y <= 1; y++) {
+  #|      float weight = 1.0 / (1.0 + abs(float(x)) + abs(float(y)));
+  #|      vec2 sampleUv = shadowUv + vec2(float(x), float(y)) * directionalShadowTexelSize * filterRadius;
+  #|      float closest = sampleShadowMapDepth(lightIndex, clamp(atlasRect.xy + sampleUv * atlasRect.zw, vec2(0.0), vec2(1.0)));
+  #|      lit += (shadowDepth - bias <= closest ? 1.0 : 0.0) * weight;
+  #|      totalWeight += weight;
+  #|    }
+  #|  }
+  #|  return totalWeight <= 0.00001 ? 1.0 : lit / totalWeight;
+  #|}
+  #|float sampleDirectionalShadow(int index, vec3 normal, vec3 lightDir) {
+  #|  if (materialReceiveShadows == 0 || index < 0 || index >= 4 || shadowEnabled[index] == 0) return 1.0;
+  #|  int cascadeCount = shadowCascadeCounts[index];
+  #|  if (cascadeCount <= 0) return 1.0;
+  #|  float viewDepth = dot(fragPosition - viewPosition, viewForward);
+  #|  int baseIndex = index * 4;
+  #|  float firstNear = shadowBounds[baseIndex].x;
+  #|  float lastFar = shadowBounds[baseIndex + cascadeCount - 1].y;
+  #|  if (viewDepth < firstNear || viewDepth > lastFar) return 1.0;
+  #|  int selected = cascadeCount - 1;
+  #|  for (int i = 0; i < 4; i++) {
+  #|    if (i >= cascadeCount) break;
+  #|    if (viewDepth <= shadowBounds[baseIndex + i].y) {
+  #|      selected = i;
+  #|      break;
+  #|    }
+  #|  }
+  #|  float shadow = sampleDirectionalShadowCascade(index, selected, normal, lightDir);
+  #|  if (selected > 0) {
+  #|    int previous = selected - 1;
+  #|    float overlapNear = shadowBounds[baseIndex + selected].x;
+  #|    float overlapFar = shadowBounds[baseIndex + previous].y;
+  #|    if (overlapNear < overlapFar && viewDepth >= overlapNear && viewDepth <= overlapFar) {
+  #|      float blend = clamp((viewDepth - overlapNear) / (overlapFar - overlapNear), 0.0, 1.0);
+  #|      shadow = mix(sampleDirectionalShadowCascade(index, previous, normal, lightDir), shadow, blend);
+  #|    }
+  #|  }
+  #|  return shadow;
+  #|}
+  #|float sampleSpotShadow(int index, vec3 normal, vec3 lightDir) {
+  #|  if (materialReceiveShadows == 0 || index < 0 || index >= 4 || spotShadowEnabled[index] == 0) return 1.0;
+  #|  vec4 shadowClip = spotShadowMatrices[index] * vec4(fragPosition, 1.0);
+  #|  if (abs(shadowClip.w) <= 0.00001) return 1.0;
+  #|  vec3 shadowNdc = shadowClip.xyz / shadowClip.w;
+  #|  vec2 shadowUv = shadowNdc.xy * 0.5 + 0.5;
+  #|  float shadowDepth = shadowNdc.z * 0.5 + 0.5;
+  #|  if (shadowDepth <= 0.0 || shadowDepth >= 1.0) return 1.0;
+  #|  if (shadowUv.x <= 0.0 || shadowUv.x >= 1.0 || shadowUv.y <= 0.0 || shadowUv.y >= 1.0) return 1.0;
+  #|  float texel = max(spotShadowTexelSize.x, spotShadowTexelSize.y);
+  #|  float ndotl = max(dot(normal, lightDir), 0.0);
+  #|  float bias = max(0.0, spotShadowDepthBiases[index]) + max(0.0, spotShadowNormalBiases[index]) * texel * (1.0 - ndotl);
+  #|  float filterRadius = 1.25;
+  #|  float lit = 0.0;
+  #|  float totalWeight = 0.0;
+  #|  for (int x = -1; x <= 1; x++) {
+  #|    for (int y = -1; y <= 1; y++) {
+  #|      float weight = 1.0 / (1.0 + abs(float(x)) + abs(float(y)));
+  #|      vec2 sampleUv = shadowUv + vec2(float(x), float(y)) * spotShadowTexelSize * filterRadius;
+  #|      float closest = sampleShadowAtlasDepth(spotShadowAtlas, clamp(sampleUv, vec2(0.0), vec2(1.0)), spotShadowRects[index]);
+  #|      lit += (shadowDepth - bias <= closest ? 1.0 : 0.0) * weight;
+  #|      totalWeight += weight;
+  #|    }
+  #|  }
+  #|  return totalWeight <= 0.00001 ? 1.0 : lit / totalWeight;
+  #|}
+  #|int selectPointShadowFace(vec3 dir) {
+  #|  vec3 absDir = abs(dir);
+  #|  if (absDir.x >= absDir.y && absDir.x >= absDir.z) return dir.x >= 0.0 ? 0 : 1;
+  #|  if (absDir.y >= absDir.x && absDir.y >= absDir.z) return dir.y >= 0.0 ? 2 : 3;
+  #|  return dir.z >= 0.0 ? 4 : 5;
+  #|}
+  #|float samplePointShadow(int index, vec3 normal, vec3 lightDir, vec3 lightToFragment) {
+  #|  if (materialReceiveShadows == 0 || index < 0 || index >= 8 || pointShadowEnabled[index] == 0) return 1.0;
+  #|  int face = selectPointShadowFace(lightToFragment);
+  #|  int matrixIndex = index * 6 + face;
+  #|  vec4 shadowClip = pointShadowMatrices[matrixIndex] * vec4(fragPosition, 1.0);
+  #|  if (abs(shadowClip.w) <= 0.00001) return 1.0;
+  #|  vec3 shadowNdc = shadowClip.xyz / shadowClip.w;
+  #|  vec2 shadowUv = shadowNdc.xy * 0.5 + 0.5;
+  #|  float shadowDepth = shadowNdc.z * 0.5 + 0.5;
+  #|  if (shadowDepth <= 0.0 || shadowDepth >= 1.0) return 1.0;
+  #|  if (shadowUv.x <= 0.0 || shadowUv.x >= 1.0 || shadowUv.y <= 0.0 || shadowUv.y >= 1.0) return 1.0;
+  #|  float texel = max(pointShadowTexelSize.x, pointShadowTexelSize.y);
+  #|  float ndotl = max(dot(normal, lightDir), 0.0);
+  #|  float bias = max(0.0, pointShadowDepthBiases[index]) + max(0.0, pointShadowNormalBiases[index]) * texel * (1.0 - ndotl);
+  #|  float filterRadius = 1.0;
+  #|  float lit = 0.0;
+  #|  float totalWeight = 0.0;
+  #|  for (int x = -1; x <= 1; x++) {
+  #|    for (int y = -1; y <= 1; y++) {
+  #|      float weight = 1.0 / (1.0 + abs(float(x)) + abs(float(y)));
+  #|      vec2 sampleUv = shadowUv + vec2(float(x), float(y)) * pointShadowTexelSize * filterRadius;
+  #|      float closest = sampleShadowAtlasDepth(pointShadowAtlas, clamp(sampleUv, vec2(0.0), vec2(1.0)), pointShadowRects[matrixIndex]);
+  #|      lit += (shadowDepth - bias <= closest ? 1.0 : 0.0) * weight;
+  #|      totalWeight += weight;
+  #|    }
+  #|  }
+  #|  return totalWeight <= 0.00001 ? 1.0 : lit / totalWeight;
+  #|}
+  #|void main() {
+  #|  vec2 baseUv = applyTextureTransform(selectUv(baseUvSet), baseUvOffsetScale, baseUvRotation);
+  #|  vec2 metallicRoughnessUv = applyTextureTransform(selectUv(metallicRoughnessUvSet), metallicRoughnessUvOffsetScale, metallicRoughnessUvRotation);
+  #|  vec2 normalUv = applyTextureTransform(selectUv(normalUvSet), normalUvOffsetScale, normalUvRotation);
+  #|  vec2 occlusionUv = applyTextureTransform(selectUv(occlusionUvSet), occlusionUvOffsetScale, occlusionUvRotation);
+  #|  vec2 emissiveUv = applyTextureTransform(selectUv(emissiveUvSet), emissiveUvOffsetScale, emissiveUvRotation);
+  #|  vec4 albedoSample = vec4(1.0);
+  #|  if (materialHasBaseTexture != 0) albedoSample = texture(texture0, baseUv);
+  #|  vec4 albedo = albedoSample * fragVertexColor * materialBaseColor;
+  #|  if (materialAlphaMode == 0) {
+  #|    albedo.a = 1.0;
+  #|  } else if (materialAlphaMode == 1) {
+  #|    if (albedo.a < materialAlphaCutoff) discard;
+  #|    albedo.a = 1.0;
+  #|  } else if (albedo.a <= 0.0001) discard;
+  #|  if (materialUnlit != 0) {
+  #|    finalColor = vec4(albedo.rgb, albedo.a);
+  #|    return;
+  #|  }
+  #|  vec4 metallicRoughnessSample = vec4(1.0);
+  #|  if (materialHasMetallicRoughnessTexture != 0) {
+  #|    metallicRoughnessSample = texture(texture1, metallicRoughnessUv);
+  #|  }
+  #|  vec3 normal = normalize(fragNormal);
+  #|  if (length(normal) <= 0.00001) normal = vec3(0.0, 1.0, 0.0);
+  #|  vec3 geometricNormal = normal;
+  #|  if (materialHasNormalTexture != 0) normal = applyNormalMap(normal, fragPosition, normalUv);
+  #|  vec3 viewDir = normalize(viewPosition - fragPosition);
+  #|  if (length(viewDir) <= 0.00001) viewDir = vec3(0.0, 0.0, 1.0);
+  #|  float roughness = clamp(materialRoughness * metallicRoughnessSample.g, 0.089, 1.0);
+  #|  float metallic = clamp(materialMetallic * metallicRoughnessSample.b, 0.0, 1.0);
+  #|  float shininess = mix(96.0, 8.0, roughness);
+  #|  float specularStrength = mix(0.04, 1.0, metallic);
+  #|  vec3 diffuseLight = ambientLight;
+  #|  vec3 specularLight = vec3(0.0);
+  #|  for (int i = 0; i < directionalCount; i++) {
+  #|    vec3 lightDir = normalize(-directionalDirections[i]);
+  #|    float attenuation = sampleDirectionalShadow(i, geometricNormal, lightDir);
+  #|    addLight(lightDir, directionalColors[i], attenuation, normal, viewDir, shininess, specularStrength, diffuseLight, specularLight);
+  #|  }
+  #|  for (int i = 0; i < pointCount; i++) {
+  #|    vec3 toLight = pointPositions[i] - fragPosition;
+  #|    float distanceToLight = length(toLight);
+  #|    if (distanceToLight <= 0.00001) continue;
+  #|    vec3 lightDir = toLight / distanceToLight;
+  #|    float attenuation = rangeAttenuation(distanceToLight, pointRanges[i]) * samplePointShadow(i, geometricNormal, lightDir, fragPosition - pointPositions[i]);
+  #|    addLight(lightDir, pointColors[i], attenuation, normal, viewDir, shininess, specularStrength, diffuseLight, specularLight);
+  #|  }
+  #|  for (int i = 0; i < spotCount; i++) {
+  #|    vec3 toLight = spotPositions[i] - fragPosition;
+  #|    float distanceToLight = length(toLight);
+  #|    if (distanceToLight <= 0.00001) continue;
+  #|    vec3 lightDir = toLight / distanceToLight;
+  #|    float attenuation = rangeAttenuation(distanceToLight, spotParams[i].x);
+  #|    float cone = spotAttenuation(spotDirections[i], -lightDir, spotParams[i]);
+  #|    addLight(lightDir, spotColors[i], attenuation * cone * sampleSpotShadow(i, geometricNormal, lightDir), normal, viewDir, shininess, specularStrength, diffuseLight, specularLight);
+  #|  }
+  #|  if (directionalCount == 0 && pointCount == 0 && spotCount == 0 && dot(ambientLight, ambientLight) <= 0.000001) {
+  #|    diffuseLight = vec3(1.0);
+  #|  }
+  #|  float occlusion = 1.0;
+  #|  if (materialHasOcclusionTexture != 0) {
+  #|    occlusion = mix(1.0, texture(texture4, occlusionUv).r, clamp(materialOcclusionStrength, 0.0, 1.0));
+  #|  }
+  #|  vec3 emissive = materialEmissiveColor;
+  #|  if (materialHasEmissiveTexture != 0) {
+  #|    emissive = texture(texture5, emissiveUv).rgb * materialEmissiveColor;
+  #|  }
+  #|  vec3 litColor = albedo.rgb * diffuseLight * occlusion + specularLight * occlusion + emissive;
+  #|  finalColor = vec4(litColor, albedo.a);
+  #|}
+  #|
 
 ///|
 fn default_font_codepoints() -> Array[Int] {

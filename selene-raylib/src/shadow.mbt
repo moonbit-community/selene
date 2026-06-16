@@ -98,50 +98,54 @@ fn shadow_texture_slot(index : Int) -> Int {
 }
 
 ///|
-let raylib_shadow_vertex_shader : String = "#version 330\n" +
-  "in vec3 vertexPosition;\n" +
-  "in vec2 vertexTexCoord;\n" +
-  "in vec2 vertexTexCoord2;\n" +
-  "uniform mat4 matModel;\n" +
-  "uniform mat4 lightViewProjection;\n" +
-  "out vec2 fragTexCoord;\n" +
-  "out vec2 fragTexCoord2;\n" +
-  "void main() {\n" +
-  "  vec4 worldPosition = matModel * vec4(vertexPosition, 1.0);\n" +
-  "  fragTexCoord = vertexTexCoord;\n" +
-  "  fragTexCoord2 = vertexTexCoord2;\n" +
-  "  gl_Position = lightViewProjection * worldPosition;\n" +
-  "}\n"
+let raylib_shadow_vertex_shader : String =
+  #|#version 330
+  #|in vec3 vertexPosition;
+  #|in vec2 vertexTexCoord;
+  #|in vec2 vertexTexCoord2;
+  #|uniform mat4 matModel;
+  #|uniform mat4 lightViewProjection;
+  #|out vec2 fragTexCoord;
+  #|out vec2 fragTexCoord2;
+  #|void main() {
+  #|  vec4 worldPosition = matModel * vec4(vertexPosition, 1.0);
+  #|  fragTexCoord = vertexTexCoord;
+  #|  fragTexCoord2 = vertexTexCoord2;
+  #|  gl_Position = lightViewProjection * worldPosition;
+  #|}
+  #|
 
 ///|
-let raylib_shadow_fragment_shader : String = "#version 330\n" +
-  "in vec2 fragTexCoord;\n" +
-  "in vec2 fragTexCoord2;\n" +
-  "uniform sampler2D texture0;\n" +
-  "uniform int materialHasTexture;\n" +
-  "uniform int materialAlphaMode;\n" +
-  "uniform float materialAlphaCutoff;\n" +
-  "uniform vec4 baseUvOffsetScale;\n" +
-  "uniform vec2 baseUvRotation;\n" +
-  "uniform int baseUvSet;\n" +
-  "vec2 selectUv(int setIndex) {\n" +
-  "  if (setIndex == 1) return fragTexCoord2;\n" +
-  "  return fragTexCoord;\n" +
-  "}\n" +
-  "vec2 applyTextureTransform(vec2 uv, vec4 offsetScale, vec2 rotationSinCos) {\n" +
-  "  vec2 scaled = uv * offsetScale.zw;\n" +
-  "  return vec2(\n" +
-  "    scaled.x * rotationSinCos.y - scaled.y * rotationSinCos.x + offsetScale.x,\n" +
-  "    scaled.x * rotationSinCos.x + scaled.y * rotationSinCos.y + offsetScale.y\n" +
-  "  );\n" +
-  "}\n" +
-  "void main() {\n" +
-  "  if (materialAlphaMode == 2) discard;\n" +
-  "  if (materialAlphaMode == 1 && materialHasTexture != 0) {\n" +
-  "    vec2 uv = applyTextureTransform(selectUv(baseUvSet), baseUvOffsetScale, baseUvRotation);\n" +
-  "    if (texture(texture0, uv).a < materialAlphaCutoff) discard;\n" +
-  "  }\n" +
-  "}\n"
+let raylib_shadow_fragment_shader : String =
+  #|#version 330
+  #|in vec2 fragTexCoord;
+  #|in vec2 fragTexCoord2;
+  #|uniform sampler2D texture0;
+  #|uniform int materialHasTexture;
+  #|uniform int materialAlphaMode;
+  #|uniform float materialAlphaCutoff;
+  #|uniform vec4 baseUvOffsetScale;
+  #|uniform vec2 baseUvRotation;
+  #|uniform int baseUvSet;
+  #|vec2 selectUv(int setIndex) {
+  #|  if (setIndex == 1) return fragTexCoord2;
+  #|  return fragTexCoord;
+  #|}
+  #|vec2 applyTextureTransform(vec2 uv, vec4 offsetScale, vec2 rotationSinCos) {
+  #|  vec2 scaled = uv * offsetScale.zw;
+  #|  return vec2(
+  #|    scaled.x * rotationSinCos.y - scaled.y * rotationSinCos.x + offsetScale.x,
+  #|    scaled.x * rotationSinCos.x + scaled.y * rotationSinCos.y + offsetScale.y
+  #|  );
+  #|}
+  #|void main() {
+  #|  if (materialAlphaMode == 2) discard;
+  #|  if (materialAlphaMode == 1 && materialHasTexture != 0) {
+  #|    vec2 uv = applyTextureTransform(selectUv(baseUvSet), baseUvOffsetScale, baseUvRotation);
+  #|    if (texture(texture0, uv).a < materialAlphaCutoff) discard;
+  #|  }
+  #|}
+  #|
 
 ///|
 fn normalize_shadow_map_size(size : Int) -> Int {

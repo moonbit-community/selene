@@ -343,13 +343,15 @@ fn update_perf3d_stats(_world : @ecs.World) -> Unit {
       stats.draw_commands,
       stats.uploaded_vertex_bytes,
     )
-    @ui.texts().set(
-      state.hud,
-      @ui.Text(
-        "perf3d case=\{state.config.case_name} count=\{state.config.count} mode=\{state.config.mode}\n" +
-        "fps=\{avg_fps} p95=\{p95}ms work_p95=\{work_p95}ms draw=\{stats.draw_commands} submitted=\{stats.submitted_items} upload=\{stats.uploaded_vertex_bytes}B",
-      ),
+    let hud_text = StringBuilder::new()
+    hud_text.write_string(
+      "perf3d case=\{state.config.case_name} count=\{state.config.count} mode=\{state.config.mode}",
     )
+    hud_text.write_char('\n')
+    hud_text.write_string(
+      "fps=\{avg_fps} p95=\{p95}ms work_p95=\{work_p95}ms draw=\{stats.draw_commands} submitted=\{stats.submitted_items} upload=\{stats.uploaded_vertex_bytes}B",
+    )
+    @ui.texts().set(state.hud, @ui.Text(hud_text.to_string()))
   }
   if elapsed_s >= state.config.duration {
     state.finished = true

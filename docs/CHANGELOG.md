@@ -6,6 +6,7 @@
 - Added 3D collider wireframe debug rendering through the debug plugin and render3d pipeline.
 
 ### Changed
+- Changed embedded shader/source strings to use MoonBit multiline string syntax instead of `\n` string concatenation.
 
 ### Fixed
 
