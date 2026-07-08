@@ -200,6 +200,28 @@ test "app: run_frames_capture provides a generic capture pipeline without game-s
 }
 
 ///|
+test "app: run_frames_capture accepts selected frame indexes" {
+  let world = @ecs.World()
+  let rendered_frames : Array[Int] = []
+  let app = App()
+    .with_world(world)
+    .add_system(
+      @system.Render,
+      fn(_world) { rendered_frames.push(rendered_frames.length()) },
+      system_name="render_frame_counter",
+    )
+  let captures = app.run_frames_capture(
+    4,
+    capture_width=64,
+    capture_height=64,
+    raw_delta=1.0 / 60.0,
+    capture_frame_indexes=Some([-1, 1, 1, 3, 10]),
+  )
+  inspect(rendered_frames.length(), content="4")
+  inspect(captures.length(), content="0")
+}
+
+///|
 test "app: render frame does not perform platform service work implicitly" {
   let world = @ecs.World()
   let trace : Ref[String] = { val: "" }

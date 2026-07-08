@@ -737,11 +737,21 @@ pub fn App::run_frames_capture(
   raw_delta? : Double = 1.0 / DEFAULT_FPS.to_double(),
   fixed_delta_override? : Double? = None,
   metadata_indent? : Int = 2,
+  capture_frame_indexes? : Array[Int]? = None,
 ) -> Array[@runtime_debug.FrameCaptureArtifact] {
   let captures : Array[@runtime_debug.FrameCaptureArtifact] = []
   if frames <= 0 {
     return captures
   }
+  let selected_frames = match capture_frame_indexes {
+    Some(indexes) => {
+      let selected = indexes.copy()
+      selected.sort_by(fn(lhs, rhs) { lhs - rhs })
+      Some(selected)
+    }
+    None => None
+  }
+  let mut next_selected_frame = 0
   setup_runtime_world(self)
   let plan = build_runtime_plan(self, fixed_delta_override~)
   startup_runtime(plan)
@@ -756,7 +766,7 @@ pub fn App::run_frames_capture(
     capture_height,
     self.viewport_height * self.zoom,
   )
-  for _ in 0..<frames {
+  for frame_index in 0..<frames {
     run_headless_frame(
       plan,
       accumulator,
@@ -764,6 +774,28 @@ pub fn App::run_frames_capture(
       None,
       @platform_audio.tick,
     )
+    let should_capture = match selected_frames {
+      None => true
+      Some(indexes) => {
+        while next_selected_frame < indexes.length() &&
+              indexes[next_selected_frame] < frame_index {
+          next_selected_frame += 1
+        }
+        if next_selected_frame < indexes.length() &&
+          indexes[next_selected_frame] == frame_index {
+          while next_selected_frame < indexes.length() &&
+                indexes[next_selected_frame] == frame_index {
+            next_selected_frame += 1
+          }
+          true
+        } else {
+          false
+        }
+      }
+    }
+    if !should_capture {
+      continue
+    }
     if @runtime_debug.capture_last_frame_with_metadata(
         resolved_width,
         resolved_height,

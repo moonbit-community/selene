@@ -4,6 +4,7 @@
 
 ### Added
 - Added 3D collider wireframe debug rendering through the debug plugin and render3d pipeline.
+- Added `capture_frame_indexes` to `App::run_frames_capture` so tests can capture selected frames.
 
 ### Changed
 - Changed embedded shader/source strings to use MoonBit multiline string syntax instead of `\n` string concatenation.
