@@ -163,7 +163,7 @@ fn tiled_install_sprite_animation(
 }
 
 ///|
-pub struct TiledSpawnSettings {
+pub(all) struct TiledSpawnSettings {
   position : @math.Vec2
   zindex : Int
   layer_z_step : Int

@@ -9,6 +9,7 @@
 - Changed embedded shader/source strings to use MoonBit multiline string syntax instead of `\n` string concatenation.
 
 ### Fixed
+- Fixed `TiledSpawnSettings` so external packages can configure Tiled spawn hooks with record updates.
 
 ### Removed
 

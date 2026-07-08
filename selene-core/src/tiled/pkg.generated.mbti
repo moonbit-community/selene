@@ -357,7 +357,7 @@ pub enum TiledPropertyValue {
   Custom(Json)
 }
 
-pub struct TiledSpawnSettings {
+pub(all) struct TiledSpawnSettings {
   position : @math.Vec2
   zindex : Int
   layer_z_step : Int
