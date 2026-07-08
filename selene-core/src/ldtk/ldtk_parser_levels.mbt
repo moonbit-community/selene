@@ -256,10 +256,8 @@ fn unique_ldtk_iids(iids : Array[String]) -> Array[String] {
 
 ///|
 fn load_ldtk_text_document(path : String) -> String? {
-  if @asset.read_bytes(path) is Some(bytes) {
-    return Some(bytes.to_unchecked_string())
-  }
-  @asset.read_bytes(path).map(bytes => bytes.to_unchecked_string())
+  guard @asset.read_bytes(path) is Some(bytes) else { return None }
+  Some(@encoding/utf8.decode(bytes) catch { _ => return None })
 }
 
 ///|

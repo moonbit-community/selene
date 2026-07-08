@@ -4,7 +4,6 @@ fn ascii_bytes(source : String) -> Bytes {
   for ch in source.to_array() {
     let code = ch.to_int()
     bytes.push((code & 0xFF).to_byte())
-    bytes.push((code >> 8).to_byte())
   }
   Bytes::from_array(bytes[:])
 }
@@ -17,6 +16,23 @@ fn with_fake_asset_io(
   @asset.set_io(fn(path) { files.get(path) })
   body()
   @asset.set_io(fn(_path) { None })
+}
+
+///|
+test "load_ldtk_project reads UTF-8 LDtk asset bytes" {
+  let files : Map[String, Bytes] = Map([])
+  files.set(
+    "levels/world.ldtk",
+    ascii_bytes(
+      "{\"externalLevels\":false,\"levels\":[{\"identifier\":\"A\",\"iid\":\"iid-a\",\"uid\":1,\"worldX\":12,\"worldY\":34,\"pxWid\":320,\"pxHei\":240,\"layerInstances\":[]}],\"defs\":{\"tilesets\":[]}}",
+    ),
+  )
+  with_fake_asset_io(files, fn() raise {
+    let project = load_ldtk_project("levels/world.ldtk")
+    inspect(project.levels.length(), content="1")
+    inspect(project.levels[0].identifier, content="A")
+    inspect(project.levels[0].iid, content="iid-a")
+  })
 }
 
 ///|
