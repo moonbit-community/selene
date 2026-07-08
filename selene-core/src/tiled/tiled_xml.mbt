@@ -130,6 +130,8 @@ fn parse_tiled_xml_map(root : TiledXmlNode) -> TiledMap {
     height: xml_int_attr(root, "height").unwrap_or(0),
     tile_width: xml_int_attr(root, "tilewidth").unwrap_or(0),
     tile_height: xml_int_attr(root, "tileheight").unwrap_or(0),
+    parallax_origin_x: xml_double_attr(root, "parallaxoriginx").unwrap_or(0.0),
+    parallax_origin_y: xml_double_attr(root, "parallaxoriginy").unwrap_or(0.0),
     hex_side_length: xml_int_attr(root, "hexsidelength"),
     stagger_axis: xml_attr(root, "staggeraxis"),
     stagger_index: xml_attr(root, "staggerindex"),
@@ -348,6 +350,8 @@ fn parse_tiled_xml_image_layer(node : TiledXmlNode) -> TiledImageLayer {
   {
     image: image.bind(fn(img) { xml_attr(img, "source") }),
     transparent_color: image.bind(fn(img) { xml_attr(img, "trans") }),
+    image_width: image.bind(fn(img) { xml_int_attr(img, "width") }),
+    image_height: image.bind(fn(img) { xml_int_attr(img, "height") }),
     repeat_x: xml_bool_attr(node, "repeatx").unwrap_or(false),
     repeat_y: xml_bool_attr(node, "repeaty").unwrap_or(false),
   }

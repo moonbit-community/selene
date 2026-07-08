@@ -9,6 +9,7 @@
 - Changed embedded shader/source strings to use MoonBit multiline string syntax instead of `\n` string concatenation.
 
 ### Fixed
+- Fixed Tiled map spawning to preserve map parallax origins and image-layer dimensions from TMJ/TMX files.
 
 ### Removed
 

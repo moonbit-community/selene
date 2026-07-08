@@ -450,6 +450,102 @@ test "spawn_tiled_map creates tile object and image layer entities" {
 }
 
 ///|
+test "spawn_tiled_map imagelayer without repeat uses image dimensions" {
+  let files : Map[String, Bytes] = Map([])
+  files.set(
+    "maps/image-size.tmj",
+    ascii_bytes(
+      "{\"width\":2,\"height\":2,\"tilewidth\":16,\"tileheight\":16,\"layers\":[{\"id\":1,\"name\":\"Backdrop\",\"type\":\"imagelayer\",\"image\":\"bg.png\",\"imagewidth\":24,\"imageheight\":12}],\"tilesets\":[]}",
+    ),
+  )
+  files.set("maps/bg.png", ascii_bytes("png"))
+  with_fake_asset_io(files, fn() raise {
+    let root = load_and_spawn_tiled_map("maps/image-size.tmj")
+    defer cleanup_spawned_tiled_tree(root)
+    let layer_entity = tiled_layer_instances()
+      .to_array()
+      .filter(fn(pair) { pair.1.map_entity == root })[0].0
+    guard @sprite.sprites().get(layer_entity) is Some(sprite) else {
+      fail("missing image layer sprite")
+    }
+    inspect(
+      match sprite.custom_size {
+        Some(size) => vec2_snapshot(size) == "24,12"
+        None => false
+      },
+      content="true",
+    )
+  })
+}
+
+///|
+test "spawn_tiled_map imagelayer without repeat falls back to map size when image size missing" {
+  let files : Map[String, Bytes] = Map([])
+  files.set(
+    "maps/no-repeat.tmj",
+    ascii_bytes(
+      "{\"width\":2,\"height\":2,\"tilewidth\":16,\"tileheight\":16,\"layers\":[{\"id\":1,\"name\":\"Backdrop\",\"type\":\"imagelayer\",\"image\":\"bg.png\"}],\"tilesets\":[]}",
+    ),
+  )
+  files.set("maps/bg.png", ascii_bytes("png"))
+  with_fake_asset_io(files, fn() raise {
+    let root = load_and_spawn_tiled_map("maps/no-repeat.tmj")
+    defer cleanup_spawned_tiled_tree(root)
+    let layer_entity = tiled_layer_instances()
+      .to_array()
+      .filter(fn(pair) { pair.1.map_entity == root })[0].0
+    guard @sprite.sprites().get(layer_entity) is Some(sprite) else {
+      fail("missing image layer sprite")
+    }
+    inspect(
+      match sprite.custom_size {
+        Some(size) => vec2_snapshot(size) == "32,32"
+        None => false
+      },
+      content="true",
+    )
+  })
+}
+
+///|
+test "load_tiled_map reads TMX parallax origin and imagelayer dimensions" {
+  let files : Map[String, Bytes] = Map([])
+  let xml =
+    #|<?xml version="1.0" encoding="UTF-8"?>
+    #|<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="1" height="1" tilewidth="16" tileheight="16" parallaxoriginx="10" parallaxoriginy="-20">
+    #|  <imagelayer id="1" name="Backdrop">
+    #|    <image source="bg.png" width="24" height="12"/>
+    #|  </imagelayer>
+    #|</map>
+    #|
+  files.set("maps/image-size.tmx", ascii_bytes(xml))
+  with_fake_asset_io(files, fn() raise {
+    let map = load_tiled_map("maps/image-size.tmx")
+    inspect(map.parallax_origin_x.to_int(), content="10")
+    inspect(map.parallax_origin_y.to_int(), content="-20")
+    match map.layers[0].kind {
+      ImageLayer(image_layer) => {
+        inspect(
+          match image_layer.image_width {
+            Some(width) => width == 24
+            None => false
+          },
+          content="true",
+        )
+        inspect(
+          match image_layer.image_height {
+            Some(height) => height == 12
+            None => false
+          },
+          content="true",
+        )
+      }
+      _ => fail("missing image layer")
+    }
+  })
+}
+
+///|
 test "respawn_tiled_map_into_entity replaces previous tiled children and metadata" {
   let files : Map[String, Bytes] = Map([])
   files.set(
@@ -1033,7 +1129,7 @@ test "tiled parallax system adjusts layer offsets" {
   files.set(
     "maps/parallax.tmj",
     ascii_bytes(
-      "{\"width\":1,\"height\":1,\"tilewidth\":16,\"tileheight\":16,\"layers\":[{\"id\":1,\"name\":\"Background\",\"type\":\"tilelayer\",\"offsetx\":2,\"offsety\":3,\"parallaxx\":0.5,\"parallaxy\":0.0,\"width\":1,\"height\":1,\"data\":[0]}],\"tilesets\":[]}",
+      "{\"width\":1,\"height\":1,\"tilewidth\":16,\"tileheight\":16,\"parallaxoriginx\":10,\"parallaxoriginy\":-20,\"layers\":[{\"id\":1,\"name\":\"Background\",\"type\":\"tilelayer\",\"offsetx\":2,\"offsety\":3,\"parallaxx\":0.5,\"parallaxy\":0.0,\"width\":1,\"height\":1,\"data\":[0]}],\"tilesets\":[]}",
     ),
   )
   with_fake_asset_io(files, fn() raise {
@@ -1055,7 +1151,7 @@ test "tiled parallax system adjusts layer offsets" {
           Some(first_camera_view),
         ),
       ),
-      content="2,3",
+      content="32,33",
     )
 
     tiled_test_set_entity_translation_2d(
@@ -1064,16 +1160,17 @@ test "tiled parallax system adjusts layer offsets" {
     )
     tiled_parallax_system(0.0)
     let second_camera_view = @camera.primary_camera2d_view().unwrap()
+    let moved_parallax = @parallax2d.inherited_parallax2d(layer_entity).unwrap()
 
     inspect(
       vec2_snapshot(
         @parallax2d.parallax_world_position(
           tiled_test_entity_translation_2d(layer_entity),
-          Some(parallax),
+          Some(moved_parallax),
           Some(second_camera_view),
         ),
       ),
-      content="102,103",
+      content="132,133",
     )
   })
 

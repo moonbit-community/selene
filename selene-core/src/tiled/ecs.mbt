@@ -443,7 +443,7 @@ fn spawn_tiled_layers(
       @math.Vec2(layer.offset_x, layer.offset_y),
     )
     tiled_ecs_set_entity_visibility(layer_entity, effective_visible)
-    tiled_register_parallax_layer(layer_entity, layer)
+    tiled_register_parallax_layer(layer_entity, map, layer)
     tiled_layer_instances().set(layer_entity, {
       map_entity,
       layer,
@@ -658,11 +658,20 @@ fn spawn_tiled_image_layer(
   tiled_ecs_set_entity_depth(layer_entity, zindex)
   tiled_ecs_set_entity_visibility(layer_entity, visible)
   let repeat = tiled_image_repeat_mode(image_layer)
+  let custom_size = if repeat is NoRepeat &&
+    image_layer.image_width is Some(width) &&
+    image_layer.image_height is Some(height) &&
+    width > 0 &&
+    height > 0 {
+    @math.Vec2(width.to_double(), height.to_double())
+  } else {
+    tiled_map_world_size(map)
+  }
   @sprite.sprites().set(
     layer_entity,
     @sprite.Sprite(
       image=Some(load_tiled_image(image_path)),
-      custom_size=Some(tiled_map_world_size(map)),
+      custom_size=Some(custom_size),
       color=@render.Color::{ r: 255U, g: 255U, b: 255U, a: layer.opacity },
       anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
       image_mode=@sprite.Tiled(repeat),
@@ -1115,14 +1124,44 @@ fn load_tiled_image(path : String) -> @asset.ImageHandle {
 
 ///|
 pub fn tiled_parallax_system(_delta : Double) -> Unit {
+  let camera_view = @camera.primary_camera2d_view()
   for pair in tiled_parallax_layers().to_array() {
     let layer_entity = pair.0
-    ignore(pair.1)
+    let layer = pair.1
     if !layer_entity.is_alive() {
       tiled_parallax_layers().remove(layer_entity)
       @parallax2d.parallax2ds().remove(layer_entity)
+    } else if @parallax2d.parallax2ds().get(layer_entity) is Some(parallax) {
+      guard tiled_layer_instances().get(layer_entity) is Some(layer_instance) else {
+        continue
+      }
+      guard tiled_map_instances().get(layer_instance.map_entity)
+        is Some(map_instance) else {
+        continue
+      }
+      let base_offset = tiled_parallax_base_offset(
+        map_instance.map,
+        layer_instance.layer,
+        camera_view,
+      )
+      tiled_parallax_layers().set(layer_entity, { ..layer, base_offset, })
+      @parallax2d.parallax2ds().set(layer_entity, { ..parallax, base_offset, })
     }
   }
+}
+
+///|
+fn tiled_parallax_base_offset(
+  map : TiledMap,
+  layer : TiledLayer,
+  camera_view : @camera.Camera2dView?,
+) -> @math.Vec2 {
+  guard camera_view is Some(camera_view) else { return @math.Vec2::zero() }
+  let view_half = camera_view.world_bounds().size.scalar_mul(0.5)
+  @math.Vec2(
+    (1.0 - layer.parallax_x) * (view_half[X] + map.parallax_origin_x),
+    (1.0 - layer.parallax_y) * (view_half[Y] + map.parallax_origin_y),
+  )
 }
 
 ///|
@@ -1191,13 +1230,18 @@ fn tiled_set_tile_properties(
 ///|
 fn tiled_register_parallax_layer(
   layer_entity : @entity.Entity,
+  map : TiledMap,
   layer : TiledLayer,
 ) -> Unit {
   if layer.parallax_x == 1.0 && layer.parallax_y == 1.0 {
     @parallax2d.parallax2ds().remove(layer_entity)
     return
   }
-  let base_offset = @math.Vec2(layer.offset_x, layer.offset_y)
+  let base_offset = tiled_parallax_base_offset(
+    map,
+    layer,
+    @camera.primary_camera2d_view(),
+  )
   tiled_parallax_layers().set(layer_entity, {
     base_offset,
     parallax_x: layer.parallax_x,
@@ -1206,6 +1250,7 @@ fn tiled_register_parallax_layer(
   @parallax2d.parallax2ds().set(
     layer_entity,
     @parallax2d.Parallax2d(
+      base_offset~,
       factor=@math.Vec2(layer.parallax_x, layer.parallax_y),
     ),
   )
