@@ -4,7 +4,6 @@ fn ascii_bytes(source : String) -> Bytes {
   for ch in source.to_array() {
     let code = ch.to_int()
     bytes.push((code & 0xFF).to_byte())
-    bytes.push((code >> 8).to_byte())
   }
   Bytes::from_array(bytes[:])
 }
@@ -23,6 +22,23 @@ fn with_fake_asset_io(
 fn cleanup_spawned_tiled_tree(root : @entity.Entity) -> Unit {
   despawn_tiled_tree(root)
   @entity.entity_flush_system(0.0)
+}
+
+///|
+test "load_tiled_map reads UTF-8 TMJ asset bytes" {
+  let files : Map[String, Bytes] = Map([])
+  files.set(
+    "maps/demo.tmj",
+    ascii_bytes(
+      "{\"width\":1,\"height\":1,\"tilewidth\":16,\"tileheight\":16,\"layers\":[],\"tilesets\":[]}",
+    ),
+  )
+  with_fake_asset_io(files, fn() raise {
+    let map = load_tiled_map("maps/demo.tmj")
+    inspect(map.width, content="1")
+    inspect(map.height, content="1")
+    inspect(map.layers.length(), content="0")
+  })
 }
 
 ///|

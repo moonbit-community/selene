@@ -9,6 +9,7 @@
 - Changed embedded shader/source strings to use MoonBit multiline string syntax instead of `\n` string concatenation.
 
 ### Fixed
+- Fixed Tiled map loading to decode asset bytes as UTF-8 before parsing JSON or XML map sources.
 
 ### Removed
 

@@ -21,6 +21,7 @@ import {
   "gmlewis/gzip",
   "gmlewis/io",
   "moonbitlang/core/json",
+  "moonbitlang/core/encoding/utf8" @encoding/utf8,
   "moonbitlang/core/math" @cmath,
   "moonbitlang/core/string",
   "moonbitlang/x/fs",
