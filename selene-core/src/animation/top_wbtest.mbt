@@ -3,7 +3,9 @@ fn with_animation_test_world(action : () -> Unit raise) -> Unit raise {
   let previous = @ecs.current_world().unwrap_or(@ecs.bootstrap_world())
   let world = @ecs.World()
   @ecs.set_current_world(world)
+  @asset.set_io(fn(_path) { Some(Bytes::from_array([1U.to_byte()])) })
   action()
+  @asset.set_io(fn(_path) { None })
   @ecs.set_current_world(previous)
 }
 

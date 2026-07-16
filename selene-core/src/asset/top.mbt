@@ -73,9 +73,6 @@ let audio_states : Map[AudioHandle, LoadState] = Map([])
 let font_states : Map[FontHandle, LoadState] = Map([])
 
 ///|
-let reported_read_failures : Set[String] = Set([])
-
-///|
 pub let image_asset_events : @event.Events[AssetEvent[ImageHandle]] = Events()
 
 ///|
@@ -98,27 +95,11 @@ fn normalize_font_family(path : String) -> String {
 ///|
 pub fn set_io(reader : (String) -> Bytes?) -> Unit {
   @platform_asset_io.set_reader(reader)
-  reported_read_failures.clear()
-}
-
-///|
-fn report_read_failure(path : String) -> Unit {
-  if reported_read_failures.contains(path) {
-    return
-  }
-  reported_read_failures.add(path)
-  println("[selene][asset-error] Failed to read asset: \{path}")
 }
 
 ///|
 pub fn read_bytes(path : String) -> Bytes? {
-  match @platform_asset_io.read_bytes(path) {
-    Some(bytes) => Some(bytes)
-    None => {
-      report_read_failure(path)
-      None
-    }
-  }
+  @platform_asset_io.read_bytes(path)
 }
 
 ///|

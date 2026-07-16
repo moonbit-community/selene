@@ -640,6 +640,7 @@ test "autotile validation reports missing atlas and undefined terrain references
 
 ///|
 test "runtime instantiation renders autotile layer tiles from source only" {
+  @asset.set_io(fn(_path) { Some(Bytes::from_array([1U.to_byte()])) })
   let atlas_path = "assets/atlases/world.atlas.json"
   let atlas = AtlasAssetDocument::default("world", "assets/images/world.png")
     .with_tile_size(vec2_doc(16.0, 16.0))
@@ -683,6 +684,7 @@ test "runtime instantiation renders autotile layer tiles from source only" {
   }
   inspect(after_count == before_count + 1, content="true")
   runtime.destroy()
+  @asset.set_io(fn(_path) { None })
 }
 
 ///|

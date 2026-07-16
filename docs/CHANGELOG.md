@@ -12,6 +12,7 @@
 - Changed UI pointer interaction and capture to consume one normalized mouse/touch/pen event stream.
 
 ### Fixed
+- Fixed core and example tests to use in-memory asset fixtures without emitting false missing-asset diagnostics.
 - Fixed local example serving instructions so pages can load web bundles from the repository-level `_build` directory.
 - Fixed WebGPU pen input being reported as touch input and prevented primary-contact mouse compatibility from producing duplicate pointer events.
 - Fixed raylib offscreen render captures so exported PNGs match the rendered vertical orientation.

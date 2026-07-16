@@ -1,5 +1,6 @@
 ///|
 test "level up shows panel and buttons" {
+  use_survivors_test_assets()
   @ecs.set_current_world(@ecs.bootstrap_world())
   setup_level_up_ui()
   game_state.pending_level_ups.clear()
@@ -45,6 +46,7 @@ test "level up shows panel and buttons" {
 
 ///|
 test "level up click resumes game" {
+  use_survivors_test_assets()
   @ecs.set_current_world(@ecs.bootstrap_world())
   setup_level_up_ui()
   game_state.pending_level_ups.clear()
