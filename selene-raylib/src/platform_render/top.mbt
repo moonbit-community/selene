@@ -220,6 +220,8 @@ pub fn render_offscreen_png(
     image.unload()
     return None
   }
+  // RenderTexture pixels are read back in OpenGL bottom-up order.
+  image.flip_vertical()
   let bytes = image.export_to_memory(".png")
   image.unload()
   if bytes.length() == 0 {

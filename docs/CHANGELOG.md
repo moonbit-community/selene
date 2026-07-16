@@ -9,6 +9,7 @@
 - Changed embedded shader/source strings to use MoonBit multiline string syntax instead of `\n` string concatenation.
 
 ### Fixed
+- Fixed raylib offscreen render captures so exported PNGs match the rendered vertical orientation.
 
 ### Removed
 
