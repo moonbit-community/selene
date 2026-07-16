@@ -3,6 +3,16 @@
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.36.0] - 2026-07-16
+
+### Added
 - Added 3D collider wireframe debug rendering through the debug plugin and render3d pipeline.
 - Added `capture_frame_indexes` to `App::run_frames_capture` so tests can capture selected frames.
 
