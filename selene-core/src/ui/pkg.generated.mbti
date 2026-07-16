@@ -51,6 +51,8 @@ pub let click_event_bus : @event.Events[UiClickEvent]
 
 pub fn computed_ui_nodes() -> Map[@entity.Entity, ComputedUiNode]
 
+pub fn consume_pointer(@inputs.PointerId) -> Unit
+
 pub fn consume_touch(@inputs.TouchId) -> Unit
 
 pub fn default_overflow_clip_margin() -> OverflowClipMargin
@@ -129,6 +131,8 @@ pub fn hovered_entity() -> @entity.Entity?
 
 pub fn interactions() -> Map[@entity.Entity, Interaction]
 
+pub fn is_pointer_consumed(@inputs.PointerId) -> Bool
+
 pub fn is_touch_consumed(@inputs.TouchId) -> Bool
 
 pub fn is_ui_entity(@entity.Entity) -> Bool
@@ -206,6 +210,8 @@ pub fn ui_material_asset(UiMaterialHandle) -> UiMaterialAsset?
 pub fn ui_prepare_system(Double) -> Unit
 
 pub fn ui_target_cameras() -> Map[@entity.Entity, UiTargetCamera]
+
+pub fn unconsumed_pointer_changes_this_frame() -> Array[@inputs.PointerEvent]
 
 pub fn unconsumed_touch_changes_this_frame() -> Array[@inputs.TouchEvent]
 

@@ -131,8 +131,12 @@ pub fn register_mouse_events(
 }
 
 ///|
-fn is_touch_pointer_type(kind : String) -> Bool {
-  kind == "touch" || kind == "pen"
+fn contact_pointer_source(kind : String) -> @inputs.PointerSource? {
+  match kind {
+    "touch" => Some(PointerTouch)
+    "pen" => Some(PointerPen)
+    _ => None
+  }
 }
 
 ///|
@@ -144,6 +148,7 @@ fn touch_position_from_pointer_event(event : @dom.Event) -> @smath.Vec2 {
 fn push_touch_change(
   changes : Array[@inputs.TouchEvent],
   id : @inputs.TouchId,
+  source : @inputs.PointerSource,
   phase : @inputs.TouchPhase,
   position : @smath.Vec2,
   previous_position : @smath.Vec2,
@@ -151,6 +156,7 @@ fn push_touch_change(
 ) -> Unit {
   changes.push({
     id,
+    source,
     phase,
     position,
     previous_position,
@@ -172,9 +178,7 @@ pub fn register_touch_events(
   configure_canvas_touch_input(canvas)
   canvas.add_event_listener("pointerdown", event => {
     let kind = pointer_event_type(event)
-    if !is_touch_pointer_type(kind) {
-      return
-    }
+    guard contact_pointer_source(kind) is Some(source) else { return }
     prevent_pointer_default(event)
     note_audio_user_activation()
     let id = @inputs.TouchId(pointer_event_id(event))
@@ -182,19 +186,18 @@ pub fn register_touch_events(
     let primary = pointer_event_is_primary(event)
     touches.set(id, {
       id,
+      source,
       position,
       previous_position: position,
       delta: @smath.Vec2::zero(),
       primary,
     })
-    push_touch_change(changes, id, Started, position, position, primary)
+    push_touch_change(changes, id, source, Started, position, position, primary)
     capture_pointer(canvas, id.value)
   })
   canvas.add_event_listener("pointermove", event => {
     let kind = pointer_event_type(event)
-    if !is_touch_pointer_type(kind) {
-      return
-    }
+    guard contact_pointer_source(kind) is Some(source) else { return }
     prevent_pointer_default(event)
     let id = @inputs.TouchId(pointer_event_id(event))
     guard touches.get(id) is Some(previous_touch) else { return }
@@ -202,11 +205,12 @@ pub fn register_touch_events(
     let previous_position = previous_touch.position
     let primary = previous_touch.primary
     let delta = position - previous_position
-    touches.set(id, { id, position, previous_position, delta, primary })
+    touches.set(id, { id, source, position, previous_position, delta, primary })
     if delta[X] != 0.0 || delta[Y] != 0.0 {
       push_touch_change(
         changes,
         id,
+        source,
         Moved,
         position,
         previous_position,
@@ -216,27 +220,7 @@ pub fn register_touch_events(
   })
   canvas.add_event_listener("pointerup", event => {
     let kind = pointer_event_type(event)
-    if !is_touch_pointer_type(kind) {
-      return
-    }
-    prevent_pointer_default(event)
-    let id = @inputs.TouchId(pointer_event_id(event))
-    let position = touch_position_from_pointer_event(event)
-    let previous_position = touches
-      .get(id)
-      .map_or(position, fn(touch) { touch.position })
-    let primary = touches
-      .get(id)
-      .map_or(pointer_event_is_primary(event), fn(touch) { touch.primary })
-    push_touch_change(changes, id, Ended, position, previous_position, primary)
-    ignore(touches.remove(id))
-    release_pointer(canvas, id.value)
-  })
-  canvas.add_event_listener("pointercancel", event => {
-    let kind = pointer_event_type(event)
-    if !is_touch_pointer_type(kind) {
-      return
-    }
+    guard contact_pointer_source(kind) is Some(source) else { return }
     prevent_pointer_default(event)
     let id = @inputs.TouchId(pointer_event_id(event))
     let position = touch_position_from_pointer_event(event)
@@ -249,6 +233,31 @@ pub fn register_touch_events(
     push_touch_change(
       changes,
       id,
+      source,
+      Ended,
+      position,
+      previous_position,
+      primary,
+    )
+    ignore(touches.remove(id))
+    release_pointer(canvas, id.value)
+  })
+  canvas.add_event_listener("pointercancel", event => {
+    let kind = pointer_event_type(event)
+    guard contact_pointer_source(kind) is Some(source) else { return }
+    prevent_pointer_default(event)
+    let id = @inputs.TouchId(pointer_event_id(event))
+    let position = touch_position_from_pointer_event(event)
+    let previous_position = touches
+      .get(id)
+      .map_or(position, fn(touch) { touch.position })
+    let primary = touches
+      .get(id)
+      .map_or(pointer_event_is_primary(event), fn(touch) { touch.primary })
+    push_touch_change(
+      changes,
+      id,
+      source,
       Cancelled,
       position,
       previous_position,

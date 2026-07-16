@@ -24,6 +24,7 @@ pub(all) enum TouchPhase {
 ///|
 pub(all) struct TouchPoint {
   id : TouchId
+  source : PointerSource
   position : @math.Vec2
   previous_position : @math.Vec2
   delta : @math.Vec2
@@ -33,6 +34,7 @@ pub(all) struct TouchPoint {
 ///|
 pub(all) struct TouchEvent {
   id : TouchId
+  source : PointerSource
   phase : TouchPhase
   position : @math.Vec2
   previous_position : @math.Vec2
@@ -140,6 +142,9 @@ let touches : Map[TouchId, TouchPoint] = Map([])
 let touch_changes : Array[TouchEvent] = []
 
 ///|
+let pointer_changes : Array[PointerEvent] = []
+
+///|
 let gesture_touches : Map[TouchId, GestureTouchState] = Map([])
 
 ///|
@@ -155,6 +160,9 @@ pub let touch_event_bus : @event.Events[TouchEvent] = Events()
 pub let touch_gesture_event_bus : @event.Events[TouchGestureEvent] = Events()
 
 ///|
+pub let pointer_event_bus : @event.Events[PointerEvent] = Events()
+
+///|
 pub fn active_touches() -> Map[TouchId, TouchPoint] {
   touches
 }
@@ -162,6 +170,11 @@ pub fn active_touches() -> Map[TouchId, TouchPoint] {
 ///|
 pub fn touch_changes_this_frame() -> Array[TouchEvent] {
   touch_changes
+}
+
+///|
+pub fn pointer_changes_this_frame() -> Array[PointerEvent] {
+  pointer_changes
 }
 
 ///|
@@ -218,6 +231,7 @@ pub fn replace_touch_state(
 pub fn clear_touch_state() -> Unit {
   touches.clear()
   touch_changes.clear()
+  pointer_changes.clear()
   gesture_touches.clear()
   touch_gesture_changes.clear()
   pinch_state.val = None
@@ -236,13 +250,31 @@ fn touch_phase_to_pointer_phase(phase : TouchPhase) -> PointerPhase {
 ///|
 pub fn pointer_event_from_touch(event : TouchEvent) -> PointerEvent {
   {
-    id: { source: PointerTouch, value: event.id.value },
-    source: PointerTouch,
+    id: { source: event.source, value: event.id.value },
+    source: event.source,
     phase: touch_phase_to_pointer_phase(event.phase),
     position: event.position,
     previous_position: event.previous_position,
     delta: event.delta,
     primary: event.primary,
+  }
+}
+
+///|
+pub fn pointer_id_from_touch(touch : TouchPoint) -> PointerId {
+  { source: touch.source, value: touch.id.value }
+}
+
+///|
+pub fn is_pointer_active(id : PointerId) -> Bool {
+  match id.source {
+    PointerMouse =>
+      id.value == 0 && primary_touch() is None && mouse.left_button
+    PointerTouch | PointerPen =>
+      match touches.get(TouchId(id.value)) {
+        Some(touch) => touch.source == id.source
+        None => false
+      }
   }
 }
 
@@ -259,6 +291,62 @@ pub fn primary_pointer_down() -> Bool {
   match primary_touch() {
     Some(_) => true
     None => mouse.left_button
+  }
+}
+
+///|
+fn push_pointer_change(event : PointerEvent) -> Unit {
+  pointer_changes.push(event)
+  pointer_event_bus.send(event)
+}
+
+///|
+pub fn advanced_pointer_system(_delta : Double) -> Unit {
+  pointer_changes.clear()
+  let mut contact_owns_primary = primary_touch() is Some(_)
+  for event in touch_changes {
+    push_pointer_change(pointer_event_from_touch(event))
+    if event.primary {
+      contact_owns_primary = true
+    }
+  }
+  if contact_owns_primary {
+    return
+  }
+
+  let id : PointerId = { source: PointerMouse, value: 0 }
+  if is_mouse_just_pressed(Left) {
+    push_pointer_change({
+      id,
+      source: PointerMouse,
+      phase: Down,
+      position: mouse.pos,
+      previous_position: mouse.pos,
+      delta: @math.Vec2::zero(),
+      primary: true,
+    })
+  }
+  if mouse_movement.movement[X] != 0.0 || mouse_movement.movement[Y] != 0.0 {
+    push_pointer_change({
+      id,
+      source: PointerMouse,
+      phase: Move,
+      position: mouse.pos,
+      previous_position: mouse.pos - mouse_movement.movement,
+      delta: mouse_movement.movement,
+      primary: true,
+    })
+  }
+  if is_mouse_just_released(Left) {
+    push_pointer_change({
+      id,
+      source: PointerMouse,
+      phase: Up,
+      position: mouse.pos,
+      previous_position: mouse.pos,
+      delta: @math.Vec2::zero(),
+      primary: true,
+    })
   }
 }
 

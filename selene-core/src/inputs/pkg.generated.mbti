@@ -17,6 +17,8 @@ pub fn advanced_key_system(Double) -> Unit
 
 pub fn advanced_mouse_system(Double) -> Unit
 
+pub fn advanced_pointer_system(Double) -> Unit
+
 pub fn advanced_touch_system(Double) -> Unit
 
 pub fn apply_input_snapshot(InputSnapshot) -> Unit
@@ -73,6 +75,8 @@ pub fn is_mouse_pressed(MouseButton) -> Bool
 
 pub fn is_mouse_released(MouseButton) -> Bool
 
+pub fn is_pointer_active(PointerId) -> Bool
+
 pub fn is_pressed(Code) -> Bool
 
 pub fn is_released(Code) -> Bool
@@ -109,7 +113,13 @@ pub let mouse_wheel : MouseWheel
 
 pub let mouse_wheel_event_bus : @event.Events[MouseWheelEvent]
 
+pub fn pointer_changes_this_frame() -> Array[PointerEvent]
+
+pub let pointer_event_bus : @event.Events[PointerEvent]
+
 pub fn pointer_event_from_touch(TouchEvent) -> PointerEvent
+
+pub fn pointer_id_from_touch(TouchPoint) -> PointerId
 
 pub fn pressed_gamepad_buttons() -> @set.Set[GamepadButtonInput]
 
@@ -348,6 +358,7 @@ pub(all) enum PointerSource {
 
 pub(all) struct TouchEvent {
   id : TouchId
+  source : PointerSource
   phase : TouchPhase
   position : @math.Vec2
   previous_position : @math.Vec2
@@ -394,6 +405,7 @@ pub(all) enum TouchPhase {
 
 pub(all) struct TouchPoint {
   id : TouchId
+  source : PointerSource
   position : @math.Vec2
   previous_position : @math.Vec2
   delta : @math.Vec2

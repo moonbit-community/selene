@@ -15,6 +15,7 @@ fn touch_point(
 ) -> @inputs.TouchPoint {
   {
     id,
+    source: PointerTouch,
     position,
     previous_position,
     delta: position - previous_position,
@@ -31,6 +32,7 @@ fn touch_event(
 ) -> @inputs.TouchEvent {
   {
     id,
+    source: PointerTouch,
     phase,
     position,
     previous_position,

@@ -9,9 +9,11 @@
 ### Changed
 - Changed embedded shader/source strings to use MoonBit multiline string syntax instead of `\n` string concatenation.
 - Changed redundant qualifiers and ambiguous empty-map literals to satisfy the current MoonBit nightly warning checks.
+- Changed UI pointer interaction and capture to consume one normalized mouse/touch/pen event stream.
 
 ### Fixed
 - Fixed local example serving instructions so pages can load web bundles from the repository-level `_build` directory.
+- Fixed WebGPU pen input being reported as touch input and prevented primary-contact mouse compatibility from producing duplicate pointer events.
 - Fixed raylib offscreen render captures so exported PNGs match the rendered vertical orientation.
 - Fixed selected frame capture ordering for extreme indexes and added direct coverage of capture attempts.
 - Fixed Tiled map, physics, and world spawn settings so external packages can configure hooks and options with record updates.

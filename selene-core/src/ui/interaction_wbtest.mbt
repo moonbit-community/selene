@@ -46,9 +46,10 @@ fn reset_interaction_test_state() -> Unit {
   let runtime = ui_interaction_runtime()
   runtime.hovered_entity = None
   runtime.pressed_entity = None
+  runtime.pressed_pointer = None
   runtime.focused_entity = None
-  runtime.touch_captures.clear()
-  runtime.consumed_touches.clear()
+  runtime.pointer_captures.clear()
+  runtime.consumed_pointers.clear()
   @inputs.apply_input_snapshot(@inputs.empty_input_snapshot())
   @inputs.just_pressed_mouse.left_button = false
   @inputs.just_pressed_mouse.right_button = false
@@ -57,6 +58,8 @@ fn reset_interaction_test_state() -> Unit {
   @inputs.just_release_mouse.right_button = false
   @inputs.just_release_mouse.middle_button = false
   @inputs.clear_touch_state()
+  @inputs.advanced_mouse_system(0.0)
+  @inputs.advanced_pointer_system(0.0)
   pointer_down_event_bus.clear()
   pointer_up_event_bus.clear()
   pointer_enter_event_bus.clear()
@@ -96,9 +99,11 @@ fn touch_point(
   id : @inputs.TouchId,
   position : @math.Vec2,
   previous_position? : @math.Vec2 = position,
+  source? : @inputs.PointerSource = PointerTouch,
 ) -> @inputs.TouchPoint {
   {
     id,
+    source,
     position,
     previous_position,
     delta: position - previous_position,
@@ -112,9 +117,11 @@ fn touch_event(
   phase : @inputs.TouchPhase,
   position : @math.Vec2,
   previous_position? : @math.Vec2 = position,
+  source? : @inputs.PointerSource = PointerTouch,
 ) -> @inputs.TouchEvent {
   {
     id,
+    source,
     phase,
     position,
     previous_position,
@@ -138,6 +145,23 @@ fn apply_ui_touch_frame(
     touches: active,
     touch_changes: changes,
   })
+  @inputs.advanced_mouse_system(0.0)
+  @inputs.advanced_pointer_system(0.0)
+}
+
+///|
+fn apply_ui_mouse_frame(position : @math.Vec2, down : Bool) -> Unit {
+  @inputs.apply_input_snapshot({
+    ..@inputs.empty_input_snapshot(),
+    mouse: {
+      pos: position,
+      left_button: down,
+      right_button: false,
+      middle_button: false,
+    },
+  })
+  @inputs.advanced_mouse_system(0.0)
+  @inputs.advanced_pointer_system(0.0)
 }
 
 ///|
@@ -164,6 +188,67 @@ test "ui relative cursor positions use centered normalized coordinates" {
 
   cleanup_interaction_test_entity(entity)
   reset_interaction_test_state()
+}
+
+///|
+test "ui mouse click uses the unified pointer event stream" {
+  with_ui_interaction_test_world(fn() raise {
+    reset_interaction_test_state()
+    let entity = spawn_interaction_test_node({
+      position: Vec2(100.0, 50.0),
+      size: Vec2(80.0, 40.0),
+    })
+    let position = @math.Vec2(120.0, 70.0)
+    let click_reader : @event.EventReader[UiClickEvent] = EventReader()
+
+    apply_ui_mouse_frame(position, true)
+    ui_interaction_system(0.0)
+    inspect(
+      interactions().get(entity).unwrap_or(None) == Pressed,
+      content="true",
+    )
+
+    apply_ui_mouse_frame(position, false)
+    ui_interaction_system(0.0)
+    inspect(click_event_bus.read(click_reader).length(), content="1")
+    inspect(
+      interactions().get(entity).unwrap_or(None) == Hovered,
+      content="true",
+    )
+
+    cleanup_interaction_test_entity(entity)
+    reset_interaction_test_state()
+  })
+}
+
+///|
+test "ui pen tap follows contact semantics without hover" {
+  with_ui_interaction_test_world(fn() raise {
+    reset_interaction_test_state()
+    let entity = spawn_interaction_test_node({
+      position: Vec2(100.0, 50.0),
+      size: Vec2(80.0, 40.0),
+    })
+    let id = @inputs.TouchId(20)
+    let position = @math.Vec2(120.0, 70.0)
+    let click_reader : @event.EventReader[UiClickEvent] = EventReader()
+    let enter_reader : @event.EventReader[UiPointerEnterEvent] = EventReader()
+
+    apply_ui_touch_frame(Some(touch_point(id, position, source=PointerPen)), [
+      touch_event(id, Started, position, source=PointerPen),
+    ])
+    ui_interaction_system(0.0)
+    apply_ui_touch_frame(None, [
+      touch_event(id, Ended, position, source=PointerPen),
+    ])
+    ui_interaction_system(0.0)
+
+    inspect(click_event_bus.read(click_reader).length(), content="1")
+    inspect(pointer_enter_event_bus.read(enter_reader).length(), content="0")
+
+    cleanup_interaction_test_entity(entity)
+    reset_interaction_test_state()
+  })
 }
 
 ///|
@@ -308,6 +393,33 @@ test "ui input capture consumes touch started over button before interaction" {
 
     inspect(is_touch_consumed(id), content="true")
     inspect(active_unconsumed_touches().length(), content="0")
+
+    cleanup_interaction_test_entity(entity)
+    reset_interaction_test_state()
+  })
+}
+
+///|
+test "ui input capture preserves pen identity" {
+  with_ui_interaction_test_world(fn() raise {
+    reset_interaction_test_state()
+    let entity = spawn_interaction_test_node({
+      position: Vec2(100.0, 50.0),
+      size: Vec2(80.0, 40.0),
+    })
+    let id = @inputs.TouchId(21)
+    let pointer : @inputs.PointerId = { source: PointerPen, value: id.value() }
+    let press = @math.Vec2(120.0, 70.0)
+
+    apply_ui_touch_frame(
+      Some(touch_point(id, press, source=PointerPen)),
+      [touch_event(id, Started, press, source=PointerPen)],
+    )
+    ui_input_capture_system(0.0)
+
+    inspect(is_pointer_consumed(pointer), content="true")
+    inspect(is_touch_consumed(id), content="true")
+    inspect(unconsumed_pointer_changes_this_frame().length(), content="0")
 
     cleanup_interaction_test_entity(entity)
     reset_interaction_test_state()

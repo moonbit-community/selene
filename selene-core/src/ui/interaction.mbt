@@ -82,9 +82,10 @@ pub let focus_out_event_bus : @event.Events[UiFocusOutEvent] = Events()
 priv struct UiInteractionRuntime {
   mut hovered_entity : @entity.Entity?
   mut pressed_entity : @entity.Entity?
+  mut pressed_pointer : @inputs.PointerId?
   mut focused_entity : @entity.Entity?
-  touch_captures : Map[@inputs.TouchId, @entity.Entity]
-  consumed_touches : Set[@inputs.TouchId]
+  pointer_captures : Map[@inputs.PointerId, @entity.Entity]
+  consumed_pointers : Set[@inputs.PointerId]
 }
 
 ///|
@@ -96,9 +97,10 @@ fn ui_interaction_runtime() -> UiInteractionRuntime {
   ui_interaction_runtimes.get_or_init(world_id, () => {
     hovered_entity: None,
     pressed_entity: None,
+    pressed_pointer: None,
     focused_entity: None,
-    touch_captures: Map([]),
-    consumed_touches: Set([]),
+    pointer_captures: Map([]),
+    consumed_pointers: Set([]),
   })
 }
 
@@ -113,21 +115,45 @@ pub fn focused_entity() -> @entity.Entity? {
 }
 
 ///|
+pub fn is_pointer_consumed(id : @inputs.PointerId) -> Bool {
+  ui_interaction_runtime().consumed_pointers.contains(id)
+}
+
+///|
+pub fn consume_pointer(id : @inputs.PointerId) -> Unit {
+  ui_interaction_runtime().consumed_pointers.add(id)
+}
+
+///|
+fn pointer_id_for_touch(id : @inputs.TouchId) -> @inputs.PointerId {
+  match @inputs.touch_point(id) {
+    Some(touch) => @inputs.pointer_id_from_touch(touch)
+    None => {
+      for event in @inputs.touch_changes_this_frame() {
+        if event.id == id {
+          return @inputs.pointer_event_from_touch(event).id
+        }
+      }
+      { source: PointerTouch, value: id.value() }
+    }
+  }
+}
+
+///|
 pub fn is_touch_consumed(id : @inputs.TouchId) -> Bool {
-  ui_interaction_runtime().consumed_touches.contains(id)
+  is_pointer_consumed(pointer_id_for_touch(id))
 }
 
 ///|
 pub fn consume_touch(id : @inputs.TouchId) -> Unit {
-  ui_interaction_runtime().consumed_touches.add(id)
+  consume_pointer(pointer_id_for_touch(id))
 }
 
 ///|
 pub fn active_unconsumed_touches() -> Array[@inputs.TouchPoint] {
   let touches : Array[@inputs.TouchPoint] = []
-  let runtime = ui_interaction_runtime()
-  for id, touch in @inputs.active_touches() {
-    if !runtime.consumed_touches.contains(id) {
+  for _, touch in @inputs.active_touches() {
+    if !is_pointer_consumed(@inputs.pointer_id_from_touch(touch)) {
       touches.push(touch)
     }
   }
@@ -137,9 +163,19 @@ pub fn active_unconsumed_touches() -> Array[@inputs.TouchPoint] {
 ///|
 pub fn unconsumed_touch_changes_this_frame() -> Array[@inputs.TouchEvent] {
   let changes : Array[@inputs.TouchEvent] = []
-  let runtime = ui_interaction_runtime()
   for event in @inputs.touch_changes_this_frame() {
-    if !runtime.consumed_touches.contains(event.id) {
+    if !is_pointer_consumed(@inputs.pointer_event_from_touch(event).id) {
+      changes.push(event)
+    }
+  }
+  changes
+}
+
+///|
+pub fn unconsumed_pointer_changes_this_frame() -> Array[@inputs.PointerEvent] {
+  let changes : Array[@inputs.PointerEvent] = []
+  for event in @inputs.pointer_changes_this_frame() {
+    if !is_pointer_consumed(event.id) {
       changes.push(event)
     }
   }
@@ -208,7 +244,8 @@ fn interaction_state(
   let runtime = ui_interaction_runtime()
   if runtime.pressed_entity is Some(pressed) &&
     pressed == entity &&
-    @inputs.is_mouse_pressed(Left) {
+    runtime.pressed_pointer is Some(pointer) &&
+    @inputs.is_pointer_active(pointer) {
     Pressed
   } else if hovered is Some(target) && target == entity {
     Hovered
@@ -519,37 +556,37 @@ fn touch_capture_target_at(position : @math.Vec2) -> @entity.Entity? {
 }
 
 ///|
-fn clear_invalid_touch_captures(runtime : UiInteractionRuntime) -> Unit {
-  let stale : Array[@inputs.TouchId] = []
-  for id, entity in runtime.touch_captures {
+fn clear_invalid_pointer_captures(runtime : UiInteractionRuntime) -> Unit {
+  let stale : Array[@inputs.PointerId] = []
+  for id, entity in runtime.pointer_captures {
     if !entity.is_alive() || !global_ui_nodes().contains(entity) {
       stale.push(id)
     }
   }
   for id in stale {
-    ignore(runtime.touch_captures.remove(id))
+    ignore(runtime.pointer_captures.remove(id))
   }
 }
 
 ///|
-fn update_touch_capture_for_event(
+fn update_pointer_capture_for_event(
   runtime : UiInteractionRuntime,
-  event : @inputs.TouchEvent,
+  event : @inputs.PointerEvent,
 ) -> Unit {
   match event.phase {
-    Started =>
+    Down =>
       if touch_capture_target_at(event.position) is Some(entity) {
-        runtime.touch_captures.set(event.id, entity)
-        runtime.consumed_touches.add(event.id)
+        runtime.pointer_captures.set(event.id, entity)
+        runtime.consumed_pointers.add(event.id)
       }
-    Moved =>
-      if runtime.touch_captures.contains(event.id) {
-        runtime.consumed_touches.add(event.id)
+    Move =>
+      if runtime.pointer_captures.contains(event.id) {
+        runtime.consumed_pointers.add(event.id)
       }
-    Ended | Cancelled =>
-      if runtime.touch_captures.contains(event.id) {
-        runtime.consumed_touches.add(event.id)
-        ignore(runtime.touch_captures.remove(event.id))
+    Up | Cancel =>
+      if runtime.pointer_captures.contains(event.id) {
+        runtime.consumed_pointers.add(event.id)
+        ignore(runtime.pointer_captures.remove(event.id))
       }
   }
 }
@@ -557,15 +594,15 @@ fn update_touch_capture_for_event(
 ///|
 pub fn ui_input_capture_system(_delta : Double) -> Unit {
   let runtime = ui_interaction_runtime()
-  runtime.consumed_touches.clear()
-  clear_invalid_touch_captures(runtime)
-  for id, _touch in @inputs.active_touches() {
-    if runtime.touch_captures.contains(id) {
-      runtime.consumed_touches.add(id)
+  runtime.consumed_pointers.clear()
+  clear_invalid_pointer_captures(runtime)
+  for id, _entity in runtime.pointer_captures {
+    if @inputs.is_pointer_active(id) {
+      runtime.consumed_pointers.add(id)
     }
   }
-  for event in @inputs.touch_changes_this_frame() {
-    update_touch_capture_for_event(runtime, event)
+  for event in @inputs.pointer_changes_this_frame() {
+    update_pointer_capture_for_event(runtime, event)
   }
 }
 
@@ -593,9 +630,9 @@ fn update_scroll(position : @math.Vec2) -> Unit {
 }
 
 ///|
-fn update_touch_drag_scroll() -> Unit {
-  for event in @inputs.touch_changes_this_frame() {
-    if event.primary && event.phase == Moved {
+fn update_contact_drag_scroll() -> Unit {
+  for event in @inputs.pointer_changes_this_frame() {
+    if event.source != PointerMouse && event.primary && event.phase == Move {
       if scrollable_target_at(event.previous_position) is Some(entity) {
         // Dragging content down should move the scroll offset up.
         apply_scroll_delta(entity, Vec2(-event.delta[X], -event.delta[Y]))
@@ -620,7 +657,7 @@ fn sanitize_focus() -> Unit {
 }
 
 ///|
-fn active_primary_touch() -> Bool {
+fn active_primary_contact() -> Bool {
   match @inputs.primary_touch() {
     Some(_) => true
     None => false
@@ -628,8 +665,10 @@ fn active_primary_touch() -> Bool {
 }
 
 ///|
-fn primary_touch_change(phase : @inputs.TouchPhase) -> @inputs.TouchEvent? {
-  for event in @inputs.touch_changes_this_frame() {
+fn primary_pointer_change(
+  phase : @inputs.PointerPhase,
+) -> @inputs.PointerEvent? {
+  for event in @inputs.pointer_changes_this_frame() {
     if event.primary && event.phase == phase {
       return Some(event)
     }
@@ -638,9 +677,9 @@ fn primary_touch_change(phase : @inputs.TouchPhase) -> @inputs.TouchEvent? {
 }
 
 ///|
-fn touch_pointer_changed_this_frame() -> Bool {
-  for event in @inputs.touch_changes_this_frame() {
-    if event.primary {
+fn contact_pointer_changed_this_frame() -> Bool {
+  for event in @inputs.pointer_changes_this_frame() {
+    if event.source != PointerMouse && event.primary {
       return true
     }
   }
@@ -679,34 +718,26 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
   let pointer_position = @inputs.primary_pointer_position()
   update_relative_cursor_positions(pointer_position)
   update_scroll(pointer_position)
-  update_touch_drag_scroll()
-  let touch_active = active_primary_touch() ||
-    touch_pointer_changed_this_frame()
-  let visual_hover : @entity.Entity? = if touch_active {
+  update_contact_drag_scroll()
+  let contact_active = active_primary_contact() ||
+    contact_pointer_changed_this_frame()
+  let visual_hover : @entity.Entity? = if contact_active {
     clear_touch_hover()
     None
   } else {
     update_hover_from_mouse(@inputs.mouse.pos)
   }
 
-  let touch_started = primary_touch_change(Started)
-  let press_position = match touch_started {
-    Some(event) => Some(event.position)
-    None =>
-      if @inputs.is_mouse_just_pressed(Left) {
-        Some(@inputs.mouse.pos)
-      } else {
-        None
-      }
-  }
-  if press_position is Some(position) {
-    let target_at_press = resolve_pointer_target(position)
+  let pointer_down = primary_pointer_change(Down)
+  if pointer_down is Some(event) {
+    let target_at_press = resolve_pointer_target(event.position)
     if target_at_press is Some(target) {
       runtime.pressed_entity = Some(target)
+      runtime.pressed_pointer = Some(event.id)
       pointer_down_event_bus.send({
         entity: target,
         button: Left,
-        position,
+        position: event.position,
       })
       if is_focusable(target) {
         focus(target)
@@ -716,37 +747,31 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
     }
   }
 
-  let touch_ended = primary_touch_change(Ended)
-  let touch_cancelled = primary_touch_change(Cancelled)
-  let release_position = match (touch_ended, touch_cancelled) {
-    (Some(event), _) => Some(event.position)
-    (_, Some(event)) => Some(event.position)
-    _ =>
-      if @inputs.is_mouse_just_released(Left) {
-        Some(@inputs.mouse.pos)
-      } else {
-        None
-      }
+  let pointer_up = primary_pointer_change(Up)
+  let pointer_cancelled = primary_pointer_change(Cancel)
+  let release = match (pointer_up, pointer_cancelled) {
+    (Some(event), _) => Some(event)
+    (_, Some(event)) => Some(event)
+    _ => None
   }
-  let cancelled = touch_cancelled is Some(_)
-  if release_position is Some(position) &&
-    runtime.pressed_entity is Some(pressed) {
-    let target_at_release = resolve_pointer_target(position)
+  if release is Some(event) &&
+    runtime.pressed_entity is Some(pressed) &&
+    runtime.pressed_pointer is Some(pointer) &&
+    pointer == event.id {
+    let target_at_release = resolve_pointer_target(event.position)
     pointer_up_event_bus.send({
       entity: pressed,
       button: Left,
-      position,
+      position: event.position,
     })
-    if !cancelled &&
+    if event.phase != Cancel &&
       target_at_release is Some(target) &&
       target == pressed &&
       is_interactive(pressed) {
-      click_event_bus.send({
-        entity: pressed,
-        button: Left,
-      })
+      click_event_bus.send({ entity: pressed, button: Left })
     }
     runtime.pressed_entity = None
+    runtime.pressed_pointer = None
   }
 
   if @inputs.is_just_pressed(Tab) {

@@ -416,6 +416,7 @@ fn push_raylib_touch_change(
 ) -> Unit {
   changes.push({
     id,
+    source: PointerTouch,
     phase,
     position,
     previous_position,
@@ -440,7 +441,14 @@ fn sync_touch_events() -> Unit {
       .get(id)
       .map_or(position, fn(touch) { touch.position })
     let delta = position - previous_position
-    touches.set(id, { id, position, previous_position, delta, primary })
+    touches.set(id, {
+      id,
+      source: PointerTouch,
+      position,
+      previous_position,
+      delta,
+      primary,
+    })
     if backend.last_touches.contains(id) {
       if delta[X] != 0.0 || delta[Y] != 0.0 {
         push_raylib_touch_change(

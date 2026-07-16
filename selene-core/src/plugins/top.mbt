@@ -115,6 +115,7 @@ pub fn debug_plugin(app : @app.App) -> @app.App {
 pub fn default_plugin(app : @app.App) -> @app.App {
   let app = register_builtin_messages(app)
   let input = @system_set.named("input")
+  let pointer_input = @system_set.named("pointer_input")
   let ui_input = @system_set.named("ui_input")
   let touch_controls = @system_set.named("touch_controls")
   let physics = @system_set.named("physics")
@@ -159,11 +160,19 @@ pub fn default_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
+    @inputs.advanced_pointer_system,
+    PreUpdate,
+    "Advanced Pointer System",
+    in_set=pointer_input,
+    after=[input],
+  )
+  let app = add_system(
+    app,
     @ui.ui_input_capture_system,
     PreUpdate,
     "UI Input Capture System",
     in_set=ui_input,
-    after=[input],
+    after=[pointer_input],
   )
   let app = add_system(
     app,
@@ -394,6 +403,7 @@ pub fn default_plugin(app : @app.App) -> @app.App {
 pub fn default_3d_plugin(app : @app.App) -> @app.App {
   let app = register_builtin_messages(app)
   let input = @system_set.named("input")
+  let pointer_input = @system_set.named("pointer_input")
   let ui_input = @system_set.named("ui_input")
   let touch_controls = @system_set.named("touch_controls")
   let physics = @system_set.named("physics3d")
@@ -437,11 +447,19 @@ pub fn default_3d_plugin(app : @app.App) -> @app.App {
   )
   let app = add_system(
     app,
+    @inputs.advanced_pointer_system,
+    PreUpdate,
+    "Advanced Pointer System",
+    in_set=pointer_input,
+    after=[input],
+  )
+  let app = add_system(
+    app,
     @ui.ui_input_capture_system,
     PreUpdate,
     "UI Input Capture System",
     in_set=ui_input,
-    after=[input],
+    after=[pointer_input],
   )
   let app = add_system(
     app,

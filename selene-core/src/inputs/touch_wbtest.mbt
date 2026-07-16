@@ -6,6 +6,7 @@ fn test_touch_point(
 ) -> TouchPoint {
   {
     id,
+    source: PointerTouch,
     position,
     previous_position: position,
     delta: @math.Vec2::zero(),
@@ -22,6 +23,7 @@ fn test_touch_event(
 ) -> TouchEvent {
   {
     id,
+    source: PointerTouch,
     phase,
     position,
     previous_position: position,
@@ -40,6 +42,7 @@ fn test_touch_event_from_to(
 ) -> TouchEvent {
   {
     id,
+    source: PointerTouch,
     phase,
     position,
     previous_position,
@@ -139,6 +142,84 @@ test "primary touch mirrors mouse left button for compatibility" {
   inspect(is_mouse_just_released(Left), content="true")
   apply_input_snapshot(empty_input_snapshot())
   advanced_mouse_system(0.0)
+}
+
+///|
+test "pen contacts preserve their pointer source without mirrored mouse events" {
+  apply_input_snapshot(empty_input_snapshot())
+  advanced_mouse_system(0.0)
+  clear_touch_state()
+  let id = TouchId(12)
+  let position = @math.Vec2(15.0, 25.0)
+  let point : TouchPoint = {
+    id,
+    source: PointerPen,
+    position,
+    previous_position: position,
+    delta: @math.Vec2::zero(),
+    primary: true,
+  }
+  let event : TouchEvent = {
+    id,
+    source: PointerPen,
+    phase: Started,
+    position,
+    previous_position: position,
+    delta: @math.Vec2::zero(),
+    primary: true,
+  }
+  apply_input_snapshot({
+    ..empty_input_snapshot(),
+    touches: active_touch_map([point]),
+    touch_changes: [event],
+  })
+  advanced_mouse_system(0.0)
+  advanced_pointer_system(0.0)
+  inspect(pointer_changes_this_frame().length(), content="1")
+  inspect(pointer_changes_this_frame()[0].source == PointerPen, content="true")
+  inspect(
+    pointer_changes_this_frame()[0].id.source == PointerPen,
+    content="true",
+  )
+  apply_input_snapshot(empty_input_snapshot())
+  advanced_mouse_system(0.0)
+  advanced_pointer_system(0.0)
+  clear_touch_state()
+}
+
+///|
+test "mouse produces unified pointer down move and up events" {
+  apply_input_snapshot(empty_input_snapshot())
+  last_mouse.pos = @math.Vec2::zero()
+  last_mouse.left_button = false
+  mouse.pos = Vec2(10.0, 20.0)
+  mouse.left_button = true
+  advanced_mouse_system(0.0)
+  advanced_pointer_system(0.0)
+  inspect(pointer_changes_this_frame().length(), content="2")
+  inspect(pointer_changes_this_frame()[0].phase == Down, content="true")
+  inspect(
+    pointer_changes_this_frame()[0].source == PointerMouse,
+    content="true",
+  )
+  inspect(pointer_changes_this_frame()[1].phase == Move, content="true")
+
+  mouse.pos = Vec2(14.0, 23.0)
+  advanced_mouse_system(0.0)
+  advanced_pointer_system(0.0)
+  inspect(pointer_changes_this_frame().length(), content="1")
+  inspect(pointer_changes_this_frame()[0].phase == Move, content="true")
+  inspect(pointer_changes_this_frame()[0].delta[X], content="4")
+  inspect(pointer_changes_this_frame()[0].delta[Y], content="3")
+
+  mouse.left_button = false
+  advanced_mouse_system(0.0)
+  advanced_pointer_system(0.0)
+  inspect(pointer_changes_this_frame().length(), content="1")
+  inspect(pointer_changes_this_frame()[0].phase == Up, content="true")
+  apply_input_snapshot(empty_input_snapshot())
+  advanced_mouse_system(0.0)
+  advanced_pointer_system(0.0)
 }
 
 ///|
