@@ -729,15 +729,13 @@ fn resolved_capture_dimension(override_value : Int, fallback : Double) -> Int {
 }
 
 ///|
-pub fn App::run_frames_capture(
+fn App::run_frames_capture_with(
   self : App,
   frames : Int,
-  capture_width? : Int = 0,
-  capture_height? : Int = 0,
-  raw_delta? : Double = 1.0 / DEFAULT_FPS.to_double(),
-  fixed_delta_override? : Double? = None,
-  metadata_indent? : Int = 2,
-  capture_frame_indexes? : Array[Int]? = None,
+  raw_delta : Double,
+  fixed_delta_override : Double?,
+  capture_frame_indexes : Array[Int]?,
+  capture_frame : (Int) -> @runtime_debug.FrameCaptureArtifact?,
 ) -> Array[@runtime_debug.FrameCaptureArtifact] {
   let captures : Array[@runtime_debug.FrameCaptureArtifact] = []
   if frames <= 0 {
@@ -746,7 +744,7 @@ pub fn App::run_frames_capture(
   let selected_frames = match capture_frame_indexes {
     Some(indexes) => {
       let selected = indexes.copy()
-      selected.sort_by(fn(lhs, rhs) { lhs - rhs })
+      selected.sort_by(fn(lhs, rhs) { lhs.compare(rhs) })
       Some(selected)
     }
     None => None
@@ -758,14 +756,6 @@ pub fn App::run_frames_capture(
   let accumulator : Ref[Double] = { val: 0.0 }
   let default_delta = 1.0 / self.fps.to_double()
   let used_delta = if raw_delta > 0.0 { raw_delta } else { default_delta }
-  let resolved_width = resolved_capture_dimension(
-    capture_width,
-    self.viewport_width * self.zoom,
-  )
-  let resolved_height = resolved_capture_dimension(
-    capture_height,
-    self.viewport_height * self.zoom,
-  )
   for frame_index in 0..<frames {
     run_headless_frame(
       plan,
@@ -796,16 +786,45 @@ pub fn App::run_frames_capture(
     if !should_capture {
       continue
     }
-    if @runtime_debug.capture_last_frame_with_metadata(
-        resolved_width,
-        resolved_height,
-        indent=metadata_indent,
-      )
-      is Some(capture) {
+    if capture_frame(frame_index) is Some(capture) {
       captures.push(capture)
     }
   }
   captures
+}
+
+///|
+pub fn App::run_frames_capture(
+  self : App,
+  frames : Int,
+  capture_width? : Int = 0,
+  capture_height? : Int = 0,
+  raw_delta? : Double = 1.0 / DEFAULT_FPS.to_double(),
+  fixed_delta_override? : Double? = None,
+  metadata_indent? : Int = 2,
+  capture_frame_indexes? : Array[Int]? = None,
+) -> Array[@runtime_debug.FrameCaptureArtifact] {
+  let resolved_width = resolved_capture_dimension(
+    capture_width,
+    self.viewport_width * self.zoom,
+  )
+  let resolved_height = resolved_capture_dimension(
+    capture_height,
+    self.viewport_height * self.zoom,
+  )
+  self.run_frames_capture_with(
+    frames,
+    raw_delta,
+    fixed_delta_override,
+    capture_frame_indexes,
+    fn(_frame_index) {
+      @runtime_debug.capture_last_frame_with_metadata(
+        resolved_width,
+        resolved_height,
+        indent=metadata_indent,
+      )
+    },
+  )
 }
 
 ///|

@@ -203,21 +203,26 @@ test "app: run_frames_capture provides a generic capture pipeline without game-s
 test "app: run_frames_capture accepts selected frame indexes" {
   let world = @ecs.World()
   let rendered_frames : Array[Int] = []
+  let capture_attempts : Array[Int] = []
   let app = App()
     .with_world(world)
     .add_system(
-      @system.Render,
+      Render,
       fn(_world) { rendered_frames.push(rendered_frames.length()) },
       system_name="render_frame_counter",
     )
-  let captures = app.run_frames_capture(
+  let captures = app.run_frames_capture_with(
     4,
-    capture_width=64,
-    capture_height=64,
-    raw_delta=1.0 / 60.0,
-    capture_frame_indexes=Some([-1, 1, 1, 3, 10]),
+    1.0 / 60.0,
+    None,
+    Some([2147483647, -1, -2147483647 - 1, 3, 1, 1, 10]),
+    fn(frame_index) {
+      capture_attempts.push(frame_index)
+      None
+    },
   )
   inspect(rendered_frames.length(), content="4")
+  debug_inspect(capture_attempts, content="[1, 3]")
   inspect(captures.length(), content="0")
 }
 
