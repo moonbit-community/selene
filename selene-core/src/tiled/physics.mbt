@@ -31,7 +31,7 @@ pub enum TiledColliderSourceKind {
 } derive(Eq)
 
 ///|
-pub struct TiledPhysicsSettings {
+pub(all) struct TiledPhysicsSettings {
   objects_filter : TiledNameFilter
   tiles_layer_filter : TiledNameFilter
   collision_filter : @physics2d.CollisionFilter

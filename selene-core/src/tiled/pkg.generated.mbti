@@ -319,7 +319,7 @@ pub struct TiledParallaxLayer {
   parallax_y : Double
 }
 
-pub struct TiledPhysicsSettings {
+pub(all) struct TiledPhysicsSettings {
   objects_filter : TiledNameFilter
   tiles_layer_filter : TiledNameFilter
   collision_filter : @collision.CollisionFilter
@@ -506,7 +506,7 @@ pub struct TiledWorldPattern {
   map_height : Int
 }
 
-pub struct TiledWorldSpawnSettings {
+pub(all) struct TiledWorldSpawnSettings {
   position : @math.Vec2
   map_z_step : Int
   map_settings : TiledSpawnSettings

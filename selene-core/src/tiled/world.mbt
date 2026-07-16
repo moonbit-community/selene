@@ -73,7 +73,7 @@ pub struct TiledWorldMapInstance {
 }
 
 ///|
-pub struct TiledWorldSpawnSettings {
+pub(all) struct TiledWorldSpawnSettings {
   position : @math.Vec2
   map_z_step : Int
   map_settings : TiledSpawnSettings
