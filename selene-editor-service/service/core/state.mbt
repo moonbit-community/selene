@@ -35,7 +35,7 @@ pub fn EditorService::EditorService(module_root : String) -> EditorService {
     next_subscriber_id: 0,
     recent_projects: [],
     event_log: [],
-    subscribers: {},
+    subscribers: Map([]),
   }
 }
 

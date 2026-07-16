@@ -313,17 +313,17 @@ pub(all) struct RenderFrame3D {
 ///|
 pub fn default_texture_sampler3d() -> TextureSampler3D {
   {
-    wrap_u: TextureWrap3D::Repeat,
-    wrap_v: TextureWrap3D::Repeat,
-    min_filter: TextureFilter3D::Linear,
-    mag_filter: TextureFilter3D::Linear,
-    mipmap_filter: Some(TextureFilter3D::Linear),
+    wrap_u: Repeat,
+    wrap_v: Repeat,
+    min_filter: Linear,
+    mag_filter: Linear,
+    mipmap_filter: Some(Linear),
   }
 }
 
 ///|
 pub fn default_texture_transform3d() -> TextureTransform3D {
-  { offset: @math.Vec2::zero(), scale: @math.Vec2(1.0, 1.0), rotation: 0.0 }
+  { offset: @math.Vec2::zero(), scale: Vec2(1.0, 1.0), rotation: 0.0 }
 }
 
 ///|
@@ -334,7 +334,7 @@ pub fn apply_texture_transform3d(
   let scaled = uv * transform.scale
   let sin_rotation = @cmath.sin(transform.rotation)
   let cos_rotation = @cmath.cos(transform.rotation)
-  @math.Vec2(
+  Vec2(
     scaled[X] * cos_rotation - scaled[Y] * sin_rotation + transform.offset[X],
     scaled[X] * sin_rotation + scaled[Y] * cos_rotation + transform.offset[Y],
   )
@@ -480,7 +480,7 @@ pub fn default_cascade_shadow_config3d() -> CascadeShadowConfig3D {
 ///|
 pub fn default_directional_light3d() -> DirectionalLight3D {
   {
-    direction: @math.Vec3(0.0, 0.0, -1.0),
+    direction: Vec3(0.0, 0.0, -1.0),
     color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
     intensity: 1.0,
     shadows: false,
@@ -508,7 +508,7 @@ pub fn default_point_light3d() -> PointLight3D {
 ///|
 pub fn default_spot_light3d() -> SpotLight3D {
   {
-    direction: @math.Vec3(0.0, 0.0, -1.0),
+    direction: Vec3(0.0, 0.0, -1.0),
     color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
     intensity: 1.0,
     range: 0.0,

@@ -36,7 +36,7 @@ fn material_texture_slot_bindings() -> Array[MaterialTextureSlotBinding] {
 
 ///|
 fn uniform_color4(color : @render.Color) -> @raylib.ShaderUniformData {
-  @raylib.ShaderUniformData::Vec4(
+  Vec4(
     @raylib.Vector4::new(
       to_float(color.r.to_double() / 255.0),
       to_float(color.g.to_double() / 255.0),
@@ -76,7 +76,7 @@ fn texture_transform_offset_scale(
 fn texture_transform_rotation_sin_cos(
   transform : @render3d_types.TextureTransform3D,
 ) -> @smath.Vec2 {
-  @smath.Vec2(@cmath.sin(transform.rotation), @cmath.cos(transform.rotation))
+  Vec2(@cmath.sin(transform.rotation), @cmath.cos(transform.rotation))
 }
 
 ///|
@@ -86,7 +86,7 @@ fn uniform_texture_transform_offset_scale(
   let (offset_x, offset_y, scale_x, scale_y) = texture_transform_offset_scale(
     transform,
   )
-  @raylib.ShaderUniformData::Vec4(
+  Vec4(
     @raylib.Vector4::new(
       to_float(offset_x),
       to_float(offset_y),

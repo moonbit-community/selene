@@ -55,28 +55,28 @@ pub(all) struct UiFocusOutEvent {
 }
 
 ///|
-pub let pointer_enter_event_bus : @event.Events[UiPointerEnterEvent] = @event.Events()
+pub let pointer_enter_event_bus : @event.Events[UiPointerEnterEvent] = Events()
 
 ///|
-pub let pointer_leave_event_bus : @event.Events[UiPointerLeaveEvent] = @event.Events()
+pub let pointer_leave_event_bus : @event.Events[UiPointerLeaveEvent] = Events()
 
 ///|
-pub let pointer_down_event_bus : @event.Events[UiPointerDownEvent] = @event.Events()
+pub let pointer_down_event_bus : @event.Events[UiPointerDownEvent] = Events()
 
 ///|
-pub let pointer_up_event_bus : @event.Events[UiPointerUpEvent] = @event.Events()
+pub let pointer_up_event_bus : @event.Events[UiPointerUpEvent] = Events()
 
 ///|
-pub let click_event_bus : @event.Events[UiClickEvent] = @event.Events()
+pub let click_event_bus : @event.Events[UiClickEvent] = Events()
 
 ///|
-pub let navigation_event_bus : @event.Events[UiNavigationEvent] = @event.Events()
+pub let navigation_event_bus : @event.Events[UiNavigationEvent] = Events()
 
 ///|
-pub let focus_in_event_bus : @event.Events[UiFocusInEvent] = @event.Events()
+pub let focus_in_event_bus : @event.Events[UiFocusInEvent] = Events()
 
 ///|
-pub let focus_out_event_bus : @event.Events[UiFocusOutEvent] = @event.Events()
+pub let focus_out_event_bus : @event.Events[UiFocusOutEvent] = Events()
 
 ///|
 priv struct UiInteractionRuntime {
@@ -208,7 +208,7 @@ fn interaction_state(
   let runtime = ui_interaction_runtime()
   if runtime.pressed_entity is Some(pressed) &&
     pressed == entity &&
-    @inputs.is_mouse_pressed(@inputs.MouseButton::Left) {
+    @inputs.is_mouse_pressed(Left) {
     Pressed
   } else if hovered is Some(target) && target == entity {
     Hovered
@@ -255,7 +255,7 @@ fn focusable_entities() -> Array[@entity.Entity] {
 
 ///|
 fn rect_center(rect : @math.Rect) -> @math.Vec2 {
-  @math.Vec2(
+  Vec2(
     rect.position[X] + rect.size[X] / 2.0,
     rect.position[Y] + rect.size[Y] / 2.0,
   )
@@ -399,7 +399,7 @@ fn normalized_cursor_position(
     None
   } else {
     Some(
-      @math.Vec2(
+      Vec2(
         (point[X] - rect.position[X]) / rect.size[X] - 0.5,
         (point[Y] - rect.position[Y]) / rect.size[Y] - 0.5,
       ),
@@ -588,7 +588,7 @@ fn update_scroll(position : @math.Vec2) -> Unit {
     return
   }
   if scrollable_target_at(position) is Some(entity) {
-    apply_scroll_delta(entity, @math.Vec2(delta[X] * 16.0, delta[Y] * 16.0))
+    apply_scroll_delta(entity, Vec2(delta[X] * 16.0, delta[Y] * 16.0))
   }
 }
 
@@ -598,7 +598,7 @@ fn update_touch_drag_scroll() -> Unit {
     if event.primary && event.phase == Moved {
       if scrollable_target_at(event.previous_position) is Some(entity) {
         // Dragging content down should move the scroll offset up.
-        apply_scroll_delta(entity, @math.Vec2(-event.delta[X], -event.delta[Y]))
+        apply_scroll_delta(entity, Vec2(-event.delta[X], -event.delta[Y]))
       }
       return
     }
@@ -693,7 +693,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
   let press_position = match touch_started {
     Some(event) => Some(event.position)
     None =>
-      if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) {
+      if @inputs.is_mouse_just_pressed(Left) {
         Some(@inputs.mouse.pos)
       } else {
         None
@@ -705,7 +705,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
       runtime.pressed_entity = Some(target)
       pointer_down_event_bus.send({
         entity: target,
-        button: @inputs.MouseButton::Left,
+        button: Left,
         position,
       })
       if is_focusable(target) {
@@ -722,7 +722,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
     (Some(event), _) => Some(event.position)
     (_, Some(event)) => Some(event.position)
     _ =>
-      if @inputs.is_mouse_just_released(@inputs.MouseButton::Left) {
+      if @inputs.is_mouse_just_released(Left) {
         Some(@inputs.mouse.pos)
       } else {
         None
@@ -734,7 +734,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
     let target_at_release = resolve_pointer_target(position)
     pointer_up_event_bus.send({
       entity: pressed,
-      button: @inputs.MouseButton::Left,
+      button: Left,
       position,
     })
     if !cancelled &&
@@ -743,35 +743,35 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
       is_interactive(pressed) {
       click_event_bus.send({
         entity: pressed,
-        button: @inputs.MouseButton::Left,
+        button: Left,
       })
     }
     runtime.pressed_entity = None
   }
 
-  if @inputs.is_just_pressed(@inputs.Tab) {
-    move_focus_by_tab(@inputs.is_pressed(@inputs.ShiftLeft))
+  if @inputs.is_just_pressed(Tab) {
+    move_focus_by_tab(@inputs.is_pressed(ShiftLeft))
     navigation_event_bus.send({
       entity: runtime.focused_entity,
-      direction: if @inputs.is_pressed(@inputs.ShiftLeft) {
+      direction: if @inputs.is_pressed(ShiftLeft) {
         Left
       } else {
         Right
       },
     })
   }
-  if @inputs.is_just_pressed(@inputs.ArrowLeft) ||
-    @inputs.is_gamepad_button_just_pressed(@inputs.Gamepad(0), @inputs.DPadLeft) {
+  if @inputs.is_just_pressed(ArrowLeft) ||
+    @inputs.is_gamepad_button_just_pressed(Gamepad(0), DPadLeft) {
     move_focus(Left)
     navigation_event_bus.send({
       entity: runtime.focused_entity,
       direction: Left,
     })
   }
-  if @inputs.is_just_pressed(@inputs.ArrowRight) ||
+  if @inputs.is_just_pressed(ArrowRight) ||
     @inputs.is_gamepad_button_just_pressed(
-      @inputs.Gamepad(0),
-      @inputs.DPadRight,
+      Gamepad(0),
+      DPadRight,
     ) {
     move_focus(Right)
     navigation_event_bus.send({
@@ -779,34 +779,34 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
       direction: Right,
     })
   }
-  if @inputs.is_just_pressed(@inputs.ArrowUp) ||
-    @inputs.is_gamepad_button_just_pressed(@inputs.Gamepad(0), @inputs.DPadUp) {
+  if @inputs.is_just_pressed(ArrowUp) ||
+    @inputs.is_gamepad_button_just_pressed(Gamepad(0), DPadUp) {
     move_focus(Up)
     navigation_event_bus.send({ entity: runtime.focused_entity, direction: Up })
   }
-  if @inputs.is_just_pressed(@inputs.ArrowDown) ||
-    @inputs.is_gamepad_button_just_pressed(@inputs.Gamepad(0), @inputs.DPadDown) {
+  if @inputs.is_just_pressed(ArrowDown) ||
+    @inputs.is_gamepad_button_just_pressed(Gamepad(0), DPadDown) {
     move_focus(Down)
     navigation_event_bus.send({
       entity: runtime.focused_entity,
       direction: Down,
     })
   }
-  if @inputs.is_just_pressed(@inputs.Escape) ||
-    @inputs.is_gamepad_button_just_pressed(@inputs.Gamepad(0), @inputs.East) {
+  if @inputs.is_just_pressed(Escape) ||
+    @inputs.is_gamepad_button_just_pressed(Gamepad(0), East) {
     navigation_event_bus.send({
       entity: runtime.focused_entity,
       direction: Cancel,
     })
   }
   if (
-      @inputs.is_just_pressed(@inputs.Enter) ||
-      @inputs.is_just_pressed(@inputs.Space) ||
-      @inputs.is_gamepad_button_just_pressed(@inputs.Gamepad(0), @inputs.South)
+      @inputs.is_just_pressed(Enter) ||
+      @inputs.is_just_pressed(Space) ||
+      @inputs.is_gamepad_button_just_pressed(Gamepad(0), South)
     ) &&
     runtime.focused_entity is Some(target) &&
     is_interactive(target) {
-    click_event_bus.send({ entity: target, button: @inputs.MouseButton::Left })
+    click_event_bus.send({ entity: target, button: Left })
     navigation_event_bus.send({ entity: Some(target), direction: Activate })
   }
 

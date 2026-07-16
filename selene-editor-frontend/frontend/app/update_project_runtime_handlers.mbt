@@ -117,7 +117,7 @@ fn handle_scene_loaded(
   model : Model,
 ) -> (Array[Effect], Model) {
   match result {
-    AsyncOk(@shared.Loaded(response)) => {
+    AsyncOk(Loaded(response)) => {
       let atlas_documents = model.atlas_documents
       let atlas_refs = model.atlas_refs
       for entry in response.atlas_assets {
@@ -209,7 +209,7 @@ fn handle_scene_loaded(
       }
       (sync_preview_effects_with_scene(next), next)
     }
-    AsyncOk(@shared.MigrationRequired(preview)) => {
+    AsyncOk(MigrationRequired(preview)) => {
       let next = {
         ..model,
         scene_session: None,
@@ -261,7 +261,7 @@ fn handle_scene_saved(
               base_hash: save.disk_hash,
               base_revision: save.disk_revision,
               last_saved_at: save.disk_revision,
-              conflict_state: SceneConflictState::NoConflict,
+              conflict_state: NoConflict,
             }),
           }
         None => model
@@ -314,20 +314,20 @@ fn handle_service_event(
   match result {
     AsyncOk(event) =>
       match event {
-        @shared.Ready => ([], model)
-        @shared.Log(label~, message~) =>
+        Ready => ([], model)
+        Log(label~, message~) =>
           ([], push_log(model, "[\{label}] \{message}"))
-        @shared.ProjectDelta(delta~) =>
+        ProjectDelta(delta~) =>
           match delta {
-            @shared.WorkspaceChanged =>
+            WorkspaceChanged =>
               ([], { ..model, status: "Workspace settings updated" })
-            @shared.ManifestChanged =>
+            ManifestChanged =>
               (
                 [rpc_effect(RpcSceneList)],
                 { ..model, status: "Project manifest changed" },
               )
-            @shared.AssetFileChanged(_) => ([rpc_effect(RpcAssetsList)], model)
-            @shared.SceneFileChanged(path~, disk_hash~, disk_revision~) =>
+            AssetFileChanged(_) => ([rpc_effect(RpcAssetsList)], model)
+            SceneFileChanged(path~, disk_hash~, disk_revision~) =>
               match model.scene_session {
                 Some(session) if session.path == path && session.dirty => {
                   let next = {
@@ -352,14 +352,14 @@ fn handle_service_event(
                 _ => ([rpc_effect(RpcSceneList)], model)
               }
           }
-        @shared.SceneSaved(_)
-        | @shared.AnimationClipSaved(_)
-        | @shared.AnimationGraphSaved(_)
-        | @shared.AnimationMigrated(..)
-        | @shared.AssetImported(_) => ([], model)
-        @shared.ProjectOpened(..)
-        | @shared.SceneCreated(..)
-        | @shared.SceneDeleted(..) => ([], model)
+        SceneSaved(_)
+        | AnimationClipSaved(_)
+        | AnimationGraphSaved(_)
+        | AnimationMigrated(..)
+        | AssetImported(_) => ([], model)
+        ProjectOpened(..)
+        | SceneCreated(..)
+        | SceneDeleted(..) => ([], model)
       }
     AsyncErr(message) => {
       let next = push_log(model, "SSE error: " + message)
@@ -374,7 +374,7 @@ fn handle_preview_event(
   model : Model,
 ) -> (Array[Effect], Model) {
   match event {
-    @bridge.SelectionChanged(primary~, ids~) => {
+    SelectionChanged(primary~, ids~) => {
       let selected = with_entity_selection(model, primary, ids)
       let next = {
         ..selected,
@@ -388,8 +388,8 @@ fn handle_preview_event(
       }
       ([], next)
     }
-    @bridge.HoverChanged(_) => ([], model)
-    @bridge.TransformGestureStarted(id~) => {
+    HoverChanged(_) => ([], model)
+    TransformGestureStarted(id~) => {
       let next_selection = if model.selected_entity_ids.contains(id) {
         with_entity_selection(model, Some(id), model.selected_entity_ids)
       } else {
@@ -401,7 +401,7 @@ fn handle_preview_event(
       )
       ([], next)
     }
-    @bridge.TransformChanged(id~, translation~, rotation~, scale~) =>
+    TransformChanged(id~, translation~, rotation~, scale~) =>
       match model_scene(model) {
         Some(_) => {
           let next = update_entity_component(
@@ -429,7 +429,7 @@ fn handle_preview_event(
         }
         _ => ([], model)
       }
-    @bridge.TransformGestureFinished(id~) => {
+    TransformGestureFinished(id~) => {
       let committed = with_committed_scene_edit_transaction(model)
       let status = match model.scene_session {
         Some(session) =>
@@ -453,7 +453,7 @@ fn handle_preview_event(
       }
       (sync_preview_effects(next), next)
     }
-    @bridge.AutoTileLayerChanged(id~, component~) =>
+    AutoTileLayerChanged(id~, component~) =>
       match model_scene(model) {
         Some(_) => {
           let staged = with_started_scene_edit_transaction(

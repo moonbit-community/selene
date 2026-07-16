@@ -55,7 +55,7 @@ pub struct TriggerEvent {
 
 ///|
 /// Trigger event bus.
-pub let trigger_event_bus : @event.Events[TriggerEvent] = @event.Events()
+pub let trigger_event_bus : @event.Events[TriggerEvent] = Events()
 
 ///|
 fn push_trigger_event(event : TriggerEvent) -> Unit {

@@ -44,9 +44,9 @@ fn entity_store() -> EntityWorldStore {
   entity_world_stores.get_or_init(world.id(), () => {
     entity_generator: 0U,
     alive_count: 0,
-    all_entities: @set.Set([]),
+    all_entities: Set([]),
     lifecycle_states: Map([]),
-    pending_state_changes: @set.Set([]),
+    pending_state_changes: Set([]),
   })
 }
 
@@ -65,7 +65,7 @@ pub fn Entity::is_alive(e : Entity) -> Bool {
   match
     entity_store().lifecycle_states
     .get(e)
-    .unwrap_or(EntityLifecycleState::Destroyed) {
+    .unwrap_or(Destroyed) {
     Alive | PendingRespawn => true
     PendingSpawn | PendingDespawn | Destroyed => false
   }
@@ -103,7 +103,7 @@ pub fn Entity::reserve_spawn() -> Entity {
 pub fn Entity::destroy(e : Entity) -> Unit {
   let store = entity_store()
   match
-    store.lifecycle_states.get(e).unwrap_or(EntityLifecycleState::Destroyed) {
+    store.lifecycle_states.get(e).unwrap_or(Destroyed) {
     Destroyed | PendingDespawn => ()
     PendingSpawn => {
       store.lifecycle_states.set(e, PendingDespawn)
@@ -130,7 +130,7 @@ pub fn Entity::destroy(e : Entity) -> Unit {
 pub fn Entity::respawn(e : Entity) -> Unit {
   let store = entity_store()
   match
-    store.lifecycle_states.get(e).unwrap_or(EntityLifecycleState::Destroyed) {
+    store.lifecycle_states.get(e).unwrap_or(Destroyed) {
     Alive | PendingRespawn => ()
     Destroyed | PendingDespawn | PendingSpawn => {
       if store.lifecycle_states.get(e) is Some(PendingDespawn) &&

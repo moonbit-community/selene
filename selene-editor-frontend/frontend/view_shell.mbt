@@ -277,8 +277,8 @@ fn scene_conflict_bar_view(
   match model.scene_session {
     Some(session) =>
       match session.conflict_state {
-        @app.NoConflict => @html.nothing
-        @app.ExternalSceneChanged(path~, disk_hash~, disk_revision~) =>
+        NoConflict => @html.nothing
+        ExternalSceneChanged(path~, disk_hash~, disk_revision~) =>
           @html.div(class="scene-conflict-bar", [
             @html.div(class="scene-conflict-copy", [
               @html.div(
@@ -321,7 +321,7 @@ fn scene_conflict_bar_view(
               ),
             ]),
           ])
-        @app.SaveConflict(
+        SaveConflict(
           path~,
           base_hash~,
           current_hash~,

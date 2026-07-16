@@ -61,7 +61,7 @@ pub struct PointerEvent {
 }
 
 ///|
-pub let pointer_event_bus : @event.Events[PointerEvent] = @event.Events()
+pub let pointer_event_bus : @event.Events[PointerEvent] = Events()
 
 ///|
 fn push_pointer_event(
@@ -75,7 +75,7 @@ fn push_pointer_event(
 ///|
 pub fn emit_pickable_just_pressed(
   entity : @entity.Entity,
-  button? : @inputs.MouseButton = @inputs.MouseButton::Left,
+  button? : @inputs.MouseButton = Left,
 ) -> Unit {
   push_pointer_event(entity, button, JustPressed)
 }
@@ -267,12 +267,12 @@ fn hit_test_pickable(
   let local_point = match transform.affine.inverse() {
     Some(inverse_transform) =>
       inverse_transform.transform_point3(
-        @math.Vec3(mouse_world[X], mouse_world[Y], 0.0),
+        Vec3(mouse_world[X], mouse_world[Y], 0.0),
       )
-    None => @math.Vec3(mouse_world[X], mouse_world[Y], 0.0)
+    None => Vec3(mouse_world[X], mouse_world[Y], 0.0)
   }
   point_in_collision_shape(
-    @math.Vec2(local_point.x, local_point.y),
+    Vec2(local_point.x, local_point.y),
     shape,
     camera_view,
   )

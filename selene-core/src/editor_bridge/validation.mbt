@@ -598,8 +598,8 @@ fn validate_entity_component_documents(
   path_prefix : String,
 ) -> Array[ValidationError] {
   let errors : Array[ValidationError] = []
-  let component_kinds : Map[String, Bool] = {}
-  let builtin_kinds : Map[String, Bool] = {}
+  let component_kinds : Map[String, Bool] = Map([])
+  let builtin_kinds : Map[String, Bool] = Map([])
   for component in entity.components {
     let component_path = path_prefix +
       "[\{entity.id}].components[\{component.kind}]"
@@ -681,12 +681,12 @@ fn validate_parent_cycles(
   path_prefix : String,
 ) -> Array[ValidationError] {
   let errors : Array[ValidationError] = []
-  let entity_by_id : Map[String, EntityDocument] = {}
+  let entity_by_id : Map[String, EntityDocument] = Map([])
   for entity in entities {
     entity_by_id.set(entity.id, entity)
   }
   for entity in entities {
-    let visited : Map[String, Bool] = {}
+    let visited : Map[String, Bool] = Map([])
     let mut current = entity.parent
     while current is Some(parent) {
       if parent == entity.id || visited.contains(parent) {
@@ -713,7 +713,7 @@ fn validate_entity_documents(
   path_prefix : String,
 ) -> Array[ValidationError] {
   let errors : Array[ValidationError] = []
-  let seen_ids : Map[String, Bool] = {}
+  let seen_ids : Map[String, Bool] = Map([])
   entities.each(fn(entity) {
     if entity.id == "" {
       errors.push(
@@ -762,7 +762,7 @@ fn validate_ref_index(
   field : String,
   required_suffix : String,
 ) -> Unit {
-  let seen : Map[String, Bool] = {}
+  let seen : Map[String, Bool] = Map([])
   let mut index = 0
   for path in paths {
     if path.trim() == "" {
@@ -822,7 +822,7 @@ fn validate_autotile_component(
       message: "AutoTileLayer2d palette must not be empty",
     })
   }
-  let seen_terrains : Map[Int, Bool] = {}
+  let seen_terrains : Map[Int, Bool] = Map([])
   for entry in data.palette {
     if entry.terrain <= 0 {
       errors.push({
@@ -887,7 +887,7 @@ fn validate_autotile_component(
       }
     }
   }
-  let seen_cells : Map[String, Bool] = {}
+  let seen_cells : Map[String, Bool] = Map([])
   for cell in data.cells {
     let key = cell.x.to_string() + "," + cell.y.to_string()
     if seen_cells.contains(key) {
@@ -1027,7 +1027,7 @@ pub fn validate_atlas_asset_document(
       message: "Atlas grid dimensions must be positive",
     })
   }
-  let seen_region_names : Map[String, Bool] = {}
+  let seen_region_names : Map[String, Bool] = Map([])
   atlas.regions.each(fn(region) {
     if region.name == "" {
       errors.push({
@@ -1105,7 +1105,7 @@ pub fn validate_animation_graph_asset_document(
       message: "Animation graph name must not be empty",
     })
   }
-  let seen_nodes : Map[String, Bool] = {}
+  let seen_nodes : Map[String, Bool] = Map([])
   for node in graph.nodes {
     if node.id == "" {
       errors.push({

@@ -30,18 +30,18 @@ test "deterministic rng is reproducible with the same seed" {
 test "input queue supports event injection and fallback polling" {
   with_runtime_debug_world(fn() raise {
     clear_queued_inputs()
-    queue_input_event(KeyDown(@inputs.Space))
+    queue_input_event(KeyDown(Space))
     let injected = consume_injected_input_or(fn() {
       @inputs.empty_input_snapshot()
     })
-    inspect(injected.pressed_keys.contains(@inputs.Space), content="true")
+    inspect(injected.pressed_keys.contains(Space), content="true")
     inspect(queued_input_count(), content="0")
     let fallback = consume_injected_input_or(fn() {
       let snapshot = @inputs.empty_input_snapshot()
-      snapshot.pressed_keys.add(@inputs.KeyA)
+      snapshot.pressed_keys.add(KeyA)
       snapshot
     })
-    inspect(fallback.pressed_keys.contains(@inputs.KeyA), content="true")
+    inspect(fallback.pressed_keys.contains(KeyA), content="true")
   })
 }
 
@@ -65,18 +65,18 @@ test "frame metrics track fixed update and render phases" {
 test "atlas validation reports overlaps and out-of-bounds regions" {
   with_runtime_debug_world(fn() raise {
     let rect_a : @math.Rect = {
-      position: @math.Vec2(0.0, 0.0),
-      size: @math.Vec2(8.0, 8.0),
+      position: Vec2(0.0, 0.0),
+      size: Vec2(8.0, 8.0),
     }
     let rect_b : @math.Rect = {
-      position: @math.Vec2(4.0, 4.0),
-      size: @math.Vec2(8.0, 8.0),
+      position: Vec2(4.0, 4.0),
+      size: Vec2(8.0, 8.0),
     }
     let rect_c : @math.Rect = {
-      position: @math.Vec2(14.0, 14.0),
-      size: @math.Vec2(4.0, 4.0),
+      position: Vec2(14.0, 14.0),
+      size: Vec2(4.0, 4.0),
     }
-    let layout = @sprite.TextureAtlasLayout(@math.Vec2(16.0, 16.0), [
+    let layout = @sprite.TextureAtlasLayout(Vec2(16.0, 16.0), [
       rect_a, rect_b, rect_c,
     ])
     let report = validate_texture_atlas_layout(layout)
@@ -105,10 +105,10 @@ test "render submission keeps entity ids and exposes offscreen capture API" {
       camera_entity_id: None,
       entity_id: Some(42U),
       command: Rect({
-        rect: { position: @math.Vec2(0.0, 0.0), size: @math.Vec2(2.0, 2.0) },
+        rect: { position: Vec2(0.0, 0.0), size: Vec2(2.0, 2.0) },
         transform: @math.Transform::identity(),
-        alpha_mode: @render.AlphaMode2D::Opaque,
-        blend_mode: @render.BlendMode2D::Alpha,
+        alpha_mode: Opaque,
+        blend_mode: Alpha,
         fill_color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
         stroke_color: None,
       }),
@@ -130,11 +130,11 @@ test "render submission keeps entity ids and exposes offscreen capture API" {
 test "sprite inspector returns unified sprite debug entries" {
   with_runtime_debug_world(fn() raise {
     let entity = @entity.Entity()
-    @name.names().set(entity, @name.Name("Sprite Debug"))
+    @name.names().set(entity, Name("Sprite Debug"))
     let image = @asset.load_image("assets/debug/sprite.png")
     let source_rect : @math.Rect = {
-      position: @math.Vec2(2.0, 4.0),
-      size: @math.Vec2(8.0, 16.0),
+      position: Vec2(2.0, 4.0),
+      size: Vec2(8.0, 16.0),
     }
     let local_transform = @transform.Transform::from_xyz(12.0, 34.0, 1.0)
     @transform.transforms().set(entity, local_transform)
@@ -144,11 +144,11 @@ test "sprite inspector returns unified sprite debug entries" {
     )
     @sprite.sprites().set(
       entity,
-      @sprite.Sprite(
+      Sprite(
         image=Some(image),
         rect=Some(source_rect),
         flip_x=true,
-        anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
+        anchor=Anchor(Vec2(-0.5, 0.5)),
       ),
     )
     let entries = sprite_inspector_entries()
@@ -170,18 +170,18 @@ test "atlas overlay decoration appends highlight rects when enabled" {
     let draw_image : @render2d_types.ImageDrawCommand2D = {
       image,
       destination: {
-        position: @math.Vec2(10.0, 20.0),
-        size: @math.Vec2(30.0, 40.0),
+        position: Vec2(10.0, 20.0),
+        size: Vec2(30.0, 40.0),
       },
       source: Some({
-        position: @math.Vec2(1.0, 2.0),
-        size: @math.Vec2(3.0, 4.0),
+        position: Vec2(1.0, 2.0),
+        size: Vec2(3.0, 4.0),
       }),
       transform: @math.Transform::identity(),
       uv_transform: @math.Transform::identity(),
-      repeat: @math.NoRepeat,
-      alpha_mode: @render.AlphaMode2D::Blend,
-      blend_mode: @render.BlendMode2D::Alpha,
+      repeat: NoRepeat,
+      alpha_mode: Blend,
+      blend_mode: Alpha,
       color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
     }
     let world_command : @render2d.DrawCommandWithDepth2D = {
@@ -216,18 +216,18 @@ test "frame metadata export includes draw commands and atlas overlay entries" {
     let draw_image : @render2d_types.ImageDrawCommand2D = {
       image,
       destination: {
-        position: @math.Vec2(0.0, 0.0),
-        size: @math.Vec2(16.0, 16.0),
+        position: Vec2(0.0, 0.0),
+        size: Vec2(16.0, 16.0),
       },
       source: Some({
-        position: @math.Vec2(4.0, 5.0),
-        size: @math.Vec2(6.0, 7.0),
+        position: Vec2(4.0, 5.0),
+        size: Vec2(6.0, 7.0),
       }),
       transform: @math.Transform::identity(),
       uv_transform: @math.Transform::identity(),
-      repeat: @math.NoRepeat,
-      alpha_mode: @render.AlphaMode2D::Blend,
-      blend_mode: @render.BlendMode2D::Alpha,
+      repeat: NoRepeat,
+      alpha_mode: Blend,
+      blend_mode: Alpha,
       color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
     }
     let world_command : @render2d.DrawCommandWithDepth2D = {
@@ -325,7 +325,7 @@ test "export texture region png returns false for missing image path" {
     inspect(
       export_texture_region_png(
         "/tmp/selene_runtime_debug_missing.png",
-        { position: @math.Vec2(0.0, 0.0), size: @math.Vec2(1.0, 1.0) },
+        { position: Vec2(0.0, 0.0), size: Vec2(1.0, 1.0) },
         "/tmp/selene_runtime_debug_missing_out.png",
       ),
       content="false",

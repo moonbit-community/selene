@@ -125,7 +125,7 @@ pub fn Vec3::lerp(self : Vec3, other : Vec3, alpha : Double) -> Vec3 {
 
 ///|
 pub fn Vec3::to_rapier(self : Vec3) -> @rcore.Vec3 {
-  @rcore.Vec3(
+  Vec3(
     Float::from_double(self.x),
     Float::from_double(self.y),
     Float::from_double(self.z),
@@ -282,7 +282,7 @@ pub fn Quat::from_basis(x_axis : Vec3, y_axis : Vec3, z_axis : Vec3) -> Quat {
 
 ///|
 pub fn Quat::to_rapier(self : Quat) -> @rcore.Quat {
-  @rcore.Quat(
+  Quat(
     Float::from_double(self.x),
     Float::from_double(self.y),
     Float::from_double(self.z),

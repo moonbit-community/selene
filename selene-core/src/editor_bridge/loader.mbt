@@ -180,7 +180,7 @@ fn load_animation_graph_assets_for_scene(
   source : DocumentSource,
   scene : SceneDocument,
 ) -> Map[String, AnimationGraphAssetDocument] raise {
-  let assets : Map[String, AnimationGraphAssetDocument] = {}
+  let assets : Map[String, AnimationGraphAssetDocument] = Map([])
   for path in scene_referenced_animation_graph_assets(scene) {
     assets.set(
       path,
@@ -195,7 +195,7 @@ fn load_animation_clip_assets_for_scene(
   source : DocumentSource,
   graphs : Map[String, AnimationGraphAssetDocument],
 ) -> Map[String, AnimationClipAssetDocument] raise {
-  let assets : Map[String, AnimationClipAssetDocument] = {}
+  let assets : Map[String, AnimationClipAssetDocument] = Map([])
   for path in graph_referenced_clip_assets(graphs) {
     assets.set(
       path,
@@ -211,7 +211,7 @@ fn load_atlas_assets_for_scene(
   scene : SceneDocument,
   clips : Map[String, AnimationClipAssetDocument],
 ) -> Map[String, AtlasAssetDocument] raise {
-  let assets : Map[String, AtlasAssetDocument] = {}
+  let assets : Map[String, AtlasAssetDocument] = Map([])
   let paths = scene_referenced_atlas_assets(scene)
   for path in clip_referenced_atlas_assets(clips) {
     if !paths.contains(path) {

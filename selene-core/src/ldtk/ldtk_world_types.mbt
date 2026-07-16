@@ -6,7 +6,7 @@ fn set_entity_translation_2d(
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
     ..current,
-    translation: @math.Vec3(position[X], position[Y], current.translation.z),
+    translation: Vec3(position[X], position[Y], current.translation.z),
   })
 }
 
@@ -15,7 +15,7 @@ fn set_entity_depth(entity : @entity.Entity, z : Int) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
     ..current,
-    translation: @math.Vec3(
+    translation: Vec3(
       current.translation.x,
       current.translation.y,
       z.to_double(),
@@ -34,10 +34,10 @@ fn ldtk_sprite_anchor_for_pixel_offset(
   size : @math.Vec2,
 ) -> @sprite.Anchor {
   if size[X].abs() <= 0.000000001 || size[Y].abs() <= 0.000000001 {
-    return @sprite.Anchor(@math.Vec2(-0.5, 0.5))
+    return Anchor(Vec2(-0.5, 0.5))
   }
-  @sprite.Anchor(
-    @math.Vec2(-(offset[X] / size[X]) - 0.5, offset[Y] / size[Y] + 0.5),
+  Anchor(
+    Vec2(-(offset[X] / size[X]) - 0.5, offset[Y] / size[Y] + 0.5),
   )
 }
 

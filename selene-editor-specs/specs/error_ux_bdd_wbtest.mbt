@@ -239,7 +239,7 @@ async test "bdd error ux dirty scene file delta enters explicit conflict state" 
       content="Scene changed on disk while local edits are unsaved",
     )
     match harness.scene_conflict_state() {
-      Some(@app.ExternalSceneChanged(path~, disk_hash~, disk_revision~)) => {
+      Some(ExternalSceneChanged(path~, disk_hash~, disk_revision~)) => {
         inspect(path, content=harness.scene_path())
         inspect(disk_hash, content="disk-hash")
         inspect(disk_revision, content="22")
@@ -270,7 +270,7 @@ async test "bdd error ux keep mine clears conflict without dropping local edits"
     inspect(harness.scene_dirty(), content="true")
     inspect(harness.status(), content="Keeping local scene edits")
     match harness.scene_conflict_state() {
-      Some(@app.NoConflict) => inspect(true, content="true")
+      Some(NoConflict) => inspect(true, content="true")
       _ => fail("expected conflict state to be cleared")
     }
   })
@@ -300,7 +300,7 @@ async test "bdd error ux reload disk resolves conflict and restores clean sessio
     inspect(harness.scene().unwrap().name, content="Disk Version")
     inspect(harness.status(), content="Loaded " + harness.scene_path())
     match harness.scene_conflict_state() {
-      Some(@app.NoConflict) => inspect(true, content="true")
+      Some(NoConflict) => inspect(true, content="true")
       _ => fail("expected conflict state to be cleared")
     }
   })

@@ -21,7 +21,7 @@ fn empty_scene_session(path : String) -> SceneSession {
     base_hash: "",
     base_revision: 0,
     last_saved_at: 0,
-    conflict_state: SceneConflictState::NoConflict,
+    conflict_state: NoConflict,
     undo_stack: [],
     redo_stack: [],
     active_scene_edit_transaction: None,
@@ -133,7 +133,7 @@ fn with_recorded_scene_change(previous : Model, next : Model) -> Model {
         Some({
           ..after,
           dirty: true,
-          conflict_state: SceneConflictState::NoConflict,
+          conflict_state: NoConflict,
           undo_stack,
           redo_stack: [],
           active_scene_edit_transaction: None,
@@ -173,7 +173,7 @@ fn with_committed_scene_edit_transaction(model : Model) -> Model {
             Some({
               ..session,
               dirty: true,
-              conflict_state: SceneConflictState::NoConflict,
+              conflict_state: NoConflict,
               undo_stack,
               redo_stack: [],
               active_scene_edit_transaction: None,
@@ -214,9 +214,9 @@ fn is_scene_edit_continuation(msg : Msg) -> Bool {
     | UpdateSelectedRotation(_)
     | UpdateSelectedText(_)
     | CommitSceneEditTransaction
-    | PreviewEvent(@bridge.TransformGestureStarted(..))
-    | PreviewEvent(@bridge.TransformChanged(..))
-    | PreviewEvent(@bridge.TransformGestureFinished(..)) => true
+    | PreviewEvent(TransformGestureStarted(..))
+    | PreviewEvent(TransformChanged(..))
+    | PreviewEvent(TransformGestureFinished(..)) => true
     _ => false
   }
 }

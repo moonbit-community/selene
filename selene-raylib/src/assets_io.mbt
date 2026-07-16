@@ -30,8 +30,8 @@ fn upload_lighting_uniforms(
   let state = get_lighting_shader_state()
   let shader = state.shader
   let default_shadow_rect : ShadowAtlasRect = {
-    offset: @smath.Vec2(0.0, 0.0),
-    scale: @smath.Vec2(0.0, 0.0),
+    offset: Vec2(0.0, 0.0),
+    scale: Vec2(0.0, 0.0),
   }
   let ambient = frame.ambient_light
     .map(fn(light) { light_rgb(light.color, light.intensity) })
@@ -47,7 +47,7 @@ fn upload_lighting_uniforms(
   ) {
     normalize_or(
       active_camera.target - active_camera.position,
-      @smath.Vec3(0.0, 0.0, -1.0),
+      Vec3(0.0, 0.0, -1.0),
     )
   })
   set_shader_uniform(
@@ -65,7 +65,7 @@ fn upload_lighting_uniforms(
   for index in 0..<directional_count {
     let light = frame.directional_lights[index]
     directional_directions.push(
-      normalize_or(light.direction, @smath.Vec3(0.0, -1.0, 0.0)),
+      normalize_or(light.direction, Vec3(0.0, -1.0, 0.0)),
     )
     directional_colors.push(light_rgb(light.color, light.intensity))
   }
@@ -77,14 +77,14 @@ fn upload_lighting_uniforms(
   set_shader_uniform_v(
     shader,
     state.directional_directions_loc,
-    @raylib.ShaderUniformDataV::Vec3(
+    Vec3(
       to_ray_vec3_array(directional_directions, directional_count),
     ),
   )
   set_shader_uniform_v(
     shader,
     state.directional_colors_loc,
-    @raylib.ShaderUniformDataV::Vec3(
+    Vec3(
       to_ray_vec3_array(directional_colors, directional_count),
     ),
   )
@@ -136,8 +136,8 @@ fn upload_lighting_uniforms(
       set_shader_uniform(
         shader,
         state.shadow_bound_locs[matrix_index],
-        cascade.map_or(uniform_vec2(@smath.Vec2(0.0, 0.0)), fn(value) {
-          uniform_vec2(@smath.Vec2(value.near_bound, value.far_bound))
+        cascade.map_or(uniform_vec2(Vec2(0.0, 0.0)), fn(value) {
+          uniform_vec2(Vec2(value.near_bound, value.far_bound))
         }),
       )
     }
@@ -146,7 +146,7 @@ fn upload_lighting_uniforms(
     shader,
     state.directional_shadow_texel_size_loc,
     uniform_vec2(
-      shadow_state.map_or(@smath.Vec2(0.0, 0.0), fn(value) {
+      shadow_state.map_or(Vec2(0.0, 0.0), fn(value) {
         value.directional_texel_size
       }),
     ),
@@ -166,21 +166,21 @@ fn upload_lighting_uniforms(
   set_shader_uniform_v(
     shader,
     state.point_positions_loc,
-    @raylib.ShaderUniformDataV::Vec3(
+    Vec3(
       to_ray_vec3_array(point_positions, point_count),
     ),
   )
   set_shader_uniform_v(
     shader,
     state.point_colors_loc,
-    @raylib.ShaderUniformDataV::Vec3(
+    Vec3(
       to_ray_vec3_array(point_colors, point_count),
     ),
   )
   set_shader_uniform_v(
     shader,
     state.point_ranges_loc,
-    @raylib.ShaderUniformDataV::Float(to_float_array(point_ranges, point_count)),
+    Float(to_float_array(point_ranges, point_count)),
   )
 
   let spot_count = @cmp.minimum(frame.spot_lights.length(), MAX_SPOT_LIGHTS)
@@ -194,11 +194,11 @@ fn upload_lighting_uniforms(
     let outer = @cmath.cos(light.outer_angle)
     spot_positions.push(light.position)
     spot_directions.push(
-      normalize_or(light.direction, @smath.Vec3(0.0, -1.0, 0.0)),
+      normalize_or(light.direction, Vec3(0.0, -1.0, 0.0)),
     )
     spot_colors.push(light_rgb(light.color, light.intensity))
     spot_params.push(
-      @smath.Vec3(
+      Vec3(
         light.range,
         @cmp.maximum(inner, outer),
         @cmp.minimum(inner, outer),
@@ -209,26 +209,26 @@ fn upload_lighting_uniforms(
   set_shader_uniform_v(
     shader,
     state.spot_positions_loc,
-    @raylib.ShaderUniformDataV::Vec3(
+    Vec3(
       to_ray_vec3_array(spot_positions, spot_count),
     ),
   )
   set_shader_uniform_v(
     shader,
     state.spot_directions_loc,
-    @raylib.ShaderUniformDataV::Vec3(
+    Vec3(
       to_ray_vec3_array(spot_directions, spot_count),
     ),
   )
   set_shader_uniform_v(
     shader,
     state.spot_colors_loc,
-    @raylib.ShaderUniformDataV::Vec3(to_ray_vec3_array(spot_colors, spot_count)),
+    Vec3(to_ray_vec3_array(spot_colors, spot_count)),
   )
   set_shader_uniform_v(
     shader,
     state.spot_params_loc,
-    @raylib.ShaderUniformDataV::Vec3(to_ray_vec3_array(spot_params, spot_count)),
+    Vec3(to_ray_vec3_array(spot_params, spot_count)),
   )
   for index in 0..<MAX_SPOT_LIGHTS {
     let shadow = match shadow_state {
@@ -269,7 +269,7 @@ fn upload_lighting_uniforms(
     shader,
     state.spot_shadow_texel_size_loc,
     uniform_vec2(
-      shadow_state.map_or(@smath.Vec2(0.0, 0.0), fn(value) {
+      shadow_state.map_or(Vec2(0.0, 0.0), fn(value) {
         value.spot_texel_size
       }),
     ),
@@ -318,7 +318,7 @@ fn upload_lighting_uniforms(
     shader,
     state.point_shadow_texel_size_loc,
     uniform_vec2(
-      shadow_state.map_or(@smath.Vec2(0.0, 0.0), fn(value) {
+      shadow_state.map_or(Vec2(0.0, 0.0), fn(value) {
         value.point_texel_size
       }),
     ),

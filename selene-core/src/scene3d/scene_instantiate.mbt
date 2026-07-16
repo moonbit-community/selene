@@ -124,12 +124,12 @@ fn instantiate_scene_node(
   }
   parts.set(entity_path, entity)
   node_entities.set(node_index, entity)
-  @name.names().set(entity, @name.Name(entity_name))
+  @name.names().set(entity, Name(entity_name))
   @animation.animation_target_ids().set(
     entity,
-    @animation.AnimationTargetId(entity_path),
+    AnimationTargetId(entity_path),
   )
-  @animation.animated_bys().set(entity, @animation.AnimatedBy(root_entity))
+  @animation.animated_bys().set(entity, AnimatedBy(root_entity))
   @transform.transforms().set(entity, node.transform)
   if node.camera is Some(camera) {
     @camera3d.cameras3d().set(entity, camera)
@@ -433,7 +433,7 @@ fn assign_scene_node_target_ids(
     path_base
   }
   seen_paths.add(path)
-  output.set(node_index, @animation.AnimationTargetId(path))
+  output.set(node_index, AnimationTargetId(path))
   for child_index in node.children {
     assign_scene_node_target_ids(
       nodes,

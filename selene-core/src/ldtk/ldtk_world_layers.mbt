@@ -164,13 +164,13 @@ pub fn ldtk_entity_tile_sprite(
   ignore(zindex)
   let target_size = @math.Vec2(source_width * scale_x, source_height * scale_y)
   Some(
-    @sprite.Sprite(
+    Sprite(
       image=Some(image),
       rect=Some({
-        position: @math.Vec2(tile.x.to_double(), tile.y.to_double()),
-        size: @math.Vec2(source_width, source_height),
+        position: Vec2(tile.x.to_double(), tile.y.to_double()),
+        size: Vec2(source_width, source_height),
       }),
-      color=@render.Color::{ r: 255U, g: 255U, b: 255U, a: 1.0 },
+      color={ r: 255U, g: 255U, b: 255U, a: 1.0 },
       custom_size=Some(target_size),
       anchor=ldtk_sprite_anchor_for_pixel_offset(pivot_offset, target_size),
     ),

@@ -5,15 +5,15 @@ fn rect_equals(lhs : @math.Rect, rhs : @math.Rect) -> Bool {
 
 ///|
 fn rect_overlap(lhs : @math.Rect, rhs : @math.Rect) -> Bool {
-  let l_min_x = lhs.position[@math.X]
-  let l_min_y = lhs.position[@math.Y]
-  let l_max_x = lhs.position[@math.X] + lhs.size[@math.X]
-  let l_max_y = lhs.position[@math.Y] + lhs.size[@math.Y]
+  let l_min_x = lhs.position[X]
+  let l_min_y = lhs.position[Y]
+  let l_max_x = lhs.position[X] + lhs.size[X]
+  let l_max_y = lhs.position[Y] + lhs.size[Y]
 
-  let r_min_x = rhs.position[@math.X]
-  let r_min_y = rhs.position[@math.Y]
-  let r_max_x = rhs.position[@math.X] + rhs.size[@math.X]
-  let r_max_y = rhs.position[@math.Y] + rhs.size[@math.Y]
+  let r_min_x = rhs.position[X]
+  let r_min_y = rhs.position[Y]
+  let r_max_x = rhs.position[X] + rhs.size[X]
+  let r_max_y = rhs.position[Y] + rhs.size[Y]
 
   l_min_x < r_max_x &&
   l_max_x > r_min_x &&
@@ -77,7 +77,7 @@ pub fn validate_texture_atlas_layout_for_image(
   let atlas_size = @sprite.texture_atlas_layout_size(layout)
   let rects = @sprite.texture_atlas_layout_rects(layout)
   let issues : Array[AtlasValidationIssue] = []
-  if atlas_size[@math.X] <= 0.0 || atlas_size[@math.Y] <= 0.0 {
+  if atlas_size[X] <= 0.0 || atlas_size[Y] <= 0.0 {
     issues.push({
       kind: InvalidAtlasSize,
       rect_index: None,
@@ -86,7 +86,7 @@ pub fn validate_texture_atlas_layout_for_image(
     })
   }
   for index, rect in rects {
-    if rect.size[@math.X] <= 0.0 || rect.size[@math.Y] <= 0.0 {
+    if rect.size[X] <= 0.0 || rect.size[Y] <= 0.0 {
       issues.push({
         kind: InvalidRectSize,
         rect_index: Some(index),
@@ -94,12 +94,12 @@ pub fn validate_texture_atlas_layout_for_image(
         message: "Frame rect size must be positive",
       })
     }
-    let max_x = rect.position[@math.X] + rect.size[@math.X]
-    let max_y = rect.position[@math.Y] + rect.size[@math.Y]
-    if rect.position[@math.X] < 0.0 ||
-      rect.position[@math.Y] < 0.0 ||
-      max_x > atlas_size[@math.X] ||
-      max_y > atlas_size[@math.Y] {
+    let max_x = rect.position[X] + rect.size[X]
+    let max_y = rect.position[Y] + rect.size[Y]
+    if rect.position[X] < 0.0 ||
+      rect.position[Y] < 0.0 ||
+      max_x > atlas_size[X] ||
+      max_y > atlas_size[Y] {
       issues.push({
         kind: OutOfBounds,
         rect_index: Some(index),

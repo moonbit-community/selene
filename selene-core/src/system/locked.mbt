@@ -87,8 +87,8 @@ pub fn sync_mouse_lock_system(_delta : Double) -> Unit {
     mouse_lock_enabled.val,
     mouse_lock_requested.val,
     mouse_lock_active.val,
-    @inputs.is_just_pressed(@inputs.Escape),
-    @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left),
+    @inputs.is_just_pressed(Escape),
+    @inputs.is_mouse_just_pressed(Left),
   )
   mouse_lock_active.val = @platform_input.set_mouse_lock(
     mouse_lock_requested.val,

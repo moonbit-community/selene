@@ -34,7 +34,7 @@ fn atlas_animation(
   space_x? : Double = 0.0,
   fps? : Double = 12.0,
   loop_? : Bool = true,
-  anchor? : @sprite.Anchor = @sprite.Anchor(@math.Vec2(0.0, 0.0)),
+  anchor? : @sprite.Anchor = Anchor(Vec2(0.0, 0.0)),
   flip_x? : Bool = false,
   flip_y? : Bool = false,
 ) -> SpriteAnimationDef {
@@ -46,7 +46,7 @@ fn atlas_animation(
         size,
         frame_count,
         1,
-        padding=Some(@math.Vec2(space_x, 0.0)),
+        padding=Some(Vec2(space_x, 0.0)),
         offset=Some(offset),
       ),
     ),
@@ -61,9 +61,9 @@ fn atlas_animation(
 
 ///|
 fn sprite_animation_sprite(animation : SpriteAnimationDef) -> @sprite.Sprite {
-  @sprite.Sprite(
+  Sprite(
     image=Some(@asset.load_image(animation.image_path)),
-    texture_atlas=Some(@sprite.TextureAtlas(animation.layout)),
+    texture_atlas=Some(TextureAtlas(animation.layout)),
     custom_size=Some(animation.size),
     anchor=animation.anchor,
     flip_x=animation.flip_x,
@@ -76,9 +76,9 @@ fn static_region_sprite(
   path : String,
   size : @math.Vec2,
   rect? : @math.Rect? = None,
-  anchor? : @sprite.Anchor = @sprite.Anchor(@math.Vec2(0.0, 0.0)),
+  anchor? : @sprite.Anchor = Anchor(Vec2(0.0, 0.0)),
 ) -> @sprite.Sprite {
-  @sprite.Sprite(
+  Sprite(
     image=Some(@asset.load_image(path)),
     rect~,
     custom_size=Some(size),
@@ -166,7 +166,7 @@ fn grass_sprite() -> @sprite.Sprite {
     "assets/survivors/tilesets/decor_16x16.png",
     Vec2(16.0, 16.0),
     rect=Some({ position: Vec2(0.0, 0.0), size: Vec2(16.0, 16.0) }),
-    anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
+    anchor=Anchor(Vec2(-0.5, 0.5)),
   )
 }
 

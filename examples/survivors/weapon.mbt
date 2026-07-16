@@ -147,11 +147,11 @@ let player_bullets : Map[@entity.Entity, PlayerBulletState] = Map([])
 ///|
 let player_bullet_trigger_event_reader : @event.EventReader[
   @physics2d.TriggerEvent,
-] = @event.EventReader()
+] = EventReader()
 
 ///|
 fn player_bullet_visual() -> @sprite.Sprite {
-  @sprite.Sprite(
+  Sprite(
     image=Some(@asset.load_image("assets/survivors/icon/bullet.png")),
     custom_size=Some(Vec2(12.0, 12.0)),
   )
@@ -236,9 +236,9 @@ fn shoot_weapon_bullet(
   @physics2d.linear_velocities().set(bullet_entity, vel)
   @physics2d.shapes().set(
     bullet_entity,
-    @physics2d.CollisionShape::Rect(
-      size=@math.Vec2(bullet_hitbox_size, bullet_hitbox_size),
-      offset=@math.Vec2(-bullet_hitbox_size / 2.0, -bullet_hitbox_size / 2.0),
+    Rect(
+      size=Vec2(bullet_hitbox_size, bullet_hitbox_size),
+      offset=Vec2(-bullet_hitbox_size / 2.0, -bullet_hitbox_size / 2.0),
     ),
   )
   let area = @physics2d.sensor(

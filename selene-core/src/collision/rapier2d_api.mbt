@@ -106,7 +106,7 @@ pub fn raycast(
         {
           entity,
           toi,
-          point: @math.Vec2(
+          point: Vec2(
             origin[X] + normalized[X] * toi,
             origin[Y] + normalized[Y] * toi,
           ),
@@ -122,7 +122,7 @@ pub fn shape_cast(
   shape : CollisionShape,
   origin : @math.Vec2,
   rotation? : Double = 0.0,
-  direction? : @math.Vec2 = @math.Vec2(0.0, -1.0),
+  direction? : @math.Vec2 = Vec2(0.0, -1.0),
   max_toi? : Double = 1000.0,
   stop_at_penetration? : Bool = false,
   query_filter? : SpatialQueryFilter = SpatialQueryFilter::default(),

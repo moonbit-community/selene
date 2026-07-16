@@ -1,21 +1,21 @@
 ///|
 fn scene3d_move_left_action() -> @input_action.InputAction {
-  @input_action.InputAction("scene3d.move-left")
+  InputAction("scene3d.move-left")
 }
 
 ///|
 fn scene3d_move_right_action() -> @input_action.InputAction {
-  @input_action.InputAction("scene3d.move-right")
+  InputAction("scene3d.move-right")
 }
 
 ///|
 fn scene3d_move_forward_action() -> @input_action.InputAction {
-  @input_action.InputAction("scene3d.move-forward")
+  InputAction("scene3d.move-forward")
 }
 
 ///|
 fn scene3d_move_back_action() -> @input_action.InputAction {
-  @input_action.InputAction("scene3d.move-back")
+  InputAction("scene3d.move-back")
 }
 
 ///|

@@ -22,7 +22,7 @@ const BUTTON_ZINDEX : Int = 110
 const BUTTON_LABEL_ZINDEX : Int = 111
 
 ///|
-let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = @event.EventReader()
+let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = EventReader()
 
 ///|
 priv enum TouchAction {
@@ -33,13 +33,13 @@ priv enum TouchAction {
 
 ///|
 fn set_text(entity : @entity.Entity, content : String) -> Unit {
-  let text = @ui.texts().get_or_init(entity, fn() { @ui.Text(content) })
+  let text = @ui.texts().get_or_init(entity, fn() { Text(content) })
   text.content = content
 }
 
 ///|
 fn with_display(node : @ui.Node, display : @ui.Display) -> @ui.Node {
-  @ui.Node(
+  Node(
     width=node.width,
     height=node.height,
     min_width=node.min_width,
@@ -72,7 +72,7 @@ fn with_display(node : @ui.Node, display : @ui.Display) -> @ui.Node {
 fn set_display(entity : @entity.Entity, display : @ui.Display) -> Unit {
   match @ui.nodes().get(entity) {
     Some(node) => @ui.nodes().set(entity, with_display(node, display))
-    None => @ui.nodes().set(entity, @ui.Node(display~))
+    None => @ui.nodes().set(entity, Node(display~))
   }
 }
 
@@ -83,17 +83,17 @@ fn configure_text(
   content : String,
   color : String,
   font : String,
-  size? : @math.Vec2 = @math.Vec2(-1.0, -1.0),
-  align? : @math.HAlign = @math.HAlign::Left,
-  baseline? : @math.VAlign = @math.VAlign::Top,
+  size? : @math.Vec2 = Vec2(-1.0, -1.0),
+  align? : @math.HAlign = Left,
+  baseline? : @math.VAlign = Top,
   zindex? : Int = HUD_ZINDEX,
 ) -> Unit {
   @ui.nodes().set(entity, @ui.Node::absolute(offset, size~))
-  @ui.z_indexes().set(entity, @ui.ZIndex(zindex))
+  @ui.z_indexes().set(entity, ZIndex(zindex))
   set_text(entity, content)
   @ui.text_fonts().set(entity, @ui.TextFont::from_css(font))
   @ui.text_colors().set(entity, @ui.TextColor::from_css(color))
-  @ui.text_layouts().set(entity, @ui.TextLayout(align~, baseline~))
+  @ui.text_layouts().set(entity, TextLayout(align~, baseline~))
 }
 
 ///|
@@ -105,11 +105,11 @@ fn configure_button(
   tab_index : Int,
 ) -> Unit {
   @ui.nodes().set(entity, @ui.Node::absolute(offset, size~))
-  @ui.z_indexes().set(entity, @ui.ZIndex(BUTTON_ZINDEX))
+  @ui.z_indexes().set(entity, ZIndex(BUTTON_ZINDEX))
   @ui.background_colors().set(entity, @ui.BackgroundColor::from_css(background))
   @ui.border_radii().set(entity, @ui.BorderRadius::all(@ui.Val::px(6.0)))
-  @ui.buttons().set(entity, @ui.Button())
-  @ui.tab_indexes().set(entity, @ui.TabIndex(tab_index))
+  @ui.buttons().set(entity, Button())
+  @ui.tab_indexes().set(entity, TabIndex(tab_index))
 }
 
 ///|
@@ -122,64 +122,64 @@ fn setup_ui() -> Unit {
   )
   @sprite.sprites().set(
     table_entity,
-    @sprite.Sprite(
+    Sprite(
       color=@sprite.color_from_css("#2d5016"),
-      custom_size=Some(@math.Vec2(VIEWPORT_WIDTH, VIEWPORT_HEIGHT)),
-      anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
+      custom_size=Some(Vec2(VIEWPORT_WIDTH, VIEWPORT_HEIGHT)),
+      anchor=Anchor(Vec2(-0.5, 0.5)),
     ),
   )
 
   configure_text(
     game_state.blind_label,
-    @math.Vec2(VIEWPORT_WIDTH / 2.0 - 80.0, 20.0),
+    Vec2(VIEWPORT_WIDTH / 2.0 - 80.0, 20.0),
     "Blind: $20",
     "gold",
     "20px ThaleahFat",
-    size=@math.Vec2(160.0, 24.0),
-    align=@math.HAlign::Center,
+    size=Vec2(160.0, 24.0),
+    align=Center,
   )
   configure_text(
     game_state.chips_label,
-    @math.Vec2(VIEWPORT_WIDTH / 2.0 - 80.0, 42.0),
+    Vec2(VIEWPORT_WIDTH / 2.0 - 80.0, 42.0),
     "Chips: $1000",
     "lightgreen",
     "18px ThaleahFat",
-    size=@math.Vec2(160.0, 22.0),
-    align=@math.HAlign::Center,
+    size=Vec2(160.0, 22.0),
+    align=Center,
   )
   configure_text(
     game_state.phase_label,
-    @math.Vec2(20.0, 20.0),
+    Vec2(20.0, 20.0),
     "Pre-Flop",
     "white",
     "18px ThaleahFat",
   )
   configure_text(
     game_state.turns_label,
-    @math.Vec2(VIEWPORT_WIDTH - 110.0, 20.0),
+    Vec2(VIEWPORT_WIDTH - 110.0, 20.0),
     "Turns: 10/10",
     "white",
     "18px ThaleahFat",
-    size=@math.Vec2(90.0, 22.0),
-    align=@math.HAlign::Right,
+    size=Vec2(90.0, 22.0),
+    align=Right,
   )
   configure_text(
     game_state.hand_strength_label,
-    @math.Vec2(VIEWPORT_WIDTH / 2.0 - 100.0, VIEWPORT_HEIGHT / 2.0 - 82.0),
+    Vec2(VIEWPORT_WIDTH / 2.0 - 100.0, VIEWPORT_HEIGHT / 2.0 - 82.0),
     "",
     "cyan",
     "16px ThaleahFat",
-    size=@math.Vec2(200.0, 20.0),
-    align=@math.HAlign::Center,
+    size=Vec2(200.0, 20.0),
+    align=Center,
   )
   configure_text(
     game_state.action_label,
-    @math.Vec2(VIEWPORT_WIDTH / 2.0 - 110.0, VIEWPORT_HEIGHT - 64.0),
+    Vec2(VIEWPORT_WIDTH / 2.0 - 110.0, VIEWPORT_HEIGHT - 64.0),
     "",
     "yellow",
     "16px ThaleahFat",
-    size=@math.Vec2(220.0, 20.0),
-    align=@math.HAlign::Center,
+    size=Vec2(220.0, 20.0),
+    align=Center,
   )
 
   create_action_buttons()
@@ -219,8 +219,8 @@ fn create_action_buttons() -> Unit {
     "white",
     "16px ThaleahFat",
     size=button_size,
-    align=@math.HAlign::Center,
-    baseline=@math.VAlign::Center,
+    align=Center,
+    baseline=Center,
     zindex=BUTTON_LABEL_ZINDEX,
   )
 
@@ -238,8 +238,8 @@ fn create_action_buttons() -> Unit {
     "white",
     "16px ThaleahFat",
     size=button_size,
-    align=@math.HAlign::Center,
-    baseline=@math.VAlign::Center,
+    align=Center,
+    baseline=Center,
     zindex=BUTTON_LABEL_ZINDEX,
   )
 
@@ -257,8 +257,8 @@ fn create_action_buttons() -> Unit {
     "white",
     "16px ThaleahFat",
     size=button_size,
-    align=@math.HAlign::Center,
-    baseline=@math.VAlign::Center,
+    align=Center,
+    baseline=Center,
     zindex=BUTTON_LABEL_ZINDEX,
   )
 
@@ -270,38 +270,38 @@ fn create_action_buttons() -> Unit {
 fn show_action_buttons() -> Unit {
   game_state.waiting_for_player = true
   let show_fold_and_raise = game_state.phase != River
-  set_display(game_state.call_button, @ui.Display::Flex)
-  set_display(game_state.call_button_label, @ui.Display::Flex)
+  set_display(game_state.call_button, Flex)
+  set_display(game_state.call_button_label, Flex)
   set_display(
     game_state.fold_button,
     if show_fold_and_raise {
-      @ui.Display::Flex
+      Flex
     } else {
-      @ui.Display::None
+      None
     },
   )
   set_display(
     game_state.fold_button_label,
     if show_fold_and_raise {
-      @ui.Display::Flex
+      Flex
     } else {
-      @ui.Display::None
+      None
     },
   )
   set_display(
     game_state.raise_button,
     if show_fold_and_raise {
-      @ui.Display::Flex
+      Flex
     } else {
-      @ui.Display::None
+      None
     },
   )
   set_display(
     game_state.raise_button_label,
     if show_fold_and_raise {
-      @ui.Display::Flex
+      Flex
     } else {
-      @ui.Display::None
+      None
     },
   )
 
@@ -326,7 +326,7 @@ fn hide_action_buttons() -> Unit {
       game_state.raise_button,
       game_state.raise_button_label,
     ] {
-    set_display(entity, @ui.Display::None)
+    set_display(entity, None)
   }
 }
 
@@ -413,7 +413,7 @@ fn handle_cards_touch_shortcuts() -> Bool {
   }
   let screen = @system.get_screen_size()
   for event in @ui.unconsumed_touch_changes_this_frame() {
-    if event.primary && event.phase == @inputs.TouchPhase::Ended {
+    if event.primary && event.phase == Ended {
       match touch_action_at(event.position, screen) {
         Some(action) => {
           apply_touch_action(action)

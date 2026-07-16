@@ -118,15 +118,15 @@ fn animation_player_component_body(
 ) -> @rabbita.Html {
   let repeat_mode = player.repeat_mode_doc()
   let is_forever = match repeat_mode {
-    @editor_bridge.Forever => true
+    Forever => true
     _ => false
   }
   let is_never = match repeat_mode {
-    @editor_bridge.Never => true
+    Never => true
     _ => false
   }
   let is_count = match repeat_mode {
-    @editor_bridge.Count(_) => true
+    Count(_) => true
     _ => false
   }
   @html.div(class="inspector-block", [
@@ -151,9 +151,9 @@ fn animation_player_component_body(
       @html.span(
         class="kv-value",
         match repeat_mode {
-          @editor_bridge.Never => "Never"
-          @editor_bridge.Forever => "Forever"
-          @editor_bridge.Count(count) => "Count (\{count})"
+          Never => "Never"
+          Forever => "Forever"
+          Count(count) => "Count (\{count})"
         },
       ),
     ]),
@@ -181,7 +181,7 @@ fn animation_player_component_body(
       ),
     ]),
     match repeat_mode {
-      @editor_bridge.Count(count) =>
+      Count(count) =>
         labeled_input_with_commit(
           "Repeat Count",
           count.to_string(),
@@ -238,9 +238,9 @@ fn animation_graph_node_kind_label(
   kind : @editor_bridge.AnimationGraphNodeKind,
 ) -> String {
   match kind {
-    @editor_bridge.Clip(..) => "Clip"
-    @editor_bridge.Blend => "Blend"
-    @editor_bridge.AdditiveBlend => "AdditiveBlend"
+    Clip(..) => "Clip"
+    Blend => "Blend"
+    AdditiveBlend => "AdditiveBlend"
   }
 }
 
@@ -249,7 +249,7 @@ fn animation_graph_node_clip_path(
   kind : @editor_bridge.AnimationGraphNodeKind,
 ) -> String? {
   match kind {
-    @editor_bridge.Clip(clip_asset_path~) => Some(clip_asset_path)
+    Clip(clip_asset_path~) => Some(clip_asset_path)
     _ => None
   }
 }
@@ -615,9 +615,9 @@ fn autotile_rule_set_label(
   rule_set : @editor_bridge.AutoTileRuleSetDocument,
 ) -> String {
   match rule_set {
-    @editor_bridge.Bitmask4 => "Bitmask4"
-    @editor_bridge.Bitmask8 => "Bitmask8"
-    @editor_bridge.Wang => "Wang"
+    Bitmask4 => "Bitmask4"
+    Bitmask8 => "Bitmask8"
+    Wang => "Wang"
   }
 }
 

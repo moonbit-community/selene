@@ -12,9 +12,9 @@ fn spawn_test_camera(viewport : @math.Rect) -> @entity.Entity {
   let camera_entity = @entity.Entity()
   @camera.cameras().set(
     camera_entity,
-    @camera.Camera(viewport=Some(@camera.CameraViewport::from_rect(viewport))),
+    Camera(viewport=Some(@camera.CameraViewport::from_rect(viewport))),
   )
-  @camera.camera2ds().set(camera_entity, @camera.Camera2d())
+  @camera.camera2ds().set(camera_entity, Camera2d())
   @transform.global_transforms().set(
     camera_entity,
     @transform.GlobalTransform::from_transform(
@@ -31,7 +31,7 @@ fn spawn_color_sprite(position : @math.Vec2) -> @entity.Entity {
     entity,
     Sprite::from_color(
       { r: 255U, g: 255U, b: 255U, a: 1.0 },
-      @math.Vec2(16.0, 16.0),
+      Vec2(16.0, 16.0),
     ),
   )
   @transform.global_transforms().set(
@@ -50,9 +50,9 @@ test "sprite rendering skips cameras whose viewport does not intersect the sprit
     @render2d.begin_frame2d_system(0.0)
     let camera_entity = spawn_test_camera({
       position: @math.Vec2::zero(),
-      size: @math.Vec2(100.0, 100.0),
+      size: Vec2(100.0, 100.0),
     })
-    let sprite_entity = spawn_color_sprite(@math.Vec2(200.0, 200.0))
+    let sprite_entity = spawn_color_sprite(Vec2(200.0, 200.0))
     @visibility.visibility_propagate_system(0.0)
 
     render_sprite_system(0.0)
@@ -72,9 +72,9 @@ test "sprite rendering keeps visible sprites inside the camera viewport" {
     @render2d.begin_frame2d_system(0.0)
     let camera_entity = spawn_test_camera({
       position: @math.Vec2::zero(),
-      size: @math.Vec2(100.0, 100.0),
+      size: Vec2(100.0, 100.0),
     })
-    let sprite_entity = spawn_color_sprite(@math.Vec2(50.0, 50.0))
+    let sprite_entity = spawn_color_sprite(Vec2(50.0, 50.0))
     @visibility.visibility_propagate_system(0.0)
 
     render_sprite_system(0.0)

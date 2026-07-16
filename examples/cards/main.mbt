@@ -35,13 +35,13 @@ pub fn run() -> Unit {
 fn game_start(_world : @ecs.World) -> Unit {
   // Load font
   ignore(@asset.load_font("assets/cards/ThaleahFat.ttf", family="ThaleahFat"))
-  @ui.set_ui_scale_mode(@ui.UiScaleMode::Viewport)
+  @ui.set_ui_scale_mode(Viewport)
   let camera_entity = @entity.Entity()
-  @camera.cameras().set(camera_entity, @camera.Camera())
-  @camera.camera2ds().set(camera_entity, @camera.Camera2d())
+  @camera.cameras().set(camera_entity, Camera())
+  @camera.camera2ds().set(camera_entity, Camera2d())
   @camera.orthographic_projections().set(
     camera_entity,
-    @camera.OrthographicProjection(),
+    OrthographicProjection(),
   )
   @transform.transforms().set(
     camera_entity,

@@ -18,7 +18,7 @@ pub fn rgba(r : Int, g : Int, b : Int, a : Double) -> @render.Color {
       value
     }
   }
-  @render.Color::{
+  {
     r: clamp_channel(r),
     g: clamp_channel(g),
     b: clamp_channel(b),

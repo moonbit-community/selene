@@ -150,9 +150,7 @@ pub(all) struct Render3DSubmissionStatsSnapshot {
   render_bind_group_creations : Int
 } derive(Eq, @debug.Debug)
 
-pub struct WebGpuBackend {
-  // private fields
-}
+type WebGpuBackend
 pub fn WebGpuBackend::WebGpuBackend() -> Self
 
 pub(all) struct WebGpuFrameTimingSnapshot {

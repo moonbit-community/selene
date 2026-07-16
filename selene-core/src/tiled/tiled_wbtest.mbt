@@ -54,7 +54,7 @@ fn tiled_test_set_entity_translation_2d(
   let current = @transform.transforms().get(entity).unwrap_or_default()
   let next = {
     ..current,
-    translation: @math.Vec3(position[X], position[Y], current.translation.z),
+    translation: Vec3(position[X], position[Y], current.translation.z),
   }
   @transform.transforms().set(entity, next)
   @transform.global_transforms().set(
@@ -66,7 +66,7 @@ fn tiled_test_set_entity_translation_2d(
 ///|
 fn tiled_test_entity_translation_2d(entity : @entity.Entity) -> @math.Vec2 {
   let transform = @transform.transforms().get(entity).unwrap_or_default()
-  @math.Vec2(transform.translation.x, transform.translation.y)
+  Vec2(transform.translation.x, transform.translation.y)
 }
 
 ///|
@@ -357,7 +357,7 @@ test "spawn_tiled_map creates tile object and image layer entities" {
   with_fake_asset_io(files, fn() raise {
     let root = load_and_spawn_tiled_map("maps/level.tmj", settings={
       ..default_tiled_spawn_settings(),
-      position: @math.Vec2(10.0, 20.0),
+      position: Vec2(10.0, 20.0),
       zindex: 5,
       layer_z_step: 10,
       spawn_hidden_layers: true,
@@ -469,7 +469,7 @@ test "respawn_tiled_map_into_entity replaces previous tiled children and metadat
     let root = @entity.Entity()
     spawn_tiled_map_into_entity(root, load_tiled_map("maps/a.tmj"), settings={
       ..default_tiled_spawn_settings(),
-      position: @math.Vec2(1.0, 2.0),
+      position: Vec2(1.0, 2.0),
     })
     defer cleanup_spawned_tiled_tree(root)
 
@@ -484,7 +484,7 @@ test "respawn_tiled_map_into_entity replaces previous tiled children and metadat
 
     respawn_tiled_map_into_entity(root, load_tiled_map("maps/b.tmj"), settings={
       ..default_tiled_spawn_settings(),
-      position: @math.Vec2(3.0, 4.0),
+      position: Vec2(3.0, 4.0),
     })
 
     inspect(
@@ -552,7 +552,7 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
       content="true",
     )
     match @physics2d.shapes().get(layer_colliders[0]).unwrap() {
-      Rect(size=@math.Vec2(width, height), offset=@math.Vec2(x, y)) =>
+      Rect(size=Vec2(width, height), offset=Vec2(x, y)) =>
         inspect(
           "\{width.to_int()},\{height.to_int()}@\{x.to_int()},\{y.to_int()}",
           content="32,16@0,0",
@@ -635,7 +635,7 @@ test "spawn_tiled_map attaches full tiled physics coverage" {
       content="true",
     )
     match @physics2d.shapes().get(tile_object_colliders[0]).unwrap() {
-      Rect(size=@math.Vec2(width, height), offset=@math.Vec2(x, y)) =>
+      Rect(size=Vec2(width, height), offset=Vec2(x, y)) =>
         inspect(
           "\{width.to_int()},\{height.to_int()}@\{x.to_int()},\{y.to_int()}",
           content="16,16@0,0",
@@ -689,7 +689,7 @@ test "spawn_tiled_map applies physics body and material properties" {
     )
     inspect(
       @physics2d.rigid_bodies().get(dynamic_entity).unwrap().body_type
-      is @physics2d.RigidBodyType::Dynamic,
+      is Dynamic,
       content="true",
     )
     inspect(
@@ -752,7 +752,7 @@ test "spawn_tiled_world loads adjacent maps and emits world events" {
     let world = load_tiled_world("worlds/demo.world")
     let root = spawn_tiled_world(world, settings={
       ..default_tiled_world_spawn_settings(),
-      position: @math.Vec2(5.0, 7.0),
+      position: Vec2(5.0, 7.0),
       focus_map_path: Some("maps/a.tmj"),
       world_map_hook: Some(fn(event) {
         hooked_paths.push(event.resolved_map_path)
@@ -829,7 +829,7 @@ test "respawn_tiled_world_into_entity replaces previous spawned maps" {
     let root = @entity.Entity()
     spawn_tiled_world_into_entity(root, load_tiled_world("worlds/a.world"), settings={
       ..default_tiled_world_spawn_settings(),
-      position: @math.Vec2(5.0, 7.0),
+      position: Vec2(5.0, 7.0),
     })
     defer cleanup_spawned_tiled_tree(root)
 
@@ -840,7 +840,7 @@ test "respawn_tiled_world_into_entity replaces previous spawned maps" {
 
     respawn_tiled_world_into_entity(root, load_tiled_world("worlds/b.world"), settings={
       ..default_tiled_world_spawn_settings(),
-      position: @math.Vec2(11.0, 13.0),
+      position: Vec2(11.0, 13.0),
     })
 
     inspect(
@@ -878,13 +878,13 @@ test "tiled world chunking spawns maps around camera view" {
 
   let camera_entity = @entity.Entity()
   defer camera_entity.destroy()
-  @camera.cameras().set(camera_entity, @camera.Camera())
-  @camera.camera2ds().set(camera_entity, @camera.Camera2d())
+  @camera.cameras().set(camera_entity, Camera())
+  @camera.camera2ds().set(camera_entity, Camera2d())
   @camera.orthographic_projections().set(
     camera_entity,
-    @camera.OrthographicProjection(),
+    OrthographicProjection(),
   )
-  tiled_test_set_entity_translation_2d(camera_entity, @math.Vec2(50.0, 50.0))
+  tiled_test_set_entity_translation_2d(camera_entity, Vec2(50.0, 50.0))
 
   let files : Map[String, Bytes] = Map([])
   files.set(
@@ -922,7 +922,7 @@ test "tiled world chunking spawns maps around camera view" {
     inspect(first_spawned.length(), content="1")
     inspect(first_spawned[0].1.resolved_map_path, content="worlds/maps/a.tmj")
 
-    tiled_test_set_entity_translation_2d(camera_entity, @math.Vec2(250.0, 50.0))
+    tiled_test_set_entity_translation_2d(camera_entity, Vec2(250.0, 50.0))
     tiled_world_chunking_system(0.0)
 
     let second_spawned = tiled_world_map_instances()
@@ -947,23 +947,23 @@ test "tiled world chunking unions multiple active camera views" {
 
   let left_camera = @entity.Entity()
   defer left_camera.destroy()
-  @camera.cameras().set(left_camera, @camera.Camera(order=0))
-  @camera.camera2ds().set(left_camera, @camera.Camera2d())
+  @camera.cameras().set(left_camera, Camera(order=0))
+  @camera.camera2ds().set(left_camera, Camera2d())
   @camera.orthographic_projections().set(
     left_camera,
-    @camera.OrthographicProjection(),
+    OrthographicProjection(),
   )
-  tiled_test_set_entity_translation_2d(left_camera, @math.Vec2(50.0, 50.0))
+  tiled_test_set_entity_translation_2d(left_camera, Vec2(50.0, 50.0))
 
   let right_camera = @entity.Entity()
   defer right_camera.destroy()
-  @camera.cameras().set(right_camera, @camera.Camera(order=1))
-  @camera.camera2ds().set(right_camera, @camera.Camera2d())
+  @camera.cameras().set(right_camera, Camera(order=1))
+  @camera.camera2ds().set(right_camera, Camera2d())
   @camera.orthographic_projections().set(
     right_camera,
-    @camera.OrthographicProjection(),
+    OrthographicProjection(),
   )
-  tiled_test_set_entity_translation_2d(right_camera, @math.Vec2(250.0, 50.0))
+  tiled_test_set_entity_translation_2d(right_camera, Vec2(250.0, 50.0))
 
   let files : Map[String, Bytes] = Map([])
   files.set(
@@ -1021,13 +1021,13 @@ test "tiled parallax system adjusts layer offsets" {
 
   let camera_entity = @entity.Entity()
   defer camera_entity.destroy()
-  @camera.cameras().set(camera_entity, @camera.Camera())
-  @camera.camera2ds().set(camera_entity, @camera.Camera2d())
+  @camera.cameras().set(camera_entity, Camera())
+  @camera.camera2ds().set(camera_entity, Camera2d())
   @camera.orthographic_projections().set(
     camera_entity,
-    @camera.OrthographicProjection(),
+    OrthographicProjection(),
   )
-  tiled_test_set_entity_translation_2d(camera_entity, @math.Vec2(50.0, 50.0))
+  tiled_test_set_entity_translation_2d(camera_entity, Vec2(50.0, 50.0))
 
   let files : Map[String, Bytes] = Map([])
   files.set(
@@ -1060,7 +1060,7 @@ test "tiled parallax system adjusts layer offsets" {
 
     tiled_test_set_entity_translation_2d(
       camera_entity,
-      @math.Vec2(250.0, 150.0),
+      Vec2(250.0, 150.0),
     )
     tiled_parallax_system(0.0)
     let second_camera_view = @camera.primary_camera2d_view().unwrap()
@@ -1111,7 +1111,7 @@ test "spawn_tiled_map reads TMX tile object and image layers" {
   with_fake_asset_io(files, fn() raise {
     let root = load_and_spawn_tiled_map("maps/level.tmx", settings={
       ..default_tiled_spawn_settings(),
-      position: @math.Vec2(10.0, 20.0),
+      position: Vec2(10.0, 20.0),
       zindex: 5,
       layer_z_step: 10,
       spawn_hidden_layers: true,
@@ -1373,7 +1373,7 @@ test "tiled tile object origin shifts on isometric maps" {
 test "tiled diagonal flip swaps the tile axes before later flips" {
   let transform = tiled_gid_transform(
     decode_tiled_gid(tiled_gid_flip_diagonal_flag | 1),
-    @math.Vec2(16.0, 32.0),
+    Vec2(16.0, 32.0),
   )
   let (top_right_x, top_right_y) = transform.apply_to_point(16.0, 0.0)
   let (bottom_left_x, bottom_left_y) = transform.apply_to_point(0.0, 32.0)

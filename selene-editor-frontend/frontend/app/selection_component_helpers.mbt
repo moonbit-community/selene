@@ -1,6 +1,6 @@
 ///|
 fn dedup_entity_ids(ids : Array[String]) -> Array[String] {
-  let seen : Map[String, Bool] = {}
+  let seen : Map[String, Bool] = Map([])
   let ordered : Array[String] = []
   for id in ids {
     if seen.contains(id) {

@@ -20,7 +20,7 @@ fn ordered_required_builtin_components(
   kind : @editor_bridge.BuiltinComponentKind,
 ) -> Array[@editor_bridge.BuiltinComponentKind] {
   let ordered : Array[@editor_bridge.BuiltinComponentKind] = []
-  collect_required_builtin_components(kind, {}, ordered)
+  collect_required_builtin_components(kind, Map([]), ordered)
   ordered
 }
 
@@ -52,7 +52,7 @@ fn remove_component_block_reason_for_entity(
         return Some("\{kind} is required and cannot be removed")
       }
       let blocked_by : Array[String] = []
-      let blocked_kind_seen : Map[String, Bool] = {}
+      let blocked_kind_seen : Map[String, Bool] = Map([])
       for component in entity.components {
         if component.kind == kind {
           continue

@@ -111,9 +111,9 @@ fn directional_shadow_cascades3d(
   if bounds.length() == 0 {
     return cascades
   }
-  let direction = normalize_or3d(light.direction, @smath.Vec3(0.0, -1.0, 0.0))
+  let direction = normalize_or3d(light.direction, Vec3(0.0, -1.0, 0.0))
   let light_view = mat4_look_at3d(
-    @smath.Vec3(0.0, 0.0, 0.0),
+    Vec3(0.0, 0.0, 0.0),
     direction,
     choose_shadow_up3d(direction),
   )
@@ -188,7 +188,7 @@ fn directional_shadow_cascades3d(
 fn spot_shadow_view_projection3d(
   light : @render3d_types.FrameSpotLight3D,
 ) -> Array[Double] {
-  let direction = normalize_or3d(light.direction, @smath.Vec3(0.0, -1.0, 0.0))
+  let direction = normalize_or3d(light.direction, Vec3(0.0, -1.0, 0.0))
   let (near_plane, far_plane) = shadow_near_far3d(
     light.shadow_map_near_z,
     light.range,
@@ -383,23 +383,23 @@ fn push_frustum_plane_corners3d(
 fn camera_basis3d(camera : @render3d_types.FrameCamera3D) -> CameraBasis3D {
   let forward = normalize_or3d(
     camera.target - camera.position,
-    @smath.Vec3(0.0, 0.0, -1.0),
+    Vec3(0.0, 0.0, -1.0),
   )
-  let up = normalize_or3d(camera.up, @smath.Vec3(0.0, 1.0, 0.0))
-  let right = normalize_or3d(forward.cross(up), @smath.Vec3(1.0, 0.0, 0.0))
+  let up = normalize_or3d(camera.up, Vec3(0.0, 1.0, 0.0))
+  let right = normalize_or3d(forward.cross(up), Vec3(1.0, 0.0, 0.0))
   let corrected_up = normalize_or3d(
     right.cross(forward),
-    @smath.Vec3(0.0, 1.0, 0.0),
+    Vec3(0.0, 1.0, 0.0),
   )
   { forward, right, up: corrected_up }
 }
 
 ///|
 fn choose_shadow_up3d(direction : @smath.Vec3) -> @smath.Vec3 {
-  let normalized = normalize_or3d(direction, @smath.Vec3(0.0, -1.0, 0.0))
+  let normalized = normalize_or3d(direction, Vec3(0.0, -1.0, 0.0))
   let world_up = @smath.Vec3(0.0, 1.0, 0.0)
   if normalized.cross(world_up).length_squared() <= 0.0001 {
-    @smath.Vec3(0.0, 0.0, 1.0)
+    Vec3(0.0, 0.0, 1.0)
   } else {
     world_up
   }
@@ -440,12 +440,12 @@ fn shadow_atlas_rect3d(
 ///|
 fn point_shadow_face3d(face_index : Int) -> (@smath.Vec3, @smath.Vec3) {
   match face_index {
-    0 => (@smath.Vec3(1.0, 0.0, 0.0), @smath.Vec3(0.0, -1.0, 0.0))
-    1 => (@smath.Vec3(-1.0, 0.0, 0.0), @smath.Vec3(0.0, -1.0, 0.0))
-    2 => (@smath.Vec3(0.0, 1.0, 0.0), @smath.Vec3(0.0, 0.0, 1.0))
-    3 => (@smath.Vec3(0.0, -1.0, 0.0), @smath.Vec3(0.0, 0.0, -1.0))
-    4 => (@smath.Vec3(0.0, 0.0, 1.0), @smath.Vec3(0.0, -1.0, 0.0))
-    _ => (@smath.Vec3(0.0, 0.0, -1.0), @smath.Vec3(0.0, -1.0, 0.0))
+    0 => (Vec3(1.0, 0.0, 0.0), Vec3(0.0, -1.0, 0.0))
+    1 => (Vec3(-1.0, 0.0, 0.0), Vec3(0.0, -1.0, 0.0))
+    2 => (Vec3(0.0, 1.0, 0.0), Vec3(0.0, 0.0, 1.0))
+    3 => (Vec3(0.0, -1.0, 0.0), Vec3(0.0, 0.0, -1.0))
+    4 => (Vec3(0.0, 0.0, 1.0), Vec3(0.0, -1.0, 0.0))
+    _ => (Vec3(0.0, 0.0, -1.0), Vec3(0.0, -1.0, 0.0))
   }
 }
 
@@ -469,7 +469,7 @@ fn transform_point3d(
   if matrix.length() < 16 {
     point
   } else {
-    @smath.Vec3(
+    Vec3(
       matrix[0] * point.x +
       matrix[4] * point.y +
       matrix[8] * point.z +
@@ -488,12 +488,12 @@ fn transform_point3d(
 
 ///|
 fn vec3_min3d(lhs : @smath.Vec3, rhs : @smath.Vec3) -> @smath.Vec3 {
-  @smath.Vec3(lhs.x.min(rhs.x), lhs.y.min(rhs.y), lhs.z.min(rhs.z))
+  Vec3(lhs.x.min(rhs.x), lhs.y.min(rhs.y), lhs.z.min(rhs.z))
 }
 
 ///|
 fn vec3_max3d(lhs : @smath.Vec3, rhs : @smath.Vec3) -> @smath.Vec3 {
-  @smath.Vec3(lhs.x.max(rhs.x), lhs.y.max(rhs.y), lhs.z.max(rhs.z))
+  Vec3(lhs.x.max(rhs.x), lhs.y.max(rhs.y), lhs.z.max(rhs.z))
 }
 
 ///|

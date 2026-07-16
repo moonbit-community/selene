@@ -214,8 +214,8 @@ async fn migrate_legacy_animation_document(
 
   let status = load_scene_document(root, scene_path)
   let scene = match status {
-    @editor_bridge.Ready(scene) => scene
-    @editor_bridge.MigrationRequired(preview) => preview.scene
+    Ready(scene) => scene
+    MigrationRequired(preview) => preview.scene
   }
   let migrated_preview = legacy_animation_preview_for_scene(scene_path, scene)
   guard migrated_preview is Some(preview) else { return }

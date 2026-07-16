@@ -58,12 +58,12 @@ let perf_state : Ref[PerfState?] = Ref(None)
 
 ///|
 fn color(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
-  @render.Color::{ r, g, b, a }
+  { r, g, b, a }
 }
 
 ///|
 fn vec3(x : Double, y : Double, z : Double) -> @math.Vec3 {
-  @math.Vec3(x, y, z)
+  Vec3(x, y, z)
 }
 
 ///|
@@ -93,8 +93,8 @@ fn read_perf_config() -> PerfConfig {
 fn configure_lighting_mode(mode : String) -> Unit {
   let lighting_mode = match mode {
     "full" => @webgpu.Render3DLightingMode::Full
-    "unlit" => @webgpu.Render3DLightingMode::Unlit
-    _ => @webgpu.Render3DLightingMode::Cheap
+    "unlit" => Unlit
+    _ => Cheap
   }
   @webgpu.set_render3d_lighting_mode(lighting_mode)
 }
@@ -185,17 +185,17 @@ fn setup_hud(config : PerfConfig) -> @entity.Entity {
   let hud = @entity.Entity()
   @ui.nodes().set(
     hud,
-    @ui.Node::absolute(@math.Vec2(16.0, 16.0), size=@math.Vec2(900.0, 92.0)),
+    @ui.Node::absolute(Vec2(16.0, 16.0), size=Vec2(900.0, 92.0)),
   )
   @ui.texts().set(
     hud,
-    @ui.Text(
+    Text(
       "perf3d: case=\{config.case_name} count=\{config.count} mode=\{config.mode}",
     ),
   )
-  @ui.text_fonts().set(hud, @ui.TextFont(family="monospace", size=18.0))
-  @ui.text_colors().set(hud, @ui.TextColor(color(236U, 244U, 255U, 1.0)))
-  @ui.z_indexes().set(hud, @ui.ZIndex(100))
+  @ui.text_fonts().set(hud, TextFont(family="monospace", size=18.0))
+  @ui.text_colors().set(hud, TextColor(color(236U, 244U, 255U, 1.0)))
+  @ui.z_indexes().set(hud, ZIndex(100))
   hud
 }
 
@@ -351,7 +351,7 @@ fn update_perf3d_stats(_world : @ecs.World) -> Unit {
     hud_text.write_string(
       "fps=\{avg_fps} p95=\{p95}ms work_p95=\{work_p95}ms draw=\{stats.draw_commands} submitted=\{stats.submitted_items} upload=\{stats.uploaded_vertex_bytes}B",
     )
-    @ui.texts().set(state.hud, @ui.Text(hud_text.to_string()))
+    @ui.texts().set(state.hud, Text(hud_text.to_string()))
   }
   if elapsed_s >= state.config.duration {
     state.finished = true

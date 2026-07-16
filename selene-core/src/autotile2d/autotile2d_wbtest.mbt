@@ -133,7 +133,7 @@ test "bitmask8 reachable mask set is the canonical 47-tiles subset" {
       bitmask8_rules=rules,
     ),
   ]
-  let reachable_masks : Map[Int, Bool] = {}
+  let reachable_masks : Map[Int, Bool] = Map([])
   // Neighbor bit order (for generated input combinations):
   // 0:N, 1:E, 2:S, 3:W, 4:NE, 5:SE, 6:SW, 7:NW
   for combo = 0; combo < 256; combo = combo + 1 {

@@ -29,12 +29,12 @@ let tank_root : Ref[@entity.Entity?] = Ref(None)
 
 ///|
 fn color(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
-  @render.Color::{ r, g, b, a }
+  { r, g, b, a }
 }
 
 ///|
 fn vec3(x : Double, y : Double, z : Double) -> @math.Vec3 {
-  @math.Vec3(x, y, z)
+  Vec3(x, y, z)
 }
 
 ///|

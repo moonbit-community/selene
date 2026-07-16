@@ -22,7 +22,7 @@ fn parallax2d_world_store() -> Parallax2dWorldStore {
 
 ///|
 fn clamped_parallax_factor(factor : @math.Vec2) -> @math.Vec2 {
-  @math.Vec2(
+  Vec2(
     if factor[X] < 0.0 {
       0.0
     } else {
@@ -39,7 +39,7 @@ fn clamped_parallax_factor(factor : @math.Vec2) -> @math.Vec2 {
 ///|
 pub fn Parallax2d::Parallax2d(
   base_offset? : @math.Vec2 = @math.Vec2::zero(),
-  factor? : @math.Vec2 = @math.Vec2(1.0, 1.0),
+  factor? : @math.Vec2 = Vec2(1.0, 1.0),
 ) -> Parallax2d {
   { base_offset, factor: clamped_parallax_factor(factor) }
 }
@@ -73,7 +73,7 @@ pub fn parallax_world_position(
     (Some(parallax), Some(camera_view)) => {
       let camera_origin = camera_view.world_origin()
       shifted +
-      @math.Vec2(
+      Vec2(
         camera_origin[X] * (1.0 - parallax.factor[X]),
         camera_origin[Y] * (1.0 - parallax.factor[Y]),
       )

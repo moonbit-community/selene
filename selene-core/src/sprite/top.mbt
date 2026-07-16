@@ -53,7 +53,7 @@ pub fn Sprite::Sprite(
   flip_x? : Bool = false,
   flip_y? : Bool = false,
   image_mode? : SpriteImageMode = Auto,
-  blend_mode? : @render.BlendMode2D = @render.BlendMode2D::Alpha,
+  blend_mode? : @render.BlendMode2D = Alpha,
 ) -> Sprite {
   {
     image,
@@ -258,11 +258,11 @@ fn push_sprite_draw_command(
 ///|
 fn sprite_alpha_mode(sprite : Sprite) -> @render.AlphaMode2D {
   if sprite.image is Some(_) {
-    @render.AlphaMode2D::Blend
+    Blend
   } else if sprite.color.a >= 0.999999 {
-    @render.AlphaMode2D::Opaque
+    Opaque
   } else {
-    @render.AlphaMode2D::Blend
+    Blend
   }
 }
 

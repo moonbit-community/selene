@@ -316,8 +316,8 @@ fn mesh2d_bounds(
       @camera.transformed_rect_bounds(
         snapped_pos,
         {
-          position: @math.Vec2(-radius, -radius),
-          size: @math.Vec2(radius * 2.0, radius * 2.0),
+          position: Vec2(-radius, -radius),
+          size: Vec2(radius * 2.0, radius * 2.0),
         },
         screen_transform,
       )

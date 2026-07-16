@@ -3,7 +3,7 @@ test "render3d extract preserves mesh shadow toggles" {
   let entity = @entity.Entity()
   let mesh = @render3d_types.MeshHandle(9901U)
   let material = @render3d_types.MaterialHandle(9902U)
-  meshes.set(mesh, cube_mesh(@math.Vec3(1.0, 1.0, 1.0)))
+  meshes.set(mesh, cube_mesh(Vec3(1.0, 1.0, 1.0)))
   materials.set(material, default_standard_material3d())
   mesh3d_renderers().set(entity, {
     mesh,
@@ -44,7 +44,7 @@ test "render3d extract preserves mesh shadow toggles" {
 ///|
 test "render3d camera culling context reuses frame constants" {
   let camera : @render3d_types.FrameCamera3D = {
-    position: @math.Vec3(0.0, 0.0, 10.0),
+    position: Vec3(0.0, 0.0, 10.0),
     target: @math.Vec3::zero(),
     up: @math.Vec3::y_axis(),
     fov_y: 60.0,
@@ -54,14 +54,14 @@ test "render3d camera culling context reuses frame constants" {
     far: 100.0,
     clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0 },
   }
-  let mesh = cube_mesh(@math.Vec3(1.0, 1.0, 1.0))
+  let mesh = cube_mesh(Vec3(1.0, 1.0, 1.0))
   let visible_transform : @transform.Transform = {
     translation: @math.Vec3::zero(),
     rotation: @math.Quat::identity(),
     scale: @math.Vec3::one(),
   }
   let hidden_transform : @transform.Transform = {
-    translation: @math.Vec3(100.0, 0.0, 0.0),
+    translation: Vec3(100.0, 0.0, 0.0),
     rotation: @math.Quat::identity(),
     scale: @math.Vec3::one(),
   }
@@ -189,7 +189,7 @@ test "render3d extracts skybox from active camera" {
     Some({
       entity: camera_entity,
       camera: {
-        position: @math.Vec3(0.0, 0.0, 10.0),
+        position: Vec3(0.0, 0.0, 10.0),
         target: @math.Vec3::zero(),
         up: @math.Vec3::y_axis(),
         fov_y: 60.0,

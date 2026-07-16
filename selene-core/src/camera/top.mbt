@@ -25,7 +25,7 @@ pub fn CameraViewport::CameraViewport(
 ) -> CameraViewport {
   let width = if size[X] < 0.0 { 0.0 } else { size[X] }
   let height = if size[Y] < 0.0 { 0.0 } else { size[Y] }
-  { position, size: @math.Vec2(width, height) }
+  { position, size: Vec2(width, height) }
 }
 
 ///|
@@ -98,6 +98,7 @@ pub impl Default for Camera with default() -> Camera {
 pub(all) struct Camera2d {} derive(Eq, Debug)
 
 ///|
+#warnings("-unnecessary_annotation")
 pub fn Camera2d::Camera2d() -> Camera2d {
   Camera2d::{  }
 }
@@ -222,7 +223,7 @@ pub fn Camera::world_to_viewport(
     projection_scale(projection.scale)
   let viewport = self.viewport_rect()
   let viewport_center = viewport.position + viewport.size.scalar_mul(0.5)
-  @math.Vec2(
+  Vec2(
     viewport_center[X] + view_point.x * pixels_per_world_unit,
     viewport_center[Y] + view_point.y * pixels_per_world_unit,
   )
@@ -245,7 +246,7 @@ pub fn Camera::viewport_to_world_2d(
     0.0,
   )
   let world_point = camera_transform.transform_point(view_point)
-  @math.Vec2(world_point.x, world_point.y)
+  Vec2(world_point.x, world_point.y)
 }
 
 ///|
@@ -275,14 +276,14 @@ test "camera world_to_viewport respects camera rotation" {
     1.5707963267948966,
   )
   let camera_transform = @transform.GlobalTransform::from_transform({
-    translation: @math.Vec3(0.0, 0.0, 0.0),
+    translation: Vec3(0.0, 0.0, 0.0),
     rotation: quarter_turn,
     scale: @math.Vec3::one(),
   })
   let viewport = camera.world_to_viewport(
     camera_transform,
     projection,
-    @math.Vec2(0.0, 10.0),
+    Vec2(0.0, 10.0),
   )
   assert_eq(viewport[X], 60.0)
   assert_eq(viewport[Y], 50.0)
@@ -293,7 +294,7 @@ test "camera viewport offsets world_to_viewport into viewport rect" {
   @system.configure_display(200.0, 120.0, 1.0)
   let camera = Camera(
     viewport=Some(
-      CameraViewport(@math.Vec2(20.0, 10.0), @math.Vec2(80.0, 40.0)),
+      CameraViewport(Vec2(20.0, 10.0), Vec2(80.0, 40.0)),
     ),
   )
   let projection = OrthographicProjection()

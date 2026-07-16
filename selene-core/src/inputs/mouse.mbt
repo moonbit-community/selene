@@ -104,7 +104,7 @@ pub(all) struct Mouse {
 /// ```
 ///
 pub let mouse : Mouse = {
-  pos: @math.Vec2(0.0, 0.0),
+  pos: Vec2(0.0, 0.0),
   left_button: false,
   right_button: false,
   middle_button: false,
@@ -161,26 +161,26 @@ pub(all) struct MouseWheel {
 /// @inputs.mouse_movement.movement = @math.Vec2(10.0, -5.0)
 /// ```
 ///
-pub let mouse_movement : MouseMovement = { movement: @math.Vec2(0.0, 0.0) }
+pub let mouse_movement : MouseMovement = { movement: Vec2(0.0, 0.0) }
 
 ///|
-pub let mouse_wheel : MouseWheel = { delta: @math.Vec2(0.0, 0.0) }
+pub let mouse_wheel : MouseWheel = { delta: Vec2(0.0, 0.0) }
 
 ///|
 let pending_mouse_relative_delta : Ref[@math.Vec2?] = Ref(None)
 
 ///|
-pub let mouse_button_event_bus : @event.Events[MouseButtonEvent] = @event.Events()
+pub let mouse_button_event_bus : @event.Events[MouseButtonEvent] = Events()
 
 ///|
-pub let mouse_motion_event_bus : @event.Events[MouseMotionEvent] = @event.Events()
+pub let mouse_motion_event_bus : @event.Events[MouseMotionEvent] = Events()
 
 ///|
-pub let mouse_wheel_event_bus : @event.Events[MouseWheelEvent] = @event.Events()
+pub let mouse_wheel_event_bus : @event.Events[MouseWheelEvent] = Events()
 
 ///|
 let last_mouse : Mouse = {
-  pos: @math.Vec2(0.0, 0.0),
+  pos: Vec2(0.0, 0.0),
   left_button: false,
   right_button: false,
   middle_button: false,
@@ -219,7 +219,7 @@ let last_mouse : Mouse = {
 /// ```
 ///
 pub let just_pressed_mouse : Mouse = {
-  pos: @math.Vec2(0.0, 0.0),
+  pos: Vec2(0.0, 0.0),
   left_button: false,
   right_button: false,
   middle_button: false,
@@ -258,7 +258,7 @@ pub let just_pressed_mouse : Mouse = {
 /// ```
 ///
 pub let just_release_mouse : Mouse = {
-  pos: @math.Vec2(0.0, 0.0),
+  pos: Vec2(0.0, 0.0),
   left_button: false,
   right_button: false,
   middle_button: false,
@@ -301,21 +301,21 @@ pub fn advanced_mouse_system(_delta : Double) -> Unit {
     !last_mouse.middle_button
   if just_pressed_mouse.left_button {
     mouse_button_event_bus.send({
-      button: MouseButton::Left,
+      button: Left,
       state: Pressed,
       position: mouse.pos,
     })
   }
   if just_pressed_mouse.right_button {
     mouse_button_event_bus.send({
-      button: MouseButton::Right,
+      button: Right,
       state: Pressed,
       position: mouse.pos,
     })
   }
   if just_pressed_mouse.middle_button {
     mouse_button_event_bus.send({
-      button: MouseButton::Middle,
+      button: Middle,
       state: Pressed,
       position: mouse.pos,
     })
@@ -329,21 +329,21 @@ pub fn advanced_mouse_system(_delta : Double) -> Unit {
     last_mouse.middle_button
   if just_release_mouse.left_button {
     mouse_button_event_bus.send({
-      button: MouseButton::Left,
+      button: Left,
       state: Released,
       position: mouse.pos,
     })
   }
   if just_release_mouse.right_button {
     mouse_button_event_bus.send({
-      button: MouseButton::Right,
+      button: Right,
       state: Released,
       position: mouse.pos,
     })
   }
   if just_release_mouse.middle_button {
     mouse_button_event_bus.send({
-      button: MouseButton::Middle,
+      button: Middle,
       state: Released,
       position: mouse.pos,
     })
@@ -373,9 +373,9 @@ pub fn advanced_mouse_system(_delta : Double) -> Unit {
 ///
 pub fn is_mouse_pressed(button : MouseButton) -> Bool {
   match button {
-    MouseButton::Left => mouse.left_button
-    MouseButton::Right => mouse.right_button
-    MouseButton::Middle => mouse.middle_button
+    Left => mouse.left_button
+    Right => mouse.right_button
+    Middle => mouse.middle_button
   }
 }
 
@@ -398,9 +398,9 @@ pub fn is_mouse_pressed(button : MouseButton) -> Bool {
 ///
 pub fn is_mouse_released(button : MouseButton) -> Bool {
   match button {
-    MouseButton::Left => !mouse.left_button
-    MouseButton::Right => !mouse.right_button
-    MouseButton::Middle => !mouse.middle_button
+    Left => !mouse.left_button
+    Right => !mouse.right_button
+    Middle => !mouse.middle_button
   }
 }
 
@@ -422,9 +422,9 @@ pub fn is_mouse_released(button : MouseButton) -> Bool {
 ///
 pub fn is_mouse_just_pressed(button : MouseButton) -> Bool {
   match button {
-    MouseButton::Left => just_pressed_mouse.left_button
-    MouseButton::Right => just_pressed_mouse.right_button
-    MouseButton::Middle => just_pressed_mouse.middle_button
+    Left => just_pressed_mouse.left_button
+    Right => just_pressed_mouse.right_button
+    Middle => just_pressed_mouse.middle_button
   }
 }
 
@@ -446,8 +446,8 @@ pub fn is_mouse_just_pressed(button : MouseButton) -> Bool {
 ///
 pub fn is_mouse_just_released(button : MouseButton) -> Bool {
   match button {
-    MouseButton::Left => just_release_mouse.left_button
-    MouseButton::Right => just_release_mouse.right_button
-    MouseButton::Middle => just_release_mouse.middle_button
+    Left => just_release_mouse.left_button
+    Right => just_release_mouse.right_button
+    Middle => just_release_mouse.middle_button
   }
 }

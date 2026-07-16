@@ -100,10 +100,10 @@ pub fn transform_translation_field() -> AnimatedFieldHandle {
           let transform = @transform.transforms()
             .get(entity)
             .unwrap_or_default()
-          AnimatedValue::Vec3(transform.translation)
+          Vec3(transform.translation)
         },
         apply: fn(entity, value) {
-          guard value is AnimatedValue::Vec3(translation)
+          guard value is Vec3(translation)
           let transform = @transform.transforms()
             .get(entity)
             .unwrap_or_default()
@@ -131,10 +131,10 @@ pub fn transform_rotation_field() -> AnimatedFieldHandle {
           let transform = @transform.transforms()
             .get(entity)
             .unwrap_or_default()
-          AnimatedValue::Quat(transform.rotation)
+          Quat(transform.rotation)
         },
         apply: fn(entity, value) {
-          guard value is AnimatedValue::Quat(rotation)
+          guard value is Quat(rotation)
           let transform = @transform.transforms()
             .get(entity)
             .unwrap_or_default()
@@ -159,10 +159,10 @@ pub fn transform_scale_field() -> AnimatedFieldHandle {
           let transform = @transform.transforms()
             .get(entity)
             .unwrap_or_default()
-          AnimatedValue::Vec3(transform.scale)
+          Vec3(transform.scale)
         },
         apply: fn(entity, value) {
-          guard value is AnimatedValue::Vec3(scale)
+          guard value is Vec3(scale)
           let transform = @transform.transforms()
             .get(entity)
             .unwrap_or_default()
@@ -221,9 +221,9 @@ pub fn morph_weights_field() -> AnimatedFieldHandle {
       let handle = register_animated_field({
         name: "Morph.weights",
         kind: Weights,
-        sample: fn(entity) { AnimatedValue::Weights(morph_weights_of(entity)) },
+        sample: fn(entity) { Weights(morph_weights_of(entity)) },
         apply: fn(entity, value) {
-          guard value is AnimatedValue::Weights(weights)
+          guard value is Weights(weights)
           set_target_morph_weights(entity, weights)
         },
       })
@@ -250,10 +250,10 @@ pub fn texture_atlas_index_field() -> AnimatedFieldHandle {
               })
             })
             .unwrap_or(0.0)
-          AnimatedValue::Scalar(index)
+          Scalar(index)
         },
         apply: fn(entity, value) {
-          guard value is AnimatedValue::Scalar(frame)
+          guard value is Scalar(frame)
           guard @sprite.sprites().get(entity) is Some(sprite) else { return }
           guard sprite.texture_atlas is Some(texture_atlas) else { return }
           let next_index = if frame < 0.0 { 0 } else { frame.round().to_int() }

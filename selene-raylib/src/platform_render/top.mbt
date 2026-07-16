@@ -37,7 +37,7 @@ fn submit_draw_command(command : @render2d_types.DrawCommand2D) -> Unit {
 }
 
 ///|
-let reported_capabilities : @set.Set[String] = @set.Set([])
+let reported_capabilities : @set.Set[String] = Set([])
 
 ///|
 fn pass_target_is_supported(
@@ -119,7 +119,7 @@ fn submit_frame_contents(frame : @render_pipeline.RenderFrame) -> Unit {
     )
     let ui_batches = draw_batches_for_pass(pass.ui_commands, pass.ui_batches)
     if !pass.world_commands.is_empty() ||
-      pass.load_op is @render2d_types.RenderPassLoadOp2D::Clear {
+      pass.load_op is Clear {
       @impl.render2d_begin_pass(
         pass.viewport,
         pass.load_op,
@@ -132,7 +132,7 @@ fn submit_frame_contents(frame : @render_pipeline.RenderFrame) -> Unit {
     if !pass.ui_commands.is_empty() {
       @impl.render2d_begin_pass(
         pass.viewport,
-        @render2d_types.RenderPassLoadOp2D::Load,
+        Load,
         pass.clear_color,
         pass.target,
       )
@@ -244,10 +244,10 @@ pub fn image_region_is_fully_transparent(
     image.unload()
     return None
   }
-  let min_x_raw = @cmath.floor(rect.position[@math.X]).to_int()
-  let min_y_raw = @cmath.floor(rect.position[@math.Y]).to_int()
-  let max_x_raw = @cmath.ceil(rect.position[@math.X] + rect.size[@math.X]).to_int()
-  let max_y_raw = @cmath.ceil(rect.position[@math.Y] + rect.size[@math.Y]).to_int()
+  let min_x_raw = @cmath.floor(rect.position[X]).to_int()
+  let min_y_raw = @cmath.floor(rect.position[Y]).to_int()
+  let max_x_raw = @cmath.ceil(rect.position[X] + rect.size[X]).to_int()
+  let max_y_raw = @cmath.ceil(rect.position[Y] + rect.size[Y]).to_int()
   let min_x = if min_x_raw < 0 { 0 } else { min_x_raw }
   let min_y = if min_y_raw < 0 { 0 } else { min_y_raw }
   let max_x = if max_x_raw > image.width() { image.width() } else { max_x_raw }
@@ -290,10 +290,10 @@ pub fn export_texture_region_png(
     image.unload()
     return false
   }
-  let start_x = rect.position[@math.X]
-  let start_y = rect.position[@math.Y]
-  let end_x = rect.position[@math.X] + rect.size[@math.X]
-  let end_y = rect.position[@math.Y] + rect.size[@math.Y]
+  let start_x = rect.position[X]
+  let start_y = rect.position[Y]
+  let end_x = rect.position[X] + rect.size[X]
+  let end_y = rect.position[Y] + rect.size[Y]
   let min_x_raw = @cmath.floor(@cmp.minimum(start_x, end_x)).to_int()
   let min_y_raw = @cmath.floor(@cmp.minimum(start_y, end_y)).to_int()
   let max_x_raw = @cmath.ceil(@cmp.maximum(start_x, end_x)).to_int()

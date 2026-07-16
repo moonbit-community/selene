@@ -247,7 +247,7 @@ pub let pointer_event_bus : @event.Events[PointerEvent] = @collision.pointer_eve
 
 ///|
 pub fn make_velocity(value : @math.Vec2) -> Velocity {
-  @velocity.Velocity(value)
+  Velocity(value)
 }
 
 ///|
@@ -257,7 +257,7 @@ pub fn make_linear_velocity(value : @math.Vec2) -> LinearVelocity {
 
 ///|
 pub fn collision_group() -> CollisionGroup {
-  @collision.CollisionGroup()
+  CollisionGroup()
 }
 
 ///|
@@ -265,17 +265,17 @@ pub fn collision_filter(
   memberships : CollisionGroup,
   filters : Array[CollisionGroup],
 ) -> CollisionFilter {
-  @collision.CollisionFilter(memberships, filters)
+  CollisionFilter(memberships, filters)
 }
 
 ///|
 pub fn collider(filter : CollisionFilter) -> Collider {
-  @collision.Collider(filter)
+  Collider(filter)
 }
 
 ///|
 pub fn sensor(filter : CollisionFilter) -> Sensor {
-  @collision.Area(filter)
+  Area(filter)
 }
 
 ///|
@@ -298,7 +298,7 @@ pub fn all_collision_layers(memberships : CollisionGroup) -> CollisionLayers {
 
 ///|
 pub fn new_sensor(filter : CollisionLayers) -> Sensor {
-  @collision.Area(filter)
+  Area(filter)
 }
 
 ///|
@@ -342,7 +342,7 @@ pub fn shape_cast(
   shape : CollisionShape,
   origin : @math.Vec2,
   rotation? : Double = 0.0,
-  direction? : @math.Vec2 = @math.Vec2(0.0, -1.0),
+  direction? : @math.Vec2 = Vec2(0.0, -1.0),
   max_toi? : Double = 1000.0,
   stop_at_penetration? : Bool = false,
   query_filter? : SpatialQueryFilter = @collision.SpatialQueryFilter::default(),
@@ -534,7 +534,7 @@ pub fn get_contains(area : @entity.Entity) -> @set.Set[@entity.Entity] {
 ///|
 pub fn emit_pickable_just_pressed(
   entity : @entity.Entity,
-  button? : @inputs.MouseButton = @inputs.MouseButton::Left,
+  button? : @inputs.MouseButton = Left,
 ) -> Unit {
   @collision.emit_pickable_just_pressed(entity, button~)
 }

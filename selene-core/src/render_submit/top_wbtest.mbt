@@ -12,10 +12,10 @@ fn test_rect_command(
   position : @math.Vec2,
 ) -> @render2d_types.RectDrawCommand2D {
   {
-    rect: { position, size: @math.Vec2(8.0, 8.0) },
+    rect: { position, size: Vec2(8.0, 8.0) },
     transform: @math.Transform::identity(),
-    alpha_mode: @render.AlphaMode2D::Opaque,
-    blend_mode: @render.BlendMode2D::Alpha,
+    alpha_mode: Opaque,
+    blend_mode: Alpha,
     fill_color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
     stroke_color: None,
   }
@@ -28,11 +28,11 @@ test "build_frame2d keeps clear-only camera passes" {
     let camera_entity = @entity.Entity()
     @camera.cameras().set(
       camera_entity,
-      @camera.Camera(
+      Camera(
         viewport=Some(
-          @camera.CameraViewport(@math.Vec2(20.0, 10.0), @math.Vec2(80.0, 40.0)),
+          CameraViewport(Vec2(20.0, 10.0), Vec2(80.0, 40.0)),
         ),
-        pass=@camera.CameraPass2D(load_op=Clear, clear_color={
+        pass=CameraPass2D(load_op=Clear, clear_color={
           r: 12U,
           g: 24U,
           b: 48U,
@@ -40,7 +40,7 @@ test "build_frame2d keeps clear-only camera passes" {
         }),
       ),
     )
-    @camera.camera2ds().set(camera_entity, @camera.Camera2d())
+    @camera.camera2ds().set(camera_entity, Camera2d())
     @transform.global_transforms().set(
       camera_entity,
       @transform.GlobalTransform::from_transform(
@@ -52,7 +52,7 @@ test "build_frame2d keeps clear-only camera passes" {
     inspect(frame.passes.length(), content="1")
     inspect(
       match frame.passes[0].load_op {
-        @render2d_types.RenderPassLoadOp2D::Clear => true
+        Clear => true
         _ => false
       },
       content="true",
@@ -72,7 +72,7 @@ test "build_frame2d keeps clear-only camera passes" {
     )
     inspect(
       match frame.passes[0].target {
-        @render2d_types.RenderPassTarget2D::Screen => true
+        Screen => true
         _ => false
       },
       content="true",
@@ -88,18 +88,18 @@ test "build_frame2d normalizes offscreen viewport and command coordinates" {
     let camera_entity = @entity.Entity()
     @camera.cameras().set(
       camera_entity,
-      @camera.Camera(
+      Camera(
         viewport=Some(
-          @camera.CameraViewport(@math.Vec2(20.0, 10.0), @math.Vec2(80.0, 40.0)),
+          CameraViewport(Vec2(20.0, 10.0), Vec2(80.0, 40.0)),
         ),
-        pass=@camera.CameraPass2D(
+        pass=CameraPass2D(
           load_op=Clear,
           clear_color={ r: 0U, g: 0U, b: 0U, a: 1.0 },
-          target=@camera.CameraPassTarget2D::Offscreen("minimap"),
+          target=Offscreen("minimap"),
         ),
       ),
     )
-    @camera.camera2ds().set(camera_entity, @camera.Camera2d())
+    @camera.camera2ds().set(camera_entity, Camera2d())
     @transform.global_transforms().set(
       camera_entity,
       @transform.GlobalTransform::from_transform(
@@ -109,7 +109,7 @@ test "build_frame2d normalizes offscreen viewport and command coordinates" {
     @render2d.push_rect_with_depth_to_camera(
       camera_entity.id(),
       0.0,
-      test_rect_command(@math.Vec2(30.0, 22.0)),
+      test_rect_command(Vec2(30.0, 22.0)),
       entity_id=Some(7U),
     )
 
@@ -140,8 +140,8 @@ test "build_frame2d batches camera ui commands with clip barriers" {
     @system.configure_display(200.0, 120.0, 1.0)
     @render2d.begin_frame2d_system(0.0)
     let camera_entity = @entity.Entity()
-    @camera.cameras().set(camera_entity, @camera.Camera())
-    @camera.camera2ds().set(camera_entity, @camera.Camera2d())
+    @camera.cameras().set(camera_entity, Camera())
+    @camera.camera2ds().set(camera_entity, Camera2d())
     @transform.global_transforms().set(
       camera_entity,
       @transform.GlobalTransform::from_transform(
@@ -150,21 +150,21 @@ test "build_frame2d batches camera ui commands with clip barriers" {
     )
 
     @render2d.push_ui_clip_for_camera(
-      { position: @math.Vec2(0.0, 0.0), size: @math.Vec2(20.0, 20.0) },
+      { position: Vec2(0.0, 0.0), size: Vec2(20.0, 20.0) },
       Some(camera_entity.id()),
     )
     @render2d.push_ui_rect_to_camera(
       Some(camera_entity.id()),
-      test_rect_command(@math.Vec2(1.0, 1.0)),
+      test_rect_command(Vec2(1.0, 1.0)),
     )
     @render2d.push_ui_rect_to_camera(
       Some(camera_entity.id()),
-      test_rect_command(@math.Vec2(2.0, 2.0)),
+      test_rect_command(Vec2(2.0, 2.0)),
     )
     @render2d.pop_ui_clip_for_camera(Some(camera_entity.id()))
     @render2d.push_ui_rect_to_camera(
       Some(camera_entity.id()),
-      test_rect_command(@math.Vec2(3.0, 3.0)),
+      test_rect_command(Vec2(3.0, 3.0)),
     )
 
     let (frame, _) = build_frame2d(@camera.active_camera2d_views())
@@ -184,15 +184,15 @@ test "build_frame2d maps camera offscreen pass target" {
     let camera_entity = @entity.Entity()
     @camera.cameras().set(
       camera_entity,
-      @camera.Camera(
-        pass=@camera.CameraPass2D(
+      Camera(
+        pass=CameraPass2D(
           load_op=Clear,
           clear_color={ r: 0U, g: 0U, b: 0U, a: 1.0 },
-          target=@camera.CameraPassTarget2D::Offscreen("minimap"),
+          target=Offscreen("minimap"),
         ),
       ),
     )
-    @camera.camera2ds().set(camera_entity, @camera.Camera2d())
+    @camera.camera2ds().set(camera_entity, Camera2d())
     @transform.global_transforms().set(
       camera_entity,
       @transform.GlobalTransform::from_transform(
@@ -204,7 +204,7 @@ test "build_frame2d maps camera offscreen pass target" {
     inspect(frame.passes.length(), content="1")
     inspect(
       match frame.passes[0].target {
-        @render2d_types.RenderPassTarget2D::Offscreen(name) => name == "minimap"
+        Offscreen(name) => name == "minimap"
         _ => false
       },
       content="true",

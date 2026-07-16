@@ -69,7 +69,7 @@ fn graph_preview_clip_binding(
           continue
         }
         match node.kind {
-          @editor_bridge.Clip(clip_asset_path~) =>
+          Clip(clip_asset_path~) =>
             return Some((node.id, clip_asset_path, true))
           _ => ()
         }
@@ -78,7 +78,7 @@ fn graph_preview_clip_binding(
   }
   for node in graph.nodes {
     match node.kind {
-      @editor_bridge.Clip(clip_asset_path~) =>
+      Clip(clip_asset_path~) =>
         return Some((node.id, clip_asset_path, false))
       _ => ()
     }

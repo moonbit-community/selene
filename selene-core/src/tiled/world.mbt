@@ -6,7 +6,7 @@ fn tiled_world_set_entity_translation_2d(
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
     ..current,
-    translation: @math.Vec3(position[X], position[Y], current.translation.z),
+    translation: Vec3(position[X], position[Y], current.translation.z),
   })
 }
 
@@ -15,7 +15,7 @@ fn tiled_world_entity_translation_2d(entity : @entity.Entity) -> @math.Vec2? {
   @transform.transforms()
   .get(entity)
   .map(fn(transform) {
-    @math.Vec2(transform.translation.x, transform.translation.y)
+    Vec2(transform.translation.x, transform.translation.y)
   })
 }
 
@@ -326,7 +326,7 @@ fn tiled_camera_view_bounds() -> (@math.Vec2, @math.Vec2) {
       max_y = bounds.position[Y] + bounds.size[Y]
     }
   }
-  (@math.Vec2(min_x, min_y), @math.Vec2(max_x, max_y))
+  (Vec2(min_x, min_y), Vec2(max_x, max_y))
 }
 
 ///|
@@ -390,11 +390,11 @@ fn tiled_world_loaded_map_bounds(
     loaded_map.map.height * loaded_map.map.tile_height,
   )
   let min = origin +
-    @math.Vec2(
+    Vec2(
       loaded_map.world_map.x.to_double(),
       loaded_map.world_map.y.to_double(),
     )
-  (min, min + @math.Vec2(width.to_double(), height.to_double()))
+  (min, min + Vec2(width.to_double(), height.to_double()))
 }
 
 ///|

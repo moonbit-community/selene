@@ -10,7 +10,7 @@ fn apply_quat_rotation(quat : @smath.Quat) -> Unit {
   let axis = if sin_half < 0.000001 {
     @smath.Vec3(0.0, 1.0, 0.0)
   } else {
-    @smath.Vec3(
+    Vec3(
       normalized.x / sin_half,
       normalized.y / sin_half,
       normalized.z / sin_half,
@@ -61,7 +61,7 @@ fn draw_triangle_mesh(
     )
     normals = []
     for _ in 0..<vertices.length() {
-      normals.push(@smath.Vec3(0.0, 1.0, 0.0))
+      normals.push(Vec3(0.0, 1.0, 0.0))
     }
   }
   let colors = mesh.colors.bind(fn(candidates) {
@@ -174,7 +174,7 @@ fn compute_vertex_normals(
     let c = positions[ic]
     let mut normal = (b - a).cross(c - a)
     if normal.length_squared() <= 0.0000001 {
-      normal = @smath.Vec3(0.0, 1.0, 0.0)
+      normal = Vec3(0.0, 1.0, 0.0)
     }
     normals[ia] = normals[ia] + normal
     normals[ib] = normals[ib] + normal
@@ -183,7 +183,7 @@ fn compute_vertex_normals(
   for index in 0..<normals.length() {
     let normal = normals[index]
     normals[index] = if normal.length_squared() <= 0.0000001 {
-      @smath.Vec3(0.0, 1.0, 0.0)
+      Vec3(0.0, 1.0, 0.0)
     } else {
       normal.normalize()
     }

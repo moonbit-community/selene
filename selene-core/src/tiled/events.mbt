@@ -58,26 +58,26 @@ pub struct TiledImageLayerSpawnedEvent {
 }
 
 ///|
-pub let tiled_world_spawned_event_bus : @event.Events[TiledWorldSpawnedEvent] = @event.Events()
+pub let tiled_world_spawned_event_bus : @event.Events[TiledWorldSpawnedEvent] = Events()
 
 ///|
 pub let tiled_world_map_spawned_event_bus : @event.Events[
   TiledWorldMapSpawnedEvent,
-] = @event.Events()
+] = Events()
 
 ///|
-pub let tiled_map_spawned_event_bus : @event.Events[TiledMapSpawnedEvent] = @event.Events()
+pub let tiled_map_spawned_event_bus : @event.Events[TiledMapSpawnedEvent] = Events()
 
 ///|
-pub let tiled_layer_spawned_event_bus : @event.Events[TiledLayerSpawnedEvent] = @event.Events()
+pub let tiled_layer_spawned_event_bus : @event.Events[TiledLayerSpawnedEvent] = Events()
 
 ///|
-pub let tiled_tile_spawned_event_bus : @event.Events[TiledTileSpawnedEvent] = @event.Events()
+pub let tiled_tile_spawned_event_bus : @event.Events[TiledTileSpawnedEvent] = Events()
 
 ///|
-pub let tiled_object_spawned_event_bus : @event.Events[TiledObjectSpawnedEvent] = @event.Events()
+pub let tiled_object_spawned_event_bus : @event.Events[TiledObjectSpawnedEvent] = Events()
 
 ///|
 pub let tiled_image_layer_spawned_event_bus : @event.Events[
   TiledImageLayerSpawnedEvent,
-] = @event.Events()
+] = Events()

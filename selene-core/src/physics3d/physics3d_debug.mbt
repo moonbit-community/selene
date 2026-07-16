@@ -342,7 +342,7 @@ fn heightfield_point(
   } else {
     0.0
   }
-  @math.Vec3(x, y, z)
+  Vec3(x, y, z)
 }
 
 ///|
@@ -410,9 +410,9 @@ fn perpendicular_axis(axis : Int, slot : Int) -> Int {
 ///|
 fn axis_point(axis : Int, value : Double) -> @math.Vec3 {
   match axis {
-    0 => @math.Vec3(value, 0.0, 0.0)
-    1 => @math.Vec3(0.0, value, 0.0)
-    _ => @math.Vec3(0.0, 0.0, value)
+    0 => Vec3(value, 0.0, 0.0)
+    1 => Vec3(0.0, value, 0.0)
+    _ => Vec3(0.0, 0.0, value)
   }
 }
 
@@ -428,12 +428,12 @@ fn valid_vertex_index(vertices : Array[@math.Vec3], index : Int) -> Bool {
 
 ///|
 fn vec3_min(a : @math.Vec3, b : @math.Vec3) -> @math.Vec3 {
-  @math.Vec3(min_double(a.x, b.x), min_double(a.y, b.y), min_double(a.z, b.z))
+  Vec3(min_double(a.x, b.x), min_double(a.y, b.y), min_double(a.z, b.z))
 }
 
 ///|
 fn vec3_max(a : @math.Vec3, b : @math.Vec3) -> @math.Vec3 {
-  @math.Vec3(max_double(a.x, b.x), max_double(a.y, b.y), max_double(a.z, b.z))
+  Vec3(max_double(a.x, b.x), max_double(a.y, b.y), max_double(a.z, b.z))
 }
 
 ///|

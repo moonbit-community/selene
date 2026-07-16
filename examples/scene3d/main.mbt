@@ -47,7 +47,7 @@ let controller_entity : Ref[@entity.Entity?] = Ref(None)
 
 ///|
 let contact_force_reader : Ref[@event.EventReader[@physics3d.ContactForceEvent]] = Ref(
-  @event.EventReader(),
+  EventReader(),
 )
 
 ///|
@@ -55,7 +55,7 @@ let last_contact_force : Ref[Double] = Ref(0.0)
 
 ///|
 fn color(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
-  @render.Color::{ r, g, b, a }
+  { r, g, b, a }
 }
 
 ///|
@@ -75,7 +75,13 @@ fn character_input_vector() -> @math.Vec2 {
 
 ///|
 fn vec3(x : Double, y : Double, z : Double) -> @math.Vec3 {
-  @math.Vec3(x, y, z)
+  Vec3(x, y, z)
+}
+
+///|
+#warnings("-unnecessary_annotation")
+fn ccd_marker() -> @physics3d.Ccd {
+  @physics3d.Ccd::{  }
 }
 
 ///|
@@ -368,7 +374,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     linear_damping: 1.8,
     angular_damping: 1.2,
   })
-  @physics3d.ccds().set(dynamic_ball, @physics3d.Ccd::{  })
+  @physics3d.ccds().set(dynamic_ball, ccd_marker())
   @physics3d.contact_force_event_thresholds().set(
     dynamic_ball,
     ContactForceEventThreshold(0.0),
@@ -442,11 +448,11 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     linear_damping: 2.2,
     angular_damping: 1.6,
   })
-  @physics3d.ccds().set(joint_ball, @physics3d.Ccd::{  })
+  @physics3d.ccds().set(joint_ball, ccd_marker())
   @physics3d.impulse_joints().set(joint_ball, {
     parent: joint_anchor,
     data: Spherical({
-      ..@physics3d.SphericalJoint(),
+      ..SphericalJoint(),
       local_anchor1: vec3(-0.55, 1.2, 0.0),
       local_anchor2: vec3(0.0, 0.0, 0.0),
     }),
@@ -525,37 +531,37 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
   let label = @entity.Entity()
   @ui.nodes().set(
     label,
-    @ui.Node::absolute(@math.Vec2(16.0, 16.0), size=@math.Vec2(420.0, 28.0)),
+    @ui.Node::absolute(Vec2(16.0, 16.0), size=Vec2(420.0, 28.0)),
   )
   @ui.texts().set(
     label,
-    @ui.Text("3d_scene: WebGPU directional + spot shadows"),
+    Text("3d_scene: WebGPU directional + spot shadows"),
   )
-  @ui.text_fonts().set(label, @ui.TextFont(family="sans-serif", size=20.0))
-  @ui.text_colors().set(label, @ui.TextColor(color(245U, 245U, 245U, 1.0)))
-  @ui.z_indexes().set(label, @ui.ZIndex(100))
+  @ui.text_fonts().set(label, TextFont(family="sans-serif", size=20.0))
+  @ui.text_colors().set(label, TextColor(color(245U, 245U, 245U, 1.0)))
+  @ui.z_indexes().set(label, ZIndex(100))
   hud_label.val = Some(label)
 
   let physics_text = @entity.Entity()
   @ui.nodes().set(
     physics_text,
-    @ui.Node::absolute(@math.Vec2(16.0, 46.0), size=@math.Vec2(620.0, 28.0)),
+    @ui.Node::absolute(Vec2(16.0, 46.0), size=Vec2(620.0, 28.0)),
   )
   @ui.texts().set(
     physics_text,
-    @ui.Text(
+    Text(
       "physics: ball, child collider, joint, controller, raycast, contact force",
     ),
   )
   @ui.text_fonts().set(
     physics_text,
-    @ui.TextFont(family="sans-serif", size=18.0),
+    TextFont(family="sans-serif", size=18.0),
   )
   @ui.text_colors().set(
     physics_text,
-    @ui.TextColor(color(214U, 224U, 235U, 1.0)),
+    TextColor(color(214U, 224U, 235U, 1.0)),
   )
-  @ui.z_indexes().set(physics_text, @ui.ZIndex(100))
+  @ui.z_indexes().set(physics_text, ZIndex(100))
   physics_label.val = Some(physics_text)
 }
 
@@ -647,7 +653,7 @@ fn update_physics_overlay_system(_world : @ecs.World) -> Unit {
   guard physics_label.val is Some(label) else { return }
   @ui.texts().set(
     label,
-    @ui.Text(
+    Text(
       "physics: ray=\{ray_label}  contact=\{strongest_force}  controller=\{controller_status}",
     ),
   )

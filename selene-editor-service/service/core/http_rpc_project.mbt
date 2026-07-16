@@ -60,7 +60,7 @@ async fn EditorService::handle_project_rpc(
   request : @shared.RpcRequest,
 ) -> @shared.RpcResponse? {
   match request {
-    @shared.ProjectCurrent =>
+    ProjectCurrent =>
       Some(
         match self.current_project {
           Some(project) =>
@@ -73,20 +73,20 @@ async fn EditorService::handle_project_rpc(
             )
         },
       )
-    @shared.ProjectOpen(root~) =>
+    ProjectOpen(root~) =>
       Some(self.project_open_response(request, root))
-    @shared.ProjectPickDirectory(prompt~) =>
+    ProjectPickDirectory(prompt~) =>
       Some(
         @shared.rpc_response_directory_picked(
           @shared.directory_pick_result(pick_directory_dialog(prompt)),
         ),
       )
-    @shared.ProjectSaveWorkspace(workspace~) => {
+    ProjectSaveWorkspace(workspace~) => {
       let root = self.current_project_root()
       save_workspace_document(root, workspace)
       Some(@shared.rpc_response_saved_ok())
     }
-    @shared.ProjectSetStartupScene(path~) => {
+    ProjectSetStartupScene(path~) => {
       let root = self.current_project_root()
       let manifest = self.current_manifest()
       let next_manifest = manifest.with_startup_scene(path)

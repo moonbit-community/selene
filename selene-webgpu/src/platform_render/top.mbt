@@ -113,7 +113,7 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
     )
     let ui_batches = draw_batches_for_pass(pass.ui_commands, pass.ui_batches)
     if !pass.world_commands.is_empty() ||
-      pass.load_op is @render2d_types.RenderPassLoadOp2D::Clear {
+      pass.load_op is Clear {
       @impl.render2d_begin_pass(
         pass.viewport,
         pass.load_op,
@@ -126,7 +126,7 @@ pub fn submit_frame(frame : @render_pipeline.RenderFrame) -> Unit {
     if !pass.ui_commands.is_empty() {
       @impl.render2d_begin_pass(
         pass.viewport,
-        @render2d_types.RenderPassLoadOp2D::Load,
+        Load,
         pass.clear_color,
         pass.target,
       )

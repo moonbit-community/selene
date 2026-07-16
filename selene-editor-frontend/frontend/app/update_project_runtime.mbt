@@ -339,7 +339,7 @@ fn update_project_runtime(
               ..model,
               scene_session: Some({
                 ..session,
-                conflict_state: SceneConflictState::NoConflict,
+                conflict_state: NoConflict,
               }),
               status: "Keeping local scene edits",
             },
@@ -355,7 +355,7 @@ fn update_project_runtime(
               ..model,
               scene_session: Some({
                 ..session,
-                conflict_state: SceneConflictState::NoConflict,
+                conflict_state: NoConflict,
               }),
               status: "Reloading scene from disk...",
             },
@@ -380,7 +380,7 @@ fn update_project_runtime(
               scene_session: Some({
                 ..session,
                 path: save_path,
-                conflict_state: SceneConflictState::NoConflict,
+                conflict_state: NoConflict,
               }),
               status: "Saving conflict copy...",
             }

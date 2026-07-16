@@ -170,10 +170,10 @@ pub fn Code::from_string(code : String) -> Code? {
 /// inspect(current_keys, content="[]")
 /// ```
 ///
-pub let pressed_keys : Set[Code] = @set.Set([])
+pub let pressed_keys : Set[Code] = Set([])
 
 ///|
-pub let key_input_event_bus : @event.Events[KeyInputEvent] = @event.Events()
+pub let key_input_event_bus : @event.Events[KeyInputEvent] = Events()
 
 ///|
 /// Checks if a keyboard key is currently being pressed.
@@ -275,17 +275,17 @@ pub fn key_vector(
   } else {
     0.0
   }
-  @math.Vec2(x, y)
+  Vec2(x, y)
 }
 
 ///|
-let last_pressed_keys : Set[Code] = @set.Set([])
+let last_pressed_keys : Set[Code] = Set([])
 
 ///|
-let just_pressed_keys : Set[Code] = @set.Set([])
+let just_pressed_keys : Set[Code] = Set([])
 
 ///|
-let just_release_keys : Set[Code] = @set.Set([])
+let just_release_keys : Set[Code] = Set([])
 
 ///|
 /// Updates the keyboard input state to track which keys were just pressed or

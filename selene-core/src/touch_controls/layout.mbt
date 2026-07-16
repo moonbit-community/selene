@@ -1,6 +1,6 @@
 ///|
 fn rgba(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
-  @render.Color::{ r, g, b, a }
+  { r, g, b, a }
 }
 
 ///|
@@ -32,12 +32,12 @@ fn resolved_placement(
 ) -> @math.Vec2 {
   let margin = @cmp.maximum(16.0, radius * 0.65)
   match placement {
-    BottomLeft => @math.Vec2(margin + radius, screen[Y] - margin - radius)
+    BottomLeft => Vec2(margin + radius, screen[Y] - margin - radius)
     BottomRight =>
-      @math.Vec2(screen[X] - margin - radius, screen[Y] - margin - radius)
-    TopLeft => @math.Vec2(margin + radius, margin + radius)
-    TopRight => @math.Vec2(screen[X] - margin - radius, margin + radius)
-    Anchor(x, y, offset) => @math.Vec2(screen[X] * x, screen[Y] * y) + offset
+      Vec2(screen[X] - margin - radius, screen[Y] - margin - radius)
+    TopLeft => Vec2(margin + radius, margin + radius)
+    TopRight => Vec2(screen[X] - margin - radius, margin + radius)
+    Anchor(x, y, offset) => Vec2(screen[X] * x, screen[Y] * y) + offset
   }
 }
 

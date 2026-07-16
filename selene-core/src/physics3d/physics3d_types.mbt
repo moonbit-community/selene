@@ -77,6 +77,12 @@ pub(all) enum Collider {
 pub(all) struct Sensor {} derive(Eq, Debug)
 
 ///|
+#warnings("-unnecessary_annotation-unused_value")
+fn Sensor::Sensor() -> Sensor {
+  Sensor::{  }
+}
+
+///|
 pub(all) struct Friction(Double) derive(Eq, Debug)
 
 ///|

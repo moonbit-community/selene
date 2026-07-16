@@ -5,7 +5,7 @@ fn test_rect(
   width : Double,
   height : Double,
 ) -> @math.Rect {
-  { position: @math.Vec2(x, y), size: @math.Vec2(width, height) }
+  { position: Vec2(x, y), size: Vec2(width, height) }
 }
 
 ///|
@@ -160,7 +160,7 @@ test "ui border radii resolve percent values against node size" {
       bottom_right=Val::px(8.0),
       bottom_left=Val::percent(1.0),
     ),
-    @math.Vec2(120.0, 80.0),
+    Vec2(120.0, 80.0),
   )
 
   inspect(resolved.top_left == 20.0, content="true")
@@ -252,7 +252,7 @@ test "ui overflow clipping applies after node decorations" {
   let entity = @entity.Entity()
   let screen_rect = test_rect(0.0, 0.0, 120.0, 80.0)
   let content_rect = test_rect(12.0, 10.0, 96.0, 54.0)
-  nodes().set(entity, Node(overflow_y=Overflow::Scroll))
+  nodes().set(entity, Node(overflow_y=Scroll))
   global_ui_nodes().set(entity, test_global_node(screen_rect, content_rect))
   background_colors().set(entity, BackgroundColor(rgba(32, 64, 96, 1.0)))
   texts().set(entity, Text("Overflow"))
@@ -302,7 +302,7 @@ test "ui override clip removes inherited clip from child rendering" {
   let child = parent.spawn_child()
   nodes().set(
     parent,
-    Node(overflow_x=Overflow::Hidden, overflow_y=Overflow::Hidden),
+    Node(overflow_x=Hidden, overflow_y=Hidden),
   )
   nodes().set(child, Node())
   global_ui_nodes().set(

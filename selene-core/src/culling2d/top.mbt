@@ -132,7 +132,7 @@ pub fn SpatialGrid2d::query(
   if region.size[X] <= 0.0 || region.size[Y] <= 0.0 {
     return []
   }
-  let unique : @set.Set[UInt] = @set.Set([])
+  let unique : @set.Set[UInt] = Set([])
   let (min_x, min_y, max_x, max_y) = rect_cell_bounds(region, self.cell_size)
   for x in min_x..<(max_x + 1) {
     for y in min_y..<(max_y + 1) {
@@ -156,28 +156,28 @@ test "spatial grid query returns deterministic ids from overlapping cells" {
     [
       {
         id: 5U,
-        bounds: { position: @math.Vec2(0.0, 0.0), size: @math.Vec2(16.0, 16.0) },
+        bounds: { position: Vec2(0.0, 0.0), size: Vec2(16.0, 16.0) },
       },
       {
         id: 2U,
         bounds: {
-          position: @math.Vec2(20.0, 0.0),
-          size: @math.Vec2(16.0, 16.0),
+          position: Vec2(20.0, 0.0),
+          size: Vec2(16.0, 16.0),
         },
       },
       {
         id: 9U,
         bounds: {
-          position: @math.Vec2(400.0, 0.0),
-          size: @math.Vec2(16.0, 16.0),
+          position: Vec2(400.0, 0.0),
+          size: Vec2(16.0, 16.0),
         },
       },
     ],
     cell_size=32.0,
   )
   let ids = grid.query({
-    position: @math.Vec2(0.0, 0.0),
-    size: @math.Vec2(40.0, 32.0),
+    position: Vec2(0.0, 0.0),
+    size: Vec2(40.0, 32.0),
   })
   inspect(ids.length(), content="2")
   inspect(ids[0], content="2")

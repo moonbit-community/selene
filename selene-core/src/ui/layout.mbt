@@ -11,7 +11,7 @@ fn val_to_dimension(value : Val) -> @style.Dimension {
 fn rect_values_to_taffy(
   rect : UiRectValues,
 ) -> @geometry.Rect[@style.Dimension] {
-  @geometry.Rect::Rect(
+  Rect(
     left=val_to_dimension(rect.left),
     right=val_to_dimension(rect.right),
     top=val_to_dimension(rect.top),
@@ -123,7 +123,7 @@ fn grid_placement_to_taffy(value : GridPlacement) -> @style.GridPlacement {
 
 ///|
 fn grid_line_to_taffy(value : GridLine) -> @geometry.Line[@style.GridPlacement] {
-  @geometry.Line::Line(
+  Line(
     start=grid_placement_to_taffy(value.start),
     end=grid_placement_to_taffy(value.end),
   )
@@ -166,19 +166,19 @@ fn node_to_taffy_style(node : Node) -> @style.Style {
       },
     )
     .with_size(
-      @geometry.Size::Size(
+      Size(
         width=val_to_dimension(node.width),
         height=val_to_dimension(node.height),
       ),
     )
     .with_min_size(
-      @geometry.Size::Size(
+      Size(
         width=val_to_dimension(node.min_width),
         height=val_to_dimension(node.min_height),
       ),
     )
     .with_max_size(
-      @geometry.Size::Size(
+      Size(
         width=val_to_dimension(node.max_width),
         height=val_to_dimension(node.max_height),
       ),
@@ -207,7 +207,7 @@ fn node_to_taffy_style(node : Node) -> @style.Style {
     .with_justify_content(justify_content_to_taffy(node.justify_content))
     .with_align_items(align_items_to_taffy(node.align_items))
     .with_gap(
-      @geometry.Size::Size(
+      Size(
         width=@style_helpers.length(@cmp.maximum(0.0, node.column_gap)),
         height=@style_helpers.length(@cmp.maximum(0.0, node.row_gap)),
       ),
@@ -227,7 +227,7 @@ fn node_to_taffy_style(node : Node) -> @style.Style {
     .with_grid_row(grid_line_to_taffy(node.grid_row))
     .with_grid_column(grid_line_to_taffy(node.grid_column))
     .with_overflow(
-      @geometry.Point::Point(
+      Point(
         x=match node.overflow_x {
           Visible => @style_helpers.overflow_visible()
           Clip => @style_helpers.overflow_clip()
@@ -265,13 +265,13 @@ fn implicit_root_style(size : @math.Vec2) -> @style.Style {
   @style.Style::default()
   .with_display(@style_helpers.display_flex())
   .with_size(
-    @geometry.Size::Size(
+    Size(
       width=@style_helpers.length(size[X]),
       height=@style_helpers.length(size[Y]),
     ),
   )
   .with_min_size(
-    @geometry.Size::Size(
+    Size(
       width=@style_helpers.length(size[X]),
       height=@style_helpers.length(size[Y]),
     ),
@@ -305,7 +305,7 @@ fn measure_node(
   } else {
     (0.0, 0.0)
   }
-  @geometry.Size::Size(
+  Size(
     width=known_dimensions.width.unwrap_or(intrinsic_width),
     height=known_dimensions.height.unwrap_or(intrinsic_height),
   )
@@ -349,8 +349,8 @@ fn rect_intersection(lhs : @math.Rect, rhs : @math.Rect) -> @math.Rect? {
     None
   } else {
     Some({
-      position: @math.Vec2(left, top),
-      size: @math.Vec2(right - left, bottom - top),
+      position: Vec2(left, top),
+      size: Vec2(right - left, bottom - top),
     })
   }
 }
@@ -368,11 +368,11 @@ fn clip_rect_for_node(
     ContentBox => logical_content_rect
     PaddingBox =>
       {
-        position: @math.Vec2(
+        position: Vec2(
           logical_rect.position[X] + border.left,
           logical_rect.position[Y] + border.top,
         ),
-        size: @math.Vec2(
+        size: Vec2(
           @cmp.maximum(0.0, logical_rect.size[X] - border.left - border.right),
           @cmp.maximum(0.0, logical_rect.size[Y] - border.top - border.bottom),
         ),
@@ -382,11 +382,11 @@ fn clip_rect_for_node(
   let margin = node.overflow_clip_margin.margin
   screen_rect_for(
     {
-      position: @math.Vec2(
+      position: Vec2(
         base_rect.position[X] - margin,
         base_rect.position[Y] - margin,
       ),
-      size: @math.Vec2(
+      size: Vec2(
         @cmp.maximum(0.0, base_rect.size[X] + margin * 2.0),
         @cmp.maximum(0.0, base_rect.size[Y] + margin * 2.0),
       ),
@@ -403,8 +403,8 @@ fn rounded_screen_rect(rect : @math.Rect) -> @math.Rect {
   let right = (rect.position[X] + rect.size[X]).round()
   let bottom = (rect.position[Y] + rect.size[Y]).round()
   {
-    position: @math.Vec2(left, top),
-    size: @math.Vec2(
+    position: Vec2(left, top),
+    size: Vec2(
       @cmp.maximum(0.0, right - left),
       @cmp.maximum(0.0, bottom - top),
     ),
@@ -594,7 +594,7 @@ fn apply_layout_recursive(
   let layout = taffy.layout(node_id) catch { _ => return }
 
   let logical_pos = parent_content_origin +
-    @math.Vec2(layout.location.x, layout.location.y)
+    Vec2(layout.location.x, layout.location.y)
   let logical_size = @math.Vec2(layout.size.width, layout.size.height)
   let logical_rect = @math.Rect::{ position: logical_pos, size: logical_size }
 
@@ -701,7 +701,7 @@ pub fn ui_layout_system(_delta : Double) -> Unit {
       ui_target_cameras().get(root_entity).map(fn(target) { target.camera }),
     )
     let viewport = ui_layout_root_size(layout_space)
-    let taffy : @tree.TaffyTree[@entity.Entity] = @tree.TaffyTree::TaffyTree()
+    let taffy : @tree.TaffyTree[@entity.Entity] = TaffyTree()
     let entity_to_node_id : Map[@entity.Entity, Int] = Map([])
     guard build_taffy_tree(taffy, root_entity, entity_to_node_id)
       is Some(root_node) else {
@@ -713,7 +713,7 @@ pub fn ui_layout_system(_delta : Double) -> Unit {
     ignore(
       taffy.compute_layout_with_measure(
         implicit_root,
-        @geometry.Size::Size(
+        Size(
           width=@style_helpers.available_space_definite(viewport[X]),
           height=@style_helpers.available_space_definite(viewport[Y]),
         ),

@@ -1121,7 +1121,7 @@ pub fn animation_graph_asset_document_from_clip(
 pub fn SceneDocument::default_main() -> SceneDocument {
   let camera = entity_document("camera", "Camera2d", components=[
     name_component("Camera2d"),
-    transform2d_component(translation=Vec2Doc::{ x: 0.0, y: 0.0 }),
+    transform2d_component(translation={ x: 0.0, y: 0.0 }),
     camera2d_component(),
     visibility_component(),
   ])
@@ -1371,7 +1371,7 @@ pub fn default_component_document(
     Sprite => sprite_component()
     TextureAtlas =>
       texture_atlas_component(
-        layout=Some(TextureAtlasLayoutDoc::{
+        layout=Some({
           tile_size: vec2_doc(16.0, 16.0),
           columns: 1,
           rows: 1,

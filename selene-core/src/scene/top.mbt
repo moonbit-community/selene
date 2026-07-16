@@ -19,7 +19,7 @@ pub(all) struct SceneInstanceReadyEvent {
 let scene_instances : Map[@entity.Entity, SceneHandle] = Map([])
 
 ///|
-pub let scene_instance_ready_events : @event.Events[SceneInstanceReadyEvent] = @event.Events()
+pub let scene_instance_ready_events : @event.Events[SceneInstanceReadyEvent] = Events()
 
 ///|
 pub fn spawner() -> SceneSpawner {

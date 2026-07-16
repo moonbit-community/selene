@@ -57,7 +57,7 @@ fn parse_matrix_transform(values : Array[Json]) -> @transform.Transform? {
   let r21 = m21 / scale_y
   let r22 = m22 / scale_z
   let rotation = quat_from_matrix3(r00, r01, r02, r10, r11, r12, r20, r21, r22)
-  Some({ translation, rotation, scale: @math.Vec3(scale_x, scale_y, scale_z) })
+  Some({ translation, rotation, scale: Vec3(scale_x, scale_y, scale_z) })
 }
 
 ///|
@@ -166,7 +166,7 @@ fn parse_vec3(value : Json?, fallback : @math.Vec3) -> @math.Vec3 {
   let x = json_number(values[0]).unwrap_or(fallback.x)
   let y = json_number(values[1]).unwrap_or(fallback.y)
   let z = json_number(values[2]).unwrap_or(fallback.z)
-  @math.Vec3(x, y, z)
+  Vec3(x, y, z)
 }
 
 ///|

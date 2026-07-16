@@ -36,7 +36,7 @@ fn clamp_alpha(alpha : Double) -> Double {
 
 ///|
 fn rgba(r : Int, g : Int, b : Int, a : Double) -> @render.Color {
-  @render.Color::{
+  {
     r: clamp_channel(r),
     g: clamp_channel(g),
     b: clamp_channel(b),

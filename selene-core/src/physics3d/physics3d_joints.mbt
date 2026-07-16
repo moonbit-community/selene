@@ -254,7 +254,7 @@ pub fn RapierContext::cast_shape(
   shape : Collider,
   origin : @math.Vec3,
   rotation? : @math.Quat = @math.Quat::identity(),
-  direction? : @math.Vec3 = @math.Vec3(0.0, -1.0, 0.0),
+  direction? : @math.Vec3 = Vec3(0.0, -1.0, 0.0),
   max_toi? : Double = 1000.0,
   stop_at_penetration? : Bool = false,
   query_filter? : QueryFilter = QueryFilter::all(),
@@ -275,7 +275,7 @@ pub fn RapierContext::cast_shape(
     query.cast_shape(
       world.bodies,
       world.colliders,
-      @core.Isometry3::Isometry3(origin.to_rapier(), shape_rotation.to_rapier()),
+      Isometry3(origin.to_rapier(), shape_rotation.to_rapier()),
       direction.normalize().to_rapier(),
       query_shape,
       options,

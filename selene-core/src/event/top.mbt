@@ -146,7 +146,7 @@ pub fn[T] EventWriter::trigger(
 
 ///|
 pub fn[T] Events::Events(
-  domain? : EventDomain = EventDomain::Frame,
+  domain? : EventDomain = Frame,
 ) -> Events[T] {
   { id: allocate_event_bus_id(), domain, stores: Map([]), marker: None }
 }
@@ -321,17 +321,17 @@ fn update_domain(domain : EventDomain) -> Unit {
 
 ///|
 pub fn event_frame_update_system(_delta : Double) -> Unit {
-  update_domain(EventDomain::Frame)
+  update_domain(Frame)
 }
 
 ///|
 pub fn event_fixed_update_system(_delta : Double) -> Unit {
-  update_domain(EventDomain::Fixed)
+  update_domain(Fixed)
 }
 
 ///|
 pub fn event_render_update_system(_delta : Double) -> Unit {
-  update_domain(EventDomain::Render)
+  update_domain(Render)
 }
 
 ///|

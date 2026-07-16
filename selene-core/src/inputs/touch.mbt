@@ -149,10 +149,10 @@ let touch_gesture_changes : Array[TouchGestureEvent] = []
 let pinch_state : Ref[PinchState?] = Ref(None)
 
 ///|
-pub let touch_event_bus : @event.Events[TouchEvent] = @event.Events()
+pub let touch_event_bus : @event.Events[TouchEvent] = Events()
 
 ///|
-pub let touch_gesture_event_bus : @event.Events[TouchGestureEvent] = @event.Events()
+pub let touch_gesture_event_bus : @event.Events[TouchGestureEvent] = Events()
 
 ///|
 pub fn active_touches() -> Map[TouchId, TouchPoint] {

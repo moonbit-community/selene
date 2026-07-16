@@ -641,18 +641,18 @@ fn camera_culling_context(
   let forward_n = if has_forward {
     forward.normalize()
   } else {
-    @math.Vec3(0.0, 0.0, -1.0)
+    Vec3(0.0, 0.0, -1.0)
   }
   let up = if camera.up.length_squared() > 0.0000001 {
     camera.up.normalize()
   } else {
-    @math.Vec3(0.0, 1.0, 0.0)
+    Vec3(0.0, 1.0, 0.0)
   }
   let right = forward_n.cross(up)
   let right_n = if right.length_squared() > 0.0000001 {
     right.normalize()
   } else {
-    @math.Vec3(1.0, 0.0, 0.0)
+    Vec3(1.0, 0.0, 0.0)
   }
   let up_n = right_n.cross(forward_n).normalize()
   let viewport = @system.get_viewport_size()
@@ -663,7 +663,7 @@ fn camera_culling_context(
   }
   let half_fovy_rad = camera.fov_y * 0.5 * @cmath.PI / 180.0
   let tan_half_y = @cmath.tan(half_fovy_rad)
-  let ortho_size = camera.orthographic_size.unwrap_or(@math.Vec2(20.0, 20.0))
+  let ortho_size = camera.orthographic_size.unwrap_or(Vec2(20.0, 20.0))
   {
     camera,
     has_forward,

@@ -27,7 +27,7 @@ async fn write_text_file(path : String, content : String) -> Unit {
   @fs.write_file(
     path,
     @utf8.encode(content),
-    create_mode=@fs.CreateOrTruncate,
+    create_mode=CreateOrTruncate,
     permission=0o644,
   )
 }
@@ -110,7 +110,7 @@ async fn[T] list_document_refs(
 
 ///|
 async fn native_document_source(root : String) -> @editor_bridge.DocumentSource {
-  let documents : Map[String, Bytes] = {}
+  let documents : Map[String, Bytes] = Map([])
   for relative_path in list_files_recursive(root) {
     let full_path = path_join(root, relative_path)
     let data = @fs.read_file(full_path) catch { _ => continue }

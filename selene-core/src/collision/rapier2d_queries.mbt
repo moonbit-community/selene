@@ -220,7 +220,7 @@ fn from_physics_scalar(value : Double) -> Double {
 
 ///|
 fn to_physics_vec2(value : @math.Vec2) -> @rapier_full.Vec2 {
-  @rapier_full.Vec2::Vec2(
+  Vec2(
     Float::from_double(to_physics_scalar(value[X])),
     Float::from_double(to_physics_scalar(value[Y])),
   )
@@ -228,7 +228,7 @@ fn to_physics_vec2(value : @math.Vec2) -> @rapier_full.Vec2 {
 
 ///|
 fn to_physics_direction(value : @math.Vec2) -> @rapier_full.Vec2 {
-  @rapier_full.Vec2::Vec2(
+  Vec2(
     Float::from_double(value[X]),
     Float::from_double(value[Y]),
   )
@@ -236,7 +236,7 @@ fn to_physics_direction(value : @math.Vec2) -> @rapier_full.Vec2 {
 
 ///|
 fn from_physics_vec2(value : @rapier_full.Vec2) -> @math.Vec2 {
-  @math.Vec2(
+  Vec2(
     from_physics_scalar(value.x.to_double()),
     from_physics_scalar(value.y.to_double()),
   )

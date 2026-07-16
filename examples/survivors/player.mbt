@@ -62,19 +62,19 @@ fn player_input_vector() -> @math.Vec2 {
 fn ensure_sprite_animation_binding(entity : @entity.Entity) -> Unit {
   ignore(
     @animation.animation_players().get_or_init(entity, fn() {
-      @animation.AnimationPlayer()
+      AnimationPlayer()
     }),
   )
   ignore(
     @animation.animation_transitions().get_or_init(entity, fn() {
-      @animation.AnimationTransitions()
+      AnimationTransitions()
     }),
   )
   @animation.animation_target_ids().set(
     entity,
-    @animation.AnimationTargetId("self"),
+    AnimationTargetId("self"),
   )
-  @animation.animated_bys().set(entity, @animation.AnimatedBy(entity))
+  @animation.animated_bys().set(entity, AnimatedBy(entity))
 }
 
 ///|
@@ -102,11 +102,11 @@ fn build_sprite_animation_clip_asset(
     })
   }
   clip.add_curve_to_target(
-    @animation.AnimationTargetId("self"),
+    AnimationTargetId("self"),
     @animation.VariableCurve::scalar(
       @animation.texture_atlas_index_field(),
       keys,
-      interpolation=@animation.ChannelInterpolation::Step,
+      interpolation=Step,
     ),
   )
   if frame_count > 0 && !animation.loop_ {
@@ -197,7 +197,7 @@ fn add_player() -> Unit {
   )
   @physics2d.shapes().set(
     entity,
-    @physics2d.CollisionShape::Rect(
+    Rect(
       size=Vec2(PLAYER_SIZE, PLAYER_SIZE),
       offset=Vec2(-PLAYER_SIZE / 2.0, -PLAYER_SIZE / 2.0),
     ),

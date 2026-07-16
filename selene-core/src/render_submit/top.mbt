@@ -17,8 +17,8 @@ fn render_pass_load_op(
   load_op : @camera.CameraPassLoadOp2D,
 ) -> @render2d_types.RenderPassLoadOp2D {
   match load_op {
-    Load => @render2d_types.RenderPassLoadOp2D::Load
-    Clear => @render2d_types.RenderPassLoadOp2D::Clear
+    Load => Load
+    Clear => Clear
   }
 }
 
@@ -27,8 +27,8 @@ fn render_pass_target(
   target : @camera.CameraPassTarget2D,
 ) -> @render2d_types.RenderPassTarget2D {
   match target {
-    Screen => @render2d_types.RenderPassTarget2D::Screen
-    Offscreen(name) => @render2d_types.RenderPassTarget2D::Offscreen(name)
+    Screen => Screen
+    Offscreen(name) => Offscreen(name)
   }
 }
 
@@ -225,9 +225,9 @@ fn build_frame2d(
       camera_entity_id: None,
       order: screen_pass_order(camera_views),
       viewport: full_screen_viewport(),
-      load_op: @render2d_types.RenderPassLoadOp2D::Load,
+      load_op: Load,
       clear_color: { r: 0U, g: 0U, b: 0U, a: 1.0 },
-      target: @render2d_types.RenderPassTarget2D::Screen,
+      target: Screen,
       world_commands: screen_world_commands,
       ui_commands: screen_ui_commands,
       world_batches: build_draw_batches(screen_world_commands),

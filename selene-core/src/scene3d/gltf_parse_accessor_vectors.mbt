@@ -57,7 +57,7 @@ fn read_accessor_vec3(
         accessor.normalized,
       )
       guard (x, y, z) is (Some(px), Some(py), Some(pz)) else { return None }
-      output[idx] = @math.Vec3(px, py, pz)
+      output[idx] = Vec3(px, py, pz)
     }
   }
   if accessor.sparse is Some(sparse) {
@@ -110,7 +110,7 @@ fn read_accessor_vec3(
         accessor.normalized,
       )
       guard (x, y, z) is (Some(px), Some(py), Some(pz)) else { return None }
-      output[target_index] = @math.Vec3(px, py, pz)
+      output[target_index] = Vec3(px, py, pz)
     }
   }
   Some(output)
@@ -136,7 +136,7 @@ fn read_accessor_vec2(
   }
   let output : Array[@math.Vec2] = []
   for _ in 0..<accessor.count {
-    output.push(@math.Vec2(0.0, 0.0))
+    output.push(Vec2(0.0, 0.0))
   }
   if resolve_accessor_bytes(accessor, buffers, buffer_views)
     is Some((bytes, base_offset, stride, view_end)) {
@@ -169,7 +169,7 @@ fn read_accessor_vec2(
         accessor.normalized,
       )
       guard (x, y) is (Some(px), Some(py)) else { return None }
-      output[idx] = @math.Vec2(px, py)
+      output[idx] = Vec2(px, py)
     }
   }
   if accessor.sparse is Some(sparse) {
@@ -216,7 +216,7 @@ fn read_accessor_vec2(
         accessor.normalized,
       )
       guard (x, y) is (Some(px), Some(py)) else { return None }
-      output[target_index] = @math.Vec2(px, py)
+      output[target_index] = Vec2(px, py)
     }
   }
   Some(output)

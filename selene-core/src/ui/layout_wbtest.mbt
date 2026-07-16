@@ -33,7 +33,7 @@ fn cleanup_layout_test_entity(entity : @entity.Entity) -> Unit {
 
 ///|
 test "ui nodes map flex wrap and align content into wrapped layout" {
-  let taffy : @tree.TaffyTree[Unit] = @tree.TaffyTree::TaffyTree()
+  let taffy : @tree.TaffyTree[Unit] = TaffyTree()
   let mk_child = fn() {
     taffy.new_leaf(
       node_to_taffy_style(Node(width=Val::px(50.0), height=Val::px(10.0))),
@@ -50,7 +50,7 @@ test "ui nodes map flex wrap and align content into wrapped layout" {
       Node(
         width=Val::px(120.0),
         height=Val::px(100.0),
-        flex_direction=FlexDirection::Row,
+        flex_direction=Row,
         flex_wrap=flex_wrap_wrap(),
         align_content=Some(align_content_center()),
       ),
@@ -73,11 +73,11 @@ test "ui nodes map flex wrap and align content into wrapped layout" {
 
 ///|
 test "ui nodes map block display and aspect ratio into block layout" {
-  let taffy : @tree.TaffyTree[Unit] = @tree.TaffyTree::TaffyTree()
+  let taffy : @tree.TaffyTree[Unit] = TaffyTree()
   let child = taffy.new_leaf(
     node_to_taffy_style(
       Node(
-        position_type=PositionType::Absolute,
+        position_type=Absolute,
         left=Val::percent(0.05),
         right=Val::percent(0.05),
         top=Val::percent(0.05),
@@ -88,7 +88,7 @@ test "ui nodes map block display and aspect ratio into block layout" {
   )
   let root = taffy.new_with_children(
     node_to_taffy_style(
-      Node(display=Display::Block, width=Val::px(400.0), height=Val::px(300.0)),
+      Node(display=Block, width=Val::px(400.0), height=Val::px(300.0)),
     ),
     [child],
   )
@@ -103,7 +103,7 @@ test "ui nodes map block display and aspect ratio into block layout" {
 
 ///|
 test "ui nodes map grid placement and self alignment into grid layout" {
-  let taffy : @tree.TaffyTree[Unit] = @tree.TaffyTree::TaffyTree()
+  let taffy : @tree.TaffyTree[Unit] = TaffyTree()
   let child0 = taffy.new_leaf(
     node_to_taffy_style(
       Node(
@@ -119,8 +119,8 @@ test "ui nodes map grid placement and self alignment into grid layout" {
       Node(
         width=Val::px(20.0),
         height=Val::px(20.0),
-        align_self=Some(AlignItems::Center),
-        justify_self=Some(AlignItems::Center),
+        align_self=Some(Center),
+        justify_self=Some(Center),
         grid_row=GridLine(start=grid_line_index(3)),
         grid_column=GridLine(start=grid_line_index(3)),
       ),
@@ -129,11 +129,11 @@ test "ui nodes map grid placement and self alignment into grid layout" {
   let root = taffy.new_with_children(
     node_to_taffy_style(
       Node(
-        display=Display::Grid,
+        display=Grid,
         width=Val::px(120.0),
         height=Val::px(120.0),
-        align_items=AlignItems::End,
-        justify_items=Some(AlignItems::End),
+        align_items=End,
+        justify_items=Some(End),
         grid_template_rows=[grid_px(40.0), grid_px(40.0), grid_px(40.0)],
         grid_template_columns=[grid_px(40.0), grid_px(40.0), grid_px(40.0)],
       ),
@@ -155,8 +155,8 @@ test "ui nodes map grid placement and self alignment into grid layout" {
 test "ui nodes map style-only grid and flex fields into taffy style" {
   let style = node_to_taffy_style(
     Node(
-      display=Display::Grid,
-      overflow_x=Overflow::Hidden,
+      display=Grid,
+      overflow_x=Hidden,
       flex_basis=Val::percent(0.25),
       scrollbar_width=12.0,
       grid_auto_rows=[grid_px(16.0)],
@@ -167,36 +167,36 @@ test "ui nodes map style-only grid and flex fields into taffy style" {
   )
 
   let has_percent_basis = match style.flex_basis {
-    @style.DimPercent(value) => value == 0.25
+    DimPercent(value) => value == 0.25
     _ => false
   }
   inspect(has_percent_basis, content="true")
   inspect(style.scrollbar_width == 12.0, content="true")
 
   let has_auto_row = match style.grid_auto_rows[0] {
-    @style.DimLength(value) => value == 16.0
+    DimLength(value) => value == 16.0
     _ => false
   }
   inspect(has_auto_row, content="true")
 
   let has_auto_column = match style.grid_auto_columns[0] {
-    @style.DimFr(value) => value == 1.0
+    DimFr(value) => value == 1.0
     _ => false
   }
   inspect(has_auto_column, content="true")
 
   let is_column_dense = match style.grid_auto_flow {
-    @style.ColumnDense => true
+    ColumnDense => true
     _ => false
   }
   inspect(is_column_dense, content="true")
 
   let has_repeated_template = match style.grid_template_columns[0] {
-    @style.DimRepeat(@style.RepeatCount(2), tracks) => {
+    DimRepeat(RepeatCount(2), tracks) => {
       let has_single_track = tracks.length() == 1
       let has_length_track = if has_single_track {
         match tracks[0] {
-          @style.DimLength(value) => value == 20.0
+          DimLength(value) => value == 20.0
           _ => false
         }
       } else {
@@ -209,7 +209,7 @@ test "ui nodes map style-only grid and flex fields into taffy style" {
   inspect(has_repeated_template, content="true")
 
   let has_hidden_overflow = match style.overflow.x {
-    @style.OverflowHidden => true
+    OverflowHidden => true
     _ => false
   }
   inspect(has_hidden_overflow, content="true")
@@ -221,12 +221,12 @@ test "ui layout uses overflow clip margins from the requested visual box" {
   nodes().set(
     entity,
     Node::absolute(
-      @math.Vec2(10.0, 20.0),
-      size=@math.Vec2(100.0, 80.0),
+      Vec2(10.0, 20.0),
+      size=Vec2(100.0, 80.0),
       padding=UiRectValues::px(left=6.0),
       border=UiRectValues::px(left=4.0),
-      overflow_x=Overflow::Hidden,
-      overflow_y=Overflow::Hidden,
+      overflow_x=Hidden,
+      overflow_y=Hidden,
       overflow_clip_margin=OverflowClipMargin::padding_box().with_margin(3.0),
     ),
   )
@@ -251,8 +251,8 @@ test "ui layout config controls screen-space rounding for viewport-scaled rects"
   @system.configure_display(101.0, 101.0, 1.5)
 
   let logical_rect : @math.Rect = {
-    position: @math.Vec2(33.835, 33.835),
-    size: @math.Vec2(10.0, 10.0),
+    position: Vec2(33.835, 33.835),
+    size: Vec2(10.0, 10.0),
   }
   let rounded_rect = screen_rect_for(
     logical_rect,
@@ -287,13 +287,13 @@ test "ui target camera layouts use the camera viewport as screen-space origin" {
   let camera = @entity.Entity()
   @camera.cameras().set(
     camera,
-    @camera.Camera(
+    Camera(
       viewport=Some(
-        @camera.CameraViewport(@math.Vec2(20.0, 10.0), @math.Vec2(80.0, 40.0)),
+        CameraViewport(Vec2(20.0, 10.0), Vec2(80.0, 40.0)),
       ),
     ),
   )
-  @camera.camera2ds().set(camera, @camera.Camera2d())
+  @camera.camera2ds().set(camera, Camera2d())
   @transform.global_transforms().set(
     camera,
     @transform.GlobalTransform::from_transform(@transform.Transform::default()),
@@ -302,7 +302,7 @@ test "ui target camera layouts use the camera viewport as screen-space origin" {
   let entity = @entity.Entity()
   nodes().set(
     entity,
-    Node::absolute(@math.Vec2(4.0, 6.0), size=@math.Vec2(20.0, 10.0)),
+    Node::absolute(Vec2(4.0, 6.0), size=Vec2(20.0, 10.0)),
   )
   ui_target_cameras().set(entity, UiTargetCamera(camera))
 
@@ -328,15 +328,15 @@ test "ui override clip ignores inherited clipping rectangles" {
   nodes().set(
     parent,
     Node::absolute(
-      @math.Vec2(0.0, 0.0),
-      size=@math.Vec2(120.0, 120.0),
-      overflow_x=Overflow::Hidden,
-      overflow_y=Overflow::Hidden,
+      Vec2(0.0, 0.0),
+      size=Vec2(120.0, 120.0),
+      overflow_x=Hidden,
+      overflow_y=Hidden,
     ),
   )
   nodes().set(
     child,
-    Node::absolute(@math.Vec2(90.0, 20.0), size=@math.Vec2(80.0, 40.0)),
+    Node::absolute(Vec2(90.0, 20.0), size=Vec2(80.0, 40.0)),
   )
   override_clips().set(child, OverrideClip())
 

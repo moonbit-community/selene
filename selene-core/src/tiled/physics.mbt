@@ -103,7 +103,7 @@ pub fn tiled_collider_origins() -> Map[@entity.Entity, TiledColliderOrigin] {
 ///|
 pub let tiled_collider_spawned_event_bus : @event.Events[
   TiledColliderSpawnedEvent,
-] = @event.Events()
+] = Events()
 
 ///|
 let tiled_default_physics_group : @physics2d.CollisionGroup = @physics2d.collision_group()
@@ -385,9 +385,9 @@ fn tiled_physics_specs_from_shape_object(
     )
   } else if object.polyline.length() > 0 {
     Some(
-      @physics2d.CollisionShape::Polyline(
+      Polyline(
         points=tiled_transform_points(
-          object.polyline.map(point => @math.Vec2(point.x, point.y)),
+          object.polyline.map(point => Vec2(point.x, point.y)),
           transform,
         ),
         offset=@math.Vec2::zero(),
@@ -396,21 +396,21 @@ fn tiled_physics_specs_from_shape_object(
     )
   } else if object.polygon.length() > 0 {
     Some(
-      @physics2d.CollisionShape::Polygon(
+      Polygon(
         points=tiled_transform_points(
-          object.polygon.map(point => @math.Vec2(point.x, point.y)),
+          object.polygon.map(point => Vec2(point.x, point.y)),
           transform,
         ),
         offset=@math.Vec2::zero(),
       ),
     )
   } else if object.ellipse {
-    let size = size_override.unwrap_or(@math.Vec2(object.width, object.height))
+    let size = size_override.unwrap_or(Vec2(object.width, object.height))
     if size[X] <= 0.0 || size[Y] <= 0.0 {
       None
     } else {
       Some(
-        @physics2d.CollisionShape::Polygon(
+        Polygon(
           points=tiled_transform_points(
             tiled_ellipse_points(size, settings.ellipse_segments),
             transform,
@@ -422,7 +422,7 @@ fn tiled_physics_specs_from_shape_object(
   } else if object.text is Some(_) {
     None
   } else {
-    let size = size_override.unwrap_or(@math.Vec2(object.width, object.height))
+    let size = size_override.unwrap_or(Vec2(object.width, object.height))
     if size[X] <= 0.0 || size[Y] <= 0.0 {
       None
     } else {
@@ -546,17 +546,17 @@ fn tiled_shape_from_rect(
   let corners = tiled_transform_points(
     [
       @math.Vec2::zero(),
-      @math.Vec2(size[X], 0.0),
-      @math.Vec2(size[X], size[Y]),
-      @math.Vec2(0.0, size[Y]),
+      Vec2(size[X], 0.0),
+      Vec2(size[X], size[Y]),
+      Vec2(0.0, size[Y]),
     ],
     transform,
   )
   match tiled_axis_aligned_rect(corners) {
     Some((offset, rect_size)) =>
-      @physics2d.CollisionShape::Rect(size=rect_size, offset~)
+      Rect(size=rect_size, offset~)
     None =>
-      @physics2d.CollisionShape::Polygon(
+      Polygon(
         points=corners,
         offset=@math.Vec2::zero(),
       )
@@ -586,9 +586,9 @@ fn tiled_axis_aligned_rect(
   }
   let expected = [
     @math.Vec2(min_x, min_y),
-    @math.Vec2(max_x, min_y),
-    @math.Vec2(max_x, max_y),
-    @math.Vec2(min_x, max_y),
+    Vec2(max_x, min_y),
+    Vec2(max_x, max_y),
+    Vec2(min_x, max_y),
   ]
   for expected_point in expected {
     let mut matched = false
@@ -602,7 +602,7 @@ fn tiled_axis_aligned_rect(
       return None
     }
   }
-  Some((@math.Vec2(min_x, min_y), rect_size))
+  Some((Vec2(min_x, min_y), rect_size))
 }
 
 ///|
@@ -614,7 +614,7 @@ fn tiled_ellipse_points(size : @math.Vec2, segments : Int) -> Array[@math.Vec2] 
     let angle = index.to_double() * @cmath.PI * 2.0 / count.to_double()
     points.push(
       center +
-      @math.Vec2(center[X] * @cmath.cos(angle), center[Y] * @cmath.sin(angle)),
+      Vec2(center[X] * @cmath.cos(angle), center[Y] * @cmath.sin(angle)),
     )
   }
   points
@@ -693,12 +693,12 @@ fn tiled_merge_rects(
     tiled_scalars_close(left_size[Y], right_size[Y]) {
     if tiled_scalars_close(left_offset[X] + left_size[X], right_offset[X]) {
       return Some(
-        (left_offset, @math.Vec2(left_size[X] + right_size[X], left_size[Y])),
+        (left_offset, Vec2(left_size[X] + right_size[X], left_size[Y])),
       )
     }
     if tiled_scalars_close(right_offset[X] + right_size[X], left_offset[X]) {
       return Some(
-        (right_offset, @math.Vec2(left_size[X] + right_size[X], left_size[Y])),
+        (right_offset, Vec2(left_size[X] + right_size[X], left_size[Y])),
       )
     }
   }
@@ -706,12 +706,12 @@ fn tiled_merge_rects(
     tiled_scalars_close(left_size[X], right_size[X]) {
     if tiled_scalars_close(left_offset[Y] + left_size[Y], right_offset[Y]) {
       return Some(
-        (left_offset, @math.Vec2(left_size[X], left_size[Y] + right_size[Y])),
+        (left_offset, Vec2(left_size[X], left_size[Y] + right_size[Y])),
       )
     }
     if tiled_scalars_close(right_offset[Y] + right_size[Y], left_offset[Y]) {
       return Some(
-        (right_offset, @math.Vec2(left_size[X], left_size[Y] + right_size[Y])),
+        (right_offset, Vec2(left_size[X], left_size[Y] + right_size[Y])),
       )
     }
   }
@@ -770,11 +770,11 @@ fn tiled_physics_body(
     return None
   }
   let mut body = match body_type {
-    Some(@physics2d.RigidBodyType::Dynamic) => @physics2d.RigidBody::dynamic()
-    Some(@physics2d.RigidBodyType::Fixed) => @physics2d.RigidBody::fixed()
-    Some(@physics2d.RigidBodyType::KinematicPositionBased) =>
+    Some(Dynamic) => @physics2d.RigidBody::dynamic()
+    Some(Fixed) => @physics2d.RigidBody::fixed()
+    Some(KinematicPositionBased) =>
       @physics2d.RigidBody::kinematic_position_based()
-    Some(@physics2d.RigidBodyType::KinematicVelocityBased) =>
+    Some(KinematicVelocityBased) =>
       @physics2d.RigidBody::kinematic_velocity_based()
     None => @physics2d.RigidBody::fixed()
   }
@@ -794,20 +794,20 @@ fn tiled_physics_body(
 ///|
 fn tiled_physics_body_type(value : String) -> @physics2d.RigidBodyType? {
   match value.trim().to_owned().to_lower() {
-    "dynamic" => Some(@physics2d.RigidBodyType::Dynamic)
-    "fixed" => Some(@physics2d.RigidBodyType::Fixed)
+    "dynamic" => Some(Dynamic)
+    "fixed" => Some(Fixed)
     "kinematicpositionbased" =>
-      Some(@physics2d.RigidBodyType::KinematicPositionBased)
+      Some(KinematicPositionBased)
     "kinematic_position_based" =>
-      Some(@physics2d.RigidBodyType::KinematicPositionBased)
+      Some(KinematicPositionBased)
     "kinematic-position-based" =>
-      Some(@physics2d.RigidBodyType::KinematicPositionBased)
+      Some(KinematicPositionBased)
     "kinematicvelocitybased" =>
-      Some(@physics2d.RigidBodyType::KinematicVelocityBased)
+      Some(KinematicVelocityBased)
     "kinematic_velocity_based" =>
-      Some(@physics2d.RigidBodyType::KinematicVelocityBased)
+      Some(KinematicVelocityBased)
     "kinematic-velocity-based" =>
-      Some(@physics2d.RigidBodyType::KinematicVelocityBased)
+      Some(KinematicVelocityBased)
     _ => None
   }
 }

@@ -90,12 +90,12 @@ pub fn register_mouse_events(
 ) -> Unit {
   window.add_event_listener("mousemove", event => {
     let mouse_event = event.to_mouse_event().unwrap()
-    mouse.pos = @smath.Vec2(
+    mouse.pos = Vec2(
       mouse_event.get_offset_x().to_double(),
       mouse_event.get_offset_y().to_double(),
     )
     mouse_relative_delta.val = Some(
-      @smath.Vec2(
+      Vec2(
         mouse_event.get_movement_x().to_double(),
         mouse_event.get_movement_y().to_double(),
       ),
@@ -123,7 +123,7 @@ pub fn register_mouse_events(
   })
   window.add_event_listener("wheel", event => {
     let wheel_event = event.to_wheel_event().unwrap()
-    mouse_wheel.delta = @smath.Vec2(
+    mouse_wheel.delta = Vec2(
       wheel_event.get_delta_x(),
       wheel_event.get_delta_y(),
     )
@@ -137,7 +137,7 @@ fn is_touch_pointer_type(kind : String) -> Bool {
 
 ///|
 fn touch_position_from_pointer_event(event : @dom.Event) -> @smath.Vec2 {
-  @smath.Vec2(pointer_event_offset_x(event), pointer_event_offset_y(event))
+  Vec2(pointer_event_offset_x(event), pointer_event_offset_y(event))
 }
 
 ///|

@@ -442,7 +442,7 @@ fn subscribe_events_cmd(dispatch : @rabbita.Emit[@app.Msg]) -> @rabbita.Cmd {
         } catch {
           err => {
             console_error("SSE decode failed: " + err.to_string())
-            @app.AsyncErr("Invalid event payload")
+            AsyncErr("Invalid event payload")
           }
         }
         schedule_cmd(scheduler, dispatch(@app.msg_service_event(result)))
@@ -451,7 +451,7 @@ fn subscribe_events_cmd(dispatch : @rabbita.Emit[@app.Msg]) -> @rabbita.Cmd {
         console_error("SSE stream failed: " + message)
         schedule_cmd(
           scheduler,
-          dispatch(@app.msg_service_event(@app.AsyncErr(message))),
+          dispatch(@app.msg_service_event(AsyncErr(message))),
         )
       },
     )

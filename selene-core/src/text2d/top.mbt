@@ -77,7 +77,7 @@ fn text_layout_caches() -> Map[@entity.Entity, CachedTextLayout2d] {
 
 ///|
 pub fn Text2d::Text2d(
-  blend_mode? : @render.BlendMode2D = @render.BlendMode2D::Alpha,
+  blend_mode? : @render.BlendMode2D = Alpha,
 ) -> Text2d {
   { blend_mode, }
 }
@@ -89,12 +89,12 @@ pub fn TextBounds::TextBounds(width : Double, height : Double) -> TextBounds {
 
 ///|
 fn text2d_layout(entity : @entity.Entity) -> @ui.TextLayout {
-  @ui.text_layouts().get(entity).unwrap_or(@ui.TextLayout())
+  @ui.text_layouts().get(entity).unwrap_or(TextLayout())
 }
 
 ///|
 fn text2d_anchor(entity : @entity.Entity) -> @sprite.Anchor {
-  text_anchors().get(entity).unwrap_or(@sprite.Anchor(@math.Vec2(0.0, 0.0)))
+  text_anchors().get(entity).unwrap_or(Anchor(Vec2(0.0, 0.0)))
 }
 
 ///|
@@ -277,7 +277,7 @@ fn cached_text_layout(
 ///|
 fn anchor_origin(anchor : @sprite.Anchor, size : @math.Vec2) -> @math.Vec2 {
   let normalized = anchor.as_vec()
-  @math.Vec2(-size[X] * (normalized[X] + 0.5), -size[Y] * (0.5 - normalized[Y]))
+  Vec2(-size[X] * (normalized[X] + 0.5), -size[Y] * (0.5 - normalized[Y]))
 }
 
 ///|
@@ -447,7 +447,7 @@ fn push_text2d_lines(
     let command : @render2d_types.TextDrawCommand2D = {
       text: line,
       position: @camera.pixel_snapped_position(
-        @math.Vec2(x, start_y + line_height * index.to_double()),
+        Vec2(x, start_y + line_height * index.to_double()),
       ),
       transform: @camera.camera_screen_transform(global_transform, camera_view),
       blend_mode,

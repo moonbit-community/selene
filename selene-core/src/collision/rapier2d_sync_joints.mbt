@@ -82,7 +82,7 @@ fn to_rapier_query_filter(
 fn make_query_pipeline(
   query_filter : SpatialQueryFilter,
 ) -> @rapier_collision.QueryPipeline {
-  @rapier_collision.QueryPipeline::QueryPipeline(
+  QueryPipeline(
     to_rapier_query_filter(query_filter),
     world().bodies,
     world().colliders,

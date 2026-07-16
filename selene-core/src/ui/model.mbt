@@ -546,7 +546,7 @@ pub fn Node::Node(
 ///|
 pub fn Node::absolute(
   offset : @math.Vec2,
-  size? : @math.Vec2 = @math.Vec2(-1.0, -1.0),
+  size? : @math.Vec2 = Vec2(-1.0, -1.0),
   padding? : UiRectValues = UiRectValues::all(0.0),
   border? : UiRectValues = UiRectValues::all(0.0),
   display? : Display = Flex,
@@ -563,13 +563,13 @@ pub fn Node::absolute(
   let (width, height) = if size[X] >= 0.0 && size[Y] >= 0.0 {
     (Val::Px(size[X]), Val::Px(size[Y]))
   } else {
-    (Val::Auto, Val::Auto)
+    (Auto, Auto)
   }
   Node(
     width~,
     height~,
-    left=Val::Px(offset[X]),
-    top=Val::Px(offset[Y]),
+    left=Px(offset[X]),
+    top=Px(offset[Y]),
     padding~,
     border~,
     display~,

@@ -26,14 +26,14 @@ fn scene_component_count_for_compare(
 
 ///|
 fn expected_scene_world_size() -> @math.Vec2 {
-  @math.Vec2(928.0, 576.0)
+  Vec2(928.0, 576.0)
 }
 
 ///|
 fn scene_terrain_segments(
   scene : @editor_bridge.SceneDocument,
 ) -> Array[String] {
-  let rows : Map[Int, Array[Int]] = {}
+  let rows : Map[Int, Array[Int]] = Map([])
   for placement in terrain_placements_from_scene(scene) {
     if !placement.solid || placement.collider_group != "grass" {
       continue
@@ -168,8 +168,8 @@ test "editor scene runtime registers gameplay entities through custom components
       )
       let expected_world_size = expected_scene_world_size()
       inspect(
-        loaded.world_size[@math.X] == expected_world_size[@math.X] &&
-        loaded.world_size[@math.Y] == expected_world_size[@math.Y],
+        loaded.world_size[X] == expected_world_size[X] &&
+        loaded.world_size[Y] == expected_world_size[Y],
         content="true",
       )
       inspect(

@@ -36,7 +36,7 @@ fn selected_image_preview_probe_cmd(
   model : @app.Model,
 ) -> @rabbita.Cmd {
   match model.selected_resource {
-    Some(@app.Image(path)) =>
+    Some(Image(path)) =>
       if model.asset_size(path) is Some(_) ||
         model.failed_image_assets.get(path).unwrap_or(false) {
         @cmd.none
@@ -301,11 +301,11 @@ fn tree_file_row(
     @html.span(
       class="asset-tree-node file",
       match selection {
-        @app.Image(_) => "I"
-        @app.Atlas(_) => "A"
-        @app.AnimationClip(_) => "C"
-        @app.AnimationGraph(_) => "G"
-        @app.Prefab(_) => "P"
+        Image(_) => "I"
+        Atlas(_) => "A"
+        AnimationClip(_) => "C"
+        AnimationGraph(_) => "G"
+        Prefab(_) => "P"
       },
     ),
   )
@@ -493,7 +493,7 @@ fn asset_panel_view(
   let has_asset_filter = model.asset_query_normalized() != ""
   let force_expand_tree = model.asset_query_normalized() != ""
   let image_paths : Array[String] = []
-  let image_badges : Map[String, String] = {}
+  let image_badges : Map[String, String] = Map([])
   for asset in model.image_assets() {
     let title = asset_display_name(asset)
     if !model.asset_matches_query(title, asset.path) {

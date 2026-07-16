@@ -325,10 +325,10 @@ fn ldtk_spawn_level_background(
     set_entity_depth(background_entity, zindex)
     @sprite.sprites().set(
       background_entity,
-      @sprite.Sprite(
+      Sprite(
         color=@sprite.color_from_css(bg_color),
         custom_size=Some(size),
-        anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
+        anchor=Anchor(Vec2(-0.5, 0.5)),
       ),
     )
     ldtk_level_backgrounds().set(background_entity, {
@@ -350,7 +350,7 @@ fn ldtk_spawn_level_background(
     if level.bg_pos is Some(bg_pos) {
       image_offset = bg_pos.top_left_px
       if bg_pos.crop_width > 0.0 && bg_pos.crop_height > 0.0 {
-        image_size = @math.Vec2(bg_pos.crop_width, bg_pos.crop_height)
+        image_size = Vec2(bg_pos.crop_width, bg_pos.crop_height)
       }
       image_transform = @math.Transform::from_scale(
         bg_pos.scale[X],
@@ -363,12 +363,12 @@ fn ldtk_spawn_level_background(
     )
     @sprite.sprites().set(
       background_entity,
-      @sprite.Sprite(
+      Sprite(
         image=Some(image),
         rect=Some({ position: image_offset, size: image_size }),
-        color=@render.Color::{ r: 255U, g: 255U, b: 255U, a: 1.0 },
+        color={ r: 255U, g: 255U, b: 255U, a: 1.0 },
         custom_size=Some(scaled_size),
-        anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
+        anchor=Anchor(Vec2(-0.5, 0.5)),
       ),
     )
     ldtk_level_backgrounds().set(background_entity, {
@@ -528,12 +528,12 @@ fn ldtk_spawn_layer_tiles(
     )
     @sprite.sprites().set(
       tile_entity,
-      @sprite.Sprite(
+      Sprite(
         image=Some(image),
-        rect=Some({ position: tile_src, size: @math.Vec2(tile_size, tile_size) }),
-        color=@render.Color::{ r: 255U, g: 255U, b: 255U, a: render_alpha },
-        custom_size=Some(@math.Vec2(tile_size, tile_size)),
-        anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
+        rect=Some({ position: tile_src, size: Vec2(tile_size, tile_size) }),
+        color={ r: 255U, g: 255U, b: 255U, a: render_alpha },
+        custom_size=Some(Vec2(tile_size, tile_size)),
+        anchor=Anchor(Vec2(-0.5, 0.5)),
         flip_x=tile.flip_x,
         flip_y=tile.flip_y,
       ),
@@ -580,7 +580,7 @@ fn ldtk_spawn_int_grid_cells(
     let cell_entity = layer_entity.spawn_child()
     set_entity_translation_2d(
       cell_entity,
-      @math.Vec2(grid_x.to_double() * grid_size, grid_y.to_double() * grid_size),
+      Vec2(grid_x.to_double() * grid_size, grid_y.to_double() * grid_size),
     )
     set_entity_depth(cell_entity, zindex)
     ldtk_grid_coords().set(cell_entity, { x: grid_x, y: grid_y })
@@ -670,10 +670,10 @@ fn ldtk_spawn_int_grid_cells(
     let render_color = ldtk_color_with_alpha(color, layer.opacity)
     @sprite.sprites().set(
       cell_entity,
-      @sprite.Sprite(
+      Sprite(
         color=@sprite.color_from_css(render_color),
-        custom_size=Some(@math.Vec2(grid_size, grid_size)),
-        anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
+        custom_size=Some(Vec2(grid_size, grid_size)),
+        anchor=Anchor(Vec2(-0.5, 0.5)),
       ),
     )
   }

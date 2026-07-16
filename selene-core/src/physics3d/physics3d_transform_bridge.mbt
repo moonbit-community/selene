@@ -3,9 +3,9 @@ fn interaction_groups(
   memberships : Int,
   filters : Int,
 ) -> @dynamics.InteractionGroups {
-  @dynamics.InteractionGroups::InteractionGroups(
-    @dynamics.Group::Group(memberships),
-    @dynamics.Group::Group(filters),
+  InteractionGroups(
+    Group(memberships),
+    Group(filters),
     And,
   )
 }
@@ -161,14 +161,14 @@ fn revolute_joint_to_generic(
     .local_anchor2(joint.local_anchor2.to_rapier())
   if joint.limits is Some((min, max)) {
     builder = builder.limits(
-      JointAxis::AngX,
+      AngX,
       Float::from_double(min),
       Float::from_double(max),
     )
   }
   if joint.motor_position is Some((target, stiffness, damping)) {
     builder = builder.motor_position(
-      JointAxis::AngX,
+      AngX,
       Float::from_double(target),
       Float::from_double(stiffness),
       Float::from_double(damping),
@@ -176,21 +176,21 @@ fn revolute_joint_to_generic(
   }
   if joint.motor_velocity is Some((target, factor)) {
     builder = builder.motor_velocity(
-      JointAxis::AngX,
+      AngX,
       Float::from_double(target),
       Float::from_double(factor),
     )
   }
   if joint.max_force is Some(max_force) {
     builder = builder.motor_max_force(
-      JointAxis::AngX,
+      AngX,
       Float::from_double(max_force),
     )
   }
   let mut generic = builder
     .build()
     .to_generic_joint()
-    .set_motor_model(@dynamics.JointAxis::AngX, joint.motor_model)
+    .set_motor_model(AngX, joint.motor_model)
   if joint.softness is Some(softness) {
     generic = generic.set_softness(softness)
   }
@@ -216,14 +216,14 @@ fn prismatic_joint_to_rapier(
     .local_anchor2(joint.local_anchor2.to_rapier())
   if joint.limits is Some((min, max)) {
     builder = builder.limits(
-      JointAxis::LinX,
+      LinX,
       Float::from_double(min),
       Float::from_double(max),
     )
   }
   if joint.motor_position is Some((target, stiffness, damping)) {
     builder = builder.motor_position(
-      JointAxis::LinX,
+      LinX,
       Float::from_double(target),
       Float::from_double(stiffness),
       Float::from_double(damping),
@@ -231,14 +231,14 @@ fn prismatic_joint_to_rapier(
   }
   if joint.motor_velocity is Some((target, factor)) {
     builder = builder.motor_velocity(
-      JointAxis::LinX,
+      LinX,
       Float::from_double(target),
       Float::from_double(factor),
     )
   }
   if joint.max_force is Some(max_force) {
     builder = builder.motor_max_force(
-      JointAxis::LinX,
+      LinX,
       Float::from_double(max_force),
     )
   }
@@ -323,19 +323,19 @@ fn multibody_joint_to_rapier(
         let axis = target.to_rapier().to_scaled_axis()
         builder = builder
           .motor_position(
-            JointAxis::AngX,
+            AngX,
             axis.x,
             Float::from_double(stiffness),
             Float::from_double(damping),
           )
           .motor_position(
-            JointAxis::AngY,
+            AngY,
             axis.y,
             Float::from_double(stiffness),
             Float::from_double(damping),
           )
           .motor_position(
-            JointAxis::AngZ,
+            AngZ,
             axis.z,
             Float::from_double(stiffness),
             Float::from_double(damping),
@@ -412,7 +412,7 @@ fn make_query_pipeline(
   query_filter? : QueryFilter = QueryFilter::all(),
 ) -> @collision.QueryPipeline3DReal {
   let world = physics3d_world()
-  @collision.QueryPipeline3DReal::QueryPipeline3DReal(
+  QueryPipeline3DReal(
     to_query_filter(query_filter),
     world.bodies,
     world.colliders,
@@ -463,12 +463,12 @@ fn to_query_shape(shape : Collider) -> @collision.Shape3D {
     Halfspace(normal) =>
       @collision.Shape3D::halfspace(normal.normalize().to_rapier())
     ConvexHull(points) =>
-      @collision.Shape3D::ConvexHull(
+      ConvexHull(
         points.map(point => point.to_rapier()),
         0.0,
       )
     TriMesh(vertices, indices) =>
-      @collision.Shape3D::TriMesh(
+      TriMesh(
         vertices.map(point => point.to_rapier()),
         indices,
       )
@@ -516,9 +516,9 @@ fn to_query_filter(query_filter : QueryFilter) -> @collision.QueryFilter3DReal {
   }
   if query_filter.groups is Some(groups) {
     filter = filter.groups(
-      @dynamics.InteractionGroups::InteractionGroups(
-        @dynamics.Group::Group(groups.memberships),
-        @dynamics.Group::Group(groups.filters),
+      InteractionGroups(
+        Group(groups.memberships),
+        Group(groups.filters),
         And,
       ),
     )
@@ -557,13 +557,13 @@ fn shape_world_aabb(
   let maxs = local_aabb.maxs
   let corners = [
     @math.Vec3(mins.x.to_double(), mins.y.to_double(), mins.z.to_double()),
-    @math.Vec3(mins.x.to_double(), mins.y.to_double(), maxs.z.to_double()),
-    @math.Vec3(mins.x.to_double(), maxs.y.to_double(), mins.z.to_double()),
-    @math.Vec3(mins.x.to_double(), maxs.y.to_double(), maxs.z.to_double()),
-    @math.Vec3(maxs.x.to_double(), mins.y.to_double(), mins.z.to_double()),
-    @math.Vec3(maxs.x.to_double(), mins.y.to_double(), maxs.z.to_double()),
-    @math.Vec3(maxs.x.to_double(), maxs.y.to_double(), mins.z.to_double()),
-    @math.Vec3(maxs.x.to_double(), maxs.y.to_double(), maxs.z.to_double()),
+    Vec3(mins.x.to_double(), mins.y.to_double(), maxs.z.to_double()),
+    Vec3(mins.x.to_double(), maxs.y.to_double(), mins.z.to_double()),
+    Vec3(mins.x.to_double(), maxs.y.to_double(), maxs.z.to_double()),
+    Vec3(maxs.x.to_double(), mins.y.to_double(), mins.z.to_double()),
+    Vec3(maxs.x.to_double(), mins.y.to_double(), maxs.z.to_double()),
+    Vec3(maxs.x.to_double(), maxs.y.to_double(), mins.z.to_double()),
+    Vec3(maxs.x.to_double(), maxs.y.to_double(), maxs.z.to_double()),
   ]
   let world_points = corners.map(point => {
     rotation.rotate_vec3(point) + translation
@@ -571,12 +571,12 @@ fn shape_world_aabb(
   let mut min_point = world_points[0]
   let mut max_point = world_points[0]
   for point in world_points {
-    min_point = @math.Vec3(
+    min_point = Vec3(
       Double::min(min_point.x, point.x),
       Double::min(min_point.y, point.y),
       Double::min(min_point.z, point.z),
     )
-    max_point = @math.Vec3(
+    max_point = Vec3(
       Double::max(max_point.x, point.x),
       Double::max(max_point.y, point.y),
       Double::max(max_point.z, point.z),

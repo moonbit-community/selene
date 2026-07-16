@@ -31,7 +31,7 @@ fn transform_uv_point(
   u : Double,
   v : Double,
 ) -> (Float, Float) {
-  let uv = transform.apply_to_vec2(@smath.Vec2(u, v))
+  let uv = transform.apply_to_vec2(Vec2(u, v))
   (to_float(uv[X]), to_float(uv[Y]))
 }
 

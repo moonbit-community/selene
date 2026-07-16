@@ -25,20 +25,20 @@ fn FakePreviewBridge::apply(
 ) -> Unit {
   self.commands.push(command)
   match command {
-    @bridge.Bootstrap => self.bootstrapped = true
-    @bridge.ClearScene => self.current_scene = None
-    @bridge.LoadScene(payload) => self.current_scene = Some(payload.scene)
-    @bridge.SetSelection(primary~, ids~) => {
+    Bootstrap => self.bootstrapped = true
+    ClearScene => self.current_scene = None
+    LoadScene(payload) => self.current_scene = Some(payload.scene)
+    SetSelection(primary~, ids~) => {
       self.selected_entity_id = primary
       self.selected_entity_ids = ids
     }
-    @bridge.SetTool(_) => ()
-    @bridge.SetMoveSnap(..) => ()
-    @bridge.SetAutoTileBrushTerrain(_) => ()
-    @bridge.SetAnimationPreviewPaused(_) => ()
-    @bridge.SetAnimationPreviewSpeed(_) => ()
-    @bridge.SeekAnimationPreview(_) => ()
-    @bridge.FrameSelection => ()
+    SetTool(_) => ()
+    SetMoveSnap(..) => ()
+    SetAutoTileBrushTerrain(_) => ()
+    SetAnimationPreviewPaused(_) => ()
+    SetAnimationPreviewSpeed(_) => ()
+    SeekAnimationPreview(_) => ()
+    FrameSelection => ()
   }
 }
 
@@ -74,7 +74,7 @@ fn msg_for_rpc_binding(binding : @app.RpcBinding, payload : Json) -> @app.Msg {
     err => return binding.transport_error_msg(err.to_string())
   }
   binding.response_to_msg(envelope.response) catch {
-    @app.UnexpectedRpcResponse(message) => binding.transport_error_msg(message)
+    UnexpectedRpcResponse(message) => binding.transport_error_msg(message)
   }
 }
 
@@ -82,7 +82,7 @@ fn msg_for_rpc_binding(binding : @app.RpcBinding, payload : Json) -> @app.Msg {
 fn editor_harness(module_root : String, project_root : String) -> EditorHarness {
   {
     project_root,
-    service: @core.EditorService(module_root),
+    service: EditorService(module_root),
     model: @app.new_model(),
     next_rpc_id: 1,
     service_events_subscribed: false,
@@ -137,10 +137,10 @@ async fn EditorHarness::process_effect(
   effect : @app.Effect,
 ) -> Unit {
   match effect {
-    @app.Rpc(binding~) => {
+    Rpc(binding~) => {
       let request_id = self.next_rpc_id
       self.next_rpc_id += 1
-      let payload = if binding is @app.RpcProjectPickDirectory(_) {
+      let payload = if binding is RpcProjectPickDirectory(_) {
         @shared.rpc_response_envelope(
           request_id,
           @shared.rpc_response_directory_picked(
@@ -152,11 +152,11 @@ async fn EditorHarness::process_effect(
       }
       self.dispatch(msg_for_rpc_binding(binding, payload))
     }
-    @app.SubscribeServiceEvents => self.service_events_subscribed = true
-    @app.SubscribePreviewEvents => self.preview_events_subscribed = true
-    @app.SubscribeKeyboardShortcuts => ()
-    @app.SubscribeSidebarLayout => self.sidebar_layout_subscribed = true
-    @app.Preview(command) => self.preview.apply(command)
+    SubscribeServiceEvents => self.service_events_subscribed = true
+    SubscribePreviewEvents => self.preview_events_subscribed = true
+    SubscribeKeyboardShortcuts => ()
+    SubscribeSidebarLayout => self.sidebar_layout_subscribed = true
+    Preview(command) => self.preview.apply(command)
   }
 }
 
@@ -167,7 +167,7 @@ async fn EditorHarness::flush_service_events(self : EditorHarness) -> Unit {
   }
   let events = self.service.drain_events()
   for event in events {
-    self.dispatch(@app.msg_service_event(@app.AsyncOk(event.event)))
+    self.dispatch(@app.msg_service_event(AsyncOk(event.event)))
   }
 }
 
@@ -395,7 +395,7 @@ pub async fn EditorHarness::when_project_folder_pick_is_cancelled(
 ) -> Unit {
   self.dispatch(
     @app.msg_project_root_picked(
-      @app.AsyncOk(@shared.directory_pick_result(None)),
+      AsyncOk(@shared.directory_pick_result(None)),
     ),
   )
 }
@@ -431,7 +431,7 @@ pub async fn EditorHarness::given_image_asset(
   @fs.write_file(
     full_path,
     b"fake-image",
-    create_mode=@fs.CreateOrTruncate,
+    create_mode=CreateOrTruncate,
     permission=0o644,
   )
 }
@@ -454,7 +454,7 @@ pub async fn EditorHarness::given_text_file(
   @fs.write_file(
     full_path,
     content |> @utf8.encode,
-    create_mode=@fs.CreateOrTruncate,
+    create_mode=CreateOrTruncate,
     permission=0o644,
   )
 }
@@ -498,7 +498,7 @@ async fn write_text_file(path : String, content : String) -> Unit {
   @fs.write_file(
     path,
     @utf8.encode(content),
-    create_mode=@fs.CreateOrTruncate,
+    create_mode=CreateOrTruncate,
     permission=0o644,
   )
 }
@@ -697,7 +697,7 @@ pub async fn EditorHarness::when_selected_animation_frames_are_edited(
   value : String,
 ) -> Unit {
   match self.model.selected_resource {
-    Some(@app.AnimationClip(_)) => ()
+    Some(AnimationClip(_)) => ()
     _ =>
       if self.model.animation_clip_refs.length() > 0 {
         self.dispatch(
@@ -719,7 +719,7 @@ pub async fn EditorHarness::when_selected_animation_is_saved(
   self : EditorHarness,
 ) -> Unit {
   match self.model.selected_resource {
-    Some(@app.AnimationClip(_)) => ()
+    Some(AnimationClip(_)) => ()
     _ =>
       if self.model.animation_clip_refs.length() > 0 {
         self.dispatch(
@@ -829,7 +829,7 @@ pub async fn EditorHarness::when_service_event_fails(
   self : EditorHarness,
   message : String,
 ) -> Unit {
-  self.dispatch(@app.msg_service_event(@app.AsyncErr(message)))
+  self.dispatch(@app.msg_service_event(AsyncErr(message)))
 }
 
 ///|
@@ -838,7 +838,7 @@ pub async fn EditorHarness::when_workspace_delta_is_received(
 ) -> Unit {
   self.dispatch(
     @app.msg_service_event(
-      @app.AsyncOk(
+      AsyncOk(
         @shared.editor_event_project_delta(
           @shared.project_delta_workspace_changed(),
         ),
@@ -856,7 +856,7 @@ pub async fn EditorHarness::when_scene_file_delta_is_received(
 ) -> Unit {
   self.dispatch(
     @app.msg_service_event(
-      @app.AsyncOk(
+      AsyncOk(
         @shared.editor_event_project_delta(
           @shared.project_delta_scene_file_changed(
             path, disk_hash, disk_revision,
@@ -894,7 +894,7 @@ pub async fn EditorHarness::when_prefab_load_fails(
   self : EditorHarness,
   message : String,
 ) -> Unit {
-  self.dispatch(@app.msg_prefab_loaded(@app.AsyncErr(message)))
+  self.dispatch(@app.msg_prefab_loaded(AsyncErr(message)))
 }
 
 ///|
@@ -902,7 +902,7 @@ pub async fn EditorHarness::when_atlas_load_fails(
   self : EditorHarness,
   message : String,
 ) -> Unit {
-  self.dispatch(@app.msg_atlas_loaded(@app.AsyncErr(message)))
+  self.dispatch(@app.msg_atlas_loaded(AsyncErr(message)))
 }
 
 ///|
@@ -910,7 +910,7 @@ pub async fn EditorHarness::when_animation_load_fails(
   self : EditorHarness,
   message : String,
 ) -> Unit {
-  self.dispatch(@app.msg_animation_clip_loaded(@app.AsyncErr(message)))
+  self.dispatch(@app.msg_animation_clip_loaded(AsyncErr(message)))
 }
 
 ///|

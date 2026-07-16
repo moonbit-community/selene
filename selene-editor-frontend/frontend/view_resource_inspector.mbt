@@ -4,7 +4,7 @@ fn selected_asset_view(
   model : @app.ViewState,
 ) -> @rabbita.Html {
   match model.selected_resource {
-    Some(@app.Image(path)) =>
+    Some(Image(path)) =>
       match model.selected_image_asset() {
         Some(asset) =>
           @html.div(class="panel-body", [
@@ -58,7 +58,7 @@ fn selected_asset_view(
           ])
         None => @html.div(class="empty", "No resource selected")
       }
-    Some(@app.Atlas(_)) =>
+    Some(Atlas(_)) =>
       match model.selected_atlas_document() {
         Some((path, atlas)) =>
           @html.div(class="panel-body", [
@@ -153,7 +153,7 @@ fn selected_asset_view(
           ])
         None => @html.div(class="empty", "Atlas is still loading")
       }
-    Some(@app.AnimationClip(_)) =>
+    Some(AnimationClip(_)) =>
       match model.selected_animation_clip_document() {
         Some((path, clip)) =>
           match model.atlas_documents.get(clip.atlas_asset_path) {
@@ -260,7 +260,7 @@ fn selected_asset_view(
           }
         None => @html.div(class="empty", "Animation clip is still loading")
       }
-    Some(@app.AnimationGraph(_)) =>
+    Some(AnimationGraph(_)) =>
       match model.selected_animation_graph_document() {
         Some((path, graph)) =>
           @html.div(class="panel-body", [
@@ -410,7 +410,7 @@ fn selected_asset_view(
           ])
         None => @html.div(class="empty", "Animation graph is still loading")
       }
-    Some(@app.Prefab(_)) =>
+    Some(Prefab(_)) =>
       match model.selected_prefab_document() {
         Some((path, prefab)) =>
           @html.div(class="panel-body", [

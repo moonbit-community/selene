@@ -16,14 +16,14 @@ fn animation_graph_default_clip_path(
   for node in graph.nodes {
     if graph.default_node == Some(node.id) {
       match node.kind {
-        @editor_bridge.Clip(clip_asset_path~) => return Some(clip_asset_path)
+        Clip(clip_asset_path~) => return Some(clip_asset_path)
         _ => ()
       }
     }
   }
   for node in graph.nodes {
     match node.kind {
-      @editor_bridge.Clip(clip_asset_path~) => return Some(clip_asset_path)
+      Clip(clip_asset_path~) => return Some(clip_asset_path)
       _ => ()
     }
   }
@@ -178,7 +178,7 @@ fn with_selected_animation_graph_clip_path_updated(
     for node in graph.nodes {
       if node.id == node_id {
         match node.kind {
-          @editor_bridge.Clip(..) =>
+          Clip(..) =>
             nodes.push(
               node.with_kind(
                 @editor_bridge.animation_graph_node_kind_clip(clip_path),

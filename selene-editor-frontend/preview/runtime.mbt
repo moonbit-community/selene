@@ -200,12 +200,12 @@ fn resolved_canvas_client_size() -> @math.Vec2 {
   } else {
     default_editor_viewport_height
   }
-  @math.Vec2(width, height)
+  Vec2(width, height)
 }
 
 ///|
 fn current_editor_viewport_size() -> @math.Vec2 {
-  @math.Vec2(preview_state.viewport_width, preview_state.viewport_height)
+  Vec2(preview_state.viewport_width, preview_state.viewport_height)
 }
 
 ///|
@@ -233,7 +233,7 @@ fn normalized_mouse_position() -> @math.Vec2 {
   let client_width = client_size[X]
   let client_height = client_size[Y]
   let viewport = current_editor_viewport_size()
-  @math.Vec2(
+  Vec2(
     @inputs.mouse.pos[X] * viewport[X] / client_width,
     @inputs.mouse.pos[Y] * viewport[Y] / client_height,
   )
@@ -254,7 +254,7 @@ fn mouse_to_viewport_delta(delta : @math.Vec2) -> @math.Vec2 {
   let client_width = client_size[X]
   let client_height = client_size[Y]
   let viewport = current_editor_viewport_size()
-  @math.Vec2(
+  Vec2(
     delta[X] * viewport[X] / client_width,
     delta[Y] * viewport[Y] / client_height,
   )
@@ -314,7 +314,7 @@ fn clamp_scale_value(value : Double) -> Double {
 
 ///|
 fn move_grid_snap_active() -> Bool {
-  preview_state.move_snap_enabled || @inputs.is_pressed(@inputs.ShiftLeft)
+  preview_state.move_snap_enabled || @inputs.is_pressed(ShiftLeft)
 }
 
 ///|
@@ -324,7 +324,7 @@ fn snap_to_move_grid(point : @math.Vec2) -> @math.Vec2 {
   } else {
     16.0
   }
-  @math.Vec2((point[X] / grid).round() * grid, (point[Y] / grid).round() * grid)
+  Vec2((point[X] / grid).round() * grid, (point[Y] / grid).round() * grid)
 }
 
 ///|
@@ -383,7 +383,7 @@ pub fn clear_scene() -> Unit {
 ///|
 pub fn set_selection(primary : String?, ids : Array[String]) -> Unit {
   let unique_ids : Array[String] = []
-  let seen : Map[String, Bool] = {}
+  let seen : Map[String, Bool] = Map([])
   for id in ids {
     if seen.contains(id) {
       continue
@@ -408,7 +408,7 @@ pub fn set_selection(primary : String?, ids : Array[String]) -> Unit {
 ///|
 fn selected_entity_ids_for_edit() -> Array[String] {
   let ids : Array[String] = []
-  let seen : Map[String, Bool] = {}
+  let seen : Map[String, Bool] = Map([])
   for id in preview_state.selected_entity_ids {
     if seen.contains(id) {
       continue
@@ -445,7 +445,7 @@ fn selected_drag_start_transforms(
   runtime_scene : @editor_bridge.SceneRuntime,
   ids : Array[String],
 ) -> Map[String, @editor_bridge.Transform2dComponent] {
-  let transforms : Map[String, @editor_bridge.Transform2dComponent] = {}
+  let transforms : Map[String, @editor_bridge.Transform2dComponent] = Map([])
   for id in ids {
     guard runtime_scene.entity_ids.contains(id) else { continue }
     transforms.set(id, entity_transform2d(runtime_scene.entity_ids[id]))
@@ -478,7 +478,7 @@ pub fn set_move_snap(enabled : Bool, step : Double) -> Unit {
 }
 
 ///|
-let preview_snap_grid_color : @render.Color = @render.Color::{
+let preview_snap_grid_color : @render.Color = {
   r: 152U,
   g: 152U,
   b: 152U,
@@ -497,10 +497,10 @@ fn ensure_snap_grid_overlay_capacity(count : Int) -> Unit {
       overlay,
       @transform.Transform::from_xyz(0.0, 0.0, preview_snap_grid_z),
     )
-    @visibility.visibilities().set(overlay, @visibility.Hidden)
+    @visibility.visibilities().set(overlay, Hidden)
     @sprite.sprites().set(
       overlay,
-      @sprite.Sprite::from_color(preview_snap_grid_color, @math.Vec2(1.0, 1.0)),
+      @sprite.Sprite::from_color(preview_snap_grid_color, Vec2(1.0, 1.0)),
     )
   }
 }
@@ -512,7 +512,7 @@ fn hide_snap_grid_overlays_from(start : Int) -> Unit {
       index = index + 1 {
     @visibility.visibilities().set(
       preview_state.snap_grid_overlays[index],
-      @visibility.Hidden,
+      Hidden,
     )
   }
 }
@@ -561,7 +561,7 @@ fn apply_snap_grid_overlays() -> Unit {
   let top_left = camera_.viewport_to_world_2d(
     global,
     projection,
-    @math.Vec2(0.0, 0.0),
+    Vec2(0.0, 0.0),
   )
   let bottom_right = camera_.viewport_to_world_2d(global, projection, viewport)
   let min_x = if top_left[X] < bottom_right[X] {
@@ -620,9 +620,9 @@ fn apply_snap_grid_overlays() -> Unit {
         x,
         (start_y + end_y) * 0.5,
         preview_snap_grid_z,
-      ).with_scale(@math.Vec3(line_thickness, vertical_height, 1.0)),
+      ).with_scale(Vec3(line_thickness, vertical_height, 1.0)),
     )
-    @visibility.visibilities().set(overlay, @visibility.Visible)
+    @visibility.visibilities().set(overlay, Visible)
   }
   for index = 0; index < horizontal_count; index = index + 1 {
     let y = start_y + step * index.to_double()
@@ -634,9 +634,9 @@ fn apply_snap_grid_overlays() -> Unit {
         (start_x + end_x) * 0.5,
         y,
         preview_snap_grid_z,
-      ).with_scale(@math.Vec3(horizontal_width, line_thickness, 1.0)),
+      ).with_scale(Vec3(horizontal_width, line_thickness, 1.0)),
     )
-    @visibility.visibilities().set(overlay, @visibility.Visible)
+    @visibility.visibilities().set(overlay, Visible)
   }
   hide_snap_grid_overlays_from(overlay_index)
 }
@@ -725,7 +725,7 @@ fn deactivate_runtime_scene_cameras(
 ) -> Unit {
   for _, entity in runtime_scene.entity_ids {
     if @camera.cameras().contains(entity) {
-      @camera.cameras().set(entity, @camera.Camera(is_active=false))
+      @camera.cameras().set(entity, Camera(is_active=false))
     }
   }
 }
@@ -733,15 +733,15 @@ fn deactivate_runtime_scene_cameras(
 ///|
 fn spawn_scene_entities(payload : @bridge.PreviewScenePayload) -> Unit {
   clear_runtime_scene()
-  let atlas_assets : Map[String, @editor_bridge.AtlasAssetDocument] = {}
+  let atlas_assets : Map[String, @editor_bridge.AtlasAssetDocument] = Map([])
   let animation_clip_assets : Map[
     String,
     @editor_bridge.AnimationClipAssetDocument,
-  ] = {}
+  ] = Map([])
   let animation_graph_assets : Map[
     String,
     @editor_bridge.AnimationGraphAssetDocument,
-  ] = {}
+  ] = Map([])
   for entry in payload.atlases {
     atlas_assets.set(entry.path, entry.atlas)
   }
@@ -808,7 +808,7 @@ fn autotile_cell_key(x : Int, y : Int) -> String {
 fn autotile_cell_map(
   layer : @editor_bridge.AutoTileLayer2dComponent,
 ) -> Map[String, @editor_bridge.AutoTileCellDocument] {
-  let map : Map[String, @editor_bridge.AutoTileCellDocument] = {}
+  let map : Map[String, @editor_bridge.AutoTileCellDocument] = Map([])
   for cell in layer.cells {
     map.set(autotile_cell_key(cell.x, cell.y), cell)
   }
@@ -989,8 +989,8 @@ fn apply_autotile_fill_edit(
         false
       } else {
         let queue : Array[AutoTileEditCoord] = [start]
-        let affected : Map[String, AutoTileEditCoord] = {}
-        let visited : Map[String, Bool] = {}
+        let affected : Map[String, AutoTileEditCoord] = Map([])
+        let visited : Map[String, Bool] = Map([])
         visited.set(start_key, true)
         let mut index = 0
         while index < queue.length() {
@@ -1061,16 +1061,16 @@ fn apply_autotile_tool_at_world(
     return false
   }
   let changed = match tool {
-    @shared.AutoTilePaint =>
+    AutoTilePaint =>
       apply_autotile_single_cell_edit(
         layer_id,
         layer,
         coord,
         Some(preview_state.autotile_brush_terrain),
       )
-    @shared.AutoTileErase =>
+    AutoTileErase =>
       apply_autotile_single_cell_edit(layer_id, layer, coord, None)
-    @shared.AutoTileFill =>
+    AutoTileFill =>
       apply_autotile_fill_edit(
         layer_id,
         layer,
@@ -1129,7 +1129,7 @@ fn overlay_bounds() -> (@math.Vec2, @math.Vec2)? {
   if !has_bounds {
     None
   } else {
-    Some((@math.Vec2(min_x, min_y), @math.Vec2(max_x - min_x, max_y - min_y)))
+    Some((Vec2(min_x, min_y), Vec2(max_x - min_x, max_y - min_y)))
   }
 }
 
@@ -1159,7 +1159,7 @@ fn document_visual_bounds(
     let min_x = transform.translation.x - scaled_width * (anchor.x + 0.5)
     let min_y = transform.translation.y - scaled_height * (0.5 - anchor.y)
     return Some(
-      (@math.Vec2(min_x, min_y), @math.Vec2(scaled_width, scaled_height)),
+      (Vec2(min_x, min_y), Vec2(scaled_width, scaled_height)),
     )
   }
   if document.component("Text2d") is Some(component) {
@@ -1186,7 +1186,7 @@ fn document_visual_bounds(
     let min_y = transform.translation.y -
       scaled_height * (0.5 - text_data.anchor.y)
     return Some(
-      (@math.Vec2(min_x, min_y), @math.Vec2(scaled_width, scaled_height)),
+      (Vec2(min_x, min_y), Vec2(scaled_width, scaled_height)),
     )
   }
   if document.component("Mesh2d") is Some(component) {
@@ -1201,7 +1201,7 @@ fn document_visual_bounds(
         @math.Vec2(radius * 2.0, radius * 2.0)
       }
       _ =>
-        @math.Vec2(
+        Vec2(
           mesh_data.size.unwrap_or(@editor_bridge.vec2_doc(32.0, 32.0)).x,
           mesh_data.size.unwrap_or(@editor_bridge.vec2_doc(32.0, 32.0)).y,
         )
@@ -1211,13 +1211,13 @@ fn document_visual_bounds(
     let min_x = transform.translation.x - scaled_width * 0.5
     let min_y = transform.translation.y - scaled_height * 0.5
     return Some(
-      (@math.Vec2(min_x, min_y), @math.Vec2(scaled_width, scaled_height)),
+      (Vec2(min_x, min_y), Vec2(scaled_width, scaled_height)),
     )
   }
   Some(
     (
-      @math.Vec2(transform.translation.x, transform.translation.y),
-      @math.Vec2(0.0, 0.0),
+      Vec2(transform.translation.x, transform.translation.y),
+      Vec2(0.0, 0.0),
     ),
   )
 }
@@ -1266,7 +1266,7 @@ fn scene_visual_bounds() -> (@math.Vec2, @math.Vec2)? {
   if !has_bounds {
     None
   } else {
-    Some((@math.Vec2(min_x, min_y), @math.Vec2(max_x - min_x, max_y - min_y)))
+    Some((Vec2(min_x, min_y), Vec2(max_x - min_x, max_y - min_y)))
   }
 }
 
@@ -1289,7 +1289,7 @@ fn align_camera_to_scene_top_left() -> Bool {
   @transform.transforms().set(
     camera_entity,
     transform.with_translation(
-      @math.Vec3(
+      Vec3(
         position[X] + view_width * 0.5,
         position[Y] + view_height * 0.5,
         transform.translation.z,
@@ -1317,7 +1317,7 @@ fn align_camera_to_origin_top_left() -> Bool {
   @transform.transforms().set(
     camera_entity,
     transform.with_translation(
-      @math.Vec3(view_width * 0.5, view_height * 0.5, transform.translation.z),
+      Vec3(view_width * 0.5, view_height * 0.5, transform.translation.z),
     ),
   )
   true
@@ -1345,7 +1345,7 @@ fn selected_pivot_world() -> @math.Vec2? {
   guard preview_state.selected_entity_id is Some(id) else { return None }
   guard scene.entity(id) is Some(document) else { return None }
   let transform = @editor_bridge.decoded_transform(document)
-  Some(@math.Vec2(transform.translation.x, transform.translation.y))
+  Some(Vec2(transform.translation.x, transform.translation.y))
 }
 
 ///|
@@ -1387,7 +1387,7 @@ fn apply_runtime_transform(
     .with_rotation(
       @math.Quat::from_axis_angle(@math.Vec3::z_axis(), next_transform.rotation),
     )
-    .with_scale(@math.Vec3(next_transform.scale.x, next_transform.scale.y, 1.0))
+    .with_scale(Vec3(next_transform.scale.x, next_transform.scale.y, 1.0))
   @transform.transforms().set(entity, runtime_transform)
 }
 
@@ -1401,25 +1401,25 @@ fn apply_selection_overlay() -> Unit {
         @render.Color::{ r: 92U, g: 196U, b: 255U, a: 0.24 }
       } else if preview_state.hovered_entity_id is Some(hovered_id) &&
         selected_ids.contains(hovered_id) {
-        @render.Color::{ r: 255U, g: 220U, b: 64U, a: 0.28 }
+        { r: 255U, g: 220U, b: 64U, a: 0.28 }
       } else {
-        @render.Color::{ r: 255U, g: 220U, b: 64U, a: 0.18 }
+        { r: 255U, g: 220U, b: 64U, a: 0.18 }
       }
-      @visibility.visibilities().set(overlay, @visibility.Visible)
+      @visibility.visibilities().set(overlay, Visible)
       @transform.transforms().set(
         overlay,
         @transform.Transform::from_xyz(
           position[X] + size[X] * 0.5,
           position[Y] + size[Y] * 0.5,
           10.0,
-        ).with_scale(@math.Vec3(size[X], size[Y], 1.0)),
+        ).with_scale(Vec3(size[X], size[Y], 1.0)),
       )
       @sprite.sprites().set(
         overlay,
-        @sprite.Sprite::from_color(color, @math.Vec2(1.0, 1.0)),
+        @sprite.Sprite::from_color(color, Vec2(1.0, 1.0)),
       )
     }
-    None => @visibility.visibilities().set(overlay, @visibility.Hidden)
+    None => @visibility.visibilities().set(overlay, Hidden)
   }
 }
 
@@ -1431,21 +1431,21 @@ fn apply_pivot_overlay() -> Unit {
       let color = if preview_state.tool_drag is Some(_) {
         @render.Color::{ r: 120U, g: 255U, b: 198U, a: 0.95 }
       } else {
-        @render.Color::{ r: 96U, g: 220U, b: 255U, a: 0.9 }
+        { r: 96U, g: 220U, b: 255U, a: 0.9 }
       }
-      @visibility.visibilities().set(overlay, @visibility.Visible)
+      @visibility.visibilities().set(overlay, Visible)
       @transform.transforms().set(
         overlay,
         @transform.Transform::from_xyz(position[X], position[Y], 12.0).with_scale(
-          @math.Vec3(8.0, 8.0, 1.0),
+          Vec3(8.0, 8.0, 1.0),
         ),
       )
       @sprite.sprites().set(
         overlay,
-        @sprite.Sprite::from_color(color, @math.Vec2(1.0, 1.0)),
+        @sprite.Sprite::from_color(color, Vec2(1.0, 1.0)),
       )
     }
-    None => @visibility.visibilities().set(overlay, @visibility.Hidden)
+    None => @visibility.visibilities().set(overlay, Hidden)
   }
 }
 
@@ -1453,19 +1453,19 @@ fn apply_pivot_overlay() -> Unit {
 fn apply_selection_rect_overlay(world_point : @math.Vec2?) -> Unit {
   guard preview_state.selection_rect_overlay is Some(overlay) else { return }
   guard preview_state.selection_drag is Some(drag) else {
-    @visibility.visibilities().set(overlay, @visibility.Hidden)
+    @visibility.visibilities().set(overlay, Hidden)
     return
   }
   guard world_point is Some(point) else {
-    @visibility.visibilities().set(overlay, @visibility.Hidden)
+    @visibility.visibilities().set(overlay, Hidden)
     return
   }
   if !@inputs.mouse.left_button {
-    @visibility.visibilities().set(overlay, @visibility.Hidden)
+    @visibility.visibilities().set(overlay, Hidden)
     return
   }
   if !pointer_drag_started(drag.anchor_pointer) {
-    @visibility.visibilities().set(overlay, @visibility.Hidden)
+    @visibility.visibilities().set(overlay, Hidden)
     return
   }
   let min_x = if drag.anchor_world[X] < point[X] {
@@ -1490,20 +1490,20 @@ fn apply_selection_rect_overlay(world_point : @math.Vec2?) -> Unit {
   }
   let width = max_x - min_x
   let height = max_y - min_y
-  @visibility.visibilities().set(overlay, @visibility.Visible)
+  @visibility.visibilities().set(overlay, Visible)
   @transform.transforms().set(
     overlay,
     @transform.Transform::from_xyz(
       min_x + width * 0.5,
       min_y + height * 0.5,
       11.0,
-    ).with_scale(@math.Vec3(width, height, 1.0)),
+    ).with_scale(Vec3(width, height, 1.0)),
   )
   @sprite.sprites().set(
     overlay,
     @sprite.Sprite::from_color(
-      @render.Color::{ r: 96U, g: 220U, b: 255U, a: 0.22 },
-      @math.Vec2(1.0, 1.0),
+      { r: 96U, g: 220U, b: 255U, a: 0.22 },
+      Vec2(1.0, 1.0),
     ),
   )
 }
@@ -1707,7 +1707,7 @@ fn pick_entity_ids_in_rect(
             min_point,
             max_point,
             position,
-            @math.Vec2(position[X] + size[X], position[Y] + size[Y]),
+            Vec2(position[X] + size[X], position[Y] + size[Y]),
           )
         }
       None => false
@@ -1747,7 +1747,7 @@ fn frame_selection_impl() -> Unit {
   @transform.transforms().set(
     camera_entity,
     transform.with_translation(
-      @math.Vec3(center[X], center[Y], transform.translation.z),
+      Vec3(center[X], center[Y], transform.translation.z),
     ),
   )
 }
@@ -1760,11 +1760,11 @@ fn preview_startup_system(_world : @ecs.World) -> Unit {
     camera_entity,
     @transform.Transform::from_xyz(0.0, 0.0, 1000.0),
   )
-  @camera.cameras().set(camera_entity, @camera.Camera(order=0))
-  @camera.camera2ds().set(camera_entity, @camera.Camera2d())
+  @camera.cameras().set(camera_entity, Camera(order=0))
+  @camera.camera2ds().set(camera_entity, Camera2d())
   @camera.orthographic_projections().set(
     camera_entity,
-    @camera.OrthographicProjection(scale=1.0),
+    OrthographicProjection(scale=1.0),
   )
   let overlay = @entity.Entity()
   preview_state.selection_overlay = Some(overlay)
@@ -1772,12 +1772,12 @@ fn preview_startup_system(_world : @ecs.World) -> Unit {
     overlay,
     @transform.Transform::from_xyz(0.0, 0.0, 10.0),
   )
-  @visibility.visibilities().set(overlay, @visibility.Hidden)
+  @visibility.visibilities().set(overlay, Hidden)
   @sprite.sprites().set(
     overlay,
     @sprite.Sprite::from_color(
-      @render.Color::{ r: 255U, g: 220U, b: 64U, a: 0.18 },
-      @math.Vec2(1.0, 1.0),
+      { r: 255U, g: 220U, b: 64U, a: 0.18 },
+      Vec2(1.0, 1.0),
     ),
   )
   let pivot_overlay = @entity.Entity()
@@ -1786,12 +1786,12 @@ fn preview_startup_system(_world : @ecs.World) -> Unit {
     pivot_overlay,
     @transform.Transform::from_xyz(0.0, 0.0, 12.0),
   )
-  @visibility.visibilities().set(pivot_overlay, @visibility.Hidden)
+  @visibility.visibilities().set(pivot_overlay, Hidden)
   @sprite.sprites().set(
     pivot_overlay,
     @sprite.Sprite::from_color(
-      @render.Color::{ r: 96U, g: 220U, b: 255U, a: 0.9 },
-      @math.Vec2(1.0, 1.0),
+      { r: 96U, g: 220U, b: 255U, a: 0.9 },
+      Vec2(1.0, 1.0),
     ),
   )
   let selection_rect_overlay = @entity.Entity()
@@ -1800,12 +1800,12 @@ fn preview_startup_system(_world : @ecs.World) -> Unit {
     selection_rect_overlay,
     @transform.Transform::from_xyz(0.0, 0.0, 11.0),
   )
-  @visibility.visibilities().set(selection_rect_overlay, @visibility.Hidden)
+  @visibility.visibilities().set(selection_rect_overlay, Hidden)
   @sprite.sprites().set(
     selection_rect_overlay,
     @sprite.Sprite::from_color(
-      @render.Color::{ r: 96U, g: 220U, b: 255U, a: 0.22 },
-      @math.Vec2(1.0, 1.0),
+      { r: 96U, g: 220U, b: 255U, a: 0.22 },
+      Vec2(1.0, 1.0),
     ),
   )
 }
@@ -1859,7 +1859,7 @@ fn preview_camera_control_system(_world : @ecs.World) -> Unit {
   if @camera.orthographic_projections().get(camera_entity) is Some(projection) {
     let wheel_delta = @inputs.mouse_wheel.delta
     if wheel_delta[X] != 0.0 || wheel_delta[Y] != 0.0 {
-      if @inputs.is_pressed(@inputs.ShiftLeft) {
+      if @inputs.is_pressed(ShiftLeft) {
         let raw_scale = projection.scale * (1.0 - wheel_delta[Y] * 0.1)
         let next_scale = if raw_scale < 0.1 { 0.1 } else { raw_scale }
         @camera.orthographic_projections().set(camera_entity, {
@@ -1873,7 +1873,7 @@ fn preview_camera_control_system(_world : @ecs.World) -> Unit {
         @transform.transforms().set(
           camera_entity,
           transform.with_translation(
-            @math.Vec3(
+            Vec3(
               transform.translation.x + wheel_delta[X] * projection.scale,
               transform.translation.y + wheel_delta[Y] * projection.scale,
               transform.translation.z,
@@ -1884,16 +1884,16 @@ fn preview_camera_control_system(_world : @ecs.World) -> Unit {
     }
   }
   if (
-      @inputs.is_mouse_just_pressed(@inputs.MouseButton::Middle) &&
+      @inputs.is_mouse_just_pressed(Middle) &&
       pointer_inside_canvas
     ) ||
     (
-      @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) &&
+      @inputs.is_mouse_just_pressed(Left) &&
       preview_state.active_tool == @shared.preview_tool_drag_canvas() &&
       pointer_inside_canvas
     ) {
     preview_state.camera_pan_anchor = Some(@inputs.mouse.pos)
-  } else if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) &&
+  } else if @inputs.is_mouse_just_pressed(Left) &&
     preview_state.active_tool == @shared.preview_tool_drag_canvas() &&
     !pointer_inside_canvas {
     preview_debug(
@@ -1915,14 +1915,14 @@ fn preview_camera_control_system(_world : @ecs.World) -> Unit {
     if movement[X].abs() >= 1.0 || movement[Y].abs() >= 1.0 {
       let projection = @camera.orthographic_projections()
         .get(camera_entity)
-        .unwrap_or(@camera.OrthographicProjection())
+        .unwrap_or(OrthographicProjection())
       let transform = @transform.transforms()
         .get(camera_entity)
         .unwrap_or(@transform.Transform::identity())
       @transform.transforms().set(
         camera_entity,
         transform.with_translation(
-          @math.Vec3(
+          Vec3(
             transform.translation.x - movement[X] * projection.scale,
             transform.translation.y - movement[Y] * projection.scale,
             transform.translation.z,
@@ -1937,7 +1937,7 @@ fn preview_camera_control_system(_world : @ecs.World) -> Unit {
 ///|
 fn is_autotile_tool(tool : @shared.PreviewTool) -> Bool {
   match tool {
-    @shared.AutoTilePaint | @shared.AutoTileErase | @shared.AutoTileFill => true
+    AutoTilePaint | AutoTileErase | AutoTileFill => true
     _ => false
   }
 }
@@ -1968,16 +1968,16 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
     "crosshair"
   } else if preview_state.tool_drag is Some(drag_state) {
     match drag_state.tool {
-      @shared.Translate => "grabbing"
-      @shared.Rotate => "crosshair"
-      @shared.Scale => "nwse-resize"
+      Translate => "grabbing"
+      Rotate => "crosshair"
+      Scale => "nwse-resize"
       _ => "default"
     }
   } else {
     match preview_state.active_tool {
-      @shared.Select => if hovered is Some(_) { "pointer" } else { "default" }
-      @shared.DragCanvas => "grab"
-      @shared.Translate =>
+      Select => if hovered is Some(_) { "pointer" } else { "default" }
+      DragCanvas => "grab"
+      Translate =>
         if hovered is Some(hovered_id) && selected_ids.contains(hovered_id) {
           "move"
         } else if hovered is Some(_) {
@@ -1987,11 +1987,11 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
         } else {
           "default"
         }
-      @shared.Rotate => "crosshair"
-      @shared.Scale => "nwse-resize"
-      @shared.AutoTilePaint => "crosshair"
-      @shared.AutoTileErase => "cell"
-      @shared.AutoTileFill => "copy"
+      Rotate => "crosshair"
+      Scale => "nwse-resize"
+      AutoTilePaint => "crosshair"
+      AutoTileErase => "cell"
+      AutoTileFill => "copy"
     }
   }
   set_canvas_cursor(cursor)
@@ -2004,7 +2004,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
     if !@inputs.mouse.left_button {
       preview_state.last_autotile_cell_key = None
     }
-    if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) &&
+    if @inputs.is_mouse_just_pressed(Left) &&
       !pointer_inside {
       preview_debug(
         "ignored autotile edit outside canvas, mouse=" +
@@ -2019,7 +2019,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
     }
     let active_tool = preview_state.active_tool
     if active_tool == @shared.preview_tool_autotile_fill() {
-      if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) {
+      if @inputs.is_mouse_just_pressed(Left) {
         ignore(apply_autotile_tool_at_world(world_point, active_tool))
       }
     } else if @inputs.mouse.left_button {
@@ -2028,13 +2028,13 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
     return
   }
   if preview_state.active_tool == @shared.preview_tool_select() {
-    if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) &&
+    if @inputs.is_mouse_just_pressed(Left) &&
       pointer_inside {
       preview_state.selection_drag = Some({
         anchor_world: world_point,
         anchor_pointer: @inputs.mouse.pos,
       })
-    } else if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) &&
+    } else if @inputs.is_mouse_just_pressed(Left) &&
       !pointer_inside {
       preview_debug(
         "ignored left pick outside canvas, mouse=" +
@@ -2044,7 +2044,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
       )
     }
     if (
-        @inputs.is_mouse_just_released(@inputs.MouseButton::Left) ||
+        @inputs.is_mouse_just_released(Left) ||
         !@inputs.mouse.left_button
       ) &&
       preview_state.selection_drag is Some(drag) {
@@ -2059,10 +2059,10 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
       }
       preview_state.selection_drag = None
     }
-  } else if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) &&
+  } else if @inputs.is_mouse_just_pressed(Left) &&
     pointer_inside {
     match preview_state.active_tool {
-      @shared.Translate =>
+      Translate =>
         match preview_state.selected_entity_id {
           Some(selected) if preview_state.runtime_scene is Some(scene) &&
             scene.entity_ids.contains(selected) => {
@@ -2075,7 +2075,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
               .unwrap_or(entity_transform2d(scene.entity_ids[selected]))
             if hovered is Some(hovered_id) && drag_ids.contains(hovered_id) {
               let pivot_world = selected_pivot_world().unwrap_or(
-                @math.Vec2(
+                Vec2(
                   start_transform.translation.x,
                   start_transform.translation.y,
                 ),
@@ -2104,7 +2104,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
               None => set_selected_ids_and_emit([])
             }
         }
-      @shared.Rotate =>
+      Rotate =>
         if preview_state.selected_entity_id is Some(selected) &&
           preview_state.runtime_scene is Some(scene) &&
           scene.entity_ids.contains(selected) {
@@ -2121,7 +2121,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
             .get(selected)
             .unwrap_or(entity_transform2d(scene.entity_ids[selected]))
           let pivot_world = selected_pivot_world().unwrap_or(
-            @math.Vec2(
+            Vec2(
               start_transform.translation.x,
               start_transform.translation.y,
             ),
@@ -2144,7 +2144,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
             None => set_selected_ids_and_emit([])
           }
         }
-      @shared.Scale =>
+      Scale =>
         if preview_state.selected_entity_id is Some(selected) &&
           preview_state.runtime_scene is Some(scene) &&
           scene.entity_ids.contains(selected) {
@@ -2161,7 +2161,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
             .get(selected)
             .unwrap_or(entity_transform2d(scene.entity_ids[selected]))
           let pivot_world = selected_pivot_world().unwrap_or(
-            @math.Vec2(
+            Vec2(
               start_transform.translation.x,
               start_transform.translation.y,
             ),
@@ -2190,7 +2190,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
           None => set_selected_ids_and_emit([])
         }
     }
-  } else if @inputs.is_mouse_just_pressed(@inputs.MouseButton::Left) &&
+  } else if @inputs.is_mouse_just_pressed(Left) &&
     preview_state.active_tool != @shared.preview_tool_select() {
     preview_debug(
       "ignored left pick outside canvas, mouse=" +
@@ -2200,7 +2200,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
     )
   }
   if (
-      @inputs.is_mouse_just_released(@inputs.MouseButton::Left) ||
+      @inputs.is_mouse_just_released(Left) ||
       !@inputs.mouse.left_button
     ) &&
     preview_state.tool_drag is Some(drag_state) {
@@ -2221,7 +2221,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
     )
     let current_angle = point_angle(drag_state.pivot_world, world_point)
     let rotation_delta = shortest_angle_delta(start_angle, current_angle)
-    let snapped_rotation_delta = if @inputs.is_pressed(@inputs.ShiftLeft) {
+    let snapped_rotation_delta = if @inputs.is_pressed(ShiftLeft) {
       let step = @cmath.PI / 12.0
       (rotation_delta / step).round() * step
     } else {
@@ -2251,7 +2251,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
       guard drag_state.start_transforms.contains(id) else { continue }
       let start = drag_state.start_transforms[id]
       let next_transform = match drag_state.tool {
-        @shared.Translate =>
+        Translate =>
           @editor_bridge.transform2d_value(
             translation=@editor_bridge.vec2_doc(
               start.translation.x + translate_delta[X],
@@ -2260,7 +2260,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
             rotation=start.rotation,
             scale=start.scale,
           )
-        @shared.Rotate => {
+        Rotate => {
           let offset_x = start.translation.x - drag_state.pivot_world[X]
           let offset_y = start.translation.y - drag_state.pivot_world[Y]
           let rotated_x = offset_x * cos_delta - offset_y * sin_delta
@@ -2274,7 +2274,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
             scale=start.scale,
           )
         }
-        @shared.Scale => {
+        Scale => {
           let offset_x = start.translation.x - drag_state.pivot_world[X]
           let offset_y = start.translation.y - drag_state.pivot_world[Y]
           @editor_bridge.transform2d_value(
@@ -2319,11 +2319,11 @@ pub fn bootstrap() -> Unit {
   .with_viewport_height(initial_viewport[Y])
   .with_image_smooth(false)
   .add_plugin(@plugins.default_plugin)
-  .add_system(@system.Startup, preview_startup_system)
-  .add_system(@system.Update, preview_viewport_sync_system)
-  .add_system(@system.Update, preview_scene_sync_system)
-  .add_system(@system.Update, preview_camera_control_system)
-  .add_system(@system.Update, preview_snap_grid_overlay_system)
-  .add_system(@system.Update, preview_pick_system)
+  .add_system(Startup, preview_startup_system)
+  .add_system(Update, preview_viewport_sync_system)
+  .add_system(Update, preview_scene_sync_system)
+  .add_system(Update, preview_camera_control_system)
+  .add_system(Update, preview_snap_grid_overlay_system)
+  .add_system(Update, preview_pick_system)
   .run()
 }

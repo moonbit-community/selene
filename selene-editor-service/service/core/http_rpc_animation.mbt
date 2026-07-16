@@ -4,7 +4,7 @@ async fn EditorService::handle_animation_rpc(
   request : @shared.RpcRequest,
 ) -> @shared.RpcResponse? {
   match request {
-    @shared.AnimationClipLoad(path~) => {
+    AnimationClipLoad(path~) => {
       let root = self.current_project_root()
       let clip = load_animation_clip_asset_document(root, path)
       Some(
@@ -13,7 +13,7 @@ async fn EditorService::handle_animation_rpc(
         ),
       )
     }
-    @shared.AnimationClipSave(path~, clip~) => {
+    AnimationClipSave(path~, clip~) => {
       let root = self.current_project_root()
       save_animation_clip_asset_document(root, path, clip)
       self.broadcast(
@@ -21,7 +21,7 @@ async fn EditorService::handle_animation_rpc(
       )
       Some(@shared.rpc_response_saved_ok())
     }
-    @shared.AnimationGraphLoad(path~) => {
+    AnimationGraphLoad(path~) => {
       let root = self.current_project_root()
       let graph = load_animation_graph_asset_document(root, path)
       Some(
@@ -30,7 +30,7 @@ async fn EditorService::handle_animation_rpc(
         ),
       )
     }
-    @shared.AnimationGraphSave(path~, graph~) => {
+    AnimationGraphSave(path~, graph~) => {
       let root = self.current_project_root()
       save_animation_graph_asset_document(root, path, graph)
       self.broadcast(
@@ -38,7 +38,7 @@ async fn EditorService::handle_animation_rpc(
       )
       Some(@shared.rpc_response_saved_ok())
     }
-    @shared.AnimationMigrate(path~, scene_path~) => {
+    AnimationMigrate(path~, scene_path~) => {
       let root = self.current_project_root()
       migrate_legacy_animation_document(root, path, scene_path)
       self.broadcast(

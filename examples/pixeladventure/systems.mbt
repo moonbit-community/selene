@@ -33,7 +33,7 @@ fn player_is_frozen(result : GameResult?) -> Bool {
 
 ///|
 fn set_ui_text(entity : @entity.Entity, content : String) -> Unit {
-  let text = @ui.texts().get_or_init(entity, fn() { @ui.Text(content) })
+  let text = @ui.texts().get_or_init(entity, fn() { Text(content) })
   if text.content != content {
     text.content = content
   }
@@ -93,19 +93,19 @@ fn volume_image(volume_on : Bool) -> @ui.UiImage {
 fn ensure_sprite_animation_binding(entity : @entity.Entity) -> Unit {
   ignore(
     @animation.animation_players().get_or_init(entity, fn() {
-      @animation.AnimationPlayer()
+      AnimationPlayer()
     }),
   )
   ignore(
     @animation.animation_transitions().get_or_init(entity, fn() {
-      @animation.AnimationTransitions()
+      AnimationTransitions()
     }),
   )
   @animation.animation_target_ids().set(
     entity,
-    @animation.AnimationTargetId("self"),
+    AnimationTargetId("self"),
   )
-  @animation.animated_bys().set(entity, @animation.AnimatedBy(entity))
+  @animation.animated_bys().set(entity, AnimatedBy(entity))
 }
 
 ///|
@@ -133,11 +133,11 @@ fn build_sprite_animation_clip_asset(
     })
   }
   clip.add_curve_to_target(
-    @animation.AnimationTargetId("self"),
+    AnimationTargetId("self"),
     @animation.VariableCurve::scalar(
       @animation.texture_atlas_index_field(),
       keys,
-      interpolation=@animation.ChannelInterpolation::Step,
+      interpolation=Step,
     ),
   )
   if frame_count > 0 && !animation.loop_ {
@@ -152,7 +152,7 @@ fn build_sprite_animation_clip_asset(
 fn install_sprite_animation_player(
   entity : @entity.Entity,
   animation : SpriteAnimationDef,
-  repeat? : @animation.RepeatAnimation = @animation.RepeatAnimation::Forever,
+  repeat? : @animation.RepeatAnimation = Forever,
 ) -> (@animation.AnimationGraphHandle, @animation.AnimationNodeIndex) {
   ensure_sprite_animation_binding(entity)
   let (graph, nodes) = @animation.AnimationGraph::from_clips([
@@ -186,63 +186,63 @@ fn play_player_animation(
         IdleRight,
         controller.animations.idle_right,
         player_idle_right_animation,
-        @animation.RepeatAnimation::Forever,
+        Forever,
       )
     (Run, Left) =>
       (
         RunLeft,
         controller.animations.run_left,
         player_run_left_animation,
-        @animation.RepeatAnimation::Forever,
+        Forever,
       )
     (Run, Right) =>
       (
         RunRight,
         controller.animations.run_right,
         player_run_right_animation,
-        @animation.RepeatAnimation::Forever,
+        Forever,
       )
     (Jump, Left) =>
       (
         JumpLeft,
         controller.animations.jump_left,
         player_jump_left_animation,
-        @animation.RepeatAnimation::Forever,
+        Forever,
       )
     (Jump, Right) =>
       (
         JumpRight,
         controller.animations.jump_right,
         player_jump_right_animation,
-        @animation.RepeatAnimation::Forever,
+        Forever,
       )
     (Fall, Left) =>
       (
         FallLeft,
         controller.animations.fall_left,
         player_fall_left_animation,
-        @animation.RepeatAnimation::Forever,
+        Forever,
       )
     (Fall, Right) =>
       (
         FallRight,
         controller.animations.fall_right,
         player_fall_right_animation,
-        @animation.RepeatAnimation::Forever,
+        Forever,
       )
     (Hit, Left) =>
       (
         HitLeft,
         controller.animations.hit_left,
         player_hit_left_animation,
-        @animation.RepeatAnimation::Never,
+        Never,
       )
     (Hit, Right) =>
       (
         HitRight,
         controller.animations.hit_right,
         player_hit_right_animation,
-        @animation.RepeatAnimation::Never,
+        Never,
       )
   }
   if controller.active_animation == Some(key) {
@@ -272,21 +272,21 @@ fn play_bird_animation(entity : @entity.Entity, bird : BirdController) -> Unit {
         FlyRight,
         bird.animations.fly_right,
         bird_fly_right_animation,
-        @animation.RepeatAnimation::Forever,
+        Forever,
       )
     (true, Left) =>
       (
         HitLeft,
         bird.animations.hit_left,
         bird_hit_left_animation,
-        @animation.RepeatAnimation::Never,
+        Never,
       )
     (true, Right) =>
       (
         HitRight,
         bird.animations.hit_right,
         bird_hit_right_animation,
-        @animation.RepeatAnimation::Never,
+        Never,
       )
   }
   if bird.active_animation == Some(key) {
@@ -317,7 +317,7 @@ fn entity_rect(entity : @entity.Entity) -> @math.Rect? {
   let position = @math.Vec2(transform.translation.x, transform.translation.y)
   match shape {
     Rect(size~, offset~) =>
-      Some(@math.Rect::{ position: position + offset, size })
+      Some({ position: position + offset, size })
     _ => None
   }
 }
@@ -349,8 +349,8 @@ fn sweep_rect(from : @math.Rect, to : @math.Rect) -> @math.Rect {
   let bottom_to = to.position[Y] + to.size[Y]
   let bottom = if bottom_from > bottom_to { bottom_from } else { bottom_to }
   {
-    position: @math.Vec2(left, top),
-    size: @math.Vec2(right - left, bottom - top),
+    position: Vec2(left, top),
+    size: Vec2(right - left, bottom - top),
   }
 }
 
@@ -365,7 +365,7 @@ fn classify_bird_contact(
   let player_sweep = sweep_rect(player_prev_rect, player_rect)
   let bird_sweep = sweep_rect(bird_prev_rect, bird_rect)
   if !rects_touch_or_intersect(player_sweep, bird_sweep) {
-    return BirdContactOutcome::None
+    return None
   }
   let player_bottom_prev = player_prev_rect.position[Y] +
     player_prev_rect.size[Y]
@@ -375,9 +375,9 @@ fn classify_bird_contact(
   if player_resolved_vy > 0.0 &&
     player_bottom_prev <= bird_mid_y &&
     player_bottom >= bird_top {
-    BirdContactOutcome::Stomp
+    Stomp
   } else {
-    BirdContactOutcome::Hurt
+    Hurt
   }
 }
 
@@ -395,7 +395,7 @@ fn apply_stomp_bounce(
     @transform.transforms().set(
       player_entity,
       player_transform.with_translation(
-        @math.Vec3(
+        Vec3(
           player_transform.translation.x,
           player_transform.translation.y + snap_delta_y,
           player_transform.translation.z,
@@ -430,7 +430,7 @@ fn hurt_player(session : GameSession, controller : PlayerController) -> Unit {
   }
   let knockback = match controller.facing {
     Left => @math.Vec2(ATTACK_V, 0.0)
-    Right => @math.Vec2(-ATTACK_V, 0.0)
+    Right => Vec2(-ATTACK_V, 0.0)
   }
   @physics2d.linear_velocities().set(session.player, knockback)
   controller.state = Hit
@@ -529,7 +529,7 @@ fn player_controller_system(_world : @ecs.World) -> Unit {
   }
   @physics2d.linear_velocities().set(
     session.player,
-    @math.Vec2(new_velocity_x, new_velocity_y),
+    Vec2(new_velocity_x, new_velocity_y),
   )
   play_player_animation(session.player, controller)
 }
@@ -577,13 +577,13 @@ fn player_bird_contact_system(_world : @ecs.World) -> Unit {
         bird_rect,
         player_resolved_velocity[Y],
       ) {
-      BirdContactOutcome::None => continue
-      BirdContactOutcome::Stomp => {
+      None => continue
+      Stomp => {
         bird.is_hurt = true
         controller.state = Jump
         apply_stomp_bounce(session.player, controller, player_rect, bird_rect)
       }
-      BirdContactOutcome::Hurt => hurt_player(session, controller)
+      Hurt => hurt_player(session, controller)
     }
     break
   }
@@ -629,12 +629,12 @@ fn bird_patrol_system(_world : @ecs.World) -> Unit {
       Left =>
         @physics2d.linear_velocities().set(
           bird_entity,
-          @math.Vec2(-BIRD_SPEED, 0.0),
+          Vec2(-BIRD_SPEED, 0.0),
         )
       Right =>
         @physics2d.linear_velocities().set(
           bird_entity,
-          @math.Vec2(BIRD_SPEED, 0.0),
+          Vec2(BIRD_SPEED, 0.0),
         )
     }
     play_bird_animation(bird_entity, bird)

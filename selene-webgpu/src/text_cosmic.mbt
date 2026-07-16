@@ -147,11 +147,11 @@ fn rasterize_with_cosmic(
     Float::from_double(font_size),
     Float::from_double(font_size * 1.25),
   )
-  let attrs = @cosmic.Attrs::new().family(@cosmic.Family::Name(family))
+  let attrs = @cosmic.Attrs::new().family(Name(family))
   let attrs_list = @cosmic.AttrsList::new(attrs)
   let buffer = @cosmic.Buffer::new(metrics)
-    .set_wrap(@cosmic.Wrap::None)
-    .set_text(command.text, attrs_list, @cosmic.Shaping::Advanced)
+    .set_wrap(None)
+    .set_text(command.text, attrs_list, Advanced)
     .set_size(None, None)
   let mut min_x = 0
   let mut min_y = 0

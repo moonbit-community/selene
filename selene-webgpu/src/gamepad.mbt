@@ -73,7 +73,7 @@ fn sync_buttons(
   ]
   for mapping in mappings {
     if webgpu_gamepad_button_pressed(id, mapping.0) {
-      buttons.add(@inputs.GamepadButtonInput(gamepad, mapping.1))
+      buttons.add(GamepadButtonInput(gamepad, mapping.1))
     }
   }
 }
@@ -85,19 +85,19 @@ fn sync_axes(
   axes : Map[@inputs.GamepadAxisInput, Double],
 ) -> Unit {
   axes.set(
-    @inputs.GamepadAxisInput(gamepad, LeftStickX),
+    GamepadAxisInput(gamepad, LeftStickX),
     webgpu_gamepad_axis_value(id, 0),
   )
   axes.set(
-    @inputs.GamepadAxisInput(gamepad, LeftStickY),
+    GamepadAxisInput(gamepad, LeftStickY),
     webgpu_gamepad_axis_value(id, 1),
   )
   axes.set(
-    @inputs.GamepadAxisInput(gamepad, RightStickX),
+    GamepadAxisInput(gamepad, RightStickX),
     webgpu_gamepad_axis_value(id, 2),
   )
   axes.set(
-    @inputs.GamepadAxisInput(gamepad, RightStickY),
+    GamepadAxisInput(gamepad, RightStickY),
     webgpu_gamepad_axis_value(id, 3),
   )
 
@@ -110,8 +110,8 @@ fn sync_axes(
     webgpu_gamepad_button_value(id, 7),
     normalize_signed_axis(webgpu_gamepad_axis_value(id, 5)),
   )
-  axes.set(@inputs.GamepadAxisInput(gamepad, LeftZ), left_trigger)
-  axes.set(@inputs.GamepadAxisInput(gamepad, RightZ), right_trigger)
+  axes.set(GamepadAxisInput(gamepad, LeftZ), left_trigger)
+  axes.set(GamepadAxisInput(gamepad, RightZ), right_trigger)
 }
 
 ///|

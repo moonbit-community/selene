@@ -93,11 +93,11 @@ fn rasterize_with_cosmic(
     Float::from_double(font_size),
     Float::from_double(font_size * 1.25),
   )
-  let attrs = @cosmic.Attrs::new().family(@cosmic.Family::Name(style.family))
+  let attrs = @cosmic.Attrs::new().family(Name(style.family))
   let attrs_list = @cosmic.AttrsList::new(attrs)
   let buffer = @cosmic.Buffer::new(metrics)
-    .set_wrap(@cosmic.Wrap::None)
-    .set_text(text, attrs_list, @cosmic.Shaping::Advanced)
+    .set_wrap(None)
+    .set_text(text, attrs_list, Advanced)
     .set_size(None, None)
 
   let mut min_x = 0
@@ -222,11 +222,11 @@ fn measure_text_with_cosmic(
     Float::from_double(font_size),
     Float::from_double(font_size * 1.25),
   )
-  let attrs = @cosmic.Attrs::new().family(@cosmic.Family::Name(style.family))
+  let attrs = @cosmic.Attrs::new().family(Name(style.family))
   let attrs_list = @cosmic.AttrsList::new(attrs)
   let buffer = @cosmic.Buffer::new(metrics)
-    .set_wrap(@cosmic.Wrap::None)
-    .set_text(text, attrs_list, @cosmic.Shaping::Advanced)
+    .set_wrap(None)
+    .set_text(text, attrs_list, Advanced)
     .set_size(None, None)
     .layout_all_with_font_system(cosmic_font_system.val)
   let mut width = 0.0
@@ -238,7 +238,7 @@ fn measure_text_with_cosmic(
   if height <= 0.0 {
     height = font_size
   }
-  Some(@smath.Vec2(width, height))
+  Some(Vec2(width, height))
 }
 
 ///|
@@ -250,7 +250,7 @@ fn draw_text_with_cosmic(command : @render2d_types.TextDrawCommand2D) -> Bool {
     return false
   }
   let measured = measure_text_with_cosmic(command.style, command.text).unwrap_or(
-    @smath.Vec2(
+    Vec2(
       cached_texture.width.to_double(),
       cached_texture.height.to_double(),
     ),
@@ -392,10 +392,10 @@ fn sync_mouse_events() -> Unit {
     let wheel = @raylib.get_mouse_wheel_move_v() |> to_selene_vec2
     // Keep raw screen-space mouse coordinates consistent with canvas backend.
     // Core click systems are responsible for applying zoom conversion.
-    mouse.pos = @smath.Vec2(pos[X], pos[Y])
-    relative_delta.val = Some(@smath.Vec2(delta[X], delta[Y]))
+    mouse.pos = Vec2(pos[X], pos[Y])
+    relative_delta.val = Some(Vec2(delta[X], delta[Y]))
     if backend.mouse_wheel is Some(mouse_wheel) {
-      mouse_wheel.delta = @smath.Vec2(wheel[X], wheel[Y])
+      mouse_wheel.delta = Vec2(wheel[X], wheel[Y])
     }
     mouse.left_button = @raylib.is_mouse_button_down(@raylib.MouseButtonLeft)
     mouse.right_button = @raylib.is_mouse_button_down(@raylib.MouseButtonRight)
@@ -533,7 +533,7 @@ fn sync_one_gamepad_buttons(
   ]
   for mapping in mappings {
     if @raylib.is_gamepad_button_down(id, mapping.0) {
-      buttons.add(@inputs.GamepadButtonInput(gamepad, mapping.1))
+      buttons.add(GamepadButtonInput(gamepad, mapping.1))
     }
   }
 }
@@ -545,27 +545,27 @@ fn sync_one_gamepad_axes(
   axes : Map[@inputs.GamepadAxisInput, Double],
 ) -> Unit {
   axes.set(
-    @inputs.GamepadAxisInput(gamepad, LeftStickX),
+    GamepadAxisInput(gamepad, LeftStickX),
     @raylib.get_gamepad_axis_movement(id, @raylib.GamepadAxisLeftX).to_double(),
   )
   axes.set(
-    @inputs.GamepadAxisInput(gamepad, LeftStickY),
+    GamepadAxisInput(gamepad, LeftStickY),
     @raylib.get_gamepad_axis_movement(id, @raylib.GamepadAxisLeftY).to_double(),
   )
   axes.set(
-    @inputs.GamepadAxisInput(gamepad, RightStickX),
+    GamepadAxisInput(gamepad, RightStickX),
     @raylib.get_gamepad_axis_movement(id, @raylib.GamepadAxisRightX).to_double(),
   )
   axes.set(
-    @inputs.GamepadAxisInput(gamepad, RightStickY),
+    GamepadAxisInput(gamepad, RightStickY),
     @raylib.get_gamepad_axis_movement(id, @raylib.GamepadAxisRightY).to_double(),
   )
   axes.set(
-    @inputs.GamepadAxisInput(gamepad, LeftZ),
+    GamepadAxisInput(gamepad, LeftZ),
     @raylib.get_gamepad_axis_movement(id, @raylib.GamepadAxisLeftTrigger).to_double(),
   )
   axes.set(
-    @inputs.GamepadAxisInput(gamepad, RightZ),
+    GamepadAxisInput(gamepad, RightZ),
     @raylib.get_gamepad_axis_movement(id, @raylib.GamepadAxisRightTrigger).to_double(),
   )
 }

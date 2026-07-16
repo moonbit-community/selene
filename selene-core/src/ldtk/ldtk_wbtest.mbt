@@ -22,7 +22,7 @@ fn with_fake_asset_io(
 ///|
 fn ldtk_test_entity_translation_2d(entity : @entity.Entity) -> @math.Vec2 {
   let transform = @transform.transforms().get(entity).unwrap_or_default()
-  @math.Vec2(transform.translation.x, transform.translation.y)
+  Vec2(transform.translation.x, transform.translation.y)
 }
 
 ///|
@@ -395,7 +395,7 @@ test "load_ldtk_project parses defs entities enums and typed entity field helper
     inspect(entity.field_int("HP").unwrap(), content="3")
     inspect(entity.field_number("Speed").unwrap(), content="1.5")
     let spawn = entity.field_vec2("Spawn").unwrap()
-    inspect(spawn[@math.X] == 5.0 && spawn[@math.Y] == 6.0, content="true")
+    inspect(spawn[X] == 5.0 && spawn[Y] == 6.0, content="true")
     inspect(
       entity.field_int_array("Checkpoints").unwrap().length(),
       content="3",
@@ -463,7 +463,7 @@ test "load_ldtk_project parses advanced field helpers for level and entity" {
     )
     let spawn_point = level.field_vec2_array("SpawnPoints").unwrap()[1]
     inspect(
-      spawn_point[@math.X] == 3.0 && spawn_point[@math.Y] == 4.0,
+      spawn_point[X] == 3.0 && spawn_point[Y] == 4.0,
       content="true",
     )
     inspect(level.field_number_array("Weights").unwrap()[0], content="1.25")
@@ -481,7 +481,7 @@ test "load_ldtk_project parses advanced field helpers for level and entity" {
     inspect(entity.field_number_array("FloatList").unwrap()[1], content="2")
     let path_point = entity.field_vec2_array("Path").unwrap()[1]
     inspect(
-      path_point[@math.X] == 6.0 && path_point[@math.Y] == 7.0,
+      path_point[X] == 6.0 && path_point[Y] == 7.0,
       content="true",
     )
     let target_ref = entity.field_entity_ref("TargetRef").unwrap()
@@ -514,11 +514,11 @@ test "load_ldtk_project parses level background position" {
     inspect(bg_pos.crop_width, content="30")
     inspect(bg_pos.crop_height, content="40")
     inspect(
-      bg_pos.scale[@math.X] == 1.5 && bg_pos.scale[@math.Y] == 2.0,
+      bg_pos.scale[X] == 1.5 && bg_pos.scale[Y] == 2.0,
       content="true",
     )
     inspect(
-      bg_pos.top_left_px[@math.X] == 7.0 && bg_pos.top_left_px[@math.Y] == 8.0,
+      bg_pos.top_left_px[X] == 7.0 && bg_pos.top_left_px[Y] == 8.0,
       content="true",
     )
   })
@@ -568,8 +568,8 @@ test "ldtk_world_sync_system updates spawned levels from selection" {
   let spawned_a = world_instance.spawned_levels.get("iid-a").unwrap()
   let spawned_a_translation = ldtk_test_entity_translation_2d(spawned_a)
   inspect(
-    spawned_a_translation[@math.X] == 10.0 &&
-    spawned_a_translation[@math.Y] == 20.0,
+    spawned_a_translation[X] == 10.0 &&
+    spawned_a_translation[Y] == 20.0,
     content="true",
   )
 
@@ -581,8 +581,8 @@ test "ldtk_world_sync_system updates spawned levels from selection" {
   let spawned_b = updated.spawned_levels.get("iid-b").unwrap()
   let spawned_b_translation = ldtk_test_entity_translation_2d(spawned_b)
   inspect(
-    spawned_b_translation[@math.X] == 110.0 &&
-    spawned_b_translation[@math.Y] == 220.0,
+    spawned_b_translation[X] == 110.0 &&
+    spawned_b_translation[Y] == 220.0,
     content="true",
   )
 
@@ -617,8 +617,8 @@ test "spawn_ldtk_world spawns level backgrounds from bg color and image" {
             crop_y: 5.0,
             crop_width: 20.0,
             crop_height: 10.0,
-            scale: @math.Vec2(2.0, 3.0),
-            top_left_px: @math.Vec2(3.0, 5.0),
+            scale: Vec2(2.0, 3.0),
+            top_left_px: Vec2(3.0, 5.0),
           }),
           bg_rel_path: Some("assets/bg.png"),
         },
@@ -646,25 +646,25 @@ test "spawn_ldtk_world spawns level backgrounds from bg color and image" {
       fail("expected level background rect")
     }
     inspect(
-      background_rect.position[@math.X] == 3.0 &&
-      background_rect.position[@math.Y] == 5.0,
+      background_rect.position[X] == 3.0 &&
+      background_rect.position[Y] == 5.0,
       content="true",
     )
     inspect(
-      background_rect.size[@math.X] == 20.0 &&
-      background_rect.size[@math.Y] == 10.0,
+      background_rect.size[X] == 20.0 &&
+      background_rect.size[Y] == 10.0,
       content="true",
     )
     inspect(
       match background_sprite.custom_size {
-        Some(size) => size[@math.X] == 40.0 && size[@math.Y] == 30.0
+        Some(size) => size[X] == 40.0 && size[Y] == 30.0
         None => false
       },
       content="true",
     )
     let background_anchor = background_sprite.anchor.as_vec()
     inspect(
-      background_anchor[@math.X] == -0.5 && background_anchor[@math.Y] == 0.5,
+      background_anchor[X] == -0.5 && background_anchor[Y] == 0.5,
       content="true",
     )
     cleanup_ldtk_entity(world)
@@ -768,9 +768,9 @@ test "spawn_ldtk_world spawns layer tiles entities and intgrid cells" {
           def_uid: 1,
           width: 16,
           height: 16,
-          px: @math.Vec2(32.0, 16.0),
-          grid: @math.Vec2(2.0, 1.0),
-          pivot: @math.Vec2(0.5, 1.0),
+          px: Vec2(32.0, 16.0),
+          grid: Vec2(2.0, 1.0),
+          pivot: Vec2(0.5, 1.0),
           smart_color: Some("#ff0000"),
           tile: None,
           tags: [],
@@ -901,9 +901,9 @@ test "ldtk entity tile sprite registration inserts placeholder sprite from __til
           def_uid: 1,
           width: 32,
           height: 16,
-          px: @math.Vec2(16.0, 16.0),
-          grid: @math.Vec2(1.0, 1.0),
-          pivot: @math.Vec2(0.5, 1.0),
+          px: Vec2(16.0, 16.0),
+          grid: Vec2(1.0, 1.0),
+          pivot: Vec2(0.5, 1.0),
           smart_color: None,
           tile: Some({ tileset_uid: Some(1), x: 16, y: 24, w: 16, h: 8 }),
           tags: [],
@@ -961,23 +961,23 @@ test "ldtk entity tile sprite registration inserts placeholder sprite from __til
       fail("expected entity tile rect")
     }
     inspect(
-      tile_rect.position[@math.X] == 16.0 && tile_rect.position[@math.Y] == 24.0,
+      tile_rect.position[X] == 16.0 && tile_rect.position[Y] == 24.0,
       content="true",
     )
     inspect(
-      tile_rect.size[@math.X] == 16.0 && tile_rect.size[@math.Y] == 8.0,
+      tile_rect.size[X] == 16.0 && tile_rect.size[Y] == 8.0,
       content="true",
     )
     inspect(
       match sprite.custom_size {
-        Some(size) => size[@math.X] == 32.0 && size[@math.Y] == 16.0
+        Some(size) => size[X] == 32.0 && size[Y] == 16.0
         None => false
       },
       content="true",
     )
     let sprite_anchor = sprite.anchor.as_vec()
     inspect(
-      sprite_anchor[@math.X] == -0.5 && sprite_anchor[@math.Y] == 1.0,
+      sprite_anchor[X] == -0.5 && sprite_anchor[Y] == 1.0,
       content="true",
     )
     cleanup_ldtk_entity(world)
@@ -1071,7 +1071,7 @@ test "ldtk tile source uses tileset spacing and padding" {
     let world = spawn_ldtk_world(project)
     let tile_entity = ldtk_spawned_tile_instances().to_array()[0].0
     let src = ldtk_tile_metadata().get(tile_entity).unwrap().src
-    inspect(src[@math.X] == 19.0 && src[@math.Y] == 19.0, content="true")
+    inspect(src[X] == 19.0 && src[Y] == 19.0, content="true")
     cleanup_ldtk_entity(world)
   })
 }
@@ -1319,8 +1319,8 @@ test "ldtk entity spawn hook applies by identifier" {
         def_uid: 1,
         width: 16,
         height: 16,
-        px: @math.Vec2(0.0, 0.0),
-        grid: @math.Vec2(0.0, 0.0),
+        px: Vec2(0.0, 0.0),
+        grid: Vec2(0.0, 0.0),
         pivot: @math.Vec2::zero(),
         smart_color: None,
         tile: None,
@@ -1333,8 +1333,8 @@ test "ldtk entity spawn hook applies by identifier" {
         def_uid: 2,
         width: 16,
         height: 16,
-        px: @math.Vec2(16.0, 0.0),
-        grid: @math.Vec2(1.0, 0.0),
+        px: Vec2(16.0, 0.0),
+        grid: Vec2(1.0, 0.0),
         pivot: @math.Vec2::zero(),
         smart_color: None,
         tile: None,
@@ -1369,8 +1369,8 @@ test "ldtk entity spawn hooks support layer and default scopes" {
         def_uid: 1,
         width: 16,
         height: 16,
-        px: @math.Vec2(0.0, 0.0),
-        grid: @math.Vec2(0.0, 0.0),
+        px: Vec2(0.0, 0.0),
+        grid: Vec2(0.0, 0.0),
         pivot: @math.Vec2::zero(),
         smart_color: None,
         tile: None,
@@ -1383,8 +1383,8 @@ test "ldtk entity spawn hooks support layer and default scopes" {
         def_uid: 2,
         width: 16,
         height: 16,
-        px: @math.Vec2(16.0, 0.0),
-        grid: @math.Vec2(1.0, 0.0),
+        px: Vec2(16.0, 0.0),
+        grid: Vec2(1.0, 0.0),
         pivot: @math.Vec2::zero(),
         smart_color: None,
         tile: None,
@@ -1399,8 +1399,8 @@ test "ldtk entity spawn hooks support layer and default scopes" {
         def_uid: 3,
         width: 16,
         height: 16,
-        px: @math.Vec2(32.0, 0.0),
-        grid: @math.Vec2(2.0, 0.0),
+        px: Vec2(32.0, 0.0),
+        grid: Vec2(2.0, 0.0),
         pivot: @math.Vec2::zero(),
         smart_color: None,
         tile: None,
@@ -1448,8 +1448,8 @@ test "ldtk entity optional hook registration routes by scope" {
         def_uid: 1,
         width: 16,
         height: 16,
-        px: @math.Vec2(0.0, 0.0),
-        grid: @math.Vec2(0.0, 0.0),
+        px: Vec2(0.0, 0.0),
+        grid: Vec2(0.0, 0.0),
         pivot: @math.Vec2::zero(),
         smart_color: None,
         tile: None,
@@ -1462,8 +1462,8 @@ test "ldtk entity optional hook registration routes by scope" {
         def_uid: 2,
         width: 16,
         height: 16,
-        px: @math.Vec2(16.0, 0.0),
-        grid: @math.Vec2(1.0, 0.0),
+        px: Vec2(16.0, 0.0),
+        grid: Vec2(1.0, 0.0),
         pivot: @math.Vec2::zero(),
         smart_color: None,
         tile: None,
@@ -1526,8 +1526,8 @@ test "ldtk typed entity registrations use most specific scope" {
         def_uid: 1,
         width: 16,
         height: 16,
-        px: @math.Vec2(0.0, 0.0),
-        grid: @math.Vec2(0.0, 0.0),
+        px: Vec2(0.0, 0.0),
+        grid: Vec2(0.0, 0.0),
         pivot: @math.Vec2::zero(),
         smart_color: None,
         tile: None,
@@ -1540,8 +1540,8 @@ test "ldtk typed entity registrations use most specific scope" {
         def_uid: 2,
         width: 16,
         height: 16,
-        px: @math.Vec2(16.0, 0.0),
-        grid: @math.Vec2(1.0, 0.0),
+        px: Vec2(16.0, 0.0),
+        grid: Vec2(1.0, 0.0),
         pivot: @math.Vec2::zero(),
         smart_color: None,
         tile: None,
@@ -1556,8 +1556,8 @@ test "ldtk typed entity registrations use most specific scope" {
         def_uid: 3,
         width: 16,
         height: 16,
-        px: @math.Vec2(32.0, 0.0),
-        grid: @math.Vec2(2.0, 0.0),
+        px: Vec2(32.0, 0.0),
+        grid: Vec2(2.0, 0.0),
         pivot: @math.Vec2::zero(),
         smart_color: None,
         tile: None,
@@ -1609,8 +1609,8 @@ test "ldtk add entity registration composes handlers in same scope" {
         def_uid: 1,
         width: 16,
         height: 16,
-        px: @math.Vec2(0.0, 0.0),
-        grid: @math.Vec2(0.0, 0.0),
+        px: Vec2(0.0, 0.0),
+        grid: Vec2(0.0, 0.0),
         pivot: @math.Vec2::zero(),
         smart_color: None,
         tile: None,
@@ -1648,8 +1648,8 @@ test "ldtk add entity component helpers can build bundle-like sets" {
         def_uid: 1,
         width: 16,
         height: 16,
-        px: @math.Vec2(0.0, 0.0),
-        grid: @math.Vec2(0.0, 0.0),
+        px: Vec2(0.0, 0.0),
+        grid: Vec2(0.0, 0.0),
         pivot: @math.Vec2::zero(),
         smart_color: None,
         tile: None,
@@ -1662,8 +1662,8 @@ test "ldtk add entity component helpers can build bundle-like sets" {
         def_uid: 2,
         width: 16,
         height: 16,
-        px: @math.Vec2(16.0, 0.0),
-        grid: @math.Vec2(1.0, 0.0),
+        px: Vec2(16.0, 0.0),
+        grid: Vec2(1.0, 0.0),
         pivot: @math.Vec2::zero(),
         smart_color: None,
         tile: None,
@@ -2068,7 +2068,7 @@ test "ldtk intgrid with tileset skips colorful fallback sprites" {
               grid_tiles: [
                 {
                   tile_id: 1,
-                  src: @math.Vec2(16.0, 0.0),
+                  src: Vec2(16.0, 0.0),
                   px: @math.Vec2::zero(),
                   flip_x: false,
                   flip_y: false,
@@ -2213,8 +2213,8 @@ test "ldtk settings intgrid invisible and layer exclusion apply at spawn" {
                   def_uid: 1,
                   width: 16,
                   height: 16,
-                  px: @math.Vec2(0.0, 0.0),
-                  grid: @math.Vec2(0.0, 0.0),
+                  px: Vec2(0.0, 0.0),
+                  grid: Vec2(0.0, 0.0),
                   pivot: @math.Vec2::zero(),
                   smart_color: None,
                   tile: None,
@@ -2273,8 +2273,8 @@ test "ldtk level respawn keeps worldly entities and respawns level entities" {
         def_uid: 1,
         width: 16,
         height: 16,
-        px: @math.Vec2(16.0, 16.0),
-        grid: @math.Vec2(1.0, 1.0),
+        px: Vec2(16.0, 16.0),
+        grid: Vec2(1.0, 1.0),
         pivot: @math.Vec2::zero(),
         smart_color: None,
         tile: None,
@@ -2287,8 +2287,8 @@ test "ldtk level respawn keeps worldly entities and respawns level entities" {
         def_uid: 2,
         width: 16,
         height: 16,
-        px: @math.Vec2(32.0, 16.0),
-        grid: @math.Vec2(2.0, 1.0),
+        px: Vec2(32.0, 16.0),
+        grid: Vec2(2.0, 1.0),
         pivot: @math.Vec2::zero(),
         smart_color: None,
         tile: None,
@@ -2361,8 +2361,8 @@ test "ldtk world respawn recreates worldly entities" {
         def_uid: 1,
         width: 16,
         height: 16,
-        px: @math.Vec2(32.0, 16.0),
-        grid: @math.Vec2(2.0, 1.0),
+        px: Vec2(32.0, 16.0),
+        grid: Vec2(2.0, 1.0),
         pivot: @math.Vec2::zero(),
         smart_color: None,
         tile: None,

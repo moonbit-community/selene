@@ -76,13 +76,13 @@ let font_states : Map[FontHandle, LoadState] = Map([])
 let reported_read_failures : Set[String] = Set([])
 
 ///|
-pub let image_asset_events : @event.Events[AssetEvent[ImageHandle]] = @event.Events()
+pub let image_asset_events : @event.Events[AssetEvent[ImageHandle]] = Events()
 
 ///|
-pub let audio_asset_events : @event.Events[AssetEvent[AudioHandle]] = @event.Events()
+pub let audio_asset_events : @event.Events[AssetEvent[AudioHandle]] = Events()
 
 ///|
-pub let font_asset_events : @event.Events[AssetEvent[FontHandle]] = @event.Events()
+pub let font_asset_events : @event.Events[AssetEvent[FontHandle]] = Events()
 
 ///|
 fn normalize_font_family(path : String) -> String {

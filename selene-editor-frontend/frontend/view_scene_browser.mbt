@@ -100,23 +100,23 @@ fn subscribe_shortcuts_cmd(dispatch : @rabbita.Emit[@app.Msg]) -> @rabbita.Cmd {
 ///|
 fn run_preview_command(command : @bridge.PreviewCommand) -> Unit {
   match command {
-    @bridge.PreviewCommand::Bootstrap => @preview.bootstrap()
-    @bridge.PreviewCommand::ClearScene => @preview.clear_scene()
-    @bridge.PreviewCommand::LoadScene(scene) => @preview.load_scene(scene)
-    @bridge.PreviewCommand::SetSelection(primary~, ids~) =>
+    Bootstrap => @preview.bootstrap()
+    ClearScene => @preview.clear_scene()
+    LoadScene(scene) => @preview.load_scene(scene)
+    SetSelection(primary~, ids~) =>
       @preview.set_selection(primary, ids)
-    @bridge.PreviewCommand::SetTool(tool) => @preview.set_tool(tool)
-    @bridge.PreviewCommand::SetMoveSnap(enabled~, step~) =>
+    SetTool(tool) => @preview.set_tool(tool)
+    SetMoveSnap(enabled~, step~) =>
       @preview.set_move_snap(enabled, step)
-    @bridge.PreviewCommand::SetAutoTileBrushTerrain(terrain) =>
+    SetAutoTileBrushTerrain(terrain) =>
       @preview.set_autotile_brush_terrain(terrain)
-    @bridge.PreviewCommand::SetAnimationPreviewPaused(paused) =>
+    SetAnimationPreviewPaused(paused) =>
       @preview.set_animation_preview_paused(paused)
-    @bridge.PreviewCommand::SetAnimationPreviewSpeed(speed) =>
+    SetAnimationPreviewSpeed(speed) =>
       @preview.set_animation_preview_speed(speed)
-    @bridge.PreviewCommand::SeekAnimationPreview(seconds) =>
+    SeekAnimationPreview(seconds) =>
       @preview.seek_animation_preview(seconds)
-    @bridge.PreviewCommand::FrameSelection => @preview.frame_selection()
+    FrameSelection => @preview.frame_selection()
   }
 }
 
@@ -142,12 +142,12 @@ fn effect_to_cmd(
   effect : @app.Effect,
 ) -> @rabbita.Cmd {
   match effect {
-    @app.Rpc(binding~) => rpc_effect_cmd(dispatch, binding)
-    @app.SubscribeServiceEvents => subscribe_events_cmd(dispatch)
-    @app.SubscribePreviewEvents => subscribe_preview_events_cmd(dispatch)
-    @app.SubscribeKeyboardShortcuts => subscribe_shortcuts_cmd(dispatch)
-    @app.SubscribeSidebarLayout => subscribe_sidebar_layout_cmd(dispatch)
-    @app.Preview(command) => preview_cmd(command)
+    Rpc(binding~) => rpc_effect_cmd(dispatch, binding)
+    SubscribeServiceEvents => subscribe_events_cmd(dispatch)
+    SubscribePreviewEvents => subscribe_preview_events_cmd(dispatch)
+    SubscribeKeyboardShortcuts => subscribe_shortcuts_cmd(dispatch)
+    SubscribeSidebarLayout => subscribe_sidebar_layout_cmd(dispatch)
+    Preview(command) => preview_cmd(command)
   }
 }
 

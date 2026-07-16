@@ -1,6 +1,6 @@
 ///|
 fn sort_unique_paths(values : Array[String]) -> Array[String] {
-  let seen : Map[String, Bool] = {}
+  let seen : Map[String, Bool] = Map([])
   let ordered : Array[String] = []
   for value in values {
     if seen.contains(value) {

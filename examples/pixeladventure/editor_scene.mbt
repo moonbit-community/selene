@@ -80,7 +80,7 @@ fn validate_pixeladventure_terrain_component(
   let data : PixelAdventureTerrainComponent = validate_pixeladventure_component(
     component, path, "PixelAdventureTerrain",
   ) catch {
-    @editor_bridge.ComponentPayloadInvalid(errors) => return errors
+    ComponentPayloadInvalid(errors) => return errors
   }
   if data.collider_group.trim() == "" {
     [
@@ -148,7 +148,7 @@ fn set_entity_z(entity : @entity.Entity, z : Double) -> Unit {
   @transform.transforms().set(
     entity,
     transform.with_translation(
-      @math.Vec3(transform.translation.x, transform.translation.y, z),
+      Vec3(transform.translation.x, transform.translation.y, z),
     ),
   )
 }
@@ -223,7 +223,7 @@ fn pixeladventure_custom_component_handlers() -> Map[
   String,
   @editor_bridge.CustomComponentHandler,
 ] {
-  let handlers : Map[String, @editor_bridge.CustomComponentHandler] = {}
+  let handlers : Map[String, @editor_bridge.CustomComponentHandler] = Map([])
   handlers.set(
     pixeladventure_player_component_kind,
     @editor_bridge.custom_component_handler(
@@ -232,7 +232,7 @@ fn pixeladventure_custom_component_handlers() -> Map[
         let _value : PixelAdventurePlayerComponent = validate_pixeladventure_component(
           component, path, "PixelAdventurePlayer",
         ) catch {
-          @editor_bridge.ComponentPayloadInvalid(errors) => return errors
+          ComponentPayloadInvalid(errors) => return errors
         }
         []
       },
@@ -247,7 +247,7 @@ fn pixeladventure_custom_component_handlers() -> Map[
         let _value : PixelAdventureBirdComponent = validate_pixeladventure_component(
           component, path, "PixelAdventureBird",
         ) catch {
-          @editor_bridge.ComponentPayloadInvalid(errors) => return errors
+          ComponentPayloadInvalid(errors) => return errors
         }
         []
       },
@@ -262,7 +262,7 @@ fn pixeladventure_custom_component_handlers() -> Map[
         let _value : PixelAdventureAppleComponent = validate_pixeladventure_component(
           component, path, "PixelAdventureApple",
         ) catch {
-          @editor_bridge.ComponentPayloadInvalid(errors) => return errors
+          ComponentPayloadInvalid(errors) => return errors
         }
         []
       },
@@ -277,7 +277,7 @@ fn pixeladventure_custom_component_handlers() -> Map[
         let _value : PixelAdventureFlagComponent = validate_pixeladventure_component(
           component, path, "PixelAdventureFlag",
         ) catch {
-          @editor_bridge.ComponentPayloadInvalid(errors) => return errors
+          ComponentPayloadInvalid(errors) => return errors
         }
         []
       },
@@ -359,7 +359,7 @@ fn terrain_placements_from_scene(
 fn scene_world_size(scene : @editor_bridge.SceneDocument) -> @math.Vec2 {
   let placements = terrain_placements_from_scene(scene)
   guard !placements.is_empty() else {
-    return @math.Vec2(VIEWPORT_WIDTH, VIEWPORT_HEIGHT)
+    return Vec2(VIEWPORT_WIDTH, VIEWPORT_HEIGHT)
   }
   let mut max_x = 0
   let mut max_y = 0
@@ -371,7 +371,7 @@ fn scene_world_size(scene : @editor_bridge.SceneDocument) -> @math.Vec2 {
       max_y = placement.tile_y
     }
   }
-  @math.Vec2(
+  Vec2(
     (max_x + 1).to_double() * terrain_tile_size.to_double(),
     (max_y + 1).to_double() * terrain_tile_size.to_double(),
   )
@@ -381,7 +381,7 @@ fn scene_world_size(scene : @editor_bridge.SceneDocument) -> @math.Vec2 {
 fn build_terrain_colliders_from_scene(
   scene : @editor_bridge.SceneDocument,
 ) -> Unit {
-  let rows : Map[Int, Array[Int]] = {}
+  let rows : Map[Int, Array[Int]] = Map([])
   for placement in terrain_placements_from_scene(scene) {
     if !placement.solid || placement.collider_group != "grass" {
       continue
@@ -401,11 +401,11 @@ fn build_terrain_colliders_from_scene(
         cursor += 1
       }
       spawn_terrain_collider(
-        @math.Vec2(
+        Vec2(
           start_x.to_double() * tile_size_d,
           y.to_double() * tile_size_d,
         ),
-        @math.Vec2((end_x - start_x + 1).to_double() * tile_size_d, tile_size_d),
+        Vec2((end_x - start_x + 1).to_double() * tile_size_d, tile_size_d),
       )
     }
   }

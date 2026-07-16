@@ -49,7 +49,7 @@ let next_color_material_id : Ref[UInt] = Ref(0U)
 
 ///|
 fn default_material_color() -> @render.Color {
-  @render.Color::{ r: 255U, g: 255U, b: 255U, a: 1.0 }
+  { r: 255U, g: 255U, b: 255U, a: 1.0 }
 }
 
 ///|

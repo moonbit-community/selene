@@ -220,7 +220,7 @@ fn sort_systems_by_set(
   let outgoing : Map[String, @set.Set[String]] = Map([])
   let indegree : Map[String, Int] = Map([])
   for key in group_keys {
-    outgoing.set(key, @set.Set([]))
+    outgoing.set(key, Set([]))
     indegree.set(key, 0)
   }
 
@@ -271,7 +271,7 @@ fn sort_systems_by_set(
     })
   }
 
-  let processed : @set.Set[String] = @set.Set([])
+  let processed : @set.Set[String] = Set([])
   let sorted_keys : Array[String] = []
   while processed.to_array().length() < group_keys.length() {
     let mut progressed = false
@@ -285,7 +285,7 @@ fn sort_systems_by_set(
       progressed = true
       processed.add(key)
       sorted_keys.push(key)
-      for target in outgoing.get(key).unwrap_or(@set.Set([])) {
+      for target in outgoing.get(key).unwrap_or(Set([])) {
         let degree = indegree.get(target).unwrap_or(0)
         indegree.set(target, @cmp.maximum(0, degree - 1))
       }
@@ -340,8 +340,8 @@ fn collect_systems(
 ///|
 fn should_run(system : RegisteredSystem, world : @ecs.World) -> Bool {
   let schedule_allows = match system.schedule {
-    @system.OnEnter(condition) => condition()
-    @system.OnExit(condition) => condition()
+    OnEnter(condition) => condition()
+    OnExit(condition) => condition()
     _ => true
   }
   if !schedule_allows {
@@ -435,87 +435,87 @@ fn build_runtime_plan(
     startup_systems: collect_systems(app.systems, deterministic_ordering, fn(
       schedule,
     ) {
-      schedule is @system.Startup
+      schedule is Startup
     }),
     frame_first: collect_systems(app.systems, deterministic_ordering, fn(
       schedule,
     ) {
-      schedule is @system.First
+      schedule is First
     }),
     frame_pre: collect_systems(app.systems, deterministic_ordering, fn(
       schedule,
     ) {
-      schedule is @system.PreUpdate
+      schedule is PreUpdate
     }),
     frame_on_exit: collect_systems(app.systems, deterministic_ordering, fn(
       schedule,
     ) {
-      schedule is @system.OnExit(_)
+      schedule is OnExit(_)
     }),
     frame_on_enter: collect_systems(app.systems, deterministic_ordering, fn(
       schedule,
     ) {
-      schedule is @system.OnEnter(_)
+      schedule is OnEnter(_)
     }),
     frame_update: collect_systems(app.systems, deterministic_ordering, fn(
       schedule,
     ) {
-      schedule is @system.Update
+      schedule is Update
     }),
     frame_post: collect_systems(app.systems, deterministic_ordering, fn(
       schedule,
     ) {
-      schedule is @system.PostUpdate
+      schedule is PostUpdate
     }),
     frame_last: collect_systems(app.systems, deterministic_ordering, fn(
       schedule,
     ) {
-      schedule is @system.Last
+      schedule is Last
     }),
     fixed_first: collect_systems(app.systems, deterministic_ordering, fn(
       schedule,
     ) {
-      schedule is @system.FixedFirst
+      schedule is FixedFirst
     }),
     fixed_pre: collect_systems(app.systems, deterministic_ordering, fn(
       schedule,
     ) {
-      schedule is @system.FixedPreUpdate
+      schedule is FixedPreUpdate
     }),
     fixed_update: collect_systems(app.systems, deterministic_ordering, fn(
       schedule,
     ) {
-      schedule is @system.FixedUpdate
+      schedule is FixedUpdate
     }),
     fixed_post: collect_systems(app.systems, deterministic_ordering, fn(
       schedule,
     ) {
-      schedule is @system.FixedPostUpdate
+      schedule is FixedPostUpdate
     }),
     fixed_last: collect_systems(app.systems, deterministic_ordering, fn(
       schedule,
     ) {
-      schedule is @system.FixedLast
+      schedule is FixedLast
     }),
     render_extract: collect_systems(app.systems, deterministic_ordering, fn(
       schedule,
     ) {
-      schedule is @system.RenderExtract
+      schedule is RenderExtract
     }),
     render_prepare: collect_systems(app.systems, deterministic_ordering, fn(
       schedule,
     ) {
-      schedule is @system.RenderPrepare
+      schedule is RenderPrepare
     }),
     render_stage: collect_systems(app.systems, deterministic_ordering, fn(
       schedule,
     ) {
-      schedule is @system.Render
+      schedule is Render
     }),
     render_cleanup: collect_systems(app.systems, deterministic_ordering, fn(
       schedule,
     ) {
-      schedule is @system.RenderCleanup
+      schedule is RenderCleanup
     }),
   }
 }

@@ -31,12 +31,12 @@ fn spawn_pickable_camera(
   let camera_entity = @entity.Entity()
   @camera.cameras().set(
     camera_entity,
-    @camera.Camera(
+    Camera(
       order~,
       viewport=Some(@camera.CameraViewport::from_rect(viewport)),
     ),
   )
-  @camera.camera2ds().set(camera_entity, @camera.Camera2d())
+  @camera.camera2ds().set(camera_entity, Camera2d())
   @transform.global_transforms().set(
     camera_entity,
     @transform.GlobalTransform::from_transform(
@@ -80,28 +80,28 @@ test "pickable click respects top-most camera render layers" {
     @system.configure_display(100.0, 100.0, 1.0)
     let viewport : @math.Rect = {
       position: @math.Vec2::zero(),
-      size: @math.Vec2(100.0, 100.0),
+      size: Vec2(100.0, 100.0),
     }
     ignore(spawn_pickable_camera(viewport, 0, @visibility.layer(0U)))
     ignore(spawn_pickable_camera(viewport, 1, @visibility.layer(1U)))
     let hidden_entity = spawn_pickable_shape(
-      @math.Vec2(50.0, 50.0),
-      Rect(size=@math.Vec2(20.0, 20.0), offset=@math.Vec2(-10.0, -10.0)),
+      Vec2(50.0, 50.0),
+      Rect(size=Vec2(20.0, 20.0), offset=Vec2(-10.0, -10.0)),
       layers=@visibility.layer(0U),
     )
     let visible_entity = spawn_pickable_shape(
-      @math.Vec2(50.0, 50.0),
-      Rect(size=@math.Vec2(20.0, 20.0), offset=@math.Vec2(-10.0, -10.0)),
+      Vec2(50.0, 50.0),
+      Rect(size=Vec2(20.0, 20.0), offset=Vec2(-10.0, -10.0)),
       layers=@visibility.layer(1U),
     )
-    click_left_mouse(@math.Vec2(50.0, 50.0))
+    click_left_mouse(Vec2(50.0, 50.0))
 
     let reader = @event.EventReader()
     pickable_click_system(0.0)
     let events = pointer_event_bus.read(reader)
     let visible_id = visible_entity.id()
     let left_events = events.filter(fn(event) {
-      event.button is @inputs.MouseButton::Left
+      event.button is Left
     })
 
     inspect(left_events.length(), content="2")
@@ -123,22 +123,22 @@ test "pickable click supports ball shapes" {
     @system.configure_display(100.0, 100.0, 1.0)
     ignore(
       spawn_pickable_camera(
-        { position: @math.Vec2::zero(), size: @math.Vec2(100.0, 100.0) },
+        { position: @math.Vec2::zero(), size: Vec2(100.0, 100.0) },
         0,
         @visibility.layer(0U),
       ),
     )
     let entity = spawn_pickable_shape(
-      @math.Vec2(40.0, 40.0),
+      Vec2(40.0, 40.0),
       Ball(radius=12.0, offset=@math.Vec2::zero()),
     )
-    click_left_mouse(@math.Vec2(48.0, 40.0))
+    click_left_mouse(Vec2(48.0, 40.0))
 
     let reader = @event.EventReader()
     pickable_click_system(0.0)
     let events = pointer_event_bus.read(reader)
     let left_events = events.filter(fn(event) {
-      event.button is @inputs.MouseButton::Left
+      event.button is Left
     })
 
     inspect(left_events.length(), content="2")

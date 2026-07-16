@@ -350,7 +350,7 @@ pub fn render2d_begin_pass(
     viewport.position[Y],
     viewport.size[X],
     viewport.size[Y],
-    if load_op is @render2d_types.RenderPassLoadOp2D::Clear {
+    if load_op is Clear {
       1
     } else {
       0
@@ -361,13 +361,13 @@ pub fn render2d_begin_pass(
     ca,
     target_name,
   )
-  if load_op is @render2d_types.RenderPassLoadOp2D::Clear {
+  if load_op is Clear {
     let clear_viewport = match target {
       Screen => viewport
       Offscreen(_) => { position: @smath.Vec2::zero(), size: viewport.size }
     }
     webgpu_push_color_vertices_2d(
-      pack_rect_fill_vertices2d(clear_viewport, @smath.Transform(), clear_color),
+      pack_rect_fill_vertices2d(clear_viewport, Transform(), clear_color),
       color_pipeline2d_code(
         "triangle",
         if clear_color.a >= 0.999999 {
@@ -472,11 +472,11 @@ pub fn measure_text(
 ) -> @smath.Vec2 {
   let measured = webgpu_measure_text(text, style.family, style.size)
   if measured.length() >= 2 {
-    @smath.Vec2(measured[0], measured[1])
+    Vec2(measured[0], measured[1])
   } else {
     let width = text.length().to_double() * style.size * 0.6
     let height = if style.size <= 0.0 { 1.0 } else { style.size }
-    @smath.Vec2(width, height)
+    Vec2(width, height)
   }
 }
 
@@ -694,10 +694,10 @@ fn draw_skybox3d(
         skybox.rotation,
         skybox.brightness,
         half_size,
-        @smath.Vec3(1.0, -1.0, -1.0),
-        @smath.Vec3(1.0, -1.0, 1.0),
-        @smath.Vec3(1.0, 1.0, 1.0),
-        @smath.Vec3(1.0, 1.0, -1.0),
+        Vec3(1.0, -1.0, -1.0),
+        Vec3(1.0, -1.0, 1.0),
+        Vec3(1.0, 1.0, 1.0),
+        Vec3(1.0, 1.0, -1.0),
       )
       draw_skybox_face(
         faces.negative_x,
@@ -705,10 +705,10 @@ fn draw_skybox3d(
         skybox.rotation,
         skybox.brightness,
         half_size,
-        @smath.Vec3(-1.0, -1.0, 1.0),
-        @smath.Vec3(-1.0, -1.0, -1.0),
-        @smath.Vec3(-1.0, 1.0, -1.0),
-        @smath.Vec3(-1.0, 1.0, 1.0),
+        Vec3(-1.0, -1.0, 1.0),
+        Vec3(-1.0, -1.0, -1.0),
+        Vec3(-1.0, 1.0, -1.0),
+        Vec3(-1.0, 1.0, 1.0),
       )
       draw_skybox_face(
         faces.positive_y,
@@ -716,10 +716,10 @@ fn draw_skybox3d(
         skybox.rotation,
         skybox.brightness,
         half_size,
-        @smath.Vec3(-1.0, 1.0, -1.0),
-        @smath.Vec3(1.0, 1.0, -1.0),
-        @smath.Vec3(1.0, 1.0, 1.0),
-        @smath.Vec3(-1.0, 1.0, 1.0),
+        Vec3(-1.0, 1.0, -1.0),
+        Vec3(1.0, 1.0, -1.0),
+        Vec3(1.0, 1.0, 1.0),
+        Vec3(-1.0, 1.0, 1.0),
       )
       draw_skybox_face(
         faces.negative_y,
@@ -727,10 +727,10 @@ fn draw_skybox3d(
         skybox.rotation,
         skybox.brightness,
         half_size,
-        @smath.Vec3(-1.0, -1.0, 1.0),
-        @smath.Vec3(1.0, -1.0, 1.0),
-        @smath.Vec3(1.0, -1.0, -1.0),
-        @smath.Vec3(-1.0, -1.0, -1.0),
+        Vec3(-1.0, -1.0, 1.0),
+        Vec3(1.0, -1.0, 1.0),
+        Vec3(1.0, -1.0, -1.0),
+        Vec3(-1.0, -1.0, -1.0),
       )
       draw_skybox_face(
         faces.positive_z,
@@ -738,10 +738,10 @@ fn draw_skybox3d(
         skybox.rotation,
         skybox.brightness,
         half_size,
-        @smath.Vec3(1.0, -1.0, 1.0),
-        @smath.Vec3(-1.0, -1.0, 1.0),
-        @smath.Vec3(-1.0, 1.0, 1.0),
-        @smath.Vec3(1.0, 1.0, 1.0),
+        Vec3(1.0, -1.0, 1.0),
+        Vec3(-1.0, -1.0, 1.0),
+        Vec3(-1.0, 1.0, 1.0),
+        Vec3(1.0, 1.0, 1.0),
       )
       draw_skybox_face(
         faces.negative_z,
@@ -749,10 +749,10 @@ fn draw_skybox3d(
         skybox.rotation,
         skybox.brightness,
         half_size,
-        @smath.Vec3(-1.0, -1.0, -1.0),
-        @smath.Vec3(1.0, -1.0, -1.0),
-        @smath.Vec3(1.0, 1.0, -1.0),
-        @smath.Vec3(-1.0, 1.0, -1.0),
+        Vec3(-1.0, -1.0, -1.0),
+        Vec3(1.0, -1.0, -1.0),
+        Vec3(1.0, 1.0, -1.0),
+        Vec3(-1.0, 1.0, -1.0),
       )
     }
   }
@@ -2227,9 +2227,9 @@ fn build_cylinder_triangle_mesh3d(
       top0,
       bottom1,
       bottom0,
-      @smath.Vec2(u0, 0.0),
-      @smath.Vec2(u1, 1.0),
-      @smath.Vec2(u0, 1.0),
+      Vec2(u0, 0.0),
+      Vec2(u1, 1.0),
+      Vec2(u0, 1.0),
       side_normal0,
       side_normal1,
       side_normal0,
@@ -2241,9 +2241,9 @@ fn build_cylinder_triangle_mesh3d(
       top0,
       top1,
       bottom1,
-      @smath.Vec2(u0, 0.0),
-      @smath.Vec2(u1, 0.0),
-      @smath.Vec2(u1, 1.0),
+      Vec2(u0, 0.0),
+      Vec2(u1, 0.0),
+      Vec2(u1, 1.0),
       side_normal0,
       side_normal1,
       side_normal1,
@@ -2258,9 +2258,9 @@ fn build_cylinder_triangle_mesh3d(
         top_center,
         top1,
         top0,
-        @smath.Vec2(0.5, 0.5),
-        @smath.Vec2(0.5 + 0.5 * @math.cos(phi1), 0.5 + 0.5 * @math.sin(phi1)),
-        @smath.Vec2(0.5 + 0.5 * @math.cos(phi0), 0.5 + 0.5 * @math.sin(phi0)),
+        Vec2(0.5, 0.5),
+        Vec2(0.5 + 0.5 * @math.cos(phi1), 0.5 + 0.5 * @math.sin(phi1)),
+        Vec2(0.5 + 0.5 * @math.cos(phi0), 0.5 + 0.5 * @math.sin(phi0)),
         top_normal,
         top_normal,
         top_normal,
@@ -2276,9 +2276,9 @@ fn build_cylinder_triangle_mesh3d(
         bottom_center,
         bottom0,
         bottom1,
-        @smath.Vec2(0.5, 0.5),
-        @smath.Vec2(0.5 + 0.5 * @math.cos(phi0), 0.5 + 0.5 * @math.sin(phi0)),
-        @smath.Vec2(0.5 + 0.5 * @math.cos(phi1), 0.5 + 0.5 * @math.sin(phi1)),
+        Vec2(0.5, 0.5),
+        Vec2(0.5 + 0.5 * @math.cos(phi0), 0.5 + 0.5 * @math.sin(phi0)),
+        Vec2(0.5 + 0.5 * @math.cos(phi1), 0.5 + 0.5 * @math.sin(phi1)),
         bottom_normal,
         bottom_normal,
         bottom_normal,
@@ -2323,7 +2323,7 @@ fn transform_positions3d(
     transformed.push(
       translation +
       rotation.rotate_vec3(
-        @smath.Vec3(
+        Vec3(
           position.x * scale.x,
           position.y * scale.y,
           position.z * scale.z,
@@ -2347,7 +2347,7 @@ fn rotate_normals3d(
       .normalize()
     transformed.push(
       if rotated.length_squared() <= 0.00000001 {
-        @smath.Vec3(0.0, 1.0, 0.0)
+        Vec3(0.0, 1.0, 0.0)
       } else {
         rotated
       },
@@ -2367,7 +2367,7 @@ fn rotate_tangents3d(
     let rotated = rotation
       .rotate_vec3(
         inverse_scale_direction3d(
-          @smath.Vec3(tangent.x, tangent.y, tangent.z),
+          Vec3(tangent.x, tangent.y, tangent.z),
           scale,
         ),
       )
@@ -2387,7 +2387,7 @@ fn inverse_scale_direction3d(
   direction : @smath.Vec3,
   scale : @smath.Vec3,
 ) -> @smath.Vec3 {
-  @smath.Vec3(
+  Vec3(
     if scale.x.abs() > 0.00000001 {
       direction.x / scale.x
     } else {
@@ -2433,7 +2433,7 @@ fn required_primitive_uv_set_count(bundle : MaterialTextureBundle3D) -> Int {
 ///|
 fn sphere_vertex_normal(position : @smath.Vec3) -> @smath.Vec3 {
   if position.length_squared() <= 0.0000001 {
-    @smath.Vec3(0.0, 1.0, 0.0)
+    Vec3(0.0, 1.0, 0.0)
   } else {
     position.normalize()
   }
@@ -2684,7 +2684,7 @@ fn pack_light_uniform_data(
 fn camera_forward3d(camera : @render3d_types.FrameCamera3D) -> @smath.Vec3 {
   let forward = camera.target - camera.position
   if forward.length_squared() <= 0.0000001 {
-    @smath.Vec3(0.0, 0.0, -1.0)
+    Vec3(0.0, 0.0, -1.0)
   } else {
     forward.normalize()
   }
@@ -2835,7 +2835,7 @@ fn compute_vertex_normals(
     let c = positions[ic]
     let mut normal = (b - a).cross(c - a)
     if normal.length_squared() <= 0.0000001 {
-      normal = @smath.Vec3(0.0, 1.0, 0.0)
+      normal = Vec3(0.0, 1.0, 0.0)
     }
     normals[ia] = normals[ia] + normal
     normals[ib] = normals[ib] + normal
@@ -2844,7 +2844,7 @@ fn compute_vertex_normals(
   for index in 0..<normals.length() {
     let normal = normals[index]
     normals[index] = if normal.length_squared() <= 0.0000001 {
-      @smath.Vec3(0.0, 1.0, 0.0)
+      Vec3(0.0, 1.0, 0.0)
     } else {
       normal.normalize()
     }

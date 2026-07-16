@@ -290,7 +290,7 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
         @sprite.sprites().set(enemy, sprite)
         @physics2d.shapes().set(
           enemy,
-          @physics2d.CollisionShape::Rect(
+          Rect(
             size=Vec2(8.0, 8.0),
             offset=Vec2(-4.0, -4.0),
           ),
@@ -348,10 +348,10 @@ let enemies : Map[@entity.Entity, Enemy] = Map([])
 let enemy_bullets : Set[@entity.Entity] = Set([])
 
 ///|
-let enemy_contact_event_reader : @event.EventReader[@physics2d.ContactEvent] = @event.EventReader()
+let enemy_contact_event_reader : @event.EventReader[@physics2d.ContactEvent] = EventReader()
 
 ///|
-let enemy_trigger_event_reader : @event.EventReader[@physics2d.TriggerEvent] = @event.EventReader()
+let enemy_trigger_event_reader : @event.EventReader[@physics2d.TriggerEvent] = EventReader()
 
 ///|
 fn create_enemy_animation_nodes(
@@ -528,7 +528,7 @@ fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
   let bullet_entity = @entity.Entity()
   @sprite.sprites().set(
     bullet_entity,
-    @sprite.Sprite(
+    Sprite(
       color=@sprite.color_from_css("red"),
       custom_size=Some(Vec2(4.0, 4.0)),
     ),
@@ -545,9 +545,9 @@ fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
   @physics2d.linear_velocities().set(bullet_entity, vel)
   @physics2d.shapes().set(
     bullet_entity,
-    @physics2d.CollisionShape::Rect(
-      size=@math.Vec2(4.0, 4.0),
-      offset=@math.Vec2(-2.0, -2.0),
+    Rect(
+      size=Vec2(4.0, 4.0),
+      offset=Vec2(-2.0, -2.0),
     ),
   )
   let area = @physics2d.sensor(

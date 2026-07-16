@@ -8,7 +8,7 @@ fn normalize_source_key(path : String) -> String {
 
 ///|
 pub fn map_document_source(documents : Map[String, Bytes]) -> DocumentSource {
-  let normalized : Map[String, Bytes] = {}
+  let normalized : Map[String, Bytes] = Map([])
   for path, bytes in documents {
     normalized.set(normalize_source_key(path), bytes)
   }

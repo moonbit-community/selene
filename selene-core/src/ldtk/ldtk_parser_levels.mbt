@@ -661,7 +661,7 @@ fn parse_ldtk_level_background_position(
   let crop = parse_ldtk_number_array(field_json(object, "cropRect"))
   let scale = field_json(object, "scale")
     .bind(value => json_vec2(value))
-    .unwrap_or(@math.Vec2(1.0, 1.0))
+    .unwrap_or(Vec2(1.0, 1.0))
   let top_left = field_json(object, "topLeftPx")
     .bind(value => json_vec2(value))
     .unwrap_or(@math.Vec2::zero())

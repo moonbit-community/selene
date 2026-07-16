@@ -1,21 +1,21 @@
 ///|
 fn survivors_move_left_action() -> @input_action.InputAction {
-  @input_action.InputAction("survivors.move-left")
+  InputAction("survivors.move-left")
 }
 
 ///|
 fn survivors_move_right_action() -> @input_action.InputAction {
-  @input_action.InputAction("survivors.move-right")
+  InputAction("survivors.move-right")
 }
 
 ///|
 fn survivors_move_up_action() -> @input_action.InputAction {
-  @input_action.InputAction("survivors.move-up")
+  InputAction("survivors.move-up")
 }
 
 ///|
 fn survivors_move_down_action() -> @input_action.InputAction {
-  @input_action.InputAction("survivors.move-down")
+  InputAction("survivors.move-down")
 }
 
 ///|

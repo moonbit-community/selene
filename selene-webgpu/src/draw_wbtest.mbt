@@ -1,16 +1,16 @@
 ///|
 fn webgpu_test_handle(id : Int) -> @render3d_types.ImageHandle {
-  @render3d_types.ImageHandle(id.reinterpret_as_uint())
+  ImageHandle(id.reinterpret_as_uint())
 }
 
 ///|
 fn webgpu_test_mesh_handle(id : Int) -> @render3d_types.MeshHandle {
-  @render3d_types.MeshHandle(id.reinterpret_as_uint())
+  MeshHandle(id.reinterpret_as_uint())
 }
 
 ///|
 fn webgpu_test_material_handle(id : Int) -> @render3d_types.MaterialHandle {
-  @render3d_types.MaterialHandle(id.reinterpret_as_uint())
+  MaterialHandle(id.reinterpret_as_uint())
 }
 
 ///|
@@ -24,7 +24,7 @@ fn webgpu_test_sync_image(
 ///|
 fn webgpu_test_camera() -> @render3d_types.FrameCamera3D {
   {
-    position: @smath.Vec3(0.0, 0.0, 8.0),
+    position: Vec3(0.0, 0.0, 8.0),
     target: @smath.Vec3::zero(),
     up: @smath.Vec3::y_axis(),
     fov_y: 45.0,
@@ -39,7 +39,7 @@ fn webgpu_test_camera() -> @render3d_types.FrameCamera3D {
 ///|
 fn webgpu_test_transform(x : Double) -> @render3d_types.FrameTransform3D {
   {
-    translation: @smath.Vec3(x, 0.0, 0.0),
+    translation: Vec3(x, 0.0, 0.0),
     rotation: @smath.Quat::identity(),
     scale: @smath.Vec3::one(),
   }
@@ -63,7 +63,7 @@ fn webgpu_test_item(
 
 ///|
 fn webgpu_test_uv(x : Double, y : Double) -> @smath.Vec2 {
-  @smath.Vec2(x, y)
+  Vec2(x, y)
 }
 
 ///|
@@ -72,9 +72,9 @@ fn webgpu_test_mesh(
 ) -> @render3d_types.TriangleMesh3D {
   {
     positions: [
-      @smath.Vec3(0.0, 0.0, 0.0),
-      @smath.Vec3(1.0, 0.0, 0.0),
-      @smath.Vec3(0.0, 1.0, 0.0),
+      Vec3(0.0, 0.0, 0.0),
+      Vec3(1.0, 0.0, 0.0),
+      Vec3(0.0, 1.0, 0.0),
     ],
     indices: None,
     topology: TriangleList,
@@ -120,8 +120,8 @@ test "lit primitive mesh resource keys are owned by MoonBit" {
 test "MoonBit forms lit primitive instance batches before WebGPU FFI" {
   let batches = new_lit_primitive_mesh_batch_accumulator()
   let batch_key = {
-    mesh: @render3d_types.MeshHandle(1U),
-    material: @render3d_types.MaterialHandle(2U),
+    mesh: MeshHandle(1U),
+    material: MaterialHandle(2U),
     cast_shadows: true,
     receive_shadows: true,
   }
@@ -174,8 +174,8 @@ test "MoonBit forms lit primitive instance batches before WebGPU FFI" {
 ///|
 test "MoonBit packs WebGPU 2D rect and circle vertices before FFI" {
   let rect : @smath.Rect = {
-    position: @smath.Vec2(10.0, 20.0),
-    size: @smath.Vec2(2.0, 4.0),
+    position: Vec2(10.0, 20.0),
+    size: Vec2(2.0, 4.0),
   }
   let transform = @smath.Transform(a=2.0, d=3.0, tx=5.0, ty=7.0)
   let fill = pack_rect_fill_vertices2d(rect, transform, {
@@ -208,7 +208,7 @@ test "MoonBit packs WebGPU 2D rect and circle vertices before FFI" {
 
   let gradient = pack_gradient_rect_vertices2d(
     rect,
-    @smath.Transform(),
+    Transform(),
     { r: 255U, g: 0U, b: 0U, a: 1.0 },
     { r: 0U, g: 0U, b: 255U, a: 0.5 },
   )
@@ -219,9 +219,9 @@ test "MoonBit packs WebGPU 2D rect and circle vertices before FFI" {
   inspect(gradient[17], content="0.5")
 
   let circle = pack_circle_fill_vertices2d(
-    @smath.Vec2(2.0, 3.0),
+    Vec2(2.0, 3.0),
     4.0,
-    @smath.Transform(),
+    Transform(),
     { r: 255U, g: 255U, b: 255U, a: 1.0 },
   )
   inspect(circle.length(), content="720")
@@ -234,14 +234,14 @@ test "MoonBit packs WebGPU 2D rect and circle vertices before FFI" {
 ///|
 test "MoonBit packs WebGPU 2D image vertices before FFI" {
   let destination : @smath.Rect = {
-    position: @smath.Vec2(10.0, 20.0),
-    size: @smath.Vec2(64.0, 16.0),
+    position: Vec2(10.0, 20.0),
+    size: Vec2(64.0, 16.0),
   }
   let repeated = pack_image_vertices2d_raw(
     destination,
-    @smath.Transform(),
+    Transform(),
     None,
-    @smath.Transform(),
+    Transform(),
     Repeat,
     { r: 128U, g: 255U, b: 0U, a: 0.5 },
     32.0,
@@ -261,9 +261,9 @@ test "MoonBit packs WebGPU 2D image vertices before FFI" {
 
   let sourced = pack_image_vertices2d_raw(
     destination,
-    @smath.Transform(tx=1.0, ty=2.0),
-    Some({ position: @smath.Vec2(8.0, 4.0), size: @smath.Vec2(16.0, 8.0) }),
-    @smath.Transform(a=2.0, d=3.0),
+    Transform(tx=1.0, ty=2.0),
+    Some({ position: Vec2(8.0, 4.0), size: Vec2(16.0, 8.0) }),
+    Transform(a=2.0, d=3.0),
     Repeat,
     { r: 255U, g: 255U, b: 255U, a: 1.0 },
     32.0,
@@ -283,9 +283,9 @@ test "MoonBit packs WebGPU 2D fallback text vertices before FFI" {
   let vertices = pack_text_vertices2d(
     {
       text: "hello",
-      position: @smath.Vec2(100.0, 50.0),
-      transform: @smath.Transform(tx=1.0, ty=2.0),
-      blend_mode: @render.BlendMode2D::Alpha,
+      position: Vec2(100.0, 50.0),
+      transform: Transform(tx=1.0, ty=2.0),
+      blend_mode: Alpha,
       style: {
         font: None,
         family: "sans",
@@ -333,7 +333,7 @@ test "MoonBit packs WebGPU 3D camera view projection before FFI" {
     {
       ..webgpu_test_camera(),
       projection: Orthographic,
-      orthographic_size: Some(@smath.Vec2(20.0, 10.0)),
+      orthographic_size: Some(Vec2(20.0, 10.0)),
     },
     1.0,
   )
@@ -355,7 +355,7 @@ test "MoonBit packs WebGPU 3D camera view projection before FFI" {
 test "render3d submission stats record repeated primitive pressure" {
   let mesh = webgpu_test_mesh_handle(9100)
   let material = webgpu_test_material_handle(9101)
-  sync_mesh_asset(mesh, { primitive: Cube(@smath.Vec3(1.0, 1.0, 1.0)) })
+  sync_mesh_asset(mesh, { primitive: Cube(Vec3(1.0, 1.0, 1.0)) })
   sync_material_asset(material, @render3d_types.default_standard_material3d())
   let frame = @render3d_types.empty_render_frame3d()
   frame.camera = Some(webgpu_test_camera())
@@ -388,7 +388,7 @@ test "render3d submission stats record repeated primitive pressure" {
 test "render3d submission stats reuse retained static primitive instances" {
   let mesh = webgpu_test_mesh_handle(9120)
   let material = webgpu_test_material_handle(9121)
-  sync_mesh_asset(mesh, { primitive: Cube(@smath.Vec3(1.0, 1.0, 1.0)) })
+  sync_mesh_asset(mesh, { primitive: Cube(Vec3(1.0, 1.0, 1.0)) })
   sync_material_asset(material, @render3d_types.default_standard_material3d())
   let frame = @render3d_types.empty_render_frame3d()
   frame.camera = Some(webgpu_test_camera())
@@ -412,7 +412,7 @@ test "render3d submission stats keep textured primitives unbatched" {
   let mesh = webgpu_test_mesh_handle(9111)
   let material = webgpu_test_material_handle(9112)
   webgpu_test_sync_image(image, "wbtest://base")
-  sync_mesh_asset(mesh, { primitive: Cube(@smath.Vec3(1.0, 1.0, 1.0)) })
+  sync_mesh_asset(mesh, { primitive: Cube(Vec3(1.0, 1.0, 1.0)) })
   sync_material_asset(material, {
     ..@render3d_types.default_standard_material3d(),
     base_color_texture: Some(@render3d_types.texture_binding3d(image)),
@@ -457,7 +457,7 @@ test "pack directional shadow cascades in MoonBit" {
   frame.camera = Some(webgpu_test_camera())
   frame.directional_lights = [
     {
-      direction: @smath.Vec3(0.0, -2.0, 0.0),
+      direction: Vec3(0.0, -2.0, 0.0),
       color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
       intensity: 1.0,
       shadows: true,
@@ -509,7 +509,7 @@ test "pack WebGPU shadow runtime metadata in MoonBit" {
   let frame = @render3d_types.empty_render_frame3d()
   frame.directional_lights = [
     {
-      direction: @smath.Vec3(0.0, -1.0, 0.0),
+      direction: Vec3(0.0, -1.0, 0.0),
       color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
       intensity: 1.0,
       shadows: true,
@@ -524,7 +524,7 @@ test "pack WebGPU shadow runtime metadata in MoonBit" {
   ]
   frame.point_lights = [
     {
-      position: @smath.Vec3(0.0, 1.0, 2.0),
+      position: Vec3(0.0, 1.0, 2.0),
       color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
       intensity: 1.0,
       range: 4.0,
@@ -536,8 +536,8 @@ test "pack WebGPU shadow runtime metadata in MoonBit" {
   ]
   frame.spot_lights = [
     {
-      position: @smath.Vec3(0.0, 1.0, 2.0),
-      direction: @smath.Vec3(0.0, -1.0, 0.0),
+      position: Vec3(0.0, 1.0, 2.0),
+      direction: Vec3(0.0, -1.0, 0.0),
       color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
       intensity: 1.0,
       range: 4.0,
@@ -576,7 +576,7 @@ test "pack spot and point shadow view projections in MoonBit" {
   let frame = @render3d_types.empty_render_frame3d()
   frame.point_lights = [
     {
-      position: @smath.Vec3(1.0, 2.0, 3.0),
+      position: Vec3(1.0, 2.0, 3.0),
       color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
       intensity: 1.0,
       range: 12.5,
@@ -588,8 +588,8 @@ test "pack spot and point shadow view projections in MoonBit" {
   ]
   frame.spot_lights = [
     {
-      position: @smath.Vec3(4.0, 5.0, 6.0),
-      direction: @smath.Vec3(0.0, -2.0, 0.0),
+      position: Vec3(4.0, 5.0, 6.0),
+      direction: Vec3(0.0, -2.0, 0.0),
       color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
       intensity: 1.0,
       range: 16.0,
@@ -642,7 +642,7 @@ test "render3d lighting modes filter light packets in MoonBit" {
   let frame = @render3d_types.empty_render_frame3d()
   frame.directional_lights = [
     {
-      direction: @smath.Vec3(0.0, -1.0, 0.0),
+      direction: Vec3(0.0, -1.0, 0.0),
       color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
       intensity: 1.0,
       shadows: false,
@@ -655,7 +655,7 @@ test "render3d lighting modes filter light packets in MoonBit" {
       },
     },
     {
-      direction: @smath.Vec3(1.0, -1.0, 0.0),
+      direction: Vec3(1.0, -1.0, 0.0),
       color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
       intensity: 0.5,
       shadows: false,
@@ -670,7 +670,7 @@ test "render3d lighting modes filter light packets in MoonBit" {
   ]
   frame.point_lights = [
     {
-      position: @smath.Vec3(1.0, 2.0, 3.0),
+      position: Vec3(1.0, 2.0, 3.0),
       color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
       intensity: 1.0,
       range: 8.0,
@@ -682,8 +682,8 @@ test "render3d lighting modes filter light packets in MoonBit" {
   ]
   frame.spot_lights = [
     {
-      position: @smath.Vec3(1.0, 2.0, 3.0),
-      direction: @smath.Vec3(0.0, -1.0, 0.0),
+      position: Vec3(1.0, 2.0, 3.0),
+      direction: Vec3(0.0, -1.0, 0.0),
       color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
       intensity: 1.0,
       range: 8.0,
@@ -729,7 +729,7 @@ test "pack_light_uniform_data owns shader light layout in MoonBit" {
   let frame = @render3d_types.empty_render_frame3d()
   frame.directional_lights = [
     {
-      direction: @smath.Vec3(0.0, -2.0, 0.0),
+      direction: Vec3(0.0, -2.0, 0.0),
       color: { r: 64U, g: 128U, b: 255U, a: 1.0 },
       intensity: 1.5,
       shadows: false,
@@ -744,7 +744,7 @@ test "pack_light_uniform_data owns shader light layout in MoonBit" {
   ]
   frame.point_lights = [
     {
-      position: @smath.Vec3(1.0, 2.0, 3.0),
+      position: Vec3(1.0, 2.0, 3.0),
       color: { r: 255U, g: 64U, b: 32U, a: 1.0 },
       intensity: 2.0,
       range: 0.0,
@@ -756,8 +756,8 @@ test "pack_light_uniform_data owns shader light layout in MoonBit" {
   ]
   frame.spot_lights = [
     {
-      position: @smath.Vec3(4.0, 5.0, 6.0),
-      direction: @smath.Vec3(0.0, -2.0, 0.0),
+      position: Vec3(4.0, 5.0, 6.0),
+      direction: Vec3(0.0, -2.0, 0.0),
       color: { r: 32U, g: 160U, b: 255U, a: 1.0 },
       intensity: 3.0,
       range: 16.0,
@@ -772,7 +772,7 @@ test "pack_light_uniform_data owns shader light layout in MoonBit" {
   let uniform = pack_light_uniform_data(
     frame,
     webgpu_test_camera(),
-    @smath.Vec3(1.2, 0.25, -1.0),
+    Vec3(1.2, 0.25, -1.0),
   )
   inspect(uniform.length(), content="176")
   inspect(uniform[0], content="1")
@@ -852,8 +852,8 @@ test "resolve_material_texture_bundle keeps textures with independent sampler co
   let repeat_sampler = @render3d_types.default_texture_sampler3d()
   let clamp_sampler = {
     ..repeat_sampler,
-    wrap_u: @render3d_types.TextureWrap3D::ClampToEdge,
-    wrap_v: @render3d_types.TextureWrap3D::ClampToEdge,
+    wrap_u: ClampToEdge,
+    wrap_v: ClampToEdge,
   }
   let base_handle = webgpu_test_handle(9010)
   let emissive_handle = webgpu_test_handle(9011)
@@ -942,15 +942,15 @@ test "flatten_colored_vertices3d packs unlit material metadata" {
     mesh.positions,
     [0, 1, 2],
     [
-      @smath.Vec3(0.0, 0.0, 1.0),
-      @smath.Vec3(0.0, 0.0, 1.0),
-      @smath.Vec3(0.0, 0.0, 1.0),
+      Vec3(0.0, 0.0, 1.0),
+      Vec3(0.0, 0.0, 1.0),
+      Vec3(0.0, 0.0, 1.0),
     ],
     None,
-    @smath.Vec3(1.0, 1.0, 1.0),
+    Vec3(1.0, 1.0, 1.0),
     {
       ..@render3d_types.default_standard_material3d(),
-      alpha_mode: @render3d_types.AlphaMode3D::Mask,
+      alpha_mode: Mask,
       alpha_cutoff: 0.25,
       unlit: true,
     },
@@ -982,9 +982,9 @@ test "flatten_textured_vertices3d packs unlit surface metadata" {
     mesh.uv_sets[0],
     mesh.uv_sets[0],
     [
-      @smath.Vec3(0.0, 0.0, 1.0),
-      @smath.Vec3(0.0, 0.0, 1.0),
-      @smath.Vec3(0.0, 0.0, 1.0),
+      Vec3(0.0, 0.0, 1.0),
+      Vec3(0.0, 0.0, 1.0),
+      Vec3(0.0, 0.0, 1.0),
     ],
     [
       { x: 1.0, y: 0.0, z: 0.0, w: 1.0 },
@@ -992,7 +992,7 @@ test "flatten_textured_vertices3d packs unlit surface metadata" {
       { x: 1.0, y: 0.0, z: 0.0, w: 1.0 },
     ],
     None,
-    @smath.Vec3(1.0, 1.0, 1.0),
+    Vec3(1.0, 1.0, 1.0),
     {
       ..@render3d_types.default_standard_material3d(),
       occlusion_strength: 0.5,
@@ -1014,17 +1014,17 @@ test "custom mesh transforms are applied in MoonBit before WebGPU FFI" {
   let positions = [@smath.Vec3(1.0, 2.0, 3.0)]
   let transformed = transform_positions3d(
     positions,
-    @smath.Vec3(10.0, 20.0, 30.0),
+    Vec3(10.0, 20.0, 30.0),
     @smath.Quat::identity(),
-    @smath.Vec3(2.0, 3.0, 4.0),
+    Vec3(2.0, 3.0, 4.0),
   )
   inspect(transformed[0].x, content="12")
   inspect(transformed[0].y, content="26")
   inspect(transformed[0].z, content="42")
   let normals = rotate_normals3d(
-    [@smath.Vec3(1.0, 1.0, 0.0)],
+    [Vec3(1.0, 1.0, 0.0)],
     @smath.Quat::identity(),
-    @smath.Vec3(2.0, 1.0, 1.0),
+    Vec3(2.0, 1.0, 1.0),
   )
   inspect(normals[0].x < normals[0].y, content="true")
 }
@@ -1033,10 +1033,10 @@ test "custom mesh transforms are applied in MoonBit before WebGPU FFI" {
 test "resolve_triangle_indices supports strip and fan topology" {
   let mesh : @render3d_types.TriangleMesh3D = {
     positions: [
-      @smath.Vec3(0.0, 0.0, 0.0),
-      @smath.Vec3(1.0, 0.0, 0.0),
-      @smath.Vec3(0.0, 1.0, 0.0),
-      @smath.Vec3(1.0, 1.0, 0.0),
+      Vec3(0.0, 0.0, 0.0),
+      Vec3(1.0, 0.0, 0.0),
+      Vec3(0.0, 1.0, 0.0),
+      Vec3(1.0, 1.0, 0.0),
     ],
     indices: Some([0, 1, 2, 3]),
     topology: TriangleStrip,

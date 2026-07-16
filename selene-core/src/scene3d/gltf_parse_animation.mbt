@@ -199,7 +199,7 @@ fn compute_vertex_normals(
     let c = positions[ic]
     let mut face_normal = (b - a).cross(c - a)
     if face_normal.length_squared() <= 0.0000001 {
-      face_normal = @math.Vec3(0.0, 1.0, 0.0)
+      face_normal = Vec3(0.0, 1.0, 0.0)
     }
     normals[ia] = normals[ia] + face_normal
     normals[ib] = normals[ib] + face_normal
@@ -208,7 +208,7 @@ fn compute_vertex_normals(
   for index in 0..<normals.length() {
     let normal = normals[index]
     normals[index] = if normal.length_squared() <= 0.0000001 {
-      @math.Vec3(0.0, 1.0, 0.0)
+      Vec3(0.0, 1.0, 0.0)
     } else {
       normal.normalize()
     }
@@ -249,7 +249,7 @@ fn parse_camera_component(
         {
           ..defaults,
           projection: Orthographic,
-          orthographic_size: Some(@math.Vec2(2.0 * xmag, 2.0 * ymag)),
+          orthographic_size: Some(Vec2(2.0 * xmag, 2.0 * ymag)),
           near: field_number(orthographic, "znear").unwrap_or(defaults.near),
           far: field_number(orthographic, "zfar").unwrap_or(defaults.far),
         }

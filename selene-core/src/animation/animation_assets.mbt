@@ -142,12 +142,12 @@ let released_animation_graph_assets : Array[AnimationGraphHandle] = []
 ///|
 pub let animation_clip_asset_events : @event.Events[
   @asset.AssetEvent[AnimationClipHandle],
-] = @event.Events()
+] = Events()
 
 ///|
 pub let animation_graph_asset_events : @event.Events[
   @asset.AssetEvent[AnimationGraphHandle],
-] = @event.Events()
+] = Events()
 
 ///|
 pub fn animation_players() -> Map[@entity.Entity, AnimationPlayer] {

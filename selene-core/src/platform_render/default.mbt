@@ -18,7 +18,7 @@ pub fn measure_text(
   ignore(style.family)
   let width = text.length().to_double() * style.size * 0.6
   let height = style.size
-  @math.Vec2(width, height)
+  Vec2(width, height)
 }
 
 ///|

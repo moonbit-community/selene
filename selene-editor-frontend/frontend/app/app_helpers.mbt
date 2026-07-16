@@ -188,7 +188,7 @@ fn instantiate_prefab_into_scene(
   translation : @editor_bridge.Vec2Doc,
 ) -> (@editor_bridge.SceneDocument, String?) {
   let mut next_scene = scene
-  let id_map : Map[String, String] = {}
+  let id_map : Map[String, String] = Map([])
   let mut root_id : String? = None
   for entity in prefab.entities {
     let new_id = next_entity_id(next_scene)
@@ -275,14 +275,14 @@ fn with_rebuilt_regions(
 ///|
 pub fn tool_label(tool : @shared.PreviewTool) -> String {
   match tool {
-    @shared.Select => "Select"
-    @shared.DragCanvas => "Drag Canvas"
-    @shared.Translate => "Move"
-    @shared.Rotate => "Rotate"
-    @shared.Scale => "Scale"
-    @shared.AutoTilePaint => "AutoTile Paint"
-    @shared.AutoTileErase => "AutoTile Erase"
-    @shared.AutoTileFill => "AutoTile Fill"
+    Select => "Select"
+    DragCanvas => "Drag Canvas"
+    Translate => "Move"
+    Rotate => "Rotate"
+    Scale => "Scale"
+    AutoTilePaint => "AutoTile Paint"
+    AutoTileErase => "AutoTile Erase"
+    AutoTileFill => "AutoTile Fill"
   }
 }
 
@@ -349,7 +349,7 @@ fn legacy_animation_paths_in_scene(
   scene : @editor_bridge.SceneDocument,
 ) -> Array[String] {
   let paths : Array[String] = []
-  let seen : Map[String, Bool] = {}
+  let seen : Map[String, Bool] = Map([])
   for entity in scene.entities {
     guard entity.component("AnimationPlayer") is Some(player_component) else {
       continue
@@ -401,7 +401,7 @@ pub fn Model::selected_entity(self : Model) -> @editor_bridge.EntityDocument? {
 pub fn Model::image_assets(self : Model) -> Array[@editor_bridge.AssetDocument] {
   let images : Array[@editor_bridge.AssetDocument] = []
   for asset in self.assets {
-    if asset.kind is @editor_bridge.Image {
+    if asset.kind is Image {
       images.push(asset)
     }
   }
@@ -415,7 +415,7 @@ pub fn Model::selected_image_asset(
   match self.selected_resource {
     Some(Image(path)) => {
       for asset in self.assets {
-        if asset.kind is @editor_bridge.Image && asset.path == path {
+        if asset.kind is Image && asset.path == path {
           return Some(asset)
         }
       }

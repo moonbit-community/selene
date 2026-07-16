@@ -29,7 +29,7 @@ async test "bdd recovery legacy startup scene asks for confirmation and cancel k
     inspect(harness.preview_scene() is None, content="true")
     inspect(
       harness.read_scene_document_status("scenes/main.scene.json")
-      is @editor_bridge.MigrationRequired(_),
+      is MigrationRequired(_),
       content="true",
     )
   })

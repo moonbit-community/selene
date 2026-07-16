@@ -100,7 +100,7 @@ pub fn instantiate_scene_instance(
 ) -> SceneInstance {
   let root = @entity.Entity()
   @transform.transforms().set(root, root_transform)
-  @name.names().set(root, @name.Name("scene_root"))
+  @name.names().set(root, Name("scene_root"))
   let parts : Map[String, @entity.Entity] = Map([])
   guard scene_templates.get(scene) is Some(template) else {
     return { root, parts, animations: Map([]) }
@@ -130,10 +130,10 @@ pub fn instantiate_scene_instance(
     }
     let graph_handle = @animation.register_animation_graph_asset(graph)
     @animation.animation_graph_handles().set(root, graph_handle)
-    @animation.animation_players().set(root, @animation.AnimationPlayer())
+    @animation.animation_players().set(root, AnimationPlayer())
     @animation.animation_transitions().set(
       root,
-      @animation.AnimationTransitions(),
+      AnimationTransitions(),
     )
   }
   { root, parts, animations: animation_nodes }

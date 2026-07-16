@@ -88,17 +88,17 @@ fn physics3d_world_store() -> Physics3DWorldStore {
   let world_id = @ecs.require_current_world().id()
   physics3d_world_stores.get_or_init(world_id, () => {
     world: {
-      pipeline: @pipeline.PhysicsPipeline3D::PhysicsPipeline3D(),
+      pipeline: PhysicsPipeline3D(),
       integration: @dynamics.IntegrationParameters::default(),
-      islands: @dynamics.IslandManager3D::IslandManager3D(),
-      broad_phase: @collision.BroadPhase3D::BroadPhase3D(),
-      narrow_phase: @collision.NarrowPhase3D::NarrowPhase3D(),
-      bodies: @dynamics.RigidBodySet3D::RigidBodySet3D(),
-      colliders: @collision.ColliderSet3D::ColliderSet3D(),
-      impulse_joints: @dynamics.JointSet3DReal::JointSet3DReal(),
-      rope_joints: @dynamics.RopeJointSet3DReal::RopeJointSet3DReal(),
-      multibody_joints: @dynamics.MultibodyJointSet3DReal::MultibodyJointSet3DReal(),
-      event_handler: @pipeline.EventHandler3D::EventHandler3D(),
+      islands: IslandManager3D(),
+      broad_phase: BroadPhase3D(),
+      narrow_phase: NarrowPhase3D(),
+      bodies: RigidBodySet3D(),
+      colliders: ColliderSet3D(),
+      impulse_joints: JointSet3DReal(),
+      rope_joints: RopeJointSet3DReal(),
+      multibody_joints: MultibodyJointSet3DReal(),
+      event_handler: EventHandler3D(),
     },
     body_handles: Map([]),
     collider_handles: Map([]),
@@ -139,15 +139,16 @@ fn multibody_joint_handles() -> Map[@entity.Entity, RapierMultibodyJointHandle] 
 }
 
 ///|
-pub let collision_event_bus : @event.Events[CollisionEvent] = @event.Events()
+pub let collision_event_bus : @event.Events[CollisionEvent] = Events()
 
 ///|
-pub let sensor_event_bus : @event.Events[SensorEvent] = @event.Events()
+pub let sensor_event_bus : @event.Events[SensorEvent] = Events()
 
 ///|
-pub let contact_force_event_bus : @event.Events[ContactForceEvent] = @event.Events()
+pub let contact_force_event_bus : @event.Events[ContactForceEvent] = Events()
 
 ///|
+#warnings("-unnecessary_annotation")
 pub fn context() -> RapierContext {
   RapierContext::{  }
 }

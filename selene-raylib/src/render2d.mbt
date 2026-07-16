@@ -38,7 +38,7 @@ pub fn render2d_begin_pass(
           backend.active_2d_offscreen_target = Some(name)
           pass_viewport = {
             position: @smath.Vec2::zero(),
-            size: @smath.Vec2(width.to_double(), height.to_double()),
+            size: Vec2(width.to_double(), height.to_double()),
           }
         }
         None =>
@@ -259,7 +259,7 @@ fn draw_text_with_cosmic_transform(
     return false
   }
   let measured = measure_text_with_cosmic(command.style, command.text).unwrap_or(
-    @smath.Vec2(
+    Vec2(
       cached_texture.width.to_double(),
       cached_texture.height.to_double(),
     ),
@@ -369,7 +369,7 @@ pub fn measure_text(
   text : String,
 ) -> @smath.Vec2 {
   if text == "" {
-    return @smath.Vec2(0.0, cosmic_font_size(style.size))
+    return Vec2(0.0, cosmic_font_size(style.size))
   }
   if measure_text_with_cosmic(style, text) is Some(measured) {
     return measured
@@ -381,7 +381,7 @@ pub fn measure_text(
     to_float(style.size),
     RAYLIB_DEFAULT_TEXT_SPACING,
   )
-  @smath.Vec2(vector2_x(measured), vector2_y(measured))
+  Vec2(vector2_x(measured), vector2_y(measured))
 }
 
 ///|

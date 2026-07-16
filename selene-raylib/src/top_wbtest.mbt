@@ -8,7 +8,7 @@ fn raylib_test_apply_shader_texture_transform(
   )
   let rotation = texture_transform_rotation_sin_cos(transform)
   let scaled = @smath.Vec2(uv[X] * scale_x, uv[Y] * scale_y)
-  @smath.Vec2(
+  Vec2(
     scaled[X] * rotation[Y] - scaled[Y] * rotation[X] + offset_x,
     scaled[X] * rotation[X] + scaled[Y] * rotation[Y] + offset_y,
   )
@@ -27,8 +27,8 @@ fn triangle_winding_dot(
 ///|
 test "raylib shader texture transform helpers match render3d apply_texture_transform3d" {
   let transform : @render3d_types.TextureTransform3D = {
-    offset: @smath.Vec2(0.25, 0.5),
-    scale: @smath.Vec2(0.75, 0.125),
+    offset: Vec2(0.25, 0.5),
+    scale: Vec2(0.75, 0.125),
     rotation: 0.7853981633974483,
   }
   let uv = @smath.Vec2(0.2, 0.8)
@@ -130,7 +130,7 @@ test "raylib lighting shader falls back to scalar factors when no textures are b
 test "raylib lighting texture units upload as int uniforms for raylib compatibility" {
   let data = uniform_texture_unit(3)
   match data {
-    @raylib.ShaderUniformData::Int(slot) => inspect(slot, content="3")
+    Int(slot) => inspect(slot, content="3")
     _ => fail("expected int uniform data for texture unit")
   }
 }
@@ -183,10 +183,10 @@ test "raylib material texture slot bindings stay complete for active maps" {
 test "raylib triangle topology indices resolve strip and fan to triangle list" {
   let strip_mesh : @render3d_types.TriangleMesh3D = {
     positions: [
-      @smath.Vec3(0.0, 0.0, 0.0),
-      @smath.Vec3(1.0, 0.0, 0.0),
-      @smath.Vec3(0.0, 1.0, 0.0),
-      @smath.Vec3(1.0, 1.0, 0.0),
+      Vec3(0.0, 0.0, 0.0),
+      Vec3(1.0, 0.0, 0.0),
+      Vec3(0.0, 1.0, 0.0),
+      Vec3(1.0, 1.0, 0.0),
     ],
     indices: Some([0, 1, 2, 3]),
     topology: TriangleStrip,
@@ -200,11 +200,11 @@ test "raylib triangle topology indices resolve strip and fan to triangle list" {
     topology: TriangleFan,
   }
   debug_inspect(
-    resolve_triangle_indices(@render3d_types.MeshHandle(1U), strip_mesh),
+    resolve_triangle_indices(MeshHandle(1U), strip_mesh),
     content="Some([0, 1, 2, 2, 1, 3])",
   )
   debug_inspect(
-    resolve_triangle_indices(@render3d_types.MeshHandle(2U), fan_mesh),
+    resolve_triangle_indices(MeshHandle(2U), fan_mesh),
     content="Some([0, 1, 2, 0, 2, 3])",
   )
 }
@@ -265,7 +265,7 @@ test "raylib text fallback measurement matches default spacing behavior" {
 ///|
 test "raylib cosmic text pixels use style color with glyph coverage alpha" {
   let (r, g, b, a) = styled_text_pixel_rgba(
-    @render.Color::{ r: 255U, g: 0U, b: 0U, a: 1.0 },
+    { r: 255U, g: 0U, b: 0U, a: 1.0 },
     191,
   )
   inspect(r, content="255")

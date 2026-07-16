@@ -73,7 +73,7 @@ pub struct ContactEvent {
 
 ///|
 /// Contact event bus.
-pub let contact_event_bus : @event.Events[ContactEvent] = @event.Events()
+pub let contact_event_bus : @event.Events[ContactEvent] = Events()
 
 ///|
 /// Effective post-solve velocities from the latest fixed step.

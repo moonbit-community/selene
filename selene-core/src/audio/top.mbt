@@ -92,10 +92,10 @@ pub fn audio_sinks() -> Map[@entity.Entity, AudioSink] {
 }
 
 ///|
-pub let audio_event_bus : @event.Events[AudioEvent] = @event.Events()
+pub let audio_event_bus : @event.Events[AudioEvent] = Events()
 
 ///|
-let audio_event_reader : @event.EventReader[AudioEvent] = @event.EventReader()
+let audio_event_reader : @event.EventReader[AudioEvent] = EventReader()
 
 ///|
 let global_volume_ref : Ref[Double] = Ref(1.0)

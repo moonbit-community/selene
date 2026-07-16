@@ -12,7 +12,7 @@ fn expect_error_response(
   message : String,
 ) -> Unit raise {
   match response {
-    @shared.Error(error~) => {
+    Error(error~) => {
       inspect(error.code, content=code)
       inspect(error.message, content=message)
     }
@@ -42,8 +42,8 @@ async test "project.open auto-initializes a missing project manifest" {
     )
     let response = response_envelope(payload).response
     let loaded = match response {
-      @shared.ProjectState(state~) => state.manifest.unwrap()
-      @shared.Error(error~) =>
+      ProjectState(state~) => state.manifest.unwrap()
+      Error(error~) =>
         fail("unexpected project-open error: " + error.message)
       _ => fail("expected project state")
     }
@@ -73,8 +73,8 @@ async test "project.open auto-initializes when the directory already exists" {
     )
     let response = response_envelope(payload).response
     let loaded = match response {
-      @shared.ProjectState(state~) => state.manifest.unwrap()
-      @shared.Error(error~) =>
+      ProjectState(state~) => state.manifest.unwrap()
+      Error(error~) =>
         fail("unexpected project-open error: " + error.message)
       _ => fail("expected project state")
     }
@@ -98,7 +98,7 @@ async test "project.open auto-migrates legacy project manifests missing indexes"
     @fs.write_file(
       path_join(root, "selene.project.json"),
       legacy_manifest_text |> @utf8.encode,
-      create_mode=@fs.CreateOrTruncate,
+      create_mode=CreateOrTruncate,
       permission=0o644,
     )
     @fs.write_file(
@@ -108,7 +108,7 @@ async test "project.open auto-migrates legacy project manifests missing indexes"
       .stringify(indent=2) +
       "\n")
       |> @utf8.encode,
-      create_mode=@fs.CreateOrTruncate,
+      create_mode=CreateOrTruncate,
       permission=0o644,
     )
     group.add_defer(() => {
@@ -123,7 +123,7 @@ async test "project.open auto-migrates legacy project manifests missing indexes"
     )
     let response = response_envelope(payload).response
     let manifest = match response {
-      @shared.ProjectState(state~) => state.manifest.unwrap()
+      ProjectState(state~) => state.manifest.unwrap()
       _ => fail("expected project state")
     }
 
@@ -163,7 +163,7 @@ async test "project.open fails when workspace.json is invalid instead of silentl
     @fs.write_file(
       path_join(root, ".selene-editor/workspace.json"),
       "{\n  \"version\": 2,\n  \"move_snap_step\": 0\n}\n" |> @utf8.encode,
-      create_mode=@fs.CreateOrTruncate,
+      create_mode=CreateOrTruncate,
       permission=0o644,
     )
 
@@ -200,7 +200,7 @@ async test "project.open migrates legacy workspace.json to envelope format" {
       path_join(root, ".selene-editor/workspace.json"),
       "{\n  \"version\": 2,\n  \"last_scene\": \"scenes/main.scene.json\",\n  \"move_snap_enabled\": true,\n  \"move_snap_step\": 16\n}\n"
       |> @utf8.encode,
-      create_mode=@fs.CreateOrTruncate,
+      create_mode=CreateOrTruncate,
       permission=0o644,
     )
 
@@ -209,7 +209,7 @@ async test "project.open migrates legacy workspace.json to envelope format" {
     )
     let response = response_envelope(payload).response
     match response {
-      @shared.ProjectState(state~) => {
+      ProjectState(state~) => {
         let workspace = state.workspace.unwrap()
         debug_inspect(workspace.move_snap_enabled, content="Some(true)")
         debug_inspect(workspace.move_snap_step, content="Some(16)")
@@ -245,7 +245,7 @@ async test "project.current returns an empty typed state before any project is o
   )
   let response = response_envelope(payload).response
   match response {
-    @shared.ProjectState(state~) => {
+    ProjectState(state~) => {
       debug_inspect(state.root, content="None")
       inspect(state.manifest is None, content="true")
       inspect(state.scenes.length(), content="0")
@@ -317,7 +317,7 @@ async test "service lists scenes and saves prefabs and asset docs" {
     )
     let created_scene_path = match
       response_envelope(create_scene_payload).response {
-      @shared.SceneLoaded(scene~) => scene.path
+      SceneLoaded(scene~) => scene.path
       _ => fail("expected scene load response")
     }
     inspect(created_scene_path, content="scenes/battlefield.scene.json")
@@ -399,7 +399,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
     @fs.write_file(
       path_join(root, "assets/images/hero.png"),
       b"fake-image",
-      create_mode=@fs.CreateOrTruncate,
+      create_mode=CreateOrTruncate,
       permission=0o644,
     )
 
@@ -407,7 +407,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
       @shared.rpc_request_envelope(2, @shared.rpc_request_project_current()),
     )
     match response_envelope(current_payload).response {
-      @shared.ProjectState(state~) =>
+      ProjectState(state~) =>
         debug_inspect(state.root, content="Some(\"" + root + "\")")
       _ => fail("expected project state")
     }
@@ -416,7 +416,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
       @shared.rpc_request_envelope(3, @shared.rpc_request_scene_list()),
     )
     match response_envelope(list_payload).response {
-      @shared.SceneListed(list~) => inspect(list.scenes.length(), content="1")
+      SceneListed(list~) => inspect(list.scenes.length(), content="1")
       _ => fail("expected scene list response")
     }
 
@@ -427,7 +427,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
       ),
     )
     let loaded_scene_bundle = match response_envelope(load_payload).response {
-      @shared.SceneLoaded(scene~) => {
+      SceneLoaded(scene~) => {
         inspect(scene.path, content="scenes/rpc-demo.scene.json")
         scene
       }
@@ -450,7 +450,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
     )
     inspect(
       match response_envelope(save_payload).response {
-        @shared.SceneSaved(save~) => save.path == "scenes/rpc-demo.scene.json"
+        SceneSaved(save~) => save.path == "scenes/rpc-demo.scene.json"
         _ => false
       },
       content="true",
@@ -464,7 +464,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
     )
     let created_scene_path = match
       response_envelope(create_scene_payload).response {
-      @shared.SceneLoaded(scene~) => scene.path
+      SceneLoaded(scene~) => scene.path
       _ => fail("expected created scene response")
     }
     inspect(created_scene_path, content="scenes/battlefield.scene.json")
@@ -476,7 +476,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
       ),
     )
     match response_envelope(startup_payload).response {
-      @shared.StartupSceneUpdated(manifest~) =>
+      StartupSceneUpdated(manifest~) =>
         inspect(manifest.startup_scene, content="scenes/battlefield.scene.json")
       _ => fail("expected startup scene response")
     }
@@ -494,7 +494,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
     )
     inspect(
       match response_envelope(workspace_save_payload).response {
-        @shared.SavedOk => true
+        SavedOk => true
         _ => false
       },
       content="true",
@@ -504,7 +504,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
       @shared.rpc_request_envelope(9, @shared.rpc_request_assets_list()),
     )
     match response_envelope(assets_payload).response {
-      @shared.AssetsListed(list~) => inspect(list.assets.length(), content="1")
+      AssetsListed(list~) => inspect(list.assets.length(), content="1")
       _ => fail("expected assets list response")
     }
 
@@ -528,7 +528,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
       ),
     )
     match response_envelope(prefab_payload).response {
-      @shared.PrefabLoaded(prefab~) =>
+      PrefabLoaded(prefab~) =>
         inspect(prefab.prefab.name, content="Enemy")
       _ => fail("expected prefab load response")
     }
@@ -553,7 +553,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
       ),
     )
     match response_envelope(atlas_payload).response {
-      @shared.AtlasLoaded(atlas~) =>
+      AtlasLoaded(atlas~) =>
         inspect(atlas.atlas.name, content="Hero Atlas")
       _ => fail("expected atlas load response")
     }
@@ -580,7 +580,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
       ),
     )
     match response_envelope(animation_payload).response {
-      @shared.AnimationClipLoaded(clip~) =>
+      AnimationClipLoaded(clip~) =>
         inspect(clip.clip.name, content="Hero Clip")
       _ => fail("expected animation load response")
     }
@@ -593,7 +593,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
     )
     inspect(
       match response_envelope(delete_payload).response {
-        @shared.SavedOk => true
+        SavedOk => true
         _ => false
       },
       content="true",
@@ -698,7 +698,7 @@ async test "service typed rpc surface returns stable errors for missing or inval
     @fs.write_file(
       invalid_scene_path,
       "{\"version\":1,\"entities\":" |> @utf8.encode,
-      create_mode=@fs.CreateOrTruncate,
+      create_mode=CreateOrTruncate,
       permission=0o644,
     )
     let invalid_scene_payload = service.handle_rpc(
@@ -731,7 +731,7 @@ async test "service typed rpc surface returns stable errors for missing or inval
       path_join(root, "prefabs/broken.prefab.json"),
       "{\n  \"version\": 1,\n  \"name\": \"\",\n  \"entities\": []\n}\n"
       |> @utf8.encode,
-      create_mode=@fs.CreateOrTruncate,
+      create_mode=CreateOrTruncate,
       permission=0o644,
     )
     let invalid_prefab_payload = service.handle_rpc(
@@ -751,7 +751,7 @@ async test "service typed rpc surface returns stable errors for missing or inval
       path_join(root, "assets/atlases/broken.atlas.json"),
       "{\n  \"version\": 1,\n  \"name\": \"Broken\",\n  \"source_image\": \"assets/images/hero.png\",\n  \"tile_size\": {\"x\": 0, \"y\": 0},\n  \"columns\": 0,\n  \"rows\": 0,\n  \"spacing\": {\"x\": 0, \"y\": 0},\n  \"margin\": {\"x\": 0, \"y\": 0},\n  \"default_anchor\": {\"x\": 0.5, \"y\": 0.5},\n  \"regions\": []\n}\n"
       |> @utf8.encode,
-      create_mode=@fs.CreateOrTruncate,
+      create_mode=CreateOrTruncate,
       permission=0o644,
     )
     let invalid_atlas_payload = service.handle_rpc(
@@ -770,7 +770,7 @@ async test "service typed rpc surface returns stable errors for missing or inval
     @fs.write_file(
       path_join(root, "assets/animation_clips/broken.clip.json"),
       "{\n  \"version\": 3,\n  \"name\": \"Broken\"\n}\n" |> @utf8.encode,
-      create_mode=@fs.CreateOrTruncate,
+      create_mode=CreateOrTruncate,
       permission=0o644,
     )
     let invalid_animation_payload = service.handle_rpc(
@@ -807,14 +807,14 @@ async test "scene.load can require migration and scene.migrate writes back the m
         ),
       )
       |> @utf8.encode,
-      create_mode=@fs.CreateOrTruncate,
+      create_mode=CreateOrTruncate,
       permission=0o644,
     )
     @fs.write_file(
       path_join(root, "scenes/main.scene.json"),
       "{\n  \"version\": 2,\n  \"entities\": [\n    {\n      \"id\": \"camera\",\n      \"name\": \"Camera2d\",\n      \"components\": [\n        {\n          \"kind\": \"Transform2d\",\n          \"data\": {\n            \"translation\": {\n              \"x\": 0,\n              \"y\": 0\n            },\n            \"rotation\": 0,\n            \"scale\": {\n              \"x\": 1,\n              \"y\": 1\n            }\n          }\n        },\n        {\n          \"kind\": \"Camera2d\",\n          \"data\": {\n            \"is_active\": true,\n            \"order\": 0,\n            \"scale\": 1\n          }\n        },\n        {\n          \"kind\": \"Visibility\",\n          \"data\": {\n            \"visible\": true\n          }\n        }\n      ]\n    }\n  ]\n}\n"
       |> @utf8.encode,
-      create_mode=@fs.CreateOrTruncate,
+      create_mode=CreateOrTruncate,
       permission=0o644,
     )
     group.add_defer(() => {
@@ -838,7 +838,7 @@ async test "scene.load can require migration and scene.migrate writes back the m
     )
     let load_response = response_envelope(load_payload).response
     match load_response {
-      @shared.SceneMigrationRequired(preview~) => {
+      SceneMigrationRequired(preview~) => {
         inspect(preview.scene.name, content="Main")
         inspect(preview.changes.length() > 0, content="true")
       }
@@ -853,7 +853,7 @@ async test "scene.load can require migration and scene.migrate writes back the m
     )
     let migrate_response = response_envelope(migrate_payload).response
     match migrate_response {
-      @shared.SceneLoaded(scene~) => inspect(scene.scene.name, content="Main")
+      SceneLoaded(scene~) => inspect(scene.scene.name, content="Main")
       _ => fail("expected migrated scene load response")
     }
 

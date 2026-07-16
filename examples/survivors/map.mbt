@@ -18,8 +18,8 @@ fn add_background(size : @math.Vec2) -> Unit {
   let background_sprite = @sprite.Sprite(
     image=Some(@asset.load_image(background_picture)),
     custom_size=Some(size),
-    anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
-    image_mode=@sprite.Tiled(Repeat),
+    anchor=Anchor(Vec2(-0.5, 0.5)),
+    image_mode=Tiled(Repeat),
   )
   @sprite.sprites().set(background, background_sprite)
   @transform.transforms().set(
@@ -38,7 +38,7 @@ fn add_border(size : @math.Vec2) -> Unit {
     @physics2d.colliders().set(entity, collider)
     @physics2d.shapes().set(
       entity,
-      @physics2d.CollisionShape::Rect(size~, offset=Vec2(0.0, 0.0)),
+      Rect(size~, offset=Vec2(0.0, 0.0)),
     )
     @transform.transforms().set(
       entity,

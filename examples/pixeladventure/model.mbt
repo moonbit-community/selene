@@ -196,7 +196,7 @@ fn pixeladventure_world_store() -> PixelAdventureWorldStore {
     birds: Map([]),
     apples: Map([]),
     flags: Map([]),
-    ui_click_reader: @event.EventReader(),
+    ui_click_reader: EventReader(),
   })
 }
 
@@ -253,8 +253,8 @@ fn sprite_clip(
   loop_? : Bool = true,
   fps? : Double = 12.0,
   flip_x? : Bool = false,
-  size? : @math.Vec2 = @math.Vec2(32.0, 32.0),
-  anchor? : @sprite.Anchor = @sprite.Anchor(@math.Vec2(-0.5, 0.5)),
+  size? : @math.Vec2 = Vec2(32.0, 32.0),
+  anchor? : @sprite.Anchor = Anchor(Vec2(-0.5, 0.5)),
 ) -> SpriteAnimationDef {
   {
     name: path,
@@ -273,9 +273,9 @@ fn sprite_clip(
 
 ///|
 fn sprite_animation_sprite(animation : SpriteAnimationDef) -> @sprite.Sprite {
-  @sprite.Sprite(
+  Sprite(
     image=Some(@asset.load_image(animation.image_path)),
-    texture_atlas=Some(@sprite.TextureAtlas(animation.layout)),
+    texture_atlas=Some(TextureAtlas(animation.layout)),
     custom_size=Some(animation.size),
     anchor=animation.anchor,
     flip_x=animation.flip_x,
@@ -300,19 +300,19 @@ fn hurt_sound() -> @audio.AudioHandle {
 
 ///|
 fn volume_on_ui_image() -> @ui.UiImage {
-  @ui.UiImage(
-    @math.Vec2(21.0, 22.0),
+  UiImage(
+    Vec2(21.0, 22.0),
     "assets/pixeladventure/Menu/Buttons/Volume.png",
-    fit=@ui.ImageFit::Contain,
+    fit=Contain,
   )
 }
 
 ///|
 fn volume_off_ui_image() -> @ui.UiImage {
-  @ui.UiImage(
-    @math.Vec2(21.0, 22.0),
+  UiImage(
+    Vec2(21.0, 22.0),
     "assets/pixeladventure/Menu/Buttons/VolumeOff.png",
-    fit=@ui.ImageFit::Contain,
+    fit=Contain,
   )
 }
 
@@ -415,7 +415,7 @@ let apple_spin_animation : SpriteAnimationDef = sprite_clip(
 let flag_idle_animation : SpriteAnimationDef = sprite_clip(
   FLAG_IDLE_PATH,
   10,
-  size=@math.Vec2(64.0, 64.0),
+  size=Vec2(64.0, 64.0),
 )
 
 ///|

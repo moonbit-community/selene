@@ -52,7 +52,7 @@ let input_bindings : Map[InputAction, Array[InputBinding]] = Map([])
 let action_states : Map[InputAction, ActionState] = Map([])
 
 ///|
-pub let input_action_event_bus : @event.Events[ActionEvent] = @event.Events()
+pub let input_action_event_bus : @event.Events[ActionEvent] = Events()
 
 ///|
 pub fn InputAction::InputAction(name : String) -> InputAction {

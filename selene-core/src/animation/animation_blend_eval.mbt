@@ -56,13 +56,13 @@ fn sample_curve(
 ) -> (AnimatedFieldHandle, AnimatedValue) {
   match curve {
     Scalar(field, keys, interpolation) =>
-      (field, AnimatedValue::Scalar(sample_scalar(keys, time, interpolation)))
+      (field, Scalar(sample_scalar(keys, time, interpolation)))
     Vec3(field, keys, interpolation) =>
-      (field, AnimatedValue::Vec3(sample_vec3(keys, time, interpolation)))
+      (field, Vec3(sample_vec3(keys, time, interpolation)))
     Quat(field, keys, interpolation) =>
-      (field, AnimatedValue::Quat(sample_quat(keys, time, interpolation)))
+      (field, Quat(sample_quat(keys, time, interpolation)))
     Weights(field, keys, interpolation) =>
-      (field, AnimatedValue::Weights(sample_weights(keys, time, interpolation)))
+      (field, Weights(sample_weights(keys, time, interpolation)))
   }
 }
 
@@ -96,7 +96,7 @@ fn blend_scalar(
   let mut total = 0.0
   let mut weighted = 0.0
   for pair in values {
-    if pair.0 is AnimatedValue::Scalar(value) {
+    if pair.0 is Scalar(value) {
       total += pair.1
       weighted += value * pair.1
     }
@@ -119,7 +119,7 @@ fn blend_vec3(
   let mut total = 0.0
   let mut weighted = @math.Vec3::zero()
   for pair in values {
-    if pair.0 is AnimatedValue::Vec3(value) {
+    if pair.0 is Vec3(value) {
       total += pair.1
       weighted = weighted + value.scalar_mul(pair.1)
     }
@@ -145,7 +145,7 @@ fn blend_quat(
   let mut z = 0.0
   let mut w = 0.0
   for pair in values {
-    if pair.0 is AnimatedValue::Quat(value) {
+    if pair.0 is Quat(value) {
       total += pair.1
       x += value.x * pair.1
       y += value.y * pair.1
@@ -170,7 +170,7 @@ fn blend_weights(
   }
   let mut max_len = fallback.length()
   for pair in values {
-    if pair.0 is AnimatedValue::Weights(weights) && weights.length() > max_len {
+    if pair.0 is Weights(weights) && weights.length() > max_len {
       max_len = weights.length()
     }
   }
@@ -181,7 +181,7 @@ fn blend_weights(
     weighted.push(0.0)
   }
   for pair in values {
-    if pair.0 is AnimatedValue::Weights(weights) {
+    if pair.0 is Weights(weights) {
       for index in 0..<max_len {
         let value = weights.get(index).unwrap_or(0.0)
         totals[index] = totals[index] + pair.1
@@ -225,38 +225,38 @@ fn apply_additive_value(
   values : Array[(AnimatedValue, Double)],
 ) -> AnimatedValue {
   match base {
-    AnimatedValue::Scalar(value) => {
+    Scalar(value) => {
       let mut output = value
       for pair in values {
-        if pair.0 is AnimatedValue::Scalar(add) {
+        if pair.0 is Scalar(add) {
           output += add * pair.1
         }
       }
-      AnimatedValue::Scalar(output)
+      Scalar(output)
     }
-    AnimatedValue::Vec3(value) => {
+    Vec3(value) => {
       let mut output = value
       for pair in values {
-        if pair.0 is AnimatedValue::Vec3(add) {
+        if pair.0 is Vec3(add) {
           output = output + add.scalar_mul(pair.1)
         }
       }
-      AnimatedValue::Vec3(output)
+      Vec3(output)
     }
-    AnimatedValue::Quat(value) => {
+    Quat(value) => {
       let mut output = value
       for pair in values {
-        if pair.0 is AnimatedValue::Quat(add) {
+        if pair.0 is Quat(add) {
           let weighted = @math.Quat::identity().nlerp(add, pair.1)
           output = output.mul(weighted).normalize()
         }
       }
-      AnimatedValue::Quat(output)
+      Quat(output)
     }
-    AnimatedValue::Weights(weights) => {
+    Weights(weights) => {
       let output = weights.copy()
       for pair in values {
-        if pair.0 is AnimatedValue::Weights(add) {
+        if pair.0 is Weights(add) {
           let count = if output.length() > add.length() {
             output.length()
           } else {
@@ -271,7 +271,7 @@ fn apply_additive_value(
           }
         }
       }
-      AnimatedValue::Weights(output)
+      Weights(output)
     }
   }
 }
@@ -293,37 +293,37 @@ fn resolve_sample_value(
         blend_scalar(
           buffer.normal,
           match base {
-            AnimatedValue::Scalar(value) => value
+            Scalar(value) => value
             _ => 0.0
           },
         ),
       )
     Vec3 =>
-      AnimatedValue::Vec3(
+      Vec3(
         blend_vec3(
           buffer.normal,
           match base {
-            AnimatedValue::Vec3(value) => value
+            Vec3(value) => value
             _ => @math.Vec3::zero()
           },
         ),
       )
     Quat =>
-      AnimatedValue::Quat(
+      Quat(
         blend_quat(
           buffer.normal,
           match base {
-            AnimatedValue::Quat(value) => value
+            Quat(value) => value
             _ => @math.Quat::identity()
           },
         ),
       )
     Weights =>
-      AnimatedValue::Weights(
+      Weights(
         blend_weights(
           buffer.normal,
           match base {
-            AnimatedValue::Weights(value) => value
+            Weights(value) => value
             _ => []
           },
         ),

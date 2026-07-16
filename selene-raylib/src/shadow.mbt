@@ -155,12 +155,12 @@ fn normalize_shadow_map_size(size : Int) -> Int {
 ///|
 fn shadow_texel_size(size : Int) -> @smath.Vec2 {
   let inv = 1.0 / normalize_shadow_map_size(size).to_double()
-  @smath.Vec2(inv, inv)
+  Vec2(inv, inv)
 }
 
 ///|
 fn vec3_min(lhs : @smath.Vec3, rhs : @smath.Vec3) -> @smath.Vec3 {
-  @smath.Vec3(
+  Vec3(
     @cmp.minimum(lhs.x, rhs.x),
     @cmp.minimum(lhs.y, rhs.y),
     @cmp.minimum(lhs.z, rhs.z),
@@ -169,7 +169,7 @@ fn vec3_min(lhs : @smath.Vec3, rhs : @smath.Vec3) -> @smath.Vec3 {
 
 ///|
 fn vec3_max(lhs : @smath.Vec3, rhs : @smath.Vec3) -> @smath.Vec3 {
-  @smath.Vec3(
+  Vec3(
     @cmp.maximum(lhs.x, rhs.x),
     @cmp.maximum(lhs.y, rhs.y),
     @cmp.maximum(lhs.z, rhs.z),
@@ -178,7 +178,7 @@ fn vec3_max(lhs : @smath.Vec3, rhs : @smath.Vec3) -> @smath.Vec3 {
 
 ///|
 fn vec3_midpoint(lhs : @smath.Vec3, rhs : @smath.Vec3) -> @smath.Vec3 {
-  @smath.Vec3(
+  Vec3(
     (lhs.x + rhs.x) * 0.5,
     (lhs.y + rhs.y) * 0.5,
     (lhs.z + rhs.z) * 0.5,
@@ -187,10 +187,10 @@ fn vec3_midpoint(lhs : @smath.Vec3, rhs : @smath.Vec3) -> @smath.Vec3 {
 
 ///|
 fn choose_shadow_up(light_direction : @smath.Vec3) -> @smath.Vec3 {
-  let normalized = normalize_or(light_direction, @smath.Vec3(0.0, -1.0, 0.0))
+  let normalized = normalize_or(light_direction, Vec3(0.0, -1.0, 0.0))
   let world_up = @smath.Vec3(0.0, 1.0, 0.0)
   if normalized.cross(world_up).length_squared() <= 0.0001 {
-    @smath.Vec3(0.0, 0.0, 1.0)
+    Vec3(0.0, 0.0, 1.0)
   } else {
     world_up
   }
@@ -227,13 +227,13 @@ fn camera_basis(
 ) -> (@smath.Vec3, @smath.Vec3, @smath.Vec3) {
   let forward = normalize_or(
     camera.target - camera.position,
-    @smath.Vec3(0.0, 0.0, -1.0),
+    Vec3(0.0, 0.0, -1.0),
   )
-  let up = normalize_or(camera.up, @smath.Vec3(0.0, 1.0, 0.0))
-  let right = normalize_or(forward.cross(up), @smath.Vec3(1.0, 0.0, 0.0))
+  let up = normalize_or(camera.up, Vec3(0.0, 1.0, 0.0))
+  let right = normalize_or(forward.cross(up), Vec3(1.0, 0.0, 0.0))
   let corrected_up = normalize_or(
     right.cross(forward),
-    @smath.Vec3(0.0, 1.0, 0.0),
+    Vec3(0.0, 1.0, 0.0),
   )
   (forward, right, corrected_up)
 }
@@ -296,7 +296,7 @@ fn camera_frustum_slice_corners(
     }
     Orthographic => {
       let ortho_size = camera.orthographic_size.unwrap_or(
-        @smath.Vec2(20.0, 20.0),
+        Vec2(20.0, 20.0),
       )
       let half_width = ortho_size[X].abs() * 0.5
       let half_height = ortho_size[Y].abs() * 0.5
@@ -389,7 +389,7 @@ fn build_directional_shadow_cascades_for_light(
   }
   let light_direction = normalize_or(
     light.direction,
-    @smath.Vec3(0.0, -1.0, 0.0),
+    Vec3(0.0, -1.0, 0.0),
   )
   let light_view = @raylib.Matrix::look_at(
     @raylib.Vector3::zero(),
@@ -501,14 +501,14 @@ fn bounds_corners(bounds : Bounds3D) -> Array[@smath.Vec3] {
   let min = bounds.min
   let max = bounds.max
   [
-    @smath.Vec3(min.x, min.y, min.z),
-    @smath.Vec3(min.x, min.y, max.z),
-    @smath.Vec3(min.x, max.y, min.z),
-    @smath.Vec3(min.x, max.y, max.z),
-    @smath.Vec3(max.x, min.y, min.z),
-    @smath.Vec3(max.x, min.y, max.z),
-    @smath.Vec3(max.x, max.y, min.z),
-    @smath.Vec3(max.x, max.y, max.z),
+    Vec3(min.x, min.y, min.z),
+    Vec3(min.x, min.y, max.z),
+    Vec3(min.x, max.y, min.z),
+    Vec3(min.x, max.y, max.z),
+    Vec3(max.x, min.y, min.z),
+    Vec3(max.x, min.y, max.z),
+    Vec3(max.x, max.y, min.z),
+    Vec3(max.x, max.y, max.z),
   ]
 }
 
@@ -525,7 +525,7 @@ fn transform_shadow_point(
     ),
     matrix,
   )
-  @smath.Vec3(
+  Vec3(
     transformed.x.to_double(),
     transformed.y.to_double(),
     transformed.z.to_double(),
@@ -646,7 +646,7 @@ fn build_directional_shadow_setup_for_light(
   let light = frame.directional_lights[light_index]
   let light_direction = normalize_or(
     light.direction,
-    @smath.Vec3(0.0, -1.0, 0.0),
+    Vec3(0.0, -1.0, 0.0),
   )
   let center = vec3_midpoint(bounds.min, bounds.max)
   let extent = bounds.max - center
@@ -660,7 +660,7 @@ fn build_directional_shadow_setup_for_light(
     SHADOW_CAMERA_DISTANCE_MIN,
   )
   let light_position = center -
-    @smath.Vec3(
+    Vec3(
       light_direction.x * distance,
       light_direction.y * distance,
       light_direction.z * distance,
@@ -1171,7 +1171,7 @@ fn draw_shadow_mesh3d_instance(
     Plane(size) => {
       let thickness = if size.y.abs() < 0.0001 { 0.02 } else { size.y }
       draw_shadow_cuboid(
-        @smath.Vec3(size.x, thickness, size.z),
+        Vec3(size.x, thickness, size.z),
         material,
         base_source,
         setup,

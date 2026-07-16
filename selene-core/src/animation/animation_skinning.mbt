@@ -242,7 +242,7 @@ fn apply_morph_targets(
     normals[index] = if normal.length_squared() > 0.0000001 {
       normal.normalize()
     } else {
-      @math.Vec3(0.0, 1.0, 0.0)
+      Vec3(0.0, 1.0, 0.0)
     }
   }
   (positions, normals)
@@ -254,14 +254,14 @@ fn skin_tangent(
   skin_matrix : @math.Mat4,
 ) -> @render3d.Tangent3D {
   let tangent_head = skin_matrix.transform_point(
-    @math.Vec3(tangent.x, tangent.y, tangent.z),
+    Vec3(tangent.x, tangent.y, tangent.z),
   )
   let tangent_tail = skin_matrix.transform_point(@math.Vec3::zero())
   let direction = tangent_head - tangent_tail
   let normalized = if direction.length_squared() > 0.0000001 {
     direction.normalize()
   } else {
-    @math.Vec3(1.0, 0.0, 0.0)
+    Vec3(1.0, 0.0, 0.0)
   }
   { x: normalized.x, y: normalized.y, z: normalized.z, w: tangent.w }
 }
@@ -461,14 +461,14 @@ pub fn animation_skinning_system(_delta : Double) -> Unit {
       deformed_positions.push(skin_matrix.transform_point(base_position))
       let base_normal = morphed_normals
         .get(index)
-        .unwrap_or(@math.Vec3(0.0, 1.0, 0.0))
+        .unwrap_or(Vec3(0.0, 1.0, 0.0))
       let normal_head = skin_matrix.transform_point(base_normal)
       let normal_tail = skin_matrix.transform_point(@math.Vec3::zero())
       let direction = normal_head - normal_tail
       let normal = if direction.length_squared() > 0.0000001 {
         direction.normalize()
       } else {
-        @math.Vec3(0.0, 1.0, 0.0)
+        Vec3(0.0, 1.0, 0.0)
       }
       deformed_normals.push(normal)
       if binding.tangents is Some(tangents) &&

@@ -82,11 +82,11 @@ let game_over_title_ref : Ref[@entity.Entity?] = { val: None }
 let restart_button_ref : Ref[@entity.Entity?] = { val: None }
 
 ///|
-let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = @event.EventReader()
+let ui_click_reader : @event.EventReader[@ui.UiClickEvent] = EventReader()
 
 ///|
 fn set_ui_text(entity : @entity.Entity, content : String) -> Unit {
-  let text = @ui.texts().get_or_init(entity, fn() { @ui.Text(content) })
+  let text = @ui.texts().get_or_init(entity, fn() { Text(content) })
   text.content = content
 }
 
@@ -102,20 +102,20 @@ fn configure_text_entity(
   content : String,
   color : String,
   font : String,
-  size? : @math.Vec2 = @math.Vec2(-1.0, -1.0),
-  align? : @math.HAlign = @math.HAlign::Left,
-  baseline? : @math.VAlign = @math.VAlign::Top,
+  size? : @math.Vec2 = Vec2(-1.0, -1.0),
+  align? : @math.HAlign = Left,
+  baseline? : @math.VAlign = Top,
   zindex? : Int = HUD_LAYER_ZINDEX,
 ) -> Unit {
   @ui.nodes().set(
     entity,
     @ui.Node::absolute(offset, size~, border=@ui.UiRectValues::all(1.0)),
   )
-  @ui.z_indexes().set(entity, @ui.ZIndex(zindex))
+  @ui.z_indexes().set(entity, ZIndex(zindex))
   set_ui_text(entity, content)
   @ui.text_fonts().set(entity, @ui.TextFont::from_css(font))
   set_ui_text_color(entity, color)
-  @ui.text_layouts().set(entity, @ui.TextLayout(align~, baseline~))
+  @ui.text_layouts().set(entity, TextLayout(align~, baseline~))
 }
 
 ///|
@@ -130,7 +130,7 @@ fn configure_panel_box(
     entity,
     @ui.Node::absolute(offset, size~, border=@ui.UiRectValues::all(1.0)),
   )
-  @ui.z_indexes().set(entity, @ui.ZIndex(PANEL_LAYER_ZINDEX))
+  @ui.z_indexes().set(entity, ZIndex(PANEL_LAYER_ZINDEX))
   @ui.background_colors().set(entity, @ui.BackgroundColor::from_css(background))
   @ui.border_colors().set(entity, @ui.BorderColor::from_css(border))
   @ui.border_radii().set(entity, @ui.BorderRadius::all(@ui.Val::px(10.0)))
@@ -147,29 +147,29 @@ fn configure_panel_button(
   tab_index : Int,
 ) -> Unit {
   @ui.nodes().set(entity, @ui.Node::absolute(offset, size~))
-  @ui.z_indexes().set(entity, @ui.ZIndex(PANEL_TEXT_ZINDEX))
+  @ui.z_indexes().set(entity, ZIndex(PANEL_TEXT_ZINDEX))
   @ui.background_colors().set(entity, @ui.BackgroundColor::from_css(background))
   @ui.border_colors().set(entity, @ui.BorderColor::from_css(border))
   @ui.border_radii().set(entity, @ui.BorderRadius::all(@ui.Val::px(8.0)))
-  @ui.buttons().set(entity, @ui.Button())
-  @ui.tab_indexes().set(entity, @ui.TabIndex(tab_index))
+  @ui.buttons().set(entity, Button())
+  @ui.tab_indexes().set(entity, TabIndex(tab_index))
   set_ui_text(entity, label)
   @ui.text_fonts().set(entity, @ui.TextFont::from_css("16px ThaleahFat"))
   set_ui_text_color(entity, "white")
   @ui.text_layouts().set(
     entity,
-    @ui.TextLayout(align=@math.HAlign::Center, baseline=@math.VAlign::Center),
+    TextLayout(align=Center, baseline=Center),
   )
 }
 
 ///|
 fn levelup_panel_origin() -> @math.Vec2 {
-  @math.Vec2(VIEWPORT_WIDTH / 2.0 - 80.0, VIEWPORT_HEIGHT / 2.0 - 120.0)
+  Vec2(VIEWPORT_WIDTH / 2.0 - 80.0, VIEWPORT_HEIGHT / 2.0 - 120.0)
 }
 
 ///|
 fn game_over_panel_origin() -> @math.Vec2 {
-  @math.Vec2(VIEWPORT_WIDTH / 2.0 - 100.0, VIEWPORT_HEIGHT / 2.0 - 60.0)
+  Vec2(VIEWPORT_WIDTH / 2.0 - 100.0, VIEWPORT_HEIGHT / 2.0 - 60.0)
 }
 
 ///|
@@ -182,7 +182,7 @@ fn set_ui_active(entity : @entity.Entity, active : Bool) -> Unit {
 ///|
 fn set_button_enabled(entity : @entity.Entity, enabled : Bool) -> Unit {
   if @ui.buttons().get(entity) is Some(_) {
-    @ui.buttons().set(entity, @ui.Button(enabled~))
+    @ui.buttons().set(entity, Button(enabled~))
   }
 }
 
@@ -190,10 +190,10 @@ fn set_button_enabled(entity : @entity.Entity, enabled : Bool) -> Unit {
 fn set_icon_image(entity : @entity.Entity, path : String) -> Unit {
   @ui.ui_images().set(
     entity,
-    @ui.UiImage(
-      @math.Vec2(LEVELUP_BUTTON_ICON_SIZE, LEVELUP_BUTTON_ICON_SIZE),
+    UiImage(
+      Vec2(LEVELUP_BUTTON_ICON_SIZE, LEVELUP_BUTTON_ICON_SIZE),
       path,
-      fit=@ui.ImageFit::Contain,
+      fit=Contain,
     ),
   )
 }
@@ -279,12 +279,12 @@ fn show_game_over_ui() -> Unit {
 fn add_score_box() -> Unit {
   configure_text_entity(
     game_state.score_box,
-    @math.Vec2(VIEWPORT_WIDTH / 2.0 - 100.0, 16.0),
+    Vec2(VIEWPORT_WIDTH / 2.0 - 100.0, 16.0),
     "Score: 0",
     "white",
     "24px ThaleahFat",
-    size=@math.Vec2(200.0, 28.0),
-    align=@math.HAlign::Center,
+    size=Vec2(200.0, 28.0),
+    align=Center,
   )
 }
 
@@ -295,7 +295,7 @@ fn setup_level_up_ui() -> Unit {
   configure_panel_box(
     game_state.level_up_panel.panel_entity,
     levelup_panel_origin(),
-    @math.Vec2(160.0, 250.0),
+    Vec2(160.0, 250.0),
     "rgba(13, 170, 26, 1)",
     "black",
   )
@@ -304,12 +304,12 @@ fn setup_level_up_ui() -> Unit {
   levelup_title_ref.val = Some(title)
   configure_text_entity(
     title,
-    levelup_panel_origin() + @math.Vec2(8.0, LEVELUP_PANEL_TITLE_OFFSET_Y),
+    levelup_panel_origin() + Vec2(8.0, LEVELUP_PANEL_TITLE_OFFSET_Y),
     "LEVEL UP!",
     "gold",
     "36px ThaleahFat",
-    size=@math.Vec2(144.0, 36.0),
-    align=@math.HAlign::Center,
+    size=Vec2(144.0, 36.0),
+    align=Center,
     zindex=PANEL_TEXT_ZINDEX,
   )
 
@@ -319,8 +319,8 @@ fn setup_level_up_ui() -> Unit {
     let button = @entity.Entity()
     configure_panel_button(
       button,
-      levelup_panel_origin() + @math.Vec2(0.0, button_y),
-      @math.Vec2(160.0, 36.0),
+      levelup_panel_origin() + Vec2(0.0, button_y),
+      Vec2(160.0, 36.0),
       "rgba(13, 167, 170, 1)",
       "black",
       "Default",
@@ -332,11 +332,11 @@ fn setup_level_up_ui() -> Unit {
     @ui.nodes().set(
       icon,
       @ui.Node::absolute(
-        @math.Vec2(LEVELUP_BUTTON_ICON_OFFSET_X, LEVELUP_BUTTON_ICON_OFFSET_Y),
-        size=@math.Vec2(LEVELUP_BUTTON_ICON_SIZE, LEVELUP_BUTTON_ICON_SIZE),
+        Vec2(LEVELUP_BUTTON_ICON_OFFSET_X, LEVELUP_BUTTON_ICON_OFFSET_Y),
+        size=Vec2(LEVELUP_BUTTON_ICON_SIZE, LEVELUP_BUTTON_ICON_SIZE),
       ),
     )
-    @ui.z_indexes().set(icon, @ui.ZIndex(PANEL_TEXT_ZINDEX))
+    @ui.z_indexes().set(icon, ZIndex(PANEL_TEXT_ZINDEX))
     set_icon_image(icon, POWERUP_RANGE_ICON_PATH)
     levelup_button_icons.push(icon)
   }
@@ -412,7 +412,7 @@ fn resume_game() -> Unit {
 fn add_wave_box() -> Unit {
   configure_text_entity(
     game_state.wave_box,
-    @math.Vec2(16.0, 84.0),
+    Vec2(16.0, 84.0),
     "Wave: 1",
     "orange",
     "24px ThaleahFat",
@@ -423,7 +423,7 @@ fn add_wave_box() -> Unit {
 fn add_exp_box() -> Unit {
   configure_text_entity(
     game_state.exp_box,
-    @math.Vec2(16.0, 50.0),
+    Vec2(16.0, 50.0),
     "EXP: 0/16",
     "cyan",
     "24px ThaleahFat",
@@ -434,12 +434,12 @@ fn add_exp_box() -> Unit {
 fn add_timer_box() -> Unit {
   configure_text_entity(
     game_state.timer_box,
-    @math.Vec2(VIEWPORT_WIDTH - 140.0, 16.0),
+    Vec2(VIEWPORT_WIDTH - 140.0, 16.0),
     "Time: 10:00",
     "white",
     "24px ThaleahFat",
-    size=@math.Vec2(124.0, 28.0),
-    align=@math.HAlign::Right,
+    size=Vec2(124.0, 28.0),
+    align=Right,
   )
 }
 
@@ -448,7 +448,7 @@ fn setup_game_over_ui() -> Unit {
   configure_panel_box(
     game_state.game_over_panel.panel_entity,
     game_over_panel_origin(),
-    @math.Vec2(200.0, 120.0),
+    Vec2(200.0, 120.0),
     "rgba(0, 0, 0, 0.8)",
     "white",
   )
@@ -457,23 +457,23 @@ fn setup_game_over_ui() -> Unit {
   game_over_title_ref.val = Some(title)
   configure_text_entity(
     title,
-    game_over_panel_origin() + @math.Vec2(10.0, 18.0),
+    game_over_panel_origin() + Vec2(10.0, 18.0),
     "VICTORY!",
     "gold",
     "32px ThaleahFat",
-    size=@math.Vec2(180.0, 30.0),
-    align=@math.HAlign::Center,
+    size=Vec2(180.0, 30.0),
+    align=Center,
     zindex=PANEL_TEXT_ZINDEX,
   )
 
   configure_text_entity(
     game_state.game_over_box,
-    game_over_panel_origin() + @math.Vec2(8.0, 52.0),
+    game_over_panel_origin() + Vec2(8.0, 52.0),
     "Final Score: 0",
     "white",
     "24px ThaleahFat",
-    size=@math.Vec2(184.0, 22.0),
-    align=@math.HAlign::Center,
+    size=Vec2(184.0, 22.0),
+    align=Center,
     zindex=PANEL_TEXT_ZINDEX,
   )
 
@@ -481,8 +481,8 @@ fn setup_game_over_ui() -> Unit {
   restart_button_ref.val = Some(restart_button)
   configure_panel_button(
     restart_button,
-    game_over_panel_origin() + @math.Vec2(10.0, 74.0),
-    @math.Vec2(180.0, 40.0),
+    game_over_panel_origin() + Vec2(10.0, 74.0),
+    Vec2(180.0, 40.0),
     "rgba(13, 167, 170, 1)",
     "white",
     "RESTART",
@@ -505,7 +505,7 @@ fn add_game_over_box() -> Unit {
 fn add_level_box() -> Unit {
   configure_text_entity(
     game_state.level_box,
-    @math.Vec2(16.0, 16.0),
+    Vec2(16.0, 16.0),
     "Level: 1",
     "yellow",
     "24px ThaleahFat",

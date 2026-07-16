@@ -47,7 +47,7 @@ fn rpc_msg_from_payload(
     InvalidRpcPayload(message) => raise InvalidRpcPayload(message)
   }
   binding.response_to_msg(envelope.response) catch {
-    @app.UnexpectedRpcResponse(message) => raise InvalidRpcPayload(message)
+    UnexpectedRpcResponse(message) => raise InvalidRpcPayload(message)
   }
 }
 

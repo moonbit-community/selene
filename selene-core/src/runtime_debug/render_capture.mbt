@@ -53,8 +53,8 @@ fn draw2d_info(
       }
     Circle(circle) => {
       let destination = @math.Rect::{
-        position: circle.center - @math.Vec2(circle.radius, circle.radius),
-        size: @math.Vec2(circle.radius * 2.0, circle.radius * 2.0),
+        position: circle.center - Vec2(circle.radius, circle.radius),
+        size: Vec2(circle.radius * 2.0, circle.radius * 2.0),
       }
       {
         entity_id,
@@ -168,7 +168,7 @@ fn draw2d_metadata_entry(
     source_rect: item.uv_rect.map(debug_rect),
     destination_rect: item.destination_rect.map(debug_rect),
     transform_translation: item.transform.map(fn(transform) {
-      debug_vec2(@math.Vec2(transform.tx, transform.ty))
+      debug_vec2(Vec2(transform.tx, transform.ty))
     }),
     color: item.color.map(debug_color),
   }

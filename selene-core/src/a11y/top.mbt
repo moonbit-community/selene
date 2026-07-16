@@ -165,13 +165,13 @@ pub fn a11y_sync_system(_delta : Double) -> Unit {
 ///|
 fn to_accesskit_role(role : A11yRole) -> @moon_accesskit.Role {
   match role {
-    Container => @moon_accesskit.Role::GenericContainer
-    Label => @moon_accesskit.Role::Label
-    Button => @moon_accesskit.Role::Button
-    CheckBox => @moon_accesskit.Role::CheckBox
-    Slider => @moon_accesskit.Role::Slider
-    TextInput => @moon_accesskit.Role::TextInput
-    Image => @moon_accesskit.Role::Image
+    Container => GenericContainer
+    Label => Label
+    Button => Button
+    CheckBox => CheckBox
+    Slider => Slider
+    TextInput => TextInput
+    Image => Image
   }
 }
 
@@ -309,7 +309,7 @@ fn build_hierarchy(
 fn resolve_bounds(entity : @entity.Entity) -> @moon_accesskit.Rect? {
   guard @ui.global_ui_nodes().get(entity) is Some(node) else { return None }
   Some(
-    @moon_accesskit.Rect(
+    Rect(
       node.screen_rect.position[X],
       node.screen_rect.position[Y],
       node.screen_rect.position[X] + node.screen_rect.size[X],
@@ -338,12 +338,12 @@ fn is_clickable(entity : @entity.Entity, a11y : A11y) -> Bool {
 ///|
 fn get_or_create_node_id(entity : @entity.Entity) -> @moon_accesskit.NodeId {
   if entity_node_ids.get(entity) is Some(raw) {
-    @moon_accesskit.NodeId(raw)
+    NodeId(raw)
   } else {
     let raw = next_node_id.val
     next_node_id.val = next_node_id.val + 1UL
     entity_node_ids.set(entity, raw)
-    @moon_accesskit.NodeId(raw)
+    NodeId(raw)
   }
 }
 
@@ -364,7 +364,7 @@ fn build_tree_update(
 ) -> @moon_accesskit.TreeUpdate {
   current_node_entities.clear()
   let update = @moon_accesskit.TreeUpdate(a11y_tree_id, focused_node_id())
-  let root = @moon_accesskit.Node(@moon_accesskit.Role::Window)
+  let root = @moon_accesskit.Node(Window)
   root.set_label("Selene")
   let root_children : Array[@moon_accesskit.NodeId] = []
   for entity in roots {
@@ -396,10 +396,10 @@ fn build_tree_update(
       node.set_bounds(bounds)
     }
     if a11y.focusable && !a11y.disabled {
-      node.add_action(@moon_accesskit.Action::Focus)
+      node.add_action(Focus)
     }
     if is_clickable(entity, a11y) && !a11y.disabled {
-      node.add_action(@moon_accesskit.Action::Click)
+      node.add_action(Click)
     }
     let child_ids : Array[@moon_accesskit.NodeId] = []
     for child in child_map.get(entity).unwrap_or_default() {
@@ -408,7 +408,7 @@ fn build_tree_update(
     node.set_children(child_ids)
     update.push_node(id, node)
   }
-  update.set_tree(@moon_accesskit.Tree(@moon_accesskit.NodeId::root()))
+  update.set_tree(Tree(@moon_accesskit.NodeId::root()))
   update
 }
 
@@ -438,7 +438,7 @@ fn dispatch_action(
     Focus => @ui.focus(entity)
     Blur => @ui.blur()
     Click => {
-      @ui.click_event_bus.send({ entity, button: @inputs.MouseButton::Left })
+      @ui.click_event_bus.send({ entity, button: Left })
       invoke_action_callbacks(entity, action, data)
     }
     _ => invoke_action_callbacks(entity, action, data)

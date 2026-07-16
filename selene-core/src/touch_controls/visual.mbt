@@ -1,9 +1,9 @@
 ///|
 fn alpha_mode(color : @render.Color) -> @render.AlphaMode2D {
   if color.a >= 0.999999 {
-    @render.AlphaMode2D::Opaque
+    Opaque
   } else {
-    @render.AlphaMode2D::Blend
+    Blend
   }
 }
 
@@ -18,7 +18,7 @@ fn push_circle(
     radius,
     transform: @math.Transform::identity(),
     alpha_mode: alpha_mode(color),
-    blend_mode: @render.BlendMode2D::Alpha,
+    blend_mode: Alpha,
     fill_color: color,
     stroke_color: None,
   })
@@ -38,14 +38,14 @@ fn push_label(
     text,
     position: center,
     transform: @math.Transform::identity(),
-    blend_mode: @render.BlendMode2D::Alpha,
+    blend_mode: Alpha,
     style: {
       font: None,
       family: "sans-serif",
       size,
       color,
-      align: @math.HAlign::Center,
-      baseline: @math.VAlign::Center,
+      align: Center,
+      baseline: Center,
     },
   })
 }

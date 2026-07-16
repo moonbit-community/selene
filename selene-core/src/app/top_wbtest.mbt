@@ -1,7 +1,7 @@
 ///|
 fn plugin_add_startup_system(app : App) -> App {
   app.add_system(
-    @system.Startup,
+    Startup,
     fn(_world) { () },
     system_name="plugin_startup",
   )
@@ -9,12 +9,12 @@ fn plugin_add_startup_system(app : App) -> App {
 
 ///|
 fn plugin_a(app : App) -> App {
-  app.add_system(@system.Startup, fn(_world) { () }, system_name="plugin_a")
+  app.add_system(Startup, fn(_world) { () }, system_name="plugin_a")
 }
 
 ///|
 fn plugin_b(app : App) -> App {
-  app.add_system(@system.Startup, fn(_world) { () }, system_name="plugin_b")
+  app.add_system(Startup, fn(_world) { () }, system_name="plugin_b")
 }
 
 ///|
@@ -34,11 +34,11 @@ test "app: add_plugins preserves plugin order" {
 
 ///|
 test "app: add_message registers buses to final world" {
-  let events : @event.Events[Int] = @event.Events()
+  let events : @event.Events[Int] = Events()
   let world_a = @ecs.World()
   let world_b = @ecs.World()
-  let reader_a : @event.EventReader[Int] = @event.EventReader()
-  let reader_b : @event.EventReader[Int] = @event.EventReader()
+  let reader_a : @event.EventReader[Int] = EventReader()
+  let reader_b : @event.EventReader[Int] = EventReader()
 
   let app = App().with_world(world_a).add_message(events).with_world(world_b)
   for register in app.event_registrations {
@@ -73,10 +73,10 @@ test "app: run_frames advances startup/update/fixed/render schedules determinist
   let app = App()
     .with_world(world)
     .with_fixed_hz(30)
-    .add_system(@system.Startup, fn(_world) { startup_count.val += 1 })
-    .add_system(@system.Update, fn(_world) { update_count.val += 1 })
-    .add_system(@system.FixedUpdate, fn(_world) { fixed_count.val += 1 })
-    .add_system(@system.Render, fn(_world) { render_count.val += 1 })
+    .add_system(Startup, fn(_world) { startup_count.val += 1 })
+    .add_system(Update, fn(_world) { update_count.val += 1 })
+    .add_system(FixedUpdate, fn(_world) { fixed_count.val += 1 })
+    .add_system(Render, fn(_world) { render_count.val += 1 })
   app.run_frames(2, raw_delta=1.0 / 30.0)
 
   inspect(startup_count.val, content="1")
@@ -92,12 +92,12 @@ test "app: headless frames service platform maintenance around game and render" 
   let app = App()
     .with_world(world)
     .add_system(
-      @system.Update,
+      Update,
       fn(_world) { trace.val = trace.val + "g" },
       system_name="update_trace",
     )
     .add_system(
-      @system.Render,
+      Render,
       fn(_world) { trace.val = trace.val + "r" },
       system_name="render_trace",
     )
@@ -122,9 +122,9 @@ test "app: step_fixed advances only fixed schedule after startup" {
 
   let app = App()
     .with_world(world)
-    .add_system(@system.Startup, fn(_world) { startup_count.val += 1 })
-    .add_system(@system.Update, fn(_world) { update_count.val += 1 })
-    .add_system(@system.FixedUpdate, fn(_world) { fixed_count.val += 1 })
+    .add_system(Startup, fn(_world) { startup_count.val += 1 })
+    .add_system(Update, fn(_world) { update_count.val += 1 })
+    .add_system(FixedUpdate, fn(_world) { fixed_count.val += 1 })
   app.step_fixed(3)
 
   inspect(startup_count.val, content="1")
@@ -146,12 +146,12 @@ test "app: deterministic ordering sorts systems by name when enabled" {
   let app = App()
     .with_world(world)
     .add_system(
-      @system.Update,
+      Update,
       fn(_world) { order.val = order.val + "b" },
       system_name="b",
     )
     .add_system(
-      @system.Update,
+      Update,
       fn(_world) { order.val = order.val + "a" },
       system_name="a",
     )
@@ -173,12 +173,12 @@ test "app: deterministic ordering keeps insertion order when disabled" {
   let app = App()
     .with_world(world)
     .add_system(
-      @system.Update,
+      Update,
       fn(_world) { order.val = order.val + "b" },
       system_name="b",
     )
     .add_system(
-      @system.Update,
+      Update,
       fn(_world) { order.val = order.val + "a" },
       system_name="a",
     )
@@ -206,7 +206,7 @@ test "app: render frame does not perform platform service work implicitly" {
   let app = App()
     .with_world(world)
     .add_system(
-      @system.Render,
+      Render,
       fn(_world) { trace.val = trace.val + "r" },
       system_name="render_trace",
     )

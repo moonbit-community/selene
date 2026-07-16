@@ -115,8 +115,8 @@ fn rect_from_points(points : Array[@math.Vec2]) -> @math.Rect {
     max_y = @cmp.maximum(max_y, point[Y])
   }
   {
-    position: @math.Vec2(min_x, min_y),
-    size: @math.Vec2(max_x - min_x, max_y - min_y),
+    position: Vec2(min_x, min_y),
+    size: Vec2(max_x - min_x, max_y - min_y),
   }
 }
 
@@ -126,10 +126,10 @@ pub fn Camera2dView::world_bounds(self : Camera2dView) -> @math.Rect {
   rect_from_points([
     self.viewport_to_world_2d(viewport.position),
     self.viewport_to_world_2d(
-      @math.Vec2(viewport.position[X] + viewport.size[X], viewport.position[Y]),
+      Vec2(viewport.position[X] + viewport.size[X], viewport.position[Y]),
     ),
     self.viewport_to_world_2d(
-      @math.Vec2(viewport.position[X], viewport.position[Y] + viewport.size[Y]),
+      Vec2(viewport.position[X], viewport.position[Y] + viewport.size[Y]),
     ),
     self.viewport_to_world_2d(viewport.position + viewport.size),
   ])
@@ -146,10 +146,10 @@ pub fn transformed_rect_bounds(
   let x1 = x0 + local_rect.size[X]
   let y1 = y0 + local_rect.size[Y]
   let points = [
-    transform.apply_to_vec2(@math.Vec2(x0, y0)) + origin,
-    transform.apply_to_vec2(@math.Vec2(x1, y0)) + origin,
-    transform.apply_to_vec2(@math.Vec2(x1, y1)) + origin,
-    transform.apply_to_vec2(@math.Vec2(x0, y1)) + origin,
+    transform.apply_to_vec2(Vec2(x0, y0)) + origin,
+    transform.apply_to_vec2(Vec2(x1, y0)) + origin,
+    transform.apply_to_vec2(Vec2(x1, y1)) + origin,
+    transform.apply_to_vec2(Vec2(x0, y1)) + origin,
   ]
   rect_from_points(points)
 }
@@ -170,7 +170,7 @@ pub fn screen_space_transform(
   transform : @transform.Transform,
 ) -> @transform.Transform {
   transform.with_scale(
-    @math.Vec3(
+    Vec3(
       transform.scale.x * @system.get_zoom(),
       transform.scale.y * @system.get_zoom(),
       transform.scale.z,
@@ -198,7 +198,7 @@ pub fn camera_relative_transform(
   }
   let pixels_per_world_unit = @system.get_zoom() / projection_scale
   relative.with_scale(
-    @math.Vec3(
+    Vec3(
       relative.scale.x * pixels_per_world_unit,
       relative.scale.y * pixels_per_world_unit,
       relative.scale.z,
@@ -222,7 +222,7 @@ pub fn camera_screen_transform(
   let y_axis = transform.rotation.rotate_vec3(
     @math.Vec3::y_axis().scalar_mul(transform.scale.y),
   )
-  @math.Transform(a=x_axis.x, b=x_axis.y, c=y_axis.x, d=y_axis.y)
+  Transform(a=x_axis.x, b=x_axis.y, c=y_axis.x, d=y_axis.y)
 }
 
 ///|
@@ -236,10 +236,10 @@ pub fn world_transform_2d(
   let y_axis = transform.rotation.rotate_vec3(
     @math.Vec3::y_axis().scalar_mul(transform.scale.y),
   )
-  @math.Transform(a=x_axis.x, b=x_axis.y, c=y_axis.x, d=y_axis.y)
+  Transform(a=x_axis.x, b=x_axis.y, c=y_axis.x, d=y_axis.y)
 }
 
 ///|
 pub fn pixel_snapped_position(position : @math.Vec2) -> @math.Vec2 {
-  @math.Vec2(position[X].round(), position[Y].round())
+  Vec2(position[X].round(), position[Y].round())
 }

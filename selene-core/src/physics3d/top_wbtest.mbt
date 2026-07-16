@@ -76,7 +76,7 @@ test "child collider stays relative to its rigid-body ancestor" {
       content="true",
     )
     let hit = context()
-      .cast_ray(@math.Vec3(4.0, 0.0, 5.0), @math.Vec3(0.0, 0.0, -1.0))
+      .cast_ray(Vec3(4.0, 0.0, 5.0), Vec3(0.0, 0.0, -1.0))
       .unwrap()
     inspect(hit.entity == child, content="true")
   })
@@ -114,7 +114,7 @@ test "query filter groups and contact force events work in 3d" {
     inspect(hit.entity == filtered, content="true")
 
     physics3d_world().event_handler.push_contact_force_event(
-      @collision.ContactForceEvent3D::ContactForceEvent3D(
+      ContactForceEvent3D(
         @collision.ColliderHandle3D::from_raw_parts(1, 0),
         @collision.ColliderHandle3D::from_raw_parts(2, 0),
         @math.Vec3(0.0, 3.0, 0.0).to_rapier(),
@@ -126,7 +126,7 @@ test "query filter groups and contact force events work in 3d" {
     collider_entities_by_key().set("1:0", filtered)
     collider_entities_by_key().set("2:0", excluded)
     collect_events()
-    let reader : @event.EventReader[ContactForceEvent] = @event.EventReader()
+    let reader : @event.EventReader[ContactForceEvent] = EventReader()
     let events = reader.read(contact_force_event_bus)
     inspect(events.length(), content="1")
     inspect(events[0].entity_a == filtered, content="true")
@@ -188,7 +188,7 @@ test "query filter exclude_sensors and exclude_solids work in 3d" {
       @transform.Transform::from_xyz(2.0, 0.0, 0.0),
     )
     colliders().set(sensor_entity, Collider::ball(0.5))
-    sensors().set(sensor_entity, Sensor::{  })
+    sensors().set(sensor_entity, Sensor())
 
     let solid_entity = @entity.Entity()
     @transform.transforms().set(
@@ -286,7 +286,7 @@ test "cast_shape respects exclude_sensors and exclude_solids in 3d" {
       @transform.Transform::from_xyz(2.0, 0.0, 0.0),
     )
     colliders().set(sensor_entity, Collider::ball(0.5))
-    sensors().set(sensor_entity, Sensor::{  })
+    sensors().set(sensor_entity, Sensor())
 
     let solid_entity = @entity.Entity()
     @transform.transforms().set(
@@ -378,7 +378,7 @@ test "collision and intersection events map to selene event buses" {
       @transform.Transform::from_xyz(10.0, 0.0, 0.0),
     )
     colliders().set(sensor_entity, Collider::ball(0.5))
-    sensors().set(sensor_entity, Sensor::{  })
+    sensors().set(sensor_entity, Sensor())
 
     let other_entity = @entity.Entity()
     @transform.transforms().set(
@@ -394,16 +394,16 @@ test "collision and intersection events map to selene event buses" {
     let mut flags = @collision.CollisionEventFlags::empty()
     flags = flags.insert(@collision.CollisionEventFlags::sensor())
     physics3d_world().event_handler.push_collision_event(
-      @collision.CollisionEvent3D::Started(sensor_handle, other_handle, flags),
+      Started(sensor_handle, other_handle, flags),
     )
     physics3d_world().event_handler.push_intersection_event(
-      @collision.IntersectionEvent3D::IntersectionEvent3D(
+      IntersectionEvent3D(
         sensor_handle, other_handle, true,
       ),
     )
     collect_events()
 
-    let collision_reader : @event.EventReader[CollisionEvent] = @event.EventReader()
+    let collision_reader : @event.EventReader[CollisionEvent] = EventReader()
     let collisions = collision_reader.read(collision_event_bus)
     inspect(collisions.length(), content="1")
     inspect(collisions[0].entity_a == sensor_entity, content="true")
@@ -411,7 +411,7 @@ test "collision and intersection events map to selene event buses" {
     inspect(collisions[0].sensor, content="true")
     inspect(collisions[0].started, content="true")
 
-    let sensor_reader : @event.EventReader[SensorEvent] = @event.EventReader()
+    let sensor_reader : @event.EventReader[SensorEvent] = EventReader()
     let sensor_events = sensor_reader.read(sensor_event_bus)
     inspect(sensor_events.length(), content="2")
     inspect(sensor_events[0].sensor == sensor_entity, content="true")
@@ -435,11 +435,11 @@ test "rapier context project_point and intersections_with_shape work" {
 
     step_physics(1)
 
-    let projection = context().project_point(@math.Vec3(1.3, 0.0, 0.0)).unwrap()
+    let projection = context().project_point(Vec3(1.3, 0.0, 0.0)).unwrap()
     inspect(projection.entity == collider_entity, content="true")
     let intersections = context().intersections_with_shape(
       Collider::ball(0.25),
-      @math.Vec3(1.1, 0.0, 0.0),
+      Vec3(1.1, 0.0, 0.0),
     )
     inspect(intersections.length(), content="1")
     inspect(intersections[0] == collider_entity, content="true")
@@ -691,7 +691,7 @@ test "revolute joint forwards limits motor model and softness" {
   }
   let generic_joint = revolute_joint_to_generic(joint)
   inspect(
-    match generic_joint.limits_axis(@dynamics.JointAxis::AngX) {
+    match generic_joint.limits_axis(AngX) {
       Some(limits) =>
         near(limits.min().to_double(), -0.5, 0.0001) &&
         near(limits.max().to_double(), 0.75, 0.0001)
@@ -700,14 +700,14 @@ test "revolute joint forwards limits motor model and softness" {
     content="true",
   )
   inspect(
-    match generic_joint.motor_model(@dynamics.JointAxis::AngX) {
+    match generic_joint.motor_model(AngX) {
       Some(ForceBased) => true
       _ => false
     },
     content="true",
   )
   inspect(
-    generic_joint.motor(@dynamics.JointAxis::AngX) is Some(_),
+    generic_joint.motor(AngX) is Some(_),
     content="true",
   )
   let actual_softness = generic_joint.softness()
@@ -731,7 +731,7 @@ test "revolute joint forwards limits motor model and softness" {
   // metadata field. Keep explicit round-trip coverage for what is currently retained.
   let roundtrip_joint = revolute_joint_to_rapier(joint).to_generic_joint()
   inspect(
-    match roundtrip_joint.limits_axis(@dynamics.JointAxis::AngX) {
+    match roundtrip_joint.limits_axis(AngX) {
       Some(limits) =>
         near(limits.min().to_double(), -0.5, 0.0001) &&
         near(limits.max().to_double(), 0.75, 0.0001)
@@ -740,7 +740,7 @@ test "revolute joint forwards limits motor model and softness" {
     content="true",
   )
   inspect(
-    roundtrip_joint.motor(@dynamics.JointAxis::AngX) is Some(_),
+    roundtrip_joint.motor(AngX) is Some(_),
     content="true",
   )
 }
@@ -756,7 +756,7 @@ test "prismatic joint forwards limits and motor state" {
   }
   let generic_joint = prismatic_joint_to_rapier(joint).to_generic_joint()
   inspect(
-    match generic_joint.limits_axis(@dynamics.JointAxis::LinX) {
+    match generic_joint.limits_axis(LinX) {
       Some(limits) =>
         near(limits.min().to_double(), -2.0, 0.0001) &&
         near(limits.max().to_double(), 3.0, 0.0001)
@@ -765,7 +765,7 @@ test "prismatic joint forwards limits and motor state" {
     content="true",
   )
   inspect(
-    generic_joint.motor(@dynamics.JointAxis::LinX) is Some(_),
+    generic_joint.motor(LinX) is Some(_),
     content="true",
   )
 }
@@ -857,7 +857,7 @@ test "kinematic character controller writes output and clears consumed translati
       floor,
       @transform.Transform::from_xyz(0.0, -1.0, 0.0),
     )
-    colliders().set(floor, Collider::cuboid(@math.Vec3(4.0, 0.5, 4.0)))
+    colliders().set(floor, Collider::cuboid(Vec3(4.0, 0.5, 4.0)))
 
     let actor = @entity.Entity()
     @transform.transforms().set(
@@ -868,7 +868,7 @@ test "kinematic character controller writes output and clears consumed translati
     colliders().set(actor, Collider::ball(0.5))
     kinematic_character_controllers().set(actor, {
       ..KinematicCharacterController::default(),
-      translation: Some(@math.Vec3(0.0, -1.0, 0.0)),
+      translation: Some(Vec3(0.0, -1.0, 0.0)),
     })
 
     step_physics(1)
@@ -902,13 +902,13 @@ test "character controller options are forwarded to rapier controller" {
     min_slope_slide_angle: 0.4,
     snap_to_ground: Some(CharacterLength::absolute(0.35)),
     normal_nudge_factor: 0.015,
-    up: @math.Vec3(0.0, 0.0, 1.0),
+    up: Vec3(0.0, 0.0, 1.0),
   }
   let rapier_controller = controller_to_rapier(controller)
   inspect(rapier_controller.slide, content="false")
   inspect(
     match rapier_controller.offset {
-      CharacterLength::Absolute(value) =>
+      Absolute(value) =>
         value.to_double() > 0.019 && value.to_double() < 0.021
       _ => false
     },
@@ -918,12 +918,12 @@ test "character controller options are forwarded to rapier controller" {
     match rapier_controller.autostep {
       Some(actual_autostep) => {
         let max_height_ok = match actual_autostep.max_height() {
-          CharacterLength::Absolute(value) =>
+          Absolute(value) =>
             value.to_double() > 0.59 && value.to_double() < 0.61
           _ => false
         }
         let min_width_ok = match actual_autostep.min_width() {
-          CharacterLength::Absolute(value) =>
+          Absolute(value) =>
             value.to_double() > 1.19 && value.to_double() < 1.21
           _ => false
         }
@@ -938,7 +938,7 @@ test "character controller options are forwarded to rapier controller" {
   )
   inspect(
     match rapier_controller.snap_to_ground {
-      Some(CharacterLength::Absolute(value)) =>
+      Some(Absolute(value)) =>
         value.to_double() > 0.34 && value.to_double() < 0.36
       _ => false
     },
@@ -966,16 +966,16 @@ test "character controller options are forwarded to rapier controller" {
 ///|
 test "collider3d debug wire builds expected primitive edges" {
   inspect(
-    collider_wire_segments(Collider::cuboid(@math.Vec3(1.0, 2.0, 3.0))).length(),
+    collider_wire_segments(Collider::cuboid(Vec3(1.0, 2.0, 3.0))).length(),
     content="12",
   )
   inspect(
     collider_wire_segments(
       Collider::trimesh(
         [
-          @math.Vec3(0.0, 0.0, 0.0),
-          @math.Vec3(1.0, 0.0, 0.0),
-          @math.Vec3(0.0, 1.0, 0.0),
+          Vec3(0.0, 0.0, 0.0),
+          Vec3(1.0, 0.0, 0.0),
+          Vec3(0.0, 1.0, 0.0),
         ],
         [(0, 1, 2)],
       ),
@@ -993,7 +993,7 @@ test "collider3d debug wire builds expected primitive edges" {
 ///|
 test "collider3d debug wire supports every collider shape" {
   let shapes = [
-    Collider::cuboid(@math.Vec3(1.0, 1.0, 1.0)),
+    Collider::cuboid(Vec3(1.0, 1.0, 1.0)),
     Collider::ball(1.0),
     Collider::capsule_x(1.0, 0.25),
     Collider::capsule_y(1.0, 0.25),
@@ -1003,14 +1003,14 @@ test "collider3d debug wire supports every collider shape" {
     Collider::round_cylinder(1.0, 0.5, 0.1),
     Collider::halfspace(@math.Vec3::y_axis()),
     Collider::convex_hull([
-      @math.Vec3(-1.0, -1.0, -1.0),
-      @math.Vec3(1.0, 1.0, 1.0),
+      Vec3(-1.0, -1.0, -1.0),
+      Vec3(1.0, 1.0, 1.0),
     ]),
     Collider::trimesh(
       [
-        @math.Vec3(0.0, 0.0, 0.0),
-        @math.Vec3(1.0, 0.0, 0.0),
-        @math.Vec3(0.0, 1.0, 0.0),
+        Vec3(0.0, 0.0, 0.0),
+        Vec3(1.0, 0.0, 0.0),
+        Vec3(0.0, 1.0, 0.0),
       ],
       [(0, 1, 2)],
     ),
@@ -1037,7 +1037,7 @@ test "collider3d debug color distinguishes body and sensor types" {
     rigid_bodies().set(sensor_entity, Dynamic)
     rigid_bodies().set(disabled_entity, Dynamic)
     colliders().set(disabled_entity, Collider::ball(1.0))
-    sensors().set(sensor_entity, Sensor::{  })
+    sensors().set(sensor_entity, Sensor())
     step_physics(1)
     match collider_handle(disabled_entity) {
       Some(handle) =>
@@ -1074,7 +1074,7 @@ test "collider3d debug color distinguishes body and sensor types" {
 test "collider3d debug system appends wire lines to render3d pipeline" {
   with_physics3d_test_world(fn() raise {
     let entity = @entity.Entity()
-    colliders().set(entity, Collider::cuboid(@math.Vec3(1.0, 1.0, 1.0)))
+    colliders().set(entity, Collider::cuboid(Vec3(1.0, 1.0, 1.0)))
     @transform.global_transforms().set(
       entity,
       @transform.GlobalTransform::from_transform(

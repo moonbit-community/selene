@@ -159,7 +159,7 @@ fn json_vec2_from_int_array(value : Json?) -> @math.Vec2 {
   }
   let x = json_number(items[0]).unwrap_or(0.0)
   let y = json_number(items[1]).unwrap_or(0.0)
-  @math.Vec2(x, y)
+  Vec2(x, y)
 }
 
 ///|
@@ -175,7 +175,7 @@ fn json_vec2(value : Json) -> @math.Vec2? {
     }
     guard ldtk_json_number(items[0]) is Some(x) else { return None }
     guard ldtk_json_number(items[1]) is Some(y) else { return None }
-    return Some(@math.Vec2(x, y))
+    return Some(Vec2(x, y))
   }
   guard json_object(value) is Some(object) else { return None }
   let x = option_or(
@@ -188,7 +188,7 @@ fn json_vec2(value : Json) -> @math.Vec2? {
   )
   guard x is Some(x) else { return None }
   guard y is Some(y) else { return None }
-  Some(@math.Vec2(x, y))
+  Some(Vec2(x, y))
 }
 
 ///|

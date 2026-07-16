@@ -16,7 +16,7 @@ pub struct CustomComponentHandler {
 }
 
 ///|
-let registered_custom_component_handlers : Map[String, CustomComponentHandler] = {}
+let registered_custom_component_handlers : Map[String, CustomComponentHandler] = Map([])
 
 ///|
 fn normalized_custom_component_kind(kind : String) -> String {
@@ -25,7 +25,7 @@ fn normalized_custom_component_kind(kind : String) -> String {
 
 ///|
 pub fn default_custom_component_data() -> Json {
-  let value : Map[String, Json] = {}
+  let value : Map[String, Json] = Map([])
   value.to_json()
 }
 
@@ -82,7 +82,7 @@ pub fn custom_component_handler(
 pub fn normalize_custom_component_handlers(
   handlers : Map[String, CustomComponentHandler],
 ) -> Map[String, CustomComponentHandler] {
-  let normalized : Map[String, CustomComponentHandler] = {}
+  let normalized : Map[String, CustomComponentHandler] = Map([])
   for kind, handler in handlers {
     let trimmed = normalized_custom_component_kind(kind)
     if trimmed != "" {

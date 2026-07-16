@@ -44,9 +44,9 @@ pub fn identity_asset_path_resolver(path : String?) -> String? {
 ///|
 pub fn asset_instantiation_context(
   asset_path_resolver? : AssetPathResolver = identity_asset_path_resolver,
-  atlas_assets? : Map[String, AtlasAssetDocument] = {},
-  animation_clip_assets? : Map[String, AnimationClipAssetDocument] = {},
-  animation_graph_assets? : Map[String, AnimationGraphAssetDocument] = {},
+  atlas_assets? : Map[String, AtlasAssetDocument] = Map([]),
+  animation_clip_assets? : Map[String, AnimationClipAssetDocument] = Map([]),
+  animation_graph_assets? : Map[String, AnimationGraphAssetDocument] = Map([]),
   custom_component_handlers? : Map[String, CustomComponentHandler] = registered_custom_component_handlers,
 ) -> AssetInstantiationContext {
   {
@@ -62,12 +62,12 @@ pub fn asset_instantiation_context(
 
 ///|
 fn vec2_of(doc : Vec2Doc) -> @math.Vec2 {
-  @math.Vec2(doc.x, doc.y)
+  Vec2(doc.x, doc.y)
 }
 
 ///|
 fn color_of(doc : ColorDoc) -> @render.Color {
-  @render.Color::{
+  {
     r: doc.r.reinterpret_as_uint(),
     g: doc.g.reinterpret_as_uint(),
     b: doc.b.reinterpret_as_uint(),
@@ -77,15 +77,15 @@ fn color_of(doc : ColorDoc) -> @render.Color {
 
 ///|
 fn rect_of(doc : RectDoc) -> @math.Rect {
-  @math.Rect::{
-    position: @math.Vec2(doc.x, doc.y),
-    size: @math.Vec2(doc.width, doc.height),
+  {
+    position: Vec2(doc.x, doc.y),
+    size: Vec2(doc.width, doc.height),
   }
 }
 
 ///|
 fn anchor_of(doc : Vec2Doc) -> @sprite.Anchor {
-  @sprite.Anchor(@math.Vec2(doc.x, doc.y))
+  Anchor(Vec2(doc.x, doc.y))
 }
 
 ///|
@@ -243,7 +243,7 @@ fn autotile_visual_resolver(
         let rect = region.map(fn(item) { rect_of(item.rect) })
         let size = match region {
           Some(item) => @math.Vec2(item.rect.width, item.rect.height)
-          None => @math.Vec2(source.tile_width, source.tile_height)
+          None => Vec2(source.tile_width, source.tile_height)
         }
         Some(
           @autotile2d.autotile_visual(
@@ -302,7 +302,7 @@ fn prepared_atlas(
                   Some(atlas_asset.source_image),
                 ),
                 texture_atlas: Some(
-                  @sprite.TextureAtlas(
+                  TextureAtlas(
                     layout,
                     index=region.map_or(atlas_data.index, fn(it) { it.index }),
                   ),
@@ -323,7 +323,7 @@ fn prepared_atlas(
               Some({
                 image_path: None,
                 texture_atlas: Some(
-                  @sprite.TextureAtlas(layout, index=atlas_data.index),
+                  TextureAtlas(layout, index=atlas_data.index),
                 ),
                 default_size: Some(layout_doc.tile_size),
                 default_anchor: None,
@@ -341,13 +341,13 @@ fn repeat_animation_of(
   repeat_mode : AnimationRepeatModeDoc,
 ) -> @animation.RepeatAnimation {
   match repeat_mode {
-    Never => @animation.Never
-    Forever => @animation.Forever
+    Never => Never
+    Forever => Forever
     Count(count) =>
       if count <= 0 {
-        @animation.Forever
+        Forever
       } else {
-        @animation.Count(count.reinterpret_as_uint())
+        Count(count.reinterpret_as_uint())
       }
   }
 }
@@ -470,7 +470,7 @@ fn apply_animation_components(
   let target_id = @animation.AnimationTargetId(document.id)
   @animation.animation_target_ids().set(entity, target_id)
 
-  let clip_handles_by_path : Map[String, @animation.AnimationClipHandle] = {}
+  let clip_handles_by_path : Map[String, @animation.AnimationClipHandle] = Map([])
   for node in graph_doc.nodes {
     match node.kind {
       Clip(clip_asset_path~) => {
@@ -507,7 +507,7 @@ fn apply_animation_components(
           @animation.VariableCurve::scalar(
             @animation.texture_atlas_index_field(),
             keyframes,
-            interpolation=@animation.Step,
+            interpolation=Step,
           ),
         )
         let handle = @animation.register_animation_clip_asset(clip)
@@ -520,7 +520,7 @@ fn apply_animation_components(
   guard !clip_handles_by_path.is_empty() else { return }
 
   let graph = @animation.AnimationGraph()
-  let graph_nodes : Map[String, @animation.AnimationNodeIndex] = {}
+  let graph_nodes : Map[String, @animation.AnimationNodeIndex] = Map([])
   let runtime_node_order : Array[@animation.AnimationNodeIndex] = []
   for node in graph_doc.nodes {
     let runtime_node : @animation.AnimationNodeIndex? = match node.kind {
@@ -646,7 +646,7 @@ fn apply_document_components(
           Some(data) => data
           None => continue
         }
-        @name.names().set(entity, @name.Name(data.value))
+        @name.names().set(entity, Name(data.value))
       }
       "Transform2d" => {
         let data : Transform2dComponent = match
@@ -664,7 +664,7 @@ fn apply_document_components(
           .with_rotation(
             @math.Quat::from_axis_angle(@math.Vec3::z_axis(), data.rotation),
           )
-          .with_scale(@math.Vec3(data.scale.x, data.scale.y, 1.0)),
+          .with_scale(Vec3(data.scale.x, data.scale.y, 1.0)),
         )
       }
       "Visibility" => {
@@ -676,9 +676,9 @@ fn apply_document_components(
         @visibility.visibilities().set(
           entity,
           if data.visible {
-            @visibility.Visible
+            Visible
           } else {
-            @visibility.Hidden
+            Hidden
           },
         )
       }
@@ -701,7 +701,7 @@ fn apply_document_components(
         })
         @sprite.sprites().set(
           entity,
-          @sprite.Sprite(
+          Sprite(
             image~,
             texture_atlas=prepared.bind(fn(value) { value.texture_atlas }),
             rect=match prepared {
@@ -732,25 +732,25 @@ fn apply_document_components(
           Some(data) => data
           None => continue
         }
-        @text2d.text2ds().set(entity, @text2d.Text2d())
+        @text2d.text2ds().set(entity, Text2d())
         @text2d.text_anchors().set(entity, anchor_of(data.anchor))
         match data.bounds {
           Some(bounds) =>
             @text2d.text_bounds().set(
               entity,
-              @text2d.TextBounds(bounds.x, bounds.y),
+              TextBounds(bounds.x, bounds.y),
             )
           None => ()
         }
-        @ui.texts().set(entity, @ui.Text(data.content))
-        @ui.text_colors().set(entity, @ui.TextColor(color_of(data.color)))
+        @ui.texts().set(entity, Text(data.content))
+        @ui.text_colors().set(entity, TextColor(color_of(data.color)))
         let font = match (context.asset_path_resolver)(data.font_path) {
           Some(path) =>
             @ui.TextFont::from_font(
               @asset.load_font(path, family=basename_of(path)),
               size=data.font_size,
             )
-          None => @ui.TextFont(size=data.font_size)
+          None => TextFont(size=data.font_size)
         }
         @ui.text_fonts().set(entity, font)
       }
@@ -769,7 +769,7 @@ fn apply_document_components(
               )
             _ =>
               @mesh2d.register_mesh2d_asset(
-                @mesh2d.Mesh2dAsset::rectangle(@math.Vec2(32.0, 32.0)),
+                @mesh2d.Mesh2dAsset::rectangle(Vec2(32.0, 32.0)),
               )
           }
           mesh_handles.push(handle)
@@ -777,7 +777,7 @@ fn apply_document_components(
             @material2d.ColorMaterial::from_color(color_of(material_data.color)),
           )
           material_handles.push(material)
-          @mesh2d.mesh2ds().set(entity, @mesh2d.Mesh2d(handle))
+          @mesh2d.mesh2ds().set(entity, Mesh2d(handle))
           @material2d.mesh_material2ds().set(
             entity,
             @material2d.MeshMaterial2d::from_color_material(material),
@@ -790,7 +790,7 @@ fn apply_document_components(
         }
         @camera.cameras().set(
           entity,
-          @camera.Camera(
+          Camera(
             is_active=data.is_active,
             order=data.order,
             viewport=data.viewport.map(fn(viewport) {
@@ -798,10 +798,10 @@ fn apply_document_components(
             }),
           ),
         )
-        @camera.camera2ds().set(entity, @camera.Camera2d())
+        @camera.camera2ds().set(entity, Camera2d())
         @camera.orthographic_projections().set(
           entity,
-          @camera.OrthographicProjection(scale=data.scale),
+          OrthographicProjection(scale=data.scale),
         )
       }
       "PhysicsBody2d" => {
@@ -875,7 +875,7 @@ fn apply_document_components(
               offset=@math.Vec2::zero(),
             )
           _ =>
-            @physics2d.ColliderShape::Rect(
+            Rect(
               size=vec2_of(size),
               offset=@math.Vec2::zero(),
             )
@@ -915,13 +915,13 @@ fn apply_document_components(
     apply_autotile_layer_component(entity, layer_doc, context)
   }
   if !@name.names().contains(entity) {
-    @name.names().set(entity, @name.Name(document.name))
+    @name.names().set(entity, Name(document.name))
   }
   if !@transform.transforms().contains(entity) {
     @transform.transforms().set(entity, @transform.Transform::identity())
   }
   if !@visibility.visibilities().contains(entity) {
-    @visibility.visibilities().set(entity, @visibility.Visible)
+    @visibility.visibilities().set(entity, Visible)
   }
 }
 
@@ -931,7 +931,7 @@ fn instantiate_entity_documents(
   context : AssetInstantiationContext,
   parent_entity : @entity.Entity?,
 ) -> SceneRuntime {
-  let entity_ids : Map[String, @entity.Entity] = {}
+  let entity_ids : Map[String, @entity.Entity] = Map([])
   let tracked_entities : Array[@entity.Entity] = []
   let atlas_layouts : Array[@sprite.TextureAtlasLayoutHandle] = []
   let material_handles : Array[@material2d.ColorMaterialHandle] = []

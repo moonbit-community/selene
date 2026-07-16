@@ -71,11 +71,11 @@ fn make_shadow_atlas_rect(
   let tile_width = tile_size.to_double() / atlas_width.to_double()
   let tile_height = tile_size.to_double() / atlas_height.to_double()
   {
-    offset: @smath.Vec2(
+    offset: Vec2(
       column.to_double() * tile_width,
       row.to_double() * tile_height,
     ),
-    scale: @smath.Vec2(tile_width, tile_height),
+    scale: Vec2(tile_width, tile_height),
   }
 }
 
@@ -83,7 +83,7 @@ fn make_shadow_atlas_rect(
 fn uniform_shadow_atlas_rect(
   rect : ShadowAtlasRect,
 ) -> @raylib.ShaderUniformData {
-  @raylib.ShaderUniformData::Vec4(
+  Vec4(
     @raylib.Vector4::new(
       to_float(rect.offset[X]),
       to_float(rect.offset[Y]),
@@ -96,13 +96,13 @@ fn uniform_shadow_atlas_rect(
 ///|
 fn point_shadow_texel_size(face_size : Int) -> @smath.Vec2 {
   let inv = 1.0 / @cmp.maximum(1, face_size).to_double()
-  @smath.Vec2(inv, inv)
+  Vec2(inv, inv)
 }
 
 ///|
 fn spot_shadow_texel_size(shadow_map_size : Int) -> @smath.Vec2 {
   let inv = 1.0 / @cmp.maximum(1, shadow_map_size).to_double()
-  @smath.Vec2(inv, inv)
+  Vec2(inv, inv)
 }
 
 ///|
@@ -114,7 +114,7 @@ fn shadow_map_near_z(near_z : Double) -> Double {
 fn build_spot_shadow_setup(
   light : @render3d_types.FrameSpotLight3D,
 ) -> DirectionalShadowSetup {
-  let direction = normalize_or(light.direction, @smath.Vec3(0.0, -1.0, 0.0))
+  let direction = normalize_or(light.direction, Vec3(0.0, -1.0, 0.0))
   let target = light.position + direction
   let near_plane = shadow_map_near_z(light.shadow_map_near_z)
   let far_plane = @cmp.maximum(near_plane + 1.0, light.range)
@@ -144,12 +144,12 @@ fn build_spot_shadow_setup(
 ///|
 fn point_shadow_face(index : Int) -> (@smath.Vec3, @smath.Vec3) {
   match index {
-    0 => (@smath.Vec3(1.0, 0.0, 0.0), @smath.Vec3(0.0, -1.0, 0.0))
-    1 => (@smath.Vec3(-1.0, 0.0, 0.0), @smath.Vec3(0.0, -1.0, 0.0))
-    2 => (@smath.Vec3(0.0, 1.0, 0.0), @smath.Vec3(0.0, 0.0, 1.0))
-    3 => (@smath.Vec3(0.0, -1.0, 0.0), @smath.Vec3(0.0, 0.0, -1.0))
-    4 => (@smath.Vec3(0.0, 0.0, 1.0), @smath.Vec3(0.0, -1.0, 0.0))
-    _ => (@smath.Vec3(0.0, 0.0, -1.0), @smath.Vec3(0.0, -1.0, 0.0))
+    0 => (Vec3(1.0, 0.0, 0.0), Vec3(0.0, -1.0, 0.0))
+    1 => (Vec3(-1.0, 0.0, 0.0), Vec3(0.0, -1.0, 0.0))
+    2 => (Vec3(0.0, 1.0, 0.0), Vec3(0.0, 0.0, 1.0))
+    3 => (Vec3(0.0, -1.0, 0.0), Vec3(0.0, 0.0, -1.0))
+    4 => (Vec3(0.0, 0.0, 1.0), Vec3(0.0, -1.0, 0.0))
+    _ => (Vec3(0.0, 0.0, -1.0), Vec3(0.0, -1.0, 0.0))
   }
 }
 
@@ -324,10 +324,10 @@ fn render_spot_shadow_map(
   let spot_count = @cmp.minimum(frame.spot_lights.length(), MAX_SPOT_LIGHTS)
   let shadow_map_size = @cmp.maximum(1, frame.directional_shadow_map_size)
   if spot_count == 0 {
-    return (spot_shadows, None, @smath.Vec2(0.0, 0.0))
+    return (spot_shadows, None, Vec2(0.0, 0.0))
   }
   guard get_spot_shadow_render_texture(shadow_map_size) is Some(render_texture) else {
-    return (spot_shadows, None, @smath.Vec2(0.0, 0.0))
+    return (spot_shadows, None, Vec2(0.0, 0.0))
   }
   let atlas_width = shadow_map_size * SPOT_SHADOW_ATLAS_COLUMNS
   let atlas_height = shadow_map_size * SPOT_SHADOW_ATLAS_ROWS
@@ -377,10 +377,10 @@ fn render_point_shadow_map(
   let point_count = @cmp.minimum(frame.point_lights.length(), MAX_POINT_LIGHTS)
   let face_size = @cmp.maximum(1, frame.point_shadow_map_size)
   if point_count == 0 {
-    return (point_shadows, None, @smath.Vec2(0.0, 0.0))
+    return (point_shadows, None, Vec2(0.0, 0.0))
   }
   guard get_point_shadow_render_texture(face_size) is Some(render_texture) else {
-    return (point_shadows, None, @smath.Vec2(0.0, 0.0))
+    return (point_shadows, None, Vec2(0.0, 0.0))
   }
   let atlas_width = face_size * POINT_SHADOW_ATLAS_COLUMNS
   let atlas_height = face_size * POINT_SHADOW_ATLAS_ROWS

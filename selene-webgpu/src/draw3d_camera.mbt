@@ -63,8 +63,8 @@ fn mat4_look_at3d(
   target : @smath.Vec3,
   up : @smath.Vec3,
 ) -> Array[Double] {
-  let z_axis = normalize_or3d(eye - target, @smath.Vec3(0.0, 0.0, 1.0))
-  let x_axis = normalize_or3d(up.cross(z_axis), @smath.Vec3(1.0, 0.0, 0.0))
+  let z_axis = normalize_or3d(eye - target, Vec3(0.0, 0.0, 1.0))
+  let x_axis = normalize_or3d(up.cross(z_axis), Vec3(1.0, 0.0, 0.0))
   let y_axis = z_axis.cross(x_axis)
   [
     x_axis.x,

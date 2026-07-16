@@ -89,8 +89,8 @@ fn motor_model_to_rapier(
   model : JointMotorModel,
 ) -> @rapier_dynamics.MotorModel {
   match model {
-    AccelerationBased => @rapier_dynamics.MotorModel::AccelerationBased
-    ForceBased => @rapier_dynamics.MotorModel::ForceBased
+    AccelerationBased => AccelerationBased
+    ForceBased => ForceBased
   }
 }
 
@@ -98,7 +98,7 @@ fn motor_model_to_rapier(
 fn joint_softness_to_rapier(
   softness : JointSoftness,
 ) -> @rapier_dynamics.SpringCoefficients {
-  @rapier_dynamics.SpringCoefficients::SpringCoefficients(
+  SpringCoefficients(
     Float::from_double(softness.natural_frequency),
     Float::from_double(softness.damping_ratio),
   )

@@ -55,8 +55,8 @@ fn touch_ended_this_frame(id : @inputs.TouchId) -> Bool {
   for event in @inputs.touch_changes_this_frame() {
     if event.id == id &&
       (
-        event.phase == @inputs.TouchPhase::Ended ||
-        event.phase == @inputs.TouchPhase::Cancelled
+        event.phase == Ended ||
+        event.phase == Cancelled
       ) {
       return true
     }
@@ -77,7 +77,7 @@ fn update_stick_value(
   if delta.distance() <= stick.dead_zone {
     stick_state.value = @math.Vec2::zero()
   } else {
-    stick_state.value = @math.Vec2(
+    stick_state.value = Vec2(
       clamp(delta[X] / stick.radius, -1.0, 1.0),
       clamp(delta[Y] / stick.radius, -1.0, 1.0),
     )
@@ -204,7 +204,7 @@ fn capture_stick_start(
 fn capture_new_starts(runtime : TouchControlsWorldStore) -> Unit {
   let screen = @system.get_screen_size()
   for event in @ui.unconsumed_touch_changes_this_frame() {
-    if event.phase != @inputs.TouchPhase::Started {
+    if event.phase != Started {
       continue
     }
     if capture_button_start(runtime, event, screen) {

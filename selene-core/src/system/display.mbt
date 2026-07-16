@@ -27,8 +27,8 @@ let display_world_states : Map[UInt, DisplayState] = Map([])
 fn display_state() -> DisplayState {
   let world_id = @ecs.require_current_world().id()
   display_world_states.get_or_init(world_id, () => {
-    viewport_size: @math.Vec2(512.0, 256.0),
-    screen_size: @math.Vec2(512.0, 256.0),
+    viewport_size: Vec2(512.0, 256.0),
+    screen_size: Vec2(512.0, 256.0),
     zoom: 1.0,
     render_alpha: 1.0,
   })
@@ -51,8 +51,8 @@ pub fn configure_display(
 ) -> Unit {
   let state = display_state()
   let zoom = positive_zoom(zoom)
-  state.viewport_size = @math.Vec2(viewport_width, viewport_height)
-  state.screen_size = @math.Vec2(viewport_width * zoom, viewport_height * zoom)
+  state.viewport_size = Vec2(viewport_width, viewport_height)
+  state.screen_size = Vec2(viewport_width * zoom, viewport_height * zoom)
   state.zoom = zoom
   state.render_alpha = 1.0
 }
@@ -95,12 +95,12 @@ pub fn unscale_value(value : Double) -> Double {
 
 ///|
 pub fn scale_vec2(vec : @math.Vec2) -> @math.Vec2 {
-  @math.Vec2(scale_value(vec[X]), scale_value(vec[Y]))
+  Vec2(scale_value(vec[X]), scale_value(vec[Y]))
 }
 
 ///|
 pub fn unscale_vec2(vec : @math.Vec2) -> @math.Vec2 {
-  @math.Vec2(unscale_value(vec[X]), unscale_value(vec[Y]))
+  Vec2(unscale_value(vec[X]), unscale_value(vec[Y]))
 }
 
 ///|
@@ -124,7 +124,7 @@ pub fn screen_to_ui_virtual(pos : @math.Vec2) -> @math.Vec2 {
 test "scale transform translation only" {
   configure_display(480.0, 320.0, 2.0)
   let transformed = scale_transform_translation(
-    @math.Transform(a=1.2, b=0.3, c=0.4, d=1.1, tx=10.0, ty=20.0),
+    Transform(a=1.2, b=0.3, c=0.4, d=1.1, tx=10.0, ty=20.0),
   )
   assert_eq(transformed.a, 1.2)
   assert_eq(transformed.b, 0.3)

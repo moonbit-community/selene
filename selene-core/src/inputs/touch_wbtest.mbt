@@ -96,9 +96,9 @@ test "input snapshot carries active touches and changes" {
   apply_input_snapshot(empty_input_snapshot())
   let id = TouchId(7)
   let active : Map[TouchId, TouchPoint] = Map([])
-  active.set(id, test_touch_point(id, @math.Vec2(12.0, 24.0), true))
+  active.set(id, test_touch_point(id, Vec2(12.0, 24.0), true))
   let changes : Array[TouchEvent] = [
-    test_touch_event(id, Started, @math.Vec2(12.0, 24.0), true),
+    test_touch_event(id, Started, Vec2(12.0, 24.0), true),
   ]
   apply_input_snapshot({
     ..empty_input_snapshot(),
@@ -121,18 +121,18 @@ test "primary touch mirrors mouse left button for compatibility" {
   advanced_mouse_system(0.0)
   let id = TouchId(9)
   let active : Map[TouchId, TouchPoint] = Map([])
-  active.set(id, test_touch_point(id, @math.Vec2(30.0, 40.0), true))
+  active.set(id, test_touch_point(id, Vec2(30.0, 40.0), true))
   apply_input_snapshot({
     ..empty_input_snapshot(),
     touches: active,
-    touch_changes: [test_touch_event(id, Started, @math.Vec2(30.0, 40.0), true)],
+    touch_changes: [test_touch_event(id, Started, Vec2(30.0, 40.0), true)],
   })
   advanced_mouse_system(0.0)
   inspect(mouse.left_button, content="true")
   inspect(is_mouse_just_pressed(Left), content="true")
   apply_input_snapshot({
     ..empty_input_snapshot(),
-    touch_changes: [test_touch_event(id, Ended, @math.Vec2(30.0, 40.0), true)],
+    touch_changes: [test_touch_event(id, Ended, Vec2(30.0, 40.0), true)],
   })
   advanced_mouse_system(0.0)
   inspect(mouse.left_button, content="false")

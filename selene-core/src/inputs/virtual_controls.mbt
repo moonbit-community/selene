@@ -54,10 +54,10 @@ let pressed_virtual_buttons : Set[VirtualButton] = Set([])
 let virtual_axis_values : Map[VirtualAxis, Double] = Map([])
 
 ///|
-pub let virtual_button_event_bus : @event.Events[VirtualButtonEvent] = @event.Events()
+pub let virtual_button_event_bus : @event.Events[VirtualButtonEvent] = Events()
 
 ///|
-pub let virtual_axis_event_bus : @event.Events[VirtualAxisEvent] = @event.Events()
+pub let virtual_axis_event_bus : @event.Events[VirtualAxisEvent] = Events()
 
 ///|
 pub fn is_virtual_button_pressed(button : VirtualButton) -> Bool {

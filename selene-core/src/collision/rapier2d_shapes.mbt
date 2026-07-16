@@ -1,6 +1,6 @@
 ///|
 fn from_physics_direction(value : @rapier_full.Vec2) -> @math.Vec2 {
-  @math.Vec2(value.x.to_double(), value.y.to_double())
+  Vec2(value.x.to_double(), value.y.to_double())
 }
 
 ///|
@@ -18,7 +18,7 @@ fn to_physics_isometry(
   translation : @math.Vec2,
   rotation : Double,
 ) -> @rapier_full.Isometry2 {
-  @rapier_full.Isometry2::Isometry2(
+  Isometry2(
     to_physics_vec2(translation),
     to_physics_rotation(rotation),
   )
@@ -47,7 +47,7 @@ fn entity_transform(entity : @entity.Entity) -> @transform.Transform? {
 ///|
 fn entity_translation(entity : @entity.Entity) -> @math.Vec2? {
   entity_transform(entity).map(fn(transform) {
-    @math.Vec2(transform.translation.x, transform.translation.y)
+    Vec2(transform.translation.x, transform.translation.y)
   })
 }
 
@@ -59,7 +59,7 @@ fn set_entity_translation(
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
     ..current,
-    translation: @math.Vec3(
+    translation: Vec3(
       translation[X],
       translation[Y],
       current.translation.z,

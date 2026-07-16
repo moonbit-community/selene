@@ -248,7 +248,7 @@ fn ldtk_tile_source(
   guard columns > 0 else { return fallback }
   let tile_x = tile.tile_id % columns
   let tile_y = tile.tile_id / columns
-  @math.Vec2(
+  Vec2(
     (tileset.padding + tile_x * stride).to_double(),
     (tileset.padding + tile_y * stride).to_double(),
   )
@@ -335,7 +335,7 @@ fn ldtk_level_offset(
   match behavior {
     UseZeroTranslation => @math.Vec2::zero()
     UseWorldTranslation(_) =>
-      @math.Vec2(level.world_x.to_double(), level.world_y.to_double())
+      Vec2(level.world_x.to_double(), level.world_y.to_double())
   }
 }
 

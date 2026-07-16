@@ -42,7 +42,7 @@ fn resource_exists(model : Model, selection : ResourceSelection) -> Bool {
   match selection {
     Image(path) => {
       for asset in model.assets {
-        if asset.kind is @editor_bridge.Image && asset.path == path {
+        if asset.kind is Image && asset.path == path {
           return true
         }
       }
@@ -255,7 +255,7 @@ fn collect_folder_keys_for_path(
 
 ///|
 fn all_asset_tree_folder_keys(model : Model) -> Array[String] {
-  let seen : Map[String, Bool] = {}
+  let seen : Map[String, Bool] = Map([])
   let keys : Array[String] = []
   for asset in model.image_assets() {
     collect_folder_keys_for_path(asset.path, "images", "assets", seen, keys)

@@ -14,7 +14,7 @@
 
 ///|
 fn rgba(r : UInt, g : UInt, b : UInt, a : Double) -> @render.Color {
-  @render.Color::{ r, g, b, a }
+  { r, g, b, a }
 }
 
 ///|
@@ -47,14 +47,14 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
       e,
       global,
       offset,
-      @math.Vec2(width, height),
+      Vec2(width, height),
       camera_view,
     )
     @render2d.push_rect({
       rect,
       transform: @math.Transform::identity(),
-      alpha_mode: @render.AlphaMode2D::Blend,
-      blend_mode: @render.BlendMode2D::Alpha,
+      alpha_mode: Blend,
+      blend_mode: Alpha,
       fill_color: rgba(255U, 0U, 0U, 0.5),
       stroke_color: None,
     })
@@ -69,14 +69,14 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
       e,
       global,
       offset,
-      @math.Vec2(width, height),
+      Vec2(width, height),
       camera_view,
     )
     @render2d.push_rect({
       rect,
       transform: @math.Transform::identity(),
-      alpha_mode: @render.AlphaMode2D::Blend,
-      blend_mode: @render.BlendMode2D::Alpha,
+      alpha_mode: Blend,
+      blend_mode: Alpha,
       fill_color: rgba(0U, 0U, 255U, 0.5),
       stroke_color: None,
     })
@@ -90,14 +90,14 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
       e,
       global,
       offset,
-      @math.Vec2(width, height),
+      Vec2(width, height),
       camera_view,
     )
     @render2d.push_rect({
       rect,
       transform: @math.Transform::identity(),
-      alpha_mode: @render.AlphaMode2D::Blend,
-      blend_mode: @render.BlendMode2D::Alpha,
+      alpha_mode: Blend,
+      blend_mode: Alpha,
       fill_color: rgba(0U, 255U, 0U, 0.5),
       stroke_color: None,
     })
@@ -117,25 +117,25 @@ fn to_screen_rect(
   } else {
     let p0 = screen_point(
       global_transform.transform_point(
-        @math.Vec3(local_position[X], local_position[Y], 0.0),
+        Vec3(local_position[X], local_position[Y], 0.0),
       ),
       camera_view,
     )
     let p1 = screen_point(
       global_transform.transform_point(
-        @math.Vec3(local_position[X] + size[X], local_position[Y], 0.0),
+        Vec3(local_position[X] + size[X], local_position[Y], 0.0),
       ),
       camera_view,
     )
     let p2 = screen_point(
       global_transform.transform_point(
-        @math.Vec3(local_position[X], local_position[Y] + size[Y], 0.0),
+        Vec3(local_position[X], local_position[Y] + size[Y], 0.0),
       ),
       camera_view,
     )
     let p3 = screen_point(
       global_transform.transform_point(
-        @math.Vec3(
+        Vec3(
           local_position[X] + size[X],
           local_position[Y] + size[Y],
           0.0,
@@ -171,9 +171,9 @@ fn to_screen_rect(
         acc
       }
     })
-    @math.Rect::{
-      position: @math.Vec2(min_x, min_y),
-      size: @math.Vec2(max_x - min_x, max_y - min_y),
+    {
+      position: Vec2(min_x, min_y),
+      size: Vec2(max_x - min_x, max_y - min_y),
     }
   }
 }

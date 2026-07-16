@@ -168,7 +168,7 @@ fn groups_from_mask(mask : Array[CollisionGroup]) -> @rapier_dynamics.Group {
 fn to_rapier_groups(
   filter : CollisionFilter,
 ) -> @rapier_dynamics.InteractionGroups {
-  @rapier_dynamics.InteractionGroups::InteractionGroups(
+  InteractionGroups(
     group_from_collision(filter.group),
     if filter.match_all {
       @rapier_dynamics.Group::all()
@@ -177,7 +177,7 @@ fn to_rapier_groups(
     },
     // Selene collision filters are configured as "opt-in on either side":
     // if A allows B or B allows A, they should interact.
-    @rapier_dynamics.InteractionTestMode::Or,
+    Or,
   )
 }
 
@@ -199,7 +199,7 @@ fn collision_shape_to_rapier_shape(
       } else {
         Some(
           (
-            @rapier_collision.Shape::Cuboid(
+            Cuboid(
               Float::from_double(to_physics_scalar(size[X] * 0.5)),
               Float::from_double(to_physics_scalar(size[Y] * 0.5)),
             ),
@@ -213,7 +213,7 @@ fn collision_shape_to_rapier_shape(
       } else {
         Some(
           (
-            @rapier_collision.Shape::Ball(
+            Ball(
               Float::from_double(to_physics_scalar(radius)),
             ),
             offset,
@@ -242,7 +242,7 @@ fn collision_polygon_to_rapier_shape(
   }
   Some(
     (
-      @rapier_collision.Shape::TriMesh(
+      TriMesh(
         collision_shape_to_rapier_points(vertices),
         triangles,
       ),
@@ -273,7 +273,7 @@ fn collision_polyline_to_rapier_shape(
   }
   Some(
     (
-      @rapier_collision.Shape::Polyline(
+      Polyline(
         collision_shape_to_rapier_points(vertices),
         Some(segments),
       ),

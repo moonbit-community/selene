@@ -73,8 +73,8 @@ fn clip_rect_intersection(lhs : @smath.Rect, rhs : @smath.Rect) -> @smath.Rect? 
     None
   } else {
     Some({
-      position: @smath.Vec2(left, top),
-      size: @smath.Vec2(right - left, bottom - top),
+      position: Vec2(left, top),
+      size: Vec2(right - left, bottom - top),
     })
   }
 }
@@ -110,7 +110,7 @@ fn vector2_y(value : @raylib.Vector2) -> Double {
 
 ///|
 fn to_selene_vec2(value : @raylib.Vector2) -> @smath.Vec2 {
-  @smath.Vec2(vector2_x(value), vector2_y(value))
+  Vec2(vector2_x(value), vector2_y(value))
 }
 
 ///|
@@ -135,7 +135,7 @@ fn to_ray_color_bytes(color : @render.Color) -> (Byte, Byte, Byte, Byte) {
 
 ///|
 fn color_to_vec3(color : @render.Color) -> @smath.Vec3 {
-  @smath.Vec3(
+  Vec3(
     color.r.to_double() / 255.0,
     color.g.to_double() / 255.0,
     color.b.to_double() / 255.0,
@@ -158,31 +158,31 @@ fn light_rgb(color : @render.Color, intensity : Double) -> @smath.Vec3 {
 
 ///|
 fn uniform_int(value : Int) -> @raylib.ShaderUniformData {
-  @raylib.ShaderUniformData::Int(value)
+  Int(value)
 }
 
 ///|
 fn uniform_texture_unit(value : Int) -> @raylib.ShaderUniformData {
   // NOTE: Keep texture samplers on Int uniforms for raylib 0.3.1 compatibility.
   // Some drivers/backend paths interpret SHADER_UNIFORM_SAMPLER2D inconsistently.
-  @raylib.ShaderUniformData::Int(value)
+  Int(value)
 }
 
 ///|
 fn uniform_float(value : Double) -> @raylib.ShaderUniformData {
-  @raylib.ShaderUniformData::Float(to_float(value))
+  Float(to_float(value))
 }
 
 ///|
 fn uniform_vec2(value : @smath.Vec2) -> @raylib.ShaderUniformData {
-  @raylib.ShaderUniformData::Vec2(
+  Vec2(
     @raylib.Vector2::new(to_float(value[X]), to_float(value[Y])),
   )
 }
 
 ///|
 fn uniform_vec3(value : @smath.Vec3) -> @raylib.ShaderUniformData {
-  @raylib.ShaderUniformData::Vec3(
+  Vec3(
     @raylib.Vector3::new(
       to_float(value.x),
       to_float(value.y),

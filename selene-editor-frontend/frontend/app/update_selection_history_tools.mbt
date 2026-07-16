@@ -61,12 +61,12 @@ fn update_selection_history_tools(
         [],
         {
           ..model,
-          asset_tree_expanded: {},
+          asset_tree_expanded: Map([]),
           status: "Expanded all asset folders",
         },
       )
     CollapseAllAssetFolders => {
-      let asset_tree_expanded : Map[String, Bool] = {}
+      let asset_tree_expanded : Map[String, Bool] = Map([])
       for key in all_asset_tree_folder_keys(model) {
         asset_tree_expanded.set(key, false)
       }
@@ -190,7 +190,7 @@ fn update_selection_history_tools(
               ..session,
               scene: previous_scene,
               dirty: true,
-              conflict_state: SceneConflictState::NoConflict,
+              conflict_state: NoConflict,
               undo_stack,
               redo_stack,
               active_scene_edit_transaction: None,
@@ -228,7 +228,7 @@ fn update_selection_history_tools(
               ..session,
               scene: next_scene,
               dirty: true,
-              conflict_state: SceneConflictState::NoConflict,
+              conflict_state: NoConflict,
               undo_stack,
               redo_stack,
               active_scene_edit_transaction: None,

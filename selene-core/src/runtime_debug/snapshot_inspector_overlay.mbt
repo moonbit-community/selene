@@ -63,7 +63,7 @@ pub fn world_snapshot() -> WorldSnapshot {
 
 ///|
 fn debug_vec2(value : @math.Vec2) -> DebugVec2 {
-  { x: value[@math.X], y: value[@math.Y] }
+  { x: value[X], y: value[Y] }
 }
 
 ///|
@@ -74,10 +74,10 @@ fn debug_vec3(value : @math.Vec3) -> DebugVec3 {
 ///|
 fn debug_rect(value : @math.Rect) -> DebugRect {
   {
-    x: value.position[@math.X],
-    y: value.position[@math.Y],
-    width: value.size[@math.X],
-    height: value.size[@math.Y],
+    x: value.position[X],
+    y: value.position[Y],
+    width: value.size[X],
+    height: value.size[Y],
   }
 }
 
@@ -187,8 +187,8 @@ fn atlas_overlay_from_draw_command(
           Rect({
             rect: image.destination,
             transform: image.transform,
-            alpha_mode: @render.AlphaMode2D::Blend,
-            blend_mode: @render.BlendMode2D::Alpha,
+            alpha_mode: Blend,
+            blend_mode: Alpha,
             fill_color: atlas_overlay_fill_color(),
             stroke_color: Some(atlas_overlay_stroke_color()),
           }),

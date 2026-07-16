@@ -20,7 +20,7 @@ fn tiled_ecs_set_entity_translation_2d(
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
     ..current,
-    translation: @math.Vec3(position[X], position[Y], current.translation.z),
+    translation: Vec3(position[X], position[Y], current.translation.z),
   })
 }
 
@@ -29,7 +29,7 @@ fn tiled_ecs_set_entity_depth(entity : @entity.Entity, z : Int) -> Unit {
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
     ..current,
-    translation: @math.Vec3(
+    translation: Vec3(
       current.translation.x,
       current.translation.y,
       z.to_double(),
@@ -77,9 +77,9 @@ fn tiled_transform_from_2d_affine(
     basis_y = -basis_y
   }
   {
-    translation: @math.Vec3(affine.tx, affine.ty, 0.0),
+    translation: Vec3(affine.tx, affine.ty, 0.0),
     rotation: @math.Quat::from_basis(basis_x, basis_y, @math.Vec3::z_axis()),
-    scale: @math.Vec3(scale_x, scale_y, 1.0),
+    scale: Vec3(scale_x, scale_y, 1.0),
   }
 }
 
@@ -104,11 +104,11 @@ fn tiled_sprite_animation_clip_asset(
     })
   }
   clip.add_curve_to_target(
-    @animation.AnimationTargetId("self"),
+    AnimationTargetId("self"),
     @animation.VariableCurve::scalar(
       @animation.texture_atlas_index_field(),
       keys,
-      interpolation=@animation.ChannelInterpolation::Step,
+      interpolation=Step,
     ),
   )
   if layout.rects.length() > 0 && !animation.loop_ {
@@ -123,9 +123,9 @@ fn tiled_sprite_animation_clip_asset(
 fn tiled_sprite_from_animation(
   animation : TiledSpriteAnimation,
 ) -> @sprite.Sprite {
-  @sprite.Sprite(
+  Sprite(
     image=Some(animation.image),
-    texture_atlas=Some(@sprite.TextureAtlas(animation.layout)),
+    texture_atlas=Some(TextureAtlas(animation.layout)),
     color=animation.color,
     custom_size=animation.custom_size,
     anchor=animation.anchor,
@@ -139,19 +139,19 @@ fn tiled_install_sprite_animation(
 ) -> Unit {
   ignore(
     @animation.animation_players().get_or_init(entity, fn() {
-      @animation.AnimationPlayer()
+      AnimationPlayer()
     }),
   )
   ignore(
     @animation.animation_transitions().get_or_init(entity, fn() {
-      @animation.AnimationTransitions()
+      AnimationTransitions()
     }),
   )
   @animation.animation_target_ids().set(
     entity,
-    @animation.AnimationTargetId("self"),
+    AnimationTargetId("self"),
   )
-  @animation.animated_bys().set(entity, @animation.AnimatedBy(entity))
+  @animation.animated_bys().set(entity, AnimatedBy(entity))
   let (graph, nodes) = @animation.AnimationGraph::from_clips([
     tiled_sprite_animation_clip_asset(animation),
   ])
@@ -440,7 +440,7 @@ fn spawn_tiled_layers(
     let layer_entity = parent_entity.spawn_child()
     tiled_ecs_set_entity_translation_2d(
       layer_entity,
-      @math.Vec2(layer.offset_x, layer.offset_y),
+      Vec2(layer.offset_x, layer.offset_y),
     )
     tiled_ecs_set_entity_visibility(layer_entity, effective_visible)
     tiled_register_parallax_layer(layer_entity, layer)
@@ -514,7 +514,7 @@ fn spawn_tiled_tile_layer(
     tiled_ecs_set_entity_translation_2d(
       tile_entity,
       tile_position +
-      @math.Vec2(local_transform.translation.x, local_transform.translation.y),
+      Vec2(local_transform.translation.x, local_transform.translation.y),
     )
     tiled_ecs_set_entity_depth(tile_entity, zindex)
     tiled_tile_instances().set(tile_entity, {
@@ -606,7 +606,7 @@ fn spawn_tiled_object_layer(
     tiled_ecs_set_entity_translation_2d(
       object_entity,
       object_offset +
-      @math.Vec2(local_transform.translation.x, local_transform.translation.y),
+      Vec2(local_transform.translation.x, local_transform.translation.y),
     )
     guard build_tiled_tile_animation(map, tileset, gid, size=object_size)
       is Some(animation) else {
@@ -660,12 +660,12 @@ fn spawn_tiled_image_layer(
   let repeat = tiled_image_repeat_mode(image_layer)
   @sprite.sprites().set(
     layer_entity,
-    @sprite.Sprite(
+    Sprite(
       image=Some(load_tiled_image(image_path)),
       custom_size=Some(tiled_map_world_size(map)),
-      color=@render.Color::{ r: 255U, g: 255U, b: 255U, a: layer.opacity },
-      anchor=@sprite.Anchor(@math.Vec2(-0.5, 0.5)),
-      image_mode=@sprite.Tiled(repeat),
+      color={ r: 255U, g: 255U, b: 255U, a: layer.opacity },
+      anchor=Anchor(Vec2(-0.5, 0.5)),
+      image_mode=Tiled(repeat),
     ),
   )
 }
@@ -702,9 +702,9 @@ fn build_tiled_tile_animation(
         }),
         fps,
         loop_: true,
-        color: @render.Color::{ r: 255U, g: 255U, b: 255U, a: 1.0 },
+        color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
         custom_size: Some(tile_size),
-        anchor: @sprite.Anchor(@math.Vec2(-0.5, 0.5)),
+        anchor: Anchor(Vec2(-0.5, 0.5)),
       })
     }
   }
@@ -723,9 +723,9 @@ fn build_tiled_tile_animation(
     }),
     fps: 0.0,
     loop_: false,
-    color: @render.Color::{ r: 255U, g: 255U, b: 255U, a: 1.0 },
+    color: { r: 255U, g: 255U, b: 255U, a: 1.0 },
     custom_size: Some(tile_size),
-    anchor: @sprite.Anchor(@math.Vec2(-0.5, 0.5)),
+    anchor: Anchor(Vec2(-0.5, 0.5)),
   })
 }
 
@@ -862,7 +862,7 @@ fn tiled_layout_size(rects : Array[@math.Rect]) -> @math.Vec2 {
       max_y = bottom
     }
   }
-  @math.Vec2(max_x, max_y)
+  Vec2(max_x, max_y)
 }
 
 ///|
@@ -884,7 +884,7 @@ fn tiled_tileset_source_offset(
   let column = local_id % columns
   let row = local_id / columns
   Some(
-    @math.Vec2(
+    Vec2(
       tileset.margin.to_double() +
       column.to_double() * (tile_width + tileset.spacing.to_double()),
       tileset.margin.to_double() +
@@ -898,7 +898,7 @@ fn tiled_tileset_tile_size(
   map : TiledMap,
   tileset : TiledTileset,
 ) -> @math.Vec2 {
-  @math.Vec2(
+  Vec2(
     tileset.tile_width.unwrap_or(map.tile_width).to_double(),
     tileset.tile_height.unwrap_or(map.tile_height).to_double(),
   )
@@ -925,7 +925,7 @@ fn tiled_orthogonal_cell_position(
   tile_size : @math.Vec2,
   cell : TiledCell,
 ) -> @math.Vec2 {
-  @math.Vec2(
+  Vec2(
     cell.x.to_double() * map.tile_width.to_double(),
     (cell.y + 1).to_double() * map.tile_height.to_double() - tile_size[Y],
   )
@@ -946,7 +946,7 @@ fn tiled_isometric_cell_position(
   } else {
     0.0
   }
-  @math.Vec2(
+  Vec2(
     (cell.x - cell.y).to_double() * half_width + origin_x,
     (cell.x + cell.y).to_double() * half_height + tile_height - tile_size[Y],
   )
@@ -992,7 +992,7 @@ fn tiled_staggered_layout_cell_position(
     } else {
       0.0
     }
-    return @math.Vec2(
+    return Vec2(
       cell.x.to_double() * column_step,
       cell.y.to_double() * tile_height + row_offset + tile_height - tile_size[Y],
     )
@@ -1003,7 +1003,7 @@ fn tiled_staggered_layout_cell_position(
   } else {
     0.0
   }
-  @math.Vec2(
+  Vec2(
     cell.x.to_double() * tile_width + column_offset,
     cell.y.to_double() * row_step + tile_height - tile_size[Y],
   )
@@ -1020,7 +1020,7 @@ fn tiled_is_staggered_index(index : Int, stagger_index : String?) -> Bool {
 
 ///|
 fn tiled_plain_object_position(object : TiledObject) -> @math.Vec2 {
-  @math.Vec2(object.x, object.y)
+  Vec2(object.x, object.y)
 }
 
 ///|
@@ -1035,7 +1035,7 @@ fn tiled_tile_object_position(
   } else {
     object.x
   }
-  @math.Vec2(origin_x, object.y - size[Y])
+  Vec2(origin_x, object.y - size[Y])
 }
 
 ///|
@@ -1047,7 +1047,7 @@ fn tiled_object_size(
   let default_size = tiled_tileset_tile_size(map, tileset)
   let width = if object.width > 0.0 { object.width } else { default_size[X] }
   let height = if object.height > 0.0 { object.height } else { default_size[Y] }
-  @math.Vec2(width, height)
+  Vec2(width, height)
 }
 
 ///|
@@ -1100,7 +1100,7 @@ fn tiled_image_repeat_mode(image_layer : TiledImageLayer) -> @math.RepeatMode {
 
 ///|
 fn tiled_map_world_size(map : TiledMap) -> @math.Vec2 {
-  @math.Vec2(
+  Vec2(
     map.width.to_double() * map.tile_width.to_double(),
     map.height.to_double() * map.tile_height.to_double(),
   )
@@ -1205,8 +1205,8 @@ fn tiled_register_parallax_layer(
   })
   @parallax2d.parallax2ds().set(
     layer_entity,
-    @parallax2d.Parallax2d(
-      factor=@math.Vec2(layer.parallax_x, layer.parallax_y),
+    Parallax2d(
+      factor=Vec2(layer.parallax_x, layer.parallax_y),
     ),
   )
 }

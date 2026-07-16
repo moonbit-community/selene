@@ -14,7 +14,7 @@ fn push_ui_rect_fill(
     rect,
     transform: @math.Transform::identity(),
     alpha_mode: color_alpha_mode(color),
-    blend_mode: @render.BlendMode2D::Alpha,
+    blend_mode: Alpha,
     fill_color: color,
     stroke_color: None,
   })
@@ -35,7 +35,7 @@ fn push_ui_circle_fill(
     radius,
     transform: @math.Transform::identity(),
     alpha_mode: color_alpha_mode(color),
-    blend_mode: @render.BlendMode2D::Alpha,
+    blend_mode: Alpha,
     fill_color: color,
     stroke_color: None,
   })
@@ -44,9 +44,9 @@ fn push_ui_circle_fill(
 ///|
 fn color_alpha_mode(color : @render.Color) -> @render.AlphaMode2D {
   if color.a >= 0.999999 {
-    @render.AlphaMode2D::Opaque
+    Opaque
   } else {
-    @render.AlphaMode2D::Blend
+    Blend
   }
 }
 
@@ -59,7 +59,7 @@ fn scale_alpha(color : @render.Color, factor : Double) -> @render.Color {
   } else {
     color.a * factor
   }
-  @render.Color::{ ..color, a: alpha }
+  { ..color, a: alpha }
 }
 
 ///|
@@ -113,11 +113,11 @@ fn resolved_border_radius(
 ///|
 fn inset_rect(rect : @math.Rect, inset : UiInsets) -> @math.Rect {
   {
-    position: @math.Vec2(
+    position: Vec2(
       rect.position[X] + inset.left,
       rect.position[Y] + inset.top,
     ),
-    size: @math.Vec2(
+    size: Vec2(
       @cmp.maximum(0.0, rect.size[X] - inset.left - inset.right),
       @cmp.maximum(0.0, rect.size[Y] - inset.top - inset.bottom),
     ),
@@ -152,8 +152,8 @@ fn inset_border_radius(
 ///|
 fn inflate_rect(rect : @math.Rect, amount : Double) -> @math.Rect {
   {
-    position: @math.Vec2(rect.position[X] - amount, rect.position[Y] - amount),
-    size: @math.Vec2(
+    position: Vec2(rect.position[X] - amount, rect.position[Y] - amount),
+    size: Vec2(
       @cmp.maximum(0.0, rect.size[X] + amount * 2.0),
       @cmp.maximum(0.0, rect.size[Y] + amount * 2.0),
     ),
@@ -224,8 +224,8 @@ fn push_rounded_rect(
 
   push_ui_rect_fill(
     {
-      position: @math.Vec2(x + left_band, y + top_band),
-      size: @math.Vec2(
+      position: Vec2(x + left_band, y + top_band),
+      size: Vec2(
         @cmp.maximum(0.0, w - left_band - right_band),
         @cmp.maximum(0.0, h - top_band - bottom_band),
       ),
@@ -235,60 +235,60 @@ fn push_rounded_rect(
   )
   push_ui_rect_fill(
     {
-      position: @math.Vec2(x + tl, y),
-      size: @math.Vec2(@cmp.maximum(0.0, w - tl - tr), top_band),
+      position: Vec2(x + tl, y),
+      size: Vec2(@cmp.maximum(0.0, w - tl - tr), top_band),
     },
     color,
     camera_entity_id~,
   )
   push_ui_rect_fill(
     {
-      position: @math.Vec2(x + bl, y + h - bottom_band),
-      size: @math.Vec2(@cmp.maximum(0.0, w - bl - br), bottom_band),
+      position: Vec2(x + bl, y + h - bottom_band),
+      size: Vec2(@cmp.maximum(0.0, w - bl - br), bottom_band),
     },
     color,
     camera_entity_id~,
   )
   push_ui_rect_fill(
     {
-      position: @math.Vec2(x, y + tl),
-      size: @math.Vec2(left_band, @cmp.maximum(0.0, h - tl - bl)),
+      position: Vec2(x, y + tl),
+      size: Vec2(left_band, @cmp.maximum(0.0, h - tl - bl)),
     },
     color,
     camera_entity_id~,
   )
   push_ui_rect_fill(
     {
-      position: @math.Vec2(x + w - right_band, y + tr),
-      size: @math.Vec2(right_band, @cmp.maximum(0.0, h - tr - br)),
+      position: Vec2(x + w - right_band, y + tr),
+      size: Vec2(right_band, @cmp.maximum(0.0, h - tr - br)),
     },
     color,
     camera_entity_id~,
   )
   push_quarter_circle(
-    { position: @math.Vec2(x, y), size: @math.Vec2(tl, tl) },
-    @math.Vec2(x + tl, y + tl),
+    { position: Vec2(x, y), size: Vec2(tl, tl) },
+    Vec2(x + tl, y + tl),
     tl,
     color,
     camera_entity_id~,
   )
   push_quarter_circle(
-    { position: @math.Vec2(x + w - tr, y), size: @math.Vec2(tr, tr) },
-    @math.Vec2(x + w - tr, y + tr),
+    { position: Vec2(x + w - tr, y), size: Vec2(tr, tr) },
+    Vec2(x + w - tr, y + tr),
     tr,
     color,
     camera_entity_id~,
   )
   push_quarter_circle(
-    { position: @math.Vec2(x + w - br, y + h - br), size: @math.Vec2(br, br) },
-    @math.Vec2(x + w - br, y + h - br),
+    { position: Vec2(x + w - br, y + h - br), size: Vec2(br, br) },
+    Vec2(x + w - br, y + h - br),
     br,
     color,
     camera_entity_id~,
   )
   push_quarter_circle(
-    { position: @math.Vec2(x, y + h - bl), size: @math.Vec2(bl, bl) },
-    @math.Vec2(x + bl, y + h - bl),
+    { position: Vec2(x, y + h - bl), size: Vec2(bl, bl) },
+    Vec2(x + bl, y + h - bl),
     bl,
     color,
     camera_entity_id~,
@@ -424,11 +424,11 @@ pub fn draw_ui_material_gradient(
     transform: @math.Transform::identity(),
     alpha_mode: if gradient.color_start.a >= 0.999999 &&
       gradient.color_end.a >= 0.999999 {
-      @render.AlphaMode2D::Opaque
+      Opaque
     } else {
-      @render.AlphaMode2D::Blend
+      Blend
     },
-    blend_mode: @render.BlendMode2D::Alpha,
+    blend_mode: Alpha,
     color_start: gradient.color_start,
     color_end: gradient.color_end,
   })
@@ -443,11 +443,11 @@ pub fn draw_ui_material_image(
     image: image.image,
     destination: fitted_image_rect(context.rect, image),
     source: None,
-    transform: @math.Transform(),
+    transform: Transform(),
     uv_transform: @math.Transform::identity(),
     repeat: NoRepeat,
-    alpha_mode: @render.AlphaMode2D::Blend,
-    blend_mode: @render.BlendMode2D::Alpha,
+    alpha_mode: Blend,
+    blend_mode: Alpha,
     color: image.tint,
   })
 }
@@ -517,7 +517,7 @@ fn push_border(
   }
   if border.top > 0.0 {
     push_ui_rect_fill(
-      { position: rect.position, size: @math.Vec2(rect.size[X], border.top) },
+      { position: rect.position, size: Vec2(rect.size[X], border.top) },
       border_color.color,
       camera_entity_id~,
     )
@@ -525,11 +525,11 @@ fn push_border(
   if border.bottom > 0.0 {
     push_ui_rect_fill(
       {
-        position: @math.Vec2(
+        position: Vec2(
           rect.position[X],
           rect.position[Y] + rect.size[Y] - border.bottom,
         ),
-        size: @math.Vec2(rect.size[X], border.bottom),
+        size: Vec2(rect.size[X], border.bottom),
       },
       border_color.color,
       camera_entity_id~,
@@ -538,8 +538,8 @@ fn push_border(
   if border.left > 0.0 {
     push_ui_rect_fill(
       {
-        position: @math.Vec2(rect.position[X], rect.position[Y] + border.top),
-        size: @math.Vec2(
+        position: Vec2(rect.position[X], rect.position[Y] + border.top),
+        size: Vec2(
           border.left,
           @cmp.maximum(0.0, rect.size[Y] - border.top - border.bottom),
         ),
@@ -551,11 +551,11 @@ fn push_border(
   if border.right > 0.0 {
     push_ui_rect_fill(
       {
-        position: @math.Vec2(
+        position: Vec2(
           rect.position[X] + rect.size[X] - border.right,
           rect.position[Y] + border.top,
         ),
-        size: @math.Vec2(
+        size: Vec2(
           border.right,
           @cmp.maximum(0.0, rect.size[Y] - border.top - border.bottom),
         ),
@@ -592,7 +592,7 @@ fn push_outline(
   push_ui_rect_fill(
     {
       position: outer.position,
-      size: @math.Vec2(
+      size: Vec2(
         outer.size[X],
         @cmp.maximum(0.0, inner.position[Y] - outer.position[Y]),
       ),
@@ -602,8 +602,8 @@ fn push_outline(
   )
   push_ui_rect_fill(
     {
-      position: @math.Vec2(outer.position[X], inner.position[Y] + inner.size[Y]),
-      size: @math.Vec2(
+      position: Vec2(outer.position[X], inner.position[Y] + inner.size[Y]),
+      size: Vec2(
         outer.size[X],
         @cmp.maximum(
           0.0,
@@ -616,8 +616,8 @@ fn push_outline(
   )
   push_ui_rect_fill(
     {
-      position: @math.Vec2(outer.position[X], inner.position[Y]),
-      size: @math.Vec2(
+      position: Vec2(outer.position[X], inner.position[Y]),
+      size: Vec2(
         @cmp.maximum(0.0, inner.position[X] - outer.position[X]),
         inner.size[Y],
       ),
@@ -627,8 +627,8 @@ fn push_outline(
   )
   push_ui_rect_fill(
     {
-      position: @math.Vec2(inner.position[X] + inner.size[X], inner.position[Y]),
-      size: @math.Vec2(
+      position: Vec2(inner.position[X] + inner.size[X], inner.position[Y]),
+      size: Vec2(
         @cmp.maximum(
           0.0,
           outer.position[X] + outer.size[X] - inner.position[X] - inner.size[X],
@@ -661,7 +661,7 @@ fn fitted_image_rect(container : @math.Rect, image : UiImage) -> @math.Rect {
       )
       let size = @math.Vec2(image.size[X] * scale, image.size[Y] * scale)
       {
-        position: @math.Vec2(
+        position: Vec2(
           container.position[X] + (container.size[X] - size[X]) / 2.0,
           container.position[Y] + (container.size[Y] - size[Y]) / 2.0,
         ),
@@ -683,7 +683,7 @@ fn fitted_image_rect(container : @math.Rect, image : UiImage) -> @math.Rect {
       )
       let size = @math.Vec2(image.size[X] * scale, image.size[Y] * scale)
       {
-        position: @math.Vec2(
+        position: Vec2(
           container.position[X] + (container.size[X] - size[X]) / 2.0,
           container.position[Y] + (container.size[Y] - size[Y]) / 2.0,
         ),
@@ -705,11 +705,11 @@ fn push_image(
     image: image.image,
     destination: fitted_image_rect(transform.screen_content_rect, image),
     source: None,
-    transform: @math.Transform(),
+    transform: Transform(),
     uv_transform: @math.Transform::identity(),
     repeat: NoRepeat,
-    alpha_mode: @render.AlphaMode2D::Blend,
-    blend_mode: @render.BlendMode2D::Alpha,
+    alpha_mode: Blend,
+    blend_mode: Alpha,
     color: image.tint,
   })
 }
@@ -861,9 +861,9 @@ fn push_text(entity : @entity.Entity, camera_entity_id? : UInt? = None) -> Unit 
     let style_for_draw = { ..style, align: Left, baseline: Top }
     @render2d.push_ui_text_to_camera(camera_entity_id, {
       text: line,
-      position: @math.Vec2(x, start_y + index.to_double() * line_height),
+      position: Vec2(x, start_y + index.to_double() * line_height),
       transform: @math.Transform::identity(),
-      blend_mode: @render.BlendMode2D::Alpha,
+      blend_mode: Alpha,
       style: style_for_draw,
     })
   }

@@ -41,8 +41,8 @@ fn parse_animation_channels(
         v.to_upper()
       }) {
       "STEP" => @animation.ChannelInterpolation::Step
-      "CUBICSPLINE" => @animation.ChannelInterpolation::CubicSpline
-      _ => @animation.ChannelInterpolation::Linear
+      "CUBICSPLINE" => CubicSpline
+      _ => Linear
     }
     samplers.push(Some({ times, output_accessor, interpolation }))
   }
@@ -127,7 +127,7 @@ fn parse_vec3_keyframes(
   interpolation : @animation.ChannelInterpolation,
 ) -> Array[@animation.Vec3Keyframe] {
   let output : Array[@animation.Vec3Keyframe] = []
-  if interpolation is @animation.ChannelInterpolation::CubicSpline {
+  if interpolation is CubicSpline {
     let key_count = times.length()
     if key_count <= 0 || values.length() < key_count * 3 {
       return output
@@ -166,7 +166,7 @@ fn parse_quat_keyframes(
   interpolation : @animation.ChannelInterpolation,
 ) -> Array[@animation.QuatKeyframe] {
   let output : Array[@animation.QuatKeyframe] = []
-  if interpolation is @animation.ChannelInterpolation::CubicSpline {
+  if interpolation is CubicSpline {
     let key_count = times.length()
     if key_count <= 0 || values.length() < key_count * 3 {
       return output
@@ -210,7 +210,7 @@ fn parse_weight_keyframes(
     return output
   }
   let lanes_per_key = match interpolation {
-    @animation.ChannelInterpolation::CubicSpline => 3
+    CubicSpline => 3
     _ => 1
   }
   if values.length() < key_count * lanes_per_key {
@@ -223,7 +223,7 @@ fn parse_weight_keyframes(
   for index in 0..<key_count {
     let base = index * lane_count * lanes_per_key
     let value_index = if interpolation
-      is @animation.ChannelInterpolation::CubicSpline {
+      is CubicSpline {
       base + lane_count
     } else {
       base
@@ -232,7 +232,7 @@ fn parse_weight_keyframes(
     let in_tangent : Array[Double] = []
     let out_tangent : Array[Double] = []
     for lane in 0..<lane_count {
-      if interpolation is @animation.ChannelInterpolation::CubicSpline {
+      if interpolation is CubicSpline {
         in_tangent.push(values[base + lane])
         weight_values.push(values[value_index + lane])
         out_tangent.push(values[value_index + lane_count + lane])
@@ -244,13 +244,13 @@ fn parse_weight_keyframes(
       time: times[index],
       value: weight_values,
       in_tangent: if interpolation
-        is @animation.ChannelInterpolation::CubicSpline {
+        is CubicSpline {
         Some(in_tangent)
       } else {
         None
       },
       out_tangent: if interpolation
-        is @animation.ChannelInterpolation::CubicSpline {
+        is CubicSpline {
         Some(out_tangent)
       } else {
         None
@@ -430,8 +430,8 @@ fn parse_material_asset(
     Some(alpha) => {
       let alpha_mode = match alpha.to_lower() {
         "mask" => @render3d.AlphaMode3D::Mask
-        "blend" => @render3d.AlphaMode3D::Blend
-        _ => @render3d.AlphaMode3D::Opaque
+        "blend" => Blend
+        _ => Opaque
       }
       { ..material, alpha_mode, }
     }

@@ -145,13 +145,13 @@ test "ui relative cursor positions use centered normalized coordinates" {
   reset_interaction_test_state()
   let entity = @entity.Entity()
   let rect : @math.Rect = {
-    position: @math.Vec2(100.0, 50.0),
-    size: @math.Vec2(40.0, 20.0),
+    position: Vec2(100.0, 50.0),
+    size: Vec2(40.0, 20.0),
   }
   nodes().set(entity, Node())
   global_ui_nodes().set(entity, interaction_test_global_node(rect))
   relative_cursor_positions().set(entity, RelativeCursorPosition())
-  @inputs.mouse.pos = @math.Vec2(130.0, 60.0)
+  @inputs.mouse.pos = Vec2(130.0, 60.0)
 
   ui_interaction_system(0.0)
 
@@ -171,15 +171,15 @@ test "ui touch tap clicks interactive button without sticky hover" {
   with_ui_interaction_test_world(fn() raise {
     reset_interaction_test_state()
     let entity = spawn_interaction_test_node({
-      position: @math.Vec2(100.0, 50.0),
-      size: @math.Vec2(80.0, 40.0),
+      position: Vec2(100.0, 50.0),
+      size: Vec2(80.0, 40.0),
     })
     let id = @inputs.TouchId(1)
     let press = @math.Vec2(120.0, 70.0)
-    let click_reader : @event.EventReader[UiClickEvent] = @event.EventReader()
-    let down_reader : @event.EventReader[UiPointerDownEvent] = @event.EventReader()
-    let up_reader : @event.EventReader[UiPointerUpEvent] = @event.EventReader()
-    let enter_reader : @event.EventReader[UiPointerEnterEvent] = @event.EventReader()
+    let click_reader : @event.EventReader[UiClickEvent] = EventReader()
+    let down_reader : @event.EventReader[UiPointerDownEvent] = EventReader()
+    let up_reader : @event.EventReader[UiPointerUpEvent] = EventReader()
+    let enter_reader : @event.EventReader[UiPointerEnterEvent] = EventReader()
 
     apply_ui_touch_frame(Some(touch_point(id, press)), [
       touch_event(id, Started, press),
@@ -209,12 +209,12 @@ test "ui cancelled touch clears pressed state without click" {
   with_ui_interaction_test_world(fn() raise {
     reset_interaction_test_state()
     let entity = spawn_interaction_test_node({
-      position: @math.Vec2(100.0, 50.0),
-      size: @math.Vec2(80.0, 40.0),
+      position: Vec2(100.0, 50.0),
+      size: Vec2(80.0, 40.0),
     })
     let id = @inputs.TouchId(2)
     let press = @math.Vec2(120.0, 70.0)
-    let click_reader : @event.EventReader[UiClickEvent] = @event.EventReader()
+    let click_reader : @event.EventReader[UiClickEvent] = EventReader()
 
     apply_ui_touch_frame(Some(touch_point(id, press)), [
       touch_event(id, Started, press),
@@ -236,14 +236,14 @@ test "ui touch release outside pressed target does not click" {
   with_ui_interaction_test_world(fn() raise {
     reset_interaction_test_state()
     let entity = spawn_interaction_test_node({
-      position: @math.Vec2(100.0, 50.0),
-      size: @math.Vec2(80.0, 40.0),
+      position: Vec2(100.0, 50.0),
+      size: Vec2(80.0, 40.0),
     })
     let id = @inputs.TouchId(3)
     let press = @math.Vec2(120.0, 70.0)
     let outside = @math.Vec2(20.0, 20.0)
-    let click_reader : @event.EventReader[UiClickEvent] = @event.EventReader()
-    let up_reader : @event.EventReader[UiPointerUpEvent] = @event.EventReader()
+    let click_reader : @event.EventReader[UiClickEvent] = EventReader()
+    let up_reader : @event.EventReader[UiPointerUpEvent] = EventReader()
 
     apply_ui_touch_frame(Some(touch_point(id, press)), [
       touch_event(id, Started, press),
@@ -268,7 +268,7 @@ test "ui touch drag scrolls non-button scrollable panels" {
   with_ui_interaction_test_world(fn() raise {
     reset_interaction_test_state()
     let entity = spawn_interaction_test_node(
-      { position: @math.Vec2(0.0, 0.0), size: @math.Vec2(100.0, 100.0) },
+      { position: Vec2(0.0, 0.0), size: Vec2(100.0, 100.0) },
       interactive=false,
       overflow_y=Scroll,
     )
@@ -295,8 +295,8 @@ test "ui input capture consumes touch started over button before interaction" {
   with_ui_interaction_test_world(fn() raise {
     reset_interaction_test_state()
     let entity = spawn_interaction_test_node({
-      position: @math.Vec2(100.0, 50.0),
-      size: @math.Vec2(80.0, 40.0),
+      position: Vec2(100.0, 50.0),
+      size: Vec2(80.0, 40.0),
     })
     let id = @inputs.TouchId(5)
     let press = @math.Vec2(120.0, 70.0)
@@ -319,8 +319,8 @@ test "ui input capture holds touch until release" {
   with_ui_interaction_test_world(fn() raise {
     reset_interaction_test_state()
     let entity = spawn_interaction_test_node({
-      position: @math.Vec2(100.0, 50.0),
-      size: @math.Vec2(80.0, 40.0),
+      position: Vec2(100.0, 50.0),
+      size: Vec2(80.0, 40.0),
     })
     let id = @inputs.TouchId(6)
     let press = @math.Vec2(120.0, 70.0)
@@ -357,7 +357,7 @@ test "ui input capture consumes non-button scroll panels" {
   with_ui_interaction_test_world(fn() raise {
     reset_interaction_test_state()
     let entity = spawn_interaction_test_node(
-      { position: @math.Vec2(0.0, 0.0), size: @math.Vec2(100.0, 100.0) },
+      { position: Vec2(0.0, 0.0), size: Vec2(100.0, 100.0) },
       interactive=false,
       overflow_y=Scroll,
     )
@@ -381,8 +381,8 @@ test "ui input capture leaves gameplay touches unconsumed" {
   with_ui_interaction_test_world(fn() raise {
     reset_interaction_test_state()
     let entity = spawn_interaction_test_node({
-      position: @math.Vec2(100.0, 50.0),
-      size: @math.Vec2(80.0, 40.0),
+      position: Vec2(100.0, 50.0),
+      size: Vec2(80.0, 40.0),
     })
     let id = @inputs.TouchId(8)
     let press = @math.Vec2(20.0, 20.0)
@@ -405,20 +405,20 @@ test "ui relative cursor positions keep normalized values outside calculated cli
   reset_interaction_test_state()
   let entity = @entity.Entity()
   let rect : @math.Rect = {
-    position: @math.Vec2(100.0, 50.0),
-    size: @math.Vec2(40.0, 20.0),
+    position: Vec2(100.0, 50.0),
+    size: Vec2(40.0, 20.0),
   }
   nodes().set(entity, Node())
   global_ui_nodes().set(entity, interaction_test_global_node(rect))
   calculated_clips().set(
     entity,
     CalculatedClip({
-      position: @math.Vec2(100.0, 50.0),
-      size: @math.Vec2(10.0, 20.0),
+      position: Vec2(100.0, 50.0),
+      size: Vec2(10.0, 20.0),
     }),
   )
   relative_cursor_positions().set(entity, RelativeCursorPosition())
-  @inputs.mouse.pos = @math.Vec2(130.0, 60.0)
+  @inputs.mouse.pos = Vec2(130.0, 60.0)
 
   ui_interaction_system(0.0)
 

@@ -121,11 +121,11 @@ fn create_level_up_panel_entity() -> @entity.Entity {
   @ui.nodes().set(
     panel,
     @ui.Node::absolute(
-      @math.Vec2(VIEWPORT_WIDTH / 2.0 - 80.0, VIEWPORT_HEIGHT / 2.0 - 120.0),
-      size=@math.Vec2(160.0, 250.0),
+      Vec2(VIEWPORT_WIDTH / 2.0 - 80.0, VIEWPORT_HEIGHT / 2.0 - 120.0),
+      size=Vec2(160.0, 250.0),
     ),
   )
-  @ui.z_indexes().set(panel, @ui.ZIndex(HUD_ZINDEX + 10))
+  @ui.z_indexes().set(panel, ZIndex(HUD_ZINDEX + 10))
   @ui.background_colors().set(
     panel,
     @ui.BackgroundColor::from_css("rgba(13, 170, 26, 1)"),
@@ -140,11 +140,11 @@ fn create_game_over_panel_entity() -> @entity.Entity {
   @ui.nodes().set(
     panel,
     @ui.Node::absolute(
-      @math.Vec2(VIEWPORT_WIDTH / 2.0 - 100.0, VIEWPORT_HEIGHT / 2.0 - 60.0),
-      size=@math.Vec2(200.0, 120.0),
+      Vec2(VIEWPORT_WIDTH / 2.0 - 100.0, VIEWPORT_HEIGHT / 2.0 - 60.0),
+      size=Vec2(200.0, 120.0),
     ),
   )
-  @ui.z_indexes().set(panel, @ui.ZIndex(HUD_ZINDEX + 10))
+  @ui.z_indexes().set(panel, ZIndex(HUD_ZINDEX + 10))
   @ui.background_colors().set(
     panel,
     @ui.BackgroundColor::from_css("rgba(0, 0, 0, 0.8)"),
@@ -155,24 +155,24 @@ fn create_game_over_panel_entity() -> @entity.Entity {
 
 ///|
 let game_state : GameState = {
-  player_entity: @entity.Entity(),
-  camera_entity: @entity.Entity(),
+  player_entity: Entity(),
+  camera_entity: Entity(),
   player_direction: Down,
   rand: @random.Rand::new(),
   score: 0,
-  score_box: @entity.Entity(),
+  score_box: Entity(),
   invincible: false,
   game_timer: 600.0,
   game_over: false,
-  timer_box: @entity.Entity(),
-  game_over_box: @entity.Entity(),
+  timer_box: Entity(),
+  game_over_box: Entity(),
   game_over_displayed: false,
   current_wave: 1,
-  wave_box: @entity.Entity(),
+  wave_box: Entity(),
   exp: 0,
-  exp_box: @entity.Entity(),
+  exp_box: Entity(),
   player_level: 1,
-  level_box: @entity.Entity(),
+  level_box: Entity(),
   player_stats: {
     attack: 0.0,
     range: 0.0, // Base range, weapons add to this
@@ -431,7 +431,7 @@ fn game_start(_world : @ecs.World) -> Unit {
       family="ThaleahFat",
     ),
   )
-  @ui.set_ui_scale_mode(@ui.UiScaleMode::Viewport)
+  @ui.set_ui_scale_mode(Viewport)
   configure_survivors_input()
   add_player()
   setup_survivors_camera()
@@ -449,11 +449,11 @@ fn game_start(_world : @ecs.World) -> Unit {
 
 ///|
 fn setup_survivors_camera() -> Unit {
-  @camera.cameras().set(game_state.camera_entity, @camera.Camera())
-  @camera.camera2ds().set(game_state.camera_entity, @camera.Camera2d())
+  @camera.cameras().set(game_state.camera_entity, Camera())
+  @camera.camera2ds().set(game_state.camera_entity, Camera2d())
   @camera.orthographic_projections().set(
     game_state.camera_entity,
-    @camera.OrthographicProjection(),
+    OrthographicProjection(),
   )
   survivors_camera_follow_system(@ecs.require_current_world())
 }

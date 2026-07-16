@@ -71,8 +71,8 @@ async fn load_project_manifest(root : String) -> @editor_bridge.ProjectManifest 
     err => raise err
   }
   match status {
-    @editor_bridge.Ready(manifest) => manifest
-    @editor_bridge.MigrationRequired(preview) => {
+    Ready(manifest) => manifest
+    MigrationRequired(preview) => {
       let migrated = preview.manifest
       let encoded = @editor_bridge.encode_project_manifest(migrated)
       write_text_file(project_manifest_path(root, ""), encoded)
@@ -110,7 +110,7 @@ async fn snapshot_project_files(
   root : String,
   manifest : @editor_bridge.ProjectManifest,
 ) -> Map[String, String] {
-  let snapshot : Map[String, String] = {}
+  let snapshot : Map[String, String] = Map([])
   let tracked_roots = [".", "scenes"] + manifest.asset_roots
   for tracked in tracked_roots {
     let dir_path = if tracked == "." { root } else { path_join(root, tracked) }

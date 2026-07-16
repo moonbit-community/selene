@@ -35,7 +35,7 @@ fn animation_graph_bytes(graph : AnimationGraphAssetDocument) -> Bytes raise {
 
 ///|
 fn source_with_documents(entries : Array[(String, Bytes)]) -> DocumentSource {
-  let documents : Map[String, Bytes] = {}
+  let documents : Map[String, Bytes] = Map([])
   for _, entry in entries {
     let (path, bytes) = entry
     documents.set(path, bytes)
@@ -72,7 +72,7 @@ fn apply_registered_custom_component_test_payload(
     Some(component),
   )
   guard parsed is Some(data) else { return }
-  @name.names().set(entity, @name.Name(data.label))
+  @name.names().set(entity, Name(data.label))
 }
 
 ///|
@@ -228,7 +228,7 @@ test "scene document round trip" {
     version: scene_schema_version,
     name: "Main",
     entities: [
-      EntityDocument::{
+      {
         id: "hero",
         name: "Hero",
         parent: None,
@@ -252,7 +252,7 @@ test "scene sdf round trip and canonical encoding are stable" {
     version: scene_schema_version,
     name: "Main",
     entities: [
-      EntityDocument::{
+      {
         id: "camera",
         name: "Camera2d",
         parent: None,
@@ -262,7 +262,7 @@ test "scene sdf round trip and canonical encoding are stable" {
           visibility_component(),
         ],
       },
-      EntityDocument::{
+      {
         id: "hero",
         name: "Hero",
         parent: None,
@@ -285,7 +285,7 @@ test "scene patch applies in document space" {
   let scene = SceneDocument::default_main()
   let patch = ScenePatch::{
     ops: [
-      PutEntity(EntityDocument::{
+      PutEntity({
         id: "crate",
         name: "Crate",
         parent: None,
@@ -311,12 +311,12 @@ test "validation rejects unsupported scene version missing parent and invalid cu
     version: 999,
     name: "Broken",
     entities: [
-      EntityDocument::{
+      {
         id: "child",
         name: "Child",
         parent: Some("missing"),
         components: [
-          ComponentDocument::{ kind: "UnknownKind", data: Json::null() },
+          { kind: "UnknownKind", data: Json::null() },
         ],
       },
     ],
@@ -347,7 +347,7 @@ test "validation rejects duplicate component kinds dependency gaps and parent cy
     version: scene_schema_version,
     name: "BrokenGraph",
     entities: [
-      EntityDocument::{
+      {
         id: "a",
         name: "A",
         parent: Some("b"),
@@ -357,7 +357,7 @@ test "validation rejects duplicate component kinds dependency gaps and parent cy
           texture_atlas_component(),
         ],
       },
-      EntityDocument::{
+      {
         id: "b",
         name: "B",
         parent: Some("a"),
@@ -513,7 +513,7 @@ test "custom component registry wires defaults validation and apply" {
     version: scene_schema_version,
     name: "Custom Invalid",
     entities: [
-      EntityDocument::{
+      {
         id: "marker",
         name: "Marker",
         parent: None,
@@ -538,7 +538,7 @@ test "custom component registry wires defaults validation and apply" {
     version: scene_schema_version,
     name: "Custom Valid",
     entities: [
-      EntityDocument::{
+      {
         id: "marker",
         name: "Marker",
         parent: None,
@@ -566,7 +566,7 @@ test "scene runtime instantiates camera and mesh entities" {
     version: scene_schema_version,
     name: "Runtime",
     entities: [
-      EntityDocument::{
+      {
         id: "camera",
         name: "Camera",
         parent: None,
@@ -576,7 +576,7 @@ test "scene runtime instantiates camera and mesh entities" {
           visibility_component(),
         ],
       },
-      EntityDocument::{
+      {
         id: "shape",
         name: "Shape",
         parent: None,
@@ -646,7 +646,7 @@ test "runtime instantiation renders autotile layer tiles from source only" {
     .with_regions([
       atlas_region_document("terrain_0", 0, rect_doc(0.0, 0.0, 16.0, 16.0)),
     ])
-  let atlas_assets : Map[String, AtlasAssetDocument] = {}
+  let atlas_assets : Map[String, AtlasAssetDocument] = Map([])
   atlas_assets.set(atlas_path, atlas)
   let scene = SceneDocument::default_main().with_entity(
     entity_document("autotile", "AutoTile", components=[

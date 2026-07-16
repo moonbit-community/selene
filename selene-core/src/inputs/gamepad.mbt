@@ -208,13 +208,13 @@ fn last_gamepad_axis_values() -> Map[GamepadAxisInput, Double] {
 }
 
 ///|
-pub let gamepad_connection_event_bus : @event.Events[GamepadConnectionEvent] = @event.Events()
+pub let gamepad_connection_event_bus : @event.Events[GamepadConnectionEvent] = Events()
 
 ///|
-pub let gamepad_button_event_bus : @event.Events[GamepadButtonEvent] = @event.Events()
+pub let gamepad_button_event_bus : @event.Events[GamepadButtonEvent] = Events()
 
 ///|
-pub let gamepad_axis_event_bus : @event.Events[GamepadAxisEvent] = @event.Events()
+pub let gamepad_axis_event_bus : @event.Events[GamepadAxisEvent] = Events()
 
 ///|
 pub fn is_gamepad_connected(gamepad : Gamepad) -> Bool {
@@ -270,7 +270,7 @@ pub fn gamepad_axis_value(gamepad : Gamepad, axis : GamepadAxis) -> Double {
 
 ///|
 pub fn gamepad_left_stick(gamepad : Gamepad) -> @math.Vec2 {
-  @math.Vec2(
+  Vec2(
     gamepad_axis_value(gamepad, LeftStickX),
     gamepad_axis_value(gamepad, LeftStickY),
   )
@@ -278,7 +278,7 @@ pub fn gamepad_left_stick(gamepad : Gamepad) -> @math.Vec2 {
 
 ///|
 pub fn gamepad_right_stick(gamepad : Gamepad) -> @math.Vec2 {
-  @math.Vec2(
+  Vec2(
     gamepad_axis_value(gamepad, RightStickX),
     gamepad_axis_value(gamepad, RightStickY),
   )
@@ -286,7 +286,7 @@ pub fn gamepad_right_stick(gamepad : Gamepad) -> @math.Vec2 {
 
 ///|
 pub fn gamepad_triggers(gamepad : Gamepad) -> @math.Vec2 {
-  @math.Vec2(
+  Vec2(
     gamepad_axis_value(gamepad, LeftZ),
     gamepad_axis_value(gamepad, RightZ),
   )

@@ -48,7 +48,7 @@ fn resolve_texture_transform(
       ),
       scale: parse_texture_transform_vec2(
         field_array(transform_object, "scale"),
-        @math.Vec2(1.0, 1.0),
+        Vec2(1.0, 1.0),
       ),
       rotation: field_number(transform_object, "rotation").unwrap_or(0.0),
     },
@@ -62,7 +62,7 @@ fn parse_texture_transform_vec2(
 ) -> @math.Vec2 {
   match values {
     Some(items) if items.length() >= 2 =>
-      @math.Vec2(
+      Vec2(
         json_number(items[0]).unwrap_or(fallback[X]),
         json_number(items[1]).unwrap_or(fallback[Y]),
       )
@@ -386,7 +386,7 @@ fn parse_mesh_asset_from_extras(
         )
       "plane" =>
         @render3d.plane_mesh(
-          parse_vec3(extras_object.get("size"), @math.Vec3(1.0, 0.1, 1.0)),
+          parse_vec3(extras_object.get("size"), Vec3(1.0, 0.1, 1.0)),
         )
       _ =>
         @render3d.cube_mesh(

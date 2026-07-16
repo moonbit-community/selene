@@ -17,21 +17,21 @@ async fn EditorService::handle_scene_rpc(
   request : @shared.RpcRequest,
 ) -> @shared.RpcResponse? {
   match request {
-    @shared.SceneLoad(path~) => {
+    SceneLoad(path~) => {
       let relative_path = self.resolve_scene_path_for_rpc(path)
       let root = self.current_project_root()
       Some(
         match load_scene_document(root, relative_path) {
-          @editor_bridge.Ready(_) =>
+          Ready(_) =>
             @shared.rpc_response_scene_loaded(
               load_scene_bundle(root, relative_path),
             )
-          @editor_bridge.MigrationRequired(preview) =>
+          MigrationRequired(preview) =>
             @shared.rpc_response_scene_migration_required(preview)
         },
       )
     }
-    @shared.SceneMigrate(path~) => {
+    SceneMigrate(path~) => {
       let relative_path = self.resolve_scene_path_for_rpc(path)
       let root = self.current_project_root()
       ignore(migrate_scene_document(root, relative_path))
@@ -44,7 +44,7 @@ async fn EditorService::handle_scene_rpc(
         ),
       )
     }
-    @shared.SceneList => {
+    SceneList => {
       let root = self.current_project_root()
       Some(
         @shared.rpc_response_scene_listed(
@@ -55,7 +55,7 @@ async fn EditorService::handle_scene_rpc(
         ),
       )
     }
-    @shared.SceneCreate(name~) => {
+    SceneCreate(name~) => {
       let path = "scenes/" + @editor_bridge.scene_file_name(name)
       let root = self.current_project_root()
       let scene = @editor_bridge.SceneDocument::empty(name~)
@@ -74,7 +74,7 @@ async fn EditorService::handle_scene_rpc(
         ),
       )
     }
-    @shared.SceneSave(path~, scene~, base_hash~, base_revision~) => {
+    SceneSave(path~, scene~, base_hash~, base_revision~) => {
       let root = self.current_project_root()
       let current = scene_disk_state(root, path)
       if current.hash != base_hash || current.revision != base_revision {
@@ -109,7 +109,7 @@ async fn EditorService::handle_scene_rpc(
         )
       }
     }
-    @shared.SceneDelete(path~) => {
+    SceneDelete(path~) => {
       let root = self.current_project_root()
       let absolute_path = scene_path(root, path)
       if @fs.exists(absolute_path) {

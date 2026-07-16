@@ -85,12 +85,12 @@ fn rigid_body_type_to_rapier(
   body_type : RigidBodyType,
 ) -> @rapier_dynamics.RigidBodyType {
   match body_type {
-    Dynamic => @rapier_dynamics.RigidBodyType::Dynamic
-    Fixed => @rapier_dynamics.RigidBodyType::Fixed
+    Dynamic => Dynamic
+    Fixed => Fixed
     KinematicPositionBased =>
-      @rapier_dynamics.RigidBodyType::KinematicPositionBased
+      KinematicPositionBased
     KinematicVelocityBased =>
-      @rapier_dynamics.RigidBodyType::KinematicVelocityBased
+      KinematicVelocityBased
   }
 }
 
@@ -182,7 +182,7 @@ fn sync_entity_physics(
     .set_locked_rotations(snapshot.body.lock_rotation, false)
     |> ignore
     if snapshot.body.body_type is Fixed {
-      body.set_linvel(@rapier_full.Vec2::Vec2(0.0F, 0.0F), false) |> ignore
+      body.set_linvel(Vec2(0.0F, 0.0F), false) |> ignore
       body.set_angvel(0.0F, false) |> ignore
     } else if snapshot.linear_velocity is Some(linear_velocity) {
       body.set_linvel(to_physics_vec2(linear_velocity), false) |> ignore
@@ -244,9 +244,9 @@ fn estimate_direction(from : @entity.Entity, to : @entity.Entity) -> @math.Vec2 
     entity_translation(to) is Some(to_pos) {
     let delta = to_pos - from_pos
     if delta[X].abs() >= delta[Y].abs() {
-      @math.Vec2(if delta[X] >= 0.0 { 1.0 } else { -1.0 }, 0.0)
+      Vec2(if delta[X] >= 0.0 { 1.0 } else { -1.0 }, 0.0)
     } else {
-      @math.Vec2(0.0, if delta[Y] >= 0.0 { 1.0 } else { -1.0 })
+      Vec2(0.0, if delta[Y] >= 0.0 { 1.0 } else { -1.0 })
     }
   } else {
     @math.Vec2::zero()
@@ -306,7 +306,7 @@ fn move_with_kinematic_controller(
     .groups(to_rapier_groups(collider.filter)),
   )
   let controller = @rapier_control.KinematicCharacterController::default().with_up(
-    @rapier_full.Vec2::Vec2(0.0F, -1.0F),
+    Vec2(0.0F, -1.0F),
   )
   let effective = controller.move_shape(
     Float::from_double(delta),
@@ -428,7 +428,7 @@ fn clear_area_contains(area_entity : @entity.Entity, area : Area) -> Unit {
 ///|
 fn process_trigger_events() -> Unit {
   let query_base = @rapier_collision.QueryPipeline::QueryPipeline(
-    @rapier_collision.QueryFilter::QueryFilter(),
+    QueryFilter(),
     world().bodies,
     world().colliders,
   )
@@ -483,8 +483,8 @@ fn sync_body_outputs() -> Unit {
     guard entity_translation(entity) is Some(_) else { continue }
     if world().bodies.get(handle) is Some(body) {
       let body_type = body.body_type()
-      if body_type is @rapier_dynamics.RigidBodyType::Dynamic ||
-        body_type is @rapier_dynamics.RigidBodyType::KinematicVelocityBased {
+      if body_type is Dynamic ||
+        body_type is KinematicVelocityBased {
         set_entity_translation(entity, from_physics_vec2(body.translation()))
         set_entity_rotation(entity, from_physics_rotation(body.rotation()))
         resolved_velocities().set(entity, from_physics_vec2(body.linvel()))
@@ -513,7 +513,7 @@ fn step_rapier_pipeline(delta : Double) -> Unit {
     world().impulse_joints,
     world().multibody_joints,
     world().ccd_solver,
-    @rapier_pipeline.PhysicsHooks::PhysicsHooks(),
+    PhysicsHooks(),
     world().event_handler,
   )
 }
@@ -532,7 +532,7 @@ fn rapier_fixed_step(delta : Double) -> Unit {
   resolved_velocities().clear()
 
   let query_base = @rapier_collision.QueryPipeline::QueryPipeline(
-    @rapier_collision.QueryFilter::QueryFilter(),
+    QueryFilter(),
     world().bodies,
     world().colliders,
   )
