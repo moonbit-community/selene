@@ -443,7 +443,7 @@ fn spawn_tiled_layers(
       Vec2(layer.offset_x, layer.offset_y),
     )
     tiled_ecs_set_entity_visibility(layer_entity, effective_visible)
-    tiled_register_parallax_layer(layer_entity, layer)
+    tiled_register_parallax_layer(layer_entity, map, layer)
     tiled_layer_instances().set(layer_entity, {
       map_entity,
       layer,
@@ -658,11 +658,20 @@ fn spawn_tiled_image_layer(
   tiled_ecs_set_entity_depth(layer_entity, zindex)
   tiled_ecs_set_entity_visibility(layer_entity, visible)
   let repeat = tiled_image_repeat_mode(image_layer)
+  let custom_size = if repeat is NoRepeat &&
+    image_layer.image_width is Some(width) &&
+    image_layer.image_height is Some(height) &&
+    width > 0 &&
+    height > 0 {
+    @math.Vec2(width.to_double(), height.to_double())
+  } else {
+    tiled_map_world_size(map)
+  }
   @sprite.sprites().set(
     layer_entity,
     Sprite(
       image=Some(load_tiled_image(image_path)),
-      custom_size=Some(tiled_map_world_size(map)),
+      custom_size=Some(custom_size),
       color={ r: 255U, g: 255U, b: 255U, a: layer.opacity },
       anchor=Anchor(Vec2(-0.5, 0.5)),
       image_mode=Tiled(repeat),
@@ -1191,6 +1200,7 @@ fn tiled_set_tile_properties(
 ///|
 fn tiled_register_parallax_layer(
   layer_entity : @entity.Entity,
+  map : TiledMap,
   layer : TiledLayer,
 ) -> Unit {
   if layer.parallax_x == 1.0 && layer.parallax_y == 1.0 {
@@ -1207,6 +1217,9 @@ fn tiled_register_parallax_layer(
     layer_entity,
     Parallax2d(
       factor=Vec2(layer.parallax_x, layer.parallax_y),
+      reference=@parallax2d.Parallax2dReference::view_center(
+        Vec2(map.parallax_origin_x, map.parallax_origin_y),
+      ),
     ),
   )
 }

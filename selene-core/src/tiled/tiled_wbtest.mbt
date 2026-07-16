@@ -42,6 +42,68 @@ test "load_tiled_map reads UTF-8 TMJ asset bytes" {
 }
 
 ///|
+test "load and spawn Tiled JSON preserves parallax origin and image size" {
+  let files : Map[String, Bytes] = Map([])
+  files.set(
+    "maps/image-layer.tmj",
+    ascii_bytes(
+      "{\"width\":2,\"height\":2,\"tilewidth\":16,\"tileheight\":16,\"parallaxoriginx\":10,\"parallaxoriginy\":-20,\"layers\":[{\"id\":1,\"name\":\"Backdrop\",\"type\":\"imagelayer\",\"image\":\"bg.png\",\"imagewidth\":24,\"imageheight\":12},{\"id\":2,\"name\":\"Repeated\",\"type\":\"imagelayer\",\"image\":\"bg.png\",\"imagewidth\":24,\"imageheight\":12,\"repeatx\":true}],\"tilesets\":[]}",
+    ),
+  )
+  files.set("maps/bg.png", ascii_bytes("png"))
+  with_fake_asset_io(files, fn() raise {
+    let map = load_tiled_map("maps/image-layer.tmj")
+    inspect(map.parallax_origin_x.to_int(), content="10")
+    inspect(map.parallax_origin_y.to_int(), content="-20")
+    guard map.layers[0].kind is ImageLayer(image_layer) else {
+      fail("missing image layer")
+    }
+    debug_inspect(image_layer.image_width, content="Some(24)")
+    debug_inspect(image_layer.image_height, content="Some(12)")
+
+    let root = spawn_tiled_map(map)
+    defer cleanup_spawned_tiled_tree(root)
+    let layer_entities = tiled_layer_instances()
+      .to_array()
+      .filter(fn(pair) { pair.1.map_entity == root })
+    let backdrop_entity = layer_entities.filter(fn(pair) {
+        pair.1.layer.name == "Backdrop"
+      })[0].0
+    guard @sprite.sprites().get(backdrop_entity) is Some(sprite) else {
+      fail("missing image layer sprite")
+    }
+    debug_inspect(sprite.custom_size, content="Some(Vec2(24, 12))")
+    let repeated_entity = layer_entities.filter(fn(pair) {
+        pair.1.layer.name == "Repeated"
+      })[0].0
+    guard @sprite.sprites().get(repeated_entity) is Some(repeated_sprite) else {
+      fail("missing repeated image layer sprite")
+    }
+    debug_inspect(repeated_sprite.custom_size, content="Some(Vec2(32, 32))")
+  })
+}
+
+///|
+test "Tiled XML preserves parallax origin and image size" {
+  let source =
+    #|<?xml version="1.0" encoding="UTF-8"?>
+    #|<map width="2" height="2" tilewidth="16" tileheight="16" parallaxoriginx="10" parallaxoriginy="-20">
+    #|  <imagelayer id="1" name="Backdrop">
+    #|    <image source="bg.png" width="24" height="12"/>
+    #|  </imagelayer>
+    #|</map>
+    #|
+  let map = TiledMap::from_tiled_xml(source)
+  inspect(map.parallax_origin_x.to_int(), content="10")
+  inspect(map.parallax_origin_y.to_int(), content="-20")
+  guard map.layers[0].kind is ImageLayer(image_layer) else {
+    fail("missing image layer")
+  }
+  debug_inspect(image_layer.image_width, content="Some(24)")
+  debug_inspect(image_layer.image_height, content="Some(12)")
+}
+
+///|
 fn vec2_snapshot(vec : @math.Vec2) -> String {
   "\{vec[X].to_int()},\{vec[Y].to_int()}"
 }
@@ -1030,26 +1092,30 @@ test "tiled world chunking unions multiple active camera views" {
 }
 
 ///|
-test "tiled parallax system adjusts layer offsets" {
+test "Tiled parallax uses map origin for each camera view" {
   let previous_viewport = @system.get_viewport_size()
   let previous_zoom = @system.get_zoom()
   @system.configure_display(100.0, 100.0, 1.0)
 
-  let camera_entity = @entity.Entity()
-  defer camera_entity.destroy()
-  @camera.cameras().set(camera_entity, Camera())
-  @camera.camera2ds().set(camera_entity, Camera2d())
-  @camera.orthographic_projections().set(
-    camera_entity,
-    OrthographicProjection(),
-  )
-  tiled_test_set_entity_translation_2d(camera_entity, Vec2(50.0, 50.0))
+  let left_camera = @entity.Entity()
+  defer left_camera.destroy()
+  @camera.cameras().set(left_camera, Camera(order=0))
+  @camera.camera2ds().set(left_camera, Camera2d())
+  @camera.orthographic_projections().set(left_camera, OrthographicProjection())
+  tiled_test_set_entity_translation_2d(left_camera, Vec2(50.0, 50.0))
+
+  let right_camera = @entity.Entity()
+  defer right_camera.destroy()
+  @camera.cameras().set(right_camera, Camera(order=1))
+  @camera.camera2ds().set(right_camera, Camera2d())
+  @camera.orthographic_projections().set(right_camera, OrthographicProjection())
+  tiled_test_set_entity_translation_2d(right_camera, Vec2(250.0, 150.0))
 
   let files : Map[String, Bytes] = Map([])
   files.set(
     "maps/parallax.tmj",
     ascii_bytes(
-      "{\"width\":1,\"height\":1,\"tilewidth\":16,\"tileheight\":16,\"layers\":[{\"id\":1,\"name\":\"Background\",\"type\":\"tilelayer\",\"offsetx\":2,\"offsety\":3,\"parallaxx\":0.5,\"parallaxy\":0.0,\"width\":1,\"height\":1,\"data\":[0]}],\"tilesets\":[]}",
+      "{\"width\":1,\"height\":1,\"tilewidth\":16,\"tileheight\":16,\"parallaxoriginx\":10,\"parallaxoriginy\":-20,\"layers\":[{\"id\":1,\"name\":\"Background\",\"type\":\"tilelayer\",\"offsetx\":2,\"offsety\":3,\"parallaxx\":0.5,\"parallaxy\":0.0,\"width\":1,\"height\":1,\"data\":[0]}],\"tilesets\":[]}",
     ),
   )
   with_fake_asset_io(files, fn() raise {
@@ -1062,34 +1128,43 @@ test "tiled parallax system adjusts layer offsets" {
         pair.1.map_entity == root && pair.1.layer.name == "Background"
       })[0].0
     let parallax = @parallax2d.inherited_parallax2d(layer_entity).unwrap()
-    let first_camera_view = @camera.primary_camera2d_view().unwrap()
+    let camera_views = @camera.active_camera2d_views()
+    let left_camera_view = camera_views.filter(fn(view) {
+        view.entity == left_camera
+      })[0]
+    let right_camera_view = camera_views.filter(fn(view) {
+        view.entity == right_camera
+      })[0]
+    let view_origin_parallax = @parallax2d.Parallax2d(factor=Vec2(0.5, 0.0))
     inspect(
       vec2_snapshot(
         @parallax2d.parallax_world_position(
-          tiled_test_entity_translation_2d(layer_entity),
-          Some(parallax),
-          Some(first_camera_view),
-        ),
-      ),
-      content="2,3",
-    )
-
-    tiled_test_set_entity_translation_2d(
-      camera_entity,
-      Vec2(250.0, 150.0),
-    )
-    tiled_parallax_system(0.0)
-    let second_camera_view = @camera.primary_camera2d_view().unwrap()
-
-    inspect(
-      vec2_snapshot(
-        @parallax2d.parallax_world_position(
-          tiled_test_entity_translation_2d(layer_entity),
-          Some(parallax),
-          Some(second_camera_view),
+          Vec2(2.0, 3.0),
+          Some(view_origin_parallax),
+          Some(right_camera_view),
         ),
       ),
       content="102,103",
+    )
+    inspect(
+      vec2_snapshot(
+        @parallax2d.parallax_world_position(
+          tiled_test_entity_translation_2d(layer_entity),
+          Some(parallax),
+          Some(left_camera_view),
+        ),
+      ),
+      content="22,73",
+    )
+    inspect(
+      vec2_snapshot(
+        @parallax2d.parallax_world_position(
+          tiled_test_entity_translation_2d(layer_entity),
+          Some(parallax),
+          Some(right_camera_view),
+        ),
+      ),
+      content="122,173",
     )
   })
 

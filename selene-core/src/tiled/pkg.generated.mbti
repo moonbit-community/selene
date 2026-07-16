@@ -155,6 +155,8 @@ pub fn TiledGid::is_empty(Self) -> Bool
 pub struct TiledImageLayer {
   image : String?
   transparent_color : String?
+  image_width : Int?
+  image_height : Int?
   repeat_x : Bool
   repeat_y : Bool
 }
@@ -219,6 +221,8 @@ pub struct TiledMap {
   height : Int
   tile_width : Int
   tile_height : Int
+  parallax_origin_x : Double
+  parallax_origin_y : Double
   hex_side_length : Int?
   stagger_axis : String?
   stagger_index : String?

@@ -1,7 +1,25 @@
 ///|
+/// Selects the camera-space reference used to calculate parallax displacement.
+/// `ViewCenter` stores the world-space point that should align with the center
+/// of each camera view.
+pub enum Parallax2dReference {
+  ViewOrigin
+  ViewCenter(@math.Vec2)
+} derive(Eq, Debug)
+
+///|
+/// Creates a reference measured from each camera view center.
+pub fn Parallax2dReference::view_center(
+  reference_origin : @math.Vec2,
+) -> Parallax2dReference {
+  ViewCenter(reference_origin)
+}
+
+///|
 pub(all) struct Parallax2d {
   base_offset : @math.Vec2
   factor : @math.Vec2
+  reference : Parallax2dReference
 } derive(Eq, Debug)
 
 ///|
@@ -40,8 +58,9 @@ fn clamped_parallax_factor(factor : @math.Vec2) -> @math.Vec2 {
 pub fn Parallax2d::Parallax2d(
   base_offset? : @math.Vec2 = @math.Vec2::zero(),
   factor? : @math.Vec2 = Vec2(1.0, 1.0),
+  reference? : Parallax2dReference = ViewOrigin,
 ) -> Parallax2d {
-  { base_offset, factor: clamped_parallax_factor(factor) }
+  { base_offset, factor: clamped_parallax_factor(factor), reference }
 }
 
 ///|
@@ -71,11 +90,20 @@ pub fn parallax_world_position(
     parallax.map_or(@math.Vec2::zero(), fn(parallax) { parallax.base_offset })
   match (parallax, camera_view) {
     (Some(parallax), Some(camera_view)) => {
-      let camera_origin = camera_view.world_origin()
+      let reference_offset = match parallax.reference {
+        ViewOrigin => camera_view.world_origin()
+        ViewCenter(reference_origin) => {
+          let view_center = camera_view.viewport_to_world_2d(
+            camera_view.viewport.position +
+            camera_view.viewport.size.scalar_mul(0.5),
+          )
+          view_center - reference_origin
+        }
+      }
       shifted +
       Vec2(
-        camera_origin[X] * (1.0 - parallax.factor[X]),
-        camera_origin[Y] * (1.0 - parallax.factor[Y]),
+        reference_offset[X] * (1.0 - parallax.factor[X]),
+        reference_offset[Y] * (1.0 - parallax.factor[Y]),
       )
     }
     _ => shifted

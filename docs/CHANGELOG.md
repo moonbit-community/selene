@@ -15,6 +15,7 @@
 - Fixed selected frame capture ordering for extreme indexes and added direct coverage of capture attempts.
 - Fixed Tiled map, physics, and world spawn settings so external packages can configure hooks and options with record updates.
 - Fixed Tiled and LDtk loading to decode asset bytes as UTF-8 before parsing text map sources.
+- Fixed Tiled parallax origins and image-layer dimensions across TMJ/TMX loading, spawning, and per-camera rendering.
 
 ### Removed
 

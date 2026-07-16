@@ -135,6 +135,8 @@ pub struct TiledObjectLayer {
 pub struct TiledImageLayer {
   image : String?
   transparent_color : String?
+  image_width : Int?
+  image_height : Int?
   repeat_x : Bool
   repeat_y : Bool
 }
@@ -208,6 +210,8 @@ pub struct TiledMap {
   height : Int
   tile_width : Int
   tile_height : Int
+  parallax_origin_x : Double
+  parallax_origin_y : Double
   hex_side_length : Int?
   stagger_axis : String?
   stagger_index : String?
@@ -275,6 +279,8 @@ pub fn empty_tiled_map() -> TiledMap {
     height: 0,
     tile_width: 0,
     tile_height: 0,
+    parallax_origin_x: 0.0,
+    parallax_origin_y: 0.0,
     hex_side_length: None,
     stagger_axis: None,
     stagger_index: None,
@@ -308,6 +314,12 @@ pub fn TiledMap::from_tiled_json(json : Json) -> TiledMap {
     height: field_int(root_object, "height").unwrap_or(0),
     tile_width: field_int(root_object, "tilewidth").unwrap_or(0),
     tile_height: field_int(root_object, "tileheight").unwrap_or(0),
+    parallax_origin_x: field_number(root_object, "parallaxoriginx").unwrap_or(
+      0.0,
+    ),
+    parallax_origin_y: field_number(root_object, "parallaxoriginy").unwrap_or(
+      0.0,
+    ),
     hex_side_length: field_int(root_object, "hexsidelength"),
     stagger_axis: field_string(root_object, "staggeraxis"),
     stagger_index: field_string(root_object, "staggerindex"),
@@ -999,6 +1011,8 @@ fn parse_image_layer(layer_object : Map[String, Json]) -> TiledImageLayer {
   {
     image: field_string(layer_object, "image"),
     transparent_color: field_string(layer_object, "transparentcolor"),
+    image_width: field_int(layer_object, "imagewidth"),
+    image_height: field_int(layer_object, "imageheight"),
     repeat_x: field_bool(layer_object, "repeatx").unwrap_or(false),
     repeat_y: field_bool(layer_object, "repeaty").unwrap_or(false),
   }
