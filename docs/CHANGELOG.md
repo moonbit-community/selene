@@ -11,6 +11,7 @@
 - Changed redundant qualifiers and ambiguous empty-map literals to satisfy the current MoonBit nightly warning checks.
 
 ### Fixed
+- Fixed local example serving instructions so pages can load web bundles from the repository-level `_build` directory.
 - Fixed raylib offscreen render captures so exported PNGs match the rendered vertical orientation.
 - Fixed selected frame capture ordering for extreme indexes and added direct coverage of capture attempts.
 - Fixed Tiled map, physics, and world spawn settings so external packages can configure hooks and options with record updates.

@@ -25,12 +25,11 @@ Selene 有如下特点：
 git clone https://github.com/moonbit-community/selene.git
 ```
 
-进入 examples 目录并构建 Web 示例：
+在仓库根目录构建 Web 示例：
 
 ```shell
 moon update
 moon -C examples-web build ./pixeladventure/web --target js --release
-cd examples
 ```
 
 使用任何 Web 服务器运行，例如 Python：
@@ -39,7 +38,7 @@ cd examples
 python3 -m http.server 8000
 ```
 
-运行成功后，打开浏览器访问 `http://localhost:8000/pixeladventure/` 即可游玩。
+运行成功后，打开浏览器访问 `http://localhost:8000/examples/pixeladventure/` 即可游玩。
 
 接下来你可以尝试修改源码中的部分代码，例如调整游戏画面的大小、缩放比例和帧率，然后重新构建、运行，很快就能对这个案例游戏和 Selene 引擎有初步了解。
 
@@ -457,13 +456,13 @@ moon -C examples-web build ./pixeladventure/web --target js --release
 <script src="../../_build/js/release/build/Milky2018/selene-examples-web/pixeladventure/web/web.js" defer></script>
 ```
 
-然后启动本地 Web 服务：
+然后在仓库根目录启动本地 Web 服务：
 
 ```shell
 python3 -m http.server 8000
 ```
 
-访问 `http://localhost:8000/pixeladventure/` 即可游玩。
+访问 `http://localhost:8000/examples/pixeladventure/` 即可游玩。
 
 游戏完整源码： [Selene Example](https://github.com/moonbit-community/selene/tree/main/examples/pixeladventure)
 

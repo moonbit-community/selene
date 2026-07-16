@@ -25,12 +25,11 @@ Clone this repository:
 git clone https://github.com/moonbit-community/selene.git
 ```
 
-Enter the examples directory and build the web sample:
+From the repository root, build the web sample:
 
 ```shell
 moon update
 moon -C examples-web build ./pixeladventure/web --target js --release
-cd examples
 ```
 
 Run with any web server, for example Python:
@@ -39,7 +38,7 @@ Run with any web server, for example Python:
 python3 -m http.server 8000
 ```
 
-After startup, open `http://localhost:8000/pixeladventure/` in your browser.
+After startup, open `http://localhost:8000/examples/pixeladventure/` in your browser.
 
 Next, try changing a few source values (viewport size, zoom, FPS), then rebuild and rerun. This gives a quick practical understanding of both the sample and the engine.
 
@@ -457,13 +456,13 @@ Then use `examples/pixeladventure/index.html`, which references:
 <script src="../../_build/js/release/build/Milky2018/selene-examples-web/pixeladventure/web/web.js" defer></script>
 ```
 
-Run local server:
+Run the local server from the repository root:
 
 ```shell
 python3 -m http.server 8000
 ```
 
-Open `http://localhost:8000/pixeladventure/` to play.
+Open `http://localhost:8000/examples/pixeladventure/` to play.
 
 Complete source: [Selene Example](https://github.com/moonbit-community/selene/tree/main/examples/pixeladventure)
 

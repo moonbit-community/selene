@@ -6,11 +6,10 @@ A small Selene example built around scene documents, atlases, animation clips/gr
 
 ```bash
 moon -C examples-web build ./pixeladventure/web --target js --release
-cd examples
 python3 -m http.server 8000
 ```
 
-Open `http://localhost:8000/pixeladventure/`.
+Open `http://localhost:8000/examples/pixeladventure/`.
 
 ## Asset Sources
 
