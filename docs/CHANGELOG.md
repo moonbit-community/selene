@@ -11,6 +11,7 @@
 
 ### Fixed
 - Fixed raylib offscreen render captures so exported PNGs match the rendered vertical orientation.
+- Fixed `TiledSpawnSettings` so external packages can configure Tiled spawn hooks with record updates.
 
 ### Removed
 
