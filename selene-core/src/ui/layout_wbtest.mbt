@@ -287,11 +287,7 @@ test "ui target camera layouts use the camera viewport as screen-space origin" {
   let camera = @entity.Entity()
   @camera.cameras().set(
     camera,
-    Camera(
-      viewport=Some(
-        CameraViewport(Vec2(20.0, 10.0), Vec2(80.0, 40.0)),
-      ),
-    ),
+    Camera(viewport=Some(CameraViewport(Vec2(20.0, 10.0), Vec2(80.0, 40.0)))),
   )
   @camera.camera2ds().set(camera, Camera2d())
   @transform.global_transforms().set(
@@ -300,10 +296,7 @@ test "ui target camera layouts use the camera viewport as screen-space origin" {
   )
 
   let entity = @entity.Entity()
-  nodes().set(
-    entity,
-    Node::absolute(Vec2(4.0, 6.0), size=Vec2(20.0, 10.0)),
-  )
+  nodes().set(entity, Node::absolute(Vec2(4.0, 6.0), size=Vec2(20.0, 10.0)))
   ui_target_cameras().set(entity, UiTargetCamera(camera))
 
   ui_layout_system(0.0)
@@ -321,6 +314,80 @@ test "ui target camera layouts use the camera viewport as screen-space origin" {
 }
 
 ///|
+test "ui layout clamps scroll positions to overflowing content" {
+  let parent = @entity.Entity()
+  let child = parent.spawn_child()
+  nodes().set(
+    parent,
+    Node::absolute(Vec2(0.0, 0.0), size=Vec2(100.0, 100.0), overflow_y=Scroll),
+  )
+  nodes().set(
+    child,
+    Node(width=Val::px(100.0), height=Val::px(300.0), flex_shrink=0.0),
+  )
+  scroll_positions().set(parent, { x: 80.0, y: 1000.0 })
+
+  ui_layout_system(0.0)
+
+  let scroll = scroll_positions().get(parent).unwrap()
+  debug_inspect([scroll.x, scroll.y], content="[0, 200]")
+  let initial = computed_ui_nodes().get(parent).unwrap()
+  debug_inspect(
+    [
+      initial.scroll_content_size,
+      initial.max_scroll_position,
+      initial.effective_scroll_position,
+    ],
+    content="[Vec2(100, 300), Vec2(0, 200), Vec2(0, 200)]",
+  )
+
+  nodes().set(
+    parent,
+    Node::absolute(Vec2(0.0, 0.0), size=Vec2(100.0, 250.0), overflow_y=Scroll),
+  )
+  ui_layout_system(0.0)
+  let resized = computed_ui_nodes().get(parent).unwrap()
+  debug_inspect(
+    [
+      resized.max_scroll_position[Y],
+      resized.effective_scroll_position[Y],
+      scroll_positions().get(parent).unwrap().y,
+    ],
+    content="[50, 50, 50]",
+  )
+
+  nodes().set(
+    child,
+    Node(width=Val::px(100.0), height=Val::px(120.0), flex_shrink=0.0),
+  )
+  ui_layout_system(0.0)
+  let shrunk = computed_ui_nodes().get(parent).unwrap()
+  debug_inspect(
+    [shrunk.max_scroll_position[Y], scroll_positions().get(parent).unwrap().y],
+    content="[0, 0]",
+  )
+
+  nodes().set(
+    child,
+    Node(width=Val::px(100.0), height=Val::px(300.0), flex_shrink=0.0),
+  )
+  scroll_positions().set(parent, { x: 0.0, y: 70.0 })
+  nodes().set(
+    parent,
+    Node::absolute(Vec2(0.0, 0.0), size=Vec2(100.0, 100.0), overflow_y=Hidden),
+  )
+  ui_layout_system(0.0)
+  let disabled = computed_ui_nodes().get(parent).unwrap()
+  debug_inspect(
+    [disabled.max_scroll_position[Y], scroll_positions().get(parent).unwrap().y],
+    content="[0, 0]",
+  )
+
+  cleanup_layout_test_entity(child)
+  cleanup_layout_test_entity(parent)
+}
+
+///|
 test "ui override clip ignores inherited clipping rectangles" {
   let parent = @entity.Entity()
   let child = parent.spawn_child()
@@ -334,10 +401,7 @@ test "ui override clip ignores inherited clipping rectangles" {
       overflow_y=Hidden,
     ),
   )
-  nodes().set(
-    child,
-    Node::absolute(Vec2(90.0, 20.0), size=Vec2(80.0, 40.0)),
-  )
+  nodes().set(child, Node::absolute(Vec2(90.0, 20.0), size=Vec2(80.0, 40.0)))
   override_clips().set(child, OverrideClip())
 
   ui_layout_system(0.0)

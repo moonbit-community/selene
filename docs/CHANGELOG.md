@@ -7,6 +7,7 @@
 ### Changed
 
 ### Fixed
+- Fixed UI scroll positions exceeding their content bounds or retaining stale offsets after layout changes.
 
 ### Removed
 

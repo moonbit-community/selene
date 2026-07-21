@@ -352,11 +352,17 @@ test "ui touch release outside pressed target does not click" {
 test "ui touch drag scrolls non-button scrollable panels" {
   with_ui_interaction_test_world(fn() raise {
     reset_interaction_test_state()
-    let entity = spawn_interaction_test_node(
-      { position: Vec2(0.0, 0.0), size: Vec2(100.0, 100.0) },
-      interactive=false,
-      overflow_y=Scroll,
+    let entity = @entity.Entity()
+    let child = entity.spawn_child()
+    nodes().set(
+      entity,
+      Node::absolute(Vec2(0.0, 0.0), size=Vec2(100.0, 100.0), overflow_y=Scroll),
     )
+    nodes().set(
+      child,
+      Node(width=Val::px(100.0), height=Val::px(200.0), flex_shrink=0.0),
+    )
+    ui_layout_system(0.0)
     let id = @inputs.TouchId(4)
     let previous = @math.Vec2(20.0, 50.0)
     let current = @math.Vec2(20.0, 30.0)
@@ -370,6 +376,41 @@ test "ui touch drag scrolls non-button scrollable panels" {
     let scroll = scroll_positions().get(entity).unwrap()
     inspect(scroll.y, content="20")
 
+    cleanup_interaction_test_entity(child)
+    cleanup_interaction_test_entity(entity)
+    reset_interaction_test_state()
+  })
+}
+
+///|
+test "ui scroll deltas stop at the computed content bounds" {
+  with_ui_interaction_test_world(fn() raise {
+    reset_interaction_test_state()
+    let entity = @entity.Entity()
+    let child = entity.spawn_child()
+    nodes().set(
+      entity,
+      Node::absolute(Vec2(0.0, 0.0), size=Vec2(100.0, 100.0), overflow_y=Scroll),
+    )
+    nodes().set(
+      child,
+      Node(width=Val::px(100.0), height=Val::px(220.0), flex_shrink=0.0),
+    )
+    ui_layout_system(0.0)
+
+    apply_scroll_delta(entity, Vec2(0.0, 1000.0))
+    debug_inspect(
+      [
+        computed_ui_nodes().get(entity).unwrap().max_scroll_position[Y],
+        scroll_positions().get(entity).unwrap().y,
+      ],
+      content="[120, 120]",
+    )
+
+    apply_scroll_delta(entity, Vec2(0.0, -1000.0))
+    inspect(scroll_positions().get(entity).unwrap().y, content="0")
+
+    cleanup_interaction_test_entity(child)
     cleanup_interaction_test_entity(entity)
     reset_interaction_test_state()
   })
@@ -411,10 +452,9 @@ test "ui input capture preserves pen identity" {
     let pointer : @inputs.PointerId = { source: PointerPen, value: id.value() }
     let press = @math.Vec2(120.0, 70.0)
 
-    apply_ui_touch_frame(
-      Some(touch_point(id, press, source=PointerPen)),
-      [touch_event(id, Started, press, source=PointerPen)],
-    )
+    apply_ui_touch_frame(Some(touch_point(id, press, source=PointerPen)), [
+      touch_event(id, Started, press, source=PointerPen),
+    ])
     ui_input_capture_system(0.0)
 
     inspect(is_pointer_consumed(pointer), content="true")
@@ -524,10 +564,7 @@ test "ui relative cursor positions keep normalized values outside calculated cli
   global_ui_nodes().set(entity, interaction_test_global_node(rect))
   calculated_clips().set(
     entity,
-    CalculatedClip({
-      position: Vec2(100.0, 50.0),
-      size: Vec2(10.0, 20.0),
-    }),
+    CalculatedClip({ position: Vec2(100.0, 50.0), size: Vec2(10.0, 20.0) }),
   )
   relative_cursor_positions().set(entity, RelativeCursorPosition())
   @inputs.mouse.pos = Vec2(130.0, 60.0)

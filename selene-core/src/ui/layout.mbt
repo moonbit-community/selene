@@ -348,10 +348,7 @@ fn rect_intersection(lhs : @math.Rect, rhs : @math.Rect) -> @math.Rect? {
   if right <= left || bottom <= top {
     None
   } else {
-    Some({
-      position: Vec2(left, top),
-      size: Vec2(right - left, bottom - top),
-    })
+    Some({ position: Vec2(left, top), size: Vec2(right - left, bottom - top) })
   }
 }
 
@@ -404,10 +401,7 @@ fn rounded_screen_rect(rect : @math.Rect) -> @math.Rect {
   let bottom = (rect.position[Y] + rect.size[Y]).round()
   {
     position: Vec2(left, top),
-    size: Vec2(
-      @cmp.maximum(0.0, right - left),
-      @cmp.maximum(0.0, bottom - top),
-    ),
+    size: Vec2(@cmp.maximum(0.0, right - left), @cmp.maximum(0.0, bottom - top)),
   }
 }
 
@@ -626,12 +620,42 @@ fn apply_layout_recursive(
     position: content_position,
     size: content_size,
   }
+  let scroll_content_size = @math.Vec2(
+    layout.content_size.width,
+    layout.content_size.height,
+  )
+  let scrollbar_size = @math.Vec2(
+    layout.scrollbar_size.width,
+    layout.scrollbar_size.height,
+  )
+  let max_scroll_position = @math.Vec2(
+    if node.overflow_x == Scroll {
+      layout.scroll_width()
+    } else {
+      0.0
+    },
+    if node.overflow_y == Scroll {
+      layout.scroll_height()
+    } else {
+      0.0
+    },
+  )
+  let mut effective_scroll_position = @math.Vec2::zero()
+  if scroll_positions().get(entity) is Some(scroll) {
+    scroll.x = @cmp.minimum(max_scroll_position[X], @cmp.maximum(0.0, scroll.x))
+    scroll.y = @cmp.minimum(max_scroll_position[Y], @cmp.maximum(0.0, scroll.y))
+    effective_scroll_position = @math.Vec2(scroll.x, scroll.y)
+  }
 
   computed_ui_nodes().set(entity, {
     position: logical_pos,
     size: logical_size,
     content_position,
     content_size,
+    scroll_content_size,
+    scrollbar_size,
+    max_scroll_position,
+    effective_scroll_position,
     border,
     padding,
   })
@@ -674,10 +698,9 @@ fn apply_layout_recursive(
     None => calculated_clips().remove(entity)
   }
 
-  let scroll = scroll_positions().get(entity).unwrap_or(ScrollPosition::zero())
   let next_origin = @math.Vec2(
-    logical_content_rect.position[X] - scroll.x,
-    logical_content_rect.position[Y] - scroll.y,
+    logical_content_rect.position[X] - effective_scroll_position[X],
+    logical_content_rect.position[Y] - effective_scroll_position[Y],
   )
   for child in ui_children(entity) {
     apply_layout_recursive(

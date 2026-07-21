@@ -609,12 +609,19 @@ pub fn ui_input_capture_system(_delta : Double) -> Unit {
 ///|
 fn apply_scroll_delta(entity : @entity.Entity, delta : @math.Vec2) -> Unit {
   guard nodes().get(entity) is Some(node) else { return }
+  guard computed_ui_nodes().get(entity) is Some(computed) else { return }
   let scroll = scroll_positions().get_or_init(entity, ScrollPosition::zero)
   if node.overflow_x == Scroll {
-    scroll.x = @cmp.maximum(0.0, scroll.x + delta[X])
+    scroll.x = @cmp.minimum(
+      computed.max_scroll_position[X],
+      @cmp.maximum(0.0, scroll.x + delta[X]),
+    )
   }
   if node.overflow_y == Scroll {
-    scroll.y = @cmp.maximum(0.0, scroll.y + delta[Y])
+    scroll.y = @cmp.minimum(
+      computed.max_scroll_position[Y],
+      @cmp.maximum(0.0, scroll.y + delta[Y]),
+    )
   }
 }
 
@@ -794,10 +801,7 @@ pub fn ui_interaction_system(_delta : Double) -> Unit {
     })
   }
   if @inputs.is_just_pressed(ArrowRight) ||
-    @inputs.is_gamepad_button_just_pressed(
-      Gamepad(0),
-      DPadRight,
-    ) {
+    @inputs.is_gamepad_button_just_pressed(Gamepad(0), DPadRight) {
     move_focus(Right)
     navigation_event_bus.send({
       entity: runtime.focused_entity,
