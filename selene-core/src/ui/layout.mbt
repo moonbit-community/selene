@@ -574,7 +574,7 @@ fn apply_layout_recursive(
   entity : @entity.Entity,
   taffy : @tree.TaffyTree[@entity.Entity],
   entity_to_node_id : Map[@entity.Entity, Int],
-  parent_content_origin : @math.Vec2,
+  parent_layout_origin : @math.Vec2,
   parent_clip : @math.Rect?,
   inherited_use_rounding : Bool,
   order_counter : Ref[Int],
@@ -593,7 +593,7 @@ fn apply_layout_recursive(
     .unwrap_or(inherited_use_rounding)
   let layout = taffy.layout(node_id) catch { _ => return }
 
-  let logical_pos = parent_content_origin +
+  let logical_pos = parent_layout_origin +
     Vec2(layout.location.x, layout.location.y)
   let logical_size = @math.Vec2(layout.size.width, layout.size.height)
   let logical_rect = @math.Rect::{ position: logical_pos, size: logical_size }
@@ -676,8 +676,8 @@ fn apply_layout_recursive(
 
   let scroll = scroll_positions().get(entity).unwrap_or(ScrollPosition::zero())
   let next_origin = @math.Vec2(
-    logical_content_rect.position[X] - scroll.x,
-    logical_content_rect.position[Y] - scroll.y,
+    logical_pos[X] - scroll.x,
+    logical_pos[Y] - scroll.y,
   )
   for child in ui_children(entity) {
     apply_layout_recursive(

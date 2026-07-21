@@ -243,6 +243,51 @@ test "ui layout uses overflow clip margins from the requested visual box" {
 }
 
 ///|
+test "ui layout projects nested border and padding offsets exactly once" {
+  let parent = @entity.Entity()
+  let child = parent.spawn_child()
+  let grandchild = child.spawn_child()
+  nodes().set(
+    parent,
+    Node::absolute(
+      Vec2(10.0, 20.0),
+      size=Vec2(100.0, 80.0),
+      padding=UiRectValues::all(6.0),
+      border=UiRectValues::all(2.0),
+    ),
+  )
+  nodes().set(
+    child,
+    Node(
+      width=Val::px(40.0),
+      height=Val::px(30.0),
+      padding=UiRectValues::all(3.0),
+      border=UiRectValues::all(1.0),
+    ),
+  )
+  nodes().set(grandchild, Node(width=Val::px(10.0), height=Val::px(10.0)))
+
+  ui_layout_system(0.0)
+
+  debug_inspect(
+    (
+      computed_ui_nodes().get(parent).unwrap().position,
+      computed_ui_nodes().get(parent).unwrap().content_position,
+      computed_ui_nodes().get(child).unwrap().position,
+      computed_ui_nodes().get(child).unwrap().content_position,
+      computed_ui_nodes().get(grandchild).unwrap().position,
+    ),
+    content=(
+      #|(Vec2(10, 20), Vec2(18, 28), Vec2(18, 28), Vec2(22, 32), Vec2(22, 32))
+    ),
+  )
+
+  cleanup_layout_test_entity(grandchild)
+  cleanup_layout_test_entity(child)
+  cleanup_layout_test_entity(parent)
+}
+
+///|
 test "ui layout config controls screen-space rounding for viewport-scaled rects" {
   let old_scale_mode = get_ui_scale_mode()
   let old_viewport = @system.get_viewport_size()
