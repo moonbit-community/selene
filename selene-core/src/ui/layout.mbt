@@ -281,25 +281,55 @@ fn implicit_root_style(size : @math.Vec2) -> @style.Style {
 ///|
 fn measure_node(
   known_dimensions : @geometry.Size[Double?],
-  _available : @geometry.Size[@geometry.AvailableSpace],
+  available : @geometry.Size[@geometry.AvailableSpace],
   _node_id : Int,
   entity : @entity.Entity?,
-  _style : @style.Style,
+  style : @style.Style,
 ) -> @geometry.Size[Double] {
   guard entity is Some(entity) else { return @geometry.Size::zero() }
   let (intrinsic_width, intrinsic_height) = if texts().get(entity) is Some(text) {
-    let measured = @platform_render.measure_text(
-      text_style_for(entity).unwrap_or({
-        font: None,
-        family: "Arial",
-        size: 16.0,
-        color: rgba(255, 255, 255, 1.0),
-        align: Left,
-        baseline: Top,
-      }),
-      text.content,
+    let text_style = text_style_for(entity).unwrap_or({
+      font: None,
+      family: "Arial",
+      size: 16.0,
+      color: rgba(255, 255, 255, 1.0),
+      align: Left,
+      baseline: Top,
+    })
+    let width_basis = known_dimensions.width.unwrap_or(
+      match available.width {
+        AvailDefinite(width) => width
+        _ => 0.0
+      },
     )
-    (measured[X], measured[Y])
+    let horizontal_inset = @util.resolve_dimension_width_basis(
+        style.padding.left,
+        width_basis,
+      ) +
+      @util.resolve_dimension_width_basis(style.padding.right, width_basis) +
+      @util.resolve_dimension_width_basis(style.border.left, width_basis) +
+      @util.resolve_dimension_width_basis(style.border.right, width_basis)
+    let available_content_width = match known_dimensions.width {
+      Some(width) =>
+        @style_helpers.available_space_definite(
+          @cmp.maximum(0.0, width - horizontal_inset),
+        )
+      None =>
+        match available.width {
+          AvailDefinite(width) =>
+            @style_helpers.available_space_definite(
+              @cmp.maximum(0.0, width - horizontal_inset),
+            )
+          constraint => constraint
+        }
+    }
+    let prepared = prepare_text_layout(
+      text.content,
+      text_style,
+      text_layout(entity),
+      available_content_width,
+    )
+    (prepared.width, prepared.height)
   } else if ui_images().get(entity) is Some(image) {
     (image.size[X], image.size[Y])
   } else {

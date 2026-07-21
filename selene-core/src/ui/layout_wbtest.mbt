@@ -102,6 +102,48 @@ test "ui nodes map block display and aspect ratio into block layout" {
 }
 
 ///|
+test "ui wrapped text contributes lines to auto height" {
+  let entity = @entity.Entity()
+  texts().set(entity, Text("hello world"))
+  text_fonts().set(entity, TextFont(size=16.0))
+  text_layouts().set(entity, TextLayout(wrap=WordWrap))
+
+  let measured = measure_node(
+    Size(width=Some(60.0), height=None),
+    Size(
+      width=@style_helpers.available_space_definite(60.0),
+      height=@style_helpers.max_content(),
+    ),
+    0,
+    Some(entity),
+    node_to_taffy_style(Node(width=Val::px(60.0))),
+  )
+
+  inspect(measured.width, content="60")
+  inspect(measured.height, content="32")
+
+  let measured_with_padding = measure_node(
+    Size(width=Some(100.0), height=None),
+    Size(
+      width=@style_helpers.available_space_definite(100.0),
+      height=@style_helpers.max_content(),
+    ),
+    0,
+    Some(entity),
+    node_to_taffy_style(
+      Node(
+        width=Val::px(100.0),
+        padding=UiRectValues::px(left=20.0, right=20.0),
+      ),
+    ),
+  )
+
+  inspect(measured_with_padding.width, content="100")
+  inspect(measured_with_padding.height, content="32")
+  cleanup_layout_test_entity(entity)
+}
+
+///|
 test "ui nodes map grid placement and self alignment into grid layout" {
   let taffy : @tree.TaffyTree[Unit] = TaffyTree()
   let child0 = taffy.new_leaf(
