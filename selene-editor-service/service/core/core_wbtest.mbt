@@ -26,6 +26,28 @@ fn legacy_project_minimum_version_key() -> String {
 }
 
 ///|
+async test "recursive file listing returns canonical project-relative paths" {
+  @async.with_task_group(group => {
+    let root = @fs.tmpdir(prefix="selene-editor-file-list")
+    group.add_defer(() => {
+      if @fs.exists(root) {
+        @fs.rmdir(root, recursive=true)
+      }
+    })
+    let nested = path_join(root, "nested")
+    @fs.mkdir(nested, permission=0o755, recursive=true)
+    @fs.write_file(
+      path_join(nested, "file.txt"),
+      b"fixture",
+      create_mode=CreateOrTruncate,
+      permission=0o644,
+    )
+
+    debug_inspect(list_files_recursive(root), content="[\"nested/file.txt\"]")
+  })
+}
+
+///|
 async test "project.open auto-initializes a missing project manifest" {
   @async.with_task_group(group => {
     let temp_root = @fs.tmpdir(prefix="selene-editor-core")
@@ -408,7 +430,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
     )
     match response_envelope(current_payload).response {
       ProjectState(state~) =>
-        debug_inspect(state.root, content="Some(\"" + root + "\")")
+        inspect(state.root == Some(root), content="true")
       _ => fail("expected project state")
     }
 

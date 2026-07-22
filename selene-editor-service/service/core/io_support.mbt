@@ -78,7 +78,7 @@ async fn list_files_recursive(root : String) -> Array[String] {
           let child_prefix = if prefix == "" {
             entry
           } else {
-            path_join(prefix, entry)
+            prefix + "/" + entry
           }
           visit(child_path, child_prefix)
         }

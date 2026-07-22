@@ -9,6 +9,7 @@
 ### Fixed
 - Fixed nested UI children receiving border and padding offsets twice during
   layout projection.
+- Fixed editor project file discovery and path assertions on Windows.
 
 ### Removed
 
