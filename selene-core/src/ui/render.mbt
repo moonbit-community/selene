@@ -715,38 +715,29 @@ fn push_image(
 }
 
 ///|
-fn measure_text_fragment(entity : @entity.Entity, text : String) -> @math.Vec2 {
-  @platform_render.measure_text(
-    render_text_style(entity).unwrap_or(
-      scaled_text_style({
-        font: None,
-        family: "Arial",
-        size: 16.0,
-        color: rgba(255, 255, 255, 1.0),
-        align: Left,
-        baseline: Top,
-      }),
-    ),
-    text,
-  )
+fn measure_text_fragment(
+  style : @render2d_types.TextStyle2D,
+  text : String,
+) -> @math.Vec2 {
+  @platform_render.measure_text(style, text)
 }
 
 ///|
 fn truncate_line(
-  entity : @entity.Entity,
+  style : @render2d_types.TextStyle2D,
   text : String,
   max_width : Double,
 ) -> String {
   if max_width <= 0.0 {
     return ""
   }
-  if measure_text_fragment(entity, text)[X] <= max_width {
+  if measure_text_fragment(style, text)[X] <= max_width {
     return text
   }
   let ellipsis = "..."
   let mut current = text
   while current.length() > 0 &&
-        measure_text_fragment(entity, current + ellipsis)[X] > max_width {
+        measure_text_fragment(style, current + ellipsis)[X] > max_width {
     current = current.unsafe_substring(start=0, end=current.length() - 1)
   }
   current + ellipsis
@@ -754,7 +745,7 @@ fn truncate_line(
 
 ///|
 fn wrap_line(
-  entity : @entity.Entity,
+  style : @render2d_types.TextStyle2D,
   text : String,
   max_width : Double,
 ) -> Array[String] {
@@ -766,16 +757,16 @@ fn wrap_line(
     words.push(word.to_owned())
   }
   if words.length() <= 1 {
-    return [truncate_line(entity, text, max_width)]
+    return [truncate_line(style, text, max_width)]
   }
   let lines : Array[String] = []
   let mut current = ""
   for word in words {
     let candidate = if current == "" { word } else { current + " " + word }
-    if measure_text_fragment(entity, candidate)[X] <= max_width {
+    if measure_text_fragment(style, candidate)[X] <= max_width {
       current = candidate
     } else if current == "" {
-      lines.push(truncate_line(entity, word, max_width))
+      lines.push(truncate_line(style, word, max_width))
     } else {
       lines.push(current)
       current = word
@@ -790,36 +781,11 @@ fn wrap_line(
 ///|
 fn prepared_text_lines(
   entity : @entity.Entity,
-  content_rect : @math.Rect,
+  available_width : @geometry.AvailableSpace,
 ) -> Array[String] {
   guard texts().get(entity) is Some(text) else { return [] }
-  let layout = text_layout(entity)
-  let raw_lines : Array[String] = []
-  for raw_line in text.content.split("\n") {
-    raw_lines.push(raw_line.to_owned())
-  }
-  let lines : Array[String] = []
-  for raw_line in raw_lines {
-    match layout.wrap {
-      NoWrap =>
-        lines.push(
-          match layout.overflow {
-            Clip => raw_line
-            Ellipsis => truncate_line(entity, raw_line, content_rect.size[X])
-          },
-        )
-      WordWrap =>
-        for line in wrap_line(entity, raw_line, content_rect.size[X]) {
-          lines.push(
-            match layout.overflow {
-              Clip => line
-              Ellipsis => truncate_line(entity, line, content_rect.size[X])
-            },
-          )
-        }
-    }
-  }
-  lines
+  guard text_style_for(entity) is Some(style) else { return [] }
+  prepare_text_layout(text.content, style, text_layout(entity), available_width).lines
 }
 
 ///|
@@ -828,7 +794,10 @@ fn push_text(entity : @entity.Entity, camera_entity_id? : UInt? = None) -> Unit 
   guard global_ui_nodes().get(entity) is Some(transform) else { return }
   guard render_text_style(entity) is Some(style) else { return }
   let layout = text_layout(entity)
-  let lines = prepared_text_lines(entity, transform.screen_content_rect)
+  let lines = prepared_text_lines(
+    entity,
+    AvailDefinite(transform.logical_content_rect.size[X]),
+  )
   if lines.is_empty() {
     return
   }
@@ -845,7 +814,7 @@ fn push_text(entity : @entity.Entity, camera_entity_id? : UInt? = None) -> Unit 
       block_height
   }
   for index, line in lines {
-    let measured = measure_text_fragment(entity, line)
+    let measured = measure_text_fragment(style, line)
     let x = match layout.align {
       Left => transform.screen_content_rect.position[X]
       Center =>
