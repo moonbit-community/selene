@@ -113,10 +113,7 @@ fn resolved_border_radius(
 ///|
 fn inset_rect(rect : @math.Rect, inset : UiInsets) -> @math.Rect {
   {
-    position: Vec2(
-      rect.position[X] + inset.left,
-      rect.position[Y] + inset.top,
-    ),
+    position: Vec2(rect.position[X] + inset.left, rect.position[Y] + inset.top),
     size: Vec2(
       @cmp.maximum(0.0, rect.size[X] - inset.left - inset.right),
       @cmp.maximum(0.0, rect.size[Y] - inset.top - inset.bottom),

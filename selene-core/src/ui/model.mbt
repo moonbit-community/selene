@@ -592,6 +592,7 @@ pub(all) struct ComputedUiNode {
   size : @math.Vec2
   content_position : @math.Vec2
   content_size : @math.Vec2
+  max_scroll_position : @math.Vec2
   border : UiInsets
   padding : UiInsets
 }

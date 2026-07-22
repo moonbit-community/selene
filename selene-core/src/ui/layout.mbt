@@ -378,10 +378,7 @@ fn rect_intersection(lhs : @math.Rect, rhs : @math.Rect) -> @math.Rect? {
   if right <= left || bottom <= top {
     None
   } else {
-    Some({
-      position: Vec2(left, top),
-      size: Vec2(right - left, bottom - top),
-    })
+    Some({ position: Vec2(left, top), size: Vec2(right - left, bottom - top) })
   }
 }
 
@@ -434,10 +431,7 @@ fn rounded_screen_rect(rect : @math.Rect) -> @math.Rect {
   let bottom = (rect.position[Y] + rect.size[Y]).round()
   {
     position: Vec2(left, top),
-    size: Vec2(
-      @cmp.maximum(0.0, right - left),
-      @cmp.maximum(0.0, bottom - top),
-    ),
+    size: Vec2(@cmp.maximum(0.0, right - left), @cmp.maximum(0.0, bottom - top)),
   }
 }
 
@@ -656,12 +650,31 @@ fn apply_layout_recursive(
     position: content_position,
     size: content_size,
   }
+  let max_scroll_position = @math.Vec2(
+    if node.overflow_x == Scroll {
+      layout.scroll_width()
+    } else {
+      0.0
+    },
+    if node.overflow_y == Scroll {
+      layout.scroll_height()
+    } else {
+      0.0
+    },
+  )
+  let mut effective_scroll_position = @math.Vec2::zero()
+  if scroll_positions().get(entity) is Some(scroll) {
+    scroll.x = @cmp.minimum(max_scroll_position[X], @cmp.maximum(0.0, scroll.x))
+    scroll.y = @cmp.minimum(max_scroll_position[Y], @cmp.maximum(0.0, scroll.y))
+    effective_scroll_position = @math.Vec2(scroll.x, scroll.y)
+  }
 
   computed_ui_nodes().set(entity, {
     position: logical_pos,
     size: logical_size,
     content_position,
     content_size,
+    max_scroll_position,
     border,
     padding,
   })
@@ -704,10 +717,9 @@ fn apply_layout_recursive(
     None => calculated_clips().remove(entity)
   }
 
-  let scroll = scroll_positions().get(entity).unwrap_or(ScrollPosition::zero())
   let next_origin = @math.Vec2(
-    logical_pos[X] - scroll.x,
-    logical_pos[Y] - scroll.y,
+    logical_pos[X] - effective_scroll_position[X],
+    logical_pos[Y] - effective_scroll_position[Y],
   )
   for child in ui_children(entity) {
     apply_layout_recursive(

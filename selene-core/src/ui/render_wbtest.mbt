@@ -300,10 +300,7 @@ test "ui override clip removes inherited clip from child rendering" {
   @render2d.begin_frame2d_system(0.0)
   let parent = @entity.Entity()
   let child = parent.spawn_child()
-  nodes().set(
-    parent,
-    Node(overflow_x=Hidden, overflow_y=Hidden),
-  )
+  nodes().set(parent, Node(overflow_x=Hidden, overflow_y=Hidden))
   nodes().set(child, Node())
   global_ui_nodes().set(
     parent,
