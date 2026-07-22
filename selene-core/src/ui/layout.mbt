@@ -8,7 +8,7 @@ fn val_to_dimension(value : Val) -> @style.Dimension {
 }
 
 ///|
-fn rect_values_to_taffy(
+fn rect_values_to_chicle(
   rect : UiRectValues,
 ) -> @geometry.Rect[@style.Dimension] {
   Rect(
@@ -20,7 +20,7 @@ fn rect_values_to_taffy(
 }
 
 ///|
-fn align_items_to_taffy(value : AlignItems) -> @style.AlignItems {
+fn align_items_to_chicle(value : AlignItems) -> @style.AlignItems {
   match value {
     Start => @style_helpers.align_items_start()
     End => @style_helpers.align_items_end()
@@ -33,7 +33,7 @@ fn align_items_to_taffy(value : AlignItems) -> @style.AlignItems {
 }
 
 ///|
-fn align_content_to_taffy(value : AlignContent) -> @style.AlignContent {
+fn align_content_to_chicle(value : AlignContent) -> @style.AlignContent {
   match value {
     Start => @style_helpers.align_content_start()
     End => @style_helpers.align_content_end()
@@ -48,7 +48,7 @@ fn align_content_to_taffy(value : AlignContent) -> @style.AlignContent {
 }
 
 ///|
-fn justify_content_to_taffy(value : JustifyContent) -> @style.AlignContent {
+fn justify_content_to_chicle(value : JustifyContent) -> @style.AlignContent {
   match value {
     Start => @style_helpers.justify_content_start()
     End => @style_helpers.justify_content_end()
@@ -63,7 +63,7 @@ fn justify_content_to_taffy(value : JustifyContent) -> @style.AlignContent {
 }
 
 ///|
-fn flex_wrap_to_taffy(value : FlexWrap) -> @style.FlexWrap {
+fn flex_wrap_to_chicle(value : FlexWrap) -> @style.FlexWrap {
   match value {
     NoWrap => @style_helpers.flex_wrap_no_wrap()
     Wrap => @style_helpers.flex_wrap_wrap()
@@ -72,7 +72,7 @@ fn flex_wrap_to_taffy(value : FlexWrap) -> @style.FlexWrap {
 }
 
 ///|
-fn grid_auto_flow_to_taffy(value : GridAutoFlow) -> @style.GridAutoFlow {
+fn grid_auto_flow_to_chicle(value : GridAutoFlow) -> @style.GridAutoFlow {
   match value {
     Row => @style_helpers.grid_auto_flow_row()
     Column => @style_helpers.grid_auto_flow_column()
@@ -82,7 +82,7 @@ fn grid_auto_flow_to_taffy(value : GridAutoFlow) -> @style.GridAutoFlow {
 }
 
 ///|
-fn grid_track_repetition_to_taffy(
+fn grid_track_repetition_to_chicle(
   value : GridTrackRepetition,
 ) -> @style.GridTrackRepetition {
   match value {
@@ -93,7 +93,7 @@ fn grid_track_repetition_to_taffy(
 }
 
 ///|
-fn grid_track_to_taffy(value : GridTrack) -> @style.Dimension {
+fn grid_track_to_chicle(value : GridTrack) -> @style.Dimension {
   match value {
     Auto => @style_helpers.auto()
     Px(value) => @style_helpers.length(@cmp.maximum(0.0, value))
@@ -101,19 +101,22 @@ fn grid_track_to_taffy(value : GridTrack) -> @style.Dimension {
     Fr(value) => @style_helpers.fr(@cmp.maximum(0.0, value))
     MinContent => @style_helpers.grid_min_content()
     MaxContent => @style_helpers.grid_max_content()
-    FitContent(track) => @style_helpers.fit_content(grid_track_to_taffy(track))
+    FitContent(track) => @style_helpers.fit_content(grid_track_to_chicle(track))
     MinMax(min, max) =>
-      @style_helpers.minmax(grid_track_to_taffy(min), grid_track_to_taffy(max))
+      @style_helpers.minmax(
+        grid_track_to_chicle(min),
+        grid_track_to_chicle(max),
+      )
     Repeat(repetition, tracks) =>
       @style_helpers.repeat(
-        grid_track_repetition_to_taffy(repetition),
-        tracks.map(grid_track_to_taffy),
+        grid_track_repetition_to_chicle(repetition),
+        tracks.map(grid_track_to_chicle),
       )
   }
 }
 
 ///|
-fn grid_placement_to_taffy(value : GridPlacement) -> @style.GridPlacement {
+fn grid_placement_to_chicle(value : GridPlacement) -> @style.GridPlacement {
   match value {
     Auto => @style_helpers.place_auto()
     Line(value) => @style_helpers.line(value)
@@ -122,10 +125,12 @@ fn grid_placement_to_taffy(value : GridPlacement) -> @style.GridPlacement {
 }
 
 ///|
-fn grid_line_to_taffy(value : GridLine) -> @geometry.Line[@style.GridPlacement] {
+fn grid_line_to_chicle(
+  value : GridLine,
+) -> @geometry.Line[@style.GridPlacement] {
   Line(
-    start=grid_placement_to_taffy(value.start),
-    end=grid_placement_to_taffy(value.end),
+    start=grid_placement_to_chicle(value.start),
+    end=grid_placement_to_chicle(value.end),
   )
 }
 
@@ -149,7 +154,7 @@ fn resolve_insets(rect : UiRectValues, size : @math.Vec2) -> UiInsets {
 }
 
 ///|
-fn node_to_taffy_style(node : Node) -> @style.Style {
+fn node_to_chicle_style(node : Node) -> @style.Style {
   let mut style = @style.Style::default()
     .with_display(
       match node.display {
@@ -183,11 +188,11 @@ fn node_to_taffy_style(node : Node) -> @style.Style {
         height=val_to_dimension(node.max_height),
       ),
     )
-    .with_margin(rect_values_to_taffy(node.margin))
-    .with_padding(rect_values_to_taffy(node.padding))
-    .with_border(rect_values_to_taffy(node.border))
+    .with_margin(rect_values_to_chicle(node.margin))
+    .with_padding(rect_values_to_chicle(node.padding))
+    .with_border(rect_values_to_chicle(node.border))
     .with_inset(
-      rect_values_to_taffy(
+      rect_values_to_chicle(
         UiRectValues(
           left=node.left,
           right=node.right,
@@ -204,28 +209,28 @@ fn node_to_taffy_style(node : Node) -> @style.Style {
         ColumnReverse => @style_helpers.flex_direction_column_reverse()
       },
     )
-    .with_justify_content(justify_content_to_taffy(node.justify_content))
-    .with_align_items(align_items_to_taffy(node.align_items))
+    .with_justify_content(justify_content_to_chicle(node.justify_content))
+    .with_align_items(align_items_to_chicle(node.align_items))
     .with_gap(
       Size(
         width=@style_helpers.length(@cmp.maximum(0.0, node.column_gap)),
         height=@style_helpers.length(@cmp.maximum(0.0, node.row_gap)),
       ),
     )
-    .with_flex_wrap(flex_wrap_to_taffy(node.flex_wrap))
+    .with_flex_wrap(flex_wrap_to_chicle(node.flex_wrap))
     .with_flex_basis(val_to_dimension(node.flex_basis))
     .with_flex_grow(node.flex_grow)
     .with_flex_shrink(node.flex_shrink)
     .with_scrollbar_width(@cmp.maximum(0.0, node.scrollbar_width))
-    .with_grid_template_rows(node.grid_template_rows.map(grid_track_to_taffy))
+    .with_grid_template_rows(node.grid_template_rows.map(grid_track_to_chicle))
     .with_grid_template_columns(
-      node.grid_template_columns.map(grid_track_to_taffy),
+      node.grid_template_columns.map(grid_track_to_chicle),
     )
-    .with_grid_auto_rows(node.grid_auto_rows.map(grid_track_to_taffy))
-    .with_grid_auto_columns(node.grid_auto_columns.map(grid_track_to_taffy))
-    .with_grid_auto_flow(grid_auto_flow_to_taffy(node.grid_auto_flow))
-    .with_grid_row(grid_line_to_taffy(node.grid_row))
-    .with_grid_column(grid_line_to_taffy(node.grid_column))
+    .with_grid_auto_rows(node.grid_auto_rows.map(grid_track_to_chicle))
+    .with_grid_auto_columns(node.grid_auto_columns.map(grid_track_to_chicle))
+    .with_grid_auto_flow(grid_auto_flow_to_chicle(node.grid_auto_flow))
+    .with_grid_row(grid_line_to_chicle(node.grid_row))
+    .with_grid_column(grid_line_to_chicle(node.grid_column))
     .with_overflow(
       Point(
         x=match node.overflow_x {
@@ -243,16 +248,16 @@ fn node_to_taffy_style(node : Node) -> @style.Style {
       ),
     )
   if node.align_content is Some(value) {
-    style = style.with_align_content(align_content_to_taffy(value))
+    style = style.with_align_content(align_content_to_chicle(value))
   }
   if node.align_self is Some(value) {
-    style = style.with_align_self(align_items_to_taffy(value))
+    style = style.with_align_self(align_items_to_chicle(value))
   }
   if node.justify_items is Some(value) {
-    style = style.with_justify_items(align_items_to_taffy(value))
+    style = style.with_justify_items(align_items_to_chicle(value))
   }
   if node.justify_self is Some(value) {
-    style = style.with_justify_self(align_items_to_taffy(value))
+    style = style.with_justify_self(align_items_to_chicle(value))
   }
   if node.aspect_ratio is Some(value) && value > 0.0 {
     style = style.with_aspect_ratio(value)
@@ -342,8 +347,8 @@ fn measure_node(
 }
 
 ///|
-fn build_taffy_tree(
-  taffy : @tree.TaffyTree[@entity.Entity],
+fn build_chicle_tree(
+  chicle : @tree.ChicleTree[@entity.Entity],
   entity : @entity.Entity,
   entity_to_node_id : Map[@entity.Entity, Int],
 ) -> Int? {
@@ -351,12 +356,12 @@ fn build_taffy_tree(
   guard node.active else { return None }
   let child_ids : Array[Int] = []
   for child in ui_children(entity) {
-    if build_taffy_tree(taffy, child, entity_to_node_id) is Some(child_id) {
+    if build_chicle_tree(chicle, child, entity_to_node_id) is Some(child_id) {
       child_ids.push(child_id)
     }
   }
-  let node_id = taffy.new_with_children(node_to_taffy_style(node), child_ids)
-  ignore(taffy.set_node_context(node_id, entity)) catch {
+  let node_id = chicle.new_with_children(node_to_chicle_style(node), child_ids)
+  ignore(chicle.set_node_context(node_id, entity)) catch {
     _ => ()
   }
   entity_to_node_id.set(entity, node_id)
@@ -596,7 +601,7 @@ fn cleanup_dead_ui_state() -> Unit {
 ///|
 fn apply_layout_recursive(
   entity : @entity.Entity,
-  taffy : @tree.TaffyTree[@entity.Entity],
+  chicle : @tree.ChicleTree[@entity.Entity],
   entity_to_node_id : Map[@entity.Entity, Int],
   parent_layout_origin : @math.Vec2,
   parent_clip : @math.Rect?,
@@ -615,7 +620,7 @@ fn apply_layout_recursive(
     .get(entity)
     .map(fn(config) { config.use_rounding })
     .unwrap_or(inherited_use_rounding)
-  let layout = taffy.layout(node_id) catch { _ => return }
+  let layout = chicle.layout(node_id) catch { _ => return }
 
   let logical_pos = parent_layout_origin +
     Vec2(layout.location.x, layout.location.y)
@@ -723,8 +728,8 @@ fn apply_layout_recursive(
   )
   for child in ui_children(entity) {
     apply_layout_recursive(
-      child, taffy, entity_to_node_id, next_origin, current_clip, use_rounding, order_counter,
-      effective_layout_space,
+      child, chicle, entity_to_node_id, next_origin, current_clip, use_rounding,
+      order_counter, effective_layout_space,
     )
   }
 }
@@ -743,17 +748,18 @@ pub fn ui_layout_system(_delta : Double) -> Unit {
       ui_target_cameras().get(root_entity).map(fn(target) { target.camera }),
     )
     let viewport = ui_layout_root_size(layout_space)
-    let taffy : @tree.TaffyTree[@entity.Entity] = TaffyTree()
+    let chicle : @tree.ChicleTree[@entity.Entity] = ChicleTree()
     let entity_to_node_id : Map[@entity.Entity, Int] = Map([])
-    guard build_taffy_tree(taffy, root_entity, entity_to_node_id)
+    guard build_chicle_tree(chicle, root_entity, entity_to_node_id)
       is Some(root_node) else {
       continue
     }
-    let implicit_root = taffy.new_with_children(implicit_root_style(viewport), [
-      root_node,
-    ])
+    let implicit_root = chicle.new_with_children(
+      implicit_root_style(viewport),
+      [root_node],
+    )
     ignore(
-      taffy.compute_layout_with_measure(
+      chicle.compute_layout_with_measure(
         implicit_root,
         Size(
           width=@style_helpers.available_space_definite(viewport[X]),
@@ -766,7 +772,7 @@ pub fn ui_layout_system(_delta : Double) -> Unit {
     }
     apply_layout_recursive(
       root_entity,
-      taffy,
+      chicle,
       entity_to_node_id,
       @math.Vec2::zero(),
       None,

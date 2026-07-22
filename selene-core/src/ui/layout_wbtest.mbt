@@ -33,10 +33,10 @@ fn cleanup_layout_test_entity(entity : @entity.Entity) -> Unit {
 
 ///|
 test "ui nodes map flex wrap and align content into wrapped layout" {
-  let taffy : @tree.TaffyTree[Unit] = TaffyTree()
+  let chicle : @tree.ChicleTree[Unit] = ChicleTree()
   let mk_child = fn() {
-    taffy.new_leaf(
-      node_to_taffy_style(Node(width=Val::px(50.0), height=Val::px(10.0))),
+    chicle.new_leaf(
+      node_to_chicle_style(Node(width=Val::px(50.0), height=Val::px(10.0))),
     )
   }
   let child0 = mk_child()
@@ -45,8 +45,8 @@ test "ui nodes map flex wrap and align content into wrapped layout" {
   let child3 = mk_child()
   let child4 = mk_child()
   let child5 = mk_child()
-  let root = taffy.new_with_children(
-    node_to_taffy_style(
+  let root = chicle.new_with_children(
+    node_to_chicle_style(
       Node(
         width=Val::px(120.0),
         height=Val::px(100.0),
@@ -57,25 +57,25 @@ test "ui nodes map flex wrap and align content into wrapped layout" {
     ),
     [child0, child1, child2, child3, child4, child5],
   )
-  taffy.compute_layout(root, @geometry.Size::max_content())
+  chicle.compute_layout(root, @geometry.Size::max_content())
 
-  let root_layout = taffy.layout(root)
+  let root_layout = chicle.layout(root)
   inspect(root_layout.size.width == 120.0, content="true")
   inspect(root_layout.size.height == 100.0, content="true")
 
-  inspect(taffy.layout(child0).location.y == 35.0, content="true")
-  inspect(taffy.layout(child1).location.y == 35.0, content="true")
-  inspect(taffy.layout(child2).location.y == 45.0, content="true")
-  inspect(taffy.layout(child3).location.y == 45.0, content="true")
-  inspect(taffy.layout(child4).location.y == 55.0, content="true")
-  inspect(taffy.layout(child5).location.y == 55.0, content="true")
+  inspect(chicle.layout(child0).location.y == 35.0, content="true")
+  inspect(chicle.layout(child1).location.y == 35.0, content="true")
+  inspect(chicle.layout(child2).location.y == 45.0, content="true")
+  inspect(chicle.layout(child3).location.y == 45.0, content="true")
+  inspect(chicle.layout(child4).location.y == 55.0, content="true")
+  inspect(chicle.layout(child5).location.y == 55.0, content="true")
 }
 
 ///|
 test "ui nodes map block display and aspect ratio into block layout" {
-  let taffy : @tree.TaffyTree[Unit] = TaffyTree()
-  let child = taffy.new_leaf(
-    node_to_taffy_style(
+  let chicle : @tree.ChicleTree[Unit] = ChicleTree()
+  let child = chicle.new_leaf(
+    node_to_chicle_style(
       Node(
         position_type=Absolute,
         left=Val::percent(0.05),
@@ -86,15 +86,15 @@ test "ui nodes map block display and aspect ratio into block layout" {
       ),
     ),
   )
-  let root = taffy.new_with_children(
-    node_to_taffy_style(
+  let root = chicle.new_with_children(
+    node_to_chicle_style(
       Node(display=Block, width=Val::px(400.0), height=Val::px(300.0)),
     ),
     [child],
   )
-  taffy.compute_layout(root, @geometry.Size::max_content())
+  chicle.compute_layout(root, @geometry.Size::max_content())
 
-  let layout = taffy.layout(child)
+  let layout = chicle.layout(child)
   inspect(layout.size.width == 360.0, content="true")
   inspect(layout.size.height == 120.0, content="true")
   inspect(layout.location.x == 20.0, content="true")
@@ -116,7 +116,7 @@ test "ui wrapped text contributes lines to auto height" {
     ),
     0,
     Some(entity),
-    node_to_taffy_style(Node(width=Val::px(60.0))),
+    node_to_chicle_style(Node(width=Val::px(60.0))),
   )
 
   inspect(measured.width, content="60")
@@ -130,7 +130,7 @@ test "ui wrapped text contributes lines to auto height" {
     ),
     0,
     Some(entity),
-    node_to_taffy_style(
+    node_to_chicle_style(
       Node(
         width=Val::px(100.0),
         padding=UiRectValues::px(left=20.0, right=20.0),
@@ -170,9 +170,9 @@ test "ui layout uses wrapped text height in the computed node" {
 
 ///|
 test "ui nodes map grid placement and self alignment into grid layout" {
-  let taffy : @tree.TaffyTree[Unit] = TaffyTree()
-  let child0 = taffy.new_leaf(
-    node_to_taffy_style(
+  let chicle : @tree.ChicleTree[Unit] = ChicleTree()
+  let child0 = chicle.new_leaf(
+    node_to_chicle_style(
       Node(
         width=Val::px(20.0),
         height=Val::px(20.0),
@@ -181,8 +181,8 @@ test "ui nodes map grid placement and self alignment into grid layout" {
       ),
     ),
   )
-  let child1 = taffy.new_leaf(
-    node_to_taffy_style(
+  let child1 = chicle.new_leaf(
+    node_to_chicle_style(
       Node(
         width=Val::px(20.0),
         height=Val::px(20.0),
@@ -193,8 +193,8 @@ test "ui nodes map grid placement and self alignment into grid layout" {
       ),
     ),
   )
-  let root = taffy.new_with_children(
-    node_to_taffy_style(
+  let root = chicle.new_with_children(
+    node_to_chicle_style(
       Node(
         display=Grid,
         width=Val::px(120.0),
@@ -207,20 +207,20 @@ test "ui nodes map grid placement and self alignment into grid layout" {
     ),
     [child0, child1],
   )
-  taffy.compute_layout(root, @geometry.Size::max_content())
+  chicle.compute_layout(root, @geometry.Size::max_content())
 
-  let layout0 = taffy.layout(child0)
+  let layout0 = chicle.layout(child0)
   inspect(layout0.location.x == 20.0, content="true")
   inspect(layout0.location.y == 20.0, content="true")
 
-  let layout1 = taffy.layout(child1)
+  let layout1 = chicle.layout(child1)
   inspect(layout1.location.x == 90.0, content="true")
   inspect(layout1.location.y == 90.0, content="true")
 }
 
 ///|
-test "ui nodes map style-only grid and flex fields into taffy style" {
-  let style = node_to_taffy_style(
+test "ui nodes map style-only grid and flex fields into chicle style" {
+  let style = node_to_chicle_style(
     Node(
       display=Grid,
       overflow_x=Hidden,

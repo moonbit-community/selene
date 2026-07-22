@@ -5,7 +5,6 @@ version = "0.36.0"
 import {
   "Milky2018/moon_rapier@0.5.1",
   "Milky2018/moon_accesskit@0.3.0",
-  "Milky2018/moon_taffy@0.5.3",
   "Milky2018/xml@0.2.0",
   "gmlewis/base64@0.16.10",
   "moonbitlang/x@0.4.45",
@@ -13,6 +12,7 @@ import {
   "Milky2018/zstd@0.1.1",
   "gmlewis/io@0.23.12",
   "gmlewis/flate@0.36.9",
+  "Milky2018/chicle@0.6.0",
 }
 
 readme = "README.md"

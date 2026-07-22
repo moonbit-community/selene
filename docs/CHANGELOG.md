@@ -6,6 +6,7 @@
 
 ### Changed
 - Changed MoonBit sources and manifests to the current nightly formatter style and enforced it in CI.
+- Changed the UI layout backend from `Milky2018/moon_taffy` to `Milky2018/chicle@0.6.0`.
 
 ### Fixed
 - Fixed nested UI children receiving border and padding offsets twice during
