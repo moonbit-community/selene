@@ -7,6 +7,8 @@
 ### Changed
 
 ### Fixed
+- Fixed nested UI children receiving border and padding offsets twice during
+  layout projection.
 
 ### Removed
 

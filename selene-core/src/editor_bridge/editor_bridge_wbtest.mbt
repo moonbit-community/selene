@@ -483,7 +483,9 @@ test "custom component registry wires defaults validation and apply" {
     custom_kind,
     custom_component_handler(
       default_data=fn() {
-        RegisteredCustomComponentTestPayload::{ label: "Default Marker" }.to_json()
+        ToJson::to_json(RegisteredCustomComponentTestPayload::{
+          label: "Default Marker",
+        })
       },
       validate=fn(component, path) {
         let data : RegisteredCustomComponentTestPayload = validate_custom_component_payload(
@@ -520,7 +522,7 @@ test "custom component registry wires defaults validation and apply" {
         components: [
           component_document(
             custom_kind,
-            RegisteredCustomComponentTestPayload::{ label: "" }.to_json(),
+            ToJson::to_json(RegisteredCustomComponentTestPayload::{ label: "" }),
           ),
         ],
       },
@@ -545,7 +547,9 @@ test "custom component registry wires defaults validation and apply" {
         components: [
           component_document(
             custom_kind,
-            RegisteredCustomComponentTestPayload::{ label: "Applied Marker" }.to_json(),
+            ToJson::to_json(RegisteredCustomComponentTestPayload::{
+              label: "Applied Marker",
+            }),
           ),
         ],
       },

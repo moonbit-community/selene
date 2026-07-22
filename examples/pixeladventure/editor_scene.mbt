@@ -56,7 +56,9 @@ fn pixeladventure_empty_component_data() -> Json {
 
 ///|
 fn terrain_component_default_data() -> Json {
-  PixelAdventureTerrainComponent::{ solid: false, collider_group: "grass" }.to_json()
+  ToJson::to_json(
+    PixelAdventureTerrainComponent::{ solid: false, collider_group: "grass" },
+  )
 }
 
 ///|
