@@ -76,9 +76,7 @@ fn text_layout_caches() -> Map[@entity.Entity, CachedTextLayout2d] {
 }
 
 ///|
-pub fn Text2d::Text2d(
-  blend_mode? : @render.BlendMode2D = Alpha,
-) -> Text2d {
+pub fn Text2d::Text2d(blend_mode? : @render.BlendMode2D = Alpha) -> Text2d {
   { blend_mode, }
 }
 

@@ -101,10 +101,7 @@ fn ensure_sprite_animation_binding(entity : @entity.Entity) -> Unit {
       AnimationTransitions()
     }),
   )
-  @animation.animation_target_ids().set(
-    entity,
-    AnimationTargetId("self"),
-  )
+  @animation.animation_target_ids().set(entity, AnimationTargetId("self"))
   @animation.animated_bys().set(entity, AnimatedBy(entity))
 }
 
@@ -268,26 +265,11 @@ fn play_bird_animation(entity : @entity.Entity, bird : BirdController) -> Unit {
         @animation.RepeatAnimation::Forever,
       )
     (false, Right) =>
-      (
-        FlyRight,
-        bird.animations.fly_right,
-        bird_fly_right_animation,
-        Forever,
-      )
+      (FlyRight, bird.animations.fly_right, bird_fly_right_animation, Forever)
     (true, Left) =>
-      (
-        HitLeft,
-        bird.animations.hit_left,
-        bird_hit_left_animation,
-        Never,
-      )
+      (HitLeft, bird.animations.hit_left, bird_hit_left_animation, Never)
     (true, Right) =>
-      (
-        HitRight,
-        bird.animations.hit_right,
-        bird_hit_right_animation,
-        Never,
-      )
+      (HitRight, bird.animations.hit_right, bird_hit_right_animation, Never)
   }
   if bird.active_animation == Some(key) {
     return
@@ -316,8 +298,7 @@ fn entity_rect(entity : @entity.Entity) -> @math.Rect? {
   guard @physics2d.shapes().get(entity) is Some(shape) else { return None }
   let position = @math.Vec2(transform.translation.x, transform.translation.y)
   match shape {
-    Rect(size~, offset~) =>
-      Some({ position: position + offset, size })
+    Rect(size~, offset~) => Some({ position: position + offset, size })
     _ => None
   }
 }
@@ -348,10 +329,7 @@ fn sweep_rect(from : @math.Rect, to : @math.Rect) -> @math.Rect {
   let bottom_from = from.position[Y] + from.size[Y]
   let bottom_to = to.position[Y] + to.size[Y]
   let bottom = if bottom_from > bottom_to { bottom_from } else { bottom_to }
-  {
-    position: Vec2(left, top),
-    size: Vec2(right - left, bottom - top),
-  }
+  { position: Vec2(left, top), size: Vec2(right - left, bottom - top) }
 }
 
 ///|
@@ -627,15 +605,9 @@ fn bird_patrol_system(_world : @ecs.World) -> Unit {
 
     match bird.direction {
       Left =>
-        @physics2d.linear_velocities().set(
-          bird_entity,
-          Vec2(-BIRD_SPEED, 0.0),
-        )
+        @physics2d.linear_velocities().set(bird_entity, Vec2(-BIRD_SPEED, 0.0))
       Right =>
-        @physics2d.linear_velocities().set(
-          bird_entity,
-          Vec2(BIRD_SPEED, 0.0),
-        )
+        @physics2d.linear_velocities().set(bird_entity, Vec2(BIRD_SPEED, 0.0))
     }
     play_bird_animation(bird_entity, bird)
   }

@@ -77,10 +77,7 @@ fn color_of(doc : ColorDoc) -> @render.Color {
 
 ///|
 fn rect_of(doc : RectDoc) -> @math.Rect {
-  {
-    position: Vec2(doc.x, doc.y),
-    size: Vec2(doc.width, doc.height),
-  }
+  { position: Vec2(doc.x, doc.y), size: Vec2(doc.width, doc.height) }
 }
 
 ///|
@@ -736,10 +733,7 @@ fn apply_document_components(
         @text2d.text_anchors().set(entity, anchor_of(data.anchor))
         match data.bounds {
           Some(bounds) =>
-            @text2d.text_bounds().set(
-              entity,
-              TextBounds(bounds.x, bounds.y),
-            )
+            @text2d.text_bounds().set(entity, TextBounds(bounds.x, bounds.y))
           None => ()
         }
         @ui.texts().set(entity, Text(data.content))
@@ -874,11 +868,7 @@ fn apply_document_components(
               radius=data.radius.unwrap_or(size.x / 2.0),
               offset=@math.Vec2::zero(),
             )
-          _ =>
-            Rect(
-              size=vec2_of(size),
-              offset=@math.Vec2::zero(),
-            )
+          _ => Rect(size=vec2_of(size), offset=@math.Vec2::zero())
         }
         @physics2d.shapes().set(entity, shape)
         if data.sensor {

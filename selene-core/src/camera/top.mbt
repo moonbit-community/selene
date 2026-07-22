@@ -90,7 +90,7 @@ pub fn Camera::Camera(
 }
 
 ///|
-pub impl Default for Camera with default() -> Camera {
+pub impl Default for Camera with fn default() -> Camera {
   Camera()
 }
 
@@ -104,7 +104,7 @@ pub fn Camera2d::Camera2d() -> Camera2d {
 }
 
 ///|
-pub impl Default for Camera2d with default() -> Camera2d {
+pub impl Default for Camera2d with fn default() -> Camera2d {
   Camera2d()
 }
 
@@ -125,7 +125,7 @@ pub fn OrthographicProjection::OrthographicProjection(
 }
 
 ///|
-pub impl Default for OrthographicProjection with default() -> OrthographicProjection {
+pub impl Default for OrthographicProjection with fn default() -> OrthographicProjection {
   OrthographicProjection()
 }
 
@@ -293,9 +293,7 @@ test "camera world_to_viewport respects camera rotation" {
 test "camera viewport offsets world_to_viewport into viewport rect" {
   @system.configure_display(200.0, 120.0, 1.0)
   let camera = Camera(
-    viewport=Some(
-      CameraViewport(Vec2(20.0, 10.0), Vec2(80.0, 40.0)),
-    ),
+    viewport=Some(CameraViewport(Vec2(20.0, 10.0), Vec2(80.0, 40.0))),
   )
   let projection = OrthographicProjection()
   let camera_transform = @transform.GlobalTransform::from_transform(

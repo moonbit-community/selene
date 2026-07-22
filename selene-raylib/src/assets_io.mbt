@@ -77,16 +77,12 @@ fn upload_lighting_uniforms(
   set_shader_uniform_v(
     shader,
     state.directional_directions_loc,
-    Vec3(
-      to_ray_vec3_array(directional_directions, directional_count),
-    ),
+    Vec3(to_ray_vec3_array(directional_directions, directional_count)),
   )
   set_shader_uniform_v(
     shader,
     state.directional_colors_loc,
-    Vec3(
-      to_ray_vec3_array(directional_colors, directional_count),
-    ),
+    Vec3(to_ray_vec3_array(directional_colors, directional_count)),
   )
   for index in 0..<MAX_DIRECTIONAL_LIGHTS {
     let shadow = match shadow_state {
@@ -166,16 +162,12 @@ fn upload_lighting_uniforms(
   set_shader_uniform_v(
     shader,
     state.point_positions_loc,
-    Vec3(
-      to_ray_vec3_array(point_positions, point_count),
-    ),
+    Vec3(to_ray_vec3_array(point_positions, point_count)),
   )
   set_shader_uniform_v(
     shader,
     state.point_colors_loc,
-    Vec3(
-      to_ray_vec3_array(point_colors, point_count),
-    ),
+    Vec3(to_ray_vec3_array(point_colors, point_count)),
   )
   set_shader_uniform_v(
     shader,
@@ -193,32 +185,22 @@ fn upload_lighting_uniforms(
     let inner = @cmath.cos(light.inner_angle)
     let outer = @cmath.cos(light.outer_angle)
     spot_positions.push(light.position)
-    spot_directions.push(
-      normalize_or(light.direction, Vec3(0.0, -1.0, 0.0)),
-    )
+    spot_directions.push(normalize_or(light.direction, Vec3(0.0, -1.0, 0.0)))
     spot_colors.push(light_rgb(light.color, light.intensity))
     spot_params.push(
-      Vec3(
-        light.range,
-        @cmp.maximum(inner, outer),
-        @cmp.minimum(inner, outer),
-      ),
+      Vec3(light.range, @cmp.maximum(inner, outer), @cmp.minimum(inner, outer)),
     )
   }
   set_shader_uniform(shader, state.spot_count_loc, uniform_int(spot_count))
   set_shader_uniform_v(
     shader,
     state.spot_positions_loc,
-    Vec3(
-      to_ray_vec3_array(spot_positions, spot_count),
-    ),
+    Vec3(to_ray_vec3_array(spot_positions, spot_count)),
   )
   set_shader_uniform_v(
     shader,
     state.spot_directions_loc,
-    Vec3(
-      to_ray_vec3_array(spot_directions, spot_count),
-    ),
+    Vec3(to_ray_vec3_array(spot_directions, spot_count)),
   )
   set_shader_uniform_v(
     shader,
@@ -269,9 +251,7 @@ fn upload_lighting_uniforms(
     shader,
     state.spot_shadow_texel_size_loc,
     uniform_vec2(
-      shadow_state.map_or(Vec2(0.0, 0.0), fn(value) {
-        value.spot_texel_size
-      }),
+      shadow_state.map_or(Vec2(0.0, 0.0), fn(value) { value.spot_texel_size }),
     ),
   )
   for index in 0..<MAX_POINT_LIGHTS {
@@ -318,9 +298,7 @@ fn upload_lighting_uniforms(
     shader,
     state.point_shadow_texel_size_loc,
     uniform_vec2(
-      shadow_state.map_or(Vec2(0.0, 0.0), fn(value) {
-        value.point_texel_size
-      }),
+      shadow_state.map_or(Vec2(0.0, 0.0), fn(value) { value.point_texel_size }),
     ),
   )
 

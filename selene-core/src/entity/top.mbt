@@ -62,10 +62,7 @@ pub fn alive_entity_count() -> Int {
 
 ///|
 pub fn Entity::is_alive(e : Entity) -> Bool {
-  match
-    entity_store().lifecycle_states
-    .get(e)
-    .unwrap_or(Destroyed) {
+  match entity_store().lifecycle_states.get(e).unwrap_or(Destroyed) {
     Alive | PendingRespawn => true
     PendingSpawn | PendingDespawn | Destroyed => false
   }
@@ -102,8 +99,7 @@ pub fn Entity::reserve_spawn() -> Entity {
 ///|
 pub fn Entity::destroy(e : Entity) -> Unit {
   let store = entity_store()
-  match
-    store.lifecycle_states.get(e).unwrap_or(Destroyed) {
+  match store.lifecycle_states.get(e).unwrap_or(Destroyed) {
     Destroyed | PendingDespawn => ()
     PendingSpawn => {
       store.lifecycle_states.set(e, PendingDespawn)
@@ -129,8 +125,7 @@ pub fn Entity::destroy(e : Entity) -> Unit {
 ///|
 pub fn Entity::respawn(e : Entity) -> Unit {
   let store = entity_store()
-  match
-    store.lifecycle_states.get(e).unwrap_or(Destroyed) {
+  match store.lifecycle_states.get(e).unwrap_or(Destroyed) {
     Alive | PendingRespawn => ()
     Destroyed | PendingDespawn | PendingSpawn => {
       if store.lifecycle_states.get(e) is Some(PendingDespawn) &&

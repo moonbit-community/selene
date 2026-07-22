@@ -65,8 +65,7 @@ async test "project.open auto-initializes a missing project manifest" {
     let response = response_envelope(payload).response
     let loaded = match response {
       ProjectState(state~) => state.manifest.unwrap()
-      Error(error~) =>
-        fail("unexpected project-open error: " + error.message)
+      Error(error~) => fail("unexpected project-open error: " + error.message)
       _ => fail("expected project state")
     }
 
@@ -96,8 +95,7 @@ async test "project.open auto-initializes when the directory already exists" {
     let response = response_envelope(payload).response
     let loaded = match response {
       ProjectState(state~) => state.manifest.unwrap()
-      Error(error~) =>
-        fail("unexpected project-open error: " + error.message)
+      Error(error~) => fail("unexpected project-open error: " + error.message)
       _ => fail("expected project state")
     }
 
@@ -429,8 +427,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
       @shared.rpc_request_envelope(2, @shared.rpc_request_project_current()),
     )
     match response_envelope(current_payload).response {
-      ProjectState(state~) =>
-        inspect(state.root == Some(root), content="true")
+      ProjectState(state~) => inspect(state.root == Some(root), content="true")
       _ => fail("expected project state")
     }
 
@@ -550,8 +547,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
       ),
     )
     match response_envelope(prefab_payload).response {
-      PrefabLoaded(prefab~) =>
-        inspect(prefab.prefab.name, content="Enemy")
+      PrefabLoaded(prefab~) => inspect(prefab.prefab.name, content="Enemy")
       _ => fail("expected prefab load response")
     }
 
@@ -575,8 +571,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
       ),
     )
     match response_envelope(atlas_payload).response {
-      AtlasLoaded(atlas~) =>
-        inspect(atlas.atlas.name, content="Hero Atlas")
+      AtlasLoaded(atlas~) => inspect(atlas.atlas.name, content="Hero Atlas")
       _ => fail("expected atlas load response")
     }
 
@@ -602,8 +597,7 @@ async test "service typed rpc surface succeeds across current workspace actions"
       ),
     )
     match response_envelope(animation_payload).response {
-      AnimationClipLoaded(clip~) =>
-        inspect(clip.clip.name, content="Hero Clip")
+      AnimationClipLoaded(clip~) => inspect(clip.clip.name, content="Hero Clip")
       _ => fail("expected animation load response")
     }
 

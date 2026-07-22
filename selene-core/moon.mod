@@ -25,6 +25,4 @@ keywords = [ "Game Engine" ]
 
 description = "ECS game engine in MoonBit"
 
-options(
-  source: "src",
-)
+source = "src"

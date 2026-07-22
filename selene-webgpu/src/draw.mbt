@@ -2323,11 +2323,7 @@ fn transform_positions3d(
     transformed.push(
       translation +
       rotation.rotate_vec3(
-        Vec3(
-          position.x * scale.x,
-          position.y * scale.y,
-          position.z * scale.z,
-        ),
+        Vec3(position.x * scale.x, position.y * scale.y, position.z * scale.z),
       ),
     )
   }
@@ -2366,10 +2362,7 @@ fn rotate_tangents3d(
   for tangent in tangents {
     let rotated = rotation
       .rotate_vec3(
-        inverse_scale_direction3d(
-          Vec3(tangent.x, tangent.y, tangent.z),
-          scale,
-        ),
+        inverse_scale_direction3d(Vec3(tangent.x, tangent.y, tangent.z), scale),
       )
       .normalize()
     let safe = if rotated.length_squared() <= 0.00000001 {

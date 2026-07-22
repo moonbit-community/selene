@@ -3,11 +3,7 @@ fn interaction_groups(
   memberships : Int,
   filters : Int,
 ) -> @dynamics.InteractionGroups {
-  InteractionGroups(
-    Group(memberships),
-    Group(filters),
-    And,
-  )
+  InteractionGroups(Group(memberships), Group(filters), And)
 }
 
 ///|
@@ -182,10 +178,7 @@ fn revolute_joint_to_generic(
     )
   }
   if joint.max_force is Some(max_force) {
-    builder = builder.motor_max_force(
-      AngX,
-      Float::from_double(max_force),
-    )
+    builder = builder.motor_max_force(AngX, Float::from_double(max_force))
   }
   let mut generic = builder
     .build()
@@ -237,10 +230,7 @@ fn prismatic_joint_to_rapier(
     )
   }
   if joint.max_force is Some(max_force) {
-    builder = builder.motor_max_force(
-      LinX,
-      Float::from_double(max_force),
-    )
+    builder = builder.motor_max_force(LinX, Float::from_double(max_force))
   }
   builder.build()
 }
@@ -463,15 +453,9 @@ fn to_query_shape(shape : Collider) -> @collision.Shape3D {
     Halfspace(normal) =>
       @collision.Shape3D::halfspace(normal.normalize().to_rapier())
     ConvexHull(points) =>
-      ConvexHull(
-        points.map(point => point.to_rapier()),
-        0.0,
-      )
+      ConvexHull(points.map(point => point.to_rapier()), 0.0)
     TriMesh(vertices, indices) =>
-      TriMesh(
-        vertices.map(point => point.to_rapier()),
-        indices,
-      )
+      TriMesh(vertices.map(point => point.to_rapier()), indices)
     Heightfield(heights, nrows, ncols, scale) =>
       @collision.ColliderBuilder3D::heightfield(
         heights.map(Float::from_double),
@@ -516,11 +500,7 @@ fn to_query_filter(query_filter : QueryFilter) -> @collision.QueryFilter3DReal {
   }
   if query_filter.groups is Some(groups) {
     filter = filter.groups(
-      InteractionGroups(
-        Group(groups.memberships),
-        Group(groups.filters),
-        And,
-      ),
+      InteractionGroups(Group(groups.memberships), Group(groups.filters), And),
     )
   }
   if query_filter.exclude_collider is Some(collider_handle) {

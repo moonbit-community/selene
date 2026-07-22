@@ -165,10 +165,7 @@ fn pack_text_vertices2d(
     Top => ()
   }
   pack_text_vertices2d_raw(
-    {
-      position: Vec2(x, y),
-      size: Vec2(texture_width, texture_height),
-    },
+    { position: Vec2(x, y), size: Vec2(texture_width, texture_height) },
     command.transform,
   )
 }

@@ -99,18 +99,12 @@ test "texture atlas index field resolves as a discrete value instead of a weight
     )
     @sprite.sprites().set(
       entity,
-      @sprite.Sprite::from_atlas_image(
-        image,
-        TextureAtlas(layout, index=1),
-      ),
+      @sprite.Sprite::from_atlas_image(image, TextureAtlas(layout, index=1)),
     )
     let handle = texture_atlas_index_field()
     let field = animated_field(handle).unwrap()
     let resolved = resolve_sample_value(handle, field, entity, {
-      normal: [
-        (Scalar(0.0), 0.25),
-        (Scalar(5.0), 0.75),
-      ],
+      normal: [(Scalar(0.0), 0.25), (Scalar(5.0), 0.75)],
       additive: [(Scalar(3.0), 1.0)],
     })
     let frame = match resolved {

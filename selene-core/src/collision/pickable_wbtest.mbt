@@ -31,10 +31,7 @@ fn spawn_pickable_camera(
   let camera_entity = @entity.Entity()
   @camera.cameras().set(
     camera_entity,
-    Camera(
-      order~,
-      viewport=Some(@camera.CameraViewport::from_rect(viewport)),
-    ),
+    Camera(order~, viewport=Some(@camera.CameraViewport::from_rect(viewport))),
   )
   @camera.camera2ds().set(camera_entity, Camera2d())
   @transform.global_transforms().set(
@@ -100,9 +97,7 @@ test "pickable click respects top-most camera render layers" {
     pickable_click_system(0.0)
     let events = pointer_event_bus.read(reader)
     let visible_id = visible_entity.id()
-    let left_events = events.filter(fn(event) {
-      event.button is Left
-    })
+    let left_events = events.filter(fn(event) { event.button is Left })
 
     inspect(left_events.length(), content="2")
     inspect(
@@ -137,9 +132,7 @@ test "pickable click supports ball shapes" {
     let reader = @event.EventReader()
     pickable_click_system(0.0)
     let events = pointer_event_bus.read(reader)
-    let left_events = events.filter(fn(event) {
-      event.button is Left
-    })
+    let left_events = events.filter(fn(event) { event.button is Left })
 
     inspect(left_events.length(), content="2")
     inspect(

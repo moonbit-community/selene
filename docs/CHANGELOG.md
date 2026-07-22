@@ -5,6 +5,7 @@
 ### Added
 
 ### Changed
+- Changed MoonBit sources and manifests to the current nightly formatter style and enforced it in CI.
 
 ### Fixed
 - Fixed nested UI children receiving border and padding offsets twice during

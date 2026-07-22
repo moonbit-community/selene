@@ -71,11 +71,7 @@ fn webgpu_test_mesh(
   uv_sets : Array[Array[@smath.Vec2]],
 ) -> @render3d_types.TriangleMesh3D {
   {
-    positions: [
-      Vec3(0.0, 0.0, 0.0),
-      Vec3(1.0, 0.0, 0.0),
-      Vec3(0.0, 1.0, 0.0),
-    ],
+    positions: [Vec3(0.0, 0.0, 0.0), Vec3(1.0, 0.0, 0.0), Vec3(0.0, 1.0, 0.0)],
     indices: None,
     topology: TriangleList,
     uv_sets,
@@ -173,10 +169,7 @@ test "MoonBit forms lit primitive instance batches before WebGPU FFI" {
 
 ///|
 test "MoonBit packs WebGPU 2D rect and circle vertices before FFI" {
-  let rect : @smath.Rect = {
-    position: Vec2(10.0, 20.0),
-    size: Vec2(2.0, 4.0),
-  }
+  let rect : @smath.Rect = { position: Vec2(10.0, 20.0), size: Vec2(2.0, 4.0) }
   let transform = @smath.Transform(a=2.0, d=3.0, tx=5.0, ty=7.0)
   let fill = pack_rect_fill_vertices2d(rect, transform, {
     r: 255U,
@@ -218,12 +211,12 @@ test "MoonBit packs WebGPU 2D rect and circle vertices before FFI" {
   inspect(gradient[10], content="0.5")
   inspect(gradient[17], content="0.5")
 
-  let circle = pack_circle_fill_vertices2d(
-    Vec2(2.0, 3.0),
-    4.0,
-    Transform(),
-    { r: 255U, g: 255U, b: 255U, a: 1.0 },
-  )
+  let circle = pack_circle_fill_vertices2d(Vec2(2.0, 3.0), 4.0, Transform(), {
+    r: 255U,
+    g: 255U,
+    b: 255U,
+    a: 1.0,
+  })
   inspect(circle.length(), content="720")
   inspect(circle[0], content="2")
   inspect(circle[1], content="3")
@@ -941,11 +934,7 @@ test "flatten_colored_vertices3d packs unlit material metadata" {
   let values = flatten_colored_vertices3d(
     mesh.positions,
     [0, 1, 2],
-    [
-      Vec3(0.0, 0.0, 1.0),
-      Vec3(0.0, 0.0, 1.0),
-      Vec3(0.0, 0.0, 1.0),
-    ],
+    [Vec3(0.0, 0.0, 1.0), Vec3(0.0, 0.0, 1.0), Vec3(0.0, 0.0, 1.0)],
     None,
     Vec3(1.0, 1.0, 1.0),
     {
@@ -981,11 +970,7 @@ test "flatten_textured_vertices3d packs unlit surface metadata" {
     mesh.uv_sets[0],
     mesh.uv_sets[0],
     mesh.uv_sets[0],
-    [
-      Vec3(0.0, 0.0, 1.0),
-      Vec3(0.0, 0.0, 1.0),
-      Vec3(0.0, 0.0, 1.0),
-    ],
+    [Vec3(0.0, 0.0, 1.0), Vec3(0.0, 0.0, 1.0), Vec3(0.0, 0.0, 1.0)],
     [
       { x: 1.0, y: 0.0, z: 0.0, w: 1.0 },
       { x: 1.0, y: 0.0, z: 0.0, w: 1.0 },

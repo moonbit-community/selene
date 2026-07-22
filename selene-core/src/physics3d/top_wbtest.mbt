@@ -397,9 +397,7 @@ test "collision and intersection events map to selene event buses" {
       Started(sensor_handle, other_handle, flags),
     )
     physics3d_world().event_handler.push_intersection_event(
-      IntersectionEvent3D(
-        sensor_handle, other_handle, true,
-      ),
+      IntersectionEvent3D(sensor_handle, other_handle, true),
     )
     collect_events()
 
@@ -706,10 +704,7 @@ test "revolute joint forwards limits motor model and softness" {
     },
     content="true",
   )
-  inspect(
-    generic_joint.motor(AngX) is Some(_),
-    content="true",
-  )
+  inspect(generic_joint.motor(AngX) is Some(_), content="true")
   let actual_softness = generic_joint.softness()
   inspect(
     near(
@@ -739,10 +734,7 @@ test "revolute joint forwards limits motor model and softness" {
     },
     content="true",
   )
-  inspect(
-    roundtrip_joint.motor(AngX) is Some(_),
-    content="true",
-  )
+  inspect(roundtrip_joint.motor(AngX) is Some(_), content="true")
 }
 
 ///|
@@ -764,10 +756,7 @@ test "prismatic joint forwards limits and motor state" {
     },
     content="true",
   )
-  inspect(
-    generic_joint.motor(LinX) is Some(_),
-    content="true",
-  )
+  inspect(generic_joint.motor(LinX) is Some(_), content="true")
 }
 
 ///|
@@ -908,8 +897,7 @@ test "character controller options are forwarded to rapier controller" {
   inspect(rapier_controller.slide, content="false")
   inspect(
     match rapier_controller.offset {
-      Absolute(value) =>
-        value.to_double() > 0.019 && value.to_double() < 0.021
+      Absolute(value) => value.to_double() > 0.019 && value.to_double() < 0.021
       _ => false
     },
     content="true",
@@ -972,11 +960,7 @@ test "collider3d debug wire builds expected primitive edges" {
   inspect(
     collider_wire_segments(
       Collider::trimesh(
-        [
-          Vec3(0.0, 0.0, 0.0),
-          Vec3(1.0, 0.0, 0.0),
-          Vec3(0.0, 1.0, 0.0),
-        ],
+        [Vec3(0.0, 0.0, 0.0), Vec3(1.0, 0.0, 0.0), Vec3(0.0, 1.0, 0.0)],
         [(0, 1, 2)],
       ),
     ).length(),
@@ -1002,16 +986,9 @@ test "collider3d debug wire supports every collider shape" {
     Collider::cone(1.0, 0.5),
     Collider::round_cylinder(1.0, 0.5, 0.1),
     Collider::halfspace(@math.Vec3::y_axis()),
-    Collider::convex_hull([
-      Vec3(-1.0, -1.0, -1.0),
-      Vec3(1.0, 1.0, 1.0),
-    ]),
+    Collider::convex_hull([Vec3(-1.0, -1.0, -1.0), Vec3(1.0, 1.0, 1.0)]),
     Collider::trimesh(
-      [
-        Vec3(0.0, 0.0, 0.0),
-        Vec3(1.0, 0.0, 0.0),
-        Vec3(0.0, 1.0, 0.0),
-      ],
+      [Vec3(0.0, 0.0, 0.0), Vec3(1.0, 0.0, 0.0), Vec3(0.0, 1.0, 0.0)],
       [(0, 1, 2)],
     ),
     Collider::heightfield([0.0, 1.0, 2.0, 3.0], 2, 2, @math.Vec3::one()),

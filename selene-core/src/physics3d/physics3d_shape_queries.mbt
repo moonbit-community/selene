@@ -79,10 +79,7 @@ fn shapes_intersect(
       }
     Cuboid(half_extents_a) =>
       match shape_b {
-        Ball(_)
-        | CapsuleY(_, _)
-        | Cylinder(_, _)
-        | Cone(_, _) =>
+        Ball(_) | CapsuleY(_, _) | Cylinder(_, _) | Cone(_, _) =>
           shapes_intersect(shape_b, iso_b, shape_a, iso_a)
         Cuboid(half_extents_b) =>
           @collision.compute_cuboid_cuboid_contact(
@@ -108,8 +105,7 @@ fn shapes_intersect(
       }
     CapsuleY(half_height_a, radius_a) =>
       match shape_b {
-        Ball(_) | Cuboid(_) =>
-          shapes_intersect(shape_b, iso_b, shape_a, iso_a)
+        Ball(_) | Cuboid(_) => shapes_intersect(shape_b, iso_b, shape_a, iso_a)
         CapsuleY(half_height_b, radius_b) =>
           @collision.compute_capsule_capsule_contact(
             iso_a, half_height_a, radius_a, iso_b, half_height_b, radius_b,
@@ -160,8 +156,7 @@ fn shapes_intersect(
       }
     Cone(half_height_a, radius_a) =>
       match shape_b {
-        Ball(_) | Cuboid(_) =>
-          shapes_intersect(shape_b, iso_b, shape_a, iso_a)
+        Ball(_) | Cuboid(_) => shapes_intersect(shape_b, iso_b, shape_a, iso_a)
         Cylinder(half_height_b, radius_b) =>
           @collision.compute_cone_cylinder_contact(
             iso_a, half_height_a, radius_a, iso_b, half_height_b, radius_b,
@@ -219,8 +214,7 @@ fn shapes_intersect(
         | Cylinder(_, _)
         | Cone(_, _)
         | RoundCylinder(_, _, _)
-        | HalfSpace(_) =>
-          shapes_intersect(shape_b, iso_b, shape_a, iso_a)
+        | HalfSpace(_) => shapes_intersect(shape_b, iso_b, shape_a, iso_a)
         _ =>
           @collision.compute_convex_contact(iso_a, shape_a, iso_b, shape_b)
           is Some(_)
@@ -233,8 +227,7 @@ fn shapes_intersect(
         | Cylinder(_, _)
         | Cone(_, _)
         | RoundCylinder(_, _, _)
-        | HalfSpace(_) =>
-          shapes_intersect(shape_b, iso_b, shape_a, iso_a)
+        | HalfSpace(_) => shapes_intersect(shape_b, iso_b, shape_a, iso_a)
         _ =>
           @collision.compute_convex_contact(iso_a, shape_a, iso_b, shape_b)
           is Some(_)

@@ -394,9 +394,7 @@ pub async fn EditorHarness::when_project_folder_pick_is_cancelled(
   self : EditorHarness,
 ) -> Unit {
   self.dispatch(
-    @app.msg_project_root_picked(
-      AsyncOk(@shared.directory_pick_result(None)),
-    ),
+    @app.msg_project_root_picked(AsyncOk(@shared.directory_pick_result(None))),
   )
 }
 

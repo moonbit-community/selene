@@ -315,9 +315,7 @@ test "validation rejects unsupported scene version missing parent and invalid cu
         id: "child",
         name: "Child",
         parent: Some("missing"),
-        components: [
-          { kind: "UnknownKind", data: Json::null() },
-        ],
+        components: [{ kind: "UnknownKind", data: Json::null() }],
       },
     ],
   }

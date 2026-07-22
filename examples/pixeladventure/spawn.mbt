@@ -101,10 +101,7 @@ fn spawn_hud(
   )
   @ui.nodes().set(
     volume_button,
-    @ui.Node::absolute(
-      Vec2(VIEWPORT_WIDTH - 40.0, 18.0),
-      size=Vec2(21.0, 22.0),
-    ),
+    @ui.Node::absolute(Vec2(VIEWPORT_WIDTH - 40.0, 18.0), size=Vec2(21.0, 22.0)),
   )
   @ui.z_indexes().set(volume_button, ZIndex(BUTTON_ZINDEX))
   @ui.buttons().set(volume_button, Button())

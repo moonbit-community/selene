@@ -337,10 +337,7 @@ fn update_project_runtime(
             [],
             {
               ..model,
-              scene_session: Some({
-                ..session,
-                conflict_state: NoConflict,
-              }),
+              scene_session: Some({ ..session, conflict_state: NoConflict }),
               status: "Keeping local scene edits",
             },
           )
@@ -353,10 +350,7 @@ fn update_project_runtime(
             [rpc_effect(RpcSceneLoad(session.path))],
             {
               ..model,
-              scene_session: Some({
-                ..session,
-                conflict_state: NoConflict,
-              }),
+              scene_session: Some({ ..session, conflict_state: NoConflict }),
               status: "Reloading scene from disk...",
             },
           )

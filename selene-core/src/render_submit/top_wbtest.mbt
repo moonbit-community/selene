@@ -29,9 +29,7 @@ test "build_frame2d keeps clear-only camera passes" {
     @camera.cameras().set(
       camera_entity,
       Camera(
-        viewport=Some(
-          CameraViewport(Vec2(20.0, 10.0), Vec2(80.0, 40.0)),
-        ),
+        viewport=Some(CameraViewport(Vec2(20.0, 10.0), Vec2(80.0, 40.0))),
         pass=CameraPass2D(load_op=Clear, clear_color={
           r: 12U,
           g: 24U,
@@ -89,9 +87,7 @@ test "build_frame2d normalizes offscreen viewport and command coordinates" {
     @camera.cameras().set(
       camera_entity,
       Camera(
-        viewport=Some(
-          CameraViewport(Vec2(20.0, 10.0), Vec2(80.0, 40.0)),
-        ),
+        viewport=Some(CameraViewport(Vec2(20.0, 10.0), Vec2(80.0, 40.0))),
         pass=CameraPass2D(
           load_op=Clear,
           clear_color={ r: 0U, g: 0U, b: 0U, a: 1.0 },

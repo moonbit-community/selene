@@ -34,7 +34,7 @@ pub fn Transform::identity() -> Transform {
 }
 
 ///|
-pub impl Default for Transform with default() -> Transform {
+pub impl Default for Transform with fn default() -> Transform {
   Transform::identity()
 }
 
@@ -94,7 +94,7 @@ pub fn GlobalTransform::identity() -> GlobalTransform {
 }
 
 ///|
-pub impl Default for GlobalTransform with default() -> GlobalTransform {
+pub impl Default for GlobalTransform with fn default() -> GlobalTransform {
   GlobalTransform::identity()
 }
 

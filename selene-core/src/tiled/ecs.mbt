@@ -147,10 +147,7 @@ fn tiled_install_sprite_animation(
       AnimationTransitions()
     }),
   )
-  @animation.animation_target_ids().set(
-    entity,
-    AnimationTargetId("self"),
-  )
+  @animation.animation_target_ids().set(entity, AnimationTargetId("self"))
   @animation.animated_bys().set(entity, AnimatedBy(entity))
   let (graph, nodes) = @animation.AnimationGraph::from_clips([
     tiled_sprite_animation_clip_asset(animation),

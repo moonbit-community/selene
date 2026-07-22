@@ -131,10 +131,7 @@ pub fn instantiate_scene_instance(
     let graph_handle = @animation.register_animation_graph_asset(graph)
     @animation.animation_graph_handles().set(root, graph_handle)
     @animation.animation_players().set(root, AnimationPlayer())
-    @animation.animation_transitions().set(
-      root,
-      AnimationTransitions(),
-    )
+    @animation.animation_transitions().set(root, AnimationTransitions())
   }
   { root, parts, animations: animation_nodes }
 }

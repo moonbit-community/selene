@@ -286,10 +286,7 @@ pub fn gamepad_right_stick(gamepad : Gamepad) -> @math.Vec2 {
 
 ///|
 pub fn gamepad_triggers(gamepad : Gamepad) -> @math.Vec2 {
-  Vec2(
-    gamepad_axis_value(gamepad, LeftZ),
-    gamepad_axis_value(gamepad, RightZ),
-  )
+  Vec2(gamepad_axis_value(gamepad, LeftZ), gamepad_axis_value(gamepad, RightZ))
 }
 
 ///|

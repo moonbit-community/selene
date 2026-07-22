@@ -103,19 +103,16 @@ fn run_preview_command(command : @bridge.PreviewCommand) -> Unit {
     Bootstrap => @preview.bootstrap()
     ClearScene => @preview.clear_scene()
     LoadScene(scene) => @preview.load_scene(scene)
-    SetSelection(primary~, ids~) =>
-      @preview.set_selection(primary, ids)
+    SetSelection(primary~, ids~) => @preview.set_selection(primary, ids)
     SetTool(tool) => @preview.set_tool(tool)
-    SetMoveSnap(enabled~, step~) =>
-      @preview.set_move_snap(enabled, step)
+    SetMoveSnap(enabled~, step~) => @preview.set_move_snap(enabled, step)
     SetAutoTileBrushTerrain(terrain) =>
       @preview.set_autotile_brush_terrain(terrain)
     SetAnimationPreviewPaused(paused) =>
       @preview.set_animation_preview_paused(paused)
     SetAnimationPreviewSpeed(speed) =>
       @preview.set_animation_preview_speed(speed)
-    SeekAnimationPreview(seconds) =>
-      @preview.seek_animation_preview(seconds)
+    SeekAnimationPreview(seconds) => @preview.seek_animation_preview(seconds)
     FrameSelection => @preview.frame_selection()
   }
 }

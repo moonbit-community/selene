@@ -553,13 +553,8 @@ fn tiled_shape_from_rect(
     transform,
   )
   match tiled_axis_aligned_rect(corners) {
-    Some((offset, rect_size)) =>
-      Rect(size=rect_size, offset~)
-    None =>
-      Polygon(
-        points=corners,
-        offset=@math.Vec2::zero(),
-      )
+    Some((offset, rect_size)) => Rect(size=rect_size, offset~)
+    None => Polygon(points=corners, offset=@math.Vec2::zero())
   }
 }
 
@@ -796,18 +791,12 @@ fn tiled_physics_body_type(value : String) -> @physics2d.RigidBodyType? {
   match value.trim().to_owned().to_lower() {
     "dynamic" => Some(Dynamic)
     "fixed" => Some(Fixed)
-    "kinematicpositionbased" =>
-      Some(KinematicPositionBased)
-    "kinematic_position_based" =>
-      Some(KinematicPositionBased)
-    "kinematic-position-based" =>
-      Some(KinematicPositionBased)
-    "kinematicvelocitybased" =>
-      Some(KinematicVelocityBased)
-    "kinematic_velocity_based" =>
-      Some(KinematicVelocityBased)
-    "kinematic-velocity-based" =>
-      Some(KinematicVelocityBased)
+    "kinematicpositionbased" => Some(KinematicPositionBased)
+    "kinematic_position_based" => Some(KinematicPositionBased)
+    "kinematic-position-based" => Some(KinematicPositionBased)
+    "kinematicvelocitybased" => Some(KinematicVelocityBased)
+    "kinematic_velocity_based" => Some(KinematicVelocityBased)
+    "kinematic-velocity-based" => Some(KinematicVelocityBased)
     _ => None
   }
 }

@@ -125,10 +125,7 @@ fn instantiate_scene_node(
   parts.set(entity_path, entity)
   node_entities.set(node_index, entity)
   @name.names().set(entity, Name(entity_name))
-  @animation.animation_target_ids().set(
-    entity,
-    AnimationTargetId(entity_path),
-  )
+  @animation.animation_target_ids().set(entity, AnimationTargetId(entity_path))
   @animation.animated_bys().set(entity, AnimatedBy(root_entity))
   @transform.transforms().set(entity, node.transform)
   if node.camera is Some(camera) {

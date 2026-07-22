@@ -1,10 +1,6 @@
 ///|
 fn plugin_add_startup_system(app : App) -> App {
-  app.add_system(
-    Startup,
-    fn(_world) { () },
-    system_name="plugin_startup",
-  )
+  app.add_system(Startup, fn(_world) { () }, system_name="plugin_startup")
 }
 
 ///|

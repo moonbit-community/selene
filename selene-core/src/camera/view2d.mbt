@@ -114,10 +114,7 @@ fn rect_from_points(points : Array[@math.Vec2]) -> @math.Rect {
     max_x = @cmp.maximum(max_x, point[X])
     max_y = @cmp.maximum(max_y, point[Y])
   }
-  {
-    position: Vec2(min_x, min_y),
-    size: Vec2(max_x - min_x, max_y - min_y),
-  }
+  { position: Vec2(min_x, min_y), size: Vec2(max_x - min_x, max_y - min_y) }
 }
 
 ///|

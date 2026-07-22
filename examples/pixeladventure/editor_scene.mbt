@@ -56,9 +56,10 @@ fn pixeladventure_empty_component_data() -> Json {
 
 ///|
 fn terrain_component_default_data() -> Json {
-  ToJson::to_json(
-    PixelAdventureTerrainComponent::{ solid: false, collider_group: "grass" },
-  )
+  ToJson::to_json(PixelAdventureTerrainComponent::{
+    solid: false,
+    collider_group: "grass",
+  })
 }
 
 ///|
@@ -403,10 +404,7 @@ fn build_terrain_colliders_from_scene(
         cursor += 1
       }
       spawn_terrain_collider(
-        Vec2(
-          start_x.to_double() * tile_size_d,
-          y.to_double() * tile_size_d,
-        ),
+        Vec2(start_x.to_double() * tile_size_d, y.to_double() * tile_size_d),
         Vec2((end_x - start_x + 1).to_double() * tile_size_d, tile_size_d),
       )
     }

@@ -78,8 +78,7 @@ fn graph_preview_clip_binding(
   }
   for node in graph.nodes {
     match node.kind {
-      Clip(clip_asset_path~) =>
-        return Some((node.id, clip_asset_path, false))
+      Clip(clip_asset_path~) => return Some((node.id, clip_asset_path, false))
       _ => ()
     }
   }

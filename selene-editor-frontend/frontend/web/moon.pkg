@@ -4,8 +4,9 @@ import {
 
 supported_targets = "js"
 
+pkgtype(kind: "executable")
+
 options(
-  is_main: true,
   overrides: [
     "Milky2018/selene_webgpu/platform_window",
     "Milky2018/selene_webgpu/platform_input",

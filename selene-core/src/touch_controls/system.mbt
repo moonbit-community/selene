@@ -53,11 +53,7 @@ fn reset_runtime_values(runtime : TouchControlsWorldStore) -> Unit {
 ///|
 fn touch_ended_this_frame(id : @inputs.TouchId) -> Bool {
   for event in @inputs.touch_changes_this_frame() {
-    if event.id == id &&
-      (
-        event.phase == Ended ||
-        event.phase == Cancelled
-      ) {
+    if event.id == id && (event.phase == Ended || event.phase == Cancelled) {
       return true
     }
   }

@@ -73,8 +73,7 @@ async fn EditorService::handle_project_rpc(
             )
         },
       )
-    ProjectOpen(root~) =>
-      Some(self.project_open_response(request, root))
+    ProjectOpen(root~) => Some(self.project_open_response(request, root))
     ProjectPickDirectory(prompt~) =>
       Some(
         @shared.rpc_response_directory_picked(

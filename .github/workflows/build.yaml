@@ -56,6 +56,10 @@ jobs:
         run: |
           bash scripts/check_no_legacy_ui.sh
 
+      - name: Check formatting
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: moon fmt --check
+
       - name: selene-core
         run: |
           cd selene-core

@@ -52,7 +52,7 @@ pub fn Vec2::zero() -> Vec2 {
 }
 
 ///|
-pub impl Default for Vec2 with default() -> Vec2 {
+pub impl Default for Vec2 with fn default() -> Vec2 {
   Vec2::zero()
 }
 
@@ -100,22 +100,22 @@ pub fn Vec2::clone(self : Vec2) -> Vec2 {
 }
 
 ///|
-pub impl Add for Vec2 with add(this, other) {
+pub impl Add for Vec2 with fn add(this, other) {
   Vec2(this.0 + other.0, this.1 + other.1)
 }
 
 ///|
-pub impl Mul for Vec2 with mul(this, other) {
+pub impl Mul for Vec2 with fn mul(this, other) {
   Vec2(this.0 * other.0, this.1 * other.1)
 }
 
 ///|
-pub impl Neg for Vec2 with neg(this) {
+pub impl Neg for Vec2 with fn neg(this) {
   Vec2(-this.0, -this.1)
 }
 
 ///|
-pub impl Sub for Vec2 with sub(this, other) {
+pub impl Sub for Vec2 with fn sub(this, other) {
   Vec2(this.0 - other.0, this.1 - other.1)
 }
 

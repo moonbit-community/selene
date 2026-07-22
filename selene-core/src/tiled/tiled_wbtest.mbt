@@ -1027,20 +1027,14 @@ test "tiled world chunking unions multiple active camera views" {
   defer left_camera.destroy()
   @camera.cameras().set(left_camera, Camera(order=0))
   @camera.camera2ds().set(left_camera, Camera2d())
-  @camera.orthographic_projections().set(
-    left_camera,
-    OrthographicProjection(),
-  )
+  @camera.orthographic_projections().set(left_camera, OrthographicProjection())
   tiled_test_set_entity_translation_2d(left_camera, Vec2(50.0, 50.0))
 
   let right_camera = @entity.Entity()
   defer right_camera.destroy()
   @camera.cameras().set(right_camera, Camera(order=1))
   @camera.camera2ds().set(right_camera, Camera2d())
-  @camera.orthographic_projections().set(
-    right_camera,
-    OrthographicProjection(),
-  )
+  @camera.orthographic_projections().set(right_camera, OrthographicProjection())
   tiled_test_set_entity_translation_2d(right_camera, Vec2(250.0, 50.0))
 
   let files : Map[String, Bytes] = Map([])

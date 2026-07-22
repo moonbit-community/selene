@@ -135,11 +135,7 @@ fn to_screen_rect(
     )
     let p3 = screen_point(
       global_transform.transform_point(
-        Vec3(
-          local_position[X] + size[X],
-          local_position[Y] + size[Y],
-          0.0,
-        ),
+        Vec3(local_position[X] + size[X], local_position[Y] + size[Y], 0.0),
       ),
       camera_view,
     )
@@ -171,10 +167,7 @@ fn to_screen_rect(
         acc
       }
     })
-    {
-      position: Vec2(min_x, min_y),
-      size: Vec2(max_x - min_x, max_y - min_y),
-    }
+    { position: Vec2(min_x, min_y), size: Vec2(max_x - min_x, max_y - min_y) }
   }
 }
 

@@ -1158,9 +1158,7 @@ fn document_visual_bounds(
     let anchor = sprite_data.anchor
     let min_x = transform.translation.x - scaled_width * (anchor.x + 0.5)
     let min_y = transform.translation.y - scaled_height * (0.5 - anchor.y)
-    return Some(
-      (Vec2(min_x, min_y), Vec2(scaled_width, scaled_height)),
-    )
+    return Some((Vec2(min_x, min_y), Vec2(scaled_width, scaled_height)))
   }
   if document.component("Text2d") is Some(component) {
     let text_data : @editor_bridge.Text2dComponent = match
@@ -1185,9 +1183,7 @@ fn document_visual_bounds(
       scaled_width * (text_data.anchor.x + 0.5)
     let min_y = transform.translation.y -
       scaled_height * (0.5 - text_data.anchor.y)
-    return Some(
-      (Vec2(min_x, min_y), Vec2(scaled_width, scaled_height)),
-    )
+    return Some((Vec2(min_x, min_y), Vec2(scaled_width, scaled_height)))
   }
   if document.component("Mesh2d") is Some(component) {
     let mesh_data : @editor_bridge.Mesh2dComponent = match
@@ -1210,16 +1206,9 @@ fn document_visual_bounds(
     let scaled_height = size[Y] * transform.scale.y.abs()
     let min_x = transform.translation.x - scaled_width * 0.5
     let min_y = transform.translation.y - scaled_height * 0.5
-    return Some(
-      (Vec2(min_x, min_y), Vec2(scaled_width, scaled_height)),
-    )
+    return Some((Vec2(min_x, min_y), Vec2(scaled_width, scaled_height)))
   }
-  Some(
-    (
-      Vec2(transform.translation.x, transform.translation.y),
-      Vec2(0.0, 0.0),
-    ),
-  )
+  Some((Vec2(transform.translation.x, transform.translation.y), Vec2(0.0, 0.0)))
 }
 
 ///|
@@ -1883,10 +1872,7 @@ fn preview_camera_control_system(_world : @ecs.World) -> Unit {
       }
     }
   }
-  if (
-      @inputs.is_mouse_just_pressed(Middle) &&
-      pointer_inside_canvas
-    ) ||
+  if (@inputs.is_mouse_just_pressed(Middle) && pointer_inside_canvas) ||
     (
       @inputs.is_mouse_just_pressed(Left) &&
       preview_state.active_tool == @shared.preview_tool_drag_canvas() &&
@@ -2004,8 +1990,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
     if !@inputs.mouse.left_button {
       preview_state.last_autotile_cell_key = None
     }
-    if @inputs.is_mouse_just_pressed(Left) &&
-      !pointer_inside {
+    if @inputs.is_mouse_just_pressed(Left) && !pointer_inside {
       preview_debug(
         "ignored autotile edit outside canvas, mouse=" +
         @inputs.mouse.pos[X].to_string() +
@@ -2028,14 +2013,12 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
     return
   }
   if preview_state.active_tool == @shared.preview_tool_select() {
-    if @inputs.is_mouse_just_pressed(Left) &&
-      pointer_inside {
+    if @inputs.is_mouse_just_pressed(Left) && pointer_inside {
       preview_state.selection_drag = Some({
         anchor_world: world_point,
         anchor_pointer: @inputs.mouse.pos,
       })
-    } else if @inputs.is_mouse_just_pressed(Left) &&
-      !pointer_inside {
+    } else if @inputs.is_mouse_just_pressed(Left) && !pointer_inside {
       preview_debug(
         "ignored left pick outside canvas, mouse=" +
         @inputs.mouse.pos[X].to_string() +
@@ -2043,10 +2026,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
         @inputs.mouse.pos[Y].to_string(),
       )
     }
-    if (
-        @inputs.is_mouse_just_released(Left) ||
-        !@inputs.mouse.left_button
-      ) &&
+    if (@inputs.is_mouse_just_released(Left) || !@inputs.mouse.left_button) &&
       preview_state.selection_drag is Some(drag) {
       if pointer_drag_started(drag.anchor_pointer) {
         let ids = pick_entity_ids_in_rect(drag.anchor_world, world_point)
@@ -2059,8 +2039,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
       }
       preview_state.selection_drag = None
     }
-  } else if @inputs.is_mouse_just_pressed(Left) &&
-    pointer_inside {
+  } else if @inputs.is_mouse_just_pressed(Left) && pointer_inside {
     match preview_state.active_tool {
       Translate =>
         match preview_state.selected_entity_id {
@@ -2121,10 +2100,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
             .get(selected)
             .unwrap_or(entity_transform2d(scene.entity_ids[selected]))
           let pivot_world = selected_pivot_world().unwrap_or(
-            Vec2(
-              start_transform.translation.x,
-              start_transform.translation.y,
-            ),
+            Vec2(start_transform.translation.x, start_transform.translation.y),
           )
           preview_state.tool_drag = Some({
             entity_id: selected,
@@ -2161,10 +2137,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
             .get(selected)
             .unwrap_or(entity_transform2d(scene.entity_ids[selected]))
           let pivot_world = selected_pivot_world().unwrap_or(
-            Vec2(
-              start_transform.translation.x,
-              start_transform.translation.y,
-            ),
+            Vec2(start_transform.translation.x, start_transform.translation.y),
           )
           preview_state.tool_drag = Some({
             entity_id: selected,
@@ -2199,10 +2172,7 @@ fn preview_pick_system(_world : @ecs.World) -> Unit {
       @inputs.mouse.pos[Y].to_string(),
     )
   }
-  if (
-      @inputs.is_mouse_just_released(Left) ||
-      !@inputs.mouse.left_button
-    ) &&
+  if (@inputs.is_mouse_just_released(Left) || !@inputs.mouse.left_button) &&
     preview_state.tool_drag is Some(drag_state) {
     emit_preview_event(
       @bridge.preview_event_transform_gesture_finished(drag_state.entity_id),

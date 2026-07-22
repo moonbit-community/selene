@@ -290,10 +290,7 @@ fn spawn_enemy_system(_world : @ecs.World) -> Unit {
         @sprite.sprites().set(enemy, sprite)
         @physics2d.shapes().set(
           enemy,
-          Rect(
-            size=Vec2(8.0, 8.0),
-            offset=Vec2(-4.0, -4.0),
-          ),
+          Rect(size=Vec2(8.0, 8.0), offset=Vec2(-4.0, -4.0)),
         )
         @physics2d.colliders().set(
           enemy,
@@ -545,10 +542,7 @@ fn shoot_enemy_bullet(enemy_pos : @math.Vec2, player_pos : @math.Vec2) -> Unit {
   @physics2d.linear_velocities().set(bullet_entity, vel)
   @physics2d.shapes().set(
     bullet_entity,
-    Rect(
-      size=Vec2(4.0, 4.0),
-      offset=Vec2(-2.0, -2.0),
-    ),
+    Rect(size=Vec2(4.0, 4.0), offset=Vec2(-2.0, -2.0)),
   )
   let area = @physics2d.sensor(
     @physics2d.collision_filter(enemybullet_collision_group, [

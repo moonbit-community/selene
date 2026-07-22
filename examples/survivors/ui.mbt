@@ -156,10 +156,7 @@ fn configure_panel_button(
   set_ui_text(entity, label)
   @ui.text_fonts().set(entity, @ui.TextFont::from_css("16px ThaleahFat"))
   set_ui_text_color(entity, "white")
-  @ui.text_layouts().set(
-    entity,
-    TextLayout(align=Center, baseline=Center),
-  )
+  @ui.text_layouts().set(entity, TextLayout(align=Center, baseline=Center))
 }
 
 ///|

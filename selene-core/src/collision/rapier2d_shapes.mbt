@@ -18,10 +18,7 @@ fn to_physics_isometry(
   translation : @math.Vec2,
   rotation : Double,
 ) -> @rapier_full.Isometry2 {
-  Isometry2(
-    to_physics_vec2(translation),
-    to_physics_rotation(rotation),
-  )
+  Isometry2(to_physics_vec2(translation), to_physics_rotation(rotation))
 }
 
 ///|
@@ -59,11 +56,7 @@ fn set_entity_translation(
   let current = @transform.transforms().get(entity).unwrap_or_default()
   @transform.transforms().set(entity, {
     ..current,
-    translation: Vec3(
-      translation[X],
-      translation[Y],
-      current.translation.z,
-    ),
+    translation: Vec3(translation[X], translation[Y], current.translation.z),
   })
 }
 

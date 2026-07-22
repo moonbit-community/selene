@@ -478,10 +478,7 @@ test "load_ldtk_project parses advanced field helpers for level and entity" {
       content="7",
     )
     let spawn_point = level.field_vec2_array("SpawnPoints").unwrap()[1]
-    inspect(
-      spawn_point[X] == 3.0 && spawn_point[Y] == 4.0,
-      content="true",
-    )
+    inspect(spawn_point[X] == 3.0 && spawn_point[Y] == 4.0, content="true")
     inspect(level.field_number_array("Weights").unwrap()[0], content="1.25")
 
     let entity = level.layer_instances[0].entity_instances[0]
@@ -496,10 +493,7 @@ test "load_ldtk_project parses advanced field helpers for level and entity" {
     inspect(entity.field_tiles("Marker").unwrap()[0].h, content="16")
     inspect(entity.field_number_array("FloatList").unwrap()[1], content="2")
     let path_point = entity.field_vec2_array("Path").unwrap()[1]
-    inspect(
-      path_point[X] == 6.0 && path_point[Y] == 7.0,
-      content="true",
-    )
+    inspect(path_point[X] == 6.0 && path_point[Y] == 7.0, content="true")
     let target_ref = entity.field_entity_ref("TargetRef").unwrap()
     inspect(target_ref.entity_iid.unwrap(), content="enemy-2")
     inspect(target_ref.level_iid.unwrap(), content="level-main")
@@ -529,10 +523,7 @@ test "load_ldtk_project parses level background position" {
     inspect(bg_pos.crop_y, content="2")
     inspect(bg_pos.crop_width, content="30")
     inspect(bg_pos.crop_height, content="40")
-    inspect(
-      bg_pos.scale[X] == 1.5 && bg_pos.scale[Y] == 2.0,
-      content="true",
-    )
+    inspect(bg_pos.scale[X] == 1.5 && bg_pos.scale[Y] == 2.0, content="true")
     inspect(
       bg_pos.top_left_px[X] == 7.0 && bg_pos.top_left_px[Y] == 8.0,
       content="true",
@@ -584,8 +575,7 @@ test "ldtk_world_sync_system updates spawned levels from selection" {
   let spawned_a = world_instance.spawned_levels.get("iid-a").unwrap()
   let spawned_a_translation = ldtk_test_entity_translation_2d(spawned_a)
   inspect(
-    spawned_a_translation[X] == 10.0 &&
-    spawned_a_translation[Y] == 20.0,
+    spawned_a_translation[X] == 10.0 && spawned_a_translation[Y] == 20.0,
     content="true",
   )
 
@@ -597,8 +587,7 @@ test "ldtk_world_sync_system updates spawned levels from selection" {
   let spawned_b = updated.spawned_levels.get("iid-b").unwrap()
   let spawned_b_translation = ldtk_test_entity_translation_2d(spawned_b)
   inspect(
-    spawned_b_translation[X] == 110.0 &&
-    spawned_b_translation[Y] == 220.0,
+    spawned_b_translation[X] == 110.0 && spawned_b_translation[Y] == 220.0,
     content="true",
   )
 
@@ -662,13 +651,11 @@ test "spawn_ldtk_world spawns level backgrounds from bg color and image" {
       fail("expected level background rect")
     }
     inspect(
-      background_rect.position[X] == 3.0 &&
-      background_rect.position[Y] == 5.0,
+      background_rect.position[X] == 3.0 && background_rect.position[Y] == 5.0,
       content="true",
     )
     inspect(
-      background_rect.size[X] == 20.0 &&
-      background_rect.size[Y] == 10.0,
+      background_rect.size[X] == 20.0 && background_rect.size[Y] == 10.0,
       content="true",
     )
     inspect(
@@ -992,10 +979,7 @@ test "ldtk entity tile sprite registration inserts placeholder sprite from __til
       content="true",
     )
     let sprite_anchor = sprite.anchor.as_vec()
-    inspect(
-      sprite_anchor[X] == -0.5 && sprite_anchor[Y] == 1.0,
-      content="true",
-    )
+    inspect(sprite_anchor[X] == -0.5 && sprite_anchor[Y] == 1.0, content="true")
     cleanup_ldtk_entity(world)
   })
 }

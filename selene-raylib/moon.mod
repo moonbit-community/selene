@@ -20,6 +20,4 @@ description = "Native raylib backend for Selene."
 
 preferred_target = "native"
 
-options(
-  source: "src",
-)
+source = "src"

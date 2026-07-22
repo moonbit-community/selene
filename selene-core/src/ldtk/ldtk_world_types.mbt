@@ -36,9 +36,7 @@ fn ldtk_sprite_anchor_for_pixel_offset(
   if size[X].abs() <= 0.000000001 || size[Y].abs() <= 0.000000001 {
     return Anchor(Vec2(-0.5, 0.5))
   }
-  Anchor(
-    Vec2(-(offset[X] / size[X]) - 0.5, offset[Y] / size[Y] + 0.5),
-  )
+  Anchor(Vec2(-(offset[X] / size[X]) - 0.5, offset[Y] / size[Y] + 0.5))
 }
 
 ///|

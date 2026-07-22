@@ -1,9 +1,6 @@
 ///|
 fn debug_rect_to_math_rect(rect : DebugRect) -> @math.Rect {
-  {
-    position: Vec2(rect.x, rect.y),
-    size: Vec2(rect.width, rect.height),
-  }
+  { position: Vec2(rect.x, rect.y), size: Vec2(rect.width, rect.height) }
 }
 
 ///|

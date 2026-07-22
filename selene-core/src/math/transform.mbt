@@ -49,7 +49,7 @@ pub fn Transform::identity() -> Transform {
 }
 
 ///|
-pub impl Default for Transform with default() -> Transform {
+pub impl Default for Transform with fn default() -> Transform {
   Transform::identity()
 }
 
@@ -336,7 +336,7 @@ pub fn Transform::flip_y(height : Double) -> Transform {
 ///|
 /// Multiply two transforms (matrix multiplication, same as compose)
 /// 
-pub impl Mul for Transform with mul(self : Transform, other : Transform) -> Transform {
+pub impl Mul for Transform with fn mul(self : Transform, other : Transform) -> Transform {
   self.multiply(other)
 }
 

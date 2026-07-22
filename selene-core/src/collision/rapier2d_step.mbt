@@ -87,10 +87,8 @@ fn rigid_body_type_to_rapier(
   match body_type {
     Dynamic => Dynamic
     Fixed => Fixed
-    KinematicPositionBased =>
-      KinematicPositionBased
-    KinematicVelocityBased =>
-      KinematicVelocityBased
+    KinematicPositionBased => KinematicPositionBased
+    KinematicVelocityBased => KinematicVelocityBased
   }
 }
 
@@ -483,8 +481,7 @@ fn sync_body_outputs() -> Unit {
     guard entity_translation(entity) is Some(_) else { continue }
     if world().bodies.get(handle) is Some(body) {
       let body_type = body.body_type()
-      if body_type is Dynamic ||
-        body_type is KinematicVelocityBased {
+      if body_type is Dynamic || body_type is KinematicVelocityBased {
         set_entity_translation(entity, from_physics_vec2(body.translation()))
         set_entity_rotation(entity, from_physics_rotation(body.rotation()))
         resolved_velocities().set(entity, from_physics_vec2(body.linvel()))

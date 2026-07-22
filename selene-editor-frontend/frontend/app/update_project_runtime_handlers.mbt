@@ -315,8 +315,7 @@ fn handle_service_event(
     AsyncOk(event) =>
       match event {
         Ready => ([], model)
-        Log(label~, message~) =>
-          ([], push_log(model, "[\{label}] \{message}"))
+        Log(label~, message~) => ([], push_log(model, "[\{label}] \{message}"))
         ProjectDelta(delta~) =>
           match delta {
             WorkspaceChanged =>
@@ -357,9 +356,7 @@ fn handle_service_event(
         | AnimationGraphSaved(_)
         | AnimationMigrated(..)
         | AssetImported(_) => ([], model)
-        ProjectOpened(..)
-        | SceneCreated(..)
-        | SceneDeleted(..) => ([], model)
+        ProjectOpened(..) | SceneCreated(..) | SceneDeleted(..) => ([], model)
       }
     AsyncErr(message) => {
       let next = push_log(model, "SSE error: " + message)

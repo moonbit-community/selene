@@ -445,10 +445,7 @@ test "ui layout clamps scroll positions to overflowing content" {
   debug_inspect([scroll.x, scroll.y], content="[0, 200]")
   let initial = computed_ui_nodes().get(parent).unwrap()
   debug_inspect(
-    [
-      initial.max_scroll_position,
-      Vec2(scroll.x, scroll.y),
-    ],
+    [initial.max_scroll_position, Vec2(scroll.x, scroll.y)],
     content="[Vec2(0, 200), Vec2(0, 200)]",
   )
 
@@ -459,10 +456,7 @@ test "ui layout clamps scroll positions to overflowing content" {
   ui_layout_system(0.0)
   let resized = computed_ui_nodes().get(parent).unwrap()
   debug_inspect(
-    [
-      resized.max_scroll_position[Y],
-      scroll_positions().get(parent).unwrap().y,
-    ],
+    [resized.max_scroll_position[Y], scroll_positions().get(parent).unwrap().y],
     content="[50, 50]",
   )
 

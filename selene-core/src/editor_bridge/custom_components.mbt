@@ -16,7 +16,8 @@ pub struct CustomComponentHandler {
 }
 
 ///|
-let registered_custom_component_handlers : Map[String, CustomComponentHandler] = Map([])
+let registered_custom_component_handlers : Map[String, CustomComponentHandler] = Map([],
+)
 
 ///|
 fn normalized_custom_component_kind(kind : String) -> String {

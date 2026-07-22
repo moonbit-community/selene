@@ -70,10 +70,7 @@ fn ensure_sprite_animation_binding(entity : @entity.Entity) -> Unit {
       AnimationTransitions()
     }),
   )
-  @animation.animation_target_ids().set(
-    entity,
-    AnimationTargetId("self"),
-  )
+  @animation.animation_target_ids().set(entity, AnimationTargetId("self"))
   @animation.animated_bys().set(entity, AnimatedBy(entity))
 }
 

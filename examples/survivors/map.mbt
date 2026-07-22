@@ -36,10 +36,7 @@ fn add_border(size : @math.Vec2) -> Unit {
       @physics2d.CollisionFilter::empty(wall_collision_group),
     )
     @physics2d.colliders().set(entity, collider)
-    @physics2d.shapes().set(
-      entity,
-      Rect(size~, offset=Vec2(0.0, 0.0)),
-    )
+    @physics2d.shapes().set(entity, Rect(size~, offset=Vec2(0.0, 0.0)))
     @transform.transforms().set(
       entity,
       @transform.Transform::from_xyz(pos[X], pos[Y], 0.0),

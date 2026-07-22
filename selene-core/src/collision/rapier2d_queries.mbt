@@ -228,10 +228,7 @@ fn to_physics_vec2(value : @math.Vec2) -> @rapier_full.Vec2 {
 
 ///|
 fn to_physics_direction(value : @math.Vec2) -> @rapier_full.Vec2 {
-  Vec2(
-    Float::from_double(value[X]),
-    Float::from_double(value[Y]),
-  )
+  Vec2(Float::from_double(value[X]), Float::from_double(value[Y]))
 }
 
 ///|

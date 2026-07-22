@@ -14,9 +14,7 @@ fn tiled_world_set_entity_translation_2d(
 fn tiled_world_entity_translation_2d(entity : @entity.Entity) -> @math.Vec2? {
   @transform.transforms()
   .get(entity)
-  .map(fn(transform) {
-    Vec2(transform.translation.x, transform.translation.y)
-  })
+  .map(fn(transform) { Vec2(transform.translation.x, transform.translation.y) })
 }
 
 ///|
@@ -390,10 +388,7 @@ fn tiled_world_loaded_map_bounds(
     loaded_map.map.height * loaded_map.map.tile_height,
   )
   let min = origin +
-    Vec2(
-      loaded_map.world_map.x.to_double(),
-      loaded_map.world_map.y.to_double(),
-    )
+    Vec2(loaded_map.world_map.x.to_double(), loaded_map.world_map.y.to_double())
   (min, min + Vec2(width.to_double(), height.to_double()))
 }
 

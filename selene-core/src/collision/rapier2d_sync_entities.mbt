@@ -211,14 +211,7 @@ fn collision_shape_to_rapier_shape(
       if radius <= 0.0 {
         None
       } else {
-        Some(
-          (
-            Ball(
-              Float::from_double(to_physics_scalar(radius)),
-            ),
-            offset,
-          ),
-        )
+        Some((Ball(Float::from_double(to_physics_scalar(radius))), offset))
       }
     Polygon(points~, offset~) =>
       collision_polygon_to_rapier_shape(points, offset)
@@ -242,10 +235,7 @@ fn collision_polygon_to_rapier_shape(
   }
   Some(
     (
-      TriMesh(
-        collision_shape_to_rapier_points(vertices),
-        triangles,
-      ),
+      TriMesh(collision_shape_to_rapier_points(vertices), triangles),
       @math.Vec2::zero(),
     ),
   )
@@ -273,10 +263,7 @@ fn collision_polyline_to_rapier_shape(
   }
   Some(
     (
-      Polyline(
-        collision_shape_to_rapier_points(vertices),
-        Some(segments),
-      ),
+      Polyline(collision_shape_to_rapier_points(vertices), Some(segments)),
       @math.Vec2::zero(),
     ),
   )

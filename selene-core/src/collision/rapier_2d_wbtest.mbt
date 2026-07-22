@@ -107,10 +107,7 @@ test "explicit rigid body syncs material and rapier handles" {
     return
   }
 
-  inspect(
-    body.body_type() is Dynamic,
-    content="true",
-  )
+  inspect(body.body_type() is Dynamic, content="true")
   inspect(
     collision_test_close(body.gravity_scale().to_double(), 2.0),
     content="true",
@@ -258,14 +255,8 @@ test "spatial queries resolve hits, overlaps, and body filters" {
     content="true",
   )
 
-  let dynamic_filter = {
-    ..SpatialQueryFilter::default(),
-    body_filter: Dynamic,
-  }
-  let fixed_filter = {
-    ..SpatialQueryFilter::default(),
-    body_filter: Fixed,
-  }
+  let dynamic_filter = { ..SpatialQueryFilter::default(), body_filter: Dynamic }
+  let fixed_filter = { ..SpatialQueryFilter::default(), body_filter: Fixed }
   let kinematic_filter = {
     ..SpatialQueryFilter::default(),
     body_filter: Kinematic,

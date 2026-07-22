@@ -54,10 +54,7 @@ test "level up click resumes game" {
   game_state.exp = 0
 
   add_exp(16)
-  @ui.click_event_bus.send({
-    entity: levelup_buttons[0],
-    button: Left,
-  })
+  @ui.click_event_bus.send({ entity: levelup_buttons[0], button: Left })
   survivors_ui_pointer_system(@ecs.bootstrap_world())
 
   inspect(@time.scale(), content="1")

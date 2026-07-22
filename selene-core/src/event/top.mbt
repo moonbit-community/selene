@@ -145,9 +145,7 @@ pub fn[T] EventWriter::trigger(
 }
 
 ///|
-pub fn[T] Events::Events(
-  domain? : EventDomain = Frame,
-) -> Events[T] {
+pub fn[T] Events::Events(domain? : EventDomain = Frame) -> Events[T] {
   { id: allocate_event_bus_id(), domain, stores: Map([]), marker: None }
 }
 

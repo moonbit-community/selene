@@ -250,10 +250,7 @@ fn draw_text_with_cosmic(command : @render2d_types.TextDrawCommand2D) -> Bool {
     return false
   }
   let measured = measure_text_with_cosmic(command.style, command.text).unwrap_or(
-    Vec2(
-      cached_texture.width.to_double(),
-      cached_texture.height.to_double(),
-    ),
+    Vec2(cached_texture.width.to_double(), cached_texture.height.to_double()),
   )
   let mut x = command.position[X]
   let mut y = command.position[Y]

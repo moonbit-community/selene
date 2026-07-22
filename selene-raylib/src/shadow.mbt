@@ -178,11 +178,7 @@ fn vec3_max(lhs : @smath.Vec3, rhs : @smath.Vec3) -> @smath.Vec3 {
 
 ///|
 fn vec3_midpoint(lhs : @smath.Vec3, rhs : @smath.Vec3) -> @smath.Vec3 {
-  Vec3(
-    (lhs.x + rhs.x) * 0.5,
-    (lhs.y + rhs.y) * 0.5,
-    (lhs.z + rhs.z) * 0.5,
-  )
+  Vec3((lhs.x + rhs.x) * 0.5, (lhs.y + rhs.y) * 0.5, (lhs.z + rhs.z) * 0.5)
 }
 
 ///|
@@ -231,10 +227,7 @@ fn camera_basis(
   )
   let up = normalize_or(camera.up, Vec3(0.0, 1.0, 0.0))
   let right = normalize_or(forward.cross(up), Vec3(1.0, 0.0, 0.0))
-  let corrected_up = normalize_or(
-    right.cross(forward),
-    Vec3(0.0, 1.0, 0.0),
-  )
+  let corrected_up = normalize_or(right.cross(forward), Vec3(0.0, 1.0, 0.0))
   (forward, right, corrected_up)
 }
 
@@ -295,9 +288,7 @@ fn camera_frustum_slice_corners(
       )
     }
     Orthographic => {
-      let ortho_size = camera.orthographic_size.unwrap_or(
-        Vec2(20.0, 20.0),
-      )
+      let ortho_size = camera.orthographic_size.unwrap_or(Vec2(20.0, 20.0))
       let half_width = ortho_size[X].abs() * 0.5
       let half_height = ortho_size[Y].abs() * 0.5
       let near_center = camera.position + forward.scalar_mul(near_bound)
@@ -387,10 +378,7 @@ fn build_directional_shadow_cascades_for_light(
   if bounds.length() == 0 {
     return []
   }
-  let light_direction = normalize_or(
-    light.direction,
-    Vec3(0.0, -1.0, 0.0),
-  )
+  let light_direction = normalize_or(light.direction, Vec3(0.0, -1.0, 0.0))
   let light_view = @raylib.Matrix::look_at(
     @raylib.Vector3::zero(),
     to_ray_vector3_smath(light_direction),
@@ -644,10 +632,7 @@ fn build_directional_shadow_setup_for_light(
     return None
   }
   let light = frame.directional_lights[light_index]
-  let light_direction = normalize_or(
-    light.direction,
-    Vec3(0.0, -1.0, 0.0),
-  )
+  let light_direction = normalize_or(light.direction, Vec3(0.0, -1.0, 0.0))
   let center = vec3_midpoint(bounds.min, bounds.max)
   let extent = bounds.max - center
   let radius = @cmp.maximum(extent.length(), 1.0)

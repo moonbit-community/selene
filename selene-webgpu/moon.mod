@@ -21,6 +21,4 @@ description = "Default backend for Selene game engine."
 
 preferred_target = "js"
 
-options(
-  source: "src",
-)
+source = "src"

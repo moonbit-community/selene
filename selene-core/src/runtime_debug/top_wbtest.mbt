@@ -66,14 +66,8 @@ test "frame metrics track fixed update and render phases" {
 ///|
 test "atlas validation reports overlaps and out-of-bounds regions" {
   with_runtime_debug_world(fn() raise {
-    let rect_a : @math.Rect = {
-      position: Vec2(0.0, 0.0),
-      size: Vec2(8.0, 8.0),
-    }
-    let rect_b : @math.Rect = {
-      position: Vec2(4.0, 4.0),
-      size: Vec2(8.0, 8.0),
-    }
+    let rect_a : @math.Rect = { position: Vec2(0.0, 0.0), size: Vec2(8.0, 8.0) }
+    let rect_b : @math.Rect = { position: Vec2(4.0, 4.0), size: Vec2(8.0, 8.0) }
     let rect_c : @math.Rect = {
       position: Vec2(14.0, 14.0),
       size: Vec2(4.0, 4.0),
@@ -171,14 +165,8 @@ test "atlas overlay decoration appends highlight rects when enabled" {
     let image = @asset.load_image("assets/debug/atlas.png")
     let draw_image : @render2d_types.ImageDrawCommand2D = {
       image,
-      destination: {
-        position: Vec2(10.0, 20.0),
-        size: Vec2(30.0, 40.0),
-      },
-      source: Some({
-        position: Vec2(1.0, 2.0),
-        size: Vec2(3.0, 4.0),
-      }),
+      destination: { position: Vec2(10.0, 20.0), size: Vec2(30.0, 40.0) },
+      source: Some({ position: Vec2(1.0, 2.0), size: Vec2(3.0, 4.0) }),
       transform: @math.Transform::identity(),
       uv_transform: @math.Transform::identity(),
       repeat: NoRepeat,
@@ -217,14 +205,8 @@ test "frame metadata export includes draw commands and atlas overlay entries" {
     let image = @asset.load_image("assets/debug/metadata.png")
     let draw_image : @render2d_types.ImageDrawCommand2D = {
       image,
-      destination: {
-        position: Vec2(0.0, 0.0),
-        size: Vec2(16.0, 16.0),
-      },
-      source: Some({
-        position: Vec2(4.0, 5.0),
-        size: Vec2(6.0, 7.0),
-      }),
+      destination: { position: Vec2(0.0, 0.0), size: Vec2(16.0, 16.0) },
+      source: Some({ position: Vec2(4.0, 5.0), size: Vec2(6.0, 7.0) }),
       transform: @math.Transform::identity(),
       uv_transform: @math.Transform::identity(),
       repeat: NoRepeat,

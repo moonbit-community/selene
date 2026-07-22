@@ -145,10 +145,8 @@ pub fn RpcBinding::response_to_msg(
       }
     RpcProjectPickDirectory(_) =>
       match response {
-        DirectoryPicked(result~) =>
-          msg_project_root_picked(AsyncOk(result))
-        Error(error~) =>
-          msg_project_root_picked(AsyncErr(error.message))
+        DirectoryPicked(result~) => msg_project_root_picked(AsyncOk(result))
+        Error(error~) => msg_project_root_picked(AsyncErr(error.message))
         _ =>
           raise UnexpectedRpcResponse(
             "Unexpected RPC response for project root picker",
@@ -201,10 +199,8 @@ pub fn RpcBinding::response_to_msg(
       }
     RpcAnimationClipLoad(_) =>
       match response {
-        AnimationClipLoaded(clip~) =>
-          msg_animation_clip_loaded(AsyncOk(clip))
-        Error(error~) =>
-          msg_animation_clip_loaded(AsyncErr(error.message))
+        AnimationClipLoaded(clip~) => msg_animation_clip_loaded(AsyncOk(clip))
+        Error(error~) => msg_animation_clip_loaded(AsyncErr(error.message))
         _ =>
           raise UnexpectedRpcResponse(
             "Unexpected RPC response for animation clip",
@@ -214,8 +210,7 @@ pub fn RpcBinding::response_to_msg(
       match response {
         AnimationGraphLoaded(graph~) =>
           msg_animation_graph_loaded(AsyncOk(graph))
-        Error(error~) =>
-          msg_animation_graph_loaded(AsyncErr(error.message))
+        Error(error~) => msg_animation_graph_loaded(AsyncErr(error.message))
         _ =>
           raise UnexpectedRpcResponse(
             "Unexpected RPC response for animation graph",
@@ -234,8 +229,7 @@ pub fn RpcBinding::response_to_msg(
     RpcAnimationMigrate(_, _) =>
       match response {
         SavedOk => msg_animation_migration_saved(AsyncOk(()))
-        Error(error~) =>
-          msg_animation_migration_saved(AsyncErr(error.message))
+        Error(error~) => msg_animation_migration_saved(AsyncErr(error.message))
         _ =>
           raise UnexpectedRpcResponse(
             "Unexpected RPC response for animation migrate",

@@ -533,10 +533,7 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
     label,
     @ui.Node::absolute(Vec2(16.0, 16.0), size=Vec2(420.0, 28.0)),
   )
-  @ui.texts().set(
-    label,
-    Text("3d_scene: WebGPU directional + spot shadows"),
-  )
+  @ui.texts().set(label, Text("3d_scene: WebGPU directional + spot shadows"))
   @ui.text_fonts().set(label, TextFont(family="sans-serif", size=20.0))
   @ui.text_colors().set(label, TextColor(color(245U, 245U, 245U, 1.0)))
   @ui.z_indexes().set(label, ZIndex(100))
@@ -553,14 +550,8 @@ fn setup_scene3d(_world : @ecs.World) -> Unit {
       "physics: ball, child collider, joint, controller, raycast, contact force",
     ),
   )
-  @ui.text_fonts().set(
-    physics_text,
-    TextFont(family="sans-serif", size=18.0),
-  )
-  @ui.text_colors().set(
-    physics_text,
-    TextColor(color(214U, 224U, 235U, 1.0)),
-  )
+  @ui.text_fonts().set(physics_text, TextFont(family="sans-serif", size=18.0))
+  @ui.text_colors().set(physics_text, TextColor(color(214U, 224U, 235U, 1.0)))
   @ui.z_indexes().set(physics_text, ZIndex(100))
   physics_label.val = Some(physics_text)
 }

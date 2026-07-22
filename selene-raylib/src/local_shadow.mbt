@@ -71,10 +71,7 @@ fn make_shadow_atlas_rect(
   let tile_width = tile_size.to_double() / atlas_width.to_double()
   let tile_height = tile_size.to_double() / atlas_height.to_double()
   {
-    offset: Vec2(
-      column.to_double() * tile_width,
-      row.to_double() * tile_height,
-    ),
+    offset: Vec2(column.to_double() * tile_width, row.to_double() * tile_height),
     scale: Vec2(tile_width, tile_height),
   }
 }

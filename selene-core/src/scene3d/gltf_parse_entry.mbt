@@ -222,8 +222,7 @@ fn parse_weight_keyframes(
   }
   for index in 0..<key_count {
     let base = index * lane_count * lanes_per_key
-    let value_index = if interpolation
-      is CubicSpline {
+    let value_index = if interpolation is CubicSpline {
       base + lane_count
     } else {
       base
@@ -243,14 +242,12 @@ fn parse_weight_keyframes(
     output.push({
       time: times[index],
       value: weight_values,
-      in_tangent: if interpolation
-        is CubicSpline {
+      in_tangent: if interpolation is CubicSpline {
         Some(in_tangent)
       } else {
         None
       },
-      out_tangent: if interpolation
-        is CubicSpline {
+      out_tangent: if interpolation is CubicSpline {
         Some(out_tangent)
       } else {
         None

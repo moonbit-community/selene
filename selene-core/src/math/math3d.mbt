@@ -50,27 +50,27 @@ pub fn Vec3::z_axis() -> Vec3 {
 }
 
 ///|
-pub impl Default for Vec3 with default() -> Vec3 {
+pub impl Default for Vec3 with fn default() -> Vec3 {
   Vec3::zero()
 }
 
 ///|
-pub impl Add for Vec3 with add(self, other) {
+pub impl Add for Vec3 with fn add(self, other) {
   Vec3(self.x + other.x, self.y + other.y, self.z + other.z)
 }
 
 ///|
-pub impl Sub for Vec3 with sub(self, other) {
+pub impl Sub for Vec3 with fn sub(self, other) {
   Vec3(self.x - other.x, self.y - other.y, self.z - other.z)
 }
 
 ///|
-pub impl Neg for Vec3 with neg(self) {
+pub impl Neg for Vec3 with fn neg(self) {
   Vec3(-self.x, -self.y, -self.z)
 }
 
 ///|
-pub impl Mul for Vec3 with mul(self, other) {
+pub impl Mul for Vec3 with fn mul(self, other) {
   Vec3(self.x * other.x, self.y * other.y, self.z * other.z)
 }
 
@@ -156,7 +156,7 @@ pub fn Quat::identity() -> Quat {
 }
 
 ///|
-pub impl Default for Quat with default() -> Quat {
+pub impl Default for Quat with fn default() -> Quat {
   Quat::identity()
 }
 
@@ -226,7 +226,7 @@ pub fn Quat::dot(self : Quat, other : Quat) -> Double {
 }
 
 ///|
-pub impl Mul for Quat with mul(self, other) {
+pub impl Mul for Quat with fn mul(self, other) {
   self.multiply(other)
 }
 
@@ -343,7 +343,7 @@ pub fn Mat4::identity() -> Mat4 {
 }
 
 ///|
-pub impl Default for Mat4 with default() -> Mat4 {
+pub impl Default for Mat4 with fn default() -> Mat4 {
   Mat4::identity()
 }
 
@@ -484,7 +484,7 @@ pub fn Affine3::identity() -> Affine3 {
 }
 
 ///|
-pub impl Default for Affine3 with default() -> Affine3 {
+pub impl Default for Affine3 with fn default() -> Affine3 {
   Affine3::identity()
 }
 
@@ -525,7 +525,7 @@ pub fn Affine3::mul(self : Affine3, other : Affine3) -> Affine3 {
 }
 
 ///|
-pub impl Mul for Affine3 with mul(self, other) {
+pub impl Mul for Affine3 with fn mul(self, other) {
   self.mul(other)
 }
 

@@ -72,10 +72,7 @@ fn clip_rect_intersection(lhs : @smath.Rect, rhs : @smath.Rect) -> @smath.Rect? 
   if right <= left || bottom <= top {
     None
   } else {
-    Some({
-      position: Vec2(left, top),
-      size: Vec2(right - left, bottom - top),
-    })
+    Some({ position: Vec2(left, top), size: Vec2(right - left, bottom - top) })
   }
 }
 
@@ -175,9 +172,7 @@ fn uniform_float(value : Double) -> @raylib.ShaderUniformData {
 
 ///|
 fn uniform_vec2(value : @smath.Vec2) -> @raylib.ShaderUniformData {
-  Vec2(
-    @raylib.Vector2::new(to_float(value[X]), to_float(value[Y])),
-  )
+  Vec2(@raylib.Vector2::new(to_float(value[X]), to_float(value[Y])))
 }
 
 ///|

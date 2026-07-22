@@ -29,10 +29,7 @@ fn spawn_color_sprite(position : @math.Vec2) -> @entity.Entity {
   let entity = @entity.Entity()
   sprites().set(
     entity,
-    Sprite::from_color(
-      { r: 255U, g: 255U, b: 255U, a: 1.0 },
-      Vec2(16.0, 16.0),
-    ),
+    Sprite::from_color({ r: 255U, g: 255U, b: 255U, a: 1.0 }, Vec2(16.0, 16.0)),
   )
   @transform.global_transforms().set(
     entity,

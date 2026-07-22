@@ -17,9 +17,7 @@ pub fn iter_entities() -> Iter[Entity]
 // Errors
 
 // Types and methods
-pub struct Entity {
-  // private fields
-} derive(Eq, Hash, @debug.Debug)
+type Entity derive(Eq, Hash, @debug.Debug)
 pub fn Entity::Entity() -> Self
 pub fn Entity::destroy(Self) -> Unit
 pub fn Entity::get_children(Self) -> Array[Self]
