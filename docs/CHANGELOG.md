@@ -5,6 +5,16 @@
 ### Added
 
 ### Changed
+
+### Fixed
+
+### Removed
+
+## [0.37.0] - 2026-07-22
+
+### Added
+
+### Changed
 - Changed MoonBit sources and manifests to the current nightly formatter style and enforced it in CI.
 - Changed the UI layout backend from `Milky2018/moon_taffy` to `Milky2018/chicle@0.6.0`.
 
