@@ -924,12 +924,7 @@ fn render_target_camera_id(entity : @entity.Entity) -> UInt? {
 ///|
 pub fn ui_extract_system(_delta : Double) -> Unit {
   extracted_ui_entities.clear()
-  for entity, _ in nodes() {
-    if should_render_ui(entity) {
-      extracted_ui_entities.push(entity)
-    }
-  }
-  extracted_ui_entities.sort_by(compare_ui_stacking)
+  extracted_ui_entities.append(ui_stack())
 }
 
 ///|

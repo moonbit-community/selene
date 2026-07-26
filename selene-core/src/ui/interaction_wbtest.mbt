@@ -191,6 +191,40 @@ test "ui relative cursor positions use centered normalized coordinates" {
 }
 
 ///|
+test "ui pointer picks the pause menu dimmer above the HUD" {
+  with_ui_interaction_test_world(fn() raise {
+    reset_interaction_test_state()
+    let rect : @math.Rect = {
+      position: @math.Vec2(0.0, 0.0),
+      size: @math.Vec2(100.0, 100.0),
+    }
+    let root = spawn_interaction_test_node(rect, interactive=false)
+    let hud = spawn_interaction_test_node(rect, interactive=false)
+    let minimap = spawn_interaction_test_node(rect)
+    let pause_menu = spawn_interaction_test_node(rect, interactive=false)
+    let dimmer = spawn_interaction_test_node(rect)
+    hud.set_parent(root)
+    minimap.set_parent(hud)
+    pause_menu.set_parent(root)
+    dimmer.set_parent(pause_menu)
+    let entities = [root, hud, minimap, pause_menu, dimmer]
+    for index, entity in entities {
+      tree_orders().set(entity, index + 1)
+    }
+    z_indexes().set(minimap, ZIndex(10))
+    z_indexes().set(pause_menu, ZIndex(1))
+    z_indexes().set(dimmer, ZIndex(0))
+
+    assert_eq(resolve_pointer_target(Vec2(20.0, 20.0)), Some(dimmer))
+
+    for entity in entities.rev() {
+      cleanup_interaction_test_entity(entity)
+    }
+    reset_interaction_test_state()
+  })
+}
+
+///|
 test "ui mouse click uses the unified pointer event stream" {
   with_ui_interaction_test_world(fn() raise {
     reset_interaction_test_state()

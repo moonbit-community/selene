@@ -654,6 +654,8 @@ pub fn LayoutConfig::LayoutConfig(use_rounding? : Bool = true) -> LayoutConfig {
 }
 
 ///|
+/// Orders sibling UI nodes while keeping each sibling's ordinary descendant
+/// subtree contiguous in the final UI stack.
 pub(all) struct ZIndex {
   value : Int
 } derive(Eq, Debug)
@@ -664,6 +666,8 @@ pub fn ZIndex::ZIndex(value : Int) -> ZIndex {
 }
 
 ///|
+/// Lifts a UI node and its ordinary descendants into the global UI root order.
+/// A descendant with its own `GlobalZIndex` becomes another global root.
 pub(all) struct GlobalZIndex {
   value : Int
 } derive(Eq, Debug)
@@ -888,27 +892,6 @@ fn zindex_value(entity : @entity.Entity) -> Int {
 }
 
 ///|
-fn compare_ui_stacking(lhs : @entity.Entity, rhs : @entity.Entity) -> Int {
-  let lg = global_zindex_value(lhs)
-  let rg = global_zindex_value(rhs)
-  if lg != rg {
-    return lg - rg
-  }
-  let lz = zindex_value(lhs)
-  let rz = zindex_value(rhs)
-  if lz != rz {
-    return lz - rz
-  }
-  let lt = tree_orders().get(lhs).unwrap_or(0)
-  let rt = tree_orders().get(rhs).unwrap_or(0)
-  if lt != rt {
-    lt - rt
-  } else {
-    lhs.hash().compare(rhs.hash())
-  }
-}
-
-///|
 fn compare_ui_root_order(lhs : @entity.Entity, rhs : @entity.Entity) -> Int {
   let lg = global_zindex_value(lhs)
   let rg = global_zindex_value(rhs)
@@ -1014,4 +997,89 @@ fn ui_children(entity : @entity.Entity) -> Array[@entity.Entity] {
     }
   }
   children
+}
+
+///|
+fn ui_stack() -> Array[@entity.Entity] {
+  let roots : Array[@entity.Entity] = []
+  for entity, node in nodes() {
+    guard entity.is_alive() &&
+      node.active &&
+      node.display != None &&
+      @visibility.is_visible(entity) else {
+      continue
+    }
+    let hierarchy_root = match entity.get_parent() {
+      Some(parent) =>
+        match nodes().get(parent) {
+          Some(parent_node) =>
+            !parent.is_alive() ||
+            !parent_node.active ||
+            parent_node.display == None ||
+            !@visibility.is_visible(parent)
+          None => true
+        }
+      None => true
+    }
+    if hierarchy_root || global_zindexes().contains(entity) {
+      roots.push(entity)
+    }
+  }
+  roots.sort_by(fn(lhs, rhs) {
+    let global_order = global_zindex_value(lhs) - global_zindex_value(rhs)
+    if global_order != 0 {
+      return global_order
+    }
+    let local_order = zindex_value(lhs) - zindex_value(rhs)
+    if local_order != 0 {
+      return local_order
+    }
+    let tree_order = tree_orders().get(lhs).unwrap_or(0) -
+      tree_orders().get(rhs).unwrap_or(0)
+    if tree_order != 0 {
+      tree_order
+    } else {
+      lhs.hash().compare(rhs.hash())
+    }
+  })
+  let ordered : Array[@entity.Entity] = []
+  let pending : Array[@entity.Entity] = []
+  for root in roots {
+    pending.push(root)
+    while pending.pop() is Some(entity) {
+      if global_ui_nodes().contains(entity) {
+        ordered.push(entity)
+      }
+      let children : Array[@entity.Entity] = []
+      for child in ui_children(entity) {
+        guard !global_zindexes().contains(child) else { continue }
+        guard nodes().get(child) is Some(node) &&
+          node.active &&
+          node.display != None &&
+          @visibility.is_visible(child) else {
+          continue
+        }
+        children.push(child)
+      }
+      children.sort_by(fn(lhs, rhs) {
+        let local_order = zindex_value(lhs) - zindex_value(rhs)
+        if local_order != 0 {
+          return local_order
+        }
+        let tree_order = tree_orders().get(lhs).unwrap_or(0) -
+          tree_orders().get(rhs).unwrap_or(0)
+        if tree_order != 0 {
+          tree_order
+        } else {
+          lhs.hash().compare(rhs.hash())
+        }
+      })
+      let mut index = children.length() - 1
+      while index >= 0 {
+        pending.push(children[index])
+        index -= 1
+      }
+    }
+  }
+  ordered
 }
