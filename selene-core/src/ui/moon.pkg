@@ -21,3 +21,7 @@ import {
   "moonbitlang/core/cmp",
   "moonbitlang/core/string",
 }
+
+import {
+  "moonbitlang/core/bench",
+} for "test"

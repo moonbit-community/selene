@@ -4,8 +4,12 @@
 
 ### Added
 
+- Added a 410-entity retained UI benchmark for repeated unchanged layout calls.
+
 ### Changed
 
+- Changed UI layout to retain Chicle trees per world and invalidate layout,
+  projection, and stacking only when their inputs change.
 - Changed Selene UI stacking to tree-local ordering: `ZIndex` now orders
   siblings while keeping ordinary descendant subtrees contiguous,
   `GlobalZIndex` creates escapable global roots, and drawing and pointer

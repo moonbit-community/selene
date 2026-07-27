@@ -347,28 +347,6 @@ fn measure_node(
 }
 
 ///|
-fn build_chicle_tree(
-  chicle : @tree.ChicleTree[@entity.Entity],
-  entity : @entity.Entity,
-  entity_to_node_id : Map[@entity.Entity, Int],
-) -> Int? {
-  guard nodes().get(entity) is Some(node) else { return None }
-  guard node.active else { return None }
-  let child_ids : Array[Int] = []
-  for child in ui_children(entity) {
-    if build_chicle_tree(chicle, child, entity_to_node_id) is Some(child_id) {
-      child_ids.push(child_id)
-    }
-  }
-  let node_id = chicle.new_with_children(node_to_chicle_style(node), child_ids)
-  ignore(chicle.set_node_context(node_id, entity)) catch {
-    _ => ()
-  }
-  entity_to_node_id.set(entity, node_id)
-  Some(node_id)
-}
-
-///|
 fn rect_intersection(lhs : @math.Rect, rhs : @math.Rect) -> @math.Rect? {
   let left = @cmp.maximum(lhs.position[X], rhs.position[X])
   let top = @cmp.maximum(lhs.position[Y], rhs.position[Y])
@@ -732,54 +710,4 @@ fn apply_layout_recursive(
       order_counter, effective_layout_space,
     )
   }
-}
-
-///|
-pub fn ui_layout_system(_delta : Double) -> Unit {
-  cleanup_dead_ui_state()
-  computed_ui_nodes().clear()
-  global_ui_nodes().clear()
-  calculated_clips().clear()
-  tree_orders().clear()
-
-  let order_counter : Ref[Int] = Ref(0)
-  for root_entity in top_level_ui_nodes() {
-    let layout_space = ui_layout_space(
-      ui_target_cameras().get(root_entity).map(fn(target) { target.camera }),
-    )
-    let viewport = ui_layout_root_size(layout_space)
-    let chicle : @tree.ChicleTree[@entity.Entity] = ChicleTree()
-    let entity_to_node_id : Map[@entity.Entity, Int] = Map([])
-    guard build_chicle_tree(chicle, root_entity, entity_to_node_id)
-      is Some(root_node) else {
-      continue
-    }
-    let implicit_root = chicle.new_with_children(
-      implicit_root_style(viewport),
-      [root_node],
-    )
-    ignore(
-      chicle.compute_layout_with_measure(
-        implicit_root,
-        Size(
-          width=@style_helpers.available_space_definite(viewport[X]),
-          height=@style_helpers.available_space_definite(viewport[Y]),
-        ),
-        measure_node,
-      ),
-    ) catch {
-      _ => continue
-    }
-    apply_layout_recursive(
-      root_entity,
-      chicle,
-      entity_to_node_id,
-      @math.Vec2::zero(),
-      None,
-      true,
-      order_counter,
-      layout_space,
-    )
-  }
-  rebuild_ui_stack()
 }
