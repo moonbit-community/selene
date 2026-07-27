@@ -15,6 +15,7 @@ priv struct TextLayoutCacheKey {
   font : @asset.FontHandle?
   family : String
   size : Double
+  font_metrics_revision : UInt
   line_height : Double
   wrap : @ui.TextWrap
   overflow : @ui.TextOverflow
@@ -239,6 +240,7 @@ fn text_layout_cache_key(
     font: style.font,
     family: style.family,
     size: style.size,
+    font_metrics_revision: @platform_render.font_metrics_revision(style.family),
     line_height: layout.line_height,
     wrap: layout.wrap,
     overflow: layout.overflow,

@@ -152,6 +152,14 @@ pub fn register_font(family : String, path : String) -> Unit {
 }
 
 ///|
+/// Raylib installs fonts synchronously, so no deferred metrics transition
+/// exists after registration.
+pub fn font_metrics_revision(family : String) -> UInt {
+  ignore(family)
+  0U
+}
+
+///|
 pub fn measure_text(
   style : @render2d_types.TextStyle2D,
   text : String,

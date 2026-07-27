@@ -49,10 +49,25 @@ extern "js" fn document_hidden() -> Bool = "() => document.hidden"
 extern "js" fn prevent_default_event(event : @dom.Event) -> Unit = "(event) => event.preventDefault()"
 
 ///|
-extern "js" fn load_font_async(font : String, path : String) -> Unit =
-  #| (font, path) => {
+extern "js" fn load_font_async(
+  font : String,
+  path : String,
+  accept : () -> Bool,
+  installed : () -> Unit,
+  failed : (String) -> Unit,
+) -> Unit =
+  #| (font, path, accept, installed, failed) => {
   #|   const ff = new FontFace(font, 'url(' + path + ')');
   #|   ff.load().then(loadedFont => {
+  #|     if (!accept()) return;
+  #|     const faces = globalThis.__selene_font_faces ??
+  #|       (globalThis.__selene_font_faces = new Map());
+  #|     const previous = faces.get(font);
+  #|     if (previous) document.fonts.delete(previous);
   #|     document.fonts.add(loadedFont);
+  #|     faces.set(font, loadedFont);
+  #|     installed();
+  #|   }).catch(error => {
+  #|     failed(error && error.message ? String(error.message) : String(error));
   #|   });
   #| }

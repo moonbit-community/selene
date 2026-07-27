@@ -131,6 +131,44 @@ fn ensure_font_loaded(family : String) -> Bool {
 }
 
 ///|
+fn measure_text_with_cosmic(
+  style : @render2d_types.TextStyle2D,
+  text : String,
+) -> @smath.Vec2? {
+  guard ensure_font_loaded(style.family) else { return None }
+  let font_size = if style.size < 1.0 { 1.0 } else { style.size }
+  if text == "" {
+    return Some(Vec2(0.0, font_size))
+  }
+  let metrics = @cosmic.Metrics::new(
+    Float::from_double(font_size),
+    Float::from_double(font_size * 1.25),
+  )
+  let attrs = @cosmic.Attrs::new().family(Name(style.family))
+  let attrs_list = @cosmic.AttrsList::new(attrs)
+  let buffer = @cosmic.Buffer::new(metrics)
+    .set_wrap(None)
+    .set_text(text, attrs_list, Advanced)
+    .set_size(None, None)
+    .layout_all_with_font_system(cosmic_font_system.val)
+  let mut width = 0.0
+  let mut height = 0.0
+  for run in buffer.layout_runs() {
+    if run.line_w.to_double() > width {
+      width = run.line_w.to_double()
+    }
+    let run_bottom = (run.line_top + run.line_height).to_double()
+    if run_bottom > height {
+      height = run_bottom
+    }
+  }
+  if height <= 0.0 {
+    height = font_size
+  }
+  Some(Vec2(width, height))
+}
+
+///|
 fn rasterize_with_cosmic(
   command : @render2d_types.TextDrawCommand2D,
 ) -> CosmicRasterImage? {

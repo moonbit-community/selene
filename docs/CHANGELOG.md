@@ -17,6 +17,9 @@
 
 ### Fixed
 
+- Fixed asynchronous WebGPU font readiness leaving retained UI and Text2D
+  layout caches with fallback-font measurements.
+
 ### Removed
 
 ## [0.37.0] - 2026-07-22

@@ -3,6 +3,7 @@ priv struct UiMeasureSnapshot {
   text_content : String?
   font_handle : @asset.FontHandle?
   font_state : @asset.LoadState?
+  font_metrics_revision : UInt
   font_family : String?
   font_size : Double?
   line_height : Double
@@ -109,6 +110,9 @@ fn ui_measure_snapshot(entity : @entity.Entity) -> UiMeasureSnapshot {
     text_content: text.map(fn(value) { value.content }),
     font_handle,
     font_state: font_handle.map(@asset.font_load_state),
+    font_metrics_revision: style
+    .map(fn(value) { @platform_render.font_metrics_revision(value.family) })
+    .unwrap_or(0U),
     font_family: style.map(fn(value) { value.family }),
     font_size: style.map(fn(value) { value.size }),
     line_height: layout.line_height,

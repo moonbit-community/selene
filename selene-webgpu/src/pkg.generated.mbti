@@ -28,6 +28,8 @@ pub fn draw_rect(@render2d_types.RectDrawCommand2D) -> Unit
 
 pub fn draw_text(@render2d_types.TextDrawCommand2D) -> Unit
 
+pub fn font_metrics_revision(String) -> UInt
+
 pub fn frame_begin(@render.Color) -> Unit
 
 pub fn frame_end() -> Unit

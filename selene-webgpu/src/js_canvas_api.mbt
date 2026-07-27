@@ -309,13 +309,6 @@ pub fn request_close() -> Unit {
 }
 
 ///|
-pub fn load_font(font : String, path : String) -> Unit {
-  let resolved_path = resolve_asset_path(path)
-  load_font_async(font, resolved_path)
-  webgpu_preload_font_bytes(font, resolved_path)
-}
-
-///|
 pub fn get_time_scale() -> Double {
   canvas_backend.time_scale
 }

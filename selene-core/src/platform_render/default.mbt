@@ -10,6 +10,14 @@ pub fn register_font(family : String, path : String) -> Unit {
 }
 
 ///|
+/// Returns a monotonically increasing revision whenever the backend's
+/// measurable glyph metrics for `family` change.
+pub fn font_metrics_revision(family : String) -> UInt {
+  ignore(family)
+  0U
+}
+
+///|
 pub fn measure_text(
   style : @render2d_types.TextStyle2D,
   text : String,

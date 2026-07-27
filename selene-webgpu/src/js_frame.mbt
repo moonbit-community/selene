@@ -17,6 +17,17 @@ extern "js" fn webgpu_reset_clip_stack() -> Unit =
   #| }
 
 ///|
+extern "js" fn webgpu_clear_text_textures() -> Unit =
+  #| () => {
+  #|   const rt = globalThis.__selene_webgpu_runtime;
+  #|   if (!rt) return;
+  #|   for (const record of rt.textCache.values()) {
+  #|     try { record.texture?.destroy(); } catch (_err) {}
+  #|   }
+  #|   rt.textCache.clear();
+  #| }
+
+///|
 extern "js" fn webgpu_push_color_vertices_2d(
   vertices : Array[Double],
   pipeline_code : Int,

@@ -1,15 +1,17 @@
 ///|
-extern "js" fn webgpu_preload_font_bytes(font : String, path : String) -> Unit =
-  #| (font, path) => {
+extern "js" fn webgpu_preload_font_bytes(
+  font : String,
+  path : String,
+  accept : () -> Bool,
+  loaded : () -> Unit,
+  failed : (String) -> Unit,
+) -> Unit =
+  #| (font, path, accept, loaded, failed) => {
   #|   const g = globalThis;
   #|   if (!g.__selene_font_bytes_states) {
   #|     g.__selene_font_bytes_states = new Map();
   #|   }
   #|   const states = g.__selene_font_bytes_states;
-  #|   const rec = states.get(font);
-  #|   if (rec && (rec.status === 0 || rec.status === 1)) {
-  #|     return;
-  #|   }
   #|   states.set(font, { status: 0, bytes: [] });
   #|   fetch(path)
   #|     .then((res) => {
@@ -17,10 +19,14 @@ extern "js" fn webgpu_preload_font_bytes(font : String, path : String) -> Unit =
   #|       return res.arrayBuffer();
   #|     })
   #|     .then((buf) => {
+  #|       if (!accept()) return;
   #|       states.set(font, { status: 1, bytes: Array.from(new Uint8Array(buf)) });
+  #|       loaded();
   #|     })
-  #|     .catch(() => {
+  #|     .catch((error) => {
+  #|       if (!accept()) return;
   #|       states.set(font, { status: 2, bytes: [] });
+  #|       failed(error && error.message ? String(error.message) : String(error));
   #|     });
   #| }
 

@@ -142,6 +142,12 @@ pub fn register_font(family : String, path : String) -> Unit {
 }
 
 ///|
+/// Exposes backend font readiness transitions to retained layout caches.
+pub fn font_metrics_revision(family : String) -> UInt {
+  @impl.font_metrics_revision(family)
+}
+
+///|
 pub fn measure_text(
   style : @render2d_types.TextStyle2D,
   text : String,
