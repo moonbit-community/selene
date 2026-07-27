@@ -9,7 +9,7 @@
 - Changed Selene UI stacking to tree-local ordering: `ZIndex` now orders
   siblings while keeping ordinary descendant subtrees contiguous,
   `GlobalZIndex` creates escapable global roots, and drawing and pointer
-  hit-testing consume the same final UI stack.
+  hit-testing consume the same final UI stack computed once after layout.
 
 ### Fixed
 

@@ -91,6 +91,7 @@ fn spawn_interaction_test_node(
   if interactive {
     buttons().set(entity, Button())
   }
+  rebuild_ui_stack()
   entity
 }
 
@@ -214,10 +215,37 @@ test "ui pointer picks the pause menu dimmer above the HUD" {
     z_indexes().set(minimap, ZIndex(10))
     z_indexes().set(pause_menu, ZIndex(1))
     z_indexes().set(dimmer, ZIndex(0))
+    rebuild_ui_stack()
 
     assert_eq(resolve_pointer_target(Vec2(20.0, 20.0)), Some(dimmer))
 
     for entity in entities.rev() {
+      cleanup_interaction_test_entity(entity)
+    }
+    reset_interaction_test_state()
+  })
+}
+
+///|
+test "ui focus candidates only include nodes in the layout stack" {
+  with_ui_interaction_test_world(fn() raise {
+    reset_interaction_test_state()
+    let root = @entity.Entity()
+    let visible = root.spawn_child()
+    let hidden = root.spawn_child()
+    nodes().set(root, Node(width=Val::px(100.0), height=Val::px(100.0)))
+    nodes().set(visible, Node(width=Val::px(50.0), height=Val::px(50.0)))
+    nodes().set(hidden, Node(display=None))
+    focusables().set(visible, Focusable())
+    focusables().set(hidden, Focusable())
+
+    ui_layout_system(0.0)
+    let candidates = focusable_entities()
+
+    assert_eq(candidates.length(), 1)
+    assert_eq(candidates[0], visible)
+
+    for entity in [hidden, visible, root] {
       cleanup_interaction_test_entity(entity)
     }
     reset_interaction_test_state()
