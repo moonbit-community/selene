@@ -6,8 +6,8 @@ priv struct UiMeasureSnapshot {
   font_family : String?
   font_size : Double?
   line_height : Double
-  wrap : Int
-  overflow : Int
+  wrap : TextWrap
+  overflow : TextOverflow
   image_size : @math.Vec2?
 } derive(Eq)
 
@@ -97,22 +97,6 @@ fn clone_layout_node(node : Node) -> Node {
 }
 
 ///|
-fn text_wrap_token(wrap : TextWrap) -> Int {
-  match wrap {
-    NoWrap => 0
-    WordWrap => 1
-  }
-}
-
-///|
-fn text_overflow_token(overflow : TextOverflow) -> Int {
-  match overflow {
-    Clip => 0
-    Ellipsis => 1
-  }
-}
-
-///|
 fn ui_measure_snapshot(entity : @entity.Entity) -> UiMeasureSnapshot {
   let text = texts().get(entity)
   let style = text_style_for(entity)
@@ -128,8 +112,8 @@ fn ui_measure_snapshot(entity : @entity.Entity) -> UiMeasureSnapshot {
     font_family: style.map(fn(value) { value.family }),
     font_size: style.map(fn(value) { value.size }),
     line_height: layout.line_height,
-    wrap: text_wrap_token(layout.wrap),
-    overflow: text_overflow_token(layout.overflow),
+    wrap: layout.wrap,
+    overflow: layout.overflow,
     image_size: ui_images().get(entity).map(fn(value) { value.size }),
   }
 }
