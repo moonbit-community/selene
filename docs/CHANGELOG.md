@@ -4,6 +4,16 @@
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.37.1] - 2026-07-27
+
+### Added
+
 - Added a 410-entity retained UI benchmark for repeated unchanged layout calls.
 
 ### Changed
@@ -21,6 +31,8 @@
   layout caches with fallback-font measurements.
 - Fixed retained UI invalidation so layout, projection, and stacking changes no
   longer trigger unrelated pipeline stages.
+- Fixed the editor frontend module canonical backend declaration for current
+  MoonBit tooling.
 
 ### Removed
 
