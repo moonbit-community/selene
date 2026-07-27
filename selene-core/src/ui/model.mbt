@@ -654,6 +654,8 @@ pub fn LayoutConfig::LayoutConfig(use_rounding? : Bool = true) -> LayoutConfig {
 }
 
 ///|
+/// Orders sibling UI nodes while keeping each sibling's ordinary descendant
+/// subtree contiguous in the final UI stack.
 pub(all) struct ZIndex {
   value : Int
 } derive(Eq, Debug)
@@ -664,6 +666,8 @@ pub fn ZIndex::ZIndex(value : Int) -> ZIndex {
 }
 
 ///|
+/// Lifts a UI node and its ordinary descendants into the global UI root order.
+/// A descendant with its own `GlobalZIndex` becomes another global root.
 pub(all) struct GlobalZIndex {
   value : Int
 } derive(Eq, Debug)
@@ -766,6 +770,7 @@ priv struct UiModelWorldStore {
   override_clips : Map[@entity.Entity, OverrideClip]
   relative_cursor_positions : Map[@entity.Entity, RelativeCursorPosition]
   tree_orders : Map[@entity.Entity, Int]
+  ui_stack_entities : Array[@entity.Entity]
 }
 
 ///|
@@ -791,6 +796,7 @@ fn ui_model_world_store() -> UiModelWorldStore {
     override_clips: Map([]),
     relative_cursor_positions: Map([]),
     tree_orders: Map([]),
+    ui_stack_entities: [],
   })
 }
 
@@ -878,6 +884,11 @@ fn tree_orders() -> Map[@entity.Entity, Int] {
 }
 
 ///|
+fn ui_stack() -> Array[@entity.Entity] {
+  ui_model_world_store().ui_stack_entities
+}
+
+///|
 fn global_zindex_value(entity : @entity.Entity) -> Int {
   global_zindexes().get(entity).map(fn(value) { value.value }).unwrap_or(0)
 }
@@ -885,27 +896,6 @@ fn global_zindex_value(entity : @entity.Entity) -> Int {
 ///|
 fn zindex_value(entity : @entity.Entity) -> Int {
   z_indexes().get(entity).map(fn(value) { value.value }).unwrap_or(0)
-}
-
-///|
-fn compare_ui_stacking(lhs : @entity.Entity, rhs : @entity.Entity) -> Int {
-  let lg = global_zindex_value(lhs)
-  let rg = global_zindex_value(rhs)
-  if lg != rg {
-    return lg - rg
-  }
-  let lz = zindex_value(lhs)
-  let rz = zindex_value(rhs)
-  if lz != rz {
-    return lz - rz
-  }
-  let lt = tree_orders().get(lhs).unwrap_or(0)
-  let rt = tree_orders().get(rhs).unwrap_or(0)
-  if lt != rt {
-    lt - rt
-  } else {
-    lhs.hash().compare(rhs.hash())
-  }
 }
 
 ///|
@@ -1014,4 +1004,89 @@ fn ui_children(entity : @entity.Entity) -> Array[@entity.Entity] {
     }
   }
   children
+}
+
+///|
+fn is_stacked_ui_entity(entity : @entity.Entity) -> Bool {
+  guard entity.is_alive() &&
+    global_ui_nodes().contains(entity) &&
+    nodes().get(entity) is Some(node) else {
+    return false
+  }
+  node.active && node.display != None && @visibility.is_visible(entity)
+}
+
+///|
+fn compare_ui_stack_root(lhs : @entity.Entity, rhs : @entity.Entity) -> Int {
+  let global_order = global_zindex_value(lhs).compare(global_zindex_value(rhs))
+  if global_order != 0 {
+    return global_order
+  }
+  let local_order = zindex_value(lhs).compare(zindex_value(rhs))
+  if local_order != 0 {
+    return local_order
+  }
+  let tree_order = tree_orders()
+    .get(lhs)
+    .unwrap_or(0)
+    .compare(tree_orders().get(rhs).unwrap_or(0))
+  if tree_order != 0 {
+    tree_order
+  } else {
+    lhs.hash().compare(rhs.hash())
+  }
+}
+
+///|
+fn compare_ui_stack_sibling(lhs : @entity.Entity, rhs : @entity.Entity) -> Int {
+  let local_order = zindex_value(lhs).compare(zindex_value(rhs))
+  if local_order != 0 {
+    return local_order
+  }
+  let tree_order = tree_orders()
+    .get(lhs)
+    .unwrap_or(0)
+    .compare(tree_orders().get(rhs).unwrap_or(0))
+  if tree_order != 0 {
+    tree_order
+  } else {
+    lhs.hash().compare(rhs.hash())
+  }
+}
+
+///|
+fn rebuild_ui_stack() -> Unit {
+  let ordered = ui_stack()
+  ordered.clear()
+  let roots : Array[@entity.Entity] = []
+  for entity, _ in global_ui_nodes() {
+    guard is_stacked_ui_entity(entity) else { continue }
+    let hierarchy_root = match entity.get_parent() {
+      Some(parent) => !is_stacked_ui_entity(parent)
+      None => true
+    }
+    if hierarchy_root || global_zindexes().contains(entity) {
+      roots.push(entity)
+    }
+  }
+  roots.sort_by(compare_ui_stack_root)
+  let pending : Array[@entity.Entity] = []
+  for root in roots {
+    pending.push(root)
+    while pending.pop() is Some(entity) {
+      ordered.push(entity)
+      let children : Array[@entity.Entity] = []
+      for child in ui_children(entity) {
+        guard !global_zindexes().contains(child) else { continue }
+        guard is_stacked_ui_entity(child) else { continue }
+        children.push(child)
+      }
+      children.sort_by(compare_ui_stack_sibling)
+      let mut index = children.length() - 1
+      while index >= 0 {
+        pending.push(children[index])
+        index -= 1
+      }
+    }
+  }
 }

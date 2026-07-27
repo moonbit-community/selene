@@ -255,25 +255,9 @@ fn interaction_state(
 }
 
 ///|
-fn sorted_ui_entities() -> Array[@entity.Entity] {
-  let entities : Array[@entity.Entity] = []
-  for entity, node in nodes() {
-    if entity.is_alive() &&
-      node.active &&
-      node.display != None &&
-      @visibility.is_visible(entity) &&
-      global_ui_nodes().contains(entity) {
-      entities.push(entity)
-    }
-  }
-  entities.sort_by(compare_ui_stacking)
-  entities
-}
-
-///|
 fn focusable_entities() -> Array[@entity.Entity] {
   let entities : Array[@entity.Entity] = []
-  for entity in sorted_ui_entities() {
+  for entity in ui_stack() {
     if is_focusable(entity) {
       entities.push(entity)
     }
@@ -474,7 +458,7 @@ fn update_relative_cursor_positions(position : @math.Vec2) -> Unit {
 
 ///|
 fn resolve_pointer_target(position : @math.Vec2) -> @entity.Entity? {
-  let candidates = sorted_ui_entities()
+  let candidates = ui_stack()
   let mut index = candidates.length() - 1
   while index >= 0 {
     let entity = candidates[index]
@@ -498,7 +482,7 @@ fn resolve_pointer_target(position : @math.Vec2) -> @entity.Entity? {
 
 ///|
 fn ui_node_at(position : @math.Vec2) -> @entity.Entity? {
-  let candidates = sorted_ui_entities()
+  let candidates = ui_stack()
   let mut index = candidates.length() - 1
   while index >= 0 {
     let entity = candidates[index]

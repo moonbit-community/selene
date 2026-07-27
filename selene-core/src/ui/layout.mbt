@@ -781,4 +781,5 @@ pub fn ui_layout_system(_delta : Double) -> Unit {
       layout_space,
     )
   }
+  rebuild_ui_stack()
 }

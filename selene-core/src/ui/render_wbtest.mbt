@@ -51,6 +51,19 @@ fn cleanup_test_ui_entity(entity : @entity.Entity) -> Unit {
 }
 
 ///|
+fn test_entity_index(
+  entities : Array[@entity.Entity],
+  target : @entity.Entity,
+) -> Int {
+  for index, entity in entities {
+    if entity == target {
+      return index
+    }
+  }
+  -1
+}
+
+///|
 test "ui rounded backgrounds emit quarter-circle fill commands" {
   @render2d.begin_frame2d_system(0.0)
   let entity = @entity.Entity()
@@ -357,24 +370,142 @@ test "ui override clip removes inherited clip from child rendering" {
 }
 
 ///|
-test "ui stacking sorts by global z before local z and tree order" {
-  let back = @entity.Entity()
-  let front = @entity.Entity()
-  nodes().set(back, Node())
-  nodes().set(front, Node())
-  tree_orders().set(back, 5)
-  tree_orders().set(front, 1)
-  z_indexes().set(back, ZIndex(100))
-  z_indexes().set(front, ZIndex(0))
-  global_zindexes().set(back, GlobalZIndex(0))
-  global_zindexes().set(front, GlobalZIndex(1))
+test "ui stacking keeps a pause menu subtree above the HUD" {
+  let root = @entity.Entity()
+  let hud = root.spawn_child()
+  let minimap = hud.spawn_child()
+  let pause_menu = root.spawn_child()
+  let dimmer = pause_menu.spawn_child()
+  let resume_button = pause_menu.spawn_child()
+  let entities = [root, hud, minimap, pause_menu, dimmer, resume_button]
+  for entity in entities {
+    nodes().set(entity, Node(width=Val::px(100.0), height=Val::px(100.0)))
+  }
+  z_indexes().set(minimap, ZIndex(10))
+  z_indexes().set(pause_menu, ZIndex(1))
+  z_indexes().set(dimmer, ZIndex(0))
+  z_indexes().set(resume_button, ZIndex(20))
 
-  let entities = [front, back]
-  entities.sort_by(compare_ui_stacking)
+  ui_layout_system(0.0)
+  ui_extract_system(0.0)
 
-  inspect(entities[0] == back, content="true")
-  inspect(entities[1] == front, content="true")
+  let mut minimap_index = -1
+  let mut pause_menu_index = -1
+  let mut dimmer_index = -1
+  for index, entity in extracted_ui_entities {
+    if entity == minimap {
+      minimap_index = index
+    } else if entity == pause_menu {
+      pause_menu_index = index
+    } else if entity == dimmer {
+      dimmer_index = index
+    }
+  }
+  assert_eq(minimap_index < pause_menu_index, true)
+  assert_eq(pause_menu_index < dimmer_index, true)
 
-  cleanup_test_ui_entity(back)
-  cleanup_test_ui_entity(front)
+  extracted_ui_entities.clear()
+  for entity in entities.rev() {
+    cleanup_test_ui_entity(entity)
+  }
+}
+
+///|
+test "global z index lifts a descendant out of its parent stack" {
+  let root = @entity.Entity()
+  let hud = root.spawn_child()
+  let minimap = hud.spawn_child()
+  let pause_menu = root.spawn_child()
+  let dimmer = pause_menu.spawn_child()
+  let entities = [root, hud, minimap, pause_menu, dimmer]
+  for entity in entities {
+    nodes().set(entity, Node(width=Val::px(100.0), height=Val::px(100.0)))
+  }
+  z_indexes().set(pause_menu, ZIndex(1))
+  global_zindexes().set(minimap, GlobalZIndex(2))
+
+  ui_layout_system(0.0)
+  ui_extract_system(0.0)
+
+  let mut dimmer_index = -1
+  let mut minimap_index = -1
+  for index, entity in extracted_ui_entities {
+    if entity == dimmer {
+      dimmer_index = index
+    } else if entity == minimap {
+      minimap_index = index
+    }
+  }
+  assert_eq(dimmer_index < minimap_index, true)
+
+  extracted_ui_entities.clear()
+  for entity in entities.rev() {
+    cleanup_test_ui_entity(entity)
+  }
+}
+
+///|
+test "global z index orders separate UI roots before local z index" {
+  let local_front = @entity.Entity()
+  let global_front = @entity.Entity()
+  let entities = [local_front, global_front]
+  for entity in entities {
+    nodes().set(entity, Node(width=Val::px(100.0), height=Val::px(100.0)))
+  }
+  z_indexes().set(local_front, ZIndex(100))
+  global_zindexes().set(local_front, GlobalZIndex(0))
+  z_indexes().set(global_front, ZIndex(0))
+  global_zindexes().set(global_front, GlobalZIndex(1))
+
+  ui_layout_system(0.0)
+  ui_extract_system(0.0)
+
+  assert_eq(
+    test_entity_index(extracted_ui_entities, local_front) <
+    test_entity_index(extracted_ui_entities, global_front),
+    true,
+  )
+
+  extracted_ui_entities.clear()
+  for entity in entities {
+    cleanup_test_ui_entity(entity)
+  }
+}
+
+///|
+test "ui extraction reuses the stack snapshot produced by layout" {
+  let root = @entity.Entity()
+  let first = root.spawn_child()
+  let second = root.spawn_child()
+  let entities = [root, first, second]
+  for entity in entities {
+    nodes().set(entity, Node(width=Val::px(100.0), height=Val::px(100.0)))
+  }
+  z_indexes().set(first, ZIndex(0))
+  z_indexes().set(second, ZIndex(1))
+
+  ui_layout_system(0.0)
+  z_indexes().set(first, ZIndex(2))
+  ui_extract_system(0.0)
+  let first_snapshot = extracted_ui_entities.copy()
+
+  ui_layout_system(0.0)
+  ui_extract_system(0.0)
+  let second_snapshot = extracted_ui_entities.copy()
+
+  assert_eq(
+    test_entity_index(first_snapshot, first) <
+    test_entity_index(first_snapshot, second),
+    true,
+  )
+  assert_eq(
+    test_entity_index(second_snapshot, second) <
+    test_entity_index(second_snapshot, first),
+    true,
+  )
+
+  extracted_ui_entities.clear()
+  for entity in entities.rev() {
+    cleanup_test_ui_entity(entity)
+  }
 }
