@@ -19,6 +19,8 @@
 
 - Fixed asynchronous WebGPU font readiness leaving retained UI and Text2D
   layout caches with fallback-font measurements.
+- Fixed retained UI invalidation so layout, projection, and stacking changes no
+  longer trigger unrelated pipeline stages.
 
 ### Removed
 

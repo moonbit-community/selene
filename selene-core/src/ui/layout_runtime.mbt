@@ -20,16 +20,31 @@ priv struct UiProjectionSnapshot {
   scroll_position : @math.Vec2?
   use_rounding : Bool?
   override_clip : Bool
+  overflow_clip_margin : OverflowClipMargin
+} derive(Eq)
+
+///|
+priv struct UiStackSnapshot {
+  displayed : Bool
   visible : Bool
   z_index : Int?
   global_z_index : Int?
 } derive(Eq)
 
 ///|
+/// Chicle's Style does not implement Eq, so this stores the equivalent
+/// normalized Selene values used to construct it.
+priv struct UiChicleStyleSnapshot {
+  node : Node
+} derive(Eq)
+
+///|
 priv struct UiLayoutNodeRuntime {
-  mut node : Node
+  mut source_node : Node
+  mut chicle_style : UiChicleStyleSnapshot
   mut measure : UiMeasureSnapshot
   mut projection : UiProjectionSnapshot
+  mut stack : UiStackSnapshot
   mut children : Array[@entity.Entity]
 }
 
@@ -54,6 +69,16 @@ priv struct UiLayoutRuntime {
   node_ids : Map[@entity.Entity, Int]
   nodes : Map[@entity.Entity, UiLayoutNodeRuntime]
   roots : Map[@entity.Entity, UiLayoutRootRuntime]
+  mut layout_revision : UInt
+  mut projection_revision : UInt
+  mut stacking_revision : UInt
+}
+
+///|
+priv struct UiLayoutDirty {
+  mut layout : Bool
+  mut projection : Bool
+  mut stacking : Bool
 }
 
 ///|
@@ -67,7 +92,46 @@ fn ui_layout_runtime() -> UiLayoutRuntime {
     node_ids: Map([]),
     nodes: Map([]),
     roots: Map([]),
+    layout_revision: 0U,
+    projection_revision: 0U,
+    stacking_revision: 0U,
   })
+}
+
+///|
+fn normalize_style_val(value : Val) -> Val {
+  match value {
+    Px(value) => Px(@cmp.maximum(0.0, value))
+    Auto => Auto
+    Percent(value) => Percent(value)
+  }
+}
+
+///|
+fn normalize_style_rect(rect : UiRectValues) -> UiRectValues {
+  {
+    left: normalize_style_val(rect.left),
+    right: normalize_style_val(rect.right),
+    top: normalize_style_val(rect.top),
+    bottom: normalize_style_val(rect.bottom),
+  }
+}
+
+///|
+fn normalize_style_grid_track(track : GridTrack) -> GridTrack {
+  match track {
+    Auto => Auto
+    Px(value) => Px(@cmp.maximum(0.0, value))
+    Percent(value) => Percent(value)
+    Fr(value) => Fr(@cmp.maximum(0.0, value))
+    MinContent => MinContent
+    MaxContent => MaxContent
+    FitContent(track) => FitContent(normalize_style_grid_track(track))
+    MinMax(min, max) =>
+      MinMax(normalize_style_grid_track(min), normalize_style_grid_track(max))
+    Repeat(repetition, tracks) =>
+      Repeat(repetition, tracks.map(normalize_style_grid_track))
+  }
 }
 
 ///|
@@ -98,6 +162,46 @@ fn clone_layout_node(node : Node) -> Node {
 }
 
 ///|
+fn chicle_style_snapshot(node : Node) -> UiChicleStyleSnapshot {
+  {
+    node: {
+      ..node,
+      width: normalize_style_val(node.width),
+      height: normalize_style_val(node.height),
+      min_width: normalize_style_val(node.min_width),
+      min_height: normalize_style_val(node.min_height),
+      max_width: normalize_style_val(node.max_width),
+      max_height: normalize_style_val(node.max_height),
+      left: normalize_style_val(node.left),
+      right: normalize_style_val(node.right),
+      top: normalize_style_val(node.top),
+      bottom: normalize_style_val(node.bottom),
+      margin: normalize_style_rect(node.margin),
+      padding: normalize_style_rect(node.padding),
+      border: normalize_style_rect(node.border),
+      row_gap: @cmp.maximum(0.0, node.row_gap),
+      column_gap: @cmp.maximum(0.0, node.column_gap),
+      overflow_clip_margin: default_overflow_clip_margin(),
+      flex_basis: normalize_style_val(node.flex_basis),
+      aspect_ratio: match node.aspect_ratio {
+        Some(value) if value > 0.0 => Some(value)
+        _ => None
+      },
+      scrollbar_width: @cmp.maximum(0.0, node.scrollbar_width),
+      grid_template_rows: node.grid_template_rows.map(
+        normalize_style_grid_track,
+      ),
+      grid_template_columns: node.grid_template_columns.map(
+        normalize_style_grid_track,
+      ),
+      grid_auto_rows: node.grid_auto_rows.map(normalize_style_grid_track),
+      grid_auto_columns: node.grid_auto_columns.map(normalize_style_grid_track),
+      active: true,
+    },
+  }
+}
+
+///|
 fn ui_measure_snapshot(entity : @entity.Entity) -> UiMeasureSnapshot {
   let text = texts().get(entity)
   let style = text_style_for(entity)
@@ -124,6 +228,10 @@ fn ui_measure_snapshot(entity : @entity.Entity) -> UiMeasureSnapshot {
 
 ///|
 fn ui_projection_snapshot(entity : @entity.Entity) -> UiProjectionSnapshot {
+  let overflow_clip_margin = nodes()
+    .get(entity)
+    .map(fn(node) { node.overflow_clip_margin })
+    .unwrap_or(default_overflow_clip_margin())
   let (target_camera, target_viewport_position, target_viewport_size) = match
     ui_target_cameras().get(entity) {
     Some(target) => {
@@ -147,6 +255,14 @@ fn ui_projection_snapshot(entity : @entity.Entity) -> UiProjectionSnapshot {
     .get(entity)
     .map(fn(value) { value.use_rounding }),
     override_clip: override_clips().contains(entity),
+    overflow_clip_margin,
+  }
+}
+
+///|
+fn ui_stack_snapshot(entity : @entity.Entity, node : Node) -> UiStackSnapshot {
+  {
+    displayed: node.display != None,
     visible: @visibility.is_visible(entity),
     z_index: z_indexes().get(entity).map(fn(value) { value.value }),
     global_z_index: global_zindexes().get(entity).map(fn(value) { value.value }),
@@ -207,27 +323,38 @@ fn sync_layout_node(
   runtime : UiLayoutRuntime,
   entity : @entity.Entity,
   reachable : Set[@entity.Entity],
-  projection_changed : Ref[Bool],
+  dirty : UiLayoutDirty,
 ) -> Int? {
   guard nodes().get(entity) is Some(node) else { return None }
   guard node.active else { return None }
   reachable.add(entity)
   let measure = ui_measure_snapshot(entity)
   let projection = ui_projection_snapshot(entity)
+  let stack = ui_stack_snapshot(entity, node)
   let (node_id, state) = match runtime.nodes.get(entity) {
     Some(state) => {
       let node_id = runtime.node_ids.get(entity).unwrap()
-      if node != state.node {
-        set_chicle_style(runtime, node_id, node_to_chicle_style(node))
-        state.node = clone_layout_node(node)
+      if node != state.source_node {
+        let chicle_style = chicle_style_snapshot(node)
+        if chicle_style != state.chicle_style {
+          set_chicle_style(runtime, node_id, node_to_chicle_style(node))
+          state.chicle_style = chicle_style
+          dirty.layout = true
+        }
+        state.source_node = clone_layout_node(node)
       }
       if measure != state.measure {
         mark_chicle_dirty(runtime, node_id)
         state.measure = measure
+        dirty.layout = true
       }
       if projection != state.projection {
         state.projection = projection
-        projection_changed.val = true
+        dirty.projection = true
+      }
+      if stack != state.stack {
+        state.stack = stack
+        dirty.stacking = true
       }
       (node_id, state)
     }
@@ -237,14 +364,18 @@ fn sync_layout_node(
         entity,
       )
       let state = {
-        node: clone_layout_node(node),
+        source_node: clone_layout_node(node),
+        chicle_style: chicle_style_snapshot(node),
         measure,
         projection,
+        stack,
         children: [],
       }
       runtime.node_ids.set(entity, node_id)
       runtime.nodes.set(entity, state)
-      projection_changed.val = true
+      dirty.layout = true
+      dirty.projection = true
+      dirty.stacking = true
       (node_id, state)
     }
   }
@@ -252,8 +383,7 @@ fn sync_layout_node(
   let child_entities : Array[@entity.Entity] = []
   let child_ids : Array[Int] = []
   for child in ui_children(entity) {
-    if sync_layout_node(runtime, child, reachable, projection_changed)
-      is Some(child_id) {
+    if sync_layout_node(runtime, child, reachable, dirty) is Some(child_id) {
       child_entities.push(child)
       child_ids.push(child_id)
     }
@@ -261,12 +391,15 @@ fn sync_layout_node(
   if child_entities != state.children {
     set_chicle_children(runtime, node_id, child_ids)
     state.children = child_entities
-    projection_changed.val = true
+    dirty.layout = true
+    dirty.stacking = true
   }
   if !computed_ui_nodes().contains(entity) ||
-    !global_ui_nodes().contains(entity) ||
-    !tree_orders().contains(entity) {
-    projection_changed.val = true
+    !global_ui_nodes().contains(entity) {
+    dirty.projection = true
+  }
+  if !tree_orders().contains(entity) {
+    dirty.stacking = true
   }
   Some(node_id)
 }
@@ -275,7 +408,7 @@ fn sync_layout_node(
 fn remove_stale_layout_nodes(
   runtime : UiLayoutRuntime,
   reachable : Set[@entity.Entity],
-  projection_changed : Ref[Bool],
+  dirty : UiLayoutDirty,
 ) -> Unit {
   let stale : Array[@entity.Entity] = []
   for entity, _ in runtime.nodes {
@@ -289,7 +422,9 @@ fn remove_stale_layout_nodes(
     }
     runtime.node_ids.remove(entity)
     runtime.nodes.remove(entity)
-    projection_changed.val = true
+    dirty.layout = true
+    dirty.projection = true
+    dirty.stacking = true
   }
 }
 
@@ -297,7 +432,7 @@ fn remove_stale_layout_nodes(
 fn sync_layout_roots(
   runtime : UiLayoutRuntime,
   roots : Array[@entity.Entity],
-  projection_changed : Ref[Bool],
+  dirty : UiLayoutDirty,
 ) -> Unit {
   for root in roots {
     guard runtime.node_ids.get(root) is Some(root_node_id) else { continue }
@@ -311,14 +446,16 @@ fn sync_layout_roots(
               root_runtime.node_id,
               implicit_root_style(snapshot.logical_size),
             )
+            dirty.layout = true
           }
+          dirty.projection = true
           root_runtime.snapshot = snapshot
-          projection_changed.val = true
         }
         if root_node_id != root_runtime.child_node_id {
           set_chicle_children(runtime, root_runtime.node_id, [root_node_id])
           root_runtime.child_node_id = root_node_id
-          projection_changed.val = true
+          dirty.layout = true
+          dirty.stacking = true
         }
       }
       None => {
@@ -331,7 +468,9 @@ fn sync_layout_roots(
           child_node_id: root_node_id,
           snapshot,
         })
-        projection_changed.val = true
+        dirty.layout = true
+        dirty.projection = true
+        dirty.stacking = true
       }
     }
   }
@@ -347,7 +486,9 @@ fn sync_layout_roots(
       remove_chicle_node(runtime, root_runtime.node_id)
     }
     runtime.roots.remove(root)
-    projection_changed.val = true
+    dirty.layout = true
+    dirty.projection = true
+    dirty.stacking = true
   }
 }
 
@@ -355,8 +496,10 @@ fn sync_layout_roots(
 fn compute_dirty_layout_roots(
   runtime : UiLayoutRuntime,
   roots : Array[@entity.Entity],
-  projection_changed : Ref[Bool],
+  dirty : UiLayoutDirty,
 ) -> Unit {
+  guard dirty.layout else { return }
+  let mut computed = false
   for root in roots {
     guard runtime.roots.get(root) is Some(root_runtime) else { continue }
     let dirty = runtime.tree.dirty(root_runtime.node_id) catch {
@@ -374,7 +517,11 @@ fn compute_dirty_layout_roots(
     ) catch {
       _ => abort("UI layout runtime failed to compute a valid Chicle root")
     }
-    projection_changed.val = true
+    computed = true
+  }
+  if computed {
+    runtime.layout_revision = runtime.layout_revision + 1U
+    dirty.projection = true
   }
 }
 
@@ -386,8 +533,6 @@ fn project_layout(
   computed_ui_nodes().clear()
   global_ui_nodes().clear()
   calculated_clips().clear()
-  tree_orders().clear()
-  let order_counter : Ref[Int] = Ref(0)
   for root in roots {
     guard runtime.roots.get(root) is Some(root_runtime) else { continue }
     let snapshot = root_runtime.snapshot
@@ -402,9 +547,34 @@ fn project_layout(
       @math.Vec2::zero(),
       None,
       true,
-      order_counter,
       layout_space,
     )
+  }
+}
+
+///|
+fn record_ui_tree_order(
+  runtime : UiLayoutRuntime,
+  entity : @entity.Entity,
+  order : Ref[Int],
+) -> Unit {
+  guard runtime.nodes.contains(entity) else { return }
+  order.val += 1
+  tree_orders().set(entity, order.val)
+  for child in ui_children(entity) {
+    record_ui_tree_order(runtime, child, order)
+  }
+}
+
+///|
+fn rebuild_layout_stack(
+  runtime : UiLayoutRuntime,
+  roots : Array[@entity.Entity],
+) -> Unit {
+  tree_orders().clear()
+  let order = Ref(0)
+  for root in roots {
+    record_ui_tree_order(runtime, root, order)
   }
   rebuild_ui_stack()
 }
@@ -415,14 +585,23 @@ pub fn ui_layout_system(_delta : Double) -> Unit {
   let runtime = ui_layout_runtime()
   let roots = top_level_ui_nodes()
   let reachable : Set[@entity.Entity] = Set([])
-  let projection_changed = Ref(false)
-  for root in roots {
-    ignore(sync_layout_node(runtime, root, reachable, projection_changed))
+  let dirty : UiLayoutDirty = {
+    layout: false,
+    projection: false,
+    stacking: false,
   }
-  sync_layout_roots(runtime, roots, projection_changed)
-  remove_stale_layout_nodes(runtime, reachable, projection_changed)
-  compute_dirty_layout_roots(runtime, roots, projection_changed)
-  if projection_changed.val {
+  for root in roots {
+    ignore(sync_layout_node(runtime, root, reachable, dirty))
+  }
+  sync_layout_roots(runtime, roots, dirty)
+  remove_stale_layout_nodes(runtime, reachable, dirty)
+  compute_dirty_layout_roots(runtime, roots, dirty)
+  if dirty.projection {
     project_layout(runtime, roots)
+    runtime.projection_revision = runtime.projection_revision + 1U
+  }
+  if dirty.stacking {
+    rebuild_layout_stack(runtime, roots)
+    runtime.stacking_revision = runtime.stacking_revision + 1U
   }
 }

@@ -584,7 +584,6 @@ fn apply_layout_recursive(
   parent_layout_origin : @math.Vec2,
   parent_clip : @math.Rect?,
   inherited_use_rounding : Bool,
-  order_counter : Ref[Int],
   layout_space : UiLayoutSpace,
 ) -> Unit {
   guard entity_to_node_id.get(entity) is Some(node_id) else { return }
@@ -676,9 +675,6 @@ fn apply_layout_recursive(
     target_viewport: effective_layout_space.viewport,
   })
 
-  order_counter.val += 1
-  tree_orders().set(entity, order_counter.val)
-
   let inherited_clip : @math.Rect? = if override_clips().contains(entity) {
     None
   } else {
@@ -707,7 +703,7 @@ fn apply_layout_recursive(
   for child in ui_children(entity) {
     apply_layout_recursive(
       child, chicle, entity_to_node_id, next_origin, current_clip, use_rounding,
-      order_counter, effective_layout_space,
+      effective_layout_space,
     )
   }
 }
