@@ -565,6 +565,15 @@ extern "js" fn webgpu_initialize(
   #|         pipelineCode,
   #|       });
   #|     };
+  #|     rt.pushRectInst2d = (rects, colors, palette, pipelineCode = 12) => {
+  #|       rt.current2dCommandList().push({
+  #|         kind: 'rectInst',
+  #|         rects,
+  #|         colors,
+  #|         palette,
+  #|         pipelineCode,
+  #|       });
+  #|     };
   #|     rt.pushClip2d = (x, y, w, h) => {
   #|       rt.current2dCommandList().push({
   #|         kind: 'pushClip',
@@ -1279,6 +1288,8 @@ extern "js" fn webgpu_initialize(
   #|         case 9: return rt.pipelines.tex2dTriOpaque;
   #|         case 10: return rt.pipelines.tex2dTriAdditive;
   #|         case 11: return rt.pipelines.tex2dTriMultiply;
+  #|         case 12: return rt.pipelines.color2dRectOpaque;
+  #|         case 13: return rt.pipelines.color2dRect;
   #|         default: return rt.pipelines.color2dTri;
   #|       }
   #|     };
@@ -1295,20 +1306,36 @@ extern "js" fn webgpu_initialize(
   #|         : [];
   #|       let colorBytes = 0;
   #|       let texBytes = 0;
+  #|       let rectBytes = 0;
+  #|       let rectColorBytes = 0;
   #|       for (const cmd of commands) {
   #|         if (cmd.kind === 'color') colorBytes += cmd.verts.byteLength;
   #|         else if (cmd.kind === 'tex') texBytes += cmd.verts.byteLength;
+  #|         else if (cmd.kind === 'rectInst') {
+  #|           rectBytes += cmd.rects.byteLength;
+  #|           rectColorBytes += cmd.colors.byteLength;
+  #|         }
   #|       }
   #|       const colorBufferName = `dyn2dColor:${bufferScope}`;
   #|       const texBufferName = `dyn2dTex:${bufferScope}`;
+  #|       const rectBufferName = `dyn2dRectInst:${bufferScope}`;
+  #|       const rectColorBufferName = `dyn2dRectColor:${bufferScope}`;
   #|       const colorVb = colorBytes > 0
   #|         ? rt.ensureDynamicBuffer(colorBufferName, colorBytes, GPUBufferUsage.VERTEX)
   #|         : null;
   #|       const texVb = texBytes > 0
   #|         ? rt.ensureDynamicBuffer(texBufferName, texBytes, GPUBufferUsage.VERTEX)
   #|         : null;
+  #|       const rectVb = rectBytes > 0
+  #|         ? rt.ensureDynamicBuffer(rectBufferName, rectBytes, GPUBufferUsage.STORAGE)
+  #|         : null;
+  #|       const rectColorVb = rectColorBytes > 0
+  #|         ? rt.ensureDynamicBuffer(rectColorBufferName, rectColorBytes, GPUBufferUsage.STORAGE)
+  #|         : null;
   #|       let colorOffset = 0;
   #|       let texOffset = 0;
+  #|       let rectOffset = 0;
+  #|       let rectColorOffset = 0;
   #|       const clipStack = [viewport];
   #|       for (const cmd of commands) {
   #|         if (cmd.kind === 'pushClip') {
@@ -1334,6 +1361,28 @@ extern "js" fn webgpu_initialize(
   #|           pass.setVertexBuffer(0, colorVb, colorOffset, cmd.verts.byteLength);
   #|           pass.draw(cmd.verts.length / 6, 1, 0, 0);
   #|           colorOffset += cmd.verts.byteLength;
+  #|           continue;
+  #|         }
+  #|         if (cmd.kind === 'rectInst') {
+  #|           pass.setPipeline(rt.pipeline2d(cmd.pipelineCode));
+  #|           rt.device.queue.writeBuffer(rectVb, rectOffset, cmd.rects.buffer, cmd.rects.byteOffset, cmd.rects.byteLength);
+  #|           rt.device.queue.writeBuffer(rectColorVb, rectColorOffset, cmd.colors.buffer, cmd.colors.byteOffset, cmd.colors.byteLength);
+  #|           const paletteBufferName = `dyn2dRectPalette:${bufferScope}`;
+  #|           const paletteVb = rt.ensureDynamicBuffer(paletteBufferName, cmd.palette.byteLength, GPUBufferUsage.STORAGE);
+  #|           rt.device.queue.writeBuffer(paletteVb, 0, cmd.palette.buffer, cmd.palette.byteOffset, cmd.palette.byteLength);
+  #|           const bindGroup = rt.device.createBindGroup({
+  #|             layout: rt.bindGroupLayouts.rectInst2d,
+  #|             entries: [
+  #|               { binding: 0, resource: { buffer: rt.uniformBuffers.canvas2d } },
+  #|               { binding: 1, resource: { buffer: rectVb } },
+  #|               { binding: 2, resource: { buffer: rectColorVb } },
+  #|               { binding: 3, resource: { buffer: paletteVb } },
+  #|             ],
+  #|           });
+  #|           pass.setBindGroup(0, bindGroup);
+  #|           pass.draw(6, cmd.colors.length | 0, 0, 0);
+  #|           rectOffset += cmd.rects.byteLength;
+  #|           rectColorOffset += cmd.colors.byteLength;
   #|           continue;
   #|         }
   #|         const rec = cmd.textureRec;
@@ -1502,7 +1551,10 @@ extern "js" fn webgpu_initialize(
   #|       if (!rt.adapter) {
   #|         throw new Error('Failed to acquire WebGPU adapter');
   #|       }
-  #|       rt.device = await rt.adapter.requestDevice();
+  #|       const requiredLimits = {
+  #|         maxTextureDimension2D: rt.adapter.limits.maxTextureDimension2D,
+  #|       };
+  #|       rt.device = await rt.adapter.requestDevice({ requiredLimits });
   #|       rt.destroyPrimitiveMeshCache();
   #|       rt.destroyRetainedInstanceBuffers3d();
   #|       rt.context = rt.canvas.getContext('webgpu');
@@ -1535,6 +1587,9 @@ extern "js" fn webgpu_initialize(
   #|       const shader2dTex = rt.device.createShaderModule({
   #|         code: shaderSource(1),
   #|       });
+  #|       const shader2dRectInst = rt.device.createShaderModule({
+  #|         code: shaderSource(10),
+  #|       });
   #|       const shader3dColor = rt.device.createShaderModule({
   #|         code: shaderSource(2),
   #|       });
@@ -1564,6 +1619,14 @@ extern "js" fn webgpu_initialize(
   #|       rt.bindGroupLayouts = {
   #|         canvas2d: rt.device.createBindGroupLayout({
   #|           entries: [{ binding: 0, visibility: GPUShaderStage.VERTEX, buffer: {} }],
+  #|         }),
+  #|         rectInst2d: rt.device.createBindGroupLayout({
+  #|           entries: [
+  #|             { binding: 0, visibility: GPUShaderStage.VERTEX, buffer: {} },
+  #|             { binding: 1, visibility: GPUShaderStage.VERTEX, buffer: { type: 'read-only-storage' } },
+  #|             { binding: 2, visibility: GPUShaderStage.VERTEX, buffer: { type: 'read-only-storage' } },
+  #|             { binding: 3, visibility: GPUShaderStage.VERTEX, buffer: { type: 'read-only-storage' } },
+  #|           ],
   #|         }),
   #|         tex2d: rt.device.createBindGroupLayout({
   #|           entries: [
@@ -1654,6 +1717,7 @@ extern "js" fn webgpu_initialize(
   #|
   #|       const layout2dColor = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.canvas2d] });
   #|       const layout2dTex = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.tex2d] });
+  #|       const layout2dRectInst = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.rectInst2d] });
   #|       const layout3d = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.camera3d] });
   #|       const layoutShadow3d = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.shadow3d] });
   #|       const layoutShadow3dTex = rt.device.createPipelineLayout({ bindGroupLayouts: [rt.bindGroupLayouts.shadow3dTex] });
@@ -1752,6 +1816,18 @@ extern "js" fn webgpu_initialize(
   #|           layout: layout2dColor,
   #|           vertex: { module: shader2dColor, entryPoint: 'vs_main', buffers: [color2dVertex] },
   #|           fragment: { module: shader2dColor, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendStateMultiply }] },
+  #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
+  #|         }),
+  #|         color2dRectOpaque: rt.device.createRenderPipeline({
+  #|           layout: layout2dRectInst,
+  #|           vertex: { module: shader2dRectInst, entryPoint: 'vs_main', buffers: [] },
+  #|           fragment: { module: shader2dRectInst, entryPoint: 'fs_main', targets: [opaqueTarget] },
+  #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
+  #|         }),
+  #|         color2dRect: rt.device.createRenderPipeline({
+  #|           layout: layout2dRectInst,
+  #|           vertex: { module: shader2dRectInst, entryPoint: 'vs_main', buffers: [] },
+  #|           fragment: { module: shader2dRectInst, entryPoint: 'fs_main', targets: [{ format: rt.format, blend: blendState }] },
   #|           primitive: { topology: 'triangle-list', cullMode: 'none' },
   #|         }),
   #|         color2dLineOpaque: rt.device.createRenderPipeline({
