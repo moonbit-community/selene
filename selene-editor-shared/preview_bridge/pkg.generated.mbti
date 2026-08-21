@@ -56,16 +56,22 @@ pub struct AnimationClipAssetEntry {
   path : String
   clip : @editor_bridge.AnimationClipAssetDocument
 } derive(Eq)
+pub fn AnimationClipAssetEntry::equal(Self, Self) -> Bool
+pub fn AnimationClipAssetEntry::not_equal(Self, Self) -> Bool
 
 pub struct AnimationGraphAssetEntry {
   path : String
   graph : @editor_bridge.AnimationGraphAssetDocument
 } derive(Eq)
+pub fn AnimationGraphAssetEntry::equal(Self, Self) -> Bool
+pub fn AnimationGraphAssetEntry::not_equal(Self, Self) -> Bool
 
 pub struct AtlasAssetEntry {
   path : String
   atlas : @editor_bridge.AtlasAssetDocument
 } derive(Eq)
+pub fn AtlasAssetEntry::equal(Self, Self) -> Bool
+pub fn AtlasAssetEntry::not_equal(Self, Self) -> Bool
 
 pub enum PreviewCommand {
   Bootstrap
@@ -80,6 +86,8 @@ pub enum PreviewCommand {
   SeekAnimationPreview(Double)
   FrameSelection
 } derive(Eq)
+pub fn PreviewCommand::equal(Self, Self) -> Bool
+pub fn PreviewCommand::not_equal(Self, Self) -> Bool
 
 pub enum PreviewEvent {
   SelectionChanged(primary~ : String?, ids~ : Array[String])
@@ -89,6 +97,8 @@ pub enum PreviewEvent {
   TransformGestureFinished(id~ : String)
   AutoTileLayerChanged(id~ : String, component~ : @editor_bridge.AutoTileLayer2dComponent)
 } derive(Eq)
+pub fn PreviewEvent::equal(Self, Self) -> Bool
+pub fn PreviewEvent::not_equal(Self, Self) -> Bool
 
 pub struct PreviewScenePayload {
   scene_path : String?
@@ -97,8 +107,9 @@ pub struct PreviewScenePayload {
   animation_clips : Array[AnimationClipAssetEntry]
   animation_graphs : Array[AnimationGraphAssetEntry]
 } derive(Eq)
+pub fn PreviewScenePayload::equal(Self, Self) -> Bool
+pub fn PreviewScenePayload::not_equal(Self, Self) -> Bool
 
 // Type aliases
 
 // Traits
-

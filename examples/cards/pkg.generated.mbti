@@ -12,16 +12,30 @@ pub fn run() -> Unit
 
 // Types and methods
 type Card derive(Eq, Hash)
+pub fn Card::equal(Self, Self) -> Bool
+pub fn Card::hash(Self) -> Int
+pub fn Card::hash_combine(Self, Hasher) -> Unit
+pub fn Card::not_equal(Self, Self) -> Bool
 
 type CardNum derive(Eq, Hash)
+pub fn CardNum::equal(Self, Self) -> Bool
+pub fn CardNum::hash(Self) -> Int
+pub fn CardNum::hash_combine(Self, Hasher) -> Unit
+pub fn CardNum::not_equal(Self, Self) -> Bool
 
 type CardSuit derive(Eq, Hash)
+pub fn CardSuit::equal(Self, Self) -> Bool
+pub fn CardSuit::hash(Self) -> Int
+pub fn CardSuit::hash_combine(Self, Hasher) -> Unit
+pub fn CardSuit::not_equal(Self, Self) -> Bool
 
 type GamePhase derive(Eq)
+pub fn GamePhase::equal(Self, Self) -> Bool
+pub fn GamePhase::not_equal(Self, Self) -> Bool
 
 type HandRank derive(@debug.Debug)
+pub fn HandRank::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 
 // Traits
-

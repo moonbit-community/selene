@@ -34,6 +34,9 @@ pub(all) struct SceneInstanceReadyEvent {
   scene : @render3d_types.SceneHandle
   root : @entity.Entity
 } derive(Eq, @debug.Debug)
+pub fn SceneInstanceReadyEvent::equal(Self, Self) -> Bool
+pub fn SceneInstanceReadyEvent::not_equal(Self, Self) -> Bool
+pub fn SceneInstanceReadyEvent::to_repr(Self) -> @debug.Repr
 
 pub(all) struct SceneSpawner {
   _tag : Unit
@@ -46,4 +49,3 @@ pub using @render3d_types {type SceneHandle}
 pub using @scene3d {type SceneInstance}
 
 // Traits
-

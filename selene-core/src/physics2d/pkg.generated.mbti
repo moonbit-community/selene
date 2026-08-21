@@ -210,4 +210,3 @@ pub using @Milky2018/selene/collision {type TriggerEvent}
 pub using @velocity {type Velocity}
 
 // Traits
-

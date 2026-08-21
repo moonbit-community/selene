@@ -551,6 +551,9 @@ pub enum LdtkIntGridRendering {
   Colorful
   Invisible
 } derive(Eq, @debug.Debug)
+pub fn LdtkIntGridRendering::equal(Self, Self) -> Bool
+pub fn LdtkIntGridRendering::not_equal(Self, Self) -> Bool
+pub fn LdtkIntGridRendering::to_repr(Self) -> @debug.Repr
 
 pub struct LdtkIntGridValueDefinition {
   value : Int
@@ -943,4 +946,3 @@ pub struct LdtkWorldly {
 // Type aliases
 
 // Traits
-

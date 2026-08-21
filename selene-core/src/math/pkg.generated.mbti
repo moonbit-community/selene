@@ -22,10 +22,14 @@ pub(all) struct Affine3 {
   z_axis : Vec3
   translation : Vec3
 } derive(Eq, @debug.Debug)
+pub fn Affine3::default() -> Self
+pub fn Affine3::equal(Self, Self) -> Bool
 pub fn Affine3::from_scale_rotation_translation(Vec3, Quat, Vec3) -> Self
 pub fn Affine3::identity() -> Self
 pub fn Affine3::inverse(Self) -> Self?
 pub fn Affine3::mul(Self, Self) -> Self
+pub fn Affine3::not_equal(Self, Self) -> Bool
+pub fn Affine3::to_repr(Self) -> @debug.Repr
 pub fn Affine3::transform_point3(Self, Vec3) -> Vec3
 pub fn Affine3::transform_vector3(Self, Vec3) -> Vec3
 pub impl Default for Affine3
@@ -35,6 +39,9 @@ pub(all) enum Axis {
   X
   Y
 } derive(Eq, @debug.Debug)
+pub fn Axis::equal(Self, Self) -> Bool
+pub fn Axis::not_equal(Self, Self) -> Bool
+pub fn Axis::to_repr(Self) -> @debug.Repr
 
 pub(all) enum HAlign {
   Left
@@ -60,9 +67,13 @@ pub(all) struct Mat4 {
   m32 : Double
   m33 : Double
 } derive(Eq, @debug.Debug)
+pub fn Mat4::default() -> Self
+pub fn Mat4::equal(Self, Self) -> Bool
 pub fn Mat4::from_trs(Vec3, Quat, Vec3) -> Self
 pub fn Mat4::identity() -> Self
 pub fn Mat4::mul(Self, Self) -> Self
+pub fn Mat4::not_equal(Self, Self) -> Bool
+pub fn Mat4::to_repr(Self) -> @debug.Repr
 pub fn Mat4::transform_point(Self, Vec3) -> Vec3
 pub impl Default for Mat4
 
@@ -74,17 +85,22 @@ pub(all) struct Quat {
 } derive(Eq, @debug.Debug)
 pub fn Quat::Quat(Double, Double, Double, Double) -> Self
 pub fn Quat::conjugate(Self) -> Self
+pub fn Quat::default() -> Self
 pub fn Quat::dot(Self, Self) -> Double
+pub fn Quat::equal(Self, Self) -> Bool
 pub fn Quat::from_axis_angle(Vec3, Double) -> Self
 pub fn Quat::from_basis(Vec3, Vec3, Vec3) -> Self
 pub fn Quat::identity() -> Self
 pub fn Quat::inverse(Self) -> Self
 pub fn Quat::length_squared(Self) -> Double
+pub fn Quat::mul(Self, Self) -> Self
 pub fn Quat::multiply(Self, Self) -> Self
 pub fn Quat::nlerp(Self, Self, Double) -> Self
 pub fn Quat::normalize(Self) -> Self
+pub fn Quat::not_equal(Self, Self) -> Bool
 pub fn Quat::rotate_vec3(Self, Vec3) -> Vec3
 pub fn Quat::to_rapier(Self) -> @core.Quat
+pub fn Quat::to_repr(Self) -> @debug.Repr
 pub impl Default for Quat
 pub impl Mul for Quat
 
@@ -121,6 +137,7 @@ pub fn Transform::apply_to_point(Self, Double, Double) -> (Double, Double)
 pub fn Transform::apply_to_vec2(Self, Vec2) -> Vec2
 pub fn Transform::clone(Self) -> Self
 pub fn Transform::compose(Self, Self) -> Self
+pub fn Transform::default() -> Self
 pub fn Transform::flip_x(Double) -> Self
 pub fn Transform::flip_y(Double) -> Self
 pub fn Transform::from_rotation_deg(Double) -> Self
@@ -133,6 +150,7 @@ pub fn Transform::get_scale(Self) -> (Double, Double)
 pub fn Transform::get_translation(Self) -> (Double, Double)
 pub fn Transform::identity() -> Self
 pub fn Transform::inverse(Self) -> Self?
+pub fn Transform::mul(Self, Self) -> Self
 pub fn Transform::multiply(Self, Self) -> Self
 pub fn Transform::prepend(Self, Self) -> Self
 pub fn Transform::prepend_rotation_deg(Self, Double) -> Self
@@ -152,14 +170,23 @@ pub(all) enum VAlign {
 }
 
 pub(all) struct Vec2(Double, Double) derive(Eq, @debug.Debug)
+pub fn Vec2::add(Self, Self) -> Self
 pub fn Vec2::clone(Self) -> Self
+pub fn Vec2::default() -> Self
 pub fn Vec2::distance(Self) -> Double
 pub fn Vec2::distance_to(Self, Self) -> Double
 pub fn Vec2::dot(Self, Self) -> Double
+pub fn Vec2::equal(Self, Self) -> Bool
+#alias("_[_]")
+pub fn Vec2::get(Self, Axis) -> Double
+pub fn Vec2::mul(Self, Self) -> Self
+pub fn Vec2::neg(Self) -> Self
 pub fn Vec2::normalize(Self) -> Self
-pub fn Vec2::op_get(Self, Axis) -> Double
+pub fn Vec2::not_equal(Self, Self) -> Bool
 pub fn Vec2::scalar_div(Self, Double) -> Self
 pub fn Vec2::scalar_mul(Self, Double) -> Self
+pub fn Vec2::sub(Self, Self) -> Self
+pub fn Vec2::to_repr(Self) -> @debug.Repr
 pub fn Vec2::update(Self, Axis, Double) -> Self
 pub fn Vec2::zero() -> Self
 pub impl Add for Vec2
@@ -174,16 +201,24 @@ pub(all) struct Vec3 {
   z : Double
 } derive(Eq, @debug.Debug)
 pub fn Vec3::Vec3(Double, Double, Double) -> Self
+pub fn Vec3::add(Self, Self) -> Self
 pub fn Vec3::cross(Self, Self) -> Self
+pub fn Vec3::default() -> Self
 pub fn Vec3::dot(Self, Self) -> Double
+pub fn Vec3::equal(Self, Self) -> Bool
 pub fn Vec3::length(Self) -> Double
 pub fn Vec3::length_squared(Self) -> Double
 pub fn Vec3::lerp(Self, Self, Double) -> Self
+pub fn Vec3::mul(Self, Self) -> Self
+pub fn Vec3::neg(Self) -> Self
 pub fn Vec3::normalize(Self) -> Self
+pub fn Vec3::not_equal(Self, Self) -> Bool
 pub fn Vec3::one() -> Self
 pub fn Vec3::scalar_div(Self, Double) -> Self
 pub fn Vec3::scalar_mul(Self, Double) -> Self
+pub fn Vec3::sub(Self, Self) -> Self
 pub fn Vec3::to_rapier(Self) -> @core.Vec3
+pub fn Vec3::to_repr(Self) -> @debug.Repr
 pub fn Vec3::x_axis() -> Self
 pub fn Vec3::y_axis() -> Self
 pub fn Vec3::z_axis() -> Self
@@ -197,4 +232,3 @@ pub impl Sub for Vec3
 // Type aliases
 
 // Traits
-

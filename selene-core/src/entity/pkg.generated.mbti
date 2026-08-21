@@ -20,20 +20,27 @@ pub fn iter_entities() -> Iter[Entity]
 type Entity derive(Eq, Hash, @debug.Debug)
 pub fn Entity::Entity() -> Self
 pub fn Entity::destroy(Self) -> Unit
+pub fn Entity::equal(Self, Self) -> Bool
 pub fn Entity::get_children(Self) -> Array[Self]
 pub fn Entity::get_parent(Self) -> Self?
+pub fn Entity::hash(Self) -> Int
+pub fn Entity::hash_combine(Self, Hasher) -> Unit
 pub fn Entity::id(Self) -> UInt
 pub fn Entity::is_alive(Self) -> Bool
 pub fn Entity::is_child(Self) -> Bool
+pub fn Entity::not_equal(Self, Self) -> Bool
 pub fn Entity::remove_parent(Self) -> Unit
 pub fn Entity::reserve_spawn() -> Self
 pub fn Entity::respawn(Self) -> Unit
 pub fn Entity::set_parent(Self, Self) -> Unit
 pub fn Entity::spawn_child(Self) -> Self
+pub fn Entity::to_repr(Self) -> @debug.Repr
 
 type EntityLifecycleState derive(Eq, @debug.Debug)
+pub fn EntityLifecycleState::equal(Self, Self) -> Bool
+pub fn EntityLifecycleState::not_equal(Self, Self) -> Bool
+pub fn EntityLifecycleState::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 
 // Traits
-

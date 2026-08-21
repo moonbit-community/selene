@@ -7,7 +7,7 @@ import {
   "Milky2018/moon_accesskit@0.3.0",
   "Milky2018/xml@0.2.0",
   "gmlewis/base64@0.16.10",
-  "moonbitlang/x@0.4.45",
+  "moonbitlang/x@0.5.1",
   "gmlewis/gzip@0.34.9",
   "Milky2018/zstd@0.1.1",
   "gmlewis/io@0.23.12",

@@ -648,7 +648,7 @@ fn apply_layout_recursive(
   if scroll_positions().get(entity) is Some(scroll) {
     scroll.x = @cmp.minimum(max_scroll_position[X], @cmp.maximum(0.0, scroll.x))
     scroll.y = @cmp.minimum(max_scroll_position[Y], @cmp.maximum(0.0, scroll.y))
-    effective_scroll_position = @math.Vec2(scroll.x, scroll.y)
+    effective_scroll_position = Vec2(scroll.x, scroll.y)
   }
 
   computed_ui_nodes().set(entity, {

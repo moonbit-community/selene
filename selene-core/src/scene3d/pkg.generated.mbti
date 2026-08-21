@@ -29,4 +29,3 @@ pub(all) struct SceneInstance {
 // Type aliases
 
 // Traits
-

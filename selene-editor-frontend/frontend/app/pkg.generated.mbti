@@ -331,6 +331,8 @@ pub enum AssetScope {
   AnimationGraphs
   Prefabs
 } derive(Eq)
+pub fn AssetScope::equal(Self, Self) -> Bool
+pub fn AssetScope::not_equal(Self, Self) -> Bool
 
 pub(all) enum AsyncOutcome[T] {
   AsyncOk(T)
@@ -345,6 +347,8 @@ pub enum Effect {
   SubscribeSidebarLayout
   Preview(@preview_bridge.PreviewCommand)
 } derive(Eq)
+pub fn Effect::equal(Self, Self) -> Bool
+pub fn Effect::not_equal(Self, Self) -> Bool
 
 pub struct Model {
   project_root_input : String
@@ -417,8 +421,10 @@ pub fn Model::component_menu_is_open(Self, String) -> Bool
 pub fn Model::component_search_query_normalized(Self) -> String
 pub fn Model::custom_component_json_draft(Self, String, String, Json) -> String
 pub fn Model::custom_component_json_error(Self, String, String) -> String?
+pub fn Model::equal(Self, Self) -> Bool
 pub fn Model::has_entity_selection(Self) -> Bool
 pub fn Model::image_assets(Self) -> Array[@editor_bridge.AssetDocument]
+pub fn Model::not_equal(Self, Self) -> Bool
 pub fn Model::selected_animation_clip_document(Self) -> (String, @editor_bridge.AnimationClipAssetDocument)?
 pub fn Model::selected_animation_graph_document(Self) -> (String, @editor_bridge.AnimationGraphAssetDocument)?
 pub fn Model::selected_atlas_document(Self) -> (String, @editor_bridge.AtlasAssetDocument)?
@@ -570,6 +576,8 @@ pub enum ResourceSelection {
   AnimationGraph(String)
   Prefab(String)
 } derive(Eq)
+pub fn ResourceSelection::equal(Self, Self) -> Bool
+pub fn ResourceSelection::not_equal(Self, Self) -> Bool
 
 pub enum RpcBinding {
   RpcProjectCurrent
@@ -594,6 +602,8 @@ pub enum RpcBinding {
   RpcAnimationGraphSave(String, @editor_bridge.AnimationGraphAssetDocument)
   RpcAnimationMigrate(String, String)
 } derive(Eq)
+pub fn RpcBinding::equal(Self, Self) -> Bool
+pub fn RpcBinding::not_equal(Self, Self) -> Bool
 pub fn RpcBinding::request_envelope(Self, id? : Int) -> @shared.RpcRequestEnvelope
 pub fn RpcBinding::response_to_msg(Self, @shared.RpcResponse) -> Msg raise RpcBindingError
 pub fn RpcBinding::scope(Self) -> String
@@ -604,16 +614,22 @@ pub enum SceneConflictState {
   ExternalSceneChanged(path~ : String, disk_hash~ : String, disk_revision~ : Int)
   SaveConflict(path~ : String, base_hash~ : String, current_hash~ : String, base_revision~ : Int, current_revision~ : Int)
 } derive(Eq)
+pub fn SceneConflictState::equal(Self, Self) -> Bool
+pub fn SceneConflictState::not_equal(Self, Self) -> Bool
 
 pub struct SceneEditTransaction {
   label : String
   before : @editor_bridge.SceneDocument
 } derive(Eq)
+pub fn SceneEditTransaction::equal(Self, Self) -> Bool
+pub fn SceneEditTransaction::not_equal(Self, Self) -> Bool
 
 pub enum SceneSaveOutcome {
   Saved(@shared.SceneSaveResult)
   Conflict(@shared.RpcConflictDocument)
 } derive(Eq)
+pub fn SceneSaveOutcome::equal(Self, Self) -> Bool
+pub fn SceneSaveOutcome::not_equal(Self, Self) -> Bool
 
 pub struct SceneSession {
   path : String
@@ -627,6 +643,8 @@ pub struct SceneSession {
   redo_stack : Array[@editor_bridge.SceneDocument]
   active_scene_edit_transaction : SceneEditTransaction?
 } derive(Eq)
+pub fn SceneSession::equal(Self, Self) -> Bool
+pub fn SceneSession::not_equal(Self, Self) -> Bool
 
 pub struct ViewState {
   current_root : String?
@@ -686,8 +704,10 @@ pub fn ViewState::component_menu_is_open(Self, String) -> Bool
 pub fn ViewState::component_search_query_normalized(Self) -> String
 pub fn ViewState::custom_component_json_draft(Self, String, String, Json) -> String
 pub fn ViewState::custom_component_json_error(Self, String, String) -> String?
+pub fn ViewState::equal(Self, Self) -> Bool
 pub fn ViewState::has_entity_selection(Self) -> Bool
 pub fn ViewState::image_assets(Self) -> Array[@editor_bridge.AssetDocument]
+pub fn ViewState::not_equal(Self, Self) -> Bool
 pub fn ViewState::selected_animation_clip_document(Self) -> (String, @editor_bridge.AnimationClipAssetDocument)?
 pub fn ViewState::selected_animation_graph_document(Self) -> (String, @editor_bridge.AnimationGraphAssetDocument)?
 pub fn ViewState::selected_atlas_document(Self) -> (String, @editor_bridge.AtlasAssetDocument)?
@@ -699,4 +719,3 @@ pub fn ViewState::selected_prefab_document(Self) -> (String, @editor_bridge.Pref
 // Type aliases
 
 // Traits
-

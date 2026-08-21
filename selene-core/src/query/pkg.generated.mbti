@@ -58,4 +58,3 @@ pub fn[T] Without::to_filter(Self[T]) -> EntityFilter
 // Type aliases
 
 // Traits
-

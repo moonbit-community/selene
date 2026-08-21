@@ -11,12 +11,26 @@ import {
 
 // Types and methods
 pub(all) struct AudioHandle(UInt) derive(Eq, Hash, @debug.Debug)
+pub fn AudioHandle::equal(Self, Self) -> Bool
+pub fn AudioHandle::hash(Self) -> Int
+pub fn AudioHandle::hash_combine(Self, Hasher) -> Unit
+pub fn AudioHandle::not_equal(Self, Self) -> Bool
+pub fn AudioHandle::to_repr(Self) -> @debug.Repr
 
 pub(all) struct FontHandle(UInt) derive(Eq, Hash, @debug.Debug)
+pub fn FontHandle::equal(Self, Self) -> Bool
+pub fn FontHandle::hash(Self) -> Int
+pub fn FontHandle::hash_combine(Self, Hasher) -> Unit
+pub fn FontHandle::not_equal(Self, Self) -> Bool
+pub fn FontHandle::to_repr(Self) -> @debug.Repr
 
 pub(all) struct ImageHandle(UInt) derive(Eq, Hash, @debug.Debug)
+pub fn ImageHandle::equal(Self, Self) -> Bool
+pub fn ImageHandle::hash(Self) -> Int
+pub fn ImageHandle::hash_combine(Self, Hasher) -> Unit
+pub fn ImageHandle::not_equal(Self, Self) -> Bool
+pub fn ImageHandle::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 
 // Traits
-

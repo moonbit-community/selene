@@ -1,4 +1,5 @@
 import {
+  "moonbitlang/core/debug",
   "Milky2018/moon_rapier/collision" @rapier_collision,
   "Milky2018/moon_rapier/control" @rapier_control,
   "Milky2018/moon_rapier/dynamics" @rapier_dynamics,

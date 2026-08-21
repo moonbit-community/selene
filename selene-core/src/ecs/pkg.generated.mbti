@@ -34,4 +34,3 @@ pub fn World::queue_command(Self, (Self) -> Unit) -> Unit
 // Type aliases
 
 // Traits
-

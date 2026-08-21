@@ -27,9 +27,13 @@ pub(all) struct GlobalTransform {
   affine : @math.Affine3
 } derive(Eq, @debug.Debug)
 pub fn GlobalTransform::compute_transform(Self) -> Transform
+pub fn GlobalTransform::default() -> Self
+pub fn GlobalTransform::equal(Self, Self) -> Bool
 pub fn GlobalTransform::from_transform(Transform) -> Self
 pub fn GlobalTransform::identity() -> Self
+pub fn GlobalTransform::not_equal(Self, Self) -> Bool
 pub fn GlobalTransform::reparented_to(Self, Self) -> Transform
+pub fn GlobalTransform::to_repr(Self) -> @debug.Repr
 pub fn GlobalTransform::transform_point(Self, @math.Vec3) -> @math.Vec3
 pub fn GlobalTransform::translation(Self) -> @math.Vec3
 pub impl Default for GlobalTransform
@@ -40,11 +44,15 @@ pub(all) struct Transform {
   scale : @math.Vec3
 } derive(Eq, @debug.Debug)
 pub fn Transform::compute_affine(Self) -> @math.Affine3
+pub fn Transform::default() -> Self
+pub fn Transform::equal(Self, Self) -> Bool
 pub fn Transform::from_rotation(@math.Quat) -> Self
 pub fn Transform::from_scale(@math.Vec3) -> Self
 pub fn Transform::from_translation(@math.Vec3) -> Self
 pub fn Transform::from_xyz(Double, Double, Double) -> Self
 pub fn Transform::identity() -> Self
+pub fn Transform::not_equal(Self, Self) -> Bool
+pub fn Transform::to_repr(Self) -> @debug.Repr
 pub fn Transform::with_rotation(Self, @math.Quat) -> Self
 pub fn Transform::with_scale(Self, @math.Vec3) -> Self
 pub fn Transform::with_translation(Self, @math.Vec3) -> Self
@@ -53,4 +61,3 @@ pub impl Default for Transform
 // Type aliases
 
 // Traits
-

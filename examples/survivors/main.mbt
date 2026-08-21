@@ -461,7 +461,9 @@ fn setup_survivors_camera() -> Unit {
 ///|
 fn survivors_camera_follow_system(_world : @ecs.World) -> Unit {
   guard @transform.transforms().get(game_state.player_entity)
-    is Some(player_transform)
+    is Some(player_transform) else {
+    return
+  }
   let half_width = VIEWPORT_WIDTH * 0.5
   let half_height = VIEWPORT_HEIGHT * 0.5
   let target_x = player_transform.translation.x

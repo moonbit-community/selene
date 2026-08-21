@@ -33,19 +33,33 @@ pub(all) struct Mesh2d {
   mesh : Mesh2dHandle
 } derive(Eq, @debug.Debug)
 pub fn Mesh2d::Mesh2d(Mesh2dHandle) -> Self
+pub fn Mesh2d::equal(Self, Self) -> Bool
+pub fn Mesh2d::not_equal(Self, Self) -> Bool
+pub fn Mesh2d::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Mesh2dAsset {
   primitive : Mesh2dPrimitive
 } derive(Eq, @debug.Debug)
 pub fn Mesh2dAsset::circle(Double) -> Self
+pub fn Mesh2dAsset::equal(Self, Self) -> Bool
+pub fn Mesh2dAsset::not_equal(Self, Self) -> Bool
 pub fn Mesh2dAsset::rectangle(@math.Vec2) -> Self
+pub fn Mesh2dAsset::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Mesh2dHandle(UInt) derive(Eq, Hash, @debug.Debug)
+pub fn Mesh2dHandle::equal(Self, Self) -> Bool
+pub fn Mesh2dHandle::hash(Self) -> Int
+pub fn Mesh2dHandle::hash_combine(Self, Hasher) -> Unit
+pub fn Mesh2dHandle::not_equal(Self, Self) -> Bool
+pub fn Mesh2dHandle::to_repr(Self) -> @debug.Repr
 
 pub(all) enum Mesh2dPrimitive {
   Rectangle(@math.Vec2)
   Circle(Double)
 } derive(Eq, @debug.Debug)
+pub fn Mesh2dPrimitive::equal(Self, Self) -> Bool
+pub fn Mesh2dPrimitive::not_equal(Self, Self) -> Bool
+pub fn Mesh2dPrimitive::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Mesh2dStorage {
   meshes : Map[Mesh2dHandle, Mesh2dAsset]
@@ -54,4 +68,3 @@ pub(all) struct Mesh2dStorage {
 // Type aliases
 
 // Traits
-

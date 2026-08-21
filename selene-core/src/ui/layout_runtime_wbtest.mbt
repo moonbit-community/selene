@@ -88,11 +88,7 @@ test "retained UI projection changes do not rebuild layout or stacking" {
   let camera = @entity.Entity()
   @camera.cameras().set(
     camera,
-    Camera(
-      viewport=Some(
-        CameraViewport(@math.Vec2(0.0, 0.0), @math.Vec2(100.0, 100.0)),
-      ),
-    ),
+    Camera(viewport=Some(CameraViewport(Vec2(0.0, 0.0), Vec2(100.0, 100.0)))),
   )
   @camera.camera2ds().set(camera, Camera2d())
   @transform.global_transforms().set(
@@ -136,11 +132,7 @@ test "retained UI projection changes do not rebuild layout or stacking" {
 
   @camera.cameras().set(
     camera,
-    Camera(
-      viewport=Some(
-        CameraViewport(@math.Vec2(8.0, 6.0), @math.Vec2(100.0, 100.0)),
-      ),
-    ),
+    Camera(viewport=Some(CameraViewport(Vec2(8.0, 6.0), Vec2(100.0, 100.0)))),
   )
   ui_layout_system(0.0)
   assert_eq(runtime.layout_revision, layout_revision)

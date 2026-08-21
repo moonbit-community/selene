@@ -8,12 +8,19 @@ pub fn run() -> Unit
 
 // Types and methods
 type EnemyType derive(Eq, Hash)
+pub fn EnemyType::equal(Self, Self) -> Bool
+pub fn EnemyType::hash(Self) -> Int
+pub fn EnemyType::hash_combine(Self, Hasher) -> Unit
+pub fn EnemyType::not_equal(Self, Self) -> Bool
 
 type PowerupType derive(Eq)
+pub fn PowerupType::equal(Self, Self) -> Bool
+pub fn PowerupType::not_equal(Self, Self) -> Bool
 
 type WeaponType derive(Eq)
+pub fn WeaponType::equal(Self, Self) -> Bool
+pub fn WeaponType::not_equal(Self, Self) -> Bool
 
 // Type aliases
 
 // Traits
-

@@ -46,4 +46,3 @@ pub fn[T] State::next(Self[T]) -> NextState[T]
 // Type aliases
 
 // Traits
-

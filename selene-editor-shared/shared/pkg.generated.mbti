@@ -170,24 +170,44 @@ pub struct AnimationClipLoadResponse {
   path : String
   clip : @editor_bridge.AnimationClipAssetDocument
 } derive(Eq, ToJson, @json.FromJson)
+pub fn AnimationClipLoadResponse::equal(Self, Self) -> Bool
+pub fn AnimationClipLoadResponse::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AnimationClipLoadResponse::not_equal(Self, Self) -> Bool
+pub fn AnimationClipLoadResponse::to_json(Self) -> Json
 
 pub struct AnimationGraphLoadResponse {
   path : String
   graph : @editor_bridge.AnimationGraphAssetDocument
 } derive(Eq, ToJson, @json.FromJson)
+pub fn AnimationGraphLoadResponse::equal(Self, Self) -> Bool
+pub fn AnimationGraphLoadResponse::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AnimationGraphLoadResponse::not_equal(Self, Self) -> Bool
+pub fn AnimationGraphLoadResponse::to_json(Self) -> Json
 
 pub struct AssetsListResponse {
   assets : Array[@editor_bridge.AssetDocument]
 } derive(Eq, ToJson, @json.FromJson)
+pub fn AssetsListResponse::equal(Self, Self) -> Bool
+pub fn AssetsListResponse::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AssetsListResponse::not_equal(Self, Self) -> Bool
+pub fn AssetsListResponse::to_json(Self) -> Json
 
 pub struct AtlasLoadResponse {
   path : String
   atlas : @editor_bridge.AtlasAssetDocument
 } derive(Eq, ToJson, @json.FromJson)
+pub fn AtlasLoadResponse::equal(Self, Self) -> Bool
+pub fn AtlasLoadResponse::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AtlasLoadResponse::not_equal(Self, Self) -> Bool
+pub fn AtlasLoadResponse::to_json(Self) -> Json
 
 pub struct DirectoryPickResult {
   path : String?
 } derive(Eq, ToJson, @json.FromJson)
+pub fn DirectoryPickResult::equal(Self, Self) -> Bool
+pub fn DirectoryPickResult::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn DirectoryPickResult::not_equal(Self, Self) -> Bool
+pub fn DirectoryPickResult::to_json(Self) -> Json
 
 pub enum EditorEvent {
   Ready
@@ -202,15 +222,27 @@ pub enum EditorEvent {
   AnimationMigrated(scene_path~ : String, graph_path~ : String)
   AssetImported(asset~ : @editor_bridge.AssetDocument)
 } derive(Eq, ToJson, @json.FromJson)
+pub fn EditorEvent::equal(Self, Self) -> Bool
+pub fn EditorEvent::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn EditorEvent::not_equal(Self, Self) -> Bool
+pub fn EditorEvent::to_json(Self) -> Json
 
 pub struct EventEnvelope {
   event : EditorEvent
 } derive(Eq, ToJson, @json.FromJson)
+pub fn EventEnvelope::equal(Self, Self) -> Bool
+pub fn EventEnvelope::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn EventEnvelope::not_equal(Self, Self) -> Bool
+pub fn EventEnvelope::to_json(Self) -> Json
 
 pub struct PrefabLoadResponse {
   path : String
   prefab : @editor_bridge.PrefabDocument
 } derive(Eq, ToJson, @json.FromJson)
+pub fn PrefabLoadResponse::equal(Self, Self) -> Bool
+pub fn PrefabLoadResponse::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn PrefabLoadResponse::not_equal(Self, Self) -> Bool
+pub fn PrefabLoadResponse::to_json(Self) -> Json
 
 pub enum PreviewTool {
   Select
@@ -222,6 +254,10 @@ pub enum PreviewTool {
   AutoTileErase
   AutoTileFill
 } derive(Eq, ToJson, @json.FromJson)
+pub fn PreviewTool::equal(Self, Self) -> Bool
+pub fn PreviewTool::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn PreviewTool::not_equal(Self, Self) -> Bool
+pub fn PreviewTool::to_json(Self) -> Json
 
 pub enum ProjectDeltaEvent {
   WorkspaceChanged
@@ -229,6 +265,10 @@ pub enum ProjectDeltaEvent {
   AssetFileChanged(path~ : String)
   ManifestChanged
 } derive(Eq, ToJson, @json.FromJson)
+pub fn ProjectDeltaEvent::equal(Self, Self) -> Bool
+pub fn ProjectDeltaEvent::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn ProjectDeltaEvent::not_equal(Self, Self) -> Bool
+pub fn ProjectDeltaEvent::to_json(Self) -> Json
 
 pub struct ProjectStateResponse {
   root : String?
@@ -241,6 +281,10 @@ pub struct ProjectStateResponse {
   workspace : @editor_bridge.WorkspaceDocument?
   recent_projects : Array[String]
 } derive(Eq, ToJson, @json.FromJson)
+pub fn ProjectStateResponse::equal(Self, Self) -> Bool
+pub fn ProjectStateResponse::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn ProjectStateResponse::not_equal(Self, Self) -> Bool
+pub fn ProjectStateResponse::to_json(Self) -> Json
 
 pub struct RpcConflictDocument {
   path : String
@@ -249,12 +293,20 @@ pub struct RpcConflictDocument {
   base_revision : Int
   current_revision : Int
 } derive(Eq, ToJson, @json.FromJson)
+pub fn RpcConflictDocument::equal(Self, Self) -> Bool
+pub fn RpcConflictDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn RpcConflictDocument::not_equal(Self, Self) -> Bool
+pub fn RpcConflictDocument::to_json(Self) -> Json
 
 pub struct RpcErrorDocument {
   code : String
   message : String
   details : Json
 } derive(Eq, ToJson, @json.FromJson)
+pub fn RpcErrorDocument::equal(Self, Self) -> Bool
+pub fn RpcErrorDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn RpcErrorDocument::not_equal(Self, Self) -> Bool
+pub fn RpcErrorDocument::to_json(Self) -> Json
 
 pub enum RpcRequest {
   ProjectCurrent
@@ -279,11 +331,19 @@ pub enum RpcRequest {
   AnimationGraphSave(path~ : String, graph~ : @editor_bridge.AnimationGraphAssetDocument)
   AnimationMigrate(path~ : String, scene_path~ : String)
 } derive(Eq, ToJson, @json.FromJson)
+pub fn RpcRequest::equal(Self, Self) -> Bool
+pub fn RpcRequest::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn RpcRequest::not_equal(Self, Self) -> Bool
+pub fn RpcRequest::to_json(Self) -> Json
 
 pub struct RpcRequestEnvelope {
   id : Int
   request : RpcRequest
 } derive(Eq, ToJson, @json.FromJson)
+pub fn RpcRequestEnvelope::equal(Self, Self) -> Bool
+pub fn RpcRequestEnvelope::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn RpcRequestEnvelope::not_equal(Self, Self) -> Bool
+pub fn RpcRequestEnvelope::to_json(Self) -> Json
 
 pub enum RpcResponse {
   ProjectState(state~ : ProjectStateResponse)
@@ -302,26 +362,46 @@ pub enum RpcResponse {
   SavedOk
   Error(error~ : RpcErrorDocument)
 } derive(Eq, ToJson, @json.FromJson)
+pub fn RpcResponse::equal(Self, Self) -> Bool
+pub fn RpcResponse::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn RpcResponse::not_equal(Self, Self) -> Bool
+pub fn RpcResponse::to_json(Self) -> Json
 
 pub struct RpcResponseEnvelope {
   id : Int
   response : RpcResponse
 } derive(Eq, ToJson, @json.FromJson)
+pub fn RpcResponseEnvelope::equal(Self, Self) -> Bool
+pub fn RpcResponseEnvelope::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn RpcResponseEnvelope::not_equal(Self, Self) -> Bool
+pub fn RpcResponseEnvelope::to_json(Self) -> Json
 
 pub struct SceneBundleAnimationClipEntry {
   path : String
   clip : @editor_bridge.AnimationClipAssetDocument
 } derive(Eq, ToJson, @json.FromJson)
+pub fn SceneBundleAnimationClipEntry::equal(Self, Self) -> Bool
+pub fn SceneBundleAnimationClipEntry::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn SceneBundleAnimationClipEntry::not_equal(Self, Self) -> Bool
+pub fn SceneBundleAnimationClipEntry::to_json(Self) -> Json
 
 pub struct SceneBundleAnimationGraphEntry {
   path : String
   graph : @editor_bridge.AnimationGraphAssetDocument
 } derive(Eq, ToJson, @json.FromJson)
+pub fn SceneBundleAnimationGraphEntry::equal(Self, Self) -> Bool
+pub fn SceneBundleAnimationGraphEntry::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn SceneBundleAnimationGraphEntry::not_equal(Self, Self) -> Bool
+pub fn SceneBundleAnimationGraphEntry::to_json(Self) -> Json
 
 pub struct SceneBundleAtlasEntry {
   path : String
   atlas : @editor_bridge.AtlasAssetDocument
 } derive(Eq, ToJson, @json.FromJson)
+pub fn SceneBundleAtlasEntry::equal(Self, Self) -> Bool
+pub fn SceneBundleAtlasEntry::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn SceneBundleAtlasEntry::not_equal(Self, Self) -> Bool
+pub fn SceneBundleAtlasEntry::to_json(Self) -> Json
 
 pub struct SceneBundleResponse {
   path : String
@@ -332,25 +412,38 @@ pub struct SceneBundleResponse {
   animation_clip_assets : Array[SceneBundleAnimationClipEntry]
   animation_graph_assets : Array[SceneBundleAnimationGraphEntry]
 } derive(Eq, ToJson, @json.FromJson)
+pub fn SceneBundleResponse::equal(Self, Self) -> Bool
+pub fn SceneBundleResponse::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn SceneBundleResponse::not_equal(Self, Self) -> Bool
+pub fn SceneBundleResponse::to_json(Self) -> Json
 pub fn SceneBundleResponse::with_assets(Self, Array[SceneBundleAtlasEntry], Array[SceneBundleAnimationClipEntry], Array[SceneBundleAnimationGraphEntry]) -> Self
 
 pub struct SceneListResponse {
   scenes : Array[@editor_bridge.SceneRef]
   startup_scene : String
 } derive(Eq, ToJson, @json.FromJson)
+pub fn SceneListResponse::equal(Self, Self) -> Bool
+pub fn SceneListResponse::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn SceneListResponse::not_equal(Self, Self) -> Bool
+pub fn SceneListResponse::to_json(Self) -> Json
 
 pub enum SceneLoadOutcome {
   Loaded(SceneBundleResponse)
   MigrationRequired(@editor_bridge.SceneMigrationPreview)
 } derive(Eq)
+pub fn SceneLoadOutcome::equal(Self, Self) -> Bool
+pub fn SceneLoadOutcome::not_equal(Self, Self) -> Bool
 
 pub struct SceneSaveResult {
   path : String
   disk_hash : String
   disk_revision : Int
 } derive(Eq, ToJson, @json.FromJson)
+pub fn SceneSaveResult::equal(Self, Self) -> Bool
+pub fn SceneSaveResult::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn SceneSaveResult::not_equal(Self, Self) -> Bool
+pub fn SceneSaveResult::to_json(Self) -> Json
 
 // Type aliases
 
 // Traits
-

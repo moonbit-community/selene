@@ -24,14 +24,19 @@ pub(all) struct Text2d {
   blend_mode : @render.BlendMode2D
 } derive(Eq, @debug.Debug)
 pub fn Text2d::Text2d(blend_mode? : @render.BlendMode2D) -> Self
+pub fn Text2d::equal(Self, Self) -> Bool
+pub fn Text2d::not_equal(Self, Self) -> Bool
+pub fn Text2d::to_repr(Self) -> @debug.Repr
 
 pub(all) struct TextBounds {
   width : Double
   height : Double
 } derive(Eq, @debug.Debug)
 pub fn TextBounds::TextBounds(Double, Double) -> Self
+pub fn TextBounds::equal(Self, Self) -> Bool
+pub fn TextBounds::not_equal(Self, Self) -> Bool
+pub fn TextBounds::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 
 // Traits
-

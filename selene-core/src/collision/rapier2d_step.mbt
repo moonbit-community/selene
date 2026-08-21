@@ -51,7 +51,7 @@ fn sync_world_entities() -> Unit {
 
   for entity in @entity.iter_entities() {
     guard should_have_physics(entity) else { continue }
-    guard entity_physics_snapshot(entity) is Some(snapshot)
+    guard! entity_physics_snapshot(entity) is Some(snapshot)
     let config_key = entity_physics_config_key(entity, snapshot)
     let missing_physics = world().entity_bodies.get(entity) is None ||
       world().entity_colliders.get(entity) is None
@@ -97,7 +97,7 @@ fn insert_entity_physics(
   entity : @entity.Entity,
   snapshot : EntityPhysicsSnapshot,
 ) -> Unit {
-  guard collision_shape_to_rapier_shape(snapshot.shape)
+  guard! collision_shape_to_rapier_shape(snapshot.shape)
     is Some((rapier_shape, translation))
   let active_hooks = if snapshot.collision.sensor {
     @rapier_collision.ActiveHooks::empty()
@@ -159,9 +159,9 @@ fn sync_entity_physics(
   entity : @entity.Entity,
   snapshot : EntityPhysicsSnapshot,
 ) -> Unit {
-  guard world().entity_bodies.get(entity) is Some(body_handle)
-  guard world().entity_colliders.get(entity) is Some(collider_handle)
-  guard collision_shape_to_rapier_shape(snapshot.shape)
+  guard! world().entity_bodies.get(entity) is Some(body_handle)
+  guard! world().entity_colliders.get(entity) is Some(collider_handle)
+  guard! collision_shape_to_rapier_shape(snapshot.shape)
     is Some((rapier_shape, translation))
   let active_hooks = if snapshot.collision.sensor {
     @rapier_collision.ActiveHooks::empty()

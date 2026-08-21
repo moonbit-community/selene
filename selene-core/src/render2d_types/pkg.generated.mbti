@@ -96,11 +96,17 @@ pub(all) enum RenderPassLoadOp2D {
   Load
   Clear
 } derive(Eq, @debug.Debug)
+pub fn RenderPassLoadOp2D::equal(Self, Self) -> Bool
+pub fn RenderPassLoadOp2D::not_equal(Self, Self) -> Bool
+pub fn RenderPassLoadOp2D::to_repr(Self) -> @debug.Repr
 
 pub(all) enum RenderPassTarget2D {
   Screen
   Offscreen(String)
 } derive(Eq, @debug.Debug)
+pub fn RenderPassTarget2D::equal(Self, Self) -> Bool
+pub fn RenderPassTarget2D::not_equal(Self, Self) -> Bool
+pub fn RenderPassTarget2D::to_repr(Self) -> @debug.Repr
 
 pub(all) struct TextDrawCommand2D {
   text : String
@@ -122,4 +128,3 @@ pub(all) struct TextStyle2D {
 // Type aliases
 
 // Traits
-

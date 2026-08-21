@@ -88,7 +88,7 @@ let ui_layout_runtimes : Map[UInt, UiLayoutRuntime] = Map([])
 fn ui_layout_runtime() -> UiLayoutRuntime {
   let world_id = @ecs.require_current_world().id()
   ui_layout_runtimes.get_or_init(world_id, () => {
-    tree: @tree.ChicleTree(),
+    tree: ChicleTree(),
     node_ids: Map([]),
     nodes: Map([]),
     roots: Map([]),
@@ -250,7 +250,7 @@ fn ui_projection_snapshot(entity : @entity.Entity) -> UiProjectionSnapshot {
     target_viewport_size,
     scroll_position: scroll_positions()
     .get(entity)
-    .map(fn(value) { @math.Vec2(value.x, value.y) }),
+    .map(fn(value) { Vec2(value.x, value.y) }),
     use_rounding: layout_configs()
     .get(entity)
     .map(fn(value) { value.use_rounding }),
@@ -509,7 +509,7 @@ fn compute_dirty_layout_roots(
     let viewport = root_runtime.snapshot.logical_size
     runtime.tree.compute_layout_with_measure(
       root_runtime.node_id,
-      @geometry.Size(
+      Size(
         width=@style_helpers.available_space_definite(viewport[X]),
         height=@style_helpers.available_space_definite(viewport[Y]),
       ),

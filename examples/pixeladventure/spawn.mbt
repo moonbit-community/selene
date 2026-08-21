@@ -189,7 +189,7 @@ fn configure_player_entity(entity : @entity.Entity) -> Unit {
     animations: animation_nodes,
     active_animation: None,
   })
-  guard players().get(entity) is Some(controller)
+  guard! players().get(entity) is Some(controller)
   play_player_animation(entity, controller)
 }
 
@@ -220,7 +220,7 @@ fn configure_bird_entity(entity : @entity.Entity) -> Unit {
     animations: animation_nodes,
     active_animation: None,
   })
-  guard birds().get(entity) is Some(bird)
+  guard! birds().get(entity) is Some(bird)
   play_bird_animation(entity, bird)
 }
 

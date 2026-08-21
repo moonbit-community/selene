@@ -6,6 +6,11 @@
 
 ### Changed
 
+- Updated MoonBit compatibility for the 2026-08-19 nightly toolchain, including
+  explicit trait method extensions, exhaustive guard handling, and current
+  operator and error-cleanup syntax.
+- Updated `moonbitlang/x` to 0.5.1 and `moonbitlang/async` to 0.21.0.
+
 ### Fixed
 
 ### Removed

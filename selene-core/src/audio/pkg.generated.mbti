@@ -46,12 +46,18 @@ pub(all) struct AudioEvent {
   settings : PlaybackSettings
   target : @entity.Entity?
 } derive(Eq, @debug.Debug)
+pub fn AudioEvent::equal(Self, Self) -> Bool
+pub fn AudioEvent::not_equal(Self, Self) -> Bool
+pub fn AudioEvent::to_repr(Self) -> @debug.Repr
 
 pub(all) struct AudioPlayer {
   source : @asset_types.AudioHandle
 } derive(Eq, @debug.Debug)
 pub fn AudioPlayer::AudioPlayer(@asset_types.AudioHandle) -> Self
+pub fn AudioPlayer::equal(Self, Self) -> Bool
 pub fn AudioPlayer::from_path(String) -> Self
+pub fn AudioPlayer::not_equal(Self, Self) -> Bool
+pub fn AudioPlayer::to_repr(Self) -> @debug.Repr
 
 pub(all) struct AudioSink {
   instance : @platform_audio.AudioInstance
@@ -84,6 +90,9 @@ pub(all) enum PlaybackMode {
   Remove
   Despawn
 } derive(Eq, @debug.Debug)
+pub fn PlaybackMode::equal(Self, Self) -> Bool
+pub fn PlaybackMode::not_equal(Self, Self) -> Bool
+pub fn PlaybackMode::to_repr(Self) -> @debug.Repr
 
 pub(all) struct PlaybackSettings {
   mode : PlaybackMode
@@ -93,9 +102,12 @@ pub(all) struct PlaybackSettings {
   muted : Bool
 } derive(Eq, @debug.Debug)
 pub fn PlaybackSettings::despawn() -> Self
+pub fn PlaybackSettings::equal(Self, Self) -> Bool
 pub fn PlaybackSettings::looped() -> Self
+pub fn PlaybackSettings::not_equal(Self, Self) -> Bool
 pub fn PlaybackSettings::once() -> Self
 pub fn PlaybackSettings::remove() -> Self
+pub fn PlaybackSettings::to_repr(Self) -> @debug.Repr
 pub fn PlaybackSettings::with_mode(Self, PlaybackMode) -> Self
 pub fn PlaybackSettings::with_muted(Self, Bool) -> Self
 pub fn PlaybackSettings::with_paused(Self, Bool) -> Self
@@ -106,4 +118,3 @@ pub fn PlaybackSettings::with_volume(Self, Double) -> Self
 pub using @asset_types {type AudioHandle}
 
 // Traits
-

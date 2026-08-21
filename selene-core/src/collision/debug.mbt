@@ -40,8 +40,8 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
   for e, collide in colliders() {
     guard e.is_alive() else { continue }
     guard collide.active else { continue }
-    guard shapes().get(e) is Some(shape)
-    guard shape is Rect(size=Vec2(width, height), offset~)
+    guard! shapes().get(e) is Some(shape)
+    guard! shape is Rect(size=Vec2(width, height), offset~)
     guard debug_entity_global_transform(e) is Some(global) else { continue }
     let rect = to_screen_rect(
       e,
@@ -63,7 +63,7 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
     guard e.is_alive() else { continue }
     guard area.active else { continue }
     guard shapes().get(e) is Some(shape) else { continue }
-    guard shape is Rect(size=Vec2(width, height), offset~)
+    guard! shape is Rect(size=Vec2(width, height), offset~)
     guard debug_entity_global_transform(e) is Some(global) else { continue }
     let rect = to_screen_rect(
       e,
@@ -84,7 +84,7 @@ pub fn debug_collide_system(_delta : Double) -> Unit {
   for e, _pickable in pickables() {
     guard e.is_alive() else { continue }
     guard shapes().get(e) is Some(shape) else { continue }
-    guard shape is Rect(size=Vec2(width, height), offset~)
+    guard! shape is Rect(size=Vec2(width, height), offset~)
     guard debug_entity_global_transform(e) is Some(global) else { continue }
     let rect = to_screen_rect(
       e,

@@ -369,7 +369,7 @@ fn apply_stomp_bounce(
   let snap_delta_y = bird_rect.position[Y] -
     (player_rect.position[Y] + player_rect.size[Y])
   if snap_delta_y < 0.0 {
-    guard @transform.transforms().get(player_entity) is Some(player_transform)
+    guard! @transform.transforms().get(player_entity) is Some(player_transform)
     @transform.transforms().set(
       player_entity,
       player_transform.with_translation(
@@ -665,7 +665,9 @@ fn volume_button_system(_world : @ecs.World) -> Unit {
 fn pixeladventure_camera_follow_system(_world : @ecs.World) -> Unit {
   guard active_session_entity() is Some(session_entity) else { return }
   guard sessions().get(session_entity) is Some(session) else { return }
-  guard @transform.transforms().get(session.player) is Some(player_transform)
+  guard @transform.transforms().get(session.player) is Some(player_transform) else {
+    return
+  }
   let half_width = VIEWPORT_WIDTH * 0.5
   let half_height = VIEWPORT_HEIGHT * 0.5
   let target_x = player_transform.translation.x + 16.0

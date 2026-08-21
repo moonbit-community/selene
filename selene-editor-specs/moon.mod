@@ -7,7 +7,7 @@ import {
   "Milky2018/selene_editor_shared@0.34.6",
   "Milky2018/selene_editor_frontend@0.34.6",
   "Milky2018/selene_editor_service@0.34.6",
-  "moonbitlang/async@0.19.3",
+  "moonbitlang/async@0.21.0",
 }
 
 readme = "README.md"

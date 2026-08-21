@@ -87,4 +87,3 @@ pub type RunCondition = (@ecs.World) -> Bool
 pub type System = (@ecs.World) -> Unit
 
 // Traits
-

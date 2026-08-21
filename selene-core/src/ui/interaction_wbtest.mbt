@@ -196,8 +196,8 @@ test "ui pointer picks the pause menu dimmer above the HUD" {
   with_ui_interaction_test_world(fn() raise {
     reset_interaction_test_state()
     let rect : @math.Rect = {
-      position: @math.Vec2(0.0, 0.0),
-      size: @math.Vec2(100.0, 100.0),
+      position: Vec2(0.0, 0.0),
+      size: Vec2(100.0, 100.0),
     }
     let root = spawn_interaction_test_node(rect, interactive=false)
     let hud = spawn_interaction_test_node(rect, interactive=false)

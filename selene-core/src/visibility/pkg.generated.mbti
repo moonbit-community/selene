@@ -35,21 +35,32 @@ pub fn visibility_propagate_system(Double) -> Unit
 pub(all) struct InheritedVisibility {
   visible : Bool
 } derive(Eq, @debug.Debug)
+pub fn InheritedVisibility::equal(Self, Self) -> Bool
+pub fn InheritedVisibility::not_equal(Self, Self) -> Bool
+pub fn InheritedVisibility::to_repr(Self) -> @debug.Repr
 
 pub(all) struct RenderLayers {
   mask : UInt
 } derive(Eq, @debug.Debug)
+pub fn RenderLayers::equal(Self, Self) -> Bool
+pub fn RenderLayers::not_equal(Self, Self) -> Bool
+pub fn RenderLayers::to_repr(Self) -> @debug.Repr
 
 pub(all) struct ViewVisibility {
   visible : Bool
 } derive(Eq, @debug.Debug)
+pub fn ViewVisibility::equal(Self, Self) -> Bool
+pub fn ViewVisibility::not_equal(Self, Self) -> Bool
+pub fn ViewVisibility::to_repr(Self) -> @debug.Repr
 
 pub(all) enum Visibility {
   Visible
   Hidden
 } derive(Eq, @debug.Debug)
+pub fn Visibility::equal(Self, Self) -> Bool
+pub fn Visibility::not_equal(Self, Self) -> Bool
+pub fn Visibility::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 
 // Traits
-

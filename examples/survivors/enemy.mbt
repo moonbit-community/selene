@@ -454,8 +454,12 @@ fn enemy_ai_system(_world : @ecs.World) -> Unit {
   for e, state in enemies {
     guard e.is_alive() else { continue }
     guard @transform.transforms().get(game_state.player_entity)
-      is Some(player_transform)
-    guard @transform.transforms().get(e) is Some(enemy_transform)
+      is Some(player_transform) else {
+      return
+    }
+    guard @transform.transforms().get(e) is Some(enemy_transform) else {
+      continue
+    }
     let data = get_enemy_data(state.enemy_type)
     let player_position = @math.Vec2(
       player_transform.translation.x,
@@ -495,9 +499,13 @@ fn devil_shooting_system(_world : @ecs.World) -> Unit {
     if state.enemy_type != Devil {
       continue
     }
-    guard @transform.transforms().get(e) is Some(enemy_transform)
+    guard @transform.transforms().get(e) is Some(enemy_transform) else {
+      continue
+    }
     guard @transform.transforms().get(game_state.player_entity)
-      is Some(player_transform)
+      is Some(player_transform) else {
+      return
+    }
     let enemy_pos = @math.Vec2(
       enemy_transform.translation.x,
       enemy_transform.translation.y,

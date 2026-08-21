@@ -32,8 +32,12 @@ pub(all) struct SystemSet {
   name : String
 } derive(Eq, Hash, @debug.Debug)
 pub fn SystemSet::SystemSet(String) -> Self
+pub fn SystemSet::equal(Self, Self) -> Bool
+pub fn SystemSet::hash(Self) -> Int
+pub fn SystemSet::hash_combine(Self, Hasher) -> Unit
+pub fn SystemSet::not_equal(Self, Self) -> Bool
+pub fn SystemSet::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 
 // Traits
-

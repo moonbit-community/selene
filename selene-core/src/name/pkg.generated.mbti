@@ -18,8 +18,10 @@ pub(all) struct Name {
   value : String
 } derive(Eq, @debug.Debug)
 pub fn Name::Name(String) -> Self
+pub fn Name::equal(Self, Self) -> Bool
+pub fn Name::not_equal(Self, Self) -> Bool
+pub fn Name::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 
 // Traits
-

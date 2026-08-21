@@ -291,7 +291,9 @@ fn player_shooting_system(_world : @ecs.World) -> Unit {
     return
   }
   guard @transform.transforms().get(game_state.player_entity)
-    is Some(player_transform)
+    is Some(player_transform) else {
+    return
+  }
   let player_pos = @math.Vec2(
     player_transform.translation.x,
     player_transform.translation.y,
@@ -338,7 +340,9 @@ fn find_nearest_enemy_in_range(
   let mut res : @math.Vec2? = None
   for e, _enemy in enemies {
     guard e.is_alive() else { continue }
-    guard @transform.transforms().get(e) is Some(enemy_transform)
+    guard @transform.transforms().get(e) is Some(enemy_transform) else {
+      continue
+    }
     let enemy_pos = @math.Vec2(
       enemy_transform.translation.x,
       enemy_transform.translation.y,

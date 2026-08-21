@@ -11,4 +11,3 @@ pub fn render_submit_system(Double) -> Unit
 // Type aliases
 
 // Traits
-

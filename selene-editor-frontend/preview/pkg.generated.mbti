@@ -41,4 +41,3 @@ pub fn viewport_to_world(Double, Double, Double, Double) -> @editor_bridge.Vec2D
 // Type aliases
 
 // Traits
-

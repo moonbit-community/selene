@@ -36,13 +36,7 @@ pub fn with_pixeladventure_test_asset_io(
   action : () -> Unit raise,
 ) -> Unit raise {
   @asset.set_io(pixeladventure_test_asset_reader)
-  try {
-    action()
-    @asset.set_io(fn(_path : String) { None })
-  } catch {
-    err => {
-      @asset.set_io(fn(_path : String) { None })
-      raise err
-    }
-  }
+  errdefer @asset.set_io(fn(_path : String) { None })
+  action()
+  @asset.set_io(fn(_path : String) { None })
 }

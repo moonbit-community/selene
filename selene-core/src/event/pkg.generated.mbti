@@ -36,6 +36,9 @@ pub(all) enum EventDomain {
   Fixed
   Render
 } derive(Eq, @debug.Debug)
+pub fn EventDomain::equal(Self, Self) -> Bool
+pub fn EventDomain::not_equal(Self, Self) -> Bool
+pub fn EventDomain::to_repr(Self) -> @debug.Repr
 
 pub(all) struct EventReader[T] {
   last_seen_by_world : Map[UInt, Int]
@@ -73,6 +76,11 @@ pub fn[T] Events::update(Self[T]) -> Unit
 pub fn[T] Events::writer(Self[T]) -> EventWriter[T]
 
 pub(all) struct ObserverHandle(Int) derive(Eq, Hash, @debug.Debug)
+pub fn ObserverHandle::equal(Self, Self) -> Bool
+pub fn ObserverHandle::hash(Self) -> Int
+pub fn ObserverHandle::hash_combine(Self, Hasher) -> Unit
+pub fn ObserverHandle::not_equal(Self, Self) -> Bool
+pub fn ObserverHandle::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Trigger[T] {
   event : T
@@ -82,4 +90,3 @@ pub(all) struct Trigger[T] {
 // Type aliases
 
 // Traits
-

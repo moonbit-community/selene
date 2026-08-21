@@ -103,7 +103,7 @@ pub fn transform_translation_field() -> AnimatedFieldHandle {
           Vec3(transform.translation)
         },
         apply: fn(entity, value) {
-          guard value is Vec3(translation)
+          guard! value is Vec3(translation)
           let transform = @transform.transforms()
             .get(entity)
             .unwrap_or_default()
@@ -134,7 +134,7 @@ pub fn transform_rotation_field() -> AnimatedFieldHandle {
           Quat(transform.rotation)
         },
         apply: fn(entity, value) {
-          guard value is Quat(rotation)
+          guard! value is Quat(rotation)
           let transform = @transform.transforms()
             .get(entity)
             .unwrap_or_default()
@@ -162,7 +162,7 @@ pub fn transform_scale_field() -> AnimatedFieldHandle {
           Vec3(transform.scale)
         },
         apply: fn(entity, value) {
-          guard value is Vec3(scale)
+          guard! value is Vec3(scale)
           let transform = @transform.transforms()
             .get(entity)
             .unwrap_or_default()
@@ -223,7 +223,7 @@ pub fn morph_weights_field() -> AnimatedFieldHandle {
         kind: Weights,
         sample: fn(entity) { Weights(morph_weights_of(entity)) },
         apply: fn(entity, value) {
-          guard value is Weights(weights)
+          guard! value is Weights(weights)
           set_target_morph_weights(entity, weights)
         },
       })
@@ -253,7 +253,7 @@ pub fn texture_atlas_index_field() -> AnimatedFieldHandle {
           Scalar(index)
         },
         apply: fn(entity, value) {
-          guard value is Scalar(frame)
+          guard! value is Scalar(frame)
           guard @sprite.sprites().get(entity) is Some(sprite) else { return }
           guard sprite.texture_atlas is Some(texture_atlas) else { return }
           let next_index = if frame < 0.0 { 0 } else { frame.round().to_int() }

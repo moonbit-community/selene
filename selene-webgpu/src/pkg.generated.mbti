@@ -139,6 +139,9 @@ pub(all) enum Render3DLightingMode {
   Cheap
   Unlit
 } derive(Eq, @debug.Debug)
+pub fn Render3DLightingMode::equal(Self, Self) -> Bool
+pub fn Render3DLightingMode::not_equal(Self, Self) -> Bool
+pub fn Render3DLightingMode::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Render3DSubmissionStatsSnapshot {
   sections : Int
@@ -151,6 +154,9 @@ pub(all) struct Render3DSubmissionStatsSnapshot {
   uploaded_vertex_bytes : Int
   render_bind_group_creations : Int
 } derive(Eq, @debug.Debug)
+pub fn Render3DSubmissionStatsSnapshot::equal(Self, Self) -> Bool
+pub fn Render3DSubmissionStatsSnapshot::not_equal(Self, Self) -> Bool
+pub fn Render3DSubmissionStatsSnapshot::to_repr(Self) -> @debug.Repr
 
 type WebGpuBackend
 pub fn WebGpuBackend::WebGpuBackend() -> Self
@@ -162,6 +168,9 @@ pub(all) struct WebGpuFrameTimingSnapshot {
   service_after_ms : Double
   total_work_ms : Double
 } derive(Eq, @debug.Debug)
+pub fn WebGpuFrameTimingSnapshot::equal(Self, Self) -> Bool
+pub fn WebGpuFrameTimingSnapshot::not_equal(Self, Self) -> Bool
+pub fn WebGpuFrameTimingSnapshot::to_repr(Self) -> @debug.Repr
 
 pub(all) struct WebGpuRender3DTimingSnapshot {
   setup_ms : Double
@@ -170,9 +179,11 @@ pub(all) struct WebGpuRender3DTimingSnapshot {
   cleanup_ms : Double
   submit_total_ms : Double
 } derive(Eq, @debug.Debug)
+pub fn WebGpuRender3DTimingSnapshot::equal(Self, Self) -> Bool
+pub fn WebGpuRender3DTimingSnapshot::not_equal(Self, Self) -> Bool
+pub fn WebGpuRender3DTimingSnapshot::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 pub type AudioInstance = Int
 
 // Traits
-

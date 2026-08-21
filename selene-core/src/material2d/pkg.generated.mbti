@@ -34,18 +34,28 @@ pub fn ColorMaterial::ColorMaterial(color? : @render.Color, texture? : @asset_ty
 pub fn ColorMaterial::from_color(@render.Color) -> Self
 
 pub(all) struct ColorMaterialHandle(UInt) derive(Eq, Hash, @debug.Debug)
+pub fn ColorMaterialHandle::equal(Self, Self) -> Bool
+pub fn ColorMaterialHandle::hash(Self) -> Int
+pub fn ColorMaterialHandle::hash_combine(Self, Hasher) -> Unit
+pub fn ColorMaterialHandle::not_equal(Self, Self) -> Bool
+pub fn ColorMaterialHandle::to_repr(Self) -> @debug.Repr
 
 pub(all) enum Material2dHandle {
   Color(ColorMaterialHandle)
 } derive(Eq, @debug.Debug)
+pub fn Material2dHandle::equal(Self, Self) -> Bool
+pub fn Material2dHandle::not_equal(Self, Self) -> Bool
+pub fn Material2dHandle::to_repr(Self) -> @debug.Repr
 
 pub(all) struct MeshMaterial2d {
   material : Material2dHandle
 } derive(Eq, @debug.Debug)
 pub fn MeshMaterial2d::MeshMaterial2d(Material2dHandle) -> Self
+pub fn MeshMaterial2d::equal(Self, Self) -> Bool
 pub fn MeshMaterial2d::from_color_material(ColorMaterialHandle) -> Self
+pub fn MeshMaterial2d::not_equal(Self, Self) -> Bool
+pub fn MeshMaterial2d::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 
 // Traits
-

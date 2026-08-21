@@ -233,6 +233,9 @@ pub(all) enum AlignContent {
   SpaceAround
   SpaceEvenly
 } derive(Eq, @debug.Debug)
+pub fn AlignContent::equal(Self, Self) -> Bool
+pub fn AlignContent::not_equal(Self, Self) -> Bool
+pub fn AlignContent::to_repr(Self) -> @debug.Repr
 
 pub(all) enum AlignItems {
   Start
@@ -243,6 +246,9 @@ pub(all) enum AlignItems {
   Baseline
   Stretch
 } derive(Eq, @debug.Debug)
+pub fn AlignItems::equal(Self, Self) -> Bool
+pub fn AlignItems::not_equal(Self, Self) -> Bool
+pub fn AlignItems::to_repr(Self) -> @debug.Repr
 
 pub(all) struct BackgroundColor {
   color : @render.Color
@@ -264,17 +270,26 @@ pub(all) struct BorderRadius {
 } derive(Eq, @debug.Debug)
 pub fn BorderRadius::BorderRadius(top_left? : Val, top_right? : Val, bottom_right? : Val, bottom_left? : Val) -> Self
 pub fn BorderRadius::all(Val) -> Self
+pub fn BorderRadius::equal(Self, Self) -> Bool
+pub fn BorderRadius::not_equal(Self, Self) -> Bool
+pub fn BorderRadius::to_repr(Self) -> @debug.Repr
 
 pub(all) struct BoxShadow {
   layers : Array[ShadowStyle]
 } derive(Eq, @debug.Debug)
 pub fn BoxShadow::BoxShadow(Array[ShadowStyle]) -> Self
+pub fn BoxShadow::equal(Self, Self) -> Bool
+pub fn BoxShadow::not_equal(Self, Self) -> Bool
 pub fn BoxShadow::single(@render.Color, x_offset? : Val, y_offset? : Val, spread_radius? : Val, blur_radius? : Val) -> Self
+pub fn BoxShadow::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Button {
   enabled : Bool
 } derive(Eq, @debug.Debug)
 pub fn Button::Button(enabled? : Bool) -> Self
+pub fn Button::equal(Self, Self) -> Bool
+pub fn Button::not_equal(Self, Self) -> Bool
+pub fn Button::to_repr(Self) -> @debug.Repr
 
 pub(all) struct CalculatedClip {
   clip : @math.Rect
@@ -297,6 +312,9 @@ pub(all) enum Display {
   Grid
   None
 } derive(Eq, @debug.Debug)
+pub fn Display::equal(Self, Self) -> Bool
+pub fn Display::not_equal(Self, Self) -> Bool
+pub fn Display::to_repr(Self) -> @debug.Repr
 
 pub(all) enum FlexDirection {
   Row
@@ -304,17 +322,26 @@ pub(all) enum FlexDirection {
   Column
   ColumnReverse
 } derive(Eq, @debug.Debug)
+pub fn FlexDirection::equal(Self, Self) -> Bool
+pub fn FlexDirection::not_equal(Self, Self) -> Bool
+pub fn FlexDirection::to_repr(Self) -> @debug.Repr
 
 pub(all) enum FlexWrap {
   NoWrap
   Wrap
   WrapReverse
 } derive(Eq, @debug.Debug)
+pub fn FlexWrap::equal(Self, Self) -> Bool
+pub fn FlexWrap::not_equal(Self, Self) -> Bool
+pub fn FlexWrap::to_repr(Self) -> @debug.Repr
 
 pub(all) enum FocusPolicy {
   Block
   Pass
 } derive(Eq, @debug.Debug)
+pub fn FocusPolicy::equal(Self, Self) -> Bool
+pub fn FocusPolicy::not_equal(Self, Self) -> Bool
+pub fn FocusPolicy::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Focusable {
   _tag : Unit
@@ -339,6 +366,9 @@ pub(all) struct GlobalZIndex {
   value : Int
 } derive(Eq, @debug.Debug)
 pub fn GlobalZIndex::GlobalZIndex(Int) -> Self
+pub fn GlobalZIndex::equal(Self, Self) -> Bool
+pub fn GlobalZIndex::not_equal(Self, Self) -> Bool
+pub fn GlobalZIndex::to_repr(Self) -> @debug.Repr
 
 pub(all) enum GridAutoFlow {
   Row
@@ -346,18 +376,27 @@ pub(all) enum GridAutoFlow {
   RowDense
   ColumnDense
 } derive(Eq, @debug.Debug)
+pub fn GridAutoFlow::equal(Self, Self) -> Bool
+pub fn GridAutoFlow::not_equal(Self, Self) -> Bool
+pub fn GridAutoFlow::to_repr(Self) -> @debug.Repr
 
 pub(all) struct GridLine {
   start : GridPlacement
   end : GridPlacement
 } derive(Eq, @debug.Debug)
 pub fn GridLine::GridLine(start? : GridPlacement, end? : GridPlacement) -> Self
+pub fn GridLine::equal(Self, Self) -> Bool
+pub fn GridLine::not_equal(Self, Self) -> Bool
+pub fn GridLine::to_repr(Self) -> @debug.Repr
 
 pub(all) enum GridPlacement {
   Auto
   Line(Int)
   Span(Int)
 } derive(Eq, @debug.Debug)
+pub fn GridPlacement::equal(Self, Self) -> Bool
+pub fn GridPlacement::not_equal(Self, Self) -> Bool
+pub fn GridPlacement::to_repr(Self) -> @debug.Repr
 
 pub(all) enum GridTrack {
   Auto
@@ -370,12 +409,18 @@ pub(all) enum GridTrack {
   MinMax(GridTrack, GridTrack)
   Repeat(GridTrackRepetition, Array[GridTrack])
 } derive(Eq, @debug.Debug)
+pub fn GridTrack::equal(Self, Self) -> Bool
+pub fn GridTrack::not_equal(Self, Self) -> Bool
+pub fn GridTrack::to_repr(Self) -> @debug.Repr
 
 pub(all) enum GridTrackRepetition {
   Count(Int)
   AutoFill
   AutoFit
 } derive(Eq, @debug.Debug)
+pub fn GridTrackRepetition::equal(Self, Self) -> Bool
+pub fn GridTrackRepetition::not_equal(Self, Self) -> Bool
+pub fn GridTrackRepetition::to_repr(Self) -> @debug.Repr
 
 pub(all) enum ImageFit {
   Stretch
@@ -383,12 +428,18 @@ pub(all) enum ImageFit {
   Cover
   None
 } derive(Eq, @debug.Debug)
+pub fn ImageFit::equal(Self, Self) -> Bool
+pub fn ImageFit::not_equal(Self, Self) -> Bool
+pub fn ImageFit::to_repr(Self) -> @debug.Repr
 
 pub(all) enum Interaction {
   None
   Hovered
   Pressed
 } derive(Eq, @debug.Debug)
+pub fn Interaction::equal(Self, Self) -> Bool
+pub fn Interaction::not_equal(Self, Self) -> Bool
+pub fn Interaction::to_repr(Self) -> @debug.Repr
 
 pub(all) enum JustifyContent {
   Start
@@ -401,16 +452,25 @@ pub(all) enum JustifyContent {
   SpaceAround
   SpaceEvenly
 } derive(Eq, @debug.Debug)
+pub fn JustifyContent::equal(Self, Self) -> Bool
+pub fn JustifyContent::not_equal(Self, Self) -> Bool
+pub fn JustifyContent::to_repr(Self) -> @debug.Repr
 
 pub(all) struct LayoutConfig {
   use_rounding : Bool
 } derive(Eq, @debug.Debug)
 pub fn LayoutConfig::LayoutConfig(use_rounding? : Bool) -> Self
+pub fn LayoutConfig::equal(Self, Self) -> Bool
+pub fn LayoutConfig::not_equal(Self, Self) -> Bool
+pub fn LayoutConfig::to_repr(Self) -> @debug.Repr
 
 pub(all) struct MaterialNode {
   material : UiMaterialHandle
 } derive(Eq, @debug.Debug)
 pub fn MaterialNode::MaterialNode(UiMaterialHandle) -> Self
+pub fn MaterialNode::equal(Self, Self) -> Bool
+pub fn MaterialNode::not_equal(Self, Self) -> Bool
+pub fn MaterialNode::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Node {
   width : Val
@@ -457,6 +517,9 @@ pub(all) struct Node {
 } derive(Eq, @debug.Debug)
 pub fn Node::Node(width? : Val, height? : Val, min_width? : Val, min_height? : Val, max_width? : Val, max_height? : Val, left? : Val, right? : Val, top? : Val, bottom? : Val, margin? : UiRectValues, padding? : UiRectValues, border? : UiRectValues, display? : Display, position_type? : PositionType, flex_direction? : FlexDirection, justify_content? : JustifyContent, align_items? : AlignItems, row_gap? : Double, column_gap? : Double, overflow_x? : Overflow, overflow_y? : Overflow, overflow_clip_margin? : OverflowClipMargin, flex_grow? : Double, flex_shrink? : Double, active? : Bool, align_content? : AlignContent?, align_self? : AlignItems?, justify_items? : AlignItems?, justify_self? : AlignItems?, flex_wrap? : FlexWrap, flex_basis? : Val, aspect_ratio? : Double?, scrollbar_width? : Double, grid_template_rows? : Array[GridTrack], grid_template_columns? : Array[GridTrack], grid_auto_rows? : Array[GridTrack], grid_auto_columns? : Array[GridTrack], grid_auto_flow? : GridAutoFlow, grid_row? : GridLine, grid_column? : GridLine) -> Self
 pub fn Node::absolute(@math.Vec2, size? : @math.Vec2, padding? : UiRectValues, border? : UiRectValues, display? : Display, flex_direction? : FlexDirection, justify_content? : JustifyContent, align_items? : AlignItems, row_gap? : Double, column_gap? : Double, overflow_x? : Overflow, overflow_y? : Overflow, overflow_clip_margin? : OverflowClipMargin, active? : Bool) -> Self
+pub fn Node::equal(Self, Self) -> Bool
+pub fn Node::not_equal(Self, Self) -> Bool
+pub fn Node::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Outline {
   width : Val
@@ -471,12 +534,18 @@ pub(all) enum Overflow {
   Hidden
   Scroll
 } derive(Eq, @debug.Debug)
+pub fn Overflow::equal(Self, Self) -> Bool
+pub fn Overflow::not_equal(Self, Self) -> Bool
+pub fn Overflow::to_repr(Self) -> @debug.Repr
 
 pub(all) enum OverflowClipBox {
   ContentBox
   PaddingBox
   BorderBox
 } derive(Eq, @debug.Debug)
+pub fn OverflowClipBox::equal(Self, Self) -> Bool
+pub fn OverflowClipBox::not_equal(Self, Self) -> Bool
+pub fn OverflowClipBox::to_repr(Self) -> @debug.Repr
 
 pub(all) struct OverflowClipMargin {
   visual_box : OverflowClipBox
@@ -484,30 +553,45 @@ pub(all) struct OverflowClipMargin {
 } derive(Eq, @debug.Debug)
 pub fn OverflowClipMargin::border_box() -> Self
 pub fn OverflowClipMargin::content_box() -> Self
+pub fn OverflowClipMargin::equal(Self, Self) -> Bool
+pub fn OverflowClipMargin::not_equal(Self, Self) -> Bool
 pub fn OverflowClipMargin::padding_box() -> Self
+pub fn OverflowClipMargin::to_repr(Self) -> @debug.Repr
 pub fn OverflowClipMargin::with_margin(Self, Double) -> Self
 
 pub(all) struct OverrideClip {
   _tag : Unit
 } derive(Eq, @debug.Debug)
 pub fn OverrideClip::OverrideClip() -> Self
+pub fn OverrideClip::equal(Self, Self) -> Bool
+pub fn OverrideClip::not_equal(Self, Self) -> Bool
+pub fn OverrideClip::to_repr(Self) -> @debug.Repr
 
 pub(all) enum PositionType {
   Relative
   Absolute
 } derive(Eq, @debug.Debug)
+pub fn PositionType::equal(Self, Self) -> Bool
+pub fn PositionType::not_equal(Self, Self) -> Bool
+pub fn PositionType::to_repr(Self) -> @debug.Repr
 
 pub(all) struct RelativeCursorPosition {
   mut normalized : @math.Vec2?
   mut cursor_over : Bool
 } derive(Eq, @debug.Debug)
 pub fn RelativeCursorPosition::RelativeCursorPosition() -> Self
+pub fn RelativeCursorPosition::equal(Self, Self) -> Bool
 pub fn RelativeCursorPosition::mouse_over(Self) -> Bool
+pub fn RelativeCursorPosition::not_equal(Self, Self) -> Bool
+pub fn RelativeCursorPosition::to_repr(Self) -> @debug.Repr
 
 pub(all) struct ScrollPosition {
   mut x : Double
   mut y : Double
 } derive(Eq, @debug.Debug)
+pub fn ScrollPosition::equal(Self, Self) -> Bool
+pub fn ScrollPosition::not_equal(Self, Self) -> Bool
+pub fn ScrollPosition::to_repr(Self) -> @debug.Repr
 pub fn ScrollPosition::zero() -> Self
 
 pub(all) struct ShadowStyle {
@@ -518,11 +602,17 @@ pub(all) struct ShadowStyle {
   blur_radius : Val
 } derive(Eq, @debug.Debug)
 pub fn ShadowStyle::ShadowStyle(@render.Color, x_offset? : Val, y_offset? : Val, spread_radius? : Val, blur_radius? : Val) -> Self
+pub fn ShadowStyle::equal(Self, Self) -> Bool
+pub fn ShadowStyle::not_equal(Self, Self) -> Bool
+pub fn ShadowStyle::to_repr(Self) -> @debug.Repr
 
 pub(all) struct TabIndex {
   value : Int
 } derive(Eq, @debug.Debug)
 pub fn TabIndex::TabIndex(Int) -> Self
+pub fn TabIndex::equal(Self, Self) -> Bool
+pub fn TabIndex::not_equal(Self, Self) -> Bool
+pub fn TabIndex::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Text {
   mut content : String
@@ -557,11 +647,17 @@ pub(all) enum TextOverflow {
   Clip
   Ellipsis
 } derive(Eq, @debug.Debug)
+pub fn TextOverflow::equal(Self, Self) -> Bool
+pub fn TextOverflow::not_equal(Self, Self) -> Bool
+pub fn TextOverflow::to_repr(Self) -> @debug.Repr
 
 pub(all) enum TextWrap {
   NoWrap
   WordWrap
 } derive(Eq, @debug.Debug)
+pub fn TextWrap::equal(Self, Self) -> Bool
+pub fn TextWrap::not_equal(Self, Self) -> Bool
+pub fn TextWrap::to_repr(Self) -> @debug.Repr
 
 pub(all) struct UiClickEvent {
   entity : @entity.Entity
@@ -581,6 +677,9 @@ pub(all) struct UiGradient {
   color_end : @render.Color
 } derive(Eq, @debug.Debug)
 pub fn UiGradient::UiGradient(@render.Color, @render.Color) -> Self
+pub fn UiGradient::equal(Self, Self) -> Bool
+pub fn UiGradient::not_equal(Self, Self) -> Bool
+pub fn UiGradient::to_repr(Self) -> @debug.Repr
 
 pub(all) struct UiImage {
   size : @math.Vec2
@@ -589,7 +688,10 @@ pub(all) struct UiImage {
   fit : ImageFit
 } derive(Eq, @debug.Debug)
 pub fn UiImage::UiImage(@math.Vec2, String, tint? : @render.Color, fit? : ImageFit) -> Self
+pub fn UiImage::equal(Self, Self) -> Bool
 pub fn UiImage::from_image(@math.Vec2, @asset_types.ImageHandle, tint? : @render.Color, fit? : ImageFit) -> Self
+pub fn UiImage::not_equal(Self, Self) -> Bool
+pub fn UiImage::to_repr(Self) -> @debug.Repr
 
 pub(all) struct UiInsets {
   left : Double
@@ -597,6 +699,9 @@ pub(all) struct UiInsets {
   top : Double
   bottom : Double
 } derive(Eq, @debug.Debug)
+pub fn UiInsets::equal(Self, Self) -> Bool
+pub fn UiInsets::not_equal(Self, Self) -> Bool
+pub fn UiInsets::to_repr(Self) -> @debug.Repr
 pub fn UiInsets::zero() -> Self
 
 pub(all) struct UiLayoutSpace {
@@ -625,6 +730,11 @@ pub(all) struct UiMaterialContext {
 pub fn UiMaterialContext::UiMaterialContext(@entity.Entity, @math.Rect, content_rect? : @math.Rect, border_radius? : BorderRadius, target_camera_entity_id? : UInt?) -> Self
 
 pub(all) struct UiMaterialHandle(UInt) derive(Eq, Hash, @debug.Debug)
+pub fn UiMaterialHandle::equal(Self, Self) -> Bool
+pub fn UiMaterialHandle::hash(Self) -> Int
+pub fn UiMaterialHandle::hash_combine(Self, Hasher) -> Unit
+pub fn UiMaterialHandle::not_equal(Self, Self) -> Bool
+pub fn UiMaterialHandle::to_repr(Self) -> @debug.Repr
 
 pub(all) enum UiNavigationDirection {
   Up
@@ -634,6 +744,9 @@ pub(all) enum UiNavigationDirection {
   Activate
   Cancel
 } derive(Eq, @debug.Debug)
+pub fn UiNavigationDirection::equal(Self, Self) -> Bool
+pub fn UiNavigationDirection::not_equal(Self, Self) -> Bool
+pub fn UiNavigationDirection::to_repr(Self) -> @debug.Repr
 
 pub(all) struct UiNavigationEvent {
   entity : @entity.Entity?
@@ -668,32 +781,46 @@ pub(all) struct UiRectValues {
 } derive(Eq, @debug.Debug)
 pub fn UiRectValues::UiRectValues(left? : Val, right? : Val, top? : Val, bottom? : Val) -> Self
 pub fn UiRectValues::all(Double) -> Self
+pub fn UiRectValues::equal(Self, Self) -> Bool
+pub fn UiRectValues::not_equal(Self, Self) -> Bool
 pub fn UiRectValues::px(left? : Double, right? : Double, top? : Double, bottom? : Double) -> Self
+pub fn UiRectValues::to_repr(Self) -> @debug.Repr
 
 pub(all) enum UiScaleMode {
   Screen
   Viewport
 } derive(Eq, @debug.Debug)
+pub fn UiScaleMode::equal(Self, Self) -> Bool
+pub fn UiScaleMode::not_equal(Self, Self) -> Bool
+pub fn UiScaleMode::to_repr(Self) -> @debug.Repr
 
 pub(all) struct UiTargetCamera {
   camera : @entity.Entity
 } derive(Eq, @debug.Debug)
 pub fn UiTargetCamera::UiTargetCamera(@entity.Entity) -> Self
+pub fn UiTargetCamera::equal(Self, Self) -> Bool
+pub fn UiTargetCamera::not_equal(Self, Self) -> Bool
+pub fn UiTargetCamera::to_repr(Self) -> @debug.Repr
 
 pub(all) enum Val {
   Auto
   Px(Double)
   Percent(Double)
 } derive(Eq, @debug.Debug)
+pub fn Val::equal(Self, Self) -> Bool
+pub fn Val::not_equal(Self, Self) -> Bool
 pub fn Val::percent(Double) -> Self
 pub fn Val::px(Double) -> Self
+pub fn Val::to_repr(Self) -> @debug.Repr
 
 pub(all) struct ZIndex {
   value : Int
 } derive(Eq, @debug.Debug)
 pub fn ZIndex::ZIndex(Int) -> Self
+pub fn ZIndex::equal(Self, Self) -> Bool
+pub fn ZIndex::not_equal(Self, Self) -> Bool
+pub fn ZIndex::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 
 // Traits
-

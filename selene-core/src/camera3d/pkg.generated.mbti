@@ -40,4 +40,3 @@ pub fn Camera3DComponent::default() -> Self
 // Type aliases
 
 // Traits
-

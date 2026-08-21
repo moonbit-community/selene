@@ -38,6 +38,9 @@ pub(all) enum StickMode {
   Fixed
   Floating
 } derive(Eq, @debug.Debug)
+pub fn StickMode::equal(Self, Self) -> Bool
+pub fn StickMode::not_equal(Self, Self) -> Bool
+pub fn StickMode::to_repr(Self) -> @debug.Repr
 
 pub(all) struct TouchControlStyle {
   base_color : @render.Color
@@ -54,6 +57,9 @@ pub(all) enum TouchPlacement {
   TopRight
   Anchor(Double, Double, @math.Vec2)
 } derive(Eq, @debug.Debug)
+pub fn TouchPlacement::equal(Self, Self) -> Bool
+pub fn TouchPlacement::not_equal(Self, Self) -> Bool
+pub fn TouchPlacement::to_repr(Self) -> @debug.Repr
 
 pub(all) struct VirtualButtonControl {
   id : String
@@ -80,4 +86,3 @@ pub fn VirtualStick::VirtualStick(String, @inputs.VirtualAxis, @inputs.VirtualAx
 // Type aliases
 
 // Traits
-

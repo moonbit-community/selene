@@ -31,4 +31,3 @@ pub fn[T] Commands::trigger(Self, @event.Events[T], T, @entity.Entity?) -> Unit
 // Type aliases
 
 // Traits
-

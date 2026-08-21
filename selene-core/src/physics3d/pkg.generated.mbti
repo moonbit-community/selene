@@ -113,6 +113,9 @@ pub fn AdditionalMassProperties::mass_properties(@core.MassProperties3) -> Self
 
 pub(all) struct Ccd {
 } derive(Eq, @debug.Debug)
+pub fn Ccd::equal(Self, Self) -> Bool
+pub fn Ccd::not_equal(Self, Self) -> Bool
+pub fn Ccd::to_repr(Self) -> @debug.Repr
 
 pub(all) enum Collider {
   Cuboid(@math.Vec3)
@@ -136,15 +139,21 @@ pub fn Collider::cone(Double, Double) -> Self
 pub fn Collider::convex_hull(Array[@math.Vec3]) -> Self
 pub fn Collider::cuboid(@math.Vec3) -> Self
 pub fn Collider::cylinder(Double, Double) -> Self
+pub fn Collider::equal(Self, Self) -> Bool
 pub fn Collider::halfspace(@math.Vec3) -> Self
 pub fn Collider::heightfield(Array[Double], Int, Int, @math.Vec3) -> Self
+pub fn Collider::not_equal(Self, Self) -> Bool
 pub fn Collider::round_cylinder(Double, Double, Double) -> Self
+pub fn Collider::to_repr(Self) -> @debug.Repr
 pub fn Collider::trimesh(Array[@math.Vec3], Array[(Int, Int, Int)]) -> Self
 
 pub(all) enum ColliderMassProperties {
   Density(Double)
 } derive(Eq, @debug.Debug)
 pub fn ColliderMassProperties::density(Double) -> Self
+pub fn ColliderMassProperties::equal(Self, Self) -> Bool
+pub fn ColliderMassProperties::not_equal(Self, Self) -> Bool
+pub fn ColliderMassProperties::to_repr(Self) -> @debug.Repr
 
 pub(all) struct CollisionEvent {
   entity_a : @entity.Entity
@@ -154,6 +163,9 @@ pub(all) struct CollisionEvent {
   sensor : Bool
   normal : @math.Vec3
 } derive(Eq, @debug.Debug)
+pub fn CollisionEvent::equal(Self, Self) -> Bool
+pub fn CollisionEvent::not_equal(Self, Self) -> Bool
+pub fn CollisionEvent::to_repr(Self) -> @debug.Repr
 
 pub(all) struct CollisionGroups {
   memberships : Int
@@ -161,6 +173,9 @@ pub(all) struct CollisionGroups {
 } derive(Eq, @debug.Debug)
 pub fn CollisionGroups::CollisionGroups(Int, Int) -> Self
 pub fn CollisionGroups::all() -> Self
+pub fn CollisionGroups::equal(Self, Self) -> Bool
+pub fn CollisionGroups::not_equal(Self, Self) -> Bool
+pub fn CollisionGroups::to_repr(Self) -> @debug.Repr
 
 pub(all) struct ContactForceEvent {
   entity_a : @entity.Entity
@@ -170,17 +185,29 @@ pub(all) struct ContactForceEvent {
   max_force_direction : @math.Vec3
   max_force_magnitude : Double
 } derive(Eq, @debug.Debug)
+pub fn ContactForceEvent::equal(Self, Self) -> Bool
+pub fn ContactForceEvent::not_equal(Self, Self) -> Bool
+pub fn ContactForceEvent::to_repr(Self) -> @debug.Repr
 
 pub(all) struct ContactForceEventThreshold(Double) derive(Eq, @debug.Debug)
 pub fn ContactForceEventThreshold::default() -> Self
+pub fn ContactForceEventThreshold::equal(Self, Self) -> Bool
+pub fn ContactForceEventThreshold::not_equal(Self, Self) -> Bool
+pub fn ContactForceEventThreshold::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Damping {
   linear_damping : Double
   angular_damping : Double
 } derive(Eq, @debug.Debug)
 pub fn Damping::default() -> Self
+pub fn Damping::equal(Self, Self) -> Bool
+pub fn Damping::not_equal(Self, Self) -> Bool
+pub fn Damping::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Dominance(Int) derive(Eq, @debug.Debug)
+pub fn Dominance::equal(Self, Self) -> Bool
+pub fn Dominance::not_equal(Self, Self) -> Bool
+pub fn Dominance::to_repr(Self) -> @debug.Repr
 
 pub(all) struct FixedJoint {
   local_anchor1 : @math.Vec3
@@ -189,11 +216,20 @@ pub(all) struct FixedJoint {
   local_basis2 : @math.Quat
 } derive(Eq, @debug.Debug)
 pub fn FixedJoint::FixedJoint() -> Self
+pub fn FixedJoint::equal(Self, Self) -> Bool
+pub fn FixedJoint::not_equal(Self, Self) -> Bool
+pub fn FixedJoint::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Friction(Double) derive(Eq, @debug.Debug)
+pub fn Friction::equal(Self, Self) -> Bool
+pub fn Friction::not_equal(Self, Self) -> Bool
+pub fn Friction::to_repr(Self) -> @debug.Repr
 
 pub(all) struct GravityScale(Double) derive(Eq, @debug.Debug)
 pub fn GravityScale::default() -> Self
+pub fn GravityScale::equal(Self, Self) -> Bool
+pub fn GravityScale::not_equal(Self, Self) -> Bool
+pub fn GravityScale::to_repr(Self) -> @debug.Repr
 
 pub(all) struct ImpulseJoint {
   parent : @entity.Entity
@@ -231,11 +267,17 @@ pub(all) struct KinematicCharacterControllerCollision {
   toi : Double
   normal : @math.Vec3
 } derive(Eq, @debug.Debug)
+pub fn KinematicCharacterControllerCollision::equal(Self, Self) -> Bool
+pub fn KinematicCharacterControllerCollision::not_equal(Self, Self) -> Bool
+pub fn KinematicCharacterControllerCollision::to_repr(Self) -> @debug.Repr
 
 pub(all) struct KinematicCharacterControllerCollisions {
   collisions : Array[KinematicCharacterControllerCollision]
 } derive(Eq, @debug.Debug)
 pub fn KinematicCharacterControllerCollisions::empty() -> Self
+pub fn KinematicCharacterControllerCollisions::equal(Self, Self) -> Bool
+pub fn KinematicCharacterControllerCollisions::not_equal(Self, Self) -> Bool
+pub fn KinematicCharacterControllerCollisions::to_repr(Self) -> @debug.Repr
 
 pub(all) struct KinematicCharacterControllerOutput {
   desired_translation : @math.Vec3
@@ -243,6 +285,9 @@ pub(all) struct KinematicCharacterControllerOutput {
   grounded : Bool
   is_sliding_down_slope : Bool
 } derive(Eq, @debug.Debug)
+pub fn KinematicCharacterControllerOutput::equal(Self, Self) -> Bool
+pub fn KinematicCharacterControllerOutput::not_equal(Self, Self) -> Bool
+pub fn KinematicCharacterControllerOutput::to_repr(Self) -> @debug.Repr
 
 pub(all) struct LockedAxes {
   lock_translation_x : Bool
@@ -253,8 +298,11 @@ pub(all) struct LockedAxes {
   lock_rotation_z : Bool
 } derive(Eq, @debug.Debug)
 pub fn LockedAxes::default() -> Self
+pub fn LockedAxes::equal(Self, Self) -> Bool
 pub fn LockedAxes::lock_rotations() -> Self
 pub fn LockedAxes::lock_translations() -> Self
+pub fn LockedAxes::not_equal(Self, Self) -> Bool
+pub fn LockedAxes::to_repr(Self) -> @debug.Repr
 
 pub(all) struct MultibodyJoint {
   parent : @entity.Entity
@@ -271,6 +319,9 @@ pub(all) struct PointProjection {
   point : @math.Vec3
   is_inside : Bool
 } derive(Eq, @debug.Debug)
+pub fn PointProjection::equal(Self, Self) -> Bool
+pub fn PointProjection::not_equal(Self, Self) -> Bool
+pub fn PointProjection::to_repr(Self) -> @debug.Repr
 
 pub(all) struct PrismaticJoint {
   local_anchor1 : @math.Vec3
@@ -282,6 +333,9 @@ pub(all) struct PrismaticJoint {
   max_force : Double?
 } derive(Eq, @debug.Debug)
 pub fn PrismaticJoint::PrismaticJoint(@math.Vec3) -> Self
+pub fn PrismaticJoint::equal(Self, Self) -> Bool
+pub fn PrismaticJoint::not_equal(Self, Self) -> Bool
+pub fn PrismaticJoint::to_repr(Self) -> @debug.Repr
 
 pub(all) struct QueryFilter {
   groups : CollisionGroups?
@@ -304,6 +358,9 @@ pub(all) enum QueryFilterBody {
   Fixed
   Kinematic
 } derive(Eq, @debug.Debug)
+pub fn QueryFilterBody::equal(Self, Self) -> Bool
+pub fn QueryFilterBody::not_equal(Self, Self) -> Bool
+pub fn QueryFilterBody::to_repr(Self) -> @debug.Repr
 
 pub(all) struct RapierContext {
 }
@@ -318,8 +375,14 @@ pub(all) struct RaycastHit {
   toi : Double
   normal : @math.Vec3
 } derive(Eq, @debug.Debug)
+pub fn RaycastHit::equal(Self, Self) -> Bool
+pub fn RaycastHit::not_equal(Self, Self) -> Bool
+pub fn RaycastHit::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Restitution(Double) derive(Eq, @debug.Debug)
+pub fn Restitution::equal(Self, Self) -> Bool
+pub fn Restitution::not_equal(Self, Self) -> Bool
+pub fn Restitution::to_repr(Self) -> @debug.Repr
 
 pub(all) struct RevoluteJoint {
   local_anchor1 : @math.Vec3
@@ -340,6 +403,9 @@ pub(all) enum RigidBody {
   KinematicPositionBased
   KinematicVelocityBased
 } derive(Eq, @debug.Debug)
+pub fn RigidBody::equal(Self, Self) -> Bool
+pub fn RigidBody::not_equal(Self, Self) -> Bool
+pub fn RigidBody::to_repr(Self) -> @debug.Repr
 
 pub(all) struct RopeJoint {
   local_anchor1 : @math.Vec3
@@ -347,21 +413,33 @@ pub(all) struct RopeJoint {
   max_distance : Double
 } derive(Eq, @debug.Debug)
 pub fn RopeJoint::RopeJoint(Double) -> Self
+pub fn RopeJoint::equal(Self, Self) -> Bool
+pub fn RopeJoint::not_equal(Self, Self) -> Bool
+pub fn RopeJoint::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Sensor {
 } derive(Eq, @debug.Debug)
+pub fn Sensor::equal(Self, Self) -> Bool
+pub fn Sensor::not_equal(Self, Self) -> Bool
+pub fn Sensor::to_repr(Self) -> @debug.Repr
 
 pub(all) struct SensorEvent {
   sensor : @entity.Entity
   other : @entity.Entity
   entered : Bool
 } derive(Eq, @debug.Debug)
+pub fn SensorEvent::equal(Self, Self) -> Bool
+pub fn SensorEvent::not_equal(Self, Self) -> Bool
+pub fn SensorEvent::to_repr(Self) -> @debug.Repr
 
 pub(all) struct ShapeCastHit {
   entity : @entity.Entity
   toi : Double
   normal : @math.Vec3
 } derive(Eq, @debug.Debug)
+pub fn ShapeCastHit::equal(Self, Self) -> Bool
+pub fn ShapeCastHit::not_equal(Self, Self) -> Bool
+pub fn ShapeCastHit::to_repr(Self) -> @debug.Repr
 
 pub(all) struct SolverGroups {
   memberships : Int
@@ -369,6 +447,9 @@ pub(all) struct SolverGroups {
 } derive(Eq, @debug.Debug)
 pub fn SolverGroups::SolverGroups(Int, Int) -> Self
 pub fn SolverGroups::all() -> Self
+pub fn SolverGroups::equal(Self, Self) -> Bool
+pub fn SolverGroups::not_equal(Self, Self) -> Bool
+pub fn SolverGroups::to_repr(Self) -> @debug.Repr
 
 pub(all) struct SphericalJoint {
   local_anchor1 : @math.Vec3
@@ -376,6 +457,9 @@ pub(all) struct SphericalJoint {
   motor_target : (@math.Quat, Double, Double)?
 } derive(Eq, @debug.Debug)
 pub fn SphericalJoint::SphericalJoint() -> Self
+pub fn SphericalJoint::equal(Self, Self) -> Bool
+pub fn SphericalJoint::not_equal(Self, Self) -> Bool
+pub fn SphericalJoint::to_repr(Self) -> @debug.Repr
 
 pub(all) struct SpringJoint {
   local_anchor1 : @math.Vec3
@@ -385,11 +469,17 @@ pub(all) struct SpringJoint {
   damping : Double
 } derive(Eq, @debug.Debug)
 pub fn SpringJoint::SpringJoint(Double, Double, Double) -> Self
+pub fn SpringJoint::equal(Self, Self) -> Bool
+pub fn SpringJoint::not_equal(Self, Self) -> Bool
+pub fn SpringJoint::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Velocity {
   linvel : @math.Vec3
   angvel : @math.Vec3
 } derive(Eq, @debug.Debug)
+pub fn Velocity::equal(Self, Self) -> Bool
+pub fn Velocity::not_equal(Self, Self) -> Bool
+pub fn Velocity::to_repr(Self) -> @debug.Repr
 pub fn Velocity::zero() -> Self
 
 // Type aliases
@@ -412,4 +502,3 @@ pub using @dynamics {type MultibodyJointHandle as RapierMultibodyJointHandle}
 pub using @dynamics {type RigidBodyHandle as RapierRigidBodyHandle}
 
 // Traits
-

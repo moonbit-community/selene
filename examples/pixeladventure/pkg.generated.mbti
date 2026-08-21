@@ -23,4 +23,3 @@ pub fn with_pixeladventure_test_asset_io(() -> Unit raise) -> Unit raise
 // Type aliases
 
 // Traits
-

@@ -59,6 +59,9 @@ pub(all) struct AssetEvent[T] {
   handle : T
   kind : AssetEventKind
 } derive(Eq, @debug.Debug)
+pub fn[T : Eq] AssetEvent::equal(Self[T], Self[T]) -> Bool
+pub fn[T : Eq] AssetEvent::not_equal(Self[T], Self[T]) -> Bool
+pub fn[T : @debug.Debug] AssetEvent::to_repr(Self[T]) -> @debug.Repr
 
 pub(all) enum AssetEventKind {
   Added
@@ -67,6 +70,9 @@ pub(all) enum AssetEventKind {
   Loaded
   Failed(String)
 } derive(Eq, @debug.Debug)
+pub fn AssetEventKind::equal(Self, Self) -> Bool
+pub fn AssetEventKind::not_equal(Self, Self) -> Bool
+pub fn AssetEventKind::to_repr(Self) -> @debug.Repr
 
 pub(all) enum LoadState {
   NotLoaded
@@ -74,6 +80,9 @@ pub(all) enum LoadState {
   Loaded
   Failed(String)
 } derive(Eq, @debug.Debug)
+pub fn LoadState::equal(Self, Self) -> Bool
+pub fn LoadState::not_equal(Self, Self) -> Bool
+pub fn LoadState::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 pub using @asset_types {type AudioHandle}
@@ -83,4 +92,3 @@ pub using @asset_types {type FontHandle}
 pub using @asset_types {type ImageHandle}
 
 // Traits
-

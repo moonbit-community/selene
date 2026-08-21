@@ -34,12 +34,18 @@ pub(all) struct ActionEvent {
   kind : ActionEventKind
   value : Double
 } derive(Eq, @debug.Debug)
+pub fn ActionEvent::equal(Self, Self) -> Bool
+pub fn ActionEvent::not_equal(Self, Self) -> Bool
+pub fn ActionEvent::to_repr(Self) -> @debug.Repr
 
 pub(all) enum ActionEventKind {
   Pressed
   Released
   ValueChanged
 } derive(Eq, @debug.Debug)
+pub fn ActionEventKind::equal(Self, Self) -> Bool
+pub fn ActionEventKind::not_equal(Self, Self) -> Bool
+pub fn ActionEventKind::to_repr(Self) -> @debug.Repr
 
 pub(all) struct ActionState {
   mut pressed : Bool
@@ -47,11 +53,19 @@ pub(all) struct ActionState {
   mut just_released : Bool
   mut value : Double
 } derive(Eq, @debug.Debug)
+pub fn ActionState::equal(Self, Self) -> Bool
+pub fn ActionState::not_equal(Self, Self) -> Bool
+pub fn ActionState::to_repr(Self) -> @debug.Repr
 
 pub(all) struct InputAction {
   name : String
 } derive(Eq, Hash, @debug.Debug)
 pub fn InputAction::InputAction(String) -> Self
+pub fn InputAction::equal(Self, Self) -> Bool
+pub fn InputAction::hash(Self) -> Int
+pub fn InputAction::hash_combine(Self, Hasher) -> Unit
+pub fn InputAction::not_equal(Self, Self) -> Bool
+pub fn InputAction::to_repr(Self) -> @debug.Repr
 
 pub(all) enum InputBinding {
   Key(@inputs.Code)
@@ -66,4 +80,3 @@ pub(all) enum InputBinding {
 // Type aliases
 
 // Traits
-

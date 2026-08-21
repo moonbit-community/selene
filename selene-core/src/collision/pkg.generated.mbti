@@ -112,6 +112,8 @@ pub(all) struct Area {
   mut contains : @set.Set[@entity.Entity]
 } derive(Eq)
 pub fn Area::Area(CollisionFilter) -> Self
+pub fn Area::equal(Self, Self) -> Bool
+pub fn Area::not_equal(Self, Self) -> Bool
 
 pub(all) struct Collider {
   mut active : Bool
@@ -120,6 +122,8 @@ pub(all) struct Collider {
   mut restitution : Double
 } derive(Eq)
 pub fn Collider::Collider(CollisionFilter) -> Self
+pub fn Collider::equal(Self, Self) -> Bool
+pub fn Collider::not_equal(Self, Self) -> Bool
 pub fn Collider::with_material(CollisionFilter, friction? : Double, restitution? : Double, active? : Bool) -> Self
 
 pub struct CollisionFilter {
@@ -130,11 +134,15 @@ pub struct CollisionFilter {
 pub fn CollisionFilter::CollisionFilter(CollisionGroup, Array[CollisionGroup]) -> Self
 pub fn CollisionFilter::all(CollisionGroup) -> Self
 pub fn CollisionFilter::empty(CollisionGroup) -> Self
+pub fn CollisionFilter::equal(Self, Self) -> Bool
+pub fn CollisionFilter::not_equal(Self, Self) -> Bool
 
 pub struct CollisionGroup {
   value : UInt
 } derive(Eq)
 pub fn CollisionGroup::CollisionGroup() -> Self
+pub fn CollisionGroup::equal(Self, Self) -> Bool
+pub fn CollisionGroup::not_equal(Self, Self) -> Bool
 
 pub(all) enum CollisionShape {
   Rect(size~ : @math.Vec2, offset~ : @math.Vec2)
@@ -142,6 +150,9 @@ pub(all) enum CollisionShape {
   Polygon(points~ : Array[@math.Vec2], offset~ : @math.Vec2)
   Polyline(points~ : Array[@math.Vec2], offset~ : @math.Vec2, closed~ : Bool)
 } derive(Eq, @debug.Debug)
+pub fn CollisionShape::equal(Self, Self) -> Bool
+pub fn CollisionShape::not_equal(Self, Self) -> Bool
+pub fn CollisionShape::to_repr(Self) -> @debug.Repr
 
 pub struct ContactEvent {
   entity : @entity.Entity
@@ -157,11 +168,14 @@ pub struct Joint {
   active : Bool
   contacts_enabled : Bool
 } derive(Eq, @debug.Debug)
+pub fn Joint::equal(Self, Self) -> Bool
 pub fn Joint::fixed(@entity.Entity, @entity.Entity, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, active? : Bool, contacts_enabled? : Bool) -> Self
+pub fn Joint::not_equal(Self, Self) -> Bool
 pub fn Joint::prismatic(@entity.Entity, @entity.Entity, @math.Vec2, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, limits? : JointLimits, active? : Bool, contacts_enabled? : Bool) -> Self
 pub fn Joint::revolute(@entity.Entity, @entity.Entity, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, limits? : JointLimits, motor? : JointMotor, softness? : JointSoftness, active? : Bool, contacts_enabled? : Bool) -> Self
 pub fn Joint::rope(@entity.Entity, @entity.Entity, Double, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, active? : Bool, contacts_enabled? : Bool) -> Self
 pub fn Joint::spring(@entity.Entity, @entity.Entity, Double, Double, Double, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, model? : JointMotorModel, active? : Bool, contacts_enabled? : Bool) -> Self
+pub fn Joint::to_repr(Self) -> @debug.Repr
 
 pub enum JointKind {
   Fixed(local_anchor1~ : @math.Vec2, local_anchor2~ : @math.Vec2)
@@ -170,18 +184,27 @@ pub enum JointKind {
   Rope(max_distance~ : Double, local_anchor1~ : @math.Vec2, local_anchor2~ : @math.Vec2)
   Spring(rest_length~ : Double, stiffness~ : Double, damping~ : Double, local_anchor1~ : @math.Vec2, local_anchor2~ : @math.Vec2, model~ : JointMotorModel)
 } derive(Eq, @debug.Debug)
+pub fn JointKind::equal(Self, Self) -> Bool
+pub fn JointKind::not_equal(Self, Self) -> Bool
+pub fn JointKind::to_repr(Self) -> @debug.Repr
 
 pub struct JointLimits {
   min : Double
   max : Double
 } derive(Eq, @debug.Debug)
 pub fn JointLimits::JointLimits(Double, Double) -> Self
+pub fn JointLimits::equal(Self, Self) -> Bool
+pub fn JointLimits::not_equal(Self, Self) -> Bool
+pub fn JointLimits::to_repr(Self) -> @debug.Repr
 
 pub enum JointMotor {
   Position(target_position~ : Double, stiffness~ : Double, damping~ : Double, max_force~ : Double?, model~ : JointMotorModel)
   Velocity(target_velocity~ : Double, damping~ : Double, max_force~ : Double?, model~ : JointMotorModel)
 } derive(Eq, @debug.Debug)
+pub fn JointMotor::equal(Self, Self) -> Bool
+pub fn JointMotor::not_equal(Self, Self) -> Bool
 pub fn JointMotor::position(Double, Double, Double, max_force? : Double, model? : JointMotorModel) -> Self
+pub fn JointMotor::to_repr(Self) -> @debug.Repr
 pub fn JointMotor::velocity(Double, Double, max_force? : Double, model? : JointMotorModel) -> Self
 
 pub enum JointMotorModel {
@@ -189,24 +212,36 @@ pub enum JointMotorModel {
   ForceBased
 } derive(Eq, @debug.Debug)
 pub fn JointMotorModel::acceleration_based() -> Self
+pub fn JointMotorModel::equal(Self, Self) -> Bool
 pub fn JointMotorModel::force_based() -> Self
+pub fn JointMotorModel::not_equal(Self, Self) -> Bool
+pub fn JointMotorModel::to_repr(Self) -> @debug.Repr
 
 pub struct JointSoftness {
   damping_ratio : Double
   natural_frequency : Double
 } derive(Eq, @debug.Debug)
 pub fn JointSoftness::JointSoftness(Double, Double) -> Self
+pub fn JointSoftness::equal(Self, Self) -> Bool
+pub fn JointSoftness::not_equal(Self, Self) -> Bool
+pub fn JointSoftness::to_repr(Self) -> @debug.Repr
 
 pub struct MultibodyJoint {
   parent : @entity.Entity
   kind : MultibodyJointKind
   active : Bool
 } derive(Eq, @debug.Debug)
+pub fn MultibodyJoint::equal(Self, Self) -> Bool
+pub fn MultibodyJoint::not_equal(Self, Self) -> Bool
 pub fn MultibodyJoint::revolute(@entity.Entity, local_anchor1? : @math.Vec2, local_anchor2? : @math.Vec2, limits? : JointLimits, motor? : JointMotor, softness? : JointSoftness, active? : Bool) -> Self
+pub fn MultibodyJoint::to_repr(Self) -> @debug.Repr
 
 pub enum MultibodyJointKind {
   Revolute(local_anchor1~ : @math.Vec2, local_anchor2~ : @math.Vec2, limits~ : JointLimits?, motor~ : JointMotor?, softness~ : JointSoftness?)
 } derive(Eq, @debug.Debug)
+pub fn MultibodyJointKind::equal(Self, Self) -> Bool
+pub fn MultibodyJointKind::not_equal(Self, Self) -> Bool
+pub fn MultibodyJointKind::to_repr(Self) -> @debug.Repr
 
 pub(all) struct PhysicsConfig {
   mut gravity : @math.Vec2
@@ -231,6 +266,8 @@ pub(all) enum PointerPhase {
   JustPressed
   JustReleased
 } derive(Eq)
+pub fn PointerPhase::equal(Self, Self) -> Bool
+pub fn PointerPhase::not_equal(Self, Self) -> Bool
 
 pub struct RaycastHit {
   entity : @entity.Entity
@@ -238,6 +275,9 @@ pub struct RaycastHit {
   point : @math.Vec2
   normal : @math.Vec2
 } derive(Eq, @debug.Debug)
+pub fn RaycastHit::equal(Self, Self) -> Bool
+pub fn RaycastHit::not_equal(Self, Self) -> Bool
+pub fn RaycastHit::to_repr(Self) -> @debug.Repr
 
 pub(all) struct RigidBody {
   body_type : RigidBodyType
@@ -248,9 +288,12 @@ pub(all) struct RigidBody {
   lock_rotation : Bool
 } derive(Eq, @debug.Debug)
 pub fn RigidBody::dynamic() -> Self
+pub fn RigidBody::equal(Self, Self) -> Bool
 pub fn RigidBody::fixed() -> Self
 pub fn RigidBody::kinematic_position_based() -> Self
 pub fn RigidBody::kinematic_velocity_based() -> Self
+pub fn RigidBody::not_equal(Self, Self) -> Bool
+pub fn RigidBody::to_repr(Self) -> @debug.Repr
 
 pub(all) enum RigidBodyType {
   Dynamic
@@ -258,6 +301,9 @@ pub(all) enum RigidBodyType {
   KinematicPositionBased
   KinematicVelocityBased
 } derive(Eq, @debug.Debug)
+pub fn RigidBodyType::equal(Self, Self) -> Bool
+pub fn RigidBodyType::not_equal(Self, Self) -> Bool
+pub fn RigidBodyType::to_repr(Self) -> @debug.Repr
 
 pub struct ShapeCastHit {
   entity : @entity.Entity
@@ -265,6 +311,9 @@ pub struct ShapeCastHit {
   point : @math.Vec2
   normal : @math.Vec2
 } derive(Eq, @debug.Debug)
+pub fn ShapeCastHit::equal(Self, Self) -> Bool
+pub fn ShapeCastHit::not_equal(Self, Self) -> Bool
+pub fn ShapeCastHit::to_repr(Self) -> @debug.Repr
 
 pub enum SpatialQueryBodyFilter {
   All
@@ -272,6 +321,8 @@ pub enum SpatialQueryBodyFilter {
   Fixed
   Kinematic
 } derive(Eq)
+pub fn SpatialQueryBodyFilter::equal(Self, Self) -> Bool
+pub fn SpatialQueryBodyFilter::not_equal(Self, Self) -> Bool
 
 pub struct SpatialQueryFilter {
   groups : CollisionFilter?
@@ -281,6 +332,8 @@ pub struct SpatialQueryFilter {
   body_filter : SpatialQueryBodyFilter
 } derive(Eq)
 pub fn SpatialQueryFilter::default() -> Self
+pub fn SpatialQueryFilter::equal(Self, Self) -> Bool
+pub fn SpatialQueryFilter::not_equal(Self, Self) -> Bool
 pub fn SpatialQueryFilter::only_dynamic() -> Self
 pub fn SpatialQueryFilter::only_fixed() -> Self
 pub fn SpatialQueryFilter::only_kinematic() -> Self
@@ -303,4 +356,3 @@ pub using @dynamics {type MultibodyLinkId}
 pub using @dynamics {type RigidBodyHandle}
 
 // Traits
-

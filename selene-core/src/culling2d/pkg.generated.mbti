@@ -37,4 +37,3 @@ pub(all) struct SpatialGridEntry2d {
 // Type aliases
 
 // Traits
-

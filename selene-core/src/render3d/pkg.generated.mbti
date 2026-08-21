@@ -140,6 +140,9 @@ pub(all) struct Mesh3DRenderer {
   mut cast_shadows : Bool
   mut receive_shadows : Bool
 } derive(Eq, @debug.Debug)
+pub fn Mesh3DRenderer::equal(Self, Self) -> Bool
+pub fn Mesh3DRenderer::not_equal(Self, Self) -> Bool
+pub fn Mesh3DRenderer::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 pub using @render3d_types {type AlphaMode3D}
@@ -209,4 +212,3 @@ pub using @render3d_types {type TextureWrap3D}
 pub using @render3d_types {type TriangleTopology3D}
 
 // Traits
-

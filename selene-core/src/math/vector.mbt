@@ -57,7 +57,8 @@ pub impl Default for Vec2 with fn default() -> Vec2 {
 }
 
 ///|
-pub fn Vec2::op_get(this : Vec2, axis : Axis) -> Double {
+#alias("_[_]")
+pub fn Vec2::get(this : Vec2, axis : Axis) -> Double {
   match axis {
     X => this.0
     Y => this.1

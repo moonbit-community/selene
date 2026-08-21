@@ -129,6 +129,11 @@ pub(all) struct AnimatedField {
 }
 
 pub(all) struct AnimatedFieldHandle(UInt) derive(Eq, Hash, @debug.Debug)
+pub fn AnimatedFieldHandle::equal(Self, Self) -> Bool
+pub fn AnimatedFieldHandle::hash(Self) -> Int
+pub fn AnimatedFieldHandle::hash_combine(Self, Hasher) -> Unit
+pub fn AnimatedFieldHandle::not_equal(Self, Self) -> Bool
+pub fn AnimatedFieldHandle::to_repr(Self) -> @debug.Repr
 
 pub(all) enum AnimatedValue {
   Scalar(Double)
@@ -150,14 +155,25 @@ pub fn AnimationClip::add_event(Self, Double, AnimationEventDescriptorHandle, di
 pub(all) struct AnimationClipEventDispatch {
   target : AnimationTargetId?
 } derive(Eq, @debug.Debug)
+pub fn AnimationClipEventDispatch::equal(Self, Self) -> Bool
+pub fn AnimationClipEventDispatch::not_equal(Self, Self) -> Bool
+pub fn AnimationClipEventDispatch::to_repr(Self) -> @debug.Repr
 
 pub(all) struct AnimationClipEventKeyframe {
   time : Double
   descriptor : AnimationEventDescriptorHandle
   dispatch : AnimationClipEventDispatch
 } derive(Eq, @debug.Debug)
+pub fn AnimationClipEventKeyframe::equal(Self, Self) -> Bool
+pub fn AnimationClipEventKeyframe::not_equal(Self, Self) -> Bool
+pub fn AnimationClipEventKeyframe::to_repr(Self) -> @debug.Repr
 
 pub(all) struct AnimationClipHandle(UInt) derive(Eq, Hash, @debug.Debug)
+pub fn AnimationClipHandle::equal(Self, Self) -> Bool
+pub fn AnimationClipHandle::hash(Self) -> Int
+pub fn AnimationClipHandle::hash_combine(Self, Hasher) -> Unit
+pub fn AnimationClipHandle::not_equal(Self, Self) -> Bool
+pub fn AnimationClipHandle::to_repr(Self) -> @debug.Repr
 
 pub(all) struct AnimationEventContext {
   clip : AnimationClipHandle
@@ -165,8 +181,16 @@ pub(all) struct AnimationEventContext {
   target : @entity.Entity?
   time : Double
 } derive(Eq, @debug.Debug)
+pub fn AnimationEventContext::equal(Self, Self) -> Bool
+pub fn AnimationEventContext::not_equal(Self, Self) -> Bool
+pub fn AnimationEventContext::to_repr(Self) -> @debug.Repr
 
 pub(all) struct AnimationEventDescriptorHandle(UInt) derive(Eq, Hash, @debug.Debug)
+pub fn AnimationEventDescriptorHandle::equal(Self, Self) -> Bool
+pub fn AnimationEventDescriptorHandle::hash(Self) -> Int
+pub fn AnimationEventDescriptorHandle::hash_combine(Self, Hasher) -> Unit
+pub fn AnimationEventDescriptorHandle::not_equal(Self, Self) -> Bool
+pub fn AnimationEventDescriptorHandle::to_repr(Self) -> @debug.Repr
 
 pub(all) struct AnimationGraph {
   root : AnimationNodeIndex
@@ -193,6 +217,11 @@ pub(all) struct AnimationGraphEdge {
 }
 
 pub(all) struct AnimationGraphHandle(UInt) derive(Eq, Hash, @debug.Debug)
+pub fn AnimationGraphHandle::equal(Self, Self) -> Bool
+pub fn AnimationGraphHandle::hash(Self) -> Int
+pub fn AnimationGraphHandle::hash_combine(Self, Hasher) -> Unit
+pub fn AnimationGraphHandle::not_equal(Self, Self) -> Bool
+pub fn AnimationGraphHandle::to_repr(Self) -> @debug.Repr
 
 pub(all) struct AnimationGraphNode {
   node_type : AnimationGraphNodeType
@@ -207,6 +236,11 @@ pub(all) enum AnimationGraphNodeType {
 }
 
 pub(all) struct AnimationNodeIndex(UInt) derive(Eq, Hash, @debug.Debug)
+pub fn AnimationNodeIndex::equal(Self, Self) -> Bool
+pub fn AnimationNodeIndex::hash(Self) -> Int
+pub fn AnimationNodeIndex::hash_combine(Self, Hasher) -> Unit
+pub fn AnimationNodeIndex::not_equal(Self, Self) -> Bool
+pub fn AnimationNodeIndex::to_repr(Self) -> @debug.Repr
 
 pub(all) struct AnimationPlayer {
   active_animations : Map[AnimationNodeIndex, ActiveAnimation]
@@ -228,8 +262,13 @@ pub fn AnimationPlayer::stop(Self, AnimationNodeIndex) -> Self
 pub fn AnimationPlayer::stop_all(Self) -> Self
 
 pub(all) struct AnimationTargetId(String) derive(Eq, Hash, @debug.Debug)
+pub fn AnimationTargetId::equal(Self, Self) -> Bool
 pub fn AnimationTargetId::from_names(Array[String]) -> Self
+pub fn AnimationTargetId::hash(Self) -> Int
+pub fn AnimationTargetId::hash_combine(Self, Hasher) -> Unit
+pub fn AnimationTargetId::not_equal(Self, Self) -> Bool
 pub fn AnimationTargetId::path(Self) -> String
+pub fn AnimationTargetId::to_repr(Self) -> @debug.Repr
 
 pub(all) struct AnimationTransitions {
   mut main : AnimationNodeIndex?
@@ -245,12 +284,18 @@ pub(all) enum AnimationValueKind {
   Quat
   Weights
 } derive(Eq, @debug.Debug)
+pub fn AnimationValueKind::equal(Self, Self) -> Bool
+pub fn AnimationValueKind::not_equal(Self, Self) -> Bool
+pub fn AnimationValueKind::to_repr(Self) -> @debug.Repr
 
 pub(all) enum ChannelInterpolation {
   Step
   Linear
   CubicSpline
 } derive(Eq, @debug.Debug)
+pub fn ChannelInterpolation::equal(Self, Self) -> Bool
+pub fn ChannelInterpolation::not_equal(Self, Self) -> Bool
+pub fn ChannelInterpolation::to_repr(Self) -> @debug.Repr
 
 pub(all) struct MorphMeshBinding3D {
   target_entity : @entity.Entity
@@ -270,6 +315,9 @@ pub(all) struct MorphTargetBinding3D {
   position_deltas : Array[@math.Vec3]?
   normal_deltas : Array[@math.Vec3]?
 } derive(Eq, @debug.Debug)
+pub fn MorphTargetBinding3D::equal(Self, Self) -> Bool
+pub fn MorphTargetBinding3D::not_equal(Self, Self) -> Bool
+pub fn MorphTargetBinding3D::to_repr(Self) -> @debug.Repr
 
 pub(all) struct QuatKeyframe {
   time : Double
@@ -277,12 +325,18 @@ pub(all) struct QuatKeyframe {
   in_tangent : @math.Quat?
   out_tangent : @math.Quat?
 } derive(Eq, @debug.Debug)
+pub fn QuatKeyframe::equal(Self, Self) -> Bool
+pub fn QuatKeyframe::not_equal(Self, Self) -> Bool
+pub fn QuatKeyframe::to_repr(Self) -> @debug.Repr
 
 pub(all) enum RepeatAnimation {
   Never
   Forever
   Count(UInt)
 } derive(Eq, @debug.Debug)
+pub fn RepeatAnimation::equal(Self, Self) -> Bool
+pub fn RepeatAnimation::not_equal(Self, Self) -> Bool
+pub fn RepeatAnimation::to_repr(Self) -> @debug.Repr
 
 pub(all) struct ScalarKeyframe {
   time : Double
@@ -290,6 +344,9 @@ pub(all) struct ScalarKeyframe {
   in_tangent : Double?
   out_tangent : Double?
 } derive(Eq, @debug.Debug)
+pub fn ScalarKeyframe::equal(Self, Self) -> Bool
+pub fn ScalarKeyframe::not_equal(Self, Self) -> Bool
+pub fn ScalarKeyframe::to_repr(Self) -> @debug.Repr
 
 pub(all) struct SkinVertexInfluence3D {
   joint0 : Int
@@ -342,6 +399,9 @@ pub(all) struct Vec3Keyframe {
   in_tangent : @math.Vec3?
   out_tangent : @math.Vec3?
 } derive(Eq, @debug.Debug)
+pub fn Vec3Keyframe::equal(Self, Self) -> Bool
+pub fn Vec3Keyframe::not_equal(Self, Self) -> Bool
+pub fn Vec3Keyframe::to_repr(Self) -> @debug.Repr
 
 pub(all) struct WeightKeyframe {
   time : Double
@@ -349,8 +409,10 @@ pub(all) struct WeightKeyframe {
   in_tangent : Array[Double]?
   out_tangent : Array[Double]?
 } derive(Eq, @debug.Debug)
+pub fn WeightKeyframe::equal(Self, Self) -> Bool
+pub fn WeightKeyframe::not_equal(Self, Self) -> Bool
+pub fn WeightKeyframe::to_repr(Self) -> @debug.Repr
 
 // Type aliases
 
 // Traits
-

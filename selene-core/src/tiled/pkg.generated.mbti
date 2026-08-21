@@ -129,6 +129,8 @@ pub enum TiledColliderSourceKind {
   TilesLayer
   Object
 } derive(Eq)
+pub fn TiledColliderSourceKind::equal(Self, Self) -> Bool
+pub fn TiledColliderSourceKind::not_equal(Self, Self) -> Bool
 
 pub struct TiledColliderSpawnedEvent {
   collider_entity : @entity.Entity
@@ -528,4 +530,3 @@ pub struct TiledWorldSpawnedEvent {
 // Type aliases
 
 // Traits
-

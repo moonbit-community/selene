@@ -1,3 +1,7 @@
+import {
+  "moonbitlang/core/debug",
+}
+
 warnings = "-reserved_keyword"
 
 options(

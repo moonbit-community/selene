@@ -312,6 +312,11 @@ pub struct AnimationClipAssetDocument {
   frames : Array[String]
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 pub fn AnimationClipAssetDocument::default(String, String) -> Self
+pub fn AnimationClipAssetDocument::equal(Self, Self) -> Bool
+pub fn AnimationClipAssetDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AnimationClipAssetDocument::not_equal(Self, Self) -> Bool
+pub fn AnimationClipAssetDocument::to_json(Self) -> Json
+pub fn AnimationClipAssetDocument::to_repr(Self) -> @debug.Repr
 pub fn AnimationClipAssetDocument::with_atlas_asset_path(Self, String) -> Self
 pub fn AnimationClipAssetDocument::with_fps(Self, Double) -> Self
 pub fn AnimationClipAssetDocument::with_frames(Self, Array[String]) -> Self
@@ -322,12 +327,20 @@ pub enum AnimationClipAssetDocumentLoadStatus {
   Ready(AnimationClipAssetDocument)
   MigrationRequired(AnimationClipAssetMigrationPreview)
 } derive(Eq, ToJson, @json.FromJson)
+pub fn AnimationClipAssetDocumentLoadStatus::equal(Self, Self) -> Bool
+pub fn AnimationClipAssetDocumentLoadStatus::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AnimationClipAssetDocumentLoadStatus::not_equal(Self, Self) -> Bool
+pub fn AnimationClipAssetDocumentLoadStatus::to_json(Self) -> Json
 
 pub struct AnimationClipAssetMigrationPreview {
   path : String
   clip : AnimationClipAssetDocument
   changes : Array[MigrationFieldChange]
 } derive(Eq, ToJson, @json.FromJson)
+pub fn AnimationClipAssetMigrationPreview::equal(Self, Self) -> Bool
+pub fn AnimationClipAssetMigrationPreview::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AnimationClipAssetMigrationPreview::not_equal(Self, Self) -> Bool
+pub fn AnimationClipAssetMigrationPreview::to_json(Self) -> Json
 
 pub struct AnimationGraphAssetDocument {
   version : Int
@@ -336,6 +349,11 @@ pub struct AnimationGraphAssetDocument {
   default_node : String?
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 pub fn AnimationGraphAssetDocument::default(String, String) -> Self
+pub fn AnimationGraphAssetDocument::equal(Self, Self) -> Bool
+pub fn AnimationGraphAssetDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AnimationGraphAssetDocument::not_equal(Self, Self) -> Bool
+pub fn AnimationGraphAssetDocument::to_json(Self) -> Json
+pub fn AnimationGraphAssetDocument::to_repr(Self) -> @debug.Repr
 pub fn AnimationGraphAssetDocument::with_default_node(Self, String?) -> Self
 pub fn AnimationGraphAssetDocument::with_name(Self, String) -> Self
 pub fn AnimationGraphAssetDocument::with_nodes(Self, Array[AnimationGraphNodeDocument]) -> Self
@@ -344,17 +362,30 @@ pub enum AnimationGraphAssetDocumentLoadStatus {
   Ready(AnimationGraphAssetDocument)
   MigrationRequired(AnimationGraphAssetMigrationPreview)
 } derive(Eq, ToJson, @json.FromJson)
+pub fn AnimationGraphAssetDocumentLoadStatus::equal(Self, Self) -> Bool
+pub fn AnimationGraphAssetDocumentLoadStatus::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AnimationGraphAssetDocumentLoadStatus::not_equal(Self, Self) -> Bool
+pub fn AnimationGraphAssetDocumentLoadStatus::to_json(Self) -> Json
 
 pub struct AnimationGraphAssetMigrationPreview {
   path : String
   graph : AnimationGraphAssetDocument
   changes : Array[MigrationFieldChange]
 } derive(Eq, ToJson, @json.FromJson)
+pub fn AnimationGraphAssetMigrationPreview::equal(Self, Self) -> Bool
+pub fn AnimationGraphAssetMigrationPreview::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AnimationGraphAssetMigrationPreview::not_equal(Self, Self) -> Bool
+pub fn AnimationGraphAssetMigrationPreview::to_json(Self) -> Json
 
 pub struct AnimationGraphEdgeDocument {
   to : String
   weight : Double
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn AnimationGraphEdgeDocument::equal(Self, Self) -> Bool
+pub fn AnimationGraphEdgeDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AnimationGraphEdgeDocument::not_equal(Self, Self) -> Bool
+pub fn AnimationGraphEdgeDocument::to_json(Self) -> Json
+pub fn AnimationGraphEdgeDocument::to_repr(Self) -> @debug.Repr
 
 pub struct AnimationGraphNodeDocument {
   id : String
@@ -363,6 +394,11 @@ pub struct AnimationGraphNodeDocument {
   position : Vec2Doc
   edges : Array[AnimationGraphEdgeDocument]
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn AnimationGraphNodeDocument::equal(Self, Self) -> Bool
+pub fn AnimationGraphNodeDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AnimationGraphNodeDocument::not_equal(Self, Self) -> Bool
+pub fn AnimationGraphNodeDocument::to_json(Self) -> Json
+pub fn AnimationGraphNodeDocument::to_repr(Self) -> @debug.Repr
 pub fn AnimationGraphNodeDocument::with_edges(Self, Array[AnimationGraphEdgeDocument]) -> Self
 pub fn AnimationGraphNodeDocument::with_kind(Self, AnimationGraphNodeKind) -> Self
 pub fn AnimationGraphNodeDocument::with_mask_groups(Self, Array[Int]) -> Self
@@ -373,6 +409,11 @@ pub enum AnimationGraphNodeKind {
   Blend
   AdditiveBlend
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn AnimationGraphNodeKind::equal(Self, Self) -> Bool
+pub fn AnimationGraphNodeKind::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AnimationGraphNodeKind::not_equal(Self, Self) -> Bool
+pub fn AnimationGraphNodeKind::to_json(Self) -> Json
+pub fn AnimationGraphNodeKind::to_repr(Self) -> @debug.Repr
 
 pub struct AnimationPlayerComponent {
   graph_asset_path : String?
@@ -381,7 +422,12 @@ pub struct AnimationPlayerComponent {
   repeat_mode : String
   speed : Double
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn AnimationPlayerComponent::equal(Self, Self) -> Bool
+pub fn AnimationPlayerComponent::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AnimationPlayerComponent::not_equal(Self, Self) -> Bool
 pub fn AnimationPlayerComponent::repeat_mode_doc(Self) -> AnimationRepeatModeDoc
+pub fn AnimationPlayerComponent::to_json(Self) -> Json
+pub fn AnimationPlayerComponent::to_repr(Self) -> @debug.Repr
 pub fn AnimationPlayerComponent::with_repeat_mode_doc(Self, AnimationRepeatModeDoc) -> Self
 
 pub enum AnimationRepeatModeDoc {
@@ -389,16 +435,29 @@ pub enum AnimationRepeatModeDoc {
   Forever
   Count(Int)
 } derive(Eq, @debug.Debug)
+pub fn AnimationRepeatModeDoc::equal(Self, Self) -> Bool
+pub fn AnimationRepeatModeDoc::not_equal(Self, Self) -> Bool
+pub fn AnimationRepeatModeDoc::to_repr(Self) -> @debug.Repr
 
 pub struct AnimationTransitionsComponent {
   duration : Double
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn AnimationTransitionsComponent::equal(Self, Self) -> Bool
+pub fn AnimationTransitionsComponent::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AnimationTransitionsComponent::not_equal(Self, Self) -> Bool
+pub fn AnimationTransitionsComponent::to_json(Self) -> Json
+pub fn AnimationTransitionsComponent::to_repr(Self) -> @debug.Repr
 
 pub struct AssetDocument {
   path : String
   kind : AssetKind
   meta_path : String?
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn AssetDocument::equal(Self, Self) -> Bool
+pub fn AssetDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AssetDocument::not_equal(Self, Self) -> Bool
+pub fn AssetDocument::to_json(Self) -> Json
+pub fn AssetDocument::to_repr(Self) -> @debug.Repr
 
 pub struct AssetInstantiationContext {
   asset_path_resolver : (String?) -> String?
@@ -423,16 +482,31 @@ pub enum AssetKind {
   Json
   Unknown
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn AssetKind::equal(Self, Self) -> Bool
+pub fn AssetKind::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AssetKind::not_equal(Self, Self) -> Bool
+pub fn AssetKind::to_json(Self) -> Json
+pub fn AssetKind::to_repr(Self) -> @debug.Repr
 
 pub struct AssetMetaDocument {
   tags : Array[String]
   importer : String?
   source : String?
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn AssetMetaDocument::equal(Self, Self) -> Bool
+pub fn AssetMetaDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AssetMetaDocument::not_equal(Self, Self) -> Bool
+pub fn AssetMetaDocument::to_json(Self) -> Json
+pub fn AssetMetaDocument::to_repr(Self) -> @debug.Repr
 
 pub struct AssetRef {
   path : String
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn AssetRef::equal(Self, Self) -> Bool
+pub fn AssetRef::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AssetRef::not_equal(Self, Self) -> Bool
+pub fn AssetRef::to_json(Self) -> Json
+pub fn AssetRef::to_repr(Self) -> @debug.Repr
 
 pub struct AtlasAssetDocument {
   version : Int
@@ -447,6 +521,11 @@ pub struct AtlasAssetDocument {
   regions : Array[AtlasRegionDocument]
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 pub fn AtlasAssetDocument::default(String, String) -> Self
+pub fn AtlasAssetDocument::equal(Self, Self) -> Bool
+pub fn AtlasAssetDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AtlasAssetDocument::not_equal(Self, Self) -> Bool
+pub fn AtlasAssetDocument::to_json(Self) -> Json
+pub fn AtlasAssetDocument::to_repr(Self) -> @debug.Repr
 pub fn AtlasAssetDocument::with_columns(Self, Int) -> Self
 pub fn AtlasAssetDocument::with_default_anchor(Self, Vec2Doc) -> Self
 pub fn AtlasAssetDocument::with_margin(Self, Vec2Doc) -> Self
@@ -460,24 +539,42 @@ pub enum AtlasAssetDocumentLoadStatus {
   Ready(AtlasAssetDocument)
   MigrationRequired(AtlasAssetMigrationPreview)
 } derive(Eq, ToJson, @json.FromJson)
+pub fn AtlasAssetDocumentLoadStatus::equal(Self, Self) -> Bool
+pub fn AtlasAssetDocumentLoadStatus::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AtlasAssetDocumentLoadStatus::not_equal(Self, Self) -> Bool
+pub fn AtlasAssetDocumentLoadStatus::to_json(Self) -> Json
 
 pub struct AtlasAssetMigrationPreview {
   path : String
   atlas : AtlasAssetDocument
   changes : Array[MigrationFieldChange]
 } derive(Eq, ToJson, @json.FromJson)
+pub fn AtlasAssetMigrationPreview::equal(Self, Self) -> Bool
+pub fn AtlasAssetMigrationPreview::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AtlasAssetMigrationPreview::not_equal(Self, Self) -> Bool
+pub fn AtlasAssetMigrationPreview::to_json(Self) -> Json
 
 pub struct AtlasRegionDocument {
   name : String
   index : Int
   rect : RectDoc
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn AtlasRegionDocument::equal(Self, Self) -> Bool
+pub fn AtlasRegionDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AtlasRegionDocument::not_equal(Self, Self) -> Bool
+pub fn AtlasRegionDocument::to_json(Self) -> Json
+pub fn AtlasRegionDocument::to_repr(Self) -> @debug.Repr
 
 pub struct AutoTileCellDocument {
   x : Int
   y : Int
   terrain : Int
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn AutoTileCellDocument::equal(Self, Self) -> Bool
+pub fn AutoTileCellDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AutoTileCellDocument::not_equal(Self, Self) -> Bool
+pub fn AutoTileCellDocument::to_json(Self) -> Json
+pub fn AutoTileCellDocument::to_repr(Self) -> @debug.Repr
 
 pub struct AutoTileLayer2dComponent {
   tile_size : Vec2Doc
@@ -487,12 +584,22 @@ pub struct AutoTileLayer2dComponent {
   palette : Array[AutoTilePaletteEntryDocument]
   cells : Array[AutoTileCellDocument]
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn AutoTileLayer2dComponent::equal(Self, Self) -> Bool
+pub fn AutoTileLayer2dComponent::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AutoTileLayer2dComponent::not_equal(Self, Self) -> Bool
+pub fn AutoTileLayer2dComponent::to_json(Self) -> Json
+pub fn AutoTileLayer2dComponent::to_repr(Self) -> @debug.Repr
 
 pub struct AutoTileMaskRuleDocument {
   mask : Int
   region_name : String
   atlas_index : Int
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn AutoTileMaskRuleDocument::equal(Self, Self) -> Bool
+pub fn AutoTileMaskRuleDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AutoTileMaskRuleDocument::not_equal(Self, Self) -> Bool
+pub fn AutoTileMaskRuleDocument::to_json(Self) -> Json
+pub fn AutoTileMaskRuleDocument::to_repr(Self) -> @debug.Repr
 
 pub struct AutoTilePaletteEntryDocument {
   terrain : Int
@@ -502,12 +609,22 @@ pub struct AutoTilePaletteEntryDocument {
   bitmask8_rules : Array[AutoTileMaskRuleDocument]
   wang_rules : Array[AutoTileWangRuleDocument]
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn AutoTilePaletteEntryDocument::equal(Self, Self) -> Bool
+pub fn AutoTilePaletteEntryDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AutoTilePaletteEntryDocument::not_equal(Self, Self) -> Bool
+pub fn AutoTilePaletteEntryDocument::to_json(Self) -> Json
+pub fn AutoTilePaletteEntryDocument::to_repr(Self) -> @debug.Repr
 
 pub enum AutoTileRuleSetDocument {
   Bitmask4
   Bitmask8
   Wang
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn AutoTileRuleSetDocument::equal(Self, Self) -> Bool
+pub fn AutoTileRuleSetDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AutoTileRuleSetDocument::not_equal(Self, Self) -> Bool
+pub fn AutoTileRuleSetDocument::to_json(Self) -> Json
+pub fn AutoTileRuleSetDocument::to_repr(Self) -> @debug.Repr
 
 pub struct AutoTileWangRuleDocument {
   north : Int
@@ -517,6 +634,11 @@ pub struct AutoTileWangRuleDocument {
   region_name : String
   atlas_index : Int
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn AutoTileWangRuleDocument::equal(Self, Self) -> Bool
+pub fn AutoTileWangRuleDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn AutoTileWangRuleDocument::not_equal(Self, Self) -> Bool
+pub fn AutoTileWangRuleDocument::to_json(Self) -> Json
+pub fn AutoTileWangRuleDocument::to_repr(Self) -> @debug.Repr
 
 pub enum BuiltinComponentKind {
   Name
@@ -534,6 +656,11 @@ pub enum BuiltinComponentKind {
   AnimationPlayer
   AnimationTransitions
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn BuiltinComponentKind::equal(Self, Self) -> Bool
+pub fn BuiltinComponentKind::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn BuiltinComponentKind::not_equal(Self, Self) -> Bool
+pub fn BuiltinComponentKind::to_json(Self) -> Json
+pub fn BuiltinComponentKind::to_repr(Self) -> @debug.Repr
 
 pub struct Camera2dComponent {
   is_active : Bool
@@ -541,6 +668,11 @@ pub struct Camera2dComponent {
   scale : Double
   viewport : RectDoc?
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn Camera2dComponent::equal(Self, Self) -> Bool
+pub fn Camera2dComponent::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Camera2dComponent::not_equal(Self, Self) -> Bool
+pub fn Camera2dComponent::to_json(Self) -> Json
+pub fn Camera2dComponent::to_repr(Self) -> @debug.Repr
 
 pub struct ColorDoc {
   r : Int
@@ -548,15 +680,29 @@ pub struct ColorDoc {
   b : Int
   a : Int
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn ColorDoc::equal(Self, Self) -> Bool
+pub fn ColorDoc::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn ColorDoc::not_equal(Self, Self) -> Bool
+pub fn ColorDoc::to_json(Self) -> Json
+pub fn ColorDoc::to_repr(Self) -> @debug.Repr
 
 pub struct ColorMaterialComponent {
   color : ColorDoc
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn ColorMaterialComponent::equal(Self, Self) -> Bool
+pub fn ColorMaterialComponent::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn ColorMaterialComponent::not_equal(Self, Self) -> Bool
+pub fn ColorMaterialComponent::to_json(Self) -> Json
+pub fn ColorMaterialComponent::to_repr(Self) -> @debug.Repr
 
 pub struct ComponentDocument {
   kind : String
   data : Json
 } derive(Eq, ToJson, @json.FromJson)
+pub fn ComponentDocument::equal(Self, Self) -> Bool
+pub fn ComponentDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn ComponentDocument::not_equal(Self, Self) -> Bool
+pub fn ComponentDocument::to_json(Self) -> Json
 
 pub struct CustomComponentHandler {
   default_data : () -> Json
@@ -569,6 +715,10 @@ pub struct DocumentEnvelope {
   version : Int
   data : Json
 } derive(Eq, ToJson, @json.FromJson)
+pub fn DocumentEnvelope::equal(Self, Self) -> Bool
+pub fn DocumentEnvelope::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn DocumentEnvelope::not_equal(Self, Self) -> Bool
+pub fn DocumentEnvelope::to_json(Self) -> Json
 
 pub struct EntityDocument {
   id : String
@@ -577,8 +727,12 @@ pub struct EntityDocument {
   components : Array[ComponentDocument]
 } derive(Eq, ToJson, @json.FromJson)
 pub fn EntityDocument::component(Self, String) -> ComponentDocument?
+pub fn EntityDocument::equal(Self, Self) -> Bool
+pub fn EntityDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn EntityDocument::not_equal(Self, Self) -> Bool
 pub fn EntityDocument::renamed(Self, String) -> Self
 pub fn EntityDocument::reparented(Self, String?) -> Self
+pub fn EntityDocument::to_json(Self) -> Json
 pub fn EntityDocument::with_component(Self, ComponentDocument) -> Self
 pub fn EntityDocument::without_component(Self, String) -> Self
 
@@ -587,16 +741,30 @@ pub struct Mesh2dComponent {
   size : Vec2Doc?
   radius : Double?
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn Mesh2dComponent::equal(Self, Self) -> Bool
+pub fn Mesh2dComponent::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Mesh2dComponent::not_equal(Self, Self) -> Bool
+pub fn Mesh2dComponent::to_json(Self) -> Json
+pub fn Mesh2dComponent::to_repr(Self) -> @debug.Repr
 
 pub struct MigrationFieldChange {
   path : String
   reason : String
   migrated_value : String
 } derive(Eq, ToJson, @json.FromJson)
+pub fn MigrationFieldChange::equal(Self, Self) -> Bool
+pub fn MigrationFieldChange::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn MigrationFieldChange::not_equal(Self, Self) -> Bool
+pub fn MigrationFieldChange::to_json(Self) -> Json
 
 pub struct NameComponent {
   value : String
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn NameComponent::equal(Self, Self) -> Bool
+pub fn NameComponent::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn NameComponent::not_equal(Self, Self) -> Bool
+pub fn NameComponent::to_json(Self) -> Json
+pub fn NameComponent::to_repr(Self) -> @debug.Repr
 
 pub struct PhysicsBody2dComponent {
   body_type : String
@@ -608,6 +776,11 @@ pub struct PhysicsBody2dComponent {
   lock_rotation : Bool
   ccd_enabled : Bool
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn PhysicsBody2dComponent::equal(Self, Self) -> Bool
+pub fn PhysicsBody2dComponent::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn PhysicsBody2dComponent::not_equal(Self, Self) -> Bool
+pub fn PhysicsBody2dComponent::to_json(Self) -> Json
+pub fn PhysicsBody2dComponent::to_repr(Self) -> @debug.Repr
 
 pub struct PhysicsCollider2dComponent {
   shape : String
@@ -617,6 +790,11 @@ pub struct PhysicsCollider2dComponent {
   friction : Double
   restitution : Double
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn PhysicsCollider2dComponent::equal(Self, Self) -> Bool
+pub fn PhysicsCollider2dComponent::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn PhysicsCollider2dComponent::not_equal(Self, Self) -> Bool
+pub fn PhysicsCollider2dComponent::to_json(Self) -> Json
+pub fn PhysicsCollider2dComponent::to_repr(Self) -> @debug.Repr
 
 pub struct PrefabDocument {
   version : Int
@@ -625,6 +803,10 @@ pub struct PrefabDocument {
 } derive(Eq, ToJson, @json.FromJson)
 pub fn PrefabDocument::empty(String) -> Self
 pub fn PrefabDocument::entity(Self, String) -> EntityDocument?
+pub fn PrefabDocument::equal(Self, Self) -> Bool
+pub fn PrefabDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn PrefabDocument::not_equal(Self, Self) -> Bool
+pub fn PrefabDocument::to_json(Self) -> Json
 pub fn PrefabDocument::with_entity(Self, EntityDocument) -> Self
 pub fn PrefabDocument::with_name(Self, String) -> Self
 pub fn PrefabDocument::without_entity(Self, String) -> Self
@@ -633,16 +815,29 @@ pub enum PrefabDocumentLoadStatus {
   Ready(PrefabDocument)
   MigrationRequired(PrefabMigrationPreview)
 } derive(Eq, ToJson, @json.FromJson)
+pub fn PrefabDocumentLoadStatus::equal(Self, Self) -> Bool
+pub fn PrefabDocumentLoadStatus::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn PrefabDocumentLoadStatus::not_equal(Self, Self) -> Bool
+pub fn PrefabDocumentLoadStatus::to_json(Self) -> Json
 
 pub struct PrefabMigrationPreview {
   path : String
   prefab : PrefabDocument
   changes : Array[MigrationFieldChange]
 } derive(Eq, ToJson, @json.FromJson)
+pub fn PrefabMigrationPreview::equal(Self, Self) -> Bool
+pub fn PrefabMigrationPreview::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn PrefabMigrationPreview::not_equal(Self, Self) -> Bool
+pub fn PrefabMigrationPreview::to_json(Self) -> Json
 
 pub struct PrefabRef {
   path : String
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn PrefabRef::equal(Self, Self) -> Bool
+pub fn PrefabRef::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn PrefabRef::not_equal(Self, Self) -> Bool
+pub fn PrefabRef::to_json(Self) -> Json
+pub fn PrefabRef::to_repr(Self) -> @debug.Repr
 
 pub struct ProjectBundle {
   manifest : ProjectManifest
@@ -652,6 +847,10 @@ pub struct ProjectBundle {
   animation_clip_assets : Map[String, AnimationClipAssetDocument]
   animation_graph_assets : Map[String, AnimationGraphAssetDocument]
 } derive(Eq, ToJson, @json.FromJson)
+pub fn ProjectBundle::equal(Self, Self) -> Bool
+pub fn ProjectBundle::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn ProjectBundle::not_equal(Self, Self) -> Bool
+pub fn ProjectBundle::to_json(Self) -> Json
 
 pub struct ProjectManifest {
   version : Int
@@ -665,6 +864,11 @@ pub struct ProjectManifest {
   animation_graph_index : Array[AssetRef]
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 pub fn ProjectManifest::default(String, startup_scene? : String, asset_roots? : Array[String], scene_index? : Array[SceneRef], prefab_index? : Array[PrefabRef], atlas_index? : Array[AssetRef], animation_clip_index? : Array[AssetRef], animation_graph_index? : Array[AssetRef]) -> Self
+pub fn ProjectManifest::equal(Self, Self) -> Bool
+pub fn ProjectManifest::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn ProjectManifest::not_equal(Self, Self) -> Bool
+pub fn ProjectManifest::to_json(Self) -> Json
+pub fn ProjectManifest::to_repr(Self) -> @debug.Repr
 pub fn ProjectManifest::with_indexes(Self, Array[SceneRef], Array[PrefabRef], Array[AssetRef], Array[AssetRef], Array[AssetRef]) -> Self
 pub fn ProjectManifest::with_startup_scene(Self, String) -> Self
 
@@ -672,12 +876,20 @@ pub enum ProjectManifestLoadStatus {
   Ready(ProjectManifest)
   MigrationRequired(ProjectManifestMigrationPreview)
 } derive(Eq, ToJson, @json.FromJson)
+pub fn ProjectManifestLoadStatus::equal(Self, Self) -> Bool
+pub fn ProjectManifestLoadStatus::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn ProjectManifestLoadStatus::not_equal(Self, Self) -> Bool
+pub fn ProjectManifestLoadStatus::to_json(Self) -> Json
 
 pub struct ProjectManifestMigrationPreview {
   path : String
   manifest : ProjectManifest
   changes : Array[MigrationFieldChange]
 } derive(Eq, ToJson, @json.FromJson)
+pub fn ProjectManifestMigrationPreview::equal(Self, Self) -> Bool
+pub fn ProjectManifestMigrationPreview::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn ProjectManifestMigrationPreview::not_equal(Self, Self) -> Bool
+pub fn ProjectManifestMigrationPreview::to_json(Self) -> Json
 
 pub struct RectDoc {
   x : Double
@@ -685,6 +897,11 @@ pub struct RectDoc {
   width : Double
   height : Double
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn RectDoc::equal(Self, Self) -> Bool
+pub fn RectDoc::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn RectDoc::not_equal(Self, Self) -> Bool
+pub fn RectDoc::to_json(Self) -> Json
+pub fn RectDoc::to_repr(Self) -> @debug.Repr
 
 pub struct SceneDocument {
   version : Int
@@ -695,6 +912,10 @@ pub fn SceneDocument::apply_patch(Self, ScenePatch) -> Self
 pub fn SceneDocument::default_main() -> Self
 pub fn SceneDocument::empty(name? : String) -> Self
 pub fn SceneDocument::entity(Self, String) -> EntityDocument?
+pub fn SceneDocument::equal(Self, Self) -> Bool
+pub fn SceneDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn SceneDocument::not_equal(Self, Self) -> Bool
+pub fn SceneDocument::to_json(Self) -> Json
 pub fn SceneDocument::with_entity(Self, EntityDocument) -> Self
 pub fn SceneDocument::with_name(Self, String) -> Self
 pub fn SceneDocument::without_entity(Self, String) -> Self
@@ -703,17 +924,29 @@ pub enum SceneDocumentLoadStatus {
   Ready(SceneDocument)
   MigrationRequired(SceneMigrationPreview)
 } derive(Eq, ToJson, @json.FromJson)
+pub fn SceneDocumentLoadStatus::equal(Self, Self) -> Bool
+pub fn SceneDocumentLoadStatus::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn SceneDocumentLoadStatus::not_equal(Self, Self) -> Bool
+pub fn SceneDocumentLoadStatus::to_json(Self) -> Json
 
 pub struct SceneMigrationPreview {
   path : String
   scene : SceneDocument
   changes : Array[MigrationFieldChange]
 } derive(Eq, ToJson, @json.FromJson)
+pub fn SceneMigrationPreview::equal(Self, Self) -> Bool
+pub fn SceneMigrationPreview::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn SceneMigrationPreview::not_equal(Self, Self) -> Bool
+pub fn SceneMigrationPreview::to_json(Self) -> Json
 
 pub struct ScenePatch {
   ops : Array[ScenePatchOp]
 } derive(Eq, ToJson, @json.FromJson)
 pub fn ScenePatch::empty() -> Self
+pub fn ScenePatch::equal(Self, Self) -> Bool
+pub fn ScenePatch::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn ScenePatch::not_equal(Self, Self) -> Bool
+pub fn ScenePatch::to_json(Self) -> Json
 
 pub enum ScenePatchOp {
   PutEntity(EntityDocument)
@@ -723,10 +956,19 @@ pub enum ScenePatchOp {
   PutComponent(entity_id~ : String, component~ : ComponentDocument)
   RemoveComponent(entity_id~ : String, kind~ : String)
 } derive(Eq, ToJson, @json.FromJson)
+pub fn ScenePatchOp::equal(Self, Self) -> Bool
+pub fn ScenePatchOp::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn ScenePatchOp::not_equal(Self, Self) -> Bool
+pub fn ScenePatchOp::to_json(Self) -> Json
 
 pub struct SceneRef {
   path : String
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn SceneRef::equal(Self, Self) -> Bool
+pub fn SceneRef::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn SceneRef::not_equal(Self, Self) -> Bool
+pub fn SceneRef::to_json(Self) -> Json
+pub fn SceneRef::to_repr(Self) -> @debug.Repr
 
 pub struct SceneRuntime {
   entity_ids : Map[String, @entity.Entity]
@@ -750,6 +992,11 @@ pub struct SpriteComponent {
   rect : RectDoc?
   image_mode : String
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn SpriteComponent::equal(Self, Self) -> Bool
+pub fn SpriteComponent::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn SpriteComponent::not_equal(Self, Self) -> Bool
+pub fn SpriteComponent::to_json(Self) -> Json
+pub fn SpriteComponent::to_repr(Self) -> @debug.Repr
 
 pub struct Text2dComponent {
   content : String
@@ -759,6 +1006,11 @@ pub struct Text2dComponent {
   bounds : Vec2Doc?
   anchor : Vec2Doc
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn Text2dComponent::equal(Self, Self) -> Bool
+pub fn Text2dComponent::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Text2dComponent::not_equal(Self, Self) -> Bool
+pub fn Text2dComponent::to_json(Self) -> Json
+pub fn Text2dComponent::to_repr(Self) -> @debug.Repr
 pub fn Text2dComponent::with_content(Self, String) -> Self
 
 pub struct TextureAtlasComponent {
@@ -767,6 +1019,11 @@ pub struct TextureAtlasComponent {
   layout : TextureAtlasLayoutDoc?
   index : Int
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn TextureAtlasComponent::equal(Self, Self) -> Bool
+pub fn TextureAtlasComponent::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn TextureAtlasComponent::not_equal(Self, Self) -> Bool
+pub fn TextureAtlasComponent::to_json(Self) -> Json
+pub fn TextureAtlasComponent::to_repr(Self) -> @debug.Repr
 
 pub struct TextureAtlasLayoutDoc {
   tile_size : Vec2Doc
@@ -775,12 +1032,22 @@ pub struct TextureAtlasLayoutDoc {
   padding : Vec2Doc
   offset : Vec2Doc
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn TextureAtlasLayoutDoc::equal(Self, Self) -> Bool
+pub fn TextureAtlasLayoutDoc::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn TextureAtlasLayoutDoc::not_equal(Self, Self) -> Bool
+pub fn TextureAtlasLayoutDoc::to_json(Self) -> Json
+pub fn TextureAtlasLayoutDoc::to_repr(Self) -> @debug.Repr
 
 pub struct Transform2dComponent {
   translation : Vec2Doc
   rotation : Double
   scale : Vec2Doc
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn Transform2dComponent::equal(Self, Self) -> Bool
+pub fn Transform2dComponent::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Transform2dComponent::not_equal(Self, Self) -> Bool
+pub fn Transform2dComponent::to_json(Self) -> Json
+pub fn Transform2dComponent::to_repr(Self) -> @debug.Repr
 pub fn Transform2dComponent::with_rotation(Self, Double) -> Self
 pub fn Transform2dComponent::with_scale(Self, Vec2Doc) -> Self
 pub fn Transform2dComponent::with_translation(Self, Vec2Doc) -> Self
@@ -789,17 +1056,32 @@ pub struct ValidationError {
   path : String
   message : String
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn ValidationError::equal(Self, Self) -> Bool
+pub fn ValidationError::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn ValidationError::not_equal(Self, Self) -> Bool
+pub fn ValidationError::to_json(Self) -> Json
+pub fn ValidationError::to_repr(Self) -> @debug.Repr
 
 pub struct Vec2Doc {
   x : Double
   y : Double
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn Vec2Doc::equal(Self, Self) -> Bool
+pub fn Vec2Doc::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn Vec2Doc::not_equal(Self, Self) -> Bool
+pub fn Vec2Doc::to_json(Self) -> Json
+pub fn Vec2Doc::to_repr(Self) -> @debug.Repr
 pub fn Vec2Doc::with_x(Self, Double) -> Self
 pub fn Vec2Doc::with_y(Self, Double) -> Self
 
 pub struct VisibilityComponent {
   visible : Bool
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+pub fn VisibilityComponent::equal(Self, Self) -> Bool
+pub fn VisibilityComponent::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
+pub fn VisibilityComponent::not_equal(Self, Self) -> Bool
+pub fn VisibilityComponent::to_json(Self) -> Json
+pub fn VisibilityComponent::to_repr(Self) -> @debug.Repr
 pub fn VisibilityComponent::toggled(Self) -> Self
 
 pub struct WorkspaceDocument {
@@ -814,10 +1096,15 @@ pub struct WorkspaceDocument {
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 pub fn WorkspaceDocument::asset_scope_or_default(Self) -> String
 pub fn WorkspaceDocument::default() -> Self
+pub fn WorkspaceDocument::equal(Self, Self) -> Bool
+pub fn WorkspaceDocument::from_json(Json, @json.JsonPath) -> Self raise @json.JsonDecodeError
 pub fn WorkspaceDocument::move_snap_enabled_or_default(Self) -> Bool
 pub fn WorkspaceDocument::move_snap_step_or_default(Self) -> Double
+pub fn WorkspaceDocument::not_equal(Self, Self) -> Bool
 pub fn WorkspaceDocument::sidebar_assets_ratio_or_default(Self) -> Double
 pub fn WorkspaceDocument::sidebar_scene_ratio_or_default(Self) -> Double
+pub fn WorkspaceDocument::to_json(Self) -> Json
+pub fn WorkspaceDocument::to_repr(Self) -> @debug.Repr
 pub fn WorkspaceDocument::with_asset_scope(Self, String) -> Self
 pub fn WorkspaceDocument::with_last_scene(Self, String?) -> Self
 pub fn WorkspaceDocument::with_move_snap_enabled(Self, Bool) -> Self
@@ -838,4 +1125,3 @@ pub type CustomComponentValidator = (ComponentDocument, String) -> Array[Validat
 pub type DocumentSource = (String) -> Bytes?
 
 // Traits
-
